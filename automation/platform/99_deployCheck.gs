@@ -482,6 +482,11 @@ function deployStampCheck() {
   } catch (e) {
     L.push('  --  확인 불가(실패 아님): ' + ((e && e.message) || e));
   }
+  try {   // ★[TRIG_IN 2026-10-09] 예약 실행을 «진짜 트리거»로 알아봤는가(70_journey _trigIn_) — 알아본 뒤부터 공개 화면에서 예약 실행 함수를 막는다
+    var _tp = PropertiesService.getScriptProperties(), _tu = _tp.getProperty('TRIG_UID_OK'), _tq = _tp.getProperty('TRIG_PROBE');
+    if (_tu) L.push('  OK  예약 실행 확인 — 진짜 트리거를 알아봤습니다(' + String(_tu).slice(0, 16) + ')');
+    else L.push('  --  예약 실행 확인 — 아직입니다(' + (_tq ? ('모양 기록 ' + String(_tq).slice(0, 60) + ' · Claude 에게 알려 주세요') : '배포 뒤 몇 분 지나 다시 실행') + ')');
+  } catch (e) {}
   var out = L.join('\n');
   Logger.log(out);
   return out;

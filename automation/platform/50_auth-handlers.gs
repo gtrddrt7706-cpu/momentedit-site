@@ -13,7 +13,7 @@
 
 // ── login ─────────────────────────────────────────────
 //   code 자리에 이메일도 허용: '@' 포함이면 이메일로 최신 활성 계정 조회(코드찾기·재설정과 같은 기준)
-function handleLogin(body) {
+function handleLogin(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   var id = String((body && body.code) || '').trim();
   var pw = String((body && body.pw) || '');
   if (!id || !pw) throw new Error('개인코드(또는 이메일)와 비밀번호를 입력해 주세요.');
@@ -44,7 +44,7 @@ function handleLogin(body) {
 }
 
 // ── autologin (메일 링크 진입) ─────────────────────────
-function handleAutologin(body) {
+function handleAutologin(body) { _gsr_();
   var token = String((body && body.token) || '').trim();
   var s = resolveSession(token);
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -53,7 +53,7 @@ function handleAutologin(body) {
 }
 
 // ── verify (조회 전제) ─────────────────────────────────
-function handleVerify(body) {
+function handleVerify(body) { _gsr_();
   var token = String((body && body.token) || '').trim();
   var s = resolveSession(token);
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -61,7 +61,7 @@ function handleVerify(body) {
 }
 
 // ── findCode (코드 찾기) ───────────────────────────────
-function handleFindCode(body) {
+function handleFindCode(body) { _gsr_();
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
@@ -81,7 +81,7 @@ function handleFindCode(body) {
 }
 
 // ── resetPw (재설정 링크 발송) ─────────────────────────
-function handleResetPw(body) {
+function handleResetPw(body) { _gsr_();
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
@@ -97,7 +97,7 @@ function handleResetPw(body) {
 }
 
 // ── doResetPw (새 비번 저장) ───────────────────────────
-function handleDoResetPw(body) { /* [B19_LOCK 2026-10-09] 재설정 서명 확인은 verifyResetSig_ (밑줄 이름) */
+function handleDoResetPw(body) { _gsr_(); /* [B19_LOCK 2026-10-09] 재설정 서명 확인은 verifyResetSig_ (밑줄 이름) */
   var code = String((body && body.code) || '').trim().toUpperCase();
   var exp = String((body && body.exp) || '');
   var sig = String((body && body.sig) || '');
@@ -122,7 +122,7 @@ function handleDoResetPw(body) { /* [B19_LOCK 2026-10-09] 재설정 서명 확�
 }
 
 // 세션 실패 사유 → 사용자 메시지
-function _sessionMsg(reason) {
+function _sessionMsg(reason) { _gsr_();
   if (reason === 'expired') return '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.';
   return '로그인이 필요해요. 개인코드와 비밀번호로 로그인해 주세요.';
 }

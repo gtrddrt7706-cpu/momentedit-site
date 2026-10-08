@@ -46,7 +46,8 @@ const g = {
   CacheService: { getScriptCache: () => ({ get: (k) => (cache.has(k) ? cache.get(k) : null), put: (k, v) => { cache.set(k, v); } }) },
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => null, setProperty: () => {} }) },
   SpreadsheetApp: { getActive: () => ({ getSheetByName: () => ({ appendRow: (r) => rows.push(r), getLastRow: () => 3, deleteRows: () => {} }), insertSheet: () => ({}) }) },
-  fmtKST: () => '2026-10-08 12:00', _nfAdminLineEmail: (t) => mails.push(String(t)), findCustomerByToken: () => null, _findCustomerBy: () => null
+  fmtKST: () => '2026-10-08 12:00', _nfAdminLineEmail: (t) => mails.push(String(t)), findCustomerByToken: () => null, _findCustomerBy: () => null,
+  _gsr_: () => {}   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
 };
 try { vm.createContext(g); vm.runInContext(helpers.join('\n') + '\n' + blk, g); }
 catch (e) { console.log('━━ err-log-safe — GAS 코드를 못 올렸습니다 · 재지 못했습니다: ' + e.message); process.exit(2); }

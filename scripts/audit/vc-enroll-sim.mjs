@@ -57,6 +57,7 @@ function world(sc) {
       computeDigest: (a, s) => Array.from(Buffer.from(String(s))), base64EncodeWebSafe: (b) => Buffer.from(b).toString('base64url'), DigestAlgorithm: {}, Charset: {} },
     resolveSession: (t) => (t === 'T' ? { ok: true, row: { get: () => 'ME0001' } } : { ok: false, reason: 'expired' }), _sessionMsg: () => '로그인이 풀렸어요. 다시 로그인해 주세요.',
     fmtKST: () => new Date().toISOString().replace('T', ' ').slice(0, 19), _rfFolderFor: () => folder(), findCustomerByCode: () => ({ get: (h) => (h === '예식일' ? '2026-12-12' : '예식준비') }),
+    _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     _ymdOf: (v) => v, _nfAdminLineEmail: () => {}, _nfAdminEmail: () => {}, handleAiCostLog: () => {}, Logger: { log() {} }, console: { warn() {}, log() {} },
     _errRecord: (act, ec, text, why, eid) => { rec.push([ec, String(text || '').slice(0, 60), String(why || '').slice(0, 60), eid]); }, __ERR_ACT: 'voiceClone', __ERR_TOK: '', __ERR_ON: true,
     JSON, Math, String, Date, Array, Buffer, encodeURIComponent, decodeURIComponent, Object, Number, RegExp, Error,

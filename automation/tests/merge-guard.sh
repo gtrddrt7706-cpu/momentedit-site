@@ -16256,6 +16256,21 @@ chk 'CARD_AUTHED' automation/platform/98_pay_card.gs 1
 chk 'GSR_SPLIT' automation/platform/96_ai_cost.gs 2
 chk 'GSR_OWNER_HINT' automation/admin/admin.gs 1
 nochk '^function getSecret(' automation/consultation/consultation-booking.gs
+# ★★[GSR_GATE 2026-10-09] 둘째 조각 — 모든 공개 함수의 첫 줄(입구 _SRV · 예약 실행 _trigIn_ · 관리 _requireAdmin · 그 밖 _gsr_) · adminCall 토큰 직접 · 예약 실행 확인(배우는 문)
+chk 'GSR_GATE' automation/admin/admin.gs 2
+chk 'GSR_FLAGS' automation/admin/admin.gs 2
+chk 'ADMINCALL_TOKEN' automation/admin/admin.gs 2
+chk 'TRIG_IN' automation/platform/70_journey.gs 1
+chk 'TRIG_IN' automation/platform/99_deployCheck.gs 1
+chk 'GSR_FLAGS' scripts/audit/gas-lint.mjs 1
+chk '^function doPost(e) { _SRV = true;' automation/consultation/consultation-booking.gs 1
+chk '^function adminCall(token, fn, args) { _gsr_();' automation/admin/admin.gs 1
+# ★[MAIL_BTN_CONFIRM 2026-10-09 · B11] 메일 단추 주소는 확인 화면만 — 단추(mailButtonGo)를 눌러야 처리(gsr-guard 가 행동으로 잰다)
+chk 'MAIL_BTN_CONFIRM' automation/consultation/consultation-booking.gs 6
+chk '^function mailButtonGo(p) { _SRV = true;' automation/consultation/consultation-booking.gs 1
+# ★[SIG_FLIP_SURE 2026-10-09] 잠금 검사의 «틀린 서명»은 첫 글자를 반드시 다른 글자로 — 'x' 로 덮으면 서명이 x 로 시작할 때(약 64번에 한 번) 맞는 서명과 같아져 까닭 없이 붉다(#1148 첫 CI)
+chk 'SIG_FLIP_SURE' scripts/audit/gsr-guard.mjs 1
+nochk "'x' + [a-zA-Z]*[sS]ig.slice(1)" scripts/audit/gsr-guard.mjs
 nochk '^function setAdminAccount([^)]*) {$' automation/admin/admin.gs
 if command -v node >/dev/null 2>&1; then node scripts/audit/gsr-guard.mjs >/dev/null 2>&1; _gsg=$?; if [ "$_gsg" != 0 ]; then echo "FAIL gsr-guard($_gsg): 공개 입구 잠금이 빠졌다 · 2 = 재지 못함(브라우저가 필요 없는 검사라 2 도 빨강) — node scripts/audit/gsr-guard.mjs"; fail=1; else echo "ok gsr-guard ($_gsg)"; fi; fi   # [B19_LOCK]
 # ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]

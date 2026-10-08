@@ -24,6 +24,7 @@ function make() {
     Utilities: { base64Encode: (b) => Buffer.from(b).toString('base64'), base64EncodeWebSafe: (b) => Buffer.from(b).toString('base64url'),
       computeDigest: (_a, s) => Array.from(crypto.createHash('sha256').update(s, 'utf8').digest()), DigestAlgorithm: { SHA_256: 1 }, Charset: { UTF_8: 1 },
       newBlob: (bytes, mime, name) => ({ bytes, name }), sleep() {}, formatDate: () => '2026-10' },
+    _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     resolveSession: () => ({ ok: true, row: { get: () => 'TST1' } }), _sessionMsg: () => '', fmtKST: () => '2026-10-05 21:00', handleAiCostLog() {},
   };

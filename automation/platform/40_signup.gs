@@ -11,7 +11,7 @@
  * 응답에 비번해시·토큰 등 민감정보는 절대 넣지 않는다(DoD).
  */
 
-function handleSignup(body) {
+function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   body = body || {};
 
   // 1) 허니팟(봇) — hp 채워져 있으면 조용히 성공인 척(행·메일·코드 없음)
@@ -129,7 +129,7 @@ function handleSignup(body) {
 }
 
 // 짧은 해시(캐시 키용) — 충돌 가능성 낮은 16자
-function _shortHash(s) {
+function _shortHash(s) { _gsr_();
   var raw = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(s), Utilities.Charset.UTF_8);
   return raw.map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join('').slice(0, 16);
 }
@@ -187,7 +187,7 @@ function sendSignupEmail_(to, names, code, token, product, detail) { /* [B19_LOC
 }
 
 // detail 문자열에서 '희망 예식 일자 · 예상 하객 인원'만 가볍게 추림(고객 메일용)
-function _applySummaryFromDetail(detail) {
+function _applySummaryFromDetail(detail) { _gsr_();
   if (!detail) return '';
   var date = '', guests = '';
   String(detail).split('\n').forEach(function (line) {

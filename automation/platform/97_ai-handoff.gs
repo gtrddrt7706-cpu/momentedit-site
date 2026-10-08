@@ -10,7 +10,7 @@
 var AIH_SHEET = 'AI상담인계';
 var AIH_HEADERS = ['ID', '접수일시', '상태', '페이지', '분류', '확신도', '고객', '요약', '제안답변', '근거', '대화', '처리일시'];
 
-function _aihSheet() {
+function _aihSheet() { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   var ss = SpreadsheetApp.getActive();
   var sh = ss.getSheetByName(AIH_SHEET);
   if (!sh) {
@@ -20,11 +20,11 @@ function _aihSheet() {
   }
   return sh;
 }
-function _aihNow() { return Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'); }
-function _aihStr(v, max) { return String(v == null ? '' : v).replace(/\s+$/, '').slice(0, max || 4000); }
+function _aihNow() { _gsr_(); return Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'); }
+function _aihStr(v, max) { _gsr_(); return String(v == null ? '' : v).replace(/\s+$/, '').slice(0, max || 4000); }
 
 /** 수신 (공개 엔드포인트 · doPost 라우터에서 호출) */
-function handleAiHandoff(body) {
+function handleAiHandoff(body) { _gsr_();
   try {
     var secret = '';
     try { secret = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (e) {}
@@ -63,7 +63,7 @@ function handleAiHandoff(body) {
 }
 
 /** 🔴 새 인계 관리자 SMS — 주간(08~22시)은 즉시(60초 버스트 가드), 야간(22~08시)은 보류 → 아침 9시 aiDaily가 모아 알림(새벽 문자 방지). */
-function _aihNotifyNew(category, summary, customer, page) {
+function _aihNotifyNew(category, summary, customer, page) { _gsr_();
   try {
     var p = PropertiesService.getScriptProperties();
     var hour = Number(Utilities.formatDate(new Date(), 'Asia/Seoul', 'H'));
@@ -89,7 +89,7 @@ function aiHandoffNightFlush() { _requireAdmin();
 }
 
 /** [읽기 전용] 현재 '대기' 인계 수와 그중 24h 경과 수 — 아침보고(aiMorningReport)가 발송 없이 집계용으로 호출. */
-function aiHandoffStatus() {
+function aiHandoffStatus() { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { pending: 0, overdue: 0 };
   var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
@@ -104,7 +104,7 @@ function aiHandoffStatus() {
 }
 
 /** [읽기+초기화] 밤사이 보류된 새 인계 수를 읽고 카운터를 0으로 — 아침보고가 1회 소비. (구 aiHandoffNightFlush의 집계만) */
-function aiHandoffNightTake() {
+function aiHandoffNightTake() { _gsr_();
   try {
     var p = PropertiesService.getScriptProperties();
     var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
@@ -189,7 +189,7 @@ function clearAllPendingAiHandoff() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 
  *  → 미처리 카운트에서 빠져 aiHandoffReminder가 오래된 건으로 매일 알림 보내는 누적을 막음. 행은 보존(감사용).
  *  purgeAdvisorLog(주간 트리거)가 함께 호출 — 별도 트리거 불필요.
  */
-function purgeAiHandoff() {
+function purgeAiHandoff() { _gsr_();
   try {
     var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
     if (!sh || sh.getLastRow() < 2) return { ok: true, expired: 0, scrubbed: 0 };
@@ -259,7 +259,7 @@ function adminResolveAiHandoff(id) { _requireAdmin();
  * 응답은 날짜·마감 슬롯만(이름 등 개인정보 없음). 점유 판정은 70_journey의 _weddingOccupancy와 동일 기준.
  * 보안: AI_HANDOFF_SECRET 설정 시 body.secret 일치 필수(aiHandoff와 같은 키 공유).
  */
-function handleAiAvailability(body) {
+function handleAiAvailability(body) { _gsr_();
   try {
     var secret = '';
     try { secret = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (e) {}

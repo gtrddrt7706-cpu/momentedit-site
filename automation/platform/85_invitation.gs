@@ -18,27 +18,27 @@ var INV = {
   SITE_BASE: 'https://momentedit.kr', CACHE_PREFIX: 'couple_'
 };
 
-function _invConfigured() { return INV.LETTER_SYSTEM_ID && INV.LETTER_SYSTEM_ID.charAt(0) !== '['; }
+function _invConfigured() { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */ return INV.LETTER_SYSTEM_ID && INV.LETTER_SYSTEM_ID.charAt(0) !== '['; }
 
 // ── Couples 시트 접근(교차) + 3행 헤더 헬퍼 (복제, onCoupleFormSubmit과 동일 동작) ──
-function _couplesSheet() {
+function _couplesSheet() { _gsr_();
   if (!_invConfigured()) throw new Error('청첩장 연동 미설정: INV.LETTER_SYSTEM_ID를 채워 주세요.');
   // [LETTER_MERGED 2026-09-25] Couples 는 본 스프레드시트로 옮겼다(87_letter letterMigrate). 옮기기 전에는 옛 Letter System 을 읽는다.
   //  ★여기서 openById 로 옛 시트를 직접 열지 말 것 — 조회(getCouple)와 발행이 서로 다른 시트를 보게 된다.
   return _ltSheet(INV.SHEET);
 }
-function _couplesColOf(sheet) {
+function _couplesColOf(sheet) { _gsr_();
   var headers = sheet.getRange(INV.HEADER_ROW, 1, 1, sheet.getLastColumn()).getValues()[0];
   var map = {};
   for (var i = 0; i < headers.length; i++) { var h = String(headers[i]).trim(); if (h) map[h] = i + 1; }
   return map;
 }
-function _couplesWrite(sheet, colOf, rowNum, header, value, force) {
+function _couplesWrite(sheet, colOf, rowNum, header, value, force) { _gsr_();
   var c = colOf[header]; if (!c) return;
   if (value === '' && !force) return;
   sheet.getRange(rowNum, c).setValue(value);
 }
-function _invMakeEventId(groomEn, brideEn, weddingDate) {
+function _invMakeEventId(groomEn, brideEn, weddingDate) { _gsr_();
   var ini = function (en) {
     return String(en || '').trim().toLowerCase().split(/\s+/).filter(Boolean)
       .map(function (w) { return w.charAt(0); }).join('').replace(/[^a-z]/g, '');
@@ -48,7 +48,7 @@ function _invMakeEventId(groomEn, brideEn, weddingDate) {
   if (m) mmdd = ('0' + m[2]).slice(-2) + ('0' + m[3]).slice(-2);
   return [g, b, mmdd].filter(Boolean).join('-');
 }
-function _invFindLastRow(sheet, idCol) {
+function _invFindLastRow(sheet, idCol) { _gsr_();
   var rawLast = sheet.getLastRow();
   if (rawLast < INV.DATA_START_ROW) return INV.DATA_START_ROW - 1;
   var n = rawLast - INV.DATA_START_ROW + 1;
@@ -56,7 +56,7 @@ function _invFindLastRow(sheet, idCol) {
   for (var i = v.length - 1; i >= 0; i--) { if (String(v[i][0]).trim() !== '') return INV.DATA_START_ROW + i; }
   return INV.DATA_START_ROW - 1;
 }
-function _invResolveEventId(sheet, colOf, base, groomName, brideName) {
+function _invResolveEventId(sheet, colOf, base, groomName, brideName) { _gsr_();
   var idCol = colOf['eventId']; if (!idCol) throw new Error("Couples 'eventId' 헤더(3행)를 찾을 수 없음");
   var gCol = colOf['groomName'], bCol = colOf['brideName'];
   var lastRow = _invFindLastRow(sheet, idCol);
@@ -84,13 +84,13 @@ function _invResolveEventId(sheet, colOf, base, groomName, brideName) {
   return { eventId: cand, rowNum: lastRow + 1 };
 }
 // 예식ID 랜덤 접미(6자·혼동문자 제외) — 부부폼의 _randEventSuffix 복제(별도 프로젝트라 호출 불가).
-function _invRandEventSuffix() {
+function _invRandEventSuffix() { _gsr_();
   var A = 'abcdefghijkmnpqrstuvwxyz23456789', out = '', bytes;
   try { bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, Utilities.getUuid() + ':' + new Date().getTime()); } catch (e) { bytes = null; }
   for (var i = 0; i < 6; i++) { var r = bytes ? (bytes[i] & 0xff) : Math.floor(Math.random() * 256); out += A.charAt(r % A.length); }
   return out;
 }
-function _invUrls(eventId, designOnline, designFamily, live) {
+function _invUrls(eventId, designOnline, designFamily, live) { _gsr_();
   var e = encodeURIComponent(eventId);
   return {
     online: designOnline ? (INV.SITE_BASE + '/i/cover-' + designOnline + '.html?e=' + e) : '',
@@ -105,12 +105,12 @@ function _invUrls(eventId, designOnline, designFamily, live) {
      그 조건을 여기에도, 프론트에도 옮겨 적지 않는다 — 옮겨 적으면 규칙이 바뀌는 날 사본만 옛 규칙을 지킨다.
      그래서 그 함수를 그대로 돌려 결과 한 칸(digitalAttendance)만 읽는다. 발행 전 초안에도 그대로 통한다.
    발행 후 값과도 어긋나지 않는다 — 발행이 Couples 에 쓰는 값이 바로 이 함수의 같은 칸이다. */
-function _invDigital(draft) {
+function _invDigital(draft) { _gsr_();
   try { return _invCouplesFields({}, draft || {}).digitalAttendance === 'Y'; } catch (e) { return false; }
 }
 
 // 입구·디자인·인사말·계좌 draft → Couples 41열(eventId 제외 40키) 매핑.
-function _invCouplesFields(base, draft) {
+function _invCouplesFields(base, draft) { _gsr_();
   base = base || {}; draft = draft || {};
   var method = draft.method || '';
   var dOnline = (method === 'online' || method === 'both') ? String(draft.designOnline || '') : '';
@@ -139,7 +139,7 @@ function _invCouplesFields(base, draft) {
 }
 
 // [04] 청첩장 입력 draft 저장(점진적) → 제작임시저장.invitationDraft + tracks.invitation=진행중.
-function handleSaveInvitationDraft(body) {
+function handleSaveInvitationDraft(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -169,7 +169,7 @@ function handleSaveInvitationDraft(body) {
 }
 
 // [04] 청첩장 발행 → Couples(교차) 41열 기록 + eventId 배선 + tracks.invitation=완료. method='none'이면 발행 없이 완료.
-function handlePublishInvitation(body) {
+function handlePublishInvitation(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -247,7 +247,7 @@ function handlePublishInvitation(body) {
 // ★DEAD_ACTION_NOTE(2026-07-25): 프런트 호출부 0건(mypage·assets 전수 grep) — doPost 라우트만 생존한 사실상 죽은 액션.
 //   이번 사고의 근본 원인이 '단일 전이점을 믿었는데 그 호출부가 조용히 사라진 것'이었으므로, 죽은 액션은 이렇게 표기해 둔다.
 //   (handleSaveProductionBase도 동일 상태 — 80_production 참조) 되살릴 때는 전이·가드가 최신인지 먼저 확인할 것.
-function saveInvitationPreview(body) {
+function saveInvitationPreview(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -309,7 +309,7 @@ function saveInvitationPreview(body) {
 }
 
 // [04] 마이페이지 청첩장 트랙 상태 — draft(이어쓰기) + 발행 결과(eventId·URL). 제작 단계에만.
-function buildInvitationState(r) {
+function buildInvitationState(r) { _gsr_();
   if (!r) return null;
   if (PRODUCTION_STAGES.indexOf(String(r.get('현재단계') || '').trim()) === -1) return null;
   var d = _prodLoad(r);   // PROD_ACCESSOR

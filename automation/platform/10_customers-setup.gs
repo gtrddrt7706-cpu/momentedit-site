@@ -12,7 +12,7 @@
  */
 
 // Customers 탭 핸들. 없으면 setupCustomers() 안내.
-function getCustomersSheet() {
+function getCustomersSheet() { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName(P.CUSTOMERS_SHEET);
   if (!sh) throw new Error("시트 없음: '" + P.CUSTOMERS_SHEET + "' — setupCustomers()를 먼저 실행하세요.");
   return sh;
@@ -21,7 +21,7 @@ function getCustomersSheet() {
 // ============================ 설치(최초 1회 + 언제든 재실행 가능) ============================
 // 통합 스프레드시트에 Customers 탭을 만들고 헤더·검증·서식을 코드로 재생성한다.
 // setupConsultation() 패턴과 동일한 멱등 구조 — 여러 번 실행해도 깨지지 않는다.
-function setupCustomers() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 편집기 도구 잠금 */
+function setupCustomers() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 편집기 도구 잠금 */ /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문(이 파일의 getCustomersSheet 는 _gsr_) */
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName(P.CUSTOMERS_SHEET) || ss.insertSheet(P.CUSTOMERS_SHEET, 0); // 첫 탭으로
 

@@ -11,7 +11,7 @@
 // ============================ 개인코드 발급 ============================
 // 사용 문자: ACDEFGHJKMNPQRTUVWXY34679 (혼동문자 0O1IL2Z5S8B 제외).
 // 6자 무작위 → 1열(개인코드)에서 충돌검사 → 있으면 재생성. 대문자만.
-function makePersonalCode() {
+function makePersonalCode() { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   var sheet = getCustomersSheet();
   var existing = _existingCodeSet(sheet);
   for (var tries = 0; tries < P.CODE_MAX_TRIES; tries++) {
@@ -23,7 +23,7 @@ function makePersonalCode() {
 }
 
 // 무작위 6자 (암호학적 난수 우선, 실패 시 Math.random 폴백)
-function _randomCode() {
+function _randomCode() { _gsr_();
   var A = P.CODE_ALPHABET, n = A.length, out = '';
   var bytes;
   try {
@@ -41,7 +41,7 @@ function _randomCode() {
 }
 
 // 1열(개인코드) 전체를 set 으로 — 충돌검사용
-function _existingCodeSet(sheet) {
+function _existingCodeSet(sheet) { _gsr_();
   var set = {};
   var colOf = buildHeaderIndex(sheet);
   var c = colOf['개인코드'];
@@ -57,7 +57,7 @@ function _existingCodeSet(sheet) {
 
 // ============================ Customers 행 조회 ============================
 // 한 컬럼 값으로 행을 찾아 접근자 객체 반환({num, get}). 대소문자 무시 비교 옵션.
-function _findCustomerBy(header, value, caseInsensitive) {
+function _findCustomerBy(header, value, caseInsensitive) { _gsr_();
   value = String(value == null ? '' : value).trim();
   if (!value) return null;
   var sheet = getCustomersSheet();
@@ -87,14 +87,14 @@ function _findCustomerBy(header, value, caseInsensitive) {
   return null;
 }
 
-function findCustomerByCode(code) { return _findCustomerBy('개인코드', code, true); }
-function findCustomerByToken(token) { return _findCustomerBy('로그인토큰', token, false); }
+function findCustomerByCode(code) { _gsr_(); return _findCustomerBy('개인코드', code, true); }
+function findCustomerByToken(token) { _gsr_(); return _findCustomerBy('로그인토큰', token, false); }
 function findCustomerByEmail(email) { _requireAdmin(); /* [B19_LOCK 2026-10-09] 편집기 도구 잠금 */ return _findCustomerBy('이메일', email, true); }
 
 // 이메일로 '가장 최근 활성 행' 조회 — 같은 이메일 다중 신청 대응(코드 찾기·비번 재설정).
 //   취소·노쇼·미계약(STAGE_EXCEPTIONS) 제외한 활성 행 중 등록 시각(생성일시) 최신 1건.
 //   활성 행이 없으면 전체 중 최신(완료·취소 고객도 본인 최신 코드 회수 가능). 생성일시='YYYY-MM-DD HH:mm' → 문자열 비교가 곧 시각순.
-function findLatestCustomerByEmail(email) {
+function findLatestCustomerByEmail(email) { _gsr_();
   email = String(email == null ? '' : email).trim().toLowerCase();
   if (!email) return null;
   var sheet = getCustomersSheet();
@@ -120,7 +120,7 @@ function findLatestCustomerByEmail(email) {
 
 // ============================ Customers 쓰기 (최종수정 자동 갱신) ============================
 // updates = { 헤더: 값, ... }. 모든 쓰기 끝에 '최종수정'을 자동으로 찍는다(설계서 노트).
-function touchCustomer(sheet, colOf, rowNum, updates) {
+function touchCustomer(sheet, colOf, rowNum, updates) { _gsr_();
   Object.keys(updates || {}).forEach(function (h) {
     writeCell(sheet, colOf, rowNum, h, updates[h]); // 재사용
   });
@@ -128,13 +128,13 @@ function touchCustomer(sheet, colOf, rowNum, updates) {
 }
 
 // 표시·기록용 한국시간 문자열 'YYYY-MM-DD HH:mm' (KST=JST)
-function fmtKST(d) {
+function fmtKST(d) { _gsr_();
   if (!(d instanceof Date)) d = new Date(d);
   return Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
 }
 
 // 신랑·신부 표시명 (Customers 행용)
-function customerNames(rowObj) {
+function customerNames(rowObj) { _gsr_();
   var g = String(rowObj.get('신랑이름') || '').trim();
   var b = String(rowObj.get('신부이름') || '').trim();
   return (g && b) ? (g + ' · ' + b) : (g || b || '고객');
@@ -164,9 +164,9 @@ var _CUST_PII_COLS = [
 // [PROD_ACCESSOR] 실제 파기 대상 = 위 목록 + 제작 데이터 컬럼(_prodCols · 80_production 단일 출처).
 //   제작 컬럼을 리터럴에 박아두면 PR-B 트랙 분리 때 신 컬럼이 파기에서 누락돼 개인정보(하객 이름·좌석)가 살아남는다.
 //   ※ 함수로 합치는 이유: _CUST_PII_COLS는 파일 평가 시점 리터럴이라 평가 순서(20→80)상 _prodCols()를 직접 못 쓴다.
-function _custPiiCols() { return _CUST_PII_COLS.concat(typeof _prodCols === 'function' ? _prodCols() : ['제작임시저장']); }
+function _custPiiCols() { _gsr_(); return _CUST_PII_COLS.concat(typeof _prodCols === 'function' ? _prodCols() : ['제작임시저장']); }
 // 이 컬럼 중 하나라도 '보관 의무' 값이면 파기 제외(법정 보관 · 진행 중 계약 보호).
-function _custRetained(get) {
+function _custRetained(get) { _gsr_();
   if (String(get('계약상태') || '').trim() === '서명완료') return true;
   if (String(get('계약서명일시') || '').trim()) return true;
   if (['완료신호', '확인'].indexOf(String(get('입금상태') || '').trim()) !== -1) return true;
@@ -177,12 +177,12 @@ function _custRetained(get) {
 }
 // '이미 익명화됨' 판정 — _CUST_PII_COLS 가 전부 비었을 때만 참. 신원 4개만 지워지고 입금자명·링크·토큰 등이
 //   남은 부분 익명화 행은 거짓(=아직 파기 대상) → 4필드만 보던 스킵이 잔여 PII를 영구 보관하던 것 방지.
-function _custAnonymized(get) {
+function _custAnonymized(get) { _gsr_();
   var _pc = _custPiiCols();
   for (var i = 0; i < _pc.length; i++) { if (String(get(_pc[i]) || '').trim()) return false; }
   return true;
 }
-function purgeStaleCustomers(dryRun) {
+function purgeStaleCustomers(dryRun) { _gsr_();
   /* ★[LIVETEST_0830] 붙여넣기 누락 점검 실기 확인용 · 동작 없음(주석 한 줄).
      이 파일을 GAS 에 다시 붙여넣기 «전»에는 deployCheck 가 이 표식을 못 찾아 MISS 로 잡아야 한다.
      확인이 끝나면 이 줄과 99_deployCheck 의 짝 항목을 함께 지운다. */
@@ -257,7 +257,7 @@ function previewStaleCustomers() { _requireAdmin(); return purgeStaleCustomers(t
 
 // 상담예약(Bookings) 시트에서 주어진 개인코드들의 PII 컬럼을 비운다(행 보존). 반환=처리 행수.
 //   Customers 익명화와 짝 — 같은 SS·개인코드 키. 성함·연락처·이메일·환불계좌·토큰·자유메모 등 식별/민감 컬럼만 비움.
-function _purgeBookingsPII(codes) {
+function _purgeBookingsPII(codes) { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName('상담예약');
   if (!sh || sh.getLastRow() < 2) return 0;
   var set = {}; for (var i = 0; i < codes.length; i++) if (codes[i]) set[codes[i]] = true;
@@ -277,7 +277,7 @@ function _purgeBookingsPII(codes) {
   return n;
 }
 // Signatures 시트에서 주어진 개인코드들의 서명이미지(base64)를 비운다(행 보존). 반환=처리 행수.
-function _purgeSignaturesPII(codes) {
+function _purgeSignaturesPII(codes) { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName('Signatures');
   if (!sh || sh.getLastRow() < 2) return 0;
   var set = {}; for (var i = 0; i < codes.length; i++) if (codes[i]) set[codes[i]] = true;

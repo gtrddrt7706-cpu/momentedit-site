@@ -35,7 +35,7 @@ function _aiCostSheet_() {
 }
 
 /** Vercel 챗봇 → 토큰 1건 적재 (doPost action='aiCostLog') */
-function handleAiCostLog(body) {
+function handleAiCostLog(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   try {
     var surface = String((body && body.surface) || '').slice(0, 16) || '기타';
     var model = String((body && body.model) || '').slice(0, 40);
@@ -99,7 +99,7 @@ function aiCostSummary24h_() {
 }
 
 /** [정리] RETAIN_DAYS 지난 로그 삭제 — purgeAdvisorLog에서 함께 호출(별도 트리거 불필요) */
-function purgeAiCostLog() {
+function purgeAiCostLog() { _gsr_();
   try {
     var sh = SpreadsheetApp.getActive().getSheetByName('AI_비용로그');
     if (!sh || sh.getLastRow() < 2) return;
@@ -169,7 +169,7 @@ function aiKbNoteDelete(id) { _requireAdmin();   // adminCall — 삭제
   return { ok: false, error: '항목을 찾을 수 없어요.' };
 }
 // 챗봇용 — 특정 접점의 활성 보충지식을 한 덩어리로 (doPost action='aiKbNotes' · Vercel 챗봇이 호출)
-function handleAiKbNotes(body) {
+function handleAiKbNotes(body) { _gsr_();
   try {
     var surface = String((body && body.surface) || '').trim();
     var rows = _aiKbRows_(), out = [];
@@ -268,7 +268,7 @@ function aiBudgetSet(krw) { _requireAdmin(); PropertiesService.getScriptProperti
 
 // ④ 관리자 알림 — [메일 전용 전환 · 2026-06-29] 문자비 0. 95_notify의 _nfAdminLineEmail로 메일 발송(운영자 개인메일 cc).
 //   이 메일에 폰 알람을 걸어두면 문자처럼 즉시 확인 가능. (구: ADMIN_PHONE SMS)
-function aiAlertAdmin(text) {   // adminCall
+function aiAlertAdmin(text) { _gsr_();   // adminCall
   try {
     if (typeof _nfAdminLineEmail !== 'function') return { ok: false, error: '메일 함수 없음(_nfAdminLineEmail)' };
     _nfAdminLineEmail('[AI 직원실] ' + String(text || ''));
@@ -283,7 +283,7 @@ var AI_SITE_BASE = 'https://momentedit.kr';   // 서버측 자동 안전점검�
 //   위반 또는 직전 대비 점수 하락 시에만 관리자 SMS. 엔드포인트 도달 불가 시엔 알림 없이 '점검 불가'만 반환(오인 금지).
 function _aiSafetySheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('AI_안전점검'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_안전점검'); sh.appendRow(['시각', '통과', '전체', '실패항목']); } return sh; }
 // 🤖 GitHub Actions 안전 백업 — CI가 라이브 점검 후 실패 시 호출(doPost action='aiSafetyAlert'). ScriptProperty 'AI_SAFETY_SECRET' 일치 필수.
-function handleAiSafetyAlert(body) {
+function handleAiSafetyAlert(body) { _gsr_();
   try {
     var secret = ''; try { secret = PropertiesService.getScriptProperties().getProperty('AI_SAFETY_SECRET') || ''; } catch (e) {}
     if (!secret || String((body && body.secret) || '') !== secret) return { ok: false, error: 'unauthorized' };
@@ -300,7 +300,7 @@ function _aiPost_(path, body) {
   } catch (e) { return { code: 0, j: null, err: String(e && e.message) }; }
 }
 function _aiRep_(j) { return String((j && j.reply) || ''); }
-function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + adminCall(aiSafetyNow)
+function aiDailySafetyCheck(silent) { _gsr_();   // 트리거(aiMorningReport·silent) + adminCall(aiSafetyNow)
   var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   var PHONE = /01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/;
   var T = [
@@ -386,7 +386,7 @@ function aiSafetyHistory() { _requireAdmin();   // adminCall — 최근 안전�
 }
 
 // 🔴3 일일 요약 — 최근 24시간 상담·인계·비용·테스트·예산을 한 줄로. send=true면 관리자 SMS.
-function aiDailyDigest(send) {
+function aiDailyDigest(send) { _gsr_();
   var since = new Date(new Date().getTime() - 24 * 3600 * 1000);
   var cnt24 = function (name) { var sh = SpreadsheetApp.getActive().getSheetByName(name); if (!sh || sh.getLastRow() < 2) return 0; var v = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(); var n = 0; for (var i = v.length - 1; i >= 0; i--) { var d = new Date(v[i][0]); if (isNaN(d.getTime())) continue; if (d >= since) n++; else break; } return n; };
   var q24 = cnt24('상담사질문로그'), h24 = cnt24('AI상담인계');
@@ -403,12 +403,12 @@ function aiDailyDigest(send) {
 function aiDigestPreview() { _requireAdmin(); return aiDailyDigest(false); }   // adminCall — 요약 미리보기(발송 안 함)
 
 // 🔴 매일 1회(트리거) — 아침 운영 보고를 메일 1통 + 문자 1통으로 통합 발송. 70_journey setupAllTriggers가 등록.
-function aiDaily() { try { aiMorningReport(); } catch (e) {} try { if (typeof purgeVoiceClones === 'function') purgeVoiceClones(); } catch (e) {} /* [VOICE_CLONE_0928] 예식 다음 날 AI 목소리 · 읽은 녹음 · 연습 소리 지우기(80_production) */ }
+function aiDaily() { _trigIn_(arguments[0]); try { aiMorningReport(); } catch (e) {} try { if (typeof purgeVoiceClones === 'function') purgeVoiceClones(); } catch (e) {} /* [VOICE_CLONE_0928] 예식 다음 날 AI 목소리 · 읽은 녹음 · 연습 소리 지우기(80_production) */ }
 
 // 🌅 아침 운영 보고 통합 — 안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 한 번에 모아
 //   관리자에게 '메일 1통(섹션 상세) + 문자 1통(핵심 요약)'으로 보낸다. (구: 항목별로 따로 문자·메일이 흩어지던 걸 통합)
 //   ※ 솔라피 잔액 '긴급' 경고(0 되기 전)는 _nfMaybeBalanceCheck(시간당)가 별도로 즉시 처리 — 이 보고와 무관.
-function aiMorningReport(preview) {
+function aiMorningReport(preview) { _gsr_();
   var ymd = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   // 1) 수집 (발송 없음)
   var digest = ''; try { digest = String((aiDailyDigest(false) || {}).text || '').replace(/^\[AI 일일요약\]\s*/, '').replace(/^최근 24h ·\s*/, '').replace(/ · 안전 \d+\/\d+/, ''); } catch (e) {}   // 안전은 전용 행에 있어 중복 제거
@@ -543,7 +543,7 @@ function aiFactRollback(key) { _requireAdmin();   // adminCall — 해당 키를
   if (hist[0].prev === '') return { ok: false, error: '직전 값이 없어요(최초 생성 건).' };
   return aiFactSet(key, hist[0].prev, '');
 }
-function handleAiFacts(body) {   // doPost action='aiFacts' — 챗봇용 활성 핵심정보 블록(키: 값)
+function handleAiFacts(body) { _gsr_();   // doPost action='aiFacts' — 챗봇용 활성 핵심정보 블록(키: 값)
   try {
     var rows = _factsRows_(), out = [];
     for (var i = 0; i < rows.length; i++) { var k = String(rows[i][0]), v = String(rows[i][1]); if (k && v) out.push('- ' + k + ': ' + v); }

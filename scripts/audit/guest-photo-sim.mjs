@@ -50,6 +50,7 @@ const sandbox = {
                formatDate: () => '0817-120000', getUuid: () => 'u' },
   LockService: { getScriptLock: () => ({ waitLock(){}, releaseLock(){} }) },
   Logger: { log(){} },
+  _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
   _findCustomerBy: () => CUR,
   _guideExpired: ymd => ymd === '2020-01-01',
   _ymdOf: v => String(v || ''),

@@ -129,6 +129,7 @@ const PROPS = {
   AIH_REMIND_AT: ['state'], AIH_REMIND_CNT: ['state'], AI_HANDOFF_NIGHT_PENDING: ['state'],
   AI_LAST_HANDOFF_ALERT: ['state'], AI_MONTH_BUDGET_KRW: ['state'], LOCK_BUSY_MAILED: ['state'],
   LOCK_BUSY_N: ['state'], NOTIFY_HOLD: ['state'], SOLAPI_BAL_CHK_AT: ['state'],
+  TRIG_UID_OK: ['state'], TRIG_PROBE: ['state'],   // [TRIG_IN 2026-10-09] 예약 실행을 진짜 트리거로 알아봤는가 · 알아보기 전 모양(70_journey _trigIn_)
   WEDDING_BLOCKS: ['state'], DEPLOY_CODE_FINGERPRINT: ['state'],
   NOTIFY_FAIL_: ['state'], NOTIFY_FAILMAIL_: ['state'],   /* 날짜가 뒤에 붙는 접두사 */
   SNAPBRIEF_: ['state'],   /* [SNAP_BRIEF] 촬영 브리프 주소 → 개인코드(주소 토큰이 뒤에 붙는 접두사 · adminSnapBrief 가 만들고 purgeSnapRefs 가 지운다) */

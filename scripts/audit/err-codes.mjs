@@ -54,7 +54,8 @@ const g = {
   CacheService: { getScriptCache: () => ({ get: () => null, put: () => {} }) },
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => null, setProperty: () => {} }) },
   SpreadsheetApp: { getActive: () => ({ getSheetByName: () => ({ appendRow: (r) => rec.push(r), getLastRow: () => 3, deleteRows: () => {} }), insertSheet: () => ({}) }) },
-  fmtKST: () => '2026-10-07 23:00', _nfAdminLineEmail: () => {}, findCustomerByToken: () => null, _findCustomerBy: () => null
+  fmtKST: () => '2026-10-07 23:00', _nfAdminLineEmail: () => {}, findCustomerByToken: () => null, _findCustomerBy: () => null,
+  _gsr_: () => {}   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
 };
 vm.createContext(g); vm.runInContext(blk, g);
 const st = (act, o) => { g.__ERR_ACT = act; return g._errStamp(JSON.parse(JSON.stringify(o))); };

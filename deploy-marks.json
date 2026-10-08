@@ -1794,6 +1794,138 @@
    "fn": "aiQuestionLog",
    "mark": "GSR_SPLIT",
    "why": "관리 화면은 잠긴 껍데기 · 아침 보고 · 안전점검은 밑줄 안쪽(aiQuestionLog_ · aiCostSummary24h_) — 이 파일만 옛 판이면 아침 보고 비용 줄 · 질문 후보가 빈다"
+  },
+  {
+   "file": "00_platform-config",
+   "fn": "stageFlowFor",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "10_customers-setup",
+   "fn": "setupCustomers",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "20_customers-data",
+   "fn": "makePersonalCode",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "30_auth-core",
+   "fn": "hashPassword",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleLogin",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "handleGetMyState",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleSignFittingConsent",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionBase",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "_invConfigured",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltSrcId",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_notifyEnabled",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "handleAiCostLog",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "97_ai-handoff",
+   "fn": "_aihSheet",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "_payExpectedAmount",
+   "mark": "GSR_GATE",
+   "why": "공개 함수 첫 줄 문(_gsr_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "GSR_GATE",
+   "why": "입구 다섯은 서버 길 표를 켜고 안쪽 운영 함수는 첫 줄 문(_gsr_)을 단다 — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCall",
+   "mark": "ADMINCALL_TOKEN",
+   "why": "관리 요청은 토큰을 스스로 본다 · 운영 함수의 문(_gsr_)과 서버 길 · 예약 실행 표가 여기 있다 — 다른 파일보다 먼저 붙인다"
+  },
+  {
+   "file": "88_place_audit",
+   "fn": "awMonthlyAudit",
+   "mark": "GSR_GATE",
+   "why": "예약 실행 첫 줄(_trigIn_) — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployStampCheck",
+   "mark": "TRIG_IN",
+   "why": "배포 확인에 «예약 실행 확인» 한 줄 — 진짜 트리거를 알아봤는지(70_journey _trigIn_)"
+  },
+  {
+   "file": "admin",
+   "fn": "_resolveAdmin_",
+   "mark": "GSR_GATE",
+   "why": "관리자 토큰 풀이는 밑줄 안쪽 — 문을 달지 않아 토큰 없는 _requireAdmin 이 «관리자 전용»으로 떨어진다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_IN",
+   "why": "예약 실행 첫 줄 확인(진짜 트리거 · 편집기 · 서버 길 · 배우기 전) — 붙이지 않으면 예약 실행 15개가 «_trigIn_ 없음»으로 멈춘다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_mailConfirmPage_",
+   "mark": "MAIL_BTN_CONFIRM",
+   "why": "메일 단추(입금 확인 · 승인 · 수락)는 열면 확인 화면만 — 단추를 눌러야 처리(mailButtonGo) · 옛 판이면 링크를 여는 순간 처리된다"
   }
  ],
  "fns": {
@@ -1957,6 +2089,9 @@
    "sendArchiveExpiryNotices",
    "handleSaveRefundAccount",
    "weeklyBackup",
+   "_trigIn_",
+   "_trigUidIs_",
+   "_trigMark_",
    "setupAllTriggers",
    "addBalanceColumns"
   ],
@@ -2359,8 +2494,13 @@
    "_liveTokens",
    "adminLogin",
    "adminLogout",
-   "_resolveAdmin",
+   "_resolveAdmin_",
    "_requireAdmin",
+   "_gsr_",
+   "_activeEmail_",
+   "_isOwnerRun_",
+   "_ownerHint_",
+   "_adminTokenCheck_",
    "adminCall",
    "adminFittingDoc",
    "adminListWeddingBlocks",
@@ -2556,6 +2696,10 @@
    "safeAttr",
    "notifyStudio",
    "servePayConfirm",
+   "_payConfirmCheck_",
+   "_payConfirmRun_",
+   "mailButtonGo",
+   "_mailConfirmPage_",
    "infoPage",
    "setupConsultation",
    "onConsultEdit",
@@ -2701,12 +2845,15 @@
    "_ADMIN_OWNER_EMAILS",
    "_AUTHED",
    "_CURRENT_ADMIN",
+   "_SRV",
+   "_TRUST",
    "UNDO_WINDOW_HOURS",
    "_LOCK_BUSY"
   ],
   "consultation-booking": [
    "DETAIL_MAP",
    "AVAIL_CACHE_KEY",
+   "_LAST_INFO",
    "__ERR_ON"
   ]
  },
@@ -2822,7 +2969,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 04:46 · 048d07ef",
+ "_생성": "2026-10-09 05:13 · 8b96c9c6",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3149,6 +3296,18 @@
    "b": "카드결제 승인"
   },
   {
+   "key": "TRIG_PROBE",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "TRIG_UID_OK",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "TYPECAST_API_KEY",
    "kind": "needs",
    "a": "VOICE_CLONE",
@@ -3294,5 +3453,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "2676a819baf8"
+ "_표식서명": "36ecb208d225"
 }

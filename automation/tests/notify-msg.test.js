@@ -3,6 +3,7 @@
 //       ② _nfWon 문자 금액 방어('300,000원' → 300,000 · 임의 문자 → 0, 'NaN원' 금지)
 //       ③ 야간 보류 창(21시~익일 8시) 경계 24시간 전수
 //       ④ notifyKakao 전 이벤트 무예외(미등록 이벤트 포함 · 발송 OFF 로그 경로)
+globalThis._gsr_ = globalThis._gsr_ || function () {}; globalThis._trigIn_ = globalThis._trigIn_ || function () {};   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안(떼어 낸 함수가 전역에서 찾는다)
 const fs = require('fs');
 const path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '..', 'platform', '95_notify.gs'), 'utf8');

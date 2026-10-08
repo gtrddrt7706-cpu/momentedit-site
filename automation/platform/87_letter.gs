@@ -31,12 +31,12 @@ var LT = {
 };
 
 // 옛 Letter System 스프레드시트 — 옮기기 원본이자, 옮기기 전 임시로 읽는 곳. 주소는 INV 한 곳에만 둔다.
-function _ltSrcId() { return INV.LETTER_SYSTEM_ID; }
+function _ltSrcId() { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */ return INV.LETTER_SYSTEM_ID; }
 
 /* [LETTER_FALLBACK] 시트는 본 스프레드시트에서 먼저 찾는다. 옮기기(letterMigrate) 전에는 옛 Letter System 을
    그대로 읽고 써서, 붙여넣기·재배포·옮기기의 순서가 어떻든 사이트가 멈추지 않는다.
    ★옮긴 뒤(LETTER_MIGRATED=Y)에 시트가 없으면 옛 데이터로 조용히 새지 않고 멈춘다 — 그게 더 빨리 드러난다. */
-function _ltSheet(name) {
+function _ltSheet(name) { _gsr_();
   // [LETTER_FALLBACK] 본 시트 먼저 · 옮기기 전에만 옛 Letter System
   var own = SpreadsheetApp.getActive().getSheetByName(name);
   if (own) return own;
@@ -48,7 +48,7 @@ function _ltSheet(name) {
 }
 
 // 마이페이지 발행이 부른다 — getCouple 캐시를 바로 지워 고친 내용이 다음 열람에 보이게.
-function _ltBustCouple(eventId) {
+function _ltBustCouple(eventId) { _gsr_();
   try {
     var id = String(eventId || '').trim();
     if (!id) return;
@@ -59,7 +59,7 @@ function _ltBustCouple(eventId) {
 }
 
 // 관리자 알림 — 본 프로젝트 규칙(_nfAdminEmail). dedupKey 가 있으면 24시간에 한 번.
-function _ltAdminMail(subject, text, dedupKey) {
+function _ltAdminMail(subject, text, dedupKey) { _gsr_();
   try {
     if (dedupKey) {
       var c = CacheService.getScriptCache();
@@ -72,7 +72,7 @@ function _ltAdminMail(subject, text, dedupKey) {
 
 // ═══════════════ ① 청첩장 조회 (doGet ?action=getCouple) ═══════════════
 
-function ltGetCouple(p) {
+function ltGetCouple(p) { _gsr_();
   // [LETTER_MERGED] 옛 웹훅 doGet 의 getCouple 갈래 그대로 — 응답 모양 불변(hydrate·live·og-inv 가 읽는다)
   try {
     var eventId = String((p && p.eventId) || '').trim();
@@ -97,7 +97,7 @@ function ltGetCouple(p) {
 
 // 계좌 옵트아웃 — 호출 화면(view)의 계좌 표시 토글이 'Y'일 때만 계좌를 준다.
 //   ★view 미지정 호출(og-inv 등 봇·미리보기)에는 계좌를 절대 안 준다 → eventId 만 알면 계좌를 긁는 대량 수집 방지.
-function _ltAcctVisible(c, view) {
+function _ltAcctVisible(c, view) { _gsr_();
   function yes(v) { return String(v || '').trim().toUpperCase() === 'Y'; }
   if (view === 'online') return yes(c.accountOnline);
   if (view === 'family') return yes(c.accountFamily);
@@ -105,7 +105,7 @@ function _ltAcctVisible(c, view) {
   return false;
 }
 
-function _ltCoupleFull(eventId, view) {
+function _ltCoupleFull(eventId, view) { _gsr_();
   var sheet = _ltSheet(LT.COUPLES);
   var range = sheet.getDataRange().getValues();
   var hi = LT.HEADER_ROW - 1;
@@ -146,7 +146,7 @@ function _ltCoupleFull(eventId, view) {
 }
 
 // 날짜 → "YYYY-MM-DD". Date 는 그 시트의 시간대로 읽는다(스크립트 시간대가 달라도 하루가 밀리지 않게).
-function _ltYmd(value, tzOf) {
+function _ltYmd(value, tzOf) { _gsr_();
   if (!value) return '';
   if (Object.prototype.toString.call(value) === '[object Date]') {
     if (isNaN(value.getTime())) return '';
@@ -160,7 +160,7 @@ function _ltYmd(value, tzOf) {
 }
 
 // 시간 → "HH:MM". "오후 2:00:00" 같은 한국어 표기도 읽는다.
-function _ltHm(value, tzOf) {
+function _ltHm(value, tzOf) { _gsr_();
   if (value === '' || value === null || value === undefined) return '';
   if (Object.prototype.toString.call(value) === '[object Date]') {
     if (isNaN(value.getTime())) return '';
@@ -182,7 +182,7 @@ function _ltHm(value, tzOf) {
 
 // ═══════════════ ② 하객 편지 (doPost action='guestLetter') ═══════════════
 
-function ltGuestLetter(body) {
+function ltGuestLetter(body) { _gsr_();
   // [LETTER_MERGED] 옛 웹훅 doPost 그대로 — 응답 문구·시트 기록·메일이 같다(scripts/audit/letter-sim.mjs 가 대조)
   try {
     var data = body || {};
@@ -233,7 +233,7 @@ function ltGuestLetter(body) {
 }
 
 // 편지 발송용 최소 정보(이메일 포함 — 이 값은 밖으로 안 나간다)
-function _ltCoupleMin(eventId) {
+function _ltCoupleMin(eventId) { _gsr_();
   var range = _ltSheet(LT.COUPLES).getDataRange().getValues();
   var hi = LT.HEADER_ROW - 1;
   if (range.length <= hi) return null;
@@ -254,18 +254,18 @@ function _ltCoupleMin(eventId) {
   return null;
 }
 
-function _ltRecipient(r) {
+function _ltRecipient(r) { _gsr_();
   var v = String(r || '').toLowerCase().trim();
   return (v === 'groom' || v === 'bride' || v === 'both') ? v : 'both';
 }
-function _ltRecipientKo(recipient) {
+function _ltRecipientKo(recipient) { _gsr_();
   if (recipient === 'groom') return '신랑에게만';
   if (recipient === 'bride') return '신부에게만';
   return '두 분 함께';
 }
 
 // [LETTER_RATE] 예식별 짧은 창(분) + 긴 창(시간) 두 겹. 차단된 시도도 함께 센다(스팸이 무료로 재시도하지 못하게).
-function _ltRateCheck(eventId) {
+function _ltRateCheck(eventId) { _gsr_();
   try {
     var cache = CacheService.getScriptCache();
     var kMin = 'lr_m_' + eventId, kHr = 'lr_h_' + eventId;
@@ -279,13 +279,13 @@ function _ltRateCheck(eventId) {
 }
 
 // 동시 제출 시 appendRow 경합 방지 — 락을 못 잡아도 기록은 한다(데이터 손실보다 비잠금 기록이 안전).
-function _ltWithLock(fn) {
+function _ltWithLock(fn) { _gsr_();
   var lock = LockService.getScriptLock(), locked = false;
   try { lock.waitLock(5000); locked = true; } catch (e) {}
   try { return fn(); } finally { if (locked) { try { lock.releaseLock(); } catch (_) {} } }
 }
 
-function _ltAppendMessage(d) {
+function _ltAppendMessage(d) { _gsr_();
   var sheet = _ltSheet(LT.MESSAGES);
   _ltWithLock(function () {
     sheet.appendRow([
@@ -301,7 +301,7 @@ function _ltAppendMessage(d) {
   });
 }
 
-function _ltAppendModeration(d) {
+function _ltAppendModeration(d) { _gsr_();
   var sheet = _ltSheet(LT.MODERATION);
   _ltWithLock(function () {
     sheet.appendRow([
@@ -361,7 +361,7 @@ function _ltSendToRecipients_(couple, guestName, relation, message, recipient) {
 }
 
 // 편지 메일 본문 — 강제 다크 고정(풀블리드 table bgcolor + color-scheme 메타 → 어느 클라이언트에서도 흰 배경 안 뜸)
-function _ltLetterHtml(guestName, relation, message, recipient) {
+function _ltLetterHtml(guestName, relation, message, recipient) { _gsr_();
   var escapedMessage = _ltEsc(message), escapedGuest = _ltEsc(guestName), escapedRelation = relation ? _ltEsc(relation) : '';
   var badge = function (who) {
     return '<div style="display:inline-block;padding:6px 14px;border:1px solid #C4AD8F;border-radius:999px;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:10px;letter-spacing:0.24em;color:#C4AD8F;text-transform:uppercase;margin-bottom:24px;">Private · To ' + who + '</div>';
@@ -407,7 +407,7 @@ function _ltLetterHtml(guestName, relation, message, recipient) {
     '</td></tr></table></body></html>';
 }
 
-function _ltEsc(str) {
+function _ltEsc(str) { _gsr_();
   if (!str) return '';
   return String(str).replace(/[&<>"']/g, function (m) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
@@ -415,7 +415,7 @@ function _ltEsc(str) {
 }
 
 // ── 금지어 필터 (Banned 시트: 단어 · 카테고리 · 타입(word|regex)) ──
-function _ltBannedList() {
+function _ltBannedList() { _gsr_();
   var cache = CacheService.getScriptCache();
   var cached = cache.get('banned_list_v1');
   if (cached) { try { return JSON.parse(cached); } catch (_) {} }   // 시트 편집은 최대 600초 뒤 반영
@@ -432,7 +432,7 @@ function _ltBannedList() {
 }
 
 // 변형 감지(띄어쓰기·특수문자·대소문자 우회 차단) + 정규식(주민번호 등)
-function _ltCheckBanned(message) {
+function _ltCheckBanned(message) { _gsr_();
   if (!message) return { blocked: false };
   var lower = String(message).toLowerCase();
   var compact = lower.replace(/[^\w가-힣ㄱ-ㅎㅏ-ㅣ]/g, '');
@@ -458,7 +458,7 @@ function _ltCheckBanned(message) {
 // ═══════════════ ③ 영상 미등록 D-3 점검 + 개인정보 파기 (매일 07시) ═══════════════
 // 디지털 참석(digitalAttendance=Y) 예식이 3일 안(오늘 포함)인데 vimeoId 가 비어 있으면 관리자에게 메일
 //   → D-3 사전등록 SOP(docs/plans/PLAN_영상운영_기획안.md) 누락을 시스템이 잡는다. 수동 점검: 이 함수를 직접 실행.
-function vimeoGuardDaily() {
+function vimeoGuardDaily() { _trigIn_(arguments[0]);
   try { purgeCoupleData(); } catch (e) { Logger.log('[purgeCoupleData] 실패: ' + (e && e.message)); }   // 예식 후 6개월 PII 파기(같은 매일 트리거에 얹음)
   var sheet;
   try { sheet = _ltSheet(LT.COUPLES); } catch (e) { Logger.log('[vimeoGuard] ' + e.message); return; }
@@ -507,7 +507,7 @@ function vimeoGuardDaily() {
 }
 
 // [VIMEO_GUARD_XPROJ] 관리자 페이지에서 닫은(미계약·취소·노쇼) 고객의 eventId. 읽다 실패하면 빈 목록 = 모르면 보낸다.
-function _ltClosedEvents() {
+function _ltClosedEvents() { _gsr_();
   var out = {};
   try {
     var v = getCustomersSheet().getDataRange().getValues();
@@ -525,7 +525,7 @@ function _ltClosedEvents() {
 // 예식일 + 6개월(기본 183일 · 스크립트 속성 COUPLE_PURGE_DAYS 로 조정) 지난 예식의 제3자 개인정보를 비운다(행은 남긴다).
 //   대상: Couples(부모 성함·계좌·인사말·이메일·영상) · Messages(하객 이름·관계·편지) · Moderation(하객 이름·차단문).
 //   COUPLE_PURGE_OFF='Y' 면 멈춘다. previewCoupleData() 로 미리 확인(아무것도 안 바꾼다).
-function purgeCoupleData(dryRun) {
+function purgeCoupleData(dryRun) { _gsr_();
   var props = PropertiesService.getScriptProperties();
   if (props.getProperty('COUPLE_PURGE_OFF') === 'Y') return { ok: true, skipped: 'off' };
   var _lock = null;   // 동시 실행 방지(매일 트리거 + 수동 겹침) — 미리보기는 읽기 전용이라 안 잠근다
@@ -571,7 +571,7 @@ function purgeCoupleData(dryRun) {
 function previewCoupleData() { _requireAdmin(); return purgeCoupleData(true); }
 
 // Messages·Moderation — eventId 가 만료셋이거나 자체 시각(1열)+N일 지났으면 지정 칸(0부터)만 비운다. 반환 = 행 수.
-function _ltPurgeGuestSheet(name, expired, cutoff, toYmd, idxCols) {
+function _ltPurgeGuestSheet(name, expired, cutoff, toYmd, idxCols) { _gsr_();
   var sh = null;
   try { sh = _ltSheet(name); } catch (e) { return 0; }
   if (!sh || sh.getLastRow() < 2) return 0;
@@ -593,7 +593,7 @@ function _ltPurgeGuestSheet(name, expired, cutoff, toYmd, idxCols) {
 // 원본·사본 대조용 값 — 날짜는 «그 시트의 시간대로 본 벽시계 값»으로 적는다.
 //  ★화면 표기(getDisplayValues)로 비교하지 않는다 — 두 스프레드시트의 지역 설정이 다르면 같은 날짜가
 //   「2026. 5. 26」과 「5/26/2026」으로 달리 보여 멀쩡한 사본을 «다르다»로 멈춘다. 값은 같고 표기만 다른 경우다.
-function _ltSnap(sh) {
+function _ltSnap(sh) { _gsr_();
   var tz = sh.getParent().getSpreadsheetTimeZone();
   return sh.getDataRange().getValues().map(function (r) {
     return r.map(function (v) {

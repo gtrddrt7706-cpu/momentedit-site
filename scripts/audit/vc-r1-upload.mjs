@@ -222,7 +222,7 @@ function gasDel() {
   const src = fs.readFileSync(path.join(ROOT, 'automation/platform/80_production.gs'), 'utf8');
   const mk = (id, name, trashed) => ({ id, name, trashed: !!trashed, getId() { return this.id; }, getName() { return this.name; }, isTrashed() { return this.trashed; }, setTrashed(v) { this.trashed = v; } });
   const run = (body, files) => {
-    const ctx = vm.createContext({ console, Utilities: {}, PropertiesService: {}, DriveApp: {}, CacheService: {} });
+    const ctx = vm.createContext({ console, Utilities: {}, PropertiesService: {}, DriveApp: {}, CacheService: {}, _gsr_: () => {} });   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     vm.runInContext(src, ctx);
     const folder = { getId: () => 'FOLDER', getFiles() { let i = 0; return { hasNext: () => i < files.length, next: () => files[i++] }; } };
     ctx.resolveSession = () => ({ ok: true, row: { get: () => 'C1' } }); ctx._rfFolderFor = () => folder;

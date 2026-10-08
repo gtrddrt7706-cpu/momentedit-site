@@ -16,7 +16,7 @@ var PRODUCTION_STAGES = ['입금완료', '제작중'];   // 제작 UI 노출 단
 
 // [03-1] 공통 기초정보 저장(고객) → 제작임시저장.base + 제작상태=작성중 + 현재단계→제작중.
 //   가드: 입금완료/제작중 단계만. 이름(한)은 Customers 마스터에도 반영(확인·보완 결과).
-function handleSaveProductionBase(body) {
+function handleSaveProductionBase(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -81,7 +81,7 @@ function handleSaveProductionBase(body) {
 
 // [03-1b] 기초정보 서버 구성 — 입력 화면 없이: 이름=청첩장 위저드 draft(없으면 기존 base→마스터), 이메일=계정, 일시=계약 확정(예식일+슬롯→본예식 +1h).
 //   발행(85 handlePublishInvitation) 등에서 호출해 prodDraft.base를 채워 돌려준다(저장은 호출자가).
-function _ensureProductionBase(cust, prodDraft, invDraft) {
+function _ensureProductionBase(cust, prodDraft, invDraft) { _gsr_();
   var b = (prodDraft && prodDraft.base) || {};
   var iv = invDraft || {};
   var gKo = String(iv.groomKo || b.groomKo || cust.get('신랑이름') || '').trim();
@@ -137,22 +137,22 @@ var PROD_META_KEYS = ['base', 'tracks', 'confirm', 'confirmStale', 'eventId', 'i
 //   합산 상한: 셀당 5만은 컬럼 분리로 풀리지만 시트 '행' 전체 한도는 그대로라 느슨한 총량 상한을 남긴다.
 var PROD_CAP = { ritual: 12000, dining: 12000, meta: 20000, other: 20000, total: 120000, cellHard: 45000 };   // cellHard = 이전(마이그레이션) 중에만 적용하는 셀 하드 한도(시트 셀 5만 미만) — 기존 합법 데이터가 이전에서 막히지 않게
 
-function _prodCols() {   // 제작 데이터가 실제로 들어있는 컬럼 전체 — 롤백 초기화·PII 파기·좌석 캐시·시트 서식이 참조하는 스키마 단일 출처
+function _prodCols() { _gsr_();   // 제작 데이터가 실제로 들어있는 컬럼 전체 — 롤백 초기화·PII 파기·좌석 캐시·시트 서식이 참조하는 스키마 단일 출처
   var out = [PROD_LEGACY_COL, PROD_META_COL];
   for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t)) out.push(PROD_TRACK_COL[t]); }
   return out;
 }
-function _prodNewCols() { return _prodCols().slice(1); }   // 구셀을 뺀 신설 컬럼만(합산 캡 대상)
+function _prodNewCols() { _gsr_(); return _prodCols().slice(1); }   // 구셀을 뺀 신설 컬럼만(합산 캡 대상)
 // 컬럼 생성 순서 — ★제작_meta를 '마지막'에. meta가 있으면 그 행은 migrated로 판정되는데,
 //   6분 타임아웃·수동 중단으로 meta만 생기면 아직 없는 트랙 컬럼 쓰기가 조용히 사라진다(writeCell이 헤더 없으면 skip).
 //   meta를 끝에 두면 '전부 있거나 전부 없거나'가 되어 어중간한 상태가 생기지 않는다.
-function _prodCreateOrder() { var o = []; for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t)) o.push(PROD_TRACK_COL[t]); } o.push(PROD_META_COL); return o; }
+function _prodCreateOrder() { _gsr_(); var o = []; for (var t in PROD_TRACK_COL) { if (PROD_TRACK_COL.hasOwnProperty(t)) o.push(PROD_TRACK_COL[t]); } o.push(PROD_META_COL); return o; }
 // [A-1 가드] 신 컬럼이 시트에 없으면 저장을 '조용히 잃는' 대신 '시끄럽게 거부'한다.
 //   writeCell은 헤더가 없으면 로그만 남기고 건너뛰는데, PR-B는 구셀에 안 쓰므로 그 저장은 어디에도 남지 않는다
 //   (고객 화면엔 '저장됐어요' · 다음 로드에서 구셀 폴백으로 되돌아감 · 새 rev를 받았으니 다음 저장은 409로 굴러떨어짐).
 //   배포 순서(컬럼 추가 → 배포)를 지키면 이 창은 없지만, 백업 복원·시트 재생성·부분 실행 대비로 코드에도 둔다.
-function _prodColsMissing(colOf) { return _prodNewCols().filter(function (h) { return !colOf[h]; }); }
-function _prodColsMissingError(colOf, code, notifyQ) {
+function _prodColsMissing(colOf) { _gsr_(); return _prodNewCols().filter(function (h) { return !colOf[h]; }); }
+function _prodColsMissingError(colOf, code, notifyQ) { _gsr_();
   var miss = _prodColsMissing(colOf);
   if (!miss.length) return null;
   try {
@@ -167,11 +167,11 @@ function _prodColsMissingError(colOf, code, notifyQ) {
 }
 
 // 트랙 컬럼 값 포장 — 평상시엔 draft 그대로(구조 단순). _prev가 있을 때만 {_d,_p} 래퍼(백업을 메타로 밀어내지 않기 위함).
-function _prodTrackPack(draft, prev) {
+function _prodTrackPack(draft, prev) { _gsr_();
   if (prev === undefined || prev === null) return (draft === undefined || draft === null) ? '' : JSON.stringify(draft);
   return JSON.stringify({ _d: (draft === undefined ? null : draft), _p: prev });
 }
-function _prodTrackUnpack(raw) {
+function _prodTrackUnpack(raw) { _gsr_();
   var o = _parseJsonSafe(raw);
   if (o && typeof o === 'object' && Object.prototype.toString.call(o) !== '[object Array]' && o._d !== undefined) return { draft: o._d, prev: o._p };
   return { draft: o, prev: undefined };
@@ -180,7 +180,7 @@ function _prodTrackUnpack(raw) {
 // 재조립 — get(헤더)만 받으면 행 객체(.get)든 목록 스캔(getter(rv,h))이든 같은 논리 객체를 만든다.
 //   ★키 집합·값이 구세대와 동일해야 rev 지문(_prodStateRev·_prodTrackRev)이 흔들리지 않는다 →
 //    없는 트랙은 {}로 채우지 않고 undefined 그대로 둔다(구셀 시절과 동일. {}로 채우면 '초안 있음'으로 오독돼 안내·표시가 달라짐).
-function _prodAssemble(get) {
+function _prodAssemble(get) { _gsr_();
   var metaRaw = String(get(PROD_META_COL) || '').trim();
   var migrated = !!metaRaw;
   var legacy = null, legacyRead = false;
@@ -201,13 +201,13 @@ function _prodAssemble(get) {
   if (!migrated) d._mig = true;   // 구셀 세대 표시 — 다음 저장에서 전 트랙 이전(저장 직전 제거되어 영속되지 않음)
   return d;
 }
-function _prodLoad(cust) { return cust ? _prodAssemble(function (h) { return cust.get(h); }) : {}; }
-function _prodLoadRaw(getter, rv) { return _prodAssemble(function (h) { return getter(rv, h); }); }
+function _prodLoad(cust) { _gsr_(); return cust ? _prodAssemble(function (h) { return cust.get(h); }) : {}; }
+function _prodLoadRaw(getter, rv) { _gsr_(); return _prodAssemble(function (h) { return getter(rv, h); }); }
 
 // 직렬화 + 캡 검사 한 번에 — 같은 초안을 두 번 stringify하지 않게(호출부는 pack을 그대로 _prodStoreCols에 넘김).
 //   opts.track: 그 트랙만 기록(락 시간 단축) · opts.full 또는 d._mig: 전 트랙 기록(구세대 첫 저장 = 통째 이전)
 //   반환 { cols, err } — err이 있으면 저장 금지. ★stringify 실패를 ''로 삼키지 않는다(삼키면 다음 단계가 그대로 던져 '처리된 것처럼' 읽힘).
-function _prodPack(d, opts) {
+function _prodPack(d, opts) { _gsr_();
   opts = opts || {};
   var full = !!(d && d._mig) || opts.full === true;
   var track = opts.track || '';
@@ -255,7 +255,7 @@ var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌�
 
 // 쓰기 — 시트 업데이트 맵에 병합해 반환(touchCustomer 호출은 호출부가 1회 · 락 보유시간 단축).
 //   ★구셀(PROD_LEGACY_COL)은 여기서 절대 건드리지 않는다(갱신·삭제 금지 · 위 '두 세대 공존' 참조).
-function _prodStoreCols(d, upd, opts) {
+function _prodStoreCols(d, upd, opts) { _gsr_();
   opts = opts || {};
   var pk = opts.pack || _prodPack(d, opts);
   // ★[A급2] err를 삼키면 cols가 빈 {}인 채로 진행돼 '아무것도 안 쓰고 ok:true'가 된다(화면엔 저장됐어요·시트엔 없음).
@@ -267,7 +267,7 @@ function _prodStoreCols(d, upd, opts) {
   return upd;
 }
 // [DRAFT_SIZE_CAP] 저장 전 용량 검사 — 컬럼별 캡 + 신설 컬럼 합산 상한. 초과면 고객 안내 문구, 통과면 ''.
-function _prodSizeError(d, opts) { return _prodPack(d, opts).err; }
+function _prodSizeError(d, opts) { _gsr_(); return _prodPack(d, opts).err; }
 
 // [진단 · 읽기 전용] 배포 전 점검 — 구셀 세대 행 중 '신 컬럼 캡을 넘길 트랙'이 있는지 미리 본다.
 //   이전(마이그레이션) 자체는 캡을 안 보므로 막히지 않지만, 이전 후 그 트랙을 '더 수정'하려 하면 거부된다.
@@ -330,7 +330,7 @@ function addProdTrackColumns() { _requireAdmin();
 //   반환: { ok:true, d } 또는 { ok:false, res }(고객 안내 + 관리자 메일 1시간 1회 · 셀 복구 유도).
 //   track(선택): 이번에 저장할 트랙. 없으면 메타만 쓰는 경로(확인서·예식일 동기화)로 보고 트랙 손상은 차단하지 않는다.
 //   notifyQ(선택): 넘기면 경고 메일을 큐에 담아 호출부가 락 해제 후 발송(락 안 외부 I/O 방지) · 없으면 즉시 발송.
-function _prodDraftLoadSafe(cust, code, notifyQ, track) {
+function _prodDraftLoadSafe(cust, code, notifyQ, track) { _gsr_();
   var get = function (h) { return cust.get(h); };
   var okJson = function (h) {
     var raw = String(get(h) || '').trim();
@@ -364,13 +364,13 @@ function _prodDraftLoadSafe(cust, code, notifyQ, track) {
 var DN_PLACEHOLDER = ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'];
 
 // [예식 확인서] 확인 해제 — 제작 내용이 '실제로' 바뀐 쓰기 경로가 호출(80·85 공용). 해제되면 고객·관리자 모두 '재확인 필요'.
-function _prodConfirmVoid(d) {
+function _prodConfirmVoid(d) { _gsr_();
   if (d && d.confirm) { delete d.confirm; d.confirmStale = true; }
 }
 // [예식 확인서] 상태 지문(rev) — 제작 내용 전체의 결정적 해시. buildProductionState가 내려주고, 확인 요청이 되돌려 보내면
 //   대조해서 '배우자의 다른 탭이 이미 바꾼 옛 화면'의 확인을 거부한다(스냅샷=화면 텍스트라 내용 검증이 안 되는 빈틈을 버전 대조로 방어).
 //   상태 저장 없이 매번 계산 — 별도 카운터 관리·마이그레이션 불필요.
-function _prodStateRev(d) {
+function _prodStateRev(d) { _gsr_();
   d = d || {};
   var s = '';
   try { s = JSON.stringify([d.base || {}, d.invitationDraft || {}, d.ritualDraft || {}, d.diningDraft || {}, d.finalDraft || {}, d.seatDraft || {}, d.guideinfoDraft || {}, d.tracks || {}, d.eventId || '', d.invitationUrls || null]); } catch (e) { return ''; }
@@ -380,7 +380,7 @@ function _prodStateRev(d) {
 }
 // [TRACK_REV_GUARD 2026-07-25] 트랙별 초안 지문 — 그 트랙 초안만의 해시(전체 지문 _prodStateRev와 달리 다른 트랙 저장에 안 흔들림).
 //   UI 키(_step 등)는 _prodUiStrip으로 제외 — 화면 위치만 달라도 충돌로 오탐하지 않게. 두 기기 동시 편집의 조용한 덮어쓰기를 잡는다(회의 R-7).
-function _prodTrackRev(d, track) {
+function _prodTrackRev(d, track) { _gsr_();
   var j = '';
   try { j = _prodUiStrip(JSON.stringify((d || {})[track + 'Draft'] || {}), track); } catch (e) { return ''; }
   var h = 5381;
@@ -395,12 +395,12 @@ function _prodTrackRev(d, track) {
    · 새 초안에 fAt 가 없으면(옛 빌더 · 「처음부터 다시」의 빈 S) 합치지 않는다(null) — 비우기가 되살아나면 안 된다.
    · 옛 한 칸(vowText 등)은 합친 두 칸으로 다시 짓는다(관리자 · 마이페이지 · ④ 대본이 읽는다 · 빌더 _txLeg 와 같은 꼴). */
 var TX_MERGE_LEG = { welcome: 'welcomeText', vow: 'vowText', letter: 'letterText', tribute: 'tributeText' };
-function _txCanon(v) {
+function _txCanon(v) { _gsr_();
   if (v === null || typeof v !== 'object') return JSON.stringify(v === undefined ? null : v);
   if (Object.prototype.toString.call(v) === '[object Array]') return '[' + v.map(_txCanon).join(',') + ']';
   return '{' + Object.keys(v).sort().map(function (k) { return JSON.stringify(k) + ':' + _txCanon(v[k]); }).join(',') + '}';
 }
-function _txRest(dr) {
+function _txRest(dr) { _gsr_();
   var o = JSON.parse(JSON.stringify(dr || {}));
   for (var k in o) { if (k.charAt(0) === '_' || k === 'summary') delete o[k]; }
   var S = o.S || {};
@@ -411,7 +411,7 @@ function _txRest(dr) {
   o.S = S;
   return _txCanon(o);
 }
-function _ritualTxMerge(oldDr, newDr) {
+function _ritualTxMerge(oldDr, newDr) { _gsr_();
   try {
     var nS = (newDr || {}).S, oS = ((oldDr || {}).S) || {};
     if (!nS || !nS.fAt || !Object.keys(nS.fAt).length) return null;
@@ -444,7 +444,7 @@ function _ritualTxMerge(oldDr, newDr) {
 }
 // 확인 해제 판정용 비교 문자열 — UI 상태 키(_step·_chat 등 '_' 시작)는 스냅샷과 무관하므로 제외.
 //   guideinfo의 showSeat(자리 찾기 노출 토글)도 스냅샷 비노출이라 제외 → 토글만 눌러도 확인이 풀리는 재확인 피로 방지.
-function _prodUiStrip(json, track) {
+function _prodUiStrip(json, track) { _gsr_();
   try {
     var o = JSON.parse(json);
     for (var k in o) { if (k.charAt(0) === '_') delete o[k]; }
@@ -460,7 +460,7 @@ function _prodUiStrip(json, track) {
 
 // [03] 다이닝·식순·최종확정 트랙 입력 저장(점진적) → 제작임시저장.{track}Draft + tracks.{track} 갱신.
 //   handleSaveInvitationDraft 와 같은 패턴. done=true 면 완료, 아니면 진행중(이미 완료면 완료 유지).
-function handleSaveProductionTrack(body) {
+function handleSaveProductionTrack(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -838,13 +838,13 @@ var GUIDE_EXPIRE_DAYS = 30;
    ★닫는 판정 자체는 그대로다 — 날짜를 모르면 개인정보는 닫는 것이 옳다(FAILCLOSED).
      바꾸는 것은 **문구와 출구**뿐이다. 판정을 열지 말 것.
    ★automation/tests/guide.test.js 12b 가 오래 붉어 있던 것이 이 자리다(main 에서도 실패). */
-function _guideCloseInfo(weddingYmd) {
+function _guideCloseInfo(weddingYmd) { _gsr_();
   var v = _guideExpired(weddingYmd);
   if (v === 'unknown') return { closed: true, reason: 'unknown', error: '안내를 준비하고 있어요. 예식 정보가 확정되면 다시 열려요.', help: true };
   if (v) return { closed: true, reason: 'past', error: '예식이 끝나 안내가 닫혔어요.', help: false };
   return { closed: false };
 }
-function _guideExpired(weddingYmd) {
+function _guideExpired(weddingYmd) { _gsr_();
   var m = String(weddingYmd || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   /* ★★[GUIDE_EXPIRE_FAILCLOSED 2026-08-18] 예식일이 없으면 «만료»로 본다(닫는 쪽으로).
      종전엔 false(=열어 둠)였다. 그런데 되돌림으로 예식일이 지워지는 판이 있어
@@ -864,7 +864,7 @@ function _guideExpired(weddingYmd) {
 
 // [좌석 배치도] 공개 조회 — seat.html이 토큰으로 호출(무인증·읽기 전용). 이름·측·좌석만 반환(연락처·금액 등 비노출).
 //   토큰은 좌석공유토큰 열 역조회. 없거나 배치 비었으면 not found. 개인정보 최소(하객 이름·부부 이름·예식일).
-function handleSeatView(body) {
+function handleSeatView(body) { _gsr_();
   var token = String((body && body.t) || '').trim();
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
   if (body && String(body.q || '').trim()) return _seatFindByToken(token, String(body.q));   // q 있으면 이름 검색 모드(명단 비전송) — 디스패처 추가 없이 같은 액션 재사용
@@ -930,15 +930,15 @@ function handleSeatView(body) {
 //   seatView 액션에 q가 실려 오면 여기로(디스패처 무변경). 응답에 하객 이름은 절대 담지 않음(테이블 라벨만).
 //   원본 테이블은 seatf_ 키로 5분 캐시(예식 당일 검색 버스트 대비) · 저장 측 톰스톤(seatv_inv_)을 똑같이 존중.
 // [좌석 공용 헬퍼] 이름 정규화·행순서 번호·검색용 슬림 테이블 — seat.html·guide.html 프런트와 동일 규칙(수정 시 3면 함께)
-function _seatNorm(s) { return String(s || '').replace(/[\s　]+/g, '').toLowerCase(); }   // 공백(전각 포함) 제거 — 입력·저장 어느 쪽이든 매칭
-function _seatRowNum(tables) {   // 행순서 번호 = seat.html·guide.html·좌석표 프린트와 동일(위→아래 · 좌 1·3·5 / 우 2·4·6)
+function _seatNorm(s) { _gsr_(); return String(s || '').replace(/[\s　]+/g, '').toLowerCase(); }   // 공백(전각 포함) 제거 — 입력·저장 어느 쪽이든 매칭
+function _seatRowNum(tables) { _gsr_();   // 행순서 번호 = seat.html·guide.html·좌석표 프린트와 동일(위→아래 · 좌 1·3·5 / 우 2·4·6)
   var Ls = [], Rs = [];
   tables.forEach(function (t, i) { (String((t || {}).side || 'L') === 'R' ? Rs : Ls).push(i); });
   var num = {}, nn = 1, mr = Math.max(Ls.length, Rs.length);
   for (var rr = 0; rr < mr; rr++) { if (rr < Ls.length) num[Ls[rr]] = nn++; if (rr < Rs.length) num[Rs[rr]] = nn++; }
   return num;
 }
-function _seatFindSlim(t) {   // 검색에 필요한 최소만 — 이 객체는 서버 안에서만 돈다(응답엔 hits/room만 나감)
+function _seatFindSlim(t) { _gsr_();   // 검색에 필요한 최소만 — 이 객체는 서버 안에서만 돈다(응답엔 hits/room만 나감)
   t = t || {};
   var seats = (Object.prototype.toString.call(t.seats) === '[object Array]') ? t.seats : [];
   var _dk = (Object.prototype.toString.call(t.drinks) === '[object Array]') ? t.drinks : [];
@@ -950,7 +950,7 @@ function _seatFindSlim(t) {   // 검색에 필요한 최소만 — 이 객체는
   if (_dk.length) o.drinks = seats.map(function (s, i) { return String(_dk[i] || '').trim().slice(0, 2); });
   return o;
 }
-function _seatFindByToken(token, q) {
+function _seatFindByToken(token, q) { _gsr_();
   q = _seatNorm(q);   // seat.html·guide.html과 동일 정규화(_seatNorm 단일 출처)
   /* ★★[SEAT_Q_MIN 2026-08-16 노출 점검] 두 글자 미만은 서버에서 거절한다.
      «두 글자부터» 규칙이 seat.html·guide.html 클라이언트에만 있어, 요청을 직접 보내면
@@ -1014,7 +1014,7 @@ function _seatFindByToken(token, q) {
 // [하객 안내 허브] 공개 조회 — guide.html이 토큰으로 호출(무인증·읽기 전용). 하객에게 보여줄 안내만 반환.
 //   토큰은 안내공유토큰 열 역조회. 다이닝(담은 곳·대표)·좌석 유무 · 부부 이름·예식일. (라이브 필드는 2026-07-18 폐지 — ★재추가 금지)
 //   개인정보 최소: 부부 이름·예식일·식당 공개정보(이름·메뉴·전화·지도)만. 좌석 명단은 여기서 안 내려주고 seat 토큰으로 이름 조회(seat.html·handleSeatView 재사용).
-function handleGuideView(body) {
+function handleGuideView(body) { _gsr_();
   // [가족 청첩장 연동 · 2026-07-17] eventId 프로브 — 직접 모시는 청첩장(i-family)이 열릴 때 '하객 안내 버튼을 보여줄지'만 조회.
   //   안내 토큰이 이미 발급됐고(애프터 웨딩·좌석 완료로 보여줄 내용 있음) 만료 전일 때만 g 반환 · 그 외 {ok:false}=버튼 미노출.
   //   본문 데이터는 안 내려줌(그건 g 토큰 경로) · 디스패처 무변경(action=guideView 재사용) · 5분 캐시(하객 다수 열람 대비).
@@ -1119,13 +1119,13 @@ var GP_MAX_FILES    = 400;             // 한 예식 총 장수 상한(남용·�
 var GP_MAX_TOTAL_MB = 4000;            // 한 예식 총 용량 상한
 var GP_KEEP_DAYS    = 180;             // 예식 후 보관일수 — 결과물 인도 6개월(계약서 12조3)과 같은 기준
 
-function _gpRootFolder() {
+function _gpRootFolder() { _gsr_();
   var it = DriveApp.getFoldersByName(GP_ROOT_FOLDER);
   return it.hasNext() ? it.next() : DriveApp.createFolder(GP_ROOT_FOLDER);
 }
 
 // 파일명 — 하객 폰이 준 이름을 그대로 믿지 않는다(경로·제어문자 제거). 앞에 시각을 붙여 같은 이름끼리 안 덮이게.
-function _gpSafeName(raw, mime) {
+function _gpSafeName(raw, mime) { _gsr_();
   var s = String(raw || '').replace(/[\\\/:*?"<>|]/g, '').replace(/[\x00-\x1f]/g, '').replace(/^\.+/, '').trim().slice(0, 80);
   if (!s) s = 'photo';
   if (s.indexOf('.') < 0) s += '.' + (String(mime || '').split('/')[1] || 'jpg').replace(/[^a-z0-9]/gi, '');
@@ -1133,7 +1133,7 @@ function _gpSafeName(raw, mime) {
 }
 
 // 이 부부의 하객사진 폴더 — 없으면 만들고 열에 기록. ★호출자가 잠근 상태에서 부를 것(폴더 중복 생성 방지).
-function _gpFolderFor(cust, sheet, colOf) {
+function _gpFolderFor(cust, sheet, colOf) { _gsr_();
   if (!colOf['하객사진폴더ID']) return '';
   var fid = String(cust.get('하객사진폴더ID') || '').trim();
   if (fid) { try { DriveApp.getFolderById(fid); return fid; } catch (e) { fid = ''; } }   // 지워졌으면 새로 만든다
@@ -1156,19 +1156,19 @@ function _gpFolderFor(cust, sheet, colOf) {
    ★스튜디오 시험 예식은 문과 상관없이 연다 — 스크립트 속성 VOICE_STUDIO_CODES 에 개인코드를 쉼표로(사장님 시험 예식).
    AI 스위치(VOICE_CLONE · PRACTICE_READ)도 off · studio · on 세 단계 — studio 면 이 시험 예식에서만 보인다(_vcCfg). */
 var VOICE_UP = { from: '2026-10-08' };   // ★[VOICE_OPEN_1008 2026-10-08 사장님 «전체로 오픈해»] 처리방침 개정 공고 · 시행 10/8(privacy.html 두 분 목소리 항목 · AI 목소리 생성 위탁) — 같은 날 연다. 2099 로 되돌리지 말 것
-function _voiceStudio(code) { var v = String(PropertiesService.getScriptProperties().getProperty('VOICE_STUDIO_CODES') || ''); return !!code && v.split(/[\s,]+/).filter(Boolean).indexOf(String(code)) > -1; }
-function _voiceUpLive(code) {
+function _voiceStudio(code) { _gsr_(); var v = String(PropertiesService.getScriptProperties().getProperty('VOICE_STUDIO_CODES') || ''); return !!code && v.split(/[\s,]+/).filter(Boolean).indexOf(String(code)) > -1; }
+function _voiceUpLive(code) { _gsr_();
   // [VOICE_UP_FROM] 날짜 문 — 시행일부터 · 시험 예식은 늘 열림
   // [VOICE_OPEN_1008] 2026-10-08 전체 오픈 — 날짜 셋(VOICE_UP.from · privacy.html 개정 시행일자 · «AI 목소리 생성» 위탁 줄 «부터»)은 scripts/audit/voice-open.mjs 가 맞춘다
   return (typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= VOICE_UP.from) || _voiceStudio(code);
 }
-function _voicePub(code) {
+function _voicePub(code) { _gsr_();
   // [VOICE_UP_FROM] 화면으로 · [RF_STUDIO_UP] sup = 스튜디오가 대신 올린 파일(자리 → {id,name,at}) · [VOICE_KEEP] gone = 파일을 지운 날 · aiGone = AI 목소리 · 읽은 녹음을 지운 날(AI 를 만든 예식만)
   var c = _vcCfg_(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key), sup: _rfStudioUps(code), gone: PropertiesService.getScriptProperties().getProperty('RFGONE_' + code) || '', aiGone: (function () { var v = _vcSt(code); return v.purged && ((v.groom && v.groom.made) || (v.bride && v.bride.made)) ? String(v.purged).slice(0, 10) : ''; })(), keepDays: +(PropertiesService.getScriptProperties().getProperty('RITUAL_FILE_PURGE_DAYS') || 30) || 30 };
 }
 var RF_ROOT_FOLDER = 'ME_예식준비파일';
 var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사', pv: '식전 영상 소개' };   // [PV_INTRO 2026-10-02] pv = 두 분이 쓴 식전 영상 소개글(AI 두 분 목소리)
-function _rfFolderFor(code) {
+function _rfFolderFor(code) { _gsr_();
   var props = PropertiesService.getScriptProperties(), pk = 'RF_' + code, fid = props.getProperty(pk);
   if (fid) { try { return DriveApp.getFolderById(fid); } catch (e) { fid = ''; } }
   var it = DriveApp.getFoldersByName(RF_ROOT_FOLDER), root = it.hasNext() ? it.next() : DriveApp.createFolder(RF_ROOT_FOLDER);
@@ -1177,7 +1177,7 @@ function _rfFolderFor(code) {
   return f;
 }
 /* [RF_MAIL_THROTTLE] 코드마다 30분에 한 통 — 줄에 넣고, 30분 지났으면 줄 전체를 한 통으로 보낸다 */
-function _rfMailQueue(code, line, url) {
+function _rfMailQueue(code, line, url) { _gsr_();
   /* [RF_MAIL_THROTTLE] */
   var props = PropertiesService.getScriptProperties(), qk = 'RFQ_' + code, q = []; try { q = JSON.parse(props.getProperty(qk) || '[]'); } catch (e) { q = []; }
   if (line) q.push({ t: fmtKST(new Date()), l: line, u: url || '' });
@@ -1189,13 +1189,13 @@ function _rfMailQueue(code, line, url) {
   props.setProperty(qk, JSON.stringify(q.slice(-30))); return false;
 }
 /* [RF_MAIL_THROTTLE] 남은 줄 비우기 — 매일(purgeVoiceClones 첫 줄) · 30분 지난 코드만 */
-function _rfMailFlush() {
+function _rfMailFlush() { _gsr_();
   /* [RF_MAIL_THROTTLE] */
   var all = PropertiesService.getScriptProperties().getProperties(), n = 0;
   Object.keys(all).forEach(function (k) { if (/^RFQ_/.test(k)) { try { if (_rfMailQueue(k.slice(4), '', '')) n++; } catch (e) {} } });
   return n;
 }
-function handleRitualFile(body) {
+function handleRitualFile(body) { _gsr_();
   body = body || {};   // [RITUAL_FILE]
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -1231,14 +1231,14 @@ function handleRitualFile(body) {
 /* ★[REC_UPLOAD 2026-09-27 코워크 «두 분 목소리 · 직접 녹음과 파일 올리기» · 사장님 «녹음 파일을 올리면 그 부분에서 자동 재생까지»]
    올린 녹음을 두 분 계정으로만 다시 받아 온다 — 드라이브 공개 주소를 만들지 않는다(파일 공유 설정은 그대로 «나만»).
    ① 로그인 토큰 → 개인코드 ② 그 코드 폴더(RF_<코드>) 안의 파일만 · 다른 폴더의 id 를 넣어도 «없는 파일» ③ 20MB 까지 base64 로 돌려준다 */
-function _rfFileIn(code, id) {
+function _rfFileIn(code, id) { _gsr_();
   if (!id || !/^[A-Za-z0-9_-]{10,}$/.test(id)) return null;
   var folder = _rfFolderFor(code), f;
   try { f = DriveApp.getFileById(id); } catch (e) { return null; }
   var ps = f.getParents(), ok = false; while (ps.hasNext()) { if (ps.next().getId() === folder.getId()) { ok = true; break; } }
   return ok && !f.isTrashed() ? f : null;
 }
-function handleRitualFileGet(body) {
+function handleRitualFileGet(body) { _gsr_();
   body = body || {};   // [REC_UPLOAD]
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -1252,7 +1252,7 @@ function handleRitualFileGet(body) {
 }
 /* ★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] 두 분이 먼저 «목소리 파일 모두 지우기» — 그 예식 폴더(안내 소리 · 대신 올린 파일 · AI 소리 · 읽은 녹음 · 연습 소리)를 통째로 휴지통,
    업체 쪽 AI 목소리도 지운다(_vcPurgeNow). 기록 RFGONE_<코드>=오늘 — 마이페이지 알림 줄이 사라지고, 30일 지우기(purgeRitualFiles)는 건너뛴다 */
-function handleRitualFilePurgeMine(body) {
+function handleRitualFilePurgeMine(body) { _gsr_();
   body = body || {};   // [VOICE_KEEP]
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
@@ -1265,7 +1265,7 @@ function handleRitualFilePurgeMine(body) {
   return { ok: true, gone: today };
 }
 /* [REC_UPLOAD] 두 분이 먼저 지우기 — 휴지통으로(드라이브 30일 뒤 완전 삭제) · 그 폴더 안의 파일만 */
-function handleRitualFileDel(body) {
+function handleRitualFileDel(body) { _gsr_();
   body = body || {};
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -1290,7 +1290,7 @@ function handleRitualFileDel(body) {
    · adminRitualFiles(code): 그 예식의 두 분 목소리 파일 목록(자리 · 이름 · 크기 · 올린 때) + «확인 ✓» + D-7 뒤 바뀜
    · adminRitualFileGet(code, id): 파일 한 개(base64) — 콘솔이 식 전에 미리 받아 둔다(식장 인터넷이 끊겨도)
    · adminRitualFileOk(code, key, on): 스튜디오가 D-5 쯤 들어 보고 «확인 ✓» (스크립트 속성 RFOK_<코드> · 시트 열을 늘리지 않는다) */
-function _rfKeyOfName(nm) { nm = String(nm || ''); for (var k in RF_KEYS) { if (nm.indexOf(RF_KEYS[k] + ' · ') === 0) return k; } return ''; }
+function _rfKeyOfName(nm) { _gsr_(); nm = String(nm || ''); for (var k in RF_KEYS) { if (nm.indexOf(RF_KEYS[k] + ' · ') === 0) return k; } return ''; }
 function adminRitualFiles(code) {
   _requireAdmin('');   // [REC_ADMIN]
   code = String(code || '').trim(); if (!code) return { ok: false, error: '코드가 없어요.' };
@@ -1310,7 +1310,7 @@ function adminRitualFiles(code) {
 /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오 대신 올리기 — 카톡 · 메일로 파일을 보낸 고객을 위해 관리 화면이 줄마다 올린다.
    다듬기(6-3)는 관리 화면이 올리기 전에 같은 모듈(assets/rec-process.js)로 거친다. 기록 RFSTUDIO_<코드> = {자리: {id,name,at}} —
    두 분 화면(buildProductionState.voice.sup)이 비어 있는 줄에 채워 넣고 · 관리 화면이 당일 콘솔을 열 때도 채운다. 두 분이 새로 올리면 그쪽이 이긴다 */
-function _rfStudioUps(code) { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('RFSTUDIO_' + code) || '{}') || {}; } catch (e) { return {}; } }
+function _rfStudioUps(code) { _gsr_(); try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('RFSTUDIO_' + code) || '{}') || {}; } catch (e) { return {}; } }
 function adminRitualFileUp(code, key, name, mime, data) {
   _requireAdmin('');   // [RF_STUDIO_UP]
   code = String(code || '').trim(); key = String(key || '').trim(); if (!code || !RF_KEYS[key]) return { ok: false, error: '자리를 알 수 없어요.' };
@@ -1335,7 +1335,7 @@ function adminRitualFileOk(code, key, on) {
 }
 /* ★[REC_PURGE 2026-09-27 코워크 3-7] 예식 뒤 30일 — 두 분 목소리 파일을 지운다(휴지통 · 드라이브가 30일 뒤 완전 삭제) · 기록 RFGONE_<코드>=지운 날.
    purgeAdvisorLog(주간 트리거)가 함께 부른다 · dry=true 면 지울 대상만 로그(previewRitualFiles). ScriptProperty RITUAL_FILE_PURGE_DAYS 로 일수 조정 */
-function purgeRitualFiles(dry) {
+function purgeRitualFiles(dry) { _gsr_();
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), days = +(all.RITUAL_FILE_PURGE_DAYS || 30) || 30, today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
   /* ★[RF_PURGE_AI 2026-10-08 목소리 1라운드 76] 종전엔 예식 폴더 «바로 안» 파일만 지워 하위 폴더 «AI»(두 분 목소리로 만든 안내 소리 · 읽은 녹음 · 연습 소리)가 영영 남았다(처리방침 위반).
      이제 하위 폴더 안까지 지운다. 이미 지운(RFGONE) 예식은 하위 폴더만 한 번 다시 훑는다 — 표 RFAIGONE_<코드> */
@@ -1372,7 +1372,7 @@ var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enrol
    추가 요금($9/10만 크레딧) 기준 20만 자 ≈ $18 ≈ 2.5만 원 → 사장님 상한 3만 원 안. 쓰는 자리(하객 맞이 · 식전 영상 · 입장)는 열 줄 남짓이라
    고객이 닿을 일은 없다 — 화면 버그로 만들기가 끝없이 돌 때만 걸리는 안전장치다.
    ★목소리 만들기(enroll) 3번은 돈이 아니라 업체 «목소리 칸»(Lite 50칸 · 모든 예식이 같이 씀) 때문이라 그대로 둔다 — 타입캐스트 답(지우면 칸이 바로 돌아오나)을 보고 정한다. */
-function _vcSpent(st) { return (st.practice || 0) + ((st.make && st.make.chars) || 0); }   // [VC_BUDGET] 연습 + 줄 만들기 글자
+function _vcSpent(st) { _gsr_(); return (st.practice || 0) + ((st.make && st.make.chars) || 0); }   // [VC_BUDGET] 연습 + 줄 만들기 글자
 /* ★★[VOICE_CLONE_0928 코워크 0928 8장 · 7-2] 0927 판을 확정판에 맞췄다.
    · 스위치 VOICE_CLONE · PRACTICE_READ = off · studio · on(studio 는 VOICE_STUDIO_CODES 의 시험 예식만) · 키 TYPECAST_API_KEY(스크립트 속성 · 값은 사장님이 직접)
    · 확인 문장은 서버가 뽑는다(op=phrase · 다시 읽으면 새로 뽑음) · 읽은 녹음과 함께 남겨 관리 화면에서 맞춰 듣는다
@@ -1380,34 +1380,34 @@ function _vcSpent(st) { return (st.practice || 0) + ((st.make && st.make.chars) 
    · 만든 소리(줄 · 연습)는 같은 글 · 목소리 · 빠르기면 다시 만들지 않는다(드라이브 «AI» 하위 폴더에 둔다 · 관리 화면 목록에 섞이지 않게)
    · 예식 다음 날: 업체 목소리 · 읽은 녹음 · 연습 소리 지우기(purgeVoiceClones · aiDaily 가 매일 부른다) · 30일: 안내 소리 파일(purgeRitualFiles · 종전)
    · 글 · 소리는 로그 · 시트에 남기지 않는다 — 쓴 글자 수만 AI 비용 기록(접점 «목소리»)에 */
-function _vcMode(p, name, legacy) { var m = String(p.getProperty(name) || '').trim().toLowerCase(); if (m === 'on' || m === 'studio' || m === 'off') return m; return p.getProperty(legacy) === 'Y' ? 'on' : 'off'; }   // [VOICE_UP_FROM] off · studio · on (옛 'Y' 는 on)
+function _vcMode(p, name, legacy) { _gsr_(); var m = String(p.getProperty(name) || '').trim().toLowerCase(); if (m === 'on' || m === 'studio' || m === 'off') return m; return p.getProperty(legacy) === 'Y' ? 'on' : 'off'; }   // [VOICE_UP_FROM] off · studio · on (옛 'Y' 는 on)
 function _vcCfg_(code) { /* [B19_LOCK 2026-10-09] 열쇠가 든 설정 · 서버 코드 안에서만(이름 끝 _) */ /* [VOICE_UP_FROM] off · studio · on — studio 는 VOICE_STUDIO_CODES 의 시험 예식에서만 */ var p = PropertiesService.getScriptProperties(), st = _voiceStudio(code), cm = _vcMode(p, 'VOICE_CLONE', 'VOICE_CLONE_ENABLED'), tm = _vcMode(p, 'PRACTICE_READ', 'PRACTICE_TTS_ENABLED');
   return { clone: cm === 'on' || (cm === 'studio' && st), tts: tm === 'on' || (tm === 'studio' && st), mode: { clone: cm, read: tm }, key: p.getProperty('TYPECAST_API_KEY') || '', lufs: +(p.getProperty('VOICE_TARGET_LUFS') || -16) || -16,
     def: { m: p.getProperty('TYPECAST_VOICE_M') || p.getProperty('TYPECAST_VOICE_GROOM') || '', f: p.getProperty('TYPECAST_VOICE_F') || p.getProperty('TYPECAST_VOICE_BRIDE') || '', om: p.getProperty('TYPECAST_VOICE_OM') || p.getProperty('TYPECAST_VOICE_FAMILY') || '', of: p.getProperty('TYPECAST_VOICE_OF') || p.getProperty('TYPECAST_VOICE_FAMILY') || '' } }; }   // [VOICE_CLONE_0928] 연습 기본 목소리 넷(남 · 여 · 윗세대 남 · 윗세대 여 · 7-2)
-function _vcSt(code) { var v = PropertiesService.getScriptProperties().getProperty('VC_' + code); try { return JSON.parse(v || '{}') || {}; } catch (e) { return {}; } }
-function _vcPut(code, st) { PropertiesService.getScriptProperties().setProperty('VC_' + code, JSON.stringify(st)); }
+function _vcSt(code) { _gsr_(); var v = PropertiesService.getScriptProperties().getProperty('VC_' + code); try { return JSON.parse(v || '{}') || {}; } catch (e) { return {}; } }
+function _vcPut(code, st) { _gsr_(); PropertiesService.getScriptProperties().setProperty('VC_' + code, JSON.stringify(st)); }
 /* ★★[VC_STATE_MERGE 2026-10-04 사장님 «글 2 를 읽고 만들기를 누르니 '확인 문장을 먼저 받아 주세요'»] 목소리 상태는 스크립트 속성 한 칸(VC_<코드>)이다.
    종전에는 요청마다 «처음에 읽은 상태»를 통째로 다시 썼다 — 신랑 AI 줄 만들기(make · 타입캐스트 몇 초)가 도는 사이 신부 확인 문장(phrase)이 저장되면,
    make 가 끝나며 옛 상태로 덮어 신부 문장이 지워졌다(lost update). 이제 쓰기 직전에 잠그고 다시 읽어, 이 요청이 바꾼 칸만 얹는다(세 갈래 합치기).
    숫자(글자 수 · 만든 수)는 바꾼 만큼만 더한다 · 바꾸지 않은 칸은 다른 요청이 쓴 값을 그대로 둔다 */
-function _vcM3(f, b, m) {
+function _vcM3(f, b, m) { _gsr_();
   var isO = function (v) { return v && typeof v === 'object' && !Array.isArray(v); };
   if (isO(m) && isO(f) && (isO(b) || b == null)) { b = b || {}; var o = {}, k; for (k in f) o[k] = f[k];
     for (k in m) o[k] = _vcM3(f[k], b[k], m[k]); for (k in b) if (!(k in m)) delete o[k]; return o; }
   if (typeof m === 'number' && typeof b === 'number' && typeof f === 'number') return f + (m - b);
   if (JSON.stringify(m) === JSON.stringify(b)) return f;
   return m; }
-function _vcSave(code, base, mine) {   // [VC_STATE_MERGE]
+function _vcSave(code, base, mine) { _gsr_();   // [VC_STATE_MERGE]
   /* ★[VC_SAVE_NOLOCK 2026-10-08 목소리 1라운드 78] 잠금을 못 잡아도 통째로 덮지 않고 합쳐 쓴다 — 종전엔 처음 읽은 상태로 덮어 다른 분 확인 문장이 지워졌다(10/04 증상 그대로) */
   var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { _vcPut(code, _vcM3(_vcSt(code), base, mine)); return; }
   try { _vcPut(code, _vcM3(_vcSt(code), base, mine)); } finally { try { lock.releaseLock(); } catch (e) {} } }
-function _vcFetch(cfg, method, path, opt) { opt = opt || {}; var o = { method: method, headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true };
+function _vcFetch(cfg, method, path, opt) { _gsr_(); opt = opt || {}; var o = { method: method, headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true };
   if (opt.json) { o.contentType = 'application/json'; o.payload = JSON.stringify(opt.json); } else if (opt.form) o.payload = opt.form;
   var r = UrlFetchApp.fetch(VC_BASE + path, o), c = r.getResponseCode();
   if (c === 429 || c === 503) { Utilities.sleep(1500); r = UrlFetchApp.fetch(VC_BASE + path, o); c = r.getResponseCode(); }   // [VOICE_CLONE_0928] 너무 잦음 · 바쁨은 잠깐 뒤 한 번 다시
   return { code: c, r: r }; }
 var VC_DOWN = '지금은 AI 목소리를 만들 수 없어요. 잠시 뒤 다시 해 보시거나 직접 녹음으로 준비해 주세요', VC_REC_BAD = '이 녹음으로는 목소리를 만들지 못했어요. 조용한 방에서 처음부터 다시 읽어 주세요', VC_JOB_MS = 400000;   // [VC_ENROLL_BADREC] 업체가 녹음을 받지 않음 · [VC_ENROLL_JOB] 만들기 한 번의 끝 한계(GAS 한 번 실행은 6분을 못 넘는다 · 그보다 오래면 죽은 작업)
-function _vcErr(code, c, op, why) {   // [VOICE_CLONE_0928] 8-3 오류 — 422 만 따로 · 402(크레딧) · 403(칸 넘침)은 관리자 메일(하루 한 통)
+function _vcErr(code, c, op, why) { _gsr_();   // [VOICE_CLONE_0928] 8-3 오류 — 422 만 따로 · 402(크레딧) · 403(칸 넘침)은 관리자 메일(하루 한 통)
   /* ★[VC_WHY 2026-09-28 사장님 WNJK3Y 실측 «지금은 AI 목소리를 만들 수 없어요»] 종전엔 402 · 403 말고는 까닭을 어디에도 안 남겨 «왜 안 되는지»를 아무도 몰랐다.
      이제 모든 실패를 ①스크립트 속성 VCERR_<코드>(마지막 한 건 · 관리 화면 «이 예식 AI 목소리»에 보인다) ②관리자 메일(예식 · 코드별 하루 한 통)에 남긴다.
      남기는 것은 HTTP 코드 · 업체가 돌려준 오류 글(200자)뿐 — 두 분의 글 · 소리는 남기지 않는다. */
@@ -1428,11 +1428,11 @@ function _vcErr(code, c, op, why) {   // [VOICE_CLONE_0928] 8-3 오류 — 422 �
   _vcAlert('vcerr_' + code + '_' + (c || 0), (c ? '타입캐스트가 거절했어요' : '서버 · 드라이브 · 업체 연결 오류') + ' · ' + (W.op || '?') + ' · HTTP ' + (c || '없음') + (W.msg ? ' · ' + W.msg : '') + ' · 예식 ' + code
     + (c === 402 ? ' · 크레딧이 모자라요 · 요금제를 확인해 주세요' : c === 403 ? ' · 목소리 칸이 찼거나 요금제가 복제를 허용하지 않아요' : c === 401 ? ' · 키가 맞지 않아요' : ''));
   return { ok: false, down: true, kind: _kind, http: c || 0, ecode: 'V' + ({ busy: 1, plan: 2, fail: 4 })[_kind], _why: W.msg, error: VC_DOWN }; }   // [ERR_CODE_GAS]
-function _vcGate(code, cfg, op, kind) {   // ★[VC_GATE_WHY 2026-09-28 WNJK3Y 실측] 확인 문장 단계에서 «지금은 AI 목소리를 만들 수 없어요»가 떴는데 기록이 없었다 — 문 앞에서 막힌 까닭도 VCERR_ 에(메일은 안 보낸다 · 설정 문제라)
+function _vcGate(code, cfg, op, kind) { _gsr_();   // ★[VC_GATE_WHY 2026-09-28 WNJK3Y 실측] 확인 문장 단계에서 «지금은 AI 목소리를 만들 수 없어요»가 떴는데 기록이 없었다 — 문 앞에서 막힌 까닭도 VCERR_ 에(메일은 안 보낸다 · 설정 문제라)
   var m = cfg.mode[kind], why = !cfg.key ? 'TYPECAST_API_KEY 가 비어 있어요' : m === 'off' ? (kind === 'read' ? 'PRACTICE_READ' : 'VOICE_CLONE') + ' 가 off 예요(studio 또는 on 이어야 해요)' : m === 'studio' ? 'VOICE_STUDIO_CODES 에 ' + code + ' 가 없어요' : '스위치가 막혀 있어요';
   try { PropertiesService.getScriptProperties().setProperty('VCERR_' + code, JSON.stringify({ at: fmtKST(new Date()), op: op || '', http: 0, msg: '문 앞에서 막힘 · ' + why })); } catch (e) {}
   return { ok: false, down: true, kind: 'gate', ecode: 'V3', _why: why, error: VC_DOWN }; }   // [ERR_CODE_GAS] 스위치 · 시험 예식 목록 · 키 = 설정(3)
-function _vcWhy(x) {   // [VC_WHY] 업체 오류 글 — JSON 이면 detail · message · error 를 · 아니면 앞 200자
+function _vcWhy(x) { _gsr_();   // [VC_WHY] 업체 오류 글 — JSON 이면 detail · message · error 를 · 아니면 앞 200자
   var t = ''; try { t = String(x.r.getContentText() || ''); } catch (e) { return ''; }
   try { var j = JSON.parse(t), m = j.detail || j.message || j.error || j.msg || ''; if (m) return (typeof m === 'string' ? m : JSON.stringify(m)).slice(0, 200); } catch (e) {}
   return t.slice(0, 200); }
@@ -1441,12 +1441,12 @@ function vcLastErrors() { _requireAdmin();   // [VC_WHY] GAS 편집기에서 80_
   Object.keys(all).forEach(function (k) { if (!/^VCERR_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(6) + ' · ' + (w.at || '') + ' · ' + (w.op || '') + ' · ' + (w.http ? 'HTTP ' + w.http : /^문 앞/.test(w.msg || '') ? '설정' : '연결 실패') + ' · ' + (w.msg || '(업체 글 없음)')); });   // [VC_GATE_WHY] 설정으로 막힌 것은 HTTP 가 없다
   Object.keys(all).forEach(function (k) { if (!/^VCSLOW_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(7) + ' · ' + (w.at || '') + ' · 느린 만들기 ' + (w.sec || '?') + '초 · ' + (w.lines || '?') + '줄(새로 ' + (w.fresh || 0) + ')'); });   // [VC_PAR] 화면이 먼저 포기했을 수 있는 것
   Logger.log(out.length ? out.join('\n') : '실패 기록 없음'); return out; }
-function _vcAlert(tag, text) { var p = PropertiesService.getScriptProperties(), k = 'VCALERT_' + tag, d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+function _vcAlert(tag, text) { _gsr_(); var p = PropertiesService.getScriptProperties(), k = 'VCALERT_' + tag, d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   if (p.getProperty(k) === d) return; p.setProperty(k, d); try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[두 분 목소리] ' + text); } catch (e) {} }
-function _vcCharLog(n) { if (!(n > 0)) return; var p = PropertiesService.getScriptProperties(), k = 'VCCHARS_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM');
+function _vcCharLog(n) { _gsr_(); if (!(n > 0)) return; var p = PropertiesService.getScriptProperties(), k = 'VCCHARS_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM');
   p.setProperty(k, String((+p.getProperty(k) || 0) + n));
   try { if (typeof handleAiCostLog === 'function') handleAiCostLog({ surface: '목소리', model: 'typecast-' + VC_MODEL, in: n }); } catch (e) {} }   // 글자 수만 · 글은 남기지 않는다
-function _vcTts(cfg, voiceId, text, tempo, pause) {
+function _vcTts(cfg, voiceId, text, tempo, pause) { _gsr_();
   /* [PAUSE_STEP] remove_silence_ms = 남겨 둘 쉼의 최대 길이 — 종전엔 늘 150 */
   /* ★[VC_TTS_422 2026-09-28 WNJK3Y 실측] 목소리는 만들어졌는데 줄 읽기가 두 줄 다 422 — prompt 를 { preset: 'normal' } 으로 보냈다.
      ssfm-v30 의 prompt 는 { emotion_type: 'preset', emotion_preset: 'normal' } 모양이다(typecast-go PresetPrompt). 기본이 «보통»이라 아예 빼는 것이 가장 안전하다 — 다시 넣지 말 것 */
@@ -1454,17 +1454,17 @@ function _vcTts(cfg, voiceId, text, tempo, pause) {
   if (x.code !== 200) { var e = new Error('tts ' + x.code); e.http = x.code; e.why = _vcWhy(x); throw e; }   // [VC_WHY]
   _vcCharLog(String(text).length);
   return x.r.getBlob().getBytes(); }
-function _vcAiFolder(code) { var f = _rfFolderFor(code), it = f.getFoldersByName('AI'); return it.hasNext() ? it.next() : f.createFolder('AI'); }   // 관리 화면 목록(adminRitualFiles)은 하위 폴더를 안 본다
-function _vcHash(s) { return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8)).slice(0, 22); }
+function _vcAiFolder(code) { _gsr_(); var f = _rfFolderFor(code), it = f.getFoldersByName('AI'); return it.hasNext() ? it.next() : f.createFolder('AI'); }   // 관리 화면 목록(adminRitualFiles)은 하위 폴더를 안 본다
+function _vcHash(s) { _gsr_(); return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8)).slice(0, 22); }
 /* [VC_PAR] _vcCached 를 둘로 나눴다 — 저장본 찾기(_vcCacheGet) · 업체에 물을 요청(_vcTtsReq). 열쇠 · 요청 모양은 _vcCached · _vcTts 와 같다(이미 만든 소리가 그대로 맞는다) */
-function _vcCacheGet(code, pre, voiceId, text, tempo, pause) { pause = pause || 150;
+function _vcCacheGet(code, pre, voiceId, text, tempo, pause) { _gsr_(); pause = pause || 150;
   var nm = pre + ' · ' + _vcHash(voiceId + '|' + tempo + '|' + (pause === 150 ? '' : 'p' + pause + '|') + text) + '.mp3', fo = _vcAiFolder(code), it = fo.getFilesByName(nm);
   while (it.hasNext()) { var f0 = it.next(); if (!f0.isTrashed()) return { b64: Utilities.base64Encode(f0.getBlob().getBytes()), nm: nm, fo: fo }; }
   return { b64: '', nm: nm, fo: fo }; }
-function _vcTtsReq(cfg, voiceId, text, tempo, pause) {
+function _vcTtsReq(cfg, voiceId, text, tempo, pause) { _gsr_();
   return { url: VC_BASE + '/v1/text-to-speech', method: 'post', headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true, contentType: 'application/json',
     payload: JSON.stringify({ voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', output: { target_lufs: cfg.lufs, remove_silence_ms: pause || 150, audio_tempo: tempo || 1, audio_format: 'mp3' } }) }; }
-function _vcCached(code, pre, voiceId, text, tempo, cfg, pause) {   // 같은 글 · 목소리 · 빠르기 · 쉼 → 만들어 둔 것 [VOICE_CLONE_0928]
+function _vcCached(code, pre, voiceId, text, tempo, cfg, pause) { _gsr_();   // 같은 글 · 목소리 · 빠르기 · 쉼 → 만들어 둔 것 [VOICE_CLONE_0928]
   /* [PAUSE_STEP] 열쇠에 쉼을 넣는다 — 150(종전 값)이면 옛 열쇠 그대로라 이미 만든 소리가 맞는다 */
   pause = pause || 150;
   var nm = pre + ' · ' + _vcHash(voiceId + '|' + tempo + '|' + (pause === 150 ? '' : 'p' + pause + '|') + text) + '.mp3', fo = _vcAiFolder(code), it = fo.getFilesByName(nm);
@@ -1476,25 +1476,25 @@ var VC_COLOR = ['파란', '노란', '빨간', '하얀', '초록', '까만', '분
    종전엔 '0.9' · '1' · '1.1' 세 값만 받고 나머지는 1 로 떨어뜨렸다 — 새 화면의 1.2 가 조용히 «보통»으로 만들어진다.
    숫자로 읽고 0.7 ~ 1.3 에 묶고 0.1 단위로 맞춘다 · 읽을 수 없으면 1. 캐시 열쇠(_vcCached · voiceId|tempo|text)는 그대로 —
    0.9 · 1 · 1.1 은 전과 같은 숫자라 이미 만든 소리가 그대로 맞는다 */
-function _vcTempo(v) {
+function _vcTempo(v) { _gsr_();
   /* [TEMPO_STEP] · [TEMPO_WIDE 2026-10-04] 화면 −1.0 ~ +1.0 = 빠르기 0.5 ~ 1.5(1 + 0.5 × 값) · 0.05 걸음(타입캐스트 audio_tempo 는 0.5 ~ 2.0 «말 속도 배수» · 클수록 빠르다) */
   var x = parseFloat(v); if (!isFinite(x)) x = 1;
   x = Math.min(1.5, Math.max(0.5, x));
   return Math.round(x * 20) / 20;
 }
 /* ★[PAUSE_STEP 2026-10-04 사장님 «문장 사이 쉼이 너무 짧다»] 문장 사이 쉼 = remove_silence_ms(남겨 둘 쉼 상한 · ms) — 정한 넷만 받는다 · 안 보낸 옛 화면은 150(종전 값) */
-function _vcPause(v) {
+function _vcPause(v) { _gsr_();
   /* [PAUSE_STEP] */
   var x = parseInt(v, 10);
   return [150, 350, 600, 900].indexOf(x) > -1 ? x : 150;
 }
-function _vcKoNum(n) { var D = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'], t = Math.floor(n / 10), o = n % 10; return (t > 1 ? D[t] : '') + (t ? '십' : '') + D[o]; }
-function _vcNewPhrase() {   // [VOICE_CLONE_0928] 확인 문장 — 오늘 날짜 + 색 · 물건 둘(8-2). 예) 오늘은 구월 이십팔일, 파란 우산과 노란 연필.
+function _vcKoNum(n) { _gsr_(); var D = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'], t = Math.floor(n / 10), o = n % 10; return (t > 1 ? D[t] : '') + (t ? '십' : '') + D[o]; }
+function _vcNewPhrase() { _gsr_();   // [VOICE_CLONE_0928] 확인 문장 — 오늘 날짜 + 색 · 물건 둘(8-2). 예) 오늘은 구월 이십팔일, 파란 우산과 노란 연필.
   var d = new Date(), m = +Utilities.formatDate(d, 'Asia/Seoul', 'M'), dd = +Utilities.formatDate(d, 'Asia/Seoul', 'd'), R = function (a) { return a[Math.floor(Math.random() * a.length)]; };
   var c1 = R(VC_COLOR), c2 = R(VC_COLOR), t1 = R(VC_THING), t2 = R(VC_THING); while (c2 === c1) c2 = R(VC_COLOR); while (t2 === t1) t2 = R(VC_THING);
   var last = t1.charCodeAt(t1.length - 1) - 0xAC00, pt = (last >= 0 && last % 28) ? '과' : '와';
   return '오늘은 ' + (m === 6 ? '유' : m === 10 ? '시' : _vcKoNum(m)) + '월 ' + _vcKoNum(dd) + '일, ' + c1 + ' ' + t1 + pt + ' ' + c2 + ' ' + t2 + '.'; }
-function _vcDelVoice(cfg, st, vid) { if (!vid) return; var ok = false;   // 업체 쪽 지우기 — 204 · 404(이미 없음)면 끝 · 아니면 retry 목록
+function _vcDelVoice(cfg, st, vid) { _gsr_(); if (!vid) return; var ok = false;   // 업체 쪽 지우기 — 204 · 404(이미 없음)면 끝 · 아니면 retry 목록
   /* ★[VC_DEL_NOKEY 2026-10-08 목소리 1라운드 85] 키가 비어 있으면 업체에 못 물으니 retry 에 남긴다 — 종전엔 그냥 돌아가 상태에서만 지워지고 업체 목소리를 잃었다(아무도 다시 안 지움) */
   if (!cfg.key) { st.retry = (st.retry || []).filter(function (v) { return v !== vid; }); st.retry.push(vid); return; }
   try { var x = _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(vid)); ok = x.code === 204 || x.code === 200 || x.code === 404; } catch (e) {}
@@ -1504,11 +1504,11 @@ function _vcDelVoice(cfg, st, vid) { if (!vid) return; var ok = false;   // 업�
    서버는 끊긴 뒤에도 끝까지 만들어 저장하는데, 화면은 그 결과를 알 길이 없었다(시뮬레이션 vc-enroll-sim 첫 라운드 21가지 중 4가지가 «서버는 만들었는데 화면은 실패»).
    이제 만들기마다 «작업표»(화면이 붙인 jid · 시작 · 끝 · 결과)를 상태(status)에 싣는다 — 화면은 끊기면 상태를 물어 «만들어졌나 · 실패했나 · 아직인가»를 정확히 안다.
    ★작업표에는 두 분의 글 · 소리를 싣지 않는다(결과 종류 · 코드 · 고객에게 보일 한 줄뿐) */
-function _vcJobPub(j) { if (!j || !j.jid) return null;   // [VC_ENROLL_JOB] 상태로 내보내는 모양 — age = 시작한 뒤 초
+function _vcJobPub(j) { _gsr_(); if (!j || !j.jid) return null;   // [VC_ENROLL_JOB] 상태로 내보내는 모양 — age = 시작한 뒤 초
   return { jid: String(j.jid), end: !!j.end, ok: !!j.ok, kind: String(j.kind || ''), ecode: String(j.ecode || ''), error: j.end && !j.ok ? String(j.error || '') : '', renewed: !!j.renewed, age: Math.max(0, Math.round((Date.now() - (+j.at || 0)) / 1000)) }; }
 /* ★[VC_ENROLL_ONE 2026-10-08 시뮬레이션 retry-during] 끊긴 첫 만들기가 서버에서 아직 도는데 다시 누르면(다른 탭 · 다른 기기 · 새로 고친 화면) 업체 목소리가 하나 더 생겼다 —
    둘 다 «처음에 읽은» 목소리를 앞 목소리로 알아 먼저 만든 쪽이 지워지지 않고 업체 칸(요금제 50칸)에 남았다. 잠그고 다시 읽어, 같은 분 만들기가 도는 중이면 겹쳐 시작하지 않는다 */
-function _vcJobStart(code, who, jid) {
+function _vcJobStart(code, who, jid) { _gsr_();
   var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return null; }   // 잠금을 못 받으면 막지 않는다(종전과 같다) — 앞 목소리는 저장 때 다시 본다(VC_ENROLL_PREV)
   try { var cur = _vcSt(code), p = cur[who] || {}, j = p.job;
     if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };
@@ -1516,7 +1516,7 @@ function _vcJobStart(code, who, jid) {
   finally { try { lock.releaseLock(); } catch (e) {} } }
 /* [VC_ENROLL_JOB] 업체가 답한 «뒤» — 끝난 작업표 · 저장 · 앞 목소리 지우기. 업체 답(x) 또는 업체 호출 예외(xe)를 받는다.
    ★이 경계를 함수로 나눈 까닭 — 시뮬레이터(vc-enroll-sim)가 여기서 시간을 띄운다(업체가 1~2분 걸리는 동안 다른 요청이 끼어드는 것을 진짜 순서로 재현) */
-function _vcEnrollAfter(c, x, xe) { var code = c.code, who = c.who, pp = c.pp, st = c.st;
+function _vcEnrollAfter(c, x, xe) { _gsr_(); var code = c.code, who = c.who, pp = c.pp, st = c.st;
   var endJob = function (r) { var hasJob = !!(c.js && c.js.job);
     if (hasJob) { pp.job = { jid: c.jid, at: c.js.job.at, end: Date.now(), ok: !!r.ok, kind: r.ok ? '' : String(r.kind || ''), ecode: r.ok ? '' : String(r.ecode || ''), error: r.ok ? '' : String(r.error || '').slice(0, 200), renewed: !!r.renewed }; st[who] = pp; }
     if (r.ok || hasJob) c.save(); return r; };   // ★성공은 작업표가 없어도(잠금 실패 · 옛 흐름) 늘 저장한다 — 시뮬레이션이 잡았다(작업표가 있을 때만 저장해 목소리가 사라지고 업체 칸이 샜다)
@@ -1536,7 +1536,7 @@ function _vcEnrollAfter(c, x, xe) { var code = c.code, who = c.who, pp = c.pp, s
     [prev, now].forEach(function (v, i, a) { if (v && v !== nv && a.indexOf(v) === i) _vcDelVoice(c.cfg, st, v); });   // ★새 목소리가 된 뒤에 앞 목소리를 지운다(칸 수 그대로)
     return endJob({ ok: true, who: who, tries: pp.tries, renewed: !!(prev || now) });
   } catch (e) { try { endJob({ ok: false, kind: 'fail', ecode: 'V9', error: VC_DOWN }); } catch (e2) {} throw e; } }   // 예상 못 한 오류도 작업표는 닫는다 — 화면이 «아직 만드는 중»을 6분 동안 기다리지 않게
-function handleVoiceClone(body) {
+function handleVoiceClone(body) { _gsr_();
   body = body || {};   // [VOICE_CLONE_0928]
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
@@ -1622,23 +1622,23 @@ function handleVoiceClone(body) {
   return { ok: false, error: '알 수 없는 요청이에요.' };
 }
 /* [VC_LONG_SPLIT] 글을 문장 사이에서 n 자 안 조각으로 — 문장 하나가 n 자를 넘으면 그 문장만 n 자씩 자른다(글자는 하나도 버리지 않는다) */
-function _vcChunks(t, n) { t = String(t || '').trim(); if (!t) return []; if (t.length <= n) return [t];
+function _vcChunks(t, n) { _gsr_(); t = String(t || '').trim(); if (!t) return []; if (t.length <= n) return [t];
   var out = [], cur = '', ps = t.match(/[^.!?。…\n]*[.!?。…]+\s*|[^.!?。…\n]+\s*|\n+/g) || [t];
   ps.forEach(function (p) { if ((cur + p).length > n && cur.trim()) { out.push(cur.trim()); cur = ''; } while (p.length > n) { out.push(p.slice(0, n).trim()); p = p.slice(n); } cur += p; });
   if (cur.trim()) out.push(cur.trim()); return out.filter(function (x) { return x; }); }
-function _vcPub(p, code) { p = p || {}; var sk = !!code && _voiceStudio(code);   // [VC_NO_COUNT] 시험 예식은 남은 수가 줄지 않는다
+function _vcPub(p, code) { _gsr_(); p = p || {}; var sk = !!code && _voiceStudio(code);   // [VC_NO_COUNT] 시험 예식은 남은 수가 줄지 않는다
   return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, left: sk ? VC_LIM.enroll : Math.max(0, VC_LIM.enroll - (p.tries || 0)), made: p.made || '', deleted: p.deleted || '', job: _vcJobPub(p.job) }; }   // [VC_ENROLL_JOB]
 /* [VOICE_CLONE 5-5] 예식 뒤 30일 — purgeRitualFiles 가 코드마다 부른다(다음 날 지우기가 못 돈 것의 마지막 그물) */
-function _vcPurge(code) { return _vcPurgeNow(code); }
+function _vcPurge(code) { _gsr_(); return _vcPurgeNow(code); }
 /* ★[VOICE_CLONE_0928 8-6] 지금 지우기 — 업체 목소리(둘) · 읽은 녹음 · 연습 소리. 안내 소리(«AI 소리»)는 30일까지 둔다(예식 뒤 내려받기) */
-function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg_(code), n = 0, b0 = JSON.parse(JSON.stringify(st));   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다
+function _vcPurgeNow(code) { _gsr_(); var st = _vcSt(code), cfg = _vcCfg_(code), n = 0, b0 = JSON.parse(JSON.stringify(st));   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다
   ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p) return; if (p.voiceId) { _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); n++; }
     if (p.read && p.read.id) { try { DriveApp.getFileById(p.read.id).setTrashed(true); } catch (e) {} p.read = { gone: fmtKST(new Date()) }; } });
   try { var it = _vcAiFolder(code).getFiles(); while (it.hasNext()) { var f = it.next(); if (/^연습 소리/.test(f.getName())) f.setTrashed(true); } } catch (e) {}
   st.purged = fmtKST(new Date()); _vcSave(code, b0, st); return n; }
 /* ★[VOICE_CLONE_0928 8-6] 매일(aiDaily · 96_ai_cost) — 예식 다음 날이 된 예식 · 취소 · 노쇼는 지운다 · 업체 지우기 실패분 다시 · 칸이 45 넘으면 관리자 메일.
    dry=true 면 대상만 로그(previewVoiceClones) */
-function purgeVoiceClones(dry) {
+function purgeVoiceClones(dry) { _gsr_();
   // [VOICE_CLONE_0928] 예식 다음 날 · 취소 · 노쇼 · 미계약 — 업체 목소리 · 읽은 녹음 · 연습 소리
   if (!dry) { try { _rfMailFlush(); } catch (e) {} }   // [RF_MAIL_THROTTLE] 매일 — 30분 묶음에 남은 파일 알림
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
@@ -1660,7 +1660,7 @@ function previewVoiceClones() { _requireAdmin(); return purgeVoiceClones(true); 
 /* ★[VC_SLOTS 2026-09-28 지시문 5-7 «관리 화면에 쓰는 칸 / 전체 칸»] 요금제의 목소리 칸 — 타입캐스트가 알려 주는 값을 그대로 쓴다.
    GET /v1/users/me/subscription(plan · credits · limits.custom_voice_slot) · GET /v1/custom-voices(만든 목소리 목록) — SDK(typecast-go client.go · models.go) 원본으로 확인.
    ★열 때마다 부르지 않게 10분 캐시 · 키가 없으면 null(관리 화면에 줄이 안 생긴다) · 실패는 err 에 HTTP 코드. */
-function _vcSlots() {
+function _vcSlots() { _gsr_();
   var cfg = _vcCfg_(); if (!cfg.key) return null;   // [VC_SLOTS]
   var c = CacheService.getScriptCache(), v = c.get('VC_SLOTS'); if (v) { try { return JSON.parse(v); } catch (e) {} }
   var o = { on: cfg.clone, plan: '', total: null, used: null, credits: null, err: '' };
@@ -1731,7 +1731,7 @@ function adminVoiceRead(code, who) {   // [VOICE_CLONE_0928] 읽은 녹음 듣�
   try { var b = DriveApp.getFileById(q.id).getBlob(); return { ok: true, phrase: q.phrase || '', mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) }; } catch (e) { return { ok: false, error: '파일을 열지 못했어요.' }; } }
 
 // 하객 업로드 1건 — guide.html 이 파일 하나씩 순차로 부른다(한 번에 몰아 보내지 않는 이유는 프런트 주석 참고).
-function handleGuestPhoto(body) {
+function handleGuestPhoto(body) { _gsr_();
   body = body || {};
   var token = String(body.g || '').trim();
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
@@ -1863,20 +1863,20 @@ var SNAP_ZONE_NOTE_MAX = 300;
 //   이 파일은 다른 일로도 자주 재배포된다. 재배포 날짜에 기대면 그 전에 켜진다 — 그래서 날짜를 코드가 본다.
 //   닫혀 있는 동안: 부부 화면 카드·«지금 할 일»이 숨는다(snapV2 false) · 새 기획 저장·사진 올리기·브리프 만들기를 거절한다.
 //   옛 칸 저장(배포 시차로 남은 탭)은 종전대로 받는다. 날짜는 scripts/audit/snap-plan.mjs 가 privacy.html 과 대조한다.
-function _snapV2Live() {
+function _snapV2Live() { _gsr_();
   // [SNAP_V2_FROM] 처리방침 시행일(SNAP_V2.from · 한국 날짜) 전에는 닫혀 있다
   return typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= SNAP_V2.from;
 }
-function _snapNotYetMsg() { var f = String(SNAP_V2.from); return '새 스냅 기획은 ' + Number(f.slice(5, 7)) + '월 ' + Number(f.slice(8, 10)) + '일부터 고르실 수 있어요.'; }
+function _snapNotYetMsg() { _gsr_(); var f = String(SNAP_V2.from); return '새 스냅 기획은 ' + Number(f.slice(5, 7)) + '월 ' + Number(f.slice(8, 10)) + '일부터 고르실 수 있어요.'; }
 var SNAP_V2_KEYS = ['v', 'zones', 'note'];
 var SNAP_LEGACY_KEYS = ['people', 'mustPeople', 'aboutNote', 'moodCandle', 'moodWhite', 'moodNote', 'refs', 'mustHaves', 'toneStyle', 'comfort', 'propsNote', 'directorNote'];
 var SNAP_ID_RE = /^[A-Za-z0-9_-]{10,80}$/;
 var SNAP_BRIEF_URL = 'https://www.momentedit.kr/brief.html?b=';
 
-function _snapArr(v) { return Object.prototype.toString.call(v) === '[object Array]' ? v : []; }
+function _snapArr(v) { _gsr_(); return Object.prototype.toString.call(v) === '[object Array]' ? v : []; }
 
 // v2 정규화 — 장면 번호는 공간별 형식만(c·w + 두 자리) · 중복 없이 SNAP_V2.pick(8)장까지 · 올린 사진은 드라이브 id 형식만 · 링크는 http(s)만
-function _snapV2Norm(sd) {
+function _snapV2Norm(sd) { _gsr_();
   sd = sd || {};
   // [SNAP_PICK_ALL] 고르기 상한 = SNAP_V2.pick(8 · 2026-09-27) — c01~c04 · w01~w04 도 이제 고르는 장면이다(형식 검사 SNAP_ZONE_RE 는 그대로 받는다)
   var zs = sd.zones || {}, out = { v: 2, zones: {}, note: String(sd.note || '').replace(/[<>]/g, '').slice(0, SNAP_V2.note) };
@@ -1897,7 +1897,7 @@ function _snapV2Norm(sd) {
 }
 
 // v1 정규화 — 옛 화면(배포 시차로 남은 탭)이 보내는 칸. 종전 규칙 그대로(2026-07-19 · SNAP_PREP_NORMALIZE)
-function _snapV1Norm(snr) {
+function _snapV1Norm(snr) { _gsr_();
   snr = snr || {};
   var _snArr = function (v, max, len) { return _snapArr(v).map(function (x) { return String(x).slice(0, len); }).filter(function (x) { return x; }).slice(0, max); };
   return {
@@ -1910,7 +1910,7 @@ function _snapV1Norm(snr) {
 }
 
 // [SNAP_LEGACY_KEEP] 이번 판의 칸은 들어온 값 · 다른 판의 칸은 지난 저장분 — 키 순서를 고정한다(바뀜 판정이 문자열 비교라 순서가 흔들리면 가짜 «바뀜»이 난다)
-function _snapMerge(incoming, stored, isV2) {
+function _snapMerge(incoming, stored, isV2) { _gsr_();
   incoming = incoming || {}; stored = stored || {};
   var mine = isV2 ? SNAP_V2_KEYS : SNAP_LEGACY_KEYS, out = {};
   SNAP_V2_KEYS.concat(SNAP_LEGACY_KEYS).forEach(function (k) {
@@ -1921,7 +1921,7 @@ function _snapMerge(incoming, stored, isV2) {
 }
 
 // 이 고객이 올린 사진만 기획에 싣는다 — 남의 드라이브 파일 id 를 끼워 넣어도 브리프로 새지 않게. th(작은 그림)는 서버 기록에서 채운다
-function _snapOwnUps(draft, meta) {
+function _snapOwnUps(draft, meta) { _gsr_();
   var own = {};
   _snapArr((meta || {}).uploads).forEach(function (u) { if (u && u.id) own[u.id] = u; });
   ['candle', 'white'].forEach(function (k) {
@@ -1933,7 +1933,7 @@ function _snapOwnUps(draft, meta) {
 }
 
 // 남긴 것이 하나라도 있나 — 새 기획(고른 장면·올린 그림·링크·한 칸) 또는 옛 칸(마이페이지 _snapFilledD 와 같은 기준)
-function _snapFilled(sd) {
+function _snapFilled(sd) { _gsr_();
   sd = sd || {};
   var zs = sd.zones || {}, any = String(sd.note || '').trim() !== '';
   ['candle', 'white'].forEach(function (k) { var z = zs[k] || {}; if (_snapArr(z.picks).length || _snapArr(z.ups).length || _snapArr(z.links).length || String(z.note || '').trim()) any = true; });   // [SNAP_ZONE_NOTE] 전할 말만 남겨도 «남긴 것»
@@ -1944,7 +1944,7 @@ function _snapFilled(sd) {
 }
 
 // 예식까지 남은 날(한국 날짜 기준 · 예식일이 없으면 null)
-function _snapDaysLeft(cust) {
+function _snapDaysLeft(cust) { _gsr_();
   var w = _ymdOf(cust.get('예식일'));
   if (!w || typeof _dayDiff !== 'function' || typeof _kstYmd !== 'function') return null;
   return _dayDiff(w, _kstYmd(new Date()));
@@ -1959,8 +1959,8 @@ var SNAP_LOCK_MSG = '예식 3일 전부터는 여기서 고칠 수 없어요. �
 //   ③ 촬영 브리프는 동의가 있을 때만 기획을 싣는다 — 없으면 예식 일시와 사진작가 채우기 추천만([SNAP_PICK_ALL] 9/27 부터 기본 장면 없음)
 //   ④ 거두기(스냅 기획 지우기) — 기획 · 올린 사진 · 링크 · 메모 · 동의 기록을 지우고 브리프 주소를 닫는다. 지운 때만 남긴다(withdrawn)
 var SNAP_CONSENT_MSG = '스냅 기획을 시작하려면 동의가 필요해요.';
-function _snapConsentOk(m) { return !!(m && m.consent && m.consent.at); }
-function _snapConsentGive(m) {
+function _snapConsentOk(m) { _gsr_(); return !!(m && m.consent && m.consent.at); }
+function _snapConsentGive(m) { _gsr_();
   // [SNAP_CONSENT] 기록이 없을 때만 부른다 — 시각은 서버 시계(한국), 판은 그때의 처리방침 시행일
   m.consent = { at: fmtKST(new Date()), ver: String(SNAP_V2.from) };
   delete m.withdrawn;
@@ -1968,7 +1968,7 @@ function _snapConsentGive(m) {
 }
 // [SNAP_CONSENT] 거두기 — 두 분(마이페이지 «스냅 기획 지우기»)과 디렉터(관리자 «스냅 상세» · 잠긴 뒤 부탁받았을 때)가 같은 길을 쓴다.
 //   잠금(예식 3일 전)과 상관없이 받는다 — 고치기가 아니라 동의를 거두는 것이라서다.
-function _snapWithdraw(code, by) {
+function _snapWithdraw(code, by) { _gsr_();
   var lock = LockService.getScriptLock(), files = [], had = false, wed = '-';
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -1996,7 +1996,7 @@ function _snapWithdraw(code, by) {
   }
   return { ok: true };
 }
-function handleSnapWithdraw(body) {
+function handleSnapWithdraw(body) { _gsr_();
   // [SNAP_CONSENT] 두 분의 «스냅 기획 지우기» — 세션으로만(코드를 받지 않는다)
   body = body || {};
   var s = resolveSession(String(body.token || '').trim());
@@ -2011,7 +2011,7 @@ function adminSnapWithdraw(code) {
 }
 
 // 저장 직후(락 안 · 쓰기 전) — 올린 사진 정리 · 확인 해제 · 마감 뒤 변경 알림. 드라이브·메일은 jobs 로 넘겨 «쓰기가 끝난 뒤» 락 밖에서 한다
-function _snapAfterSave(d, oldJ, cust, code, jobs) {
+function _snapAfterSave(d, oldJ, cust, code, jobs) { _gsr_();
   var m = d.snapMeta = d.snapMeta || {};
   var used = {};
   ['candle', 'white'].forEach(function (k) { _snapArr((((d.snapDraft || {}).zones || {})[k] || {}).ups).forEach(function (u) { used[u.id] = 1; }); });
@@ -2039,7 +2039,7 @@ function _snapAfterSave(d, oldJ, cust, code, jobs) {
 }
 
 // 부부 화면에 보내는 스냅 상태 — 확인·회신·잠금만. 폴더 id·올린 목록·브리프 주소는 보내지 않는다
-function _snapMetaPublic(m, cust) {
+function _snapMetaPublic(m, cust) { _gsr_();
   m = m || {};
   var dl = cust ? _snapDaysLeft(cust) : null;
   var c = (m.confirm && m.confirm.at) ? { at: String(m.confirm.at), reply: String(m.confirm.reply || '') } : null;
@@ -2050,7 +2050,7 @@ function _snapMetaPublic(m, cust) {
 
 // [SNAP_UPLOAD] 부부가 «찾던 그림»을 올린다 — 사진 1장(긴 변 1600) + 작은 그림(360). 폰에서 줄여 오므로 원본을 받지 않는다
 //   잠금은 «폴더 확보»와 «기록» 때만 짧게 — 파일 쓰기(느린 구간)는 락 밖(하객 사진 GUEST_PHOTO_IN 과 같은 규칙)
-function handleSnapRefUpload(body) {
+function handleSnapRefUpload(body) { _gsr_();
   // [SNAP_UPLOAD] 이 고객 · 이 공간 · 3장 · 잠금 전에만 받는다(표식은 99_deployCheck 가 함수 본문에서 찾는다)
   body = body || {};
   var s = resolveSession(String(body.token || '').trim());
@@ -2120,7 +2120,7 @@ function handleSnapRefUpload(body) {
 }
 
 // 올린 사진의 작은 그림 — 이 고객이 올린 것만 · 한 번에 6장까지(공간 3 × 2)
-function handleSnapThumbs(body) {
+function handleSnapThumbs(body) { _gsr_();
   body = body || {};
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -2181,7 +2181,7 @@ function adminSnapBrief(code, renew) {
     return { ok: true, url: SNAP_BRIEF_URL + t, until: _snapBriefUntil(wed) };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
-function _snapBriefUntil(wed) {
+function _snapBriefUntil(wed) { _gsr_();
   var mm = String(wed || '').match(/^(\d{4})-(\d{2})-(\d{2})/); if (!mm) return '';
   return Utilities.formatDate(new Date(Date.UTC(+mm[1], +mm[2] - 1, +mm[3] + SNAP_V2.briefDays, 3)), 'Asia/Seoul', 'yyyy-MM-dd');
 }
@@ -2199,7 +2199,7 @@ function adminSnapThumbs(code) {
 }
 
 // [SNAP_BRIEF] 작가가 여는 브리프 — 주소 하나로만 연다(로그인 없음). 이름·연락처는 싣지 않는다(예식일·도착 시각·기획만)
-function _snapBriefCust(t) {
+function _snapBriefCust(t) { _gsr_();
   t = String(t || '').trim();
   if (!/^[a-f0-9]{40}$/.test(t)) return { err: { ok: false, error: '잘못된 주소예요.' } };
   var code = PropertiesService.getScriptProperties().getProperty('SNAPBRIEF_' + t);
@@ -2211,7 +2211,7 @@ function _snapBriefCust(t) {
   if (dl != null && dl < -SNAP_V2.briefDays) return { err: { ok: false, expired: true, error: '촬영이 끝나 브리프를 닫았어요.' } };
   return { cust: cust, d: d, m: m };
 }
-function handleSnapBrief(body) {
+function handleSnapBrief(body) { _gsr_();
   var r = _snapBriefCust((body || {}).b); if (r.err) return r.err;   // [SNAP_BRIEF] 이름·연락처 없이 — 예식일·도착 시각·기획만
   var sd = r.d.snapDraft || {}, zs = sd.zones || {}, ci = (_parseJsonSafe(r.cust.get('동의기록')) || {}).계약정보 || {};
   var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 사진작가 채우기 추천만(추천은 브리프 화면이 원천 fill 에서 그린다 · [SNAP_PICK_ALL] 9/27 부터 기본 장면 없음)
@@ -2237,7 +2237,7 @@ function handleSnapBrief(body) {
   return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: okc ? String(sd.note || '') : '', consent: okc,
     reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))), photo: ph };
 }
-function handleSnapBriefImg(body) {
+function handleSnapBriefImg(body) { _gsr_();
   body = body || {};
   var r = _snapBriefCust(body.b); if (r.err) return r.err;
   if (!_snapConsentOk(r.m)) return { ok: false, error: '사진을 찾을 수 없어요.' };   // [SNAP_CONSENT] 동의가 없으면 올린 사진도 안 연다
@@ -2250,7 +2250,7 @@ function handleSnapBriefImg(body) {
 
 // [SNAP_PURGE] 예식 183일 뒤 — 올린 사진 폴더를 휴지통으로 · 링크·메모·올린 목록을 비우고 · 브리프 주소를 닫는다. 고른 장면 번호(c05…)는 개인정보가 아니라 남긴다
 //   ★기본 드라이런(로그만) · 실제 반영은 purgeSnapRefs(false) — purgeAdvisorLog(주간 트리거)가 함께 부른다
-function purgeSnapRefs(dryRun) {
+function purgeSnapRefs(dryRun) { _gsr_();
   if (dryRun !== false) dryRun = true;   // [SNAP_PURGE]
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   if (!colOf[PROD_META_COL]) return '제작 열 없음(할 일 없음)';
@@ -2289,7 +2289,7 @@ function previewSnapRefs() { _requireAdmin(); return purgeSnapRefs(true); }   //
 
 // [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
 //   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
-function buildProductionState(r) {
+function buildProductionState(r) { _gsr_();
   if (!r) return null;
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 제작/청첩장 단계 없음 · 시그 전용 카드 노출·잘못된 '제작중' 전이 방지
   var stage = String(r.get('현재단계') || '').trim();
@@ -2356,13 +2356,13 @@ function buildProductionState(r) {
 //   사진 파일은 서버 X(드라이브 링크). 선택 = A안(번호/파일명 텍스트). 추가 보정 = 포함 10컷·추가 컷당 20,000(홈페이지 기준).
 var RESULT_STAGES = ['예식완료', '촬영완료', '결과물전달', '후기'];   // ★STAGE_REVIEW 최고위험 지점 — '후기' 빼면 후기 단계 고객의 결과물 카드·갤러리·설문 카드가 통째로 사라진다. 제거 금지
 var RESULT = { 포함보정컷: 10, 추가보정단가: 20000 };   // ★단가·포함컷 단일 출처(momentedit.kr 가격표와 동일)
-function _resAcct() {
+function _resAcct() { _gsr_();
   return {
     account: (typeof CONFIG !== 'undefined' && CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (typeof CONFIG !== 'undefined' && CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : ''
   };
 }
-function buildResultState(r) {
+function buildResultState(r) { _gsr_();
   if (!r) return null;
   var stage = String(r.get('현재단계') || '').trim();
   if (RESULT_STAGES.indexOf(stage) === -1) return null;
@@ -2410,7 +2410,7 @@ function buildResultState(r) {
 // [MPD3_GAL 05-②B] 썸네일 갤러리 목록 — 고객 토큰 인증 → 원본폴더ID의 이미지 파일만 이름순 열거.
 //   60장/페이지 · 전체 목록(id·이름)은 CacheService 10분 캐시(수백 장에서 6분 한도·쿼터 회피 · 캐시 실패해도 동작).
 //   썸네일 URL은 drive.google.com/thumbnail — 원본 폴더가 링크 공유(하위 상속)라 고객 브라우저가 직접 로드(GAS 프록시 없음).
-function handleGetResultGallery(body) {
+function handleGetResultGallery(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var r = s.row;
@@ -2468,7 +2468,7 @@ var PICK_SEP = /[\s,;·，、]+/;             // 토큰을 쪼개는 문자
 var PICK_NAME_BAD = /[()\s,;·，、]+/g;      // 이름에서 지울 문자 = 쪼개는 문자 + 괄호
 
 // [05-②] 고객 사진 선택 제출(A안: 번호/파일명 텍스트). 단계 전이 없음.
-function handleSubmitResultSelection(body) {
+function handleSubmitResultSelection(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -2527,7 +2527,7 @@ function handleSubmitResultSelection(body) {
 }
 
 // [05-③] 추가 보정 신청(고객). 포함 10컷 외 추가 = 컷당 20,000(자동 견적).
-function handleRequestExtraRetouch(body) {
+function handleRequestExtraRetouch(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -2559,7 +2559,7 @@ function handleRequestExtraRetouch(body) {
 }
 
 // [05-③] 추가 보정 입금 신호(고객). 신청/견적/결제대기 → 결제대기. 입금자명도 함께 기록(통장 대조용).
-function handleExtraRetouchSignal(body) {
+function handleExtraRetouchSignal(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -2586,7 +2586,7 @@ function handleExtraRetouchSignal(body) {
 }
 
 // [05-④] 보정본 컨펌(고객). 컨펌대기 → 컨펌완료. 단계 전이 없음(아카이브는 관리자 [결과물 전달] 때만).
-function handleConfirmRetouch(body) {
+function handleConfirmRetouch(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -2613,7 +2613,7 @@ function handleConfirmRetouch(body) {
 //   동의기록.수정요청이력에 {at, cats, note, status:'대기'} 적재(대기 1건만·멱등) + 관리자 메일 통지.
 //   반영 경로: 관리자가 보정본을 재등록(adminSetResultLinks)하면 '반영' 처리 + 고객에게 보정본 재안내(기존 컨펌대기 흐름 재사용).
 var REVISION_CATS = ['피부 보정', '밝기/색감', '몸/라인', '배경 정리', '기타'];
-function handleRequestRevision(body) {
+function handleRequestRevision(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -2653,7 +2653,7 @@ function handleRequestRevision(body) {
 }
 
 // [05-마지막] 만족도 설문 제출(고객). 전달 완료 후. answers={질문키:선택값} 객관식 + review(후기)·reviewPublic(공개동의).
-function handleSubmitSurvey(body) {
+function handleSubmitSurvey(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
