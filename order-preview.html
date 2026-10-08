@@ -3344,7 +3344,7 @@ function render(){
   try{ [].forEach.call(el.querySelectorAll('.ta.grow'),_taGrow); }catch(e){}   // [RIT_VOW_GROW] 적어 둔 글이 있으면 그 높이로
   /* ★[PICK_V2] ① 은 제 배치를 쓴다(PC 이야기판 · 아래 막대 흐림) — 수정하러 온 길(editReturn)에는 아래 단추(취소 · 저장)를 남긴다 */
   var _pk=(st.k==='pick'&&isOpen()); document.body.classList.toggle('pk2',_pk); document.body.classList.toggle('pr2',st.k==='practice'&&isOpen());   /* [PR_WIDE] ③ 연습하기는 PC 에서 넓게 */ document.body.classList.toggle('pk2e',_pk&&!!editReturn);
-  if(_pk){ try{ _pickPaint(); }catch(e){} try{ _shortCheck(); }catch(e){} /* [SHORT_TOAST] */ } else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
+  if(_pk){ try{ _pickPaint(); }catch(e){} /* ★단체 사진 부족 알림 둘째 줄(_shortCheck) 금지 — 2026-10-09 사장님 지시로 삭제 [SHORT_TOAST_OFF] */ } else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
   _paintCta(st.k);
   try{ var _rl=document.getElementById('opResetLow'); if(_rl) _rl.hidden=true; }catch(e){}   // [RIT_RESTART_LOW] ★[HEAD_PILLS 2026-09-27 사장님] ④ 맨 아래 밑줄 글도 머리 알약(#obRestart)으로 옮겼다 — 늘 숨긴다
   _headPills(st.k);   // [HEAD_PILLS]
@@ -3976,16 +3976,12 @@ var _noteShut={}, _noteWide=false;
 /* ★★[SHORT_TOAST 2026-10-07 사장님 «"천천히 진행되면 단체 사진이 …" 문구를 요약해 핵심만 아래 팝업으로 잠깐 나왔다 사라지게» → «추천대로»]
    단체 사진 부족 알림(엔진 key 'short')은 판 · 아래 막대 · 위 얇은 띠의 상자에서 뺐다(_noteFull) — 담아서 짧아지는 «그 순간» 아래 알림으로 한 번 4초.
    «전체 사진은 그대로 · 가족 구도는 앞쪽부터»는 저희가 당일에 하는 일이라 뺐다. 놓쳐도 오른쪽 «단체 사진 약 N~M분»이 늘 말한다.
-   ★단체 사진 문구를 판 상자로 되돌리기 금지 — 2026-10-07 사용자 지시로 삭제(그 상자가 오른쪽만 길게 만들어 그림 아래가 비었다) */
+   ★단체 사진 문구를 판 상자로 되돌리기 금지 — 2026-10-07 사용자 지시로 삭제(그 상자가 오른쪽만 길게 만들어 그림 아래가 비었다)
+   ★그 «아래 알림»도 2026-10-09 걷었다(SHORT_TOAST_OFF · 사장님 «알아서 하게 두자») — 판 상자 · 알림 어디에도 다시 넣지 않는다 */
 function _noteFull(sh){ var n=RitualOpen.noticeFull(S,sh); return (n&&n.key==='short')?null:n; }   // [SHORT_TOAST]
-var _shortWas=null;   // 지난번 단체 사진 하한(분) · 부족하지 않으면 99
-function _shortCheck(){ var R=RitualOpen, pa=R.span(S).pa, now=(R.picked(S).length&&pa<R.SHORT_MIN)?pa:99;
-  if(_shortWas===null){ _shortWas=now; return; } var fire=now<_shortWas; _shortWas=now; if(!fire) return;   // 부족해지는 순간 · 부족한 채 더 줄어드는 순간에 한 번씩
-  var msg=R.span(S).pa>0?'단체 사진이 약 '+R.span(S).pa+'분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요':'단체 사진 시간이 모자라요 · 순간을 하나 덜면 여유가 생겨요';   /* [PHOTO_FLOOR0 2026-10-08] «약 -8분으로 줄어요»가 떴다 */
-  setTimeout(function(){ var u=document.getElementById('pkUndo'); if(!u){ u=document.createElement('div'); u.id='pkUndo'; u.className='pk-undo'; document.body.appendChild(u); }
-    var two=!u.hidden&&u.textContent; clearTimeout(_undoT); u.classList.add('wrap'); u.innerHTML=(two?u.innerHTML:'')+'<span>'+esc(msg)+'</span>'; u.hidden=false; _pkUndoPos();   // 예시 확인 문구가 떠 있으면 그 아래 둘째 줄
-    try{ _lSay(msg); }catch(e){}
-    _undoT=setTimeout(function(){ u.hidden=true; u.innerHTML=''; u.classList.remove('wrap'); _opPrev=null; },4000); },0); }
+/* ★★[SHORT_TOAST_OFF 2026-10-09 사장님 «(‹기록› 예시로 바꿨어요 아래) 두 번째 줄 전부 삭제 · 알아서 하게 두자»] 단체 사진이 짧아질 때 뜨던 알림 둘째 줄
+   («단체 사진이 약 N분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요» · 예시를 바꿀 때 · 순간을 담을 때 같은 함수)을 걷었다 — 시간은 위 «예식 흐름» 줄 · 가로바가 늘 보인다.
+   ★단체 사진 부족 알림 둘째 줄(_shortWas · _shortCheck) 금지 — 2026-10-09 사장님 지시로 삭제. 되살리지 말 것 */
 function _noteHtml(){
   var n=_noteFull(_noteShut); if(!n) return '';   // [NOTICE_QUEUE] 닫은 것은 건너뛰고 다음 알림
   var h='<div class="op-note'+(_noteWide?' wide':'')+'"><p class="op-note-t" tabindex="-1" data-fk="opnote" onclick="opNoteWide()">'+esc(n.msg)+'</p>';   // ★[NOTE_PARA 코워크 추가 점검 · 접근성] 글은 단추가 아니라 문단 — 화면 읽기는 글 전체를 그대로 읽는다(줄임은 눈에만) · 얇은 띠에서 누르면 펼치는 것은 손가락 편의

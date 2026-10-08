@@ -30,14 +30,14 @@ try { for (const w of [1280, 390]) { const pg = await br.newPage({ viewport: { w
   ok(`${w} ① 그림 밑 이름 줄 없음(글자 = 곡선 위 이름표 · 넷까지 · 안 겹침)${w >= 1000 ? ' · 높이 120' : ''}`, NAMES_OK(a, 1) && (w < 1000 || a.h === 120), JSON.stringify(a));
   await pg.evaluate(() => opTgl('free')); await wait(250);
   const b = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return { pa: RitualOpen.span(S).pa, toast: u && !u.hidden ? u.textContent : '', box: /천천히 진행되면|단체 사진이 약/.test(((document.querySelector('#pkFlow') || {}).textContent || '') + ((document.getElementById('pkSlim') || {}).textContent || '') + ((document.querySelector('.cta-al') || {}).textContent || '')) }; });
-  ok(`${w} ③ 부족해지는 순간 아래 알림 «단체 사진이 약 ${b.pa}분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요»`, b.toast === '단체 사진이 약 ' + b.pa + '분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요', JSON.stringify(b));
+  ok(`${w} ③ 순간을 담아 단체 사진이 짧아져도 아래 알림 없음(알아서 하게 두기 · SHORT_TOAST_OFF 2026-10-09)`, !/단체 사진이 약|시간이 모자라요|순간을 하나 덜면/.test(b.toast), JSON.stringify(b));
   ok(`${w} ② 단체 사진 문구가 판 · 막대 · 띠에 상자로 없다`, !b.box, JSON.stringify(b));
   if (SHOT) await pg.screenshot({ path: SHOT + '-toast-' + w + '.png' });
   await wait(4300); const c = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return !u || u.hidden; });
   ok(`${w} ③ 4초 뒤 사라짐`, c, String(c));
   await pg.evaluate(() => opTgl('letter')); await wait(250);
   const d = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return u && !u.hidden ? u.textContent : ''; });
-  ok(`${w} ③ 부족한 채 더 줄면 다시 한 번`, /단체 사진이 약 \d+분으로 줄어요/.test(d), d);
+  ok(`${w} ③ 더 줄어도 알림 없음(SHORT_TOAST_OFF)`, !/단체 사진이 약|시간이 모자라요|순간을 하나 덜면/.test(d), d);
   await pg.evaluate(() => { S.on = {}; ['bless', 'vow', 'tribute'].forEach((k) => { S.on[k] = 1; }); opSync(); }); await wait(500);
   const e = await pg.evaluate(() => { const n = document.querySelector('#pkFlow .op-note'), sv = document.querySelector('#pkFlow .pk-fg svg'), sd = document.querySelector('#pkFlow .pk-side'); if (!n) return null; const nr = n.getBoundingClientRect(), gr = sv && sv.getBoundingClientRect(), sr = sd.getBoundingClientRect(); return { inSide: !!n.closest('.pk-side'), below: gr ? Math.round(nr.top - gr.bottom) : null, leftOfSide: nr.right <= sr.left + 1, t: n.textContent.slice(0, 24) }; });
   ok(`${w} ④ 단추 알림은 판에 남는다${w >= 1000 ? ' · PC 는 그림 바로 아래(오른쪽 칸 아님)' : ''}`, e && !e.inSide && (w < 1000 || (e.leftOfSide && e.below >= 0 && e.below <= 40)), JSON.stringify(e));
