@@ -8735,7 +8735,7 @@ nochk '②momentedit.kr 한 번 열기' automation/platform/99_deployCheck.gs
 #   화면 파일은 deployCheck ①-C(본문 길이 대조)가 잡는다. 그 안내를 출력에 박아 두고 여기서 지킨다.
 chk 'STAMP_FN_ONLY' automation/platform/99_deployCheck.gs 1
 chk 'LOG_COMPACT' automation/platform/99_deployCheck.gs 2
-chk '화면 파일(Admin·ScreenA·B·C .html)은 지문에 안 들어갑니다' automation/platform/99_deployCheck.gs 1
+chk '화면 파일(.html)은 지문에 안 들어갑니다' automation/platform/99_deployCheck.gs 1
 chk "typeof g\[k\] === 'function'" automation/platform/00_platform-config.gs 1
 chk '★배포 확인' automation/platform/99_deployCheck.gs 3   # 세 갈래 문장이 살아 있는가
 chk 'STAMP_ONLY' automation/platform/99_deployCheck.gs 2
@@ -15966,5 +15966,7 @@ chk 'SCHED_DBL_RESIDUE' scripts/audit/err-pages.mjs 3
 # ★★[ADMIN_BACKUP_RETIRE 2026-10-08 사장님 «추천대로해»] GAS 예비 관리 화면(Admin.html · /exec?admin=1) 은퇴 — 되살리지 말 것(제거 지시 보존 규칙)
 #   serveAdmin 은 안내 한 장(«관리 화면은 momentedit.kr/admin.html 에서»)만 보인다. 그 파일을 보던 검사 27줄은 같은 커밋에서 걷었다.
 chk 'ADMIN_BACKUP_RETIRE' automation/admin/admin.gs 1
+chk 'ADMIN_BACKUP_RETIRE' automation/platform/99_deployCheck.gs 2   # 화면 파일 이름은 목록(html)에서 읽는다 · 손으로 박지 않는다
+nochk 'Admin·ScreenA' automation/platform/99_deployCheck.gs
 nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
 if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi
