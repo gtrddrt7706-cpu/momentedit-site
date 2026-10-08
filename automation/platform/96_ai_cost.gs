@@ -191,7 +191,7 @@ function aiQuestionResolve(q) { _requireAdmin();   // adminCall — 이 질문�
 
 // ⑦ 교육 후보 — 실제 고객 질문 로그('상담사질문로그') 최신순. 상담연결(Y)=AI가 못 푼 것 → 우선 교육 대상.
 //   질문은 이미 개인정보 마스킹되어 적재됨(_maskPII). 관리자가 보고 한 탭으로 교육으로 잇는 용도.
-function aiQuestionLog() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 관리 화면 껍데기 · 예약 실행은 aiQuestionLog_ */ return aiQuestionLog_(); }   // adminCall · [GSR_SPLIT] 잠긴 껍데기 — 고객이 쓴 질문 원문 · 관리자만
+function aiQuestionLog() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 관리 화면 껍데기 · 예약 실행은 aiQuestionLog_ · [GSR_SPLIT] */ return aiQuestionLog_(); }   // adminCall · 고객이 쓴 질문 원문 · 관리자만
 function aiQuestionLog_() {   // 안쪽 · 안전점검(예약 실행)이 부른다
   try {
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
