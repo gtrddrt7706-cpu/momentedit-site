@@ -1271,7 +1271,12 @@ function handleRitualFileDel(body) {
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var f = _rfFileIn(code, String(body.id || '').trim());
-  if (!f) return { ok: true, gone: true };   // 이미 없음 = 지운 것과 같다(멱등)
+  /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»(all)는 그 자리의 두 분 파일을 모두 휴지통으로 — 올리기 다시 보내기(UP_AGAIN)는
+     서버가 이미 저장했을 수 있는 파일을 한 번 더 보내 같은 자리에 사본이 생긴다. 하나만 지우면 남은 사본이 당일 콘솔(가장 새 파일)에서 나왔다(개인정보 약속).
+     스튜디오가 대신 올린 파일(« · 스튜디오 · »)은 두지 않는다 · 화면은 첫 요청에만 all 을 싣는다(다시 묻기가 그 사이 새로 올린 것을 지우지 않게) */
+  var swept = 0, key = String(body.key || '').trim();
+  if (body.all && RF_KEYS[key]) { try { var it = _rfFolderFor(code).getFiles(), fid = f ? f.getId() : ''; while (it.hasNext()) { var g = it.next(); if (g.isTrashed() || g.getId() === fid) continue; var gn = g.getName(); if (_rfKeyOfName(gn) !== key || gn.indexOf(RF_KEYS[key] + ' · 스튜디오 · ') === 0) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {} }
+  if (!f) return { ok: true, gone: true, swept: swept };   // 이미 없음 = 지운 것과 같다(멱등)
   try { f.setTrashed(true); } catch (e) { return { ok: false, ecode: 'D4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '지우지 못했어요. 다시 눌러 주세요.' }; }   // [ERR_CODE_GAS]
   return { ok: true, key: String(body.key || ''), id: String(body.id || '') };
 }
