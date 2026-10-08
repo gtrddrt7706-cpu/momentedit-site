@@ -156,7 +156,7 @@ const SC = {
     await ctx.close(); },
   /* 34 대조 — 고객이 지운 빈 줄 */
   async deleted() { const { ctx, pg, f, errs } = await open({ mode: 'ai' });
-    await f.evaluate(() => { delete S.up.g1; _persist(); mkGo('guest'); }); await adv(pg, 600);
+    await f.evaluate(() => { S.up.g1 = 0; _persist(); mkGo('guest'); });   // 지우기 단추와 같은 모양(_mkUpDrop · S.up[k]=0) await adv(pg, 600);
     await chip(f, '[data-fk="mkex:guest:2"]'); await adv(pg, 60000);
     const r = await f.evaluate(() => ({ g1: (S.up || {}).g1 || null, m: ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k)) }));
     const fr = await FRESH(f, ['g0', 'g2', 'g3']);

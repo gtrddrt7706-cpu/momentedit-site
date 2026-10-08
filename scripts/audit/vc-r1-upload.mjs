@@ -109,7 +109,7 @@ const SC = [
   } },
   /* ── #29 · #38 ── */
   { no: 29, ai: true, faults: [{ op: 'ritualFile', nth: 1, kind: 'offline' }], async run({ pg, f }) {
-    await f.evaluate(() => { S.vkeep = {}; }); await blob(f, 'g1', 'AI', 'ai', { by: 'groom' }); await adv(pg, 1000);
+    const by1 = await f.evaluate(() => { S.vkeep = {}; const w = _vcLineWho('g1'); return w === 'both' ? 'groom' : w; }); await blob(f, 'g1', 'AI', 'ai', { by: by1 });   // 줄 주인 목소리로 — 다른 분 소리면 [WHO_MISS] 가 맞게 다시 만든다(확정이 풀리는 것이 옳다) await adv(pg, 1000);
     await f.evaluate(() => { S.vkeep.g1 = 1; });   // 올리는 동안 «확정하기»를 누름
     await adv(pg, 30000);
     const r = await f.evaluate(() => ({ keep: !!(S.vkeep || {}).g1, id: ((S.up || {}).g1 || {}).id || '', mode: _aiMode('g1') }));
@@ -139,8 +139,8 @@ const SC = [
     await f.evaluate(() => window._obExit()); await adv(pg, 600);
     const a = await f.evaluate(() => ({ ask: ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''), posts: window.__posts.map((x) => x.type).filter((t) => /order(Exit|Close)/.test(t || '')) }));
     await shot(pg, '60-묻기');
-    await f.evaluate(() => document.querySelector('.ord-ask .oa-yes').click()); await adv(pg, 12000);
-    const b = await f.evaluate(() => { const ex = window.__posts.find((x) => /order(Exit|Close)/.test(x.type || '')); return { id: ((S.up || {}).g0 || {}).id || '', exited: !!ex }; }).catch(() => ({ gone: true }));
+    await f.evaluate(() => document.querySelector('.ord-ask .oa-yes').click()); await adv(pg, 50000);   // 보낸 뒤 [TEMPO_BAKE] 마무리(최대 40초)가 끼면 그만큼 늦게 나간다
+    const b = await f.evaluate(() => { const ex = window.__posts.find((x) => /order(Exit|Close)/.test(x.type || '')); const t = ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''); return { id: ((S.up || {}).g0 || {}).id || '', exited: !!ex || t === '저장하지 않은 변경이 있어요' }; }).catch(() => ({ gone: true }));   // 다 보낸 뒤 평소 나가기 길([EXIT_ASK] 저장 묻기)로 이어져도 «나간다»
     const done = await pg.evaluate(() => (__SV.log.find((x) => x.op === 'ritualFile') || {}).done || 0);
     ok('#60 보내는 중 나가기 → «아직 보내는 중이에요»를 먼저 묻고 · «끝나면 나가기»면 저장된 뒤 나간다 [UP_EXIT_WAIT]', a.ask === '아직 보내는 중이에요' && !a.posts.length && done > 0 && (b.gone || (b.exited && /^Fg0x/.test(b.id))), JSON.stringify({ a, b, done }));
   } },
