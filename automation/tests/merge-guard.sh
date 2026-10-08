@@ -14845,7 +14845,7 @@ chk "'예시를 바꿨어요':'글을 고쳤어요'" order-preview.html 1
 nochk "'읽는 분이 바뀌었어요':'글을 고쳤어요')" order-preview.html
 chk 'EX_OLD_IS_EX' order-preview.html 8
 chk 'var PV_OLD={' order-preview.html 1
-chk "if(!t||_exIs('pv')) return put();" order-preview.html 1
+chk "_exAsk('소개글은',!!t&&!_exIs('pv')" order-preview.html 1   # [EX_OLD_IS_EX → EX_ASK_ONE 2026-10-08] 옛 예시 글이면 묻지 않는다(묻기는 _exAsk 한 곳)
 # ★[EX_OLD_COVER 2026-10-07 사장님 «확실하게»] 예시 글을 바꾸면 옛 글을 EX_OLD_1006 · PV_OLD 에 남겨야 한다 — origin/main 과 대조(브라우저 없이 CI 에서 돈다)
 chk 'EX_OLD_COVER' scripts/audit/ex-old-cover.mjs 1
 chk 'EX_PROMISE' CLAUDE.md 1
