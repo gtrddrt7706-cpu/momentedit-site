@@ -3599,6 +3599,9 @@ chk '두 분이 직접</b> 해주세요' mypage.html 1
 # [STAMP_FORCE] --stamp 는 «내용이 그대로여도» 목록 날짜를 새로 찍는다 — 스쿼시 병합이 .gs
 #   커밋 날짜만 앞으로 옮겨 [LIST_AGE] 가 빨개지는, 처방이 듣지 않는 막다른 빨강을 푼다.
 chk 'STAMP_FORCE' scripts/gen-deploy-fns.mjs 1
+# ★[NEEDS_SWITCH 2026-10-09] deploy-marks.json 의 needs 둘째 칸(a)은 «켜는 스위치 이름» — 설명 글이 들어가면 deployCheck ⑦ 이 스위치를 못 찾아 «꺼져 있어 지금은 필요 없음»으로 그 키를 영영 안 본다(TYPECAST_API_KEY 실사고 · VOICE_CLONE=on 인데)
+chk 'NEEDS_SWITCH' scripts/gen-deploy-fns.mjs 1
+if command -v node >/dev/null 2>&1; then node -e "const d=require('./deploy-marks.json');const sw=new Set(d.props.filter(p=>p.kind==='switch').map(p=>p.key));const bad=d.props.filter(p=>p.kind==='needs'&&!sw.has(p.a));if(bad.length){console.log('FAIL NEEDS_SWITCH: needs 의 스위치 이름이 스위치 목록에 없다 — '+bad.map(p=>p.key+' → '+p.a).join(' · '));process.exit(1)}console.log('ok NEEDS_SWITCH')" || fail=1; fi
 chk "includes('--stamp')" scripts/gen-deploy-fns.mjs 1
 chk 'OK_FALSE_GUARD' automation/consultation/ScreenB_schedule.html 1
 chk 'OK_FALSE_GUARD' scripts/audit/okfalse-handled.mjs 1
@@ -16180,7 +16183,11 @@ nochk 'var pa = DAYMIN - b, pb = DAYMIN - a;' assets/ritual-open.js
 chk "photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요'" assets/ritual-open.js 1
 chk 'TABLE_MAX6' assets/ritual-open.js 1
 nochk 'Math.min(12, Math.max(1, Math.round(n)))' assets/ritual-open.js
-chk 'PHOTO_FLOOR0' order-preview.html 1
+# ★★[SHORT_TOAST_OFF 2026-10-09 사장님 «(예시 알림) 두 번째 줄 전부 삭제 · 알아서 하게 두자»] 단체 사진이 짧아질 때 뜨던 둘째 줄 알림(_shortCheck)을 걷었다 — 예시를 바꿀 때 · 순간을 담을 때 둘 다(같은 함수)
+chk 'SHORT_TOAST_OFF' order-preview.html 3
+nochk 'function _shortCheck(' order-preview.html
+nochk "+'분으로 줄어요 · 순간을 하나 덜면" order-preview.html   # 코드 줄만(★금지 주석의 옛 문구는 걸지 않는다)
+chk 'SHORT_TOAST_OFF' scripts/audit/flow-plain.mjs 2
 chk 'PHOTO_FLOOR0' mypage.html 1
 chk "if(_pb<=0) return '두 분 식순이면 본식이 길어 단체 사진 시간이 모자라요. 순간을 하나 덜면 여유가 생겨요.';" mypage.html 1
 chk 'PHOTO_FLOOR0' scripts/audit/open-course.mjs 3
