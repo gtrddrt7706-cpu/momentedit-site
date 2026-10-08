@@ -94,7 +94,8 @@ await sec('①', async () => {
   ok('① 첫 로드 → «다시 불러오기» 화면 · 서버 글 + (코드 L9 · 코드 앞 마침표 없이 [ERR_CODE_DOT]) · 코드를 알려 달라는 한 줄', a.retry && a.retryTxt === '다시 불러오기' && /요청을 처리하지 못했어요\. 잠시 후 다시 시도해 주세요 \(코드 L9\)/.test(a.text) && !/주세요\. \(코드/.test(a.text) && /이 코드를 카카오톡으로/.test(a.text), JSON.stringify(a));
   /* 360 한 줄 — 끊김(L6)일 때의 원인 줄(서버 글 L9 는 서버 문장이라 길다) */
   GAS.getMyState = { abort: 1 };
-  await pg.evaluate(() => { document.getElementById('mp_retryLoad').click(); }); await pg.waitForTimeout(1200);
+  /* [STATE_PATIENT 2026-10-08] 끊기면 1.2초 뒤 한 번 더 묻는다 — 두 번 다 끊긴 뒤에 L6 화면이다(종전 1.2초 기다림으로는 다시 묻는 중을 잰다) */
+  await pg.evaluate(() => { document.getElementById('mp_retryLoad').click(); }); await pg.waitForTimeout(2800);
   const l6 = await pg.evaluate(() => { const d = document.querySelector('#loading > div'); return d ? d.textContent : ''; });
   const ln = await lines(pg, '#loading > div');
   ok('① 다시 불러오기도 끊기면 «연결이 끊겼어요 · 다시 불러와 주세요 (코드 L6)»', l6 === '연결이 끊겼어요 · 다시 불러와 주세요 (코드 L6)', l6);
@@ -446,7 +447,7 @@ await sec('⑭', async () => {
   const { ctx, pg, errs } = await open(390, "localStorage.setItem('me_token','TOK');");
   await pg.goto(`${BASE}/mypage.html`); await pg.waitForTimeout(1500);
   GAS.getMyState = { abort: 1 };
-  await pg.evaluate(() => { try { localStorage.removeItem('me_state_v1'); } catch (e) {} show('loading'); loadMyState({ silent: true }); }); await pg.waitForTimeout(1300);
+  await pg.evaluate(() => { try { localStorage.removeItem('me_state_v1'); } catch (e) {} show('loading'); loadMyState({ silent: true }); }); await pg.waitForTimeout(2800);   // [STATE_PATIENT] 끊김은 한 번 더 묻고 나서
   const a = await pg.evaluate(() => ({ retry: !!document.getElementById('mp_retryLoad'), text: (document.querySelector('#loading > div') || {}).textContent || '' }));
   ok('⑭ «불러오는 중»에서 silent 받기가 끊겨도 다시 불러오기 화면 «연결이 끊겼어요 · 다시 불러와 주세요 (코드 L6)» — 스피너가 끝나지 않던 길 [LOAD_FAIL_SPIN]', a.retry && a.text === '연결이 끊겼어요 · 다시 불러와 주세요 (코드 L6)', JSON.stringify(a));
   GAS.getMyState = { json: { ok: false, ecode: 'L0', error: '고객 정보를 찾지 못했어요.' } };

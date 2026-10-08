@@ -6,12 +6,22 @@
  * 민감정보(비번해시·토큰·타인 데이터)는 절대 포함하지 않는다(DoD).
  */
 
+var __GMS_ON = false;   // [GMS_MEMO] getMyState 한 번 동안만 참
+
 function handleGetMyState(body) {
+  /* ★★[GMS_MEMO 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
+     한 번 불러오기 안에서 같은 시트 · 같은 행을 다시 찾지 않는다. 계약 · 입금을 마친 고객이면 종전엔
+     상담 시트 행을 4번(상담 카드 · 제작 · 현금영수증 · 환불 예상) · 고객 행을 2번(로그인 · 예약금 카드) 따로 찾았다 —
+     찾을 때마다 머리줄 읽기 + 검색 + 행 읽기라 시트 왕복이 수십 번이었고, 화면이 12초에 멈춰 L5 가 떴다.
+     바깥 첫 호출이 기억을 켜고 같은 함수를 한 번 더 부른다(아래 본문은 그대로 · 표식 NOW_CONTRACT_EXPIRED 도 이 함수에 그대로).
+     끝나면(예외여도) 원래 함수로 되돌린다 */
+  if (!__GMS_ON) { var _gOff = _gmsMemoOn(); __GMS_ON = true; try { return handleGetMyState(body); } finally { __GMS_ON = false; _gOff(); } }
   var token = String((body && body.token) || '').trim();
   var s = resolveSession(token);
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
 
   var r = s.row;
+  _gmsSeedCustomer(r);   // [GMS_MEMO] 예약금 카드 확인(_depositCardOf → findCustomerByCode)이 같은 고객 행을 다시 찾지 않게
   var product = String(r.get('상품타입') || '').trim() || P.PRODUCT_SIGNATURE;
   var stage = String(r.get('현재단계') || '').trim() || '신청접수';
 
@@ -68,6 +78,38 @@ function handleGetMyState(body) {
     waiting: _journeyWaiting(r),  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
     aiToken: _aiWidgetToken_(String(r.get('개인코드') || ''))  // [AI_WIDGET_HMAC] 식순 AI 위젯 embed 신원 증명(시크릿 미설정이면 빈값 · 프론트는 그냥 안 보냄)
   };
+}
+
+/* [GMS_MEMO] 기억 켜기 — getMyState 가 거쳐 가는 찾기 다섯(고객 시트 · 상담 시트 · 머리줄 · 상담 행 · 고객 행)을
+   «한 번 찾은 것은 다시 찾지 않게» 감싸고, 되돌리는 함수를 돌려준다.
+   ★읽기만 하는 처리에만 켠다 — getMyState 에서 닿는 함수 101개에 시트 쓰기가 0건이다(2026-10-08 실측). 쓰는 처리에 켜면 옛 값을 줄 수 있다.
+   ★전역 함수를 바꿔 끼운다 — 이 런타임에서 전역 함수가 globalThis 의 속성인 것은 배포 지문(_dsGlobalSig)이 이미 날마다 세고 있다.
+     바꿔 끼우기가 안 되는 런타임이면(쓰기가 막히면) 그 함수는 그대로 두고 종전과 똑같이 돈다 — 새 실패를 만들지 않는다. */
+var __GMS = null;
+function _gmsMemoOn() {
+  /* [GMS_MEMO] */
+  var G = null, saved = {}, M = { sh: {}, hdr: [], bk: {}, cu: {} };
+  try { G = (typeof globalThis !== 'undefined' && globalThis) ? globalThis : (function () { return this; })(); } catch (e) { G = null; }
+  if (!G) return function () {};
+  var key = function (c) { return String(c == null ? '' : c).trim().toUpperCase(); };
+  var copy = function (m) { return (m && typeof m === 'object') ? Object.assign({}, m) : m; };   // 머리줄 표를 받은 쪽이 고쳐도 기억이 더러워지지 않게
+  var swap = function (name, make) {
+    try { var f = G[name]; if (typeof f !== 'function') return; var w = make(f); G[name] = w; if (G[name] === w) saved[name] = f; } catch (e) {}
+  };
+  swap('getCustomersSheet', function (f) { return function () { if (!M.sh.c) M.sh.c = f.apply(this, arguments); return M.sh.c; }; });
+  swap('getSheet', function (f) { return function () { if (arguments.length) return f.apply(this, arguments); if (!M.sh.b) M.sh.b = f.apply(this, arguments); return M.sh.b; }; });
+  swap('buildHeaderIndex', function (f) { return function (sh) {
+    for (var i = 0; i < M.hdr.length; i++) { if (M.hdr[i][0] === sh) return copy(M.hdr[i][1]); }
+    var m = f.apply(this, arguments); M.hdr.push([sh, m]); return copy(m); }; });
+  swap('findRowByPersonalCode', function (f) { return function (code) { var k = key(code); if (!Object.prototype.hasOwnProperty.call(M.bk, k)) M.bk[k] = f.apply(this, arguments); return M.bk[k]; }; });
+  swap('findCustomerByCode', function (f) { return function (code) { var k = key(code); if (!Object.prototype.hasOwnProperty.call(M.cu, k)) M.cu[k] = f.apply(this, arguments); return M.cu[k]; }; });
+  __GMS = M;
+  return function () { for (var n in saved) { try { G[n] = saved[n]; } catch (e) {} } __GMS = null; };
+}
+/* [GMS_MEMO] 로그인으로 찾은 고객 행을 «개인코드로 찾은 행»으로도 기억 — 같은 줄이다(개인코드는 고객마다 하나) */
+function _gmsSeedCustomer(r) {
+  /* [GMS_MEMO] */
+  try { if (!__GMS || !r) return; var c = String(r.get('개인코드') || '').trim().toUpperCase(); if (c && !Object.prototype.hasOwnProperty.call(__GMS.cu, c)) __GMS.cu[c] = r; } catch (e) {}
 }
 
 // [AI_WIDGET_HMAC 2026-07-25] 식순 AI 위젯 embed 신원 토큰 — "code.exp.sig(base64url)".

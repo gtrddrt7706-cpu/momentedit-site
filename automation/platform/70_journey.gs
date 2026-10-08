@@ -181,10 +181,25 @@ function _saveSignature(code, type, dataUrl, signedAt, version) {
 }
 // 최신 서명 dataUrl 조회(관리자/재열람) — code+type 마지막 매칭 1건.
 function getSignatureDataUrl(code, type) {
+  /* ★★[SIG_FIND 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
+     서명 시트 «전체»를 읽지 않는다 — 이 고객 줄만 찾아 그 줄의 종류 · 그림만 읽는다.
+     종전엔 C열(손글씨 서명 그림 · 한 장에 수십 KB)까지 모든 고객 · 모든 서명을 통째로 받아 왔다.
+     그런데 이 함수는 마이페이지 getMyState 가 시착을 마친 고객마다 «매번» 부른다(60_mypage buildLedgerState · 문서 보기 sig).
+     서명이 쌓일수록 한 번 불러오기가 길어져, 화면이 12초에 멈추고 «최신 내용을 불러오지 못했어요 (코드 L5)»가 떴다.
+     결과는 종전과 같다 — 같은 코드(대소문자 무시) · 같은 종류 중 «마지막(최신)» 한 장. 찾기가 예외로 멈출 때만 종전 전체 읽기로 */
   var sh = SpreadsheetApp.getActive().getSheetByName(SIGNATURES_SHEET);
   if (!sh || sh.getLastRow() < 2) return '';
-  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
-  var found = '', c = String(code || '').trim().toUpperCase(), tp = String(type || '').trim();
+  var found = '', c = String(code || '').trim().toUpperCase(), tp = String(type || '').trim(), last = sh.getLastRow();
+  if (!c) return '';
+  try {
+    var hits = sh.getRange(2, 1, last - 1, 1).createTextFinder(c).matchEntireCell(true).matchCase(false).findAll() || [];
+    for (var h = hits.length - 1; h >= 0; h--) {   // 아래(나중에 쌓인) 줄부터 — 처음 맞는 종류가 곧 최신
+      var v = sh.getRange(hits[h].getRow(), 2, 1, 2).getValues()[0];
+      if (String(v[0]).trim() === tp) return String(v[1] || '');
+    }
+    return '';
+  } catch (e) { /* [SIG_FIND] 찾기가 안 되면 종전 전체 읽기 */ }
+  var vals = sh.getRange(2, 1, last - 1, 3).getValues();
   for (var i = 0; i < vals.length; i++) {
     if (String(vals[i][0]).trim().toUpperCase() === c && String(vals[i][1]).trim() === tp) found = String(vals[i][2] || '');
   }

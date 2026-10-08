@@ -16028,3 +16028,23 @@ chk 'ADMIN_BACKUP_RETIRE' automation/platform/99_deployCheck.gs 2   # 화면 파
 nochk 'Admin·ScreenA' automation/platform/99_deployCheck.gs
 nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
 if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi
+# ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
+#   마이페이지 «최신 내용을 불러오지 못했어요 (코드 L5)» = 화면이 getMyState 를 12초 기다리다 멈춤. 원인은 서버 한 번 불러오기의 양 —
+#   서명 시트 전체(모든 고객의 서명 그림)를 매번 읽었고(SIG_FIND) · 상담 행을 최대 4번 · 고객 행을 2번 따로 찾았다(GMS_MEMO).
+#   화면은 20초까지 기다리고 늦음 · 끊김이면 한 번 더 묻는다 · 막대는 두 번 다 안 될 때만(STATE_PATIENT). 되돌리지 말 것
+chk 'SIG_FIND' automation/platform/70_journey.gs 2
+chk '.createTextFinder(c).matchEntireCell(true).matchCase(false).findAll()' automation/platform/70_journey.gs 1
+chk 'GMS_MEMO' automation/platform/60_mypage.gs 6
+chk 'function _gmsMemoOn()' automation/platform/60_mypage.gs 1
+chk 'if (!__GMS_ON) { var _gOff = _gmsMemoOn(); __GMS_ON = true; try { return handleGetMyState(body); } finally { __GMS_ON = false; _gOff(); } }' automation/platform/60_mypage.gs 1
+chk '_gmsSeedCustomer(r);' automation/platform/60_mypage.gs 1
+chk 'STATE_PATIENT' mypage.html 7
+chk 'function _stateGet(tok){' mypage.html 1
+chk 'var STATE_WAIT_MS=20000, STATE_SLOW_MS=12000;' mypage.html 1
+chk '_stateGet(_tok).then(function(d){' mypage.html 1
+nochk "  api({action:'getMyState', token:_tok}).then(function(d){" mypage.html
+chk 'GMS_MEMO' scripts/audit/gms-memo.mjs 1
+chk 'STATE_PATIENT' scripts/audit/state-patient.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/gms-memo.mjs >/dev/null 2>&1; _gmm=$?; if [ "$_gmm" != 0 ]; then echo 'FAIL gms-memo: getMyState 기억(같은 행 다시 찾지 않기) · 서명 찾기가 어긋났습니다 — node scripts/audit/gms-memo.mjs'; fail=1; else echo 'ok gms-memo: 결과 같음 · 상담 행 1번 · 고객 행 0번 · 서명 전체 읽기 0'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/state-patient.mjs >/dev/null 2>&1; _stp=$?; if [ "$_stp" = 1 ]; then echo 'FAIL state-patient: 마이페이지 상태 불러오기가 늦음 · 끊김에 곧장 막대를 띄운다 — node scripts/audit/state-patient.mjs'; fail=1; elif [ "$_stp" = 2 ]; then echo 'skip state-patient: 브라우저 없음'; else echo 'ok state-patient: 늦으면 한 번 더 · 막대는 두 번 다 안 될 때만'; fi; fi
+:
