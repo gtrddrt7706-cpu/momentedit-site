@@ -16036,3 +16036,15 @@ chk 'ADM_SHAPE_X7' scripts/audit/err-admin.mjs 1
 chk 'ADM_LOST_X8' admin.html 1
 chk 'ADM_LOST_X8' scripts/audit/err-admin.mjs 1
 chk 'SCHED_DBL_RESIDUE' scripts/audit/err-pages.mjs 3
+# ★[PHOTO_FLOOR0 · TABLE_MAX6 2026-10-08 · TABLE_GREET_1008 뒷정리] 본식이 40분을 넘는 판(순간을 거의 다 + 축사 10분 + 테이블 인사)에
+#   «단체 사진 약 -8~2분» · «약 -8분으로 줄어요» · 마이페이지 «약 -8~2분이에요»가 보였다 — 0 아래로 적지 않고 모자라면 «시간이 모자라요».
+#   판은 막지 않는다(사장님 «그대로 두고 알림»). 테이블 수 상한 12 → 6(좌석 배치도 SEAT_ADD_CAP 과 같다).
+chk 'PHOTO_FLOOR0' assets/ritual-open.js 3
+nochk 'var pa = DAYMIN - b, pb = DAYMIN - a;' assets/ritual-open.js
+chk "photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요'" assets/ritual-open.js 1
+chk 'TABLE_MAX6' assets/ritual-open.js 1
+nochk 'Math.min(12, Math.max(1, Math.round(n)))' assets/ritual-open.js
+chk 'PHOTO_FLOOR0' order-preview.html 1
+chk 'PHOTO_FLOOR0' mypage.html 1
+chk "if(_pb<=0) return '두 분 식순이면 본식이 길어 단체 사진 시간이 모자라요. 순간을 하나 덜면 여유가 생겨요.';" mypage.html 1
+chk 'PHOTO_FLOOR0' scripts/audit/open-course.mjs 3

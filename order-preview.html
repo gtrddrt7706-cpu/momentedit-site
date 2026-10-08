@@ -3962,7 +3962,7 @@ function _noteFull(sh){ var n=RitualOpen.noticeFull(S,sh); return (n&&n.key==='s
 var _shortWas=null;   // 지난번 단체 사진 하한(분) · 부족하지 않으면 99
 function _shortCheck(){ var R=RitualOpen, pa=R.span(S).pa, now=(R.picked(S).length&&pa<R.SHORT_MIN)?pa:99;
   if(_shortWas===null){ _shortWas=now; return; } var fire=now<_shortWas; _shortWas=now; if(!fire) return;   // 부족해지는 순간 · 부족한 채 더 줄어드는 순간에 한 번씩
-  var msg='단체 사진이 약 '+R.span(S).pa+'분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요';
+  var msg=R.span(S).pa>0?'단체 사진이 약 '+R.span(S).pa+'분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요':'단체 사진 시간이 모자라요 · 순간을 하나 덜면 여유가 생겨요';   /* [PHOTO_FLOOR0 2026-10-08] «약 -8분으로 줄어요»가 떴다 */
   setTimeout(function(){ var u=document.getElementById('pkUndo'); if(!u){ u=document.createElement('div'); u.id='pkUndo'; u.className='pk-undo'; document.body.appendChild(u); }
     var two=!u.hidden&&u.textContent; clearTimeout(_undoT); u.classList.add('wrap'); u.innerHTML=(two?u.innerHTML:'')+'<span>'+esc(msg)+'</span>'; u.hidden=false; _pkUndoPos();   // 예시 확인 문구가 떠 있으면 그 아래 둘째 줄
     try{ _lSay(msg); }catch(e){}
@@ -4246,7 +4246,7 @@ function _lQuiet(k,c){
   if(k==='toast'&&sl==='toast-pour-family') return '양가 와인을 한 잔에 모아요';   // [POUR_BY_PICK 코워크 회신7 #872-1] 판 이름과 같은 말 — «양가 와인 한 병씩»을 골랐는데 «두 와인…»이면 «안 먹혔나?»로 읽힌다
   if(k==='toast'&&/^toast-pour-/.test(sl)) return '두 분이 고른 와인을 한 잔에 부어요';
   if(k==='_close'&&sl==='narr-close-bow') return '두 분이 하객께 목례 · 박수';
-  if(k==='table'&&sl==='narr-table-in') return '두 분이 테이블을 돌며 하객과 인사를 나눠요';   /* [TABLE_GREET_1008] 사람 줄 */
+  if(k==='table'&&sl==='narr-table-in') return '두 분이 테이블을 하나씩 찾아가요';   /* [HUMANIZE 2026-10-08] 같은 쪽에 «하객과 인사를 나눠요»가 셋(카드 설명 · 장면 글 · 이 줄) — 보이스 가이드 §6-B 반복 */   /* [TABLE_GREET_1008] 사람 줄 */
   return '';
 }
 

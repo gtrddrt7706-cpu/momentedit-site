@@ -43,15 +43,24 @@ const E = O.span({ on: {} });
 ok('빈 채 시작: 본식 약 2~3분 · 단체 사진 약 37~38분', E.body === '약 2~3분' && E.photo === '약 37~38분', `${E.body} / ${E.photo}`);
 ok('빈 채 시작: 알림 없음', O.noticeOf({ on: {} }) === '');
 // 전 조합 — 넉넉 합(준비한 순서 3분 판까지)
-let mx = 0; const V = { declare: ['solemn', 'warm', 'clap', 'family'], tribute: ['one', 'long', 'none'], letter: ['each', 'parent'], toast: ['both', 'toast', 'cake'], wine: ['mix', 'family', 'none'], free: ['video', 'speech'] };
+let mx = 0, mxS = null; const V = { declare: ['solemn', 'warm', 'clap', 'family'], tribute: ['one', 'long', 'none'], letter: ['each', 'parent'], toast: ['both', 'toast', 'cake'], wine: ['mix', 'family', 'none'], free: ['video', 'speech'] };
 for (let m = 0; m < (1 << O.PICKABLE.length); m++) {
   const on = {}; O.PICKABLE.forEach((k, i) => { if (m >> i & 1) on[k] = 1; });
   for (const d of V.declare) for (const t of V.tribute) for (const l of V.letter) for (const w of V.toast) for (const wi of V.wine) for (const f of V.free) {
     const S = { on, entry: 'A' }; O.setChip(S, 'declare', d); O.setChip(S, 'tribute', t); O.setChip(S, 'letter', l); O.setChip(S, 'toast', w); O.setChip(S, 'wine', wi); O.setChip(S, 'free', f);
-    const b = O.bodySec(S)[1]; if (b > mx) mx = b;
+    const b = O.bodySec(S)[1]; if (b > mx) { mx = b; mxS = S; }   // [PHOTO_FLOOR0] 가장 무거운 판을 쥐고 아래에서 단체 사진 표시를 잰다
   }
 }
 ok('전 조합 넉넉 합 ≤ 45분(가장 무거운 판 + 준비한 순서 3분 + 테이블 인사 9분 [TABLE_GREET_1008])', mx / 60 <= 45, (mx / 60).toFixed(1) + '분');
+/* ★[PHOTO_FLOOR0 · TABLE_MAX6 2026-10-08] 본식이 40분을 넘는 판 — 단체 사진 분이 0 아래로 안 보인다 · 위 값까지 0이면 «시간이 모자라요» · 부족 알림도 같은 말 · 테이블 수 상한은 좌석과 같은 6 */
+{
+  const heavy = Object.assign({}, mxS, { freeLen: '10', tableN: 99 }); O.setChip(heavy, 'free', 'speech');
+  const sp = O.span(heavy), none = { a: 60, b: 70 };
+  ok('[PHOTO_FLOOR0] 가장 무거운 판 + 축사 10분 + 테이블 인사 — 단체 사진 분이 0 아래로 안 보인다', sp.pa >= 0 && sp.pb >= 0 && !/-/.test(sp.photo), sp.body + ' / ' + sp.photo);
+  ok('[PHOTO_FLOOR0] 부족 알림 — 0분이면 «약 0분으로 줄어요»가 아니라 «시간이 모자라요»', /시간이 모자라요/.test(O.NOTICE.short(0)) && !/약 0분/.test(O.NOTICE.short(0)) && /약 8분으로 줄어요/.test(O.NOTICE.short(8)));
+  ok('[TABLE_MAX6] 테이블 수 상한 6(좌석 배치도와 같다) · 모르면 6', O.tableN({ tableN: 99 }) === 6 && O.tableN({}) === 6 && O.tableN({ tableN: 3 }) === 3, String(O.tableN({ tableN: 99 })));
+  void none;
+}
 ok('고객 범위(RANGE) 합 = 40 · 예시 넷이 그 안', O.RANGE.body[0] + O.RANGE.photo[1] === O.DAYMIN && O.RANGE.body[1] + O.RANGE.photo[0] === O.DAYMIN
   && Object.keys(WANT).every((k) => { const s = O.bodySec(O.applyExample({}, k)); return s[0] / 60 >= O.RANGE.body[0] - 4 && Math.round(s[1] / 60) <= O.RANGE.body[1]; }));   /* [TABLE_GREET_1008] 고객이 보는 값(span · 분으로 둥글림)으로 잰다 — 기록 넉넉 합 25.2분 = 화면 «약 20~25분» */
 ok('40 = DAY(140 − 준비 − 스냅 − 배웅) · 스냅 60 [DAY_60]', O.DAYMIN === 40 && O.DAYMIN === D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell && D.DAY.snap === 60);
