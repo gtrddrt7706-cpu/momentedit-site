@@ -16171,7 +16171,11 @@ nochk 'var pa = DAYMIN - b, pb = DAYMIN - a;' assets/ritual-open.js
 chk "photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요'" assets/ritual-open.js 1
 chk 'TABLE_MAX6' assets/ritual-open.js 1
 nochk 'Math.min(12, Math.max(1, Math.round(n)))' assets/ritual-open.js
-chk 'PHOTO_FLOOR0' order-preview.html 1
+# ★★[SHORT_TOAST_OFF 2026-10-09 사장님 «(예시 알림) 두 번째 줄 전부 삭제 · 알아서 하게 두자»] 단체 사진이 짧아질 때 뜨던 둘째 줄 알림(_shortCheck)을 걷었다 — 예시를 바꿀 때 · 순간을 담을 때 둘 다(같은 함수)
+chk 'SHORT_TOAST_OFF' order-preview.html 3
+nochk 'function _shortCheck(' order-preview.html
+nochk '분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요' order-preview.html
+chk 'SHORT_TOAST_OFF' scripts/audit/flow-plain.mjs 2
 chk 'PHOTO_FLOOR0' mypage.html 1
 chk "if(_pb<=0) return '두 분 식순이면 본식이 길어 단체 사진 시간이 모자라요. 순간을 하나 덜면 여유가 생겨요.';" mypage.html 1
 chk 'PHOTO_FLOOR0' scripts/audit/open-course.mjs 3
