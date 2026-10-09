@@ -4,6 +4,8 @@
 //   1 서버 판에 없는 칸은 이 기기 옛 값으로 남지 않는다 · 서버 판 값은 그대로 들어온다
 //   2 이 기기 몫(SAVED_LOCAL — 보낸 목소리 만들기 표 vjob · «봤다» 표시 tipSeen)은 서버 판에 없으면 지킨다
 //   3 서버 판이 올바르지 않으면(코스 없음) 아무것도 비우지 않는다(이 기기 판 그대로)
+//   4 [REOPEN_SAME_STEP 1라운드 A-1] 다시 열어도 나갔던 자리 그대로
+//   5 [LOCAL_AHEAD 1라운드 A-2] 저장 안 한 고침 — 서버 판이 그 바탕 그대로면 이 기기 판 · 그사이 다른 기기가 저장했으면 서버 판 + 한 줄
 //   SF_ROOT=<다른 폴더> 로 돌리면 그 판을 잰다(돌연변이 검사용). 종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -39,6 +41,22 @@ try {
     await fill(pg, { entry: 'C' }); await wait(700); const b = await look(pg);
     ok('3 서버 판이 올바르지 않으면(코스 없음) 이 기기 판을 비우지 않는다', b.gExC === 2 && b.pvWho === 'b' && b.guestEx === 3 && b.vjob === 'j-local', JSON.stringify(b));
     ok('3 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
+  /* 4 [REOPEN_SAME_STEP] 서버 초안으로 다시 열어도 나갔던 자리 그대로(판 번호 v:2 · 종전엔 한 칸씩 밀렸다) */
+  { const { pg, errs } = await open();
+    const r = await pg.evaluate(() => { let k = -1; for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'pick') { k = i; break; } if (k < 0) k = Math.min(2, STEPS.length - 1); idx = k; _persist(); return { k, srvS: JSON.parse(JSON.stringify(S)) }; });
+    await fill(pg, r.srvS); await wait(700); const at = await pg.evaluate(() => idx);
+    ok('4 다시 열어도 나갔던 자리 그대로(한 칸 밀리지 않는다) [REOPEN_SAME_STEP]', at === r.k, JSON.stringify({ want: r.k, got: at }));
+    ok('4 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
+  /* 5 [LOCAL_AHEAD] 저장 안 한 고침이 있는 이 기기 판 — 서버 판이 그 바탕 그대로면 이 기기 판을 이어서(«저장» 켜짐) · 그사이 바뀌었으면 서버 판 + 한 줄 */
+  for (const other of [false, true]) {
+    const { pg, errs } = await open();
+    const srvS = await pg.evaluate(() => { const b = JSON.parse(JSON.stringify(S)); _srvBase = _canonS(b); _autoLast = _autoKeyOf(b); S.tx = Object.assign({}, S.tx, { 'welcome.g': '이 기기에서 더 쓴 글' }); _persist(); return b; });
+    const sent = other ? Object.assign({}, srvS, { tx: { 'welcome.g': '다른 기기에서 저장한 글' } }) : srvS;
+    await fill(pg, sent); await wait(800);
+    const c = await pg.evaluate(() => ({ tx: (S.tx || {})['welcome.g'] || '', toast: ((document.getElementById('_toast') || {}).textContent || '').trim(), dirty: _autoKey() !== _autoLast }));
+    if (!other) ok('5 서버 판이 이 기기 고침의 바탕 그대로면 이 기기 판을 이어서 연다 · 저장 안 한 상태 그대로 · «저장 전 고침을 이어서 열었어요» [LOCAL_AHEAD]', c.tx === '이 기기에서 더 쓴 글' && c.dirty && /저장 전 고침을 이어서 열었어요/.test(c.toast), JSON.stringify(c));
+    else ok('5 그사이 다른 기기에서 저장했으면 서버 판으로 열고 «저장한 판으로 열었어요» [LOCAL_AHEAD]', c.tx === '다른 기기에서 저장한 글' && !c.dirty && /저장한 판으로 열었어요/.test(c.toast), JSON.stringify(c));
+    ok('5 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
 finally { await br.close(); srv.close(); }
 console.log(fail ? `\nSAVED FRESH FAIL ${fail}` : '\nSAVED FRESH OK'); process.exit(fail ? 1 : 0);

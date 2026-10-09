@@ -3437,8 +3437,8 @@ function render(){
   if(navKey!==_navKey && isOpen()){
     try{ var _hs=history.state;
       if(_opPop){ /* 뒤로 · 앞으로로 온 걸음 — 기록을 새로 쌓지 않는다 */ }
-      else if(!_navKey||!_hs||_hs.opIdx==null||_hs.gen!==_opGen) history.replaceState({opIdx:idx,gen:_opGen},'');
-      else if(_hs.opIdx!==idx) history.pushState({opIdx:idx,gen:_opGen,from:_hs.opIdx},'');   // [STEP_NO_REWIND] from = 바로 뒤 칸의 걸음(그 칸이 빌더 것임을 안다)
+      else if(!_navKey||!_hs||_hs.opIdx==null||_hs.gen!==_opGen){ history.replaceState({opIdx:idx,gen:_opGen,d:(_hs&&_hs.d)|0},''); _hTell(); }   /* [HIST_DEPTH] 칸을 바꿔 적어도 깊이는 그대로 */
+      else if(_hs.opIdx!==idx) _hPush({opIdx:idx,gen:_opGen,from:_hs.opIdx});   // [STEP_NO_REWIND] from = 바로 뒤 칸의 걸음(그 칸이 빌더 것임을 안다)
     }catch(e){}
   }
   _opPop=false;
@@ -3458,7 +3458,16 @@ var _opPop=false;
 /* ★[STEP_NO_REWIND 코워크 추가 점검 P1-2 2026-09-26] 기록에는 «판 번호»(gen)를 붙인다 — «처음부터 다시 만들기»가 올린다.
    다시 만든 뒤 휴대폰 «뒤로»가 지워진 판의 ② (빈 코스)로 되돌아가던 것을 막는다. 옛 판의 칸은 건너뛴다. */
 var _opGen='0'; try{ _opGen=sessionStorage.getItem('me_order_gen')||'0'; }catch(e){}
+/* ★[HIST_DEPTH 2026-10-09 A~Z 점검 1라운드 A-5] 빌더가 쌓은 기록 칸 수(d)를 칸마다 적고 마이페이지에 알린다 — 마이페이지는 닫을 때 그만큼 한 번에 되감는다.
+   종전엔 닫을 때 한 칸만 되감아(빌더 칸 하나) 남은 칸이 «아무 일 없는 뒤로가기»가 되고, 되감기 표시가 남아 다음 진짜 뒤로가기 하나를 삼켰다(창 하나 닫는 데 뒤로가기 5번) */
+function _hDepth(){ try{ return ((history.state||{}).d|0); }catch(e){ return 0; } }
+function _hTell(){ if(!EMBED) return; try{ parent.postMessage({type:'momentedit:orderDepth', d:_hDepth()},window.location.origin); }catch(e){} }
+function _hPush(st){ try{ st.d=_hDepth()+1; history.pushState(st,''); }catch(e){} _hTell(); }
+/* ★[EXIT_HOLD 2026-10-09 A~Z 점검 1라운드 A-3] 나가기가 묻거나 기다리는 동안(보내는 중 · 마무리 · 만드는 중 · 저장 안 한 변경) 마이페이지에 «잡고 있어요»를 알린다 — 마이페이지의 뒤로가기 3초 닫기를 멈춘다.
+   머물기로 하면(취소 · 기다리기) «놓았어요» — 마이페이지가 뒤로가기 층을 다시 쌓는다. 종전엔 폰 뒤로가기로 판이 떠도 3초 뒤 창이 저장 없이 닫히고 «저장 확인 중이에요»가 떴다 */
+function _exitHold(on){ if(!EMBED) return; try{ parent.postMessage({type:'momentedit:orderExitHold', on:!!on},window.location.origin); }catch(e){} }
 window.addEventListener('popstate',function(ev){
+  _hTell();   /* [HIST_DEPTH] 뒤로 · 앞으로 온 칸의 깊이 */
   if(!isOpen()) return;
   var st=ev.state||{};
   var _rp=document.getElementById('ob_rpViewer'); if(_rp&&!st.rp&&_rp.__rpClose){ _rp.__rpClose(true); if(st.opIdx===idx) return; }   // [RP_BACK] 음악까지 미리듣기도 뒤로 한 번에 닫힌다
@@ -7570,7 +7579,7 @@ function _lPaint(){
 }
 /* 크게 보기 — 기록 한 칸(뒤로 = 작게) · 뒤를 inert 로 잠그고 닫으면 누른 자리로 포커스를 돌려준다 */
 function _lOpenBig(){
-  if(!LP.big){ var _mi=document.getElementById('lsMini'); LP.opener=(_mi&&_mi.contains(document.activeElement)&&LP.miniFrom)?LP.miniFrom:document.activeElement;   /* [QA_MINI_FOCUS] 작은 플레이어에서 다시 크게 열면 처음 연 단추를 그대로 기억 */ try{ if(isOpen()&&!(history.state&&history.state.big)) history.pushState({opIdx:idx,big:1,gen:_opGen},''); }catch(e){} }
+  if(!LP.big){ var _mi=document.getElementById('lsMini'); LP.opener=(_mi&&_mi.contains(document.activeElement)&&LP.miniFrom)?LP.miniFrom:document.activeElement;   /* [QA_MINI_FOCUS] 작은 플레이어에서 다시 크게 열면 처음 연 단추를 그대로 기억 */ try{ if(isOpen()&&!(history.state&&history.state.big)) _hPush({opIdx:idx,big:1,gen:_opGen}); }catch(e){} }
   LP.big=true;
   try{ if(navigator.wakeLock&&!LP.lock) navigator.wakeLock.request('screen').then(function(l){ LP.lock=l; })['catch'](function(){}); }catch(e){}
 }
@@ -8090,7 +8099,7 @@ window.opPv=function(k){
   _pvStop(); PV.k=k;
   try{ var a=_pvAud(); a.src=L_SILENT; var pp=a.play(); if(pp&&pp['catch']) pp['catch'](function(){}); }catch(e){}   // [INAPP_UNLOCK] 누른 그 몸짓 안에서 소리를 풀어 둔다(카톡 안 브라우저)
   if(first){
-    try{ if(!(history.state&&history.state.pv)) history.pushState({opIdx:idx,pv:1,gen:_opGen},''); }catch(e){}
+    try{ if(!(history.state&&history.state.pv)) _hPush({opIdx:idx,pv:1,gen:_opGen}); }catch(e){}
     ['.wrap','#nav','#meAdvStack','#pkSlim','#pkUndo'].forEach(function(q){ var w=document.querySelector(q); if(w) w.setAttribute('inert',''); });
   }
   _pvDraw(); var _bx=el.querySelector('.pv-box'); if(_bx){ clearTimeout(_bx._sw); _bx.style.transform=''; }   /* [QA_SHEET_SWIPE] 끌어 닫고 바로 다시 열면 내린 자리에서 열리던 것 */
@@ -9389,7 +9398,7 @@ function openRitualPreview(){
   /* ★[RP_BACK 코워크 추가 점검 P1-2] 휴대폰 «뒤로»가 미리듣기를 못 닫고 뒤 걸음이 바뀌었다 — 크게 보기 · 창과 같은 길로 기록 한 칸을 쌓는다.
      ✕ · Esc 도 뒤로와 같은 길(기록을 한 칸 되감으면 popstate 가 닫는다). 새 코스(isOpen)에서만 — 옛 코스는 기록을 쓰지 않는다. */
   ov.__rpClose=function(){ done(); };
-  try{ if(isOpen()&&!(history.state&&history.state.rp)) history.pushState({opIdx:idx,rp:1,gen:_opGen},''); }catch(e){}
+  try{ if(isOpen()&&!(history.state&&history.state.rp)) _hPush({opIdx:idx,rp:1,gen:_opGen}); }catch(e){}
   function shut(){ try{ if(history.state&&history.state.rp){ history.back(); return; } }catch(e){} done(); }
   function onKey(e){ if(e.key==='Escape'&&!e.repeat) shut(); }   // 빌더의 Esc('저장 후 나가기')는 이 오버레이가 떠 있는 동안 스스로 비켜선다(아래 EMBED 블록 참고)
   x.addEventListener('click',shut);
@@ -9680,7 +9689,16 @@ function _saveDone(ok,msg){
   _persist(); render();
   if(ok){ try{ toast('저장했어요'); }catch(e){} }
 }
-function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who})); }catch(e){} _dirtyMark(); }   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
+/* ★[LOCAL_AHEAD 2026-10-09 A~Z 점검 1라운드 A-2] 나가기 판은 «저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요»라고 약속하는데, 마이페이지에서 다시 열면 서버 판이 이 기기 판을 통째로 덮어 그 고침이 사라졌다.
+   이 기기 판에 «마지막으로 맞춘 서버 판의 지문(base)»과 «그 뒤 저장 안 한 고침이 있나(dirty)»를 같이 적는다 — 다시 열 때 서버 판 지문이 base 와 같으면(그사이 다른 기기가 저장 안 함) 이 기기 판을 이어서 연다(«저장»이 켜진 채).
+   다르면 서버 판(다른 기기에서 저장한 판)으로 열고 «저장한 판으로 열었어요» 한 줄 · 지문은 저장할 변경만 본다(봤다 표시 · 걸음 · 이 기기 몫 · 서버가 tx 로 다시 짓는 옛 글 칸은 뺀다) */
+var _srvBase='', _sentKey='';
+function _canonS(o){ try{ var x=JSON.parse(JSON.stringify(o||{})); ['vsAsked','vsChip','tipSeen','seen','vjob','welcomeText','vowText','letterText','tributeText'].forEach(function(k){ delete x[k]; });
+  if(x.mk){ delete x.mk.at; delete x.mk.seen; ['drop','dropMin'].forEach(function(k){ if(x.mk[k]&&!Object.keys(x.mk[k]).length) delete x.mk[k]; }); if(!Object.keys(x.mk).length) delete x.mk; }
+  var st=function(v){ if(Array.isArray(v)) return '['+v.map(st).join(',')+']'; if(v&&typeof v==='object') return '{'+Object.keys(v).sort().map(function(k){ return JSON.stringify(k)+':'+st(v[k]); }).join(',')+'}'; return JSON.stringify(v); };
+  return _txSig(st(x)); }catch(e){ return ''; } }
+function _pullHas(p){ return !!(p&&p.fAt&&Object.keys(p.fAt).length); }
+function _persist(over){ try{ var rec={v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who,base:_srvBase,dirty:!!(courseStarted&&_autoKey()!==_autoLast)}; if(over) for(var _o in over) rec[_o]=over[_o]; localStorage.setItem('me_order', JSON.stringify(rec)); }catch(e){} _dirtyMark(); }   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '') · [LOCAL_AHEAD] base · dirty   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
 /* ★★[ORD_AUTOSAVE 2026-08-12 사용자 지시 "저장후 나가기 말고 그냥 나가기는없어?"]
    ★고친 것은 버튼이 아니라 **구조**다. 지금까지 서버 저장 갈래는 둘뿐이었다 —
      나갈 때(orderExit · done:false)와 완성했을 때(orderSave · done:true).
@@ -9705,7 +9723,8 @@ var _autoT=null, _autoState='', _autoDirty=false, _autoWait=false, _autoGT=null,
 var _autoWhy='';
 function _autoFail(why){ _autoWhy=why||_ecWord('S',0); try{ toast(_autoWhy,6000,true); }catch(e){} }
 var _saveAfterAuto=false;   // [ORD_SAVE_AFTER_AUTO] 완성 저장이 자동 저장의 답을 기다리는 중
-function _autoKey(){ try{ var o={}; for(var k in S) o[k]=S[k]; delete o.vsAsked; delete o.vsChip; delete o.tipSeen;   /* [TIP_ONCE] 안내를 «봤다»는 표시는 저장할 변경이 아니다 */   /* [R2-14] 목소리 창을 «봤다»는 표시도 걸음이다 */
+function _autoKey(){ return _autoKeyOf(S); }
+function _autoKeyOf(S){ try{ var o={}; for(var k in S) o[k]=S[k]; delete o.vsAsked; delete o.vsChip; delete o.tipSeen;   /* [TIP_ONCE] 안내를 «봤다»는 표시는 저장할 변경이 아니다 */   /* [R2-14] 목소리 창을 «봤다»는 표시도 걸음이다 */
   if(S.mk){ o.mk={}; for(var j in S.mk) if(j!=='at'&&j!=='seen') o.mk[j]=S.mk[j]; ['drop','dropMin'].forEach(function(x){ if(o.mk[x]&&!Object.keys(o.mk[x]).length) delete o.mk[x]; }); if(!Object.keys(o.mk).length) delete o.mk; }   /* [R2-14] ② 에 들어가기만 해도 생기는 빈 drop{} · dropMin{} 은 바뀐 값이 아니다 */
   return JSON.stringify(o); }catch(e){ return ''; } }   /* [MK_RO] ② 에서 보고 있는 쪽(mk.at) · 본 쪽(mk.seen)도 걸음이다 — 저장 표시를 켜지 않는다(SEEN_NOT_DIRTY 와 같은 까닭) */   // [SEEN_NOT_DIRTY] 고객이 고른 것(S)만 — 걸음(_seenK)은 위 근거로 뺐다
 /* ★★[ORD_SAVE_BTN 2026-08-13 사용자 지시 "지금은 자동저장이잖아 그렇게하지말고 저장 버튼을 따로 만들자"]
@@ -9724,6 +9743,7 @@ function _autoSend(){
   if(_autoWait) return;   // 답을 기다리는 중 — 꼬리는 회신에서 다시 예약한다
   var k=_autoKey(); if(!k||k===_autoLast){ _autoDirty=false; _autoPaint(); return; }
   var pl; try{ pl=_ordPayload(); }catch(e){ _autoState='fail'; _autoFail(_ecWord('S',9)); _autoPaint(); return; }   // [ERR_CODE_BUILDER] 보낼 꾸러미를 못 지었다(뜻밖의 오류 S9)
+  _sentKey=_canonS(pl.S);   /* [LOCAL_AHEAD] 보낸 판의 지문 — 저장됐다는 답이 오면 이것이 base */
   /* ★[ORD_AUTOSAVE] 보낸 표시는 **꾸러미를 지은 뒤에** 센다. _ordPayload 가 S.seen 을 채우므로
      짓기 전 값으로 세면 보내자마자 '또 바뀐 것'이 되어 ①꼬리 저장이 한 번 더 나가고
      ②나가기가 「아직 안 저장됨」으로 읽어 또 저장한다 — 실측으로 둘 다 났다(검사가 잡았다). */
@@ -9812,7 +9832,7 @@ if(!EMBED){ try{ RitualOpen.FEATURE.upLive=true; }catch(e){} }   // [VOICE_UP_FR
 // ORDER_OWNER(2026-07-25 사용자 지시 "로그인 아이디가 바뀌었는데도 식순 데이터가 남아있는 건 문제"): 로컬 초안을 계정에 묶음 —
 //   ① 계정 소유(who) 초안은 독립 열람(비로그인 공개 페이지)에서 복원하지 않고 ② 임베드에선 orderFill의 로그인 계정과 대조해 다르면 즉시 폐기.
 try{ var _sv0=JSON.parse(localStorage.getItem('me_order')||'null');
-  if(!(_sv0&&_sv0.who&&!EMBED)) _applySaved(_sv0);
+  if(!(_sv0&&_sv0.who&&!EMBED)&&_applySaved(_sv0)){ _srvBase=_sv0.base||''; if(_sv0.dirty) _autoLast=''; }   /* [LOCAL_AHEAD] 저장 안 한 고침이 있던 판은 다시 열어도 «저장»이 켜진 채(종전엔 복원 직후가 기준선이라 저장된 것처럼 보였다) */
 }catch(e){}
 render();
 engine();   // [ORD_REAL_AUDIO] 첫 탭이 곧바로 소리로 이어지게 미리 싣는다(iOS 사용자 제스처 유지)
@@ -9869,6 +9889,7 @@ function _ordPayload(fin){
 function _embedSave(){
   if(!EMBED) return;
   var pl; try{ pl=_ordPayload(true); }catch(e){ _saveDone(false,_ecWord('S',9)); return; }   // [DONE_SEEN_EMPTY] 완성 저장 — 다 걸었으니 자를 데가 없다
+  _sentKey=_canonS(pl.S);   /* [LOCAL_AHEAD] */
   try{ parent.postMessage({type:'momentedit:orderSave', data:pl}, window.location.origin); }catch(e){ _saveDone(false,_ecWord('S',6)); }
   /* ★[SAVE_THROW_SAY 2026-10-07 1라운드 점검] 꾸러미를 못 지었으면(S9) · 마이페이지로 못 보냈으면(S6) 바로 말한다 — 종전엔 예외를 삼켜 아무것도 안 보냈는데
      16초 뒤 «저장 확인이 늦어요 · 저장됐을 수 있어요 (코드 S5)»(사실 아님)가 떴다. 머리 «저장»(_autoSend)과 같은 갈래 */
@@ -9892,14 +9913,14 @@ if(EMBED){
   window._obExit=function(){
     if(_obExiting) return;
     if(EMBED&&!window._upExitGo&&!_ordOv){ var _uk=_upBusyKeys(); if(_uk.length){   // [UP_EXIT_WAIT]
-      ordAsk({title:'아직 보내는 중이에요',body:'끝나면 저절로 나가요',yes:'끝나면 나가기',no:'그래도 나가기',dismissNull:true}).then(function(v){ if(v==null) return; var go=function(){ window._upExitGo=true; try{ window._obExit(); }finally{ window._upExitGo=false; } };
+      _exitHold(1); ordAsk({title:'아직 보내는 중이에요',body:'끝나면 저절로 나가요',yes:'끝나면 나가기',no:'그래도 나가기',dismissNull:true}).then(function(v){ if(v==null){ _exitHold(0); return; } var go=function(){ window._upExitGo=true; try{ window._obExit(); }finally{ window._upExitGo=false; } };
         if(!v){ go(); return; } var t0=Date.now(); (function w(){ if(!_uk.some(function(k){ return !!MK_UP[k]; })||Date.now()-t0>180000){ setTimeout(go,300); return; } setTimeout(w,500); })(); }); return; } }   // 만들기가 실패로 끝나도(기다림이 안 풀리는 길) 멈추지 않게 — 그 줄들이 비면 나간다 · 길어야 3분
     /* [TEMPO_BAKE] 나가면 창이 닫혀 굽기가 끊긴다 — 구울 줄이 있으면 먼저 굽고(«마무리하는 중…» · 최대 40초) 다시 나가기 */
-    try{ if(!window._vtExitDone&&_vcOn()&&_vtAllKeys().length){ var _xb=document.getElementById('obExit'); if(_xb){ _xb.textContent='마무리하는 중…'; _xb.disabled=true; }
+    try{ if(!window._vtExitDone&&_vcOn()&&_vtAllKeys().length){ _exitHold(1); var _xb=document.getElementById('obExit'); if(_xb){ _xb.textContent='마무리하는 중…'; _xb.disabled=true; }
       var _fired=false, _go=function(){ if(_fired) return; _fired=true; window._vtExitDone=true; if(_xb){ _xb.disabled=false; _xb.textContent='나가기'; } window._obExit(); window._vtExitDone=false; };
       _vtBakeAll().then(_go); setTimeout(_go,40000); return; } }catch(e){}
     if(_ordOv) return;   // [EXIT_ASK]
-    if(!window._vbExitOk&&!window._upExitGo){ var _vb=_vcBusyNow(); if(_vb){ ordAsk({title:_vb,body:'나가도 다음에 열면 이어서 해요',yes:'나가기',no:'기다리기'}).then(function(ok){ if(!ok) return; window._vbExitOk=true; try{ window._obExit(); } finally{ window._vbExitOk=false; } }); return; } }   // [VC_BUSY_ASK] 판이 떠 있는 동안 Esc·재요청이 판을 갈아치우지 않게 — 갈아치우면 옛 판이 '아니오'로 풀리며 그 갈래를 밟는다. 판의 답은 판이 받는다
+    if(!window._vbExitOk&&!window._upExitGo){ var _vb=_vcBusyNow(); if(_vb){ _exitHold(1); ordAsk({title:_vb,body:'나가도 다음에 열면 이어서 해요',yes:'나가기',no:'기다리기'}).then(function(ok){ if(!ok){ _exitHold(0); return; } window._vbExitOk=true; try{ window._obExit(); } finally{ window._vbExitOk=false; } }); return; } }   // [VC_BUSY_ASK] 판이 떠 있는 동안 Esc·재요청이 판을 갈아치우지 않게 — 갈아치우면 옛 판이 '아니오'로 풀리며 그 갈래를 밟는다. 판의 답은 판이 받는다
     /* [ORD_EXIT_ALWAYS] 이미 완료 저장(done:true)이 끝난 상태에서 또 나가기 저장을 보내면
        같은 초안이 done:false 로 덮여 완성이 초안으로 되돌아간다. 저장할 게 없으면 그냥 닫는다. */
     if(_doneSaved&&!_saving){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
@@ -9925,11 +9946,11 @@ if(EMBED){
          두 버튼(둘 다 떠난다)만 보이면 잘못 눌러 판을 띄운 사람이 머물 길을 못 찾는다. 다시 숨기지 말 것.
        ★몰래 저장(무조건 orderExit)으로 되돌리지 말 것 — 이 판 자체가 사용자 지시다. */
     var _failed=(_autoState==='fail'), _afc=_ecCodeOf(_autoWhy)||(_autoWhy?'S0':'');   // [EXIT_ASK] 방금 저장이 실패한 상태(다시 저장) — 「변경이 있다」가 아니라 「저장이 안 됐다」가 사실이다 · ★[ERR_ZERO_TEXT] 서버 글만 온 실패(코드 없음)도 이 판은 화면이 지은 글이라 S0
-    ordAsk({title:_failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요',
+    _exitHold(1); ordAsk({title:_failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요',
             body:_failed?'방금 저장이 실패했어요. 다시 저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요'+(_afc?' (코드 '+_afc+')':'.')   /* [ERR_CODE_BUILDER] 방금 실패의 코드(끝에) · ★[CODE_NO_DOT 2026-10-07 1라운드 점검] 코드 앞 끝 마침표는 뗀다(«남아 있어요. (코드» 금지) */
                         :'저장하고 나갈까요? 저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요.',
             yes:'저장하고 나가기', no:'그냥 나가기', cancel:'취소하고 계속 만들기', dismissNull:true}).then(function(v){
-      if(v===null) return;   // 취소 — 그대로 있는다
+      if(v===null){ _exitHold(0); return; }   // 취소 — 그대로 있는다
       if(v===false){ try{ parent.postMessage({type:'momentedit:orderClose'},window.location.origin); }catch(e){} return; }
       /* 저장하고 나가기 — 종전 '저장 후 나가기' 경로 그대로 */
       if(_obExiting) return; _obExiting=true;   // 연타·Esc 홀드로 중복 저장·이중 loadMyState 방지(부모가 저장 후 오버레이를 닫음)
@@ -9946,10 +9967,11 @@ if(EMBED){
         if(_b){ _b.textContent='저장 중…'; _b.setAttribute('aria-busy','true'); } }catch(e){}
       var payload=null, _xw='';
       try{ payload=_ordPayload(); }catch(e){ _xw=_ecWord('S',9); }
-      if(!_xw){ try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){ _xw=_ecWord('S',6); } }
+      if(!_xw){ try{ _persist({base:_canonS(payload.S),dirty:false}); }catch(e){}   /* [LOCAL_AHEAD] 저장하고 나가면 이 기기 판은 «보낸 판 = 서버 판»으로 적어 둔다(창이 닫혀 답을 못 받는다) · 실패해 머물면 다음 _persist 가 다시 적는다 */
+        try{ parent.postMessage({type:'momentedit:orderExit', data:payload},window.location.origin); }catch(e){ _xw=_ecWord('S',6); } }
       /* ★[EXIT_THROW_SAY 2026-10-07 1라운드 점검] 꾸러미를 못 지으면 data:null 로 보내지 않는다 — 마이페이지는 그것을 «저장할 것 없음»으로 읽어 저장 없이 창을 닫았다(말 없음).
          나가지 않고 그 자리에서 까닭 한 줄(S9 · 못 보냈으면 S6) · 나가기 단추는 다시 누를 수 있게 */
-      if(_xw){ _obExiting=false; clearTimeout(_obExitT); try{ var _b4=document.getElementById('obExit'); if(_b4){ _b4.textContent='나가기'; _b4.removeAttribute('aria-busy'); } }catch(e){}
+      if(_xw){ _exitHold(0); _obExiting=false; clearTimeout(_obExitT); try{ var _b4=document.getElementById('obExit'); if(_b4){ _b4.textContent='나가기'; _b4.removeAttribute('aria-busy'); } }catch(e){}
         ordTell({title:'나가기 전 저장이 안 됐어요', body:_xw+'\n\n고르신 내용은 이 기기에 그대로 있어요.'}); }
     });
   };
@@ -9987,7 +10009,7 @@ if(EMBED){
     if(ev.data.type==='momentedit:ritualFileData'){ _rfData(ev.data); return; }
     if(ev.data.type==='momentedit:voiceCloneDone'){ _vcDone(ev.data); return; }   // [VOICE_CLONE]   // [REC_UPLOAD] 올린 녹음을 두 분 계정으로 다시 받아 왔다
     if(ev.data.type==='momentedit:ritualFileDelDone'){ _rfDelDone(ev.data); return; }   // [ERR_CODE_BUILDER] 못 지우면 D 코드 — 종전엔 마이페이지 글 «불러오지 못했어요…»가 그대로 떴다   // [RITUAL_FILE] 마이페이지가 GAS 결과를 돌려준다
-    if(ev.data.type==='momentedit:orderDraftSaved'){ _txPullApply(ev.data.pull); if(editReturn&&_editSnap&&_editSent){ _editSnap=_editSent; _editSavedMid=true; } _editSent=null; _autoAck(true); return; }   /* ★[R7-07 EDIT_SNAP_SAVED] 수정 중 머리 «저장»이 성공하면 그 판을 취소 기준으로 — 저장한 글을 «취소»로 옛 값 · 옛 시각으로 돌리면 다음 저장 때 서버 합치기가 «서버가 더 나중»으로 읽어 지운 글을 되살렸다 */
+    if(ev.data.type==='momentedit:orderDraftSaved'){ _srvBase=_pullHas(ev.data.pull)?'':_sentKey;   /* [LOCAL_AHEAD] 다른 기기 칸이 합쳐졌으면 서버 판은 보낸 판과 다르다 — 모름('') */ _txPullApply(ev.data.pull); if(editReturn&&_editSnap&&_editSent){ _editSnap=_editSent; _editSavedMid=true; } _editSent=null; _autoAck(true); _persist(); return; }   /* ★[R7-07 EDIT_SNAP_SAVED] 수정 중 머리 «저장»이 성공하면 그 판을 취소 기준으로 — 저장한 글을 «취소»로 옛 값 · 옛 시각으로 돌리면 다음 저장 때 서버 합치기가 «서버가 더 나중»으로 읽어 지운 글을 되살렸다 */
     if(ev.data.type==='momentedit:orderDraftFail'){ _autoAck(false,_ecLine('S',ev.data)); return; }   // [ERR_CODE_BUILDER] 마이페이지 답의 까닭(error · ecode · kind · reason) · 없으면 S0
     // 저장 실패로 오버레이가 안 닫혔을 때 나가기 버튼 잠금 해제(재시도 가능)
     // [ORD_SAVE_STATE] 사유가 함께 오면 이 지면 안에서 브랜드 판으로 알린다 — 부모의 네이티브 alert 을 대신한다.
@@ -10000,7 +10022,7 @@ if(EMBED){
     }
     // [ORD_SAVE_STATE] 부모(mypage)의 완료 저장 결과 — 성공·실패 양쪽을 다 받는다.
     //   예전엔 실패만 받았다. 성공 신호가 없으니 '저장됨'을 미리 칠할 수밖에 없었고 그게 오표시의 뿌리였다.
-    if(ev.data.type==='momentedit:orderSaved'){ _txPullApply(ev.data.pull); if(editReturn&&_editSnap){ _editSnap=JSON.stringify(S); _editSavedMid=true; } _saveDone(true); return; }   /* [R7-07 EDIT_SNAP_SAVED] */
+    if(ev.data.type==='momentedit:orderSaved'){ _srvBase=_pullHas(ev.data.pull)?'':_sentKey;   /* [LOCAL_AHEAD] */ _txPullApply(ev.data.pull); if(editReturn&&_editSnap){ _editSnap=JSON.stringify(S); _editSavedMid=true; } _saveDone(true); return; }   /* [R7-07 EDIT_SNAP_SAVED] */
     if(ev.data.type==='momentedit:orderSaveFail'){ _saveDone(false, _ecLine('S',ev.data)); return; }   // [ORDER_SAVE_FAIL 2026-07-25] 회의 R-8 · [ERR_CODE_BUILDER] msg · error · ecode · kind · reason → 한 줄 + S 코드
     if(ev.data.type==='momentedit:orderFill'){
       _fillSeen=true;   // [RELOAD_KEEP_AT]
@@ -10041,8 +10063,11 @@ if(EMBED){
         var _localMid=false;
         try{ var _lv=JSON.parse(localStorage.getItem('me_order')||'null'); _localMid=!!(_lv&&_lv.cs&&_lv.sv===false); }catch(e){}
         var _dn2=_dn && !(_localMid&&_restored);
-        var _ap=_dn2?{S:d.S,idx:99,cs:true,sv:true}:{S:d.S,idx:_keep.idx,cs:true,sv:false,sk:_keep.sk};
-        if(_applySaved(_ap,true)){ _persist(); render(); }   /* [SAVED_FRESH] */
+        var _ap=_dn2?{v:2,S:d.S,idx:99,cs:true,sv:true}:{v:2,S:d.S,idx:_keep.idx,cs:true,sv:false,sk:_keep.sk};   /* ★[REOPEN_SAME_STEP 2026-10-09 A~Z 점검 1라운드 A-1] 판 번호(v:2)를 함께 — 없으면 _applySaved 가 «안내가 한 화면이던 옛 초안»(ORD_INTRO2)으로 읽어 자리를 한 칸 밀었다(①에서 나가면 ②로 · ③에서 나가면 ④ «이대로 저장하기»로 열려 덜 만든 식순을 완성 저장할 뻔했다 · 8/3 부터) · _keep.idx 는 이미 이 기기 판에서 맞춘 자리다 */
+        var _sk=_canonS(d.S), _lv2=null; try{ _lv2=JSON.parse(localStorage.getItem('me_order')||'null'); }catch(e){}
+        var _ahead=!!(_restored&&_lv2&&_lv2.dirty&&_lv2.who===_who), _same=!!(_ahead&&_lv2.base&&_lv2.base===_sk);   /* [LOCAL_AHEAD] 이 기기에 저장 안 한 고침이 있고 · 서버 판이 그 고침의 바탕 그대로면 이 기기 판이 더 나중이다 */
+        if(_same){ _srvBase=_sk; _autoLast=_autoKeyOf(d.S); _doneSaved=false; _doneKey=''; _persist(); render(); try{ toast('저장 전 고침을 이어서 열었어요'); }catch(e){} }   /* 머리 «저장»이 켜진 채 — 두 분이 저장하거나 나가기 판에서 고른다 */
+        else if(_applySaved(_ap,true)){ _srvBase=_sk; _persist(); render(); if(_ahead){ try{ toast('저장한 판으로 열었어요'); }catch(e){} } }   /* [SAVED_FRESH] · [LOCAL_AHEAD] 그사이 다른 기기에서 저장했으면(또는 바탕을 모르면) 서버 판 — 이 기기 고침을 덮었다고 한 줄 */
       }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
       /* [PR_FROM_MYPAGE 2026-10-05] 마이페이지 식순 줄 «연습하기»로 열었으면 ③ 연습하기에서 시작한다(담은 순간이 있을 때만 · 없으면 그 자리) */
       if(ev.data.at==='practice'&&courseStarted&&RitualOpen.picked(S).length){ PR_FROM_MP=true; try{ opGoStep('practice'); }catch(e){} }

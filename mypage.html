@@ -2339,8 +2339,10 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
-  var saved=false, _closed=false, _frameReady=false, _rdOv=null;   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
-  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
+  var saved=false, _closed=false, _frameReady=false, _rdOv=null, _depth=0, _backT=null, _backPend=false;   // [HIST_DEPTH] 빌더가 쌓은 기록 칸 수 · [EXIT_HOLD] 뒤로가기 3초 닫기 · 뒤로가기로 층을 쓴 뒤인가   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
+  /* ★[HIST_DEPTH 2026-10-09 A~Z 점검 1라운드 A-5] 빌더가 쌓은 칸(_depth)까지 한 번에 되감는다 — 한 칸만 되감으면 남은 빌더 칸이 «아무 일 없는 뒤로가기»가 되고, 되감기 표시(_bkClosing)가 남아 다음 뒤로가기 하나를 삼켰다 */
+  function _bkDoneDeep(id,n){ if(!n){ bkDone(id); return; } if(_bkFromPop||!_bkStack.length) return; var top=_bkStack[_bkStack.length-1]; if(top.id!==id){ bkDone(id); return; } _bkStack.pop(); _bkClosing=true; try{ history.go(-(n+1)); }catch(e){ _bkClosing=false; } }
+  function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }   // 부모 쪽 Esc도 빌더의 '저장 후 나가기' 경로로(iframe 미로드 시엔 그냥 닫기)
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -2378,6 +2380,8 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
        ★열 때 받은 초안(p.ritualDraft)을 다시 넣으면 그 뒤 고친 것(저장 단추를 안 누른 것)이 옛 판으로 덮인다 — 빌더가 보낸 지금 판을 대신 싣는다.
        서버로 보내지는 않는다(저장은 사람 손이 정한다 · ORD_AUTOSAVE) */
     if(d.type==='momentedit:orderReload'){ if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; try{ fr.src='/order-preview.html?embed=1&t='+Date.now(); }catch(e){} return; }
+    if(d.type==='momentedit:orderDepth'){ _depth=Math.max(0,d.d|0); return; }   // [HIST_DEPTH]
+    if(d.type==='momentedit:orderExitHold'){ if(d.on){ clearTimeout(_backT); _backT=null; } else if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
       // 저장 실패 시 오버레이는 그대로 두고 빌더의 나가기 버튼 잠금(_obExiting)을 풀어 재시도 가능하게 — 안 풀면 버튼 영구 잠김
@@ -2388,6 +2392,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _exFail=function(r){   // [ERR_CODE_MYPAGE F7] 저장 결과를 통째로 받아 까닭(msg · 코드)을 빌더에 그대로 — 종전엔 끊김 · 시간 초과 · 거절이 같은 말이었다
         var msg=_saveFailBody(r), sent=false;
         try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:orderExitReset', msg:msg}, _relayErr(r)), location.origin); sent=true; }catch(e){}
+        clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); }   // [EXIT_HOLD] 저장이 안 돼 머문다 — 뒤로가기로 쓴 층을 다시
         if(!sent) mpAlert(msg);
       };
       if(d.data && d.data.S){
@@ -2487,11 +2492,13 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   // [RITUAL_BACK_SAVE 2026-07-25] 뒤로가기도 Esc와 동일하게 '저장 후 나가기' 경유 — 모바일 주 닫기 제스처가 유일한 무저장 탈출구이던 문제 수정.
   //   3초 안에 저장 완료(orderExit)가 안 오면 그래도 닫고(비차단 토스트), 진행 중 저장이 성공하면 위 orderExit 콜백이 _closed를 보고 loadMyState로 갱신.
   //   bkOpen의 pushState는 '시작하기' 클릭 핸들러 동기 구간에서 실행됨(iOS 스와이프백 비제스처 스킵 이슈 없음 · WebKit 248303 확인).
-  var _bkId=bkOpen(function(){
+  function _onBack(){
     if(!_frameReady){ done(); return; }   // iframe 미로드(저장할 것도 없음) → 그냥 닫기
+    _backPend=true;   // [EXIT_HOLD] 이 층은 뒤로가기로 썼다 — 빌더가 머물면 다시 쌓는다
     try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); return; }
-    setTimeout(function(){ if(!_closed){ done(); _miniToast('저장 확인 중이에요'); } },3000);
-  });
+    clearTimeout(_backT); _backT=setTimeout(function(){ if(!_closed){ done(); _miniToast('저장 확인 중이에요'); } },3000);   // 빌더가 아무 답이 없을 때만(묻는 중이면 orderExitHold 가 멈춘다)
+  }
+  var _bkId=bkOpen(_onBack);
 }
 // 예식 미리 들어보기 — 식순 초안 그대로 흐르는 소리 미리듣기(/console.html?mode=preview&embed=1&S=…) [PREVIEW_LINK_V1]
 //   ★주소는 assets/ritual-preview-link.js 가 조립한다. 여기서 직접 만들지 말 것 —
