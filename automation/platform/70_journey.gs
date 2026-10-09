@@ -592,9 +592,14 @@ function handleRequestContractResend(body) { _gsr_();
   if (cs !== '발송' && cs !== '미발송') return { ok: false, error: '재발송을 요청할 계약서가 없어요.' };
   /* ★[CT_RESEND_ONCE 2026-10-09 점검 C-20] 요청 시각을 남기고(스크립트 속성 CTRESEND_<코드>) 24시간 안의 다시 누름은 «이미 요청함»으로 답한다 —
      관리자 알림을 두 번 보내지 않는다 · 마이페이지는 getMyState 의 contractResendAt 으로 단추를 흐리게 둔다(새로고침해도) */
-  var _rp = PropertiesService.getScriptProperties(), _rk = 'CTRESEND_' + code, _r0 = +(_rp.getProperty(_rk) || 0);
-  if (_r0 && Date.now() - _r0 < 24 * 3600e3) return { ok: true, already: true, at: fmtKST(new Date(_r0)) };
-  try { _rp.setProperty(_rk, String(Date.now())); } catch (e) {}
+  /* ★[CT_RESEND_LOCK 2026-10-09 A~Z 점검 2라운드 E2-9] 읽고 적기는 잠금 안에서 — 같은 순간 두 번 눌리면(두 기기 · 다시 보내기) 둘 다 «처음»으로 읽어 관리자 알림이 두 번 나갔다.
+     잠금을 못 잡으면 아무것도 적지 않고 «다른 처리가 진행 중이에요»(C1 · 1 = 몰림) — 다시 누르면 된다 · 기록 · 알림은 잠금 밖에서(락 시간을 짧게) */
+  var _rp = PropertiesService.getScriptProperties(), _rk = 'CTRESEND_' + code, _r0 = 0, _lk = LockService.getScriptLock();
+  try { _lk.waitLock(10000); } catch (eL) { return { ok: false, ecode: 'C1', error: '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요' }; }
+  try { _r0 = +(_rp.getProperty(_rk) || 0);
+    if (_r0 && Date.now() - _r0 < 24 * 3600e3) return { ok: true, already: true, at: fmtKST(new Date(_r0)) };
+    try { _rp.setProperty(_rk, String(Date.now())); } catch (e) {}
+  } finally { try { _lk.releaseLock(); } catch (eR) {} }
   _recordHandler(code, '고객 계약서 재발송 요청');
   try { notifyStudio('[플랫폼] 계약서 재발송 요청 (' + code + ')', code + ' · 고객이 만료된 계약서의 재발송을 요청했어요.'); } catch (e) {}
   notifyKakao('admin.contractReq', code, { weddingDate: _ymdOf(s.row.get('예식일')) });   // 관리자: 계약서 발송 필요(기존 키 재사용)
