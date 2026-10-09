@@ -612,7 +612,8 @@ function actCancel(sheet, colOf, r) { _gsr_();
 
   // 3) 고객 취소 안내 메일 (이메일 있을 때만)
   var to = r.get('이메일'), _mail = null;
-  if (to) {
+  if (to && !CONFIG.SEND_CANCEL_MAIL) _mail = 'off';   // [CANCEL_RESULT 라운드 8] 취소 안내 메일 스위치가 꺼져 있다 — 보낸 것도 못 보낸 것도 아니다(결과 글은 메일을 말하지 않는다)
+  else if (to) {
     try { sendCancelEmail_(to, names, dateKey, time); _mail = true; }
     catch (mailErr) { _mail = false; notifyStudio('[상담] ⚠️오류 · 취소 안내 메일 발송 실패', names + ' · ' + mailErr.message); }
   }
@@ -854,7 +855,7 @@ function serveAdminCancelD(token, row) { _gsr_();
     '<body><div class="box"><div class="brand">Moment Edit</div><div class="admin-tag">Admin</div><div class="bar"></div>' +
     '<div class="t">이 예약을 취소할까요?</div>' +
     '<div class="card"><div class="ey">Reservation</div><div class="nm">' + esc(names) + '</div><div class="dt">' + (dateKey ? prettyDate(dateKey) + ' · ' + esc(time) : '일정 미정') + '</div></div>' +
-    '<div class="notice">취소하면 캘린더 일정이 삭제되고,<br>고객에게 취소 안내 메일이 발송됩니다.</div>' +
+    '<div class="notice">' + (CONFIG.SEND_CANCEL_MAIL ? '취소하면 캘린더 일정이 삭제되고,<br>고객에게 취소 안내 메일이 발송됩니다.' : '취소하면 캘린더 일정이 삭제됩니다.') + '</div>' +   // [CANCEL_RESULT 라운드 8] 안내 메일 스위치가 꺼져 있으면 메일을 약속하지 않는다
     '<div class="btns">' +
     '<a class="btn btn-keep" href="javascript:history.back()">유지</a>' +
     '<a class="btn btn-cancel" href="' + safeAttr(doUrl) + '" target="_top">취소 확정</a>' +
@@ -877,8 +878,10 @@ function doAdminCancel(sheet, colOf, row) { _gsr_();
   if (_cm.length) { _partialNote_(row, '취소', _cm); var _cp = infoPage('빠진 것이 있어요', esc(coupleNames(row)) + ' 님 취소는 됐어요<br>안 된 것: ' + _missHtml_(_cm) + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았어요' : '') + '<br>이것만 직접 해 주세요 (코드 B4)', false); _LAST_INFO.partial = _cm.slice(); _LAST_INFO.noMail = (_cr.mail === null); return _cp; }   // 관리 화면(adminCancel)도 같은 창 · [ERR_CODES] 코드는 늘 끝(이메일 없음 줄은 그 앞)
   var _done = (_cr.cal === true && _cr.mail === true) ? '캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다.'
     : _cr.cal === true ? '캘린더 일정이 삭제되었습니다.' : _cr.mail === true ? '고객에게 안내 메일이 발송되었습니다.' : '';
-  return infoPage('예약이 취소되었습니다',
-    _whoWhen_(row) + (_done ? '<br>' + _done : '') + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았습니다.' : ''), true);   // [HTML_ESC_NAMES] · [CANCEL_SAME_WORDS 라운드 7] 본문은 제목을 되풀이하지 않는다(누구 · 언제 + 된 것)
+  var _okp = infoPage('예약이 취소되었습니다',
+    _whoWhen_(row) + (_done ? '<br>' + _done : '') + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았습니다.' : ''), true);
+  _LAST_INFO.noMail = (_cr.mail === null);   // [CANCEL_RESULT 라운드 8] 관리 화면(adminCancel)도 «이메일이 없어 안내 메일은 안 갔어요»를 말하게
+  return _okp;   // [HTML_ESC_NAMES] · [CANCEL_SAME_WORDS 라운드 7] 본문은 제목을 되풀이하지 않는다(누구 · 언제 + 된 것)
 }
 
 // ============================ google.script.run 핸들러 ============================
@@ -1684,7 +1687,7 @@ function cancelByRow() { _requireAdmin();
   var when = (r.get('선택날짜') ? prettyDate(r.get('선택날짜')) : '날짜미정') + ' ' + (r.get('선택시간') || '');
   Logger.log('취소 진행: ' + TARGET_ROW + '행 · ' + names + ' · ' + when);
   var _cr = actCancel(sheet, colOf, r) || {};
-  Logger.log('✅ 취소 완료 · 상태=취소 · 캘린더 ' + (_cr.cal === true ? '지움' : _cr.cal === false ? '못 지움(직접 지워 주세요)' : '지울 일정 없음') + ' · 안내 메일 ' + (_cr.mail === true ? '보냄' : _cr.mail === false ? '못 보냄(직접 연락해 주세요)' : '이메일 없음'));   // [CANCEL_RESULT] 된 것만
+  Logger.log('✅ 취소 완료 · 상태=취소 · 캘린더 ' + (_cr.cal === true ? '지움' : _cr.cal === false ? '못 지움(직접 지워 주세요)' : '지울 일정 없음') + ' · 안내 메일 ' + (_cr.mail === true ? '보냄' : _cr.mail === false ? '못 보냄(직접 연락해 주세요)' : _cr.mail === 'off' ? '꺼져 있음(설정)' : '이메일 없음'));   // [CANCEL_RESULT] 된 것만
 }
 
 // ============================================================
@@ -1968,7 +1971,7 @@ function notifyStudio(subject, body, dedupKey) { _gsr_();
        상한만 두면 같은 제목의 진짜 실패가 조용히 사라진다 */
     /* [NOTICE_ALL_CAP 2026-10-09 라운드 8] «오류 · 실패»인지는 제목의 첫 토막(« · » 앞)만 본다 — 뒤 토막에는 고객이 적은 이름이 들어가는 제목이 있다(신규 신청).
        그리고 제목과 상관없이 한 시간에 스무 통까지 — 제목이 사람마다 달라 제목별 상한이 듣지 않는 경우까지 막는다(넘치면 «멈춰요» 한 통 뒤 아침 보고) */
-    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '').split(' · ')[0]) && typeof _nfAdminLineEmail === 'function') { var _first = String(body || '').split('\n')[0].slice(0, 160), _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject) + '|' + _first, Utilities.Charset.UTF_8)).slice(0, 16), _pc = CacheService.getScriptCache(), _hr = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _ph = 'NSERRH_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 12) + '_' + _hr, _pn = +(_pc.get(_ph) || 0), _pa = 'NSERRALL_' + _hr, _pna = +(_pc.get(_pa) || 0); if (!_pc.get(_pk)) { _pc.put(_pk, '1', 21600); _pc.put(_ph, String(_pn + 1), 3700); _pc.put(_pa, String(_pna + 1), 3700); var _sj = String(subject).replace(/⚠️?/g, '').replace(/:/g, ' ').trim(), _line = _sj + ': ' + String(body || '').replace(/ \/ /g, ' · ').replace(/\.?[ \t]*\n\s*/g, ' · ').replace(/\s+/g, ' ').slice(0, 300); if (_pn < 5 && _pna < 20) _nfAdminLineEmail(_line); else if (_pn === 5 && _pna < 20) _nfAdminLineEmail(_line + ' · 이번 시간 같은 알림이 다섯 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 같은 알림 메일은 여기서 멈춰요'); else if (_pna === 20) _nfAdminLineEmail(_line + ' · 이번 시간 실패 알림이 스무 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 실패 알림 메일은 여기서 멈춰요'); else _nsOverflow_(_sj, _first); } } return; }   // [NOTICE_HEAD_FIRST 라운드 7] 메일 제목 칸 = «:» 앞(알림 제목) · 줄바꿈은 « · » · 여섯째 제목은 짧게 · 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
+    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '').split(' · ')[0]) && typeof _nfAdminLineEmail === 'function') { var _first = String(body || '').split('\n')[0].slice(0, 160), _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject) + '|' + _first, Utilities.Charset.UTF_8)).slice(0, 16), _pc = CacheService.getScriptCache(), _hr = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _ph = 'NSERRH_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 12) + '_' + _hr, _pn = +(_pc.get(_ph) || 0), _pa = 'NSERRALL_' + _hr, _pna = +(_pc.get(_pa) || 0); if (!_pc.get(_pk)) { _pc.put(_pk, '1', 21600); _pc.put(_ph, String(_pn + 1), 3700); _pc.put(_pa, String(_pna + 1), 3700); var _sj = String(subject).replace(/⚠️?/g, '').replace(/:/g, ' ').replace(/\s+\/\s+/g, ' · ').trim(), _line = _sj + ': ' + String(body || '').replace(/\.?[ \t]*\n\s*/g, ' · ').replace(/\s+\/\s+/g, ' · ').replace(/\s+/g, ' ').slice(0, 300); if (_pn < 5 && _pna < 20) _nfAdminLineEmail(_line); else if (_pn === 5 && _pna < 20) _nfAdminLineEmail(_line + ' · 이번 시간 같은 알림이 다섯 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 같은 알림 메일은 여기서 멈춰요'); else if (_pna === 20) _nfAdminLineEmail(_line + ' · 이번 시간 실패 알림이 스무 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 실패 알림 메일은 여기서 멈춰요'); else _nsOverflow_(_sj, _first); } } return; }   // [NOTICE_HEAD_FIRST 라운드 7] 메일 제목 칸 = «:» 앞(알림 제목) · 줄바꿈은 « · » · 여섯째 제목은 짧게 · 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
     if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
     if (dedupKey) {
       var c = CacheService.getScriptCache();
@@ -2473,6 +2476,7 @@ function handleAcceptProposal(body) { _gsr_();
   var r = row(sheet, colOf, a.consult.num);
   _LAST_INFO = null;
   actAccept(sheet, colOf, r);  // 변경제안→확정 + 캘린더 sync + (토글)메일 [+ setCustomerStage: 작업3]
+  if (_LAST_INFO && _LAST_INFO.ok === false && /^이미 취소된 예약/.test(String(_LAST_INFO.title || ''))) return { ok: false, error: '이미 취소된 예약입니다 · 다시 예약을 원하시면 새로 신청해 주세요' };   // [CANCEL_SAME_WORDS 라운드 8] 마이페이지는 짧게(이름 · 날짜는 화면에 이미 있다)
   if (_LAST_INFO && _LAST_INFO.ok === false) { var _at = _infoText_(_LAST_INFO), _am = /\(코드 ([A-Z]\d)/.exec(_at); return _am ? { ok: false, error: _at, ecode: _am[1] } : { ok: false, error: _at }; }   // [ACCEPT_RESULT] 몰림 · 마감 · 처리할 제안 없음은 실패로 · 기록 코드 = 고객이 보는 코드
   return { ok: true };
 }

@@ -509,6 +509,14 @@ G.HtmlService = realHS;
     if (!(G._LAST_INFO && G._LAST_INFO.title === '빠진 것이 있어요' && /안 된 것: 캘린더&nbsp;일정&nbsp;삭제/.test(G._LAST_INFO.body) && /코드 B4/.test(G._LAST_INFO.body) && hist.length === 1 && Array.isArray(G._LAST_INFO.partial))) bad.push('⑥ 관리자 취소: 캘린더를 못 지웠는데 «삭제되고 · 발송되었습니다»라고 하거나 처리이력이 없다 — ' + JSON.stringify(G._LAST_INFO));
     G.actCancel = () => ({ cal: true, mail: true }); reset6(); G.doAdminCancel({}, {}, cx);
     if (!(G._LAST_INFO && G._LAST_INFO.ok && /캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다/.test(G._LAST_INFO.body) && !/예약이 취소되었습니다/.test(G._LAST_INFO.body) && /신랑 · 신부 님<br>/.test(G._LAST_INFO.body))) bad.push('⑥ 관리자 취소: 다 됐는데 결과 글이 다르거나 본문이 제목을 되풀이한다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
+    G.actCancel = () => ({ cal: true, mail: 'off' }); reset6(); G.doAdminCancel({}, {}, cx);
+    if (!(G._LAST_INFO && G._LAST_INFO.ok && /캘린더 일정이 삭제되었습니다/.test(G._LAST_INFO.body) && !/메일/.test(G._LAST_INFO.body))) bad.push('⑥ 관리자 취소: 안내 메일 스위치가 꺼져 있는데 메일 이야기를 한다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
+    html = ''; { const hs0 = G.HtmlService; G.HtmlService = { createHtmlOutput: (h) => { html = h; const o = { setTitle: () => o, setXFrameOptionsMode: () => o, addMetaTag: () => o }; return o; }, XFrameOptionsMode: { ALLOWALL: 1 } };
+      G.serveAdminCancelD('tok1', R6({ '상태': '확정' })); G.HtmlService = hs0; }
+    if (/안내 메일이 발송됩니다/.test(html) || !/취소하면 캘린더 일정이 삭제됩니다/.test(html)) bad.push('⑥ 관리자 취소 화면: 안내 메일 스위치가 꺼져 있는데 «메일이 발송됩니다»를 약속한다');
+    { const pp2 = R6({ '상태': ST.CANCELLED || '취소' }); G._sessionToConsult = () => ({ ok: true, consult: { num: 2 } }); G.row = () => pp2; G.actAccept = keep.actAccept;
+      let ra2; try { ra2 = G.handleAcceptProposal({ token: 't' }); } catch (e) { ra2 = { threw: e.message }; }
+      if (!(ra2 && ra2.ok === false && ra2.error === '이미 취소된 예약입니다 · 다시 예약을 원하시면 새로 신청해 주세요')) bad.push('⑥ 마이페이지 수락: 취소된 예약에 이름 · 날짜까지 늘어놓은 긴 글 — ' + JSON.stringify(ra2)); G.row = () => cx; }
     G.actCancel = () => ({ cal: false, mail: null }); reset6(); G.doAdminCancel({}, {}, cx);
     if (!(G._LAST_INFO && G._LAST_INFO.title === '빠진 것이 있어요' && /이메일이 없어 안내 메일은 보내지 않았어요/.test(G._LAST_INFO.body) && /\(코드 B4\)$/.test(G._LAST_INFO.body) && G._LAST_INFO.noMail === true)) bad.push('⑥ 관리자 취소: 빠진 것이 있는데 이메일이 없다는 줄이 빠진다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
     G.actCancel = () => ({ cal: null, mail: null }); reset6(); G.doAdminCancel({}, {}, cx);
@@ -521,6 +529,11 @@ G.HtmlService = realHS;
     const kp = {}; for (const k of ['deleteCalendarEvent', 'sendCancelEmail_', '_maybeRefundAcctReq', '_bustAvailCache', 'setCustomerStage', '_releaseWeddingHoldOnCancel']) kp[k] = G[k];
     G.deleteCalendarEvent = () => false; G.sendCancelEmail_ = () => { throw new Error('mail down'); }; G._maybeRefundAcctReq = () => {}; G._bustAvailCache = () => {}; G.setCustomerStage = () => {}; G._releaseWeddingHoldOnCancel = () => {};
     let rr; try { rr = G.actCancel({}, {}, R6({ '상태': '확정', '이메일': 'a@b.c' })); } catch (e) { rr = { threw: e.message }; }
+    // [CANCEL_RESULT 라운드 8] 취소 안내 메일 스위치(CONFIG.SEND_CANCEL_MAIL)가 꺼져 있으면 «보냄»도 «못 보냄»도 아니다('off')
+    if (!(rr && rr.cal === false && rr.mail === 'off')) bad.push('⑥ 취소: 안내 메일 스위치가 꺼져 있는데 메일을 보냈다고 센다 — ' + JSON.stringify(rr));
+    vm.runInContext('CONFIG.SEND_CANCEL_MAIL = true', G);
+    try { rr = G.actCancel({}, {}, R6({ '상태': '확정', '이메일': 'a@b.c' })); } catch (e) { rr = { threw: e.message }; }
+    vm.runInContext('CONFIG.SEND_CANCEL_MAIL = false', G);
     if (!(rr && rr.cal === false && rr.mail === false)) bad.push('⑥ 취소: actCancel 이 된 것(캘린더 · 메일)을 돌려주지 않는다 — ' + JSON.stringify(rr));
     for (const k of Object.keys(kp)) G[k] = kp[k];
     let dv; try { dv = G.deleteCalendarEvent({}, {}, 2, 'x'); } catch (e) { dv = 'threw ' + e.message; }

@@ -333,6 +333,14 @@ await sec('②-D', async () => {
   await pg.waitForTimeout(300);
   const tt = await pg.evaluate(() => (document.getElementById('toast') || {}).textContent || '');
   ok('②-D 결과물 링크 다시 저장(알림 없음) → 토스트 «이번 저장은 고객 알림이 따로 가지 않아요»', /이번 저장은 고객 알림이 따로 가지 않아요/.test(tt) && !/카톡이 자동으로/.test(tt), tt);
+  /* [라운드 8] 토스트는 제 글 폭(화면 폭 - 32px 까지) — 종전엔 화면 반쪽에 갇혀 세 줄로 갈렸다 */
+  const tg = await pg.evaluate(() => { const t = document.getElementById('toast'); const r = t.getBoundingClientRect(); return { w: r.width, h: r.height, lh: parseFloat(getComputedStyle(t).lineHeight) || 18, vw: innerWidth }; });
+  ok('②-D 긴 토스트도 화면 반쪽에 갇히지 않는다(두 줄 이하 · 화면 안)', tg.w <= tg.vw - 16 && tg.h <= tg.lh * 2 + 24, JSON.stringify(tg));
+  /* [CANCEL_RESULT 라운드 8] 관리 화면 취소 · 이메일 없음 → 토스트가 사실을 말한다 */
+  await pg.evaluate(() => { const t = document.getElementById('toast'); if (t) { t.classList.remove('show'); t.textContent = ''; } try { afterAction('ME-A', { ok: true, noMail: true }, 'adminCancel'); } catch (e) {} });
+  await pg.waitForTimeout(300);
+  const tn = await pg.evaluate(() => (document.getElementById('toast') || {}).textContent || '');
+  ok('②-D 관리 화면 취소 · 이메일 없음 → «이메일이 없어 안내 메일은 보내지 않았어요»', /이메일이 없어 안내 메일은 보내지 않았어요/.test(tn), tn);
   GAS.adminDetail = { abort: 1 };
   await pg.evaluate(() => doMarkRefundedInline('ME-A', '가나다 · 라마바')); await pg.waitForTimeout(700);
   const d2 = await pg.evaluate(() => ({ t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, y: document.getElementById('cm_yes').textContent }));

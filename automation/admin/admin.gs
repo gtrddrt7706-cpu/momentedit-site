@@ -1653,7 +1653,7 @@ function adminApprove(code) {
   if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);                 // Q 최신값
   var st = String(r.get('상태') || '').trim();
-  if (st === ST.CANCELLED) return { ok: false, error: '취소된 예약은 승인할 수 없습니다. (되살아남 방지)' };  // K
+  if (st === ST.CANCELLED) return { ok: false, error: ADM_CANCELLED_MSG };  // K · [CANCEL_SAME_WORDS 라운드 8] 관리 화면은 한 말
   if (st !== ST.PICKED && LOCKED_STATES.indexOf(st) === -1) {
     return { ok: false, error: '승인할 수 있는 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
   }
@@ -1666,11 +1666,13 @@ function adminApprove(code) {
   var after = _li ? '' : String(row(sheet, colOf, cr.num).get('상태') || '').trim();   // 결과 글이 없는 옛 판만 상태로 판단
   if (after === ST.APPROVED || after === ST.CONFIRMED) { _recordHandler(code, '승인'); return { ok: true }; }
   // [ACCEPT_RESULT] 몰림 · 시간 없음 같은 다른 실패는 «마감»으로 말하지 않는다
-  if (_li && _li.ok === false && /^예약을 찾을 수 없습니다/.test(String(_li.title || ''))) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 2026-10-09 라운드 6] 관리자에게 «관리자 페이지에서 확인» · «문의 메일»을 말하지 않는다
+  if (_li && _li.ok === false && /^예약을 찾을 수 없습니다/.test(String(_li.title || ''))) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };
+  if (_li && _li.ok === false && /^이미 취소된 예약/.test(String(_li.title || ''))) return { ok: false, error: ADM_CANCELLED_MSG };   // [CANCEL_SAME_WORDS 라운드 8] 잠금 뒤에 알게 돼도 같은 말   // [ADM_GONE_WORDS 2026-10-09 라운드 6] 관리자에게 «관리자 페이지에서 확인» · «문의 메일»을 말하지 않는다
   if (_li && _li.ok === false && !/마감/.test(String(_li.title || ''))) return { ok: false, error: _admInfoText_(_li) };
   return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };  // L
 }
 
+var ADM_CANCELLED_MSG = '이미 취소된 예약이에요 · 다시 진행하려면 고객이 새로 신청해야 해요';   // [CANCEL_SAME_WORDS 라운드 8] 관리 화면이 «취소된 예약»을 말할 때는 이 한 말(고객용 «새로 신청해 주세요»가 관리 창에 나가지 않게)
 function _admMiss_(miss) {   // [MISS_NOWRAP 2026-10-09 라운드 6] 관리 화면 창에서 «확정 메일» · «마이페이지 단계»가 줄 끝에서 갈리지 않게(항목 안 띄어쓰기는 붙는 칸)
   return (miss || []).map(function (m) { return String(m).replace(/ /g, '\u00a0'); }).join(', ');
 }
@@ -1685,11 +1687,11 @@ function adminAcceptProposal(code) {
   if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
   var st = String(r.get('상태') || '').trim();
-  if (st === ST.CANCELLED) return { ok: false, error: '취소된 예약입니다.' };  // K
+  if (st === ST.CANCELLED) return { ok: false, error: ADM_CANCELLED_MSG };  // K · [CANCEL_SAME_WORDS 라운드 8]
   if (st !== ST.PROPOSED) return { ok: false, error: '변경제안 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
   _LAST_INFO = null;
   actAccept(sheet, colOf, r);
-  if (_LAST_INFO && _LAST_INFO.ok === false) return /마감/.test(String(_LAST_INFO.title || '')) ? { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 다시 보내 주세요.' } : /^예약을 찾을 수 없습니다/.test(String(_LAST_INFO.title || '')) ? { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' } : { ok: false, error: _admInfoText_(_LAST_INFO) };   // [ADM_GONE_WORDS]   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다 · 마감은 승인 쪽과 같은 말(고객에게 하는 말을 관리자에게 보이지 않는다)
+  if (_LAST_INFO && _LAST_INFO.ok === false) return /마감/.test(String(_LAST_INFO.title || '')) ? { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 다시 보내 주세요.' } : /^예약을 찾을 수 없습니다/.test(String(_LAST_INFO.title || '')) ? { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' } : /^이미 취소된 예약/.test(String(_LAST_INFO.title || '')) ? { ok: false, error: ADM_CANCELLED_MSG } : { ok: false, error: _admInfoText_(_LAST_INFO) };   // [ADM_GONE_WORDS]   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다 · 마감은 승인 쪽과 같은 말(고객에게 하는 말을 관리자에게 보이지 않는다)
   _recordHandler(code, '변경제안 수락');
   if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '수락은 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [APPROVE_PARTIAL]
   return { ok: true };
@@ -1706,6 +1708,7 @@ function adminCancel(code, reason) {
   _LAST_INFO = null;
   doAdminCancel(sheet, colOf, r);                     // 캘린더 삭제 + 상태=취소 + setCustomerStage(cancel) + 가예약 해제(actCancel 공통)
   _recordHandler(code, '취소' + (reason ? (' · ' + reason) : ''));  // C·D 사유·처리자
+  if (_LAST_INFO && !_LAST_INFO.partial && _LAST_INFO.ok && _LAST_INFO.noMail) return { ok: true, noMail: true };   // [CANCEL_RESULT 라운드 8] 이메일이 없어 안내 메일은 안 갔다 — 관리 화면 토스트가 말한다
   if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '취소는 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + (_LAST_INFO.noMail ? ' · 이메일이 없어 안내 메일은 보내지 않았어요' : '') + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [ERR_CODES] 코드는 늘 끝   // [CANCEL_RESULT 2026-10-09 라운드 6] 승인 · 수락과 같은 창
   return { ok: true };
 }
@@ -1718,7 +1721,7 @@ function adminProposeTime(code, newDate, newTime, memo) {
   var cr = findRowByPersonalCode(code);
   if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
-  if (String(r.get('상태') || '').trim() === ST.CANCELLED) return { ok: false, error: '취소된 예약입니다.' };
+  if (String(r.get('상태') || '').trim() === ST.CANCELLED) return { ok: false, error: ADM_CANCELLED_MSG };   // [CANCEL_SAME_WORDS 라운드 8]
   newDate = normalizeDateKey(newDate);
   newTime = String(newTime || '').trim();
   if (!newDate || !newTime) return { ok: false, error: '날짜와 시간을 선택해 주세요.' };

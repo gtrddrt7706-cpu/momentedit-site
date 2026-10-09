@@ -16578,6 +16578,19 @@ chk "if (_slotOk) notifyKakao('admin.slotPicked'" automation/consultation/consul
 chk "if (_slotOk) try {" automation/consultation/consultation-booking.gs 1
 chk "ASCALLN_" automation/platform/50_auth-handlers.gs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/public-caps.mjs >/dev/null 2>&1; _pcp=$?; if [ "$_pcp" != 0 ]; then echo "FAIL public-caps($_pcp): 밖에서 누를 수 있는 동작의 횟수 상한이 빠졌다 · 2 = 재지 못함 — node scripts/audit/public-caps.mjs"; fail=1; else echo "ok public-caps ($_pcp)"; fi; fi   # [PUBLIC_CAPS]
+# ★[CANCEL_RESULT · CANCEL_SAME_WORDS · AUTH_SEND_CAP 2026-10-09 라운드 8 마무리] 취소 안내 메일 스위치가 꺼져 있으면 메일을 말하지 않는다 · 관리 화면의 «취소된 예약»은 한 말 · 토스트는 제 글 폭 · 코드 찾기와 재설정은 따로 센다 · 화면은 «한 시간에 세 번까지»를 한 줄로
+chk "var ADM_CANCELLED_MSG = " automation/admin/admin.gs 1
+chk "if (to && !CONFIG.SEND_CANCEL_MAIL) _mail = 'off';" automation/consultation/consultation-booking.gs 1
+chk "(CONFIG.SEND_CANCEL_MAIL ? '취소하면 캘린더 일정이 삭제되고," automation/consultation/consultation-booking.gs 1
+chk "width:max-content;max-width:calc(100% - 32px);text-wrap:pretty" admin.html 1
+chk "if(act==='adminCancel'&&res&&res.noMail)" admin.html 1
+chk "overflow-wrap:anywhere;color:" automation/platform/96_ai_cost.gs 1
+chk "_more = !!(_cur && _cur.more && !ovfMore)" automation/platform/96_ai_cost.gs 1
+chk "같은 이메일로는 한 시간에 세 번까지 보내요" mypage.html 2
+chk "_authSendOk_(kind, email)" automation/platform/50_auth-handlers.gs 1
+chk "_trigSafe_(_pw) + (uid ? 'U' : 'N')" automation/platform/70_journey.gs 1
+nochk "취소된 예약은 승인할 수 없습니다. (되살아남 방지)" automation/admin/admin.gs
+nochk "error: '취소된 예약입니다.'" automation/admin/admin.gs
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2

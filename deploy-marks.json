@@ -2436,6 +2436,24 @@
    "fn": "submitSchedule",
    "mark": "SLOT_NOTICE_CAP",
    "why": "같은 예약의 시간 선택 관리자 알림은 한 시간에 3번 · 전체 30번까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminApprove",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "관리 화면은 취소된 예약을 한 말로 말한다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleAcceptProposal",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "마이페이지 수락에서 취소된 예약은 짧은 한 줄 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveAdminCancelD",
+   "mark": "CANCEL_RESULT",
+   "why": "안내 메일 스위치가 꺼져 있으면 메일을 약속하지 않는다 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -3388,6 +3406,7 @@
    "_ACTIVE_EMAIL",
    "_EFFECTIVE_EMAIL",
    "_OWNER_RUN",
+   "ADM_CANCELLED_MSG",
    "UNDO_WINDOW_HOURS",
    "_LOCK_BUSY"
   ],
@@ -3513,7 +3532,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 21:17 · dcbc7ebd",
+ "_생성": "2026-10-09 21:25 · 24448385",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4027,5 +4046,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "cf892cac8d26"
+ "_표식서명": "376eefd97212"
 }

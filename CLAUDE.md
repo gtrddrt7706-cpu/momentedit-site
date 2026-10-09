@@ -640,7 +640,7 @@ git push -u origin <브랜치>
 | `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). `aiDailySafetyCheck(true)`(silent)면 개별 문자 없이 결과만 반환(아침보고가 합쳐 발송). 수동 실행 시엔 위반/하락 시 SMS. 서버 fetch 막히면 점검불가 반환 |
 | `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS(aiMorningReport는 `false`로 텍스트만 가져감) |
 | `aiHandoffStatus` | 97_ai-handoff | (읽기 전용) 현재 '대기' 인계 수·그중 24h 경과 수 반환 — aiMorningReport 집계용 |
-| `aiHandoffNightTake` | 97_ai-handoff | (읽기+초기화) 밤사이 보류 새 인계 수 읽고 카운터 0으로 — aiMorningReport가 1회 소비 |
+| `aiHandoffNightTake` | 97_ai-handoff | (읽기+초기화) 밤사이 보류 새 인계 수 읽고 카운터 0으로 — ★[MAIL_SENT_TRUE 2026-10-09] 아침 보고는 이제 이 함수를 부르지 않는다(메일이 나간 뒤 센 만큼만 뺀다) · 손으로 돌리면 그날 보고의 «밤사이 새 인계» 수가 0 이 된다 |
 | `aiHandoffReminder` | 97_ai-handoff | (구) 미처리 인계 24h 리마인드 SMS. 현재는 aiMorningReport로 통합 · 수동/하위호환 유지 |
 | `aiHandoffNightFlush` | 97_ai-handoff | (구) 야간 보류 새 인계 아침 발송 SMS. 현재는 aiMorningReport로 통합 · 수동/하위호환 유지 |
 | `dumpPendingAiHandoff` | 97_ai-handoff | 현재 '대기' 인계 전체를 로그로 출력(번호·일시·고객·질문요약·AI제안답변). 읽기 전용·발송 없음. 80건 진짜/테스트 판단·답변 검토용(관리자 페이지는 30건만 보임) |
@@ -718,6 +718,7 @@ adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 
 - [NOTICE_OVERFLOW] 실패 알림 상한(제목마다 시간당 다섯 통)은 넘친 것을 버리지 않는다 — 여섯째는 «멈춰요» 한 통, 그 뒤는 속성 `NS_OVERFLOW`(20줄)에 모아 아침 보고가 싣고 지운다. [MORNING_ESC] 아침 보고 메일의 줄 값은 글로만(escape). [NOTICE_HEAD_FIRST] 알림 메일은 앞 300자만 실린다 — 할 일 줄을 앞에, 오류 글은 짧게 뒤에.
 - [CANCEL_RESULT] 취소 결과도 된 것만 말한다(캘린더 · 안내 메일) — 빠지면 «빠진 것이 있어요»(B4) · 처리이력 · 관리 화면 같은 창. [CANCEL_SAME_WORDS] 같은 상태는 같은 제목 · 본문은 제목을 되풀이하지 않는다. [ERR_ID_RECORDED] 기록 상한에 닿은 동작에는 사고번호를 주지 않는다. [SECRET_GUARD_KIND] 비면 입구가 열리는 공유 열쇠는 `guard` 갈래(deployCheck ★ 줄).
 - [AUTH_SEND_CAP 2026-10-09 라운드 7] 밖에서 누를 수 있는 «보내기» 동작(코드 찾기 · 재설정 안내)은 받는 주소마다 · 전체 시간당 상한을 둔다 — 답은 늘 같게(계정이 있는지 드러내지 않는다). [MAIL_SENT_TRUE] 모아 둔 것(실패 알림 · 밤사이 인계 수)은 메일이 나간 뒤에 센 만큼만 지운다. [RESULT_NOTIFIED] 화면의 «카톡이 나가요»는 서버가 실제로 보낼 때만.
+- [LOGIN_TRY_CAP · SIGNUP_ADDR_CAP · NOTICE_ALL_CAP · SLOT_NOTICE_CAP 2026-10-09 라운드 8] **밖에서 누를 수 있는 동작은 횟수 상한을 둔다** — 로그인(고객 · 관리자)은 같은 아이디 15분 10번(없는 아이디도 센다), 같은 이메일 새 신청은 시간당 3번, 실패 알림은 시간당 스무 통(«오류 · 실패»는 제목 첫 토막만 본다 · 뒤 토막에 고객 이름이 든다), 같은 예약의 시간 선택 관리자 알림은 시간당 3번. 새 공개 동작을 만들면 «한 사람이 천 번 누르면?»을 먼저 묻는다(`scripts/audit/public-caps.mjs`).
 - ★공개 저장소다 — 주석 · 커밋 · PR · deploy-marks 의 why 에는 **규칙만** 적는다. «무엇이 어떻게 열려 있었나»는 비공개 docs 저장소(기획 부록 B19 · 결정함)에만 둔다.
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)

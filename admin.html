@@ -373,7 +373,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 /* [ADM_SLOW_NOTE] 해골이 오래 남을 때 한 줄 — 색은 상태 신호(경고)라 장식이 아니다. */
 .slow-note{font-size:13px;color:var(--sub);background:#FFF8E6;border:1px solid #F0E3C0;border-radius:8px;padding:8px 10px;margin-bottom:8px}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
-#toast{position:fixed;bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:11px 20px;border-radius:24px;opacity:0;transition:all .3s var(--ease);z-index:100020;pointer-events:none;max-width:90%;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
+#toast{position:fixed;bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:11px 20px;border-radius:24px;opacity:0;transition:all .3s var(--ease);z-index:100020;pointer-events:none;width:max-content;max-width:calc(100% - 32px);text-wrap:pretty;box-sizing:border-box;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
 /* ★[ADM_TOAST_LONG 2026-10-07 ERR_CODE_ADMIN] 실패 토스트는 오래(6초+) 남고 눌러서 닫는다(#24) · z-index 는 AI 직원실(9990) · 계약서 뷰어(99999) ·
    확인판(100010) 위 — 종전 60 이라 그 위에서 뜬 실패 토스트(교육 저장 실패 · 서명 진본 못 받음)가 판 뒤에 가려 보이지 않았다 */
 #toast.show.err{pointer-events:auto;cursor:pointer}
@@ -3459,6 +3459,7 @@ function afterAction(code,res,act){
     adminConfirmMid:false,adminConfirmBalance:false,adminConfirmMidBalance:false};   // 입금 확인 3종은 cust.paymentConfirmed가 꺼져 있어 고객에게 아무것도 안 나감
   var _lw=!!(res&&res.warnings&&res.warnings.length);   /* [LINK_WARN_ONE 2026-10-09 라운드 6] 링크 경고 창이 뜨면 토스트는 띄우지 않는다(창 위에 겹쳤다) · 카톡 안내는 창 안에 */
   var _nfNone=(act==='adminSetResultLinks'&&res&&res.notified===false);   /* [RESULT_NOTIFIED 2026-10-09 라운드 7] 결과물 링크는 첫 등록(원본 · 보정본 · 수정 반영) 때만 고객 알림 — 다시 저장은 «안 가요»(옛 GAS 는 notified 가 없어 종전 말) */
+  if(act==='adminCancel'&&res&&res.noMail){ toast('✓ 처리됨 · 이메일이 없어 안내 메일은 보내지 않았어요'); if(_view==='detail') openDetail(code); else if(_view==='archive') loadArchive(); else loadHome(); return; }   /* [CANCEL_RESULT 라운드 8] 메일 화면과 같은 사실 */
   if(!(res&&res.partial)&&!_lw) toast(!NH[act] ? '✓ 처리됨'
     : _nfNone ? '✓ 처리됨 · 이번 저장은 고객 알림이 따로 가지 않아요'
     : NH_AUTO[act] ? ('✓ 처리됨 · 고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요')
@@ -3471,7 +3472,7 @@ function afterAction(code,res,act){
     var wb='<div style="background:#fdf3e0;border:1px solid #ecd9b0;border-radius:8px;padding:10px 12px;text-align:left">'+
       res.warnings.map(function(w){ return '<div style="font-size:13px;color:#8a5a2b;line-height:1.55;margin:3px 0">· '+esc(w)+'</div>'; }).join('')+
       '</div>';
-    openModal({ title:'링크 확인이 필요해요', text:'저장은 됐어요 · 아래 링크는 고객이 열지 못할 수 있어요'+(NH[act]&&NH_AUTO[act]&&!_nfNone?'<br>고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요':''), extra:wb, yes:'확인', onYes:closeModal, alertOnly:true });   /* [LINK_WARN_ONE] 제목은 한 줄 · 본문이 제목을 되풀이하지 않는다 · 가운데 줄(글머리 없는 .li 는 둘째 줄이 들어간다 · 라운드 7) · 카톡 줄은 알림이 나갈 때만 */
+    openModal({ title:'링크 확인이 필요해요', text:'저장은 됐어요<br>아래 링크는 고객이 열지 못할 수 있어요'+(NH[act]&&NH_AUTO[act]&&!_nfNone?'<br>고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요':''), extra:wb, yes:'확인', onYes:closeModal, alertOnly:true });   /* [LINK_WARN_ONE] 제목은 한 줄 · 본문이 제목을 되풀이하지 않는다 · 가운데 줄(글머리 없는 .li 는 둘째 줄이 들어간다 · 라운드 7) · 카톡 줄은 알림이 나갈 때만 */
   }
   /* [APPROVE_PARTIAL 2026-10-09 라운드 3] 승인 · 수락은 됐는데 뒷일(캘린더 · 확정 메일 · 단계 · 카톡)이 빠졌으면 목록은 새로 그리고 빠진 것만 창 하나로 —
      창을 그대로 두면 «다시 누르기»로 읽히고, 다시 누르면 «이미 확정»이 빠진 일을 덮는다 */
