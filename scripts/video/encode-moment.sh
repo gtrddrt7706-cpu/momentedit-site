@@ -7,6 +7,10 @@
 #        받은 v8 묶음은 실제로 움직이기까지 0.17~3.17초 동안 그림이 그대로였다(식전 영상 3.17초) — 폰이 받는 시간과 겹쳐 «한참 멈춰 있다»로 보였다.
 #     ② 가볍게 — CRF 24 · 상한 2.5Mbps. 받은 판 1.59~4.20Mbps → 0.67~1.49Mbps(합 65.0MB → 21.2MB) · 첫 1초 분량 272~668KB → 113~307KB.
 #        같은 프레임끼리 SSIM 0.981~0.993(17편) · 2배 확대에서도 연필 결 · 머리카락이 같았다.
+#   ★★[VID_SMOOTH 2026-10-09 사장님 «프레임이 뚝뚝 끊어 보이는 현상»] ③ 끊김을 고친다 — scripts/video/smooth-dups.mjs.
+#        받은 v8 묶음은 15편이 움직이는 구간의 37.8~67.8% 가 앞 그림과 같은 프레임이었다(30fps 인데 실제 그림 초당 9.6~27.5장) → 걸음 · 손이 «툭 · 툭».
+#        같은 그림은 빼고, 남은 그림을 움직인 양이 고르게 되는 시각에 다시 놓고([VID_RETIME]) · 컷에서 끊고([VID_CUT]) · 사이를 움직임 보간으로 그린다.
+#        프레임 수 · 길이 · 첫 장면 그대로 · 한 편 2분쯤 걸린다. SMOOTH=0 이면 건너뛴다. 재는 것은 video-start.mjs ③~⑤.
 #     KEEP_CARD=1 이면 칸 그림(-640.webp)은 그대로 둔다 — 사장님이 고른 장면(candle · entry · prevideo · tribute · toast)을 다시 뽑지 않을 때만.
 #        나머지는 KEEP_CARD 없이 — 칸 그림 = 새 첫 장면(받은 표지는 뒤 장면과 조금 달라 옛 칸 그림을 두면 ① 창에서 그림이 튄다 · listen-page V-5).
 #     ★받은 파일을 그대로 assets 에 넣지 않는다 — 10/9 v8 교체 때 그대로 넣어 위 둘이 다 빠졌다. video-start.mjs 가 막는다.
@@ -30,9 +34,13 @@ HERE="$(dirname "$0")"; OUT="$HERE/../../assets/video/moments"; mkdir -p "$OUT"
 [ -n "${START:-}" ] || START="$(node "$HERE/../audit/video-start.mjs" --start "$IN")"
 echo "앞을 자름: ${START}초"
 TMP="$OUT/.$NAME.tmp.mp4"   # 받은 파일이 같은 자리에 있어도(다시 굽기) 읽던 파일을 덮지 않게
-ffmpeg -nostdin -y -ss "$START" -i "$IN" -an -c:v libx264 -profile:v high -pix_fmt yuv420p -preset slow -crf "$CRF" -maxrate 2500k -bufsize 5000k \
+# ③ [VID_SMOOTH] 끊김 고치기(smooth-dups.mjs) — 자르기 · 1280×720 맞추기까지 거기서 하고 무손실(ffv1)로 넘긴다
+SRC="$IN"; SS="$START"; SM="$OUT/.$NAME.smooth.mkv"
+if [ "${SMOOTH:-1}" != 0 ]; then node "$HERE/smooth-dups.mjs" "$IN" "$START" "$SM"; SRC="$SM"; SS=0; fi
+ffmpeg -nostdin -y -ss "$SS" -i "$SRC" -an -c:v libx264 -profile:v high -pix_fmt yuv420p -preset slow -crf "$CRF" -maxrate 2500k -bufsize 5000k \
   -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2" \
   -movflags +faststart "$TMP"
+rm -f "$SM"
 mv "$TMP" "$OUT/$NAME.mp4"
 ffmpeg -nostdin -y -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=1280:720" -c:v libwebp -quality 80 "$OUT/$NAME.webp"
 if [ "${KEEP_CARD:-}" = 1 ] && [ -f "$OUT/$NAME-640.webp" ]; then echo "칸 그림은 그대로(KEEP_CARD=1)"
