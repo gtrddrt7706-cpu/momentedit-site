@@ -13795,9 +13795,9 @@ chk "'남는 장면', '표지', '장면 대본'" scripts/audit/moment-script-che
 #   ①은 ffmpeg 없이 PR 잡에서도 돈다 · ②는 ffmpeg 이 있는 로컬 · 야간에서 잰다(없으면 «재지 못함» 2 — 결함으로 치지 않는다 · CANT_LOOK).
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs >/dev/null 2>&1; _vs=$?
   case "$_vs" in
-    0) echo 'ok video-start: 장면 영상이 가볍고 첫 장면에서 바로 움직인다' ;;
-    1) echo 'FAIL video-start: 장면 영상이 무겁거나 앞에서 멈춰 있습니다 — node scripts/audit/video-start.mjs'; fail=1 ;;
-    *) echo 'ok video-start: 가벼움은 통과 · 움직임 시작은 재지 못했습니다(ffmpeg 없음) — 야간 · 로컬에서 잽니다' ;;
+    0) echo 'ok video-start: 장면 영상이 가볍고 · 첫 장면에서 바로 움직이고 · 끊기지 않는다' ;;
+    1) echo 'FAIL video-start: 장면 영상이 무겁거나 · 앞에서 멈춰 있거나 · 끊깁니다 — node scripts/audit/video-start.mjs'; fail=1 ;;
+    *) echo 'ok video-start: 가벼움은 통과 · 움직임 시작 · 끊김은 재지 못했습니다(ffmpeg 없음) — 야간 · 로컬에서 잽니다' ;;
   esac
 fi
 chk 'VID_MOVE_NOW' scripts/audit/video-start.mjs 3
@@ -13808,6 +13808,30 @@ chk 'KEEP_CARD' scripts/video/encode-moment.sh 2
 chk 'crf "$CRF"' scripts/video/encode-moment.sh 1
 chk 'VID_MOVE_NOW' assets/ritual-open.js 1
 chk 'VID_MOVE_NOW' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★★[VID_SMOOTH 2026-10-09 사장님 «각각 넘기면서 나오는 영상 · 그 외 영상 전부 점검했지? 프레임이 뚝뚝 끊어 보이는 현상»]
+#   받은 v8 묶음은 움직이는 구간에 같은 그림 되풀이가 많았다(하객 맞이는 새 그림이 초당 9.6장뿐) — 걸음 · 손이 «툭 · 툭» 끊겨 보였다(받은 원본부터).
+#   ★[VID_RETIME] 걸음도 고르지 않았다(그림이 «1 · 1 · 3프레임»처럼 놓임 · 5프레임마다 큰 걸음 하나) — 같은 그림 자리만 채우면 «느림 · 빠름»이 남는다.
+#   ★[VID_CUT] 컷 앞뒤를 사이 그림으로 채우면 두 장면이 겹친 유령 그림이 생긴다(채우기만 한 판 덕담 · 반지 · 편지 · 닫는 인사).
+#   굽기 encode-moment.sh ③ 이 smooth-dups.mjs 로 그림을 «움직인 양이 고르게» 다시 놓고 컷에서 끊어 움직임 보간으로 채운다 ·
+#   video-start.mjs ③ 멈춤 ④ 유령 그림 ⑤ 걸음 고르기를 잰다(ffmpeg 있을 때 · 로컬 · 야간).
+chk 'VID_SMOOTH' scripts/video/smooth-dups.mjs 1
+chk 'VID_RETIME' scripts/video/smooth-dups.mjs 3
+chk 'VID_CUT' scripts/video/smooth-dups.mjs 3
+chk 'VID_SMOOTH' scripts/video/encode-moment.sh 2
+chk 'smooth-dups.mjs' scripts/video/encode-moment.sh 2
+chk 'VID_SMOOTH' scripts/audit/video-start.mjs 2
+chk 'VID_RETIME' scripts/audit/video-start.mjs 3
+chk 'VID_CUT' scripts/audit/video-start.mjs 3
+chk 'const DUP = 0.004, MAXGAP = 7, CUT_CH = 0.35, CUT_MAD = 8, EPS = 0.25' scripts/video/smooth-dups.mjs 1
+chk 'settb=1/3000,setpts=' scripts/video/smooth-dups.mjs 1   # 다시 놓은 시각을 실제로 넣는 자리 — 빠지면 «채우기만» 하는 판으로 돌아간다
+chk '!cut\[keep\[e + 1\]\]' scripts/video/smooth-dups.mjs 1   # 줄을 컷에서 끊는 자리 — 빠지면 컷 앞뒤가 섞인다
+chk 'mi_mode=mci' scripts/video/smooth-dups.mjs 1
+chk 'const MAX_STUTTER = 0.08' scripts/audit/video-start.mjs 1
+chk 'const GHOST_D = 8, GHOST_R = 0.65' scripts/audit/video-start.mjs 1
+chk 'const EVEN_MAX = 0.75, EVEN_FLOOR = 0.05, EVEN_TRIM = 0.05' scripts/audit/video-start.mjs 1
+chk 'VID_SMOOTH' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk 'VID_RETIME' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk 'VID_CUT' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '## 1-2. 모든 편 공통' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 # ★[VIDEO_DECIDE_0928 사장님 결정] 준비한 순서 = 앞 스크린의 영상 · 감동하는 부모님 · 하객 맞이 = 하나둘씩 들어와 앉는 하객 · 그림은 따로 상의(장면 글이 본체)
 chk 'VIDEO_DECIDE_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
