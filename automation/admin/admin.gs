@@ -1611,8 +1611,8 @@ function _maskEmail(v) { _gsr_();
    관리자 홈이 이 목록을 띄워 «지금 알림이 안 가는 고객»이 눈에 보이게 한다.
    읽기 전용 · 아무것도 쓰지 않는다. */
 function adminSilentContacts() {
+  _requireAdmin();   // [GSR_GATE] 첫 문장이 문
   var _slMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 함수 «본문 안»에 있어야 mark() 가 읽는다. 지우지 말 것
-  _requireAdmin();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
   if (last < 2) return { ok: true, list: [] };
@@ -1649,9 +1649,13 @@ function adminApprove(code) {
   if (st !== ST.PICKED && LOCKED_STATES.indexOf(st) === -1) {
     return { ok: false, error: '승인할 수 있는 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
   }
+  _LAST_INFO = null;
   actApprove(sheet, colOf, r);                        // P1.5 Lock+슬롯재확인+setCustomerStage
+  if (_LAST_INFO && _LAST_INFO.partial) { _recordHandler(code, '승인'); return { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(' · ') + ' · 직접 확인해 주세요. (코드 B4)' }; }   // [APPROVE_PARTIAL] 다시 누르지 말고 빠진 것만
   var after = String(row(sheet, colOf, cr.num).get('상태') || '').trim();
   if (after === ST.APPROVED || after === ST.CONFIRMED) { _recordHandler(code, '승인'); return { ok: true }; }
+  var _li = _LAST_INFO;   // [ACCEPT_RESULT] 몰림 · 시간 없음 같은 다른 실패는 «마감»으로 말하지 않는다
+  if (_li && _li.ok === false && !/마감/.test(String(_li.title || ''))) return { ok: false, error: _infoText_(_li) };
   return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };  // L
 }
 
@@ -1665,8 +1669,11 @@ function adminAcceptProposal(code) {
   var st = String(r.get('상태') || '').trim();
   if (st === ST.CANCELLED) return { ok: false, error: '취소된 예약입니다.' };  // K
   if (st !== ST.PROPOSED) return { ok: false, error: '변경제안 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
+  _LAST_INFO = null;
   actAccept(sheet, colOf, r);
+  if (_LAST_INFO && _LAST_INFO.ok === false) return { ok: false, error: _infoText_(_LAST_INFO) };   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다
   _recordHandler(code, '변경제안 수락');
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '수락은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(' · ') + ' · 직접 확인해 주세요. (코드 B4)' };   // [APPROVE_PARTIAL]
   return { ok: true };
 }
 

@@ -97,10 +97,10 @@ function staticChecks(src) {
   }
   for (const n of DIAG) {
     const m = /^function\s+[\w$]+\s*\([^)]*\)\s*\{\s*([^\n]*)/.exec(src[n] || '');
-    if (!m || !/^if \(typeof _isOwnerRun_ === 'function' && !_isOwnerRun_\(\)\)/.test(m[1])) out.push(`진단: ${n} 의 첫 줄이 «소유자만»(_isOwnerRun_) 이 아니다 [DIAG_OWNER_ONLY]`);
+    if (!m || !/^if \(typeof _effectiveEmail_ === 'function' && !_isOwnerRun_\(\)\)/.test(m[1])) out.push(`진단: ${n} 의 첫 줄이 «소유자만»(_isOwnerRun_) 이 아니다 [DIAG_OWNER_ONLY]`);
   }
   // ── 둘째 조각 [GSR_GATE] — 모든 공개 함수의 첫 줄 ──
-  const head = (s) => { const m = /^function\s+[\w$]+\s*\([^)]*\)\s*\{\s*([^;\n]*)/.exec(s || ''); return m ? m[1] : ''; };
+  const head = (s) => { const m = /^function\s+[\w$]+\s*\([^)]*\)\s*\{((?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*)([^;\n]*)/.exec(s || ''); return m ? m[2] : ''; };   // 여는 괄호 뒤 주석은 건너뛰고 첫 문장
   for (const [n, s] of Object.entries(src)) {
     if (n.endsWith('_') || !/^function\b/.test(s)) continue;
     const h = head(s);
@@ -109,7 +109,7 @@ function staticChecks(src) {
     if (OPEN.includes(n)) continue;
     if (FNS_LATER.includes(n)) { if (!/^_gsr_\(\)$/.test(h)) out.push(`첫 줄: ${n} 이 _gsr_() 로 시작하지 않는다`); continue; }
     if (/^_gsr_\(\)$/.test(h)) continue;
-    if (/_requireAdmin\(/.test(s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, ''))) continue;
+    if (/^_requireAdmin\(/.test(h)) continue;   // [GSR_GATE] 관리 함수도 «첫 문장»이 문이어야 한다(쓰기 뒤에 문을 두면 그 전 줄이 먼저 돈다)
     out.push(`첫 줄: ${n} 이 넷(_SRV · _trigIn_ · _requireAdmin · _gsr_) 중 무엇으로도 시작하지 않는다 — 공개 화면에서 바로 부를 수 있다`);
   }
   for (const [n, s] of Object.entries(src)) {
@@ -203,7 +203,7 @@ const wrongSig = (s) => { const w = (s[0] === 'A' ? 'B' : 'A') + s.slice(1); if 
   // [BTN_SAFE_ARGS] 서명 없는 이상한 값(글자로 바꾸다 던지는 꼴)은 오류기록 · 경보 메일 없이 거절 · 서명한 처리에서 난 오류는 한 번만 기록
   { const realRec = G._errRecord; let recs = 0; G._errRecord = () => { recs++; };
     const rz = G.mailButtonGo({ action: 'accept', token: { toString: 1 }, sig: { toString: 1 } });
-    if (!(rz && rz.ok === false) || recs) bad('메일 단추: 서명 없는 이상한 값이 오류기록을 남기거나 거절되지 않는다(밖에서 오류기록 · 경보 메일을 만들 수 있다)');
+    if (!(rz && rz.ok === false) || recs) bad('메일 단추: 서명 없는 이상한 값이 오류기록을 남기거나 거절되지 않는다');
     recs = 0; G.mailButtonGo({ action: { toString: 1 } }); if (recs) bad('메일 단추: 이상한 action 값이 오류기록을 남긴다');
     G.actAccept = () => { throw new Error('accept boom'); }; recs = 0;
     const rs = G.mailButtonGo({ action: 'accept', token: tok, sig: cSig });
@@ -246,6 +246,11 @@ const wrongSig = (s) => { const w = (s[0] === 'A' ? 'B' : 'A') + s.slice(1); if 
   G._SRV = false; G._TRUST = false; G._AUTHED = false; setEmail('');
   for (const n of DIAG) { let r; try { r = G[n](); } catch (e) { r = 'THROW ' + (e && e.message); } if (!/편집기 전용 진단/.test(String(r))) bad(`진단: 익명 실행에서 ${n} 이 돌아간다(편집기 전용이어야)`); }
   setEmail(OWNER); let r2; try { r2 = G.contractCheckHelp(); } catch (e) { r2 = 'THROW'; } if (/편집기 전용 진단/.test(String(r2))) bad('진단: 소유자(편집기)인데 contractCheckHelp 가 막힌다');
+  // admin.gs 가 옛 판이면(새 소유자 판단 없음) 진단은 문 없이 돈다 — 그래야 deployCheck 가 «admin 옛 판»을 짚는다
+  { const keepEE = G._effectiveEmail_; G._effectiveEmail_ = undefined; setEmail('someone@momentedit.test', DEPLOYER);
+    let r3; try { r3 = G.contractCheckHelp(); } catch (e) { r3 = 'THROW'; }
+    if (/편집기 전용 진단/.test(String(r3))) bad('진단: admin.gs 가 옛 판인데 진단이 문에 막힌다(admin 누락을 짚지 못한다)');
+    G._effectiveEmail_ = keepEE; }
   setEmail('');
 }
 
@@ -302,6 +307,15 @@ function ownerChecks() {
 }
 for (const m of ownerChecks()) bad(m);
 
+// [OWNER_FIRST_ASK] 파일을 읽는 동안(전역) 소유자를 묻지 않는다 — 처음 물음이 서버 길 밖에서 굳으면 그 실행 끝까지 소유자로 남는다
+{
+  const sb = makeSandbox(); let calls = 0;
+  sb.Session = Object.assign({}, sb.Session, { getActiveUser: () => { calls++; return { getEmail: () => OWNER }; }, getEffectiveUser: () => { calls++; return { getEmail: () => OWNER }; } });
+  loadGas(sb, { srv: false });
+  if (calls) bad(`소유자: 파일을 읽는 동안 소유자를 ${calls}번 물었다(전역에서 부르는 줄이 있다)`);
+  if (sb._OWNER_RUN !== null || sb._ACTIVE_EMAIL !== null || sb._EFFECTIVE_EMAIL !== null) bad('소유자: 파일을 읽은 직후 기억 칸이 비어 있지 않다');
+}
+
 // ── 둘째 조각 행동 [GSR_GATE] ──
 const HELPERS = Object.keys(SRC).filter((n) => !n.endsWith('_') && /^function\b/.test(SRC[n]) && /^function\s+[\w$]+\s*\([^)]*\)\s*\{\s*_gsr_\(\)/.test(SRC[n]));
 const PP = () => G.PropertiesService.getScriptProperties();
@@ -327,13 +341,13 @@ function gateChecks(list) {
   if (!PP().getProperty('TRIG_PROBE')) out.push('예약 실행: 배우기 전 호출의 모양을 TRIG_PROBE 에 적지 않았다');
   // [TRIG_MISS_QUIET] 배우기 전 · 목록에 없는 아이디는 까닭을 남긴다 — 밖에서 온 글자는 영숫자만
   reset(); try { G._trigIn_({ triggerUid: 'NO<b>PE77' }); } catch (e) {}
-  { const m0 = String(PP().getProperty('TRIG_UID_MISS') || ''); if (!/uid NObPE77/.test(m0) || /[<>]/.test(m0)) out.push('예약 실행: 배우기 전 목록에 없는 아이디를 영숫자만으로 남기지 않았다 — ' + m0); }
+  { const m0 = String(PP().getProperty('TRIG_UID_MISS') || ''); if (!/uid NObPE7 /.test(m0) || /[<>]/.test(m0)) out.push('예약 실행: 배우기 전 목록에 없는 아이디를 영숫자만으로 남기지 않았다 — ' + m0); }
   reset(); try { G._trigIn_({ triggerUid: 'U1' }); if (G._TRUST !== true) out.push('예약 실행: 진짜 아이디인데 _TRUST 가 안 켜졌다'); } catch (e) { out.push('예약 실행: 진짜 아이디를 막았다'); }
   if (!PP().getProperty('TRIG_UID_OK')) out.push('예약 실행: 진짜 아이디를 보고도 TRIG_UID_OK 를 안 적었다');
-  if (PP().getProperty('TRIG_UID_MISS')) out.push('예약 실행: 배운 뒤에도 TRIG_UID_MISS 가 남아 있다(지워야 거짓 경보가 안 뜬다)');
+  if (PP().getProperty('TRIG_UID_MISS')) out.push('예약 실행: 배운 뒤에도 TRIG_UID_MISS 가 남아 있다(배우면 지운다)');
   if (!/U1/.test(String(PP().getProperty('TRIG_UIDS_KNOWN') || ''))) out.push('예약 실행: 진짜로 읽은 아이디를 알던 목록(TRIG_UIDS_KNOWN)에 더하지 않았다');
   reset(); if (!gsrBlocked(() => G._trigIn_({ triggerUid: 'FAKE' }))) out.push('예약 실행: 배운 뒤인데 가짜 아이디가 지난다');
-  if (PP().getProperty('TRIG_UID_MISS')) out.push('예약 실행: 배운 뒤 가짜 아이디가 TRIG_UID_MISS 를 남긴다(누구나 거짓 경보를 띄울 수 있다)');
+  if (PP().getProperty('TRIG_UID_MISS')) out.push('예약 실행: 배운 뒤 가짜 아이디가 TRIG_UID_MISS 를 남긴다(«목록에 없음»은 배우기 전에만)');
   reset(); if (!gsrBlocked(() => G._trigIn_({}))) out.push('예약 실행: 배운 뒤인데 이벤트 없는 호출이 지난다');
   reset(); if (!list && !gsrBlocked(() => G.aiDaily())) out.push('예약 실행: 배운 뒤인데 aiDaily 를 공개로 부를 수 있다');
   reset(); try { G._trigIn_({ range: { getRow: () => 2 } }); } catch (e) { out.push('예약 실행: 시트 편집 이벤트를 막았다'); }
@@ -357,6 +371,22 @@ function gateChecks(list) {
     if (reads > 5) out.push(`예약 실행: 가짜 아이디 20번에 목록을 ${reads}번 새로 읽었다(1분에 5번까지)`);
     reset(); try { G._trigIn_({ triggerUid: 'U1' }); } catch (e) { out.push('예약 실행: 읽기 한도를 다 쓴 뒤 진짜 아이디를 막았다'); }
     G.CacheService = realCS; }
+  // [TRIG_LEARN_ANY] 배우기 전 · 기억해 둔 목록(캐시)에서 맞아도 배운다 · [TRIG_LIST_KNOWN] 못 읽고 알던 목록에도 없으면 막고 기록 · 다시 읽으면 기록 지움 · 깨진 알던 목록은 새로
+  { const realCS = G.CacheService, cm = new Map();
+    G.CacheService = { getScriptCache: () => ({ get: (k) => (cm.has(k) ? cm.get(k) : null), put: (k, v) => cm.set(k, String(v)), remove: (k) => cm.delete(k), removeAll: () => cm.clear() }) };
+    clr(); cm.set('TRIG_UIDS', JSON.stringify(['U1']));
+    G.ScriptApp = { getProjectTriggers: () => { throw new Error('읽으면 안 된다'); } };
+    reset(); try { G._trigIn_({ triggerUid: 'U1' }); } catch (e) { out.push('예약 실행: 기억해 둔 목록의 진짜 아이디를 막았다'); }
+    if (!PP().getProperty('TRIG_UID_OK')) out.push('예약 실행: 배우기 전 · 기억해 둔 목록에서 맞았는데 배우지 않았다(목록이 늘 따뜻하면 영영 못 배운다)');
+    cm.clear(); PP().setProperty('TRIG_UIDS_KNOWN', JSON.stringify(['U1']));
+    reset(); if (!gsrBlocked(() => G._trigIn_({ triggerUid: 'NEW1' }))) out.push('예약 실행: 배운 뒤 목록을 못 읽을 때 알던 목록에 없는 아이디가 지난다');
+    if (!/알던 목록에 없음/.test(String(PP().getProperty('TRIG_LIST_FAIL') || ''))) out.push('예약 실행: 목록을 못 읽고 알던 목록에도 없어 막았는데 기록(TRIG_LIST_FAIL)이 없다');
+    PP().setProperty('TRIG_UIDS_KNOWN', '{깨짐');
+    G.ScriptApp = { getProjectTriggers: () => [{ getUniqueId: () => 'U1' }] };
+    reset(); try { G._trigIn_({ triggerUid: 'U1' }); } catch (e) { out.push('예약 실행: 목록을 다시 읽었는데 진짜 아이디를 막았다'); }
+    if (PP().getProperty('TRIG_LIST_FAIL')) out.push('예약 실행: 목록을 다시 읽어 맞았는데 «못 읽음» 기록이 남아 있다');
+    { let k = null; try { k = JSON.parse(PP().getProperty('TRIG_UIDS_KNOWN')); } catch (e) {} if (!Array.isArray(k) || k.indexOf('U1') < 0) out.push('예약 실행: 깨진 알던 목록을 새로 시작하지 않았다'); }
+    G.CacheService = realCS; }
   G.ScriptApp = realST; clr();
   // adminCall — 토큰이 없으면 _AUTHED 가 켜져 있어도 FNS 를 안 돈다
   const realFL = G.aiFactsList; let ran = 0;
@@ -368,6 +398,11 @@ function gateChecks(list) {
   try { G.doPost({ parameter: {}, postData: { type: 'application/json', contents: JSON.stringify({ action: 'adminCall', token: '', fn: 'aiFactsList', args: [] }) } }); } catch (e) {}
   if (ran) out.push('doPost(action=adminCall): 토큰 없이 FNS 가 돌았다');
   G.aiFactsList = realFL; reset();
+  // [POST_SAFE_JSON] 밖에서 온 값의 «toString · valueOf» 칸은 받을 때 지운다 — 동작 이름이 객체여도 «모르는 동작»(3)으로 끝나고 예외(9)로 가지 않는다
+  { const keepES = G._errStamp; let seen = null; G._errStamp = (o) => { seen = o; return o; };
+    reset(); try { G.doPost({ parameter: {}, postData: { type: 'application/json', contents: '{"action":{"toString":1,"valueOf":1}}' } }); } catch (e) { out.push('doPost: 받은 값의 toString 칸에 던졌다'); }
+    if (!(seen && /3$/.test(String(seen.ecode || '')))) out.push('doPost: 받은 값의 toString 칸이 글자로 바꾸다 예외로 갔다(받을 때 지우지 않았다) — ' + JSON.stringify(seen && seen.ecode));
+    G._errStamp = keepES; reset(); }
   return out;
 }
 for (const m of gateChecks()) bad(m);

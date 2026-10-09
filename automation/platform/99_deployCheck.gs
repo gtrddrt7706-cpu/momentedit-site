@@ -29,7 +29,7 @@
  *   기준 함수 24개가 실제로 어느 파일에 있는지 전수 대조했고, 지금 코드로 돌려 54항목 전부 통과한다.
  */
 function deployCheck() {
-  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
+  if (typeof _effectiveEmail_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 가 없거나 옛 판이어도 진단은 돈다(typeof _effectiveEmail_ — 그래야 admin 누락을 짚는다)
   var L = [];
   var okN = 0, badN = 0;
 
@@ -450,7 +450,7 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
  *   ★재배포할 때마다 이것만 돌리면 된다 — deployCheck 는 «붙여넣기» 점검이고, 이건 «배포» 점검이다.
  */
 function deployStampCheck() {
-  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
+  if (typeof _effectiveEmail_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 가 없거나 옛 판이어도 진단은 돈다(typeof _effectiveEmail_ — 그래야 admin 누락을 짚는다)
   var L = [];   // [STAMP_ONLY]
   L.push('══ 배포가 «먹었는가» (저장만으론 /exec 에 안 먹는다) ══');
   try {

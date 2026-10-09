@@ -699,15 +699,17 @@ adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 
 - 검사: `node scripts/audit/gsr-guard.mjs`(옛 이름 · 빠진 잠금 · 모든 공개 함수의 첫 줄 · FNS · 새 `_AUTHED` · `_SRV` · `_TRUST` · 메일 단추 행동 · 예약 실행 확인 · 토큰 없는 adminCall · 돌연변이) — merge-guard 가 돌린다. 잠글 함수를 늘리면 그 파일의 `LOCKED` 도 같은 커밋에서.
 - ★[MAIL_BTN_CONFIRM] **메일 단추(입금 확인 · 승인 · 수락)는 열기만 해서는 아무것도 바꾸지 않는다** — 주소를 열면 확인 화면만 보이고, 화면의 단추(`mailButtonGo` · 입구)를 눌러야 처리된다. 메일 보안 검사기 · 링크 미리보기가 주소를 먼저 열어 보기 때문이다(B11). 단추 쪽이 서명 · 기한을 다시 본다.
 - FNS 의 `aiAlertAdmin` 은 두 쓰임이라 `_requireAdmin` 대신 `_gsr_`(`FNS_LATER`).
-- ★[DIAG_OWNER_ONLY 2026-10-09] 편집기 진단 6개(deployCheck · deployStampCheck · contractCheck · contractCheckHelp · notifySetupCheck · checkCustomerHeaderOrder)는 첫 줄에서 «소유자가 아니면 돌려보내기» — `typeof _isOwnerRun_` 로 걸어 admin.gs 가 없는 판에서도 진단은 돈다. 이런 진단을 새로 만들면 같은 첫 줄 + gsr-guard 의 `DIAG`.
+- ★[DIAG_OWNER_ONLY 2026-10-09] 편집기 진단 6개(deployCheck · deployStampCheck · contractCheck · contractCheckHelp · notifySetupCheck · checkCustomerHeaderOrder)는 첫 줄에서 «소유자가 아니면 돌려보내기» — `typeof _effectiveEmail_` 로 걸어 admin.gs 가 없거나 옛 판이어도 진단은 돈다(그래야 admin 누락을 짚는다). 이런 진단을 새로 만들면 같은 첫 줄 + gsr-guard 의 `DIAG`.
 - `_AUTHED` 창은 넷 다 «이전 값»으로 닫는다(`var _authPrev = _AUTHED` · finally · `[AUTHED_RESTORE]`). 편집기 소유자 확인은 한 실행에 한 번(`_activeEmail_` · `[OWNER_MEMO]`).
 - ★[OWNER_SELF 2026-10-09 사장님 deployCheck 로그] **편집기 소유자 = 서버 길 밖 · 실행한 사람 = 권한 주인**(`_isOwnerRun_` 한 곳 · `_requireAdmin` · `_gsr_` · `_trigIn_` · 진단이 같은 자를 쓴다).
   편집기에서는 둘이 늘 같아 **어느 계정으로 편집기를 열든 목록에 적지 않는다**(`_ADMIN_OWNER_EMAILS` 는 덧붙임일 뿐). 서버 길(doGet · doPost · 공개 화면 입구) 안에서는 소유자 신원이어도 토큰 · 서명 없이 못 지난다.
   ★교훈 — 1-s 는 목록에 실제 편집기 계정이 없는 채로 나가 사장님 편집기 도구 · 진단이 막혔다(사장님이 붙인 deployCheck 로그 ④ ⑤ 로 드러남). **잠금을 걸 때는 «누가 막히나»를 실제 실행 계정으로 확인한다.**
   점검의 편집기 흉내는 `asOwner(sb)`(gas-lint · 서버 길 밖 · 목록에 없는 계정).
   - [OWNER_FIRST_ASK] 소유자인가는 한 실행에서 **처음 물을 때** 정한다(`_OWNER_RUN`) — 편집기 도구가 안에서 입구 함수를 불러 `_SRV` 가 켜져도 끝까지 소유자 실행이다.
-  - ★[HTML_ESC_NAMES] **배포한 계정으로 GAS 화면(메일 단추 확인 · 결과 · 취소 · 화면 A/B/C)을 열면 그 화면의 서버 호출도 소유자로 돈다.** 그래서 GAS 화면에 고객 글(이름 · 시간 · 메모)을 넣을 때는 **늘 `esc()`**, 확인 화면은 서버 글을 허락한 꼴(줄바꿈 · 굵게)만 그린다([MAIL_SHOW_SAFE]). `scripts/audit/mail-page.mjs` 가 행동 · 정적으로 잰다.
-- [TRIG_LIST_KNOWN] 예약 실행 아이디는 목록을 못 읽으면 **마지막으로 알던 목록**(속성 `TRIG_UIDS_KNOWN`)으로 판정한다 · 새로 읽기는 1분에 5번까지 · «목록에 없음» 기록은 배우기 전에만([TRIG_MISS_QUIET]).
+  - ★[HTML_ESC_NAMES] GAS 화면(메일 단추 확인 · 결과 · 취소 · 화면 A/B/C)에 고객 글(이름 · 시간 · 메모)을 넣을 때는 **늘 `esc()`**, 확인 화면은 서버 글을 허락한 꼴(줄바꿈 · 굵게)만 그린다([MAIL_SHOW_SAFE]). `scripts/audit/mail-page.mjs` 가 행동 · 정적으로 잰다.
+- [TRIG_LIST_KNOWN] 예약 실행 아이디는 목록을 못 읽으면 **마지막으로 알던 목록**(속성 `TRIG_UIDS_KNOWN`)으로 판정한다 · «목록에 없음» 기록은 배우기 전에만([TRIG_MISS_QUIET]).
+- [APPROVE_PARTIAL · ACCEPT_RESULT 2026-10-09 라운드 3] 승인 · 수락은 상태를 쓴 뒤의 뒷일(캘린더 · 확정 메일 · 단계 · 카톡)을 하나가 실패해도 끝까지 하고, 빠진 것은 «일부 안 됨»(코드 B4)으로 알린다 — **다시 누르게 하지 않는다**(다시 누르면 «이미 확정»이 빠진 일을 덮는다 · 관리 화면은 목록을 새로 그리고 «빠진 것이 있어요» 창 하나). 부르는 곳(마이페이지 수락 · 관리 화면)은 결과 글이 실패면 성공 · 처리이력으로 돌려주지 않는다.
+- [BTN_AFTER_FAIL · BTN_FAIL_KIND] 메일 단추가 예상 못 한 오류(9)로 끝났으면 다음 «이미 처리» 결과에 «확인해 주세요» 한 줄(한 번만) · 붙여넣기 · 배포 누락(3)은 다시 누르게 하지 않는다. [POST_SAFE_JSON] 밖에서 온 JSON 은 `toString` · `valueOf` 칸을 지우고 받는다.
 - ★공개 저장소다 — 주석 · 커밋 · PR · deploy-marks 의 why 에는 **규칙만** 적는다. «무엇이 어떻게 열려 있었나»는 비공개 docs 저장소(기획 부록 B19 · 결정함)에만 둔다.
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)

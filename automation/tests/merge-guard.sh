@@ -16396,12 +16396,31 @@ chk 'TRIG_LIST_KNOWN' automation/platform/70_journey.gs 4
 chk 'TRIG_MISS_QUIET' automation/platform/70_journey.gs 2
 chk 'TRIG_LIST_KNOWN' automation/platform/99_deployCheck.gs 1
 chk 'TRIG_MISS_QUIET' automation/platform/99_deployCheck.gs 1
+# ★[ACCEPT_RESULT · BTN_AFTER_FAIL · BTN_FAIL_KIND · TRIG_LEARN_ANY 2026-10-09 라운드 3]
+#   수락 · 승인을 부르는 곳은 결과 글(_LAST_INFO)이 실패면 성공으로 돌려주지 않는다 · 단추가 앞서 예상 못 한 오류로 끝났으면 다음 결과에 «확인해 주세요» 한 줄
+#   · 붙여넣기 · 배포 누락은 3(다시 누르게 하지 않는다) · 예약 실행은 진짜 목록에서 맞으면(기억 · 알던 목록 포함) 배운다(gsr-guard · mail-page 가 행동으로 잰다)
+chk 'ACCEPT_RESULT' automation/consultation/consultation-booking.gs 2
+chk 'ACCEPT_RESULT' automation/admin/admin.gs 2
+chk 'BTN_AFTER_FAIL' automation/consultation/consultation-booking.gs 4
+chk 'BTN_FAIL_KIND' automation/consultation/consultation-booking.gs 1
+chk 'TRIG_LEARN_ANY' automation/platform/70_journey.gs 1
+nochk '이미 처리되어 다시 보내지 않았습니다' automation/consultation/consultation-booking.gs
+# ★[APPROVE_PARTIAL · POST_SAFE_JSON · PUB_RULES_WIDE 2026-10-09 라운드 3] 승인 · 수락 뒤 뒷일은 하나가 실패해도 끝까지 하고 빠진 것은 «일부 안 됨»(B4)으로 알린다
+#   (다시 누르게 하지 않는다 · 관리 화면은 목록을 새로 그리고 창 하나) · 밖에서 온 JSON 은 toString · valueOf 칸을 지우고 받는다 · 공개 문장 검사는 저장소 전체
+#   (mail-page · gsr-guard · err-admin · pub-rules 가 행동으로 잰다 · 되돌리면 빨강)
+chk 'APPROVE_PARTIAL' automation/consultation/consultation-booking.gs 4
+chk 'APPROVE_PARTIAL' automation/admin/admin.gs 2
+chk 'APPROVE_PARTIAL' admin.html 1
+chk 'APPROVE_PARTIAL' scripts/audit/err-admin.mjs 1
+chk 'POST_SAFE_JSON' automation/consultation/consultation-booking.gs 1
+chk 'POST_SAFE_JSON' scripts/audit/gsr-guard.mjs 1
+chk 'PUB_RULES_WIDE' scripts/audit/pub-rules.mjs 1
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/purge-chain.mjs >/dev/null 2>&1; _pcg=$?; if [ "$_pcg" != 0 ]; then echo "FAIL purge-chain($_pcg): 주간 정리가 매단 개인정보 파기를 건너뛴다 · 2 = 재지 못함 — node scripts/audit/purge-chain.mjs"; fail=1; else echo "ok purge-chain ($_pcg)"; fi; fi   # [PURGE_CHAIN_ALWAYS]
-# ★[TRIG_IN_WHY 2026-10-09 점검] 예약 실행 확인 기록에 그때 메일(가린 꼴) · 목록에 없는 아이디는 TRIG_UID_MISS · 목록 읽기 일시 실패는 막지 않음(gsr-guard 가 행동으로 잰다)
-chk 'TRIG_IN_WHY' automation/platform/70_journey.gs 4
+# ★[TRIG_IN_WHY 2026-10-09 점검] 예약 실행 확인 기록에 그때 메일(가린 꼴) · «목록에 없음»은 배우기 전에만(TRIG_MISS_QUIET) · 목록을 못 읽으면 알던 목록으로(TRIG_LIST_KNOWN · gsr-guard 가 행동으로 잰다)
+chk 'TRIG_IN_WHY' automation/platform/70_journey.gs 3   # 라운드 2 에서 «목록 못 읽음» 줄이 TRIG_LIST_KNOWN 으로 옮겨 3
 chk 'TRIG_IN_WHY' automation/platform/99_deployCheck.gs 1
 chk 'TRIG_UID_MISS' scripts/gen-deploy-fns.mjs 1
 nochk '^function setAdminAccount([^)]*) {$' automation/admin/admin.gs

@@ -3427,7 +3427,7 @@ function li(s){ return '<span class="li">· '+esc(s)+'</span>'; }
    오래 걸린 끊김은 결과 모름(X5) · 로그인 풀림은 로그인 화면으로 · 처리는 됐는데 화면을 다시 그리다 멈춘 것은 그렇다고 말한다 */
 function runAct(fnArgs, code, lbl){
   mBusy(true); mErr('');
-  gas.apply(null, fnArgs).then(function(r){ if(r&&r.ok){ try{ afterAction(code,r,fnArgs[0]); }catch(e){ toastErr('처리는 됐어요 · 화면을 다시 그리다 멈췄어요 · 새로고침해 주세요 · '+_why(e)); } }
+  gas.apply(null, fnArgs).then(function(r){ if(r&&(r.ok||r.partial)){ try{ afterAction(code,r,fnArgs[0]); }catch(e){ toastErr('처리는 됐어요 · 화면을 다시 그리다 멈췄어요 · 새로고침해 주세요 · '+_why(e)); } }
       else { mBusy(false,lbl); if(_admLost(r)){ authFail(); return; } mErr(_why(r,{base:'처리하지 못했어요 · 다시 눌러 주세요'})); } })
     .catch(function(e){ mBusy(false,lbl); _mSay(_why(e,{write:true})); });
 }
@@ -3469,6 +3469,9 @@ function afterAction(code,res,act){
       '</div>';
     openModal({ title:'저장은 됐어요 · 링크 확인이 필요해요', text:'<span class="li">저장은 완료됐지만, 아래 링크는 고객이 열지 못할 수 있어요.</span>', extra:wb, yes:'확인', onYes:closeModal });
   }
+  /* [APPROVE_PARTIAL 2026-10-09 라운드 3] 승인 · 수락은 됐는데 뒷일(캘린더 · 확정 메일 · 단계 · 카톡)이 빠졌으면 목록은 새로 그리고 빠진 것만 창 하나로 —
+     창을 그대로 두면 «다시 누르기»로 읽히고, 다시 누르면 «이미 확정»이 빠진 일을 덮는다 */
+  if(res&&res.partial){ openModal({ title:'빠진 것이 있어요', text:'<span class="li">'+esc(_why(res))+'</span>', yes:'확인', onYes:closeModal }); }
 }
 
 function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요?', text:b(names)+li('고객에게 확정 메일이 가요')+li('캘린더에 일정이 생겨요'), yes:'승인', onYes:function(){ runAct(['adminApprove',code],code,'승인'); } }); }

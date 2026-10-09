@@ -38,7 +38,7 @@ var CONTRACT_FALLBACK = [
 ];
 
 function contractCheck() {
-  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
+  if (typeof _effectiveEmail_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 가 없거나 옛 판이어도 진단은 돈다(typeof _effectiveEmail_ — 그래야 admin 누락을 짚는다)
   /* [FALLBACK_SEAT30] 폴백 표의 착석 기대값 25 → 30 (2026-09-13 대표 지시 검토38 · 2026-09-19 재확인).
      이 표식이 GAS 에 없으면 «이 파일을 안 붙여넣은» 것이고, 그러면 이 점검이 착석 25 를 정답이라
      믿어 «전부 초록»이라 답한다 — 틀린 값을 지키는 점검이 된다. */
@@ -171,7 +171,7 @@ function contractCheck() {
    파일 끝에 함수가 하나 더 있으면, 잘린 순간 이 이름이 사라져 함수 전수 대조에 걸린다.
    ★지우지 말 것 — 지우면 이 파일만 «잘려도 모르는» 상태로 되돌아간다. */
 function contractCheckHelp() {
-  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
+  if (typeof _effectiveEmail_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 가 없거나 옛 판이어도 진단은 돈다(typeof _effectiveEmail_ — 그래야 admin 누락을 짚는다)
   /* [CONTRACT_TAIL] 표식은 함수 «본문 안»에 — mark() 가 함수 소스를 읽는다(CLAUDE.md 의 FILE_COVER 규칙). */
   var s = [
     '값 계약 점검 — 사용법',

@@ -9,13 +9,16 @@ const { sandbox: G0, errors } = loadGas(makeSandbox());
 if (errors.length) { console.log('━━ purge-chain — GAS 로드 실패 · 재지 못했습니다: ' + errors[0].file); process.exit(2); }
 const src = String(G0.purgeAdvisorLog || '');
 // 매단 파기 이름은 함수 본문에서 읽는다(늘면 함께 잰다) — `try { [if (typeof X === 'function') ]X(` 꼴
-const CHAIN = [...new Set([...src.matchAll(/try \{ (?:if \(typeof (\w+) === 'function'\) )?(\w+)\(/g)].map((m) => m[2]))];
-if (CHAIN.length < 8) { console.log('━━ purge-chain — 매단 파기를 ' + CHAIN.length + '개만 찾았다 · 재지 못했습니다'); process.exit(2); }
+const CHAIN = [...new Set([...src.matchAll(/try \{ (?:if \(typeof (\w+) === 'function'\) )?(\w+)\(/g)].map((m) => m[2]).filter((n) => /^purge/.test(n)))];
+// 반드시 매달려 있어야 할 개인정보 · 기록 파기(줄이 빠지면 빨강 — 본문에서 읽은 목록만 믿지 않는다)
+const REQUIRED = ['purgeAwDemandLog', 'purgeAiCostLog', 'purgeLeads', 'purgeStaleCustomers', 'purgeKakaoClicks', 'purgeAiHandoff', 'purgeSmsLog', 'purgeNfTrack', 'purgeSnapRefs', 'purgeRitualFiles'];
+const lost = REQUIRED.filter((n) => !CHAIN.includes(n));
+if (lost.length) { console.log('━━ purge-chain — 빨강 · 주간 정리에서 빠진 파기: ' + lost.join(' · ') + ' [PURGE_CHAIN_ALWAYS]'); process.exit(1); }
 
-function run(label, sheet) {
+function run(label, sheet, victim) {
   const { sandbox: G } = loadGas(makeSandbox());
   const called = [];
-  for (const n of CHAIN) G[n] = () => { called.push(n); };
+  for (const n of CHAIN) G[n] = () => { called.push(n); if (n === victim) throw new Error('파기 하나 실패'); };
   G.SpreadsheetApp = { getActive: () => ({ getSheetByName: () => sheet }) };
   try { G.purgeAdvisorLog({ triggerUid: 'T' }); } catch (e) { return { label, called, err: String(e && e.message) }; }
   return { label, called };
@@ -25,12 +28,14 @@ let deleted = 0;
 const withRows = { getLastRow: () => 3, getRange: () => ({ getValues: () => [[old], [recent]] }), deleteRows: (a, n) => { deleted += n; } };
 const throwing = { getLastRow: () => 5, getRange: () => { throw new Error('Service Spreadsheets timed out'); }, deleteRows: () => { throw new Error('out of bounds'); } };
 const cases = [run('시트 없음', null), run('머리글만', { getLastRow: () => 1 }), run('기록 있음', withRows), run('읽기 실패', throwing)];
+// 매단 파기 하나가 던져도 나머지는 다 불린다(각자 try)
+for (const v of CHAIN) cases.push(Object.assign(run(v + ' 이 던짐', null, v), { victim: v }));
 const bad = [];
 for (const c of cases) {
   if (c.err) bad.push(c.label + ': 던졌다 — ' + c.err);
-  const miss = CHAIN.filter((n) => !c.called.includes(n));
+  const miss = CHAIN.filter((n) => !c.called.includes(n) && n !== c.victim);
   if (miss.length) bad.push(c.label + ': 파기 ' + miss.length + '개를 건너뛰었다(' + miss.slice(0, 4).join(' · ') + ')');
 }
 if (deleted !== 1) bad.push('기록 있음: 90일 지난 질문 1줄을 지워야 하는데 ' + deleted + '줄');
 if (bad.length) { console.log('━━ purge-chain — 빨강 ' + bad.length + '건 [PURGE_CHAIN_ALWAYS]'); for (const b of bad) console.log('  ✖ ' + b); process.exit(1); }
-console.log('━━ purge-chain — 통과 · 매단 파기 ' + CHAIN.length + '개 · 시트 없음 · 머리글만 · 기록 있음 · 읽기 실패 넷 다 끝까지 [PURGE_CHAIN_ALWAYS]');
+console.log('━━ purge-chain — 통과 · 매단 파기 ' + CHAIN.length + '개(꼭 있어야 할 ' + REQUIRED.length + '개 포함) · 시트 없음 · 머리글만 · 기록 있음 · 읽기 실패 · 하나씩 던짐 ' + CHAIN.length + ' 모두 끝까지 [PURGE_CHAIN_ALWAYS]');

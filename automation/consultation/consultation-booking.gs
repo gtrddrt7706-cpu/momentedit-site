@@ -370,7 +370,7 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
 
     if (curStatus === ST.APPROVED || curStatus === ST.CONFIRMED) {
       writeCell(sheet, colOf, row.num, '상태', targetStatus);
-      return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>(메일·캘린더는 이미 처리되어 다시 보내지 않았습니다.)', true);   // [HTML_ESC_NAMES] 고객 글은 늘 esc
+      return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>(메일·캘린더는 다시 보내지 않았습니다.)', true);   // [HTML_ESC_NAMES] 고객 글은 늘 esc · [BTN_AFTER_FAIL] «이미 처리되어»라고 장담하지 않는다
     }
     if (curStatus === ST.CANCELLED) {  // [관리자 v1 · 개선 K] 취소건 승인 차단 · 메일버튼·관리자 양쪽 보호(되살아남 방지)
       return infoPage('취소된 예약입니다', '취소된 예약은 승인할 수 없습니다. 다시 진행하려면 고객이 새로 신청해야 합니다.', false);
@@ -380,41 +380,63 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
     //   PICKED 둘이 통과해도 여기서 두 번째 승인을 막아 더블 확정 0.
     if (_slotTaken(dateKey, time, row.num)) {
       return infoPage('이미 마감된 슬롯입니다',
-        esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>같은 시간이 다른 예약으로 이미 확정되어 있습니다. 이 고객에게는 <b>변경 제안</b>을 보내 주세요.', false);   // [HTML_ESC_NAMES]
+        esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>같은 시간이 이미 확정됐어요 · <b>변경 제안</b>을 보내 주세요.', false);   // [HTML_ESC_NAMES] · [MAIL_BOX_STEADY] 폰 네 줄 안
     }
 
     writeCell(sheet, colOf, row.num, '입금확인', '확인');
     writeCell(sheet, colOf, row.num, '상태', targetStatus);
     writeCell(sheet, colOf, row.num, '확정일시', new Date());
+    /* [APPROVE_PARTIAL 2026-10-09 라운드 3] 상태를 쓴 뒤의 뒷일은 하나가 실패해도 나머지를 끝까지 한다(캘린더가 실패해도 확정 메일은 간다).
+       빠진 것은 결과 글 · 관리자 메일로 알리고, 다시 누르게 하지 않는다 — 다시 누르면 «이미 확정»이 빠진 일을 덮는다. */
+    var _miss = [];
     // syncCalendarEvent: 기존 이벤트ID가 있으면 그 일정을 새 날짜·시간으로 갱신, 없으면 새로 생성
-    syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처'));
-    _bustAvailCache();   // 슬롯 마감 → 가능일 캐시 무효화
+    try { syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처')); } catch (eC) { _miss.push('캘린더'); }
+    try { _bustAvailCache(); } catch (eB) {}   // 슬롯 마감 → 가능일 캐시 무효화
 
     try {
       sendConfirmEmail_(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
     } catch (mailErr) {
-      notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
-        coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 · 수동 안내가 필요합니다.');
+      _miss.push('확정 메일');
+      try { notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
+        coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 · 수동 안내가 필요합니다.'); } catch (eN0) {}
     }
     try { sendStudioBriefEmail(row, dateKey, time); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
-    setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ Customers 현재단계 → 상담/촬영확정
-    notifyKakao('cust.consultConfirmed', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });  // 고객: 상담/촬영 확정(카톡 · 메일과 동시 구간)
+    try { setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm'); } catch (eS) { _miss.push('마이페이지 단계'); }  // ★③ Customers 현재단계 → 상담/촬영확정
+    try { notifyKakao('cust.consultConfirmed', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time }); } catch (eK) { _miss.push('카톡'); }  // 고객: 상담/촬영 확정(카톡 · 메일과 동시 구간)
+    if (_miss.length) {
+      var _onlyMail = _miss.length === 1 && _miss[0] === '확정 메일';   // 메일만이면 위에서 이미 알렸다
+      if (!_onlyMail) { try { notifyStudio('[상담] 승인 뒤 일부 실패', coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n안 된 것: ' + _miss.join(' · ') + '\n승인(상태)은 처리됐습니다 · 빠진 것을 직접 확인해 주세요.'); } catch (eN) {} }
+      var _pp = infoPage('승인은 됐지만 일부가 안 됐어요', esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>안 된 것: ' + _miss.join(' · ') + ' · 관리자 페이지에서 확인해 주세요. (코드 B4)', false);   // [APPROVE_PARTIAL]
+      _LAST_INFO.partial = _miss.slice();
+      return _pp;
+    }
     return infoPage('승인 완료', esc(coupleNames(row)) + ' 님께 예약 확정 메일을 보냈습니다.<br>' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>캘린더에도 일정이 등록되었습니다.', true);   // [HTML_ESC_NAMES]
   } finally {
     try { SpreadsheetApp.flush(); } catch (eF) {}   // [LOCK_REREAD] 다음 누름이 잠금 뒤 다시 읽을 때 이 쓰기가 보이게
     try { lock.releaseLock(); } catch (e) {}
   }
 }
-function _rowFresh_(sheet, colOf, row) {   // [LOCK_REREAD 2026-10-09 점검] 잠금을 잡은 뒤 같은 예약(토큰)을 다시 읽는다 · 못 읽으면 받은 그대로
-  try { var t = String(row.get('토큰') || '').trim(); var f = t ? findRowByToken(sheet, colOf, t) : null; return f || row; } catch (e) { return row; }
+function _rowFresh_(sheet, colOf, rw) {   // [LOCK_REREAD 2026-10-09 점검] 잠금을 잡은 뒤 같은 예약을 다시 읽는다 — 같은 줄을 먼저(토큰이 같으면 그 줄) · 줄이 밀렸으면 토큰으로 · 못 읽으면 받은 그대로
+  try {
+    var t = String(rw.get('토큰') || '').trim();
+    var same = (typeof rw.num === 'number') ? row(sheet, colOf, rw.num) : null;
+    if (same && (!t || String(same.get('토큰') || '').trim() === t)) return same;
+    var f = t ? findRowByToken(sheet, colOf, t) : null;
+    return f || rw;
+  } catch (e) { return rw; }
+}
+function _infoText_(li) {   // [ACCEPT_RESULT] 결과 글(infoPage)을 관리 화면 · 마이페이지가 쓰는 한 줄 글로
+  var t = String((li && li.title) || ''), b = String((li && li.body) || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+  return b ? (t + ' · ' + b) : t;
 }
 
 // [수락] (변경 제안에 대한 고객 수락) → 상태=확정 + 캘린더 갱신 + 변경 확정 메일⑤
 function actAccept(sheet, colOf, row) { _gsr_();
   /* [LOCK_REREAD 2026-10-09 점검] 잠금을 먼저 잡고 같은 예약을 다시 읽은 뒤 판단한다 — 겹친 두 번째 누름이 낡은 상태로 다시 확정 · 메일을 내지 않게.
-     잠금을 못 잡으면 진행하지 않고 다시 누르게 한다(종전엔 잠금 없이 진행했다). */
+     잠금을 못 잡으면 진행하지 않고 다시 누르게 한다. */
   var _acLock = LockService.getScriptLock();
-  try { _acLock.waitLock(10000); } catch (eL) { return infoPage('잠시 후 다시 시도해 주세요', '다른 처리가 진행 중이에요. 잠시 후 다시 눌러 주세요. (코드 B1)', false, true); }   // [MAIL_RETRY]
+  try { _acLock.waitLock(10000); } catch (eL) { try { lockBusySignal('예약'); } catch (_e) {} return infoPage('잠시 후 다시 시도해 주세요', '다른 처리가 진행 중이에요. 잠시 후 다시 눌러 주세요. (코드 B1)', false, true); }   // [MAIL_RETRY]
   try {
   row = _rowFresh_(sheet, colOf, row);
   var curStatus = String(row.get('상태') || '').trim();
@@ -449,16 +471,19 @@ function actAccept(sheet, colOf, row) { _gsr_();
   writeCell(sheet, colOf, row.num, '선택시간', nt);
   writeCell(sheet, colOf, row.num, '상태', ST.CONFIRMED);
   writeCell(sheet, colOf, row.num, '확정일시', new Date());
-  syncCalendarEvent(sheet, colOf, row.num, nd, nt, coupleNames(row), row.get('연락처'));
-  _bustAvailCache();   // 변경 확정 → 가능일 캐시 무효화
+  var _miss = [];   // [APPROVE_PARTIAL] 상태를 쓴 뒤의 뒷일은 하나가 실패해도 나머지를 끝까지
+  try { syncCalendarEvent(sheet, colOf, row.num, nd, nt, coupleNames(row), row.get('연락처')); } catch (eC) { _miss.push('캘린더'); }
+  try { _bustAvailCache(); } catch (eB) {}   // 변경 확정 → 가능일 캐시 무효화
 
+  var _mailOk = true;
   try {
     sendConfirmEmail_(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'));
   } catch (mailErr) {
-    notifyStudio('[상담] ⚠️오류 · 변경 확정 메일 발송 실패', coupleNames(row) + ' · ' + mailErr.message);
+    _mailOk = false; _miss.push('확정 메일');
+    try { notifyStudio('[상담] ⚠️오류 · 변경 확정 메일 발송 실패', coupleNames(row) + ' · ' + mailErr.message); } catch (eN0) {}
   }
   try { sendStudioBriefEmail(row, nd, nt); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
-  setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ 변경수락→확정도 동일 전이
+  try { setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm'); } catch (eS) { _miss.push('마이페이지 단계'); }  // ★③ 변경수락→확정도 동일 전이
   /* [ACCEPT_DEP_ALERT 2026-09-26 통합 점검 L4] 변경 제안을 수락해 확정된 예약은 예약금 입금확인 칸을 채울 계기가 없다 —
      승인(actApprove)은 확정과 함께 입금확인을 적지만 수락은 적지 않는다(적는 곳은 actApprove · 98_pay_card 둘뿐).
      칸이 빈 채로 두면 두 분 상담 카드엔 예약금 금액만 보이고(사장님 결정 ㉚ · [ACCEPT_DEP_ALERT] 채우면 «입금 확인됐어요»), 현금영수증 발급 대기·환불 기수령액에서 예약금이 빠진다(admin DEPOSIT_TICK).
@@ -475,9 +500,15 @@ function actAccept(sheet, colOf, row) { _gsr_();
         + (_adCode ? (' · ' + _adCode) : '') + ' / 통장 확인 뒤 예약 시트 입금확인 채우기');   // [ACCEPT_DEP_SUBJ]
     }
   } catch (eAD) {}
-  writeCell(sheet, colOf, row.num, '변경제안날짜', '');   // [ACCEPT_GUARDED C2] 소진된 제안은 비운다 — 낡은 [수락]이 되살아나지 않게
-  writeCell(sheet, colOf, row.num, '변경제안시간', '');
-  return infoPage('변경 확정', '변경된 일정으로 예약이 확정되었습니다.<br>' + prettyDate(nd) + ' · ' + esc(nt), true);   // [HTML_ESC_NAMES]
+  try {
+    writeCell(sheet, colOf, row.num, '변경제안날짜', '');   // [ACCEPT_GUARDED C2] 소진된 제안은 비운다 — 낡은 [수락]이 되살아나지 않게
+    writeCell(sheet, colOf, row.num, '변경제안시간', '');
+  } catch (eW) { _miss.push('제안 칸 비우기'); }
+  if (_miss.length && !(_miss.length === 1 && !_mailOk)) { try { notifyStudio('[상담] 변경 수락 뒤 일부 실패', coupleNames(row) + ' · ' + nd + ' ' + nt + '\n안 된 것: ' + _miss.join(' · ') + '\n확정(상태)은 처리됐습니다 · 빠진 것을 직접 확인해 주세요.'); } catch (eN) {} }
+  // 고객이 누른 단추다 — 고객에게는 확정 사실과(메일이 빠졌으면) 늦어진다는 말만 · 안쪽 일은 관리자 메일로
+  var _ap = infoPage('변경 확정', '변경된 일정으로 예약이 확정되었습니다.<br>' + prettyDate(nd) + ' · ' + esc(nt) + (_mailOk ? '' : '<br>확정 메일이 늦어질 수 있어요 · 스튜디오에서 확인해 연락드릴게요.'), true);   // [HTML_ESC_NAMES] · [APPROVE_PARTIAL]
+  if (_miss.length) _LAST_INFO.partial = _miss.slice();
+  return _ap;
   } finally { try { SpreadsheetApp.flush(); } catch (eF) {} try { _acLock.releaseLock(); } catch (eR) {} }   // [LOCK_REREAD]
 }
 
@@ -1916,9 +1947,10 @@ function _payConfirmRun_(p) {   // 확인 화면의 단추를 누른 뒤에만(m
     else if (v.m === 'mid') r = adminConfirmMid(v.code);
     else if (v.m === 'bal') r = adminConfirmBalance(v.code);
     else r = adminConfirmMidBalance(v.code);
-  } finally { _AUTHED = _authPrev; try { _lock.releaseLock(); } catch (e) {} }
-  if (r && r.ok && r.already) return { ok: true, title: '이미 확인 처리되어 있어요', body: esc(v.code) + ' · ' + esc(v.label) + ' · 추가로 할 일이 없어요.' };
-  if (r && r.ok) return { ok: true, title: '입금 확인 완료', body: esc(v.code) + ' · ' + esc(v.label) + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.' };
+  } finally { _AUTHED = _authPrev; try { SpreadsheetApp.flush(); } catch (eF) {} try { _lock.releaseLock(); } catch (e) {} }   // [LOCK_REREAD] 다음 누름이 이 쓰기를 보게
+  var _hint = (r && r.ok) ? _btnFailSeen_('P_' + v.code + '_' + v.m, '고객 안내가 나갔는지') : '';   // [BTN_AFTER_FAIL]
+  if (r && r.ok && r.already) return { ok: true, title: '이미 확인 처리되어 있어요', body: esc(v.code) + ' · ' + esc(v.label) + (_hint ? '<br>' + _hint : ' · 추가로 할 일이 없어요.') };
+  if (r && r.ok) return { ok: true, title: '입금 확인 완료', body: esc(v.code) + ' · ' + esc(v.label) + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.' + (_hint ? '<br>' + _hint : '') };
   return { ok: false, title: '처리하지 못했어요', body: esc(String((r && r.error) || '')) + '<br>관리자 페이지에서 처리해 주세요.' };
 }
 /* [MAIL_BTN_CONFIRM] 확인 화면의 단추가 부르는 하나뿐인 처리 — 공개 화면 함수(입구)라 서명 · 기한을 여기서 다시 본다 */
@@ -1936,15 +1968,30 @@ function mailButtonGo(p) { _SRV = true;
       if (!row) return { ok: false, title: '예약을 찾을 수 없습니다', body: '링크가 올바르지 않습니다.' };
       _LAST_INFO = null;
       if (a === 'approve') actApprove(sheet, colOf, row); else actAccept(sheet, colOf, row);
-      return _LAST_INFO || { ok: true, title: '처리했어요', body: '' };
+      var _li = _LAST_INFO || { ok: true, title: '처리했어요', body: '' };
+      if (a === 'approve' && _li.ok) { var _h = _btnFailSeen_('B_' + token, '확정 메일 · 캘린더가 나갔는지'); if (_h) _li = { ok: true, title: _li.title, body: _li.body + '<br>' + _h }; }   // [BTN_AFTER_FAIL]
+      return _li;
     }
     return { ok: false, title: '알 수 없는 요청', body: '' };
   } catch (e) {
     /* [MAIL_FAIL_WORDS 2026-10-09 점검] 예상 못 한 오류 — 원문은 오류기록에만(관리자 검색창에 사고번호) · 화면에는 받는 사람 말과 코드(B9 · P9) */
-    var _ec = (a === 'payconfirm' ? 'P' : 'B') + '9', _eid = '';
-    if (_BTN_SIGNED) { try { _eid = _errId(); _errRecord('btn:' + a.slice(0, 20), _ec, '처리하지 못했어요', String((e && e.stack) || (e && e.message) || e).replace(/\s+/g, ' ').slice(0, 200), _eid, ''); } catch (_x) {} }   // [BTN_SAFE_ARGS] 서명을 확인한 처리의 오류만 기록
+    var _cfg = /is not defined|is not a function/.test(String((e && e.message) || e));   // [BTN_FAIL_KIND] 붙여넣기 · 배포 누락은 3 — 다시 눌러도 같다
+    var _ec = (a === 'payconfirm' ? 'P' : 'B') + (_cfg ? '3' : '9'), _eid = '';
+    if (_BTN_SIGNED) {   // [BTN_SAFE_ARGS] 서명을 확인한 처리의 오류만 기록
+      try { _eid = _cfg ? '' : _errId(); _errRecord('btn:' + a.slice(0, 20), _ec, '처리하지 못했어요', String((e && e.stack) || (e && e.message) || e).replace(/\s+/g, ' ').slice(0, 200), _eid, ''); } catch (_x) {}
+      try { var _k = (a === 'payconfirm') ? ('P_' + _btnStr_(p.code).trim().toUpperCase() + '_' + _btnStr_(p.m).trim()) : ('B_' + _btnStr_(p.token)); CacheService.getScriptCache().put('BTNFAIL_' + _k.replace(/[^0-9A-Za-z_]/g, '').slice(0, 80), '1', 21600); } catch (_c) {}   // [BTN_AFTER_FAIL]
+    }
+    if (_cfg) return { ok: false, title: '처리하지 못했어요', body: '지금은 처리할 수 없어요. 관리자 페이지에서 처리해 주세요. (코드 ' + _ec + ')' };
     return { ok: false, retry: true, title: '처리하지 못했어요', body: (a === 'accept' ? '잠시 후 다시 눌러 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.' : '잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요.') + ' (코드 ' + _ec + (_eid ? ' · ' + _eid : '') + ')' };   // [MAIL_RETRY] · [MAIL_FAIL_WORDS] 화면과 같은 말
   }
+}
+function _btnFailSeen_(key, what) {   // [BTN_AFTER_FAIL 2026-10-09 점검] 같은 단추가 앞서 예상 못 한 오류로 끝났으면, 이번 결과에 «확인해 주세요» 한 줄(한 번만)
+  try {
+    var c = CacheService.getScriptCache(), k = 'BTNFAIL_' + String(key || '').replace(/[^0-9A-Za-z_]/g, '').slice(0, 80);
+    if (!c.get(k)) return '';
+    c.remove(k);
+    return '앞서 오류가 있었어요 · ' + what + ' 관리자 페이지에서 확인해 주세요.';
+  } catch (e) { return ''; }
 }
 var _BTN_SIGNED = false;   // [BTN_SAFE_ARGS] 메일 단추 처리 안에서 서명 · 기한을 확인했는가(실행마다 false 로 다시 시작)
 function _btnStr_(v) { return (typeof v === 'string') ? v : ((typeof v === 'number' && isFinite(v)) ? String(v) : ''); }   // [BTN_SAFE_ARGS] 던지지 않는 글자 변환
@@ -1977,7 +2024,8 @@ function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_
     'else if(/^<\\s*\\/\\s*(b|strong)\\s*>$/i.test(g)&&st.length)cur=st.pop();}' +
     'tx(s.slice(i));}' +
     /* [MAIL_RETRY 2026-10-09 점검] 다시 누를 수 있는 실패(몰림 1 · 예상 못 한 오류 9)는 단추를 되살린다 · [MAIL_BOX_STEADY] 끝난 결과는 단추 자리를 남긴 채 감춘다(카드 높이 · 위치 그대로) */
-    'function show(r){r=r||{};T.textContent=r.title||"";put(D,r.body);R.style.background=r.ok?"#2E6B43":"#6B2A24";' +
+    'function show(r){if(!r||typeof r!=="object"||!r.title)r={ok:false,retry:true,title:"처리하지 못했어요",body:"결과를 받지 못했어요. 잠시 후 다시 눌러 주세요. (코드 "+(P.action==="payconfirm"?"P":"B")+"7)"};T.textContent=r.title;put(D,r.body);' +   // [MAIL_FAIL_KIND] 빈 응답은 7 · 다시 누르기
+    'R.style.background=r.ok?"#2E6B43":"#6B2A24";' +
     'if(r.retry){b.disabled=false;b.textContent=L;b.style.visibility="visible";try{b.focus();}catch(_){}}else{b.disabled=true;b.style.visibility="hidden";}}' +
     'b.onclick=function(){b.disabled=true;b.textContent="처리 중";' +
     'google.script.run.withSuccessHandler(show).withFailureHandler(function(e){' +
@@ -2315,7 +2363,9 @@ function handleAcceptProposal(body) { _gsr_();
   if (!a.consult) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
   var sheet = getSheet(); var colOf = buildHeaderIndex(sheet);
   var r = row(sheet, colOf, a.consult.num);
+  _LAST_INFO = null;
   actAccept(sheet, colOf, r);  // 변경제안→확정 + 캘린더 sync + (토글)메일 [+ setCustomerStage: 작업3]
+  if (_LAST_INFO && _LAST_INFO.ok === false) return { ok: false, error: _infoText_(_LAST_INFO) };   // [ACCEPT_RESULT] 몰림 · 마감 · 처리할 제안 없음은 실패로
   return { ok: true };
 }
 
@@ -2325,7 +2375,8 @@ function doPost(e) { _SRV = true; /* [GSR_GATE 2026-10-09] 입구 · 서버 길 
   try { if (typeof deployStamp === 'function') deployStamp(); } catch (_ds) {}
   try {
     var raw = {};
-    try { raw = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { raw = {}; }
+    /* [POST_SAFE_JSON 2026-10-09 라운드 3] 밖에서 온 JSON 의 객체는 «toString · valueOf» 칸을 지우고 받는다 — 받은 값은 어디서 글자로 바꿔도 던지지 않는다. */
+    try { raw = JSON.parse((e && e.postData && e.postData.contents) || '{}', function (k, v) { if (v && typeof v === 'object' && !Array.isArray(v)) { if (Object.prototype.hasOwnProperty.call(v, 'toString')) delete v.toString; if (Object.prototype.hasOwnProperty.call(v, 'valueOf')) delete v.valueOf; } return v; }); } catch (_) { raw = {}; }
     // 솔라피 전달결과 리포트(배열, 또는 messageId/statusCode 형태이며 action 없음) → 전달 실패 시 고객 이메일(95_notify)
     if ((Array.isArray(raw) && raw.length) || (raw && (raw.messageId || raw.statusCode) && !raw.action)) {
       return jsonOut(typeof handleSolapiReport === 'function' ? handleSolapiReport(raw) : { ok: false, error: 'no handler' });
@@ -2592,7 +2643,10 @@ function purgeAdvisorLog() { _trigIn_(arguments[0]);
       }
       if (n > 0) { sh.deleteRows(2, n); Logger.log('purgeAdvisorLog: ' + n + '건 삭제'); }
     }
-  } catch (eQ) { Logger.log('purgeAdvisorLog: 질문 기록 정리 실패 · ' + String((eQ && eQ.message) || eQ).slice(0, 120)); }   // [PURGE_CHAIN_ALWAYS] 실패해도 아래는 돈다
+  } catch (eQ) {   // [PURGE_CHAIN_ALWAYS] 실패해도 아래는 돈다 · 관리자에게 한 줄
+    Logger.log('purgeAdvisorLog: 질문 기록 정리 실패 · ' + String((eQ && eQ.message) || eQ).slice(0, 120));
+    try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('주간 정리 · 상담사 질문 기록 정리 실패(나머지 파기는 진행) · ' + String((eQ && eQ.message) || eQ).slice(0, 80)); } catch (eM) {}
+  }
   try { purgeAwDemandLog(); } catch (e) {}   // 같은 주간 트리거에 얹어 함께 정리(새 트리거 불필요)
   try { purgeAiCostLog(); } catch (e) {}     // 96 · AI 비용 로그도 함께 정리(35일)
   try { purgeLeads(); } catch (e) {}         // 문의 리드 1년 경과 정리(개인정보 최소화)
