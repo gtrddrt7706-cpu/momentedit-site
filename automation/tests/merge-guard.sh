@@ -16794,9 +16794,9 @@ chk 'CHIP_NOTE_OFF' order-preview.html 1
 chk 'SAVE_AFTER_BAKE' order-preview.html 3
 chk 'window._saveBaking=1; _autoPaint();' order-preview.html 1
 chk 'REC_CAP_SAY' order-preview.html 5
-chk 'if(r.el>=REC_MAX_SEC){ MK_RECCAP=r.key; mkRecStop(); }' order-preview.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 식순 · AI 녹음 고침으로 아래 [R7_BUILDER] 묶음에서 새 꼴로 바꿈) chk 'if(r.el>=REC_MAX_SEC){ MK_RECCAP=r.key; mkRecStop(); }' order-preview.html 1
 chk 'VC_NO_RETRY' order-preview.html 2
-chk 'nr=n===2&&!!R.err&&' order-preview.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 식순 · AI 녹음 고침으로 아래 [R7_BUILDER] 묶음에서 새 꼴로 바꿈) chk 'nr=n===2&&!!R.err&&' order-preview.html 1
 chk 'LS_WAIT_TOAST' order-preview.html 5
 chk "_lsToast('다 만들면 이어서 들려 드려요',null,'mp:'+k);" order-preview.html 1
 nochk 'esc(LS_MAKE_WAIT)' order-preview.html   # [LS_WAIT_TOAST] 단추 아래 «잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요» 줄 걷음(흔들림)
@@ -16941,6 +16941,89 @@ chk 'SEAT_DONE_TOAST' mypage.html 1
 chk 'NOW_CARD_ONCE' mypage.html 8
 nochk "sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';" mypage.html 0
 nochk "head = '일정을 확인하고 있어요'; sub = '디렉터가 확인하고" mypage.html 0
+# ★★[R7_BUILDER 2026-10-09 고객 여정 A~Z 점검 2라운드 · 식순 · AI 녹음] 저장 바탕 · 완성 저장 기준선 · 충돌 판(덮어쓰기 · 최신 불러오기) · 새로고침 되감기 · 판 뒤 뒤로가기 · 나가기 잡기 · 다시 만들기 판 번호 · ④ 굽기 · 나가기 알약 · 1분 멈춤 표시 · 다시 해도 안 되는 실패 · 지우기 취소 · 채우기 기록 · 남의 작업 · 확인 문장 — 되돌리지 말 것
+# ── [R7_BUILDER 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 식순 · AI 녹음 ──
+chk 'CANON_EMPTY' order-preview.html 2
+chk "'tributeText','fAt','txMig'" order-preview.html 1
+chk 'BASE_AFTER_PULL' order-preview.html 5
+chk "_srvBase=_sentS?_baseAfter(_sentS,ev.data.pull):" order-preview.html 2
+chk 'DONE_CLEAN' order-preview.html 1
+chk "if(_doneSaved){ _doneKey=_autoKey(); _autoLast=_doneKey; _autoDirty=false; }" order-preview.html 1
+chk 'SEEN_NOT_KEY' order-preview.html 1
+chk 'delete o.tipSeen; delete o.seen;' order-preview.html 1
+chk '&&!(_lv2.sv&&_dn)' order-preview.html 1
+chk 'LATEST_FILL' order-preview.html 2
+chk "momentedit:orderLatest'){ _latestApply(ev.data); return; }" order-preview.html 1
+chk 'BACK_DISMISS' order-preview.html 5
+chk 'ov.__ordDismiss=function(){ close(opt.dismissNull?null:false); };' order-preview.html 1
+chk 'EXIT_HOLD_ALL' order-preview.html 2
+chk 'if(_obExiting||_xBusy){ _exitHold(1); return; }' order-preview.html 1
+chk 'EXIT_PILL_ONE' order-preview.html 10
+chk "b.classList.add('wfill','ld');" order-preview.html 1
+nochk "if(_xr0){ _xr0.style.display=''" order-preview.html
+nochk "_xb.textContent='마무리하는 중…'" order-preview.html
+chk 'RESTART_GEN_NOW' order-preview.html 1
+chk "_opGen=String(Date.now()); try{ sessionStorage.setItem('me_order_gen', _opGen); }catch(e){}" order-preview.html 1
+chk 'RELOAD_UNWIND' order-preview.html 2
+chk 'RELOAD_ONCE' order-preview.html 1
+chk 'if(_reloadUnw||_reloadAsked) return;' order-preview.html 1
+chk "parent.postMessage({type:'momentedit:orderReload', data:pl, d:_hDepth()}" order-preview.html 1
+chk 'BUSY_SAY_TRUE' order-preview.html 3
+chk "!=='make'&&!VC_MKP" order-preview.html 1
+chk 'PARENT_ASK_HOLD' order-preview.html 3
+chk "momentedit:orderParentAsk'){ _parentAsk=!!ev.data.on; return; }" order-preview.html 1
+chk 'DONE_AFTER_BAKE' order-preview.html 4
+chk 'window._doneBakeOk=1; try{ doSave(); }finally{ window._doneBakeOk=0; }' order-preview.html 1
+chk 'S5_EXIT_TITLE' order-preview.html 1
+chk 'EXIT_WAIT_ONE_SAY' order-preview.html 1
+chk "if(_xBusy==='wait') return; try{ toast(_autoWhy,6000,true); }catch(e){} }" order-preview.html 1
+chk 'PLAY_FAIL_BOTTOM' order-preview.html 1
+chk 'PV_ENG_SAY' order-preview.html 2
+chk 'function _pvEngFail(){' order-preview.html 1
+chk 'LONG_NO_RETRY' order-preview.html 1
+chk 'PERSIST_TRUE' order-preview.html 5
+chk '_persistBad=true;' order-preview.html 1
+chk 'IDX_SANE' order-preview.html 1
+chk 'REC_CAP_ONE' order-preview.html 2
+chk 'if(r.el>=REC_MAX_SEC){ r.cap=1; mkRecStop(); }' order-preview.html 1
+nochk 'MK_RECCAP=r.key' order-preview.html
+chk 'REVIEW_TAP_GUARD' order-preview.html 3
+chk 'NR_CLOSE_DIRECT' order-preview.html 1
+chk 'var lose=(R&&!_nr&&' order-preview.html 1
+chk 'NR_ANY_STEP' order-preview.html 2
+nochk 'nr=n===2&&!!R.err&&' order-preview.html
+chk 'VC_GONE' order-preview.html 3
+chk 'if(msg===VC_DEL_STOP_W) _vcGone(w);' order-preview.html 1
+chk 'GONE_SAY' order-preview.html 1
+chk 'FILL_OWN' order-preview.html 2
+chk 'F.doing=false; if(VC.fill===F) VC.note=' order-preview.html 1
+chk 'FILL_AI_NOW' order-preview.html 1
+chk 'ADOPT_QUIET' order-preview.html 2
+chk 'jid:j.jid,adopt:true}' order-preview.html 1
+chk 'SETUP_ERRBOX' order-preview.html 1
+chk "_vc('phrase',{who:w,keep:keep?1:undefined})" order-preview.html 1
+chk "sec:sec,phrase:R.phrase||''" order-preview.html 1
+chk 'LATEST_FILL' mypage.html 4
+chk '_latest:(r&&r.latest)||null' mypage.html 1
+chk 'REV_FORCE_DIRECT' mypage.html 1
+chk 'return _trkSend(p2);' mypage.html 1
+nochk 'return apiTrackSave(p2);' mypage.html
+chk 'RELOAD_UNWIND' mypage.html 3
+chk 'fr.contentWindow.location.replace(_ru)' mypage.html 1
+chk 'HOLD_RESTACK' mypage.html 1
+chk 'OB_OPEN_ONCE' mypage.html 1
+chk "var old=$('mp_obViewer'); if(old&&old.parentNode) return;" mypage.html 1
+chk 'PARENT_ASK_HOLD' mypage.html 1
+chk 'VC_CANCEL_PUB' automation/platform/80_production.gs 1
+chk "if (j.cancel && !j.end) return { jid: String(j.jid), end: true, ok: false, kind: 'cancel'" automation/platform/80_production.gs 1
+chk 'PHRASE_KEEP' automation/platform/80_production.gs 1
+chk 'PHRASE_SHOWN' automation/platform/80_production.gs 4
+chk 'R2_BUILDER' scripts/audit/r2-builder.mjs 1
+chk 'VC_R2' scripts/audit/vc-r2.mjs 1
+chk 'R2_MP_BUILDER' scripts/audit/r2-mypage-builder.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/r2-builder.mjs >/dev/null 2>&1; _r2b=$?; if [ "$_r2b" = 1 ]; then echo 'FAIL r2-builder: 식순 저장 · 다시 열기 · 뒤로가기 · 나가기 · 새로고침 약속이 어긋났습니다 — node scripts/audit/r2-builder.mjs'; fail=1; elif [ "$_r2b" = 2 ]; then echo 'skip r2-builder: 브라우저 없음'; else echo 'ok r2-builder: 식순 저장 바탕 · 완성 기준선 · 충돌 판 · 판 뒤 뒤로가기 · 나가기 · 새로고침'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2.mjs >/dev/null 2>&1; _vr2=$?; if [ "$_vr2" = 1 ]; then echo 'FAIL vc-r2: 두 분 목소리 약속(1분 멈춤 · 닫기 · 지우기 취소 · 채우기 · 남의 작업)이 어긋났습니다 — node scripts/audit/vc-r2.mjs'; fail=1; elif [ "$_vr2" = 2 ]; then echo 'skip vc-r2: 브라우저 없음'; else echo 'ok vc-r2: 두 분 목소리 2라운드 약속'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/r2-mypage-builder.mjs >/dev/null 2>&1; _r2m=$?; if [ "$_r2m" = 1 ]; then echo 'FAIL r2-mypage-builder: 마이페이지 안 식순 창(충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기)이 어긋났습니다 — node scripts/audit/r2-mypage-builder.mjs'; fail=1; elif [ "$_r2m" = 2 ]; then echo 'skip r2-mypage-builder: 브라우저 없음'; else echo 'ok r2-mypage-builder: 충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기'; fi; fi
 # ★★[R6_PUBLIC 2026-10-09 고객 여정 A~Z 점검 1라운드 · 공개 화면] D-2 좌석 배치도 폰 맞춤 · D-4 상담 흐름 문구 · D-5~D-7 신청서 · D-8 · D-9 · D-17 상담 일정 · D-10 · D-18 취소 · D-11 단색 상단 바 · D-12 청첩장 06 대비 · D-13 인사말 방향 낱말 · D-14 지도 · D-15 카톡 답변 시간 · D-16 라이브 · D-20 표본 날짜 · D-21 — 되돌리지 말 것
 chk 'function zig(row,side){ return (row%2===0)?1:-1; }' seat.html 1   # [SEAT_ZIG] 평행 이동 본체 — 방향(±1)만
 chk "' \* var(--zig)))'" seat.html 1                                    # [SEAT_FIT] 폭은 CSS var(--zig)

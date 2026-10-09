@@ -48,7 +48,9 @@ async function open(mode) {
 }
 const askText = (f) => f.evaluate(() => ((document.querySelector('.ord-ask.on') || {}).innerText || '').split('\n')[0]).catch(() => '');
 const overlay = (pg) => pg.evaluate(() => !!document.getElementById('mp_obViewer'));
-const mpBtn = (pg, re) => pg.evaluate((src) => { const re = new RegExp(src); const b = [...document.querySelectorAll('#mpModal button')].find((x) => x.offsetParent && re.test(x.textContent)); if (b) { b.click(); return true; } return false; }, re.source);
+/* 마이페이지 판(#mpModal)은 #mypageView 안에 있다 — 가짜 상태(«없음»)에서는 그 화면이 숨어 판도 안 보여 먼저 보이게 한다(하니스 몫 · 실제 고객 화면은 늘 보인다) */
+const mpBtn = (pg, re) => pg.evaluate((src) => { try { if (typeof show === 'function') show('mypageView'); } catch (e) {} const re = new RegExp(src); const m = document.getElementById('mpModal'); if (!m || !m.classList.contains('open')) return false;
+  const b = [...m.querySelectorAll('button')].find((x) => re.test(x.textContent)); if (b) { b.click(); return true; } return false; }, re.source);
 async function nextLayerBacks(pg) { await pg.evaluate(() => { window.__closed = 0; bkOpen(function () { window.__closed++; }); }); await wait(300);
   for (let i = 1; i <= 6; i++) { await pg.goBack({ timeout: 800 }).catch(() => {}); await wait(700); if (await pg.evaluate(() => window.__closed)) return i; } return -1; }
 try {
