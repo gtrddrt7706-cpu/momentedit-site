@@ -11,7 +11,7 @@
    #27      [LINE_BLANK] 빈 줄은 업체 · 서버에 묻지 않는다(▶ · 읽는 분 바꾸기 · 쪽 떠나기) · «비워 두면 이 줄은 스튜디오 나레이션으로 나와요»
    #30      [SL_WHO_SAME] 목소리 상태를 못 받은 채 읽는 분을 바꾼 줄 — 같은 분을 다시 누르면 다시 묻고 · 상태가 돌아오면 저절로 맞추고 빨간 글을 걷는다
    #31      [WHO_BUSY]   만드는 중 · 올리는 중에 누른 다른 분 — 버리지 않고 끝나면 그분으로(칸은 바로 그분으로 켜 보인다)
-   #33      [EX_BACK]    줄을 빼거나 글을 예시로 되돌리면 이 기기에 있는 그 글 소리를 바로 붙인다
+   #33      [EX_BACK → EX_PRESS_MAKE]    줄을 빼거나 글을 예시로 되돌려도 글만 — «목소리 만들기» · 서버에 묻지 않음(10-08 약속)
    ONLY=12,28,… 로 장면만 · PAR=<n> 장면을 n 개씩 함께(기본 4) · SHOTS=<폴더> 면 390 폭 화면을 찍는다 · 종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -154,10 +154,13 @@ const SCENES = {
       const fl = _lSteps(ENG, ['entry']).filter((x) => x.own && x.up === 'entry').map((x) => ({ couple: x.couple, lab: x.lab })); return { st, st2, fl, wq: u0.wq, sig: _slWhoSig('entry'), txStale: _txStale('entry'), mode2: _aiMode('entry') }; });
     await shot(r, '28-entry-who-only', 'entry');
     ok('#28 [WHO_LAB · STALE_QUIET 2026-10-09] 읽는 차례만 바뀐 입장 인사 — «목소리 만들기»(단추 옆 «읽는 분이 바뀌었어요 · 멘트를 바꿨어요» 없음) · 흐름은 옛 차례 소리를 «두 분 목소리»로 세우지 않는다', lab.mode2 === 'need' && !/읽는 분이 바뀌었어요|멘트를 바꿨어요/.test(lab.st2) && lab.fl.length === 1 && lab.fl[0].couple === false, JSON.stringify(lab));
+    await until(pg, f, () => !(VC.fill && VC.fill.doing), 400000); await adv(pg, 500);   // [FILL_EX] 처음 채우기가 도는 동안이면 그 순간 줄은 지금 글로 끝까지 채운다(설계) — 그 뒤의 약속을 잰다
     const n0 = await mkN(pg, 'entry'); await f.evaluate(() => mkVtReset('entry')); await adv(pg, 600);
-    const m1 = await f.evaluate(() => _aiMode('entry')); await until(pg, f, () => { const u = S.up.entry; return u && u.wq === 'gbg' && !MK_UP.entry; }, 30000); await adv(pg, 500);
-    const e = await line(f, 'entry'), n1 = await mkN(pg, 'entry');
-    ok('#28 [WHO_LAB] «처음 글로»(줄 나눔이 기본 gbg 로) — 이 기기에 있는 gbg 소리를 바로 붙인다(업체에 다시 묻지 않음 · 누르지 않음)', /keep|prep/.test(m1) && e.wq === 'gbg' && !e.stale && e.mode === 'keep' && n1 === n0 && !r.errs.length, JSON.stringify({ m1, e, n0, n1, errs: r.errs.slice(0, 2) }));
+    const m1 = await f.evaluate(() => _aiMode('entry')); await adv(pg, 3000); const e0 = await line(f, 'entry'), n1 = await mkN(pg, 'entry');
+    ok('#28 [WHO_LAB · EX_PRESS_MAKE 2026-10-08] «처음 글로»(줄 나눔이 기본 gbg 로) — 기억에 든 gbg 소리를 바로 붙이지 않는다 · «목소리 만들기» · 서버에 묻지 않음', m1 === 'need' && e0.mode === 'need' && /목소리 만들기/.test(e0.pill) && n1 === n0, JSON.stringify({ m1, e0, n0, n1 }));
+    await f.evaluate(() => mkAiGo('entry')); await until(pg, f, () => { const u = S.up.entry; return u && u.wq === 'gbg' && !MK_UP.entry && !VC_MKP.entry; }, 60000); await adv(pg, 500);
+    const e = await line(f, 'entry'), n2 = await mkN(pg, 'entry');
+    ok('#28 [EX_PRESS_MAKE] 누르면 그 글(gbg)로 한 번 만들어 «확정하기»', e.wq === 'gbg' && !e.stale && e.mode === 'keep' && n2 === n0 + 1 && !r.errs.length, JSON.stringify({ e, n0, n2, errs: r.errs.slice(0, 2) }));
     await r.ctx.close();
   },
   /* #23 · #24 — 식전 영상 소개글을 만든 뒤 다 지우고 · 저장하고 · (빈 줄에서 ▶ · 읽는 분 바꾸기) · 다시 연다 */
@@ -284,22 +287,20 @@ const SCENES = {
   /* #33 — g0 에 줄을 더해 두 분이 나눠 읽게 만든 뒤 · 더한 줄을 뺀다 / 글을 고쳤다가 예시 글로 되돌린다 */
   async '33'() {
     const r = await open({ page: 'guest' }); const { pg, f } = r;
-    await until(pg, f, () => !!_exCached('g0'), 400000); await adv(pg, 1000);   // 뒤에서 예시 글을 미리 만들어 둔 판
+    await until(pg, f, () => !(VC.fill && VC.fill.doing) && !!(S.up.g0 && S.up.g0.src === 'ai') && !MK_UP.g0, 400000); await adv(pg, 1000);   // 처음 채우기(예시 글)가 끝난 판 — 채우는 중이면 FILL_EX 가 지금 글로 끝까지 채운다(설계)
     await f.evaluate(() => { mkSlAdd('g0'); mkSlText('g0', 1, '신부가 읽는 둘째 줄입니다.'); render(); mkAiGo('g0'); }); await done(r, 'g0'); await adv(pg, 1500);
     const n0 = await mkN(pg, 'g0'); await f.evaluate(() => mkSlDel('g0', 1)); await adv(pg, 300);
     const m1 = await f.evaluate(() => _aiMode('g0')); await shot(r, '33-g0-line-removed', 'g0');
-    await until(pg, f, () => !MK_UP.g0 && S.up.g0 && S.up.g0.tx === _txSig(_recNeed('g0')), 30000); await adv(pg, 500);
-    const a = await line(f, 'g0'), n1 = await mkN(pg, 'g0');
-    ok('#33 [EX_BACK] 더한 줄을 빼 예시 글로 돌아오면 — 이 기기에 있는 그 글 소리를 바로 붙인다(«예시를 바꿨어요 · 목소리 만들기»로 남지 않음 · 업체에 다시 묻지 않음)', m1 !== 'need' && !a.stale && a.mode === 'keep' && n1 === n0, JSON.stringify({ m1, a, n0, n1 }));
+    await adv(pg, 3000); const a = await line(f, 'g0'), n1 = await mkN(pg, 'g0');
+    ok('#33 [EX_BACK → EX_PRESS_MAKE 2026-10-08] 더한 줄을 빼 예시 글로 돌아오면 — 기억에 든 소리를 바로 붙이지 않는다 · «목소리 만들기» · 서버에 묻지 않음', m1 === 'need' && a.mode === 'need' && /목소리 만들기/.test(a.pill) && n1 === n0, JSON.stringify({ m1, a, n0, n1 }));
     const ex = await f.evaluate(() => _recNeed('g0'));
     await f.locator('[data-fk="mksl:g0:0"]').fill('잠깐 고쳐 본 글입니다.'); await f.evaluate(() => document.activeElement && document.activeElement.blur()); await adv(pg, 1200);
     await f.evaluate(() => mkAiGo('g0')); await done(r, 'g0'); await adv(pg, 1500);   // 고친 글로 소리를 만든 판(소리 = 고친 글 · 이 기기 기억엔 예시 글 소리)
     const n1b = await mkN(pg, 'g0');
     await f.locator('[data-fk="mksl:g0:0"]').fill(ex); await f.evaluate(() => document.activeElement && document.activeElement.blur()); await adv(pg, 400);
     const m2 = await f.evaluate(() => _aiMode('g0'));
-    await until(pg, f, () => !MK_UP.g0 && S.up.g0 && S.up.g0.tx === _txSig(_recNeed('g0')), 12000); await adv(pg, 500);
-    const b = await line(f, 'g0'), n2 = await mkN(pg, 'g0');
-    ok('#33 [EX_BACK] 고친 글로 만든 줄을 예시 글로 다시 적고 칸을 나오면 — 이 기기에 있는 예시 글 소리를 바로 붙인다(업체에 묻지 않음)', m2 !== 'need' && !b.stale && b.mode === 'keep' && n2 === n1b && !r.errs.length, JSON.stringify({ m2, b, n1b, n2, errs: r.errs.slice(0, 2) }));
+    await adv(pg, 3000); const b = await line(f, 'g0'), n2 = await mkN(pg, 'g0');
+    ok('#33 [EX_PRESS_MAKE] 고친 글로 만든 줄을 예시 글로 다시 적고 칸을 나오면 — 글만 · «목소리 만들기» · 서버에 묻지 않음', m2 === 'need' && b.mode === 'need' && /목소리 만들기/.test(b.pill) && n2 === n1b && !r.errs.length, JSON.stringify({ m2, b, n1b, n2, errs: r.errs.slice(0, 2) }));
     await r.ctx.close();
   },
 };

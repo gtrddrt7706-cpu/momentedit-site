@@ -116,7 +116,7 @@ const CARD = (f, k) => f.evaluate((k) => { const b = document.querySelector('[da
   return { has: !!b, off: !!(b && b.classList.contains('off')), ad: b ? b.getAttribute('aria-disabled') : null, dis: b ? b.disabled : null, fill: !!(b && /wfill/.test(b.className)), on: !!(b && b.classList.contains('on')),
     pill: pill ? (pill.textContent || '').trim() : '', pillCls: pill ? pill.className : '', pillSty: pill ? pill.getAttribute('style') || '' : '', hint, go: !!(li && li.querySelector('[data-fk^="mkploffgo:"]')) || !!document.querySelector('#lsToast[data-for="' + k + '"]:not([hidden]) [data-fk^="mkploffgo:"]'), err: li ? [...li.querySelectorAll('.mk-exw')].map((e) => e.textContent.trim()).join(' / ') : '' }; }, k);
 const ALL = (f, k) => f.evaluate((k) => { const b = document.querySelector('.mk-hbtn[data-mp="' + k + '"]'), sec = b && b.closest('section');
-  return { has: !!b, off: !!(b && b.classList.contains('off')), ad: b ? b.getAttribute('aria-disabled') : null, dis: b ? b.disabled : null, txt: b ? b.textContent.trim() : '', fill: !!(b && /wfill/.test(b.className)),
+  return { has: !!b, off: !!(b && b.classList.contains('off')), ad: b ? b.getAttribute('aria-disabled') : null, dis: b ? b.disabled : null, txt: b ? b.textContent.trim() : '', fill: !!(b && /wfill/.test(b.className)), lines: sec ? sec.querySelectorAll('.mk-ploff').length : 0,
     hint: sec ? ([...sec.querySelectorAll('.mk-ploff')].map((e) => e.textContent.trim()).join(' / ') || ((t) => (t && !t.hidden && t.getAttribute('data-for') === 'mp:' + k ? t.textContent.trim() : ''))(document.getElementById('lsToast'))) : '', go: !!(sec && sec.querySelector('[data-fk^="mkploffgo:"]')) || !!document.querySelector('#lsToast[data-for="mp:' + k + '"]:not([hidden]) [data-fk^="mkploffgo:"]') }; }, k);   /* [OFF_TOAST] 만드는 중 · 다 못 만듦은 그 자리 한 줄 · 흐린 ▶ 안내는 아래 알림 */
 /* [OFF_TOAST_TAP] 손가락으로 누른다 — 그 자리에 실제로 닿는 것이 그 단추인가(elementFromPoint) 보고 마우스로 누른다. 알림은 터치를 통과시켜서(pointer-events:none) JS click 으로는 «눌린다»고 나오는데 손가락은 아래 것을 눌렀다 */
 const realTap = async (pg, f, sel) => { const box = await (await f.frameElement()).boundingBox();
@@ -217,8 +217,8 @@ const SC = [
     await tap(f, '.mk-hbtn[data-mp="guest"]'); await adv(pg, 800);
     const l1 = await ALL(f, 'guest'), c2 = await CARD(f, 'g2'), c3 = await CARD(f, 'g3');
     await SHOT(pg, f, '4-한꺼번에', '.mk-hbtn[data-mp="guest"]');
-    ok('4 누르면 고친 두 줄이 함께 «만드는 중» · 단추 «만드는 중»(차오름) · 아래 «잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요» [LS_MAKE_ALL]',
-      /만드는 중/.test(l1.txt) && l1.dis && l1.fill && l1.hint === '잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요' && /만드는 중/.test(c2.pill) && /만드는 중/.test(c3.pill) && !c2.fill && !c3.fill && (await mkOps(pg, MARK.trim())) === 2, JSON.stringify({ l1, c2, c3, n: await mkOps(pg, MARK.trim()) }));
+    ok('4 누르면 고친 두 줄이 함께 «만드는 중» · 단추 «만드는 중»(차오름) · 단추 아래 줄 없이 아래 알림 «다 만들면 이어서 들려 드려요» [LS_MAKE_ALL · LS_WAIT_TOAST]',
+      /만드는 중/.test(l1.txt) && l1.dis && l1.fill && l1.hint === '다 만들면 이어서 들려 드려요' && l1.lines === 0 && /만드는 중/.test(c2.pill) && /만드는 중/.test(c3.pill) && !c2.fill && !c3.fill && (await mkOps(pg, MARK.trim())) === 2, JSON.stringify({ l1, c2, c3, n: await mkOps(pg, MARK.trim()) }));
     const t = await until(pg, f, () => LP.q.length > 0 && LP.range && LP.range.ks[0] === 'guest', 120000);
     const a = await f.evaluate(() => ({ q: LP.q.map((x) => x.up || x.lab), i: LP.i, lsMake: !!(MK.lsMake || {}).guest, hint: [...document.querySelectorAll('.mk-ploff')].length, el: !!(LP.el && LP.el.getAttribute('src')) }));
     ok('4 다 만들면 처음부터 이어서 튼다(네 줄 · 안내 걷힘) [LS_MAKE_ALL]', t > -1 && a.q.length === 4 && a.i === 0 && !a.lsMake && !a.hint && a.el, JSON.stringify({ t, a }));
