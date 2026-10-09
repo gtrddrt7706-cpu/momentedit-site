@@ -69,8 +69,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     "@type": "BroadcastEvent",
     "name": "Moment Edit 디지털 참석 (예시)",
     "isLiveBroadcast": false,
-    "startDate": "2027-12-17T10:00:00+09:00",
-    "endDate": "2027-12-17T11:00:00+09:00"
+    "startDate": "2027-10-23T13:40:00+09:00",
+    "endDate": "2027-10-23T14:40:00+09:00"
   },
   "potentialAction": {
     "@type": "WatchAction",
@@ -251,6 +251,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   display:inline-block;
   flex:0 0 auto;
   transform:translateY(-0.5px);
+  margin-left:-0.32em;   /* [BRAND_DOT_MID 2026-10-09 D-18] MOMENT 의 끝 자간(.32em)만큼 — 점 왼쪽만 넓어 EDIT 쪽으로 쏠렸다 */
 }
 
 .on-air{
@@ -273,6 +274,10 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   background:var(--seal);
   animation:pulse 1.6s ease-in-out infinite;
 }
+/* ★[ON_AIR_WHEN_LIVE 2026-10-09 고객 여정 점검 D-16] 영상이 붙기 전(미리보기 자리)에도 «● ON AIR»가 깜빡였다 — 방송 전인데 방송 중이라 말했다.
+   이 화면의 «방송 중» 판정은 영상이 붙는 순간(attachVimeoPlayer) 하나다 → 그때만 보인다. 머리 줄 높이 · 로고 자리는 그대로 두려고 visibility */
+.on-air:not(.is-live){visibility:hidden}
+.on-air:not(.is-live) .live-dot{animation:none}
 @keyframes pulse{
   0%,100%{opacity:1;transform:scale(1)}
   50%{opacity:0.3;transform:scale(0.8)}
@@ -1602,6 +1607,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 @media(max-width:375px){
   .brand-strip-in{padding:12px 18px}
   .brand-mark{font-size:12px;letter-spacing:0.28em}
+  .brand-mark .dot{margin-left:-0.28em}   /* [BRAND_DOT_MID] 좁은 폭의 자간과 같이 */
   .on-air{padding:4px 9px;font-size:8px;letter-spacing:0.24em;gap:6px}
   .on-air .live-dot{width:4px;height:4px}
   .hero{padding:48px 18px 84px}
@@ -1702,8 +1708,8 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   <div class="hero-divider hairline hairline-draw"></div>
 
   <div class="event-meta">
-    <div class="event-date">2027<span class="sep">·</span>12<span class="sep">·</span>17</div>
-    <div class="event-time">FRI<span class="sep">／</span>10:00 KST</div>
+    <div class="event-date">2027<span class="sep">·</span>10<span class="sep">·</span>23</div>
+    <div class="event-time">SAT<span class="sep">／</span>13:40 KST</div><!-- [SAMPLE_DATE_2027 2026-10-09 D-20] 정적 더미도 표본(hydrate SAMPLE)과 같은 날 · 같은 시각 -->
   </div>
 
   <p class="hero-note">두 분의 가장 빛나는 순간에<br>함께해 주셔서 감사합니다.</p>
@@ -1781,11 +1787,11 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <div class="credit-table">
       <div class="credit-row">
         <span class="credit-key">Date</span>
-        <span class="credit-val">2027.12.17 <span class="small">FRI</span></span>
+        <span class="credit-val">2027.10.23 <span class="small">SAT</span></span>
       </div>
       <div class="credit-row">
         <span class="credit-key">Time</span>
-        <span class="credit-val">10:00 <span class="small">KST</span></span>
+        <span class="credit-val">13:40 <span class="small">KST</span></span>
       </div>
       <div class="credit-row">
         <span class="credit-key">Duration</span>
@@ -1962,7 +1968,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     </div>
 
   </div>
-  <p class="form-fallback">이 편지는 두 분에게만 전달됩니다.</p>
+  <p class="form-fallback" id="lfReach">이 편지는 두 분에게만 전달됩니다.</p><!-- [LETTER_REACH 2026-10-09 D-16] 고른 받는 사람에 맞춰 바뀐다(신랑에게만 · 신부에게만 · 두 분에게만) -->
 </section>
 
 <!-- ═══ SECTION 03 — ENVELOPE ═══ -->
@@ -2298,7 +2304,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
       applyCoupleInfo({
         groomName: '이서준', brideName: '정하윤',
         groomNameEn: 'Lee Seo Jun', brideNameEn: 'Jeong Ha Yoon',
-        weddingDate: '2026-10-24', weddingTime: '14:00',
+        weddingDate: '2027-10-23', weddingTime: '13:40',   // [SAMPLE_DATE_2027 2026-10-09 D-20] hydrate.js SAMPLE 과 한 몸(2027-10-23 토 · 오후 본식 13:40)
         groomParents: '이재환 · 최미경', brideParents: '정영석 · 박윤희',
         groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
         groomFatherAccount: '국민 110-123-456789', groomMotherAccount: '신한 220-456-123789',
@@ -2703,6 +2709,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
 
   placeholder.remove();
   frame.appendChild(iframe);
+  document.querySelectorAll('.on-air').forEach(function(el){ el.classList.add('is-live'); });   // [ON_AIR_WHEN_LIVE] 방송 중 판정 = 영상이 붙은 때
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2781,6 +2788,11 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
     bride: '신부에게 전하고 싶은 마음을 편안히 남겨 주세요. 오직 신부만 이 편지를 볼 수 있어요.',
     both: '두 분에게 전하고 싶은 마음을 편안히 남겨 주세요. 짧은 인사도, 긴 편지도 모두 두 분만의 기록으로 간직됩니다.',
   };
+  /* ★[LETTER_REACH 2026-10-09 고객 여정 점검 D-16] «신부에게만»을 골라도 아래 줄은 «이 편지는 두 분에게만 전달됩니다»였다 — 칸 안내(오직 신부만)와 서로 다른 말 */
+  const reachEl = document.getElementById('lfReach');
+  function setReach(r) {
+    if (reachEl) reachEl.textContent = '이 편지는 ' + (r === 'groom' ? '신랑에게만' : r === 'bride' ? '신부에게만' : '두 분에게만') + ' 전달됩니다.';
+  }
   segBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const r = btn.dataset.recipient;
@@ -2791,6 +2803,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
       btn.classList.add('active');
       btn.setAttribute('aria-checked', 'true');
       recipientInput.value = r;
+      setReach(r);   // [LETTER_REACH]
       const nextPh = placeholders[r] || placeholders.both;
       // textarea가 비어 있을 때만 placeholder를 페이드 전환
       if (msgEl.value === '') {
@@ -2890,6 +2903,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
       defaultBtn.setAttribute('aria-checked', 'true');
     }
     recipientInput.value = 'both';
+    setReach('both');   // [LETTER_REACH] 다시 쓰기는 «두 분»에서 시작한다
     msgEl.setAttribute('placeholder', placeholders.both);
   }
   function showError(msg){

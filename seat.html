@@ -149,11 +149,38 @@ h1.couple{font-size:20px;font-weight:500;letter-spacing:.02em;margin:0;line-heig
       ±30px 밀리면서 넘치는 양이 거의 그대로 따라온다. 넓혀서 해결되는 문제가 아니다.
    결론: 이 지오메트리는 폰 폭에 원래 안 들어간다. 414px에서는 카드·본문 여백 위로 번져 나가는
    지금 모습이 (잘림 없이) 성립하므로 손대지 않고, 실제로 페이지가 밀리던 좁은 폭에서만 가둔다.
-   ★실측: 320px에서 페이지가 336>320으로 밀리고 있었다(guide.html은 118px 테이블이라 320px까진 버텼다). */
-@media(max-width:400px){
-  .room{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;
-    margin-left:-19px;margin-right:-19px}
+   ★실측: 320px에서 페이지가 336>320으로 밀리고 있었다(guide.html은 118px 테이블이라 320px까진 버텼다).
+   ★[SEAT_FIT 2026-10-09] 위 결론(«폰 폭에 원래 안 들어간다»)은 지그재그 ±30 · 반지름 54 를 고정으로 둔 판의 결론이다.
+     폭에 따라 그 셋을 줄이니 들어간다(아래 SEAT_FIT) — 스크롤 가둠은 긴 이름에 대한 안전망으로만 남는다. */
+@media(max-width:469px){
+  .room{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
 }
+/* ★[SEAT_FIT 2026-10-09 고객 여정 점검 D-2] 폰 폭에서 바깥 이름표가 카드 밖으로 잘리고(390 약 22px · 360 최대 30px),
+   지그재그로 통로 쪽에 붙은 표의 이름표가 «버진로드» 글자를 덮었다(1280 포함) · 3 · 4인 표 왼쪽 위 이름을 번호 배지가 덮었다.
+   ★모양(행마다 같은 방향으로 엇갈림 · SEAT_ZIG)은 그대로 — 엇갈리는 폭 · 자리 원 반지름 · 이름표 크기만 폭에 맞춘다.
+   ★맞춤 기준(3자 이름 이름표 · 칸 끝에서 6px 안쪽): 반 칸 폭(C/2) ≥ 엇갈림 + 반지름 + 이름표 반폭 + 6.
+     칸 폭은 «카드 바깥선까지»(아래 음수 여백) — 폰(470 미만)에서 C/2 = (화면폭 − 50)/4 = 25vw − 12.5px.
+   ★반지름은 6인 표의 위쪽 두 이름표가 맞닿지 않는 값에서 멈춘다(반지름 ≥ 이름표 폭 + 2) — 7명부터는 SEAT_CROWD 목록.
+   ★번호 배지는 원 «위쪽 안»(12시) — 자리 배치가 단상 쪽 반 칸을 비우므로(seatPos 반 칸 회전) 어느 인원이든 이름표가 없는 자리다.
+   ★자리 위치는 JS 가 «방향»(단위 벡터)만 적고 길이는 var(--sr) 가 곱한다 — 화면을 돌려 폭이 바뀌어도 다시 그리지 않고 맞는다. */
+.room{--zig:16px;--sr:54px;--tb:150px;--tc:66px;margin-left:-19px;margin-right:-19px}
+.tbl{width:var(--tb);height:var(--tb)}
+.tbl::before{width:var(--tc);height:var(--tc)}
+.tbl-no{left:calc(50% - 8px);top:calc(50% - var(--tc) / 2 + 2px)}
+.tbl-nm{width:54px}
+.tbl-empty{top:calc(50% + var(--tc) / 2 + 11px)}
+@media(max-width:469px){
+  .room{--sr:46px;--tb:124px;--tc:54px;--zig:clamp(0px, calc(25vw - 86.25px), 16px)}
+  .seat{padding:2px 5px;max-width:64px}
+  .tbl-nm{width:42px;font-size:10.5px;top:calc(50% + 6px)}
+}
+@media(max-width:340px){
+  .room{--sr:44px;--tb:118px;--tc:52px;--zig:clamp(0px, calc(25vw - 81.5px), 16px)}
+  .aisle{width:12px}
+  .seat{font-size:10px;padding:2px 4px;max-width:60px}
+}
+/* [SEAT_LEAD_KEEP 2026-10-09] 320px 에서 안내 줄이 «안내해 드 / 려요»로 낱말 가운데서 갈렸다(같은 점검 스크린샷) — 낱말 단위로 가른다(guide.html GUIDE_ORPHAN 과 같은 처방) */
+.lead,.foot{word-break:keep-all}
 
 /* [SEAT_SAFEAREA] viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 썼다.
    max()라서 인셋이 없는 기기에선 지금과 완전히 동일하다. */
@@ -282,7 +309,9 @@ function seatPos(n,i,r){ var off=180/(n||1); var a=(-90+off+i*(360/(n||1)))*Math
 //   ★테이블 상자를 키우는 것도 안 된다 — 폰에서 열 폭이 163px이라 이미 꽉 찬다.
 //   그래서 9명 이상은 원 위에 이름을 얹지 않고 표 아래 목록으로 낸다(아래 tblCard 참고).
 //   손해가 없다: 이 페이지의 답은 원래 '몇 번 테이블'이지 '몇 번 의자'가 아니다.
-function seatR(n,i){ return 54; }   // 반지름은 화면마다 다르다(guide 41 · 여기 54) — 세 화면이 공유하는 건 '반 칸 회전' 각도뿐
+//   ★[SEAT_FIT 2026-10-09] 위 «7명 0»은 글꼴(Noto Serif KR)이 늦게 오던 때의 실측이다 — 글꼴이 들어온 지금 7명도 이름표 두 쌍이
+//     모서리로 겹친다(1280 · 4×3px) · 폰 폭에서 반지름을 46 으로 줄이면 더 겹친다 → 임계를 7 로 내렸다(아래 crowd).
+function seatR(n,i){ return 1; }   // [SEAT_FIT] 단위 벡터만 — 반지름(길이)은 CSS var(--sr)(데스크톱 54 · 폰 46 · 340 이하 44 · guide 는 41) · 세 화면이 공유하는 건 '반 칸 회전' 각도뿐
 // [SEAT_MOTION] 검색할 때마다 smooth 스크롤이 돈다. '동작 줄이기'를 켠 사람에겐 멀미가 되는 움직임이라
 //   그 설정을 켠 기기에선 즉시 이동으로 바꾼다(도착지는 같다).
 function scrollToSeat(el){
@@ -299,7 +328,12 @@ function scrollToSeat(el){
 //     현재 18 · 통로26+칩62 15 · 통로34+칩58 15 · 지그 평행화 0
 //     통로를 넓히거나 이름표를 줄여선 거의 안 잡힌다. 원인이 통로 폭이 아니라 '수렴'이기 때문.
 //   두 열을 같은 방향으로 밀면 '행마다 엇갈림'이라는 원래 의도는 그대로이고 통로 간격만 일정해진다.
-function zig(row,side){ return ((row%2===0)?1:-1)*30; }
+//   ★[SEAT_FIT 2026-10-09] 평행(side 로 부호를 뒤집지 않음)은 그대로 · 30px 고정이던 «폭»만 CSS var(--zig)로 옮겼다.
+//     ±30 이면 데스크톱에서도 통로 쪽 이름표가 «버진로드» 글자를 덮었고(1280 실측 10px) 폰에선 카드 밖으로 잘렸다.
+function zig(row,side){ return (row%2===0)?1:-1; }
+function zigCss(row,side){ return 'transform:translateX(calc('+zig(row,side)+' * var(--zig)))'; }   // [SEAT_FIT] 방향(±1) × 폭(CSS)
+// [SEAT_FIT] 자리 위치 = «방향»(seatPos 반 칸 회전 · 단위 벡터) × 반지름(CSS var(--sr)) — 화면을 돌려 폭이 바뀌어도 다시 그리지 않는다
+function seatXY(n,i){ var p=seatPos(n,i,seatR(n,i)); return 'left:calc(50% + '+p.x.toFixed(4)+' * var(--sr));top:calc(50% + '+p.y.toFixed(4)+' * var(--sr))'; }
 function render(seat){
   var couple=esc(seat.groom||'')+(seat.groom&&seat.bride?'<span class="heart">&#9825;</span>':'')+esc(seat.bride||'');
   var date=fmtDate(seat.date);
@@ -313,9 +347,9 @@ function render(seat){
   function tblCard(t, gidx, row, no){
     // 자리 위치 = 원본 인덱스 기준(빈자리 포함 전체 n) — 부부가 편집기에서 띄워 배치한 그대로. 빈자리는 그리지 않되 위치는 보존(프린트 세팅과 동일 지오메트리)
     var all=(t.seats||[]), n=all.length, named=0, chips='', list='';
-    var crowd=(n>=8);   // [SEAT_CROWD] 원 위에 이름을 얹으면 겹치는 구간(실측 임계 8)
+    var crowd=(n>=7);   // [SEAT_CROWD] 원 위에 이름을 얹으면 겹치는 구간(실측 임계 7 · [SEAT_FIT] 2026-10-09 글꼴 들어온 판으로 다시 잼 · 종전 8)
     all.forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm) return; named++;
-      var p=seatPos(n,i,seatR(n,i)), pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
+      var pos=seatXY(n,i);
       if(crowd){
         chips+='<div class="seat-dot" style="'+pos+'"></div>';                       // 원엔 자리 점만
         list+='<span class="seat seat-li" data-seat data-g="'+gidx+'">'+esc(nm)+'</span>';   // 이름은 아래 목록
@@ -327,7 +361,7 @@ function render(seat){
     if(list) list='<div class="tbl-list">'+list+'</div>';
     var _custom=String(t.name||'').trim();
     var nm=(_custom && !/^테이블\s*\d+$/.test(_custom)) ? esc(_custom) : '';   // 번호중복 제거 2026-07-19: 기본명은 배지 번호로 충분 · 커스텀명만 가운데 텍스트로
-    return '<div class="tbl-wrap" style="transform:translateX('+zig(row,String(t.side||'L'))+'px)">'
+    return '<div class="tbl-wrap" style="'+zigCss(row,String(t.side||'L'))+'">'
       +'<div class="tbl" data-tbl="'+gidx+'"><span class="tbl-no">'+no+'</span>'+(nm?'<span class="tbl-nm">'+nm+'</span>':'')+chips+'</div>'
       +list+'</div>';
   }
@@ -414,7 +448,7 @@ function renderMineOnly(seat, t){
     var one=((hit.mi||[]).length===1);   // 일치 자리 1개일 때만 이름 칩 — 부분 일치 다수면 이름 없이 강조만(타인 자리 오표기 방지)
     function tblM(t, isHit){
       var chips='', n=(t.occ||[]).length;
-      for(var i=0;i<n;i++){ var p=seatPos(n,i,seatR(n,i)), pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
+      for(var i=0;i<n;i++){ var pos=seatXY(n,i);
         if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+= one ? ('<div class="seat hit" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>') : ('<div class="seat-dot hit" style="'+pos+'"></div>'); }
         else if(t.occ[i]){ chips+='<div class="seat-dot" style="'+pos+'"></div>'; }
       }
@@ -422,8 +456,8 @@ function renderMineOnly(seat, t){
       return '<div class="tbl'+(isHit?' hit':'')+'"><span class="tbl-no">'+t.no+'</span>'+(_isC?'<span class="tbl-nm">'+esc(_lbl)+'</span>':'')+chips+'</div>';
     }
     var L='', R='', li=0, ri=0;   // 지그재그 — 전체 배치도(render)와 같은 홀 모양(zig 재사용)
-    for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k], z=zig((String(t.side||'L')==='R')?ri++:li++, String(t.side||'L'));
-      var w='<div style="transform:translateX('+z+'px)">'+tblM(t,h)+'</div>';
+    for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k], z=zigCss((String(t.side||'L')==='R')?ri++:li++, String(t.side||'L'));   // [SEAT_FIT]
+      var w='<div style="'+z+'">'+tblM(t,h)+'</div>';
       if(String(t.side||'L')==='R') R+=w; else L+=w;
     }
     // [SEAT_SR] 답은 이미 위 문장('3번 테이블 자리예요')이 한다 — 그림은 덮는다.

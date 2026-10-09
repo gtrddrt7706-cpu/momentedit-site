@@ -79,6 +79,11 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
    페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
 html{caret-color:transparent}
 input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
+/* ★[CAN_REAPPLY_LINK 2026-10-09 D-18] 신청서 링크는 카카오톡 링크와 같은 모양 · 같은 40px 누르는 칸 */
+  a.inq{color:#7A5F37;font-weight:600;text-decoration:none;position:relative;display:inline-block}
+  a.inq::before{content:'';position:absolute;left:-4px;right:-4px;top:50%;height:40px;transform:translateY(-50%)}
+/* ★[BRAND_DOT_MID 2026-10-09 D-18] 글자 로고의 점 — 앞 글자(T) 뒤에 자간(.34em)이 붙어 점 왼쪽만 넓었다(점이 EDIT 쪽으로 쏠림) · 점 왼쪽 여백에서 그만큼 뺀다 */
+  .brand .dot{margin-left:calc(5px - .34em)}
 </style>
 </head>
 <body>
@@ -153,11 +158,11 @@ function loadInfo(){
        「카카오톡으로 연락 주세요」라고 «말만» 하고 링크를 안 줬다 — 말한 길을 안 열어 준 셈이다.
        한 줄 위로 올리면 두 분기가 같은 링크를 쓴다(d.kakao 가 없으면 종전대로 글자만 — 폴백 동일). */
     var kakao=d.kakao?'<a class="kakao" href="'+esc(d.kakao)+'" target="_blank" rel="noopener">카카오톡</a>':'카카오톡';
-    if(d.state==='cancelled'){ showMsg('Cancelled','이미 취소된 예약이에요','다시 예약을 원하시면 새로 신청해 주세요.','문의가 필요하시면 '+kakao+'으로 연락 주세요.'); return; }
+    if(d.state==='cancelled'){ showMsg('Cancelled','이미 취소된 예약이에요','다시 예약을 원하시면 <a class="inq" href="/inquiry.html">새로 신청</a>해 주세요.','문의가 필요하시면 '+kakao+'으로 연락 주세요.'); return; }   // ★[CAN_REAPPLY_LINK 2026-10-09 D-18] «새로 신청»이라 말만 하고 길이 없었다 → 신청서로
     if(d.state==='none'){ showMsg('안내','취소할 확정 예약이 없어요','문의가 필요하시면 '+kakao+'으로 연락 주세요.'); return; }
     if(d.state==='expired'){
       showMsg('안내','온라인 취소 기한이 지났어요',
-        '상담 <b>'+esc(d.deadlineLabel)+' 전</b>까지만 온라인 취소가 가능해요.<br><br>예약하신 일정: <b>'+esc(d.date)+' · '+esc(d.time)+'</b>',
+        '상담 <b>'+esc(d.deadlineLabel)+' 전</b>까지만 온라인 취소가 가능해요.<br><br>예약하신 일정: <b>'+esc(d.date)+'&nbsp;·&nbsp;'+esc(d.time)+'</b>',   // [CAN_DOT_GLUE 2026-10-09 D-18] 가운뎃점이 줄 끝에 홀로 남지 않게
         '부득이하게 취소가 필요하시면 '+kakao+'으로 문의해 주세요.'); return;
     }
     // state === 'ok' — 취소 확인 화면
@@ -178,7 +183,7 @@ function loadInfo(){
     var byCard=!!d.byCard;
     card.innerHTML='<div class="eyebrow" aria-hidden="true">Cancel</div><h2 class="title">예약을 취소하시겠어요?</h2>'
       +'<div class="desc">'+esc(d.names)+' 님</div>'
-      +'<div class="info"><b>'+esc(d.date)+' · '+esc(d.time)+'</b></div>'
+      +'<div class="info"><b>'+esc(d.date)+'&nbsp;·&nbsp;'+esc(d.time)+'</b></div>'   // [CAN_DOT_GLUE] 320 에서 «(토) · / 14:50» → «(토) · 14:50» 한 덩어리
       +rfBox
       +(byCard
         ? '<div class="note" style="margin-top:8px;text-align:left">예약금은 결제하신 카드로 취소해 드려요. 카드사에 따라 반영까지 며칠 걸릴 수 있어요.</div>'
@@ -188,14 +193,16 @@ function loadInfo(){
       +'<button type="button" class="btn" id="go">예약 취소하기</button>'
       +'<button type="button" class="btn btn-ghost" id="keep">아니요, 유지할게요</button>'
       +'<div class="note" id="cErr" role="alert" style="display:none;color:var(--seal)"></div>'
+      /* ★[CAN_NO_FIT_LINE 2026-10-09 고객 여정 점검 D-18] 상담 전 취소 화면에 «드레스 시착을 진행하신 경우 차감» 줄이 늘 떴다 — 시착은 상담 당일에 하니 아직 상담 전인 분께는 맞지 않는 말이다.
+         시착 기록이 있으면 위 «환불 예상» 칸(서버 refund · 벌수 · 공제)이 이미 말한다. 그 칸이 없을 때(옛 서버)만 종전 줄로 덮는다 */
       +(byCard
-        ? '<div class="note">드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감한 금액을 카드로 취소해 드려요.</div>'
-        : '<div class="note">취소 후 입력하신 계좌로 예약금을 환불해 드려요 (영업일 기준 수일 소요).<br>드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감 후 환불돼요.</div>');
+        ? (rf ? '' : '<div class="note">드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감한 금액을 카드로 취소해 드려요.</div>')
+        : '<div class="note">취소 후 입력하신 계좌로 예약금을 환불해 드려요 (영업일 기준 수일 소요).'+(rf ? '' : '<br>드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감 후 환불돼요.')+'</div>');
     document.getElementById('keep').addEventListener('click', function(){ location.href='/mypage.html'; });
     document.getElementById('go').addEventListener('click', function(){
       var _ae=document.getElementById('acct'), acct=_ae?(_ae.value||'').trim():'';   // [DEPOSIT_CARD] 카드면 계좌 칸이 없다
       var b=document.getElementById('go'); b.disabled=true; b.innerHTML='<span class="bdot"></span>처리 중';   /* [BUSY_ONE] textContent 면 태그가 글자로 찍힌다 */
-      var done=function(){ showMsg('Done','예약이 취소되었어요',(byCard?'예약금은 결제하신 카드로 취소해 드릴게요.<br>카드사에 따라 반영까지 며칠 걸릴 수 있어요.':'입력하신 계좌로 예약금을 환불해 드릴게요.<br>(영업일 기준 수일 소요)')+'<br><br>다시 찾아주실 때 언제든 편하게 모실게요.'); };
+      var done=function(){ showMsg('Done','예약이 취소되었어요',(byCard?'예약금은 결제하신 카드로 취소해 드릴게요.<br>카드사에 따라 반영까지 며칠 걸릴 수 있어요.':acct?'입력하신 계좌로 예약금을 환불해 드릴게요.<br>(영업일 기준 수일 소요)':'환불받으실 계좌를 따로 여쭤볼게요.')+'<br><br>다시 찾아주실 때 언제든 편하게 모실게요.'); };   // ★[CAN_ACCT_EMPTY 2026-10-09 D-10] 계좌를 비우고 취소해도 «입력하신 계좌로»라 했다 · 서버도 비었으면 계좌를 따로 여쭌다(REFUND_ACCT_REQ)
       var say=function(t){ var _e=document.getElementById('cErr'); if(_e){ _e.style.display=''; _e.innerHTML=_ecHtml(t); } };   // [CAN_ALERT] OS alert 대체 — 화면 안에서, 낭독기에도 들리게 · [ERR_CODE_GLUE] 코드는 한 덩어리(글자는 같다)
       var back=function(t){ b.disabled=false; b.textContent='예약 취소하기'; say(t); };
       /* ★★[ERR_CODE_PAGES · CANCEL_RECHECK 2026-10-07] 취소는 «쓰기»다. 답을 못 받은 것(5 기다리다 멈춤 · 7 서버 답이 깨짐)은 «실패»가 아니라 «결과 모름»이다.

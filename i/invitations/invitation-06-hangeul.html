@@ -114,7 +114,8 @@ html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편
   --ink:#2C2825;
   --ink-soft:#3E3832;
   --ink-mid:#6A5F55;
-  --ink-fade:#8F8277;
+  --ink-fade:#70655C;   /* ★[INK_FADE_AA 2026-10-09 고객 여정 점검 D-12] #8F8277 은 한지 바탕(--paper #F5F2EA)에서 3.34:1 · --paper2 3.02:1 이었다(날짜 · 혼주 · 계좌 이름이 이 색).
+     같은 색조(H 27.5° · S 9.7%)에서 밝기만 내려 --paper 5.07 · --paper-bright 5.33 · --paper2 4.58 :1(계산값). 위계(--ink-mid #6A5F55 보다 옅음)는 그대로 둔다 */
   --ink-light:#B8ADA0;
   --ink-faint:#D4CABB;
   --dancheong:#7B2D2D;
@@ -683,6 +684,7 @@ details.env-acc-item[open] .env-acc-plus{transform:rotate(45deg);color:var(--dan
   font-family:var(--serif-en);font-style:italic;font-size:11px;
   color:var(--ink-fade);letter-spacing:0.06em;margin-top:28px;line-height:1.8;
 }
+.foot-quote{color:#5F564E}   /* [INK_FADE_AA] 꼬리는 더 짙은 바탕(--paper-deep #DCD6C4) 위라 같은 색조로 한 단 더 — 4.94:1(계산값 · 종전 2.57:1) */
 .foot-mark{
   display:inline-flex;align-items:center;gap:14px;margin-top:30px;
   font-family:var(--serif-en);font-weight:500;font-size:10px;letter-spacing:0.4em;
