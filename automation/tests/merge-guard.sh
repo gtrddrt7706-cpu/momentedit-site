@@ -14703,7 +14703,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/note-toast.mjs >/dev
 #   ex-promise T1 · T2 · T6 · T7 · stale-novoice ① 이 잰다
 chk 'PRESET_QUIET' order-preview.html 2
 chk 'if(!/목소리가 생겼어요$/.test(st.t)) st.pre=1;' order-preview.html 1   # [STALE_QUIET 10/09] 남는 옆 글 = «○○ 목소리가 생겼어요» 하나
-chk "stSide&&!st.pre?'<span class=\"mk-vst mk-vst-side\"" order-preview.html 1
+chk "stSide&&!st.pre?'<span class=\"mk-vst mk-vst-side" order-preview.html 1   # [SIDE_WHO_LOW 2026-10-09] 세 낱말 옆글이면 mk-vst-low 가 붙는다 — 여는 꼴만 본다
 nochk "(stSide?'<span class=\"mk-vst mk-vst-side\"" order-preview.html   # ★단추 옆 «예시를 바꿨어요 · 멘트를 바꿨어요» 금지 — 2026-10-08 사용자 지시로 삭제
 chk 'PRESET_QUIET' scripts/audit/ex-promise.mjs 4
 chk 'PRESET_QUIET' scripts/audit/stale-novoice.mjs 2
@@ -15044,7 +15044,7 @@ if command -v node >/dev/null 2>&1; then ONLY='1,5,8,9,17' node scripts/audit/vc
 # ★[VC_R1_MIX 2026-10-08 목소리 1라운드 mix 묶음 #12 · #22 · #23 · #24 · #25 · #27 · #28 · #30 · #31 · #33] — 고친 줄 25개를 하나씩 되돌리면 각각 빨강(돌연변이 확인)
 chk 'VC_R1_MIX' scripts/audit/vc-r1-mix.mjs 1
 chk 'function _whoMiss(key)' order-preview.html 1
-chk '(v.wq!==_slWhoSig(key)||!!_whoMiss(key))' order-preview.html 1
+chk '(v.wq!==_slWhoSig(key)||!!_whoMiss(key)||' order-preview.html 1   # [FILL_WHO_TRUE 2026-10-09] 뒤에 «다른 분 목소리 소리» 갈래가 붙었다
 chk 'function _whoLab(key)' order-preview.html 1
 chk '{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up===' order-preview.html 1
 chk "eu=_upStale('entry')?null:_rfUrl('entry')" order-preview.html 1
@@ -16303,7 +16303,7 @@ chk 'ERR_ZERO_TEXT' order-preview.html 8
 chk 'if(n<=0) return _ecTidy(t);' order-preview.html 1
 chk "var c=_ecCodeOf(w)||(w?'V0':'');" order-preview.html 1   # 연습 차례 요약 글 — 서버 글만 온 거절도 V0
 chk "c=_ecCodeOf(_le)||(_le?'V0':'');" order-preview.html 1   # 다시 만들기 알림
-chk "_afc=_ecCodeOf(_autoWhy)||(_autoWhy?'S0':'');" order-preview.html 1   # 나가기 판
+chk "_afc=_ecCodeOf(_autoWhy)||(_autoWhy?'S0':'')" order-preview.html 1   # 나가기 판
 chk 'RF_LINE_CLEAR' order-preview.html 3
 chk 'function _rfLineOff(key)' order-preview.html 1
 chk 'VC_DONE_LINE' order-preview.html 1

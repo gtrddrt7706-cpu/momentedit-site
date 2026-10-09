@@ -137,10 +137,10 @@ const SC = [
   { no: 60, lat: { ritualFile: 9000 }, async run({ pg, f }) {
     await f.evaluate(() => { _autoLast = ''; }); await blob(f, 'g0', '녹음'); await adv(pg, 1000);
     await f.evaluate(() => window._obExit()); await adv(pg, 600);
-    const a = await f.evaluate(() => ({ ask: ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''), posts: window.__posts.map((x) => x.type).filter((t) => /order(Exit|Close)/.test(t || '')) }));
+    const a = await f.evaluate(() => ({ ask: ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''), posts: window.__posts.map((x) => x.type).filter((t) => /order(Exit|Close)(?!Hold)/.test(t || '')) }));   /* [EXIT_HOLD 2026-10-09] orderExitHold 는 «판이 떠 있으니 기다려 달라»는 말이지 나가기가 아니다 */
     await shot(pg, '60-묻기');
     await f.evaluate(() => document.querySelector('.ord-ask .oa-yes').click()); await adv(pg, 50000);   // 보낸 뒤 [TEMPO_BAKE] 마무리(최대 40초)가 끼면 그만큼 늦게 나간다
-    const b = await f.evaluate(() => { const ex = window.__posts.find((x) => /order(Exit|Close)/.test(x.type || '')); const t = ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''); return { id: ((S.up || {}).g0 || {}).id || '', exited: !!ex || t === '저장하지 않은 변경이 있어요' }; }).catch(() => ({ gone: true }));   // 다 보낸 뒤 평소 나가기 길([EXIT_ASK] 저장 묻기)로 이어져도 «나간다»
+    const b = await f.evaluate(() => { const ex = window.__posts.find((x) => /order(Exit|Close)(?!Hold)/.test(x.type || '')); const t = ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''); return { id: ((S.up || {}).g0 || {}).id || '', exited: !!ex || t === '저장하지 않은 변경이 있어요' }; }).catch(() => ({ gone: true }));   // 다 보낸 뒤 평소 나가기 길([EXIT_ASK] 저장 묻기)로 이어져도 «나간다»
     const done = await pg.evaluate(() => (__SV.log.find((x) => x.op === 'ritualFile') || {}).done || 0);
     ok('#60 보내는 중 나가기 → «아직 보내는 중이에요»를 먼저 묻고 · «끝나면 나가기»면 저장된 뒤 나간다 [UP_EXIT_WAIT]', a.ask === '아직 보내는 중이에요' && !a.posts.length && done > 0 && (b.gone || (b.exited && /^Fg0x/.test(b.id))), JSON.stringify({ a, b, done }));
   } },
