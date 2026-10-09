@@ -14706,7 +14706,16 @@ chk 'PT_NO_STALL' order-preview.html 3
 chk 'PT_NO_STALL' scripts/audit/play-wait-file.mjs 1
 chk 'PR_MODE_UNPICKED' scripts/audit/play-wait-file.mjs 1
 # ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 추리자 · 1줄로 맞아떨어지게 · 다른 곳들도 베스트로 전부»] 참고 예시 카드는 늘 넷 이하(PC 한 줄 · 폰 2×2) · 상황 예시 · 부모님 예시는 카드 줄 아래 글 단추 · AI 입장 인사 예시 = A · B · D · E
-chk 'REF_ROW4' order-preview.html 3
+chk 'REF_ROW4' order-preview.html 2   # [REF_BEST4_ONLY 2026-10-09] 카드 줄 아래 글 단추 갈래(상황 · 부모님 예시)를 걷어 표식 둘이 함께 빠졌다
+# ★★[REF_BEST4_ONLY 2026-10-09 사장님 «이건 뭐야? 예시가 너무 많아 베스트 4개만»] 참고 예시는 모든 순간 고른 넷만 — 카드 줄 아래 상황 예시(한 분께 · 먼저 떠나신 분께 · 가족이 된 날 · 한 분이 하실 때) · «부모님이 하실 때 예시 ›» 글 단추 걷음
+chk 'REF_BEST4_ONLY' order-preview.html 6
+chk 'return sets.filter(function(set){ return !_refSit(set)&&(!b||b.indexOf((set\[0\]||{}).n)>-1); }); }' order-preview.html 1
+nochk "return top.concat(sit);" order-preview.html   # ★상황 예시를 넷 뒤에 붙이던 옛 _refKeep
+nochk "sets=sets.concat(_refKeep('bless'" order-preview.html   # ★덕담 없는 축하의 말에 부모님 예시 덧붙이기
+nochk "data-fk=\"mkrsit:'" order-preview.html   # ★상황 예시 글 단추
+nochk "onclick=\"mkRefPar(" order-preview.html   # ★«부모님이 하실 때 예시 ›» 글 단추
+nochk '.mk-rmore{display:flex' order-preview.html
+chk 'REF_BEST4_ONLY' scripts/audit/listen-page.mjs 5
 chk "var ENTRY_KEYS=\['A','B','C','D','E','F'\];" order-preview.html 1   # [EX_SAME_COUNT 2026-10-07] AI 판 입장 예시 = 스튜디오 입장 멘트와 같은 여섯
 chk 'EX_SAME_COUNT' order-preview.html 1
 chk 'EX_ROW_PLACE' order-preview.html 1
@@ -15177,7 +15186,7 @@ chk 'UP_AI_HEAL' order-preview.html 1
 chk 'function _upHeal()' order-preview.html 1
 chk 'VST_RIGHT' order-preview.html 1   # [EX_ROW_PLACE 2026-10-07 사장님 «추천대로»] 현장 순간 예시 줄은 «두 분이 할 말» 바로 위
 nochk 'class="mk-rc mk-rpar"' order-preview.html
-chk 'REF_ROW4' scripts/audit/listen-page.mjs 3
+chk 'REF_ROW4' scripts/audit/listen-page.mjs 2   # [REF_BEST4_ONLY 2026-10-09] 덕담 없는 축하의 말 검사가 새 표식으로 옮겨 갔다
 # ── ★[TRIB_ONE_SAY · GROOM_BOW_TIP · FREE_ETC · GOODS_STUDIO 2026-10-06 사장님] 식순 넷 ──
 #   부모님께 인사: 한마디씩 · 1분쯤씩 → «말로 인사» 하나(값 long · 시간 그대로) · 신랑 큰절은 칩이 아니라 팁 한 줄
 #   준비한 순서: 춤 · 공연 걷음 → «기타»(무엇을 적기 · 길이 1~3분 · 계약서 «3분 안») · 케이크 · 꽃 · 부케 = 저희가 준비(별도 비용)

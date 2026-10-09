@@ -488,7 +488,7 @@ else {
       cross: set('tribute', { S: { tributeSay: 'long', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
       sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
       sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
-  ok('9-9 참고 예시 표 144줄(EX_MORE) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담 없으면 부모님 예시(고른 넷 + 한 분이 하실 때) 다섯 벌 더 [REF_TABLE · EX_MORE · REF_BEST4]', rt.rows === 144 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 9, JSON.stringify(rt));
+  ok('9-9 참고 예시 표 144줄(EX_MORE) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담이 없어도 고른 넷만(부모님 예시 덧붙이기 걷음) [REF_TABLE · EX_MORE · REF_BEST4 · REF_BEST4_ONLY]', rt.rows === 144 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 4, JSON.stringify(rt));
   ok('9-8 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -629,19 +629,18 @@ else {
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const e = await pg.evaluate(() => { const o = { rows: RITUAL_REF.rows.length };
     S.on.tribute = 1; S.tributeSay = 'long'; opSync(); mkGo('tribute'); render();
-    o.long0 = document.querySelectorAll('.mk-ref .mk-exc').length; o.sitBtn = document.querySelectorAll('.mk-ref .mk-rmore [data-fk^="mkrsit:tribute:"]').length;   // [REF_ROW4 2026-10-06] 카드는 고른 넷 · 상황 예시는 카드 줄 아래 글 단추
+    o.long0 = document.querySelectorAll('.mk-ref .mk-exc').length; o.links = document.querySelectorAll('.mk-ref .mk-rmore, .mk-ref [data-fk^="mkrsit:"], .mk-ref [data-fk^="mkrpar:"]').length;   // [REF_ROW4 2026-10-06] 카드는 고른 넷 · ★[REF_BEST4_ONLY 2026-10-09] 카드 줄 아래 글 단추(상황 · 부모님 예시) 없음
     const cs = [...document.querySelectorAll('.mk-ref .mk-exc')]; o.long = cs.length; o.lines = new Set(cs.map((c) => Math.round(c.getBoundingClientRect().top))).size; o.hs = document.documentElement.scrollWidth > innerWidth;
-    o.n7 = (document.querySelector('[data-fk="mkrsit:tribute:5"]') || {}).textContent || ''; mkRefPick('tribute', 5, 1); o.linkOn = !!document.querySelector('[data-fk="mkrsit:tribute:5"].on'); o.long1 = document.querySelectorAll('.mk-ref .mk-exc').length; o.b7 = (document.querySelector('.mk-ref .mk-rsel .sr-only') || {}).textContent || '';   /* [R8-14] 배지는 화면 읽기에만 */ o.help = /먼저 떠나신 분께 드리는 글이에요/.test(document.querySelector('.mk-ref').textContent);
+    o.sets = _lRefSets('tribute').length; o.sitIn = _lRefSets('tribute').some((x) => !!_refSit(x)); mkRefPick('tribute', 3, 1); o.long1 = document.querySelectorAll('.mk-ref .mk-exc').length; o.b4 = (document.querySelector('.mk-ref .mk-rsel .sr-only') || {}).textContent || '';   /* [R8-14] 배지는 화면 읽기에만 */ o.help = /먼저 떠나신 분께|한 분께 드리는 글이에요|가족이 된 날을 담은/.test(document.querySelector('.mk-ref').textContent);
     o.mood = /담백|다정|유머|격식|솔직하게|그리움|장면 하나|짧게/.test([...document.querySelectorAll('.mk-ref .lf-refb, .mk-ref .mk-rsel .sr-only')].map((x) => x.textContent).join('|'));
     S.on.free = 1; S.freeWhat = 'speech'; S.freeLen = '3'; delete S.on.bless; opSync(); mkGo('free'); render();
-    o.free0 = document.querySelectorAll('.mk-ref .mk-exc').length; o.par = !!document.querySelector('.mk-rmore [data-fk="mkrpar:free"]');
-    mkRefPar('free'); o.free1 = document.querySelectorAll('.mk-ref .mk-exc').length; o.parLink = !!document.querySelector('.mk-rmore [data-fk^="mkrsit:free:"]');
+    o.free0 = document.querySelectorAll('.mk-ref .mk-exc').length; o.par = !!document.querySelector('[data-fk="mkrpar:free"], .mk-ref [aria-label="부모님 예시"]'); o.parIn = _lRefSets('free').some((x) => !!(x[0] && x[0].parent)); o.freeSets = _lRefSets('free').length;
     S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; mkGo('vow'); render(); mkRefPick('vow', 3, 1); mkRefStart('vow');
     o.filled = !!String(S.tx['vow.g'] || '').trim() && !!String(S.tx['vow.b'] || '').trim(); o.warn = (document.getElementById('mkw_vow_g') || {}).textContent || '';
     o.startGone = !document.querySelector('[data-fk="mkrstart:vow"]'); return o; });
-  ok('13 [EX_MORE · REF_BEST4 · REF_ROW4] 참고 예시 144줄 · 카드는 고른 네 벌(360 에서 2×2) · 상황 예시 셋은 카드 줄 아래 글 단추 · 누르면 그 예시가 골라지고 카드는 그대로 넷(가로 스크롤 없음)', e.rows === 144 && e.long0 === 4 && e.sitBtn === 3 && e.long === 4 && e.lines <= 2 /* [EX_ROW] 칩 줄 — 두 줄 이내 */ && e.linkOn && e.long1 === 4 && !e.hs, JSON.stringify(e));
-  ok('13 상황 이름 — «예시 6 · 먼저 떠나신 분께» · 배지 «참고 예시 6 · 먼저 떠나신 분께» · 도움말 한 줄 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL · REF_BEST4]', e.n7 === '먼저 떠나신 분께 예시' && e.b7 === '참고 예시 6 · 먼저 떠나신 분께' && e.help && !e.mood, JSON.stringify(e));
-  ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌 + 글 단추 «부모님이 하실 때 예시 ›» → 누르면 덕담 고른 넷이 둘째 카드 줄 · «한 분이 하실 때»는 글 단추 [REF_BEST4 · REF_ROW4]', e.free0 === 4 && e.par && e.free1 === 8 && e.parLink, JSON.stringify(e));
+  ok('13 [EX_MORE · REF_BEST4 · REF_ROW4 · REF_BEST4_ONLY] 참고 예시 144줄 · 카드는 고른 네 벌(360 에서 2×2) · 카드 줄 아래 글 단추 없음(상황 · 부모님 예시) · 넷째를 눌러도 카드는 그대로 넷(가로 스크롤 없음)', e.rows === 144 && e.long0 === 4 && e.links === 0 && e.sets === 4 && !e.sitIn && e.long === 4 && e.lines <= 2 /* [EX_ROW] 칩 줄 — 두 줄 이내 */ && e.long1 === 4 && !e.hs, JSON.stringify(e));
+  ok('13 배지 «참고 예시 4»(화면 읽기에만) · 상황 도움말(먼저 떠나신 분께 · 한 분께 · 가족이 된 날) 없음 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL · REF_BEST4_ONLY]', e.b4 === '참고 예시 4' && !e.help && !e.mood, JSON.stringify(e));
+  ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌만 · «부모님이 하실 때 예시 ›»와 부모님 예시 줄 없음 [REF_BEST4_ONLY 2026-10-09 사장님 «베스트 4개만»]', e.free0 === 4 && e.freeSets === 4 && !e.par && !e.parIn, JSON.stringify(e));
   ok('13 «이 예시로 시작하기» — 빈 두 칸을 채우고 단추는 사라진다 · 예시 속 이름이 남으면 한 줄 알림 [EX_NAMES]', e.filled && e.startGone && /예시 속 이름 «.+»이 남아 있어요/.test(e.warn), JSON.stringify(e));
   ok('13 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
