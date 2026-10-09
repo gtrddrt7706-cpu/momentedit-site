@@ -635,7 +635,7 @@ git push -u origin <브랜치>
 | `adminUndoRefunded('코드','사유')` | admin | 환불 '완료 표시' 취소 — 송금 자체가 아니라 표시를 되돌려 환불 송금 큐에 다시 띄움. 사유 필수·멱등·처리이력(adminCall) |
 | `adminForceStagePreview('코드','단계')` | admin | 강제 단계 변경 미리보기 — 비워질 컬럼·동의기록 키·상담 예약 초기화 여부와 ROLLBACK_KEEP_PAID로 '유지됨'인 항목을 반환(실행과 같은 `_clearForwardData`) |
 | `monthBusinessData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다) · (읽기 전용) 이번 달 계약 건수·실입금 매출·전달 건수. aiMorningReport가 읽어 아침 메일 한 줄로 실음. 매출=‘확인’된 입금의 합(계약총액 합계 아님·상담 예약금 제외) |
-| `morningBriefData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다 · 안에서 관리자 권한을 켜므로 공개 이름이면 고객 명단이 샌다) · (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op). ★2026-09-06부터 오늘 상담은 **`adminHome`이 만든 `todayConsults`를 그대로 쓴다**(TODAY_CONSULT) — 예약 시트를 다시 훑지 않는다. 관리자 홈 화면과 아침 메일이 한 원천을 본다 |
+| `morningBriefData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다 · 안에서 관리자 권한을 켜는 함수는 반드시 밑줄 이름) · (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op). ★2026-09-06부터 오늘 상담은 **`adminHome`이 만든 `todayConsults`를 그대로 쓴다**(TODAY_CONSULT) — 예약 시트를 다시 훑지 않는다. 관리자 홈 화면과 아침 메일이 한 원천을 본다 |
 | `aiMorningPreview` | 96_ai_cost | 지금 아침보고 1통 즉시 발송(테스트·수동). aiMorningReport와 동일 |
 | `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). `aiDailySafetyCheck(true)`(silent)면 개별 문자 없이 결과만 반환(아침보고가 합쳐 발송). 수동 실행 시엔 위반/하락 시 SMS. 서버 fetch 막히면 점검불가 반환 |
 | `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS(aiMorningReport는 `false`로 텍스트만 가져감) |
@@ -684,8 +684,8 @@ git push -u origin <브랜치>
 **이름이 `_` 로 끝나지 않는 GAS 함수는 HTML 서비스 화면의 `google.script.run` 으로도 부를 수 있다(구글 규칙).**
 adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 함수를 만들 때 넷 중 하나로 정한다.
 
-1. **관리 화면 함수**(FNS) · **편집기 도구**(사장님이 GAS 편집기에서 돌리는 것) → 첫 줄 `_requireAdmin();` — 관리 화면(토큰) · 편집기(소유자 메일 둘)만 지난다.
-   편집기에서 막히면 오류 글에 «지금 계정(g…@gmail.com)은 소유자 목록에 없어요»가 붙는다(`_ADMIN_OWNER_EMAILS` · admin.gs).
+1. **관리 화면 함수**(FNS) · **편집기 도구**(사장님이 GAS 편집기에서 돌리는 것) → 첫 줄 `_requireAdmin();` — 관리 화면(토큰) · 편집기(서버 길 밖에서 자기 계정으로 직접 돌린 실행)만 지난다.
+   편집기에서 막히면 오류 글에 «지금 계정(h…@momentedit.kr)을 소유자로 확인하지 못했어요»가 붙는다(admin.gs `_isOwnerRun_`).
 2. **비밀값 · 열쇠를 돌려주거나 서명을 만드는 함수 · 받는 사람(주소 · 번호)과 글을 인자로 받아 보내는 함수** → 이름 끝 `_`(예: `sign_` · `_payCfg_` · `_kakaoSend_`). 밑줄 함수도 다른 서버 코드에서는 그대로 부른다.
 3. **두 쓰임**(관리 화면에서도 · 예약 실행에서도) → 잠긴 껍데기 + 밑줄 안쪽(`aiQuestionLog` → `aiQuestionLog_` · `[GSR_SPLIT]`).
 4. **`_AUTHED = true`** 는 네 곳뿐 — adminCall(토큰 확인 뒤) · `morningBriefData_`(예약 실행) · 메일 단추 `_payConfirmRun_`(확인 화면의 단추를 누른 뒤 · 서명 · 기한 다시 확인 · `[PAYCONFIRM_AUTHED]`) · 카드 `handleCardConfirm`(토스 승인 뒤 · `[CARD_AUTHED]`) · 늘 finally 로 되돌린다.
@@ -699,6 +699,15 @@ adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 
 - 검사: `node scripts/audit/gsr-guard.mjs`(옛 이름 · 빠진 잠금 · 모든 공개 함수의 첫 줄 · FNS · 새 `_AUTHED` · `_SRV` · `_TRUST` · 메일 단추 행동 · 예약 실행 확인 · 토큰 없는 adminCall · 돌연변이) — merge-guard 가 돌린다. 잠글 함수를 늘리면 그 파일의 `LOCKED` 도 같은 커밋에서.
 - ★[MAIL_BTN_CONFIRM] **메일 단추(입금 확인 · 승인 · 수락)는 열기만 해서는 아무것도 바꾸지 않는다** — 주소를 열면 확인 화면만 보이고, 화면의 단추(`mailButtonGo` · 입구)를 눌러야 처리된다. 메일 보안 검사기 · 링크 미리보기가 주소를 먼저 열어 보기 때문이다(B11). 단추 쪽이 서명 · 기한을 다시 본다.
 - FNS 의 `aiAlertAdmin` 은 두 쓰임이라 `_requireAdmin` 대신 `_gsr_`(`FNS_LATER`).
+- ★[DIAG_OWNER_ONLY 2026-10-09] 편집기 진단 6개(deployCheck · deployStampCheck · contractCheck · contractCheckHelp · notifySetupCheck · checkCustomerHeaderOrder)는 첫 줄에서 «소유자가 아니면 돌려보내기» — `typeof _isOwnerRun_` 로 걸어 admin.gs 가 없는 판에서도 진단은 돈다. 이런 진단을 새로 만들면 같은 첫 줄 + gsr-guard 의 `DIAG`.
+- `_AUTHED` 창은 넷 다 «이전 값»으로 닫는다(`var _authPrev = _AUTHED` · finally · `[AUTHED_RESTORE]`). 편집기 소유자 확인은 한 실행에 한 번(`_activeEmail_` · `[OWNER_MEMO]`).
+- ★[OWNER_SELF 2026-10-09 사장님 deployCheck 로그] **편집기 소유자 = 서버 길 밖 · 실행한 사람 = 권한 주인**(`_isOwnerRun_` 한 곳 · `_requireAdmin` · `_gsr_` · `_trigIn_` · 진단이 같은 자를 쓴다).
+  편집기에서는 둘이 늘 같아 **어느 계정으로 편집기를 열든 목록에 적지 않는다**(`_ADMIN_OWNER_EMAILS` 는 덧붙임일 뿐). 서버 길(doGet · doPost · 공개 화면 입구) 안에서는 소유자 신원이어도 토큰 · 서명 없이 못 지난다.
+  ★교훈 — 1-s 는 목록에 실제 편집기 계정이 없는 채로 나가 사장님 편집기 도구 · 진단이 막혔다(사장님이 붙인 deployCheck 로그 ④ ⑤ 로 드러남). **잠금을 걸 때는 «누가 막히나»를 실제 실행 계정으로 확인한다.**
+  점검의 편집기 흉내는 `asOwner(sb)`(gas-lint · 서버 길 밖 · 목록에 없는 계정).
+  - [OWNER_FIRST_ASK] 소유자인가는 한 실행에서 **처음 물을 때** 정한다(`_OWNER_RUN`) — 편집기 도구가 안에서 입구 함수를 불러 `_SRV` 가 켜져도 끝까지 소유자 실행이다.
+  - ★[HTML_ESC_NAMES] **배포한 계정으로 GAS 화면(메일 단추 확인 · 결과 · 취소 · 화면 A/B/C)을 열면 그 화면의 서버 호출도 소유자로 돈다.** 그래서 GAS 화면에 고객 글(이름 · 시간 · 메모)을 넣을 때는 **늘 `esc()`**, 확인 화면은 서버 글을 허락한 꼴(줄바꿈 · 굵게)만 그린다([MAIL_SHOW_SAFE]). `scripts/audit/mail-page.mjs` 가 행동 · 정적으로 잰다.
+- [TRIG_LIST_KNOWN] 예약 실행 아이디는 목록을 못 읽으면 **마지막으로 알던 목록**(속성 `TRIG_UIDS_KNOWN`)으로 판정한다 · 새로 읽기는 1분에 5번까지 · «목록에 없음» 기록은 배우기 전에만([TRIG_MISS_QUIET]).
 - ★공개 저장소다 — 주석 · 커밋 · PR · deploy-marks 의 why 에는 **규칙만** 적는다. «무엇이 어떻게 열려 있었나»는 비공개 docs 저장소(기획 부록 B19 · 결정함)에만 둔다.
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)

@@ -1925,7 +1925,121 @@
    "file": "consultation-booking",
    "fn": "_mailConfirmPage_",
    "mark": "MAIL_BTN_CONFIRM",
-   "why": "메일 단추(입금 확인 · 승인 · 수락)는 열면 확인 화면만 — 단추를 눌러야 처리(mailButtonGo) · 옛 판이면 링크를 여는 순간 처리된다"
+   "why": "메일 단추(입금 확인 · 승인 · 수락)는 열면 확인 화면만 — 단추(mailButtonGo)를 눌러야 처리 · 붙이고 새 버전으로 배포해야 먹는다"
+  },
+  {
+   "file": "admin",
+   "fn": "_activeEmail_",
+   "mark": "OWNER_MEMO",
+   "why": "편집기 실행에서 소유자 확인을 한 실행에 한 번만 — 무거운 편집기 도구가 느려지지 않게"
+  },
+  {
+   "file": "admin",
+   "fn": "_isOwnerRun_",
+   "mark": "OWNER_SELF",
+   "why": "편집기에서 자기 계정으로 돌리면 소유자로 알아본다(목록에 없는 편집기 계정도) · 서버 길 안은 토큰 · 서명만 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "_isOwnerRun_",
+   "mark": "OWNER_FIRST_ASK",
+   "why": "소유자인가는 한 실행에서 처음 물을 때 정한다 — 편집기 도구가 안에서 입구 함수를 불러도 끝까지 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_mailConfirmPage_",
+   "mark": "MAIL_BOX_STEADY",
+   "why": "메일 확인 화면 카드 폭 고정 — 단추를 누른 뒤 카드가 줄지 않게"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "mailButtonGo",
+   "mark": "MAIL_FAIL_WORDS",
+   "why": "메일 단추 실패 글을 받는 사람 말로 · 코드와 사고번호"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actApprove",
+   "mark": "HTML_ESC_NAMES",
+   "why": "결과 화면에 고객 글은 늘 escape — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actAccept",
+   "mark": "LOCK_REREAD",
+   "why": "승인 · 수락은 잠금을 잡은 뒤 같은 예약을 다시 읽어 판단 — 겹친 두 번째 누름이 메일을 두 번 보내지 않게 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_mailConfirmPage_",
+   "mark": "MAIL_RETRY",
+   "why": "메일 확인 화면 — 다시 누를 수 있는 실패는 단추를 되살린다 · 끝난 결과는 단추 자리를 남긴다 · 허락한 꼴만 그린다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "mailButtonGo",
+   "mark": "BTN_SAFE_ARGS",
+   "why": "메일 단추 처리는 글자 · 숫자만 받고 서명을 확인한 처리의 오류만 기록 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errRecord",
+   "mark": "PUB_RULES_ONLY",
+   "why": "공개 저장소 주석은 규칙만 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployCheck",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployStampCheck",
+   "mark": "STAMP_TRIG_ONE",
+   "why": "예약 실행 확인은 한 줄 — 알아봤으면 OK 하나 · 아니면 «아직» 하나(덧줄은 따로) · 편집기 진단이라 붙이면 바로 먹는다"
+  },
+  {
+   "file": "99_contractCheck",
+   "fn": "contractCheck",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "10_customers-setup",
+   "fn": "checkCustomerHeaderOrder",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "notifySetupCheck",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "purgeAdvisorLog",
+   "mark": "PURGE_CHAIN_ALWAYS",
+   "why": "주간 정리가 질문 기록이 비어도 개인정보 파기를 끝까지 부른다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_IN_WHY",
+   "why": "예약 실행 확인 기록에 까닭(가린 계정) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigUidIs_",
+   "mark": "TRIG_LIST_KNOWN",
+   "why": "예약 실행 아이디는 목록을 못 읽으면 알던 목록으로 판정 · 새로 읽기는 1분에 5번까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_MISS_QUIET",
+   "why": "«목록에 없음» 기록은 배우기 전에만 · 영숫자만 · 배우면 지운다 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2090,7 +2204,11 @@
    "handleSaveRefundAccount",
    "weeklyBackup",
    "_trigIn_",
+   "_trigSafe_",
+   "_trigWho_",
    "_trigUidIs_",
+   "_trigKnown_",
+   "_trigKnownAdd_",
    "_trigMark_",
    "setupAllTriggers",
    "addBalanceColumns"
@@ -2498,6 +2616,7 @@
    "_requireAdmin",
    "_gsr_",
    "_activeEmail_",
+   "_effectiveEmail_",
    "_isOwnerRun_",
    "_ownerHint_",
    "_adminTokenCheck_",
@@ -2601,6 +2720,7 @@
    "setCustomerStage",
    "markConsultDone",
    "actApprove",
+   "_rowFresh_",
    "actAccept",
    "_releaseWeddingHoldOnCancel",
    "_depositCardOf",
@@ -2699,6 +2819,7 @@
    "_payConfirmCheck_",
    "_payConfirmRun_",
    "mailButtonGo",
+   "_btnStr_",
    "_mailConfirmPage_",
    "infoPage",
    "setupConsultation",
@@ -2847,12 +2968,16 @@
    "_CURRENT_ADMIN",
    "_SRV",
    "_TRUST",
+   "_ACTIVE_EMAIL",
+   "_EFFECTIVE_EMAIL",
+   "_OWNER_RUN",
    "UNDO_WINDOW_HOURS",
    "_LOCK_BUSY"
   ],
   "consultation-booking": [
    "DETAIL_MAP",
    "AVAIL_CACHE_KEY",
+   "_BTN_SIGNED",
    "_LAST_INFO",
    "__ERR_ON"
   ]
@@ -2969,7 +3094,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 05:13 · 8b96c9c6",
+ "_생성": "2026-10-09 15:58 · f04fd2a7",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3296,7 +3421,25 @@
    "b": "카드결제 승인"
   },
   {
+   "key": "TRIG_LIST_FAIL",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "TRIG_PROBE",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "TRIG_UIDS_KNOWN",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "TRIG_UID_MISS",
    "kind": "state",
    "a": "",
    "b": ""
@@ -3453,5 +3596,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "36ecb208d225"
+ "_표식서명": "ca4b73c3aca1"
 }

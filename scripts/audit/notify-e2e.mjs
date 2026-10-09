@@ -10,7 +10,7 @@
 //   ★[SERVED_OURS] 로드에 실패하거나 함수가 없으면 «틀렸다(1)»가 아니라 «못 쟀다(2)».
 //
 //   종료 코드: 0 통과 · 1 재서 틀렸다 · 2 재지 못했다
-import { makeSandbox, loadGas } from './gas-lint.mjs';
+import { makeSandbox, loadGas, asOwner } from './gas-lint.mjs';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
@@ -100,7 +100,7 @@ console.log('━━ ⑤ 다른 까닭에는 끼어들지 않는다');
 
 console.log('━━ ⑥ 설정 점검이 빠진 알림을 이름으로 보여 준다 [TPL_COVER]');
 { const part = Object.fromEntries(EV.slice(0, 3).map((e) => [e, 'TPL_' + e]));
-  cfg({ KAKAO_TEMPLATES: JSON.stringify(part) }); fresh(); G.notifySetupCheck();
+  cfg({ KAKAO_TEMPLATES: JSON.stringify(part) }); fresh(); { const _ss = G.Session, _sv = G._SRV; asOwner(G); G.notifySetupCheck(); G.Session = _ss; G._SRV = _sv; G._ACTIVE_EMAIL = null; G._EFFECTIVE_EMAIL = null; G._OWNER_RUN = null; }   // [DIAG_OWNER_ONLY] 편집기(소유자)가 돌리는 진단
   const L = W.logs.join('\n');
   say(new RegExp('켜진 고객 알림 ' + EV.length + '종 · 알림톡 템플릿 있음 3 · 없음 ' + (EV.length - 3)).test(L), '「있음 3 · 없음 N」 한 줄', L.slice(0, 300));
   say(EV.slice(3).every((e) => L.indexOf('· ' + e) >= 0) && EV.slice(0, 3).every((e) => L.indexOf('· ' + e) < 0), '빠진 알림만 이름으로 나열', '');

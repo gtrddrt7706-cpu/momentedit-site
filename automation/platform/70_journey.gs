@@ -1936,21 +1936,50 @@ function _trigIn_(e) {   // [TRIG_IN] 예약 실행 15개의 첫 줄 — 위 주
   if (_TRUST || _AUTHED || _SRV) { _TRUST = true; return; }
   try { if (e && e.range && typeof e.range.getRow === 'function') { _TRUST = true; return; } } catch (x) {}
   var uid = (e && e.triggerUid != null) ? String(e.triggerUid) : '';
-  if (uid && _trigUidIs_(uid)) { _TRUST = true; _trigMark_('TRIG_UID_OK', uid.slice(0, 6)); return; }
-  if (_isOwnerRun_()) { _TRUST = true; return; }
+  var hit = uid ? _trigUidIs_(uid) : 0;   // 0 아님 · 1 기억해 둔(알던) 목록에서 맞음 · 2 목록을 새로 읽어 맞음 · -1 목록을 못 읽었고 아는 목록도 없음
   var learned = ''; try { learned = PropertiesService.getScriptProperties().getProperty('TRIG_UID_OK') || ''; } catch (x) {}
-  if (!learned) { _TRUST = true; _trigMark_('TRIG_PROBE', 'uid ' + (uid ? '있음' : '없음') + ' · ' + (e ? Object.keys(e).slice(0, 10).join(',') : '이벤트 없음')); return; }
-  throw new Error('허용되지 않은 요청입니다. (예약 실행 전용)');
+  /* [TRIG_IN_WHY 2026-10-09 점검] 기록에 «그때 Session 메일»을 가린 꼴로 함께 적는다 — 예약 실행 안에서 메일이 잡히는지 운영 기록으로 안다.
+     [TRIG_MISS_QUIET] 밖에서 온 글자는 영숫자만 적는다 · «목록에 없음»은 배우기 전에만 남긴다(배운 뒤에는 까닭 기록이 필요 없다) · 새로 배우면 지운다 */
+  if (hit > 0) {
+    _TRUST = true;
+    if (hit === 2) { _trigMark_('TRIG_UID_OK', _trigSafe_(uid) + ' · 메일 ' + _trigWho_()); try { PropertiesService.getScriptProperties().deleteProperty('TRIG_UID_MISS'); } catch (x) {} }
+    return;
+  }
+  if (uid && hit === 0 && !learned) _trigMark_('TRIG_UID_MISS', 'uid ' + _trigSafe_(uid) + ' · 메일 ' + _trigWho_());
+  if (_isOwnerRun_()) { _TRUST = true; return; }
+  if (!learned) { _TRUST = true; _trigMark_('TRIG_PROBE', (hit === -1 ? '목록 못 읽음 · ' : '') + 'uid ' + (uid ? '있음' : '없음') + ' · ' + (e ? Object.keys(e).slice(0, 10).map(_trigSafe_).join(',') : '이벤트 없음')); return; }
+  if (hit === -1) _trigMark_('TRIG_LIST_FAIL', '목록 못 읽음 · 아는 목록 없음');   // [TRIG_LIST_KNOWN] 배운 뒤에는 막는다
+  throw new Error('허용되지 않은 요청입니다. (예약 실행 전용)' + _ownerHint_());   // [TRIG_IN_WHY] 편집기에서 막히면 어느 계정인지
 }
+function _trigSafe_(v) { return String(v == null ? '' : v).replace(/[^0-9A-Za-z_]/g, '').slice(0, 12); }   // [TRIG_MISS_QUIET] 기록에는 영숫자만
+function _trigWho_() { var m = (typeof _activeEmail_ === 'function') ? _activeEmail_() : ''; return m ? m.replace(/^(.)[^@]*(@.*)$/, '$1…$2') : '빈 값'; }   // [TRIG_IN_WHY] 가린 꼴 · admin.gs 가 옛 판이어도 멈추지 않게
+/* [TRIG_LIST_KNOWN 2026-10-09 점검] 예약 실행 아이디 판정.
+   목록을 새로 읽는 일은 1분에 5번까지(진짜 예약 실행은 1분에 몇 번 안 된다) · 못 읽으면(또는 다 쓰면) 마지막으로 알던 목록으로 판정한다.
+   알던 목록은 진짜로 읽은 아이디만 더한다(속성 TRIG_UIDS_KNOWN · 최근 60개). 아는 목록이 아예 없을 때만 -1(배우기 전이면 통과 · 배운 뒤면 막는다). */
 function _trigUidIs_(uid) {
   var c = null; try { c = CacheService.getScriptCache(); } catch (x) {}
-  var list = null; try { var raw = c && c.get('TRIG_UIDS'); if (raw) list = JSON.parse(raw); } catch (x) {}
-  if (list && list.indexOf(uid) !== -1) return true;
-  try {   // 캐시가 없거나 낡았다(트리거를 새로 걸었다) — 새로 읽는다
-    list = ScriptApp.getProjectTriggers().map(function (t) { return String(t.getUniqueId()); });
-    if (c) c.put('TRIG_UIDS', JSON.stringify(list), 600);
-    return list.indexOf(uid) !== -1;
-  } catch (x) { return false; }
+  var list = null; try { var raw = c && c.get('TRIG_UIDS'); if (raw) { var o = JSON.parse(raw); list = Array.isArray(o) ? o : null; } } catch (x) {}
+  if (list && list.indexOf(uid) !== -1) return 1;   // 기억해 둔 목록에서 맞음
+  var mk = 'TRIG_READS_' + Math.floor(Date.now() / 60000), cnt = 0;
+  try { cnt = Number(c && c.get(mk)) || 0; } catch (x) {}
+  if (cnt >= 5) return _trigKnown_(uid);   // [TRIG_LIST_KNOWN] 이번 1분에 많이 읽었다 — 알던 목록으로
+  try { if (c) c.put(mk, String(cnt + 1), 120); } catch (x) {}
+  try { list = ScriptApp.getProjectTriggers().map(function (t) { return String(t.getUniqueId()); }); }
+  catch (x) { return _trigKnown_(uid); }   // 못 읽었다(구글 쪽 일시 실패) — 알던 목록으로
+  try { if (c) c.put('TRIG_UIDS', JSON.stringify(list), 600); } catch (x) {}   // 기억이 실패해도 판정은 그대로(따로 try)
+  _trigKnownAdd_(list);
+  return list.indexOf(uid) !== -1 ? 2 : 0;
+}
+function _trigKnown_(uid) {   // [TRIG_LIST_KNOWN] 1 알던 목록에 있음 · 0 없음 · -1 아는 목록이 없음
+  try { var k = JSON.parse(PropertiesService.getScriptProperties().getProperty('TRIG_UIDS_KNOWN') || 'null'); if (Array.isArray(k) && k.length) return k.indexOf(uid) !== -1 ? 1 : 0; } catch (x) {}
+  return -1;
+}
+function _trigKnownAdd_(list) {   // [TRIG_LIST_KNOWN] 진짜로 읽은 아이디만 더한다(최근 60개)
+  try {
+    var P = PropertiesService.getScriptProperties(), k = JSON.parse(P.getProperty('TRIG_UIDS_KNOWN') || '[]'); if (!Array.isArray(k)) k = [];
+    var add = (list || []).filter(function (u) { return k.indexOf(u) === -1; }); if (!add.length) return;
+    P.setProperty('TRIG_UIDS_KNOWN', JSON.stringify(k.concat(add).slice(-60)));
+  } catch (x) {}
 }
 function _trigMark_(key, val) {   // 같은 표는 6시간에 한 번만 적는다(매분 도는 warmAvailCache)
   try { var c = CacheService.getScriptCache(); if (c.get('TM_' + key)) return; c.put('TM_' + key, '1', 21600); } catch (x) {}
@@ -1984,6 +2013,9 @@ function setupAllTriggers() { _requireAdmin();
     else b.everyDays(1).atHour(p.hour).create();
     out.push((p.minutes ? ('매 ' + p.minutes + '분') : (p.weekly ? ('매주 월 ' + p.hour + '시') : ('매일 ' + p.hour + '시'))) + ' · ' + p.label + ' (' + p.fn + ')');
   });
+  // [TRIG_LIST_KNOWN 2026-10-09 점검] 새 아이디를 바로 알아보게 — 기억해 둔 목록을 비우고 알던 목록에 더한다
+  try { CacheService.getScriptCache().remove('TRIG_UIDS'); } catch (x) {}
+  try { _trigKnownAdd_(ScriptApp.getProjectTriggers().map(function (t) { return String(t.getUniqueId()); })); } catch (x) {}
   var msg = '트리거 ' + plan.length + '개 설치 완료\n' + out.join('\n');
   Logger.log(msg);
   return msg;

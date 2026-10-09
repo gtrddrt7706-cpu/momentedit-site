@@ -636,6 +636,7 @@ function _nfAdminText(event, code, x) { _gsr_();
 
 // 1) 설정 점검 — 발송 없이 현재 설정 상태만 로그로 출력 (실행 후 Ctrl+Enter 로그 확인)
 function notifySetupCheck() {
+  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
   var cfg = _nfProps_();
   Logger.log('NOTIFY_ENABLED = ' + _notifyEnabled());
   Logger.log('SOLAPI_API_KEY = ' + (cfg.key ? '설정됨(' + cfg.key.slice(0, 4) + '…)' : '❌ 없음'));
@@ -1317,8 +1318,7 @@ function _errWho() { _gsr_();   // 개인코드만 — 로그인 토큰 → 하�
 function _errRecord(act, ec, text, why, eid, extra) { _gsr_();   // [ERR_CODE_GAS] 오류기록 시트 한 줄 · 같은 실패(사람 · 동작 · 코드 · 글)는 10분에 한 줄 · 사고번호가 있으면 늘 남긴다
   try {
     /* ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 이 시트는 고객 DB 와 같은 파일이다 — 밖에서 온 글이 «수식»으로 들어가면 안 된다.
-       종전엔 «동작» 칸만 `_deFormula` 를 안 거쳤고, doPost 는 모르는 동작 이름을 그대로 여기 적었다(X3 · 인증 없이 누구나).
-       그래서 `{"action":"=IMAGE(…&다른탭!D2)"}` 한 번이면 고객 DB 파일 안에 바깥 주소를 부르는 수식이 박혔다.
+       [PUB_RULES_ONLY 2026-10-09] 공개 저장소라 주석에는 규칙만 적는다 — 어느 칸이든 밖에서 온 글은 수식이 되지 못하게 한다.
        ①동작 이름은 안전한 글자만(영숫자 _ : . -) · 아니면 «(모름)»과 «?»로 바꾼 꼴 ②모든 칸을 수식 막기로 ③고객이 본 글 · 내부 까닭은
        전화 · 메일 · 긴 숫자를 가린다(`_maskPII`) ④모르는 동작으로 시트를 채워 진짜 기록을 밀어내지 못하게 시간당 20줄까지만 */
     var a = String(act == null || act === '' ? '(없음)' : act);

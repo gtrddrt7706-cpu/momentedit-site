@@ -16310,7 +16310,7 @@ nochk 'Admin·ScreenA' automation/platform/99_deployCheck.gs
 nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
 if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi
 # ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 오류기록(고객 DB 와 같은 파일)에 밖의 글이 수식 · 개인정보로 들어가지 않게 — 동작 이름 안전 글자 · 모든 칸 수식 막기 · 가림 · 모르는 동작 시간당 20줄
-#   옛 판은 인증 없이 `{"action":"=IMAGE(…&다른탭!D2)"}` 로 고객 DB 파일에 바깥 주소를 부르는 수식을 박을 수 있었다(옛 판으로 돌리면 err-log-safe 가 빨강 · 실측)
+#   규칙: 오류기록의 어느 칸도 수식으로 읽히지 않는다 · 동작 이름은 안전 글자만 · 모르는 동작은 시간당 20줄까지(err-log-safe 가 행동으로 잰다 · 되돌리면 빨강)
 chk 'ERR_LOG_SAFE' automation/platform/95_notify.gs 3
 nochk "String(act || '(없음)').slice(0, 40)" automation/platform/95_notify.gs
 chk 'ERR_LOG_SAFE' scripts/audit/err-log-safe.mjs 1
@@ -16341,6 +16341,69 @@ chk '^function mailButtonGo(p) { _SRV = true;' automation/consultation/consultat
 # ★[SIG_FLIP_SURE 2026-10-09] 잠금 검사의 «틀린 서명»은 첫 글자를 반드시 다른 글자로 — 'x' 로 덮으면 서명이 x 로 시작할 때(약 64번에 한 번) 맞는 서명과 같아져 까닭 없이 붉다(#1148 첫 CI)
 chk 'SIG_FLIP_SURE' scripts/audit/gsr-guard.mjs 1
 nochk "'x' + [a-zA-Z]*[sS]ig.slice(1)" scripts/audit/gsr-guard.mjs
+# ★[OWNER_MEMO 2026-10-09 점검] 편집기 실행의 소유자 확인은 한 실행에 한 번 — Session 을 묻는 곳은 admin.gs 의 _activeEmail_ 하나
+chk 'OWNER_MEMO' automation/admin/admin.gs 2
+nochk 'Session.getActiveUser' automation/admin/admin.gs 1
+# ★[MAIL_BOX_STEADY 2026-10-09 점검] 메일 확인 화면 · 결과 · 취소 화면 카드 폭 하나(486) · 설명 세 줄 자리 · 끝난 결과는 단추 자리를 남긴 채 감춘다(mail-page 가 행동으로 잰다)
+chk 'MAIL_BOX_STEADY' automation/consultation/consultation-booking.gs 4
+chk "'.box{width:100%;box-sizing:border-box;max-width:486px;" automation/consultation/consultation-booking.gs 4
+nochk "'.box{max-width:4" automation/consultation/consultation-booking.gs
+# ★[MAIL_FAIL_WORDS 2026-10-09 점검] 메일 단추 실패 글 — 받는 사람 말 · 코드(B · P) · 단추 되살리기 · 오류 원문은 오류기록에만(gsr-guard 가 행동으로도 잰다)
+chk 'MAIL_FAIL_WORDS' automation/consultation/consultation-booking.gs 3
+chk 'b.disabled=false;b.textContent=L;' automation/consultation/consultation-booking.gs 1
+nochk 'txt((e&&e.message)||e)' automation/consultation/consultation-booking.gs
+# ★[PUB_RULES_ONLY 2026-10-09 점검] 공개 저장소 — 주석 · deploy-marks why · CLAUDE.md 에는 규칙만(무엇이 어떻게 열려 있었나는 비공개 docs 에만)
+chk 'PUB_RULES_ONLY' automation/platform/95_notify.gs 1
+# 지운 설명 문장이 되살아나지 않게 — 문장 원문 대신 해시로 잰다(원문을 이 파일에 싣지 않는다)
+if command -v node >/dev/null 2>&1; then node scripts/audit/pub-rules.mjs >/dev/null 2>&1 || { echo 'REVERT? pub-rules: 공개 면에 지운 설명 문장이 되살아났다 — node scripts/audit/pub-rules.mjs'; fail=1; }; fi
+chk 'PUB_RULES_ONLY' scripts/audit/pub-rules.mjs 1
+# ★[DIAG_OWNER_ONLY 2026-10-09 점검] 편집기 진단 6개는 첫 줄에서 소유자만 — 공개 화면에서 돌지 않게(admin.gs 가 없는 판에서도 진단은 돈다 · gsr-guard 가 행동으로도 잰다)
+chk 'DIAG_OWNER_ONLY' automation/platform/99_deployCheck.gs 2
+chk 'DIAG_OWNER_ONLY' automation/platform/99_contractCheck.gs 2
+chk 'DIAG_OWNER_ONLY' automation/platform/95_notify.gs 1
+chk 'DIAG_OWNER_ONLY' automation/platform/10_customers-setup.gs 1
+# ★[AUTHED_RESTORE 2026-10-09 점검] 관리자 권한 창은 «이전 값»으로 닫는다(adminCall · morningBriefData_ · gsr-guard 의 AUTHED_RESTORE)
+chk 'AUTHED_RESTORE' automation/admin/admin.gs 2
+chk 'AUTHED_RESTORE' scripts/audit/gsr-guard.mjs 1
+# ★[OWNER_SELF 2026-10-09 사장님 deployCheck 로그] 편집기 소유자 = 서버 길 밖 · 실행한 사람 = 권한 주인(목록에 없는 편집기 계정도 지난다) · 서버 길 안은 토큰 · 서명만(gsr-guard 가 행동 · 돌연변이로 잰다)
+chk 'OWNER_SELF' automation/admin/admin.gs 5
+chk 'OWNER_SELF' scripts/audit/gsr-guard.mjs 3
+chk 'OWNER_SELF' scripts/audit/gas-lint.mjs 2
+chk '  if (!_SRV) { var e = _activeEmail_();' automation/admin/admin.gs 1
+# ★[OWNER_FIRST_ASK 2026-10-09 라운드 2] 소유자인가는 한 실행에서 처음 물을 때 정한다 — 편집기 도구가 안에서 입구 함수를 불러도 끝까지 소유자 실행(gsr-guard 가 행동 · 돌연변이로 잰다)
+chk 'OWNER_FIRST_ASK' automation/admin/admin.gs 2
+chk "if (typeof _OWNER_RUN === 'boolean') return _OWNER_RUN;" automation/admin/admin.gs 1
+nochk 'Session.getEffectiveUser' automation/admin/admin.gs 1
+nochk '소유자 목록에 없어요' automation/admin/admin.gs
+# ★[STAMP_TRIG_ONE 2026-10-09 라운드 2] deployStampCheck 의 예약 실행 확인은 OK 하나 또는 «아직» 하나 · 덧줄은 따로(deploycheck-sim 5-B 가 잰다)
+chk 'STAMP_TRIG_ONE' automation/platform/99_deployCheck.gs 2
+chk 'STAMP_TRIG_ONE' scripts/audit/deploycheck-sim.mjs 2
+# ★[MAIL_PAGE_CHECK 2026-10-09 라운드 2] 메일 단추 확인 · 결과 화면 — 고객 글 escape(HTML_ESC_NAMES) · 허락한 꼴만 그리기(MAIL_SHOW_SAFE) · 다시 누를 수 있는 실패는 단추 되살림(MAIL_RETRY) · 5/6/7 가르기(MAIL_FAIL_KIND)
+chk 'HTML_ESC_NAMES' automation/consultation/consultation-booking.gs 8
+chk 'MAIL_SHOW_SAFE' automation/consultation/consultation-booking.gs 1
+chk 'MAIL_RETRY' automation/consultation/consultation-booking.gs 5
+chk 'MAIL_FAIL_KIND' automation/consultation/consultation-booking.gs 1
+nochk 'innerHTML=r.body' automation/consultation/consultation-booking.gs
+chk 'MAIL_PAGE_CHECK' scripts/audit/mail-page.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/mail-page.mjs >/dev/null 2>&1; _mp=$?; if [ "$_mp" != 0 ]; then echo "REVERT? mail-page($_mp): 메일 단추 확인 · 결과 화면이 고객 글을 그대로 그리거나 단추 · 실패 코드가 어긋난다 — node scripts/audit/mail-page.mjs (2 = 재지 못함도 빨강)"; fail=1; else echo 'ok mail-page: 결과 글 escape · 허락한 꼴만 · 단추 자리 · 되살리기 · 5/6/7'; fi; fi
+# ★[LOCK_REREAD 2026-10-09 라운드 2] 승인 · 수락은 잠금을 잡은 뒤 같은 예약을 다시 읽어 판단 · 잠금을 풀기 전 flush · 수락도 잠금을 못 잡으면 진행하지 않는다
+chk 'LOCK_REREAD' automation/consultation/consultation-booking.gs 4
+nochk 'catch (eL) { _acLock = null; }' automation/consultation/consultation-booking.gs
+# ★[BTN_SAFE_ARGS 2026-10-09 라운드 2] 메일 단추 처리는 밖에서 온 값을 글자 · 숫자만 받고, 서명을 확인한 처리의 오류만 오류기록에 남긴다(gsr-guard 가 행동으로 잰다)
+chk 'BTN_SAFE_ARGS' automation/consultation/consultation-booking.gs 5
+# ★[TRIG_LIST_KNOWN · TRIG_MISS_QUIET 2026-10-09 라운드 2] 예약 실행 아이디 — 목록을 못 읽으면 알던 목록으로 · 새로 읽기 1분 5번 · «목록에 없음» 기록은 배우기 전에만 · 영숫자만(gsr-guard 가 행동 · 돌연변이로 잰다)
+chk 'TRIG_LIST_KNOWN' automation/platform/70_journey.gs 4
+chk 'TRIG_MISS_QUIET' automation/platform/70_journey.gs 2
+chk 'TRIG_LIST_KNOWN' automation/platform/99_deployCheck.gs 1
+chk 'TRIG_MISS_QUIET' automation/platform/99_deployCheck.gs 1
+# ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
+chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
+chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/purge-chain.mjs >/dev/null 2>&1; _pcg=$?; if [ "$_pcg" != 0 ]; then echo "FAIL purge-chain($_pcg): 주간 정리가 매단 개인정보 파기를 건너뛴다 · 2 = 재지 못함 — node scripts/audit/purge-chain.mjs"; fail=1; else echo "ok purge-chain ($_pcg)"; fi; fi   # [PURGE_CHAIN_ALWAYS]
+# ★[TRIG_IN_WHY 2026-10-09 점검] 예약 실행 확인 기록에 그때 메일(가린 꼴) · 목록에 없는 아이디는 TRIG_UID_MISS · 목록 읽기 일시 실패는 막지 않음(gsr-guard 가 행동으로 잰다)
+chk 'TRIG_IN_WHY' automation/platform/70_journey.gs 4
+chk 'TRIG_IN_WHY' automation/platform/99_deployCheck.gs 1
+chk 'TRIG_UID_MISS' scripts/gen-deploy-fns.mjs 1
 nochk '^function setAdminAccount([^)]*) {$' automation/admin/admin.gs
 if command -v node >/dev/null 2>&1; then node scripts/audit/gsr-guard.mjs >/dev/null 2>&1; _gsg=$?; if [ "$_gsg" != 0 ]; then echo "FAIL gsr-guard($_gsg): 공개 입구 잠금이 빠졌다 · 2 = 재지 못함(브라우저가 필요 없는 검사라 2 도 빨강) — node scripts/audit/gsr-guard.mjs"; fail=1; else echo "ok gsr-guard ($_gsg)"; fi; fi   # [B19_LOCK]
 # ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]

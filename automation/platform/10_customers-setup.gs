@@ -187,6 +187,7 @@ function formatCustomersSheet() { _requireAdmin();
 //   특히 '원본폴더ID'는 CUSTOMER_HEADERS에 아예 없어서, 시트에는 있는데 코드에는 없는 상태가 정상적으로 발생한다.
 //   그래서 리터럴을 고칠 때는 추측하지 말고 이 진단의 출력을 그대로 기준으로 삼는다.
 function checkCustomerHeaderOrder() {
+  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
   var sheet = SpreadsheetApp.getActive().getSheetByName(P.CUSTOMERS_SHEET);
   if (!sheet) { Logger.log('시트 없음: ' + P.CUSTOMERS_SHEET); return { ok: false, error: '시트 없음' }; }
 

@@ -17,6 +17,8 @@
 //   9) 행동: 익명이면 운영 도우미가 «허용되지 않은 요청»으로 막힌다 · 예약 실행 확인(아이디 · 편집 이벤트 · 소유자 · 배우기 전 · 배운 뒤)
 //      · 토큰 없는 adminCall 은 _AUTHED 가 켜져 있어도 FNS 를 안 돈다 · doPost(action=adminCall) 도 같다
 //  10) 돌연변이: 문을 활짝 열거나(_gsr_ · _trigIn_ 이 다 통과) 한 줄을 빼면 빨강이 되는지
+//  11) [OWNER_SELF] 편집기 소유자 = 서버 길 밖 · 실행한 사람과 권한 주인이 같은 실행(목록에 없는 편집기 계정도 지난다)
+//      · 웹 앱 화면의 다른 계정 · 익명 · 권한 주인을 못 읽음은 막힌다 · 서버 길 안에서는 소유자 신원으로도 토큰 없이 못 지난다 · 돌연변이 셋
 //
 // 종료: 0 통과 · 1 빨강 · 2 재지 못함(브라우저가 필요 없는 검사라 merge-guard 는 2 도 빨강으로 친다)
 import { makeSandbox, loadGas } from './gas-lint.mjs';
@@ -24,7 +26,7 @@ import { makeSandbox, loadGas } from './gas-lint.mjs';
 const RENAMED = ['getSecret', 'sign', 'verifySig', 'actionUrl', 'cancelPageUrl', 'makeResetSig', 'verifyResetSig',
   '_nfPayConfirmAction', '_payCfg', '_nfProps', '_vcCfg', '_depositCardConfirm', 'morningBriefData', 'monthBusinessData',
   'sendConfirmEmail', 'sendCancelEmail', 'sendSignupEmail', 'sendFindCodeEmail', 'sendFindCodeKakao', 'sendResetPwEmail',
-  '_kakaoSend', '_nfCustomerEmailFallback', '_ltSendToRecipients'];
+  '_kakaoSend', '_nfCustomerEmailFallback', '_ltSendToRecipients', '_resolveAdmin'];   // _resolveAdmin = 둘째 조각에서 밑줄 안쪽으로(토큰 → 관리자)
 
 // 관리 화면만 부르는 함수 · 그 안쪽 · 편집기(소유자) 도구 — 첫 문장이 _requireAdmin() 이어야 한다
 const LOCKED = `adminFittingDoc _setContactCore _adminIssueCashReceiptCore _adminUndoCashReceiptCore _undoConfirmCore _adminLock _resultLinkCheck _clearForwardData _resetConsultBooking _rbCalRetitle _adminUndoRefundedCore _adminMarkRefundedCore
@@ -46,7 +48,9 @@ const ENTRY = ['doGet', 'doPost', 'submitApplication', 'submitSchedule', 'submit
 const OPEN = ['deployCheck', 'deployStampCheck', 'contractCheck', 'contractCheckHelp', 'notifySetupCheck', 'checkCustomerHeaderOrder', 'sendMorningBrief', '_requireAdmin'];
 // `_AUTHED = true` 를 써도 되는 곳 — 토큰 · 서명 · 토스 승인 · 예약 실행을 확인한 뒤에만
 const AUTHED_OK = ['adminCall', 'morningBriefData_', '_payConfirmRun_', 'handleCardConfirm'];   // [MAIL_BTN_CONFIRM] 메일 단추의 처리는 단추를 누른 뒤(_payConfirmRun_)
-const AUTHED_RESTORE = ['_payConfirmRun_', 'handleCardConfirm'];
+const AUTHED_RESTORE = ['_payConfirmRun_', 'handleCardConfirm', 'adminCall', 'morningBriefData_'];   // [AUTHED_RESTORE] 창은 «이전 값»으로 닫는다
+// [DIAG_OWNER_ONLY] 편집기 진단 — 첫 줄에서 소유자가 아니면 돌려보낸다(공개 화면에서 돌지 않게 · admin.gs 가 없으면 진단은 돈다)
+const DIAG = ['deployCheck', 'deployStampCheck', 'contractCheck', 'contractCheckHelp', 'notifySetupCheck', 'checkCustomerHeaderOrder'];
 
 const errs = [];
 const bad = (m) => errs.push(m);
@@ -91,6 +95,10 @@ function staticChecks(src) {
     const s = src[n] || '';
     if (!/finally\s*\{[^}]*_AUTHED\s*=\s*_authPrev/.test(s)) out.push(`_AUTHED: ${n} 이 finally 에서 창을 닫지 않는다`);
   }
+  for (const n of DIAG) {
+    const m = /^function\s+[\w$]+\s*\([^)]*\)\s*\{\s*([^\n]*)/.exec(src[n] || '');
+    if (!m || !/^if \(typeof _isOwnerRun_ === 'function' && !_isOwnerRun_\(\)\)/.test(m[1])) out.push(`진단: ${n} 의 첫 줄이 «소유자만»(_isOwnerRun_) 이 아니다 [DIAG_OWNER_ONLY]`);
+  }
   // ── 둘째 조각 [GSR_GATE] — 모든 공개 함수의 첫 줄 ──
   const head = (s) => { const m = /^function\s+[\w$]+\s*\([^)]*\)\s*\{\s*([^;\n]*)/.exec(s || ''); return m ? m[1] : ''; };
   for (const [n, s] of Object.entries(src)) {
@@ -120,7 +128,10 @@ for (const m of staticChecks(SRC)) bad(m);
 
 // ── 행동 ──
 const OWNER = 'side.minds.1616@gmail.com';
-const setEmail = (e) => { G.Session = Object.assign({}, G.Session, { getActiveUser: () => ({ getEmail: () => e }) }); };
+const SELF_EDITOR = 'boss@momentedit.test';   // [OWNER_SELF] 목록에 없는 편집기 계정
+const DEPLOYER = 'owner@sim.test';   // [OWNER_SELF] 웹 앱 화면은 배포한 계정의 권한으로 돈다
+// setEmail(e) = 웹 앱 화면을 연 사람 e(권한 주인은 배포한 계정) · setEmail(e, e) = e 가 편집기에서 직접 돌린 실행
+const setEmail = (e, eff = DEPLOYER) => { G._ACTIVE_EMAIL = null; G._EFFECTIVE_EMAIL = null; G._OWNER_RUN = null; G.Session = Object.assign({}, G.Session, { getActiveUser: () => ({ getEmail: () => e }), getEffectiveUser: () => ({ getEmail: () => eff }) }); };   // [OWNER_MEMO] 한 실행 안 기억을 지우고 바꾼다
 const blocked = (fn) => { try { fn(); return false; } catch (e) { return /관리자 전용/.test(String(e && e.message)); } };
 G._AUTHED = false;
 setEmail('');                       // 공개 화면(익명) — 메일이 빈 글
@@ -182,9 +193,114 @@ const wrongSig = (s) => { const w = (s[0] === 'A' ? 'B' : 'A') + s.slice(1); if 
   acts = [];
   G.mailButtonGo({ action: 'approve', token: tok, sig: wrongSig(aSig) });
   if (acts.length) bad('메일 단추: 틀린 서명으로 승인이 처리됐다');
+  // [MAIL_FAIL_WORDS] 예상 못 한 오류 — 원문 대신 받는 사람 말 + 코드(B9 · P9) · 고객 단추(수락)에 «관리자 페이지»가 나오면 안 된다
+  G.actAccept = () => { throw new Error('accept boom'); };
+  const r4 = G.mailButtonGo({ action: 'accept', token: tok, sig: cSig });
+  if (!(r4 && r4.ok === false && /\(코드 B9/.test(r4.body || '') && !/관리자 페이지/.test(r4.body || '') && !/accept boom/.test(r4.body || ''))) bad('메일 단추: 고객 단추(수락)의 실패 글이 고객 말 · 코드(B9)가 아니거나 오류 원문이 보인다');
+  G._adminConfirmMidCore = () => { throw new Error('core boom'); };
+  const r5 = G.mailButtonGo({ action: 'payconfirm', code: 'ME0001', m: 'mid', exp, sig });
+  if (!(r5 && r5.ok === false && /\(코드 P9/.test(r5.body || '') && !/core boom/.test(r5.body || ''))) bad('메일 단추: 입금 확인 단추의 실패 글에 코드(P9)가 없거나 오류 원문이 보인다');
+  // [BTN_SAFE_ARGS] 서명 없는 이상한 값(글자로 바꾸다 던지는 꼴)은 오류기록 · 경보 메일 없이 거절 · 서명한 처리에서 난 오류는 한 번만 기록
+  { const realRec = G._errRecord; let recs = 0; G._errRecord = () => { recs++; };
+    const rz = G.mailButtonGo({ action: 'accept', token: { toString: 1 }, sig: { toString: 1 } });
+    if (!(rz && rz.ok === false) || recs) bad('메일 단추: 서명 없는 이상한 값이 오류기록을 남기거나 거절되지 않는다(밖에서 오류기록 · 경보 메일을 만들 수 있다)');
+    recs = 0; G.mailButtonGo({ action: { toString: 1 } }); if (recs) bad('메일 단추: 이상한 action 값이 오류기록을 남긴다');
+    G.actAccept = () => { throw new Error('accept boom'); }; recs = 0;
+    const rs = G.mailButtonGo({ action: 'accept', token: tok, sig: cSig });
+    if (recs !== 1) bad('메일 단추: 서명한 처리에서 난 오류를 정확히 한 번 기록하지 않는다(' + recs + '번)');
+    if (!(rs && rs.retry === true)) bad('메일 단추: 예상 못 한 오류(9)인데 단추를 되살리라는 표(retry)가 없다 [MAIL_RETRY]');
+    G._adminConfirmMidCore = () => { throw new Error('core boom'); }; recs = 0;
+    G.mailButtonGo({ action: 'payconfirm', code: 'ME0001', m: 'mid', exp, sig });
+    if (recs !== 1) bad('메일 단추: 서명한 입금 확인 처리에서 난 오류를 정확히 한 번 기록하지 않는다(' + recs + '번)');
+    G._errRecord = realRec; }
+  // [MAIL_RETRY] 입금 확인이 몰려(잠금 못 잡음) 실패하면 다시 누를 수 있게
+  { const realLS = G.LockService; G.LockService = { getScriptLock: () => ({ waitLock() { throw new Error('busy'); }, tryLock: () => false, releaseLock() {}, hasLock: () => false }) };
+    G._adminConfirmMidCore = () => ({ ok: true });
+    const rb = G.mailButtonGo({ action: 'payconfirm', code: 'ME0001', m: 'mid', exp, sig });
+    if (!(rb && rb.ok === false && rb.retry === true && /\(코드 P1\)/.test(rb.body || ''))) bad('메일 단추: 몰림(P1) 실패에 단추를 되살리라는 표(retry)나 코드가 없다');
+    G.LockService = realLS; }
   for (const k of Object.keys(keep)) G[k] = keep[k];
   G._SRV = false; G._AUTHED = false;
 }
+
+// [AUTHED_RESTORE] 행동 — 관리자 권한 창은 «이전 값»으로 닫는다(바깥 창이 열려 있었으면 열린 채로)
+{
+  const realFL = G.aiFactsList, realHome = G.adminHome; let seen = null;
+  G.aiFactsList = () => { seen = G._AUTHED; return { ok: true }; };
+  G.adminHome = () => { seen = G._AUTHED; return { ok: false }; };
+  for (const outer of [false, true]) {
+    G._SRV = false; G._TRUST = false; G._AUTHED = outer; setEmail(SELF_EDITOR, SELF_EDITOR); seen = null;
+    try { G.adminCall('', 'aiFactsList', []); } catch (e) {}
+    if (seen !== true) bad('AUTHED_RESTORE: adminCall 안에서 관리자 창이 열리지 않았다');
+    if (G._AUTHED !== outer) bad(`AUTHED_RESTORE: adminCall 뒤 관리자 창이 이전 값(${outer})으로 닫히지 않았다`);
+    G._AUTHED = outer; seen = null;
+    try { G.morningBriefData_(); } catch (e) {}
+    if (seen !== true) bad('AUTHED_RESTORE: morningBriefData_ 안에서 관리자 창이 열리지 않았다');
+    if (G._AUTHED !== outer) bad(`AUTHED_RESTORE: morningBriefData_ 뒤 관리자 창이 이전 값(${outer})으로 닫히지 않았다`);
+  }
+  G.aiFactsList = realFL; G.adminHome = realHome; G._AUTHED = false; setEmail('');
+}
+
+// [DIAG_OWNER_ONLY] 행동 — 익명(공개 화면)이면 진단 6개가 첫 줄에서 돌아간다 · 소유자(편집기)면 그 문을 지난다
+{
+  G._SRV = false; G._TRUST = false; G._AUTHED = false; setEmail('');
+  for (const n of DIAG) { let r; try { r = G[n](); } catch (e) { r = 'THROW ' + (e && e.message); } if (!/편집기 전용 진단/.test(String(r))) bad(`진단: 익명 실행에서 ${n} 이 돌아간다(편집기 전용이어야)`); }
+  setEmail(OWNER); let r2; try { r2 = G.contractCheckHelp(); } catch (e) { r2 = 'THROW'; } if (/편집기 전용 진단/.test(String(r2))) bad('진단: 소유자(편집기)인데 contractCheckHelp 가 막힌다');
+  setEmail('');
+}
+
+// [OWNER_SELF] 행동 — 편집기 소유자는 «서버 길 밖 · 자기 권한»으로 알아본다(목록에 없는 편집기 계정도) · 서버 길 안은 토큰만
+const SELF = 'boss@momentedit.test';   // 목록에 없는 편집기 계정(사장님 편집기 계정이 그랬다)
+function ownerChecks() {
+  const out = [];
+  const PPo = () => G.PropertiesService.getScriptProperties();
+  const reset = () => { G._SRV = false; G._TRUST = false; G._AUTHED = false; setEmail(''); };
+  const msgOf = (fn) => { try { fn(); return ''; } catch (e) { return String((e && e.message) || e); } };
+  // ① 편집기 — 목록에 없어도 실행한 사람 = 권한 주인이면 지난다
+  reset(); setEmail(SELF, SELF);
+  if (msgOf(() => G._requireAdmin())) out.push('소유자: 목록에 없는 편집기 계정이 _requireAdmin 에서 막힌다(자기 권한 실행인데)');
+  if (msgOf(() => G._gsr_())) out.push('소유자: 목록에 없는 편집기 계정이 _gsr_ 에서 막힌다');
+  { let r = ''; try { r = String(G.contractCheckHelp()); } catch (e) { r = '편집기 전용 진단'; } if (/편집기 전용 진단/.test(r)) out.push('소유자: 목록에 없는 편집기 계정이 진단(contractCheckHelp)에서 막힌다'); }
+  try { PPo().setProperty('TRIG_UID_OK', 'sim'); } catch (e) {}
+  reset(); setEmail(SELF, SELF); if (msgOf(() => G._trigIn_(undefined))) out.push('소유자: 배운 뒤 목록에 없는 편집기 계정의 직접 실행을 _trigIn_ 이 막는다');
+  // ② 웹 앱 화면의 다른 계정 · 익명 — 막힌다(배운 뒤 _trigIn_ 포함)
+  for (const who of ['staff@momentedit.test', '']) {
+    reset(); setEmail(who);
+    if (!/관리자 전용/.test(msgOf(() => G._requireAdmin()))) out.push(`소유자: 웹 앱 화면의 «${who || '익명'}» 이 _requireAdmin 을 지난다`);
+    if (!/허용되지 않은 요청/.test(msgOf(() => G._gsr_()))) out.push(`소유자: 웹 앱 화면의 «${who || '익명'}» 이 _gsr_ 를 지난다`);
+    if (!/허용되지 않은 요청/.test(msgOf(() => G._trigIn_(undefined)))) out.push(`소유자: 웹 앱 화면의 «${who || '익명'}» 이 배운 뒤 _trigIn_ 을 지난다`);
+    { let r = ''; try { r = String(G.contractCheckHelp()); } catch (e) { r = 'THROW'; } if (!/편집기 전용 진단/.test(r)) out.push(`소유자: 웹 앱 화면의 «${who || '익명'}» 이 진단을 돌린다`); }
+  }
+  try { PPo().deleteProperty('TRIG_UID_OK'); PPo().deleteProperty('TRIG_PROBE'); PPo().deleteProperty('TRIG_UID_MISS'); } catch (e) {}
+  // ③ 권한 주인을 못 읽으면 닫힌다(목록에 없는 계정) · 그때는 어느 계정인지 가린 꼴로 알린다
+  reset(); G._ACTIVE_EMAIL = null; G._EFFECTIVE_EMAIL = null;
+  G.Session = Object.assign({}, G.Session, { getActiveUser: () => ({ getEmail: () => SELF }), getEffectiveUser: () => { throw new Error('읽기 실패'); } });
+  { const m = msgOf(() => G._requireAdmin()); if (!/관리자 전용/.test(m)) out.push('소유자: 권한 주인을 못 읽었는데 목록에 없는 계정이 지난다(닫혀야 한다)'); else if (!/b…@momentedit\.test\)을 소유자로 확인하지 못했어요/.test(m)) out.push('소유자: 편집기에서 막힐 때 가린 계정 한 줄이 안 붙는다 — ' + m); }
+  // ⑤ [OWNER_FIRST_ASK] 편집기 도구가 첫 줄에서 물은 뒤 안에서 입구 함수를 불러 _SRV 가 켜져도 끝까지 소유자 실행이다
+  reset(); setEmail(SELF, SELF); msgOf(() => G._gsr_()); G._SRV = true;
+  if (msgOf(() => G._requireAdmin())) out.push('소유자: 편집기 도구가 안에서 입구 함수를 부른 뒤(_SRV) _requireAdmin 이 막힌다 — 처음 물음에 정해야 한다');
+  // ⑥ 기억 칸의 처음 값이 비어 있어도(빈 선언) 한 번은 묻는다
+  reset(); G._ACTIVE_EMAIL = undefined; G._EFFECTIVE_EMAIL = undefined; G._OWNER_RUN = undefined;
+  G.Session = Object.assign({}, G.Session, { getActiveUser: () => ({ getEmail: () => SELF }), getEffectiveUser: () => ({ getEmail: () => SELF }) });
+  if (msgOf(() => G._gsr_())) out.push('소유자: 기억 칸의 처음 값이 비어 있으면(빈 선언) 편집기 계정이 막힌다');
+  // ④ 서버 길 안 — 소유자 신원이어도 토큰 없이는 못 지난다 · 덧말도 안 붙는다
+  const realFL = G.aiFactsList; let ran = 0;
+  G.aiFactsList = () => { ran++; return { ok: true }; };
+  for (const [who, eff] of [[DEPLOYER, DEPLOYER], [OWNER, DEPLOYER], [SELF, SELF]]) {
+    reset(); setEmail(who, eff); G._SRV = true;
+    const m = msgOf(() => G._requireAdmin());
+    if (!/관리자 전용/.test(m)) out.push(`서버 길: 소유자 신원(${who})이면 _requireAdmin 을 토큰 없이 지난다`);
+    else if (/지금 계정/.test(m)) out.push('서버 길: 관리 화면 요청의 «로그인이 필요» 글에 계정 덧말이 붙는다');
+    if (!/관리자 전용/.test(msgOf(() => G._adminTokenCheck_('')))) out.push(`서버 길: 소유자 신원(${who})이면 _adminTokenCheck_ 를 토큰 없이 지난다`);
+    try { G.adminCall('', 'aiFactsList', []); } catch (e) {}
+    reset(); setEmail(who, eff);
+    try { G.doPost({ parameter: {}, postData: { type: 'application/json', contents: JSON.stringify({ action: 'adminCall', token: '', fn: 'aiFactsList', args: [] }) } }); } catch (e) {}
+  }
+  if (ran) out.push(`서버 길: 소유자 신원으로 토큰 없이 FNS 가 ${ran}번 돌았다(adminCall · doPost)`);
+  G.aiFactsList = realFL; reset();
+  return out;
+}
+for (const m of ownerChecks()) bad(m);
 
 // ── 둘째 조각 행동 [GSR_GATE] ──
 const HELPERS = Object.keys(SRC).filter((n) => !n.endsWith('_') && /^function\b/.test(SRC[n]) && /^function\s+[\w$]+\s*\([^)]*\)\s*\{\s*_gsr_\(\)/.test(SRC[n]));
@@ -204,19 +320,44 @@ function gateChecks(list) {
   reset(); setEmail(OWNER); try { G._gsr_(); } catch (e) { out.push('행동: 소유자(편집기)인데 _gsr_ 가 막는다'); }
   // 예약 실행 확인
   const realST = G.ScriptApp;
+  const clr = () => { for (const k of ['TRIG_UID_OK', 'TRIG_PROBE', 'TRIG_UID_MISS', 'TRIG_UIDS_KNOWN', 'TRIG_LIST_FAIL']) { try { PP().deleteProperty(k); } catch (e) {} } };
   G.ScriptApp = { getProjectTriggers: () => [{ getUniqueId: () => 'U1' }] };
-  try { PP().deleteProperty('TRIG_UID_OK'); PP().deleteProperty('TRIG_PROBE'); } catch (e) {}
+  clr();
   reset(); try { G._trigIn_({}); if (G._TRUST !== true) out.push('예약 실행: 배우기 전에는 막지 않아야 한다(_TRUST 가 안 켜졌다)'); } catch (e) { out.push('예약 실행: 배우기 전인데 막았다 — 확인 전에 막으면 아침 보고 · 알림이 멈춘다'); }
   if (!PP().getProperty('TRIG_PROBE')) out.push('예약 실행: 배우기 전 호출의 모양을 TRIG_PROBE 에 적지 않았다');
+  // [TRIG_MISS_QUIET] 배우기 전 · 목록에 없는 아이디는 까닭을 남긴다 — 밖에서 온 글자는 영숫자만
+  reset(); try { G._trigIn_({ triggerUid: 'NO<b>PE77' }); } catch (e) {}
+  { const m0 = String(PP().getProperty('TRIG_UID_MISS') || ''); if (!/uid NObPE77/.test(m0) || /[<>]/.test(m0)) out.push('예약 실행: 배우기 전 목록에 없는 아이디를 영숫자만으로 남기지 않았다 — ' + m0); }
   reset(); try { G._trigIn_({ triggerUid: 'U1' }); if (G._TRUST !== true) out.push('예약 실행: 진짜 아이디인데 _TRUST 가 안 켜졌다'); } catch (e) { out.push('예약 실행: 진짜 아이디를 막았다'); }
   if (!PP().getProperty('TRIG_UID_OK')) out.push('예약 실행: 진짜 아이디를 보고도 TRIG_UID_OK 를 안 적었다');
+  if (PP().getProperty('TRIG_UID_MISS')) out.push('예약 실행: 배운 뒤에도 TRIG_UID_MISS 가 남아 있다(지워야 거짓 경보가 안 뜬다)');
+  if (!/U1/.test(String(PP().getProperty('TRIG_UIDS_KNOWN') || ''))) out.push('예약 실행: 진짜로 읽은 아이디를 알던 목록(TRIG_UIDS_KNOWN)에 더하지 않았다');
   reset(); if (!gsrBlocked(() => G._trigIn_({ triggerUid: 'FAKE' }))) out.push('예약 실행: 배운 뒤인데 가짜 아이디가 지난다');
+  if (PP().getProperty('TRIG_UID_MISS')) out.push('예약 실행: 배운 뒤 가짜 아이디가 TRIG_UID_MISS 를 남긴다(누구나 거짓 경보를 띄울 수 있다)');
   reset(); if (!gsrBlocked(() => G._trigIn_({}))) out.push('예약 실행: 배운 뒤인데 이벤트 없는 호출이 지난다');
   reset(); if (!list && !gsrBlocked(() => G.aiDaily())) out.push('예약 실행: 배운 뒤인데 aiDaily 를 공개로 부를 수 있다');
   reset(); try { G._trigIn_({ range: { getRow: () => 2 } }); } catch (e) { out.push('예약 실행: 시트 편집 이벤트를 막았다'); }
   reset(); setEmail(OWNER); try { G._trigIn_(undefined); } catch (e) { out.push('예약 실행: 소유자(편집기) 실행을 막았다'); }
   reset(); G._SRV = true; try { G._trigIn_(undefined); } catch (e) { out.push('예약 실행: 서버 길 안에서 부른 것을 막았다'); }
-  G.ScriptApp = realST; try { PP().deleteProperty('TRIG_UID_OK'); PP().deleteProperty('TRIG_PROBE'); } catch (e) {}
+  // [TRIG_LIST_KNOWN] 목록을 못 읽으면 알던 목록으로 판정 — 진짜(U1)는 지나고 가짜는 막힌다 · 배운 뒤 아는 목록도 없으면 막고 TRIG_LIST_FAIL
+  G.ScriptApp = Object.assign({}, realST, { getProjectTriggers: () => { throw new Error('일시 실패'); } });
+  reset(); try { G._trigIn_({ triggerUid: 'U1' }); if (G._TRUST !== true) out.push('예약 실행: 목록을 못 읽을 때 알던 목록의 진짜 아이디에 _TRUST 가 안 켜졌다'); } catch (e) { out.push('예약 실행: 목록을 못 읽을 때 알던 목록의 진짜 아이디를 막았다'); }
+  reset(); if (!gsrBlocked(() => G._trigIn_({ triggerUid: 'FORGED777' }))) out.push('예약 실행: 목록을 못 읽을 때 가짜 아이디가 지난다(알던 목록으로 판정해야)');
+  try { PP().deleteProperty('TRIG_UIDS_KNOWN'); } catch (e) {}
+  reset(); if (!gsrBlocked(() => G._trigIn_({ triggerUid: 'FORGED777' }))) out.push('예약 실행: 배운 뒤 아는 목록도 없는데 가짜 아이디가 지난다');
+  if (!PP().getProperty('TRIG_LIST_FAIL')) out.push('예약 실행: 목록도 아는 목록도 없어 막았는데 TRIG_LIST_FAIL 을 안 남겼다');
+  try { PP().deleteProperty('TRIG_UID_OK'); } catch (e) {}
+  reset(); try { G._trigIn_({ triggerUid: 'U9' }); if (G._TRUST !== true) out.push('예약 실행: 배우기 전 목록 읽기 실패에 _TRUST 가 안 켜졌다'); } catch (e) { out.push('예약 실행: 배우기 전 목록 읽기 실패로 막았다(배우는 창에서는 막지 않는다)'); }
+  // [TRIG_LIST_KNOWN] 목록을 새로 읽는 일은 1분에 5번까지 — 가짜 아이디로 밀어붙여도 · 한도를 다 쓴 뒤에도 진짜는 지난다
+  { const realCS = G.CacheService, cm = new Map(); let reads = 0;
+    G.CacheService = { getScriptCache: () => ({ get: (k) => (cm.has(k) ? cm.get(k) : null), put: (k, v) => cm.set(k, String(v)), remove: (k) => cm.delete(k), removeAll: () => cm.clear() }) };
+    G.ScriptApp = { getProjectTriggers: () => { reads++; return [{ getUniqueId: () => 'U1' }]; } };
+    clr(); PP().setProperty('TRIG_UID_OK', 'sim');
+    for (let i = 0; i < 20; i++) { reset(); try { G._trigIn_({ triggerUid: 'FAKE' + i }); } catch (e) {} }
+    if (reads > 5) out.push(`예약 실행: 가짜 아이디 20번에 목록을 ${reads}번 새로 읽었다(1분에 5번까지)`);
+    reset(); try { G._trigIn_({ triggerUid: 'U1' }); } catch (e) { out.push('예약 실행: 읽기 한도를 다 쓴 뒤 진짜 아이디를 막았다'); }
+    G.CacheService = realCS; }
+  G.ScriptApp = realST; clr();
   // adminCall — 토큰이 없으면 _AUTHED 가 켜져 있어도 FNS 를 안 돈다
   const realFL = G.aiFactsList; let ran = 0;
   G.aiFactsList = () => { ran++; return { ok: true }; };
@@ -263,11 +404,24 @@ for (const [name, key, fake] of MUT_B) {
   G[key] = real;
   if (!n) bad(`돌연변이: «${name}» 로 바꿔도 행동 검사가 빨강이 안 된다(검사가 죽었다)`);
 }
+// [OWNER_SELF] 소유자 판단 돌연변이 — 서버 길을 안 보거나 · 목록만 보거나(옛 판) · 메일만 있으면 소유자로 치면 빨강
+const MUT_O = [
+  ['서버 길 안도 소유자', function () { const e = G._activeEmail_(); return !!e && (G._ADMIN_OWNER_EMAILS.indexOf(e) !== -1 || e === G._effectiveEmail_()); }],
+  ['목록만 본다(옛 판)', function () { if (G._SRV) return false; const e = G._activeEmail_(); return !!e && G._ADMIN_OWNER_EMAILS.indexOf(e) !== -1; }],
+  ['메일만 있으면 소유자', function () { if (G._SRV) return false; return !!G._activeEmail_(); }],
+  ['처음 물음에 안 정함', function () { if (G._SRV) return false; const e = G._activeEmail_(); return !!e && (G._ADMIN_OWNER_EMAILS.indexOf(e) !== -1 || e === G._effectiveEmail_()); }],
+];
+for (const [name, fake] of MUT_O) {
+  const real = G._isOwnerRun_; G._isOwnerRun_ = fake;
+  let n = 0; try { n = ownerChecks().length; } catch (e) { n = 1; }
+  G._isOwnerRun_ = real;
+  if (!n) bad(`돌연변이: «${name}» 로 바꿔도 소유자 검사가 빨강이 안 된다(검사가 죽었다)`);
+}
 
 if (errs.length) {
   console.log(`━━ gsr-guard — 빨강 ${errs.length}건 [B19_LOCK]`);
   for (const m of errs.slice(0, 40)) console.log('  ✖ ' + m);
   process.exit(1);
 }
-console.log(`━━ gsr-guard — 통과 · 밑줄 ${RENAMED.length} · 잠금 ${LOCKED.length} · 운영 도우미 ${HELPERS.length} · 입구 ${ENTRY.length} · 예약 실행 ${TRIG.length} · FNS 확인 · _AUTHED 창 ${AUTHED_RESTORE.length} · 메일 단추 9 · 돌연변이 ${MUT.length + MUT_B.length} [B19_LOCK · GSR_GATE]`);
+console.log(`━━ gsr-guard — 통과 · 밑줄 ${RENAMED.length} · 잠금 ${LOCKED.length} · 운영 도우미 ${HELPERS.length} · 입구 ${ENTRY.length} · 예약 실행 ${TRIG.length} · FNS 확인 · _AUTHED 창 ${AUTHED_RESTORE.length} · 메일 단추 9 · 소유자 확인 OWNER_SELF · 돌연변이 ${MUT.length + MUT_B.length + MUT_O.length} [B19_LOCK · GSR_GATE]`);
 process.exit(0);

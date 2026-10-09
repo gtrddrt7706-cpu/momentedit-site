@@ -21,7 +21,7 @@
 
 var ADMIN_SHEET = 'Admins';
 var ADMIN_HEADERS = ['아이디', '비번해시', '이름', '역할', '로그인토큰', '토큰만료', '등록일'];
-var _ADMIN_OWNER_EMAILS = ['side.minds.1616@gmail.com', 'gtrddrt7706@gmail.com']; // 편집기(소유자) 실행 폴백
+var _ADMIN_OWNER_EMAILS = ['side.minds.1616@gmail.com', 'gtrddrt7706@gmail.com']; // 편집기(소유자) 실행 폴백 · 목록에 없어도 편집기에서 «자기 권한으로» 돌리면 소유자(_isOwnerRun_ · OWNER_SELF)
 var _AUTHED = false;          // adminCall 디스패처가 토큰 검증 후 true (1회 실행 한정)
 var _CURRENT_ADMIN = '';      // _requireAdmin이 이름 저장 → _recordHandler가 처리이력에 사용
 var _SRV = false;             // ★[GSR_FLAGS 2026-10-09 · B19] doGet · doPost · 공개 화면 함수(submit*) 첫 줄이 켠다 — «정해진 서버 길 안»일 뿐 관리자 권한이 아니다(기획 16-4)
@@ -161,13 +161,11 @@ function _requireAdmin(token) {
   if (_AUTHED) return { ok: true, name: _CURRENT_ADMIN };
   var a = _resolveAdmin_(token);
   if (a.ok) { _CURRENT_ADMIN = a.name || '관리자'; return a; }
-  var email = ''; try { email = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) {}
-  if (email && _ADMIN_OWNER_EMAILS.indexOf(email) !== -1) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }
+  if (_isOwnerRun_()) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }   // [OWNER_SELF] 편집기 소유자 판단은 _isOwnerRun_ 한 곳(_gsr_ · _trigIn_ · 진단과 같은 자)
   /* ★[GSR_OWNER_HINT 2026-10-09 · B19] 편집기 도구(setAdminAccount · notifyTest* · setup* …)도 이제 이 문 하나로 잠긴다.
-     편집기에서 막히면 «어느 계정이라 막혔나»가 보여야 한다 — 메일이 잡힐 때(편집기)만 가린 꼴로 덧붙인다.
-     공개 화면 · 관리 화면 요청은 메일이 빈 글이라 종전 문구 그대로다(관리 화면의 «로그인이 필요» 판정도 그대로). */
-  var _hint = email ? (' · 지금 계정(' + email.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')은 소유자 목록에 없어요') : '';
-  throw new Error('로그인이 필요합니다. (관리자 전용)' + _hint);
+     편집기에서 막히면 «어느 계정이라 막혔나»가 보여야 한다 — 메일이 잡힐 때만 가린 꼴로 덧붙인다(_ownerHint_).
+     공개 화면은 메일이 빈 글 · 관리 화면 요청은 서버 길 안이라 덧붙이지 않는다(관리 화면의 «로그인이 필요» 판정도 그대로). */
+  throw new Error('로그인이 필요합니다. (관리자 전용)' + _ownerHint_());
 }
 
 /* ★[GSR_GATE 2026-10-09 · B19] 운영 도우미의 문 — 이름이 _ 로 끝나지 않는 함수는 첫 줄에서 이것을 부른다(기획 16-4 둘째 갈래).
@@ -178,9 +176,34 @@ function _gsr_() {
   if (_isOwnerRun_()) return;
   throw new Error('허용되지 않은 요청입니다. (서버 안쪽 전용)' + _ownerHint_());
 }
-function _activeEmail_() { try { return String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { return ''; } }
-function _isOwnerRun_() { var e = _activeEmail_(); return !!e && _ADMIN_OWNER_EMAILS.indexOf(e) !== -1; }
-function _ownerHint_() { var e = _activeEmail_(); return e ? (' · 지금 계정(' + e.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')은 소유자 목록에 없어요') : ''; }
+var _ACTIVE_EMAIL = null;   // [OWNER_MEMO] 같은 실행 안에서 한 번만 묻는다(실행마다 null 로 다시 시작)
+function _activeEmail_() {   // [OWNER_MEMO 2026-10-09 점검] 편집기 실행은 _SRV · _TRUST · _AUTHED 가 모두 꺼져 있어 _gsr_ 가 함수마다 소유자를 다시 묻는다 —
+  // 무거운 편집기 도구(장소 수집 · 점검)가 수천 번 Session 을 부르지 않게 같은 실행 안에서는 처음 값을 쓴다. 한 실행 안에서 실행하는 사람은 바뀌지 않는다.
+  if (typeof _ACTIVE_EMAIL !== 'string') { try { _ACTIVE_EMAIL = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { _ACTIVE_EMAIL = ''; } }   // 처음 값이 무엇이든(null · 빈 선언) 한 번은 묻는다
+  return _ACTIVE_EMAIL;
+}
+var _EFFECTIVE_EMAIL = null;   // [OWNER_SELF] 같은 실행 안에서 한 번만(실행마다 null 로 다시 시작)
+function _effectiveEmail_() {   // [OWNER_SELF] 이 실행이 «누구의 권한으로» 도나 — 편집기는 실행한 사람 · 웹 앱 화면은 배포한 계정
+  if (typeof _EFFECTIVE_EMAIL !== 'string') { try { _EFFECTIVE_EMAIL = String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { _EFFECTIVE_EMAIL = ''; } }
+  return _EFFECTIVE_EMAIL;
+}
+/* ★[OWNER_SELF 2026-10-09 · 사장님 deployCheck 로그] 편집기 소유자 = 서버 길 밖에서, 실행한 사람이 «자기 권한으로» 돌린 실행.
+   편집기에서는 실행한 사람(활성 사용자)과 권한 주인(유효 사용자)이 늘 같다 — 어느 계정으로 편집기를 열든 목록에 적을 필요가 없다.
+   (종전에는 목록만 봐서, 목록에 없는 편집기 계정이 자기 도구 · 진단에서 막혔다.)
+   웹 앱 화면에서는 권한 주인이 배포한 계정이라, 익명(빈 글)이나 다른 계정은 같을 수 없다(웹 앱은 «나(배포한 계정)로 실행» 배포가 전제 · 고객 길도 그 전제로 돈다).
+   서버 길(_SRV · doGet · doPost · 공개 화면 입구) 안에서는 소유자로 치지 않는다 — 거기서는 토큰 · 서명만 믿는다. */
+var _OWNER_RUN = null;   // [OWNER_FIRST_ASK] 한 실행에서 처음 물을 때 정한다(실행마다 null 로 다시 시작)
+/* [OWNER_FIRST_ASK 2026-10-09 점검] 소유자인가는 한 실행에서 «처음 물을 때» 정하고 끝까지 그 답을 쓴다.
+   웹 요청은 입구가 첫 줄에서 _SRV 를 먼저 켜므로 처음 물음부터 «아니오»다. 편집기 도구는 첫 줄에서 물으므로(서버 길 밖) «예»로 정해지고,
+   그 뒤 도구가 안에서 입구 함수를 불러 _SRV 가 켜져도(점검 도구가 가입 흐름을 흉내 낼 때) 소유자 실행으로 끝까지 간다. */
+function _isOwnerRun_() {   // [OWNER_SELF]
+  if (typeof _OWNER_RUN === 'boolean') return _OWNER_RUN;   // [OWNER_FIRST_ASK] 처음 물을 때 정한 답
+  var r = false;
+  if (!_SRV) { var e = _activeEmail_(); r = !!e && (_ADMIN_OWNER_EMAILS.indexOf(e) !== -1 || e === _effectiveEmail_()); }
+  _OWNER_RUN = r;
+  return r;
+}
+function _ownerHint_() { var e = _SRV ? '' : _activeEmail_(); return e ? (' · 지금 계정(' + e.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')을 소유자로 확인하지 못했어요') : ''; }   // [OWNER_SELF] 서버 길 안(관리 화면 요청)에는 안 붙인다
 /* ★[ADMINCALL_TOKEN 2026-10-09 · B19] adminCall 은 토큰을 스스로 본다 — _AUTHED · _SRV 지름길을 타지 않는다(기획 16-4).
    doPost(action=adminCall)를 꾸며 불러도 토큰 없이는 FNS 가 돌지 않는다. 편집기(소유자)는 종전처럼 지난다. */
 function _adminTokenCheck_(token) {
@@ -194,6 +217,7 @@ function _adminTokenCheck_(token) {
 //   client: gas(fn,...args) → adminCall(TOKEN, fn, [args]). adminLogin/Logout만 직접 호출.
 function adminCall(token, fn, args) { _gsr_();
   _adminTokenCheck_(token);      // [ADMINCALL_TOKEN] 토큰 검증(실패 시 throw) + _CURRENT_ADMIN 설정 · _AUTHED 지름길을 타지 않는다
+  var _authPrev = _AUTHED;   // [AUTHED_RESTORE 2026-10-09 점검] 창은 «이전 값»으로 닫는다 — 다른 창 안에서 불려도 바깥 창을 일찍 닫지 않게
   _AUTHED = true;
   try {
     args = args || [];
@@ -236,7 +260,7 @@ function adminCall(token, fn, args) { _gsr_();
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn + ' · GAS 새 버전 배포가 필요해요(99_deployCheck 의 deployStampCheck)' };   // [ADMIN_UNKNOWN_FN 2026-10-08] 화면이 새 기능을 부르는데 GAS 가 옛 판일 때 할 일까지
     return f.apply(null, args);
-  } finally { _AUTHED = false; }
+  } finally { _AUTHED = _authPrev; }
 }
 
 // [서류] 시착 동의서 문서 데이터 — 문서 뷰어(/contract/fitting.html) 채움용(이름·일시·서명·서명 당시 버전 전문).
@@ -423,8 +447,9 @@ function _briefMailOk() { _gsr_();
 //   2026-06-29 통합: aiMorningReport가 이 데이터를 읽어 '아침 운영 보고' 메일 1통에 합쳐 보냄(개별 브리핑 메일 폐지).
 function morningBriefData_() {
   var d;
+  var _authPrev = _AUTHED;   // [AUTHED_RESTORE] 이전 값으로 닫는다
   _AUTHED = true;                                  // 트리거 컨텍스트 — adminCall과 동일한 내부 인증 패턴
-  try { d = adminHome(); } finally { _AUTHED = false; }
+  try { d = adminHome(); } finally { _AUTHED = _authPrev; }
   if (!d || !d.ok) return null;
   /* [TODAY_CONSULT] 예약 시트를 다시 훑지 않는다 — adminHome 이 같은 순회에서 이미 모았다.
      종전엔 같은 계산이 두 곳에 있어, 한쪽만 고치면 화면과 메일이 다른 말을 하게 되는 자리였다. */

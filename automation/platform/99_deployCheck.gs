@@ -29,6 +29,7 @@
  *   기준 함수 24개가 실제로 어느 파일에 있는지 전수 대조했고, 지금 코드로 돌려 54항목 전부 통과한다.
  */
 function deployCheck() {
+  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
   var L = [];
   var okN = 0, badN = 0;
 
@@ -449,6 +450,7 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
  *   ★재배포할 때마다 이것만 돌리면 된다 — deployCheck 는 «붙여넣기» 점검이고, 이건 «배포» 점검이다.
  */
 function deployStampCheck() {
+  if (typeof _isOwnerRun_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 를 아직 안 붙인 판에서도 진단은 돈다(typeof)
   var L = [];   // [STAMP_ONLY]
   L.push('══ 배포가 «먹었는가» (저장만으론 /exec 에 안 먹는다) ══');
   try {
@@ -483,9 +485,11 @@ function deployStampCheck() {
     L.push('  --  확인 불가(실패 아님): ' + ((e && e.message) || e));
   }
   try {   // ★[TRIG_IN 2026-10-09] 예약 실행을 «진짜 트리거»로 알아봤는가(70_journey _trigIn_) — 알아본 뒤부터 공개 화면에서 예약 실행 함수를 막는다
-    var _tp = PropertiesService.getScriptProperties(), _tu = _tp.getProperty('TRIG_UID_OK'), _tq = _tp.getProperty('TRIG_PROBE');
-    if (_tu) L.push('  OK  예약 실행 확인 — 진짜 트리거를 알아봤습니다(' + String(_tu).slice(0, 16) + ')');
-    else L.push('  --  예약 실행 확인 — 아직입니다(' + (_tq ? ('모양 기록 ' + String(_tq).slice(0, 60) + ' · Claude 에게 알려 주세요') : '배포 뒤 몇 분 지나 다시 실행') + ')');
+    var _tp = PropertiesService.getScriptProperties(), _tu = _tp.getProperty('TRIG_UID_OK'), _tq = _tp.getProperty('TRIG_PROBE'), _tm = _tp.getProperty('TRIG_UID_MISS'), _tf = _tp.getProperty('TRIG_LIST_FAIL');
+    if (_tu) L.push('  OK  예약 실행 확인 — 진짜 트리거를 알아봤습니다(' + String(_tu).slice(0, 70) + ')');   // [TRIG_IN_WHY] 시각 · 아이디 앞자리 · 그때 메일(가린 꼴)
+    else L.push('  --  예약 실행 확인 — 아직입니다(' + (_tq ? ('모양 기록 ' + String(_tq).slice(0, 60) + ' · Claude 에게 알려 주세요') : '배포 뒤 몇 분 지나 다시 실행') + ')');   // [STAMP_TRIG_ONE] 알아봤으면 OK 하나 · 아니면 «아직» 하나
+    if (_tm && !_tu) L.push('  --  예약 실행 아이디가 목록에 없던 적이 있어요(' + String(_tm).slice(0, 70) + ' · 계속되면 Claude 에게 알려 주세요)');   // [STAMP_TRIG_ONE] 덧줄은 따로 · [TRIG_MISS_QUIET] 배우기 전에만
+    if (_tf && _tu) L.push('  --  예약 실행 목록을 못 읽어 막은 적이 있어요(' + String(_tf).slice(0, 40) + ')');   // [TRIG_LIST_KNOWN]
   } catch (e) {}
   var out = L.join('\n');
   Logger.log(out);
