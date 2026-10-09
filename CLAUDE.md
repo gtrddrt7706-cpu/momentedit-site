@@ -714,6 +714,9 @@ adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 
 - [CAL_RESULT 2026-10-09 라운드 5] 캘린더 맞추기(`syncCalendarEvent`)는 true 됨 · false 안 됨 · null 안 씀(설정 없음)을 돌려준다 — 승인 · 수락은 false 를 «안 된 것»으로 세고, 결과 글은 된 것만 말한다. [ERR_LOG_CAP] 사고번호가 있는 오류기록 줄도 같은 동작은 한 시간에 30줄까지. [AICOST_SECRET] 서버끼리만 부르는 doPost 동작(AI 비용 기록 · 문의 리드 · 인계)은 공유키(`AI_HANDOFF_SECRET` ↔ 베르셀 `HANDOFF_SECRET`)가 맞을 때만 받는다.
 - [MAIL_VIEWPORT 2026-10-09 라운드 4] GAS 화면(HtmlService)은 viewport 를 `addMetaTag` 로 단다 — HTML 안의 `<meta name=viewport>` 는 무시되어 폰에서 데스크톱 폭으로 줄어 보인다. [MAIL_SAME_WORDS] 메일 단추 · 결과 · 관리 화면은 같은 상태를 같은 말로(몰림 «다른 처리가 진행 중이에요» · 일부 «빠진 것이 있어요» · 코드 앞 마침표 없음).
 - [NOTICE_PER_WHO] notifyStudio 의 «오류 · 실패» 관리자 메일은 같은 제목 · 같은 첫 줄(누구 · 어떤 오류)만 6시간에 한 통 — 제목만으로 묶으면 같은 날 두 번째 고객의 실패가 묻힌다. [BTN_STATE_FIRST] 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 단추 대신 지금 상태를 보여 준다.
+- [AICOST_POST_ONLY 2026-10-09 라운드 6] 공유키 검사는 doPost 로 **밖에서 온** 동작에만 건다 — 같은 함수를 GAS 안에서 부르는 길(목소리 비용 `_vcCharLog`)은 키 없이 지난다. 서버 쪽 키 검사를 새로 걸 때는 GAS 안의 부르는 곳을 먼저 grep 한다.
+- [NOTICE_OVERFLOW] 실패 알림 상한(제목마다 시간당 다섯 통)은 넘친 것을 버리지 않는다 — 여섯째는 «멈춰요» 한 통, 그 뒤는 속성 `NS_OVERFLOW`(20줄)에 모아 아침 보고가 싣고 지운다. [MORNING_ESC] 아침 보고 메일의 줄 값은 글로만(escape). [NOTICE_HEAD_FIRST] 알림 메일은 앞 300자만 실린다 — 할 일 줄을 앞에, 오류 글은 짧게 뒤에.
+- [CANCEL_RESULT] 취소 결과도 된 것만 말한다(캘린더 · 안내 메일) — 빠지면 «빠진 것이 있어요»(B4) · 처리이력 · 관리 화면 같은 창. [CANCEL_SAME_WORDS] 같은 상태는 같은 제목 · 본문은 제목을 되풀이하지 않는다. [ERR_ID_RECORDED] 기록 상한에 닿은 동작에는 사고번호를 주지 않는다. [SECRET_GUARD_KIND] 비면 입구가 열리는 공유 열쇠는 `guard` 갈래(deployCheck ★ 줄).
 - ★공개 저장소다 — 주석 · 커밋 · PR · deploy-marks 의 why 에는 **규칙만** 적는다. «무엇이 어떻게 열려 있었나»는 비공개 docs 저장소(기획 부록 B19 · 결정함)에만 둔다.
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)
