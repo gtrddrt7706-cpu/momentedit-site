@@ -17073,7 +17073,7 @@ chk "if(viewId==='loginView'||viewId==='forgotView'||viewId==='resetView') _mpBa
 chk 'C2_LOADBAR_UNDER' mypage.html 1
 chk "bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:140;" mypage.html 1
 # [C2_LAYER_INERT] C2-5 겹창 · 판 · 서명판 · 내 내역 · 가족·친구 스냅이 떠 있는 동안 뒤 페이지 inert(스냅 기획 keep 규칙) — 본문(main)을 통째로 막지 않는다(그 안의 확인 판이 눌리지 않았다)
-chk 'C2_LAYER_INERT' mypage.html 20
+chk 'C2_LAYER_INERT' mypage.html 22
 chk 'function _layerInertOn(ov){' mypage.html 1
 chk 'function _layerInertOff(ov, noRet){' mypage.html 1
 chk "_layerInertOn(ov);" mypage.html 3
@@ -17081,9 +17081,9 @@ chk "ov.setAttribute('aria-hidden','true'); _layerInertOff(ov); _mpUnlock();" my
 chk "_layerInertOn(box); _ledFocusIn(box);" mypage.html 1
 chk "_layerInertOff(box, true); _mpUnlock();" mypage.html 1
 chk "_photoInertOv=\$('mp_photoOverlay'); _layerInertOn(_photoInertOv); return; }" mypage.html 1
-# [C2_LAYER_INERT] 같은 모양의 창 셋([COURSE_WIDE]) — 계약서 뷰어 · 청첩장 샘플 · 그림 미리보기: 열면 뒤 페이지 inert · 초점은 창 안 · 닫으면 연 자리로(편집 화면 위에 겹쳐 열어도)
-chk "_layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}" mypage.html 2
-chk "if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); }" mypage.html 1
+# [C2_LAYER_INERT] 같은 모양의 창 넷([COURSE_WIDE]) — 계약서 뷰어 · 시착 동의서 뷰어 · 청첩장 샘플 · 그림 미리보기: 열면 뒤 페이지 inert · 초점은 창 안 · 닫으면 연 자리로(편집 화면 위에 겹쳐 열어도)
+chk "_layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}" mypage.html 3
+chk "if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); }" mypage.html 2
 chk "ov.style.opacity='0'; _layerInertOff(ov); _mpUnlock();" mypage.html 1
 chk "m._bkId=bkOpen(m._close); _layerInertOn(m); try{ \$('pvX').focus({preventScroll:true}); }catch(e){} }" mypage.html 1
 chk "m.classList.remove('open'); _layerInertOff(m); document.body.style.overflow='';" mypage.html 1
@@ -17126,7 +17126,7 @@ chk "flex-direction:column;padding:14px 16px 24px'" mypage.html 1
 # [C2_BAR_ERR] C2-13 막대 오류 줄은 고르게 · 애프터 웨딩 오류는 한 문장
 chk 'C2_BAR_ERR' mypage.html 2
 chk "color:var(--seal);text-align:center;word-break:keep-all;text-wrap:balance}" mypage.html 1
-chk "return '마음에 드는 곳을 눌러 담아 두거나, 한 곳을 골라 주세요.';" mypage.html 1
+chk "return '마음에 드는 곳을 눌러 담아\\\\u00A0두거나, 한 곳을 골라 주세요.';" mypage.html 1
 nochk "한 곳을 골라 주세요. 여러 곳을 담아 두면 다음 화면에서 함께 비교할 수 있어요.';" mypage.html 0
 # [C2_SEAT_OK_PIN] C2-14 좌석 자리 창 «확인»은 창 아래에 붙는다(가로 폰 · 키보드) · 바탕은 창이 보이는 색 그대로
 chk 'C2_SEAT_OK_PIN' mypage.html 2

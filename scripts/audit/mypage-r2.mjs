@@ -5,7 +5,7 @@
 //   C2-3  [C2_ADV_RESET]       로그아웃 뒤 다른 계정 — 앞사람 AI 상담 대화가 안 보이고 다음 질문에 안 실린다
 //   C2-4  [C2_LOADBAR_SWEEP] [C2_LOADBAR_UNDER] 불러오기 실패 막대는 로그아웃 뒤 없다 · 편집 화면을 덮지 않는다(닫으면 보인다)
 //   C2-5  [C2_LAYER_INERT]     주소 창 · 확인 판 · 내 내역에서 Tab 이 뒤 페이지로 안 나간다 · 주소 창이 떠 있으면 로그아웃 안 받음 ·
-//                              가족·친구 스냅 «나가기» 판 단추가 실제로 눌린다 · 같은 모양의 계약서 뷰어 · 청첩장 샘플 · 그림 미리보기도
+//                              가족·친구 스냅 «나가기» 판 단추가 실제로 눌린다 · 같은 모양의 계약서 · 시착 동의서 뷰어 · 청첩장 샘플 · 그림 미리보기도
 //                              (열면 초점이 창 안 · 닫으면 연 자리로 · 편집 화면 위에 겹쳐 열어도)
 //   C2-6  [C2_PHOTO_PIN]       가족·친구 스냅 1280×2600 막대 아래 틈 0
 //   C2-7  [C2_NOW_ONCE]        NOW 부제가 바로 아래 카드와 같은 말이면 비었다(S01 · W01 · S03 · S07 · S09)
@@ -271,7 +271,7 @@ try {
     await pg.evaluate(() => { const b = document.getElementById('dn_make'); if (b) b.click(); }); await wait(900);
     await pg.evaluate(() => { const b = document.getElementById('trk_next'); if (b) b.click(); }); await wait(600);
     const de = await pg.evaluate(() => { const e = [...document.querySelectorAll('.wz-bar .wz-err')].filter((x) => x.getBoundingClientRect().height > 0)[0]; if (!e) return null; const cs = getComputedStyle(e); return { t: e.textContent.trim(), wrap: String(cs.textWrapStyle || cs.textWrap || ''), lines: Math.round(e.getBoundingClientRect().height / parseFloat(cs.lineHeight)) }; });
-    ok('C2-13 애프터 웨딩 막대 오류는 한 문장(뒤 «비교할 수 있어요»는 목록 위 안내가 말한다) · 오류 줄 text-wrap balance', !!de && de.t === '마음에 드는 곳을 눌러 담아 두거나, 한 곳을 골라 주세요.' && /balance/.test(de.wrap), JSON.stringify(de));
+    ok('C2-13 애프터 웨딩 막대 오류는 한 문장(뒤 «비교할 수 있어요»는 목록 위 안내가 말한다) · «담아 두거나»는 한 덩어리 · 오류 줄 text-wrap balance', !!de && de.t.replace(/\u00A0/g, ' ') === '마음에 드는 곳을 눌러 담아 두거나, 한 곳을 골라 주세요.' && /담아\u00A0두거나/.test(de.t) && /balance/.test(de.wrap), JSON.stringify(de));
     await shot(pg, 'dn1err-320');
   });
 
@@ -339,10 +339,10 @@ try {
     ok('C2-5 주소 창을 닫으면 뒤 페이지 막음이 다 풀린다(연 뒤 막은 것만큼 · 처음부터 막힌 것은 그대로)', closed.addr === 'none' && closed.inert === inert0, JSON.stringify({ closed, inert0 }));
   });
 
-  /* [C2_LAYER_INERT] 같은 모양의 다른 창도([COURSE_WIDE]) — 계약서 뷰어 · 청첩장 샘플 · 그림 미리보기 */
+  /* [C2_LAYER_INERT] 같은 모양의 다른 창도([COURSE_WIDE]) — 계약서 뷰어 · 시착 동의서 뷰어 · 청첩장 샘플 · 그림 미리보기 */
   const INERTN = () => [...document.querySelectorAll('body *')].filter((e) => e.inert).length;
   const ESC = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-  await sec('C2-5 [C2_LAYER_INERT] 계약서 뷰어(S11) 390', { state: ST.S11 }, async ({ pg }) => {
+  await sec('C2-5 [C2_LAYER_INERT] 계약서 뷰어 · 시착 동의서 뷰어(S11) 390', { state: ST.S11 }, async ({ pg }) => {
     const inert0 = await pg.evaluate(INERTN);
     await pg.evaluate(() => { document.getElementById('mp_logout').focus(); openContractView(); }); await wait(700);
     const f0 = await where(pg, '#mp_ctViewer');
@@ -352,6 +352,15 @@ try {
     await pg.evaluate(ESC); await wait(500);
     const c = await pg.evaluate(() => ({ gone: !document.getElementById('mp_ctViewer'), inert: [...document.querySelectorAll('body *')].filter((e) => e.inert).length, f: (document.activeElement || {}).id || '' }));
     ok('C2-5 계약서 뷰어를 닫으면 막음이 다 풀리고 초점은 연 자리(로그아웃)로', c.gone && c.inert === inert0 && c.f === 'mp_logout', JSON.stringify({ c, inert0 }));
+    const hasFit = await pg.evaluate(() => !!window._fittingDoc);
+    ok('C2-5 시착 동의서가 있는 상태다(아래 검사가 뜻이 있다)', hasFit);
+    await pg.evaluate(() => { document.getElementById('mp_logout').focus(); openFittingView(); }); await wait(700);
+    const g0 = await where(pg, '#mp_ftViewer'), gT = await tabWalk(pg, '#mp_ftViewer', 3, true);
+    const gB = await pg.evaluate(() => { const b = document.getElementById('mp_logout'); b.focus(); return document.activeElement === b; });
+    ok('C2-5 시착 동의서 뷰어 — 열면 초점이 창 안 · Shift+Tab 3번이 창 밖으로 안 나간다 · 뒤 «로그아웃»에 초점이 안 간다', g0 === 'in' && !gT.some((x) => x.startsWith('out')) && !gB, JSON.stringify({ g0, gT, gB }));
+    await pg.evaluate(ESC); await wait(500);
+    const gc = await pg.evaluate(() => ({ gone: !document.getElementById('mp_ftViewer'), inert: [...document.querySelectorAll('body *')].filter((e) => e.inert).length, f: (document.activeElement || {}).id || '' }));
+    ok('C2-5 시착 동의서 뷰어를 닫으면 막음이 다 풀리고 초점은 연 자리로', gc.gone && gc.inert === inert0 && gc.f === 'mp_logout', JSON.stringify({ gc, inert0 }));
   });
   await sec('C2-5 [C2_LAYER_INERT] 청첩장 샘플 · 그림 미리보기 — 청첩장 편집 화면 안에서(S15) 390', { state: ST.S15 }, async ({ pg }) => {
     await pg.evaluate(() => document.getElementById('mp_invStart').click()); await wait(1300);

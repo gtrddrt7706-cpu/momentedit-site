@@ -2632,7 +2632,8 @@ function openFittingView(){
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
   document.body.appendChild(ov);
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  _layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}   // [C2_LAYER_INERT] 시착 동의서 뷰어도 계약서 뷰어와 같은 약속 — 뒤 페이지 inert · 초점은 창 안(«닫기»)
+  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -12008,7 +12009,7 @@ function renderDining(box){
     bindTrk(box,renderDining,collect,{
       validate:function(){   // 아무것도 안 고르고 넘어가면 다음 페이지가 비어 막다른 길 → 담기 또는 한 곳 선택 유도
         if(!(d._favs&&d._favs.length) && !String(d.venuePick||'').trim())
-          return '마음에 드는 곳을 눌러 담아 두거나, 한 곳을 골라 주세요.';   // [C2_BAR_ERR] 막대 안 한 줄로 — 뒤 문장(«여러 곳을 담아 두면 다음 화면에서 함께 비교할 수 있어요»)은 목록 위 안내(dn-taphint «'다음'에서 모아 비교해요»)가 이미 말한다 · 320 에서 세 줄 → 막대가 화면 26%였다
+          return '마음에 드는 곳을 눌러 담아\u00A0두거나, 한 곳을 골라 주세요.';   // [C2_BAR_ERR] «담아 두거나»는 한 덩어리(좁은 폭에서 «담아 / 두거나»로 갈리지 않게) · 막대 안 한 줄로 — 뒤 문장(«여러 곳을 담아 두면 다음 화면에서 함께 비교할 수 있어요»)은 목록 위 안내(dn-taphint «'다음'에서 모아 비교해요»)가 이미 말한다 · 320 에서 세 줄 → 막대가 화면 26%였다
         return '';
       },
       confirmNext: function(go){
