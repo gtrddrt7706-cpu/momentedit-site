@@ -216,7 +216,8 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(!/mpAlert\('http로/.test(bindF) && !/mpAlert\('이미 담긴/.test(bindF) && /aria-describedby="mp_snapLinkErr"/.test(zoneF) && /장까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF) && /개까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF), '[SNAP_INLINE_ERR] 링크 오류 · 한도는 칸 아래 한 줄');
   t(/title:'고르던 것을 이 기기에 둘까요\?'/.test(exitA) && /yes:'이 기기에 두고 나가기', no:'지우고 나가기'/.test(exitA) && /_snapLocalPut\(\); _snapTearDown\(\)/.test(exitA), '[SNAP_PRECONSENT_EXIT] 동의 전 나가기 판 = 이 기기에 둘까요 · 서버로는 보내지 않는다');
   t(/#mp_snapOverlay\.snp-pre \[data-wiz-save\]/.test(my) && /이 기기에 적어 둔 것을 불러왔어요 · 마지막 걸음에서 동의하면 저장돼요/.test(my) && /사진은 마지막 걸음에서 저장할 때 함께 보내져요/.test(zoneF), '[SNAP_PRECONSENT_EXIT] 동의 전 머리 «저장» 숨김 · 불러왔어요 한 줄 · 사진 올리기 아래 한 줄');
-  t(/margin:0 auto;width:100%'/.test(cut('function startSnapFlow(', '\nfunction ')), '[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외)');
+  /* [WZ_PIN 2026-10-09] 위쪽 정렬은 그대로 두고 카드가 화면 높이를 채운다(아래 막대가 걸음마다 화면 맨 아래 · 틀 아래 여백 24 를 먹는다) — 세로 auto 여백으로 되돌아가면 빨강 */
+  t(/margin:0 auto -24px;width:100%;flex:1 0 auto/.test(cut('function startSnapFlow(', '\nfunction ')) && !/margin:auto/.test(cut('function startSnapFlow(', '\nfunction ')), '[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외) · [WZ_PIN] 막대는 화면 아래');
   t(my.indexOf('찾던 그림') === -1 && my.indexOf('올린 그림') === -1 && /'장면 · 화이트존 '\+w\+'장면 골랐어요'/.test(my), '[SNAP_WORD_SCENE] «그림» → «사진» · 장면은 «장면»으로 센다');
   t(/\['예식완료','촬영완료','결과물전달','후기'\]\.indexOf\(_stg\)>-1/.test(card) && /id="mp_snapView">낸 내용 보기</.test(card) && /class="cc-btn-ghost trk-act" id="mp_snapStart">수정</.test(card) && card.indexOf('trk-tag') === -1, '[SNAP_CARD_AFTER] 낸 뒤 카드 — 수정(행 단추 규격) · 낸 내용 보기 · 선택 표 없음 · 예식 뒤 숨김');
   t(/aria-modal','true'/.test(my) && /function _snapInertOn\(ov\)/.test(my) && /body\.snp-open #mpToast\{bottom:/.test(my), '[SNAP_MODAL_A11Y] 겹화면 = 모달(aria-modal · 뒤 inert) · 알림은 막대 위로');

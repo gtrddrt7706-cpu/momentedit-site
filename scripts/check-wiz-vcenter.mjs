@@ -21,7 +21,8 @@ try {
     const meas = (nm, host, card) => {
       if (!host || !card) { out.push({ nm, err: '요소 없음' }); return; }
       const hr = host.getBoundingClientRect(), cr = card.getBoundingClientRect();
-      out.push({ nm, top: Math.round(cr.top - hr.top), bot: Math.round(hr.bottom - cr.bottom), h: Math.round(cr.height), host: Math.round(hr.height), ovf: document.documentElement.scrollWidth > innerWidth });
+      const bar = [...host.querySelectorAll('.wz-bar')].filter((e) => e.getBoundingClientRect().height > 0).pop();   // [WZ_PIN] 아래 막대는 걸음마다 화면 맨 아래(짧은 걸음 · 긴 걸음 모두)
+      out.push({ nm, top: Math.round(cr.top - hr.top), bot: Math.round(hr.bottom - cr.bottom), h: Math.round(cr.height), host: Math.round(hr.height), ovf: document.documentElement.scrollWidth > innerWidth, gap: bar ? Math.round(innerHeight - bar.getBoundingClientRect().bottom) : null });
     };
     box.style.display = 'block';
     // 청첩장 — 짧은 단계(확인)와 긴 단계(이름)
@@ -51,8 +52,11 @@ try {
          그래서 스냅은 «위에 붙었나»를 잰다(겹화면 안쪽 여백 20px 이하 · 가운데로 되돌아가면 빨강). */
     const topOnly = c.nm === '스냅 기획';
     const skew = topOnly ? c.top > 24 : (!tall && c.bot > c.top * 3 && c.bot > 120);
-    console.log(`  ${skew || c.ovf ? '✖' : '·'} ${c.nm}: 위 ${c.top} / 카드 ${c.h} / 아래 ${c.bot} (칸 ${c.host}) ${tall ? '· 길어서 흐름' : ''}${topOnly ? ' · 위쪽 정렬(SNAP_TOP_ALIGN)' : ''}`);
+    /* [WZ_PIN 2026-10-09] 막대 아래 틈 — 짧은 걸음만 막대가 내용 끝에 떠서 «다음»이 걸음마다 오르내렸다. 화면 맨 아래(틈 0 · 2px 까지)여야 한다 */
+    const gapBad = c.gap == null || Math.abs(c.gap) > 2;
+    console.log(`  ${skew || c.ovf || gapBad ? '✖' : '·'} ${c.nm}: 위 ${c.top} / 카드 ${c.h} / 아래 ${c.bot} (칸 ${c.host}) · 막대 아래 틈 ${c.gap == null ? '막대 없음' : c.gap} ${tall ? '· 길어서 흐름' : ''}${topOnly ? ' · 위쪽 정렬(SNAP_TOP_ALIGN)' : ''}`);
     if (skew) bad.push(topOnly ? `${c.nm}: 위쪽 정렬이 아니다(위 ${c.top}) — SNAP_TOP_ALIGN` : `${c.nm}: 위쪽 쏠림(위 ${c.top} · 아래 ${c.bot})`);
+    if (gapBad) bad.push(`${c.nm}: 아래 막대가 화면 맨 아래가 아니다(틈 ${c.gap}) — WZ_PIN`);
     if (c.ovf) bad.push(`${c.nm}: 가로 넘침`);
   }
   const p = await h.probe();
