@@ -14239,8 +14239,8 @@ nochk 'mk-vtn">위 두 문장은 그대로 나가요' order-preview.html   # ★
 nochk 'backdrop-filter' order-preview.html 0
 chk 'R8-17' order-preview.html 2
 chk '.seqr:last-child,.seqr:has(+ .dmnote)' order-preview.html 1
-chk 'd:"고마움을 담아"' assets/ritual-data.js 1   # [ENTRY_LAB_ONE 2026-10-06] 감사 · 가족 → 고마움을 담아
-chk 'd:"시처럼"' order-preview.html 1   # [ENTRY_LAB_ONE 2026-10-06] 감성 · 시적 → 시처럼
+chk 'd:"다정하게"' assets/ritual-data.js 1   # [EX_NAME_HAGE 2026-10-09] 감사 · 가족 → 고마움을 담아(ENTRY_LAB_ONE 10-06) → 다정하게
+chk 'd:"잔잔하게"' order-preview.html 1   # [EX_NAME_HAGE 2026-10-09] 감성 · 시적 → 시처럼(ENTRY_LAB_ONE 10-06) → 잔잔하게
 chk 'G0_MOVED_NOTE' order-preview.html 2
 # [BRIDGE_LINK · REDUB_1003 · REDUB_KEEP_RULE 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114) · 나레이션 여섯 자리 새 문안 · 배역 01_guest-1
 chk 'BRIDGE_LINK' assets/ritual-cue.js 3
@@ -15322,8 +15322,27 @@ chk "\['담백하게',\[GUEST\[0\]\[2\],GUEST\[1\]\[2\],GUEST\[2\]\[2\],GUEST\[3
 # ★[ENTRY_LAB_ONE 2026-10-06 사장님 «다른 곳들이랑 일관성 있게» → «맞추기»] 입장 예시 이름표 = «~하게 · ~처럼 · ~담아» 꼴(두 분이 할 말 · 식전 영상 · 하객 맞이와 같은 말투) · 녹음은 그대로
 nochk 'd:"서사형"' assets/ritual-data.js
 nochk 'd:"서사형"' order-preview.html
-chk 'd:"이야기처럼"' assets/ritual-data.js 1
-chk 'd:"새 출발처럼"' order-preview.html 1
+chk 'd:"담백하게"' assets/ritual-data.js 1   # [EX_NAME_HAGE 2026-10-09] 종전 이야기처럼
+chk 'd:"산뜻하게"' order-preview.html 1   # [EX_NAME_HAGE 2026-10-09] 종전 새 출발처럼
+# ★★[EX_NAME_HAGE 2026-10-09 사장님 «웃음 뒤에 진심 · 이런 문구는 오글거린다» · «심플하게 담백하게 다정하게 이런 식으로 일관성 있게» · «다른 곳들도»] 예시 이름표는 모든 자리 «~하게» 한 낱말
+chk 'EX_NAME_HAGE' order-preview.html 3
+chk 'EX_NAME_HAGE' assets/ritual-data.js 1
+chk 'EX_NAME_HAGE' scripts/audit/ex-name-hage.mjs 1
+nochk 'd:"이야기처럼"' order-preview.html
+nochk 'd:"짧고 강하게"' order-preview.html
+nochk 'd:"시처럼"' order-preview.html
+nochk 'd:"고마움을 담아"' order-preview.html
+nochk 'd:"새 출발처럼"' order-preview.html
+nochk 'd:"이야기처럼"' assets/ritual-data.js
+nochk 'd:"짧고 강하게"' assets/ritual-data.js
+nochk 'd:"시처럼"' assets/ritual-data.js
+nochk 'd:"고마움을 담아"' assets/ritual-data.js
+nochk 'd:"새 출발처럼"' assets/ritual-data.js
+nochk "\['고마움을 담아','" order-preview.html   # 식전 영상 소개 넷째 이름(AI · 스튜디오 «소개 멘트» 같은 이름)
+nochk "'웃음 뒤에 진심'" order-preview.html
+nochk "'한 장면을 떠올리며'" order-preview.html
+nochk "'짧고 굵게'" order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-name-hage.mjs >/dev/null 2>&1 || { echo 'FAIL ex-name-hage: 예시 이름표가 «~하게» 한 낱말이 아니거나 입장 원천과 화면 사본이 다르다 — node scripts/audit/ex-name-hage.mjs'; fail=1; }; fi
 chk 'GUEST_EX_RS' order-preview.html 1   # [GUEST_EX_RS 2026-10-06] 하객 맞이 예시 2~4 — 제미나이 딥리서치 반영(상투어 · 과한 감성 · «슬슬» 뺌 · 어미 통일)
 nochk '"저희 두 사람의 결혼식에 귀한 걸음 해 주셔서' order-preview.html
 # ★[VOICE_JINHEE 2026-10-06 사장님 «잔희 아니고 진희 · 실수 없이»] 붙여넣기 · 안내 문서에 «잔희» 0 — 경위 주석(build-typecast-import · 이 파일 7360줄대 · 오디오북 기획 기록)만 남긴다
