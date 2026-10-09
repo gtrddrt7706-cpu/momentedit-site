@@ -134,7 +134,8 @@ main.wide{max-width:600px}
 /* ── 로그인 / 폼 공통 ── */
 .eyebrow{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--gold-deep);text-align:center;margin-bottom:12px}
 h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--accent);text-align:center;margin-bottom:8px}
-.subtitle{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);text-align:center;line-height:1.85;margin-bottom:28px}
+.subtitle{font-family:var(--serif-ko);font-size:13px;font-weight:300;color:var(--sub);text-align:center;line-height:1.85;margin-bottom:28px;text-wrap:pretty}   /* [AUTH_BOX_WRAP 2026-10-09] 끝 줄에 낱말 하나만 남지 않게 */
+.subtitle .nb{white-space:nowrap}   /* [AUTH_BOX_WRAP] 말 덩어리(«진행 상황을 볼 수 있어요» · «자동으로 로그인돼요»)는 한 줄로 — 폰에서 그 앞에서 끊긴다 */
 
 .field{position:relative;margin-bottom:15px}
 .field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
@@ -145,8 +146,10 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .field label{position:absolute;left:13px;top:16px;font-family:var(--serif-ko);font-size:14px;color:var(--light);pointer-events:none;transition:all .25s var(--ease);background:var(--bg);padding:0 5px}
 .field input:focus+label,.field input:not(:placeholder-shown)+label{top:-9px;font-size:11px;color:var(--gold-deep);letter-spacing:.03em}
 
-.btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.08em;cursor:pointer;transition:all .3s var(--ease);text-decoration:none}/* [KO_TRACK_SPLIT 2026-09-25 코워크 3편 ④] .16em → .08em — 이 부품을 쓰는 버튼 셋(로그인·보내기·변경하기)이 전부 한글이라 「로 그 인」으로 흩어졌다([CTA_TYPE_QUIET] 한글 0.08em) */
+.btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:6px;font-family:var(--serif-ko);font-size:13px;font-weight:500;letter-spacing:.08em;cursor:pointer;transition:all .3s var(--ease);text-decoration:none}/* [KO_TRACK_SPLIT 2026-09-25 코워크 3편 ④] .16em → .08em — 이 부품을 쓰는 버튼 셋(로그인·보내기·변경하기)이 전부 한글이라 「로 그 인」으로 흩어졌다([CTA_TYPE_QUIET] 한글 0.08em) */
 /* 진사 버튼 = '결정'의 자리 (로그인·코드찾기·재설정) */
+/* ★[AUTH_BTN_KO 2026-10-09 사장님 «디자이너 시선으로 디테일»] .btn 글꼴 var(--serif) → var(--serif-ko). 로그인 · 보내기 · 변경하기 라벨이 전부 한글인데
+   마이페이지 --serif 는 Cormorant · Georgia 로 끝나 한글이 없다 — 기기 기본 글꼴로 떨어졌다(9/27 [CC_BTN_KO] 가 .cc-btn 만 고치고 이 부품을 놓쳤다). */
 .btn-seal{background:var(--seal,#6B2A24);color:#fff}   /* 프라이머리 = 진사(인장색) · 호버 더 짙게 (2026-06-16 사용자 선택 — 마이페이지 결정적 액션 진사로 통일) */
 .btn-seal:hover{background:#5B1E18}
 .btn-seal:active{background:#5B1E18}
@@ -204,6 +207,8 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .errbox.show{display:block}
 .okbox{display:none;margin-top:16px;padding:12px 14px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;font-family:var(--serif-ko);font-size:13px;color:var(--gold-deeper);text-align:center;line-height:1.7}
 .okbox.show{display:block}
+.okbox,.errbox{text-wrap:pretty}   /* [AUTH_BOX_WRAP 2026-10-09] 끝 줄에 낱말 하나만 남지 않게(«같은 / 이메일로는»이 갈렸다) */
+.okbox .ok-note{display:block;margin-top:6px;font-size:12px}   /* [AUTH_BOX_WRAP] 덧붙임 한 줄은 둘째 줄 · 작게(색은 그대로 · 위계는 크기로) */
 
 /* ── 마이페이지 · 환영 ── */
 .welcome{text-align:center;margin-bottom:24px}
@@ -1423,7 +1428,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <section class="view" id="loginView">
     <div class="eyebrow">My Page</div>
     <h1 class="title">로그인</h1>
-    <p class="subtitle">개인코드 또는 이메일과 비밀번호로 진행 상황을 볼 수 있어요.<!-- MPD_B8 시스템체→해요체 전수 16곳(§7-3-⑤ · 제외: 식순 낭독 대본·계약 조항 확인문·내빈 격식 안내) --><br>메일의 마이페이지 링크를 누르면 자동으로 로그인돼요.</p>
+    <p class="subtitle">개인코드 또는 이메일과 비밀번호로 <span class="nb">진행 상황을 볼 수 있어요.</span><!-- [AUTH_BOX_WRAP 2026-10-09] 폰에서 «볼 수 / 있어요»로 갈리지 않게 말 덩어리로 끊는다 --><!-- MPD_B8 시스템체→해요체 전수 16곳(§7-3-⑤ · 제외: 식순 낭독 대본·계약 조항 확인문·내빈 격식 안내) --><br>메일의 마이페이지 링크를 누르면 <span class="nb">자동으로 로그인돼요.</span></p>
     <form id="loginForm" autocomplete="on">
       <div class="field">
         <input type="text" id="li_code" placeholder=" " required autocomplete="username" inputmode="email" autocapitalize="none" maxlength="80" enterkeyhint="next" data-email-assist>
@@ -11920,8 +11925,9 @@ $('forgotForm').addEventListener('submit', function(e){
     if (d && d.ok){
       var ok=$('fg_ok');
       ok.textContent = (forgotMode==='findCode')
-        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸어요. 메일함을 확인해 주세요. 같은 이메일로는 한 시간에 세 번까지 보내요.'
-        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸어요. 메일함을 확인해 주세요. 같은 이메일로는 한 시간에 세 번까지 보내요.';   // [AUTH_SEND_CAP 라운드 8] 서버 답은 보냈는지 말하지 않는다(계정이 있는지 드러내지 않게) — 상한은 화면이 한 줄로
+        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸어요. 메일함을 확인해 주세요.'
+        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸어요. 메일함을 확인해 주세요.';   // [AUTH_SEND_CAP 라운드 8] 서버 답은 보냈는지 말하지 않는다(계정이 있는지 드러내지 않게) — 상한은 화면이 한 줄로
+      var _cap=document.createElement('span'); _cap.className='ok-note'; _cap.textContent='같은 이메일로는 한 시간에 세 번까지 보내요.'; ok.appendChild(_cap);   // [AUTH_BOX_WRAP 2026-10-09] 상한 한 줄은 둘째 줄로 · 작게(본문 끝에 붙여 «같은»이 줄 끝에 걸렸다)
       ok.classList.add('show');
     } else { showErr('fg_err', _errLine(d,'L','메일을 보내지 못했어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] 서버 까닭 + 코드
   }).catch(function(e){ showErr('fg_err', _errLine(e,'L')); })   // [ERR_CODE_MYPAGE] 종전 기본 문구(«문제가 잠깐 생겼어요…») — 늦음 L5 · 끊김 L6 · 깨진 답 L7 로

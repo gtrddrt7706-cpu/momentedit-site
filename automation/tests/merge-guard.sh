@@ -16637,7 +16637,15 @@ chk "width:max-content;max-width:calc(100% - 32px);text-wrap:pretty" admin.html 
 chk "if(act==='adminCancel'&&res&&res.noMail)" admin.html 1
 chk "overflow-wrap:anywhere;color:" automation/platform/96_ai_cost.gs 1
 chk "_more = !!(_cur && _cur.more && !ovfMore)" automation/platform/96_ai_cost.gs 1
-chk "같은 이메일로는 한 시간에 세 번까지 보내요" mypage.html 2
+chk "같은 이메일로는 한 시간에 세 번까지 보내요" mypage.html 1   # [AUTH_BOX_WRAP 2026-10-09] 두 갈래(코드 찾기 · 재설정)가 한 줄을 같이 쓴다
+# ★[AUTH_BTN_KO · AUTH_BOX_WRAP 2026-10-09 사장님 «디자이너 시선으로 디테일»] 로그인 · 보내기 · 변경하기 단추는 한글 글꼴(--serif-ko) —
+#   Cormorant(한글 없음)로 되돌리면 기기 기본 글꼴로 떨어진다. 안내 · 오류 상자는 끝 줄 외톨이 없이 · 상한 한 줄은 작은 둘째 줄.
+chk 'AUTH_BTN_KO' mypage.html 1
+nochk '^\.btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:6px;font-family:var(--serif);' mypage.html
+chk '^\.btn{display:block;width:100%;text-align:center;padding:16px 0;border:none;border-radius:6px;font-family:var(--serif-ko);' mypage.html 1
+chk 'AUTH_BOX_WRAP' mypage.html 3
+chk '.okbox,.errbox{text-wrap:pretty}' mypage.html 1
+chk "_cap.className='ok-note'" mypage.html 1
 chk "_authSendOk_(kind, email)" automation/platform/50_auth-handlers.gs 1
 chk "_trigSafe_(_pw) + (uid ? 'U' : 'N')" automation/platform/70_journey.gs 1
 nochk "취소된 예약은 승인할 수 없습니다. (되살아남 방지)" automation/admin/admin.gs
