@@ -89,6 +89,7 @@ textarea.has{border-color:var(--gold)}
 <script src="/assets/ritual-data.js"></script>
 <script src="/assets/ritual-open.js"></script>
 <script src="/assets/ritual-cue.js"></script>
+<script src="/assets/narr-pair-draft.js"></script>
 <script>
 (function(){
 var O=window.RitualOpen, C=window.RitualCue;
@@ -98,33 +99,8 @@ var NM={guest:'하객 맞이',prevideo:'식전 영상',candle:'화촉',entry:'�
 /* ★[PAIR_DRAFT 2026-10-09 사장님 «코스를 고르면 맞춤 나레이션이 적용되도록»] 이음 줄 초안 — 확정 전(원천 아님 · 녹음 뒤 ritual-open.js 로 옮긴다)
    고르는 법: «앞>다음» 짝 줄이 있으면 그것 · 없으면 «다음» 기본 줄. 입장 뒤(B1 말 없음)와 닫는 인사 앞(끝 선언이 이음)은 넣지 않는다.
    «→ 케이크»는 이미 녹음된 B6(114)을 모든 앞 순간에 쓴다. 부모님께 인사 뒤 B4(숨 고르기 → 2초 만에 다음)는 이음 줄로 바꾼다. */
-var PAIR={
- 'prevideo>candle':'두 사람이 들어오기 전에, 먼저 두 집이 준비한 순서가 있습니다.',
- 'prevideo>entry':'영상 속 두 사람을, 이제 이 자리에서 맞이하겠습니다.',
- 'candle>entry':'이제, 두 사람을 맞이하겠습니다.',
- 'vow>ring':'방금 그 말을, 손끝에도 남기겠습니다.',
- 'declare>tribute':'부부가 되어, 가장 먼저 찾아갈 곳이 있습니다.',
- 'cake>toast':'두 사람이 함께 해낸 첫 번째 일이었습니다. 이제, 다 함께 축하를 나누겠습니다.'
-};
-var NEXT={
- bless:'이 날을 누구보다 기다려 오신 분들이 계십니다.',
- vow:'오늘 가장 중요한 말이, 아직 남아 있습니다.',
- ring:'약속은, 손끝에도 남깁니다.',
- declare:'이제, 모두 앞에서 알릴 일이 하나 남았습니다.',
- tribute:'오늘 이 자리를 가장 기뻐하실 분들이 계십니다.',
- free:'이제 잠시, 분위기를 바꿔 보겠습니다.',
- letter:'조금 더 가까이, 두 사람의 이야기를 들어 보겠습니다.',
- toast:'이제, 다 함께 축하를 나누겠습니다.'
-};
-var B6='114_bridge-b6-lighter';
-function pairOf(a,b){
-  if(!a||a==='guest'||a==='entry') return null;   // 입장 뒤는 말 없음(B1)
-  if(b==='entry'&&!PAIR[a+'>'+b]) return null;
-  if(PAIR[a+'>'+b]) return {text:PAIR[a+'>'+b],key:a+'>'+b};
-  if(b==='cake') return {text:'이제, 조금 가벼운 순서로 넘어가겠습니다.',key:'>cake',file:B6};
-  if(NEXT[b]) return {text:NEXT[b],key:'>'+b};
-  return null;
-}
+/* 연결 멘트 초안은 assets/narr-pair-draft.js 한 곳(pair-7c2e.html 검토 도구와 같은 원천) */
+function pairOf(a,b){ var L=window.NarrPair.lineOf(a,b); return L.text?{text:L.text,file:L.file}:null; }
 var st={ex:'promise',on:null,rg:'body',draft:false}, cues=[], tok=0, audio=new Audio();
 var MK='flowReviewMemo';
 function memo(){try{return JSON.parse(localStorage.getItem(MK)||'{}')}catch(e){return {}}}
