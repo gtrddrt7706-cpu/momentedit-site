@@ -16559,7 +16559,7 @@ chk 'RESULT_NOTIFIED' scripts/audit/err-admin.mjs 1
 chk "return true;   // \[MAIL_SENT_TRUE" automation/platform/95_notify.gs 1
 chk "if (!preview && ovf.length && _sent !== false)" automation/platform/96_ai_cost.gs 1
 chk "String(Math.max(0, _nn - night))" automation/platform/96_ai_cost.gs 1
-chk "word-break:keep-all;color:' + (warn" automation/platform/96_ai_cost.gs 1
+chk "word-break:keep-all;overflow-wrap:anywhere;color:' + (warn" automation/platform/96_ai_cost.gs 1
 chk "color:#3A2D22;margin:0 0 8px;word-break:keep-all" automation/consultation/consultation-booking.gs 1
 chk "min-height:5.55em;text-wrap:pretty}" automation/consultation/consultation-booking.gs 1
 chk "if (n1 >= 3 || n2 >= 40) return false;" automation/platform/50_auth-handlers.gs 1
