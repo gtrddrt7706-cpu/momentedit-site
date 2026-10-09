@@ -16415,6 +16415,29 @@ chk 'APPROVE_PARTIAL' scripts/audit/err-admin.mjs 1
 chk 'POST_SAFE_JSON' automation/consultation/consultation-booking.gs 1
 chk 'POST_SAFE_JSON' scripts/audit/gsr-guard.mjs 1
 chk 'PUB_RULES_WIDE' scripts/audit/pub-rules.mjs 1
+# ★[ENTRY_ARGS_SRV · BTN_STATE_FIRST · NOTICE_PER_WHO · PAY_NOTICE_TRUE · PASTE_GAP 2026-10-09 라운드 4] 공개 입구는 그 화면이 보내는 인자만(서버 쪽 인자는 doPost 길에서만 · 칸은 글자만)
+#   · 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 지금 상태를 보여 준다 · 오류 · 실패 관리자 메일은 같은 제목 · 같은 사람만 6시간에 한 통(다른 고객의 실패가 묻히지 않게)
+#   · 입금 확인 결과는 고객 알림이 정말 나가는 확인만 «알림이 가요» · 붙이는 도중에도 관리 화면 승인 · 수락이 멈추지 않는다(mail-page ⑥ · gsr-guard 가 행동으로 잰다)
+chk 'ENTRY_ARGS_SRV' automation/consultation/consultation-booking.gs 6
+chk 'BTN_STATE_FIRST' automation/consultation/consultation-booking.gs 1
+chk 'NOTICE_PER_WHO' automation/consultation/consultation-booking.gs 1
+chk 'PAY_NOTICE_TRUE' automation/consultation/consultation-booking.gs 1
+chk 'PASTE_GAP' automation/admin/admin.gs 1
+chk 'ENTRY_ARGS_SRV' scripts/audit/gsr-guard.mjs 2
+nochk "notifyStudio('\[상담\] ⚠️오류 · 확정 메일 발송 실패'" automation/consultation/consultation-booking.gs
+# ★[MAIL_VIEWPORT · MAIL_SAME_WORDS · ACCEPT_SLOT_NOTICE 2026-10-09 라운드 4 화면 점검] GAS 화면 넷은 viewport 를 addMetaTag 로(HTML 안 meta 는 무시 · 폰에서 데스크톱 폭으로 줄어 보였다)
+#   · 같은 상태는 같은 말(몰림 «다른 처리가 진행 중이에요» · 일부 «빠진 것이 있어요» · 코드 앞 마침표 없음) · 폰 제목 칸은 글꼴 크기로(두 줄도 카드가 안 움직인다)
+#   · 수락 «다시 제안드릴게요»는 스튜디오 알림으로 받친다 · 관리 화면 검색줄이 폰에서 넘치지 않는다(mail-page ③ ⑥ · err-admin ②-D 가 행동으로 잰다)
+chk 'MAIL_VIEWPORT' automation/consultation/consultation-booking.gs 4
+chk 'MAIL_SAME_WORDS' automation/consultation/consultation-booking.gs 5
+chk 'MAIL_SAME_WORDS' automation/admin/admin.gs 1
+chk 'MAIL_SAME_WORDS' admin.html 1
+chk 'ACCEPT_SLOT_NOTICE' automation/consultation/consultation-booking.gs 1
+chk 'min-height:2.8em' automation/consultation/consultation-booking.gs 1
+chk '.search input{flex:1;min-width:0;' admin.html 1
+chk 'MAIL_VIEWPORT' scripts/audit/mail-page.mjs 1
+nochk "<br>확정 메일이 늦어질 수 있어요" automation/consultation/consultation-booking.gs
+nochk "서버가 혼잡합니다. 잠시 후 다시 눌러 주세요" automation/consultation/consultation-booking.gs
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2

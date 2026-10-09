@@ -296,12 +296,16 @@ await sec('②-D', async () => {
   if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, 'admin-modal-net-390.png') });
   await pg.evaluate(() => closeModal());
   /* [APPROVE_PARTIAL 2026-10-09 라운드 3] 승인은 됐는데 뒷일이 빠졌으면 — 판을 닫고 목록을 새로 그린 뒤 «빠진 것이 있어요» 창 하나(«승인» 단추로 남아 다시 누르게 하지 않는다 · 되돌리면 빨강) */
-  GAS.adminApprove = { json: { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: 캘린더 · 직접 확인해 주세요. (코드 B4)' } };
+  GAS.adminApprove = { json: { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: 캘린더 · 이것만 직접 해 주세요 (코드 B4)' } };
   const home0 = seen.filter((s) => s.fn === 'adminHome').length;
   await pg.evaluate(() => { doApprove('ME-A', '가나다 · 라마바'); }); await pg.waitForTimeout(400);
   await pg.evaluate(() => document.getElementById('cm_yes').click()); await pg.waitForTimeout(900);
-  const dp = await pg.evaluate(() => ({ open: document.getElementById('confirmModal').classList.contains('show'), t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, y: document.getElementById('cm_yes').textContent, err: document.getElementById('cm_err').textContent }));
-  ok('②-D 승인 일부 실패 → 목록을 새로 그리고 «빠진 것이 있어요» 창(안 된 것 · B4) · «승인» 단추로 남지 않는다', dp.open && dp.t === '빠진 것이 있어요' && /안 된 것: 캘린더/.test(N(dp.b)) && /\(코드 B4\)/.test(N(dp.b)) && dp.y === '확인' && !dp.err && seen.filter((s) => s.fn === 'adminHome').length > home0, dp);
+  const dp = await pg.evaluate(() => ({ open: document.getElementById('confirmModal').classList.contains('show'), t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, y: document.getElementById('cm_yes').textContent, err: document.getElementById('cm_err').textContent,
+    no: getComputedStyle(document.getElementById('cm_no')).display, toast: (document.getElementById('toast') || {}).textContent || '' }));
+  ok('②-D 승인 일부 실패 → 목록을 새로 그리고 «빠진 것이 있어요» 창(안 된 것 · B4) · «승인» 단추로 남지 않는다 · 단추 하나 · «✓ 처리됨» 토스트 없음', dp.open && dp.t === '빠진 것이 있어요' && /안 된 것: 캘린더/.test(N(dp.b)) && /\(코드 B4\)/.test(N(dp.b)) && dp.y === '확인' && !dp.err && dp.no === 'none' && !/처리됨/.test(dp.toast) && seen.filter((s) => s.fn === 'adminHome').length > home0, dp);
+  await pg.evaluate(() => closeModal());
+  await pg.evaluate(() => { openModal({ title: 't', text: 'x', yes: '확인', onYes: closeModal }); });
+  ok('②-D 다른 창은 «닫기» 단추가 그대로 보인다(알림 창의 단추 하나가 새지 않는다)', (await pg.evaluate(() => getComputedStyle(document.getElementById('cm_no')).display)) !== 'none');
   await pg.evaluate(() => closeModal()); delete GAS.adminApprove;
   GAS.adminDetail = { abort: 1 };
   await pg.evaluate(() => doMarkRefundedInline('ME-A', '가나다 · 라마바')); await pg.waitForTimeout(700);

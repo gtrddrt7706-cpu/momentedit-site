@@ -1651,14 +1651,17 @@ function adminApprove(code) {
   }
   _LAST_INFO = null;
   actApprove(sheet, colOf, r);                        // P1.5 Lock+슬롯재확인+setCustomerStage
-  if (_LAST_INFO && _LAST_INFO.partial) { _recordHandler(code, '승인'); return { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(' · ') + ' · 직접 확인해 주세요. (코드 B4)' }; }   // [APPROVE_PARTIAL] 다시 누르지 말고 빠진 것만
+  if (_LAST_INFO && _LAST_INFO.partial) { _recordHandler(code, '승인'); return { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(', ') + ' · 이것만 직접 해 주세요 (코드 B4)' }; }   // [APPROVE_PARTIAL] 다시 누르지 말고 빠진 것만 · [MAIL_SAME_WORDS] 메일 화면과 같은 말
   var after = String(row(sheet, colOf, cr.num).get('상태') || '').trim();
   if (after === ST.APPROVED || after === ST.CONFIRMED) { _recordHandler(code, '승인'); return { ok: true }; }
   var _li = _LAST_INFO;   // [ACCEPT_RESULT] 몰림 · 시간 없음 같은 다른 실패는 «마감»으로 말하지 않는다
-  if (_li && _li.ok === false && !/마감/.test(String(_li.title || ''))) return { ok: false, error: _infoText_(_li) };
+  if (_li && _li.ok === false && !/마감/.test(String(_li.title || ''))) return { ok: false, error: _admInfoText_(_li) };
   return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };  // L
 }
 
+function _admInfoText_(li) {   // [PASTE_GAP] consultation-booking 을 아직 안 붙였어도(옛 판) 멈추지 않게 — 그때는 제목만
+  return (typeof _infoText_ === 'function') ? _infoText_(li) : String((li && li.title) || '');
+}
 function adminAcceptProposal(code) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
@@ -1671,9 +1674,9 @@ function adminAcceptProposal(code) {
   if (st !== ST.PROPOSED) return { ok: false, error: '변경제안 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
   _LAST_INFO = null;
   actAccept(sheet, colOf, r);
-  if (_LAST_INFO && _LAST_INFO.ok === false) return { ok: false, error: _infoText_(_LAST_INFO) };   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다
+  if (_LAST_INFO && _LAST_INFO.ok === false) return /마감/.test(String(_LAST_INFO.title || '')) ? { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 다시 보내 주세요.' } : { ok: false, error: _admInfoText_(_LAST_INFO) };   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다 · 마감은 승인 쪽과 같은 말(고객에게 하는 말을 관리자에게 보이지 않는다)
   _recordHandler(code, '변경제안 수락');
-  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '수락은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(' · ') + ' · 직접 확인해 주세요. (코드 B4)' };   // [APPROVE_PARTIAL]
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '수락은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(', ') + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [APPROVE_PARTIAL]
   return { ok: true };
 }
 

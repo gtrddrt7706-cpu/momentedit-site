@@ -170,7 +170,7 @@ function doGet(e) { _SRV = true;
     try { Logger.log('doGet 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
     if (p && p.action === 'getCouple') {   // ★[GETCOUPLE_JSON_ERR 2026-10-08 점검] 청첩장 · 라이브의 JSON 길은 예외도 JSON(G9 · 87_letter 미붙임이면 G3) — 종전엔 안내 HTML 이 나가 하객 화면은 «깨진 답 G7», 기록은 X9 로 갈렸다
       var _ge = String((err && err.message) || err || ''); __ERR_ON = true; __ERR_ACT = 'getCouple';
-      return jsonOut({ ok: false, ecode: 'G' + (/is not defined|is not a function/.test(_ge) ? 3 : 9), eid: (typeof _errId === 'function') ? _errId() : '', _why: String((err && err.stack) || _ge).replace(/\s+/g, ' ').slice(0, 200), error: 'INTERNAL_ERROR' });   // ★[GETCOUPLE_CONTRACT 2026-10-08 점검 R2] 하객 화면(live · 청첩장 24장 hydrate)은 error === 'INTERNAL_ERROR' 로 «서버 사고»를 가른다 — 한글 글을 주면 «이 링크로는 예식을 찾을 수 없습니다»(링크 탓)로 떨어졌다(87_letter ltGetCouple 과 같은 약속)
+      return jsonOut({ ok: false, ecode: 'G' + (_cfgErr_(err) ? 3 : 9), eid: (typeof _errId === 'function') ? _errId() : '', _why: String((err && err.stack) || _ge).replace(/\s+/g, ' ').slice(0, 200), error: 'INTERNAL_ERROR' });   // ★[GETCOUPLE_CONTRACT 2026-10-08 점검 R2] 하객 화면(live · 청첩장 24장 hydrate)은 error === 'INTERNAL_ERROR' 로 «서버 사고»를 가른다 — 한글 글을 주면 «이 링크로는 예식을 찾을 수 없습니다»(링크 탓)로 떨어졌다(87_letter ltGetCouple 과 같은 약속)
     }
     var _gid = ''; try { if (typeof _errId === 'function') { _gid = _errId(); _errRecord('get:' + String(p.action || p.page || '').slice(0, 30), 'X9', '문제가 발생했습니다', String((err && err.stack) || (err && err.message) || err).replace(/\s+/g, ' ').slice(0, 200), _gid, ''); } } catch (_g) {}   // [ERR_CODE_GAS]
     return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.' + (_gid ? ' (코드 X9 · ' + _gid + ')' : ''), false);   // 내부 예외 원문 비노출
@@ -279,10 +279,19 @@ function handleAction(p) { _gsr_();
     return infoPage('링크가 올바르지 않습니다', '메일의 버튼으로 다시 시도해 주세요.', false);
   }
 
+  /* [BTN_STATE_FIRST 2026-10-09 라운드 4] 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 단추 대신 지금 상태를 보여 준다(열기만 해서는 아무것도 바꾸지 않는다) */
+  var _st0 = String(row.get('상태') || '').trim();
+  if (action === 'approve' || action === 'accept') {
+    if (_st0 === ST.CANCELLED) return infoPage('취소된 예약입니다', action === 'approve' ? '취소된 예약은 승인할 수 없습니다. 다시 진행하려면 고객이 새로 신청해야 합니다.' : '이 예약은 취소되었습니다. 다시 예약을 원하시면 새로 신청해 주세요.', false);
+    if (_st0 === ST.CONFIRMED || (action === 'approve' && _st0 === ST.APPROVED)) return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님<br>' + prettyDate(row.get('선택날짜')) + ' · ' + esc(row.get('선택시간')), true);
+    if (action === 'accept' && _st0 !== ST.PROPOSED) return infoPage('처리할 제안이 없습니다', '이 제안은 이미 처리되었거나 일정이 바뀌었습니다.<br>현재 잡힌 일정은 확정 메일을 확인해 주세요.', false);
+    if (action === 'accept' && (!row.get('변경제안날짜') || !row.get('변경제안시간'))) return infoPage('제안된 시간이 없습니다', '변경 제안 정보를 찾을 수 없습니다.', false);
+    if (action === 'approve' && (!row.get('선택날짜') || !row.get('선택시간'))) return infoPage('선택된 시간이 없습니다', '고객이 아직 시간을 선택하지 않았습니다.', false);
+  }
   switch (action) {
-    case 'approve':  return _mailConfirmPage_('예약을 승인할까요?', esc(coupleNames(row)) + ' 님 · ' + esc(prettyDate(row.get('선택날짜'))) + ' · ' + esc(row.get('선택시간')), '승인하기', { action: 'approve', token: token, sig: sig });   // [MAIL_BTN_CONFIRM] 열기만 해서는 승인하지 않는다
+    case 'approve':  return _mailConfirmPage_('예약을 승인할까요?', esc(coupleNames(row)) + ' 님<br>' + esc(prettyDate(row.get('선택날짜'))) + ' · ' + esc(row.get('선택시간')), '승인하기', { action: 'approve', token: token, sig: sig });   // [MAIL_BTN_CONFIRM] 열기만 해서는 승인하지 않는다
     case 'change':   return serveChangeC(token, p);
-    case 'accept':   return _mailConfirmPage_('제안드린 시간으로 확정할까요?', esc(coupleNames(row)) + ' 님 · ' + esc(prettyDate(row.get('변경제안날짜'))) + ' · ' + esc(row.get('변경제안시간')), '이 시간으로 확정하기', { action: 'accept', token: token, sig: sig });   // [MAIL_BTN_CONFIRM] 제안 시간을 보여 준다(actAccept 가 쓰는 칸)
+    case 'accept':   return _mailConfirmPage_('제안드린 시간으로 확정할까요?', esc(coupleNames(row)) + ' 님<br>' + esc(prettyDate(row.get('변경제안날짜'))) + ' · ' + esc(row.get('변경제안시간')), '이 시간으로 확정하기', { action: 'accept', token: token, sig: sig });   // [MAIL_BTN_CONFIRM] 제안 시간을 보여 준다(actAccept 가 쓰는 칸)
     case 'reselect': return serveScheduleB(token); // [다른 시간 보기] → 화면 B 재오픈
     case 'cancelreq': return serveCancelD(token, row);       // 고객 [예약 취소] → 취소 신청 화면 D
     case 'docancel':  return doCustomerCancel(sheet, colOf, row, p); // 취소 확정(계좌 제출)
@@ -358,9 +367,10 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
 
   // [P1.5 작업6] Lock + 점유 재확인으로 더블 확정 0. 점유확인~쓰기를 원자적으로.
   var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal('예약'); } catch (_e) {} return infoPage('잠시 후 다시 시도해 주세요', '서버가 혼잡합니다. 잠시 후 다시 눌러 주세요. (코드 B1)', false, true); }   // [MAIL_RETRY] 단추를 되살린다
+  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal('예약'); } catch (_e) {} return infoPage('다른 처리가 진행 중이에요', '잠시 후 다시 눌러 주세요 (코드 B1)', false, true); }   // [MAIL_RETRY] · [MAIL_SAME_WORDS] 세 단추 같은 말 단추를 되살린다
   try {
     row = _rowFresh_(sheet, colOf, row);   // [LOCK_REREAD] 잠금을 잡은 뒤 같은 예약을 다시 읽어 판단한다
+    if (!row) return infoPage('예약을 찾을 수 없습니다', '예약 정보가 바뀌었어요. 관리자 페이지에서 확인해 주세요.', false);
     dateKey = row.get('선택날짜'); time = row.get('선택시간');
     if (!dateKey || !time) return infoPage('선택된 시간이 없습니다', '고객이 아직 시간을 선택하지 않았습니다.', false);
     // 중복 처리 차단은 "상태가 이미 승인완료/확정"인 경우에만.
@@ -370,7 +380,7 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
 
     if (curStatus === ST.APPROVED || curStatus === ST.CONFIRMED) {
       writeCell(sheet, colOf, row.num, '상태', targetStatus);
-      return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>(메일·캘린더는 다시 보내지 않았습니다.)', true);   // [HTML_ESC_NAMES] 고객 글은 늘 esc · [BTN_AFTER_FAIL] «이미 처리되어»라고 장담하지 않는다
+      return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님<br>' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>(메일·캘린더는 다시 보내지 않았습니다.)', true);   // [HTML_ESC_NAMES] 고객 글은 늘 esc · [BTN_AFTER_FAIL] «이미 처리되어»라고 장담하지 않는다
     }
     if (curStatus === ST.CANCELLED) {  // [관리자 v1 · 개선 K] 취소건 승인 차단 · 메일버튼·관리자 양쪽 보호(되살아남 방지)
       return infoPage('취소된 예약입니다', '취소된 예약은 승인할 수 없습니다. 다시 진행하려면 고객이 새로 신청해야 합니다.', false);
@@ -380,7 +390,7 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
     //   PICKED 둘이 통과해도 여기서 두 번째 승인을 막아 더블 확정 0.
     if (_slotTaken(dateKey, time, row.num)) {
       return infoPage('이미 마감된 슬롯입니다',
-        esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>같은 시간이 이미 확정됐어요 · <b>변경 제안</b>을 보내 주세요.', false);   // [HTML_ESC_NAMES] · [MAIL_BOX_STEADY] 폰 네 줄 안
+        esc(coupleNames(row)) + ' 님<br>' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>같은 시간이 이미 확정됐어요 · <b>변경 제안</b>을 보내 주세요.', false);   // [HTML_ESC_NAMES] · [MAIL_BOX_STEADY] 폰 네 줄 안
     }
 
     writeCell(sheet, colOf, row.num, '입금확인', '확인');
@@ -393,20 +403,18 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
     try { syncCalendarEvent(sheet, colOf, row.num, dateKey, time, coupleNames(row), row.get('연락처')); } catch (eC) { _miss.push('캘린더'); }
     try { _bustAvailCache(); } catch (eB) {}   // 슬롯 마감 → 가능일 캐시 무효화
 
+    var _mailErr = '';
     try {
       sendConfirmEmail_(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
-    } catch (mailErr) {
-      _miss.push('확정 메일');
-      try { notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
-        coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 · 수동 안내가 필요합니다.'); } catch (eN0) {}
-    }
+    } catch (mailErr) { _miss.push('확정 메일'); _mailErr = String((mailErr && mailErr.message) || mailErr); }
     try { sendStudioBriefEmail(row, dateKey, time); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
     try { setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm'); } catch (eS) { _miss.push('마이페이지 단계'); }  // ★③ Customers 현재단계 → 상담/촬영확정
     try { notifyKakao('cust.consultConfirmed', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time }); } catch (eK) { _miss.push('카톡'); }  // 고객: 상담/촬영 확정(카톡 · 메일과 동시 구간)
     if (_miss.length) {
-      var _onlyMail = _miss.length === 1 && _miss[0] === '확정 메일';   // 메일만이면 위에서 이미 알렸다
-      if (!_onlyMail) { try { notifyStudio('[상담] 승인 뒤 일부 실패', coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n안 된 것: ' + _miss.join(' · ') + '\n승인(상태)은 처리됐습니다 · 빠진 것을 직접 확인해 주세요.'); } catch (eN) {} }
-      var _pp = infoPage('승인은 됐지만 일부가 안 됐어요', esc(coupleNames(row)) + ' 님 · ' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>안 된 것: ' + _miss.join(' · ') + ' · 관리자 페이지에서 확인해 주세요. (코드 B4)', false);   // [APPROVE_PARTIAL]
+      /* [APPROVE_PARTIAL] 한 번 누름에 관리자 알림 한 통(빠진 것 · 확정 메일 받는 곳 · 오류를 함께) + 고객 처리이력 한 줄 */
+      try { notifyStudio('[상담] 승인 뒤 일부 실패', coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n안 된 것: ' + _miss.join(', ') + (_mailErr ? '\n확정 메일 받는 곳: ' + row.get('이메일') + '\n오류: ' + _mailErr + '\n고객에게 직접 안내해 주세요.' : '') + '\n승인은 처리됐습니다 · 이것만 직접 해 주세요.'); } catch (eN) {}
+      _partialNote_(row, '승인', _miss);
+      var _pp = infoPage('빠진 것이 있어요', esc(coupleNames(row)) + ' 님 승인은 됐어요<br>안 된 것: ' + _miss.join(', ') + '<br>이것만 직접 해 주세요 (코드 B4)', false);   // [APPROVE_PARTIAL] · [MAIL_SAME_WORDS] 관리 화면 창과 같은 이름
       _LAST_INFO.partial = _miss.slice();
       return _pp;
     }
@@ -422,7 +430,7 @@ function _rowFresh_(sheet, colOf, rw) {   // [LOCK_REREAD 2026-10-09 점검] 잠
     var same = (typeof rw.num === 'number') ? row(sheet, colOf, rw.num) : null;
     if (same && (!t || String(same.get('토큰') || '').trim() === t)) return same;
     var f = t ? findRowByToken(sheet, colOf, t) : null;
-    return f || rw;
+    return f || null;   // [LOCK_REREAD] 그 줄이 다른 예약이 됐고 토큰으로도 못 찾으면 쓰지 않는다(지워진 예약 · 밀린 줄)
   } catch (e) { return rw; }
 }
 function _infoText_(li) {   // [ACCEPT_RESULT] 결과 글(infoPage)을 관리 화면 · 마이페이지가 쓰는 한 줄 글로
@@ -430,19 +438,29 @@ function _infoText_(li) {   // [ACCEPT_RESULT] 결과 글(infoPage)을 관리 �
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
   return b ? (t + ' · ' + b) : t;
 }
+function _partialNote_(row, what, miss) {   // [APPROVE_PARTIAL] 빠진 일은 고객 처리이력에도 한 줄 — 결과 창 · 메일이 지나가도 고객 상세에 남는다
+  try {
+    var code = String(row.get('개인코드') || '').trim().toUpperCase(); if (!code) return;
+    var cust = findCustomerByCode(code); if (!cust) return;
+    var cs = getCustomersSheet(), co = buildHeaderIndex(cs), prev = String(cust.get('처리이력') || '');
+    var line = '[' + fmtKST(new Date()) + '] ' + what + ' · 안 된 것: ' + miss.join(', ') + ' (코드 B4)';
+    touchCustomer(cs, co, cust.num, { '처리이력': prev ? (prev + '\n' + line) : line });
+  } catch (e) {}
+}
 
 // [수락] (변경 제안에 대한 고객 수락) → 상태=확정 + 캘린더 갱신 + 변경 확정 메일⑤
 function actAccept(sheet, colOf, row) { _gsr_();
   /* [LOCK_REREAD 2026-10-09 점검] 잠금을 먼저 잡고 같은 예약을 다시 읽은 뒤 판단한다 — 겹친 두 번째 누름이 낡은 상태로 다시 확정 · 메일을 내지 않게.
      잠금을 못 잡으면 진행하지 않고 다시 누르게 한다. */
   var _acLock = LockService.getScriptLock();
-  try { _acLock.waitLock(10000); } catch (eL) { try { lockBusySignal('예약'); } catch (_e) {} return infoPage('잠시 후 다시 시도해 주세요', '다른 처리가 진행 중이에요. 잠시 후 다시 눌러 주세요. (코드 B1)', false, true); }   // [MAIL_RETRY]
+  try { _acLock.waitLock(10000); } catch (eL) { try { lockBusySignal('예약'); } catch (_e) {} return infoPage('다른 처리가 진행 중이에요', '잠시 후 다시 눌러 주세요 (코드 B1)', false, true); }   // [MAIL_RETRY]
   try {
   row = _rowFresh_(sheet, colOf, row);
+  if (!row) return infoPage('예약을 찾을 수 없습니다', '예약 정보가 바뀌었어요. 스튜디오로 문의해 주세요.', false);   // [LOCK_REREAD]
   var curStatus = String(row.get('상태') || '').trim();
   // 이미 확정/취소된 건 재처리 안 함 (버튼 2번 클릭·새로고침 시 메일 중복 방지)
   if (curStatus === ST.CONFIRMED) {
-    return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님 · ' + prettyDate(row.get('선택날짜')) + ' · ' + esc(row.get('선택시간')), true);   // [HTML_ESC_NAMES]
+    return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님<br>' + prettyDate(row.get('선택날짜')) + ' · ' + esc(row.get('선택시간')), true);   // [HTML_ESC_NAMES]
   }
   if (curStatus === ST.CANCELLED) {
     return infoPage('취소된 예약입니다', '이 예약은 취소되었습니다. 다시 예약을 원하시면 새로 신청해 주세요.', false);
@@ -464,7 +482,9 @@ function actAccept(sheet, colOf, row) { _gsr_();
   /* ★시그니처 주의: _slotTaken(dateKey, time, exceptRowNum) — 시트 인자가 없다(내부에서 연다).
      처음에 (sheet, colOf, …)로 불렀다가 normalizeDateKey(sheet)가 falsy 라 **항상 통과**했다(자가 검증에서 잡음). */
   if (typeof _slotTaken === 'function' && _slotTaken(nd, nt, row.num)) {
-    return infoPage('그 시간이 방금 마감됐습니다', '제안드린 시간이 다른 예약으로 확정되었습니다.<br>다른 시간을 다시 제안드릴게요 · 잠시만 기다려 주세요.', false);
+    /* [ACCEPT_SLOT_NOTICE 2026-10-09 라운드 4] 고객에게 «다시 제안드릴게요»라고 하는 대신 스튜디오가 알게 한다(관리 화면에서 누른 것이면 그 화면이 말한다) */
+    if (!(typeof _CURRENT_ADMIN !== 'undefined' && _CURRENT_ADMIN)) { try { notifyStudio('[상담] 변경 수락 실패 · 제안 시간 마감', coupleNames(row) + ' · ' + nd + ' ' + nt + '\n다른 예약이 먼저 확정됐어요 · 다른 시간을 다시 제안해 주세요.'); } catch (eN) {} }
+    return infoPage('그 시간은 방금 마감됐어요', '다른 시간을 다시 제안드릴게요.', false);
   }
 
   writeCell(sheet, colOf, row.num, '선택날짜', nd);
@@ -475,13 +495,10 @@ function actAccept(sheet, colOf, row) { _gsr_();
   try { syncCalendarEvent(sheet, colOf, row.num, nd, nt, coupleNames(row), row.get('연락처')); } catch (eC) { _miss.push('캘린더'); }
   try { _bustAvailCache(); } catch (eB) {}   // 변경 확정 → 가능일 캐시 무효화
 
-  var _mailOk = true;
+  var _mailOk = true, _mailErr = '';
   try {
     sendConfirmEmail_(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'));
-  } catch (mailErr) {
-    _mailOk = false; _miss.push('확정 메일');
-    try { notifyStudio('[상담] ⚠️오류 · 변경 확정 메일 발송 실패', coupleNames(row) + ' · ' + mailErr.message); } catch (eN0) {}
-  }
+  } catch (mailErr) { _mailOk = false; _miss.push('확정 메일'); _mailErr = String((mailErr && mailErr.message) || mailErr); }
   try { sendStudioBriefEmail(row, nd, nt); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
   try { setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm'); } catch (eS) { _miss.push('마이페이지 단계'); }  // ★③ 변경수락→확정도 동일 전이
   /* [ACCEPT_DEP_ALERT 2026-09-26 통합 점검 L4] 변경 제안을 수락해 확정된 예약은 예약금 입금확인 칸을 채울 계기가 없다 —
@@ -490,7 +507,8 @@ function actAccept(sheet, colOf, row) { _gsr_();
      → 칸이 비어 있으면 관리자에게 메일 한 통. ★자동으로 채우지 않는다 — 입금은 통장을 본 사람만 확인할 수 있다.
      ★스냅은 상담 예약금이 없어 건너뛴다(admin depositTick 도 시그니처만 본다). 메일이 실패해도 확정은 그대로다. */
   try {
-    var _adCode = String(row.get('개인코드') || '').trim(), _adCu = _adCode ? findCustomerByCode(_adCode) : null;
+    var _adCode = String(row.get('개인코드') || '').trim(), _adCu = null;
+    try { _adCu = _adCode ? findCustomerByCode(_adCode) : null; } catch (eFC) { _adCu = null; }   // [APPROVE_PARTIAL] 고객을 못 읽어도 알림은 보낸다(모르면 스냅 아님으로)
     var _adSnap = !!_adCu && String(_adCu.get('상품타입') || '').trim() === '웨딩스냅';
     if (!_adSnap && String(row.get('입금확인') || '').trim() !== '확인' && typeof _nfAdminLineEmail === 'function') {
       /* [ACCEPT_DEP_SUBJ 2026-09-26 통합 점검 2라운드 R2] 관리자 메일 제목은 앞 60자에서 잘린다(_nfAdminLineEmail) —
@@ -504,9 +522,13 @@ function actAccept(sheet, colOf, row) { _gsr_();
     writeCell(sheet, colOf, row.num, '변경제안날짜', '');   // [ACCEPT_GUARDED C2] 소진된 제안은 비운다 — 낡은 [수락]이 되살아나지 않게
     writeCell(sheet, colOf, row.num, '변경제안시간', '');
   } catch (eW) { _miss.push('제안 칸 비우기'); }
-  if (_miss.length && !(_miss.length === 1 && !_mailOk)) { try { notifyStudio('[상담] 변경 수락 뒤 일부 실패', coupleNames(row) + ' · ' + nd + ' ' + nt + '\n안 된 것: ' + _miss.join(' · ') + '\n확정(상태)은 처리됐습니다 · 빠진 것을 직접 확인해 주세요.'); } catch (eN) {} }
+  if (_miss.length) {   // [APPROVE_PARTIAL] 한 번 누름에 관리자 알림 한 통 + 고객 처리이력 한 줄
+    var _byAdm = (typeof _CURRENT_ADMIN !== 'undefined' && _CURRENT_ADMIN);
+    try { notifyStudio('[상담] 변경 수락 뒤 일부 실패', coupleNames(row) + ' · ' + nd + ' ' + nt + '\n안 된 것: ' + _miss.join(', ') + (_mailErr ? '\n확정 메일 받는 곳: ' + row.get('이메일') + '\n오류: ' + _mailErr + (_byAdm ? '\n고객에게 직접 안내해 주세요.' : '\n고객 화면에 «스튜디오에서 따로 연락드릴게요»가 나갔어요 · 직접 연락해 주세요.') : '') + '\n변경 확정은 처리됐습니다 · 이것만 직접 해 주세요.'); } catch (eN) {}
+    _partialNote_(row, _byAdm ? '변경 수락(관리 화면)' : '변경 수락(고객)', _miss);
+  }
   // 고객이 누른 단추다 — 고객에게는 확정 사실과(메일이 빠졌으면) 늦어진다는 말만 · 안쪽 일은 관리자 메일로
-  var _ap = infoPage('변경 확정', '변경된 일정으로 예약이 확정되었습니다.<br>' + prettyDate(nd) + ' · ' + esc(nt) + (_mailOk ? '' : '<br>확정 메일이 늦어질 수 있어요 · 스튜디오에서 확인해 연락드릴게요.'), true);   // [HTML_ESC_NAMES] · [APPROVE_PARTIAL]
+  var _ap = infoPage('바뀐 일정으로 확정됐어요', prettyDate(nd) + ' · ' + esc(nt) + (_mailOk ? '' : '<br>확정 메일을 보내지 못했어요 · 스튜디오에서 따로 연락드릴게요.'), true);   // [HTML_ESC_NAMES] · [APPROVE_PARTIAL] · [MAIL_SAME_WORDS] 다시 보내는 장치가 없으니 «늦어질 수 있어요»라고 하지 않는다
   if (_miss.length) _LAST_INFO.partial = _miss.slice();
   return _ap;
   } finally { try { SpreadsheetApp.flush(); } catch (eF) {} try { _acLock.releaseLock(); } catch (eR) {} }   // [LOCK_REREAD]
@@ -664,6 +686,7 @@ function serveCancelD(token, row) { _gsr_();
     '})();' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle('예약 취소 · Moment Edit')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')   // [MAIL_VIEWPORT]
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -821,6 +844,7 @@ function serveAdminCancelD(token, row) { _gsr_();
     '<a class="btn btn-cancel" href="' + safeAttr(doUrl) + '" target="_top">취소 확정</a>' +
     '</div></div></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle('예약 취소 (관리자) · Moment Edit')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')   // [MAIL_VIEWPORT]
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -840,6 +864,9 @@ function doAdminCancel(sheet, colOf, row) { _gsr_();
 // [P1.5] 인자 personalCode 추가 — handleSignup이 발급한 개인코드로 Customers·상담예약 두 행을 묶는다(★4 FK).
 // 고객 일정링크 메일(sendUrlEmail)은 제거 — 접수 고객메일은 handleSignup의 sendSignupEmail 1통으로 통일(★5-a).
 function submitApplication(form, personalCode) { _SRV = true;
+  /* [ENTRY_ARGS_SRV 2026-10-09 라운드 4] 공개 입구는 화면이 보내는 인자만 받는다 — 개인코드(FK)는 서버(doPost → 가입)만 넘긴다 · 신청서 칸은 글자만 */
+  if (!_IN_POST) personalCode = '';
+  form = _entryForm_(form);
   var groom = String(form.groom || '').trim();
   var bride = String(form.bride || '').trim();
   var phone = String(form.phone || '').trim();
@@ -905,6 +932,10 @@ function _slotTaken(dateKey, time, exceptRowNum) { _gsr_();
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
 function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer, payBy, viaSession) { _SRV = true;
+  /* [ENTRY_ARGS_SRV 2026-10-09 라운드 4] 화면 B 는 앞의 다섯만 보낸다 — 가예약 · 현금영수증 · 입금자 · 결제 방법 · 로그인 길 표는 서버(doPost → 마이페이지)만 넘긴다 */
+  if (!_IN_POST) { hold = null; cashReceipt = ''; payer = ''; payBy = ''; viaSession = false; }
+  token = _btnStr_(token); dateKey = _btnStr_(dateKey); time = _btnStr_(time); etc = _btnStr_(etc);
+  flexArr = Array.isArray(flexArr) ? flexArr.map(_btnStr_).filter(function (x) { return x; }) : _btnStr_(flexArr);
   /* [DEPOSIT_CARD 2026-09-25] 카드로 낼 신청이면 관리자 알림이 «승인 필요»가 아니라 «카드 결제 대기 · 결제되면 자동 확정»이어야 한다.
      화면은 신청을 «먼저» 넣고 토스 결제창을 연다 — 그 사이 관리자가 승인을 누르면 actApprove 가 입금확인을 적어 버려
      결제 없이 확정된다. 그래서 알림·관리자 큐가 카드 대기를 알게 한다(동의기록.예약금결제='카드').
@@ -1052,6 +1083,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
 
 // 화면 C 제출(미쿠) → 상태=변경제안 + 고객에게 제안 메일④
 function submitProposal(token, sig, newDate, newTime, memo) { _SRV = true;
+  token = _btnStr_(token); sig = _btnStr_(sig); newDate = _btnStr_(newDate); newTime = _btnStr_(newTime); memo = _btnStr_(memo);   // [ENTRY_ARGS_SRV] 글자만
   if (!verifySig_(token, 'change', sig)) throw new Error('권한이 없습니다.');
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
@@ -1893,8 +1925,9 @@ function safeAttr(url) { _gsr_();
 function notifyStudio(subject, body, dedupKey) { _gsr_();
   try {
     /* ★[ERR_CODE_GAS 2026-10-07] «⚠️오류» 알림(확정 메일 · 캘린더 · 환불 요청 메일 실패 등)이 이 스위치에 막혀 아무에게도 안 갔다 —
-       고객은 «보냈어요»를 보는데 메일은 안 가고 관리자도 모르는 자리였다. 스위치가 꺼져 있어도 오류만은 관리자 메일로(제목마다 하루 한 통) */
-    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '')) && typeof _nfAdminLineEmail === 'function') { var _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 16), _pp = PropertiesService.getScriptProperties(), _dd = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'); if (_pp.getProperty(_pk) !== _dd) { _pp.setProperty(_pk, _dd); _nfAdminLineEmail(String(subject).replace(/⚠️?/g, '') + ' · ' + String(body || '').replace(/\s+/g, ' ').slice(0, 300)); } } return; }   // 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
+       고객은 «보냈어요»를 보는데 메일은 안 가고 관리자도 모르는 자리였다. 스위치가 꺼져 있어도 오류만은 관리자 메일로.
+       [NOTICE_PER_WHO 2026-10-09 라운드 4] 같은 제목 · 같은 첫 줄(누구 · 어떤 오류)만 6시간에 한 통 — 제목만으로 하루 한 통이면 같은 날 두 번째 고객의 실패가 묻힌다 */
+    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '')) && typeof _nfAdminLineEmail === 'function') { var _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject) + '|' + String(body || '').split('\n')[0].slice(0, 160), Utilities.Charset.UTF_8)).slice(0, 16), _pc = CacheService.getScriptCache(); if (!_pc.get(_pk)) { _pc.put(_pk, '1', 21600); _nfAdminLineEmail(String(subject).replace(/⚠️?/g, '') + ' · ' + String(body || '').replace(/\s+/g, ' ').slice(0, 300)); } } return; }   // 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
     if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
     if (dedupKey) {
       var c = CacheService.getScriptCache();
@@ -1937,7 +1970,7 @@ function _payConfirmRun_(p) {   // 확인 화면의 단추를 누른 뒤에만(m
   _BTN_SIGNED = true;   // [BTN_SAFE_ARGS] 서명 · 기한을 확인한 처리 — 이 뒤의 오류만 오류기록에 남긴다
   // 동시 클릭(더블클릭) 시 확인처리 이중 실행 방지 — 락으로 직렬화하면 두 번째는 already 경로로 수렴
   var _lock = LockService.getScriptLock();
-  try { _lock.waitLock(10000); } catch (e) { return { ok: false, retry: true, title: '잠시 후 다시 시도해 주세요', body: '다른 처리가 진행 중이에요. 잠시 후 다시 눌러 주세요. (코드 P1)' }; }   // [MAIL_FAIL_WORDS] 몰림 = 1 · [MAIL_RETRY] 단추를 되살린다
+  try { _lock.waitLock(10000); } catch (e) { return { ok: false, retry: true, title: '다른 처리가 진행 중이에요', body: '잠시 후 다시 눌러 주세요 (코드 P1)' }; }   // [MAIL_FAIL_WORDS] 몰림 = 1 · [MAIL_RETRY] 단추를 되살린다
   var r, _authPrev = _AUTHED;
   try {
     /* ★[PAYCONFIRM_AUTHED 2026-10-09 · B19] 확인 함수(_confirmDepositCore · adminConfirmMid/Balance/MidBalance)는 관리자 전용이다(_requireAdmin).
@@ -1948,10 +1981,15 @@ function _payConfirmRun_(p) {   // 확인 화면의 단추를 누른 뒤에만(m
     else if (v.m === 'bal') r = adminConfirmBalance(v.code);
     else r = adminConfirmMidBalance(v.code);
   } finally { _AUTHED = _authPrev; try { SpreadsheetApp.flush(); } catch (eF) {} try { _lock.releaseLock(); } catch (e) {} }   // [LOCK_REREAD] 다음 누름이 이 쓰기를 보게
-  var _hint = (r && r.ok) ? _btnFailSeen_('P_' + v.code + '_' + v.m, '고객 안내가 나갔는지') : '';   // [BTN_AFTER_FAIL]
+  var _hint = (r && r.ok) ? _btnFailSeen_('P_' + v.code + '_' + v.m, v.m === 'deposit' ? '고객 안내(카톡)가 나갔는지' : '마이페이지 반영을') : '';   // [BTN_AFTER_FAIL] 새로 끝까지 했으면 표만 지운다 · «이미»일 때만 한 줄
   if (r && r.ok && r.already) return { ok: true, title: '이미 확인 처리되어 있어요', body: esc(v.code) + ' · ' + esc(v.label) + (_hint ? '<br>' + _hint : ' · 추가로 할 일이 없어요.') };
-  if (r && r.ok) return { ok: true, title: '입금 확인 완료', body: esc(v.code) + ' · ' + esc(v.label) + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.' + (_hint ? '<br>' + _hint : '') };
-  return { ok: false, title: '처리하지 못했어요', body: esc(String((r && r.error) || '')) + '<br>관리자 페이지에서 처리해 주세요.' };
+  /* [PAY_NOTICE_TRUE 2026-10-09 라운드 4] 고객 알림이 정말 나가는 확인(계약금)만 «고객에게 알림이 가요» — 중도금 · 잔금 확인은 알림이 꺼져 있다(관리 화면 알림 글과 같은 말) */
+  var _ev = (v.m === 'deposit') ? 'cust.depositToProduction' : 'cust.paymentConfirmed', _sent = false;
+  try { _sent = typeof NOTIFY_EVENTS === 'object' && !!NOTIFY_EVENTS[_ev] && !NOTIFY_EVENTS[_ev].off; } catch (eN) {}
+  if (r && r.ok) return { ok: true, title: '입금 확인 완료', body: esc(v.code) + ' · ' + esc(v.label) + ' 확인 처리했어요.<br>' + (_sent ? '고객에게 카톡 알림이 자동으로 가요 · 마이페이지에도 반영됐어요.' : '마이페이지에 반영됐어요 · 이 확인은 고객 알림이 따로 가지 않아요.') };
+  var _pe = String((r && r.error) || '').trim();   // [MAIL_SAME_WORDS] 안쪽 잠금 몰림은 다시 누르기(P1) · 까닭 글이 없으면 코드(P4)
+  if ((typeof _PAY_LOCK_BUSY === 'string' && _pe === _PAY_LOCK_BUSY) || /서버 혼잡/.test(_pe)) return { ok: false, retry: true, title: '다른 처리가 진행 중이에요', body: '잠시 후 다시 눌러 주세요 (코드 P1)' };
+  return { ok: false, title: '처리하지 못했어요', body: _pe ? esc(_pe) + '<br>관리자 페이지에서 처리해 주세요' : '관리자 페이지에서 처리해 주세요 (코드 P4)' };
 }
 /* [MAIL_BTN_CONFIRM] 확인 화면의 단추가 부르는 하나뿐인 처리 — 공개 화면 함수(입구)라 서명 · 기한을 여기서 다시 본다 */
 function mailButtonGo(p) { _SRV = true;
@@ -1969,20 +2007,20 @@ function mailButtonGo(p) { _SRV = true;
       _LAST_INFO = null;
       if (a === 'approve') actApprove(sheet, colOf, row); else actAccept(sheet, colOf, row);
       var _li = _LAST_INFO || { ok: true, title: '처리했어요', body: '' };
-      if (a === 'approve' && _li.ok) { var _h = _btnFailSeen_('B_' + token, '확정 메일 · 캘린더가 나갔는지'); if (_h) _li = { ok: true, title: _li.title, body: _li.body + '<br>' + _h }; }   // [BTN_AFTER_FAIL]
+      if (a === 'approve' && _li.ok) { var _h = _btnFailSeen_('B_' + token, '확정 메일과 캘린더를'); if (_h && /^이미/.test(String(_li.title || ''))) _li = { ok: true, title: _li.title, body: String(_li.body || '').replace(/<br>\(메일·캘린더는 다시 보내지 않았습니다\.\)$/, '') + '<br>' + _h }; }   // [BTN_AFTER_FAIL] 새로 끝까지 했으면 표만 지우고 말하지 않는다 · «이미»일 때만 한 줄
       return _li;
     }
     return { ok: false, title: '알 수 없는 요청', body: '' };
   } catch (e) {
     /* [MAIL_FAIL_WORDS 2026-10-09 점검] 예상 못 한 오류 — 원문은 오류기록에만(관리자 검색창에 사고번호) · 화면에는 받는 사람 말과 코드(B9 · P9) */
-    var _cfg = /is not defined|is not a function/.test(String((e && e.message) || e));   // [BTN_FAIL_KIND] 붙여넣기 · 배포 누락은 3 — 다시 눌러도 같다
+    var _cfg = _cfgErr_(e);   // [BTN_FAIL_KIND] 붙여넣기 · 배포 누락은 3 — 다시 눌러도 같다
     var _ec = (a === 'payconfirm' ? 'P' : 'B') + (_cfg ? '3' : '9'), _eid = '';
     if (_BTN_SIGNED) {   // [BTN_SAFE_ARGS] 서명을 확인한 처리의 오류만 기록
       try { _eid = _cfg ? '' : _errId(); _errRecord('btn:' + a.slice(0, 20), _ec, '처리하지 못했어요', String((e && e.stack) || (e && e.message) || e).replace(/\s+/g, ' ').slice(0, 200), _eid, ''); } catch (_x) {}
       try { var _k = (a === 'payconfirm') ? ('P_' + _btnStr_(p.code).trim().toUpperCase() + '_' + _btnStr_(p.m).trim()) : ('B_' + _btnStr_(p.token)); CacheService.getScriptCache().put('BTNFAIL_' + _k.replace(/[^0-9A-Za-z_]/g, '').slice(0, 80), '1', 21600); } catch (_c) {}   // [BTN_AFTER_FAIL]
     }
-    if (_cfg) return { ok: false, title: '처리하지 못했어요', body: '지금은 처리할 수 없어요. 관리자 페이지에서 처리해 주세요. (코드 ' + _ec + ')' };
-    return { ok: false, retry: true, title: '처리하지 못했어요', body: (a === 'accept' ? '잠시 후 다시 눌러 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.' : '잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요.') + ' (코드 ' + _ec + (_eid ? ' · ' + _eid : '') + ')' };   // [MAIL_RETRY] · [MAIL_FAIL_WORDS] 화면과 같은 말
+    if (_cfg) return { ok: false, title: '처리하지 못했어요', body: (a === 'accept' ? 'contact@momentedit.kr 로 문의해 주세요' : 'GAS 붙여넣기 · 배포가 빠진 것 같아요 · 99_deployCheck 파일의 deployCheck 를 돌려 주세요') + ' (코드 ' + _ec + ')' };   // [BTN_FAIL_KIND] 고객 단추(수락)에는 «관리자 페이지»를 말하지 않는다 · 관리 화면도 같은 함수가 빠졌을 공산이 크다
+    return { ok: false, retry: true, title: '처리하지 못했어요', body: (a === 'accept' ? '잠시 후 다시 눌러 주세요 · 계속되면 contact@momentedit.kr 로 문의해 주세요' : '잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요') + ' (코드 ' + _ec + (_eid ? ' · ' + _eid : '') + ')' };   // [MAIL_RETRY] · [MAIL_FAIL_WORDS] 화면과 같은 말
   }
 }
 function _btnFailSeen_(key, what) {   // [BTN_AFTER_FAIL 2026-10-09 점검] 같은 단추가 앞서 예상 못 한 오류로 끝났으면, 이번 결과에 «확인해 주세요» 한 줄(한 번만)
@@ -1990,8 +2028,18 @@ function _btnFailSeen_(key, what) {   // [BTN_AFTER_FAIL 2026-10-09 점검] 같�
     var c = CacheService.getScriptCache(), k = 'BTNFAIL_' + String(key || '').replace(/[^0-9A-Za-z_]/g, '').slice(0, 80);
     if (!c.get(k)) return '';
     c.remove(k);
-    return '앞서 오류가 있었어요 · ' + what + ' 관리자 페이지에서 확인해 주세요.';
+    return '앞서 오류가 있었어요 · ' + what + ' 확인해 주세요.';
   } catch (e) { return ''; }
+}
+var _IN_POST = false;   // [ENTRY_ARGS_SRV] doPost 길 안인가(실행마다 false 로 다시 시작) — 공개 입구의 서버 쪽 인자는 이 길에서만 받는다
+function _entryForm_(f) {   // [ENTRY_ARGS_SRV] 신청서 칸은 아는 이름만 · 글자만(글자 · 숫자 외는 빈 글)
+  f = (f && typeof f === 'object') ? f : {};
+  var o = {}; ['groom', 'bride', 'phone', 'email', 'memo', 'detail', 'hp'].forEach(function (k) { o[k] = Object.prototype.hasOwnProperty.call(f, k) ? _btnStr_(f[k]) : ''; });
+  return o;
+}
+function _cfgErr_(e) {   // [BTN_FAIL_KIND] 붙여넣기 · 배포 누락(전역 이름이 없다)만 3 — «x.y is not a function» 같은 데이터 오류는 9
+  var m = String((e && e.message) || e || '');
+  return /(^|[^.\w$])[A-Za-z_$][\w$]* is not (defined|a function)/.test(m);
 }
 var _BTN_SIGNED = false;   // [BTN_SAFE_ARGS] 메일 단추 처리 안에서 서명 · 기한을 확인했는가(실행마다 false 로 다시 시작)
 function _btnStr_(v) { return (typeof v === 'string') ? v : ((typeof v === 'number' && isFinite(v)) ? String(v) : ''); }   // [BTN_SAFE_ARGS] 던지지 않는 글자 변환
@@ -2006,11 +2054,11 @@ function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_
     '@media (max-width:360px){.box{padding:40px 22px}}' +
     '.bar{width:40px;height:3px;background:#3A2D22;border-radius:3px;margin:0 auto 22px}' +
     '.brand{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.34em;color:#3A2D22;text-transform:uppercase;margin-bottom:18px}' +
-    '.t{font-family:"Noto Serif KR",serif;font-size:21px;font-weight:500;color:#3A2D22;margin-bottom:14px}' +
+    '.t{font-family:"Noto Serif KR",serif;font-size:21px;font-weight:500;line-height:1.4;color:#3A2D22;margin-bottom:14px}' +
     '.d{font-size:14px;line-height:1.85;color:#5A554C;min-height:5.55em}' +
     '.go{margin-top:26px;min-height:48px;min-width:200px;padding:0 28px;border:0;border-radius:6px;background:#3A2D22;color:#FAFAF8;font-family:"Noto Sans KR",sans-serif;font-size:14px;letter-spacing:.04em;cursor:pointer}' +
     '.go[disabled]{opacity:.6;cursor:default}' +
-    '@media (max-width:480px){.t{min-height:56px;display:flex;align-items:center;justify-content:center}.d{min-height:7.4em}}</style></head>' +   // [MAIL_BOX_STEADY] 폰은 제목 두 줄 · 설명 네 줄 자리(누른 뒤 카드 높이 · 단추 위치 그대로)
+    '@media (max-width:480px){.t{min-height:2.8em;display:flex;align-items:center;justify-content:center}.d{min-height:7.4em}}</style></head>' +   // [MAIL_BOX_STEADY] 폰은 제목 두 줄 · 설명 네 줄 자리(누른 뒤 카드 높이 · 단추 위치 그대로)
     '<body><div class="box" aria-live="polite"><div class="brand">Moment Edit</div><div class="bar" id="bar"></div>' +
     '<div class="t" id="t">' + esc(title) + '</div><div class="d" id="d">' + descHtml + '</div>' +
     '<button type="button" class="go" id="go">' + esc(btnLabel) + '</button></div>' +
@@ -2024,20 +2072,21 @@ function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_
     'else if(/^<\\s*\\/\\s*(b|strong)\\s*>$/i.test(g)&&st.length)cur=st.pop();}' +
     'tx(s.slice(i));}' +
     /* [MAIL_RETRY 2026-10-09 점검] 다시 누를 수 있는 실패(몰림 1 · 예상 못 한 오류 9)는 단추를 되살린다 · [MAIL_BOX_STEADY] 끝난 결과는 단추 자리를 남긴 채 감춘다(카드 높이 · 위치 그대로) */
-    'function show(r){if(!r||typeof r!=="object"||!r.title)r={ok:false,retry:true,title:"처리하지 못했어요",body:"결과를 받지 못했어요. 잠시 후 다시 눌러 주세요. (코드 "+(P.action==="payconfirm"?"P":"B")+"7)"};T.textContent=r.title;put(D,r.body);' +   // [MAIL_FAIL_KIND] 빈 응답은 7 · 다시 누르기
+    'function show(r){if(!r||typeof r!=="object"||!r.title)r={ok:false,retry:true,title:"결과를 받지 못했어요",body:"다시 누르면 처리됐는지 알려 드려요 (코드 "+(P.action==="payconfirm"?"P":"B")+"7)"};T.textContent=r.title;put(D,r.body);' +   // [MAIL_FAIL_KIND] 빈 응답은 7(결과 모름) · 다시 누르기
     'R.style.background=r.ok?"#2E6B43":"#6B2A24";' +
     'if(r.retry){b.disabled=false;b.textContent=L;b.style.visibility="visible";try{b.focus();}catch(_){}}else{b.disabled=true;b.style.visibility="hidden";}}' +
-    'b.onclick=function(){b.disabled=true;b.textContent="처리 중";' +
+    'var T0=T.textContent,D0=D.innerHTML;b.onclick=function(){b.disabled=true;b.textContent="처리 중";T.textContent=T0;D.innerHTML=D0;R.style.background="#3A2D22";' +   // [MAIL_SAME_WORDS] 실패 뒤 다시 누르면 처음 화면에서 «처리 중»(앞의 실패 글을 남겨 두지 않는다)
     'google.script.run.withSuccessHandler(show).withFailureHandler(function(e){' +
     /* [MAIL_FAIL_WORDS 2026-10-09 점검] 단추가 서버에 닿지 못했을 때 — 받는 사람 말로 · 코드(B 상담 예약 · P 입금) · 단추를 되살려 바로 다시 누르게.
        [MAIL_FAIL_KIND] 5 시간 초과(결과 모름) · 6 연결 끊김(답을 못 받음) · 7 그 밖(서버가 답했는데 실패) — 다시 눌러도 이미 처리된 건은 «이미»로 답한다(잠금 뒤 다시 읽기) */
     'var m=String((e&&e.message)||e||""),k=/exceeded maximum execution time|timed? ?out/i.test(m)?5:(/http 0\\b|failed to fetch|연결/i.test(m)?6:7),c=(P.action==="payconfirm"?"P":"B")+k;' +
     'T.textContent=k===6?"연결이 끊겼어요":(k===5?"응답이 늦어요":"처리하지 못했어요");' +
-    'D.textContent=(k===5?"처리됐는지 아직 몰라요. 다시 누르면 이미 처리된 건은 그렇게 알려 드려요.":(P.action==="accept"?"잠시 후 다시 눌러 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.":"잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요."))+" (코드 "+c+")";' +
+    'D.textContent=(k===5?"처리됐는지 아직 몰라요 · 다시 누르면 결과를 알려 드려요":(P.action==="accept"?"잠시 후 다시 눌러 주세요 · 계속되면 contact@momentedit.kr 로 문의해 주세요":"잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요"))+" (코드 "+c+")";' +
     'R.style.background="#6B2A24";b.disabled=false;b.textContent=L;b.style.visibility="visible";try{b.focus();}catch(_){}' +
     '}).mailButtonGo(P);};' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle(title + ' · Moment Edit')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')   // [MAIL_VIEWPORT 2026-10-09 라운드 4] HTML 안의 meta 는 무시된다 — 폰 폭으로 그리게
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 var _LAST_INFO = null;   // [MAIL_BTN_CONFIRM] infoPage 가 마지막으로 그린 결과 — 단추 처리(mailButtonGo)가 화면에 그대로 돌려준다
@@ -2058,6 +2107,7 @@ function infoPage(title, bodyHtml, ok, retry) { _gsr_();
     '<body><div class="box"><div class="brand">Moment Edit</div><div class="bar"></div>' +
     '<div class="t">' + esc(title) + '</div><div class="d">' + bodyHtml + '</div></div></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle(title + ' · Moment Edit')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')   // [MAIL_VIEWPORT]
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -2365,11 +2415,11 @@ function handleAcceptProposal(body) { _gsr_();
   var r = row(sheet, colOf, a.consult.num);
   _LAST_INFO = null;
   actAccept(sheet, colOf, r);  // 변경제안→확정 + 캘린더 sync + (토글)메일 [+ setCustomerStage: 작업3]
-  if (_LAST_INFO && _LAST_INFO.ok === false) return { ok: false, error: _infoText_(_LAST_INFO) };   // [ACCEPT_RESULT] 몰림 · 마감 · 처리할 제안 없음은 실패로
+  if (_LAST_INFO && _LAST_INFO.ok === false) { var _at = _infoText_(_LAST_INFO), _am = /\(코드 ([A-Z]\d)/.exec(_at); return _am ? { ok: false, error: _at, ecode: _am[1] } : { ok: false, error: _at }; }   // [ACCEPT_RESULT] 몰림 · 마감 · 처리할 제안 없음은 실패로 · 기록 코드 = 고객이 보는 코드
   return { ok: true };
 }
 
-function doPost(e) { _SRV = true; /* [GSR_GATE 2026-10-09] 입구 · 서버 길 표를 켠다(관리자 권한 아님) · 안쪽 운영 함수는 첫 줄 _gsr_() */
+function doPost(e) { _SRV = true; _IN_POST = true; /* [GSR_GATE 2026-10-09] 입구 · 서버 길 표를 켠다(관리자 권한 아님) · 안쪽 운영 함수는 첫 줄 _gsr_() · [ENTRY_ARGS_SRV] 서버 쪽 인자는 이 길에서만 */
   /* [DEPLOY_STAMP] 배포된 코드가 «자기 지문»을 남긴다 — deployCheck 가 저장된 코드와 대조해
      «새 버전으로 재배포했는지»를 말해 준다. 실패해도 고객 요청은 그대로 간다(안이 전부 try). */
   try { if (typeof deployStamp === 'function') deployStamp(); } catch (_ds) {}
@@ -2487,7 +2537,7 @@ function doPost(e) { _SRV = true; /* [GSR_GATE 2026-10-09] 입구 · 서버 길 
     var _out = { ok: false, error: _userMsg };
     __ERR_ON = true;
     if (!_intended) {   // [ERR_CODE_GAS] 예상 못 한 오류 = 9(«… is not defined/function» 은 붙여넣기 · 배포 누락 = 3) · 사고번호로 오류기록의 그 줄을 찾는다
-      try { _out.eid = (typeof _errId === 'function') ? _errId() : ''; _out.ecode = ((typeof _errArea === 'function') ? _errArea(__ERR_ACT) : 'X') + (/is not defined|is not a function/.test(_em) ? 3 : 9); _out._why = String((err && err.stack) || _em).replace(/\s+/g, ' ').slice(0, 200); } catch (_e2) {}
+      try { _out.eid = (typeof _errId === 'function') ? _errId() : ''; _out.ecode = ((typeof _errArea === 'function') ? _errArea(__ERR_ACT) : 'X') + (_cfgErr_(err) ? 3 : 9); _out._why = String((err && err.stack) || _em).replace(/\s+/g, ' ').slice(0, 200); } catch (_e2) {}
     }
     return jsonOut(_out);
   }

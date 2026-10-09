@@ -4800,7 +4800,7 @@ function doAcceptProp(){
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='이 시간으로 수락'; } }
   _act({ p:{action:'acceptProposal', token:getToken()}, L:'B', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
     done:function(st){ return !!(st.consult && st.consult.status && st.consult.status!=='변경제안'); },
-    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('제안하신 시간을 수락하지 못했어요', line); reset(); } });
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('이 시간으로 수락하지 못했어요', line); reset(); } });
 }
 
 /* [FIT_CAP_LINE 2026-09-26 마이페이지 점검 pre-3] 미계약 취소 시 시착비 공제 안내 — 서명한 동의서 원문은 «1벌당 50,000원 · 최대 100,000원»인데

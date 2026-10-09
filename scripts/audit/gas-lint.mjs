@@ -73,7 +73,7 @@ const MIN_CHARS = 200;
 
 // [DIAG_OWNER_ONLY 2026-10-09] 편집기(소유자)가 돌리는 진단을 흉내 낸다 — 진단 6개는 첫 줄에서 소유자가 아니면 돌아간다
 // [OWNER_SELF 2026-10-09] 편집기 실행 = 서버 길 밖(_SRV 꺼짐) · 실행한 사람과 권한 주인이 같은 계정. 목록에 없는 계정으로 흉내 낸다(사장님 편집기 계정이 그랬다)
-export function asOwner(sb, email = 'editor@sim.test') { sb._SRV = false; sb.Session = Object.assign({}, sb.Session, { getActiveUser: () => ({ getEmail: () => email }), getEffectiveUser: () => ({ getEmail: () => email }) }); sb._ACTIVE_EMAIL = null; sb._EFFECTIVE_EMAIL = null; sb._OWNER_RUN = null; return sb; }
+export function asOwner(sb, email = 'editor@sim.test') { sb._SRV = false; sb.Session = Object.assign({}, sb.Session, { getActiveUser: () => ({ getEmail: () => email }), getEffectiveUser: () => ({ getEmail: () => email }) }); for (const k of ['_ACTIVE_EMAIL', '_EFFECTIVE_EMAIL', '_OWNER_RUN']) if (k in sb) sb[k] = null; return sb; }   // 옛 admin(이 변수가 없는 판)은 없는 그대로 둔다 — 붙여넣기 누락 흉내가 진짜와 같게
 export function loadGas(sb = makeSandbox(), opts = {}) {
   const errors = [];
   for (const fp of files) {

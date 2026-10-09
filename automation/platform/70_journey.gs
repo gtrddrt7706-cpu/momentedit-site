@@ -1945,6 +1945,7 @@ function _trigIn_(e) {   // [TRIG_IN] 예약 실행 15개의 첫 줄 — 위 주
     /* [TRIG_LEARN_ANY 2026-10-09 라운드 3] 진짜 목록(새로 읽었거나 · 기억해 둔 · 알던)에서 맞으면 배운다 — 새로 읽은 때만 배우면 기억해 둔 목록이 늘 따뜻할 때 영영 못 배운다.
        배우면(또는 목록을 새로 읽으면) «목록에 없음» · «목록 못 읽음» 기록을 지운다(지난 일이라 덧줄로 남기지 않는다). */
     if (!learned) { try { PropertiesService.getScriptProperties().setProperty('TRIG_UID_OK', Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm') + ' · ' + _trigSafe_(uid).slice(0, 6) + ' · 메일 ' + _trigWho_()); } catch (x) {} }
+    else if (learned.indexOf(' · 메일 ') === -1) { try { PropertiesService.getScriptProperties().setProperty('TRIG_UID_OK', Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm') + ' · ' + _trigSafe_(uid).slice(0, 6) + ' · 메일 ' + _trigWho_()); } catch (x) {} }   // [TRIG_IN_WHY] 옛 판이 배운 기록에는 메일 꼬리가 없다 — 한 번은 바로 다시 적는다
     else if (hit === 2) _trigMark_('TRIG_UID_OK', _trigSafe_(uid).slice(0, 6) + ' · 메일 ' + _trigWho_());   // 아이디는 앞 6자만 적는다
     if (!learned || hit === 2) { try { var _P = PropertiesService.getScriptProperties(); _P.deleteProperty('TRIG_UID_MISS'); _P.deleteProperty('TRIG_LIST_FAIL'); } catch (x) {} }
     return;
