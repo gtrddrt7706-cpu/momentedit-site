@@ -14717,6 +14717,14 @@ chk "+' 목소리가 아직 없어요'; }" order-preview.html 1
 nochk "'오른쪽 «목소리 만들기»를 누르면 들을 수 있어요'" order-preview.html   # ★종전 긴 알림 — 2026-10-09 사용자 지시로 줄임 · 되살리지 말 것
 nochk "'파일 이름을 적어 뒀어요 · 파일은 여기서 올라가지 않아요" order-preview.html   # 화면에 있는 안내를 알림이 되풀이하지 않는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/toast-min.mjs >/dev/null 2>&1; _tmn=$?; if [ "$_tmn" != 0 ]; then echo 'FAIL toast-min: 떠 있는 알림 글이 20자를 넘거나 «·»가 두 번 이상 — node scripts/audit/toast-min.mjs'; fail=1; else echo 'ok toast-min'; fi; fi
+# ★[HOVER_NO_ZOOM 2026-10-09 사장님 «영상 쪽 마우스 올리면 영상 흔들거리는데 그 효과 삭제»] 사진 · 영상 카드는 마우스를 올려도 크기를 바꾸지 않는다
+#   식순 연습 장면 그림(.pr-hero) · 마이페이지 스냅 사진(.snp-pv) · momentedit-design 모션 절에도 적었다
+chk 'HOVER_NO_ZOOM' order-preview.html 1
+chk 'HOVER_NO_ZOOM' mypage.html 1
+chk 'HOVER_NO_ZOOM' .claude/skills/momentedit-design/SKILL.md 1
+nochk ':hover[^{]*img{transform:scale' order-preview.html   # ★마우스를 올리면 사진 · 영상이 커지는 효과 금지 — 2026-10-09 사용자 지시로 삭제
+nochk ':hover[^{]*img{transform:scale' mypage.html
+nochk ':hover[^{]*img{transform:scale' index.html
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
 chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
 chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1
