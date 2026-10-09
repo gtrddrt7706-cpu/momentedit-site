@@ -1591,9 +1591,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .lf-ref{margin:0 0 8px;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [REF_EXAMPLE] */
 .lf-refn{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
 .mk-rcs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}
-.mk-rmore{display:flex;flex-wrap:wrap;gap:0 16px;margin:-6px 0 10px}   /* [REF_ROW4] 상황 예시 · 부모님 예시 = 카드 줄 아래 작은 글 단추 */
-.mk-rlink{min-height:44px;font-size:12.5px}
-.mk-rlink.on{color:var(--accent);font-weight:600;text-decoration-thickness:2px}
+/* ★카드 줄 아래 «한 분께 · 먼저 떠나신 분께 · 가족이 된 날 · 한 분이 하실 때 예시» · «부모님이 하실 때 예시 ›» 글 단추(.mk-rmore · .mk-rlink) 금지 — 2026-10-09 사용자 지시로 삭제 [REF_BEST4_ONLY] */
 .mk-rgh{margin:8px 0 0;font-size:12.5px;font-weight:600;color:var(--sub)}   /* ★[REF_GRID 2026-10-02 사장님 «예시 4개의 네모 박스칸이 어긋나 있어»] 글 길이대로 늘던 flex 대신 같은 너비 칸 — PC 넷 · 좁으면 둘 */   /* [EX_MORE] 줄바꿈 · 가로 스크롤 없음 */
 .mk-rc{min-width:0;max-width:100%;display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:44px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--sub);font:inherit;text-align:left;cursor:pointer}
 .mk-rc b{font-size:12.5px;font-weight:600;color:var(--accent)}
@@ -1608,7 +1606,6 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-rc.mk-rpar b{color:var(--gold-deeper)}
 @media (max-width:999px){ .mk-rcs{padding-right:36px;grid-template-columns:repeat(2,minmax(0,1fr))} }   /* [REF_GRID] */   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 칩이 비켜선다 */
 .mk-rsel{padding:14px 0 6px;border-top:1px solid var(--border)}   /* [R8-14] 걷은 알약 자리(.mk-rsh 12px)만큼 선 아래를 띄운다 */
-.mk-rsit{margin-top:4px}
 .mk-rstart{margin-top:6px}
 .mk-exw{margin:4px 0 0;font-size:12.5px;color:var(--seal)}
 .ec-nw{white-space:nowrap}   /* [CODE_NOWRAP] «(코드 …)»는 한 덩어리 — 괄호 안에서 줄이 갈리지 않게(마이페이지 _errHtml 과 같은 모양) */
@@ -6564,10 +6561,6 @@ function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r
    칩 아래 = 부르는 말(엄마, 아빠. · 하윤아.)을 뺀 첫 마디 20자쯤 · 고른 벌 배지 = «참고 예시 N(· 상황)» · 상황 도움말 한 줄.
    축하의 말은 덕담을 안 담은 식순이면 끝에 «부모님이 하실 때 ›» — 누르면 덕담 일곱 벌이 펼쳐진다(부모님의 축사 예시). */
 var REF_SIT={'한 분께':'한 분께','그리움':'먼저 떠나신 분께','가족이 된 날':'가족이 된 날','한 분이 하실 때':'한 분이 하실 때'};
-var REF_SIT_HELP={'한 분께':'부모님 한 분께 드리는 글이에요. 부르는 말은 평소대로 바꿔 쓰세요',
-  '한 분이 하실 때':'배우자 이야기 없이 쓴 글이라 한 분이 하셔도 잘 맞아요',
-  '그리움':'먼저 떠나신 분께 드리는 글이에요. 당일 전에 곁에 계신 가족께 먼저 보여 드리면 좋아요',
-  '가족이 된 날':'함께 가족이 된 날을 담은 글이에요. 부르는 말은 평소대로 바꿔 쓰세요'};
 function _refSit(set){ var s0=(set||[]).filter(function(p){ return p.sit; })[0]; return s0?s0.sit:''; }
 function _refName(set,n){ var st=_refSit(set); return (set[0]&&set[0].parent?'부모님 예시 ':'예시 ')+(set[0]&&set[0].parent?(set[0].n||n+1):n+1)+(st?' · '+(REF_SIT[st]||st):''); }
 /* 부르는 말 걷기 — «엄마, 아빠.» · «하윤아.» · «서준 씨.» · «어머니, 그리고 아버지.» 같은 머리만(«오늘,»처럼 부르는 말이 아닌 것은 남긴다) */
@@ -6588,10 +6581,7 @@ var REF_TITLE={'장면 하나':'한 장면을 떠올리며','다정':'다정하�
 function _refTitle(set){ var k=String((set[0]||{}).kyeol||''); return REF_TITLE[k]||''; }
 function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(function(x){ return x.talk; })) return '';
   var sets=_lRefSets(k); if(!sets.length) return '';
-  var cur=Math.min((LS.ref||{})[k]||0,sets.length-1), main=sets.filter(function(x){ return !(x[0]&&x[0].parent); }), par=sets.length-main.length;
-  var parOpen=par&&(((LS.refPar||{})[k])||cur>=main.length);
-  /* [REF_BEST4] 상황 예시 — 고른 넷 뒤 · 접어 둔다(고른 적이 있으면 연 채) */
-  var sitI=[]; main.forEach(function(x,i){ if(_refSit(x)) sitI.push(i); }); var sitOpen=sitI.length&&(((LS.refSit||{})[k])||sitI.indexOf(cur)>-1);
+  var cur=Math.min((LS.ref||{})[k]||0,sets.length-1);   /* [REF_BEST4_ONLY] sets = 고른 넷뿐(_refKeep) — 상황 예시 · 부모님 예시 갈래가 없다 */
   /* [MK_MIN] «당일엔 두 분이 직접 말해요»는 머리 아래 한 번 */
   /* ★[EX_ROW_PLACE 2026-10-07 사장님 «추천대로»] 현장에서 말하는 순간(서약 · 편지 · 첫인사 · 덕담 …)의 «참고 예시» 줄은 이 자리(«두 분이 할 말» 바로 위)에 둔다 —
      맨 위 고르기 묶음으로 올리면 폰에서 누른 글이 흐름 줄 너머 화면 밖에서 바뀐다. 모양은 위쪽 칩 줄과 같다(EX_ROW). 위로 올리자는 제안을 다시 하지 않는다 */
@@ -6606,34 +6596,24 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
     var c=w[0].charCodeAt(w[0].length-1)-0xAC00, jo=(c>=0&&c<11172&&c%28)?'이':'가'; return /읽어요$/.test(t)?w[0]+jo+' 읽어요':t+' · '+w[0]; });
   _pv=_pv.map(function(x,i){ if(_pvN[x]<2) return x; var w=sets[i].map(function(p){ return p.who; }).filter(Boolean); return w.length>1?w.join(' · ')+' 나눠 읽기':(w[0]?w[0]+' 읽기':x); });
   /* ★★[REF_ROW4 2026-10-06 사장님 «예시 4개로 추리자 · 1줄로 맞아떨어지게 · 다른 곳들도 베스트로 전부»] 카드는 고른 넷만 — PC 한 줄(폰 2×2).
-     상황 예시(먼저 떠나신 분께 · 한 분이 하실 때 …)와 «부모님이 하실 때 ›»는 다섯째 카드로 붙어 줄을 넘겼다 → 카드 줄 아래 작은 글 단추로 내렸다(누르면 바로 그 예시 · 버리지 않는다 [REF_BEST4]).
-     ★다섯째 카드 금지 — 카드 줄은 늘 넷 이하 */
+     ★다섯째 카드 금지 — 카드 줄은 늘 넷 이하.
+     ★★[REF_BEST4_ONLY 2026-10-09 사장님 «이건 뭐야? 예시가 너무 많아 베스트 4개만»] 그때 카드 줄 아래 글 단추로 내려 둔 상황 예시(한 분께 · 먼저 떠나신 분께 · 가족이 된 날 · 한 분이 하실 때)와
+     «부모님이 하실 때 예시 ›»까지 걷었다 — 모든 순간 고른 넷만(연습 ③ 도 같은 넷). 글 단추를 되살리지 말 것 */
   var _fill=!!_mkKinds(k)[0], _onN=-1; if(_fill) sets.forEach(function(x,n){ var P=_mkRefPairs(k,n); if(_onN<0&&P.length&&P.every(function(p){ return String((S.tx||{})[p.id]||'').trim()===p.txt; })) _onN=n; });   /* [CUE_FORM] 칸에 들어간 예시가 골라진 카드 */
   var _picked=_fill?_onN>=0:true;   /* [EX_ROW] 칸을 채우는 예시는 칸에 들어간 것만 눌린 모양 · 보기만 하는 예시(덕담 · 축배 …)는 아래 펼친 글이 곧 고른 것이라 눌린 모양 */
   var _card=function(set,n,lo){ var on=_picked&&(_fill?n===_onN:n===cur); return '<button type="button" class="op-chip mk-exc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(!_picked&&n===lo))?'0':'-1')+'" data-fk="mkrc:'+k+':'+n+'" aria-label="'+esc(_refName(set,n)+' · '+(_tt[n]||_pv[n]))+'" onclick="mkRefPick(\''+k+'\','+n+',1)">'+_chipT(_tt[n]||_pv[n])+'</button>'; };   /* [EX_ROW] 칩 글 = 느낌 이름(«예시 N»은 화면 읽기에만) · [QA_RC_ROVE] 고른 칩만 tabindex 0 */   /* [QA_RC_ROVE] 고른 카드만 tabindex 0 · [REF_TITLE] */
-  var _link=function(set,n){ var on=n===cur, t=_refSit(set); return '<button type="button" class="pk-link mk-rlink'+(on?' on':'')+'" aria-pressed="'+(on?'true':'false')+'" data-fk="mkrsit:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)">'+esc((REF_SIT[t]||t)+' 예시')+'</button>'; };
-  var _grp=function(lo,hi){ var c='', l='', f=-1; for(var n=lo;n<hi;n++){ if(_refSit(sets[n])) l+=_link(sets[n],n); else { if(f<0) f=n; c+=_card(sets[n],n,f); } } return { c:c, l:l }; };
-  var gm=_grp(0,main.length);
-  h+=gm.c+'</span></div>';   /* ★참고 예시 카드 줄 아래 머리말(«고르면 아래 칸에 들어가요 · 고쳐 써도 돼요 · 예시 속 이름은 가상 인물이에요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [NOTE_TOAST] · 카드를 누를 때 아래 알림(_refToast) */
-  var more=gm.l+(par&&!parOpen?'<button type="button" class="pk-link mk-rlink" data-fk="mkrpar:'+k+'" aria-expanded="false" onclick="mkRefPar(\''+k+'\')">부모님이 하실 때 예시 ›</button>':'');
-  if(more) h+='<div class="mk-rmore">'+more+'</div>';
-  if(par&&parOpen){ var gp=_grp(main.length,sets.length); h+='<div class="ls-cg cg-vp mk-rcg" role="radiogroup" aria-label="부모님 예시"><span class="gl" aria-hidden="true">부모님 예시</span><span class="cg-c">'+gp.c+'</span></div>'+(gp.l?'<div class="mk-rmore">'+gp.l+'</div>':''); }
-  void sitOpen;
-  var set=sets[cur], sit=_refSit(set), who='';
+  h+=sets.map(function(set,n){ return _card(set,n,0); }).join('')+'</span></div>';   /* ★참고 예시 카드 줄 아래 머리말(«고르면 아래 칸에 들어가요 · 고쳐 써도 돼요 · 예시 속 이름은 가상 인물이에요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [NOTE_TOAST] · 카드를 누를 때 아래 알림(_refToast) */
+  var set=sets[cur], who='';
   h+='<div class="mk-rsel'+(_fill&&_mkRefFillable(k,cur)?' mk-rsel0':'')+'"><p class="sr-only">참고 '+esc(_refName(set,cur))+'</p>';   /* [R8-14 REF_PILL_OFF] 바로 위 칸에서 «예시 N»이 골라진 모양인데 «참고 예시 N» 알약이 또 붙어(고르는 칩과 같은 꼴) 누르는 것처럼 보였다 — 보이는 알약을 걷고 화면 읽기에는 남긴다 · ③ 연습 카드의 lf-refb 는 그대로 */
   /* ★[REF_ONE_COUNT 2026-10-07 사장님 «하나하나 확인해서 개선»] 한 분이 잇달아 말하는 문단(축사 · 한 분 네 문단)은 이름 한 번 · 글자 수 · 초도 끝에 한 번(그분 몫 합) —
      문단마다 «147자 · 약 30초»가 붙어 네 사람이 나눠 읽는 글처럼 보였다. 덕담 · 성혼 선언처럼 분마다 한 문단이면 종전과 같다 */
   if(!(_fill&&_mkRefFillable(k,cur))) set.forEach(function(pt,i){ var nx=set[i+1], end=!nx||nx.who!==pt.who, n0=0;
     if(end){ for(var j=i;j>=0&&set[j].who===pt.who;j--) n0+=set[j].txt.length; }
     h+='<p class="mk-rw">'+(pt.who!==who?'<b>'+esc(pt.who)+'</b>':'')+esc(pt.txt)+(end?'<span class="mk-rl">'+n0+'자 · 약 '+_mkSec(n0)+'초</span>':'')+'</p>'; who=pt.who; });
-  if(sit&&REF_SIT_HELP[sit]) h+='<p class="mk-note mk-rsit">'+esc(REF_SIT_HELP[sit])+'</p>';
-  if(set[0]&&set[0].parent) h+='<p class="mk-note mk-rsit">부모님의 축사 예시예요 · 부르는 말만 바꿔 쓰세요</p>';
   /* [EX_START] 이 예시로 시작하기 — 두 분 칸이 있는 자리만 · 빈 칸에만 채운다(적어 둔 글은 건드리지 않는다) */
   var kind=_mkKinds(k)[0], tgt=[]; if(kind) TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], pt=set.filter(function(p){ return p.who===w[1]; })[0]; if(pt&&!String((S.tx||{})[id]||'').trim()) tgt.push(id); });
   /* ★[REF_START_OFF 2026-10-02 사장님 «이 예시로 시작하기 이 버튼도 삭제»] 되살리지 말 것 — mkRefStart 는 남겨 둔다(부르는 곳 없음) */ void tgt;
   return h+'</div></section>'; }
-window.mkRefPar=function(k){ LS.refPar=LS.refPar||{}; LS.refPar[k]=1; render(); };
-window.mkRefSit=function(k,n){ if(n!=null){ mkRefPick(k,n,1); return; } LS.refSit=LS.refSit||{}; LS.refSit[k]=1;   /* [REF_ROW4] 상황 예시는 글 단추로 바로 고른다 */ var sets=_lRefSets(k), i=-1; sets.some(function(x,n){ if(!(x[0]&&x[0].parent)&&_refSit(x)){ i=n; return true; } return false; }); _fxNext=i>-1?'[data-fk="mkrc:'+k+':'+i+'"]':''; render(); };   // [REF_BEST4] 펼치면 첫 상황 예시 칩에 초점
 window.mkRefStart=function(k){ var sets=_lRefSets(k), cur=Math.min((LS.ref||{})[k]||0,sets.length-1), set=sets[cur], kind=_mkKinds(k)[0], n=0; if(!set||!kind) return;
   if(!S.tx) S.tx={}; TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], pt=set.filter(function(p){ return p.who===w[1]; })[0]; if(pt&&!String(S.tx[id]||'').trim()){ S.tx[id]=pt.txt; _fAt('tx.'+id); n++; } });
   _txLeg(kind); _persist(); MK.toast=n?'예시를 두 분 칸에 옮겼어요 · 이름과 이야기를 두 분 것으로 바꿔 주세요':''; _fxNext=_txFirstSel(kind); render(); };
@@ -7174,18 +7154,15 @@ function _lRefRows(want){ var rows=(window.RITUAL_REF&&RITUAL_REF.rows)||[], by=
 /* ★★[REF_BEST4 2026-09-28 사장님 «참고 예시는 4개까지가 적절한 거 같아 · 전부 추려 줘 · 베스트로»] 자리마다 고른 네 벌만 앞에 — 표(TSV · 144줄)는 그대로 두고 화면이 고른다.
    고른 기준: 결이 서로 겹치지 않는 넷(담백 · 장면 하나 · 다정 · 유머+진심이 뼈대) · 같은 결이면 글이 더 구체적인 쪽.
    서약은 «나 ○○○은 …» 격식 판을 남겼다(찾는 분이 많은 틀) · 축배는 짧은 세 줄이 살아 있는 넷 · 편지(서로에게)는 짧게 판을 남겼다(글이 막힐 때의 출구).
-   ★상황 예시(한 분께 · 먼저 떠나신 분께 · 가족이 된 날 · 한 분이 하실 때)는 네 벌에 안 센다 — 필요한 분께만 필요한 글이라 «상황에 맞는 예시 ›» 안에 접어 둔다(버리지 않는다).
-   순서 = 고른 넷 → 상황 예시 → 부모님 예시(축하의 말 · 덕담 없는 식순). 연습(③)의 «예시 N»도 같은 순서다. */
+   ★★[REF_BEST4_ONLY 2026-10-09 사장님 «예시가 너무 많아 베스트 4개만»] 상황 예시(한 분께 · 먼저 떠나신 분께 · 가족이 된 날 · 한 분이 하실 때)와
+   부모님 예시(축하의 말 · 덕담 없는 식순)는 화면에 내지 않는다 — 고른 넷만. 표(TSV · assets/ritual-ref.js)에는 남는다. 연습(③)의 «예시 N»도 같은 넷이다. */
 var REF_BEST={welcome:[1,2,3,6],vow:[1,2,3,4],toast:[1,3,5,6],'letter:parent':[1,2,3,5],'letter:each':[1,3,4,6],'tribute:one':[1,2,3,5],'tribute:cross':[1,2,3,5],'tribute:long':[1,2,3,4],bless:[1,3,5,7],free:[1,2,3,4]};
-function _refKeep(key,sets){ var a=String(key).split(':'), b=REF_BEST[a[0]+':'+(a[1]||'')]||REF_BEST[a[0]]||null, top=[], sit=[];
-  sets.forEach(function(set){ if(_refSit(set)) sit.push(set); else if(!b||b.indexOf((set[0]||{}).n)>-1) top.push(set); });
-  return top.concat(sit); }
+function _refKeep(key,sets){ var a=String(key).split(':'), b=REF_BEST[a[0]+':'+(a[1]||'')]||REF_BEST[a[0]]||null;
+  return sets.filter(function(set){ return !_refSit(set)&&(!b||b.indexOf((set[0]||{}).n)>-1); }); }   /* [REF_BEST4_ONLY] 고른 넷만 · ★상황 예시를 넷 뒤에 붙이기 금지 — 2026-10-09 사용자 지시로 삭제 */
 function _lRefSets(k){
   var R=RitualOpen, keys=_lRefKey(k); if(!keys.length) return [];
   var sets=_refKeep(keys[0],_lRefRows(keys[0]));
-  /* [REF_TABLE 5] 축하의 말 — 덕담을 안 담은 식순이면 «부모님 덕담» 예시 세 벌을 부모님의 축사 예시로 더한다(같은 녹음 · 새 녹음 없음) ·
-     덕담도 담았으면 오빠 · 친구 세 벌만(같은 부모님이 두 번 말하지 않게) */
-  if(k==='free'&&!R.onOf(S,'bless')) sets=sets.concat(_refKeep('bless',_lRefRows('bless')).map(function(set){ return set.map(function(p){ p.parent=true; return p; }); }));
+  /* ★축하의 말에 덕담 예시를 «부모님 예시»로 덧붙이기(덕담 없는 식순 · [REF_TABLE 5]) 금지 — 2026-10-09 사용자 지시로 삭제 [REF_BEST4_ONLY] · 고른 넷만 */
   return sets; }
 /* [R1-21] 참고 예시 머리말 — 말하는 사람별로. 두 분 순간은 바로 위 흐름(«당일 직접 · 신랑 차례»)이 이미 말하니 «당일엔 …»을 빼고,
    덕담은 «부모님 이야기로», 가족 선언 · 준비하신 분은 «그분 이야기로». 두 분이 쓸 칸이 없는 쪽(축배)은 바꿔 쓰라는 말 없이 */
