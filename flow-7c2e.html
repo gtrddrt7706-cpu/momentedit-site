@@ -73,8 +73,8 @@ textarea.has{border-color:var(--gold)}
     <span class="lab" style="margin-left:6px">사람 순간</span>
     <select id="lv"><option value="3">3초로 줄임</option><option value="6">6초로 줄임</option><option value="0">건너뜀</option><option value="-1">실제 길이</option></select>
   </div>
-  <div class="row"><span class="lab">이음 줄 초안</span>
-    <button id="dr">끔</button><span class="cnt">켜면 회의용 초안 줄이 노란 칸으로 들어가요(녹음 전이라 기계 음성 · 없으면 글만)</span>
+  <div class="row"><span class="lab">연결 멘트 초안</span>
+    <button id="dr">끔</button><span class="cnt">켜면 고른 순간에 맞춘 연결 멘트가 노란 칸으로 들어가요(녹음 전이라 기계 음성 · 없으면 글만)</span>
   </div>
   <div class="row"><span class="cnt" id="sum"></span></div>
 </div></header>
@@ -89,24 +89,18 @@ textarea.has{border-color:var(--gold)}
 <script src="/assets/ritual-data.js"></script>
 <script src="/assets/ritual-open.js"></script>
 <script src="/assets/ritual-cue.js"></script>
+<script src="/assets/narr-pair-draft.js"></script>
 <script>
 (function(){
 var O=window.RitualOpen, C=window.RitualCue;
 var AUD='/assets/audio/narration/';
 var GO_MS=2500, CHAIN_MS=(C.PARAM&&C.PARAM.gapMs)||2000;
 var NM={guest:'하객 맞이',prevideo:'식전 영상',candle:'화촉',entry:'입장',welcome:'첫인사',bless:'부모님 덕담',vow:'혼인 서약',ring:'반지 교환',declare:'성혼 선언',tribute:'부모님께 인사',free:'준비한 순서',letter:'편지',cake:'케이크',toast:'축배',table:'테이블 인사',_close:'닫는 인사',_photo:'단체 사진',_final:'단체 사진',_goodbye:'마무리'};
-/* 회의용 초안 — 앞 순간 → 다음 순간. 확정 전(원천 아님) */
-var DRAFT={
- 'candle>entry':'두 집의 불이 밝혀졌습니다. 이제, 두 사람을 맞이하겠습니다.',
- 'welcome>bless':'두 사람의 인사에, 이제 부모님께서 답해 주실 차례입니다.',
- 'welcome>vow':'인사를 마친 두 사람이, 이제 서로를 향해 섭니다.',
- 'bless>vow':'부모님의 말씀을 들은 두 사람이, 이제 서로에게 약속을 건넵니다.',
- 'vow>ring':'말로 한 약속을, 이제 손끝에 남기겠습니다.',
- 'ring>declare':'약속도 반지도 건넸습니다. 이제, 두 사람이 부부가 되었음을 알리겠습니다.',
- 'declare>tribute':'부부가 되어 처음 걸음을 옮기는 곳은, 부모님 앞입니다.',
- 'tribute>letter':'다 하지 못한 말은, 두 사람이 편지에 담아 왔습니다.',
- 'cake>toast':'두 사람이 함께 해낸 첫 번째 일이었습니다. 이제, 잔을 들 차례입니다.'
-};
+/* ★[PAIR_DRAFT 2026-10-09 사장님 «코스를 고르면 맞춤 나레이션이 적용되도록»] 이음 줄 초안 — 확정 전(원천 아님 · 녹음 뒤 ritual-open.js 로 옮긴다)
+   고르는 법: «앞>다음» 짝 줄이 있으면 그것 · 없으면 «다음» 기본 줄. 입장 뒤(B1 말 없음)와 닫는 인사 앞(끝 선언이 이음)은 넣지 않는다.
+   «→ 케이크»는 이미 녹음된 B6(114)을 모든 앞 순간에 쓴다. 부모님께 인사 뒤 B4(숨 고르기 → 2초 만에 다음)는 이음 줄로 바꾼다. */
+/* 연결 멘트 초안은 assets/narr-pair-draft.js 한 곳(pair-7c2e.html 검토 도구와 같은 원천) */
+function pairOf(a,b){ var L=window.NarrPair.lineOf(a,b); return L.text?{text:L.text,file:L.file}:null; }
 var st={ex:'promise',on:null,rg:'body',draft:false}, cues=[], tok=0, audio=new Audio();
 var MK='flowReviewMemo';
 function memo(){try{return JSON.parse(localStorage.getItem(MK)||'{}')}catch(e){return {}}}
@@ -119,7 +113,9 @@ function build(){
   var S=S0(), r=C.build(S,{mode:'console'}), out=[], prevK=null, seq=r.seq;
   r.cues.forEach(function(c){
     if(st.rg==='body' && /^(guest|_photo|_final|_goodbye)$/.test(c.k)) return;
-    if(st.draft && prevK && c.k!==prevK && seq.indexOf(c.k)>-1 && DRAFT[prevK+'>'+c.k]) out.push({draft:true,k:c.k,text:DRAFT[prevK+'>'+c.k],slug:'초안 '+NM[prevK]+' → '+NM[c.k]});
+    if(st.draft && /^bridge-b(4-breath|6-lighter)$/.test(c.slug||'')) return;   // 이음 줄이 이 자리를 맡는다
+    var pr=(st.draft && prevK && c.k!==prevK && seq.indexOf(c.k)>-1) ? pairOf(prevK,c.k) : null;
+    if(pr) out.push({draft:true,k:c.k,text:pr.text,file:pr.file||'',slug:'이음 '+NM[prevK]+' → '+NM[c.k]+(pr.file?' · 녹음 있음':'')});
     out.push(c); if(seq.indexOf(c.k)>-1) prevK=c.k;
   });
   return out;
@@ -173,7 +169,8 @@ async function run(from){
     if(i>from){ var g=c.draft?CHAIN_MS:(c.fire==='manual'?GO_MS:CHAIN_MS); now.textContent=c.draft?'(이음 초안)':(c.fire==='manual'?'디렉터가 누르는 자리…':''); if(!(await wait(g,t)))return; }
     mark(i); now.textContent=c._n+'번 · '+(NM[c.k]||c.k);
     var ok;
-    if(c.draft) ok=await speak(c.text,t,Math.max(2,(c.text.length/6)));
+    if(c.draft&&c.file){ ok=await playFile(AUD+c.file+'.mp3',t); if(ok===null) ok=await speak(c.text,t,3); }
+    else if(c.draft) ok=await speak(c.text,t,Math.max(2,(c.text.length/6)));
     else if(c.file){ ok=await playFile(AUD+c.file+'.mp3',t); if(ok===null){now.textContent=c._n+'번 소리 파일 없음 · 글만'; ok=await wait((c.est||3)*1000,t);} }
     else ok=await wait((c.est||3)*1000,t);
     if(!ok)return;

@@ -679,7 +679,10 @@ if (_recWritten.length) {
       const v = cl && ((man.voice || {})[String(cl.role).split('|')[0]]);
       j.clips[w.key] = v ? { text: w.text, voice: v } : w.text;
     }
-    j._언제 = `${new Date().toISOString().slice(0, 10)} · assemble-narration 이 ${ws.length}클립 갱신`;
+    /* ★[WHEN_KEEP_MARKS 2026-10-09] 옛 «_언제» 의 [표식]은 이어 붙인다 — merge-guard 가 이 줄의 표식(NAR_1007 등)을 chk 한다.
+       덮어쓰면 녹음 하나 받을 때마다 가드가 «역전 의심»으로 붉는다(2026-10-09 #1160 에서 실제로 붉었다). */
+    const _oldMarks = String(j._언제 || '').match(/\[[A-Z][A-Z0-9_]{3,}\]/g) || [];
+    j._언제 = `${new Date().toISOString().slice(0, 10)} · assemble-narration 이 ${ws.length}클립 갱신` + (_oldMarks.length ? ` · 앞선 기록 ${[...new Set(_oldMarks)].join(' ')}` : '');
     const sorted = {};
     for (const k of Object.keys(j.clips).sort()) sorted[k] = j.clips[k];
     j.clips = sorted;

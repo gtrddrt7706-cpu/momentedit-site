@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light only">
+<title>연결 멘트 검토 · 내부용</title>
+<!--
+  ★[PAIR_REVIEW 2026-10-09 사장님 «연결 대본을 주고 · 검토에 용이한 전용 툴 사이트»] 나레이션 전용 검토 도구.
+  ★내부용 — noindex · 링크 없음. 고객 화면 · 엔진에는 아무 영향이 없다.
+  ★순간 사이 «연결 멘트» 70가지를 하나씩: 앞 순간 마지막 줄(끝 몇 초) → 연결 멘트 → 다음 순간 첫 줄(앞 몇 초)로 이어 듣는다.
+  ★문안은 assets/narr-pair-draft.js(초안 원천) · 앞뒤 줄은 assets/ritual-cue.js 를 돌려 얻는다(여기 적지 않는다).
+  ★고친 글 · 판정 · 메모는 이 브라우저에만(localStorage) — «검토 결과 복사»로 대화창에 붙여 넣는다.
+-->
+<style>
+:root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#6E6959;
+--border:#DDD8D1;--gold:#B89A75;--gold-text:#7A5F37;--seal:#6B2A24;--green:#3B6E4F;--draft:#FBF4E6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:15px;line-height:1.6;word-break:keep-all}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 170px}
+header{border-bottom:1px solid var(--border);padding:14px 0 10px}
+h1{font-size:18px;margin:0 0 2px}
+.sub{color:var(--light);font-size:12.5px;margin:0 0 10px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 8px}
+.lab{font-size:12px;color:var(--light);min-width:56px}
+button,select{font:inherit;font-size:13px;color:var(--text);background:#fff;border:1px solid var(--border);border-radius:99px;padding:6px 12px;min-height:36px;cursor:pointer}
+button.on{background:#3A2D22;color:#fff;border-color:transparent}
+button.pri{background:var(--green);color:#fff;border-color:transparent;border-radius:9px;min-height:42px;font-size:14px}
+button.stop{background:var(--seal);color:#fff;border-color:transparent;border-radius:9px;min-height:42px}
+.blk{font-size:12px;letter-spacing:.04em;color:var(--gold-text);font-weight:600;margin:22px 0 8px;padding-top:12px;border-top:1px solid var(--border)}
+.p{border:1px solid var(--border);border-radius:12px;background:#fff;margin:0 0 10px;overflow:hidden;scroll-margin-top:24px}
+.p.cur{outline:2px solid var(--gold)}
+.p.ok{border-color:#cfe0d4}
+.p.fix{border-color:#e8c9c4}
+.ph{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.ph .n{font-size:12px;color:var(--light);font-variant-numeric:tabular-nums}
+.ph b{font-size:15px}
+.tag{font-size:11px;padding:1px 8px;border-radius:99px;border:1px solid var(--border);background:#fff;color:var(--light)}
+.tag.pair{color:var(--gold-text);border-color:#e8dcc4}
+.tag.silent{color:var(--sub)}
+.tag.rec{color:var(--green);border-color:#cfe0d4}
+.tag.ed{color:var(--seal);border-color:#e8c9c4}
+.ctx{font-size:12.5px;color:var(--light);padding:6px 12px 0}
+.ctx i{font-style:normal;color:var(--sub)}
+.mid{padding:6px 12px}
+textarea{width:100%;font:inherit;font-size:15px;border:1px solid #E3CFA6;background:var(--draft);border-radius:8px;padding:8px 10px;min-height:44px;resize:vertical}
+textarea.memo{font-size:13px;background:#fffefb;border-color:var(--border);min-height:34px;margin-top:6px}
+.why{font-size:12px;color:var(--light);margin-top:3px}
+.ops{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 10px}
+.ops button{min-height:34px;font-size:12.5px;padding:4px 11px}
+.ops .ok.on{background:var(--green)} .ops .fix.on{background:var(--seal)}
+.foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.98);border-top:1px solid var(--border);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.foot .in{max-width:820px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.now{font-size:13px;color:var(--sub);flex-basis:100%}
+.cnt{font-size:12.5px;color:var(--light)}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding-bottom:0">
+  <h1>연결 멘트 검토</h1>
+  <p class="sub">순간과 순간 사이 한 줄을 경우마다 들어 봐요. ▶ 를 누르면 «앞 순간 마지막 줄 → 연결 멘트 → 다음 순간 첫 줄»이 이어 나와요. 글을 바로 고치면 고친 글로 들려요(녹음 전이라 기계 음성).</p>
+  <div class="row"><span class="lab">보기</span>
+    <button data-f="all" class="on">전체</button><button data-f="todo">아직</button><button data-f="fix">고칠래요</button><button data-f="ok">좋아요</button><button data-f="silent">말 없음</button>
+  </div>
+  <div class="row"><span class="lab">앞 순간</span><select id="fa"><option value="">전부</option></select>
+    <span class="lab" style="min-width:auto">앞뒤 줄</span>
+    <select id="ln"><option value="6">앞 6초 · 뒤 8초</option><option value="3">앞 3초 · 뒤 5초</option><option value="99">통째로</option><option value="0">연결 멘트만</option></select>
+  </div>
+  <div class="row"><span class="cnt" id="sum"></span></div>
+</div></header>
+<div class="wrap"><div id="list"></div></div>
+<div class="foot"><div class="in">
+  <button class="pri" id="all">보이는 것 차례로 듣기</button><button class="stop" id="stop">멈춤</button>
+  <button id="copy">검토 결과 복사</button><span class="cnt" id="mc"></span>
+  <div class="now" id="now"></div>
+</div></div>
+
+<script src="/assets/ritual-data.js"></script>
+<script src="/assets/ritual-open.js"></script>
+<script src="/assets/ritual-cue.js"></script>
+<script src="/assets/narr-pair-draft.js"></script>
+<script>
+(function(){
+var O=window.RitualOpen, C=window.RitualCue, P=window.NarrPair, AUD='/assets/audio/narration/';
+var NM={prevideo:'식전 영상',candle:'화촉',entry:'입장',welcome:'첫인사',bless:'부모님 덕담',vow:'혼인 서약',ring:'반지 교환',declare:'성혼 선언',tribute:'부모님께 인사',free:'준비한 순서',letter:'편지',cake:'케이크',toast:'축배',table:'테이블 인사',_close:'닫는 인사'};
+var KEY='pairReview1009', tok=0, audio=new Audio(), f='all', fa='';
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}}
+function save(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+var DB=load();
+function rec(k){return DB[k]||(DB[k]={})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+/* 앞뒤 줄 — 엔진을 두 순간만 담아 돌려 얻는다 */
+function ctx(a,b){
+  var S={course:'open'}; O.applyExample(S,'brief'); S.on={};
+  [a,b].forEach(function(k){ if(O.PICKABLE.indexOf(k)>-1) S.on[k]=1; });
+  S.toast=O.toastMode(S);
+  var cs=C.build(S,{mode:'console'}).cues.filter(function(c){ return !/^bridge-b(4-breath|6-lighter)$/.test(c.slug||''); });
+  var pa=cs.filter(function(c){return c.k===a;}), pb=cs.filter(function(c){return c.k===b;});
+  return { prev: pa[pa.length-1]||null, next: pb[0]||null };
+}
+var PAIRS=P.allPairs(O.ORDER).map(function(x,i){
+  var a=x[0], b=x[1], L=P.lineOf(a,b), c=ctx(a,b);
+  return { i:i, n:i+1, a:a, b:b, key:a+'>'+b, base:L.text, src:L.src, why:L.why||'', file:L.file||'', prev:c.prev, next:c.next };
+});
+function textOf(p){ var r=DB[p.key]; return (r && typeof r.text==='string') ? r.text : p.base; }
+function stOf(p){ return (DB[p.key]||{}).st||''; }
+
+function visible(){
+  return PAIRS.filter(function(p){
+    if(fa && p.a!==fa) return false;
+    var s=stOf(p);
+    if(f==='todo') return !s; if(f==='fix') return s==='fix'; if(f==='ok') return s==='ok';
+    if(f==='silent') return !textOf(p).trim();
+    return true;
+  });
+}
+function render(){
+  var h='', last='', vs=visible();
+  vs.forEach(function(p){
+    if(p.a!==last){ h+='<div class="blk">'+esc(NM[p.a])+' 다음</div>'; last=p.a; }
+    var t=textOf(p), r=DB[p.key]||{}, edited=t!==p.base, st=r.st||'';
+    var tag = p.src==='pair'?'<span class="tag pair">짝 줄</span>':(p.src==='silent'?'<span class="tag silent">말 없음</span>':'<span class="tag">다음 순간 기본 줄</span>');
+    if(p.file && !edited) tag+='<span class="tag rec">녹음 있음</span>';
+    if(edited) tag+='<span class="tag ed">고침</span>';
+    h+='<div class="p'+(st?' '+st:'')+'" id="p'+p.i+'"><div class="ph"><span class="n">'+p.n+'</span><b>'+esc(NM[p.a])+' → '+esc(NM[p.b])+'</b>'+tag+'</div>'
+      +'<div class="ctx">앞 · <i>'+esc(p.prev?p.prev.text:'')+'</i>'+(p.prev&&p.prev.live?' <span>(그 뒤 사람 순간 · '+esc(p.prev.live.t||'')+')</span>':'')+'</div>'
+      +'<div class="mid"><textarea data-k="'+esc(p.key)+'" placeholder="말 없음 · 비워 두면 연결 멘트 없이 넘어가요">'+esc(t)+'</textarea>'
+      +(p.why&&!t.trim()?'<div class="why">말 없음 까닭 · '+esc(p.why)+'</div>':'')+'</div>'
+      +'<div class="ctx" style="padding-bottom:6px">다음 · <i>'+esc(p.next?p.next.text:'')+'</i></div>'
+      +'<div class="ops"><button data-play="'+p.i+'">▶ 이어 듣기</button><button data-only="'+p.i+'">▶ 연결만</button>'
+      +'<button class="ok'+(st==='ok'?' on':'')+'" data-st="ok" data-k="'+esc(p.key)+'">좋아요</button><button class="fix'+(st==='fix'?' on':'')+'" data-st="fix" data-k="'+esc(p.key)+'">고칠래요</button>'
+      +(edited?'<button data-reset="'+esc(p.key)+'">원래 글로</button>':'')+'</div>'
+      +'<div class="mid" style="padding-top:0"><textarea class="memo" data-m="'+esc(p.key)+'" placeholder="메모 · 왜 어색한지, 원하는 느낌">'+esc(r.memo||'')+'</textarea></div></div>';
+  });
+  document.getElementById('list').innerHTML=h||'<p class="cnt">해당하는 짝이 없어요.</p>';
+  var ok=PAIRS.filter(function(p){return stOf(p)==='ok'}).length, fx=PAIRS.filter(function(p){return stOf(p)==='fix'}).length;
+  document.getElementById('sum').textContent='전체 '+PAIRS.length+'가지 · 보이는 것 '+vs.length+' · 좋아요 '+ok+' · 고칠래요 '+fx+' · 아직 '+(PAIRS.length-ok-fx);
+  var ed=PAIRS.filter(function(p){return textOf(p)!==p.base}).length;
+  document.getElementById('mc').textContent=ed?('고친 글 '+ed):'';
+}
+
+/* 소리 */
+function wait(ms,t){return new Promise(function(r){setTimeout(function(){r(t===tok)},ms)})}
+function clip(file,t,mode,sec){ return new Promise(function(res){
+  if(!file){res(null);return}
+  audio.pause(); var a=new Audio(AUD+file+'.mp3'); audio=a; var done=false, stopAt=0;
+  function fin(v){ if(done)return; done=true; clearInterval(iv); a.pause(); res(v&&t===tok); }
+  a.onloadedmetadata=function(){ var d=a.duration||0;
+    if(mode==='tail' && sec<99 && d>sec) a.currentTime=d-sec;
+    if(mode==='head' && sec<99) stopAt=sec;
+    a.play().catch(function(){fin(null)}); };
+  a.onended=function(){fin(true)}; a.onerror=function(){fin(null)};
+  var iv=setInterval(function(){ if(t!==tok){fin(false);return}
+    if(stopAt && a.currentTime>=stopAt){ a.volume=Math.max(0,a.volume-0.25); if(a.volume<=0.01) fin(true); } },120);
+}); }
+function say(text,t){ return new Promise(function(res){
+  var ss=window.speechSynthesis, v=ss&&(ss.getVoices()||[]).filter(function(x){return /^ko/i.test(x.lang)})[0];
+  if(!v){ wait(Math.max(1500,text.length*170),t).then(res); return; }
+  var u=new SpeechSynthesisUtterance(text); u.voice=v; u.lang='ko-KR'; u.rate=0.95;
+  u.onend=function(){res(t===tok)}; u.onerror=function(){res(t===tok)}; ss.cancel(); ss.speak(u);
+}); }
+function mark(p){ [].forEach.call(document.querySelectorAll('.p.cur'),function(e){e.classList.remove('cur')});
+  var el=document.getElementById('p'+p.i); if(el){el.classList.add('cur'); el.scrollIntoView({behavior:'smooth',block:'center'});} }
+async function playPair(p,t,only){
+  var now=document.getElementById('now'), ln=+document.getElementById('ln').value, txt=textOf(p).trim();
+  mark(p);
+  if(!only && ln>0 && p.prev){ now.textContent=p.n+'번 · 앞 줄 · '+NM[p.a]; if(await clip(p.prev.file,t,'tail',ln)===false) return false;
+    if(p.prev.live){ now.textContent=p.n+'번 · (사람 순간 · '+(p.prev.live.t||'')+')'; if(!(await wait(1500,t))) return false; }
+    if(!(await wait(1400,t))) return false; }
+  if(txt){ now.textContent=p.n+'번 · 연결 멘트'; var ok;
+    if(p.file && txt===p.base) ok=await clip(p.file,t,'all',99); else ok=null;
+    if(ok===null) ok=await say(txt,t); if(ok===false) return false;
+    if(!only && !(await wait(1400,t))) return false; }
+  else if(!only){ now.textContent=p.n+'번 · (말 없음)'; if(!(await wait(1200,t))) return false; }
+  if(!only && ln>0 && p.next){ now.textContent=p.n+'번 · 다음 줄 · '+NM[p.b]; if(await clip(p.next.file,t,'head',ln<99?ln+2:99)===false) return false; }
+  now.textContent=p.n+'번 끝'; return true;
+}
+function stop(){ tok++; audio.pause(); if(window.speechSynthesis) speechSynthesis.cancel(); document.getElementById('now').textContent='멈춤'; }
+
+document.addEventListener('click',async function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.f){ f=b.dataset.f; [].forEach.call(document.querySelectorAll('[data-f]'),function(x){x.classList.toggle('on',x===b)}); render(); return; }
+  if(b.dataset.play||b.dataset.only){ stop(); var t=++tok; await playPair(PAIRS[+(b.dataset.play||b.dataset.only)],t,!!b.dataset.only); return; }
+  if(b.dataset.st){ var r=rec(b.dataset.k); r.st = r.st===b.dataset.st ? '' : b.dataset.st; save(DB); render(); return; }
+  if(b.dataset.reset){ var r2=rec(b.dataset.reset); delete r2.text; save(DB); render(); return; }
+  if(b.id==='stop'){ stop(); return; }
+  if(b.id==='all'){ stop(); var t2=++tok, vs=visible(); for(var i=0;i<vs.length;i++){ if(!(await playPair(vs[i],t2,false))) return; if(!(await wait(1800,t2))) return; } return; }
+  if(b.id==='copy'){
+    var lines=[];
+    PAIRS.forEach(function(p){ var r=DB[p.key]||{}, t=textOf(p), ed=t!==p.base;
+      if(!r.st && !ed && !r.memo) return;
+      lines.push(p.n+'. '+NM[p.a]+' → '+NM[p.b]+' ['+(r.st==='ok'?'좋아요':r.st==='fix'?'고칠래요':'판정 전')+']'
+        +(ed?'\n   원래: '+(p.base||'(말 없음)')+'\n   고침: '+(t||'(말 없음)'):'\n   글: '+(t||'(말 없음)'))
+        +(r.memo?'\n   메모: '+r.memo:'')); });
+    var txt=lines.length?('연결 멘트 검토 결과 · '+lines.length+'건\n\n'+lines.join('\n\n')):'(판정 · 고침 · 메모 없음)';
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){ b.textContent='복사했어요'; setTimeout(function(){b.textContent='검토 결과 복사'},1500); },function(){ window.prompt('복사해 주세요',txt); });
+  }
+});
+document.addEventListener('input',function(e){ var x=e.target;
+  if(x.dataset.k && x.tagName==='TEXTAREA'){ var p=PAIRS.filter(function(q){return q.key===x.dataset.k})[0], r=rec(x.dataset.k);
+    if(x.value.trim()===p.base) delete r.text; else r.text=x.value.trim(); save(DB);
+    var ed=PAIRS.filter(function(q){return textOf(q)!==q.base}).length; document.getElementById('mc').textContent=ed?('고친 글 '+ed):''; }
+  if(x.dataset.m){ var r3=rec(x.dataset.m); r3.memo=x.value.trim(); save(DB); } });
+document.addEventListener('change',function(e){ if(e.target.dataset.k && e.target.tagName==='TEXTAREA') render(); });
+document.getElementById('fa').innerHTML='<option value="">전부</option>'+PAIRS.map(function(p){return p.a}).filter(function(v,i,a){return a.indexOf(v)===i}).map(function(k){return '<option value="'+k+'">'+NM[k]+'</option>'}).join('');
+document.getElementById('fa').addEventListener('change',function(e){ fa=e.target.value; render(); });
+if(window.speechSynthesis) speechSynthesis.getVoices();
+render();
+})();
+</script>
+</body>
+</html>

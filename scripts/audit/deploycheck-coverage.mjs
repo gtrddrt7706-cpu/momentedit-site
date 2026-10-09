@@ -186,6 +186,10 @@ for (const rel of [...new Set(changedFiles)]) {
   const added = diff.split('\n').filter((l) => l.startsWith('+') && !l.startsWith('+++')).join('\n');
   if (!added.trim()) continue;                                 // 지우기만 한 변경 — 요구할 것이 없다
   const now = fs.readFileSync(abs, 'utf8');
+  /* ★[COVER_NO_FN 2026-10-09] 함수가 하나도 없는 파일(폐기 뒤 빈 슬롯만 남긴 86_dining_ai 등)은 건너뛴다 —
+     표식은 «함수 본문 안»에만 살 수 있어 이 규칙을 영영 못 맞춘다(main 이 이 한 줄로 붉었다).
+     99_deployCheck 도 함수가 없는 파일에서는 볼 것이 없다. 함수가 생기면 저절로 다시 요구한다. */
+  if (!/^\s*function\s+[A-Za-z_$]/m.test(now)) continue;
   const ok = marksAll.some((m) => m.file === base
     && added.includes(m.mark)                                  // 그 커밋이 넣은 것이라야 옛 파일과 갈린다
     && _fnBody(now, m.fn).includes(m.mark));                   // 그리고 그 함수 «본문 안»에 살아 있어야 한다

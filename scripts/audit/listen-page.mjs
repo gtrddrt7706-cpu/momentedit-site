@@ -744,7 +744,7 @@ else {
   ok('P-5 ② 하나씩 만들기 — 그림을 눌러도(Enter 도) 아무 일 없음 · tabindex 없음 · 손가락 커서 없음 · 꾸밈 [VID_AUTO_ONLY]', r.make.length === 0 && r.makeKey.length === 0, JSON.stringify({ make: r.make, key: r.makeKey }));
   ok('P-6 ② 그 순간 소리를 틀어도(들어 보기 · 칩) 그림은 다시 안 돈다 [VID_AUTO_ONLY]', r.makeSound.length === 0, r.makeSound.join(','));
   ok('P-8 ② 쪽이 보이면 영상이 꼭 한 번 돈다 · loop 없음 · 같은 쪽을 다시 그려도 다시 안 틀고 같은 요소 [LVID_ONCE 2026-10-03 사장님]', r.once.length === 0 && r.loop.length === 0 && r.keep2.length === 0, JSON.stringify({ once: r.once, loop: r.loop, keep: r.keep2 }));
-  ok('P-9 크게 보기 영상도 loop 없음(한 번 · 끝 장면에 머문다) [LVID_ONCE]', !(r.fullLoop || []).length, JSON.stringify(r.fullLoop || []));
+  ok('P-9 크게 보기 영상도 loop 없음(한 번 · 끝나면 썸네일 사진 [VID_REST_THUMB 10-09]) [LVID_ONCE]', !(r.fullLoop || []).length, JSON.stringify(r.fullLoop || []));
   ok('P-7 그림 위 «AI로 만든 장면» 이름표 0 — ① 창 · ② · 크게 보기 [AI_LABEL_OFF 2026-10-03 사장님]', r.label.length === 0, r.label.join(','));
   ok('P pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
