@@ -1642,7 +1642,7 @@ function adminApprove(code) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);                 // Q 최신값
   var st = String(r.get('상태') || '').trim();
   if (st === ST.CANCELLED) return { ok: false, error: '취소된 예약은 승인할 수 없습니다. (되살아남 방지)' };  // K
@@ -1674,7 +1674,7 @@ function adminAcceptProposal(code) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
   var st = String(r.get('상태') || '').trim();
   if (st === ST.CANCELLED) return { ok: false, error: '취소된 예약입니다.' };  // K
@@ -1692,13 +1692,13 @@ function adminCancel(code, reason) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
   if (String(r.get('상태') || '').trim() === ST.CANCELLED) { _recordHandler(code, '취소(중복)'); return { ok: true }; }  // 멱등
   _LAST_INFO = null;
   doAdminCancel(sheet, colOf, r);                     // 캘린더 삭제 + 상태=취소 + setCustomerStage(cancel) + 가예약 해제(actCancel 공통)
   _recordHandler(code, '취소' + (reason ? (' · ' + reason) : ''));  // C·D 사유·처리자
-  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '취소는 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [CANCEL_RESULT 2026-10-09 라운드 6] 승인 · 수락과 같은 창
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '취소는 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' + (_LAST_INFO.noMail ? ' · 이메일이 없어 안내 메일은 보내지 않았어요' : '') };   // [CANCEL_RESULT 2026-10-09 라운드 6] 승인 · 수락과 같은 창
   return { ok: true };
 }
 
@@ -1708,7 +1708,7 @@ function adminProposeTime(code, newDate, newTime, memo) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
   if (String(r.get('상태') || '').trim() === ST.CANCELLED) return { ok: false, error: '취소된 예약입니다.' };
   newDate = normalizeDateKey(newDate);
@@ -2318,7 +2318,7 @@ function adminSetResultLinks(code, links) {
     // [RESULT_NOTIFY_STEPS 2026-07-25] 상태가 실제로 전이된 1회만 고객 알림 플래그(링크 수정 재저장 시 중복 발송 방지) — 발송은 락 해제 후
     var _nfOrig = (upd['결과물상태'] === '원본전달' && cur결과물 !== '원본전달');
     var _nfReto = (upd['결과물상태'] === '컨펌대기' && cur결과물 !== '컨펌대기');
-    var _lvRes = { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
+    var _lvRes = { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물, notified: !!(_nfOrig || _nfReto || _nfRevDone) };   // [RESULT_NOTIFIED 2026-10-09 라운드 7] 이번 저장에 고객 알림이 나가는지(화면이 사실대로 말하게)
   } finally { try { lock.releaseLock(); } catch (e) {} }
   // [LINK_VERIFY 2026-07-25] 저장 후 접근성 검증(경고하되 저장은 허용) — 더블체크 리뷰 반영: 외부 fetch(최대 3링크)가
   //   락 점유 중 실행되면 다른 관리자 액션이 _LOCK_BUSY로 막힐 수 있어 락 해제 후로 이동. 저장은 이미 완료된 상태.

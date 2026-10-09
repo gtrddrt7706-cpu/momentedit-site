@@ -92,6 +92,9 @@ g.__ERR_ACT = 'get:schedule'; const id3 = g._errId(); g.__ERR_ACT = '';
 ok('⑦ 동작을 안 넘기면 doPost 가 적어 둔 동작(__ERR_ACT)을 본다', id3 === '', JSON.stringify(id3));
 const odd = '<x>=evil', idOdd = (() => { for (let i = 0; i < 31; i++) g._errRecord(odd, 'X9', 't', 'w' + i, 'Z' + i, ''); return g._errId(odd); })();
 ok('⑦ 이상한 동작 이름도 _errRecord 와 같은 열쇠로 센다', idOdd === '', JSON.stringify(idOdd));
+for (let i = 0; i < 31; i++) g._errRecord('get:Couple', 'G9', 't', 'w' + i, 'C' + i, '');
+const idSib = g._errId('getCouple');
+ok('⑦ 비슷한 다른 이름(«get:Couple» · «getCouple»)은 상한 칸을 나눠 쓰지 않는다', /^[A-Z2-9]{4}$/.test(idSib), JSON.stringify(idSib));
 
 console.log(rc ? '━━ 빨강 — 오류기록에 밖의 글이 수식 · 개인정보로 들어간다' : '━━ 초록');
 process.exit(rc);

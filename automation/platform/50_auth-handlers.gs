@@ -60,12 +60,25 @@ function handleVerify(body) { _gsr_();
   return { ok: true };
 }
 
+/* [AUTH_SEND_CAP 2026-10-09 라운드 7] 코드 찾기 · 재설정 안내는 받는 주소마다 한 시간에 3통 · 전체 40통까지만 보낸다 —
+   같은 주소로 계속 눌러도 메일함 · 하루 메일 몫 · 알림톡 잔액이 바닥나지 않게. 답은 늘 같다(계정이 있는지 드러내지 않는다) */
+function _authSendOk_(email) {   // [AUTH_SEND_CAP] 위 주석의 상한
+  try {
+    var c = CacheService.getScriptCache(), hr = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH');
+    var k1 = 'ASC_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(email).toLowerCase(), Utilities.Charset.UTF_8)).replace(/[^0-9A-Za-z_]/g, '').slice(0, 16) + '_' + hr, k2 = 'ASCALL_' + hr;
+    var n1 = +(c.get(k1) || 0), n2 = +(c.get(k2) || 0);
+    if (n1 >= 3 || n2 >= 40) return false;
+    c.put(k1, String(n1 + 1), 3700); c.put(k2, String(n2 + 1), 3700);
+    return true;
+  } catch (e) { return true; }   // 셀 수 없으면 종전처럼 보낸다(고객이 코드를 못 받는 것이 더 나쁘다)
+}
+
 // ── findCode (코드 찾기) ───────────────────────────────
 function handleFindCode(body) { _gsr_();
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
-  if (rowObj) {
+  if (rowObj && _authSendOk_(email)) {   // [AUTH_SEND_CAP]
     var names = customerNames(rowObj), code = String(rowObj.get('개인코드') || ''), phone = String(rowObj.get('연락처') || '').trim();
     try {
       // 알림톡(솔라피) 우선 — 미설정/실패면 sendFindCodeKakao가 false → 메일 폴백
@@ -85,7 +98,7 @@ function handleResetPw(body) { _gsr_();
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
-  if (rowObj) {
+  if (rowObj && _authSendOk_(email)) {   // [AUTH_SEND_CAP]
     var code = String(rowObj.get('개인코드') || '');
     var exp = Date.now() + 60 * 60 * 1000;                 // 링크 1시간 유효
     var sig = makeResetSig_(code, exp);

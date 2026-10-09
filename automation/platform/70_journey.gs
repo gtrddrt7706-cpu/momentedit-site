@@ -1954,13 +1954,12 @@ function _trigIn_(e) {   // [TRIG_IN] 예약 실행 15개의 첫 줄 — 위 주
   if (_isOwnerRun_()) { _TRUST = true; return; }
   if (!learned) { _TRUST = true; var _pw = _trigWho_(), _pl = (hit < 0 ? '목록 못 읽음 · ' : '') + 'uid ' + (uid ? '있음' : '없음') + ' · ' + (e ? Object.keys(e).slice(0, 10).map(_trigSafe_).join(',') : '이벤트 없음') + ' · 메일 ' + _pw;
     /* [TRIG_PROBE_SLOT 2026-10-09 라운드 6] 예약 실행 모양(이벤트에 triggerUid · authMode)은 TRIG_PROBE · 그 밖은 TRIG_PROBE_X — 이벤트 없는 호출이 진짜 모양 기록을 덮지 않게.
-       같은 모양마다 따로 세고(누가 · 무엇이 왔나), 예약 실행 모양은 한 시간이면 다시 적어 진짜 트리거가 자리를 되찾는다 */
+       [라운드 7] 세는 열쇠는 칸 + 누가(가린 메일) — 모양으로 세면 밖에서 모양을 바꿔 가며 부를 때마다 쓰기가 생긴다. 예약 실행 칸은 한 시간이면 다시 적어 진짜 트리거가 자리를 되찾는다 */
     var _tl = !!(e && (e.triggerUid != null || e.authMode != null));
-    _trigMark_(_tl ? 'TRIG_PROBE' : 'TRIG_PROBE_X', _pl, _trigHash_(_pl), _tl ? 3600 : 21600); return; }   // [TRIG_IN_WHY] 누가
+    _trigMark_(_tl ? 'TRIG_PROBE' : 'TRIG_PROBE_X', _pl, _trigSafe_(_pw), _tl ? 3600 : 21600); return; }   // [TRIG_IN_WHY] 누가
   if (hit < 0) _trigMark_('TRIG_LIST_FAIL', hit === -1 ? '목록 못 읽음 · 아는 목록 없음' : '목록 못 읽음 · 알던 목록에 없음');   // [TRIG_LIST_KNOWN] 배운 뒤에는 막고 남긴다
   throw new Error('허용되지 않은 요청입니다. (예약 실행 전용)' + _ownerHint_());   // [TRIG_IN_WHY] 편집기에서 막히면 어느 계정인지
 }
-function _trigHash_(v) { try { return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(v), Utilities.Charset.UTF_8)).replace(/[^0-9A-Za-z_]/g, '').slice(0, 16); } catch (x) { return _trigSafe_(v); } }   // [TRIG_PROBE_SLOT] 모양마다 따로 세는 열쇠
 function _trigSafe_(v) { return String(v == null ? '' : v).replace(/[^0-9A-Za-z_]/g, '').slice(0, 12); }   // [TRIG_MISS_QUIET] 기록에는 영숫자만
 function _trigWho_() { var m = (typeof _activeEmail_ === 'function') ? _activeEmail_() : ''; return m ? m.replace(/^(.)[^@]*(@.*)$/, '$1…$2') : '빈 값'; }   // [TRIG_IN_WHY] 가린 꼴 · admin.gs 가 옛 판이어도 멈추지 않게
 /* [TRIG_LIST_KNOWN 2026-10-09 점검] 예약 실행 아이디 판정.

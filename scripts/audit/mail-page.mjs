@@ -347,10 +347,10 @@ G.HtmlService = realHS;
     const HP = H.PropertiesService.getScriptProperties(); HP.deleteProperty('NS_OVERFLOW');
     for (let i = 0; i < 8; i++) H.notifyStudio('[플랫폼] ⚠️오류 · 신청 접수 메일 발송 실패', (i === 7 ? '<b>x</b>' : '이름' + i) + ' · x\nerr');
     // [NOTICE_OVERFLOW 라운드 6] 다섯 통 + «멈춰요» 한 통 · 그 뒤는 메일 대신 아침 보고에 모은다(같은 제목의 진짜 실패가 조용히 사라지지 않게)
-    if (ln.length !== 2 + 6 || !/다섯 통을 넘어 메일은 여기서 멈춰요/.test(ln[ln.length - 1] || '')) bad.push('⑥ 관리자 알림: 같은 제목이 한 시간에 여섯 통을 넘거나 «멈춰요» 한 통이 없다 — ' + (ln.length - 2) + '통');
+    if (ln.length !== 2 + 6 || !/아침 보고에 모아 드려요 \/ 같은 알림 메일은 여기서 멈춰요$/.test(ln[ln.length - 1] || '')) bad.push('⑥ 관리자 알림: 같은 제목이 한 시간에 여섯 통을 넘거나 «멈춰요» 한 통이 없다 — ' + (ln.length - 2) + '통');
     let ov = null; try { ov = JSON.parse(HP.getProperty('NS_OVERFLOW') || 'null'); } catch (e) {}
     if (!(ov && Array.isArray(ov.a) && ov.a.length === 2 && /이름6/.test(ov.a[0][2]))) bad.push('⑥ 관리자 알림: 상한을 넘은 실패가 아침 보고 모음에 안 들어간다(조용히 사라진다) — ' + JSON.stringify(ov));
-    const mh = []; H._nfAdminEmail = (sj, h) => { mh.push(String(h)); };
+    const mh = []; H._nfAdminEmail = (sj, h) => { mh.push(String(h)); return true; };
     for (const f of ['aiDailyDigest', 'aiDailySafetyCheck', 'aiHandoffNightTake', 'notifyFailYesterday', '_solapiBalance', 'morningBriefData_', 'monthBusinessData_', 'aiCostSummary24h_']) H[f] = () => null;
     H.aiHandoffStatus = () => ({ pending: 0, overdue: 0 });
     try { H.aiMorningReport(false); } catch (e) { bad.push('⑥ 아침 보고: 던졌다 — ' + e.message); }
@@ -358,7 +358,46 @@ G.HtmlService = realHS;
     if (!(/메일로 못 보낸 실패 알림 \(2건\)/.test(mhtml) && /이름6/.test(mhtml))) bad.push('⑥ 아침 보고: 메일로 못 보낸 실패 알림을 싣지 않는다 — ' + mhtml.slice(0, 160));
     // [MORNING_ESC] 고객 글(이름 · 질문)은 글로만 — 메일 HTML 로 들어가지 않는다
     if (!/&lt;b&gt;x&lt;\/b&gt;/.test(mhtml) || /<b>x<\/b>/.test(mhtml)) bad.push('⑥ 아침 보고: 고객 글이 escape 없이 메일 HTML 로 들어간다');
-    if (HP.getProperty('NS_OVERFLOW')) bad.push('⑥ 아침 보고: 읽은 모음을 지우지 않는다(다음 날 또 나온다)'); }
+    if (HP.getProperty('NS_OVERFLOW')) bad.push('⑥ 아침 보고: 읽은 모음을 지우지 않는다(다음 날 또 나온다)');
+    // [MAIL_SENT_TRUE 라운드 7] 메일이 못 나가면 모음을 지우지 않는다 · 보내는 사이 새로 쌓인 줄은 남긴다
+    HP.setProperty('NS_OVERFLOW', JSON.stringify({ a: [['10-09 09:00', '제목', '가']] })); H._nfAdminEmail = () => false;
+    try { H.aiMorningReport(false); } catch (e) {}
+    if (!HP.getProperty('NS_OVERFLOW')) bad.push('⑥ 아침 보고: 메일이 못 나갔는데 모음을 지운다(그 줄들이 사라진다)');
+    H._nfAdminEmail = () => { HP.setProperty('NS_OVERFLOW', JSON.stringify({ a: [['10-09 09:00', '제목', '가'], ['10-09 09:01', '제목', '새 줄']] })); return true; };
+    try { H.aiMorningReport(false); } catch (e) {}
+    let rest = null; try { rest = JSON.parse(HP.getProperty('NS_OVERFLOW') || 'null'); } catch (e) {}
+    if (!(rest && rest.a && rest.a.length === 1 && rest.a[0][2] === '새 줄')) bad.push('⑥ 아침 보고: 보내는 사이 새로 쌓인 줄까지 지운다 — ' + JSON.stringify(rest));
+    // 20줄이 차면 «더 있었다» 표시 한 번 · 딱 20건이면 «넘음»이라 하지 않는다
+    HP.deleteProperty('NS_OVERFLOW'); for (let i = 0; i < 20; i++) H._nsOverflow_('제목', '사람' + i);
+    let o20 = null; try { o20 = JSON.parse(HP.getProperty('NS_OVERFLOW') || 'null'); } catch (e) {}
+    mh.length = 0; H._nfAdminEmail = (sj, h) => { mh.push(String(h)); return true; }; try { H.aiMorningReport(true); } catch (e) {}
+    const t20 = mh[0] || '';
+    H._nsOverflow_('제목', '사람20'); H._nsOverflow_('제목', '사람21');
+    let o22 = null; try { o22 = JSON.parse(HP.getProperty('NS_OVERFLOW') || 'null'); } catch (e) {}
+    mh.length = 0; try { H.aiMorningReport(false); } catch (e) {}
+    const t22 = mh[0] || '';
+    if (!(o20 && o20.a.length === 20 && !o20.more && /\(20건\)/.test(t20) && !/넘음/.test(t20) && o22 && o22.a.length === 20 && o22.more === true && /20건 넘음/.test(t22))) bad.push('⑥ 아침 보고: 딱 20건을 «넘음»이라 하거나 넘친 것을 표시하지 않는다');
+    HP.deleteProperty('NS_OVERFLOW');
+    // [NOTICE_HEAD_FIRST 라운드 7] 알림 한 줄은 «제목: 본문» · 줄바꿈은 « · » — 메일 제목 칸(20px)은 «:» 앞 알림 제목
+    if (!/^\[상담\] 오류 · 캘린더 일정 생성 실패: 가 · 나 · 2026-11-01 14:00 · err$/.test(ln[0] || '')) bad.push('⑥ 관리자 알림: 한 줄 모양이 «제목: 본문»이 아니다(메일 제목 칸이 시각 «14» 에서 잘린다) — ' + (ln[0] || ''));
+    { const { sandbox: J } = loadGas(makeSandbox()); J._SRV = true; const jc = new Map(); let hd = null;
+      J.CacheService = { getScriptCache: () => ({ get: (k) => (jc.has(k) ? jc.get(k) : null), put: (k, v) => jc.set(k, String(v)), remove: (k) => jc.delete(k) }) };
+      J._nfAdminEmail = (sj, inner, o) => { hd = o && o.head; return true; };
+      J.notifyStudio('[상담] 승인 뒤 일부 실패', '가 · 나 님 · 2026-11-01 14:00\n안 된 것: 캘린더\n승인은 처리됐습니다 · 이것만 직접 해 주세요.');
+      if (hd !== '승인 뒤 일부 실패') bad.push('⑥ 관리자 알림: 메일 제목 칸이 알림 제목이 아니다 — ' + JSON.stringify(hd));
+      // [MAIL_SENT_TRUE 라운드 7] 진짜 _nfAdminEmail 은 보냈으면 true · 못 보냈으면 false(아침 보고가 그것을 보고 모음을 지운다)
+      const { sandbox: K } = loadGas(makeSandbox()); K._SRV = true;
+      K.GmailApp = { sendEmail: () => {} }; const s1 = K._nfAdminEmail('t', 'b', { raw: true });
+      K.GmailApp = { sendEmail: () => { throw new Error('Service invoked too many times'); } }; const s2 = K._nfAdminEmail('t', 'b', { raw: true });
+      if (s1 !== true || s2 !== false) bad.push('⑥ 관리자 메일: 보냈는지를 돌려주지 않는다(못 보낸 날도 아침 보고 모음이 지워진다) — ' + s1 + ' / ' + s2); }
+    // [MAIL_SENT_TRUE 라운드 7] 밤사이 인계 수도 메일이 나간 뒤에 센 만큼만 뺀다(못 보내면 남는다 · 그사이 생긴 것은 남긴다)
+    HP.setProperty('AI_HANDOFF_NIGHT_PENDING', '3'); H.aiHandoffNightTake = () => { throw new Error('부르면 안 된다(보내기 전에 지운다)'); };
+    H._nfAdminEmail = () => false; try { H.aiMorningReport(false); } catch (e) {}
+    const n1 = HP.getProperty('AI_HANDOFF_NIGHT_PENDING');
+    H._nfAdminEmail = () => { HP.setProperty('AI_HANDOFF_NIGHT_PENDING', '4'); return true; }; try { H.aiMorningReport(false); } catch (e) {}
+    const n2 = HP.getProperty('AI_HANDOFF_NIGHT_PENDING');
+    if (n1 !== '3' || n2 !== '1') bad.push('⑥ 아침 보고: 밤사이 인계 수를 보내기 전에 지우거나 그사이 생긴 것까지 지운다 — ' + n1 + ' / ' + n2);
+    HP.deleteProperty('AI_HANDOFF_NIGHT_PENDING'); }
   // BTN_FAIL_KIND — 고객 단추(수락)의 3 에는 «관리자 페이지»가 없다 · 데이터 오류(x.y is not a function)는 9 · 다시 누르기
   const tok = 'tok1'; G.findRowByToken = () => pk; G._SRV = false; G._errRecord = () => {};
   G.actAccept = () => { throw new ReferenceError('getSheet is not defined'); };
@@ -385,7 +424,7 @@ G.HtmlService = realHS;
   // BTN_STATE_FIRST — 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 단추 대신 지금 상태
   { const st = (row, action) => { G.findRowByToken = () => row; G._LAST_INFO = null; try { G.handleAction({ token: tok, action, sig: G.sign_(tok, action) }); } catch (e) { return '던짐 ' + e.message; } return G._LAST_INFO ? G._LAST_INFO.title : '(단추 화면)'; };
     const want = [[R6({ '상태': ST.APPROVED || '승인완료' }), 'approve', '이미 확정된 예약입니다'], [R6({ '상태': ST.CONFIRMED || '확정' }), 'accept', '이미 확정된 예약입니다'],
-      [R6({ '상태': '시간선택완료' }), 'accept', '처리할 제안이 없습니다'], [R6({ '상태': ST.CANCELLED || '취소' }), 'approve', '취소된 예약입니다'], [R6({ '상태': '시간선택완료' }), 'approve', '(단추 화면)'],
+      [R6({ '상태': '시간선택완료' }), 'accept', '처리할 제안이 없습니다'], [R6({ '상태': ST.CANCELLED || '취소' }), 'approve', '이미 취소된 예약입니다'], [R6({ '상태': ST.CANCELLED || '취소' }), 'accept', '이미 취소된 예약입니다'], [R6({ '상태': '시간선택완료' }), 'approve', '(단추 화면)'],
       [R6({ '상태': ST.PROPOSED || '변경제안', '변경제안날짜': '2026-11-02', '변경제안시간': '15:00' }), 'accept', '(단추 화면)'],
       [R6({ '상태': ST.PROPOSED || '변경제안', '변경제안날짜': '', '변경제안시간': '' }), 'accept', '제안된 시간이 없습니다']];
     for (const [row, action, title] of want) { const got = st(row, action); if (got !== title) bad.push(`⑥ 링크 열기: ${action} · ${row.get('상태')} → «${got}»(«${title}» 이어야)`); }
@@ -436,7 +475,11 @@ G.HtmlService = realHS;
     if (rv !== false || ns !== 0) bad.push('⑥ 캘린더: 설정된 캘린더를 못 열었는데 false 가 아니거나(조용히 됨) quiet 인데 따로 알린다 — ' + rv + ' · ' + ns);
     C.getCalendar = () => ({ getEventById: () => null, createEvent: () => { throw new Error('quota'); } }); C.row = () => ({ get: () => '' }); ns = 0;
     try { rv = C.syncCalendarEvent({}, {}, 2, '2026-11-01', '14:00', '가 · 나', '010', false); } catch (e) { rv = 'threw ' + e.message; }
-    if (rv !== false || ns !== 1 || !/quota/.test(String(C._CAL_ERR))) bad.push('⑥ 캘린더: 만들기 실패가 false · 오류 글 · (quiet 아니면) 알림 한 통이 아니다 — ' + rv + ' · ' + ns + ' · ' + C._CAL_ERR); }
+    if (rv !== false || ns !== 1 || !/quota/.test(String(C._CAL_ERR))) bad.push('⑥ 캘린더: 만들기 실패가 false · 오류 글 · (quiet 아니면) 알림 한 통이 아니다 — ' + rv + ' · ' + ns + ' · ' + C._CAL_ERR);
+    // [CANCEL_RESULT 라운드 7] 지울 때 캘린더를 못 열면 false + 알림 한 통(어느 취소 길이든 — 마이페이지 · 메일 · 시트 취소는 화면이 말하지 않는다)
+    C.getCalendar = () => null; C.row = () => ({ get: (h) => (h === '캘린더이벤트ID' ? 'EV1' : '') }); ns = 0;
+    let dv2; try { dv2 = C.deleteCalendarEvent({}, {}, 2, '가 · 나'); } catch (e) { dv2 = 'threw ' + e.message; }
+    if (dv2 !== false || ns !== 1) bad.push('⑥ 취소: 캘린더를 못 열었는데 조용히 넘어간다(false · 알림 한 통이 아니다) — ' + dv2 + ' · ' + ns); }
   // [NOTICE_HEAD_FIRST 라운드 6] 알림 메일은 앞 300자만 싣는다 — 할 일 줄이 오류 글보다 앞 · 긴 오류 글에도 «직접 안내»가 잘리지 않는다
   { G.LockService = { getScriptLock: okLock }; G.row = () => pk; G.actApprove = keep.actApprove;
     G.syncCalendarEvent = () => { G._CAL_ERR = 'Q'.repeat(400); return false; }; G.sendConfirmEmail_ = () => { throw new Error('M'.repeat(400)); };
@@ -449,7 +492,9 @@ G.HtmlService = realHS;
     G.actCancel = () => ({ cal: false, mail: true }); reset6(); G.doAdminCancel({}, {}, cx);
     if (!(G._LAST_INFO && G._LAST_INFO.title === '빠진 것이 있어요' && /안 된 것: 캘린더&nbsp;일정&nbsp;삭제/.test(G._LAST_INFO.body) && /코드 B4/.test(G._LAST_INFO.body) && hist.length === 1 && Array.isArray(G._LAST_INFO.partial))) bad.push('⑥ 관리자 취소: 캘린더를 못 지웠는데 «삭제되고 · 발송되었습니다»라고 하거나 처리이력이 없다 — ' + JSON.stringify(G._LAST_INFO));
     G.actCancel = () => ({ cal: true, mail: true }); reset6(); G.doAdminCancel({}, {}, cx);
-    if (!(G._LAST_INFO && G._LAST_INFO.ok && /캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다/.test(G._LAST_INFO.body))) bad.push('⑥ 관리자 취소: 다 됐는데 결과 글이 다르다');
+    if (!(G._LAST_INFO && G._LAST_INFO.ok && /캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다/.test(G._LAST_INFO.body) && !/예약이 취소되었습니다/.test(G._LAST_INFO.body) && /신랑 · 신부 님<br>/.test(G._LAST_INFO.body))) bad.push('⑥ 관리자 취소: 다 됐는데 결과 글이 다르거나 본문이 제목을 되풀이한다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
+    G.actCancel = () => ({ cal: false, mail: null }); reset6(); G.doAdminCancel({}, {}, cx);
+    if (!(G._LAST_INFO && G._LAST_INFO.title === '빠진 것이 있어요' && /이메일이 없어 안내 메일은 보내지 않았어요/.test(G._LAST_INFO.body) && G._LAST_INFO.noMail === true)) bad.push('⑥ 관리자 취소: 빠진 것이 있는데 이메일이 없다는 줄이 빠진다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
     G.actCancel = () => ({ cal: null, mail: null }); reset6(); G.doAdminCancel({}, {}, cx);
     if (!(G._LAST_INFO && G._LAST_INFO.ok && !/삭제|발송되었습니다/.test(G._LAST_INFO.body) && /이메일이 없어 안내 메일은 보내지 않았습니다/.test(G._LAST_INFO.body))) bad.push('⑥ 관리자 취소: 캘린더 · 메일을 안 썼는데 «삭제되고 · 발송되었습니다»라고 한다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
     G.actCancel = () => ({ cal: true, mail: false }); G.findRowByPersonalCode = () => ({ num: 2 }); G._AUTHED = true; let rc = 0; const keepRH = G._recordHandler; G._recordHandler = () => { rc++; };
@@ -468,7 +513,14 @@ G.HtmlService = realHS;
     const cc = R6({ '상태': ST.CANCELLED || '취소', '선택날짜': '2026-11-01' });
     const pages = [['관리자 취소 화면', () => G.serveAdminCancelD('tok1', cc)], ['관리자 취소 누름', () => G.doAdminCancel({}, {}, cc)], ['고객 취소 화면', () => G.serveCancelD('tok1', cc)], ['고객 취소 누름', () => G.doCustomerCancel({}, {}, cc, {})]];
     for (const [lb, fn] of pages) { G._LAST_INFO = null; try { fn(); } catch (e) { bad.push('⑥ ' + lb + ': 던졌다 — ' + e.message); continue; }
-      if (!(G._LAST_INFO && G._LAST_INFO.title === '이미 취소된 예약입니다' && /신랑 · 신부 님<br>/.test(G._LAST_INFO.body) && /14:00/.test(G._LAST_INFO.body) && !/이미 취소/.test(G._LAST_INFO.body))) bad.push('⑥ ' + lb + ': «이미 취소» 화면이 다른 제목이거나 본문이 제목을 되풀이한다 — ' + JSON.stringify(G._LAST_INFO)); }
+      if (!(G._LAST_INFO && G._LAST_INFO.title === '이미 취소된 예약입니다' && G._LAST_INFO.ok === true && /신랑 · 신부 님<br>/.test(G._LAST_INFO.body) && /14:00/.test(G._LAST_INFO.body) && !/이미 취소/.test(G._LAST_INFO.body) && (/관리자/.test(lb) || /다시 예약을 원하시면 새로 신청해 주세요/.test(G._LAST_INFO.body)))) bad.push('⑥ ' + lb + ': «이미 취소» 화면이 다른 제목이거나 본문이 제목을 되풀이한다 — ' + JSON.stringify(G._LAST_INFO)); }
+    { const cz = R6({ '상태': ST.CANCELLED || '취소' }); G.row = () => cz; reset6(); G.actApprove({}, {}, cz); const a1 = G._LAST_INFO; reset6(); G.actAccept({}, {}, cz); const a2 = G._LAST_INFO;
+      if (!(a1 && a1.title === '이미 취소된 예약입니다' && a1.ok === false && /승인할 수 없어요/.test(a1.body) && a2 && a2.title === '이미 취소된 예약입니다' && a2.ok === false && /신랑 · 신부 님/.test(a2.body))) bad.push('⑥ 취소된 예약 승인 · 수락: 같은 상태인데 다른 제목이거나 누구 · 언제가 없다 — ' + JSON.stringify([a1 && a1.title, a2 && a2.title])); }
+    // [ERR_ID_RECORDED 라운드 7] 링크 오류 화면은 사고번호가 없어도 «(코드 X9)»는 남긴다
+    { const keepSA = G.serveApplyA, keepEI = G._errId, keepER = G._errRecord; G.serveApplyA = () => { throw new Error('boom'); }; G._errId = () => ''; G._errRecord = () => {}; G._LAST_INFO = null;
+      try { G.doGet({ parameter: {} }); } catch (e) {}
+      if (!(G._LAST_INFO && /\(코드 X9\)$/.test(G._LAST_INFO.body))) bad.push('⑥ 링크 오류 화면: 사고번호가 없으면 코드까지 빠진다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
+      G.serveApplyA = keepSA; G._errId = keepEI; G._errRecord = keepER; }
     // [MISS_NOWRAP] 승인 일부 실패 화면도 항목 안은 붙는 칸
     G.syncCalendarEvent = () => false; G.sendConfirmEmail_ = () => { throw new Error('x'); }; G.row = () => pk; reset6(); G.actApprove({}, {}, pk);
     if (!(G._LAST_INFO && /확정&nbsp;메일/.test(G._LAST_INFO.body) && /마이페이지&nbsp;단계|캘린더/.test(G._LAST_INFO.body))) bad.push('⑥ 승인 일부 실패 화면: «확정 메일»이 줄 끝에서 갈릴 수 있다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
@@ -496,6 +548,11 @@ G.HtmlService = realHS;
     let r3; try { r3 = G.adminAcceptProposal('ME0001'); } catch (e) { r3 = { threw: e.message }; }
     if (!(r3 && r3.ok === false && r3.error === '예약 정보가 바뀌었어요 · 새로고침해 주세요' && rc === 0)) bad.push('⑥ 관리 화면 수락: 예약을 못 찾았는데 관리자에게 «문의 메일»을 말한다 — ' + JSON.stringify(r3));
     G.actAccept = keepAc;
+    // [ADM_GONE_WORDS 라운드 7] 개인코드로 예약을 못 찾을 때도 같은 말(승인 · 수락 · 취소 · 변경 제안)
+    { const kfr = G.findRowByPersonalCode; G.findRowByPersonalCode = () => null; const said = [];
+      for (const f of ['adminApprove', 'adminAcceptProposal', 'adminCancel', 'adminProposeTime']) { let r; try { r = G[f]('ME0404', '2026-11-01', '14:00'); } catch (e) { r = { threw: e.message }; } said.push(r && r.error); }
+      if (!said.every((t) => t === '예약 정보가 바뀌었어요 · 새로고침해 주세요')) bad.push('⑥ 관리 화면: 예약을 못 찾은 같은 상태에 말이 둘이다 — ' + JSON.stringify(said));
+      G.findRowByPersonalCode = kfr; }
     // [INFO_TEXT_SEP] 한 줄 글은 줄바꿈을 « · »로(문장 끝 뒤는 띄어쓰기) — 두 문장이 붙지 않게
     const it1 = G._infoText_({ title: '예약을 찾을 수 없습니다', body: '예약 정보가 바뀌었어요<br>contact@momentedit.kr 로 문의해 주세요' }), it2 = G._infoText_({ title: 't', body: '끝났습니다.<br><br>다음 줄' });
     if (it1 !== '예약을 찾을 수 없습니다 · 예약 정보가 바뀌었어요 · contact@momentedit.kr 로 문의해 주세요' || it2 !== 't · 끝났습니다. 다음 줄') bad.push('⑥ 한 줄 글: 줄바꿈 자리가 붙거나 « · »가 겹친다 — ' + it1 + ' / ' + it2);

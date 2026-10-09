@@ -174,7 +174,7 @@ function doGet(e) { _SRV = true;
       return jsonOut({ ok: false, ecode: 'G' + (_cfgErr_(err) ? 3 : 9), eid: (typeof _errId === 'function') ? _errId() : '', _why: String((err && err.stack) || _ge).replace(/\s+/g, ' ').slice(0, 200), error: 'INTERNAL_ERROR' });   // ★[GETCOUPLE_CONTRACT 2026-10-08 점검 R2] 하객 화면(live · 청첩장 24장 hydrate)은 error === 'INTERNAL_ERROR' 로 «서버 사고»를 가른다 — 한글 글을 주면 «이 링크로는 예식을 찾을 수 없습니다»(링크 탓)로 떨어졌다(87_letter ltGetCouple 과 같은 약속)
     }
     var _gid = ''; try { if (typeof _errId === 'function') { var _gact = 'get:' + String(p.action || p.page || '').slice(0, 30); _gid = _errId(_gact); _errRecord(_gact, 'X9', '문제가 발생했습니다', String((err && err.stack) || (err && err.message) || err).replace(/\s+/g, ' ').slice(0, 200), _gid, ''); } } catch (_g) {}   // [ERR_CODE_GAS]
-    return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.' + (_gid ? ' (코드 X9 · ' + _gid + ')' : ''), false);   // 내부 예외 원문 비노출
+    return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요 (코드 X9' + (_gid ? ' · ' + _gid : '') + ')', false);   // 내부 예외 원문 비노출 · [ERR_ID_RECORDED 라운드 7] 번호가 없어도 코드는 남긴다
   }
 }
 
@@ -283,7 +283,7 @@ function handleAction(p) { _gsr_();
   /* [BTN_STATE_FIRST 2026-10-09 라운드 4] 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 단추 대신 지금 상태를 보여 준다(열기만 해서는 아무것도 바꾸지 않는다) */
   var _st0 = String(row.get('상태') || '').trim();
   if (action === 'approve' || action === 'accept') {
-    if (_st0 === ST.CANCELLED) return infoPage('취소된 예약입니다', action === 'approve' ? '취소된 예약은 승인할 수 없습니다. 다시 진행하려면 고객이 새로 신청해야 합니다.' : '이 예약은 취소되었습니다. 다시 예약을 원하시면 새로 신청해 주세요.', false);
+    if (_st0 === ST.CANCELLED) return infoPage('이미 취소된 예약입니다', _whoWhen_(row) + (action === 'approve' ? '<br>승인할 수 없어요 · 다시 진행하려면 고객이 새로 신청해야 해요' : '<br>다시 예약을 원하시면 새로 신청해 주세요.'), false);   // [CANCEL_SAME_WORDS 라운드 7] 같은 상태는 같은 제목 · 본문은 누구 · 언제
     if (_st0 === ST.CONFIRMED || (action === 'approve' && _st0 === ST.APPROVED)) { var _hp = (action === 'approve') ? _btnFailPeek_('B_' + _btnStr_(token), '확정 메일과 캘린더를') : ''; return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님<br>' + prettyDate(row.get('선택날짜')) + ' · ' + esc(row.get('선택시간')) + (_hp ? '<br>' + _hp : ''), true); }   // [BTN_AFTER_FAIL] 다시 열어도 앞선 오류를 말한다(지우지 않는다 · 메일 검사기가 먼저 열어도 남게)
     if (action === 'approve' && _st0 === ST.PROPOSED) return infoPage('변경 제안을 보낸 예약입니다', '고객이 제안 시간을 수락하면 확정돼요.', false);
     if (action === 'accept' && _st0 !== ST.PROPOSED) return infoPage('처리할 제안이 없습니다', '이 제안은 이미 처리되었거나 일정이 바뀌었습니다.<br>현재 잡힌 일정은 확정 메일을 확인해 주세요.', false);
@@ -385,7 +385,7 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
       return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님<br>' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>(메일·캘린더는 다시 보내지 않았습니다.)', true);   // [HTML_ESC_NAMES] 고객 글은 늘 esc · [BTN_AFTER_FAIL] «이미 처리되어»라고 장담하지 않는다
     }
     if (curStatus === ST.CANCELLED) {  // [관리자 v1 · 개선 K] 취소건 승인 차단 · 메일버튼·관리자 양쪽 보호(되살아남 방지)
-      return infoPage('취소된 예약입니다', '취소된 예약은 승인할 수 없습니다. 다시 진행하려면 고객이 새로 신청해야 합니다.', false);
+      return infoPage('이미 취소된 예약입니다', _whoWhen_(row) + '<br>승인할 수 없어요 · 다시 진행하려면 고객이 새로 신청해야 해요', false);   // [CANCEL_SAME_WORDS 라운드 7] 승인 · 수락 길은 빨강(누른 일이 안 됐다) · 취소 길은 초록(이미 취소됐다)
     }
     if (curStatus === ST.PROPOSED) return infoPage('변경 제안을 보낸 예약입니다', '고객이 제안 시간을 수락하면 확정돼요.', false);   // [BTN_STATE_FIRST] 관리 화면과 같은 규칙 — 승인하면 보낸 제안이 떠 버린다
 
@@ -475,7 +475,7 @@ function actAccept(sheet, colOf, row) { _gsr_();
     return infoPage('이미 확정된 예약입니다', esc(coupleNames(row)) + ' 님<br>' + prettyDate(row.get('선택날짜')) + ' · ' + esc(row.get('선택시간')), true);   // [HTML_ESC_NAMES]
   }
   if (curStatus === ST.CANCELLED) {
-    return infoPage('취소된 예약입니다', '이 예약은 취소되었습니다. 다시 예약을 원하시면 새로 신청해 주세요.', false);
+    return infoPage('이미 취소된 예약입니다', _whoWhen_(row) + '<br>다시 예약을 원하시면 새로 신청해 주세요.', false);   // [CANCEL_SAME_WORDS 라운드 7]
   }
   /* ★★[ACCEPT_GUARDED 2026-08-26 상담 흐름 점검 C1·C2] 수락 경로만 무방비였다.
      승인(actApprove)은 락 + 슬롯 확인 + 상태 재확인을 다 하는데, 이 함수는 셋 다 없었다:
@@ -627,7 +627,7 @@ function serveCancelD(token, row) { _gsr_();
   var status = String(row.get('상태') || '').trim();
   // 확정/승인 상태가 아니면 취소할 게 없음
   if (status === ST.CANCELLED) {
-    return infoPage('이미 취소된 예약입니다', _whoWhen_(row) + '<br>다시 예약을 원하시면 새로 신청해 주세요.', false);   // [CANCEL_SAME_WORDS] 제목을 되풀이하지 않는다
+    return infoPage('이미 취소된 예약입니다', _whoWhen_(row) + '<br>다시 예약을 원하시면 새로 신청해 주세요.', true);   // [CANCEL_SAME_WORDS] 제목을 되풀이하지 않는다 · 취소 길은 초록(이미 취소됐다)
   }
   if (LOCKED_STATES.indexOf(status) === -1) {
     return infoPage('취소할 예약이 없습니다', '확정된 예약이 없습니다. 문의가 필요하시면 카카오톡으로 연락 주세요.', false);
@@ -709,7 +709,7 @@ function serveCancelD(token, row) { _gsr_();
 function doCustomerCancel(sheet, colOf, row, p) { _gsr_();
   var status = String(row.get('상태') || '').trim();
   if (status === ST.CANCELLED) {
-    return infoPage('이미 취소된 예약입니다', _whoWhen_(row), true);   // [CANCEL_SAME_WORDS] 같은 상태는 같은 말
+    return infoPage('이미 취소된 예약입니다', _whoWhen_(row) + '<br>다시 예약을 원하시면 새로 신청해 주세요.', true);   // [CANCEL_SAME_WORDS] 같은 상태는 같은 말(고객 취소 화면과 같은 줄)
   }
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
   var names = coupleNames(row);
@@ -874,11 +874,11 @@ function doAdminCancel(sheet, colOf, row) { _gsr_();
   /* [CANCEL_RESULT 2026-10-09 라운드 6] 된 것만 말한다 — 캘린더를 못 지웠거나 안내 메일이 실패했는데 «삭제되고 · 발송되었습니다»라고 하지 않는다.
      빠진 것은 승인 · 수락과 같은 말(«빠진 것이 있어요» · B4)로 · 고객 처리이력에도 한 줄 */
   var _cm = []; if (_cr.cal === false) _cm.push('캘린더 일정 삭제'); if (_cr.mail === false) _cm.push('취소 안내 메일');
-  if (_cm.length) { _partialNote_(row, '취소', _cm); var _cp = infoPage('빠진 것이 있어요', esc(coupleNames(row)) + ' 님 취소는 됐어요<br>안 된 것: ' + _missHtml_(_cm) + '<br>이것만 직접 해 주세요 (코드 B4)', false); _LAST_INFO.partial = _cm.slice(); return _cp; }   // 관리 화면(adminCancel)도 같은 창
+  if (_cm.length) { _partialNote_(row, '취소', _cm); var _cp = infoPage('빠진 것이 있어요', esc(coupleNames(row)) + ' 님 취소는 됐어요<br>안 된 것: ' + _missHtml_(_cm) + '<br>이것만 직접 해 주세요 (코드 B4)' + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았어요' : ''), false); _LAST_INFO.partial = _cm.slice(); _LAST_INFO.noMail = (_cr.mail === null); return _cp; }   // 관리 화면(adminCancel)도 같은 창
   var _done = (_cr.cal === true && _cr.mail === true) ? '캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다.'
     : _cr.cal === true ? '캘린더 일정이 삭제되었습니다.' : _cr.mail === true ? '고객에게 안내 메일이 발송되었습니다.' : '';
   return infoPage('예약이 취소되었습니다',
-    esc(coupleNames(row)) + ' 님의 예약이 취소되었습니다.' + (_done ? '<br>' + _done : '') + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았습니다.' : ''), true);   // [HTML_ESC_NAMES]
+    _whoWhen_(row) + (_done ? '<br>' + _done : '') + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았습니다.' : ''), true);   // [HTML_ESC_NAMES] · [CANCEL_SAME_WORDS 라운드 7] 본문은 제목을 되풀이하지 않는다(누구 · 언제 + 된 것)
 }
 
 // ============================ google.script.run 핸들러 ============================
@@ -1265,7 +1265,7 @@ function deleteCalendarEvent(sheet, colOf, rowNum, names) { _gsr_();
   var existingId = row(sheet, colOf, rowNum).get('캘린더이벤트ID');
   if (!existingId) return null; // 지울 일정 없음 — [CANCEL_RESULT] null(안 씀) · false(못 지움) · true(지움)
   var cal = getCalendar();
-  if (!cal) return (CONFIG.CALENDAR_ID && CONFIG.CALENDAR_ID.charAt(0) !== '[') ? false : null;   // 캘린더를 쓰는데 못 열었으면 false
+  if (!cal) { if (!(CONFIG.CALENDAR_ID && CONFIG.CALENDAR_ID.charAt(0) !== '[')) return null; try { notifyStudio('[상담] ⚠️오류 · 캘린더 일정 삭제 실패', (names || '') + '\n캘린더를 열지 못했어요 · 일정을 직접 지워 주세요'); } catch (eN) {} return false; }   // [CANCEL_RESULT] 캘린더를 쓰는데 못 열었으면 false · 어느 취소 길이든 알린다
   try {
     var ev = cal.getEventById(existingId);
     if (ev) ev.deleteEvent();
@@ -1549,7 +1549,7 @@ function emailShell(headline, innerHtml) { _gsr_();
     // ★EMAIL_CARD_RADIUS_FIX(2026-07-22): 카드 테두리 아래쪽이 '잘려' 보이던 원인 = border+border-radius를 쓰면서 border-collapse:separate 미선언 → 일부 메일앱(네이버 다크모드 재렌더 등)이 border-collapse:collapse로 강제해 라운드가 무시되고 모서리가 각지게(=하단 잘림처럼) 렌더. separate+border-spacing:0을 명시해 라운드가 모든 클라이언트에서 안정적으로 적용되게 함. overflow:hidden로 하단 모서리 밖 삐침 방지.
     '<table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #DDD8D1;border-radius:10px;border-collapse:separate;border-spacing:0;overflow:hidden;mso-table-lspace:0pt;mso-table-rspace:0pt;"><tr><td bgcolor="#FFFFFF" class="me-card" style="background:#FFFFFF;border-radius:10px;padding:46px 38px;font-family:\'Noto Serif KR\',serif;color:#3A2D22;">' +
       '<div style="text-align:center;margin-bottom:24px;"><img src="https://momentedit.kr/logogold.png" alt="Moment Edit" width="210" style="width:210px;max-width:66%;height:auto;display:inline-block;border:0;outline:none;text-decoration:none;"></div>' +   // ★raw.githubusercontent(비공개 저장소=메일서 404 깨짐) → Vercel 공개 URL로 변경(2026-07-22). logogold.png는 저장소 루트=momentedit.kr/logogold.png로 공개 서빙
-      '<p style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:500;text-align:center;color:#3A2D22;margin:0 0 8px">' + esc(headline) + '</p>' +
+      '<p style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:500;text-align:center;color:#3A2D22;margin:0 0 8px;word-break:keep-all">' + esc(headline) + '</p>' +   // [NOTICE_HEAD_FIRST 라운드 7] 메일 제목 칸이 낱말 가운데서 갈리지 않게
       innerHtml +
       // [DM_FOOT_SIGN] 이름 먼저 · 문장 뒤 · 흰 지면이라 금색(#B89A75 대비 2.3)을 글자로 쓰지 않는다
       '<div style="border-top:1px solid #ECE8E1;margin-top:32px;padding-top:22px;text-align:center;">' +
@@ -1680,8 +1680,8 @@ function cancelByRow() { _requireAdmin();
   var names = coupleNames(r);
   var when = (r.get('선택날짜') ? prettyDate(r.get('선택날짜')) : '날짜미정') + ' ' + (r.get('선택시간') || '');
   Logger.log('취소 진행: ' + TARGET_ROW + '행 · ' + names + ' · ' + when);
-  actCancel(sheet, colOf, r);
-  Logger.log('✅ 취소 완료 · 캘린더 일정 삭제 + 취소 메일 발송(이메일 있을 시) + 상태=취소');
+  var _cr = actCancel(sheet, colOf, r) || {};
+  Logger.log('✅ 취소 완료 · 상태=취소 · 캘린더 ' + (_cr.cal === true ? '지움' : _cr.cal === false ? '못 지움(직접 지워 주세요)' : '지울 일정 없음') + ' · 안내 메일 ' + (_cr.mail === true ? '보냄' : _cr.mail === false ? '못 보냄(직접 연락해 주세요)' : '이메일 없음'));   // [CANCEL_RESULT] 된 것만
 }
 
 // ============================================================
@@ -1963,7 +1963,7 @@ function notifyStudio(subject, body, dedupKey) { _gsr_();
        [NOTICE_PER_WHO 2026-10-09 라운드 4] 같은 제목 · 같은 첫 줄(누구 · 어떤 오류)만 6시간에 한 통 — 제목만으로 하루 한 통이면 같은 날 두 번째 고객의 실패가 묻힌다 */
     /* [NOTICE_OVERFLOW 2026-10-09 라운드 6] 제목마다 한 시간에 다섯 통 — 여섯째는 «멈춰요» 한 통, 그 뒤는 메일 대신 아침 보고에 모은다(_nsOverflow_ · 96_ai_cost aiMorningReport).
        상한만 두면 같은 제목의 진짜 실패가 조용히 사라진다 */
-    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '')) && typeof _nfAdminLineEmail === 'function') { var _first = String(body || '').split('\n')[0].slice(0, 160), _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject) + '|' + _first, Utilities.Charset.UTF_8)).slice(0, 16), _pc = CacheService.getScriptCache(), _ph = 'NSERRH_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 12) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _pn = +(_pc.get(_ph) || 0); if (!_pc.get(_pk)) { _pc.put(_pk, '1', 21600); _pc.put(_ph, String(_pn + 1), 3700); var _sj = String(subject).replace(/⚠️?/g, ''), _line = _sj + ' · ' + String(body || '').replace(/\s+/g, ' ').slice(0, 300); if (_pn < 5) _nfAdminLineEmail(_line); else if (_pn === 5) _nfAdminLineEmail(_line + ' / 이번 시간 같은 알림이 다섯 통을 넘어 메일은 여기서 멈춰요 · 더 오는 것은 아침 보고에 모아 드려요'); else _nsOverflow_(_sj, _first); } } return; }   // 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
+    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '')) && typeof _nfAdminLineEmail === 'function') { var _first = String(body || '').split('\n')[0].slice(0, 160), _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject) + '|' + _first, Utilities.Charset.UTF_8)).slice(0, 16), _pc = CacheService.getScriptCache(), _ph = 'NSERRH_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 12) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _pn = +(_pc.get(_ph) || 0); if (!_pc.get(_pk)) { _pc.put(_pk, '1', 21600); _pc.put(_ph, String(_pn + 1), 3700); var _sj = String(subject).replace(/⚠️?/g, '').replace(/:/g, ' ').trim(), _line = _sj + ': ' + String(body || '').replace(/ \/ /g, ' · ').replace(/\.?[ \t]*\n\s*/g, ' · ').replace(/\s+/g, ' ').slice(0, 300); if (_pn < 5) _nfAdminLineEmail(_line); else if (_pn === 5) _nfAdminLineEmail(_line + ' · 이번 시간 같은 알림이 다섯 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 같은 알림 메일은 여기서 멈춰요'); else _nsOverflow_(_sj, _first); } } return; }   // [NOTICE_HEAD_FIRST 라운드 7] 메일 제목 칸 = «:» 앞(알림 제목) · 줄바꿈은 « · » · 여섯째 제목은 짧게 · 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
     if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
     if (dedupKey) {
       var c = CacheService.getScriptCache();
@@ -1981,7 +1981,7 @@ function _nsOverflow_(subj, first) {   // [NOTICE_OVERFLOW] 시간당 상한을 
     var P = PropertiesService.getScriptProperties(), o = null;
     try { o = JSON.parse(P.getProperty('NS_OVERFLOW') || 'null'); } catch (eJ) { o = null; }
     if (!o || !Array.isArray(o.a)) o = { a: [] };
-    if (o.a.length >= 20) return;
+    if (o.a.length >= 20) { if (!o.more) { o.more = true; P.setProperty('NS_OVERFLOW', JSON.stringify(o)); } return; }   // [NOTICE_OVERFLOW] 넘친 것이 더 있었다는 표시 한 번(그 뒤는 쓰지 않는다)
     o.a.push([Utilities.formatDate(new Date(), 'Asia/Seoul', 'MM-dd HH:mm'), String(subj || '').slice(0, 30), String(first || '').replace(/\s+/g, ' ').slice(0, 50)]);
     P.setProperty('NS_OVERFLOW', JSON.stringify(o));
   } catch (e) {}
@@ -2108,7 +2108,7 @@ function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_
     '.bar{width:40px;height:3px;background:#3A2D22;border-radius:3px;margin:0 auto 22px}' +
     '.brand{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.34em;color:#3A2D22;text-transform:uppercase;margin-bottom:18px}' +
     '.t{font-family:"Noto Serif KR",serif;font-size:21px;font-weight:500;line-height:1.4;color:#3A2D22;margin-bottom:14px}' +
-    '.d{font-size:14px;line-height:1.85;color:#5A554C;min-height:5.55em}' +
+    '.d{font-size:14px;line-height:1.85;color:#5A554C;min-height:5.55em;text-wrap:pretty}' +   // [MISS_NOWRAP 라운드 7] 확인 화면 결과 글도 끝 줄에 한 낱말만 남지 않게
     '.go{margin-top:26px;min-height:48px;min-width:200px;padding:0 28px;border:0;border-radius:6px;background:#3A2D22;color:#FAFAF8;font-family:"Noto Sans KR",sans-serif;font-size:14px;letter-spacing:.04em;cursor:pointer}' +
     '.go[disabled]{opacity:.6;cursor:default}' +
     '@media (max-width:480px){.t{min-height:2.8em;display:flex;align-items:center;justify-content:center}.d{min-height:7.4em}}</style></head>' +   // [MAIL_BOX_STEADY] 폰은 제목 두 줄 · 설명 네 줄 자리(누른 뒤 카드 높이 · 단추 위치 그대로)

@@ -2346,6 +2346,66 @@
    "fn": "deployCheck",
    "mark": "SECRET_GUARD_KIND",
    "why": "공유 열쇠가 비면 ★ 줄로 알린다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "_authSendOk_",
+   "mark": "AUTH_SEND_CAP",
+   "why": "코드 찾기 · 재설정 안내는 받는 주소마다 한 시간에 3통 · 전체 40통 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleFindCode",
+   "mark": "AUTH_SEND_CAP",
+   "why": "코드 찾기 안내는 보내기 전에 시간당 상한을 본다(답은 늘 같다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleResetPw",
+   "mark": "AUTH_SEND_CAP",
+   "why": "재설정 안내는 보내기 전에 시간당 상한을 본다(답은 늘 같다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminEmail",
+   "mark": "MAIL_SENT_TRUE",
+   "why": "관리자 메일을 보냈는지 돌려준다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "MAIL_SENT_TRUE",
+   "why": "모은 실패 알림 · 밤사이 인계 수는 아침 보고 메일이 나간 뒤에만 지운다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSetResultLinks",
+   "mark": "RESULT_NOTIFIED",
+   "why": "결과물 링크 저장에 고객 알림이 나가는지 돌려준다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "emailShell",
+   "mark": "NOTICE_HEAD_FIRST",
+   "why": "메일 제목 칸은 낱말 가운데서 갈리지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleAction",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "취소된 예약의 승인 · 수락 링크는 «이미 취소된 예약입니다» · 누구 · 언제 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_mailConfirmPage_",
+   "mark": "MISS_NOWRAP",
+   "why": "확인 화면 결과 글도 끝 줄에 한 낱말만 남지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "ERR_ID_RECORDED",
+   "why": "링크 오류 화면은 사고번호가 없어도 코드를 남긴다 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2410,6 +2470,7 @@
    "handleLogin",
    "handleAutologin",
    "handleVerify",
+   "_authSendOk_",
    "handleFindCode",
    "handleResetPw",
    "handleDoResetPw",
@@ -2510,7 +2571,6 @@
    "handleSaveRefundAccount",
    "weeklyBackup",
    "_trigIn_",
-   "_trigHash_",
    "_trigSafe_",
    "_trigWho_",
    "_trigUidIs_",
@@ -3416,7 +3476,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 19:39 · ab84a875",
+ "_생성": "2026-10-09 20:49 · 81fda265",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3930,5 +3990,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "e7addadaab03"
+ "_표식서명": "3e74b8698c38"
 }

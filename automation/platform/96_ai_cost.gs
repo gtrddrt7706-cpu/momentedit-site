@@ -419,13 +419,10 @@ function aiMorningReport(preview) { _gsr_();
   var safety = {}; try { safety = aiDailySafetyCheck(true) || {}; } catch (e) { safety = {}; }       // silent: 개별 문자 안 쏨
   var ho = { pending: 0, overdue: 0 }; try { if (typeof aiHandoffStatus === 'function') ho = aiHandoffStatus(); } catch (e) {}
   // preview(미리보기)면 밤사이 카운터를 '읽기만'(리셋 X) — 미리보기가 그날 진짜 보고의 밤사이 수를 소비하지 않게.
-  var night = 0; try {
-    if (preview) night = Number(PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
-    else if (typeof aiHandoffNightTake === 'function') night = aiHandoffNightTake();
-  } catch (e) {}
+  var night = 0; try { night = Number(PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_NIGHT_PENDING') || 0); } catch (e) {}   // [MAIL_SENT_TRUE 라운드 7] 읽기만 — 메일이 나간 뒤에 센 만큼만 뺀다
   var failY = 0; try { if (typeof notifyFailYesterday === 'function') failY = notifyFailYesterday(); } catch (e) {}
   /* [NOTICE_OVERFLOW 2026-10-09 라운드 6] 시간당 상한을 넘어 메일로 못 보낸 실패 알림(consultation-booking _nsOverflow_) — 읽고 지운다(미리보기는 읽기만) */
-  var ovf = []; try { var _OP = PropertiesService.getScriptProperties(), _oo = JSON.parse(_OP.getProperty('NS_OVERFLOW') || 'null'); if (_oo && Array.isArray(_oo.a)) ovf = _oo.a; if (!preview && ovf.length) _OP.deleteProperty('NS_OVERFLOW'); } catch (e) { ovf = []; }
+  var ovf = [], ovfMore = false; try { var _oo = JSON.parse(PropertiesService.getScriptProperties().getProperty('NS_OVERFLOW') || 'null'); if (_oo && Array.isArray(_oo.a)) { ovf = _oo.a; ovfMore = !!_oo.more; } } catch (e) { ovf = []; }   // [MAIL_SENT_TRUE] 지우기는 메일을 보낸 뒤
   var bal = null, thr = 3000;
   try {
     thr = Number(PropertiesService.getScriptProperties().getProperty('SOLAPI_LOW_BALANCE')) || 3000;
@@ -481,7 +478,7 @@ function aiMorningReport(preview) { _gsr_();
   }
   rows.push(['솔라피 잔액', balStr, balLow]);
   if (failY > 0) rows.push(['어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
-  if (ovf.length) rows.push(['메일로 못 보낸 실패 알림 (' + (ovf.length >= 20 ? '20건 넘음' : ovf.length + '건') + ')', ovf.map(function (x) { return '· ' + [x[0], x[1], x[2]].join(' · '); }).join('\n') + '\n같은 제목이 한 시간에 다섯 통을 넘어 메일 대신 여기 모았어요', true]);   // [NOTICE_OVERFLOW]
+  if (ovf.length) rows.push(['메일로 못 보낸 실패 알림 (' + ovf.length + '건' + (ovfMore ? ' 넘음 · 그 뒤는 세지 않았어요' : '') + ')', ovf.map(function (x) { return '· ' + [x[0], x[1], x[2]].join(' · '); }).join('\n') + '\n같은 제목이 한 시간에 다섯 통을 넘어 메일 대신 여기 모았어요', true]);   // [NOTICE_OVERFLOW]
 
   /* [MORNING_ESC 2026-10-09 라운드 6] 줄 값은 모두 글로 받아 escape 한 뒤 줄바꿈만 <br> — 고객 이름 · 질문이 메일 HTML 로 들어가지 않게 */
   var _mrEsc = function (v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
@@ -489,7 +486,7 @@ function aiMorningReport(preview) { _gsr_();
     var warn = r[2];
     return '<div style="padding:13px 2px;border-bottom:1px solid #ECE8E1">'
       + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px">' + _mrEsc(r[0]) + '</div>'
-      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + _mrEsc(r[1]).replace(/\n/g, '<br>') + '</div>'
+      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;word-break:keep-all;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + _mrEsc(r[1]).replace(/\n/g, '<br>') + '</div>'
       + '</div>';
   }).join('');
   var inner = '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A39C8E;text-align:center;margin:0 0 18px">' + ymd + ' 운영 현황</p>'
@@ -499,7 +496,10 @@ function aiMorningReport(preview) { _gsr_();
   var summary = '인계 ' + ho.pending + (ho.overdue ? ('(24h↑' + ho.overdue + ')') : '')
     + ' · 안전 ' + (safety.unreachable ? '점검불가' : (safety.pass != null ? (safety.pass + '/' + safety.total) : '-'))
     + ' · 잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? ' 부족' : '')));
-  try { if (typeof _nfAdminEmail === 'function') _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd + ' · ' + summary, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
+  var _sent = false; try { if (typeof _nfAdminEmail === 'function') _sent = _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd + ' · ' + summary, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
+  /* [MAIL_SENT_TRUE 2026-10-09 라운드 7] 모음은 메일이 나간 뒤에만 지운다(못 보냈으면 다음 보고에 다시) · 그사이 새로 쌓인 줄은 남긴다 · 미리보기는 지우지 않는다 */
+  if (!preview && night > 0 && _sent === true) { try { var _NP = PropertiesService.getScriptProperties(), _nn = Number(_NP.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0); _NP.setProperty('AI_HANDOFF_NIGHT_PENDING', String(Math.max(0, _nn - night))); } catch (e) {} }   // [MAIL_SENT_TRUE] 밤사이 인계 수도 보낸 뒤에 · 그사이 생긴 것은 남긴다
+  if (!preview && ovf.length && _sent === true) { try { var _OP = PropertiesService.getScriptProperties(), _cur = JSON.parse(_OP.getProperty('NS_OVERFLOW') || 'null'), _rest = (_cur && Array.isArray(_cur.a)) ? _cur.a.slice(ovf.length) : []; if (_rest.length) _OP.setProperty('NS_OVERFLOW', JSON.stringify({ a: _rest })); else _OP.deleteProperty('NS_OVERFLOW'); } catch (e) {} }
 
   return { ok: true, summary: summary };
 }

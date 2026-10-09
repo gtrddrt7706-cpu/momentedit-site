@@ -434,6 +434,25 @@ function gateChecks(list) {
     PP().deleteProperty('AI_HANDOFF_SECRET'); app = 0; reset(); G._SRV = true; post({ surface: 'adv', model: 'm', in: 10, out: 5 });
     if (app !== 1) out.push('AI 비용 기록: 키를 아직 안 정한 때(설정 전)에 기록이 멈춘다');
     G._aiCostSheet_ = keepS; G._lockedAppend = keepA; reset(); }
+  // [TRIG_PROBE_SLOT 라운드 7] 배우기 전 모양 기록은 칸 + 누가로 센다 — 밖에서 모양(키 이름)을 바꿔 가며 불러도 한 시간에 한 번만 쓴다(속성 쓰기 몫을 지킨다)
+  { const realCS = G.CacheService, cm = new Map(); G.CacheService = { getScriptCache: () => ({ get: (k) => (cm.has(k) ? cm.get(k) : null), put: (k, v) => cm.set(k, String(v)), remove: (k) => cm.delete(k) }) };
+    const realP = G.PropertiesService, base = realP.getScriptProperties(); let pw = 0;
+    G.PropertiesService = { getScriptProperties: () => Object.assign({}, base, { getProperty: (k) => base.getProperty(k), setProperty: (k, v) => { if (k === 'TRIG_PROBE') pw++; return base.setProperty(k, v); }, deleteProperty: (k) => base.deleteProperty(k) }) };
+    clr(); setEmail('');
+    for (let i = 0; i < 50; i++) { G._SRV = false; G._TRUST = false; G._AUTHED = false; const ev = { triggerUid: 'Q' + i }; ev['k' + i] = 1; try { G._trigIn_(ev); } catch (e) {} }
+    if (pw > 1) out.push('예약 실행: 배우기 전 모양 기록을 밖에서 모양만 바꿔 부를 때마다 다시 쓴다(속성 쓰기 몫이 샌다) — ' + pw + '번');
+    G.PropertiesService = realP; G.CacheService = realCS; clr(); reset(); }
+  // [AUTH_SEND_CAP 라운드 7] 코드 찾기 · 재설정 안내는 받는 주소마다 한 시간에 3통 · 전체 40통 — 답은 늘 같다
+  { const realCS = G.CacheService, cm = new Map(); G.CacheService = { getScriptCache: () => ({ get: (k) => (cm.has(k) ? cm.get(k) : null), put: (k, v) => cm.set(k, String(v)), remove: (k) => cm.delete(k) }) };
+    const keep = {}; for (const k of ['findLatestCustomerByEmail', 'customerNames', 'sendFindCodeKakao_', 'sendFindCodeEmail_', 'sendResetPwEmail_', 'makeResetSig_']) keep[k] = G[k];
+    let sent = 0; G.findLatestCustomerByEmail = () => ({ num: 2, get: (h) => (h === '개인코드' ? 'ME0001' : h === '연락처' ? '01012345678' : '') });
+    G.customerNames = () => '가 · 나'; G.sendFindCodeKakao_ = () => { sent++; return true; }; G.sendFindCodeEmail_ = () => { sent++; }; G.sendResetPwEmail_ = () => { sent++; }; G.makeResetSig_ = () => 's';
+    reset(); G._SRV = true; const rs = [];
+    for (let i = 0; i < 5; i++) rs.push(G.handleFindCode({ email: 'a@b.co' }));
+    for (let i = 0; i < 3; i++) rs.push(G.handleResetPw({ email: 'A@B.co' }));
+    const one = sent; for (let i = 0; i < 50; i++) G.handleFindCode({ email: 'u' + i + '@b.co' });
+    if (one !== 3 || sent > 40 || !rs.every((r) => r && r.ok === true)) out.push('코드 찾기 · 재설정: 같은 주소로 계속 보내거나(한 시간 3통) 전체 상한(40)이 없거나 답이 달라진다 — 같은 주소 ' + one + '통 · 전체 ' + sent + '통');
+    for (const k of Object.keys(keep)) G[k] = keep[k]; G.CacheService = realCS; reset(); }
   // [POST_SAFE_JSON] 밖에서 온 값의 «toString · valueOf» 칸은 받을 때 지운다 — 동작 이름이 객체여도 «모르는 동작»(3)으로 끝나고 예외(9)로 가지 않는다
   { const keepES = G._errStamp; let seen = null; G._errStamp = (o) => { seen = o; return o; };
     reset(); try { G.doPost({ parameter: {}, postData: { type: 'application/json', contents: '{"action":{"toString":1,"valueOf":1}}' } }); } catch (e) { out.push('doPost: 받은 값의 toString 칸에 던졌다'); }

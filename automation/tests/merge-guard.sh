@@ -16488,7 +16488,7 @@ chk 'ERR_ID_RECORDED' automation/platform/95_notify.gs 3
 chk 'ERR_ID_RECORDED' scripts/audit/err-log-safe.mjs 1
 chk 'ADM_GONE_WORDS' automation/admin/admin.gs 2
 chk 'ADM_GONE_WORDS' scripts/audit/mail-page.mjs 1
-chk 'TRIG_PROBE_SLOT' automation/platform/70_journey.gs 2
+chk 'TRIG_PROBE_SLOT' automation/platform/70_journey.gs 1
 chk 'TRIG_PROBE_SLOT' automation/platform/99_deployCheck.gs 2
 chk 'TRIG_PROBE_SLOT' scripts/gen-deploy-fns.mjs 1
 chk 'TRIG_PROBE_SLOT' scripts/audit/gsr-guard.mjs 1
@@ -16499,8 +16499,8 @@ chk 'LINK_WARN_ONE' admin.html 2
 chk 'LINK_WARN_ONE' scripts/audit/err-admin.mjs 1
 chk "handleAiCostLog(body, true)" automation/consultation/consultation-booking.gs 1
 chk "if (fromPost === true)" automation/platform/96_ai_cost.gs 1
-chk "다섯 통을 넘어 메일은 여기서 멈춰요" automation/consultation/consultation-booking.gs 1
-chk "if (o.a.length >= 20) return;" automation/consultation/consultation-booking.gs 1
+chk "같은 알림 메일은 여기서 멈춰요" automation/consultation/consultation-booking.gs 1
+chk "if (o.a.length >= 20) {" automation/consultation/consultation-booking.gs 1
 chk "_mrEsc(r\[1\]).replace(" automation/platform/96_ai_cost.gs 1
 chk "@media (max-width:380px){.box{padding:42px 22px 34px}}" automation/consultation/consultation-booking.gs 1
 chk "@media (max-width:380px){.box{padding:42px 22px 30px}}" automation/consultation/consultation-booking.gs 1
@@ -16510,7 +16510,7 @@ chk "margin-bottom:14px;text-wrap:pretty}" admin.html 1
 chk "title:'링크 확인이 필요해요'" admin.html 1
 chk "return { cal: _cal, mail: _mail };" automation/consultation/consultation-booking.gs 1
 chk "if (!existingId) return null;" automation/consultation/consultation-booking.gs 1
-chk "'예약 정보가 바뀌었어요 · 새로고침해 주세요'" automation/admin/admin.gs 2
+chk "'예약 정보가 바뀌었어요 · 새로고침해 주세요'" automation/admin/admin.gs 6
 chk "_trigMark_(_tl ? 'TRIG_PROBE' : 'TRIG_PROBE_X'" automation/platform/70_journey.gs 1
 chk "String(_tq).slice(0, 140)" automation/platform/99_deployCheck.gs 1
 chk "AI_HANDOFF_SECRET: \['guard'" scripts/gen-deploy-fns.mjs 1
@@ -16519,6 +16519,39 @@ nochk "이 예약은 이미 취소 처리되었습니다." automation/consultati
 nochk "infoPage('이미 취소되었습니다'" automation/consultation/consultation-booking.gs
 nochk "'저장은 됐어요 · 링크 확인이 필요해요'" admin.html
 nochk "캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다.', true);" automation/consultation/consultation-booking.gs
+# ★[MAIL_SENT_TRUE · AUTH_SEND_CAP · RESULT_NOTIFIED 2026-10-09 라운드 7] 아침 보고가 모은 실패 알림 · 밤사이 인계 수는 메일이 나간 뒤에만 지운다(그사이 생긴 것은 남긴다)
+#   · 코드 찾기 · 재설정 안내는 받는 주소마다 한 시간에 3통 · 전체 40통(답은 늘 같다) · 결과물 링크 저장은 고객 알림이 나갈 때만 «카톡이 나가요»
+#   · 알림 한 줄은 «제목: 본문»(메일 제목 칸 = 알림 제목) · 관리 창은 붙는 칸(U+00A0)을 남긴다 · 취소된 예약의 승인 · 수락은 «이미 취소된 예약입니다»
+#   · 예약 실행 모양 기록은 칸 + 누가로 센다(밖에서 모양을 바꿔도 쓰기가 늘지 않는다) · 오류기록 상한 열쇠는 이름의 해시 · 링크 오류 화면은 번호가 없어도 코드를 남긴다
+#   (mail-page ⑥ · gsr-guard · err-log-safe ⑦ · err-admin ②-D 가 행동으로 잰다)
+chk 'MAIL_SENT_TRUE' automation/platform/95_notify.gs 1
+chk 'MAIL_SENT_TRUE' automation/platform/96_ai_cost.gs 4
+chk 'MAIL_SENT_TRUE' scripts/audit/mail-page.mjs 2
+chk 'AUTH_SEND_CAP' automation/platform/50_auth-handlers.gs 4
+chk 'AUTH_SEND_CAP' scripts/audit/gsr-guard.mjs 1
+chk 'RESULT_NOTIFIED' automation/admin/admin.gs 1
+chk 'RESULT_NOTIFIED' admin.html 1
+chk 'RESULT_NOTIFIED' scripts/audit/err-admin.mjs 1
+chk "return true;   // \[MAIL_SENT_TRUE" automation/platform/95_notify.gs 1
+chk "if (!preview && ovf.length && _sent === true)" automation/platform/96_ai_cost.gs 1
+chk "String(Math.max(0, _nn - night))" automation/platform/96_ai_cost.gs 1
+chk "word-break:keep-all;color:' + (warn" automation/platform/96_ai_cost.gs 1
+chk "color:#3A2D22;margin:0 0 8px;word-break:keep-all" automation/consultation/consultation-booking.gs 1
+chk "min-height:5.55em;text-wrap:pretty}" automation/consultation/consultation-booking.gs 1
+chk "if (n1 >= 3 || n2 >= 40) return false;" automation/platform/50_auth-handlers.gs 1
+chk "if (rowObj && _authSendOk_(email))" automation/platform/50_auth-handlers.gs 2
+chk "notified: !!(_nfOrig || _nfReto || _nfRevDone)" automation/admin/admin.gs 1
+chk "res.notified===false" admin.html 1
+chk "붙는 칸(U+00A0)은 남긴다" admin.html 1
+chk "_trigMark_(_tl ? 'TRIG_PROBE' : 'TRIG_PROBE_X', _pl, _trigSafe_(_pw)" automation/platform/70_journey.gs 1
+chk "'ERRCAP_' + h + '_'" automation/platform/95_notify.gs 1
+chk "(코드 X9' + (_gid ? ' · ' + _gid : '') + ')'" automation/consultation/consultation-booking.gs 1
+chk "_LAST_INFO.noMail ? ' · 이메일이 없어 안내 메일은 보내지 않았어요'" automation/admin/admin.gs 1
+nochk "infoPage('취소된 예약입니다'" automation/consultation/consultation-booking.gs
+nochk "night = aiHandoffNightTake()" automation/platform/96_ai_cost.gs
+nochk "'예약 정보를 찾을 수 없습니다.'" automation/admin/admin.gs
+nochk "_trigHash_" automation/platform/70_journey.gs
+nochk "if (false) return infoPage" automation/consultation/consultation-booking.gs
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2

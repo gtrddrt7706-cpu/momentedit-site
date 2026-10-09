@@ -942,7 +942,9 @@ function _nfAdminEmail(subject, bodyHtml, opts) { _gsr_();
     try { var cc = (typeof adminCc === 'function') ? adminCc() : ''; if (cc) sendOpts.cc = cc; } catch (e0) {}
     GmailApp.sendEmail(to, subject, String(bodyHtml).replace(/<[^>]+>/g, ' '), sendOpts);
     Logger.log('[notify] 관리자 메일 → ' + to + ' · ' + subject);
+    return true;   // [MAIL_SENT_TRUE 2026-10-09 라운드 7] 보냈는지 돌려준다 — 아침 보고가 보낸 뒤에만 모음(NS_OVERFLOW)을 지운다
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
+  return false;
 }
 
 // 관리자 짧은 알림 1건을 '메일'로 — 문자 대체(메일 전용 운영). 제목은 한눈에·본문은 전체·관리자 페이지 버튼.
@@ -1300,7 +1302,8 @@ function _errId(act) { _gsr_();   // [ERR_CODE_GAS] 사고번호 — 헷갈리�
 function _errCapKey_(act) {   // [ERR_ID_RECORDED] _errRecord 의 시간당 상한 열쇠 — 동작 이름을 같은 방식으로 다듬는다(밖에서 온 이상한 이름도 같은 칸)
   var a = String(act == null || act === '' ? '(없음)' : act);
   if (!/^[A-Za-z0-9_:.\-]{1,40}$/.test(a) && a !== '(없음)') a = '(모름) ' + a.replace(/[^A-Za-z0-9_:.\-]/g, '?').slice(0, 30);
-  return 'ERRCAP_' + a.replace(/[^A-Za-z0-9_]/g, '').slice(0, 30) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH');
+  var h = ''; try { h = Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, a, Utilities.Charset.UTF_8)).replace(/[^0-9A-Za-z_]/g, '').slice(0, 16); } catch (eH) { h = a.replace(/[^A-Za-z0-9_]/g, '').slice(0, 30); }
+  return 'ERRCAP_' + h + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH');   // [ERR_ID_RECORDED 라운드 7] 다듬은 이름의 짧은 해시 — «get:Couple» · «getCouple»처럼 다른 이름이 한 칸을 나눠 쓰지 않게
 }
 var ERR_BUSY_RE = /^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 잠금 대기 초과 문구(70 · 80 · 85 핸들러 약 30곳)
 function _errStamp(out) { _gsr_();   // [ERR_CODE_GAS] jsonOut 이 ok:false 를 내보내기 직전에 한 번
