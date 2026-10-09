@@ -76,6 +76,8 @@ ok('모든 순간에 칸 글이 있다(tileOf 빈 값 0) [TILE_SWALLOW]', Object
 ok('① 앞쪽 사슬(덕담 · 서약 · 인사) → 알림 ①', O.noticeOf({ on: { bless: 1, vow: 1, toast: 1 }, tributeSay: 'one' }) === '' && O.noticeOf({ on: { bless: 1, vow: 1, tribute: 1, toast: 1 } }) === O.NOTICE.heavy);
 ok('① 뒤쪽 사슬(인사 · 축사 · 편지) → 뒤쪽 문구', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' }) === O.NOTICE.heavyBack);
 ok('① 인사 «말 없이»면 앉아 듣는 순간이 아니다', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, tributeSay: 'none', freeWhat: 'speech', freeLen: '1' }) !== O.NOTICE.heavyBack);
+{ const _mk = (t) => { const S = O.applyExample({}, 'promise'); delete S.on.cake; delete S.on.toast; if (t) S.on.table = 1; return S; };   /* [QUIET_END_CLOSE 2026-10-09 A~Z 1라운드 A-6] 테이블 인사는 닫는 인사 뒤에 선다(bodySeq) — «닫는 인사 바로 앞»을 seq[len-2] 로 집으면 _close 를 집어 알림이 사라졌다 */
+  ok('② 끝이 조용한 편(축배 없음) 알림은 테이블 인사를 담아도 그대로 [QUIET_END_CLOSE]', O.noticeList(_mk(false)).indexOf(O.NOTICE.toast) > -1 && O.noticeList(_mk(true)).indexOf(O.NOTICE.toast) > -1, JSON.stringify([O.noticeList(_mk(false)).length, O.noticeList(_mk(true)).length])); }
 ok('① 준비한 순서가 영상이면 사슬이 끊긴다', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'video', freeLen: '1' }) === '');
 ok('[TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → «말이 두 번» 알림 없음(서로의 부모님께라 겹치지 않는다)', O.noticeOf({ on: { tribute: 1, declare: 1, letter: 1, ring: 1, toast: 1 }, tributeSay: 'long', letter: 'parent' }) !== O.NOTICE.twice);
 /* [DETAIL_0925 A2] 알림 ③ 은 고른 순간이 넷 이상일 때만 — 셋 이하면 «끝이 조용하다»를 말하지 않는다 */
