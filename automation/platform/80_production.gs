@@ -1275,18 +1275,23 @@ function handleRitualFileDel(body) { _gsr_();
   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»(all)는 그 자리의 두 분 파일을 모두 휴지통으로 — 올리기 다시 보내기(UP_AGAIN)는
      서버가 이미 저장했을 수 있는 파일을 한 번 더 보내 같은 자리에 사본이 생긴다. 하나만 지우면 남은 사본이 당일 콘솔(가장 새 파일)에서 나왔다(개인정보 약속).
      스튜디오가 대신 올린 파일(« · 스튜디오 · »)은 두지 않는다 · 화면은 첫 요청에만 all 을 싣는다(다시 묻기가 그 사이 새로 올린 것을 지우지 않게) */
-  var swept = 0, key = String(body.key || '').trim();
+  var swept = 0, key = String(body.key || '').trim(), tr = Date.now();
+  /* ★[RF_DEL_KEEP 2026-10-09 A~Z 점검 2라운드 E2-4] keep = 화면이 «되돌리기»로 다시 쓸 녹음(S.upPrev) — 어느 쓸기도 휴지통으로 보내지 않는다(옛 화면은 안 보낸다 · 종전 그대로) */
+  var keep = {}; (Array.isArray(body.keep) ? body.keep : String(body.keep || '').split(',')).slice(0, 8).forEach(function (x) { x = String(x == null ? '' : x).trim(); if (/^[A-Za-z0-9_-]{10,}$/.test(x)) keep[x] = 1; });
   /* ★[RF_DEL_ALL_T0 2026-10-09 점검 E-8] all 쓸기도 «지운 파일보다 뒤에 만든 것은 둔다» — 아래 RF_DEL_SLOT 과 같은 시각 조건.
      종전엔 이 쓸기에만 시각 조건이 없어, 지우기 요청이 서버에서 도는 사이 새로 만들어 올린 소리까지 휴지통으로 갔다(방금 고른 소리가 사라짐).
-     지운 파일을 이 폴더에서 못 찾으면(이미 휴지통 · 다른 폴더) 기준 시각이 없으니 쓸지 않는다 — 그 파일을 지운 앞 요청이 옛 사본을 이미 쓸었다 */
-  if (body.all && RF_KEYS[key] && f) { try { var it = _rfFolderFor(code).getFiles(), fid = f.getId(), ta = f.getDateCreated().getTime(); while (it.hasNext()) { var g = it.next(); if (g.isTrashed() || g.getId() === fid) continue; var gn = g.getName(); if (_rfKeyOfName(gn) !== key || gn.indexOf(RF_KEYS[key] + ' · 스튜디오 · ') === 0 || g.getDateCreated().getTime() > ta) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {} }
+     지운 파일을 이 폴더에서 못 찾으면(이미 휴지통 · 다른 폴더) 기준 시각이 없으니 쓸지 않는다 — 그 파일을 지운 앞 요청이 옛 사본을 이미 쓸었다
+     ★[RF_DEL_TQ 2026-10-09 A~Z 점검 2라운드 E2-3] 화면이 «누른 때»(t)를 실어 오면 기준은 그 때다(서버가 받은 때보다 늦을 수 없다 · 지운 파일이 만들어진 때보다 이를 수 없다) —
+     지운 파일보다 늦게 저장된 다시 보내기 사본 · «되돌리기»로 버린 AI 테이크 · 지운 파일이 이미 휴지통일 때의 옛 사본도 쓴다. 누른 뒤에 만든 것은 종전대로 둔다 */
+  var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;
+  if (body.all && RF_KEYS[key] && (f || tq)) { try { var it = _rfFolderFor(code).getFiles(), fid = f ? f.getId() : '', ta = Math.max(f ? f.getDateCreated().getTime() : 0, tq); while (it.hasNext()) { var g = it.next(); if (g.isTrashed() || g.getId() === fid || keep[g.getId()]) continue; var gn = g.getName(); if (_rfKeyOfName(gn) !== key || gn.indexOf(RF_KEYS[key] + ' · 스튜디오 · ') === 0 || g.getDateCreated().getTime() > ta) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {} }
   if (!f) return { ok: true, gone: true, swept: swept };   // 이미 없음 = 지운 것과 같다(멱등)
   try { f.setTrashed(true); } catch (e) { return { ok: false, ecode: 'D4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '지우지 못했어요. 다시 눌러 주세요.' }; }   // [ERR_CODE_GAS]
   /* ★[RF_DEL_SLOT 2026-10-08 목소리 1라운드 57 · 75] 두 분이 줄을 지우면 그 자리의 «더 옛» 파일도 함께 휴지통으로 — 다시 보내기(UP_AGAIN)가 남긴 사본 · 다시 만든 AI 테이크의 옛것.
      종전엔 지금 id 하나만 지워 옛 사본이 남았고, 당일 콘솔이 «자리마다 가장 새 파일»로 그것을 틀었다(지웠다고 말한 목소리가 나감 · 개인정보 약속).
      지운 파일보다 «뒤에» 만든 파일(그 사이 새로 올린 것)과 스튜디오가 대신 올린 파일(« · 스튜디오 · »)은 건드리지 않는다 */
   try { var k0 = _rfKeyOfName(f.getName()), t0 = f.getDateCreated().getTime(), fo = _rfFolderFor(code), it = fo.getFiles();
-    if (k0) while (it.hasNext()) { var g = it.next(); if (g.getId() === f.getId() || g.isTrashed() || _rfKeyOfName(g.getName()) !== k0 || / · 스튜디오 · /.test(g.getName()) || g.getDateCreated().getTime() > t0) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {}
+    if (k0) while (it.hasNext()) { var g = it.next(); if (g.getId() === f.getId() || g.isTrashed() || keep[g.getId()] || _rfKeyOfName(g.getName()) !== k0 || / · 스튜디오 · /.test(g.getName()) || g.getDateCreated().getTime() > t0) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {}   // [RF_DEL_KEEP] «되돌리기»로 쓸 녹음은 둔다
   return { ok: true, key: String(body.key || ''), id: String(body.id || ''), swept: swept };
 }
 
@@ -1589,7 +1594,7 @@ function handleVoiceClone(body) { _gsr_();
   var cfg = _vcCfg_(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = Object.create(null); WHO.groom = '신랑'; WHO.bride = '신부';   // ★[VC_WHO_FIRST 2026-10-09 E2-10] 두 분 이름표는 물려받은 칸이 없는 표 — «__proto__» · «toString» 같은 who 가 «있는 분»으로 지나가지 않게
   var st0 = JSON.parse(JSON.stringify(st)), save = function (g) { var sv = _vcSave(code, st0, st, g); if (sv !== 'stop') st0 = JSON.parse(JSON.stringify(st)); return sv; };   // [VC_STATE_MERGE] 바꾼 칸만 얹는다 · [VC_DEL_STOP] g = 잠근 채 다시 읽은 상태를 보는 문(참이면 쓰지 않고 'stop')
   var down = { ok: false, down: true, kind: 'gate', ecode: 'V3', error: VC_DOWN };   // [ERR_CODE_GAS] 읽을 목소리 없음(스튜디오 기본 목소리 비어 있음) = 설정(3)
-  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, jobs: 1, groom: _vcPub(st.groom, code), bride: _vcPub(st.bride, code), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_ENROLL_JOB] jobs: 1 = 작업표를 싣는 서버(화면이 «끊긴 뒤 끝까지 기다릴지»를 이것으로 가른다)   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
+  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code), bride: _vcPub(st.bride, code), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_ENROLL_JOB] jobs: 1 = 작업표를 싣는 서버(화면이 «끊긴 뒤 끝까지 기다릴지»를 이것으로 가른다) · [RF_DEL_KEEP] rfkeep: 1 = 줄 파일 지우기가 keep · t 를 아는 서버(화면이 «되돌리기» 때 버린 AI 테이크를 지워도 되나를 이것으로 가른다)   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
   /* [VC_DEL_STOP 2026-10-09 점검 E-4] 지우기는 잠근 채 다시 읽은 상태로(_vcDelMark) — 그 사이 저장된 새 목소리도 함께 지우고, 도는 만들기에는 «취소»를 적는다 */
   if (op === 'delete') { if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };   // ★[VC_WHO_FIRST 2026-10-09 A~Z 점검 2라운드 E2-10] 두 분 · 모두만 — 거르기 전에 지우기 표시(delAt)를 쓰지 않는다
     var ws = who === 'all' ? ['groom', 'bride'] : [who], dm = _vcDelMark(code, ws);

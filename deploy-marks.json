@@ -2658,6 +2658,24 @@
    "fn": "purgeVoiceClones",
    "mark": "VC_DEL_LOCKED",
    "why": "예식 다음 날 목소리 지우기 — 잠금을 못 잡은 예식은 아무것도 안 바꾸고 다음 날 다시 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileDel",
+   "mark": "RF_DEL_KEEP",
+   "why": "줄 파일 지우기 — 화면이 «되돌리기»로 다시 쓸 녹음(keep)은 어느 쓸기에서도 휴지통으로 보내지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileDel",
+   "mark": "RF_DEL_TQ",
+   "why": "줄 «지우기»(모두)는 두 분이 누른 때까지 만든 그 자리 파일을 쓴다(늦게 저장된 사본 · 버린 AI 테이크) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "RF_DEL_KEEP",
+   "why": "목소리 상태에 rfkeep 표 — 화면이 버린 AI 테이크를 지워도 되는 서버인지 안다 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -3746,7 +3764,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-10 08:23 · 5012de17",
+ "_생성": "2026-10-10 08:27 · cb2dc1b6",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4266,5 +4284,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "e3312fc256a9"
+ "_표식서명": "a883f408f221"
 }
