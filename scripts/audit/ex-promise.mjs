@@ -5,7 +5,8 @@
 //   T2 옛 예시 글(10/6)로 만든 소리 — 칩 켜짐 · «확정하기» 그대로 · 다른 예시를 누르면 묻지 않고 «목소리 만들기»(옆 글 없음) · 만들기 0
 //   T3 정말 글을 고친 줄은 «목소리 만들기»(단추 옆 «글을 고쳤어요» 없음 · STALE_QUIET 10/09) · 만들기 0 (EX_LABEL_HONEST)
 //   T4 그 줄 소리의 글로 돌아오면 다시 «확정하기» · 만들기 0
-//   T5 · T5b 배포로 예시 글이 바뀐 고객(소리는 옛 글 · 고객이 한 일이 아니다) — 들어오자마자 «준비 중» → 누르지 않아도 «확정하기»(이 길만 EX_FIRST 로 남겼다)
+//   T5c · T5d [EX_STALE_DEPLOY] 소리가 «다른 글»(다른 예시 · 두 분이 쓴 글)이면 들어와도 · 상태를 다시 받아도 만들지 않는다(E-6 · 종전엔 상태를 받을 때마다 저절로 만들었다)
+//   T5 · T5b 배포로 예시 글이 바뀐 고객(소리는 같은 예시의 옛 글 · 고객이 한 일이 아니다) — 들어오자마자 «준비 중» → 누르지 않아도 «확정하기»(이 길만 EX_FIRST 로 남겼다)
 //   T6 식전 영상 소개 예시 · T7 입장 인사 멘트 칩도 — 글만 · «목소리 만들기» · 만들기 0
 //   EXP_ROOT=<다른 폴더> 로 돌리면 그 판을 잰다(돌연변이 검사용). 종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -35,7 +36,8 @@ async function open(o) {
     for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); break; } }, o);
   return { pg, errs };
 }
-const aiUp = (pg, mk) => pg.evaluate((mk) => { S.up = S.up || {}; ['g0', 'g1', 'g2', 'g3'].forEach((k, i) => { const t = mk === 'cur' ? _recNeed(k) : mk === 'old' ? [].concat(EX_OLD_1006['1'][String(i)])[0] : ('옛날 글 ' + i); S.up[k] = { src: 'ai', by: _vcLineWho(k), name: 'x', tx: _txSig(t), tempo: _tKey(k), pause: _pKey(k), wq: _slWhoSig(k) }; }); }, mk);
+const aiUp = (pg, mk) => pg.evaluate((mk) => { S.up = S.up || {}; ['g0', 'g1', 'g2', 'g3'].forEach((k, i) => { let t = mk === 'cur' ? _recNeed(k) : mk === 'old' ? [].concat(EX_OLD_1006['1'][String(i)])[0] : ('옛날 글 ' + i);
+    if (mk === 'deploy') { const n = String(_exNOf(k)), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}); E[String(i)] = [].concat(E[String(i)] || [], [t]); }   /* [EX_STALE_DEPLOY] 배포 흉내 — 같은 예시의 종전 글을 옛 글 목록에 더한다(ex-old-cover 가 요구하는 그대로) */ S.up[k] = { src: 'ai', by: _vcLineWho(k), name: 'x', tx: _txSig(t), tempo: _tKey(k), pause: _pKey(k), wq: _slWhoSig(k) }; }); }, mk);
 const look = (pg) => pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; const st = document.getElementById('stage').innerText; return { t: Date.now() - window.__t0, mode: ks.map((k) => _aiMode(k)).join(','), fresh: ks.every((k) => S.up[k] && S.up[k].tx === _txSig(_recNeed(k))), edited: (st.match(/글을 고쳤어요/g) || []).length, ex: (st.match(/예시를 바꿨어요/g) || []).length, prep: (st.match(/준비 중/g) || []).length, keep: (st.match(/확정하기/g) || []).length, need: (st.match(/목소리 만들기/g) || []).length, fg: window.__mk.filter((m) => !m.bg).length, mk: window.__mk.length, chip: _guestExCur(), ask: !!document.querySelector('.ord-ask'), up: Object.keys(MK_UP).length }; });
 try {
   /* T1 */
@@ -70,15 +72,26 @@ try {
     ok('T4 다른 예시 → «목소리 만들기» · 원래 예시로 돌아오면 다시 «확정하기»(그 줄 소리가 그 글) · 만들기 0', c0 >= 0 && a.mode === 'need,need,need,need' && b.mode === 'keep,keep,keep,keep' && b.mk === 0 && b.edited === 0, JSON.stringify({ c0, a, b }));
     ok('T4 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* T5 */
-  { const { pg, errs } = await open({ makeMs: 300 }); await aiUp(pg, 'unknown'); await pg.evaluate(() => mkGo('guest')); await wait(120); const a = await look(pg); await wait(2400); const b = await look(pg);
-    ok('T5 예시 글은 그대로인데 소리가 옛 글(배포로 글이 바뀐 고객) — 들어오자마자 «준비 중» · 누르지 않아도 «확정하기» · «글을 고쳤어요» 0', a.mode === 'prep,prep,prep,prep' && a.edited === 0 && a.need === 0 && b.mode === 'keep,keep,keep,keep' && b.fresh && b.edited === 0 && b.fg === 0, JSON.stringify({ a, b }));
+  { const { pg, errs } = await open({ makeMs: 300 }); await aiUp(pg, 'deploy'); await pg.evaluate(() => mkGo('guest')); await wait(120); const a = await look(pg); await wait(2400); const b = await look(pg);
+    ok('T5 예시 글은 그대로인데 소리가 같은 예시의 옛 글(배포로 글이 바뀐 고객) — 들어오자마자 «준비 중» · 누르지 않아도 «확정하기» · «글을 고쳤어요» 0', a.mode === 'prep,prep,prep,prep' && a.edited === 0 && a.need === 0 && b.mode === 'keep,keep,keep,keep' && b.fresh && b.edited === 0 && b.fg === 0, JSON.stringify({ a, b }));
     ok('T5 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
+  /* T5c [EX_STALE_DEPLOY 2026-10-09 A~Z 1라운드 E-6] 소리가 «다른 글»(다른 예시 · 두 분이 쓴 글)이면 고객이 한 일 — 들어와도 · 목소리 정보를 다시 받아도(다시 불러오기) 만들지 않는다 */
+  { const { pg, errs } = await open({ makeMs: 300 }); await aiUp(pg, 'unknown'); await pg.evaluate(() => mkGo('guest')); await wait(300); const a = await look(pg);
+    await pg.evaluate(() => { VC.stErr = true; mkVcStRe(); }); await wait(2400); const b = await look(pg); const gm = await pg.evaluate(() => window.__mk.filter((m) => /^g\d$/.test(m.key)).map((m) => m.key));   /* 처음 받은 상태는 빈 줄(입장 인사)을 채운다 — FILL_EMPTY · 여기서 보는 것은 하객 맞이 넷 */
+    ok('T5c 소리가 다른 글(배포 아님)이면 들어와도 · 상태를 다시 받아도 «목소리 만들기» 그대로 · 하객 맞이 만들기 0 · 올리기 0 [EX_STALE_DEPLOY · EX_PRESS_MAKE]', a.mode === 'need,need,need,need' && b.mode === 'need,need,need,need' && a.mk === 0 && !gm.length && !b.up, JSON.stringify({ a: { mode: a.mode, mk: a.mk }, b: { mode: b.mode, gm, up: b.up } }));
+    ok('T5c pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* T5b 식전 영상 소개 — 첫 화면(사장님 캡처 2026-10-07): «다정하게» 글인데 소리는 다른 글 · 아무것도 안 눌러도 «준비 중» → «확정하기» */
-  { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.pvText = PV_EX[1][1]; S.up = S.up || {}; S.up.pv = { src: 'ai', by: _vcLineWho('pv'), name: 'x', tx: _txSig('옛날 소개글'), tempo: _tKey('pv'), pause: _pKey('pv'), wq: _slWhoSig('pv') }; mkGo('prevideo'); }); await wait(120);
+  { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.pvText = PV_EX[1][1]; S.up = S.up || {}; S.up.pv = { src: 'ai', by: _vcLineWho('pv'), name: 'x', tx: _txSig([].concat(PV_OLD['1'])[0]), tempo: _tKey('pv'), pause: _pKey('pv'), wq: _slWhoSig('pv') }; mkGo('prevideo'); }); await wait(120);
     const a = await pg.evaluate(() => ({ mode: _aiMode('pv'), st: document.getElementById('stage').innerText })); await wait(1500);
     const b = await pg.evaluate(() => ({ mode: _aiMode('pv'), fresh: S.up.pv.tx === _txSig(_recNeed('pv')), st: document.getElementById('stage').innerText, fg: window.__mk.filter((m) => !m.bg).length }));
     ok('T5b 식전 영상 소개 첫 화면 — 들어오자마자 «준비 중» · 누르지 않아도 «확정하기» · «글을 고쳤어요 · 목소리 만들기» 없음', a.mode === 'prep' && !/글을 고쳤어요|목소리 만들기/.test(a.st) && b.mode === 'keep' && b.fresh && !/글을 고쳤어요|목소리 만들기/.test(b.st) && b.fg === 0, JSON.stringify({ a: { mode: a.mode }, b: { mode: b.mode, fresh: b.fresh, fg: b.fg } }));
     ok('T5b pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
+  /* T5d 식전 영상 소개 — 소리가 다른 예시 글(두 분이 예시를 바꿨다)이면 들어와도 만들지 않는다 [EX_STALE_DEPLOY] */
+  { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.pvText = PV_EX[1][1]; S.up = S.up || {}; S.up.pv = { src: 'ai', by: _vcLineWho('pv'), name: 'x', tx: _txSig(PV_EX[0][1]), tempo: _tKey('pv'), pause: _pKey('pv'), wq: _slWhoSig('pv') }; mkGo('prevideo'); }); await wait(300);
+    await pg.evaluate(() => { VC.stErr = true; mkVcStRe(); }); await wait(1500);
+    const b = await pg.evaluate(() => ({ mode: _aiMode('pv'), mk: window.__mk.length }));
+    ok('T5d 식전 영상 소개 — 소리가 다른 예시 글이면 «목소리 만들기» 그대로 · 상태를 다시 받아도 만들기 0', b.mode === 'need' && b.mk === 0, JSON.stringify(b));
+    ok('T5d pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* T6 */
   { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.up = S.up || {}; S.up.pv = { src: 'ai', by: _vcLineWho('pv'), name: 'x', tx: _txSig(_recNeed('pv')), tempo: _tKey('pv'), pause: _pKey('pv'), wq: _slWhoSig('pv') }; mkGo('prevideo'); }); await wait(150);
     await pg.evaluate(() => mkPvEx(1)); await wait(150);

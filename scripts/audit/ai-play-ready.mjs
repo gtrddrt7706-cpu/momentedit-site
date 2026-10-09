@@ -187,8 +187,8 @@ const SC = [
     for (let i = 0; i < 120 && await f.evaluate(() => Object.keys(VC.fillK || {}).length > 0 || Object.keys(MK_UP).length > 0); i++) await adv(pg, 500);   // 처음 채우기가 다 끝난 뒤(채우는 중이면 FILL_EX — 그 줄은 지금 글로 끝까지 채운다)
     await tap(f, '[data-fk="mkex:guest:1"]'); await adv(pg, 400); const ex = await CARD(f, 'g0');
     ok('2 예시를 바꾸면 글만 — 신랑 줄 «목소리 만들기» · ▶ 흐림 · «준비 중» 아님 [EX_PRESS_MAKE]', /목소리 만들기/.test(ex.pill) && ex.off && !/\bprep\b/.test(ex.pillCls), JSON.stringify(ex));
-    /* «준비 중»은 이제 쪽에 들어올 때 · 상태를 받을 때 맞추기(_exFirstStale · 예시 글인데 소리는 다른 글)뿐 — 그때도 ▶ 는 차오르지 않고 «준비 중» 알약이 그 일의 시계로 차오른다 */
-    await f.evaluate(() => _exFirstStale()); const sp = []; for (let i = 0; i < 6; i++) { await adv(pg, 400); sp.push(await CARD(f, 'g0')); }
+    /* «준비 중»은 이제 쪽에 들어올 때 · 상태를 받을 때 맞추기(_exFirstStale · ★[EX_STALE_DEPLOY] 배포로 같은 예시 글이 바뀐 줄 — 소리가 그 예시의 옛 글)뿐 — 그때도 ▶ 는 차오르지 않고 «준비 중» 알약이 그 일의 시계로 차오른다 */
+    await f.evaluate(() => { const o = '옛날 글 g0', n = String(_exNOf('g0')), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}); E['0'] = [].concat(E['0'] || [], [o]); S.up.g0 = Object.assign({}, S.up.g0, { tx: _txSig(o) }); _exFirstStale(); });   /* 배포 흉내 — 지금 예시의 종전 글로 만든 소리 */ const sp = []; for (let i = 0; i < 6; i++) { await adv(pg, 400); sp.push(await CARD(f, 'g0')); }
     await SHOT(pg, f, '2-준비중', '[data-fk="mkvpl:g0"]');
     const pr = sp.filter((x) => /준비 중/.test(x.pill));
     ok('2 «준비 중» 동안 ▶ 차오름 없음 · 알약 prep 이 차오른다(--d 시계) [PLAY_NO_DUP · PREP_FILL]', pr.length >= 2 && pr.every((x) => !x.fill && (x.dis || x.off) && /\bprep\b/.test(x.pillCls) && /--d:[\d.]+s;--dl:-[\d.]+s/.test(x.pillSty)), JSON.stringify(sp));

@@ -211,7 +211,7 @@ async function open(w) {
   await wait(1800);
   const f10 = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g0 || '', shown: [...document.querySelectorAll('.mk-pg .mk-exw[role="alert"]')].map((p) => p.textContent) }));
   ok('⑧ 받은 소리를 이 기기가 못 풂 → M6 «소리를 열지 못했어요» · «만든 소리를 받지 못했어요» 아님 · 그 줄 아래', f10.le === '소리를 열지 못했어요 · 다시 눌러 주세요 (코드 M6)' && f10.shown.indexOf(f10.le) > -1, JSON.stringify(f10));
-  await pg.evaluate(async () => { const b64 = await __b64(__wav(2, 24000)); window.__mock['momentedit:voiceClone'] = (d) => (d.op === 'status' ? window.__STOK : d.op === 'make' ? { ok: true, left: 900, parts: [{ who: 'groom', mime: 'audio/wav', data: b64 }] } : { ok: false, error: 'x' });
+  await pg.evaluate(async () => { const b64 = await __b64(__wav(2, 24000)); window.__mock['momentedit:voiceClone'] = (d) => (d.op === 'status' ? window.__STOK : d.op === 'make' ? { ok: true, left: 900, parts: [{ who: d.one || 'groom', mime: 'audio/wav', data: b64 }] } : { ok: false, error: 'x' });   /* [FILL_WHO_TRUE] 서버는 부탁한 분(one) 목소리로 답한다 — 종전 흉내는 늘 신랑이라 신부 줄(g1)이 «다른 분 목소리 답»으로 걸렸다 */
     window.__mock['momentedit:ritualFile'] = () => null; __shrink({ 75000: 200, 8000: 40, 20000: 40 }); window.__sent0 = window.__sent.filter((t) => t === 'momentedit:ritualFile').length; if (MK.lineErr) delete MK.lineErr.g1; MK.toast = ''; __trapToast();
     _vcMake('g1', {}).catch(() => {}); });
   await wait(3500);
@@ -347,7 +347,7 @@ async function open(w) {
     VC.read = { who: 'groom', take: {}, phrase: '', step: 2, ph: 'done', err: '' }; _vcAutoFill('groom'); await new Promise((r) => setTimeout(r, 300));
     const p = document.querySelector('#mkRecDlg .mk-dlg-c1.mk-two'); const o = { t: p ? __N(p.textContent) : '', role: p ? p.getAttribute('role') : '', codes: ((VC.fill || {}).codes || []).join(','), n: (VC.fill || {}).n, ok: (VC.fill || {}).ok, nw: !!(p && p.querySelector('.ec-nw')) };
     window._vcMake = mk0; window._vcLineWho = lw0; window._vcWarmAll = wa0; window._vtNeed = vn0; VC.read = null; VC.fill = null; MK.lineErr = {}; render(); return o; });
-  ok('⑪ 빈 줄 채우기 결과 창 — 못 채운 줄이 있으면 끝에 그 까닭 코드(V2 · 서버 글만 온 거절은 V0 · 많아야 둘) · role=alert [FILL_CODES]', r12.ok === 1 && r12.n > 1 && r12.codes === 'V2,V0' && /\(코드 V2 · V0\)$/.test(r12.t) && /나머지는 줄 카드의 \[목소리 만들기\]를 눌러 주세요/.test(r12.t) && r12.role === 'alert' && r12.nw, JSON.stringify(r12));
+  ok('⑪ 빈 줄 채우기 결과 창 — 못 채운 줄이 있으면 끝에 그 까닭 코드(V2 · 서버 글만 온 거절은 V0 · 많아야 둘) · role=alert [FILL_CODES]', r12.ok === 1 && r12.n > 1 && r12.codes === 'V2,V0' && /\(코드 V2 · V0\)$/.test(r12.t) && /나머지는 순간마다 «?목소리 만들기»?를 눌러 주세요/.test(r12.t) && r12.role === 'alert' && r12.nw, JSON.stringify(r12));
   /* [PLAY_FILE_WHY · LOAD_WAIT_KEEP] 두 분 소리 파일을 기다리는 동안 탭 잠금 무음이 끝나도 그 줄을 건너뛰지 않는다 → 끝내 못 받으면 예시 목소리로 흘리지 않고 글 + 까닭 */
   await pg.evaluate(() => { lsStop(); LP.unlocked = false; S.entryVoice = 'couple'; S.touched = Object.assign({}, S.touched, { entryVoice: 1 }); S.up = S.up || {}; S.up.entry = { n: '녹음', id: 'f-entry-why', src: 'rec', at: '' };
     delete RF_URL.entry; delete RF_URL['entry#']; delete RF_LOAD['f-entry-why']; delete RF_ERR['f-entry-why'];
