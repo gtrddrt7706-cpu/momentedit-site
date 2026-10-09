@@ -15630,6 +15630,7 @@ nochk "'웃음 한 스푼 ·" scripts/build-dubbing-script.mjs
 # ★[NAR_1007 2026-10-07 코워크 회신 · 진희 다시 녹음 15클립] 90 · 115~123 · 125 · 126 · 128~130 — 하객 맞이 «다정하게 · 유쾌하게» 녹음도 합쇼체(AI 글 EX_TEXT_1007 과 같은 글)
 chk 'NAR_1007' assets/ritual-open.js 1
 chk 'NAR_1007' assets/audio/narration/_recorded.json 1
+chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언제» 를 덮어써도 옛 [표식]은 남긴다(NAR_1007 이 지워져 #1160 이 붉었다)
 chk "'십 분 뒤에 예식이 시작됩니다. 못 나눈 인사는 지금이 기회입니다.'," assets/ritual-open.js 1
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js
