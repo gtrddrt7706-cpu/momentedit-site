@@ -13475,7 +13475,7 @@ chk 'SPEC6_P2' scripts/audit/snap-plan.mjs 2
 chk 'PHOTO_TOAST_WRAP' mypage.html 1
 chk "pointer-events:none;white-space:normal;max-width:calc(100vw - 32px)" mypage.html 1   # 1 전역 mpToast — 한 줄 고정(nowrap)으로 되돌리지 말 것
 chk 'PHOTO_EMPTY_SAVE' mypage.html 4
-chk "'저장했어요 · 고른 구도는 아직 없어요'" mypage.html 1                              # 2 구도 없이 마치면 «전달돼요»라 하지 않는다
+chk "'고른 구도 없이 저장했어요'" mypage.html 1   # [TOAST_MIN 10/09] 종전 «저장했어요 · 고른 구도는 아직 없어요»(21자)                              # 2 구도 없이 마치면 «전달돼요»라 하지 않는다
 chk '불러 모아 주실 분 · ' mypage.html 1                                                  # 2 확인서에 불러 모아 주실 분
 chk 'PHOTO_CAP_BLOCK' mypage.html 4
 nochk '구도가 많아요' mypage.html                                                          # 3 확인 창으로 되돌리지 말 것
@@ -13672,7 +13672,7 @@ chk '<span class="k">참고</span>' mypage.html 1
 chk 'SNAP_EXV_FULL_HOW' mypage.html 2
 chk '고른 장면 하나를 빼면 이 장면도 고를 수 있어요' mypage.html 1
 chk 'SNAP_EMPTY_SAVE' mypage.html 1
-chk "'저장했어요 · 고른 장면은 아직 없어요'" mypage.html 1
+chk "'고른 장면 없이 저장했어요'" mypage.html 1   # [TOAST_MIN 10/09] 종전 «저장했어요 · 고른 장면은 아직 없어요»(21자)
 chk 'SNAP_WRAP_TAIL' mypage.html 3
 chk 'SNAP_LINK_TAP' mypage.html 1
 chk '#mp_snapOverlay \.ph-item \.ph-nm a{display:flex;align-items:center;min-height:44px}' mypage.html 1
@@ -14615,7 +14615,7 @@ chk 'function _vpMustFirst()' order-preview.html 1
 chk 'if(ask&&_vpMustAt(from)){ _vpMustShow(from); return; }' order-preview.html 1
 chk 'var _vm=_vpMustFirst(); if(_vm){ _vpMustShow(_vm); return; }' order-preview.html 1
 chk "var _vm2=isOpen()?_vpMustFirst():''; if(_vm2){ _vpMustShow(_vm2); return; } doSave();" order-preview.html 1
-chk "_lsToast('어떻게 준비할지 먼저 골라 주세요');" order-preview.html 1   # 칩 알림(CHIP_TOAST)과 같은 떠 있는 안내
+chk "_lsToast('어떻게 준비할지 골라 주세요');" order-preview.html 1   # 칩 알림(CHIP_TOAST)과 같은 떠 있는 안내
 nochk '골라야 다음으로 넘어갈 수 있어요' order-preview.html   # ★칩 아래 상시 줄 금지 — 2026-10-08 사용자 지시로 삭제
 chk 'TOAST_ONE_LINE' order-preview.html 1
 chk '#_toast{width:max-content}' order-preview.html 1   # 아래 알림이 화면 반쪽 폭에 갇혀 두 줄로 꺾이지 않게
@@ -14644,7 +14644,7 @@ chk '.lf-vars .gl{font-size:14px;color:var(--accent);font-weight:600;min-width:4
 chk 'var _nt=_chipNote(key,v); if(_nt) _noteToast(_nt);' order-preview.html 1
 chk 'render(); if(chg) _noteToast(_refToast(k,n)); };' order-preview.html 1
 chk 'if(was!==n) _noteToast(_refToast(k,n));' order-preview.html 1
-chk "nar:'나레이터가 두 분 대신 읽어요'" order-preview.html 1
+chk "nar:'나레이터가 읽어요'" order-preview.html 1   # [TOAST_MIN 10/09] 종전 «나레이터가 두 분 대신 읽어요»
 chk '@media (max-width:460px){.ls-vars>.ls-cg+.ls-cg,.lf-vars>.ls-cg+.ls-cg{margin-top:11px}}' order-preview.html 1
 nochk ":g.note?'<span class=\"ls-gnote\">'" order-preview.html   # ★칩 줄 아래 «누르면 생기는 일» 덧말 금지 — 2026-10-08 사용자 지시로 삭제
 nochk 'h+=gm.c+(_rh?' order-preview.html   # ★참고 예시 카드 줄 아래 머리말 금지 — 2026-10-08 사용자 지시로 삭제
@@ -14684,6 +14684,15 @@ chk 'STALE_QUIET' scripts/audit/pv-intro.mjs 2
 chk 'OFF_TOAST' scripts/audit/ai-play-ready.mjs 7
 chk 'OFF_TOAST' scripts/audit/stale-novoice.mjs 1
 chk 'STALE_QUIET' scripts/audit/vc-r1-mix.mjs 2
+# ★★[TOAST_MIN 2026-10-09 사장님 «안내 문구 팝업 부분은 최대한 요약해서 미니멀하게 안내해야 해»] 떠 있는 알림(브라운 알약) 안내 글 = 한 줄 20자 안 · «·» 한 번까지
+#   식순 화면 · 마이페이지 · 홈 · AI 상담 위젯 전부 · 실패 문구(코드)는 ERR_CODES 가 본다 · toast-min.mjs 가 글을 다 꺼내 잰다(못 찾으면 빨강 · 스스로 깨 보기)
+chk 'TOAST_MIN' order-preview.html 7
+chk 'TOAST_MIN' scripts/audit/toast-min.mjs 1
+chk "var AI_OFF_NEED='목소리를 먼저 만들어 주세요', AI_OFF_PREP='준비 중이에요'," order-preview.html 1
+chk "+' 목소리가 아직 없어요'; }" order-preview.html 1
+nochk "'오른쪽 «목소리 만들기»를 누르면 들을 수 있어요'" order-preview.html   # ★종전 긴 알림 — 2026-10-09 사용자 지시로 줄임 · 되살리지 말 것
+nochk "'파일 이름을 적어 뒀어요 · 파일은 여기서 올라가지 않아요" order-preview.html   # 화면에 있는 안내를 알림이 되풀이하지 않는다
+if command -v node >/dev/null 2>&1; then node scripts/audit/toast-min.mjs >/dev/null 2>&1; _tmn=$?; if [ "$_tmn" != 0 ]; then echo 'FAIL toast-min: 떠 있는 알림 글이 20자를 넘거나 «·»가 두 번 이상 — node scripts/audit/toast-min.mjs'; fail=1; else echo 'ok toast-min'; fi; fi
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
 chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
 chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1

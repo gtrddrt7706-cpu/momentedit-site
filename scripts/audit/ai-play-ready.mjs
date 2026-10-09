@@ -147,13 +147,13 @@ const SC = [
     await adv(pg, 1500); const a = await CARD(f, 'g1'), a0 = await CARD(f, 'g0');
     const lp = await f.evaluate(() => ({ q: LP.q.length, aud: !!MK.aud, toast: MK.toast || '' }));
     await SHOT(pg, f, '1-줄', '#lsToast');   // [OFF_TOAST]
-    ok('1 ▶ 를 누르면 아래 알림 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기»(OFF_TOAST) · 앞서 누른 줄 글은 걷힘 · 소리 · 만들기 · 연습 읽기 요청 없음 [AI_PLAY_READY]',
-      /^(신랑|신부) 목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(a.hint) && a.go && !a0.hint && (await plays(f)) === p0 && (await ops(pg, 'make')) === m0 && (await ops(pg, 'practice')) === q0 && !lp.q && !lp.aud, JSON.stringify({ a, a0, lp }));
+    ok('1 ▶ 를 누르면 아래 알림 «… 목소리가 아직 없어요 · 만들러 가기»(OFF_TOAST · TOAST_MIN) · 앞서 누른 줄 글은 걷힘 · 소리 · 만들기 · 연습 읽기 요청 없음 [AI_PLAY_READY]',
+      /^(신랑|신부) 목소리가 아직 없어요 · 만들러 가기$/.test(a.hint) && a.go && !a0.hint && (await plays(f)) === p0 && (await ops(pg, 'make')) === m0 && (await ops(pg, 'practice')) === q0 && !lp.q && !lp.aud, JSON.stringify({ a, a0, lp }));
     const l = await ALL(f, 'guest');
     ok('1 이 순간 전체 듣기도 흐림(aria-disabled) [AI_PLAY_READY]', l.has && l.off && l.ad === 'true' && !l.dis, JSON.stringify(l));
     await tap(f, '.mk-hbtn[data-mp="guest"]'); await adv(pg, 1500); const l2 = await ALL(f, 'guest'), c1 = await CARD(f, 'g1');
     await SHOT(pg, f, '1-전체', '.mk-hbtn[data-mp="guest"]');
-    ok('1 이 순간 전체 듣기를 누르면 바로 아래 «두 분 목소리를 만들면 이어서 들을 수 있어요 · 만들러 가기» · 줄 글은 걷힘 · 소리 없음', l2.hint === '두 분 목소리를 만들면 이어서 들을 수 있어요 · 만들러 가기' && l2.go && !c1.hint && (await plays(f)) === p0 && !(await f.evaluate(() => LP.q.length)), JSON.stringify({ l2, c1 }));
+    ok('1 이 순간 전체 듣기를 누르면 바로 아래 «두 분 목소리가 아직 없어요 · 만들러 가기»(TOAST_MIN) · 줄 글은 걷힘 · 소리 없음', l2.hint === '두 분 목소리가 아직 없어요 · 만들러 가기' && l2.go && !c1.hint && (await plays(f)) === p0 && !(await f.evaluate(() => LP.q.length)), JSON.stringify({ l2, c1 }));
     const cast = await f.evaluate(() => { const g = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''), S0 = JSON.stringify(S.vfill); S.vfill = { entry: 'ai', prevideo: 'ai' }; const self = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''); S.vfill = JSON.parse(S0); return { g, self, mode: _vpCur('guest') }; });
     ok('1 AI 판 하객 맞이 줄에는 배역 예시 녹음(cast)을 싣지 않는다 · 직접 녹음 판은 그대로(읽는 법 참고) [AI_NO_CAST]', cast.mode === 'ai' && cast.g.length === 4 && cast.g.every((s) => !/\/cast\//.test(s)) && cast.self.some((s) => /\/cast\/0[2-4]_guest/.test(s)), JSON.stringify(cast));
     const rt = await realTap(pg, f, '#lsToast [data-fk="mkploffgo:mp:guest"]'); await adv(pg, 800);
@@ -162,7 +162,7 @@ const SC = [
     for (const [pgk, key] of [['entry', 'entry'], ['prevideo', 'pv']]) { await f.evaluate((k) => mkGo(k), pgk); await adv(pg, 1000);
       const tv = await f.evaluate(() => { const t = document.getElementById('lsToast'); return t && !t.hidden ? t.getAttribute('data-for') + ':' + t.textContent.trim() : ''; });   // [OFF_TOAST] 앞 쪽에서 띄운 알림(6초)은 쪽을 옮기면 걷힌다(_mkGoNow → _offToastOff)
       const e0 = await CARD(f, key); await tap(f, '[data-fk="mkvpl:' + key + '"]'); await adv(pg, 1200); const e1 = await CARD(f, key);
-      ok(`1 ${pgk} 줄 ▶ 도 흐림 · 누르면 아래 알림 · 소리 없음 · 쪽을 옮기면 앞 알림은 걷힘 [AI_PLAY_READY · COURSE_WIDE · OFF_TOAST]`, !tv && e0.off && e0.ad === 'true' && /목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(e1.hint) && (await plays(f)) === p0, JSON.stringify({ tv, e0, e1 })); }
+      ok(`1 ${pgk} 줄 ▶ 도 흐림 · 누르면 아래 알림 · 소리 없음 · 쪽을 옮기면 앞 알림은 걷힘 [AI_PLAY_READY · COURSE_WIDE · OFF_TOAST]`, !tv && e0.off && e0.ad === 'true' && /목소리가 아직 없어요 · 만들러 가기$/.test(e1.hint) && (await plays(f)) === p0, JSON.stringify({ tv, e0, e1 })); }
     const ec = await f.evaluate(() => _lSteps(ENG, ['entry']).filter((x) => x.own).map((x) => x.src || ''));
     ok('1 AI 판 입장 인사 줄도 배역 예시 녹음 없음 [AI_NO_CAST]', ec.length >= 1 && ec.every((s) => !/\/cast\//.test(s)), JSON.stringify(ec));
   } },
@@ -171,7 +171,7 @@ const SC = [
     await toVoice(pg, f); await toGuest(pg, f); await adv(pg, 600);
     const g1 = await CARD(f, 'g1'), g0 = await CARD(f, 'g0');
     await tap(f, '[data-fk="mkvpl:g1"]'); await adv(pg, 600); const g1b = await CARD(f, 'g1');
-    ok('2 신부 목소리가 없는 줄 — 흐림 · 누르면 «신부 목소리를 만들면 들을 수 있어요 · 만들러 가기»', g1.off && g1b.hint === '신부 목소리를 만들면 들을 수 있어요 · 만들러 가기' && g1b.go, JSON.stringify({ g1, g1b }));
+    ok('2 신부 목소리가 없는 줄 — 흐림 · 누르면 «신부 목소리가 아직 없어요 · 만들러 가기»(TOAST_MIN)', g1.off && g1b.hint === '신부 목소리가 아직 없어요 · 만들러 가기' && g1b.go, JSON.stringify({ g1, g1b }));
     /* [FILL_EMPTY #1130] 목소리가 있는 분의 빈 줄은 저절로 채운다 — 신랑 줄은 곧 «만드는 중»(누르지 않아도) */
     const st = []; for (let i = 0; i < 8; i++) { st.push(await CARD(f, 'g0')); await adv(pg, 500); }
     await SHOT(pg, f, '2-만드는중', '[data-fk="mkvpl:g0"]');
@@ -201,7 +201,7 @@ const SC = [
     await edit(f, ['g2', 'g3']); await adv(pg, 800);
     const g2 = await CARD(f, 'g2'); await tap(f, '[data-fk="mkvpl:g2"]'); await adv(pg, 600); const g2b = await CARD(f, 'g2');
     const n2 = await mkOps(pg, MARK.trim()), g2m = await f.evaluate(() => ({ mk: !!MK_UP.g2, m: _aiMode('g2') }));
-    ok('3 고친 줄(머리 «목소리 만들기») ▶ = 흐림 · 누르면 «오른쪽 목소리 만들기를 누르면 들을 수 있어요» · 만들지 않는다 [AI_PLAY_READY]', g2.off && /목소리 만들기/.test(g2.pill) && /^오른쪽 .*목소리 만들기.*를 누르면 들을 수 있어요$/.test(g2b.hint) && !g2b.go && !n2 && !g2m.mk && g2m.m === 'need', JSON.stringify({ g2, g2b, n2, g2m }));
+    ok('3 고친 줄(머리 «목소리 만들기») ▶ = 흐림 · 누르면 «목소리를 먼저 만들어 주세요» · 만들지 않는다 [AI_PLAY_READY · TOAST_MIN]', g2.off && /목소리 만들기/.test(g2.pill) && /^목소리를 먼저 만들어 주세요$/.test(g2b.hint) && !g2b.go && !n2 && !g2m.mk && g2m.m === 'need', JSON.stringify({ g2, g2b, n2, g2m }));
     await tap(f, '.mk-aip[data-key="g2"]'); await adv(pg, 1500); const g2c = await CARD(f, 'g2');
     await SHOT(pg, f, '3-만드는중', '[data-fk="mkvpl:g2"]');
     ok('3 머리 알약 «만드는 중» — 알약만 차오르고 ▶ 는 흐리게 잠김(차오름 없음) · «목소리 만들기를 누르면…» 알림은 누르는 순간 걷힘 [PLAY_NO_DUP · OFF_TOAST]', /만드는 중/.test(g2c.pill) && /\bmake\b/.test(g2c.pillCls) && g2c.dis && !g2c.fill && !g2c.hint, JSON.stringify(g2c));

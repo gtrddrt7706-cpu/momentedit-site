@@ -91,7 +91,7 @@ try {
   await go('declare'); const dh = await pg.evaluate(async () => { const note = ((document.querySelector('.mk-pg .mk-ref .ls-gnote') || {}).textContent || '').trim(), u0 = document.getElementById('lsToast'); if (u0) { u0.hidden = true; u0.innerHTML = ''; }
     const c = [...document.querySelectorAll('.mk-pg .mk-ref [data-fk^="mkrc:declare:"]')].find((b) => b.getAttribute('aria-checked') !== 'true'); if (c) c.click(); await new Promise((r) => setTimeout(r, 300));
     const u = document.getElementById('lsToast'); return { note, card: !!c, toast: u && !u.hidden ? u.textContent : '' }; });
-  ok('⑦ 가족 낭독 예시 안내 = 인쇄해 건네 드리는 선언문(«바꿔도 돼요 · 가상 인물» 없음) — 카드 줄 아래가 아니라 카드를 누를 때 아래 알림 [DECL_REF_HEAD · NOTE_TOAST]', dh.card && dh.note === '' && dh.toast === '선언문은 인쇄해 당일 디렉터가 건네 드려요', JSON.stringify(dh));
+  ok('⑦ 가족 낭독 예시 안내 = «선언문은 저희가 인쇄해 드려요»(TOAST_MIN · «바꿔도 돼요 · 가상 인물» 없음) — 카드 줄 아래가 아니라 카드를 누를 때 아래 알림 [DECL_REF_HEAD · NOTE_TOAST]', dh.card && dh.note === '' && dh.toast === '선언문은 저희가 인쇄해 드려요', JSON.stringify(dh));
   /* ⑧ 한눈에 보기 — 두 분이 부탁하는 줄(축사하실 분)도 목록에 · 머리 «부탁드릴 것» [SUM_ASK_ALL] */
   await go('_sum'); const sm = await pg.evaluate(() => { const t = document.querySelector('.mk-pg').textContent.replace(/\u00a0/g, ' '); return { speech: /축사하실 분께 부탁드리기/.test(t), head: /(^|[^모님께 ])부탁드릴 것/.test(t.replace(/부모님께 부탁드릴 것/g, '')), par: /부모님께 부탁드릴 것/.test(t) }; });
   ok('⑧ 한눈에 보기 — 축사 부탁 줄이 있고 머리는 «부탁드릴 것»(부모님 것만일 때만 «부모님께») [SUM_ASK_ALL]', sm.speech && sm.head && !sm.par, JSON.stringify(sm));

@@ -2091,12 +2091,12 @@ window.copyGuestScript=function(){
   var lines=['하객 맞이 안내 대본 · 두 분 목소리용',''];
   GUEST.forEach(function(g){ lines.push('['+g[0]+']'); lines.push(g[2]); lines.push(''); });
   var txt=lines.join('\n');
-  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('안내 대본을 복사했어요 · 더빙 사이트에 붙여넣어 주세요');},function(){toast('복사가 안 됐어요 · 텍스트를 길게 눌러 직접 복사해 주세요');}); }
-  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('안내 대본을 복사했어요');}catch(e){toast('복사가 안 됐어요 · 텍스트를 길게 눌러 직접 복사해 주세요');} }
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('대본을 복사했어요');},function(){toast('길게 눌러 복사해 주세요');}); }
+  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('대본을 복사했어요');}catch(e){toast('길게 눌러 복사해 주세요');} }
 };
 window.mockUpload=function(k){
   var inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.mp3,.m4a,.aac,.wav';
-  inp.onchange=function(){ if(inp.files&&inp.files.length){ var f=inp.files[0]; if(f.type&&f.type.indexOf('audio')<0){ toast('음성 파일이 맞는지 확인해 주세요 · 휴대폰 녹음 파일(음성 메모)'); return; } if(f.size>30*1024*1024){ toast('파일이 너무 커요 · 30MB 이하 음성으로 올려 주세요'); return; } S.up[k]=f.name; _persist(); render(); toast('파일 이름을 적어 뒀어요 · 파일은 여기서 올라가지 않아요 · 예식 7일 전까지 카톡이나 메일로 보내 주세요'); } };
+  inp.onchange=function(){ if(inp.files&&inp.files.length){ var f=inp.files[0]; if(f.type&&f.type.indexOf('audio')<0){ toast('음성 파일만 올릴 수 있어요'); return; } if(f.size>30*1024*1024){ toast('30MB 이하로 올려 주세요'); return; } S.up[k]=f.name; _persist(); render(); toast('파일 이름을 적어 뒀어요'); } };
   inp.click();
 };
 /* ★[RIT_FILE_CHECK 2026-09-27 4부 12] ③ 새 코스의 녹음 칸은 파일 고르기 창을 열지 않는다 — 여기서 올라가지 않는 파일을 고르게 하면 올린 줄 안다.
@@ -4492,7 +4492,7 @@ function _mkLeaveMsg(k){ if(!k||k==='_sum'||k==='_voice'||_mkOff(k)) return '';
    같은 쪽의 같은 말은 한 번만 묻는다(MK.leaveSaid) — 앞뒤로 오갈 때마다 뜨면 귀찮다 */
 /* ★★[VP_MUST 2026-10-08 사장님 «고르지 않으면 스튜디오 나레이션으로 진행돼요 · 이 문구 수정 · 무조건 고르게 하는 걸로»]
    안내 목소리(하객 맞이 · 입장 · 식전 영상 소개 — AI 두 분 목소리 / 스튜디오 나레이션)는 꼭 고른다. 안 고르면 넘어가지 않고 그 칩 줄로 데려가
-   떠 있는 안내 한 번(«어떻게 준비할지 먼저 골라 주세요» · 칩 알림 _lsToast 와 같은 브라운 알약 · 사장님 «좀 전에 다른 섹션에서 개선한 안내 문구 식으로 · 문구만 · 이걸로») · 첫 칩에 포커스.
+   떠 있는 안내 한 번(«어떻게 준비할지 골라 주세요» · TOAST_MIN · 칩 알림 _lsToast 와 같은 브라운 알약 · 사장님 «좀 전에 다른 섹션에서 개선한 안내 문구 식으로 · 문구만 · 이걸로») · 첫 칩에 포커스.
    ★칩 아래 상시 한 줄은 두지 않는다 — 2026-10-08 사용자 지시로 삭제(«저 문구 삭제하고»)
    문은 셋 — ② 쪽의 «다음» · ② → ③(연습하기) · ④ «이대로 저장하기». 진행 줄 · 모든 순간 보기 이동은 막지 않는다(마지막 문에서 잡힌다).
    고를 것이 하나뿐인 판(AI 목소리가 꺼진 판)은 칩 줄이 없어 묻지 않는다 */
@@ -4500,7 +4500,7 @@ function _vpUnpicked(k){ try{ return _lGroups(k).some(function(g){ return /^(gue
 function _vpMustAt(k){ return (k==='guest'||k==='entry'||k==='prevideo')&&!_mkOff(k)&&_vpUnpicked(k); }
 function _vpMustFirst(){ var ps=_mkPages(); for(var i=0;i<ps.length;i++){ if(_vpMustAt(ps[i])) return ps[i]; } return ''; }
 function _vpMustShow(k){ if(_mkRO().at!==k||!(STEPS[idx]&&STEPS[idx].k==='listen')) _mkGoNow(k); else render();
-  _lsToast('어떻게 준비할지 먼저 골라 주세요');   // [VP_MUST] 칩 알림(CHIP_TOAST «‹양가 아버님›으로 바꿨어요»)과 같은 떠 있는 브라운 알약 · 아래 막대 바로 위 · 3초 · 읽어 주기
+  _lsToast('어떻게 준비할지 골라 주세요');   // [VP_MUST] 칩 알림(CHIP_TOAST «‹양가 아버님›으로 바꿨어요»)과 같은 떠 있는 브라운 알약 · 아래 막대 바로 위 · 3초 · 읽어 주기
   setTimeout(function(){ var c=[].slice.call(document.querySelectorAll('#stage .ls-cg.cg-vp')).filter(function(x){ return x.querySelector('[data-fk^="lsc:guestVoice:"],[data-fk^="lsc:entryVoice:"],[data-fk^="lsc:pvVoice:"]'); })[0], b=c&&c.querySelector('[role="radio"]');
     try{ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(c) c.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'}); if(b) b.focus({preventScroll:true}); }catch(e){} },80); }
 window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;
@@ -6398,7 +6398,7 @@ function _rfData(d){ if(d&&!d.ok&&d.id) delete RF_LOAD[d.id];   /* [PLAY_WAIT_FI
    머리 «목소리 만들기» 단추도 목소리가 있을 때만 그려져 할 일이 안 보였다. 하객 맞이 넷 · 식전 영상 소개 · 입장 인사 모두 같은 길이다.
    ▶ = 지금 글을 들려준다: 고치지 않은 글이면 같은 글의 스튜디오 나레이션 파일 · 고친 글이면 연습 AI 읽기(그분 목소리가 없으면 스튜디오 목소리 · 저장 안 함).
    머리 = «멘트를 바꿨어요 · 글을 고쳤어요» + «목소리 만들기»(누르면 두 분 목소리 쪽)
-   ★2026-10-08 [AI_PLAY_READY] ▶ 갈래는 걷었다(사장님 «목소리를 먼저 만들지 않으면 플레이 버튼 비활성화») — 남의 목소리를 틀지 않고 흐리게 · 누르면 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기». 머리 알약은 그대로 */
+   ★2026-10-08 [AI_PLAY_READY] ▶ 갈래는 걷었다(사장님 «목소리를 먼저 만들지 않으면 플레이 버튼 비활성화») — 남의 목소리를 틀지 않고 흐리게 · 누르면 «… 목소리가 아직 없어요 · 만들러 가기»(TOAST_MIN). 머리 알약은 그대로 */
 function _staleNoVoice(key){ var v=(S.up||{})[key]; return !!(v&&typeof v==='object'&&v.src==='ai'&&_upStale(key)&&!_vcReadyFor(key)&&!(S.vself||{})[key]); }
 function _playNowText(key){ var t=_recNeed(key); if(!t) return; var edited=!!(_vtEdit(key)||(/^(g\d|entry)$/.test(key)&&(S.vlines||{})[_slVk(key)])||key==='pv'), nar=_narSrc(key);
   var play=function(u){ _stopAud(); _stopMk(); try{ var a=new Audio(); _playLead(a,u,1,function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } }); MK.aud=a; MK.audKey=key; render(); }catch(e){} };
@@ -6417,13 +6417,15 @@ function _playNowText(key){ var t=_recNeed(key); if(!t) return; var edited=!!(_v
 /* ★★[AI_PLAY_READY 2026-10-08 사장님 «AI 두 분 목소리에서 목소리를 먼저 만들지 않으면 · 우측 버튼이 «목소리 만들기»면 좌측 플레이 버튼 비활성화 · 다른 곳 · 이 순간 전체 듣기도 · 누르면 밑에 어디서 만들지 간략히 · 제안줄래»]
    AI 판 줄 ▶ 는 «이 줄의 두 분 AI 소리»를 듣는 단추 하나다. 들을 소리가 아직 없으면 흐리게 두고(aria-disabled · 누를 수는 있다) 누르면 그 줄 머리 바로 아래 한 줄로 할 일을 말한다.
      머리 알약이 «목소리 만들기»(목소리는 있고 이 줄을 아직 안 만듦) → AI_OFF_NEED · 뒤에서 먼저 만드는 중(EX_FIRST «준비 중») → AI_OFF_PREP
-     읽는 분 목소리가 아직 없음 → «신부 목소리를 만들면 들을 수 있어요 · 만들러 가기»(VU_WAIT_WHO 와 같은 말 · 두 분 목소리 만들기 쪽으로)
+     읽는 분 목소리가 아직 없음 → «신부 목소리가 아직 없어요 · 만들러 가기»(TOAST_MIN · 두 분 목소리 만들기 쪽으로)
      목소리 정보를 받는 중 · 못 받음 → «두 분 목소리를 불러오고 있어요» · 받은 까닭(코드) — 상태를 모르면 «없다»고 하지 않는다(VU_ST_UNKNOWN)
    종전엔 ▶ 가 그 줄을 만들고 틀었고(TEXT_PLAY_MAKE — 만들기는 이제 머리 알약 한 곳 · ▶ 가 만드는 것은 빠르기만 다른 줄뿐) · 목소리가 없으면 스튜디오 나레이션 · 연습 AI 읽기(STALE_NOVOICE · _playNowText) ·
    배역 예시 녹음(COUPLE_EX_VOICE — AI_NO_CAST 로 걷음) · 소리 없는 글 흐름(▶ 가 ■ 로 바뀌는데 아무 소리도 없음)이었다.
    빈 줄 · 목소리를 다 쓴 줄(그 자리 나레이션) · 두 분이 녹음 · 올린 줄 · 지금 글로 만든 AI 소리가 있는 줄은 들을 소리가 있어 그대로. 만드는 중 · 올리는 중은 PLAY_WAIT_LOCK(못 누름) 그대로.
    하객 맞이 넷 · 입장 인사 · 영상 앞 소개 줄 ▶ 와 이 순간 전체 듣기(_playOffAll)가 모두 이 한 곳을 본다 */
-var AI_OFF_NEED='오른쪽 «목소리 만들기»를 누르면 들을 수 있어요', AI_OFF_PREP='준비 중이에요 · 다 되면 들을 수 있어요', LS_MAKE_WAIT='잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요', LS_MAKE_FAIL='만들지 못한 줄이 있어요 · 그 줄 아래를 봐 주세요';
+/* ★★[TOAST_MIN 2026-10-09 사장님 «안내 문구 팝업 부분은 최대한 요약해서 미니멀하게 안내해야 해»] 아래 알림(떠 있는 브라운 알약) 글은 한 줄 20자 안 · «·» 한 번까지 —
+   식순 화면 · 마이페이지 · 홈 전부. 실패 문구(코드 X#)는 [ERR_CODES] 가 따로 본다. scripts/audit/toast-min.mjs 가 막는다. 종전 «오른쪽 «목소리 만들기»를 누르면 들을 수 있어요» · «준비 중이에요 · 다 되면 들을 수 있어요» */
+var AI_OFF_NEED='목소리를 먼저 만들어 주세요', AI_OFF_PREP='준비 중이에요', LS_MAKE_WAIT='잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요', LS_MAKE_FAIL='만들지 못한 줄이 있어요 · 그 줄 아래를 봐 주세요';
 function _playOff(key){ if(!_slKeyOk(key)||!_vcOn()||_vpCur(_vtMoment(key))!=='ai'||(S.vself||{})[key]||MK_UP[key]||(MK.nowPend||{})[key]||(MK.aiDone||{})[key]) return '';
   var m=_aiMode(key), v=(S.up||{})[key], cur=!!(v&&typeof v==='object'&&v.src==='ai'&&!_upStale(key));
   if(_lineBlank(key)||_vcToNar(key)||(v&&typeof v==='object'&&v.id&&v.src!=='ai')) return '';   // 그 자리 나레이션 · 두 분이 녹음 · 올린 소리 — 들을 것이 있다
@@ -6433,13 +6435,13 @@ function _playOff(key){ if(!_slKeyOk(key)||!_vcOn()||_vpCur(_vtMoment(key))!=='a
   if(!VC.st) return {t:VC.stErr?(VC.stWhy||_ecWord('V',0)):'두 분 목소리를 불러오고 있어요'};
   return {t:_playOffWho([key],false),go:1}; }
 function _playOffWho(keys,all){ var st=VC.st||{}, miss={}; keys.forEach(function(k){ var w=_vcLineWho(k); (w==='both'?['groom','bride']:[w==='bride'?'bride':'groom']).forEach(function(r){ if(!(st[r]||{}).ready) miss[r]=1; }); });
-  var n=Object.keys(miss); return (n.length===1?(n[0]==='bride'?'신부':'신랑'):'두 분')+' 목소리를 만들면 '+(all?'이어서 ':'')+'들을 수 있어요'; }
+  var n=Object.keys(miss); return (n.length===1?(n[0]==='bride'?'신부':'신랑'):'두 분')+' 목소리가 아직 없어요'; }   /* [TOAST_MIN 10/09] 종전 «○○ 목소리를 만들면 (이어서) 들을 수 있어요» · «만들러 가기»는 알림 안 단추 */
 function _aiKeys(k){ if(!/^(guest|entry|prevideo)$/.test(k)||_vpCur(k)!=='ai') return []; var o=[]; _mkItems(k).forEach(function(q){ if(q.up&&_slKeyOk(q.up)&&o.indexOf(q.up)<0) o.push(q.up); }); return o; }
 /* 이 순간 AI 줄들 — 기다리는 줄(busy) · 안 만든 줄(need) · 목소리가 없는 분의 줄(who) · 상태를 모름(unk) */
 function _lsState(k){ var r={need:[],busy:[],who:[],unk:''}; _aiKeys(k).forEach(function(q){ if(MK_UP[q]||(MK.aiDone||{})[q]||_aiMode(q)==='prep'){ r.busy.push(q); return; } var o=_playOff(q); if(!o) return; if(o.need) r.need.push(q); else if(o.go) r.who.push(q); else r.unk=o.t; }); return r; }
 function _playOffAll(k){ var r=_lsState(k); if(r.unk) return {t:r.unk}; if(r.who.length) return {t:_playOffWho(r.who,true),go:1}; return ''; }   // 만들 수 있는 줄(need) · 기다리는 줄(busy)만 남았으면 누를 수 있다(LS_MAKE_ALL)
 /* ★★[OFF_TOAST 2026-10-09 사장님 «▶를 눌렀을 때 나오는 안내 문구 · 만들기 누르라고 · 우리가 하는 팝업 스타일로»] 들을 소리가 없는 ▶(줄 ▶ · 이 순간 전체 듣기)를 누르면
-   그 줄 아래 한 줄 대신 아래 브라운 알림(_lsToast · NOTE_TOAST 와 같은 모양) — 글은 그대로(«오른쪽 «목소리 만들기»를 누르면 들을 수 있어요» · «○○ 목소리를 만들면 들을 수 있어요 · 만들러 가기»).
+   그 줄 아래 한 줄 대신 아래 브라운 알림(_lsToast · NOTE_TOAST 와 같은 모양) — 글은 [TOAST_MIN] 짧게(«목소리를 먼저 만들어 주세요» · «○○ 목소리가 아직 없어요 · 만들러 가기»).
    «만들러 가기»는 알림 안 단추(누를 시간 6초 · 누르면 알림을 닫고 목소리 쪽으로) · 초점은 누른 ▶ 에 그대로(다시 그리지 않는다).
    만드는 동안 «잠시만 기다려 주세요»(LS_MAKE_WAIT) · 다 못 만듦(LS_MAKE_FAIL)은 일이 이어지는 동안의 상태라 그 자리 한 줄 그대로(MK.playOff.t) */
 window.mkPlayOff=function(id){ var o=/^mp:/.test(id)?_playOffAll(id.slice(3)):_playOff(id); if(!o||!o.t) return; _lsToast(o.t,o.go?{l:'만들러 가기',fk:'mkploffgo:'+id,on:"_lsToastOff();mkGo('_voice')"}:null,id); };   /* ★그 줄 아래 «… 들을 수 있어요» 한 줄(MK.playOff 로 다시 그리기) 금지 — 2026-10-09 사용자 지시로 삭제 [OFF_TOAST] */
@@ -7064,7 +7066,7 @@ function _josaRo(w){ w=String(w); var c=w.charCodeAt(w.length-1); if(c>=0xAC00&&
    칩 줄 · 참고 예시 카드 줄 아래 회색 덧말(누르면 생기는 일)은 걷고, 누른 그 순간 아래 떠 있는 안내(_lsToast · VP_MUST · CHIP_TOAST 와 같은 브라운 알약 · 3초) 한 줄로 요약해 알린다.
    누르기 전에 읽혀야 하는 줄(«아직 고르지 않았어요 · 고르지 않으면 …» · 큰절 팁)은 칩 아래 그대로 — 누를 때 뜨는 알림은 안 누른 고객에게 닿지 않는다.
    창이 열려 있으면(처음 AI 를 누를 때 «확정하면 이렇게 돼요» 등) 알림은 띄우지 않는다 — 창이 이미 말한다 */
-var NOTE_TOAST={ ai:'AI가 두 분 목소리로 읽어요', nar:'나레이터가 두 분 대신 읽어요', couple:'두 분이 한 줄씩 녹음해요', decl:'선언문은 인쇄해 당일 디렉터가 건네 드려요', fill:'아래 칸에 넣었어요 · 고쳐 써도 돼요', aiex:'아래 글을 바꿨어요 · 고쳐 써도 돼요', ent:'녹음하실 대본도 이 멘트로 맞춰 드려요' };
+var NOTE_TOAST={ ai:'AI가 두 분 목소리로 읽어요', nar:'나레이터가 읽어요', couple:'두 분이 직접 녹음해요', decl:'선언문은 저희가 인쇄해 드려요', fill:'예시를 넣었어요 · 고쳐 써도 돼요', aiex:'예시를 넣었어요 · 고쳐 써도 돼요', ent:'녹음 대본도 같이 바꿨어요' };   /* [TOAST_MIN 10/09] 종전 «나레이터가 두 분 대신 읽어요» · «선언문은 인쇄해 당일 디렉터가 건네 드려요» · «아래 칸에 넣었어요 · …» · «아래 글을 바꿨어요 · …» · «녹음하실 대본도 이 멘트로 맞춰 드려요» */
 function _noteToast(m){ if(m&&!_inDlg()) _lsToast(m); }
 function _chipNote(key,v){ if(/^(guest|entry|pv)Voice$/.test(key)) return _upLive()?(NOTE_TOAST[v]||''):'';   /* 두 분 목소리 문이 열린 판의 «어떻게 준비할까요» — 옛 판 «안내 목소리» 칩엔 덧말이 없었다 */
   if(key==='declare'&&v==='family') return NOTE_TOAST.decl;   /* [DECL_REF_HEAD] 가족 낭독을 고르면 */
@@ -8169,7 +8171,7 @@ window.quickOff=function(k){
   else if(k==='valley') S.valley=(S.valley==='none')?'wine':'none';
   else { if(!S.off) S.off={}; if(S.off[k]) delete S.off[k]; else S.off[k]=1; }
   buildSteps(); _persist(); render();
-  toast(momOn(k)?'순서에 넣었어요':'순서에서 뺐어요 · 언제든 다시 넣을 수 있어요');
+  toast(momOn(k)?'순서에 넣었어요':'순서에서 뺐어요 · 되돌릴 수 있어요');
 };
 function rowVal(k){
   switch(k){
@@ -9161,7 +9163,7 @@ window.saveScriptTxt=function(){
     var t=document.createElement('textarea'); t.name='text'; t.value=txt; f.appendChild(t);
     var n=document.createElement('input'); n.type='hidden'; n.name='name'; n.value=name; f.appendChild(n);
     document.body.appendChild(f); f.submit(); setTimeout(function(){ try{ document.body.removeChild(f); }catch(e){} },1000);
-    toast('파일 내려받기를 요청했어요 · 안 보이면 «대본 복사»로 옮겨 주세요');
+    toast('안 받아지면 «대본 복사»를 눌러 주세요');
     return 'server';
   }
   var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
@@ -9169,13 +9171,13 @@ window.saveScriptTxt=function(){
   a.download=name;
   /* ★[SAVE_TXT_LIVE 2026-09-25] 윗줄 꼬리 주석이 이 세 동작을 삼켜 «파일로 저장»이 아무것도 안 했다(#815 부터). 주석은 블록으로만 · 동작은 제 줄에. */
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  toast('파일 내려받기를 시작했어요');
+  toast('내려받기를 시작했어요');
   return 'blob';
 };
 window.copyScript=function(){
   var txt=scriptText();
-  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('대본을 복사했어요 · 서로에게 붙여넣어 공유하세요');},function(){toast('복사가 안 됐어요 · 텍스트를 길게 눌러 직접 복사해 주세요');}); }
-  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('대본을 복사했어요');}catch(e){toast('복사가 안 됐어요 · 텍스트를 길게 눌러 직접 복사해 주세요');} }
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('대본을 복사했어요');},function(){toast('길게 눌러 복사해 주세요');}); }
+  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('대본을 복사했어요');}catch(e){toast('길게 눌러 복사해 주세요');} }
 };
 /* ★[REHEARSE_MERGED 2026-08-12 사용자 지시] 연습 공간 화면 **폐지 — 되살리지 말 것.**
    완성 화면에 듣기 단추가 둘이라(미리듣기 · 연습 공간) 무엇이 다른지 알 수 없었다.
@@ -9643,7 +9645,7 @@ function _saveDone(ok,msg){
   clearTimeout(_saveT); _saving=false;
   _doneSaved=!!ok; if(_doneSaved) _doneKey=_autoKey(); _saveErr=ok?'':(msg||_ecWord('S',0));   /* [R2-02] · [ERR_CODE_BUILDER] 까닭 없는 실패도 코드(S0) */
   _persist(); render();
-  if(ok){ try{ toast('마이페이지에 저장했어요'); }catch(e){} }
+  if(ok){ try{ toast('저장했어요'); }catch(e){} }
 }
 function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who})); }catch(e){} _dirtyMark(); }   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
 /* ★★[ORD_AUTOSAVE 2026-08-12 사용자 지시 "저장후 나가기 말고 그냥 나가기는없어?"]
