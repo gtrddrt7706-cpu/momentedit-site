@@ -15988,6 +15988,52 @@ chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) 
 chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
 chk "if (op === 'enroll' && c >= 400 && c < 500 && c !== 401 && c !== 402 && c !== 403 && c !== 429) {" automation/platform/80_production.gs 1   # [VC_ENROLL_BADREC]
 chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
+# ── 고객 여정 점검 1라운드 · 서버 [VC_DEL_STOP · VC_ONE_OWN · RF_DEL_ALL_T0 · BIRTH_REAL · CR_NUM_VALID · CT_RESEND_ONCE · APPLY_A_RETIRE · RESCHED_NOW · CAL_FULL_DIM · REVISIT_NUM_JOSA] 2026-10-09
+#   E-4 지우기가 만들기를 이긴다(잠근 채 표시 · 업체 답 직후와 저장 직전 두 번 본다) · E-3 한 분 만들기는 그분 목소리로만
+#   E-8 «모두 지우기»도 지운 파일보다 뒤에 만든 것은 둔다 · C-9 생년월일 실제 날짜 · C-16 현금영수증 번호 여섯 곳 · C-20 재발송 요청 24시간 한 번
+#   D-1 옛 신청 화면 은퇴(신청은 inquiry.html) · D-3 시간 변경은 예약금을 다시 받지 않는다 · D-8 시간이 다 찬 날은 흐림 · D-19 숫자 뒤 «입니다»
+chk 'VC_DEL_STOP' automation/platform/80_production.gs 12
+chk "if (c.save(stopped) === 'stop') return stop(nv, rfId);" automation/platform/80_production.gs 1
+chk 'if (stopped(_vcSt(code))) return stop(nv,' automation/platform/80_production.gs 1
+chk 'dm = _vcDelMark(code, ws);' automation/platform/80_production.gs 1
+chk "var dm = _vcDelMark(code, \['groom', 'bride'\])" automation/platform/80_production.gs 1
+chk 'VC_ONE_OWN' automation/platform/80_production.gs 1
+chk "if (one && WHO\[one\] && !lines && !(st\[one\] && st\[one\].voiceId)) return" automation/platform/80_production.gs 1
+chk 'RF_DEL_ALL_T0' automation/platform/80_production.gs 1
+chk 'g.getDateCreated().getTime() > ta) continue;' automation/platform/80_production.gs 1
+chk 'RF_DEL_ALL_T0' scripts/audit/vc-r1-upload.mjs 2
+chk 'BIRTH_REAL' automation/platform/70_journey.gs 2
+chk "var _bBad = _birthBad(gB, '신랑') || _birthBad(bB, '신부');" automation/platform/70_journey.gs 1
+chk 'CR_NUM_VALID' automation/platform/70_journey.gs 8
+chk '_crReject(' automation/platform/70_journey.gs 6
+chk '_crReject(cashReceipt)' automation/consultation/consultation-booking.gs 1
+chk 'CT_RESEND_ONCE' automation/platform/70_journey.gs 3
+chk 'contractResendAt' automation/platform/60_mypage.gs 1
+chk 'CT_RESEND_ONCE' mypage.html 3
+nochk "rs.textContent='요청했어요 · 24시간 안에 보내고 카톡으로 알려드려요'" mypage.html
+chk 'APPLY_A_RETIRE' automation/consultation/consultation-booking.gs 4
+nochk 'HtmlService.createTemplateFromFile(SYS.HTML_A)' automation/consultation/consultation-booking.gs
+nochk 'submitApplication(body);' automation/consultation/consultation-booking.gs
+chk "if (!_IN_POST && !_ownerRunNow_()) throw new Error(APPLY_MOVED + ' · ' + APPLY_URL);" automation/consultation/consultation-booking.gs 1
+chk 'RESCHED_NOW' automation/consultation/consultation-booking.gs 10
+chk 'if (_dep.paid) { payer = .*; _byCard = false; }' automation/consultation/consultation-booking.gs 1
+chk 'RESCHED_NOW' schedule.html 5
+chk 'var _paid=SERVER.depositPaid===true;' schedule.html 1
+chk 'RESCHED_NOW' automation/consultation/ScreenB_schedule.html 1
+chk 'CAL_FULL_DIM' automation/consultation/ScreenB_schedule.html 1
+chk 'return SERVER.avail.indexOf(key(d)) !== -1 && _hasFreeSlot(d);' automation/consultation/ScreenB_schedule.html 1
+chk 'REVISIT_NUM_JOSA' automation/consultation/ScreenB_schedule.html 1
+nochk "' 으로 확정되어 있습니다.'" automation/consultation/ScreenB_schedule.html
+nochk "' 이 접수되어 있습니다.'" automation/consultation/ScreenB_schedule.html
+chk 'VC_DEL_STOP' scripts/audit/vc-del-stop.mjs 1
+chk 'JOURNEY_INPUT' scripts/audit/journey-input.mjs 1
+chk 'RESCHED_NOW' scripts/audit/resched-paid.mjs 1
+chk "'_vcDelMark'" scripts/audit/vc-flow-sim.mjs 1
+chk "'_vcDelMark'" scripts/audit/vc-enroll-sim.mjs 1
+chk "CTRESEND_: \['state'\]" scripts/gen-deploy-fns.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-del-stop.mjs >/dev/null 2>&1 || { echo 'FAIL vc-del-stop: 지우기 · 만들기 겹침(E-4) · 한 분 만들기(E-3) · 모두 지우기 범위(E-8)가 어긋났습니다 — node scripts/audit/vc-del-stop.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/journey-input.mjs >/dev/null 2>&1; _jin=$?; if [ "$_jin" = 1 ]; then echo 'FAIL journey-input: 생년월일 · 현금영수증 번호 · 재발송 한 번 · 옛 신청 화면이 어긋났습니다 — node scripts/audit/journey-input.mjs'; fail=1; elif [ "$_jin" = 2 ]; then echo 'skip journey-input: GAS 세계를 못 만듦'; else echo 'ok journey-input'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/resched-paid.mjs >/dev/null 2>&1; _rsp=$?; if [ "$_rsp" = 1 ]; then echo 'FAIL resched-paid: 시간 변경 예약금 · 시간이 다 찬 날 흐림 · 숫자 뒤 조사가 어긋났습니다 — node scripts/audit/resched-paid.mjs'; fail=1; elif [ "$_rsp" = 2 ]; then echo 'skip resched-paid: GAS 세계를 못 만듦'; else echo 'ok resched-paid'; fi; fi
 chk 'VC_ENROLL_SIM' scripts/audit/vc-enroll-sim.mjs 1
 chk 'FN_NAME_ONE' scripts/audit/vc-enroll-sim.mjs 1   # 최상위 함수 이름 겹침(_vcSnap 두 벌 · 뒤 선언이 앞을 조용히 덮었다)
 chk 'function _vcEnrSnap(w){' order-preview.html 1
@@ -16769,4 +16815,14 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/fill-who-true.mjs >/
 if command -v node >/dev/null 2>&1; then node scripts/audit/saved-fresh.mjs >/dev/null 2>&1; _svf=$?; if [ "$_svf" = 1 ]; then echo 'FAIL saved-fresh: 서버 초안 얹기(옛 칸 되살아남 · 같은 걸음 · 저장 전 고침)가 어긋났습니다 — node scripts/audit/saved-fresh.mjs'; fail=1; elif [ "$_svf" = 2 ]; then echo 'skip saved-fresh: 브라우저 없음'; else echo 'ok saved-fresh: 서버 초안은 통째로 · 같은 걸음 · 저장 전 고침'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/builder-back.mjs >/dev/null 2>&1; _bbk=$?; if [ "$_bbk" = 1 ]; then echo 'FAIL builder-back: 마이페이지 안 식순의 뒤로가기(한 번에 닫기 · 판이 뜨면 기다리기)가 어긋났습니다 — node scripts/audit/builder-back.mjs'; fail=1; elif [ "$_bbk" = 2 ]; then echo 'skip builder-back: 브라우저 없음'; else echo 'ok builder-back: 뒤로가기 한 번 · 판이 뜨면 기다린다'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/eng-once.mjs >/dev/null 2>&1; _eon=$?; if [ "$_eon" = 1 ]; then echo 'FAIL eng-once: 소리 엔진을 못 받을 때 그리기마다 다시 묻습니다(또는 까닭 · 다시 불러오기가 없습니다) — node scripts/audit/eng-once.mjs'; fail=1; elif [ "$_eon" = 2 ]; then echo 'skip eng-once: 브라우저 없음'; else echo 'ok eng-once: 엔진 실패는 한 번 · 까닭(L0) · 다시 불러오기'; fi; fi
+# [VC_CANCEL_SAY · BIRTH_ADULT19 2026-10-09 A~Z 점검 1라운드] 지우기로 취소된 만들기는 그 말로(서버 VC_DEL_STOP 짝) · 계약 생년월일 하한 만 19세(민법 성년)
+chk 'VC_CANCEL_SAY' order-preview.html 2
+chk "if(j.kind==='cancel') return {ok:false,down:true,kind:'cancel',error:VC_DEL_STOP_W};" order-preview.html 1
+chk 'msg!==VC_DEL_STOP_W' order-preview.html 1
+chk 'R.err===VC_DEL_STOP_W' order-preview.html 1
+chk 'VC_CANCEL_SAY' scripts/audit/vc-cancel-say.mjs 1
+chk 'BIRTH_ADULT19' automation/platform/70_journey.gs 3
+chk 'lim = (+t.slice(0, 4) - 19) + t.slice(4);' automation/platform/70_journey.gs 1
+nochk 'lim = (+t.slice(0, 4) - 18) + t.slice(4);' automation/platform/70_journey.gs
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-cancel-say.mjs >/dev/null 2>&1; _vcs=$?; if [ "$_vcs" = 1 ]; then echo 'FAIL vc-cancel-say: 지우기로 취소된 만들기의 말 · 다시 만들기 표가 어긋났습니다 — node scripts/audit/vc-cancel-say.mjs'; fail=1; elif [ "$_vcs" = 2 ]; then echo 'skip vc-cancel-say: 브라우저 없음'; else echo 'ok vc-cancel-say: 취소는 그 말로 · 다시 만들기 표 없음'; fi; fi
 :

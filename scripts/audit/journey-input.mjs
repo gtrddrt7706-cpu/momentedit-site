@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[JOURNEY_INPUT 2026-10-09 점검 C-9 · C-16 · C-20 · D-1] 고객 여정 입력 · 요청을 «진짜 .gs 함수»로 불러 잰다(_gasworld · 시트 쓰기는 가로챈다).
-   C-9  [BIRTH_REAL]      계약 요청 생년월일 — 달력에 없는 날(2/31 · 4/31 · 평년 2/29) · 1930년 전 · 만 18세 안 됨은 거절 · 경계 날짜는 받는다 · 거절이면 아무것도 쓰지 않는다
+   C-9  [BIRTH_REAL]      계약 요청 생년월일 — 달력에 없는 날(2/31 · 4/31 · 평년 2/29) · 1930년 전 · 만 19세(민법 성년 · BIRTH_ADULT19) 안 됨은 거절 · 경계 날짜는 받는다 · 거절이면 아무것도 쓰지 않는다
    C-16 [CR_NUM_VALID]    현금영수증 번호 — 휴대폰(01x · 10~11자리) · 사업자번호(10자리)만 · 빈 값은 자진발급 · 받는 곳 여섯이 같은 규칙 · 이미 저장된 값은 건드리지 않는다
    C-20 [CT_RESEND_ONCE]  계약서 재발송 요청 — 24시간 안 다시 누름은 «이미 요청함»(알림 한 번) · getMyState 에 contractResendAt · 24시간이 지나면 다시 · 마이페이지 단추(같은 이름 · 같은 높이 · 흐리게 · 아래 한 줄)
    D-1  [APPLY_A_RETIRE]  /exec 기본 화면은 새 신청서 안내 한 장 · 옛 화면 A 의 제출(submitApplication) · action 없는 doPost 는 같은 안내로 거절 · 가입 길(signup)은 그대로
@@ -44,12 +44,12 @@ const reqC = (w, o) => call(() => G.handleRequestContract({ token: 't', info: IN
 console.log('━━ C-9 [BIRTH_REAL] 계약 요청 생년월일');
 { let w = mk(); let r = reqC(w); ok(r && r.ok === true, '보통 날짜(1990-01-01 · 1991-02-02) → 받는다', JSON.stringify(r)); ok(rec(w).계약정보 && rec(w).계약정보.groomBirth === '1990-01-01', '받은 값이 계약정보에 남는다', w.C['동의기록']); }
 for (const [v, re, why] of [['1990-02-31', /신랑 생년월일이 달력에 없는 날짜예요/, '2/31'], ['1990-04-31', /달력에 없는 날짜/, '4/31'], ['2023-02-29', /달력에 없는 날짜/, '평년 2/29'],
-  ['1929-12-31', /신랑 생년월일을 다시 확인해 주세요\.$/, '1930년 전'], [plus1(yrs(18)), /만 18세 이상만 계약할 수 있어요/, '만 18세 하루 전'], ['2090-01-01', /만 18세/, '미래'], ['1990-1-1', /다시 골라 주세요/, '꼴이 틀림']]) {
+  ['1929-12-31', /신랑 생년월일을 다시 확인해 주세요\.$/, '1930년 전'], [plus1(yrs(19)), /만 19세 이상만 계약할 수 있어요/, '만 19세 하루 전'], ['2090-01-01', /만 19세/, '미래'], ['1990-1-1', /다시 골라 주세요/, '꼴이 틀림']]) {
   const w = mk(); const r = reqC(w, { groomBirth: v });
   ok(r && r.ok === false && re.test(r.error || '') && w.writes().length === 0 && notes.length === 0, `${why}(${v}) → 거절 · 아무것도 쓰지 않음`, JSON.stringify(r) + ' writes ' + w.writes().length);
 }
 { const w = mk(); const r = reqC(w, { brideBirth: '1995-06-31' }); ok(r && r.ok === false && /^신부 생년월일이 달력에 없는 날짜예요/.test(r.error || ''), '신부 6/31 → «신부» 로 거절', JSON.stringify(r)); }
-for (const [v, why] of [['2000-02-29', '윤년 2/29'], ['1930-01-01', '1930-01-01(경계)'], [yrs(18), '오늘 만 18세(경계)']]) {
+for (const [v, why] of [['2000-02-29', '윤년 2/29'], ['1930-01-01', '1930-01-01(경계)'], [yrs(19), '오늘 만 19세(경계)']]) {
   const w = mk(); const r = reqC(w, { groomBirth: v }); ok(r && r.ok === true, `${why} → 받는다`, JSON.stringify(r));
 }
 

@@ -479,7 +479,8 @@ function handleCancelWeddingHold(body) { _gsr_();
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
-/* ★[BIRTH_REAL 2026-10-09 점검 C-9] 계약서 당사자 생년월일 — 달력에 있는 날짜(2/31 · 4/31 거절)이고 1930-01-01 ~ 오늘(한국 날짜) 기준 만 18세 사이만 받는다.
+/* ★[BIRTH_REAL 2026-10-09 점검 C-9] 계약서 당사자 생년월일 — 달력에 있는 날짜(2/31 · 4/31 거절)이고 1930-01-01 ~ 오늘(한국 날짜) 기준 만 19세 사이만 받는다.
+   ★[BIRTH_ADULT19 2026-10-09] 하한은 만 19세 — 민법상 성년(제4조)이 19세라 18세의 계약은 법정대리인 동의 없이 취소될 수 있다(제5조 · 혼인으로 성년이 되는 것은 계약 뒤의 일). 사장님 결정함에 올림(18 로 원하시면 아래 숫자와 글 두 곳).
    화면의 연 · 월 · 일 세 칸은 달마다 31일까지 열려 있어 서버가 마지막 문이다 · 이미 받아 둔 값은 건드리지 않는다(새로 보낸 값만 본다).
    거절은 입력 확인이라 코드를 붙이지 않는다(글이 곧 까닭 · ERR_CODES 0) · 빈 값은 위 «입력해 주세요»가 먼저 받는다 */
 function _birthBad(v, who) { _gsr_();
@@ -487,8 +488,8 @@ function _birthBad(v, who) { _gsr_();
   var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); if (!m) return who + ' 생년월일을 다시 골라 주세요.';
   var y = +m[1], mo = +m[2], d = +m[3], dt = new Date(Date.UTC(y, mo - 1, d));
   if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return who + ' 생년월일이 달력에 없는 날짜예요. 다시 골라 주세요.';
-  var t = _kstYmd(new Date()), lim = (+t.slice(0, 4) - 18) + t.slice(4);   // 오늘 한국 날짜의 18년 전 — 그날까지 태어났으면 만 18세(2/29 는 글자 비교라 2/28 까지)
-  if (v > lim) return who + ' 생년월일을 다시 확인해 주세요. 만 18세 이상만 계약할 수 있어요.';
+  var t = _kstYmd(new Date()), lim = (+t.slice(0, 4) - 19) + t.slice(4);   // [BIRTH_ADULT19] 오늘 한국 날짜의 19년 전 — 그날까지 태어났으면 만 19세(2/29 는 글자 비교라 2/28 까지)
+  if (v > lim) return who + ' 생년월일을 다시 확인해 주세요. 만 19세 이상만 계약할 수 있어요.';
   if (v < '1930-01-01') return who + ' 생년월일을 다시 확인해 주세요.';
   return '';
 }
@@ -507,7 +508,7 @@ function handleRequestContract(body) { _gsr_();
   var gB = String(info.groomBirth || '').trim(), bB = String(info.brideBirth || '').trim();
   var gA = String(info.groomAddr || '').trim(), bA = String(info.brideAddr || '').trim();
   if (!gB || !bB) return { ok: false, error: '신랑·신부 생년월일을 입력해 주세요.' };
-  var _bBad = _birthBad(gB, '신랑') || _birthBad(bB, '신부'); if (_bBad) return { ok: false, error: _bBad };   // [BIRTH_REAL] 달력에 있는 날짜 · 1930년 ~ 만 18세
+  var _bBad = _birthBad(gB, '신랑') || _birthBad(bB, '신부'); if (_bBad) return { ok: false, error: _bBad };   // [BIRTH_REAL] 달력에 있는 날짜 · 1930년 ~ 만 19세(BIRTH_ADULT19)
   if (!gA || !bA) return { ok: false, error: '신랑·신부 주소를 입력해 주세요.' };
   if (info.consent !== true && String(info.consent) !== 'true') return { ok: false, error: '개인정보 수집·이용에 동의해 주세요.' };
   var _crBad = _crReject(info.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 휴대폰 · 사업자번호만(빈 값은 자진발급)
