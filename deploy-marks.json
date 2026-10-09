@@ -2712,6 +2712,24 @@
    "fn": "_ritualCapLen_",
    "mark": "RITUAL_CAP_OWN",
    "why": "식순 초안 크기 재기(옛 한 칸 빼기) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "00_platform-config",
+   "fn": "_phoneLenOk_",
+   "mark": "PHONE_LEN_SRV",
+   "why": "연락처 느슨한 받침 — 국내 9~11자리 · +82 는 0 으로 같게 · 그 밖 + 국제 8~15자리 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "PHONE_LEN_SRV",
+   "why": "신청서 연락처 길이를 서버에서도 본다(거절 B0) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleRequestContract",
+   "mark": "PHONE_LEN_SRV",
+   "why": "계약 요청(입력 정보 수정)의 신랑 · 신부 연락처 길이를 서버에서도 본다(거절 C0) — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2719,6 +2737,7 @@
    "stageFlowFor",
    "nextActionFor",
    "_phoneKR",
+   "_phoneLenOk_",
    "_crKR",
    "_dsGlobalScope",
    "_dsGlobalSig",
@@ -3803,7 +3822,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-10 08:33 · 45b4ba1e",
+ "_생성": "2026-10-10 08:35 · 6acdd5bd",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4323,5 +4342,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "c20a67beb6a6"
+ "_표식서명": "6f2115b11837"
 }

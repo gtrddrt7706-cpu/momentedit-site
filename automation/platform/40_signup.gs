@@ -32,6 +32,7 @@ function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의
   if (!groom || !bride) throw new Error('성함을 입력해 주세요.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   if (!phone) throw new Error('연락처를 입력해 주세요.');
+  if (typeof _phoneLenOk_ === 'function' && !_phoneLenOk_(body.phone)) throw new Error('연락처를 다시 확인해 주세요.');   // ★[PHONE_LEN_SRV 2026-10-09 A~Z 점검 2라운드 D2-4] 길이만 느슨하게(국내 9~11 · +82 같게 · 그 밖 + 8~15) — 화면이 엄격하게 거른다 · 거절(B0)
 
   // 3) 비밀번호 — 일치 + 정책
   var pw = String(body.pw || '');

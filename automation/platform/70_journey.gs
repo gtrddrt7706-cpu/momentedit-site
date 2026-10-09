@@ -511,6 +511,9 @@ function handleRequestContract(body) { _gsr_();
   var _bBad = _birthBad(gB, '신랑') || _birthBad(bB, '신부'); if (_bBad) return { ok: false, error: _bBad };   // [BIRTH_REAL] 달력에 있는 날짜 · 1930년 ~ 만 19세(BIRTH_ADULT19)
   if (!gA || !bA) return { ok: false, error: '신랑·신부 주소를 입력해 주세요.' };
   if (info.consent !== true && String(info.consent) !== 'true') return { ok: false, error: '개인정보 수집·이용에 동의해 주세요.' };
+  /* ★[PHONE_LEN_SRV 2026-10-09 A~Z 점검 2라운드 D2-4] 적은 신랑 · 신부 연락처(비우면 가입 연락처)는 길이만 느슨하게 본다 — 신청서와 같은 받침(00_platform-config _phoneLenOk_) · 거절(C0) */
+  var _gPh = String(info.groomPhone || '').trim(), _bPh = String(info.bridePhone || '').trim();
+  if (typeof _phoneLenOk_ === 'function') { if (_gPh && !_phoneLenOk_(_gPh)) return { ok: false, error: '신랑 연락처를 다시 확인해 주세요.' }; if (_bPh && !_phoneLenOk_(_bPh)) return { ok: false, error: '신부 연락처를 다시 확인해 주세요.' }; }
   var _crBad = _crReject(info.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 휴대폰 · 사업자번호만(빈 값은 자진발급)
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
