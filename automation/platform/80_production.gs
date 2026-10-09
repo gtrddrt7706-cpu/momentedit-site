@@ -1275,7 +1275,10 @@ function handleRitualFileDel(body) { _gsr_();
      서버가 이미 저장했을 수 있는 파일을 한 번 더 보내 같은 자리에 사본이 생긴다. 하나만 지우면 남은 사본이 당일 콘솔(가장 새 파일)에서 나왔다(개인정보 약속).
      스튜디오가 대신 올린 파일(« · 스튜디오 · »)은 두지 않는다 · 화면은 첫 요청에만 all 을 싣는다(다시 묻기가 그 사이 새로 올린 것을 지우지 않게) */
   var swept = 0, key = String(body.key || '').trim();
-  if (body.all && RF_KEYS[key]) { try { var it = _rfFolderFor(code).getFiles(), fid = f ? f.getId() : ''; while (it.hasNext()) { var g = it.next(); if (g.isTrashed() || g.getId() === fid) continue; var gn = g.getName(); if (_rfKeyOfName(gn) !== key || gn.indexOf(RF_KEYS[key] + ' · 스튜디오 · ') === 0) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {} }
+  /* ★[RF_DEL_ALL_T0 2026-10-09 점검 E-8] all 쓸기도 «지운 파일보다 뒤에 만든 것은 둔다» — 아래 RF_DEL_SLOT 과 같은 시각 조건.
+     종전엔 이 쓸기에만 시각 조건이 없어, 지우기 요청이 서버에서 도는 사이 새로 만들어 올린 소리까지 휴지통으로 갔다(방금 고른 소리가 사라짐).
+     지운 파일을 이 폴더에서 못 찾으면(이미 휴지통 · 다른 폴더) 기준 시각이 없으니 쓸지 않는다 — 그 파일을 지운 앞 요청이 옛 사본을 이미 쓸었다 */
+  if (body.all && RF_KEYS[key] && f) { try { var it = _rfFolderFor(code).getFiles(), fid = f.getId(), ta = f.getDateCreated().getTime(); while (it.hasNext()) { var g = it.next(); if (g.isTrashed() || g.getId() === fid) continue; var gn = g.getName(); if (_rfKeyOfName(gn) !== key || gn.indexOf(RF_KEYS[key] + ' · 스튜디오 · ') === 0 || g.getDateCreated().getTime() > ta) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {} }
   if (!f) return { ok: true, gone: true, swept: swept };   // 이미 없음 = 지운 것과 같다(멱등)
   try { f.setTrashed(true); } catch (e) { return { ok: false, ecode: 'D4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '지우지 못했어요. 다시 눌러 주세요.' }; }   // [ERR_CODE_GAS]
   /* ★[RF_DEL_SLOT 2026-10-08 목소리 1라운드 57 · 75] 두 분이 줄을 지우면 그 자리의 «더 옛» 파일도 함께 휴지통으로 — 다시 보내기(UP_AGAIN)가 남긴 사본 · 다시 만든 AI 테이크의 옛것.
@@ -1397,16 +1400,17 @@ function _vcM3(f, b, m) { _gsr_();
   if (typeof m === 'number' && typeof b === 'number' && typeof f === 'number') return f + (m - b);
   if (JSON.stringify(m) === JSON.stringify(b)) return f;
   return m; }
-function _vcSave(code, base, mine) { _gsr_();   // [VC_STATE_MERGE]
+function _vcSave(code, base, mine, guard) { _gsr_();   // [VC_STATE_MERGE]
   /* ★[VC_SAVE_NOLOCK 2026-10-08 목소리 1라운드 78] 잠금을 못 잡아도 통째로 덮지 않고 합쳐 쓴다 — 종전엔 처음 읽은 상태로 덮어 다른 분 확인 문장이 지워졌다(10/04 증상 그대로) */
-  var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { _vcPut(code, _vcM3(_vcSt(code), base, mine)); return; }
-  try { _vcPut(code, _vcM3(_vcSt(code), base, mine)); } finally { try { lock.releaseLock(); } catch (e) {} } }
+  /* [VC_DEL_STOP 2026-10-09] guard(다시 읽은 지금 상태)가 참이면 쓰지 않고 'stop' — 만들기 끝이 «잠근 채 다시 읽은 상태»로 지우기를 한 번 더 본다 */
+  var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { var f0 = _vcSt(code); if (guard && guard(f0)) return 'stop'; _vcPut(code, _vcM3(f0, base, mine)); return; }
+  try { var f1 = _vcSt(code); if (guard && guard(f1)) return 'stop'; _vcPut(code, _vcM3(f1, base, mine)); } finally { try { lock.releaseLock(); } catch (e) {} } }
 function _vcFetch(cfg, method, path, opt) { _gsr_(); opt = opt || {}; var o = { method: method, headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true };
   if (opt.json) { o.contentType = 'application/json'; o.payload = JSON.stringify(opt.json); } else if (opt.form) o.payload = opt.form;
   var r = UrlFetchApp.fetch(VC_BASE + path, o), c = r.getResponseCode();
   if (c === 429 || c === 503) { Utilities.sleep(1500); r = UrlFetchApp.fetch(VC_BASE + path, o); c = r.getResponseCode(); }   // [VOICE_CLONE_0928] 너무 잦음 · 바쁨은 잠깐 뒤 한 번 다시
   return { code: c, r: r }; }
-var VC_DOWN = '지금은 AI 목소리를 만들 수 없어요. 잠시 뒤 다시 해 보시거나 직접 녹음으로 준비해 주세요', VC_REC_BAD = '이 녹음으로는 목소리를 만들지 못했어요. 조용한 방에서 처음부터 다시 읽어 주세요', VC_JOB_MS = 400000;   // [VC_ENROLL_BADREC] 업체가 녹음을 받지 않음 · [VC_ENROLL_JOB] 만들기 한 번의 끝 한계(GAS 한 번 실행은 6분을 못 넘는다 · 그보다 오래면 죽은 작업)
+var VC_DOWN = '지금은 AI 목소리를 만들 수 없어요. 잠시 뒤 다시 해 보시거나 직접 녹음으로 준비해 주세요', VC_REC_BAD = '이 녹음으로는 목소리를 만들지 못했어요. 조용한 방에서 처음부터 다시 읽어 주세요', VC_JOB_MS = 400000, VC_DEL_STOPPED = '지우기를 눌러 만들던 목소리도 지웠어요';   // [VC_DEL_STOP] 만드는 사이 지우기가 이김 · [VC_ENROLL_BADREC] 업체가 녹음을 받지 않음 · [VC_ENROLL_JOB] 만들기 한 번의 끝 한계(GAS 한 번 실행은 6분을 못 넘는다 · 그보다 오래면 죽은 작업)
 function _vcErr(code, c, op, why) { _gsr_();   // [VOICE_CLONE_0928] 8-3 오류 — 422 만 따로 · 402(크레딧) · 403(칸 넘침)은 관리자 메일(하루 한 통)
   /* ★[VC_WHY 2026-09-28 사장님 WNJK3Y 실측 «지금은 AI 목소리를 만들 수 없어요»] 종전엔 402 · 403 말고는 까닭을 어디에도 안 남겨 «왜 안 되는지»를 아무도 몰랐다.
      이제 모든 실패를 ①스크립트 속성 VCERR_<코드>(마지막 한 건 · 관리 화면 «이 예식 AI 목소리»에 보인다) ②관리자 메일(예식 · 코드별 하루 한 통)에 남긴다.
@@ -1499,6 +1503,17 @@ function _vcDelVoice(cfg, st, vid) { _gsr_(); if (!vid) return; var ok = false; 
   if (!cfg.key) { st.retry = (st.retry || []).filter(function (v) { return v !== vid; }); st.retry.push(vid); return; }
   try { var x = _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(vid)); ok = x.code === 204 || x.code === 200 || x.code === 404; } catch (e) {}
   st.retry = (st.retry || []).filter(function (v) { return v !== vid; }); if (!ok) st.retry.push(vid); }
+/* ★[VC_DEL_STOP 2026-10-09 점검 E-4] «지우기»는 잠근 채 다시 읽은 상태에서 — 지울 목소리를 모아 상태에서 비우고, 그 분의 도는 만들기(다시 녹음) 작업표에 «취소»를 적는다.
+   만들기는 업체가 1~2분 걸린다 · 그 끝(_vcEnrollAfter)은 이 표시(job.cancel · delAt)를 보면 새 목소리를 업체에서 지우고 저장하지 않는다(지우기 약속 · 개인정보).
+   화면은 만드는 중 «지우기»를 잠갔다 — 이것은 다른 기기 · 탭에서 오는 지우기의 받침이다. 업체 쪽 지우기는 부르는 쪽이 잠금 밖에서 한다(_vcDelVoice) */
+function _vcDelMark(code, ws) { _gsr_();
+  var lock = LockService.getScriptLock(), got = true; try { lock.waitLock(10000); } catch (e) { got = false; }   // 잠금을 못 잡아도 지운다(지우기 약속) — 다시 읽은 상태에 바로 쓴다
+  try { var cur = _vcSt(code), t = Date.now(), at = fmtKST(new Date()), out = { ids: [], gone: [], stop: [] };
+    ws.forEach(function (w) { var p = cur[w]; if (!p) return; p.delAt = t;   // [VC_DEL_STOP] 이 때보다 먼저 시작한 만들기는 저장하지 않는다(작업표가 없는 만들기의 받침)
+      var j = p.job; if (j && j.jid && !j.end && t - (+j.at || 0) < VC_JOB_MS) { j.cancel = t; out.stop.push(w); }
+      if (p.voiceId) { out.ids.push(p.voiceId); p.voiceId = ''; p.deleted = at; out.gone.push(w); } });
+    _vcPut(code, cur); return out; }
+  finally { if (got) { try { lock.releaseLock(); } catch (e) {} } } }
 /* ★★[VC_ENROLL_JOB 2026-10-08 사장님 «두 분 목소리 만들기에서 녹음 후에 목소리 만들기 오류가 자주 · 모든 경우의 수 시뮬레이션 · 개선이 없을 때까지»]
    목소리 만들기(enroll)는 녹음(두 글 · 최대 2분 · 수 MB)을 올리고 업체가 복제하느라 1~2분 걸린다. 아이폰 사파리는 60초에 연결을 끊고 PC 마이페이지는 90초에 기다리기를 멈춘다.
    서버는 끊긴 뒤에도 끝까지 만들어 저장하는데, 화면은 그 결과를 알 길이 없었다(시뮬레이션 vc-enroll-sim 첫 라운드 21가지 중 4가지가 «서버는 만들었는데 화면은 실패»).
@@ -1517,36 +1532,52 @@ function _vcJobStart(code, who, jid) { _gsr_();
 /* [VC_ENROLL_JOB] 업체가 답한 «뒤» — 끝난 작업표 · 저장 · 앞 목소리 지우기. 업체 답(x) 또는 업체 호출 예외(xe)를 받는다.
    ★이 경계를 함수로 나눈 까닭 — 시뮬레이터(vc-enroll-sim)가 여기서 시간을 띄운다(업체가 1~2분 걸리는 동안 다른 요청이 끼어드는 것을 진짜 순서로 재현) */
 function _vcEnrollAfter(c, x, xe) { _gsr_(); var code = c.code, who = c.who, pp = c.pp, st = c.st;
-  var endJob = function (r) { var hasJob = !!(c.js && c.js.job);
+  var mark = function (r) { var hasJob = !!(c.js && c.js.job);   // 끝난 작업표를 상태에 얹는다(저장은 부르는 쪽)
     if (hasJob) { pp.job = { jid: c.jid, at: c.js.job.at, end: Date.now(), ok: !!r.ok, kind: r.ok ? '' : String(r.kind || ''), ecode: r.ok ? '' : String(r.ecode || ''), error: r.ok ? '' : String(r.error || '').slice(0, 200), renewed: !!r.renewed }; st[who] = pp; }
+    return hasJob; };
+  var endJob = function (r) { var hasJob = mark(r);
     if (r.ok || hasJob) c.save(); return r; };   // ★성공은 작업표가 없어도(잠금 실패 · 옛 흐름) 늘 저장한다 — 시뮬레이션이 잡았다(작업표가 있을 때만 저장해 목소리가 사라지고 업체 칸이 샜다)
+  /* ★[VC_DEL_STOP 2026-10-09 점검 E-4] 만드는 사이 «지우기»(_vcDelMark · 다른 탭 · 다른 기기 · 목소리 파일 모두 지우기)가 왔으면 지우기가 이긴다 —
+     새 목소리를 업체에서 지우고(실패면 retry) 저장하지 않는다 · 새 읽은 녹음도 남기지 않는다 · 작업표는 «취소»(V0)로 닫는다.
+     두 번 본다: ①업체가 답한 바로 뒤 ②저장할 때(잠근 채 다시 읽은 상태 · _vcSave guard) — 그 사이에 온 지우기도 놓치지 않는다.
+     목소리 · 만든 때는 «이 요청이 바꾸지 않은 칸»으로 되돌려 둔다 — 합치기(VC_STATE_MERGE)가 지우기가 비운 값을 그대로 둔다 */
+  var b0 = { voiceId: pp.voiceId || '', made: pp.made || '' };
+  var stopped = function (f) { var q = (f || {})[who] || {}, jq = q.job; return !!((jq && jq.jid === c.jid && jq.cancel) || (c.t0 && (+q.delAt || 0) >= c.t0)); };
+  var stop = function (nv, rfId) { _vcDelVoice(c.cfg, st, nv);
+    if (rfId) { try { DriveApp.getFileById(rfId).setTrashed(true); } catch (e) {} pp.read = { gone: fmtKST(new Date()) }; }
+    pp.voiceId = b0.voiceId; pp.made = b0.made; pp.phrase = null; st[who] = pp;
+    var r = endJob({ ok: false, kind: 'cancel', ecode: 'V0', error: VC_DEL_STOPPED }); if (!(c.js && c.js.job)) c.save(); return r; };   // 작업표가 없어도 저장한다(업체 지우기 실패분 retry · 쓴 확인 문장 · 센 수)
   try {
     if (xe) return endJob(_vcErr(code, 0, 'enroll', String(xe && xe.message || xe)));
     var j = {}; try { j = JSON.parse(x.r.getContentText() || '{}'); } catch (e) {}
     var nv = j.voice_id || (j.result && j.result.voice_id) || '';
     if ((x.code !== 201 && x.code !== 200) || !nv) return endJob(_vcErr(code, x.code, 'enroll', _vcWhy(x) || (nv ? '' : 'voice_id 없음')));   // 앞 목소리는 그대로 — 계속 쓸 수 있다 · ★[VC_WHY] 실패는 두 분의 3번에 세지 않는다(업체 · 요금제 탓으로 기회를 잃지 않게)
-    pp.tries = (pp.tries || 0) + 1;
-    var prev = pp.voiceId || '';
+    pp.tries = (pp.tries || 0) + 1;   // 업체가 목소리를 만들었다 — 지우기에 져도 센다(안전장치 20번 · VC_NO_COUNT)
+    if (stopped(_vcSt(code))) return stop(nv, '');   // [VC_DEL_STOP] ① 업체가 답하기 전에 지우기가 왔다
+    var prev = pp.voiceId || '', rfId = '';
     try { var fo = _vcAiFolder(code); if (pp.read && pp.read.id) { try { DriveApp.getFileById(pp.read.id).setTrashed(true); } catch (e) {} }
-      var rf = fo.createFile(Utilities.newBlob(c.bytes, c.mime, '읽은 녹음 · ' + c.WHO[who] + (c.mime === 'audio/mpeg' ? '.mp3' : '.wav'))); pp.read = { id: rf.getId(), phrase: pp.phrase.t, at: fmtKST(new Date()) }; } catch (e) {}
+      var rf = fo.createFile(Utilities.newBlob(c.bytes, c.mime, '읽은 녹음 · ' + c.WHO[who] + (c.mime === 'audio/mpeg' ? '.mp3' : '.wav'))); rfId = rf.getId(); pp.read = { id: rfId, phrase: pp.phrase.t, at: fmtKST(new Date()) }; } catch (e) {}
     pp.voiceId = nv; pp.made = fmtKST(new Date()); pp.phrase = null; st[who] = pp;
     /* ★[VC_ENROLL_PREV 2026-10-08 시뮬레이션 retry-during · 새는 목소리 1] 앞 목소리는 «처음에 읽은 것»만이 아니라 «지금 저장된 것»도 본다 —
        업체가 1~2분 걸리는 사이 다른 만들기가 먼저 저장했으면(잠금 실패로 겹친 경우 · 옛 화면) 그 목소리가 지금 자리를 차지하고 있다. 둘 다(같으면 하나) 새 목소리가 된 뒤에 지운다 */
     var now = ((_vcSt(code) || {})[who] || {}).voiceId || '';
     [prev, now].forEach(function (v, i, a) { if (v && v !== nv && a.indexOf(v) === i) _vcDelVoice(c.cfg, st, v); });   // ★새 목소리가 된 뒤에 앞 목소리를 지운다(칸 수 그대로)
-    return endJob({ ok: true, who: who, tries: pp.tries, renewed: !!(prev || now) });
+    var okr = { ok: true, who: who, tries: pp.tries, renewed: !!(prev || now) }; mark(okr);
+    if (c.save(stopped) === 'stop') return stop(nv, rfId);   // [VC_DEL_STOP] ② 저장하려는 사이 지우기가 왔다 — 쓰지 않고 지우기 쪽으로
+    return okr;
   } catch (e) { try { endJob({ ok: false, kind: 'fail', ecode: 'V9', error: VC_DOWN }); } catch (e2) {} throw e; } }   // 예상 못 한 오류도 작업표는 닫는다 — 화면이 «아직 만드는 중»을 6분 동안 기다리지 않게
 function handleVoiceClone(body) { _gsr_();
   body = body || {};   // [VOICE_CLONE_0928]
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var cfg = _vcCfg_(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
-  var st0 = JSON.parse(JSON.stringify(st)), save = function () { _vcSave(code, st0, st); st0 = JSON.parse(JSON.stringify(st)); };   // [VC_STATE_MERGE] 바꾼 칸만 얹는다
+  var st0 = JSON.parse(JSON.stringify(st)), save = function (g) { var sv = _vcSave(code, st0, st, g); if (sv !== 'stop') st0 = JSON.parse(JSON.stringify(st)); return sv; };   // [VC_STATE_MERGE] 바꾼 칸만 얹는다 · [VC_DEL_STOP] g = 잠근 채 다시 읽은 상태를 보는 문(참이면 쓰지 않고 'stop')
   var down = { ok: false, down: true, kind: 'gate', ecode: 'V3', error: VC_DOWN };   // [ERR_CODE_GAS] 읽을 목소리 없음(스튜디오 기본 목소리 비어 있음) = 설정(3)
   if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, jobs: 1, groom: _vcPub(st.groom, code), bride: _vcPub(st.bride, code), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_ENROLL_JOB] jobs: 1 = 작업표를 싣는 서버(화면이 «끊긴 뒤 끝까지 기다릴지»를 이것으로 가른다)   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
-  if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
-    ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
-    save(); return { ok: true, gone: gone }; }
+  /* [VC_DEL_STOP 2026-10-09 점검 E-4] 지우기는 잠근 채 다시 읽은 상태로(_vcDelMark) — 그 사이 저장된 새 목소리도 함께 지우고, 도는 만들기에는 «취소»를 적는다 */
+  if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], dm = _vcDelMark(code, ws);
+    if (dm.ids.length) { var d1 = _vcSt(code), db = JSON.parse(JSON.stringify(d1)); dm.ids.forEach(function (v) { _vcDelVoice(cfg, d1, v); }); _vcSave(code, db, d1); }   // 업체 쪽 지우기 — 실패분(retry)만 얹는다
+    return { ok: true, gone: dm.gone, stop: dm.stop }; }
   if (op === 'practice') { if (!cfg.tts || !cfg.key) return _vcGate(code, cfg, op, 'read');   // [VC_GATE_WHY]   // [VOICE_CLONE_0928] 7-2 연습 읽기 — 연습에서만 · 두 분이 켤 때만 · 숨긴 글은 화면이 보내지 않는다
     var t = String(body.text || '').trim().slice(0, 2000); if (!t) return { ok: false, error: '읽을 글이 없어요.' };
     var role = String(body.role || who || ''), own = (role === 'groom' || role === 'bride') && cfg.clone && st[role] && st[role].voiceId;
@@ -1574,15 +1605,18 @@ function handleVoiceClone(body) { _gsr_();
     var sec = +body.sec || 0; if (sec && sec < VC_LIM.minReadSec) return { ok: false, short: true, error: '조금 더 천천히, 끝까지 읽어 주세요' };
     var bytes = Utilities.base64Decode(b64), mime = /^data:audio\/mpeg/.test(String(body.data)) ? 'audio/mpeg' : 'audio/wav';
     /* [VC_ENROLL_JOB] 작업표 — 화면이 붙인 jid(옛 화면은 없다 · 서버가 만든다) · [VC_ENROLL_ONE] 같은 분 만들기가 도는 중이면 겹쳐 시작하지 않는다(화면은 그 표의 끝을 기다린다) */
-    var jid = String(body.jid || '').replace(/[^\w.-]/g, '').slice(0, 40) || ('s' + Date.now()), js = _vcJobStart(code, who, jid);
+    var et0 = Date.now(), jid = String(body.jid || '').replace(/[^\w.-]/g, '').slice(0, 40) || ('s' + Date.now()), js = _vcJobStart(code, who, jid);   // [VC_DEL_STOP] et0 = 이 만들기가 시작한 때(그 뒤 지우기가 오면 저장하지 않는다)
     if (js && js.busy) return { ok: false, wait: true, jid: String(js.busy.jid || ''), error: '앞서 누른 목소리 만들기가 아직 진행 중이에요' };
     if (js && js.job) { pp.job = js.job; st[who] = pp; if (st0[who]) st0[who].job = JSON.parse(JSON.stringify(js.job)); }   // [VC_STATE_MERGE] 합치기의 바탕에도 같은 표 — 끝난 표만 «이 요청이 바꾼 칸»이 된다
     var x = null, xe = null; try { x = _vcFetch(cfg, 'post', '/v1/custom-voices/instant-clone', { form: { name: (code + '-' + (who === 'groom' ? 'g' : 'b')).slice(0, 30), model: VC_MODEL, file: Utilities.newBlob(bytes, mime, mime === 'audio/mpeg' ? 'sample.mp3' : 'sample.wav') } }); } catch (e) { xe = e; }
-    return _vcEnrollAfter({ code: code, cfg: cfg, who: who, st: st, pp: pp, save: save, jid: jid, js: js, bytes: bytes, mime: mime, WHO: WHO }, x, xe); }   // 업체가 답한 뒤 — 실패는 두 분의 횟수에 세지 않고 까닭(HTTP · 업체 글)을 남긴다 [VC_WHY] · 저장 · 앞 목소리 지우기 · 작업표 끝
+    return _vcEnrollAfter({ code: code, cfg: cfg, who: who, st: st, pp: pp, save: save, jid: jid, js: js, t0: et0, bytes: bytes, mime: mime, WHO: WHO }, x, xe); }   // 업체가 답한 뒤 — 실패는 두 분의 횟수에 세지 않고 까닭(HTTP · 업체 글)을 남긴다 [VC_WHY] · 저장 · 앞 목소리 지우기 · 작업표 끝
   if (op === 'make') { var key = String(body.key || ''); if (!RF_KEYS[key]) return { ok: false, error: '어느 자리인지 알 수 없어요.' };
     var text = String(body.text || '').trim().slice(0, 3000); if (!text) return { ok: false, error: '읽을 글이 없어요.' };   // [VC_LONG_SPLIT] 600 에서 자르지 않는다 — 아래에서 문장 사이로 나눠 읽는다
     var tempo = _vcTempo(body.tempo), pause = _vcPause(body.pause), one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
     var lines = Array.isArray(body.lines) ? body.lines.slice(0, 12) : null;   // 입장 인사처럼 문장마다 읽는 사람이 다르면 [[who,text],…]
+    /* ★[VC_ONE_OWN 2026-10-09 점검 E-3] 한 분이 읽는 줄(one)은 그 분 목소리로만 만든다 — 그 분 목소리가 없으면 다른 분 목소리로 만들지 않고 거절(V0 · 글이 곧 까닭).
+       화면 글(_vcNoVoice)과 같은 말 · ▶ 는 그 줄의 두 분 AI 소리만 튼다(AI_PLAY_READY · AI_NO_CAST). 나눠 읽는 줄(lines)은 종전대로 있는 목소리로 만들고 나중에 다시 굽는다(WHO_MISS) */
+    if (one && WHO[one] && !lines && !(st[one] && st[one].voiceId)) return { ok: false, ecode: 'V0', novoice: one, error: (String(s.row.get(one === 'groom' ? '신랑이름' : '신부이름') || '').trim() || WHO[one]) + ' 님 AI 목소리를 아직 만들지 않았어요' };
     st.make = st.make || { total: 0, per: {} };
     var retempo = body.retempo === true;   // 빠르기만 바꾼 것 — 줄마다 센 수(per · 기록용)에 넣지 않는다
     /* ★[VC_LONG_SPLIT 2026-10-08 목소리 1라운드 80] 한 분이 이어 읽는 글이 600자를 넘으면 종전엔 말없이 잘라 끝이 소리에 없었다(화면은 «확정하기»까지).
@@ -1631,8 +1665,9 @@ function _vcPub(p, code) { _gsr_(); p = p || {}; var sk = !!code && _voiceStudio
 /* [VOICE_CLONE 5-5] 예식 뒤 30일 — purgeRitualFiles 가 코드마다 부른다(다음 날 지우기가 못 돈 것의 마지막 그물) */
 function _vcPurge(code) { _gsr_(); return _vcPurgeNow(code); }
 /* ★[VOICE_CLONE_0928 8-6] 지금 지우기 — 업체 목소리(둘) · 읽은 녹음 · 연습 소리. 안내 소리(«AI 소리»)는 30일까지 둔다(예식 뒤 내려받기) */
-function _vcPurgeNow(code) { _gsr_(); var st = _vcSt(code), cfg = _vcCfg_(code), n = 0, b0 = JSON.parse(JSON.stringify(st));   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다
-  ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p) return; if (p.voiceId) { _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); n++; }
+function _vcPurgeNow(code) { _gsr_(); var dm = _vcDelMark(code, ['groom', 'bride']), st = _vcSt(code), cfg = _vcCfg_(code), n = dm.ids.length, b0 = JSON.parse(JSON.stringify(st));   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다 · [VC_DEL_STOP] 목소리는 잠근 채 비우고 도는 만들기에 «취소»(목소리 파일 모두 지우기 · 예식 다음 날)
+  dm.ids.forEach(function (v) { _vcDelVoice(cfg, st, v); });
+  ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p) return;
     if (p.read && p.read.id) { try { DriveApp.getFileById(p.read.id).setTrashed(true); } catch (e) {} p.read = { gone: fmtKST(new Date()) }; } });
   try { var it = _vcAiFolder(code).getFiles(); while (it.hasNext()) { var f = it.next(); if (/^연습 소리/.test(f.getName())) f.setTrashed(true); } } catch (e) {}
   st.purged = fmtKST(new Date()); _vcSave(code, b0, st); return n; }

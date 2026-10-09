@@ -5153,13 +5153,22 @@ function renderContractPayment(c, p, ctx){
   // ── 1) 서명 단계(미서명) — 계약금 미리보기로 "한 스텝"임을 안내 ──
   if (!signed){
     if (expired){
+      /* ★[CT_RESEND_ONCE 2026-10-09 점검 C-20] 요청한 뒤엔 단추를 같은 이름 · 같은 높이로 흐리게(aria-disabled · cc-btn-wait) 두고 아래 짧은 한 줄로 알린다.
+           단추 글을 긴 문장으로 바꾸지 않는다(두 줄로 늘어 높이가 출렁였다) · 새로고침 뒤에도 서버 값(contractResendAt · 24시간 안)으로 흐리게 둔다.
+           옛 서버(값 없음)면 이번 화면에서 누른 것만 기억한다(window.__ctResendJust) */
+      var _rsAt = String((ctx && ctx.contractResendAt) || '') || window.__ctResendJust || '';
+      var _rsNote = '<div class="cc-mini" id="mp_ctResendNote" role="status" style="display:block;margin-top:8px">재발송을 요청했어요 · 24시간 안에 보내 드려요</div>';
       h += '<div class="cc-title">계약서 서명 기한이 지났어요</div><div class="cc-sub">아래 버튼으로 요청하시면 새 계약서를 보내드릴게요.</div>'
-         + '<div class="cc-actions"><button type="button" class="cc-btn" id="mp_ctResend">계약서 재발송 요청</button>'+link+'</div></div>';
+         + '<div class="cc-actions"><button type="button" class="cc-btn'+(_rsAt?' cc-btn-wait':'')+'" id="mp_ctResend"'+(_rsAt?' aria-disabled="true" aria-describedby="mp_ctResendNote"':'')+'>계약서 재발송 요청</button>'+link+'</div>'
+         + (_rsAt?_rsNote:'') + '</div>';
       box.innerHTML=h; box.style.display='block';
       var rs=$('mp_ctResend'); if(rs) rs.addEventListener('click', function(){
+        if(rs.getAttribute('aria-disabled')==='true') return;   // [CT_RESEND_ONCE] 이미 요청했다 — 다시 보내지 않는다
         rs.disabled=true; rs.textContent='요청 중…';
-        _act({ p:{action:'requestContractResend', token:getToken()}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · 재발송 요청은 화면 상태가 안 바뀌어 확인할 길이 없다 — 시간 초과는 다시 눌러도 알림 한 번 더일 뿐
-          ok:function(){ rs.textContent='요청했어요 · 24시간 안에 보내고 카톡으로 알려드려요'; },
+        _act({ p:{action:'requestContractResend', token:getToken()}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · [CT_RESEND_ONCE] 시간 초과면 상태(contractResendAt)로 반영됐는지 본다(옛 서버는 값이 없어 다시 누르게)
+          done:function(d){ return !!(d&&d.contractResendAt); },
+          ok:function(d){ window.__ctResendJust=(d&&(d.at||d.contractResendAt))||'1'; rs.disabled=false; rs.textContent='계약서 재발송 요청'; rs.classList.add('cc-btn-wait'); rs.setAttribute('aria-disabled','true'); rs.setAttribute('aria-describedby','mp_ctResendNote');
+            if(!$('mp_ctResendNote') && rs.parentNode){ rs.parentNode.insertAdjacentHTML('afterend', _rsNote); } },
           fail:function(line){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; _errAlert('재발송 요청을 보내지 못했어요', line); } });
       });
       return;
