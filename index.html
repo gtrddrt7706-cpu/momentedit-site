@@ -9137,12 +9137,13 @@ function replayHeroAnimation(){
     lockScroll();
     if(!started){
       started=true;
-      /* ★[ADV_GREET_FIRST 2026-10-09 고객 여정 점검 D-13] 인사말을 메뉴 «위»에 둔다 — 메뉴(12줄)가 폰 한 화면을 채워
-         인사말 버블이 첫 화면 밖(메뉴 아래)으로 밀려 안 보였다(390 · 360 · 1280 실측). 인사말의 방향 낱말(«아래에서»)도 걷었다(advisor-kb.js).
-         인사말을 바닥에 붙이던 .me-adv-greet(margin-top:auto)는 이 버블에 걸지 않는다 — 위에 있는 버블에 걸면 메뉴째 바닥으로 내려간다. */
-      addMsg(KB.greeting,'bot');
-      renderNav(true);   // 메뉴는 인사말 바로 아래 (첫 렌더는 nav 상단보정 생략 — 스크롤 튕김 방지)
-      if(!keepScroll) requestAnimationFrame(function(){ body.scrollTop=0; });   // 첫 화면은 인사말 + 메뉴부터. 질문·칩으로 열 땐 질문·답으로 스크롤 유지
+      /* ★[ADV_ORDER_0707 2026-10-09 고객 여정 점검 D-13] 순서는 07-07 사용자 지시 그대로 — 메뉴는 위 · 인사말 버블은 하단(입력창 쪽) · 첫 화면은 메뉴부터.
+         점검이 «인사말이 첫 화면 밖»을 짚어 인사말을 위로 올리는 안(ADV_GREET_FIRST)을 만들었지만 옛 결정과 부딪혀 사장님 결정함으로 올렸다.
+         지금 고친 것은 인사말의 방향 낱말(«아래에서» · 주제는 인사말 위에 있다)뿐이다(advisor-kb.js). */
+      renderNav(true);   // 메뉴를 위에 (첫 렌더는 nav 상단보정 생략 — 스크롤 튕김 방지)
+      var g=addMsg(KB.greeting,'bot');   // 인사말 버블은 하단(입력창 위)에
+      g.classList.add('me-adv-greet');
+      if(!keepScroll) requestAnimationFrame(function(){ body.scrollTop=0; });   // 첫 화면은 메뉴부터. 질문·칩으로 열 땐 질문·답으로 스크롤 유지
     }
     setTimeout(function(){ if(window.innerWidth>680) input.focus(); },480);
   }

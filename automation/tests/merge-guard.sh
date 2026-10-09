@@ -1537,9 +1537,9 @@ chk 'SEAT_MOTION' seat.html 1                  # 검색마다 도는 smooth 스�
 chk 'SEAT_SAFEAREA' seat.html 1                # viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 쓰던 것
 # ── 2026-07-27 seat.html 2라운드(배치도를 하객이 실제로 읽을 수 있는가)
 chk 'SEAT_ZIG' seat.html 1                     # ★zig가 side로 부호를 뒤집어 짝수 행에서 좌·우 표가 60px 수렴 → 통로 16px에서 이름표 정면충돌('김민수'가 '박지영'에 덮여 '김'만 보였다). 4안 실측 비교에서 평행화만 0으로 떨어졌다(18→0) — side 분기 복원 금지
-chk 'return ((row%2===0)?1:-1)\*30' seat.html 1  # 위 처방 본체(평행 이동). side 부호 반전을 되살리면 충돌이 그대로 돌아온다
+# (옛 줄 · 2026-10-09 R6_PUBLIC 로 바꿈 — 지그재그 폭이 CSS var(--zig) 로 옮겨 갔다 · 아래 묶음의 zig 줄이 같은 평행 이동을 지킨다) return ((row%2===0)?1:-1)*30
 chk 'SEAT_CROWD' seat.html 3                   # 자리 8명 이상이면 원 위 이름표가 겹쳐 못 읽던 것 → 원엔 점, 이름은 표 아래 목록(주석 1 + CSS 1 + 분기 1)
-chk 'crowd=(n>=8)' seat.html 1                 # ★임계 8. 짧은 더미로 재면 9로 보인다 — 한글 3자 실명으로 재야 8인 원탁(가장 흔한 규격)이 잡힌다
+# (옛 줄 · ★임계 7 · 2026-10-09 글꼴 들어온 판 실측 — 7명 이름표 두 쌍이 겹쳤다 · 아래 R6_PUBLIC 묶음 crowd=(n>=7)) crowd=(n>=8)
 chk 'tbl-list' seat.html 2                     # 목록형 표 본체(CSS 1 + 조립 1). max-width는 통로 침범 때문에 126px — 넓히지 말 것
 chk 'SEAT_ORIENT' seat.html 2                  # '좌측/우측'이 무엇 기준인지 화면에 없던 것 — 단상을 바라볼 때 기준임을 한 줄로(주석 1 + CSS 1)
 chk '단상을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
@@ -16941,4 +16941,77 @@ chk 'SEAT_DONE_TOAST' mypage.html 1
 chk 'NOW_CARD_ONCE' mypage.html 8
 nochk "sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';" mypage.html 0
 nochk "head = '일정을 확인하고 있어요'; sub = '디렉터가 확인하고" mypage.html 0
+# ★★[R6_PUBLIC 2026-10-09 고객 여정 A~Z 점검 1라운드 · 공개 화면] D-2 좌석 배치도 폰 맞춤 · D-4 상담 흐름 문구 · D-5~D-7 신청서 · D-8 · D-9 · D-17 상담 일정 · D-10 · D-18 취소 · D-11 단색 상단 바 · D-12 청첩장 06 대비 · D-13 인사말 방향 낱말 · D-14 지도 · D-15 카톡 답변 시간 · D-16 라이브 · D-20 표본 날짜 · D-21 — 되돌리지 말 것
+chk 'function zig(row,side){ return (row%2===0)?1:-1; }' seat.html 1   # [SEAT_ZIG] 평행 이동 본체 — 방향(±1)만
+chk "' \* var(--zig)))'" seat.html 1                                    # [SEAT_FIT] 폭은 CSS var(--zig)
+chk 'crowd=(n>=7)' seat.html 1                                           # [SEAT_FIT] 임계 7(글꼴 들어온 판 실측) · 종전 8
+nochk 'crowd=(n>=8)' seat.html
+nochk ')\*30' seat.html                                                  # 30px 고정 지그재그로 되돌리면 폰에서 잘린다
+chk 'SEAT_FIT' seat.html 10
+chk 'SEAT_LEAD_KEEP' seat.html 1
+chk 'GUIDE_SEAT_FIT' guide.html 4
+chk 'var(--gz,22px)' guide.html 1
+chk '.mtb-wrap .mtb-wrap{margin-left:0;margin-right:0}' guide.html 1
+chk 'SAMPLE_DATE_2027' guide.html 2
+chk "date:'2027-10-23'" guide.html 1
+nochk "date:'2027-12-17'" guide.html
+chk 'DEMO_TIP_KEEP' guide.html 1
+chk 'CONSULT_FLOW_ONE' index.html 2
+chk '마이페이지에서 방문 상담 시간 선택' index.html 2
+chk '마이페이지에서 방문 상담 시간을 직접 선택하실 수 있습니다' index.html 1
+nochk '<strong>02.</strong> 담당 디렉터 메일 안내' index.html
+nochk '02. 담당 디렉터 메일 안내 (영업일 48시간 이내) 03.' index.html
+nochk '담당 디렉터가 메일로 개별 안내를 드립니다' index.html
+chk 'KAKAO_HOURS_LABEL' index.html 1
+chk "카카오톡 답변 시간 '+KB.escalation.hours" index.html 1
+chk 'ADV_GREET_FIRST' assets/advisor-kb.js 1
+nochk '아래에서 궁금한 주제를' assets/advisor-kb.js
+chk 'CONSULT_FLOW_ONE' assets/advisor-kb.js 2
+nochk "answer: '01. 사전 문의서 제출 → 02. 담당 디렉터" assets/advisor-kb.js
+nochk '영업일 48시간 이내에 담당 디렉터가 메일로 안내드립니다' assets/advisor-kb.js
+chk 'KAKAO_HOURS_LABEL' assets/advisor-widget.js 1
+nochk "'상담 가능 ' + ESC.hours" assets/advisor-widget.js
+chk 'CONSULT_FLOW_ONE' api/_kb.js 1
+chk '마이페이지에서 방문 상담 시간을 고객이 직접 고른다' api/_kb.js 1
+chk 'CONSULT_FLOW_ONE' scripts/ai-live-sim-ci.js 1
+chk 'CONSULT_FLOW_ONE' inquiry.html 1
+nochk '<em>48시간 이내</em>에 담당 디렉터' inquiry.html
+chk 'SUBMIT_ERR_SEEN' inquiry.html 2
+chk 'PHONE_HYPHEN_STEP' inquiry.html 1
+chk 'FIELD_ERR_MSG' inquiry.html 6
+chk 'EMAIL_RE.test(' inquiry.html 1
+chk 'INQ_NO_ORPHAN' inquiry.html 1
+chk 'PW_HINT_LEFT' inquiry.html 1
+chk 'COPY_BTN_STEADY' inquiry.html 1
+for f in inquiry.html privacy.html parents.html; do chk 'NAV_SOLID_MOBILE' $f 1; chk 'BRAND_DOT_MID' $f 1; done
+for f in i/cover-06.html i-family/family-06.html i/invitations/invitation-06-hangeul.html; do chk 'INK_FADE_AA' $f 2; nochk '--ink-fade:#8F8277' $f; done
+for i in 1 2 3 4 5 6 7 8; do chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-0$i.html 1; nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-0$i.html; done
+chk 'MAP_SRC_LATE' shared/hydrate.js 1
+chk 'SAMPLE_DATE_2027' shared/hydrate.js 2
+chk "weddingDate: '2027-10-23', weddingTime: '13:40'" shared/hydrate.js 1
+nochk "weddingTime: '14:00'" shared/hydrate.js
+chk 'SAMPLE_DATE_2027' live.html 2
+chk 'ON_AIR_WHEN_LIVE' live.html 2
+chk '.on-air:not(.is-live){visibility:hidden}' live.html 1
+chk "classList.add('is-live')" live.html 1
+chk 'LETTER_REACH' live.html 4
+chk 'BRAND_DOT_MID' live.html 2
+chk 'CAL_FULL_OFF' schedule.html 3
+chk 'HOLD_SLOT_CLOCK' schedule.html 1
+chk '<option value="12:20">오후 1:40</option>' schedule.html 1
+nochk '<option value="12:20">오후 12:20</option>' schedule.html
+chk 'DONE_ONE_SAY' schedule.html 3
+nochk 'class="modal-warn"' schedule.html
+chk 'KAKAO_INLINE_GLUE' schedule.html 1
+chk 'STICKY_NO_TWIN' schedule.html 1
+chk 'CAN_ACCT_EMPTY' cancel.html 1
+chk '환불받으실 계좌를 따로 여쭤볼게요' cancel.html 1
+chk 'CAN_REAPPLY_LINK' cancel.html 2
+chk '<a class="inq" href="/inquiry.html">새로 신청</a>' cancel.html 1
+chk 'CAN_NO_FIT_LINE' cancel.html 1
+chk 'CAN_DOT_GLUE' cancel.html 2
+chk 'BRAND_DOT_MID' cancel.html 1
+chk 'ADV_ORDER_0707' index.html 1   # [D-13] 07-07 순서(메뉴 위 · 인사말 아래) — 바꾸려면 사장님 결정
+chk "var g=addMsg(KB.greeting,'bot');   // 인사말 버블은 하단(입력창 위)에" index.html 1
+chk "g.classList.add('me-adv-greet');" index.html 1
 :
