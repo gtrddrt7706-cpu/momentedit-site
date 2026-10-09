@@ -1517,15 +1517,14 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 /* ★[PR_SIMPLE 2026-10-05] ③ 연습하기 — 장면 카드 하나 + 순간 목록 하나. 줄 사이는 선이 아니라 여백으로([ADV_INDEX]) · 줄 높이 52 */
 .pr-hero{display:block;width:100%;margin:6px 0 0;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit;border-radius:8px}
 .pr-hm{position:relative;display:block;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
-.pr-hm img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .45s var(--ease,ease)}
+.pr-hm img{display:block;width:100%;height:100%;object-fit:cover}   /* ★[HOVER_NO_ZOOM] 마우스를 올리면 장면 그림이 커지던 효과(scale 1.02 · .45s) 금지 — 2026-10-09 사용자 지시로 삭제(사장님 «영상 쪽 마우스 올리면 영상 흔들거리는데 그 효과 삭제») */
 .pr-hp{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(58,45,34,.88);color:#FAFAF8;display:grid;place-items:center}
 .pr-hp svg{width:14px;height:14px}
 .pr-hl{display:flex;flex-direction:column;gap:2px;margin:12px 0 0}
 .pr-hl b{font-family:var(--ko-serif);font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.02em}
 .pr-hl span{font-size:12.5px;color:var(--sub)}
-@media (hover:hover){ .pr-hero:hover .pr-hm img{transform:scale(1.02)} .pr-row:hover{background:var(--bg2)} .pr-row:hover .pr-go{color:var(--accent)} }
+@media (hover:hover){ .pr-row:hover{background:var(--bg2)} .pr-row:hover .pr-go{color:var(--accent)} }
 .pr-hero:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media (prefers-reduced-motion:reduce){ .pr-hm img{transition:none} .pr-hero:hover .pr-hm img{transform:none} }
 .pr-todo{margin:10px 0 0}
 .pr-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 14px}   /* [PR_MODE] 연습 방법 둘 — 고른 쪽은 먹색 테두리 */
 .pr-mo{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:64px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);text-align:left;cursor:pointer;color:inherit;font:inherit}

@@ -668,8 +668,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-pv{position:relative;display:block;width:100%;aspect-ratio:4/5;margin:0;padding:0;border:0;border-radius:8px;overflow:hidden;background:var(--bg2);cursor:zoom-in;-webkit-tap-highlight-color:transparent}
 span.snp-pv{cursor:default}
 .snp-pv picture,.snp-pv img{display:block;width:100%;height:100%}
-.snp-pv img{object-fit:cover;transition:transform .45s var(--ease,ease)}
-@media (hover:hover){ button.snp-pv:hover img{transform:scale(1.02)} }
+.snp-pv img{object-fit:cover}   /* ★[HOVER_NO_ZOOM] 마우스를 올리면 사진이 커지던 효과 금지 — 2026-10-09 사용자 지시로 삭제(식순 연습 장면 그림과 같은 효과 · 사장님 «흔들거린다») */
 .snp-pv-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;box-sizing:border-box;padding:40px 10px 32px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65;text-align:center;word-break:keep-all}
 .snp-pv-ph i{font-style:normal;font-family:var(--sans);font-size:10.5px;letter-spacing:.04em;color:var(--label-soft)}   /* [SNAP_PHOTO_NOW] 사진 자리 머리 «예시 사진 준비 중» */
 /* ★[SNAP_PH_FIT 2026-09-27 고객 점검 · 사진 오기 전] 320 에서 사진 자리 글이 칸을 넘쳤다 — 오른쪽 위 고르기 원(26px)이 «예시 사진 준비 중»을 가리고,
