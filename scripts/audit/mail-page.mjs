@@ -582,6 +582,14 @@ G.HtmlService = realHS;
       for (const f of ['adminApprove', 'adminAcceptProposal', 'adminCancel', 'adminProposeTime']) { let r; try { r = G[f]('ME0404', '2026-11-01', '14:00'); } catch (e) { r = { threw: e.message }; } said.push(r && r.error); }
       if (!said.every((t) => t === '예약 정보가 바뀌었어요 · 새로고침해 주세요')) bad.push('⑥ 관리 화면: 예약을 못 찾은 같은 상태에 말이 둘이다 — ' + JSON.stringify(said));
       G.findRowByPersonalCode = kfr; }
+    // [CANCEL_SAME_WORDS 라운드 8] 관리 화면이 «취소된 예약»을 말할 때는 한 말(승인 · 수락 · 변경 제안 · 잠금 뒤에 알게 된 때)
+    { const kfr2 = G.findRowByPersonalCode, kac = G.actAccept, kap = G.actApprove; G.findRowByPersonalCode = () => ({ num: 2 }); G.row = () => R6({ '상태': ST.CANCELLED || '취소' });
+      const MSG = '이미 취소된 예약이에요 · 다시 진행하려면 고객이 새로 신청해야 해요', said = [];
+      for (const f of ['adminApprove', 'adminAcceptProposal', 'adminProposeTime']) { let r; try { r = G[f]('ME0001', '2026-11-01', '14:00'); } catch (e) { r = { threw: e.message }; } said.push(r && r.error); }
+      G.row = () => R6({ '상태': '시간선택완료' }); G.actApprove = () => G.infoPage('이미 취소된 예약입니다', 'x', false);
+      let r2; try { r2 = G.adminApprove('ME0001'); } catch (e) { r2 = { threw: e.message }; } said.push(r2 && r2.error);
+      if (!said.every((t) => t === MSG)) bad.push('⑥ 관리 화면: 취소된 예약을 말이 여럿이거나 고객용 «새로 신청해 주세요»로 말한다 — ' + JSON.stringify(said));
+      G.findRowByPersonalCode = kfr2; G.actAccept = kac; G.actApprove = kap; }
     // [INFO_TEXT_SEP] 한 줄 글은 줄바꿈을 « · »로(문장 끝 뒤는 띄어쓰기) — 두 문장이 붙지 않게
     const it1 = G._infoText_({ title: '예약을 찾을 수 없습니다', body: '예약 정보가 바뀌었어요<br>contact@momentedit.kr 로 문의해 주세요' }), it2 = G._infoText_({ title: 't', body: '끝났습니다.<br><br>다음 줄' });
     if (it1 !== '예약을 찾을 수 없습니다 · 예약 정보가 바뀌었어요 · contact@momentedit.kr 로 문의해 주세요' || it2 !== 't · 끝났습니다. 다음 줄') bad.push('⑥ 한 줄 글: 줄바꿈 자리가 붙거나 « · »가 겹친다 — ' + it1 + ' / ' + it2);
