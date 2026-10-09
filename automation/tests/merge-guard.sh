@@ -14842,7 +14842,7 @@ chk 'var _cg0=_chgSnap(k);' order-preview.html 1
 # ── [CHIP_TOAST · CHIP_FEW_WORDS · TOAST_LIGHT 2026-10-08 사장님 «아래 안내 글 한 줄이랑 바탕 바뀌는 효과 전부 삭제 · 첫 번째 사진처럼 안내 문구 · 바탕색이 너무 진하니 디자이너 시선으로»
 #    «단어 몇 개만 바뀌면 고객이 헷갈릴 거 같아서 · 다른 이벤트들 써먹을 곳도»] 칩 알림 = 떠 있는 밝은 안내 하나(② · 크게 보기) · «작은 바뀜» = 줄마다 24자 안
 chk 'CHIP_TOAST' order-preview.html 8
-chk 'function _lsToast(msg)' order-preview.html 1
+chk 'function _lsToast(msg,act,forId)' order-preview.html 1   # [OFF_TOAST 10/09] 같은 알림에 단추(act) · 어느 ▶ 의 알림인가(forId)가 붙었다 — 칩 알림은 종전대로 _lsToast(msg)
 chk 'function _chgSmall(b0,b1)' order-preview.html 1
 chk 'var CHG_LIM=24;' order-preview.html 1
 chk 'CHIP_FEW_WORDS' order-preview.html 3
