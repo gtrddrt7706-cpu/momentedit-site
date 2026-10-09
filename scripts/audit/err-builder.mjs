@@ -197,7 +197,7 @@ async function open(w) {
   ok('⑧ 빈 녹음(전화로 끊김) → M6 «녹음이 비어 있어요»', f8.empty === '녹음이 비어 있어요 · 다시 녹음해 주세요 (코드 M6)' && f8.emptyVc === f8.empty, JSON.stringify([f8.empty, f8.emptyVc]));
   ok('⑧ 오디오 문맥을 못 만듦 → «새로고침 뒤 다시» (m4a 로 올리라는 말 아님)', f8.ctx === '소리를 열지 못했어요 · 새로고침해 주세요 (코드 M6)', f8.ctx);
   ok('⑧ 정말 못 여는 파일 → 종전 글 + M6 · 1분 읽기는 «다시 녹음»만', f8.badFile === '이 파일은 열 수 없어요. m4a · mp3 · wav 로 올려 주세요 (코드 M6)' && f8.badVc === '녹음을 읽지 못했어요 · 다시 녹음해 주세요 (코드 M6)', JSON.stringify([f8.badFile, f8.badVc]));
-  ok('⑧ 60초 — 올린 파일 · 1분 읽기 · 줄 녹음이 각각 맞는 말(입력 안내라 코드 없음)', f8.longFile === '60초가 넘는 파일이에요 · 60초 안으로 줄여 올려 주세요' && f8.longVc === '60초가 넘어요 · 이 글만 천천히 다시 읽어 주세요' && f8.longRec === '60초가 넘어요 · 한 줄만 천천히 다시 녹음해 주세요', JSON.stringify([f8.longFile, f8.longVc, f8.longRec]));
+  ok('⑧ 60초 — 올린 파일 · 1분 읽기 · 줄 녹음이 각각 맞는 말(입력 안내라 코드 없음)', f8.longFile === '60초가 넘는 파일이에요 · 60초 안으로 줄여 올려 주세요' && f8.longVc === '60초가 넘어요 · 이 글만 조금 빠르게 다시 읽어 주세요' && f8.longRec === '60초가 넘어요 · 한 줄만 조금 빠르게 다시 녹음해 주세요'   /* [REC_CAP_SAY 2026-10-09] 길어서 넘친 것 — «천천히»가 아니라 «조금 빠르게» */, JSON.stringify([f8.longFile, f8.longVc, f8.longRec]));
   /* F12 1분 읽기 — 녹음을 잇고 보내기 전 파일 읽기 실패 */
   const en = await pg.evaluate(async () => { VC.read = { who: 'groom', take: { 1: { wav: __wav(11, 8000), dur: 11 }, 2: { wav: __wav(11, 8000), dur: 11 } }, phrase: '확인 문장', step: 2, ph: 'read', err: '' };
     const RD = FileReader.prototype.readAsDataURL; FileReader.prototype.readAsDataURL = function () { const me = this; setTimeout(() => { if (me.onerror) me.onerror(new ProgressEvent('error')); }, 10); };
