@@ -7088,6 +7088,7 @@ chk 'deploy-marks.json' automation/platform/99_deployCheck.gs 1
 chk 'MARKS_REMOTE' scripts/audit/deploycheck-coverage.mjs 1
 chk 'SIM_MARKS_REMOTE' scripts/audit/deploycheck-sim.mjs 1
 chk 'COVER_SCOPE' scripts/audit/deploycheck-coverage.mjs 1
+chk 'COVER_NO_FN' scripts/audit/deploycheck-coverage.mjs 1   # 함수 없는 폐기 슬롯(.gs)은 건너뛴다 — 없으면 영영 못 맞추는 빨강
 
 # ★★[DEPLOY_STAMP 2026-08-30 사용자 질문 "재배포가 최신인지 그것도 같이 체크는 불가해?"]
 #   막힌 것은 «GAS 가 자기 /exec 를 부르는 것»이었다(실측 HTTP 401 · 구글이 막는다).
