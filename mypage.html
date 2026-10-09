@@ -2353,7 +2353,9 @@ function _relayErr(r){ var o={ ecode:'', sess:false, kind:'' }; try{ if(r&&typeo
 function _relayFail(x, L, base){ var line=_errLine(x, L, base); return { ok:false, error:line, msg:line, ecode:_errCode(x, L).split(' ')[0], sess:_errSess(x), kind:_errKind(x) }; }
 // 식순 만들기 — 계약서와 동일한 iframe 오버레이(/order-preview.html?embed=1) · postMessage로 서버 초안 주입, 저장 수신 → saveProductionTrack(ritual)
 function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice' = ③ 연습하기로 바로
-  var old=$('mp_obViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  /* ★[OB_OPEN_ONCE 2026-10-09 A~Z 점검 2라운드 A2-21] 이미 떠 있으면 그 창을 그대로 쓴다(미리 듣기 창 openRitualPreview 와 같은 판단) — 종전엔 앞 창을 정리 없이 떼고 새 창을 열어
+     뒤로가기 층 2개 · 화면 잠금 2가 남았고, 닫은 뒤에도 본문이 잠긴 채였다 */
+  var old=$('mp_obViewer'); if(old&&old.parentNode) return;
   var ov=document.createElement('div'); ov.id='mp_obViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','우리 예식 짓기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
   // ★'식순 만들기' 상단 고정 바 재추가 금지 — 2026-07-16 사용자 지시로 삭제(스크롤 따라다니는 헤더 대신 빌더 안 진행 스트립이 따라옴).
@@ -2368,11 +2370,16 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
-  var saved=false, _closed=false, _frameReady=false, _rdOv=null, _depth=0, _backT=null, _backPend=false;   // [HIST_DEPTH] 빌더가 쌓은 기록 칸 수 · [EXIT_HOLD] 뒤로가기 3초 닫기 · 뒤로가기로 층을 쓴 뒤인가   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
+  var saved=false, _closed=false, _frameReady=false, _rdOv=null, _depth=0, _dBase=0, _backT=null, _backPend=false;   // [RELOAD_UNWIND] _dBase = 새로고침 때 되감지 못하고 남은 옛 문서 칸   // [HIST_DEPTH] 빌더가 쌓은 기록 칸 수 · [EXIT_HOLD] 뒤로가기 3초 닫기 · 뒤로가기로 층을 쓴 뒤인가   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
   /* ★[HIST_DEPTH 2026-10-09 A~Z 점검 1라운드 A-5] 빌더가 쌓은 칸(_depth)까지 한 번에 되감는다 — 한 칸만 되감으면 남은 빌더 칸이 «아무 일 없는 뒤로가기»가 되고, 되감기 표시(_bkClosing)가 남아 다음 뒤로가기 하나를 삼켰다 */
   function _bkDoneDeep(id,n){ if(!n){ bkDone(id); return; } if(_bkFromPop||!_bkStack.length) return; var top=_bkStack[_bkStack.length-1]; if(top.id!==id){ bkDone(id); return; } _bkStack.pop(); _bkClosing=true; try{ history.go(-(n+1)); }catch(e){ _bkClosing=false; } }
-  function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
-  function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }   // 부모 쪽 Esc도 빌더의 '저장 후 나가기' 경로로(iframe 미로드 시엔 그냥 닫기)
+  function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); try{ if(_pmo) _pmo.disconnect(); }catch(e){} _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
+  function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }
+  /* ★[LATEST_FILL 2026-10-09 A~Z 점검 2라운드 A2-4] 충돌 판에서 «최신 내용 불러오기»를 골랐으면(_revConflict · r._latest) 실패 대신 그 최신본을 빌더로 — 빌더가 그 판으로 내용을 바꾼다 */
+  /* ★[PARENT_ASK_HOLD 2026-10-09 A~Z 점검 2라운드 A2-9] 이 창 위에 마이페이지 판(충돌 · 알림 · mpModal)이 떠 있는 동안 폰 뒤로가기는 빌더 걸음을 바꾸지 않는다 — 빌더에 «판 떠 있음»을 알린다.
+     (마이페이지 판은 뒤로가기를 무시하는 설계 · 확인 판 [ALERT_BK]) 종전엔 판은 그대로인데 밑의 빌더만 ② → ① 로 물러났다 */
+  var _pmo=null; try{ var _pmm=$('mpModal'); if(_pmm&&window.MutationObserver){ var _pmOn=null; _pmo=new MutationObserver(function(){ var on=_pmm.classList.contains('open'); if(on===_pmOn) return; _pmOn=on; try{ fr.contentWindow.postMessage({type:'momentedit:orderParentAsk', on:on}, location.origin); }catch(e){} }); _pmo.observe(_pmm,{attributes:true,attributeFilter:['class']}); } }catch(e){ _pmo=null; }
+  function _latestTo(r,via){ if(!(r&&r._latest)) return false; try{ fr.contentWindow.postMessage({type:'momentedit:orderLatest', via:via, draft:r._latest.draft||null, done:((((r._latest.tracks)||{}).ritual)==='완료')}, location.origin); return true; }catch(e){ return false; } }   // 부모 쪽 Esc도 빌더의 '저장 후 나가기' 경로로(iframe 미로드 시엔 그냥 닫기)
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var d=ev.data||{};
@@ -2408,9 +2415,12 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
     /* ★★[ORDER_RELOAD 2026-10-05 사장님 «여기에 새로고침 버튼 · 모바일은 아래로 당기면 새로고침»] 빌더 안 새로고침 = 이 창(iframe)만 새로 연다(마이페이지 · 로그인은 그대로).
        ★열 때 받은 초안(p.ritualDraft)을 다시 넣으면 그 뒤 고친 것(저장 단추를 안 누른 것)이 옛 판으로 덮인다 — 빌더가 보낸 지금 판을 대신 싣는다.
        서버로 보내지는 않는다(저장은 사람 손이 정한다 · ORD_AUTOSAVE) */
-    if(d.type==='momentedit:orderReload'){ if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; try{ fr.src='/order-preview.html?embed=1&t='+Date.now(); }catch(e){} return; }
-    if(d.type==='momentedit:orderDepth'){ _depth=Math.max(0,d.d|0); return; }   // [HIST_DEPTH]
-    if(d.type==='momentedit:orderExitHold'){ if(d.on){ clearTimeout(_backT); _backT=null; } else if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
+    /* ★[RELOAD_UNWIND 2026-10-09 A~Z 점검 2라운드 A2-5] 새 문서는 «바꿔» 읽는다(location.replace · 기록 칸이 늘지 않는다) — 빌더가 먼저 제 칸을 되감고 남은 깊이(d)를 알려 준다.
+       종전엔 src 를 바꿔 한 칸이 더 생기고 새 문서가 깊이 0 을 알려, 닫은 뒤 다음 층 하나를 닫는 데 뒤로가기 6번이 들었다 */
+    if(d.type==='momentedit:orderReload'){ if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; _dBase=Math.max(0,d.d|0); _depth=_dBase; var _ru='/order-preview.html?embed=1&t='+Date.now();
+      try{ fr.contentWindow.location.replace(_ru); }catch(e){ try{ fr.src=_ru; _dBase++; _depth=_dBase; }catch(e2){} } return; }
+    if(d.type==='momentedit:orderDepth'){ _depth=_dBase+Math.max(0,d.d|0); return; }   // [HIST_DEPTH] · [RELOAD_UNWIND] 남은 옛 칸 + 새 문서 칸
+    if(d.type==='momentedit:orderExitHold'){ clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[HOLD_RESTACK 2026-10-09 A~Z 점검 2라운드 A2-6] 잡으면 바로 층을 다시 쌓는다 — 종전엔 «머물기»를 고른 뒤에야 쌓아, 판이 뜬 사이 뒤로가기를 한 번 더 누르면 마이페이지를 떠났다(이제 그 뒤로가기는 판을 닫는다 · 빌더 BACK_DISMISS) */   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
       // 저장 실패 시 오버레이는 그대로 두고 빌더의 나가기 버튼 잠금(_obExiting)을 풀어 재시도 가능하게 — 안 풀면 버튼 영구 잠김
@@ -2419,6 +2429,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
          낙관 표시한 '저장됨'을 그대로 들고 있었고, 한 화면에 "저장 실패" 알림과 "저장됨" 버튼이 공존했다
          (2026-08-03 사용자 스크린샷). 메시지를 먼저 보내고, 전달이 안 될 때만 네이티브로 물러선다. */
       var _exFail=function(r){   // [ERR_CODE_MYPAGE F7] 저장 결과를 통째로 받아 까닭(msg · 코드)을 빌더에 그대로 — 종전엔 끊김 · 시간 초과 · 거절이 같은 말이었다
+        if(_latestTo(r,'exit')){ clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   // [LATEST_FILL] 최신본으로 바꾸고 머문다
         var msg=_saveFailBody(r), sent=false;
         try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:orderExitReset', msg:msg}, _relayErr(r)), location.origin); sent=true; }catch(e){}
         clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); }   // [EXIT_HOLD] 저장이 안 돼 머문다 — 뒤로가기로 쓴 층을 다시
@@ -2495,7 +2506,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
     }
     if(d.type==='momentedit:orderDraft' && d.data && d.data.S){
       /* [TX_MERGE 2026-09-27] 서버가 다른 기기의 더 나중 칸(pull)을 돌려주면 빌더에 실어 보낸다 — 빌더가 그 칸을 화면에 채운다 */
-      var _dfAck=function(ok,pull,r){ try{ fr.contentWindow.postMessage(Object.assign({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail', pull:pull||null}, ok?{}:Object.assign({msg:_saveFailBody(r)}, _relayErr(r))), location.origin); }catch(e){} };   // ★[ERR_CODE_MYPAGE F7] 실패 까닭(msg · error · ecode · sess · kind)을 함께 — 종전엔 type 만 보내 빌더가 «왜»를 몰랐다(로그인 풀림 · 12,000자 한도 · 몰림 · 끊김)
+      var _dfAck=function(ok,pull,r){ if(!ok&&_latestTo(r,'draft')) return; try{ fr.contentWindow.postMessage(Object.assign({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail', pull:pull||null}, ok?{}:Object.assign({msg:_saveFailBody(r)}, _relayErr(r))), location.origin); }catch(e){} };   // ★[ERR_CODE_MYPAGE F7] 실패 까닭(msg · error · ecode · sess · kind)을 함께 — 종전엔 type 만 보내 빌더가 «왜»를 몰랐다(로그인 풀림 · 12,000자 한도 · 몰림 · 끊김)
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
         .then(function(r){ if(r&&r.ok){ saved=true; _dfAck(true, r.txPull); } else _dfAck(false, null, r); })
         .catch(function(e){ _dfAck(false, null, _errRes(e,'S',ERR_SAVE_BASE)); });
@@ -2507,6 +2518,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
          빌더는 누르는 즉시 '저장됨'을 낙관 표시할 수밖에 없었고, 그게 거짓 저장 상태의 뿌리였다.
          실패 사유는 alert 이 아니라 msg 로 실어 보낸다(빌더가 자기 지면 안에서 브랜드 판으로 보여 줌). */
       var _svAck=function(ok,msg,pull,r){
+        if(!ok&&_latestTo(r,'save')) return;   // [LATEST_FILL]
         try{ fr.contentWindow.postMessage(Object.assign({type:ok?'momentedit:orderSaved':'momentedit:orderSaveFail', msg:msg||'', pull:pull||null}, ok?{}:_relayErr(r)), location.origin); }   // [ERR_CODE_MYPAGE F7] 코드 · 로그인 풀림 · 종류를 함께
         catch(e){ if(!ok) mpAlert(msg||_saveFailBody(r)); }
       };
@@ -8781,14 +8793,19 @@ function _revConflict(payload, r){
   return mpConfirm({ title:'다른 기기에서 먼저 저장됐어요',
     body:'같은 항목을 다른 기기(또는 다른 탭)에서 먼저 저장했어요.\n최신 내용을 불러와 이어서 수정하시길 권해요.',
     yes:'최신 내용 불러오기', no:'내가 쓴 내용으로 저장' }).then(function(load){
-    if(load){ _mpRefresh(); return { ok:false, error:'다른 기기의 최신 내용을 불러왔어요. 바꾸실 부분만 다시 저장해 주세요.', _noCode:true }; }   // [ERR_CODE_MYPAGE] 고객이 고른 결과 — 실패 코드를 붙이지 않는다
+    /* ★[LATEST_FILL 2026-10-09 A~Z 점검 2라운드 A2-4] 받은 최신본(r.latest)을 결과에 실어 보낸다 — 식순 창은 그 판으로 내용을 바꾼다(openRitualBuilder · orderLatest).
+       종전엔 마이페이지만 새로 그려 식순 창은 이 기기 글 그대로인데 «불러왔어요»라고 했다 · 새 rev 도 바로 적는다(다시 저장이 또 충돌로 돌아오지 않게) */
+    if(load){ try{ var _t5=(window._mpStateD&&window._mpStateD.production&&window._mpStateD.production.trackRevs); if(_t5&&r&&r.latest&&r.latest.rev!=null&&payload&&payload.track) _t5[payload.track]=r.latest.rev; }catch(e){}
+      _mpRefresh(); return { ok:false, error:'다른 기기의 최신 내용을 불러왔어요. 바꾸실 부분만 다시 저장해 주세요.', _noCode:true, _latest:(r&&r.latest)||null }; }   // [ERR_CODE_MYPAGE] 고객이 고른 결과 — 실패 코드를 붙이지 않는다
     return mpConfirm({ title:'이 화면의 내용으로 덮어쓸까요?',
       body:'다른 기기에서 저장된 내용이 이 화면의 내용으로 바뀌어요.\n직전 내용은 저희 쪽에 1회분 보관돼 문제가 생기면 디렉터가 복구를 도와드려요.',
       yes:'덮어쓰기', no:'돌아가기' }).then(function(fc){
       if(!fc) return { ok:false, error:'저장을 멈췄어요. 최신 내용을 확인한 뒤 다시 저장해 주세요.', _noCode:true };
       var p2={}; for(var k in payload){ if(payload.hasOwnProperty(k)) p2[k]=payload[k]; }
       delete p2.rev; p2.force=true;
-      return apiTrackSave(p2);
+      /* ★[REV_FORCE_DIRECT 2026-10-09 A~Z 점검 2라운드 A2-3] 덮어쓰기는 저장 줄(_saveQueued)을 다시 타지 않는다 — 이 판은 이미 그 줄의 차례 안에서 떠 있다.
+         종전엔 apiTrackSave 로 다시 줄에 서서 «앞 요청(이 판)이 끝나기»를 기다렸고 앞 요청은 이것을 기다려(교착) 덮어쓰기가 안 나가고 그 트랙 저장이 새로고침 전까지 잠겼다 */
+      return _trkSend(p2);
     });
   });
 }

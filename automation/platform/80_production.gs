@@ -1520,6 +1520,8 @@ function _vcDelMark(code, ws) { _gsr_();
    이제 만들기마다 «작업표»(화면이 붙인 jid · 시작 · 끝 · 결과)를 상태(status)에 싣는다 — 화면은 끊기면 상태를 물어 «만들어졌나 · 실패했나 · 아직인가»를 정확히 안다.
    ★작업표에는 두 분의 글 · 소리를 싣지 않는다(결과 종류 · 코드 · 고객에게 보일 한 줄뿐) */
 function _vcJobPub(j) { _gsr_(); if (!j || !j.jid) return null;   // [VC_ENROLL_JOB] 상태로 내보내는 모양 — age = 시작한 뒤 초
+  /* ★[VC_CANCEL_PUB 2026-10-09 A~Z 점검 2라운드 B2-5] 지우기가 «취소»를 적은 만들기는 업체가 답하기 전이어도 «끝 · 취소»로 내보낸다 — 화면은 끝난 표를 이어받지 않고(지운 쪽 카드가 «만드는 중…»으로 바뀌지 않는다) · 기다리던 쪽은 바로 그 까닭을 본다 */
+  if (j.cancel && !j.end) return { jid: String(j.jid), end: true, ok: false, kind: 'cancel', ecode: 'V0', error: VC_DEL_STOPPED, renewed: false, age: Math.max(0, Math.round((Date.now() - (+j.at || 0)) / 1000)) };
   return { jid: String(j.jid), end: !!j.end, ok: !!j.ok, kind: String(j.kind || ''), ecode: String(j.ecode || ''), error: j.end && !j.ok ? String(j.error || '') : '', renewed: !!j.renewed, age: Math.max(0, Math.round((Date.now() - (+j.at || 0)) / 1000)) }; }
 /* ★[VC_ENROLL_ONE 2026-10-08 시뮬레이션 retry-during] 끊긴 첫 만들기가 서버에서 아직 도는데 다시 누르면(다른 탭 · 다른 기기 · 새로 고친 화면) 업체 목소리가 하나 더 생겼다 —
    둘 다 «처음에 읽은» 목소리를 앞 목소리로 알아 먼저 만든 쪽이 지워지지 않고 업체 칸(요금제 50칸)에 남았다. 잠그고 다시 읽어, 같은 분 만들기가 도는 중이면 겹쳐 시작하지 않는다 */
@@ -1556,7 +1558,7 @@ function _vcEnrollAfter(c, x, xe) { _gsr_(); var code = c.code, who = c.who, pp 
     if (stopped(_vcSt(code))) return stop(nv, '');   // [VC_DEL_STOP] ① 업체가 답하기 전에 지우기가 왔다
     var prev = pp.voiceId || '', rfId = '';
     try { var fo = _vcAiFolder(code); if (pp.read && pp.read.id) { try { DriveApp.getFileById(pp.read.id).setTrashed(true); } catch (e) {} }
-      var rf = fo.createFile(Utilities.newBlob(c.bytes, c.mime, '읽은 녹음 · ' + c.WHO[who] + (c.mime === 'audio/mpeg' ? '.mp3' : '.wav'))); rfId = rf.getId(); pp.read = { id: rfId, phrase: pp.phrase.t, at: fmtKST(new Date()) }; } catch (e) {}
+      var rf = fo.createFile(Utilities.newBlob(c.bytes, c.mime, '읽은 녹음 · ' + c.WHO[who] + (c.mime === 'audio/mpeg' ? '.mp3' : '.wav'))); rfId = rf.getId(); pp.read = { id: rfId, phrase: c.ph || pp.phrase.t, at: fmtKST(new Date()) }; } catch (e) {}   // [PHRASE_SHOWN] 화면이 보여 준 문장
     pp.voiceId = nv; pp.made = fmtKST(new Date()); pp.phrase = null; st[who] = pp;
     /* ★[VC_ENROLL_PREV 2026-10-08 시뮬레이션 retry-during · 새는 목소리 1] 앞 목소리는 «처음에 읽은 것»만이 아니라 «지금 저장된 것»도 본다 —
        업체가 1~2분 걸리는 사이 다른 만들기가 먼저 저장했으면(잠금 실패로 겹친 경우 · 옛 화면) 그 목소리가 지금 자리를 차지하고 있다. 둘 다(같으면 하나) 새 목소리가 된 뒤에 지운다 */
@@ -1597,9 +1599,16 @@ function handleVoiceClone(body) { _gsr_();
   if (op === 'consent') { if (body.agree !== true) return { ok: false, error: '동의가 필요해요.' };
     st[who] = st[who] || {}; st[who].consent = { at: fmtKST(new Date()), v: String(body.v || '0928').slice(0, 20) }; save(); return { ok: true, who: who }; }
   if (op === 'phrase') { var ph = st[who] || {}; if (!ph.consent) return { ok: false, error: WHO[who] + ' 동의가 먼저예요.' };   // [VOICE_CLONE_0928] 서버가 뽑는다 · 다시 읽으면 새로
-    ph.phrase = { t: _vcNewPhrase(), at: fmtKST(new Date()) }; st[who] = ph; save(); return { ok: true, who: who, phrase: ph.phrase.t }; }
+    /* ★[PHRASE_KEEP 2026-10-09 A~Z 점검 2라운드 B2-8] 화면이 미리 받아 두는 요청(keep)은 30분 안에 뽑은 문장이 있으면 그 문장을 돌려준다 — 다른 기기에서 그 쪽을 열기만 해도
+       지금 읽고 있는 분의 문장이 바뀌어, 읽은 녹음이 «읽지 않은 문장»과 함께 저장됐다 · 새로 뽑을 때는 바로 앞 문장(prev)을 남겨 늦게 온 답도 맞춰 본다(만들기의 PHRASE_SHOWN) */
+    if (body.keep && ph.phrase && ph.phrase.t && (Date.now() - (+ph.phrase.ms || 0)) < 1800000) return { ok: true, who: who, phrase: ph.phrase.t, kept: true };
+    var _phPrev = ph.phrase && ph.phrase.t ? String(ph.phrase.t) : '';
+    ph.phrase = { t: _vcNewPhrase(), at: fmtKST(new Date()), ms: Date.now(), prev: _phPrev }; st[who] = ph; save(); return { ok: true, who: who, phrase: ph.phrase.t }; }
   if (op === 'enroll') { var pp = st[who] || {}; if (!pp.consent) return { ok: false, error: WHO[who] + ' 동의가 먼저예요.' };
     if (!pp.phrase || !pp.phrase.t) return { ok: false, error: '확인 문장을 먼저 받아 주세요.' };
+    /* ★[PHRASE_SHOWN 2026-10-09 A~Z 점검 2라운드 B2-8] 기록할 확인 문장 = 화면이 보여 준 문장(지금 문장 또는 바로 앞 문장일 때만) — 늦게 온 «다시 받기» 답 · 다른 기기의 미리 받기로 서버 문장이 바뀌어도
+       관리 화면 «읽은 녹음 듣기(확인 문장과 함께)»의 글과 소리가 어긋나지 않게. 둘 다 아니면 종전대로 서버 문장 */
+    var _phShown = String(body.phrase || '').trim().slice(0, 300), _phUse = (_phShown && (_phShown === String(pp.phrase.t) || _phShown === String(pp.phrase.prev || ''))) ? _phShown : String(pp.phrase.t);
     if (!_voiceStudio(code) && (pp.tries || 0) >= VC_LIM.enroll) return { ok: false, limit: true, error: '지금은 목소리를 더 만들 수 없어요. 만들어 둔 목소리를 쓰시거나 스튜디오 나레이션으로 진행돼요' };   // [VC_NO_COUNT] 안전장치만 · 시험 예식은 없음
     var b64 = String(body.data || '').replace(/^data:[^,]*,/, ''); if (!b64 || b64.length * 3 / 4 > 25 * 1048576) return { ok: false, error: '녹음이 비었거나 너무 커요.' };
     var sec = +body.sec || 0; if (sec && sec < VC_LIM.minReadSec) return { ok: false, short: true, error: '조금 더 천천히, 끝까지 읽어 주세요' };
@@ -1609,7 +1618,7 @@ function handleVoiceClone(body) { _gsr_();
     if (js && js.busy) return { ok: false, wait: true, jid: String(js.busy.jid || ''), error: '앞서 누른 목소리 만들기가 아직 진행 중이에요' };
     if (js && js.job) { pp.job = js.job; st[who] = pp; if (st0[who]) st0[who].job = JSON.parse(JSON.stringify(js.job)); }   // [VC_STATE_MERGE] 합치기의 바탕에도 같은 표 — 끝난 표만 «이 요청이 바꾼 칸»이 된다
     var x = null, xe = null; try { x = _vcFetch(cfg, 'post', '/v1/custom-voices/instant-clone', { form: { name: (code + '-' + (who === 'groom' ? 'g' : 'b')).slice(0, 30), model: VC_MODEL, file: Utilities.newBlob(bytes, mime, mime === 'audio/mpeg' ? 'sample.mp3' : 'sample.wav') } }); } catch (e) { xe = e; }
-    return _vcEnrollAfter({ code: code, cfg: cfg, who: who, st: st, pp: pp, save: save, jid: jid, js: js, t0: et0, bytes: bytes, mime: mime, WHO: WHO }, x, xe); }   // 업체가 답한 뒤 — 실패는 두 분의 횟수에 세지 않고 까닭(HTTP · 업체 글)을 남긴다 [VC_WHY] · 저장 · 앞 목소리 지우기 · 작업표 끝
+    return _vcEnrollAfter({ code: code, cfg: cfg, who: who, st: st, pp: pp, save: save, jid: jid, js: js, t0: et0, bytes: bytes, mime: mime, WHO: WHO, ph: _phUse }, x, xe); }   // [PHRASE_SHOWN]   // 업체가 답한 뒤 — 실패는 두 분의 횟수에 세지 않고 까닭(HTTP · 업체 글)을 남긴다 [VC_WHY] · 저장 · 앞 목소리 지우기 · 작업표 끝
   if (op === 'make') { var key = String(body.key || ''); if (!RF_KEYS[key]) return { ok: false, error: '어느 자리인지 알 수 없어요.' };
     var text = String(body.text || '').trim().slice(0, 3000); if (!text) return { ok: false, error: '읽을 글이 없어요.' };   // [VC_LONG_SPLIT] 600 에서 자르지 않는다 — 아래에서 문장 사이로 나눠 읽는다
     var tempo = _vcTempo(body.tempo), pause = _vcPause(body.pause), one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
