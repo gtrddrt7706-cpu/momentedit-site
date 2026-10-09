@@ -8913,6 +8913,13 @@ chk 'VIDEO_IN_1003' assets/ritual-open.js 1
 chk "'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close'" assets/ritual-open.js 1
 nochk 'var VIDEO_READY = \[\];' assets/ritual-open.js
 chk 'VIDEO_IN_1003' scripts/audit/listen-page.mjs 5
+# ★[TABLE_VIDEO_1009 2026-10-09 사장님 «table 넣어»] 테이블 인사도 장면 영상 — VIDEO_READY 17편(끝 table) · videoKeys 의 table 한 줄 · listen-page V-1 = 17 · 대본 17번.
+#   10/8 «테이블 인사는 영상을 만들지 않는다»(TABLE_GREET_1008)를 뒤집은 결정이다. 되돌리면 ① 칸 · ② · ③ 의 table 이 장면 글로 돌아간다.
+chk 'TABLE_VIDEO_1009' assets/ritual-open.js 2
+chk "if (k === 'table') return \['table'\];" assets/ritual-open.js 1
+chk "'toast', 'close', 'table'\];" assets/ritual-open.js 1
+chk 'TABLE_VIDEO_1009' scripts/audit/listen-page.mjs 2
+chk '### 17. table · 테이블 인사 · 10초' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'PV_VID_ONCE' order-preview.html 1   # ① 미리보기 영상: 소리가 끝나도 끝까지 · 반복 없이 마지막 장면에서 멈춤(사장님 10/3)
 chk 'vd.loop=false; var vp=vd.play();' order-preview.html 1
 nochk 'vd.loop=true' order-preview.html
