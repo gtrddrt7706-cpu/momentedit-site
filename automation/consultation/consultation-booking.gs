@@ -864,8 +864,8 @@ function doAdminCancel(sheet, colOf, row) { _gsr_();
 // [P1.5] 인자 personalCode 추가 — handleSignup이 발급한 개인코드로 Customers·상담예약 두 행을 묶는다(★4 FK).
 // 고객 일정링크 메일(sendUrlEmail)은 제거 — 접수 고객메일은 handleSignup의 sendSignupEmail 1통으로 통일(★5-a).
 function submitApplication(form, personalCode) { _SRV = true;
-  /* [ENTRY_ARGS_SRV 2026-10-09 라운드 4] 공개 입구는 화면이 보내는 인자만 받는다 — 개인코드(FK)는 서버(doPost → 가입)만 넘긴다 · 신청서 칸은 글자만 */
-  if (!_IN_POST) personalCode = '';
+  /* [ENTRY_ARGS_SRV 2026-10-09 라운드 4] 공개 입구는 화면이 보내는 인자만 받는다 — 개인코드(FK)는 서버(doPost → 가입) · 편집기 시험 도구(소유자)만 넘긴다 · 신청서 칸은 글자만 */
+  if (!_IN_POST && !_ownerRunNow_()) personalCode = '';
   form = _entryForm_(form);
   var groom = String(form.groom || '').trim();
   var bride = String(form.bride || '').trim();
@@ -933,7 +933,7 @@ function _slotTaken(dateKey, time, exceptRowNum) { _gsr_();
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
 function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer, payBy, viaSession) { _SRV = true;
   /* [ENTRY_ARGS_SRV 2026-10-09 라운드 4] 화면 B 는 앞의 다섯만 보낸다 — 가예약 · 현금영수증 · 입금자 · 결제 방법 · 로그인 길 표는 서버(doPost → 마이페이지)만 넘긴다 */
-  if (!_IN_POST) { hold = null; cashReceipt = ''; payer = ''; payBy = ''; viaSession = false; }
+  if (!_IN_POST && !_ownerRunNow_()) { hold = null; cashReceipt = ''; payer = ''; payBy = ''; viaSession = false; }
   token = _btnStr_(token); dateKey = _btnStr_(dateKey); time = _btnStr_(time); etc = _btnStr_(etc);
   flexArr = Array.isArray(flexArr) ? flexArr.map(_btnStr_).filter(function (x) { return x; }) : _btnStr_(flexArr);
   /* [DEPOSIT_CARD 2026-09-25] 카드로 낼 신청이면 관리자 알림이 «승인 필요»가 아니라 «카드 결제 대기 · 결제되면 자동 확정»이어야 한다.
@@ -2032,6 +2032,9 @@ function _btnFailSeen_(key, what) {   // [BTN_AFTER_FAIL 2026-10-09 점검] 같�
   } catch (e) { return ''; }
 }
 var _IN_POST = false;   // [ENTRY_ARGS_SRV] doPost 길 안인가(실행마다 false 로 다시 시작) — 공개 입구의 서버 쪽 인자는 이 길에서만 받는다
+function _ownerRunNow_() {   // [ENTRY_ARGS_SRV] 이 실행이 편집기 소유자 실행으로 «이미» 정해졌나(입구가 _SRV 를 켠 뒤라 새로 묻지 않는다 · admin.gs 옛 판이면 아니다)
+  try { return typeof _OWNER_RUN === 'boolean' ? _OWNER_RUN : false; } catch (e) { return false; }
+}
 function _entryForm_(f) {   // [ENTRY_ARGS_SRV] 신청서 칸은 아는 이름만 · 글자만(글자 · 숫자 외는 빈 글)
   f = (f && typeof f === 'object') ? f : {};
   var o = {}; ['groom', 'bride', 'phone', 'email', 'memo', 'detail', 'hp'].forEach(function (k) { o[k] = Object.prototype.hasOwnProperty.call(f, k) ? _btnStr_(f[k]) : ''; });

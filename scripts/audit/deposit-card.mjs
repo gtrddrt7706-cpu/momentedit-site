@@ -165,6 +165,11 @@ console.log('━━ deposit-card — ⑫ «카드로 낼 신청» 기록 · 관�
 {
   const w = mk({}, { 상태: '신청접수', 선택날짜: '', 선택시간: '', 신청일시: new Date() }); cardOn(true);
   G.findRowByToken = () => ({ num: 2, get: (h) => (h in w.B ? w.B[h] : '') });
+  // [ENTRY_ARGS_SRV] 결제 방법(payBy)은 마이페이지(doPost → handleSubmitSchedule)만 넘긴다 — 화면 B(google.script.run)에서 온 것은 지운다
+  G._IN_POST = false; notes = [];
+  try { G.submitSchedule('ctok', DAY, '14:50', [], '', null, '', '', 'card'); } catch (e) {}
+  say(!rec(w).예약금결제, '화면 B 에서 바로 부른 신청의 payBy=card 는 무시한다(서버 쪽 인자는 doPost 길에서만)', w.C['동의기록']);
+  G._IN_POST = true; notes = [];   // 아래는 마이페이지 길(doPost)
   let r; try { r = G.submitSchedule('ctok', DAY, '14:50', [], '', null, '', '', 'card'); } catch (e) { r = { ok: false, error: 'THROW ' + e.message }; }
   say(r && r.ok === true, '신청 ok', JSON.stringify(r));
   say(rec(w).예약금결제 === '카드', '동의기록.예약금결제 = 카드(처리할 일 «카드 결제 대기»의 근거)', w.C['동의기록']);
@@ -180,6 +185,7 @@ console.log('━━ deposit-card — ⑫ «카드로 낼 신청» 기록 · 관�
   say(!rec(w).예약금결제 && (notes.find((n) => n.k === 'admin.slotPicked') || { x: {} }).x.card === false, '카드결제가 꺼져 있으면 payBy=card 를 무시한다(낼 수 없는 카드를 «대기»로 적지 않는다)', w.C['동의기록']);
   const admH = G._nfAdminText('admin.cancelRefund', 'ME-TEST', { names: 'a', card: true }) || '';
   say(/카드 결제 취소/.test(admH) && !/송금/.test(admH), '취소 한 줄 알림 — 카드면 «카드 결제 취소»(송금 아님)', admH);
+  G._IN_POST = false;
 }
 
 console.log('━━ deposit-card — ⑬ 환불: 카드 예약금뿐이면 계좌를 여쭙지 않는다');

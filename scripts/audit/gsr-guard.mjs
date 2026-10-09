@@ -119,8 +119,8 @@ function staticChecks(src) {
   }
   // [ENTRY_ARGS_SRV] 서버 쪽 인자(개인코드 · 가예약 · 로그인 길 표)는 doPost 길에서만 — 입구가 첫 줄 다음에 스스로 지운다
   if (!/^function\s+doPost\s*\([^)]*\)\s*\{\s*_SRV\s*=\s*true;\s*_IN_POST\s*=\s*true;/.test(src.doPost || '')) out.push('입구: doPost 가 첫 줄에서 _IN_POST 를 켜지 않는다(가입 길의 개인코드를 못 받는다)');
-  if (!/if \(!_IN_POST\) personalCode = '';/.test(src.submitApplication || '')) out.push('입구: submitApplication 이 화면에서 온 개인코드를 지우지 않는다(남의 예약에 묶인다) [ENTRY_ARGS_SRV]');
-  if (!/if \(!_IN_POST\) \{ hold = null; cashReceipt = ''; payer = ''; payBy = ''; viaSession = false; \}/.test(src.submitSchedule || '')) out.push('입구: submitSchedule 이 화면에서 온 서버 쪽 인자를 지우지 않는다 [ENTRY_ARGS_SRV]');
+  if (!/if \(!_IN_POST && !_ownerRunNow_\(\)\) personalCode = '';/.test(src.submitApplication || '')) out.push('입구: submitApplication 이 화면에서 온 개인코드를 지우지 않는다(남의 예약에 묶인다) [ENTRY_ARGS_SRV]');
+  if (!/if \(!_IN_POST && !_ownerRunNow_\(\)\) \{ hold = null; cashReceipt = ''; payer = ''; payBy = ''; viaSession = false; \}/.test(src.submitSchedule || '')) out.push('입구: submitSchedule 이 화면에서 온 서버 쪽 인자를 지우지 않는다 [ENTRY_ARGS_SRV]');
   // [MAIL_BTN_CONFIRM] 메일 단추 주소(GET)는 확인 화면만 — 처리는 단추(mailButtonGo)를 눌러야
   if (/_AUTHED|adminConfirm|_confirmDepositCore|_payConfirmRun_/.test((src.servePayConfirm || '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, ''))) out.push('메일 단추: 주소를 여는 것(servePayConfirm)이 바로 처리한다 — 확인 화면만 보여야 한다');
   if (/\bact(Approve|Accept)\s*\(/.test((src.handleAction || '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, ''))) out.push('메일 단추: 주소를 여는 것(handleAction)이 승인 · 수락을 바로 처리한다 — 확인 화면만 보여야 한다');
@@ -430,7 +430,7 @@ const MUT = [
   ['운영 도우미 첫 줄 빼기(findCustomerByCode)', (s) => { s.findCustomerByCode = s.findCustomerByCode.replace(/_gsr_\(\);/, ''); }],
   ['아무 함수에서 _SRV 켜기', (s) => { s.evilSrv = 'function evilSrv() { _gsr_(); _SRV = true; }'; }],
   ['아무 함수에서 _IN_POST 켜기', (s) => { s.evilPost = 'function evilPost() { _gsr_(); _IN_POST = true; }'; }],
-  ['신청서가 화면의 개인코드를 받기', (s) => { s.submitApplication = s.submitApplication.replace("if (!_IN_POST) personalCode = '';", ''); }],
+  ['신청서가 화면의 개인코드를 받기', (s) => { s.submitApplication = s.submitApplication.replace("if (!_IN_POST && !_ownerRunNow_()) personalCode = '';", ''); }],
   ['adminCall 을 옛 문으로', (s) => { s.adminCall = s.adminCall.replace('_adminTokenCheck_(token)', '_requireAdmin(token)'); }],
   ['예약 실행 첫 줄 빼기(aiDaily)', (s) => { s.aiDaily = s.aiDaily.replace(/_trigIn_\(arguments\[0\]\);/, ''); }],
 ];

@@ -403,7 +403,10 @@ G.HtmlService = realHS;
     if ('개인코드' in wrote) bad.push('⑥ 신청서: 화면에서 부른 신청이 개인코드를 받아 남의 예약에 묶인다');
     G._IN_POST = true; reset6(); try { G.submitApplication(form, 'ME9999'); } catch (e) { bad.push('⑥ 신청서(가입 길): 던졌다 — ' + e.message); }
     if (wrote['개인코드'] !== 'ME9999') bad.push('⑥ 신청서: 가입 길(doPost)에서 개인코드를 못 받는다(마이페이지가 예약을 못 찾는다)');
-    G._IN_POST = false; reset6(); let msg = '';
+    // 편집기 시험 도구(소유자 · 90_test-utils 의 _testSignup)는 doPost 밖에서도 개인코드를 넘긴다 — 소유자 실행으로 이미 정해졌으면 받는다
+    G._OWNER_RUN = true; G._IN_POST = false; reset6(); try { G.submitApplication(form, 'ME7777'); } catch (e) { bad.push('⑥ 신청서(편집기 시험 도구): 던졌다 — ' + e.message); }
+    if (wrote['개인코드'] !== 'ME7777') bad.push('⑥ 신청서: 편집기 시험 도구(소유자 실행)의 개인코드를 지운다(시험 고객이 예약과 안 묶인다)');
+    G._OWNER_RUN = null; G._IN_POST = false; reset6(); let msg = '';
     try { G.submitApplication({ groom: { toString: 1 }, bride: '나', phone: '010', email: 'a@b.co' }); } catch (e) { msg = e.message; }
     if (!/성함을 입력해 주세요/.test(msg)) bad.push('⑥ 신청서: 글자가 아닌 칸이 그대로 들어간다(입력 확인 글이어야) — ' + msg);
     G._IN_POST = keep._IN_POST; }
