@@ -151,9 +151,9 @@ const SCENES = {
     const lab = await f.evaluate(() => { const u0 = S.up.entry; const L = _slCopy('entry'); L[1].w = 'g'; _slPut('entry', L); render(); const card = document.querySelector('[data-fk="mkvpl:entry"]').closest('li.mk-vc');
       const st = Array.from(card.querySelectorAll('.mk-vst')).map((e) => e.textContent.trim()).join('|'); L[1].w = 'b'; _slPut('entry', L); render();   // 소리 ggg · 줄 gbg — 읽는 차례만 다르다
       const st2 = Array.from(document.querySelector('[data-fk="mkvpl:entry"]').closest('li.mk-vc').querySelectorAll('.mk-vst')).map((e) => e.textContent.trim()).join('|');
-      const fl = _lSteps(ENG, ['entry']).filter((x) => x.own && x.up === 'entry').map((x) => ({ couple: x.couple, lab: x.lab })); return { st, st2, fl, wq: u0.wq, sig: _slWhoSig('entry'), txStale: _txStale('entry') }; });
+      const fl = _lSteps(ENG, ['entry']).filter((x) => x.own && x.up === 'entry').map((x) => ({ couple: x.couple, lab: x.lab })); return { st, st2, fl, wq: u0.wq, sig: _slWhoSig('entry'), txStale: _txStale('entry'), mode2: _aiMode('entry') }; });
     await shot(r, '28-entry-who-only', 'entry');
-    ok('#28 [WHO_LAB] 읽는 차례만 바뀐 입장 인사 — «읽는 분이 바뀌었어요»(«멘트를 바꿨어요» 아님) · 흐름은 옛 차례 소리를 «두 분 목소리»로 세우지 않는다', /읽는 분이 바뀌었어요/.test(lab.st2) && !/멘트를 바꿨어요/.test(lab.st2) && lab.fl.length === 1 && lab.fl[0].couple === false, JSON.stringify(lab));
+    ok('#28 [WHO_LAB · STALE_QUIET 2026-10-09] 읽는 차례만 바뀐 입장 인사 — «목소리 만들기»(단추 옆 «읽는 분이 바뀌었어요 · 멘트를 바꿨어요» 없음) · 흐름은 옛 차례 소리를 «두 분 목소리»로 세우지 않는다', lab.mode2 === 'need' && !/읽는 분이 바뀌었어요|멘트를 바꿨어요/.test(lab.st2) && lab.fl.length === 1 && lab.fl[0].couple === false, JSON.stringify(lab));
     const n0 = await mkN(pg, 'entry'); await f.evaluate(() => mkVtReset('entry')); await adv(pg, 600);
     const m1 = await f.evaluate(() => _aiMode('entry')); await until(pg, f, () => { const u = S.up.entry; return u && u.wq === 'gbg' && !MK_UP.entry; }, 30000); await adv(pg, 500);
     const e = await line(f, 'entry'), n1 = await mkN(pg, 'entry');
@@ -211,7 +211,7 @@ const SCENES = {
     await reopen(r, draft, { page: 'prevideo', noPv: true }); const f2 = r.f; await adv(pg, 1500);
     await f2.evaluate(() => { mkSlAdd('pv'); mkSlDel('pv', 1); }); await adv(pg, 500);   // 줄을 더했다 빼도(_slPut) 읽을 글 · 글자 수가 잘리지 않는다
     const c = await f2.evaluate(() => { const ta = document.querySelector('[data-fk="mksl:pv:0"]'); return { ta: ta.value.length, rn: _recNeed('pv').length, pv: S.pvText.length, cnt: (document.getElementById('mkPvN') || {}).textContent }; }), c2 = await line(f2, 'pv');
-    ok('#25 [SL_CAP · PV_SYNC] 옛 초안(줄 217자 · 소리는 200자에서 잘린 글) — 다시 열면 보이는 글 그대로 읽을 글 · 글자 수(217 / 200자)도 같은 값 · 소리는 «글을 고쳤어요»(정직하게 다시 만들기)', c.ta === long.length && c.rn === long.length && c.pv === long.length && c.cnt === long.length + ' / 200자' && /글을 고쳤어요|예시를 바꿨어요/.test(c2.st) && !r.errs.length, JSON.stringify({ c, st: c2.st, errs: r.errs.slice(0, 2) }));
+    ok('#25 [SL_CAP · PV_SYNC] 옛 초안(줄 217자 · 소리는 200자에서 잘린 글) — 다시 열면 보이는 글 그대로 읽을 글 · 글자 수(217 / 200자)도 같은 값 · 소리는 다시 만들어야 하는 줄(«목소리 만들기» · 단추 옆 글 없음 · STALE_QUIET)', c.ta === long.length && c.rn === long.length && c.pv === long.length && c.cnt === long.length + ' / 200자' && c2.mode === 'need' && !/글을 고쳤어요|예시를 바꿨어요/.test(c2.st) && !r.errs.length, JSON.stringify({ c, st: c2.st, errs: r.errs.slice(0, 2) }));
     await r.ctx.close();
   },
   /* #27 — 하객 맞이 g0 · g1 · 입장 인사를 만든 뒤 줄을 다 비운다 */

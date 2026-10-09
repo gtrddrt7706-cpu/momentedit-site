@@ -112,12 +112,16 @@ const click = (f, sel) => f.evaluate((sel) => { const b = [...document.querySele
 const SHOT = async (pg, f, nm, sel) => { if (!SHOTS) return; await f.evaluate((q) => { const e = q && document.querySelector(q); if (e) e.scrollIntoView({ block: 'center' }); }, sel || ''); await adv(pg, 300); await pg.screenshot({ path: path.join(SHOTS, `apr-${nm}.png`) }); };
 /* 줄 카드 ▶ · 이 순간 전체 듣기 · 머리 알약 — 지금 모습 */
 const CARD = (f, k) => f.evaluate((k) => { const b = document.querySelector('[data-fk="mkvpl:' + k + '"]'), li = b && b.closest('li'), pill = li && li.querySelector('.mk-aip');
-  const hint = li ? [...li.querySelectorAll('.mk-ploff')].map((e) => e.textContent.trim()).join(' / ') : '';
+  const hint = li ? ([...li.querySelectorAll('.mk-ploff')].map((e) => e.textContent.trim()).join(' / ') || ((t) => (t && !t.hidden && t.getAttribute('data-for') === k ? t.textContent.trim() : ''))(document.getElementById('lsToast'))) : '';   /* [OFF_TOAST 2026-10-09] 흐린 ▶ 안내 = 아래 알림(그 ▶ 의 것만 · data-for) */
   return { has: !!b, off: !!(b && b.classList.contains('off')), ad: b ? b.getAttribute('aria-disabled') : null, dis: b ? b.disabled : null, fill: !!(b && /wfill/.test(b.className)), on: !!(b && b.classList.contains('on')),
-    pill: pill ? (pill.textContent || '').trim() : '', pillCls: pill ? pill.className : '', pillSty: pill ? pill.getAttribute('style') || '' : '', hint, go: !!(li && li.querySelector('[data-fk^="mkploffgo:"]')), err: li ? [...li.querySelectorAll('.mk-exw')].map((e) => e.textContent.trim()).join(' / ') : '' }; }, k);
+    pill: pill ? (pill.textContent || '').trim() : '', pillCls: pill ? pill.className : '', pillSty: pill ? pill.getAttribute('style') || '' : '', hint, go: !!(li && li.querySelector('[data-fk^="mkploffgo:"]')) || !!document.querySelector('#lsToast[data-for="' + k + '"]:not([hidden]) [data-fk^="mkploffgo:"]'), err: li ? [...li.querySelectorAll('.mk-exw')].map((e) => e.textContent.trim()).join(' / ') : '' }; }, k);
 const ALL = (f, k) => f.evaluate((k) => { const b = document.querySelector('.mk-hbtn[data-mp="' + k + '"]'), sec = b && b.closest('section');
   return { has: !!b, off: !!(b && b.classList.contains('off')), ad: b ? b.getAttribute('aria-disabled') : null, dis: b ? b.disabled : null, txt: b ? b.textContent.trim() : '', fill: !!(b && /wfill/.test(b.className)),
-    hint: sec ? [...sec.querySelectorAll('.mk-ploff')].map((e) => e.textContent.trim()).join(' / ') : '', go: !!(sec && sec.querySelector('[data-fk^="mkploffgo:"]')) }; }, k);
+    hint: sec ? ([...sec.querySelectorAll('.mk-ploff')].map((e) => e.textContent.trim()).join(' / ') || ((t) => (t && !t.hidden && t.getAttribute('data-for') === 'mp:' + k ? t.textContent.trim() : ''))(document.getElementById('lsToast'))) : '', go: !!(sec && sec.querySelector('[data-fk^="mkploffgo:"]')) || !!document.querySelector('#lsToast[data-for="mp:' + k + '"]:not([hidden]) [data-fk^="mkploffgo:"]') }; }, k);   /* [OFF_TOAST] 만드는 중 · 다 못 만듦은 그 자리 한 줄 · 흐린 ▶ 안내는 아래 알림 */
+/* [OFF_TOAST_TAP] 손가락으로 누른다 — 그 자리에 실제로 닿는 것이 그 단추인가(elementFromPoint) 보고 마우스로 누른다. 알림은 터치를 통과시켜서(pointer-events:none) JS click 으로는 «눌린다»고 나오는데 손가락은 아래 것을 눌렀다 */
+const realTap = async (pg, f, sel) => { const box = await (await f.frameElement()).boundingBox();
+  const r = await f.evaluate((sel) => { const b = document.querySelector(sel); if (!b) return null; const q = b.getBoundingClientRect(), x = q.left + q.width / 2, y = q.top + q.height / 2, h = document.elementFromPoint(x, y); return { x, y, hit: !!(h && (h === b || b.contains(h))) }; }, sel);
+  if (!r) return 'none'; if (!r.hit) return 'miss'; await pg.mouse.click(box.x + r.x, box.y + r.y); return 'ok'; };
 const tap = (f, sel) => f.evaluate((sel) => { const b = document.querySelector(sel); if (!b) return 'none'; if (b.disabled) return 'disabled'; b.click(); return 'ok'; }, sel);   // 손가락은 aria-disabled 단추도 누른다(누르면 한 줄)
 const plays = (f) => f.evaluate(() => (window.__plays || []).length);
 const ops = (pg, op) => pg.evaluate((op) => __SV.log.filter((x) => x.op === op).length, op);
@@ -142,8 +146,8 @@ const SC = [
     for (const k of ['g0', 'g1']) await tap(f, '[data-fk="mkvpl:' + k + '"]');
     await adv(pg, 1500); const a = await CARD(f, 'g1'), a0 = await CARD(f, 'g0');
     const lp = await f.evaluate(() => ({ q: LP.q.length, aud: !!MK.aud, toast: MK.toast || '' }));
-    await SHOT(pg, f, '1-줄', '.mk-ploff');
-    ok('1 ▶ 를 누르면 그 줄 아래 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기» · 앞서 누른 줄 글은 걷힘 · 소리 · 만들기 · 연습 읽기 요청 없음 [AI_PLAY_READY]',
+    await SHOT(pg, f, '1-줄', '#lsToast');   // [OFF_TOAST]
+    ok('1 ▶ 를 누르면 아래 알림 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기»(OFF_TOAST) · 앞서 누른 줄 글은 걷힘 · 소리 · 만들기 · 연습 읽기 요청 없음 [AI_PLAY_READY]',
       /^(신랑|신부) 목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(a.hint) && a.go && !a0.hint && (await plays(f)) === p0 && (await ops(pg, 'make')) === m0 && (await ops(pg, 'practice')) === q0 && !lp.q && !lp.aud, JSON.stringify({ a, a0, lp }));
     const l = await ALL(f, 'guest');
     ok('1 이 순간 전체 듣기도 흐림(aria-disabled) [AI_PLAY_READY]', l.has && l.off && l.ad === 'true' && !l.dis, JSON.stringify(l));
@@ -152,12 +156,13 @@ const SC = [
     ok('1 이 순간 전체 듣기를 누르면 바로 아래 «두 분 목소리를 만들면 이어서 들을 수 있어요 · 만들러 가기» · 줄 글은 걷힘 · 소리 없음', l2.hint === '두 분 목소리를 만들면 이어서 들을 수 있어요 · 만들러 가기' && l2.go && !c1.hint && (await plays(f)) === p0 && !(await f.evaluate(() => LP.q.length)), JSON.stringify({ l2, c1 }));
     const cast = await f.evaluate(() => { const g = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''), S0 = JSON.stringify(S.vfill); S.vfill = { entry: 'ai', prevideo: 'ai' }; const self = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''); S.vfill = JSON.parse(S0); return { g, self, mode: _vpCur('guest') }; });
     ok('1 AI 판 하객 맞이 줄에는 배역 예시 녹음(cast)을 싣지 않는다 · 직접 녹음 판은 그대로(읽는 법 참고) [AI_NO_CAST]', cast.mode === 'ai' && cast.g.length === 4 && cast.g.every((s) => !/\/cast\//.test(s)) && cast.self.some((s) => /\/cast\/0[2-4]_guest/.test(s)), JSON.stringify(cast));
-    await tap(f, '[data-fk="mkploffgo:mp:guest"]'); await adv(pg, 800);
-    ok('1 «만들러 가기» → 두 분 목소리 만들기 쪽', await f.evaluate(() => _mkRO().at === '_voice'));
+    const rt = await realTap(pg, f, '#lsToast [data-fk="mkploffgo:mp:guest"]'); await adv(pg, 800);
+    ok('1 알림 안 «만들러 가기»를 손가락으로 누르면(그 자리에 닿는 것이 단추) → 두 분 목소리 만들기 쪽 · 알림은 닫힘 [OFF_TOAST_TAP]', rt === 'ok' && await f.evaluate(() => _mkRO().at === '_voice' && document.getElementById('lsToast').hidden), rt);
     /* 입장 인사 · 영상 앞 소개도 같은 꼴(COURSE_WIDE) */
     for (const [pgk, key] of [['entry', 'entry'], ['prevideo', 'pv']]) { await f.evaluate((k) => mkGo(k), pgk); await adv(pg, 1000);
+      const tv = await f.evaluate(() => { const t = document.getElementById('lsToast'); return t && !t.hidden ? t.getAttribute('data-for') + ':' + t.textContent.trim() : ''; });   // [OFF_TOAST] 앞 쪽에서 띄운 알림(6초)은 쪽을 옮기면 걷힌다(_mkGoNow → _offToastOff)
       const e0 = await CARD(f, key); await tap(f, '[data-fk="mkvpl:' + key + '"]'); await adv(pg, 1200); const e1 = await CARD(f, key);
-      ok(`1 ${pgk} 줄 ▶ 도 흐림 · 누르면 한 줄 · 소리 없음 [AI_PLAY_READY · COURSE_WIDE]`, e0.off && e0.ad === 'true' && /목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(e1.hint) && (await plays(f)) === p0, JSON.stringify({ e0, e1 })); }
+      ok(`1 ${pgk} 줄 ▶ 도 흐림 · 누르면 아래 알림 · 소리 없음 · 쪽을 옮기면 앞 알림은 걷힘 [AI_PLAY_READY · COURSE_WIDE · OFF_TOAST]`, !tv && e0.off && e0.ad === 'true' && /목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(e1.hint) && (await plays(f)) === p0, JSON.stringify({ tv, e0, e1 })); }
     const ec = await f.evaluate(() => _lSteps(ENG, ['entry']).filter((x) => x.own).map((x) => x.src || ''));
     ok('1 AI 판 입장 인사 줄도 배역 예시 녹음 없음 [AI_NO_CAST]', ec.length >= 1 && ec.every((s) => !/\/cast\//.test(s)), JSON.stringify(ec));
   } },
@@ -199,7 +204,7 @@ const SC = [
     ok('3 고친 줄(머리 «목소리 만들기») ▶ = 흐림 · 누르면 «오른쪽 목소리 만들기를 누르면 들을 수 있어요» · 만들지 않는다 [AI_PLAY_READY]', g2.off && /목소리 만들기/.test(g2.pill) && /^오른쪽 .*목소리 만들기.*를 누르면 들을 수 있어요$/.test(g2b.hint) && !g2b.go && !n2 && !g2m.mk && g2m.m === 'need', JSON.stringify({ g2, g2b, n2, g2m }));
     await tap(f, '.mk-aip[data-key="g2"]'); await adv(pg, 1500); const g2c = await CARD(f, 'g2');
     await SHOT(pg, f, '3-만드는중', '[data-fk="mkvpl:g2"]');
-    ok('3 머리 알약 «만드는 중» — 알약만 차오르고 ▶ 는 흐리게 잠김(차오름 없음) [PLAY_NO_DUP]', /만드는 중/.test(g2c.pill) && /\bmake\b/.test(g2c.pillCls) && g2c.dis && !g2c.fill && !g2c.hint, JSON.stringify(g2c));
+    ok('3 머리 알약 «만드는 중» — 알약만 차오르고 ▶ 는 흐리게 잠김(차오름 없음) · «목소리 만들기를 누르면…» 알림은 누르는 순간 걷힘 [PLAY_NO_DUP · OFF_TOAST]', /만드는 중/.test(g2c.pill) && /\bmake\b/.test(g2c.pillCls) && g2c.dis && !g2c.fill && !g2c.hint, JSON.stringify(g2c));
     await until(pg, f, () => _aiMode('g2') === 'keep', 60000); const g2d = await CARD(f, 'g2');
     ok('3 다 되면 ▶ 가 풀린다', !g2d.off && !g2d.dis, JSON.stringify(g2d));
   } },
@@ -242,6 +247,21 @@ const SC = [
     await tap(f, '.mk-hbtn[data-mp="guest"]'); await adv(pg, 1200);
     const a = await f.evaluate(() => ({ tune: VC.tune ? VC.tune.who : '', lsMake: !!(MK.lsMake || {}).guest, mk: !!MK_UP.g0 }));
     ok('6 맞추기가 남은 분의 줄이 있으면 그 창부터 · 만들기 요청 없음 [LS_MAKE_ALL · VOICE_TUNE]', !!a.tune && !a.lsMake && !a.mk && !(await mkOps(pg, MARK.trim())), JSON.stringify(a));
+  } },
+  /* ── 7 ── 좁은 폰(320) · 신부 목소리 없음 — 알림 안 «만들러 가기»가 두 줄 글 옆에 붙고(빈 틈 없음 · 가운데 «·» 빠짐) 손가락이 닿는다 [OFF_TOAST_TAP] */
+  { no: 7, w: 320, h: 700, pre: { groom: true, bride: false }, async run({ pg, f }) {
+    await toVoice(pg, f); await toGuest(pg, f); await adv(pg, 600);
+    await tap(f, '[data-fk="mkvpl:g1"]'); await adv(pg, 600);
+    const m = await f.evaluate(() => { const u = document.getElementById('lsToast'), sp = u && u.firstChild, dot = u && u.querySelector('span[aria-hidden]'), b = u && u.querySelector('button');
+      if (!u || u.hidden || !sp || !b) return null;
+      const lines = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); const by = {}; [...rg.getClientRects()].filter((q) => q.width).forEach((q) => { const k = Math.round(q.top); by[k] = (by[k] || 0) + q.width; }); return Object.values(by); };
+      const ls = lines(sp), cs = getComputedStyle(u), ur = u.getBoundingClientRect(), sr = sp.getBoundingClientRect(), br = b.getBoundingClientRect(), h = document.elementFromPoint(br.left + br.width / 2, br.top + br.height / 2);
+      return { cls: u.className, lines: ls.length, bal: ls.length ? Math.round(Math.min(...ls) / Math.max(...ls) * 100) / 100 : 0, btnLines: lines(b).length, dot: dot ? getComputedStyle(dot).display : '', w: Math.round(ur.width), need: Math.round(sr.width + br.width + (parseFloat(cs.columnGap) || 0) + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)), vw: innerWidth, hit: !!(h && (h === b || b.contains(h))), over: u.scrollWidth > u.clientWidth + 1 }; });
+    await SHOT(pg, f, '7-좁은폰', '#lsToast');
+    ok('7 좁은 폰(320) — 알림 글 두 줄(고르게) · 가운데 «·» 빠짐 · 알림 폭 = 글 + 단추(빈 틈 없이 가운데로 좁아짐) · «만들러 가기» 한 줄 · 손가락이 단추에 닿는다 [OFF_TOAST_TAP]',
+      !!m && /\btwo\b/.test(m.cls) && m.lines === 2 && m.bal >= 0.6 && m.dot === 'none' && m.w <= m.need + 2 && m.w < m.vw - 32 && m.btnLines === 1 && m.hit && !m.over, JSON.stringify(m));
+    const rt = await realTap(pg, f, '#lsToast [data-fk="mkploffgo:g1"]'); await adv(pg, 800);
+    ok('7 좁은 폰에서도 «만들러 가기»를 손가락으로 누르면 두 분 목소리 만들기 쪽 [OFF_TOAST_TAP]', rt === 'ok' && await f.evaluate(() => _mkRO().at === '_voice'), rt);
   } },
 ];
 
