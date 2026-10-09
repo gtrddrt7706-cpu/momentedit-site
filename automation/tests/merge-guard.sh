@@ -13788,6 +13788,26 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/moment-script-check.
 chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
 # ★[MOMENT_COVER 2026-09-28] 편마다 «표지»(첫 프레임) 칸 · 다른 세션 지시문 대조 보충 — 표지 칸이 점검에서 빠지면 ① 칸에 무엇이 뜰지 정하지 않은 편이 생긴다
 chk "'남는 장면', '표지', '장면 대본'" scripts/audit/moment-script-check.mjs 1
+# ★★[VID_MOVE_NOW 2026-10-09 사장님 «영상들이 시작을 바로 안 하고 처음에 멈춰 있는 시간이 너무 긴 거 같아 · 직접 보고 확인해서 열자마자 움직일 수 있게»]
+#   장면 영상은 ① 가볍게(평균 ≤ 2.0Mbps · ≤ 2.5MB · faststart · 소리 없음) ② 첫 장면에서 바로 움직이게(움직임 시작 ≤ 0.2초).
+#   10/9 v8 묶음을 받은 그대로 넣어 둘 다 빠졌다(1.59~4.20Mbps · 실제로 움직이기까지 0.17~3.17초 그림이 그대로 · 폰이 받는 시간과 겹쳐 «한참 멈춤»).
+#   굽기는 encode-moment.sh 한 곳(앞 자르기 · CRF 24) · 움직임 시작은 video-start.mjs --onset 한 곳에서 잰다(검사와 굽기가 같은 셈).
+#   ①은 ffmpeg 없이 PR 잡에서도 돈다 · ②는 ffmpeg 이 있는 로컬 · 야간에서 잰다(없으면 «재지 못함» 2 — 결함으로 치지 않는다 · CANT_LOOK).
+if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs >/dev/null 2>&1; _vs=$?
+  case "$_vs" in
+    0) echo 'ok video-start: 장면 영상이 가볍고 첫 장면에서 바로 움직인다' ;;
+    1) echo 'FAIL video-start: 장면 영상이 무겁거나 앞에서 멈춰 있습니다 — node scripts/audit/video-start.mjs'; fail=1 ;;
+    *) echo 'ok video-start: 가벼움은 통과 · 움직임 시작은 재지 못했습니다(ffmpeg 없음) — 야간 · 로컬에서 잽니다' ;;
+  esac
+fi
+chk 'VID_MOVE_NOW' scripts/audit/video-start.mjs 3
+chk 'VID_MOVE_NOW' scripts/video/encode-moment.sh 2
+chk 'video-start.mjs" --start' scripts/video/encode-moment.sh 1   # 앞을 자를 자리 = 검사와 같은 셈(startPoint)
+chk 'video-start.mjs" --onset' scripts/video/encode-moment.sh 1   # 구운 뒤 «첫 장면에서 바로 움직이나»를 그 자리에서 찍는다
+chk 'KEEP_CARD' scripts/video/encode-moment.sh 2
+chk 'crf "$CRF"' scripts/video/encode-moment.sh 1
+chk 'VID_MOVE_NOW' assets/ritual-open.js 1
+chk 'VID_MOVE_NOW' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '## 1-2. 모든 편 공통' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 # ★[VIDEO_DECIDE_0928 사장님 결정] 준비한 순서 = 앞 스크린의 영상 · 감동하는 부모님 · 하객 맞이 = 하나둘씩 들어와 앉는 하객 · 그림은 따로 상의(장면 글이 본체)
 chk 'VIDEO_DECIDE_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
