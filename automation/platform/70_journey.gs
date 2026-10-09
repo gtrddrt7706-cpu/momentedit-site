@@ -1952,7 +1952,7 @@ function _trigIn_(e) {   // [TRIG_IN] 예약 실행 15개의 첫 줄 — 위 주
   }
   if (uid && hit === 0 && !learned) _trigMark_('TRIG_UID_MISS', 'uid ' + _trigSafe_(uid).slice(0, 6) + ' · 메일 ' + _trigWho_());
   if (_isOwnerRun_()) { _TRUST = true; return; }
-  if (!learned) { _TRUST = true; _trigMark_('TRIG_PROBE', (hit < 0 ? '목록 못 읽음 · ' : '') + 'uid ' + (uid ? '있음' : '없음') + ' · ' + (e ? Object.keys(e).slice(0, 10).map(_trigSafe_).join(',') : '이벤트 없음')); return; }
+  if (!learned) { _TRUST = true; var _pw = _trigWho_(); _trigMark_('TRIG_PROBE', (hit < 0 ? '목록 못 읽음 · ' : '') + 'uid ' + (uid ? '있음' : '없음') + ' · ' + (e ? Object.keys(e).slice(0, 10).map(_trigSafe_).join(',') : '이벤트 없음') + ' · 메일 ' + _pw, _trigSafe_(_pw)); return; }   // [TRIG_IN_WHY] 누가 · 계정마다 따로 6시간
   if (hit < 0) _trigMark_('TRIG_LIST_FAIL', hit === -1 ? '목록 못 읽음 · 아는 목록 없음' : '목록 못 읽음 · 알던 목록에 없음');   // [TRIG_LIST_KNOWN] 배운 뒤에는 막고 남긴다
   throw new Error('허용되지 않은 요청입니다. (예약 실행 전용)' + _ownerHint_());   // [TRIG_IN_WHY] 편집기에서 막히면 어느 계정인지
 }
@@ -1987,8 +1987,8 @@ function _trigKnownAdd_(list) {   // [TRIG_LIST_KNOWN] 진짜로 읽은 아이�
     if (JSON.stringify(next) !== JSON.stringify(k)) P.setProperty('TRIG_UIDS_KNOWN', JSON.stringify(next));
   } catch (x) {}
 }
-function _trigMark_(key, val) {   // 같은 표는 6시간에 한 번만 적는다(매분 도는 warmAvailCache)
-  try { var c = CacheService.getScriptCache(); if (c.get('TM_' + key)) return; c.put('TM_' + key, '1', 21600); } catch (x) {}
+function _trigMark_(key, val, sub) {   // 같은 표는 6시간에 한 번만 적는다(매분 도는 warmAvailCache) · sub 가 있으면 그것마다 따로
+  try { var c = CacheService.getScriptCache(), tk = 'TM_' + key + (sub ? '_' + String(sub).slice(0, 24) : ''); if (c.get(tk)) return; c.put(tk, '1', 21600); } catch (x) {}
   try { PropertiesService.getScriptProperties().setProperty(key, Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm') + ' · ' + String(val).slice(0, 160)); } catch (x) {}
 }
 function setupAllTriggers() { _requireAdmin();

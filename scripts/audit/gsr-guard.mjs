@@ -344,6 +344,13 @@ function gateChecks(list) {
   clr();
   reset(); try { G._trigIn_({}); if (G._TRUST !== true) out.push('예약 실행: 배우기 전에는 막지 않아야 한다(_TRUST 가 안 켜졌다)'); } catch (e) { out.push('예약 실행: 배우기 전인데 막았다 — 확인 전에 막으면 아침 보고 · 알림이 멈춘다'); }
   if (!PP().getProperty('TRIG_PROBE')) out.push('예약 실행: 배우기 전 호출의 모양을 TRIG_PROBE 에 적지 않았다');
+  // [TRIG_IN_WHY] 배우기 전 모양 기록은 누가(가린 메일) · 계정마다 따로 6시간 — 다른 계정의 호출이 진짜 예약 실행 계정의 기록을 가리지 않게
+  { setEmail('aa@x.test'); G._SRV = false; G._TRUST = false; try { G._trigIn_({}); } catch (e) {}
+    const p1 = String(PP().getProperty('TRIG_PROBE') || '');
+    setEmail('bb@x.test'); G._SRV = false; G._TRUST = false; try { G._trigIn_({}); } catch (e) {}
+    const p2 = String(PP().getProperty('TRIG_PROBE') || '');
+    if (!/ · 메일 a…@x\.test/.test(p1) || !/ · 메일 b…@x\.test/.test(p2)) out.push('예약 실행: 배우기 전 모양 기록에 누가인지 없거나 다른 계정의 기록이 6시간 가린다 — ' + p1 + ' / ' + p2);
+    reset(); }
   // [TRIG_MISS_QUIET] 배우기 전 · 목록에 없는 아이디는 까닭을 남긴다 — 밖에서 온 글자는 영숫자만
   reset(); try { G._trigIn_({ triggerUid: 'NO<b>PE77' }); } catch (e) {}
   { const m0 = String(PP().getProperty('TRIG_UID_MISS') || ''); if (!/uid NObPE7 /.test(m0) || /[<>]/.test(m0)) out.push('예약 실행: 배우기 전 목록에 없는 아이디를 영숫자만으로 남기지 않았다 — ' + m0); }
@@ -407,6 +414,15 @@ function gateChecks(list) {
   try { G.doPost({ parameter: {}, postData: { type: 'application/json', contents: JSON.stringify({ action: 'adminCall', token: '', fn: 'aiFactsList', args: [] }) } }); } catch (e) {}
   if (ran) out.push('doPost(action=adminCall): 토큰 없이 FNS 가 돌았다');
   G.aiFactsList = realFL; reset();
+  // [AICOST_SECRET] AI 비용 기록은 사이트 서버만 아는 공유키(AI_HANDOFF_SECRET)가 맞을 때만 쌓는다 · 키가 없으면(설정 전) 종전처럼
+  { const keepS = G._aiCostSheet_, keepA = G._lockedAppend; let app = 0; G._aiCostSheet_ = () => ({ getLastRow: () => 2 }); G._lockedAppend = () => { app++; };
+    PP().setProperty('AI_HANDOFF_SECRET', 'k-sim'); reset(); G._SRV = true;
+    G.handleAiCostLog({ surface: 'adv', model: 'm', in: 10, out: 5, secret: 'wrong' });
+    const bad1 = app; G.handleAiCostLog({ surface: 'adv', model: 'm', in: 10, out: 5, secret: 'k-sim' });
+    if (bad1 !== 0 || app !== 1) out.push('AI 비용 기록: 공유키가 틀려도 쌓거나 맞는데 안 쌓는다 — ' + bad1 + ' / ' + app);
+    PP().deleteProperty('AI_HANDOFF_SECRET'); app = 0; G.handleAiCostLog({ surface: 'adv', model: 'm', in: 10, out: 5 });
+    if (app !== 1) out.push('AI 비용 기록: 키를 아직 안 정한 때(설정 전)에 기록이 멈춘다');
+    G._aiCostSheet_ = keepS; G._lockedAppend = keepA; reset(); }
   // [POST_SAFE_JSON] 밖에서 온 값의 «toString · valueOf» 칸은 받을 때 지운다 — 동작 이름이 객체여도 «모르는 동작»(3)으로 끝나고 예외(9)로 가지 않는다
   { const keepES = G._errStamp; let seen = null; G._errStamp = (o) => { seen = o; return o; };
     reset(); try { G.doPost({ parameter: {}, postData: { type: 'application/json', contents: '{"action":{"toString":1,"valueOf":1}}' } }); } catch (e) { out.push('doPost: 받은 값의 toString 칸에 던졌다'); }

@@ -2148,6 +2148,30 @@
    "fn": "adminApprove",
    "mark": "MAIL_SAME_WORDS",
    "why": "관리 화면 승인 · 수락의 «일부 안 됨»은 메일 화면과 같은 말 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "syncCalendarEvent",
+   "mark": "CAL_RESULT",
+   "why": "캘린더 결과를 돌려주고 승인 · 수락이 «안 된 것»으로 센다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errRecord",
+   "mark": "ERR_LOG_CAP",
+   "why": "사고번호가 있는 오류기록도 같은 동작은 한 시간에 30줄까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "handleAiCostLog",
+   "mark": "AICOST_SECRET",
+   "why": "AI 비용 기록은 사이트 서버만 아는 공유키가 맞을 때만 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "ENTRY_ARGS_SRV",
+   "why": "링크 주소 값은 글자만 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2930,7 +2954,9 @@
    "_payConfirmCheck_",
    "_payConfirmRun_",
    "mailButtonGo",
+   "_btnFailPeek_",
    "_btnFailSeen_",
+   "_ownerRunNow_",
    "_entryForm_",
    "_cfgErr_",
    "_btnStr_",
@@ -3091,6 +3117,7 @@
   "consultation-booking": [
    "DETAIL_MAP",
    "AVAIL_CACHE_KEY",
+   "_CAL_ERR",
    "_IN_POST",
    "_BTN_SIGNED",
    "_LAST_INFO",
@@ -3209,7 +3236,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 17:54 · 954f1def",
+ "_생성": "2026-10-09 18:26 · 6676d860",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3711,5 +3738,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "92cf7d3cd86d"
+ "_표식서명": "be461c953daa"
 }

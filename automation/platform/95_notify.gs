@@ -1332,6 +1332,11 @@ function _errRecord(act, ec, text, why, eid, extra) { _gsr_();   // [ERR_CODE_GA
       if (_jn >= 20) return;
     }
     act = a;
+    if (eid) {   // [ERR_LOG_CAP 2026-10-09 라운드 5] 사고번호가 있는 줄도 같은 동작은 한 시간에 30줄까지 — 한꺼번에 쏟아져 진짜 줄을 밀어내지 못하게
+      var _ec2 = CacheService.getScriptCache(), _ek = 'ERRCAP_' + String(a).replace(/[^A-Za-z0-9_]/g, '').slice(0, 30) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _en = +(_ec2.get(_ek) || 0);
+      _ec2.put(_ek, String(_en + 1), 3700);
+      if (_en >= 30) return;
+    }
     var who = _errWho();
     var key = 'ERRD_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [who, act, ec, text].join('|'), Utilities.Charset.UTF_8)).slice(0, 22);
     var c = CacheService.getScriptCache(); if (!eid && c.get(key)) return; c.put(key, '1', 600);

@@ -327,7 +327,9 @@ G.HtmlService = realHS;
     H.notifyStudio('[상담] ⚠️오류 · 캘린더 일정 생성 실패', '가 · 나 · 2026-11-01 14:00\nerr');
     H.notifyStudio('[상담] ⚠️오류 · 캘린더 일정 생성 실패', '다 · 라 · 2026-11-02 15:00\nerr');
     H.notifyStudio('[상담] ⚠️오류 · 캘린더 일정 생성 실패', '가 · 나 · 2026-11-01 14:00\nerr');
-    if (ln.length !== 2) bad.push('⑥ 관리자 알림: 같은 제목 · 다른 고객의 실패가 묻히거나 같은 고객이 두 번 간다 — ' + ln.length + '통(2 여야)'); }
+    if (ln.length !== 2) bad.push('⑥ 관리자 알림: 같은 제목 · 다른 고객의 실패가 묻히거나 같은 고객이 두 번 간다 — ' + ln.length + '통(2 여야)');
+    for (let i = 0; i < 8; i++) H.notifyStudio('[플랫폼] ⚠️오류 · 신청 접수 메일 발송 실패', '이름' + i + ' · x\nerr');
+    if (ln.length !== 2 + 5) bad.push('⑥ 관리자 알림: 같은 제목이 한 시간에 다섯 통을 넘는다(이름만 바꾼 실패가 쏟아지면 메일함이 찬다) — ' + (ln.length - 2) + '통'); }
   // BTN_FAIL_KIND — 고객 단추(수락)의 3 에는 «관리자 페이지»가 없다 · 데이터 오류(x.y is not a function)는 9 · 다시 누르기
   const tok = 'tok1'; G.findRowByToken = () => pk; G._SRV = false; G._errRecord = () => {};
   G.actAccept = () => { throw new ReferenceError('getSheet is not defined'); };
@@ -390,6 +392,47 @@ G.HtmlService = realHS;
     const b4 = G.mailButtonGo({ action: 'payconfirm', code: 'ME0001', m: 'mid', exp, sig: sg });
     if (!(b4 && !b4.retry && /코드 P4/.test(b4.body || ''))) bad.push('⑥ 입금 확인: 까닭 없는 실패에 코드가 없다(P4) — ' + JSON.stringify(b4));
     G.actApprove = keep.actApprove; G._adminConfirmMidCore = keep._adminConfirmMidCore; G.findRowByToken = keep.findRowByToken; G._SRV = true; }
+  // [CAL_RESULT] 캘린더 결과는 true · false · null — false 는 «안 된 것»(오류 글 포함) · 결과 글의 «캘린더에도 등록»은 true 일 때만
+  { G.LockService = { getScriptLock: okLock }; G.row = () => pk; G.actApprove = keep.actApprove;
+    G.syncCalendarEvent = () => { G._CAL_ERR = 'cal quota'; return false; }; reset6(); G.actApprove({}, {}, pk);
+    if (!(G._LAST_INFO && Array.isArray(G._LAST_INFO.partial) && G._LAST_INFO.partial.includes('캘린더') && /캘린더 오류: cal quota/.test(notices[0] || ''))) bad.push('⑥ 캘린더: 만들기 실패(false)가 «안 된 것»에 안 들어가거나 알림에 오류 글이 없다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.partial));
+    G.syncCalendarEvent = () => null; reset6(); G.actApprove({}, {}, pk);
+    if (!(G._LAST_INFO && G._LAST_INFO.ok && !/캘린더에도/.test(G._LAST_INFO.body))) bad.push('⑥ 캘린더: 캘린더를 안 쓰는데(설정 없음) «캘린더에도 등록»이라고 한다');
+    G.syncCalendarEvent = () => true; reset6(); G.actApprove({}, {}, pk);
+    if (!(G._LAST_INFO && G._LAST_INFO.ok && /캘린더에도/.test(G._LAST_INFO.body))) bad.push('⑥ 캘린더: 등록됐는데 «캘린더에도 등록» 줄이 없다');
+    G.syncCalendarEvent = keep.syncCalendarEvent;
+    // 진짜 syncCalendarEvent 는 맨 위에서 흉내로 바꿔 두었다 — 새 샌드박스에서 잰다(CONFIG.CALENDAR_ID 는 코드에서 설정돼 있다)
+    const { sandbox: C } = loadGas(makeSandbox()); C._SRV = true; let ns = 0; C.notifyStudio = () => { ns++; }; C.getCalendar = () => null;
+    let rv; try { rv = C.syncCalendarEvent({}, {}, 2, '2026-11-01', '14:00', '가 · 나', '010', true); } catch (e) { rv = 'threw ' + e.message; }
+    if (rv !== false || ns !== 0) bad.push('⑥ 캘린더: 설정된 캘린더를 못 열었는데 false 가 아니거나(조용히 됨) quiet 인데 따로 알린다 — ' + rv + ' · ' + ns);
+    C.getCalendar = () => ({ getEventById: () => null, createEvent: () => { throw new Error('quota'); } }); C.row = () => ({ get: () => '' }); ns = 0;
+    try { rv = C.syncCalendarEvent({}, {}, 2, '2026-11-01', '14:00', '가 · 나', '010', false); } catch (e) { rv = 'threw ' + e.message; }
+    if (rv !== false || ns !== 1 || !/quota/.test(String(C._CAL_ERR))) bad.push('⑥ 캘린더: 만들기 실패가 false · 오류 글 · (quiet 아니면) 알림 한 통이 아니다 — ' + rv + ' · ' + ns + ' · ' + C._CAL_ERR); }
+  // [BTN_STATE_FIRST] 변경 제안을 보낸 예약은 승인하지 않는다(관리 화면과 같은 규칙) · 링크도 단추 대신 상태
+  { const pr = R6({ '상태': ST.PROPOSED || '변경제안', '변경제안날짜': '2026-11-02', '변경제안시간': '15:00' }); G.row = () => pr; reset6(); G.actApprove({}, {}, pr);
+    if (!(G._LAST_INFO && G._LAST_INFO.title === '변경 제안을 보낸 예약입니다' && writes === 0)) bad.push('⑥ 승인: 변경 제안을 보낸 예약을 메일 단추로 승인한다(제안이 떠 버린다) — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.title) + ' · writes ' + writes);
+    G.findRowByToken = () => pr; G._LAST_INFO = null; try { G.handleAction({ token: 'tok1', action: 'approve', sig: G.sign_('tok1', 'approve') }); } catch (e) {}
+    if (!(G._LAST_INFO && G._LAST_INFO.title === '변경 제안을 보낸 예약입니다')) bad.push('⑥ 링크 열기: 변경 제안 중인 예약의 승인 링크가 살아 있는 단추를 보인다');
+    // 다시 연 «이미 확정» 링크에도 앞선 오류 안내(지우지 않는다)
+    const ap = R6({ '상태': ST.APPROVED || '승인완료' }); G.findRowByToken = () => ap; cm.set('BTNFAIL_B_tok1', '1'); G._LAST_INFO = null;
+    try { G.handleAction({ token: 'tok1', action: 'approve', sig: G.sign_('tok1', 'approve') }); } catch (e) {}
+    if (!(G._LAST_INFO && /앞서 오류가 있었어요/.test(G._LAST_INFO.body) && cm.has('BTNFAIL_B_tok1'))) bad.push('⑥ 링크 다시 열기: 앞선 오류 뒤 «이미 확정»에 안내가 없거나 열기만 해도 표가 사라진다(메일 검사기가 먼저 열면 못 본다)');
+    cm.delete('BTNFAIL_B_tok1'); G.findRowByToken = keep.findRowByToken; }
+  // [ACCEPT_RESULT] 관리 화면 승인은 이번 누름의 결과를 먼저 믿는다(잠금 대기 중 줄이 밀려도 «마감»이나 거짓 «승인»이 되지 않게)
+  { const keepFR = G.findRowByPersonalCode; G.findRowByPersonalCode = () => ({ num: 2 }); G._AUTHED = true; let rc = 0; G._recordHandler = () => { rc++; };
+    G.row = () => R6({ '상태': '시간선택완료' }); G.actApprove = () => G.infoPage('승인 완료', 'x', true);
+    let r1; try { r1 = G.adminApprove('ME0001'); } catch (e) { r1 = { threw: e.message }; }
+    if (!(r1 && r1.ok === true && rc === 1)) bad.push('⑥ 관리 화면 승인: 승인됐는데 줄이 밀려 «마감»으로 말한다 — ' + JSON.stringify(r1));
+    let n0 = 0; G.row = () => { n0++; return n0 === 1 ? R6({ '상태': '시간선택완료' }) : R6({ '상태': ST.APPROVED || '승인완료' }); }; rc = 0;
+    G.actApprove = () => G.infoPage('예약을 찾을 수 없습니다', '예약 정보가 바뀌었어요. 관리자 페이지에서 확인해 주세요.', false);
+    let r2; try { r2 = G.adminApprove('ME0001'); } catch (e) { r2 = { threw: e.message }; }
+    if (!(r2 && r2.ok === false && /예약을 찾을 수 없습니다/.test(r2.error || '') && rc === 0)) bad.push('⑥ 관리 화면 승인: 예약을 못 찾았는데 그 줄에 들어온 다른 예약의 상태를 보고 «승인»으로 남긴다 — ' + JSON.stringify(r2));
+    G.actApprove = keep.actApprove; G.findRowByPersonalCode = keepFR; G._AUTHED = false; G._recordHandler = () => {}; }
+  // [ENTRY_ARGS_SRV] 주소 값(doGet)은 글자만 — 화면에서 바로 부르며 객체를 넘겨도 던지지 않는다(오류기록이 쌓이지 않게)
+  { let rec = 0; const keepER = G._errRecord; G._errRecord = () => { rec++; }; let th = '';
+    try { G.doGet({ parameter: { page: 'schedule', token: { toString: 1 } } }); G.doGet({ parameter: { action: { toString: 1 }, token: 'x' } }); } catch (e) { th = e.message; }
+    if (th || rec) bad.push('⑥ 링크 주소: 글자가 아닌 값에 던지거나 오류기록을 남긴다 — ' + (th || rec + '줄'));
+    G._errRecord = keepER; G._SRV = true; }
   // PASTE_GAP — 붙이는 도중(consultation-booking 이 옛 판 · _infoText_ 없음)에도 관리 화면 승인의 실패 글이 멈추지 않는다
   { const keepIT = G._infoText_, keepFR = G.findRowByPersonalCode; G._infoText_ = undefined; G.findRowByPersonalCode = () => ({ num: 2 });
     G.LockService = { getScriptLock: badLock }; G.row = () => pk; G._AUTHED = true; G.actApprove = keep.actApprove;

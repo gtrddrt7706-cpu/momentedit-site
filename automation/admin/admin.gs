@@ -1652,9 +1652,12 @@ function adminApprove(code) {
   _LAST_INFO = null;
   actApprove(sheet, colOf, r);                        // P1.5 Lock+슬롯재확인+setCustomerStage
   if (_LAST_INFO && _LAST_INFO.partial) { _recordHandler(code, '승인'); return { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(', ') + ' · 이것만 직접 해 주세요 (코드 B4)' }; }   // [APPROVE_PARTIAL] 다시 누르지 말고 빠진 것만 · [MAIL_SAME_WORDS] 메일 화면과 같은 말
-  var after = String(row(sheet, colOf, cr.num).get('상태') || '').trim();
+  var _li = _LAST_INFO;   // [ACCEPT_RESULT] 이번 누름의 결과를 먼저 믿는다(잠금 대기 중 줄이 밀리거나 지워졌을 수 있다)
+  if (_li && _li.ok) { _recordHandler(code, '승인'); return { ok: true }; }
+  if (_li && _li.ok === false && /마감/.test(String(_li.title || ''))) return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };
+  var after = _li ? '' : String(row(sheet, colOf, cr.num).get('상태') || '').trim();   // 결과 글이 없는 옛 판만 상태로 판단
   if (after === ST.APPROVED || after === ST.CONFIRMED) { _recordHandler(code, '승인'); return { ok: true }; }
-  var _li = _LAST_INFO;   // [ACCEPT_RESULT] 몰림 · 시간 없음 같은 다른 실패는 «마감»으로 말하지 않는다
+  // [ACCEPT_RESULT] 몰림 · 시간 없음 같은 다른 실패는 «마감»으로 말하지 않는다
   if (_li && _li.ok === false && !/마감/.test(String(_li.title || ''))) return { ok: false, error: _admInfoText_(_li) };
   return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };  // L
 }

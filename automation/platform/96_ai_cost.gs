@@ -37,6 +37,9 @@ function _aiCostSheet_() {
 /** Vercel 챗봇 → 토큰 1건 적재 (doPost action='aiCostLog') */
 function handleAiCostLog(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   try {
+    /* [AICOST_SECRET 2026-10-09 라운드 5] 사이트 서버(api/_costlog.js)만 아는 공유키 — 문의 리드와 같은 키(AI_HANDOFF_SECRET). 키가 없으면 조용히 버린다(오류기록 · 경보 없음) */
+    var _cs = ''; try { _cs = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (eS) {}
+    if (_cs && String((body && body.secret) || '').slice(0, 80) !== _cs) return { ok: true };
     var surface = String((body && body.surface) || '').slice(0, 16) || '기타';
     var model = String((body && body.model) || '').slice(0, 40);
     var inn = Math.max(0, Number(body && body.in) || 0);

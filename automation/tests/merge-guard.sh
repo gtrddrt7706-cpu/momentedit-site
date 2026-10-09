@@ -16401,7 +16401,7 @@ chk 'TRIG_MISS_QUIET' automation/platform/99_deployCheck.gs 1
 #   · 붙여넣기 · 배포 누락은 3(다시 누르게 하지 않는다) · 예약 실행은 진짜 목록에서 맞으면(기억 · 알던 목록 포함) 배운다(gsr-guard · mail-page 가 행동으로 잰다)
 chk 'ACCEPT_RESULT' automation/consultation/consultation-booking.gs 2
 chk 'ACCEPT_RESULT' automation/admin/admin.gs 2
-chk 'BTN_AFTER_FAIL' automation/consultation/consultation-booking.gs 4
+chk 'BTN_AFTER_FAIL' automation/consultation/consultation-booking.gs 7
 chk 'BTN_FAIL_KIND' automation/consultation/consultation-booking.gs 1
 chk 'TRIG_LEARN_ANY' automation/platform/70_journey.gs 1
 nochk '이미 처리되어 다시 보내지 않았습니다' automation/consultation/consultation-booking.gs
@@ -16418,8 +16418,8 @@ chk 'PUB_RULES_WIDE' scripts/audit/pub-rules.mjs 1
 # ★[ENTRY_ARGS_SRV · BTN_STATE_FIRST · NOTICE_PER_WHO · PAY_NOTICE_TRUE · PASTE_GAP 2026-10-09 라운드 4] 공개 입구는 그 화면이 보내는 인자만(서버 쪽 인자는 doPost 길에서만 · 칸은 글자만)
 #   · 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 지금 상태를 보여 준다 · 오류 · 실패 관리자 메일은 같은 제목 · 같은 사람만 6시간에 한 통(다른 고객의 실패가 묻히지 않게)
 #   · 입금 확인 결과는 고객 알림이 정말 나가는 확인만 «알림이 가요» · 붙이는 도중에도 관리 화면 승인 · 수락이 멈추지 않는다(mail-page ⑥ · gsr-guard 가 행동으로 잰다)
-chk 'ENTRY_ARGS_SRV' automation/consultation/consultation-booking.gs 6
-chk 'BTN_STATE_FIRST' automation/consultation/consultation-booking.gs 1
+chk 'ENTRY_ARGS_SRV' automation/consultation/consultation-booking.gs 8
+chk 'BTN_STATE_FIRST' automation/consultation/consultation-booking.gs 2
 chk 'NOTICE_PER_WHO' automation/consultation/consultation-booking.gs 1
 chk 'PAY_NOTICE_TRUE' automation/consultation/consultation-booking.gs 1
 chk 'PASTE_GAP' automation/admin/admin.gs 1
@@ -16438,12 +16438,22 @@ chk '.search input{flex:1;min-width:0;' admin.html 1
 chk 'MAIL_VIEWPORT' scripts/audit/mail-page.mjs 1
 nochk "<br>확정 메일이 늦어질 수 있어요" automation/consultation/consultation-booking.gs
 nochk "서버가 혼잡합니다. 잠시 후 다시 눌러 주세요" automation/consultation/consultation-booking.gs
+# ★[CAL_RESULT · ERR_LOG_CAP · AICOST_SECRET 2026-10-09 라운드 5] 캘린더 결과는 true · false · null(승인 · 수락은 false 를 «안 된 것»으로 · 결과 글의 «캘린더에도»는 된 것만)
+#   · 사고번호가 있는 오류기록도 같은 동작은 한 시간에 30줄까지 · AI 비용 기록은 사이트 서버만 아는 공유키(문의 리드와 같은 키)가 맞을 때만
+#   · 변경 제안을 보낸 예약은 메일 단추로 승인하지 않는다 · 다시 연 «이미 확정»에도 앞선 오류 안내(mail-page ⑥ · err-log-safe ⑥ · gsr-guard 가 행동으로 잰다)
+chk 'CAL_RESULT' automation/consultation/consultation-booking.gs 5
+chk 'ERR_LOG_CAP' automation/platform/95_notify.gs 1
+chk 'ERR_LOG_CAP' scripts/audit/err-log-safe.mjs 1
+chk 'AICOST_SECRET' automation/platform/96_ai_cost.gs 1
+chk 'AICOST_SECRET' api/_costlog.js 1
+chk 'AICOST_SECRET' scripts/audit/gsr-guard.mjs 1
+chk "secret: process.env.HANDOFF_SECRET" api/_costlog.js 1
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/purge-chain.mjs >/dev/null 2>&1; _pcg=$?; if [ "$_pcg" != 0 ]; then echo "FAIL purge-chain($_pcg): 주간 정리가 매단 개인정보 파기를 건너뛴다 · 2 = 재지 못함 — node scripts/audit/purge-chain.mjs"; fail=1; else echo "ok purge-chain ($_pcg)"; fi; fi   # [PURGE_CHAIN_ALWAYS]
 # ★[TRIG_IN_WHY 2026-10-09 점검] 예약 실행 확인 기록에 그때 메일(가린 꼴) · «목록에 없음»은 배우기 전에만(TRIG_MISS_QUIET) · 목록을 못 읽으면 알던 목록으로(TRIG_LIST_KNOWN · gsr-guard 가 행동으로 잰다)
-chk 'TRIG_IN_WHY' automation/platform/70_journey.gs 3   # 라운드 2 에서 «목록 못 읽음» 줄이 TRIG_LIST_KNOWN 으로 옮겨 3
+chk 'TRIG_IN_WHY' automation/platform/70_journey.gs 5   # 라운드 5 에서 배우기 전 모양 기록 · 옛 기록 꼬리 줄이 늘어 5 · 라운드 2 에서 «목록 못 읽음» 줄이 TRIG_LIST_KNOWN 으로 옮겨 3
 chk 'TRIG_IN_WHY' automation/platform/99_deployCheck.gs 1
 chk 'TRIG_UID_MISS' scripts/gen-deploy-fns.mjs 1
 nochk '^function setAdminAccount([^)]*) {$' automation/admin/admin.gs

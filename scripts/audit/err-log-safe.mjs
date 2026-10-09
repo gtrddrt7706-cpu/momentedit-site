@@ -77,5 +77,12 @@ for (let i = 0; i < 40; i++) g._errRecord('=X' + i + '()', 'X3', '지금은 처�
 ok('③ 모르는 동작 40번 → 한 시간에 20줄 이하(진짜 기록을 밀어내지 못한다)', rows.length <= 20 - 1, rows.length + '줄');
 ok('③ 그 줄들도 «=»로 시작하는 칸이 없다', rows.every((r) => r.every((v) => !isFormula(v))), JSON.stringify(rows[0]));
 
+/* ⑥ [ERR_LOG_CAP] 사고번호가 있는 줄도 같은 동작은 한 시간에 30줄까지 — 한꺼번에 쏟아져 진짜 줄을 밀어내지 못하게 */
+rows.length = 0;
+for (let i = 0; i < 45; i++) g._errRecord('get:schedule', 'X9', '문제가 발생했습니다', 'TypeError ' + i, 'E' + i, '');
+ok('⑥ 사고번호가 있는 같은 동작 45번 → 한 시간에 30줄', rows.length === 30, rows.length + '줄');
+rows.length = 0; g._errRecord('saveProductionTrack', 'S9', '서버에서 오류가 났어요', 'x', 'Q1', '');
+ok('⑥ 다른 동작의 줄은 그대로 남는다', rows.length === 1, rows.length + '줄');
+
 console.log(rc ? '━━ 빨강 — 오류기록에 밖의 글이 수식 · 개인정보로 들어간다' : '━━ 초록');
 process.exit(rc);
