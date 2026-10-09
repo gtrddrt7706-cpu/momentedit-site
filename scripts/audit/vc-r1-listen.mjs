@@ -199,17 +199,17 @@ const SC = [
     const st0 = await f.evaluate(() => ({ g2: _staleNoVoice('g2'), g3: _staleNoVoice('g3') }));
     if (!st0.g3 || !st0.g2) { ok('#45 상태 만들기 — g2 · g3 가 «목소리 없이 글을 고친 AI 줄»', false, JSON.stringify(st0)); return; }
     /* ★[AI_PLAY_READY 2026-10-08 사장님 «목소리를 먼저 만들지 않으면 플레이 버튼 비활성화 · 누르면 밑에 어디서 만들지»] 종전 #45(NOW_PEND — ▶ 가 연습 AI 읽기로 지금 글을 읽어 줌)는 걷었다.
-       이제 ▶ 는 남의 목소리를 틀지 않고 흐리게 · 누르면 그 줄 아래 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기» · 요청 없음 */
+       이제 ▶ 는 남의 목소리를 틀지 않고 흐리게 · 누르면 그 줄 아래 «… 목소리가 아직 없어요 · 만들러 가기»(TOAST_MIN) · 요청 없음 */
     const n0 = (await prac(pg)).length, p0 = await f.evaluate(() => window.__plays.length);
     await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); if (b) b.scrollIntoView({ block: 'center' }); });
     const b0 = await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); return { off: !!(b && b.classList.contains('off')), ad: b && b.getAttribute('aria-disabled'), dis: b && b.disabled, fill: !!(b && /wfill/.test(b.className)) }; });
     await click(f, '[data-fk="mkvpl:g3"]'); await adv(pg, 500); await shot(pg, '45-한줄');
     const HINT = (k) => f.evaluate((k) => { const li = document.querySelector('[data-fk="mkvpl:' + k + '"]').closest('li'); return [...li.querySelectorAll('.mk-ploff')].map((e) => e.textContent).join('') || ((t) => (t && !t.hidden && t.getAttribute('data-for') === k ? t.textContent.trim() : ''))(document.getElementById('lsToast')); }, k);   /* [OFF_TOAST 2026-10-09] 아래 알림(그 ▶ 의 것만) */
     const h3 = await HINT('g3'); await f.evaluate(() => mkUpPlay('g3')); await adv(pg, 5000);
-    ok('#45 목소리 없이 고친 줄 ▶ = 흐림(aria-disabled · 차오름 없음) · 누르면 그 줄 아래 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기» · 연습 읽기 요청 · 소리 없음 [AI_PLAY_READY]',
-      b0.off && b0.ad === 'true' && !b0.dis && !b0.fill && /목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(h3) && (await prac(pg)).length === n0 && (await f.evaluate(() => window.__plays.length)) === p0, JSON.stringify({ b0, h3 }));
+    ok('#45 목소리 없이 고친 줄 ▶ = 흐림(aria-disabled · 차오름 없음) · 누르면 아래 알림 «… 목소리가 아직 없어요 · 만들러 가기»(TOAST_MIN) · 연습 읽기 요청 · 소리 없음 [AI_PLAY_READY]',
+      b0.off && b0.ad === 'true' && !b0.dis && !b0.fill && /목소리가 아직 없어요 · 만들러 가기$/.test(h3) && (await prac(pg)).length === n0 && (await f.evaluate(() => window.__plays.length)) === p0, JSON.stringify({ b0, h3 }));
     await click(f, '[data-fk="mkvpl:g2"]'); await adv(pg, 500); const h2 = await HINT('g2'), h3b = await HINT('g3');
-    ok('#45 다른 줄 ▶ 를 누르면 한 줄은 그 줄로 옮긴다(앞 줄 글은 걷힘)', /목소리를 만들면 들을 수 있어요/.test(h2) && !h3b && (await prac(pg)).length === n0, JSON.stringify({ h2, h3b }));
+    ok('#45 다른 줄 ▶ 를 누르면 한 줄은 그 줄로 옮긴다(앞 줄 글은 걷힘)', /목소리가 아직 없어요/.test(h2) && !h3b && (await prac(pg)).length === n0, JSON.stringify({ h2, h3b }));
   } },
   /* ── #46 ── */
   { no: 46, faults: [{ op: 'status', kind: 'crash', lat: 4000 }], async run({ pg, f }) {

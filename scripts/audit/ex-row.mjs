@@ -2,7 +2,7 @@
 //   ① AI 하객 맞이 = 위쪽 고르기 묶음에 «참고 예시» 칩 줄(어떻게 준비할까요 바로 아래) · 느낌 이름 넷 · 옛 카드 없음
 //     ★[EX_CHIP_ON 2026-10-09 사장님 «담백하게로 셋팅되는데 버튼이 안 눌려 있다» → «자동으로 눌린 채로» · «다른 곳들도 똑같이»] 글이 그 예시면 그 칩이 눌린 모양(«담백하게») ·
 //     «아직 고르지 않았어요 · 지금 글은 … 예시예요» 덧줄 없음 · 고쳐 써서 어느 예시와도 다르면 아무것도 안 눌림 · 여섯 자리(AI 하객 맞이 · 입장 · 식전 영상 / 스튜디오 안내 · 입장 · 소개 멘트)
-//   ② 칩을 누르면 그 칩이 눌리고 아래 글이 바뀐다 · 안내는 칩 줄 아래가 아니라 아래 알림 «아래 글을 바꿨어요 · 고쳐 써도 돼요»(NOTE_TOAST)
+//   ② 칩을 누르면 그 칩이 눌리고 아래 글이 바뀐다 · 안내는 칩 줄 아래가 아니라 아래 알림 «예시를 넣었어요 · 고쳐 써도 돼요»(NOTE_TOAST)
 //   ③ 스튜디오 입장 = «어떻게 준비할까요»가 먼저 · «입장 멘트»가 아래 / 스튜디오 하객 맞이 = «안내 멘트» 줄(예시라는 말 · 덧말 없음)
 //   ④ 서약 = «두 분이 할 말» 바로 위 «참고 예시» 칩 줄 · 처음엔 안 눌림 · 누르면 칸에 들어가고 눌린 모양
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
@@ -33,7 +33,7 @@ try {
     ok(`${w} ① 고쳐 써서 어느 예시와도 다르면 아무 칩도 안 눌림 · 키보드 자리는 첫 칩 하나 [EX_CHIP_ON]`, own.cur === -1 && own.on === 0 && own.tab === 1, JSON.stringify(own));
     await pg.click('[data-fk="mkex:guest:1"]'); await wait(400);
     const b = await pg.evaluate(() => ({ r: [...document.querySelectorAll('.mk-pick .ls-cg')].map((r) => ({ l: r.getAttribute('aria-label'), on: [...r.querySelectorAll('.op-chip[aria-checked="true"]')].map((x) => x.textContent.trim()), n: (r.querySelector('.ls-gnote') || {}).textContent || '' })).find((r) => r.l === '참고 예시'), t: _recNeed('g0'), want: GUEST_EX[1][1][0], toast: ((u) => (u && !u.hidden ? u.textContent : ''))(document.getElementById('lsToast')) }));
-    ok(`${w} ② 칩 «다정하게» → 눌린 모양 · 아래 글이 그 예시로 · 칩 줄 아래 덧말 없이 아래 알림 «아래 글을 바꿨어요 · 고쳐 써도 돼요» [NOTE_TOAST]`, b.r && b.r.on.join() === '다정하게' && b.t === b.want && b.r.n === '' && b.toast === '아래 글을 바꿨어요 · 고쳐 써도 돼요', JSON.stringify(b));
+    ok(`${w} ② 칩 «다정하게» → 눌린 모양 · 아래 글이 그 예시로 · 칩 줄 아래 덧말 없이 아래 알림 «예시를 넣었어요 · 고쳐 써도 돼요» [NOTE_TOAST]`, b.r && b.r.on.join() === '다정하게' && b.t === b.want && b.r.n === '' && b.toast === '예시를 넣었어요 · 고쳐 써도 돼요', JSON.stringify(b));
     await pg.evaluate(() => { S.vfill = {}; S.entryVoice = 'nar'; S.guestVoice = 'nar'; buildSteps(); mkGo('entry'); }); await wait(400);
     const c = await pg.evaluate(rows);
     const ent = c.find((r) => r.l === '입장 멘트'), entWant = await pg.evaluate(() => ENTRY[S.entry].d);

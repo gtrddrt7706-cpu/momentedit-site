@@ -26,7 +26,9 @@ if (old.length === 0) ok.push('옛 꼴 `legacyCopy(x); ok();` 0곳');
 else bad.push(`옛 꼴 ${old.length}곳 남음 — copyThen(text, ok) 을 쓸 것: ${old[0]}`);
 
 // ③ copyThen 이 실패를 «말해야» 한다
-if (/function copyThen\([\s\S]*?fail\(\)/.test(body) && /복사가 안 됐어요/.test(body)) ok.push('copyThen 이 실패를 알린다');
+/* [TOAST_MIN 2026-10-09] 실패 알림은 «길게 눌러 복사해 주세요»(한 줄 20자 안) — 복사됐다고 하지 않고 할 일을 말한다. 종전 «복사가 안 됐어요 · 길게 눌러 직접 복사해 주세요» */
+const failSay = /var fail=function\(\)\{ try\{ mpToast\('([^']+)'\)/.exec(body);
+if (/function copyThen\([\s\S]*?fail\(\)/.test(body) && failSay && !/(했어요|됐어요)$/.test(failSay[1]) && /복사/.test(failSay[1])) ok.push('copyThen 이 실패를 알린다(«' + failSay[1] + '» · 성공이라 하지 않는다)');
 else bad.push('copyThen 이 실패 경로에서 아무 말도 하지 않는다');
 
 // ④ 복사 버튼이 전부 copyThen 을 거치는가 — 「복사됐어요」 개수와 copyThen 호출 개수를 맞댄다
@@ -38,7 +40,7 @@ else bad.push(`「복사됐어요」 ${says}곳인데 copyThen 은 ${uses}곳뿐
 // ⑤ QR: 새 탭 폴백에서 저장을 단언하지 않는가
 if (/_qrDl[\s\S]{0,400}?return true;[\s\S]{0,400}?return false;/.test(body)) ok.push('_qrDl 이 «다운로드/새 탭»을 구분해 돌려준다');
 else bad.push('_qrDl 이 폴백 여부를 안 돌려준다 — 새 탭에 띄우고도 「저장됐어요」가 뜬다');
-if (/done\(_qrDl\(src,fname\)\)/.test(body) && /새 탭에 QR을 띄웠어요/.test(body)) ok.push('QR 폴백에서 저장을 단언하지 않는다');
+if (/done\(_qrDl\(src,fname\)\)/.test(body) && /새 탭에서 길게 눌러 저장해 주세요/.test(body)) ok.push('QR 폴백에서 저장을 단언하지 않는다');
 else bad.push('QR done() 이 폴백을 구분하지 않는다');
 
 // 자기반증 — 옛 꼴을 넣으면 반드시 걸려야 한다

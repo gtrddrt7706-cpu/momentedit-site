@@ -666,13 +666,13 @@ await run('⑤ AI 위젯 · 공유 2라운드', async () => {
   w = await open('/inquiry.html', `return { body: {} };`, { w: 1280, init: FAILCOPY });
   await until(w.pg, () => !!document.getElementById('meAdvShare'), null, 8000);
   await w.pg.evaluate(() => document.getElementById('meAdvShare').click());
-  const sf = await until(w.pg, () => /^복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요$/.test(((document.getElementById('meAdvToast') || {}).textContent || '').trim()));
-  ok('⑤ 위젯 공유(SHARE_COPY_FAIL) — 복사가 안 되면 «복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요» 한 줄(종전 말 없음 · ✓ 표시)', sf);
+  const sf = await until(w.pg, () => /^주소창에서 직접 복사해 주세요$/.test(((document.getElementById('meAdvToast') || {}).textContent || '').trim()));
+  ok('⑤ 위젯 공유(SHARE_COPY_FAIL) — 복사가 안 되면 «주소창에서 직접 복사해 주세요» 한 줄(TOAST_MIN)(종전 말 없음 · ✓ 표시)', sf);
   await w.ctx.close();
   w = await open('/index.html', `return { body: {} };`, { w: 360, init: FAILCOPY });
   await w.pg.waitForTimeout(300);
   await w.pg.evaluate(() => window.meShareSite(null));
-  const hf = await until(w.pg, () => /^복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요$/.test(((document.getElementById('meToast') || {}).textContent || '').trim()));
+  const hf = await until(w.pg, () => /^주소창에서 직접 복사해 주세요$/.test(((document.getElementById('meToast') || {}).textContent || '').trim()));
   const tw = await w.pg.evaluate(() => { const t = document.getElementById('meToast'); t.textContent = '재생이 막혔어요 · 다시 눌러 주세요 (코드 M7)'; t.classList.add('on'); const r = document.createRange(); r.selectNodeContents(t); return new Set([...r.getClientRects()].filter((x) => x.width > 1).map((x) => Math.round(x.top + x.height / 2))).size; });
   ok('⑤ 홈 공유(SHARE_COPY_FAIL) — execCommand 실패를 «복사됨»이라 하지 않는다 · 위젯과 같은 말 · [TOAST_WIDTH] 360px 토스트가 180px 칸에 접히지 않는다(한 줄)', hf && tw === 1, { hf, tw });
   await w.ctx.close();
