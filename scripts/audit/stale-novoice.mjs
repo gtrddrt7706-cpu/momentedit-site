@@ -1,6 +1,6 @@
 // ★[STALE_NOVOICE · EX_MINE 2026-10-06 사장님] (390 · 1280)
 //   STALE_NOVOICE ①입장 인사 · 하객 맞이: AI 로 만든 줄의 글이 바뀌었는데 목소리가 없으면 머리에 «목소리 만들기»(→ 두 분 목소리 쪽) · 고친 글이면 옆에 «글을 고쳤어요»(고른 멘트 · 예시는 옆 글 없음 · PRESET_QUIET)
-//     ②▶ 는 옛 파일을 틀지 않는다 — ★2026-10-08 [AI_PLAY_READY] 남의 목소리(스튜디오 나레이션 · 연습 AI 읽기)도 틀지 않고 흐림 · 누르면 그 줄 아래 «… 목소리를 만들면 들을 수 있어요»
+//     ②▶ 는 옛 파일을 틀지 않는다 — ★2026-10-08 [AI_PLAY_READY] 남의 목소리(스튜디오 나레이션 · 연습 AI 읽기)도 틀지 않고 흐림 · 누르면 그 줄 아래 «… 목소리가 아직 없어요»(TOAST_MIN)
 //   EX_MINE ③참고 예시 속 이서준 · 정하윤 · 서준 · 하윤 → 두 분 이름(토씨까지) ④이름이 한글이 아니면 그대로 ⑤표 전체에 가상 신랑 · 신부 이름이 남지 않는다
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
@@ -27,7 +27,7 @@ try {
     ok(`${w} ① 입장 인사 — 목소리 없이 멘트만 바뀐 줄: «목소리 만들기» 단추 · 단추 옆 «멘트를 바꿨어요» 없음 [PRESET_QUIET 2026-10-08 사장님 «어차피 목소리 만들기로 버튼이 바뀌잖아»]`, a.stale && !a.side /* [STALE_QUIET 2026-10-09] 단추 옆 글 없음 */ && a.go, JSON.stringify(a));
     const b = await pg.evaluate(() => { let got = null; const P = window._playLead; window._playLead = (au, u) => { got = u; }; const bt = document.querySelector('[data-fk="mkvpl:entry"]'); const off = !!(bt && bt.classList.contains('off') && bt.getAttribute('aria-disabled') === 'true'); mkUpPlay('entry'); window._playLead = P;
       const li = document.querySelector('[data-fk="mkvpl:entry"]').closest('li'); return { got, off, hint: [...li.querySelectorAll('.mk-ploff')].map((e) => e.textContent).join('') || ((t) => (t && !t.hidden && t.getAttribute('data-for') === 'entry' ? t.textContent.trim() : ''))(document.getElementById('lsToast')), go: !!document.querySelector('#lsToast[data-for="entry"] [data-fk="mkploffgo:entry"]') }; });   /* [OFF_TOAST] 아래 알림 */
-    ok(`${w} ② ▶ = 옛 AI 파일도 남의 목소리도 틀지 않는다 · 흐림 · 누르면 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기» [AI_PLAY_READY]`, !b.got && b.off && /목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(b.hint) && b.go, JSON.stringify(b));
+    ok(`${w} ② ▶ = 옛 AI 파일도 남의 목소리도 틀지 않는다 · 흐림 · 누르면 «… 목소리가 아직 없어요 · 만들러 가기» [AI_PLAY_READY · TOAST_MIN]`, !b.got && b.off && /목소리가 아직 없어요 · 만들러 가기$/.test(b.hint) && b.go, JSON.stringify(b));
     if (SHOT) { await pg.evaluate(() => document.querySelector('[data-fk="mkvgo:entry"]').scrollIntoView({ block: 'center' })); await pg.screenshot({ path: `${SHOT}-entry-${w}.png` }); }
     await pg.click('[data-fk="mkvgo:entry"]'); await wait(500);
     ok(`${w} ① «목소리 만들기» → 두 분 목소리 쪽`, await pg.evaluate(() => !!document.querySelector('.mk-vpage')));

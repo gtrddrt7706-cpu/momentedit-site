@@ -223,7 +223,7 @@ await sec('④⑤', async () => {
   ok('⑤ 시간 초과(결과 모름) → 베일 «응답이 늦어요.» / «처리됐는지 확인하고 있어요» — 저절로 다시 확인하는 중간 줄엔 코드 없음 [ERR_MID_NOCODE] · 문장마다 한 줄 · 화면 가장자리에 안 붙는다(360)', !veil.none && veil.parts.join('|') === '응답이 늦어요.|처리됐는지 확인하고 있어요' && veil.lines.every((n) => n === 1) && veil.inside, JSON.stringify(veil));
   await pg.waitForTimeout(3600);
   const done = await pg.evaluate(() => ({ toasts: window.__toasts.slice(), alerts: window.__alerts.map((o) => o.title + ' / ' + (o.body || '')), veil: !!document.getElementById('flow_busy') }));
-  ok('⑤ 상태를 다시 불러 반영됐으면 «확인했어요 · 처리됐어요» · 실패 판 없음', done.toasts.some((t) => t === '확인했어요 · 처리됐어요') && !done.alerts.length, JSON.stringify(done));
+  ok('⑤ 상태를 다시 불러 반영됐으면 «처리됐어요»(TOAST_MIN) · 실패 판 없음', done.toasts.some((t) => t === '처리됐어요') && !done.alerts.length, JSON.stringify(done));
   /* 반영 안 됐으면 — 두 번 본 뒤 «아직 반영되지 않았어요 … (코드 P5)» */
   GAS.getMyState = { json: STATE({ balance: { status: '대기', confirmed: false } }) };
   await pg.waitForTimeout(1500);

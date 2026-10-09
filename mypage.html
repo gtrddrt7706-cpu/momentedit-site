@@ -2346,7 +2346,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var rd=_rdOv||((p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null);   // [ORDER_RELOAD] 새로고침이면 열 때 받은 옛 초안 대신 방금 그 판
       // [V2_DRAFT_NOTICE 2026-07-25] 구버전(v2 이하) 초안 감지 — 침묵 폐기 대신 1회 안내 후 종전 동작(새로 시작 · 회의 R-6)
       //   [ORDER_OWNER] 안내 플래그도 계정별 키 — 같은 기기에서 계정이 바뀌면 그 계정은 안내를 다시 받아야 한다(앞 계정이 봤다고 건너뛰면 조용한 초안 폐기가 됨).
-      if(p&&p.ritualDraft&&!rd){ try{ var _v2k='me_order_v2note_'+(String((p&&p.code)||'')||'guest'); if(!localStorage.getItem(_v2k)){ localStorage.setItem(_v2k,'1'); _miniToast('이전 버전에서 만든 식순 초안은 새 빌더로 이어지지 않아요 · 새로 시작해요'); } }catch(e){} }
+      if(p&&p.ritualDraft&&!rd){ try{ var _v2k='me_order_v2note_'+(String((p&&p.code)||'')||'guest'); if(!localStorage.getItem(_v2k)){ localStorage.setItem(_v2k,'1'); _miniToast('예전 식순 초안은 이어지지 않아요'); } }catch(e){} }
       // [ORDERFILL_DONE 2026-07-25] 서버 초안의 완료 여부를 실값으로 동봉 — 중간 '저장 후 나가기' 초안이 완성 화면·'저장됨'·전체 방문 ✓로 열리던 결함 수정(완료 판정 소스 = tracks.ritual)
       var _rdn=((((p&&p.tracks)||((p&&p.production)||{}).tracks)||{}).ritual==='완료');
       // 신원 번들 — 빌더 안 AI 상담 그라운딩·인계 식별용(이름·코드·전화·예식일·D-day · 기획 v3 §1-2). 서약·편지 본문은 보내지 않음.
@@ -2486,7 +2486,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   var _bkId=bkOpen(function(){
     if(!_frameReady){ done(); return; }   // iframe 미로드(저장할 것도 없음) → 그냥 닫기
     try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); return; }
-    setTimeout(function(){ if(!_closed){ done(); _miniToast('저장 확인 중이에요 · 잠시 후 반영돼요'); } },3000);
+    setTimeout(function(){ if(!_closed){ done(); _miniToast('저장 확인 중이에요'); } },3000);
   });
 }
 // 예식 미리 들어보기 — 식순 초안 그대로 흐르는 소리 미리듣기(/console.html?mode=preview&embed=1&S=…) [PREVIEW_LINK_V1]
@@ -2506,7 +2506,7 @@ function openRitualPreview(p, inv){
     photoShare:RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft),
     meal:RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)   // [MEAL_GUIDE] 모일 식당 «유무»만
   }))||''; }catch(e){}
-  if(!src){ _miniToast('식순을 먼저 만들면 미리 들어볼 수 있어요'); return null; }   // 버튼이 안 떠 있어야 정상이지만, 떠 있었다면 빈 화면 대신 이유를 말한다
+  if(!src){ _miniToast('식순을 먼저 만들어 주세요'); return null; }   // 버튼이 안 떠 있어야 정상이지만, 떠 있었다면 빈 화면 대신 이유를 말한다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
      떼기만 하면 done() 이 안 돌아 잠금 카운트가 새고 안 보이는 iframe 에서 소리가 계속 난다.
      그렇다고 '닫고 다시 열기'로 하면 더 나쁘다 — 닫기가 히스토리 층을 되돌리는데(bkDone→history.back)
@@ -2832,7 +2832,7 @@ function qrSaveImage(host, fname){
   var el=host.querySelector('canvas,img'); if(!el) return;
   var src=(el.tagName==='CANVAS')?el.toDataURL('image/png'):el.src;
   /* [COPY_TRUTH] 새 탭 폴백에서도 «저장됐어요»가 떴다. 저장을 단언하지 말고 무엇을 해야 하는지 말한다. */
-  var done=function(ok){ mpToast(ok===false ? '새 탭에 QR을 띄웠어요 · 이미지를 길게 눌러 저장해 주세요' : 'QR 이미지가 저장됐어요'); };
+  var done=function(ok){ mpToast(ok===false ? '새 탭에서 길게 눌러 저장해 주세요' : 'QR을 저장했어요'); };
   try{
     if(el.tagName==='CANVAS' && navigator.canShare && el.toBlob){
       el.toBlob(function(bl){
@@ -2990,7 +2990,7 @@ function _wrSlow(o, okf){
   var look=function(){ n++;
     api({action:'getMyState', token:getToken()}).then(function(d){
       if(d&&d.ok){ var hit=false; try{ hit=!!o.done(d); }catch(_){}
-        if(hit){ end(function(){ try{ cacheState(d); }catch(_){} _miniToast('확인했어요 · 처리됐어요'); okf(d, true); }); return; }
+        if(hit){ end(function(){ try{ cacheState(d); }catch(_){} _miniToast('처리됐어요'); okf(d, true); }); return; }
         if(again()) return; end(function(){ o.fail('아직 반영되지 않았어요 · 다시 눌러 주세요 (코드 '+L+'5)'); }); return; }
       if(_errSess(d)){ end(function(){ _errGoLogin(d, L); }); return; }
       if(again()) return; end(function(){ o.fail(ERR_W[5]+' · '+ERR_DO[5]+' (코드 '+L+'5)'); });
@@ -8074,7 +8074,7 @@ function doPublishInv(box){
        ('design' · 'name' · 모름(null · undefined)은 건드리지 않는다 — «그대로» 약속만 결과로 확인한다) */
     if(r.urls && INVFLOW._lkChg==='' && _eid0 && r.eventId && String(r.eventId)!==_eid0) INVFLOW._lkChg='name';
     try{ invStepDone(box, r); }
-    catch(e){ reset(''); _miniToast('청첩장은 만들어졌어요 · 화면을 새로고침하면 링크가 보여요'); saveInvDraft(); }
+    catch(e){ reset(''); _miniToast('새로고침하면 링크가 보여요'); saveInvDraft(); }
   }
   function _pubErr(e){
     var _to=(_errKind(e)==='slow') || (e&&(e.name==='AbortError'||/abort/i.test(String(e.message||''))));
@@ -8648,7 +8648,7 @@ function exitSeatFlow(){ _mpHoldScroll();   // 저장 실패 시 편집 내용 �
       .then(function(again){ if(again===null) return; if(again){ exitSeatFlow(); } else { bkKill(SEATFLOW); SEATFLOW.active=false; _mpRefresh(); } });
   };
   saveSeat(false).then(function(r){ if(!(r&&r.ok)){ _fail(r); return; }   // [SAVE_FALSE_OK] 'ok===false 가 아니면 성공'은 응답이 비었을 때 뚫린다 — 성공을 확인하고 넘어간다
-    window._mpNextToast='자리 배치를 저장했어요 · 하객 좌석 안내 링크는 예식 준비 카드에 있어요'; _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); _mpRefresh(); }).catch(function(e){ _fail(_errRes(e,'S',ERR_SAVE_BASE)); });
+    window._mpNextToast='자리 배치를 저장했어요'; _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); _mpRefresh(); }).catch(function(e){ _fail(_errRes(e,'S',ERR_SAVE_BASE)); });
 }
 function _seatErr(m){ var e=$('seat_err'); if(e) _errSet(e, m||''); }   // [ERR_CODE_NOWRAP]
 function seatSharePanelHtml(token){
@@ -9641,7 +9641,7 @@ function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 �
   PHOTOFLOW._exiting=true; _flowBusy(true);   // 저장중 베일(멈춘 듯 보여 반복 클릭 방지)
   var _tearDown=_photoTearDown;
   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 사장님 지시문 6편 3부 2] 고른 구도가 없으면 «사진작가에게 전달돼요»라고 하지 않는다 — 전달될 구도가 없다(행도 «구도 고르기»가 아니게 맞췄다) */
-  var _close=function(){ window._mpNextToast=(PHOTOFLOW.sel||[]).length?'가족 · 친구 스냅을 저장했어요 · 촬영 때 사진작가에게 전달돼요':'저장했어요 · 고른 구도는 아직 없어요';   /* [GROUP_SNAP_NAME] */ _tearDown(); _mpRefresh(); };   // MPD4_F1 완료 확인+다음 연결(§8-1-① · 성공=토스트 H2)
+  var _close=function(){ window._mpNextToast=(PHOTOFLOW.sel||[]).length?'가족 · 친구 스냅을 저장했어요':'고른 구도 없이 저장했어요';   /* [GROUP_SNAP_NAME] */ _tearDown(); _mpRefresh(); };   // MPD4_F1 완료 확인+다음 연결(§8-1-① · 성공=토스트 H2)
   var _fail=function(r){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장) · [ERR_CODE_MYPAGE F5] 저장 결과(r)를 그대로 받는다
     _flowBusy(false); PHOTOFLOW._exiting=false;
     if(!bkAlive(PHOTOFLOW._bk)) PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });
@@ -10146,7 +10146,7 @@ function exitSnapFlow(){ _mpHoldScroll();   // 저장 후 오버레이 닫기 ·
   _snapCollect();
   if(!_snapAgreeGate()) return;   // [SNAP_AGREE_LAST] 동의 전이면 저장하지 않고 마지막 걸음의 체크 줄로(«저장하고 마치기» · 나가기 판 «저장하고 나가기» 공용)
   SNAPFLOW._exiting=true; _flowBusy(true);
-  var _close=function(){ window._mpNextToast=_snapFilledD(SNAPFLOW.d||{})?'스냅 기획을 저장했어요':'저장했어요 · 고른 장면은 아직 없어요';   /* ★[SNAP_EMPTY_SAVE 2026-09-27 고객 점검] 아무것도 안 고르고 저장하면 카드는 «스냅 기획하기»로 남는데 알림은 «저장했어요»뿐이었다 — 가족 · 친구 스냅 [PHOTO_EMPTY_SAVE] 와 같은 말 */   /* 바로 앞 화면이 «디렉터가 확인해 사진작가에게 전해요»를 말했다 — 알림에서 되풀이하지 않는다 */ _snapTearDown(); _mpRefresh(); };   // MPD4_F1 저장-복귀 확인 토스트(단체 사진·좌석과 같은 방식)
+  var _close=function(){ window._mpNextToast=_snapFilledD(SNAPFLOW.d||{})?'스냅 기획을 저장했어요':'고른 장면 없이 저장했어요';   /* ★[SNAP_EMPTY_SAVE 2026-09-27 고객 점검] 아무것도 안 고르고 저장하면 카드는 «스냅 기획하기»로 남는데 알림은 «저장했어요»뿐이었다 — 가족 · 친구 스냅 [PHOTO_EMPTY_SAVE] 와 같은 말 */   /* 바로 앞 화면이 «디렉터가 확인해 사진작가에게 전해요»를 말했다 — 알림에서 되풀이하지 않는다 */ _snapTearDown(); _mpRefresh(); };   // MPD4_F1 저장-복귀 확인 토스트(단체 사진·좌석과 같은 방식)
   var _fail=function(r){   // [ERR_CODE_MYPAGE F5] 저장 결과(r)를 그대로 받는다 — 원인 한 줄 + 코드 · 로그인 풀림
     _flowBusy(false); SNAPFLOW._exiting=false;
     if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
@@ -10994,7 +10994,7 @@ function bindSeat(box){
       SEATFLOW.sel=(sa==='name')?null:{ ti:ti, si:+sa };   // [SEAT_DRINK_SEL] 고른 자리는 이름 확정 뒤에도 남는다 — 음료 바가 그때 보인다
       SEATFLOW._edNew=true; renderSeat(box); return; }
     if(el.hasAttribute('data-seat-add')){ commitSeatEdit(box); var i=+el.getAttribute('data-seat-add'); var ta=SEATFLOW.tables[i]; if(ta&&ta.seats.length<5){ ta.seats.push(''); (ta.drinks=ta.drinks||[]).push(''); }
-      else if(ta){ _miniToast('한 테이블은 5자리까지예요'+(SEATFLOW.tables.length<6?' · 「+ 테이블」로 더 놓을 수 있어요':'')); }   // [SEAT_ADD_CAP] 침묵하던 갈래 — 토스트는 캔버스 어디서 눌러도 보인다(#seat_err 는 화면 아래라 위쪽 테이블에서 누르면 안 보인다) · 여섯 테이블(30석 = MP_FINAL_POLICY.max)이면 더 놓을 곳이 없어 뒷말을 뺀다
+      else if(ta){ _miniToast('한 테이블은 5자리까지예요'); }   // [SEAT_ADD_CAP] 침묵하던 갈래 — 토스트는 캔버스 어디서 눌러도 보인다(#seat_err 는 화면 아래라 위쪽 테이블에서 누르면 안 보인다) · 여섯 테이블(30석 = MP_FINAL_POLICY.max)이면 더 놓을 곳이 없어 뒷말을 뺀다
       renderSeat(box); return; }
     if(el.hasAttribute('data-seat-less')){ commitSeatEdit(box); var j=+el.getAttribute('data-seat-less'); var tl=SEATFLOW.tables[j]; var _lessMsg='';
       if(tl&&tl.seats.length>1){ var _emp=-1; for(var _q=tl.seats.length-1;_q>=0;_q--){ if(!String(tl.seats[_q]||'').trim() && !((tl.drinks&&tl.drinks[_q])||'')){ _emp=_q; break; } }   // 뒤에서부터 '이름·음료 모두 빈' 자리만 제거 — 음료 먼저 골라둔 자리를 빈 자리로 오인해 삭제하지 않게
@@ -11880,7 +11880,7 @@ var _mpCopyBtn=$('mp_copy'); if(_mpCopyBtn) _mpCopyBtn.addEventListener('click',
    검사: scripts/audit/copy-truth.mjs */
 function legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); var okc=document.execCommand('copy'); document.body.removeChild(ta); return !!okc; }catch(e){ return false; } }
 function copyThen(t, ok){
-  var fail=function(){ try{ mpToast('복사가 안 됐어요 · 길게 눌러 직접 복사해 주세요'); }catch(e){} };
+  var fail=function(){ try{ mpToast('길게 눌러 복사해 주세요'); }catch(e){} };
   try{
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ if(legacyCopy(t)) ok(); else fail(); }); return; }
   }catch(e){}

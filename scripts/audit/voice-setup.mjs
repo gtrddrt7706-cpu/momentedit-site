@@ -83,7 +83,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   /* ★[AI_PLAY_READY 2026-10-08 사장님 «우측 버튼이 목소리 만들기면 좌측 플레이 버튼 비활성화 · 누르면 밑에 안내»] 종전 [TEXT_PLAY_MAKE](고친 줄의 ▶ = 먼저 만들고 튼다)는 걷었다 — ▶ 는 흐림 · 누르면 한 줄 · 만들기는 머리 알약 한 곳 */
   await pg.click('[data-fk="mkvpl:g3"]', { force: true }); await pg.waitForTimeout(400);   // 손가락은 흐린(aria-disabled) 단추도 누른다
   const pq = await pg.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'), v = S.up.g3; return { off: b.getAttribute('aria-disabled') === 'true', hint: (b.closest('li').querySelector('.mk-ploff') || {}).textContent || ((t) => (t && !t.hidden && t.getAttribute('data-for') === 'g3' ? t.textContent.trim() : ''))(document.getElementById('lsToast')),   /* [OFF_TOAST] */ made: !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))), busy: !!MK_UP.g3 }; });
-  ok(W + ' 고친 줄의 ▶ = 흐림 · 누르면 그 줄 아래 «오른쪽 목소리 만들기를 누르면 들을 수 있어요» · 만들지 않는다 [AI_PLAY_READY]', pq.off && /목소리 만들기/.test(pq.hint) && !pq.made && !pq.busy, JSON.stringify(pq));
+  ok(W + ' 고친 줄의 ▶ = 흐림 · 누르면 아래 알림 «목소리를 먼저 만들어 주세요» · 만들지 않는다 [AI_PLAY_READY · TOAST_MIN]', pq.off && /^목소리를 먼저 만들어 주세요$/.test(pq.hint) && !pq.made && !pq.busy, JSON.stringify(pq));
   await pg.click('[data-fk="mkai:g3"]'); await pg.waitForTimeout(1500);   /* [AI_PILL] 만들기는 머리 «목소리 만들기» */
   ok(W + ' 머리 «목소리 만들기» → 새 글로 만든다(만든 뒤 단추는 «확정하기») [AI_PILL]', await pg.evaluate(() => { const v = S.up.g3; return !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))) && !_aiNeed('g3'); }));   /* [AI_PILL] 만든 뒤엔 «목소리 만들기»가 필요 없다 */
   await pg.click('[data-fk="mkvtreset:g3"]'); await pg.waitForTimeout(300);

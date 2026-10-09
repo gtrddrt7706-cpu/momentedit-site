@@ -590,7 +590,7 @@
     /* ★[SHARE_COPY_FAIL 2026-10-07 triage-pages #14 · ERR_CODES P4] PC(공유 시트 없음)에서 복사가 안 되면 말없이 지나갔다(.catch 빈 함수) · execCommand 는 실패해도 ✓ 였다.
        이제 index.html 공유(meShareSite)와 같은 말을 화면 아래 한 줄로 · 기기 쪽 일이라 코드는 없다. 홈은 자체 토스트(meToast)가 있어 그것을 쓰고, 없으면 같은 모양을 여기서 만든다 */
     var shareFail = function () {
-      var msg = '복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요';
+      var msg = '주소창에서 직접 복사해 주세요';   // [TOAST_MIN 10/09] 홈 공유(meShareSite)와 같은 말 · 한 줄 20자 안
       if (typeof window.meToast === 'function') { window.meToast(msg); return; }
       try {
         var el = document.getElementById('meAdvToast');
