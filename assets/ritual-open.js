@@ -856,13 +856,15 @@
      첫 장면 webp 두 벌(받은 표지 jpg = 첫 장면 · 1280 q80 · 640 q78 · encode-moment.sh 와 같은 값). 촬영표 17편 중 toast-pour 는 만들지 않았다(붓기 장면 없음 · 화면도 안 찾는다).
      _close 는 close · entry 는 entry → entry-look 차례(videoKeys). 이름을 빼면 그 순간은 글 한 줄(SCENE)로 돌아간다
      ★[THUMB_PICK 2026-10-03] ① 칸 그림(small · <이름>-640.webp · 칸에서만 쓴다)은 고른 장면 · 창과 영상 첫 장면(poster · <이름>.webp)은 늘 첫 장면:
-       candle  마지막(9.8초)  첫 장면은 초가 꺼져 있다 · 끝은 두 초 다 켜짐
-       entry   6.0초          첫 장면은 손과 부케 가까이 · 6초는 문으로 들어오는 두 분
-       toast   2.0초          사장님 지정 · 두 분이 잔을 가슴 높이로 든 장면
+       candle  9.8초          첫 장면은 초가 꺼져 있다 · 끝은 두 초 다 켜짐
+       entry   8.0초          첫 장면은 손과 부케 가까이 · 문으로 들어오는 두 분
+       toast   2.5초          사장님 지정 · 두 분이 잔을 가슴 높이로 든 장면(10/9 v8)
        tribute 8.0초          사장님 지정 · 부케를 든 어머님을 안는 신부 · 곁의 신랑
-       prevideo 6.0초         사장님 지정 · 화면을 보는 하객 뒷모습 · 아버님 팔에 얹은 어머님 손
+       prevideo 7.7초         사장님 지정 · 화면을 보는 하객 뒷모습
        나머지  첫 장면        (끝 장면은 주인공이 빠진다 · 덕담 뒷모습 · 편지 손 · 닫는 인사 발)
-       다시 구울 때: sh scripts/video/encode-moment.sh 받은파일.mp4 <이름> 2500k <초> */
+       ★초는 v8 받은 원본 기준(10/9 · 종전 v2 표의 6.0 · 2.0 · 6.0 은 옛 판) · 고른 다섯 편의 칸 그림은 그 원본에서 뽑아 둔 그대로다.
+     ★[VID_MOVE_NOW 2026-10-09 사장님 «열자마자 움직일 수 있게»] 영상은 앞의 멈춘 구간(편마다 0.10~3.10초)을 잘라 가볍게(CRF 24 · 합 65.0MB → 21.2MB) 다시 구웠다 — 첫 장면(poster)은 자른 판의 첫 장면.
+       다시 구울 때: 고른 다섯 편은 KEEP_CARD=1 sh scripts/video/encode-moment.sh 받은파일.mp4 <이름> · 나머지는 KEEP_CARD 없이(칸 그림 = 새 첫 장면) · 칸 그림을 새로 고르면 넷째 값(자른 뒤 기준 초) */
   var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 2026-10-09 사장님 «table 넣어» — 테이블 인사 영상(v8 묶음 · 10초)
   function videoKeys(k, S) {
     if (k === 'cake') return ['cake'];   // [CAKE_TOAST_SPLIT] 두 순간 · 두 영상
