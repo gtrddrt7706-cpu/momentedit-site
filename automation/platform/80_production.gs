@@ -220,26 +220,29 @@ function _prodPack(d, opts) { _gsr_();
   var cols = {}, total = 0;
   function put(header, val, cap, label) {
     if (migrating) cap = Math.max(cap, PROD_CAP.cellHard);
-    if (val.length > cap) return '저장할 내용이 너무 길어요(' + label + ' 현재 약 ' + val.length + '자 · 최대 ' + cap.toLocaleString() + '자). 글 길이를 조금 줄여 주세요.';
+    if (val.length > cap) return _prodTooLong_(label);   // ★[PROD_CAP_WORDS 2026-10-09 A~Z 점검 2라운드 A2-15] 칸 글자 수와 비교가 안 되는 숫자(저장 꼴 길이 · 최대 N자)는 싣지 않는다 — 어느 글을 줄일지만
     cols[header] = val; total += val.length; return '';
   }
   var meta = {};
   for (var i = 0; i < PROD_META_KEYS.length; i++) { var k = PROD_META_KEYS[i]; if (d[k] !== undefined) meta[k] = d[k]; }
   var metaJ; try { metaJ = JSON.stringify(meta); } catch (e) { return { cols: {}, err: '저장할 내용을 정리하지 못했어요. 새로고침 후 다시 시도해 주세요.' }; }
-  var err = put(PROD_META_COL, metaJ, PROD_CAP.meta, '기본·확인 정보');
+  var err = put(PROD_META_COL, metaJ, PROD_CAP.meta, '기본 정보');
   if (err) return { cols: {}, err: err };
   for (var t in PROD_TRACK_COL) {
     if (!PROD_TRACK_COL.hasOwnProperty(t)) continue;
     if (!full && t !== track) continue;   // 변경 트랙만(track이 비면 메타만 갱신 — 예: 확인서·예식일 동기화)
     var prevForT = (d._prev && String(d._prev.track || '') === t) ? d._prev : undefined;
     var val; try { val = _prodTrackPack(d[t + 'Draft'], prevForT); } catch (e2) { return { cols: {}, err: '저장할 내용을 정리하지 못했어요. 새로고침 후 다시 시도해 주세요.' }; }
-    var cap = (PROD_CAP[t] !== undefined) ? PROD_CAP[t] : PROD_CAP.other;
+    var cap = (PROD_CAP[t] !== undefined) ? PROD_CAP[t] : PROD_CAP.other, capP = cap, withPrev = !!prevForT;
+    /* ★[RITUAL_CAP_OWN 2026-10-09 A~Z 점검 2라운드 A2-15] 식순은 옛 한 칸(S.tx 로 다시 짓는 사본)만큼 상한을 늘린다 — 두 분 글을 두 번 세지 않게.
+       셀 한도(cellHard)는 넘지 않는다 · 저장 꼴은 그대로 */
+    if (t === 'ritual') { cap = Math.min(cap + _ritualLegLen_(d[t + 'Draft']), PROD_CAP.cellHard); capP = withPrev ? Math.min(cap + _ritualLegLen_(prevForT.draft), PROD_CAP.cellHard) : cap; }
     // [B급2] 직전본 백업(_prev)이 캡을 밀어내면 백업을 포기한다 — 고객이 쓴 글은 7,000자인데 화면이 14,000자라고 말하며
     //   거부하면 안내대로 줄여도 원인을 못 찾는다. 우선순위는 '고객 데이터 저장' > '복구용 백업 1세대'.
-    if (prevForT && val.length > cap && !migrating) {
-      try { val = _prodTrackPack(d[t + 'Draft'], undefined); } catch (e4) {}
+    if (withPrev && val.length > capP && !migrating) {
+      try { val = _prodTrackPack(d[t + 'Draft'], undefined); withPrev = false; } catch (e4) {}
     }
-    err = put(PROD_TRACK_COL[t], val, cap, TRACK_LABEL_KO[t] || t);
+    err = put(PROD_TRACK_COL[t], val, withPrev ? capP : cap, t === 'ritual' ? '서약 · 편지' : (TRACK_LABEL_KO[t] || t));
     if (err) return { cols: {}, err: err };
   }
   // [B-6] 합산 상한은 '행 전체'를 묶어야 의미가 있다 — 이번에 쓰지 않는 컬럼의 현재 길이도 더한다.
@@ -248,10 +251,28 @@ function _prodPack(d, opts) { _gsr_();
     _prodNewCols().forEach(function (h) { if (cols[h] === undefined) { try { total += String(opts.cust.get(h) || '').length; } catch (e3) {} } });
   }
   var totalCap = migrating ? Math.max(PROD_CAP.total, 200000) : PROD_CAP.total;   // 이전 중에는 합산도 막지 않는다(구셀 45k 상한이라 실제로 넘을 수 없음 · 이론적 방어만)
-  if (total > totalCap) return { cols: {}, err: '제작 내용 전체가 저장 한도에 가까워요(현재 약 ' + total + '자 · 최대 ' + PROD_CAP.total.toLocaleString() + '자). 긴 글을 조금 줄여 주시면 저장돼요.' };
+  if (total > totalCap) return { cols: {}, err: _prodTooLong_('긴') };   // [PROD_CAP_WORDS] 행 전체 합산 — 숫자 없이
   return { cols: cols, err: '' };
 }
 var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌석 배치', guideinfo: '하객 안내', snap: '스냅 기획', final: '최종 확정', invitation: '청첩장' };
+/* ★[PROD_CAP_WORDS 2026-10-09 A~Z 점검 2라운드 A2-15] 길이 상한 거절 글 한 곳 — «글이 너무 길어요 · ○○ 글을 조금 줄여 주세요 (코드 S0)».
+   종전 «현재 약 12947자 · 최대 12,000자»는 저장 꼴(JSON) 길이라 화면 칸 글자 수와 비교가 안 됐다 · 코드 글자는 부른 동작의 자리(저장 S · 올리기 U …) · 0 = 글이 곧 까닭 */
+function _prodTooLong_(label) {
+  var a = 'S'; try { if (typeof _errArea === 'function' && typeof __ERR_ACT !== 'undefined' && __ERR_ACT) a = _errArea(__ERR_ACT) || 'S'; } catch (e) { a = 'S'; }
+  return '글이 너무 길어요 · ' + label + ' 글을 조금 줄여 주세요 (코드 ' + a + '0)';
+}
+/* ★[RITUAL_CAP_OWN 2026-10-09 A~Z 점검 2라운드 A2-15] 식순 초안 크기 — 옛 한 칸(S.tx 두 칸으로 다시 짓는 사본)은 빼고 잰다. tx 에 짝이 없는 옛 칸(옛 빌더 초안)은 그 글이 원본이라 센다 */
+function _ritualCapLen_(dr) {
+  var o = dr || {}, S = o.S;
+  if (S && typeof S === 'object' && S.tx && typeof S.tx === 'object') {
+    var S2 = {}, o2 = {}, k, cut = 0;
+    for (k in S) if (Object.prototype.hasOwnProperty.call(S, k)) S2[k] = S[k];
+    for (var kd in TX_MERGE_LEG) { if (Object.prototype.hasOwnProperty.call(S.tx, kd + '.g') || Object.prototype.hasOwnProperty.call(S.tx, kd + '.b')) { if (TX_MERGE_LEG[kd] in S2) cut++; delete S2[TX_MERGE_LEG[kd]]; } }
+    if (cut) { for (k in o) if (Object.prototype.hasOwnProperty.call(o, k)) o2[k] = o[k]; o2.S = S2; o = o2; }
+  }
+  return JSON.stringify(o).length;
+}
+function _ritualLegLen_(dr) { var a = 0, b = 0; try { a = JSON.stringify(dr || {}).length; b = _ritualCapLen_(dr); } catch (e) { return 0; } return Math.max(0, a - b); }   // [RITUAL_CAP_OWN] 옛 한 칸이 차지하는 길이
 
 // 쓰기 — 시트 업데이트 맵에 병합해 반환(touchCustomer 호출은 호출부가 1회 · 락 보유시간 단축).
 //   ★구셀(PROD_LEGACY_COL)은 여기서 절대 건드리지 않는다(갱신·삭제 금지 · 위 '두 세대 공존' 참조).
@@ -674,8 +695,10 @@ function handleSaveProductionTrack(body) { _gsr_();
     if (_txm) body.draft = _txm.draft;   // [TX_MERGE] 이 아래(크기 검사 · 저장 · 빈 초안 판정)는 합친 초안을 본다
     // [DRAFT_SIZE_CAP 2026-07-25] ritual·dining만 정규화 없이 원문 저장돼 셀 한도(50k)를 위협 — 조기 거부(truncate 절대 금지 · 회의 W1-4).
     if (track === 'ritual' || track === 'dining') {
-      var _dcJ = ''; try { _dcJ = JSON.stringify((body && body.draft) || {}); } catch (eDc) { _dcJ = ''; }
-      if (_dcJ.length > 12000) return { ok: false, error: '저장할 내용이 너무 길어요(현재 약 ' + _dcJ.length + '자 · 최대 12,000자). 글 길이를 조금 줄여 주세요.' };
+      /* ★[RITUAL_CAP_OWN 2026-10-09 A~Z 점검 2라운드 A2-15] 식순은 옛 한 칸(welcomeText · vowText · letterText · tributeText — S.tx 로 다시 짓는 사본)을 빼고 잰다 —
+         그 칸까지 세면 두 분 글이 두 번 세어져 편지 둘(각 2,500자)쯤에서 12,000자에 걸렸다 · 저장은 그대로 · 거절 글은 숫자 없이 줄일 글만(PROD_CAP_WORDS) */
+      var _dcN = -1; try { _dcN = (track === 'ritual') ? _ritualCapLen_((body && body.draft) || {}) : JSON.stringify((body && body.draft) || {}).length; } catch (eDc) { _dcN = -1; }
+      if (_dcN > 12000) return { ok: false, error: _prodTooLong_(track === 'ritual' ? '서약 · 편지' : (TRACK_LABEL_KO[track] || track)) };
     }
     d[track + 'Draft'] = (body && body.draft) || {};
     var _snapJobs = [];   // [SNAP_PICK_V2] 사진 정리·마감 뒤 알림 — 시트 쓰기가 끝난 뒤에만 _notifyQ 로 넘긴다(쓰기 전에 실패하면 지우지 않게)
