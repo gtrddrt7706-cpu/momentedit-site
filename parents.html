@@ -71,6 +71,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--serif-ko);font-wei
    ★띠를 키우지 않고 «알파 곡선»만 고친다. 글자 띠(0~72%)는 1.0, 나머지에서 부드럽게 사라진다. */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;
   background:linear-gradient(to bottom,rgba(250,250,248,1) 0,rgba(250,250,248,1) 72%,rgba(250,250,248,0) 100%)}
+/* ★[NAV_SOLID_MOBILE 2026-10-09 고객 여정 점검 D-11] 폰 폭에서는 아래 28% 가 투명해지는 띠 사이로 본문 글자가 반쯤 비쳐 상단 바와 겹쳐 읽혔다 —
+   폰 폭에서만 페이지 바탕(--bg) 단색(반투명 · 흐림 면 금지 · 디자인 규칙). PC 는 글자 띠가 본문 밖이라 종전(NAV_MASK) 그대로 */
+@media(max-width:680px){ nav{background:var(--bg)} }
 .nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}
 .nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}
@@ -383,7 +386,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 /* [NAV_LOGO] 왼쪽 위 로고를 자간 텍스트 대신 브랜드 워드마크 이미지로(2026-07-30 사용자 지시 · privacy.html과 동일).
    ★이미지가 안 뜨면 종전 텍스트 조판으로 떨어진다 — 로고가 통째로 사라지지 않게. */
 .nav-logo{width:148px;height:auto;display:block}
-.nav-mark-fb{display:none;align-items:center;gap:6px;letter-spacing:0.32em}
+.nav-mark-fb{display:none;align-items:center;gap:6px;letter-spacing:0.32em}.nav-mark-fb .dot{margin-left:-0.32em}/* [BRAND_DOT_MID 2026-10-09 D-18] 그림 로고가 안 뜰 때의 글자 로고 — MOMENT 끝 자간만큼 점 왼쪽을 당겨 가운데로 */
 .nav-mark{min-height:44px}   /* [TAP44-3] */
 @media(max-width:680px){.nav-logo{width:130px}}
 
