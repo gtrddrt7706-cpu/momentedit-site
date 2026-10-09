@@ -17041,7 +17041,7 @@ chk 'ADV_ORDER_0707' index.html 1   # [D-13] 07-07 순서(메뉴 위 · 인사�
 chk "var g=addMsg(KB.greeting,'bot');   // 인사말 버블은 하단(입력창 위)에" index.html 1
 chk "g.classList.add('me-adv-greet');" index.html 1
 # ── [R7_MYPAGE 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 마이페이지 ──
-# ★★C2-1 ~ C2-16 · E2-7 — 되돌리지 말 것. 사람이 하는 길로 다시 재는 점검은 scripts/audit/mypage-r2.mjs(옛 판 빨강 31 · 고친 판 초록 확인)
+# ★★C2-1 ~ C2-16 · E2-7 — 되돌리지 말 것. 사람이 하는 길로 다시 재는 점검은 scripts/audit/mypage-r2.mjs(옛 판 빨강 35/45 · 고친 판 초록 45 확인)
 # 바뀐 옛 chk 하나(그 자리 줄을 주석으로 · 새 꼴은 아래 [C2_LAYER_INERT])
 #   16840 chk "\$('mp_logout')… if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" → «|| _ovlOpen()» 를 더한 꼴
 # ※C2-8(«카톡·메일로 알려드려요»)은 고치지 않았다 — 2026-07-25 사장님 «2안 · 짧게» 결정 · 1라운드 [KAKAO_WORD] 가 예외로 적어 둔 자리(651행 chk 가 지킨다)
