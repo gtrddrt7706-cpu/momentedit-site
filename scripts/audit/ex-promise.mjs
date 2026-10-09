@@ -3,7 +3,7 @@
 //   (종전 약속은 미리 만든 소리가 탭 기억뿐 · 한 줄씩 차례 · 실패해도 다시 안 해서, 같은 예시가 «바로 확정하기 · 준비 중 · 목소리 만들기»로 갈렸다)
 //   T1 «다정하게»를 누르면 네 줄 «목소리 만들기»(단추 옆 «예시를 바꿨어요»는 없다 · PRESET_QUIET 10/08) · 3초 지켜봐도 업체에 묻는 것 0 · 한 줄을 누르면 그 줄만 «만드는 중» → «확정하기»
 //   T2 옛 예시 글(10/6)로 만든 소리 — 칩 켜짐 · «확정하기» 그대로 · 다른 예시를 누르면 묻지 않고 «목소리 만들기»(옆 글 없음) · 만들기 0
-//   T3 정말 글을 고친 줄은 «글을 고쳤어요 · 목소리 만들기» · 만들기 0 (EX_LABEL_HONEST)
+//   T3 정말 글을 고친 줄은 «목소리 만들기»(단추 옆 «글을 고쳤어요» 없음 · STALE_QUIET 10/09) · 만들기 0 (EX_LABEL_HONEST)
 //   T4 그 줄 소리의 글로 돌아오면 다시 «확정하기» · 만들기 0
 //   T5 · T5b 배포로 예시 글이 바뀐 고객(소리는 옛 글 · 고객이 한 일이 아니다) — 들어오자마자 «준비 중» → 누르지 않아도 «확정하기»(이 길만 EX_FIRST 로 남겼다)
 //   T6 식전 영상 소개 예시 · T7 입장 인사 멘트 칩도 — 글만 · «목소리 만들기» · 만들기 0
@@ -61,7 +61,7 @@ try {
     const n0 = await pg.evaluate(() => window.__mk.length);
     await pg.evaluate(() => { mkSlText('g0', 0, _recNeed('g0') + ' 한 문장 더요.'); render(); }); await wait(300); const a = await look(pg);
     const g0 = await pg.evaluate(() => ({ mode: _aiMode('g0'), isEx: _exIs('g0'), mkAfter: window.__mk.filter((m) => m.key === 'g0' && /한 문장 더요/.test(m.tx)).length }));
-    ok('T3 정말 글을 고친 줄 = «글을 고쳤어요 · 목소리 만들기» 그대로(참 양성) · 뒤에서 먼저 만들지 않는다', g0.mode === 'need' && !g0.isEx && a.edited === 1 && a.need >= 1 && g0.mkAfter === 0, JSON.stringify({ a, g0, n0 }));
+    ok('T3 정말 글을 고친 줄 = «목소리 만들기»(참 양성 · 단추 옆 «글을 고쳤어요»는 없다 · STALE_QUIET) · 뒤에서 먼저 만들지 않는다', g0.mode === 'need' && !g0.isEx && a.edited === 0 && a.need >= 1 && g0.mkAfter === 0, JSON.stringify({ a, g0, n0 }));
     ok('T3 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* T4 */
   { const { pg, errs } = await open({ makeMs: 300 }); await aiUp(pg, 'cur'); await pg.evaluate(() => mkGo('guest')); await wait(150); const c0 = await pg.evaluate(() => _guestExCur());
