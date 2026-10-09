@@ -392,8 +392,8 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
     // ★ (가)의 완성 — 승인 직전, 같은 슬롯에 이미 LOCKED(승인완료·확정)인 '다른' 행이 있으면 차단.
     //   PICKED 둘이 통과해도 여기서 두 번째 승인을 막아 더블 확정 0.
     if (_slotTaken(dateKey, time, row.num)) {
-      return infoPage('이미 마감된 슬롯입니다',
-        esc(coupleNames(row)) + ' 님<br>' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>같은 시간이 이미 확정됐어요 · <b>변경 제안</b>을 보내 주세요.', false);   // [HTML_ESC_NAMES] · [MAIL_BOX_STEADY] 폰 네 줄 안
+      return infoPage('그 시간은 방금 마감됐어요',
+        esc(coupleNames(row)) + ' 님<br>' + prettyDate(dateKey) + ' · ' + esc(time) + '<br>다른 예약이 먼저 확정됐어요 · <b>변경 제안</b>을 보내 주세요.', false);   // [HTML_ESC_NAMES] · [MAIL_BOX_STEADY] 폰 네 줄 안
     }
 
     writeCell(sheet, colOf, row.num, '입금확인', '확인');
@@ -460,7 +460,7 @@ function actAccept(sheet, colOf, row) { _gsr_();
   try { _acLock.waitLock(10000); } catch (eL) { try { lockBusySignal('예약'); } catch (_e) {} return infoPage('다른 처리가 진행 중이에요', '잠시 후 다시 눌러 주세요 (코드 B1)', false, true); }   // [MAIL_RETRY]
   try {
   row = _rowFresh_(sheet, colOf, row);
-  if (!row) return infoPage('예약을 찾을 수 없습니다', '예약 정보가 바뀌었어요. 스튜디오로 문의해 주세요.', false);   // [LOCK_REREAD]
+  if (!row) return infoPage('예약을 찾을 수 없습니다', '예약 정보가 바뀌었어요<br>contact@momentedit.kr 로 문의해 주세요', false);   // [LOCK_REREAD]
   var curStatus = String(row.get('상태') || '').trim();
   // 이미 확정/취소된 건 재처리 안 함 (버튼 2번 클릭·새로고침 시 메일 중복 방지)
   if (curStatus === ST.CONFIRMED) {
@@ -633,7 +633,7 @@ function serveCancelD(token, row) { _gsr_();
       ? '<a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:600;text-decoration:none">카카오톡</a>' : '카카오톡';
     return infoPage('온라인 취소 기한이 지났습니다',
       '상담 <b>' + deadlineLabel() + ' 전</b>까지만 온라인 취소가 가능합니다.<br><br>' +
-      '예약하신 일정: <b style="color:#3A2D22">' + prettyDate(dateKey) + ' · ' + esc(time) + '</b><br><br>' +
+      '예약하신 일정: <b style="color:#3A2D22;white-space:nowrap">' + prettyDate(dateKey) + ' · ' + esc(time) + '</b><br><br>' +
       '부득이하게 취소가 필요하시면 ' + kakao + '으로 문의해 주세요.', false);
   }
 
@@ -644,14 +644,15 @@ function serveCancelD(token, row) { _gsr_();
   var html =
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
     '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
-    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
+    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;box-sizing:border-box;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
     '.box{width:100%;box-sizing:border-box;max-width:486px;background:#fff;border:1px solid #DDD8D1;border-radius:12px;padding:42px 32px 34px;box-shadow:0 8px 30px rgba(28,27,25,.06)}' +
     '.brand{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.34em;color:#3A2D22;text-transform:uppercase;text-align:center;margin-bottom:16px}' +
     '.bar{width:40px;height:3px;background:#6B2A24;border-radius:3px;margin:0 auto 22px}' +
     '.t{font-family:"Noto Serif KR",serif;font-size:20px;font-weight:500;color:#3A2D22;text-align:center;margin-bottom:18px}' +
     '.card{background:#F7F5F1;border:1px solid #E6E1D8;border-radius:8px;padding:18px 18px;text-align:center;margin-bottom:22px}' +
     '.card .ey{font-family:"Cormorant Garamond",serif;font-size:10px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:8px}' +
-    '.card .dt{font-family:"Noto Serif KR",serif;font-size:18px;font-weight:600;color:#3A2D22}' +
+    '.card .dt{font-family:"Noto Serif KR",serif;font-size:16px;font-weight:600;color:#3A2D22}' +   // [MAIL_SAME_WORDS] 관리자 취소 화면과 같은 16px — 폰에서 날짜 · 시간이 한 줄
+    '@media (max-width:360px){.box{padding:42px 22px 34px}}' +
     '.notice{font-size:12.5px;line-height:1.8;color:#6B2A24;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.18);border-radius:6px;padding:13px 15px;margin-bottom:22px}' +
     '.lbl{display:block;font-size:11px;letter-spacing:.06em;color:#8A7A5E;text-transform:uppercase;margin-bottom:8px;font-family:"Cormorant Garamond",serif}' +
     '.fld{margin-bottom:16px}' +
@@ -816,7 +817,7 @@ function handleEmailCancel(body) { _gsr_();
 function serveAdminCancelD(token, row) { _gsr_();
   var status = String(row.get('상태') || '').trim();
   if (status === ST.CANCELLED) {
-    return infoPage('이미 취소된 예약입니다', esc(coupleNames(row)) + ' · 이미 취소 처리되었습니다.', true);   // [HTML_ESC_NAMES]
+    return infoPage('이미 취소된 예약입니다', esc(coupleNames(row)) + ' 님<br>이미 취소 처리되었습니다.', true);   // [HTML_ESC_NAMES] · [MAIL_SAME_WORDS] 줄 끝 «·» 없이
   }
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
   var names = coupleNames(row);
@@ -825,7 +826,7 @@ function serveAdminCancelD(token, row) { _gsr_();
   var html =
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
     '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
-    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
+    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;box-sizing:border-box;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
     '.box{width:100%;box-sizing:border-box;max-width:486px;background:#fff;border:1px solid #DDD8D1;border-radius:12px;padding:42px 32px 30px;box-shadow:0 8px 30px rgba(28,27,25,.06)}' +
     '.brand{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.34em;color:#3A2D22;text-transform:uppercase;text-align:center;margin-bottom:8px}' +
     '.admin-tag{text-align:center;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:11px;color:#B89A75;letter-spacing:.1em;margin-bottom:16px}' +
@@ -849,7 +850,7 @@ function serveAdminCancelD(token, row) { _gsr_();
     '<a class="btn btn-cancel" href="' + safeAttr(doUrl) + '" target="_top">취소 확정</a>' +
     '</div></div></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle('예약 취소 (관리자) · Moment Edit')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')   // [MAIL_VIEWPORT]
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')   // [MAIL_VIEWPORT]
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -1999,14 +2000,14 @@ function _payConfirmRun_(p) {   // 확인 화면의 단추를 누른 뒤에만(m
     else r = adminConfirmMidBalance(v.code);
   } finally { _AUTHED = _authPrev; try { SpreadsheetApp.flush(); } catch (eF) {} try { _lock.releaseLock(); } catch (e) {} }   // [LOCK_REREAD] 다음 누름이 이 쓰기를 보게
   var _hint = (r && r.ok) ? _btnFailSeen_('P_' + v.code + '_' + v.m, v.m === 'deposit' ? '고객 안내(카톡)가 나갔는지' : '마이페이지 반영을') : '';   // [BTN_AFTER_FAIL] 새로 끝까지 했으면 표만 지운다 · «이미»일 때만 한 줄
-  if (r && r.ok && r.already) return { ok: true, title: '이미 확인 처리되어 있어요', body: esc(v.code) + ' · ' + esc(v.label) + (_hint ? '<br>' + _hint : ' · 추가로 할 일이 없어요.') };
+  if (r && r.ok && r.already) return { ok: true, title: '이미 확인 처리되어 있어요', body: esc(v.code) + ' · ' + esc(v.label) + (_hint ? '<br>' + _hint : '<br>추가로 할 일이 없어요.') };
   /* [PAY_NOTICE_TRUE 2026-10-09 라운드 4] 고객 알림이 정말 나가는 확인(계약금)만 «고객에게 알림이 가요» — 중도금 · 잔금 확인은 알림이 꺼져 있다(관리 화면 알림 글과 같은 말) */
   var _ev = (v.m === 'deposit') ? 'cust.depositToProduction' : 'cust.paymentConfirmed', _sent = false;
   try { _sent = typeof NOTIFY_EVENTS === 'object' && !!NOTIFY_EVENTS[_ev] && !NOTIFY_EVENTS[_ev].off; } catch (eN) {}
-  if (r && r.ok) return { ok: true, title: '입금 확인 완료', body: esc(v.code) + ' · ' + esc(v.label) + ' 확인 처리했어요.<br>' + (_sent ? '고객에게 카톡 알림이 자동으로 가요 · 마이페이지에도 반영됐어요.' : '마이페이지에 반영됐어요 · 이 확인은 고객 알림이 따로 가지 않아요.') };
+  if (r && r.ok) return { ok: true, title: '입금 확인 완료', body: esc(v.code) + ' · ' + esc(v.label) + ' 확인 처리했어요.<br>' + (_sent ? '마이페이지에 반영됐어요 · 고객에게 카톡 알림이 자동으로 가요.' : '마이페이지에 반영됐어요 · 이 확인은 고객 알림이 따로 가지 않아요.') };
   var _pe = String((r && r.error) || '').trim();   // [MAIL_SAME_WORDS] 안쪽 잠금 몰림은 다시 누르기(P1) · 까닭 글이 없으면 코드(P4)
   if ((typeof _PAY_LOCK_BUSY === 'string' && _pe === _PAY_LOCK_BUSY) || /서버 혼잡/.test(_pe)) return { ok: false, retry: true, title: '다른 처리가 진행 중이에요', body: '잠시 후 다시 눌러 주세요 (코드 P1)' };
-  return { ok: false, title: '처리하지 못했어요', body: _pe ? esc(_pe) + '<br>관리자 페이지에서 처리해 주세요' : '관리자 페이지에서 처리해 주세요 (코드 P4)' };
+  return { ok: false, title: '처리하지 못했어요', body: _pe ? esc(_pe) + '<br>관리자 페이지에서 처리해 주세요.' : '관리자 페이지에서 처리해 주세요 (코드 P4)' };
 }
 /* [MAIL_BTN_CONFIRM] 확인 화면의 단추가 부르는 하나뿐인 처리 — 공개 화면 함수(입구)라 서명 · 기한을 여기서 다시 본다 */
 function mailButtonGo(p) { _SRV = true;
@@ -2036,7 +2037,7 @@ function mailButtonGo(p) { _SRV = true;
       try { _eid = _cfg ? '' : _errId(); _errRecord('btn:' + a.slice(0, 20), _ec, '처리하지 못했어요', String((e && e.stack) || (e && e.message) || e).replace(/\s+/g, ' ').slice(0, 200), _eid, ''); } catch (_x) {}
       try { var _k = (a === 'payconfirm') ? ('P_' + _btnStr_(p.code).trim().toUpperCase() + '_' + _btnStr_(p.m).trim()) : ('B_' + _btnStr_(p.token)); CacheService.getScriptCache().put('BTNFAIL_' + _k.replace(/[^0-9A-Za-z_]/g, '').slice(0, 80), '1', 21600); } catch (_c) {}   // [BTN_AFTER_FAIL]
     }
-    if (_cfg) return { ok: false, title: '처리하지 못했어요', body: (a === 'accept' ? 'contact@momentedit.kr 로 문의해 주세요' : 'GAS 붙여넣기 · 배포가 빠진 것 같아요 · 99_deployCheck 파일의 deployCheck 를 돌려 주세요') + ' (코드 ' + _ec + ')' };   // [BTN_FAIL_KIND] 고객 단추(수락)에는 «관리자 페이지»를 말하지 않는다 · 관리 화면도 같은 함수가 빠졌을 공산이 크다
+    if (_cfg) return { ok: false, title: '처리하지 못했어요', body: (a === 'accept' ? 'contact@momentedit.kr 로 문의해 주세요' : 'GAS 붙여넣기 · 배포가 빠진 것 같아요<br>99_deployCheck 파일의 deployCheck 를 돌려 주세요') + ' (코드 ' + _ec + ')' };   // [BTN_FAIL_KIND] 고객 단추(수락)에는 «관리자 페이지»를 말하지 않는다 · 관리 화면도 같은 함수가 빠졌을 공산이 크다
     return { ok: false, retry: true, title: '처리하지 못했어요', body: (a === 'accept' ? '잠시 후 다시 눌러 주세요 · 계속되면 contact@momentedit.kr 로 문의해 주세요' : '잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요') + ' (코드 ' + _ec + (_eid ? ' · ' + _eid : '') + ')' };   // [MAIL_RETRY] · [MAIL_FAIL_WORDS] 화면과 같은 말
   }
 }
@@ -2072,7 +2073,7 @@ function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_
   var html =
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
     '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
-    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
+    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;box-sizing:border-box;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
     '.box{width:100%;box-sizing:border-box;max-width:486px;text-align:center;background:#fff;border:1px solid #DDD8D1;border-radius:12px;padding:44px 32px;box-shadow:0 8px 30px rgba(28,27,25,.06)}' +
     '@media (max-width:360px){.box{padding:40px 22px}}' +
     '.bar{width:40px;height:3px;background:#3A2D22;border-radius:3px;margin:0 auto 22px}' +
@@ -2088,7 +2089,7 @@ function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_
     '<script>var P=' + data + ';var b=document.getElementById("go"),T=document.getElementById("t"),D=document.getElementById("d"),R=document.getElementById("bar"),L=b.textContent;' +
     /* [MAIL_SHOW_SAFE 2026-10-09 점검] 서버 글은 허락한 꼴(줄바꿈 · 굵게)만 그린다 — 다른 꺾쇠는 만들지 않고 글로만 둔다(서버 쪽 esc 와 겹으로) */
     'function put(el,h){el.textContent="";var s=String(h||""),re=/<[^>]*>/g,i=0,m,cur=el,st=[];' +
-    'function tx(t){if(!t)return;t=t.replace(/&(#x[0-9a-f]+|#\\d+|lt|gt|amp|quot|nbsp);/gi,function(w,c){c=c.toLowerCase();if(c==="lt")return"<";if(c==="gt")return">";if(c==="amp")return"&";if(c==="quot")return"\\"";if(c==="nbsp")return"\\u00a0";var n=c.charAt(1)==="x"?parseInt(c.slice(2),16):parseInt(c.slice(1),10);return(n>0&&n<1114112)?String.fromCodePoint(n):w;});cur.appendChild(document.createTextNode(t));}' +
+    'function tx(t){if(!t)return;t=t.replace(/\\(코드 [^)]*\\)/g,function(m){return m.replace(/ /g,"\\u00a0");}).replace(/&(#x[0-9a-f]+|#\\d+|lt|gt|amp|quot|nbsp);/gi,function(w,c){c=c.toLowerCase();if(c==="lt")return"<";if(c==="gt")return">";if(c==="amp")return"&";if(c==="quot")return"\\"";if(c==="nbsp")return"\\u00a0";var n=c.charAt(1)==="x"?parseInt(c.slice(2),16):parseInt(c.slice(1),10);return(n>0&&n<1114112)?String.fromCodePoint(n):w;});cur.appendChild(document.createTextNode(t));}' +
     'while((m=re.exec(s))){tx(s.slice(i,m.index));i=re.lastIndex;var g=m[0];' +
     'if(/^<\\s*br\\s*\\/?\\s*>$/i.test(g))cur.appendChild(document.createElement("br"));' +
     'else if(/^<\\s*(b|strong)(\\s[^>]*)?>$/i.test(g)){var x=document.createElement("b");cur.appendChild(x);st.push(cur);cur=x;}' +
@@ -2104,12 +2105,12 @@ function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_
        [MAIL_FAIL_KIND] 5 시간 초과(결과 모름) · 6 연결 끊김(답을 못 받음) · 7 그 밖(서버가 답했는데 실패) — 다시 눌러도 이미 처리된 건은 «이미»로 답한다(잠금 뒤 다시 읽기) */
     'var m=String((e&&e.message)||e||""),k=/exceeded maximum execution time|timed? ?out/i.test(m)?5:(/http 0\\b|failed to fetch|연결/i.test(m)?6:7),c=(P.action==="payconfirm"?"P":"B")+k;' +
     'T.textContent=k===6?"연결이 끊겼어요":(k===5?"응답이 늦어요":"처리하지 못했어요");' +
-    'D.textContent=(k===5?"처리됐는지 아직 몰라요 · 다시 누르면 결과를 알려 드려요":(P.action==="accept"?"잠시 후 다시 눌러 주세요 · 계속되면 contact@momentedit.kr 로 문의해 주세요":"잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요"))+" (코드 "+c+")";' +
+    'D.textContent=(k===5?"처리됐는지 아직 몰라요 · 다시 누르면 결과를 알려 드려요":(P.action==="accept"?"잠시 후 다시 눌러 주세요 · 계속되면 contact@momentedit.kr 로 문의해 주세요":"잠시 후 다시 누르거나 관리자 페이지에서 처리해 주세요"))+" (코드\\u00a0"+c+")";' +   // [MAIL_SAME_WORDS] 코드 괄호는 한 줄
     'R.style.background="#6B2A24";b.disabled=false;b.textContent=L;b.style.visibility="visible";try{b.focus();}catch(_){}' +
     '}).mailButtonGo(P);};' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle(title + ' · Moment Edit')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')   // [MAIL_VIEWPORT 2026-10-09 라운드 4] HTML 안의 meta 는 무시된다 — 폰 폭으로 그리게
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')   // [MAIL_VIEWPORT 2026-10-09 라운드 4] HTML 안의 meta 는 무시된다 — 폰 폭으로 그리게 · 입력칸 없는 화면은 확대를 막지 않는다
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 var _LAST_INFO = null;   // [MAIL_BTN_CONFIRM] infoPage 가 마지막으로 그린 결과 — 단추 처리(mailButtonGo)가 화면에 그대로 돌려준다
@@ -2120,7 +2121,7 @@ function infoPage(title, bodyHtml, ok, retry) { _gsr_();
   var html =
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
     '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
-    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
+    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;box-sizing:border-box;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
     '.box{width:100%;box-sizing:border-box;max-width:486px;text-align:center;background:#fff;border:1px solid #DDD8D1;border-radius:12px;padding:44px 32px;box-shadow:0 8px 30px rgba(28,27,25,.06)}' +
     '@media (max-width:360px){.box{padding:40px 22px}}' +
     '.bar{width:40px;height:3px;background:' + color + ';border-radius:3px;margin:0 auto 22px}' +
@@ -2128,9 +2129,9 @@ function infoPage(title, bodyHtml, ok, retry) { _gsr_();
     '.t{font-family:"Noto Serif KR",serif;font-size:21px;font-weight:500;color:#3A2D22;margin-bottom:14px}' +
     '.d{font-size:14px;line-height:1.85;color:#5A554C}</style></head>' +
     '<body><div class="box"><div class="brand">Moment Edit</div><div class="bar"></div>' +
-    '<div class="t">' + esc(title) + '</div><div class="d">' + bodyHtml + '</div></div></body></html>';
+    '<div class="t">' + esc(title) + '</div><div class="d">' + String(bodyHtml || '').replace(/\(코드 [^)]*\)/g, function (m) { return m.replace(/ /g, '&nbsp;'); }) + '</div></div></body></html>';   // [MAIL_SAME_WORDS] 코드 괄호는 한 줄
   return HtmlService.createHtmlOutput(html).setTitle(title + ' · Moment Edit')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')   // [MAIL_VIEWPORT]
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')   // [MAIL_VIEWPORT]
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 

@@ -16448,6 +16448,11 @@ chk 'AICOST_SECRET' automation/platform/96_ai_cost.gs 1
 chk 'AICOST_SECRET' api/_costlog.js 1
 chk 'AICOST_SECRET' scripts/audit/gsr-guard.mjs 1
 chk "secret: process.env.HANDOFF_SECRET" api/_costlog.js 1
+# ★[MAIL_SAME_WORDS 2026-10-09 라운드 5 화면] GAS 화면 넷은 자기 여백으로 스크롤되지 않는다(body box-sizing) · 고객 취소 화면 날짜는 폰에서 한 줄(16px · 좁은 폭 여백)
+#   · 알리기만 하는 관리 창(빠진 것 · 링크 확인)은 단추 하나 · 코드 괄호는 한 줄(mail-page ③ · err-admin ②-D 가 행동으로 잰다)
+chk 'min-height:100vh;box-sizing:border-box' automation/consultation/consultation-booking.gs 4
+chk "@media (max-width:360px){.box{padding:42px 22px 34px}}" automation/consultation/consultation-booking.gs 1
+chk "onYes:closeModal, alertOnly:true" admin.html 2
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2

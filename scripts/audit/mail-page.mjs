@@ -107,7 +107,8 @@ function page(action) {
   const el = (id) => {
     const e = { id, nodeName: 'DIV', children: [], style: {}, disabled: false, _text: '', focused: false,
       appendChild(c) { this.children.push(c); return c; }, focus() { this.focused = true; } };
-    Object.defineProperty(e, 'textContent', { get() { return this.children.length ? this.children.map((c) => (c.nodeType === 3 ? c.data : (c.textContent || ''))).join('') : this._text; },
+    Object.defineProperty(e, 'rawText', { get() { return this.children.length ? this.children.map((c) => (c.nodeType === 3 ? c.data : (c.rawText || c.textContent || ''))).join('') : this._text; } });
+    Object.defineProperty(e, 'textContent', { get() { return String(this.rawText).replace(/\u00a0/g, ' '); },
       set(v) { this.children = []; this._text = String(v); } });
     Object.defineProperty(e, 'innerHTML', { get() { return this.children.length ? this.textContent : this._text; }, set(v) { this.children = []; this._text = String(v); } });
     return e;
@@ -122,6 +123,14 @@ function page(action) {
   return { E, click: () => E.go.onclick(), ok: (r) => ok(r), fail: (m) => fail(new Error(m)), sent: () => sent };
 }
 const tags = (e) => e.children.filter((c) => c.nodeType !== 3).map((c) => c.nodeName);
+{ // [MAIL_SAME_WORDS] 코드 괄호는 한 줄 — 서버 글(tx)이든 화면 실패 글이든 괄호 안 띄어쓰기는 줄바꿈 안 되는 칸(U+00A0)
+  const K = page('approve');
+  if (K) { K.click(); K.ok({ ok: false, retry: true, title: '처리하지 못했어요', body: '잠시 후 다시 눌러 주세요 (코드 B9 · MXZC)' });
+    if (!/\(코드\u00a0B9\u00a0·\u00a0MXZC\)/.test(K.E.d.rawText)) bad.push('화면: 서버 글의 코드 괄호가 줄에서 갈릴 수 있다(괄호 안 띄어쓰기) — ' + JSON.stringify(K.E.d.rawText));
+    K.click(); K.fail('Failed to fetch');
+    if (!/\(코드\u00a0B6\)/.test(K.E.d.rawText)) bad.push('화면: 실패 글의 코드 괄호가 줄에서 갈릴 수 있다 — ' + JSON.stringify(K.E.d.rawText)); }
+  html = ''; G.infoPage('t', '잠시 후 다시 눌러 주세요 (코드 B1)', false);
+  if (!/\(코드&nbsp;B1\)/.test(html)) bad.push('화면: 결과 화면(서버 HTML)의 코드 괄호가 줄에서 갈릴 수 있다'); }
 { // [MAIL_SAME_WORDS] 실패 뒤 다시 누르면 처음 화면(제목 · 설명 · 막대색)에서 «처리 중»
   const A = page('approve');
   if (A) { A.click(); A.fail('Failed to fetch'); A.click();
@@ -129,7 +138,9 @@ const tags = (e) => e.children.filter((c) => c.nodeType !== 3).map((c) => c.node
 { // [MAIL_VIEWPORT] GAS 화면 넷은 viewport 를 addMetaTag 로(HTML 안 meta 는 무시된다 · 없으면 폰에서 데스크톱 폭으로 줄어 보인다)
   const vp = (label, fn) => { metas = []; try { fn(); } catch (e) { bad.push('화면 viewport · ' + label + ': 던졌다 — ' + e.message); return; } if (!metas.some((m) => /^viewport=width=device-width/.test(m))) bad.push('화면 viewport · ' + label + ': addMetaTag(viewport) 가 없다 — 폰에서 글자가 아주 작게 보인다'); };
   vp('확인 화면', () => G._mailConfirmPage_('t', 'd', 'go', { action: 'approve' }));
+  if (metas.some((m) => /user-scalable=no|maximum-scale=1/.test(m))) bad.push('화면 viewport · 확인 화면: 입력칸이 없는데 확대를 막는다');
   vp('결과 화면', () => G.infoPage('t', 'b', true));
+  if (metas.some((m) => /user-scalable=no|maximum-scale=1/.test(m))) bad.push('화면 viewport · 결과 화면: 입력칸이 없는데 확대를 막는다');
   const cr = mkRow(Object.assign({}, base, { '상태': '확정', '예약금': '' }));
   vp('고객 취소 화면', () => { const keepW = G.withinCancelDeadline; G.withinCancelDeadline = () => true; try { G.serveCancelD('tok1', cr); } finally { G.withinCancelDeadline = keepW; } });
   vp('관리자 취소 화면', () => G.serveAdminCancelD('tok1', mkRow(Object.assign({}, base, { '상태': '확정' })))); }
