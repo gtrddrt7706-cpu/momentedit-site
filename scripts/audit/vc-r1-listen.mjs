@@ -204,7 +204,7 @@ const SC = [
     await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); if (b) b.scrollIntoView({ block: 'center' }); });
     const b0 = await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); return { off: !!(b && b.classList.contains('off')), ad: b && b.getAttribute('aria-disabled'), dis: b && b.disabled, fill: !!(b && /wfill/.test(b.className)) }; });
     await click(f, '[data-fk="mkvpl:g3"]'); await adv(pg, 500); await shot(pg, '45-한줄');
-    const HINT = (k) => f.evaluate((k) => { const li = document.querySelector('[data-fk="mkvpl:' + k + '"]').closest('li'); return [...li.querySelectorAll('.mk-ploff')].map((e) => e.textContent).join(''); }, k);
+    const HINT = (k) => f.evaluate((k) => { const li = document.querySelector('[data-fk="mkvpl:' + k + '"]').closest('li'); return [...li.querySelectorAll('.mk-ploff')].map((e) => e.textContent).join('') || ((t) => (t && !t.hidden && t.getAttribute('data-for') === k ? t.textContent.trim() : ''))(document.getElementById('lsToast')); }, k);   /* [OFF_TOAST 2026-10-09] 아래 알림(그 ▶ 의 것만) */
     const h3 = await HINT('g3'); await f.evaluate(() => mkUpPlay('g3')); await adv(pg, 5000);
     ok('#45 목소리 없이 고친 줄 ▶ = 흐림(aria-disabled · 차오름 없음) · 누르면 그 줄 아래 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기» · 연습 읽기 요청 · 소리 없음 [AI_PLAY_READY]',
       b0.off && b0.ad === 'true' && !b0.dis && !b0.fill && /목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(h3) && (await prac(pg)).length === n0 && (await f.evaluate(() => window.__plays.length)) === p0, JSON.stringify({ b0, h3 }));

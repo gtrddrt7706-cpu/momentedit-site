@@ -14624,14 +14624,39 @@ nochk 'h+=gm.c+(_rh?' order-preview.html   # ★참고 예시 카드 줄 아래 
 nochk '.ls-cg .gl{font-size:11px;color:var(--light)' order-preview.html   # 종전 11px 회색 제목
 if command -v node >/dev/null 2>&1; then node scripts/audit/note-toast.mjs >/dev/null 2>&1; _ntt=$?; if [ "$_ntt" = 1 ]; then echo 'FAIL note-toast: 칩 줄 제목 · 칩 아래 덧말 → 아래 알림이 어긋났습니다 — node scripts/audit/note-toast.mjs'; fail=1; fi; fi
 # ★★[PRESET_QUIET 2026-10-08 사장님 «예시를 바꿨어요 삭제하는 건 어때 · 어차피 목소리 만들기로 버튼이 바뀌잖아»] 고른 예시 · 멘트로 글이 바뀐 AI 줄은 단추 옆 글 없이 «목소리 만들기»만
-#   (누른 순간 아래 알림 NOTE_TOAST 가 한 번 말한다) · 까닭(st.t)은 안에서 그대로(EX_LABEL_HONEST · STALE_NOVOICE) · «글을 고쳤어요 · 읽는 분이 바뀌었어요 · ○○ 목소리가 생겼어요»는 그대로(STALE_BY_PILL)
+#   (누른 순간 아래 알림 NOTE_TOAST 가 한 번 말한다) · 까닭(st.t)은 안에서 그대로(EX_LABEL_HONEST · STALE_NOVOICE) · 10/09 STALE_QUIET 로 «글을 고쳤어요 · 읽는 분이 바뀌었어요»도 뺌 — 남는 옆 글은 «○○ 목소리가 생겼어요»(WHO_MISS) 하나
 #   ex-promise T1 · T2 · T6 · T7 · stale-novoice ① 이 잰다
 chk 'PRESET_QUIET' order-preview.html 2
-chk 'if(/^(멘트|예시)를 바꿨어요$/.test(st.t)) st.pre=1;' order-preview.html 1
+chk 'if(!/목소리가 생겼어요$/.test(st.t)) st.pre=1;' order-preview.html 1   # [STALE_QUIET 10/09] 남는 옆 글 = «○○ 목소리가 생겼어요» 하나
 chk "stSide&&!st.pre?'<span class=\"mk-vst mk-vst-side\"" order-preview.html 1
 nochk "(stSide?'<span class=\"mk-vst mk-vst-side\"" order-preview.html   # ★단추 옆 «예시를 바꿨어요 · 멘트를 바꿨어요» 금지 — 2026-10-08 사용자 지시로 삭제
 chk 'PRESET_QUIET' scripts/audit/ex-promise.mjs 4
 chk 'PRESET_QUIET' scripts/audit/stale-novoice.mjs 2
+# ★★[STALE_QUIET · OFF_TOAST 2026-10-09 사장님 «글을 고쳤어요 · 읽는 분이 바뀌었어요 빼줘» · «어차피 만들기 누르지 않으면 재생 버튼 클릭도 안 돼 · 자연스럽게 인지» · «▶를 눌렀을 때 나오는 안내 문구 · 우리가 하는 팝업 스타일로»]
+#   AI 줄 머리 단추 옆 글은 «○○ 목소리가 생겼어요» 하나만 · 흐린 ▶(줄 ▶ · 이 순간 전체 듣기) 안내는 그 줄 아래 한 줄 대신 아래 브라운 알림(«만들러 가기»는 알림 안 단추 · 6초)
+#   만드는 중 · 다 못 만듦은 그 자리 한 줄 그대로 · ai-play-ready · stale-novoice · vc-r1-listen · voice-setup · ex-promise T3 · pv-intro · vc-r1-mix #25 · #28 이 잰다
+chk 'STALE_QUIET' order-preview.html 2
+chk 'OFF_TOAST' order-preview.html 6
+chk 'function _offToastOff(id){' order-preview.html 1   # 알림은 그 일을 하면 바로 걷는다 — 만들기(그 줄) · 이 순간 전체 만들기 · 다른 ▶ · 쪽 옮기기
+chk "_aiMode(key)==='prep') return; _offToastOff(key);" order-preview.html 1
+chk 'if(MK.lsMake\[k\]) return; _offToastOff();' order-preview.html 1
+chk 'MK.playOff=null; _offToastOff();' order-preview.html 3
+chk 'var m=_mkState(); _offToastOff();' order-preview.html 1
+chk 'OFF_TOAST_TAP' order-preview.html 4   # 단추가 있는 알림은 손가락이 닿게(알림 바탕은 터치 통과 · UNDO_OFF) · 단추 글 한 줄 · 손을 올리면 안 닫힘
+chk 'max-width:min(calc(100vw - 32px),440px);pointer-events:auto}' order-preview.html 1
+chk '.pk-undo.act button{flex:none;white-space:nowrap}' order-preview.html 1   # 좁은 폰에서 «만들러 / 가기»로 갈리지 않게
+chk '.pk-undo.act.two>span\[aria-hidden\]{display:none}' order-preview.html 1   # 글이 두 줄이면 가운데 «·» 빼고 · 글 상자를 글 폭으로(빈 틈 없이)
+chk "u.classList.toggle('two',_two);" order-preview.html 1
+chk 'word-break:keep-all;text-align:left;text-wrap:balance}' order-preview.html 1
+chk 'word-break:keep-all;text-wrap:balance}' order-preview.html 1   # 두 줄 알림은 고르게(«… 누르면 들을 / 수 있어요» 대신)
+chk 'OFF_TOAST_TAP' scripts/audit/ai-play-ready.mjs 5
+chk 'window.mkPlayOff=function(id){ var o=/^mp:/.test(id)?_playOffAll(id.slice(3)):_playOff(id); if(!o||!o.t) return; _lsToast(' order-preview.html 1
+chk '_lsToastT=setTimeout(_lsToastOff,act?6000:3000); }' order-preview.html 1
+nochk 'window.mkPlayOff=function(id){ MK.playOff={id:id' order-preview.html   # ★그 줄 아래 «… 들을 수 있어요» 한 줄 금지 — 2026-10-09 사용자 지시로 삭제
+chk 'STALE_QUIET' scripts/audit/pv-intro.mjs 2
+chk 'OFF_TOAST' scripts/audit/ai-play-ready.mjs 7
+chk 'OFF_TOAST' scripts/audit/stale-novoice.mjs 1
+chk 'STALE_QUIET' scripts/audit/vc-r1-mix.mjs 2
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
 chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
 chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1

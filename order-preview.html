@@ -988,7 +988,8 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
    ★테두리 · 옅은 베이지 바탕 · 먹갈색(--accent) 바탕 되살리지 말 것 — 2026-10-08 사용자 지시(merge-guard nochk) */
 #lsToast{z-index:2147482100}   /* [CHIP_TOAST] 크게 보기(.ls-full) 위에서도 보이게 */
 .pk-undo.wrap{flex-direction:column;gap:2px;text-align:center;width:max-content;max-width:min(calc(100vw - 32px),440px)}   /* [SHORT_TOAST] 단체 사진 알림은 두 줄까지 · 예시 확인 문구가 떠 있으면 그 아래 */
-.pk-undo.wrap span{white-space:normal;word-break:keep-all}
+.pk-undo.wrap span{white-space:normal;word-break:keep-all;text-wrap:balance}   /* [OFF_TOAST_TAP] 두 줄이면 고르게(«… 누르면 들을 / 수 있어요» 대신 «… 만들기를 / 누르면 들을 수 있어요») */
+.pk-undo.act{width:max-content;max-width:min(calc(100vw - 32px),440px);pointer-events:auto} .pk-undo.act span:first-child{white-space:normal;word-break:keep-all;text-align:left;text-wrap:balance} .pk-undo.act button{flex:none;white-space:nowrap} .pk-undo.act.two>span[aria-hidden]{display:none}   /* [OFF_TOAST] «… 들을 수 있어요 · 만들러 가기» — 글 · 단추 한 줄(화면 반쪽 폭에 갇히지 않게 max-content · TOAST_ONE_LINE 과 같은 까닭) · 좁으면 글만 두 줄(단추 글은 한 줄) · ★pointer-events:auto — 알림은 터치를 통과시키는데(UNDO_OFF) 단추가 있는 알림은 손가락이 닿아야 한다(OFF_TOAST_TAP) */
 .pk-undo span{white-space:nowrap}
 .pk-intro-back{display:none}
 @media (min-width:1000px){ .pk-intro-back{display:inline-block;margin:0 0 4px} }   /* [UNDO_ABOVE_BAR] 390 에서도 «‹가족› 예시로 / 바꿨어요»로 갈렸다 — 한 줄(폭은 100vw−32 안) */
@@ -4512,7 +4513,7 @@ window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;
     /* [R2-17] «나중에 언제든»은 근거 없는 안심(마감이 있다) · AI 판은 «AI 두 분 목소리»(_mkLeaveMsg) */
     ordAsk({title:hd+(/칸이 비어 있어요\.?$/.test(body)?' · 아직 비어 있어요':' · 아직 남은 일이 있어요'),   /* [R4-11] 빈 칸이 없는 쪽(부탁 · 보낼 것만 남음)은 «비어 있어요»가 아니다 */body:body+'\n미완료로 두고 갈까요?',   /* ★[LEAVE_ASK_Q 2026-10-04 사장님 «두고 갈까요?로 · 문단 줄바꿈 · «한눈에 보기» 안내 줄 삭제»] 되살리지 말 것 */yes:'다음으로',no:'돌아가서 채우기',dismissNull:true}).then(function(ok){ if(ok) _mkGoNow(k); else if(ok===false) _mkFocusEmpty(); }); return; }   /* ★[QA_REFILL 2026-10-04 점검] «돌아가서 채우기» = 첫 빈 칸으로 · Esc(null)는 누른 «다음»으로 돌아간다(QA_ASK_FOCUS) */
   _mkGoNow(k); };
-function _mkGoNow(k){ var m=_mkState(); if(m.at&&m.at!==k) _vtLeave(m.at);   /* [TEMPO_BAKE] 떠나는 쪽을 굽는다(뒤에서 · 조용히) */ m.at=k; m.seen[k]=1; LS.open=k; MK.pgTok=(MK.pgTok||0)+1; /* [VID_AUTO_ONLY] 쪽 들어옴 */ MK.navOpen=false;   /* [NAV_FOLD] 쪽이 바뀌면 접힌다(줄에서 골라도 · 아래 «다음»으로 가도) */   /* ★[FLOW_KEEP_STEP 2026-10-03] «흐름 쪽을 떠나면 뺀 줄의 자리를 놓는다» 금지 — 2026-10-03 점검으로 삭제(다음 → 이전이면 뺀 줄이 사라졌다) · 자리는 ② 걸음을 떠날 때만 놓는다(render 의 COURSE_FLOW 줄) */
+function _mkGoNow(k){ var m=_mkState(); _offToastOff(); if(m.at&&m.at!==k) _vtLeave(m.at);   /* [TEMPO_BAKE] 떠나는 쪽을 굽는다(뒤에서 · 조용히) */ m.at=k; m.seen[k]=1; LS.open=k; MK.pgTok=(MK.pgTok||0)+1; /* [VID_AUTO_ONLY] 쪽 들어옴 */ MK.navOpen=false;   /* [NAV_FOLD] 쪽이 바뀌면 접힌다(줄에서 골라도 · 아래 «다음»으로 가도) */   /* ★[FLOW_KEEP_STEP 2026-10-03] «흐름 쪽을 떠나면 뺀 줄의 자리를 놓는다» 금지 — 2026-10-03 점검으로 삭제(다음 → 이전이면 뺀 줄이 사라졌다) · 자리는 ② 걸음을 떠날 때만 놓는다(render 의 COURSE_FLOW 줄) */
   try{ _stopMk(); if(LP.q.length&&!LP.big&&!(LP.range&&LP.range.all)) lsStop(true); }catch(e){}   /* ★[QA_PAGE_HUSH 2026-10-04 점검] 쪽을 옮기면 그 순간 소리(줄 ▶ · 이 순간 들어 보기)는 멈춘다 — 종전엔 화촉 쪽에서 하객 맞이 소리가 이어 흘렀다 · 처음부터 끝까지(all)는 그대로 */
   _fxNext='#mkHead';   /* ★[QA_FX_ORDER 2026-10-04 점검] 그리기 «전에» — 종전엔 그린 뒤에 걸어 두어 다음 아무 그리기(칩 하나)가 포커스를 머리로 끌어올렸다 */
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
@@ -5071,7 +5072,9 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
        한 줄에 번호 · 이름 · 사람 · 길이 · 상태를 다 이어 붙여 무엇이 제목인지 안 보였다. → 왼쪽 ▶ · 제목(이름) 한 줄 + 그 아래 옅은 한 줄(약 n초 · 상태) · 오른쪽 [신랑 | 신부].
        번호(1 · 2 …)는 걷었다 — 이름이 곧 차례(하객 입장 때 → 10분 전 → 5분 전 → 1분 전)다 */
     var gi=/^g\d$/.test(q.up)?+q.up.slice(1):-1, rd=gi>-1?RitualOpen.guestReader(S,gi):'', pv=q.up==='pv', bl=ai&&_lineBlank(q.up), pvSt=_upStale(q.up)&&!bl, ed=ai&&!own(q.up)&&(gi>-1||q.up==='entry');   // [PV_INTRO] · [LINE_EDIT] ed = 이 줄 글을 두 분이 고칠 수 있다(AI 자리)
-    if(pv) rd=S.pvWho==='b'?'b':'g'; rd=_whoPendOn(q.up,null,rd);   /* [WHO_BUSY] */ if(pvSt) st=_exPrep(q.up)?{t:'소리 준비 중',busy:1,file:1}:{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up==='entry'&&!_vtEdit('entry')?'멘트를 바꿨어요':_txStale(q.up)&&_exIs(q.up)?'예시를 바꿨어요':'글을 고쳤어요')+'',file:1}; if(/^(멘트|예시)를 바꿨어요$/.test(st.t)) st.pre=1;   /* ★★[PRESET_QUIET 2026-10-08 사장님 «예시를 바꿨어요 삭제하는 건 어때 · 어차피 목소리 만들기로 버튼이 바뀌잖아»] 고른 예시 · 멘트로 글이 바뀐 줄은 단추 옆 글 없이 «목소리 만들기» 단추만 — 누른 순간 아래 알림(NOTE_TOAST)이 한 번 말한다 · 까닭(st.t)은 안에서 그대로 쓴다(EX_LABEL_HONEST · STALE_NOVOICE) */   /* ★[WHO_LAB 2026-10-08 목소리 1라운드 #28] 읽는 차례만 바뀐 줄(글은 그대로)은 «읽는 분이 바뀌었어요»가 먼저 — 종전엔 입장 인사가 «멘트를 바꿨어요»(R8-03 이 LINE_SPLIT 의 읽는 차례보다 앞서 정해졌다) · 목소리가 새로 생긴 줄은 «○○ 목소리가 생겼어요»(WHO_MISS) */   /* ★★[EX_LABEL_HONEST 2026-10-07 사장님 «고치지 않고 첫 화면에서 버튼만 눌렀는데 글을 고쳤어요 · 버그야?»] 지금 글이 사이트 예시 글이면(_exIs) 두 분이 고친 것이 아니다 → «예시를 바꿨어요» · 뒤에서 먼저 만드는 중이면(EX_FIRST) «소리 준비 중»(busy · 단추가 «준비 중»을 말하니 옆글은 숨는다) · «글을 고쳤어요»는 정말 고친 줄(vlines · vtext 로 예시와 달라진 글)에만 */   /* [AI_PILL] «· ▶ 를 누르면 새로 만들어요» → 머리 [AI로 만들기] 단추가 말한다(▶ 도 그대로 만든다) */   /* [TEXT_PLAY_MAKE 2026-10-04] «다시 만들어 주세요» → ▶ 가 만든다 */   /* [R8-03] 입장은 칩(멘트)만 골라도 읽을 글이 바뀐다 — 고친 적 없는데 «글을 고쳤어요»였다 · [R8-10] «다시 / 만들어» 한가운데서 끊기지 않게 */   /* [R7-01] «글을 고쳤어요»는 사실이 아닐 때가 있다 */
+    if(pv) rd=S.pvWho==='b'?'b':'g'; rd=_whoPendOn(q.up,null,rd);   /* [WHO_BUSY] */ if(pvSt) st=_exPrep(q.up)?{t:'소리 준비 중',busy:1,file:1}:{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up==='entry'&&!_vtEdit('entry')?'멘트를 바꿨어요':_txStale(q.up)&&_exIs(q.up)?'예시를 바꿨어요':'글을 고쳤어요')+'',file:1}; if(!/목소리가 생겼어요$/.test(st.t)) st.pre=1;   /* ★★[PRESET_QUIET 2026-10-08 사장님 «예시를 바꿨어요 삭제하는 건 어때 · 어차피 목소리 만들기로 버튼이 바뀌잖아»] 고른 예시 · 멘트로 글이 바뀐 줄은 단추 옆 글 없이 «목소리 만들기» 단추만 — 누른 순간 아래 알림(NOTE_TOAST)이 한 번 말한다 · 까닭(st.t)은 안에서 그대로 쓴다(EX_LABEL_HONEST · STALE_NOVOICE)
+       ★★[STALE_QUIET 2026-10-09 사장님 «글을 고쳤어요 · 읽는 분이 바뀌었어요 빼줘» · «어차피 만들기 누르지 않으면 재생 버튼 클릭도 안 돼 · 자연스럽게 인지»] «글을 고쳤어요 · 읽는 분이 바뀌었어요»도 뺀다 — ▶ 는 흐리고(AI_PLAY_READY) 누르면 «오른쪽 «목소리 만들기»를 누르면 들을 수 있어요»(OFF_TOAST)
+       남는 것은 «신부 · 신랑 목소리가 생겼어요»(WHO_MISS) 하나 — 두 분이 그 줄에 아무것도 안 했는데 단추가 바뀐 까닭이다 */   /* ★[WHO_LAB 2026-10-08 목소리 1라운드 #28] 읽는 차례만 바뀐 줄(글은 그대로)은 «읽는 분이 바뀌었어요»가 먼저 — 종전엔 입장 인사가 «멘트를 바꿨어요»(R8-03 이 LINE_SPLIT 의 읽는 차례보다 앞서 정해졌다) · 목소리가 새로 생긴 줄은 «○○ 목소리가 생겼어요»(WHO_MISS) */   /* ★★[EX_LABEL_HONEST 2026-10-07 사장님 «고치지 않고 첫 화면에서 버튼만 눌렀는데 글을 고쳤어요 · 버그야?»] 지금 글이 사이트 예시 글이면(_exIs) 두 분이 고친 것이 아니다 → «예시를 바꿨어요» · 뒤에서 먼저 만드는 중이면(EX_FIRST) «소리 준비 중»(busy · 단추가 «준비 중»을 말하니 옆글은 숨는다) · «글을 고쳤어요»는 정말 고친 줄(vlines · vtext 로 예시와 달라진 글)에만 */   /* [AI_PILL] «· ▶ 를 누르면 새로 만들어요» → 머리 [AI로 만들기] 단추가 말한다(▶ 도 그대로 만든다) */   /* [TEXT_PLAY_MAKE 2026-10-04] «다시 만들어 주세요» → ▶ 가 만든다 */   /* [R8-03] 입장은 칩(멘트)만 골라도 읽을 글이 바뀐다 — 고친 적 없는데 «글을 고쳤어요»였다 · [R8-10] «다시 / 만들어» 한가운데서 끊기지 않게 */   /* [R7-01] «글을 고쳤어요»는 사실이 아닐 때가 있다 */
     if(MK_UP[q.up]&&((S.up||{})[q.up]||{}).src==='ai') st={t:'만드는 중…',busy:1,file:1};   /* [TEXT_PLAY_MAKE] ▶ · 굽기 동안 */
     if((MK.nowPend||{})[q.up]) st=Object.assign({},st,{busy:1});   /* [NOW_PEND] 지금 글 듣기를 기다리는 동안 ▶ 차오름 · 잠김(옆 글 «글을 고쳤어요»는 그대로 — 자리가 흔들리지 않게) */
     var aiLn=ai&&!own(q.up)&&(_vcReadyFor(q.up)||!!MK_UP[q.up]);   /* [AI_PILL] 이 줄은 머리 단추가 진행을 말한다 — 상태 줄 «만드는 중… · 보내는 중…»을 띄우지 않는다 */
@@ -5091,7 +5094,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
       /* ★줄 카드 머리의 «약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 [LINE_NO_SEC 2026-10-03 사장님] · 나머지 덧말은 그대로 · 덧말도 상태도 없으면 줄을 그리지 않는다(순간 길이 LEN_ONE 은 그대로) */
       +'<span class="mk-vhd"><span class="mk-vn">'+esc(lab)+'</span>'   /* ★«예시 글 · 고쳐 써도 돼요» 줄 카드 표 금지 — 2026-10-06 사용자 지시로 삭제 [EXTAG_OFF] · 맨 위 안내 줄이 한 번 말한다 */   /* [EX_ONE] */+((mLn||stT)?'<span class="mk-vs">'+esc(mLn):'')   /* [R2-18] 줄 카드 판에서도 «시작 1분 전»이 언제 흐르는지 · [R4-08] 머리 상태 줄 안으로(CSS 없는 덧말이 «✓ AI로 만들었어요» 아래 계단처럼 붙었다) */
       +(stT?'<span class="mk-vst"'+(st.busy?' role="status"':'')+'>'+(st.ok?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stT)+(st.file&&!st.busy&&!aiF?'<span aria-hidden="true"> · </span><button type="button" class="pk-link mk-vdel2" data-fk="mkupdel:'+q.up+'" aria-label="'+esc(lab+' 지우기')+'" onclick="mkUpDel(\''+q.up+'\')">지우기</button>':'')+'</span>':'')   /* [AI_DONE_QUIET] AI 줄은 «지우기» 걷었다 · [UP_BTN_OFF] 녹음 · 파일 줄만 상태 줄 끝에 */+((mLn||stT)?'</span>':'')+'</span>'
-      +(stSide&&!st.pre?'<span class="mk-vst mk-vst-side" role="status">'+esc(st.t)+'</span>':'')   /* [STALE_BY_PILL] · ★단추 옆 «예시를 바꿨어요 · 멘트를 바꿨어요» 금지 — 2026-10-08 사용자 지시로 삭제 [PRESET_QUIET] */   /* [KEEP_IN_PILL] 제목 아래 «확정하기» 걷음 · 머리 단추 자리로 */
+      +(stSide&&!st.pre?'<span class="mk-vst mk-vst-side" role="status">'+esc(st.t)+'</span>':'')   /* [STALE_BY_PILL] · ★단추 옆 «예시를 바꿨어요 · 멘트를 바꿨어요» 금지 — 2026-10-08 사용자 지시로 삭제 [PRESET_QUIET] · ★«글을 고쳤어요 · 읽는 분이 바뀌었어요» 금지 — 2026-10-09 사용자 지시로 삭제 [STALE_QUIET] */   /* [KEEP_IN_PILL] 제목 아래 «확정하기» 걷음 · 머리 단추 자리로 */
       +(aiLn&&(!pv||t)?_aiPill(q.up,lab):'')   /* [AI_PILL] 신랑 | 신부 바로 왼쪽 */
       +(nv?'<button type="button" class="mk-aip on" data-fk="mkvgo:'+q.up+'" aria-label="'+esc(lab+' · 두 분 목소리 만들러 가기')+'" onclick="mkGo(\'_voice\')"><i class="mk-aif" aria-hidden="true"></i><span>목소리 만들기</span></button>':'')   /* [STALE_NOVOICE] */
       +((gi>-1&&!ed)?'<span class="mk-whog" role="radiogroup" aria-label="'+esc(lab+' · 누가 읽나요')+'">'+[['g','신랑'],['b','신부']].map(function(o){ var on=rd===o[0]; return '<button type="button" class="mk-whob'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkwho:'+(pv?'pv':gi)+':'+o[0]+'" onclick="'+(pv?'mkPvWho(\''+o[0]+'\')':'mkGuestWho('+gi+',\''+o[0]+'\')')+'">'+o[1]+'</button>'; }).join('')+'</span>':'')   // [GUEST_WHO] · [PV_INTRO]
@@ -6233,7 +6236,7 @@ function _aiPillSync(key){ var b=document.querySelector('.mk-aip[data-key="'+key
   var t=document.createElement('div'); t.innerHTML=_aiPill(key,b.getAttribute('data-lab')||''); var n=t.firstChild; if(!n) return;
   [].slice.call(b.attributes).forEach(function(a){ if(a.name!=='class') b.removeAttribute(a.name); }); [].slice.call(n.attributes).forEach(function(a){ if(a.name!=='class') b.setAttribute(a.name,a.value); });
   b.innerHTML=n.innerHTML; b.className=n.className; }
-window.mkAiGo=function(key){ if(MK_UP[key]||(MK.aiDone||{})[key]||_aiMode(key)==='prep') return;   /* ★[PREP_NO_TAP 2026-10-08 목소리 1라운드 36] «준비 중»(aria-disabled)은 누르는 단추가 아니다 — 눌리면 앞에서 «만드는 중»이 되고 같은 글을 또 만들었다(aria-disabled 는 누름을 막지 않는다) */ var v=(S.up||{})[key], _lw=_vcLineWho(key);
+window.mkAiGo=function(key){ if(MK_UP[key]||(MK.aiDone||{})[key]||_aiMode(key)==='prep') return; _offToastOff(key);   /* ★[PREP_NO_TAP 2026-10-08 목소리 1라운드 36] «준비 중»(aria-disabled)은 누르는 단추가 아니다 — 눌리면 앞에서 «만드는 중»이 되고 같은 글을 또 만들었다(aria-disabled 는 누름을 막지 않는다) */ var v=(S.up||{})[key], _lw=_vcLineWho(key);
   if(_lw!=='both'&&(S.vsetNeed||{})[_lw]){ _vcTuneOpen(_lw,'card'); return; }   // [VOICE_TUNE] 맞추기가 남은 분 — 먼저 맞추고(필수)
   if(v&&typeof v==='object'&&v.src==='ai'){ _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)}).catch(function(){}); return; }
   mkAi(key); };
@@ -6438,7 +6441,11 @@ function _aiKeys(k){ if(!/^(guest|entry|prevideo)$/.test(k)||_vpCur(k)!=='ai') r
 /* 이 순간 AI 줄들 — 기다리는 줄(busy) · 안 만든 줄(need) · 목소리가 없는 분의 줄(who) · 상태를 모름(unk) */
 function _lsState(k){ var r={need:[],busy:[],who:[],unk:''}; _aiKeys(k).forEach(function(q){ if(MK_UP[q]||(MK.aiDone||{})[q]||_aiMode(q)==='prep'){ r.busy.push(q); return; } var o=_playOff(q); if(!o) return; if(o.need) r.need.push(q); else if(o.go) r.who.push(q); else r.unk=o.t; }); return r; }
 function _playOffAll(k){ var r=_lsState(k); if(r.unk) return {t:r.unk}; if(r.who.length) return {t:_playOffWho(r.who,true),go:1}; return ''; }   // 만들 수 있는 줄(need) · 기다리는 줄(busy)만 남았으면 누를 수 있다(LS_MAKE_ALL)
-window.mkPlayOff=function(id){ MK.playOff={id:id,pg:_mkRO().at}; _fxNext=/^mp:/.test(id)?'[data-mp="'+id.slice(3)+'"]':'[data-fk="mkvpl:'+id+'"]'; render(); };   // 초점은 누른 단추에 그대로(키보드)
+/* ★★[OFF_TOAST 2026-10-09 사장님 «▶를 눌렀을 때 나오는 안내 문구 · 만들기 누르라고 · 우리가 하는 팝업 스타일로»] 들을 소리가 없는 ▶(줄 ▶ · 이 순간 전체 듣기)를 누르면
+   그 줄 아래 한 줄 대신 아래 브라운 알림(_lsToast · NOTE_TOAST 와 같은 모양) — 글은 그대로(«오른쪽 «목소리 만들기»를 누르면 들을 수 있어요» · «○○ 목소리를 만들면 들을 수 있어요 · 만들러 가기»).
+   «만들러 가기»는 알림 안 단추(누를 시간 6초 · 누르면 알림을 닫고 목소리 쪽으로) · 초점은 누른 ▶ 에 그대로(다시 그리지 않는다).
+   만드는 동안 «잠시만 기다려 주세요»(LS_MAKE_WAIT) · 다 못 만듦(LS_MAKE_FAIL)은 일이 이어지는 동안의 상태라 그 자리 한 줄 그대로(MK.playOff.t) */
+window.mkPlayOff=function(id){ var o=/^mp:/.test(id)?_playOffAll(id.slice(3)):_playOff(id); if(!o||!o.t) return; _lsToast(o.t,o.go?{l:'만들러 가기',fk:'mkploffgo:'+id,on:"_lsToastOff();mkGo('_voice')"}:null,id); };   /* ★그 줄 아래 «… 들을 수 있어요» 한 줄(MK.playOff 로 다시 그리기) 금지 — 2026-10-09 사용자 지시로 삭제 [OFF_TOAST] */
 function _playOffNote(id,o){ var P=MK.playOff; if(!P||P.id!==id) return ''; if(P.t) o={t:P.t}; if(!o) return '';
   return '<p class="mk-note mk-ploff" role="status">'+esc(o.t)+(o.go?'<span aria-hidden="true"> · </span><button type="button" class="pk-link" data-fk="mkploffgo:'+id+'" onclick="mkGo(\'_voice\')">만들러 가기</button>':'')+'</p>'; }
 function _lsNote(k){ if((MK.lsMake||{})[k]) return '<p class="mk-note mk-ploff" role="status">'+esc(LS_MAKE_WAIT)+'</p>'; var P=MK.playOff; return (P&&P.id==='mp:'+k)?_playOffNote('mp:'+k,_playOffAll(k)):''; }
@@ -6447,7 +6454,7 @@ function _lsNote(k){ if((MK.lsMake||{})[k]) return '<p class="mk-note mk-ploff" 
    이 단추는 «만드는 중»(차오름) · 바로 아래 LS_MAKE_WAIT 한 줄 · 다 되면 처음부터 이어서 튼다(그 쪽에 있고 다른 소리를 틀지 않을 때만 · 아니면 단추만 풀린다).
    하나라도 못 만들면 틀지 않고 LS_MAKE_FAIL(까닭은 그 줄 아래 · VC_LINE_ERR) · 다시 누르면 다시 만든다. 준비 중(EX_FIRST) · 만드는 중인 줄은 그 일을 기다린다.
    맞추기가 남은 분(VOICE_TUNE)은 머리 알약처럼 그 창부터 · 읽는 분 목소리가 아직 없으면 만들 수 없어 AI_PLAY_READY 한 줄(만들러 가기) */
-function _lsMakeAll(k,r){ MK.lsMake=MK.lsMake||{}; if(MK.lsMake[k]) return;
+function _lsMakeAll(k,r){ MK.lsMake=MK.lsMake||{}; if(MK.lsMake[k]) return; _offToastOff();
   var tw=''; r.need.some(function(q){ var w=_vcLineWho(q); if(w!=='both'&&(S.vsetNeed||{})[w]){ tw=w; return true; } return false; }); if(tw){ _vcTuneOpen(tw,'card'); return; }
   var d=0; r.need.concat(r.busy).forEach(function(q){ try{ d+=_waitEst(_vcArgs(q,{}).t); }catch(e){ d+=6; } });
   var J=MK.lsMake[k]={at:Date.now(),d:Math.min(40,Math.max(3,d))};
@@ -6458,7 +6465,7 @@ function _lsMakeAll(k,r){ MK.lsMake=MK.lsMake||{}; if(MK.lsMake[k]) return;
     render(); if(_mkRO().at===k&&!MK.aud&&!LP.q.length) lsPlay(k); })(0); }
 window.mkUpPlay=function(key){ if(MK_UP[key]){ if(MK_UPQ[key]) (UP_WAIT[key]=UP_WAIT[key]||[]).push(function(ok){ if(ok) mkUpPlay(key); }); return; }   /* [EX_NO_AUTO] 미리 만든 소리를 조용히 올리는 1~2초 사이 ▶ — 무시하지 않고 올라가면 바로 튼다 */
   if(MK.audKey===key&&MK.aud){ _stopMk(); render(); return; }   // [PLAY_TOGGLE] ■
-  if(_playOff(key)){ mkPlayOff(key); return; } MK.playOff=null;   /* ★[AI_PLAY_READY] 들을 소리가 없는 AI 줄 — 만들지도 · 남의 목소리(나레이션 · 연습 AI 읽기 · 배역 예시)를 틀지도 않고 그 줄 아래 한 줄. 아래 [STALE_NOVOICE] 갈래는 ▶ 에서 오지 않는다 */
+  if(_playOff(key)){ mkPlayOff(key); return; } MK.playOff=null; _offToastOff();   /* ★[AI_PLAY_READY] 들을 소리가 없는 AI 줄 — 만들지도 · 남의 목소리(나레이션 · 연습 AI 읽기 · 배역 예시)를 틀지도 않고 그 줄 아래 한 줄. 아래 [STALE_NOVOICE] 갈래는 ▶ 에서 오지 않는다 */
   if(_lineBlank(key)){ if(_lineBlankDrop([key])) _persist(); render(); return; }   /* [LINE_BLANK] 빈 줄의 옛 소리를 틀지도 · 빈 글로 만들지도 않는다(카드엔 이 ▶ 가 안 그려진다 · 남은 길 막기) */
   if(_staleNoVoice(key)){ _playNowText(key); return; }   // [STALE_NOVOICE] 옛 소리(바뀌기 전 글)를 틀지 않는다
   if(_vtNeed(key)){ _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)})   /* [PLAY_FRESH] 빠르기까지 지금 값으로 만든 뒤 튼다(재생 속도 흉내 대신) */.then(function(){ setTimeout(function(){ mkUpPlay(key); },60); },function(){}); return; }
@@ -6666,7 +6673,7 @@ function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k]||(MK.lsMake||{
 function _lGuestTail(){ return []; }
 function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length+(k==='guest'?_lGuestTail().length?1:0:0); }catch(e){} return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }
 function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈추기':_mpLab(k)); }); }   // [MP_ALL_WORD]
-window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; if(st.own&&st.up&&_playOff(st.up)){ mkPlayOff(st.up); return; } MK.playOff=null;   /* [AI_PLAY_READY] 줄 카드 ▶(아직 소리 파일이 없는 줄)도 같은 입구 */
+window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; if(st.own&&st.up&&_playOff(st.up)){ mkPlayOff(st.up); return; } MK.playOff=null; _offToastOff();   /* [AI_PLAY_READY] 줄 카드 ▶(아직 소리 파일이 없는 줄)도 같은 입구 */
   LP.lineKey=k+':'+i; LP.lineSt=st; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
   var q=all.filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }), j=q.indexOf(st); if(j<0){ q=[st]; j=0; }
   LP.q=q; LP.i=j; LP.one=true; LP.paused=false; LP.all=false; LP.tok++; LP.last=null; _lShow(); };
@@ -7085,11 +7092,19 @@ function _chipNote(key,v){ if(/^(guest|entry|pv)Voice$/.test(key)) return _upLiv
   return ''; }
 /* [CHIP_TOAST] 떠 있는 안내 — #pkUndo(① 예시 알림)와 같은 모양 · 따로 산다(#pkUndo 는 ① 밖에서 그릴 때마다 닫힌다) · 3초 · 아래 막대 바로 위 */
 var _lsToastT=null;
-function _lsToast(msg){ var u=document.getElementById('lsToast');
-  if(!u){ u=document.createElement('div'); u.id='lsToast'; u.className='pk-undo wrap'; u.hidden=true; document.body.appendChild(u); }   // wrap = 긴 칩 이름이면 두 줄(320)
-  clearTimeout(_lsToastT); u.innerHTML='<span>'+esc(msg)+'</span>'; u.hidden=false; _pkUndoPos(u);
-  try{ _lSay(msg); }catch(e){}
-  _lsToastT=setTimeout(function(){ u.hidden=true; u.innerHTML=''; },3000); }
+function _lsToast(msg,act,forId){ var u=document.getElementById('lsToast');
+  if(!u){ u=document.createElement('div'); u.id='lsToast'; u.className='pk-undo wrap'; u.hidden=true; document.body.appendChild(u);   // wrap = 긴 칩 이름이면 두 줄(320)
+    ['mouseenter','focusin'].forEach(function(e){ u.addEventListener(e,function(){ if(/\bact\b/.test(u.className)) clearTimeout(_lsToastT); }); });   /* [OFF_TOAST_TAP] 단추가 있는 알림은 손을 올리거나 초점이 있는 동안 닫지 않는다 · 떠나면 3초 */
+    ['mouseleave','focusout'].forEach(function(e){ u.addEventListener(e,function(){ if(/\bact\b/.test(u.className)&&!u.hidden){ clearTimeout(_lsToastT); _lsToastT=setTimeout(_lsToastOff,3000); } }); }); }
+  clearTimeout(_lsToastT); u.className='pk-undo '+(act?'act':'wrap'); u.setAttribute('data-for',forId||'');   /* [OFF_TOAST] act = 알림 안 단추(«만들러 가기») · data-for = 어느 ▶ 의 알림인가 */
+  u.innerHTML='<span>'+esc(msg)+'</span>'+(act?'<span aria-hidden="true"> · </span><button type="button" data-fk="'+esc(act.fk)+'" onclick="'+act.on+'">'+esc(act.l)+'</button>':''); u.hidden=false;
+  if(act){ var _m=u.firstChild; _m.style.width=''; var _two=_m.offsetHeight>parseFloat(getComputedStyle(_m).fontSize)*2; u.classList.toggle('two',_two);   /* [OFF_TOAST_TAP] 글이 두 줄이면 가운데 «·»를 뺀다(글 덩이 · 단추 두 칸으로 읽힌다 · 점이 빈 틈 가운데 떠 보였다) */
+    if(_two){ var _r=document.createRange(), _L=1e9, _R=-1e9; _r.selectNodeContents(_m); [].forEach.call(_r.getClientRects(),function(q){ if(q.width){ _L=Math.min(_L,q.left); _R=Math.max(_R,q.right); } }); if(_R>_L) _m.style.width=Math.ceil(_R-_L+1)+'px'; } }   // 두 줄 글 상자를 글 폭으로 줄인다 — 글과 단추 사이가 비지 않게(알림은 가운데로 좁아진다)
+  _pkUndoPos(u);
+  try{ _lSay(msg+(act?' · '+act.l:'')); }catch(e){}
+  _lsToastT=setTimeout(_lsToastOff,act?6000:3000); }
+function _lsToastOff(){ clearTimeout(_lsToastT); var u=document.getElementById('lsToast'); if(u){ u.hidden=true; u.innerHTML=''; u.setAttribute('data-for',''); } }
+function _offToastOff(id){ var u=document.getElementById('lsToast'), f=u&&!u.hidden&&u.getAttribute('data-for'); if(f&&(!id||f===id)) _lsToastOff(); }   /* [OFF_TOAST] «… 누르면 들을 수 있어요» 알림은 그 일을 하면(만들기 · 다른 ▶ · 쪽 옮기기) 바로 걷는다 · 칩 알림(data-for 없음)은 그대로 */
 function _lHold(k){ return (LP.big&&k&&LP.q.length)?{all:!!LP.all,ch:LP.choose}:null; }   /* ch = «이 순간 바꾸기»(고르는 중) — 줄을 새로 세워도 칩이 접히지 않게 */
 function _lHush(k,hold){
   if(hold){ var all=hold.all, rs=_lRows(), i=rs.indexOf(k), _sec=LP.range&&LP.range.sec, _ae=document.activeElement, _afk=_ae&&_ae.getAttribute&&_ae.getAttribute('data-fk');
@@ -7403,7 +7418,7 @@ window.lsStop=function(keepBig){
   _lPaint();
   if(!keepBig) lsCloseBig();
 };
-window.lsPlay=function(k){ if(_playOffAll(k)){ mkPlayOff('mp:'+k); return; } MK.playOff=null; var _ls=_lsState(k); if(_ls.need.length||_ls.busy.length){ _lsMakeAll(k,_ls); return; }   /* [AI_PLAY_READY] 읽는 분 목소리가 없으면 한 줄 · [LS_MAKE_ALL] 안 만든 줄 · 만드는 줄이 있으면 한꺼번에 만들고 다 되면 이어서 */
+window.lsPlay=function(k){ if(_playOffAll(k)){ mkPlayOff('mp:'+k); return; } MK.playOff=null; _offToastOff(); var _ls=_lsState(k); if(_ls.need.length||_ls.busy.length){ _lsMakeAll(k,_ls); return; }   /* [AI_PLAY_READY] 읽는 분 목소리가 없으면 한 줄 · [LS_MAKE_ALL] 안 만든 줄 · 만드는 줄이 있으면 한꺼번에 만들고 다 되면 이어서 */
   LP.fast=false; var hk=_vtKeys(k);   /* [ONEMIN_FIRST] g3 는 하객 맞이 한 쪽 */
   MK.lsPend=MK.lsPend||{}; if(hk.length){ if(MK.lsPend[k]) return; MK.lsPend[k]=1; MK.lsPendAt=MK.lsPendAt||{}; var _pd=0; hk.forEach(function(x){ try{ _pd+=_waitEst(_vcArgs(x,{}).t); }catch(e){ _pd+=6; } }); MK.lsPendAt[k]={at:Date.now(),d:Math.min(20,_pd)}; render();   /* [WAIT_FILL] 만들 줄들의 어림을 더한다(20초면 먼저 튼다 · SIM_R3) */ var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R3] 이 순간 들어 보기도 20초까지만 — 넘으면 지금 소리로 먼저 · [SIM_R4] 제 깃발(lsPend)을 쓴다 — 플레이어의 lsBusy 와 섞이면 누른 것이 버려졌다 */
     Promise.race([_vtBake(hk),_slow]).then(function(r){ if(!MK.lsPend[k]) return; delete MK.lsPend[k];
