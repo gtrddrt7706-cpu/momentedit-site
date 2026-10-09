@@ -33,8 +33,11 @@ console.log('━━ public-caps — ① 고객 로그인 시도 상한');
   say(wrong.every((t) => /올바르지 않습니다/.test(t)), '열 번까지는 «올바르지 않습니다»(무엇이 틀렸는지 가르지 않는다)', wrong[9]);
   const locked = thr(() => G.handleLogin({ code: 'ME-TEST', pw: 'Right1234!' }));
   say(locked === LOCK, '열 번 틀린 뒤에는 맞는 비밀번호도 15분 막는다', locked);
+  const keepFC = G.findCustomerByCode; let looked = 0;
+  G.findCustomerByCode = (c) => (String(c) === 'ME-NONE' ? (looked++, null) : keepFC(c));   // world() 는 어느 코드에도 같은 줄을 돌려준다 — 없는 아이디 길을 실제로 타게 한다
   const ghost = []; for (let i = 0; i < 11; i++) ghost.push(thr(() => G.handleLogin({ code: 'ME-NONE', pw: 'x' })));
-  say(ghost.slice(0, 10).every((t) => /올바르지 않습니다/.test(t)) && ghost[10] === LOCK, '없는 아이디도 똑같이 센다(있는지 드러내지 않는다)', ghost[10]);
+  G.findCustomerByCode = keepFC;
+  say(looked === 10 && ghost.slice(0, 10).every((t) => /올바르지 않습니다/.test(t)) && ghost[10] === LOCK, '없는 아이디도 똑같이 센다(있는지 드러내지 않는다)', looked + ' · ' + ghost[10]);
   cm.clear(); world({ '비번해시': HASH });
   for (let i = 0; i < 9; i++) thr(() => G.handleLogin({ code: 'ME-TEST', pw: 'nope' }));
   let ok; try { ok = G.handleLogin({ code: 'ME-TEST', pw: 'Right1234!' }); } catch (e) { ok = { error: e.message }; }
