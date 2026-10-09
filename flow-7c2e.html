@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light only">
+<title>나레이션 흐름 점검 · 내부용</title>
+<!--
+  ★[FLOW_REVIEW 2026-10-09 사장님 «코스마다 나레이션 진행 방식을 한 흐름으로 쭉 들어 보면서 개선할 수 있는 보기용»]
+  ★내부용이다 — noindex · 메뉴 · 사이트맵에 넣지 않는다. 고객 화면이 아니다.
+  ★원천이 아니다 — 문안 · 순서 · 파일 이름은 여기 적지 않는다. assets/ritual-cue.js 를 돌려 나온 것만 그린다
+    (그래서 엔진을 고치면 이 화면도 저절로 따라온다).
+  ★예외 하나 — DRAFT(이음 줄 초안)는 아직 원천에 없는 «회의용 초안»이라 여기에만 둔다. 확정되면 ritual-open.js 로 옮기고 여기서 지운다.
+  ★사람 순간(서약 · 편지 · 박수 …)은 실제 길이 대신 줄여서 흘린다(기본 3초) — 나레이션의 이음만 듣기 위해서다.
+  ★메모는 이 브라우저에만 남는다(localStorage). «메모 모아 복사»로 대화창에 붙여 넣는다.
+-->
+<style>
+:root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#6E6959;
+--border:#DDD8D1;--gold:#B89A75;--gold-text:#7A5F37;--seal:#6B2A24;--green:#3B6E4F;--draft:#FBF4E6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:15px;line-height:1.65;word-break:keep-all}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 180px}
+header{background:var(--bg);border-bottom:1px solid var(--border);padding:12px 0 10px}
+h1{font-size:18px;margin:0 0 2px}
+.sub{color:var(--light);font-size:12.5px;margin:0 0 10px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 8px}
+.lab{font-size:12px;color:var(--light);min-width:64px}
+button,select{font:inherit;font-size:13px;color:var(--text);background:#fff;border:1px solid var(--border);border-radius:99px;padding:7px 12px;min-height:38px;cursor:pointer}
+button.on{background:#3A2D22;color:#fff;border-color:transparent}
+button.pri{background:var(--green);color:#fff;border-color:transparent;border-radius:9px;padding:8px 16px;min-height:42px;font-size:14px}
+button.stop{background:var(--seal);color:#fff;border-color:transparent;border-radius:9px;min-height:42px}
+.ms{display:flex;gap:4px;flex-wrap:wrap}
+.ms label{font-size:12.5px;border:1px solid var(--border);border-radius:99px;padding:4px 10px;background:#fff;cursor:pointer;user-select:none}
+.ms label.on{background:var(--bg3);border-color:var(--gold)}
+.ms input{display:none}
+.pg{height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;margin:6px 0 0}
+.pg>i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
+.now{font-size:13px;color:var(--sub);margin-top:6px;min-height:20px}
+.blk{font-size:12px;letter-spacing:.04em;color:var(--gold-text);font-weight:600;margin:22px 0 8px;padding-top:12px;border-top:1px solid var(--border)}
+.c{display:flex;gap:10px;border:1px solid var(--border);border-radius:11px;background:#fff;padding:10px 12px;margin:0 0 8px;scroll-margin-top:24px}
+.c.live{background:var(--bg2);border-style:dashed}
+.c.draft{background:var(--draft);border-color:#E3CFA6}
+.c.bridge{border-left:3px solid var(--gold)}
+.c.cur{outline:2px solid var(--gold);outline-offset:1px}
+.n{font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;color:var(--gold-text);min-width:28px}
+.b{flex:1;min-width:0}
+.tx{font-size:15px}
+.mi{font-size:11.5px;color:var(--light);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--border);background:#fff}
+.tag.go{color:var(--seal);border-color:#e8c9c4;background:#fdf1ef}
+.tag.ch{color:var(--green);border-color:#cfe0d4;background:#f2f5f2}
+.tag.dr{color:var(--gold-text);border-color:#e8dcc4;background:#fff}
+.tag.no{color:#9a6a1f}
+.side{display:flex;flex-direction:column;gap:4px}
+.side button{min-height:32px;padding:3px 10px;font-size:12px}
+textarea{width:100%;font:inherit;font-size:13px;border:1px solid var(--border);border-radius:8px;padding:6px 8px;margin-top:6px;min-height:36px;resize:vertical;background:#fffefb}
+textarea.has{border-color:var(--gold)}
+.foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.98);border-top:1px solid var(--border);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.foot .in{max-width:820px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cnt{font-size:12.5px;color:var(--light)}
+.note{font-size:12.5px;color:var(--sub);background:var(--bg2);border-radius:9px;padding:10px 12px;margin:12px 0 0}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding-bottom:0">
+  <h1>나레이션 흐름 점검</h1>
+  <p class="sub">코스를 고르고 «처음부터 듣기». 사람 순간은 줄여서 흘려요. 줄마다 번호로 말씀해 주시거나 메모를 남겨 주세요.</p>
+  <div class="row"><span class="lab">코스</span><span id="ex" class="row" style="margin:0"></span></div>
+  <div class="row"><span class="lab">담은 순간</span><span id="ms" class="ms"></span></div>
+  <div class="row"><span class="lab">범위</span>
+    <button data-rg="body" class="on">본식만</button><button data-rg="all">하객 맞이 · 사진 뒤까지</button>
+    <span class="lab" style="margin-left:6px">사람 순간</span>
+    <select id="lv"><option value="3">3초로 줄임</option><option value="6">6초로 줄임</option><option value="0">건너뜀</option><option value="-1">실제 길이</option></select>
+  </div>
+  <div class="row"><span class="lab">이음 줄 초안</span>
+    <button id="dr">끔</button><span class="cnt">켜면 회의용 초안 줄이 노란 칸으로 들어가요(녹음 전이라 기계 음성 · 없으면 글만)</span>
+  </div>
+  <div class="row"><span class="cnt" id="sum"></span></div>
+</div></header>
+<div class="wrap"><div id="list"></div>
+  <p class="note">«디렉터가 누름» = 당일 디렉터가 다음을 누를 때까지 기다리는 자리(여기선 2.5초로 흘려요) · «바로 이어짐» = 앞 줄이 끝나고 2초 뒤 저절로 나오는 자리.</p>
+</div>
+<div class="foot"><div class="in">
+  <button class="pri" id="play">처음부터 듣기</button><button class="stop" id="stop">멈춤</button>
+  <button id="copy">메모 모아 복사</button><span class="cnt" id="mc"></span>
+</div><div class="in" style="display:block"><div class="pg"><i id="pg"></i></div><div class="now" id="now"></div></div></div>
+
+<script src="/assets/ritual-data.js"></script>
+<script src="/assets/ritual-open.js"></script>
+<script src="/assets/ritual-cue.js"></script>
+<script>
+(function(){
+var O=window.RitualOpen, C=window.RitualCue;
+var AUD='/assets/audio/narration/';
+var GO_MS=2500, CHAIN_MS=(C.PARAM&&C.PARAM.gapMs)||2000;
+var NM={guest:'하객 맞이',prevideo:'식전 영상',candle:'화촉',entry:'입장',welcome:'첫인사',bless:'부모님 덕담',vow:'혼인 서약',ring:'반지 교환',declare:'성혼 선언',tribute:'부모님께 인사',free:'준비한 순서',letter:'편지',cake:'케이크',toast:'축배',table:'테이블 인사',_close:'닫는 인사',_photo:'단체 사진',_final:'단체 사진',_goodbye:'마무리'};
+/* 회의용 초안 — 앞 순간 → 다음 순간. 확정 전(원천 아님) */
+var DRAFT={
+ 'candle>entry':'두 집의 불이 밝혀졌습니다. 이제, 두 사람을 맞이하겠습니다.',
+ 'welcome>bless':'두 사람의 인사에, 이제 부모님께서 답해 주실 차례입니다.',
+ 'welcome>vow':'인사를 마친 두 사람이, 이제 서로를 향해 섭니다.',
+ 'bless>vow':'부모님의 말씀을 들은 두 사람이, 이제 서로에게 약속을 건넵니다.',
+ 'vow>ring':'말로 한 약속을, 이제 손끝에 남기겠습니다.',
+ 'ring>declare':'약속도 반지도 건넸습니다. 이제, 두 사람이 부부가 되었음을 알리겠습니다.',
+ 'declare>tribute':'부부가 되어 처음 걸음을 옮기는 곳은, 부모님 앞입니다.',
+ 'tribute>letter':'다 하지 못한 말은, 두 사람이 편지에 담아 왔습니다.',
+ 'cake>toast':'두 사람이 함께 해낸 첫 번째 일이었습니다. 이제, 잔을 들 차례입니다.'
+};
+var st={ex:'promise',on:null,rg:'body',draft:false}, cues=[], tok=0, audio=new Audio();
+var MK='flowReviewMemo';
+function memo(){try{return JSON.parse(localStorage.getItem(MK)||'{}')}catch(e){return {}}}
+function setMemo(k,v){try{var m=memo(); if(v)m[k]=v; else delete m[k]; localStorage.setItem(MK,JSON.stringify(m));}catch(e){} cnt();}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function exNm(){var e=O.exampleOf(st.ex);return e?e.nm:'직접'}
+
+function S0(){var S={course:'open'}; O.applyExample(S,st.ex); if(st.on){S.on={};for(var k in st.on)if(st.on[k])S.on[k]=1; S.toast=O.toastMode(S);} return S;}
+function build(){
+  var S=S0(), r=C.build(S,{mode:'console'}), out=[], prevK=null, seq=r.seq;
+  r.cues.forEach(function(c){
+    if(st.rg==='body' && /^(guest|_photo|_final|_goodbye)$/.test(c.k)) return;
+    if(st.draft && prevK && c.k!==prevK && seq.indexOf(c.k)>-1 && DRAFT[prevK+'>'+c.k]) out.push({draft:true,k:c.k,text:DRAFT[prevK+'>'+c.k],slug:'초안 '+NM[prevK]+' → '+NM[c.k]});
+    out.push(c); if(seq.indexOf(c.k)>-1) prevK=c.k;
+  });
+  return out;
+}
+function render(){
+  cues=build(); var h='',last='',m=memo(),n=0,sec=0;
+  cues.forEach(function(c,i){
+    if(c.k!==last){h+='<div class="blk">'+esc(NM[c.k]||c.blockN||c.k)+'</div>';last=c.k;}
+    n++; c._n=n; var key=st.ex+'|'+(c.slug||('d'+i));
+    var fire=c.draft?'<span class="tag dr">초안 · 녹음 전</span>':(c.fire==='manual'?'<span class="tag go">디렉터가 누름</span>':(c.fire==='clock'?'<span class="tag">시각에 맞춰</span>':'<span class="tag ch">바로 이어짐</span>'));
+    var br=/^bridge-/.test(c.slug||'');
+    sec+=(c.est||3);
+    h+='<div class="c'+(c.draft?' draft':'')+(br?' bridge':'')+'" id="c'+i+'"><div class="n">'+n+'</div><div class="b">'
+      +'<div class="tx">'+esc(c.text||c.name)+'</div>'
+      +'<div class="mi">'+fire+(br?'<span class="tag dr">이음말</span>':'')+'<span>'+esc(c.slug||'')+'</span>'+(c.est?'<span>약 '+c.est+'초</span>':'')+(c.file||c.draft?'':'<span class="tag no">소리 없음</span>')+'</div>'
+      +'<textarea data-k="'+esc(key)+'" placeholder="메모"'+(m[key]?' class="has"':'')+'>'+esc(m[key]||'')+'</textarea>'
+      +'</div><div class="side"><button data-from="'+i+'">여기부터</button></div></div>';
+    if(c.live){
+      sec+=(c.live.est||0);
+      h+='<div class="c live"><div class="n"></div><div class="b"><div class="tx" style="font-size:13.5px;color:var(--sub)">사람 순간 · '+esc(c.live.t||'')+'</div><div class="mi"><span>실제 약 '+(c.live.est||0)+'초</span></div></div></div>';
+    }
+  });
+  document.getElementById('list').innerHTML=h;
+  document.getElementById('sum').textContent=n+'줄 · 실제 진행 약 '+Math.round(sec/60)+'분';
+  cnt();
+}
+function cnt(){var k=Object.keys(memo()).length;document.getElementById('mc').textContent=k?('메모 '+k+'개'):'';}
+
+function wait(ms,t){return new Promise(function(res){setTimeout(function(){res(t===tok)},ms)})}
+function playFile(src,t){return new Promise(function(res){
+  audio.pause(); audio=new Audio(src); var done=false;function fin(ok){if(done)return;done=true;res(ok&&t===tok)}
+  audio.onended=function(){fin(true)}; audio.onerror=function(){fin(null)}; audio.play().catch(function(){fin(null)});
+  var iv=setInterval(function(){if(t!==tok){clearInterval(iv);audio.pause();fin(false)} if(done)clearInterval(iv)},200);
+})}
+function speak(text,t,est){return new Promise(function(res){
+  var ss=window.speechSynthesis; if(!ss){wait((est||3)*1000,t).then(res);return}
+  var v=(ss.getVoices()||[]).filter(function(x){return /^ko/i.test(x.lang)})[0];
+  if(!v){wait((est||3)*1000,t).then(res);return}
+  var u=new SpeechSynthesisUtterance(text); u.voice=v; u.lang='ko-KR'; u.rate=0.95;
+  u.onend=function(){res(t===tok)}; u.onerror=function(){res(t===tok)}; ss.cancel(); ss.speak(u);
+})}
+function mark(i){
+  [].forEach.call(document.querySelectorAll('.c.cur'),function(e){e.classList.remove('cur')});
+  var el=document.getElementById('c'+i); if(el){el.classList.add('cur');el.scrollIntoView({behavior:'smooth',block:'center'})}
+  document.getElementById('pg').style.width=(cues.length?((i+1)/cues.length*100):0)+'%';
+}
+async function run(from){
+  var t=++tok, lv=+document.getElementById('lv').value, now=document.getElementById('now');
+  for(var i=from;i<cues.length;i++){
+    var c=cues[i]; if(t!==tok)return;
+    if(i>from){ var g=c.draft?CHAIN_MS:(c.fire==='manual'?GO_MS:CHAIN_MS); now.textContent=c.draft?'(이음 초안)':(c.fire==='manual'?'디렉터가 누르는 자리…':''); if(!(await wait(g,t)))return; }
+    mark(i); now.textContent=c._n+'번 · '+(NM[c.k]||c.k);
+    var ok;
+    if(c.draft) ok=await speak(c.text,t,Math.max(2,(c.text.length/6)));
+    else if(c.file){ ok=await playFile(AUD+c.file+'.mp3',t); if(ok===null){now.textContent=c._n+'번 소리 파일 없음 · 글만'; ok=await wait((c.est||3)*1000,t);} }
+    else ok=await wait((c.est||3)*1000,t);
+    if(!ok)return;
+    if(c.live && lv!==0){ var ms=lv<0?(c.live.est||0)*1000:lv*1000; now.textContent='사람 순간 · '+(c.live.t||'')+(lv<0?'':' (줄여서 '+lv+'초)'); if(!(await wait(ms,t)))return; }
+  }
+  now.textContent='끝';
+}
+function stop(){tok++; audio.pause(); if(window.speechSynthesis)speechSynthesis.cancel(); document.getElementById('now').textContent='멈춤';}
+
+function ui(){
+  var ex=document.getElementById('ex');
+  ex.innerHTML=O.EXAMPLES.map(function(e){return '<button data-ex="'+e.k+'"'+(e.k===st.ex?' class="on"':'')+'>'+esc(e.nm)+'</button>'}).join('');
+  var S=S0(), ms=document.getElementById('ms');
+  ms.innerHTML=O.PICKABLE.map(function(k){var on=O.onOf(S,k);return '<label class="'+(on?'on':'')+'"><input type="checkbox" data-mk="'+k+'"'+(on?' checked':'')+'>'+esc(NM[k]||k)+'</label>'}).join('');
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return;
+  if(b.dataset.ex){stop();st.ex=b.dataset.ex;st.on=null;ui();render();}
+  else if(b.dataset.rg){stop();st.rg=b.dataset.rg;[].forEach.call(document.querySelectorAll('[data-rg]'),function(x){x.classList.toggle('on',x===b)});render();}
+  else if(b.id==='dr'){stop();st.draft=!st.draft;b.textContent=st.draft?'켬':'끔';b.classList.toggle('on',st.draft);render();}
+  else if(b.id==='play'){run(0);}
+  else if(b.id==='stop'){stop();}
+  else if(b.dataset.from){run(+b.dataset.from);}
+  else if(b.id==='copy'){
+    var m=memo(),lines=[];
+    cues.forEach(function(c,i){var k=st.ex+'|'+(c.slug||('d'+i)); if(m[k])lines.push('['+exNm()+' '+c._n+'번 · '+(NM[c.k]||c.k)+' · '+(c.slug||'')+'] «'+(c.text||'')+'»\n  → '+m[k]);});
+    Object.keys(m).forEach(function(k){var ex=k.split('|')[0]; if(ex!==st.ex)lines.push('['+((O.exampleOf(ex)||{}).nm||ex)+' · '+k.split('|')[1]+'] → '+m[k]);});
+    var txt=lines.join('\n')||'(메모 없음)';
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){b.textContent='복사했어요';setTimeout(function(){b.textContent='메모 모아 복사'},1500)},function(){window.prompt('복사해 주세요',txt)});
+  }
+});
+document.addEventListener('change',function(e){
+  var x=e.target;
+  if(x.dataset.mk){var S=S0();st.on={};O.PICKABLE.forEach(function(k){st.on[k]=O.onOf(S,k)?1:0});st.on[x.dataset.mk]=x.checked?1:0;stop();ui();render();}
+});
+document.addEventListener('input',function(e){var x=e.target;if(x.dataset.k){setMemo(x.dataset.k,x.value.trim());x.classList.toggle('has',!!x.value.trim());}});
+if(window.speechSynthesis)speechSynthesis.getVoices();
+ui();render();
+})();
+</script>
+</body>
+</html>
