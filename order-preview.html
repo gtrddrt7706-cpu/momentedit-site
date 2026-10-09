@@ -4320,7 +4320,7 @@ function _lVid(k,opt){
   if(opt.mini) return '<div class="lv mini" aria-hidden="true"><span class="lv-dot"></span></div>';
   var c=(opt.art!==false)?clip(k==='_close'?'':k):'';
   if(c) return '<div class="lv art">'+c+'</div>';
-  if(RitualOpen.videoKeys&&!RitualOpen.videoKeys(k,S).length) return '<div class="lv none"'+(opt.cap?'':' aria-hidden="true"')+'><span class="lv-sc">'+esc(opt.cap||RitualOpen.SCENE[k]||'')+'</span></div>';   /* [TABLE_GREET_1008] 영상을 만들지 않는 순간(테이블 인사)은 «준비 중»이 아니라 장면 글 한 줄 */
+  if(RitualOpen.videoKeys&&!RitualOpen.videoKeys(k,S).length) return '<div class="lv none"'+(opt.cap?'':' aria-hidden="true"')+'><span class="lv-sc">'+esc(opt.cap||RitualOpen.SCENE[k]||'')+'</span></div>';   /* [TABLE_GREET_1008] 영상이 없는 순간은 «준비 중»이 아니라 장면 글 한 줄 · ★[TABLE_VIDEO_1009 2026-10-09] 테이블 인사는 이제 영상이 있어 이 갈래를 타지 않는다 */
   return '<div class="lv none"'+(opt.cap?'':' aria-hidden="true"')+'>'+(opt.cap?'<span class="lv-sc">'+esc(opt.cap)+'</span>':'')+'<span class="lv-soon">장면 영상 준비 중</span></div>';   // [DETAIL_0925 B5] 대체 문구는 하나
 }
 

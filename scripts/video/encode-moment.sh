@@ -9,7 +9,7 @@
 #             assets/video/moments/<이름>-640.webp (첫 장면 칸용 작은 판 · 640px 폭) [POSTER_SMALL 2026-09-26 코워크 최종판 3-5]
 #               ① 칸 열세 개가 1280 판을 받으면 카톡 데이터가 든다 — 칸은 작은 판만 쓴다(창은 큰 판 + 영상).
 #   ★이름은 사장님 촬영표 17편 그대로(guest · prevideo · candle · entry · entry-look · welcome · bless · vow · ring ·
-#     declare · tribute · free · letter · cake · toast-pour · toast · close). 절 영상(entry-bow · tribute-bow)은 만들지 않는다([BOW_VIDEO_OFF]).
+#     declare · tribute · free · letter · cake · toast-pour · toast · close) + table(테이블 인사 · 2026-10-09 사장님 «table 넣어» · [TABLE_VIDEO_1009]) = 18편. 절 영상(entry-bow · tribute-bow)은 만들지 않는다([BOW_VIDEO_OFF]).
 #   ★다 구운 뒤 assets/ritual-open.js 의 VIDEO_READY 에 이름을 더해야 화면에 나온다.
 #   ★어두운 촛불 장면(candle · guest · prevideo)은 폰 밝기를 최대로 하고 계단 무늬(밴딩)가 보이는지 본다 —
 #     보이면 그 편만 비트레이트를 올려(예: 3500k) 다시 굽는다.

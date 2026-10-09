@@ -12,7 +12,7 @@
 //   ⑦ 칩을 누르면 그 판으로 바로 다시 들린다 · 빼기 · 넣기 한 줄 안내(을/를)
 //   ⑧ 옛 코스(가족) 초안은 지금 화면 그대로 — 순간마다의 화면이 선다(회귀 0)
 //
-// ★[VIDEO_IN_1003 2026-10-03] 장면 영상 16편이 들어왔다(VIDEO_READY 16 · assets/video/moments/). 그래서
+// ★[VIDEO_IN_1003 2026-10-03] 장면 영상 16편이 들어왔다(VIDEO_READY 16 · assets/video/moments/) · ★[TABLE_VIDEO_1009 2026-10-09] table 이 더해져 17편. 그래서
 //   ① opt.videos 는 목록을 «그 이름들로 바꾼다»(더하지 않는다) — 두 편 · 빈 목록 · 17편 검사가 들어온 판과 섞이지 않고 제 뜻대로 잰다.
 //   ② 영상이 없는 판(3-7)은 videos: [] 로 그 상태를 만들어 그대로 잰다(빈 상자 금지 검사는 살아 있다).
 //   ③ 들어온 판 그대로는 «V» 블록이 잰다 — 목록 = 디스크 · 세 파일 · 칸 그림이 실제로 뜬다 · ② 쪽 영상과 AI 이름표.
@@ -548,11 +548,11 @@ else {
   ok('RF 그냥 연 미리보기 — 이 기기에서만 그 자리에 들어가고 «마이페이지에서 열면 저희에게 보내져요» 한 줄 [REC_UPLOAD]', await p2.evaluate(() => /마이페이지에서 열면 저희에게 보내져요/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !!(S.up.g0 && S.up.g0.local)));
   await c2.close();
 }
-/* ★[TOAST_FILE_ONE 2026-09-27] 영상 이름 한 원천 — 화면이 찾는 이름은 모두 파일 규격 17편(scripts/video/encode-moment.sh) 안에 있어야 한다.
+/* ★[TOAST_FILE_ONE 2026-09-27] 영상 이름 한 원천 — 화면이 찾는 이름은 모두 파일 규격 18편(scripts/video/encode-moment.sh · 10/9 table 더함 [TABLE_VIDEO_1009]) 안에 있어야 한다.
    종전 ② 잔 들기 줄이 'toast-raise'(그런 파일 없음)를 찾아, 17편이 다 들어오면 «케이크와 축배»는 케이크 영상 · «축배만 + 붓기»는 붓기 영상이 나왔다(실측).
    영상이 한 편도 없는 지금은 안 보이는 결함이라, 파일이 들어오기 전에 여기서 막는다. ffmpeg 없이 잰다(src 만 본다). */
 {
-  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close'];
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편
   const { ctx, pg } = await open(390, { videos: NAMES });
   const r = await pg.evaluate((NAMES) => {
     const R = RitualOpen, name = (h) => ((h.match(/moments\/([^"]+)\.mp4"/) || [])[1] || '(없음)'), out = { raise: {}, bad: [] };
@@ -563,17 +563,17 @@ else {
       R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => miss('videoKeys:' + k, n)));
     }
     [['toast', 'toast-both'], ['toast', 'toast-pour-mix'], ['toast', 'toast-pour-family'], ['entry', 'entry-out'], ['tribute', 'narr-bow-groom'], ['_close', '']]
-      .concat(R.ORDER.map((k) => [k, ''])).forEach(([k, sl]) => { if (!R.videoKeys(k, S).length) return; /* [TABLE_GREET_1008] 영상을 만들지 않는 순간(테이블 인사)은 이름을 안 찾는다 */ miss('scene:' + k + '/' + sl, _lSceneName({ k: k, slug: sl })); });
+      .concat(R.ORDER.map((k) => [k, ''])).forEach(([k, sl]) => { if (!R.videoKeys(k, S).length) return; /* [TABLE_GREET_1008] 영상이 없는 순간은 이름을 안 찾는다 · [TABLE_VIDEO_1009] 테이블 인사는 이제 찾는다 */ miss('scene:' + k + '/' + sl, _lSceneName({ k: k, slug: sl })); });
     return out;
   }, NAMES);
   ok('10-1 ② 잔 들기 줄 = toast.mp4 — 케이크와 축배 · 축배만(두 와인 · 양가 · 붓지 않음) [TOAST_FILE_ONE]', Object.values(r.raise).every((n) => n === 'toast'), JSON.stringify(r.raise));
-  ok('10-2 화면이 찾는 영상 이름은 모두 규격 17편 안 [TOAST_FILE_ONE]', r.bad.length === 0, r.bad.join(' | '));
+  ok('10-2 화면이 찾는 영상 이름은 모두 규격 18편 안 [TOAST_FILE_ONE]', r.bad.length === 0, r.bad.join(' | '));
   await ctx.close();
 }
 
 /* ★[MK_VID_CHIP 2026-09-27] ② 케이크 · 축배 쪽 영상은 고른 판대로 — «케이크만» cake · «축배만 + 붓지 않음» toast · «케이크와 축배» cake(첫 장면) */
 {
-  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close'];
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편
   const { ctx, pg, errs } = await open(390, { videos: NAMES });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};
@@ -654,10 +654,10 @@ else {
   const ready = await pg.evaluate(() => RitualOpen.VIDEO_READY.slice());
   const lack = ready.filter((n) => !['.mp4', '.webp', '-640.webp'].every((x) => disk.includes(n + x)));
   const stray = disk.filter((f) => !ready.some((n) => f === n + '.mp4' || f === n + '.webp' || f === n + '-640.webp'));
-  ok(`V-1 목록 ${ready.length}편 = 디스크 — 이름마다 mp4 · webp · 640.webp 셋 · 목록 밖 파일 0 [VIDEO_IN_1003]`, ready.length === 16 && lack.length === 0 && stray.length === 0 && disk.length === ready.length * 3, JSON.stringify({ lack, stray }));
+  ok(`V-1 목록 ${ready.length}편 = 디스크 — 이름마다 mp4 · webp · 640.webp 셋 · 목록 밖 파일 0 [VIDEO_IN_1003]`, ready.length === 17 && lack.length === 0 && stray.length === 0 && disk.length === ready.length * 3, JSON.stringify({ lack, stray }));
   const keys = await pg.evaluate(() => { const R = RitualOpen, o = {}; R.ORDER.concat(['_close']).forEach((k) => { o[k] = R.videoKeys(k, S).filter((n) => !R.videoOf(n)); }); return o; });
   const asked = await pg.evaluate(() => { const R = RitualOpen, a = {}; R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => { a[n] = 1; })); return Object.keys(a); });
-  ok('V-2 들어온 16편은 모두 화면이 찾는 이름(안 쓰는 파일 0)', ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
+  ok('V-2 들어온 17편은 모두 화면이 찾는 이름(안 쓰는 파일 0) [TABLE_VIDEO_1009]', ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(900);
   const tl = await pg.evaluate(async () => { const im = [...document.querySelectorAll('.pk-tile img')]; await Promise.all(im.map((i) => (i.decode ? i.decode().catch(() => 0) : 0)));
     return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote'), aiTxt: /AI로 만든|(^|\s)AI(\s|$)/.test([...document.querySelectorAll('.pk-tile .pk-media')].map((m) => m.textContent).join(' ')) }; });

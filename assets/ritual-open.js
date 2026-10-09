@@ -849,7 +849,7 @@
     vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
     tribute: '두 분이 부모님께 꽃을 건네고 안겨요', free: '앞 스크린의 영상을 보며 손을 맞잡는 부모님', letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
     cake: '두 손이 함께 나이프로 케이크를 잘라요', toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요',
-    table: '두 분이 테이블 사이를 걸어요 · 하객들이 자리에서 맞아요'   // [TABLE_GREET_1008] 영상 없음(장면 글 한 줄)
+    table: '두 분이 테이블 사이를 걸어요 · 하객들이 자리에서 맞아요'   // [TABLE_GREET_1008] 장면 글 · ★[TABLE_VIDEO_1009 2026-10-09] 이제 영상(table.mp4)이 있어 다른 순간처럼 영상이 없을 때만 쓴다
   };
   var VIDEO_DIR = '/assets/video/moments/';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
@@ -863,7 +863,7 @@
        prevideo 6.0초         사장님 지정 · 화면을 보는 하객 뒷모습 · 아버님 팔에 얹은 어머님 손
        나머지  첫 장면        (끝 장면은 주인공이 빠진다 · 덕담 뒷모습 · 편지 손 · 닫는 인사 발)
        다시 구울 때: sh scripts/video/encode-moment.sh 받은파일.mp4 <이름> 2500k <초> */
-  var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close'];
+  var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 2026-10-09 사장님 «table 넣어» — 테이블 인사 영상(v8 묶음 · 10초)
   function videoKeys(k, S) {
     if (k === 'cake') return ['cake'];   // [CAKE_TOAST_SPLIT] 두 순간 · 두 영상
     if (k === 'toast') return ['toast'];
@@ -872,7 +872,8 @@
     if (k === 'entry') return ['entry', 'entry-look'];
     if (k === 'tribute') return ['tribute'];
     if (k === '_close') return ['close'];
-    if (AFTER_CLOSE[k]) return [];   // [TABLE_GREET_1008] 테이블 인사는 영상을 만들지 않는다 — 장면 글(SCENE) 한 줄
+    if (k === 'table') return ['table'];   // ★[TABLE_VIDEO_1009 2026-10-09 사장님 «table 넣어»] 테이블 인사도 영상 — 10/8 «영상 없음(장면 글 한 줄)»을 뒤집었다
+    if (AFTER_CLOSE[k]) return [];   // [TABLE_GREET_1008] 닫는 인사 뒤 순간 중 영상이 없는 것은 장면 글(SCENE) 한 줄 · table 은 바로 위에서 영상
     return [k];
   }
   /* [POSTER_SMALL 2026-09-26 코워크 최종판 3-5] small = 칸용 첫 장면(640px · encode-moment.sh 가 함께 굽는다) — 칸은 영상을 돌리지 않는다 */
