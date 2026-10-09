@@ -993,6 +993,44 @@ if(SERVER.holdActive && SERVER.currentDate && /^\d{4}-\d{2}-\d{2}$/.test(SERVER.
   var _cg=document.getElementById('calGrid');
   if(_cg&&_cg.parentNode){ var _hn=document.createElement('div'); _hn.style.cssText='font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all'; _hn.textContent='예식일 임시 고정 중에는 상담일을 현재 일정보다 앞으로만 옮길 수 있어요. 뒤로 미루시려면 마이페이지에서 임시 고정을 먼저 취소해 주세요.'; _cg.parentNode.insertBefore(_hn,_cg); }
 }
+/* ★[RESCHED_NOW 2026-10-09 점검 D-3] 마이페이지 «시간 변경»으로 온 분 — 서버(getAvailability)가 주는 지금 시간 · 상태 · 낸 예약금으로 화면을 맞춘다.
+   ① 맨 위 핵심 안내 첫 줄에 지금 잡힌 시간 — «확정된 시간»(승인완료 · 확정) · «신청한 시간 · 확인 중»(시간선택완료) · 이름표는 다른 줄과 같은 칸 폭
+   ② 예약금을 이미 냈으면(입금 확인 · 카드 승인) 예약금 · 계좌 · 입금자명 · 현금영수증 · 카드 칸을 걷고 «이미 받았어요» 한 줄 · 필수 검사도 하지 않는다(doSubmit)
+   ③ 끝난 뒤 알림 글은 서버가 실제로 하는 일대로 — 시간을 바꾸면 «시간선택완료»로 돌아가 디렉터 확인 뒤 확정 메일이 다시 간다(입금확인은 그대로)
+   옛 서버(값 없음)면 아무것도 바꾸지 않는다 · boot 는 캐시 → 서버 두 번 돌 수 있어 매번 처음 모습에서 다시 맞춘다 */
+(function(){
+  var $i=function(id){ return document.getElementById(id); }, ki=document.querySelector('.keyinfo');
+  var kn=$i('kiNow'); if(kn&&kn.parentNode) kn.parentNode.removeChild(kn);
+  var cd=String(SERVER.currentDate||''), ct=String(SERVER.currentTime||''), cs=String(SERVER.currentStatus||''), m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(cd);
+  if(ki&&m&&/^\d{2}:\d{2}$/.test(ct)&&(cs==='confirmed'||cs==='picked')){
+    var d=new Date(+m[1],+m[2]-1,+m[3]);
+    if(d.getFullYear()===+m[1]&&d.getMonth()===+m[2]-1&&d.getDate()===+m[3]){   // 굴러간 날짜(2/30 → 3/2)는 보이지 않는다 · 화면 B REVISIT_DATE_ROLL 과 같은 규칙
+      var row=document.createElement('div'); row.className='keyinfo-row'; row.id='kiNow';
+      var lb=document.createElement('span'); lb.className='keyinfo-label'; lb.textContent=cs==='confirmed'?'확정된 시간':'신청한 시간';   // 이름표 칸(76px) 안 — «지금 잡힌 시간»은 82px 라 값이 다른 줄보다 6px 밀렸다(실측)
+      var vl=document.createElement('span'); vl.className='keyinfo-val';
+      var wn=document.createElement('span'); wn.style.cssText='font-weight:500;color:var(--accent)'; wn.textContent=(d.getFullYear()!==today.getFullYear()?d.getFullYear()+'년 ':'')+(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+WD_KO[d.getDay()]+') '+ct;
+      vl.appendChild(wn);
+      if(cs==='picked'){ var sb=document.createElement('span'); sb.className='keyinfo-sub'; sb.textContent='· 확인 중'; vl.appendChild(document.createTextNode(' ')); vl.appendChild(sb); }
+      row.appendChild(lb); row.appendChild(vl); ki.insertBefore(row, ki.firstChild);
+    }
+  }
+  var paid=SERVER.depositPaid===true, card=SERVER.depositCard===true;
+  var keep=function(el, html){ if(!el) return; if(el.getAttribute('data-orig')==null) el.setAttribute('data-orig', el.innerHTML); el.innerHTML=html==null?el.getAttribute('data-orig'):html; };
+  var dk=$i('t_deposit_k'), dsub=dk&&dk.parentNode?dk.parentNode.querySelector('.keyinfo-sub'):null;
+  keep(dsub, paid?'· 이미 받았어요':null);
+  keep(ki?ki.querySelector('.keyinfo-note'):null, paid?'새 시간을 확인한 뒤 24시간 이내 확정 메일이 발송되며, 메일을 받으신 시점에 예약이 완료됩니다.':null);
+  keep(document.querySelector('.submit-wrap .confirm-note'), paid?'<b>확정 메일을 받으셔야 예약이 완료됩니다.</b><br>새 시간을 확인한 뒤 24시간 이내 발송됩니다.':null);
+  var dep=document.querySelector('#guide .deposit:not(#depPaid)'), dp=$i('depPaid');
+  if(dep) dep.hidden=paid;
+  if(paid&&!dp&&dep&&dep.parentNode){ dp=document.createElement('div'); dp.className='deposit'; dp.id='depPaid';
+    dp.innerHTML='<div class="deposit-label" aria-hidden="true">Reservation Deposit</div><div id="depPaidT"><div class="deposit-note" style="margin-top:0;font-size:14px;color:var(--accent)"></div><div class="deposit-note" style="margin-top:6px"></div></div>';   // 두 줄로 나눠 둔다 — 한 줄로 이으면 390 에서 «돼요»만 다음 줄로 떨어졌다
+    dep.parentNode.insertBefore(dp, dep); }
+  if(dp){ dp.hidden=!paid; var dt=$i('depPaidT'); if(dt&&dt.children.length===2){ dt.children[0].textContent=card?'예약금은 카드로 이미 받았어요':'예약금은 이미 받았어요'; dt.children[1].textContent=card?'다시 결제하지 않으셔도 돼요':'다시 보내지 않으셔도 돼요'; } }
+  /* 신청만 해 두고(확인 중) 시간을 바꾸는 분 — 입금 확인 전이라 계좌는 그대로 두되, 이미 보냈을 수 있으니 한 줄(두 번 보내지 않게) */
+  var ag=$i('depAgain'), acct=document.querySelector('#payBank .deposit-acct'), showAg=!paid&&cs==='picked';
+  if(showAg&&!ag&&acct&&acct.parentNode){ ag=document.createElement('div'); ag.id='depAgain'; ag.className='deposit-payer-hint'; ag.textContent='이미 입금하셨다면 다시 보내지 않으셔도 돼요.'; acct.parentNode.insertBefore(ag, acct.nextSibling); }
+  if(ag) ag.hidden=!showAg;
+})();
 // 첫 가능일이 있는 달로 달력을 연다 · SCHED_UX: 마지막 가능일 달을 기억해 다음달 버튼을 그 너머로 못 가게(빈 달 미로 방지)
 let maxAvY=null, maxAvM=null;
 if(SERVER.avail.length){
@@ -1230,7 +1268,8 @@ function doSubmit(){
   if(!selDate||!selTime) return;
   var _card=_payM()==='card';
   if(_card && window.__depCardPreview){ meAlert({lead:'미리보기 화면이에요.',items:['카드결제를 켜면 여기서 토스 결제창이 열려요.','결제가 끝나면 예약이 바로 확정돼요.']}); return; }
-  if(!_card){   // 계좌이체만 입금자명·현금영수증을 본다 — 카드는 매출전표라 둘 다 필요 없다
+  var _paid=SERVER.depositPaid===true;   // [RESCHED_NOW] 예약금을 이미 냈으면 입금자명 · 현금영수증을 묻지 않는다(칸도 걷혀 있다)
+  if(!_card&&!_paid){   // 계좌이체만 입금자명·현금영수증을 본다 — 카드는 매출전표라 둘 다 필요 없다
   var _payerEl=document.getElementById('depPayer');
   if(_payerEl && !_payerEl.value.trim()){ _payerEl.setAttribute('aria-invalid','true'); _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; _h.textContent='입금자명을 입력해 주세요.'; } return; }   // [SCH_ALERT]   // SCHED_UX: 힌트만 붉어지는 대신 무엇을 해야 하는지 문구로
   var _crEl=document.getElementById('depCR');
@@ -1254,7 +1293,7 @@ function doSubmit(){
   // 그 외 가능 시간대(체크) + 기타 자유입력 수집
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;
-  const payer=_card?'':(document.getElementById('depPayer')?document.getElementById('depPayer').value:'').trim();
+  const payer=(_card||_paid)?'':(document.getElementById('depPayer')?document.getElementById('depPayer').value:'').trim();   // [RESCHED_NOW] 낸 예약금이면 보내지 않는다(서버도 덮지 않는다)
   const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent=_payLabel();};
   /* [PAY_METHOD] 카드 — 신청이 들어간 뒤 토스 결제창을 연다. 같은 신청으로 다시 결제할 때는 신청을 또 넣지 않는다(관리자 알림이 두 번 가지 않게) */
   const _sel={d:key(selDate),t:selTime,h:_holdPayload()}, _sig=JSON.stringify(_sel);
@@ -1296,9 +1335,10 @@ function doSubmit(){
       .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; })
       .then(function(s){
         if(s&&s.cancelled){ _onRes(s); return; }
-        var now=_ymdP(s&&s.ok?s.currentDate:'');
-        if(s&&s.ok&&want&&now===want&&before!==want){ _onRes({ok:true}); return; }   // 고르신 날짜가 들어가 있다 — 신청이 된 것이다(완료 창 · 카드면 결제창)
-        restore(); _sum((s&&s.ok&&now!==want)?'아직 신청 전이에요 · 다시 눌러 주세요 (코드 B'+n+')':'결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')');
+        var now=_ymdP(s&&s.ok?s.currentDate:''), hasT=!!(s&&s.ok&&typeof s.currentTime==='string'&&s.currentTime), nowT=hasT?s.currentTime:'';   // [RESCHED_NOW] 서버가 시간도 주면 같은 날 시간만 바꾼 신청도 가린다(옛 서버는 날짜로만)
+        var moved=before!==want||(hasT&&String(SERVER.currentTime||'')!==selTime);
+        if(s&&s.ok&&want&&now===want&&(!hasT||nowT===selTime)&&moved){ _onRes({ok:true}); return; }   // 고르신 날짜(· 시간)가 들어가 있다 — 신청이 된 것이다(완료 창 · 카드면 결제창)
+        restore(); _sum((s&&s.ok&&(now!==want||(hasT&&nowT!==selTime)))?'아직 신청 전이에요 · 다시 눌러 주세요 (코드 B'+n+')':'결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')');
       })
       .catch(function(){ restore(); _sum('결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')'); });
   };
@@ -1308,6 +1348,11 @@ function doSubmit(){
         try{ localStorage.removeItem('me_state_v1'); }catch(e){}   // 마이페이지 상태 캐시 무효화 → 복귀 시 옛 화면(신청 전) 깜빡임 방지 · 최신 상태만 노출
         const dateStr=fmtDate(selDate);
         document.getElementById('modalPick').innerHTML=(SERVER.names||'')+' 님<br>'+dateStr+' · '+selTime;
+        if(SERVER.depositPaid===true){   // [RESCHED_NOW] 예약금을 이미 낸 분의 시간 변경 — 서버가 하는 일대로(시간선택완료 → 디렉터 확인 → 확정 메일 · 입금확인은 그대로) · 완료 창 마크업은 그대로 두고 이 경우의 글만
+          var _mdP=document.querySelector('#modal .modal'), _bdP=_mdP&&_mdP.querySelector('.modal-body');
+          document.getElementById('modalTitle').textContent='시간 변경이 접수되었습니다';
+          if(_bdP) _bdP.innerHTML='새로 고르신 시간으로 변경이 접수되었습니다.<br>예약금은 이미 받아 다시 보내지 않으셔도 됩니다.<br>확인 후 <b>24시간 이내</b> 확정 메일을 보내 드립니다.';
+        }
         document.getElementById('modal').classList.add('show');
         // [SCH_DONEFOCUS] 대화상자 안으로 포커스 — 낭독기가 '신청이 접수되었습니다'부터 읽게
         setTimeout(function(){ var _md=document.querySelector('#modal .modal');
@@ -1328,7 +1373,7 @@ function doSubmit(){
   };
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
   var _acS=(typeof AbortController!=='undefined')?new AbortController():null, _tmS=_acS?setTimeout(function(){ try{ _acS.abort(); }catch(e){} },45000):null;   // [SCHED_SUBMIT_RECHECK] 45초
-  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((!_card&&document.getElementById('depCRWant')&&document.getElementById('depCRWant').checked)?((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,''):''),hold:_holdPayload(),payBy:(_card?'card':'bank')}),signal:_acS?_acS.signal:undefined})
+  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((!_card&&!_paid&&document.getElementById('depCRWant')&&document.getElementById('depCRWant').checked)?((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,''):''),hold:_holdPayload(),payBy:(_card?'card':'bank')}),signal:_acS?_acS.signal:undefined})
     .then(function(r){ if(_tmS) clearTimeout(_tmS); return r.json(); }, function(e){ if(_tmS) clearTimeout(_tmS); throw e; })
     .then(_onRes)
     .catch(function(e){ var n=_ecN(e);

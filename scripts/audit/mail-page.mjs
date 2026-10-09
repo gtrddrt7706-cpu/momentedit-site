@@ -608,14 +608,18 @@ G.HtmlService = realHS;
   // ENTRY_ARGS_SRV — 화면(google.script.run)에서 부른 신청서는 개인코드를 받지 않고 · doPost 길(가입)에서는 받는다 · 칸은 글자만
   { G.makeToken = () => 'newtok'; G.parseDetail = () => ({});
     const form = { groom: '가', bride: '나', phone: '010', email: 'a@b.co', memo: '', detail: '', hp: '' };
-    G._IN_POST = false; reset6(); try { G.submitApplication(form, 'ME9999'); } catch (e) { bad.push('⑥ 신청서: 던졌다 — ' + e.message); }
+    /* [APPLY_A_RETIRE 2026-10-09] 옛 화면 A(google.script.run)의 제출은 받지 않는다 — 새 신청서 안내를 던지고(옛 화면이 그 글을 보여 준다) 아무것도 쓰지 않는다 */
+    G._IN_POST = false; reset6(); let movedMsg = ''; try { G.submitApplication(form, 'ME9999'); } catch (e) { movedMsg = e.message; }
+    if (!/신청은 momentedit\.kr 신청서에서 받아요 · https:\/\/www\.momentedit\.kr\/inquiry\.html/.test(movedMsg) || writes || Object.keys(wrote).length) bad.push('⑥ 신청서: 옛 화면 A 의 제출을 받거나 새 신청서를 알려 주지 않는다 [APPLY_A_RETIRE] — ' + JSON.stringify({ movedMsg, writes, wrote }));
     if ('개인코드' in wrote) bad.push('⑥ 신청서: 화면에서 부른 신청이 개인코드를 받아 남의 예약에 묶인다');
+    { const keepSA = G._LAST_INFO; G.serveApplyA(); const li = G._LAST_INFO; G._LAST_INFO = keepSA;
+      if (!(li && li.title === '신청서가 옮겨졌어요' && /href="https:\/\/www\.momentedit\.kr\/inquiry\.html"/.test(li.body) && /신청서 열기/.test(li.body))) bad.push('⑥ 화면 A 주소: 새 신청서 안내 한 장이 아니다 [APPLY_A_RETIRE] — ' + JSON.stringify(li)); }
     G._IN_POST = true; reset6(); try { G.submitApplication(form, 'ME9999'); } catch (e) { bad.push('⑥ 신청서(가입 길): 던졌다 — ' + e.message); }
     if (wrote['개인코드'] !== 'ME9999') bad.push('⑥ 신청서: 가입 길(doPost)에서 개인코드를 못 받는다(마이페이지가 예약을 못 찾는다)');
     // 편집기 시험 도구(소유자 · 90_test-utils 의 _testSignup)는 doPost 밖에서도 개인코드를 넘긴다 — 소유자 실행으로 이미 정해졌으면 받는다
     G._OWNER_RUN = true; G._IN_POST = false; reset6(); try { G.submitApplication(form, 'ME7777'); } catch (e) { bad.push('⑥ 신청서(편집기 시험 도구): 던졌다 — ' + e.message); }
     if (wrote['개인코드'] !== 'ME7777') bad.push('⑥ 신청서: 편집기 시험 도구(소유자 실행)의 개인코드를 지운다(시험 고객이 예약과 안 묶인다)');
-    G._OWNER_RUN = null; G._IN_POST = false; reset6(); let msg = '';
+    G._OWNER_RUN = null; G._IN_POST = true; reset6(); let msg = '';   // [APPLY_A_RETIRE] 입력 확인은 받는 길(doPost 가입)에서 본다 — 화면 A 길은 위에서 안내로 끝난다
     try { G.submitApplication({ groom: { toString: 1 }, bride: '나', phone: '010', email: 'a@b.co' }); } catch (e) { msg = e.message; }
     if (!/성함을 입력해 주세요/.test(msg)) bad.push('⑥ 신청서: 글자가 아닌 칸이 그대로 들어간다(입력 확인 글이어야) — ' + msg);
     G._IN_POST = keep._IN_POST; }

@@ -479,6 +479,19 @@ function handleCancelWeddingHold(body) { _gsr_();
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
+/* ★[BIRTH_REAL 2026-10-09 점검 C-9] 계약서 당사자 생년월일 — 달력에 있는 날짜(2/31 · 4/31 거절)이고 1930-01-01 ~ 오늘(한국 날짜) 기준 만 18세 사이만 받는다.
+   화면의 연 · 월 · 일 세 칸은 달마다 31일까지 열려 있어 서버가 마지막 문이다 · 이미 받아 둔 값은 건드리지 않는다(새로 보낸 값만 본다).
+   거절은 입력 확인이라 코드를 붙이지 않는다(글이 곧 까닭 · ERR_CODES 0) · 빈 값은 위 «입력해 주세요»가 먼저 받는다 */
+function _birthBad(v, who) { _gsr_();
+  v = String(v == null ? '' : v).trim();
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); if (!m) return who + ' 생년월일을 다시 골라 주세요.';
+  var y = +m[1], mo = +m[2], d = +m[3], dt = new Date(Date.UTC(y, mo - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return who + ' 생년월일이 달력에 없는 날짜예요. 다시 골라 주세요.';
+  var t = _kstYmd(new Date()), lim = (+t.slice(0, 4) - 18) + t.slice(4);   // 오늘 한국 날짜의 18년 전 — 그날까지 태어났으면 만 18세(2/29 는 글자 비교라 2/28 까지)
+  if (v > lim) return who + ' 생년월일을 다시 확인해 주세요. 만 18세 이상만 계약할 수 있어요.';
+  if (v < '1930-01-01') return who + ' 생년월일을 다시 확인해 주세요.';
+  return '';
+}
 function handleRequestContract(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
@@ -494,8 +507,10 @@ function handleRequestContract(body) { _gsr_();
   var gB = String(info.groomBirth || '').trim(), bB = String(info.brideBirth || '').trim();
   var gA = String(info.groomAddr || '').trim(), bA = String(info.brideAddr || '').trim();
   if (!gB || !bB) return { ok: false, error: '신랑·신부 생년월일을 입력해 주세요.' };
+  var _bBad = _birthBad(gB, '신랑') || _birthBad(bB, '신부'); if (_bBad) return { ok: false, error: _bBad };   // [BIRTH_REAL] 달력에 있는 날짜 · 1930년 ~ 만 18세
   if (!gA || !bA) return { ok: false, error: '신랑·신부 주소를 입력해 주세요.' };
   if (info.consent !== true && String(info.consent) !== 'true') return { ok: false, error: '개인정보 수집·이용에 동의해 주세요.' };
+  var _crBad = _crReject(info.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 휴대폰 · 사업자번호만(빈 값은 자진발급)
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
@@ -574,10 +589,22 @@ function handleRequestContractResend(body) { _gsr_();
   var cs = String(s.row.get('계약상태') || '').trim();
   if (cs === '서명완료') return { ok: false, error: '이미 서명이 완료된 계약이에요.' };
   if (cs !== '발송' && cs !== '미발송') return { ok: false, error: '재발송을 요청할 계약서가 없어요.' };
+  /* ★[CT_RESEND_ONCE 2026-10-09 점검 C-20] 요청 시각을 남기고(스크립트 속성 CTRESEND_<코드>) 24시간 안의 다시 누름은 «이미 요청함»으로 답한다 —
+     관리자 알림을 두 번 보내지 않는다 · 마이페이지는 getMyState 의 contractResendAt 으로 단추를 흐리게 둔다(새로고침해도) */
+  var _rp = PropertiesService.getScriptProperties(), _rk = 'CTRESEND_' + code, _r0 = +(_rp.getProperty(_rk) || 0);
+  if (_r0 && Date.now() - _r0 < 24 * 3600e3) return { ok: true, already: true, at: fmtKST(new Date(_r0)) };
+  try { _rp.setProperty(_rk, String(Date.now())); } catch (e) {}
   _recordHandler(code, '고객 계약서 재발송 요청');
   try { notifyStudio('[플랫폼] 계약서 재발송 요청 (' + code + ')', code + ' · 고객이 만료된 계약서의 재발송을 요청했어요.'); } catch (e) {}
   notifyKakao('admin.contractReq', code, { weddingDate: _ymdOf(s.row.get('예식일')) });   // 관리자: 계약서 발송 필요(기존 키 재사용)
-  return { ok: true };
+  return { ok: true, at: fmtKST(new Date()) };
+}
+/* [CT_RESEND_ONCE] 마이페이지 상태(getMyState)에 싣는 «재발송 요청 시각» — 24시간 안일 때만 'YYYY-MM-DD HH:mm'(한국 시각) · 아니면 '' (읽기만 한다) */
+function _ctResendAt(code) { _gsr_();
+  var _mk = '[CT_RESEND_ONCE]';
+  code = String(code || '').trim(); if (!code) return '';
+  var t = 0; try { t = +(PropertiesService.getScriptProperties().getProperty('CTRESEND_' + code) || 0); } catch (e) { return ''; }
+  return (t && Date.now() - t < 24 * 3600e3) ? fmtKST(new Date(t)) : '';
 }
 
 // [02-3] 마이페이지 계약서 카드용 상태. 동의기록(내부 JSON) 비노출, 파생값·기한만.
@@ -1222,6 +1249,7 @@ function handlePaymentSignal(body) { _gsr_();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var payer = String((body && body.payerName) || '').trim();
   if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
+  var _crBad = _crReject(body && body.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 휴대폰 · 사업자번호만 — 받기 전에(신호 · 입금자명도 쓰지 않는다)
 
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
@@ -1262,7 +1290,7 @@ function handlePaymentSignal(body) { _gsr_();
 // 현금영수증 번호(선택) — 동의기록 JSON에 저장(시트 컬럼 추가 불필요)·조회. 결제 카드 자동채움 + 관리자 발급용.
 function _saveCashReceipt(cust, sheet, colOf, raw) { _gsr_();
   var cr = _crNum(raw).slice(0, 40);   // 숫자만 — submitSchedule·saveCashReceipt 경로와 표기 통일 · [PHONE_AUTOFILL_82] «8210…» 은 010 으로
-  if (!cr) return;
+  if (!cr || !_crOk(cr)) return;   // [CR_NUM_VALID] 틀린 꼴은 저장하지 않는다(부르는 쪽이 먼저 거절한다 · 받침)
   try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
 }
 /* [PHONE_AUTOFILL_82] 현금영수증 번호 정규화 — 본체 _crKR 은 00_platform-config 에 있다.
@@ -1271,6 +1299,14 @@ function _crNum(v) { _gsr_();
   var _mk = '[PHONE_AUTOFILL_82]';
   return (typeof _crKR === 'function') ? _crKR(v) : String(v == null ? '' : v).replace(/[^0-9]/g, '');
 }
+/* ★[CR_NUM_VALID 2026-10-09 점검 C-16] 현금영수증 발급 번호는 휴대폰(01x · 10~11자리) · 사업자번호(10자리 · 세무서 번호라 0 으로 시작하지 않는다)만 받는다.
+   빈 값은 «안 적음»(국세청 지정번호로 자진발급)이라 그대로 받는다 · 이미 저장된 값은 건드리지 않는다(읽기 _cashReceiptOf 는 그대로).
+   받는 곳 모두 같은 규칙 — 계약 요청 · 계약금 · 중도금 · 잔금 신호 · 내 내역 저장(handleSaveCashReceipt) · 상담 신청(consultation-booking submitSchedule).
+   거절은 입력 확인이라 코드를 붙이지 않는다(글이 곧 까닭 · ERR_CODES 0) */
+var CR_BAD_MSG = '현금영수증 번호는 휴대폰 번호나 사업자번호(10자리)로 적어 주세요.';
+function _crOk(n) { _gsr_(); n = String(n == null ? '' : n); return /^01[016789]\d{7,8}$/.test(n) || /^[1-9]\d{9}$/.test(n); }
+function _crReject(raw) { _gsr_();   // 틀리면 거절 응답 · 비었거나 맞으면 null
+  var _mk = '[CR_NUM_VALID]', n = _crNum(raw); return (n && !_crOk(n)) ? { ok: false, error: CR_BAD_MSG } : null; }
 function _cashReceiptOf(r) { _gsr_(); try { /* [PHONE_AUTOFILL_82] 이미 «8210…» 으로 저장된 번호도 읽을 때 010 으로 — 관리자가 그 값을 홈택스에 넣는다 */ return _crNum(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
 // [②] 현금영수증 발급 번호(소득공제용) 상시 등록/변경 — 결제 카드 밖(마이페이지 '내 내역')에서도 저장·수정. 빈값이면 등록 해제.
 function handleSaveCashReceipt(body) { _gsr_();
@@ -1278,6 +1314,7 @@ function handleSaveCashReceipt(body) { _gsr_();
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var _crBad = _crReject(body && body.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 빈 값은 등록 해제라 그대로
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -1491,6 +1528,7 @@ function handleBalanceSignal(body) { _gsr_();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var payer = String((body && body.payerName) || '').trim();
   if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
+  var _crBad = _crReject(body && body.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 휴대폰 · 사업자번호만 — 받기 전에(신호 · 입금자명도 쓰지 않는다)
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -1568,6 +1606,7 @@ function handleMidSignal(body) { _gsr_();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var payer = String((body && body.payerName) || '').trim();
   if (!payer) return { ok: false, error: '입금자명을 입력해 주세요.' };
+  var _crBad = _crReject(body && body.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 휴대폰 · 사업자번호만 — 받기 전에(신호 · 입금자명도 쓰지 않는다)
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
