@@ -8921,7 +8921,7 @@ chk "if (k === 'table') return \['table'\];" assets/ritual-open.js 1
 chk "'toast', 'close', 'table'\];" assets/ritual-open.js 1
 chk 'TABLE_VIDEO_1009' scripts/audit/listen-page.mjs 2
 chk '### 17. table · 테이블 인사 · 10초' docs/plans/식순연구/순간영상_장면대본_0927.md 1
-chk 'PV_VID_ONCE' order-preview.html 1   # ① 미리보기 영상: 소리가 끝나도 끝까지 · 반복 없이 마지막 장면에서 멈춤(사장님 10/3)
+chk 'PV_VID_ONCE' order-preview.html 1   # ① 미리보기 영상: 소리가 끝나도 끝까지 · 반복 없이 마지막 장면에서 멈춤(사장님 10/3) → 10/9 끝나면 첫 장면 사진으로 [VID_REST_THUMB]
 chk 'vd.loop=false; var vp=vd.play();' order-preview.html 1
 nochk 'vd.loop=true' order-preview.html
 chk 'VIDEO_IN_1003' docs/plans/식순연구/순간영상_장면대본_0927.md 1
@@ -8951,6 +8951,28 @@ chk 'VID_PLAY_ALL' scripts/audit/listen-page.mjs 2
 #   움직임 줄이기 · 데이터 절약이면 저절로 안 돈다(누르면 돈다) · 크게 보기도 loop 없음. listen-page P-8 · P-9 · P-10 이 play 를 가로채 잰다.
 chk 'LVID_ONCE' order-preview.html 5
 chk 'function _mkVidAfter' order-preview.html 1
+# ★★[VID_REST_THUMB 2026-10-09 사장님 «시간 지나면 영상 부분 검은색으로 되는 거 같은데 개선해 줘 · 썸네일 화면 계속 남아 있게»]
+#   장면 영상 넷(② 하나씩 만들기 · 크게 보기 · ① 창 · 목소리 창)은 도는 동안만 영상 · 멈추거나 끝나면 밑에 깐 썸네일 사진(기기가 멈춘 영상의 그림을 놓아 검게 칠한다).
+#   켜고 끄는 곳은 _vidRest 하나(문서에서 capture) · 다시 그릴 때는 칸째 옮겨 끼운다(_vidKeep · 사진이 한 번 비지 않게).
+#   vid-rest.mjs 가 «돈 영상은 검게» 흉내를 걸고 화소로 잰다 · 깨 보기 내장 · 되돌리기 다섯 갈래 모두 빨강을 확인(2026-10-09).
+chk 'VID_REST_THUMB' order-preview.html 16
+chk '<img class="lv-still" src="' order-preview.html 3
+chk 'function _vidRest(e)' order-preview.html 1
+chk 'document.addEventListener(t,_vidRest,true)' order-preview.html 1
+chk 'function _vidKeep(old,v)' order-preview.html 1
+chk '_vidKeep(old,v); return;' order-preview.html 1
+chk '_vidKeep(_ov,_nv)' order-preview.html 1
+chk '_vidKeep(o,n)' order-preview.html 1
+chk '.lv video.rest,.mk-vu-img video.rest{opacity:0' order-preview.html 1
+chk 'VID_REST_THUMB' scripts/audit/vid-rest.mjs 2
+chk 'VID_REST_THUMB' .claude/skills/momentedit-design/SKILL.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vid-rest.mjs >/dev/null 2>&1; _vr=$?
+  case "$_vr" in
+    0) echo 'ok vid-rest: 장면 영상이 쉬는 동안 썸네일(② · 크게 보기 · ① 창 · 목소리 창)' ;;
+    1) echo 'FAIL vid-rest: 장면 영상이 쉬는 동안 검게 보일 수 있습니다 — node scripts/audit/vid-rest.mjs'; fail=1 ;;
+    *) echo 'ok vid-rest: 재지 못했습니다(브라우저 · ffmpeg 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 chk '_mkVidAfter(el,_mv0)' order-preview.html 1
 nochk '<video muted loop playsinline' order-preview.html
 chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
@@ -13538,7 +13560,8 @@ chk 'EX_HEAD_OFF' order-preview.html 1
 # ★[PV_STILL_FIRST 2026-10-04 사장님 «영상이 바로 안 보이고 흰 배경에 나중에 영상이 올라온다»] 창은 칸이 받아 둔 첫 장면부터 · 영상은 돌기 시작하면 위로
 chk 'PV_STILL_FIRST' order-preview.html 4
 chk '<img class="pv-still" src="' order-preview.html 1
-chk "vd.addEventListener('playing',function(){ vd.classList.add('on'); });" order-preview.html 1
+# ★[VID_REST_THUMB 2026-10-09] 요소마다 달던 playing 듣기(vd.addEventListener('playing' …)는 _vidRest 한 곳으로 옮겼다 — 돌면 .on · 멈추거나 끝나면 첫 장면 사진으로
+chk "v.closest('.lv,.pv-media,.mk-vu-img')" order-preview.html 1
 nochk '무엇을 담아도 값은 같아요' order-preview.html 0
 chk 'RIT_UNDO_ABOVE' order-preview.html 1           # 6 되돌리기 알림이 «빈 칸에서 직접 고를게요»를 덮지 않게
 # ② 보고 듣기

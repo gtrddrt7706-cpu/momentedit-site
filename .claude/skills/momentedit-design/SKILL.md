@@ -695,6 +695,9 @@ section:not(#rsvp) > *:last-child { margin-bottom: 0 }
 - `prefers-reduced-motion: reduce`를 **반드시** 존중할 것
 - 한 섹션에 애니메이션 요소 3개 이하. 순차 지연(stagger)은 80ms 이하
 - 스크롤 하이재킹, 고정 스크롤, 스크럽 애니메이션 금지
+- **장면 영상은 도는 동안만 영상, 쉬는 동안은 썸네일 사진**([VID_REST_THUMB] 2026-10-09 사장님 «시간 지나면 영상 부분 검은색 · 썸네일 화면 계속 남아 있게») —
+  멈춘 영상의 그림은 기기가 쉬게 하며 놓아 검게 칠할 때가 있다. 영상 밑에 썸네일 `<img>` 를 깔고, 멈추거나 끝나면 영상을 걷는다(0.7초).
+  새 영상 자리를 만들면 같은 모양(`.lv` · `.pv-media` · `.mk-vu-img` + `_vidRest`)을 쓴다. 검사 `scripts/audit/vid-rest.mjs`.
 
 ## 모션 램프 ([MOTION_RAMP5], 2026-07-31)
 
