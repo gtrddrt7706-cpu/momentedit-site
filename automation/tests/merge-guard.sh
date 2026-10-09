@@ -16704,4 +16704,69 @@ chk 'GMS_MEMO' scripts/audit/gms-memo.mjs 1
 chk 'STATE_PATIENT' scripts/audit/state-patient.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/gms-memo.mjs >/dev/null 2>&1; _gmm=$?; if [ "$_gmm" != 0 ]; then echo 'FAIL gms-memo: getMyState 기억(같은 행 다시 찾지 않기) · 서명 찾기가 어긋났습니다 — node scripts/audit/gms-memo.mjs'; fail=1; else echo 'ok gms-memo: 결과 같음 · 상담 행 1번 · 고객 행 0번 · 서명 전체 읽기 0'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/state-patient.mjs >/dev/null 2>&1; _stp=$?; if [ "$_stp" = 1 ]; then echo 'FAIL state-patient: 마이페이지 상태 불러오기가 늦음 · 끊김에 곧장 막대를 띄운다 — node scripts/audit/state-patient.mjs'; fail=1; elif [ "$_stp" = 2 ]; then echo 'skip state-patient: 브라우저 없음'; else echo 'ok state-patient: 늦으면 한 번 더 · 막대는 두 번 다 안 될 때만'; fi; fi
+# ★★[A~Z 점검 1라운드 2026-10-09 사장님 «고객 입장에서 a~z · 식순 · AI 녹음 전 구간 · 개선이 없을 때까지»] 식순 · AI 녹음 고침 표식 — 되돌리지 말 것
+#   E-6 배포로 바뀐 예시만 «준비 중»(EX_STALE_DEPLOY) · E-3 지우는 사이 채우기 · 다른 분 소리(FILL_WHO_TRUE) · E-4 만드는 중 지우기(DEL_NOT_MID) · E-2 다른 기기 저장 되살아남(SAVED_FRESH · SAVED_LOCAL)
+#   A-1 다시 열면 같은 걸음(REOPEN_SAME_STEP) · A-2 저장 전 고침(LOCAL_AHEAD) · A-3 · A-5 뒤로가기(HIST_DEPTH · EXIT_HOLD) · A-4 엔진 재요청(ENG_ONCE) · 끝 쉼(QUIET_END_CLOSE)
+#   B-3 굽고 저장(SAVE_AFTER_BAKE) · B-4 1분 멈춤(REC_CAP_SAY) · B-5 다시 해도 안 되는 실패(VC_NO_RETRY) · B-6 만드는 동안 흔들림(LS_WAIT_TOAST) · B-7 상태 100초(VC_ST_NOW) · 옆글 세 줄(SIDE_WHO_LOW)
+chk 'EX_STALE_DEPLOY' order-preview.html 3
+chk 'if(_exOldSigs(k,_exNOf(k)).indexOf(u.tx)<0) return;' order-preview.html 1
+chk 'FILL_WHO_TRUE' order-preview.html 6
+chk 'function _vcFillOk(k){' order-preview.html 1
+chk 'if(!_vcFillOk(k)){ nx(); return; }' order-preview.html 1
+chk 'function _vcGen(sn){' order-preview.html 1
+chk 'DEL_NOT_MID' order-preview.html 2
+chk "_lsToast('다 만든 뒤에 지울 수 있어요')" order-preview.html 1
+chk 'SAVED_FRESH' order-preview.html 4
+chk 'var SAVED_LOCAL=' order-preview.html 1
+chk 'REOPEN_SAME_STEP' order-preview.html 1
+chk 'LOCAL_AHEAD' order-preview.html 10
+chk 'function _canonS(' order-preview.html 1
+chk 'HIST_DEPTH' order-preview.html 3
+chk 'HIST_DEPTH' mypage.html 3
+chk 'function _hDepth(' order-preview.html 1
+chk 'EXIT_HOLD' order-preview.html 1
+chk 'EXIT_HOLD' mypage.html 4
+chk 'function _exitHold(' order-preview.html 1
+chk 'function _bkDoneDeep(id,n){' mypage.html 1
+chk 'ENG_ONCE' order-preview.html 10
+chk 'function _engBox(' order-preview.html 1
+chk 'QUIET_END_CLOSE' assets/ritual-open.js 1
+chk "var _ci = seq.indexOf('_close'), last = seq" assets/ritual-open.js 1
+chk 'ONE_SOUND' order-preview.html 1
+chk 'PLAY_TOK' order-preview.html 1
+chk 'UP_TMR_OWN' order-preview.html 1
+chk 'WHO_V8_WORD' order-preview.html 2
+chk 'CODE_INLINE' order-preview.html 3
+chk 'FILL_NEXT' order-preview.html 1
+chk 'SAVE_FAIL_TOAST' order-preview.html 1
+chk 'S5_UNKNOWN' order-preview.html 1
+chk 'EXIT_WAIT_SAVE' order-preview.html 1
+chk 'SAVE_PILL_STEADY' order-preview.html 1
+chk 'STUDIO_TWO_LINE' order-preview.html 1
+chk 'GUEST_SUM_FOUR' order-preview.html 1
+chk 'CHIP_NOTE_OFF' order-preview.html 1
+chk 'SAVE_AFTER_BAKE' order-preview.html 3
+chk 'window._saveBaking=1; _autoPaint();' order-preview.html 1
+chk 'REC_CAP_SAY' order-preview.html 5
+chk 'if(r.el>=REC_MAX_SEC){ MK_RECCAP=r.key; mkRecStop(); }' order-preview.html 1
+chk 'VC_NO_RETRY' order-preview.html 2
+chk 'nr=n===2&&!!R.err&&' order-preview.html 1
+chk 'LS_WAIT_TOAST' order-preview.html 5
+chk "_lsToast('다 만들면 이어서 들려 드려요',null,'mp:'+k);" order-preview.html 1
+nochk 'esc(LS_MAKE_WAIT)' order-preview.html   # [LS_WAIT_TOAST] 단추 아래 «잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요» 줄 걷음(흔들림)
+chk 'VC_ST_NOW' order-preview.html 5
+chk 'if(VC.stGen!==_g) return; VC.loading=false;' order-preview.html 1
+chk 'SIDE_WHO_LOW' order-preview.html 2
+chk '.mk-vcards .mk-vch:has(> .mk-vst-low)' order-preview.html 1
+chk 'FILL_WHO_TRUE' scripts/audit/fill-who-true.mjs 1
+chk 'SAVED_FRESH' scripts/audit/saved-fresh.mjs 1
+chk 'HIST_DEPTH' scripts/audit/builder-back.mjs 1
+chk 'ENG_ONCE' scripts/audit/eng-once.mjs 1
+chk 'VC_ST_NOW' scripts/audit/vc-status-retry.mjs 2
+chk 'LS_WAIT_TOAST' scripts/audit/ai-play-ready.mjs 1
+chk 'SIDE_WHO_LOW' scripts/audit/vc-r1-ex.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/fill-who-true.mjs >/dev/null 2>&1; _fwt=$?; if [ "$_fwt" = 1 ]; then echo 'FAIL fill-who-true: 처음 채우기가 지우는 중인 분 · 다른 분 목소리로 줄을 채웠습니다 — node scripts/audit/fill-who-true.mjs'; fail=1; elif [ "$_fwt" = 2 ]; then echo 'skip fill-who-true: 브라우저 없음'; else echo 'ok fill-who-true: 채우기는 그 줄을 읽는 분 목소리로만'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/saved-fresh.mjs >/dev/null 2>&1; _svf=$?; if [ "$_svf" = 1 ]; then echo 'FAIL saved-fresh: 서버 초안 얹기(옛 칸 되살아남 · 같은 걸음 · 저장 전 고침)가 어긋났습니다 — node scripts/audit/saved-fresh.mjs'; fail=1; elif [ "$_svf" = 2 ]; then echo 'skip saved-fresh: 브라우저 없음'; else echo 'ok saved-fresh: 서버 초안은 통째로 · 같은 걸음 · 저장 전 고침'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/builder-back.mjs >/dev/null 2>&1; _bbk=$?; if [ "$_bbk" = 1 ]; then echo 'FAIL builder-back: 마이페이지 안 식순의 뒤로가기(한 번에 닫기 · 판이 뜨면 기다리기)가 어긋났습니다 — node scripts/audit/builder-back.mjs'; fail=1; elif [ "$_bbk" = 2 ]; then echo 'skip builder-back: 브라우저 없음'; else echo 'ok builder-back: 뒤로가기 한 번 · 판이 뜨면 기다린다'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/eng-once.mjs >/dev/null 2>&1; _eon=$?; if [ "$_eon" = 1 ]; then echo 'FAIL eng-once: 소리 엔진을 못 받을 때 그리기마다 다시 묻습니다(또는 까닭 · 다시 불러오기가 없습니다) — node scripts/audit/eng-once.mjs'; fail=1; elif [ "$_eon" = 2 ]; then echo 'skip eng-once: 브라우저 없음'; else echo 'ok eng-once: 엔진 실패는 한 번 · 까닭(L0) · 다시 불러오기'; fi; fi
 :
