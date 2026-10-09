@@ -646,7 +646,7 @@
     if (best.length >= 3) L.push((best[0] === 'bless' || best[0] === 'vow') ? NOTICE.heavy : NOTICE.heavyBack);
     /* ★[TRIB_ONE_SAY 2026-10-06] «부모님께 드리는 말이 두 번» 알림 걷음 — 말로 인사 + 편지 «각자 부모님께»는 서로의 부모님께(crossTribute)라 겹치지 않는다 */
     var noToast = seq.indexOf('toast') < 0;   // [CAKE_TOAST_SPLIT] 축배 칸 하나로 본다
-    var last = seq[seq.length - 2];   // 닫는 인사 바로 앞
+    var _ci = seq.indexOf('_close'), last = seq[(_ci > 0 ? _ci : seq.length - 1) - 1];   // 닫는 인사 바로 앞 · ★[QUIET_END_CLOSE 2026-10-09 A~Z 점검 1라운드 A-6] 테이블 인사가 닫는 인사 뒤에 붙으면 seq[len-2] 가 닫는 인사(_close)를 집어 «끝이 조용한 편이에요» 알림이 사라졌다 — 닫는 인사의 자리로 찾는다
     if (noToast && picked(S).length > 3 && (heavy(last, S) || last === 'declare' || seq.indexOf('declare') < 0)) L.push(NOTICE.toast);   // [DETAIL_0925 A2] 고른 순간이 셋 넘을 때만
     var pa = span(S).pa;   // [DETAIL_0925 A2] 띠의 «단체 사진» 아래 값과 같은 반올림
     if (pa < SHORT_MIN) L.push(NOTICE.short(pa));

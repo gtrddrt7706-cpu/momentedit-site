@@ -333,7 +333,7 @@
     box.appendChild(btns);
     if (ESC.hours) {
       var h = document.createElement('div'); h.className = 'me-adv-esc-hours';
-      h.textContent = '상담 가능 ' + ESC.hours;
+      h.textContent = (ki.mail ? '답변 시간 ' : '카카오톡 답변 시간 ') + ESC.hours;   // [KAKAO_HOURS_LABEL 2026-10-09 D-15] «상담 가능»은 방문 상담 시간(평일 저녁 · 주말)과 부딪혀 읽혔다 · 메일로 잇는 화면(마이)은 «답변 시간»
       box.appendChild(h);
     }
     place(box); scrollDown();

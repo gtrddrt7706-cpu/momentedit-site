@@ -2454,6 +2454,132 @@
    "fn": "serveAdminCancelD",
    "mark": "CANCEL_RESULT",
    "why": "안내 메일 스위치가 꺼져 있으면 메일을 약속하지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_DEL_STOP",
+   "why": "목소리를 만드는 사이 지우기가 오면 새 목소리를 업체에서 지우고 저장하지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcEnrollAfter",
+   "mark": "VC_DEL_STOP",
+   "why": "만들기 끝이 지우기 표시를 업체 답 직후 · 저장 직전 두 번 본다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcDelMark",
+   "mark": "VC_DEL_STOP",
+   "why": "지우기는 잠근 채 다시 읽은 상태에서 목소리를 비우고 도는 만들기에 취소를 적는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcPurgeNow",
+   "mark": "VC_DEL_STOP",
+   "why": "목소리 파일 모두 지우기 · 예식 다음 날 지우기도 도는 만들기에 취소를 적는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_ONE_OWN",
+   "why": "한 분이 읽는 줄은 그 분 목소리로만 만들고 없으면 거절한다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileDel",
+   "mark": "RF_DEL_ALL_T0",
+   "why": "줄 파일 지우기(all)는 지운 파일보다 뒤에 만든 파일을 둔다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleRequestContract",
+   "mark": "BIRTH_REAL",
+   "why": "계약 요청 생년월일은 달력에 있는 날 · 1930년 ~ 만 19세만 받는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleSaveCashReceipt",
+   "mark": "CR_NUM_VALID",
+   "why": "현금영수증 번호는 휴대폰 · 사업자번호만 받는다(빈 값은 자진발급) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handlePaymentSignal",
+   "mark": "CR_NUM_VALID",
+   "why": "입금 신호도 같은 현금영수증 번호 규칙 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_crReject",
+   "mark": "CR_NUM_VALID",
+   "why": "현금영수증 번호 판정 한 곳 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleRequestContractResend",
+   "mark": "CT_RESEND_ONCE",
+   "why": "계약서 재발송 요청은 24시간에 한 번 알리고 요청 시각을 남긴다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_ctResendAt",
+   "mark": "CT_RESEND_ONCE",
+   "why": "재발송 요청 시각(24시간 안)을 읽는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "handleGetMyState",
+   "mark": "CT_RESEND_ONCE",
+   "why": "마이페이지 상태에 재발송 요청 시각을 싣는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveApplyA",
+   "mark": "APPLY_A_RETIRE",
+   "why": "인자 없는 /exec 는 새 신청서 안내 한 장 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitApplication",
+   "mark": "APPLY_A_RETIRE",
+   "why": "옛 화면 A 의 제출은 새 신청서 안내로 거절한다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "APPLY_A_RETIRE",
+   "why": "action 없는 제출도 새 신청서 안내로 거절한다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleGetAvailability",
+   "mark": "RESCHED_NOW",
+   "why": "시간 변경 화면에 지금 시간 · 상태 · 낸 예약금을 싣는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "RESCHED_NOW",
+   "why": "낸 예약금이면 시간만 바꾸고 입금자명을 덮지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_consultDeposit",
+   "mark": "RESCHED_NOW",
+   "why": "상담 예약금을 냈나(입금 확인 · 카드 승인) 판정 한 곳 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "CR_NUM_VALID",
+   "why": "상담 신청의 현금영수증 번호도 같은 규칙 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_birthBad",
+   "mark": "BIRTH_ADULT19",
+   "why": "계약 당사자 생년월일 하한은 만 19세(민법 성년) — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2560,9 +2686,11 @@
    "handleWeddingAvailability",
    "handleChangeWeddingHold",
    "handleCancelWeddingHold",
+   "_birthBad",
    "handleRequestContract",
    "buildContractInfoState",
    "handleRequestContractResend",
+   "_ctResendAt",
    "buildContractState",
    "expireUnsignedContracts",
    "_parseKstStr",
@@ -2596,6 +2724,8 @@
    "handlePaymentSignal",
    "_saveCashReceipt",
    "_crNum",
+   "_crOk",
+   "_crReject",
    "_cashReceiptOf",
    "handleSaveCashReceipt",
    "_cashReceiptLedger",
@@ -2715,6 +2845,7 @@
    "_vcKoNum",
    "_vcNewPhrase",
    "_vcDelVoice",
+   "_vcDelMark",
    "_vcJobPub",
    "_vcJobStart",
    "_vcEnrollAfter",
@@ -3261,6 +3392,9 @@
    "sendReminderStudio",
    "formatConsultationSheet",
    "_sessionToConsult",
+   "_consultDeposit",
+   "_hhmmOf_",
+   "_consultStatusOf_",
    "handleGetAvailability",
    "handleSubmitSchedule",
    "handleCancelReservation",
@@ -3310,7 +3444,8 @@
    "HOLIDAYS_LUNAR",
    "PAYMENT",
    "_PAY_LOCK_HELD",
-   "_PAY_LOCK_BUSY"
+   "_PAY_LOCK_BUSY",
+   "CR_BAD_MSG"
   ],
   "80_production": [
    "PRODUCTION_STAGES",
@@ -3412,6 +3547,7 @@
   ],
   "consultation-booking": [
    "DETAIL_MAP",
+   "APPLY_MOVED",
    "AVAIL_CACHE_KEY",
    "_CAL_ERR",
    "_IN_POST",
@@ -3522,7 +3658,7 @@
     "SIG_NODE",
     "NAME_NODE"
    ],
-   "bytes": 100589
+   "bytes": 102113
   },
   {
    "file": "ScreenC_change",
@@ -3532,7 +3668,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 21:25 · 24448385",
+ "_생성": "2026-10-10 05:09 · 06d4f07b",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3616,6 +3752,12 @@
    "key": "COUPLE_PURGE_OFF",
    "kind": "switch",
    "a": "청첩장·편지 개인정보 자동파기 정지 (Y 면 «꺼짐» · 87_letter)",
+   "b": ""
+  },
+  {
+   "key": "CTRESEND_",
+   "kind": "state",
+   "a": "",
    "b": ""
   },
   {
@@ -4046,5 +4188,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "376eefd97212"
+ "_표식서명": "6c62cddebe5e"
 }

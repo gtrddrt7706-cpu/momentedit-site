@@ -61,6 +61,7 @@ function handleGetMyState(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함�
     fitting: buildFittingState(r),  // [02-2] 시착 동의 카드용(게이트·서명·약관). 동의기록 JSON은 비노출
     contractInfo: buildContractInfoState(r),  // [02-2.5] 상담완료 · 계약 정보 입력/요청 카드(예식일·생년월일·주소)
     contract: buildContractState(r),  // [02-3] 계약서 카드용(발송·기한·서명). 동의기록 JSON은 비노출
+    contractResendAt: (String(r.get('계약상태') || '').trim() === '발송' && typeof _ctResendAt === 'function') ? _ctResendAt(String(r.get('개인코드') || '')) : '',  // [CT_RESEND_ONCE] 만료 계약서 «재발송 요청» 시각(24시간 안만 · 'YYYY-MM-DD HH:mm') — 마이페이지가 단추를 흐리게 둔다(70_journey 를 아직 안 붙였으면 '')
     payment: buildPaymentState(r),  // [02-4] 계약금 입금 카드용(납부액·잔금 안내·입금상태). 계약 서명 후 노출
     midpayment: buildMidState(r),   // [02-4b] 중도금 카드용(결제 마일스톤·D-30). 계약 후 첫 실결제
     balance: buildBalanceState(r),  // [02-5] 잔금 카드용(결제 마일스톤·단계 아님). 제작 단계에서 노출

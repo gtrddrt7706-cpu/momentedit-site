@@ -197,7 +197,7 @@ async function open(w) {
   ok('⑧ 빈 녹음(전화로 끊김) → M6 «녹음이 비어 있어요»', f8.empty === '녹음이 비어 있어요 · 다시 녹음해 주세요 (코드 M6)' && f8.emptyVc === f8.empty, JSON.stringify([f8.empty, f8.emptyVc]));
   ok('⑧ 오디오 문맥을 못 만듦 → «새로고침 뒤 다시» (m4a 로 올리라는 말 아님)', f8.ctx === '소리를 열지 못했어요 · 새로고침해 주세요 (코드 M6)', f8.ctx);
   ok('⑧ 정말 못 여는 파일 → 종전 글 + M6 · 1분 읽기는 «다시 녹음»만', f8.badFile === '이 파일은 열 수 없어요. m4a · mp3 · wav 로 올려 주세요 (코드 M6)' && f8.badVc === '녹음을 읽지 못했어요 · 다시 녹음해 주세요 (코드 M6)', JSON.stringify([f8.badFile, f8.badVc]));
-  ok('⑧ 60초 — 올린 파일 · 1분 읽기 · 줄 녹음이 각각 맞는 말(입력 안내라 코드 없음)', f8.longFile === '60초가 넘는 파일이에요 · 60초 안으로 줄여 올려 주세요' && f8.longVc === '60초가 넘어요 · 이 글만 천천히 다시 읽어 주세요' && f8.longRec === '60초가 넘어요 · 한 줄만 천천히 다시 녹음해 주세요', JSON.stringify([f8.longFile, f8.longVc, f8.longRec]));
+  ok('⑧ 60초 — 올린 파일 · 1분 읽기 · 줄 녹음이 각각 맞는 말(입력 안내라 코드 없음)', f8.longFile === '60초가 넘는 파일이에요 · 60초 안으로 줄여 올려 주세요' && f8.longVc === '60초가 넘어요 · 이 글만 조금 빠르게 다시 읽어 주세요' && f8.longRec === '60초가 넘어요 · 한 줄만 조금 빠르게 다시 녹음해 주세요'   /* [REC_CAP_SAY 2026-10-09] 길어서 넘친 것 — «천천히»가 아니라 «조금 빠르게» */, JSON.stringify([f8.longFile, f8.longVc, f8.longRec]));
   /* F12 1분 읽기 — 녹음을 잇고 보내기 전 파일 읽기 실패 */
   const en = await pg.evaluate(async () => { VC.read = { who: 'groom', take: { 1: { wav: __wav(11, 8000), dur: 11 }, 2: { wav: __wav(11, 8000), dur: 11 } }, phrase: '확인 문장', step: 2, ph: 'read', err: '' };
     const RD = FileReader.prototype.readAsDataURL; FileReader.prototype.readAsDataURL = function () { const me = this; setTimeout(() => { if (me.onerror) me.onerror(new ProgressEvent('error')); }, 10); };
@@ -211,7 +211,7 @@ async function open(w) {
   await wait(1800);
   const f10 = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g0 || '', shown: [...document.querySelectorAll('.mk-pg .mk-exw[role="alert"]')].map((p) => p.textContent) }));
   ok('⑧ 받은 소리를 이 기기가 못 풂 → M6 «소리를 열지 못했어요» · «만든 소리를 받지 못했어요» 아님 · 그 줄 아래', f10.le === '소리를 열지 못했어요 · 다시 눌러 주세요 (코드 M6)' && f10.shown.indexOf(f10.le) > -1, JSON.stringify(f10));
-  await pg.evaluate(async () => { const b64 = await __b64(__wav(2, 24000)); window.__mock['momentedit:voiceClone'] = (d) => (d.op === 'status' ? window.__STOK : d.op === 'make' ? { ok: true, left: 900, parts: [{ who: 'groom', mime: 'audio/wav', data: b64 }] } : { ok: false, error: 'x' });
+  await pg.evaluate(async () => { const b64 = await __b64(__wav(2, 24000)); window.__mock['momentedit:voiceClone'] = (d) => (d.op === 'status' ? window.__STOK : d.op === 'make' ? { ok: true, left: 900, parts: [{ who: d.one || 'groom', mime: 'audio/wav', data: b64 }] } : { ok: false, error: 'x' });   /* [FILL_WHO_TRUE] 서버는 부탁한 분(one) 목소리로 답한다 — 종전 흉내는 늘 신랑이라 신부 줄(g1)이 «다른 분 목소리 답»으로 걸렸다 */
     window.__mock['momentedit:ritualFile'] = () => null; __shrink({ 75000: 200, 8000: 40, 20000: 40 }); window.__sent0 = window.__sent.filter((t) => t === 'momentedit:ritualFile').length; if (MK.lineErr) delete MK.lineErr.g1; MK.toast = ''; __trapToast();
     _vcMake('g1', {}).catch(() => {}); });
   await wait(3500);
@@ -347,7 +347,7 @@ async function open(w) {
     VC.read = { who: 'groom', take: {}, phrase: '', step: 2, ph: 'done', err: '' }; _vcAutoFill('groom'); await new Promise((r) => setTimeout(r, 300));
     const p = document.querySelector('#mkRecDlg .mk-dlg-c1.mk-two'); const o = { t: p ? __N(p.textContent) : '', role: p ? p.getAttribute('role') : '', codes: ((VC.fill || {}).codes || []).join(','), n: (VC.fill || {}).n, ok: (VC.fill || {}).ok, nw: !!(p && p.querySelector('.ec-nw')) };
     window._vcMake = mk0; window._vcLineWho = lw0; window._vcWarmAll = wa0; window._vtNeed = vn0; VC.read = null; VC.fill = null; MK.lineErr = {}; render(); return o; });
-  ok('⑪ 빈 줄 채우기 결과 창 — 못 채운 줄이 있으면 끝에 그 까닭 코드(V2 · 서버 글만 온 거절은 V0 · 많아야 둘) · role=alert [FILL_CODES]', r12.ok === 1 && r12.n > 1 && r12.codes === 'V2,V0' && /\(코드 V2 · V0\)$/.test(r12.t) && /나머지는 줄 카드의 \[목소리 만들기\]를 눌러 주세요/.test(r12.t) && r12.role === 'alert' && r12.nw, JSON.stringify(r12));
+  ok('⑪ 빈 줄 채우기 결과 창 — 못 채운 줄이 있으면 끝에 그 까닭 코드(V2 · 서버 글만 온 거절은 V0 · 많아야 둘) · role=alert [FILL_CODES]', r12.ok === 1 && r12.n > 1 && r12.codes === 'V2,V0' && /\(코드 V2 · V0\)$/.test(r12.t) && /나머지는 순간마다 «?목소리 만들기»?를 눌러 주세요/.test(r12.t) && r12.role === 'alert' && r12.nw, JSON.stringify(r12));
   /* [PLAY_FILE_WHY · LOAD_WAIT_KEEP] 두 분 소리 파일을 기다리는 동안 탭 잠금 무음이 끝나도 그 줄을 건너뛰지 않는다 → 끝내 못 받으면 예시 목소리로 흘리지 않고 글 + 까닭 */
   await pg.evaluate(() => { lsStop(); LP.unlocked = false; S.entryVoice = 'couple'; S.touched = Object.assign({}, S.touched, { entryVoice: 1 }); S.up = S.up || {}; S.up.entry = { n: '녹음', id: 'f-entry-why', src: 'rec', at: '' };
     delete RF_URL.entry; delete RF_URL['entry#']; delete RF_LOAD['f-entry-why']; delete RF_ERR['f-entry-why'];

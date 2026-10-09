@@ -1537,9 +1537,9 @@ chk 'SEAT_MOTION' seat.html 1                  # 검색마다 도는 smooth 스�
 chk 'SEAT_SAFEAREA' seat.html 1                # viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 쓰던 것
 # ── 2026-07-27 seat.html 2라운드(배치도를 하객이 실제로 읽을 수 있는가)
 chk 'SEAT_ZIG' seat.html 1                     # ★zig가 side로 부호를 뒤집어 짝수 행에서 좌·우 표가 60px 수렴 → 통로 16px에서 이름표 정면충돌('김민수'가 '박지영'에 덮여 '김'만 보였다). 4안 실측 비교에서 평행화만 0으로 떨어졌다(18→0) — side 분기 복원 금지
-chk 'return ((row%2===0)?1:-1)\*30' seat.html 1  # 위 처방 본체(평행 이동). side 부호 반전을 되살리면 충돌이 그대로 돌아온다
+# (옛 줄 · 2026-10-09 R6_PUBLIC 로 바꿈 — 지그재그 폭이 CSS var(--zig) 로 옮겨 갔다 · 아래 묶음의 zig 줄이 같은 평행 이동을 지킨다) return ((row%2===0)?1:-1)*30
 chk 'SEAT_CROWD' seat.html 3                   # 자리 8명 이상이면 원 위 이름표가 겹쳐 못 읽던 것 → 원엔 점, 이름은 표 아래 목록(주석 1 + CSS 1 + 분기 1)
-chk 'crowd=(n>=8)' seat.html 1                 # ★임계 8. 짧은 더미로 재면 9로 보인다 — 한글 3자 실명으로 재야 8인 원탁(가장 흔한 규격)이 잡힌다
+# (옛 줄 · ★임계 7 · 2026-10-09 글꼴 들어온 판 실측 — 7명 이름표 두 쌍이 겹쳤다 · 아래 R6_PUBLIC 묶음 crowd=(n>=7)) crowd=(n>=8)
 chk 'tbl-list' seat.html 2                     # 목록형 표 본체(CSS 1 + 조립 1). max-width는 통로 침범 때문에 126px — 넓히지 말 것
 chk 'SEAT_ORIENT' seat.html 2                  # '좌측/우측'이 무엇 기준인지 화면에 없던 것 — 단상을 바라볼 때 기준임을 한 줄로(주석 1 + CSS 1)
 chk '단상을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
@@ -3943,7 +3943,7 @@ nochk '자동으로 저장돼요<' mypage.html
 # "모바일화면인데 너무 위쪽에 쏠려잇어" — 짧은 단계가 화면 위에 붙고 아래가 통째로 비었다.
 # 남는 공간이 있을 때만 먹는 auto 마진이라 긴 단계는 종전대로 위에서부터 흐른다. 높이로 조건 걸지 말 것.
 chk 'WIZ_VCENTER' mypage.html 3
-chk 'only-child{margin-top:auto' mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) 'only-child{margin-top:auto' mypage.html 1
 # display:flex 는 !important 여야 한다 — renderProduction 이 인라인 display:block 을 얹는다
 chk 'display:flex!important;flex-direction:column}' mypage.html 1
 
@@ -5459,7 +5459,7 @@ chk '원본' guide.html 1
 # ★[SHARE_WEDUP 2026-08-17] 이 자리의 chk '오픈채팅 → 1:1 채팅방' 은 **정당한 폐지**로 내렸다.
 #   카톡을 권장에서 내리고 WedUploader 로 바꾼 결정(아래 SHARE_WEDUP 블록)이라 마커가 사라진 것이 맞다.
 #   카톡 안내 자체는 접힌 「다른 방법도 되나요」 안에 남아 있고, 그쪽은 아래에서 따로 지킨다.
-chk '카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) '카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
 # [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다(막지 않는다) — 엉뚱한 주소를 넣고도 모르는 일이 없게
 chk 'SHARE_KIND' mypage.html 3
 chk 'function photoShareKind' mypage.html 1
@@ -13173,7 +13173,7 @@ chk 'FOLD_JOSA_GLUE' mypage.html 1
 chk "애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b>" mypage.html 1
 nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 0
 # [CF_DATE_NBSP 보정] 확인서 예식 일시는 fmtWedKoT(내 내역 · 임시 고정 · 결제 카드와 같은 모양) — NBSP 한 덩어리는 320~325 에서 긴 날짜가 칸 밖으로 넘쳤다(180조합 중 84 → 0)
-chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate)
 nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
 # ── [코워크 회신8 2026-09-26] 칸 글 삼킴 · 케이크 한 줄 괄호 · 얇은 띠 ★ ──
 chk 'TILE_SWALLOW' assets/ritual-open.js 1
@@ -13291,7 +13291,7 @@ chk 'var _shPast = _kstDdayOf(' mypage.html 1
 chk "sub = (_shPast != null && _shPast < 0) ? '아래에서 잔금을 보내 주세요.' : " mypage.html 1
 chk 'var _hdPast = _kstDdayOf(' mypage.html 1
 chk "sub  = _hdPast ? '' : '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
-chk "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " mypage.html 1
 chk "|| (r\\[0]==='예식 준비' && r\\[2]==='제작중')); });" mypage.html 1
 # [MID_WITH_WORD] 2026-09-26 통합 점검 2라운드 R1 — 임박 계약 중도금(날짜 없음 · 서버 dueLabel «계약 시 함께 납부»)은 «지금 바로 입금 부탁드려요»(«계약 시 함께 납부까지 입금 부탁드려요» 금지 · 꼬리 «· 계약 시 함께 납부» 없음 — 320 에서 가운뎃점이 줄 머리에 선다 · 잔금 카드 _bPast 와 같은 말)
 chk 'MID_WITH_WORD' mypage.html 2
@@ -13313,7 +13313,7 @@ nochk "if(t-(window._wzBarAt||0)<450)" mypage.html 0
 # [LOGOUT_FS_GUARD] 전체화면 편집(.mp-fs) 동안 로그아웃은 Tab 순서 · 낭독기에서 빠지고, 편집 흐름 · 전체화면 겹화면(_mpFsOpen = MP_FS_OVERLAYS 한 목록)이 떠 있으면 로그아웃 누름을 받지 않는다(앞사람 청첩장이 다음 로그인에 다시 열리던 것)
 chk 'LOGOUT_FS_GUARD' mypage.html 3
 chk 'body.mp-fs-on .foot-actions{visibility:hidden}' mypage.html 1
-chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; clearToken(); show('loginView'); });" mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOp
 nochk "\$('mp_logout').addEventListener('click', function(){ clearToken(); show('loginView'); });" mypage.html 0
 # [INV_DATE_LINK] 예식 날짜도 링크 주소를 바꾼다(eventId = 머리글자 + MMDD) — 4/4 «예식 날짜가 달라져서 링크 주소가 바뀌어요» · 반영 결과 'date' 는 «바뀌었어요» · 다시 연 완성 화면에서 날짜가 옮겨져 있으면 «이전 날짜가 보여요 · 수정하기로 다시 반영» · 앞으로의 규칙에 날짜 한 줄
 chk 'INV_DATE_LINK' mypage.html 6
@@ -13468,7 +13468,7 @@ chk "사진은 마지막 걸음에서 저장할 때 함께 보내져요" mypage.
 chk 'id="mp_snapStart" style="margin-top:12px">이어서 고르기' mypage.html 1
 chk 'SNAP_TOP_ALIGN' mypage.html 1
 chk 'SNAP_TOP_ALIGN' scripts/check-wiz-vcenter.mjs 1
-chk "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto;width:100%'" mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto;wid
 chk 'SNAP_WORD_SCENE' mypage.html 6
 chk "찾던 사진이 없나요?" mypage.html 1
 chk "'장면 · 화이트존 '+w+'장면 골랐어요'" mypage.html 1
@@ -14703,7 +14703,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/note-toast.mjs >/dev
 #   ex-promise T1 · T2 · T6 · T7 · stale-novoice ① 이 잰다
 chk 'PRESET_QUIET' order-preview.html 2
 chk 'if(!/목소리가 생겼어요$/.test(st.t)) st.pre=1;' order-preview.html 1   # [STALE_QUIET 10/09] 남는 옆 글 = «○○ 목소리가 생겼어요» 하나
-chk "stSide&&!st.pre?'<span class=\"mk-vst mk-vst-side\"" order-preview.html 1
+chk "stSide&&!st.pre?'<span class=\"mk-vst mk-vst-side" order-preview.html 1   # [SIDE_WHO_LOW 2026-10-09] 세 낱말 옆글이면 mk-vst-low 가 붙는다 — 여는 꼴만 본다
 nochk "(stSide?'<span class=\"mk-vst mk-vst-side\"" order-preview.html   # ★단추 옆 «예시를 바꿨어요 · 멘트를 바꿨어요» 금지 — 2026-10-08 사용자 지시로 삭제
 chk 'PRESET_QUIET' scripts/audit/ex-promise.mjs 4
 chk 'PRESET_QUIET' scripts/audit/stale-novoice.mjs 2
@@ -15044,7 +15044,7 @@ if command -v node >/dev/null 2>&1; then ONLY='1,5,8,9,17' node scripts/audit/vc
 # ★[VC_R1_MIX 2026-10-08 목소리 1라운드 mix 묶음 #12 · #22 · #23 · #24 · #25 · #27 · #28 · #30 · #31 · #33] — 고친 줄 25개를 하나씩 되돌리면 각각 빨강(돌연변이 확인)
 chk 'VC_R1_MIX' scripts/audit/vc-r1-mix.mjs 1
 chk 'function _whoMiss(key)' order-preview.html 1
-chk '(v.wq!==_slWhoSig(key)||!!_whoMiss(key))' order-preview.html 1
+chk '(v.wq!==_slWhoSig(key)||!!_whoMiss(key)||' order-preview.html 1   # [FILL_WHO_TRUE 2026-10-09] 뒤에 «다른 분 목소리 소리» 갈래가 붙었다
 chk 'function _whoLab(key)' order-preview.html 1
 chk '{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up===' order-preview.html 1
 chk "eu=_upStale('entry')?null:_rfUrl('entry')" order-preview.html 1
@@ -15988,6 +15988,52 @@ chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) 
 chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
 chk "if (op === 'enroll' && c >= 400 && c < 500 && c !== 401 && c !== 402 && c !== 403 && c !== 429) {" automation/platform/80_production.gs 1   # [VC_ENROLL_BADREC]
 chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
+# ── 고객 여정 점검 1라운드 · 서버 [VC_DEL_STOP · VC_ONE_OWN · RF_DEL_ALL_T0 · BIRTH_REAL · CR_NUM_VALID · CT_RESEND_ONCE · APPLY_A_RETIRE · RESCHED_NOW · CAL_FULL_DIM · REVISIT_NUM_JOSA] 2026-10-09
+#   E-4 지우기가 만들기를 이긴다(잠근 채 표시 · 업체 답 직후와 저장 직전 두 번 본다) · E-3 한 분 만들기는 그분 목소리로만
+#   E-8 «모두 지우기»도 지운 파일보다 뒤에 만든 것은 둔다 · C-9 생년월일 실제 날짜 · C-16 현금영수증 번호 여섯 곳 · C-20 재발송 요청 24시간 한 번
+#   D-1 옛 신청 화면 은퇴(신청은 inquiry.html) · D-3 시간 변경은 예약금을 다시 받지 않는다 · D-8 시간이 다 찬 날은 흐림 · D-19 숫자 뒤 «입니다»
+chk 'VC_DEL_STOP' automation/platform/80_production.gs 12
+chk "if (c.save(stopped) === 'stop') return stop(nv, rfId);" automation/platform/80_production.gs 1
+chk 'if (stopped(_vcSt(code))) return stop(nv,' automation/platform/80_production.gs 1
+chk 'dm = _vcDelMark(code, ws);' automation/platform/80_production.gs 1
+chk "var dm = _vcDelMark(code, \['groom', 'bride'\])" automation/platform/80_production.gs 1
+chk 'VC_ONE_OWN' automation/platform/80_production.gs 1
+chk "if (one && WHO\[one\] && !lines && !(st\[one\] && st\[one\].voiceId)) return" automation/platform/80_production.gs 1
+chk 'RF_DEL_ALL_T0' automation/platform/80_production.gs 1
+chk 'g.getDateCreated().getTime() > ta) continue;' automation/platform/80_production.gs 1
+chk 'RF_DEL_ALL_T0' scripts/audit/vc-r1-upload.mjs 2
+chk 'BIRTH_REAL' automation/platform/70_journey.gs 2
+chk "var _bBad = _birthBad(gB, '신랑') || _birthBad(bB, '신부');" automation/platform/70_journey.gs 1
+chk 'CR_NUM_VALID' automation/platform/70_journey.gs 8
+chk '_crReject(' automation/platform/70_journey.gs 6
+chk '_crReject(cashReceipt)' automation/consultation/consultation-booking.gs 1
+chk 'CT_RESEND_ONCE' automation/platform/70_journey.gs 3
+chk 'contractResendAt' automation/platform/60_mypage.gs 1
+chk 'CT_RESEND_ONCE' mypage.html 3
+nochk "rs.textContent='요청했어요 · 24시간 안에 보내고 카톡으로 알려드려요'" mypage.html
+chk 'APPLY_A_RETIRE' automation/consultation/consultation-booking.gs 4
+nochk 'HtmlService.createTemplateFromFile(SYS.HTML_A)' automation/consultation/consultation-booking.gs
+nochk 'submitApplication(body);' automation/consultation/consultation-booking.gs
+chk "if (!_IN_POST && !_ownerRunNow_()) throw new Error(APPLY_MOVED + ' · ' + APPLY_URL);" automation/consultation/consultation-booking.gs 1
+chk 'RESCHED_NOW' automation/consultation/consultation-booking.gs 10
+chk 'if (_dep.paid) { payer = .*; _byCard = false; }' automation/consultation/consultation-booking.gs 1
+chk 'RESCHED_NOW' schedule.html 5
+chk 'var _paid=SERVER.depositPaid===true;' schedule.html 1
+chk 'RESCHED_NOW' automation/consultation/ScreenB_schedule.html 1
+chk 'CAL_FULL_DIM' automation/consultation/ScreenB_schedule.html 1
+chk 'return SERVER.avail.indexOf(key(d)) !== -1 && _hasFreeSlot(d);' automation/consultation/ScreenB_schedule.html 1
+chk 'REVISIT_NUM_JOSA' automation/consultation/ScreenB_schedule.html 1
+nochk "' 으로 확정되어 있습니다.'" automation/consultation/ScreenB_schedule.html
+nochk "' 이 접수되어 있습니다.'" automation/consultation/ScreenB_schedule.html
+chk 'VC_DEL_STOP' scripts/audit/vc-del-stop.mjs 1
+chk 'JOURNEY_INPUT' scripts/audit/journey-input.mjs 1
+chk 'RESCHED_NOW' scripts/audit/resched-paid.mjs 1
+chk "'_vcDelMark'" scripts/audit/vc-flow-sim.mjs 1
+chk "'_vcDelMark'" scripts/audit/vc-enroll-sim.mjs 1
+chk "CTRESEND_: \['state'\]" scripts/gen-deploy-fns.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-del-stop.mjs >/dev/null 2>&1 || { echo 'FAIL vc-del-stop: 지우기 · 만들기 겹침(E-4) · 한 분 만들기(E-3) · 모두 지우기 범위(E-8)가 어긋났습니다 — node scripts/audit/vc-del-stop.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/journey-input.mjs >/dev/null 2>&1; _jin=$?; if [ "$_jin" = 1 ]; then echo 'FAIL journey-input: 생년월일 · 현금영수증 번호 · 재발송 한 번 · 옛 신청 화면이 어긋났습니다 — node scripts/audit/journey-input.mjs'; fail=1; elif [ "$_jin" = 2 ]; then echo 'skip journey-input: GAS 세계를 못 만듦'; else echo 'ok journey-input'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/resched-paid.mjs >/dev/null 2>&1; _rsp=$?; if [ "$_rsp" = 1 ]; then echo 'FAIL resched-paid: 시간 변경 예약금 · 시간이 다 찬 날 흐림 · 숫자 뒤 조사가 어긋났습니다 — node scripts/audit/resched-paid.mjs'; fail=1; elif [ "$_rsp" = 2 ]; then echo 'skip resched-paid: GAS 세계를 못 만듦'; else echo 'ok resched-paid'; fi; fi
 chk 'VC_ENROLL_SIM' scripts/audit/vc-enroll-sim.mjs 1
 chk 'FN_NAME_ONE' scripts/audit/vc-enroll-sim.mjs 1   # 최상위 함수 이름 겹침(_vcSnap 두 벌 · 뒤 선언이 앞을 조용히 덮었다)
 chk 'function _vcEnrSnap(w){' order-preview.html 1
@@ -16303,7 +16349,7 @@ chk 'ERR_ZERO_TEXT' order-preview.html 8
 chk 'if(n<=0) return _ecTidy(t);' order-preview.html 1
 chk "var c=_ecCodeOf(w)||(w?'V0':'');" order-preview.html 1   # 연습 차례 요약 글 — 서버 글만 온 거절도 V0
 chk "c=_ecCodeOf(_le)||(_le?'V0':'');" order-preview.html 1   # 다시 만들기 알림
-chk "_afc=_ecCodeOf(_autoWhy)||(_autoWhy?'S0':'');" order-preview.html 1   # 나가기 판
+chk "_afc=_ecCodeOf(_autoWhy)||(_autoWhy?'S0':'')" order-preview.html 1   # 나가기 판
 chk 'RF_LINE_CLEAR' order-preview.html 3
 chk 'function _rfLineOff(key)' order-preview.html 1
 chk 'VC_DONE_LINE' order-preview.html 1
@@ -16704,4 +16750,294 @@ chk 'GMS_MEMO' scripts/audit/gms-memo.mjs 1
 chk 'STATE_PATIENT' scripts/audit/state-patient.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/gms-memo.mjs >/dev/null 2>&1; _gmm=$?; if [ "$_gmm" != 0 ]; then echo 'FAIL gms-memo: getMyState 기억(같은 행 다시 찾지 않기) · 서명 찾기가 어긋났습니다 — node scripts/audit/gms-memo.mjs'; fail=1; else echo 'ok gms-memo: 결과 같음 · 상담 행 1번 · 고객 행 0번 · 서명 전체 읽기 0'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/state-patient.mjs >/dev/null 2>&1; _stp=$?; if [ "$_stp" = 1 ]; then echo 'FAIL state-patient: 마이페이지 상태 불러오기가 늦음 · 끊김에 곧장 막대를 띄운다 — node scripts/audit/state-patient.mjs'; fail=1; elif [ "$_stp" = 2 ]; then echo 'skip state-patient: 브라우저 없음'; else echo 'ok state-patient: 늦으면 한 번 더 · 막대는 두 번 다 안 될 때만'; fi; fi
+# ★★[A~Z 점검 1라운드 2026-10-09 사장님 «고객 입장에서 a~z · 식순 · AI 녹음 전 구간 · 개선이 없을 때까지»] 식순 · AI 녹음 고침 표식 — 되돌리지 말 것
+#   E-6 배포로 바뀐 예시만 «준비 중»(EX_STALE_DEPLOY) · E-3 지우는 사이 채우기 · 다른 분 소리(FILL_WHO_TRUE) · E-4 만드는 중 지우기(DEL_NOT_MID) · E-2 다른 기기 저장 되살아남(SAVED_FRESH · SAVED_LOCAL)
+#   A-1 다시 열면 같은 걸음(REOPEN_SAME_STEP) · A-2 저장 전 고침(LOCAL_AHEAD) · A-3 · A-5 뒤로가기(HIST_DEPTH · EXIT_HOLD) · A-4 엔진 재요청(ENG_ONCE) · 끝 쉼(QUIET_END_CLOSE)
+#   B-3 굽고 저장(SAVE_AFTER_BAKE) · B-4 1분 멈춤(REC_CAP_SAY) · B-5 다시 해도 안 되는 실패(VC_NO_RETRY) · B-6 만드는 동안 흔들림(LS_WAIT_TOAST) · B-7 상태 100초(VC_ST_NOW) · 옆글 세 줄(SIDE_WHO_LOW)
+chk 'EX_STALE_DEPLOY' order-preview.html 3
+chk 'if(_exOldSigs(k,_exNOf(k)).indexOf(u.tx)<0) return;' order-preview.html 1
+chk 'FILL_WHO_TRUE' order-preview.html 6
+chk 'function _vcFillOk(k){' order-preview.html 1
+chk 'if(!_vcFillOk(k)){ nx(); return; }' order-preview.html 1
+chk 'function _vcGen(sn){' order-preview.html 1
+chk 'DEL_NOT_MID' order-preview.html 2
+chk "_lsToast('다 만든 뒤에 지울 수 있어요')" order-preview.html 1
+chk 'SAVED_FRESH' order-preview.html 4
+chk 'var SAVED_LOCAL=' order-preview.html 1
+chk 'REOPEN_SAME_STEP' order-preview.html 1
+chk 'LOCAL_AHEAD' order-preview.html 10
+chk 'function _canonS(' order-preview.html 1
+chk 'HIST_DEPTH' order-preview.html 3
+chk 'HIST_DEPTH' mypage.html 3
+chk 'function _hDepth(' order-preview.html 1
+chk 'EXIT_HOLD' order-preview.html 1
+chk 'EXIT_HOLD' mypage.html 4
+chk 'function _exitHold(' order-preview.html 1
+chk 'function _bkDoneDeep(id,n){' mypage.html 1
+chk 'ENG_ONCE' order-preview.html 10
+chk 'function _engBox(' order-preview.html 1
+chk 'QUIET_END_CLOSE' assets/ritual-open.js 1
+chk "var _ci = seq.indexOf('_close'), last = seq" assets/ritual-open.js 1
+chk 'ONE_SOUND' order-preview.html 1
+chk 'PLAY_TOK' order-preview.html 1
+chk 'UP_TMR_OWN' order-preview.html 1
+chk 'WHO_V8_WORD' order-preview.html 2
+chk 'CODE_INLINE' order-preview.html 3
+chk 'FILL_NEXT' order-preview.html 1
+chk 'SAVE_FAIL_TOAST' order-preview.html 1
+chk 'S5_UNKNOWN' order-preview.html 1
+chk 'EXIT_WAIT_SAVE' order-preview.html 1
+chk 'SAVE_PILL_STEADY' order-preview.html 1
+chk 'STUDIO_TWO_LINE' order-preview.html 1
+chk 'GUEST_SUM_FOUR' order-preview.html 1
+chk 'CHIP_NOTE_OFF' order-preview.html 1
+chk 'SAVE_AFTER_BAKE' order-preview.html 3
+chk 'window._saveBaking=1; _autoPaint();' order-preview.html 1
+chk 'REC_CAP_SAY' order-preview.html 5
+chk 'if(r.el>=REC_MAX_SEC){ MK_RECCAP=r.key; mkRecStop(); }' order-preview.html 1
+chk 'VC_NO_RETRY' order-preview.html 2
+chk 'nr=n===2&&!!R.err&&' order-preview.html 1
+chk 'LS_WAIT_TOAST' order-preview.html 5
+chk "_lsToast('다 만들면 이어서 들려 드려요',null,'mp:'+k);" order-preview.html 1
+nochk 'esc(LS_MAKE_WAIT)' order-preview.html   # [LS_WAIT_TOAST] 단추 아래 «잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요» 줄 걷음(흔들림)
+chk 'VC_ST_NOW' order-preview.html 5
+chk 'if(VC.stGen!==_g) return; VC.loading=false;' order-preview.html 1
+chk 'SIDE_WHO_LOW' order-preview.html 2
+chk '.mk-vcards .mk-vch:has(> .mk-vst-low)' order-preview.html 1
+chk 'FILL_WHO_TRUE' scripts/audit/fill-who-true.mjs 1
+chk 'SAVED_FRESH' scripts/audit/saved-fresh.mjs 1
+chk 'HIST_DEPTH' scripts/audit/builder-back.mjs 1
+chk 'ENG_ONCE' scripts/audit/eng-once.mjs 1
+chk 'VC_ST_NOW' scripts/audit/vc-status-retry.mjs 2
+chk 'LS_WAIT_TOAST' scripts/audit/ai-play-ready.mjs 1
+chk 'SIDE_WHO_LOW' scripts/audit/vc-r1-ex.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/fill-who-true.mjs >/dev/null 2>&1; _fwt=$?; if [ "$_fwt" = 1 ]; then echo 'FAIL fill-who-true: 처음 채우기가 지우는 중인 분 · 다른 분 목소리로 줄을 채웠습니다 — node scripts/audit/fill-who-true.mjs'; fail=1; elif [ "$_fwt" = 2 ]; then echo 'skip fill-who-true: 브라우저 없음'; else echo 'ok fill-who-true: 채우기는 그 줄을 읽는 분 목소리로만'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/saved-fresh.mjs >/dev/null 2>&1; _svf=$?; if [ "$_svf" = 1 ]; then echo 'FAIL saved-fresh: 서버 초안 얹기(옛 칸 되살아남 · 같은 걸음 · 저장 전 고침)가 어긋났습니다 — node scripts/audit/saved-fresh.mjs'; fail=1; elif [ "$_svf" = 2 ]; then echo 'skip saved-fresh: 브라우저 없음'; else echo 'ok saved-fresh: 서버 초안은 통째로 · 같은 걸음 · 저장 전 고침'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/builder-back.mjs >/dev/null 2>&1; _bbk=$?; if [ "$_bbk" = 1 ]; then echo 'FAIL builder-back: 마이페이지 안 식순의 뒤로가기(한 번에 닫기 · 판이 뜨면 기다리기)가 어긋났습니다 — node scripts/audit/builder-back.mjs'; fail=1; elif [ "$_bbk" = 2 ]; then echo 'skip builder-back: 브라우저 없음'; else echo 'ok builder-back: 뒤로가기 한 번 · 판이 뜨면 기다린다'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/eng-once.mjs >/dev/null 2>&1; _eon=$?; if [ "$_eon" = 1 ]; then echo 'FAIL eng-once: 소리 엔진을 못 받을 때 그리기마다 다시 묻습니다(또는 까닭 · 다시 불러오기가 없습니다) — node scripts/audit/eng-once.mjs'; fail=1; elif [ "$_eon" = 2 ]; then echo 'skip eng-once: 브라우저 없음'; else echo 'ok eng-once: 엔진 실패는 한 번 · 까닭(L0) · 다시 불러오기'; fi; fi
+# [VC_CANCEL_SAY · BIRTH_ADULT19 2026-10-09 A~Z 점검 1라운드] 지우기로 취소된 만들기는 그 말로(서버 VC_DEL_STOP 짝) · 계약 생년월일 하한 만 19세(민법 성년)
+chk 'VC_CANCEL_SAY' order-preview.html 2
+chk "if(j.kind==='cancel') return {ok:false,down:true,kind:'cancel',error:VC_DEL_STOP_W};" order-preview.html 1
+chk 'msg!==VC_DEL_STOP_W' order-preview.html 1
+chk 'R.err===VC_DEL_STOP_W' order-preview.html 1
+chk 'VC_CANCEL_SAY' scripts/audit/vc-cancel-say.mjs 1
+chk 'BIRTH_ADULT19' automation/platform/70_journey.gs 3
+chk 'lim = (+t.slice(0, 4) - 19) + t.slice(4);' automation/platform/70_journey.gs 1
+nochk 'lim = (+t.slice(0, 4) - 18) + t.slice(4);' automation/platform/70_journey.gs
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-cancel-say.mjs >/dev/null 2>&1; _vcs=$?; if [ "$_vcs" = 1 ]; then echo 'FAIL vc-cancel-say: 지우기로 취소된 만들기의 말 · 다시 만들기 표가 어긋났습니다 — node scripts/audit/vc-cancel-say.mjs'; fail=1; elif [ "$_vcs" = 2 ]; then echo 'skip vc-cancel-say: 브라우저 없음'; else echo 'ok vc-cancel-say: 취소는 그 말로 · 다시 만들기 표 없음'; fi; fi
+# ★★[R6_MYPAGE 2026-10-09 고객 여정 A~Z 점검 1라운드 · 마이페이지] C-1 서명판 · C-2 금액 복사 · C-4 로그아웃 칸 · C-5 개인코드 · C-6 대기 줄 · C-7 되돌리기 판 · C-8 겹창 · C-9 생년월일 칸 · C-10 걸음 위 · C-11 막대 고정(WZ_PIN) · C-12~C-19 · 카카오톡 · 외톨이 — 되돌리지 말 것
+# ── [R6_MYPAGE 2026-10-09] 고객 여정 A~Z 점검 1라운드 · 마이페이지 ──
+# 바뀐 옛 chk 다섯(그 자리 줄을 아래로 바꾼다)
+#   3946 chk 'only-child{margin-top:auto' → 아래 [WZ_PIN] 의 nochk 로
+#   5462 chk '카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' → [KAKAO_WORD]
+#   13176 chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(…" → [LED_DATE_GLUE]
+#   13294 chk "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " → [NOW_CARD_ONCE]
+#   13316 chk "\$('mp_logout')…clearToken(); show('loginView'); });" → [LOGOUT_CLEAR_FIELDS]
+#   13471 chk "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto;width:100%'" → [WZ_PIN] (위쪽 정렬 그대로 · 화면 높이 채움)
+chk '카카오톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
+chk "L+=line('예식 일시', _bw.weddingTime ? _whenHtml(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
+chk "sub  = _hdPast ? '' : '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
+chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" mypage.html 1
+nochk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; clearToken(); show('loginView'); });" mypage.html 0
+# [SIGN_AFTER_VIEW] C-1 계약서 보기 → 서명하기: 뷰어 층의 되감기가 끝난 뒤 서명판을 연다(같은 틱이면 늦은 popstate 가 서명판 층을 먹어 서명이 안 갔다)
+chk 'SIGN_AFTER_VIEW' mypage.html 2
+chk 'function _bkSettle(fn)' mypage.html 1
+chk "cbtn.addEventListener('click',function(){ done(); _bkSettle(doSignContract); });" mypage.html 1
+nochk "cbtn.addEventListener('click',function(){ done(); doSignContract(); })" mypage.html 0
+# [COPY_AMT_BACK] C-2 입금액 복사 뒤 원래 모양(금액 · 밑줄)으로 되돌린다
+chk 'COPY_AMT_BACK' mypage.html 1
+chk 't.innerHTML=t._amtHtml;' mypage.html 1
+# [LOGOUT_CLEAR_FIELDS] C-4 로그아웃은 로그인 칸도 비운다(두 로그아웃 단추 모두)
+chk 'LOGOUT_CLEAR_FIELDS' mypage.html 2
+chk "function _mpLogoutNow(){ clearToken(); \['li_code','li_pw'\]" mypage.html 1
+chk '_mpLogoutNow();' mypage.html 2
+# [FINDCODE_KAKAO] C-5 코드 찾기 안내 = 카카오톡 또는 메일함
+chk '카카오톡 또는 메일함을 확인해 주세요.' mypage.html 1
+nochk '개인코드를 보내드렸어요. 메일함을 확인해 주세요' mypage.html 0
+# [WAIT_LINE_ONCE] C-6 대기 줄 — 요청 전 숨김 · NOW 머리와 같으면 숨김 · 문장 끝엔 «기다리는 중» 안 붙임
+chk 'WAIT_LINE_ONCE' mypage.html 1
+chk "if (w && d.stage === '상담완료' && d.contractInfo && !d.contractInfo.requested) w = '';" mypage.html 1
+chk "? w : (w+' 기다리는 중');" mypage.html 1
+nochk "el.textContent = w+' 기다리는 중';" mypage.html 0
+# [RB_CI_TRUTH] C-7 되돌린 뒤 계약서 요청 폼이 다시 열리면 «계약 내용은 그대로»라 하지 않는다
+chk 'RB_CI_TRUTH' mypage.html 1
+chk 'var _rbCiOpen = ' mypage.html 1
+# [OVL_LAYER] C-8 주소 찾기 · 처리방침 겹창 = 뒤로가기 층 · Esc · 배경 잠금 · 닫기 44px
+chk 'OVL_LAYER' mypage.html 6
+chk 'function _ovlShow(ov)' mypage.html 1
+chk 'function _ovlHide(ov, noRet)' mypage.html 1
+chk '\.ovl-x{' mypage.html 1
+# [BIRTH_RANGE] [BIRTH_DAYS] C-9 생년 1930 ~ 올해-18 · 일은 달에 맞춘다
+chk 'BIRTH_RANGE' mypage.html 1
+chk 'BIRTH_DAYS' mypage.html 2
+chk 'function _birthWire(idBase)' mypage.html 1
+# [INV_STEP_TOP] C-10 걸음이 바뀌면 맨 위 + 제목 초점(청첩장 · 애프터 웨딩/최종)
+chk 'INV_STEP_TOP' mypage.html 3
+chk 'INVFLOW._shownStep=INVFLOW.step;' mypage.html 1
+chk 'TRKFLOW._shownStep=TRKFLOW.step;' mypage.html 1
+# ★[WIZ_VCENTER] 세로 가운데 두기 금지 — 2026-10-09 [WZ_PIN] 으로 걷음(C-11 · [WZ_BAR] 09-26 · [BOSS_WAY_1006] 4 단추 위치 고정이 나중 결정)
+#   카드가 화면 높이를 채우고 막대는 걸음마다 화면 맨 아래(짧은 걸음 · 긴 걸음 · 스냅 기획 · 가족·친구 스냅 모두) — scripts/check-wiz-vcenter.mjs 가 «막대 아래 틈»을 잰다
+nochk 'only-child{margin-top:auto' mypage.html 0
+chk 'WZ_PIN' mypage.html 9
+chk '\.mp-fs>\*:only-child{flex:1 0 auto;margin-bottom:-48px' mypage.html 1
+chk 'function _wzPin(host)' mypage.html 1
+chk '_wzPin(box);' mypage.html 12
+chk "margin:0 auto -44px;width:100%;flex:1 0 auto;display:flex;flex-direction:column" mypage.html 1
+chk "margin:0 auto -24px;width:100%;flex:1 0 auto;display:flex;flex-direction:column" mypage.html 1
+chk "_sdf.classList.add('wz-foot'); _wzPin(inner);" mypage.html 1
+chk "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto -24px;width:100%;flex:1 0 auto;display:flex;flex-direction:column'" mypage.html 1
+chk 'WZ_PIN' scripts/check-wiz-vcenter.mjs 2
+chk 'WZ_PIN' scripts/audit/snap-plan.mjs 2
+# [INV_EN_WHY] C-12 영문 칸: 빈 칸과 알파벳 아닌 글자를 가른다
+chk 'INV_EN_WHY' mypage.html 1
+chk "title:'영문 이름은 알파벳으로 적어 주세요'" mypage.html 1
+chk ' 영문 이름에 알파벳이 아닌 글자가 있어요.' mypage.html 1
+# [SIG_HINT_BTN] C-13 서명판 안내 = 단추 이름 · 확정 단추 = 진사([SEAL_CTA_ONLY])
+chk 'SIG_HINT_BTN' mypage.html 1
+chk "_sigDoneHint='✓ 서명됨 · «'+_sigBtn+'»'+_phEulReul(_sigBtn)+' 눌러 주세요'" mypage.html 1
+chk "mp-modal-btn mp-modal-btn-seal" mypage.html 1
+# [REF_ROW_EVEN] C-14 시간표 행 구분선 어긋남 · [KO_CAP_SUMMARY] C-18 «· 요약» 한글 글꼴
+chk 'REF_ROW_EVEN' mypage.html 1
+chk '\.schedule-ref-table{display:grid;grid-template-columns:60px repeat(4,1fr);gap:3px 6px;align-items:stretch}' mypage.html 1
+chk 'KO_CAP_SUMMARY' mypage.html 1
+# [ADDR_BTN_EVEN] C-15 «주소 찾기» 단추 = 주소 칸 높이
+chk 'ADDR_BTN_EVEN' mypage.html 1
+# [CR_DIGITS] C-16 현금영수증 번호 = 휴대폰 10~11자리(01) · 사업자번호 10자리 · 아니면 칸 아래 한 줄(다섯 칸 + 번호 바꾸기 판)
+chk 'CR_DIGITS' mypage.html 8
+chk 'function _crOk(v)' mypage.html 1
+chk "if(!_crCheck('mp_" mypage.html 5
+chk "if(typeof o.check==='function' && o.check()===false) return; close(true);" mypage.html 1
+# [LED_DATE_GLUE] C-17 날짜 · 요일 한 몸 · 폰 폭에선 시각을 다음 줄 · [LED_DOC_DATE] 서류 날짜 «2026년 10월 1일»
+chk 'LED_DATE_GLUE' mypage.html 6
+chk 'function _whenHtml(ymd, t)' mypage.html 1
+chk 'LED_DOC_DATE' mypage.html 1
+# [LINK_BTN_KB] C-19 로그인 화면 글자 단추 넷 = <button>(Tab 이 닿는다)
+chk 'LINK_BTN_KB' mypage.html 2
+chk '<button type="button" class="linkbtn"' mypage.html 4
+nochk '<a id="link_findcode"' mypage.html 0
+# [FORM_OWN_ERR] 브라우저 말풍선 대신 디자인 오류 줄(로그인 · 코드 찾기 · 재설정)
+chk 'FORM_OWN_ERR' mypage.html 2
+chk 'novalidate>' mypage.html 3
+# [CI_ERR_AT] 계약 요청 폼 — 빠진 칸은 그 칸에서 말한다(스크롤 + 초점) · 아래 줄은 서버 · 연결 실패만
+chk 'CI_ERR_AT' mypage.html 3
+chk 'function _ciMissClear()' mypage.html 1
+# [ERR_WORD_GLUE] B-1 같은 모양 — 좁은 폭(320 · 360)에서 «(코드 P6)»만 다음 줄에 섰다(자연 줄바꿈 · display:block 병은 마이페이지에 없음) → 앞 낱말 하나(8자까지)를 코드와 한 덩어리로(글은 그대로)
+chk 'ERR_WORD_GLUE' mypage.html 1
+chk '<span class="err-tail" style="white-space:nowrap">' mypage.html 1
+# [KAKAO_WORD] 고객 글은 «카카오톡» 한 말로(예외 둘: «카톡·메일로 알려드려요» 2026-07-25 지시 · 계약서 재발송 줄은 GAS 담당 C-20)
+chk 'KAKAO_WORD' mypage.html 1
+nochk '카톡으로 보내세요' mypage.html 0
+nochk '카톡에 붙여넣기' mypage.html 0
+nochk '카톡 사진은' mypage.html 0
+# 줄 끝 외톨이 · 점 매달림 [REFUND_NB] [INV2_SUB_LINES] [CF_LEFT_LINES] [SV_DOT_GLUE]
+chk 'REFUND_NB' mypage.html 1
+chk '송금해&nbsp;드려요' mypage.html 1
+chk 'INV2_SUB_LINES' mypage.html 1
+chk 'CF_LEFT_LINES' mypage.html 1
+chk 'SV_DOT_GLUE' mypage.html 1
+chk 'function _svGlue(q)' mypage.html 1
+# [SEAT_DONE_TOAST] 좌석 «배치 완료»도 저장 알림 · [NOW_CARD_ONCE] NOW 부제와 카드가 같은 말이면 한 곳만
+chk 'SEAT_DONE_TOAST' mypage.html 1
+chk 'NOW_CARD_ONCE' mypage.html 8
+nochk "sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';" mypage.html 0
+nochk "head = '일정을 확인하고 있어요'; sub = '디렉터가 확인하고" mypage.html 0
+# ★★[R6_PUBLIC 2026-10-09 고객 여정 A~Z 점검 1라운드 · 공개 화면] D-2 좌석 배치도 폰 맞춤 · D-4 상담 흐름 문구 · D-5~D-7 신청서 · D-8 · D-9 · D-17 상담 일정 · D-10 · D-18 취소 · D-11 단색 상단 바 · D-12 청첩장 06 대비 · D-13 인사말 방향 낱말 · D-14 지도 · D-15 카톡 답변 시간 · D-16 라이브 · D-20 표본 날짜 · D-21 — 되돌리지 말 것
+chk 'function zig(row,side){ return (row%2===0)?1:-1; }' seat.html 1   # [SEAT_ZIG] 평행 이동 본체 — 방향(±1)만
+chk "' \* var(--zig)))'" seat.html 1                                    # [SEAT_FIT] 폭은 CSS var(--zig)
+chk 'crowd=(n>=7)' seat.html 1                                           # [SEAT_FIT] 임계 7(글꼴 들어온 판 실측) · 종전 8
+nochk 'crowd=(n>=8)' seat.html
+nochk ')\*30' seat.html                                                  # 30px 고정 지그재그로 되돌리면 폰에서 잘린다
+chk 'SEAT_FIT' seat.html 10
+chk 'SEAT_LEAD_KEEP' seat.html 1
+chk 'GUIDE_SEAT_FIT' guide.html 4
+chk 'var(--gz,22px)' guide.html 1
+chk '.mtb-wrap .mtb-wrap{margin-left:0;margin-right:0}' guide.html 1
+chk 'SAMPLE_DATE_2027' guide.html 2
+chk "date:'2027-10-23'" guide.html 1
+nochk "date:'2027-12-17'" guide.html
+chk 'DEMO_TIP_KEEP' guide.html 1
+chk 'CONSULT_FLOW_ONE' index.html 2
+chk '마이페이지에서 방문 상담 시간 선택' index.html 2
+chk '마이페이지에서 방문 상담 시간을 직접 선택하실 수 있습니다' index.html 1
+nochk '<strong>02.</strong> 담당 디렉터 메일 안내' index.html
+nochk '02. 담당 디렉터 메일 안내 (영업일 48시간 이내) 03.' index.html
+nochk '담당 디렉터가 메일로 개별 안내를 드립니다' index.html
+chk 'KAKAO_HOURS_LABEL' index.html 1
+chk "카카오톡 답변 시간 '+KB.escalation.hours" index.html 1
+chk 'ADV_GREET_FIRST' assets/advisor-kb.js 1
+nochk '아래에서 궁금한 주제를' assets/advisor-kb.js
+chk 'CONSULT_FLOW_ONE' assets/advisor-kb.js 2
+nochk "answer: '01. 사전 문의서 제출 → 02. 담당 디렉터" assets/advisor-kb.js
+nochk '영업일 48시간 이내에 담당 디렉터가 메일로 안내드립니다' assets/advisor-kb.js
+chk 'KAKAO_HOURS_LABEL' assets/advisor-widget.js 1
+nochk "'상담 가능 ' + ESC.hours" assets/advisor-widget.js
+chk 'CONSULT_FLOW_ONE' api/_kb.js 1
+chk '마이페이지에서 방문 상담 시간을 고객이 직접 고른다' api/_kb.js 1
+chk 'CONSULT_FLOW_ONE' scripts/ai-live-sim-ci.js 1
+chk 'CONSULT_FLOW_ONE' inquiry.html 1
+nochk '<em>48시간 이내</em>에 담당 디렉터' inquiry.html
+chk 'SUBMIT_ERR_SEEN' inquiry.html 2
+chk 'PHONE_HYPHEN_STEP' inquiry.html 1
+chk 'FIELD_ERR_MSG' inquiry.html 6
+chk 'EMAIL_RE.test(' inquiry.html 1
+chk 'INQ_NO_ORPHAN' inquiry.html 1
+chk 'PW_HINT_LEFT' inquiry.html 1
+chk 'COPY_BTN_STEADY' inquiry.html 1
+# [GATE_RAN] 반복(for) 없이 낱줄로 — chk 수를 파일의 chk 줄 수와 대조한다(반복은 그 셈을 어긋나게 한다 · 2026-10-09 CI 빨강)
+chk 'NAV_SOLID_MOBILE' inquiry.html 1
+chk 'BRAND_DOT_MID' inquiry.html 1
+chk 'NAV_SOLID_MOBILE' privacy.html 1
+chk 'BRAND_DOT_MID' privacy.html 1
+chk 'NAV_SOLID_MOBILE' parents.html 1
+chk 'BRAND_DOT_MID' parents.html 1
+chk 'INK_FADE_AA' i/cover-06.html 2
+nochk '--ink-fade:#8F8277' i/cover-06.html
+chk 'INK_FADE_AA' i-family/family-06.html 2
+nochk '--ink-fade:#8F8277' i-family/family-06.html
+chk 'INK_FADE_AA' i/invitations/invitation-06-hangeul.html 2
+nochk '--ink-fade:#8F8277' i/invitations/invitation-06-hangeul.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-01.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-01.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-02.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-02.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-03.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-03.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-04.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-04.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-05.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-05.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-06.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-06.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-07.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-07.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-08.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-08.html
+chk 'MAP_SRC_LATE' shared/hydrate.js 1
+chk 'SAMPLE_DATE_2027' shared/hydrate.js 2
+chk "weddingDate: '2027-10-23', weddingTime: '13:40'" shared/hydrate.js 1
+nochk "weddingTime: '14:00'" shared/hydrate.js
+chk 'SAMPLE_DATE_2027' live.html 2
+chk 'ON_AIR_WHEN_LIVE' live.html 2
+chk '.on-air:not(.is-live){visibility:hidden}' live.html 1
+chk "classList.add('is-live')" live.html 1
+chk 'LETTER_REACH' live.html 4
+chk 'BRAND_DOT_MID' live.html 2
+chk 'CAL_FULL_OFF' schedule.html 3
+chk 'HOLD_SLOT_CLOCK' schedule.html 1
+chk '<option value="12:20">오후 1:40</option>' schedule.html 1
+nochk '<option value="12:20">오후 12:20</option>' schedule.html
+chk 'DONE_ONE_SAY' schedule.html 3
+nochk 'class="modal-warn"' schedule.html
+chk 'KAKAO_INLINE_GLUE' schedule.html 1
+chk 'STICKY_NO_TWIN' schedule.html 1
+chk 'CAN_ACCT_EMPTY' cancel.html 1
+chk '환불받으실 계좌를 따로 여쭤볼게요' cancel.html 1
+chk 'CAN_REAPPLY_LINK' cancel.html 2
+chk '<a class="inq" href="/inquiry.html">새로 신청</a>' cancel.html 1
+chk 'CAN_NO_FIT_LINE' cancel.html 1
+chk 'CAN_DOT_GLUE' cancel.html 2
+chk 'BRAND_DOT_MID' cancel.html 1
+chk 'ADV_ORDER_0707' index.html 1   # [D-13] 07-07 순서(메뉴 위 · 인사말 아래) — 바꾸려면 사장님 결정
+chk "var g=addMsg(KB.greeting,'bot');   // 인사말 버블은 하단(입력창 위)에" index.html 1
+chk "g.classList.add('me-adv-greet');" index.html 1
 :

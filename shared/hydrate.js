@@ -29,7 +29,7 @@
   var SAMPLE = {
     groomName: '이서준', brideName: '정하윤',
     groomNameEn: 'Lee Seo Jun', brideNameEn: 'Jeong Ha Yoon',
-    weddingDate: '2026-10-24', weddingTime: '14:00',
+    weddingDate: '2027-10-23', weddingTime: '13:40',   // ★[SAMPLE_DATE_2027 2026-10-09 고객 여정 점검 D-20] 2026-10-24 14:00 → 2027-10-23(토 · 요일 계산 확인) 13:40(오후 본식 · SLOT_CLOCK) — 14:00 은 없는 시각이고 옛 날짜는 곧 지난다 · live.html · guide.html 표본과 한 몸
     groomParents: '이재환 · 최미경', brideParents: '정영석 · 박윤희',
     groomAccount: '하나 222-456-789012', brideAccount: '우리 333-456-789012',
     vimeoId: '', vimeoHash: '',
@@ -186,9 +186,9 @@
   var SLOT_CLOCK = { '09:00': '10:20', '12:20': '13:40', '15:40': '17:00', '10:00': '10:20', '13:20': '13:40', '16:40': '17:00' };   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
   function slotClock(t) { t = String(t || '').trim(); return SLOT_CLOCK[t] || t; }
 
-  // 시간 '14:00' → {display:'오후 2:00', kor:'오후 두 시'}
+  // 시간 '13:40' → {display:'오후 1:40', kor:'오후 한 시 40분'}
   function transformTime(weddingTime) {
-    var s = String(weddingTime || '14:00').trim();
+    var s = String(weddingTime || '13:40').trim();   // [SAMPLE_DATE_2027] 빈 값의 기본도 실제 있는 시각(오후 본식) — 종전 14:00 은 없는 시각
     var match = s.match(/^(\d{1,2}):(\d{2})$/);
     if (!match) return { display: s, kor: s, korFull: s, time24: s };
     var hour24 = parseInt(match[1], 10), min = match[2];
@@ -420,6 +420,10 @@
         : '<div class="venue-map-pending" style="display:flex;align-items:center;justify-content:center;min-height:200px;height:100%;background:#f3f1ec;color:#6E675C;font-size:13px;letter-spacing:.02em;text-align:center;line-height:1.9">장소는 본 계약 후<br>안내드립니다</div>';   /* [DTL16] #9a8f7f 2.81:1 → #6E675C 4.95:1 — 실하객이 읽는 안내문이 기준 미달이었다(08팀 적발) */
       html = html.replace(/<iframe[^>]*\{\{VENUE_MAP_IFRAME\}\}[\s\S]*?<\/iframe>/g, _fill);
     }
+    /* ★[MAP_SRC_LATE 2026-10-09 고객 여정 점검 D-14] 가족판 8종은 지도 iframe 을 src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"로 둔다 —
+       종전 src="{{VENUE_MAP_IFRAME}}"는 이 함수가 채우기 전(첫 파싱)에 그 글자 그대로 주소를 불러 404 가 났다.
+       지도 주소가 있으면 여기서 진짜 src 자리로 옮긴다(아래 replaceAll 이 채운다) · 없으면 위에서 이미 안내 칸으로 바뀌었다 */
+    html = html.split('src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"').join('src="{{VENUE_MAP_IFRAME}}"');
     [['groomFatherAccount', 'GROOM_FATHER', gPar.father, c.groomFatherAccount],
      ['groomMotherAccount', 'GROOM_MOTHER', gPar.mother, c.groomMotherAccount],
      ['brideFatherAccount', 'BRIDE_FATHER', bPar.father, c.brideFatherAccount],

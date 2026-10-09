@@ -205,6 +205,7 @@ for (const w of [390, 1280]) {
   { const { ctx, pg, errs, nx } = await open(w, { ai: true, st: { ok: true, on: true, groom: { consent: true, ready: true, left: 2 }, bride: {}, per: {} } });
     await nx(); await pg.waitForTimeout(900);
     await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; S.up = S.up || {}; ['g0', 'g2'].forEach((q) => { S.up[q] = { src: 'ai', id: 'local:' + q, tempo: '1', pause: 350, tx: _txSig(_recNeed(q)), by: 'groom' }; }); S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'b' }; mkGo('guest'); }); await pg.waitForTimeout(500);
+    await pg.waitForTimeout(1600); await pg.waitForFunction(() => !!VC.fillChk && !(VC.fill && VC.fill.doing), null, { timeout: 20000 }).catch(() => {});   /* [FILL_EMPTY 2026-10-06] 상태를 처음 받고 1.8초 뒤 빈 AI 줄(입장 · 영상 소개)을 저절로 채운다(설계) — 그 요청이 아래 «점 누르기» · «이 목소리로 쓰기» 창에 섞여 «누를 때 만듦»으로 세던 것(2026-10-09 A~Z 점검 1라운드 · main 에서도 빨강) · 채우기가 끝난 뒤에 잰다 */
     ok(`${w} [VOICE_TUNE] 순간 쪽에 «말 빠르기 · 문장 사이 쉼» 줄이 없다`, await pg.evaluate(() => !document.querySelector('.mk-pg .mk-tp') && !document.querySelector('[data-fk="mkvtone"]')));
     await pg.evaluate(() => mkVcTune('groom')); await pg.waitForTimeout(500);
     const st0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'), g = d && d.querySelectorAll('.mk-dots'); if (!g || g.length !== 2) return null; const b = d.querySelector('[data-fk="mktune:t:3"]').getBoundingClientRect();

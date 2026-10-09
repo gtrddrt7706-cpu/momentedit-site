@@ -178,14 +178,15 @@ function doGet(e) { _SRV = true;
   }
 }
 
-// ───────────── 화면 A · 상담 신청 폼 (공개) ─────────────
+// ───────────── 화면 A · 옛 상담 신청 폼 — ★은퇴했다. 안내 한 장만 보인다 ─────────────
+/* ★★[APPLY_A_RETIRE 2026-10-09 점검 D-1] GAS 옛 신청서 화면(ScreenA_apply · /exec 를 인자 없이 열면 뜨던 화면) 재추가 금지 — 2026-10-09 점검으로 은퇴.
+   신청은 momentedit.kr/inquiry.html(doPost signup → handleSignup)이 받는다 — 개인코드 · 고객 행 · 접수 메일 · 관리자 알림이 그 길에만 있다.
+   옛 주소로 들어오면 새 신청서를 알려 주고, 옛 화면 캐시가 보낸 제출(submitApplication · doPost 의 action 없는 길)은 같은 안내로 거절한다.
+   ScreenA_apply.html 파일은 지우지 않는다(점검 · 기록용) · 화면을 되살리지 말 것(ADMIN_BACKUP_RETIRE 와 같은 모양 · 제거 지시 보존 규칙) */
+var APPLY_MOVED = '신청은 momentedit.kr 신청서에서 받아요', APPLY_URL = 'https://www.momentedit.kr/inquiry.html';
 function serveApplyA() { _gsr_();
-  var t = HtmlService.createTemplateFromFile(SYS.HTML_A);
-  t.kakao = safeAttr(CONFIG.KAKAO_URL);
-  return t.evaluate()
-    .setTitle('대면 상담 신청 · Moment Edit')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  var _mk = '[APPLY_A_RETIRE]';
+  return infoPage('신청서가 옮겨졌어요', APPLY_MOVED + '.<br><a href="' + APPLY_URL + '" target="_top" style="display:inline-block;margin-top:18px;padding:13px 28px;border-radius:6px;background:#4E3F31;color:#fff;text-decoration:none;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500">신청서 열기</a>', true);
 }
 
 // ───────────── 화면 B · 스케줄 선택 (비공개 / 토큰) ★핵심 ─────────────
@@ -224,7 +225,9 @@ function serveScheduleB(token, fromMypage) { _gsr_();
       if (!_d || !_t) return null;
       if (_st === ST.CANCELLED) return null;          // 취소 건은 «접수됨»으로 보이면 안 된다
       return { date: normalizeDateKey(_d), time: String(_t).trim(), status: _st };
-    })()
+    })(),
+    /* [RESCHED_NOW 2026-10-09 점검 D-3 · 화면 B 도 같은 사실] 상담 예약금을 이미 냈나(입금 확인 · 카드 승인) — 화면이 예약금 · 계좌 칸을 걷고 «이미 받았어요»를 말한다 */
+    depositPaid: (function () { try { return _consultDeposit(row, findCustomerByCode(String(row.get('개인코드') || '').trim())).paid; } catch (e) { return false; } })()
   };
 
   var t = HtmlService.createTemplateFromFile(SYS.HTML_B);
@@ -891,6 +894,9 @@ function doAdminCancel(sheet, colOf, row) { _gsr_();
 function submitApplication(form, personalCode) { _SRV = true;
   /* [ENTRY_ARGS_SRV 2026-10-09 라운드 4] 공개 입구는 화면이 보내는 인자만 받는다 — 개인코드(FK)는 서버(doPost → 가입) · 편집기 시험 도구(소유자)만 넘긴다 · 신청서 칸은 글자만 */
   if (!_IN_POST && !_ownerRunNow_()) personalCode = '';
+  /* [APPLY_A_RETIRE 2026-10-09] 옛 화면 A(google.script.run)의 제출은 받지 않는다 — 가입 길(doPost signup)과 편집기 시험 도구(소유자)만.
+     옛 화면은 던진 글을 그대로 보여 준다(failureHandler) · return 으로 돌려주면 «접수되었습니다»를 띄운다(OK_FALSE_GUARD) */
+  if (!_IN_POST && !_ownerRunNow_()) throw new Error(APPLY_MOVED + ' · ' + APPLY_URL);
   form = _entryForm_(form);
   var groom = String(form.groom || '').trim();
   var bride = String(form.bride || '').trim();
@@ -976,6 +982,12 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
      종전엔 같은 함수를 타서 문의 8일째부터 마이페이지 «일정 선택 · 시간 변경»이 늘 «전용 링크 유효기간이 지났습니다»로 막혔다(마이페이지는 단추를 계속 보여 줬다). 되돌리지 말 것 */
   if (!viaSession && isExpired(row.get('신청일시'))) throw new Error('전용 링크 유효기간이 지났습니다.');
   if (!dateKey || !time) throw new Error('날짜와 시간을 선택해 주세요.');
+  /* [CR_NUM_VALID 2026-10-09 점검 C-16] 현금영수증 번호는 휴대폰 · 사업자번호만 — 쓰기 전에 거절(70_journey _crReject · 붙여넣기 전이면 종전대로) */
+  var _crBad = (typeof _crReject === 'function') ? _crReject(cashReceipt) : null; if (_crBad) throw new Error(_crBad.error);
+  /* [RESCHED_NOW 2026-10-09 점검 D-3] 상담 예약금을 이미 냈으면(입금 확인 · 카드 승인) 시간만 바꾼다 — 입금자명을 받지도 덮지도 않고 «카드 결제 대기»도 걸지 않는다.
+     시간을 바꾸면 상태는 «시간선택완료»로 돌아가고 관리자 승인 뒤 확정 메일 · 카톡이 다시 간다(아래 그대로) · 입금확인은 지우지 않는다 */
+  var _dep = { paid: false, card: false }; try { _dep = _consultDeposit(row, findCustomerByCode(String(row.get('개인코드') || '').trim())); } catch (e) {}
+  if (_dep.paid) { payer = ''; _byCard = false; }
 
   // 제출된 시간이 그 날짜(요일)의 유효 슬롯인지 검증 — 잘못된 값 차단
   if (slotsForDate(dateKey).indexOf(time) === -1) {
@@ -1070,7 +1082,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
 
     var mailOk = false, mailErrMsg = '';
     if (_slotOk) try {
-      sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''), _byCard);
+      sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''), _byCard, _dep.paid);   // [RESCHED_NOW] 낸 예약금이면 «입금 확인 후» 대신 «시간만 확인»
       mailOk = true;
     } catch (mailErr) {
       mailErrMsg = (mailErr && mailErr.message) || String(mailErr);
@@ -1399,7 +1411,7 @@ function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) { _requir
 }
 
 // 메일② — 새 신청 알림 (시간선택완료, 미쿠) · [승인]/[변경제안] 버튼
-function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard) { _gsr_();
+function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard, paid) { _gsr_();
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') {
     Logger.log('  (ADMIN_EMAIL 미설정 · 미쿠 알림 건너뜀)'); return;
   }
@@ -1425,6 +1437,8 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard) { _gsr_();
     flag +
     (byCard   // [DEPOSIT_CARD] 카드로 낼 신청 — 결제가 끝나면 서버가 확정한다. 먼저 승인하면 결제 없이 확정된다
       ? '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A4564E;text-align:center;margin:18px 0 12px;">⚠️ <b style="color:#8C3F38">카드 결제 대기</b> · 결제되면 자동으로 확정돼요. 승인을 먼저 누르지 마세요.</p>'
+      : paid   // [RESCHED_NOW] 예약금을 이미 받은 분이 시간을 바꿨다 — 통장을 다시 찾을 일이 없다(관리자 큐 «예약금 받음(시간 확인 필요)»와 같은 말)
+      ? '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#5A554C;text-align:center;margin:18px 0 12px;"><b style="color:#3A2D22">예약금은 이미 받았어요</b> · 바뀐 시간만 확인하고 승인해 주세요.</p>'
       : '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A4564E;text-align:center;margin:18px 0 12px;">⚠️ <b style="color:#8C3F38">입금 확인 후</b> 승인해 주세요.</p>') +
     emailBtn(approveUrl, '✓ 승인하기') +
     emailBtnOutline(changeUrl, '시간 변경 제안') +
@@ -2399,6 +2413,23 @@ function _sessionToConsult(token) { _gsr_();
   return { ok: true, code: code, cust: s.row, consult: consult };
 }
 
+/* ★[RESCHED_NOW 2026-10-09 점검 D-3] 상담 예약금을 이미 냈나 — 예약 시트 «입금확인»(계좌 입금 확인 · 승인 때도 적힌다) 또는 카드 승인(동의기록.결제수단.예약금 = '카드').
+   ★스냅의 «예약금» 결제수단 키는 계약금 카드분이라(98 _pmDepKey) 카드 판정에서 뺀다(_depositCardOf 와 같은 규칙).
+   낸 예약금이면 시간 변경 화면이 예약금 · 계좌 · 입금자명을 걷고, 신청(submitSchedule)이 입금자명을 덮지 않는다 */
+function _consultDeposit(consult, cust) { _gsr_();
+  var _mk = '[RESCHED_NOW]', card = false;
+  try { if (cust && String(cust.get('상품타입') || '').trim() !== '웨딩스냅') card = (_parseJsonSafe(cust.get('동의기록')).결제수단 || {}).예약금 === '카드'; } catch (e) { card = false; }
+  return { paid: !!(consult && String(consult.get('입금확인') || '').trim() === '확인') || card, card: card };
+}
+function _hhmmOf_(v) {   // [RESCHED_NOW] 선택시간 칸 → 'HH:MM'(시트가 시각으로 바꿔 둔 값도 · parseDateTime 과 같은 시계)
+  if (v instanceof Date) return ('0' + v.getHours()).slice(-2) + ':' + ('0' + v.getMinutes()).slice(-2);
+  var m = String(v == null ? '' : v).match(/(\d{1,2}):(\d{2})/); return m ? ('0' + m[1]).slice(-2) + ':' + m[2] : '';
+}
+function _consultStatusOf_(r) {   // [RESCHED_NOW] 'confirmed'(승인완료 · 확정) · 'picked'(시간선택완료 · 확인 중) · ''(그 밖 · 시간 없음)
+  var st = String(r.get('상태') || '').trim();
+  if (!r.get('선택날짜') || !r.get('선택시간')) return '';
+  return (st === ST.APPROVED || st === ST.CONFIRMED) ? 'confirmed' : (st === ST.PICKED ? 'picked' : '');
+}
 // getAvailability — 세션 확인 후 슬롯 가능/마감 반환(재사용)
 function handleGetAvailability(body) { _gsr_();
   var a = _sessionToConsult(body && body.token);
@@ -2412,8 +2443,14 @@ function handleGetAvailability(body) { _gsr_();
   var data = _cachedAvailability();   // 전역 캐시(캘린더 쿼리 생략) → 일정선택 페이지 로딩 가속
   var names = a.consult ? coupleNames(a.consult) : (a.cust ? customerNames(a.cust) : '');
   var _hRec = a.cust ? _parseJsonSafe(a.cust.get('동의기록')).가예약 : null;   // [임시고정 연동] 재선택 방향 제한용
+  var _dep = _consultDeposit(a.consult, a.cust);   // [RESCHED_NOW]
   return { ok: true, avail: data.avail, full: data.full,
     currentDate: a.consult ? _padYmd(a.consult.get('선택날짜')) : '',
+    /* [RESCHED_NOW 2026-10-09 점검 D-3] 마이페이지 «시간 변경»으로 온 분 — 지금 잡힌 시간 · 상태 · 이미 낸 예약금(입금 확인 또는 카드 승인)을 화면에 알려 준다.
+       화면은 이 값으로 «지금 잡힌 시간» 한 줄을 보이고, 낸 예약금이면 예약금 · 계좌 · 입금자명 · 카드 칸을 걷는다(옛 서버는 값이 없어 종전 그대로) */
+    currentTime: a.consult ? _hhmmOf_(a.consult.get('선택시간')) : '',
+    currentStatus: a.consult ? _consultStatusOf_(a.consult) : '',
+    depositPaid: _dep.paid, depositCard: _dep.card,
     holdActive: !!(_hRec && (_hRec.status === '요청' || _hRec.status === '승인')),
     slotsWeekday: CONFIG.SLOTS_WEEKDAY, slotsWeekend: CONFIG.SLOTS_WEEKEND, duration: CONFIG.SLOT_DURATION_MIN,
     names: names, depositStr: formatWon(CONFIG.DEPOSIT),
@@ -2575,10 +2612,9 @@ function doPost(e) { _SRV = true; _IN_POST = true; /* [GSR_GATE 2026-10-09] 입�
       case 'adminLogin':  return jsonOut(adminLogin(body.id, body.pw));
       case 'adminLogout': return jsonOut(adminLogout(body.token));
       case 'adminCall':   return jsonOut(adminCall(body.token, body.fn, body.args));
-      // ── 기존 상담 신청 (action 없음) ──
+      // ── 옛 상담 신청 (action 없음) — [APPLY_A_RETIRE 2026-10-09] 받지 않는다 · 신청은 inquiry.html(signup) ──
       case '':
-        submitApplication(body);
-        return jsonOut({ ok: true });
+        return jsonOut({ ok: false, ecode: 'B0', moved: APPLY_URL, error: APPLY_MOVED + ' · ' + APPLY_URL });
       default:   // [ERR_CODE_GAS] 화면에 새 동작이 있는데 GAS 를 새로 배포하지 않았을 때 — 설정 · 배포(3) · 관리자 메일
         return jsonOut({ ok: false, ecode: (typeof _errArea === 'function' ? _errArea(action) : 'X') + '3', _why: '알 수 없는 동작 ' + action.slice(0, 40) + ' · GAS 새 배포 확인', error: '지금은 처리할 수 없어요 · 잠시 뒤 다시 눌러 주세요' });   // [UNKNOWN_ACT_DOT 2026-10-08] 한 줄 말투(가운데 마침표가 카드에서 두 줄을 만들었다)
     }

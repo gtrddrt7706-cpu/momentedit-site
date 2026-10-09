@@ -360,6 +360,16 @@ body{
    그래서 줄이는 대신 스크롤을 이 블록 안에 가둔다 — 페이지는 안 밀리고, 필요한 사람만 지도를 민다.
    ★확대해서 보는 사람이 바로 이 배치도를 가장 필요로 하는 사람이다. */
 .mtb-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* ★[GUIDE_SEAT_FIT 2026-10-09 고객 여정 점검 D-2] 폰 폭에서 바깥 이름표가 잘리고(390 7px · 360 6~15px) 짝수 행 이름표가 통로 위에 앉았다(1280 포함).
+   ★모양(좌우 반전 지그재그 · zigX)은 그대로 — 배치도를 카드 안쪽 가장자리까지 넓히고(카드 여백 18px), 엇갈리는 폭만 화면 폭에 맞춘다.
+   ★맞춤 기준(내 자리 이름표 3자 · 반폭 25 · 안쪽 4px): 반 칸 폭(C/2) ≥ 엇갈림 + 반지름 41 + 25 + 4.
+     412 이하에서 C/2 = (화면폭 − 48)/4 = 25vw − 12px → 엇갈림 = 25vw − 82px(0~22). 그 위는 배치도 380px 상한이라 22 그대로.
+   ★7명부터는 원 위 이름표가 서로 겹친다(41 반지름 둘레) → 전체 공개 좌석표에서는 seat.html SEAT_CROWD 처럼 점 + 표 아래 목록. */
+.mtb-wrap{margin-left:-18px;margin-right:-18px}
+.mtb-wrap .mtb-wrap{margin-left:0;margin-right:0}   /* 전체 공개 좌석표는 #seatMap(.mtb-wrap) 안에 배치도(.mtb-wrap)가 또 들어간다 — 넓히는 것은 바깥 한 번만 */
+.gr-room{max-width:380px;--gz:clamp(0px, calc(25vw - 82px), 22px)}
+.gr-list{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:104px;margin:-6px auto 0}
+.gr-nm.gr-li{position:static;transform:none;max-width:none}
 
 /* [GUIDE_RETRY] 실패 화면의 '다시 불러오기'. 만료·못찾음 화면엔 안 붙는다(재시도해도 안 달라진다). */
 .retry-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
@@ -874,21 +884,27 @@ function seatRoomHtml(hit){
   var room=(hit&&hit.room)||[]; if(!room.length) return '';
   var one=((hit.mi||[]).length===1);   // 일치 자리가 1개일 때만 이름 칩 — 동일 테이블 부분 일치가 여럿이면 이름 없이 강조만(타인 자리 오표기 방지)
   function tbl(t, isHit){
-    var chips='';
+    var chips='', list='';
+    var crowd=!!(hit.all && (t.occ||[]).length>=7);   // [GUIDE_SEAT_FIT] 7명부터 이름은 표 아래 목록(seat.html SEAT_CROWD 와 같은 임계)
     for(var i=0;i<(t.occ||[]).length;i++){
       var p=_mtPos(t.occ.length,i);
       var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
       if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+= one ? ('<div class="gr-me" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>') : ('<div class="gr-dot me" style="'+pos+'"></div>'); }
-      else if(hit.all && t.nms && t.nms[i]){ chips+='<div class="gr-nm" style="'+pos+'">'+esc(t.nms[i])+'</div>'; }   // 전체 공개 좌석표 — 성함 그대로
+      else if(hit.all && t.nms && t.nms[i]){
+        if(crowd){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; list+='<span class="gr-nm gr-li">'+esc(t.nms[i])+'</span>'; }   // [GUIDE_SEAT_FIT] 원엔 자리 점 · 이름은 아래
+        else chips+='<div class="gr-nm" style="'+pos+'">'+esc(t.nms[i])+'</div>';   // 전체 공개 좌석표 — 성함 그대로
+      }
       else if(t.occ[i]){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; }
     }
-    return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+(t.label?('<br><span style="font-weight:400;font-size:9.5px">'+esc(t.label)+'</span>'):'')+'</span>'+chips+'</div>';
+    return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+(t.label?('<br><span style="font-weight:400;font-size:9.5px">'+esc(t.label)+'</span>'):'')+'</span>'+chips+'</div>'
+      +(list?'<div class="gr-list">'+list+'</div>':'');
   }
   var L='', R='', li=0, ri=0;   // 지그재그 — seat.html 전체 배치도·좌석 편집기와 같은 홀 모양(행마다 좌우 엇갈림)
-  function zigX(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s)*22; }
+  function zigX(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s); }   // [GUIDE_SEAT_FIT] 방향(±1)만 · 폭은 CSS var(--gz)(0~22px) — 좌우 반전 모양은 그대로
+  function zigCss(row,side){ return 'transform:translateX(calc('+zigX(row,side)+' * var(--gz,22px)))'; }
   for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k];
-    if(String(t.side||'L')==='R'){ R+='<div style="transform:translateX('+zigX(ri++,'R')+'px)">'+tbl(t,h)+'</div>'; }
-    else { L+='<div style="transform:translateX('+zigX(li++,'L')+'px)">'+tbl(t,h)+'</div>'; }
+    if(String(t.side||'L')==='R'){ R+='<div style="'+zigCss(ri++,'R')+'">'+tbl(t,h)+'</div>'; }
+    else { L+='<div style="'+zigCss(li++,'L')+'">'+tbl(t,h)+'</div>'; }
   }
   // [GUIDE_MAP_SR] 이 배치도는 눈으로 보는 그림인데, 화면낭독기엔 숫자·이름 조각 10개가
   //   '3 김민수 5 2 4 친구석'처럼 맥락 없이 흘러나오고 있었다(실측).
@@ -1067,9 +1083,9 @@ function bindDemoTip(){
 function renderDemo(){
   DEMO=true;
   render({
-    groom:'이서준', bride:'정하윤', date:'2027-12-17',
+    groom:'이서준', bride:'정하윤', date:'2027-10-23',   // [SAMPLE_DATE_2027 2026-10-09 D-20] 청첩장 표본(hydrate SAMPLE)과 같은 날 — 종전 2027-12-17(금)은 같은 예식인데 날이 달랐다
     seatToken:'demo', seatFull:false,
-    dining:{ on:true, pick:'라 트라토리아', rtime:'12:30', rname:'이서준',
+    dining:{ on:true, pick:'라 트라토리아', rtime:'15:00', rname:'이서준',   // [SAMPLE_DATE_2027] 오후 본식(13:40 · 하객 14:40 까지) 뒤 식사 — 종전 12:30 은 예식 전이었다
              restos:[{n:'카페 모먼트', m:'디저트 · 도보 3분'}],
              spots:[{n:'일산호수공원 산책로', m:'도보 8분'}] },
     /* ★[GUEST_PHOTO_IN 2026-08-18] 표본은 **비워 둔다** — 비면 우리 업로드 화면이 뜬다(그게 지금의 기본값).
@@ -1093,7 +1109,7 @@ function renderDemo(){
     q.value='이정우';
     findSeat('이정우');
     var tip=document.createElement('div');
-    tip.style.cssText='font-size:11.5px;color:var(--sub);text-align:center;margin-top:10px;line-height:1.6';
+    tip.style.cssText='font-size:11.5px;color:var(--sub);text-align:center;margin-top:10px;line-height:1.6;word-break:keep-all';   // [DEMO_TIP_KEEP 2026-10-09 D-21] 320px 에서 «김서 / 준»으로 이름 가운데가 갈렸다
     tip.innerHTML='다른 성함도 넣어 보세요 · <b>한서영</b> · <b>정민호</b> · <b>김서준</b>';
     var find=q.closest('.find'); if(find && find.parentNode) find.parentNode.insertBefore(tip, find.nextSibling);
   }

@@ -137,10 +137,10 @@ const SC = [
   { no: 60, lat: { ritualFile: 9000 }, async run({ pg, f }) {
     await f.evaluate(() => { _autoLast = ''; }); await blob(f, 'g0', '녹음'); await adv(pg, 1000);
     await f.evaluate(() => window._obExit()); await adv(pg, 600);
-    const a = await f.evaluate(() => ({ ask: ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''), posts: window.__posts.map((x) => x.type).filter((t) => /order(Exit|Close)/.test(t || '')) }));
+    const a = await f.evaluate(() => ({ ask: ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''), posts: window.__posts.map((x) => x.type).filter((t) => /order(Exit|Close)(?!Hold)/.test(t || '')) }));   /* [EXIT_HOLD 2026-10-09] orderExitHold 는 «판이 떠 있으니 기다려 달라»는 말이지 나가기가 아니다 */
     await shot(pg, '60-묻기');
     await f.evaluate(() => document.querySelector('.ord-ask .oa-yes').click()); await adv(pg, 50000);   // 보낸 뒤 [TEMPO_BAKE] 마무리(최대 40초)가 끼면 그만큼 늦게 나간다
-    const b = await f.evaluate(() => { const ex = window.__posts.find((x) => /order(Exit|Close)/.test(x.type || '')); const t = ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''); return { id: ((S.up || {}).g0 || {}).id || '', exited: !!ex || t === '저장하지 않은 변경이 있어요' }; }).catch(() => ({ gone: true }));   // 다 보낸 뒤 평소 나가기 길([EXIT_ASK] 저장 묻기)로 이어져도 «나간다»
+    const b = await f.evaluate(() => { const ex = window.__posts.find((x) => /order(Exit|Close)(?!Hold)/.test(x.type || '')); const t = ((document.querySelector('.ord-ask .oa-t') || {}).textContent || ''); return { id: ((S.up || {}).g0 || {}).id || '', exited: !!ex || t === '저장하지 않은 변경이 있어요' }; }).catch(() => ({ gone: true }));   // 다 보낸 뒤 평소 나가기 길([EXIT_ASK] 저장 묻기)로 이어져도 «나간다»
     const done = await pg.evaluate(() => (__SV.log.find((x) => x.op === 'ritualFile') || {}).done || 0);
     ok('#60 보내는 중 나가기 → «아직 보내는 중이에요»를 먼저 묻고 · «끝나면 나가기»면 저장된 뒤 나간다 [UP_EXIT_WAIT]', a.ask === '아직 보내는 중이에요' && !a.posts.length && done > 0 && (b.gone || (b.exited && /^Fg0x/.test(b.id))), JSON.stringify({ a, b, done }));
   } },
@@ -220,7 +220,9 @@ const SC = [
 /* #57 GAS 쪽 — 80_production.gs 의 handleRitualFileDel 을 node vm 에 올려 드라이브만 흉내 낸다 */
 function gasDel() {
   const src = fs.readFileSync(path.join(ROOT, 'automation/platform/80_production.gs'), 'utf8');
-  const mk = (id, name, trashed) => ({ id, name, trashed: !!trashed, getId() { return this.id; }, getName() { return this.name; }, isTrashed() { return this.trashed; }, setTrashed(v) { this.trashed = v; } });
+  /* [RF_DEL_ALL_T0 2026-10-09] 만든 때(t)도 흉내 낸다 — all 쓸기와 자리 쓸기(RF_DEL_SLOT)가 둘 다 «지운 파일보다 뒤에 만든 것은 둔다»를 본다.
+     종전 흉내에는 만든 때가 없어 자리 쓸기가 조용히 멈췄고, 그래서 «all 없음 = 그 파일만»이 통과했다(실제 GAS 는 더 옛 사본도 쓴다) */
+  const mk = (id, name, t) => ({ id, name, t, trashed: false, getId() { return this.id; }, getName() { return this.name; }, isTrashed() { return this.trashed; }, setTrashed(v) { this.trashed = v; }, getDateCreated() { return new Date(this.t); } });
   const run = (body, files) => {
     const ctx = vm.createContext({ console, Utilities: {}, PropertiesService: {}, DriveApp: {}, CacheService: {}, _gsr_: () => {} });   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     vm.runInContext(src, ctx);
@@ -230,11 +232,14 @@ function gasDel() {
     return ctx.handleRitualFileDel(body);
   };
   const L = (k) => ({ g0: '하객 입장 때', g1: '시작 10분 전' })[k];
-  const F = () => [mk('A', L('g0') + ' · 하객 입장 때 · 녹음.wav'), mk('B', L('g0') + ' · 하객 입장 때 · 녹음.wav'), mk('S', L('g0') + ' · 스튜디오 · 대신.wav'), mk('G1', L('g1') + ' · 시작 10분 전 · 녹음.wav')];
-  let fs1 = F(), r1 = run({ token: 't', key: 'g0', id: 'B', all: 1 }, fs1);
+  /* 만든 때: B(지우는 파일) = 2000 · A 는 aT — B 보다 먼저면 다시 보내기 사본, 뒤면 그 사이 새로 올린 소리 · S(스튜디오) · G1(다른 자리) */
+  const F = (aT) => [mk('A', L('g0') + ' · 하객 입장 때 · 녹음.wav', aT), mk('B', L('g0') + ' · 하객 입장 때 · 녹음.wav', 2000), mk('S', L('g0') + ' · 스튜디오 · 대신.wav', 1500), mk('G1', L('g1') + ' · 시작 10분 전 · 녹음.wav', 1200)];
+  let fs1 = F(1000), r1 = run({ token: 't', key: 'g0', id: 'B', all: 1 }, fs1);
   ok('#57 GAS — all 이면 그 자리 두 분 파일 모두 휴지통 · 스튜디오 파일 · 다른 자리는 둔다 [RF_DEL_ALL]', r1.ok && fs1.map((x) => x.id + (x.trashed ? '-' : '+')).join(' ') === 'A- B- S+ G1+', JSON.stringify({ r1, f: fs1.map((x) => x.id + (x.trashed ? '-' : '+')) }));
-  let fs2 = F(), r2 = run({ token: 't', key: 'g0', id: 'B' }, fs2);
-  ok('#57 GAS — all 이 없으면 그 파일만(다시 묻기 · 옛 화면) [RF_DEL_ALL]', r2.ok && fs2.map((x) => x.id + (x.trashed ? '-' : '+')).join(' ') === 'A+ B- S+ G1+', JSON.stringify(fs2.map((x) => x.id + (x.trashed ? '-' : '+'))));
+  let fs3 = F(3000), r3 = run({ token: 't', key: 'g0', id: 'B', all: 1 }, fs3);
+  ok('#57 GAS — all 이어도 지운 파일보다 뒤에 만든 것(그 사이 새로 올린 소리)은 둔다 [RF_DEL_ALL_T0]', r3.ok && fs3.map((x) => x.id + (x.trashed ? '-' : '+')).join(' ') === 'A+ B- S+ G1+', JSON.stringify({ r3, f: fs3.map((x) => x.id + (x.trashed ? '-' : '+')) }));
+  let fs2 = F(3000), r2 = run({ token: 't', key: 'g0', id: 'B' }, fs2);
+  ok('#57 GAS — all 이 없으면 그 파일만(다시 묻기 · 옛 화면) · 그 사이 새로 올린 것은 둔다 [RF_DEL_ALL]', r2.ok && fs2.map((x) => x.id + (x.trashed ? '-' : '+')).join(' ') === 'A+ B- S+ G1+', JSON.stringify(fs2.map((x) => x.id + (x.trashed ? '-' : '+'))));
 }
 
 if (!ONLY.length || ONLY.includes('57')) { try { gasDel(); } catch (e) { ok('#57 GAS — 재다가 멈췄다', false, String(e && e.message || e).split('\n')[0]); } }

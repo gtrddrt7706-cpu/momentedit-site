@@ -16,15 +16,19 @@ if (!base) { console.log('못 쟀다 — origin/main 을 읽을 수 없다(EX_OL
 function pick(src, name) { const i = src.indexOf(name); if (i < 0) return null; const j = src.indexOf('\n];', i); return src.slice(i, j); }
 function guest(src) { const blk = pick(src, 'var GUEST_EX=['); if (!blk) return null; const out = {}; const re = /\['([^']+)',\[((?:\s*"(?:[^"\\]|\\.)*",?)+)\s*\]\]/g; let m, n = 0;
   while ((m = re.exec(blk))) { n++; const texts = [...m[2].matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((x) => x[1]); out[n] = { name: m[1], texts }; } return out; }
+function entry(src) { const i = src.indexOf('var ENTRY={'); if (i < 0) return null; const blk = src.slice(i, src.indexOf('\n};', i)); const out = {};   /* [EX_STALE_DEPLOY 2026-10-09] 입장 인사 self 글(A~F) — 바뀌면 옛 글이 ENTRY_OLD 같은 글자에 있어야 한다 */
+  for (const m of blk.matchAll(/\b([A-F]):\{d:"[^"]*",nar:"(?:[^"\\]|\\.)*",\s*self:"((?:[^"\\]|\\.)*)"\}/g)) out[m[1]] = m[2]; return Object.keys(out).length ? out : null; }
 function pv(src) { const blk = pick(src, 'var PV_MAX=200, PV_EX=['); if (!blk) return null; return [...blk.matchAll(/\['([^']+)','((?:[^'\\]|\\.)*)'\]/g)].map((m) => ({ name: m[1], text: m[2] })); }
 function oldMap(src, name) { const i = src.indexOf(name); if (i < 0) return null; let k = i + name.length, d = 0, q = false; const st = k;   /* 중괄호 짝으로 끝을 찾는다(문자열 안 괄호는 건너뛴다) — '};' 를 찾으면 뒷 함수까지 딸려 왔다(실측) */
   for (; k < src.length; k++) { const ch = src[k]; if (q) { if (ch === '\\') { k++; continue; } if (ch === '"') q = false; continue; } if (ch === '"') { q = true; continue; } if (ch === '{') d++; else if (ch === '}') { d--; if (d === 0) break; } }
   try { return JSON.parse(src.slice(st, k + 1)); } catch { return null; } }
 const norm = (t) => String(t || '').replace(/\s+/g, '');
 const gB = guest(base), gC = guest(cur), pB = pv(base), pC = pv(cur), gOld = oldMap(cur, 'var EX_OLD_1006='), pOld = oldMap(cur, 'var PV_OLD=');
+const eB = entry(base), eC = entry(cur), eOld = oldMap(cur, 'var ENTRY_OLD=');
 let fail = 0; const bad = (m) => { console.log('FAIL ' + m); fail++; };
 if (!gB || !gC || !pB || !pC) bad('예시 글 블록을 못 읽었다 — GUEST_EX / PV_EX 모양이 바뀌었으면 이 검사도 같이 고친다');
 if (!gOld) bad('EX_OLD_1006 을 못 읽었다'); if (!pOld) bad('PV_OLD 를 못 읽었다');
+if (!eB || !eC) bad('입장 인사 ENTRY 블록을 못 읽었다 — 모양이 바뀌었으면 이 검사도 같이 고친다'); if (!eOld) bad('ENTRY_OLD 를 못 읽었다');
 if (!fail) {
   for (const n of Object.keys(gB)) { const b = gB[n], c = gC[n]; if (!c) { bad(`하객 맞이 예시 ${n}(${b.name})이 사라졌다 — 옛 글 넷을 EX_OLD_1006["${n}"] 에 남기고 이 검사를 손봐야 한다`); continue; }
     b.texts.forEach((t, i) => { if (norm(t) === norm(c.texts[i])) return; const olds = [].concat(((gOld[n] || {})[String(i)]) || []);
@@ -32,6 +36,9 @@ if (!fail) {
   pB.forEach((b, i) => { const c = pC[i]; if (!c) { bad(`식전 영상 소개 예시 ${i}(${b.name})가 사라졌다 — 옛 글을 PV_OLD["${i}"] 에 남긴다`); return; }
     if (norm(b.text) === norm(c.text)) return; const olds = [].concat(pOld[String(i)] || []);
     if (!olds.some((o) => norm(o) === norm(b.text))) bad(`식전 영상 소개 예시 ${i}(${c.name}) 글이 바뀌었는데 옛 글이 PV_OLD["${i}"] 에 없다 → «${b.text.slice(0, 24)}…»`); });
-  console.log(`비교 — 하객 맞이 예시 ${Object.keys(gB).length}×줄 · 식전 영상 소개 ${pB.length} · 옛 글 목록 EX_OLD_1006 ${Object.keys(gOld).length} · PV_OLD ${Object.keys(pOld).length}`);
+  Object.keys(eB).forEach((v) => { const c = eC[v]; if (c == null) { bad(`입장 인사 ${v}(${v})가 사라졌다 — 옛 글을 ENTRY_OLD["${v}"] 에 남긴다`); return; }
+    if (norm(eB[v]) === norm(c)) return; const olds = [].concat(eOld[v] || []);
+    if (!olds.some((o) => norm(o) === norm(eB[v]))) bad(`입장 인사 ${v} self 글이 바뀌었는데 옛 글이 ENTRY_OLD["${v}"] 에 없다 → «${eB[v].slice(0, 24)}…»`); });
+  console.log(`비교 — 하객 맞이 예시 ${Object.keys(gB).length}×줄 · 식전 영상 소개 ${pB.length} · 입장 인사 ${Object.keys(eB).length} · 옛 글 목록 EX_OLD_1006 ${Object.keys(gOld).length} · PV_OLD ${Object.keys(pOld).length} · ENTRY_OLD ${Object.keys(eOld).length}`);
 }
 console.log(fail ? `\nEX OLD COVER FAIL ${fail}` : '\nEX OLD COVER OK — 바뀐 예시 글은 전부 옛 글 목록에 있다'); process.exit(fail ? 1 : 0);

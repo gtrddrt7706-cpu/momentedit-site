@@ -49,7 +49,7 @@ try {
   }
   /* ⑤ 그림이 말하는 것 = 실제로 다시 만드는 줄을 거르는 식(_vcAutoFill) — «확정 안 한 · AI 로 만든 · 그분 줄»만 */
   const src = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
-  ok('⑤ 그림의 근거 — renew 는 AI · 확정 안 한 줄만 다시 만든다', /renew&&v\.src==='ai'&&!\(S\.vkeep\|\|\{\}\)\[k\]/.test(src) && /mine=_vcLineWho\(k\)===w/.test(src));
+  ok('⑤ 그림의 근거 — renew 는 AI · 확정 안 한 줄만 다시 만든다', /renew&&v\.src==='ai'&&!\(S\.vkeep\|\|\{\}\)\[k\]/.test(src) && /mine=lw==='both'\|\|ws\.indexOf\(lw\)>-1/.test(src) && /lw=_vcLineWho\(k\)/.test(src));   /* [FILL_EMPTY · WHO_MISS 2026-10-08] 두 분을 한 번에 채우고(ws) 함께 읽는 줄(both)도 그분 줄 — 옛 식 «mine=_vcLineWho(k)===w» 를 찾던 것(main 에서도 빨강) */
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
 finally { await br.close(); srv.close(); }
 console.log(fail ? `\nREDO FIG FAIL ${fail}` : '\nREDO FIG OK'); process.exit(fail ? 1 : 0);

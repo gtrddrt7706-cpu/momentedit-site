@@ -3,6 +3,7 @@
 //   T1 status 가 두 번 실패한 뒤 세 번째에 오면 — 그동안 «불러오고 있어요»(사람 카드 없음) → 받은 뒤 두 카드 «목소리 생성»
 //   T2 status 가 계속 실패하면 — «불러오지 못했어요 · 지금 다시 불러오기»(«아직 만들지 않았어요» · «목소리 만들기» 0) · 그리기를 반복해도 또 묻지 않는다 · «다시 불러오기»를 누르면 한 번 더
 //   T3 한 번 받은 뒤 다시 실패하면 — 마지막으로 받은 상태를 그대로(카드 «목소리 생성» 유지)
+//   T4 [VC_ST_NOW 2026-10-09 A~Z 점검 1라운드 B-7] status 가 답을 붙잡으면 20초에 «지금 다시 불러오기»(자리는 처음부터 · 높이 그대로) · 누르면 새로 묻고 늦게 온 옛 답은 버린다
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -52,6 +53,19 @@ try {
     await pg.evaluate(() => { window.__fail = 99; VC.stErr = false; VC.st = null; _vcStatus(null, true); }); await wait(700); const b = await look(pg);
     ok('T3 한 번 받은 뒤 다시 못 받으면 마지막 상태 그대로(카드 «목소리 생성» 유지 · «아직 만들지 않았어요» 0)', a.gen === 2 && b.cards === 2 && b.gen === 2 && b.notMade === 0, JSON.stringify({ a, b }));
     ok('T3 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
+  /* T4 [VC_ST_NOW] 답을 붙잡는 status — 20초(여기선 0.3초로 줄여 잰다) 전엔 자리만 · 뒤엔 단추 · 누르면 새로 묻고 늦은 옛 답은 버린다 */
+  { const { pg, errs } = await open(0); await wait(200);
+    await pg.evaluate(() => { VC_ST_NOW = 300; VC.st = null; VC.stLast = null; VC.stErr = false; window.__pend = [];
+      const ok0 = window._vc0; window._vc0 = (op, a) => op === 'status' ? new Promise((r) => { window.__st++; window.__pend.push(r); }) : ok0(op, a);
+      _vcStatus(null, true); render(); });
+    const box = () => pg.evaluate(() => { const b = document.querySelector('[data-fk="mkvcstnow"]'), w = document.querySelector('.mk-vpage .mk-wait'), s = w && w.parentElement; return { btn: !!b, vis: b ? getComputedStyle(b.closest('p')).visibility : '', h: s ? Math.round(s.getBoundingClientRect().height) : 0, pend: window.__pend.length }; });
+    await wait(100); const a = await box(); await wait(500); const b = await box();
+    ok('T4 답을 붙잡는 동안 — 처음엔 «지금 다시 불러오기» 자리만(안 보임) · 시간이 지나면 보인다 · 상자 높이 그대로 [VC_ST_NOW]', a.btn && a.vis === 'hidden' && b.btn && b.vis === 'visible' && a.h > 0 && a.h === b.h && b.pend === 1, JSON.stringify({ a, b }));
+    await pg.click('[data-fk="mkvcstnow"]'); await wait(100); const n2 = await pg.evaluate(() => window.__pend.length);
+    await pg.evaluate(() => { window.__pend[1]({ ok: true, groom: { consent: true, ready: true, left: 2, made: '2026-10-04 10:00' }, bride: { consent: true, ready: true, left: 2, made: '2026-10-04 10:00' } }); }); await wait(200); const c = await look(pg);
+    await pg.evaluate(() => { window.__pend[0]({ ok: false, down: true, error: 'x' }); }); await wait(300); const d = await look(pg);
+    ok('T4 누르면 새로 묻고(물음 2) 그 답으로 두 카드 «목소리 생성» · 늦게 온 옛 답(실패)은 버린다(카드 그대로 · 못 받음 상자 없음) [VC_ST_NOW]', n2 === 2 && c.cards === 2 && c.gen === 2 && d.cards === 2 && d.gen === 2 && !d.errBox && !d.stErr, JSON.stringify({ n2, c, d }));
+    ok('T4 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
 finally { await br.close(); srv.close(); }
 console.log(fail ? `\nVC STATUS RETRY FAIL ${fail}` : '\nVC STATUS RETRY OK'); process.exit(fail ? 1 : 0);

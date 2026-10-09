@@ -124,10 +124,10 @@ for (const w of [390, 1280]) {
   const d = await pg.evaluate(() => { const hd = document.querySelector('.done-hd .s'), f = document.querySelector('.done-flow'), svg = f && f.querySelector('svg.flow-svg');
     /* [RIT_WRAP 2026-09-27 4부 22] 화면 글은 «약 · 일 전» 사이가 NBSP 로 묶인다 — 글자로 잴 때는 보통 공백으로 되돌려 잰다 */
     return { s: hd ? hd.textContent.replace(/\u00a0/g, ' ') : '', svg: !!svg, w: svg ? +svg.getAttribute('width') : 0, h: svg ? +svg.getAttribute('height') : 0, star: svg ? [...svg.querySelectorAll('text')].some((t) => /6B2A24/i.test(t.getAttribute('fill') || '') && t.textContent.trim()) && ![...svg.querySelectorAll('text')].some((t) => /★/.test(t.textContent)) : false,   /* [PEAK_COLOR 2026-10-07] ★ 없이 진사 이름 */
-      names: svg ? svg.querySelectorAll('text').length : 0, fw: f ? Math.round(f.getBoundingClientRect().width) : 0,
+      names: svg ? svg.querySelectorAll('text').length : 0, extra: svg ? [...svg.querySelectorAll('text')].filter((t) => !/6B2A24/i.test(t.getAttribute('fill') || '')).map((t) => t.textContent.trim()) : [],   /* [FLOW_MOOD 2026-10-08 사장님] 곡선 위 작은 이름은 본식의 시작 · 끝(입장 · 닫는 인사) · 여운(테이블 인사)만 */ fw: f ? Math.round(f.getBoundingClientRect().width) : 0,
       edit: [...document.querySelectorAll('.done-edit')].map((e) => e.textContent.replace(/\u00a0/g, ' ')), ow: document.documentElement.scrollWidth - innerWidth }; });
   ok(`${w} I1 ④ 머리 «담은 순간 N · 본식 약 … · 단체 사진 약 …» [I1_HEAD]`, /^담은 순간 \d+ · 본식 약 \d+~\d+분 · 단체 사진 약 \d+~\d+분$/.test(d.s), d.s);
-  ok(`${w} I2 ④ 감동 흐름 그림 — 진사 이름(★ 없음) · 폭 맞춤${w >= 1000 ? ' · 순간 이름 줄 없음 · 높이 120' : ' · 높이 112'} [I2_DONE_FLOW] · [FLOW_NONAMES 2026-10-07 사장님 «그래프 밑 글씨 빽빽 · 아예 빼기»]`, d.svg && d.star && Math.abs(d.w - d.fw) <= 2 && (w >= 1000 ? (d.h === 120 && d.names <= 1) : d.h === 112), JSON.stringify(d));
+  ok(`${w} I2 ④ 감동 흐름 그림 — 진사 이름(★ 없음) · 폭 맞춤${w >= 1000 ? ' · 순간 이름 줄 없음(곡선 위 이름은 입장 · 닫는 인사 · 테이블 인사만 · FLOW_MOOD) · 높이 120' : ' · 높이 112'} [I2_DONE_FLOW] · [FLOW_NONAMES 2026-10-07 사장님 «그래프 밑 글씨 빽빽 · 아예 빼기»]`, d.svg && d.star && Math.abs(d.w - d.fw) <= 2 && (w >= 1000 ? (d.h === 120 && d.names <= 4 && d.extra.every((n) => ['입장', '닫는 인사', '테이블 인사'].indexOf(n) > -1)) : d.h === 112), JSON.stringify(d));
   ok(`${w} I3 ④ «순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.» 한 번 [I3_EDIT_WINDOW]`, d.edit.length === 1 && d.edit[0] === '순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.', JSON.stringify(d.edit));
   ok(`${w} ④ 가로 넘침 0`, d.ow <= 0, d.ow);
   ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
