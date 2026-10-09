@@ -16983,9 +16983,35 @@ chk 'EMAIL_RE.test(' inquiry.html 1
 chk 'INQ_NO_ORPHAN' inquiry.html 1
 chk 'PW_HINT_LEFT' inquiry.html 1
 chk 'COPY_BTN_STEADY' inquiry.html 1
-for f in inquiry.html privacy.html parents.html; do chk 'NAV_SOLID_MOBILE' $f 1; chk 'BRAND_DOT_MID' $f 1; done
-for f in i/cover-06.html i-family/family-06.html i/invitations/invitation-06-hangeul.html; do chk 'INK_FADE_AA' $f 2; nochk '--ink-fade:#8F8277' $f; done
-for i in 1 2 3 4 5 6 7 8; do chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-0$i.html 1; nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-0$i.html; done
+# [GATE_RAN] 반복(for) 없이 낱줄로 — chk 수를 파일의 chk 줄 수와 대조한다(반복은 그 셈을 어긋나게 한다 · 2026-10-09 CI 빨강)
+chk 'NAV_SOLID_MOBILE' inquiry.html 1
+chk 'BRAND_DOT_MID' inquiry.html 1
+chk 'NAV_SOLID_MOBILE' privacy.html 1
+chk 'BRAND_DOT_MID' privacy.html 1
+chk 'NAV_SOLID_MOBILE' parents.html 1
+chk 'BRAND_DOT_MID' parents.html 1
+chk 'INK_FADE_AA' i/cover-06.html 2
+nochk '--ink-fade:#8F8277' i/cover-06.html
+chk 'INK_FADE_AA' i-family/family-06.html 2
+nochk '--ink-fade:#8F8277' i-family/family-06.html
+chk 'INK_FADE_AA' i/invitations/invitation-06-hangeul.html 2
+nochk '--ink-fade:#8F8277' i/invitations/invitation-06-hangeul.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-01.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-01.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-02.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-02.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-03.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-03.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-04.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-04.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-05.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-05.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-06.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-06.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-07.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-07.html
+chk 'src="about:blank" data-src="{{VENUE_MAP_IFRAME}}"' i-family/family-08.html 1
+nochk '<iframe src="{{VENUE_MAP_IFRAME}}"' i-family/family-08.html
 chk 'MAP_SRC_LATE' shared/hydrate.js 1
 chk 'SAMPLE_DATE_2027' shared/hydrate.js 2
 chk "weddingDate: '2027-10-23', weddingTime: '13:40'" shared/hydrate.js 1
