@@ -2332,7 +2332,8 @@ function openContractView(){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  _layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}   // [C2_LAYER_INERT] 계약서 뷰어도 겹창과 같은 약속 — 뒤 페이지 inert · 초점은 창 안(«닫기»)
+  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점(겹쳐 열린 잠금이면 _mpUnlock 은 초점을 안 돌린다)
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -4348,7 +4349,7 @@ function openInviteSamples(){
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
   var _closed=false;
-  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); ov.style.opacity='0'; _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
+  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); ov.style.opacity='0'; _layerInertOff(ov); _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점(편집 화면 안에서 열었으면 _mpUnlock 은 초점을 안 돌린다)
   function esc(e){ if(e.key==='Escape') done(); }
   x.addEventListener('click', done);
   ov.addEventListener('click', function(e){ if(e.target===ov) done(); });
@@ -4356,6 +4357,7 @@ function openInviteSamples(){
   var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 닫기
   _mpLock();
   document.body.appendChild(ov);
+  _layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}   // [C2_LAYER_INERT] 청첩장 샘플도 겹창과 같은 약속 — 뒤 페이지 inert · 초점은 창 안(✕)
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
 }
 // [MPD4_H5] 자기서비스 1단계(§9-5-④⑤) — 내 내역 하단 로그아웃(최하단 1곳뿐이던 것 복제)
@@ -7716,7 +7718,7 @@ function mpImgView(src,title){
     m=document.createElement('div'); m.className='pv-modal'; m.id='pvModal';
     m.innerHTML='<div class="pv-modal-card" role="dialog" aria-modal="true"><div class="pv-modal-head"><span class="pv-modal-cap" id="pvCap"></span><button type="button" class="pv-modal-x" id="pvX">닫기 ✕</button></div><div class="pv-modal-body" id="pvBody"></div></div>';
     document.body.appendChild(m);
-    function close(){ if(!m.classList.contains('open')) return; m.classList.remove('open'); document.body.style.overflow=''; bkDone(m._bkId); m._bkId=null; }
+    function close(){ if(!m.classList.contains('open')) return; m.classList.remove('open'); _layerInertOff(m); document.body.style.overflow=''; bkDone(m._bkId); m._bkId=null; }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점
     m._close=close;   // 재사용 싱글톤 — 열 때마다 뒤로가기 층을 새로 등록하기 위한 참조
     m.addEventListener('click', function(ev){ if(ev.target===m) close(); });
     $('pvX').addEventListener('click', close);
@@ -7729,7 +7731,7 @@ function mpImgView(src,title){
   im.src=src;
   var fr=document.createElement('div'); fr.className='pv-modal-frame'; fr.appendChild(im);
   var bd=$('pvBody'); bd.innerHTML=''; bd.appendChild(fr); bd.scrollTop=0;
-  if(!m.classList.contains('open')){ m.classList.add('open'); m._bkId=bkOpen(m._close); }   // 뒤로가기 = 이미지 뷰어 닫기(위저드 층 오소비 방지)
+  if(!m.classList.contains('open')){ m.classList.add('open'); m._bkId=bkOpen(m._close); _layerInertOn(m); try{ $('pvX').focus({preventScroll:true}); }catch(e){} }   // 뒤로가기 = 이미지 뷰어 닫기(위저드 층 오소비 방지) · [C2_LAYER_INERT] 뒤 페이지 inert · 초점은 «닫기»
   document.body.style.overflow='hidden';
 }
 document.addEventListener('click', function(e){

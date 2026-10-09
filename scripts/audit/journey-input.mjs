@@ -141,7 +141,7 @@ try {
       await page.evaluate(() => { window.__apiN = 0; window.api = function (p) { if (p && p.action === 'requestContractResend') window.__apiN++; return Promise.resolve({ ok: true, at: '2026-10-09 10:00' }); }; });
       await page.evaluate(() => document.getElementById('mp_ctResend').click()); await page.waitForTimeout(250);
       const b = await look();
-      ok(b && b.t === '계약서 재발송 요청' && b.dis === 'true' && /cc-btn-wait/.test(b.cls) && b.h === a.h && b.note === '재발송을 요청했어요 · 24시간 안에 보내 드려요' && b.noteShown, `${vw} ② 누른 뒤 — 같은 이름 · 같은 높이(${a && a.h}px) · 흐리게 · 아래 한 줄`, JSON.stringify(b));
+      ok(b && b.t === '계약서 재발송 요청' && b.dis === 'true' && /cc-btn-wait/.test(b.cls) && b.h === a.h && b.note === '재발송을 요청했어요 · 24시간 안에 보내드려요' && b.noteShown, `${vw} ② 누른 뒤 — 같은 이름 · 같은 높이(${a && a.h}px) · 흐리게 · 아래 한 줄`, JSON.stringify(b));
       await page.evaluate(() => document.getElementById('mp_ctResend').click()); await page.waitForTimeout(200);
       if (process.env.SHOT_DIR) { try { await page.evaluate(() => { const b = document.getElementById('mp_ctResend'); if (b) b.scrollIntoView({ block: 'center' }); }); await page.screenshot({ path: path.join(process.env.SHOT_DIR, `journey-input-resend-${vw}-after.png`) }); } catch (x) {} }
       ok(await page.evaluate(() => window.__apiN) === 1, `${vw} ② 흐린 단추를 다시 눌러도 요청을 또 보내지 않는다`, await page.evaluate(() => window.__apiN));
