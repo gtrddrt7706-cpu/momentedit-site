@@ -986,18 +986,28 @@ function fmtDate(d){ return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.get
 let viewY = today.getFullYear(), viewM = today.getMonth();
 let selDate = null, selTime = null;
 // [임시고정 연동] 활성 가예약 보유 시 — 상담일은 현재 일정보다 앞으로만(서버에도 동일 가드). 가능일을 현재 상담일 이하로 필터.
-if(SERVER.holdActive && SERVER.currentDate && /^\d{4}-\d{2}-\d{2}$/.test(SERVER.currentDate)){
+/* ★[HOLD_NOTE_ONCE 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-7] boot 는 캐시 → 서버로 두 번 돌 수 있다 — 종전엔 안내를 있는지 보지 않고 넣어
+   달력 위에 «예식일 임시 고정 중에는 …»이 두 줄로 쌓였다. 안내에 id 를 달고, 넣기 전에 먼저 걷는다(kiNow 와 같은 방식) · 서버 답으로 다시 맞출 때도 이 함수 하나 */
+function _holdNoteApply(){
+  var _old=document.getElementById('holdNote'); if(_old&&_old.parentNode) _old.parentNode.removeChild(_old);
+  if(!(SERVER.holdActive && SERVER.currentDate && /^\d{4}-\d{2}-\d{2}$/.test(SERVER.currentDate))) return;
   var _hl=SERVER.currentDate.split('-'), _hlim=(+_hl[0])*10000+(+_hl[1])*100+(+_hl[2]);
   SERVER.avail=(SERVER.avail||[]).filter(function(k){var a=String(k).split('-');return ((+a[0])*10000+(+a[1])*100+(+a[2]))<=_hlim;});
   var _cg=document.getElementById('calGrid');
-  if(_cg&&_cg.parentNode){ var _hn=document.createElement('div'); _hn.style.cssText='font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all'; _hn.textContent='예식일 임시 고정 중에는 상담일을 현재 일정보다 앞으로만 옮길 수 있어요. 뒤로 미루시려면 마이페이지에서 임시 고정을 먼저 취소해 주세요.'; _cg.parentNode.insertBefore(_hn,_cg); }
+  if(_cg&&_cg.parentNode){ var _hn=document.createElement('div'); _hn.id='holdNote'; _hn.style.cssText='font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all'; _hn.textContent='예식일 임시 고정 중에는 상담일을 현재 일정보다 앞으로만 옮길 수 있어요. 뒤로 미루시려면 마이페이지에서 임시 고정을 먼저 취소해 주세요.'; _cg.parentNode.insertBefore(_hn,_cg); }
 }
+_holdNoteApply();
 /* ★[RESCHED_NOW 2026-10-09 점검 D-3] 마이페이지 «시간 변경»으로 온 분 — 서버(getAvailability)가 주는 지금 시간 · 상태 · 낸 예약금으로 화면을 맞춘다.
    ① 맨 위 핵심 안내 첫 줄에 지금 잡힌 시간 — «확정된 시간»(승인완료 · 확정) · «신청한 시간 · 확인 중»(시간선택완료) · 이름표는 다른 줄과 같은 칸 폭
    ② 예약금을 이미 냈으면(입금 확인 · 카드 승인) 예약금 · 계좌 · 입금자명 · 현금영수증 · 카드 칸을 걷고 «이미 받았어요» 한 줄 · 필수 검사도 하지 않는다(doSubmit)
    ③ 끝난 뒤 알림 글은 서버가 실제로 하는 일대로 — 시간을 바꾸면 «시간선택완료»로 돌아가 디렉터 확인 뒤 확정 메일이 다시 간다(입금확인은 그대로)
-   옛 서버(값 없음)면 아무것도 바꾸지 않는다 · boot 는 캐시 → 서버 두 번 돌 수 있어 매번 처음 모습에서 다시 맞춘다 */
-(function(){
+   옛 서버(값 없음)면 아무것도 바꾸지 않는다 · boot 는 캐시 → 서버 두 번 돌 수 있어 매번 처음 모습에서 다시 맞춘다
+   ★[RESCHED_NOW_SYNC 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-6] 이 블록은 이름 있는 함수(_reschedNow)다 — 캐시로 먼저 그린 뒤 고객이 날짜 · 시간을 눌렀으면
+     서버 답으로 boot 를 다시 돌지 않는다(고른 것을 지킨다). 그때 서버의 지금 시간 · 상태 · 낸 예약금 · 임시 고정이 캐시와 다르면
+     window.__schedNowApply 가 이 함수만 다시 돌린다(아래 부트스트랩) — 종전엔 이미 낸 예약금을 모른 채 계좌 · 입금자명 칸이 남아 입금을 다시 받았다.
+   ★[SCHED_LATE_LOCK 2026-10-09 D2-9 ④] 확정된 상담이 24시간 안이면(마이페이지 canChange 와 같은 기준 · 서버 withinCancelDeadline · 확정 + 시작까지 24시간 미만)
+     신청 단추 대신 안내 한 줄 + 카카오톡 — 종전엔 날짜 · 시간을 다 고른 뒤 보낼 때에야 «상담 24시간 전부터는 변경할 수 없습니다»가 떴다(열어 둔 탭 · 북마크로만 닿는 길). */
+function _reschedNow(){
   var $i=function(id){ return document.getElementById(id); }, ki=document.querySelector('.keyinfo');
   var kn=$i('kiNow'); if(kn&&kn.parentNode) kn.parentNode.removeChild(kn);
   var cd=String(SERVER.currentDate||''), ct=String(SERVER.currentTime||''), cs=String(SERVER.currentStatus||''), m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(cd);
@@ -1029,7 +1039,26 @@ if(SERVER.holdActive && SERVER.currentDate && /^\d{4}-\d{2}-\d{2}$/.test(SERVER.
   var ag=$i('depAgain'), acct=document.querySelector('#payBank .deposit-acct'), showAg=!paid&&cs==='picked';
   if(showAg&&!ag&&acct&&acct.parentNode){ ag=document.createElement('div'); ag.id='depAgain'; ag.className='deposit-payer-hint'; ag.textContent='이미 입금하셨다면 다시 보내지 않으셔도 돼요.'; acct.parentNode.insertBefore(ag, acct.nextSibling); }
   if(ag) ag.hidden=!showAg;
-})();
+  // [SCHED_LATE_LOCK] 확정된 상담 + 시작까지 24시간 미만(한국 시각) — 단추 · 확정 안내 · 고정 바 대신 안내 한 줄 + 카카오톡(updateSummary · doSubmit 이 window.__schedLate 를 본다)
+  var late=false;
+  if(cs==='confirmed'&&m&&/^\d{2}:\d{2}$/.test(ct)){ var _st=Date.UTC(+m[1],+m[2]-1,+m[3],+ct.slice(0,2)-9,+ct.slice(3,5)); late=(_st-Date.now())<24*3600*1000; }
+  window.__schedLate=late;
+  var sbt=$i('submitBtn'), cn=document.querySelector('.submit-wrap .confirm-note'), sm=$i('summary');
+  if(sbt) sbt.style.display=late?'none':'';   // ★hidden 속성은 .btn{display:inline-flex} 에 진다 — 글로 걷는다
+  if(cn) cn.hidden=late;
+  var kn2=ki?ki.querySelector('.keyinfo-note'):null; if(kn2) kn2.hidden=late;   // «새 시간을 확인한 뒤 …»는 바꿀 수 없는 때에 맞지 않는다
+  if(sm){ if(late){ sm.classList.remove('on'); sm.style.color='var(--seal)'; sm.innerHTML='상담 <b>24시간 전</b>부터는 변경이 어려워요.<br>부득이한 사정이 있으시면 <a href="'+_esc(SERVER.kakao||'https://pf.kakao.com/_CfxcxlX/chat')+'" class="kakao-inline" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px">카카오톡</a>으로 문의해&nbsp;주세요.'; }   // 링크 꼴은 이 화면 «AI 스케줄 도우미» 링크와 같다
+    else if(sm.getAttribute('data-late')==='1'){ sm.style.color=''; sm.textContent='날짜와 시간을 선택해 주세요'; }
+    sm.setAttribute('data-late', late?'1':''); }
+  if(late) _stickyShow($i('stickyBar'), false);
+}
+_reschedNow();
+/* [RESCHED_NOW_SYNC] 서버 답으로 «그 블록만» 다시 맞춘다 — 고른 날짜 · 시간(selDate · selTime)은 건드리지 않는다.
+   SERVER 는 이 boot 가 받은 캐시 그 물건이라, 값을 옮겨 적으면 doSubmit(낸 예약금이면 입금자명을 묻지 않는다)도 새 값을 본다. 마지막 boot 의 함수가 이긴다 */
+window.__schedNowApply=function(s){
+  ['currentDate','currentTime','currentStatus','depositPaid','depositCard','holdActive'].forEach(function(k){ SERVER[k]=s?s[k]:undefined; });
+  _holdNoteApply(); _reschedNow(); renderCal(); renderTime(); updateSummary();
+};
 // 첫 가능일이 있는 달로 달력을 연다 · SCHED_UX: 마지막 가능일 달을 기억해 다음달 버튼을 그 너머로 못 가게(빈 달 미로 방지)
 let maxAvY=null, maxAvM=null;
 if(SERVER.avail.length){
@@ -1136,6 +1165,10 @@ function renderTime(){
   box.style.maxWidth = (n===1)?'200px':'';
   box.style.marginLeft = (n===1)?'auto':'';
   box.style.marginRight = (n===1)?'auto':'';
+  /* ★[MY_SLOT_NOW 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-9 ②] 지금 잡힌 내 시간이 «마감»으로 보였다 — 서버(getAvailability)의 full 에 본인 예약도 들어간다.
+     내 날짜 · 시간(RESCHED_NOW 의 currentDate · currentTime · 신청 또는 확정)이면 같은 잠긴 칸에 «지금 시간»(다시 고를 일은 아니라 잠금은 그대로) */
+  const _cdm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(SERVER.currentDate||'')), _cst=String(SERVER.currentStatus||'');
+  const _myT=(_cdm&&(_cst==='confirmed'||_cst==='picked')&&(+_cdm[1])===selDate.getFullYear()&&(+_cdm[2])===selDate.getMonth()+1&&(+_cdm[3])===selDate.getDate())?String(SERVER.currentTime||''):'';
   daySlots.forEach(t=>{
     const s=document.createElement('button'); s.className='slot';
     const hr=parseInt(t.split(':')[0],10);
@@ -1143,8 +1176,9 @@ function renderTime(){
     s.innerHTML='<span class="slot-period" aria-hidden="true">'+period+'</span>'+t+'<span class="slot-sub" aria-hidden="true">약 '+DURATION+'분</span>';
     s.setAttribute('aria-label', period+' '+t+' · 약 '+DURATION+'분');   // [SCH_SRNAME]
     if(full.includes(t)){s.classList.add('full'); s.disabled=true;
-      s.innerHTML='<span class="slot-period" aria-hidden="true">'+period+'</span>'+t+'<span class="slot-sub slot-full-tag" aria-hidden="true">마감</span>';
-      s.setAttribute('aria-label', period+' '+t+' · 마감');}
+      const _fTag=(t===_myT)?'지금 시간':'마감';   // [MY_SLOT_NOW]
+      s.innerHTML='<span class="slot-period" aria-hidden="true">'+period+'</span>'+t+'<span class="slot-sub slot-full-tag" aria-hidden="true">'+_fTag+'</span>';
+      s.setAttribute('aria-label', period+' '+t+' · '+_fTag);}
     else{ if(selTime===t)s.classList.add('sel');
       s.setAttribute('aria-pressed', selTime===t?'true':'false');   // [SCH_SRNAME] 고른 시간이 어느 것인지
       s.onclick=()=>{var _kb=false; try{ _kb=s.matches(':focus-visible'); }catch(e){}
@@ -1182,6 +1216,7 @@ if(!window.__stkWired){ window.__stkWired=true;   // boot() 는 캐시 → 서�
   }catch(e){} }
 function updateSummary(){
   _syncHoldRule();
+  if(window.__schedLate){ _stickyShow(document.getElementById('stickyBar'),false); return; }   // [SCHED_LATE_LOCK] 24시간 안 — 안내 줄(_reschedNow)을 덮지 않고 고정 바도 띄우지 않는다
   const sum=document.getElementById('summary'); const btn=document.getElementById('submitBtn');
   const sT=document.getElementById('stepTime'), sDa=document.getElementById('stepDate'), sDo=document.getElementById('stepDone');
   const bar=document.getElementById('stickyBar');
@@ -1280,6 +1315,9 @@ function _loadToss(cb, onFail){   // 마이페이지 meCardPay 와 같은 SDK(v1
   document.head.appendChild(s);
 }
 function doSubmit(){
+  /* ★[SUBMIT_ONCE 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-8] 고정 바 «신청하기»는 누를 때마다 400ms 뒤 doSubmit 을 건다 — 80 · 250ms 간격으로 두 번 누르면
+     신청(submitSchedule)이 두 번 가고 관리자 «시간 선택» 알림도 두 번 갔다. 보내는 중(본 단추가 잠김)이면 돌아간다 · 24시간 안(SCHED_LATE_LOCK)도 돌아간다 */
+  var _sb0=document.getElementById('submitBtn'); if((_sb0&&_sb0.disabled&&_sb0.classList.contains('loading'))||window.__schedLate) return;
   if(!selDate||!selTime) return;
   var _card=_payM()==='card';
   if(_card && window.__depCardPreview){ meAlert({lead:'미리보기 화면이에요.',items:['카드결제를 켜면 여기서 토스 결제창이 열려요.','결제가 끝나면 예약이 바로 확정돼요.']}); return; }
@@ -1362,7 +1400,7 @@ function doSubmit(){
       if(res&&res.ok){
         try{ localStorage.removeItem('me_state_v1'); }catch(e){}   // 마이페이지 상태 캐시 무효화 → 복귀 시 옛 화면(신청 전) 깜빡임 방지 · 최신 상태만 노출
         const dateStr=fmtDate(selDate);
-        document.getElementById('modalPick').innerHTML=(SERVER.names||'')+' 님<br>'+dateStr+' · '+selTime;
+        document.getElementById('modalPick').innerHTML=_esc(SERVER.names||'')+' 님<br>'+_esc(dateStr)+' · '+_esc(selTime);   // ★[DONE_NAME_ESC 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-9 ③ · 서버 점검 E2-12] 이름에 < · & 가 있으면 깨졌다 — 카드 길(아래 1494행 부근)과 같은 _esc
         if(SERVER.depositPaid===true){   // [RESCHED_NOW] 예약금을 이미 낸 분의 시간 변경 — 서버가 하는 일대로(시간선택완료 → 디렉터 확인 → 확정 메일 · 입금확인은 그대로) · 완료 창 마크업은 그대로 두고 이 경우의 글만
           var _mdP=document.querySelector('#modal .modal'), _bdP=_mdP&&_mdP.querySelector('.modal-body');
           document.getElementById('modalTitle').textContent='시간 변경이 접수되었습니다';
@@ -1677,7 +1715,14 @@ if(_hdw){
       else if(!window.__schedTouched){          // 아직 손 안 댔고 최신과 다르면 조용히 갱신
         try{ var prev=JSON.parse(localStorage.getItem('me_sched_shown')||'null'); }catch(e){ prev=null; }
         var sig=JSON.stringify({a:s.avail,f:s.full});
-        if(sig!==(window.__schedShownSig||'')){ applyHead(s); boot(s); }
+        /* [RESCHED_NOW_SYNC] 가능일 · 마감이 같아도 지금 시간 · 상태 · 낸 예약금 · 임시 고정이 다르면 다시 그린다(종전엔 avail · full 만 비교했다) */
+        var _rs=['currentDate','currentTime','currentStatus','depositPaid','depositCard','holdActive'].some(function(k){ return String(cs&&cs[k])!==String(s[k]); });
+        if(sig!==(window.__schedShownSig||'')||_rs){ applyHead(s); boot(s); }
+      }
+      else if(window.__schedNowApply&&['currentDate','currentTime','currentStatus','depositPaid','depositCard','holdActive'].some(function(k){ return String(cs&&cs[k])!==String(s[k]); })){
+        /* ★[RESCHED_NOW_SYNC 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-6] 캐시로 먼저 그린 화면을 서버 답 전에 만졌으면(날짜 · 시간을 누름) boot 를 다시 돌지 않는다 —
+           그런데 그 사이 상태가 바뀌었으면(입금 확인 · 확정 · 임시 고정) 그 블록만 서버 값으로 맞춘다. 고른 날짜 · 시간은 그대로 */
+        applyHead(s); window.__schedNowApply(s);
       }
       window.__schedShownSig=JSON.stringify({a:s.avail,f:s.full});
     })
