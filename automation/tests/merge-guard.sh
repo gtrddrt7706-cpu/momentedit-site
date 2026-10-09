@@ -3943,7 +3943,7 @@ nochk '자동으로 저장돼요<' mypage.html
 # "모바일화면인데 너무 위쪽에 쏠려잇어" — 짧은 단계가 화면 위에 붙고 아래가 통째로 비었다.
 # 남는 공간이 있을 때만 먹는 auto 마진이라 긴 단계는 종전대로 위에서부터 흐른다. 높이로 조건 걸지 말 것.
 chk 'WIZ_VCENTER' mypage.html 3
-chk 'only-child{margin-top:auto' mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) 'only-child{margin-top:auto' mypage.html 1
 # display:flex 는 !important 여야 한다 — renderProduction 이 인라인 display:block 을 얹는다
 chk 'display:flex!important;flex-direction:column}' mypage.html 1
 
@@ -5459,7 +5459,7 @@ chk '원본' guide.html 1
 # ★[SHARE_WEDUP 2026-08-17] 이 자리의 chk '오픈채팅 → 1:1 채팅방' 은 **정당한 폐지**로 내렸다.
 #   카톡을 권장에서 내리고 WedUploader 로 바꾼 결정(아래 SHARE_WEDUP 블록)이라 마커가 사라진 것이 맞다.
 #   카톡 안내 자체는 접힌 「다른 방법도 되나요」 안에 남아 있고, 그쪽은 아래에서 따로 지킨다.
-chk '카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) '카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
 # [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다(막지 않는다) — 엉뚱한 주소를 넣고도 모르는 일이 없게
 chk 'SHARE_KIND' mypage.html 3
 chk 'function photoShareKind' mypage.html 1
@@ -13173,7 +13173,7 @@ chk 'FOLD_JOSA_GLUE' mypage.html 1
 chk "애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b>" mypage.html 1
 nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 0
 # [CF_DATE_NBSP 보정] 확인서 예식 일시는 fmtWedKoT(내 내역 · 임시 고정 · 결제 카드와 같은 모양) — NBSP 한 덩어리는 320~325 에서 긴 날짜가 칸 밖으로 넘쳤다(180조합 중 84 → 0)
-chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate)
 nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
 # ── [코워크 회신8 2026-09-26] 칸 글 삼킴 · 케이크 한 줄 괄호 · 얇은 띠 ★ ──
 chk 'TILE_SWALLOW' assets/ritual-open.js 1
@@ -13291,7 +13291,7 @@ chk 'var _shPast = _kstDdayOf(' mypage.html 1
 chk "sub = (_shPast != null && _shPast < 0) ? '아래에서 잔금을 보내 주세요.' : " mypage.html 1
 chk 'var _hdPast = _kstDdayOf(' mypage.html 1
 chk "sub  = _hdPast ? '' : '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
-chk "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " mypage.html 1
 chk "|| (r\\[0]==='예식 준비' && r\\[2]==='제작중')); });" mypage.html 1
 # [MID_WITH_WORD] 2026-09-26 통합 점검 2라운드 R1 — 임박 계약 중도금(날짜 없음 · 서버 dueLabel «계약 시 함께 납부»)은 «지금 바로 입금 부탁드려요»(«계약 시 함께 납부까지 입금 부탁드려요» 금지 · 꼬리 «· 계약 시 함께 납부» 없음 — 320 에서 가운뎃점이 줄 머리에 선다 · 잔금 카드 _bPast 와 같은 말)
 chk 'MID_WITH_WORD' mypage.html 2
@@ -13313,7 +13313,7 @@ nochk "if(t-(window._wzBarAt||0)<450)" mypage.html 0
 # [LOGOUT_FS_GUARD] 전체화면 편집(.mp-fs) 동안 로그아웃은 Tab 순서 · 낭독기에서 빠지고, 편집 흐름 · 전체화면 겹화면(_mpFsOpen = MP_FS_OVERLAYS 한 목록)이 떠 있으면 로그아웃 누름을 받지 않는다(앞사람 청첩장이 다음 로그인에 다시 열리던 것)
 chk 'LOGOUT_FS_GUARD' mypage.html 3
 chk 'body.mp-fs-on .foot-actions{visibility:hidden}' mypage.html 1
-chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; clearToken(); show('loginView'); });" mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOp
 nochk "\$('mp_logout').addEventListener('click', function(){ clearToken(); show('loginView'); });" mypage.html 0
 # [INV_DATE_LINK] 예식 날짜도 링크 주소를 바꾼다(eventId = 머리글자 + MMDD) — 4/4 «예식 날짜가 달라져서 링크 주소가 바뀌어요» · 반영 결과 'date' 는 «바뀌었어요» · 다시 연 완성 화면에서 날짜가 옮겨져 있으면 «이전 날짜가 보여요 · 수정하기로 다시 반영» · 앞으로의 규칙에 날짜 한 줄
 chk 'INV_DATE_LINK' mypage.html 6
@@ -13468,7 +13468,7 @@ chk "사진은 마지막 걸음에서 저장할 때 함께 보내져요" mypage.
 chk 'id="mp_snapStart" style="margin-top:12px">이어서 고르기' mypage.html 1
 chk 'SNAP_TOP_ALIGN' mypage.html 1
 chk 'SNAP_TOP_ALIGN' scripts/check-wiz-vcenter.mjs 1
-chk "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto;width:100%'" mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto;wid
 chk 'SNAP_WORD_SCENE' mypage.html 6
 chk "찾던 사진이 없나요?" mypage.html 1
 chk "'장면 · 화이트존 '+w+'장면 골랐어요'" mypage.html 1
@@ -16825,4 +16825,120 @@ chk 'BIRTH_ADULT19' automation/platform/70_journey.gs 3
 chk 'lim = (+t.slice(0, 4) - 19) + t.slice(4);' automation/platform/70_journey.gs 1
 nochk 'lim = (+t.slice(0, 4) - 18) + t.slice(4);' automation/platform/70_journey.gs
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-cancel-say.mjs >/dev/null 2>&1; _vcs=$?; if [ "$_vcs" = 1 ]; then echo 'FAIL vc-cancel-say: 지우기로 취소된 만들기의 말 · 다시 만들기 표가 어긋났습니다 — node scripts/audit/vc-cancel-say.mjs'; fail=1; elif [ "$_vcs" = 2 ]; then echo 'skip vc-cancel-say: 브라우저 없음'; else echo 'ok vc-cancel-say: 취소는 그 말로 · 다시 만들기 표 없음'; fi; fi
+# ★★[R6_MYPAGE 2026-10-09 고객 여정 A~Z 점검 1라운드 · 마이페이지] C-1 서명판 · C-2 금액 복사 · C-4 로그아웃 칸 · C-5 개인코드 · C-6 대기 줄 · C-7 되돌리기 판 · C-8 겹창 · C-9 생년월일 칸 · C-10 걸음 위 · C-11 막대 고정(WZ_PIN) · C-12~C-19 · 카카오톡 · 외톨이 — 되돌리지 말 것
+# ── [R6_MYPAGE 2026-10-09] 고객 여정 A~Z 점검 1라운드 · 마이페이지 ──
+# 바뀐 옛 chk 다섯(그 자리 줄을 아래로 바꾼다)
+#   3946 chk 'only-child{margin-top:auto' → 아래 [WZ_PIN] 의 nochk 로
+#   5462 chk '카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' → [KAKAO_WORD]
+#   13176 chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(…" → [LED_DATE_GLUE]
+#   13294 chk "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " → [NOW_CARD_ONCE]
+#   13316 chk "\$('mp_logout')…clearToken(); show('loginView'); });" → [LOGOUT_CLEAR_FIELDS]
+#   13471 chk "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto;width:100%'" → [WZ_PIN] (위쪽 정렬 그대로 · 화면 높이 채움)
+chk '카카오톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
+chk "L+=line('예식 일시', _bw.weddingTime ? _whenHtml(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
+chk "sub  = _hdPast ? '' : '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
+chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" mypage.html 1
+nochk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; clearToken(); show('loginView'); });" mypage.html 0
+# [SIGN_AFTER_VIEW] C-1 계약서 보기 → 서명하기: 뷰어 층의 되감기가 끝난 뒤 서명판을 연다(같은 틱이면 늦은 popstate 가 서명판 층을 먹어 서명이 안 갔다)
+chk 'SIGN_AFTER_VIEW' mypage.html 2
+chk 'function _bkSettle(fn)' mypage.html 1
+chk "cbtn.addEventListener('click',function(){ done(); _bkSettle(doSignContract); });" mypage.html 1
+nochk "cbtn.addEventListener('click',function(){ done(); doSignContract(); })" mypage.html 0
+# [COPY_AMT_BACK] C-2 입금액 복사 뒤 원래 모양(금액 · 밑줄)으로 되돌린다
+chk 'COPY_AMT_BACK' mypage.html 1
+chk 't.innerHTML=t._amtHtml;' mypage.html 1
+# [LOGOUT_CLEAR_FIELDS] C-4 로그아웃은 로그인 칸도 비운다(두 로그아웃 단추 모두)
+chk 'LOGOUT_CLEAR_FIELDS' mypage.html 2
+chk "function _mpLogoutNow(){ clearToken(); \['li_code','li_pw'\]" mypage.html 1
+chk '_mpLogoutNow();' mypage.html 2
+# [FINDCODE_KAKAO] C-5 코드 찾기 안내 = 카카오톡 또는 메일함
+chk '카카오톡 또는 메일함을 확인해 주세요.' mypage.html 1
+nochk '개인코드를 보내드렸어요. 메일함을 확인해 주세요' mypage.html 0
+# [WAIT_LINE_ONCE] C-6 대기 줄 — 요청 전 숨김 · NOW 머리와 같으면 숨김 · 문장 끝엔 «기다리는 중» 안 붙임
+chk 'WAIT_LINE_ONCE' mypage.html 1
+chk "if (w && d.stage === '상담완료' && d.contractInfo && !d.contractInfo.requested) w = '';" mypage.html 1
+chk "? w : (w+' 기다리는 중');" mypage.html 1
+nochk "el.textContent = w+' 기다리는 중';" mypage.html 0
+# [RB_CI_TRUTH] C-7 되돌린 뒤 계약서 요청 폼이 다시 열리면 «계약 내용은 그대로»라 하지 않는다
+chk 'RB_CI_TRUTH' mypage.html 1
+chk 'var _rbCiOpen = ' mypage.html 1
+# [OVL_LAYER] C-8 주소 찾기 · 처리방침 겹창 = 뒤로가기 층 · Esc · 배경 잠금 · 닫기 44px
+chk 'OVL_LAYER' mypage.html 6
+chk 'function _ovlShow(ov)' mypage.html 1
+chk 'function _ovlHide(ov, noRet)' mypage.html 1
+chk '\.ovl-x{' mypage.html 1
+# [BIRTH_RANGE] [BIRTH_DAYS] C-9 생년 1930 ~ 올해-18 · 일은 달에 맞춘다
+chk 'BIRTH_RANGE' mypage.html 1
+chk 'BIRTH_DAYS' mypage.html 2
+chk 'function _birthWire(idBase)' mypage.html 1
+# [INV_STEP_TOP] C-10 걸음이 바뀌면 맨 위 + 제목 초점(청첩장 · 애프터 웨딩/최종)
+chk 'INV_STEP_TOP' mypage.html 3
+chk 'INVFLOW._shownStep=INVFLOW.step;' mypage.html 1
+chk 'TRKFLOW._shownStep=TRKFLOW.step;' mypage.html 1
+# ★[WIZ_VCENTER] 세로 가운데 두기 금지 — 2026-10-09 [WZ_PIN] 으로 걷음(C-11 · [WZ_BAR] 09-26 · [BOSS_WAY_1006] 4 단추 위치 고정이 나중 결정)
+#   카드가 화면 높이를 채우고 막대는 걸음마다 화면 맨 아래(짧은 걸음 · 긴 걸음 · 스냅 기획 · 가족·친구 스냅 모두) — scripts/check-wiz-vcenter.mjs 가 «막대 아래 틈»을 잰다
+nochk 'only-child{margin-top:auto' mypage.html 0
+chk 'WZ_PIN' mypage.html 9
+chk '\.mp-fs>\*:only-child{flex:1 0 auto;margin-bottom:-48px' mypage.html 1
+chk 'function _wzPin(host)' mypage.html 1
+chk '_wzPin(box);' mypage.html 12
+chk "margin:0 auto -44px;width:100%;flex:1 0 auto;display:flex;flex-direction:column" mypage.html 1
+chk "margin:0 auto -24px;width:100%;flex:1 0 auto;display:flex;flex-direction:column" mypage.html 1
+chk "_sdf.classList.add('wz-foot'); _wzPin(inner);" mypage.html 1
+chk "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto -24px;width:100%;flex:1 0 auto;display:flex;flex-direction:column'" mypage.html 1
+chk 'WZ_PIN' scripts/check-wiz-vcenter.mjs 2
+chk 'WZ_PIN' scripts/audit/snap-plan.mjs 2
+# [INV_EN_WHY] C-12 영문 칸: 빈 칸과 알파벳 아닌 글자를 가른다
+chk 'INV_EN_WHY' mypage.html 1
+chk "title:'영문 이름은 알파벳으로 적어 주세요'" mypage.html 1
+chk ' 영문 이름에 알파벳이 아닌 글자가 있어요.' mypage.html 1
+# [SIG_HINT_BTN] C-13 서명판 안내 = 단추 이름 · 확정 단추 = 진사([SEAL_CTA_ONLY])
+chk 'SIG_HINT_BTN' mypage.html 1
+chk "_sigDoneHint='✓ 서명됨 · «'+_sigBtn+'»'+_phEulReul(_sigBtn)+' 눌러 주세요'" mypage.html 1
+chk "mp-modal-btn mp-modal-btn-seal" mypage.html 1
+# [REF_ROW_EVEN] C-14 시간표 행 구분선 어긋남 · [KO_CAP_SUMMARY] C-18 «· 요약» 한글 글꼴
+chk 'REF_ROW_EVEN' mypage.html 1
+chk '\.schedule-ref-table{display:grid;grid-template-columns:60px repeat(4,1fr);gap:3px 6px;align-items:stretch}' mypage.html 1
+chk 'KO_CAP_SUMMARY' mypage.html 1
+# [ADDR_BTN_EVEN] C-15 «주소 찾기» 단추 = 주소 칸 높이
+chk 'ADDR_BTN_EVEN' mypage.html 1
+# [CR_DIGITS] C-16 현금영수증 번호 = 휴대폰 10~11자리(01) · 사업자번호 10자리 · 아니면 칸 아래 한 줄(다섯 칸 + 번호 바꾸기 판)
+chk 'CR_DIGITS' mypage.html 8
+chk 'function _crOk(v)' mypage.html 1
+chk "if(!_crCheck('mp_" mypage.html 5
+chk "if(typeof o.check==='function' && o.check()===false) return; close(true);" mypage.html 1
+# [LED_DATE_GLUE] C-17 날짜 · 요일 한 몸 · 폰 폭에선 시각을 다음 줄 · [LED_DOC_DATE] 서류 날짜 «2026년 10월 1일»
+chk 'LED_DATE_GLUE' mypage.html 6
+chk 'function _whenHtml(ymd, t)' mypage.html 1
+chk 'LED_DOC_DATE' mypage.html 1
+# [LINK_BTN_KB] C-19 로그인 화면 글자 단추 넷 = <button>(Tab 이 닿는다)
+chk 'LINK_BTN_KB' mypage.html 2
+chk '<button type="button" class="linkbtn"' mypage.html 4
+nochk '<a id="link_findcode"' mypage.html 0
+# [FORM_OWN_ERR] 브라우저 말풍선 대신 디자인 오류 줄(로그인 · 코드 찾기 · 재설정)
+chk 'FORM_OWN_ERR' mypage.html 2
+chk 'novalidate>' mypage.html 3
+# [CI_ERR_AT] 계약 요청 폼 — 빠진 칸은 그 칸에서 말한다(스크롤 + 초점) · 아래 줄은 서버 · 연결 실패만
+chk 'CI_ERR_AT' mypage.html 3
+chk 'function _ciMissClear()' mypage.html 1
+# [ERR_WORD_GLUE] B-1 같은 모양 — 좁은 폭(320 · 360)에서 «(코드 P6)»만 다음 줄에 섰다(자연 줄바꿈 · display:block 병은 마이페이지에 없음) → 앞 낱말 하나(8자까지)를 코드와 한 덩어리로(글은 그대로)
+chk 'ERR_WORD_GLUE' mypage.html 1
+chk '<span class="err-tail" style="white-space:nowrap">' mypage.html 1
+# [KAKAO_WORD] 고객 글은 «카카오톡» 한 말로(예외 둘: «카톡·메일로 알려드려요» 2026-07-25 지시 · 계약서 재발송 줄은 GAS 담당 C-20)
+chk 'KAKAO_WORD' mypage.html 1
+nochk '카톡으로 보내세요' mypage.html 0
+nochk '카톡에 붙여넣기' mypage.html 0
+nochk '카톡 사진은' mypage.html 0
+# 줄 끝 외톨이 · 점 매달림 [REFUND_NB] [INV2_SUB_LINES] [CF_LEFT_LINES] [SV_DOT_GLUE]
+chk 'REFUND_NB' mypage.html 1
+chk '송금해&nbsp;드려요' mypage.html 1
+chk 'INV2_SUB_LINES' mypage.html 1
+chk 'CF_LEFT_LINES' mypage.html 1
+chk 'SV_DOT_GLUE' mypage.html 1
+chk 'function _svGlue(q)' mypage.html 1
+# [SEAT_DONE_TOAST] 좌석 «배치 완료»도 저장 알림 · [NOW_CARD_ONCE] NOW 부제와 카드가 같은 말이면 한 곳만
+chk 'SEAT_DONE_TOAST' mypage.html 1
+chk 'NOW_CARD_ONCE' mypage.html 8
+nochk "sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';" mypage.html 0
+nochk "head = '일정을 확인하고 있어요'; sub = '디렉터가 확인하고" mypage.html 0
 :
