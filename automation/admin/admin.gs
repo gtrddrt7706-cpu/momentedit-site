@@ -1651,17 +1651,21 @@ function adminApprove(code) {
   }
   _LAST_INFO = null;
   actApprove(sheet, colOf, r);                        // P1.5 Lock+슬롯재확인+setCustomerStage
-  if (_LAST_INFO && _LAST_INFO.partial) { _recordHandler(code, '승인'); return { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(', ') + ' · 이것만 직접 해 주세요 (코드 B4)' }; }   // [APPROVE_PARTIAL] 다시 누르지 말고 빠진 것만 · [MAIL_SAME_WORDS] 메일 화면과 같은 말
+  if (_LAST_INFO && _LAST_INFO.partial) { _recordHandler(code, '승인'); return { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' }; }   // [APPROVE_PARTIAL] 다시 누르지 말고 빠진 것만 · [MAIL_SAME_WORDS] 메일 화면과 같은 말
   var _li = _LAST_INFO;   // [ACCEPT_RESULT] 이번 누름의 결과를 먼저 믿는다(잠금 대기 중 줄이 밀리거나 지워졌을 수 있다)
   if (_li && _li.ok) { _recordHandler(code, '승인'); return { ok: true }; }
   if (_li && _li.ok === false && /마감/.test(String(_li.title || ''))) return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };
   var after = _li ? '' : String(row(sheet, colOf, cr.num).get('상태') || '').trim();   // 결과 글이 없는 옛 판만 상태로 판단
   if (after === ST.APPROVED || after === ST.CONFIRMED) { _recordHandler(code, '승인'); return { ok: true }; }
   // [ACCEPT_RESULT] 몰림 · 시간 없음 같은 다른 실패는 «마감»으로 말하지 않는다
+  if (_li && _li.ok === false && /^예약을 찾을 수 없습니다/.test(String(_li.title || ''))) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 2026-10-09 라운드 6] 관리자에게 «관리자 페이지에서 확인» · «문의 메일»을 말하지 않는다
   if (_li && _li.ok === false && !/마감/.test(String(_li.title || ''))) return { ok: false, error: _admInfoText_(_li) };
   return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };  // L
 }
 
+function _admMiss_(miss) {   // [MISS_NOWRAP 2026-10-09 라운드 6] 관리 화면 창에서 «확정 메일» · «마이페이지 단계»가 줄 끝에서 갈리지 않게(항목 안 띄어쓰기는 붙는 칸)
+  return (miss || []).map(function (m) { return String(m).replace(/ /g, '\u00a0'); }).join(', ');
+}
 function _admInfoText_(li) {   // [PASTE_GAP] consultation-booking 을 아직 안 붙였어도(옛 판) 멈추지 않게 — 그때는 제목만
   return (typeof _infoText_ === 'function') ? _infoText_(li) : String((li && li.title) || '');
 }
@@ -1677,9 +1681,9 @@ function adminAcceptProposal(code) {
   if (st !== ST.PROPOSED) return { ok: false, error: '변경제안 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
   _LAST_INFO = null;
   actAccept(sheet, colOf, r);
-  if (_LAST_INFO && _LAST_INFO.ok === false) return /마감/.test(String(_LAST_INFO.title || '')) ? { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 다시 보내 주세요.' } : { ok: false, error: _admInfoText_(_LAST_INFO) };   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다 · 마감은 승인 쪽과 같은 말(고객에게 하는 말을 관리자에게 보이지 않는다)
+  if (_LAST_INFO && _LAST_INFO.ok === false) return /마감/.test(String(_LAST_INFO.title || '')) ? { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 다시 보내 주세요.' } : /^예약을 찾을 수 없습니다/.test(String(_LAST_INFO.title || '')) ? { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' } : { ok: false, error: _admInfoText_(_LAST_INFO) };   // [ADM_GONE_WORDS]   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다 · 마감은 승인 쪽과 같은 말(고객에게 하는 말을 관리자에게 보이지 않는다)
   _recordHandler(code, '변경제안 수락');
-  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '수락은 됐어요 · 안 된 것: ' + _LAST_INFO.partial.join(', ') + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [APPROVE_PARTIAL]
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '수락은 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [APPROVE_PARTIAL]
   return { ok: true };
 }
 
@@ -1691,8 +1695,10 @@ function adminCancel(code, reason) {
   if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
   var r = row(sheet, colOf, cr.num);
   if (String(r.get('상태') || '').trim() === ST.CANCELLED) { _recordHandler(code, '취소(중복)'); return { ok: true }; }  // 멱등
+  _LAST_INFO = null;
   doAdminCancel(sheet, colOf, r);                     // 캘린더 삭제 + 상태=취소 + setCustomerStage(cancel) + 가예약 해제(actCancel 공통)
   _recordHandler(code, '취소' + (reason ? (' · ' + reason) : ''));  // C·D 사유·처리자
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '취소는 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [CANCEL_RESULT 2026-10-09 라운드 6] 승인 · 수락과 같은 창
   return { ok: true };
 }
 

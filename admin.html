@@ -389,7 +389,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal-ov.show{display:flex}
 .modal{background:#fff;border-radius:12px;max-width:390px;width:100%;padding:24px 22px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
 .modal h3{font-family:var(--serif-ko);font-size:16.5px;font-weight:600;color:var(--accent);text-align:center;margin-bottom:9px}
-.modal .mbody-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;line-height:1.7;margin-bottom:14px}
+.modal .mbody-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;line-height:1.7;margin-bottom:14px;text-wrap:pretty}/* [MISS_NOWRAP 2026-10-09 라운드 6] 끝 줄에 한 낱말만 남지 않게 */
 .modal .mbody-t .li{display:block;font-size:12px;color:var(--light);margin-top:3px;text-align:left;padding-left:9px;text-indent:-9px}/* ★★[MODAL_LI_LEFT 2026-09-21 사장님 지적 「가운데정렬인데 맞는지」] 되돌리지 말 것.
    .li 는 .mbody-t{text-align:center} 안에 있어 가운데 정렬을 물려받고 있었다.
    ①목록인데 가운데로 세우면 «·» 셋이 서로 다른 x 좌표에 서서 기준선이 없어진다 —
@@ -3457,7 +3457,8 @@ function afterAction(code,res,act){
   var NH={adminSendContract:'계약서 도착',adminOpenFittingConsent:'드레스 시착 동의 요청',adminConfirmPayment:'계약금 입금 확인',adminConfirmMid:'중도금 입금 확인',adminConfirmBalance:'잔금 입금 확인',adminConfirmMidBalance:'중도금·잔금 입금 확인',adminSetResultLinks:'결과물 등록',adminMarkDelivered:'결과물 전달',adminMarkConsultDone:'상담 완료 · 마이페이지에서 계약 진행 안내',adminConfirmWeddingChange:'예식일 변경 적용',adminDeclineWeddingChange:'예식일 변경 거절(재조율)'};
   var NH_AUTO={adminSendContract:true,adminOpenFittingConsent:true,adminConfirmPayment:true,adminSetResultLinks:true,adminMarkDelivered:true,adminMarkConsultDone:true,adminConfirmWeddingChange:true,adminDeclineWeddingChange:true,
     adminConfirmMid:false,adminConfirmBalance:false,adminConfirmMidBalance:false};   // 입금 확인 3종은 cust.paymentConfirmed가 꺼져 있어 고객에게 아무것도 안 나감
-  if(!(res&&res.partial)) toast(!NH[act] ? '✓ 처리됨'
+  var _lw=!!(res&&res.warnings&&res.warnings.length);   /* [LINK_WARN_ONE 2026-10-09 라운드 6] 링크 경고 창이 뜨면 토스트는 띄우지 않는다(창 위에 겹쳤다) · 카톡 안내는 창 안에 */
+  if(!(res&&res.partial)&&!_lw) toast(!NH[act] ? '✓ 처리됨'
     : NH_AUTO[act] ? ('✓ 처리됨 · 고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요')
     : '✓ 처리됨 · 이 확인은 고객 알림이 따로 가지 않아요');
   if(_view==='detail') openDetail(code);
@@ -3468,7 +3469,7 @@ function afterAction(code,res,act){
     var wb='<div style="background:#fdf3e0;border:1px solid #ecd9b0;border-radius:8px;padding:10px 12px;text-align:left">'+
       res.warnings.map(function(w){ return '<div style="font-size:13px;color:#8a5a2b;line-height:1.55;margin:3px 0">· '+esc(w)+'</div>'; }).join('')+
       '</div>';
-    openModal({ title:'저장은 됐어요 · 링크 확인이 필요해요', text:'<span class="li">저장은 완료됐지만, 아래 링크는 고객이 열지 못할 수 있어요.</span>', extra:wb, yes:'확인', onYes:closeModal, alertOnly:true });
+    openModal({ title:'링크 확인이 필요해요', text:'<span class="li">저장은 됐어요 · 아래 링크는 고객이 열지 못할 수 있어요</span>'+(NH[act]&&NH_AUTO[act]?'<span class="li">고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요</span>':''), extra:wb, yes:'확인', onYes:closeModal, alertOnly:true });   /* [LINK_WARN_ONE] 제목은 한 줄 · 본문이 제목을 되풀이하지 않는다 */
   }
   /* [APPROVE_PARTIAL 2026-10-09 라운드 3] 승인 · 수락은 됐는데 뒷일(캘린더 · 확정 메일 · 단계 · 카톡)이 빠졌으면 목록은 새로 그리고 빠진 것만 창 하나로 —
      창을 그대로 두면 «다시 누르기»로 읽히고, 다시 누르면 «이미 확정»이 빠진 일을 덮는다 */

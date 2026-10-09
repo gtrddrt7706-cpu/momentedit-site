@@ -449,6 +449,15 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   console.log(`   알림 켜고 키도 다 넣음              누락 ${rFull.bad}건  ${rFull.bad === base ? '조용함(맞다)' : '✗ 다 넣었는데 붉어짐'}`);
   if (rFull.bad !== base) ng('키를 다 넣었는데도 붉습니다');
 
+  /* [SECRET_GUARD_KIND 라운드 6] 공유 열쇠가 비면 «곁가지만 조용해집니다»가 아니라 ★ 줄로 — 키 없이 받는 입구가 된다(누락으로 세지는 않는다) */
+  const rG = run({ props: { AI_WIDGET_SECRET: 'x' } }), gl = rG.out.split('\n').filter((l) => /비어 있는 열쇠: AI_HANDOFF_SECRET/.test(l));
+  const gOk = gl.length === 1 && /★/.test(gl[0]) && !/비어 있는 곁가지[^\n]*AI_HANDOFF_SECRET/.test(rG.out) && !/비어 있는 열쇠: AI_WIDGET_SECRET/.test(rG.out) && rG.bad === base;
+  console.log(`   공유 열쇠가 비었을 때                ${gOk ? '★ 줄로 알림(맞다)' : '✗ «조용해집니다»로 숨거나 누락으로 셈'}`);
+  if (!gOk) ng('공유 열쇠(AI_HANDOFF_SECRET)가 비었는데 «곁가지»로 숨기거나 누락으로 셉니다');
+  const rG2 = run({ props: { AI_HANDOFF_SECRET: 'x', AI_WIDGET_SECRET: 'x' } });
+  if (/비어 있는 열쇠/.test(rG2.out)) ng('공유 열쇠를 다 넣었는데 «비어 있는 열쇠»가 뜹니다');
+  if (rG2.out.indexOf('AI_HANDOFF_SECRET = x') >= 0) ng('공유 열쇠 값이 로그에 찍힙니다');
+
   /* 값이 로그로 새면 안 된다 — «있음/없음»만 봐야 한다 */
   if (rFull.out.indexOf('SOLAPI_API_KEY = x') >= 0 || /SOLAPI_API_KEY[^\n]*'x'/.test(rFull.out))
     ng('설정값이 로그에 찍힙니다 — 비밀이 샙니다');

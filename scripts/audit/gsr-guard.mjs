@@ -281,7 +281,7 @@ function ownerChecks() {
     if (!/허용되지 않은 요청/.test(msgOf(() => G._trigIn_(undefined)))) out.push(`소유자: 웹 앱 화면의 «${who || '익명'}» 이 배운 뒤 _trigIn_ 을 지난다`);
     { let r = ''; try { r = String(G.contractCheckHelp()); } catch (e) { r = 'THROW'; } if (!/편집기 전용 진단/.test(r)) out.push(`소유자: 웹 앱 화면의 «${who || '익명'}» 이 진단을 돌린다`); }
   }
-  try { PPo().deleteProperty('TRIG_UID_OK'); PPo().deleteProperty('TRIG_PROBE'); PPo().deleteProperty('TRIG_UID_MISS'); } catch (e) {}
+  try { PPo().deleteProperty('TRIG_UID_OK'); PPo().deleteProperty('TRIG_PROBE'); PPo().deleteProperty('TRIG_PROBE_X'); PPo().deleteProperty('TRIG_UID_MISS'); } catch (e) {}
   // ③ 권한 주인을 못 읽으면 닫힌다(목록에 없는 계정) · 그때는 어느 계정인지 가린 꼴로 알린다
   reset(); G._ACTIVE_EMAIL = null; G._EFFECTIVE_EMAIL = null;
   G.Session = Object.assign({}, G.Session, { getActiveUser: () => ({ getEmail: () => SELF }), getEffectiveUser: () => { throw new Error('읽기 실패'); } });
@@ -339,17 +339,23 @@ function gateChecks(list) {
   reset(); setEmail(OWNER); try { G._gsr_(); } catch (e) { out.push('행동: 소유자(편집기)인데 _gsr_ 가 막는다'); }
   // 예약 실행 확인
   const realST = G.ScriptApp;
-  const clr = () => { for (const k of ['TRIG_UID_OK', 'TRIG_PROBE', 'TRIG_UID_MISS', 'TRIG_UIDS_KNOWN', 'TRIG_LIST_FAIL']) { try { PP().deleteProperty(k); } catch (e) {} } };
+  const clr = () => { for (const k of ['TRIG_UID_OK', 'TRIG_PROBE', 'TRIG_PROBE_X', 'TRIG_UID_MISS', 'TRIG_UIDS_KNOWN', 'TRIG_LIST_FAIL']) { try { PP().deleteProperty(k); } catch (e) {} } };
   G.ScriptApp = { getProjectTriggers: () => [{ getUniqueId: () => 'U1' }] };
   clr();
   reset(); try { G._trigIn_({}); if (G._TRUST !== true) out.push('예약 실행: 배우기 전에는 막지 않아야 한다(_TRUST 가 안 켜졌다)'); } catch (e) { out.push('예약 실행: 배우기 전인데 막았다 — 확인 전에 막으면 아침 보고 · 알림이 멈춘다'); }
-  if (!PP().getProperty('TRIG_PROBE')) out.push('예약 실행: 배우기 전 호출의 모양을 TRIG_PROBE 에 적지 않았다');
-  // [TRIG_IN_WHY] 배우기 전 모양 기록은 누가(가린 메일) · 계정마다 따로 6시간 — 다른 계정의 호출이 진짜 예약 실행 계정의 기록을 가리지 않게
+  if (!PP().getProperty('TRIG_PROBE_X')) out.push('예약 실행: 배우기 전 호출의 모양을 적지 않았다(이벤트 없는 호출 → TRIG_PROBE_X)');
+  // [TRIG_IN_WHY] 배우기 전 모양 기록은 누가(가린 메일) · 모양마다 따로 — 다른 계정의 호출이 앞 기록을 가리지 않게
   { setEmail('aa@x.test'); G._SRV = false; G._TRUST = false; try { G._trigIn_({}); } catch (e) {}
-    const p1 = String(PP().getProperty('TRIG_PROBE') || '');
+    const p1 = String(PP().getProperty('TRIG_PROBE_X') || '');
     setEmail('bb@x.test'); G._SRV = false; G._TRUST = false; try { G._trigIn_({}); } catch (e) {}
-    const p2 = String(PP().getProperty('TRIG_PROBE') || '');
+    const p2 = String(PP().getProperty('TRIG_PROBE_X') || '');
     if (!/ · 메일 a…@x\.test/.test(p1) || !/ · 메일 b…@x\.test/.test(p2)) out.push('예약 실행: 배우기 전 모양 기록에 누가인지 없거나 다른 계정의 기록이 6시간 가린다 — ' + p1 + ' / ' + p2);
+    // [TRIG_PROBE_SLOT 라운드 6] 예약 실행 모양(triggerUid · authMode)은 TRIG_PROBE 칸 — 이벤트 없는 호출이 그 칸을 덮지 않는다
+    clr(); setEmail(''); G._SRV = false; G._TRUST = false; try { G._trigIn_({ authMode: 'FULL', triggerUid: 'Z9' }); } catch (e) {}
+    const t1 = String(PP().getProperty('TRIG_PROBE') || '');
+    G._SRV = false; G._TRUST = false; try { G._trigIn_({}); } catch (e) {} try { G._trigIn_(undefined); } catch (e) {}
+    const t2 = String(PP().getProperty('TRIG_PROBE') || '');
+    if (!/uid 있음/.test(t1) || t2 !== t1 || !PP().getProperty('TRIG_PROBE_X')) out.push('예약 실행: 이벤트 없는 호출이 예약 실행 모양 기록(TRIG_PROBE)을 덮는다 — ' + t1 + ' / ' + t2);
     reset(); }
   // [TRIG_MISS_QUIET] 배우기 전 · 목록에 없는 아이디는 까닭을 남긴다 — 밖에서 온 글자는 영숫자만
   reset(); try { G._trigIn_({ triggerUid: 'NO<b>PE77' }); } catch (e) {}
@@ -417,10 +423,15 @@ function gateChecks(list) {
   // [AICOST_SECRET] AI 비용 기록은 사이트 서버만 아는 공유키(AI_HANDOFF_SECRET)가 맞을 때만 쌓는다 · 키가 없으면(설정 전) 종전처럼
   { const keepS = G._aiCostSheet_, keepA = G._lockedAppend; let app = 0; G._aiCostSheet_ = () => ({ getLastRow: () => 2 }); G._lockedAppend = () => { app++; };
     PP().setProperty('AI_HANDOFF_SECRET', 'k-sim'); reset(); G._SRV = true;
-    G.handleAiCostLog({ surface: 'adv', model: 'm', in: 10, out: 5, secret: 'wrong' });
-    const bad1 = app; G.handleAiCostLog({ surface: 'adv', model: 'm', in: 10, out: 5, secret: 'k-sim' });
-    if (bad1 !== 0 || app !== 1) out.push('AI 비용 기록: 공유키가 틀려도 쌓거나 맞는데 안 쌓는다 — ' + bad1 + ' / ' + app);
-    PP().deleteProperty('AI_HANDOFF_SECRET'); app = 0; G.handleAiCostLog({ surface: 'adv', model: 'm', in: 10, out: 5 });
+    // 밖에서 온 기록은 doPost 길로 잰다(키를 보는 자리가 그 길이다 · [AICOST_POST_ONLY])
+    const post = (o) => { try { G.doPost({ parameter: {}, postData: { type: 'application/json', contents: JSON.stringify(Object.assign({ action: 'aiCostLog' }, o)) } }); } catch (e) {} };
+    post({ surface: 'adv', model: 'm', in: 10, out: 5, secret: 'wrong' }); post({ surface: 'adv', model: 'm', in: 10, out: 5 });
+    const bad1 = app; reset(); G._SRV = true; post({ surface: 'adv', model: 'm', in: 10, out: 5, secret: 'k-sim' });
+    if (bad1 !== 0 || app !== 1) out.push('AI 비용 기록: 공유키가 틀려도(없어도) 쌓거나 맞는데 안 쌓는다 — ' + bad1 + ' / ' + app);
+    // [AICOST_POST_ONLY 라운드 6] GAS 안에서 부르는 목소리 기록(80_production _vcCharLog)은 키 없이도 쌓인다 — 키를 정해 둔 운영에서 목소리 비용이 통째로 빠지지 않게
+    app = 0; reset(); G._SRV = true; try { G._vcCharLog(120); } catch (e) { out.push('AI 비용 기록: 목소리 기록이 던졌다 — ' + e.message); }
+    if (app !== 1) out.push('AI 비용 기록: 키를 정해 두면 GAS 안의 목소리 비용 기록이 버려진다 — ' + app);
+    PP().deleteProperty('AI_HANDOFF_SECRET'); app = 0; reset(); G._SRV = true; post({ surface: 'adv', model: 'm', in: 10, out: 5 });
     if (app !== 1) out.push('AI 비용 기록: 키를 아직 안 정한 때(설정 전)에 기록이 멈춘다');
     G._aiCostSheet_ = keepS; G._lockedAppend = keepA; reset(); }
   // [POST_SAFE_JSON] 밖에서 온 값의 «toString · valueOf» 칸은 받을 때 지운다 — 동작 이름이 객체여도 «모르는 동작»(3)으로 끝나고 예외(9)로 가지 않는다

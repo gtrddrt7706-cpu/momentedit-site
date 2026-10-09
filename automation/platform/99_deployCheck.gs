@@ -385,7 +385,7 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
     } else {
       var _pp = PropertiesService.getScriptProperties();
       var _has = function (k) { var v = _pp.getProperty(k); return v !== null && String(v).trim() !== ''; };
-      var _on = {}, _emptyOpt = [], _emptyTune = [];
+      var _on = {}, _emptyOpt = [], _emptyTune = [], _emptyGuard = [];
       for (var pi = 0; pi < REMOTE.props.length; pi++) {
         var _p = REMOTE.props[pi];
         if (_p.kind === 'switch') {
@@ -394,6 +394,7 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
           L.push('  --   ' + _p.key + ' = ' + (_v === '' ? '(비어 있음)' : _v) + '   ' + _p.a);
         } else if (_p.kind === 'tuning' && !_has(_p.key)) _emptyTune.push(_p.key);
         else if (_p.kind === 'option' && !_has(_p.key)) _emptyOpt.push(_p.key);
+        else if (_p.kind === 'guard' && !_has(_p.key)) _emptyGuard.push(_p.key + ' — ' + _p.a);   // [SECRET_GUARD_KIND 2026-10-09 라운드 6] 비면 «조용해지는» 것이 아니라 입구가 열린다
       }
       for (var pj = 0; pj < REMOTE.props.length; pj++) {
         var _q = REMOTE.props[pj];
@@ -406,6 +407,7 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
       }
       if (_emptyTune.length) L.push('  --   기본값으로 도는 것 ' + _emptyTune.length + '개: ' + _emptyTune.join(', ') + ' (비어 있어도 정상)');
       if (_emptyOpt.length) L.push('  --   비어 있는 곁가지 ' + _emptyOpt.length + '개: ' + _emptyOpt.join(', ') + ' (그 곁가지만 조용해집니다)');
+      for (var pg = 0; pg < _emptyGuard.length; pg++) L.push('  ★--  비어 있는 열쇠: ' + _emptyGuard[pg] + ' · Claude 에게 알려 주세요');   // [SECRET_GUARD_KIND]
     }
   } catch (e) { L.push('  --   설정값 확인 불가: ' + ((e && e.message) || e) + ' (통과가 아닙니다)'); }
 
@@ -485,9 +487,9 @@ function deployStampCheck() {
     L.push('  --  확인 불가(실패 아님): ' + ((e && e.message) || e));
   }
   try {   // ★[TRIG_IN 2026-10-09] 예약 실행을 «진짜 트리거»로 알아봤는가(70_journey _trigIn_) — 알아본 뒤부터 공개 화면에서 예약 실행 함수를 막는다
-    var _tp = PropertiesService.getScriptProperties(), _tu = _tp.getProperty('TRIG_UID_OK'), _tq = _tp.getProperty('TRIG_PROBE'), _tm = _tp.getProperty('TRIG_UID_MISS'), _tf = _tp.getProperty('TRIG_LIST_FAIL');
+    var _tp = PropertiesService.getScriptProperties(), _tu = _tp.getProperty('TRIG_UID_OK'), _tq = _tp.getProperty('TRIG_PROBE') || _tp.getProperty('TRIG_PROBE_X'), _tm = _tp.getProperty('TRIG_UID_MISS'), _tf = _tp.getProperty('TRIG_LIST_FAIL');   // [TRIG_PROBE_SLOT] 예약 실행 모양을 먼저
     if (_tu) L.push('  OK  예약 실행 확인 — 진짜 트리거를 알아봤습니다(' + String(_tu).slice(0, 70) + ')');   // [TRIG_IN_WHY] 시각 · 아이디 앞자리 · 그때 메일(가린 꼴)
-    else L.push('  --  예약 실행 확인 — 아직입니다(' + (_tq ? ('모양 기록 ' + String(_tq).slice(0, 60) + ' · Claude 에게 알려 주세요') : '배포 뒤 몇 분 지나 다시 실행') + ')');   // [STAMP_TRIG_ONE] 알아봤으면 OK 하나 · 아니면 «아직» 하나
+    else L.push('  --  예약 실행 확인 — 아직입니다(' + (_tq ? ('모양 기록 ' + String(_tq).slice(0, 140) + ' · Claude 에게 알려 주세요') : '배포 뒤 몇 분 지나 다시 실행') + ')');   // [TRIG_PROBE_SLOT] 140자 — 모양 · 메일까지 보이게   // [STAMP_TRIG_ONE] 알아봤으면 OK 하나 · 아니면 «아직» 하나
     if (_tm && !_tu) L.push('  --  예약 실행 아이디가 목록에 없던 적이 있어요(' + String(_tm).slice(0, 70) + ' · 계속되면 Claude 에게 알려 주세요)');   // [STAMP_TRIG_ONE] 덧줄은 따로 · [TRIG_MISS_QUIET] 배우기 전에만
     if (_tf && _tu) L.push('  --  예약 실행 목록을 못 읽어 막은 적이 있어요(' + String(_tf).slice(0, 40) + ')');   // [TRIG_LIST_KNOWN]
   } catch (e) {}

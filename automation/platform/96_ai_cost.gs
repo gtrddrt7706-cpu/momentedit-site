@@ -35,10 +35,11 @@ function _aiCostSheet_() {
 }
 
 /** Vercel 챗봇 → 토큰 1건 적재 (doPost action='aiCostLog') */
-function handleAiCostLog(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
+function handleAiCostLog(body, fromPost) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   try {
-    /* [AICOST_SECRET 2026-10-09 라운드 5] 사이트 서버(api/_costlog.js)만 아는 공유키 — 문의 리드와 같은 키(AI_HANDOFF_SECRET). 키가 없으면 조용히 버린다(오류기록 · 경보 없음) */
-    var _cs = ''; try { _cs = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (eS) {}
+    /* [AICOST_SECRET 2026-10-09 라운드 5] 사이트 서버(api/_costlog.js)만 아는 공유키 — 문의 리드와 같은 키(AI_HANDOFF_SECRET). 키가 없으면 조용히 버린다(오류기록 · 경보 없음)
+       [AICOST_POST_ONLY 2026-10-09 라운드 6] 키는 doPost 로 «밖에서 온» 기록에만 본다(fromPost) — GAS 안에서 부르는 목소리 기록(80_production _vcCharLog)은 키가 없어도 쌓는다 */
+    var _cs = ''; if (fromPost === true) { try { _cs = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (eS) {} }
     if (_cs && String((body && body.secret) || '').slice(0, 80) !== _cs) return { ok: true };
     var surface = String((body && body.surface) || '').slice(0, 16) || '기타';
     var model = String((body && body.model) || '').slice(0, 40);
@@ -423,6 +424,8 @@ function aiMorningReport(preview) { _gsr_();
     else if (typeof aiHandoffNightTake === 'function') night = aiHandoffNightTake();
   } catch (e) {}
   var failY = 0; try { if (typeof notifyFailYesterday === 'function') failY = notifyFailYesterday(); } catch (e) {}
+  /* [NOTICE_OVERFLOW 2026-10-09 라운드 6] 시간당 상한을 넘어 메일로 못 보낸 실패 알림(consultation-booking _nsOverflow_) — 읽고 지운다(미리보기는 읽기만) */
+  var ovf = []; try { var _OP = PropertiesService.getScriptProperties(), _oo = JSON.parse(_OP.getProperty('NS_OVERFLOW') || 'null'); if (_oo && Array.isArray(_oo.a)) ovf = _oo.a; if (!preview && ovf.length) _OP.deleteProperty('NS_OVERFLOW'); } catch (e) { ovf = []; }
   var bal = null, thr = 3000;
   try {
     thr = Number(PropertiesService.getScriptProperties().getProperty('SOLAPI_LOW_BALANCE')) || 3000;
@@ -474,16 +477,19 @@ function aiMorningReport(preview) { _gsr_();
      ★«고칠 것»만 싣는다(갈린 것 0건이면 줄 자체를 만들지 않는다) — 매일 오는 «이상 없음»은 곧 안 읽히게 된다. */
   if (safety.disagree && safety.disagree.length) {
     rows.push(['직원 답이 갈렸어요 (' + safety.disagree.length + '건)',
-      safety.disagree.map(function (d0) { return '· "' + d0.q + '" → ' + d0.detail; }).join('<br>'), true]);
+      safety.disagree.map(function (d0) { return '· "' + d0.q + '" → ' + d0.detail; }).join('\n'), true]);   // [MORNING_ESC] 줄바꿈은 \n(escape 뒤 <br>)
   }
   rows.push(['솔라피 잔액', balStr, balLow]);
   if (failY > 0) rows.push(['어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
+  if (ovf.length) rows.push(['메일로 못 보낸 실패 알림 (' + (ovf.length >= 20 ? '20건 넘음' : ovf.length + '건') + ')', ovf.map(function (x) { return '· ' + [x[0], x[1], x[2]].join(' · '); }).join('\n') + '\n같은 제목이 한 시간에 다섯 통을 넘어 메일 대신 여기 모았어요', true]);   // [NOTICE_OVERFLOW]
 
+  /* [MORNING_ESC 2026-10-09 라운드 6] 줄 값은 모두 글로 받아 escape 한 뒤 줄바꿈만 <br> — 고객 이름 · 질문이 메일 HTML 로 들어가지 않게 */
+  var _mrEsc = function (v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
   var rowHtml = rows.map(function (r) {
     var warn = r[2];
     return '<div style="padding:13px 2px;border-bottom:1px solid #ECE8E1">'
-      + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px">' + r[0] + '</div>'
-      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + String(r[1]).replace(/\n/g, '<br>') + '</div>'
+      + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px">' + _mrEsc(r[0]) + '</div>'
+      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + _mrEsc(r[1]).replace(/\n/g, '<br>') + '</div>'
       + '</div>';
   }).join('');
   var inner = '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A39C8E;text-align:center;margin:0 0 18px">' + ymd + ' 운영 현황</p>'

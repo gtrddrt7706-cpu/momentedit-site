@@ -16451,8 +16451,74 @@ chk "secret: process.env.HANDOFF_SECRET" api/_costlog.js 1
 # ★[MAIL_SAME_WORDS 2026-10-09 라운드 5 화면] GAS 화면 넷은 자기 여백으로 스크롤되지 않는다(body box-sizing) · 고객 취소 화면 날짜는 폰에서 한 줄(16px · 좁은 폭 여백)
 #   · 알리기만 하는 관리 창(빠진 것 · 링크 확인)은 단추 하나 · 코드 괄호는 한 줄(mail-page ③ · err-admin ②-D 가 행동으로 잰다)
 chk 'min-height:100vh;box-sizing:border-box' automation/consultation/consultation-booking.gs 4
-chk "@media (max-width:360px){.box{padding:42px 22px 34px}}" automation/consultation/consultation-booking.gs 1
 chk "onYes:closeModal, alertOnly:true" admin.html 2
+# ★[AICOST_POST_ONLY · NOTICE_OVERFLOW · MORNING_ESC · CANCEL_RESULT · ERR_ID_RECORDED · TRIG_PROBE_SLOT · SECRET_GUARD_KIND 2026-10-09 라운드 6]
+#   AI 비용 공유키는 밖에서 온 기록에만(GAS 안의 목소리 기록은 키 없이) · 같은 제목 실패 알림이 넘치면 «멈춰요» 한 통 뒤 아침 보고에 모은다(조용히 사라지지 않게)
+#   · 아침 보고의 줄 값은 escape · 일부 실패 알림은 할 일 줄을 앞에 · 결과 글 한 줄은 줄바꿈을 « · »로 · 관리자에게는 새로고침 안내
+#   · 관리자 취소 결과는 된 것만(빠지면 B4 · 처리이력) · «이미 취소»는 같은 제목 · 취소 화면 380 여백 · 입력칸 16px 확대 허용 · «안 된 것» 항목은 한 줄
+#   · 상한에 닿은 동작에는 사고번호를 주지 않는다 · 예약 실행 모양 기록은 두 칸 · 공유 열쇠가 비면 ★ 줄 · 링크 경고 창은 토스트와 겹치지 않는다
+#   (mail-page ③ ⑥ · gsr-guard · err-log-safe ⑦ · deploycheck-sim 6-D · err-admin ②-D 가 행동으로 잰다 · 되돌림 29개 확인)
+chk 'AICOST_POST_ONLY' automation/consultation/consultation-booking.gs 1
+chk 'AICOST_POST_ONLY' automation/platform/96_ai_cost.gs 1
+chk 'AICOST_POST_ONLY' scripts/audit/gsr-guard.mjs 2
+chk 'NOTICE_OVERFLOW' automation/consultation/consultation-booking.gs 2
+chk 'NOTICE_OVERFLOW' automation/platform/96_ai_cost.gs 2
+chk 'NOTICE_OVERFLOW' scripts/gen-deploy-fns.mjs 1
+chk 'NOTICE_OVERFLOW' scripts/audit/mail-page.mjs 1
+chk 'NOTICE_HEAD_FIRST' automation/consultation/consultation-booking.gs 2
+chk 'NOTICE_HEAD_FIRST' scripts/audit/mail-page.mjs 1
+chk 'INFO_TEXT_SEP' automation/consultation/consultation-booking.gs 1
+chk 'INFO_TEXT_SEP' scripts/audit/mail-page.mjs 1
+chk 'CANCEL_RESULT' automation/consultation/consultation-booking.gs 4
+chk 'CANCEL_RESULT' automation/admin/admin.gs 1
+chk 'CANCEL_RESULT' scripts/audit/mail-page.mjs 1
+chk 'CANCEL_SAME_WORDS' automation/consultation/consultation-booking.gs 5
+chk 'CANCEL_SAME_WORDS' scripts/audit/mail-page.mjs 1
+chk 'CANCEL_DATE_LINE' automation/consultation/consultation-booking.gs 2
+chk 'CANCEL_DATE_LINE' scripts/audit/mail-page.mjs 1
+chk 'MAIL_ZOOM_OK' automation/consultation/consultation-booking.gs 2
+chk 'MAIL_ZOOM_OK' scripts/audit/mail-page.mjs 1
+chk 'MISS_NOWRAP' automation/consultation/consultation-booking.gs 2
+chk 'MISS_NOWRAP' automation/admin/admin.gs 1
+chk 'MISS_NOWRAP' admin.html 1
+chk 'MISS_NOWRAP' scripts/audit/mail-page.mjs 1
+chk 'MORNING_ESC' automation/platform/96_ai_cost.gs 2
+chk 'MORNING_ESC' scripts/audit/mail-page.mjs 1
+chk 'ERR_ID_RECORDED' automation/platform/95_notify.gs 3
+chk 'ERR_ID_RECORDED' scripts/audit/err-log-safe.mjs 1
+chk 'ADM_GONE_WORDS' automation/admin/admin.gs 2
+chk 'ADM_GONE_WORDS' scripts/audit/mail-page.mjs 1
+chk 'TRIG_PROBE_SLOT' automation/platform/70_journey.gs 2
+chk 'TRIG_PROBE_SLOT' automation/platform/99_deployCheck.gs 2
+chk 'TRIG_PROBE_SLOT' scripts/gen-deploy-fns.mjs 1
+chk 'TRIG_PROBE_SLOT' scripts/audit/gsr-guard.mjs 1
+chk 'SECRET_GUARD_KIND' automation/platform/99_deployCheck.gs 2
+chk 'SECRET_GUARD_KIND' scripts/gen-deploy-fns.mjs 3
+chk 'SECRET_GUARD_KIND' scripts/audit/deploycheck-sim.mjs 1
+chk 'LINK_WARN_ONE' admin.html 2
+chk 'LINK_WARN_ONE' scripts/audit/err-admin.mjs 1
+chk "handleAiCostLog(body, true)" automation/consultation/consultation-booking.gs 1
+chk "if (fromPost === true)" automation/platform/96_ai_cost.gs 1
+chk "다섯 통을 넘어 메일은 여기서 멈춰요" automation/consultation/consultation-booking.gs 1
+chk "if (o.a.length >= 20) return;" automation/consultation/consultation-booking.gs 1
+chk "_mrEsc(r\[1\]).replace(" automation/platform/96_ai_cost.gs 1
+chk "@media (max-width:380px){.box{padding:42px 22px 34px}}" automation/consultation/consultation-booking.gs 1
+chk "@media (max-width:380px){.box{padding:42px 22px 30px}}" automation/consultation/consultation-booking.gs 1
+chk "font-size:16px;color:#3A2D22;background:#fff;outline:none}" automation/consultation/consultation-booking.gs 1
+chk "line-height:1.85;color:#5A554C;text-wrap:pretty}" automation/consultation/consultation-booking.gs 1
+chk "margin-bottom:14px;text-wrap:pretty}" admin.html 1
+chk "title:'링크 확인이 필요해요'" admin.html 1
+chk "return { cal: _cal, mail: _mail };" automation/consultation/consultation-booking.gs 1
+chk "if (!existingId) return null;" automation/consultation/consultation-booking.gs 1
+chk "'예약 정보가 바뀌었어요 · 새로고침해 주세요'" automation/admin/admin.gs 2
+chk "_trigMark_(_tl ? 'TRIG_PROBE' : 'TRIG_PROBE_X'" automation/platform/70_journey.gs 1
+chk "String(_tq).slice(0, 140)" automation/platform/99_deployCheck.gs 1
+chk "AI_HANDOFF_SECRET: \['guard'" scripts/gen-deploy-fns.mjs 1
+nochk "maximum-scale=1.0,user-scalable=no" automation/consultation/consultation-booking.gs
+nochk "이 예약은 이미 취소 처리되었습니다." automation/consultation/consultation-booking.gs
+nochk "infoPage('이미 취소되었습니다'" automation/consultation/consultation-booking.gs
+nochk "'저장은 됐어요 · 링크 확인이 필요해요'" admin.html
+nochk "캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다.', true);" automation/consultation/consultation-booking.gs
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2

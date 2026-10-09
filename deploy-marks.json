@@ -2172,6 +2172,180 @@
    "fn": "doGet",
    "mark": "ENTRY_ARGS_SRV",
    "why": "링크 주소 값은 글자만 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "AICOST_POST_ONLY",
+   "why": "AI 비용 기록의 공유키는 밖에서 온 기록에만 본다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "handleAiCostLog",
+   "mark": "AICOST_POST_ONLY",
+   "why": "공유키는 doPost 로 온 기록에만 · GAS 안의 목소리 비용 기록은 키 없이 쌓는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "notifyStudio",
+   "mark": "NOTICE_OVERFLOW",
+   "why": "같은 제목 실패 알림이 한 시간에 다섯 통을 넘으면 «멈춰요» 한 통 뒤 아침 보고에 모은다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_nsOverflow_",
+   "mark": "NOTICE_OVERFLOW",
+   "why": "메일로 못 보낸 실패 알림을 20줄까지 모아 둔다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "NOTICE_OVERFLOW",
+   "why": "모아 둔 실패 알림을 아침 보고에 싣고 지운다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "MORNING_ESC",
+   "why": "아침 보고 메일의 줄 값은 글로만(escape) · 줄바꿈만 <br> — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actApprove",
+   "mark": "NOTICE_HEAD_FIRST",
+   "why": "승인 일부 실패 알림은 할 일 줄을 앞에 · 오류 글은 짧게 뒤에 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actAccept",
+   "mark": "NOTICE_HEAD_FIRST",
+   "why": "수락 일부 실패 알림은 할 일 줄을 앞에 · 오류 글은 짧게 뒤에 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_infoText_",
+   "mark": "INFO_TEXT_SEP",
+   "why": "결과 글을 한 줄로 옮길 때 줄바꿈은 « · » — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actCancel",
+   "mark": "CANCEL_RESULT",
+   "why": "취소 뒷일(캘린더 · 안내 메일) 중 된 것을 돌려준다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doAdminCancel",
+   "mark": "CANCEL_RESULT",
+   "why": "관리자 취소 결과는 된 것만 · 빠진 것은 B4 와 처리이력 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "deleteCalendarEvent",
+   "mark": "CANCEL_RESULT",
+   "why": "지울 일정이 없으면 null · 못 지우면 false · 지우면 true — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCancel",
+   "mark": "CANCEL_RESULT",
+   "why": "관리 화면 취소도 빠진 것이 있으면 «빠진 것이 있어요» 창 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_whoWhen_",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "«이미 취소» 화면 본문은 누구 · 언제 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doCustomerCancel",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "«이미 취소» 화면은 같은 제목 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveCancelD",
+   "mark": "MAIL_ZOOM_OK",
+   "why": "취소 화면 입력칸 16px · 확대를 막지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveCancelD",
+   "mark": "CANCEL_DATE_LINE",
+   "why": "380 아래 여백 — 날짜 · 시간 한 줄 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveAdminCancelD",
+   "mark": "CANCEL_DATE_LINE",
+   "why": "관리자 취소 화면도 380 아래 여백 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_missHtml_",
+   "mark": "MISS_NOWRAP",
+   "why": "«안 된 것» 항목은 줄 끝에서 갈리지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "infoPage",
+   "mark": "MISS_NOWRAP",
+   "why": "결과 화면 본문은 끝 줄에 한 낱말만 남지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "_admMiss_",
+   "mark": "MISS_NOWRAP",
+   "why": "관리 화면 «안 된 것» 항목은 줄 끝에서 갈리지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminApprove",
+   "mark": "ADM_GONE_WORDS",
+   "why": "관리 화면에서 예약을 못 찾으면 새로고침 안내 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminAcceptProposal",
+   "mark": "ADM_GONE_WORDS",
+   "why": "관리 화면 수락에서 예약을 못 찾으면 새로고침 안내 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errId",
+   "mark": "ERR_ID_RECORDED",
+   "why": "기록 상한에 닿은 동작에는 사고번호를 주지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errCapKey_",
+   "mark": "ERR_ID_RECORDED",
+   "why": "오류기록 상한 열쇠를 한 곳에서 만든다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errRecord",
+   "mark": "ERR_ID_RECORDED",
+   "why": "사고번호와 같은 열쇠로 상한을 센다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_PROBE_SLOT",
+   "why": "배우기 전 모양 기록은 예약 실행 모양과 그 밖을 나눠 적는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployStampCheck",
+   "mark": "TRIG_PROBE_SLOT",
+   "why": "예약 실행 모양 기록을 먼저 · 140자까지 보인다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployCheck",
+   "mark": "SECRET_GUARD_KIND",
+   "why": "공유 열쇠가 비면 ★ 줄로 알린다 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2336,6 +2510,7 @@
    "handleSaveRefundAccount",
    "weeklyBackup",
    "_trigIn_",
+   "_trigHash_",
    "_trigSafe_",
    "_trigWho_",
    "_trigUidIs_",
@@ -2629,6 +2804,7 @@
    "_lockedAppend",
    "_errArea",
    "_errId",
+   "_errCapKey_",
    "_errStamp",
    "_errWho",
    "_errRecord",
@@ -2792,6 +2968,7 @@
    "_maskEmail",
    "adminSilentContacts",
    "adminApprove",
+   "_admMiss_",
    "_admInfoText_",
    "adminAcceptProposal",
    "adminCancel",
@@ -2855,6 +3032,8 @@
    "actApprove",
    "_rowFresh_",
    "_infoText_",
+   "_missHtml_",
+   "_whoWhen_",
    "_partialNote_",
    "actAccept",
    "_releaseWeddingHoldOnCancel",
@@ -2950,6 +3129,7 @@
    "esc",
    "safeAttr",
    "notifyStudio",
+   "_nsOverflow_",
    "servePayConfirm",
    "_payConfirmCheck_",
    "_payConfirmRun_",
@@ -3236,7 +3416,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 18:26 · 6676d860",
+ "_생성": "2026-10-09 19:39 · ab84a875",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3282,8 +3462,8 @@
   },
   {
    "key": "AI_HANDOFF_SECRET",
-   "kind": "option",
-   "a": "AI 인계 API 인증",
+   "kind": "guard",
+   "a": "문의 리드 · AI 인계 · 가능일 · AI 비용 기록이 키 없이 열린다(베르셀 HANDOFF_SECRET 과 같은 값)",
    "b": ""
   },
   {
@@ -3306,8 +3486,8 @@
   },
   {
    "key": "AI_WIDGET_SECRET",
-   "kind": "option",
-   "a": "AI 위젯 API 인증",
+   "kind": "guard",
+   "a": "AI 위젯이 고객 정보를 서명 없이 받는다(베르셀 같은 이름과 같은 값)",
    "b": ""
   },
   {
@@ -3414,6 +3594,12 @@
   },
   {
    "key": "NSERR_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "NS_OVERFLOW",
    "kind": "state",
    "a": "",
    "b": ""
@@ -3570,6 +3756,12 @@
   },
   {
    "key": "TRIG_PROBE",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "TRIG_PROBE_X",
    "kind": "state",
    "a": "",
    "b": ""
@@ -3738,5 +3930,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "be461c953daa"
+ "_표식서명": "e7addadaab03"
 }

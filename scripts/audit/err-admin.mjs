@@ -307,6 +307,13 @@ await sec('②-D', async () => {
   await pg.evaluate(() => { openModal({ title: 't', text: 'x', yes: '확인', onYes: closeModal }); });
   ok('②-D 다른 창은 «닫기» 단추가 그대로 보인다(알림 창의 단추 하나가 새지 않는다)', (await pg.evaluate(() => getComputedStyle(document.getElementById('cm_no')).display)) !== 'none');
   await pg.evaluate(() => closeModal()); delete GAS.adminApprove;
+  /* [LINK_WARN_ONE 라운드 6] 링크 경고 창 — 제목은 한 줄(«링크 확인이 필요해요») · 본문이 제목을 되풀이하지 않는다 · «✓ 처리됨» 토스트가 창 위에 겹치지 않는다(카톡 안내는 창 안에) */
+  await pg.evaluate(() => { const t = document.getElementById('toast'); if (t) { t.classList.remove('show'); t.textContent = ''; } try { afterAction('ME-A', { ok: true, warnings: ['https://x.example/a 를 열 수 없어요'] }, 'adminSetResultLinks'); } catch (e) {} });
+  await pg.waitForTimeout(500);
+  const lw = await pg.evaluate(() => ({ t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, no: getComputedStyle(document.getElementById('cm_no')).display,
+    toast: (document.getElementById('toast') || {}).classList.contains('show'), h: document.getElementById('cm_title').getBoundingClientRect().height, lh: parseFloat(getComputedStyle(document.getElementById('cm_title')).lineHeight) || 0 }));
+  ok('②-D 링크 경고 → 제목 «링크 확인이 필요해요» 한 줄 · 본문 «저장은 됐어요»(제목 되풀이 없음) · 카톡 안내는 창 안 · 토스트 겹침 없음 · 단추 하나', lw.t === '링크 확인이 필요해요' && /저장은 됐어요/.test(lw.b) && !/링크 확인이 필요해요/.test(lw.b) && /결과물 등록/.test(lw.b) && !lw.toast && lw.no === 'none' && (!lw.lh || lw.h <= lw.lh * 1.5), JSON.stringify(lw));
+  await pg.evaluate(() => closeModal());
   GAS.adminDetail = { abort: 1 };
   await pg.evaluate(() => doMarkRefundedInline('ME-A', '가나다 · 라마바')); await pg.waitForTimeout(700);
   const d2 = await pg.evaluate(() => ({ t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, y: document.getElementById('cm_yes').textContent }));

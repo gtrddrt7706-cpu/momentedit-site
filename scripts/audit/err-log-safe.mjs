@@ -84,5 +84,14 @@ ok('⑥ 사고번호가 있는 같은 동작 45번 → 한 시간에 30줄', row
 rows.length = 0; g._errRecord('saveProductionTrack', 'S9', '서버에서 오류가 났어요', 'x', 'Q1', '');
 ok('⑥ 다른 동작의 줄은 그대로 남는다', rows.length === 1, rows.length + '줄');
 
+/* ⑦ [ERR_ID_RECORDED 라운드 6] 상한에 닿은 동작에는 사고번호를 주지 않는다 — 고객이 알려 준 번호가 시트에 없는 일이 없게 */
+const id1 = g._errId('get:schedule'), id2 = g._errId('saveProductionTrack');
+ok('⑦ 상한에 닿은 동작은 사고번호를 비운다(기록 안 되는 번호를 보이지 않는다)', id1 === '', JSON.stringify(id1));
+ok('⑦ 다른 동작은 사고번호를 그대로 준다', /^[A-Z2-9]{4}$/.test(id2), JSON.stringify(id2));
+g.__ERR_ACT = 'get:schedule'; const id3 = g._errId(); g.__ERR_ACT = '';
+ok('⑦ 동작을 안 넘기면 doPost 가 적어 둔 동작(__ERR_ACT)을 본다', id3 === '', JSON.stringify(id3));
+const odd = '<x>=evil', idOdd = (() => { for (let i = 0; i < 31; i++) g._errRecord(odd, 'X9', 't', 'w' + i, 'Z' + i, ''); return g._errId(odd); })();
+ok('⑦ 이상한 동작 이름도 _errRecord 와 같은 열쇠로 센다', idOdd === '', JSON.stringify(idOdd));
+
 console.log(rc ? '━━ 빨강 — 오류기록에 밖의 글이 수식 · 개인정보로 들어간다' : '━━ 초록');
 process.exit(rc);
