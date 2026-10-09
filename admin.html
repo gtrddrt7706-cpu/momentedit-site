@@ -105,7 +105,7 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 
 /* 검색 */
 .search{display:flex;gap:8px;margin-bottom:16px}
-.search input{flex:1;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none}
+.search input{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none}
 .search input:focus{border-color:var(--gold)}
 /* 자동완성(브라우저 저장값) 파란 배경 제거 — 흰 배경 유지 */
 input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
@@ -373,7 +373,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 /* [ADM_SLOW_NOTE] 해골이 오래 남을 때 한 줄 — 색은 상태 신호(경고)라 장식이 아니다. */
 .slow-note{font-size:13px;color:var(--sub);background:#FFF8E6;border:1px solid #F0E3C0;border-radius:8px;padding:8px 10px;margin-bottom:8px}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
-#toast{position:fixed;bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:11px 20px;border-radius:24px;opacity:0;transition:all .3s var(--ease);z-index:100020;pointer-events:none;max-width:90%;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
+#toast{position:fixed;bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:11px 20px;border-radius:24px;opacity:0;transition:all .3s var(--ease);z-index:100020;pointer-events:none;width:max-content;max-width:calc(100% - 32px);text-wrap:pretty;box-sizing:border-box;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
 /* ★[ADM_TOAST_LONG 2026-10-07 ERR_CODE_ADMIN] 실패 토스트는 오래(6초+) 남고 눌러서 닫는다(#24) · z-index 는 AI 직원실(9990) · 계약서 뷰어(99999) ·
    확인판(100010) 위 — 종전 60 이라 그 위에서 뜬 실패 토스트(교육 저장 실패 · 서명 진본 못 받음)가 판 뒤에 가려 보이지 않았다 */
 #toast.show.err{pointer-events:auto;cursor:pointer}
@@ -389,7 +389,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal-ov.show{display:flex}
 .modal{background:#fff;border-radius:12px;max-width:390px;width:100%;padding:24px 22px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
 .modal h3{font-family:var(--serif-ko);font-size:16.5px;font-weight:600;color:var(--accent);text-align:center;margin-bottom:9px}
-.modal .mbody-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;line-height:1.7;margin-bottom:14px}
+.modal .mbody-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;line-height:1.7;margin-bottom:14px;text-wrap:pretty}/* [MISS_NOWRAP 2026-10-09 라운드 6] 끝 줄에 한 낱말만 남지 않게 */
 .modal .mbody-t .li{display:block;font-size:12px;color:var(--light);margin-top:3px;text-align:left;padding-left:9px;text-indent:-9px}/* ★★[MODAL_LI_LEFT 2026-09-21 사장님 지적 「가운데정렬인데 맞는지」] 되돌리지 말 것.
    .li 는 .mbody-t{text-align:center} 안에 있어 가운데 정렬을 물려받고 있었다.
    ①목록인데 가운데로 세우면 «·» 셋이 서로 다른 x 좌표에 서서 기준선이 없어진다 —
@@ -673,7 +673,7 @@ function _why(x, o){
   } else if(!x || typeof x!=='object'){
     t='서버 답이 비었어요 · '+todo+' (코드 X7)';
   } else {
-    t=String(x.error||'').replace(/\s+/g,' ').trim().replace(/\.\s*\(코드 ([A-Z]\d)/,' (코드 $1');   // [ADM_WHY] 코드 앞 끝 마침표는 걷는다(«…주세요. (코드 B8)» → «…주세요 (코드 B8)» · 재배포 전 옛 서버 글)
+    t=String(x.error||'').replace(/[^\S\u00a0]+/g,' ').trim().replace(/\.\s*\(코드 ([A-Z]\d)/,' (코드 $1');   // [MISS_NOWRAP 라운드 7] 붙는 칸(U+00A0)은 남긴다 — «마이페이지 단계»가 창에서 갈리지 않게   // [ADM_WHY] 코드 앞 끝 마침표는 걷는다(«…주세요. (코드 B8)» → «…주세요 (코드 B8)» · 재배포 전 옛 서버 글)
     if(/^알 수 없는 요청: /.test(t) && !/배포/.test(t)) t+=' · GAS 새 버전 배포가 필요해요(99_deployCheck 의 deployStampCheck)';   // [ADM_WHY] 옛 GAS — 화면이 새 기능을 부르는데 재배포 전(#23)
     /* [ADM_SHAPE_X7 2026-10-08 점검 R2] 글이 없는 답 — 서버가 «됐다»(ok)고 했는데 화면이 기대한 목록 · 칸이 없으면 «서버 답 모양이 달라요 (X7)»,
        «안 됐다»(ok:false)인데 글만 없으면 받은 코드로. 종전엔 기본 글만 나가 스크린샷에 코드가 없었다(2라운드 실험 · 대기 목록) */
@@ -3397,6 +3397,7 @@ function openModal(opt){
   $('cm_yes').disabled=false;
   $('cm_yes').textContent=opt.yes||'확인';
   $('cm_yes').className='btn '+(opt.danger?'btn-danger':'btn-seal');
+  $('cm_no').style.display=opt.alertOnly?'none':'';   /* [MAIL_SAME_WORDS] 알리기만 하는 창은 단추 하나(«닫기» · «확인»이 같은 일) */
   $('modalBox').className='modal'+(opt.danger?' danger':'');
   _modalYes=opt.onYes;
   /* [CPN_PASTE] 닫힐 때 되돌릴 것이 있는 모달을 위해 — 전역 리스너(document paste 등)를 여기서 거둔다.
@@ -3427,7 +3428,7 @@ function li(s){ return '<span class="li">· '+esc(s)+'</span>'; }
    오래 걸린 끊김은 결과 모름(X5) · 로그인 풀림은 로그인 화면으로 · 처리는 됐는데 화면을 다시 그리다 멈춘 것은 그렇다고 말한다 */
 function runAct(fnArgs, code, lbl){
   mBusy(true); mErr('');
-  gas.apply(null, fnArgs).then(function(r){ if(r&&r.ok){ try{ afterAction(code,r,fnArgs[0]); }catch(e){ toastErr('처리는 됐어요 · 화면을 다시 그리다 멈췄어요 · 새로고침해 주세요 · '+_why(e)); } }
+  gas.apply(null, fnArgs).then(function(r){ if(r&&(r.ok||r.partial)){ try{ afterAction(code,r,fnArgs[0]); }catch(e){ toastErr('처리는 됐어요 · 화면을 다시 그리다 멈췄어요 · 새로고침해 주세요 · '+_why(e)); } }
       else { mBusy(false,lbl); if(_admLost(r)){ authFail(); return; } mErr(_why(r,{base:'처리하지 못했어요 · 다시 눌러 주세요'})); } })
     .catch(function(e){ mBusy(false,lbl); _mSay(_why(e,{write:true})); });
 }
@@ -3456,7 +3457,11 @@ function afterAction(code,res,act){
   var NH={adminSendContract:'계약서 도착',adminOpenFittingConsent:'드레스 시착 동의 요청',adminConfirmPayment:'계약금 입금 확인',adminConfirmMid:'중도금 입금 확인',adminConfirmBalance:'잔금 입금 확인',adminConfirmMidBalance:'중도금·잔금 입금 확인',adminSetResultLinks:'결과물 등록',adminMarkDelivered:'결과물 전달',adminMarkConsultDone:'상담 완료 · 마이페이지에서 계약 진행 안내',adminConfirmWeddingChange:'예식일 변경 적용',adminDeclineWeddingChange:'예식일 변경 거절(재조율)'};
   var NH_AUTO={adminSendContract:true,adminOpenFittingConsent:true,adminConfirmPayment:true,adminSetResultLinks:true,adminMarkDelivered:true,adminMarkConsultDone:true,adminConfirmWeddingChange:true,adminDeclineWeddingChange:true,
     adminConfirmMid:false,adminConfirmBalance:false,adminConfirmMidBalance:false};   // 입금 확인 3종은 cust.paymentConfirmed가 꺼져 있어 고객에게 아무것도 안 나감
-  toast(!NH[act] ? '✓ 처리됨'
+  var _lw=!!(res&&res.warnings&&res.warnings.length);   /* [LINK_WARN_ONE 2026-10-09 라운드 6] 링크 경고 창이 뜨면 토스트는 띄우지 않는다(창 위에 겹쳤다) · 카톡 안내는 창 안에 */
+  var _nfNone=(act==='adminSetResultLinks'&&res&&res.notified===false);   /* [RESULT_NOTIFIED 2026-10-09 라운드 7] 결과물 링크는 첫 등록(원본 · 보정본 · 수정 반영) 때만 고객 알림 — 다시 저장은 «안 가요»(옛 GAS 는 notified 가 없어 종전 말) */
+  if(act==='adminCancel'&&res&&res.noMail){ toast('✓ 처리됨 · 이메일이 없어 안내 메일은 보내지 않았어요'); if(_view==='detail') openDetail(code); else if(_view==='archive') loadArchive(); else loadHome(); return; }   /* [CANCEL_RESULT 라운드 8] 메일 화면과 같은 사실 */
+  if(!(res&&res.partial)&&!_lw) toast(!NH[act] ? '✓ 처리됨'
+    : _nfNone ? '✓ 처리됨 · 이번 저장은 고객 알림이 따로 가지 않아요'
     : NH_AUTO[act] ? ('✓ 처리됨 · 고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요')
     : '✓ 처리됨 · 이 확인은 고객 알림이 따로 가지 않아요');
   if(_view==='detail') openDetail(code);
@@ -3467,8 +3472,11 @@ function afterAction(code,res,act){
     var wb='<div style="background:#fdf3e0;border:1px solid #ecd9b0;border-radius:8px;padding:10px 12px;text-align:left">'+
       res.warnings.map(function(w){ return '<div style="font-size:13px;color:#8a5a2b;line-height:1.55;margin:3px 0">· '+esc(w)+'</div>'; }).join('')+
       '</div>';
-    openModal({ title:'저장은 됐어요 · 링크 확인이 필요해요', text:'<span class="li">저장은 완료됐지만, 아래 링크는 고객이 열지 못할 수 있어요.</span>', extra:wb, yes:'확인', onYes:closeModal });
+    openModal({ title:'링크 확인이 필요해요', text:'저장은 됐어요<br>아래 링크는 고객이 열지 못할 수 있어요'+(NH[act]&&NH_AUTO[act]&&!_nfNone?'<br>고객에게 「'+NH[act]+'」 카톡이 자동으로 나가요':''), extra:wb, yes:'확인', onYes:closeModal, alertOnly:true });   /* [LINK_WARN_ONE] 제목은 한 줄 · 본문이 제목을 되풀이하지 않는다 · 가운데 줄(글머리 없는 .li 는 둘째 줄이 들어간다 · 라운드 7) · 카톡 줄은 알림이 나갈 때만 */
   }
+  /* [APPROVE_PARTIAL 2026-10-09 라운드 3] 승인 · 수락은 됐는데 뒷일(캘린더 · 확정 메일 · 단계 · 카톡)이 빠졌으면 목록은 새로 그리고 빠진 것만 창 하나로 —
+     창을 그대로 두면 «다시 누르기»로 읽히고, 다시 누르면 «이미 확정»이 빠진 일을 덮는다 */
+  if(res&&res.partial){ openModal({ title:'빠진 것이 있어요', text:esc(_why(res)).split(' · ').join('<br>'), yes:'확인', onYes:closeModal, alertOnly:true }); }   /* 한 문장씩 한 줄(«이것만 직접 해 / 주세요»로 갈리지 않게) */   /* «✓ 처리됨» 토스트는 띄우지 않는다(창과 겹친다) */
 }
 
 function doApprove(code,names){ openModal({ title:'이 상담을 승인할까요?', text:b(names)+li('고객에게 확정 메일이 가요')+li('캘린더에 일정이 생겨요'), yes:'승인', onYes:function(){ runAct(['adminApprove',code],code,'승인'); } }); }

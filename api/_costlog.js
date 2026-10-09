@@ -16,6 +16,7 @@ module.exports = async function logAiCost(surface, model, usage, opts) {
       cw: usage.cache_creation_input_tokens || 0,
       cr: usage.cache_read_input_tokens || 0,
       isTest: !!(opts && opts.isTest),
+      secret: process.env.HANDOFF_SECRET || '',   // [AICOST_SECRET] GAS 가 AI_HANDOFF_SECRET 와 맞는지 본다(문의 리드와 같은 키)
     });
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 2000);

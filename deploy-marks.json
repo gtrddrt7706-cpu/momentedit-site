@@ -1925,7 +1925,535 @@
    "file": "consultation-booking",
    "fn": "_mailConfirmPage_",
    "mark": "MAIL_BTN_CONFIRM",
-   "why": "메일 단추(입금 확인 · 승인 · 수락)는 열면 확인 화면만 — 단추를 눌러야 처리(mailButtonGo) · 옛 판이면 링크를 여는 순간 처리된다"
+   "why": "메일 단추(입금 확인 · 승인 · 수락)는 열면 확인 화면만 — 단추(mailButtonGo)를 눌러야 처리 · 붙이고 새 버전으로 배포해야 먹는다"
+  },
+  {
+   "file": "admin",
+   "fn": "_activeEmail_",
+   "mark": "OWNER_MEMO",
+   "why": "편집기 실행에서 소유자 확인을 한 실행에 한 번만 — 무거운 편집기 도구가 느려지지 않게"
+  },
+  {
+   "file": "admin",
+   "fn": "_isOwnerRun_",
+   "mark": "OWNER_SELF",
+   "why": "편집기에서 자기 계정으로 돌리면 소유자로 알아본다(목록에 없는 편집기 계정도) · 서버 길 안은 토큰 · 서명만 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "_isOwnerRun_",
+   "mark": "OWNER_FIRST_ASK",
+   "why": "소유자인가는 한 실행에서 처음 물을 때 정한다 — 편집기 도구가 안에서 입구 함수를 불러도 끝까지 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_mailConfirmPage_",
+   "mark": "MAIL_BOX_STEADY",
+   "why": "메일 확인 화면 카드 폭 고정 — 단추를 누른 뒤 카드가 줄지 않게"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "mailButtonGo",
+   "mark": "MAIL_FAIL_WORDS",
+   "why": "메일 단추 실패 글을 받는 사람 말로 · 코드와 사고번호"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actApprove",
+   "mark": "HTML_ESC_NAMES",
+   "why": "결과 화면에 고객 글은 늘 escape — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actAccept",
+   "mark": "LOCK_REREAD",
+   "why": "승인 · 수락은 잠금을 잡은 뒤 같은 예약을 다시 읽어 판단 — 겹친 두 번째 누름이 메일을 두 번 보내지 않게 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_mailConfirmPage_",
+   "mark": "MAIL_RETRY",
+   "why": "메일 확인 화면 — 다시 누를 수 있는 실패는 단추를 되살린다 · 끝난 결과는 단추 자리를 남긴다 · 허락한 꼴만 그린다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "mailButtonGo",
+   "mark": "BTN_SAFE_ARGS",
+   "why": "메일 단추 처리는 글자 · 숫자만 받고 서명을 확인한 처리의 오류만 기록 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errRecord",
+   "mark": "PUB_RULES_ONLY",
+   "why": "공개 저장소 주석은 규칙만 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployCheck",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployStampCheck",
+   "mark": "STAMP_TRIG_ONE",
+   "why": "예약 실행 확인은 한 줄 — 알아봤으면 OK 하나 · 아니면 «아직» 하나(덧줄은 따로) · 편집기 진단이라 붙이면 바로 먹는다"
+  },
+  {
+   "file": "99_contractCheck",
+   "fn": "contractCheck",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "10_customers-setup",
+   "fn": "checkCustomerHeaderOrder",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "notifySetupCheck",
+   "mark": "DIAG_OWNER_ONLY",
+   "why": "편집기 전용 진단 — 공개 화면에서는 첫 줄에서 돌아간다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "purgeAdvisorLog",
+   "mark": "PURGE_CHAIN_ALWAYS",
+   "why": "주간 정리가 질문 기록이 비어도 개인정보 파기를 끝까지 부른다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_IN_WHY",
+   "why": "예약 실행 확인 기록에 까닭(가린 계정) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigUidIs_",
+   "mark": "TRIG_LIST_KNOWN",
+   "why": "예약 실행 아이디는 목록을 못 읽으면 알던 목록으로 판정 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_MISS_QUIET",
+   "why": "«목록에 없음» 기록은 배우기 전에만 · 영숫자만 · 배우면 지운다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleAcceptProposal",
+   "mark": "ACCEPT_RESULT",
+   "why": "마이페이지 수락은 결과 글이 실패면 성공으로 돌려주지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminAcceptProposal",
+   "mark": "ACCEPT_RESULT",
+   "why": "관리 화면 수락 · 승인은 실패를 성공 · 처리이력으로 남기지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "mailButtonGo",
+   "mark": "BTN_AFTER_FAIL",
+   "why": "메일 단추가 앞서 예상 못 한 오류로 끝났으면 다음 결과에 «확인해 주세요» 한 줄 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "mailButtonGo",
+   "mark": "BTN_FAIL_KIND",
+   "why": "붙여넣기 · 배포 누락은 3(다시 누르게 하지 않는다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_LEARN_ANY",
+   "why": "예약 실행은 진짜 목록에서 맞으면 배운다(기억해 둔 목록 포함) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actApprove",
+   "mark": "APPROVE_PARTIAL",
+   "why": "승인 · 수락 뒤 뒷일은 하나가 실패해도 끝까지 · 빠진 것은 «일부 안 됨»(B4) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminApprove",
+   "mark": "APPROVE_PARTIAL",
+   "why": "관리 화면 승인 · 수락의 «일부 안 됨»을 알린다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "POST_SAFE_JSON",
+   "why": "밖에서 온 JSON 은 toString · valueOf 칸을 지우고 받는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_payLock",
+   "mark": "LOCK_REREAD",
+   "why": "입금 잠금을 풀기 전에 쓰기를 내보낸다(flush) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitApplication",
+   "mark": "ENTRY_ARGS_SRV",
+   "why": "공개 입구는 그 화면이 보내는 인자만 받는다(서버 쪽 인자는 doPost 길에서만) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleAction",
+   "mark": "BTN_STATE_FIRST",
+   "why": "이미 끝났거나 취소된 예약의 승인 · 수락 링크는 지금 상태를 보여 준다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "notifyStudio",
+   "mark": "NOTICE_PER_WHO",
+   "why": "오류 · 실패 관리자 메일은 같은 제목 · 같은 사람만 6시간에 한 통 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_payConfirmRun_",
+   "mark": "PAY_NOTICE_TRUE",
+   "why": "입금 확인 결과는 고객 알림이 정말 나가는 확인만 «알림이 가요» — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "_admInfoText_",
+   "mark": "PASTE_GAP",
+   "why": "붙이는 도중(consultation-booking 이 옛 판)에도 관리 화면 승인 · 수락이 멈추지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "infoPage",
+   "mark": "MAIL_VIEWPORT",
+   "why": "GAS 화면은 viewport 를 addMetaTag 로(폰 폭으로 그린다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_payConfirmRun_",
+   "mark": "MAIL_SAME_WORDS",
+   "why": "메일 단추 결과는 같은 상태를 같은 말로(몰림 · 빈 까닭) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actAccept",
+   "mark": "ACCEPT_SLOT_NOTICE",
+   "why": "수락할 시간이 마감되면 스튜디오에 알린다(다시 제안) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminApprove",
+   "mark": "MAIL_SAME_WORDS",
+   "why": "관리 화면 승인 · 수락의 «일부 안 됨»은 메일 화면과 같은 말 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "syncCalendarEvent",
+   "mark": "CAL_RESULT",
+   "why": "캘린더 결과를 돌려주고 승인 · 수락이 «안 된 것»으로 센다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errRecord",
+   "mark": "ERR_LOG_CAP",
+   "why": "사고번호가 있는 오류기록도 같은 동작은 한 시간에 30줄까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "handleAiCostLog",
+   "mark": "AICOST_SECRET",
+   "why": "AI 비용 기록은 사이트 서버만 아는 공유키가 맞을 때만 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "ENTRY_ARGS_SRV",
+   "why": "링크 주소 값은 글자만 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "AICOST_POST_ONLY",
+   "why": "AI 비용 기록의 공유키는 밖에서 온 기록에만 본다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "handleAiCostLog",
+   "mark": "AICOST_POST_ONLY",
+   "why": "공유키는 doPost 로 온 기록에만 · GAS 안의 목소리 비용 기록은 키 없이 쌓는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "notifyStudio",
+   "mark": "NOTICE_OVERFLOW",
+   "why": "같은 제목 실패 알림이 한 시간에 다섯 통을 넘으면 «멈춰요» 한 통 뒤 아침 보고에 모은다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_nsOverflow_",
+   "mark": "NOTICE_OVERFLOW",
+   "why": "메일로 못 보낸 실패 알림을 20줄까지 모아 둔다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "NOTICE_OVERFLOW",
+   "why": "모아 둔 실패 알림을 아침 보고에 싣고 지운다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "MORNING_ESC",
+   "why": "아침 보고 메일의 줄 값은 글로만(escape) · 줄바꿈만 <br> — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actApprove",
+   "mark": "NOTICE_HEAD_FIRST",
+   "why": "승인 일부 실패 알림은 할 일 줄을 앞에 · 오류 글은 짧게 뒤에 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actAccept",
+   "mark": "NOTICE_HEAD_FIRST",
+   "why": "수락 일부 실패 알림은 할 일 줄을 앞에 · 오류 글은 짧게 뒤에 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_infoText_",
+   "mark": "INFO_TEXT_SEP",
+   "why": "결과 글을 한 줄로 옮길 때 줄바꿈은 « · » — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actCancel",
+   "mark": "CANCEL_RESULT",
+   "why": "취소 뒷일(캘린더 · 안내 메일) 중 된 것을 돌려준다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doAdminCancel",
+   "mark": "CANCEL_RESULT",
+   "why": "관리자 취소 결과는 된 것만 · 빠진 것은 B4 와 처리이력 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "deleteCalendarEvent",
+   "mark": "CANCEL_RESULT",
+   "why": "지울 일정이 없으면 null · 못 지우면 false · 지우면 true — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCancel",
+   "mark": "CANCEL_RESULT",
+   "why": "관리 화면 취소도 빠진 것이 있으면 «빠진 것이 있어요» 창 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_whoWhen_",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "«이미 취소» 화면 본문은 누구 · 언제 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doCustomerCancel",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "«이미 취소» 화면은 같은 제목 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveCancelD",
+   "mark": "MAIL_ZOOM_OK",
+   "why": "취소 화면 입력칸 16px · 확대를 막지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveCancelD",
+   "mark": "CANCEL_DATE_LINE",
+   "why": "380 아래 여백 — 날짜 · 시간 한 줄 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveAdminCancelD",
+   "mark": "CANCEL_DATE_LINE",
+   "why": "관리자 취소 화면도 380 아래 여백 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_missHtml_",
+   "mark": "MISS_NOWRAP",
+   "why": "«안 된 것» 항목은 줄 끝에서 갈리지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "infoPage",
+   "mark": "MISS_NOWRAP",
+   "why": "결과 화면 본문은 끝 줄에 한 낱말만 남지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "_admMiss_",
+   "mark": "MISS_NOWRAP",
+   "why": "관리 화면 «안 된 것» 항목은 줄 끝에서 갈리지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminApprove",
+   "mark": "ADM_GONE_WORDS",
+   "why": "관리 화면에서 예약을 못 찾으면 새로고침 안내 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminAcceptProposal",
+   "mark": "ADM_GONE_WORDS",
+   "why": "관리 화면 수락에서 예약을 못 찾으면 새로고침 안내 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errId",
+   "mark": "ERR_ID_RECORDED",
+   "why": "기록 상한에 닿은 동작에는 사고번호를 주지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errCapKey_",
+   "mark": "ERR_ID_RECORDED",
+   "why": "오류기록 상한 열쇠를 한 곳에서 만든다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errRecord",
+   "mark": "ERR_ID_RECORDED",
+   "why": "사고번호와 같은 열쇠로 상한을 센다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_trigIn_",
+   "mark": "TRIG_PROBE_SLOT",
+   "why": "배우기 전 모양 기록은 예약 실행 모양과 그 밖을 나눠 적는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployStampCheck",
+   "mark": "TRIG_PROBE_SLOT",
+   "why": "예약 실행 모양 기록을 먼저 · 140자까지 보인다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployCheck",
+   "mark": "SECRET_GUARD_KIND",
+   "why": "공유 열쇠가 비면 ★ 줄로 알린다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "_authSendOk_",
+   "mark": "AUTH_SEND_CAP",
+   "why": "코드 찾기 · 재설정 안내는 받는 주소마다 한 시간에 3통 · 전체 40통 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleFindCode",
+   "mark": "AUTH_SEND_CAP",
+   "why": "코드 찾기 안내는 보내기 전에 시간당 상한을 본다(답은 늘 같다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleResetPw",
+   "mark": "AUTH_SEND_CAP",
+   "why": "재설정 안내는 보내기 전에 시간당 상한을 본다(답은 늘 같다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminEmail",
+   "mark": "MAIL_SENT_TRUE",
+   "why": "관리자 메일을 보냈는지 돌려준다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "MAIL_SENT_TRUE",
+   "why": "모은 실패 알림 · 밤사이 인계 수는 아침 보고 메일이 나간 뒤에만 지운다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSetResultLinks",
+   "mark": "RESULT_NOTIFIED",
+   "why": "결과물 링크 저장에 고객 알림이 나가는지 돌려준다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "emailShell",
+   "mark": "NOTICE_HEAD_FIRST",
+   "why": "메일 제목 칸은 낱말 가운데서 갈리지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleAction",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "취소된 예약의 승인 · 수락 링크는 «이미 취소된 예약입니다» · 누구 · 언제 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_mailConfirmPage_",
+   "mark": "MISS_NOWRAP",
+   "why": "확인 화면 결과 글도 끝 줄에 한 낱말만 남지 않게 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "ERR_ID_RECORDED",
+   "why": "링크 오류 화면은 사고번호가 없어도 코드를 남긴다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleLogin",
+   "mark": "LOGIN_TRY_CAP",
+   "why": "고객 로그인은 같은 아이디마다 15분에 10번 틀리면 막는다(없는 아이디도 같이 센다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminLogin",
+   "mark": "LOGIN_TRY_CAP",
+   "why": "관리자 로그인도 같은 상한 · 막히는 순간 관리자 알림 한 번 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "SIGNUP_ADDR_CAP",
+   "why": "같은 이메일로 새 신청은 한 시간에 3번까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "notifyStudio",
+   "mark": "NOTICE_ALL_CAP",
+   "why": "실패 알림은 제목 첫 토막으로 가르고 제목과 상관없이 시간당 스무 통까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "SLOT_NOTICE_CAP",
+   "why": "같은 예약의 시간 선택 관리자 알림은 한 시간에 3번 · 전체 30번까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminApprove",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "관리 화면은 취소된 예약을 한 말로 말한다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleAcceptProposal",
+   "mark": "CANCEL_SAME_WORDS",
+   "why": "마이페이지 수락에서 취소된 예약은 짧은 한 줄 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveAdminCancelD",
+   "mark": "CANCEL_RESULT",
+   "why": "안내 메일 스위치가 꺼져 있으면 메일을 약속하지 않는다 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -1990,6 +2518,11 @@
    "handleLogin",
    "handleAutologin",
    "handleVerify",
+   "_authSendOk_",
+   "_loginTryKey_",
+   "_loginLocked_",
+   "_loginFailed_",
+   "_loginPassed_",
    "handleFindCode",
    "handleResetPw",
    "handleDoResetPw",
@@ -2090,7 +2623,11 @@
    "handleSaveRefundAccount",
    "weeklyBackup",
    "_trigIn_",
+   "_trigSafe_",
+   "_trigWho_",
    "_trigUidIs_",
+   "_trigKnown_",
+   "_trigKnownAdd_",
    "_trigMark_",
    "setupAllTriggers",
    "addBalanceColumns"
@@ -2379,6 +2916,7 @@
    "_lockedAppend",
    "_errArea",
    "_errId",
+   "_errCapKey_",
    "_errStamp",
    "_errWho",
    "_errRecord",
@@ -2498,6 +3036,7 @@
    "_requireAdmin",
    "_gsr_",
    "_activeEmail_",
+   "_effectiveEmail_",
    "_isOwnerRun_",
    "_ownerHint_",
    "_adminTokenCheck_",
@@ -2541,6 +3080,8 @@
    "_maskEmail",
    "adminSilentContacts",
    "adminApprove",
+   "_admMiss_",
+   "_admInfoText_",
    "adminAcceptProposal",
    "adminCancel",
    "adminProposeTime",
@@ -2601,6 +3142,11 @@
    "setCustomerStage",
    "markConsultDone",
    "actApprove",
+   "_rowFresh_",
+   "_infoText_",
+   "_missHtml_",
+   "_whoWhen_",
+   "_partialNote_",
    "actAccept",
    "_releaseWeddingHoldOnCancel",
    "_depositCardOf",
@@ -2695,10 +3241,17 @@
    "esc",
    "safeAttr",
    "notifyStudio",
+   "_nsOverflow_",
    "servePayConfirm",
    "_payConfirmCheck_",
    "_payConfirmRun_",
    "mailButtonGo",
+   "_btnFailPeek_",
+   "_btnFailSeen_",
+   "_ownerRunNow_",
+   "_entryForm_",
+   "_cfgErr_",
+   "_btnStr_",
    "_mailConfirmPage_",
    "infoPage",
    "setupConsultation",
@@ -2739,6 +3292,9 @@
   ],
   "20_customers-data": [
    "_CUST_PII_COLS"
+  ],
+  "50_auth-handlers": [
+   "LOGIN_LOCK_MSG"
   ],
   "60_mypage": [
    "__GMS_ON",
@@ -2847,12 +3403,19 @@
    "_CURRENT_ADMIN",
    "_SRV",
    "_TRUST",
+   "_ACTIVE_EMAIL",
+   "_EFFECTIVE_EMAIL",
+   "_OWNER_RUN",
+   "ADM_CANCELLED_MSG",
    "UNDO_WINDOW_HOURS",
    "_LOCK_BUSY"
   ],
   "consultation-booking": [
    "DETAIL_MAP",
    "AVAIL_CACHE_KEY",
+   "_CAL_ERR",
+   "_IN_POST",
+   "_BTN_SIGNED",
    "_LAST_INFO",
    "__ERR_ON"
   ]
@@ -2969,7 +3532,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 05:13 · 8b96c9c6",
+ "_생성": "2026-10-09 21:25 · 24448385",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3015,8 +3578,8 @@
   },
   {
    "key": "AI_HANDOFF_SECRET",
-   "kind": "option",
-   "a": "AI 인계 API 인증",
+   "kind": "guard",
+   "a": "문의 리드 · AI 인계 · 가능일 · AI 비용 기록이 키 없이 열린다(베르셀 HANDOFF_SECRET 과 같은 값)",
    "b": ""
   },
   {
@@ -3039,8 +3602,8 @@
   },
   {
    "key": "AI_WIDGET_SECRET",
-   "kind": "option",
-   "a": "AI 위젯 API 인증",
+   "kind": "guard",
+   "a": "AI 위젯이 고객 정보를 서명 없이 받는다(베르셀 같은 이름과 같은 값)",
    "b": ""
   },
   {
@@ -3147,6 +3710,12 @@
   },
   {
    "key": "NSERR_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "NS_OVERFLOW",
    "kind": "state",
    "a": "",
    "b": ""
@@ -3296,7 +3865,31 @@
    "b": "카드결제 승인"
   },
   {
+   "key": "TRIG_LIST_FAIL",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "TRIG_PROBE",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "TRIG_PROBE_X",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "TRIG_UIDS_KNOWN",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "TRIG_UID_MISS",
    "kind": "state",
    "a": "",
    "b": ""
@@ -3453,5 +4046,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "36ecb208d225"
+ "_표식서명": "376eefd97212"
 }

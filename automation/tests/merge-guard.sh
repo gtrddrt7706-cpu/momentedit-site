@@ -16334,7 +16334,7 @@ nochk 'Admin·ScreenA' automation/platform/99_deployCheck.gs
 nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
 if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi
 # ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 오류기록(고객 DB 와 같은 파일)에 밖의 글이 수식 · 개인정보로 들어가지 않게 — 동작 이름 안전 글자 · 모든 칸 수식 막기 · 가림 · 모르는 동작 시간당 20줄
-#   옛 판은 인증 없이 `{"action":"=IMAGE(…&다른탭!D2)"}` 로 고객 DB 파일에 바깥 주소를 부르는 수식을 박을 수 있었다(옛 판으로 돌리면 err-log-safe 가 빨강 · 실측)
+#   규칙: 오류기록의 어느 칸도 수식으로 읽히지 않는다 · 동작 이름은 안전 글자만 · 모르는 동작은 시간당 20줄까지(err-log-safe 가 행동으로 잰다 · 되돌리면 빨강)
 chk 'ERR_LOG_SAFE' automation/platform/95_notify.gs 3
 nochk "String(act || '(없음)').slice(0, 40)" automation/platform/95_notify.gs
 chk 'ERR_LOG_SAFE' scripts/audit/err-log-safe.mjs 1
@@ -16365,6 +16365,264 @@ chk '^function mailButtonGo(p) { _SRV = true;' automation/consultation/consultat
 # ★[SIG_FLIP_SURE 2026-10-09] 잠금 검사의 «틀린 서명»은 첫 글자를 반드시 다른 글자로 — 'x' 로 덮으면 서명이 x 로 시작할 때(약 64번에 한 번) 맞는 서명과 같아져 까닭 없이 붉다(#1148 첫 CI)
 chk 'SIG_FLIP_SURE' scripts/audit/gsr-guard.mjs 1
 nochk "'x' + [a-zA-Z]*[sS]ig.slice(1)" scripts/audit/gsr-guard.mjs
+# ★[OWNER_MEMO 2026-10-09 점검] 편집기 실행의 소유자 확인은 한 실행에 한 번 — Session 을 묻는 곳은 admin.gs 의 _activeEmail_ 하나
+chk 'OWNER_MEMO' automation/admin/admin.gs 2
+nochk 'Session.getActiveUser' automation/admin/admin.gs 1
+# ★[MAIL_BOX_STEADY 2026-10-09 점검] 메일 확인 화면 · 결과 · 취소 화면 카드 폭 하나(486) · 설명 세 줄 자리 · 끝난 결과는 단추 자리를 남긴 채 감춘다(mail-page 가 행동으로 잰다)
+chk 'MAIL_BOX_STEADY' automation/consultation/consultation-booking.gs 4
+chk "'.box{width:100%;box-sizing:border-box;max-width:486px;" automation/consultation/consultation-booking.gs 4
+nochk "'.box{max-width:4" automation/consultation/consultation-booking.gs
+# ★[MAIL_FAIL_WORDS 2026-10-09 점검] 메일 단추 실패 글 — 받는 사람 말 · 코드(B · P) · 단추 되살리기 · 오류 원문은 오류기록에만(gsr-guard 가 행동으로도 잰다)
+chk 'MAIL_FAIL_WORDS' automation/consultation/consultation-booking.gs 3
+chk 'b.disabled=false;b.textContent=L;' automation/consultation/consultation-booking.gs 1
+nochk 'txt((e&&e.message)||e)' automation/consultation/consultation-booking.gs
+# ★[PUB_RULES_ONLY 2026-10-09 점검] 공개 저장소 — 주석 · deploy-marks why · CLAUDE.md 에는 규칙만(무엇이 어떻게 열려 있었나는 비공개 docs 에만)
+chk 'PUB_RULES_ONLY' automation/platform/95_notify.gs 1
+# 지운 설명 문장이 되살아나지 않게 — 문장 원문 대신 해시로 잰다(원문을 이 파일에 싣지 않는다)
+if command -v node >/dev/null 2>&1; then node scripts/audit/pub-rules.mjs >/dev/null 2>&1 || { echo 'REVERT? pub-rules: 공개 면에 지운 설명 문장이 되살아났다 — node scripts/audit/pub-rules.mjs'; fail=1; }; fi
+chk 'PUB_RULES_ONLY' scripts/audit/pub-rules.mjs 1
+# ★[DIAG_OWNER_ONLY 2026-10-09 점검] 편집기 진단 6개는 첫 줄에서 소유자만 — 공개 화면에서 돌지 않게(admin.gs 가 없는 판에서도 진단은 돈다 · gsr-guard 가 행동으로도 잰다)
+chk 'DIAG_OWNER_ONLY' automation/platform/99_deployCheck.gs 2
+chk 'DIAG_OWNER_ONLY' automation/platform/99_contractCheck.gs 2
+chk 'DIAG_OWNER_ONLY' automation/platform/95_notify.gs 1
+chk 'DIAG_OWNER_ONLY' automation/platform/10_customers-setup.gs 1
+# ★[AUTHED_RESTORE 2026-10-09 점검] 관리자 권한 창은 «이전 값»으로 닫는다(adminCall · morningBriefData_ · gsr-guard 의 AUTHED_RESTORE)
+chk 'AUTHED_RESTORE' automation/admin/admin.gs 2
+chk 'AUTHED_RESTORE' scripts/audit/gsr-guard.mjs 1
+# ★[OWNER_SELF 2026-10-09 사장님 deployCheck 로그] 편집기 소유자 = 서버 길 밖 · 실행한 사람 = 권한 주인(목록에 없는 편집기 계정도 지난다) · 서버 길 안은 토큰 · 서명만(gsr-guard 가 행동 · 돌연변이로 잰다)
+chk 'OWNER_SELF' automation/admin/admin.gs 5
+chk 'OWNER_SELF' scripts/audit/gsr-guard.mjs 3
+chk 'OWNER_SELF' scripts/audit/gas-lint.mjs 2
+chk '  if (!_SRV) { var e = _activeEmail_();' automation/admin/admin.gs 1
+# ★[OWNER_FIRST_ASK 2026-10-09 라운드 2] 소유자인가는 한 실행에서 처음 물을 때 정한다 — 편집기 도구가 안에서 입구 함수를 불러도 끝까지 소유자 실행(gsr-guard 가 행동 · 돌연변이로 잰다)
+chk 'OWNER_FIRST_ASK' automation/admin/admin.gs 2
+chk "if (typeof _OWNER_RUN === 'boolean') return _OWNER_RUN;" automation/admin/admin.gs 1
+nochk 'Session.getEffectiveUser' automation/admin/admin.gs 1
+nochk '소유자 목록에 없어요' automation/admin/admin.gs
+# ★[STAMP_TRIG_ONE 2026-10-09 라운드 2] deployStampCheck 의 예약 실행 확인은 OK 하나 또는 «아직» 하나 · 덧줄은 따로(deploycheck-sim 5-B 가 잰다)
+chk 'STAMP_TRIG_ONE' automation/platform/99_deployCheck.gs 2
+chk 'STAMP_TRIG_ONE' scripts/audit/deploycheck-sim.mjs 2
+# ★[MAIL_PAGE_CHECK 2026-10-09 라운드 2] 메일 단추 확인 · 결과 화면 — 고객 글 escape(HTML_ESC_NAMES) · 허락한 꼴만 그리기(MAIL_SHOW_SAFE) · 다시 누를 수 있는 실패는 단추 되살림(MAIL_RETRY) · 5/6/7 가르기(MAIL_FAIL_KIND)
+chk 'HTML_ESC_NAMES' automation/consultation/consultation-booking.gs 8
+chk 'MAIL_SHOW_SAFE' automation/consultation/consultation-booking.gs 1
+chk 'MAIL_RETRY' automation/consultation/consultation-booking.gs 5
+chk 'MAIL_FAIL_KIND' automation/consultation/consultation-booking.gs 1
+nochk 'innerHTML=r.body' automation/consultation/consultation-booking.gs
+chk 'MAIL_PAGE_CHECK' scripts/audit/mail-page.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/mail-page.mjs >/dev/null 2>&1; _mp=$?; if [ "$_mp" != 0 ]; then echo "REVERT? mail-page($_mp): 메일 단추 확인 · 결과 화면이 고객 글을 그대로 그리거나 단추 · 실패 코드가 어긋난다 — node scripts/audit/mail-page.mjs (2 = 재지 못함도 빨강)"; fail=1; else echo 'ok mail-page: 결과 글 escape · 허락한 꼴만 · 단추 자리 · 되살리기 · 5/6/7'; fi; fi
+# ★[LOCK_REREAD 2026-10-09 라운드 2] 승인 · 수락은 잠금을 잡은 뒤 같은 예약을 다시 읽어 판단 · 잠금을 풀기 전 flush · 수락도 잠금을 못 잡으면 진행하지 않는다
+chk 'LOCK_REREAD' automation/consultation/consultation-booking.gs 4
+nochk 'catch (eL) { _acLock = null; }' automation/consultation/consultation-booking.gs
+# ★[BTN_SAFE_ARGS 2026-10-09 라운드 2] 메일 단추 처리는 밖에서 온 값을 글자 · 숫자만 받고, 서명을 확인한 처리의 오류만 오류기록에 남긴다(gsr-guard 가 행동으로 잰다)
+chk 'BTN_SAFE_ARGS' automation/consultation/consultation-booking.gs 5
+# ★[TRIG_LIST_KNOWN · TRIG_MISS_QUIET 2026-10-09 라운드 2] 예약 실행 아이디 — 목록을 못 읽으면 알던 목록으로 · 새로 읽기 1분 5번 · «목록에 없음» 기록은 배우기 전에만 · 영숫자만(gsr-guard 가 행동 · 돌연변이로 잰다)
+chk 'TRIG_LIST_KNOWN' automation/platform/70_journey.gs 4
+chk 'TRIG_MISS_QUIET' automation/platform/70_journey.gs 2
+chk 'TRIG_LIST_KNOWN' automation/platform/99_deployCheck.gs 1
+chk 'TRIG_MISS_QUIET' automation/platform/99_deployCheck.gs 1
+# ★[ACCEPT_RESULT · BTN_AFTER_FAIL · BTN_FAIL_KIND · TRIG_LEARN_ANY 2026-10-09 라운드 3]
+#   수락 · 승인을 부르는 곳은 결과 글(_LAST_INFO)이 실패면 성공으로 돌려주지 않는다 · 단추가 앞서 예상 못 한 오류로 끝났으면 다음 결과에 «확인해 주세요» 한 줄
+#   · 붙여넣기 · 배포 누락은 3(다시 누르게 하지 않는다) · 예약 실행은 진짜 목록에서 맞으면(기억 · 알던 목록 포함) 배운다(gsr-guard · mail-page 가 행동으로 잰다)
+chk 'ACCEPT_RESULT' automation/consultation/consultation-booking.gs 2
+chk 'ACCEPT_RESULT' automation/admin/admin.gs 2
+chk 'BTN_AFTER_FAIL' automation/consultation/consultation-booking.gs 7
+chk 'BTN_FAIL_KIND' automation/consultation/consultation-booking.gs 1
+chk 'TRIG_LEARN_ANY' automation/platform/70_journey.gs 1
+nochk '이미 처리되어 다시 보내지 않았습니다' automation/consultation/consultation-booking.gs
+# ★[APPROVE_PARTIAL · POST_SAFE_JSON · PUB_RULES_WIDE 2026-10-09 라운드 3] 승인 · 수락 뒤 뒷일은 하나가 실패해도 끝까지 하고 빠진 것은 «일부 안 됨»(B4)으로 알린다
+#   (다시 누르게 하지 않는다 · 관리 화면은 목록을 새로 그리고 창 하나) · 밖에서 온 JSON 은 toString · valueOf 칸을 지우고 받는다 · 공개 문장 검사는 저장소 전체
+#   (mail-page · gsr-guard · err-admin · pub-rules 가 행동으로 잰다 · 되돌리면 빨강)
+chk 'APPROVE_PARTIAL' automation/consultation/consultation-booking.gs 4
+chk 'APPROVE_PARTIAL' automation/admin/admin.gs 2
+chk 'APPROVE_PARTIAL' admin.html 1
+chk 'APPROVE_PARTIAL' scripts/audit/err-admin.mjs 1
+chk 'POST_SAFE_JSON' automation/consultation/consultation-booking.gs 1
+chk 'POST_SAFE_JSON' scripts/audit/gsr-guard.mjs 1
+chk 'PUB_RULES_WIDE' scripts/audit/pub-rules.mjs 1
+# ★[ENTRY_ARGS_SRV · BTN_STATE_FIRST · NOTICE_PER_WHO · PAY_NOTICE_TRUE · PASTE_GAP 2026-10-09 라운드 4] 공개 입구는 그 화면이 보내는 인자만(서버 쪽 인자는 doPost 길에서만 · 칸은 글자만)
+#   · 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 지금 상태를 보여 준다 · 오류 · 실패 관리자 메일은 같은 제목 · 같은 사람만 6시간에 한 통(다른 고객의 실패가 묻히지 않게)
+#   · 입금 확인 결과는 고객 알림이 정말 나가는 확인만 «알림이 가요» · 붙이는 도중에도 관리 화면 승인 · 수락이 멈추지 않는다(mail-page ⑥ · gsr-guard 가 행동으로 잰다)
+chk 'ENTRY_ARGS_SRV' automation/consultation/consultation-booking.gs 8
+chk 'BTN_STATE_FIRST' automation/consultation/consultation-booking.gs 2
+chk 'NOTICE_PER_WHO' automation/consultation/consultation-booking.gs 1
+chk 'PAY_NOTICE_TRUE' automation/consultation/consultation-booking.gs 1
+chk 'PASTE_GAP' automation/admin/admin.gs 1
+chk 'ENTRY_ARGS_SRV' scripts/audit/gsr-guard.mjs 2
+nochk "notifyStudio('\[상담\] ⚠️오류 · 확정 메일 발송 실패'" automation/consultation/consultation-booking.gs
+# ★[MAIL_VIEWPORT · MAIL_SAME_WORDS · ACCEPT_SLOT_NOTICE 2026-10-09 라운드 4 화면 점검] GAS 화면 넷은 viewport 를 addMetaTag 로(HTML 안 meta 는 무시 · 폰에서 데스크톱 폭으로 줄어 보였다)
+#   · 같은 상태는 같은 말(몰림 «다른 처리가 진행 중이에요» · 일부 «빠진 것이 있어요» · 코드 앞 마침표 없음) · 폰 제목 칸은 글꼴 크기로(두 줄도 카드가 안 움직인다)
+#   · 수락 «다시 제안드릴게요»는 스튜디오 알림으로 받친다 · 관리 화면 검색줄이 폰에서 넘치지 않는다(mail-page ③ ⑥ · err-admin ②-D 가 행동으로 잰다)
+chk 'MAIL_VIEWPORT' automation/consultation/consultation-booking.gs 4
+chk 'MAIL_SAME_WORDS' automation/consultation/consultation-booking.gs 5
+chk 'MAIL_SAME_WORDS' automation/admin/admin.gs 1
+chk 'MAIL_SAME_WORDS' admin.html 1
+chk 'ACCEPT_SLOT_NOTICE' automation/consultation/consultation-booking.gs 1
+chk 'min-height:2.8em' automation/consultation/consultation-booking.gs 1
+chk '.search input{flex:1;min-width:0;' admin.html 1
+chk 'MAIL_VIEWPORT' scripts/audit/mail-page.mjs 1
+nochk "<br>확정 메일이 늦어질 수 있어요" automation/consultation/consultation-booking.gs
+nochk "서버가 혼잡합니다. 잠시 후 다시 눌러 주세요" automation/consultation/consultation-booking.gs
+# ★[CAL_RESULT · ERR_LOG_CAP · AICOST_SECRET 2026-10-09 라운드 5] 캘린더 결과는 true · false · null(승인 · 수락은 false 를 «안 된 것»으로 · 결과 글의 «캘린더에도»는 된 것만)
+#   · 사고번호가 있는 오류기록도 같은 동작은 한 시간에 30줄까지 · AI 비용 기록은 사이트 서버만 아는 공유키(문의 리드와 같은 키)가 맞을 때만
+#   · 변경 제안을 보낸 예약은 메일 단추로 승인하지 않는다 · 다시 연 «이미 확정»에도 앞선 오류 안내(mail-page ⑥ · err-log-safe ⑥ · gsr-guard 가 행동으로 잰다)
+chk 'CAL_RESULT' automation/consultation/consultation-booking.gs 5
+chk 'ERR_LOG_CAP' automation/platform/95_notify.gs 1
+chk 'ERR_LOG_CAP' scripts/audit/err-log-safe.mjs 1
+chk 'AICOST_SECRET' automation/platform/96_ai_cost.gs 1
+chk 'AICOST_SECRET' api/_costlog.js 1
+chk 'AICOST_SECRET' scripts/audit/gsr-guard.mjs 1
+chk "secret: process.env.HANDOFF_SECRET" api/_costlog.js 1
+# ★[MAIL_SAME_WORDS 2026-10-09 라운드 5 화면] GAS 화면 넷은 자기 여백으로 스크롤되지 않는다(body box-sizing) · 고객 취소 화면 날짜는 폰에서 한 줄(16px · 좁은 폭 여백)
+#   · 알리기만 하는 관리 창(빠진 것 · 링크 확인)은 단추 하나 · 코드 괄호는 한 줄(mail-page ③ · err-admin ②-D 가 행동으로 잰다)
+chk 'min-height:100vh;box-sizing:border-box' automation/consultation/consultation-booking.gs 4
+chk "onYes:closeModal, alertOnly:true" admin.html 2
+# ★[AICOST_POST_ONLY · NOTICE_OVERFLOW · MORNING_ESC · CANCEL_RESULT · ERR_ID_RECORDED · TRIG_PROBE_SLOT · SECRET_GUARD_KIND 2026-10-09 라운드 6]
+#   AI 비용 공유키는 밖에서 온 기록에만(GAS 안의 목소리 기록은 키 없이) · 같은 제목 실패 알림이 넘치면 «멈춰요» 한 통 뒤 아침 보고에 모은다(조용히 사라지지 않게)
+#   · 아침 보고의 줄 값은 escape · 일부 실패 알림은 할 일 줄을 앞에 · 결과 글 한 줄은 줄바꿈을 « · »로 · 관리자에게는 새로고침 안내
+#   · 관리자 취소 결과는 된 것만(빠지면 B4 · 처리이력) · «이미 취소»는 같은 제목 · 취소 화면 380 여백 · 입력칸 16px 확대 허용 · «안 된 것» 항목은 한 줄
+#   · 상한에 닿은 동작에는 사고번호를 주지 않는다 · 예약 실행 모양 기록은 두 칸 · 공유 열쇠가 비면 ★ 줄 · 링크 경고 창은 토스트와 겹치지 않는다
+#   (mail-page ③ ⑥ · gsr-guard · err-log-safe ⑦ · deploycheck-sim 6-D · err-admin ②-D 가 행동으로 잰다 · 되돌림 29개 확인)
+chk 'AICOST_POST_ONLY' automation/consultation/consultation-booking.gs 1
+chk 'AICOST_POST_ONLY' automation/platform/96_ai_cost.gs 1
+chk 'AICOST_POST_ONLY' scripts/audit/gsr-guard.mjs 2
+chk 'NOTICE_OVERFLOW' automation/consultation/consultation-booking.gs 2
+chk 'NOTICE_OVERFLOW' automation/platform/96_ai_cost.gs 2
+chk 'NOTICE_OVERFLOW' scripts/gen-deploy-fns.mjs 1
+chk 'NOTICE_OVERFLOW' scripts/audit/mail-page.mjs 1
+chk 'NOTICE_HEAD_FIRST' automation/consultation/consultation-booking.gs 2
+chk 'NOTICE_HEAD_FIRST' scripts/audit/mail-page.mjs 1
+chk 'INFO_TEXT_SEP' automation/consultation/consultation-booking.gs 1
+chk 'INFO_TEXT_SEP' scripts/audit/mail-page.mjs 1
+chk 'CANCEL_RESULT' automation/consultation/consultation-booking.gs 4
+chk 'CANCEL_RESULT' automation/admin/admin.gs 1
+chk 'CANCEL_RESULT' scripts/audit/mail-page.mjs 1
+chk 'CANCEL_SAME_WORDS' automation/consultation/consultation-booking.gs 5
+chk 'CANCEL_SAME_WORDS' scripts/audit/mail-page.mjs 1
+chk 'CANCEL_DATE_LINE' automation/consultation/consultation-booking.gs 2
+chk 'CANCEL_DATE_LINE' scripts/audit/mail-page.mjs 1
+chk 'MAIL_ZOOM_OK' automation/consultation/consultation-booking.gs 2
+chk 'MAIL_ZOOM_OK' scripts/audit/mail-page.mjs 1
+chk 'MISS_NOWRAP' automation/consultation/consultation-booking.gs 2
+chk 'MISS_NOWRAP' automation/admin/admin.gs 1
+chk 'MISS_NOWRAP' admin.html 1
+chk 'MISS_NOWRAP' scripts/audit/mail-page.mjs 1
+chk 'MORNING_ESC' automation/platform/96_ai_cost.gs 2
+chk 'MORNING_ESC' scripts/audit/mail-page.mjs 1
+chk 'ERR_ID_RECORDED' automation/platform/95_notify.gs 3
+chk 'ERR_ID_RECORDED' scripts/audit/err-log-safe.mjs 1
+chk 'ADM_GONE_WORDS' automation/admin/admin.gs 2
+chk 'ADM_GONE_WORDS' scripts/audit/mail-page.mjs 1
+chk 'TRIG_PROBE_SLOT' automation/platform/70_journey.gs 1
+chk 'TRIG_PROBE_SLOT' automation/platform/99_deployCheck.gs 2
+chk 'TRIG_PROBE_SLOT' scripts/gen-deploy-fns.mjs 1
+chk 'TRIG_PROBE_SLOT' scripts/audit/gsr-guard.mjs 1
+chk 'SECRET_GUARD_KIND' automation/platform/99_deployCheck.gs 2
+chk 'SECRET_GUARD_KIND' scripts/gen-deploy-fns.mjs 3
+chk 'SECRET_GUARD_KIND' scripts/audit/deploycheck-sim.mjs 1
+chk 'LINK_WARN_ONE' admin.html 2
+chk 'LINK_WARN_ONE' scripts/audit/err-admin.mjs 1
+chk "handleAiCostLog(body, true)" automation/consultation/consultation-booking.gs 1
+chk "if (fromPost === true)" automation/platform/96_ai_cost.gs 1
+chk "같은 알림 메일은 여기서 멈춰요" automation/consultation/consultation-booking.gs 1
+chk "if (o.a.length >= 20) {" automation/consultation/consultation-booking.gs 1
+chk "_mrEsc(r\[1\]).replace(" automation/platform/96_ai_cost.gs 1
+chk "@media (max-width:380px){.box{padding:42px 22px 34px}}" automation/consultation/consultation-booking.gs 1
+chk "@media (max-width:380px){.box{padding:42px 22px 30px}}" automation/consultation/consultation-booking.gs 1
+chk "font-size:16px;color:#3A2D22;background:#fff;outline:none}" automation/consultation/consultation-booking.gs 1
+chk "line-height:1.85;color:#5A554C;text-wrap:pretty}" automation/consultation/consultation-booking.gs 1
+chk "margin-bottom:14px;text-wrap:pretty}" admin.html 1
+chk "title:'링크 확인이 필요해요'" admin.html 1
+chk "return { cal: _cal, mail: _mail };" automation/consultation/consultation-booking.gs 1
+chk "if (!existingId) return null;" automation/consultation/consultation-booking.gs 1
+chk "'예약 정보가 바뀌었어요 · 새로고침해 주세요'" automation/admin/admin.gs 6
+chk "_trigMark_(_tl ? 'TRIG_PROBE' : 'TRIG_PROBE_X'" automation/platform/70_journey.gs 1
+chk "String(_tq).slice(0, 140)" automation/platform/99_deployCheck.gs 1
+chk "AI_HANDOFF_SECRET: \['guard'" scripts/gen-deploy-fns.mjs 1
+nochk "maximum-scale=1.0,user-scalable=no" automation/consultation/consultation-booking.gs
+nochk "이 예약은 이미 취소 처리되었습니다." automation/consultation/consultation-booking.gs
+nochk "infoPage('이미 취소되었습니다'" automation/consultation/consultation-booking.gs
+nochk "'저장은 됐어요 · 링크 확인이 필요해요'" admin.html
+nochk "캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다.', true);" automation/consultation/consultation-booking.gs
+# ★[MAIL_SENT_TRUE · AUTH_SEND_CAP · RESULT_NOTIFIED 2026-10-09 라운드 7] 아침 보고가 모은 실패 알림 · 밤사이 인계 수는 메일이 나간 뒤에만 지운다(그사이 생긴 것은 남긴다)
+#   · 코드 찾기 · 재설정 안내는 받는 주소마다 한 시간에 3통 · 전체 40통(답은 늘 같다) · 결과물 링크 저장은 고객 알림이 나갈 때만 «카톡이 나가요»
+#   · 알림 한 줄은 «제목: 본문»(메일 제목 칸 = 알림 제목) · 관리 창은 붙는 칸(U+00A0)을 남긴다 · 취소된 예약의 승인 · 수락은 «이미 취소된 예약입니다»
+#   · 예약 실행 모양 기록은 칸 + 누가로 센다(밖에서 모양을 바꿔도 쓰기가 늘지 않는다) · 오류기록 상한 열쇠는 이름의 해시 · 링크 오류 화면은 번호가 없어도 코드를 남긴다
+#   (mail-page ⑥ · gsr-guard · err-log-safe ⑦ · err-admin ②-D 가 행동으로 잰다)
+chk 'MAIL_SENT_TRUE' automation/platform/95_notify.gs 1
+chk 'MAIL_SENT_TRUE' automation/platform/96_ai_cost.gs 4
+chk 'MAIL_SENT_TRUE' scripts/audit/mail-page.mjs 2
+chk 'AUTH_SEND_CAP' automation/platform/50_auth-handlers.gs 4
+chk 'AUTH_SEND_CAP' scripts/audit/gsr-guard.mjs 1
+chk 'RESULT_NOTIFIED' automation/admin/admin.gs 1
+chk 'RESULT_NOTIFIED' admin.html 1
+chk 'RESULT_NOTIFIED' scripts/audit/err-admin.mjs 1
+chk "return true;   // \[MAIL_SENT_TRUE" automation/platform/95_notify.gs 1
+chk "if (!preview && ovf.length && _sent !== false)" automation/platform/96_ai_cost.gs 1
+chk "String(Math.max(0, _nn - night))" automation/platform/96_ai_cost.gs 1
+chk "word-break:keep-all;overflow-wrap:anywhere;color:' + (warn" automation/platform/96_ai_cost.gs 1
+chk "color:#3A2D22;margin:0 0 8px;word-break:keep-all" automation/consultation/consultation-booking.gs 1
+chk "min-height:5.55em;text-wrap:pretty}" automation/consultation/consultation-booking.gs 1
+chk "if (n1 >= 3 || n2 >= 40) return false;" automation/platform/50_auth-handlers.gs 1
+chk "if (rowObj && _authSendOk_('find', email))" automation/platform/50_auth-handlers.gs 1
+chk "if (rowObj && _authSendOk_('reset', email))" automation/platform/50_auth-handlers.gs 1
+chk "notified: !!(_nfOrig || _nfReto || _nfRevDone)" automation/admin/admin.gs 1
+chk "res.notified===false" admin.html 1
+chk "붙는 칸(U+00A0)은 남긴다" admin.html 1
+chk "_trigMark_(_tl ? 'TRIG_PROBE' : 'TRIG_PROBE_X', _pl, _trigSafe_(_pw)" automation/platform/70_journey.gs 1
+chk "'ERRCAP_' + h + '_'" automation/platform/95_notify.gs 1
+chk "(코드 X9' + (_gid ? ' · ' + _gid : '') + ')'" automation/consultation/consultation-booking.gs 1
+chk "_LAST_INFO.noMail ? ' · 이메일이 없어 안내 메일은 보내지 않았어요'" automation/admin/admin.gs 1
+nochk "infoPage('취소된 예약입니다'" automation/consultation/consultation-booking.gs
+nochk "night = aiHandoffNightTake()" automation/platform/96_ai_cost.gs
+nochk "'예약 정보를 찾을 수 없습니다.'" automation/admin/admin.gs
+nochk "_trigHash_" automation/platform/70_journey.gs
+nochk "if (false) return infoPage" automation/consultation/consultation-booking.gs
+# ★[LOGIN_TRY_CAP · SIGNUP_ADDR_CAP · NOTICE_ALL_CAP · SLOT_NOTICE_CAP · PUBLIC_CAPS 2026-10-09 라운드 8] 밖에서 누를 수 있는 동작의 횟수 상한
+#   · 로그인(고객 · 관리자)은 같은 아이디마다 15분에 10번 틀리면 막는다(없는 아이디도 센다 · 맞히면 셈을 지운다 · 관리자는 막히는 순간 알림 한 번)
+#   · 같은 이메일 새 신청은 한 시간에 3번 · 실패 알림은 제목 첫 토막으로 가르고 시간당 스무 통 · 같은 예약의 시간 선택 관리자 알림은 한 시간에 3번(전체 30)
+#   (public-caps · mail-page ⑥ 이 행동으로 잰다 · 코드 찾기 · 재설정 전체 상한에 닿으면 관리자 알림 한 번)
+chk 'LOGIN_TRY_CAP' automation/platform/50_auth-handlers.gs 5
+chk 'LOGIN_TRY_CAP' automation/admin/admin.gs 1
+chk 'SIGNUP_ADDR_CAP' automation/platform/40_signup.gs 1
+chk 'NOTICE_ALL_CAP' automation/consultation/consultation-booking.gs 1
+chk 'SLOT_NOTICE_CAP' automation/consultation/consultation-booking.gs 1
+chk 'PUBLIC_CAPS' scripts/audit/public-caps.mjs 2
+chk 'NOTICE_ALL_CAP' scripts/audit/mail-page.mjs 1
+chk "if (_loginLocked_('c', id))" automation/platform/50_auth-handlers.gs 1
+chk "_loginFailed_('c', id)" automation/platform/50_auth-handlers.gs 2
+chk "_loginPassed_('c', id);" automation/platform/50_auth-handlers.gs 1
+chk "Math.floor(Date.now() / 900000)" automation/platform/50_auth-handlers.gs 1
+chk ">= 10; } catch (e) { return false; }" automation/platform/50_auth-handlers.gs 1
+chk "_loginLocked_('a', id)" automation/admin/admin.gs 1
+chk "if (_san >= 3) throw new Error(" automation/platform/40_signup.gs 1
+chk "split(' · ')\[0\]) && typeof _nfAdminLineEmail" automation/consultation/consultation-booking.gs 1
+chk "실패 알림 메일은 여기서 멈춰요" automation/consultation/consultation-booking.gs 1
+chk "if (_snn >= 3 || _snall >= 30) _slotOk = false;" automation/consultation/consultation-booking.gs 1
+chk "if (_slotOk) notifyKakao('admin.slotPicked'" automation/consultation/consultation-booking.gs 1
+chk "if (_slotOk) try {" automation/consultation/consultation-booking.gs 1
+chk "ASCALLN_" automation/platform/50_auth-handlers.gs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/public-caps.mjs >/dev/null 2>&1; _pcp=$?; if [ "$_pcp" != 0 ]; then echo "FAIL public-caps($_pcp): 밖에서 누를 수 있는 동작의 횟수 상한이 빠졌다 · 2 = 재지 못함 — node scripts/audit/public-caps.mjs"; fail=1; else echo "ok public-caps ($_pcp)"; fi; fi   # [PUBLIC_CAPS]
+# ★[CANCEL_RESULT · CANCEL_SAME_WORDS · AUTH_SEND_CAP 2026-10-09 라운드 8 마무리] 취소 안내 메일 스위치가 꺼져 있으면 메일을 말하지 않는다 · 관리 화면의 «취소된 예약»은 한 말 · 토스트는 제 글 폭 · 코드 찾기와 재설정은 따로 센다 · 화면은 «한 시간에 세 번까지»를 한 줄로
+chk "var ADM_CANCELLED_MSG = " automation/admin/admin.gs 1
+chk "if (to && !CONFIG.SEND_CANCEL_MAIL) _mail = 'off';" automation/consultation/consultation-booking.gs 1
+chk "(CONFIG.SEND_CANCEL_MAIL ? '취소하면 캘린더 일정이 삭제되고," automation/consultation/consultation-booking.gs 1
+chk "width:max-content;max-width:calc(100% - 32px);text-wrap:pretty" admin.html 1
+chk "if(act==='adminCancel'&&res&&res.noMail)" admin.html 1
+chk "overflow-wrap:anywhere;color:" automation/platform/96_ai_cost.gs 1
+chk "_more = !!(_cur && _cur.more && !ovfMore)" automation/platform/96_ai_cost.gs 1
+chk "같은 이메일로는 한 시간에 세 번까지 보내요" mypage.html 2
+chk "_authSendOk_(kind, email)" automation/platform/50_auth-handlers.gs 1
+chk "_trigSafe_(_pw) + (uid ? 'U' : 'N')" automation/platform/70_journey.gs 1
+nochk "취소된 예약은 승인할 수 없습니다. (되살아남 방지)" automation/admin/admin.gs
+nochk "error: '취소된 예약입니다.'" automation/admin/admin.gs
+# ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
+chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
+chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/purge-chain.mjs >/dev/null 2>&1; _pcg=$?; if [ "$_pcg" != 0 ]; then echo "FAIL purge-chain($_pcg): 주간 정리가 매단 개인정보 파기를 건너뛴다 · 2 = 재지 못함 — node scripts/audit/purge-chain.mjs"; fail=1; else echo "ok purge-chain ($_pcg)"; fi; fi   # [PURGE_CHAIN_ALWAYS]
+# ★[TRIG_IN_WHY 2026-10-09 점검] 예약 실행 확인 기록에 그때 메일(가린 꼴) · «목록에 없음»은 배우기 전에만(TRIG_MISS_QUIET) · 목록을 못 읽으면 알던 목록으로(TRIG_LIST_KNOWN · gsr-guard 가 행동으로 잰다)
+chk 'TRIG_IN_WHY' automation/platform/70_journey.gs 5   # 라운드 5 에서 배우기 전 모양 기록 · 옛 기록 꼬리 줄이 늘어 5 · 라운드 2 에서 «목록 못 읽음» 줄이 TRIG_LIST_KNOWN 으로 옮겨 3
+chk 'TRIG_IN_WHY' automation/platform/99_deployCheck.gs 1
+chk 'TRIG_UID_MISS' scripts/gen-deploy-fns.mjs 1
 nochk '^function setAdminAccount([^)]*) {$' automation/admin/admin.gs
 if command -v node >/dev/null 2>&1; then node scripts/audit/gsr-guard.mjs >/dev/null 2>&1; _gsg=$?; if [ "$_gsg" != 0 ]; then echo "FAIL gsr-guard($_gsg): 공개 입구 잠금이 빠졌다 · 2 = 재지 못함(브라우저가 필요 없는 검사라 2 도 빨강) — node scripts/audit/gsr-guard.mjs"; fail=1; else echo "ok gsr-guard ($_gsg)"; fi; fi   # [B19_LOCK]
 # ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]

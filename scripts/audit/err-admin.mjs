@@ -295,6 +295,52 @@ await sec('②-D', async () => {
   ok('②-D 확인판 끊김 → «연결이 끊겼어요 · 처리됐는지 확인한 뒤 다시 눌러 주세요 (코드 X6)» · 판은 열린 채 · 다시 누를 수 있다(#5 · 되돌리면 빨강)', d1.open && !d1.yes && N(d1.err) === '연결이 끊겼어요 · 처리됐는지 확인한 뒤 다시 눌러 주세요 (코드 X6)' && !/Failed to fetch|Load failed/.test(d1.err), JSON.stringify(d1));
   if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, 'admin-modal-net-390.png') });
   await pg.evaluate(() => closeModal());
+  /* [APPROVE_PARTIAL 2026-10-09 라운드 3] 승인은 됐는데 뒷일이 빠졌으면 — 판을 닫고 목록을 새로 그린 뒤 «빠진 것이 있어요» 창 하나(«승인» 단추로 남아 다시 누르게 하지 않는다 · 되돌리면 빨강) */
+  GAS.adminApprove = { json: { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: 캘린더 · 이것만 직접 해 주세요 (코드 B4)' } };
+  const home0 = seen.filter((s) => s.fn === 'adminHome').length;
+  await pg.evaluate(() => { doApprove('ME-A', '가나다 · 라마바'); }); await pg.waitForTimeout(400);
+  await pg.evaluate(() => document.getElementById('cm_yes').click()); await pg.waitForTimeout(900);
+  const dp = await pg.evaluate(() => ({ open: document.getElementById('confirmModal').classList.contains('show'), t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, y: document.getElementById('cm_yes').textContent, err: document.getElementById('cm_err').textContent,
+    no: getComputedStyle(document.getElementById('cm_no')).display, toast: (document.getElementById('toast') || {}).textContent || '', lines: document.getElementById('cm_text').innerHTML.split('<br>').length }));
+  ok('②-D 승인 일부 실패 → 목록을 새로 그리고 «빠진 것이 있어요» 창(안 된 것 · B4) · «승인» 단추로 남지 않는다 · 단추 하나 · «✓ 처리됨» 토스트 없음', dp.open && dp.t === '빠진 것이 있어요' && /안 된 것: 캘린더/.test(N(dp.b)) && /\(코드 B4\)/.test(N(dp.b)) && dp.y === '확인' && !dp.err && dp.no === 'none' && !/처리됨/.test(dp.toast) && dp.lines === 3 && seen.filter((s) => s.fn === 'adminHome').length > home0, dp);
+  await pg.evaluate(() => closeModal());
+  await pg.evaluate(() => { openModal({ title: 't', text: 'x', yes: '확인', onYes: closeModal }); });
+  ok('②-D 다른 창은 «닫기» 단추가 그대로 보인다(알림 창의 단추 하나가 새지 않는다)', (await pg.evaluate(() => getComputedStyle(document.getElementById('cm_no')).display)) !== 'none');
+  await pg.evaluate(() => closeModal());
+  /* [MISS_NOWRAP 라운드 7] 서버가 붙는 칸(U+00A0)으로 보낸 «안 된 것» 항목은 창에서도 붙어 있다(화면이 띄어쓰기로 바꾸면 «마이페이지 / 단계»로 갈린다) */
+  GAS.adminApprove = { json: { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: 확정\u00a0메일, 마이페이지\u00a0단계, 카톡 · 이것만 직접 해 주세요 (코드 B4)' } };
+  await pg.evaluate(() => { doApprove('ME-A', '가나다 · 라마바'); }); await pg.waitForTimeout(400);
+  await pg.evaluate(() => document.getElementById('cm_yes').click()); await pg.waitForTimeout(900);
+  const nb = await pg.evaluate(() => document.getElementById('cm_text').textContent);
+  ok('②-D 빠진 것 창 · «안 된 것» 항목 안 띄어쓰기는 붙는 칸 그대로(줄 끝에서 «마이페이지 / 단계»로 갈리지 않는다)', nb.indexOf('마이페이지\u00a0단계') >= 0 && nb.indexOf('확정\u00a0메일') >= 0, JSON.stringify(nb));
+  await pg.evaluate(() => closeModal()); delete GAS.adminApprove;
+  /* [LINK_WARN_ONE 라운드 6] 링크 경고 창 — 제목은 한 줄(«링크 확인이 필요해요») · 본문이 제목을 되풀이하지 않는다 · «✓ 처리됨» 토스트가 창 위에 겹치지 않는다(카톡 안내는 창 안에) */
+  await pg.evaluate(() => { const t = document.getElementById('toast'); if (t) { t.classList.remove('show'); t.textContent = ''; } try { afterAction('ME-A', { ok: true, warnings: ['https://x.example/a 를 열 수 없어요'] }, 'adminSetResultLinks'); } catch (e) {} });
+  await pg.waitForTimeout(500);
+  const lw = await pg.evaluate(() => ({ t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, no: getComputedStyle(document.getElementById('cm_no')).display,
+    toast: (document.getElementById('toast') || {}).classList.contains('show'), h: document.getElementById('cm_title').getBoundingClientRect().height, lh: parseFloat(getComputedStyle(document.getElementById('cm_title')).lineHeight) || 0 }));
+  ok('②-D 링크 경고 → 제목 «링크 확인이 필요해요» 한 줄 · 본문 «저장은 됐어요»(제목 되풀이 없음) · 카톡 안내는 창 안 · 토스트 겹침 없음 · 단추 하나', lw.t === '링크 확인이 필요해요' && /저장은 됐어요/.test(lw.b) && !/링크 확인이 필요해요/.test(lw.b) && /결과물 등록/.test(lw.b) && !lw.toast && lw.no === 'none' && (!lw.lh || lw.h <= lw.lh * 1.5), JSON.stringify(lw));
+  const lwHtml = await pg.evaluate(() => document.getElementById('cm_text').innerHTML);
+  ok('②-D 링크 경고 → 줄은 가운데 줄바꿈(글머리 없는 .li 의 들여쓰기 없음 · 라운드 7)', !/class="li"/.test(lwHtml), lwHtml);
+  await pg.evaluate(() => closeModal());
+  /* [RESULT_NOTIFIED 라운드 7] 다시 저장해 고객 알림이 안 나가면(notified:false) 창 · 토스트가 «카톡이 나가요»라고 하지 않는다 */
+  await pg.evaluate(() => { const t = document.getElementById('toast'); if (t) { t.classList.remove('show'); t.textContent = ''; } try { afterAction('ME-A', { ok: true, notified: false, warnings: ['https://x.example/a 를 열 수 없어요'] }, 'adminSetResultLinks'); } catch (e) {} });
+  await pg.waitForTimeout(400);
+  const lw2 = await pg.evaluate(() => document.getElementById('cm_text').textContent);
+  ok('②-D 링크 경고 · 다시 저장(알림 없음) → 카톡 줄 없음', !/결과물 등록/.test(lw2), lw2);
+  await pg.evaluate(() => closeModal());
+  await pg.evaluate(() => { const t = document.getElementById('toast'); if (t) { t.classList.remove('show'); t.textContent = ''; } try { afterAction('ME-A', { ok: true, notified: false }, 'adminSetResultLinks'); } catch (e) {} });
+  await pg.waitForTimeout(300);
+  const tt = await pg.evaluate(() => (document.getElementById('toast') || {}).textContent || '');
+  ok('②-D 결과물 링크 다시 저장(알림 없음) → 토스트 «이번 저장은 고객 알림이 따로 가지 않아요»', /이번 저장은 고객 알림이 따로 가지 않아요/.test(tt) && !/카톡이 자동으로/.test(tt), tt);
+  /* [라운드 8] 토스트는 제 글 폭(화면 폭 - 32px 까지) — 종전엔 화면 반쪽에 갇혀 세 줄로 갈렸다 */
+  const tg = await pg.evaluate(() => { const t = document.getElementById('toast'); const r = t.getBoundingClientRect(); return { w: r.width, h: r.height, lh: parseFloat(getComputedStyle(t).lineHeight) || 18, vw: innerWidth }; });
+  ok('②-D 긴 토스트도 화면 반쪽에 갇히지 않는다(두 줄 이하 · 화면 안)', tg.w <= tg.vw - 16 && tg.h <= tg.lh * 2 + 24, JSON.stringify(tg));
+  /* [CANCEL_RESULT 라운드 8] 관리 화면 취소 · 이메일 없음 → 토스트가 사실을 말한다 */
+  await pg.evaluate(() => { const t = document.getElementById('toast'); if (t) { t.classList.remove('show'); t.textContent = ''; } try { afterAction('ME-A', { ok: true, noMail: true }, 'adminCancel'); } catch (e) {} });
+  await pg.waitForTimeout(300);
+  const tn = await pg.evaluate(() => (document.getElementById('toast') || {}).textContent || '');
+  ok('②-D 관리 화면 취소 · 이메일 없음 → «이메일이 없어 안내 메일은 보내지 않았어요»', /이메일이 없어 안내 메일은 보내지 않았어요/.test(tn), tn);
   GAS.adminDetail = { abort: 1 };
   await pg.evaluate(() => doMarkRefundedInline('ME-A', '가나다 · 라마바')); await pg.waitForTimeout(700);
   const d2 = await pg.evaluate(() => ({ t: document.getElementById('cm_title').textContent, b: document.getElementById('cm_text').textContent, y: document.getElementById('cm_yes').textContent }));

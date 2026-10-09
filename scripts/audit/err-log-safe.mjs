@@ -1,6 +1,5 @@
 // ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 오류기록에 «밖에서 온 글»이 수식 · 개인정보로 들어가지 않는가를 실제 .gs 로 잰다.
-//   오류기록 시트는 고객 DB 와 같은 파일이다. 종전엔 «동작» 칸만 수식 막기를 안 거쳐, 인증 없이
-//   `{"action":"=IMAGE(…&다른탭!D2)"}` 한 번으로 고객 DB 파일 안에 바깥 주소를 부르는 수식을 박을 수 있었다.
+//   오류기록 시트는 고객 DB 와 같은 파일이다 — 어느 칸도 수식으로 읽히면 안 된다(공개 저장소라 규칙만 적는다 · PUB_RULES_ONLY).
 //   ① 수식 꼴 동작 이름 → «(모름)» 꼴 · 어느 칸도 «=»로 시작하지 않는다
 //   ② 고객이 본 글 · 내부 까닭의 전화 · 메일은 가려진다(_maskPII · 진짜 함수)
 //   ③ 모르는 동작이 쏟아져도 한 시간에 20줄까지만(진짜 기록을 밀어내지 못하게)
@@ -77,6 +76,25 @@ rows.length = 0;
 for (let i = 0; i < 40; i++) g._errRecord('=X' + i + '()', 'X3', '지금은 처리할 수 없어요 (코드 X3)', '알 수 없는 동작 =X' + i + '() · GAS 새 배포 확인', '', '');
 ok('③ 모르는 동작 40번 → 한 시간에 20줄 이하(진짜 기록을 밀어내지 못한다)', rows.length <= 20 - 1, rows.length + '줄');
 ok('③ 그 줄들도 «=»로 시작하는 칸이 없다', rows.every((r) => r.every((v) => !isFormula(v))), JSON.stringify(rows[0]));
+
+/* ⑥ [ERR_LOG_CAP] 사고번호가 있는 줄도 같은 동작은 한 시간에 30줄까지 — 한꺼번에 쏟아져 진짜 줄을 밀어내지 못하게 */
+rows.length = 0;
+for (let i = 0; i < 45; i++) g._errRecord('get:schedule', 'X9', '문제가 발생했습니다', 'TypeError ' + i, 'E' + i, '');
+ok('⑥ 사고번호가 있는 같은 동작 45번 → 한 시간에 30줄', rows.length === 30, rows.length + '줄');
+rows.length = 0; g._errRecord('saveProductionTrack', 'S9', '서버에서 오류가 났어요', 'x', 'Q1', '');
+ok('⑥ 다른 동작의 줄은 그대로 남는다', rows.length === 1, rows.length + '줄');
+
+/* ⑦ [ERR_ID_RECORDED 라운드 6] 상한에 닿은 동작에는 사고번호를 주지 않는다 — 고객이 알려 준 번호가 시트에 없는 일이 없게 */
+const id1 = g._errId('get:schedule'), id2 = g._errId('saveProductionTrack');
+ok('⑦ 상한에 닿은 동작은 사고번호를 비운다(기록 안 되는 번호를 보이지 않는다)', id1 === '', JSON.stringify(id1));
+ok('⑦ 다른 동작은 사고번호를 그대로 준다', /^[A-Z2-9]{4}$/.test(id2), JSON.stringify(id2));
+g.__ERR_ACT = 'get:schedule'; const id3 = g._errId(); g.__ERR_ACT = '';
+ok('⑦ 동작을 안 넘기면 doPost 가 적어 둔 동작(__ERR_ACT)을 본다', id3 === '', JSON.stringify(id3));
+const odd = '<x>=evil', idOdd = (() => { for (let i = 0; i < 31; i++) g._errRecord(odd, 'X9', 't', 'w' + i, 'Z' + i, ''); return g._errId(odd); })();
+ok('⑦ 이상한 동작 이름도 _errRecord 와 같은 열쇠로 센다', idOdd === '', JSON.stringify(idOdd));
+for (let i = 0; i < 31; i++) g._errRecord('get:Couple', 'G9', 't', 'w' + i, 'C' + i, '');
+const idSib = g._errId('getCouple');
+ok('⑦ 비슷한 다른 이름(«get:Couple» · «getCouple»)은 상한 칸을 나눠 쓰지 않는다', /^[A-Z2-9]{4}$/.test(idSib), JSON.stringify(idSib));
 
 console.log(rc ? '━━ 빨강 — 오류기록에 밖의 글이 수식 · 개인정보로 들어간다' : '━━ 초록');
 process.exit(rc);

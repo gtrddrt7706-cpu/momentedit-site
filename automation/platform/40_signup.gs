@@ -50,6 +50,11 @@ function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의
   var cache = CacheService.getScriptCache();
   var cached = cache.get(dedupKey);
   if (cached) return { ok: true, code: cached };  // 직전 발급 코드 그대로(행·메일 중복 방지)
+  /* [SIGNUP_ADDR_CAP 2026-10-09 라운드 8] 같은 이메일로 새 신청은 한 시간에 3번까지 — 남의 주소로 거듭 신청해 그 메일함을 채우거나
+     이메일 로그인 · 코드 찾기가 엉뚱한 신청을 가리키게 하지 못하게(같은 신청의 다시 누름은 위 2분 가드가 같은 코드로 돌려준다) */
+  var _sak = 'SIGNUPADDR_' + _shortHash(email.toLowerCase()) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _san = +(cache.get(_sak) || 0);
+  if (_san >= 3) throw new Error('같은 이메일로 신청이 많았어요 · 잠시 후 다시 해 주세요.');
+  cache.put(_sak, String(_san + 1), 3700);
 
   // 6) 비번 해시 (원문은 여기서 끝 — 어디에도 저장 안 함)
   var pwHash = hashPassword(pw);

@@ -123,13 +123,16 @@ const htmlMarks = html.reduce((a, h) => a.concat(h.marks), []);
      switch 기능 스위치 — 비어 있음 = 그 기능 꺼짐(정상)
      tuning 기본값이 있다 — 비어 있어도 돈다(참고만)
      needs  어떤 스위치가 켜지면 반드시 있어야 한다 → 없으면 누락
-     option 없어도 무해 — 그 곁가지 기능만 조용해진다(참고만) */
+     option 없어도 무해 — 그 곁가지 기능만 조용해진다(참고만)
+     guard  공유 열쇠 — 비면 «조용해지는» 것이 아니라 키 없이 받는 입구가 된다 → ★ 줄로 알린다(누락은 아님) [SECRET_GUARD_KIND] */
 const PROPS = {
   /* state */
   AIH_REMIND_AT: ['state'], AIH_REMIND_CNT: ['state'], AI_HANDOFF_NIGHT_PENDING: ['state'],
   AI_LAST_HANDOFF_ALERT: ['state'], AI_MONTH_BUDGET_KRW: ['state'], LOCK_BUSY_MAILED: ['state'],
   LOCK_BUSY_N: ['state'], NOTIFY_HOLD: ['state'], SOLAPI_BAL_CHK_AT: ['state'],
-  TRIG_UID_OK: ['state'], TRIG_PROBE: ['state'],   // [TRIG_IN 2026-10-09] 예약 실행을 진짜 트리거로 알아봤는가 · 알아보기 전 모양(70_journey _trigIn_)
+  TRIG_UID_OK: ['state'], TRIG_PROBE: ['state'], TRIG_PROBE_X: ['state'], TRIG_UID_MISS: ['state'],   // [TRIG_PROBE_SLOT] 예약 실행 모양 · 그 밖의 모양
+  NS_OVERFLOW: ['state'],   // [NOTICE_OVERFLOW] 시간당 상한을 넘어 메일로 못 보낸 실패 알림(아침 보고가 읽고 지운다)   // [TRIG_IN 2026-10-09] 예약 실행을 진짜 트리거로 알아봤는가 · 알아보기 전 모양(70_journey _trigIn_)
+  TRIG_UIDS_KNOWN: ['state'], TRIG_LIST_FAIL: ['state'],   // [TRIG_LIST_KNOWN 2026-10-09] 진짜로 읽은 예약 실행 아이디(마지막으로 알던 목록) · 목록도 아는 목록도 없어 막은 적
   WEDDING_BLOCKS: ['state'], DEPLOY_CODE_FINGERPRINT: ['state'],
   NOTIFY_FAIL_: ['state'], NOTIFY_FAILMAIL_: ['state'],   /* 날짜가 뒤에 붙는 접두사 */
   SNAPBRIEF_: ['state'],   /* [SNAP_BRIEF] 촬영 브리프 주소 → 개인코드(주소 토큰이 뒤에 붙는 접두사 · adminSnapBrief 가 만들고 purgeSnapRefs 가 지운다) */
@@ -169,9 +172,9 @@ const PROPS = {
   /* option */
   ADMIN_ALERT_EMAIL: ['option', '관리자 경고 메일 수신처'],
   ADMIN_PHONE: ['option', '관리자 테스트 문자 수신처 (관리자 알림은 메일 전용)'],
-  AI_HANDOFF_SECRET: ['option', 'AI 인계 API 인증'],
+  AI_HANDOFF_SECRET: ['guard', '문의 리드 · AI 인계 · 가능일 · AI 비용 기록이 키 없이 열린다(베르셀 HANDOFF_SECRET 과 같은 값)'],   // [SECRET_GUARD_KIND 2026-10-09 라운드 6]
   AI_SAFETY_SECRET: ['option', 'AI 안전점검 API 인증'],
-  AI_WIDGET_SECRET: ['option', 'AI 위젯 API 인증'],
+  AI_WIDGET_SECRET: ['guard', 'AI 위젯이 고객 정보를 서명 없이 받는다(베르셀 같은 이름과 같은 값)'],   // [SECRET_GUARD_KIND]
   SOLAPI_PFID: ['option', '알림톡 채널 (50_auth-handlers 계열)'],
   SOLAPI_PF_ID: ['option', '알림톡 채널 (95_notify 계열)'],
   SOLAPI_TPL_FINDCODE: ['option', '코드찾기 알림톡 템플릿'],

@@ -4800,7 +4800,7 @@ function doAcceptProp(){
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='이 시간으로 수락'; } }
   _act({ p:{action:'acceptProposal', token:getToken()}, L:'B', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
     done:function(st){ return !!(st.consult && st.consult.status && st.consult.status!=='변경제안'); },
-    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('제안하신 시간을 수락하지 못했어요', line); reset(); } });
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('이 시간으로 수락하지 못했어요', line); reset(); } });
 }
 
 /* [FIT_CAP_LINE 2026-09-26 마이페이지 점검 pre-3] 미계약 취소 시 시착비 공제 안내 — 서명한 동의서 원문은 «1벌당 50,000원 · 최대 100,000원»인데
@@ -11921,8 +11921,8 @@ $('forgotForm').addEventListener('submit', function(e){
     if (d && d.ok){
       var ok=$('fg_ok');
       ok.textContent = (forgotMode==='findCode')
-        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸어요. 메일함을 확인해 주세요.'
-        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸어요. 메일함을 확인해 주세요.';
+        ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸어요. 메일함을 확인해 주세요. 같은 이메일로는 한 시간에 세 번까지 보내요.'
+        : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸어요. 메일함을 확인해 주세요. 같은 이메일로는 한 시간에 세 번까지 보내요.';   // [AUTH_SEND_CAP 라운드 8] 서버 답은 보냈는지 말하지 않는다(계정이 있는지 드러내지 않게) — 상한은 화면이 한 줄로
       ok.classList.add('show');
     } else { showErr('fg_err', _errLine(d,'L','메일을 보내지 못했어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] 서버 까닭 + 코드
   }).catch(function(e){ showErr('fg_err', _errLine(e,'L')); })   // [ERR_CODE_MYPAGE] 종전 기본 문구(«문제가 잠깐 생겼어요…») — 늦음 L5 · 끊김 L6 · 깨진 답 L7 로

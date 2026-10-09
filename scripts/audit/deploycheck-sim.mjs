@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { makeSandbox } from './gas-lint.mjs';
+import { makeSandbox, asOwner } from './gas-lint.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
@@ -113,7 +113,7 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
     catch (e) { /* 옛 버전이 지금 세계와 안 맞아 로드가 깨질 수 있다 — 그 파일만 빠진 셈이 된다 */
       lines.push(`  (로드실패 ${nm}: ${e.message})`); }
   }
-  sb._SRV = true;   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안(편집기에서 사장님이 deployCheck 를 돌리는 것)
+  asOwner(sb);      // [DIAG_OWNER_ONLY · OWNER_SELF 2026-10-09] 편집기에서 사장님이 deployCheck 를 돌리는 것 — 서버 길 밖 · 자기 권한(목록에 없는 계정) · 운영 도우미 문(_gsr_)도 소유자로 지난다
   /* ★[SIM_WORLD 2026-09-05] ★파일 로드 «뒤»에 세운다 — 앞에 두면 진짜 getCustomersSheet 가 덮어써
      컬럼을 빼도 「시트 없음」만 나왔다(실측).
      [SIM_WORLD_ORDER] ⑤시트·⑥트리거·①-C Admin.html 을 «못 잰다»고 빼 두면
@@ -336,6 +336,32 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   if (a === b) ng('코드를 고쳤는데 지문이 그대로입니다 — 재배포 안 함을 영영 못 잡습니다');
 }
 
+/* ── 5-B ── [STAMP_TRIG_ONE 2026-10-09 라운드 2] 예약 실행 확인은 한 줄 — 알아봤으면 OK 하나 · 아니면 «아직» 하나(+ 목록에 없던 적이 있으면 덧줄)
+   한때 else 가 덧줄의 if 에 붙어, 알아본 뒤에도 «아직입니다»가 함께 찍혔다 — 재배포 확인 때마다 서로 어긋난 두 줄이 보였을 자리. */
+{
+  console.log('\n── 5-B) 예약 실행 확인 줄이 서로 어긋나지 않는가');
+  const stampOut = (p) => {
+    const sb = makeSandbox(); const st = new Map(Object.entries(p));
+    sb.PropertiesService = { getScriptProperties: () => ({ getProperty: (k) => (st.has(k) ? st.get(k) : null), setProperty: (k, v) => st.set(k, v), deleteProperty: (k) => st.delete(k), getProperties: () => Object.fromEntries(st) }) };
+    vm.createContext(sb);
+    for (const fp of FILES) { try { vm.runInContext(fs.readFileSync(fp, 'utf8'), sb, { filename: rel(fp) }); } catch (e) {} }
+    asOwner(sb);
+    return String(sb.deployStampCheck());
+  };
+  const okOnly = stampOut({ TRIG_UID_OK: '2026-10-09 15:00 · abc123' });
+  const none = stampOut({});
+  const both = stampOut({ TRIG_UID_OK: '2026-10-09 15:00 · abc123', TRIG_UID_MISS: '2026-10-09 15:01 · zzz999' });
+  const missOnly = stampOut({ TRIG_UID_MISS: '2026-10-09 15:01 · zzz999' });
+  const c1 = /OK  예약 실행 확인/.test(okOnly) && !/아직입니다/.test(okOnly);
+  const c2 = /아직입니다/.test(none) && !/OK  예약 실행 확인/.test(none) && !/목록에 없던 적이/.test(none);
+  const c3 = /OK  예약 실행 확인/.test(both) && !/목록에 없던 적이/.test(both) && !/아직입니다/.test(both);   // [TRIG_MISS_QUIET] 배운 뒤에는 «목록에 없던 적» 덧줄을 감춘다
+  const c4 = /아직입니다/.test(missOnly) && /목록에 없던 적이/.test(missOnly);
+  const lf = stampOut({ TRIG_UID_OK: '2026-10-09 15:00 · abc123', TRIG_LIST_FAIL: '2026-10-09 15:02 · 목록 못 읽음' });
+  const c5 = /목록을 못 읽어 막은 적이/.test(lf) && !/목록을 못 읽어 막은 적이/.test(okOnly);   // [TRIG_LIST_KNOWN]
+  console.log(`   알아봄 → OK 한 줄=${c1} · 기록 없음 → 아직=${c2} · 알아봄+없던 적 → OK(덧줄 감춤)=${c3} · 없던 적만 → 아직+덧줄=${c4} · 목록 못 읽어 막음 → 덧줄=${c5}`);
+  if (!(c1 && c2 && c3 && c4 && c5)) ng('예약 실행 확인 줄이 어긋납니다 — 알아봤는데 «아직»이 함께 나오거나 덧줄이 빠집니다(STAMP_TRIG_ONE)');
+}
+
 /* ── 6 ── [DEPLOY_STAMP] 지문 남기기가 고객 요청을 망가뜨리지 않는가
    /exec 는 고객의 길이다. 배포 확인은 편의 기능이다. 편의가 길을 막으면 안 된다. */
 {
@@ -422,6 +448,15 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
     SOLAPI_SENDER: 'x' } });   // [SOLAPI_NAME_ALIAS] 옛 별칭 없이도 «전부 채움»이어야 한다
   console.log(`   알림 켜고 키도 다 넣음              누락 ${rFull.bad}건  ${rFull.bad === base ? '조용함(맞다)' : '✗ 다 넣었는데 붉어짐'}`);
   if (rFull.bad !== base) ng('키를 다 넣었는데도 붉습니다');
+
+  /* [SECRET_GUARD_KIND 라운드 6] 공유 열쇠가 비면 «곁가지만 조용해집니다»가 아니라 ★ 줄로 — 키 없이 받는 입구가 된다(누락으로 세지는 않는다) */
+  const rG = run({ props: { AI_WIDGET_SECRET: 'x' } }), gl = rG.out.split('\n').filter((l) => /비어 있는 열쇠: AI_HANDOFF_SECRET/.test(l));
+  const gOk = gl.length === 1 && /★/.test(gl[0]) && !/비어 있는 곁가지[^\n]*AI_HANDOFF_SECRET/.test(rG.out) && !/비어 있는 열쇠: AI_WIDGET_SECRET/.test(rG.out) && rG.bad === base;
+  console.log(`   공유 열쇠가 비었을 때                ${gOk ? '★ 줄로 알림(맞다)' : '✗ «조용해집니다»로 숨거나 누락으로 셈'}`);
+  if (!gOk) ng('공유 열쇠(AI_HANDOFF_SECRET)가 비었는데 «곁가지»로 숨기거나 누락으로 셉니다');
+  const rG2 = run({ props: { AI_HANDOFF_SECRET: 'x', AI_WIDGET_SECRET: 'x' } });
+  if (/비어 있는 열쇠/.test(rG2.out)) ng('공유 열쇠를 다 넣었는데 «비어 있는 열쇠»가 뜹니다');
+  if (rG2.out.indexOf('AI_HANDOFF_SECRET = x') >= 0) ng('공유 열쇠 값이 로그에 찍힙니다');
 
   /* 값이 로그로 새면 안 된다 — «있음/없음»만 봐야 한다 */
   if (rFull.out.indexOf('SOLAPI_API_KEY = x') >= 0 || /SOLAPI_API_KEY[^\n]*'x'/.test(rFull.out))

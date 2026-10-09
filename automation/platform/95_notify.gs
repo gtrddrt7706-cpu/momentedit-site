@@ -636,6 +636,7 @@ function _nfAdminText(event, code, x) { _gsr_();
 
 // 1) 설정 점검 — 발송 없이 현재 설정 상태만 로그로 출력 (실행 후 Ctrl+Enter 로그 확인)
 function notifySetupCheck() {
+  if (typeof _effectiveEmail_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 가 없거나 옛 판이어도 진단은 돈다(typeof _effectiveEmail_ — 그래야 admin 누락을 짚는다)
   var cfg = _nfProps_();
   Logger.log('NOTIFY_ENABLED = ' + _notifyEnabled());
   Logger.log('SOLAPI_API_KEY = ' + (cfg.key ? '설정됨(' + cfg.key.slice(0, 4) + '…)' : '❌ 없음'));
@@ -941,7 +942,9 @@ function _nfAdminEmail(subject, bodyHtml, opts) { _gsr_();
     try { var cc = (typeof adminCc === 'function') ? adminCc() : ''; if (cc) sendOpts.cc = cc; } catch (e0) {}
     GmailApp.sendEmail(to, subject, String(bodyHtml).replace(/<[^>]+>/g, ' '), sendOpts);
     Logger.log('[notify] 관리자 메일 → ' + to + ' · ' + subject);
+    return true;   // [MAIL_SENT_TRUE 2026-10-09 라운드 7] 보냈는지 돌려준다 — 아침 보고가 보낸 뒤에만 모음(NS_OVERFLOW)을 지운다
   } catch (e) { try { Logger.log('[notify] 관리자 메일 실패: ' + (e && e.message)); } catch (_) {} }
+  return false;
 }
 
 // 관리자 짧은 알림 1건을 '메일'로 — 문자 대체(메일 전용 운영). 제목은 한눈에·본문은 전체·관리자 페이지 버튼.
@@ -1288,7 +1291,20 @@ function _errArea(a) { _gsr_();   // [ERR_CODE_GAS]
   for (var k in ERR_AREA) if (ERR_AREA[k].indexOf(a) > -1) return k;
   return 'X';
 }
-function _errId() { _gsr_(); var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', t = ''; for (var i = 0; i < 4; i++) t += A.charAt(Math.floor(Math.random() * A.length)); return t; }   // [ERR_CODE_GAS] 사고번호 — 헷갈리는 0 · O · 1 · I 는 뺀다
+function _errId(act) { _gsr_();   // [ERR_CODE_GAS] 사고번호 — 헷갈리는 0 · O · 1 · I 는 뺀다
+  /* [ERR_ID_RECORDED 2026-10-09 라운드 6] 그 동작이 이번 시간 기록 상한(30줄)에 닿았으면 번호를 주지 않는다 — 시트에 없는 번호를 고객이 알려 주는 일이 없게.
+     동작을 안 넘기면 doPost · 하객 조회가 적어 둔 동작(__ERR_ACT)을 본다(_errRecord 와 같은 열쇠) */
+  try { var _a = (act != null) ? act : ((typeof __ERR_ACT !== 'undefined') ? __ERR_ACT : ''), _c = CacheService.getScriptCache(), _s = String(_a == null || _a === '' ? '(없음)' : _a);
+    if (+(_c.get(_errCapKey_(_a)) || 0) >= 30) return '';
+    if (!/^[A-Za-z0-9_:.\-]{1,40}$/.test(_s) && _s !== '(없음)' && +(_c.get('ERRJUNK_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH')) || 0) >= 20) return '';   // 모르는 이름은 시간당 20줄(_errRecord 와 같은 상한)
+  } catch (eC) {}
+  var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', t = ''; for (var i = 0; i < 4; i++) t += A.charAt(Math.floor(Math.random() * A.length)); return t; }
+function _errCapKey_(act) {   // [ERR_ID_RECORDED] _errRecord 의 시간당 상한 열쇠 — 동작 이름을 같은 방식으로 다듬는다(밖에서 온 이상한 이름도 같은 칸)
+  var a = String(act == null || act === '' ? '(없음)' : act);
+  if (!/^[A-Za-z0-9_:.\-]{1,40}$/.test(a) && a !== '(없음)') a = '(모름) ' + a.replace(/[^A-Za-z0-9_:.\-]/g, '?').slice(0, 30);
+  var h = ''; try { h = Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, a, Utilities.Charset.UTF_8)).replace(/[^0-9A-Za-z_]/g, '').slice(0, 16); } catch (eH) { h = a.replace(/[^A-Za-z0-9_]/g, '').slice(0, 30); }
+  return 'ERRCAP_' + h + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH');   // [ERR_ID_RECORDED 라운드 7] 다듬은 이름의 짧은 해시 — «get:Couple» · «getCouple»처럼 다른 이름이 한 칸을 나눠 쓰지 않게
+}
 var ERR_BUSY_RE = /^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 잠금 대기 초과 문구(70 · 80 · 85 핸들러 약 30곳)
 function _errStamp(out) { _gsr_();   // [ERR_CODE_GAS] jsonOut 이 ok:false 를 내보내기 직전에 한 번
   try {
@@ -1316,9 +1332,9 @@ function _errWho() { _gsr_();   // 개인코드만 — 로그인 토큰 → 하�
 }
 function _errRecord(act, ec, text, why, eid, extra) { _gsr_();   // [ERR_CODE_GAS] 오류기록 시트 한 줄 · 같은 실패(사람 · 동작 · 코드 · 글)는 10분에 한 줄 · 사고번호가 있으면 늘 남긴다
   try {
+    var _capK = _errCapKey_(act);   // [ERR_ID_RECORDED] _errId 와 같은 열쇠(이름을 다듬기 전에 만든다)
     /* ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 이 시트는 고객 DB 와 같은 파일이다 — 밖에서 온 글이 «수식»으로 들어가면 안 된다.
-       종전엔 «동작» 칸만 `_deFormula` 를 안 거쳤고, doPost 는 모르는 동작 이름을 그대로 여기 적었다(X3 · 인증 없이 누구나).
-       그래서 `{"action":"=IMAGE(…&다른탭!D2)"}` 한 번이면 고객 DB 파일 안에 바깥 주소를 부르는 수식이 박혔다.
+       [PUB_RULES_ONLY 2026-10-09] 공개 저장소라 주석에는 규칙만 적는다 — 어느 칸이든 밖에서 온 글은 수식이 되지 못하게 한다.
        ①동작 이름은 안전한 글자만(영숫자 _ : . -) · 아니면 «(모름)»과 «?»로 바꾼 꼴 ②모든 칸을 수식 막기로 ③고객이 본 글 · 내부 까닭은
        전화 · 메일 · 긴 숫자를 가린다(`_maskPII`) ④모르는 동작으로 시트를 채워 진짜 기록을 밀어내지 못하게 시간당 20줄까지만 */
     var a = String(act == null || act === '' ? '(없음)' : act);
@@ -1332,6 +1348,11 @@ function _errRecord(act, ec, text, why, eid, extra) { _gsr_();   // [ERR_CODE_GA
       if (_jn >= 20) return;
     }
     act = a;
+    if (eid) {   // [ERR_LOG_CAP 2026-10-09 라운드 5] 사고번호가 있는 줄도 같은 동작은 한 시간에 30줄까지 — 한꺼번에 쏟아져 진짜 줄을 밀어내지 못하게
+      var _ec2 = CacheService.getScriptCache(), _ek = _capK, _en = +(_ec2.get(_ek) || 0);
+      _ec2.put(_ek, String(_en + 1), 3700);
+      if (_en >= 30) return;
+    }
     var who = _errWho();
     var key = 'ERRD_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [who, act, ec, text].join('|'), Utilities.Charset.UTF_8)).slice(0, 22);
     var c = CacheService.getScriptCache(); if (!eid && c.get(key)) return; c.put(key, '1', 600);

@@ -54,7 +54,7 @@ export function makeSandbox() {
       computeHmacSha256Signature: (s, key) => Array.from(crypto.createHmac('sha256', String(key)).update(String(s), 'utf8').digest()).map((b) => (b > 127 ? b - 256 : b)),
       DigestAlgorithm: { MD5: 'md5', SHA_1: 'sha1', SHA_256: 'sha256' }, Charset: { UTF_8: 'utf8' } },
     Logger: { log() {} },
-    Session: { getScriptTimeZone: () => 'Asia/Seoul', getActiveUser: () => ({ getEmail: () => 'sim@test' }) },
+    Session: { getScriptTimeZone: () => 'Asia/Seoul', getActiveUser: () => ({ getEmail: () => 'sim@test' }), getEffectiveUser: () => ({ getEmail: () => 'owner@sim.test' }) },   // [OWNER_SELF] 웹 앱 = 배포한 계정의 권한 · 화면을 연 사람(sim@test)은 다른 사람
     GmailApp: chain({}), MailApp: chain({}), UrlFetchApp: { fetch: () => ({ getResponseCode: () => 200, getContentText: () => '{"ok":true}' }) },
     DriveApp: chain({ getFoldersByName: () => ({ hasNext: () => false }), createFolder: () => chain({ createFile() {} }) }),
     ScriptApp: chain({ getProjectTriggers: () => [] }), ContentService: chain({ MimeType: {} }), HtmlService: chain({}), Charts: chain({}),
@@ -71,6 +71,9 @@ export function makeSandbox() {
    ★기준은 낮게(200자) 잡는다 — 진짜 작은 파일을 붉히려는 게 아니라 «통째로 날아간 것»만 잡는다. */
 const MIN_CHARS = 200;
 
+// [DIAG_OWNER_ONLY 2026-10-09] 편집기(소유자)가 돌리는 진단을 흉내 낸다 — 진단 6개는 첫 줄에서 소유자가 아니면 돌아간다
+// [OWNER_SELF 2026-10-09] 편집기 실행 = 서버 길 밖(_SRV 꺼짐) · 실행한 사람과 권한 주인이 같은 계정. 목록에 없는 계정으로 흉내 낸다(사장님 편집기 계정이 그랬다)
+export function asOwner(sb, email = 'editor@sim.test') { sb._SRV = false; sb.Session = Object.assign({}, sb.Session, { getActiveUser: () => ({ getEmail: () => email }), getEffectiveUser: () => ({ getEmail: () => email }) }); for (const k of ['_ACTIVE_EMAIL', '_EFFECTIVE_EMAIL', '_OWNER_RUN']) if (k in sb) sb[k] = null; return sb; }   // 옛 admin(이 변수가 없는 판)은 없는 그대로 둔다 — 붙여넣기 누락 흉내가 진짜와 같게
 export function loadGas(sb = makeSandbox(), opts = {}) {
   const errors = [];
   for (const fp of files) {

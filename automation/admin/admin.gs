@@ -21,7 +21,7 @@
 
 var ADMIN_SHEET = 'Admins';
 var ADMIN_HEADERS = ['아이디', '비번해시', '이름', '역할', '로그인토큰', '토큰만료', '등록일'];
-var _ADMIN_OWNER_EMAILS = ['side.minds.1616@gmail.com', 'gtrddrt7706@gmail.com']; // 편집기(소유자) 실행 폴백
+var _ADMIN_OWNER_EMAILS = ['side.minds.1616@gmail.com', 'gtrddrt7706@gmail.com']; // 편집기(소유자) 실행 폴백 · 목록에 없어도 편집기에서 «자기 권한으로» 돌리면 소유자(_isOwnerRun_ · OWNER_SELF)
 var _AUTHED = false;          // adminCall 디스패처가 토큰 검증 후 true (1회 실행 한정)
 var _CURRENT_ADMIN = '';      // _requireAdmin이 이름 저장 → _recordHandler가 처리이력에 사용
 var _SRV = false;             // ★[GSR_FLAGS 2026-10-09 · B19] doGet · doPost · 공개 화면 함수(submit*) 첫 줄이 켠다 — «정해진 서버 길 안»일 뿐 관리자 권한이 아니다(기획 16-4)
@@ -102,8 +102,16 @@ function _liveTokens(list, legacyExpiry) { _gsr_();
 function adminLogin(id, pw) { _gsr_();
   id = String(id || '').trim();
   if (!id || !pw) return { ok: false, error: '아이디와 비밀번호를 입력해 주세요.' };
+  /* [LOGIN_TRY_CAP 2026-10-09 라운드 8] 같은 아이디는 15분에 10번 틀리면 막는다(50_auth-handlers 의 셈 · 옛 판이면 종전처럼) · 막히는 순간 관리자 알림 한 번 */
+  var _lt = (typeof _loginLocked_ === 'function');
+  if (_lt && _loginLocked_('a', id)) return { ok: false, error: (typeof LOGIN_LOCK_MSG !== 'undefined' ? LOGIN_LOCK_MSG : '시도가 많아 잠시 막았어요 · 15분 뒤 다시 해 주세요.') };
   var r = _findAdminRow('아이디', id, true);
-  if (!r || !verifyPassword(pw, r.get('비번해시'))) return { ok: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' };
+  if (!r || !verifyPassword(pw, r.get('비번해시'))) {
+    var _ln = _lt ? _loginFailed_('a', id) : 0;
+    if (_ln === 10) { try { notifyStudio('[관리자] ⚠️오류 · 관리자 로그인 실패가 많아요', '아이디 ' + String(id).charAt(0) + '…(' + String(id).length + '자) · 15분에 10번 틀려 그 아이디 로그인을 15분 막았어요\n본인이 아니면 관리자 비밀번호를 바꿔 주세요'); } catch (eN) {} }
+    return { ok: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' };
+  }
+  if (_lt && typeof _loginPassed_ === 'function') _loginPassed_('a', id);
   var sh = _adminSheet(), colOf = buildHeaderIndex(sh);
   var token = makeToken();
   var expiry = fmtKST(new Date(Date.now() + (P.TOKEN_VALID_DAYS || 14) * 86400 * 1000));
@@ -161,13 +169,11 @@ function _requireAdmin(token) {
   if (_AUTHED) return { ok: true, name: _CURRENT_ADMIN };
   var a = _resolveAdmin_(token);
   if (a.ok) { _CURRENT_ADMIN = a.name || '관리자'; return a; }
-  var email = ''; try { email = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) {}
-  if (email && _ADMIN_OWNER_EMAILS.indexOf(email) !== -1) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }
+  if (_isOwnerRun_()) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }   // [OWNER_SELF] 편집기 소유자 판단은 _isOwnerRun_ 한 곳(_gsr_ · _trigIn_ · 진단과 같은 자)
   /* ★[GSR_OWNER_HINT 2026-10-09 · B19] 편집기 도구(setAdminAccount · notifyTest* · setup* …)도 이제 이 문 하나로 잠긴다.
-     편집기에서 막히면 «어느 계정이라 막혔나»가 보여야 한다 — 메일이 잡힐 때(편집기)만 가린 꼴로 덧붙인다.
-     공개 화면 · 관리 화면 요청은 메일이 빈 글이라 종전 문구 그대로다(관리 화면의 «로그인이 필요» 판정도 그대로). */
-  var _hint = email ? (' · 지금 계정(' + email.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')은 소유자 목록에 없어요') : '';
-  throw new Error('로그인이 필요합니다. (관리자 전용)' + _hint);
+     편집기에서 막히면 «어느 계정이라 막혔나»가 보여야 한다 — 메일이 잡힐 때만 가린 꼴로 덧붙인다(_ownerHint_).
+     공개 화면은 메일이 빈 글 · 관리 화면 요청은 서버 길 안이라 덧붙이지 않는다(관리 화면의 «로그인이 필요» 판정도 그대로). */
+  throw new Error('로그인이 필요합니다. (관리자 전용)' + _ownerHint_());
 }
 
 /* ★[GSR_GATE 2026-10-09 · B19] 운영 도우미의 문 — 이름이 _ 로 끝나지 않는 함수는 첫 줄에서 이것을 부른다(기획 16-4 둘째 갈래).
@@ -178,9 +184,34 @@ function _gsr_() {
   if (_isOwnerRun_()) return;
   throw new Error('허용되지 않은 요청입니다. (서버 안쪽 전용)' + _ownerHint_());
 }
-function _activeEmail_() { try { return String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { return ''; } }
-function _isOwnerRun_() { var e = _activeEmail_(); return !!e && _ADMIN_OWNER_EMAILS.indexOf(e) !== -1; }
-function _ownerHint_() { var e = _activeEmail_(); return e ? (' · 지금 계정(' + e.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')은 소유자 목록에 없어요') : ''; }
+var _ACTIVE_EMAIL = null;   // [OWNER_MEMO] 같은 실행 안에서 한 번만 묻는다(실행마다 null 로 다시 시작)
+function _activeEmail_() {   // [OWNER_MEMO 2026-10-09 점검] 편집기 실행은 _SRV · _TRUST · _AUTHED 가 모두 꺼져 있어 _gsr_ 가 함수마다 소유자를 다시 묻는다 —
+  // 무거운 편집기 도구(장소 수집 · 점검)가 수천 번 Session 을 부르지 않게 같은 실행 안에서는 처음 값을 쓴다. 한 실행 안에서 실행하는 사람은 바뀌지 않는다.
+  if (typeof _ACTIVE_EMAIL !== 'string') { try { _ACTIVE_EMAIL = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { _ACTIVE_EMAIL = ''; } }   // 처음 값이 무엇이든(null · 빈 선언) 한 번은 묻는다
+  return _ACTIVE_EMAIL;
+}
+var _EFFECTIVE_EMAIL = null;   // [OWNER_SELF] 같은 실행 안에서 한 번만(실행마다 null 로 다시 시작)
+function _effectiveEmail_() {   // [OWNER_SELF] 이 실행이 «누구의 권한으로» 도나 — 편집기는 실행한 사람 · 웹 앱 화면은 배포한 계정
+  if (typeof _EFFECTIVE_EMAIL !== 'string') { try { _EFFECTIVE_EMAIL = String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { _EFFECTIVE_EMAIL = ''; } }
+  return _EFFECTIVE_EMAIL;
+}
+/* ★[OWNER_SELF 2026-10-09 · 사장님 deployCheck 로그] 편집기 소유자 = 서버 길 밖에서, 실행한 사람이 «자기 권한으로» 돌린 실행.
+   편집기에서는 실행한 사람(활성 사용자)과 권한 주인(유효 사용자)이 늘 같다 — 어느 계정으로 편집기를 열든 목록에 적을 필요가 없다.
+   (종전에는 목록만 봐서, 목록에 없는 편집기 계정이 자기 도구 · 진단에서 막혔다.)
+   웹 앱 화면에서는 권한 주인이 배포한 계정이라, 익명(빈 글)이나 다른 계정은 같을 수 없다(웹 앱은 «나(배포한 계정)로 실행» 배포가 전제 · 고객 길도 그 전제로 돈다).
+   서버 길(_SRV · doGet · doPost · 공개 화면 입구) 안에서는 소유자로 치지 않는다 — 거기서는 토큰 · 서명만 믿는다. */
+var _OWNER_RUN = null;   // [OWNER_FIRST_ASK] 한 실행에서 처음 물을 때 정한다(실행마다 null 로 다시 시작)
+/* [OWNER_FIRST_ASK 2026-10-09 점검] 소유자인가는 한 실행에서 «처음 물을 때» 정하고 끝까지 그 답을 쓴다.
+   웹 요청은 입구가 첫 줄에서 _SRV 를 먼저 켜므로 처음 물음부터 «아니오»다. 편집기 도구는 첫 줄에서 물으므로(서버 길 밖) «예»로 정해지고,
+   그 뒤 도구가 안에서 입구 함수를 불러 _SRV 가 켜져도(점검 도구가 가입 흐름을 흉내 낼 때) 소유자 실행으로 끝까지 간다. */
+function _isOwnerRun_() {   // [OWNER_SELF]
+  if (typeof _OWNER_RUN === 'boolean') return _OWNER_RUN;   // [OWNER_FIRST_ASK] 처음 물을 때 정한 답
+  var r = false;
+  if (!_SRV) { var e = _activeEmail_(); r = !!e && (_ADMIN_OWNER_EMAILS.indexOf(e) !== -1 || e === _effectiveEmail_()); }
+  _OWNER_RUN = r;
+  return r;
+}
+function _ownerHint_() { var e = _SRV ? '' : _activeEmail_(); return e ? (' · 지금 계정(' + e.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')을 소유자로 확인하지 못했어요') : ''; }   // [OWNER_SELF] 서버 길 안(관리 화면 요청)에는 안 붙인다
 /* ★[ADMINCALL_TOKEN 2026-10-09 · B19] adminCall 은 토큰을 스스로 본다 — _AUTHED · _SRV 지름길을 타지 않는다(기획 16-4).
    doPost(action=adminCall)를 꾸며 불러도 토큰 없이는 FNS 가 돌지 않는다. 편집기(소유자)는 종전처럼 지난다. */
 function _adminTokenCheck_(token) {
@@ -194,6 +225,7 @@ function _adminTokenCheck_(token) {
 //   client: gas(fn,...args) → adminCall(TOKEN, fn, [args]). adminLogin/Logout만 직접 호출.
 function adminCall(token, fn, args) { _gsr_();
   _adminTokenCheck_(token);      // [ADMINCALL_TOKEN] 토큰 검증(실패 시 throw) + _CURRENT_ADMIN 설정 · _AUTHED 지름길을 타지 않는다
+  var _authPrev = _AUTHED;   // [AUTHED_RESTORE 2026-10-09 점검] 창은 «이전 값»으로 닫는다 — 다른 창 안에서 불려도 바깥 창을 일찍 닫지 않게
   _AUTHED = true;
   try {
     args = args || [];
@@ -236,7 +268,7 @@ function adminCall(token, fn, args) { _gsr_();
     var f = FNS[fn];
     if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn + ' · GAS 새 버전 배포가 필요해요(99_deployCheck 의 deployStampCheck)' };   // [ADMIN_UNKNOWN_FN 2026-10-08] 화면이 새 기능을 부르는데 GAS 가 옛 판일 때 할 일까지
     return f.apply(null, args);
-  } finally { _AUTHED = false; }
+  } finally { _AUTHED = _authPrev; }
 }
 
 // [서류] 시착 동의서 문서 데이터 — 문서 뷰어(/contract/fitting.html) 채움용(이름·일시·서명·서명 당시 버전 전문).
@@ -423,8 +455,9 @@ function _briefMailOk() { _gsr_();
 //   2026-06-29 통합: aiMorningReport가 이 데이터를 읽어 '아침 운영 보고' 메일 1통에 합쳐 보냄(개별 브리핑 메일 폐지).
 function morningBriefData_() {
   var d;
+  var _authPrev = _AUTHED;   // [AUTHED_RESTORE] 이전 값으로 닫는다
   _AUTHED = true;                                  // 트리거 컨텍스트 — adminCall과 동일한 내부 인증 패턴
-  try { d = adminHome(); } finally { _AUTHED = false; }
+  try { d = adminHome(); } finally { _AUTHED = _authPrev; }
   if (!d || !d.ok) return null;
   /* [TODAY_CONSULT] 예약 시트를 다시 훑지 않는다 — adminHome 이 같은 순회에서 이미 모았다.
      종전엔 같은 계산이 두 곳에 있어, 한쪽만 고치면 화면과 메일이 다른 말을 하게 되는 자리였다. */
@@ -1586,8 +1619,8 @@ function _maskEmail(v) { _gsr_();
    관리자 홈이 이 목록을 띄워 «지금 알림이 안 가는 고객»이 눈에 보이게 한다.
    읽기 전용 · 아무것도 쓰지 않는다. */
 function adminSilentContacts() {
+  _requireAdmin();   // [GSR_GATE] 첫 문장이 문
   var _slMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 함수 «본문 안»에 있어야 mark() 가 읽는다. 지우지 말 것
-  _requireAdmin();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
   if (last < 2) return { ok: true, list: [] };
@@ -1617,31 +1650,50 @@ function adminApprove(code) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);                 // Q 최신값
   var st = String(r.get('상태') || '').trim();
-  if (st === ST.CANCELLED) return { ok: false, error: '취소된 예약은 승인할 수 없습니다. (되살아남 방지)' };  // K
+  if (st === ST.CANCELLED) return { ok: false, error: ADM_CANCELLED_MSG };  // K · [CANCEL_SAME_WORDS 라운드 8] 관리 화면은 한 말
   if (st !== ST.PICKED && LOCKED_STATES.indexOf(st) === -1) {
     return { ok: false, error: '승인할 수 있는 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
   }
+  _LAST_INFO = null;
   actApprove(sheet, colOf, r);                        // P1.5 Lock+슬롯재확인+setCustomerStage
-  var after = String(row(sheet, colOf, cr.num).get('상태') || '').trim();
+  if (_LAST_INFO && _LAST_INFO.partial) { _recordHandler(code, '승인'); return { ok: false, partial: true, error: '승인은 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' }; }   // [APPROVE_PARTIAL] 다시 누르지 말고 빠진 것만 · [MAIL_SAME_WORDS] 메일 화면과 같은 말
+  var _li = _LAST_INFO;   // [ACCEPT_RESULT] 이번 누름의 결과를 먼저 믿는다(잠금 대기 중 줄이 밀리거나 지워졌을 수 있다)
+  if (_li && _li.ok) { _recordHandler(code, '승인'); return { ok: true }; }
+  if (_li && _li.ok === false && /마감/.test(String(_li.title || ''))) return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };
+  var after = _li ? '' : String(row(sheet, colOf, cr.num).get('상태') || '').trim();   // 결과 글이 없는 옛 판만 상태로 판단
   if (after === ST.APPROVED || after === ST.CONFIRMED) { _recordHandler(code, '승인'); return { ok: true }; }
+  // [ACCEPT_RESULT] 몰림 · 시간 없음 같은 다른 실패는 «마감»으로 말하지 않는다
+  if (_li && _li.ok === false && /^예약을 찾을 수 없습니다/.test(String(_li.title || ''))) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };
+  if (_li && _li.ok === false && /^이미 취소된 예약/.test(String(_li.title || ''))) return { ok: false, error: ADM_CANCELLED_MSG };   // [CANCEL_SAME_WORDS 라운드 8] 잠금 뒤에 알게 돼도 같은 말   // [ADM_GONE_WORDS 2026-10-09 라운드 6] 관리자에게 «관리자 페이지에서 확인» · «문의 메일»을 말하지 않는다
+  if (_li && _li.ok === false && !/마감/.test(String(_li.title || ''))) return { ok: false, error: _admInfoText_(_li) };
   return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 보내 주세요.' };  // L
 }
 
+var ADM_CANCELLED_MSG = '이미 취소된 예약이에요 · 다시 진행하려면 고객이 새로 신청해야 해요';   // [CANCEL_SAME_WORDS 라운드 8] 관리 화면이 «취소된 예약»을 말할 때는 이 한 말(고객용 «새로 신청해 주세요»가 관리 창에 나가지 않게)
+function _admMiss_(miss) {   // [MISS_NOWRAP 2026-10-09 라운드 6] 관리 화면 창에서 «확정 메일» · «마이페이지 단계»가 줄 끝에서 갈리지 않게(항목 안 띄어쓰기는 붙는 칸)
+  return (miss || []).map(function (m) { return String(m).replace(/ /g, '\u00a0'); }).join(', ');
+}
+function _admInfoText_(li) {   // [PASTE_GAP] consultation-booking 을 아직 안 붙였어도(옛 판) 멈추지 않게 — 그때는 제목만
+  return (typeof _infoText_ === 'function') ? _infoText_(li) : String((li && li.title) || '');
+}
 function adminAcceptProposal(code) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
   var st = String(r.get('상태') || '').trim();
-  if (st === ST.CANCELLED) return { ok: false, error: '취소된 예약입니다.' };  // K
+  if (st === ST.CANCELLED) return { ok: false, error: ADM_CANCELLED_MSG };  // K · [CANCEL_SAME_WORDS 라운드 8]
   if (st !== ST.PROPOSED) return { ok: false, error: '변경제안 상태가 아닙니다. (현재: ' + (st || '없음') + ')' };
+  _LAST_INFO = null;
   actAccept(sheet, colOf, r);
+  if (_LAST_INFO && _LAST_INFO.ok === false) return /마감/.test(String(_LAST_INFO.title || '')) ? { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 변경 제안을 다시 보내 주세요.' } : /^예약을 찾을 수 없습니다/.test(String(_LAST_INFO.title || '')) ? { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' } : /^이미 취소된 예약/.test(String(_LAST_INFO.title || '')) ? { ok: false, error: ADM_CANCELLED_MSG } : { ok: false, error: _admInfoText_(_LAST_INFO) };   // [ADM_GONE_WORDS]   // [ACCEPT_RESULT] 실패를 처리이력에 «수락»으로 남기지 않는다 · 마감은 승인 쪽과 같은 말(고객에게 하는 말을 관리자에게 보이지 않는다)
   _recordHandler(code, '변경제안 수락');
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '수락은 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [APPROVE_PARTIAL]
   return { ok: true };
 }
 
@@ -1650,11 +1702,14 @@ function adminCancel(code, reason) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
   if (String(r.get('상태') || '').trim() === ST.CANCELLED) { _recordHandler(code, '취소(중복)'); return { ok: true }; }  // 멱등
+  _LAST_INFO = null;
   doAdminCancel(sheet, colOf, r);                     // 캘린더 삭제 + 상태=취소 + setCustomerStage(cancel) + 가예약 해제(actCancel 공통)
   _recordHandler(code, '취소' + (reason ? (' · ' + reason) : ''));  // C·D 사유·처리자
+  if (_LAST_INFO && !_LAST_INFO.partial && _LAST_INFO.ok && _LAST_INFO.noMail) return { ok: true, noMail: true };   // [CANCEL_RESULT 라운드 8] 이메일이 없어 안내 메일은 안 갔다 — 관리 화면 토스트가 말한다
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '취소는 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + (_LAST_INFO.noMail ? ' · 이메일이 없어 안내 메일은 보내지 않았어요' : '') + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [ERR_CODES] 코드는 늘 끝   // [CANCEL_RESULT 2026-10-09 라운드 6] 승인 · 수락과 같은 창
   return { ok: true };
 }
 
@@ -1664,9 +1719,9 @@ function adminProposeTime(code, newDate, newTime, memo) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var cr = findRowByPersonalCode(code);
-  if (!cr) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
+  if (!cr) return { ok: false, error: '예약 정보가 바뀌었어요 · 새로고침해 주세요' };   // [ADM_GONE_WORDS 라운드 7] 잠금 뒤 못 찾을 때와 같은 말
   var r = row(sheet, colOf, cr.num);
-  if (String(r.get('상태') || '').trim() === ST.CANCELLED) return { ok: false, error: '취소된 예약입니다.' };
+  if (String(r.get('상태') || '').trim() === ST.CANCELLED) return { ok: false, error: ADM_CANCELLED_MSG };   // [CANCEL_SAME_WORDS 라운드 8]
   newDate = normalizeDateKey(newDate);
   newTime = String(newTime || '').trim();
   if (!newDate || !newTime) return { ok: false, error: '날짜와 시간을 선택해 주세요.' };
@@ -2274,7 +2329,7 @@ function adminSetResultLinks(code, links) {
     // [RESULT_NOTIFY_STEPS 2026-07-25] 상태가 실제로 전이된 1회만 고객 알림 플래그(링크 수정 재저장 시 중복 발송 방지) — 발송은 락 해제 후
     var _nfOrig = (upd['결과물상태'] === '원본전달' && cur결과물 !== '원본전달');
     var _nfReto = (upd['결과물상태'] === '컨펌대기' && cur결과물 !== '컨펌대기');
-    var _lvRes = { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물 };
+    var _lvRes = { ok: true, links: { 원본: 원본, 보정본: 보정본, 영상: 영상 }, 결과물상태: upd['결과물상태'] || cur결과물, notified: !!(_nfOrig || _nfReto || _nfRevDone) };   // [RESULT_NOTIFIED 2026-10-09 라운드 7] 이번 저장에 고객 알림이 나가는지(화면이 사실대로 말하게)
   } finally { try { lock.releaseLock(); } catch (e) {} }
   // [LINK_VERIFY 2026-07-25] 저장 후 접근성 검증(경고하되 저장은 허용) — 더블체크 리뷰 반영: 외부 fetch(최대 3링크)가
   //   락 점유 중 실행되면 다른 관리자 액션이 _LOCK_BUSY로 막힐 수 있어 락 해제 후로 이동. 저장은 이미 완료된 상태.

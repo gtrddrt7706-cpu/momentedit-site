@@ -35,8 +35,12 @@ function _aiCostSheet_() {
 }
 
 /** Vercel 챗봇 → 토큰 1건 적재 (doPost action='aiCostLog') */
-function handleAiCostLog(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
+function handleAiCostLog(body, fromPost) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   try {
+    /* [AICOST_SECRET 2026-10-09 라운드 5] 사이트 서버(api/_costlog.js)만 아는 공유키 — 문의 리드와 같은 키(AI_HANDOFF_SECRET). 키가 없으면 조용히 버린다(오류기록 · 경보 없음)
+       [AICOST_POST_ONLY 2026-10-09 라운드 6] 키는 doPost 로 «밖에서 온» 기록에만 본다(fromPost) — GAS 안에서 부르는 목소리 기록(80_production _vcCharLog)은 키가 없어도 쌓는다 */
+    var _cs = ''; if (fromPost === true) { try { _cs = PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_SECRET') || ''; } catch (eS) {} }
+    if (_cs && String((body && body.secret) || '').slice(0, 80) !== _cs) return { ok: true };
     var surface = String((body && body.surface) || '').slice(0, 16) || '기타';
     var model = String((body && body.model) || '').slice(0, 40);
     var inn = Math.max(0, Number(body && body.in) || 0);
@@ -415,11 +419,10 @@ function aiMorningReport(preview) { _gsr_();
   var safety = {}; try { safety = aiDailySafetyCheck(true) || {}; } catch (e) { safety = {}; }       // silent: 개별 문자 안 쏨
   var ho = { pending: 0, overdue: 0 }; try { if (typeof aiHandoffStatus === 'function') ho = aiHandoffStatus(); } catch (e) {}
   // preview(미리보기)면 밤사이 카운터를 '읽기만'(리셋 X) — 미리보기가 그날 진짜 보고의 밤사이 수를 소비하지 않게.
-  var night = 0; try {
-    if (preview) night = Number(PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
-    else if (typeof aiHandoffNightTake === 'function') night = aiHandoffNightTake();
-  } catch (e) {}
+  var night = 0; try { night = Number(PropertiesService.getScriptProperties().getProperty('AI_HANDOFF_NIGHT_PENDING') || 0); } catch (e) {}   // [MAIL_SENT_TRUE 라운드 7] 읽기만 — 메일이 나간 뒤에 센 만큼만 뺀다
   var failY = 0; try { if (typeof notifyFailYesterday === 'function') failY = notifyFailYesterday(); } catch (e) {}
+  /* [NOTICE_OVERFLOW 2026-10-09 라운드 6] 시간당 상한을 넘어 메일로 못 보낸 실패 알림(consultation-booking _nsOverflow_) — 읽고 지운다(미리보기는 읽기만) */
+  var ovf = [], ovfMore = false; try { var _oo = JSON.parse(PropertiesService.getScriptProperties().getProperty('NS_OVERFLOW') || 'null'); if (_oo && Array.isArray(_oo.a)) { ovf = _oo.a; ovfMore = !!_oo.more; } } catch (e) { ovf = []; }   // [MAIL_SENT_TRUE] 지우기는 메일을 보낸 뒤
   var bal = null, thr = 3000;
   try {
     thr = Number(PropertiesService.getScriptProperties().getProperty('SOLAPI_LOW_BALANCE')) || 3000;
@@ -471,16 +474,19 @@ function aiMorningReport(preview) { _gsr_();
      ★«고칠 것»만 싣는다(갈린 것 0건이면 줄 자체를 만들지 않는다) — 매일 오는 «이상 없음»은 곧 안 읽히게 된다. */
   if (safety.disagree && safety.disagree.length) {
     rows.push(['직원 답이 갈렸어요 (' + safety.disagree.length + '건)',
-      safety.disagree.map(function (d0) { return '· "' + d0.q + '" → ' + d0.detail; }).join('<br>'), true]);
+      safety.disagree.map(function (d0) { return '· "' + d0.q + '" → ' + d0.detail; }).join('\n'), true]);   // [MORNING_ESC] 줄바꿈은 \n(escape 뒤 <br>)
   }
   rows.push(['솔라피 잔액', balStr, balLow]);
   if (failY > 0) rows.push(['어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
+  if (ovf.length) rows.push(['메일로 못 보낸 실패 알림 (' + ovf.length + '건' + (ovfMore ? ' 넘음' : '') + ')', ovf.map(function (x) { return '· ' + [x[0], x[1], x[2]].join(' · '); }).join('\n') + '\n한 시간에 알림이 너무 많아 메일 대신 여기 모았어요' + (ovfMore ? ' · 스무 건 뒤는 세지 않았어요' : ''), true]);   // [라운드 8] 제목 칸은 짧게(폰에서 «않/았어요»로 갈렸다)   // [NOTICE_OVERFLOW]
 
+  /* [MORNING_ESC 2026-10-09 라운드 6] 줄 값은 모두 글로 받아 escape 한 뒤 줄바꿈만 <br> — 고객 이름 · 질문이 메일 HTML 로 들어가지 않게 */
+  var _mrEsc = function (v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
   var rowHtml = rows.map(function (r) {
     var warn = r[2];
     return '<div style="padding:13px 2px;border-bottom:1px solid #ECE8E1">'
-      + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px">' + r[0] + '</div>'
-      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + String(r[1]).replace(/\n/g, '<br>') + '</div>'
+      + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px;word-break:keep-all">' + _mrEsc(r[0]) + '</div>'
+      + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + _mrEsc(r[1]).replace(/\n/g, '<br>') + '</div>'
       + '</div>';
   }).join('');
   var inner = '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A39C8E;text-align:center;margin:0 0 18px">' + ymd + ' 운영 현황</p>'
@@ -490,7 +496,11 @@ function aiMorningReport(preview) { _gsr_();
   var summary = '인계 ' + ho.pending + (ho.overdue ? ('(24h↑' + ho.overdue + ')') : '')
     + ' · 안전 ' + (safety.unreachable ? '점검불가' : (safety.pass != null ? (safety.pass + '/' + safety.total) : '-'))
     + ' · 잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? ' 부족' : '')));
-  try { if (typeof _nfAdminEmail === 'function') _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd + ' · ' + summary, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
+  var _sent = false; try { if (typeof _nfAdminEmail === 'function') _sent = _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd + ' · ' + summary, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
+  /* [MAIL_SENT_TRUE 2026-10-09 라운드 7] 모음은 메일이 나간 뒤에만 지운다(못 보냈으면 다음 보고에 다시) · 그사이 새로 쌓인 줄은 남긴다 · 미리보기는 지우지 않는다
+     [라운드 8] 옛 95_notify 는 아무것도 돌려주지 않는다(undefined) — 그때는 종전처럼 보낸 셈 치고 지운다(붙여넣는 사이 같은 줄이 매일 다시 나오지 않게) · false 일 때만 남긴다 */
+  if (!preview && night > 0 && _sent !== false) { try { var _NP = PropertiesService.getScriptProperties(), _nn = Number(_NP.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0); _NP.setProperty('AI_HANDOFF_NIGHT_PENDING', String(Math.max(0, _nn - night))); } catch (e) {} }   // [MAIL_SENT_TRUE] 밤사이 인계 수도 보낸 뒤에 · 그사이 생긴 것은 남긴다
+  if (!preview && ovf.length && _sent !== false) { try { var _OP = PropertiesService.getScriptProperties(), _cur = JSON.parse(_OP.getProperty('NS_OVERFLOW') || 'null'), _rest = (_cur && Array.isArray(_cur.a)) ? _cur.a.slice(ovf.length) : [], _more = !!(_cur && _cur.more && !ovfMore); if (_rest.length || _more) _OP.setProperty('NS_OVERFLOW', JSON.stringify(_more ? { a: _rest, more: true } : { a: _rest })); else _OP.deleteProperty('NS_OVERFLOW'); } catch (e) {} }   // [라운드 8] 보내는 사이 생긴 «더 있었다» 표시도 남긴다
 
   return { ok: true, summary: summary };
 }

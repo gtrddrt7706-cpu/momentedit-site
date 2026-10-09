@@ -635,12 +635,12 @@ git push -u origin <브랜치>
 | `adminUndoRefunded('코드','사유')` | admin | 환불 '완료 표시' 취소 — 송금 자체가 아니라 표시를 되돌려 환불 송금 큐에 다시 띄움. 사유 필수·멱등·처리이력(adminCall) |
 | `adminForceStagePreview('코드','단계')` | admin | 강제 단계 변경 미리보기 — 비워질 컬럼·동의기록 키·상담 예약 초기화 여부와 ROLLBACK_KEEP_PAID로 '유지됨'인 항목을 반환(실행과 같은 `_clearForwardData`) |
 | `monthBusinessData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다) · (읽기 전용) 이번 달 계약 건수·실입금 매출·전달 건수. aiMorningReport가 읽어 아침 메일 한 줄로 실음. 매출=‘확인’된 입금의 합(계약총액 합계 아님·상담 예약금 제외) |
-| `morningBriefData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다 · 안에서 관리자 권한을 켜므로 공개 이름이면 고객 명단이 샌다) · (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op). ★2026-09-06부터 오늘 상담은 **`adminHome`이 만든 `todayConsults`를 그대로 쓴다**(TODAY_CONSULT) — 예약 시트를 다시 훑지 않는다. 관리자 홈 화면과 아침 메일이 한 원천을 본다 |
+| `morningBriefData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다 · 안에서 관리자 권한을 켜는 함수는 반드시 밑줄 이름) · (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op). ★2026-09-06부터 오늘 상담은 **`adminHome`이 만든 `todayConsults`를 그대로 쓴다**(TODAY_CONSULT) — 예약 시트를 다시 훑지 않는다. 관리자 홈 화면과 아침 메일이 한 원천을 본다 |
 | `aiMorningPreview` | 96_ai_cost | 지금 아침보고 1통 즉시 발송(테스트·수동). aiMorningReport와 동일 |
 | `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). `aiDailySafetyCheck(true)`(silent)면 개별 문자 없이 결과만 반환(아침보고가 합쳐 발송). 수동 실행 시엔 위반/하락 시 SMS. 서버 fetch 막히면 점검불가 반환 |
 | `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS(aiMorningReport는 `false`로 텍스트만 가져감) |
 | `aiHandoffStatus` | 97_ai-handoff | (읽기 전용) 현재 '대기' 인계 수·그중 24h 경과 수 반환 — aiMorningReport 집계용 |
-| `aiHandoffNightTake` | 97_ai-handoff | (읽기+초기화) 밤사이 보류 새 인계 수 읽고 카운터 0으로 — aiMorningReport가 1회 소비 |
+| `aiHandoffNightTake` | 97_ai-handoff | (읽기+초기화) 밤사이 보류 새 인계 수 읽고 카운터 0으로 — ★[MAIL_SENT_TRUE 2026-10-09] 아침 보고는 이제 이 함수를 부르지 않는다(메일이 나간 뒤 센 만큼만 뺀다) · 손으로 돌리면 그날 보고의 «밤사이 새 인계» 수가 0 이 된다 |
 | `aiHandoffReminder` | 97_ai-handoff | (구) 미처리 인계 24h 리마인드 SMS. 현재는 aiMorningReport로 통합 · 수동/하위호환 유지 |
 | `aiHandoffNightFlush` | 97_ai-handoff | (구) 야간 보류 새 인계 아침 발송 SMS. 현재는 aiMorningReport로 통합 · 수동/하위호환 유지 |
 | `dumpPendingAiHandoff` | 97_ai-handoff | 현재 '대기' 인계 전체를 로그로 출력(번호·일시·고객·질문요약·AI제안답변). 읽기 전용·발송 없음. 80건 진짜/테스트 판단·답변 검토용(관리자 페이지는 30건만 보임) |
@@ -684,8 +684,8 @@ git push -u origin <브랜치>
 **이름이 `_` 로 끝나지 않는 GAS 함수는 HTML 서비스 화면의 `google.script.run` 으로도 부를 수 있다(구글 규칙).**
 adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 함수를 만들 때 넷 중 하나로 정한다.
 
-1. **관리 화면 함수**(FNS) · **편집기 도구**(사장님이 GAS 편집기에서 돌리는 것) → 첫 줄 `_requireAdmin();` — 관리 화면(토큰) · 편집기(소유자 메일 둘)만 지난다.
-   편집기에서 막히면 오류 글에 «지금 계정(g…@gmail.com)은 소유자 목록에 없어요»가 붙는다(`_ADMIN_OWNER_EMAILS` · admin.gs).
+1. **관리 화면 함수**(FNS) · **편집기 도구**(사장님이 GAS 편집기에서 돌리는 것) → 첫 줄 `_requireAdmin();` — 관리 화면(토큰) · 편집기(서버 길 밖에서 자기 계정으로 직접 돌린 실행)만 지난다.
+   편집기에서 막히면 오류 글에 «지금 계정(h…@momentedit.kr)을 소유자로 확인하지 못했어요»가 붙는다(admin.gs `_isOwnerRun_`).
 2. **비밀값 · 열쇠를 돌려주거나 서명을 만드는 함수 · 받는 사람(주소 · 번호)과 글을 인자로 받아 보내는 함수** → 이름 끝 `_`(예: `sign_` · `_payCfg_` · `_kakaoSend_`). 밑줄 함수도 다른 서버 코드에서는 그대로 부른다.
 3. **두 쓰임**(관리 화면에서도 · 예약 실행에서도) → 잠긴 껍데기 + 밑줄 안쪽(`aiQuestionLog` → `aiQuestionLog_` · `[GSR_SPLIT]`).
 4. **`_AUTHED = true`** 는 네 곳뿐 — adminCall(토큰 확인 뒤) · `morningBriefData_`(예약 실행) · 메일 단추 `_payConfirmRun_`(확인 화면의 단추를 누른 뒤 · 서명 · 기한 다시 확인 · `[PAYCONFIRM_AUTHED]`) · 카드 `handleCardConfirm`(토스 승인 뒤 · `[CARD_AUTHED]`) · 늘 finally 로 되돌린다.
@@ -699,6 +699,26 @@ adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 
 - 검사: `node scripts/audit/gsr-guard.mjs`(옛 이름 · 빠진 잠금 · 모든 공개 함수의 첫 줄 · FNS · 새 `_AUTHED` · `_SRV` · `_TRUST` · 메일 단추 행동 · 예약 실행 확인 · 토큰 없는 adminCall · 돌연변이) — merge-guard 가 돌린다. 잠글 함수를 늘리면 그 파일의 `LOCKED` 도 같은 커밋에서.
 - ★[MAIL_BTN_CONFIRM] **메일 단추(입금 확인 · 승인 · 수락)는 열기만 해서는 아무것도 바꾸지 않는다** — 주소를 열면 확인 화면만 보이고, 화면의 단추(`mailButtonGo` · 입구)를 눌러야 처리된다. 메일 보안 검사기 · 링크 미리보기가 주소를 먼저 열어 보기 때문이다(B11). 단추 쪽이 서명 · 기한을 다시 본다.
 - FNS 의 `aiAlertAdmin` 은 두 쓰임이라 `_requireAdmin` 대신 `_gsr_`(`FNS_LATER`).
+- ★[DIAG_OWNER_ONLY 2026-10-09] 편집기 진단 6개(deployCheck · deployStampCheck · contractCheck · contractCheckHelp · notifySetupCheck · checkCustomerHeaderOrder)는 첫 줄에서 «소유자가 아니면 돌려보내기» — `typeof _effectiveEmail_` 로 걸어 admin.gs 가 없거나 옛 판이어도 진단은 돈다(그래야 admin 누락을 짚는다). 이런 진단을 새로 만들면 같은 첫 줄 + gsr-guard 의 `DIAG`.
+- `_AUTHED` 창은 넷 다 «이전 값»으로 닫는다(`var _authPrev = _AUTHED` · finally · `[AUTHED_RESTORE]`). 편집기 소유자 확인은 한 실행에 한 번(`_activeEmail_` · `[OWNER_MEMO]`).
+- ★[OWNER_SELF 2026-10-09 사장님 deployCheck 로그] **편집기 소유자 = 서버 길 밖 · 실행한 사람 = 권한 주인**(`_isOwnerRun_` 한 곳 · `_requireAdmin` · `_gsr_` · `_trigIn_` · 진단이 같은 자를 쓴다).
+  편집기에서는 둘이 늘 같아 **어느 계정으로 편집기를 열든 목록에 적지 않는다**(`_ADMIN_OWNER_EMAILS` 는 덧붙임일 뿐). 서버 길(doGet · doPost · 공개 화면 입구) 안에서는 소유자 신원이어도 토큰 · 서명 없이 못 지난다.
+  ★교훈 — 1-s 는 목록에 실제 편집기 계정이 없는 채로 나가 사장님 편집기 도구 · 진단이 막혔다(사장님이 붙인 deployCheck 로그 ④ ⑤ 로 드러남). **잠금을 걸 때는 «누가 막히나»를 실제 실행 계정으로 확인한다.**
+  점검의 편집기 흉내는 `asOwner(sb)`(gas-lint · 서버 길 밖 · 목록에 없는 계정).
+  - [OWNER_FIRST_ASK] 소유자인가는 한 실행에서 **처음 물을 때** 정한다(`_OWNER_RUN`) — 편집기 도구가 안에서 입구 함수를 불러 `_SRV` 가 켜져도 끝까지 소유자 실행이다.
+  - ★[HTML_ESC_NAMES] GAS 화면(메일 단추 확인 · 결과 · 취소 · 화면 A/B/C)에 고객 글(이름 · 시간 · 메모)을 넣을 때는 **늘 `esc()`**, 확인 화면은 서버 글을 허락한 꼴(줄바꿈 · 굵게)만 그린다([MAIL_SHOW_SAFE]). `scripts/audit/mail-page.mjs` 가 행동 · 정적으로 잰다.
+- [TRIG_LIST_KNOWN] 예약 실행 아이디는 목록을 못 읽으면 **마지막으로 알던 목록**(속성 `TRIG_UIDS_KNOWN`)으로 판정한다 · «목록에 없음» 기록은 배우기 전에만([TRIG_MISS_QUIET]).
+- [APPROVE_PARTIAL · ACCEPT_RESULT 2026-10-09 라운드 3] 승인 · 수락은 상태를 쓴 뒤의 뒷일(캘린더 · 확정 메일 · 단계 · 카톡)을 하나가 실패해도 끝까지 하고, 빠진 것은 «일부 안 됨»(코드 B4)으로 알린다 — **다시 누르게 하지 않는다**(다시 누르면 «이미 확정»이 빠진 일을 덮는다 · 관리 화면은 목록을 새로 그리고 «빠진 것이 있어요» 창 하나). 부르는 곳(마이페이지 수락 · 관리 화면)은 결과 글이 실패면 성공 · 처리이력으로 돌려주지 않는다.
+- [BTN_AFTER_FAIL · BTN_FAIL_KIND] 메일 단추가 예상 못 한 오류(9)로 끝났으면 다음 «이미 처리» 결과에만 «확인해 주세요» 한 줄(한 번만 · 새로 끝까지 했으면 말하지 않는다) · 붙여넣기 · 배포 누락(전역 이름이 없다 · 3)은 다시 누르게 하지 않고, 고객 단추(수락)에는 «관리자 페이지»를 말하지 않는다. [POST_SAFE_JSON] 밖에서 온 JSON 은 `toString` · `valueOf` 칸을 지우고 받는다.
+- [ENTRY_ARGS_SRV 2026-10-09 라운드 4] 공개 입구(submitApplication · submitSchedule · submitProposal)는 **그 화면이 보내는 인자만** 받는다 — 서버 쪽 인자(개인코드 · 가예약 · 로그인 길 표)는 doPost 길(`_IN_POST` · doPost 첫 줄)에서만 받고, 칸은 글자만(`_entryForm_` · `_btnStr_`). 새 입구 인자를 만들면 같은 규칙으로.
+- [CAL_RESULT 2026-10-09 라운드 5] 캘린더 맞추기(`syncCalendarEvent`)는 true 됨 · false 안 됨 · null 안 씀(설정 없음)을 돌려준다 — 승인 · 수락은 false 를 «안 된 것»으로 세고, 결과 글은 된 것만 말한다. [ERR_LOG_CAP] 사고번호가 있는 오류기록 줄도 같은 동작은 한 시간에 30줄까지. [AICOST_SECRET] 서버끼리만 부르는 doPost 동작(AI 비용 기록 · 문의 리드 · 인계)은 공유키(`AI_HANDOFF_SECRET` ↔ 베르셀 `HANDOFF_SECRET`)가 맞을 때만 받는다.
+- [MAIL_VIEWPORT 2026-10-09 라운드 4] GAS 화면(HtmlService)은 viewport 를 `addMetaTag` 로 단다 — HTML 안의 `<meta name=viewport>` 는 무시되어 폰에서 데스크톱 폭으로 줄어 보인다. [MAIL_SAME_WORDS] 메일 단추 · 결과 · 관리 화면은 같은 상태를 같은 말로(몰림 «다른 처리가 진행 중이에요» · 일부 «빠진 것이 있어요» · 코드 앞 마침표 없음).
+- [NOTICE_PER_WHO] notifyStudio 의 «오류 · 실패» 관리자 메일은 같은 제목 · 같은 첫 줄(누구 · 어떤 오류)만 6시간에 한 통 — 제목만으로 묶으면 같은 날 두 번째 고객의 실패가 묻힌다. [BTN_STATE_FIRST] 이미 끝났거나 취소된 예약의 승인 · 수락 링크는 단추 대신 지금 상태를 보여 준다.
+- [AICOST_POST_ONLY 2026-10-09 라운드 6] 공유키 검사는 doPost 로 **밖에서 온** 동작에만 건다 — 같은 함수를 GAS 안에서 부르는 길(목소리 비용 `_vcCharLog`)은 키 없이 지난다. 서버 쪽 키 검사를 새로 걸 때는 GAS 안의 부르는 곳을 먼저 grep 한다.
+- [NOTICE_OVERFLOW] 실패 알림 상한(제목마다 시간당 다섯 통)은 넘친 것을 버리지 않는다 — 여섯째는 «멈춰요» 한 통, 그 뒤는 속성 `NS_OVERFLOW`(20줄)에 모아 아침 보고가 싣고 지운다. [MORNING_ESC] 아침 보고 메일의 줄 값은 글로만(escape). [NOTICE_HEAD_FIRST] 알림 메일은 앞 300자만 실린다 — 할 일 줄을 앞에, 오류 글은 짧게 뒤에.
+- [CANCEL_RESULT] 취소 결과도 된 것만 말한다(캘린더 · 안내 메일) — 빠지면 «빠진 것이 있어요»(B4) · 처리이력 · 관리 화면 같은 창. [CANCEL_SAME_WORDS] 같은 상태는 같은 제목 · 본문은 제목을 되풀이하지 않는다. [ERR_ID_RECORDED] 기록 상한에 닿은 동작에는 사고번호를 주지 않는다. [SECRET_GUARD_KIND] 비면 입구가 열리는 공유 열쇠는 `guard` 갈래(deployCheck ★ 줄).
+- [AUTH_SEND_CAP 2026-10-09 라운드 7] 밖에서 누를 수 있는 «보내기» 동작(코드 찾기 · 재설정 안내)은 받는 주소마다 · 전체 시간당 상한을 둔다 — 답은 늘 같게(계정이 있는지 드러내지 않는다). [MAIL_SENT_TRUE] 모아 둔 것(실패 알림 · 밤사이 인계 수)은 메일이 나간 뒤에 센 만큼만 지운다. [RESULT_NOTIFIED] 화면의 «카톡이 나가요»는 서버가 실제로 보낼 때만.
+- [LOGIN_TRY_CAP · SIGNUP_ADDR_CAP · NOTICE_ALL_CAP · SLOT_NOTICE_CAP 2026-10-09 라운드 8] **밖에서 누를 수 있는 동작은 횟수 상한을 둔다** — 로그인(고객 · 관리자)은 같은 아이디 15분 10번(없는 아이디도 센다), 같은 이메일 새 신청은 시간당 3번, 실패 알림은 시간당 스무 통(«오류 · 실패»는 제목 첫 토막만 본다 · 뒤 토막에 고객 이름이 든다), 같은 예약의 시간 선택 관리자 알림은 시간당 3번. 새 공개 동작을 만들면 «한 사람이 천 번 누르면?»을 먼저 묻는다(`scripts/audit/public-caps.mjs`).
 - ★공개 저장소다 — 주석 · 커밋 · PR · deploy-marks 의 why 에는 **규칙만** 적는다. «무엇이 어떻게 열려 있었나»는 비공개 docs 저장소(기획 부록 B19 · 결정함)에만 둔다.
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)

@@ -6,7 +6,7 @@
 //   그 틀린 판정에 "리터럴을 실측에 맞춰 정정하라"는 지시가 붙어 나가 멀쩡한 라벨을 지우게 만든다.
 //   특히 시트가 코드보다 짧은 경우는 '오히려 setupCustomers를 실행해야 맞는' 상태인데 정반대로 안내하게 된다.
 //   사용: node scripts/audit/header-order.mjs
-import { makeSandbox, loadGas } from './gas-lint.mjs';
+import { makeSandbox, loadGas, asOwner } from './gas-lint.mjs';
 
 let fail = 0;
 const ok = (cond, label, detail) => {
@@ -59,6 +59,7 @@ function runScenario(header) {
   sb._AUTHED = true;   // [B19_LOCK 2026-10-09] 관리 · 편집기 함수는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 setupCustomers 를 돌리는 것
 
   // 진단이 말하는 결론
+  asOwner(sb);   // [DIAG_OWNER_ONLY] 편집기(소유자)가 돌리는 진단
   const diag = sb.checkCustomerHeaderOrder();
   // 실제 가드가 내는 판정 — 진짜 setupCustomers를 돌려서 '헤더 순서 불일치'로 던지는지 본다
   let guardBlocked = false, guardMsg = '';
@@ -116,6 +117,7 @@ console.log('\n[3] 시트 무변경 — 진단은 헤더 1행을 건드리지 �
     { get: (t, k) => (k in t ? t[k] : () => ({})) });
   loadGas(sb);
   const before = sheet._row.join('|');
+  asOwner(sb);   // [DIAG_OWNER_ONLY]
   sb.checkCustomerHeaderOrder(); sb.checkCustomerHeaderOrder(); sb.checkCustomerHeaderOrder();
   ok(sheet._row.join('|') === before, '3회 실행해도 헤더 1행 동일(읽기 전용)');
 }
