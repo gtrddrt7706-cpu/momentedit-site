@@ -2598,6 +2598,66 @@
    "fn": "_vcEnrollAfter",
    "mark": "PHRASE_SHOWN",
    "why": "읽은 녹음 기록의 확인 문장 = 화면이 보여 준 문장(지금 · 바로 앞 문장일 때만) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcM3",
+   "mark": "VC_RETRY_MERGE",
+   "why": "목소리 상태 합치기 — 업체 지우기 실패 목록(retry)은 더하고 빼기로 합친다(동시 저장이 실패분을 덮지 않게) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcM3",
+   "mark": "VC_JOB_OWN",
+   "why": "작업표는 그 만들기의 것 — 다른 만들기가 새 표를 걸었으면 앞 만들기의 끝을 얹지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcM3",
+   "mark": "VC_PHRASE_OWN",
+   "why": "확인 문장을 다 쓴 요청은 자기가 읽은 문장만 비운다(그사이 새 문장은 둔다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcDelMark",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 지우기 표시는 잠금 안에서만 — 잠금을 못 잡으면 쓰지 않고 다시 누르게(D1) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_WHO_FIRST",
+   "why": "목소리 지우기 · 동작은 두 분 · 모두만 받는다(거르기 전에 쓰지 않는다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 지우기 잠금을 못 잡으면 «다른 처리가 진행 중이에요»(D1) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcPurgeNow",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 모두 지우기도 잠금을 못 잡으면 아무것도 안 바꾸고 알린다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFilePurgeMine",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 파일 모두 지우기 — 목소리 잠금을 못 잡으면 지웠다고 적지 않고 다시 누르게(D1) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcJobStart",
+   "mark": "VC_CANCEL_FREE",
+   "why": "지우기로 취소된 작업표는 새 만들기를 막지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeVoiceClones",
+   "mark": "VC_DEL_LOCKED",
+   "why": "예식 다음 날 목소리 지우기 — 잠금을 못 잡은 예식은 아무것도 안 바꾸고 다음 날 다시 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -3686,7 +3746,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-10 07:58 · fbe42116",
+ "_생성": "2026-10-10 08:23 · 5012de17",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4206,5 +4266,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "5e65b626c266"
+ "_표식서명": "e3312fc256a9"
 }

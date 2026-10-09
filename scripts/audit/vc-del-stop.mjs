@@ -109,9 +109,11 @@ const allReads = (W) => Object.values(W.files).filter((f) => /^읽은 녹음/.te
 { const W = world({}); prep(W, 'groom'); prep(W, 'bride'); W.call({ token: 'T', op: 'enroll', who: 'bride', jid: 'B0', sec: 50, data: 'data:audio/wav;base64,AAAA' });
   const a = ENR(W, 'groom', 'G1'); const d = W.call({ token: 'T', op: 'delete', who: 'all' }); const ra = a.commit();
   ok('E-4 ⑦ 모두 지우기 중 만들기 → 둘 다 비움 · 업체 0', d.ok && !ra.ok && !W.st().groom.voiceId && !W.st().bride.voiceId && W.alive.size === 0, JSON.stringify({ d, ra, st: W.st(), alive: [...W.alive] })); }
-// ⑧ 지우기가 잠금을 못 잡아도 — 다시 읽은 상태에 쓰고 만들기를 멈춘다
+// ⑧ ★[VC_DEL_LOCKED 2026-10-09 A~Z 점검 2라운드 E2-5] 지우기가 잠금을 못 잡으면 — 아무것도 쓰지 않고 D1(다시 누르게) · 만들기는 그대로 저장 · 다시 누르면 지운다
+//   (옛 판 «잠금 실패에도 지우기가 이긴다»는 잠금 없이 써서, 잠근 채 저장하는 만들기와 엇갈렸다 — 이 줄을 그 꼴로 되돌리지 말 것)
 { const W = world({ lockFail: (n) => n === 4 }); prep(W, 'groom'); const a = ENR(W, 'groom', 'G1'); const d = W.call({ token: 'T', op: 'delete', who: 'groom' }); const ra = a.commit();
-  ok('E-4 ⑧ 잠금 실패에도 지우기가 이긴다', d.ok && !ra.ok && !W.st().groom.voiceId && W.alive.size === 0, JSON.stringify({ d, ra, st: W.st(), alive: [...W.alive] })); }
+  const s1 = W.st().groom, d2 = W.call({ token: 'T', op: 'delete', who: 'groom' });
+  ok('E2-5 ⑧ 잠금 실패 지우기 → D1 «다른 처리가 진행 중이에요» · 표시(delAt · 취소) 안 씀 · 만들기 저장 · 다시 누르면 지움', !d.ok && d.ecode === 'D1' && d.error === '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요 (코드 D1)' && ra.ok && s1.voiceId === 'uc_1' && s1.delAt === undefined && !s1.job.cancel && d2.ok && !W.st().groom.voiceId && W.alive.size === 0, JSON.stringify({ d, ra, s1, d2, st: W.st(), alive: [...W.alive] })); }
 // ⑨ 업체 지우기가 실패하면(500) retry 목록에 남는다(만들기 멈춤 쪽)
 { const W = world({ delCode: 500 }); prep(W, 'groom'); const a = ENR(W, 'groom', 'G1'); W.call({ token: 'T', op: 'delete', who: 'groom' }); const ra = a.commit();
   ok('E-4 ⑨ 새 목소리 업체 지우기 실패 → retry 에 남김(매일 정리가 다시)', !ra.ok && (W.st().retry || []).indexOf('uc_1') > -1, JSON.stringify(W.st())); }
