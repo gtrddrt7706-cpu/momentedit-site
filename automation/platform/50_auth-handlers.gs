@@ -18,12 +18,14 @@ function handleLogin(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 
   var pw = String((body && body.pw) || '');
   if (!id || !pw) throw new Error('개인코드(또는 이메일)와 비밀번호를 입력해 주세요.');
 
+  if (_loginLocked_('c', id)) { Utilities.sleep(200); throw new Error(LOGIN_LOCK_MSG); }   // [LOGIN_TRY_CAP]
   var rowObj = (id.indexOf('@') !== -1)
     ? findLatestCustomerByEmail(id)
     : findCustomerByCode(id.toUpperCase());
   var FAIL = '개인코드(이메일) 또는 비밀번호가 올바르지 않습니다.';
-  if (!rowObj) { Utilities.sleep(200); throw new Error(FAIL); }          // 존재 여부 노출 줄임
-  if (!verifyPassword(pw, rowObj.get('비번해시'))) { Utilities.sleep(200); throw new Error(FAIL); }
+  if (!rowObj) { _loginFailed_('c', id); Utilities.sleep(200); throw new Error(FAIL); }          // 존재 여부 노출 줄임 · 없는 아이디도 센다
+  if (!verifyPassword(pw, rowObj.get('비번해시'))) { _loginFailed_('c', id); Utilities.sleep(200); throw new Error(FAIL); }
+  _loginPassed_('c', id);
 
   var sheet = getCustomersSheet();
   var colOf = buildHeaderIndex(sheet);
@@ -62,23 +64,35 @@ function handleVerify(body) { _gsr_();
 
 /* [AUTH_SEND_CAP 2026-10-09 라운드 7] 코드 찾기 · 재설정 안내는 받는 주소마다 한 시간에 3통 · 전체 40통까지만 보낸다 —
    같은 주소로 계속 눌러도 메일함 · 하루 메일 몫 · 알림톡 잔액이 바닥나지 않게. 답은 늘 같다(계정이 있는지 드러내지 않는다) */
-function _authSendOk_(email) {   // [AUTH_SEND_CAP] 위 주석의 상한
+function _authSendOk_(kind, email) {   // [AUTH_SEND_CAP] 위 주석의 상한 · [라운드 8] 코드 찾기와 재설정은 따로 센다(코드 찾기를 세 번 했다고 재설정 링크가 막히지 않게)
   try {
     var c = CacheService.getScriptCache(), hr = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH');
-    var k1 = 'ASC_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(email).toLowerCase(), Utilities.Charset.UTF_8)).replace(/[^0-9A-Za-z_]/g, '').slice(0, 16) + '_' + hr, k2 = 'ASCALL_' + hr;
+    var k1 = 'ASC_' + String(kind || '').slice(0, 8) + '_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(email).toLowerCase(), Utilities.Charset.UTF_8)).replace(/[^0-9A-Za-z_]/g, '').slice(0, 16) + '_' + hr, k2 = 'ASCALL_' + hr;
     var n1 = +(c.get(k1) || 0), n2 = +(c.get(k2) || 0);
+    if (n2 >= 40 && !c.get('ASCALLN_' + hr)) { c.put('ASCALLN_' + hr, '1', 3700); try { notifyStudio('[플랫폼] ⚠️오류 · 코드 찾기 · 재설정 안내 시간당 상한', '이번 시간(' + hr.slice(-2) + '시) 안내가 40통을 넘어 멈췄어요\n다음 시간에 다시 열려요 · 계속되면 누가 많이 누르는지 오류기록 · 관리자 페이지를 봐 주세요'); } catch (eN) {} }   // [AUTH_SEND_CAP 라운드 8] 전체 상한에 닿으면 관리자에게 한 번(조용히 막지 않게)
     if (n1 >= 3 || n2 >= 40) return false;
     c.put(k1, String(n1 + 1), 3700); c.put(k2, String(n2 + 1), 3700);
     return true;
   } catch (e) { return true; }   // 셀 수 없으면 종전처럼 보낸다(고객이 코드를 못 받는 것이 더 나쁘다)
 }
 
+/* [LOGIN_TRY_CAP 2026-10-09 라운드 8] 로그인은 같은 아이디(개인코드 · 이메일 · 관리자 아이디)마다 15분에 10번 틀리면 그 15분 동안 막는다 —
+   비밀번호를 끝없이 맞혀 보지 못하게. 없는 아이디도 똑같이 센다(있는지 드러내지 않는다) · 맞히면 그 아이디의 셈을 지운다.
+   관리자 로그인(admin.gs adminLogin)도 이 셋을 쓴다(그 파일을 먼저 붙여도 멈추지 않게 typeof 로 본다). */
+var LOGIN_LOCK_MSG = '시도가 많아 잠시 막았어요 · 15분 뒤 다시 해 주세요.';
+function _loginTryKey_(kind, id) {
+  return 'LTRY_' + kind + '_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(id == null ? '' : id).trim().toLowerCase(), Utilities.Charset.UTF_8)).replace(/[^0-9A-Za-z_]/g, '').slice(0, 16) + '_' + Math.floor(Date.now() / 900000);
+}
+function _loginLocked_(kind, id) { try { return +(CacheService.getScriptCache().get(_loginTryKey_(kind, id)) || 0) >= 10; } catch (e) { return false; } }   // [LOGIN_TRY_CAP]
+function _loginFailed_(kind, id) { try { var c = CacheService.getScriptCache(), k = _loginTryKey_(kind, id), n = +(c.get(k) || 0) + 1; c.put(k, String(n), 960); return n; } catch (e) { return 0; } }   // [LOGIN_TRY_CAP] 틀린 횟수(이번 15분)
+function _loginPassed_(kind, id) { try { CacheService.getScriptCache().remove(_loginTryKey_(kind, id)); } catch (e) {} }   // [LOGIN_TRY_CAP] 맞히면 셈을 지운다
+
 // ── findCode (코드 찾기) ───────────────────────────────
 function handleFindCode(body) { _gsr_();
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
-  if (rowObj && _authSendOk_(email)) {   // [AUTH_SEND_CAP]
+  if (rowObj && _authSendOk_('find', email)) {   // [AUTH_SEND_CAP]
     var names = customerNames(rowObj), code = String(rowObj.get('개인코드') || ''), phone = String(rowObj.get('연락처') || '').trim();
     try {
       // 알림톡(솔라피) 우선 — 미설정/실패면 sendFindCodeKakao가 false → 메일 폴백
@@ -98,7 +112,7 @@ function handleResetPw(body) { _gsr_();
   var email = String((body && body.email) || '').trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('이메일 주소를 정확히 입력해 주세요.');
   var rowObj = findLatestCustomerByEmail(email);   // 같은 이메일 다중 신청 → 최신 활성 건
-  if (rowObj && _authSendOk_(email)) {   // [AUTH_SEND_CAP]
+  if (rowObj && _authSendOk_('reset', email)) {   // [AUTH_SEND_CAP]
     var code = String(rowObj.get('개인코드') || '');
     var exp = Date.now() + 60 * 60 * 1000;                 // 링크 1시간 유효
     var sig = makeResetSig_(code, exp);

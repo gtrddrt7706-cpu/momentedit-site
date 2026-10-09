@@ -449,9 +449,10 @@ function gateChecks(list) {
     G.customerNames = () => '가 · 나'; G.sendFindCodeKakao_ = () => { sent++; return true; }; G.sendFindCodeEmail_ = () => { sent++; }; G.sendResetPwEmail_ = () => { sent++; }; G.makeResetSig_ = () => 's';
     reset(); G._SRV = true; const rs = [];
     for (let i = 0; i < 5; i++) rs.push(G.handleFindCode({ email: 'a@b.co' }));
-    for (let i = 0; i < 3; i++) rs.push(G.handleResetPw({ email: 'A@B.co' }));
+    const afterFind = sent; for (let i = 0; i < 4; i++) rs.push(G.handleResetPw({ email: 'A@B.co' }));
     const one = sent; for (let i = 0; i < 50; i++) G.handleFindCode({ email: 'u' + i + '@b.co' });
-    if (one !== 3 || sent > 40 || !rs.every((r) => r && r.ok === true)) out.push('코드 찾기 · 재설정: 같은 주소로 계속 보내거나(한 시간 3통) 전체 상한(40)이 없거나 답이 달라진다 — 같은 주소 ' + one + '통 · 전체 ' + sent + '통');
+    // [라운드 8] 코드 찾기와 재설정은 따로 센다(코드 찾기를 세 번 했다고 재설정 링크가 막히지 않게) · 전체 40 은 함께
+    if (afterFind !== 3 || one !== 6 || sent > 40 || !rs.every((r) => r && r.ok === true)) out.push('코드 찾기 · 재설정: 같은 주소로 계속 보내거나(한 시간 3통씩) 둘이 한 칸을 나눠 쓰거나 전체 상한(40)이 없거나 답이 달라진다 — 코드 찾기 ' + afterFind + '통 · 둘 합 ' + one + '통 · 전체 ' + sent + '통');
     for (const k of Object.keys(keep)) G[k] = keep[k]; G.CacheService = realCS; reset(); }
   // [POST_SAFE_JSON] 밖에서 온 값의 «toString · valueOf» 칸은 받을 때 지운다 — 동작 이름이 객체여도 «모르는 동작»(3)으로 끝나고 예외(9)로 가지 않는다
   { const keepES = G._errStamp; let seen = null; G._errStamp = (o) => { seen = o; return o; };

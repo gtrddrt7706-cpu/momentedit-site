@@ -497,9 +497,10 @@ function aiMorningReport(preview) { _gsr_();
     + ' · 안전 ' + (safety.unreachable ? '점검불가' : (safety.pass != null ? (safety.pass + '/' + safety.total) : '-'))
     + ' · 잔액 ' + (bal == null ? '확인불가' : (won(bal) + '원' + (balLow ? ' 부족' : '')));
   var _sent = false; try { if (typeof _nfAdminEmail === 'function') _sent = _nfAdminEmail('[Moment Edit] 아침 운영 보고 · ' + ymd + ' · ' + summary, inner, { raw: true, head: '오늘 아침 운영 보고' }); } catch (e) {}
-  /* [MAIL_SENT_TRUE 2026-10-09 라운드 7] 모음은 메일이 나간 뒤에만 지운다(못 보냈으면 다음 보고에 다시) · 그사이 새로 쌓인 줄은 남긴다 · 미리보기는 지우지 않는다 */
-  if (!preview && night > 0 && _sent === true) { try { var _NP = PropertiesService.getScriptProperties(), _nn = Number(_NP.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0); _NP.setProperty('AI_HANDOFF_NIGHT_PENDING', String(Math.max(0, _nn - night))); } catch (e) {} }   // [MAIL_SENT_TRUE] 밤사이 인계 수도 보낸 뒤에 · 그사이 생긴 것은 남긴다
-  if (!preview && ovf.length && _sent === true) { try { var _OP = PropertiesService.getScriptProperties(), _cur = JSON.parse(_OP.getProperty('NS_OVERFLOW') || 'null'), _rest = (_cur && Array.isArray(_cur.a)) ? _cur.a.slice(ovf.length) : []; if (_rest.length) _OP.setProperty('NS_OVERFLOW', JSON.stringify({ a: _rest })); else _OP.deleteProperty('NS_OVERFLOW'); } catch (e) {} }
+  /* [MAIL_SENT_TRUE 2026-10-09 라운드 7] 모음은 메일이 나간 뒤에만 지운다(못 보냈으면 다음 보고에 다시) · 그사이 새로 쌓인 줄은 남긴다 · 미리보기는 지우지 않는다
+     [라운드 8] 옛 95_notify 는 아무것도 돌려주지 않는다(undefined) — 그때는 종전처럼 보낸 셈 치고 지운다(붙여넣는 사이 같은 줄이 매일 다시 나오지 않게) · false 일 때만 남긴다 */
+  if (!preview && night > 0 && _sent !== false) { try { var _NP = PropertiesService.getScriptProperties(), _nn = Number(_NP.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0); _NP.setProperty('AI_HANDOFF_NIGHT_PENDING', String(Math.max(0, _nn - night))); } catch (e) {} }   // [MAIL_SENT_TRUE] 밤사이 인계 수도 보낸 뒤에 · 그사이 생긴 것은 남긴다
+  if (!preview && ovf.length && _sent !== false) { try { var _OP = PropertiesService.getScriptProperties(), _cur = JSON.parse(_OP.getProperty('NS_OVERFLOW') || 'null'), _rest = (_cur && Array.isArray(_cur.a)) ? _cur.a.slice(ovf.length) : []; if (_rest.length) _OP.setProperty('NS_OVERFLOW', JSON.stringify({ a: _rest })); else _OP.deleteProperty('NS_OVERFLOW'); } catch (e) {} }
 
   return { ok: true, summary: summary };
 }

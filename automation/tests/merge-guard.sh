@@ -16533,13 +16533,14 @@ chk 'RESULT_NOTIFIED' automation/admin/admin.gs 1
 chk 'RESULT_NOTIFIED' admin.html 1
 chk 'RESULT_NOTIFIED' scripts/audit/err-admin.mjs 1
 chk "return true;   // \[MAIL_SENT_TRUE" automation/platform/95_notify.gs 1
-chk "if (!preview && ovf.length && _sent === true)" automation/platform/96_ai_cost.gs 1
+chk "if (!preview && ovf.length && _sent !== false)" automation/platform/96_ai_cost.gs 1
 chk "String(Math.max(0, _nn - night))" automation/platform/96_ai_cost.gs 1
 chk "word-break:keep-all;color:' + (warn" automation/platform/96_ai_cost.gs 1
 chk "color:#3A2D22;margin:0 0 8px;word-break:keep-all" automation/consultation/consultation-booking.gs 1
 chk "min-height:5.55em;text-wrap:pretty}" automation/consultation/consultation-booking.gs 1
 chk "if (n1 >= 3 || n2 >= 40) return false;" automation/platform/50_auth-handlers.gs 1
-chk "if (rowObj && _authSendOk_(email))" automation/platform/50_auth-handlers.gs 2
+chk "if (rowObj && _authSendOk_('find', email))" automation/platform/50_auth-handlers.gs 1
+chk "if (rowObj && _authSendOk_('reset', email))" automation/platform/50_auth-handlers.gs 1
 chk "notified: !!(_nfOrig || _nfReto || _nfRevDone)" automation/admin/admin.gs 1
 chk "res.notified===false" admin.html 1
 chk "붙는 칸(U+00A0)은 남긴다" admin.html 1
@@ -16552,6 +16553,31 @@ nochk "night = aiHandoffNightTake()" automation/platform/96_ai_cost.gs
 nochk "'예약 정보를 찾을 수 없습니다.'" automation/admin/admin.gs
 nochk "_trigHash_" automation/platform/70_journey.gs
 nochk "if (false) return infoPage" automation/consultation/consultation-booking.gs
+# ★[LOGIN_TRY_CAP · SIGNUP_ADDR_CAP · NOTICE_ALL_CAP · SLOT_NOTICE_CAP · PUBLIC_CAPS 2026-10-09 라운드 8] 밖에서 누를 수 있는 동작의 횟수 상한
+#   · 로그인(고객 · 관리자)은 같은 아이디마다 15분에 10번 틀리면 막는다(없는 아이디도 센다 · 맞히면 셈을 지운다 · 관리자는 막히는 순간 알림 한 번)
+#   · 같은 이메일 새 신청은 한 시간에 3번 · 실패 알림은 제목 첫 토막으로 가르고 시간당 스무 통 · 같은 예약의 시간 선택 관리자 알림은 한 시간에 3번(전체 30)
+#   (public-caps · mail-page ⑥ 이 행동으로 잰다 · 코드 찾기 · 재설정 전체 상한에 닿으면 관리자 알림 한 번)
+chk 'LOGIN_TRY_CAP' automation/platform/50_auth-handlers.gs 5
+chk 'LOGIN_TRY_CAP' automation/admin/admin.gs 1
+chk 'SIGNUP_ADDR_CAP' automation/platform/40_signup.gs 1
+chk 'NOTICE_ALL_CAP' automation/consultation/consultation-booking.gs 1
+chk 'SLOT_NOTICE_CAP' automation/consultation/consultation-booking.gs 1
+chk 'PUBLIC_CAPS' scripts/audit/public-caps.mjs 2
+chk 'NOTICE_ALL_CAP' scripts/audit/mail-page.mjs 1
+chk "if (_loginLocked_('c', id))" automation/platform/50_auth-handlers.gs 1
+chk "_loginFailed_('c', id)" automation/platform/50_auth-handlers.gs 2
+chk "_loginPassed_('c', id);" automation/platform/50_auth-handlers.gs 1
+chk "Math.floor(Date.now() / 900000)" automation/platform/50_auth-handlers.gs 1
+chk ">= 10; } catch (e) { return false; }" automation/platform/50_auth-handlers.gs 1
+chk "_loginLocked_('a', id)" automation/admin/admin.gs 1
+chk "if (_san >= 3) throw new Error(" automation/platform/40_signup.gs 1
+chk "split(' · ')\[0\]) && typeof _nfAdminLineEmail" automation/consultation/consultation-booking.gs 1
+chk "실패 알림 메일은 여기서 멈춰요" automation/consultation/consultation-booking.gs 1
+chk "if (_snn >= 3 || _snall >= 30) _slotOk = false;" automation/consultation/consultation-booking.gs 1
+chk "if (_slotOk) notifyKakao('admin.slotPicked'" automation/consultation/consultation-booking.gs 1
+chk "if (_slotOk) try {" automation/consultation/consultation-booking.gs 1
+chk "ASCALLN_" automation/platform/50_auth-handlers.gs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/public-caps.mjs >/dev/null 2>&1; _pcp=$?; if [ "$_pcp" != 0 ]; then echo "FAIL public-caps($_pcp): 밖에서 누를 수 있는 동작의 횟수 상한이 빠졌다 · 2 = 재지 못함 — node scripts/audit/public-caps.mjs"; fail=1; else echo "ok public-caps ($_pcp)"; fi; fi   # [PUBLIC_CAPS]
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2

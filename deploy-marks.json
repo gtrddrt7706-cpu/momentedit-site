@@ -2406,6 +2406,36 @@
    "fn": "doGet",
    "mark": "ERR_ID_RECORDED",
    "why": "링크 오류 화면은 사고번호가 없어도 코드를 남긴다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleLogin",
+   "mark": "LOGIN_TRY_CAP",
+   "why": "고객 로그인은 같은 아이디마다 15분에 10번 틀리면 막는다(없는 아이디도 같이 센다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "admin",
+   "fn": "adminLogin",
+   "mark": "LOGIN_TRY_CAP",
+   "why": "관리자 로그인도 같은 상한 · 막히는 순간 관리자 알림 한 번 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "SIGNUP_ADDR_CAP",
+   "why": "같은 이메일로 새 신청은 한 시간에 3번까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "notifyStudio",
+   "mark": "NOTICE_ALL_CAP",
+   "why": "실패 알림은 제목 첫 토막으로 가르고 제목과 상관없이 시간당 스무 통까지 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "SLOT_NOTICE_CAP",
+   "why": "같은 예약의 시간 선택 관리자 알림은 한 시간에 3번 · 전체 30번까지 — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2471,6 +2501,10 @@
    "handleAutologin",
    "handleVerify",
    "_authSendOk_",
+   "_loginTryKey_",
+   "_loginLocked_",
+   "_loginFailed_",
+   "_loginPassed_",
    "handleFindCode",
    "handleResetPw",
    "handleDoResetPw",
@@ -3241,6 +3275,9 @@
   "20_customers-data": [
    "_CUST_PII_COLS"
   ],
+  "50_auth-handlers": [
+   "LOGIN_LOCK_MSG"
+  ],
   "60_mypage": [
    "__GMS_ON",
    "__GMS"
@@ -3476,7 +3513,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 20:49 · 81fda265",
+ "_생성": "2026-10-09 21:17 · dcbc7ebd",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3990,5 +4027,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "3e74b8698c38"
+ "_표식서명": "cf892cac8d26"
 }

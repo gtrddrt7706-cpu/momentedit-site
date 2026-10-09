@@ -102,8 +102,16 @@ function _liveTokens(list, legacyExpiry) { _gsr_();
 function adminLogin(id, pw) { _gsr_();
   id = String(id || '').trim();
   if (!id || !pw) return { ok: false, error: '아이디와 비밀번호를 입력해 주세요.' };
+  /* [LOGIN_TRY_CAP 2026-10-09 라운드 8] 같은 아이디는 15분에 10번 틀리면 막는다(50_auth-handlers 의 셈 · 옛 판이면 종전처럼) · 막히는 순간 관리자 알림 한 번 */
+  var _lt = (typeof _loginLocked_ === 'function');
+  if (_lt && _loginLocked_('a', id)) return { ok: false, error: (typeof LOGIN_LOCK_MSG !== 'undefined' ? LOGIN_LOCK_MSG : '시도가 많아 잠시 막았어요 · 15분 뒤 다시 해 주세요.') };
   var r = _findAdminRow('아이디', id, true);
-  if (!r || !verifyPassword(pw, r.get('비번해시'))) return { ok: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' };
+  if (!r || !verifyPassword(pw, r.get('비번해시'))) {
+    var _ln = _lt ? _loginFailed_('a', id) : 0;
+    if (_ln === 10) { try { notifyStudio('[관리자] ⚠️오류 · 관리자 로그인 실패가 많아요', '아이디 ' + String(id).charAt(0) + '…(' + String(id).length + '자) · 15분에 10번 틀려 그 아이디 로그인을 15분 막았어요\n본인이 아니면 관리자 비밀번호를 바꿔 주세요'); } catch (eN) {} }
+    return { ok: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' };
+  }
+  if (_lt && typeof _loginPassed_ === 'function') _loginPassed_('a', id);
   var sh = _adminSheet(), colOf = buildHeaderIndex(sh);
   var token = makeToken();
   var expiry = fmtKST(new Date(Date.now() + (P.TOKEN_VALID_DAYS || 14) * 86400 * 1000));
@@ -1698,7 +1706,7 @@ function adminCancel(code, reason) {
   _LAST_INFO = null;
   doAdminCancel(sheet, colOf, r);                     // 캘린더 삭제 + 상태=취소 + setCustomerStage(cancel) + 가예약 해제(actCancel 공통)
   _recordHandler(code, '취소' + (reason ? (' · ' + reason) : ''));  // C·D 사유·처리자
-  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '취소는 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + ' · 이것만 직접 해 주세요 (코드 B4)' + (_LAST_INFO.noMail ? ' · 이메일이 없어 안내 메일은 보내지 않았어요' : '') };   // [CANCEL_RESULT 2026-10-09 라운드 6] 승인 · 수락과 같은 창
+  if (_LAST_INFO && _LAST_INFO.partial) return { ok: false, partial: true, error: '취소는 됐어요 · 안 된 것: ' + _admMiss_(_LAST_INFO.partial) + (_LAST_INFO.noMail ? ' · 이메일이 없어 안내 메일은 보내지 않았어요' : '') + ' · 이것만 직접 해 주세요 (코드 B4)' };   // [ERR_CODES] 코드는 늘 끝   // [CANCEL_RESULT 2026-10-09 라운드 6] 승인 · 수락과 같은 창
   return { ok: true };
 }
 

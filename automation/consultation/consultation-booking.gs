@@ -874,7 +874,7 @@ function doAdminCancel(sheet, colOf, row) { _gsr_();
   /* [CANCEL_RESULT 2026-10-09 라운드 6] 된 것만 말한다 — 캘린더를 못 지웠거나 안내 메일이 실패했는데 «삭제되고 · 발송되었습니다»라고 하지 않는다.
      빠진 것은 승인 · 수락과 같은 말(«빠진 것이 있어요» · B4)로 · 고객 처리이력에도 한 줄 */
   var _cm = []; if (_cr.cal === false) _cm.push('캘린더 일정 삭제'); if (_cr.mail === false) _cm.push('취소 안내 메일');
-  if (_cm.length) { _partialNote_(row, '취소', _cm); var _cp = infoPage('빠진 것이 있어요', esc(coupleNames(row)) + ' 님 취소는 됐어요<br>안 된 것: ' + _missHtml_(_cm) + '<br>이것만 직접 해 주세요 (코드 B4)' + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았어요' : ''), false); _LAST_INFO.partial = _cm.slice(); _LAST_INFO.noMail = (_cr.mail === null); return _cp; }   // 관리 화면(adminCancel)도 같은 창
+  if (_cm.length) { _partialNote_(row, '취소', _cm); var _cp = infoPage('빠진 것이 있어요', esc(coupleNames(row)) + ' 님 취소는 됐어요<br>안 된 것: ' + _missHtml_(_cm) + (_cr.mail === null ? '<br>이메일이 없어 안내 메일은 보내지 않았어요' : '') + '<br>이것만 직접 해 주세요 (코드 B4)', false); _LAST_INFO.partial = _cm.slice(); _LAST_INFO.noMail = (_cr.mail === null); return _cp; }   // 관리 화면(adminCancel)도 같은 창 · [ERR_CODES] 코드는 늘 끝(이메일 없음 줄은 그 앞)
   var _done = (_cr.cal === true && _cr.mail === true) ? '캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다.'
     : _cr.cal === true ? '캘린더 일정이 삭제되었습니다.' : _cr.mail === true ? '고객에게 안내 메일이 발송되었습니다.' : '';
   return infoPage('예약이 취소되었습니다',
@@ -1060,10 +1060,13 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
         if ((_pbRec.예약금결제 || '') !== _pbWas) { var _pbCs = getCustomersSheet(), _pbCo = buildHeaderIndex(_pbCs); touchCustomer(_pbCs, _pbCo, _pbCust.num, { '동의기록': JSON.stringify(_pbRec) }); }
       }
     } catch (e) { Logger.log('결제방법 기록 실패: ' + (e && e.message)); }
-    notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time, card: _byCard });   // 관리자: 슬롯 선택됨 · 승인 필요(카톡) — 카드면 «결제되면 자동 확정»
+    /* [SLOT_NOTICE_CAP 2026-10-09 라운드 8] 같은 예약의 «시간 선택» 관리자 알림(카톡 · 메일)은 한 시간에 3번 · 전체 30번까지 —
+       링크로 거듭 보내 관리자 메일함을 채우지 못하게(관리 화면 · 아침 보고에는 늘 지금 선택이 보인다) */
+    var _slotOk = true; try { var _snc = CacheService.getScriptCache(), _snh = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _snk = 'SLOTN_' + String(row.num) + '_' + _snh, _sna = 'SLOTNALL_' + _snh, _snn = +(_snc.get(_snk) || 0), _snall = +(_snc.get(_sna) || 0); if (_snn >= 3 || _snall >= 30) _slotOk = false; else { _snc.put(_snk, String(_snn + 1), 3700); _snc.put(_sna, String(_snall + 1), 3700); } } catch (eSn) {}
+    if (_slotOk) notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time, card: _byCard });   // 관리자: 슬롯 선택됨 · 승인 필요(카톡) — 카드면 «결제되면 자동 확정»
 
     var mailOk = false, mailErrMsg = '';
-    try {
+    if (_slotOk) try {
       sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''), _byCard);
       mailOk = true;
     } catch (mailErr) {
@@ -1963,7 +1966,9 @@ function notifyStudio(subject, body, dedupKey) { _gsr_();
        [NOTICE_PER_WHO 2026-10-09 라운드 4] 같은 제목 · 같은 첫 줄(누구 · 어떤 오류)만 6시간에 한 통 — 제목만으로 하루 한 통이면 같은 날 두 번째 고객의 실패가 묻힌다 */
     /* [NOTICE_OVERFLOW 2026-10-09 라운드 6] 제목마다 한 시간에 다섯 통 — 여섯째는 «멈춰요» 한 통, 그 뒤는 메일 대신 아침 보고에 모은다(_nsOverflow_ · 96_ai_cost aiMorningReport).
        상한만 두면 같은 제목의 진짜 실패가 조용히 사라진다 */
-    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '')) && typeof _nfAdminLineEmail === 'function') { var _first = String(body || '').split('\n')[0].slice(0, 160), _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject) + '|' + _first, Utilities.Charset.UTF_8)).slice(0, 16), _pc = CacheService.getScriptCache(), _ph = 'NSERRH_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 12) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _pn = +(_pc.get(_ph) || 0); if (!_pc.get(_pk)) { _pc.put(_pk, '1', 21600); _pc.put(_ph, String(_pn + 1), 3700); var _sj = String(subject).replace(/⚠️?/g, '').replace(/:/g, ' ').trim(), _line = _sj + ': ' + String(body || '').replace(/ \/ /g, ' · ').replace(/\.?[ \t]*\n\s*/g, ' · ').replace(/\s+/g, ' ').slice(0, 300); if (_pn < 5) _nfAdminLineEmail(_line); else if (_pn === 5) _nfAdminLineEmail(_line + ' · 이번 시간 같은 알림이 다섯 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 같은 알림 메일은 여기서 멈춰요'); else _nsOverflow_(_sj, _first); } } return; }   // [NOTICE_HEAD_FIRST 라운드 7] 메일 제목 칸 = «:» 앞(알림 제목) · 줄바꿈은 « · » · 여섯째 제목은 짧게 · 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
+    /* [NOTICE_ALL_CAP 2026-10-09 라운드 8] «오류 · 실패»인지는 제목의 첫 토막(« · » 앞)만 본다 — 뒤 토막에는 고객이 적은 이름이 들어가는 제목이 있다(신규 신청).
+       그리고 제목과 상관없이 한 시간에 스무 통까지 — 제목이 사람마다 달라 제목별 상한이 듣지 않는 경우까지 막는다(넘치면 «멈춰요» 한 통 뒤 아침 보고) */
+    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '').split(' · ')[0]) && typeof _nfAdminLineEmail === 'function') { var _first = String(body || '').split('\n')[0].slice(0, 160), _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject) + '|' + _first, Utilities.Charset.UTF_8)).slice(0, 16), _pc = CacheService.getScriptCache(), _hr = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _ph = 'NSERRH_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 12) + '_' + _hr, _pn = +(_pc.get(_ph) || 0), _pa = 'NSERRALL_' + _hr, _pna = +(_pc.get(_pa) || 0); if (!_pc.get(_pk)) { _pc.put(_pk, '1', 21600); _pc.put(_ph, String(_pn + 1), 3700); _pc.put(_pa, String(_pna + 1), 3700); var _sj = String(subject).replace(/⚠️?/g, '').replace(/:/g, ' ').trim(), _line = _sj + ': ' + String(body || '').replace(/ \/ /g, ' · ').replace(/\.?[ \t]*\n\s*/g, ' · ').replace(/\s+/g, ' ').slice(0, 300); if (_pn < 5 && _pna < 20) _nfAdminLineEmail(_line); else if (_pn === 5 && _pna < 20) _nfAdminLineEmail(_line + ' · 이번 시간 같은 알림이 다섯 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 같은 알림 메일은 여기서 멈춰요'); else if (_pna === 20) _nfAdminLineEmail(_line + ' · 이번 시간 실패 알림이 스무 통을 넘어 더 오는 것은 아침 보고에 모아 드려요 / 실패 알림 메일은 여기서 멈춰요'); else _nsOverflow_(_sj, _first); } } return; }   // [NOTICE_HEAD_FIRST 라운드 7] 메일 제목 칸 = «:» 앞(알림 제목) · 줄바꿈은 « · » · 여섯째 제목은 짧게 · 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
     if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
     if (dedupKey) {
       var c = CacheService.getScriptCache();

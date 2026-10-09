@@ -367,6 +367,10 @@ G.HtmlService = realHS;
     try { H.aiMorningReport(false); } catch (e) {}
     let rest = null; try { rest = JSON.parse(HP.getProperty('NS_OVERFLOW') || 'null'); } catch (e) {}
     if (!(rest && rest.a && rest.a.length === 1 && rest.a[0][2] === '새 줄')) bad.push('⑥ 아침 보고: 보내는 사이 새로 쌓인 줄까지 지운다 — ' + JSON.stringify(rest));
+    // [라운드 8] 옛 95_notify(아무것도 돌려주지 않음)면 종전처럼 지운다 — 붙여넣는 사이 같은 줄이 매일 다시 나오지 않게
+    HP.setProperty('NS_OVERFLOW', JSON.stringify({ a: [['10-09 09:00', '제목', '옛']] })); H._nfAdminEmail = () => undefined;
+    try { H.aiMorningReport(false); } catch (e) {}
+    if (HP.getProperty('NS_OVERFLOW')) bad.push('⑥ 아침 보고: 옛 95_notify 와 붙여 쓰는 동안 같은 넘침 줄이 매일 다시 나온다');
     // 20줄이 차면 «더 있었다» 표시 한 번 · 딱 20건이면 «넘음»이라 하지 않는다
     HP.deleteProperty('NS_OVERFLOW'); for (let i = 0; i < 20; i++) H._nsOverflow_('제목', '사람' + i);
     let o20 = null; try { o20 = JSON.parse(HP.getProperty('NS_OVERFLOW') || 'null'); } catch (e) {}
@@ -389,7 +393,19 @@ G.HtmlService = realHS;
       const { sandbox: K } = loadGas(makeSandbox()); K._SRV = true;
       K.GmailApp = { sendEmail: () => {} }; const s1 = K._nfAdminEmail('t', 'b', { raw: true });
       K.GmailApp = { sendEmail: () => { throw new Error('Service invoked too many times'); } }; const s2 = K._nfAdminEmail('t', 'b', { raw: true });
-      if (s1 !== true || s2 !== false) bad.push('⑥ 관리자 메일: 보냈는지를 돌려주지 않는다(못 보낸 날도 아침 보고 모음이 지워진다) — ' + s1 + ' / ' + s2); }
+      if (s1 !== true || s2 !== false) bad.push('⑥ 관리자 메일: 보냈는지를 돌려주지 않는다(못 보낸 날도 아침 보고 모음이 지워진다) — ' + s1 + ' / ' + s2);
+      // [NOTICE_ALL_CAP 라운드 8] «오류 · 실패»는 제목 첫 토막만 본다(고객 이름이 든 신규 신청 제목은 실패 알림이 아니다) · 제목과 상관없이 시간당 스무 통
+      const { sandbox: Q } = loadGas(makeSandbox()); Q._SRV = true; const qc = new Map(), ql = [];
+      Q.CacheService = { getScriptCache: () => ({ get: (k) => (qc.has(k) ? qc.get(k) : null), put: (k, v) => qc.set(k, String(v)), remove: (k) => qc.delete(k) }) };
+      Q._nfAdminLineEmail = (t) => { ql.push(String(t)); };
+      const QP = Q.PropertiesService.getScriptProperties(); QP.deleteProperty('NS_OVERFLOW');
+      Q.notifyStudio('[플랫폼] 신규 신청 · 오류님·실패님 (시그니처)', '개인코드: ME0001');
+      const nameMail = ql.length;
+      for (let i = 0; i < 25; i++) Q.notifyStudio('[상담] ⚠️오류 · 시험 ' + i, '사람' + i + ' · x\nerr');
+      let qo = null; try { qo = JSON.parse(QP.getProperty('NS_OVERFLOW') || 'null'); } catch (e) {}
+      if (nameMail !== 0) bad.push('⑥ 관리자 알림: 고객 이름에 «오류 · 실패»가 들면 신규 신청마다 실패 알림 메일이 간다');
+      if (!(ql.length === 21 && /실패 알림 메일은 여기서 멈춰요$/.test(ql[20] || '') && qo && qo.a && qo.a.length === 4)) bad.push('⑥ 관리자 알림: 제목이 다 달라도 한 시간에 스무 통 + «멈춰요» 한 통 · 나머지는 모음이 아니다 — ' + ql.length + '통 · 모음 ' + (qo && qo.a ? qo.a.length : 0));
+      QP.deleteProperty('NS_OVERFLOW'); }
     // [MAIL_SENT_TRUE 라운드 7] 밤사이 인계 수도 메일이 나간 뒤에 센 만큼만 뺀다(못 보내면 남는다 · 그사이 생긴 것은 남긴다)
     HP.setProperty('AI_HANDOFF_NIGHT_PENDING', '3'); H.aiHandoffNightTake = () => { throw new Error('부르면 안 된다(보내기 전에 지운다)'); };
     H._nfAdminEmail = () => false; try { H.aiMorningReport(false); } catch (e) {}
@@ -494,7 +510,7 @@ G.HtmlService = realHS;
     G.actCancel = () => ({ cal: true, mail: true }); reset6(); G.doAdminCancel({}, {}, cx);
     if (!(G._LAST_INFO && G._LAST_INFO.ok && /캘린더 일정이 삭제되고 고객에게 안내 메일이 발송되었습니다/.test(G._LAST_INFO.body) && !/예약이 취소되었습니다/.test(G._LAST_INFO.body) && /신랑 · 신부 님<br>/.test(G._LAST_INFO.body))) bad.push('⑥ 관리자 취소: 다 됐는데 결과 글이 다르거나 본문이 제목을 되풀이한다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
     G.actCancel = () => ({ cal: false, mail: null }); reset6(); G.doAdminCancel({}, {}, cx);
-    if (!(G._LAST_INFO && G._LAST_INFO.title === '빠진 것이 있어요' && /이메일이 없어 안내 메일은 보내지 않았어요/.test(G._LAST_INFO.body) && G._LAST_INFO.noMail === true)) bad.push('⑥ 관리자 취소: 빠진 것이 있는데 이메일이 없다는 줄이 빠진다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
+    if (!(G._LAST_INFO && G._LAST_INFO.title === '빠진 것이 있어요' && /이메일이 없어 안내 메일은 보내지 않았어요/.test(G._LAST_INFO.body) && /\(코드 B4\)$/.test(G._LAST_INFO.body) && G._LAST_INFO.noMail === true)) bad.push('⑥ 관리자 취소: 빠진 것이 있는데 이메일이 없다는 줄이 빠진다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
     G.actCancel = () => ({ cal: null, mail: null }); reset6(); G.doAdminCancel({}, {}, cx);
     if (!(G._LAST_INFO && G._LAST_INFO.ok && !/삭제|발송되었습니다/.test(G._LAST_INFO.body) && /이메일이 없어 안내 메일은 보내지 않았습니다/.test(G._LAST_INFO.body))) bad.push('⑥ 관리자 취소: 캘린더 · 메일을 안 썼는데 «삭제되고 · 발송되었습니다»라고 한다 — ' + JSON.stringify(G._LAST_INFO && G._LAST_INFO.body));
     G.actCancel = () => ({ cal: true, mail: false }); G.findRowByPersonalCode = () => ({ num: 2 }); G._AUTHED = true; let rc = 0; const keepRH = G._recordHandler; G._recordHandler = () => { rc++; };
