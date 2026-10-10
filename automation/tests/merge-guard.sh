@@ -7531,7 +7531,9 @@ nochk '여러분과 두 분이 함께 찍는 시간은' assets/ritual-data.js
 #   *"신랑신부 조금 쉬다가 입장하는 게 좋을 것 같아. 너무 바로 입장 아니깐 어색해 긴장도 없고"*
 #   고칠 것이 글이 아니라 «간격»이었다. 소리를 다시 받을 필요는 없다 — 다시 붙이기만 하면 된다.
 chk 'ENTRY_HOLD' scripts/build-typecast-import.mjs 1
-chk 'before = 1.2' scripts/build-typecast-import.mjs 1
+# ★[PACE_D 2026-10-10 사장님 귀로 고름] 1.2초는 거두고 «입장!» 앞 0.6초 — 사장님 «감사하겠습니다 다음 신랑 신부가 너무 느려»
+chk "'신랑 신부, 입장!') after = 0.6;" scripts/build-typecast-import.mjs 1
+nochk 'before = 1.2' scripts/build-typecast-import.mjs
 
 # ★★[REDUB_BYVOICE 2026-09-11 사장님 지시 "빼먹은게 없을때까지 반복해서 검토"]
 #   5라운드에서 나왔다. 저장소의 재더빙 명단(재더빙_붙여넣기.txt)은 22줄인데
