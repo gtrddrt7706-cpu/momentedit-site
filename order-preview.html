@@ -6406,17 +6406,22 @@ function _vtAllKeys(){ var o=[]; ['guest','prevideo','entry'].forEach(function(k
 function _vtBakeAll(){ return _vtBake(_vtAllKeys()); }
 window.mkAiSelf=function(key){ _mkUpDrop(key); S.vself=S.vself||{}; S.vself[key]=1; _persist(); render(); };   // [VP_ONLY_PICKED] 그 줄만 직접 녹음(빈 줄 채우기가 건너뛴다)
 window.mkVselfOff=function(key){ if(S.vself) delete S.vself[key]; _persist(); render(); };   // [VP_ONLY_PICKED] 다시 AI 로 채우는 줄로
-window.mkAiBack=function(key){ var pv=(S.upPrev||{})[key]; if(!pv) return; S.up[key]=pv; delete S.upPrev[key]; delete RF_URL[key]; _fAt('up.'+key); _persist(); render(); };
+window.mkAiBack=function(key){ var pv=(S.upPrev||{})[key]; if(!pv) return; var cur=(S.up||{})[key];
+  /* ★[RF_AIBACK_DROP 2026-10-09 A~Z 점검 2라운드 E2-3] «되돌리기»로 버린 AI 테이크는 두 분 계정 쪽에서도 지운다(종전엔 예식 30일 뒤까지 드라이브 · 관리 목록에 남았다).
+     되돌린 녹음은 서버 쓸기에서 뺀다(keep · RF_DEL_KEEP) — 서버 · 마이페이지 중계가 keep 을 모르면(옛 판) 그 녹음까지 쓸어 가니 그때는 보내지 않는다(_rfKeepOk) */
+  if(cur&&typeof cur==='object'&&cur.src==='ai'&&cur.id&&cur.id!==pv.id){ var _kp=(pv&&pv.id&&!/^local:/.test(pv.id))?[pv.id]:[]; if(EMBED&&!/^local:/.test(cur.id)&&(!_kp.length||_rfKeepOk())) _rfDelSend(key,cur.id,null,0,_kp); _rfDel(cur.id); }
+  S.up[key]=pv; delete S.upPrev[key]; delete RF_URL[key]; _fAt('up.'+key); _persist(); render(); };
+function _rfKeepOk(){ var st=VC.stLast||VC.st||{}; return !!(st.rfkeep&&st.rk); }   // [RF_AIBACK_DROP] 서버(status rfkeep) · 마이페이지 중계(rk) 둘 다 keep 을 넘기는 판
 /* 한 자리 파일 내려놓기(지우기와 같은 길) — 두 분 계정 쪽 파일도 휴지통으로 */
-function _mkUpDrop(k){ var v=(S.up||{})[k]; if(!v||typeof v!=='object') return; if(EMBED&&v.id&&!/^local:/.test(v.id)) _rfDelSend(k,v.id,null); _rfDel(v.id); delete RF_URL[k]; S.up[k]=0; _fAt('up.'+k); }   // [ERR_CODE_BUILDER] 지우기 답을 기다린다(_rfDelDone)
+function _mkUpDrop(k){ var v=(S.up||{})[k]; if(!v||typeof v!=='object') return; var pv=(S.upPrev||{})[k], _kp=(pv&&typeof pv==='object'&&pv.id&&pv.id!==v.id&&!/^local:/.test(pv.id))?[pv.id]:null; if(EMBED&&v.id&&!/^local:/.test(v.id)) _rfDelSend(k,v.id,null,0,_kp); _rfDel(v.id); delete RF_URL[k]; S.up[k]=0; _fAt('up.'+k); }   // [ERR_CODE_BUILDER] 지우기 답을 기다린다(_rfDelDone) · ★[RF_DEL_KEEP 2026-10-09 E2-4] «되돌리기»로 다시 쓸 녹음(S.upPrev)은 서버 쓸기에서 뺀다
 /* ★[ERR_CODE_BUILDER 2026-10-07] 지우기 답 — 종전엔 화면이 «지웠어요»라고 한 뒤 실패가 오면 마이페이지 글 «불러오지 못했어요…»(지우기인데 «불러오기»)를 알림에 띄웠다.
    못 지운 파일이 드라이브에 남은 채 줄이 비어 있으면 당일 콘솔이 그 자리의 «가장 새 파일»로 그 소리를 튼다 — 그래서 말해야 한다(console.html rfPrefetch).
    한 번은 3초 뒤 조용히 다시 · 그래도 안 되면: 직접 «지우기»를 누른 줄은 되돌려 두고 «지우지 못해 남아 있어요 · 다시 눌러 주세요 (코드 D#)» ·
    다른 일을 하며 내려놓은 파일(직접 녹음으로 · 읽는 분 바꿈 · 목소리 지우기)은 그 줄 아래 «파일을 지우지 못했어요 · 문의해 주세요 (코드 D#)» ·
    그 사이 그 줄에 새 소리가 들어갔으면 말하지 않는다(당일엔 새 소리가 나간다) */
 var RF_DELQ={};
-function _rfDelSend(key,id,v,all){ var q=RF_DELQ[id]=RF_DELQ[id]||{key:key,v:null,n:0}; if(v) q.v=v; if(MK.lineErr&&/\(코드 D\d/.test(MK.lineErr[key]||'')) delete MK.lineErr[key];
-  try{ parent.postMessage({type:'momentedit:ritualFileDel',data:{key:key,id:id,all:all?1:0}},window.location.origin);   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»(첫 보내기만)는 그 자리 두 분 파일을 모두 — 다시 보내기(UP_AGAIN)로 같은 자리 사본이 둘 생기면 하나만 지워져 당일 콘솔이 남은 것을 틀었다. 다시 묻기(3초 뒤)는 그 파일만(그 사이 새로 올린 것을 지우지 않게) */ }catch(e){ setTimeout(function(){ _rfDelDone({key:key,id:id,ok:false,kind:'net'}); },0); } }
+function _rfDelSend(key,id,v,all,keep){ var q=RF_DELQ[id]=RF_DELQ[id]||{key:key,v:null,n:0}; if(v) q.v=v; if(keep&&keep.length) q.keep=keep.slice(0,8); if(MK.lineErr&&/\(코드 D\d/.test(MK.lineErr[key]||'')) delete MK.lineErr[key];
+  try{ parent.postMessage({type:'momentedit:ritualFileDel',data:{key:key,id:id,all:all?1:0,t:all?Date.now():0,keep:q.keep||[]}},window.location.origin);   /* ★[RF_DEL_TQ · RF_DEL_KEEP 2026-10-09 A~Z 점검 2라운드 E2-3 · E2-4] «모두»는 누른 때(t)까지 만든 그 자리 파일을 · keep(되돌리기로 쓸 녹음)은 어느 쓸기에서도 뺀다 — 다시 묻기(3초 뒤)도 같은 keep */   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»(첫 보내기만)는 그 자리 두 분 파일을 모두 — 다시 보내기(UP_AGAIN)로 같은 자리 사본이 둘 생기면 하나만 지워져 당일 콘솔이 남은 것을 틀었다. 다시 묻기(3초 뒤)는 그 파일만(그 사이 새로 올린 것을 지우지 않게) */ }catch(e){ setTimeout(function(){ _rfDelDone({key:key,id:id,ok:false,kind:'net'}); },0); } }
 function _rfDelDone(d){ if(!d||!d.id) return; var q=RF_DELQ[d.id]; if(d.ok){ delete RF_DELQ[d.id]; return; }
   var key=(q&&q.key)||d.key||'', t=String(d.error||'').trim(), c=_ecHas(t)?_ecCodeOf(t):'', n=c?+c.charAt(1):_ecN(d,t), _el=/^([A-Z])\d$/.exec(String(d.ecode==null?'':d.ecode).trim()); if(!(n>=0)) n=0; if(!c) c=(_el?_el[1]:'D')+n;
   if(q&&n!==8&&q.n<1){ q.n++; setTimeout(function(){ if(RF_DELQ[d.id]===q) _rfDelSend(key,d.id,null); },3000); return; }
@@ -6546,7 +6551,7 @@ window.mkUpPlay=function(key){ if(MK_UP[key]){ if(MK_UPQ[key]) (UP_WAIT[key]=UP_
   _rfLineOff(key);   // [ERR_CODE_BUILDER] 앞서 못 받은 · 못 튼 까닭은 걷는다 · [RF_LINE_CLEAR] 코드 없는 서버 까닭 글도
   _stopAud(); _stopMk(); _lpHush(); try{ var a=new Audio(); _playLead(a,u,_upRate(key),function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } }); MK.aud=a; MK.audKey=key; render(); }catch(e){} };   // [PLAY_LEAD]   /* [PLAY_TOGGLE] 끝나면 ▶ 로 */
 window.mkUpDel=function(key){ var v=(S.up||{})[key]; if(!v) return; ordAsk({title:'이 줄의 두 분 목소리를 지울까요?',body:'이 줄은 스튜디오 나레이션으로 나와요',yes:'지우기',no:'두기',danger:true}).then(function(ok){ if(ok) _mkUpDelGo(key); }); };   // [REC_DLG] 우리 판
-function _mkUpDelGo(key){ var v=(S.up||{})[key]; if(!v) return;
+function _mkUpDelGo(key){ var v=(S.up||{})[key]; if(!v) return; if(S.upPrev) delete S.upPrev[key];   /* ★[RF_AIBACK_DROP 2026-10-09 E2-3] 줄 «지우기»는 그 자리 두 분 파일을 모두 지운다(되돌릴 녹음도) — «되돌리기»가 휴지통의 파일을 가리키지 않게 */
   var id=v&&v.id; delete MK_FAILED[key]; if(EMBED&&id&&!/^local:/.test(id)) _rfDelSend(key,id,v,1);   // [RF_DEL_ALL]   // [ERR_CODE_BUILDER] 못 지우면 이 줄을 되돌려 다시 누를 수 있게(_rfDelDone)
   if(id) _rfDel(id); try{ RF_URL[key]&&URL.revokeObjectURL(RF_URL[key]); }catch(e){} delete RF_URL[key]; delete RF_URL[key+'#'];
   S.up[key]=0; _fAt('up.'+key); _persist(); MK.toast='지웠어요 · 이 줄은 스튜디오 나레이션으로 나와요'; render(); }
