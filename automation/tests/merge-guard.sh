@@ -8973,6 +8973,28 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vid-rest.mjs >/dev/n
     *) echo 'ok vid-rest: 재지 못했습니다(브라우저 · ffmpeg 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
 fi
+# ★★[BAR_SMOOTH 2026-10-10 사장님 «로딩 바 차오르는 게 살짝 뚝뚝 끊기는 느낌이야 개선해 줘»]
+#   소리를 따라 차오르는 막대(① 창 #pvBar · 크게 보기 AI 차례 #lfTbarI)는 매 화면 transform: scaleX(소수) — 종전 ① 창은 너비 1% 반올림(멈춘 화면 83% · 3.5~6.3px 씩),
+#   크게 보기는 timeupdate(약 0.25초) + 0.25초 전환. 소리 시각이 거친 기기에서도 사이를 시계로 잇는다(_medMs).
+#   bar-smooth.mjs 가 화면마다 너비를 읽어 잰다 · 깨 보기 내장 · 되돌리기 세 갈래(반올림 · timeupdate · 잇기 없음) 모두 빨강 확인(2026-10-10).
+chk 'BAR_SMOOTH' order-preview.html 6
+chk 'function _medMs(a)' order-preview.html 1
+chk 'function _barSet(el,f)' order-preview.html 1
+chk 'function _lfBarGo()' order-preview.html 1
+chk "LP.el.addEventListener('playing',_lfBarGo)" order-preview.html 1
+chk '_pvBar(_medMs(a)/d)' order-preview.html 1
+chk 'transform:scaleX(0);transform-origin:left;background:var(--gold-deep)' order-preview.html 1
+nochk 'b.style.width=Math.round' order-preview.html
+nochk '.lf-tbar.au i{transition:transform' order-preview.html
+chk 'BAR_SMOOTH' scripts/audit/bar-smooth.mjs 2
+chk 'BAR_SMOOTH' .claude/skills/momentedit-design/SKILL.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bar-smooth.mjs >/dev/null 2>&1; _bs=$?
+  case "$_bs" in
+    0) echo 'ok bar-smooth: 소리를 따라 차오르는 막대가 매 화면 조금씩(① 창 · 크게 보기 AI 차례)' ;;
+    1) echo 'FAIL bar-smooth: 차오르는 막대가 뚝뚝 끊깁니다 — node scripts/audit/bar-smooth.mjs'; fail=1 ;;
+    *) echo 'ok bar-smooth: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 chk '_mkVidAfter(el,_mv0)' order-preview.html 1
 nochk '<video muted loop playsinline' order-preview.html
 chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
