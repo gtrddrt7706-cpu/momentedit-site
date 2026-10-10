@@ -17041,9 +17041,10 @@ chk 'ADV_ORDER_0707' index.html 1   # [D-13] 07-07 순서(메뉴 위 · 인사�
 chk "var g=addMsg(KB.greeting,'bot');   // 인사말 버블은 하단(입력창 위)에" index.html 1
 chk "g.classList.add('me-adv-greet');" index.html 1
 # ── [R7_MYPAGE 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 마이페이지 ──
-# ★★C2-1 ~ C2-16 · E2-7 — 되돌리지 말 것. 사람이 하는 길로 다시 재는 점검은 scripts/audit/mypage-r2.mjs(옛 판 빨강 35/45 · 고친 판 초록 45 확인)
+# ★★C2-1 · 2 · 3 · 4 · 5 · 9 · 10 · 11 · 15 · E2-7(버그) — 되돌리지 말 것. 사람이 하는 길로 다시 재는 점검은 scripts/audit/mypage-r2.mjs(옛 판 빨강 21/31 · 고친 판 초록 31 확인)
 # 바뀐 옛 chk 하나(그 자리 줄을 주석으로 · 새 꼴은 아래 [C2_LAYER_INERT])
 #   16840 chk "\$('mp_logout')… if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" → «|| _ovlOpen()» 를 더한 꼴
+# ※2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만» — 화면 모양 고침은 되돌렸다(C2-6 · C2-7 · C2-12 · C2-13 · C2-14 · C2-16 · C2-4 막대 z · C2-11 의 고르게 · 20자 · C2-10 의 미리 막기). 아래는 버그만이다
 # ※C2-8(«카톡·메일로 알려드려요»)은 고치지 않았다 — 2026-07-25 사장님 «2안 · 짧게» 결정 · 1라운드 [KAKAO_WORD] 가 예외로 적어 둔 자리(651행 chk 가 지킨다)
 # [C2_LED_SETTLE] C2-1 내 내역 안 단추가 다른 층(좌석 화면 · 계약서 · 시착서)을 열 때 — 내 내역을 닫고 그 되감기가 끝난 뒤 연다(한 길 _ledCloseThen)
 chk 'C2_LED_SETTLE' mypage.html 4
@@ -17052,14 +17053,10 @@ chk "_ledCloseThen(function(){ try{ startSeatFlow(pr.seatDraft" mypage.html 1
 chk "if(_inLed){ _ledCloseThen(openContractView); return; }" mypage.html 1
 chk "_ledCloseThen(_go);" mypage.html 1
 nochk "setTimeout(function(){ openContractView(); }, 180);" mypage.html 0
-# [C2_RESEND_ACCT] [C2_RESEND_NOTE] C2-2 · C2-16 재발송 «요청함»은 계정 · 그 계약서 · 24시간에 묶는다(전역 값 하나 금지) · 알림 줄은 재발송 단추 바로 아래 · «보내드려요»
+# [C2_RESEND_ACCT] C2-2 재발송 «요청함»은 계정 · 그 계약서 · 24시간에 묶는다(전역 값 하나 금지 · 같은 탭 다른 계정에 새지 않게)
 chk 'C2_RESEND_ACCT' mypage.html 3
 chk "_rsJ.code === _mpAcct() && _rsJ.dl === _rsDl" mypage.html 1
 nochk "|| window.__ctResendJust || '';" mypage.html 0
-chk 'C2_RESEND_NOTE' mypage.html 2
-chk "if(!\$('mp_ctResendNote')){ rs.insertAdjacentHTML('afterend', _rsNote); }" mypage.html 1
-chk '재발송을 요청했어요 · 24시간 안에 보내드려요' mypage.html 1
-nochk '24시간 안에 보내 드려요' mypage.html 0
 # [C2_ACCT_SWEEP] [C2_ADV_RESET] [C2_LOADBAR_SWEEP] C2-3 · C2-4 계정이 끝나는 자리(clearToken)에서 화면 기억도 걷는다 — AI 상담 대화 · 실패 막대 · 다른 탭 저장 막대
 chk 'C2_ACCT_SWEEP' mypage.html 2
 chk '}catch(e){} _mpAcctSweep(); }' mypage.html 1
@@ -17069,9 +17066,6 @@ chk 'reset: reset,' assets/advisor-widget.js 1
 chk 'if (g !== advGen) return;' assets/advisor-widget.js 6
 chk 'C2_LOADBAR_SWEEP' mypage.html 3
 chk "if(viewId==='loginView'||viewId==='forgotView'||viewId==='resetView') _mpBarsSweep();" mypage.html 1
-# [C2_LOADBAR_UNDER] C2-4 불러오기 실패 막대는 바탕 화면의 것 — 겹창 · 편집 화면 · 식순 창 · 상담 도우미 아래(z 140 · 종전 12500 이 식순 머리를 덮었다)
-chk 'C2_LOADBAR_UNDER' mypage.html 1
-chk "bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:140;" mypage.html 1
 # [C2_LAYER_INERT] C2-5 겹창 · 판 · 서명판 · 내 내역 · 가족·친구 스냅이 떠 있는 동안 뒤 페이지 inert(스냅 기획 keep 규칙) — 본문(main)을 통째로 막지 않는다(그 안의 확인 판이 눌리지 않았다)
 chk 'C2_LAYER_INERT' mypage.html 22
 chk 'function _layerInertOn(ov){' mypage.html 1
@@ -17091,47 +17085,19 @@ nochk "querySelectorAll('body > .topbar, body > main')" mypage.html 0
 chk "_LAYER_INERT.slice().forEach(function(o){ _layerInertOff(o, true); });" mypage.html 1
 chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen() || _ovlOpen()) return; _mpLogoutNow(); });" mypage.html 1
 nochk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" mypage.html 0
-# [C2_PHOTO_PIN] C2-6 가족·친구 스냅 겹화면 틀(세로 flex)을 덮어쓰지 않는다 — [WZ_PIN] 이 이 흐름에도 먹게
-chk 'C2_PHOTO_PIN' mypage.html 1
-nochk "box.innerHTML=h; _wzPin(box); box.style.display='block';" mypage.html 0
-# [C2_NOW_ONCE] C2-7 NOW 부제가 바로 아래 카드와 같은 말이면 뺀다(S01 · W01 · S03 · S07 · S09 · [NOW_CARD_ONCE] 와 같은 모양)
-chk 'C2_NOW_ONCE' mypage.html 5
-nochk "sub = '아래에서 원하시는 날짜·시간을 고르시면" mypage.html 0
-nochk "sub  = '상담 당일 함께 진행되고" mypage.html 0
-nochk "sub = '디렉터가 제안한 시간이에요." mypage.html 0
-nochk "sub = '요청하신 정보로 작성해 24시간 안에" mypage.html 0
-chk '디렉터가 확인 후 확정해 드려요.</span></div>' mypage.html 1
 # [C2_SAVE_INFLIGHT] C2-9 저장이 도는 중 «나가기»는 끝날 때까지 기다린다(사실과 다른 «남지 않아요» 판 금지) · 머리 알약 «저장 중…»
 chk 'C2_SAVE_INFLIGHT' mypage.html 5
 chk "st0.fly=(st0.fly||0)+1;" mypage.html 1
 chk "if(st.wait || st.fly>0){ b.textContent='저장 중…';" mypage.html 1
 chk "if(_sw.wait || _sw.fly>0){ _sw.exitWait=1;" mypage.html 1
-# [C2_BIRTH_19] C2-10 생년 목록 위끝 = 한국 올해-19 · 서버(70_journey _birthBad · [BIRTH_ADULT19])와 같은 자 · 같은 말로 보내기 전에 막는다
-chk 'C2_BIRTH_19' mypage.html 4
+# [C2_BIRTH_19] C2-10 생년 목록 위끝 = 한국 올해-19 — 서버(70_journey _birthBad · [BIRTH_ADULT19])가 늘 거절하는 해(올해-18)를 목록에 두지 않는다
+chk 'C2_BIRTH_19' mypage.html 3
 chk "for(var Y=ty-19;Y>=1930;Y--)" mypage.html 1
 nochk "for(var Y=ty-18;Y>=1930;Y--)" mypage.html 0
 chk "return (+ymd.slice(0,4)-19)+ymd.slice(4); }" mypage.html 1
-chk "만 19세 이상만 계약할 수 있어요." mypage.html 1
-# [C2_DONE_NAMES] C2-11 청첩장 완성 화면 긴 영문 이름 — 넘칠 때만 낱말 안에서 접고 고르게 · 영문 칸 20자
-chk 'C2_DONE_NAMES' mypage.html 2
-chk "color:var(--accent);margin:2px 0 5px;overflow-wrap:anywhere;text-wrap:balance}" mypage.html 1
-chk 'id="mp_gEn" autocomplete="off" maxlength="20"' mypage.html 1
-chk 'id="mp_bEn" autocomplete="off" maxlength="20"' mypage.html 1
-# [C2_BAR_EVEN] [C2_HEAD_EVEN] C2-12 막대 «이전» = «다음» 높이(테 보정) · 머리 «나가기» 높이를 흐름마다 같게(겹화면 위 여백 14)
-chk 'C2_BAR_EVEN' mypage.html 1
-chk "background:var(--bg2);border-color:var(--bg2);color:var(--sub);padding-top:14px;padding-bottom:14px}" mypage.html 1
-chk 'C2_HEAD_EVEN' mypage.html 2
-chk "flex-direction:column;padding:14px 16px 44px;scroll-padding-bottom:96px" mypage.html 1
-chk "flex-direction:column;padding:14px 16px 24px'" mypage.html 1
-# [C2_BAR_ERR] C2-13 막대 오류 줄은 고르게 · 애프터 웨딩 오류는 한 문장
-chk 'C2_BAR_ERR' mypage.html 2
-chk "color:var(--seal);text-align:center;word-break:keep-all;text-wrap:balance}" mypage.html 1
-chk "return '마음에 드는 곳을 눌러 담아\\\\u00A0두거나, 한 곳을 골라 주세요.';" mypage.html 1
-nochk "한 곳을 골라 주세요. 여러 곳을 담아 두면 다음 화면에서 함께 비교할 수 있어요.';" mypage.html 0
-# [C2_SEAT_OK_PIN] C2-14 좌석 자리 창 «확인»은 창 아래에 붙는다(가로 폰 · 키보드) · 바탕은 창이 보이는 색 그대로
-chk 'C2_SEAT_OK_PIN' mypage.html 2
-chk '<div class="sdb-foot"><button type="button" class="sdb-ok" data-seat-selclose>확인</button></div>' mypage.html 1
-chk ".sdb-foot{position:sticky;" mypage.html 1
+# [C2_DONE_NAMES] C2-11 청첩장 완성 화면 긴 영문 이름이 카드 밖으로 잘리지 않게 — 넘칠 때만 낱말 안에서 접는다(모양 고침 · 글자 수 제한은 하지 않는다)
+chk 'C2_DONE_NAMES' mypage.html 1
+chk "color:var(--accent);margin:2px 0 5px;overflow-wrap:anywhere}" mypage.html 1
 # [C2_CI_ONE_LISTENER] C2-15 계약 요청 폼 click 리스너는 이름 있는 한 함수(다시 그려도 한 번만 걸린다)
 chk 'C2_CI_ONE_LISTENER' mypage.html 2
 chk "box.addEventListener('click', _ciMissClick);" mypage.html 1

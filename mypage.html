@@ -1388,7 +1388,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 .done-eyebrow{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep,#7A5F37)}
 .done-rule{width:34px;height:1px;background:var(--gold,#B89A75);margin:13px auto;opacity:.7;animation:doneRule .7s var(--ease) .15s both}
 .done-title{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);margin-bottom:7px;line-height:1.4}
-.done-names{font-family:var(--serif);font-size:23px;letter-spacing:.05em;color:var(--accent);margin:2px 0 5px;overflow-wrap:anywhere;text-wrap:balance}   /* [C2_DONE_NAMES 2026-10-09 고객 여정 A~Z 점검 2라운드] 긴 영문 이름이 줄을 못 바꿔 320 에서 15자 · 360 에서 18자부터 카드 밖으로 잘리고 화면이 옆으로 밀렸다 — 넘칠 때만 낱말 안에서 접고, 두 줄이면 고르게(«& 이름»은 한 덩어리) */
+.done-names{font-family:var(--serif);font-size:23px;letter-spacing:.05em;color:var(--accent);margin:2px 0 5px;overflow-wrap:anywhere}   /* [C2_DONE_NAMES 2026-10-09 고객 여정 A~Z 점검 2라운드] 긴 영문 이름이 줄을 못 바꿔 320 에서 15자 · 360 에서 18자부터 카드 밖으로 잘려(읽을 수 없고) 화면이 옆으로 밀렸다 — 넘칠 때만 낱말 안에서 접는다(모양은 그대로 · 넘칠 때만) */
 .done-when{font-family:var(--serif-ko);font-size:13px;color:var(--sub);letter-spacing:.03em}
 .done-lead{font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.85;margin:17px 0 18px}
 .done-links{text-align:left;margin-bottom:13px}
@@ -1670,12 +1670,6 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .dk-chip.on .dk-sub{color:var(--sub)}
     .sdb-note{font-family:var(--serif-ko);font-size:11px;line-height:1.5;color:var(--label-soft);text-align:center;margin-top:9px;word-break:keep-all}
     .sdb-ok{display:block;width:100%;margin-top:10px;padding:12px;border:0;border-radius:8px;background:#4E3F31;color:#fff;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer}
-    /* [C2_SEAT_OK_PIN 2026-10-09 고객 여정 A~Z 점검 2라운드] «확인»은 창 안에서 늘 보인다 — 가로 폰(844×390 · 667×375)에서 창이 화면보다 길어 «확인»이 창 아래로 잘리고 창 안을 내려야만 닿았다.
-         판(.mp-modal-actions · [MODAL_ACT_STICKY])과 같은 꼴: 창 아래 여백(14px + 안전 영역)만큼 음수로 붙이고 그만큼 흰 바탕으로 채운다(지나가는 칩이 단추 아래로 비치지 않게) */
-    /* ★바탕은 «창이 보이는 색» 그대로 — 뒤를 덮는 어둠(::before · z -1)은 이 상자의 쌓임 안에서 상자 바탕(흰색) 위 · 내용 아래에 칠해져 창 바탕이 옅게 어둡다.
-       단추 줄(쌓임 위)에 흰색만 두면 그 줄만 하얀 띠로 떴다(390 실렌더) — 같은 어둠을 흰색 위에 한 겹 얹어 같은 색으로 · 아래 칩이 비치지 않게 불투명 */
-    .sdb-foot{position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin-bottom:calc(-14px - env(safe-area-inset-bottom));padding:10px 0 calc(14px + env(safe-area-inset-bottom));background:linear-gradient(rgba(58,45,34,.30),rgba(58,45,34,.30)),#fff}
-    .sdb-foot .sdb-ok{margin-top:0}
     .sdb-ok:active{background:#3A2D22}
     /* [ALC_ONE] 요약 카드의 알콜 한 줄 — 행사 전체의 약속이라 자리 창이 아니라 전체를 보여 주는 카드에 둔다 */
     .ss-alc{margin-top:9px;padding-top:9px;border-top:1px solid var(--border);font-family:var(--serif-ko);font-size:11.5px;line-height:1.6;color:var(--sub);text-align:center;word-break:keep-all}
@@ -1982,9 +1976,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .mp-fs,#mp_snapBody,#mp_photoBody{scroll-padding-bottom:96px}
 .wz-bar .cc-btn,.wz-bar .cc-btn-ghost{width:auto;margin:0;border-radius:12px;padding:15px 18px;font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.02em;line-height:1.3}
 .wz-bar .cc-btn{flex:1 1 0;min-width:0}
-.wz-bar .cc-btn-ghost{flex:0 0 auto;min-width:82px;background:var(--bg2);border-color:var(--bg2);color:var(--sub);padding-top:14px;padding-bottom:14px}   /* [C2_BAR_EVEN 2026-10-09 고객 여정 A~Z 점검 2라운드] 테 1px×2 만큼 위아래 여백을 1px 씩 덜어 «다음»(테 없음)과 같은 높이(48.2px) — 종전 «이전» 50.2 · «다음» 48.2 라 걸음 1 → 2 에서 막대가 2px 출렁였다(.me-card-pay 와 같은 보정) */
+.wz-bar .cc-btn-ghost{flex:0 0 auto;min-width:82px;background:var(--bg2);border-color:var(--bg2);color:var(--sub)}
 @media (hover:hover){.wz-bar .cc-btn-ghost:hover{background:var(--bg3);border-color:var(--bg3);color:var(--accent)}}
-.wz-bar .wz-err{flex:1 0 100%;margin:0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all;text-wrap:balance}   /* [C2_BAR_ERR 2026-10-09 고객 여정 A~Z 점검 2라운드] 두 줄이면 고르게 — 끝 낱말(«주세요»)만 둘째 줄에 혼자 서지 않게 */
+.wz-bar .wz-err{flex:1 0 100%;margin:0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all}
 .wz-bar .wz-err:empty{display:none}
 /* ★★[WZ_STEPS 2026-09-27 사장님 «1번(스냅 기획 동그라미)과 2번(식순 진행바) · 이런 형태가 전부 일관성 있게 같다면 좀 더 깔끔할 거 같은데 · 2번 식순 형태로 통일하자»]
    입력 화면의 진행 표시 = 식순 빌더(order-preview.html .op-steps)와 같은 모양 한 벌 — 청첩장 · 애프터 웨딩 · 스냅 기획.
@@ -3270,9 +3264,7 @@ function _loadFail(x, opts){
 function _loadFailBar(x){
   var old=document.getElementById('mp_loadBar'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var bar=document.createElement('div'); bar.id='mp_loadBar'; bar.setAttribute('role','status');
-  /* [C2_LOADBAR_UNDER 2026-10-09 고객 여정 A~Z 점검 2라운드] 막대는 마이페이지(바탕 화면)의 것 — 겹창 · 편집 화면 · 식순 창 · 상담 도우미(z 148~)보다 아래(z 140).
-       종전 z 12500 은 식순 창(z 9999) · 편집 화면의 머리(⋯ · 저장 · 나가기)를 덮었다. 겹화면을 닫으면 그대로 보인다(바탕 화면 위 · 본문 z 100 아래 없음) */
-  bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:140;background:rgba(58,45,34,.96);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center';
+  bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:12500;background:rgba(58,45,34,.96);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center';
   try{ bar.style.paddingTop='calc(11px + env(safe-area-inset-top,0px))'; }catch(e){}
   var tx=document.createElement('span'); _errSet(tx, '최신 내용을 불러오지 못했어요 (코드 '+_errCode(x,'L')+')');   // [ERR_CODE_NOWRAP] 폰에서 막대가 두 줄이 돼도 «(코드 L9 · 7KQ2)»는 한 덩어리
   var btn=document.createElement('button'); btn.type='button'; btn.textContent='다시 불러오기';
@@ -3559,13 +3551,13 @@ function renderMyPage(d){
     if (d.stage === '시착' && d.fitting && !d.fitting.signed && d.fitting.gateNotice) sub = '';   // [NOW_CARD_ONCE] 서버 부제 «동의 후 시착이 진행돼요» — 서명 단추 아래 «서명하면 드레스 시착이 진행됩니다»(gateNotice)와 같은 말
     if (d.stage === '시착' && d.fitting && d.fitting.signed) {
       head = '시착 동의가 완료됐어요';
-      sub  = '';   // [C2_NOW_ONCE 2026-10-09 고객 여정 A~Z 점검 2라운드] 종전 «상담 당일 함께 진행되고, 이후 계약 단계를 안내드릴게요.» — 바로 아래 시착 카드가 «시착은 상담 당일 함께 진행돼요» · 계약서 요청 순서를 말한다([NOW_CARD_ONCE])
+      sub  = '상담 당일 함께 진행되고, 이후 계약 단계를 안내드릴게요.';
     }
     // [신청접수 하위상태] 시간 선택 후 승인 대기 / 변경 제안 — '일정 선택'에 머물지 않게
     if (d.stage === '신청접수' && d.consult) {
-      if (d.consult.status === '신청접수' && d.consult.scheduleUrl) { head = ((d.product==='웨딩스냅')?'촬영':'상담')+' 일정을 선택해 주세요'; sub = ''; }   // [C2_NOW_ONCE] 종전 부제 «아래에서 원하시는 날짜·시간을 고르시면, 디렉터가 확인 후 확정해 드려요.» — 바로 아래 카드가 같은 말을 단추와 함께 한다(뒤 반 «디렉터가 확인 후 확정»은 카드 부제로 옮겼다 · [NOW_CARD_ONCE])   // 기본 문구('곧 연락드립니다')가 카드 액션과 충돌하던 것 보정 · [NOW_SNAP_WORD 2026-09-26 · snap-8] 스냅은 상담 없이 촬영일을 바로 잡는다 — 바로 아래 카드(「촬영 일정을 선택해 주세요」)와 같은 말로
+      if (d.consult.status === '신청접수' && d.consult.scheduleUrl) { head = ((d.product==='웨딩스냅')?'촬영':'상담')+' 일정을 선택해 주세요'; sub = '아래에서 원하시는 날짜·시간을 고르시면,\n디렉터가 확인 후 확정해 드려요.'; }   // 기본 문구('곧 연락드립니다')가 카드 액션과 충돌하던 것 보정 · [NOW_SNAP_WORD 2026-09-26 · snap-8] 스냅은 상담 없이 촬영일을 바로 잡는다 — 바로 아래 카드(「촬영 일정을 선택해 주세요」)와 같은 말로
       else if (d.consult.status === '시간선택완료') { head = '일정을 확인하고 있어요'; sub = ''; }   // [NOW_CARD_ONCE] 종전 «디렉터가 확인하고, 확정되면 메일과 카카오톡으로 알려드릴게요.» — 상담 카드가 같은 말
-      else if (d.consult.status === '변경제안') { head = '다른 시간을 제안했어요'; sub = ''; }   // [C2_NOW_ONCE] 종전 «디렉터가 제안한 시간이에요. 아래에서 수락하거나 다른 시간을 골라 주세요.» — 카드 제목 «디렉터가 다른 시간을 제안했어요»와 «이 시간으로 수락 · 다른 시간 보기» 단추가 말한다
+      else if (d.consult.status === '변경제안') { head = '다른 시간을 제안했어요'; sub = '디렉터가 제안한 시간이에요. 아래에서 수락하거나 다른 시간을 골라 주세요.'; }
     }
     /* ★[NOW_SELF_CHANGE 2026-09-26 · pre-1] 확정된 상담(촬영)은 24시간 전까지 아래 카드에서 직접 바꿀 수 있다 —
        서버 submitSchedule 이 확정 뒤에도 그때까지 받고, 카드에 「시간 변경」·「예약 취소」가 선다(canChange).
@@ -3580,7 +3572,7 @@ function renderMyPage(d){
     }
     // [상담완료] 고객 계약서 요청 전/후로 NOW 분기 ('준비 중' 고정 → 요청 유도/준비 중)
     if (d.stage === '상담완료' && d.contractInfo) {
-      if (d.contractInfo.requested) { head = '계약서를 준비하고 있어요'; sub = ''; }   // [C2_NOW_ONCE] 종전 «요청하신 정보로 작성해 24시간 안에 보내드릴게요.» — 바로 아래 카드 «계약서를 24시간 안에 보내드릴게요 · 입력하신 정보가 계약서에 그대로 들어가요»
+      if (d.contractInfo.requested) { head = '계약서를 준비하고 있어요'; sub = '요청하신 정보로 작성해 24시간 안에 보내드릴게요.'; }
       else { head = '계약서 요청만 남았어요'; sub = '아래에서 정보를 입력하고 요청해 주세요.'; }
     }
     // [계약완료] 서명 후 계약금 잔액 입금 대기 — 입금이 유일한 할 일 (확인 중이면 안내만)
@@ -4809,7 +4801,7 @@ function renderConsult(c, product, d){
     + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오'+PLACE_SUB+'</span></div>'
     + '</div>';
   if (s === '신청접수'){
-    body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub"><span class="ln-bal">원하시는 날짜·시간을 고르시면,</span> <span class="ln-bal">디렉터가 확인 후 확정해 드려요.</span></div>';   // [C2_NOW_ONCE] NOW 부제에 있던 뒤 반을 이 한 곳으로(종전 «원하시는 날짜·시간을 골라 주세요.» — 단추가 이미 «일정 선택»이다)
+    body = '<div class="cc-title">'+L+' 일정을 선택해 주세요</div><div class="cc-sub">원하시는 날짜·시간을 골라 주세요.</div>';
     cta  = url ? '<a class="cc-btn cc-btn-seal" href="'+escapeHtml(url)+'">일정 선택</a>' : '';
     extra = TRUST_MINI;
   } else if (s === '시간선택완료'){
@@ -5139,8 +5131,6 @@ function doRequestContract(){
   if(!info.weddingDate) return miss('예식 날짜를 선택해 주세요.', $('mpcw_trigger'));
   if(!info.weddingTime) return miss('예식 시간대를 선택해 주세요.', document.querySelector('#mp_ciSlotRow .wed-slot:not(.taken)')||$('mp_ciSlotRow'));
   if(!info.groomBirth||!info.brideBirth) return miss('신랑·신부 생년월일을 입력해 주세요.', first(['mp_ciGB_y','mp_ciGB_m','mp_ciGB_d','mp_ciBB_y','mp_ciBB_m','mp_ciBB_d']));
-  var _bbG=_birthBadKo(info.groomBirth,'신랑'), _bbB=_bbG?'':_birthBadKo(info.brideBirth,'신부');   // [C2_BIRTH_19] 서버가 거절할 생년월일은 보내기 전에 그 칸에서 같은 말로
-  if(_bbG) return miss(_bbG, $('mp_ciGB_y')); if(_bbB) return miss(_bbB, $('mp_ciBB_y'));
   if(!info.groomAddr||!info.brideAddr) return miss('신랑·신부 주소를 입력해 주세요.', $(!info.groomAddr?'mp_ciGA_find':'mp_ciBA_find'));
   if(!_crCheck('mp_ciCR')) return;   // [CR_DIGITS] 칸 아래 한 줄 + 초점(다른 결제 칸과 같은 자리)
   if(!info.consent) return miss('개인정보 수집·이용에 동의해 주세요.', $('mp_ciConsent'));
@@ -5263,12 +5253,10 @@ function renderContractPayment(c, p, ctx){
       var _rsJ = window.__ctResendJust, _rsDl = String((c && c.deadlineKst) || '');
       var _rsMine = (_rsJ && typeof _rsJ === 'object' && _rsJ.code === _mpAcct() && _rsJ.dl === _rsDl && (Date.now() - (+_rsJ.t || 0)) < 24 * 3600e3) ? String(_rsJ.at || '1') : '';
       var _rsAt = String((ctx && ctx.contractResendAt) || '') || _rsMine;
-      /* [C2_RESEND_NOTE 2026-10-09] 알림 줄은 재발송 단추 바로 아래(«계약서 보기» 위) — 종전엔 «계약서 보기» 아래에 붙어 그 단추 설명처럼 읽혔다 ·
-           단추 쪽에 붙고 아래 단추와는 띄운다 · «보내드려요»(이 쪽의 다른 줄과 같은 붙여 쓰기) */
-      var _rsNote = '<div class="cc-mini" id="mp_ctResendNote" role="status" style="display:block;margin:0 0 6px;text-align:center">재발송을 요청했어요 · 24시간 안에 보내드려요</div>';
+      var _rsNote = '<div class="cc-mini" id="mp_ctResendNote" role="status" style="display:block;margin-top:8px">재발송을 요청했어요 · 24시간 안에 보내 드려요</div>';
       h += '<div class="cc-title">계약서 서명 기한이 지났어요</div><div class="cc-sub">아래 버튼으로 요청하시면 새 계약서를 보내드릴게요.</div>'
-         + '<div class="cc-actions"><button type="button" class="cc-btn'+(_rsAt?' cc-btn-wait':'')+'" id="mp_ctResend"'+(_rsAt?' aria-disabled="true" aria-describedby="mp_ctResendNote"':'')+'>계약서 재발송 요청</button>'+(_rsAt?_rsNote:'')+link+'</div>'
-         + '</div>';
+         + '<div class="cc-actions"><button type="button" class="cc-btn'+(_rsAt?' cc-btn-wait':'')+'" id="mp_ctResend"'+(_rsAt?' aria-disabled="true" aria-describedby="mp_ctResendNote"':'')+'>계약서 재발송 요청</button>'+link+'</div>'
+         + (_rsAt?_rsNote:'') + '</div>';
       box.innerHTML=h; box.style.display='block';
       var rs=$('mp_ctResend'); if(rs) rs.addEventListener('click', function(){
         if(rs.getAttribute('aria-disabled')==='true') return;   // [CT_RESEND_ONCE] 이미 요청했다 — 다시 보내지 않는다
@@ -5276,7 +5264,7 @@ function renderContractPayment(c, p, ctx){
         _act({ p:{action:'requestContractResend', token:getToken()}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · [CT_RESEND_ONCE] 시간 초과면 상태(contractResendAt)로 반영됐는지 본다(옛 서버는 값이 없어 다시 누르게)
           done:function(d){ return !!(d&&d.contractResendAt); },
           ok:function(d){ window.__ctResendJust={ code:_mpAcct(), dl:_rsDl, at:(d&&(d.at||d.contractResendAt))||'1', t:Date.now() }; rs.disabled=false; rs.textContent='계약서 재발송 요청'; rs.classList.add('cc-btn-wait'); rs.setAttribute('aria-disabled','true'); rs.setAttribute('aria-describedby','mp_ctResendNote');   // [C2_RESEND_ACCT] 누가 · 어느 계약서 · 언제
-            if(!$('mp_ctResendNote')){ rs.insertAdjacentHTML('afterend', _rsNote); } },   // [C2_RESEND_NOTE] 단추 바로 아래
+            if(!$('mp_ctResendNote') && rs.parentNode){ rs.parentNode.insertAdjacentHTML('afterend', _rsNote); } },
           fail:function(line){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; _errAlert('재발송 요청을 보내지 못했어요', line); } });
       });
       return;
@@ -6970,7 +6958,7 @@ function birthSelectHtml(idBase, val, who){
   var ty=+_birthLim19().slice(0,4)+19;   // [C2_BIRTH_19] 올해 = 한국 날짜의 올해(서버와 같은 달력 · 기기 시간대가 달라도)
   /* [BIRTH_RANGE 2026-10-09] 연도는 1930 ~ 올해-19 — 종전 «올해-53»까지라 54세 이상은 생년을 고를 수 없었다(계약 요청이 막혔다). 저장값이 범위 밖이면 그 해도 목록에 둔다 · 기본값 없음('년')
      ★[C2_BIRTH_19 2026-10-09 고객 여정 A~Z 점검 2라운드] 위끝은 «올해-19» — 서버는 만 19세부터 받는다([BIRTH_ADULT19] · 70_journey _birthBad). 종전 «올해-18» 은 고를 수 있는데 늘 거절되는 해였다.
-       같은 해 안에서 생일이 아직 안 지난 날짜도 서버가 거절한다 — 요청을 누를 때 같은 자로 미리 막고 같은 말을 한다(doRequestContract · _birthBadKo) */
+       같은 해 안에서 생일이 아직 안 지난 날짜는 서버가 거절하고 그 말이 요청 단추 아래 줄에 뜬다(종전 그대로) */
   var y='<option value="">년</option>'; for(var Y=ty-19;Y>=1930;Y--){ y+='<option value="'+Y+'"'+(String(Y)===vy?' selected':'')+'>'+Y+'</option>'; }
   if(vy && (+vy>ty-19 || +vy<1930)) y+='<option value="'+vy+'" selected>'+vy+'</option>';
   var m='<option value="">월</option>'; for(var M=1;M<=12;M++){ var ms=('0'+M).slice(-2); m+='<option value="'+ms+'"'+(ms===vm?' selected':'')+'>'+M+'월</option>'; }
@@ -6982,10 +6970,8 @@ function birthSelectHtml(idBase, val, who){
 }
 /* [BIRTH_DAYS 2026-10-09] 일은 고른 해 · 달에 맞춘다 — 2월 31일 · 4월 31일 같은 없는 날이 계약서로 갔다(서버 검사는 따로 · GAS).
    해를 아직 안 골랐으면 윤년으로 쳐 2월 29일까지 둔다 · 없는 날이 되면 그 칸을 비운다(요청을 누르면 생년월일 칸으로 다시 데려간다) */
-/* [C2_BIRTH_19 2026-10-09] 서버(70_journey _birthBad · [BIRTH_ADULT19])와 같은 자 — 오늘 한국 날짜의 19년 전(그날까지 태어났으면 만 19세 · 글자 비교라 2/29 는 2/28 까지).
-   거절 말도 서버와 글자 그대로(입력 확인이라 코드는 붙이지 않는다 · [ERR_CODES]) */
+/* [C2_BIRTH_19 2026-10-09] 서버(70_journey _birthBad · [BIRTH_ADULT19])와 같은 자 — 오늘 한국 날짜의 19년 전(그날까지 태어났으면 만 19세 · 글자 비교라 2/29 는 2/28 까지) */
 function _birthLim19(){ var t=new Date(_snapKstToday()), ymd=t.getUTCFullYear()+'-'+('0'+(t.getUTCMonth()+1)).slice(-2)+'-'+('0'+t.getUTCDate()).slice(-2); return (+ymd.slice(0,4)-19)+ymd.slice(4); }
-function _birthBadKo(v, who){ v=String(v||''); if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) return ''; if(v>_birthLim19()) return who+' 생년월일을 다시 확인해 주세요. 만 19세 이상만 계약할 수 있어요.'; if(v<'1930-01-01') return who+' 생년월일을 다시 확인해 주세요.'; return ''; }
 function _birthWire(idBase){
   var ys=$(idBase+'_y'), ms=$(idBase+'_m'), ds=$(idBase+'_d'); if(!ys||!ms||!ds) return;
   function fit(){
@@ -7953,10 +7939,10 @@ function invStepMethod(box){
      누구 칸인지 모른다. 칸마다 이름(aria-label)을 단다 · placeholder 는 예시 그대로(2/4 [INV_FIELD_LABEL] 과 같은 방식) */
   var names='<div class="pf" style="margin-top:4px"><label class="pf-l">신랑</label>'
     +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" aria-label="신랑 한글 이름" placeholder="한글" value="'+nv('groomKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" maxlength="20" aria-label="신랑 영문 이름" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'   // [C2_DONE_NAMES] 영문 이름은 20자까지(표지 · 완성 화면의 큰 이름 한 줄 · 성 없이 이름만)
+    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" aria-label="신랑 영문 이름" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'
     +'<div class="pf"><label class="pf-l">신부</label>'
     +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" aria-label="신부 한글 이름" placeholder="한글" value="'+nv('brideKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" maxlength="20" aria-label="신부 영문 이름" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
+    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" aria-label="신부 영문 이름" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
     +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun).</div>'   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn" role="group" aria-label="모바일 참석 QR도 받으실래요?"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'" aria-pressed="'+(d.selfQR===true)+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'" aria-pressed="'+(d.selfQR===false)+'">아니요</button></span></div>' : '';   // [INV_YN_PRESSED]
@@ -8390,7 +8376,7 @@ function invStepDone(box, r){
   var _selfQR=(String(_dr0.method||'')==='self'&&_dr0.selfQR===true);
   var base=INVFLOW.base||{};
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
-  var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold-deep,#7A5F37)">&amp;</span>&nbsp;':'')+escapeHtml(b))   /* [INV_AMP_TEXT] 2026-09-26 통합 점검 L6 · 이름 사이 «&»가 장식용 --gold(흰 바탕 2.65:1 · 23px 큰 글자 기준 3:1 에도 미달)였다 — 이름과 한 줄에 붙은 글리프는 글자 골드(momentedit-design «글자와 같은 줄이면 --gold-text/--gold-deep») */
+  var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold-deep,#7A5F37)">&amp;</span> ':'')+escapeHtml(b))   /* [INV_AMP_TEXT] 2026-09-26 통합 점검 L6 · 이름 사이 «&»가 장식용 --gold(흰 바탕 2.65:1 · 23px 큰 글자 기준 3:1 에도 미달)였다 — 이름과 한 줄에 붙은 글리프는 글자 골드(momentedit-design «글자와 같은 줄이면 --gold-text/--gold-deep») */
                      : escapeHtml((base.groomKo||'')+((base.groomKo&&base.brideKo)?' · ':'')+(base.brideKo||''));
   function _doneWhen(date,time){
     date=String(date||'').trim(); time=String(time||'').trim();
@@ -9386,7 +9372,7 @@ function startPhotoFlow(gi, rd, dig, fok, meal){   // rd = 식순 초안(읽기 
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','가족 · 친구 스냅');   // [PHOTO_MODAL_A11Y] aria-modal + 뒤 페이지 inert(_photoInert)
   ov.style.cssText='position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  var body=document.createElement('div'); body.id='mp_photoBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:14px 16px 44px;scroll-padding-bottom:96px';   // [C2_HEAD_EVEN 2026-10-09] 위 여백 16 → 14 — 머리 «나가기»가 청첩장 · 애프터 웨딩 · 좌석(.mp-fs 14px)과 같은 높이(390 · 37px)   // [PHOTO_MODAL_A11Y] 아래 막대(«저장하고 마치기» · 약 84px) 높이만큼 — Tab 으로 간 칸(390 «신부 쪽»)이 막대 뒤에 숨지 않게
+  var body=document.createElement('div'); body.id='mp_photoBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:16px 16px 44px;scroll-padding-bottom:96px';   // [PHOTO_MODAL_A11Y] 아래 막대(«저장하고 마치기» · 약 84px) 높이만큼 — Tab 으로 간 칸(390 «신부 쪽»)이 막대 뒤에 숨지 않게
   var inner=document.createElement('div'); inner.style.cssText='max-width:620px;margin:0 auto -44px;width:100%;flex:1 0 auto;display:flex;flex-direction:column';   // ★[WIZ_VCENTER] margin:auto(세로 가운데) 금지 — 2026-10-09 [WZ_PIN] 으로 걷음 · 머리는 위 · 막대는 화면 아래(아래 틀 여백 44 를 먹는다 · [WZ_BAR_EDGE] 와 같은 값)
   body.appendChild(inner); ov.appendChild(body); document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
@@ -9710,7 +9696,7 @@ function renderPhoto(box){
      식순 · 스냅 기획과 같은 아래 막대에 «저장하고 마치기»(= 위 판의 «저장하고 나가기»와 같은 길 exitPhotoFlow · 실패하면 그 자리에서 다시 저장). */
   h+='<div class="wz-bar"><button type="button" class="cc-btn" id="mp_photoDone">저장하고 마치기</button></div>';
   h+='</div>';
-  box.innerHTML=h; _wzPin(box);   // [C2_PHOTO_PIN 2026-10-09 고객 여정 A~Z 점검 2라운드] 종전 box.style.display='block' — 겹화면 틀(세로 flex · startPhotoFlow)을 매번 덮어써 [WZ_PIN] 이 이 흐름에만 안 먹었다(키 큰 화면에서 막대가 떠 있었다). 바탕 화면에 그릴 때(renderProduction)는 부르는 쪽이 이미 보이게 한다 · 되살리지 말 것
+  box.innerHTML=h; _wzPin(box); box.style.display='block';
   _phDotGlue(box);   // [PHOTO_DOT_GLUE]
   var _phDone=$('mp_photoDone'); if(_phDone) _phDone.addEventListener('click', function(){ exitPhotoFlow(); });   // [WZ_BAR]
   function rerender(){ renderPhoto(box); }
@@ -10001,7 +9987,7 @@ function startSnapFlow(sd, p, needAgree, opt){
   var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','스냅 기획');   // [SNAP_MODAL_A11Y] 겹화면 = 모달 · 뒤 페이지는 아래에서 inert
   ov.style.cssText='position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:14px 16px 24px';   // [C2_HEAD_EVEN 2026-10-09] 위 여백 20 → 14 — 머리 «나가기»가 다른 입력 화면(.mp-fs 14px)과 같은 높이
+  var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:20px 16px 24px';
   /* ★[SNAP_TOP_ALIGN 2026-09-27 지시문 6편 2부 5] 스냅 기획은 [WIZ_VCENTER] 의 예외 — 걸음마다 위쪽 정렬.
        다섯 걸음 중 짧은 걸음(1 · 4)만 세로 가운데로 내려와 머리가 100 → 20 → 20 → 168 → 20px 로 뛰었다(걸음을 넘길 때마다 손잡이 자리가 바뀐다).
        auto 마진으로 되돌리지 말 것(scripts/check-wiz-vcenter.mjs 가 스냅은 «위에 붙었나»로 잰다). */
@@ -11178,7 +11164,7 @@ function renderSeat(box){
       +'<input class="sdb-nm" data-ed data-edk="'+sel.ti+':'+sel.si+'" value="'+escapeHtml(_edNm)+'" maxlength="24" autocomplete="off" placeholder="하객 성함" aria-label="하객 성함">'
       +'<div class="sdb-opts n'+_nOpt+'">'+opts+'</div>'
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')
-      +'<div class="sdb-foot"><button type="button" class="sdb-ok" data-seat-selclose>확인</button></div>'   // [SEAT_NO_CHAIN] 이 자리만 마치고 닫는다 — 다음 자리로 끌고 가지 않는다 · [C2_SEAT_OK_PIN] 창 아래에 붙는 한 줄
+      +'<button type="button" class="sdb-ok" data-seat-selclose>확인</button>'   // [SEAT_NO_CHAIN] 이 자리만 마치고 닫는다 — 다음 자리로 끌고 가지 않는다
       +'</div>';   // 자리별 음료(★복원 금지: 상단 대표음료·자리별 알콜 혼용으로 되돌리지 말 것)
   }
   // 공개 방식(전체 공개 / 내 자리만 검색) — 캔버스 아래 별도 카드(2026-07-19 사용자 선택). 상단 크램프 체크박스 폐지. ★상단 복원 금지.
@@ -12009,7 +11995,7 @@ function renderDining(box){
     bindTrk(box,renderDining,collect,{
       validate:function(){   // 아무것도 안 고르고 넘어가면 다음 페이지가 비어 막다른 길 → 담기 또는 한 곳 선택 유도
         if(!(d._favs&&d._favs.length) && !String(d.venuePick||'').trim())
-          return '마음에 드는 곳을 눌러 담아\u00A0두거나, 한 곳을 골라 주세요.';   // [C2_BAR_ERR] «담아 두거나»는 한 덩어리(좁은 폭에서 «담아 / 두거나»로 갈리지 않게) · 막대 안 한 줄로 — 뒤 문장(«여러 곳을 담아 두면 다음 화면에서 함께 비교할 수 있어요»)은 목록 위 안내(dn-taphint «'다음'에서 모아 비교해요»)가 이미 말한다 · 320 에서 세 줄 → 막대가 화면 26%였다
+          return '마음에 드는 곳을 눌러 담아 두거나, 한 곳을 골라 주세요. 여러 곳을 담아 두면 다음 화면에서 함께 비교할 수 있어요.';
         return '';
       },
       confirmNext: function(go){

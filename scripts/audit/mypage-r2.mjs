@@ -1,20 +1,16 @@
 // ★★[R7_MYPAGE 2026-10-09 고객 여정 A~Z 점검 2라운드 · 마이페이지] 고친 것을 «사람이 하는 길»로 다시 잰다 — 되돌리면 빨강.
+//   ★2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만» — 화면 모양 고침(C2-6 · C2-7 · C2-12 · C2-13 · C2-14 · C2-16 ·
+//     C2-4 막대 z · C2-11 의 고르게 · 20자 · C2-10 의 미리 막기)은 되돌렸고 그 검사도 뺐다. 아래는 버그만이다.
 //   C2-1  [C2_LED_SETTLE]      내 내역 «최종 인원 확정하기» → 좌석 화면 → 뒤로가기 한 번 = 좌석 화면만 닫힌다(마이페이지를 안 떠난다)
 //   C2-2  [C2_RESEND_ACCT]     계약서 재발송 «요청함»은 그 계정에만 — 로그아웃 뒤 다른 계정은 켜진 단추
-//   C2-16 [C2_RESEND_NOTE]     알림 줄은 재발송 단추 바로 아래(«계약서 보기» 위) · «보내드려요»
 //   C2-3  [C2_ADV_RESET]       로그아웃 뒤 다른 계정 — 앞사람 AI 상담 대화가 안 보이고 다음 질문에 안 실린다
-//   C2-4  [C2_LOADBAR_SWEEP] [C2_LOADBAR_UNDER] 불러오기 실패 막대는 로그아웃 뒤 없다 · 편집 화면을 덮지 않는다(닫으면 보인다)
+//   C2-4  [C2_LOADBAR_SWEEP]   불러오기 실패 막대는 로그아웃(로그인 화면) 뒤 없다
 //   C2-5  [C2_LAYER_INERT]     주소 창 · 확인 판 · 내 내역에서 Tab 이 뒤 페이지로 안 나간다 · 주소 창이 떠 있으면 로그아웃 안 받음 ·
 //                              가족·친구 스냅 «나가기» 판 단추가 실제로 눌린다 · 같은 모양의 계약서 · 시착 동의서 뷰어 · 청첩장 샘플 · 그림 미리보기도
 //                              (열면 초점이 창 안 · 닫으면 연 자리로 · 편집 화면 위에 겹쳐 열어도)
-//   C2-6  [C2_PHOTO_PIN]       가족·친구 스냅 1280×2600 막대 아래 틈 0
-//   C2-7  [C2_NOW_ONCE]        NOW 부제가 바로 아래 카드와 같은 말이면 비었다(S01 · W01 · S03 · S07 · S09)
 //   C2-9  [C2_SAVE_INFLIGHT]   저장이 도는 중 «나가기» — 사실과 다른 판 없이 저장이 끝난 뒤 나간다 · 머리 알약 «저장 중…»
-//   C2-10 [C2_BIRTH_19]        생년 목록 위끝 = 한국 올해-19 · 만 19세 하루 전 날짜는 보내기 전에 막는다(서버와 같은 말)
-//   C2-11 [C2_DONE_NAMES]      긴 영문 이름이 320 에서 안 넘친다 · 영문 칸 20자
-//   C2-12 [C2_BAR_EVEN] [C2_HEAD_EVEN] «이전» = «다음» 높이 · 머리 «나가기»가 청첩장 · 가족·친구 스냅 · 스냅 기획에서 같은 높이
-//   C2-13 [C2_BAR_ERR]         애프터 웨딩 막대 오류 한 문장 · 막대 오류 줄은 고르게(text-wrap balance)
-//   C2-14 [C2_SEAT_OK_PIN]     가로 폰(844×390) 자리 창 «확인»이 창 안에 보인다
+//   C2-10 [C2_BIRTH_19]        생년 목록 위끝 = 한국 올해-19(서버가 늘 거절하는 해를 두지 않는다)
+//   C2-11 [C2_DONE_NAMES]      긴 영문 이름이 320 에서 카드 밖으로 잘리지 않는다
 //   C2-15 [C2_CI_ONE_LISTENER] 계약 요청 폼을 다시 그려도 #mp_contract click 리스너가 늘지 않는다
 //   E2-7  [E2_CR_SAME]         현금영수증 번호 판정 = 서버(00_platform-config _crKR · 70_journey _crOk)와 같은 답(브라우저 없이 · 받는 곳 여섯이 한 함수)
 //   R2_ROOT=<다른 폴더> 로 돌리면 그 판을 잰다(옛 판 빨강 확인용). SHOT_DIR=<폴더> 면 390 · 1280 화면을 남긴다.
@@ -168,13 +164,13 @@ try {
     const A = JSON.parse(JSON.stringify(ST.S11)); A.contract.expired = true; A.contract.remainingSec = 0;
     const B = JSON.parse(JSON.stringify(A)); B.name = '박서준 · 최하늘'; B.groom = '박서준'; B.bride = '최하늘'; B.code = 'BBBBBB'; B.contractResendAt = '';
     let who = 'A';
-    await sec('C2-2 · C2-16 · C2-3 · C2-4 같은 탭에서 로그아웃 → 다른 계정', { state: () => (who === 'A' ? A : B), gas: (a, p) => {
+    await sec('C2-2 · C2-3 · C2-4 같은 탭에서 로그아웃 → 다른 계정', { state: () => (who === 'A' ? A : B), gas: (a, p) => {
       if (a === 'login') { who = String(p.code || '').toUpperCase() === 'BBBBBB' ? 'B' : 'A'; return { json: { ok: true, token: 'TOK' + who } }; }
       if (a === 'requestContractResend') return { json: { ok: true, at: '2026-10-09 22:00' } };
       return null; } }, async ({ pg, S }) => {
       await pg.evaluate(() => { const b = document.getElementById('mp_ctResend'); if (b) b.click(); }); await wait(900);
       const nA = await pg.evaluate(() => { const b = document.getElementById('mp_ctResend'), n = document.getElementById('mp_ctResendNote'); return { dis: b && b.getAttribute('aria-disabled'), t: n ? n.textContent.trim() : '', prev: n && n.previousElementSibling ? n.previousElementSibling.id : '' }; });
-      ok('C2-16 알림 줄은 재발송 단추 바로 아래(«계약서 보기» 위) · «24시간 안에 보내드려요»', nA.dis === 'true' && nA.t === '재발송을 요청했어요 · 24시간 안에 보내드려요' && nA.prev === 'mp_ctResend', JSON.stringify(nA));
+      ok('C2-2 (전제) 앞 계정(김희준)은 재발송을 요청한 뒤 «요청함»(흐린 단추 · 알림 줄)', nA.dis === 'true' && !!nA.t, JSON.stringify(nA));
       await shot(pg, 'resend-A-390');
       S.advReply = '김희준 님 잔금은 1,650,000원이에요.';
       await pg.evaluate(() => { window.MEAdvisor.open(); window.MEAdvisor.ask('잔금 얼마예요?'); }); await wait(1600);
@@ -199,28 +195,6 @@ try {
     });
   }
 
-  await sec('C2-4 · C2-11 · C2-12 청첩장 편집 화면(S15) 390', { state: ST.S15 }, async ({ pg }) => {
-    await pg.evaluate(() => document.getElementById('mp_invStart').click()); await wait(900);
-    await pg.evaluate(LOADBAR); await wait(200);
-    const under = await pg.evaluate(() => { const b = document.getElementById('mp_loadBar'); if (!b) return { bar: false }; const r = b.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return { bar: true, covered: !b.contains(el), at: el ? (el.id || el.className || el.tagName).toString().slice(0, 30) : '' }; });
-    ok('C2-4 편집 화면(청첩장)이 떠 있으면 실패 막대는 그 아래(머리 «저장 · 나가기»를 덮지 않는다)', under.bar && under.covered, JSON.stringify(under));
-    await pg.evaluate(() => { const b = document.getElementById('mp_loadBar'); if (b) b.remove(); });
-    const ml = await pg.evaluate(() => [document.getElementById('mp_gEn'), document.getElementById('mp_bEn')].map((e) => e && e.getAttribute('maxlength')));
-    ok('C2-11 영문 이름 칸 두 개 maxlength 20', ml[0] === '20' && ml[1] === '20', JSON.stringify(ml));
-    await pg.evaluate(() => { const o = document.querySelector('.inv-opt[data-m="online"]'); if (o) o.click(); }); await wait(200);
-    await pg.fill('#mp_gEn', 'Heejun'); await pg.fill('#mp_bEn', 'Miku');
-    await pg.evaluate(() => document.getElementById('iv_next').click()); await wait(900);
-    const bh = await pg.evaluate(() => { const bar = [...document.querySelectorAll('.mp-fs .wz-bar')].pop(); return [...bar.querySelectorAll('button')].filter((b) => b.getBoundingClientRect().height > 0).map((b) => Math.round(b.getBoundingClientRect().height * 10) / 10); });
-    ok('C2-12 막대 «이전»과 «다음»이 같은 높이', bh.length === 2 && Math.abs(bh[0] - bh[1]) < 0.5, JSON.stringify(bh));
-    await shot(pg, 'inv2-390');
-  });
-
-  await sec('C2-4 바탕 화면의 실패 막대(S15) 390', { state: ST.S15 }, async ({ pg }) => {
-    await pg.evaluate(LOADBAR); await wait(200);
-    const seen = await pg.evaluate(() => { const b = document.getElementById('mp_loadBar'); if (!b) return { bar: false }; const r = b.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return { bar: true, top: b.contains(el), z: getComputedStyle(b).zIndex }; });
-    ok('C2-4 바탕 화면에서는 실패 막대가 맨 위에 보인다(내려간 것은 편집 화면 · 겹창 아래로만)', seen.bar && seen.top, JSON.stringify(seen));
-  });
-
   await sec('C2-9 [C2_SAVE_INFLIGHT] 저장이 도는 중 «나가기»(S15) 390', { state: ST.S15, gas: (a) => (a === 'saveInvitationDraft' ? { hold: 3000, json: { ok: true } } : null) }, async ({ pg }) => {
     await pg.evaluate(() => document.getElementById('mp_invStart').click()); await wait(900);
     await pg.evaluate(() => { const o = document.querySelector('.inv-opt[data-m="online"]'); if (o) o.click(); }); await wait(200);
@@ -233,17 +207,6 @@ try {
     const end = await pg.evaluate(() => ({ modal: document.getElementById('mpModal').classList.contains('open'), active: !!(window.INVFLOW && INVFLOW.active), path: location.pathname }));
     ok('C2-9 저장이 도는 동안 머리 알약은 «저장 중…»', pill === '저장 중…', pill);
     ok('C2-9 저장이 도는 중 «나가기» — «저장하지 않으면 남지 않아요» 판 없이 기다렸다가 저장이 끝나면 나간다', !mid.modal && mid.active && !end.modal && !end.active && end.path === '/mypage.html', JSON.stringify({ mid, end }));
-  });
-
-  await sec('C2-12 [C2_HEAD_EVEN] 머리 «나가기» 높이(S15) 390', { state: ST.S15 }, async ({ pg }) => {
-    const ys = {};
-    for (const [k, id] of [['청첩장', 'mp_invStart'], ['가족·친구 스냅', 'mp_photoStart'], ['스냅 기획', 'mp_snapStart'], ['애프터 웨딩', 'mp_diningStart']]) {
-      await pg.evaluate((id) => document.getElementById(id).click(), id); await wait(1300);
-      ys[k] = await exitY(pg); await exitClick(pg); await wait(1500);
-      if (await modalOpen(pg)) { await pg.evaluate(() => { const b = [...document.querySelectorAll('#mpModalActions button')].pop(); b && b.click(); }); await wait(1200); }
-    }
-    const v = Object.values(ys);
-    ok('C2-12 머리 «나가기»가 청첩장 · 가족·친구 스냅 · 스냅 기획 · 애프터 웨딩에서 같은 높이', v.every((y) => y != null && y === v[0]), JSON.stringify(ys));
   });
 
   await sec('C2-5 [C2_LAYER_INERT] 내 내역 · 확인 판 · 가족·친구 스냅 판(S15) 390', { state: ST.S15 }, async ({ pg }) => {
@@ -266,35 +229,12 @@ try {
     ok('C2-5 가족·친구 스냅 «나가기» 판 — 뒤 페이지 막음(inert)에 갇히지 않고 손가락으로 눌린다', ph.open && !ph.inert && ph.hit && clicked && !phEnd.photo && !phEnd.modal, JSON.stringify({ ph, clicked, phEnd }));
   });
 
-  await sec('C2-13 [C2_BAR_ERR] 애프터 웨딩 고르지 않고 «다음»(S15) 320', { w: 320, h: 568, state: ST.S15 }, async ({ pg }) => {
-    await pg.evaluate(() => document.getElementById('mp_diningStart').click()); await wait(900);
-    await pg.evaluate(() => { const b = document.getElementById('dn_make'); if (b) b.click(); }); await wait(900);
-    await pg.evaluate(() => { const b = document.getElementById('trk_next'); if (b) b.click(); }); await wait(600);
-    const de = await pg.evaluate(() => { const e = [...document.querySelectorAll('.wz-bar .wz-err')].filter((x) => x.getBoundingClientRect().height > 0)[0]; if (!e) return null; const cs = getComputedStyle(e); return { t: e.textContent.trim(), wrap: String(cs.textWrapStyle || cs.textWrap || ''), lines: Math.round(e.getBoundingClientRect().height / parseFloat(cs.lineHeight)) }; });
-    ok('C2-13 애프터 웨딩 막대 오류는 한 문장(뒤 «비교할 수 있어요»는 목록 위 안내가 말한다) · «담아 두거나»는 한 덩어리 · 오류 줄 text-wrap balance', !!de && de.t.replace(/\u00A0/g, ' ') === '마음에 드는 곳을 눌러 담아 두거나, 한 곳을 골라 주세요.' && /담아\u00A0두거나/.test(de.t) && /balance/.test(de.wrap), JSON.stringify(de));
-    await shot(pg, 'dn1err-320');
-  });
-
   await sec('C2-11 [C2_DONE_NAMES] 320 긴 영문 이름', { w: 320, h: 568, state: ST.S15 }, async ({ pg }) => {
     const r = await pg.evaluate(() => { const d = document.createElement('div'); d.className = 'mp-fs'; d.innerHTML = '<div class="consult-card inv-wrap done-wrap"><div class="done-names" id="r2dn"></div></div>'; document.body.appendChild(d);
       const el = document.getElementById('r2dn'); const res = [];
-      for (const nm of ['SEUNGYEONHYUN', 'SEUNGYEONHYUNWOO', 'SEUNGYEONHYUNWOOJIN']) { el.innerHTML = nm + ' <span>&amp;</span>&nbsp;MIKU'; res.push(el.scrollWidth <= el.clientWidth + 1 && d.scrollWidth <= d.clientWidth + 1); }
+      for (const nm of ['SEUNGYEONHYUN', 'SEUNGYEONHYUNWOO', 'SEUNGYEONHYUNWOOJIN']) { el.innerHTML = nm + ' <span>&amp;</span> MIKU'; res.push(el.scrollWidth <= el.clientWidth + 1 && d.scrollWidth <= d.clientWidth + 1); }
       d.remove(); return res; });
     ok('C2-11 320 — 13 · 16 · 19자 영문 이름도 완성 화면 이름 줄이 안 넘친다', r.every(Boolean), JSON.stringify(r));
-  });
-
-  await sec('C2-6 [C2_PHOTO_PIN] 1280×2600 가족·친구 스냅 막대', { w: 1280, h: 2600, state: ST.S15 }, async ({ pg }) => {
-    await pg.evaluate(() => document.getElementById('mp_photoStart').click()); await wait(1300);
-    const g = await pg.evaluate(() => { const b = document.querySelector('#mp_photoOverlay .wz-bar'); return b ? Math.round(innerHeight - b.getBoundingClientRect().bottom) : null; });
-    ok('C2-6 키 큰 화면에서도 막대가 화면 맨 아래(틈 0)', g != null && g <= 1 && g >= 0, String(g));
-  });
-
-  await sec('C2-14 [C2_SEAT_OK_PIN] 844×390 자리 창 «확인»', { w: 844, h: 390, state: ST.S15, touch: true }, async ({ pg }) => {
-    await pg.evaluate(() => document.getElementById('mp_finalStart').click()); await wait(1100);
-    await pg.evaluate(() => { const b = document.querySelector('#mp_production .rs'); if (b) b.click(); }); await wait(700);
-    const s = await pg.evaluate(() => { const ok = document.querySelector('.seat-drinkbar .sdb-ok'), d = document.querySelector('.seat-drinkbar'); if (!ok || !d) return null; const a = ok.getBoundingClientRect(), b = d.getBoundingClientRect(); return { okTop: Math.round(a.top), okBot: Math.round(a.bottom), dTop: Math.round(b.top), dBot: Math.round(b.bottom), H: innerHeight }; });
-    ok('C2-14 «확인»이 창 안(창 아래끝 위)에 보인다', !!s && s.okBot <= s.dBot + 0.5 && s.okTop >= s.dTop && s.okBot <= s.H, JSON.stringify(s));
-    await shot(pg, 'seat-844x390');
   });
 
   await sec('C2-15 [C2_CI_ONE_LISTENER] 계약 요청 폼 리스너(S08) 390', Object.assign({ state: ST.S08 }, AV), async ({ pg }) => {
@@ -306,20 +246,10 @@ try {
     ok('C2-15 계약 요청 폼을 세 번 다시 그려도 #mp_contract click 리스너 수가 그대로', c0 >= 1 && c1 === c0, JSON.stringify({ c0, c1 }));
   });
 
-  await sec('C2-10 [C2_BIRTH_19] 생년월일(S08) 390', Object.assign({ state: ST.S08 }, AV), async ({ pg, S }) => {
+  await sec('C2-10 [C2_BIRTH_19] 생년 목록(S08) 390', Object.assign({ state: ST.S08 }, AV), async ({ pg }) => {
     const k = new Date(Date.now() + 9 * 3600e3), ky = k.getUTCFullYear();
     const yrs = await pg.evaluate(() => [...document.querySelectorAll('#mp_ciGB_y option')].map((o) => +o.value).filter(Boolean));
     ok(`C2-10 생년 목록 위끝 = 한국 올해-19(${ky - 19})`, yrs.length > 0 && Math.max(...yrs) === ky - 19, String(Math.max(...yrs)));
-    const t = new Date(Date.UTC(ky - 19, k.getUTCMonth(), k.getUTCDate() + 1)), z = (x) => String(x).padStart(2, '0');
-    if (t.getUTCFullYear() !== ky - 19) { console.log('· C2-10 날짜 칸 — 오늘이 12월 31일이라 «하루 뒤»가 목록 밖 해다(위 목록 검사로 갈음)'); return; }
-    const sent0 = S.log.filter((a) => a === 'requestContract').length;
-    await pg.evaluate(([y, m, d]) => { const set = (id, v) => { const e = document.getElementById(id); if (!e) return; if (e.tagName === 'SELECT' && ![...e.options].some((o) => o.value === v)) { const op = document.createElement('option'); op.value = v; op.textContent = v; e.appendChild(op); } e.value = v; e.dispatchEvent(new Event('change', { bubbles: true })); };
-      document.getElementById('mp_ciWed').value = '2027-01-16'; document.getElementById('mp_ciWedTime').value = '12:20';
-      set('mp_ciGB_y', y); set('mp_ciGB_m', m); set('mp_ciGB_d', d); set('mp_ciBB_y', '1991'); set('mp_ciBB_m', '02'); set('mp_ciBB_d', '02');
-      document.getElementById('mp_ciSubmit').click(); }, [String(t.getUTCFullYear()), z(t.getUTCMonth() + 1), z(t.getUTCDate())]);
-    await wait(500);
-    const bm = await pg.evaluate(() => [...document.querySelectorAll('#mp_contract .ci-miss')].map((e) => e.textContent.trim()));
-    ok('C2-10 만 19세 하루 전 생년월일 — 보내기 전에 그 칸에서 서버와 같은 말', bm.some((x) => x === '신랑 생년월일을 다시 확인해 주세요. 만 19세 이상만 계약할 수 있어요.') && S.log.filter((a) => a === 'requestContract').length === sent0, JSON.stringify(bm));
   });
 
   await sec('C2-5 [C2_LAYER_INERT] 주소 찾기 창(S08) 390', Object.assign({ state: ST.S08, init: FAKE_DAUM }, AV), async ({ pg }) => {
@@ -381,16 +311,6 @@ try {
     await pg.evaluate(ESC); await wait(500);
     const pc = await pg.evaluate(`(function(){ var b=${EXIT}, m=document.getElementById('pvModal'); return { open: !!(m && m.classList.contains('open')), inert: [].filter.call(document.querySelectorAll('body *'), function(e){ return e.inert; }).length, back: document.activeElement===b }; })()`);
     ok('C2-5 그림 미리보기를 닫으면 막음이 다 풀리고 초점은 연 자리로', !pc.open && pc.inert === inert0 && pc.back, JSON.stringify({ pc, inert0 }));
-  });
-
-  await sec('C2-7 [C2_NOW_ONCE] NOW 부제(S01 · W01 · S03 · S07 · S09) 390', { state: ST.S01 }, async ({ pg }) => {
-    for (const k of ['S01', 'W01', 'S03', 'S07', 'S09']) {
-      const r = await pg.evaluate((d) => { renderMyPage(d); try { show('mypageView'); } catch (e) {} const s = document.getElementById('mp_nowSub'); const c = document.getElementById('mp_consult');
-        return { head: document.getElementById('mp_nowHead').textContent.trim(), sub: s && s.style.display !== 'none' ? s.textContent.trim() : '', card: c ? c.innerText.replace(/\s+/g, ' ') : '' }; }, ST[k]);
-      const cardOk = (k === 'S01' || k === 'W01') ? /디렉터가 확인 후 확정해 드려요/.test(r.card) : true;
-      ok(`C2-7 ${k} NOW 부제가 비었다(같은 말은 카드 한 곳)${(k === 'S01' || k === 'W01') ? ' · 카드가 «디렉터가 확인 후 확정»을 말한다' : ''}`, r.sub === '' && !!r.head && cardOk, JSON.stringify({ head: r.head, sub: r.sub, card: r.card.slice(0, 80) }));
-      if (k === 'S01') await shot(pg, 'now-S01-390');
-    }
   });
 
   if (SHOT) {
