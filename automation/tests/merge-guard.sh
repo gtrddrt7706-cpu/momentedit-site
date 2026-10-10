@@ -7531,6 +7531,10 @@ nochk '여러분과 두 분이 함께 찍는 시간은' assets/ritual-data.js
 #   *"신랑신부 조금 쉬다가 입장하는 게 좋을 것 같아. 너무 바로 입장 아니깐 어색해 긴장도 없고"*
 #   고칠 것이 글이 아니라 «간격»이었다. 소리를 다시 받을 필요는 없다 — 다시 붙이기만 하면 된다.
 chk 'ENTRY_HOLD' scripts/build-typecast-import.mjs 1
+# ★[NARR_PLAY_LOOP 2026-10-10 사장님] 나레이션 청취 플레이 — 중복 없음 · [지적 N] 은 장부에만
+chk 'NARR_PLAY_LOOP' CLAUDE.md 1
+chk 'NARR_PLAY_LOOP' scripts/audit/narr-play.mjs 1
+node scripts/audit/narr-play.mjs || fail=1
 # ★[FOOD_NO_WELCOME 2026-10-10 사장님] 홈페이지 제공 항목에서 «웰컴» 뺌 — 핑거 푸드는 사진용 차림 · 건배 뒤에 드시게
 chk 'FOOD_NO_WELCOME' index.html 1
 nochk '<li>웰컴 핑거 푸드' index.html
