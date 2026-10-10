@@ -17022,6 +17022,7 @@ chk 'R2_BUILDER' scripts/audit/r2-builder.mjs 1
 chk 'VC_R2' scripts/audit/vc-r2.mjs 1
 chk 'R2_MP_BUILDER' scripts/audit/r2-mypage-builder.mjs 1
 chk 'VC_R2_SERVER' scripts/audit/vc-r2-server.mjs 1
+chk 'CHECK_BUGS_ONLY' .claude/commands/점검.md 2          # 점검은 버그 · 오류만 · 화면 디자인은 안 바꾼다(2026-10-10 사장님)
 if command -v node >/dev/null 2>&1; then node scripts/audit/r2-builder.mjs >/dev/null 2>&1; _r2b=$?; if [ "$_r2b" = 1 ]; then echo 'FAIL r2-builder: 식순 저장 · 다시 열기 · 뒤로가기 · 나가기 · 새로고침 약속이 어긋났습니다 — node scripts/audit/r2-builder.mjs'; fail=1; elif [ "$_r2b" = 2 ]; then echo 'skip r2-builder: 브라우저 없음'; else echo 'ok r2-builder: 식순 저장 바탕 · 완성 기준선 · 충돌 판 · 판 뒤 뒤로가기 · 나가기 · 새로고침'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2.mjs >/dev/null 2>&1; _vr2=$?; if [ "$_vr2" = 1 ]; then echo 'FAIL vc-r2: 두 분 목소리 약속(1분 멈춤 · 닫기 · 지우기 취소 · 채우기 · 남의 작업)이 어긋났습니다 — node scripts/audit/vc-r2.mjs'; fail=1; elif [ "$_vr2" = 2 ]; then echo 'skip vc-r2: 브라우저 없음'; else echo 'ok vc-r2: 두 분 목소리 2라운드 약속'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/r2-mypage-builder.mjs >/dev/null 2>&1; _r2m=$?; if [ "$_r2m" = 1 ]; then echo 'FAIL r2-mypage-builder: 마이페이지 안 식순 창(충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기)이 어긋났습니다 — node scripts/audit/r2-mypage-builder.mjs'; fail=1; elif [ "$_r2m" = 2 ]; then echo 'skip r2-mypage-builder: 브라우저 없음'; else echo 'ok r2-mypage-builder: 충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기'; fi; fi
