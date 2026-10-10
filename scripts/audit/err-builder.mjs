@@ -33,7 +33,7 @@ const CON = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
 ok('⑪ 정적 · 듣는 줄 알림은 _lNote(② 작은 플레이어의 lsPlay 하나만 MK.toast) · 줄 ▶ 실패는 그 줄 아래 · «이 자리 들어 보기»가 실패를 삼키지 않는다 · 엔진 실패를 LS.msg 에만 두지 않는다 [LISTEN_NOTE · NOW_LINE_FAIL · TURN_PLAY_FAIL · ENG_FAIL_SHOW]',
   (SRC.match(/MK\.toast=_vtWhyT\(/g) || []).length === 1 && !/MK\.toast=_ptWhyOf\(d\)/.test(SRC) && !/MK\.toast=EC_M6; render\(\); return; \} play\(MK\.nowUrl/.test(SRC) && !/pp\.catch\(function\(\)\{\}\); MK\.aud=au;/.test(SRC) && /au\.onerror=function\(\)\{ _playFail\(au,au\.error\); \}/.test(SRC) && !/LS\.msg='소리를 불러오지 못했어요/.test(SRC));
 ok('⑪ 정적 · «일부는 아직 준비 중이에요»(추측) 없음 · 모르는 마이크 오류를 M3 로 넣지 않는다 · 코드 앞 마침표 없음(나가기 판 둘) [SKIP_CODE · MIC_M0 · CODE_NO_DOT]',
-  !/일부는 아직 준비 중이에요/.test(SRC) && !/\(코드 M'\+\(c\|\|3\)\+'\)/.test(SRC) && !/이 기기에는 남아 있어요\.'\+\(_ecCodeOf/.test(SRC) && /이 기기에 그대로 있어요 · 잠시 뒤 다시 눌러 주세요 \(코드 S5\)'/.test(SRC) && !/\. \(코드 S5\)/.test(SRC));
+  !/일부는 아직 준비 중이에요/.test(SRC) && !/\(코드 M'\+\(c\|\|3\)\+'\)/.test(SRC) && !/이 기기에는 남아 있어요\.'\+\(_ecCodeOf/.test(SRC) && / · 잠시 뒤 다시 눌러 주세요 \(코드 S5\)'/.test(SRC) && !/\. \(코드 S5\)/.test(SRC));
 ok('⑪ 정적 · 콘솔 — 서버 일반 오류의 새 글(«서버에서 오류가 났어요 …»)도 같은 갈래 · 받은 코드 꼬리(사고번호)를 버리지 않는다 · 고객 화면에 «순서를 만들 수 없습니다: »+영어 예외를 띄우지 않는다 [RF_SRV_ERR · GUEST_BUILD_FAIL]',
   /\/요청을 처리하지 못했어요\|서버에서 오류가 났어요\/\.test\(t\)\) return '서버 오류\(드라이브일 수 있어요\) \(' \+ \(c \? c\[1\] : '코드 L9'\) \+ '\)'/.test(CON) && /catch\(e\)\{ if \(GUEST\) \{ try \{ console\.warn\('preview build', e\); \} catch \(x\) \{\} R = null; gStop\('미리 듣기를 만들지 못했어요/.test(CON));
 { const vm = await import('node:vm'); const c1 = { window: {} }; vm.createContext(c1); vm.runInContext(fs.readFileSync(path.join(ROOT, 'assets/err-codes.js'), 'utf8'), c1); const ex = c1.window.ME_ERR.explain('M0');

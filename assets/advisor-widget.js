@@ -219,6 +219,7 @@
       sendBtn = document.getElementById('meAdvSend');   // [ADV_ESC_ONLY] kakaoA(상시 카톡 링크) 제거 — 위 footer 주석 참조
 
   var started = false, sending = false, escShown = false, handoffSent = false;
+  var advGen = 0;   // [C2_ADV_RESET] 대화 세대 — reset() 이 올리면 오가던 답(앞 계정의 질문에 대한 답)은 화면 · 대화에 넣지 않고 버린다
   var transcript = [];
   var lastNight = false;   // 직전 응답의 야간 플래그(식순 등 — 에스컬레이션 문구를 정직하게)
   var mode = 'adv';   // 'adv'(/api/advisor) | 'sched'(/api/schedule-advisor 신비주의 스케줄)
@@ -382,6 +383,7 @@
 
   function send(q, forceSched) {
     if (sending) return;
+    var g = advGen;   // [C2_ADV_RESET] 이 질문이 나간 세대 — 답이 왔을 때 세대가 바뀌었으면(로그아웃) 버린다
     addMsg(q, 'me'); transcript.push({ role: 'user', content: q });
     // 스케줄 모드는 "끈적하게" 유지: 한번 일정 흐름에 들어가면 날짜·시간대·짧은 수긍은 계속 스케줄로,
     // 명백히 다른 주제(가격·환불 등)일 때만 일반 상담으로 빠진다 → 시간대만 답해도 시원한 확정 안내가 나옴.
@@ -396,6 +398,7 @@
          서버가 점유 맵을 못 받아 «연결이 원활하지 않다»고 답한 것(avail:'unknown')도 코드를 단다(A4 조회 실패 · A3 설정 없음) */
       aiFetch('/api/schedule-advisor', { messages: transcript.slice(-12), today: todayYmd(), page: PAGE }, 30000)
         .then(function (res) {
+          if (g !== advGen) return;   // [C2_ADV_RESET]
           typing.remove();
           var j = res.j;
           if (res.ok && j && j.reply) {
@@ -406,8 +409,8 @@
           var c = aiCode(res.status, j, null);
           addMsg(aiWord(c) + ' · ' + (c === 'A0' ? '다시 적어 주세요' : '잠시 뒤 다시 물어봐 주세요') + ' (코드 ' + c + ')', 'bot');
         })
-        .catch(function (e) { typing.remove(); var c = aiCode(0, null, e); addMsg((aiN(e) ? aiWord(c) + ' · 잠시 뒤 다시 물어봐 주세요' : AI_SCREEN) + ' (코드 ' + c + ')', 'bot'); })   // [ERR_N_HONEST]
-        .then(function () { sending = false; sendBtn.disabled = false; });
+        .catch(function (e) { if (g !== advGen) return; typing.remove(); var c = aiCode(0, null, e); addMsg((aiN(e) ? aiWord(c) + ' · 잠시 뒤 다시 물어봐 주세요' : AI_SCREEN) + ' (코드 ' + c + ')', 'bot'); })   // [ERR_N_HONEST] · [C2_ADV_RESET]
+        .then(function () { if (g !== advGen) return; sending = false; sendBtn.disabled = false; });
       return;
     }
     var advBody = { messages: transcript.slice(-14), page: PAGE };
@@ -416,6 +419,7 @@
     try { if (typeof CFG.advExtra === 'function') { var _x = CFG.advExtra(); if (_x) { for (var _k in _x) advBody[_k] = _x[_k]; } } } catch (e) {}   // 식순: embed·customer 등 판별 필드
     aiFetch(CFG.endpoint || '/api/advisor', advBody, 30000)   // [ERR_CODE_PAGES] 30초 제한 · 깨진 답(HTML)도 상태 번호와 함께 받는다
       .then(function (res) {
+        if (g !== advGen) return;   // [C2_ADV_RESET]
         typing.remove();
         var j = res.j || {};
         if (res.ok && j.reply) {
@@ -434,12 +438,13 @@
         }
       })
       .catch(function (e) {
+        if (g !== advGen) return;   // [C2_ADV_RESET]
         typing.remove();
         var c = aiCode(0, null, e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정해요» — 시간 A5 · 연결 A6 · 깨진 답 A7 · [ERR_N_HONEST] 화면 쪽 예외 A0
         addMsg((aiN(e) ? aiWord(c) + ' · ' + (isAnonMode() ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') : AI_SCREEN) + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
         escalateOrBook();
       })
-      .then(function () { sending = false; sendBtn.disabled = false; });
+      .then(function () { if (g !== advGen) return; sending = false; sendBtn.disabled = false; });
   }
 
   var _chipLab = null, _chipBox = null;
@@ -554,6 +559,20 @@
     setInterval(syncHide, 600);
   }
 
+  /* ★[C2_ADV_RESET 2026-10-09 고객 여정 A~Z 점검 2라운드] 대화를 처음으로 — 마이페이지가 계정이 끝날 때(로그아웃 · 로그인 풀림) 부른다.
+     종전엔 대화가 이 페이지가 살아 있는 동안 남아, 같은 탭에서 다른 계정으로 로그인해도 앞사람 질문 · 답이 보였고 다음 질문에 함께 실려 갔다.
+     비우는 것: 화면 말풍선 · 다음 질문에 싣는 대화(transcript) · 인계(전달) 상태 · 일정 흐름 · 입력칸. 오가던 답은 세대(advGen)로 버린다.
+     열려 있으면 닫는다(초점은 돌려주지 않는다 — 돌아갈 자리가 앞 계정의 화면이다) */
+  function reset() {
+    advGen++;
+    opener = null;
+    try { if (panel.classList.contains('open')) close(); } catch (e) {}
+    transcript = []; started = false; sending = false; escShown = false; handoffSent = false; handoffP = null; bookShown = false; lastNight = false; mode = 'adv';
+    _chipLab = null; _chipBox = null;
+    try { body.innerHTML = ''; } catch (e) {}
+    try { input.value = ''; input.style.height = 'auto'; sendBtn.disabled = false; } catch (e) {}
+  }
+
   // KAKAO_AI_FIRST(2026-07-25 사용자 지시 "카톡으로 바로 들어오게 하지 말고 AI가 1차 해결 → 안 되면 그때 카톡"):
   //   다른 화면의 '문의하기'류 버튼이 카톡 URL로 직행하지 않고 이 위젯을 열도록 공개 API를 노출한다.
   //   ask(q)는 드로어를 열고 질문을 대신 보낸다 → AI가 답하고, 못 풀면 기존 에스컬레이션(showEscalation)이 카톡을 띄운다.
@@ -562,7 +581,8 @@
     window.MEAdvisor = {
       open: open,
       close: close,
-      ask: function (q) { open(); if (q) setTimeout(function () { try { send(String(q), false); } catch (e) {} }, 320); },
+      ask: function (q) { var g0 = advGen; open(); if (q) setTimeout(function () { if (g0 !== advGen) return; try { send(String(q), false); } catch (e) {} }, 320); },   // [C2_ADV_RESET] 그 사이 계정이 끝났으면 보내지 않는다
+      reset: reset,   // [C2_ADV_RESET] 마이페이지 로그아웃 · 로그인 풀림(clearToken → _mpAcctSweep)
       available: true
     };
   } catch (e) {}

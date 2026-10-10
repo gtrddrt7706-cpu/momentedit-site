@@ -2580,6 +2580,156 @@
    "fn": "_birthBad",
    "mark": "BIRTH_ADULT19",
    "why": "계약 당사자 생년월일 하한은 만 19세(민법 성년) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcJobPub",
+   "mark": "VC_CANCEL_PUB",
+   "why": "지우기로 취소된 만들기는 상태에 «끝 · 취소»로 내보낸다(화면이 이어받지 않게) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "PHRASE_KEEP",
+   "why": "미리 받는 확인 문장은 30분 안 문장을 그대로 돌려준다 · 만들 때 화면이 보여 준 문장을 기록한다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcEnrollAfter",
+   "mark": "PHRASE_SHOWN",
+   "why": "읽은 녹음 기록의 확인 문장 = 화면이 보여 준 문장(지금 · 바로 앞 문장일 때만) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcM3",
+   "mark": "VC_RETRY_MERGE",
+   "why": "목소리 상태 합치기 — 업체 지우기 실패 목록(retry)은 더하고 빼기로 합친다(동시 저장이 실패분을 덮지 않게) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcM3",
+   "mark": "VC_JOB_OWN",
+   "why": "작업표는 그 만들기의 것 — 다른 만들기가 새 표를 걸었으면 앞 만들기의 끝을 얹지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcM3",
+   "mark": "VC_PHRASE_OWN",
+   "why": "확인 문장을 다 쓴 요청은 자기가 읽은 문장만 비운다(그사이 새 문장은 둔다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcDelMark",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 지우기 표시는 잠금 안에서만 — 잠금을 못 잡으면 쓰지 않고 다시 누르게(D1) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_WHO_FIRST",
+   "why": "목소리 지우기 · 동작은 두 분 · 모두만 받는다(거르기 전에 쓰지 않는다) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 지우기 잠금을 못 잡으면 «다른 처리가 진행 중이에요»(D1) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcPurgeNow",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 모두 지우기도 잠금을 못 잡으면 아무것도 안 바꾸고 알린다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFilePurgeMine",
+   "mark": "VC_DEL_LOCKED",
+   "why": "목소리 파일 모두 지우기 — 목소리 잠금을 못 잡으면 지웠다고 적지 않고 다시 누르게(D1) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcJobStart",
+   "mark": "VC_CANCEL_FREE",
+   "why": "지우기로 취소된 작업표는 새 만들기를 막지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeVoiceClones",
+   "mark": "VC_DEL_LOCKED",
+   "why": "예식 다음 날 목소리 지우기 — 잠금을 못 잡은 예식은 아무것도 안 바꾸고 다음 날 다시 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileDel",
+   "mark": "RF_DEL_KEEP",
+   "why": "줄 파일 지우기 — 화면이 «되돌리기»로 다시 쓸 녹음(keep)은 어느 쓸기에서도 휴지통으로 보내지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileDel",
+   "mark": "RF_DEL_TQ",
+   "why": "줄 «지우기»(모두)는 두 분이 누른 때까지 만든 그 자리 파일을 쓴다(늦게 저장된 사본 · 버린 AI 테이크) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "RF_DEL_KEEP",
+   "why": "목소리 상태에 rfkeep 표 — 화면이 버린 AI 테이크를 지워도 되는 서버인지 안다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleRequestContractResend",
+   "mark": "CT_RESEND_LOCK",
+   "why": "계약서 재발송 요청 — 읽고 적기를 잠금 안에서(같은 순간 두 번 눌러도 알림 한 번) · 잠금을 못 잡으면 다시 누르게(C1) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "RITUAL_CAP_OWN",
+   "why": "식순 12,000자 상한은 옛 한 칸(tx 로 다시 짓는 사본)을 빼고 잰다 · 거절 글은 줄일 글만 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodPack",
+   "mark": "RITUAL_CAP_OWN",
+   "why": "저장 꼴 상한도 식순은 옛 한 칸만큼 늘린다(셀 한도 안) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodPack",
+   "mark": "PROD_CAP_WORDS",
+   "why": "길이 상한 거절 글에 칸 글자 수와 비교가 안 되는 숫자를 싣지 않는다 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodTooLong_",
+   "mark": "PROD_CAP_WORDS",
+   "why": "길이 상한 거절 글 한 곳 «글이 너무 길어요 · ○○ 글을 조금 줄여 주세요 (코드 S0)» — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "_ritualCapLen_",
+   "mark": "RITUAL_CAP_OWN",
+   "why": "식순 초안 크기 재기(옛 한 칸 빼기) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "00_platform-config",
+   "fn": "_phoneLenOk_",
+   "mark": "PHONE_LEN_SRV",
+   "why": "연락처 느슨한 받침 — 국내 9~11자리 · +82 는 0 으로 같게 · 그 밖 + 국제 8~15자리 — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "PHONE_LEN_SRV",
+   "why": "신청서 연락처 길이를 서버에서도 본다(거절 B0) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleRequestContract",
+   "mark": "PHONE_LEN_SRV",
+   "why": "계약 요청(입력 정보 수정)의 신랑 · 신부 연락처 길이를 서버에서도 본다(거절 C0) — 붙이고 새 버전으로 배포"
   }
  ],
  "fns": {
@@ -2587,6 +2737,7 @@
    "stageFlowFor",
    "nextActionFor",
    "_phoneKR",
+   "_phoneLenOk_",
    "_crKR",
    "_dsGlobalScope",
    "_dsGlobalSig",
@@ -2776,6 +2927,9 @@
    "_prodLoad",
    "_prodLoadRaw",
    "_prodPack",
+   "_prodTooLong_",
+   "_ritualCapLen_",
+   "_ritualLegLen_",
    "_prodStoreCols",
    "_prodSizeError",
    "checkProdCapOverflow",
@@ -3668,7 +3822,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-10 05:09 · 06d4f07b",
+ "_생성": "2026-10-10 15:10 · 09400f8f",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4188,5 +4342,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "6c62cddebe5e"
+ "_표식서명": "6f2115b11837"
 }

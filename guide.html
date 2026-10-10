@@ -370,6 +370,21 @@ body{
 .gr-room{max-width:380px;--gz:clamp(0px, calc(25vw - 82px), 22px)}
 .gr-list{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:104px;margin:-6px auto 0}
 .gr-nm.gr-li{position:static;transform:none;max-width:none}
+/* ★[SEAT_NAME_BELOW 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-1] 표 이름은 원 아래 한 줄 — 번호 아래(원 안)에 두면 원 밖으로 넘쳐 자리 이름표를 덮었다(seat.html 같은 절) */
+.gr-cap{display:block;max-width:110px;margin:2px auto 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:9.5px;font-weight:400;line-height:1.2;color:var(--accent);text-align:center}   /* 글자 모양은 번호 아래 있던 그대로(9.5px · 400 · accent) — 자리만 옮겼다 */
+.gr-cap+.gr-list{margin-top:4px}
+/* ★[SEAT_LABEL_CLAMP 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-2] 이름표 · «내 자리» 알약을 가운데 세로선(번호) 바깥 · 제 칸(열) 안에 세운다(seat.html 같은 절 · 식도 같다).
+   칸 반폭 --lb-ch = 배치도 폭(카드 안쪽 + 18 × 2 · 최대 380) − 통로 12 − 틈 4 의 1/4 = min(91px, 25vw − 12px) — GUIDE_SEAT_FIT 의 C/2 와 같은 뿌리(카드 여백 · 통로 폭을 바꾸면 함께).
+   ★«내 자리» 알약은 폰에서도 86px 상한 그대로 두되 남은 폭(--lb-room)을 넘지 않는다 — 넘치면 말줄임(종전엔 통로를 덮거나 카드 밖으로 잘렸다).
+   ★min() · max() · clamp() 를 못 읽는 옛 브라우저는 @supports 밖이라 종전 모양 그대로다. */
+@supports (transform:translateX(min(1px, max(-50%, clamp(1px, -50%, 2px))))){
+  .gr-room{--lb-ch:min(91px, calc(25vw - 12px))}
+  .gr-room .gr-nm:not(.gr-li),.gr-room .gr-me{
+    transform:translate(min(var(--lb-hi, 999px), max(var(--lb-lo, -999px), clamp(calc(2px - var(--lb-ch) - var(--lb-zd, 0) * var(--gz,22px) - var(--lb-ax, 0px)), -50%, calc(var(--lb-ch) - var(--lb-zd, 0) * var(--gz,22px) - 2px - var(--lb-ax, 0px) - 100%)))), -50%);
+  }
+  .gr-room .gr-nm:not(.gr-li){max-width:min(64px, var(--lb-room, 999px))}
+  .gr-room .gr-me{max-width:min(86px, var(--lb-room, 999px))}
+}
 
 /* [GUIDE_RETRY] 실패 화면의 '다시 불러오기'. 만료·못찾음 화면엔 안 붙는다(재시도해도 안 달라진다). */
 .retry-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
@@ -879,6 +894,13 @@ function drinkHtml(code){
     +'<span class="dk-t">준비된 음료 · <b>'+esc(t)+'</b></span></div>';
 }
 function _mtPos(n,i){ var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*41, y:Math.sin(a)*41 }; }   // seat.html·좌석 편집기와 동일 반칸 회전(단상 쪽 비움)
+/* ★[SEAT_LABEL_CLAMP 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-2] seat.html 과 같은 처방 — 이름표 상자가 가운데 세로선(번호)을 넘지 않고 제 칸(열)에 남게.
+   전체 공개 좌석표에서 6자 이름이 5명 표 위 두 자리끼리 최대 15.8px 겹쳤고 · «내 자리» 알약(외삼촌김철수 · Christopher Lee)이 통로를 10~12px 덮었다(1280 포함) · 412 이하에서 16px 잘렸다.
+   g = 가운데 번호 높이에 걸린 자리(|세로| < 0.49 · 2명 표 · 5명 표 옆 · 6명 표 옆)는 8px · 나머지는 1px. 식은 CSS SEAT_LABEL_CLAMP 절(--lb-ch · --gz) */
+function _mtLb(p){ var g=(Math.abs(p.y)<0.49*41)?8:1, s='--lb-ax:'+p.x.toFixed(1)+'px';
+  if(p.x>0.05) s+=';--lb-lo:'+(g-p.x).toFixed(1)+'px;--lb-room:calc(var(--lb-ch) - var(--lb-zd, 0) * var(--gz,22px) - '+(2+g)+'px)';
+  else if(p.x<-0.05) s+=';--lb-hi:calc('+(-g-p.x).toFixed(1)+'px - 100%);--lb-room:calc(var(--lb-ch) + var(--lb-zd, 0) * var(--gz,22px) - '+(2+g)+'px)';
+  return s; }
 // 홀 전체 배치(익명) — room=[{no,label,side,occ[]}] · hti=본인 테이블 · mi=본인 자리 · nm=본인 이름만 표시(타인 명단 비노출)
 function seatRoomHtml(hit){
   var room=(hit&&hit.room)||[]; if(!room.length) return '';
@@ -888,7 +910,7 @@ function seatRoomHtml(hit){
     var crowd=!!(hit.all && (t.occ||[]).length>=7);   // [GUIDE_SEAT_FIT] 7명부터 이름은 표 아래 목록(seat.html SEAT_CROWD 와 같은 임계)
     for(var i=0;i<(t.occ||[]).length;i++){
       var p=_mtPos(t.occ.length,i);
-      var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px)';
+      var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px);'+_mtLb(p);   // [SEAT_LABEL_CLAMP]
       if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+= one ? ('<div class="gr-me" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>') : ('<div class="gr-dot me" style="'+pos+'"></div>'); }
       else if(hit.all && t.nms && t.nms[i]){
         if(crowd){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; list+='<span class="gr-nm gr-li">'+esc(t.nms[i])+'</span>'; }   // [GUIDE_SEAT_FIT] 원엔 자리 점 · 이름은 아래
@@ -896,12 +918,15 @@ function seatRoomHtml(hit){
       }
       else if(t.occ[i]){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; }
     }
-    return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+(t.label?('<br><span style="font-weight:400;font-size:9.5px">'+esc(t.label)+'</span>'):'')+'</span>'+chips+'</div>'
+    /* ★[SEAT_NAME_BELOW 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-1] 표 이름이 번호 아래(원 안)에서 원 밖으로 5건 나가 자리 이름표를 최대 41×12px 덮었다 —
+       seat.html · 마이페이지 편집기(rt-cap)와 같은 처방: 번호는 원 가운데 그대로 · 표 이름은 원 아래 한 줄(넘치면 말줄임 · 온전한 이름은 낭독 목록 · 마우스를 올린 제목에) */
+    return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+'</span>'+chips+'</div>'
+      +(t.label?'<div class="gr-cap" title="'+esc(t.label)+'">'+esc(t.label)+'</div>':'')
       +(list?'<div class="gr-list">'+list+'</div>':'');
   }
   var L='', R='', li=0, ri=0;   // 지그재그 — seat.html 전체 배치도·좌석 편집기와 같은 홀 모양(행마다 좌우 엇갈림)
   function zigX(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s); }   // [GUIDE_SEAT_FIT] 방향(±1)만 · 폭은 CSS var(--gz)(0~22px) — 좌우 반전 모양은 그대로
-  function zigCss(row,side){ return 'transform:translateX(calc('+zigX(row,side)+' * var(--gz,22px)))'; }
+  function zigCss(row,side){ var d=zigX(row,side); return '--lb-zd:'+d+';transform:translateX(calc('+d+' * var(--gz,22px)))'; }   // [SEAT_LABEL_CLAMP] 이름표가 칸 안에 남게 방향(--lb-zd)도 적는다
   for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k];
     if(String(t.side||'L')==='R'){ R+='<div style="'+zigCss(ri++,'R')+'">'+tbl(t,h)+'</div>'; }
     else { L+='<div style="'+zigCss(li++,'L')+'">'+tbl(t,h)+'</div>'; }
@@ -966,8 +991,21 @@ function bindSeatServer(seatToken, q){
       })
       .catch(function(e){ var fr2=$('fr'); if(my===seq && fr2) _frFail(fr2, _ecNet(e,'G',''), function(){ search(v); }); });   // [ERR_CODE_PAGES] 종전 «네트워크 상태를 확인해 주세요» 한 줄 → 까닭(G5 · G6 · G7) + 다시 찾기
   }
-  q.addEventListener('input', function(){ seq++; if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });   // 입력 즉시 이전 응답 무효화(지운 입력창 아래 잔상 방지)
+  bindNameInput(q, search, 450, function(){ seq++; });   // 입력 즉시 이전 응답 무효화(지운 입력창 아래 잔상 방지) · [IME_QUIET] 조합 중에는 서버를 부르지 않는다
   return search;   // 모드 전환 직후 이미 입력된 값 즉시 검색용
+}
+/* ★[IME_QUIET 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-3] «내 자리 찾기»는 한글을 조합하는 동안 글자마다 서버를 불렀다(이름 하나에 다섯 번 · «김ㅁ» · «김미» …).
+   조합 중(compositionstart ~ compositionend · isComposing)에는 찾지 않고, 조합이 끝나면 한 번 찾는다.
+   ★폰 키보드는 마지막 글자를 조합 상태로 남겨 compositionend 가 늦게 온다 — 조합 중이라도 손을 멈추고 0.8초면 그때 값으로 한 번.
+   ★끝 글자가 낱자모(ㄱ · 김ㅁ)면 아직 치는 중이라 찾지 않는다. seat.html 과 글자까지 같은 사본 — 한 곳만 고치지 말 것. */
+var IME_IDLE=800;
+function bindNameInput(q, run, wait, onAny){
+  if(!q) return;
+  var comp=false, tm=null;
+  function later(ms){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ tm=null; if(/[ㄱ-ㆎ]$/.test(String(q.value||'').trim())) return; run(q.value); }, ms); }
+  q.addEventListener('compositionstart', function(){ comp=true; if(onAny) onAny(); if(tm){ clearTimeout(tm); tm=null; } });
+  q.addEventListener('compositionend', function(){ comp=false; if(onAny) onAny(); later(wait); });
+  q.addEventListener('input', function(e){ if(onAny) onAny(); later((comp||(e&&e.isComposing))?IME_IDLE:wait); });
 }
 function isWeddingDay(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return false;
@@ -1104,8 +1142,7 @@ function renderDemo(){
   SEAT={tables:DEMO_TABLES}; SEAT_STATE='ok';
   var q=$('q');
   if(q){
-    var tm=null;
-    q.addEventListener('input', function(){ if(tm) clearTimeout(tm); tm=setTimeout(function(){ findSeat(q.value); }, 250); });
+    bindNameInput(q, findSeat, 250);   // [IME_QUIET] 표본 검색칸도 같은 규칙(조합 중에는 찾지 않는다)
     q.value='이정우';
     findSeat('이정우');
     var tip=document.createElement('div');

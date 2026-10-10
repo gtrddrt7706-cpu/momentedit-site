@@ -16003,10 +16003,10 @@ chk 'return {msg:VC_REC_BAD,redo:true};' order-preview.html 1   # [VC_ENROLL_BAD
 chk 'mk-wait-bar mk-enr-bar' order-preview.html 1
 nochk "fail(d.error||'만들지 못했어요 · 잠시 뒤 \[다시 만들기\]를 눌러 주세요')" order-preview.html
 chk 'VC_ENROLL_JOB' automation/platform/80_production.gs 5
-chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
 chk "deleted: p.deleted || '', job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1
 chk 'if (r.ok || hasJob) c.save(); return r; };' automation/platform/80_production.gs 1   # 성공은 작업표가 없어도 저장(시뮬레이션이 잡은 사라지는 목소리)
-chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
 chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
 chk "if (op === 'enroll' && c >= 400 && c < 500 && c !== 401 && c !== 402 && c !== 403 && c !== 429) {" automation/platform/80_production.gs 1   # [VC_ENROLL_BADREC]
 chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
@@ -16816,9 +16816,9 @@ chk 'CHIP_NOTE_OFF' order-preview.html 1
 chk 'SAVE_AFTER_BAKE' order-preview.html 3
 chk 'window._saveBaking=1; _autoPaint();' order-preview.html 1
 chk 'REC_CAP_SAY' order-preview.html 5
-chk 'if(r.el>=REC_MAX_SEC){ MK_RECCAP=r.key; mkRecStop(); }' order-preview.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 식순 · AI 녹음 고침으로 아래 [R7_BUILDER] 묶음에서 새 꼴로 바꿈) chk 'if(r.el>=REC_MAX_SEC){ MK_RECCAP=r.key; mkRecStop(); }' order-preview.html 1
 chk 'VC_NO_RETRY' order-preview.html 2
-chk 'nr=n===2&&!!R.err&&' order-preview.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 식순 · AI 녹음 고침으로 아래 [R7_BUILDER] 묶음에서 새 꼴로 바꿈) chk 'nr=n===2&&!!R.err&&' order-preview.html 1
 chk 'LS_WAIT_TOAST' order-preview.html 5
 chk "_lsToast('다 만들면 이어서 들려 드려요',null,'mp:'+k);" order-preview.html 1
 nochk 'esc(LS_MAKE_WAIT)' order-preview.html   # [LS_WAIT_TOAST] 단추 아래 «잠시만 기다려 주세요 · 다 만들면 이어서 들려 드려요» 줄 걷음(흔들림)
@@ -16847,6 +16847,58 @@ chk 'BIRTH_ADULT19' automation/platform/70_journey.gs 3
 chk 'lim = (+t.slice(0, 4) - 19) + t.slice(4);' automation/platform/70_journey.gs 1
 nochk 'lim = (+t.slice(0, 4) - 18) + t.slice(4);' automation/platform/70_journey.gs
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-cancel-say.mjs >/dev/null 2>&1; _vcs=$?; if [ "$_vcs" = 1 ]; then echo 'FAIL vc-cancel-say: 지우기로 취소된 만들기의 말 · 다시 만들기 표가 어긋났습니다 — node scripts/audit/vc-cancel-say.mjs'; fail=1; elif [ "$_vcs" = 2 ]; then echo 'skip vc-cancel-say: 브라우저 없음'; else echo 'ok vc-cancel-say: 취소는 그 말로 · 다시 만들기 표 없음'; fi; fi
+# ── [R7_SERVER 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 서버 ──
+# ★★[R7_SERVER 2026-10-09] E2-2 retry 더하고 빼기 · 작업표 · 확인 문장 · E2-5 지우기 잠금(D1) · E2-6 취소된 표 · E2-10 두 분 · 모두만 · E2-3 · E2-4 줄 파일 지우기(누른 때 · keep · 버린 AI 테이크) ·
+#   E2-9 재발송 잠금(C1) · A2-15 식순 상한(옛 칸 빼고 · 숫자 없는 거절 글) · D2-4 연락처 받침 — 되돌리지 말 것 · 동작은 vc-del-stop(목소리 · 줄 파일 서버) · r7-server(나머지 · 화면)
+# 바뀐 옛 chk 둘(그 자리는 주석으로 남기고 새 꼴은 아래로)
+#   15984 chk 'jobs: 1, groom: _vcPub(st.groom, code)' → status 에 rfkeep 표가 끼었다(RF_DEL_KEEP)
+#   15987 chk 'if (j && !j.end && j.jid !== jid && …' → 취소된 표는 비킨다(VC_CANCEL_FREE)
+chk 'VC_RETRY_MERGE' automation/platform/80_production.gs 1
+chk "if (k0 === 'retry' && Array.isArray(m)) {" automation/platform/80_production.gs 1
+chk 'VC_JOB_OWN' automation/platform/80_production.gs 2
+chk "if (k0 === 'job' && isO(f) && isO(b) && String(f.jid || '') !== String(b.jid || '')) return f;" automation/platform/80_production.gs 1
+chk 'VC_PHRASE_OWN' automation/platform/80_production.gs 1
+chk "if (k0 === 'phrase' && m == null && isO(f) && isO(b) && String(f.t || '') !== String(b.t || '')) return f;" automation/platform/80_production.gs 1
+chk 'for (k in m) o\[k\] = _vcM3(f\[k\], b\[k\], m\[k\], k);' automation/platform/80_production.gs 1
+chk 'VC_DEL_LOCKED' automation/platform/80_production.gs 6
+chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return null; }' automation/platform/80_production.gs 2
+nochk 'got = true; try { lock.waitLock(10000); } catch (e) { got = false; }' automation/platform/80_production.gs
+chk "if (!dm) return { ok: false, ecode: 'D1', error: VC_DEL_BUSY };" automation/platform/80_production.gs 1
+chk "var dm = _vcDelMark(code, \['groom', 'bride'\]); if (!dm) return -1;" automation/platform/80_production.gs 1
+chk "if (_vpn === -1) return { ok: false, ecode: 'D1', error: VC_DEL_BUSY };" automation/platform/80_production.gs 1
+chk "VC_DEL_BUSY = '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요'" automation/platform/80_production.gs 1
+chk 'VC_CANCEL_FREE' automation/platform/80_production.gs 1
+chk 'if (j && !j.end && !j.cancel && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 겹침 거절은 그대로 · 취소된 표만 비킨다
+chk 'VC_WHO_FIRST' automation/platform/80_production.gs 3
+chk "WHO = Object.create(null); WHO.groom = '신랑'; WHO.bride = '신부';" automation/platform/80_production.gs 1
+chk "if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };" automation/platform/80_production.gs 1
+chk "if (w !== 'groom' && w !== 'bride') return; var p = cur\[w\];" automation/platform/80_production.gs 1
+chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+chk 'RF_DEL_KEEP' automation/platform/80_production.gs 3
+chk 'RF_DEL_TQ' automation/platform/80_production.gs 1
+chk 'var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;' automation/platform/80_production.gs 1
+chk 'keep\[g.getId()\]' automation/platform/80_production.gs 2
+chk '_rfKeepOk' order-preview.html 3
+chk 'RF_AIBACK_DROP' order-preview.html 3
+chk 'RF_DEL_KEEP' order-preview.html 3
+chk 't:all?Date.now():0,keep:q.keep||\[\]' order-preview.html 1
+chk 'if(S.upPrev) delete S.upPrev\[key\];' order-preview.html 1
+chk 'RF_DEL_TQ · RF_DEL_KEEP' mypage.html 1
+chk 'rid:d.data.rid, rk:1}' mypage.html 1
+chk 'CT_RESEND_LOCK' automation/platform/70_journey.gs 1
+chk "return { ok: false, ecode: 'C1', error: '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요' };" automation/platform/70_journey.gs 1
+chk 'RITUAL_CAP_OWN' automation/platform/80_production.gs 4
+chk 'PROD_CAP_WORDS' automation/platform/80_production.gs 4
+chk "_dcN = (track === 'ritual') ? _ritualCapLen_((body && body.draft) || {})" automation/platform/80_production.gs 1
+chk "return '글이 너무 길어요 · ' + label + ' 글을 조금 줄여 주세요 (코드 ' + a + '0)';" automation/platform/80_production.gs 1   # «너무 길어요» — 빌더 LONG_NO_RETRY 가 이 말로 «다시 저장하기» 안내를 뺀다
+nochk "현재 약 ' +" automation/platform/80_production.gs
+chk 'PHONE_LEN_SRV' automation/platform/00_platform-config.gs 2
+chk 'PHONE_LEN_SRV' automation/platform/40_signup.gs 1
+chk 'PHONE_LEN_SRV' automation/platform/70_journey.gs 1
+chk "_phoneLenOk_(body.phone)) throw new Error('연락처를 다시 확인해 주세요.');" automation/platform/40_signup.gs 1
+chk 'R7_SERVER' scripts/audit/r7-server.mjs 1
+chk 'R7_SERVER' scripts/audit/vc-del-stop.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/r7-server.mjs >/dev/null 2>&1; _r7s=$?; if [ "$_r7s" = 1 ]; then echo 'FAIL r7-server: 재발송 잠금 · 식순 상한 · 연락처 받침 · 줄 파일 지우기 화면이 어긋났습니다 — node scripts/audit/r7-server.mjs'; fail=1; elif [ "$_r7s" = 2 ]; then echo 'skip r7-server: 재지 못함'; else echo 'ok r7-server: 재발송 잠금 · 식순 상한(옛 칸 빼고) · 연락처 받침 · 줄 파일 지우기 화면'; fi; fi
 # ★★[R6_MYPAGE 2026-10-09 고객 여정 A~Z 점검 1라운드 · 마이페이지] C-1 서명판 · C-2 금액 복사 · C-4 로그아웃 칸 · C-5 개인코드 · C-6 대기 줄 · C-7 되돌리기 판 · C-8 겹창 · C-9 생년월일 칸 · C-10 걸음 위 · C-11 막대 고정(WZ_PIN) · C-12~C-19 · 카카오톡 · 외톨이 — 되돌리지 말 것
 # ── [R6_MYPAGE 2026-10-09] 고객 여정 A~Z 점검 1라운드 · 마이페이지 ──
 # 바뀐 옛 chk 다섯(그 자리 줄을 아래로 바꾼다)
@@ -16859,7 +16911,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-cancel-say.mjs >/
 chk '카카오톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
 chk "L+=line('예식 일시', _bw.weddingTime ? _whenHtml(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
 chk "sub  = _hdPast ? '' : '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
-chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" mypage.html 1
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 마이페이지 고침으로 아래 [R7_MYPAGE] 묶음에서 새 꼴로 바꿈) chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" mypage.html 1
 nochk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; clearToken(); show('loginView'); });" mypage.html 0
 # [SIGN_AFTER_VIEW] C-1 계약서 보기 → 서명하기: 뷰어 층의 되감기가 끝난 뒤 서명판을 연다(같은 틱이면 늦은 popstate 가 서명판 층을 먹어 서명이 안 갔다)
 chk 'SIGN_AFTER_VIEW' mypage.html 2
@@ -16963,6 +17015,92 @@ chk 'SEAT_DONE_TOAST' mypage.html 1
 chk 'NOW_CARD_ONCE' mypage.html 8
 nochk "sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';" mypage.html 0
 nochk "head = '일정을 확인하고 있어요'; sub = '디렉터가 확인하고" mypage.html 0
+# ★★[R7_BUILDER 2026-10-09 고객 여정 A~Z 점검 2라운드 · 식순 · AI 녹음] 저장 바탕 · 완성 저장 기준선 · 충돌 판(덮어쓰기 · 최신 불러오기) · 새로고침 되감기 · 판 뒤 뒤로가기 · 나가기 잡기 · 다시 만들기 판 번호 · ④ 굽기 · 나가기 알약 · 1분 멈춤 표시 · 다시 해도 안 되는 실패 · 지우기 취소 · 채우기 기록 · 남의 작업 · 확인 문장 — 되돌리지 말 것
+# ── [R7_BUILDER 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 식순 · AI 녹음 ──
+chk 'CANON_EMPTY' order-preview.html 2
+chk "'tributeText','fAt','txMig'" order-preview.html 1
+chk 'BASE_AFTER_PULL' order-preview.html 5
+chk "_srvBase=_sentS?_baseAfter(_sentS,ev.data.pull):" order-preview.html 2
+chk 'DONE_CLEAN' order-preview.html 1
+chk "if(_doneSaved){ _doneKey=_autoKey(); _autoLast=_doneKey; _autoDirty=false; }" order-preview.html 1
+chk 'SEEN_NOT_KEY' order-preview.html 1
+chk 'delete o.tipSeen; delete o.seen;' order-preview.html 1
+chk '&&!(_lv2.sv&&_dn)' order-preview.html 1
+chk 'LATEST_FILL' order-preview.html 2
+chk "momentedit:orderLatest'){ _latestApply(ev.data); return; }" order-preview.html 1
+chk 'BACK_DISMISS' order-preview.html 5
+chk 'ov.__ordDismiss=function(){ close(opt.dismissNull?null:false); };' order-preview.html 1
+chk 'EXIT_HOLD_ALL' order-preview.html 2
+chk 'if(_obExiting||_xBusy){ _exitHold(1); return; }' order-preview.html 1
+chk 'EXIT_PILL_ONE' order-preview.html 10
+chk "b.classList.add('wfill','ld');" order-preview.html 1
+nochk "if(_xr0){ _xr0.style.display=''" order-preview.html
+nochk "_xb.textContent='마무리하는 중…'" order-preview.html
+chk 'RESTART_GEN_NOW' order-preview.html 1
+chk "_opGen=String(Date.now()); try{ sessionStorage.setItem('me_order_gen', _opGen); }catch(e){}" order-preview.html 1
+chk 'RELOAD_UNWIND' order-preview.html 2
+chk 'RELOAD_ONCE' order-preview.html 1
+chk 'if(_reloadUnw||_reloadAsked) return;' order-preview.html 1
+chk "parent.postMessage({type:'momentedit:orderReload', data:pl, d:_hDepth()}" order-preview.html 1
+chk 'BUSY_SAY_TRUE' order-preview.html 3
+chk "!=='make'&&!VC_MKP" order-preview.html 1
+chk 'PARENT_ASK_HOLD' order-preview.html 3
+chk "momentedit:orderParentAsk'){ _parentAsk=!!ev.data.on; return; }" order-preview.html 1
+chk 'DONE_AFTER_BAKE' order-preview.html 4
+chk 'window._doneBakeOk=1; try{ doSave(); }finally{ window._doneBakeOk=0; }' order-preview.html 1
+chk 'S5_EXIT_TITLE' order-preview.html 1
+chk 'EXIT_WAIT_ONE_SAY' order-preview.html 1
+chk "if(_xBusy==='wait') return; try{ toast(_autoWhy,6000,true); }catch(e){} }" order-preview.html 1
+chk 'PLAY_FAIL_BOTTOM' order-preview.html 1
+chk 'PV_ENG_SAY' order-preview.html 2
+chk 'function _pvEngFail(){' order-preview.html 1
+chk 'LONG_NO_RETRY' order-preview.html 1
+chk 'PERSIST_TRUE' order-preview.html 5
+chk '_persistBad=true;' order-preview.html 1
+chk 'IDX_SANE' order-preview.html 1
+chk 'REC_CAP_ONE' order-preview.html 2
+chk 'if(r.el>=REC_MAX_SEC){ r.cap=1; mkRecStop(); }' order-preview.html 1
+nochk 'MK_RECCAP=r.key' order-preview.html
+chk 'REVIEW_TAP_GUARD' order-preview.html 3
+chk 'NR_CLOSE_DIRECT' order-preview.html 1
+chk 'var lose=(R&&!_nr&&' order-preview.html 1
+chk 'NR_ANY_STEP' order-preview.html 2
+nochk 'nr=n===2&&!!R.err&&' order-preview.html
+chk 'VC_GONE' order-preview.html 3
+chk 'if(msg===VC_DEL_STOP_W) _vcGone(w);' order-preview.html 1
+chk 'GONE_SAY' order-preview.html 1
+chk 'FILL_OWN' order-preview.html 2
+chk 'F.doing=false; if(VC.fill===F) VC.note=' order-preview.html 1
+chk 'FILL_AI_NOW' order-preview.html 1
+chk 'ADOPT_QUIET' order-preview.html 2
+chk 'jid:j.jid,adopt:true}' order-preview.html 1
+chk 'SETUP_ERRBOX' order-preview.html 1
+chk "_vc('phrase',{who:w,keep:keep?1:undefined})" order-preview.html 1
+chk "sec:sec,phrase:R.phrase||''" order-preview.html 1
+chk 'LATEST_FILL' mypage.html 4
+chk '_latest:(r&&r.latest)||null' mypage.html 1
+chk 'REV_FORCE_DIRECT' mypage.html 1
+chk 'return _trkSend(p2);' mypage.html 1
+nochk 'return apiTrackSave(p2);' mypage.html
+chk 'RELOAD_UNWIND' mypage.html 3
+chk 'fr.contentWindow.location.replace(_ru)' mypage.html 1
+chk 'HOLD_RESTACK' mypage.html 1
+chk 'OB_OPEN_ONCE' mypage.html 1
+chk 'if(old&&old.parentNode) return;' mypage.html 1   # [OB_OPEN_ONCE] (큰따옴표 안 $( ) 는 셸이 풀어 버린다 — 홑따옴표로)
+chk 'PARENT_ASK_HOLD' mypage.html 1
+chk 'VC_CANCEL_PUB' automation/platform/80_production.gs 1
+chk "if (j.cancel && !j.end) return { jid: String(j.jid), end: true, ok: false, kind: 'cancel'" automation/platform/80_production.gs 1
+chk 'PHRASE_KEEP' automation/platform/80_production.gs 1
+chk 'PHRASE_SHOWN' automation/platform/80_production.gs 4
+chk 'R2_BUILDER' scripts/audit/r2-builder.mjs 1
+chk 'VC_R2' scripts/audit/vc-r2.mjs 1
+chk 'R2_MP_BUILDER' scripts/audit/r2-mypage-builder.mjs 1
+chk 'VC_R2_SERVER' scripts/audit/vc-r2-server.mjs 1
+chk 'CHECK_BUGS_ONLY' .claude/commands/점검.md 2          # 점검은 버그 · 오류만 · 화면 디자인은 안 바꾼다(2026-10-10 사장님)
+if command -v node >/dev/null 2>&1; then node scripts/audit/r2-builder.mjs >/dev/null 2>&1; _r2b=$?; if [ "$_r2b" = 1 ]; then echo 'FAIL r2-builder: 식순 저장 · 다시 열기 · 뒤로가기 · 나가기 · 새로고침 약속이 어긋났습니다 — node scripts/audit/r2-builder.mjs'; fail=1; elif [ "$_r2b" = 2 ]; then echo 'skip r2-builder: 브라우저 없음'; else echo 'ok r2-builder: 식순 저장 바탕 · 완성 기준선 · 충돌 판 · 판 뒤 뒤로가기 · 나가기 · 새로고침'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2.mjs >/dev/null 2>&1; _vr2=$?; if [ "$_vr2" = 1 ]; then echo 'FAIL vc-r2: 두 분 목소리 약속(1분 멈춤 · 닫기 · 지우기 취소 · 채우기 · 남의 작업)이 어긋났습니다 — node scripts/audit/vc-r2.mjs'; fail=1; elif [ "$_vr2" = 2 ]; then echo 'skip vc-r2: 브라우저 없음'; else echo 'ok vc-r2: 두 분 목소리 2라운드 약속'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/r2-mypage-builder.mjs >/dev/null 2>&1; _r2m=$?; if [ "$_r2m" = 1 ]; then echo 'FAIL r2-mypage-builder: 마이페이지 안 식순 창(충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기)이 어긋났습니다 — node scripts/audit/r2-mypage-builder.mjs'; fail=1; elif [ "$_r2m" = 2 ]; then echo 'skip r2-mypage-builder: 브라우저 없음'; else echo 'ok r2-mypage-builder: 충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2-server.mjs >/dev/null 2>&1; _vrs=$?; if [ "$_vrs" = 0 ]; then echo 'ok vc-r2-server: 확인 문장 미리 받기 · 화면에 보인 문장 기록 · 취소된 작업은 «끝 · 취소»'; else echo 'FAIL vc-r2-server: 두 분 목소리 서버 약속(확인 문장 · 취소된 작업 알림)이 어긋났습니다 — node scripts/audit/vc-r2-server.mjs'; fail=1; fi; fi
 # ★★[R6_PUBLIC 2026-10-09 고객 여정 A~Z 점검 1라운드 · 공개 화면] D-2 좌석 배치도 폰 맞춤 · D-4 상담 흐름 문구 · D-5~D-7 신청서 · D-8 · D-9 · D-17 상담 일정 · D-10 · D-18 취소 · D-11 단색 상단 바 · D-12 청첩장 06 대비 · D-13 인사말 방향 낱말 · D-14 지도 · D-15 카톡 답변 시간 · D-16 라이브 · D-20 표본 날짜 · D-21 — 되돌리지 말 것
 chk 'function zig(row,side){ return (row%2===0)?1:-1; }' seat.html 1   # [SEAT_ZIG] 평행 이동 본체 — 방향(±1)만
 chk "' \* var(--zig)))'" seat.html 1                                    # [SEAT_FIT] 폭은 CSS var(--zig)
@@ -17062,4 +17200,120 @@ chk 'BRAND_DOT_MID' cancel.html 1
 chk 'ADV_ORDER_0707' index.html 1   # [D-13] 07-07 순서(메뉴 위 · 인사말 아래) — 바꾸려면 사장님 결정
 chk "var g=addMsg(KB.greeting,'bot');   // 인사말 버블은 하단(입력창 위)에" index.html 1
 chk "g.classList.add('me-adv-greet');" index.html 1
+# ── [R7_MYPAGE 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 마이페이지 ──
+# ★★C2-1 · 2 · 3 · 4 · 5 · 9 · 10 · 11 · 15 · E2-7(버그) — 되돌리지 말 것. 사람이 하는 길로 다시 재는 점검은 scripts/audit/mypage-r2.mjs(옛 판 빨강 21/31 · 고친 판 초록 31 확인)
+# 바뀐 옛 chk 하나(그 자리 줄을 주석으로 · 새 꼴은 아래 [C2_LAYER_INERT])
+#   16840 chk "\$('mp_logout')… if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" → «|| _ovlOpen()» 를 더한 꼴
+# ※2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만» — 화면 모양 고침은 되돌렸다(C2-6 · C2-7 · C2-12 · C2-13 · C2-14 · C2-16 · C2-4 막대 z · C2-11 의 고르게 · 20자 · C2-10 의 미리 막기). 아래는 버그만이다
+# ※C2-8(«카톡·메일로 알려드려요»)은 고치지 않았다 — 2026-07-25 사장님 «2안 · 짧게» 결정 · 1라운드 [KAKAO_WORD] 가 예외로 적어 둔 자리(651행 chk 가 지킨다)
+# [C2_LED_SETTLE] C2-1 내 내역 안 단추가 다른 층(좌석 화면 · 계약서 · 시착서)을 열 때 — 내 내역을 닫고 그 되감기가 끝난 뒤 연다(한 길 _ledCloseThen)
+chk 'C2_LED_SETTLE' mypage.html 4
+chk 'function _ledCloseThen(fn){ var l=\$(.mp_ledger.); if(l && l.classList.contains(.open.)){ closeLedModal(); _bkSettle(fn); return; } fn(); }' mypage.html 1
+chk "_ledCloseThen(function(){ try{ startSeatFlow(pr.seatDraft" mypage.html 1
+chk "if(_inLed){ _ledCloseThen(openContractView); return; }" mypage.html 1
+chk "_ledCloseThen(_go);" mypage.html 1
+nochk "setTimeout(function(){ openContractView(); }, 180);" mypage.html 0
+# [C2_RESEND_ACCT] C2-2 재발송 «요청함»은 계정 · 그 계약서 · 24시간에 묶는다(전역 값 하나 금지 · 같은 탭 다른 계정에 새지 않게)
+chk 'C2_RESEND_ACCT' mypage.html 3
+chk "_rsJ.code === _mpAcct() && _rsJ.dl === _rsDl" mypage.html 1
+nochk "|| window.__ctResendJust || '';" mypage.html 0
+# [C2_ACCT_SWEEP] [C2_ADV_RESET] [C2_LOADBAR_SWEEP] C2-3 · C2-4 계정이 끝나는 자리(clearToken)에서 화면 기억도 걷는다 — AI 상담 대화 · 실패 막대 · 다른 탭 저장 막대
+chk 'C2_ACCT_SWEEP' mypage.html 2
+chk '}catch(e){} _mpAcctSweep(); }' mypage.html 1
+chk "window.MEAdvisor.reset();" mypage.html 1
+chk 'C2_ADV_RESET' assets/advisor-widget.js 8
+chk 'reset: reset,' assets/advisor-widget.js 1
+chk 'if (g !== advGen) return;' assets/advisor-widget.js 6
+chk 'C2_LOADBAR_SWEEP' mypage.html 3
+chk "if(viewId==='loginView'||viewId==='forgotView'||viewId==='resetView') _mpBarsSweep();" mypage.html 1
+# [C2_LAYER_INERT] C2-5 겹창 · 판 · 서명판 · 내 내역 · 가족·친구 스냅이 떠 있는 동안 뒤 페이지 inert(스냅 기획 keep 규칙) — 본문(main)을 통째로 막지 않는다(그 안의 확인 판이 눌리지 않았다)
+chk 'C2_LAYER_INERT' mypage.html 22
+chk 'function _layerInertOn(ov){' mypage.html 1
+chk 'function _layerInertOff(ov, noRet){' mypage.html 1
+chk "_layerInertOn(ov);" mypage.html 3
+chk "ov.setAttribute('aria-hidden','true'); _layerInertOff(ov); _mpUnlock();" mypage.html 2
+chk "_layerInertOn(box); _ledFocusIn(box);" mypage.html 1
+chk "_layerInertOff(box, true); _mpUnlock();" mypage.html 1
+chk "_photoInertOv=\$('mp_photoOverlay'); _layerInertOn(_photoInertOv); return; }" mypage.html 1
+# [C2_LAYER_INERT] 같은 모양의 창 넷([COURSE_WIDE]) — 계약서 뷰어 · 시착 동의서 뷰어 · 청첩장 샘플 · 그림 미리보기: 열면 뒤 페이지 inert · 초점은 창 안 · 닫으면 연 자리로(편집 화면 위에 겹쳐 열어도)
+chk "_layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}" mypage.html 3
+chk "if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); }" mypage.html 2
+chk "ov.style.opacity='0'; _layerInertOff(ov); _mpUnlock();" mypage.html 1
+chk "m._bkId=bkOpen(m._close); _layerInertOn(m); try{ \$('pvX').focus({preventScroll:true}); }catch(e){} }" mypage.html 1
+chk "m.classList.remove('open'); _layerInertOff(m); document.body.style.overflow='';" mypage.html 1
+nochk "querySelectorAll('body > .topbar, body > main')" mypage.html 0
+chk "_LAYER_INERT.slice().forEach(function(o){ _layerInertOff(o, true); });" mypage.html 1
+chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen() || _ovlOpen()) return; _mpLogoutNow(); });" mypage.html 1
+nochk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });" mypage.html 0
+# [C2_SAVE_INFLIGHT] C2-9 저장이 도는 중 «나가기»는 끝날 때까지 기다린다(사실과 다른 «남지 않아요» 판 금지) · 머리 알약 «저장 중…»
+chk 'C2_SAVE_INFLIGHT' mypage.html 5
+chk "st0.fly=(st0.fly||0)+1;" mypage.html 1
+chk "if(st.wait || st.fly>0){ b.textContent='저장 중…';" mypage.html 1
+chk "if(_sw.wait || _sw.fly>0){ _sw.exitWait=1;" mypage.html 1
+# [C2_BIRTH_19] C2-10 생년 목록 위끝 = 한국 올해-19 — 서버(70_journey _birthBad · [BIRTH_ADULT19])가 늘 거절하는 해(올해-18)를 목록에 두지 않는다
+chk 'C2_BIRTH_19' mypage.html 3
+chk "for(var Y=ty-19;Y>=1930;Y--)" mypage.html 1
+nochk "for(var Y=ty-18;Y>=1930;Y--)" mypage.html 0
+chk "return (+ymd.slice(0,4)-19)+ymd.slice(4); }" mypage.html 1
+# [C2_DONE_NAMES] C2-11 청첩장 완성 화면 긴 영문 이름이 카드 밖으로 잘리지 않게 — 넘칠 때만 낱말 안에서 접는다(모양 고침 · 글자 수 제한은 하지 않는다)
+chk 'C2_DONE_NAMES' mypage.html 1
+chk "color:var(--accent);margin:2px 0 5px;overflow-wrap:anywhere}" mypage.html 1
+# [C2_CI_ONE_LISTENER] C2-15 계약 요청 폼 click 리스너는 이름 있는 한 함수(다시 그려도 한 번만 걸린다)
+chk 'C2_CI_ONE_LISTENER' mypage.html 2
+chk "box.addEventListener('click', _ciMissClick);" mypage.html 1
+chk 'function _ciMissClick(e){' mypage.html 1
+# [E2_CR_SAME] E2-7 현금영수증 번호 판정 = 서버(_crKR · _crOk) 글자 그대로 — 012 · 013 · 015 · 0 으로 시작하는 10자리(유선)는 화면도 막는다
+chk 'E2_CR_SAME' mypage.html 3
+chk 'function _crDigitsKR(v){' mypage.html 1
+nochk "return !d || /^01.d{8,9}" mypage.html 0   # 옛 화면 식(코드 꼴만 · 주석의 기록은 남긴다)
+chk 'R7_MYPAGE' scripts/audit/mypage-r2.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/mypage-r2.mjs >/dev/null 2>&1; _mr2=$?; if [ "$_mr2" = 1 ]; then echo 'FAIL mypage-r2: 마이페이지 2라운드 고침(층 · 계정 경계 · 입력 화면 · 현금영수증 판정)이 되돌아갔습니다 — node scripts/audit/mypage-r2.mjs'; fail=1; elif [ "$_mr2" = 2 ]; then echo 'skip mypage-r2: 브라우저 없음'; else echo 'ok mypage-r2: 마이페이지 2라운드 고침 그대로'; fi; fi
+# ── [R7_PUBLIC 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 공개 화면 ──
+# ★버그 · 오류만(2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만») — D2-5 ③ 이름 최대 글자 · D2-9 ② «지금 시간» · ④ 24시간 안 단추 대신 안내 ·
+#   D2-11 예약 취소 셋 · D2-12 견본 날짜는 화면 디자인이라 하지 않았다(가지에서 걷음). 아래는 남긴 버그 고침만 지킨다.
+# D2-1 ~ D2-3 좌석 배치도(seat) · 하객 안내 배치도(guide) — 표 이름 · 번호 · 이름표가 서로 덮지 않게: 표 이름은 원 아래 한 줄(글자 모양은 그대로 · 번호는 원 가운데) ·
+#   이름표는 제 칸 안(가운데 줄 · 이웃 칸 · 화면 밖으로 안 나간다) · 내 자리 지도도 같다 · 한글 조합 중에는 찾지 않고 조합이 끝나면 한 번(폰 조합 멈춤은 0.8초 뒤)
+chk 'SEAT_NAME_BELOW' seat.html 6
+chk 'SEAT_LABEL_CLAMP' seat.html 5
+chk 'IME_QUIET' seat.html 5
+chk 'SEAT_NAME_BELOW' guide.html 2
+chk 'SEAT_LABEL_CLAMP' guide.html 5
+chk 'IME_QUIET' guide.html 3
+chk 'function bindNameInput(' seat.html 1
+chk 'function bindNameInput(' guide.html 1
+nochk 'class="tbl-nm"' seat.html
+chk 'SEAT_LABEL_FIT' scripts/audit/seat-label-fit.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/seat-label-fit.mjs >/dev/null 2>&1; _slf=$?; if [ "$_slf" = 1 ]; then echo 'FAIL seat-label-fit: 좌석 · 안내 배치도의 표 이름 · 번호 · 이름표가 겹치거나 칸 밖으로 나갑니다(또는 한글 조합 중 서버 검색) — node scripts/audit/seat-label-fit.mjs'; fail=1; elif [ "$_slf" = 2 ]; then echo 'skip seat-label-fit: 브라우저 없음'; else echo 'ok seat-label-fit: 표 이름 원 아래 · 번호 가운데 · 이름표 칸 안 · 조합 중 검색 쉼'; fi; fi
+# D2-4 · D2-5 신청서 — 연락처는 숫자 개수로(서버 받침보다 엄격 · 서버가 받는 번호는 막지 않는다) · «+» 국제 번호는 «+» 그대로 · 이름 · 이메일의 보이지 않는 글자 · 인원 칸 «숫자 하나로»가 먼저
+chk 'TEL_LEN_OK' shared/tel-kr.js 1
+chk 'window.meTelOk = meTelOk;' shared/tel-kr.js 1
+chk 'TEL_LEN_OK' inquiry.html 3
+chk 'TEL_INTL_KEEP' inquiry.html 2
+chk 'INPUT_CLEAN' inquiry.html 3
+chk 'NUM_BAD_FIRST' inquiry.html 2
+chk 'TEL_LEN_OK' scripts/audit/tel-len-ok.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tel-len-ok.mjs >/dev/null 2>&1; _tlo=$?; if [ "$_tlo" = 1 ]; then echo 'FAIL tel-len-ok: 신청서 연락처 판정 · «+» 국제 번호 · 보이지 않는 글자 · 인원 칸 문구가 어긋납니다 — node scripts/audit/tel-len-ok.mjs'; fail=1; elif [ "$_tlo" = 2 ]; then echo 'skip tel-len-ok: 브라우저 없음'; else echo 'ok tel-len-ok: 연락처는 숫자 개수로 · «+» 그대로 · 보이지 않는 글자 · 인원 칸'; fi; fi
+# D2-6 ~ D2-9 상담 일정 — 손댄 캐시 화면도 서버의 지금 상태로(낸 예약금을 다시 받지 않는다) · 임시 고정 안내 한 줄 · 고정 바 두 번 눌러도 신청 한 번 · 완료 창 이름 글자 그대로(서버 점검 E2-12)
+chk 'RESCHED_NOW_SYNC' schedule.html 4
+chk 'HOLD_NOTE_ONCE' schedule.html 1
+chk 'SUBMIT_ONCE' schedule.html 2
+chk 'DONE_NAME_ESC' schedule.html 1
+chk '_stickyT=setTimeout(function(){ _stickyT=0; doSubmit(); },400);' schedule.html 1
+nochk 'setTimeout(doSubmit,400);' schedule.html
+chk "document.getElementById('modalPick').innerHTML=_esc(SERVER.names||'')" schedule.html 2
+chk 'SUBMIT_ONCE' scripts/audit/sched-resched-sync.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/sched-resched-sync.mjs >/dev/null 2>&1; _srs=$?; if [ "$_srs" = 1 ]; then echo 'FAIL sched-resched-sync: 상담 일정 화면이 서버의 지금 상태를 놓치거나 신청이 두 번 갑니다(또는 임시 고정 안내 · 완료 창 이름) — node scripts/audit/sched-resched-sync.mjs'; fail=1; elif [ "$_srs" = 2 ]; then echo 'skip sched-resched-sync: 브라우저 없음'; else echo 'ok sched-resched-sync: 서버 동기 · 안내 한 줄 · 신청 한 번 · 이름 글자 그대로'; fi; fi
+# D2-10 라이브 — «● ON AIR»는 영상이 붙어 있고 본식 시각(KST) 30분 전 ~ 3시간 뒤일 때만 · 1분마다 다시 본다
+chk 'ON_AIR_WINDOW' live.html 3
+chk 'setInterval(onAirSync, 60000);' live.html 1
+# D2-12 SEO 청첩장 견본 8장 — 없는 본식 시각(14:00 · 오후 2시)만 13:40 으로(날짜는 그대로)
+chk 'SAMPLE_TIME_1340' i/invitations/invitation-04-Vermilion.html 1
+nochk 'T14:00:00' i/invitations/invitation-04-Vermilion.html
+chk 'R7_PUBLIC' scripts/audit/r7-public.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/r7-public.mjs >/dev/null 2>&1; _r7p=$?; if [ "$_r7p" = 1 ]; then echo 'FAIL r7-public: 라이브 ON AIR 시간 · 청첩장 견본 시각 중 어긋난 것이 있습니다 — node scripts/audit/r7-public.mjs'; fail=1; elif [ "$_r7p" = 2 ]; then echo 'skip r7-public: 브라우저 없음(견본 시각만 쟀다)'; else echo 'ok r7-public: ON AIR 시간 · 견본 시각 13:40'; fi; fi
+# D2-13 식순 AI 상담 — 답변 시간 밖 판정은 요일 · 10시 기준(평일 10시 - 18시) · 다음 답변 시작(replyAt)을 함께. 위젯 사본은 after-hours.mjs ③ 이 같은 표본으로 잰다(아직 없으면 건너뜀)
+chk 'AFTER_HOURS_KST' api/ritual-advisor.js 3
+chk 'module.exports.replyWindowKST = replyWindowKST;' api/ritual-advisor.js 1
+chk 'AFTER_HOURS_KST' scripts/audit/after-hours.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/after-hours.mjs >/dev/null 2>&1; _ahk=$?; if [ "$_ahk" = 1 ]; then echo 'FAIL after-hours: 식순 AI 상담의 답변 시간 밖 판정이 평일 10시 - 18시와 다릅니다 — node scripts/audit/after-hours.mjs'; fail=1; else echo 'ok after-hours: 평일 10시 - 18시 · 다음 답변 시작'; fi; fi
 :

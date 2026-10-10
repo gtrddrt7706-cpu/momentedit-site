@@ -511,6 +511,9 @@ function handleRequestContract(body) { _gsr_();
   var _bBad = _birthBad(gB, '신랑') || _birthBad(bB, '신부'); if (_bBad) return { ok: false, error: _bBad };   // [BIRTH_REAL] 달력에 있는 날짜 · 1930년 ~ 만 19세(BIRTH_ADULT19)
   if (!gA || !bA) return { ok: false, error: '신랑·신부 주소를 입력해 주세요.' };
   if (info.consent !== true && String(info.consent) !== 'true') return { ok: false, error: '개인정보 수집·이용에 동의해 주세요.' };
+  /* ★[PHONE_LEN_SRV 2026-10-09 A~Z 점검 2라운드 D2-4] 적은 신랑 · 신부 연락처(비우면 가입 연락처)는 길이만 느슨하게 본다 — 신청서와 같은 받침(00_platform-config _phoneLenOk_) · 거절(C0) */
+  var _gPh = String(info.groomPhone || '').trim(), _bPh = String(info.bridePhone || '').trim();
+  if (typeof _phoneLenOk_ === 'function') { if (_gPh && !_phoneLenOk_(_gPh)) return { ok: false, error: '신랑 연락처를 다시 확인해 주세요.' }; if (_bPh && !_phoneLenOk_(_bPh)) return { ok: false, error: '신부 연락처를 다시 확인해 주세요.' }; }
   var _crBad = _crReject(info.cashReceipt); if (_crBad) return _crBad;   // [CR_NUM_VALID] 휴대폰 · 사업자번호만(빈 값은 자진발급)
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
@@ -592,9 +595,14 @@ function handleRequestContractResend(body) { _gsr_();
   if (cs !== '발송' && cs !== '미발송') return { ok: false, error: '재발송을 요청할 계약서가 없어요.' };
   /* ★[CT_RESEND_ONCE 2026-10-09 점검 C-20] 요청 시각을 남기고(스크립트 속성 CTRESEND_<코드>) 24시간 안의 다시 누름은 «이미 요청함»으로 답한다 —
      관리자 알림을 두 번 보내지 않는다 · 마이페이지는 getMyState 의 contractResendAt 으로 단추를 흐리게 둔다(새로고침해도) */
-  var _rp = PropertiesService.getScriptProperties(), _rk = 'CTRESEND_' + code, _r0 = +(_rp.getProperty(_rk) || 0);
-  if (_r0 && Date.now() - _r0 < 24 * 3600e3) return { ok: true, already: true, at: fmtKST(new Date(_r0)) };
-  try { _rp.setProperty(_rk, String(Date.now())); } catch (e) {}
+  /* ★[CT_RESEND_LOCK 2026-10-09 A~Z 점검 2라운드 E2-9] 읽고 적기는 잠금 안에서 — 같은 순간 두 번 눌리면(두 기기 · 다시 보내기) 둘 다 «처음»으로 읽어 관리자 알림이 두 번 나갔다.
+     잠금을 못 잡으면 아무것도 적지 않고 «다른 처리가 진행 중이에요»(C1 · 1 = 몰림) — 다시 누르면 된다 · 기록 · 알림은 잠금 밖에서(락 시간을 짧게) */
+  var _rp = PropertiesService.getScriptProperties(), _rk = 'CTRESEND_' + code, _r0 = 0, _lk = LockService.getScriptLock();
+  try { _lk.waitLock(10000); } catch (eL) { return { ok: false, ecode: 'C1', error: '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요' }; }
+  try { _r0 = +(_rp.getProperty(_rk) || 0);
+    if (_r0 && Date.now() - _r0 < 24 * 3600e3) return { ok: true, already: true, at: fmtKST(new Date(_r0)) };
+    try { _rp.setProperty(_rk, String(Date.now())); } catch (e) {}
+  } finally { try { _lk.releaseLock(); } catch (eR) {} }
   _recordHandler(code, '고객 계약서 재발송 요청');
   try { notifyStudio('[플랫폼] 계약서 재발송 요청 (' + code + ')', code + ' · 고객이 만료된 계약서의 재발송을 요청했어요.'); } catch (e) {}
   notifyKakao('admin.contractReq', code, { weddingDate: _ymdOf(s.row.get('예식일')) });   // 관리자: 계약서 발송 필요(기존 키 재사용)

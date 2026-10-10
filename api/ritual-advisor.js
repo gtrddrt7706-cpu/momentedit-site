@@ -255,9 +255,9 @@ module.exports = async (req, res) => {
       if (isEmbed) escalate = true; else toBooking = true;
     }
 
-    // 야간 판정(KST 단일 기준 · 18~09시) — 위젯이 에스컬레이션 문구를 정직하게 치환하는 데 사용
-    const kstHour = (new Date(Date.now() + 9 * 3600 * 1000)).getUTCHours();
-    const night = (kstHour >= 18 || kstHour < 9);
+    // 답변 시간 밖인가(KST · 평일 10시 - 18시) — 위젯이 에스컬레이션 문구를 정직하게 치환하는 데 사용 · [AFTER_HOURS_KST] 아래 replyWindowKST
+    const rw = replyWindowKST(Date.now());
+    const night = !rw.open;   // 필드 이름은 그대로(위젯 lastNight) — 뜻은 «답변 시간 밖»(주말 · 평일 10시 전 · 18시 뒤)
 
     // [AI_TEST_TAG 2026-07-25] test 플래그로 로깅을 끄던 우회 폐지 — 항상 적재하고 isTest 태그만 부가.
     //   클라 제어 플래그가 감사 로그를 무력화하면 남용 은폐 통로가 된다("끄지 말고 태깅"). 집계는 GAS 쪽에서 isTest 제외.
@@ -275,7 +275,7 @@ module.exports = async (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
-    return res.end(JSON.stringify({ reply: text, escalate, toBooking, night }));
+    return res.end(JSON.stringify({ reply: text, escalate, toBooking, night, replyAt: rw.next }));   // [AFTER_HOURS_KST] replyAt = «오전 10시부터» · «내일 오전 10시부터» · «월요일 오전 10시부터» · 답변 시간 안이면 ''
   } catch (err) {
     console.error('ritual_advisor_exception', err && err.message);
     res.statusCode = 500;
@@ -283,6 +283,20 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify({ error: 'server_error', escalate: isEmbed, toBooking: !isEmbed }));   // 위젯이 클라 모드로 재판정하나, 응답 의도도 일치시킴
   }
 };
+
+/* ★[AFTER_HOURS_KST 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-13] 답변 시간은 «평일 10시 - 18시»(assets/advisor-kb.js escalation.hours) —
+   종전 판정은 18 ~ 09시만 밤으로 봐서 금요일 20시에 «내일 영업시간에»(토요일)라 했고, 토 · 일 낮과 평일 9 ~ 10시에는 «디렉터에게 바로 전달했어요»라 했다.
+   요일과 10시 기준으로 «지금 답변 시간인가»와 «다음 답변이 시작되는 때»를 한 곳에서 정한다. 한국 시각(KST) 고정 · 공휴일은 모른다(평일로 센다).
+   위젯(assets/advisor-widget.js nightNowKST)이 같은 규칙의 사본을 품게 한다 — scripts/audit/after-hours.mjs 가 이 함수를 표본 시각으로 잰다. */
+function replyWindowKST(nowMs) {
+  const k = new Date(Number(nowMs) + 9 * 3600 * 1000);
+  const d = k.getUTCDay(), h = k.getUTCHours(), wd = (d >= 1 && d <= 5);   // 0 일 · 6 토
+  if (wd && h >= 10 && h < 18) return { open: true, next: '' };
+  if (wd && h < 10) return { open: false, next: '오전 10시부터' };                        // 평일 이른 아침 — 오늘 10시
+  if ((d >= 1 && d <= 4) || d === 0) return { open: false, next: '내일 오전 10시부터' };   // 월 ~ 목 18시 뒤 · 일요일 — 내일이 평일
+  return { open: false, next: '월요일 오전 10시부터' };                                  // 금 18시 뒤 · 토요일
+}
+module.exports.replyWindowKST = replyWindowKST;   // 점검용(after-hours.mjs) — 핸들러 동작과는 상관없다
 
 function readJson(req) {
   return new Promise((resolve, reject) => {

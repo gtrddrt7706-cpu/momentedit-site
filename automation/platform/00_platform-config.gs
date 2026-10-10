@@ -238,6 +238,22 @@ function _phoneKR(v) { _gsr_();
   return d;
 }
 
+/* ★[PHONE_LEN_SRV 2026-10-09 A~Z 점검 2라운드 D2-4] 받은 연락처의 «느슨한 받침» — 화면이 엄격하게 거르고, 서버는 길이만 본다(옛 화면 · 화면을 거치지 않은 요청).
+   국내(0…) 숫자 9~11자리 · «+82»(«0082») 는 0 으로 바꾼 뒤 같은 기준 · 그 밖 «+» 국제 번호는 숫자 8~15자리 · «+» 없이 82 로 시작하면 _phoneKR 이 되살린 꼴로 본다.
+   이름 끝 _ = 서버 코드 안에서만(공개 화면에서 부를 수 없다 · B19_LOCK) */
+function _phoneLenOk_(v) {
+  var _mk = '[PHONE_LEN_SRV]';
+  var s = String(v == null ? '' : v).trim(), d = s.replace(/[^0-9]/g, '');
+  if (!d) return false;
+  if (/^(\+|00)/.test(s)) {   // 국가번호가 확실하다
+    var t = d.replace(/^00/, '');
+    if (t.slice(0, 2) === '82') { var r = t.slice(2); if (r.charAt(0) !== '0') r = '0' + r; return r.length >= 9 && r.length <= 11; }
+    return t.length >= 8 && t.length <= 15;
+  }
+  var k = (typeof _phoneKR === 'function') ? _phoneKR(s) : d;
+  return k.charAt(0) === '0' && k.length >= 9 && k.length <= 11;
+}
+
 /* ★★[PHONE_AUTOFILL_82 2026-09-25 사장님 「번호 적는 모든 곳에 +82 가 나와도 정상적으로 돌아가게」]
    현금영수증 번호(휴대폰·사업자번호) 정규화. 자동완성이 «+82 10-7349-7706» 을 넣으면 화면이 숫자만 남겨
    «821073497706» 이 저장됐다. 고객 화면엔 끝 4자리만 보여 틀린 줄 모르고, 관리자는 그 12자리를 홈택스에 넣는다.

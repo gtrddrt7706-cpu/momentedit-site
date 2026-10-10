@@ -2502,6 +2502,8 @@ function applyCoupleInfo(couple){
   /* ★[SLOT_CLOCK 2026-09-25] 슬롯 ID(13:20) → 실제 본예식 시각 — 값은 mypage.html SLOT_CLOCK 과 같다(shared/hydrate.js 참고) */
   const SLOT_CLOCK = { '09:00': '10:20', '12:20': '13:40', '15:40': '17:00', '10:00': '10:20', '13:20': '13:40', '16:40': '17:00' };   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
   const time24 = SLOT_CLOCK[String(couple.weddingTime || '').trim()] || couple.weddingTime || SLOT_CLOCK['10:00'];
+  window.__liveAt = { date: date, time: time24 };   // [ON_AIR_WINDOW] 방송 중 판정에 쓰는 본식 날짜 · 시각(KST)
+  onAirSync();
 
   if (date) {
     const [y, m, d] = date.split('-');
@@ -2709,8 +2711,21 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
 
   placeholder.remove();
   frame.appendChild(iframe);
-  document.querySelectorAll('.on-air').forEach(function(el){ el.classList.add('is-live'); });   // [ON_AIR_WHEN_LIVE] 방송 중 판정 = 영상이 붙은 때
+  onAirSync();   // [ON_AIR_WHEN_LIVE] 방송 중 판정 = 영상이 붙은 때 · [ON_AIR_WINDOW] 그리고 본식 시각 앞뒤일 때
 }
+/* ★[ON_AIR_WINDOW 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-10] «● ON AIR»는 영상이 붙어 있고(ON_AIR_WHEN_LIVE) «본식 시각(SLOT_CLOCK) 30분 전 ~ 3시간 뒤»일 때만.
+   종전엔 영상 주소만 있으면 늘 켜졌다 — 87_letter vimeoGuardDaily 가 «3일 전까지 등록»을 요구하니 그 사흘 내내 «방송 중»이었고, 몇 달 뒤 다시보기에도 켜졌다.
+   그 밖에는 숨긴다(자리는 그대로 · visibility). «다시보기» 같은 새 표시는 만들지 않는다. 날짜 · 시각을 모르면 켜지 않는다.
+   시각은 한국 시각(KST)으로 잰다 — 해외 하객 기기의 시간대와 상관없이 같은 순간에 켜지고 꺼진다. 화면을 열어 둔 채 시각이 지나도 1분마다 다시 본다. */
+function onAirSync(){
+  var on = false, w = window.__liveAt || {}, m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(w.date || '')), t = /^(\d{1,2}):(\d{2})$/.exec(String(w.time || ''));
+  if (m && t && document.querySelector('#playerFrame iframe')) {
+    var st = Date.UTC(+m[1], +m[2] - 1, +m[3], +t[1] - 9, +t[2]), now = Date.now();
+    on = (now >= st - 30 * 60000) && (now <= st + 3 * 3600000);
+  }
+  document.querySelectorAll('.on-air').forEach(function(el){ if (on) el.classList.add('is-live'); else el.classList.remove('is-live'); });
+}
+setInterval(onAirSync, 60000);
 
 // ═══════════════════════════════════════════════════════════════
 // HOME LINK · 새 탭으로 열린 경우 탭 닫기, 직접 방문이면 이동

@@ -30,4 +30,25 @@
     return m ? '0' + m[1] : d;
   }
   window.meTelDigits = meTelDigits;
+  /* ★[TEL_LEN_OK 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-4] 번호가 «온전한가» — 숫자 «개수»로 본다.
+     종전 문의서 칸은 글자 패턴([0-9\-\s\+]{9,})이라 하이픈까지 세어 «010-1234-5»(숫자 8자리)가 통과했고, 서버도 그대로 저장해
+     알림톡 · 문자가 안 나갔다(관리자 메일 CONTACT_SILENT 로 나중에야 드러난다).
+       ① 국내(meTelDigits 뒤 0 으로 시작): 010 = 11자리 · 011 · 016 ~ 019 = 10 ~ 11 · 02 = 9 ~ 10 · 그 밖(031 ~ 064 지역번호 · 070 · 050x 등) = 10 ~ 11
+       ② «+82» · «0082» = meTelDigits 가 0 으로 바꾼 뒤 ① 과 같은 기준(온전하지 않으면 안 바꿔 0 으로 시작하지 않는다 → 거절)
+       ③ 그 밖 «+» 국제 번호 = 숫자 8 ~ 15자리(서버 받침과 같은 수 · 화면은 «+» 를 지켜서 보낸다 · TEL_INTL_KEEP)
+       ④ 0 으로도 «+» 로도 시작하지 않는 것(1588-1234 대표번호 등)은 거절
+     ★서버(40_signup · _phoneKR 뒤 길이 받침)는 국내를 9 ~ 11자리로 더 느슨하게 받는다 — 화면이 더 엄격해도 서버가 받는 국제 번호는 막지 않는다.
+     scripts/audit/tel-len-ok.mjs 가 표본으로 잰다. */
+  function meTelOk(v) {
+    var s = String(v == null ? '' : v).trim();
+    var dd = s.replace(/[^0-9]/g, '');
+    if (/^\+/.test(s) && dd.slice(0, 2) !== '82') return dd.length >= 8 && dd.length <= 15;   // ③
+    var d = meTelDigits(s);
+    if (d.charAt(0) !== '0') return false;                                                    // ② 덜 쓴 +82 · ④
+    if (/^010/.test(d)) return d.length === 11;
+    if (/^01[16789]/.test(d)) return d.length === 10 || d.length === 11;
+    if (/^02/.test(d)) return d.length === 9 || d.length === 10;
+    return d.length === 10 || d.length === 11;
+  }
+  window.meTelOk = meTelOk;
 })();

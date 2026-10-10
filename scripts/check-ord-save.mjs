@@ -64,7 +64,7 @@ try {
   await P.evaluate(() => {
     window.__sent = [];
     window.addEventListener('message', (e) => {
-      if (e.data && typeof e.data.type === 'string' && /^momentedit:order/.test(e.data.type)) window.__sent.push(e.data);
+      if (e.data && typeof e.data.type === 'string' && /^momentedit:order/.test(e.data.type) && !/^momentedit:order(ExitHold|Depth)$/.test(e.data.type)) window.__sent.push(e.data);   // [SIGNAL_NOT_SEND 2026-10-09 2라운드] «잡고 있어요»(EXIT_HOLD) · 깊이(HIST_DEPTH)는 저장이 아니라 신호다
     });
   });
 
@@ -330,14 +330,14 @@ try {
 
   /* ★⑨ 재진입 뒤 무변경 나가기 — 판 없이 닫혀야 한다 [EXIT_BASELINE]
      기준선이 「이번 세션 저장 성공」뿐이면, 볼일만 보고 나가는 재진입 고객마다 판을 만난다. */
-  await P.evaluate(() => { _doneSaved = false; _persist(); });
+  await P.evaluate(() => { _doneSaved = false; _autoLast = _autoKey(); _persist(); });   // [SIGNAL_NOT_SEND] 저장 안 한 고침이 없는 판으로 — 있으면 LOCAL_AHEAD 가 묻는 것이 맞다(2라운드 E2)
   await P.reload({ waitUntil: 'domcontentloaded' });
   await P.waitForTimeout(2300);
   const re = await P.evaluate(async () => {
     const wait = (ms) => new Promise((s) => setTimeout(s, ms));
     window.__sent = [];
     window.addEventListener('message', (e) => {
-      if (e.data && typeof e.data.type === 'string' && /^momentedit:order/.test(e.data.type)) window.__sent.push(e.data);
+      if (e.data && typeof e.data.type === 'string' && /^momentedit:order/.test(e.data.type) && !/^momentedit:order(ExitHold|Depth)$/.test(e.data.type)) window.__sent.push(e.data);   // [SIGNAL_NOT_SEND 2026-10-09 2라운드] «잡고 있어요»(EXIT_HOLD) · 깊이(HIST_DEPTH)는 저장이 아니라 신호다
     });
     if (!courseStarted) return { skip: true };
     window._obExit();
