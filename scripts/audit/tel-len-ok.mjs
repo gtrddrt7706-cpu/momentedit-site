@@ -1,9 +1,10 @@
-// ★[TEL_LEN_OK · TEL_INTL_KEEP · INPUT_CLEAN · NAME_MAX30 · NUM_BAD_FIRST 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-4 · D2-5] 문의서(inquiry.html) 입력 칸.
+// ★[TEL_LEN_OK · TEL_INTL_KEEP · INPUT_CLEAN · NUM_BAD_FIRST 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-4 · D2-5] 문의서(inquiry.html) 입력 칸.
 //   ① 화면 판정 meTelOk(shared/tel-kr.js) — 숫자 «개수»로: 010 = 11 · 011 · 016 ~ 019 = 10 ~ 11 · 02 = 9 ~ 10 · 그 밖 지역번호 10 ~ 11 · +82 는 0 으로 바꾼 뒤 같은 기준 ·
 //      그 밖 «+» 국제 번호는 숫자 8 ~ 15(서버 받침과 같다) · 0 으로도 «+» 로도 시작하지 않으면 거절. 종전엔 «010-1234-5»(8자리)가 통과했다
 //   ② 칸 포맷터 — «+» 국제 번호(+82 아닌 것)는 하이픈을 넣지 않고 «+» 를 지킨다 · 덜 쓴 «+82 …»는 남의 번호(821-0…)로 바뀌지 않는다 · 칸에 온전한지를 건다
 //   ③ 실렌더 — 8자리 번호는 그 칸에서 «연락처를 끝까지 적어 주세요» · 빈칸만 적은 이름은 그 칸에서 «신랑 이름을 적어 주세요» · 폭 0 글자(붙여넣기)는 지워진다 ·
-//      이름 최대 30자 · 인원 칸 «2-3»은 «숫자 하나로 적어 주세요» · «+1 415 555 0100»은 «+» 째로 보낸다
+//      인원 칸 «2-3»은 «숫자 하나로 적어 주세요» · «+1 415 555 0100»은 «+» 째로 보낸다
+//   ★이름 칸 최대 글자 수(D2-5 ③)는 화면 다듬기라 넣지 않았다(2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만»)
 //   TLO_ROOT=<다른 폴더> 로 돌리면 그 판을 잰다(되돌리면 빨강 확인용). 종료 코드 0 = 통과 · 1 = 실패(판정 함수가 없어도 실패) · 2 = 재지 못함(파일 없음)
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -44,7 +45,6 @@ else {
   const f8 = typed('01012345'), f11 = typed('01012345678');
   ok('② 칠 때 칸에 온전한지를 건다 — «010-1234-5» → «연락처를 끝까지 적어 주세요» · 11자리 → 비움 [TEL_LEN_OK]', f8.value === '010-1234-5' && f8.cv === '연락처를 끝까지 적어 주세요' && f11.value === '010-1234-5678' && f11.cv === '', JSON.stringify([f8.value, f8.cv, f11.value, f11.cv]));
 }
-ok('③ 이름 칸 최대 30자(신랑 · 신부) [NAME_MAX30]', /id="groom"[^>]*maxlength="30"/.test(inq) && /id="bride"[^>]*maxlength="30"/.test(inq));
 
 // ── ③ 실렌더
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
@@ -89,4 +89,4 @@ else {
   } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
   finally { await br.close(); srv.close(); }
 }
-console.log(fail ? `\nTEL LEN OK FAIL ${fail}` : '\nTEL LEN OK'); process.exit(fail ? 1 : 0);
+console.log(fail ? `\nTEL LEN FAIL ${fail}` : '\nTEL LEN OK'); process.exit(fail ? 1 : 0);

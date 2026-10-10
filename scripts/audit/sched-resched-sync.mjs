@@ -1,9 +1,8 @@
-// ★[RESCHED_NOW_SYNC · HOLD_NOTE_ONCE · SUBMIT_ONCE · MY_SLOT_NOW · DONE_NAME_ESC · SCHED_LATE_LOCK 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-6 ~ D2-9] 상담 일정(schedule.html).
+// ★[RESCHED_NOW_SYNC · HOLD_NOTE_ONCE · SUBMIT_ONCE · DONE_NAME_ESC 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-6 ~ D2-9] 상담 일정(schedule.html) — 버그만.
 //   ① 캐시(신청 · 미입금)로 먼저 그린 화면을 서버 답 전에 만졌어도, 서버가 «확정 · 예약금 받음»이면 그 블록만 맞춘다 — 입금자명을 다시 묻지 않고 신청이 한 번 간다
 //   ② 임시 고정 안내는 boot 가 두 번 돌아도 한 줄
-//   ③ 고정 바 «신청하기»를 80ms 간격으로 두 번 눌러도 신청은 한 번
-//   ④ 지금 잡힌 내 시간은 «마감» 대신 «지금 시간» · ⑤ 완료 창 이름은 글자 그대로(태그로 읽지 않는다)
-//   ⑥ 확정된 상담이 24시간 안이면 신청 단추 · 고정 바 대신 안내 + 카카오톡 · 신청이 가지 않는다
+//   ③ 고정 바 «신청하기»를 두 번 눌러도 신청은 한 번 · ④ 완료 창 이름은 글자 그대로(태그로 읽지 않는다)
+//   ★D2-9 ② «지금 시간» 표시 · ④ 24시간 안 단추 대신 안내는 화면 디자인이라 하지 않았다(2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만»)
 //   SRS_ROOT=<다른 폴더> 로 돌리면 그 판을 잰다. 종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -58,7 +57,7 @@ try {
     const n = await o.page.evaluate(() => [...document.querySelectorAll('div')].filter((d) => d.children.length === 0 && /임시 고정 중에는 상담일을/.test(d.textContent)).length);
     ok('② 임시 고정 안내는 boot 가 두 번 돌아도 한 줄 [HOLD_NOTE_ONCE]', n === 1, 'n=' + n);
     ok('pageerror 0 (②)', !o.errs.length, (o.errs[0] || '').slice(0, 140)); await o.ctx.close(); }
-  // ③ 고정 바 두 번 누름(서버가 바로 답할 때 80ms · 0.8초 걸릴 때 250ms) · ⑤ 완료 창 이름
+  // ③ 고정 바 두 번 누름(서버가 바로 답할 때 80ms · 0.8초 걸릴 때 250ms) · ④ 완료 창 이름
   for (const [gap, subDelay] of [[80, 0], [250, 800]]) {
     const o = await open({ server: { ...BASE_S, names: '<b>김</b> & 정' }, mobile: true, subDelay });
     await wait(800); await pick(o.page, 0, 0); await o.page.fill('#depPayer', '정하윤');
@@ -68,25 +67,8 @@ try {
     await wait(2200);
     ok(`③ 고정 바 «신청하기»를 ${gap}ms 간격으로 두 번 눌러도(서버 답 ${subDelay}ms) 신청은 한 번 [SUBMIT_ONCE]`, !!bx && o.subs.length === 1, 'bar=' + !!bx + ' submits=' + o.subs.length);
     if (!subDelay) { const mp = await o.page.evaluate(() => { const e = document.getElementById('modalPick'); return { b: e.querySelectorAll('b').length, t: e.textContent }; });
-      ok('⑤ 완료 창 이름은 글자 그대로 — «<b>김</b> & 정»이 굵은 글씨(태그)로 읽히지 않는다 [DONE_NAME_ESC]', mp.b === 0 && /<b>김<\/b> & 정 님/.test(mp.t), JSON.stringify(mp)); }
+      ok('④ 완료 창 이름은 글자 그대로 — «<b>김</b> & 정»이 굵은 글씨(태그)로 읽히지 않는다 [DONE_NAME_ESC]', mp.b === 0 && /<b>김<\/b> & 정 님/.test(mp.t), JSON.stringify(mp)); }
     ok(`pageerror 0 (③ ${gap}ms)`, !o.errs.length, (o.errs[0] || '').slice(0, 140)); await o.ctx.close(); }
-  // ④ 내 시간 «지금 시간»
-  { const cur = day(5), k = keyOf(cur), S = { ...BASE_S, full: { [k]: ['14:00'] }, currentDate: ymd(cur), currentTime: '14:00', currentStatus: 'confirmed', depositPaid: true };
-    const o = await open({ server: S }); await wait(800);
-    await o.page.evaluate((k) => { const want = k.split('-').map(Number); for (const b of document.querySelectorAll('#calGrid .day.avail')) { if (+b.textContent.trim() === want[2]) { b.click(); return; } } }, k); await wait(300);
-    const tags = await o.page.evaluate(() => [...document.querySelectorAll('#slots .slot')].map((s) => s.getAttribute('aria-label')));
-    ok('④ 지금 잡힌 내 시간은 «마감» 대신 «지금 시간»(잠금은 그대로) [MY_SLOT_NOW]', tags.some((t) => /14:00 · 지금 시간/.test(t)) && !tags.some((t) => /14:00 · 마감/.test(t)), JSON.stringify(tags));
-    ok('pageerror 0 (④)', !o.errs.length, (o.errs[0] || '').slice(0, 140)); await o.ctx.close(); }
-  // ⑥ 24시간 안
-  { const tm = new Date(Date.now() + 5 * 3600 * 1000), kst = new Date(tm.getTime() + 9 * 3600 * 1000);
-    const S = { ...BASE_S, avail: [1, 2, 3, 4, 5, 6].map((k) => keyOf(day(k))), currentDate: kst.getUTCFullYear() + '-' + pad(kst.getUTCMonth() + 1) + '-' + pad(kst.getUTCDate()), currentTime: pad(kst.getUTCHours()) + ':00', currentStatus: 'confirmed', depositPaid: true };
-    const o = await open({ server: S, mobile: true }); await wait(900);
-    await pick(o.page, 0, 0); await wait(300);
-    const st = await o.page.evaluate(() => { const b = document.getElementById('submitBtn'), sm = document.getElementById('summary');
-      return { btnShown: getComputedStyle(b).display !== 'none' && b.getBoundingClientRect().height > 0, sum: sm.textContent, kakao: !!sm.querySelector('a[href*="kakao"]'), bar: document.body.classList.contains('sticky-on') }; });
-    await o.page.evaluate(() => { try { document.getElementById('stickyBtn').click(); } catch (e) {} }); await wait(900);
-    ok('⑥ 확정 + 24시간 안 — 신청 단추 · 고정 바 대신 «24시간 전부터는 변경이 어려워요» + 카카오톡 · 신청이 가지 않는다 [SCHED_LATE_LOCK]', !st.btnShown && /24시간 전/.test(st.sum) && st.kakao && !st.bar && o.subs.length === 0, JSON.stringify({ ...st, subs: o.subs.length }));
-    ok('pageerror 0 (⑥)', !o.errs.length, (o.errs[0] || '').slice(0, 140)); await o.ctx.close(); }
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
 finally { await br.close(); srv.close(); }
 console.log(fail ? `\nSCHED RESCHED SYNC FAIL ${fail}` : '\nSCHED RESCHED SYNC OK'); process.exit(fail ? 1 : 0);

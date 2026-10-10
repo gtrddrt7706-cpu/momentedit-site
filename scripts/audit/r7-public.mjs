@@ -1,32 +1,30 @@
-// ★[R7_PUBLIC · ON_AIR_WINDOW · CAN_KAKAO_WAY · CAN_ACCT_ONE · SAMPLE_DATE_2027 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-10 ~ D2-12] 공개 화면 셋.
+// ★[R7_PUBLIC · ON_AIR_WINDOW · SAMPLE_TIME_1340 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-10 · D2-12] 공개 화면 — 버그만.
 //   ① 라이브(live.html) «● ON AIR»는 영상이 붙어 있고 본식 시각(KST) 30분 전 ~ 3시간 뒤일 때만 — 사흘 전 · 두 달 뒤 다시보기 · 날짜 모름 · 영상 없음은 끈다
-//   ② 예약 취소(cancel.html) — 못 찾음은 제목 · 할 일 · (코드 B0) · 카카오톡(다시 불러오기 없음) · 계좌 안내는 칸 아래 한 곳 · 기한 거절의 «카카오톡»은 링크
-//   ③ SEO 청첩장 견본 8장(i/invitations/invitation-01 ~ 08) — 날짜는 2027-10-23(토) · 시각은 13:40(그 장의 표기) · 옛 2026-03-05 · 14:00 · 오후 2시 없음 · 달력 표시 칸은 23
+//   ② SEO 청첩장 견본 8장(i/invitations/invitation-01 ~ 08) — 본식 시각은 10:20 · 13:40 · 17:00 뿐이라 견본 시각도 13:40(그 장의 표기) · 14:00 · 오후 2시 · 오후 두 시 · 2 PM 없음.
+//      ★날짜는 보지 않는다 — 지난 견본 날짜는 오류가 아니다(2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만»)
+//   ★D2-11 예약 취소 셋(못 찾음의 코드 · 카카오톡 · 계좌 안내 한 곳 · 기한 거절의 링크)은 화면 디자인이라 하지 않았다(같은 지시)
 //   R7P_ROOT=<다른 폴더> 로 돌리면 그 판을 잰다. 종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = process.env.R7P_ROOT || path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 
-// ③ 견본 날짜(브라우저 없이)
+// ② 견본 시각(브라우저 없이)
 { const dir = path.join(ROOT, 'i', 'invitations');
   const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((x) => /^invitation-0[1-8]-.*\.html$/.test(x)).sort() : [];
-  ok('③ 견본이 8장이다(셀 수 있어야 아래 검사가 뜻이 있다)', files.length === 8, files.join(','));
+  ok('② 견본이 8장이다(셀 수 있어야 아래 검사가 뜻이 있다)', files.length === 8, files.join(','));
   for (const f of files) {
     const raw = fs.readFileSync(path.join(dir, f), 'utf8');
     const t = raw.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ').replace(/&middot;/g, '·').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
-    const hasDate = /2027\s*[.·\-\/]\s*10\s*[.·\-\/]\s*23|10월\s*23일/.test(t);
     const hasTime = /13:40|오후\s*1:40|1:40\s*PM|오후\s*(1|한)\s*시\s*40\s*분/i.test(t);
-    const bad = (t.match(/2026\s*[.·\-\/]\s*0?3\s*[.·\-\/]\s*0?5|3월\s*5일|\b14:00\b|오후\s*2:00|\b2:00\s*PM|오후\s*(2|두)\s*시(?!\s*\d)|\bMarch\b|Thursday|목요일/gi) || []).concat(/2026-03-05/.test(raw) ? ['2026-03-05(소스)'] : []);
-    const marks = [...raw.matchAll(/class="[^"]*\bmarked\b[^"]*"[^>]*>\s*(?:<span>)?\s*(\d{1,2})/g)].map((m) => m[1]);
-    ok(`③ ${f} — 2027-10-23 · 13:40 · 옛 날짜 · 시각 없음 · 달력 표시 23 [SAMPLE_DATE_2027]`, hasDate && hasTime && !bad.length && marks.every((n) => n === '23'),
-      JSON.stringify({ hasDate, hasTime, bad: [...new Set(bad)].slice(0, 4), marks }));
+    const bad = (t.match(/\b14:00\b|오후\s*2:00|\b2(:00)?\s*PM\b|오후\s*(2|두)\s*시(?!\s*\d)/gi) || []).concat(/T14:00:00/.test(raw) ? ['T14:00:00(소스)'] : []);
+    ok(`② ${f} — 견본 시각 13:40 · 없는 시각(14:00 · 오후 2시) 없음 [SAMPLE_TIME_1340]`, hasTime && !bad.length, JSON.stringify({ hasTime, bad: [...new Set(bad)].slice(0, 4) }));
   }
 }
 
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
-if (!pw) { console.log('못 쟀다 — playwright 없음 (① ② 건너뜀)'); console.log(fail ? `\nR7 PUBLIC FAIL ${fail}` : '\nR7 PUBLIC 건너뜀'); process.exit(fail ? 1 : 2); }
+if (!pw) { console.log('못 쟀다 — playwright 없음 (① 건너뜀)'); console.log(fail ? `\nR7 PUBLIC FAIL ${fail}` : '\nR7 PUBLIC 건너뜀'); process.exit(fail ? 1 : 2); }
 const T = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.json': 'application/json', '.woff2': 'font/woff2' };
 const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); if (!p.startsWith(ROOT)) { r.writeHead(404); return r.end(); }
   fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
@@ -73,22 +71,6 @@ try {
     if (o.errs.length) ok(`pageerror 0 (① ${name})`, false, o.errs[0].slice(0, 140));
     await o.ctx.close();
   }
-  // ② 예약 취소
-  const info = { ok: true, state: 'ok', names: '김민수 · 정하윤', date: '2026년 10월 14일 (수)', time: '14:00', deadlineLabel: '24시간', kakao: 'https://pf.kakao.com/_x' };
-  { const o = await open('/cancel.html?token=abc&sig=def', (a) => (a === 'emailCancelInfo' ? { ok: false, error: '예약 정보를 찾을 수 없어요.' } : { ok: true }));
-    await o.page.waitForSelector('#card .title', { timeout: 8000 }).catch(() => {}); await wait(200);
-    const r = await o.page.evaluate(() => ({ title: (document.querySelector('#card .title') || {}).textContent || '', text: document.getElementById('card').textContent, kakao: !!document.querySelector('#card a.kakao[href*="kakao"]'), again: !!document.getElementById('again') }));
-    ok('② 취소 «예약을 못 찾음» → «예약을 찾을 수 없어요» · 할 일 + (코드 B0) · 카카오톡 링크 · 다시 불러오기 없음 [CAN_KAKAO_WAY]', r.title === '예약을 찾을 수 없어요' && /마이페이지에서 예약을 확인해\s*주세요 \(코드 B0\)/.test(r.text) && r.kakao && !r.again, JSON.stringify(r));
-    if (o.errs.length) ok('pageerror 0 (② 못 찾음)', false, o.errs[0].slice(0, 140)); await o.ctx.close(); }
-  { const o = await open('/cancel.html?token=abc&sig=def', (a) => (a === 'emailCancelInfo' ? info : a === 'emailCancel' ? { ok: false, error: '온라인 취소 기한(상담 24시간 전)이 지났어요. 카카오톡으로 문의해 주세요.' } : { ok: true }));
-    await o.page.waitForSelector('#go', { timeout: 8000 }).catch(() => {}); await wait(200);
-    const r = await o.page.evaluate(() => ({ acct: [...document.querySelectorAll('#card .note')].filter((n) => /계좌/.test(n.textContent)).length, when: /영업일 기준 수일/.test(document.getElementById('card').textContent) }));
-    ok('② 취소 화면 — 환불 계좌 안내는 칸 아래 한 곳(환불 시기 포함) [CAN_ACCT_ONE]', r.acct === 1 && r.when, JSON.stringify(r));
-    await o.page.click('#go');
-    await o.page.waitForFunction(() => !document.getElementById('go'), null, { timeout: 8000 }).catch(() => {}); await wait(200);
-    const r2 = await o.page.evaluate(() => { const a = document.querySelector('#card .desc a.kakao'); return { title: (document.querySelector('#card .title') || {}).textContent || '', link: a ? a.textContent : '', n: (document.getElementById('card').textContent.match(/카카오톡/g) || []).length }; });
-    ok('② 기한이 지나 거절 → 글 속 «카카오톡»이 링크 · 같은 말을 두 번 하지 않는다 [CAN_KAKAO_WAY]', r2.title === '취소를 완료하지 못했어요' && r2.link === '카카오톡' && r2.n === 1, JSON.stringify(r2));
-    if (o.errs.length) ok('pageerror 0 (② 취소 화면)', false, o.errs[0].slice(0, 140)); await o.ctx.close(); }
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
 finally { await br.close(); srv.close(); }
 console.log(fail ? `\nR7 PUBLIC FAIL ${fail}` : '\nR7 PUBLIC OK'); process.exit(fail ? 1 : 0);
