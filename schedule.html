@@ -1318,6 +1318,7 @@ function doSubmit(){
   /* ★[SUBMIT_ONCE 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-8] 고정 바 «신청하기»는 누를 때마다 400ms 뒤 doSubmit 을 건다 — 80 · 250ms 간격으로 두 번 누르면
      신청(submitSchedule)이 두 번 가고 관리자 «시간 선택» 알림도 두 번 갔다. 보내는 중(본 단추가 잠김)이면 돌아간다 · 24시간 안(SCHED_LATE_LOCK)도 돌아간다 */
   var _sb0=document.getElementById('submitBtn'); if((_sb0&&_sb0.disabled&&_sb0.classList.contains('loading'))||window.__schedLate) return;
+  var _mdDone=document.getElementById('modal'); if(_mdDone&&_mdDone.classList.contains('show')) return;   // 이미 접수돼 완료 창이 떠 있다 — 다시 보내지 않는다
   if(!selDate||!selTime) return;
   var _card=_payM()==='card';
   if(_card && window.__depCardPreview){ meAlert({lead:'미리보기 화면이에요.',items:['카드결제를 켜면 여기서 토스 결제창이 열려요.','결제가 끝나면 예약이 바로 확정돼요.']}); return; }
@@ -1440,9 +1441,11 @@ document.getElementById('prevM').onclick=()=>{if(viewM===0){viewM=11;viewY--;}el
 document.getElementById('nextM').onclick=()=>{if(viewM===11){viewM=0;viewY++;}else viewM++;renderCal();};
 document.getElementById('submitBtn').onclick=doSubmit;
 var _stickyBtn=document.getElementById('stickyBtn');
+var _stickyT=0;   // [SUBMIT_ONCE] 400ms 안에 다시 누르면 걸어 둔 한 번만 — 서버가 빨리 답해 본 단추가 이미 풀렸어도 두 번 가지 않는다
 if(_stickyBtn) _stickyBtn.onclick=()=>{
   document.getElementById('submitBtn').scrollIntoView({behavior:'smooth',block:'center'});
-  setTimeout(doSubmit,400);
+  if(_stickyT) return;
+  _stickyT=setTimeout(function(){ _stickyT=0; doSubmit(); },400);
 };
 function meFinishClose(){
   document.getElementById('modal').classList.remove('show');
