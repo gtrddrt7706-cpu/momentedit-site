@@ -1388,7 +1388,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 .done-eyebrow{font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep,#7A5F37)}
 .done-rule{width:34px;height:1px;background:var(--gold,#B89A75);margin:13px auto;opacity:.7;animation:doneRule .7s var(--ease) .15s both}
 .done-title{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);margin-bottom:7px;line-height:1.4}
-.done-names{font-family:var(--serif);font-size:23px;letter-spacing:.05em;color:var(--accent);margin:2px 0 5px}
+.done-names{font-family:var(--serif);font-size:23px;letter-spacing:.05em;color:var(--accent);margin:2px 0 5px;overflow-wrap:anywhere}   /* [C2_DONE_NAMES 2026-10-09 고객 여정 A~Z 점검 2라운드] 긴 영문 이름이 줄을 못 바꿔 320 에서 15자 · 360 에서 18자부터 카드 밖으로 잘려(읽을 수 없고) 화면이 옆으로 밀렸다 — 넘칠 때만 낱말 안에서 접는다(모양은 그대로 · 넘칠 때만) */
 .done-when{font-family:var(--serif-ko);font-size:13px;color:var(--sub);letter-spacing:.03em}
 .done-lead{font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.85;margin:17px 0 18px}
 .done-links{text-align:left;margin-bottom:13px}
@@ -2326,7 +2326,8 @@ function openContractView(){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  _layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}   // [C2_LAYER_INERT] 계약서 뷰어도 겹창과 같은 약속 — 뒤 페이지 inert · 초점은 창 안(«닫기»)
+  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점(겹쳐 열린 잠금이면 _mpUnlock 은 초점을 안 돌린다)
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -2637,7 +2638,8 @@ function openFittingView(){
   bar.appendChild(ttl); bar.appendChild(rg); ov.appendChild(bar); ov.appendChild(fr);
   document.body.appendChild(ov);
   _mpLock();   // iOS 안전 배경 스크롤 잠금(position:fixed body)
-  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); }
+  _layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}   // [C2_LAYER_INERT] 시착 동의서 뷰어도 계약서 뷰어와 같은 약속 — 뒤 페이지 inert · 초점은 창 안(«닫기»)
+  function done(){ bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점
   function onKey(e){ if(e.key==='Escape') done(); }
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
@@ -2662,12 +2664,7 @@ document.addEventListener('click', function(e){
      거꾸로 꽂혀 유령 층이 남는다(시착 주석의 재현 기록과 같은 모양).
      카드 버튼일 때는 닫을 모달이 없으니 지연 없이 바로 연다. */
   var _inLed = b.closest && b.closest('#mp_ledger');
-  var _led = document.getElementById('mp_ledger');
-  if(_inLed && _led && _led.classList.contains('open')){
-    closeLedModal();
-    setTimeout(function(){ openContractView(); }, 180);
-    return;
-  }
+  if(_inLed){ _ledCloseThen(openContractView); return; }   // [C2_LED_SETTLE] 종전 setTimeout 180ms — 되감기가 끝난 뒤로(좌석 화면 · 시착서와 한 길)
   openContractView();
 });
 // ── iOS 안전 배경 스크롤 잠금 (overflow:hidden만으론 iOS Safari 터치 스크롤이 안 막힘 → position:fixed body 고정) · 중첩 카운터 ──
@@ -2699,6 +2696,7 @@ function _mpLockReconcile(){
     if(document.querySelector('.mp-modal.open, .pv-modal.open')) return;   // 확인·서명·원장·이미지 모달 열림
     var ao=document.getElementById('mp_addrOverlay'); if(ao&&ao.style.display==='flex') return;   // 주소 찾기
     var po=document.getElementById('mp_privacyOverlay'); if(po&&po.style.display==='flex') return;   // 처리방침
+    if(typeof _LAYER_INERT!=='undefined' && _LAYER_INERT && _LAYER_INERT.length){ _LAYER_INERT.slice().forEach(function(o){ _layerInertOff(o, true); }); }   // [C2_LAYER_INERT] 뜬 것이 없는데 남은 inert 는 푼다 — 화면이 통째로 안 눌리는 일을 막는 안전망
     var b=document.body;   // 뜬 게 하나도 없음 → 남은 잠금은 orphan → 강제 해제
     if(_mpLockN!==0 || b.style.position==='fixed' || b.style.overflow==='hidden'){
       _mpLockN=0;
@@ -2770,7 +2768,7 @@ function _mpModalOpenNow(o){
     function close(v){ if(done) return; done=true;
       if(_bkId){ var _i=_bkId; _bkId=null; bkDone(_i); }   /* [ALERT_BK] 뒤로가기로 들어왔으면 bkDone 이 알아서 no-op 이다(_bkFromPop) */
       _mpModalScrollWatch(false);   // [MODAL_SHADOW_SCROLL]
-      ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); document.removeEventListener('keydown',onKey); ov.onclick=null; ov.removeEventListener('click',_ghost,true); setTimeout(function(){ resolve(v); },0); }
+      ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _layerInertOff(ov); _mpUnlock(); document.removeEventListener('keydown',onKey); ov.onclick=null; ov.removeEventListener('click',_ghost,true); setTimeout(function(){ resolve(v); },0); }   // [C2_LAYER_INERT] 뒤 페이지를 먼저 풀고(초점이 연 자리로 돌아간다) 잠금을 푼다
     var prim=document.createElement('button');
     prim.type='button'; prim.className='mp-modal-btn '+(o.confirmSeal?'mp-modal-btn-seal':'mp-modal-btn-primary'); prim.textContent=o.confirmText||'확인';
     prim.addEventListener('click',function(){ if(typeof o.check==='function' && o.check()===false) return; close(true); });   // [CR_DIGITS] check — 확인을 누르기 전에 판 안의 칸을 잰다(false 면 판을 닫지 않는다)
@@ -2799,6 +2797,7 @@ function _mpModalOpenNow(o){
     if(o.cancel===false){ try{ _bkId=bkOpen(function(){ close(true); }, true); }catch(_e){} }
     _openAt=Date.now();   // [MODAL_GHOST_TAP] 여는 그 순간부터 센다
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
+    _layerInertOn(ov);   // [C2_LAYER_INERT] 판이 떠 있는 동안 뒤 페이지 inert — Tab 이 «확인 · 취소» 밖(로그아웃 · 내 내역)으로 새지 않게
     _mpModalScrollWatch(true);   // [MODAL_SHADOW_SCROLL] 넘칠 때만 그림자
     try{ prim.focus(); }catch(_){}
   });
@@ -2819,7 +2818,7 @@ function mpSignaturePad(opts){
       +'<div class="mp-sig-hint" id="mpSigHint">위 칸에 손가락(또는 마우스)으로 서명해 주세요</div>';
     b.style.display='';
     a.innerHTML=''; var done=false;
-    function finish(v){ if(done)return; done=true; bkDone(_bkId); window.removeEventListener('resize',resize); _mpModalScrollWatch(false); ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); ov.onclick=null; setTimeout(function(){resolve(v);},0); }
+    function finish(v){ if(done)return; done=true; bkDone(_bkId); window.removeEventListener('resize',resize); _mpModalScrollWatch(false); ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _layerInertOff(ov); _mpUnlock(); ov.onclick=null; setTimeout(function(){resolve(v);},0); }   // [C2_LAYER_INERT] 서명판도 확인 판과 같이
     var cv=$('mpSigCanvas'), ctx=cv.getContext('2d'), drawn=false, drawing=false, last=null, saved=null;
     function resize(){
       var img=drawn?ctx.getImageData(0,0,cv.width,cv.height):null;
@@ -2845,6 +2844,7 @@ function mpSignaturePad(opts){
     cancel.addEventListener('click',function(){ finish(null); });
     a.appendChild(prim); a.appendChild(clr); a.appendChild(cancel);
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
+    _layerInertOn(ov);   // [C2_LAYER_INERT] 서명판이 떠 있는 동안 뒤 페이지 inert(확인 판과 같은 판 · 같은 약속)
     _mpModalScrollWatch(true);   // [MODAL_SHADOW_SCROLL] 서명판은 대개 넘친다 — 그때만 그림자
     /* [SIG_FOCUS 2026-08-15 실클릭 점검] 열릴 때 포커스를 판 안으로 — 전엔 트리거 버튼에 남아
        SR·키보드 사용자가 모달을 못 찾았다(mpModalOpen 은 잡는데 여기만 안 잡았다).
@@ -2907,6 +2907,7 @@ function _qrDl(src,fname){
 }
 function show(viewId){
   if(viewId!=='loading') _mpLockReconcile();   // [MP_LOCK_RECONCILE] 바탕 화면으로 돌아올 때 orphan 배경 잠금 자가 해제 — 오버레이 다녀온 뒤 스크롤 굳음 방지(가드가 '뜬 게 있으면' 손 안 댐). 잠금 해제를 아래 scrollTo 전에 먼저 풀어 상단 이동도 정상 동작.
+  if(viewId==='loginView'||viewId==='forgotView'||viewId==='resetView') _mpBarsSweep();   // [C2_LOADBAR_SWEEP] 로그인 쪽 화면엔 마이페이지 막대(불러오기 실패 · 다른 탭 저장)를 두지 않는다 — 토큰 없이 «다시 불러오기»가 나갔다
   ['loading','loginView','mypageView','forgotView','resetView'].forEach(function(v){
     var el=$(v); if(!el) return;
     if(v==='loading'){ el.style.display=(viewId==='loading')?'flex':'none'; }
@@ -2937,7 +2938,17 @@ function clearToken(){ try{
   var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
     if(k && /^me_(order|deliv_|prod_ping|order_v2note_|snapLocal_)/.test(k)) _kill.push(k); }   // [SNAP_AGREE_LAST] 동의 전 스냅 임시본(고른 장면 · 글)도 — 다음 사람 화면에 앞사람 메모가 비치지 않게
   _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
-}catch(e){} }
+}catch(e){} _mpAcctSweep(); }
+/* ★[C2_ACCT_SWEEP 2026-10-09 고객 여정 A~Z 점검 2라운드] 계정이 끝나는 자리(로그아웃 · 로그인 풀림 — 다 clearToken 을 지난다)에서는 저장소([LOGOUT_SWEEP])만이 아니라
+     이 탭의 화면 기억도 걷는다 — 같은 기기에서 다음 사람이 로그인하면 앞사람 것이 보이거나 다음 질문에 실려 갔다.
+     ① 계약서 재발송 «요청함» 표시([C2_RESEND_ACCT]) ② AI 상담 대화(MEAdvisor.reset — 화면 · 다음 질문에 싣는 대화 · 오가던 답)
+     ③ 불러오기 실패 막대 · 다른 탭 저장 막대([C2_LOADBAR_SWEEP] — 로그인 화면 위에 앞사람 막대가 남았다) */
+function _mpAcctSweep(){
+  try{ window.__ctResendJust=''; }catch(e){}
+  try{ if(window.MEAdvisor && typeof window.MEAdvisor.reset==='function') window.MEAdvisor.reset(); }catch(e){}
+  _mpBarsSweep();
+}
+function _mpBarsSweep(){ ['mp_loadBar','mp_staleBar'].forEach(function(id){ var b=document.getElementById(id); if(b&&b.parentNode) b.parentNode.removeChild(b); }); }   // [C2_LOADBAR_SWEEP]
 // 마지막 getMyState 스냅샷 캐시 — 재방문 시 즉시 표시(stale-while-revalidate). 토큰에 묶고, 로그아웃/만료 시 자동 폐기.
 var STATE_CACHE_KEY = 'me_state_v1';
 function cacheState(d){ try{
@@ -4343,7 +4354,7 @@ function openInviteSamples(){
   box.appendChild(bar); box.appendChild(fr); box.appendChild(foot);
   ov.appendChild(box);
   var _closed=false;
-  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); ov.style.opacity='0'; _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }
+  function done(){ if(_closed) return; _closed=true; bkDone(_bkId); ov.style.opacity='0'; _layerInertOff(ov); _mpUnlock(); setTimeout(function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown',esc); },220); }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점(편집 화면 안에서 열었으면 _mpUnlock 은 초점을 안 돌린다)
   function esc(e){ if(e.key==='Escape') done(); }
   x.addEventListener('click', done);
   ov.addEventListener('click', function(e){ if(e.target===ov) done(); });
@@ -4351,6 +4362,7 @@ function openInviteSamples(){
   var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 닫기
   _mpLock();
   document.body.appendChild(ov);
+  _layerInertOn(ov); try{ x.focus({preventScroll:true}); }catch(e){}   // [C2_LAYER_INERT] 청첩장 샘플도 겹창과 같은 약속 — 뒤 페이지 inert · 초점은 창 안(✕)
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
 }
 // [MPD4_H5] 자기서비스 1단계(§9-5-④⑤) — 내 내역 하단 로그아웃(최하단 1곳뿐이던 것 복제)
@@ -4359,8 +4371,13 @@ function openInviteSamples(){
 function _ledFootHtml(){
   return '<div class="led-foot"><button type="button" class="cc-btn-textlink" id="mp_ledLogout" style="padding:8px 4px">로그아웃</button></div>';
 }
-function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); box._bkId=bkOpen(closeLedModal); } }   // 뒤로가기 = 원장 닫기
-function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _mpUnlock(); bkDone(box._bkId); box._bkId=null; } }
+function openLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('mp-modal')){ box.classList.add('open'); _mpLock(); box._bkId=bkOpen(closeLedModal); _layerInertOn(box); _ledFocusIn(box); } }   // 뒤로가기 = 원장 닫기 · [C2_LAYER_INERT] 뒤 페이지 inert · 초점은 창 안으로
+function closeLedModal(){ var box=$('mp_ledger'); if(box && box.classList.contains('open')){ box.classList.remove('open'); _layerInertOff(box, true); _mpUnlock(); bkDone(box._bkId); box._bkId=null; } }   // [C2_LAYER_INERT] 풀고 나서 잠금 해제(초점 복귀가 inert 에 막히지 않게)
+/* [C2_LAYER_INERT 2026-10-09] 내 내역을 열면 초점을 창(대화 상자)으로 — 종전엔 연 단추(뒤 페이지)에 남아 Tab 이 뒤 페이지를 돌았다 */
+function _ledFocusIn(box){ try{ var c=box.querySelector('.led-modal-card'); if(!c) return; c.setAttribute('tabindex','-1'); c.style.outline='none'; c.focus({preventScroll:true}); }catch(e){} }
+/* [C2_LED_SETTLE 2026-10-09 고객 여정 A~Z 점검 2라운드] 내 내역 안 단추가 다른 층(좌석 화면 · 문서 뷰어)을 열 때 한 길 — 내 내역을 닫고, 그 층의 되감기(history.back · 비동기)가 끝난 뒤 연다(_bkSettle).
+   같은 틱에 새 층을 쌓으면 늦게 온 되감기가 새 층을 먹어 뒤로가기 한 번에 마이페이지를 떠났다([SIGN_AFTER_VIEW] 와 같은 까닭). 내 내역이 닫혀 있으면 바로 연다 */
+function _ledCloseThen(fn){ var l=$('mp_ledger'); if(l && l.classList.contains('open')){ closeLedModal(); _bkSettle(fn); return; } fn(); }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLedModal(); });
 
 // 커피쿠폰 (후기 완주 보상) — 관리자가 발급하면 바코드 이미지·사용기한 표시. 없으면 카드 숨김.
@@ -4564,10 +4581,10 @@ function renderLedger(l){
          → 유령 층 [1] 이 남아 «뒤로가기 한 번»을 통째로 먹는다. 그게 「멈춰 있다」의 정체였다.
        → 문서를 열기 «전에» 모달을 닫는다. 그 순간 모달 층이 맨 위라 정상 소비되고,
          뷰어는 새 맨 위 층으로 열린다. 보이는 순서와 뒤로가기 순서가 같아진다. */
-    closeLedModal();
     var _go=function(){ if(window._fittingDoc){ openFittingView(); } else { showFittingTerms(l.documents); } };
-    /* 모달 닫힘 전환이 끝난 뒤 연다 — 같은 틱에 새 층을 쌓으면 bkDone 의 history.back()(비동기)과 순서가 엉킨다. */
-    setTimeout(_go, 180);
+    /* 모달 닫힘 전환이 끝난 뒤 연다 — 같은 틱에 새 층을 쌓으면 bkDone 의 history.back()(비동기)과 순서가 엉킨다.
+       [C2_LED_SETTLE] 종전 setTimeout 180ms → 되감기가 실제로 끝난 뒤(_ledCloseThen · 좌석 화면 · 계약서와 한 길) */
+    _ledCloseThen(_go);
   });
   var bv=$('mp_ledBalView'); if(bv) bv.addEventListener('click', function(){
     var pn=$('mp_ledBalPanel'); if(!pn) return;
@@ -5063,7 +5080,7 @@ function renderContractReqForm(ctx){
   function _wireAddr(base){ function op(){ openAddrSearch(base+'_road', base+'_jibun', base+'_detail'); } var f=$(base+'_find'); if(f) f.addEventListener('click',op); var rd=$(base+'_road'); if(rd) rd.addEventListener('click',op); }
   _wireAddr('mp_ciGA'); _wireAddr('mp_ciBA');
   _birthWire('mp_ciGB'); _birthWire('mp_ciBB');   // [BIRTH_DAYS]
-  box.addEventListener('change', _ciMissClear); box.addEventListener('click', function(e){ var t=e.target; if(t && t.closest && t.closest('.wed-slot,.dt-day,[id$="_find"],[id$="_road"]')) _ciMissClear(); });   // [CI_ERR_AT] 칸을 고치면 그 줄은 걷힌다
+  box.addEventListener('change', _ciMissClear); box.addEventListener('click', _ciMissClick);   // [CI_ERR_AT] 칸을 고치면 그 줄은 걷힌다 · [C2_CI_ONE_LISTENER] 이름 있는 함수 — 같은 함수는 다시 걸어도 한 번만 걸린다(종전 익명 함수는 폼을 그릴 때마다 #mp_contract 에 하나씩 쌓였다)
   var tl=$('mp_ciTerms'); if(tl) tl.addEventListener('click', function(e){ e.preventDefault(); showContractPrivacy(); });
   var sb=$('mp_ciSubmit'); if(sb) sb.addEventListener('click', doRequestContract);
   /* [CI_EDIT_BACK 2026-09-26 통합 점검 L7] 요청 뒤 «입력 정보 수정»을 열면 원래 카드로 돌아갈 버튼이 없었다 — 새로고침뿐이었고,
@@ -5106,6 +5123,7 @@ function _wireCiHints(){
   _softHint($('mp_ciBE'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.');
 }
 function _ciMissClear(){ Array.prototype.forEach.call(document.querySelectorAll('#mp_contract .ci-miss'), function(n){ n.parentNode.removeChild(n); }); }   // [CI_ERR_AT]
+function _ciMissClick(e){ var t=e.target; if(t && t.closest && t.closest('.wed-slot,.dt-day,[id$="_find"],[id$="_road"]')) _ciMissClear(); }   // [C2_CI_ONE_LISTENER] 날짜 · 시간 · 주소 찾기를 누르면 빠진 칸 줄을 걷는다(한 함수 · 한 번만 걸린다)
 function doRequestContract(){
   function v(id){ var e=$(id); return (e&&e.value||'').trim(); }
   function addr(base){ var r=v(base+'_road'), de=v(base+'_detail'); if(de && r.indexOf(de)!==-1) de=''; return (r+(de?(' '+de):'')).trim(); }   // 도로명 + 상세(이미 도로명에 포함된 동·호면 중복 제거)
@@ -5240,7 +5258,13 @@ function renderContractPayment(c, p, ctx){
       /* ★[CT_RESEND_ONCE 2026-10-09 점검 C-20] 요청한 뒤엔 단추를 같은 이름 · 같은 높이로 흐리게(aria-disabled · cc-btn-wait) 두고 아래 짧은 한 줄로 알린다.
            단추 글을 긴 문장으로 바꾸지 않는다(두 줄로 늘어 높이가 출렁였다) · 새로고침 뒤에도 서버 값(contractResendAt · 24시간 안)으로 흐리게 둔다.
            옛 서버(값 없음)면 이번 화면에서 누른 것만 기억한다(window.__ctResendJust) */
-      var _rsAt = String((ctx && ctx.contractResendAt) || '') || window.__ctResendJust || '';
+      /* ★[C2_RESEND_ACCT 2026-10-09 고객 여정 A~Z 점검 2라운드] 이 탭의 기억은 «누가 · 어느 계약서 · 언제»에 묶는다 — 종전엔 값 하나(전역)라
+           로그아웃 뒤 같은 탭에서 다른 고객이 로그인해도 그 고객의 단추가 흐리게 «요청함»으로 섰다(눌러도 아무 일이 없었다).
+           계정 코드 · 그 계약서의 서명 기한(새 계약서면 다시 켜진다) · 24시간 안일 때만 흐리게 · 로그아웃(clearToken → [C2_ACCT_SWEEP])에서 지운다.
+           서버 값(contractResendAt)이 오면 그것이 먼저다(종전 그대로) */
+      var _rsJ = window.__ctResendJust, _rsDl = String((c && c.deadlineKst) || '');
+      var _rsMine = (_rsJ && typeof _rsJ === 'object' && _rsJ.code === _mpAcct() && _rsJ.dl === _rsDl && (Date.now() - (+_rsJ.t || 0)) < 24 * 3600e3) ? String(_rsJ.at || '1') : '';
+      var _rsAt = String((ctx && ctx.contractResendAt) || '') || _rsMine;
       var _rsNote = '<div class="cc-mini" id="mp_ctResendNote" role="status" style="display:block;margin-top:8px">재발송을 요청했어요 · 24시간 안에 보내 드려요</div>';
       h += '<div class="cc-title">계약서 서명 기한이 지났어요</div><div class="cc-sub">아래 버튼으로 요청하시면 새 계약서를 보내드릴게요.</div>'
          + '<div class="cc-actions"><button type="button" class="cc-btn'+(_rsAt?' cc-btn-wait':'')+'" id="mp_ctResend"'+(_rsAt?' aria-disabled="true" aria-describedby="mp_ctResendNote"':'')+'>계약서 재발송 요청</button>'+link+'</div>'
@@ -5251,7 +5275,7 @@ function renderContractPayment(c, p, ctx){
         rs.disabled=true; rs.textContent='요청 중…';
         _act({ p:{action:'requestContractResend', token:getToken()}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · [CT_RESEND_ONCE] 시간 초과면 상태(contractResendAt)로 반영됐는지 본다(옛 서버는 값이 없어 다시 누르게)
           done:function(d){ return !!(d&&d.contractResendAt); },
-          ok:function(d){ window.__ctResendJust=(d&&(d.at||d.contractResendAt))||'1'; rs.disabled=false; rs.textContent='계약서 재발송 요청'; rs.classList.add('cc-btn-wait'); rs.setAttribute('aria-disabled','true'); rs.setAttribute('aria-describedby','mp_ctResendNote');
+          ok:function(d){ window.__ctResendJust={ code:_mpAcct(), dl:_rsDl, at:(d&&(d.at||d.contractResendAt))||'1', t:Date.now() }; rs.disabled=false; rs.textContent='계약서 재발송 요청'; rs.classList.add('cc-btn-wait'); rs.setAttribute('aria-disabled','true'); rs.setAttribute('aria-describedby','mp_ctResendNote');   // [C2_RESEND_ACCT] 누가 · 어느 계약서 · 언제
             if(!$('mp_ctResendNote') && rs.parentNode){ rs.parentNode.insertAdjacentHTML('afterend', _rsNote); } },
           fail:function(line){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; _errAlert('재발송 요청을 보내지 못했어요', line); } });
       });
@@ -5685,9 +5709,10 @@ document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-bal-final]'):null;
   if(!t) return;
   var d=window._mpStateD||{}, pr=d.production||{};
-  if(typeof closeLedModal==='function'){ try{ closeLedModal(); }catch(err){} }
   window._afterFinalToBal=true;   // 최종확정 완료 후 잔금으로 복귀 스크롤
-  try{ startSeatFlow(pr.seatDraft, pr.finalDraft||{}, pr.seatToken, pr.guideinfoDraft||{}); }catch(err){}   // [통합 2026-07-19] 최종 확정=좌석 화면(인원 자동·자리별 3음료). ★옛 인원/음료 위저드(startTrkFlow('final')) 복원 금지
+  /* [C2_LED_SETTLE 2026-10-09 고객 여정 A~Z 점검 2라운드] 내 내역 안에서 눌렀으면 내 내역을 닫고 그 되감기가 끝난 뒤 좌석 화면을 연다(_ledCloseThen) —
+     같은 틱에 쌓으면 늦게 온 되감기가 좌석 화면 층을 먹어, 뒤로가기 · «나가기» 한 번에 마이페이지를 떠났다. 카드에서 누르면 바로 연다 */
+  _ledCloseThen(function(){ try{ startSeatFlow(pr.seatDraft, pr.finalDraft||{}, pr.seatToken, pr.guideinfoDraft||{}); }catch(err){} });   // [통합 2026-07-19] 최종 확정=좌석 화면(인원 자동·자리별 3음료). ★옛 인원/음료 위저드(startTrkFlow('final')) 복원 금지
 });
 /* [KST_TODAY 2026-09-26 · 점검 L8-tz] 결제 기한이 «지났나»는 한국 날짜로 센다 — 서버 dday·묶음 판정(GAS · 한국 시각)과 같은 달력.
      종전엔 기기 자정(new Date().setHours(0))으로 세서, 한국 밖 기기에서 같은 카드의 «예식 D-8»과 하루 어긋났다
@@ -5771,7 +5796,12 @@ function renderBalance(p, mid){
 /* [CR_DIGITS 2026-10-09] 현금영수증 번호는 휴대폰(01로 시작 · 10~11자리) · 사업자번호(10자리)만 받는다 — 종전엔 «123»도 저장되고 «끝 0123으로 자동 발급» 안내가 떴다.
    비우면 자진발급(종전 그대로) · 아니면 칸 바로 아래 진사 한 줄([ERR_ONE] · .srv-miss-note)과 그 칸으로 초점 · 고치면 걷힌다. 서버 검사는 GAS 쪽에서 따로 */
 var CR_BAD='휴대폰 번호나 사업자번호(10자리)를 적어 주세요.';
-function _crOk(v){ var d=String(v||'').replace(/[^0-9]/g,''); return !d || /^01\d{8,9}$/.test(d) || /^\d{10}$/.test(d); }
+/* ★[E2_CR_SAME 2026-10-09 고객 여정 A~Z 점검 2라운드] 판정은 서버와 글자 그대로 — 정규화 = 00_platform-config _crKR(숫자만 · «(00)82 + 휴대폰 꼴»만 0 으로) ·
+     맞는 꼴 = 70_journey _crOk(휴대폰 01[016789] + 7~8자리 · 사업자번호 0 이 아닌 숫자로 시작하는 10자리) · 빈 값은 자진발급이라 통과(_crReject 와 같다).
+     종전 화면 식(/^01\d{8,9}$/ · /^\d{10}$/)은 012 · 013 · 015 번호와 0 으로 시작하는 10자리(031 · 070 유선)를 통과시켜, 서버가 거절했다 —
+     소득공제 번호 판(saveCashReceipt)은 판이 닫힌 뒤라 적은 번호가 사라졌다. 받는 곳 여섯(계약금 · 중도금 · 잔금 · 내 내역 잔금 · 소득공제 판 · 계약 요청)이 모두 이 한 함수를 지난다(_crCheck) */
+function _crDigitsKR(v){ var d=String(v==null?'':v).replace(/[^0-9]/g,''), m=d.match(/^(?:00)?82(10[0-9]{8}|1[16789][0-9]{7,8})$/); return m?'0'+m[1]:d; }   // [E2_CR_SAME] = 서버 _crKR
+function _crOk(v){ var d=_crDigitsKR(v); return !d || /^01[016789]\d{7,8}$/.test(d) || /^[1-9]\d{9}$/.test(d); }   // [E2_CR_SAME] = 서버 _crOk
 function _crCheck(id){
   var el=$(id); if(!el) return true;
   var nid=id+'_crbad', n=$(nid);
@@ -6937,10 +6967,12 @@ function addrFieldHtml(idBase, val, detail, who){
 // 생년월일 — 년·월·일 드롭다운(달력보다 빠르고 오타 없음). doRequestContract가 YYYY-MM-DD로 합성.
 function birthSelectHtml(idBase, val, who){
   var vy='',vm='',vd='', mm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(val||''); if(mm){ vy=mm[1]; vm=mm[2]; vd=mm[3]; }
-  var ty=new Date().getFullYear();
-  /* [BIRTH_RANGE 2026-10-09] 연도는 1930 ~ 올해-18 — 종전 «올해-53»까지라 54세 이상은 생년을 고를 수 없었다(계약 요청이 막혔다). 저장값이 범위 밖이면 그 해도 목록에 둔다 · 기본값 없음('년') */
-  var y='<option value="">년</option>'; for(var Y=ty-18;Y>=1930;Y--){ y+='<option value="'+Y+'"'+(String(Y)===vy?' selected':'')+'>'+Y+'</option>'; }
-  if(vy && (+vy>ty-18 || +vy<1930)) y+='<option value="'+vy+'" selected>'+vy+'</option>';
+  var ty=+_birthLim19().slice(0,4)+19;   // [C2_BIRTH_19] 올해 = 한국 날짜의 올해(서버와 같은 달력 · 기기 시간대가 달라도)
+  /* [BIRTH_RANGE 2026-10-09] 연도는 1930 ~ 올해-19 — 종전 «올해-53»까지라 54세 이상은 생년을 고를 수 없었다(계약 요청이 막혔다). 저장값이 범위 밖이면 그 해도 목록에 둔다 · 기본값 없음('년')
+     ★[C2_BIRTH_19 2026-10-09 고객 여정 A~Z 점검 2라운드] 위끝은 «올해-19» — 서버는 만 19세부터 받는다([BIRTH_ADULT19] · 70_journey _birthBad). 종전 «올해-18» 은 고를 수 있는데 늘 거절되는 해였다.
+       같은 해 안에서 생일이 아직 안 지난 날짜는 서버가 거절하고 그 말이 요청 단추 아래 줄에 뜬다(종전 그대로) */
+  var y='<option value="">년</option>'; for(var Y=ty-19;Y>=1930;Y--){ y+='<option value="'+Y+'"'+(String(Y)===vy?' selected':'')+'>'+Y+'</option>'; }
+  if(vy && (+vy>ty-19 || +vy<1930)) y+='<option value="'+vy+'" selected>'+vy+'</option>';
   var m='<option value="">월</option>'; for(var M=1;M<=12;M++){ var ms=('0'+M).slice(-2); m+='<option value="'+ms+'"'+(ms===vm?' selected':'')+'>'+M+'월</option>'; }
   var d='<option value="">일</option>'; for(var D=1;D<=31;D++){ var ds=('0'+D).slice(-2); d+='<option value="'+ds+'"'+(ds===vd?' selected':'')+'>'+D+'일</option>'; }
   /* [FIELD_NAMES 2026-09-26 통합 점검 L6] 세 칸에 이름이 없어 화면 읽기가 «년»·«월»·«일»(고른 값)만 읽었다 — 신랑 것인지 신부 것인지 몰랐다.
@@ -6950,6 +6982,8 @@ function birthSelectHtml(idBase, val, who){
 }
 /* [BIRTH_DAYS 2026-10-09] 일은 고른 해 · 달에 맞춘다 — 2월 31일 · 4월 31일 같은 없는 날이 계약서로 갔다(서버 검사는 따로 · GAS).
    해를 아직 안 골랐으면 윤년으로 쳐 2월 29일까지 둔다 · 없는 날이 되면 그 칸을 비운다(요청을 누르면 생년월일 칸으로 다시 데려간다) */
+/* [C2_BIRTH_19 2026-10-09] 서버(70_journey _birthBad · [BIRTH_ADULT19])와 같은 자 — 오늘 한국 날짜의 19년 전(그날까지 태어났으면 만 19세 · 글자 비교라 2/29 는 2/28 까지) */
+function _birthLim19(){ var t=new Date(_snapKstToday()), ymd=t.getUTCFullYear()+'-'+('0'+(t.getUTCMonth()+1)).slice(-2)+'-'+('0'+t.getUTCDate()).slice(-2); return (+ymd.slice(0,4)-19)+ymd.slice(4); }
 function _birthWire(idBase){
   var ys=$(idBase+'_y'), ms=$(idBase+'_m'), ds=$(idBase+'_d'); if(!ys||!ms||!ds) return;
   function fit(){
@@ -6971,6 +7005,34 @@ function ensurePostcode(cb){   // MPD_E1 postcode lazy-load(ensureQR 패턴) —
 /* [OVL_LAYER 2026-10-09] 주소 찾기 · 개인정보 처리방침 겹창도 다른 겹창과 같은 약속 — 뒤로가기 = 닫기(bkOpen 층 · 종전엔 마이페이지를 떠나 쓰던 계약 요청 폼이 사라졌다) ·
    Esc 로 닫힘 · 배경 잠금(_mpLock · iOS 안전) · 닫기 ✕ 44px([X_ONE] · 종전 주소 창 × 21×22px) · 닫으면 연 자리로 초점.
    Esc 는 window 캡처로 먼저 받아 아래 겹화면(스냅 기획 등)의 Esc 까지 번지지 않게 한다 */
+/* ★[C2_LAYER_INERT 2026-10-09 고객 여정 A~Z 점검 2라운드] 겹창 · 판 · 내 내역이 떠 있는 동안 뒤 페이지는 inert — Tab · 화면 읽기가 창 밖(뒤 페이지 · 로그아웃)으로 새지 않게.
+     종전엔 aria-modal 만 있어 주소 창에서 Tab 세 번이면 뒤 페이지 로고 · 새로고침으로, Shift+Tab 이면 로그아웃까지 갔고(겹창을 연 채 로그아웃 · 다른 주소 칸이 같은 창을 겨냥),
+     확인 판 · 내 내역도 같았다. 가족 · 친구 스냅은 본문(main)을 통째로 막아 그 안의 확인 판(#mpModal)까지 눌리지 않았다.
+   ★keep 규칙은 스냅 기획 [SNAP_INERT_DEEP] 그대로 — 그 층 · 그보다 위에 뜨는 것(fixed · z 가 더 큰 것 · 같은 z 라도 지금 닫혀 있는 것 = 뒤에 위로 열릴 판)은 막지 않고,
+     그것을 품은 틀은 안으로 들어가 바깥쪽만 막는다. 이미 inert 인 것(아래 층이 막은 것)은 건드리지 않는다 — 닫을 때 제가 막은 것만 푼다(층이 겹쳐도 차례로 풀린다).
+     열 때 초점이 있던 자리를 기억해 닫을 때 돌려준다(noRet 이면 돌려주지 않는다 · 잠금 해제나 다른 길이 맡는 자리) */
+var _LAYER_INERT=[];   // 지금 막고 있는 층들 — 자가 치유([MP_LOCK_RECONCILE])가 «뜬 것이 없는데 남은 inert»를 푼다
+function _layerInertOn(ov){
+  if(!ov || ov._inert) return;
+  var list=[], z=parseInt(getComputedStyle(ov).zIndex,10)||0, keep=[ov];
+  try{ var a=document.activeElement; ov._inRet=(a && a!==document.body && !ov.contains(a))?a:null; }catch(e){ ov._inRet=null; }
+  Array.prototype.forEach.call(document.body.querySelectorAll('*'), function(el){
+    if(el===ov || ov.contains(el)) return; var cs=getComputedStyle(el); if(cs.position!=='fixed') return;
+    var ez=parseInt(cs.zIndex,10)||0; if(ez>z || (ez===z && (cs.display==='none' || cs.visibility==='hidden'))) keep.push(el); });
+  (function walk(par){ Array.prototype.forEach.call(par.children, function(el){
+    if(keep.indexOf(el)>-1 || /^(SCRIPT|STYLE|LINK|TEMPLATE|NOSCRIPT)$/.test(el.tagName) || el.inert) return;
+    if(keep.some(function(k){ return el.contains(k); })){ walk(el); return; }
+    try{ el.inert=true; if(!el.inert) el.setAttribute('inert',''); list.push(el); }catch(e){}
+  }); })(document.body);
+  ov._inert=list; if(_LAYER_INERT.indexOf(ov)<0) _LAYER_INERT.push(ov);
+}
+function _layerInertOff(ov, noRet){
+  if(!ov || !ov._inert) return;
+  ov._inert.forEach(function(el){ try{ el.inert=false; el.removeAttribute('inert'); }catch(e){} });
+  ov._inert=null; var i=_LAYER_INERT.indexOf(ov); if(i>-1) _LAYER_INERT.splice(i,1);
+  var r=ov._inRet; ov._inRet=null;
+  if(!noRet && r && r.focus && document.contains(r)){ try{ var a=document.activeElement; if(!a || a===document.body || ov.contains(a)) r.focus({preventScroll:true}); }catch(e){} }
+}
 function _ovlShow(ov){
   if(!ov || ov.style.display==='flex') return;
   ov.style.display='flex'; _mpLock();
@@ -6978,15 +7040,19 @@ function _ovlShow(ov){
   ov._key=function(e){ if(e.key==='Escape'){ e.stopPropagation(); e.preventDefault(); _ovlHide(ov); } };
   window.addEventListener('keydown', ov._key, true);
   try{ ov._bk=bkOpen(function(){ _ovlHide(ov); }); }catch(e){ ov._bk=null; }
+  _layerInertOn(ov);   // [C2_LAYER_INERT] 뒤 페이지 inert — 초점이 창 밖(뒤 페이지 · 로그아웃)으로 새지 않게
   var x=ov.querySelector('.ovl-x'); if(x){ try{ x.focus({preventScroll:true}); }catch(e){} }
 }
 function _ovlHide(ov, noRet){
   if(!ov || ov.style.display!=='flex') return;
   ov.style.display='none'; if(ov._key) window.removeEventListener('keydown', ov._key, true); ov._key=null;
   var b=ov._bk; ov._bk=null; if(b) bkDone(b);   // 뒤로가기로 닫혔으면 bkDone 은 아무 일도 안 한다(_bkFromPop)
+  _layerInertOff(ov, true);   // [C2_LAYER_INERT] 초점 복귀(아래 ov._ret)보다 먼저 푼다 — 돌아갈 단추가 inert 면 초점이 길을 잃는다
   _mpUnlock();
   var r=ov._ret; ov._ret=null; if(!noRet && r && r.focus && document.contains(r)){ try{ r.focus({preventScroll:true}); }catch(e){} }
 }
+/* [C2_LAYER_INERT] 주소 찾기 · 처리방침 창이 떠 있나 — 로그아웃 막는 조건([LOGOUT_FS_GUARD])이 함께 묻는다 */
+function _ovlOpen(){ var a=document.getElementById('mp_addrOverlay'), p=document.getElementById('mp_privacyOverlay'); return !!((a && a.style.display==='flex') || (p && p.style.display==='flex')); }
 function openAddrSearch(roadId, jibunId, detailId){
   if(typeof daum==='undefined'||!daum.Postcode){
     ensurePostcode(function(ok){ if(ok) openAddrSearch(roadId, jibunId, detailId); else mpAlert('주소 검색을 불러오지 못했어요 · 다시 눌러 주세요 (코드 C6)'); });   // [ERR_CODE_MYPAGE] 주소 검색 모듈을 못 받았다 = 연결
@@ -7527,7 +7593,12 @@ function _wizStart(id){ WIZ_BASE={}; WIZ_ST={}; try{ WIZ_BASE[id]=_wizJson(WIZ_A
 function _wizWatch(id,p){
   var k=''; try{ k=_wizJson(WIZ_ADAPT[id].data()); }catch(e){}
   if(!p||!p.then) return p;
-  var x0=null, mark=function(okd){ var st=WIZ_ST[id]||(WIZ_ST[id]={}); if(okd){ WIZ_BASE[id]=k; st.fail=false; st.saved=true; st.code=''; } else { st.fail=true; st.code=_wizFailCode(x0); }   /* [WIZ_FIRST_SAVE] 이 화면에서 한 번이라도 저장이 닿았다 — 그 뒤에만 «저장됨» · [WIZ_EXIT_CODE] 실패 까닭 코드를 남긴다(나가기 판이 쓴다) */ _wizPaintSoon(); };
+  /* ★[C2_SAVE_INFLIGHT 2026-10-09 고객 여정 A~Z 점검 2라운드] 어느 길로 들어온 저장이든(«다음» · 칩 · 머리 «저장») 도는 동안은 센다(st.fly) —
+       머리 알약은 «저장 중…», «나가기»는 저장이 끝날 때까지 기다렸다가 판단한다(_wizExit). 종전엔 «다음»의 저장이 도는 중(서버 8초) «나가기»를 누르면
+       기준선이 아직 옛것이라 «저장하지 않으면 방금 고치신 내용은 남지 않아요»가 떴는데, 그 저장은 이미 가는 중이라 «그냥 나가기»를 골라도 남았다(사실과 다른 판) */
+  var st0=WIZ_ST[id]||(WIZ_ST[id]={}); st0.fly=(st0.fly||0)+1; _wizPaintSoon();
+  var x0=null, mark=function(okd){ var st=WIZ_ST[id]||(WIZ_ST[id]={}); st0.fly=Math.max(0,(st0.fly||0)-1); if(okd){ WIZ_BASE[id]=k; st.fail=false; st.saved=true; st.code=''; } else { st.fail=true; st.code=_wizFailCode(x0); }   /* [WIZ_FIRST_SAVE] 이 화면에서 한 번이라도 저장이 닿았다 — 그 뒤에만 «저장됨» · [WIZ_EXIT_CODE] 실패 까닭 코드를 남긴다(나가기 판이 쓴다) */ _wizPaintSoon();
+    if(!st0.fly && st.exitWait){ st.exitWait=0; clearTimeout(st.exitT); _flowBusy(false); setTimeout(_wizExit,0); } };   // [C2_SAVE_INFLIGHT] 기다리던 «나가기» — 이제 기준선이 새것이라 사실대로 판단한다
   return p.then(function(r){ x0=r; mark(!!(r&&r.ok)); return r; }, function(e){ x0=e; mark(false); throw e; });
 }
 /* ★[WIZ_EXIT_CODE 2026-10-07 · 1라운드 #8] 저장이 실패한 뒤 «나가기» 판(«저장이 아직 안 됐어요»)에도 코드 — 종전엔 까닭 코드가 5.2초 알림에만 있어 판이 뜰 땐 사라졌다.
@@ -7567,7 +7638,7 @@ function _wizPaint(){
   var id=_wizCurId(); if(!id) return;
   var st=WIZ_ST[id]||{};
   Array.prototype.forEach.call(document.querySelectorAll('[data-wiz-save]'), function(b){
-    if(st.wait){ b.textContent='저장 중…'; b.className='wiz-exit wiz-save'; b.disabled=true; b.setAttribute('aria-busy','true'); return; }
+    if(st.wait || st.fly>0){ b.textContent='저장 중…'; b.className='wiz-exit wiz-save'; b.disabled=true; b.setAttribute('aria-busy','true'); return; }   // [C2_SAVE_INFLIGHT] «다음» · 칩이 보낸 저장도 같은 말
     b.removeAttribute('aria-busy'); b.disabled=false;
     if(st.fail){ b.textContent='다시 저장'; b.className='wiz-exit wiz-save bad'; return; }
     if(_wizDirty(id)){ b.textContent='저장'; b.className='wiz-exit wiz-save on'; return; }
@@ -7581,7 +7652,9 @@ function _wizSave(){
   var st=WIZ_ST[id]||(WIZ_ST[id]={});
   if(st.wait) return;
   st.wait=true; st.fail=false; _wizPaint();
-  var done=function(ok,msg,r){ st.wait=false; st.fail=!ok; st.code=ok?'':(r?_wizFailCode(r):((/\(코드 ([A-Z]\d)/.exec(String(msg||''))||[])[1]||'S0')); _wizPaint(); if(ok) return;   // [WIZ_EXIT_CODE] _wizWatch 를 안 거친 실패(저장 함수가 바로 던짐 · 회신 없이 끝남)도 코드를 남긴다
+  var done=function(ok,msg,r){ st.wait=false; st.fail=!ok; st.code=ok?'':(r?_wizFailCode(r):((/\(코드 ([A-Z]\d)/.exec(String(msg||''))||[])[1]||'S0')); _wizPaint();
+    if(st.exitWait && !(st.fly>0)){ st.exitWait=0; clearTimeout(st.exitT); _flowBusy(false); setTimeout(_wizExit,0); }   // [C2_SAVE_INFLIGHT] 감시자(_wizWatch)를 안 거친 저장이 끝나도 기다리던 «나가기»를 잇는다
+    if(ok) return;   // [WIZ_EXIT_CODE] _wizWatch 를 안 거친 실패(저장 함수가 바로 던짐 · 회신 없이 끝남)도 코드를 남긴다
     if(r&&r.sess){ _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE F5] 로그인이 풀린 저장은 «다시 저장»으로 풀리지 않는다 — 로그인으로
     if(id!=='inv') _errToast(_errClip(msg||'저장이 안 됐어요 · 다시 저장을 눌러 주세요 (코드 S0)', 80)); };   // [ERR_CODE_MYPAGE] 원인 한 줄 + 코드 · 읽을 시간 · 청첩장은 saveInvDraft 가 이미 알린다(같은 자리에 알림 둘이 겹치지 않게)
   var p; try{ p=WIZ_ADAPT[id].save(); }catch(e){ done(false,''); return; }   // 기준선 갱신은 각 save 함수 안의 _wizWatch 가 맡는다
@@ -7598,6 +7671,12 @@ function _wizRearm(id){
 function _wizExit(){
   var id=_wizCurId(); if(!id) return;
   if((WIZ_ST[id]||{}).ask) return;   // 판이 떠 있는 동안 재요청이 판을 갈아치우지 않게(식순 _ordOv 가드와 같은 이유)
+  /* [C2_SAVE_INFLIGHT] 저장이 도는 중이면 끝날 때까지 기다린다(«저장 중…» 베일 · 머리 알약도 «저장 중…») — 끝나면 _wizWatch 가 이 함수를 다시 부른다.
+       뒤로가기로 들어왔으면 그 층은 이미 쓰였다 — 다시 걸어 둔다(기다리는 사이 한 번 더 누르면 페이지를 떠나지 않게 · 그 누름은 여기서 그냥 돌아간다).
+       30초가 지나도 안 끝나면 베일만 걷는다(머물러 있고 · 알약이 «저장 중…»을 말한다 · 다시 누르면 다시 기다린다) */
+  var _sw=WIZ_ST[id]||(WIZ_ST[id]={});
+  if(_sw.exitWait){ _wizRearm(id); return; }
+  if(_sw.wait || _sw.fly>0){ _sw.exitWait=1; _wizRearm(id); _flowBusy(true,'저장 중…'); clearTimeout(_sw.exitT); _sw.exitT=setTimeout(function(){ if(_sw.exitWait){ _sw.exitWait=0; _flowBusy(false); } }, 30000); return; }
   if(WIZ_ADAPT[id].exitAsk && WIZ_ADAPT[id].exitAsk()) return;   // [SNAP_PRECONSENT_EXIT] 위저드가 제 판을 띄웠으면 여기서 끝(지금은 스냅 기획 동의 전 하나)
   var failed=!!(WIZ_ST[id]||{}).fail;
   if(!failed && !_wizDirty(id)){ WIZ_ADAPT[id].exitBare(); return; }
@@ -7638,7 +7717,7 @@ function mpImgView(src,title){
     m=document.createElement('div'); m.className='pv-modal'; m.id='pvModal';
     m.innerHTML='<div class="pv-modal-card" role="dialog" aria-modal="true"><div class="pv-modal-head"><span class="pv-modal-cap" id="pvCap"></span><button type="button" class="pv-modal-x" id="pvX">닫기 ✕</button></div><div class="pv-modal-body" id="pvBody"></div></div>';
     document.body.appendChild(m);
-    function close(){ if(!m.classList.contains('open')) return; m.classList.remove('open'); document.body.style.overflow=''; bkDone(m._bkId); m._bkId=null; }
+    function close(){ if(!m.classList.contains('open')) return; m.classList.remove('open'); _layerInertOff(m); document.body.style.overflow=''; bkDone(m._bkId); m._bkId=null; }   // [C2_LAYER_INERT] 풀면서 연 자리로 초점
     m._close=close;   // 재사용 싱글톤 — 열 때마다 뒤로가기 층을 새로 등록하기 위한 참조
     m.addEventListener('click', function(ev){ if(ev.target===m) close(); });
     $('pvX').addEventListener('click', close);
@@ -7651,7 +7730,7 @@ function mpImgView(src,title){
   im.src=src;
   var fr=document.createElement('div'); fr.className='pv-modal-frame'; fr.appendChild(im);
   var bd=$('pvBody'); bd.innerHTML=''; bd.appendChild(fr); bd.scrollTop=0;
-  if(!m.classList.contains('open')){ m.classList.add('open'); m._bkId=bkOpen(m._close); }   // 뒤로가기 = 이미지 뷰어 닫기(위저드 층 오소비 방지)
+  if(!m.classList.contains('open')){ m.classList.add('open'); m._bkId=bkOpen(m._close); _layerInertOn(m); try{ $('pvX').focus({preventScroll:true}); }catch(e){} }   // 뒤로가기 = 이미지 뷰어 닫기(위저드 층 오소비 방지) · [C2_LAYER_INERT] 뒤 페이지 inert · 초점은 «닫기»
   document.body.style.overflow='hidden';
 }
 document.addEventListener('click', function(e){
@@ -9325,8 +9404,14 @@ function startPhotoFlow(gi, rd, dig, fok, meal){   // rd = 식순 초안(읽기 
 /* ★[PHOTO_MODAL_A11Y 2026-09-27 사장님 지시문 6편 3부 9] 편집 화면이 떠 있는 동안 뒤 페이지(머리 · 본문)는 inert — Tab · 화면 읽기가 겹화면 밖으로 새지 않게.
      실측(9/27 전): 390 · 360 · 1280 에서 Tab 70번 중 29번이 뒤 페이지(로그인 칸 · 예식 준비 행)로 나갔다.
      ★오른쪽 레일(.me-fab-stack · [RAIL_LOCKED])과 확인 창(mpModal) · 알림은 건드리지 않는다 — 머리(.topbar)와 본문(main)만. */
+/* ★[C2_LAYER_INERT 2026-10-09 고객 여정 A~Z 점검 2라운드] 종전엔 본문(main)을 통째로 inert 로 막아, 그 안에 있는 확인 판(#mpModal · z 11000)까지 막혔다 —
+     고친 뒤 «나가기»의 «저장하지 않은 변경이 있어요» 판 단추가 눌리지 않아 폰에서는 빠져나갈 길이 없었다(스냅 기획이 9/28 [SNAP_INERT_DEEP] 으로 고친 것과 같은 병).
+     이제 겹창 · 판 · 내 내역과 같은 한 벌(_layerInertOn · keep 규칙 = 스냅 기획)로 막는다 — 겹화면 · 위에 뜨는 것(확인 판 · 처리방침 · 알림)은 막지 않는다. */
+var _photoInertOv=null;
 function _photoInert(on){
-  Array.prototype.forEach.call(document.querySelectorAll('body > .topbar, body > main'), function(el){ if(on){ el.setAttribute('inert',''); el.setAttribute('data-ph-inert','1'); } else if(el.getAttribute('data-ph-inert')){ el.removeAttribute('inert'); el.removeAttribute('data-ph-inert'); } });
+  if(on){ if(_photoInertOv) _layerInertOff(_photoInertOv, true); _photoInertOv=$('mp_photoOverlay'); _layerInertOn(_photoInertOv); return; }   // 앞 겹화면이 풀리지 않은 채 다시 열려도 그 막음을 먼저 푼다
+  _layerInertOff(_photoInertOv, true); _photoInertOv=null;   // 겹화면은 이미 걷혔다(_photoTearDown) · 초점은 잠금 해제가 돌려준다
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ph-inert]'), function(el){ el.removeAttribute('inert'); el.removeAttribute('data-ph-inert'); });   // 옛 판이 남긴 표시(같은 탭에서 판이 바뀐 경우)
 }
 function renderPhoto(box){
   if(!box) return; var sel=PHOTOFLOW.sel, wish=PHOTOFLOW.wish=(PHOTOFLOW.wish||[]);
@@ -12092,7 +12177,7 @@ function copyThen(t, ok){
      여기에 id 를 따로 나열하지 않는다. 흐름을 닫은 뒤의 로그아웃(보통 화면 · 키보드 포함)은 종전 그대로다. */
 /* [LOGOUT_CLEAR_FIELDS 2026-10-09] 로그아웃은 로그인 칸(개인코드 · 비밀번호)도 비운다 — 한 기기를 둘이 쓰면 다음 사람 화면에 앞사람 코드 · 비밀번호가 채워진 채 남았다([LOGOUT_SWEEP] 와 같은 까닭) */
 function _mpLogoutNow(){ clearToken(); ['li_code','li_pw'].forEach(function(id){ var e=$(id); if(e) e.value=''; }); show('loginView'); }
-$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; _mpLogoutNow(); });   // [LOGOUT_FS_GUARD]
+$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen() || _ovlOpen()) return; _mpLogoutNow(); });   // [LOGOUT_FS_GUARD] · [C2_LAYER_INERT] 주소 찾기 · 처리방침 창이 떠 있어도 받지 않는다(창이 로그인 화면 위에 남고 잠금 · 뒤로가기 층이 남았다)
 try{ _softHint($('fg_email'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.'); }catch(e){}   // MPD4_H3 이메일 형식 검사 신설(비차단)
 
 // [새로고침] 진행 상황 수동 갱신 — loadMyState가 로딩 화면으로 피드백
