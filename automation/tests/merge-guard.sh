@@ -15981,10 +15981,10 @@ chk 'return {msg:VC_REC_BAD,redo:true};' order-preview.html 1   # [VC_ENROLL_BAD
 chk 'mk-wait-bar mk-enr-bar' order-preview.html 1
 nochk "fail(d.error||'만들지 못했어요 · 잠시 뒤 \[다시 만들기\]를 눌러 주세요')" order-preview.html
 chk 'VC_ENROLL_JOB' automation/platform/80_production.gs 5
-chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
 chk "deleted: p.deleted || '', job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1
 chk 'if (r.ok || hasJob) c.save(); return r; };' automation/platform/80_production.gs 1   # 성공은 작업표가 없어도 저장(시뮬레이션이 잡은 사라지는 목소리)
-chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
+# (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
 chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
 chk "if (op === 'enroll' && c >= 400 && c < 500 && c !== 401 && c !== 402 && c !== 403 && c !== 429) {" automation/platform/80_production.gs 1   # [VC_ENROLL_BADREC]
 chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
@@ -16825,6 +16825,58 @@ chk 'BIRTH_ADULT19' automation/platform/70_journey.gs 3
 chk 'lim = (+t.slice(0, 4) - 19) + t.slice(4);' automation/platform/70_journey.gs 1
 nochk 'lim = (+t.slice(0, 4) - 18) + t.slice(4);' automation/platform/70_journey.gs
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-cancel-say.mjs >/dev/null 2>&1; _vcs=$?; if [ "$_vcs" = 1 ]; then echo 'FAIL vc-cancel-say: 지우기로 취소된 만들기의 말 · 다시 만들기 표가 어긋났습니다 — node scripts/audit/vc-cancel-say.mjs'; fail=1; elif [ "$_vcs" = 2 ]; then echo 'skip vc-cancel-say: 브라우저 없음'; else echo 'ok vc-cancel-say: 취소는 그 말로 · 다시 만들기 표 없음'; fi; fi
+# ── [R7_SERVER 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 서버 ──
+# ★★[R7_SERVER 2026-10-09] E2-2 retry 더하고 빼기 · 작업표 · 확인 문장 · E2-5 지우기 잠금(D1) · E2-6 취소된 표 · E2-10 두 분 · 모두만 · E2-3 · E2-4 줄 파일 지우기(누른 때 · keep · 버린 AI 테이크) ·
+#   E2-9 재발송 잠금(C1) · A2-15 식순 상한(옛 칸 빼고 · 숫자 없는 거절 글) · D2-4 연락처 받침 — 되돌리지 말 것 · 동작은 vc-del-stop(목소리 · 줄 파일 서버) · r7-server(나머지 · 화면)
+# 바뀐 옛 chk 둘(그 자리는 주석으로 남기고 새 꼴은 아래로)
+#   15984 chk 'jobs: 1, groom: _vcPub(st.groom, code)' → status 에 rfkeep 표가 끼었다(RF_DEL_KEEP)
+#   15987 chk 'if (j && !j.end && j.jid !== jid && …' → 취소된 표는 비킨다(VC_CANCEL_FREE)
+chk 'VC_RETRY_MERGE' automation/platform/80_production.gs 1
+chk "if (k0 === 'retry' && Array.isArray(m)) {" automation/platform/80_production.gs 1
+chk 'VC_JOB_OWN' automation/platform/80_production.gs 2
+chk "if (k0 === 'job' && isO(f) && isO(b) && String(f.jid || '') !== String(b.jid || '')) return f;" automation/platform/80_production.gs 1
+chk 'VC_PHRASE_OWN' automation/platform/80_production.gs 1
+chk "if (k0 === 'phrase' && m == null && isO(f) && isO(b) && String(f.t || '') !== String(b.t || '')) return f;" automation/platform/80_production.gs 1
+chk 'for (k in m) o\[k\] = _vcM3(f\[k\], b\[k\], m\[k\], k);' automation/platform/80_production.gs 1
+chk 'VC_DEL_LOCKED' automation/platform/80_production.gs 6
+chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return null; }' automation/platform/80_production.gs 2
+nochk 'got = true; try { lock.waitLock(10000); } catch (e) { got = false; }' automation/platform/80_production.gs
+chk "if (!dm) return { ok: false, ecode: 'D1', error: VC_DEL_BUSY };" automation/platform/80_production.gs 1
+chk "var dm = _vcDelMark(code, \['groom', 'bride'\]); if (!dm) return -1;" automation/platform/80_production.gs 1
+chk "if (_vpn === -1) return { ok: false, ecode: 'D1', error: VC_DEL_BUSY };" automation/platform/80_production.gs 1
+chk "VC_DEL_BUSY = '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요'" automation/platform/80_production.gs 1
+chk 'VC_CANCEL_FREE' automation/platform/80_production.gs 1
+chk 'if (j && !j.end && !j.cancel && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 겹침 거절은 그대로 · 취소된 표만 비킨다
+chk 'VC_WHO_FIRST' automation/platform/80_production.gs 3
+chk "WHO = Object.create(null); WHO.groom = '신랑'; WHO.bride = '신부';" automation/platform/80_production.gs 1
+chk "if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };" automation/platform/80_production.gs 1
+chk "if (w !== 'groom' && w !== 'bride') return; var p = cur\[w\];" automation/platform/80_production.gs 1
+chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+chk 'RF_DEL_KEEP' automation/platform/80_production.gs 3
+chk 'RF_DEL_TQ' automation/platform/80_production.gs 1
+chk 'var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;' automation/platform/80_production.gs 1
+chk 'keep\[g.getId()\]' automation/platform/80_production.gs 2
+chk '_rfKeepOk' order-preview.html 3
+chk 'RF_AIBACK_DROP' order-preview.html 3
+chk 'RF_DEL_KEEP' order-preview.html 3
+chk 't:all?Date.now():0,keep:q.keep||\[\]' order-preview.html 1
+chk 'if(S.upPrev) delete S.upPrev\[key\];' order-preview.html 1
+chk 'RF_DEL_TQ · RF_DEL_KEEP' mypage.html 1
+chk 'rid:d.data.rid, rk:1}' mypage.html 1
+chk 'CT_RESEND_LOCK' automation/platform/70_journey.gs 1
+chk "return { ok: false, ecode: 'C1', error: '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요' };" automation/platform/70_journey.gs 1
+chk 'RITUAL_CAP_OWN' automation/platform/80_production.gs 4
+chk 'PROD_CAP_WORDS' automation/platform/80_production.gs 4
+chk "_dcN = (track === 'ritual') ? _ritualCapLen_((body && body.draft) || {})" automation/platform/80_production.gs 1
+chk "return '글이 너무 길어요 · ' + label + ' 글을 조금 줄여 주세요 (코드 ' + a + '0)';" automation/platform/80_production.gs 1   # «너무 길어요» — 빌더 LONG_NO_RETRY 가 이 말로 «다시 저장하기» 안내를 뺀다
+nochk "현재 약 ' +" automation/platform/80_production.gs
+chk 'PHONE_LEN_SRV' automation/platform/00_platform-config.gs 2
+chk 'PHONE_LEN_SRV' automation/platform/40_signup.gs 1
+chk 'PHONE_LEN_SRV' automation/platform/70_journey.gs 1
+chk "_phoneLenOk_(body.phone)) throw new Error('연락처를 다시 확인해 주세요.');" automation/platform/40_signup.gs 1
+chk 'R7_SERVER' scripts/audit/r7-server.mjs 1
+chk 'R7_SERVER' scripts/audit/vc-del-stop.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/r7-server.mjs >/dev/null 2>&1; _r7s=$?; if [ "$_r7s" = 1 ]; then echo 'FAIL r7-server: 재발송 잠금 · 식순 상한 · 연락처 받침 · 줄 파일 지우기 화면이 어긋났습니다 — node scripts/audit/r7-server.mjs'; fail=1; elif [ "$_r7s" = 2 ]; then echo 'skip r7-server: 재지 못함'; else echo 'ok r7-server: 재발송 잠금 · 식순 상한(옛 칸 빼고) · 연락처 받침 · 줄 파일 지우기 화면'; fi; fi
 # ★★[R6_MYPAGE 2026-10-09 고객 여정 A~Z 점검 1라운드 · 마이페이지] C-1 서명판 · C-2 금액 복사 · C-4 로그아웃 칸 · C-5 개인코드 · C-6 대기 줄 · C-7 되돌리기 판 · C-8 겹창 · C-9 생년월일 칸 · C-10 걸음 위 · C-11 막대 고정(WZ_PIN) · C-12~C-19 · 카카오톡 · 외톨이 — 되돌리지 말 것
 # ── [R6_MYPAGE 2026-10-09] 고객 여정 A~Z 점검 1라운드 · 마이페이지 ──
 # 바뀐 옛 chk 다섯(그 자리 줄을 아래로 바꾼다)
