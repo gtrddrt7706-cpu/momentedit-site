@@ -30,7 +30,16 @@
     tribute: '부모님께 감사를 전하겠습니다.',
     toast: '이제, 건배하겠습니다.'
   };
-  var REC = {};   // 이미 녹음된 줄(글 → 파일) · 지금은 없음
+  /* ★[PAIR_REC_1010 2026-10-10 사장님 녹음 · 우성] 검토용 녹음 — assets/audio/narration-draft/(앞 0.4초 · 뒤 0.45초 · -16 LUFS).
+     엔진 번호(NN_)는 아직 없다 — 적용 때 manifest · assemble-narration 으로 정식 번호를 받고 이 폴더는 지운다. 글을 고치면 이 줄도 지운다(옛 소리 금지). */
+  var D = '../narration-draft/';
+  var REC = {
+    '두 사람의 오늘은, 부모님에게서 시작되었습니다.': D + 'pair-bless',
+    '성혼을 선언하겠습니다.': D + 'pair-declare',
+    '부부가 되어 처음으로, 부모님께 갑니다.': D + 'pair-declare-tribute',
+    '부모님께 감사를 전하겠습니다.': D + 'pair-tribute',
+    '이제, 건배하겠습니다.': D + 'pair-toast'
+  };
   var NAMED = { welcome: '첫인사', vow: '혼인 서약', ring: '반지 교환', free: '준비한 순서', letter: '편지', cake: '케이크', candle: '화촉', entry: '입장' };
   // v = { declareFamily: 가족이 선언하는 날, speech: 준비한 순서가 축사인 날 }
   function silentWhy(a, b, v) {
