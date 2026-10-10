@@ -17246,4 +17246,52 @@ chk 'function _crDigitsKR(v){' mypage.html 1
 nochk "return !d || /^01.d{8,9}" mypage.html 0   # 옛 화면 식(코드 꼴만 · 주석의 기록은 남긴다)
 chk 'R7_MYPAGE' scripts/audit/mypage-r2.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/mypage-r2.mjs >/dev/null 2>&1; _mr2=$?; if [ "$_mr2" = 1 ]; then echo 'FAIL mypage-r2: 마이페이지 2라운드 고침(층 · 계정 경계 · 입력 화면 · 현금영수증 판정)이 되돌아갔습니다 — node scripts/audit/mypage-r2.mjs'; fail=1; elif [ "$_mr2" = 2 ]; then echo 'skip mypage-r2: 브라우저 없음'; else echo 'ok mypage-r2: 마이페이지 2라운드 고침 그대로'; fi; fi
+# ── [R7_PUBLIC 2026-10-09] 고객 여정 A~Z 점검 2라운드 · 공개 화면 ──
+# ★버그 · 오류만(2026-10-10 사장님 «화면 디자인까지 바꿀 필요는 없어 · 버그 오류만») — D2-5 ③ 이름 최대 글자 · D2-9 ② «지금 시간» · ④ 24시간 안 단추 대신 안내 ·
+#   D2-11 예약 취소 셋 · D2-12 견본 날짜는 화면 디자인이라 하지 않았다(가지에서 걷음). 아래는 남긴 버그 고침만 지킨다.
+# D2-1 ~ D2-3 좌석 배치도(seat) · 하객 안내 배치도(guide) — 표 이름 · 번호 · 이름표가 서로 덮지 않게: 표 이름은 원 아래 한 줄(글자 모양은 그대로 · 번호는 원 가운데) ·
+#   이름표는 제 칸 안(가운데 줄 · 이웃 칸 · 화면 밖으로 안 나간다) · 내 자리 지도도 같다 · 한글 조합 중에는 찾지 않고 조합이 끝나면 한 번(폰 조합 멈춤은 0.8초 뒤)
+chk 'SEAT_NAME_BELOW' seat.html 6
+chk 'SEAT_LABEL_CLAMP' seat.html 5
+chk 'IME_QUIET' seat.html 5
+chk 'SEAT_NAME_BELOW' guide.html 2
+chk 'SEAT_LABEL_CLAMP' guide.html 5
+chk 'IME_QUIET' guide.html 3
+chk 'function bindNameInput(' seat.html 1
+chk 'function bindNameInput(' guide.html 1
+nochk 'class="tbl-nm"' seat.html
+chk 'SEAT_LABEL_FIT' scripts/audit/seat-label-fit.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/seat-label-fit.mjs >/dev/null 2>&1; _slf=$?; if [ "$_slf" = 1 ]; then echo 'FAIL seat-label-fit: 좌석 · 안내 배치도의 표 이름 · 번호 · 이름표가 겹치거나 칸 밖으로 나갑니다(또는 한글 조합 중 서버 검색) — node scripts/audit/seat-label-fit.mjs'; fail=1; elif [ "$_slf" = 2 ]; then echo 'skip seat-label-fit: 브라우저 없음'; else echo 'ok seat-label-fit: 표 이름 원 아래 · 번호 가운데 · 이름표 칸 안 · 조합 중 검색 쉼'; fi; fi
+# D2-4 · D2-5 신청서 — 연락처는 숫자 개수로(서버 받침보다 엄격 · 서버가 받는 번호는 막지 않는다) · «+» 국제 번호는 «+» 그대로 · 이름 · 이메일의 보이지 않는 글자 · 인원 칸 «숫자 하나로»가 먼저
+chk 'TEL_LEN_OK' shared/tel-kr.js 1
+chk 'window.meTelOk = meTelOk;' shared/tel-kr.js 1
+chk 'TEL_LEN_OK' inquiry.html 3
+chk 'TEL_INTL_KEEP' inquiry.html 2
+chk 'INPUT_CLEAN' inquiry.html 3
+chk 'NUM_BAD_FIRST' inquiry.html 2
+chk 'TEL_LEN_OK' scripts/audit/tel-len-ok.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tel-len-ok.mjs >/dev/null 2>&1; _tlo=$?; if [ "$_tlo" = 1 ]; then echo 'FAIL tel-len-ok: 신청서 연락처 판정 · «+» 국제 번호 · 보이지 않는 글자 · 인원 칸 문구가 어긋납니다 — node scripts/audit/tel-len-ok.mjs'; fail=1; elif [ "$_tlo" = 2 ]; then echo 'skip tel-len-ok: 브라우저 없음'; else echo 'ok tel-len-ok: 연락처는 숫자 개수로 · «+» 그대로 · 보이지 않는 글자 · 인원 칸'; fi; fi
+# D2-6 ~ D2-9 상담 일정 — 손댄 캐시 화면도 서버의 지금 상태로(낸 예약금을 다시 받지 않는다) · 임시 고정 안내 한 줄 · 고정 바 두 번 눌러도 신청 한 번 · 완료 창 이름 글자 그대로(서버 점검 E2-12)
+chk 'RESCHED_NOW_SYNC' schedule.html 4
+chk 'HOLD_NOTE_ONCE' schedule.html 1
+chk 'SUBMIT_ONCE' schedule.html 2
+chk 'DONE_NAME_ESC' schedule.html 1
+chk '_stickyT=setTimeout(function(){ _stickyT=0; doSubmit(); },400);' schedule.html 1
+nochk 'setTimeout(doSubmit,400);' schedule.html
+chk "document.getElementById('modalPick').innerHTML=_esc(SERVER.names||'')" schedule.html 2
+chk 'SUBMIT_ONCE' scripts/audit/sched-resched-sync.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/sched-resched-sync.mjs >/dev/null 2>&1; _srs=$?; if [ "$_srs" = 1 ]; then echo 'FAIL sched-resched-sync: 상담 일정 화면이 서버의 지금 상태를 놓치거나 신청이 두 번 갑니다(또는 임시 고정 안내 · 완료 창 이름) — node scripts/audit/sched-resched-sync.mjs'; fail=1; elif [ "$_srs" = 2 ]; then echo 'skip sched-resched-sync: 브라우저 없음'; else echo 'ok sched-resched-sync: 서버 동기 · 안내 한 줄 · 신청 한 번 · 이름 글자 그대로'; fi; fi
+# D2-10 라이브 — «● ON AIR»는 영상이 붙어 있고 본식 시각(KST) 30분 전 ~ 3시간 뒤일 때만 · 1분마다 다시 본다
+chk 'ON_AIR_WINDOW' live.html 3
+chk 'setInterval(onAirSync, 60000);' live.html 1
+# D2-12 SEO 청첩장 견본 8장 — 없는 본식 시각(14:00 · 오후 2시)만 13:40 으로(날짜는 그대로)
+chk 'SAMPLE_TIME_1340' i/invitations/invitation-04-Vermilion.html 1
+nochk 'T14:00:00' i/invitations/invitation-04-Vermilion.html
+chk 'R7_PUBLIC' scripts/audit/r7-public.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/r7-public.mjs >/dev/null 2>&1; _r7p=$?; if [ "$_r7p" = 1 ]; then echo 'FAIL r7-public: 라이브 ON AIR 시간 · 청첩장 견본 시각 중 어긋난 것이 있습니다 — node scripts/audit/r7-public.mjs'; fail=1; elif [ "$_r7p" = 2 ]; then echo 'skip r7-public: 브라우저 없음(견본 시각만 쟀다)'; else echo 'ok r7-public: ON AIR 시간 · 견본 시각 13:40'; fi; fi
+# D2-13 식순 AI 상담 — 답변 시간 밖 판정은 요일 · 10시 기준(평일 10시 - 18시) · 다음 답변 시작(replyAt)을 함께. 위젯 사본은 after-hours.mjs ③ 이 같은 표본으로 잰다(아직 없으면 건너뜀)
+chk 'AFTER_HOURS_KST' api/ritual-advisor.js 3
+chk 'module.exports.replyWindowKST = replyWindowKST;' api/ritual-advisor.js 1
+chk 'AFTER_HOURS_KST' scripts/audit/after-hours.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/after-hours.mjs >/dev/null 2>&1; _ahk=$?; if [ "$_ahk" = 1 ]; then echo 'FAIL after-hours: 식순 AI 상담의 답변 시간 밖 판정이 평일 10시 - 18시와 다릅니다 — node scripts/audit/after-hours.mjs'; fail=1; else echo 'ok after-hours: 평일 10시 - 18시 · 다음 답변 시작'; fi; fi
 :
