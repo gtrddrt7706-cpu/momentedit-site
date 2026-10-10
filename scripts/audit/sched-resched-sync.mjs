@@ -25,28 +25,31 @@ async function open({ server, cache, delay = 0, subDelay = 0, w = 390, mobile = 
   const ctx = await br.newContext({ viewport: { width: w, height: 900 }, isMobile: mobile, hasTouch: mobile });
   await ctx.addInitScript('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');
   await ctx.addInitScript(`try{localStorage.setItem('me_token','${TOKEN}');${cache ? `localStorage.setItem('me_sched_avail_v1:'+'${TOKEN}'.slice(-10), JSON.stringify({at:Date.now()-120000, data:${JSON.stringify(cache)}}));` : ''}}catch(e){}`);
-  const subs = [];
+  const subs = [], served = [];
   await ctx.route('**/*', async (rt) => { const u = rt.request().url();
     if (u.includes('script.google.com')) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {}
-      if (b.action === 'getAvailability') { if (delay) await wait(delay); return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(server) }); }
+      if (b.action === 'getAvailability') { if (delay) await wait(delay); served.push(Date.now()); return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(server) }); }
       if (b.action === 'submitSchedule') { subs.push(b); if (subDelay) await wait(subDelay); }
       return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, enabled: false }) }); }
     if (u.startsWith(BASE)) return rt.continue();
     return rt.fulfill({ status: 200, body: '' }); });
   const page = await ctx.newPage(); const errs = []; page.on('pageerror', (e) => errs.push(e.message));
   await page.goto(BASE + '/schedule.html?me=1', { waitUntil: 'load' });
-  return { ctx, page, errs, subs };
+  return { ctx, page, errs, subs, served };
 }
 const pick = async (page, di, si) => { const d = await page.$$('#calGrid .day.avail'); await d[di].click(); await wait(250); const s = await page.$$('#slots .slot:not(.full)'); await s[si].click(); await wait(300); };
 try {
   // ① 손댄 캐시 화면 + 서버 «확정 · 예약금 받음»
   { const cur = day(5);
-    const o = await open({ cache: { ...BASE_S, currentDate: ymd(cur), currentTime: '11:00', currentStatus: 'picked', depositPaid: false }, server: { ...BASE_S, currentDate: ymd(cur), currentTime: '11:00', currentStatus: 'confirmed', depositPaid: true }, delay: 3000 });
-    await wait(600); await pick(o.page, 1, 1); await wait(3500);
+    const o = await open({ cache: { ...BASE_S, currentDate: ymd(cur), currentTime: '11:00', currentStatus: 'picked', depositPaid: false }, server: { ...BASE_S, currentDate: ymd(cur), currentTime: '11:00', currentStatus: 'confirmed', depositPaid: true }, delay: 5000 });
+    await o.page.waitForSelector('#calGrid .day.avail', { timeout: 8000 }).catch(() => {}); await wait(300);
+    await pick(o.page, 1, 1); const early = !o.served.length;   // 서버 답보다 먼저 만졌다(이 시나리오의 전제)
+    for (let i = 0; i < 80 && !o.served.length; i++) await wait(100);
+    await wait(700);
     const st = await o.page.evaluate(() => ({ ki: (document.getElementById('kiNow') || {}).textContent || '', dep: !document.querySelector('#guide .deposit:not(#depPaid)').hidden, touched: !!window.__schedTouched }));
     await o.page.click('#submitBtn'); await wait(900);
     const after = await o.page.evaluate(() => ({ modal: document.getElementById('modal').classList.contains('show'), hint: (document.getElementById('depPayerHint') || {}).textContent || '' }));
-    ok('① 손댄 캐시 화면도 서버의 «확정 · 예약금 받음»으로 맞춘다 — 확정된 시간 · 예약금 칸 걷힘 · 입금자명 없이 신청 한 번 [RESCHED_NOW_SYNC]', st.touched && /확정된 시간/.test(st.ki) && !st.dep && after.modal && o.subs.length === 1 && o.subs[0].payer === '', JSON.stringify({ st, after, subs: o.subs.map((x) => x.payer) }));
+    ok('① 손댄 캐시 화면도 서버의 «확정 · 예약금 받음»으로 맞춘다 — 확정된 시간 · 예약금 칸 걷힘 · 입금자명 없이 신청 한 번 [RESCHED_NOW_SYNC]', early && st.touched && /확정된 시간/.test(st.ki) && !st.dep && after.modal && o.subs.length === 1 && o.subs[0].payer === '', JSON.stringify({ early, st, after, subs: o.subs.map((x) => x.payer) }));
     ok('pageerror 0 (①)', !o.errs.length, (o.errs[0] || '').slice(0, 140)); await o.ctx.close(); }
   // ② 임시 고정 안내 한 줄
   { const cur = day(12), S = { ...BASE_S, currentDate: ymd(cur), currentTime: '14:00', currentStatus: 'confirmed', depositPaid: true, holdActive: true };

@@ -143,13 +143,14 @@ try {
     const s = await open('/seat.html?t=T1234567890ab', 390, async (a) => (a === 'seatView' ? { ok: true, seat: { ...COUPLE, tables: T6 } } : { ok: true }), true);
     await s.page.waitForSelector('.room .tbl', { timeout: 8000 }).catch(() => {}); await wait(300);
     await s.page.focus('#q'); const cdp = await s.ctx.newCDPSession(s.page); const y0 = await s.page.evaluate(() => Math.round(scrollY)); const log = [];
-    for (const st of STEPS) { await type(s.page, cdp, st); await wait(600); log.push(await s.page.evaluate(() => ({ v: document.getElementById('q').value, fr: document.getElementById('fr').textContent, y: Math.round(scrollY) }))); }
+    await s.page.clock.install();   // [IME_QUIET] 화면 시계는 우리가 흘린다 — 한 글자 사이 600ms(사람이 치는 빠르기) · CI 부하로 틈이 늘어 «손을 멈춤»으로 읽히는 헛 FAIL 을 없앤다
+    for (const st of STEPS) { await type(s.page, cdp, st); await s.page.clock.runFor(600); await wait(60); log.push(await s.page.evaluate(() => ({ v: document.getElementById('q').value, fr: document.getElementById('fr').textContent, y: Math.round(scrollY) }))); }
     const mid = log.slice(0, -1), last = log[log.length - 1];
     ok('③ seat 전체 배치도 — 조합 중(ㄱ · 기 · 김 · 김ㅁ …)에는 «찾지 못했어요»가 안 뜨고 화면이 안 뛴다 [IME_QUIET]', mid.every((x) => !/찾지 못했어요/.test(x.fr) && x.y === y0), JSON.stringify(mid.map((x) => [x.v, x.fr.slice(0, 12), x.y])));
     ok('③ seat 전체 배치도 — 조합이 끝나면 한 번 찾아 자리를 말한다(한 사람이면 그 자리로)', /자리예요/.test(last.fr), JSON.stringify(last));
     // 손을 멈춘 채 조합이 안 끝난 경우(폰 키보드) — 잠시 뒤 한 번 찾는다
     await s.page.evaluate(() => { const q = document.getElementById('q'); q.value = ''; q.dispatchEvent(new Event('input')); }); await wait(200);
-    await s.page.focus('#q'); await cdp.send('Input.imeSetComposition', { text: '김민수', selectionStart: 3, selectionEnd: 3 }); await wait(1400);
+    await s.page.focus('#q'); await cdp.send('Input.imeSetComposition', { text: '김민수', selectionStart: 3, selectionEnd: 3 }); await s.page.clock.runFor(1400); await wait(100);
     const stuck = await s.page.evaluate(() => document.getElementById('fr').textContent);
     ok('③ seat — 조합이 안 끝난 채 손을 멈춰도(폰) 0.8초 뒤 한 번 찾는다', /자리예요/.test(stuck), stuck.slice(0, 60));
     ok('pageerror 0 (조합 · seat)', !s.errs.length, (s.errs[0] || '').slice(0, 120));
@@ -162,8 +163,9 @@ try {
     const s = await open(url, 390, gas, true);
     await s.page.waitForSelector('#q', { timeout: 8000 }).catch(() => {}); await wait(300);
     await s.page.focus('#q'); const cdp = await s.ctx.newCDPSession(s.page);
-    for (const st of STEPS) { await type(s.page, cdp, st); await wait(600); }
-    await wait(700);
+    await s.page.clock.install();   // [IME_QUIET] 한 글자 사이 600ms 를 화면 시계로 정확히 — 옛 판(450ms 묶음)은 글자마다 서버로 가고 새 판(조합 중 쉼)은 한 번
+    for (const st of STEPS) { await type(s.page, cdp, st); await s.page.clock.runFor(600); await wait(40); }
+    await s.page.clock.runFor(1000); await wait(400);
     ok(`③ ${pg} «내 자리만» — 이름 하나(김민수)를 조합해 치는 동안 서버 검색은 한 번 [IME_QUIET]`, s.qs.length === 1 && s.qs[0] === '김민수', JSON.stringify(s.qs));
     ok(`pageerror 0 (조합 · ${pg} 내 자리만)`, !s.errs.length, (s.errs[0] || '').slice(0, 120));
     await s.ctx.close();

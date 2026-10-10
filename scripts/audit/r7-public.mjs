@@ -52,7 +52,9 @@ const dayOff = (k) => kst(Date.now() + k * 86400000).date;
 try {
   // ① 라이브 ON AIR
   const mk = (date, time, vid) => ({ groomName: '김도현', brideName: '정하윤', groomNameEn: 'Kim Do Hyun', brideNameEn: 'Jeong Ha Yoon', weddingDate: date, weddingTime: time, vimeoId: vid, vimeoHash: '', accountLive: 'N' });
-  const soon = kst(Date.now() + 10 * 60000), mid = kst(Date.now() - 2 * 3600000);
+  const SLOT_KEYS = ['09:00', '12:20', '15:40', '10:00', '13:20', '16:40'];   // live.html SLOT_CLOCK 열쇠 — 이 시각은 실제 본식 시각으로 바뀐다(예: 12:20 → 13:40)
+  let soon = kst(Date.now() + 10 * 60000); if (SLOT_KEYS.includes(soon.time)) soon = kst(Date.now() + 12 * 60000);
+  const mid = kst(Date.now() - 2 * 3600000);   // 슬롯 열쇠에 걸려도 본식이 20 ~ 80분 뒤로 갈 뿐이라 «3시간 안»은 그대로다
   const cases = [
     ['10분 뒤 본식 · 영상 있음', mk(soon.date, soon.time, '123456789'), true],
     ['2시간 전 시작 · 영상 있음', mk(mid.date, mid.time, '123456789'), true],
@@ -63,7 +65,9 @@ try {
   ];
   for (const [name, c, want] of cases) {
     const o = await open('/live.html?e=kim-jeong-0417', (a, u) => (/getCouple/.test(u) ? { ok: true, couple: c } : { ok: true }));
-    await wait(2500);
+    // 영상이 있으면 붙을 때까지 · 없으면 예식 정보가 들어올 때까지(옛 판은 __liveAt 이 없어 끝까지 기다린 뒤 잰다) — 부하가 큰 CI 에서도 같은 판정
+    await o.page.waitForFunction((v) => (v ? !!document.querySelector('#playerFrame iframe') : window.__liveAt !== undefined), c.vimeoId, { timeout: 8000 }).catch(() => {});
+    await wait(400);
     const r = await o.page.evaluate(() => { const els = [...document.querySelectorAll('.on-air')]; return { n: els.length, live: els.filter((e) => e.classList.contains('is-live')).length, player: !!document.querySelector('#playerFrame iframe') }; });
     ok(`① 라이브 «${name}» → ON AIR ${want ? '켬' : '끔'} [ON_AIR_WINDOW]`, r.n > 0 && (want ? r.live === r.n : r.live === 0), JSON.stringify(r));
     if (o.errs.length) ok(`pageerror 0 (① ${name})`, false, o.errs[0].slice(0, 140));
@@ -71,14 +75,17 @@ try {
   }
   // ② 예약 취소
   const info = { ok: true, state: 'ok', names: '김민수 · 정하윤', date: '2026년 10월 14일 (수)', time: '14:00', deadlineLabel: '24시간', kakao: 'https://pf.kakao.com/_x' };
-  { const o = await open('/cancel.html?token=abc&sig=def', (a) => (a === 'emailCancelInfo' ? { ok: false, error: '예약 정보를 찾을 수 없어요.' } : { ok: true })); await wait(900);
+  { const o = await open('/cancel.html?token=abc&sig=def', (a) => (a === 'emailCancelInfo' ? { ok: false, error: '예약 정보를 찾을 수 없어요.' } : { ok: true }));
+    await o.page.waitForSelector('#card .title', { timeout: 8000 }).catch(() => {}); await wait(200);
     const r = await o.page.evaluate(() => ({ title: (document.querySelector('#card .title') || {}).textContent || '', text: document.getElementById('card').textContent, kakao: !!document.querySelector('#card a.kakao[href*="kakao"]'), again: !!document.getElementById('again') }));
     ok('② 취소 «예약을 못 찾음» → «예약을 찾을 수 없어요» · 할 일 + (코드 B0) · 카카오톡 링크 · 다시 불러오기 없음 [CAN_KAKAO_WAY]', r.title === '예약을 찾을 수 없어요' && /마이페이지에서 예약을 확인해\s*주세요 \(코드 B0\)/.test(r.text) && r.kakao && !r.again, JSON.stringify(r));
     if (o.errs.length) ok('pageerror 0 (② 못 찾음)', false, o.errs[0].slice(0, 140)); await o.ctx.close(); }
-  { const o = await open('/cancel.html?token=abc&sig=def', (a) => (a === 'emailCancelInfo' ? info : a === 'emailCancel' ? { ok: false, error: '온라인 취소 기한(상담 24시간 전)이 지났어요. 카카오톡으로 문의해 주세요.' } : { ok: true })); await wait(900);
+  { const o = await open('/cancel.html?token=abc&sig=def', (a) => (a === 'emailCancelInfo' ? info : a === 'emailCancel' ? { ok: false, error: '온라인 취소 기한(상담 24시간 전)이 지났어요. 카카오톡으로 문의해 주세요.' } : { ok: true }));
+    await o.page.waitForSelector('#go', { timeout: 8000 }).catch(() => {}); await wait(200);
     const r = await o.page.evaluate(() => ({ acct: [...document.querySelectorAll('#card .note')].filter((n) => /계좌/.test(n.textContent)).length, when: /영업일 기준 수일/.test(document.getElementById('card').textContent) }));
     ok('② 취소 화면 — 환불 계좌 안내는 칸 아래 한 곳(환불 시기 포함) [CAN_ACCT_ONE]', r.acct === 1 && r.when, JSON.stringify(r));
-    await o.page.click('#go'); await wait(1200);
+    await o.page.click('#go');
+    await o.page.waitForFunction(() => !document.getElementById('go'), null, { timeout: 8000 }).catch(() => {}); await wait(200);
     const r2 = await o.page.evaluate(() => { const a = document.querySelector('#card .desc a.kakao'); return { title: (document.querySelector('#card .title') || {}).textContent || '', link: a ? a.textContent : '', n: (document.getElementById('card').textContent.match(/카카오톡/g) || []).length }; });
     ok('② 기한이 지나 거절 → 글 속 «카카오톡»이 링크 · 같은 말을 두 번 하지 않는다 [CAN_KAKAO_WAY]', r2.title === '취소를 완료하지 못했어요' && r2.link === '카카오톡' && r2.n === 1, JSON.stringify(r2));
     if (o.errs.length) ok('pageerror 0 (② 취소 화면)', false, o.errs[0].slice(0, 140)); await o.ctx.close(); }
