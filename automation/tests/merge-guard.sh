@@ -17086,7 +17086,7 @@ chk 'RELOAD_UNWIND' mypage.html 3
 chk 'fr.contentWindow.location.replace(_ru)' mypage.html 1
 chk 'HOLD_RESTACK' mypage.html 1
 chk 'OB_OPEN_ONCE' mypage.html 1
-chk "var old=$('mp_obViewer'); if(old&&old.parentNode) return;" mypage.html 1
+chk 'if(old&&old.parentNode) return;' mypage.html 1   # [OB_OPEN_ONCE] (큰따옴표 안 $( ) 는 셸이 풀어 버린다 — 홑따옴표로)
 chk 'PARENT_ASK_HOLD' mypage.html 1
 chk 'VC_CANCEL_PUB' automation/platform/80_production.gs 1
 chk "if (j.cancel && !j.end) return { jid: String(j.jid), end: true, ok: false, kind: 'cancel'" automation/platform/80_production.gs 1

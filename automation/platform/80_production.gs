@@ -258,11 +258,13 @@ var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌�
 /* ★[PROD_CAP_WORDS 2026-10-09 A~Z 점검 2라운드 A2-15] 길이 상한 거절 글 한 곳 — «글이 너무 길어요 · ○○ 글을 조금 줄여 주세요 (코드 S0)».
    종전 «현재 약 12947자 · 최대 12,000자»는 저장 꼴(JSON) 길이라 화면 칸 글자 수와 비교가 안 됐다 · 코드 글자는 부른 동작의 자리(저장 S · 올리기 U …) · 0 = 글이 곧 까닭 */
 function _prodTooLong_(label) {
+  // [PROD_CAP_WORDS] 표식은 함수 안에(배포 점검이 이 몸통을 읽는다 · FILE_COVER)
   var a = 'S'; try { if (typeof _errArea === 'function' && typeof __ERR_ACT !== 'undefined' && __ERR_ACT) a = _errArea(__ERR_ACT) || 'S'; } catch (e) { a = 'S'; }
   return '글이 너무 길어요 · ' + label + ' 글을 조금 줄여 주세요 (코드 ' + a + '0)';
 }
 /* ★[RITUAL_CAP_OWN 2026-10-09 A~Z 점검 2라운드 A2-15] 식순 초안 크기 — 옛 한 칸(S.tx 두 칸으로 다시 짓는 사본)은 빼고 잰다. tx 에 짝이 없는 옛 칸(옛 빌더 초안)은 그 글이 원본이라 센다 */
 function _ritualCapLen_(dr) {
+  // [RITUAL_CAP_OWN] 표식은 함수 안에(배포 점검이 이 몸통을 읽는다 · FILE_COVER)
   var o = dr || {}, S = o.S;
   if (S && typeof S === 'object' && S.tx && typeof S.tx === 'object') {
     var S2 = {}, o2 = {}, k, cut = 0;
