@@ -1,4 +1,4 @@
-// ★[SEAT_NAME_BELOW · SEAT_LABEL_CLAMP · IME_QUIET 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-1 ~ D2-3] 하객 좌석 화면(seat.html · guide.html)을 실제로 그려 잰다.
+// ★[SEAT_LABEL_FIT · SEAT_NAME_BELOW · SEAT_LABEL_CLAMP · IME_QUIET 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-1 ~ D2-3] 하객 좌석 화면(seat.html · guide.html)을 실제로 그려 잰다.
 //   ① 표 이름 — 부부가 붙인 이름(«신부 대학 동기» · «Bride Friends Table» · 24자)은 원 «아래» 한 줄(.tbl-cap · .gr-cap) · 원 안 이름(.tbl-nm)은 없다 ·
 //      seat 번호 배지는 원 가운데 · guide 번호 칸(.gr-no)에는 번호만 · 표 이름 줄은 제 칸(열) 안 · 이름표 · 다른 표 이름과 안 겹친다
 //   ② 이름표 칸 — 1 ~ 6명 표 × 긴 이름(5자 · 6자 · 영문) × 폭 320 · 360 · 390 · 412 · 1280: 같은 표 이름표끼리 · 번호(배지)와 · 다른 표 이름표와 안 겹치고
