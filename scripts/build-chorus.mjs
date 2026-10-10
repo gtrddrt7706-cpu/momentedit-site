@@ -23,6 +23,7 @@
 //   그래서 마지막에 잰 값(길이·어긋난 정도·속도 보정률)을 전부 찍는다 — 무엇을 듣고
 //   판단해야 하는지 사람이 알 수 있게. 어긋남이 크게 남으면 경고를 띄운다.
 
+import { keepWhen } from './lib/when-keep.mjs';   // [WHEN_KEEP_MARKS]
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -164,7 +165,7 @@ function recordMixed(c, id, srcs) {
   }
   /* 합성 클립의 성우는 재료 둘이라 한 이름으로 못 적는다 — 글만 적고 voice 는 비운다. */
   j.clips[id] = uniq[0];
-  j._언제 = `${STAMP} · build-chorus 가 ${id} 갱신`;
+  j._언제 = keepWhen(j._언제, `${STAMP} · build-chorus 가 ${id} 갱신`);
   const sorted = {};
   for (const k of Object.keys(j.clips).sort()) sorted[k] = j.clips[k];
   j.clips = sorted;

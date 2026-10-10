@@ -15676,6 +15676,9 @@ nochk "'웃음 한 스푼 ·" scripts/build-dubbing-script.mjs
 chk 'NAR_1007' assets/ritual-open.js 1
 chk 'NAR_1007' assets/audio/narration/_recorded.json 1
 chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언제» 를 덮어써도 옛 [표식]은 남긴다(NAR_1007 이 지워져 #1160 이 붉었다)
+chk 'keepWhen(rec._언제' scripts/sample-cut.mjs 1   # [WHEN_KEEP_MARKS] sample-cut 도 표식을 남긴다(10/10 두 번째로 지워졌다)
+chk 'PACE_D' scripts/build-typecast-import.mjs 2   # 문장 사이 1.25 · «입장!» 앞 0.6 (사장님 견본 D)
+chk 'man.gap?.inner' scripts/assemble-narration.mjs 1   # [PACE_D] 쉼표 쉼 상한은 문장 사이와 따로 — 되돌리면 «입장!» 안 쉼이 늘어난다
 chk "'십 분 뒤에 예식이 시작됩니다. 못 나눈 인사는 지금이 기회입니다.'," assets/ritual-open.js 1
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js

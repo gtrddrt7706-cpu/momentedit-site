@@ -11,6 +11,7 @@
 // 멈춤 자리(cut2Ms) = 그 무음이 시작하고 min(0.25초, 무음 길이 × 0.6) 뒤 — 빌더가 그 앞 0.25초에 걸쳐 소리를 줄이므로
 //   줄이는 동안이 무음 안에 든다(마지막 낱말 꼬리를 깎지 않는다).
 // 검사에 걸리면 cut2Ms 를 지운다 — 그 줄은 글 + 진행 막대로 흐른다(녹음 전처럼 · order-preview _pvLine).
+import { keepWhen } from './lib/when-keep.mjs';   // [WHEN_KEEP_MARKS]
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -91,7 +92,7 @@ const main = () => {
     }
   }
   if (WRITE && changed) {
-    rec._언제 = `${new Date().toISOString().slice(0, 10)} · sample-cut 이 멈춤 자리 ${changed}곳 갱신`;
+    rec._언제 = keepWhen(rec._언제, `${new Date().toISOString().slice(0, 10)} · sample-cut 이 멈춤 자리 ${changed}곳 갱신`);
     fs.writeFileSync(RECF, JSON.stringify(rec, null, 1) + '\n');
     console.log(`↳ ${path.relative(ROOT, RECF)} 갱신 (${changed}곳)`);
   }
