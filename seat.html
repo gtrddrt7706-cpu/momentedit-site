@@ -182,7 +182,8 @@ h1.couple{font-size:20px;font-weight:500;letter-spacing:.02em;margin:0;line-heig
    ★번호 배지는 비게 된 원 «가운데»로(편집기 · guide 와 같은 자리) — 자리 이름표는 반지름 44~54 바깥이고, 배지 높이에 걸린 자리(2명 표 · 5명 표 옆 · 6명 표 옆)는
      아래 SEAT_LABEL_CLAMP 가 배지 반폭 + 1px 밖에 세운다. 표 이름 칸 폭은 표 상자 폭 − 8px 라 칸(열) 밖으로 나가지 않는다.
    ★원 안으로 되돌리지 말 것(.tbl-nm) — 2~3줄로 접히는 순간 배지와 이름표를 다시 덮는다. */
-.tbl-cap{display:block;max-width:calc(var(--tb) - 8px);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;line-height:1.3;color:var(--gold-text);text-align:center}
+.tbl-cap{display:block;max-width:calc(var(--tb) - 8px);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:500;line-height:1.2;color:var(--accent);text-align:center}   /* 글자 모양은 원 안 .tbl-nm 그대로(11px · 500 · accent · 폰 10.5px) — 자리만 옮겼다 */
+@media(max-width:469px){ .tbl-cap{font-size:10.5px} }
 .tbl-cap+.tbl-list{margin-top:4px}   /* [SEAT_CROWD] 목록은 원에 바짝(-6px) 붙어 있었다 — 표 이름 줄이 사이에 서면 그 줄과 겹친다 */
 /* ★[SEAT_LABEL_CLAMP 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-2] 긴 이름(5~6자 · 영문)이 5명 표 위 두 자리에서 서로 겹치고(폰 최대 10.5px · «엘리자베스»가 «크리스토퍼»를) ·
    2명 표 바깥 이름표가 칸 끝(카드 끝 · 통로)을 4~6px 넘었다(412 이하). 자리 위치(방향 × 반지름)는 그대로 두고 «이름표 상자»만 비켜 세운다:

@@ -146,27 +146,18 @@ function _ecAgain(){ card.insertAdjacentHTML('beforeend','<button type="button" 
 function _ecLinkMsg(){ showMsg('안내','링크를 열 수 없어요','받으신 메일의 링크로 다시 열어 주세요 (코드 B8)'); }
 if(!TOKEN||!SIG){ _ecLinkMsg(); }
 else loadInfo();
-/* ★[CAN_KAKAO_WAY 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-11 ① ③] 막다른 안내에는 카카오톡 «길»을 함께 — 기한이 지난 처음 화면과 같은 모양(a.kakao · 문장 속 링크).
-   ① 서버가 «예약 정보를 찾을 수 없어요»라 답하면 코드도 갈 곳도 없었다 → 제목 그대로 · 할 일 한 줄 + (코드 B0) · 카카오톡
-   ③ 취소를 누른 뒤 기한이 지나 거절되면 «카카오톡으로 문의해 주세요»라고만 하고 링크가 없었다 → 그 낱말을 링크로(같은 말을 두 번 하지 않는다)
-   서버가 채널 주소(d.kakao)를 실어 보내지 않는 답(실패 답)도 있어 채널 주소를 한 벌 둔다(seat · guide EXIT_HTML 과 같은 주소) */
-var KAKAO_FB='https://pf.kakao.com/_CfxcxlX/chat';
-function _kakaoA(url){ return '<a class="kakao" href="'+esc(url||KAKAO_FB)+'" target="_blank" rel="noopener">카카오톡</a>'; }
-function _kakaoIn(html, url){ return /카카오톡/.test(html) ? html.replace('카카오톡', _kakaoA(url)) : html; }   // 글 속 «카카오톡»을 링크로 — 없으면 그대로(부르는 쪽이 한 줄을 더한다)
 function loadInfo(){
   api({action:'emailCancelInfo', token:TOKEN, sig:SIG}).then(function(d){
     if(!d||!d.ok){
       if(_ecLink(d)){ _ecLinkMsg(); return; }
-      if(/예약 정보를 찾을 수 없어요/.test(String((d&&d.error)||''))){ showMsg('안내','예약을 찾을 수 없어요','마이페이지에서 예약을 확인해&nbsp;주세요 (코드 B0)','문의가 필요하시면 '+_kakaoA()+'으로 연락 주세요.'); return; }   // [CAN_KAKAO_WAY] ① 다시 불러와도 같은 답 — 다시 불러오기는 붙이지 않는다
-      var _rt=_ecRetry(d);
-      showMsg('안내','예약 정보를 불러오지 못했어요', esc(_ecSrv(d,'B','잠시 뒤 다시 열어 주세요')), _rt?'':'문의가 필요하시면 '+_kakaoA()+'으로 연락 주세요.');   // [ERR_CODE_PAGES] · [CAN_KAKAO_WAY] 다시 해서 안 될 때만 카카오톡
-      if(_rt) _ecAgain();
+      showMsg('안내','예약 정보를 불러오지 못했어요', esc(_ecSrv(d,'B','잠시 뒤 다시 열어 주세요')));   // [ERR_CODE_PAGES]
+      if(_ecRetry(d)) _ecAgain();
       return; }
     /* ★[CAN_EXIT 2026-09-11 점검] 이 줄은 원래 아래 expired 분기 «바로 앞»에 있었다.
        그래서 cancelled·none 분기는 이미 d.kakao 를 손에 쥐고도 못 썼고, 특히 none 은
        「카카오톡으로 연락 주세요」라고 «말만» 하고 링크를 안 줬다 — 말한 길을 안 열어 준 셈이다.
        한 줄 위로 올리면 두 분기가 같은 링크를 쓴다(d.kakao 가 없으면 종전대로 글자만 — 폴백 동일). */
-    var kakao=_kakaoA(d.kakao);   // [CAN_KAKAO_WAY] 서버 주소가 없어도 채널 주소로 링크(종전엔 글자만)
+    var kakao=d.kakao?'<a class="kakao" href="'+esc(d.kakao)+'" target="_blank" rel="noopener">카카오톡</a>':'카카오톡';
     if(d.state==='cancelled'){ showMsg('Cancelled','이미 취소된 예약이에요','다시 예약을 원하시면 <a class="inq" href="/inquiry.html">새로 신청</a>해 주세요.','문의가 필요하시면 '+kakao+'으로 연락 주세요.'); return; }   // ★[CAN_REAPPLY_LINK 2026-10-09 D-18] «새로 신청»이라 말만 하고 길이 없었다 → 신청서로
     if(d.state==='none'){ showMsg('안내','취소할 확정 예약이 없어요','문의가 필요하시면 '+kakao+'으로 연락 주세요.'); return; }
     if(d.state==='expired'){
@@ -198,7 +189,7 @@ function loadInfo(){
         ? '<div class="note" style="margin-top:8px;text-align:left">예약금은 결제하신 카드로 취소해 드려요. 카드사에 따라 반영까지 며칠 걸릴 수 있어요.</div>'
         : '<label for="acct">환불 계좌 <span style="color:var(--light)">(예약금 환불용)</span></label>'
           +'<input type="text" id="acct" placeholder="은행 · 계좌번호 · 예금주" autocomplete="off">'
-          +'<div class="note" style="margin-top:8px;text-align:left">취소 후 이 계좌로 환불해 드려요<span style="white-space:nowrap">(영업일 기준 수일)</span>.<br>지금 비워 두셔도 취소는 진행돼요 · 계좌는 따로 여쭤봐요.</div>')   /* ★[CAN_ACCT_ONE 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-11 ②] 계좌 안내가 칸 아래 · 단추 아래 두 곳이었다 → 칸 아래 한 곳(환불 시기 · 비워도 됨) */
+          +'<div class="note" style="margin-top:8px;text-align:left">지금 비워 두셔도 취소는 진행돼요 · 환불이 필요하면 취소 후에 계좌를 따로 여쭤봐요.</div>')
       +'<button type="button" class="btn" id="go">예약 취소하기</button>'
       +'<button type="button" class="btn btn-ghost" id="keep">아니요, 유지할게요</button>'
       +'<div class="note" id="cErr" role="alert" style="display:none;color:var(--seal)"></div>'
@@ -206,7 +197,7 @@ function loadInfo(){
          시착 기록이 있으면 위 «환불 예상» 칸(서버 refund · 벌수 · 공제)이 이미 말한다. 그 칸이 없을 때(옛 서버)만 종전 줄로 덮는다 */
       +(byCard
         ? (rf ? '' : '<div class="note">드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감한 금액을 카드로 취소해 드려요.</div>')
-        : (rf ? '' : '<div class="note">드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감 후 환불돼요.</div>'));   // [CAN_ACCT_ONE] 계좌 · 환불 시기 줄은 칸 아래로 옮겼다 — 여기는 시착 공제 줄만(옛 서버 · CAN_NO_FIT_LINE)
+        : '<div class="note">취소 후 입력하신 계좌로 예약금을 환불해 드려요 (영업일 기준 수일 소요).'+(rf ? '' : '<br>드레스 시착을 진행하신 경우, 진행한 벌수만큼(1벌당 50,000원) 차감 후 환불돼요.')+'</div>');
     document.getElementById('keep').addEventListener('click', function(){ location.href='/mypage.html'; });
     document.getElementById('go').addEventListener('click', function(){
       var _ae=document.getElementById('acct'), acct=_ae?(_ae.value||'').trim():'';   // [DEPOSIT_CARD] 카드면 계좌 칸이 없다
@@ -229,8 +220,7 @@ function loadInfo(){
         if(r&&r.ok){ done(); return; }
         if(_ecLink(r)){ _ecLinkMsg(); return; }
         if(_ecRetry(r)){ back(_ecSrv(r,'B','취소를 받지 못했어요 · 다시 눌러 주세요')); return; }   // [ERR_CODE_PAGES] 몰림 · 서버 오류 — 화면은 두고 다시 누르게
-        b.disabled=false; b.textContent='예약 취소하기'; var _fh=esc(_ecSrv(r,'B','취소를 받지 못했어요 · 잠시 뒤 다시 열어 주세요'));
-        showMsg('안내','취소를 완료하지 못했어요', _kakaoIn(_fh, d.kakao), /카카오톡/.test(_fh)?'':'문의가 필요하시면 '+kakao+'으로 연락 주세요.');   // [CAN_KAKAO_WAY] ③ 기한이 지나 거절 → 글 속 «카카오톡»이 링크 · 그 말이 없으면 한 줄
+        b.disabled=false; b.textContent='예약 취소하기'; showMsg('안내','취소를 완료하지 못했어요', esc(_ecSrv(r,'B','취소를 받지 못했어요 · 잠시 뒤 다시 열어 주세요')));
       }).catch(function(e){ var n=_ecN(e);
         if(n===6){ back(_ecNet(e,'B','다시 눌러 주세요')); return; }   // [ERR_CODE_PAGES] 연결이 끊긴 것은 요청이 서버에 닿지 않은 쪽이 대부분 — 다시 눌러도 서버가 이미 취소면 «이미 취소»로 답한다
         if(!n){ back(_ecNet(e,'B','')); return; }   // [ERR_N_HONEST] 화면 쪽 예외(0) — «서버가 잠깐 멈췄어요»가 아니다 · 새로 고치면 지금 상태(취소됨 · 확정)를 다시 보여 준다
