@@ -32,6 +32,7 @@
 //   지금은 문장 개수로 파트를 짚고 길이 상관으로 확인한다. 폴더 이름은 힌트일 뿐이고,
 //   이름이 틀려도 내용이 이긴다. zip은 알아서 풀어서 본다.
 
+import { keepWhen } from './lib/when-keep.mjs';   // [WHEN_KEEP_MARKS]
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -489,7 +490,10 @@ const EOF_TOL = 0.10;
 //   그래서 안쪽 무음이 상한을 넘으면 **넘은 만큼만** 도려낸다.
 //   상한은 manifest의 `gap.sent`를 그대로 읽는다 — 문장 사이 여백을 바꾸는 날 이 상한도 따라오도록.
 //   (지우지 않고 상한까지만 줄인다. 쉼을 없애면 문장이 서로 달라붙는다.)
-const SENT_CAP = Math.max(0.20, Number(man.gap?.sent) || 0.45);
+/* ★★[PACE_D 2026-10-10] 안쪽 쉼 상한을 «문장 사이»에서 떼어 냈다 — gap.inner(0.45)를 읽는다.
+   문장 사이를 1.25초로 넓히자(사장님 견본 D) 이 상한도 1.25 로 따라 올라가 «신랑 신부, 입장!» 안의 쉼표 쉼이
+   0.45 → 1.4초로 늘었다(사장님이 «너무 느리다»고 한 그 자리). 쉼표 쉼은 그대로 두고 문장 사이만 넓힌다. */
+const SENT_CAP = Math.max(0.20, Number(man.gap?.inner) || 0.45);
 
 // ★★★[GAP_NET 2026-08-04 · 같은 날 기본 꺼짐으로 되돌림] 문장 사이 여백에서 **남이 넣어 둔 여백**을 뺀다.
 //   왜 — 2026-08-04 사용자 판정: *"편지 여백이 자연스러우니깐 참조해서 진행"*. 편지가 기준자가 됐다.
@@ -681,8 +685,7 @@ if (_recWritten.length) {
     }
     /* ★[WHEN_KEEP_MARKS 2026-10-09] 옛 «_언제» 의 [표식]은 이어 붙인다 — merge-guard 가 이 줄의 표식(NAR_1007 등)을 chk 한다.
        덮어쓰면 녹음 하나 받을 때마다 가드가 «역전 의심»으로 붉는다(2026-10-09 #1160 에서 실제로 붉었다). */
-    const _oldMarks = String(j._언제 || '').match(/\[[A-Z][A-Z0-9_]{3,}\]/g) || [];
-    j._언제 = `${new Date().toISOString().slice(0, 10)} · assemble-narration 이 ${ws.length}클립 갱신` + (_oldMarks.length ? ` · 앞선 기록 ${[...new Set(_oldMarks)].join(' ')}` : '');
+    j._언제 = keepWhen(j._언제, `${new Date().toISOString().slice(0, 10)} · assemble-narration 이 ${ws.length}클립 갱신`);
     const sorted = {};
     for (const k of Object.keys(j.clips).sort()) sorted[k] = j.clips[k];
     j.clips = sorted;

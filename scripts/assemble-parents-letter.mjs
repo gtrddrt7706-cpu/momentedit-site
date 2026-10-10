@@ -17,6 +17,7 @@
 // ★가장자리 무음 제거(TRIM_VENDOR_EDGE)는 assemble-narration.mjs와 같은 규칙을 쓴다.
 //   타입캐스트가 이 파트에 붙여 준 무음이 앞 0.40초·뒤 0.36초로 가장 두꺼웠다.
 
+import { keepWhen } from './lib/when-keep.mjs';   // [WHEN_KEEP_MARKS]
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -67,7 +68,7 @@ if (WHOLE) {
   const rp = path.join(outDir, '_recorded.json');
   const rec = JSON.parse(fs.readFileSync(rp, 'utf8'));
   rec.clips[`${clip.no}_${clip.file}`] = { text: clip.sents.map((x) => x.text).join(' '), voice: man.voice[clip.role] || null };
-  rec._언제 = `${new Date().toISOString().slice(0, 10)} · assemble-parents-letter --whole 이 편지 1클립 갱신`;
+  rec._언제 = keepWhen(rec._언제, `${new Date().toISOString().slice(0, 10)} · assemble-parents-letter --whole 이 편지 1클립 갱신`);
   fs.writeFileSync(rp, JSON.stringify(rec, null, 2));
   console.log(`✓ ${path.relative(root, dst)}  ${(+dur).toFixed(1)}초 · 앞 무음 ${head}초 (설계 ${LEAD_IN}초)`);
   console.log(`  ↳ 사본 ${path.relative(root, alt)} — [LETTER_AUDIO_UNIFIED] 두 경로가 같은 파일이다`);

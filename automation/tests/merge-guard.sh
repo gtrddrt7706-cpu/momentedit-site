@@ -7531,7 +7531,9 @@ nochk '여러분과 두 분이 함께 찍는 시간은' assets/ritual-data.js
 #   *"신랑신부 조금 쉬다가 입장하는 게 좋을 것 같아. 너무 바로 입장 아니깐 어색해 긴장도 없고"*
 #   고칠 것이 글이 아니라 «간격»이었다. 소리를 다시 받을 필요는 없다 — 다시 붙이기만 하면 된다.
 chk 'ENTRY_HOLD' scripts/build-typecast-import.mjs 1
-chk 'before = 1.2' scripts/build-typecast-import.mjs 1
+# ★[PACE_D 2026-10-10 사장님 귀로 고름] 1.2초는 거두고 «입장!» 앞 0.6초 — 사장님 «감사하겠습니다 다음 신랑 신부가 너무 느려»
+chk "'신랑 신부, 입장!') after = 0.6;" scripts/build-typecast-import.mjs 1
+nochk 'before = 1.2' scripts/build-typecast-import.mjs
 
 # ★★[REDUB_BYVOICE 2026-09-11 사장님 지시 "빼먹은게 없을때까지 반복해서 검토"]
 #   5라운드에서 나왔다. 저장소의 재더빙 명단(재더빙_붙여넣기.txt)은 22줄인데
@@ -15676,6 +15678,9 @@ nochk "'웃음 한 스푼 ·" scripts/build-dubbing-script.mjs
 chk 'NAR_1007' assets/ritual-open.js 1
 chk 'NAR_1007' assets/audio/narration/_recorded.json 1
 chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언제» 를 덮어써도 옛 [표식]은 남긴다(NAR_1007 이 지워져 #1160 이 붉었다)
+chk 'keepWhen(rec._언제' scripts/sample-cut.mjs 1   # [WHEN_KEEP_MARKS] sample-cut 도 표식을 남긴다(10/10 두 번째로 지워졌다)
+chk 'PACE_D' scripts/build-typecast-import.mjs 2   # 문장 사이 1.25 · «입장!» 앞 0.6 (사장님 견본 D)
+chk 'man.gap?.inner' scripts/assemble-narration.mjs 1   # [PACE_D] 쉼표 쉼 상한은 문장 사이와 따로 — 되돌리면 «입장!» 안 쉼이 늘어난다
 chk "'십 분 뒤에 예식이 시작됩니다. 못 나눈 인사는 지금이 기회입니다.'," assets/ritual-open.js 1
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js
