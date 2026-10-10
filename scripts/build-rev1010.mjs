@@ -12,7 +12,8 @@ const src = (d, i) => path.join(SRC, d, `${i}.flac`);
 export const CLIPS = {
   'guest-1-arrival': [src('01_guest-1-arrival', 0), src('01_guest-1-arrival', 1)],
   'guest-2-10min': [27, 28],
-  'guest-3-5min': [src('03_guest-3-5min', 0), 29],
+  'guest-3-5min': [src('03_guest-3-5min', 0)],   // [NO_POSTURE 2026-10-10 사장님] 자세 이야기 안 함
+  'guest-4-1min-pre': [0, 1, 2, 4, 5].map(i => src('89_guest-4-1min-pre', i)),   // [NO_POSTURE] «입장 때 따로 일어서실 것 없습니다» 뺌
   'narr-photo-ask': [37, 38],
   'narr-prevideo-in': [39],
   'candle-out-2': [0], 'candle-out-3': [1], 'candle-out-4': [2],
@@ -33,9 +34,9 @@ export const CLIPS = {
   'close-bow-2': [20, 21, 22], 'close-bow-3': [23, 24, 22],
   'end-0-photo': [25],
   'narr-photo-split': [src('60_narr-photo-split', 0), src('60_narr-photo-split', 1), 26],
-  'ex2-2-10min': [27, 30], 'ex2-3-5min': [31, 32],
-  'ex3-2-10min': [27, EX('ex3-2_1'), 33], 'ex3-3-5min': [31, EX('ex3-3_1'), 29],
-  'ex4-2-10min': [34, 35], 'ex4-3-5min': [src('03_guest-3-5min', 0), 36],
+  'ex2-2-10min': [27, 30], 'ex2-3-5min': [31],
+  'ex3-2-10min': [27, EX('ex3-2_1'), 33], 'ex3-3-5min': [31, EX('ex3-3_1')],
+  'ex4-2-10min': [34, 35], 'ex4-3-5min': [src('03_guest-3-5min', 0)],
   'bridge-5-wait-setup': [40, 41],
   'end-2-goodbye': [42, 43, 44]
 };
