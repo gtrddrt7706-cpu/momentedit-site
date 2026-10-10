@@ -17021,9 +17021,11 @@ chk 'PHRASE_SHOWN' automation/platform/80_production.gs 4
 chk 'R2_BUILDER' scripts/audit/r2-builder.mjs 1
 chk 'VC_R2' scripts/audit/vc-r2.mjs 1
 chk 'R2_MP_BUILDER' scripts/audit/r2-mypage-builder.mjs 1
+chk 'VC_R2_SERVER' scripts/audit/vc-r2-server.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/r2-builder.mjs >/dev/null 2>&1; _r2b=$?; if [ "$_r2b" = 1 ]; then echo 'FAIL r2-builder: 식순 저장 · 다시 열기 · 뒤로가기 · 나가기 · 새로고침 약속이 어긋났습니다 — node scripts/audit/r2-builder.mjs'; fail=1; elif [ "$_r2b" = 2 ]; then echo 'skip r2-builder: 브라우저 없음'; else echo 'ok r2-builder: 식순 저장 바탕 · 완성 기준선 · 충돌 판 · 판 뒤 뒤로가기 · 나가기 · 새로고침'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2.mjs >/dev/null 2>&1; _vr2=$?; if [ "$_vr2" = 1 ]; then echo 'FAIL vc-r2: 두 분 목소리 약속(1분 멈춤 · 닫기 · 지우기 취소 · 채우기 · 남의 작업)이 어긋났습니다 — node scripts/audit/vc-r2.mjs'; fail=1; elif [ "$_vr2" = 2 ]; then echo 'skip vc-r2: 브라우저 없음'; else echo 'ok vc-r2: 두 분 목소리 2라운드 약속'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/r2-mypage-builder.mjs >/dev/null 2>&1; _r2m=$?; if [ "$_r2m" = 1 ]; then echo 'FAIL r2-mypage-builder: 마이페이지 안 식순 창(충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기)이 어긋났습니다 — node scripts/audit/r2-mypage-builder.mjs'; fail=1; elif [ "$_r2m" = 2 ]; then echo 'skip r2-mypage-builder: 브라우저 없음'; else echo 'ok r2-mypage-builder: 충돌 판 · 새로고침 · 뒤로가기 · 겹쳐 열기'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2-server.mjs >/dev/null 2>&1; _vrs=$?; if [ "$_vrs" = 0 ]; then echo 'ok vc-r2-server: 확인 문장 미리 받기 · 화면에 보인 문장 기록 · 취소된 작업은 «끝 · 취소»'; else echo 'FAIL vc-r2-server: 두 분 목소리 서버 약속(확인 문장 · 취소된 작업 알림)이 어긋났습니다 — node scripts/audit/vc-r2-server.mjs'; fail=1; fi; fi
 # ★★[R6_PUBLIC 2026-10-09 고객 여정 A~Z 점검 1라운드 · 공개 화면] D-2 좌석 배치도 폰 맞춤 · D-4 상담 흐름 문구 · D-5~D-7 신청서 · D-8 · D-9 · D-17 상담 일정 · D-10 · D-18 취소 · D-11 단색 상단 바 · D-12 청첩장 06 대비 · D-13 인사말 방향 낱말 · D-14 지도 · D-15 카톡 답변 시간 · D-16 라이브 · D-20 표본 날짜 · D-21 — 되돌리지 말 것
 chk 'function zig(row,side){ return (row%2===0)?1:-1; }' seat.html 1   # [SEAT_ZIG] 평행 이동 본체 — 방향(±1)만
 chk "' \* var(--zig)))'" seat.html 1                                    # [SEAT_FIT] 폭은 CSS var(--zig)
