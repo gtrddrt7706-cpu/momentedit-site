@@ -24,11 +24,21 @@ const man = JSON.parse(fs.readFileSync(path.join(T, 'docs/plans/식순연구/타
 const part = man.parts.find((p) => /진행_전반/.test(p.file));
 const flat = []; for (const c of man.clips.filter((c) => c.part === part.file)) for (const s of c.sents) flat.push({ id: String(c.no).padStart(2, '0') + '_' + c.file + '_' + s.i, text: s.text });
 const src = path.join(T, 'src'); fs.mkdirSync(src);
+/* ★★[STAGE_ORDER_GOOD_LOW 2026-10-11] ① 의 바른 차례는 길이 상관이 0.85 «아래»여야 이름 증명 길을 잰다.
+   종전 가짜 소리(음절 ÷ 5초 · 입장만 3.4초)는 2_진행_전반 이 67문장일 때 r = 0.848 로 겨우 아래였고, 133(감사문 여는 말)이 들어 68문장이 되자
+   0.858 로 올라 조립기가 상관만으로 통과했다 — ① 이 이름 증명을 한 번도 안 거치고 빨강이 됐다([STAGE_ORDER_SWAP_FAR] 와 같은 병 · 문장이 늘면 이빨이 빠진다).
+   그래서 세 문장에 하나는 1.7배로 깐다(성우마다 쉼이 다른 것을 흉내) — 문장 수와 상관없이 상관이 낮다. 아래 ①-0 이 재기 전에 0.85 아래인지 먼저 본다.
+   문턱 0.85 는 손대지 않는다. */
+const sylOf0 = (t) => (t.match(/[가-힣]/g) || []).length;
 flat.forEach((x, k) => {
-  const syl = (x.text.match(/[가-힣]/g) || []).length, sec = x.text === '신랑 신부, 입장!' ? 3.4 : Math.max(0.6, syl / 5);
+  x.sec = x.text === '신랑 신부, 입장!' ? 3.4 : Math.max(0.6, sylOf0(x.text) / 5) * (k % 3 === 0 ? 1.7 : 1);
   x.f = path.join(src, k + '.flac');
-  execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', `sine=frequency=${300 + k}:duration=${sec.toFixed(2)}`, '-ar', '44100', '-ac', '1', x.f]);
+  execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', `sine=frequency=${300 + k}:duration=${x.sec.toFixed(2)}`, '-ar', '44100', '-ac', '1', x.f]);
 });
+const pearson = (a, b) => { const n = a.length, ma = a.reduce((p, q) => p + q, 0) / n, mb = b.reduce((p, q) => p + q, 0) / n;
+  let u = 0, da = 0, db = 0; for (let k = 0; k < n; k++) { const p = a[k] - ma, q = b[k] - mb; u += p * q; da += p * p; db += q * q; } return u / Math.sqrt(da * db); };
+{ const r0 = pearson(flat.map((x) => x.sec), flat.map((x) => sylOf0(x.text) / 5));
+  ok(`①-0 바른 차례도 길이 상관이 0.85 아래다(예상 r = ${r0.toFixed(3)}) — 그래야 ① 이 이름 증명 길을 잰다 [STAGE_ORDER_GOOD_LOW]`, r0 < 0.85, '가짜 소리를 다시 깔 것 — 문턱을 옮기지 말 것'); }
 function lay(dir, order) { fs.mkdirSync(dir, { recursive: true }); order.forEach((x, n) => fs.copyFileSync(x.f, path.join(dir, String(n + 1).padStart(4, '0') + '_' + x.id + '.flac'))); }
 const run = (inDir, out) => spawnSync('node', [path.join(T, 'scripts/assemble-narration.mjs'), '--in', inDir, '--part', part.file.split('_')[0], '--out', out], { encoding: 'utf8', cwd: T, timeout: 600000 });
 
@@ -47,11 +57,7 @@ const sylOf = (t) => (t.match(/[가-힣]/g) || []).length;
 const j = sw.reduce((b, x, k) => (/^05_entry-A_/.test(x.id) && sylOf(x.text) > sylOf(sw[b].text) ? k : b), i);
 [sw[i], sw[j]] = [sw[j], sw[i]];
 { /* 사전 계산 — 조립기와 같은 자(음절 ÷ 5초 · 피어슨)로 이 가짜 소리의 틀린 차례가 0.85 아래인지 */
-  const secOf = (x) => (x.text === '신랑 신부, 입장!' ? 3.4 : Math.max(0.6, sylOf(x.text) / 5));
-  const a = sw.map(secOf), b = flat.map((x) => sylOf(x.text) / 5), n = a.length;
-  const ma = a.reduce((p, q) => p + q, 0) / n, mb = b.reduce((p, q) => p + q, 0) / n;
-  let u = 0, da = 0, db = 0; for (let k = 0; k < n; k++) { const p = a[k] - ma, q = b[k] - mb; u += p * q; da += p * p; db += q * q; }
-  const rr = u / Math.sqrt(da * db);
+  const rr = pearson(sw.map((x) => x.sec), flat.map((x) => sylOf(x.text) / 5));   // [STAGE_ORDER_GOOD_LOW] 깐 소리 길이 그대로(x.sec)
   ok(`②-0 시험용 틀린 차례가 정말 틀렸다(${sw[j].id} ↔ ${sw[i].id} · 예상 r = ${rr.toFixed(3)} < 0.85) [STAGE_ORDER_SWAP_FAR]`, rr < 0.85, '짝을 다시 고를 것 — 문턱을 옮기지 말 것');
 }
 const bad = path.join(T, 'bad'); lay(bad, sw);

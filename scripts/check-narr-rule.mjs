@@ -43,7 +43,7 @@ const REPORT = process.argv.includes('--report');
    고객 예시(EXVOW·EXLETTER·EXWEL·ENTRY[].self)는 **다른 기준(C1~C5)** 이라 여기 안 넣는다.
    라벨(d·nm)·연출 안내(how·prep·cue)도 스피커로 안 나간다. */
 const NAR_KEYS = new Set(['nar', 'end', 'endLong']);
-const WHOLE = new Set(['NARR', 'VOWBOTH', 'NARR_CONSOLE_ONLY']);   // 통째로 나레이션인 가지
+const WHOLE = new Set(['NARR', 'VOWBOTH', 'THANKSBOTH', 'NARR_CONSOLE_ONLY']);   // 통째로 나레이션인 가지 · [THANKS_IN_VOW] 감사문 마지막 두 문장도 VOWBOTH 와 같은 자
 const SKIP_TOP = new Set(['EXVOW', 'EXLETTER', 'EXWEL', 'MIN', 'DAY', 'ENTRY_ALT', 'PHOTOCUE']);
 
 const corpus = [];

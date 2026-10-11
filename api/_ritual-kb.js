@@ -39,6 +39,7 @@ function courseLines(full) {
 
 function narrLines() {
   const E = D.ENTRY, out = [];
+  out.push('- 입장 끝 맞절: 두 분이 앞에 나란히 서면 나레이션이 «' + D.NARR.entryBow + '»로 청하고, 서로 마주 보고 맞절한다(3초 숙이고 · 3초 멈추고 · 3초 일어나기 · 약 15초). 늘 있다 — 고를 것이 아니다 [MATJEOL_1011].');
   out.push('[입장 멘트 6종 · 나레이션 전문]');
   for (const k of Object.keys(E)) out.push(`- ${k}(${E[k].d}): "${E[k].nar}"`);
   out.push('※ 입장을 두 분 목소리(녹음)로 여는 옵션 있음 · 그 경우 위 문안의 1인칭 버전을 두 분이 녹음(D-7 업로드).');
@@ -79,6 +80,8 @@ function narrLines() {
   out.push('[고정 순간 문안]');
   out.push(`- 첫인사 도입: "${D.NARR.welcome.nar}" · 마무리: "${D.NARR.welcome.end}"`);
   out.push(`- 혼인 서약 도입: "${D.NARR.vow.nar}" · 마무리: "${D.NARR.vow.end}" (울컥해서 잇기 어려우면 배우자가 대신 이어 읽는 옵션)`);
+  /* [THANKS_IN_VOW 2026-10-11] 서약 카드 안 «무엇을 읽나요 · 감사문» */
+  out.push(`- 감사문(서약 대신 고를 수 있다 · 서약 카드의 «무엇을 읽나요»): 두 분이 하객 쪽을 보고 오늘 와 주신 분들 · 부모님께 드리는 감사문을 읽는다(한 분 300자쯤 · 읽는 방식과 먼저 읽는 분은 서약과 같다). 도입: "${D.NARR.thanksIn}" · 마지막 두 문장은 두 분이 함께: "${(D.THANKSBOTH || []).join(' ')}" · 맺는 나레이션은 없다 [THANKS_IN_VOW]`);
   out.push(`- 반지 교환: "${D.NARR.ring.nar}" · 마무리: "${D.NARR.ring.end}"`);
   /* ★[WINE_RETIRED 2026-08-16 · SONG_RETIRED 2026-08-09] 폐지된 순서의 문안이다(★축가는 2026-10-11 [SONG_BACK_1011] 로 다시 들었다 — 아래 축가 줄은 이제 «폐지»가 아니다).
      ★문안 자체는 남긴다 — 옛 초안을 쥔 두 분이 물으면 AI 가 답할 수 있어야 한다(링 워밍과 같은 처리).

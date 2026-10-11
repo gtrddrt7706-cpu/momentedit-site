@@ -135,7 +135,7 @@ for (const course of Object.keys(D.COURSES)) {
     const S = { course: 'open', on: { ...ALL }, tribute: how, candleWho: cw }; O.setChip(S, ax, v);
     absorb(S, mode);
   }
-  for (const vh of ['alt', 'each']) for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, vowHow: vh }, mode);   // [VOW_HOW 2026-10-02] 서약 읽는 방식(번갈아 · 각자 차례로)이 live.t 를 가른다
+  for (const vk of ['vow', 'thanks']) for (const vh of ['alt', 'each']) for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, vowHow: vh, vowKind: vk }, mode);   // [VOW_HOW 2026-10-02] 서약 읽는 방식(번갈아 · 각자 차례로)이 live.t 를 가른다 · [THANKS_IN_VOW 2026-10-11] 무엇을 읽나요(서약 · 감사문)도 블록 · live.t 를 가른다
 }
 
 // ── 2. 커버리지 판정
