@@ -115,6 +115,14 @@ ok('축가 카드 · 준비한 순서 카드가 «악기 연주는 받지 않아
   ok('[VOW_DECL_DIFF] ① 미리 보기 창 — 같은 기준 · 옛 «부부가 되었음을 알리고»(두 분이 알리는 것처럼 읽힘) 없음', vowOk(pv('vow')) && declOk(pv('declare')) && !/되었음을 알리고/.test(pv('declare')), pv('vow') + ' | ' + pv('declare'));
 }
 
+/* ★[CANDLE_PARENTS_FIRST 2026-10-11 사장님 «추천대로»] 화촉 «서는 분» 첫 칸 = 양가 부모님 함께 입장 → 하객께 인사 → 어머님 점화 · 고르지 않으면 종전대로 양가 어머님 */
+ok('[CANDLE_PARENTS_FIRST] 첫 칸 «양가 부모님 함께 입장» · 기본은 어머님 · 함께 입장 판이 20초 길다 · 부탁 글에 «어머님께서»', O.CANDLE_WHO[0][0] === 'parents' && O.CANDLE_WHO[0][1] === '양가 부모님 함께 입장' && O.DEF.candleWho === 'mothers'
+  && O.partsOf('candle', { candleWho: 'parents' })[2] - O.partsOf('candle', { candleWho: 'mothers' })[2] === 20
+  && /함께 들어와 하객께 인사하시면 어머님께서/.test(JSON.stringify(O.prepOf('candle', { candleWho: 'parents' }))));
+ok('[CANDLE_PARENTS_FIRST] 콘솔 — 함께 입장 판은 네 분 입장 · 하객 인사 · 어머님 점화 사람 순간', (() => { const r = C.build({ course: 'open', on: { candle: 1 }, candleWho: 'parents' }, { mode: 'console' }); const c = r.cues.find((x) => /^narr-candle-in-parents$/.test(x.slug || '')); return !!c && /하객께 인사 · 어머님 두 분이 불을 밝히고/.test((c.live || {}).t || ''); })());
+/* ★[SONG_SELF_1011 2026-10-11 사장님 «추천대로»] 축가는 두 분이 직접 불러도 된다(자료 C 신랑 축가 · G 신랑이 신부에게 · Q 두 분 듀엣) */
+ok('[SONG_SELF_1011] 축가 카드 · 미리 보기 창이 «두 분이 직접 불러도 돼요»', /두 분이 직접 불러도 돼요/.test(O.CARDS.song.one) && /song:'[^']*두 분이 직접 불러도 돼요/.test(fs.readFileSync(P('order-preview.html'), 'utf8')));
+
 /* ── 5. 엔진 — 고른 값이 콘솔 큐로 그대로 간다 ── */
 const slugs = (S) => C.build(S, { mode: 'console' }).cues.map((c) => c.slug);
 ok('빈 채: 하객 맞이 넷 + 입장 + 닫는 인사(식전 영상 없음 · 04 는 원래 판) [PREVIDEO_PICK]', (() => { const r = C.build({ course: 'open', on: {} }, { mode: 'console' }); const s = slugs({ course: 'open', on: {} }); return r.seq.join(',') === 'guest,entry' && s.indexOf('guest-4-1min') > -1 && s.indexOf('narr-prevideo-in') < 0; })());

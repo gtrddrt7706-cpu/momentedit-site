@@ -366,9 +366,10 @@ for (const w of [390, 1280]) {
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
   // 3장 radiogroup 방향키 — ② 화촉 쪽 «고르기»
   await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
-  const c0 = await pg.evaluate(() => S.candleWho || RitualOpen.DEF.candleWho);
+  /* [CANDLE_PARENTS_FIRST 2026-10-11] 첫 칸이 «함께 입장»이 되자 안 고른 기본값(어머님)이 방향키 한 칸 뒤라 «안 바뀌었다»로 읽혔다 — 누르기 전 칩과 견준다 */
+  const c0 = await pg.evaluate(() => { const f = document.querySelector('.mk-pg [role=radio][tabindex="0"]'); return f ? f.getAttribute('data-fk') : ''; });
   await pg.focus('.mk-pg [role=radio][tabindex="0"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);   // [CHIP_UNPICKED] 탭 자리 = 고른 칩(안 골랐으면 첫 칩) · ★[LP_WAIT_FIX 2026-09-28] 기다림이 주석 안에 들어가 있어 결과를 바로 읽었다(main 에서도 빨강이던 한 건)
-  ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => (S.candleWho || '') !== c && document.activeElement.getAttribute('role') === 'radio' && document.activeElement.getAttribute('aria-checked') === 'true', c0));
+  ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => { const a = document.activeElement, fk = (a && a.getAttribute('data-fk')) || ''; return !!c && fk !== c && a.getAttribute('role') === 'radio' && a.getAttribute('aria-checked') === 'true' && fk.slice(fk.lastIndexOf(':') + 1) === (S.candleWho || ''); }, c0));
   ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radio]')].filter((r) => r.closest('[role=radiogroup]')).every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
   await pg.evaluate(() => mkGo('ring')); await pg.waitForTimeout(400);
   await pg.evaluate(() => mkDrop('ring')); await pg.waitForTimeout(400);   /* [MK_NO_DROP_LINK] 단추가 없어 옛 초안 길로 */

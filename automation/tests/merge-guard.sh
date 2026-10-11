@@ -7557,6 +7557,22 @@ chk 'PRIOR_SEEN' CLAUDE.md 1
 chk 'PRIOR_SEEN' scripts/audit/source-basis.mjs 3
 node scripts/audit/source-basis.mjs || fail=1
 node scripts/audit/source-basis.mjs --selftest || fail=1
+# ★[STAGE1_CLOSE 2026-10-11 사장님 «1단계에서 더 이상 추가 · 빼기 · 수정할 게 없는지 확실하게 마무리하고 2단계로»] 장부 모든 줄에 상태 · 부딪힌 줄엔 결정
+chk 'STAGE1_CLOSE' scripts/audit/source-basis.mjs 5
+# ★[CANDLE_PARENTS_FIRST 2026-10-11 사장님] 화촉 첫 칸 = 양가 부모님 함께 입장 → 하객께 인사 → 어머님 점화(open-course 가 뜻을 잰다)
+chk 'CANDLE_PARENTS_FIRST' assets/ritual-open.js 4
+chk 'CANDLE_PARENTS_FIRST' assets/ritual-cue.js 1
+chk 'CANDLE_PARENTS_FIRST' assets/ritual-story.js 1
+chk 'CANDLE_PARENTS_FIRST' order-preview.html 1
+chk 'CANDLE_PARENTS_FIRST' api/_ritual-kb.js 1
+chk 'CANDLE_PARENTS_FIRST' scripts/audit/open-course.mjs 3
+nochk "\['parents', '양가 부모님 네 분'\]" assets/ritual-open.js 0   # 옛 셋째 칸 이름 · 되살리지 말 것
+# ★[SONG_SELF_1011 2026-10-11 사장님] 축가는 두 분이 직접 불러도 된다
+chk 'SONG_SELF_1011' assets/ritual-open.js 1
+chk 'SONG_SELF_1011' order-preview.html 1
+chk 'SONG_SELF_1011' assets/ritual-story.js 1
+chk 'SONG_SELF_1011' api/_ritual-kb.js 1
+chk 'SONG_SELF_1011' scripts/audit/open-course.mjs 2
 # ★★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자» → «‹축가› 순간 따로 · 노래만 · MR 반주»] 8/07 TRIM_EVENTS · 8/09 SONG_RETIRED · 9/25 FREE_WHAT(라이브 노래 · 연주는 받지 않음)을
 #   사장님이 직접 뒤집었다(장부에 세 결정을 짚어 드린 뒤 «만들자» · 자리와 범위는 둘 다 «추천대로»). 악기 연주는 그대로 받지 않는다 · 계약서 v1.13 3조 ①-2.
 chk 'SONG_BACK_1011' assets/ritual-open.js 5
