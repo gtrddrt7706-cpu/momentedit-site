@@ -453,7 +453,10 @@
          두 분의 남은 시간이 하객 25명에게 동시에 공표되고, 그 뒤로는 그 시계에 맞춰 돌게 된다.
        ★파일·문안·번호는 그대로 둔다(SONG_RETIRED 와 같은 이유). 되살리지 말 것. */
     'narr-round-mid': 1,
-    'narr-song': 1, 'narr-song-out': 1 };
+    /* ★★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자»] 19 narr-song 은 녹음 목록으로 돌아왔다 — 새 코스 축가의 여는 말이다.
+       55 narr-song-out(«…따뜻한 박수 부탁드립니다»)은 그대로 끈다 — 새 코스 축가는 맺는 말 없이 사람 순간 뒤 디렉터 GO 로 넘어간다
+       ([CLAP_FEW] 말로 청하는 박수는 입장 · 성혼 선언 · 닫는 인사 셋뿐 · 준비한 순서 104 와 같은 처방). */
+    'narr-song-out': 1 };
 
   /*
    ★[SONG_RETIRED 2026-08-09 사용자 지시 *"팔레트 빼자"*] 축가를 팔레트에서도 뺐다.
@@ -844,6 +847,18 @@
     },
 
     song: function (S) {
+      /* ★★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자» → 순간 따로 · 노래만 · MR 반주] 새 코스 축가 — 여는 말(19) → 노래(사람 순간) → 다음 순간은 디렉터 GO.
+         ★맺는 말(55 «따뜻한 박수 부탁드립니다»)은 싣지 않는다([CLAP_FEW] · 노래 뒤 박수는 저절로 나온다 · 청하지 않는다).
+         ★pick 을 두지 않는다 — 고를 판이 없고, ② 이름표는 «…시작» 이름으로 «여는 말 → 시작할 때»가 된다(_lLabFix).
+         ★live.t 는 장면 설명(ritual-story LIVE)의 열쇠다 — 한 글자만 바꿔도 그쪽을 같이 고친다(STORY_COVER). */
+      if (D.COURSES[S.course] && D.COURSES[S.course].open) {
+        return [cue({
+          k: 'song', blockN: '축가', slug: 'narr-song', name: '축가 시작', text: D.NARR.song, duck: PARAM.duckMusic,
+          live: { t: '축가 한 곡 (부르실 분이 앞으로 · MR 은 디렉터가 튼다)', est: 230, duck: PARAM.duckOff, self: true, doing: 'sing',
+            note: 'BGM 은 완전히 끈다 · MR 은 두 분이 예식 사흘 전까지 보낸 파일 · 악기 연주는 받지 않는다',
+            fallback: 'MR 이 안 나오면 다시 튼다 · 그래도 안 되면 부르실 분께 반주 없이 부를지 묻는다' }
+        })];
+      }
       return [cue({
         k: 'song', blockN: '축가', slug: 'narr-song', name: '축가 도입', text: D.NARR.song, duck: PARAM.duckMusic,
         pick: S.song === 'live' ? '어쿠스틱 라이브' : '가족·지인이 직접',

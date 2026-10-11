@@ -5222,7 +5222,7 @@ chk '자유 한 칸\|준비한 순서' assets/advisor-kb.js 3       # 축가는 
 nochk '입퇴장 음악·축가 등 구성을 직접 입력' assets/advisor-kb.js   # ★없는 칸을 있다고 하던 줄
 chk 'WINE_RETIRED' mypage.html 1
 chk 'WINE_RETIRED' api/_ritual-kb.js 3
-chk 'SONG_RETIRED' api/_ritual-kb.js 3
+chk 'SONG_RETIRED' api/_ritual-kb.js 2   # [SONG_BACK_1011 2026-10-11] 축가 줄 둘이 «다시 들였다»로 바뀌어 3 → 2(남은 둘은 옛 결정 기록 주석)
 chk '링 워밍 · 폐지' api/_ritual-kb.js 1     # 절 머리에도 폐지를 적는다 — 아래 POLICY 끝에만 있어 이 절만 읽으면 소개로 보였다
 nochk "{n:'와인 세리머니'" mypage.html        # ★되살리기 금지 — 고를 길이 없는 장면을 약속하게 된다
 nochk "{n:'축가',      " mypage.html
@@ -7557,6 +7557,26 @@ chk 'PRIOR_SEEN' CLAUDE.md 1
 chk 'PRIOR_SEEN' scripts/audit/source-basis.mjs 3
 node scripts/audit/source-basis.mjs || fail=1
 node scripts/audit/source-basis.mjs --selftest || fail=1
+# ★★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자» → «‹축가› 순간 따로 · 노래만 · MR 반주»] 8/07 TRIM_EVENTS · 8/09 SONG_RETIRED · 9/25 FREE_WHAT(라이브 노래 · 연주는 받지 않음)을
+#   사장님이 직접 뒤집었다(장부에 세 결정을 짚어 드린 뒤 «만들자» · 자리와 범위는 둘 다 «추천대로»). 악기 연주는 그대로 받지 않는다 · 계약서 v1.13 3조 ①-2.
+chk 'SONG_BACK_1011' assets/ritual-open.js 5
+chk 'SONG_BACK_1011' assets/ritual-cue.js 2
+chk 'SONG_BACK_1011' assets/ritual-story.js 2
+chk 'SONG_BACK_1011' order-preview.html 5
+chk 'SONG_BACK_1011' api/_ritual-kb.js 3
+chk 'SONG_BACK_1011' assets/advisor-kb.js 2
+chk 'SONG_BACK_1011' index.html 1
+chk 'SONG_BACK_1011' scripts/audit/open-course.mjs 3
+chk 'SONG_BACK_1011' scripts/audit/merge-extra-0926.mjs 2
+nochk '라이브 노래 · 연주는 받지 않아요' assets/ritual-open.js 0
+nochk '라이브 노래 · 연주는 받지 않아요' assets/advisor-kb.js 0
+nochk '라이브 노래 · 연주는 받지 않아요' order-preview.html 0
+nochk '라이브 노래와 연주는 받지 않습니다' index.html 0
+nochk '라이브 노래와 연주는 받지 않습니다' api/_kb.js 0
+nochk '축가 순서는 폐지' api/_ritual-kb.js 0
+nochk "'narr-song': 1, 'narr-song-out': 1" assets/ritual-cue.js 0   # 19 를 녹음 목록에서 다시 끄면 축가 여는 말이 녹음 대기에서 사라진다
+# ★[OPEN_SWEEP_TA 2026-10-11] 녹음 대조 검사가 새 코스(순간을 고르는 판)도 훑는다 — 축가를 되살렸는데 «전부 같습니다»가 나왔다(대조 62곳 → 81곳)
+chk 'OPEN_SWEEP_TA' scripts/check-text-audio.mjs 1
 # ★[KB_WINE_CAKE_1011] AI 상담 지식이 «와인은 축배 안에서 붓는다 · 케이크 커팅을 따로 두지 않는다»라고 말했다 — 9/27 WINE_POUR_OFF · CAKE_TOAST_SPLIT 와 어긋남
 chk 'KB_WINE_CAKE_1011' api/_ritual-kb.js 2
 nochk '그 안에서 붓' api/_ritual-kb.js 0
@@ -12017,12 +12037,22 @@ chk 'PARENT_AT_EMPTY' scripts/check-source-drift.mjs 1
 chk 'PARENT_AT_EMPTY' parents.html 1
 chk '<td>09:50</td><td>10:20</td>' parents.html 1
 chk 'CONTRACT_V111' contract/v1-1.html 1
-chk 'Version v1.12' contract/v1-1.html 1
+chk 'Version v1.13' contract/v1-1.html 1   # [CONTRACT_V113]
+chk 'Version v1.12' contract/archive/v1-12.html 1   # [CONTRACT_V113] v1.12 보존본
 chk 'Version v1.11' contract/archive/v1-11.html 1   # [CONTRACT_V112] v1.11 보존본
 chk 'CONTRACT_V112' contract/v1-1.html 1
 chk 'v1-11.html' admin.html 1
 chk 'v1-11.html' mypage.html 1
 chk 'CONTRACT_V112' automation/platform/70_journey.gs 2
+# ★[CONTRACT_V113 2026-10-11 사장님 «축가 만들자» · SONG_BACK_1011] v1.13 — 3조 ①-3 축가(가족 · 친구가 '갑'이 보낸 MR 에 맞춰 한 곡 · 악기 연주 없음) · ①-2 끝 «라이브 노래·연주는 진행하지 않는다» 걷음
+chk 'CONTRACT_V113' contract/v1-1.html 1
+chk 'CONTRACT_V113' automation/platform/70_journey.gs 2
+chk 'v1-12.html' admin.html 1
+chk 'v1-12.html' mypage.html 1
+chk "반주 음원(MR)에 맞춰 한 곡을 부르며 '을'은 반주 음원을 재생한다" contract/v1-1.html 1
+chk '악기 연주는 진행하지 않는다' contract/v1-1.html 1
+nochk '라이브 노래·연주는 진행하지 않는다' contract/v1-1.html 0
+chk '라이브 노래·연주는 진행하지 않는다' contract/archive/v1-12.html 1   # 보존본은 그 판 그대로
 chk "10분 안에서 '갑'이 길이를 정하며" contract/v1-1.html 1
 nochk "'갑' 직접 준비 또는 '을' 준비" contract/v1-1.html
 chk '두 시퀀스의 합은 40분으로 고정된다.' contract/v1-1.html 1
@@ -12712,7 +12742,7 @@ chk 'RP_BACK' order-preview.html 2
 chk 'OP_SYNC_ALL' order-preview.html 4
 chk 'SCENE_FROM_SEQ' order-preview.html 1
 chk 'SCENE_FROM_SEQ' mypage.html 1
-chk 'NO_LIVE_SONG_KB' assets/advisor-kb.js 2
+chk 'NO_LIVE_SONG_KB' assets/advisor-kb.js 2   # [SONG_BACK_1011] 두 줄 다 «→ SONG_BACK_1011» 로 넘어간 기록 — 뜻은 아래 SONG_BACK_1011 묶음이 지킨다
 nochk '축가·영상 상영처럼' assets/advisor-kb.js
 chk 'SPEECH_NO_NONE' assets/ritual-cue.js 2
 chk 'SCRIPT_LAB' order-preview.html 3
