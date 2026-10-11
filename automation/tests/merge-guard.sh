@@ -7706,7 +7706,27 @@ chk 'BLESS_AFTER_DECLARE' assets/ritual-cue.js 1
 chk 'BLESS_AFTER_DECLARE' api/_ritual-kb.js 1
 chk 'BLESS_AFTER_DECLARE' scripts/audit/open-course.mjs 3
 chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
-chk "if (best.length >= 3) L.push(best\[0\] === 'vow' ? NOTICE.heavy : NOTICE.heavyBack);" assets/ritual-open.js 1
+# ★★[HEART_ORDER_1012 2026-10-12 사장님 «1단계 … 개선 없을 때까지 추천대로 개선»] 마음의 순간 = 덕담 → 준비한 순서 → 축가 → 편지 → 부모님께 인사
+#   자료 15곳 중 14곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
+#   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
+chk 'HEART_ORDER_1012' assets/ritual-open.js 13
+chk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js 1   # 덕담은 «약속의 순간» 끝 칸 — 막마다 넷(PC 한 줄)
+chk 'HEART_ORDER_1012' assets/ritual-data.js 1
+chk 'HEART_ORDER_1012' assets/ritual-story.js 1
+chk 'HEART_ORDER_1012' api/_ritual-kb.js 2
+chk 'HEART_ORDER_1012' scripts/audit/open-course.mjs 12
+chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1
+nochk "'bless', 'song', 'tribute', 'free', 'letter'" assets/ritual-open.js 0   # 옛 v4 차례(인사 뒤 준비한 순서 · 편지) · 되살리지 말 것
+nochk "'bless','song','tribute','free','letter'" assets/ritual-data.js 0
+nochk '부모님께 인사 뒤에 한 분이 하십니다' index.html 0                     # 홈 FAQ · 축사 자리(덕담 뒤 · 축가 앞)
+nochk '부모님께 인사 뒤에 한 분이 하십니다' api/_kb.js 0
+chk "heavyMid: '앉아서 듣는 순간이 셋 이어져요. 축가를 담으면 사이가 풀려요.'," assets/ritual-open.js 1
+chk 'TRIBUTE_BRIDE_FIRST' assets/ritual-cue.js 1                         # 양가 차례 — 디렉터 메모만(신부 부모님께 먼저 · 자료 G · P · Q)
+chk 'TRIBUTE_BRIDE_FIRST' scripts/audit/open-course.mjs 1
+chk 'SONG_3MIN' assets/ritual-open.js 1                                  # 축가 MR «3분 안팎 한 곡»(자료 B · C · L)
+chk 'SONG_3MIN' api/_ritual-kb.js 1
+chk 'SONG_3MIN' scripts/audit/open-course.mjs 1
+chk "if (best.length >= 3) L.push(best\[0] === 'vow' ? NOTICE.heavy : best.indexOf('tribute') > -1 ? NOTICE.heavyBack : NOTICE.heavyMid);" assets/ritual-open.js 1   # [HEART_ORDER_1012] 사슬 셋 갈래(서약으로 시작 · 인사가 있음 · 없음)
 chk 'DECL_OLD_MIRROR' admin.html 2
 nochk 'declareInGdad' assets/ritual-data.js 0
 nochk 'declareInBdad' assets/ritual-data.js 0
@@ -14160,10 +14180,10 @@ nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
 # ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 새 코스의 케이크 커팅 · 축배는 두 순간
 #   엔진 줄(녹음 · 시간)은 종전 «케이크와 축배»를 나눠 담는다 · 옛 초안은 migrateCakeToast 가 옮긴다 · 옛 코스는 한 덩어리 그대로
 chk 'CAKE_TOAST_SPLIT' assets/ritual-open.js 10
-chk "'letter', 'cake', 'toast', 'table'\];" assets/ritual-open.js 1   # [TABLE_GREET_1008] ORDER 끝 table
+chk "'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1   # [TABLE_GREET_1008] ORDER 끝 table · [HEART_ORDER_1012] 그 앞은 부모님께 인사(종전 편지)
 chk 'function migrateCakeToast(S)' assets/ritual-open.js 1
 chk 'function toastMode(S)' assets/ritual-open.js 1
-chk "'letter','cake','toast','table'\]" assets/ritual-data.js 1   # [TABLE_GREET_1008]
+chk "'tribute','cake','toast','table']" assets/ritual-data.js 1   # [TABLE_GREET_1008] · [HEART_ORDER_1012] 그 앞은 부모님께 인사(종전 편지)
 chk 'CAKE_TOAST_SPLIT' assets/ritual-cue.js 2
 chk 'O.migrateCakeToast(s);' assets/ritual-cue.js 1
 chk 'CAKE_TOAST_SPLIT' order-preview.html 10
