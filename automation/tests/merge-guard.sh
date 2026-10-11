@@ -17497,3 +17497,4 @@ chk 'nav-solid' index.html 3
 chk 'STEP_FIG_LINING' index.html 3              # #15 순서 숫자 01 · 02 · 03(올드스타일 «OI» 막기) · 가격 숫자는 그대로
 chk 'OPENING_RIBBON_OFF' index.html 1           # #33 가격 카드 «OPENING» 회전 띠 삭제
 nochk 'content: "OPENING"' index.html 0         # ★되살리기 금지 — 2026-10-11 사용자 지시로 삭제
+chk 'ASK_BTN_INK' index.html 1                  # #34 묻기 단추 먹색 · 진사는 상담 예약에만
