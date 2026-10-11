@@ -51,10 +51,14 @@ for (const c of M.clips) {
   }
 }
 
-/* ★자리를 하나도 못 찾으면 «조용한 통과»다 — 그게 이 검사를 만든 이유다. */
-if (!found) no('선언문·답 시연 문장을 manifest 에서 하나도 못 찾았다 — 문면이 또 바뀌었을 수 있다. '
-  + `찾던 것: 「${DECL}」 · 「${DEMO}」. scripts/build-typecast-import.mjs 의 DECL_LINE/DEMO_LINE 을 대조할 것`);
+/* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만 할 거야»] 판정이 뒤집혔다.
+   종전엔 «하나도 못 찾으면 조용한 통과»라 빨강이었다. 이제 선언문(수행문)은 사람(아버님 · 친구 · 지인)이 카드로 읽고,
+   나레이션은 여는 말 · 맺는 말만 한다 — 그래서 녹음할 나레이션 클립에 선언문이 «있으면» 빨강이다(나레이션 선언이 되살아난 것).
+   답 시연(«네, 그러겠습니다»)은 9/21 [ASK_RETIRED] 로 이미 없다 — 있으면 같은 까닭으로 빨강.
+   ★앞 침묵 판정(위 루프 · GAP_IS_SUM)은 그대로 둔다 — 자리가 0곳이면 돌지 않고, 되살아나면 이 판정이 먼저 붉힌다. */
+const back = M.clips.filter((c) => !c.mix && (c.sents || []).some((s) => s.text === DECL || s.text === DEMO)).map((c) => `${c.no}_${c.file}`);
+if (back.length) no(`나레이션 클립에 선언문 · 답 시연이 다시 들어왔다 — ${back.join(' · ')} · 선언문은 사람이 읽는다 [DECLARE_BY_PERSON]`);
 
-console.log(`\n  찾은 자리 ${found}곳`);
-if (bad) { console.error('\n✗ 선언 무음이 얹히지 않는다 — build-typecast-import.mjs 의 DECL_LINE 이 실제 문면과 같은지 볼 것.'); process.exit(1); }
-console.log('✓ DECL PAUSE OK\n');
+console.log(`\n  나레이션 클립 속 선언문 · 답 시연 ${found}곳(0 이어야 한다 · DECLARE_BY_PERSON)`);
+if (bad) { console.error('\n✗ 나레이션이 선언문을 읽는 클립이 있다 — 선언문은 사람이 읽는다(아버님 · 친구 · 지인) [DECLARE_BY_PERSON].'); process.exit(1); }
+console.log('✓ DECL PAUSE OK — 나레이션은 선언하지 않는다\n');

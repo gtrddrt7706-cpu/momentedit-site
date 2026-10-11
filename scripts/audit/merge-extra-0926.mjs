@@ -154,7 +154,7 @@ await safe('P1-4', async () => {
 await safe('P1-7', async () => {
   const { ctx, pg } = await open(390); await toListen(pg);
   const t = await pg.evaluate(async () => { S.on.declare = 1; opSync(); await new Promise((r) => setTimeout(r, 900)); return scriptTextOpen(); });
-  ok('P1-7 대본에 «나레이션(선언 · 나레이션(…))» · «식전 식전» 없음 · «나레이션(선언 · 엄숙하게)» 있음 [SCRIPT_LAB]', t && !/나레이션\(선언 · 나레이션\(/.test(t) && !/식전 식전/.test(t) && /나레이션\(선언 · /.test(t), (t || '').split('\n').filter((l) => /선언|식전/.test(l)).slice(0, 4).join(' / '));
+  ok('P1-7 대본에 «나레이션(선언 · 나레이션(…))» · «식전 식전» 없음 · 선언 여는 말 «나레이션(읽는 분 · …)» · 선언문 한 줄 [SCRIPT_LAB · DECLARE_BY_PERSON]', t && !/나레이션\(선언 · 나레이션\(/.test(t) && !/식전 식전/.test(t) && /나레이션\(읽는 분 · /.test(t) && /선언문\(큰 글씨로 인쇄해 드려요/.test(t), (t || '').split('\n').filter((l) => /선언|식전/.test(l)).slice(0, 4).join(' / '));
   await ctx.close();
 });
 /* P1-8 · P2-4 · 미리 보기 창 */

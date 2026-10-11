@@ -3,7 +3,8 @@
 //   ①나레이션이 있는 순간(하객 맞이 제외)엔 그 사이에 하는 일 줄(말 없이 · 사람 차례 · 영상)이 적어도 하나
 //   ②«…끝나면» 줄 바로 앞은 하는 일 줄(무엇이 끝나는지 화면에 있다)
 //   ③줄 이름에 만드는 사람의 말(여는 말 · 맺는 말 · 이음말)이 없다
-//   ④성혼 선언의 선언 줄 이름은 «성혼 선언문» · 박수는 선언 «뒤» 축하(«박수 · 부부가 돼요» 없음)
+//   ④성혼 선언 — 나레이션 줄은 «시작할 때 · 끝나면» 둘뿐 · 나레이션이 «부부입니다»를 말하지 않는다 · 사이에 읽는 분 차례 · 박수는 선언 «뒤» 축하(«박수 · 부부가 돼요» 없음)
+//     ★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 종전 ④(나레이션 선언 줄 이름 «성혼 선언문»)는 그 줄이 사라져 늘 참이 됐다 — 새 구조를 잰다
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -33,13 +34,16 @@ try {
     if (m.k !== 'guest' && r.some((x) => x.t === 'N') && !r.some((x) => x.t === 'A')) n1.push(id);
     r.forEach((x, i) => { if (x.t === 'N' && /끝나면$/.test(x.lab) && !(i > 0 && r[i - 1].t === 'A')) n2.push(id + ' «' + x.lab + '»');
       if (x.t === 'N' && /^(여는 말|맺는 말|이음말)/.test(x.lab)) n3.push(id + ' «' + x.lab + '»'); });
-    if (m.k === 'declare') { const d = r.find((x) => x.t === 'N' && /이제 두 사람은 부부입니다/.test(x.txt) && !/^끝나면$/.test(x.lab)); if (d && !/^성혼 선언문/.test(d.lab)) n4.push(id + ' «' + d.lab + '»');
+    if (m.k === 'declare') { const N = r.filter((x) => x.t === 'N');
+      if (N.map((x) => x.lab).join('|') !== '시작할 때|끝나면') n4.push(id + ' 나레이션 줄 «' + N.map((x) => x.lab).join('|') + '»');
+      if (N.some((x) => /부부입니다|부부가 되었습니다/.test(x.txt))) n4.push(id + ' 나레이션이 수행문을 말한다');
+      if (!r.some((x) => x.t === 'A' && /차례$|읽어요/.test(x.txt + x.lab))) n4.push(id + ' 읽는 분 차례 없음');
       if (r.some((x) => /박수 · 두 분이 부부가 돼요/.test(x.txt))) n4.push(id + ' 옛 박수 줄'); } });
   ok(`조합 ${res.length}개를 다 봤다(순간 ${new Set(res.map((m) => m.k)).size}개)`, res.length >= 30 && new Set(res.map((m) => m.k)).size >= 14, String(res.length));
   ok('① 나레이션이 있는 순간마다 하는 일 줄이 하나 이상 [STAGE_LINES]', !n1.length, n1.join(' | '));
   ok('② «…끝나면» 줄 바로 앞은 하는 일 줄 [STAGE_LINES]', !n2.length, n2.join(' | '));
   ok('③ 줄 이름에 «여는 말 · 맺는 말 · 이음말» 없음 [STAGE_LINES]', !n3.length, n3.join(' | '));
-  ok('④ 선언 줄 이름 = «성혼 선언문» · «박수 · 부부가 돼요» 없음 [STAGE_LINES]', !n4.length, n4.join(' | '));
+  ok('④ 선언 — 나레이션은 «시작할 때 · 끝나면»뿐 · 수행문은 나레이션이 말하지 않는다 · 사이에 읽는 분 차례 · «박수 · 부부가 돼요» 없음 [STAGE_LINES · DECLARE_BY_PERSON]', !n4.length, n4.join(' | '));
   const tn = res.find((m) => m.k === 'tribute' && /none/.test(m.c)), ck = res.find((m) => m.k === 'cake'), vw = res.find((m) => m.k === 'vow');
   ok('부모님께 인사 «말 없이» — 여는 말과 맺는 말 사이 «꽃을 건네고 안겨요 · 말 없이»', !!tn && tn.rows.some((x) => x.t === 'A' && /꽃을 건네고 안겨요 · 말 없이$/.test(x.txt)), tn && JSON.stringify(tn.rows));
   ok('케이크 — «두 분이 함께 케이크를 잘라요» · 서약 — «마지막 두 문장은 … 하객 쪽으로 돌아서서»', !!ck && ck.rows.some((x) => x.t === 'A' && /케이크를 잘라요/.test(x.txt)) && !!vw && vw.rows.some((x) => x.t === 'A' && /하객 쪽으로 돌아서서/.test(x.txt)));

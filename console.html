@@ -529,7 +529,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <div class="sec">
     <h2>선택 항목</h2>
     <div class="row"><label>입장</label><span id="rEntry"></span></div>
-    <div class="row"><label>성혼 선언 주체</label><span id="rWho"></span></div>
+    <div class="row"><label>성혼 선언 읽는 분</label><span id="rWho"></span></div>
     <div class="row"><label>편지</label><span id="rLetter"></span></div>
     <div class="row"><label>덕담(어른 말씀)</label><span id="rBless"></span></div>
     <div class="row"><label>곁들임</label><span id="rValley"></span></div>
@@ -730,7 +730,8 @@ var EMBED = QS.get('embed') === '1';
 var GUEST = EMBED;
 if (GUEST) MODE = 'preview';              // 고객 화면은 언제나 저절로 흐른다
 
-var S = { course:'damback', entry:'A', declareWho:'narr', declare:'1',
+var S = { course:'damback', entry:'A', declareWho:'', declare:'1',   // [DECLARE_BY_PERSON] 읽을 분 = 아직 안 고름
+         
           letter:'parent', bless:'off', valley:'none', guestVoice:'nar', digital:false };
 
 var S_BAD = false;   // [GUEST_LINK_CUT] 주소의 S 를 못 풀었다(잘린 링크)
@@ -748,7 +749,9 @@ var OPT = {
      (저장된 초안이 그 코스를 쥐고 있으면 이름 없이 키만 뜨게 되므로). */
   rCourse: ['course', Object.keys(COURSES).map(function(k){ return [k, COURSES[k].nm]; })],
   rEntry:  ['entry', [['A','A'],['B','B'],['C','C'],['D','D'],['E','E'],['F','F']]],
-  rWho:    ['declareWho',[['narr','나레이션'],['ask','하객 응답'],['family','가족 낭독'],['chorus','다 함께']]],
+  /* ★[DECLARE_BY_PERSON 2026-10-12] 성혼 선언문은 사람만 읽는다 — 읽는 분 목록은 원천(DECLWHO)에서 뽑는다(손으로 적으면 갈래가 바뀔 때 콘솔만 옛 갈래를 보인다 · SOURCE_DRIFT)
+     ★«나레이션» · «하객 응답» · «가족 낭독» · «다 함께» 칩 금지 — 사용자 지시로 삭제 */
+  rWho:    ['declareWho',[['','안 고름']].concat(Object.keys(DECLWHO).map(function(k){ return [k, DECLWHO[k].d]; }))],
   rLetter: ['letter',[['parent','부모님께'],['each','서로에게'],['both','둘 다']]],
   rBless:  ['bless', [['off','없음'],['on','있음']]],
   rValley: ['valley',[['none','없음'],['wine','와인'],['cake','케이크']]],

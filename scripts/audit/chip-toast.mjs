@@ -69,7 +69,8 @@ for (const W of [320, 390, 1280]) {
       const pick = await pg.evaluate((pre) => { const bs = [...document.querySelectorAll('#stage [data-fk^="' + pre + '"]')]; const off = bs.find((b) => b.getAttribute('aria-checked') !== 'true'); return off ? off.getAttribute('data-fk') : null; }, pre);
       if (pick) await tap(pg, `#stage [data-fk="${pick}"]`);
       const b = await pg.evaluate(TOAST);
-      ok(`390 2 ${k} 칩(${pick}) — 글이 통째로 바뀌면 말하지 않는다 [CHIP_FEW_WORDS]`, !!pick && !b.shown, { pick, b });
+      /* [DECLARE_BY_PERSON 2026-10-12] 선언 칩(읽는 분)은 «‹…›으로 바꿨어요»(CHIP_TOAST)를 말하지 않는다 — 고르면 NOTE_TOAST «선언문은 저희가 인쇄해 드려요» 한 줄만(종전 «가족이 낭독»과 같은 알림) */
+      ok(`390 2 ${k} 칩(${pick}) — 글이 통째로 바뀌면 말하지 않는다 [CHIP_FEW_WORDS]`, !!pick && (!b.shown || (k === 'declare' && b.text === '선언문은 저희가 인쇄해 드려요')) && !/바꿨어요$/.test(b.text || ''), { pick, b });
     }
     // 3 — 줄 수가 바뀌는 작은 바뀜
     for (const [k, want] of [['vow', '‹각자 차례로› 바꿨어요'], ['tribute', '‹말 없이›로 바꿨어요']]) {

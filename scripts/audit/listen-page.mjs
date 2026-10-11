@@ -318,8 +318,10 @@ for (const w of [390, 1280]) {
   }
   ok(`1-2 예시 넷 모두 ④ 가 열린다(${opened}/4) [SAVED_OK]`, opened === 4, errs.join(' | '));
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
+  /* ★[DECLARE_BY_PERSON 2026-10-12 사장님] «하객 박수로 답하기»(clap)는 걷었다 — 예시는 읽을 분을 박지 않는다. 고른 분이 새로고침 뒤에도 그대로인지 본다 */
+  const exWho = await pg.evaluate(() => { const w = S.declareWho; RitualOpen.setChip(S, 'declare', 'bdad'); _persist(); return w; });
   await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800);
-  ok('1-2 «하객 박수로 답하기»가 새로고침 뒤에도 그대로(clap)', await pg.evaluate(() => S.declare === 'clap'));
+  ok('1-2 ‹기록› 예시는 읽을 분을 박지 않는다 · 고른 «신부 아버님»이 새로고침 뒤에도 그대로 [DECLARE_BY_PERSON]', exWho === '' && await pg.evaluate(() => S.declareWho === 'bdad'), exWho);
   const saved = await pg.evaluate(() => { let n = 0, nm = ''; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) { n++; nm = this.download; } }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return { n, nm, first: scriptText().split('\n')[0] }; });
   ok('1-1 «파일로 저장»이 내려받기를 건다 · 파일 이름 · 첫 줄 [SAVE_TXT_LIVE]', saved.n === 1 && saved.nm === '우리예식대본.txt' && /^우리 예식 대본 · /.test(saved.first), JSON.stringify(saved));
   await ctx.close();
@@ -355,8 +357,8 @@ for (const w of [390, 1280]) {
   await pg.goForward(); await pg.waitForTimeout(500);
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } }); await pg.waitForTimeout(1200);
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
-  ok('2-6 이름표(박수를 청하는 말 · 하객 입장 때 · 여는 말) · «성우» 없음', /박수를 청하는 말/.test(labs) && /하객 입장 때/.test(labs) && !/하객이 박수로 답하는|입장 직후|성우/.test(labs), labs);
-  ok('2-6 선언 칩 «나레이션 · 엄숙하게»', await pg.evaluate(() => RitualOpen.CHIPS.declare[0][1] === '나레이션 · 엄숙하게'));
+  ok('2-6 이름표(하객 입장 때 · 여는 말) · «성우» 없음 · 박수 판 이름(«박수를 청하는 말») 없음(DECLARE_BY_PERSON 으로 박수 판을 걷었다)', /하객 입장 때/.test(labs) && !/하객이 박수로 답하는|박수를 청하는 말|입장 직후|성우/.test(labs), labs);
+  ok('2-6 선언 칩 «신랑 아버님» · «나레이션» 칩 없음 [DECLARE_BY_PERSON]', await pg.evaluate(() => RitualOpen.CHIPS.declare[0][1] === '신랑 아버님' && !RitualOpen.CHIPS.declare.some((c) => /나레이션/.test(c[1]))));
   // 크게 보기 · 끝 화면(③ 연습하기에서)
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }); await pg.waitForTimeout(800);
   await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);

@@ -338,7 +338,7 @@ chk 'seg-b .df' order-preview.html 1                # 「기본」은 칩 안 �
 chk 'BADGE_GAP' order-preview.html 1
 chk "esc(nm)+(rec?' <span" order-preview.html 1      # ★배지 앞 한 칸 — 지우지 말 것(위 이유)
 chk "나레이션 <span class=\"oc-rec\">기본" order-preview.html 2
-chk "_dd?' <span class=\"df\">기본" order-preview.html 1
+nochk '나레이션의 낭독 톤' order-preview.html 0   # ★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 나레이션 선언 말투 곁판(엄숙 · 따뜻 칩 · 칩 안 «기본»)은 걷었다 — 되살리지 말 것
 # ★[BADGE_GAP · 그물 하나를 쓰다가 갈아엎었다 2026-08-13]
 #   처음엔 브라우저 검사에 「배지가 붙어 읽히는가」를 넣었다. 돌연변이로 한 칸을 지워 봤더니
 #   **안 붉었다** — 크로미움이 접근성 이름을 만들 때 스스로 한 칸을 넣는다(실측 2회).
@@ -1450,7 +1450,9 @@ chk '<source type="image/webp"' index.html 22   # 22장 전부 webp source 유�
 chk 'img-webp.mjs' scripts/audit/img-webp.mjs 1  # 위 구조 상시 회귀(파일 존재 + 디코드 실패 이중 확인)
 # ── 2026-07-26 /점검 · 나레이션 대본 교차점검
 chk 'RINGWARM_NO_MIN' order-preview.html 1     # 링워밍 '하객 전체' 카드의 '약 2분 더'·'스물다섯 분' 복원 금지(recoTxt '인원에 따라 달라져요'와 정면 모순 · 수치 약속 금지)
-chk 'DECL_PAUSE_POS' scripts/build-dubbing-script.mjs 1   # 선언 무음이 '마지막 문장'이 아니라 '끝에서 두 번째'(선언문) 기준임 — 구 지시 복원 금지
+# ★[DECLARE_BY_PERSON 2026-10-12] 나레이션 선언(G5-1 · G5-2 · G5-4)을 대본에서 걷어 DECL_PAUSE_POS(선언문 앞뒤 무음 · 끝에서 두 번째 문장)는 걸 자리가 없다.
+#   아래 decl-pause 는 이제 «나레이션 클립에 선언문이 없다»를 잰다(있으면 빨강 — 나레이션 선언이 되살아난 것).
+chk 'DECLARE_BY_PERSON' scripts/build-dubbing-script.mjs 3
 # ★★[DECL_PAUSE_LIVE 2026-09-20] 위 chk 는 **통과만 하는 게이트였다.** 마커 «문자열»은 내내
 #   살아 있었는데 정작 무음을 얹는 조건(build-typecast-import.mjs 의 DECL_LINE)이 사문화돼 있었다 —
 #   [PERF_CANON_2] 가 호명 「신랑 신부,」를 빼면서 문면이 바뀌었는데 상수는 옛 문장 그대로였다.
@@ -1463,7 +1465,7 @@ chk 'DECL_PAUSE_POS' scripts/build-dubbing-script.mjs 1   # 선언 무음이 '�
 #     바꾸니 「하나도 못 찾았다」로 빨강(조용한 통과 없음) ③원복하니 초록.
 if command -v node >/dev/null 2>&1; then
   node scripts/audit/decl-pause.mjs >/dev/null 2>&1 \
-    || { echo 'FAIL decl-pause: 선언 무음이 실제로 안 얹힌다 — node scripts/audit/decl-pause.mjs'; fail=1; }
+    || { echo 'FAIL decl-pause: 나레이션 클립에 선언문이 다시 들어왔다(선언문은 사람이 읽는다 · DECLARE_BY_PERSON) — node scripts/audit/decl-pause.mjs'; fail=1; }
 fi
 chk 'DECL_PAUSE_LIVE' scripts/audit/decl-pause.mjs 2
 chk 'GAP_IS_SUM' scripts/audit/decl-pause.mjs 1
@@ -7544,7 +7546,9 @@ chk 'MUNAN_REST' scripts/apply-munan-rest.mjs 1
 #   ★[MUNAN_REST] 가 지키는 것은 «사장님 지적 33개가 반영돼 있나»이고, 그 지적은 이 낱말이 아니었다.
 chk '화면으로 보고 계신 분들, 반갑습니다' assets/ritual-cue.js 1
 chk '손에 같은 것이 하나씩 생겼습니다' assets/ritual-data.js 3
-chk '이제 두 사람은 부부입니다. 다 함께 축하해 주세요' assets/ritual-data.js 1
+# ★[DECLARE_BY_PERSON 2026-10-12] 57 맺는 말은 수행문(«이제 두 사람은 부부입니다»)을 읽지 않는다 — 선언은 읽은 분이 했다 · 하객에게는 합쇼체(옛 «다 함께 축하해 주세요»는 해요체)
+chk 'declareFamilyOut:"하객 여러분, 새 출발을 큰 박수로 축복해 주시면 감사하겠습니다."' assets/ritual-data.js 1
+nochk 'declareFamilyOut:"이제 두 사람은 부부입니다' assets/ritual-data.js 0
 nochk '선언은 가족의 목소리로 남았습니다' assets/ritual-data.js
 nochk '두 사람이 한 바퀴를 거의 마쳤습니다' assets/ritual-data.js
 nochk '여러분과 두 분이 함께 찍는 시간은' assets/ritual-data.js
@@ -7624,12 +7628,51 @@ chk 'SONG_BACK_1011' assets/advisor-kb.js 2
 chk 'SONG_BACK_1011' index.html 1
 chk 'SONG_BACK_1011' scripts/audit/open-course.mjs 3
 # ★[VOW_DECL_DIFF 2026-10-11 사장님 «서약과 성혼선언 차이를 헷갈릴 수 있으니 · 조사한 자료를 참고해서 · 이벤트 클릭하면 나오는 설명에»]
-#   자료 R «누가 읽느냐로 구분한다» — 서약 = 두 분이 서로에게 직접 / 선언 = 하객 앞에서 · 두 분 대신 나레이션이나 가족(open-course 가 뜻을 잰다)
+#   자료 R «누가 읽느냐로 구분한다» — 서약 = 두 분이 서로에게 직접 / 선언 = 하객 앞에서 · 두 분 대신 아버님이나 친구 · 지인(10/12 DECLARE_BY_PERSON · open-course 가 뜻을 잰다)
 chk 'VOW_DECL_DIFF' assets/ritual-open.js 2
 chk 'VOW_DECL_DIFF' order-preview.html 2
 chk 'VOW_DECL_DIFF' api/_ritual-kb.js 1
 chk 'VOW_DECL_DIFF' scripts/audit/open-course.mjs 3
 nochk "declare:'두 분이 부부가 되었음을 알리고" order-preview.html 0   # [VOW_DECL_DIFF] 두 분이 알리는 것처럼 읽혔다 · 되살리지 말 것
+# ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만 할 거야 · 그게 싫다면 서약으로» → «관련있는거 전부 반영»]
+#   선언문은 사람만 읽는다 — 신랑 아버님 · 신부 아버님 · 친구 · 지인 한 분(칩 «누가 읽나요» · 예시는 박지 않는다 · 옛 narr · family · clap 은 «안 고름»).
+#   나레이션은 여는 말(134 · 135 · 136 «성혼 선언은, ○○께서 해 주시겠습니다») · 맺는 말(57 · 합쇼체 박수 청)만. 21 · 30 · 31 · 32 · 96 · 97 RETIRED.
+#   읽을 분이 없으면 성혼 선언을 빼고 서약으로 맺는다(① 설명 · ② 안 고른 한 줄 · AI 지식 · 옛 코스 경고는 선언과 서약이 둘 다 없을 때만).
+#   10/11 [DECLARE_KEEP_1011 · DECL_READER](나레이션 선언은 기본 그대로)를 뒤집었다 — 장부(순간개편_자료표.json) 성혼 선언 줄 «끝».
+#   ★되살리지 말 것: 나레이션 선언(엄숙하게 · 따뜻하게) · 하객 박수로 답하기 · 가족이 낭독 · «당일에 부담되시면 안내 음성이 대신 읽도록»(32 폴백 약속).
+chk 'DECLARE_BY_PERSON' assets/ritual-data.js 5
+chk 'DECLARE_BY_PERSON' assets/ritual-cue.js 6
+chk 'DECLARE_BY_PERSON' assets/ritual-open.js 10
+chk 'DECLARE_BY_PERSON' order-preview.html 20
+chk 'DECLARE_BY_PERSON' assets/ritual-story.js 3
+chk 'DECLARE_BY_PERSON' api/_ritual-kb.js 1
+chk 'DECLARE_BY_PERSON' admin.html 3
+chk 'DECLARE_BY_PERSON' console.html 2
+chk 'DECLARE_BY_PERSON' scripts/check-ritual-mirror.js 3
+chk 'DECLARE_BY_PERSON' scripts/build-dubbing-script.mjs 3
+chk 'DECLARE_BY_PERSON' scripts/audit/decl-pause.mjs 2
+chk 'DECLARE_BY_PERSON' scripts/audit/declare-by-person.mjs 1
+chk "declare: \[\['gdad', '신랑 아버님'\], \['bdad', '신부 아버님'\], \['friend', '친구 · 지인'\]\]" assets/ritual-open.js 1
+chk "'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'" assets/ritual-cue.js 1
+chk "L('declare','누가 읽나요'" order-preview.html 1
+chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 3
+chk '나레이션은 선언문을 읽지 않는다' api/_ritual-kb.js 1
+nochk "\['solemn', '나레이션 · 엄숙하게'\]" assets/ritual-open.js 0
+nochk "\['family', '가족이 낭독'\]" assets/ritual-open.js 0
+nochk '나레이션이나 가족이 읽' order-preview.html 0
+nochk '나레이션이나 가족이 읽' assets/ritual-open.js 0
+nochk '나레이션이나 가족이 읽' api/_ritual-kb.js 0
+nochk '낭독 주체 2종' api/_ritual-kb.js 0
+nochk '가족이 성혼 선언을 읽으시면' index.html 0
+nochk '가족이 성혼 선언을 읽으시면' api/_kb.js 0
+nochk '안내 음성이 대신 읽도록 바꿀 수 있어요' assets/ritual-story.js 0
+nochk "_DECL_CARD_WHO=\['family'\]" admin.html 0
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/declare-by-person.mjs >/dev/null 2>&1; _dbp=$?
+  if [ "$_dbp" != 0 ]; then echo 'FAIL declare-by-person: 성혼 선언이 «사람만 읽는다»에서 벗어났다 — node scripts/audit/declare-by-person.mjs'; fail=1; fi
+  node scripts/audit/declare-by-person.mjs --selftest >/dev/null 2>&1 \
+    || { echo 'FAIL declare-by-person --selftest: 깨 보기에서 빨강이 안 나온다(죽은 검사) — node scripts/audit/declare-by-person.mjs --selftest'; fail=1; }
+fi
 chk 'SONG_BACK_1011' scripts/audit/merge-extra-0926.mjs 2
 nochk '라이브 노래 · 연주는 받지 않아요' assets/ritual-open.js 0
 nochk '라이브 노래 · 연주는 받지 않아요' assets/advisor-kb.js 0
@@ -8412,7 +8455,7 @@ chk 'ASK_RETIRED' assets/ritual-cue.js 1
 #   그래서 실행 검사로 바꾼다 — DECLWHO 에 그 열쇠가 «있나»를 직접 본다.
 if command -v node >/dev/null 2>&1; then
   _dw=$(node -e "const D=require('./assets/ritual-data.js');console.log(Object.keys(D.DECLWHO).sort().join(','))" 2>/dev/null)
-  [ "$_dw" = "family,narr" ] || { echo "REVERT? 성혼 선언 갈래가 'family,narr' 가 아니다 (지금: $_dw) — [ASK_RETIRED]·[CHORUS_RETIRED] 확인"; fail=1; }
+  [ "$_dw" = "bdad,friend,gdad" ] || { echo "REVERT? 성혼 선언 읽는 분이 'bdad,friend,gdad'(신부 아버님 · 친구 · 지인 · 신랑 아버님)가 아니다 (지금: $_dw) — [DECLARE_BY_PERSON 2026-10-12] · [ASK_RETIRED]·[CHORUS_RETIRED] 확인"; fail=1; }
 fi
 chk "'declare-ask-a': 1" assets/ritual-cue.js 1
 # ★[EVENT_SCRIPT] 성우별은 «녹음»의 자, 이벤트별은 «판단»의 자 — 진희 문제가 성우별에 숨어 있었다
@@ -10344,7 +10387,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 133' scripts/check-ritual-cue.js 1   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 136' scripts/check-ritual-cue.js 1   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -10407,7 +10450,7 @@ if [ "${_pl:-0}" -eq 0 ]; then echo "ok 혼주 편지 본문에 '온라인 참�
 #   ★디렉터 화면의 라벨·지문(「온라인 참석자 환영」·「온라인 인사 2분」)은 그대로 둔다.
 #     고객이 안 보고, 당일 진행 «동작»의 이름이라 실무에서 굳어져 있다. 고객 노출만 맞춘다.
 chk 'TERM_DIGITAL' assets/ritual-story.js 1
-chk '화면으로 함께하시는 분이 계시거나' assets/ritual-story.js 1
+chk '화면으로 함께하시는 분이 계실 때' assets/ritual-story.js 1   # [DECLARE_BY_PERSON 2026-10-12] «…하객분들이 함께 답하는 성혼 선언» 갈래(9/21 폐지)를 걷으며 문장이 줄었다 · TERM_DIGITAL(화면으로)은 그대로
 nochk '온라인으로 함께하시는 분이' assets/ritual-story.js
 
 # ★★[CROWD_MIX 기각 2026-09-12] 하객 군중을 AI 성우 다섯으로 «겹쳐» 만들려다 되돌렸다.
@@ -16240,7 +16283,7 @@ chk 'tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. �
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
-chk 'const N_FILES = 133;' scripts/check-ritual-cue.js 1   # [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133
+chk 'const N_FILES = 136;' scripts/check-ritual-cue.js 1   # [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1
