@@ -273,7 +273,8 @@ for (const w of [390, 1280]) {
   ok('② 한눈에 보기 — 한 항목은 한 번(녹음 줄 · 부탁 줄 되풀이 없음) · 미완료 배지 목록 없음 [MK_SUM_ONE]', !/미완료\s*하객 맞이/.test(tSum) && (tSum.match(/양가 어머님께서 불을 밝혀 주세요/g) || []).length <= 1 && (tSum.match(/시작 10분 전/g) || []).length === 0, tSum.slice(0, 300));
   const mo = await pg.evaluate(() => { const one = (t) => ((t.match(/담은 순간 (\d+)/) || [])[1]) || ''; const r = {}; mkGo('_intro'); r.intro = one(document.getElementById('stage').textContent); mkGo('_sum'); r.sum = one(document.getElementById('stage').textContent); r.fn = String(_opMoments()); return r; });
   ok('② 예식 흐름 · 한눈에 보기의 «담은 순간 N»이 같은 셈 [MOMENTS_ONE]', mo.intro === mo.fn && mo.sum === mo.fn && +mo.fn > 0, JSON.stringify(mo));
-  ok('3-4 한눈에 보기 = 미완료 · 부모님께 부탁드릴 것 · 보낼 것 · 당일 챙길 것 · 도와주실 분 · D-7 없음 [MK_HELPERS]', /미완료 \d+/.test(tSum) && /부모님께 부탁드릴 것/.test(tSum) && !/부모님께 부탁드릴 것 \d/.test(tSum) && /보낼 것/.test(tSum) && /당일 챙길 것/.test(tSum) && /도와주실 분/.test(tSum) && !/D-7|D-14/.test(tSum), tSum.slice(0, 300));
+  /* [DECLARE_BY_PERSON 2026-10-12] 가족 예시에 성혼 선언이 있고 읽을 분은 아직 안 골랐다 — 두 분 할 일 «성혼 선언문 읽어 주실 분 정하기»가 부탁 목록에 들어 머리가 «부탁드릴 것»(SUM_ASK_ALL · 부모님 몫만이면 «부모님께 부탁드릴 것») */
+  ok('3-4 한눈에 보기 = 미완료 · 부탁드릴 것 · 보낼 것 · 당일 챙길 것 · 도와주실 분 · D-7 없음 [MK_HELPERS]', /미완료 \d+/.test(tSum) && /부탁드릴 것/.test(tSum) && !/부탁드릴 것 \d/.test(tSum) && /성혼 선언문 읽어 주실 분 정하기/.test(tSum) && /보낼 것/.test(tSum) && /당일 챙길 것/.test(tSum) && /도와주실 분/.test(tSum) && !/D-7|D-14/.test(tSum), tSum.slice(0, 300));
   /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 부모님께 드릴 말 칸은 미완료 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
   await pg.evaluate(() => mkGo('tribute')); await pg.waitForTimeout(300);
   const tb = await pg.evaluate(() => { const u0 = mkUndone(); const t = document.getElementById('mkt_tribute_g'); t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, same: mkUndone() === u0, inScript: /카드로 인쇄/.test(sc) && /엄마 아빠 고마워요/.test(sc), gone: !/엄마 아빠 고마워요/.test(scriptText()) }; });
@@ -491,7 +492,7 @@ else {
       cross: set('tribute', { S: { tributeSay: 'long', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
       sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
       sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
-  ok('9-9 참고 예시 표 144줄(EX_MORE) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담이 없어도 고른 넷만(부모님 예시 덧붙이기 걷음) [REF_TABLE · EX_MORE · REF_BEST4 · REF_BEST4_ONLY]', rt.rows === 144 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 4, JSON.stringify(rt));
+  ok('9-9 참고 예시 표 149줄(EX_MORE + 감사문 − 선언문) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담이 없어도 고른 넷만(부모님 예시 덧붙이기 걷음) [REF_TABLE · EX_MORE · REF_BEST4 · REF_BEST4_ONLY]', rt.rows === 149 /* 144(EX_MORE) + 8(THANKS_IN_VOW 감사문 예시 네 벌 × 두 분 · 10/11) − 3(DECLARE_BY_PERSON 선언문 넷 → 한 벌 · 10/12) */ && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 4, JSON.stringify(rt));
   ok('9-8 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
