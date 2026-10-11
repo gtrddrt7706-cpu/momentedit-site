@@ -67,6 +67,7 @@
     /* ★[VOW_HOW 2026-10-02] 서약 읽는 방식 — 값은 'alt'|'each' 판 이름뿐(글 아님) · order-preview 의 «읽는 방식» 칩이 같은 커밋에서 만든다 */
     'vowHow',
     'vowFirst',                                // ★[VOW_FIRST 2026-10-06] 먼저 읽는 분 'g'|'b' — 여는 말 소리가 갈린다(127)
+    'vowKind',                                 // ★[THANKS_IN_VOW 2026-10-11] 무엇을 읽나요 'vow'|'thanks' — 감사문이면 여는 말이 133 · 맺는 말이 없다(값은 판 이름뿐 · 글 아님)
     'declare', 'declareWho',                   // 성혼 선언 문안 · 누가
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
     'letter',                                  // 편지 낭독 대상
@@ -99,7 +100,7 @@
     if (!S) return o;
     for (var i = 0; i < KEYS.length; i++) {
       var k = KEYS[i];
-      if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : (k === 'vowFirst') ? (S[k] === 'b' ? 'b' : 'g') : S[k];   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
+      if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : (k === 'vowFirst') ? (S[k] === 'b' ? 'b' : 'g') : (k === 'vowKind') ? (S[k] === 'thanks' ? 'thanks' : 'vow') : S[k];   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
     }
     return o;
   }

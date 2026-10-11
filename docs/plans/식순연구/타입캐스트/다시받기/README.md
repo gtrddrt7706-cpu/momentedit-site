@@ -9,13 +9,13 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 1 | 1 |
+| 1_우성.txt | 우성 | 2 | 2 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 1줄 · 1클립
+# 우성 — 2줄 · 2클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =132_narr-entry-bow
+  --clip =132_narr-entry-bow,=133_narr-thanks-in
 ```
 

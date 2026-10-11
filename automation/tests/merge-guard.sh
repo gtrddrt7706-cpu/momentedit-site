@@ -7559,6 +7559,8 @@ node scripts/audit/source-basis.mjs || fail=1
 node scripts/audit/source-basis.mjs --selftest || fail=1
 # ★[STAGE1_CLOSE 2026-10-11 사장님 «1단계에서 더 이상 추가 · 빼기 · 수정할 게 없는지 확실하게 마무리하고 2단계로»] 장부 모든 줄에 상태 · 부딪힌 줄엔 결정
 chk 'STAGE1_CLOSE' scripts/audit/source-basis.mjs 5
+#   ★2026-10-11 1단계를 닫았다(감사문까지 «끝») — 장부에 «진행»이 하나라도 생기면 빨강. 새 순간 개편은 2단계 줄로 연다
+node scripts/audit/source-basis.mjs --closed || fail=1
 # ★[CANDLE_PARENTS_FIRST 2026-10-11 사장님] 화촉 첫 칸 = 양가 부모님 함께 입장 → 하객께 인사 → 어머님 점화(open-course 가 뜻을 잰다)
 chk 'CANDLE_PARENTS_FIRST' assets/ritual-open.js 4
 chk 'CANDLE_PARENTS_FIRST' assets/ritual-cue.js 1
@@ -7578,6 +7580,25 @@ chk 'MATJEOL_1011' api/_ritual-kb.js 1
 chk 'MATJEOL_1011' scripts/audit/open-course.mjs 5
 chk 'MATJEOL_1011' scripts/check-ritual-cue.js 2
 chk "'narr-entry-bow'" assets/ritual-cue.js 2
+# ★★[THANKS_IN_VOW 2026-10-11 사장님 «감사문 — 서약 카드 안에서 고르기»(추천대로 · 오전 «새 순간 카드»를 바꿈)] 서약 카드 «무엇을 읽나요 · 서약 / 감사문»
+#   감사문 = 여는 말 133 · 하객 쪽을 보고 읽기 · 마지막 두 문장(THANKSBOTH) 함께 · 맺는 말 없음 · 글칸은 서약과 같은 자리 · 시간 −14초
+#   open-course 가 엔진 · 시간 · 이름 · 미리듣기 주소를, thanks-in-vow 가 화면(칩 · 이름 · 예시 넷 · 두 분 함께 · 흐름 · 대본 · 되돌리면 글 그대로)을 잰다
+chk 'THANKS_IN_VOW' assets/ritual-cue.js 3
+chk 'THANKS_IN_VOW' assets/ritual-data.js 2
+chk 'THANKS_IN_VOW' assets/ritual-open.js 6
+chk 'THANKS_IN_VOW' order-preview.html 9
+chk 'THANKS_IN_VOW' assets/ritual-story.js 2
+chk 'THANKS_IN_VOW' api/_ritual-kb.js 2
+chk 'THANKS_IN_VOW' assets/ritual-preview-link.js 1
+chk 'THANKS_IN_VOW' scripts/check-ritual-mirror.js 1
+chk 'THANKS_IN_VOW' scripts/build-course-story.mjs 1
+chk 'THANKS_IN_VOW' scripts/lib/engine-calls.mjs 1
+chk 'THANKS_IN_VOW' scripts/audit/open-course.mjs 7
+chk "'narr-thanks-in'" assets/ritual-cue.js 3
+chk "if (S.vowKind === 'thanks') {" assets/ritual-cue.js 1
+chk 'var THANKSBOTH=\["서로 아끼며 잘 살겠습니다.","오늘 와 주셔서 감사합니다."\];' assets/ritual-data.js 1
+chk 'THANKS_IN_VOW' scripts/audit/thanks-in-vow.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/thanks-in-vow.mjs >/dev/null 2>&1; _tiv=$?; if [ "$_tiv" = 1 ]; then echo 'FAIL thanks-in-vow: 서약 카드 «무엇을 읽나요 · 감사문»이 어긋났습니다 — node scripts/audit/thanks-in-vow.mjs'; fail=1; else echo "ok thanks-in-vow ($_tiv)"; fi; fi
 # ★[SONG_SELF_1011 2026-10-11 사장님] 축가는 두 분이 직접 불러도 된다
 chk 'SONG_SELF_1011' assets/ritual-open.js 1
 chk 'SONG_SELF_1011' order-preview.html 1
@@ -10299,7 +10320,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 131' scripts/check-ritual-cue.js 1   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 133' scripts/check-ritual-cue.js 1   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -16193,7 +16214,7 @@ chk 'tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. �
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
-chk 'const N_FILES = 131;' scripts/check-ritual-cue.js 1
+chk 'const N_FILES = 133;' scripts/check-ritual-cue.js 1   # [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1

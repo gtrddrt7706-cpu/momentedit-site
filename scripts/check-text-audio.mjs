@@ -147,7 +147,7 @@ for (const k of ['bless', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'le
   const on = {}; O.PICKABLE.forEach((k) => { on[k] = 1; });
   const OPEN0 = { course: 'open', on, entry: 'A', declare: '1', declareWho: 'narr', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'video', freeLen: '3', candleWho: 'mothers' };
   for (const ch of [{}, { declare: '2' }, { declareWho: 'family' }, { declare: 'clap' }, { letter: 'parent' }, { tributeSay: 'none' },
-    { freeWhat: 'gift' }, { freeWhat: 'speech' }, { freeWhat: 'etc' }, { candleWho: 'parents' }, { candleWho: 'fathers' }, { candleWho: 'others' }, { vowFirst: 'b' }])
+    { freeWhat: 'gift' }, { freeWhat: 'speech' }, { freeWhat: 'etc' }, { candleWho: 'parents' }, { candleWho: 'fathers' }, { candleWho: 'others' }, { vowFirst: 'b' }, { vowKind: 'thanks' }])   // [THANKS_IN_VOW] 감사문 여는 말 133
     states.push({ ...OPEN0, ...ch });
 }
 

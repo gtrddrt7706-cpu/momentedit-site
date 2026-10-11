@@ -169,8 +169,34 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   'narr-vow-in-b',   /* ★[VOW_FIRST 2026-10-06] 127 · 서약 여는 말 · 신부부터 */
   'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4',
   'narr-table-in',   /* ★[TABLE_GREET_1008 2026-10-08] 131 · 테이블 인사 여는 말 */
-  'narr-entry-bow'];   /* ★[MATJEOL_1011 2026-10-11] 132 · 입장 끝 맞절 */   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
-ok('FILES 맨 끝 89~132 이 새 줄 44개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-entry-bow',   /* ★[MATJEOL_1011 2026-10-11] 132 · 입장 끝 맞절 */   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
+  'narr-thanks-in'];   /* ★[THANKS_IN_VOW 2026-10-11] 133 · 감사문 여는 말 */
+ok('FILES 맨 끝 89~133 이 새 줄 45개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+
+/* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 서약 카드 «무엇을 읽나요» — 감사문을 고르면
+   여는 말 133 → 두 분이 하객 쪽을 본 채 읽고 마지막 두 문장(THANKSBOTH)은 함께 · 맺는 말(서약의 «약속은 말로 끝나지 않습니다») 없음 · 다음 순간은 디렉터 GO.
+   고르지 않으면(모르는 값 포함) 종전 서약 그대로. 시간은 맺는 말 몫(14초)만 짧다 */
+{
+  const on = {}; O.PICKABLE.forEach((k) => { on[k] = 1; });
+  const D = require(P('assets/ritual-data.js'));
+  const vc = (S, mode) => { const r = C.build({ course: 'open', on, ...S }, { mode: mode || 'console' }); const i = r.cues.findIndex((x) => x.k === 'vow'); return { v: r.cues.filter((x) => x.k === 'vow'), next: r.cues[r.cues.findIndex((x, j) => j > i && x.k !== 'vow')] }; };
+  ok('[THANKS_IN_VOW] 감사문 = 여는 말 133 하나 · 맺는 말 없음 · 블록 «감사문» · 함께 읽는 두 문장 = THANKSBOTH · 다음 순간 디렉터 GO «마지막 두 문장을 함께 읽고 나면»', (() => {
+    const a = vc({ vowKind: 'thanks' }); const c = a.v[0];
+    return a.v.length === 1 && c.file === '133_narr-thanks-in' && c.text === D.NARR.thanksIn && c.blockN === '감사문' && c.live && c.live.peak === true
+      && JSON.stringify(c.live.both) === JSON.stringify(D.THANKSBOTH) && D.THANKSBOTH.length === 2 && /하객 쪽을 보고/.test(c.live.t) && /감사문/.test(c.live.fallback)
+      && a.next && a.next.fire === 'manual' && a.next.hint === '마지막 두 문장을 함께 읽고 나면'; })());
+  ok('[THANKS_IN_VOW] 읽는 방식 · 먼저 읽는 분은 서약과 같은 칩 — 각자 차례로 · 신부부터면 «신부 먼저» · 번갈아 · 신부부터면 «(신부부터)»', (() => {
+    const e = vc({ vowKind: 'thanks', vowHow: 'each', vowFirst: 'b' }).v[0].live, al = vc({ vowKind: 'thanks', vowFirst: 'b' }).v[0].live;
+    return /신부 먼저, 신랑 다음으로 감사문/.test(e.tv) && e.first === 'b' && /번갈아 감사문 낭독\(신부부터\)/.test(al.tv); })());
+  ok('[THANKS_IN_VOW] 고르지 않으면 · 모르는 값이면 서약 그대로(여는 말 13 · 맺는 말 14 · VOWBOTH)', ['vow', undefined, 'x'].every((k) => {
+    const a = vc(k === undefined ? {} : { vowKind: k }); return a.v.length === 2 && a.v[0].file === '13_narr-vow-in' && a.v[1].file === '14_narr-vow-out' && JSON.stringify(a.v[0].live.both) === JSON.stringify(D.VOWBOTH); }));
+  ok('[THANKS_IN_VOW] 시간 = 서약보다 14초 짧다(맺는 말 몫) · 할 일 «감사문 · 한 분 300자쯤» · 설명 · 말하는 자리 글', (() => {
+    const p0 = O.partsOf('vow', { on: { vow: 1 } }), p1 = O.partsOf('vow', { on: { vow: 1 }, vowKind: 'thanks' });
+    return p0[0] - p1[0] === 14 && p0.slice(1).join() === p1.slice(1).join() && /^감사문 · 한 분 300자쯤/.test(O.prepOf('vow', { vowKind: 'thanks' })[0][1]) && /^서약문 · /.test(O.prepOf('vow', {})[0][1])
+      && /감사문/.test(O.oneOf('vow', { vowKind: 'thanks' })) && O.oneOf('vow', {}) === O.CARDS.vow.one && /하객께 감사문/.test(O.talkOf('vow', { vowKind: 'thanks' })); })());
+  ok('[THANKS_IN_VOW] 미리듣기 주소가 판 이름을 옮긴다(thanks · 모르는 값은 vow)', (() => { const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-preview-link.js'), 'utf8'))(w); const pk = w.RitualPreviewLink.pick;
+    return w.RitualPreviewLink.KEYS.indexOf('vowKind') > -1 && pk({ vowKind: 'thanks' }).vowKind === 'thanks' && pk({ vowKind: 'zz' }).vowKind === 'vow'; })());
+}
 /* [PV_EX_NAR 2026-10-07] 식전 영상 소개 — 나레이션 판만 예시를 따른다 · 두 분 목소리 판은 90 슬러그 그대로(두 분 소리를 물린다) · 모르는 값은 0 */
 ok('[PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 → 128~130 · 두 분 목소리 판은 90 · 모르는 값은 90', (() => {
   const g = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'prevideo').map((c) => c.slug + ':' + c.file).join(',');

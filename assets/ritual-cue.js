@@ -160,7 +160,10 @@
     'narr-table-in',
     /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 132 — 입장 끝 맞절 한 줄. **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-data.js NARR.entryBow · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
-    'narr-entry-bow'
+    'narr-entry-bow',
+    /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말. **맨 끝에 붙였다**(위 경고 그대로).
+       원천 문안 assets/ritual-data.js NARR.thanksIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
+    'narr-thanks-in'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -250,7 +253,8 @@
     'guest-ex4-3-5min': O.NAR.guestEx[2][2],
     'guest-ex4-4-1min': O.NAR.guestEx[2][3],
     'narr-table-in': D.NARR.tableIn,   // [TABLE_GREET_1008]
-    'narr-entry-bow': D.NARR.entryBow   // [MATJEOL_1011]
+    'narr-entry-bow': D.NARR.entryBow,   // [MATJEOL_1011]
+    'narr-thanks-in': D.NARR.thanksIn   // [THANKS_IN_VOW]
   };
 
   // ── 유틸
@@ -719,6 +723,25 @@
          norm() 이 s.vow='off' 로 만들어 주는데, 여기서 안 보면 그 결정이 조용히 무시된다.
          (ring 은 원래부터 S.ring 을 본다 — 같은 규칙을 vow 에도 둔다) */
       if (S.vow !== 'ok') return [];
+      /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] S.vowKind — 'vow'(기본 · 서약) | 'thanks'(감사문).
+         감사문이면 여는 말 133 → 두 분이 하객 쪽을 본 채 읽고(읽는 방식 · 먼저 읽는 분은 서약과 같은 칩) 마지막 두 문장(THANKSBOTH)은 함께.
+         맺는 말(«약속은 말로 끝나지 않습니다»)은 서약의 말이라 싣지 않는다 — 두 분의 «감사합니다»가 맺고, 다음 순간은 종전대로 이어진다.
+         ★live.t 는 ritual-story.js 의 LIVE 키다(한 글자만 달라도 장면 안내가 끊긴다 · 같은 커밋에서 함께). 모르는 값은 서약 */
+      if (S.vowKind === 'thanks') {
+        var tEach = S.vowHow === 'each', tB = S.vowFirst === 'b';
+        var tKey = tEach ? '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 두 문장은 함께' : '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독 · 마지막 두 문장은 함께';
+        return [cue({
+          k: 'vow', blockN: '감사문', slug: 'narr-thanks-in', name: '감사문 시작', text: D.NARR.thanksIn,
+          live: {
+            t: tKey, est: 70, self: true, doing: 'say', peak: true,
+            first: tB ? 'b' : 'g',
+            tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 두 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 두 문장은 함께' : tKey),
+            both: D.THANKSBOTH, hintNext: '마지막 두 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
+            waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
+            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 두 문장이 어긋나면 신부가 반 박자 먼저'
+          }
+        })];
+      }
       var n = D.NARR.vow;
       return [
         cue({
