@@ -3106,7 +3106,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
       /* [SPEECH_SCRIPT 2026-10-07] 축사 원고 — 덕담과 같은 두 갈래(«원고 없이»면 숨은 원고를 보이지 않는다) · 준비한 순서가 축사일 때만 */
       +(s3d.freeWhat!=='speech'?'':(s3d.mkc&&s3d.mkc['p:free:0']==='site')?'<div class="kv"><span class="k">축사 원고</span><span class="v">원고 없이 현장에서 바로</span></div>'
       :(s3d.tx&&String(s3d.tx['free.p']||'').trim())?'<div class="kv"><span class="k">축사 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['free.p']).trim())+'</span></div>':'')   /* [R2-06] 두 분이 붙여 둔 부모님 덕담 원고(큰 글씨 카드로 준비) — 저장 초안 S.tx 그대로(GAS 변경 없음) */
-      +row('직접 쓰는 글', [s3d.vowText?'서약문':null, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null, (s3d.tx&&(String(s3d.tx['toast.g']||'').trim()||String(s3d.tx['toast.b']||'').trim()))?'축배 한마디':null /* [TOAST_SAY 2026-10-07] S.tx 두 칸 */].filter(function(x){return x;}).join(' · ')||'아직 없음')
+      +row('직접 쓰는 글', [s3d.vowText?(s3d.vowKind==='thanks'?'감사문':'서약문'):null /* [THANKS_IN_VOW] */, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null, (s3d.tx&&(String(s3d.tx['toast.g']||'').trim()||String(s3d.tx['toast.b']||'').trim()))?'축배 한마디':null /* [TOAST_SAY 2026-10-07] S.tx 두 칸 */].filter(function(x){return x;}).join(' · ')||'아직 없음')
       +(s3d.growth==='on'?lrow('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');   /* [ADM_LINK_CLICK] */
     /* ★[ADM_PV_VOICE_BTN 2026-10-07 ERR_CODE_ADMIN] 식전 영상 소개(pvVoice)만 두 분 목소리로 고른 예식도 «파일 보기»가 뜬다(#15) — 종전엔 하객 맞이 · 입장 인사만 보아
        pv 파일 · AI 목소리 칸 · «마지막 실패»(V4 안내가 가리키는 줄)를 볼 길이 없었다. admRfLoad 는 이미 pv 를 그린다 */

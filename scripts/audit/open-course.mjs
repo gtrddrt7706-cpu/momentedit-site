@@ -30,8 +30,9 @@ ok('새 코스도 옛 카드 목록엔 없다(hidden)', D.COURSES.open.hidden ==
 // [WINE_POUR_OFF 2026-09-27 사장님] 와인 붓기(두 와인을 한 잔에 · 기본)를 걷어 축배가 약 30초 짧아졌다 — 옛 12~17 · 14~20 · 17~24 / 23~28 · 20~26 · 16~23
 /* ★[TABLE_GREET_1008 2026-10-08 사장님] «기록» 예시에 테이블 인사(6테이블 × 1분 30초 = 9분)가 들어가 11~16 → 20~25 · 단체 사진 24~29 → 15~20 */
 /* ★[TABLE_APART 2026-10-08 사장님 «테이블 인사는 본식 이후니까 사진과도 따로 본식과도 따로»] 본식에서 테이블 인사(9분)를 뗐다 — 기록 20~25 → 본식 11~16 · 테이블 인사 9 · 단체 사진 15~20(셋 합 40) */
-const WANT = { record: ['약 11~16분', '약 15~20분'], promise: ['약 13~19분', '약 21~27분'], family: ['약 16~23분', '약 17~24분'], brief: ['약 8~12분', '약 28~32분'] };
-{ const T = O.applyExample({}, 'record'), s = O.span(T); ok('[TABLE_APART] ‹기록› 테이블 인사 약 9분 · 본식 + 테이블 인사 + 단체 사진 = 40(위 · 아래 끝 둘 다) · 한 줄 글', s.table === '약 9분' && s.tm === 9 && s.a + s.tm + s.pb === O.DAYMIN && s.b + s.tm + s.pa === O.DAYMIN && O.spanText(T) === '본식 약 11~16분 · 테이블 인사 약 9분 · 단체 사진 약 15~20분', O.spanText(T)); }
+/* ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 입장 끝 맞절 15초가 모든 예식에 들어가 본식이 15초 길다 — 옛 기록 11~16 / 15~20 · 약속 13~19 / 21~27(구현 뒤 게이트 값 · 예시 숫자는 2단계에서 다시 짠다) */
+const WANT = { record: ['약 12~16분', '약 15~19분'], promise: ['약 14~20분', '약 20~26분'], family: ['약 16~23분', '약 17~24분'], brief: ['약 8~12분', '약 28~32분'] };
+{ const T = O.applyExample({}, 'record'), s = O.span(T); ok('[TABLE_APART] ‹기록› 테이블 인사 약 9분 · 본식 + 테이블 인사 + 단체 사진 = 40(위 · 아래 끝 둘 다) · 한 줄 글', s.table === '약 9분' && s.tm === 9 && s.a + s.tm + s.pb === O.DAYMIN && s.b + s.tm + s.pa === O.DAYMIN && O.spanText(T) === '본식 약 12~16분 · 테이블 인사 약 9분 · 단체 사진 약 15~19분' /* [MATJEOL_1011] 옛 11~16 · 15~20 */, O.spanText(T)); }
 { const T = O.applyExample({}, 'promise'), s = O.span(T); ok('[TABLE_APART] 테이블 인사를 안 담으면 가운데가 없다(종전 두 칸 그대로)', !s.tm && s.table === '' && O.spanText(T) === '본식 ' + s.body + ' · 단체 사진 ' + s.photo, O.spanText(T)); }
 { const sg = O.flowSegs(O.applyExample({}, 'record')), t = sg.filter((x) => x.after); const big = O.flowSVG(sg, 600, {}), mini = O.flowSVG(sg, 200, { mini: true }); ok('[TABLE_APART · FLOW_MOOD] 곡선 — 테이블 인사만 «본식 뒤»(after) · 잔잔(3) · 꼬리는 옅은 금 점선 · 큰 곡선에만 이름(명조) · 입장 · 닫는 인사 빈 진주 · 축 없음', t.length === 1 && t[0].k === 'table' && t[0].lv === 3 && /flow-after-line[^>]*stroke="#B89A75"[^>]*stroke-dasharray/.test(big) && /class="flow-name"[^>]*>테이블 인사</.test(big) && (big.match(/class="flow-mark"/g) || []).length === 2 && !/<line/.test(big) && /flow-after-line/.test(mini) && !/flow-name|flow-mark/.test(mini)); }
 { const S = O.applyExample({}, 'record'), V = Object.assign(O.applyExample({}, 'record'), { peak: 'vow' });
@@ -39,7 +40,7 @@ const WANT = { record: ['약 11~16분', '약 15~20분'], promise: ['약 13~19분
 for (const k in WANT) { const s = O.span(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› 본식 ${WANT[k][0]} · 사진과 인사 ${WANT[k][1]}`, s.body === WANT[k][0] && s.photo === WANT[k][1], `${s.body} / ${s.photo}`); }
 // 4-9 초 단위 — 기록 11:49~16:49 · 약속 14:25~20:39 · 전부 17:47~24:59 (CLOSE_BOW 뒤 · 옛 11:33~16:31 · 14:09~20:21 · 17:31~24:41)
 const mmss = (x) => Math.floor(x / 60) + ':' + String(Math.round(x % 60)).padStart(2, '0');
-const SEC = { record: '20:25~25:15' /* [TABLE_GREET_1008] 테이블 인사 9분 + 여는 말 7초 · 옛 11:18~16:08 */, promise: '13:24~19:19', brief: '7:53~11:44' };   // [WINE_POUR_OFF] 옛 11:49~16:49 · 13:55~20:00 · 8:24~12:25
+const SEC = { record: '20:40~25:30' /* [TABLE_GREET_1008] 테이블 인사 9분 + 여는 말 7초 · 옛 11:18~16:08 · [MATJEOL_1011] 맞절 +15초 · 옛 20:25~25:15 */, promise: '13:39~19:34', brief: '8:08~11:59' };   // [MATJEOL_1011] 옛 13:24~19:19 · 7:53~11:44   // [WINE_POUR_OFF] 옛 11:49~16:49 · 13:55~20:00 · 8:24~12:25
 for (const k in SEC) { const b = O.bodySec(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› ${SEC[k]}`, mmss(b[0]) + '~' + mmss(b[1]) === SEC[k], mmss(b[0]) + '~' + mmss(b[1])); }
 ok('예시 넷에는 준비한 순서가 없다 · 알림 없음(기록만 알림 ④ — 테이블 인사로 단체 사진 15~20 [TABLE_GREET_1008])', O.EXAMPLES.every((e) => e.on.indexOf('free') < 0 && (e.k === 'record' ? O.noticeOf(O.applyExample({}, e.k)) === O.NOTICE.short(15) : !O.noticeOf(O.applyExample({}, e.k)))));
 /* [TRIB_ONE_SAY 2026-10-06] 말의 길이 하나(말로 인사 = long) · 옛 one 도 long 으로 */
@@ -115,6 +116,19 @@ ok('축가 카드 · 준비한 순서 카드가 «악기 연주는 받지 않아
   ok('[VOW_DECL_DIFF] ① 미리 보기 창 — 같은 기준 · 옛 «부부가 되었음을 알리고»(두 분이 알리는 것처럼 읽힘) 없음', vowOk(pv('vow')) && declOk(pv('declare')) && !/되었음을 알리고/.test(pv('declare')), pv('vow') + ' | ' + pv('declare'));
 }
 
+/* ★[CANDLE_PARENTS_FIRST 2026-10-11 사장님 «추천대로»] 화촉 «서는 분» 첫 칸 = 양가 부모님 함께 입장 → 하객께 인사 → 어머님 점화 · 고르지 않으면 종전대로 양가 어머님 */
+ok('[CANDLE_PARENTS_FIRST] 첫 칸 «양가 부모님 함께 입장» · 기본은 어머님 · 함께 입장 판이 20초 길다 · 부탁 글에 «어머님께서»', O.CANDLE_WHO[0][0] === 'parents' && O.CANDLE_WHO[0][1] === '양가 부모님 함께 입장' && O.DEF.candleWho === 'mothers'
+  && O.partsOf('candle', { candleWho: 'parents' })[2] - O.partsOf('candle', { candleWho: 'mothers' })[2] === 20
+  && /함께 들어와 하객께 인사하시면 어머님께서/.test(JSON.stringify(O.prepOf('candle', { candleWho: 'parents' }))));
+ok('[CANDLE_PARENTS_FIRST] 콘솔 — 함께 입장 판은 네 분 입장 · 하객 인사 · 어머님 점화 사람 순간', (() => { const r = C.build({ course: 'open', on: { candle: 1 }, candleWho: 'parents' }, { mode: 'console' }); const c = r.cues.find((x) => /^narr-candle-in-parents$/.test(x.slug || '')); return !!c && /하객께 인사 · 어머님 두 분이 불을 밝히고/.test((c.live || {}).t || ''); })());
+/* ★[SONG_SELF_1011 2026-10-11 사장님 «추천대로»] 축가는 두 분이 직접 불러도 된다(자료 C 신랑 축가 · G 신랑이 신부에게 · Q 두 분 듀엣) */
+ok('[SONG_SELF_1011] 축가 카드 · 미리 보기 창이 «두 분이 직접 불러도 돼요»', /두 분이 직접 불러도 돼요/.test(O.CARDS.song.one) && /song:'[^']*두 분이 직접 불러도 돼요/.test(fs.readFileSync(P('order-preview.html'), 'utf8')));
+
+/* ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 새 코스는 입장 끝에 맞절이 늘 있다 — 고를 것 없음 */
+ok('[MATJEOL_1011] 빈 채에도 입장 바로 뒤 맞절 한 줄(132 · 디렉터 GO · 사람 순간 3·3·3) · 옛 바라보기 도착 큐는 없다', (() => { const r = C.build({ course: 'open', on: {} }, { mode: 'console' }); const s = r.cues.map((c) => c.slug); const i = s.indexOf('narr-entry-bow'), b = r.cues[i] || {};
+  return i === s.indexOf('entry-A') + 1 && b.fire === 'manual' && /3초 숙이고 · 3초 멈추고 · 3초 일어나기/.test((b.live || {}).t || '') && s.indexOf('narr-entry-out') < 0; })());
+ok('[MATJEOL_1011] 입장 몫 = 입장 판 + 맞절 15초 · 카드 설명이 맞절을 말한다', O.partsOf('entry', { entry: 'A' }).join(',') === [O.TIME.entry.A[0] + 3, O.TIME.entry.A[1], O.TIME.entry.A[2] + 12, O.TIME.entry.A[3]].join(',') && /맞절/.test(O.CARDS.entry.one));
+
 /* ── 5. 엔진 — 고른 값이 콘솔 큐로 그대로 간다 ── */
 const slugs = (S) => C.build(S, { mode: 'console' }).cues.map((c) => c.slug);
 ok('빈 채: 하객 맞이 넷 + 입장 + 닫는 인사(식전 영상 없음 · 04 는 원래 판) [PREVIDEO_PICK]', (() => { const r = C.build({ course: 'open', on: {} }, { mode: 'console' }); const s = slugs({ course: 'open', on: {} }); return r.seq.join(',') === 'guest,entry' && s.indexOf('guest-4-1min') > -1 && s.indexOf('narr-prevideo-in') < 0; })());
@@ -154,8 +168,35 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   ...[2, 3, 4].flatMap((e) => ['1-arrival', '2-10min', '3-5min', '4-1min'].map((t) => 'guest-ex' + e + '-' + t)),   /* ★[GUEST_EX_NAR 2026-10-06] 115~126 · 하객 맞이 나레이션 예시 2~4 */
   'narr-vow-in-b',   /* ★[VOW_FIRST 2026-10-06] 127 · 서약 여는 말 · 신부부터 */
   'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4',
-  'narr-table-in'];   /* ★[TABLE_GREET_1008 2026-10-08] 131 · 테이블 인사 여는 말 */   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
-ok('FILES 맨 끝 89~131 이 새 줄 43개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-table-in',   /* ★[TABLE_GREET_1008 2026-10-08] 131 · 테이블 인사 여는 말 */
+  'narr-entry-bow',   /* ★[MATJEOL_1011 2026-10-11] 132 · 입장 끝 맞절 */   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
+  'narr-thanks-in'];   /* ★[THANKS_IN_VOW 2026-10-11] 133 · 감사문 여는 말 */
+ok('FILES 맨 끝 89~133 이 새 줄 45개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+
+/* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 서약 카드 «무엇을 읽나요» — 감사문을 고르면
+   여는 말 133 → 두 분이 하객 쪽을 본 채 읽고 마지막 두 문장(THANKSBOTH)은 함께 · 맺는 말(서약의 «약속은 말로 끝나지 않습니다») 없음 · 다음 순간은 디렉터 GO.
+   고르지 않으면(모르는 값 포함) 종전 서약 그대로. 시간은 맺는 말 몫(14초)만 짧다 */
+{
+  const on = {}; O.PICKABLE.forEach((k) => { on[k] = 1; });
+  const D = require(P('assets/ritual-data.js'));
+  const vc = (S, mode) => { const r = C.build({ course: 'open', on, ...S }, { mode: mode || 'console' }); const i = r.cues.findIndex((x) => x.k === 'vow'); return { v: r.cues.filter((x) => x.k === 'vow'), next: r.cues[r.cues.findIndex((x, j) => j > i && x.k !== 'vow')] }; };
+  ok('[THANKS_IN_VOW] 감사문 = 여는 말 133 하나 · 맺는 말 없음 · 블록 «감사문» · 함께 읽는 두 문장 = THANKSBOTH · 다음 순간 디렉터 GO «마지막 두 문장을 함께 읽고 나면»', (() => {
+    const a = vc({ vowKind: 'thanks' }); const c = a.v[0];
+    return a.v.length === 1 && c.file === '133_narr-thanks-in' && c.text === D.NARR.thanksIn && c.blockN === '감사문' && c.live && c.live.peak === true
+      && JSON.stringify(c.live.both) === JSON.stringify(D.THANKSBOTH) && D.THANKSBOTH.length === 2 && /하객 쪽을 보고/.test(c.live.t) && /감사문/.test(c.live.fallback)
+      && a.next && a.next.fire === 'manual' && a.next.hint === '마지막 두 문장을 함께 읽고 나면'; })());
+  ok('[THANKS_IN_VOW] 읽는 방식 · 먼저 읽는 분은 서약과 같은 칩 — 각자 차례로 · 신부부터면 «신부 먼저» · 번갈아 · 신부부터면 «(신부부터)»', (() => {
+    const e = vc({ vowKind: 'thanks', vowHow: 'each', vowFirst: 'b' }).v[0].live, al = vc({ vowKind: 'thanks', vowFirst: 'b' }).v[0].live;
+    return /신부 먼저, 신랑 다음으로 감사문/.test(e.tv) && e.first === 'b' && /번갈아 감사문 낭독\(신부부터\)/.test(al.tv); })());
+  ok('[THANKS_IN_VOW] 고르지 않으면 · 모르는 값이면 서약 그대로(여는 말 13 · 맺는 말 14 · VOWBOTH)', ['vow', undefined, 'x'].every((k) => {
+    const a = vc(k === undefined ? {} : { vowKind: k }); return a.v.length === 2 && a.v[0].file === '13_narr-vow-in' && a.v[1].file === '14_narr-vow-out' && JSON.stringify(a.v[0].live.both) === JSON.stringify(D.VOWBOTH); }));
+  ok('[THANKS_IN_VOW] 시간 = 서약보다 14초 짧다(맺는 말 몫) · 할 일 «감사문 · 한 분 300자쯤» · 설명 · 말하는 자리 글', (() => {
+    const p0 = O.partsOf('vow', { on: { vow: 1 } }), p1 = O.partsOf('vow', { on: { vow: 1 }, vowKind: 'thanks' });
+    return p0[0] - p1[0] === 14 && p0.slice(1).join() === p1.slice(1).join() && /^감사문 · 한 분 300자쯤/.test(O.prepOf('vow', { vowKind: 'thanks' })[0][1]) && /^서약문 · /.test(O.prepOf('vow', {})[0][1])
+      && /감사문/.test(O.oneOf('vow', { vowKind: 'thanks' })) && O.oneOf('vow', {}) === O.CARDS.vow.one && /하객께 감사문/.test(O.talkOf('vow', { vowKind: 'thanks' })); })());
+  ok('[THANKS_IN_VOW] 미리듣기 주소가 판 이름을 옮긴다(thanks · 모르는 값은 vow)', (() => { const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-preview-link.js'), 'utf8'))(w); const pk = w.RitualPreviewLink.pick;
+    return w.RitualPreviewLink.KEYS.indexOf('vowKind') > -1 && pk({ vowKind: 'thanks' }).vowKind === 'thanks' && pk({ vowKind: 'zz' }).vowKind === 'vow'; })());
+}
 /* [PV_EX_NAR 2026-10-07] 식전 영상 소개 — 나레이션 판만 예시를 따른다 · 두 분 목소리 판은 90 슬러그 그대로(두 분 소리를 물린다) · 모르는 값은 0 */
 ok('[PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 → 128~130 · 두 분 목소리 판은 90 · 모르는 값은 90', (() => {
   const g = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'prevideo').map((c) => c.slug + ':' + c.file).join(',');

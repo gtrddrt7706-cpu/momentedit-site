@@ -125,19 +125,7 @@ export function blockFit(file, sents) {
   if (any) return { ok: true, blocks: spoken, sy, guess: null };
 
   /* 어느 자리가 빠졌나 — n-B 개를 빼고 나머지를 1:1 로 놓아 또래 속도(6.8)에 가장 가까운 것 */
-  const cand = [];
-  (function walk(i, picked) {
-    if (picked.length === n - B) {
-      const keep = []; for (let k = 0; k < n; k++) if (!picked.includes(k)) keep.push(k);
-      let cost = 0, all = true;
-      keep.forEach((k, j) => { const r = sy[k] / spoken[j];
-        if (r < RATE_LO || r > RATE_HI) all = false; cost += Math.abs(r - RATE_MID); });
-      if (all) cand.push({ drop: picked.slice(), cost, rates: keep.map((k, j) => +(sy[k] / spoken[j]).toFixed(1)) });
-      return;
-    }
-    for (let k = i; k < n; k++) { picked.push(k); walk(k + 1, picked); picked.pop(); }
-  })(0, []);
-  cand.sort((a, b) => a.cost - b.cost);
+  const cand = guessTop2(sy, spoken);   // [GUESS_DP] 1 · 2등만(아래 GUESS_TIE 가 둘만 본다)
   /* ★[GUESS_TIE] 1등과 2등이 이만큼도 안 벌어지면 지목하지 않는다 — [GAP_MATCH] 와 같은 처방.
      실측 27_letter-parent: 3번째를 빼면 1.90 · 4번째를 빼면 1.94 (차이 0.04). 기계는 못 가린다.
      형제 클립 28·29 는 둘 다 「편지를 펼치고, 천천히 읽으시면 됩니다.」를 가리킨다 — 그 판단은 사람 몫이다. */
@@ -146,4 +134,34 @@ export function blockFit(file, sents) {
       ? { tie: cand.slice(0, 2).map((x) => x.drop.slice()) }
       : cand[0];
   return { ok: false, blocks: spoken, sy, guess };
+}
+
+/* ★★[GUESS_DP 2026-10-11] «빠진 자리» 1 · 2등을 DP 로 — 종전엔 뺄 자리 조합을 전부 훑었다(C(n, n−B) 가지).
+   ─ 왜: 43_parents-letter(혼주 편지 · 49문장 · 덩어리 34)는 1.6조 가지라 실청판 생성(build-listen-all)이 끝나지 않았다
+     (10/11 · 16분 넘게 CPU 를 쓰다 끊었다). 문장이 긴 배역 클립이 생기면 check-audio-sents 도 같은 자리에서 멈춘다.
+   ─ 같은 답인가: 칸(i, j) = 앞 i 문장으로 앞 j 덩어리를 1:1 로 채운 배분(나머지는 뺌) 중 (비용, 뺀 자리 사전순)으로 앞선 둘만 남긴다.
+     같은 꼬리를 붙이면 두 배분의 앞뒤가 안 바뀌므로 끝 칸의 둘이 전체 1 · 2등이다. 비용은 종전과 같은 차례(덩어리 0 → B−1)로 더해
+     부동소수까지 같고, 같은 비용이면 종전 차례(조합을 사전순으로 훑고 비용으로 안정 정렬)대로 뺀 자리 사전순이 앞선다.
+     scripts/audit/guess-dp.mjs 가 무작위 판 수백 개에서 옛 전수 훑기와 한 글자까지 같은지 잰다.
+   ─ 돌려주는 것: [{ drop, cost, rates }] 비용 순 · 많아야 둘 · 없으면 [] */
+export function guessTop2(sy, spoken) {
+  const n = sy.length, B = spoken.length, D = n - B;
+  if (D < 0) return [];
+  const lexLess = (a, b) => { for (let t = 0; t < a.length; t++) if (a[t] !== b[t]) return a[t] < b[t]; return false; };
+  const before = (x, y) => x.cost < y.cost || (x.cost === y.cost && lexLess(x.drop, y.drop));
+  const keep2 = (L) => L.sort((x, y) => (before(x, y) ? -1 : before(y, x) ? 1 : 0)).slice(0, 2);
+  let F = []; for (let j = 0; j <= B; j++) F.push([]);
+  F[0] = [{ cost: 0, drop: [] }];
+  for (let i = 0; i < n; i++) {
+    const G = []; for (let j = 0; j <= B; j++) G.push([]);
+    for (let j = 0; j <= B; j++) {
+      if (F[j].length && i + 1 - j <= D) for (const p of F[j]) G[j].push({ cost: p.cost, drop: p.drop.concat(i) });   // 문장 i 를 뺀다
+      if (j > 0 && F[j - 1].length) { const r = sy[i] / spoken[j - 1];                                               // 문장 i 를 덩어리 j−1 에
+        if (r >= RATE_LO && r <= RATE_HI) for (const p of F[j - 1]) G[j].push({ cost: p.cost + Math.abs(r - RATE_MID), drop: p.drop }); }
+      G[j] = keep2(G[j]);
+    }
+    F = G;
+  }
+  return F[B].filter((p) => p.drop.length === D).map((p) => { const keep = []; for (let k = 0; k < n; k++) if (p.drop.indexOf(k) < 0) keep.push(k);
+    return { drop: p.drop.slice(), cost: p.cost, rates: keep.map((k, j) => +(sy[k] / spoken[j]).toFixed(1)) }; });
 }

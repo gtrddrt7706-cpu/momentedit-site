@@ -697,6 +697,14 @@ var NARR={
       주석이 지키라고 적어 둔 한 마디가 정작 다섯 갈래에 없었던 것이다. 데이터를 주석에 맞췄다
       (좋은 선언은 버리지 않고 앞에 두고, 동작을 맨 끝에 — [AFTER_PARTY] 규칙과 같은 순서).
     ★A 는 2026-09-21 에 바뀌었다([ENTRY_OUT_A_REWORD]) — 52_narr-entry-out.mp3 는 **다시 받아야 한다.** */
+ /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 132 — 입장 끝 맞절을 청하는 한 줄.
+    자료 16개 중 15개 · 실제 예식 5개 중 4개에 있다(장부). 새 코스에서만 · 두 분이 앞에 나란히 서면 디렉터 GO. 글만 두고 녹음은 3단계(나레이션 베스트 예시)에서 */
+ entryBow:"두 분, 서로 마주 보고 맞절해 주세요.",
+ /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말이 이 한 줄이다.
+    자료(honeyg.snap «혼인서약서 대신 감사문» 5유형 · N «신랑 · 신부의 축사(감사 편지)»)에서 감사문은 따로 순서가 아니라 서약 자리에서 읽는 다른 결이다.
+    서약 여는 말(«이제 두 사람이 서로에게 약속을 건넬 차례입니다»)과 같은 틀 · 누가 먼저인지는 말하지 않는다(디렉터가 마이크로 연다).
+    글만 두고 녹음은 3단계(나레이션 베스트 예시)에서 */
+ thanksIn:"이제 두 사람이 오늘 함께해 주신 분들께 고마운 마음을 전할 차례입니다.",
  entryOut:"두 사람이 나란히 있습니다. 잠시, 서로를 바라봐 주세요.",
  entryOutBy:{
   A:"두 사람이 나란히 있습니다. 잠시, 서로를 바라봐 주세요.",
@@ -744,6 +752,9 @@ var NARR={
 //   ★앞 서약이 반말(서로에게)이라 여기서 존댓말로 바뀐다. 시선이 하객 쪽으로 도는 자리다.
 //   이 값이 곧 배역 대본 [26] R-vow-both 의 본문이다 — check-text-audio 가 둘을 대조한다.
 var VOWBOTH=["이 약속, 꼭 지키겠습니다.","가까이서 오래 응원해 주세요."];   // ★[VOW_CHORUS_TEXT_2 2026-09-26] 옛 «오늘 한 약속, 잊지 않고 살겠습니다. 가까이서 오래 지켜봐 주세요.» — 배역 대본 [24]~[26](코워크 10차 · #795)과 사장님 녹음(진한 · 예슬 0926)이 이 글이다. 화면 = 소리.
+/* ★★[THANKS_IN_VOW 2026-10-11] 감사문의 마지막 두 문장 — 두 분이 하객 쪽을 본 채 함께 읽는다(서약의 VOWBOTH 자리 · 저희가 준비해 둔다).
+   빌더 사본(order-preview THANKSBOTH)은 check-ritual-mirror.js 가 원천과 대조한다. 녹음 예시는 없다(글만 · CAST_TEXT_ONLY) */
+var THANKSBOTH=["서로 아끼며 잘 살겠습니다.","오늘 와 주셔서 감사합니다."];
 // 소요 시간 상수(estMin이던 하드코딩) — 분 단위 단일 원천
 /* ★[NARR_CONSOLE_ONLY 2026-08-08] 식순 빌더(order-preview)가 **보여주지 않는** 나레이션 키.
    예식 뒤 30분은 고객이 고르는 자리가 아니라 디렉터 진행이라, 빌더에 사본을 둘 이유가 없다.
@@ -752,7 +763,7 @@ var VOWBOTH=["이 약속, 꼭 지키겠습니다.","가까이서 오래 응원�
      검사를 속이지 말고, 왜 없는지를 데이터 옆에 적는다.
    ★새 키를 여기 넣기 전에 물을 것: 고객이 이 문장을 고르거나 미리 듣는가?
      그렇다면 콘솔 전용이 아니라 빌더에 사본이 있어야 한다. */
-var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn'];   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
+var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn','entryBow','thanksIn'];   /* [MATJEOL_1011] 132 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · tableIn 과 같은 길) */   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
 
 /* ★★[PHOTOCUE 2026-08-08] 호명·연출 안내 — **디렉터가 골라 트는 판**이다(큐 체인이 아니다).
    ★왜 체인이 아닌가: 촬영 시간은 순서가 정해지지 않는다. 어른이 먼저 가셔야 하면 순서를 바꾸고
@@ -849,5 +860,5 @@ var MIN={
  delta:{ringOff:-1,valley:3,bless:2,ringwarmAll:2,toastBoth:2,letterBoth:2}
 };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,NARV:NARV,TONE:TONE,TONE_NAR:TONE_NAR,VOWBOTH:VOWBOTH,MIN:MIN,DAY:DAY,PHOTOCUE:PHOTOCUE,NARR_CONSOLE_ONLY:NARR_CONSOLE_ONLY};
+return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLWHO:DECLWHO,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,NARV:NARV,TONE:TONE,TONE_NAR:TONE_NAR,VOWBOTH:VOWBOTH,THANKSBOTH:THANKSBOTH,MIN:MIN,DAY:DAY,PHOTOCUE:PHOTOCUE,NARR_CONSOLE_ONLY:NARR_CONSOLE_ONLY};
 });

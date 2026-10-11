@@ -17,13 +17,18 @@
       평소 검사(merge-guard)는 새로 생긴 표식을 «참고»로만 알린다 — 다른 작업의 PR 을 막지 않는다. 장부를 고칠 때(--write) 막는다.
    쓰는 법: node scripts/audit/source-basis.mjs            (검사)
            node scripts/audit/source-basis.mjs --write    (장부 다시 만들기)
-           node scripts/audit/source-basis.mjs --selftest (깨 보기 — 빨강이 나와야 초록) */
+           node scripts/audit/source-basis.mjs --selftest (깨 보기 — 빨강이 나와야 초록)
+           node scripts/audit/source-basis.mjs --closed   (1단계가 닫혔나 — «진행» 줄이 하나라도 있으면 빨강)
+   6. ★[STAGE1_CLOSE 2026-10-11 사장님 «1단계에서 더 이상 추가 · 빼기 · 수정할 게 없는지 확실하게 마무리하고 2단계로»]
+      모든 줄에 상태(state)를 단다 — 끝(main 반영) · 2단계(기본 코스에서) · 3단계(나레이션 문안에서) · 다른 섹션 · 그대로 · 진행.
+      부딪혔던 줄(conflict)은 사장님 결정(decided)을 함께 적는다 · 결정이 없으면 «진행»이 아니라 빨강이다(묻지 않고 넘어가지 않는다). */
 import fs from 'node:fs';
 
 const J = 'docs/plans/식순연구/순간개편_자료표.json';
 const MD = 'docs/plans/식순연구/순간개편_근거장부.md';
 const VERDICT = ['유지', '추가', '수정', '기본에서 내림', '해당 없음', '우리 고유'];
 const MARK = { 1: '●', 0.5: '◐', s: '○', 0: '·' };
+const STATE = ['끝', '2단계', '3단계', '다른 섹션', '그대로', '진행'];   // [STAGE1_CLOSE]
 // [PRIOR_SEEN] 바꾸는 줄 · 훑는 파일(고객 화면 · 엔진 · AI 상담) · 결정 낱말 · 표식
 const CHECKED = ['추가', '수정', '기본에서 내림', '해당 없음'];
 const SCAN = ['assets/ritual-data.js', 'assets/ritual-cue.js', 'assets/ritual-open.js', 'assets/ritual-story.js', 'assets/advisor-kb.js',
@@ -70,6 +75,8 @@ function validate(d) {
     if (!String(m.concept || '').trim()) bad.push(at + ' 우리 컨셉 거르기가 비었다');
     if (!String(m.proposal || '').trim()) bad.push(at + ' 제안이 비었다');
     if (!String(m.ours || '').trim()) bad.push(at + ' «우리 지금»이 비었다');
+    if (!STATE.includes(m.state)) bad.push(at + ' 상태가 정해진 말이 아니다: ' + m.state + ' [STAGE1_CLOSE]');
+    if (m.conflict && m.state !== '진행' && !String(m.decided || '').trim()) bad.push(at + ' 부딪힌 줄인데 사장님 결정(decided)이 없다 [STAGE1_CLOSE]');
     if (m.data) {
       keys.forEach((k) => { if (!(k in m.data)) bad.push(at + ' 자료 ' + k + ' 판정이 빠졌다'); });
       Object.entries(m.data).forEach(([k, v]) => {
@@ -110,28 +117,28 @@ function render(d) {
   L.push('');
   L.push('## 1. 자료에서 온 순간');
   L.push('');
-  L.push('| 순간 | 기본 | 선택 | 실제 예식 | 시간 | 우리 지금 | 우리 컨셉으로 거르기 | 결론 | 제안 |');
-  L.push('|---|---:|---:|---:|---:|---|---|---|---|');
+  L.push('| 순간 | 기본 | 선택 | 실제 예식 | 시간 | 우리 지금 | 우리 컨셉으로 거르기 | 결론 | 제안 | 상태 |');
+  L.push('|---|---:|---:|---:|---:|---|---|---|---|---|');
   d.moments.filter((m) => m.data).forEach((m) => {
     const s = stat(d, m);
     const pct = Math.round((s.base / s.n) * 100);
     L.push('| ' + [m.name, fmt(s.base) + '/' + s.n + ' (' + pct + '%)', String(s.opt), fmt(s.rb) + '/' + s.real,
-      s.med === null ? '—' : fmt(s.med) + '분(' + s.mn + '곳)', m.ours, m.concept, '**' + m.verdict + '**', m.proposal].join(' | ') + ' |');
+      s.med === null ? '—' : fmt(s.med) + '분(' + s.mn + '곳)', m.ours, m.concept, '**' + m.verdict + '**', m.proposal, m.state].join(' | ') + ' |');
   });
   L.push('');
   L.push('## 2. 자료에 없는 우리 순간(우리 고유) · 자료에서 다른 결로 나오는 것');
   L.push('');
-  L.push('| 순간 | 가장 가까운 자료 | 우리 지금 | 우리 컨셉으로 거르기 | 결론 | 제안 |');
-  L.push('|---|---|---|---|---|---|');
+  L.push('| 순간 | 가장 가까운 자료 | 우리 지금 | 우리 컨셉으로 거르기 | 결론 | 제안 | 상태 |');
+  L.push('|---|---|---|---|---|---|---|');
   d.moments.filter((m) => !m.data).forEach((m) => {
-    L.push('| ' + [m.name, m.near, m.ours, m.concept, '**' + m.verdict + '**', m.proposal].join(' | ') + ' |');
+    L.push('| ' + [m.name, m.near, m.ours, m.concept, '**' + m.verdict + '**', m.proposal, m.state].join(' | ') + ' |');
   });
   const cf = d.moments.filter((m) => m.conflict);
   if (cf.length) {
     L.push('');
     L.push('## 3. 예전 결정과 부딪히는 것 — 사장님께 하나씩 여쭌다');
     L.push('');
-    cf.forEach((m) => L.push('- **' + m.name + '** · 제안 «' + m.proposal + '» ↔ ' + m.conflict));
+    cf.forEach((m) => L.push('- **' + m.name + '** · 제안 «' + m.proposal + '» ↔ ' + m.conflict + (m.decided ? ' → **' + m.decided + '**' : ' → 여쭐 것')));
   }
   L.push('');
   L.push('## 4. 판정 칸 (● 기본 · ◐ 택1 · ○ 선택 · · 없음)');
@@ -146,7 +153,12 @@ function render(d) {
   L.push('');
   keys.forEach((k) => L.push('- **' + k + '** ' + d.sources[k].name + (d.sources[k].real ? ' · 실제 예식' : '') + ' — momentedit-docs `research/식순_참고자료/' + d.sources[k].doc + '`'));
   L.push('');
-  L.push('## 6. 바꾸는 줄이 읽은 예전 결정 ([PRIOR_SEEN])');
+  /* [STAGE1_CLOSE] 상태 한눈에 — 1단계가 닫혔나 */
+  L.push('## 6. 상태 한눈에 ([STAGE1_CLOSE])');
+  L.push('');
+  STATE.forEach((st) => { const ns = d.moments.filter((m) => m.state === st).map((m) => m.name); if (ns.length) L.push('- **' + st + '** ' + ns.length + ' — ' + ns.join(' · ')); });
+  L.push('');
+  L.push('## 7. 바꾸는 줄이 읽은 예전 결정 ([PRIOR_SEEN])');
   L.push('');
   L.push('> 코드(고객 화면 · 엔진 · AI 상담)에서 그 순간의 말과 결정 낱말이 한 줄에 있는 표식은 전부 여기 적혀야 장부를 다시 만들 수 있다.');
   L.push('');
@@ -173,16 +185,23 @@ if (arg === '--selftest') {
   const t6 = JSON.parse(JSON.stringify(d)); pick(t6).prior.NO_SUCH_MARK_1011 = '지어낸 표식';                       // 코드에 없는 표식
   const t7 = JSON.parse(JSON.stringify(d)); pick(t7).prior.TRIM_EVENTS = ' ';                                          // 읽은 뜻이 비었다
   const t8 = JSON.parse(JSON.stringify(d)); delete pick(t8).kw;                                                         // 찾을 말이 없다
-  const fails = [t1, t2, t3, t4].map((t) => validate(t).length > 0).concat([t5, t6, t7, t8].map((t) => priorCheck(t, true).bad.length > 0));
+  const t9 = JSON.parse(JSON.stringify(d)); delete t9.moments[0].state;                                                 // [STAGE1_CLOSE] 상태 없음
+  const t10 = JSON.parse(JSON.stringify(d)); const cfm = t10.moments.find((m) => m.conflict); if (cfm) { delete cfm.decided; cfm.state = '그대로'; }   // 부딪힌 줄을 결정 없이 닫음
+  const fails = [t1, t2, t3, t4, t9, t10].map((t) => validate(t).length > 0).concat([t5, t6, t7, t8].map((t) => priorCheck(t, true).bad.length > 0));
   const md = render(d).replace(/\| \*\*유지\*\* \|/, '| **추가** |');            // 손으로 고친 장부
   const mdFail = md !== render(d);
   /* 지금 자료표는 «모양»만 본다(strict 아님) — 코드에 새 결정 표식이 생겼다고 다른 작업의 PR 이 깨 보기에서 막히면 안 된다.
      ★첫 판의 깨 보기가 여기서 strict 로 돌아, 같은 PR 에서 AI 지식 줄에 표식을 단 것만으로 빨강이 났다(2026-10-11). 엄격한 검사는 --write 몫이다. */
   const realOk = priorCheck(d, false).bad.length === 0;
-  if (fails.every(Boolean) && mdFail && realOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 9종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN]'); process.exit(0); }
+  if (fails.every(Boolean) && mdFail && realOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 11종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN] [STAGE1_CLOSE]'); process.exit(0); }
   console.log('FAIL [SOURCE_BASIS] 깨 보기 중 빨강이 안 난 것이 있다', fails, mdFail, realOk); process.exit(1);
 }
 
+if (arg === '--closed') {   // [STAGE1_CLOSE] 1단계가 닫혔나
+  const open = d.moments.filter((m) => m.state === '진행').map((m) => m.name);
+  if (open.length) { console.log('FAIL [STAGE1_CLOSE] 1단계에 아직 «진행» 줄이 있다 — ' + open.join(' · ')); process.exit(1); }
+  console.log('ok   [STAGE1_CLOSE] 1단계 닫힘 — 순간 ' + d.moments.length + '줄 모두 끝 · 2단계 · 3단계 · 다른 섹션 · 그대로'); process.exit(0);
+}
 const pc = priorCheck(d, arg === '--write');
 const bad = validate(d).concat(pc.bad);
 if (bad.length) { bad.forEach((b) => console.log('FAIL [SOURCE_BASIS] ' + b)); process.exit(1); }

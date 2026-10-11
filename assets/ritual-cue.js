@@ -157,7 +157,13 @@
     'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4',
     /* ★★[TABLE_GREET_1008 2026-10-08 사장님 결정] 131 — 테이블 인사 여는 말(닫는 인사 뒤 · 사진 안내 26 앞). **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-data.js NARR.tableIn · 녹음 전이라 텍스트 카드로 흐른다 · 옛 narr-round-open(단체 사진 뒤 자리 찾아가기)은 되살리지 않는다 */
-    'narr-table-in'
+    'narr-table-in',
+    /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 132 — 입장 끝 맞절 한 줄. **맨 끝에 붙였다**(위 경고 그대로).
+       원천 문안 assets/ritual-data.js NARR.entryBow · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
+    'narr-entry-bow',
+    /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말. **맨 끝에 붙였다**(위 경고 그대로).
+       원천 문안 assets/ritual-data.js NARR.thanksIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
+    'narr-thanks-in'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -246,7 +252,9 @@
     'guest-ex4-2-10min': O.NAR.guestEx[2][1],
     'guest-ex4-3-5min': O.NAR.guestEx[2][2],
     'guest-ex4-4-1min': O.NAR.guestEx[2][3],
-    'narr-table-in': D.NARR.tableIn   // [TABLE_GREET_1008]
+    'narr-table-in': D.NARR.tableIn,   // [TABLE_GREET_1008]
+    'narr-entry-bow': D.NARR.entryBow,   // [MATJEOL_1011]
+    'narr-thanks-in': D.NARR.thanksIn   // [THANKS_IN_VOW]
   };
 
   // ── 유틸
@@ -623,7 +631,9 @@
       return [cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-in-' + who, name: '화촉 시작',
         text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckMusic, pick: '서는 분 · ' + nm,
-        live: { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' }
+        live: (who === 'parents'
+          ? { t: '양가 부모님이 함께 입장 · 하객께 인사 · 어머님 두 분이 불을 밝히고 자리로', est: 90, self: true, doing: 'move', note: '아버님은 인사 뒤 바로 자리로 · 어머님은 점화 뒤 자리로' }   // [CANDLE_PARENTS_FIRST 2026-10-11]
+          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' })
       }), cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',
         text: EXTRA['narr-candle-out'], duck: PARAM.duckMusic,
@@ -635,7 +645,8 @@
       var e = D.ENTRY[S.entry], own = S.entryVoice === 'couple';
       /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시] 새 코스 입장은 도착 큐(«두 사람이 나란히 있습니다 · 잠시, 서로를 바라봐 주세요» ·
          바라보기 / 맞절 사람 순간)를 싣지 않는다 — 문 앞 멘트 한 줄로 걸어 들어오고, 다음 순간(첫인사)이 디렉터 GO 로 연다.
-         옛 코스는 저장해 둔 소리가 그대로여야 해서 종전대로 둘(도착 큐 포함)이다. 되살리지 말 것. */
+         옛 코스는 저장해 둔 소리가 그대로여야 해서 종전대로 둘(도착 큐 포함)이다. 되살리지 말 것.
+         ★[MATJEOL_1011 2026-10-11] 맞절만은 사장님 결정(«입장 끝에 늘 넣기»)으로 다시 들어왔다 — 아래 concat 의 132 한 줄. 바라보기 도착 큐(narr-entry-out)는 여전히 없다. */
       var openC = !!(D.COURSES[S.course] && D.COURSES[S.course].open);
       return [cue({
         k: 'entry', blockN: '신랑·신부 입장', slug: 'entry-' + S.entry, name: '신랑·신부 입장',
@@ -676,7 +687,14 @@
           live: { t: '두 분이 서로 바라봄', est: PARAM.look.lookSec,
             self: true, doing: 'move', duck: -12, consoleOnly: true, hintNext: '두 분이 다시 앞을 보면', previewPost: [] }
         });
-      })()].slice(0, openC ? 1 : 2);   // [ENTRY_OUT_OFF]
+      })()].slice(0, openC ? 1 : 2).concat(openC ? [cue({
+        /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로)] 새 코스 입장 끝 — 두 분이 앞에 나란히 서면 디렉터 GO → 맞절을 청하는 한 줄(132) →
+           마주 보고 맞절(3초 숙이고 · 3초 멈추고 · 3초 일어나기) → 다음 순간은 디렉터 GO(«두 분이 다시 앞을 보면»).
+           [ENTRY_OUT_OFF] 의 «바라보기» 도착 큐(narr-entry-out)는 여전히 없다 — 맞절만 늘 있다(고를 것 없음). 절 영상은 만들지 않는다(BOW_VIDEO_OFF · 바라보기 영상) */
+        k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
+        fire: 'manual', hint: '두 분이 앞에 나란히 서면',
+        live: { t: '두 분이 마주 보고 맞절 (3초 숙이고 · 3초 멈추고 · 3초 일어나기)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
+      })] : []);   // [ENTRY_OUT_OFF] · [MATJEOL_1011]
     },
 
     welcome: function (S) {
@@ -705,6 +723,25 @@
          norm() 이 s.vow='off' 로 만들어 주는데, 여기서 안 보면 그 결정이 조용히 무시된다.
          (ring 은 원래부터 S.ring 을 본다 — 같은 규칙을 vow 에도 둔다) */
       if (S.vow !== 'ok') return [];
+      /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] S.vowKind — 'vow'(기본 · 서약) | 'thanks'(감사문).
+         감사문이면 여는 말 133 → 두 분이 하객 쪽을 본 채 읽고(읽는 방식 · 먼저 읽는 분은 서약과 같은 칩) 마지막 두 문장(THANKSBOTH)은 함께.
+         맺는 말(«약속은 말로 끝나지 않습니다»)은 서약의 말이라 싣지 않는다 — 두 분의 «감사합니다»가 맺고, 다음 순간은 종전대로 이어진다.
+         ★live.t 는 ritual-story.js 의 LIVE 키다(한 글자만 달라도 장면 안내가 끊긴다 · 같은 커밋에서 함께). 모르는 값은 서약 */
+      if (S.vowKind === 'thanks') {
+        var tEach = S.vowHow === 'each', tB = S.vowFirst === 'b';
+        var tKey = tEach ? '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 두 문장은 함께' : '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독 · 마지막 두 문장은 함께';
+        return [cue({
+          k: 'vow', blockN: '감사문', slug: 'narr-thanks-in', name: '감사문 시작', text: D.NARR.thanksIn,
+          live: {
+            t: tKey, est: 70, self: true, doing: 'say', peak: true,
+            first: tB ? 'b' : 'g',
+            tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 두 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 두 문장은 함께' : tKey),
+            both: D.THANKSBOTH, hintNext: '마지막 두 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
+            waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
+            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 두 문장이 어긋나면 신부가 반 박자 먼저'
+          }
+        })];
+      }
       var n = D.NARR.vow;
       return [
         cue({
