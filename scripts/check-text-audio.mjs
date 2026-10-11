@@ -89,7 +89,7 @@ const AX = {
   entry: ['A', 'B', 'C', 'D', 'E', 'F'],
   entryVoice: ['nar', 'couple'],
   guestVoice: ['nar', 'couple'],
-  declareWho: Object.keys(D.DECLWHO),
+  declareWho: ['', '신부 아버님'],   // [DECLARE_ANYONE 2026-10-12] 읽는 분은 두 분이 적은 글 — 빈칸 · 적은 이름 둘로 돈다(목록이 없다)
   declare: ['1', '2'],
   letter: Object.keys(D.LETTER),
   valley: ['none', 'wine', 'cake', 'both'],

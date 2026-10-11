@@ -264,7 +264,8 @@ for (const w of [390, 1280]) {
   ok('3-7 영상이 없으면 ② 쪽에 큰 빈 상자가 없다', await pg.evaluate(() => !RitualOpen.VIDEO_READY.length && !document.querySelector('.mk-vid')));
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
   ok('3-3 ② 이름표에 엔진 이름이 안 보인다(편지 뒤 자리 · 축사 없음 안내 · 둘 다 · 폐식 · 꽃 헌정)', !/편지 뒤 자리|축사 없음 안내|(^|\|)둘 다(\||$)|폐식|꽃 헌정/.test(labs), labs);
-  ok('3-3 가족 예시 덕담은 서약 바로 앞 → «서약의 문을 여는» 갈래(편지 뒤 갈래 아님)', await pg.evaluate(() => ENG.RitualCue.build(S, { mode: 'preview' }).cues.some((c) => c.slug === 'narr-bless-open')));
+  /* [BLESS_AFTER_DECLARE 2026-10-12 사장님 «추천대로»] 덕담은 성혼 선언 바로 뒤 — 새 코스는 늘 가운데 문안(narr-bless-mid) · «서약의 문을 여는» 갈래(narr-bless-open)는 옛 코스(가족)만 */
+  ok('3-3 가족 예시 덕담은 성혼 선언 바로 뒤 → 가운데 문안 · «서약의 문을 여는» · 편지 뒤 갈래 아님 [BLESS_AFTER_DECLARE]', await pg.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'preview' }).cues, sl = cs.map((c) => c.slug), d = sl.lastIndexOf('narr-declare-family-out'), b = sl.indexOf('narr-bless-mid'); return b > -1 && d > -1 && d < b && sl.indexOf('narr-bless-open') < 0; }));
   await pg.evaluate(() => lsPlayAll()); await pg.waitForTimeout(700);
   ok('3-7 크게 보기에도 빈 상자 없음 · 글이 위로', await pg.evaluate(() => !document.querySelector('#lsFull .lv')));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
@@ -323,9 +324,9 @@ for (const w of [390, 1280]) {
   ok(`1-2 예시 넷 모두 ④ 가 열린다(${opened}/4) [SAVED_OK]`, opened === 4, errs.join(' | '));
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   /* ★[DECLARE_BY_PERSON 2026-10-12 사장님] «하객 박수로 답하기»(clap)는 걷었다 — 예시는 읽을 분을 박지 않는다. 고른 분이 새로고침 뒤에도 그대로인지 본다 */
-  const exWho = await pg.evaluate(() => { const w = S.declareWho; RitualOpen.setChip(S, 'declare', 'bdad'); _persist(); return w; });
+  const exWho = await pg.evaluate(() => { const w = S.declareWho; S.declareWho = '신부 아버님'; _persist(); return w; });   /* [DECLARE_ANYONE] 칩이 아니라 칸에 적은 글 */
   await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800);
-  ok('1-2 ‹기록› 예시는 읽을 분을 박지 않는다 · 고른 «신부 아버님»이 새로고침 뒤에도 그대로 [DECLARE_BY_PERSON]', exWho === '' && await pg.evaluate(() => S.declareWho === 'bdad'), exWho);
+  ok('1-2 ‹기록› 예시는 읽을 분을 박지 않는다 · 적은 «신부 아버님»이 새로고침 뒤에도 그대로 [DECLARE_BY_PERSON · DECLARE_ANYONE]', exWho === '' && await pg.evaluate(() => S.declareWho === '신부 아버님'), exWho);
   const saved = await pg.evaluate(() => { let n = 0, nm = ''; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) { n++; nm = this.download; } }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return { n, nm, first: scriptText().split('\n')[0] }; });
   ok('1-1 «파일로 저장»이 내려받기를 건다 · 파일 이름 · 첫 줄 [SAVE_TXT_LIVE]', saved.n === 1 && saved.nm === '우리예식대본.txt' && /^우리 예식 대본 · /.test(saved.first), JSON.stringify(saved));
   await ctx.close();
@@ -362,7 +363,7 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } }); await pg.waitForTimeout(1200);
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
   ok('2-6 이름표(하객 입장 때 · 여는 말) · «성우» 없음 · 박수 판 이름(«박수를 청하는 말») 없음(DECLARE_BY_PERSON 으로 박수 판을 걷었다)', /하객 입장 때/.test(labs) && !/하객이 박수로 답하는|박수를 청하는 말|입장 직후|성우/.test(labs), labs);
-  ok('2-6 선언 칩 «신랑 아버님» · «나레이션» 칩 없음 [DECLARE_BY_PERSON]', await pg.evaluate(() => RitualOpen.CHIPS.declare[0][1] === '신랑 아버님' && !RitualOpen.CHIPS.declare.some((c) => /나레이션/.test(c[1]))));
+  ok('2-6 선언은 칩 없이 «읽어 주실 분» 칸 · 예시는 칸 안 «예) 아버님 · 친구 · 지인» [DECLARE_ANYONE] (옛 DECLARE_BY_PERSON 칩 셋)', await pg.evaluate(() => !RitualOpen.CHIPS.declare && RitualOpen.DECL_HINT === '예) 아버님 · 친구 · 지인'));
   // 크게 보기 · 끝 화면(③ 연습하기에서)
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }); await pg.waitForTimeout(800);
   await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
@@ -372,7 +373,7 @@ for (const w of [390, 1280]) {
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
   // 3장 radiogroup 방향키 — ② 화촉 쪽 «고르기»
   await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
-  /* [CANDLE_PARENTS_FIRST 2026-10-11] 첫 칸이 «함께 입장»이 되자 안 고른 기본값(어머님)이 방향키 한 칸 뒤라 «안 바뀌었다»로 읽혔다 — 누르기 전 칩과 견준다 */
+  /* [CANDLE_PARENTS_FIRST 2026-10-11 · PARENTS_ENTRY_OFF 2026-10-12] 칩 차례가 바뀌어도 맞게 — 기본값이 아니라 누르기 전 칩과 견준다 */
   const c0 = await pg.evaluate(() => { const f = document.querySelector('.mk-pg [role=radio][tabindex="0"]'); return f ? f.getAttribute('data-fk') : ''; });
   await pg.focus('.mk-pg [role=radio][tabindex="0"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);   // [CHIP_UNPICKED] 탭 자리 = 고른 칩(안 골랐으면 첫 칩) · ★[LP_WAIT_FIX 2026-09-28] 기다림이 주석 안에 들어가 있어 결과를 바로 읽었다(main 에서도 빨강이던 한 건)
   ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => { const a = document.activeElement, fk = (a && a.getAttribute('data-fk')) || ''; return !!c && fk !== c && a.getAttribute('role') === 'radio' && a.getAttribute('aria-checked') === 'true' && fk.slice(fk.lastIndexOf(':') + 1) === (S.candleWho || ''); }, c0));

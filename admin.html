@@ -556,20 +556,24 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 </div>
 
 <!-- ★DECL_ADMIN_MIRROR — 식순 문안·선택지 원천. 선언 주체 라벨을 하드코딩하지 않고 여기서 읽는다.
-     async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLWHO를 참조할 수 있다. -->
+     async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLBY(선언문 원천)를 참조할 수 있다. -->
 <script src="/assets/ritual-data.js"></script>
 <script src="/assets/rec-process.js"></script><!-- [RF_STUDIO_UP] 스튜디오 대신 올리기 — 두 분 화면과 같은 다듬기(한 원천) -->
 <script src="/assets/snap-refs.js"></script><script src="/assets/err-codes.js"></script><!-- [ERR_CODES] 고객 화면 «(코드 S6)»의 뜻 — 검색창 «코드 찾기» · 고객 상세 «최근 실패» --><!-- [SNAP_REFS] 스냅 기획 장면 이름·준비물 원천(부부 화면·브리프와 같은 파일) -->
 <script>
-// ★DECL_ADMIN_MIRROR — 선언 주체 라벨은 DECLWHO에서 읽는다(주체가 늘어도 admin이 자동으로 따라온다).
+// ★DECL_ADMIN_MIRROR — 선언 «읽는 분» 행은 두 분이 적은 글을 그대로 보인다([DECLARE_ANYONE] · 종전엔 DECLWHO 갈래 이름을 읽었다).
 //   과거 사고(2026-07-26): #318이 'ask'를 네 번째 주체로 추가했는데 여기 하드코딩 맵이 안 따라와,
 //   응답형을 고른 고객(당시 감동 코스 기본값 · [LEGACY_LABEL] 지금은 숨긴 코스다)의 상세에서 row()가 falsy를 받아 '성혼 선언' 행이 통째로 사라졌다.
 //   원천을 못 읽는 상황(스크립트 로드 실패)에서도 행이 사라지지 않도록 키를 그대로 보여주는 폴백을 둔다.
 function _declWhoLabel(k){
-  /* ★[DECLARE_BY_PERSON 2026-10-12] 읽을 분은 신랑 아버님 · 신부 아버님 · 친구 · 지인 — 아직 안 골랐거나 옛 값(narr · family · ask · chorus)이면 «아직 안 고름».
-     종전엔 빈 값이면 행이 통째로 사라졌고(row 가 빈 값을 건너뛴다) 옛 값이면 «narr» 같은 키가 그대로 보였다 */
-  try{ if(typeof DECLWHO!=='undefined'){ if(DECLWHO[k] && DECLWHO[k].d) return DECLWHO[k].d; return '아직 안 고름'; } }catch(e){}
-  return k||'';
+  /* ★[DECLARE_ANYONE 2026-10-12 사장님 «특정한 인물을 넣어 놓지는 말자»] 읽는 분 = 두 분이 «읽어 주실 분» 칸에 적은 글. 옛 칩 값 gdad · bdad 는 그 이름,
+     그 밖의 옛 값(friend · narr · family · ask · chorus · clap) · 빈칸은 «아직 안 정함» — 행이 사라지지 않는다(row 는 빈 값을 건너뛴다).
+     ★RitualOpen.declBy 와 같은 규칙(admin 은 ritual-open.js 를 싣지 않아 여기 한 벌 · declare-anyone 검사가 둘을 대조한다 · DECL_OLD_MIRROR) */
+  var OLD={gdad:'신랑 아버님',bdad:'신부 아버님',friend:'',narr:'',family:'',ask:'',chorus:'',clap:''};   // DECL_OLD_MIRROR
+  var v=(typeof k==='string')?k:'';
+  if(Object.prototype.hasOwnProperty.call(OLD,v)) v=OLD[v];
+  v=v.replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,30);
+  return v||'아직 안 정함';
 }
 /* [ADM_AA2] 액션 라벨 동사 사전 — 같은 행위에 두 이름을 두지 않는다(큐 버튼·상세 버튼·모달 확인 버튼 모두 같은 동사).
      "…확인"   들어온 것을 맞다고 승인    : 입금 확인 · 중도금 확인 · 잔금 확인 · 변경 확인 · 추가 보정 입금 확인
@@ -1050,7 +1054,7 @@ function printSeatChart(){
 }
 
 /* ─────────── 하객 인쇄물 (식순지 · 가족 낭독 카드) ───────────
-   ★PRINT_FROM_SOURCE — 문안을 여기에 복붙하지 말 것. 선언 문안은 DECLWHO(assets/ritual-data.js)에서 읽는다.
+   ★PRINT_FROM_SOURCE — 문안을 여기에 복붙하지 말 것. 선언 문안은 DECLBY(assets/ritual-data.js · 옛 DECLWHO)에서 읽는다.
      손으로 적으면 원천이 하나 더 생기고, 그 사본은 어떤 가드도 안 본다(인쇄물 기획안 §1).
      식순 목록·선언 주체는 전부 빌더 저장분(rd.summary·rd.S)에서 읽어 화면과 어긋날 수 없게 한다. */
 
@@ -1225,17 +1229,18 @@ function printOrderSheet(){
 }
 
 // 선언문 낭독 카드 · A5 가로 1장. ★이름이 실제로 들어가는 유일한 인쇄물(D안 본체 · TTS에는 이름을 넣지 않는다).
-// ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «아버지나 친구 지인분이 하게만»] 카드를 뽑을 읽는 분 = DECLWHO 전부(신랑 아버님 · 신부 아버님 · 친구 · 지인) — 원천에서 읽는다.
-//   종전 ['family'] 하나였다(가족 낭독만) · 합송(chorus) · 가족(family) 갈래는 걷었다. 읽는 분을 아직 안 고른 예식은 카드가 없다(두 분 할 일 «읽어 주실 분 정하기»).
-//   ★_DECL_CARD_WHO 를 손으로 적은 배열로 되돌리지 말 것 — 갈래가 바뀌면 버튼이 조용히 사라진다.
-var _DECL_CARD_WHO=(function(){ try{ return Object.keys(DECLWHO); }catch(e){ return ['gdad','bdad','friend']; } })();
+// ★★[DECLARE_ANYONE 2026-10-12 사장님 «특정한 인물을 넣어 놓지는 말자»] 카드는 성혼 선언이 담긴 예식이면 뽑는다 — 누가 읽든 같은 글이다(읽는 분은 두 분이 칸에 적는다).
+//   종전([DECLARE_BY_PERSON] 첫 판)엔 읽는 분 칩(신랑 아버님 · 신부 아버님 · 친구 · 지인)을 고른 예식에만 있었다 — 칩이 없어졌으니 조건도 «선언이 있나» 하나다.
+//   ★합송(chorus) · 가족(family) 갈래는 걷었다. 카드에는 읽는 분 이름을 싣지 않는다(두 분 이름만 · 그분 손에 들리는 카드다).
+function _declOn(s3){ s3=s3||{}; return s3.on?!!s3.on.declare:true; }   // 새 코스는 담은 순간 · 옛 코스는 선언이 늘 있다
+var _DECL_CARD_WHO=[];   // [DECLARE_ANYONE] 옛 이름 — 읽는 분 목록은 없다(남은 참조가 터지지 않게 빈 배열)
 // 문장 단위 줄바꿈(낭독자가 어디서 숨 쉴지 알게). 뒤돌아보기 정규식 없이 처리 — 구형 사파리 호환.
 function _splitSent(t){ return String(t||'').split(/\.\s+/).filter(function(x){return x.trim();}).map(function(x,i,a){ return esc(x.trim()+(/[.!?]$/.test(x.trim())?'':'.')); }); }
 function _declareCardDoc(d){
   var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||{};
-  var who=(rd.S||{}).declareWho||'', nm=_printNames(d);
-  var src=''; try{ if(typeof DECLWHO!=='undefined'&&DECLWHO[who]&&DECLWHO[who].nar) src=DECLWHO[who].nar; }catch(e){}   // ★원천에서 읽는다 · 복붙 금지
-  /* [DECLARE_BY_PERSON] 카드 글 = 두 분 화면에 보인 선언문 그대로(원천 DECLWHO.nar) — 이름이 있으면 «신랑 신부는,» 자리에만 이름을 넣는다.
+  var nm=_printNames(d);
+  var src=''; try{ if(typeof DECLBY!=='undefined'&&DECLBY.nar) src=DECLBY.nar; }catch(e){}   // ★원천에서 읽는다 · 복붙 금지 · [DECLARE_ANYONE] 누가 읽든 같은 글
+  /* [DECLARE_BY_PERSON] 카드 글 = 두 분 화면에 보인 선언문 그대로(원천 DECLBY.nar) — 이름이 있으면 «신랑 신부는,» 자리에만 이름을 넣는다.
      조사가 이름에 붙지 않는 꼴(«신랑 ○○○, 신부 ○○○ 두 사람은,»)이라 받침 판정이 필요 없다 · 두음(류/유)은 정규화하지 않는다(고객이 적은 표기가 진실원).
      ★종전 가족 카드의 «이제 두 사람은 부부입니다 · 큰 박수를 보내 주시기 바랍니다»는 걷었다 — 화면 글과 달랐고, 박수는 나레이션 맺는 말이 청한다(두 번 청하지 않는다).
      줄은 쉼표 · 마침표마다(숨 쉴 자리) · 마지막 문장(선언)은 굵게 크게. 한 칸만 채워진 이름은 무이름이 낫다(«신부 ,»가 인쇄되지 않게) */
@@ -1259,9 +1264,8 @@ function _declareCardDoc(d){
 }
 function printDeclareCard(){
   var d=curDetail; var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||null;
-  var who=(rd&&rd.S&&rd.S.declareWho)||'';
   /* [ADM_MODAL 2026-08-03] 진입 가드 알림 — return이 흐름을 끊으므로 admAlert를 기다릴 필요가 없다 */
-  if(!rd||rd._v!==3||_DECL_CARD_WHO.indexOf(who)<0){ admAlert({ title:'이 예식에는 낭독 카드가 없어요', body:'선언문 읽을 분(아버님이나 친구 · 지인)을 고른 예식에만 낭독 카드를 뽑을 수 있어요.' }); return; }   // [DECLARE_BY_PERSON]
+  if(!rd||rd._v!==3||!_declOn(rd.S)){ admAlert({ title:'이 예식에는 낭독 카드가 없어요', body:'성혼 선언을 담은 예식에만 낭독 카드를 뽑을 수 있어요.' }); return; }   // [DECLARE_ANYONE]
   _printOverlay('ad_declPrint','낭독 카드 · '+((d&&d.names)||'')+' · '+((d&&d.code)||''), _declareCardDoc(d));
 }
 function gas(fn){ var args = Array.prototype.slice.call(arguments,1); return api({ action:'adminCall', token:TOKEN, fn:fn, args:args }); }
@@ -3067,7 +3071,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
   if(rd&&rd._v===3){ var s3d=rd.S||{}, sm3=rd.summary||{};
     // ★인쇄 버튼은 이 _v===3 분기 안에만 둔다 — 구세대 초안(else if)·식순 미작성(rd falsy)은 자동으로 버튼이 안 생긴다(좌석표 1800줄과 같은 방식).
     var _pbt='<button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printOrderSheet()">식순지 프린트</button>'
-      +(_DECL_CARD_WHO.indexOf(s3d.declareWho)>=0?'<button type="button" class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" onclick="printDeclareCard()">낭독 카드</button>':'');
+      +(_declOn(s3d)?'<button type="button" class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" onclick="printDeclareCard()">낭독 카드</button>':'');   // [DECLARE_ANYONE] 선언이 있으면
     /* ★[PHOTO_CALLER 2026-09-26 코워크 회신5 3-4] 당일 콘솔을 이 고객의 식순으로 연다 — 콘솔은 식순(S)을 주소로 받는다.
        «불러 모아 주실 분»도 함께 실어 콘솔 «촬영 안내 골라 틀기» 판 머리에 보이게 한다(디렉터가 이 분께 먼저 말씀드린다). */
     try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')}; if(gi) _cS.photoN=Array.isArray(gi.photo)?gi.photo.length:0; if(gi&&gi.photoFriend) _cS.photoFriend=String(gi.photoFriend).slice(0,200);   /* [PHOTO_FRIEND] 당일 콘솔 판 머리에 */   /* [GROUP_PHOTO 2026-09-26] 가족 구도 수 — 콘솔 narr-photo-split 의 est(3분 × 구도 수) */
@@ -3080,7 +3084,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
       +row('순서 흐름', (Array.isArray(sm3.flow)&&sm3.flow.length)?sm3.flow.join(' → '):'')   /* [ADM_SUM_ESC] 배열 아니면(깨진 초안) 행만 비운다 — join 이 던져 상세가 통째로 죽던 것 */
-      +row('성혼 선언', _declWhoLabel(s3d.declareWho))   // ★DECL_ADMIN_MIRROR — 하드코딩 맵 금지 · 원천(DECLWHO)을 읽는다
+      +row('성혼 선언', _declOn(s3d)?('읽는 분 · '+_declWhoLabel(s3d.declareWho)):'')   // ★DECL_ADMIN_MIRROR · [DECLARE_ANYONE] 두 분이 적은 분(안 적었으면 «아직 안 정함») · 선언을 뺀 예식은 행 없음
       +row('반지 교환', s3d.ring==='off'?'뺌':'')
       /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 부모님께 드릴 꽃 — 맡긴 예식은 주문해야 한다(별도 비용).
          초안(summary.goods)은 고객 기기가 만든 값이라 배열이 아니면 행을 비운다([ADM_SUM_ESC]). */

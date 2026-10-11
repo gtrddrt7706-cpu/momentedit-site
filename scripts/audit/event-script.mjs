@@ -43,7 +43,7 @@ const SETS = [{ course: 'damback' }, { course: 'family', bless: 'on' }, { course
               { digital: true }, { photoShare: true }, { meal: true }, { free: 'on' }, { ring: 'off' },
               { song: 'live' }, { ringwarm: 'all' }, { blessProxy: true }];
 const AX = { entry: ['A','B','C','D','E','F'], entryVoice: ['nar','couple'], guestVoice: ['nar','couple'],
-             declare: ['1','2'], declareWho: Object.keys(D_.DECLWHO), letter: Object.keys(D_.LETTER),
+             declare: ['1','2'], declareWho: ['', '신부 아버님'] /* [DECLARE_ANYONE] 빈칸 · 적은 이름 */, letter: Object.keys(D_.LETTER),
              tribute: Object.keys((D_.TRIBUTE || {}).modes || {}), toast: Object.keys(D_.TOAST),
              valley: ['none','wine','cake','both'], bless: ['on','off'] };
 for (const k of Object.keys(AX)) for (const v of AX[k]) SETS.push({ course: 'damback', [k]: v });

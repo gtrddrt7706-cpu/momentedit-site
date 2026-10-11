@@ -87,12 +87,12 @@ try {
   const chipTxt = await pg.evaluate(() => ((document.querySelector('.mk-pg .mk-cue-ex .ex-chip') || {}).innerText || ''));
   ok('⑩ 끝 신호 예시 칩 — «마지막에 감사합니다라고 할게요»(띄어쓰기 그대로) [GUIL_FLEX_SPACE]', /마지막에 감사합니다라고 할게요/.test(chipTxt.replace(/\s+/g, ' ')), JSON.stringify(chipTxt));
   await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0]; if (q) mkChk(q.id, false); });
-  /* ⑦ 선언문 예시 안내 — 바꿀 칸도 이름도 없는 글이다 [DECL_REF_HEAD] · [DECLARE_BY_PERSON 2026-10-12] 예시는 한 벌(누가 읽든 같은 글)이라 카드가 아니라 읽는 분 칩을 누를 때 알린다 */
+  /* ⑦ 선언문 예시 안내 — 바꿀 칸도 이름도 없는 글이다 [DECL_REF_HEAD] · [DECLARE_BY_PERSON 2026-10-12] 예시는 한 벌(누가 읽든 같은 글)이라 카드가 아니라 · [DECLARE_ANYONE] 읽는 분 칸에 새로 적을 때 알린다 */
   await go('declare'); const dh = await pg.evaluate(async () => { const note = ((document.querySelector('.mk-pg .mk-ref .ls-gnote') || {}).textContent || '').trim(), u0 = document.getElementById('lsToast'); if (u0) { u0.hidden = true; u0.innerHTML = ''; }
     const cards = document.querySelectorAll('.mk-pg .mk-ref [data-fk^="mkrc:declare:"]').length;
-    const c = [...document.querySelectorAll('[data-fk^="lsc:declare:"]')].find((b) => b.getAttribute('aria-checked') !== 'true'); if (c) c.click(); await new Promise((r) => setTimeout(r, 300));
+    const c = document.querySelector('[data-fk="declwho"]'); if (c) { c.value = c.value === '신부 아버님' ? '신랑 친구 김지훈' : '신부 아버님'; c.dispatchEvent(new Event('input', { bubbles: true })); c.dispatchEvent(new Event('change', { bubbles: true })); } await new Promise((r) => setTimeout(r, 300));
     const u = document.getElementById('lsToast'); return { note, cards, chip: !!c, toast: u && !u.hidden ? u.textContent : '' }; });
-  ok('⑦ 선언문 예시 안내 = «선언문은 저희가 인쇄해 드려요»(TOAST_MIN · «바꿔도 돼요 · 가상 인물» 없음) — 카드 줄 아래가 아니라 읽는 분을 고를 때 아래 알림 · 예시 카드 한 벌 [DECL_REF_HEAD · NOTE_TOAST · DECLARE_BY_PERSON]', dh.chip && dh.cards === 1 && dh.note === '' && dh.toast === '선언문은 저희가 인쇄해 드려요', JSON.stringify(dh));
+  ok('⑦ 선언문 예시 안내 = «선언문은 저희가 인쇄해 드려요»(TOAST_MIN · «바꿔도 돼요 · 가상 인물» 없음) — 카드 줄 아래가 아니라 읽는 분을 칸에 적을 때 아래 알림 · 예시 카드 한 벌 [DECL_REF_HEAD · NOTE_TOAST · DECLARE_ANYONE]', dh.chip && dh.cards === 1 && dh.note === '' && dh.toast === '선언문은 저희가 인쇄해 드려요', JSON.stringify(dh));
   /* ⑧ 한눈에 보기 — 두 분이 부탁하는 줄(축사하실 분)도 목록에 · 머리 «부탁드릴 것» [SUM_ASK_ALL] */
   await go('_sum'); const sm = await pg.evaluate(() => { const t = document.querySelector('.mk-pg').textContent.replace(/\u00a0/g, ' '); return { speech: /축사하실 분께 부탁드리기/.test(t), head: /(^|[^모님께 ])부탁드릴 것/.test(t.replace(/부모님께 부탁드릴 것/g, '')), par: /부모님께 부탁드릴 것/.test(t) }; });
   ok('⑧ 한눈에 보기 — 축사 부탁 줄이 있고 머리는 «부탁드릴 것»(부모님 것만일 때만 «부모님께») [SUM_ASK_ALL]', sm.speech && sm.head && !sm.par, JSON.stringify(sm));

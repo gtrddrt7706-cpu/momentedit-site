@@ -128,13 +128,14 @@ for (const course of Object.keys(D.COURSES)) {
     absorb({ course: 'open', on }, 'console');
   }
   const ALL = {}; O.PICKABLE.forEach((k) => { ALL[k] = 1; });
-  const OPEN_SWEEP = { declare: O.CHIPS.declare.map((c) => c[0]), tribute: O.CHIPS.tribute.map((c) => c[0]), letter: O.CHIPS.letter.map((c) => c[0]),
+  const OPEN_SWEEP = { /* [DECLARE_ANYONE 2026-10-12] declare 칩은 없다 — 읽는 분 글은 아래 따로 돈다 */ tribute: O.CHIPS.tribute.map((c) => c[0]), letter: O.CHIPS.letter.map((c) => c[0]),
     toast: O.CHIPS.toast.map((c) => c[0]), wine: O.CHIPS.wine.map((c) => c[0]), free: O.CHIPS.free.map((c) => c[0]), freeLen: O.CHIPS.freeLen.map((c) => c[0]),
     entryScene: O.CHIPS.entryScene.map((c) => c[0]) };   // [LOOK_HOLD 2026-09-26] 첫 모습(바라보기 · 맞절)이 콘솔 사람 순간을 가른다
   for (const how of ['flower', 'bowGroom']) for (const cw of O.CANDLE_WHO.map((c) => c[0])) for (const [ax, vals] of Object.entries(OPEN_SWEEP)) for (const v of vals) for (const mode of ['console', 'preview']) {
     const S = { course: 'open', on: { ...ALL }, tribute: how, candleWho: cw }; O.setChip(S, ax, v);
     absorb(S, mode);
   }
+  for (const dw of ['', '신부 아버님']) for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, declareWho: dw }, mode);   // [DECLARE_ANYONE] 읽는 분 칸(빈칸 · 적은 이름)
   for (const vk of ['vow', 'thanks']) for (const vh of ['alt', 'each']) for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, vowHow: vh, vowKind: vk }, mode);   // [VOW_HOW 2026-10-02] 서약 읽는 방식(번갈아 · 각자 차례로)이 live.t 를 가른다 · [THANKS_IN_VOW 2026-10-11] 무엇을 읽나요(서약 · 감사문)도 블록 · live.t 를 가른다
 }
 
@@ -259,7 +260,10 @@ for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽�
     while ((m = re2.exec(src))) readK.add(m[1]);
   }
 
-  for (const k of readK) if (PK.indexOf(k) < 0) {
+  /* ★[DECLARE_ANYONE 2026-10-12] 엔진이 읽어도 주소에 싣지 않는 «고객이 쓴 글»은 첫 검사에서 뺀다(아래 NEVER 와 같은 목록) —
+     declareWho 는 이제 두 분이 칸에 적은 «읽는 분» 글이다(사람 이름일 수 있다). 엔진은 빈칸이어도 같은 소리를 낸다(여는 말 하나 · 이름은 콘솔 글에만). */
+  const NEVER_URL = ['vowText', 'letterText', 'welcomeText', 'up', 'mPeak', 'mClose', 'growthLink', 'declareWho'];
+  for (const k of readK) if (PK.indexOf(k) < 0 && NEVER_URL.indexOf(k) < 0) {
     bad(`미리듣기가 못 받는 키 'S.${k}' — 엔진은 읽는데 ritual-preview-link.js KEYS 에 없다.\n         고객이 고른 것과 다른 예식이 조용히 흐른다(화면은 안 깨진다). KEYS 에 더할 것`);
   }
   for (const k of PK) if (!readK.has(k)) {
@@ -270,7 +274,7 @@ for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽�
      언젠가 엔진이 S.vowText 를 읽기 시작하면 첫 검사는 "KEYS 에 더하라"고 한다.
      그때 시키는 대로 더하면 서약문이 주소창·방문기록·접속로그에 남는다.
      그래서 여기서 한 번 더 막는다 — 두 검사가 맞붙으면 그건 사람이 결정할 일이라는 신호다. */
-  const NEVER = ['vowText', 'letterText', 'welcomeText', 'up', 'mPeak', 'mClose', 'growthLink'];
+  const NEVER = NEVER_URL;   // [DECLARE_ANYONE] declareWho(두 분이 적은 읽는 분) 더함
   for (const k of NEVER) if (PK.indexOf(k) > -1) {
     bad(`KEYS 에 고객이 쓴 글 '${k}' 이 들어 있다 — 주소로 나가면 안 되는 값이다(당일까지 비밀 · 민감 텍스트).\n         엔진이 이 값을 필요로 한다면 주소가 아니라 다른 길(postMessage 등)로 옮길 것`);
   }
