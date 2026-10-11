@@ -17489,3 +17489,6 @@ chk 'ADV_SAFE_ENV' index.html 2                 # #2 폰 전체 화면 상담 �
 chk 'ADV_SAFE_ENV' assets/advisor-widget.js 2
 chk 'safe-area-inset-bottom,0px));background' assets/advisor-widget.js 1
 chk 'CTA_NOWRAP' index.html 1                   # #3 360 · 340 · 320 폭에서 주 버튼 · 하객 화면 탭 한 줄
+chk 'ADV_LIVE' index.html 3                     # #4 답 · 실패 문구를 화면 읽기 프로그램이 읽는 칸
+chk 'ADV_LIVE' assets/advisor-widget.js 3
+chk 'id="meAdvLive"' index.html 1

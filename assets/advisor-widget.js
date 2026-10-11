@@ -102,6 +102,7 @@
     + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;border-radius:12px;padding:12px 16px;font-family:var(--sans,sans-serif)}'   /* ★[ADV_WRAP_ANY 2026-10-11 디자인 점검 #1] 띄어쓰기 없는 글 · 주소가 말풍선 밖으로 넘치던 것 · index.html 사본과 같은 줄 */
     + '.me-adv-msg.bot{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border-bottom-left-radius:4px}'
     + '.me-adv-msg.me{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}'
+    + '.me-adv-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}'   /* [ADV_LIVE] 보이지 않는 낭독 칸 */
     + '.me-adv-typing{align-self:flex-start;display:inline-flex;gap:4px;padding:13px 15px;background:var(--bg2,#F5F3EF);border-radius:12px;border-bottom-left-radius:4px}'
     + '.me-adv-typing i{width:6px;height:6px;border-radius:50%;background:var(--gold,#B89A75);opacity:.5;animation:meAdvBlink 1.2s infinite}'
     + '.me-adv-typing i:nth-child(2){animation-delay:.2s}.me-adv-typing i:nth-child(3){animation-delay:.4s}'
@@ -196,6 +197,7 @@
     + '    <button class="me-adv-close" id="meAdvClose" aria-label="닫기" type="button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>'
     + '  </header>'
     + '  <div class="me-adv-body" id="meAdvBody"></div>'
+    + '  <div class="me-adv-live" id="meAdvLive" aria-live="polite"></div>'   /* ★[ADV_LIVE 2026-10-11 디자인 점검 #4] 답 · 실패 문구를 화면 읽기 프로그램이 읽는 칸(보이지 않음) · index.html 사본과 같다 */
     + '  <footer class="me-adv-foot">'
     + '    <form class="me-adv-form" id="meAdvForm">'
     + '      <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>'
@@ -232,11 +234,13 @@
   function addMsg(t, who) {
     var d = document.createElement('div');
     d.className = 'me-adv-msg ' + who; d.innerHTML = codeHtml(t);
-    place(d); scrollDown(); return d;
+    place(d); scrollDown(); if (who !== 'me') advSay(t); return d;
   }
+  /* [ADV_LIVE] 답 · 실패 문구를 낭독 칸에 한 번 — 비웠다 넣어야 같은 글도 다시 읽힌다(질문 · 메뉴 칩은 읽지 않는다) */
+  function advSay(t) { var lv = document.getElementById('meAdvLive'); if (!lv) return; lv.textContent = ''; setTimeout(function () { lv.textContent = String(t == null ? '' : t); }, 60); }
   function addTyping() {
     var d = document.createElement('div');
-    d.className = 'me-adv-typing'; d.innerHTML = '<i></i><i></i><i></i>';
+    d.className = 'me-adv-typing'; d.setAttribute('aria-hidden', 'true'); d.innerHTML = '<i></i><i></i><i></i>';   // [ADV_LIVE] 작성 중 점은 읽지 않는다
     place(d); scrollDown(); return d;
   }
 
