@@ -222,7 +222,11 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .exlist{margin-top:12px}
 .ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
 .ex-chip,.seg-b{border:1px solid var(--border);background:#fff;border-radius:20px;padding:8px 14px;font-size:12.5px;color:var(--sub);font-family:var(--sans);cursor:pointer}
-.ex-chip.on,.seg-b.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent);background:#F3ECDF;font-weight:600}   /* [R1-10 SEL_ONE] 바탕을 칩(.op-chip)과 같은 옅은 금빛으로 */   /* [ORD_HUE] 마이페이지 선택 칩(.dk-chip.on)과 같은 말 · [SUB_SEG] 세부 칩도 같은 줄에 태운다(고름을 말하는 방식을 늘리지 않는다) */
+/* ★★[SEL_THIN 2026-10-11 사장님 «버튼 테두리 골드색 그거 좀 얇게 하는 건 어때?» → 시안 A «추천대로»]
+   고른 표시 = 짙은 금 테 «한 겹»(바깥 1px) + 옅은 금 바탕 + 먹빛 · 칩은 굵게. 안쪽 1px 를 더 그린 «두 겹»(실제 2px · 종전 SEL_ONE)은 걷었다 — 두꺼워 보였다.
+   테 굵기는 안 고른 칩과 같은 1px · 고른 것은 색(짙은 금 · 화면 바탕과 3.8 : 1) · 바탕 · 굵기로 가른다. 테두리가 없는 칸(.mk-whob · 바탕만)은 안쪽 1px 하나가 곧 한 겹이라 그대로.
+   포커스 테두리(키보드 · :focus-visible)는 역할이 달라 그대로 2px. 검사 scripts/audit/sel-thin.mjs · 마이페이지도 같은 한 벌. */
+.ex-chip.on,.seg-b.on{border-color:var(--gold-deep);color:var(--accent);background:#F3ECDF;font-weight:600} /* [SEL_THIN] */   /* [R1-10 SEL_ONE] 바탕을 칩(.op-chip)과 같은 옅은 금빛으로 */   /* [ORD_HUE] 마이페이지 선택 칩(.dk-chip.on)과 같은 말 · [SUB_SEG] 세부 칩도 같은 줄에 태운다(고름을 말하는 방식을 늘리지 않는다) */
 .entry-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .oc .nar,.oc .self,.subset .nar{background:none;border:none;border-radius:0;padding:9px 2px 0}
 /* ★[SUB_SEG] 대본은 **판이 아니라 글**이다 — 판단 근거는 선택지보다 조용해야 한다.
@@ -744,7 +748,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-h{font-family:var(--ko-serif);font-size:20px;color:var(--accent);margin:26px 0 8px;font-weight:600}
 .op-sec{margin:16px 0 4px} .op-sec .sn{font-size:12.5px;font-weight:600;color:var(--gold-deeper)} .op-sec .sd{font-size:11px;color:var(--light);margin-top:1px}
 .op-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-top:8px}
-.op-card.on{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
+.op-card.on{border-color:var(--gold-deep)} /* [SEL_THIN] */
 .op-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .op-nm{margin:0;font-size:14px;font-weight:600;line-height:inherit;color:var(--accent);word-break:keep-all}
 .op-tg{flex-shrink:0;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer}
@@ -758,7 +762,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--border);background:var(--bg);color:var(--ink2);font:inherit;font-size:12.5px;cursor:pointer}
 .op-chip .cg-t{display:inline-flex;flex-direction:column;align-items:center}   /* [CHIP_W_FIX] */
 .op-chip .cg-t::after{content:attr(data-t);height:0;overflow:hidden;visibility:hidden;font-weight:600;pointer-events:none;user-select:none}
-.op-chip[aria-pressed="true"],.op-chip[aria-checked="true"]{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;background:#F3ECDF;color:var(--accent);font-weight:600}   /* [CHIP_CHECKED] ② 칩은 role=radio(aria-checked) — 옛 aria-pressed 만 보면 고른 것이 안 보인다(390 스크린샷으로 잡음) */
+.op-chip[aria-pressed="true"],.op-chip[aria-checked="true"]{border-color:var(--gold-deep);background:#F3ECDF;color:var(--accent);font-weight:600} /* [SEL_THIN] */   /* [CHIP_CHECKED] ② 칩은 role=radio(aria-checked) — 옛 aria-pressed 만 보면 고른 것이 안 보인다(390 스크린샷으로 잡음) */
 .op-more{margin-top:4px;padding:0;min-height:44px;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer}
 .op-det{font-size:12.5px;line-height:1.65;color:var(--sub);border-top:1px dashed var(--border);padding-top:7px;margin-top:2px;word-break:keep-all}
 .op-det p{margin:3px 0}
@@ -1282,7 +1286,7 @@ body.lsfull{overflow:hidden}
 .mk-valt summary::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg)}
 .mk-valt[open] summary::after{transform:translateY(1px) rotate(-135deg)}
 .mk-tg{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--sub);font:inherit;font-size:12.5px;cursor:pointer}
-.mk-tg.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent);background:#F3ECDF;font-weight:600}   /* [UI_ONE · SEL_ONE] */
+.mk-tg.on{border-color:var(--gold-deep);color:var(--accent);background:#F3ECDF;font-weight:600} /* [SEL_THIN] */   /* [UI_ONE · SEL_ONE] */
 .mk-pved{margin-top:10px}   /* [R7-09] 카드 머리 → 글칸 간격을 하객 맞이 카드와 같게 */
 .mk-tg.auto{cursor:default;border:0;background:none;min-height:0;padding:0;color:var(--sub)}   /* [R7-06] 끝난 상태(✓ 다 됐어요 · ✓ 링크 받았어요)는 단추 모양이 아니라 보조 글 한 줄 — 바로 위 «이동하기» 알약과 같은 꼴이라 누르는 것처럼 보였다 */
 .mk-tg .mk-mk{display:inline-flex}
@@ -1609,7 +1613,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-vu-exs{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}   /* [VU_EX_LISTEN] 들어 볼 글 칩 */
 .mk-exl{align-self:center;margin-right:2px;font-size:11px;color:var(--gold-deeper);letter-spacing:.04em}   /* [EX_ONE] 끝 신호 예시 칩 앞 «예시» */   /* [EX_ONE] 줄 카드 바로 위 */
 .mk-rc span{font-size:12.5px;color:var(--light);line-height:1.45;word-break:keep-all}
-.mk-rc.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;background:#F3ECDF}   /* [UI_ONE · SEL_ONE] 고른 것 한 모양 */
+.mk-rc.on{border-color:var(--gold-deep);background:#F3ECDF} /* [SEL_THIN] */   /* [UI_ONE · SEL_ONE] 고른 것 한 모양 */
 .mk-rc.mk-rpar{border-style:dashed}
 .mk-rc.mk-rpar b{color:var(--gold-deeper)}
 @media (max-width:999px){ .mk-rcs{padding-right:36px;grid-template-columns:repeat(2,minmax(0,1fr))} }   /* [REF_GRID] */   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 칩이 비켜선다 */
@@ -1659,7 +1663,7 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-vso button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;min-height:72px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--accent);font:inherit;text-align:left;cursor:pointer}
 .mk-vso button b{font-size:16px;font-weight:600;letter-spacing:-.01em}
 .mk-vso button span{font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
-.mk-vso button[aria-pressed="true"]{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep);background:#F3ECDF}   /* [R1-10 SEL_ONE] */
+.mk-vso button[aria-pressed="true"]{border-color:var(--gold-deep);background:#F3ECDF} /* [SEL_THIN] */   /* [R1-10 SEL_ONE] */
 @media (hover:hover){ .mk-vso button:hover{background:var(--bg2)} }
 .mk-vsg{display:flex;gap:10px;align-items:center;margin:2px 0 14px;padding:0}   /* ★[VPAGE_TIDY 2026-10-04 사장님 «이게 최선이야? 디자이너 시선으로»] 회색 칠한 안내 상자 · 번호(1 · 2 · 3) 금지 — 칠한 상자는 브랜드 규칙(«배경색 칠한 안내 상자 금지»)에 걸리고, 순서가 아닌 요령에 번호를 달았다 · 상자 없이 작은 그림 + 한 줄 */
 .mk-vsg svg{flex:0 0 auto;width:30px;height:30px;color:var(--gold-text,#7A5F37)}

@@ -697,7 +697,7 @@ span.snp-pv{cursor:default}
 /* [SNAP_PH_FIT] 사진 전 «3장»은 밝은 바탕 위라 흰 글자가 흐렸다(대비 약 2.6:1) — 흰 알약 + 먹빛 글자(사진이 오면 종전 어두운 알약) */
 .snp-pv-n{position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(28,27,25,.55);color:#fff;font-family:var(--sans);font-size:11px;line-height:1.6;font-variant-numeric:lining-nums tabular-nums}
 .snp-pv-ph ~ .snp-pv-n{background:#fff;color:var(--sub);box-shadow:inset 0 0 0 1px var(--border)}
-.snp-cell.on .snp-pv{box-shadow:0 0 0 2px var(--gold-deep)}
+.snp-cell.on .snp-pv{box-shadow:0 0 0 1px var(--gold-deep)}   /* [SEL_THIN] 테가 없는 사진 칸 — 바깥 1px 하나가 한 겹(종전 2px) */
 .snp-cell.full .snp-pv img,.snp-cell.full .snp-pv-ph{opacity:.55}
 .snp-pk{position:absolute;top:0;right:0;z-index:2;width:48px;height:48px;margin:0;padding:8px;border:0;background:none;display:flex;align-items:flex-start;justify-content:flex-end;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .snp-pk span{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;box-sizing:border-box;border-radius:999px;border:1.5px solid #fff;background:rgba(28,27,25,.28);color:#fff;font-family:var(--sans);font-size:12.5px;font-weight:500;font-variant-numeric:lining-nums tabular-nums;line-height:1;box-shadow:0 1px 4px rgba(28,27,25,.25)}   /* [SNAP_NUM_GOTHIC] 순번은 고딕 같은 폭 숫자 */
@@ -1654,7 +1654,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .dk-chip{font-family:var(--serif-ko);font-size:11.5px;line-height:1.35;color:var(--sub);background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 6px;cursor:pointer;
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:52px;text-align:center;word-break:keep-all}
     .dk-chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
-    .dk-chip.on{border-color:var(--gold-deep);background:var(--gold-bg,#FAF6EF);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent);font-weight:600}
+    .dk-chip.on{border-color:var(--gold-deep);background:var(--gold-bg,#FAF6EF);color:var(--accent);font-weight:600} /* [SEL_THIN] */
     .dk-chip:active{background:var(--bg2)}
     /* [SEAT_DRINK_SEL] 바가 남아 있으니 치울 문이 필요하다 — ★TAP44: 보이는 크기는 작게, 닿는 크기는 44px */
     .sdb-x{width:44px;height:44px;margin:-11px -12px -11px 0;border:0;background:transparent;color:var(--light);font-size:17px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:none}
@@ -2008,17 +2008,18 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 /* ★★[SEL_ONE 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»] «골랐다»는 표시 한 벌.
    같은 뜻이 네 가지 색으로 말하고 있었다 — 금빛 테 + 옅은 바탕(청첩장 칸 · 네/아니요 · 디자인) · 진사로 칠함(애프터 웨딩 거르기 알약 · 붙은 칩)
    · 진사 테(좌석 공개 방식 · 샘플 사진 · 예약할 곳) · 먹빛으로 칠함(후기 문항). 한 화면을 넘길 때마다 «고름»의 모양이 바뀌었다.
-   ★정한 것 = 식순 빌더(.seg-b.on · .op-card.on)와 음료 칩(.dk-chip.on)이 이미 쓰는 말: 금빛 테 두 겹(테 1px + 안쪽 1px) + 옅은 금빛 바탕 + 먹빛 글자.
+   ★정한 것 = 식순 빌더(.seg-b.on · .op-card.on)와 음료 칩(.dk-chip.on)이 이미 쓰는 말: 금빛 테 두 겹(테 1px + 안쪽 1px) → ★2026-10-11 [SEL_THIN] 사장님 «버튼 테두리 골드색 얇게» · 시안 A «추천대로» = 테 한 겹(바깥 1px) + 옅은 금빛 바탕 + 먹빛 글자.
      칩(짧은 글 한 줄)은 굵게(600) · 카드(안에 글이 여러 줄)는 굵기를 그대로 둔다(카드 안 위계를 지키려고) · 사진 칸은 테만.
    ★진사는 칠하지 않는다 — 고른 순서 번호 · ✓ 원 · «여기로 예약» 꼬리표 · 라디오 점 같은 «점»에만 남는다([SNAP_TONE] · 넓은 면 금지).
    달력의 고른 날(.dt-day.selected)은 달력 관례대로 칠한 채 둔다(칸이 작아 테로는 안 보인다). 새 선택 칸도 이 한 벌을 쓴다. */
 .rev-chip{min-height:44px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:var(--card-white);font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}   /* 보정 요청 칩 — 인라인 스타일에서 뺐다(44px 누름 칸) */
-.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on,.rev-chip.on{border-color:var(--gold-deep);border-style:solid;box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}
-.dn-segbtn.on{box-shadow:inset 0 0 0 2px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}   /* 붙은 칩은 칸 사이 선을 나눠 쓰니 테를 안쪽 2px 로 */
-.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg)}
+/* [SEL_THIN] 안쪽 1px 겹 걷음 — 테 한 겹 */
+.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on,.rev-chip.on{border-color:var(--gold-deep);border-style:solid;background:var(--gold-bg);color:var(--accent);font-weight:600}
+.dn-segbtn.on{box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}   /* 붙은 칩은 칸 사이 선을 나눠 쓰니 테를 안쪽에 · [SEL_THIN] 2px → 1px */
+.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);background:var(--gold-bg)} /* [SEL_THIN] */
 .wed-slot.sel .ws-t{color:var(--accent);font-weight:600}
-.dn-agg.rep{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--card-white)}   /* 안에 글 · 단추가 많은 카드 — 바탕은 흰 면 그대로(옅은 금빛을 깔면 안의 상자와 뭉친다) */
-.gal-it.on{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* 사진 칸은 테만 · 고른 표시 ✓ 원(진사 점)은 그대로 */
+.dn-agg.rep{border-color:var(--gold-deep);background:var(--card-white)} /* [SEL_THIN] */   /* 안에 글 · 단추가 많은 카드 — 바탕은 흰 면 그대로(옅은 금빛을 깔면 안의 상자와 뭉친다) */
+.gal-it.on{border-color:var(--gold-deep)} /* [SEL_THIN] */   /* 사진 칸은 테만 · 고른 표시 ✓ 원(진사 점)은 그대로 */
 /* ★★[NOTE_DOT 2026-09-27 사장님 «마이페이지 전체 일관성»] 안내 한 줄 한 벌 = «점 + 글» — 칠한 상자를 걷는다([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지»).
    같은 «알려 드려요»가 상자 다섯 가지로 섰다: 진사 옅은 칠(청첩장 완성 «오타 확인») · 팔레트 밖 분홍 + 진사 테(확인서 경고 #FBF3F1) · 회색 칠(확인서 알림 · 받기 기한)
    · 금빛 칠(애프터 웨딩 «눌러서 담아 두세요»). 스냅 기획 · 가족·친구 스냅은 이미 점 한 줄(.snp-err · .ph-capln)로 말한다 — 그쪽을 택한다.
