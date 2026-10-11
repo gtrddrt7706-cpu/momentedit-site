@@ -26,6 +26,9 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+// [REF_ROWS_ONE 2026-10-12] 참고 예시 표 줄 수는 한 곳 — 9-9 와 13 이 따로 적어 13 만 144 에 남았다(THANKS_IN_VOW 뒤로 빨강).
+//   144(EX_MORE) + 8(THANKS_IN_VOW 감사문 예시 네 벌 × 두 분 · 10/11) − 3(DECLARE_BY_PERSON 선언문 넷 → 한 벌 · 10/12)
+const REF_ROWS = 149;
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0, cant = 0;
@@ -492,7 +495,7 @@ else {
       cross: set('tribute', { S: { tributeSay: 'long', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
       sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
       sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
-  ok('9-9 참고 예시 표 149줄(EX_MORE + 감사문 − 선언문) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담이 없어도 고른 넷만(부모님 예시 덧붙이기 걷음) [REF_TABLE · EX_MORE · REF_BEST4 · REF_BEST4_ONLY]', rt.rows === 149 /* 144(EX_MORE) + 8(THANKS_IN_VOW 감사문 예시 네 벌 × 두 분 · 10/11) − 3(DECLARE_BY_PERSON 선언문 넷 → 한 벌 · 10/12) */ && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 4, JSON.stringify(rt));
+  ok(`9-9 참고 예시 표 ${REF_ROWS}줄(EX_MORE + 감사문 − 선언문) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담이 없어도 고른 넷만(부모님 예시 덧붙이기 걷음) [REF_TABLE · EX_MORE · REF_BEST4 · REF_BEST4_ONLY]`, rt.rows === REF_ROWS && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 4, JSON.stringify(rt));
   ok('9-8 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -642,7 +645,7 @@ else {
     S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; mkGo('vow'); render(); mkRefPick('vow', 3, 1); mkRefStart('vow');
     o.filled = !!String(S.tx['vow.g'] || '').trim() && !!String(S.tx['vow.b'] || '').trim(); o.warn = (document.getElementById('mkw_vow_g') || {}).textContent || '';
     o.startGone = !document.querySelector('[data-fk="mkrstart:vow"]'); return o; });
-  ok('13 [EX_MORE · REF_BEST4 · REF_ROW4 · REF_BEST4_ONLY] 참고 예시 144줄 · 카드는 고른 네 벌(360 에서 2×2) · 카드 줄 아래 글 단추 없음(상황 · 부모님 예시) · 넷째를 눌러도 카드는 그대로 넷(가로 스크롤 없음)', e.rows === 144 && e.long0 === 4 && e.links === 0 && e.sets === 4 && !e.sitIn && e.long === 4 && e.lines <= 2 /* [EX_ROW] 칩 줄 — 두 줄 이내 */ && e.long1 === 4 && !e.hs, JSON.stringify(e));
+  ok(`13 [EX_MORE · REF_BEST4 · REF_ROW4 · REF_BEST4_ONLY] 참고 예시 ${REF_ROWS}줄 · 카드는 고른 네 벌(360 에서 2×2) · 카드 줄 아래 글 단추 없음(상황 · 부모님 예시) · 넷째를 눌러도 카드는 그대로 넷(가로 스크롤 없음)`, e.rows === REF_ROWS && e.long0 === 4 && e.links === 0 && e.sets === 4 && !e.sitIn && e.long === 4 && e.lines <= 2 /* [EX_ROW] 칩 줄 — 두 줄 이내 */ && e.long1 === 4 && !e.hs, JSON.stringify(e));
   ok('13 배지 «참고 예시 4»(화면 읽기에만) · 상황 도움말(먼저 떠나신 분께 · 한 분께 · 가족이 된 날) 없음 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL · REF_BEST4_ONLY]', e.b4 === '참고 예시 4' && !e.help && !e.mood, JSON.stringify(e));
   ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌만 · «부모님이 하실 때 예시 ›»와 부모님 예시 줄 없음 [REF_BEST4_ONLY 2026-10-09 사장님 «베스트 4개만»]', e.free0 === 4 && e.freeSets === 4 && !e.par && !e.parIn, JSON.stringify(e));
   ok('13 «이 예시로 시작하기» — 빈 두 칸을 채우고 단추는 사라진다 · 예시 속 이름이 남으면 한 줄 알림 [EX_NAMES]', e.filled && e.startGone && /예시 속 이름 «.+»이 남아 있어요/.test(e.warn), JSON.stringify(e));
