@@ -17495,3 +17495,5 @@ chk 'id="meAdvLive"' index.html 1
 chk 'NAV_SCROLL_BG' index.html 3                # #11 PC 메뉴 종이색 — 히어로를 지난 뒤에만(.nav-solid)
 chk 'nav-solid' index.html 3
 chk 'STEP_FIG_LINING' index.html 3              # #15 순서 숫자 01 · 02 · 03(올드스타일 «OI» 막기) · 가격 숫자는 그대로
+chk 'OPENING_RIBBON_OFF' index.html 1           # #33 가격 카드 «OPENING» 회전 띠 삭제
+nochk 'content: "OPENING"' index.html 0         # ★되살리기 금지 — 2026-10-11 사용자 지시로 삭제

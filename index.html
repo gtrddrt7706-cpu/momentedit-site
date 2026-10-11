@@ -2183,18 +2183,9 @@ section:not(#rsvp) > *:last-child {
   border-color: var(--gold);
   box-shadow: 0 16px 40px rgba(184, 154, 117, 0.14);
 }
-.price-block.highlight::before {
-  content: "OPENING";
-  position: absolute;
-  top: 16px;
-  right: -28px;
-  background: var(--seal);
-  color: #fff;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  padding: 4px 36px;
-  transform: rotate(45deg);
-}
+/* ★가격 카드 오른쪽 위 45° 회전 띠 «OPENING»(.price-block.highlight::before) 되살리기 금지 — 2026-10-11 사용자 지시로 삭제 [OPENING_RIBBON_OFF]
+   디자인 점검 #33 · 사장님 «추천대로»: 같은 말이 제목(Archive Opening Honor) · 알약(2027 상반기 계약 한정)에 이어 세 번째였고,
+   진사를 «칠»로 쓴 할인 배지 관용구라 [PRICE_NOTE_TONE] 이 걷어 낸 긴급성 톤에 가까웠다 */
 .price-title {
   font-size: 11px;
   letter-spacing: 0.14em;
