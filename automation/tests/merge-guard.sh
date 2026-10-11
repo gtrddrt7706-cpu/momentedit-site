@@ -4213,6 +4213,12 @@ chk 'CANT_HEAR' scripts/check-audio-sents.mjs 2
 # 평균이 그 사실을 지웠다. 이제 소리 덩어리마다 따로 재고, 어떤 배분도 사람 속도가 안 되면 붉힌다.
 # ★재는 자는 lib/sent-bounds.mjs 한 곳뿐이다 — check-audio-sents 와 실청 화면이 같은 것을 쓴다.
 chk 'BLOCK_FIT' scripts/lib/sent-bounds.mjs 1
+# ★[GUESS_DP 2026-10-11] «빠진 자리» 1 · 2등은 DP 로 — 옛 전수 훑기(C(n, n−B))는 43_parents-letter(49문장 · 덩어리 34)에서 1.6조 가지라 실청판 생성이 끝나지 않았다.
+#   guess-dp 가 무작위 600판에서 옛 훑기와 한 글자까지 같은지 · 큰 판이 1초 안에 끝나는지 · 깨 보면 빨강인지 잰다(실제 녹음 112개도 옛 결과와 같았다 · 10/11)
+chk 'GUESS_DP' scripts/lib/sent-bounds.mjs 2
+chk 'export function guessTop2(' scripts/lib/sent-bounds.mjs 1
+nochk 'for (let k = i; k < n; k++) { picked.push(k); walk(k + 1, picked); picked.pop(); }' scripts/lib/sent-bounds.mjs 0   # 옛 전수 훑기 · 되살리지 말 것(끝나지 않는다)
+node scripts/audit/guess-dp.mjs >/dev/null 2>&1 && echo 'ok guess-dp' || { echo 'FAIL guess-dp: «빠진 자리» DP 가 옛 답과 다르거나 느리다 — node scripts/audit/guess-dp.mjs'; fail=1; }
 chk 'export function blockFit' scripts/lib/sent-bounds.mjs 1
 chk 'blockFit' scripts/check-audio-sents.mjs 2
 chk 'blockFit' scripts/build-listen-all.mjs 3
