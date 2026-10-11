@@ -136,7 +136,10 @@ ok('축가 카드 · 준비한 순서 카드가 «악기 연주는 받지 않아
 ok('[PARENTS_ENTRY_OFF] 칩 = 어머님 · 아버님 · 부모님 네 분 · 다른 두 분 · 기본은 어머님 · 네 분 판도 시간 같다 · 부탁 글에 «함께 들어와» 없음', O.CANDLE_WHO.map((c) => c[1]).join() === '양가 어머님,양가 아버님,양가 부모님 네 분,다른 두 분' && O.DEF.candleWho === 'mothers'
   && O.partsOf('candle', { candleWho: 'parents' }).join() === O.partsOf('candle', { candleWho: 'mothers' }).join()
   && !/함께 들어와|하객께 인사/.test(JSON.stringify(O.prepOf('candle', { candleWho: 'parents' }))));
-ok('[PARENTS_ENTRY_OFF] 콘솔 — 네 분 판은 자리에서 나와 불만 밝힌다(입장 · 하객 인사 없음)', (() => { const r = C.build({ course: 'open', on: { candle: 1 }, candleWho: 'parents' }, { mode: 'console' }); const c = r.cues.find((x) => /^narr-candle-in-parents$/.test(x.slug || '')); const t = ((c && c.live) || {}).t || ''; return !!c && /네 분이 앞으로 나와 초에 불을 밝히고/.test(t) && !/입장|인사/.test(t); })());
+ok('[PARENTS_ENTRY_OFF] 콘솔 — 네 분 판은 자리에서 나와 불을 밝힌다 · 따로 걷는 입장 없음 · [CANDLE_BOW_1012] 불을 밝힌 뒤 하객께 인사', (() => { const r = C.build({ course: 'open', on: { candle: 1 }, candleWho: 'parents' }, { mode: 'console' }); const c = r.cues.find((x) => /^narr-candle-in-parents$/.test(x.slug || '')); const t = ((c && c.live) || {}).t || ''; return !!c && /네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로/.test(t) && !/입장/.test(t); })());
+/* ★[CANDLE_BOW_1012 2026-10-12 사장님 «부모님 입장을 생략한다는 얘기였어 · 신랑 신부는 입장해야지»] 생략은 부모님 입장 하나 · 신랑 신부 입장은 늘 · 불을 밝힌 뒤 인사는 화촉의 한 동작(자료 D · G · O) */
+ok('[CANDLE_BOW_1012] 신랑 신부 입장은 늘 있다(아무것도 안 담아도 입장 · 닫는 인사)', O.ALWAYS.entry === 1 && O.bodySeq({ on: {} }).join(',') === 'entry,_close');
+ok('[CANDLE_BOW_1012] 두 분이 서는 판 — 불을 밝힌 뒤 서로 · 하객께 인사 · 이야기 장면이 그 글을 받는다', ['mothers', 'fathers', 'others'].every((w) => { const r = C.build({ course: 'open', on: { candle: 1 }, candleWho: w }, { mode: 'console' }); const c = r.cues.find((x) => x.slug === 'narr-candle-in-' + w); const t = ((c && c.live) || {}).t || ''; return /서로 · 하객께 인사한 뒤 자리로$/.test(t) && !/입장/.test(t); }) && /서로 한 번, 하객께 한 번/.test(fs.readFileSync(P('assets/ritual-story.js'), 'utf8')));
 /* ★[SONG_SELF_1011 2026-10-11 사장님 «추천대로»] 축가는 두 분이 직접 불러도 된다(자료 C 신랑 축가 · G 신랑이 신부에게 · Q 두 분 듀엣) */
 ok('[SONG_SELF_1011] 축가 카드 · 미리 보기 창이 «두 분이 직접 불러도 돼요»', /두 분이 직접 불러도 돼요/.test(O.CARDS.song.one) && /song:'[^']*두 분이 직접 불러도 돼요/.test(fs.readFileSync(P('order-preview.html'), 'utf8')));
 
