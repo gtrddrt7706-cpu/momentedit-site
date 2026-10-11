@@ -531,11 +531,20 @@ nav.nav-hidden {
    → 그 안으로 포커스가 들어오면 메뉴를 내려 보여 준다. 마우스 사용자에게는 아무 변화가 없다.
    ★[NAV_FOCUS_BG 2026-09-25 코워크 5편 ②] 내려오긴 했는데 바탕이 없어 빨간 히어로(#6F2B24) 위에 떴다 —
      메뉴 글자 1.11:1 · 포커스 테두리 1.03:1 로 여전히 안 보였다. 포커스로 불러낸 상태에만 종이색을 깐다.
-     스크롤로 나타나는 평소 메뉴(투명)는 그대로다. 반투명·blur 금지([GLASS_MENU_OWNER] 예외는 모바일 메뉴 하나). */
+     스크롤로 나타나는 평소 메뉴(투명)는 그대로다. 반투명·blur 금지([GLASS_MENU_OWNER] 예외는 모바일 메뉴 하나).
+     → 2026-10-11 [NAV_SCROLL_BG] 로 681px 이상은 평소 메뉴에도 같은 종이색을 깐다(아래). */
 nav.nav-hidden:focus-within {
   transform: none;
   opacity: 1;
   background: var(--bg);
+}
+/* ★[NAV_SCROLL_BG 2026-10-11 디자인 점검 #11 · 사장님 «추천대로»] 681px 이상에서 위로 올려 다시 나타난 메뉴가 바탕 없이
+   사진 · 글 위에 떠서 글자 대비가 1.2~2.7:1 이었다(1440 실측 · About · Archive · Service …). 초점으로 불러낼 때 쓰던 종이색을 평소에도 깐다.
+   ★히어로(진사)를 지난 뒤에만 깐다(.nav-solid · 아래 내비 스크립트) — 히어로 안에서 위로 올릴 때 깔았더니 크림 띠가 큰 로고 윗부분을 가렸다(1440 실측 · 고치기 전 스크린샷 대조).
+   숨은 메뉴는 화면 밖(-100%) · 투명이라 깔려 있어도 보이지 않는다(사라지는 동안 바탕만 먼저 끊기지 않게) · 흐림 · 테두리 없음.
+   메뉴가 열렸을 때는 body.menu-open nav{background:transparent} 가 더 구체적이라 그대로 투명 · 휴대폰(680 이하)은 그대로 */
+@media (min-width: 681px) {
+  nav.nav-solid { background: var(--bg); }
 }
 .nav-in {
   max-width: 1200px;
@@ -8056,6 +8065,10 @@ function toggleEssay(btn){
   var TRIGGER_THRESHOLD = 120;  // 마지막 변경 시점부터 누적 120px 이상(작은 스크롤엔 반응 안 해 '촐싹거림' 방지 · 우아하게)
   var TOP_OFFSET = 80;          // 최상단 영역은 항상 표시
   var pinnedUntil = 0;          // 내비 항목 클릭 이동 중엔 내비 고정(표시 유지)
+  // [NAV_SCROLL_BG] 히어로 끝(문서 기준 y) — 지나면 종이색 바탕(.nav-solid) · 스크롤마다 재지 않고 읽어 둔다(load · resize 에서만)
+  var heroEl = document.querySelector('.hero'), HERO_END = 0;
+  function calcHeroEnd(){ HERO_END = heroEl ? heroEl.offsetTop + heroEl.offsetHeight : 0; nav.classList.toggle('nav-solid', window.scrollY > HERO_END - 10); }
+  calcHeroEnd(); window.addEventListener('load', calcHeroEnd); window.addEventListener('resize', calcHeroEnd, { passive: true });
 
   // 내비 항목(페이지 내 앵커)을 누르면 그 자리로 이동하는 '동안'만 내비를 유지.
   // 사용자가 직접 스크롤하는 순간(아래) 고정을 즉시 풀어 원래대로 숨김이 동작하게 함.
@@ -8084,6 +8097,7 @@ function toggleEssay(btn){
 
   function update(){
     var y = window.scrollY;
+    nav.classList.toggle('nav-solid', y > HERO_END - 10);   // [NAV_SCROLL_BG] 히어로를 지나면 종이색 바탕
 
     // 모바일 메뉴 열려있으면 nav 상태 변경 안 함
     if (document.body.classList.contains('menu-open')){

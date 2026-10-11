@@ -17492,3 +17492,5 @@ chk 'CTA_NOWRAP' index.html 1                   # #3 360 · 340 · 320 폭에서
 chk 'ADV_LIVE' index.html 3                     # #4 답 · 실패 문구를 화면 읽기 프로그램이 읽는 칸
 chk 'ADV_LIVE' assets/advisor-widget.js 3
 chk 'id="meAdvLive"' index.html 1
+chk 'NAV_SCROLL_BG' index.html 3                # #11 PC 메뉴 종이색 — 히어로를 지난 뒤에만(.nav-solid)
+chk 'nav-solid' index.html 3
