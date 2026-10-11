@@ -4204,7 +4204,7 @@ function _lSum(k){
   if(k==='ring') return '말 없이 반지를 끼워요 · 앞뒤로 나레이션';
   if(k==='_close') return '닫는 말 → 그 자리에서 단체 사진';
   if(k==='table') return '두 분이 함께 테이블을 돌며 인사 · 테이블마다 1분 30초쯤 → 모여서 단체 사진';   /* [TABLE_GREET_1008] */
-  if(k==='song') return '가족 · 친구가 노래 한 곡 · 반주는 MR';   /* [SONG_BACK_1011] */
+  if(k==='song') return '노래 한 곡 · 반주는 MR';   /* [SONG_BACK_1011] · [SONG_SELF_1011] 부르는 분은 가족 · 친구 · 두 분 누구든 */
   if(k==='candle') return _candleWho();
   if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'&&!_vcToNar('entry')?'두 분 목소리':'나레이션');   /* [R7-04] */   /* [ENTRY_OUT_OFF] 맞절 없음 */   // [DETAIL_0925 B6] 목소리를 늘 보인다
   if(k==='cake') return '두 분이 함께 케이크를 잘라요 · 케이크는 저희가 준비 · 별도 비용';   /* [GOODS_STUDIO] 늘 저희가 */   /* [R2-20] 열한 줄 중 혼자 비어 있었다 */
@@ -4285,7 +4285,7 @@ function _lSteps0(g,ks){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요 · 미리 듣기에서는 넘겨요',skip:true,ms:1600}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
           /* [SONG_BACK_1011] 축가는 두 분이 말하는 자리가 아니다 — «두 분 차례»(talk)가 아니라 준비한 순서 영상처럼 «미리 듣기에서는 넘겨요» 한 줄 */
-          if(k==='song'){ talked=true; out.push({k:k,lab:'축가가 흐르는 자리',txt:'여기서 가족 · 친구가 축가를 불러요 · 약 '+Math.round(((R.partsOf('song',S)||[])[2]||210)/60)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000}); }
+          if(k==='song'){ talked=true; out.push({k:k,lab:'축가가 흐르는 자리',txt:'여기서 축가를 불러요 · 약 '+Math.round(((R.partsOf('song',S)||[])[2]||210)/60)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000}); }
           else if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
             var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='etc'?'두 분이 준비한 순서가 이어져요':'준비한 선물을 건네요';
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000}); }
@@ -4307,7 +4307,8 @@ function _lWhen(l){ l=String(l||''); if(LAB_WHEN[l]) return LAB_WHEN[l]; if(/^�
 /* ★[G5 QUIET_LINES 2026-09-26 코워크 최종판 5-1] 말 없는 사람 순간 — 표 그대로. 한 순간에 한 줄 · 그 순간의 첫 나레이션 뒤. */
 function _lQuiet(k,c){
   var R=RitualOpen, sl=c.slug||'';
-  if(k==='candle'&&/^narr-candle-in-/.test(sl)){ var w=_candleWho(); return w+_josa(w,'이','가')+' 앞으로 나와 불을 밝혀요 · 말 없이'; }
+  if(k==='candle'&&/^narr-candle-in-/.test(sl)){ if((S.candleWho||RitualOpen.DEF.candleWho)==='parents') return '양가 부모님이 함께 들어와 인사하고 · 어머님이 불을 밝혀요';   /* [CANDLE_PARENTS_FIRST 2026-10-11] */
+    var w=_candleWho(); return w+_josa(w,'이','가')+' 앞으로 나와 불을 밝혀요 · 말 없이'; }
   if(k==='entry'&&/^entry-[A-F]$/.test(sl)) return '음악에 맞춰 걸어 들어와요';   // [ENTRY_OUT_OFF] · [R1-45] 바로 위 순간 설명(«두 분이 함께 걸어 들어와»)을 되풀이하지 않는다
   if(k==='ring'&&sl==='narr-ring-in') return '두 분이 서로 반지를 끼워요';   /* [R1-45] «말 없이»는 바로 위 나레이션(«말없이 지나가는 순서이니»)이 말한다 */
   /* ★[STAGE_LINES 2026-10-06 사장님 «성혼 선언을 한 것인가? 의문이 들 수 있어 · 화면에 액션 내용이 없으니 헷갈려»] 나레이션 두 줄 사이에는 그 사이에 하는 일을 한 줄로.
@@ -8183,7 +8184,7 @@ var PV_DESC={
   vow:'두 분이 서로에게 하는 약속을 직접 읽어요(한 분 1분쯤). 마주 본 옆얼굴을 담아요.',   /* ★[VOW_DECL_DIFF 2026-10-11 사장님] 서약 = 두 분이 서로에게 · 직접 / 선언 = 하객 앞에서 · 두 분 대신 — 자료 R «누가 읽느냐로 구분한다» */
   ring:'서로의 손에 반지를 끼워 줘요. 반지가 손가락에 들어가는 두 손을 가까이 담아요.',
   declare:'하객 앞에서 성혼 선언문을 읽으면 두 분이 부부가 돼요. 선언문은 두 분 대신 나레이션이나 가족이 읽고, 하객 모두가 박수 치는 장면을 넓게 담아요.',   /* [VOW_DECL_DIFF] 옛 «부부가 되었음을 알리고»는 두 분이 알리는 것처럼 읽혔다(STAGE_LINES 와 같은 까닭) */
-  song:'가족이나 친구가 두 분을 위해 노래 한 곡을 불러요. 부르는 분과 듣는 두 분의 얼굴을 함께 담아요.',   /* [SONG_BACK_1011] */
+  song:'가족이나 친구가 두 분을 위해 노래 한 곡을 불러요. 두 분이 직접 불러도 돼요. 부르는 모습과 듣는 얼굴을 함께 담아요.',   /* [SONG_BACK_1011] · [SONG_SELF_1011] */
   tribute:'부부가 되어 처음 부모님께 고마움을 전하고, 부모님 품에 안기는 순간을 담아요.',
   letter:'부모님께, 또는 서로에게 쓴 편지를 읽어요. 읽는 목소리와 듣는 얼굴을 함께 담아요.',
   cake:'두 분이 나이프를 함께 잡고 케이크를 잘라요. 맞잡은 두 손을 가까이 담아요.',

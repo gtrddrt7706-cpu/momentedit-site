@@ -623,7 +623,9 @@
       return [cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-in-' + who, name: '화촉 시작',
         text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckMusic, pick: '서는 분 · ' + nm,
-        live: { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' }
+        live: (who === 'parents'
+          ? { t: '양가 부모님이 함께 입장 · 하객께 인사 · 어머님 두 분이 불을 밝히고 자리로', est: 90, self: true, doing: 'move', note: '아버님은 인사 뒤 바로 자리로 · 어머님은 점화 뒤 자리로' }   // [CANDLE_PARENTS_FIRST 2026-10-11]
+          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' })
       }), cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',
         text: EXTRA['narr-candle-out'], duck: PARAM.duckMusic,
