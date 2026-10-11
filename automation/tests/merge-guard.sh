@@ -17522,3 +17522,5 @@ chk 'module.exports.replyWindowKST = replyWindowKST;' api/ritual-advisor.js 1
 chk 'AFTER_HOURS_KST' scripts/audit/after-hours.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/after-hours.mjs >/dev/null 2>&1; _ahk=$?; if [ "$_ahk" = 1 ]; then echo 'FAIL after-hours: 식순 AI 상담의 답변 시간 밖 판정이 평일 10시 - 18시와 다릅니다 — node scripts/audit/after-hours.mjs'; fail=1; else echo 'ok after-hours: 평일 10시 - 18시 · 다음 답변 시작'; fi; fi
 :
+# ── 2026-10-11 승인은 번호를 짚은 답으로만 [APPROVE_BY_NUMBER] — 묶음 «추천대로»를 화면 고치기 승인으로 읽지 않는다(PR #1197 닫음)
+chk 'APPROVE_BY_NUMBER' CLAUDE.md 1
