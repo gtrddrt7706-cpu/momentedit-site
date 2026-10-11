@@ -700,6 +700,10 @@ section:not(#rsvp) > *:last-child { margin-bottom: 0 }
   새 영상 자리를 만들면 같은 모양(`.lv` · `.pv-media` · `.mk-vu-img` + `_vidRest`)을 쓴다. 검사 `scripts/audit/vid-rest.mjs`.
 - **소리를 따라 차오르는 막대는 매 화면 조금씩**([BAR_SMOOTH] 2026-10-10 사장님 «로딩 바 차오르는 게 살짝 뚝뚝 끊기는 느낌») —
   `transform: scaleX(소수)` 를 requestAnimationFrame 으로 그린다(`_barSet` · 소리 시각은 `_medMs`). 너비 % 반올림 · `timeupdate`(약 0.25초마다)로 그리지 않는다. 검사 `scripts/audit/bar-smooth.mjs`.
+- **장면 영상은 영화관 비율 2.39 : 1**([CINE_SCOPE] 2026-10-11 사장님 «짤려도 되니깐 시네마 느낌 나게 비율을 감각 있게») —
+  ② 하나씩 만들기 · ① 창 · 목소리 창 · ③ 연습 장면 · 크게 보기의 장면(`.lv` · `.pv-media` · `.mk-vu-img` · `.pr-hm`)은 16 : 9 그림의 위아래를 잘라 2.39 : 1 로 보인다.
+  자르는 높이는 `--fy`(기본 35% · 장면마다 `_VFY` — 입장 15% · 닫는 인사 45%). 작은 칸(`.pk-media`) · 64px 썸네일(`.pr-th` · `.lv.mini`)은 16 : 9 그대로.
+  새 장면 영상을 넣으면 처음 · 가운데 · 끝 장면을 2.39 : 1 로 잘라 머리가 닿는지 보고 `_VFY` 에 높이를 적는다. 검사 `scripts/audit/cine-scope.mjs`.
 
 ## 모션 램프 ([MOTION_RAMP5], 2026-07-31)
 
