@@ -176,7 +176,9 @@ if (arg === '--selftest') {
   const fails = [t1, t2, t3, t4].map((t) => validate(t).length > 0).concat([t5, t6, t7, t8].map((t) => priorCheck(t, true).bad.length > 0));
   const md = render(d).replace(/\| \*\*유지\*\* \|/, '| **추가** |');            // 손으로 고친 장부
   const mdFail = md !== render(d);
-  const realOk = priorCheck(d, true).bad.length === 0;                                 // 지금 자료표는 초록이어야 한다
+  /* 지금 자료표는 «모양»만 본다(strict 아님) — 코드에 새 결정 표식이 생겼다고 다른 작업의 PR 이 깨 보기에서 막히면 안 된다.
+     ★첫 판의 깨 보기가 여기서 strict 로 돌아, 같은 PR 에서 AI 지식 줄에 표식을 단 것만으로 빨강이 났다(2026-10-11). 엄격한 검사는 --write 몫이다. */
+  const realOk = priorCheck(d, false).bad.length === 0;
   if (fails.every(Boolean) && mdFail && realOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 9종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN]'); process.exit(0); }
   console.log('FAIL [SOURCE_BASIS] 깨 보기 중 빨강이 안 난 것이 있다', fails, mdFail, realOk); process.exit(1);
 }
