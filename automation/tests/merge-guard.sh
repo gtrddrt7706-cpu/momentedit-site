@@ -338,7 +338,7 @@ chk 'seg-b .df' order-preview.html 1                # 「기본」은 칩 안 �
 chk 'BADGE_GAP' order-preview.html 1
 chk "esc(nm)+(rec?' <span" order-preview.html 1      # ★배지 앞 한 칸 — 지우지 말 것(위 이유)
 chk "나레이션 <span class=\"oc-rec\">기본" order-preview.html 2
-nochk '나레이션의 낭독 톤' order-preview.html 0   # ★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 나레이션 선언 말투 곁판(엄숙 · 따뜻 칩 · 칩 안 «기본»)은 걷었다 — 되살리지 말 것
+nochk 'subq">나레이션의 낭독 톤' order-preview.html 0   # ★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 나레이션 선언 말투 곁판(엄숙 · 따뜻 칩 · 칩 안 «기본»)은 걷었다 — 되살리지 말 것 · 화면 제목(subq)만 본다(8/09 [SUBSET] 설계 메모 주석은 기록이라 남김)
 # ★[BADGE_GAP · 그물 하나를 쓰다가 갈아엎었다 2026-08-13]
 #   처음엔 브라우저 검사에 「배지가 붙어 읽히는가」를 넣었다. 돌연변이로 한 칸을 지워 봤더니
 #   **안 붉었다** — 크로미움이 접근성 이름을 만들 때 스스로 한 칸을 넣는다(실측 2회).
