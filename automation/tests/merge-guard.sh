@@ -492,7 +492,7 @@ chk 'WZ_PILL' mypage.html 1
 chk "true,'저장하고 마치기');" mypage.html 2
 nochk "true,'저장하고 닫기');" mypage.html 0
 # ★★[SEL_ONE · NOTE_DOT · ERR_ONE · CC_BTN_KO 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»]
-#   ①고름 표시 한 벌 = 금빛 테 두 겹 + 옅은 금빛 바탕 + 먹빛(식순 .seg-b.on · 음료 .dk-chip.on 과 같은 말) — 진사 칠 · 먹빛 칠 · 진사 테로 되돌리면 빨강
+#   ①고름 표시 한 벌 = 금빛 테 한 겹(2026-10-11 [SEL_THIN] · 종전 두 겹) + 옅은 금빛 바탕 + 먹빛(식순 .seg-b.on · 음료 .dk-chip.on 과 같은 말) — 진사 칠 · 먹빛 칠 · 진사 테로 되돌리면 빨강
 #   ②안내 한 줄 = «점 + 글»(.mp-dotln) — 칠한 상자(분홍 #FBF3F1 · 진사 옅은 칠 · 회색 칠 · 금빛 칠)로 되돌리면 빨강
 #   ③오류 = 진사(후기 · 애프터 웨딩 AI) ④주 단추 .cc-btn 글꼴 = 한글 명조(라틴 Cormorant 만 걸려 한글이 기기 기본 명조로 떨어졌다)
 chk 'SEL_ONE' mypage.html 12
@@ -512,6 +512,21 @@ chk 'id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align
 chk '.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif-ko);' mypage.html 1
 chk 'SEL_ONE' .claude/skills/momentedit-design/SKILL.md 1
 chk 'NOTE_DOT' .claude/skills/momentedit-design/SKILL.md 1
+# ★★[SEL_THIN 2026-10-11 사장님 «버튼 테두리 골드색 그거 좀 얇게 하는 건 어때?» → 시안 A «추천대로»]
+#   고른 표시(칩 · 카드 · 토글 · 사진 칸)는 짙은 금 테 한 겹(바깥 1px) + 옅은 금빛 바탕 + 먹빛 · 굵게 — 안쪽 1px 를 더 그린 «두 겹»(실제 2px)과 2px 테는 걷었다(식순 화면 · 마이페이지).
+#   입력칸 초점 두 겹(FOCUS_ONE)과 두 분 고르기 .mk-whob(테두리 없이 안쪽 1px 하나)은 그대로. sel-thin.mjs 가 두 파일의 CSS 를 읽어 두 겹 · 2px 를 잡는다(깨 보기 내장 · 옛 판 13곳 빨강 확인).
+chk 'SEL_THIN' order-preview.html 7
+chk 'SEL_THIN' mypage.html 8
+chk 'SEL_THIN' .claude/skills/momentedit-design/SKILL.md 1
+chk 'SEL_THIN' scripts/audit/sel-thin.mjs 2
+chk '.ex-chip.on,.seg-b.on{border-color:var(--gold-deep);color:var(--accent);background:#F3ECDF;font-weight:600}' order-preview.html 1
+chk '.dk-chip.on{border-color:var(--gold-deep);background:var(--gold-bg,#FAF6EF);color:var(--accent);font-weight:600}' mypage.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/sel-thin.mjs >/dev/null 2>&1; _st=$?
+  case "$_st" in
+    0) echo 'ok sel-thin: 고른 표시 = 짙은 금 테 한 겹(식순 화면 · 마이페이지)' ;;
+    *) echo 'FAIL sel-thin: 고른 표시에 금빛 두 겹 · 2px 테가 다시 생겼습니다 — node scripts/audit/sel-thin.mjs'; fail=1 ;;
+  esac
+fi
 # ★[WZ_STEPS_DOTS · WZ_STEPS_TAG · FOLD_CHEVRON · X_ONE · TOAST_ONE · MODAL_R12 · NO_BOUNCE · OPT_TAG 2026-09-27 사장님 «일관성»] 작은 부품 한 벌
 chk '.dots .dot.done{width:6px;height:6px;background:var(--gold)}' mypage.html 1
 chk "_ivStepTag=_invStepNames(inv.draft)\[_ivI\]+' 단계'" mypage.html 1   # [WZ_STEP_NONUM 2026-09-28] «② 부모님» → «부모님 단계»
@@ -13659,7 +13674,7 @@ chk 'SNAP_PHOTO_FIRST' mypage.html 8
 chk 'function _spPv(s, kind){' mypage.html 1
 chk 'function _spCover(s){' mypage.html 1
 chk '<button type="button" class="snp-pk' mypage.html 1
-chk '.snp-cell.on .snp-pv{box-shadow:0 0 0 2px var(--gold-deep)}' mypage.html 1
+chk '.snp-cell.on .snp-pv{box-shadow:0 0 0 1px var(--gold-deep)}' mypage.html 1   # [SEL_THIN] 2px → 1px
 chk '.snp-pk.on span{border-color:var(--seal);background:var(--seal)}' mypage.html 1
 chk "'<span aria-hidden=\"true\">예시 ›</span>'" mypage.html 1
 chk '.snp-exv-sl{flex:0 0 88%;' mypage.html 1
