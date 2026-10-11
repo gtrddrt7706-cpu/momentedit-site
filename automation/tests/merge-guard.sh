@@ -17485,3 +17485,6 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/after-hours.mjs >/de
 chk 'ADV_WRAP_ANY' index.html 1                 # #1 띄어쓰기 없는 글 · 주소가 말풍선 밖으로 넘치던 것
 chk 'ADV_WRAP_ANY' assets/advisor-widget.js 1
 chk 'overflow-wrap:anywhere' assets/advisor-widget.js 1
+chk 'ADV_SAFE_ENV' index.html 2                 # #2 폰 전체 화면 상담 창 머리 · 입력줄이 노치 · 홈 막대를 비킨다
+chk 'ADV_SAFE_ENV' assets/advisor-widget.js 2
+chk 'safe-area-inset-bottom,0px));background' assets/advisor-widget.js 1

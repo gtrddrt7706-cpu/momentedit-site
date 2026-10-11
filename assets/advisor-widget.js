@@ -82,7 +82,7 @@
        parents는 인쇄 스타일에서 nav·도구·푸터를 이미 감추는데 이 위젯만 빠져 있었다 —
        위젯 쪽에 두면 이 파일을 쓰는 네 페이지가 전부 같이 해결된다. */
     + '@media print{.me-fab-stack,.me-adv-panel,.me-adv-backdrop,.me-adv-fab{display:none !important}}'
-    + '.me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:22px 22px 19px;background:var(--bg,#FAFAF8);border-bottom:1px solid var(--hairline,rgba(28,27,25,0.18))}'
+    + '.me-adv-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:calc(22px + env(safe-area-inset-top,0px)) 22px 19px;background:var(--bg,#FAFAF8);border-bottom:1px solid var(--hairline,rgba(28,27,25,0.18))}'   /* ★[ADV_SAFE_ENV 2026-10-11 디자인 점검 #2] 폰 전체 화면에서 닫기 · 제목이 노치 안에 깔리던 것 · index.html 사본과 같은 값 */
     + '.me-adv-head-t{display:flex;align-items:center;gap:13px}'
     + '.me-adv-seal{width:42px;height:42px;border-radius:50%;background:#fff;color:var(--seal,#6B2A24);border:1px solid rgba(107,42,36,0.28);display:flex;align-items:center;justify-content:center;font-family:var(--serif,Georgia,serif);font-size:15px;font-weight:500;letter-spacing:0.04em;flex:0 0 auto;box-shadow:0 2px 9px rgba(28,27,25,0.06)}'
     + '.me-adv-titles{display:flex;flex-direction:column;line-height:1.1}'
@@ -141,7 +141,7 @@
     + '.me-adv-esc-btn.mail{background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border:1px solid var(--border,#DDD8D1)}'
     + '.me-adv-esc-btn.mail:hover{opacity:.9;transform:translateY(-1px)}'
     + '.me-adv-esc-hours{font-family:var(--serif,Georgia,serif);font-style:italic;font-size:11px;color:var(--light,#75705F);text-align:center;margin-top:9px;letter-spacing:0.04em}'
-    + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px;background:var(--bg,#FAFAF8)}'
+    + '.me-adv-foot{flex:0 0 auto;border-top:1px solid var(--border,#DDD8D1);padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg,#FAFAF8)}'   /* [ADV_SAFE_ENV] 입력줄이 홈 막대 위로 */
     /* [ADV_A11Y] 카카오톡 문의 링크 높이 23px — '해결이 안 될 때' 마지막으로 누르는 자리다 → 44px. */
     /* [ADV_ESC_ONLY 2026-08-03] .me-adv-foot-kakao 4줄 삭제 — 상시 카톡 링크와 함께 사라진 죽은 CSS.
        에스컬레이션 시 뜨는 버튼은 별개 클래스(.me-adv-esc-btn.kakao)라 영향 없다. */
