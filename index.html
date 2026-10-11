@@ -3811,6 +3811,17 @@ footer {
 }
 .ga-tab:hover { color: var(--sub); }
 .ga-tab.on { color: var(--text); font-weight: 500; border-bottom-color: var(--gold); }
+/* ★[CTA_NOWRAP 2026-10-11 디자인 점검 #3 · 사장님 «추천대로»] 360 · 340 · 320 폭에서 «프라이빗 방문 상담 / 예약하기»(단추 58 → 76px)와
+   탭 «온라인 · / 디지털 참석»이 두 줄로 꺾였다(실측 · 375 이상은 한 줄). 글자(14px · 0.08em [CTA_TYPE_QUIET])는 그대로 두고 좌우 여백만 줄인다
+   — 320~1280 모두 한 줄 · 가로 넘침 0(실측) */
+.cta-btn, .ga-tab { white-space: nowrap; }
+@media (max-width: 400px) {
+  .cta-btn { padding-left: 16px; padding-right: 16px; }
+  .ga-tab { padding-left: 8px; padding-right: 8px; }
+}
+@media (max-width: 340px) {
+  .ga-tab { font-size: 11px; padding-left: 4px; padding-right: 4px; }
+}
 /* 실물 페이지를 폰 화면 크기로 줄여 넣는다 — 배율은 JS가 실측(.phone-screen 폭 ÷ 390)해서 건다.
    ★하드코딩하지 않는 이유: 폭이 브레이크포인트마다 달라 상수로 두면 한쪽에서 어긋난다. */
 .ga-frame {

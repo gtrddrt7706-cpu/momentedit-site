@@ -17488,3 +17488,4 @@ chk 'overflow-wrap:anywhere' assets/advisor-widget.js 1
 chk 'ADV_SAFE_ENV' index.html 2                 # #2 폰 전체 화면 상담 창 머리 · 입력줄이 노치 · 홈 막대를 비킨다
 chk 'ADV_SAFE_ENV' assets/advisor-widget.js 2
 chk 'safe-area-inset-bottom,0px));background' assets/advisor-widget.js 1
+chk 'CTA_NOWRAP' index.html 1                   # #3 360 · 340 · 320 폭에서 주 버튼 · 하객 화면 탭 한 줄
