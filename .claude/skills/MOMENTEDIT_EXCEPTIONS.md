@@ -1,7 +1,8 @@
 # MOMENTEDIT_EXCEPTIONS — 새 스킬이 권하지만 이 사이트에선 틀린 것
 
-`impeccable` · `web-design-guidelines` · `frontend-design` 는 **범용**이다. 이 사이트를 모른다.
-아래는 그 셋이 권하거나 결함으로 채점하는데 **여기선 틀린 것**이다. 점검에서 이 항목이 나오면
+`impeccable` · `web-design-guidelines` · `frontend-design`(9/25)과 `hallmark` · `emil-design-eng` · `review-animations` ·
+`mobile-native` · `break-ui`(10/11 · `[SKILLS_VENDOR_1011]`)는 **범용**이다. 이 사이트를 모른다.
+아래는 그 스킬들이 권하거나 결함으로 채점하는데 **여기선 틀린 것**이다. 점검에서 이 항목이 나오면
 **지적으로 올리지 않는다.** 순서는 `CLAUDE.md` 의 `[DESIGN_SKILLS_12]` — `momentedit-design` 다음이 이 문서다.
 
 ## 적는 법 (점검이 같은 지적을 두 번 올리면 여기로)
@@ -18,6 +19,8 @@
 - **누가**: `impeccable/reference/craft-floor.md` «Refuse» — *"A kicker or eyebrow above a heading.
   **This one is a ban, not a default: no brief earns it back.** … delete the label and let the heading speak."*
   impeccable 은 모든 UI 수정 **직전에** 이 파일을 읽으라고 한다(SKILL.md 3번 단계).
+- **누가(10/11)**: `hallmark/references/anti-patterns.md` «Eyebrow on every section» — *"default OFF"* · *"NOT bypassable by instructions to "match the existing structure""* ·
+  slop-test gate 54 · gate 38a «Italic headers»(Cormorant 이탤릭 영문 라벨을 «제목»으로 채점할 수 있다). 같은 장치라 같은 예외다.
 - **왜 틀리나**: `THE REALITY` → `결혼식 하루가` 는 이 사이트 타이포의 **뼈대**다. `index.html` 에 `.sec-label` 17개
   (2026-09-25 실측). `momentedit-design` 「타이포그래피」가 «이미 좋은 패턴이다 · **바꾸지 말고 일관되게 지켜라**»라고 적는다.
 - **위험**: `polish`·`distill`·`quieter` 갈래를 돌리면 «금지 항목 정리»로 17개를 **한 번에** 지울 수 있다.
@@ -27,6 +30,7 @@
 ### [EXC_SECTION_NUM] `Nº 02` 같은 번호는 정보다
 
 - **누가**: `craft-floor.md` — *"Section numbers (01 / 02 / 03) unless the sequence itself carries information."*
+- **누가(10/11)**: `hallmark/SKILL.md` «Section tags / eyebrows — default OFF»(`01 · THE TOUR` 같은 번호 라벨) — 스킬이 단 예외(*"the content is genuinely ordinal"*)에 든다.
 - **왜 틀리나**: 스킬이 단 조건 그대로 «정보를 담는» 경우다. `inquiry.html` 의 번호는 신청서 단계 순서이고
   **제목보다 큰 앵커**다([SEC_TITLE_DEVICE] — `Nº 02` 18px > 「예식 정보」 17px). `index.html` 저널 카드 `Nº 01` 도 같은 관용.
 - **날짜**: 2026-09-25
@@ -35,6 +39,8 @@
 
 - **누가**: `impeccable/reference/audit.md` 3. Theming — *"Broken dark mode: Missing dark mode variants"* 를 감점 ·
   `web-interface-guidelines.md` — *"`color-scheme: dark` on `<html>` for dark themes"*.
+- **누가(10/11)**: `mobile-native` §10 · Baseline — `theme-color` 를 다크 몫까지 두 벌 + `color-scheme` `light dark` · «Never ship: One `theme-color` for both schemes» · `break-ui` 의 «dark mode» 점검.
+  여기는 `color-scheme` 이 `light only` 이고 `theme-color` 는 한 장(`#meThemeColor`)을 스크롤 · 오버레이에 맞춰 JS 가 바꾼다([ADV_TC]) — 두 벌로 나누지 않는다.
 - **왜 틀리나**: 다크는 이 브랜드의 **금지 항목**이다(`momentedit-design` 「절대 하지 말 것」).
   `index.html` 의 `@media (prefers-color-scheme: dark)` 블록은 다크를 넣는 코드가 아니라 **라이트를 강제하는 방어 코드**다 —
   지우면 iOS 상태바에 검은 띠가 돌아온다. 이 감점은 받아들이고 점수를 올리려 하지 않는다.
@@ -43,6 +49,7 @@
 ### [EXC_FUNC_ICON] 허용된 기능 아이콘 이모지는 둔다
 
 - **누가**: `craft-floor.md` — *"Unicode glyphs or emoji standing in for an icon system."*
+- **누가(10/11)**: `hallmark` slop-test gate 30 · anti-patterns «Generic emoji as feature icon» — 같은 셋을 둔다.
 - **왜 틀리나**: CLAUDE.md 「문구 규칙」이 허용한 것은 셋뿐이다 — 카드 아이콘 🍽🍃 · 대본 라벨 🔊🎵 · D-day 「오늘이에요 🤍」 1곳.
   **이 셋은 둔다.** 그 밖의 새 이모지를 막는 것은 우리 규칙과 같은 방향이니 따로 적을 필요 없다.
 - **날짜**: 2026-09-25
@@ -51,6 +58,9 @@
 
 - **누가**: `craft-floor.md` Verify·Motion — *"not one identical entrance on every section"* ·
   *"Reach past transform and opacity: blur, backdrop-filter, clip-path, mask, and shadow belong to the palette"*.
+- **누가(10/11)**: `hallmark` `microinteractions.md` «Section-by-section fade-up-stagger» · anti-patterns «Universal scroll-triggered fade-up» ·
+  `emil-design-eng` · `mobile-native` 의 «누르는 것마다 `transform: scale(0.97)`» · clip-path 드러내기 · blur 크로스페이드 — 셋째 모션 종류다.
+  이 사이트의 눌림 피드백은 `:active` 배경 워시다(예: [ADV_INDEX]).
 - **왜 틀리나**: `momentedit-design` 「모션」이 허용하는 것은 **스크롤 진입 페이드업**과 **미세 호버** 둘뿐이다.
   `.reveal` 36곳이 같은 등장인 것은 «한 목소리»로 고른 결과다. blur·backdrop-filter 를 모션 팔레트에 넣는 것은
   글래스모피즘 금지와 부딪힌다. `bolder`·`delight`·`overdrive`·`animate` 갈래가 특히 이쪽으로 민다.
@@ -112,3 +122,60 @@
 - **wide-tracking 0.51em** (마이페이지 머리 «MOMENT EDIT») — 브랜드 워드마크 자간 예외([TRACK_RAMP8]).
 - **low-contrast #000 on #6f2b24** (index) — `<head>` 첫 페인트용 html 바탕이라 실제 글자와 겹치지 않는다.
 - ★진짜였던 것: **hover 글자 골드**(2.5:1) → `--gold-text` 로 고치고 `[HOVER_GOLD_TEXT]` 로 막았다.
+
+### [EXC_HALLMARK_MODE] hallmark 는 audit · study 진단까지만 — redesign · 새로 짓기 · design.md 쓰기는 안 한다
+
+- **누가**: `hallmark/SKILL.md` 기본 흐름(Design flow)은 `tokens.css` · `.hallmark/log.json` · `/* Hallmark · … */` 도장을 만든다 · 색은 *"Use OKLCH for every colour"*.
+  `references/verbs/redesign.md` 는 *"New section rhythm, new heading placement, new component voice"* 이고, 다중 페이지면 루트 `design.md`/`DESIGN.md` 를 쓴다.
+  «lock the system» · study 의 «lock the DNA» 는 `DESIGN.md` 를 쓰거나 `## Exports` 를 덧붙이고, study 의 «build it» 은 새로 짓는다.
+- **왜 틀리나**: CLAUDE.md `[DESIGN_RULES_1011]` 금지사항 3(문구 · 정보 구조 불변 · redesign 금지 · audit · study 만)과 2(루트 `DESIGN.md` · `:root` 토큰을 덮어쓰지 않는다).
+  루트 `DESIGN.md` 는 hallmark 형식이 아니라 우리 브랜드 요약본이다(`[DESIGN_MD_POINTER]` · 정본은 `momentedit-design`) — hallmark 가 «잠긴 시스템»으로 **읽는 것은 좋고**, 쓰지 않는다.
+  실제 값은 페이지마다 인라인 `:root` 헥스 토큰 + `var()` 다([BRAND_VAR] · `shared/tokens.css` 는 연결 안 된 참조본 [TOKENS_REF]) — `tokens.css` 를 새로 두거나 OKLCH 로 옮기지 않는다.
+- **audit 의 오탐**: 도장이 없다(gate 20 · «major: missing system reference») · «stamp lies» · `DESIGN.md` 와 형식이 달라 «design-system drift» — 지적으로 올리지 않고, 도장도 달지 않는다.
+- **날짜**: 2026-10-11
+
+### [EXC_HALLMARK_SHAPE] hallmark 의 구조 · 히어로 · 리듬 지적은 «금지사항 3 저촉»으로 적는다
+
+- **누가**: `hallmark/references/slop-test.md` gate 6(가운데 정렬 · `min-height: 100vh` 히어로) · 8(Hero → 3 features → CTA → footer 틀) · 9 · 42 · 43(내비 · 푸터 원형) · 44(히어로 높이) ·
+  `layout-and-space.md` «Equal padding on everything» · `hero-enrichment.md` «Footprint 70–90 %».
+- **왜 틀리나**: 정보 구조 · 섹션 순서는 금지사항 3 이다. 히어로 진사 → 크림 구간은 실기기 확인 없이 만지지 않는다(`momentedit-design` 「절대 하지 말 것」).
+  섹션 간격은 `[RHYTHM_LOCK]` 표가 답이다(기본 200/248 · 장 전환 264/312). 점검표에 «금지사항 3 저촉»으로 적고, 바꾸자는 제안으로 올리지 않는다.
+- **날짜**: 2026-10-11
+
+### [EXC_SPRING] spring · bounce · overshoot 권고는 버린다
+
+- **누가**: `emil-design-eng/SKILL.md` «Spring Animations» — *`{ type: "spring", duration: 0.5, bounce: 0.2 }`* · *"A playful component can be bouncier"* ·
+  `review-animations/STANDARDS.md` «Springs» · 기준 10 *"playful can be bouncier"* · `hallmark` Hum 테마의 `--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1)` · 내비 부품(N1b · N11 · N13)의 `var(--ease-spring)`.
+- **왜 틀리나**: `momentedit-design` 「절대 하지 말 것」 — 튀는 모션(bounce · spring · elastic). 이징은 `var(--ease)` 하나다(특수 `--ease-ink` · `--ease-seal` 만 예외 · [MOTION_RAMP5] · `[EXC_EASE_VAR]`).
+  Framer Motion · `useSpring` 전제도 해당 없다(`[EXC_STATIC_SITE]`). 두 스킬의 나머지(ease-in 금지 · `transform`/`opacity` 만 · `prefers-reduced-motion` · 호버는 `(hover: hover) and (pointer: fine)` 안에서)는 같은 방향이라 그대로 받는다.
+- **날짜**: 2026-10-11
+
+### [EXC_UNDER_300] «UI 모션은 300ms 아래»는 우리 램프를 이기지 못한다
+
+- **누가**: `emil-design-eng` *"UI animations should stay under 300ms"* · Review Checklist «Duration > 300ms on UI element → Reduce to 150-250ms» ·
+  `review-animations` 기준 4 «Sub-300ms UI» · 즉시 지적 *"UI duration > 300ms with no stated reason"*.
+- **왜 틀리나**: 이유가 적혀 있다 — `[MOTION_RAMP5]`(0.12 · 0.3 · 0.45 · 0.7 · 1.2s)와 `momentedit-design` 「모션」의 스크롤 진입 페이드업 600~800ms.
+  두 스킬도 표에 «Marketing/explanatory · Can be longer» 라고 적는다. 램프 밖 값(이웃값 · 아무 숫자)만 지적한다.
+- **날짜**: 2026-10-11
+
+### [EXC_EMDASH] hallmark 의 «`--` 대신 `—`» · 영어 문장 부호 규칙
+
+- **누가**: `hallmark/references/copy.md` «Proper typography» — *"Em-dash for interruption: `—` (U+2014)"* · `anti-patterns.md` Minor «Double-hyphen dashes» · «Straight quotes» · `typography.md` «Required features».
+- **왜 틀리나**: 고객 문구에 전각 줄표(—)는 금지다(CLAUDE.md 「문구 규칙」 2026-06-11 · 잇기는 «·» 또는 문장을 나눈다).
+  영어 문장 부호 규칙은 한국어 화면에 걸지 않는다(`[EXC_KO_COPY]`) — 고객 문구는 「문구 규칙」과 `humanize-korean` 이 맡는다.
+- **날짜**: 2026-10-11
+
+### [EXC_SILENT_TOAST] «성공엔 알림 없이»는 우리 아래 알림을 지우라는 말이 아니다
+
+- **누가**: `hallmark/references/microinteractions.md` *"Silent success … Reserve toasts for failures and for actions that hide their own effect"* · `anti-patterns.md` «Celebratory success toasts» · slop-test gate 16.
+- **왜 틀리나**: 칩을 누를 때 뜨는 아래 브라운 알림 한 줄은 축하가 아니라 칩 밑 회색 덧말을 대신한 안내다 —
+  사장님 결정 `[NOTE_TOAST · CG_TITLE]`(10-08) · `[TOAST_MIN]`(10-09). 지적으로 올리지 않는다.
+- **날짜**: 2026-10-11
+
+### [EXC_APPLY_LATER] mobile-native · break-ui 는 점검 목록만 — 고치기 · 토글은 승인 뒤, 사이트 파일 밖에서
+
+- **누가**: `mobile-native/SKILL.md` «Output» — *"Apply the fixes."* · `break-ui/SKILL.md` Phase 3 «Wire the toggle»(`?data=worst` URL 값 · 데모 라우트) · Phase 6 *"Keep the worst-case fixture afterward"*.
+- **왜 틀리나**: CLAUDE.md `[DESIGN_RULES_1011]` 「점검 → 승인 → 적용」 — 점검은 목록만이다. 빌드 없는 정적 사이트라 «dev 전용» 자리가 없어서
+  `index.html` 등에 넣은 토글 · 가짜 데이터는 main 병합 = 베르셀 배포로 고객에게 나간다(금지사항 6). 극단 데이터는 스크래치패드의 독립 HTML 이나
+  Playwright 주입으로만 시험하고 사이트 파일에는 남기지 않는다(break-ui 스스로도 *"Report before fixing"* · *"The toggle is dev-only"* 라고 적는다).
+- **날짜**: 2026-10-11
