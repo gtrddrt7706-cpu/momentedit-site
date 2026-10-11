@@ -9,6 +9,12 @@
    2. 자료에서 온 순간은 자료 16개를 하나도 빠짐없이 판정한다(빈칸 = 빨강).
    3. 모든 줄에 «우리 컨셉» 거르기와 결론이 있다 · 자료에 없는 «우리 고유»는 가장 가까운 자료(near)를 댄다.
    4. 장부(.md)는 자료표에서 다시 만든 것과 한 글자도 다르지 않다 — 손으로 숫자를 고치면 빨강.
+   5. ★[PRIOR_SEEN 2026-10-11] 바꾸는 줄(추가 · 수정 · 기본에서 내림 · 해당 없음)은 찾을 말(kw)과 읽은 예전 결정(prior)을 단다.
+      코드에서 그 말과 결정 낱말(사장님 · 사용자 지시 · 금지 · 되살리지 · 폐지 · RETIRED)이 한 줄에 있는 표식을
+      하나라도 prior 에 안 적으면 장부를 다시 만들 수 없다(--write 빨강).
+      까닭: 첫 판이 축가를 «추가»로 냈다 — 9/25 «라이브 노래 · 연주는 받지 않는다»([FREE_WHAT]) · 8/09 [SONG_RETIRED] ·
+      8/07 [TRIM_EVENTS] 를 읽지 않았다. 표식은 코드에 다 있었다. 읽었다는 표시를 요구하면 못 지나간다.
+      평소 검사(merge-guard)는 새로 생긴 표식을 «참고»로만 알린다 — 다른 작업의 PR 을 막지 않는다. 장부를 고칠 때(--write) 막는다.
    쓰는 법: node scripts/audit/source-basis.mjs            (검사)
            node scripts/audit/source-basis.mjs --write    (장부 다시 만들기)
            node scripts/audit/source-basis.mjs --selftest (깨 보기 — 빨강이 나와야 초록) */
@@ -18,6 +24,41 @@ const J = 'docs/plans/식순연구/순간개편_자료표.json';
 const MD = 'docs/plans/식순연구/순간개편_근거장부.md';
 const VERDICT = ['유지', '추가', '수정', '기본에서 내림', '해당 없음', '우리 고유'];
 const MARK = { 1: '●', 0.5: '◐', s: '○', 0: '·' };
+// [PRIOR_SEEN] 바꾸는 줄 · 훑는 파일(고객 화면 · 엔진 · AI 상담) · 결정 낱말 · 표식
+const CHECKED = ['추가', '수정', '기본에서 내림', '해당 없음'];
+const SCAN = ['assets/ritual-data.js', 'assets/ritual-cue.js', 'assets/ritual-open.js', 'assets/ritual-story.js', 'assets/advisor-kb.js',
+  'order-preview.html', 'mypage.html', 'index.html', 'admin.html', 'console.html', 'api/_ritual-kb.js', 'api/_kb.js'];
+const DEC = /사장님|사용자 지시|사용자 결정|금지|되살리지|폐지|RETIRED/;
+const MK = /\[([A-Z][A-Z0-9_]{2,})(?=[\s\]·])/g;
+let LINES = null;
+function codeLines() {
+  if (!LINES) { LINES = []; SCAN.forEach((f) => { if (fs.existsSync(f)) fs.readFileSync(f, 'utf8').split('\n').forEach((l, i) => LINES.push([f, i + 1, l])); }); }
+  return LINES;
+}
+function priorFound(kw) {
+  const out = {};
+  codeLines().forEach(([f, n, l]) => {
+    if (!kw.some((k) => l.includes(k)) || !DEC.test(l)) return;
+    for (const m of l.matchAll(MK)) (out[m[1]] = out[m[1]] || []).push(f + ':' + n);
+  });
+  return out;
+}
+// strict = 장부를 다시 만들 때 · 깨 보기 — 못 읽은 표식이 있으면 빨강 / 아니면 «참고»
+function priorCheck(d, strict) {
+  const bad = [], note = [];
+  (d.moments || []).filter((m) => CHECKED.includes(m.verdict)).forEach((m) => {
+    const at = '«' + m.name + '»';
+    if (!Array.isArray(m.kw) || !m.kw.length || m.kw.some((k) => !String(k).trim())) { bad.push(at + ' 찾을 말(kw)이 없다 [PRIOR_SEEN]'); return; }
+    if (!m.prior || typeof m.prior !== 'object' || Array.isArray(m.prior)) { bad.push(at + ' 읽은 예전 결정(prior)이 없다 — 없으면 {} [PRIOR_SEEN]'); return; }
+    Object.entries(m.prior).forEach(([k, v]) => {
+      if (!String(v || '').trim()) bad.push(at + ' [' + k + '] 읽은 뜻이 비었다 [PRIOR_SEEN]');
+      if (!codeLines().some(([, , l]) => new RegExp('\\b' + k + '\\b').test(l))) (strict ? bad : note).push(at + ' [' + k + '] 는 코드에 없는 표식이다 [PRIOR_SEEN]');
+    });
+    const found = priorFound(m.kw);
+    Object.keys(found).filter((k) => !(k in m.prior)).forEach((k) => (strict ? bad : note).push(at + ' 예전 결정 [' + k + '] 를 읽은 표시가 없다(' + found[k].slice(0, 2).join(' · ') + ') [PRIOR_SEEN]'));
+  });
+  return { bad, note };
+}
 
 function validate(d) {
   const bad = [];
@@ -105,6 +146,16 @@ function render(d) {
   L.push('');
   keys.forEach((k) => L.push('- **' + k + '** ' + d.sources[k].name + (d.sources[k].real ? ' · 실제 예식' : '') + ' — momentedit-docs `research/식순_참고자료/' + d.sources[k].doc + '`'));
   L.push('');
+  L.push('## 6. 바꾸는 줄이 읽은 예전 결정 ([PRIOR_SEEN])');
+  L.push('');
+  L.push('> 코드(고객 화면 · 엔진 · AI 상담)에서 그 순간의 말과 결정 낱말이 한 줄에 있는 표식은 전부 여기 적혀야 장부를 다시 만들 수 있다.');
+  L.push('');
+  d.moments.filter((m) => CHECKED.includes(m.verdict)).forEach((m) => {
+    const ks = Object.keys(m.prior || {});
+    L.push('- **' + m.name + '** (' + m.verdict + ' · 찾은 말 ' + (m.kw || []).join(' · ') + ')' + (ks.length ? '' : ' · 걸린 예전 결정 없음'));
+    ks.forEach((k) => L.push('  - [' + k + '] ' + m.prior[k]));
+  });
+  L.push('');
   return L.join('\n');
 }
 
@@ -116,17 +167,26 @@ if (arg === '--selftest') {
   const t2 = JSON.parse(JSON.stringify(d)); t2.moments[1].verdict = '아마도';        // 정해지지 않은 결론
   const t3 = JSON.parse(JSON.stringify(d)); t3.moments[2].concept = ' ';            // 컨셉 거르기 비움
   const t4 = JSON.parse(JSON.stringify(d)); const o = t4.moments.find((m) => !m.data); if (o) o.near = '';   // 우리 고유인데 근거 없음
-  const fails = [t1, t2, t3, t4].map((t) => validate(t).length > 0);
+  // [PRIOR_SEEN] 깨 보기 — 첫 판의 실수(축가가 9/25 결정을 못 읽음)를 그대로 다시 만들어 본다
+  const pick = (t) => t.moments.find((m) => m.name === '축가');
+  const t5 = JSON.parse(JSON.stringify(d)); delete pick(t5).prior.SONG_RETIRED; delete pick(t5).prior.FREE_WHAT;   // 예전 결정을 안 읽었다
+  const t6 = JSON.parse(JSON.stringify(d)); pick(t6).prior.NO_SUCH_MARK_1011 = '지어낸 표식';                       // 코드에 없는 표식
+  const t7 = JSON.parse(JSON.stringify(d)); pick(t7).prior.TRIM_EVENTS = ' ';                                          // 읽은 뜻이 비었다
+  const t8 = JSON.parse(JSON.stringify(d)); delete pick(t8).kw;                                                         // 찾을 말이 없다
+  const fails = [t1, t2, t3, t4].map((t) => validate(t).length > 0).concat([t5, t6, t7, t8].map((t) => priorCheck(t, true).bad.length > 0));
   const md = render(d).replace(/\| \*\*유지\*\* \|/, '| **추가** |');            // 손으로 고친 장부
   const mdFail = md !== render(d);
-  if (fails.every(Boolean) && mdFail) { console.log('ok   [SOURCE_BASIS] 깨 보기 5종 모두 빨강'); process.exit(0); }
-  console.log('FAIL [SOURCE_BASIS] 깨 보기 중 빨강이 안 난 것이 있다', fails, mdFail); process.exit(1);
+  const realOk = priorCheck(d, true).bad.length === 0;                                 // 지금 자료표는 초록이어야 한다
+  if (fails.every(Boolean) && mdFail && realOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 9종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN]'); process.exit(0); }
+  console.log('FAIL [SOURCE_BASIS] 깨 보기 중 빨강이 안 난 것이 있다', fails, mdFail, realOk); process.exit(1);
 }
 
-const bad = validate(d);
+const pc = priorCheck(d, arg === '--write');
+const bad = validate(d).concat(pc.bad);
 if (bad.length) { bad.forEach((b) => console.log('FAIL [SOURCE_BASIS] ' + b)); process.exit(1); }
+pc.note.forEach((n) => console.log('참고 [SOURCE_BASIS] ' + n + ' — 다음에 자료표를 고칠 때 읽는다'));
 const out = render(d);
-if (arg === '--write') { fs.writeFileSync(MD, out); console.log('ok   [SOURCE_BASIS] 장부를 다시 만들었다 → ' + MD); process.exit(0); }
+if (arg === '--write') { fs.writeFileSync(MD, out); console.log('ok   [SOURCE_BASIS] 장부를 다시 만들었다 → ' + MD + ' · 바꾸는 줄의 예전 결정 다 읽음 [PRIOR_SEEN]'); process.exit(0); }
 const cur = fs.existsSync(MD) ? fs.readFileSync(MD, 'utf8') : '';
 if (cur !== out) { console.log('FAIL [SOURCE_BASIS] 장부가 자료표와 다르다 — node scripts/audit/source-basis.mjs --write 로 다시 만든다(손으로 고치지 않는다)'); process.exit(1); }
 console.log('ok   [SOURCE_BASIS] 순간 ' + d.moments.length + '개 · 자료 ' + Object.keys(d.sources).length + '개 · 모든 줄에 근거 · 장부 = 자료표');
