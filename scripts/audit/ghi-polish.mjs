@@ -20,6 +20,7 @@ const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
+const BOW_Q = '두 분이 마주 보고 맞절해요 · 3초 숙이고 · 3초 멈추고 · 3초 일어나요';   // [MATJEOL_1011] order-preview _lQuiet 의 맞절 줄
 let fail = 0;
 const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 
@@ -57,7 +58,8 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => { LS.more = {}; S.entryOut = ''; mkGo('entry'); }); await pg.waitForTimeout(300);
   const g4 = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'); const b = r && r.querySelector('[data-fk="lsmore:entry"]');
     return { btn: !!b, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), scene: !!(r && r.querySelector('[role=radiogroup][aria-label="첫 모습"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0, vc: !!RitualOpen.FEATURE.voiceClone, bow: /맞절/.test(r ? r.textContent : '') }; });
-  ok(`${w} G4 입장 쪽 — 맺는 말 · 첫 모습 · 더 고르기 · «맞절» 없음 · 묶음 하나(AI 가 켜지면 둘) [ENTRY_OUT_OFF · VP_NO_DIRECT]`, !g4.btn && !g4.outRow && !g4.scene && !g4.bow && g4.rows === (g4.vc ? 2 : 1), JSON.stringify(g4));
+  /* ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 맞절은 다시 들어왔다 — 고르는 칩이 아니라 늘 있는 한 줄(흐름 · 설명). 종전 «맞절 없음»은 이 결정으로 «맞절 있음 · 칩 없음»이 됐다 */
+  ok(`${w} G4 입장 쪽 — 맺는 말 · 첫 모습 · 더 고르기 없음 · «맞절»은 늘 있는 한 줄(칩 아님) · 묶음 하나(AI 가 켜지면 둘) [ENTRY_OUT_OFF · VP_NO_DIRECT · MATJEOL_1011]`, !g4.btn && !g4.outRow && !g4.scene && g4.bow && g4.rows === (g4.vc ? 2 : 1), JSON.stringify(g4));
   // G5 이렇게 흘러요 — 예시 넷 × 축배 판 셋 × 와인 셋
   const g5 = await pg.evaluate(() => {
     const R = RitualOpen, keep = JSON.parse(JSON.stringify(S)), bad = [], seen = {};
@@ -92,7 +94,7 @@ for (const w of [390, 1280]) {
     return out;
   });
   ok(`${w} G5 말 없는 줄 — 순간마다 하나 · 표 그대로([R1-45] 입장 · 반지는 위 설명과 겹치지 않게) [QUIET_LINES]`, g5b.candle.length === 1 && /이 앞으로 나와 불을 밝혀요 · 말 없이$|가 앞으로 나와 불을 밝혀요 · 말 없이$/.test(g5b.candle[0])
-    && g5b.entry.length === 1 && g5b.entry[0] === '음악에 맞춰 걸어 들어와요' && g5b.bow === '음악에 맞춰 걸어 들어와요'
+    && g5b.entry.length === 2 && g5b.entry[0] === '음악에 맞춰 걸어 들어와요' && g5b.entry[1] === BOW_Q && g5b.bow === '음악에 맞춰 걸어 들어와요' + BOW_Q   /* [MATJEOL_1011] 입장은 걸음 + 맞절 두 줄(큐마다 한 줄 · STAGE_LINES) · 옛 초안 bow 도 같다 */
     && g5b.ring[0] === '두 분이 서로 반지를 끼워요' && g5b.declare[0] === '하객이 박수로 축하해요' /* [STAGE_LINES 2026-10-06] 종전 «하객 박수 · 두 분이 부부가 돼요» */ && g5b._close[0] === '두 분이 하객께 목례 · 박수'
     && g5b.fams === 'solemn:1,warm:1,clap:2,family:1' /* [STAGE_LINES] 박수판 = 증인의 박수 + 축하 박수 */, JSON.stringify(g5b));
   ok(`${w} G5 첫 줄 이름 — 화촉 «시작할 때» · 선언 «성혼 선언문 · 엄숙하게»(R3-10 · STAGE_LINES) [FIRST_LINE_NAME]`, g5b.labs.candle === '시작할 때' && g5b.labs.declare === '성혼 선언문 · 엄숙하게' /* [STAGE_LINES 2026-10-06] 줄 이름 = 언제 · 선언문이 곧 선언 */   /* [R3-10] 갈래 표가 «나레이션»이라 이름에서 뺐다 */, JSON.stringify(g5b.labs));
