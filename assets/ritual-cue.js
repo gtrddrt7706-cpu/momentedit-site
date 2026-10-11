@@ -165,7 +165,8 @@
        원천 문안 assets/ritual-data.js NARR.thanksIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
     'narr-thanks-in',
     /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만»] 134 · 135 · 136 — 누가 선언하는지 알리는 여는 말.
-       **맨 끝에 붙였다**(위 경고 그대로). 원천 문안 assets/ritual-data.js NARR.declareIn* · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
+       **맨 끝에 붙였다**(위 경고 그대로). 원천 문안 assets/ritual-data.js NARR.declareIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계)
+       ★[DECLARE_ANYONE 2026-10-12 사장님 «특정한 인물을 넣어 놓지는 말자»] 134 · 135(신랑 아버님 · 신부 아버님을 부르는 판)는 녹음 전에 쉰다(RETIRED · 번호 보존) — 여는 말은 136 하나 */
     'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'
   ];
   var SLUG = {};
@@ -258,7 +259,7 @@
     'narr-table-in': D.NARR.tableIn,   // [TABLE_GREET_1008]
     'narr-entry-bow': D.NARR.entryBow,   // [MATJEOL_1011]
     'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
-    'narr-declare-in-gdad': D.NARR.declareInGdad, 'narr-declare-in-bdad': D.NARR.declareInBdad, 'narr-declare-in-friend': D.NARR.declareInFriend   // [DECLARE_BY_PERSON]
+    'narr-declare-in-friend': D.NARR.declareIn   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 여는 말은 하나(이름은 옛 판 그대로 · 134 · 135 는 RETIRED)
   };
 
   // ── 유틸
@@ -323,7 +324,7 @@
        ★나는 한 조합(`{declareWho:'ask'}`)만 돌려 보고 「폴백된다」고 단정했다 — 그게 틀렸다.
        ★[DECLARE_BY_PERSON 2026-10-12] 이제 그물은 «첫 갈래»가 아니라 «아직 안 고름»('')이다 — 코스 기본값도 '' 라 헛돌 일이 없고,
          부탁하지 않은 분(신랑 아버님)을 박지 않는다. 안 고른 채로도 엔진은 돈다(여는 말 136 · 할 일 «읽어 주실 분 정하기»). */
-    if (!D.DECLWHO[s.declareWho]) s.declareWho = '';   // ★[DECLARE_BY_PERSON 2026-10-12] 모르는 값 · 옛 narr · family · ask · chorus = «아직 안 고름»(첫 갈래로 떨어뜨리지 않는다 — 부탁하지 않은 아버님을 박지 않게)
+    s.declareWho = O.declBy(s);   // ★[DECLARE_ANYONE 2026-10-12] 두 분이 적은 글(다듬어 30자) · 옛 gdad · bdad = 그 이름 · 옛 friend · narr · family · ask · chorus · clap = «아직 안 정함»('')
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
     /* ★[ALL_OPTIONAL 2026-08-07] 코스의 순서는 '추천 조합'이지 '못 빼는 목록'이 아니다.
@@ -398,6 +399,9 @@
        ★32 는 [DROP_GUARD] 가 «폴백으로 실제로 나간다»고 지켜 오던 자리다 — 그 폴백(사람이 막히면 나레이션이 대신 읽기)이 이 결정으로 없어져 함께 쉰다.
        파일 · 문안은 그대로 둔다(번호 보존). 되살리지 말 것 */
     'narr-declare-family-intro': 1, 'declare-1-solemn': 1, 'declare-2-warm': 1, 'declare-family': 1, 'declare-clap-a': 1, 'declare-clap-b': 1,
+    /* ★[DECLARE_ANYONE 2026-10-12 사장님 «예를 들어 아버지 지인 친구 뭐 이렇게 얘기한 거지 특정한 인물을 넣어 놓지는 말자»] 사람을 부르는 여는 말 둘(134 신랑 아버님 · 135 신부 아버님)을
+       녹음 전에 쉰다 — 읽는 분은 두 분이 칸에 적고, 나레이션은 136 «신랑 신부가 부탁드린 분께서» 하나만 한다. 되살리지 말 것 */
+    'narr-declare-in-gdad': 1, 'narr-declare-in-bdad': 1,
     /* [WINE_RETIRED 2026-08-16] 사이 순서 폐지 — 잔을 드는 순간의 집은 「축배·케이크」 하나다.
        이미 녹음된 mp3 는 지우지 않는다(번호 보존 · SONG_RETIRED 와 같은 이유). */
     'narr-valley-wine': 1, 'narr-valley-cake': 1, 'narr-valley-out': 1,
@@ -641,7 +645,7 @@
         k: 'candle', blockN: '화촉', slug: 'narr-candle-in-' + who, name: '화촉 시작',
         text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckMusic, pick: '서는 분 · ' + nm,
         live: (who === 'parents'
-          ? { t: '양가 부모님이 함께 입장 · 하객께 인사 · 어머님 두 분이 불을 밝히고 자리로', est: 90, self: true, doing: 'move', note: '아버님은 인사 뒤 바로 자리로 · 어머님은 점화 뒤 자리로' }   // [CANDLE_PARENTS_FIRST 2026-10-11]
+          ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나와 불만 밝힌다(입장 · 하객 인사 없음 · «두 분»이라 적지 않는다)
           : { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' })
       }), cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',
@@ -807,7 +811,7 @@
       ];
     },
 
-    // 성혼 선언 — 택1 4종. 나레이션만 사람 구간이 없어 앞뒤가 통째로 자동이 된다.
+    // 성혼 선언 — 두 분이 정한 한 분이 읽는다(여는 말 → 사람 낭독 → 맺는 말 · [DECLARE_ANYONE]).
     declare: function (S) {
       /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만 할 거야 · 그게 싫다면 서약으로»]
          선언문은 사람만 읽는다 — S.declareWho: 'gdad'(신랑 아버님) | 'bdad'(신부 아버님) | 'friend'(친구 · 지인) | ''(아직 안 고름).
@@ -821,14 +825,17 @@
                   현장의 답에 반응할 수 없다 — 답을 전제하는 말(«방금 그 대답까지가…»)을 넣지 말 것
            clap — 96 «증인이 되어 주신다면 박수로 답해 주십시오» → 박수 → 97 나레이션 선언(DECLARE_CLAP · 9/25)
            family — 21 «가족께서 선언하십니다» → 가족 대표 낭독 → 57(«이제 두 사람은 부부입니다 · 다 함께 축하해 주세요») · 막히면 32 폴백(나레이션이 대신 읽음) */
-      var w = D.DECLWHO[S.declareWho] ? S.declareWho : '';
-      var who = w === 'gdad' ? '신랑 아버님' : w === 'bdad' ? '신부 아버님' : w === 'friend' ? '친구 · 지인 한 분' : '선언하실 분';
-      var slug = w === 'gdad' ? 'narr-declare-in-gdad' : w === 'bdad' ? 'narr-declare-in-bdad' : 'narr-declare-in-friend';
+      /* ★★[DECLARE_ANYONE 2026-10-12 사장님 «특정한 인물을 넣어 놓지는 말자» · «낭독자는 지정해야 하는 건 맞아 · 나레이션이 안 하기 때문에»]
+         읽는 분 = 두 분이 «읽어 주실 분» 칸에 적은 글(S.declareWho · O.declBy) — 칩 · 고정 목록 없음. 여는 말은 누가 읽든 하나(136 «신랑 신부가 부탁드린 분께서»).
+         적은 이름은 대본 · 콘솔(디렉터가 마이크와 카드를 건넬 분)에만 쓰고 나레이션은 부르지 않는다(녹음된 소리라 이름을 말할 수 없다). */
+      var w = O.declBy(S);
+      var who = w || '선언하실 분';
+      var slug = 'narr-declare-in-friend';
       return [cue({
         k: 'declare', blockN: '성혼 선언', slug: slug, name: '성혼 선언 시작',
-        text: EXTRA[slug], pick: '읽는 분 · ' + (w ? D.DECLWHO[w].d : '아직 안 고름'),   // 화촉 «서는 분 · 양가 어머님»과 같은 꼴 — 대본 «나레이션(읽는 분 · 신랑 아버님)»이 «나레이션이 낭독»으로 읽히지 않게
+        text: EXTRA[slug], pick: '읽는 분 · ' + (w || '아직 안 정함'),   // 화촉 «서는 분 · 양가 어머님»과 같은 꼴 — 대본 «나레이션(읽는 분 · 신랑 아버님)»이 «나레이션이 낭독»으로 읽히지 않게
         note: '선언문은 나레이션이 대신 읽지 않는다 — 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림',
-        live: { t: '선언하실 분이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', tv: who + '이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', who: who,
+        live: { t: '선언하실 분이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', tv: who + O.josaOf(who, '이', '가') + ' 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', who: who,
           est: 45, self: true, doing: 'say', fallback: '말이 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림 · 나레이션은 선언문을 대신 읽지 않음' }
       }), cue({
         k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-out', name: '성혼 선언 마무리',
@@ -1053,7 +1060,8 @@
       /* ★[BLESS_PREV 2026-09-25 코워크 회신3 3-3] 새 코스(open)는 famOpen 이 늘 거짓이라 늘 «편지 뒤» 갈래였다
          (큐 «편지 뒤라 한 톤 낮춰»). 그런데 새 차례에서 덕담은 늘 편지보다 앞이다. 판정을 «바로 앞 · 바로 뒤»로 바꾼다:
          바로 앞이 편지면 편지 뒤 갈래 · 바로 뒤가 서약이면 «서약의 문을 여는» 갈래 · 둘 다 아니면 가운데 문안(편지 뒤라는 말 없이).
-         ★어느 문안을 쓸지(글 자체)는 사장님 대본 점검 몫 — 코드는 판정만 고쳤다. 옛 코스는 종전 그대로. */
+         ★어느 문안을 쓸지(글 자체)는 사장님 대본 점검 몫 — 코드는 판정만 고쳤다. 옛 코스는 종전 그대로.
+         ★[BLESS_AFTER_DECLARE 2026-10-12] 새 코스에서 덕담은 성혼 선언 바로 뒤라 늘 가운데 문안(narr-bless-mid)이다 — «서약의 문을 여는» 갈래는 옛 코스(가족)에만 남는다. */
       if (S.course === 'open' && seq) {
         var bi = seq.indexOf('bless'), prev = bi > 0 ? seq[bi - 1] : '', next = seq[bi + 1] || '';
         afterLetter = prev === 'letter'; famOpen = !afterLetter && next === 'vow';

@@ -80,7 +80,7 @@ const BASE = { course: 'damback' };
 /* ★축을 좁게 잡았다가 **15개를 잃었다**(두 분 목소리 입장 6 · 덕담 중간 · 자유시간 2 · 사진 포즈 6).
    사장님이 읽는 문서에서 «나는 소리»가 빠지면 그 줄은 아무도 못 짚는다. 아래 [COVER_ALL] 이 막는다. */
 const AX = { entry: ['A', 'B', 'C', 'D', 'E', 'F'], declare: ['1', '2'],
-             declareWho: Object.keys(D.DECLWHO), letter: Object.keys(D.LETTER),
+             declareWho: ['', '신부 아버님'] /* [DECLARE_ANYONE] 빈칸 · 적은 이름 */, letter: Object.keys(D.LETTER),
              tribute: Object.keys((D.TRIBUTE || {}).modes || {}), toast: Object.keys(D.TOAST),
              entryVoice: ['nar', 'couple'], guestVoice: ['nar', 'couple'], bless: ['on', 'off'],
              valley: ['none', 'wine', 'cake', 'both'], song: ['none', 'live'], ring: ['on', 'off'] };

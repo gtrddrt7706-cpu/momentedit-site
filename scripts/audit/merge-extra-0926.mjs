@@ -28,7 +28,7 @@ await safe('P2-5 알림 글과 단추가 같은 판정', () => {
   const front = O.noticeFull({ on: { bless: 1, vow: 1, tribute: 1, toast: 1 } });
   const back = O.noticeFull({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' });
   const fa = front.acts.map((a) => a[0]).join('|'), ba = back.acts.map((a) => a[0]).join('|');
-  ok('P2-5 앞쪽 사슬(덕담 · 서약 · 인사) = «반지나 선언» 글 + 반지 · 선언 단추 [NOTE_ACT_MATCH]', /반지나 선언/.test(front.msg) && /반지 교환 담기/.test(fa) && !/말 없이/.test(fa), front.msg + ' / ' + fa);
+  ok('P2-5 앞쪽 사슬(서약 · 덕담 · 인사) = «반지나 선언» 글 + 반지 · 선언 단추 [NOTE_ACT_MATCH]', /반지나 선언/.test(front.msg) && /반지 교환 담기/.test(fa) && !/말 없이/.test(fa), front.msg + ' / ' + fa);
   ok('P2-5 뒤쪽 사슬 = «말 없이» 글 + 단추 «인사를 «말 없이»로»', /말 없이/.test(back.msg) && ba === '인사를 «말 없이»로', back.msg + ' / ' + ba);
 });
 await safe('P2-1 닫은 알림 뒤에 걸린 알림이 뜬다', () => {
@@ -208,8 +208,10 @@ await safe('FB1', async () => {
   ok('피드백1-1 크게 보기 ⏮ ❚❚ ⏭ 는 순간이 바뀌어도 한자리(390×844) [BIG_CTL_FIXED]', ys.size === 1 && [...ys][0] > 700, [...ys].join(' · '));
   await pg.evaluate(() => lsCloseBig()); await pg.waitForTimeout(300);
   const c = await pg.evaluate(() => { opStepNav('pick'); return 1; }); await pg.waitForTimeout(500);
-  const seal = await pg.evaluate(() => { const st = document.querySelector('.op-pk'), dot = document.querySelector('.pk-fg .flow-peak'), on = document.querySelector('.op-steps li.on'); return { star: st && getComputedStyle(st).color, dot: dot && dot.getAttribute('fill'), step: on && getComputedStyle(on).borderTopColor }; });
-  ok('피드백1-3 진사 — 벅찬 순간 이름(★ 대신 · PEAK_COLOR) · 벅찬 순간 점 · 지금 걸음 윗줄 [SEAL_POINTS]', seal.star === 'rgb(107, 42, 36)' && /6B2A24/i.test(seal.dot || '') && seal.step === 'rgb(107, 42, 36)', JSON.stringify(seal));
+  /* ★이름은 ① 곡선 위 글자(.flow-peak-name) · 그 밖의 자리는 .op-pk 규칙 하나 — 종전엔 문서의 첫 .op-pk(숨은 «크게 보기»가 마지막에 띄운 순간)를 재서
+       크게 보기가 정점 순간에서 멈췄을 때만 초록이었다(10/12 덕담 자리가 바뀌자 빨강 · 화면은 그대로). 규칙 색은 빈 .op-pk 를 하나 붙여 잰다 */
+  const seal = await pg.evaluate(() => { const nm = document.querySelector('.pk-fg .flow-peak-name'), dot = document.querySelector('.pk-fg .flow-peak'), on = document.querySelector('.op-steps li.on'), t = document.createElement('span'); t.className = 'op-pk'; document.body.appendChild(t); const star = getComputedStyle(t).color; t.remove(); return { star, name: nm && nm.getAttribute('fill'), dot: dot && dot.getAttribute('fill'), step: on && getComputedStyle(on).borderTopColor }; });
+  ok('피드백1-3 진사 — 벅찬 순간 이름(★ 대신 · PEAK_COLOR · 곡선 위 글자 · 그 밖 자리 규칙) · 벅찬 순간 점 · 지금 걸음 윗줄 [SEAL_POINTS]', seal.star === 'rgb(107, 42, 36)' && /6B2A24/i.test(seal.name || '') && /6B2A24/i.test(seal.dot || '') && seal.step === 'rgb(107, 42, 36)', JSON.stringify(seal));
   await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(900);
   const nb = await pg.evaluate(() => { const n = document.getElementById('next'); return { seal: n.classList.contains('seal'), bg: getComputedStyle(n).backgroundColor, t: n.textContent }; });
   ok('피드백1-3 ④ «이대로 저장하기»만 진사 채움', nb.seal && nb.bg === 'rgb(107, 42, 36)' && /이대로 저장하기/.test(nb.t), JSON.stringify(nb));

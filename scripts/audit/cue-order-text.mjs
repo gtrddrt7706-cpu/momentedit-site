@@ -46,7 +46,7 @@ const SETS = [
 const AX = {
   course: Object.keys(D_.COURSES), entry: ['A','B','C','D','E','F'],
   entryVoice: ['nar','couple'], guestVoice: ['nar','couple'],
-  declareWho: Object.keys(D_.DECLWHO), declare: ['1','2'],
+  declareWho: ['', '신부 아버님'], declare: ['1','2'],   // [DECLARE_ANYONE 2026-10-12] 읽는 분은 두 분이 적은 글 — 빈칸 · 적은 이름 둘로 돈다(목록이 없다)
   letter: Object.keys(D_.LETTER), valley: ['none','wine','cake','both'],
   ringwarm: ['family','all'], tribute: Object.keys(D_.TRIBUTE.modes),
   toast: Object.keys(D_.TOAST), bless: ['on','off'], blessProxy: [false,true],

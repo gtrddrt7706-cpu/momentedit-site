@@ -99,9 +99,10 @@ const narAll = [];
 const pushNar = (id, s) => { if (typeof s === 'string' && s.trim()) narAll.push([id, s]); };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 // ★[DECLARE_BY_PERSON 2026-10-12] DECLARE(나레이션 선언 · 엄숙하게 · 따뜻하게)는 걷었다 — 빌더에 사본이 «없어야» 한다(아래 DECL_RETIRED)
-['ENTRY', 'DECLWHO', 'LETTER', 'RINGWARM', 'TOAST'].forEach((t) => {
+['ENTRY', 'LETTER', 'RINGWARM', 'TOAST'].forEach((t) => {
   Object.keys(D[t] || {}).forEach((k) => pushNar(t + '.' + k, (D[t][k] || {}).nar));
 });
+pushNar('DECLBY', (D.DECLBY || {}).nar);   // [DECLARE_ANYONE 2026-10-12] 선언문은 한 벌(누가 읽든 같은 글) — 빌더 사본 DECLBY 가 그대로 들고 있어야 한다
 (D.GUEST || []).forEach((g, i) => pushNar('GUEST.' + i, g[1]));
 // [NARR_CONSOLE_ONLY] 빌더가 보여주지 않는 키는 사본을 요구하지 않는다.
 //   목록은 원천(assets/ritual-data.js)에 있다 — 검사에 또 적으면 두 곳이 갈린다.
@@ -210,59 +211,26 @@ ok('빌더 ENTRY.self 사본이 원천과 일치(' + selfAll.length + '종 · dr
   selfAll.length === Object.keys(D.ENTRY).length && selfMiss.length === 0);
 selfMiss.forEach(([k]) => console.log('   DRIFT ENTRY.' + k + '.self'));
 
-// ★DECL_SET_INVARIANT — 성혼 선언은 '택1 세트'다. 세 곳(원천 DECLWHO · 빌더 선택지 배열 · 생성기 총량 서술)이
-//   서로 다른 개수를 말하면 화면·대본·AI가 각각 다른 예식을 설명하게 된다.
-//   실사고(2026-07-26): 응답형(W2)이 택1인데 코드·KB·생성기가 '선언 뒤에 덧붙임'으로 서술 →
-//   그대로 녹음했으면 성혼 선언이 20초 간격으로 두 번 나갈 뻔했다(W2-c가 선언문 자체).
-const declKeys = Object.keys(D.DECLWHO);
-/* ★★[BUILDER_FROM_SOURCE 2026-09-21] 빌더가 목록을 **손으로 안 적고 DECLWHO 에서 읽으면**
-   이 검사가 지키려던 어긋남이 «정의상» 일어날 수 없다. 그게 하드코딩보다 강하다.
-   ★[ASK_RETIRED] 로 갈래를 지우다 빌더 배열을 Object.keys 로 바꿨더니 이 검사가
-     「배열 파싱 실패」로 붉었다 — **더 안전해졌는데 검사가 몰라서 막는** 꼴이었다.
-   ★그래도 «읽는다»는 사실 자체는 지킨다 — 아래 fromSource 가 그 줄을 찾는다.
-     누가 다시 하드코딩으로 되돌리면 그때는 개수를 센다. */
-const fromSource = /Object\.keys\(DECLWHO\)\.forEach\(function\(w\)\{/.test(html);
-const pickM = html.match(/\[([^\]]*)\]\.forEach\(function\(w\)\{\s*var sel=S\.declareWho===w/);
-const builderKeys = pickM ? (pickM[1].match(/'([^']+)'/g) || []).map((x) => x.replace(/'/g, '')) : null;
-ok('빌더 선언 선택지가 DECLWHO ' + declKeys.length + '종과 일치'
-  + (fromSource ? ' (원천에서 직접 읽는다 — 어긋날 수 없다)'
-    : builderKeys ? ' (빌더 ' + builderKeys.length + '종)' : ' — 배열 파싱 실패'),
-  fromSource || (!!builderKeys && builderKeys.length === declKeys.length && declKeys.every((k) => builderKeys.includes(k))));
-
+// ★DECL_SET_INVARIANT → ★★[DECLARE_ANYONE 2026-10-12 사장님 «예를 들어 아버지 지인 친구 뭐 이렇게 얘기한 거지 특정한 인물을 넣어 놓지는 말자»]
+//   성혼 선언은 «택1 세트»가 아니다 — 읽는 분은 두 분이 칸에 적는다(칩 · 목록 없음 · 여는 말 하나). 세 곳이 그 사실을 같은 말로 하는지 본다:
+//   ① 빌더에 읽는 분 목록(oc('declareWho' · Object.keys(DECLWHO))이 없고 칸(data-fk="declwho")이 있다 ② 녹음 대본 생성기가 «선언 N종»을 말하지 않는다
+//   ③ 옛 코스 상세 pick 이 특정한 분(신랑 아버님 · 신부 아버님 · 친구 · 지인)을 늘어놓지 않고 «두 분이 직접 적어요»라고 말한다 · 나레이션 · 가족 낭독이 없다.
+//   (9/21 [BUILDER_FROM_SOURCE] «목록은 원천에서 읽는다»는 이제 «목록이 아예 없다»로 대신한다 — 어긋날 목록이 없으니 더 강하다)
+const declList = /Object\.keys\(DECLWHO\)|oc\('declareWho'/.test(html), declInput = /data-fk=\\"declwho\\"|data-fk=\"declwho\"|data-fk="declwho"/.test(html);
+ok('빌더 성혼 선언 = 읽는 분 칸 하나 · 목록 없음 [DECLARE_ANYONE]', !declList && declInput);
 const gen = fs.readFileSync(path.join(root, 'scripts/build-dubbing-script.mjs'), 'utf8');
-const genM = gen.match(/선언 (\d+)종/);
-ok('녹음 대본 생성기의 "선언 N종" 서술이 DECLWHO와 일치' + (genM ? ' (생성기 ' + genM[1] + '종)' : ' — 서술 없음'),
-  !!genM && Number(genM[1]) === declKeys.length);
-
-// ★DECL_PICK_MIRROR — 코스 상세의 성혼 선언 요약(`pick`)이 그 코스의 실제 기본값을 말하는지.
-//   실사고(2026-07-26): #318이 감동 코스만 고쳐서, 나머지 4개 코스의 pick이 방금 출시한 응답형을 빠뜨리고
-//   보류 상태인 합송을 앞세웠다. 가족 코스는 아예 다른 축(엄숙/따뜻 = DECLARE 톤)을 섞어 놨다.
-//   선택기(DECLWHO 4종 순회)는 정상이었기에 기존 검사가 전부 초록이었다 → 요약 문자열을 4번째 대조로 추가.
-//   ※ pick은 사람이 읽는 요약이라 DECLWHO 라벨과 표기가 다르다(예: family.d='가족이 낭독' vs pick='가족 낭독').
-//     그래서 키→요약표기 대응을 여기서 명시한다. 합송은 보류라 pick에서 내렸고, 그건 데이터에 없는 정책이라 검사하지 않는다.
-// ★편집 규칙: pick의 첫 항목은 그 코스의 기본값과 같게 쓴다(가드는 '포함'만 보므로 순서는 사람이 지킨다).
-/* ★★[DECLARE_BY_PERSON 2026-10-12] 읽을 분은 코스가 박지 않는다(COURSE_DEF.declareWho = '' 전부) — 그래서 «기본값 포함»이 아니라
-   «pick 이 DECLWHO 의 읽을 분을 전부 말하고 · 나레이션 · 가족 낭독을 말하지 않는가»를 본다. 코스 기본값이 다시 생기면(빈 값이 아니면) 그 분이 pick 맨 앞인지도 본다 */
-if (builderKeys || fromSource) {
-  const cdM = html.match(/var COURSE_DEF=\{[\s\S]*?\n\};/);
-  if (!cdM) { ok('빌더 COURSE_DEF 파싱', false); }
-  else {
-    const CD = new Function(cdM[0] + ' return COURSE_DEF;')();
-    const labels = declKeys.map((k) => D.DECLWHO[k].d);
-    const badPick = [];
-    for (const c of Object.keys(D.COURSES)) {
-      if (!(D.COURSES[c].detail || []).length) continue;   // 새 코스(open)는 상세 대신 ritual-open.js CARDS 가 말한다
-      const det = (D.COURSES[c].detail || []).find((x) => /성혼 선언/.test(x.n));
-      const def = (CD[c] || {}).declareWho;
-      if (!det || !det.pick) { badPick.push(c + '(선언 항목 없음)'); continue; }
-      const miss = labels.filter((l) => !det.pick.includes(l));
-      if (miss.length) badPick.push(c + '(pick 에 없음: ' + miss.join(',') + ')');
-      if (/나레이션|가족 낭독/.test(det.pick + ' ' + (det.how || ''))) badPick.push(c + '(나레이션 · 가족 낭독이 남음: ' + det.pick + ')');
-      if (def && D.DECLWHO[def] && det.pick.indexOf(D.DECLWHO[def].d) !== 0) badPick.push(c + '(기본 "' + D.DECLWHO[def].d + '"이 pick 맨 앞이 아님)');
-      if (def && !D.DECLWHO[def]) badPick.push(c + '(기본값 ' + def + ' 이 DECLWHO 에 없음)');
-    }
-    ok('코스 상세 pick 이 읽을 분(' + labels.join(' · ') + ')을 말하고 나레이션 · 가족 낭독이 없음' + (badPick.length ? ' — ' + badPick.join(' / ') : ''), badPick.length === 0);
+ok('녹음 대본 생성기가 «선언 N종»(택1 세트)을 말하지 않는다 [DECLARE_ANYONE]', !/선언 \d+종/.test(gen));
+{
+  const badPick = [];
+  for (const c of Object.keys(D.COURSES)) {
+    if (!(D.COURSES[c].detail || []).length) continue;   // 새 코스(open)는 상세 대신 ritual-open.js CARDS 가 말한다
+    const det = (D.COURSES[c].detail || []).find((x) => /성혼 선언/.test(x.n));
+    if (!det || !det.pick) { badPick.push(c + '(선언 항목 없음)'); continue; }
+    if (!/두 분이 직접 적어요/.test(det.pick)) badPick.push(c + '(pick 이 «두 분이 직접 적어요»가 아님: ' + det.pick + ')');
+    if (/신랑 아버님|신부 아버님|친구 · 지인/.test(det.pick + ' ' + (det.how || ''))) badPick.push(c + '(특정한 분을 늘어놓음)');
+    if (/나레이션|가족 낭독/.test(det.pick + ' ' + (det.how || ''))) badPick.push(c + '(나레이션 · 가족 낭독이 남음: ' + det.pick + ')');
   }
+  ok('코스 상세 pick · how 가 읽는 분을 박지 않고(«두 분이 직접 적어요») 나레이션 · 가족 낭독이 없음' + (badPick.length ? ' — ' + badPick.join(' / ') : ''), badPick.length === 0);
 }
 
 // ★DECL_ADMIN_MIRROR — 운영자 화면 두 곳이 선언 주체 4종을 전부 다루는지.
@@ -275,6 +243,14 @@ const adminHtml = fs.readFileSync(path.join(root, 'admin.html'), 'utf8');
 ok('admin.html이 선언 주체 라벨을 원천에서 읽음(_declWhoLabel · 하드코딩 맵 아님)',
   adminHtml.includes('<script src="/assets/ritual-data.js">') && adminHtml.includes('_declWhoLabel')
   && !/\{narr:'나레이션',chorus:/.test(adminHtml));
+/* ★[DECL_OLD_MIRROR 2026-10-12 · DECLARE_ANYONE] admin 은 ritual-open.js 를 싣지 않아 «옛 칩 값 → 글» 규칙을 한 벌 들고 있다 — RitualOpen.declBy 와 같은 답을 내는지 값마다 본다 */
+{
+  const RO = require(path.join(root, 'assets/ritual-open.js'));
+  const om = adminHtml.match(/var OLD=(\{[^}]*\});\s*\/\/ DECL_OLD_MIRROR/);
+  let oldOk = false;
+  if (om) { const OLD = new Function('return ' + om[1])(); oldOk = ['gdad', 'bdad', 'friend', 'narr', 'family', 'ask', 'chorus', 'clap'].every((k) => k in OLD && RO.declBy({ declareWho: k }) === OLD[k]); }
+  ok('admin.html 읽는 분 행 = 두 분이 적은 글 · 옛 칩 값 규칙이 RitualOpen.declBy 와 같다 [DECL_OLD_MIRROR]', oldOk);
+}
 // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html)은 은퇴했다 — 사본이 하나 줄었다 — 운영자 화면은 admin.html 한 곳(원천을 직접 읽는다 · 위 검사)
 
 // 택1 원칙: 선언 자리에서 '덧붙임'을 뜻하는 서술이 남아 있으면 안 된다.
@@ -285,7 +261,7 @@ ok('선언 택1 원칙 위반 서술("선언 뒤에 …답하는") 0건' + (addO
 
 try { KB = require(path.join(root, 'api/_ritual-kb.js')); } catch (e) { ok('_ritual-kb.js 로드', false); process.exit(1); }
 const probes = [
-  D.ENTRY.A.nar, D.DECLWHO.gdad.nar, D.LETTER.parent.nar, D.NARR.vow.nar, D.NARR.close, D.RINGWARM.family.nar,   // [DECLARE_BY_PERSON] 선언 대표 문안 = 사람이 읽는 선언문
+  D.ENTRY.A.nar, D.DECLBY.nar, D.LETTER.parent.nar, D.NARR.vow.nar, D.NARR.close, D.RINGWARM.family.nar,   // [DECLARE_BY_PERSON · DECLARE_ANYONE] 선언 대표 문안 = 사람이 읽는 선언문(한 벌)
 ];
 ok('KB full이 원천 대표 문안 6종을 그대로 인용', probes.every((s) => KB.full.includes(s)));
 /* [COURSE_HIDDEN 2026-08-08] 옛 검사는 '담백 25분'이라는 **한 코스의 이름과 숫자**를 박아 두고 있었다.

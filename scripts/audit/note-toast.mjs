@@ -15,7 +15,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch(); } catch (e) { console.log('못 쟀다 — 브라우저 없음'); srv.close(); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
-const KEEP = [/^아직 고르지 않았어요 · /, /^신랑분은 원하시면 큰절을 올리셔도 돼요$/];   // 누르기 전에 읽혀야 하는 줄
+const KEEP = [/^아직 (고르지|적지) 않았어요 · /, /^신랑분은 원하시면 큰절을 올리셔도 돼요$/];   // 누르기 전에 읽혀야 하는 줄 · «적지»는 성혼 선언 «읽어 주실 분» 칸(DECLARE_ANYONE · 칩이 아니라 적는 칸)
 for (const W of [390, 1280]) {
   const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' })));
@@ -44,8 +44,12 @@ for (const W of [390, 1280]) {
     const b = document.querySelector('#stage [data-fk="' + fk + '"]'); if (!b) return { none: fk }; b.click(); await new Promise((r) => setTimeout(r, 300)); try { lsStop(); } catch (e) {}
     const u = document.getElementById('lsToast'), row = b.closest('.ls-cg'); return { toast: u && !u.hidden ? u.textContent : '', h: u && !u.hidden ? Math.round(u.getBoundingClientRect().height) : 0, note: row ? [...row.querySelectorAll('.ls-gnote')].map((n) => n.textContent).join('|') : '' }; }, [k, fk]);
   const want = [['guest', 'lsc:guestVoice:nar', '나레이터가 읽어요'], ['guest', 'lsc:guestVoice:ai', 'AI가 두 분 목소리로 읽어요'], ['prevideo', 'lsc:pvVoice:nar', '나레이터가 읽어요'], ['entry', 'lsc:entryVoice:nar', '나레이터가 읽어요'],
-    ['declare', 'lsc:declare:gdad', '선언문은 저희가 인쇄해 드려요'] /* [DECLARE_BY_PERSON] 옛 «가족이 낭독» → 읽는 분 */, ['vow', 'mkrc:vow:1', '예시를 넣었어요 · 고쳐 써도 돼요'], ['bless', 'mkrc:bless:1', '부모님 이야기로 바꿔도 돼요'], ['candle', 'lsc:candleWho:fathers', '‹양가 아버님›으로 바꿨어요']];
+    /* [DECLARE_ANYONE 2026-10-12] 성혼 선언은 칩이 없다 — «선언문은 저희가 인쇄해 드려요»는 칸에 읽는 분을 적을 때(아래 따로 잰다) */ ['vow', 'mkrc:vow:1', '예시를 넣었어요 · 고쳐 써도 돼요'], ['bless', 'mkrc:bless:1', '부모님 이야기로 바꿔도 돼요'], ['candle', 'lsc:candleWho:fathers', '‹양가 아버님›으로 바꿨어요']];
   for (const [k, fk, t] of want) { const r = await press(k, fk); ok(`${W} [NOTE_TOAST] ${k} ${fk} → 아래 알림 «${t}» 한 줄 · 칩 아래 덧말 없음`, r.toast === t && r.h > 0 && r.h <= 52 && !/나레이터가|선언문은|예시를 넣었어요|이야기로 바꿔도/.test(r.note || ''), JSON.stringify(r)); }
+  { const r = await pg.evaluate(async () => { S.declareWho = ''; mkGo('declare'); await new Promise((r) => setTimeout(r, 300)); const u0 = document.getElementById('lsToast'); if (u0) { u0.hidden = true; u0.innerHTML = ''; }
+      const el = document.querySelector('#stage [data-fk="declwho"]'); if (!el) return { none: 1 }; el.value = '신부 아버님'; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); await new Promise((r) => setTimeout(r, 300));
+      const u = document.getElementById('lsToast'), row = document.querySelector('#stage [data-fk="declwho"]'); const ln = row && row.closest('.ls-cg'); return { toast: u && !u.hidden ? u.textContent : '', who: S.declareWho, note: ln ? [...ln.querySelectorAll('.ls-gnote')].map((n) => n.textContent).join('|') : '' }; });
+    ok(`${W} [NOTE_TOAST · DECLARE_ANYONE] 성혼 선언 «읽어 주실 분» 칸에 적으면 → 아래 알림 «선언문은 저희가 인쇄해 드려요» 한 줄 · 칸 아래 덧말 없음`, r.toast === '선언문은 저희가 인쇄해 드려요' && r.who === '신부 아버님' && !r.note, JSON.stringify(r)); }
   { await pg.evaluate(() => { S.pvVoice = 'couple'; S.vfill = Object.assign({}, S.vfill, { prevideo: 'ai' }); S.touched = Object.assign({}, S.touched, { pvVoice: 1 }); buildSteps(); }); const r = await press('prevideo', 'mkex:pv:2');
     ok(`${W} [NOTE_TOAST] 식전 영상 AI 예시 → 아래 알림 «예시를 넣었어요 · 고쳐 써도 돼요»(TOAST_MIN) · 칩 줄 아래 «고르면 아래 글이 바뀌어요» 없음`, r.toast === '예시를 넣었어요 · 고쳐 써도 돼요' && !/고르면 아래 글이/.test(r.note || ''), JSON.stringify(r)); }
   { const r = await pg.evaluate(async () => { S.tipSeen = {}; mkGo('entry'); await new Promise((r) => setTimeout(r, 200)); const u0 = document.getElementById('lsToast'); if (u0) { u0.hidden = true; u0.innerHTML = ''; }

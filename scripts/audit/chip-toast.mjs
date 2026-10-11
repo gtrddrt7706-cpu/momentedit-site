@@ -64,7 +64,7 @@ for (const W of [320, 390, 1280]) {
   await wait(3200); ok(`${W} 1 3초 뒤 닫힘`, !(await pg.evaluate(TOAST)).shown);
   if (W === 390) {
     // 2 — 큰 바뀜은 말하지 않는다
-    for (const [k, pre] of [['entry', 'lsc:entry:'], ['declare', 'lsc:declare:']]) {
+    for (const [k, pre] of [['entry', 'lsc:entry:']]) {   /* [DECLARE_ANYONE 2026-10-12] 성혼 선언은 칩이 없다(칸에 적는다 · 알림은 note-toast 가 잰다) */
       await go(pg, k); await quiet(pg);
       const pick = await pg.evaluate((pre) => { const bs = [...document.querySelectorAll('#stage [data-fk^="' + pre + '"]')]; const off = bs.find((b) => b.getAttribute('aria-checked') !== 'true'); return off ? off.getAttribute('data-fk') : null; }, pre);
       if (pick) await tap(pg, `#stage [data-fk="${pick}"]`);
@@ -85,12 +85,12 @@ for (const W of [320, 390, 1280]) {
   if (W !== 320) {
     // 4 — 크게 보기
     await go(pg, 'candle'); await pg.evaluate(() => lsBig('candle')); await wait(600); await quiet(pg);
-    /* [CANDLE_PARENTS_FIRST 2026-10-11] «양가 부모님 함께 입장»은 흐름 글이 통째로 바뀌어 알림 대신 글이 말한다([CHIP_FEW_WORDS]) — 이름만 바뀌는 «양가 어머님»으로 잰다 */
+    /* [PARENTS_ENTRY_OFF 2026-10-12] 화촉 칩은 10/11 전 차례(어머님 · 아버님 · 부모님 네 분 · 다른 두 분) — 이름만 바뀌는 «양가 어머님»으로 잰다 */
     await tap(pg, '#lsFull [data-fk="lfc:candleWho:mothers"]');
     const d = await pg.evaluate(() => { const t = (function () { const u = document.getElementById('lsToast'); return u && !u.hidden ? u : null; })(); const ctl = document.querySelector('#lsFull .lf-ctl');
       if (!t || !ctl) return { shown: !!t, ctl: !!ctl }; const r = t.getBoundingClientRect(); t.style.pointerEvents = 'auto'; const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); t.style.pointerEvents = '';
       return { shown: true, text: t.textContent, gap: Math.round(ctl.getBoundingClientRect().top - r.bottom), onTop: !!(top && t.contains(top)) }; });
-    ok(`${W} 4 크게 보기 칩 «양가 어머님» → 같은 안내 · 재생 단추 줄 8px 위 · 크게 보기 위 [CHIP_TOAST] [CANDLE_PARENTS_FIRST]`, d.shown && d.text === '‹양가 어머님›으로 바꿨어요' && Math.abs(d.gap - 8) <= 1 && d.onTop, d);
+    ok(`${W} 4 크게 보기 칩 «양가 어머님» → 같은 안내 · 재생 단추 줄 8px 위 · 크게 보기 위 [CHIP_TOAST] [PARENTS_ENTRY_OFF]`, d.shown && d.text === '‹양가 어머님›으로 바꿨어요' && Math.abs(d.gap - 8) <= 1 && d.onTop, d);
     await pg.evaluate(() => lsCloseBig()); await wait(300);
   }
   if (W === 390) {

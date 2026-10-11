@@ -69,9 +69,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 29,
-      "sents": 53,
-      "chars": 1590
+      "clips": 27,
+      "sents": 51,
+      "chars": 1528
     },
     {
       "file": "4_혼주편지.txt",
@@ -2014,47 +2014,9 @@
       ]
     },
     {
-      "no": "134",
-      "id": "G5-5",
-      "label": "성혼 선언 여는 말 · 신랑 아버님",
-      "file": "narr-declare-in-gdad",
-      "role": "진행",
-      "part": "3_진행_후반.txt",
-      "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 0.45,
-      "sents": [
-        {
-          "i": 0,
-          "text": "성혼 선언은, 신랑 아버님께서 해 주시겠습니다.",
-          "before": 0,
-          "after": 0
-        }
-      ]
-    },
-    {
-      "no": "135",
-      "id": "G5-6",
-      "label": "성혼 선언 여는 말 · 신부 아버님",
-      "file": "narr-declare-in-bdad",
-      "role": "진행",
-      "part": "3_진행_후반.txt",
-      "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 0.45,
-      "sents": [
-        {
-          "i": 0,
-          "text": "성혼 선언은, 신부 아버님께서 해 주시겠습니다.",
-          "before": 0,
-          "after": 0
-        }
-      ]
-    },
-    {
       "no": "136",
       "id": "G5-7",
-      "label": "성혼 선언 여는 말 · 친구 · 지인(아직 안 고른 날도)",
+      "label": "성혼 선언 여는 말(누가 읽든 하나)",
       "file": "narr-declare-in-friend",
       "role": "진행",
       "part": "3_진행_후반.txt",

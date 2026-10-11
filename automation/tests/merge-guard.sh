@@ -1764,7 +1764,7 @@ else
 fi
 
 # ── 2026-07-26 나레이션 더빙 확정안 반영 마커 (문안·기본값·정합 검사)
-chk 'COURSE_DEF_MAP' order-preview.html 4          # 코스별 기본값 단일 원천 — applyCourse·기본 배지·추천이 같은 맵을 봄
+chk 'COURSE_DEF_MAP' order-preview.html 3          # 코스별 기본값 단일 원천 — applyCourse·기본 배지·추천이 같은 맵을 봄 · [DECLARE_ANYONE 2026-10-12] 선언 읽는 분 «기본 배지» 줄은 목록(DECLWHO)과 함께 걷어 4 → 3
 nochk 'cakeDupNote' order-preview.html             # [CAKE_DUP_GONE] 위와 같은 이유 — 경고 함수 자체가 없다
 chk 'XM_MIRROR_9KEY' assets/ritual-data.js 1       # 소요분 9키 정합 — 빌더가 기준
 chk 'XM_MIRROR_9KEY' scripts/check-ritual-mirror.js 1
@@ -1830,14 +1830,15 @@ nochk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js
 #   ★N2 주석이 답을 적어 두었다 — 「문장을 갈라 3인칭→2인칭으로 가는 것은 VOICE_2ND 의 설계다」.
 chk '두 사람 곁에 서시면 됩니다' assets/ritual-data.js 2     # 폐식 → 전체 하객컷 전환 (NARR.close + NARV.close[0]) · [REDUB_KEEP_RULE 2026-10-03] 10/3 새 문안도 VOICE_2ND_GAP 의 «문장 가르기»를 지킨다(옛 녹음 두 문장 재사용)
 chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 0              # 옛 문안이 되살아나면 실패
-chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
+chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조 → [DECLARE_ANYONE 2026-10-12] «목록 없음 · 칸 하나»를 세 곳(빌더 · 생성기 · 코스 상세)이 같은 말로 하는지
 chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
 # ★[BUILDER_FROM_SOURCE 2026-09-21] 목록을 손으로 안 적고 DECLWHO 에서 읽는다 —
 #   하드코딩 배열을 지키는 대신 «원천에서 읽는다»를 지킨다. 그러면 어긋날 수가 없다.
-chk 'Object.keys(DECLWHO).forEach' order-preview.html 1
+#   ★[DECLARE_ANYONE 2026-10-12] 이제 읽는 분 목록 자체가 없다(두 분이 칸에 적는다) — 목록을 도는 줄이 되살아나면 빨강
+nochk 'Object.keys(DECLWHO)' order-preview.html 0
 nochk "'narr','ask','chorus','family'" order-preview.html
 chk 'DECL_ADMIN_MIRROR' scripts/check-ritual-mirror.js 1   # 운영자 화면 2곳이 선언 주체 4종을 다루는지
-chk '_declWhoLabel' admin.html 2                            # 선언 주체 라벨은 원천(DECLWHO)에서 읽는다 · 하드코딩 맵 복귀 금지
+chk '_declWhoLabel' admin.html 2                            # 선언 «읽는 분» 행 = 두 분이 적은 글([DECLARE_ANYONE] · 옛 칩 값 규칙은 DECL_OLD_MIRROR 가 RitualOpen.declBy 와 대조)
 chk 'assets/ritual-data.js' admin.html 1                    # 위 함수가 참조할 원천 로드
 chk '★AI고지_G1-4' assets/ritual-data.js 1                   # G1-4 앞 2문장 = 하객 사전 고지(발각 시나리오 차단) · 원천
 chk '미리 준비한 안내 음성으로 진행' order-preview.html 3   # 위 고지의 빌더 인라인 사본(NAR_MIRROR 대상)
@@ -1860,7 +1861,7 @@ chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②�
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
 chk '진행 안내는 뒷면에 있습니다' admin.html 1                  # 식순지 앞면 유도 한 줄 — 뒷면이 유일한 AI 명시 채널이라 필수(조건 ㉮)
 chk 'PRINT_FROM_SOURCE' admin.html 1                        # 인쇄물 문안 복붙 금지(네 번째 원천 방지) 표식
-chk '_DECL_CARD_WHO' admin.html 3                           # 낭독 카드 대상 주체 배열 · 합송(chorus) 분기 자리 보존
+chk '_declOn(' admin.html 3                                # [DECLARE_ANYONE 2026-10-12] 낭독 카드 = 성혼 선언이 담긴 예식이면(읽는 분 목록 _DECL_CARD_WHO 는 빈 배열로 남김)
 chk "'나레이션 대행' 선택지 복원 금지" assets/ritual-data.js 1   # 8842582로 폐지된 선택지 · 카피만 뒤늦게 정리(제거 지시 보존)
 chk 'FESTIVE_MIN_WHY' assets/ritual-data.js 1                   # 축하 여유 16분은 오타 아님 · 첫 예식 실측 전 낮추기 금지
 chk '가장 가까운 정면 열에 앉으신 채로' assets/ritual-data.js 3   # 헌정 큐 · 부모님 좌석·자세(3종 전부)
@@ -7571,14 +7572,20 @@ node scripts/audit/source-basis.mjs --selftest || fail=1
 chk 'STAGE1_CLOSE' scripts/audit/source-basis.mjs 5
 #   ★2026-10-11 1단계를 닫았다(감사문까지 «끝») — 장부에 «진행»이 하나라도 생기면 빨강. 새 순간 개편은 2단계 줄로 연다
 node scripts/audit/source-basis.mjs --closed || fail=1
-# ★[CANDLE_PARENTS_FIRST 2026-10-11 사장님] 화촉 첫 칸 = 양가 부모님 함께 입장 → 하객께 인사 → 어머님 점화(open-course 가 뜻을 잰다)
-chk 'CANDLE_PARENTS_FIRST' assets/ritual-open.js 4
-chk 'CANDLE_PARENTS_FIRST' assets/ritual-cue.js 1
-chk 'CANDLE_PARENTS_FIRST' assets/ritual-story.js 1
-chk 'CANDLE_PARENTS_FIRST' order-preview.html 1
-chk 'CANDLE_PARENTS_FIRST' api/_ritual-kb.js 1
-chk 'CANDLE_PARENTS_FIRST' scripts/audit/open-course.mjs 3
-nochk "\['parents', '양가 부모님 네 분'\]" assets/ritual-open.js 0   # 옛 셋째 칸 이름 · 되살리지 말 것
+# ★[PARENTS_ENTRY_OFF 2026-10-12 사장님 «양가부모님 입장은 생략»] 10/11 CANDLE_PARENTS_FIRST(첫 칸 «부모님 함께 입장» → 하객께 인사 → 어머님 점화 · +20초)를 걷고
+#   10/11 전 칩으로 — 양가 어머님(기본) · 양가 아버님 · 양가 부모님 네 분(자리에서 나와 불만 밝힌다) · 다른 두 분(open-course 가 뜻을 잰다)
+chk 'PARENTS_ENTRY_OFF' assets/ritual-open.js 3
+chk 'PARENTS_ENTRY_OFF' assets/ritual-cue.js 1
+chk 'PARENTS_ENTRY_OFF' assets/ritual-story.js 1
+chk 'PARENTS_ENTRY_OFF' order-preview.html 1
+chk 'PARENTS_ENTRY_OFF' api/_ritual-kb.js 1
+chk 'PARENTS_ENTRY_OFF' scripts/audit/open-course.mjs 3
+chk "\['parents', '양가 부모님 네 분'\]" assets/ritual-open.js 1   # 셋째 칸 = 네 분 점화(10/11 전 그대로)
+nochk "\['parents', '양가 부모님 함께 입장'\]" assets/ritual-open.js 0   # 걷은 첫 칸 · 되살리지 말 것
+nochk '함께 들어와 하객께 인사하시면' assets/ritual-open.js 0
+nochk '양가 부모님이 함께 입장 · 하객께 인사' assets/ritual-cue.js 0
+nochk '양가 부모님이 함께 입장 · 하객께 인사' assets/ritual-story.js 0
+nochk '양가 부모님이 함께 들어와 인사하고' order-preview.html 0
 # ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 새 코스 입장 끝 맞절 한 줄(132) · 3·3·3 · 15초 · 고를 것 없음
 #   open-course 가 뜻(입장 바로 뒤 · 디렉터 GO · 바라보기 도착 큐 없음 · 입장 몫 +15초)을 잰다
 chk 'MATJEOL_1011' assets/ritual-cue.js 5
@@ -7628,7 +7635,7 @@ chk 'SONG_BACK_1011' assets/advisor-kb.js 2
 chk 'SONG_BACK_1011' index.html 1
 chk 'SONG_BACK_1011' scripts/audit/open-course.mjs 3
 # ★[VOW_DECL_DIFF 2026-10-11 사장님 «서약과 성혼선언 차이를 헷갈릴 수 있으니 · 조사한 자료를 참고해서 · 이벤트 클릭하면 나오는 설명에»]
-#   자료 R «누가 읽느냐로 구분한다» — 서약 = 두 분이 서로에게 직접 / 선언 = 하객 앞에서 · 두 분 대신 아버님이나 친구 · 지인(10/12 DECLARE_BY_PERSON · open-course 가 뜻을 잰다)
+#   자료 R «누가 읽느냐로 구분한다» — 서약 = 두 분이 서로에게 직접 / 선언 = 하객 앞에서 · 두 분이 정하신 한 분(10/12 DECLARE_BY_PERSON → DECLARE_ANYONE · open-course 가 뜻을 잰다)
 chk 'VOW_DECL_DIFF' assets/ritual-open.js 2
 chk 'VOW_DECL_DIFF' order-preview.html 2
 chk 'VOW_DECL_DIFF' api/_ritual-kb.js 1
@@ -7647,14 +7654,14 @@ chk 'DECLARE_BY_PERSON' order-preview.html 20
 chk 'DECLARE_BY_PERSON' assets/ritual-story.js 3
 chk 'DECLARE_BY_PERSON' api/_ritual-kb.js 1
 chk 'DECLARE_BY_PERSON' admin.html 3
-chk 'DECLARE_BY_PERSON' console.html 2
+chk 'DECLARE_BY_PERSON' console.html 1
 chk 'DECLARE_BY_PERSON' scripts/check-ritual-mirror.js 3
 chk 'DECLARE_BY_PERSON' scripts/build-dubbing-script.mjs 3
 chk 'DECLARE_BY_PERSON' scripts/audit/decl-pause.mjs 2
 chk 'DECLARE_BY_PERSON' scripts/audit/declare-by-person.mjs 1
-chk "declare: \[\['gdad', '신랑 아버님'\], \['bdad', '신부 아버님'\], \['friend', '친구 · 지인'\]\]" assets/ritual-open.js 1
+nochk "declare: \[\['gdad', '신랑 아버님'\]" assets/ritual-open.js 0   # [DECLARE_ANYONE 2026-10-12] 읽는 분 칩은 걷었다(칸에 적는다)
 chk "'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'" assets/ritual-cue.js 1
-chk "L('declare','누가 읽나요'" order-preview.html 1
+nochk "L('declare','누가 읽나요'" order-preview.html 0   # [DECLARE_ANYONE] 칩 줄 대신 칸 «읽어 주실 분»
 chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 3
 chk '나레이션은 선언문을 읽지 않는다' api/_ritual-kb.js 1
 nochk "\['solemn', '나레이션 · 엄숙하게'\]" assets/ritual-open.js 0
@@ -7673,6 +7680,39 @@ if command -v node >/dev/null 2>&1; then
   node scripts/audit/declare-by-person.mjs --selftest >/dev/null 2>&1 \
     || { echo 'FAIL declare-by-person --selftest: 깨 보기에서 빨강이 안 나온다(죽은 검사) — node scripts/audit/declare-by-person.mjs --selftest'; fail=1; }
 fi
+# ★★[DECLARE_ANYONE 2026-10-12 사장님 «예를 들어 아버지 지인 친구 뭐 이렇게 얘기한 거지 특정한 인물을 넣어 놓지는 말자» · «선언 낭독자는 지정해야 하는 건 맞아 · 나레이션이 안 하기 때문에» ·
+#     «일반적으로 누가 하는 게 좋은지는 작성하는 곳에 예시로»] 읽는 분은 두 분이 «읽어 주실 분» 칸에 적는다(S.declareWho = 글 · 칩 · 목록 없음 · 예시 «예) 아버님 · 친구 · 지인»은 칸 안에만).
+#   나레이션 여는 말은 하나(136 · 사람을 부르는 134 · 135 RETIRED) · 공개 미리 듣기 주소에는 그 글을 싣지 않는다 · 관리자 · 콘솔은 적은 글을 그대로 보인다.
+chk 'DECLARE_ANYONE' assets/ritual-data.js 2
+chk 'DECLARE_ANYONE' assets/ritual-cue.js 5
+chk 'DECLARE_ANYONE' assets/ritual-open.js 10
+chk 'DECLARE_ANYONE' order-preview.html 12
+chk 'DECLARE_ANYONE' assets/ritual-story.js 2
+chk 'DECLARE_ANYONE' api/_ritual-kb.js 1
+chk 'DECLARE_ANYONE' admin.html 6
+chk 'DECLARE_ANYONE' console.html 3
+chk 'DECLARE_ANYONE' assets/ritual-preview-link.js 1
+chk 'DECLARE_ANYONE' scripts/check-ritual-mirror.js 4
+chk 'DECLARE_ANYONE' scripts/build-course-story.mjs 3
+chk 'DECLARE_ANYONE' scripts/audit/declare-by-person.mjs 3
+chk "key:'declareWho',l:'읽어 주실 분'" order-preview.html 1
+chk "DECL_HINT = '예) 아버님 · 친구 · 지인'" assets/ritual-open.js 1
+chk "'narr-declare-in-gdad': 1, 'narr-declare-in-bdad': 1," assets/ritual-cue.js 1   # RETIRED — 사람을 부르는 여는 말(녹음 전에 쉼)
+# ★[BLESS_AFTER_DECLARE 2026-10-12 사장님 «추천대로»] 부모님 덕담은 성혼 선언 바로 뒤(자료 B · D · L · P · Q · 셋은 선언을 읽은 아버님이 덕담까지)
+#   open-course 가 차례 · 앞쪽 사슬 알림(서약으로 시작할 때만 «반지나 선언»)을, listen-page 가 새 코스의 덕담 여는 말(가운데 문안 narr-bless-mid)을 잰다
+chk 'BLESS_AFTER_DECLARE' assets/ritual-open.js 9
+chk 'BLESS_AFTER_DECLARE' assets/ritual-data.js 1
+chk 'BLESS_AFTER_DECLARE' assets/ritual-cue.js 1
+chk 'BLESS_AFTER_DECLARE' api/_ritual-kb.js 1
+chk 'BLESS_AFTER_DECLARE' scripts/audit/open-course.mjs 3
+chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
+chk "if (best.length >= 3) L.push(best\[0\] === 'vow' ? NOTICE.heavy : NOTICE.heavyBack);" assets/ritual-open.js 1
+chk 'DECL_OLD_MIRROR' admin.html 2
+nochk 'declareInGdad' assets/ritual-data.js 0
+nochk 'declareInBdad' assets/ritual-data.js 0
+nochk 'Object.keys(DECLWHO)' console.html 0
+nochk 'Object.keys(D.DECLWHO)' api/_ritual-kb.js 0
+nochk "^    'declareWho'," assets/ritual-preview-link.js 0   # 공개 주소에 읽는 분 글(사람 이름일 수 있다)을 싣지 않는다
 chk 'SONG_BACK_1011' scripts/audit/merge-extra-0926.mjs 2
 nochk '라이브 노래 · 연주는 받지 않아요' assets/ritual-open.js 0
 nochk '라이브 노래 · 연주는 받지 않아요' assets/advisor-kb.js 0
@@ -8444,7 +8484,7 @@ chk 'ASK_RETIRED' api/_ritual-kb.js 1          # AI 상담사가 «없는 갈래
 chk 'ASK_RETIRED' assets/ritual-story.js 1     # 사람 구간 설명 표
 chk 'ASK_RETIRED' scripts/build-dubbing-script.mjs 1
 chk 'BUILDER_FROM_SOURCE' scripts/check-ritual-mirror.js 1
-chk 'Object.keys(DECLWHO).forEach' order-preview.html 1   # 목록을 손으로 안 적는다
+nochk 'Object.keys(DECLWHO).forEach' order-preview.html 0   # [DECLARE_ANYONE] 목록 자체가 없다
 chk 'ECHO_TRIBUTE_DECLARE' assets/ritual-data.js 1
 nochk '두 집안은 서로의 가족이 되었습니다' order-preview.html
 chk 'ASK_RETIRED' assets/ritual-data.js 1
@@ -8452,10 +8492,10 @@ chk 'ASK_RETIRED' assets/ritual-cue.js 1
 # ★★[DECLWHO_LIVE] 「갈래가 되살아났나」는 **글자가 아니라 데이터 상태**다.
 #   폐지 문안은 주석으로 남기는 것이 이 저장소 관례라(되살릴 때 근거), 문자열 nochk 로 재면
 #   **내가 남긴 주석을 내가 잡는다.** 실제로 그렇게 걸렸다.
-#   그래서 실행 검사로 바꾼다 — DECLWHO 에 그 열쇠가 «있나»를 직접 본다.
+#   그래서 실행 검사로 본다 — ★[DECLARE_ANYONE 2026-10-12] 이제는 «읽는 분 목록(DECLWHO) · 칩(CHIPS.declare)이 아예 없고 선언문(DECLBY.nar) 한 벌만 있나»다.
 if command -v node >/dev/null 2>&1; then
-  _dw=$(node -e "const D=require('./assets/ritual-data.js');console.log(Object.keys(D.DECLWHO).sort().join(','))" 2>/dev/null)
-  [ "$_dw" = "bdad,friend,gdad" ] || { echo "REVERT? 성혼 선언 읽는 분이 'bdad,friend,gdad'(신부 아버님 · 친구 · 지인 · 신랑 아버님)가 아니다 (지금: $_dw) — [DECLARE_BY_PERSON 2026-10-12] · [ASK_RETIRED]·[CHORUS_RETIRED] 확인"; fail=1; }
+  _dw=$(node -e "const D=require('./assets/ritual-data.js'),O=require('./assets/ritual-open.js');console.log([!!D.DECLWHO,!!O.CHIPS.declare,!!(D.DECLBY&&D.DECLBY.nar)].join(','))" 2>/dev/null)
+  [ "$_dw" = "false,false,true" ] || { echo "REVERT? 성혼 선언 읽는 분 목록 · 칩이 되살아났거나 선언문이 없다 (목록,칩,선언문 = $_dw · 기대 false,false,true) — [DECLARE_ANYONE 2026-10-12] · [ASK_RETIRED]·[CHORUS_RETIRED]"; fail=1; }
 fi
 chk "'declare-ask-a': 1" assets/ritual-cue.js 1
 # ★[EVENT_SCRIPT] 성우별은 «녹음»의 자, 이벤트별은 «판단»의 자 — 진희 문제가 성우별에 숨어 있었다

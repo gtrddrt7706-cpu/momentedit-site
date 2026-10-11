@@ -64,6 +64,7 @@ select,input[type=time],input[type=text]{
   background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--text);
   padding:10px 12px;font-size:15px;font-family:inherit;min-width:0;
 }
+.who-in{width:100%;max-width:280px}   /* [DECLARE_ANYONE] 성혼 선언 읽는 분 칸 */
 .filebtn{
   display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:1px dashed var(--line);
   border-radius:10px;background:var(--bg2);font-size:14px;color:var(--sub);
@@ -730,7 +731,7 @@ var EMBED = QS.get('embed') === '1';
 var GUEST = EMBED;
 if (GUEST) MODE = 'preview';              // 고객 화면은 언제나 저절로 흐른다
 
-var S = { course:'damback', entry:'A', declareWho:'', declare:'1',   // [DECLARE_BY_PERSON] 읽을 분 = 아직 안 고름
+var S = { course:'damback', entry:'A', declareWho:'', declare:'1',   // [DECLARE_ANYONE] 읽을 분 = 두 분이 적은 글(빈칸 = 아직 안 정함)
          
           letter:'parent', bless:'off', valley:'none', guestVoice:'nar', digital:false };
 
@@ -749,9 +750,8 @@ var OPT = {
      (저장된 초안이 그 코스를 쥐고 있으면 이름 없이 키만 뜨게 되므로). */
   rCourse: ['course', Object.keys(COURSES).map(function(k){ return [k, COURSES[k].nm]; })],
   rEntry:  ['entry', [['A','A'],['B','B'],['C','C'],['D','D'],['E','E'],['F','F']]],
-  /* ★[DECLARE_BY_PERSON 2026-10-12] 성혼 선언문은 사람만 읽는다 — 읽는 분 목록은 원천(DECLWHO)에서 뽑는다(손으로 적으면 갈래가 바뀔 때 콘솔만 옛 갈래를 보인다 · SOURCE_DRIFT)
-     ★«나레이션» · «하객 응답» · «가족 낭독» · «다 함께» 칩 금지 — 사용자 지시로 삭제 */
-  rWho:    ['declareWho',[['','안 고름']].concat(Object.keys(DECLWHO).map(function(k){ return [k, DECLWHO[k].d]; }))],
+  /* ★[DECLARE_BY_PERSON · DECLARE_ANYONE 2026-10-12] 성혼 선언 읽는 분은 칩이 아니라 칸이다(아래 rWho 칸 · 두 분이 적은 글이 주소로 온다)
+     ★«나레이션» · «하객 응답» · «가족 낭독» · «다 함께» · 읽는 분 목록(신랑 아버님 · 신부 아버님 · 친구 · 지인) 칩 금지 — 사용자 지시로 삭제 */
   rLetter: ['letter',[['parent','부모님께'],['each','서로에게'],['both','둘 다']]],
   rBless:  ['bless', [['off','없음'],['on','있음']]],
   rValley: ['valley',[['none','없음'],['wine','와인'],['cake','케이크']]],
@@ -789,6 +789,15 @@ Object.keys(OPT).forEach(function(id){
     host.appendChild(b);
   });
 });
+
+/* ★[DECLARE_ANYONE 2026-10-12] 성혼 선언 읽는 분 — 칸 하나(주소로 받은 글이 그대로 보인다 · 디렉터가 마이크와 카드를 건넬 분 · 엔진 live.who 가 이 글을 쓴다) */
+(function(){ var host = $('#rWho'); if (!host) return;
+  var inp = document.createElement('input'); inp.type = 'text'; inp.className = 'who-in'; inp.maxLength = 30;
+  inp.placeholder = (window.RitualOpen && RitualOpen.DECL_HINT) || ''; inp.setAttribute('aria-label', '성혼 선언 읽는 분');
+  var norm = function(){ return (window.RitualOpen && RitualOpen.declBy) ? RitualOpen.declBy(S) : String(S.declareWho || ''); };
+  S.declareWho = norm(); inp.value = S.declareWho;
+  inp.onchange = function(){ S.declareWho = inp.value; S.declareWho = norm(); inp.value = S.declareWho; paint(); };
+  host.appendChild(inp); })();
 
 function rfSlugOf(key){ return key === 'entry' ? ('entry-' + (S.entry || 'A')) : RF_SLUG[key]; }   // [PV_INTRO] pv → narr-prevideo-in
 function rfKindLab(k){ var v = (S.up || {})[k]; return v && v.src === 'ai' ? 'AI 목소리' : '두 분 녹음'; }   // [RF_KIND_0928]
