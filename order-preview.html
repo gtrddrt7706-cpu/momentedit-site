@@ -837,8 +837,14 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .op-steps-c span.done{background:var(--gold-deep)}
 .op-band.thin .op-bar,.op-band.thin .op-leg{display:none}
 .op-band.thin .op-mf{margin-top:4px}
-.lv{position:relative;display:block;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
+.lv{position:relative;display:block;aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}   /* [CINE_SCOPE] */
 .lv video{display:block;width:100%;height:100%;object-fit:cover}
+/* ★★[CINE_SCOPE 2026-10-11 사장님 «여기 영상 비율 너무 큰 거 같은데 와이드로 · 디자인 스킬 사용해서 느낌 있는 비율» → «짤려도 되니깐 시네마 느낌 나게 비율을 감각 있게 바꿔 봐»]
+   장면 영상 = 영화관 비율 2.39 : 1(시네마스코프) — 16 : 9 그림의 위아래를 자른다. ② 하나씩 만들기 · ① 창 · 목소리 창 · ③ 연습 장면 · 크게 보기가 같은 비율.
+   작은 칸(① 고르기 .pk-media) · 목록 썸네일(.pr-th · .lv.mini 64px)은 16 : 9 그대로 — 칸이 납작해지면 그림이 안 보인다.
+   자르는 높이 = --fy(기본 35% · 머리 위는 조금 · 바닥을 더 자른다). 사람이 화면 위까지 차는 입장은 15% · 발이 아래에 걸리는 닫는 인사는 45%(_VFY) —
+   17편을 처음 · 가운데 · 끝 장면으로 잘라 보고 정했다. 검사 scripts/audit/cine-scope.mjs */
+.lv video,.lv .lv-still,.pv-media video,.pv-media .pv-still,.mk-vu-img img,.mk-vu-img video,.pr-hm img{object-position:50% var(--fy,35%)}   /* [CINE_SCOPE] */
 /* ★★[VID_REST_THUMB 2026-10-09 사장님 «시간 지나면 영상 부분 검은색으로 되는 거 같은데 개선해 줘 · 썸네일 화면 계속 남아 있게»]
    장면 영상은 «도는 동안»만 영상이 보인다 — 한 번 돌고 멈추거나(연습 잠깐 멈춤) 끝나면 밑에 깔린 썸네일 사진(.lv-still · ① 창 .pv-still)으로 천천히 돌아가 그대로 있다.
    멈춘 영상의 그림은 기기가 쉬게 하면서 놓아 버려 검게 칠해질 때가 있다(그래픽카드로 푸는 PC · 폰 · 탭을 가렸다 돌아옴) — 쉬는 동안의 그림을 영상 요소에 맡기지 않는다.
@@ -856,7 +862,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .lv .lv-soon{font-size:11px;color:var(--light)}
 .lv.art{background:var(--card);display:flex;align-items:center}
 .lv.art .mclip{width:100%;border:0;margin:0;background:none}
-.lv.mini{width:64px;border-radius:6px}
+.lv.mini{width:64px;border-radius:6px;aspect-ratio:16/9}   /* [CINE_SCOPE] 64px 썸네일은 16 : 9 그대로 */
 .lv.mini .lv-dot{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--gold)}
 .op-card .lv{margin:-1px -2px 10px;cursor:pointer}
 .op-card .op-vl{font-size:12.5px;color:var(--ink2);margin-top:6px;word-break:keep-all}
@@ -961,7 +967,7 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .pv-tag{font-size:11px;font-weight:600;color:var(--sub);background:var(--bg2);border-radius:999px;padding:1px 8px;white-space:nowrap}
 .pv-x{margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;font:inherit;font-size:20px;color:var(--sub);cursor:pointer;border-radius:50%}
 .pv-x:focus-visible,.pv-act button:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
-.pv-media{position:relative;aspect-ratio:16/9;border-radius:12px;background:var(--bg2);display:grid;place-items:center;overflow:hidden}
+.pv-media{position:relative;aspect-ratio:2.39/1;border-radius:12px;background:var(--bg2);display:grid;place-items:center;overflow:hidden}
 .pv-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 /* ★[PV_STILL_FIRST 2026-10-04 사장님 «영상이 바로 안 보이고 흰 배경에 나중에 영상이 올라오는 부자연스러운 부분»] 창을 열면 빈 칸이 먼저 보였다.
    칸(타일)은 작은 첫 장면(-640.webp)을 이미 받아 두었는데, 창은 큰 표지(.webp)와 영상을 새로 받느라 그동안 비어 있었다.
@@ -1529,7 +1535,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .pr-acts{display:flex;flex-wrap:wrap;gap:8px}
 /* ★[PR_SIMPLE 2026-10-05] ③ 연습하기 — 장면 카드 하나 + 순간 목록 하나. 줄 사이는 선이 아니라 여백으로([ADV_INDEX]) · 줄 높이 52 */
 .pr-hero{display:block;width:100%;margin:6px 0 0;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit;border-radius:8px}
-.pr-hm{position:relative;display:block;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
+.pr-hm{position:relative;display:block;aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
 .pr-hm img{display:block;width:100%;height:100%;object-fit:cover}   /* ★[HOVER_NO_ZOOM] 마우스를 올리면 장면 그림이 커지던 효과(scale 1.02 · .45s) 금지 — 2026-10-09 사용자 지시로 삭제(사장님 «영상 쪽 마우스 올리면 영상 흔들거리는데 그 효과 삭제») */
 .pr-hp{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(58,45,34,.88);color:#FAFAF8;display:grid;place-items:center}
 .pr-hp svg{width:14px;height:14px}
@@ -1900,7 +1906,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .mk-vfb{min-height:44px;padding:0;border:0;border-radius:0;background:none;color:var(--accent);font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--gold-deep);text-underline-offset:4px}   /* ★★[VFLOW_TAP 2026-10-07 사장님 «고객 입장에서 누를 수 있는 글씨구나 인지할 수 있게»] 같은 쪽 «자세히 보기»처럼 가는 실선 밑줄(골드) — 누를 수 있다는 표시는 이 화면에서 밑줄 하나로 통일 · 점선 · 알약으로 되돌리지 말 것 */   /* ★나오는 곳 여섯의 점선 밑줄 금지 — 2026-10-07 사용자 지시로 삭제 [VFLOW_NOLINE] (사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자») · 글 · › 만 남긴다 */   /* ★[VFLOW_TEXT 2026-10-07 사장님 «디자인적으로 이게 최선인가 · 디자이너 시선으로»] 나오는 곳 여섯 = 글 흐름(점선 밑줄 · ›). 종전 흰 알약(테두리 · 12.5px)은 이 쪽에서 가장 무거운 덩어리였고(폰 두 줄 · 할 일인 목소리 카드보다 무거움) «서는 분» · 예시 칩처럼 «하나 고르는 칩»으로 읽혔다. 누르는 칸 44 는 그대로 · 점선 밑줄 = «누르면 그 자리를 보여 드려요»(자세히 보기와 같은 글 단추 계열) · 알약으로 되돌리지 말 것 */
 @media (hover:hover){ .mk-vfb:hover{text-decoration-color:var(--accent)} }   /* [VFLOW_NOLINE → VFLOW_TAP] 점선은 걷은 채 · 밑줄은 늘 보이고 마우스를 올리면 진해진다 */
 .mk-vfb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.mk-vu-img{aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);margin:0 0 12px}
+.mk-vu-img{aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);margin:0 0 12px}
 .mk-vu-img img,.mk-vu-img video{display:block;width:100%;height:100%;object-fit:cover}   /* [VU_VIDEO_PLAY] 영상도 같은 틀 */
 .mk-vu-when{margin:0 0 6px;font-size:12.5px;color:var(--gold-deeper)}
 .mk-vu-q{margin:0 0 14px;padding:12px 14px;border-radius:8px;background:var(--bg2);font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);word-break:keep-all}
@@ -4371,6 +4377,10 @@ function _mkVidAfter(el,old){
   var calm=_rm()||!!(navigator.connection&&navigator.connection.saveData);
   if(!calm) _lVidOnce(v);
 }
+/* [CINE_SCOPE] 장면마다 자르는 높이(--fy · %) — 없으면 CSS 기본 35%. 이름 = 영상 파일 이름(entry · close …) */
+var _VFY={entry:15,close:45};
+function _vfyN(v){ var m=v&&/([\w-]+)\.webp$/.exec(v.poster||''), y=m?_VFY[m[1]]:null; return y==null?null:y; }
+function _vfy(v){ var y=_vfyN(v); return y==null?'':' style="--fy:'+y+'%"'; }
 function _lVid(k,opt){
   opt=opt||{}; var R=RitualOpen, v=R.firstVideo(k,S);
   if(opt.name){ var vv=R.videoOf(opt.name); if(vv) v=vv; }
@@ -4379,10 +4389,10 @@ function _lVid(k,opt){
        종전 ② 영상은 틀 곳이 한 군데도 없었다(preload none · loop · aria-hidden · 누를 곳 없음) — 16편 모두 첫 장면 사진으로만 보였다. 크게 보기(연습)는 종전대로 소리 없이 반복. */
   /* ★[VID_AUTO_ONLY 2026-10-03 사장님] ② 장면의 누르는 기능(tabindex · 누르면 재생 · 멈춤 이름 · onclick · onkeydown) 금지 — 2026-10-03 사용자 지시로 삭제 · 쪽에 들어올 때 한 번만 돈다(_mkVidAfter) */
   /* [VID_REST_THUMB] 영상 밑에 썸네일 사진을 깐다 — 영상이 멈추거나 끝나면(_vidRest) 영상은 걷히고 이 사진이 그대로 남는다 */
-  if(v&&opt.tap) return '<div class="lv"><img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" data-vk="'+esc(k)+'" aria-hidden="true"></video></div>';
+  if(v&&opt.tap) return '<div class="lv"'+_vfy(v)+'><img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" data-vk="'+esc(k)+'" aria-hidden="true"></video></div>';
   /* ★[LVID_ONCE 2026-10-03 사장님 «여기 영상도 1회 재생될 수 있게 해 줘»] loop 없음 — ② 도 크게 보기도 한 번 돌고 마지막 장면에서 멈춘다(① 창 PV_VID_ONCE 와 같은 말).
      크게 보기는 순간마다 새 영상이 걸리고(LF_VID_KEEP · 같은 순간 안에서는 이어서), 나레이션이 길어도 끝 장면에 머문다 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로 — 반복 금지(사장님 «반복이 아니라 멈추게»). */
-  if(v) return '<div class="lv"><img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video></div>';   /* [VID_REST_THUMB] */
+  if(v) return '<div class="lv"'+_vfy(v)+'><img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video></div>';   /* [VID_REST_THUMB] */
   if(opt.mini) return '<div class="lv mini" aria-hidden="true"><span class="lv-dot"></span></div>';
   var c=(opt.art!==false)?clip(k==='_close'?'':k):'';
   if(c) return '<div class="lv art">'+c+'</div>';
@@ -5668,7 +5678,7 @@ function _vcUseSrc(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.src
    «주인공의 목소리»를 알려 주는 창이라 남의 목소리는 혼란만 준다. 만들기 전엔 들어 보기 대신 한 줄 · 만든 뒤엔 어떤 칩이든 두 분 목소리(만든 소리 → 그 자리 AI 읽기) */
 function _vuReady(key){ var w=_vcLineWho(key), st=VC.st||{}; return w==='both'?!!((st.groom||{}).ready&&(st.bride||{}).ready):!!((st[w==='bride'?'bride':'groom']||{}).ready); }   // [VU_OWN_VOICE] 이 자리를 읽는 분 목소리가 있나
 function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), who=w==='both'?'두 분':w==='bride'?'신부':'신랑', v=RitualOpen.firstVideo(x[2],S), src=_vcUseSrc(x[0]);
-  return '<div class="mk-vu-img">'+(v?(v.mp4&&!_rm()?'<img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_ONCE 2026-10-06 사장님 «영상 반복 재생 아니고 한 번 재생하고 끝»] loop 없음 — 한 번 돌고 마지막 장면(동작이 끝난 모습)에서 멈춘다(LVID_ONCE · PV_VID_ONCE 와 같은 말 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로) · 되풀이로 되돌리지 말 것 */ /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
+  return '<div class="mk-vu-img"'+_vfy(v)+'>'+(v?(v.mp4&&!_rm()?'<img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_ONCE 2026-10-06 사장님 «영상 반복 재생 아니고 한 번 재생하고 끝»] loop 없음 — 한 번 돌고 마지막 장면(동작이 끝난 모습)에서 멈춘다(LVID_ONCE · PV_VID_ONCE 와 같은 말 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로) · 되풀이로 되돌리지 말 것 */ /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
     +'<p class="mk-vu-when">'+esc(VC_USE_WHEN[x[0]]||'')+' · '+who+' 목소리</p>'
     /* ★★[VU_EX_LISTEN 2026-10-06 사장님 «식전 영상 소개는 왜 들어 보기가 없어 · 다음 누를 때마다 위아래 간격 · 한 사이즈로 고정 · 예시는 만들어서 넣어 놓자 · 여기 역할은 임시로 들어 볼 수 있게만»]
        ① 예시가 있는 자리(식전 영상 소개 넷 · 입장 인사 넷)는 글 아래 «두 분 글 · 예시 1~4» 칩 — 고르면 그 글을 보여 주고 «들어 보기»가 그 글을 읽는다(두 분 글은 바꾸지 않는다 · 들어 보기 전용)
@@ -6978,7 +6988,7 @@ function renderPractice(){ var R=RitualOpen;
       +(_md==='ai'?'<div class="pr-prep" id="prPrep" role="status" aria-live="polite">'+_ptPrepHtml()+'</div>':'')   /* ★[PT_PREP_SHOW 2026-10-06 사장님 «준비 중이구나 라는 걸 좀 더 드러나게 · 지금은 티가 별로 안 나»] 한 줄 → 진행 막대 칸 */+(PT.askMode?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prMode(\'ai\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':''); }
   h+='<div class="pr-grid"><div class="pr-lead">'+_modeH
     +'<button type="button" class="pr-hero" data-fk="prall" onclick="_ptGate(lsPlayAll)" aria-label="처음부터 끝까지 연습하기'+(_mins?' · 약 '+_mins+'분':'')+'">'
-    +'<span class="pr-hm">'+(_hv?'<img src="'+esc(_hv.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
+    +'<span class="pr-hm"'+_vfy(_hv)+'>'+(_hv?'<img src="'+esc(_hv.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
     +'<span class="pr-hl"><b>처음부터 시작하기</b>'+(_mins?'<span>약 '+_mins+'분 · 음악 없이 말과 나레이션만</span>':'')+'</span></button>'
     +(todo?'<p class="mk-note pr-todo">아직 안 적은 '+todo+'곳은 참고 예시 글로 보여 드려요</p>':'')
     +_prPrepFold()   /* [PR_PREP_FOLD] 장면 카드 아래 */   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
@@ -8214,7 +8224,7 @@ function _pvDraw(){
   el.querySelector('#pvT').textContent=c.n;
   var tg=el.querySelector('#pvTag'), tag=always?'늘 있어요':(k==='free'?'준비한 게 있을 때만':'');   /* [R1-33] 무엇이 있을 때인지 */ tg.textContent=tag; tg.hidden=!tag;
   if(PV.drawn!==k){ PV.drawn=k;
-    var m=el.querySelector('#pvM');
+    var m=el.querySelector('#pvM'), _fy=_vfyN(v); if(_fy==null) m.style.removeProperty('--fy'); else m.style.setProperty('--fy',_fy+'%');   /* [CINE_SCOPE] 장면마다 자르는 높이 */
     m.innerHTML=v?('<img class="pv-still" src="'+esc(v.small||v.poster)+'" alt="" decoding="async"><video class="pv-v" muted playsinline preload="auto" src="'+esc(v.mp4)+'"></video>'):_pkArt(k,!_rm());   /* [PV_STILL_FIRST] 칸이 받아 둔 첫 장면부터 · 영상은 돌기 시작하면 위로 */   /* ★[AI_LABEL_OFF 2026-10-03 사장님] 그림 위 «AI로 만든 장면이에요 · 사람과 옷은 실제와 달라요» 금지 — 2026-10-03 사용자 지시로 삭제 */
     var vd=m.querySelector('video');
     if(vd){ var sv=m.querySelector('.pv-still'); if(v.small&&v.poster&&v.small!==v.poster){ var big=new Image(); big.src=v.poster; (big.decode?big.decode():new Promise(function(r,j){ big.onload=r; big.onerror=j; })).then(function(){ if(sv&&sv.isConnected) sv.src=v.poster; },function(){}); }   /* [PV_STILL_FIRST] 큰 표지가 오면 또렷한 것으로 바꿔 끼운다(같은 장면이라 티가 안 난다) */
