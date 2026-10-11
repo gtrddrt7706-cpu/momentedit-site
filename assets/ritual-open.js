@@ -36,7 +36,11 @@
        고르기에서 다른 순간과 같은 모양 · 기본은 «기록» 예시에만 · 시간이 길어지면 그대로 두고 단체 사진 부족 알림(RANGE_40 ④) · 배웅 줄은 그대로.
        ★9/26 [NO_TABLE_ROUND] 는 «단체 사진 뒤 자리마다 찾아가기»를 뺀 결정이었다 — 이것은 그 자리가 아니라 본식 끝 · 사진 앞의 새 순간이다(옛 narr-round-open 은 되살리지 않는다).
        ★ORDER 끝에 두지만 bodySeq 는 _close 뒤에 놓는다(AFTER_CLOSE) — ORDER 를 쓰는 화면(고르기 · 흐름 · 쪽)은 bodyOrder() 로 자리를 잡는다. */
-  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'table'];
+  /* ★★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자» → «‹축가› 순간 따로 · 노래만 · MR 반주»(둘 다 추천대로)] 축가가 따로 고르는 순간으로 돌아왔다.
+       자리는 실전 자료 순서 그대로 — 성혼 선언 뒤 · 부모님께 인사 앞(자료 16개 중 13.5개 · 실제 예식 5곳 중 4곳 · 순간개편_근거장부.md).
+       ★8/07 [TRIM_EVENTS] · 8/09 [SONG_RETIRED] · 9/25 [FREE_WHAT] «라이브 노래 · 연주는 받지 않음»을 사장님이 직접 뒤집었다(장부에 세 결정을 짚어 드린 뒤 «만들자»).
+       ★악기 연주는 여전히 받지 않는다(반주는 두 분이 보낸 MR · 디렉터가 튼다) · 계약서 v1.13 3조 ①-2 와 같은 말. 옛 코스 팔레트(GADD)에는 넣지 않는다(옛 코스는 숨김). */
+  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'bless', 'vow', 'ring', 'declare', 'song', 'tribute', 'free', 'letter', 'cake', 'toast', 'table'];
   var AFTER_CLOSE = { table: 1 };   // [TABLE_GREET_1008] 닫는 인사 뒤에 서는 순간
   var TABLE_SEC = 90;               // [TABLE_GREET_1008] 테이블당 1분 30초(사장님 결정 · 고정)
   function tableN(S) { var n = +((S || {}).tableN); if (!(n >= 1)) n = 6; return Math.min(6, Math.max(1, Math.round(n))); }   /* ★[TABLE_MAX6 2026-10-08] 상한 = 좌석 배치도 상한(mypage SEAT_ADD_CAP · 6테이블 × 5석) — 종전 12 는 좌석이 허락하지 않는 수였다 */   // [TABLE_GREET_1008] 좌석 배치도 테이블 수 · 모르면 6(30명 ÷ 5 · SEAT_PER5)
@@ -49,7 +53,7 @@
   var SECTIONS = [
     { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'welcome'] },
     { n: '약속의 순간', d: '말과 반지로 부부가 되는 자리', ks: ['bless', 'vow', 'ring', 'declare'] },
-    { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['tribute', 'free', 'letter'] },
+    { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['song', 'tribute', 'free', 'letter'] },   // [SONG_BACK_1011] 축가는 선언 바로 뒤 · 이 막의 첫 칸
     { n: '축하 · 닫는 순간', d: '케이크와 축배, 본식 뒤 테이블 인사까지', ks: ['cake', 'toast', '_close', 'table'] }   // [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 줄은 그대로 · 설명이 «본식 뒤»(흐름 묶음 이름과 같은 말)를 말한다 · 옛 «케이크를 자르고 잔을 들고, 인사와 사진으로»
   ];
 
@@ -62,11 +66,12 @@
     entry: { n: '입장', sn: '입장', one: '두 분이 함께 걸어 들어와, 나란히 서는 첫 장면을 남겨요.', shot: '문이 열리는 순간 · 두 분의 첫 장면', who: '두 분' },
     welcome: { n: '첫인사', sn: '첫인사', one: '두 분이 하객께 짧게 첫인사를 드려요.', shot: '하객을 바라보며 인사하는 두 분', who: '두 분' },
     bless: { n: '부모님 덕담', sn: '덕담', one: '부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤).', shot: '말씀하시는 부모님과 듣는 두 분', who: '부모님 한 분~네 분', why: '서약 바로 앞이에요. 부모님 말씀으로 약속의 문을 여는 자리예요.' },
-    vow: { n: '혼인 서약', sn: '서약', one: '두 분이 서로에게 하는 약속을 읽어요(한 분 1분쯤).', shot: '서로를 보며 약속하는 옆얼굴', who: '두 분' },
+    vow: { n: '혼인 서약', sn: '서약', one: '두 분이 서로에게 하는 약속을 직접 읽어요(한 분 1분쯤).',   /* ★[VOW_DECL_DIFF 2026-10-11 사장님 «서약과 성혼선언 차이를 헷갈릴 수 있으니 · 조사한 자료를 참고해서 · 이벤트 클릭하면 나오는 설명에»] 자료 R(혼인서약서 vs 성혼선언문 · «누가 읽느냐로 구분한다») · I(성혼선언문 다섯 판 · 낭독자 = 하객 대표 · 양가 아버지) — 서약 = 두 분이 서로에게 · 본인이 읽는다 / 선언 = 하객 앞에서 부부가 되었음을 · 두 분 대신 다른 분이 읽는다. 두 설명이 «누가 · 누구에게»를 같은 자리에서 말한다(① 미리 보기 PV_DESC 와 같은 뜻) */ shot: '서로를 보며 약속하는 옆얼굴', who: '두 분' },
     ring: { n: '반지 교환', sn: '반지', one: '서로의 손에 반지를 끼워 줘요.', shot: '반지를 끼워 주는 두 손', who: '두 분' },   // [RING_STAGE] 건네는 사람 없음(반지는 단상 위)
-    declare: { n: '성혼 선언', sn: '선언', one: '성혼 선언문을 읽으면 두 분이 부부가 돼요.',   /* ★[STAGE_LINES 2026-10-06 사장님] 종전 «부부가 되었음을 알려요» → «선언은 따로 있고 이 줄은 알림인가?»로 읽혔다 · 선언문이 곧 선언 */   /* [R1-35] «누가 · 말투»는 ② 칩이 말한다 */ shot: '하객 모두가 박수 치는 넓은 장면', who: '나레이션 또는 가족 한 분 · 하객은 박수' },
+    declare: { n: '성혼 선언', sn: '선언', one: '하객 앞에서 성혼 선언문을 읽으면 두 분이 부부가 돼요. 선언문은 두 분 대신 나레이션이나 가족이 읽어요.',   /* [VOW_DECL_DIFF] 누가 읽는지(두 분이 아니다)가 서약과 가르는 기준 · 어떤 판으로 읽을지는 ② 칩이 말한다 */   /* ★[STAGE_LINES 2026-10-06 사장님] 종전 «부부가 되었음을 알려요» → «선언은 따로 있고 이 줄은 알림인가?»로 읽혔다 · 선언문이 곧 선언 */   /* [R1-35] «누가 · 말투»는 ② 칩이 말한다 */ shot: '하객 모두가 박수 치는 넓은 장면', who: '나레이션 또는 가족 한 분 · 하객은 박수' },
+    song: { n: '축가', sn: '축가', one: '가족이나 친구가 두 분을 위해 노래 한 곡을 불러요. 반주는 보내 주신 MR로 저희가 틀어요 · 악기 연주는 받지 않아요.', shot: '노래하는 분을 바라보는 두 분의 얼굴', who: '노래해 주실 분 · 두 분은 앞에서 들어요' },   // [SONG_BACK_1011]
     tribute: { n: '부모님께 인사', sn: '부모님 인사', one: '부부가 되어 처음 부모님께 고마움을 전해요.',   /* [R2-37] «인사» 겹침 · 칩(꽃과 포옹 · 신랑 큰절)을 되풀이하지 않게 */ /* [BOW_GROOM] 큰절 안내는 ② «신랑 큰절» 칩을 골랐을 때 칩 아래 힌트로 옮겼다([R1-35]) · [LIST_NAMES] 띠 칩 «부모님 인사» */  shot: '부모님께 안기는 순간', who: '두 분 · 양가 부모님', why: '선언 다음이에요. 부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).' },
-    free: { n: '준비한 순서', sn: '준비한 순서',   /* [DETAIL_0925 B3] «두 사람이» 는 친구가 축사하는 날 틀린 이름이 된다 */ one: '두 분이나 가족 · 친구가 특별히 준비한 순서가 있을 때 담아요. 영상, 깜짝 선물, 친구의 짧은 축사, 그 밖에 두 분이 정한 것도 «기타»로 적어 주세요. 라이브 노래 · 연주는 받지 않아요. 영상 속 노래 · 연주는 괜찮아요.'   /* [FREE_ETC 2026-10-06] 춤 · 공연 걷음 · 기타 */, shot: '함께 보며 웃는 하객들', /* [FREE_WHAT] shot 은 shotOf 가 무엇을에 따라 고른다 */  who: '두 분 · 준비한 가족이나 친구', why: '편지 앞이에요. 편지가 마지막 큰 순간이 되도록.' },
+    free: { n: '준비한 순서', sn: '준비한 순서',   /* [DETAIL_0925 B3] «두 사람이» 는 친구가 축사하는 날 틀린 이름이 된다 */ one: '두 분이나 가족 · 친구가 특별히 준비한 순서가 있을 때 담아요. 영상, 깜짝 선물, 친구의 짧은 축사, 그 밖에 두 분이 정한 것도 «기타»로 적어 주세요. 노래는 «축가»로 담아요 · 악기 연주는 받지 않아요.'   /* [SONG_BACK_1011] 종전 판은 라이브 노래도 받지 않았다 — 노래는 이제 축가 순간이 맡는다 */   /* [FREE_ETC 2026-10-06] 춤 · 공연 걷음 · 기타 */, shot: '함께 보며 웃는 하객들', /* [FREE_WHAT] shot 은 shotOf 가 무엇을에 따라 고른다 */  who: '두 분 · 준비한 가족이나 친구', why: '편지 앞이에요. 편지가 마지막 큰 순간이 되도록.' },
     letter: { n: '편지 낭독', sn: '편지', one: '부모님께, 또는 서로에게 쓴 편지를 읽어요.', shot: '편지를 읽는 목소리와 듣는 얼굴', who: '두 분' },
     cake: { n: '케이크 커팅', sn: '케이크', one: '두 분이 나이프를 함께 잡고 케이크를 잘라요.', shot: '함께 자르는 두 손', who: '두 분' },   // [CAKE_TOAST_SPLIT]
     toast: { n: '축배', sn: '축배', one: '모두 잔을 들어 «위하여». 두 분이 먼저 외치고 하객이 함께 답해요. 축배 잔은 저희가 준비해요.', shot: '모두의 잔', who: '두 분 · 하객 모두', why: '잔을 드는 자리는 여기 하나예요.' },   // [CAKE_TOAST_SPLIT] · [WINE_POUR_OFF]
@@ -226,6 +231,7 @@
     ring: { toDeclare: [20, 0, 80, 2], other: [20, 0, 68, 2] },
     declare: { solemn: [16, 0, 8, 36], warm: [12, 0, 8, 40], clap: [30, 0, 15, 15], family: [11, 15, 8, 30] },
     tribute: { one: [38, 34.7, 25, 30], long: [38, 138.8, 25, 30], none: [42.5, 0, 25, 30] },
+    song: [8, 0, 210, 20],   // [SONG_BACK_1011] 여는 말 8초(19 narr-song · 32음절) · 노래 3분 30초(옛 실측 «축가 1곡» 210 · 자료 중앙값 3분) · 오가는 여유 20초(부르실 분이 앞으로 · MR 시작 · 인사)
     free: [12, 0, 188, 5],   // [FREE_WHAT] 말 없는 시간은 길이 칩에서 — 60 × 분 + 8(3분 188 · 2분 128 · 1분 68)
     letter: { each: [19, 122, 16, 10], parent: [16, 138.8, 16, 10] },
     /* [CAKE_TOAST_SPLIT] 종전 «케이크와 축배»(both.none [41, 0, 63, 106])를 두 순간에 나눈다 — 합은 그대로.
@@ -474,6 +480,7 @@
     if (k === 'bless') return '당일 직접 · 부모님';   // [R1-36] 덕담은 부모님이 말한다 · «가족»은 범례에 없는 말
     if (k === 'declare' && chipOf('declare', S) === 'family') return '당일 직접 · 가족 한 분';
     if (k === 'free') return '당일 직접 · 축사하시는 분';
+    if (k === 'song') return '당일 직접 · 노래해 주실 분';   // [SONG_BACK_1011]
     return '당일 직접'; }
   function prepLine(S) { var n = prepCount(S), a = [];
     if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께' + NB + '부탁드릴' + NB + '것' + NB + n.parents + '가지');   /* [R3-11] «부모님께 / 부탁드릴 것»으로 갈렸다 */   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
@@ -484,7 +491,7 @@
   var TILE = {
     prevideo: '입장 바로 앞, 예식을 여는 두 분의 영상', candle: '양가 어머님이 촛불로 시작을 알려요', entry: '두 분이 함께 걸어 들어와 나란히 서요' /* [R2-41] ② 설명(«나란히 서는 첫 장면»)과 같은 모습 */,
     welcome: '두 분이 하객께 짧게 첫인사를 드려요', bless: '부모님이 두 분께 덕담을 들려주세요', vow: '서로에게 하는 약속을 소리 내어 읽어요',
-    ring: '서로의 손에 반지를 끼워 줘요', declare: '선언문을 읽는 순간, 두 분이 부부가 돼요' /* [STAGE_LINES] */, tribute: '부부가 되어 처음 부모님께 드리는 인사',
+    ring: '서로의 손에 반지를 끼워 줘요', declare: '선언문을 읽는 순간, 두 분이 부부가 돼요' /* [STAGE_LINES] */, song: '가족 · 친구가 두 분께 노래를 불러요' /* [SONG_BACK_1011] */, tribute: '부부가 되어 처음 부모님께 드리는 인사',
     // [TILE_FREE_COMMA 코워크 회신7] 360 에서 «· 축사…»가 줄 머리로 — 칸 글만 쉼표
     // ★[TILE_SWALLOW 2026-09-26 코워크 회신8] 이 주석이 한때 free 줄 뒤에 붙어 letter · toast 두 항목을 삼켰다(칸 글이 빈 채 #872~#875) — 주석은 항목 줄 뒤에 붙이지 말 것
     free: '영상, 선물, 축사, 기타 가운데 하나', letter: '부모님이나 서로에게 쓴 편지를 읽어요', cake: '두 분이 함께 케이크를 잘라요', toast: '다 함께 잔을 들어 «위하여»',
@@ -505,7 +512,7 @@
     prevideo: { slug: 'narr-prevideo-in' }, candle: { slug: 'narr-candle-in-', who: 1 },
     entry: { slug: 'entry-A', cut: 2 }, welcome: { slug: 'narr-welcome-in' }, bless: { slug: 'narr-bless-open' },
     vow: { slug: 'narr-vow-in', cut: 2 }, ring: { slug: 'narr-ring-in', cut: 2 },
-    declare: { slug: 'declare-1-solemn', cut: 2 }, tribute: { slug: 'tribute-in', cut: 2 },
+    declare: { slug: 'declare-1-solemn', cut: 2 }, song: { slug: 'narr-song' } /* [SONG_BACK_1011] 여는 말 통째(10초 안) */, tribute: { slug: 'tribute-in', cut: 2 },
     free: { slug: 'narr-free-in-video' }, letter: { slug: 'letter-each' },
     /* ★[SAMPLE_CAKE 2026-10-07 사장님 «부분만 선택할 때 이것만 음성이 없었어»] 케이크 커팅 대표 줄 = 42 toast-both(«케이크가 준비되어 있습니다…» · 이미 녹음 · 새 녹음 0).
        [CAKE_TOAST_SPLIT](09-27)로 케이크가 따로 순간이 될 때 이 표에 줄을 안 걸어, ① 창이 «처음부터»만 띄우고 소리가 없었다. slug 이름이 toast 인 것은 옛 «케이크와 축배» 시절 이름 그대로라서다(엔진 줄은 k=cake) */
@@ -558,6 +565,8 @@
       case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자
       case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring', 0]];
       case 'declare': return chipOf('declare', S) === 'family' ? [['parents', '선언을 읽을 가족 한 분', 'ask', null, NOTE_ASK]] : [];
+      /* [SONG_BACK_1011] 부르실 분께 부탁 · 반주(MR)는 두 분이 사흘 전까지 보낸다(준비한 순서 영상과 같은 마감) */
+      case 'song': return [['couple', '축가를 불러 주실 분께 부탁드리기', 'ask', null, NOTE_ASK], ['couple', '축가 반주(MR) 파일 · 곡 이름과 함께', 'send', 3]];
       case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', crossTribute(S) ? '서로의 부모님께 드릴 말 · 한마디부터 1분쯤까지' : '부모님께 드릴 말 · 한마디부터 1분쯤까지'   /* [TRIB_ONE_SAY] */, 'write', null, NOTE_TRIB]];
         return tr.concat(goodsPrep('tribute', S)); }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
@@ -797,6 +806,7 @@
   function helpersOf(S, opt) {
     opt = opt || {};
     var out = [];
+    if (onOf(S, 'song')) out.push(['축가를 불러 주실 분', '가족이나 친구 · 여럿이 함께 불러도 돼요']);   // [SONG_BACK_1011] MR 은 바로 위 «보낼 것»이 말한다(되풀이하지 않는다)
     if (onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'video') out.push(['준비한 순서를 맡을 분', '담은 날 · 축사 · 선물 전달 등을 하실 분']);
     /* ★[RING_STAGE 2026-10-02 사장님 결정(R1-49)] 반지는 단상 위에 미리 놓아 둔다 — 건네는 사람이 없다. «반지를 건넬 아이나 가족» 줄은 걷었다([HELPER_WORDS 3-4(f)] 의 그 줄) · 되살리지 말 것 */
     out.push(['어르신을 모실 분', '양가 한 분씩 · 사진 때']);   // [R5-06] 바로 아래 «불러 모아 주실 분»과 같은 셈(사장님 «추천대로»)
@@ -847,6 +857,7 @@
     candle: '두 손이 긴 초에 불을 옮겨요', entry: '문이 열리고 두 분이 함께 걸어 들어와요',
     welcome: '두 분이 마이크 하나로 차례로 인사해요', bless: '자리에서 마이크를 든 부모님 · 듣는 두 분의 뒷모습',
     vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
+    song: '노래하는 분 · 손을 잡고 듣는 두 분',   // [SONG_BACK_1011] 장면 영상이 아직 없다 — 영상이 오면 VIDEO_READY 에 이름만 더한다
     tribute: '두 분이 부모님께 꽃을 건네고 안겨요', free: '앞 스크린의 영상을 보며 손을 맞잡는 부모님', letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
     cake: '두 손이 함께 나이프로 케이크를 잘라요', toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요',
     table: '두 분이 테이블 사이를 걸어요 · 하객들이 자리에서 맞아요'   // [TABLE_GREET_1008] 장면 글 · ★[TABLE_VIDEO_1009 2026-10-09] 이제 영상(table.mp4)이 있어 다른 순간처럼 영상이 없을 때만 쓴다
@@ -893,6 +904,7 @@
       case 'tribute': { var t = chipOf('tribute', S); if (t === 'none') return '';
         return (crossTribute(S) ? '두 분이 서로의 부모님께 고마운 말을 전해요' : '두 분이 부모님께 고마운 말을 전해요')   /* [TRIB_ONE_SAY] */ + ' · ' + secTxt(p || 30); }
       case 'letter': return (chipOf('letter', S) === 'each' ? '두 분이 서로에게 쓴 편지를 읽어요' : '두 분이 각자 부모님께 쓴 편지를 읽어요') + ' · ' + secTxt(p || 120);
+      case 'song': return '축가 한 곡 · 연습에서는 건너뛰어요';   // [SONG_BACK_1011] 영상 · 기타 판 준비한 순서와 같은 꼴
       case 'toast': return '두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 10초';   // [TOAST_COUPLE 2026-09-26 코워크 회신5 3-2] ② 말하는 자리 카드
       case 'free': fk = FREE_KIND[chipOf('free', S)]; n = chipOf('freeLen', S);
         if (fk === 'speech') return '준비한 분이 축하의 말을 해요 · 약 ' + n + '분';

@@ -75,7 +75,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 에 걸음 표시(① 고르기가 지금)`, await pg.evaluate(() => { const o = document.querySelector('.op-steps li.on'); return !!o && /고르기/.test(o.textContent); }));
   /* [PICK_V2 2026-09-26 코워크 최종판 3장] ① 은 예시 → 감동 흐름 → 네 막 칸 → 아래 막대. 판 칩 · 카드 · 자동 재생 영상은 없다. */
   ok(`${w} ① 칸에 판 칩이 없다(② 로 옮김)`, await pg.evaluate(() => document.querySelectorAll('.pk .op-chip').length === 0));
-  ok(`${w} ① 칸 열다섯(케이크 커팅 · 축배 따로 · CAKE_TOAST_SPLIT · 테이블 인사 TABLE_GREET_1008) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 15 /* [TABLE_GREET_1008] + 테이블 인사 */ && t.every((c) => c.querySelector('.pk-media')); }));
+  ok(`${w} ① 칸 열여섯(케이크 커팅 · 축배 따로 · CAKE_TOAST_SPLIT · 테이블 인사 TABLE_GREET_1008 · 축가 SONG_BACK_1011) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 16 /* [TABLE_GREET_1008] + 테이블 인사 · [SONG_BACK_1011] + 축가 */ && t.every((c) => c.querySelector('.pk-media')); }));
   ok(`${w} ① 빈 채 아래 막대는 숫자 없이 «입장 · 닫는 인사만으로도 …»([R1-33]) [BAR_SUM]`, await pg.evaluate(() => { const c = document.getElementById('opCta'); return !!c && /입장 · 닫는 인사만으로도 다음으로 갈 수 있어요/.test(c.textContent) && !/\d/.test(c.textContent); }));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
@@ -548,11 +548,11 @@ else {
   ok('RF 그냥 연 미리보기 — 이 기기에서만 그 자리에 들어가고 «마이페이지에서 열면 저희에게 보내져요» 한 줄 [REC_UPLOAD]', await p2.evaluate(() => /마이페이지에서 열면 저희에게 보내져요/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !!(S.up.g0 && S.up.g0.local)));
   await c2.close();
 }
-/* ★[TOAST_FILE_ONE 2026-09-27] 영상 이름 한 원천 — 화면이 찾는 이름은 모두 파일 규격 18편(scripts/video/encode-moment.sh · 10/9 table 더함 [TABLE_VIDEO_1009]) 안에 있어야 한다.
+/* ★[TOAST_FILE_ONE 2026-09-27] 영상 이름 한 원천 — 화면이 찾는 이름은 모두 파일 규격 19편(scripts/video/encode-moment.sh · 10/9 table 더함 [TABLE_VIDEO_1009] · 10/11 song 더함 [SONG_BACK_1011]) 안에 있어야 한다.
    종전 ② 잔 들기 줄이 'toast-raise'(그런 파일 없음)를 찾아, 17편이 다 들어오면 «케이크와 축배»는 케이크 영상 · «축배만 + 붓기»는 붓기 영상이 나왔다(실측).
    영상이 한 편도 없는 지금은 안 보이는 결함이라, 파일이 들어오기 전에 여기서 막는다. ffmpeg 없이 잰다(src 만 본다). */
 {
-  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편(파일은 아직 · 이름 규격만)
   const { ctx, pg } = await open(390, { videos: NAMES });
   const r = await pg.evaluate((NAMES) => {
     const R = RitualOpen, name = (h) => ((h.match(/moments\/([^"]+)\.mp4"/) || [])[1] || '(없음)'), out = { raise: {}, bad: [] };
@@ -567,13 +567,13 @@ else {
     return out;
   }, NAMES);
   ok('10-1 ② 잔 들기 줄 = toast.mp4 — 케이크와 축배 · 축배만(두 와인 · 양가 · 붓지 않음) [TOAST_FILE_ONE]', Object.values(r.raise).every((n) => n === 'toast'), JSON.stringify(r.raise));
-  ok('10-2 화면이 찾는 영상 이름은 모두 규격 18편 안 [TOAST_FILE_ONE]', r.bad.length === 0, r.bad.join(' | '));
+  ok('10-2 화면이 찾는 영상 이름은 모두 규격 19편 안 [TOAST_FILE_ONE]', r.bad.length === 0, r.bad.join(' | '));
   await ctx.close();
 }
 
 /* ★[MK_VID_CHIP 2026-09-27] ② 케이크 · 축배 쪽 영상은 고른 판대로 — «케이크만» cake · «축배만 + 붓지 않음» toast · «케이크와 축배» cake(첫 장면) */
 {
-  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편(파일은 아직 · 이름 규격만)
   const { ctx, pg, errs } = await open(390, { videos: NAMES });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};

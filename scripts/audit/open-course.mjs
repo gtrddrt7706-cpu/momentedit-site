@@ -21,7 +21,7 @@ process.on('exit', (code) => { if (bad && code === 0) process.exitCode = 1; });
 
 /* ── 1. 순서 · 코스 ── */
 ok('COURSES.open.seq = ritual-open.js ORDER (v4 · guest 포함)', JSON.stringify(D.COURSES.open.seq) === JSON.stringify(O.ORDER), D.COURSES.open.seq.join(','));
-ok('v4 순서(명세 0장) + 닫는 인사 뒤 테이블 인사 [TABLE_GREET_1008]', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,bless,vow,ring,declare,tribute,free,letter,cake,toast,table' && O.AFTER_CLOSE.table === 1 && O.bodySeq({ on: { vow: 1, table: 1 } }).join(',') === 'entry,vow,_close,table');   // [CAKE_TOAST_SPLIT]
+ok('v4 순서(명세 0장) + 닫는 인사 뒤 테이블 인사 [TABLE_GREET_1008]', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,bless,vow,ring,declare,song,tribute,free,letter,cake,toast,table' && O.AFTER_CLOSE.table === 1 && O.bodySeq({ on: { vow: 1, table: 1 } }).join(',') === 'entry,vow,_close,table');   // [CAKE_TOAST_SPLIT]
 ok('옛 코스 여섯은 지우지 않고 숨긴다(Q1 ①)', ['damback', 'gamdong', 'family', 'minimal', 'festive', 'record'].every((k) => D.COURSES[k] && D.COURSES[k].hidden));
 ok('새 코스도 옛 카드 목록엔 없다(hidden)', D.COURSES.open.hidden === true && D.COURSES.open.open === true);
 
@@ -99,7 +99,21 @@ ok('«축하의 말» 칸은 거뒀다(축사는 준비한 순서의 한 판)', 
 
 /* ── 4. 고객 문구 — 금지어 · 전각 줄표 ── */
 const TXT = JSON.stringify([O.CARDS, O.CHIPS, O.SECTIONS, O.EXAMPLES, O.NOTICE, O.NAR, O.CANDLE_WHO, O.NOTICE.short(20), O.helpersOf({ on: { free: 1, ring: 1 }, freeWhat: 'gift' }, { mealGuide: 1 })]);
-['추천', '인기', '베스트', '축가', '추가 비용', '—'].forEach((w) => ok(`고객 문구에 «${w}» 없음`, TXT.indexOf(w) < 0));
+/* ★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자»] «축가»는 금지어에서 뺐다 — 9/25 설계 명세 1 의 받아들일 기준(«추천 · 인기 · 베스트 · 축가 · 추가 비용» 없음)을 사장님이 뒤집었다 */
+['추천', '인기', '베스트', '추가 비용', '—'].forEach((w) => ok(`고객 문구에 «${w}» 없음`, TXT.indexOf(w) < 0));
+ok('축가 자리 = 성혼 선언 뒤 · 부모님께 인사 앞 [SONG_BACK_1011]', (() => { const q = O.bodySeq({ on: { declare: 1, song: 1, tribute: 1 } }); return q.indexOf('declare') + 1 === q.indexOf('song') && q.indexOf('song') + 1 === q.indexOf('tribute'); })());
+ok('축가 카드 · 준비한 순서 카드가 «악기 연주는 받지 않아요»를 말한다 · «라이브 노래 · 연주는 받지 않아요»는 없다 [SONG_BACK_1011]', /악기 연주는 받지 않아요/.test(O.CARDS.song.one) && /노래는 «축가»로/.test(O.CARDS.free.one) && !/라이브 노래/.test(TXT));
+
+/* ★[VOW_DECL_DIFF 2026-10-11 사장님 «서약과 성혼선언 차이를 헷갈릴 수 있으니 · 조사한 자료를 참고해서 · 이벤트 클릭하면 나오는 설명에»]
+   자료 R «누가 읽느냐로 구분한다» — 서약 = 두 분이 서로에게 직접 / 선언 = 하객 앞에서 · 두 분 대신 나레이션이나 가족.
+   ① 미리 보기 창(PV_DESC) · ② 순간 쪽 설명과 AI 상담 지식(CARDS.one) 두 곳이 같은 기준을 말한다 */
+{
+  const OP = fs.readFileSync(P('order-preview.html'), 'utf8');
+  const pv = (k) => ((OP.match(new RegExp("\\n  " + k + ":'([^']+)'")) || [])[1] || '');
+  const vowOk = (t) => /서로에게/.test(t) && /직접/.test(t), declOk = (t) => /하객 앞에서/.test(t) && /두 분 대신/.test(t) && /나레이션이나 가족/.test(t) && /성혼 선언문을 읽으면/.test(t);
+  ok('[VOW_DECL_DIFF] ② · AI 지식 — 서약 «서로에게 · 직접» / 선언 «하객 앞에서 · 두 분 대신 나레이션이나 가족»', vowOk(O.CARDS.vow.one) && declOk(O.CARDS.declare.one), O.CARDS.vow.one + ' | ' + O.CARDS.declare.one);
+  ok('[VOW_DECL_DIFF] ① 미리 보기 창 — 같은 기준 · 옛 «부부가 되었음을 알리고»(두 분이 알리는 것처럼 읽힘) 없음', vowOk(pv('vow')) && declOk(pv('declare')) && !/되었음을 알리고/.test(pv('declare')), pv('vow') + ' | ' + pv('declare'));
+}
 
 /* ── 5. 엔진 — 고른 값이 콘솔 큐로 그대로 간다 ── */
 const slugs = (S) => C.build(S, { mode: 'console' }).cues.map((c) => c.slug);
@@ -209,7 +223,7 @@ if (process.argv.includes('--live')) {
     let s = await g();
     ok(`${w} 빈 채 — 아래 막대 «입장 · 닫는 인사만으로도 …»([R1-33]) · 흐름 판 빈 글(숫자 비움)`, /닫는 인사만으로도 다음으로/.test(s.band) && /아직 담은 순간이 없어요/.test(s.empty), s.band + ' | ' + s.empty);
     ok(`${w} 빈 채 알림 없음 · 늘 있어요 둘(입장 · 닫는 인사 · 식전 영상은 담는 칸 [PREVIDEO_PICK]) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 2 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
-    ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '축가', '추가 비용'].some((x) => s.text.indexOf(x) > -1));
+    ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '추가 비용'].some((x) => s.text.indexOf(x) > -1));   // [SONG_BACK_1011] «축가»는 이제 순간 이름
     await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); s = await g();
     ok(`${w} ‹가족› 예시 → 본식 약 16~23분`, /약 16~23분/.test(s.band), s.band);   // [WINE_POUR_OFF]
     // [ACTS_FOUR] 준비한 순서는 «마음의 순간»의 «있을 때만» 칸 — 담기 원을 누르면 담긴다(옛 [FREE_OWN] 맨 아래 묶음 · ② 더하기 단추는 거뒀다)

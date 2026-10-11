@@ -136,6 +136,21 @@ for (const k of ['bless', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'le
   }
 }
 
+/* ★★[OPEN_SWEEP_TA 2026-10-11] 새 코스(순간을 고르는 판 · course 'open')도 훑는다 — 위 축들은 옛 코스 판이라
+   course 축에 'open' 이 있어도 S.on 이 비어 입장 · 하객 맞이 둘만 나왔다. 화촉 · 식전 영상 · 케이크 · 테이블 인사가
+   이 검사에 한 번도 안 들어왔다(대조 62곳 → 이 줄로 81곳).
+   ★드러난 날: [SONG_BACK_1011] 로 축가를 되살렸는데 «전부 같습니다»가 나왔다 — 19 narr-song 의 녹음은 옛 글
+     («이제, … 준비된 노래 … 마음을 맡겨»)인데 이 검사가 그 큐를 부를 상태를 안 만들었다(RECORDED_TRUTH 와 같은 집안의 넷째).
+   ★판(칩)이 갈리는 자리는 값마다 한 번씩 켠다 — 한 값만 켜면 나머지 판의 여는 말이 사각지대다(EXTRA_ENABLE_ALL 과 같은 교훈). */
+{
+  const O = require_(path.join(root, 'assets/ritual-open.js'));
+  const on = {}; O.PICKABLE.forEach((k) => { on[k] = 1; });
+  const OPEN0 = { course: 'open', on, entry: 'A', declare: '1', declareWho: 'narr', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'video', freeLen: '3', candleWho: 'mothers' };
+  for (const ch of [{}, { declare: '2' }, { declareWho: 'family' }, { declare: 'clap' }, { letter: 'parent' }, { tributeSay: 'none' },
+    { freeWhat: 'gift' }, { freeWhat: 'speech' }, { freeWhat: 'etc' }, { candleWho: 'parents' }, { candleWho: 'fathers' }, { candleWho: 'others' }, { vowFirst: 'b' }])
+    states.push({ ...OPEN0, ...ch });
+}
+
 const seen = new Map();   // 자리키 → {ok, screen, heard, why}
 /* ★★[CONSOLE_TEXT 2026-08-09] 두 모드를 **다** 훑는다. 종전엔 'preview' 하나뿐이었다.
    그래서 **콘솔에서만 나오는 클립은 글이 바뀌어도 아무도 안 물었다.**
