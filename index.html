@@ -8547,6 +8547,9 @@ function replayHeroAnimation(){
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: keep-all;
+  /* ★[ADV_WRAP_ANY 2026-10-11 디자인 점검 #1 · 사장님 «추천대로»] 띄어쓰기 없는 한글 · 주소 · 긴 이메일이 말풍선 밖으로 32~873px 넘쳤다(320 · 390 · 1440 실측).
+     keep-all 은 그대로(보통 문장은 띄어쓰기에서 줄바꿈) · 끊을 곳이 없을 때만 아무 데서나 끊는다 · 파일판 assets/advisor-widget.js 와 같은 줄(ADV_TWO_COPIES) */
+  overflow-wrap: anywhere;
   border-radius: 12px;
   padding: 12px 16px;
 }

@@ -99,7 +99,7 @@
     + '.me-adv-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:24px 22px 12px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}'
     /* 메뉴는 위, 인사말 버블만 하단(입력창 쪽)으로 — 넘치면 auto가 0으로 접혀 정상 채팅 스크롤 (2026-07-07 사용자 지시) */
     + '.me-adv-greet{margin-top:auto}'
-    + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;border-radius:12px;padding:12px 16px;font-family:var(--sans,sans-serif)}'
+    + '.me-adv-msg{max-width:90%;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;border-radius:12px;padding:12px 16px;font-family:var(--sans,sans-serif)}'   /* ★[ADV_WRAP_ANY 2026-10-11 디자인 점검 #1] 띄어쓰기 없는 글 · 주소가 말풍선 밖으로 넘치던 것 · index.html 사본과 같은 줄 */
     + '.me-adv-msg.bot{align-self:flex-start;background:var(--bg2,#F5F3EF);color:var(--accent,#3A2D22);border-bottom-left-radius:4px}'
     + '.me-adv-msg.me{align-self:flex-end;background:var(--seal,#6B2A24);color:#fff;border-bottom-right-radius:4px}'
     + '.me-adv-typing{align-self:flex-start;display:inline-flex;gap:4px;padding:13px 15px;background:var(--bg2,#F5F3EF);border-radius:12px;border-bottom-left-radius:4px}'

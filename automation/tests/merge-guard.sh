@@ -17479,3 +17479,9 @@ chk 'module.exports.replyWindowKST = replyWindowKST;' api/ritual-advisor.js 1
 chk 'AFTER_HOURS_KST' scripts/audit/after-hours.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/after-hours.mjs >/dev/null 2>&1; _ahk=$?; if [ "$_ahk" = 1 ]; then echo 'FAIL after-hours: 식순 AI 상담의 답변 시간 밖 판정이 평일 10시 - 18시와 다릅니다 — node scripts/audit/after-hours.mjs'; fail=1; else echo 'ok after-hours: 평일 10시 - 18시 · 다음 답변 시작'; fi; fi
 :
+
+# ── 2026-10-11 디자인 점검 고치기 — 사장님 «추천대로»(#1 #2 #3 #4 #11 #15 #33 #34 · docs/design-audit-20261011.md)
+#    상담 위젯은 두 벌(index.html 인라인 · assets/advisor-widget.js · ADV_TWO_COPIES) — 한쪽만 되돌아가도 잡힌다
+chk 'ADV_WRAP_ANY' index.html 1                 # #1 띄어쓰기 없는 글 · 주소가 말풍선 밖으로 넘치던 것
+chk 'ADV_WRAP_ANY' assets/advisor-widget.js 1
+chk 'overflow-wrap:anywhere' assets/advisor-widget.js 1
