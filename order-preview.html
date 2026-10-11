@@ -2036,6 +2036,42 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
    페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
 html{caret-color:transparent}
 input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
+/* ★★[ENTRY_MUSIC_1012 2026-10-12 사장님 «마이페이지 식순 입장 부분에 올려 보자 · 이미 형태가 교체된 것이 있으면 그 룰에 맞춰서»] ② 입장 «입장 음악» 줄 — 시험실(비공개) v50 꼴 그대로 · 빌더 칩 줄(.ls-cg) 안 · 카드는 줄 아래 가로 전체
+   빌더 최신 규칙에 맞췄다 — 고른 표시는 진사 글 + ✓ 선 하나(금빛 두 겹 테 없음 · [SEL_THIN]) · 적는 칸 = ▶ 알약과 같은 58 × 36 금빛 한 겹([OWN_PILL_SAME]) · 색은 :root 토큰만 ·
+   글자 크기는 빌더 다섯 단계([RIT_TYPE5] · 시험실의 12 · 13px → 12.5px) · 왼쪽 굵은 선 없음([NO_SIDE_STRIPE]) */
+.ls-mu .mu-box{min-width:0;grid-column:1/-1}
+.ls-mu .mu-box:empty{display:none}
+.ls-mu .mu-box>.mu-card{margin-top:8px}
+.ls-mu .mu-card{margin:0;padding:16px 16px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.ls-mu .mu-cs,.ls-mu .mu-upbusy{margin:4px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all;text-wrap:pretty}
+.ls-mu .mu-up>.mu-cs:first-child,.ls-mu .mu-up>.mu-upbusy:first-child{margin-top:0}
+.ls-mu .mu-cs.on{color:var(--seal);font-weight:600}
+.ls-mu .mu-card.on .mu-upbusy{margin:0 0 8px}
+.ls-mu .mu-card.on .mu-mine{margin-top:0}
+.ls-mu .mu-upgo{margin:14px 0 0}
+.ls-mu .mu-upgo .mk-hbtn{width:100%}
+.ls-mu .mu-uphint{display:block;margin:8px 0 0;font-size:12.5px;line-height:1.5;color:var(--light);text-align:center;word-break:keep-all}
+.ls-mu .mu-uphint+.mu-uphint{margin-top:0}
+.ls-mu .mu-list{list-style:none;margin:2px 0 0;padding:0}
+.ls-mu .mu-row{display:flex;align-items:center;gap:2px;border-bottom:1px solid var(--border)}
+.ls-mu .mu-row .mu-pl{margin:0}
+.ls-mu .mu-pick{position:relative;flex:1 1 auto;min-width:0;min-height:60px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;padding:8px 34px 8px 2px;border:0;background:none;font:inherit;text-align:left;color:var(--accent);cursor:pointer}
+.ls-mu .mu-t{font-size:14px;font-weight:500;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere}
+.ls-mu .mu-a{font-size:12.5px;line-height:1.4;color:var(--light)}
+.ls-mu .mu-pick[aria-checked="true"] .mu-t{color:var(--seal);font-weight:600}
+.ls-mu .mu-pick[aria-checked="true"]::after{content:'';position:absolute;right:15px;top:50%;width:6px;height:12px;border-right:2px solid var(--seal);border-bottom:2px solid var(--seal);transform:translateY(-62%) rotate(45deg)}   /* 고른 곡 · 자리 ✓(그림 글자 대신 선 · 오른쪽 · 아래 선 — 왼쪽 굵은 선 금지 [NO_SIDE_STRIPE] 검사에 걸리지 않게) */
+.ls-mu .mu-hkt{margin:14px 0 0;font-size:12.5px;font-weight:600;line-height:1.5;color:var(--sub);letter-spacing:.04em}
+.ls-mu .mu-hks .mu-t{font-variant-numeric:tabular-nums}
+.ls-mu .mu-own{display:flex;align-items:center;gap:2px;min-height:60px;border-bottom:1px solid var(--border)}
+.ls-mu .mu-own .tin{flex:0 0 58px;width:58px;height:36px;min-height:0;margin:0;padding:0 4px;border-color:var(--gold-btn);border-radius:999px;font-size:16px;line-height:34px;text-align:center;font-variant-numeric:tabular-nums}   /* 16px 아래면 아이폰이 칸을 누를 때 화면을 키운다(빌더 .tin 과 같은 값) */
+.ls-mu .mu-own .tin:focus{border-color:var(--gold-deeper)}
+.ls-mu .mu-own .tin::placeholder{color:var(--light);opacity:1}
+.ls-mu .mu-ownl{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 6px 8px 2px;color:var(--accent);cursor:text}
+.ls-mu .mu-ownl .mu-a{font-variant-numeric:tabular-nums}
+.ls-mu .mu-upft{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:2px 8px -6px 0;font-size:12.5px;color:var(--light)}   /* 링크는 빌더 .pk-link 그대로(12.5px · [RIT_TYPE5] 다섯 단계) */
+.mu-gd-c{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.mu-gd-c .mk-kp{font-variant-numeric:tabular-nums}
+.mu-gd-in{display:flex;align-items:center;justify-content:center;width:58px;height:36px;margin:8px 0 2px;border:1px solid var(--gold-btn);border-radius:999px;background:var(--card);font-size:16px;color:var(--accent);font-variant-numeric:tabular-nums}   /* 카드의 적는 칸과 같은 꼴 */
 </style>
 </head>
 <body>
@@ -2059,7 +2095,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-music.js?v=1012a"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
@@ -3015,7 +3051,8 @@ function _next(){ if(AUDBTN&&AUDQ){ AUDI++; _step(AUDBTN,AUDTOK); } }
    무음 스위치에 막힌다. 마이크를 열 때는 «녹음+재생», 닫을 때와 틀기 직전에는 «재생»으로 세션을 돌려 둔다(navigator.audioSession · iOS 16.4+ · 없으면 아무것도 안 한다) */
 function _asPlay(){ try{ if(navigator.audioSession&&!(typeof _micLive==='function'&&_micLive())&&navigator.audioSession.type!=='playback') navigator.audioSession.type='playback'; }catch(e){} }
 function _asRec(){ try{ if(navigator.audioSession) navigator.audioSession.type='play-and-record'; }catch(e){} }
-function _stopMk(){ try{ if(typeof MK!=='undefined') MK.playTok=(MK.playTok||0)+1; if(typeof MK!=='undefined'&&MK.aud){ var _a=MK.aud; MK.aud=null; MK.audKey=null; _a.onended=null; _a.pause(); } }catch(e){} }
+function _stopMk(){ try{ if(window.EntryMusic) EntryMusic.hush(); }catch(e){}   /* [ENTRY_MUSIC_1012] 소리 하나([ONE_SOUND]) — 줄 ▶ · 이 순간 전체 듣기를 누르면 입장 음악 미리 듣기는 멈춘다 */
+  try{ if(typeof MK!=='undefined') MK.playTok=(MK.playTok||0)+1; if(typeof MK!=='undefined'&&MK.aud){ var _a=MK.aud; MK.aud=null; MK.audKey=null; _a.onended=null; _a.pause(); } }catch(e){} }
 function _lpHush(){ try{ if(typeof LP!=='undefined'&&LP.q&&LP.q.length&&!LP.paused){ LP.paused=true; clearTimeout(LP.t); try{ _lAud().pause(); }catch(e){} _lPaint(); } }catch(e){} }   /* ★[ONE_SOUND 2026-10-09 점검 R1] 줄 ▶ · 나레이션 ▶ · 맞추기 · 연습 녹음 ▶ 를 누르면 «이 순간 전체 듣기» · 작은 플레이어는 그 자리에 멈춘다(▶ 로 이어서) — 종전엔 두 소리가 같이 났다(플레이어가 틀 때는 _stopMk 로 줄 소리를 막는데 거꾸로 길이 없었다) */
 function _stopAud(){
   AUDTOK++;   // 늦게 도착한 조회 결과가 다음 버튼을 덮지 않게 — 표를 바꿔 무효화한다
@@ -3419,6 +3456,7 @@ function render(){
      빼기 뒤 «되돌리기», 되돌리기 · 담기 뒤 그 줄 머리, 알림 단추 뒤 알림 글, 예시 되돌리기 뒤 예시 칸으로 보낸다.
      제목(#stepHead)에 있던 포커스는 새 제목으로(② 가 엔진 · 녹음표를 불러와 다시 그릴 때 BODY 로 가던 것). */
   _cgEven();   // [CG_EVEN]
+  try{ if(window.EntryMusic) EntryMusic.after(); }catch(e){}   // [ENTRY_MUSIC_1012] 다른 쪽으로 가면 입장 음악 미리 듣기를 멈춘다
   if(document.getElementById('mkStrip')){ _mkStripKeep(); _mkPosFit(); }   // [MK_STRIP_KEEP 2026-09-27] 모바일 한 줄 — 지금 칸을 가운데로(함수만 있고 부르는 곳이 없어 뒤쪽 순간에선 지금 칸이 화면 밖이었다)
   if(!_fxNext&&_ta0){ try{ var _t1=el.querySelector(_ta0.sel)||document.querySelector(_ta0.sel); if(_t1&&_t1!==_ae0){ if(document.activeElement!==_t1) _t1.focus({preventScroll:true}); if(_ta0.a!=null) _t1.setSelectionRange(_ta0.a,_ta0.b); _t1.scrollTop=_ta0.top; if(_ta0.dirty){ _t1._dirty=1; _t1.addEventListener('blur',function(){ if(typeof _taChange==='function') _taChange(); },{once:true}); } } }catch(e){} }   // [TA_KEEP]
   if(_fxNext){ var _fx=document.querySelector(_fxNext); _fxNext=null; if(_fx) try{ _fx.focus({preventScroll:true}); }catch(e){} }
@@ -5318,6 +5356,7 @@ function _dlgModel(){
   if(MK_REC&&!/^vc:/.test(MK_REC.key)) return {t:_mkUpLabKey(MK_REC.key)+' · 녹음',body:_recLineBody(MK_REC)};
   if(MK.redo) return {t:'다시 녹음하면 이렇게 돼요',body:_redoBody()};   // [REDO_FIG]
   if(MK.keepDlg) return {t:'확정하면 이렇게 돼요',body:_keepBody(MK.keepDlg)};   // [KEEP_DLG]
+  if(MK.muGuide&&window.EntryMusic) return {t:'내 곡을 올리면 이렇게 돼요',body:EntryMusic.guideBody()};   // [ENTRY_MUSIC_1012] 올리기 안내(처음 «곡 파일 올리기» 한 번 · «올리기 안내 보기»)
   if(MK.use!=null){ var _ur=_vcUseRows(); if(_ur.length){ var _ui=Math.max(0,Math.min(MK.use,_ur.length-1)); return {t:_ur[_ui][1],body:_vcUseBody(_ur,_ui)}; } MK.use=null; }   // [VUSE_FLOW]
   if(VS.open&&_vsOk()&&VS.ph==='info') return {t:'안내 목소리, 무엇이 다른가요',body:_vsInfoBody()};   // [VS_INFO]
   if(VS.open&&_vsOk()) return {t:VS.ph==='ai'&&!(VC.st&&(VC.st.groom||{}).ready&&(VC.st.bride||{}).ready)?'AI 두 분 목소리 만들기':'안내 목소리 정하기',body:_vsPanel()};   /* [VS_READY_SHORT] 만들 것이 없으면 «만들기» 제목도 없다 */   // [VOICE_SETUP] 읽기 · 동의가 끝나면 이 창으로 돌아온다
@@ -5346,7 +5385,8 @@ document.addEventListener('keydown',function(e){ var d=document.getElementById('
     if(e.shiftKey&&i<=0){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&(i===f.length-1||i<0)){ e.preventDefault(); f[0].focus(); } } });
 window.mkDlgClose=function(){ var R=VC.read, r=MK_REC;
   if(MK.redo){ MK.redo=false; render(); return; }   // [REDO_FIG]
-  if(MK.keepDlg){ if(MK.keepTip){ MK.keepTip=false; _tipSeen('keep'); } MK.keepDlg=null; render(); return; }   // [KEEP_DLG] · [TIP_ONCE] 처음 창은 본 것만 기억하고 그냥 닫는다(움직임 없음)
+  if(MK.keepDlg){ if(MK.keepTip){ MK.keepTip=false; _tipSeen('keep'); } MK.keepDlg=null; render(); return; }   // [KEEP_DLG] · [TIP_ONCE]
+  if(MK.muGuide){ MK.muGuide=false; render(); return; }   // [ENTRY_MUSIC_1012] 올리기 안내 — 창만 닫는다([GUIDE_OK] «알겠어요» · 파일 창은 «곡 파일 올리기»를 다시 눌러서) 처음 창은 본 것만 기억하고 그냥 닫는다(움직임 없음)
   if(MK.use!=null){ MK.use=null; _stopMk(); render(); return; }   // [VUSE_FLOW]
   var _nr=!!(R&&(R.limit||(R.err&&(/코드 V[238]\b/.test(R.err)||R.err===VC_DEL_STOP_W))));   /* ★[NR_CLOSE_DIRECT 2026-10-09 A~Z 점검 2라운드 B2-2] 다시 해도 안 되는 실패(요금제 V2 · 설정 V3 · 로그인 V8 · 지우기로 취소) · 한도 창의 «닫기» · ✕ 는 묻지 않고 닫는다 — 종전엔 «읽기를 그만둘까요?» 빨간 판이 한 번 더 떴고 «계속 읽기»는 할 수 있는 게 없는 창으로 되돌아갔다 */
   var lose=(R&&!_nr&&R.ph!=='done'&&R.ph!=='busy'&&R.ph!=='tune'&&(R.take[1]||R.take[2]))   /* [SIM_R1] 목소리를 만든 뒤(맞추기)엔 잃을 것이 없다 */||(r&&r.ph==='review'&&!/^vc:/.test(r.key));
@@ -6828,7 +6868,8 @@ function renderMake(){
     var lb=_mpBtn(k,'mkplay');   /* [UI_ONE] 이 순간 들어 보기 = ▶ / ■ 멈추기(줄 ▶ 와 같은 말) · 만드는 중 */
     if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') gs=gs.filter(function(g){ return g.key!=='entry'; });   // [EX_ONE] AI 판은 입장 멘트 대신 «참고 예시» 줄
     if(!gs.some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; })) gs=gs.concat(_exRows(k));   /* [EX_ROW] 어떻게 준비할까요 바로 아래 · 아직 안 골랐으면 붙이지 않는다(VP_ASK_FIRST) */
-    KEEP_ROW={}; if(gs.length) h+='<section class="mk-sec mk-pick" aria-label="고르기"><div class="ls-vars">'+_lGroupsHtml(k,gs,{vsLink:true})+'</div></section>';   /* [KEEP_IN_ROW] 칩 줄이 먼저 그려진다 */   // [MK_NO_HEADS]
+    var _muRow=(k==='entry'&&window.EntryMusic&&!gs.some(function(g){ return g.key==='entryVoice'&&g.picked===false; }))?EntryMusic.rowHtml():'';   /* ★★[ENTRY_MUSIC_1012 2026-10-12 사장님 «마이페이지 식순 입장 부분에 올려 보자 · 일단 전부 올려»] 입장 음악 줄 = 고르기 칸 맨 아래 · 안내 목소리를 고른 뒤에만(VP_ASK_FIRST) · assets/entry-music.js */
+    KEEP_ROW={}; if(gs.length) h+='<section class="mk-sec mk-pick" aria-label="고르기"><div class="ls-vars">'+_lGroupsHtml(k,gs,{vsLink:true})+_muRow+'</div></section>';   /* [KEEP_IN_ROW] 칩 줄이 먼저 그려진다 */   // [MK_NO_HEADS]
     /* ★[PLAY_ONE 2026-10-02 사장님 «플레이 버튼이 겹치잖아»] 들을 줄이 하나뿐이면 «이 순간 들어 보기»를 두지 않는다 — 그 줄 ▶ 이 같은 일을 한다(첫인사 · 서약 · 반지 등) */
     var _pn=0; try{ if(ENG) _pn=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip&&!x.talk2; }).length; }catch(e){}
     /* ★★[MK_FORM_ONE 2026-10-03 사장님 «서약 쪽만 다른 쪽들과 안 맞는다 · 이 순간 들어 보기가 갑자기 나온다»] 순간 쪽은 한 틀이다 —
@@ -9417,7 +9458,9 @@ function renderDone(){
      음악은 저희가 고른다. 부부에게 곡명을 받아 두던 칸(mPeak)과 그 안내 3줄을 통째로 뺀다.
      ★되살리지 말 것 — 이미 2026-07-18에 준비 목록에서, 07-22에 폐식곡 칸에서 한 번씩 덜어낸 자리다.
        S.mPeak·S.mClose 상태 자체는 하위호환으로 남긴다(옛 초안에 값이 있고 Admin이 '구 입력'으로 읽는다).
-       jumpTo('done')의 음악 칸 포커스 분기도 함께 제거했다. */
+       jumpTo('done')의 음악 칸 포커스 분기도 함께 제거했다.
+     ★[ENTRY_MUSIC_1012 2026-10-12 사장님 «마이페이지 식순 입장 부분에 올려 보자 · 일단 전부 올려»] «입장» 순간에서만 뒤집었다 —
+       ② 입장 쪽 «입장 음악» 줄(두 분이 고른 곡 · 크게 올라오는 자리 · S.mu · assets/entry-music.js). 이 완성 화면의 곡명 칸(mPeak)은 그대로 없다. */
   /* ★[DONE_TAIL_QUIET 2026-08-12 사용자 지시 "웨멘트들 삭제"] 본식 영상 권유 줄 **삭제 — 되살리지 말 것.**
      순서를 다 고른 자리에서 상품을 하나 더 권하는 말이었다. 고른 것을 확인하러 온 화면인데
      마지막에 파는 말이 서면, 방금 한 선택이 아니라 다음 결제를 생각하게 된다.

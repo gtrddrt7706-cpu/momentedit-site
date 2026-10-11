@@ -17595,3 +17595,29 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/after-hours.mjs >/de
 :
 # ── 2026-10-11 승인은 번호를 짚은 답으로만 [APPROVE_BY_NUMBER] — 묶음 «추천대로»를 화면 고치기 승인으로 읽지 않는다(PR #1197 닫음)
 chk 'APPROVE_BY_NUMBER' CLAUDE.md 1
+:
+# ── 2026-10-12 입장 음악 1단계 [ENTRY_MUSIC_1012] — 사장님 «마이페이지 식순 입장 부분에 올려 보자 · 일단 전부 올려 · 지금 오픈 전이니깐»
+#   ② 입장 쪽 «입장 음악» 줄(두 분이 고른 곡 올리기 · 크게 올라오는 자리 · 직접 적기 · 올리기 안내 창 · S.mu 저장 · 이 기기 IndexedDB 에 곡 파일) — assets/entry-music.js
+#   [MUSIC_GONE 2026-08-03] 은 «입장» 순간에서만 뒤집었다(완성 화면 곡명 칸 mPeak 은 그대로 없다 · 위 chk 'MUSIC_GONE' 그대로)
+#   추천 곡(시험실 카드 · 음원 · 가사)은 저장소가 공개라 싣지 않는다 — 사장님 결정 뒤(드라이브 · 로그인한 고객만) 붙인다
+chk 'ENTRY_MUSIC_1012' order-preview.html 7
+chk '<script src="/assets/entry-music.js' order-preview.html 1
+chk 'if(MK.muGuide&&window.EntryMusic) return' order-preview.html 1
+chk 'if(MK.muGuide){ MK.muGuide=false; render(); return; }' order-preview.html 1
+chk 'try{ if(window.EntryMusic) EntryMusic.after(); }catch(e){}' order-preview.html 1
+chk 'function _stopMk(){ try{ if(window.EntryMusic) EntryMusic.hush(); }catch(e){}' order-preview.html 1
+chk 'ENTRY_MUSIC_1012' assets/entry-music.js 1
+chk 'GUIDE_OK' assets/entry-music.js 2
+chk 'UP_LINKS_ONE' assets/entry-music.js 1
+chk 'PRESSED_BOOL' assets/entry-music.js 1
+nochk 'guidego' assets/entry-music.js                         # [GUIDE_OK] «곡 파일 고르기»(창을 닫고 바로 파일 창) 되살리기 금지
+nochk 'audio/music/' assets/entry-music.js                    # 추천 곡 음원을 공개 저장소에서 부르지 않는다(저작권 · 사장님 결정 전)
+nochk 'mu-upnote' assets/entry-music.js                       # [UP_TIDY] «시험 화면이라 이 기기 안에서만 들어요» 되살리기 금지
+chk 'ENTRY_MUSIC_1012' api/_kb.js 1
+chk 'ENTRY_MUSIC_1012' api/_ritual-kb.js 1
+chk 'ENTRY_MUSIC_1012' assets/advisor-kb.js 1
+chk 'ENTRY_MUSIC_1012' scripts/check-retired-scene.mjs 1
+nochk '곡을 넣는 칸은 따로 없다' api/_kb.js                       # 입장 음악 칸이 생겼다 — 없다고 말하지 않는다
+nochk '화면에 곡을 넣는 칸은 따로 없다' api/_ritual-kb.js
+chk 'ENTRY_MUSIC_1012' scripts/audit/entry-music.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-music.mjs >/dev/null 2>&1; _emu=$?; if [ "$_emu" = 1 ]; then echo 'FAIL entry-music: ② 입장 «입장 음악» 줄(올리기 · 자리 · 직접 적기 · 안내 창 · 저장 · 되살리기)이 깨졌습니다 — node scripts/audit/entry-music.mjs'; fail=1; elif [ "$_emu" = 0 ]; then echo 'ok entry-music: 입장 음악 줄 390 · 1280'; else echo 'skip entry-music: 브라우저가 없어 재지 못함'; fi; fi
