@@ -125,13 +125,15 @@ for (const f of KB_FILES) {
    ★없는 칸을 있다고 하면 두 분이 그 칸을 찾다가 상담으로 온다. 그건 우리가 만든 질문이다. */
 {
   const hasField = /음악/.test(rd('mypage.html')) || /name=['"][^'"]*[Mm]usic/.test(rd('order-preview.html'));
+  /* ★[ENTRY_MUSIC_1012 2026-10-12 사장님] MUSIC_GONE 을 «입장» 순간에서만 뒤집었다 — ② 입장 쪽 «입장 음악» 줄(assets/entry-music.js)이 있으면 «입장 음악»을 말하는 줄은 통과 · 그 밖의 음악 입력은 여전히 없는 칸이다 */
+  const entryField = /ENTRY_MUSIC_1012/.test(rd('order-preview.html')) && /ENTRY_MUSIC_1012/.test((() => { try { return rd('assets/entry-music.js'); } catch (e) { return ''; } })());
   for (const f of KB_FILES) {
     const lines = blankComments(rd(f)).split('\n');
     for (let i = 0; i < lines.length; i++) {
       const ln = lines[i];
       if (!/마이페이지/.test(ln)) continue;
       if (!/(음악|축가|곡)/.test(ln)) continue;
-      if (/입력|넣으|적으/.test(ln) && !hasField)
+      if (/입력|넣으|적으/.test(ln) && !hasField && !(entryField && /입장\s?음악|입장곡/.test(ln)))
         no(`${f}:${i + 1} 가 「마이페이지에서 음악·축가를 입력」이라 말하는데 그 칸이 없다 [MUSIC_GONE]\n     ${ln.trim().slice(0, 90)}`);
     }
   }
