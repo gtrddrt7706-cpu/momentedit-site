@@ -372,7 +372,8 @@ const clips = parse(SRC);
 /* [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 109 → 121 — 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126 guest-ex2-1-arrival … guest-ex4-4-1min · N22-a~l) */
 /* [VOW_FIRST 2026-10-06 사장님 «신랑 신부 먼저 할 사람 순서»] 121 → 122 — 혼인 서약 여는 말 · 신부부터(127 narr-vow-in-b · G3-3b). 녹음 전엔 13번 앞 두 문장을 잘라 쓴다 */
 /* [PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 122 → 125 — 식전 영상 소개 나레이션 예시 2~4(128~130 · N23-a~c) */
-const CLIP_COUNT = 128;   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
+/* [DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만»] 128 → 125 — 나레이션 선언 · 가족 낭독 · 박수 판 여섯(21 · 30 · 31 · 32 · 96 · 97)을 대본에서 빼고(고를 수 있는 갈래가 아니다 · ASK_RETIRED 와 같은 까닭) 읽는 분마다 여는 말 셋(134~136 · G5-5~7)을 더했다 */
+const CLIP_COUNT = 125;   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

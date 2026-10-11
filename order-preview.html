@@ -2064,7 +2064,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
-       guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
+       guestVoice:'nar',entryVoice:'nar',declareWho:'',growth:'off',growthLink:'',blessProxy:false,
        tune:{entry:true}, extra:{}, up:{}, touched:{}, ctSplit:1};   // [CAKE_TOAST_SPLIT] 새 판은 처음부터 두 칸   // [CHIP_UNPICKED] touched = 두 분이 직접 누른 칩 묶음
 var _S0=JSON.stringify(S);   // ORDER_OWNER: 미개봉 초기값 스냅 — 계정 전환 감지 시 상태 초기화용
 /* ★[LEAD_OUT 2026-08-07] 사람의 시간이 스스로 닫는 말. 원천은 assets/ritual-data.js 의 NARR —
@@ -2098,7 +2098,12 @@ var OUT_TOAST="잔은 편하게 내려놓으세요.";
 /* ★[TOAST_SCENE 2026-08-09] 케이크만 고른 자리의 마무리 — 옛 판은 여기서도 잔 이야기가 나갔다.
    잔이 없는 손에 "잔은 편히 내려놓으셔도 좋습니다" 는 장면을 깬다. */
 var OUT_CAKE="두 사람이 함께 해낸 첫 번째 일이었습니다. 나이프는 그 자리에 놓으시면 됩니다.";
-var OUT_DECLARE_FAMILY="이제 두 사람은 부부입니다. 다 함께 축하해 주세요.";
+/* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만 · 그게 싫다면 서약으로»]
+   선언문은 사람만 읽는다 — 나레이션은 여는 말(누가 선언하는지) · 맺는 말(축하 박수)만. 원천은 assets/ritual-data.js 의 NARR.declareIn* · declareFamilyOut
+   ★맺는 말에서 «이제 두 사람은 부부입니다»를 뺐다 — 선언문을 읽은 분이 이미 선언했다(나레이션이 다시 선언하지 않는다) · 하객에게는 합쇼체 */
+var OUT_DECLARE_FAMILY="하객 여러분, 새 출발을 큰 박수로 축복해 주시면 감사하겠습니다.";
+var DECL_IN={gdad:"성혼 선언은, 신랑 아버님께서 해 주시겠습니다.",bdad:"성혼 선언은, 신부 아버님께서 해 주시겠습니다.",friend:"성혼 선언은, 신랑 신부가 부탁드린 분께서 해 주시겠습니다."};
+function _declWho(){ var w=DECLWHO[S.declareWho]; return w?w.d:''; }   /* [DECLARE_BY_PERSON] 고른 분 이름 · 안 골랐으면 빈 값 */
 var CLOSE_NAR="이제 사진을 남기겠습니다. 먼저 다 함께 한 장, 이어서 가족과 친구분들 차례로 남기겠습니다. 모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다.";   // [CLOSE_BOW 2026-09-26] 원천 D.NARR.close 와 같게(끝 선언은 108 로 나뉘었다)   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
@@ -2159,16 +2164,14 @@ var ENTRY_OLD={};
 /* ★[ENTRY_ALT 2026-08-04] 입장 인사는 두 분이 한 문장씩 번갈아 읽는다. 원천은 assets/ritual-data.js 의 ENTRY_ALT —
    여기 있는 건 사본이다(빌더가 엔진을 동기로 못 읽어서다). scripts/check-ritual-mirror.js 가 둘을 대조한다. */
 var ENTRY_ALT=["신랑","신부"];
-var DECLARE={
- /* ★[REDUB_KEEP_RULE 2026-10-03] 10/3 재녹음 문안 중 두 문장은 규칙을 지키려고 옛 녹음을 다시 쓴다 — 선언 «이제 두 사람은 부부입니다.»(PERF_CANON_2 표준 수행문) · 폐식 «모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다.»(VOICE_2ND_GAP 문장 가르기). 재녹음 불필요 · 되돌리지 말 것 */
- '1':{d:"엄숙하게",nar:"오늘 두 사람은, 이 자리에 계신 모든 분을 증인으로, 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다. 하객 여러분, 새 출발을 큰 박수로 축복해 주시면 감사하겠습니다."},
- '2':{d:"따뜻하게",nar:"오늘 두 사람은, 서로에게 하나뿐인 사람이 되었습니다. 이제 두 사람은 부부입니다. 하객 여러분, 큰 박수로 답해 주시면 감사하겠습니다."}
-};
+/* ★★[DECLARE_BY_PERSON 2026-10-12] 나레이션 선언 사본(DECLARE · 엄숙하게 · 따뜻하게)을 걷었다 — 화면이 더 보이지 않는다. 되살리지 말 것.
+   옛 초안의 S.declare 값은 RitualOpen.savedOk 로만 지킨다(엔진도 읽지 않는다) */
 var DECLWHO={
- narr:{d:'나레이션',desc:'나레이션이 성혼을 선언해요'},
- chorus:{d:'하객이 다 함께 · 합송',desc:'나레이션 선창에 이어 하객이 함께 낭독해요',nar:"모든 마음이 모였습니다. 이제, 이 자리에 계신 모든 분의 목소리로 이 예식을 선언으로 완성하겠습니다. 오늘, 신랑 신부는 서로의 평생이 되었습니다. 이 자리의 모두가 그 증인입니다. 다 함께 맞이해 주시기 바랍니다. 이제 두 사람은 부부입니다.",prep:'선언문은 좌석 카드로 미리 비치하고, 나레이션이 먼저 안내해요 · 부담스러우면 언제든 나레이션 단독으로 바꿀 수 있어요'},
- ask:{d:'하객이 함께 답하기',desc:'나레이션의 물음에 하객이 한마디로 답해요',nar:"여러분은 방금, 두 사람의 약속을 함께 지켜보셨습니다. 그 약속에는 증인이 필요합니다. 다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다. 제가 여쭙고 나면, 다 같이 답해 주십시오. 두 사람이 흔들리는 날, 오늘 이 자리를 기억해 주시겠습니까?",end:"이제 두 사람은 부부입니다. 큰 박수로 두 사람을 축하해 주시기 바랍니다.",prep:'하객은 「네, 그러겠습니다」 한마디면 돼요 · 개식 직후 미리 안내해요'},
- family:{d:'가족이 낭독',desc:'양가 부모님이나 대표 한 분이 직접 선언해요',nar:"신랑 신부는, 이 자리에 함께한 우리 모두를 증인으로, 서로의 평생이 되었습니다. 이로써 두 사람의 성혼을 선언합니다.",prep:'낭독하실 가족께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요 · 부담되시면 당일에도 나레이션으로 바꿀 수 있어요'}
+ /* ★[DECLARE_BY_PERSON] 원천 assets/ritual-data.js DECLWHO 의 사본 — 신랑 아버님 · 신부 아버님 · 친구 · 지인. scripts/check-ritual-mirror.js 가 대조한다.
+    ★«나레이션» · «가족이 낭독» · «하객이 함께 답하기» · «하객 합송» 갈래 금지 — 2026-10-12 사용자 지시로 삭제(합송 · 응답은 9/21 에 먼저 걷음) */
+ gdad:{d:'신랑 아버님',desc:'신랑 아버님께서 큰 글씨 선언문으로 두 사람의 성혼을 선언해요.',nar:"신랑 신부는, 이 자리에 함께한 우리 모두를 증인으로, 서로의 평생이 되었습니다. 이로써 두 사람의 성혼을 선언합니다.",prep:'신랑 아버님께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요'},
+ bdad:{d:'신부 아버님',desc:'신부 아버님께서 큰 글씨 선언문으로 두 사람의 성혼을 선언해요.',nar:"신랑 신부는, 이 자리에 함께한 우리 모두를 증인으로, 서로의 평생이 되었습니다. 이로써 두 사람의 성혼을 선언합니다.",prep:'신부 아버님께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요'},
+ friend:{d:'친구 · 지인',desc:'두 분이 아끼는 친구나 지인 한 분이 큰 글씨 선언문으로 두 사람의 성혼을 선언해요.',nar:"신랑 신부는, 이 자리에 함께한 우리 모두를 증인으로, 서로의 평생이 되었습니다. 이로써 두 사람의 성혼을 선언합니다.",prep:'읽어 주실 친구 · 지인께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요'}
 };
 var LETTER={
  parent:{d:"부모님께",nar:"평소엔 쑥스러워 다 못 한 이야기를, 한 장의 편지에 담았습니다. 그 편지를, 부모님께 들려 드리세요.",prep:"부모님께 드릴 편지"},
@@ -2287,9 +2290,9 @@ var COURSES={
    {
     "k": "declare",
     "n": "성혼 선언",
-    "how": "나레이션이 두 사람이 부부가 되었음을 공식적으로 선언해요.",
+    "how": "아버님이나 친구 · 지인 한 분이 선언문을 읽어 두 사람이 부부가 되었음을 공식적으로 알려요.",
     "fx": "예식의 공식 하이라이트. 어른들이 \"제대로 된 예식이었다\"고 느끼는 지점이에요.",
-    "pick": "나레이션 / 가족 낭독"
+    "pick": "신랑 아버님 / 신부 아버님 / 친구 · 지인"
    },
    {
     "k": "letter",
@@ -2389,9 +2392,9 @@ var COURSES={
    {
     "k": "declare",
     "n": "성혼 선언",
-    "how": "나레이션이 두 사람이 부부가 되었음을 선언해요.",
+    "how": "아버님이나 친구 · 지인 한 분이 선언문을 읽어 두 사람이 부부가 되었음을 알려요.",
     "fx": "하객 모두가 증인으로 지켜보는 가운데 선언이 완성되는 순간이에요.",
-    "pick": "나레이션 / 가족 낭독"
+    "pick": "신랑 아버님 / 신부 아버님 / 친구 · 지인"
    },
    {
     "k": "_close",
@@ -2482,9 +2485,9 @@ var COURSES={
    {
     "k": "declare",
     "n": "성혼 선언",
-    "how": "나레이션이 두 사람이 부부가 되었음을 선언해요.",
+    "how": "아버님이나 친구 · 지인 한 분이 선언문을 읽어 두 사람이 부부가 되었음을 알려요.",
     "fx": "가족 모두가 증인이 되는 공식 선언이에요.",
-    "pick": "가족 낭독 / 나레이션"
+    "pick": "신랑 아버님 / 신부 아버님 / 친구 · 지인"
    },
    {
     "k": "_close",
@@ -2563,9 +2566,9 @@ var COURSES={
    {
     "k": "declare",
     "n": "성혼 선언",
-    "how": "주례 없이, 나레이션이 선언하거나 가족 한 분이 직접 낭독해요.",
+    "how": "주례 없이, 아버님이나 친구 · 지인 한 분이 선언문을 직접 읽어요.",
     "fx": "권위자 없이도 또렷하게 남는 공식 선언이에요.",
-    "pick": "나레이션 / 가족 낭독"
+    "pick": "신랑 아버님 / 신부 아버님 / 친구 · 지인"
    },
    {
     "k": "toast",
@@ -2675,9 +2678,9 @@ var COURSES={
    {
     "k": "declare",
     "n": "성혼 선언",
-    "how": "나레이션이 두 사람이 부부가 되었음을 선언해요.",
+    "how": "아버님이나 친구 · 지인 한 분이 선언문을 읽어 두 사람이 부부가 되었음을 알려요.",
     "fx": "짧지만 또렷한 공식 선언으로 예식이 완성돼요.",
-    "pick": "나레이션 / 가족 낭독"
+    "pick": "신랑 아버님 / 신부 아버님 / 친구 · 지인"
    },
    {
     "k": "_close",
@@ -2754,9 +2757,9 @@ var COURSES={
    {
     "k": "declare",
     "n": "성혼 선언",
-    "how": "나레이션이 두 사람이 부부가 되었음을 따뜻하게 선언해요.",
+    "how": "아버님이나 친구 · 지인 한 분이 선언문을 읽어 두 사람이 부부가 되었음을 알려요.",
     "fx": "다 함께 환호로 맞이하는 공식 하이라이트예요.",
-    "pick": "나레이션 / 가족 낭독"
+    "pick": "신랑 아버님 / 신부 아버님 / 친구 · 지인"
    },
    {
     "k": "letter",
@@ -3098,7 +3101,7 @@ var STEPDEF={
  vow:{k:'vow',title:'혼인 서약',sub:'두 분이 서로에게 쓴 약속을 한 줄씩 번갈아 읽고, 마지막 두 문장은 하객분들을 보고 함께 읽는 순간이에요. 나레이션이 그 앞을 열어 드려요.'},
  ringwarm:{k:'ringwarm',title:'링 워밍(반지 축복 나누기), 어디까지 돌릴까요?',sub:''},
  ring:{k:'ring',title:'반지 교환, 넣을까요?',sub:''},
- declare:{k:'declare',title:'성혼 선언, 누가 낭독할까요?',sub:''},
+ declare:{k:'declare',title:'성혼 선언문, 누가 읽을까요?',sub:''},   /* [DECLARE_BY_PERSON] 아버님이나 친구 · 지인 한 분 */
  valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
  toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
  song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
@@ -3223,15 +3226,15 @@ window.mtlGo=function(k){ if(!_seenK[k]) return; for(var i=0;i<STEPS.length;i++)
 // ★COURSE_DEF_MAP — 코스별 기본값 단일 원천(2026-07-26 확정안 §3). applyCourse·'기본' 배지·추천 표시가 전부 여기를 본다.
 //   과거 사고: 배지 조건이 w==='narr'로 하드코딩돼 있어, 코드 기본값과 화면이 서로 다른 말을 했다.
 var COURSE_DEF={
- damback:{entry:'A',declareWho:'narr', declare:'1',letter:'parent'},
- gamdong:{entry:'D',declareWho:'narr',declare:'1',letter:'parent'},   // [ASK_RETIRED]
- family :{entry:'E',declareWho:'family',declare:'1',letter:'parent'},
- minimal:{entry:'B',declareWho:'narr', declare:'1',letter:'parent'},
- festive:{entry:'F',declareWho:'narr', declare:'2',letter:'parent'},
+ damback:{entry:'A',declareWho:'', declare:'1',letter:'parent'},   // [DECLARE_BY_PERSON] 읽을 분은 두 분이 부탁한다 — 코스가 박지 않는다
+ gamdong:{entry:'D',declareWho:'',declare:'1',letter:'parent'},   // [ASK_RETIRED] · [DECLARE_BY_PERSON]
+ family :{entry:'E',declareWho:'',declare:'1',letter:'parent'},
+ minimal:{entry:'B',declareWho:'', declare:'1',letter:'parent'},
+ festive:{entry:'F',declareWho:'', declare:'2',letter:'parent'},
  /* ★[RECORD_COURSE 2026-08-07] 기록형 — 선언은 하객이 함께(ask). 주례 없는 게 이 코스의 핵심이면서
     동시에 격식 축을 지키는 최소 형식이다. 원천은 assets/ritual-cue.js 의 COURSE_DEF — 한쪽만 고치지 말 것. */
- record :{entry:'F',declareWho:'narr',declare:'1',letter:'parent',ring:'off'},   // [ASK_RETIRED]
- open   :{entry:'A',declareWho:'narr',declare:'1',letter:'each',ring:'off'}   // [OPEN_COURSE] 원천 ritual-open.js DEF(명세 5장) · ring 은 S.on 이 정한다
+ record :{entry:'F',declareWho:'',declare:'1',letter:'parent',ring:'off'},   // [ASK_RETIRED] · [DECLARE_BY_PERSON]
+ open   :{entry:'A',declareWho:'',declare:'1',letter:'each',ring:'off'}   // [OPEN_COURSE] 원천 ritual-open.js DEF(명세 5장) · ring 은 S.on 이 정한다
 };
 function cdef(c){ return COURSE_DEF[c]||COURSE_DEF.damback; }
 /* [ORD_LEAN] '안심' 줄을 걷어냈다. 열에 여덟이 '대부분 X를 골라요'였는데,
@@ -3261,7 +3264,7 @@ var MOMENT={
  vow:{ph:'혼인 서약',t:'서로에게 쓴 약속을 직접 읽어요',act:'직접 낭독 · 낭독 방식을 정해주세요.'},
  ringwarm:{ph:'링 워밍',t:'반지를 손에서 손으로 쥐며 축복을 담아요',act:'가족만 돌릴지, 하객 전체로 돌릴지 골라주세요.'}, /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
  ring:{ph:'반지 교환',t:'',act:'넣을지 뺄지 골라주세요.'},
- declare:{ph:'성혼 선언',t:'두 분이 부부가 되었음을 알리는 순서예요',act:'낭독 주체(나레이션 · 하객 합송 · 가족)를 골라주세요.'},
+ declare:{ph:'성혼 선언',t:'하객 앞에서 성혼 선언문을 읽어 두 분이 부부가 되는 순서예요',act:'선언문을 읽어 주실 분(아버님이나 친구 · 지인)을 골라 주세요.'},   /* [DECLARE_BY_PERSON] 나레이션 · 합송 · 가족 낭독 금지 · [VOW_DECL_DIFF] «알리는»은 두 분이 알리는 것처럼 읽혔다 */
  valley:{ph:'축하 한 호흡',t:'비움이 기본이에요 · 원하면 하나만 더해요',act:'없음이 기본 · 원하면 하나만 더해요.'},
  toast:{ph:'축배 · 케이크',t:'',act:'축배 · 케이크 · 둘 다 중 골라주세요.'},
  song:{ph:'축가',t:'',act:'누가 부를지 골라주세요.'}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
@@ -3745,7 +3748,7 @@ function clip(k){
       +'<stop offset="0.84" stop-color="'+G+'" stop-opacity="1"/><stop offset="1" stop-color="'+G+'" stop-opacity="0"/></linearGradient></defs>'
       +'<path d="M'+x1+' '+y+' H '+x2+'" stroke="url(#gl'+id+')" stroke-width="1" pathLength="100" class="m-draw" style="'+style+'"/>';
   }
-  var cap={entry:'문이 열리고, 두 분의 첫걸음이 시작됩니다',welcome:'두 분이 나란히, 첫인사를 드립니다',declare:'모두의 목소리가 하나로, 성혼을 선언합니다',letter:'눌러 담아 온 마음이, 편지로 전해집니다',toast:'잔이 맞닿는 순간, 축복이 울립니다',vow:'오래 품어 온 말이, 목소리가 되는 순간',ring:'같은 약속을, 나눠 낍니다',tribute:'키워 주신 사랑 앞에, 마음이 형태를 얻습니다',song:'노래가 공간을 가득 채웁니다'}[k];
+  var cap={entry:'문이 열리고, 두 분의 첫걸음이 시작됩니다',welcome:'두 분이 나란히, 첫인사를 드립니다',declare:'아끼는 분의 목소리로, 성혼을 선언합니다',letter:'눌러 담아 온 마음이, 편지로 전해집니다',toast:'잔이 맞닿는 순간, 축복이 울립니다',vow:'오래 품어 온 말이, 목소리가 되는 순간',ring:'같은 약속을, 나눠 낍니다',tribute:'키워 주신 사랑 앞에, 마음이 형태를 얻습니다',song:'노래가 공간을 가득 채웁니다'}[k];
   var svg='';
   if(k==='entry'){
     var A='#3A2D22', BG='#C9A76F';
@@ -4152,7 +4155,7 @@ function _lGroups(k){
   if(k==='vow'){ L('vowKind','무엇을 읽나요',[['vow','서약'],['thanks','감사문']],_vowKind(),true); g[g.length-1].up=1;   /* [THANKS_IN_VOW] 서약 대신 하객께 드리는 감사문 · 처음엔 안 눌린 모양(up) */
     L('vowHow','읽는 방식',[['alt','한 줄씩 번갈아'],['each','각자 차례로']],_vowHow(),true); g[g.length-1].up=1;
     L('vowFirst','먼저 읽는 분',[['g','신랑부터'],['b','신부부터']],_vowFirst(),false); g[g.length-1].up=1; }   /* [VOW_FIRST] 둘 다 처음엔 안 눌린 모양(up) — 안 고르면 어떻게 되는지는 아래 한 줄(VOW_UNPICK) */   /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] 기본 번갈아(VOW_CHORUS) · 소리는 같아 q(다시 틀지 않음) */
-  if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
+  if(k==='declare') L('declare','누가 읽나요',R.CHIPS.declare,R.chipOf('declare',S));   /* ★[DECLARE_BY_PERSON 2026-10-12] 신랑 아버님 · 신부 아버님 · 친구 · 지인 — «누가 · 말투»(나레이션 엄숙 · 따뜻 · 박수 · 가족) 금지 · 사용자 지시로 삭제 */
   if(k==='tribute'){ L('tribute','인사 말',R.CHIPS.tribute,R.chipOf('tribute',S),false,''); g[g.length-1].tip='신랑분은 원하시면 큰절을 올리셔도 돼요';   /* [NOTE_TOAST] 팁은 누르기 전에 읽혀야 해서 칩 아래 그대로(tip) */   /* ★«인사 방식»(꽃과 포옹 · 신랑 큰절) 칩 금지 — 2026-10-06 사용자 지시로 삭제 [GROOM_BOW_TIP] · 늘 꽃과 포옹 · 큰절은 팁 한 줄 · [TRIB_ONE_SAY] «말의 길이» → «인사 말»(말로 인사 · 말 없이) */ _lGoods('tribute',L); }
   if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S));
     /* ★[FREE_ETC 2026-10-06 사장님 «기타 칸 · 직접 적을 수 있게 · 길이도 직접»] 기타면 무엇을 칸에 적는다
@@ -4170,7 +4173,9 @@ function _lGroups(k){
     if(k==='vow'){ var _gk=g.filter(function(x){ return x.key==='vowKind'; })[0], _gh=g.filter(function(x){ return x.key==='vowHow'; })[0], _gf=g.filter(function(x){ return x.key==='vowFirst'; })[0];
       if(_gh&&_gf){ var _k=!!(_gk&&_gk.picked===false), _a=_gh.picked===false, _b=_gf.picked===false, _u=[];   /* [THANKS_IN_VOW] 무엇을 읽나요도 같은 한 줄에 */
         if(_k) _u.push('서약'); if(_a) _u.push('한 줄씩 번갈아'); if(_b) _u.push('신랑부터');
-        if(_u.length) _gf.unote='아직 고르지 않았어요 · 고르지 않으면 '+(_u.length>1?_u.join(' · ')+' 진행돼요':_k?'서약을 읽어요':_a?'한 줄씩 번갈아 읽어요':'신랑부터 시작해요'); } } }
+        if(_u.length) _gf.unote='아직 고르지 않았어요 · 고르지 않으면 '+(_u.length>1?_u.join(' · ')+' 진행돼요':_k?'서약을 읽어요':_a?'한 줄씩 번갈아 읽어요':'신랑부터 시작해요'); } }
+    /* ★[DECLARE_BY_PERSON 2026-10-12 사장님 «그게 싫다면 서약으로»] 선언문 읽을 분을 아직 안 골랐으면 한 줄 — 없으면 선언을 빼는 길(①에서 순간 빼기)을 정직하게 */
+    if(k==='declare'){ var _gd=g.filter(function(x){ return x.key==='declare'; })[0]; if(_gd&&_gd.picked===false) _gd.unote='아직 고르지 않았어요 · 읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요'; } }
   return g;
 }
 var _lInDef=false;
@@ -4289,11 +4294,11 @@ function _lSteps0(g,ks){
       }
       else if(c.file){
         var snd=_lHasSound(c.file,c.text), slab=lab;   // ★[SCRIPT_LAB 코워크 추가 점검 P1-7] 대본 파일은 원래 이름(slab) — 아래 화면 이름 바꾸기는 화면에만
-        /* [G5 FIRST_LINE_NAME] 첫 줄 이름 — 화촉 «서는 분 · 양가 어머님» → «여는 말» · 선언 «나레이션 · 엄숙하게» → «선언 · 나레이션(엄숙하게)» */
+        /* [G5 FIRST_LINE_NAME] 첫 줄 이름 — 화촉 «서는 분 · 양가 어머님» → «여는 말» · 선언 «○○이 낭독» → «여는 말»([DECLARE_BY_PERSON]) */
         if(k==='candle'&&/^narr-candle-in-/.test(c.slug||'')) lab='여는 말';
         else if(k==='tribute'&&/^tribute-in/.test(c.slug||'')) lab='여는 말';   // [R2-37] «꽃과 포옹 · 1분쯤씩»은 바로 위 칩 둘을 다시 읽었다(대본 slab 은 그대로)
         else if(k==='entry'&&/^entry-[A-F]$/.test(c.slug||'')&&/^입장 멘트 (.+)$/.test(lab)&&lab.indexOf('«')<0) lab=lab.replace(/^입장 멘트 (.+)$/,'입장 멘트 «$1»');   // [ENTRY_LAB_QUOTE 코워크 회신7] 줄 요약 «멘트 «감사·가족»»과 같은 꼴
-        else if(k==='declare'&&/^declare-/.test(c.slug||'')&&/^(.+?) · (.+)$/.test(lab)){ slab='선언 · '+lab.replace(/^(.+?) · (.+)$/,'$2'); var _dm=lab.match(/^(.+?) · (.+)$/); lab='선언 · '+(_dm[1]==='나레이션'?_dm[2]:_dm[1]+'('+_dm[2]+')'); }   /* [R3-10] 화면 이름은 «선언 · 엄숙하게» — 줄 머리 갈래 표가 이미 «나레이션»이라 한 줄에 두 번 나왔다 · 가족 · 하객 갈래는 «선언 · 가족(…)» 그대로 · 대본 slab 은 그대로 */   // 대본은 «나레이션(선언 · 엄숙하게)» — 겹이름 «나레이션(선언 · 나레이션(엄숙하게))»을 막는다
+        else if(k==='declare'&&/^narr-declare-in-/.test(c.slug||'')) lab='여는 말';   /* [DECLARE_BY_PERSON] 첫 줄 = 나레이션 여는 말(누가 선언하는지 알린다) · 대본 slab 은 «○○이 낭독» 그대로 · ★«선언 · 엄숙하게» 이름 바꾸기(R3-10)는 나레이션 선언과 함께 걷었다 */
         lab=_lWhen(lab);   /* [STAGE_LINES] 화면 이름만 «언제 나오나»로 · 대본(slab)은 원래 이름 */
         out.push({k:k,lab:lab,slab:slab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',file:c.file,ms:Math.max(2400,Math.round(String(c.text||'').length*160))});
         /* [G5 TOAST_TALK_GLASS] 케이크 · 축배의 «위하여» 줄은 잔 드는 큐 뒤 — 종전엔 줄의 첫 사람 순간(케이크 커팅)에 붙어 붓기 앞에 나왔다 */
@@ -4320,10 +4325,11 @@ function _lSteps0(g,ks){
 /* 들을 길이(초) — 소리 있는 줄은 글자 × 0.16(대본 속도 · 녹음 길이에 가깝다) · 글 카드 3초 · 녹음 전 줄도 글자 × 0.16 · 옅은 줄(말 없음)은 안 센다 */
 function _lLen(st){ var n=0; st.forEach(function(x){ if(x.quiet) return; n+=x.talk||x.skip?3:Math.round(String(x.txt||'').length*0.16); }); return n; }
 /* ★[STAGE_LINES 2026-10-06 사장님 «추천대로 전부»] 줄 이름 = 그 줄이 «언제» 나오나. 종전 «여는 말 · 맺는 말 · 이음말»은 만드는 사람의 말이라
-   고객이 줄 순서만으로 진행을 읽어야 했다. 선언은 «성혼 선언문» — 이 문장이 곧 선언임을 이름이 말한다. 엔진 · 대본 이름(slab)은 그대로 */
-var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면','맞절':'앞에 나란히 서면','가족이 낭독':'시작할 때','케이크 커팅':'시작할 때','닫는 말':'사진 촬영으로 넘어가며','성혼 선언':'성혼 선언문',
+   고객이 줄 순서만으로 진행을 읽어야 했다. 엔진 · 대본 이름(slab)은 그대로.
+   ★[DECLARE_BY_PERSON 2026-10-12] 나레이션 선언 줄(«성혼 선언문 · 엄숙하게»)은 걷었다 — 선언문은 사람이 읽고(차례 줄) 나레이션은 «시작할 때 · 끝나면» */
+var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면','맞절':'앞에 나란히 서면','가족이 낭독':'시작할 때','케이크 커팅':'시작할 때','닫는 말':'사진 촬영으로 넘어가며',
   '이음말 · 박수 뒤':'박수가 끝나면','이음말 · 영상 끝':'영상이 끝나면','이음말 · 숨 고르기':'다음 순서로 넘어가며','이음말 · 가벼운 순서로':'다음 순서로 넘어가며'};
-function _lWhen(l){ l=String(l||''); if(LAB_WHEN[l]) return LAB_WHEN[l]; if(/^선언 · /.test(l)) return l.replace(/^선언 · /,'성혼 선언문 · '); if(/^이음말 · /.test(l)) return '다음 순서로 넘어가며'; return l; }
+function _lWhen(l){ l=String(l||''); if(LAB_WHEN[l]) return LAB_WHEN[l]; if(/^이음말 · /.test(l)) return '다음 순서로 넘어가며'; return l; }
 /* ★[G5 QUIET_LINES 2026-09-26 코워크 최종판 5-1] 말 없는 사람 순간 — 표 그대로. 한 순간에 한 줄 · 그 순간의 첫 나레이션 뒤. */
 function _lQuiet(k,c){
   var R=RitualOpen, sl=c.slug||'';
@@ -4334,8 +4340,7 @@ function _lQuiet(k,c){
   if(k==='ring'&&sl==='narr-ring-in') return '두 분이 서로 반지를 끼워요';   /* [R1-45] «말 없이»는 바로 위 나레이션(«말없이 지나가는 순서이니»)이 말한다 */
   /* ★[STAGE_LINES 2026-10-06 사장님 «성혼 선언을 한 것인가? 의문이 들 수 있어 · 화면에 액션 내용이 없으니 헷갈려»] 나레이션 두 줄 사이에는 그 사이에 하는 일을 한 줄로.
      선언은 나레이션 문장 «자체»가 선언이다 — 종전 «하객 박수 · 두 분이 부부가 돼요»는 박수 뒤에 부부가 되는 것처럼 읽혔다(박수는 선언을 «축하»하는 것). 박수판은 청한 박수가 «증인의 대답» */
-  if(k==='declare'&&sl==='declare-clap-a') return '하객이 박수로 답해요 · 두 분의 증인이 되어 주는 박수';
-  if(k==='declare'&&(/^declare-/.test(sl)||sl==='narr-declare-family-out')) return '하객이 박수로 축하해요';
+  if(k==='declare'&&sl==='narr-declare-family-out') return '하객이 박수로 축하해요';   /* [DECLARE_BY_PERSON] 박수 판(«증인이 되어 주는 박수») · 나레이션 선언 줄은 걷었다 */
   if(k==='tribute'&&/^tribute-in/.test(sl)) return '두 분이 부모님 앞으로 가 꽃을 건네고 안겨요'+(RitualOpen.chipOf('tribute',S)==='none'?' · 말 없이':'');   /* [STAGE_LINES] «말 없이»를 고르면 사람 줄이 없어 여는 말과 맺는 말 사이가 비었다 · 꽃은 늘 저희가([GOODS_STUDIO]) */
   if(k==='cake'&&sl==='toast-both') return '두 분이 함께 케이크를 잘라요';   /* [STAGE_LINES] 나레이션 한 줄뿐이라 정작 자르는 장면이 화면에 없었다 */   // 나레이션 판 · 박수 판(-clap-a 뒤 박수) · 가족 낭독 판(마무리 뒤)
   if(k==='toast'&&sl==='toast-pour-family') return '양가 와인을 한 잔에 모아요';   // [POUR_BY_PICK 코워크 회신7 #872-1] 판 이름과 같은 말 — «양가 와인 한 병씩»을 골랐는데 «두 와인…»이면 «안 먹혔나?»로 읽힌다
@@ -6659,7 +6664,7 @@ function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r
       if(k==='vow'&&_vowHow()==='alt'&&hs){ var _hm=Math.round(hs); h+='<li class="t"><b>두 분 번갈아 · '+(_vowFirst()==='b'?'신부부터':'신랑부터')+'</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [VOW_FIRST] */
       if(k==='vow'&&_vowFirst()==='b') whos=whos.slice().reverse();   /* [VOW_FIRST] 각자 차례로 · 신부부터 */   /* ★[MK_FORM_ONE] 차례 줄 «약 1분 40초» 금지 — 2026-10-03 사용자 지시로 삭제(길이는 순간 머리 한 곳 · LEN_ONE · LINE_NO_SEC) */   /* [VOW_HOW] 번갈아 읽으면 차례가 둘로 나뉘지 않는다 · 한 줄(약 1분 40초) */
       if(k==='bless'||k==='free'){ h+='<li class="t"><b>말씀하실 차례</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* ★[FLOW_ONE_TURN 2026-10-07] 축사도 덕담처럼 — 말할 분을 고르는 칸이 없다([R6-02]) · 예시 인물 «신부 오빠 차례»가 문단마다 네 줄 되풀이됐다 */
-      if(k==='declare'){ h+='<li class="t"><b>읽으실 차례</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [FLOW_ONE_TURN] 가족 낭독 — 읽을 분은 두 분이 부탁하는 가족 한 분(예시의 «신랑 아버지»로 박지 않는다 · 고른 예시가 «양가 나눠 읽기»여도 첫 예시 인물이 떴다) */
+      if(k==='declare'){ h+='<li class="t"><b>'+esc(_declWho()?_declWho()+' 차례':'읽으실 차례')+'</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [DECLARE_BY_PERSON] 고른 분 이름 · 안 골랐으면 «읽으실 차례» */   /* [FLOW_ONE_TURN] 가족 낭독 — 읽을 분은 두 분이 부탁하는 가족 한 분(예시의 «신랑 아버지»로 박지 않는다 · 고른 예시가 «양가 나눠 읽기»여도 첫 예시 인물이 떴다) */
       whos=whos.filter(function(w,i){ return !i||w!==whos[i-1]; });   /* [FLOW_ONE_TURN] 같은 분이 잇달아 말하면 한 줄 */   /* ★[MK_FORM_ONE] «· 한 분 약 1분» 금지 — 2026-10-03 사용자 지시로 삭제 */   /* [R6-02] 덕담은 말할 분을 고르는 칸이 없다 — 참고 예시 1의 인물(«신랑 아버지 · 신부 어머니»)을 차례로 박으면 순서가 정해진 것처럼 읽혔다(① «한 분만 하셔도 · 다른 어른이 하셔도») · «부모님 차례»는 앞 표 «부모님»과 겹쳐 쓰지 않는다 */
       whos.forEach(function(w){ h+='<li class="t"><b>'+esc(w)+' 차례</b>'+(k==='toast'?' · 한마디':'')+_vTag(k,{talk:true})+'</li>'; }); return; }   /* ★[MK_FORM_ONE] 차례 줄 «· 약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 · 축배 «한마디»는 길이가 아니라 말의 꼴이라 둔다 */   /* [R2-30] 축배 차례만 길이가 비었다 */   /* [R4-01] 덕담 · 인사 «1분쯤씩»은 한 분 «약 1분»(_perSec) */   /* [R3-02] 한 분 시간은 ④ 요약과 같은 _sumSec — ②는 분 반올림(R.secTxt) · ④는 10초 단위라 덕담이 «약 1분 + 약 1분» ↔ «약 2분 30초»로 갈렸다 */   /* [R1-31] 차례 카드는 5초 단위 — 첫인사 한 분 13초가 «약 10초»로 내려가 바로 아래 예시(13~14초)와 어긋났다. 원천 TIME 은 명세 고정(open-course 예시 시간)이라 그대로 */
     if(x.skip){ h+=_qRow(String(x.txt||'').replace(/ · 약 \d+분(?= · |$)/,'')); return; }   /* ★[MK_FORM_ONE] 흐름 줄 «· 약 n분»(마음의 순간 영상 길이) 금지 — 2026-10-03 사용자 지시로 삭제 · 고른 길이는 바로 위 칩이 말한다 · ④ 대본(6701)은 그대로 */
@@ -7187,7 +7192,7 @@ function _josaRo(w){ w=String(w); var c=w.charCodeAt(w.length-1); if(c>=0xAC00&&
 var NOTE_TOAST={ ai:'AI가 두 분 목소리로 읽어요', nar:'나레이터가 읽어요', couple:'두 분이 직접 녹음해요', decl:'선언문은 저희가 인쇄해 드려요', fill:'예시를 넣었어요 · 고쳐 써도 돼요', aiex:'예시를 넣었어요 · 고쳐 써도 돼요', ent:'녹음 대본도 같이 바꿨어요' };   /* [TOAST_MIN 10/09] 종전 «나레이터가 두 분 대신 읽어요» · «선언문은 인쇄해 당일 디렉터가 건네 드려요» · «아래 칸에 넣었어요 · …» · «아래 글을 바꿨어요 · …» · «녹음하실 대본도 이 멘트로 맞춰 드려요» */
 function _noteToast(m){ if(m&&!_inDlg()) _lsToast(m); }
 function _chipNote(key,v){ if(/^(guest|entry|pv)Voice$/.test(key)) return _upLive()?(NOTE_TOAST[v]||''):'';   /* 두 분 목소리 문이 열린 판의 «어떻게 준비할까요» — 옛 판 «안내 목소리» 칩엔 덧말이 없었다 */
-  if(key==='declare'&&v==='family') return NOTE_TOAST.decl;   /* [DECL_REF_HEAD] 가족 낭독을 고르면 */
+  if(key==='declare'&&v) return NOTE_TOAST.decl;   /* [DECL_REF_HEAD] 읽을 분을 고르면 · [DECLARE_BY_PERSON] 누구를 골라도 인쇄한 선언문 */
   if(key==='entry'&&S.entryVoice==='couple'&&_vpCur('entry')!=='ai') return NOTE_TOAST.ent;   /* 옛 판 직접 녹음 · 종전 «두 분이 녹음하실 대본도 이 멘트에 맞춰 드려요.» */
   return ''; }
 /* [CHIP_TOAST] 떠 있는 안내 — #pkUndo(① 예시 알림)와 같은 모양 · 따로 산다(#pkUndo 는 ① 밖에서 그릴 때마다 닫힌다) · 3초 · 아래 막대 바로 위 */
@@ -7251,7 +7256,7 @@ function _lRefKey(k){ var R=RitualOpen;
   if(k==='tribute'){ var t=R.chipOf('tribute',S); if(t==='none') return []; return ['tribute:'+(R.crossTribute(S)?'cross':t)]; }   // [TRIB_ONE_SAY 2026-10-06] 말은 «말로 인사»(long) 하나 — 서로의 부모님께면 cross 예시
   if(k==='toast'){ return ['toast:'+R.chipOf('toast',S)]; }   // [CAKE_TOAST_SPLIT] 축배 순간엔 늘 «위하여»
   if(k==='free') return R.FREE_KIND[R.chipOf('free',S)]==='speech'?['free:speech:'+R.chipOf('freeLen',S)]:[];
-  if(k==='declare') return R.chipOf('declare',S)==='family'?['declare:family']:[];
+  if(k==='declare') return ['declare'];   /* [DECLARE_BY_PERSON] 선언문 하나 — 누가 읽든 같은 글(읽는 분 이름은 _lRefSets 가 입힌다) */
   return []; }
 function _lRefMatch(rowKey,want){ var a=rowKey.split(':'), b=want.split(':'); if(a.length!==b.length) return false;
   for(var i=0;i<a.length;i++){ if(a[i].split('|').indexOf(b[i])<0) return false; } return true; }
@@ -7283,6 +7288,7 @@ function _refKeep(key,sets){ var a=String(key).split(':'), b=REF_BEST[a[0]+':'+(
 function _lRefSets(k){
   var R=RitualOpen, keys=_lRefKey(k); if(!keys.length) return [];
   var sets=_refKeep(keys[0],_lRefRows(keys[0]));
+  if(k==='declare'&&_declWho()) sets.forEach(function(set){ set.forEach(function(p){ p.who=_declWho(); }); });   /* [DECLARE_BY_PERSON] 고른 분이 읽는다 */
   /* ★축하의 말에 덕담 예시를 «부모님 예시»로 덧붙이기(덕담 없는 식순 · [REF_TABLE 5]) 금지 — 2026-10-09 사용자 지시로 삭제 [REF_BEST4_ONLY] · 고른 넷만 */
   return sets; }
 /* [R1-21] 참고 예시 머리말 — 말하는 사람별로. 두 분 순간은 바로 위 흐름(«당일 직접 · 신랑 차례»)이 이미 말하니 «당일엔 …»을 빼고,
@@ -7296,7 +7302,7 @@ function _refToast(k,n){ var set=_lRefSets(k)[n], day=_lRefDay(k,set);
   if(_mkRefFillable(k,n)) return NOTE_TOAST.fill;   /* [CUE_FORM] 카드가 곧 채우기 */
   return day==='당일엔 부모님이 직접 말씀하세요'?'부모님 이야기로 바꿔도 돼요':day==='당일엔 준비하신 분이 직접 말해요'?'그분 이야기로 바꿔도 돼요':''; }
 function _lRefDay(k,set){ if(set&&set[0]&&set[0].parent) return '당일엔 준비하신 분이 직접 말해요';
-  return k==='bless'?'당일엔 부모님이 직접 말씀하세요':k==='free'?'당일엔 준비하신 분이 직접 말해요':k==='declare'?'당일엔 가족 한 분이 직접 읽어요':'당일엔 두 분이 직접 말해요'; }
+  return k==='bless'?'당일엔 부모님이 직접 말씀하세요':k==='free'?'당일엔 준비하신 분이 직접 말해요':k==='declare'?(_declWho()?'당일엔 '+_declWho()+(_declWho()==='친구 · 지인'?' 한 분이':'이')+' 직접 읽어요':'당일엔 부탁하신 분이 직접 읽어요'):'당일엔 두 분이 직접 말해요'; }
 /* ★★[TALK_BRIDGE 2026-10-04 사장님 «이 순간 들어 보기 누르면 전체 자동 재생 · 신랑 신부 대사 나오는 부분은 "직접 읽어 주시는 시간입니다" 이런 식으로 상황을 나레이션으로 한 번 짚고 바로 정해진 나레이션으로»]
    ② «이 순간 들어 보기»(작은 재생 · 크게 보기 아님)에서 사람이 말하는 자리(talk)와 영상이 흐르는 자리(skip)는 «신랑 차례 · 신부 차례» 빈 시간 대신 안내 한 줄 → 바로 다음 나레이션.
    소리는 미리 듣기 전용(당일 예식에는 없다) — 녹음(우성 · 재녹음_20261004)이 오면 TALK_BRIDGE_SRC 에 잇는다 · 그 전에는 글만 2.5초.
@@ -8209,7 +8215,7 @@ var PV_DESC={
   bless:'부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤). 말씀하시는 부모님과 듣는 두 분을 함께 담아요.',
   vow:'두 분이 서로에게 하는 약속을 직접 읽어요(한 분 1분쯤). 마주 본 옆얼굴을 담아요. 서약 대신 하객께 드리는 감사문을 읽어도 돼요.',   /* [THANKS_IN_VOW] 고르는 자리는 ② 칩 «무엇을 읽나요» */   /* ★[VOW_DECL_DIFF 2026-10-11 사장님] 서약 = 두 분이 서로에게 · 직접 / 선언 = 하객 앞에서 · 두 분 대신 — 자료 R «누가 읽느냐로 구분한다» */
   ring:'서로의 손에 반지를 끼워 줘요. 반지가 손가락에 들어가는 두 손을 가까이 담아요.',
-  declare:'하객 앞에서 성혼 선언문을 읽으면 두 분이 부부가 돼요. 선언문은 두 분 대신 나레이션이나 가족이 읽고, 하객 모두가 박수 치는 장면을 넓게 담아요.',   /* [VOW_DECL_DIFF] 옛 «부부가 되었음을 알리고»는 두 분이 알리는 것처럼 읽혔다(STAGE_LINES 와 같은 까닭) */
+  declare:'하객 앞에서 성혼 선언문을 읽으면 두 분이 부부가 돼요. 선언문은 두 분 대신 아버님이나 친구 · 지인 한 분이 읽고, 하객 모두가 박수 치는 장면을 넓게 담아요. 읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요.',   /* ★[DECLARE_BY_PERSON 2026-10-12] 옛 설명(선언문을 나레이션 · 가족이 읽는다) 금지 — 사용자 지시로 삭제 */   /* [VOW_DECL_DIFF] 옛 «부부가 되었음을 알리고»는 두 분이 알리는 것처럼 읽혔다(STAGE_LINES 와 같은 까닭) */
   song:'가족이나 친구가 두 분을 위해 노래 한 곡을 불러요. 두 분이 직접 불러도 돼요. 부르는 모습과 듣는 얼굴을 함께 담아요.',   /* [SONG_BACK_1011] · [SONG_SELF_1011] */
   tribute:'부부가 되어 처음 부모님께 고마움을 전하고, 부모님 품에 안기는 순간을 담아요.',
   letter:'부모님께, 또는 서로에게 쓴 편지를 읽어요. 읽는 목소리와 듣는 얼굴을 함께 담아요.',
@@ -8324,7 +8330,7 @@ function rowVal(k){
    //   예전엔 ring·bless가 '넣기'를 돌려줘 카드엔 '연출 · 넣기', 요약엔 '반지 교환 — 넣기'로 찍혔다.
    //   넣고 뺀 사실은 카드의 알약과 요약의 번호·'뺌' 배지가 이미 말한다. 고를 연출이 없으면 빈 값을 돌린다(양쪽 다 빈 값을 건너뛴다).
    case 'ring': return '';
-   case 'declare': return DECLWHO[S.declareWho].d+(S.declareWho==='narr'?' · '+(DECLARE[S.declare]?DECLARE[S.declare].d:(window.RitualOpen?RitualOpen.chipLabel('declare',S):'')):'');   // [SAVED_OK] 'clap' 은 옛 표에 없다
+   case 'declare': return _declWho()?_declWho()+' 낭독':'읽어 주실 분 정하기';   // [DECLARE_BY_PERSON] 옛 narr · family · clap 은 «안 고름» · [SAVED_OK] 옛 S.declare 값은 읽지 않는다
    case 'valley': return S.valley==='none'?'없음':S.valley==='wine'?'와인 세리머니':'케이크 커팅';
    case 'toast': return TOAST[S.toast].d;
    case 'song': return S.song==='live'?'어쿠스틱 라이브 연주':'가족·지인이 직접';
@@ -8685,38 +8691,21 @@ function renderStep(k){
     h+=oc('ring','off','빼기','바로 성혼 선언으로 이어져요','');
     if(S.ring==='on') h+=tip('반지가 잘 안 들어가면 첫 마디에만 살짝 끼우고 자연스럽게 넘어가세요.');   /* [TIP_QUIET] 뒷절은 앞절을 되풀이하는 위로였다 */
   }
-  else if(k==='declare' && isOpen()){
-    /* [OPEN_COURSE] 새 코스의 선언 — 고르기 화면과 같은 판 넷(명세 4장). 박수 판은 새 녹음 전이라 소리 대신 글로 보여 준다. */
-    h+=clip('declare')+opChips('declare',true);
-    var dc=RitualOpen.chipOf('declare',S);
-    if(dc==='clap') h+=narBox(RitualOpen.NAR.clapAsk,RitualOpen.NAR.clapDeclare)+'<div class="noplay">새로 녹음하는 판이라 아직 소리가 없어요</div>';
-    else if(dc==='family') h+=narBox(DECLWHO.family.nar,OUT_DECLARE_FAMILY)+'<div class="prep-hint">준비물 · '+esc(DECLWHO.family.prep)+'</div>';
-    else if(DECLARE[S.declare]) h+=narBox(DECLARE[S.declare].nar,null)+playBtn('declare',S.declare);
-  }
   else if(k==='declare'){
-    h+=clip('declare');
-    /* ★[ASK_RETIRED]·[CHORUS_RETIRED] 2026-09-21 — 넷에서 둘로. 목록을 손으로 적지 않는다:
-       DECLWHO 에서 바로 읽는다. 갈래를 지우는 날 이 줄을 같이 고치는 것을 잊으면
-       «화면에는 있는데 고르면 폴백되는» 유령 선택지가 생긴다. */
-    Object.keys(DECLWHO).forEach(function(w){
-      var sel=S.declareWho===w, showNar=sel&&w!=='narr';
-      h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,showNar?DECLWHO[w].nar:null,(w==='family'&&sel)?OUT_DECLARE_FAMILY:null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w===cdef(S.course).declareWho);   // 코스별 실제 기본값에 '기본' 배지 — COURSE_DEF_MAP
-      if(sel&&w==='narr'){
-        /* [SUBSET] 소유를 이름에 — '낭독 톤'만 있으면 아래 하객 카드까지 톤으로 읽힌다
-           [SUB_SEG 2026-08-13] 카드(oc) 를 칩(seg) 으로 바꿨다 — 위 CSS 주석에 이유를 적어 뒀다.
-           ★기본과 다르게 골랐을 때만 기본을 말한다. 같으면 알려 줄 것이 없다(배지를 두 층에 겹치지 않는다). */
-        var _dd=cdef(S.course).declare;
-        h+='<div class="subset"><div class="subq">나레이션의 낭독 톤</div>';
-        h+='<div class="seg">';
-        ['1','2'].forEach(function(v){ var _on=S.declare===v;
-          h+='<button type="button" class="seg-b'+(_on?' on':'')+'" aria-pressed="'+(_on?'true':'false')+'" data-fk="declare:'+v+'" onclick="pick(\'declare\',\''+v+'\')">'+esc(DECLARE[v].d)
-            +(v===_dd?' <span class="df">기본</span>':'')+'</button>'; });
-        h+='</div>';
-        /* 대본은 고른 톤 하나만 — 칩 아래 한 장. 톤을 바꾸면 이 한 장만 갈린다. */
-        if(DECLARE[S.declare]&&DECLARE[S.declare].nar) h+=narBox(DECLARE[S.declare].nar,null)+playBtn('declare',S.declare);
-        h+='</div>';
-      }
-    });
+    /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만 할 거야 · 그게 싫다면 서약으로»]
+       선언문은 사람만 읽는다 — 고른 분의 낭독 + 나레이션 맺는 말. ★나레이션 선언(엄숙하게 · 따뜻하게 · 낭독 톤 곁판) · 하객 박수로 답하기 · 가족이 낭독 판 금지 — 사용자 지시로 삭제.
+       ★[ASK_RETIRED]·[CHORUS_RETIRED] 목록은 손으로 적지 않는다 — DECLWHO 에서 바로 읽는다(유령 선택지 방지). 기본 배지는 COURSE_DEF_MAP(읽을 분은 코스가 박지 않아 늘 없음) */
+    h+=clip('declare')+(isOpen()?opChips('declare',true):'');
+    if(!isOpen()){
+      Object.keys(DECLWHO).forEach(function(w){   /* [OPT_KEY] check-option-audio 가 이 줄(줄 머리 «Object.keys(DECLWHO)»)에서 값 목록을 편다 — 앞에 조건을 붙이지 말 것 */
+        var sel=S.declareWho===w;
+        h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,null,null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w===cdef(S.course).declareWho);
+      });
+    }
+    var _dw=DECLWHO[S.declareWho];
+    h+=narBox(DECL_IN[S.declareWho]||DECL_IN.friend,null)+'<div class="self"><span class="who">직접 · '+esc(_dw?_dw.d:'읽어 주실 분')+'</span>'+esc(DECLWHO.gdad.nar)+'</div>'+narBox(OUT_DECLARE_FAMILY,null);
+    if(!_dw) h+='<div class="prep-hint">아직 고르지 않았어요 · 읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요</div>';
+    else if(isOpen()) h+='<div class="prep-hint">준비물 · '+esc(_dw.prep)+'</div>';
   }
   else if(k==='valley'){
     /* [WINE_RETIRED 2026-08-16] 고르는 카드를 전부 걷었다 — 팔레트에서 뺐으므로 새로 올 길이 없다.
@@ -9066,11 +9055,9 @@ var BLOCK={
     return {n:'반지 교환',nar:"반지는 날마다 이 순간을 떠올리게 해 줄 것입니다. 서로의 손에 반지를 끼워 주시면 됩니다. 말없이 지나가는 순서이니, 그대로 함께 봐 주세요.",end:"두 사람 손에 같은 것이 하나씩 생겼습니다.",cue:'나레이션이 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'};
   },
   declare:function(){
-    var dw=S.declareWho;
-    if(dw!=='family' && S.declare==='clap') return {n:'성혼 선언',nar:RitualOpen.NAR.clapAsk,self:'하객 박수 (말없이)',end:RitualOpen.NAR.clapDeclare,cue:'나레이션이 증인이 되어 달라 청함 → 하객 박수 → 박수가 잦아들면 나레이션 선언 · 음악'};   // [DECLARE_CLAP]
-    var dnar=dw==='ask'?DECLWHO.ask.nar:dw==='chorus'?DECLWHO.chorus.nar:dw==='family'?'두 사람의 성혼은, 가족께서 선언하십니다. 준비되시면 그대로 읽어 주십시오. (가족 대표 낭독: '+DECLWHO.family.nar+')':DECLARE[S.declare].nar;
-    var dcue=dw==='ask'?'개식 직후 예고 클립 1회 → (선언 자리에서) 나레이션 질문 → 하객 다 함께 네, 그러겠습니다 → 나레이션이 성혼 선언 · 박수':dw==='chorus'?'나레이션 선창 → 하객 전원이 인쇄물로 함께 낭독 (집단적 벅참의 정점) → 짧은 여운':dw==='family'?'나레이션 소개 → 디렉터가 대표께 마이크와 큰 글씨 선언문 전달 → 대표 낭독 → 짧은 정적 → 마이크 회수':'선언 직전 음악 완전 정지(2~3초) → 나레이션 선언 → 정적 유지 → 음악 하드 인 · 두 분은 정면을 향해 서 있기';
-    return {n:'성혼 선언',nar:dnar,end:(dw==='ask')?DECLWHO.ask.end:null,self:dw==='ask'?'하객 다 함께 · 네, 그러겠습니다':dw==='chorus'?'하객 다 함께 합송':dw==='family'?'가족 낭독':null,cue:dcue};
+    /* ★★[DECLARE_BY_PERSON 2026-10-12] 선언문은 사람만 읽는다 — 나레이션 선언 · 박수 판 · 하객 응답 · 합송 금지(되살리지 말 것) */
+    var w=DECLWHO[S.declareWho]?S.declareWho:'', who=w?DECLWHO[w].d:'선언하실 분';
+    return {n:'성혼 선언',nar:DECL_IN[w]||DECL_IN.friend,self:who+' 낭독 · 큰 글씨 선언문',end:OUT_DECLARE_FAMILY,cue:'나레이션 여는 말 → 디렉터가 '+who+'께 마이크와 큰 글씨 선언문 전달 → '+who+' 낭독 → 나레이션 맺는 말 · 하객 박수'};
   },
   valley:function(){
     if(S.valley==='wine') return {n:'와인 세리머니',nar:"맛이 다른 두 와인이, 한 잔에서 어우러집니다. 신랑 신부, 각자의 잔을 하나로 모아 주시면 됩니다.",cue:'나레이션이 흐르는 동안 → 두 잔을 하나에 붓고 한 모금'};
@@ -9182,7 +9169,7 @@ function prep(){
   p.push(['D-7','혼인 서약문 준비']);
   if(inSeq('letter')) p.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':S.letter==='both'?'부모님께 · 서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
   if(inSeq('welcome') && S.welcome==='self') p.push(['D-7','첫인사 준비']);
-  if(S.declareWho==='family') p.push(['D-14','성혼 선언 낭독하실 가족께 부탁']);
+  if(inSeq('declare')) p.push(['D-14',_declWho()?'성혼 선언 낭독 · '+_declWho()+'께 부탁':'성혼 선언문 읽어 주실 분 정하기 · 아버님이나 친구 · 지인']);   // [DECLARE_BY_PERSON] 선언문은 늘 사람이 읽는다
   if(inSeq('song') && S.song==='family') p.push(['D-14','축가 부르실 분께 미리 부탁 (반주 음원은 저희가 준비)']);
   if(S.growth==='on') p.push(['D-3',(S.growthLink?'성장영상 링크 붙여둠 · 확인만 하면 돼요':'성장영상 링크 붙여두기')+' (가로 mp4 · 3~4분 이내)']);
   if(S.entryVoice==='couple') p.push(['D-7','두 분 목소리 준비 · 입장 인사']);   // [OLD_COURSE_0928 6-7] 옛 prep() 의 «… 올리기(mp3 · m4a)»를 준비 목록과 같은 말로
@@ -9252,7 +9239,7 @@ function scriptTextOpen(){
     _lSteps(ENG,[k]).forEach(function(x){
       if(x.skip) lines.push('('+x.txt.replace(/ · 미리 듣기에서는 넘겨요$/,'')+')');
       else if(x.quiet) lines.push('('+x.txt+')');   // [G5] 말 없는 사람 순간
-      else if(x.talk) lines.push('직접: '+(/^(welcome|bless|vow|tribute)$/.test(k)?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,'')+' · '+_lSum(k):k==='toast'?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,' · 한마디'):x.txt.replace(/^여기서 /,'')));   /* [R4-10] 말하는 시간은 ② · ④ 와 같은 숫자(_lSum) — 엔진 글(분 반올림 · 순간 전체)이 세 번째 숫자를 냈다 */
+      else if(x.talk) { lines.push('직접: '+(/^(welcome|bless|vow|tribute)$/.test(k)?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,'')+' · '+_lSum(k):k==='toast'?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,' · 한마디'):x.txt.replace(/^여기서 /,''))); if(k==='declare') lines.push('선언문(큰 글씨로 인쇄해 드려요 · 누가 읽든 같은 글): '+DECLWHO.gdad.nar); }   /* [R4-10] 말하는 시간은 ② · ④ 와 같은 숫자(_lSum) — 엔진 글(분 반올림 · 순간 전체)이 세 번째 숫자를 냈다 */   /* [DECLARE_BY_PERSON] 선언문 한 줄 — 읽어 주실 분이 미리 읽어 볼 수 있게(대본을 받는 사람이 그분이다) */
       else if(x.own){ var _ol=String(x.lab||'').replace(/^두 분이 녹음하실 글\(예시\)( · )?/,'').trim(); lines.push((_vpCur(k)==='ai'?'AI 두 분 목소리':'두 분 녹음')+(_ol?'('+_ol+')':'')+': '+x.txt); }   /* [R4-09] AI 로 만든 판은 «녹음»이라 하지 않는다(R1-28 · 화면과 같게) */   // [RIT_NO_CUE_COPY] 안쪽 표지 «두 분이 녹음하실 글(예시)»는 뺀다(시각 이름표만 남긴다)
       else lines.push('나레이션('+(x.slab||x.lab)+'): '+x.txt);   // [SCRIPT_LAB]
     });
@@ -9952,7 +9939,7 @@ function _applySaved(_sv,fresh){
   _g3Open();   /* [G3_OPEN] 옛 «뒤만» 초안을 글 전체로 한 번 */
   _exKeep1006();   /* [EX_TEXT_1006] 옛 예시 글로 만든 AI 소리는 그 글을 두 분 글로 · G3_OPEN 뒤(옮긴 글에 앞 두 문장을 또 붙이지 않게) */
   _pvFill();   /* [PV_FILL] AI 를 골랐는데 소개글이 빈 옛 초안 */
-  if(!ENTRY[S.entry])S.entry='A'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare]&&!(window.RitualOpen&&RitualOpen.savedOk('declare',S.declare)))S.declare='1';   /* [SAVED_OK] 새 코스 값(clap)은 지키기 */ if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
+  if(!ENTRY[S.entry])S.entry='A'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!(window.RitualOpen&&RitualOpen.savedOk('declare',S.declare)))S.declare='1';   /* [SAVED_OK] 옛 값('1' · '2' · 'clap')은 지키기 · [DECLARE_BY_PERSON] 더 쓰지 않는다 */ if(!DECLWHO[S.declareWho])S.declareWho='';   /* [DECLARE_BY_PERSON] 옛 narr · family = 아직 안 고름 */ if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
   courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; _who=_sv.who||_who; buildSteps();
   // [ORD_INTRO2] 안내가 두 화면이 되며 단계가 하나 늘었다 — v 없는 옛 초안은 idx를 한 칸 밀어 같은 자리로 되돌린다
   var _si=Math.floor(+_sv.idx); if(!isFinite(_si)||_si<0) _si=0; if(!(_sv.v>=2) && _si>0) _si++;   /* ★[IDX_SANE 2026-10-09 A~Z 점검 2라운드 A2-20] 깨진 자리(음수 · 글자)는 처음으로 — 종전엔 빈 화면(«reading 'k'»)이 됐고 서버 초안으로 다시 열어도 그 자리가 이어졌다 */
@@ -10249,7 +10236,7 @@ var RITUAL_CHIPS={
  vow:['서약문은 얼마나 길게 쓰나요?','읽다가 울 것 같으면 어떻게 하나요?','서약 쓰는 공식이 있나요?'],
  ringwarm:['링 워밍이 뭔가요?','가족만 돌리면 몇 분 걸리나요?','반지 교환과 어떻게 이어지나요?'],
  ring:['반지 교환은 어떻게 진행되나요?','반지를 빼면 흐름이 이상한가요?','반지는 당일 누가 챙기나요?'],
- declare:['성혼 선언은 누가 낭독하나요?','하객 박수로 답하기는 어떻게 진행돼요?','가족 낭독이 부담스러우면 어떡하죠?'],
+ declare:['성혼 선언문은 누가 읽나요?','아버님께 부탁하기 어려우면 어떡하죠?','성혼 선언을 빼도 되나요?'],   /* [DECLARE_BY_PERSON] */
  valley:['와인 세리머니가 뭔가요?','비워도 괜찮나요?','케이크는 어디서 고르나요?'],   /* [CAKE_ONE_HOME] 케이크의 집은 축배·케이크 */
  toast:['축배는 어떻게 진행되나요?','케이크와 둘 다 하면 몇 분인가요?','건배 잔은 어떻게 준비되나요?'],
  song:['축가는 누가 부를 수 있나요?','반주는 어떻게 준비되나요?','축가 없이도 괜찮나요?'],

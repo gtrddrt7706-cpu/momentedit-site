@@ -98,7 +98,8 @@ else {
 const narAll = [];
 const pushNar = (id, s) => { if (typeof s === 'string' && s.trim()) narAll.push([id, s]); };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-['ENTRY', 'DECLARE', 'DECLWHO', 'LETTER', 'RINGWARM', 'TOAST'].forEach((t) => {
+// ★[DECLARE_BY_PERSON 2026-10-12] DECLARE(나레이션 선언 · 엄숙하게 · 따뜻하게)는 걷었다 — 빌더에 사본이 «없어야» 한다(아래 DECL_RETIRED)
+['ENTRY', 'DECLWHO', 'LETTER', 'RINGWARM', 'TOAST'].forEach((t) => {
   Object.keys(D[t] || {}).forEach((k) => pushNar(t + '.' + k, (D[t][k] || {}).nar));
 });
 (D.GUEST || []).forEach((g, i) => pushNar('GUEST.' + i, g[1]));
@@ -114,6 +115,11 @@ Object.keys(D.NARR || {}).forEach((k) => {
 pushNar('TRIBUTE.nar', D.TRIBUTE.nar);
 pushNar('TRIBUTE.end', D.TRIBUTE.end);
 const drift = narAll.filter(([, s]) => !html.includes(s));
+// ★[DECL_RETIRED 2026-10-12 DECLARE_BY_PERSON] 나레이션 선언 글(옛 DECLARE '1' · '2')이 빌더에 되살아나면 빨강 — 선언문은 사람만 읽는다
+{
+  const back = Object.keys(D.DECLARE || {}).filter((k) => (D.DECLARE[k] || {}).nar && html.includes(D.DECLARE[k].nar));
+  ok('빌더에 나레이션 선언 글(옛 DECLARE) 없음 [DECLARE_BY_PERSON]' + (back.length ? ' — 되살아남: ' + back.join(',') : ''), back.length === 0);
+}
 ok('빌더 인라인 사본이 원천 문안 ' + narAll.length + '개와 일치(drift ' + drift.length + '건)', drift.length === 0);
 drift.forEach(([id, s]) => console.log('   DRIFT ' + id + ' : ' + s.slice(0, 46) + '…'));
 
@@ -235,22 +241,27 @@ ok('녹음 대본 생성기의 "선언 N종" 서술이 DECLWHO와 일치' + (gen
 //   ※ pick은 사람이 읽는 요약이라 DECLWHO 라벨과 표기가 다르다(예: family.d='가족이 낭독' vs pick='가족 낭독').
 //     그래서 키→요약표기 대응을 여기서 명시한다. 합송은 보류라 pick에서 내렸고, 그건 데이터에 없는 정책이라 검사하지 않는다.
 // ★편집 규칙: pick의 첫 항목은 그 코스의 기본값과 같게 쓴다(가드는 '포함'만 보므로 순서는 사람이 지킨다).
-const PICK_LABEL = { narr: '나레이션', ask: '하객 응답', chorus: '하객 합송', family: '가족 낭독' };
-if (builderKeys) {
+/* ★★[DECLARE_BY_PERSON 2026-10-12] 읽을 분은 코스가 박지 않는다(COURSE_DEF.declareWho = '' 전부) — 그래서 «기본값 포함»이 아니라
+   «pick 이 DECLWHO 의 읽을 분을 전부 말하고 · 나레이션 · 가족 낭독을 말하지 않는가»를 본다. 코스 기본값이 다시 생기면(빈 값이 아니면) 그 분이 pick 맨 앞인지도 본다 */
+if (builderKeys || fromSource) {
   const cdM = html.match(/var COURSE_DEF=\{[\s\S]*?\n\};/);
   if (!cdM) { ok('빌더 COURSE_DEF 파싱', false); }
   else {
     const CD = new Function(cdM[0] + ' return COURSE_DEF;')();
+    const labels = declKeys.map((k) => D.DECLWHO[k].d);
     const badPick = [];
     for (const c of Object.keys(D.COURSES)) {
+      if (!(D.COURSES[c].detail || []).length) continue;   // 새 코스(open)는 상세 대신 ritual-open.js CARDS 가 말한다
       const det = (D.COURSES[c].detail || []).find((x) => /성혼 선언/.test(x.n));
       const def = (CD[c] || {}).declareWho;
-      const want = PICK_LABEL[def];
       if (!det || !det.pick) { badPick.push(c + '(선언 항목 없음)'); continue; }
-      if (!want) { badPick.push(c + '(기본값 ' + def + ' 미매핑)'); continue; }
-      if (!det.pick.includes(want)) badPick.push(c + '(기본 "' + want + '"이 pick에 없음: ' + det.pick + ')');
+      const miss = labels.filter((l) => !det.pick.includes(l));
+      if (miss.length) badPick.push(c + '(pick 에 없음: ' + miss.join(',') + ')');
+      if (/나레이션|가족 낭독/.test(det.pick + ' ' + (det.how || ''))) badPick.push(c + '(나레이션 · 가족 낭독이 남음: ' + det.pick + ')');
+      if (def && D.DECLWHO[def] && det.pick.indexOf(D.DECLWHO[def].d) !== 0) badPick.push(c + '(기본 "' + D.DECLWHO[def].d + '"이 pick 맨 앞이 아님)');
+      if (def && !D.DECLWHO[def]) badPick.push(c + '(기본값 ' + def + ' 이 DECLWHO 에 없음)');
     }
-    ok('코스 상세 pick이 코스별 기본 선언 주체를 포함' + (badPick.length ? ' — ' + badPick.join(' / ') : ''), badPick.length === 0);
+    ok('코스 상세 pick 이 읽을 분(' + labels.join(' · ') + ')을 말하고 나레이션 · 가족 낭독이 없음' + (badPick.length ? ' — ' + badPick.join(' / ') : ''), badPick.length === 0);
   }
 }
 
@@ -274,7 +285,7 @@ ok('선언 택1 원칙 위반 서술("선언 뒤에 …답하는") 0건' + (addO
 
 try { KB = require(path.join(root, 'api/_ritual-kb.js')); } catch (e) { ok('_ritual-kb.js 로드', false); process.exit(1); }
 const probes = [
-  D.ENTRY.A.nar, D.DECLARE['1'].nar, D.LETTER.parent.nar, D.NARR.vow.nar, D.NARR.close, D.RINGWARM.family.nar,
+  D.ENTRY.A.nar, D.DECLWHO.gdad.nar, D.LETTER.parent.nar, D.NARR.vow.nar, D.NARR.close, D.RINGWARM.family.nar,   // [DECLARE_BY_PERSON] 선언 대표 문안 = 사람이 읽는 선언문
 ];
 ok('KB full이 원천 대표 문안 6종을 그대로 인용', probes.every((s) => KB.full.includes(s)));
 /* [COURSE_HIDDEN 2026-08-08] 옛 검사는 '담백 25분'이라는 **한 코스의 이름과 숫자**를 박아 두고 있었다.

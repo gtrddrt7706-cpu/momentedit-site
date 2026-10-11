@@ -48,7 +48,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
 // [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114 · B3 박수 뒤 · B4 숨 고르기 · B5 영상 끝 · B6 편지 → 케이크) → 114. ★맨 끝에 붙였다.
 // [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126) → 126. ★맨 끝에 붙였다.
-const N_FILES = 133;   // [THANKS_IN_VOW 2026-10-11] 133 narr-thanks-in (감사문 여는 말)   // [MATJEOL_1011 2026-10-11] 132 narr-entry-bow (입장 끝 맞절)   // [TABLE_GREET_1008 2026-10-08] 131 narr-table-in (테이블 인사 여는 말)   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
+const N_FILES = 136;   // [DECLARE_BY_PERSON 2026-10-12] 134~136 narr-declare-in-gdad · bdad · friend (성혼 선언 여는 말 · 읽는 분마다)   // [THANKS_IN_VOW 2026-10-11] 133 narr-thanks-in (감사문 여는 말)   // [MATJEOL_1011 2026-10-11] 132 narr-entry-bow (입장 끝 맞절)   // [TABLE_GREET_1008 2026-10-08] 131 narr-table-in (테이블 인사 여는 말)   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
 //   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
@@ -115,7 +115,10 @@ else ok(`FILES ${N_FILES}개 · 중복 없음`);
      빠진 셋: 61 round-open(테이블 인사) · 63 final-warn · 64 final-call(마지막 한 장 — 첫 전체 사진에 합침).
      45 farewell 은 체인 → 수동 — 앞 65(자유 사진)에 사람 구간이 생겨 디렉터가 «자유 사진이 끝나면» 누른다. */
 /* [PHOTO_THANKS 2026-09-26] 45 → 110 — 이 판정표의 예식은 식사를 안 고른 날이라 감사 인사는 110(식사 없는 날 판)이다. 자리는 44(전체 사진) 바로 뒤 · 앞 큐에 사람 구간이라 수동. */
-const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '27', '20', '56', '26', '44', '110', '60', '65', '47'];
+/* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 24큐 → 25큐 · 수동 16 → 17.
+     30(나레이션 선언 · 체인)이 빠지고 136(여는 말 · 체인 · 고른 분이 없으면 «부탁드린 분») + 57(맺는 말 · 수동 — 읽는 분이 선언문을 다 읽은 때는 사람만 안다)이 그 자리.
+     종전 «가족이 낭독» 흐름(21 체인 → 57 수동)과 같은 발사 방식이다 — 누름이 새로 생긴 게 아니라 사람 순간 뒤의 누름이다 */
+const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '57', '27', '20', '56', '26', '44', '110', '60', '65', '47'];
 //                  guest-1 entry-A entry-out vow-in vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
@@ -123,14 +126,14 @@ const A3_CLOCK = ['02', '03', '04'];
    ★[TOAST_NONE] 87(narr-toast-none)이 체인으로 들어왔다 — 편지 뒤에 이어 붙어 축배를 연다.
      사람이 누를 자리가 아니다. 편지가 끝나면 바로 「오늘은 축사를 따로 두지 않았습니다」가 흐르고
      이어서 축배가 시작된다. 그 사이에 누름을 두면 «왜 멈췄지» 하는 빈 자리가 생긴다. */
-const A3_CHAIN = ['15', '30', '87', '40', '108'];
+const A3_CHAIN = ['15', '136', '87', '40', '108'];   // [DECLARE_BY_PERSON] 30 → 136
 //                 welcome-in ring-in declare-1-solemn letter-parent toast-none toast close final-call farewell
 {
   const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 24) no(`§3-A: 24큐가 아니다 (${r.cues.length})`);
+  if (r.cues.length !== 25) no(`§3-A: 25큐가 아니다 (${r.cues.length})`);   // [DECLARE_BY_PERSON] 24 → 25
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);
@@ -411,8 +414,9 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
       /* [WINE_POUR_OFF 2026-09-27] 와인 붓기를 걷어 본식이 약 30초 짧아졌다 — 옛 23~28 · 20~26 · 16~23(1/4) · 9~17 */
       /* [MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 입장 끝 맞절 15초가 본식에 들어 단체 사진이 그만큼 준다(구현 뒤 게이트 값) —
          옛 기록 15~20 · 약속 21~27 · 가족 요청 2 2/4 · 가장 긴 조합 10~18 */
-      ['기록', O.applyExample({}, 'record'), '15~19', '1/3', '1/2'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 */, ['약속', O.applyExample({}, 'promise'), '20~26', '3/5', '3/5'],
-      ['가족', O.applyExample({}, 'family'), '17~24', '2/4', '1/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
+      /* [DECLARE_BY_PERSON 2026-10-12] 선언 시간이 «누가 읽든 하나»(12 · 15 · 8 · 20)가 돼 예시의 본식이 몇 초씩 움직였다(구현 뒤 게이트 값) — 옛 기록 15~19(박수 판) · 가족 17~24(나레이션 엄숙) */
+      ['기록', O.applyExample({}, 'record'), '15~20', '1/3', '1/2'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 */, ['약속', O.applyExample({}, 'promise'), '20~26', '3/5', '3/5'],
+      ['가족', O.applyExample({}, 'family'), '17~23', '2/4', '1/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
       ['가장 긴 조합', longest, '10~17', '0/2', '0/2']];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);

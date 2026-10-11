@@ -26,7 +26,7 @@ try {
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300);
   /* 모든 순간을 담고 · 성혼 선언 = 가족 낭독 · 준비한 순서 = 축사(3분) — 참고 예시가 붙는 자리를 전부 연다 */
-  await pg.evaluate(() => { const R = RitualOpen; R.ORDER.forEach((k) => { if (!R.ALWAYS[k]) S.on[k] = 1; }); S.declareWho = 'family'; S.freeWhat = 'speech'; S.freeLen = '3'; opSync(); });
+  await pg.evaluate(() => { const R = RitualOpen; R.ORDER.forEach((k) => { if (!R.ALWAYS[k]) S.on[k] = 1; }); S.declareWho = 'gdad';   /* [DECLARE_BY_PERSON 2026-10-12] 옛 «가족이 낭독» → 읽는 분 «신랑 아버님» */ S.freeWhat = 'speech'; S.freeLen = '3'; opSync(); });
   await nx(); await pg.waitForTimeout(1500); await pg.evaluate(() => { try { engine(); } catch (e) {} }); await pg.waitForTimeout(900);
   const go = async (k) => { await pg.evaluate((x) => { try { lsStop(); } catch (e) {} mkGo(x); }, k); await pg.waitForTimeout(350); };
   const look = (k) => pg.evaluate((k) => { const q = (s) => document.querySelector('.mk-pg ' + s), qa = (s) => [...document.querySelectorAll('.mk-pg ' + s)];
@@ -65,8 +65,8 @@ try {
   ok('④ 축사 예시 — 한 분 몫 글자 수 · 초는 끝에 한 번(이름도 한 번) [REF_ONE_COUNT]', fr.plain > 1 && fr.counts === 1 && fr.whos.length === 1, JSON.stringify(fr));
   ok('⑤ 축사 흐름 — «말씀하실 차례» 한 줄(예시 인물 · 문단마다 되풀이 없음) [FLOW_ONE_TURN]', fr.talk.length === 1 && fr.talk[0] === '말씀하실 차례', JSON.stringify(fr.talk));
   await go('declare'); const dc = await look('declare');
-  ok('⑤ 가족 낭독 흐름 — «읽으실 차례» 한 줄 [FLOW_ONE_TURN]', dc.talk.length === 1 && dc.talk[0] === '읽으실 차례', JSON.stringify(dc.talk));
-  ok('④ 가족 낭독 예시 — 읽는 분마다 이름 · 글자 수 한 번', dc.counts === dc.whos.length && dc.counts >= 1, JSON.stringify(dc));
+  ok('⑤ 선언 흐름 — 고른 분 «신랑 아버님 차례» 한 줄 [FLOW_ONE_TURN · DECLARE_BY_PERSON]', dc.talk.length === 1 && dc.talk[0] === '신랑 아버님 차례', JSON.stringify(dc.talk));
+  ok('④ 선언문 예시 — 한 벌 · 고른 분 이름 · 글자 수 한 번 [DECLARE_BY_PERSON]', dc.counts === dc.whos.length && dc.counts === 1 && dc.whos[0] === '신랑 아버님', JSON.stringify(dc));
   await go('bless'); const bl = await look('bless');
   ok('④ 덕담 예시 — 분마다 이름 · 글자 수 한 번(종전 그대로)', bl.counts === bl.whos.length && bl.counts === 2 && bl.talk.length === 1 && bl.talk[0] === '말씀하실 차례', JSON.stringify(bl));
   /* ⑨ 받은 원고 칸 — 덕담 · 축사 같은 꼴 [SPEECH_SCRIPT] */
@@ -87,11 +87,12 @@ try {
   const chipTxt = await pg.evaluate(() => ((document.querySelector('.mk-pg .mk-cue-ex .ex-chip') || {}).innerText || ''));
   ok('⑩ 끝 신호 예시 칩 — «마지막에 감사합니다라고 할게요»(띄어쓰기 그대로) [GUIL_FLEX_SPACE]', /마지막에 감사합니다라고 할게요/.test(chipTxt.replace(/\s+/g, ' ')), JSON.stringify(chipTxt));
   await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0]; if (q) mkChk(q.id, false); });
-  /* ⑦ 가족 낭독 예시 안내 — 바꿀 칸도 이름도 없는 글이다 [DECL_REF_HEAD] */
+  /* ⑦ 선언문 예시 안내 — 바꿀 칸도 이름도 없는 글이다 [DECL_REF_HEAD] · [DECLARE_BY_PERSON 2026-10-12] 예시는 한 벌(누가 읽든 같은 글)이라 카드가 아니라 읽는 분 칩을 누를 때 알린다 */
   await go('declare'); const dh = await pg.evaluate(async () => { const note = ((document.querySelector('.mk-pg .mk-ref .ls-gnote') || {}).textContent || '').trim(), u0 = document.getElementById('lsToast'); if (u0) { u0.hidden = true; u0.innerHTML = ''; }
-    const c = [...document.querySelectorAll('.mk-pg .mk-ref [data-fk^="mkrc:declare:"]')].find((b) => b.getAttribute('aria-checked') !== 'true'); if (c) c.click(); await new Promise((r) => setTimeout(r, 300));
-    const u = document.getElementById('lsToast'); return { note, card: !!c, toast: u && !u.hidden ? u.textContent : '' }; });
-  ok('⑦ 가족 낭독 예시 안내 = «선언문은 저희가 인쇄해 드려요»(TOAST_MIN · «바꿔도 돼요 · 가상 인물» 없음) — 카드 줄 아래가 아니라 카드를 누를 때 아래 알림 [DECL_REF_HEAD · NOTE_TOAST]', dh.card && dh.note === '' && dh.toast === '선언문은 저희가 인쇄해 드려요', JSON.stringify(dh));
+    const cards = document.querySelectorAll('.mk-pg .mk-ref [data-fk^="mkrc:declare:"]').length;
+    const c = [...document.querySelectorAll('[data-fk^="lsc:declare:"]')].find((b) => b.getAttribute('aria-checked') !== 'true'); if (c) c.click(); await new Promise((r) => setTimeout(r, 300));
+    const u = document.getElementById('lsToast'); return { note, cards, chip: !!c, toast: u && !u.hidden ? u.textContent : '' }; });
+  ok('⑦ 선언문 예시 안내 = «선언문은 저희가 인쇄해 드려요»(TOAST_MIN · «바꿔도 돼요 · 가상 인물» 없음) — 카드 줄 아래가 아니라 읽는 분을 고를 때 아래 알림 · 예시 카드 한 벌 [DECL_REF_HEAD · NOTE_TOAST · DECLARE_BY_PERSON]', dh.chip && dh.cards === 1 && dh.note === '' && dh.toast === '선언문은 저희가 인쇄해 드려요', JSON.stringify(dh));
   /* ⑧ 한눈에 보기 — 두 분이 부탁하는 줄(축사하실 분)도 목록에 · 머리 «부탁드릴 것» [SUM_ASK_ALL] */
   await go('_sum'); const sm = await pg.evaluate(() => { const t = document.querySelector('.mk-pg').textContent.replace(/\u00a0/g, ' '); return { speech: /축사하실 분께 부탁드리기/.test(t), head: /(^|[^모님께 ])부탁드릴 것/.test(t.replace(/부모님께 부탁드릴 것/g, '')), par: /부모님께 부탁드릴 것/.test(t) }; });
   ok('⑧ 한눈에 보기 — 축사 부탁 줄이 있고 머리는 «부탁드릴 것»(부모님 것만일 때만 «부모님께») [SUM_ASK_ALL]', sm.speech && sm.head && !sm.par, JSON.stringify(sm));

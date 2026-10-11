@@ -163,7 +163,10 @@
     'narr-entry-bow',
     /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말. **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-data.js NARR.thanksIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
-    'narr-thanks-in'
+    'narr-thanks-in',
+    /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만»] 134 · 135 · 136 — 누가 선언하는지 알리는 여는 말.
+       **맨 끝에 붙였다**(위 경고 그대로). 원천 문안 assets/ritual-data.js NARR.declareIn* · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
+    'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -254,7 +257,8 @@
     'guest-ex4-4-1min': O.NAR.guestEx[2][3],
     'narr-table-in': D.NARR.tableIn,   // [TABLE_GREET_1008]
     'narr-entry-bow': D.NARR.entryBow,   // [MATJEOL_1011]
-    'narr-thanks-in': D.NARR.thanksIn   // [THANKS_IN_VOW]
+    'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
+    'narr-declare-in-gdad': D.NARR.declareInGdad, 'narr-declare-in-bdad': D.NARR.declareInBdad, 'narr-declare-in-friend': D.NARR.declareInFriend   // [DECLARE_BY_PERSON]
   };
 
   // ── 유틸
@@ -268,19 +272,20 @@
 
   // ── S 정규화 — order-preview.html:413 기본값 + COURSE_DEF(코스별 추천)
   var COURSE_DEF = {
-    damback: { entry: 'A', declareWho: 'narr', declare: '1', letter: 'parent' },
+    damback: { entry: 'A', declareWho: '', declare: '1', letter: 'parent' },
     /* ★[ASK_RETIRED 2026-09-21] declareWho 'ask' → 'narr'. 그 갈래가 폐지됐다.
        ★주석의 취지(주례도 권위자도 없다)는 narr 로도 지켜진다 — **성우는 주례가 아니다.**
          family 는 가족이 선언해 권위자 쪽에 가까우니 이 코스엔 안 맞는다. */
-    gamdong: { entry: 'D', declareWho: 'narr', declare: '1', letter: 'parent' },
-    family: { entry: 'E', declareWho: 'family', declare: '1', letter: 'parent' },
-    minimal: { entry: 'B', declareWho: 'narr', declare: '1', letter: 'parent' },
-    festive: { entry: 'F', declareWho: 'narr', declare: '2', letter: 'parent' },
+    gamdong: { entry: 'D', declareWho: '', declare: '1', letter: 'parent' },
+    family: { entry: 'E', declareWho: '', declare: '1', letter: 'parent' },
+    minimal: { entry: 'B', declareWho: '', declare: '1', letter: 'parent' },
+    festive: { entry: 'F', declareWho: '', declare: '2', letter: 'parent' },
     /* ★[RECORD_COURSE] 기록형 기본값.
        entry 'F'(이야기의 시작) — 행진이 아니라 "지금부터 시작된다"는 말이라 걸어오는 동선과 맞는다.
        declareWho 'ask'(하객이 함께) — ★주례도 권위자도 없는 게 이 코스의 핵심이고, 동시에
          격식 축을 지키는 최소 형식이다. 선언을 빼면 "화보만 찍었다"가 된다. */
-    record: { entry: 'F', declareWho: 'narr', declare: '1', letter: 'parent', ring: 'off' },   // [ASK_RETIRED] 위와 같다
+    record: { entry: 'F', declareWho: '', declare: '1', letter: 'parent', ring: 'off' },   // [ASK_RETIRED] 위와 같다
+    /* ★[DECLARE_BY_PERSON 2026-10-12] 모든 코스의 선언 낭독자 기본값 = ''(아직 안 고름) — 옛 코스의 narr · family 도(나레이션은 선언문을 읽지 않는다) */
     /* [OPEN_COURSE] 손으로 처음 담을 때의 기본 판 — 원천은 ritual-open.js 의 DEF(명세 5장) */
     open: { entry: O.DEF.entry, declareWho: O.DEF.declareWho, declare: O.DEF.declare, letter: O.DEF.letter }
   };
@@ -316,10 +321,9 @@
        [ASK_RETIRED] 로 ask 를 지웠더니 코스 기본값이 ask 인 둘(감동·기록)에서
        `cd.declareWho` 도 ask 라 폴백이 헛돌고 **전 조합 검사가 3456건 터졌다.**
        ★나는 한 조합(`{declareWho:'ask'}`)만 돌려 보고 「폴백된다」고 단정했다 — 그게 틀렸다.
-       ★그래서 **마지막 그물**을 둔다: 코스 기본값도 없는 값이면 첫 갈래로 간다.
-         갈래를 지우는 날 코스 기본값을 같이 고치는 것이 옳지만, 안 고쳐도 터지지는 않게. */
-    if (!D.DECLWHO[s.declareWho]) s.declareWho = cd.declareWho;
-    if (!D.DECLWHO[s.declareWho]) s.declareWho = Object.keys(D.DECLWHO)[0];
+       ★[DECLARE_BY_PERSON 2026-10-12] 이제 그물은 «첫 갈래»가 아니라 «아직 안 고름»('')이다 — 코스 기본값도 '' 라 헛돌 일이 없고,
+         부탁하지 않은 분(신랑 아버님)을 박지 않는다. 안 고른 채로도 엔진은 돈다(여는 말 136 · 할 일 «읽어 주실 분 정하기»). */
+    if (!D.DECLWHO[s.declareWho]) s.declareWho = '';   // ★[DECLARE_BY_PERSON 2026-10-12] 모르는 값 · 옛 narr · family · ask · chorus = «아직 안 고름»(첫 갈래로 떨어뜨리지 않는다 — 부탁하지 않은 아버님을 박지 않게)
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
     /* ★[ALL_OPTIONAL 2026-08-07] 코스의 순서는 '추천 조합'이지 '못 빼는 목록'이 아니다.
@@ -389,6 +393,11 @@
      "소리가 없으니 녹음하라"고 하고, 폐지한 것을 다시 녹음하게 된다(실제로 한 번 그렇게 나왔다).
      ★되살리려면 여기서 빼는 것만으로는 안 된다. GADD 부터 되돌려야 하고 그건 사용자 지시에 반한다. */
   var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
+    /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 나레이션이 선언문을 읽던 클립 다섯(30 엄숙 · 31 따뜻 · 32 가족 낭독 폴백 ·
+       96 · 97 하객 박수 판)과 «가족께서 선언하십니다» 여는 말(21)을 쉰다 — 선언문은 아버님 · 친구 · 지인만 읽는다(여는 말은 134 · 135 · 136).
+       ★32 는 [DROP_GUARD] 가 «폴백으로 실제로 나간다»고 지켜 오던 자리다 — 그 폴백(사람이 막히면 나레이션이 대신 읽기)이 이 결정으로 없어져 함께 쉰다.
+       파일 · 문안은 그대로 둔다(번호 보존). 되살리지 말 것 */
+    'narr-declare-family-intro': 1, 'declare-1-solemn': 1, 'declare-2-warm': 1, 'declare-family': 1, 'declare-clap-a': 1, 'declare-clap-b': 1,
     /* [WINE_RETIRED 2026-08-16] 사이 순서 폐지 — 잔을 드는 순간의 집은 「축배·케이크」 하나다.
        이미 녹음된 mp3 는 지우지 않는다(번호 보존 · SONG_RETIRED 와 같은 이유). */
     'narr-valley-wine': 1, 'narr-valley-cake': 1, 'narr-valley-out': 1,
@@ -800,71 +809,31 @@
 
     // 성혼 선언 — 택1 4종. 나레이션만 사람 구간이 없어 앞뒤가 통째로 자동이 된다.
     declare: function (S) {
-      var w = S.declareWho;
-      if (w === 'family') {
-        return [cue({
-          k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-intro', name: '성혼 선언 · 가족 낭독 도입',
-          text: D.NARR.declareFamilyIntro, pick: '가족이 낭독',
-          note: '가족이 부담스러워하면 [대기 클립] 대신 ' + noOf('declare-family') + '번(가족 낭독 폴백)을 큐 목록에서 즉시 재생',
-          live: { t: '가족 대표가 큰 글씨 선언문 낭독 (디렉터가 마이크·인쇄물 전달)', est: 45, self: true, doing: 'say', fallback: noOf('declare-family') + '번 폴백 클립' }
-        }), cue({
-          k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-out', name: '성혼 선언 · 가족 낭독 마무리',
-          text: D.NARR.declareFamilyOut,
-          live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000)   // [CLAP_GO] «다 함께 축하해 주세요» 뒤
-        })];
-      }
-      if (w === 'ask') {
-        return [
-          cue({
-            k: 'declare', blockN: '성혼 선언', slug: 'declare-ask-b', name: '성혼 선언 · 하객께 질문',
-            text: D.DECLWHO.ask.nar, pick: '하객이 함께 답하기',
-            note: '[ASK_RESTORE] 「다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다.」 삭제 금지 — 나레이터가 답을 «시연»하는 구간이다. 없으면 아무도 답하지 않거나 답이 «네»·«예»·«그럽니다»로 갈린다(build-dubbing-script.mjs W2-b note).',
-            live: { t: '하객 전원 "네, 그러겠습니다" (바로 앞 문장이 질문이다 — 시연은 그 앞에서 이미 했다 · ASK_REORDER)', est: 6, self: true, doing: 'say' }
-          }),
-          cue({
-            k: 'declare', blockN: '성혼 선언', slug: 'declare-ask-c', name: '성혼 선언 · 선언과 박수',
-            text: EXTRA['declare-ask-c'], duck: PARAM.duckOff,
-            hint: '하객 답이 잦아들면',
-            /* ★★[NO_ANSWER_CLAIM 2026-09-12] 이 클립에 「방금 그 대답까지가, 오늘의 약속입니다」를
-               넣었다가 게이트(N7)에 잡혀 뺐다. 답이 작았을 때를 덮는 «안전장치»라고 생각했는데
-               정확히 반대였다 — 아무도 답하지 않았을 때 고정 음성이 「그 대답까지가」라고 말해 버리면
-               없던 일을 있었다고 우기는 꼴이 되고, 그게 예식에서 가장 크게 무너지는 방식이다.
-               ★녹음된 나레이션은 «현장의 답에 반응할 수 없다». 답을 전제하는 말을 여기 넣지 말 것.
-               구조는 이미 완결이다 — 시연(앞 클립 끝) → 하객 답 → 선언(이 클립). 더 얹지 않는다. */
-            post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }, { wait: PARAM.declare.applauseMs }]
-          })
-        ];
-      }
-      if (w === 'chorus') {
-        return [cue({
-          k: 'declare', blockN: '성혼 선언', slug: '', name: '성혼 선언 · 하객 합송', text: D.DECLWHO.chorus.nar,
-          pick: '하객이 다 함께 · 합송', note: '★합송은 보류라 녹음된 클립이 없다 — 텍스트 카드로만 진행된다',
-          live: { t: '하객 전원이 인쇄된 선언문을 함께 낭독', est: 25, self: true, doing: 'say' }
-        })];
-      }
-      /* ★★[DECLARE_CLAP 2026-09-25 사장님 결정] 하객이 «박수로» 답하는 판 — 폐지한 ask·chorus 를 되살린 것이 아니다.
-         ask 를 폐지한 까닭은 «AI 성우가 군중의 말소리를 못 낸다»였다. 여기서 하객은 **말하지 않는다** — 박수만 친다.
-         ★[NO_ANSWER_CLAIM] 둘째 줄은 박수가 나왔다고 말하지 않는다. 박수가 작아도 거짓말이 되지 않는 문장이다. */
-      if (S.declare === 'clap') {
-        return [cue({
-          k: 'declare', blockN: '성혼 선언', slug: 'declare-clap-a', name: '성혼 선언 · 증인 청하기',
-          text: EXTRA['declare-clap-a'], duck: PARAM.duckOff, pick: '하객이 박수로 답하는',
-          live: { t: '하객 박수 (말없이)', est: 15, self: true, doing: 'move' }
-        }), cue({
-          k: 'declare', blockN: '성혼 선언', slug: 'declare-clap-b', name: '성혼 선언',
-          text: EXTRA['declare-clap-b'], duck: PARAM.duckOff, hint: '박수가 잦아들면',
-          /* [CLAP_GO] 8초 고정 대기 → 사람 순간(박수) · 다음은 GO. 미리 듣기는 종전 post 그대로(previewPost) */
-          post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }],
-          live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000, '', [{ wait: PARAM.declare.applauseMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.declare.toLetterMs }])
-        })];
-      }
-      var dv = D.DECLARE[S.declare] || D.DECLARE['1'];
+      /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만 할 거야 · 그게 싫다면 서약으로»]
+         선언문은 사람만 읽는다 — S.declareWho: 'gdad'(신랑 아버님) | 'bdad'(신부 아버님) | 'friend'(친구 · 지인) | ''(아직 안 고름).
+         흐름: 나레이션 여는 말(누가 선언하는지 · 134 · 135 · 136 — 안 고름은 136 «신랑 신부가 부탁드린 분») → 그분이 큰 글씨 선언문 낭독(사람 순간)
+               → 나레이션 맺는 말(57 · 축하 박수만 청한다 · 수행문 «이제 두 사람은 부부입니다»는 읽은 분의 몫).
+         ★나레이션이 선언문을 대신 읽는 폴백(옛 32)은 없다 — 막히면 디렉터가 카드의 다음 줄을 짚어 드린다.
+         ★걷은 갈래(되살리지 말 것): 나레이션 엄숙 · 따뜻(30 · 31) · 하객 박수로 답하기(96 · 97 · DECLARE_CLAP) · 가족 낭독(21 · 32) · 하객 응답 · 합송(ASK · CHORUS_RETIRED).
+           옛 초안의 그 값들은 norm 이 ''(아직 안 고름)로 읽는다. 읽어 줄 분이 없으면 성혼 선언을 빼고 서약으로 마무리한다(빌더가 한 줄로 알린다).
+         ── 걷은 갈래의 지킴 기록(그 갈래가 되살아나는 날의 근거 · 지우지 말 것) ──
+           ask  — [ASK_RESTORE] «다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다.»는 시연 구간이었다 · [NO_ANSWER_CLAIM 2026-09-12] 녹음된 나레이션은
+                  현장의 답에 반응할 수 없다 — 답을 전제하는 말(«방금 그 대답까지가…»)을 넣지 말 것
+           clap — 96 «증인이 되어 주신다면 박수로 답해 주십시오» → 박수 → 97 나레이션 선언(DECLARE_CLAP · 9/25)
+           family — 21 «가족께서 선언하십니다» → 가족 대표 낭독 → 57(«이제 두 사람은 부부입니다 · 다 함께 축하해 주세요») · 막히면 32 폴백(나레이션이 대신 읽음) */
+      var w = D.DECLWHO[S.declareWho] ? S.declareWho : '';
+      var who = w === 'gdad' ? '신랑 아버님' : w === 'bdad' ? '신부 아버님' : w === 'friend' ? '친구 · 지인 한 분' : '선언하실 분';
+      var slug = w === 'gdad' ? 'narr-declare-in-gdad' : w === 'bdad' ? 'narr-declare-in-bdad' : 'narr-declare-in-friend';
       return [cue({
-        k: 'declare', blockN: '성혼 선언', slug: (S.declare === '2' ? 'declare-2-warm' : 'declare-1-solemn'),
-        name: '성혼 선언', text: dv.nar, duck: PARAM.duckOff, pick: '나레이션 · ' + dv.d,
-        note: '선언문 "신랑 신부, 이제 두 사람은 부부입니다" 앞 0.5초·뒤 1초 무음은 클립 안에 들어 있다',
-        post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }],   // [CLAP_GO] 박수 8초 고정 대기 → 사람 순간 · 다음은 GO
-        live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000, '', [{ wait: PARAM.declare.applauseMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.declare.toLetterMs }])
+        k: 'declare', blockN: '성혼 선언', slug: slug, name: '성혼 선언 시작',
+        text: EXTRA[slug], pick: '읽는 분 · ' + (w ? D.DECLWHO[w].d : '아직 안 고름'),   // 화촉 «서는 분 · 양가 어머님»과 같은 꼴 — 대본 «나레이션(읽는 분 · 신랑 아버님)»이 «나레이션이 낭독»으로 읽히지 않게
+        note: '선언문은 나레이션이 대신 읽지 않는다 — 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림',
+        live: { t: '선언하실 분이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', tv: who + '이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', who: who,
+          est: 45, self: true, doing: 'say', fallback: '말이 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림 · 나레이션은 선언문을 대신 읽지 않음' }
+      }), cue({
+        k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-out', name: '성혼 선언 마무리',
+        text: D.NARR.declareFamilyOut,
+        live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000)   // [CLAP_GO] «큰 박수로 축복해 주시면 감사하겠습니다» 뒤
       })];
     },
 
@@ -1445,7 +1414,8 @@
     if (has.ring && S.ring !== 'on') delete has.ring;
     if (has.bless && S.bless !== 'on') delete has.bless;
     if (!has.vow && !has.letter && !has.tribute && !has.bless) w.push('마음을 전하는 자리가 하나도 없어요. 서약·편지 중 하나는 두시는 편이 좋아요.');
-    if (!has.declare) w.push('성혼 선언이 빠졌어요. 예식이 언제 성립했는지 하객분들이 알 수 없어요.');
+    /* ★[DECLARE_BY_PERSON 2026-10-12 사장님 «그게 싫다면 서약으로»] 선언을 뺀 날은 서약이 예식을 맺는다 — 둘 다 없을 때만 알린다 */
+    if (!has.declare && !has.vow) w.push('성혼 선언도 서약도 빠졌어요. 예식이 언제 성립했는지 하객분들이 알 수 없어요.');
     if (!has.guest) w.push('하객 맞이 안내가 빠졌어요. 시작 시점을 아무도 모른 채 입장이 시작돼요.');
     return w;
   }

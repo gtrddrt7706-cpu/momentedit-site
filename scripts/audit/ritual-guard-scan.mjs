@@ -42,6 +42,9 @@ export const GUARD_DECLS = [
      ★심볼이 없어지면 여기서도 빼야 한다. 안 빼면 grab 이 못 찾고 스캐너가 통째로 죽는다(실측). */
   ['function estMin(', false],
   ['function prep(', false],
+  /* [DECLARE_BY_PERSON 2026-10-12] prep 이 «읽어 주실 분» 이름을 _declWho() 로 읽는다 — 그 함수와 표(DECLWHO)를 함께 떼어 온다(없으면 스캐너가 죽는다 · 실측) */
+  ['var DECLWHO={', false],
+  ['function _declWho(', false],
   ['var MMIN={', false],
   ['var _mm=function(', false],
 ];
@@ -69,7 +72,7 @@ export const FIELDS = {
   toast:       ['toast', 'cake', 'both'],
   ringwarm:    ['family', 'all'],
   letter:      ['parent', 'each', 'both'],
-  declareWho:  ['narr', 'chorus', 'ask', 'family'],
+  declareWho:  ['', 'gdad', 'bdad', 'friend', 'narr'],   // [DECLARE_BY_PERSON 2026-10-12] 읽을 분 셋 + 안 고름 + 옛 값(narr · 화면이 «안 고름»으로 읽는다)
   song:        ['family', 'live'],
   growth:      ['off', 'on'],
   growthLink:  ['', 'https://example.invalid/v'],

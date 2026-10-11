@@ -68,7 +68,7 @@
     'vowHow',
     'vowFirst',                                // ★[VOW_FIRST 2026-10-06] 먼저 읽는 분 'g'|'b' — 여는 말 소리가 갈린다(127)
     'vowKind',                                 // ★[THANKS_IN_VOW 2026-10-11] 무엇을 읽나요 'vow'|'thanks' — 감사문이면 여는 말이 133 · 맺는 말이 없다(값은 판 이름뿐 · 글 아님)
-    'declare', 'declareWho',                   // 성혼 선언 문안 · 누가
+    'declareWho',                              // 성혼 선언 · 누가 읽나(gdad · bdad · friend · '') — ★[DECLARE_BY_PERSON 2026-10-12] 'declare'(나레이션 선언 판)는 엔진이 더 안 읽어 뺐다(죽은 키 · PREVIEW_KEYS)
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
     'letter',                                  // 편지 낭독 대상
     'bless', 'blessProxy',                     // 부모님 덕담 · 나레이션 대독

@@ -8,7 +8,7 @@
 //   ★무드는 자료에만 남긴다 — 화면(칩 · 배지)에는 쓰지 않는다(사장님 «참고 예시 숫자까지만» · REF_NO_KYEOL). 화면에 붙는 것은 상황뿐(sit)
 //   (옛 표의 «결» 열 이름도 읽는다 — 되돌려도 돌게)
 // ★★[CAST_TEXT_ONLY 2026-09-27 사장님 결정] 말하는 자리 예시는 **글로만** — 소리 파일 · 성우 칸이 없다(아이디 = 옛 파일 이름에서 .mp3 를 뗀 것 · 글 한 줄을 가리키는 이름)
-//   키 = 자리[:판[:길이]] — 화면은 이 열로 고른다(welcome · letter:parent · tribute:cross · toast:toast|both · free:speech:2|3 · declare:family)
+//   키 = 자리[:판[:길이]] — 화면은 이 열로 고른다(welcome · letter:parent · tribute:cross · toast:toast|both · free:speech:2|3 · declare)
 // ★assets/ritual-ref.js 는 자동 생성 파일이다 — 손으로 고치지 말 것. 글을 고치려면 TSV 를 고치고 이 스크립트를 돌린다.
 // ★소리는 없다 [CAST_TEXT_ONLY] — 화면은 이 글을 소리 없이 글 + 막대로만 보여 준다(연습에서도 대역 목소리를 틀지 않는다).
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';

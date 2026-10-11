@@ -68,7 +68,7 @@ textarea.memo{font-size:13px;background:#fffefb;border-color:var(--border);min-h
     <select id="ln"><option value="6">앞 6초 · 뒤 8초</option><option value="3">앞 3초 · 뒤 5초</option><option value="99">통째로</option><option value="0">연결 멘트만</option></select>
   </div>
   <div class="row"><span class="lab">갈래</span>
-    <select id="vd"><option value="solemn">성혼 · 나레이션 엄숙</option><option value="warm">성혼 · 나레이션 따뜻</option><option value="clap">성혼 · 하객 박수로</option><option value="family">성혼 · 가족이 낭독</option></select>
+    <select id="vd"><option value="gdad">성혼 · 신랑 아버님</option><option value="bdad">성혼 · 신부 아버님</option><option value="friend">성혼 · 친구 · 지인</option></select><!-- [DECLARE_BY_PERSON 2026-10-12] 나레이션 선언 · 박수 판 · 가족 낭독 걷음 -->
     <select id="vf"><option value="video">준비한 순서 · 영상</option><option value="speech">준비한 순서 · 축사</option><option value="gift">준비한 순서 · 선물</option><option value="etc">준비한 순서 · 기타</option></select>
   </div>
   <div class="row"><span class="cnt" id="sum"></span></div>
@@ -98,7 +98,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 /* 앞뒤 줄 — 엔진을 두 순간만 담아 돌려 얻는다 · 여는 줄이 날마다 갈리는 것은 위 «갈래»로 고른다
    ★[PAIR_DRAFT_V3] 엔진의 이음말(B3 · B4 · B5 · B6)은 그대로 둔다 — 실제 소리 차례와 같게.
    ★케이크만 고른 날 «축사는 따로…»는 케이크 뒤로 옮긴다(사장님 결정 ③ · 엔진 적용 때) — 여기서는 다음 첫 줄에서 뺀다. */
-var VAR={decl:'solemn',free:'video'};
+var VAR={decl:'gdad',free:'video'};   // [DECLARE_BY_PERSON]
 function ctx(a,b){
   var S={course:'open'}; O.applyExample(S,'brief'); S.on={};
   [a,b].forEach(function(k){ if(O.PICKABLE.indexOf(k)>-1) S.on[k]=1; });

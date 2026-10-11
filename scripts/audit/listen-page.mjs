@@ -26,6 +26,9 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+// [REF_ROWS_ONE 2026-10-12] 참고 예시 표 줄 수는 한 곳 — 9-9 와 13 이 따로 적어 13 만 144 에 남았다(THANKS_IN_VOW 뒤로 빨강).
+//   144(EX_MORE) + 8(THANKS_IN_VOW 감사문 예시 네 벌 × 두 분 · 10/11) − 3(DECLARE_BY_PERSON 선언문 넷 → 한 벌 · 10/12)
+const REF_ROWS = 149;
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0, cant = 0;
@@ -273,7 +276,8 @@ for (const w of [390, 1280]) {
   ok('② 한눈에 보기 — 한 항목은 한 번(녹음 줄 · 부탁 줄 되풀이 없음) · 미완료 배지 목록 없음 [MK_SUM_ONE]', !/미완료\s*하객 맞이/.test(tSum) && (tSum.match(/양가 어머님께서 불을 밝혀 주세요/g) || []).length <= 1 && (tSum.match(/시작 10분 전/g) || []).length === 0, tSum.slice(0, 300));
   const mo = await pg.evaluate(() => { const one = (t) => ((t.match(/담은 순간 (\d+)/) || [])[1]) || ''; const r = {}; mkGo('_intro'); r.intro = one(document.getElementById('stage').textContent); mkGo('_sum'); r.sum = one(document.getElementById('stage').textContent); r.fn = String(_opMoments()); return r; });
   ok('② 예식 흐름 · 한눈에 보기의 «담은 순간 N»이 같은 셈 [MOMENTS_ONE]', mo.intro === mo.fn && mo.sum === mo.fn && +mo.fn > 0, JSON.stringify(mo));
-  ok('3-4 한눈에 보기 = 미완료 · 부모님께 부탁드릴 것 · 보낼 것 · 당일 챙길 것 · 도와주실 분 · D-7 없음 [MK_HELPERS]', /미완료 \d+/.test(tSum) && /부모님께 부탁드릴 것/.test(tSum) && !/부모님께 부탁드릴 것 \d/.test(tSum) && /보낼 것/.test(tSum) && /당일 챙길 것/.test(tSum) && /도와주실 분/.test(tSum) && !/D-7|D-14/.test(tSum), tSum.slice(0, 300));
+  /* [DECLARE_BY_PERSON 2026-10-12] 가족 예시에 성혼 선언이 있고 읽을 분은 아직 안 골랐다 — 두 분 할 일 «성혼 선언문 읽어 주실 분 정하기»가 부탁 목록에 들어 머리가 «부탁드릴 것»(SUM_ASK_ALL · 부모님 몫만이면 «부모님께 부탁드릴 것») */
+  ok('3-4 한눈에 보기 = 미완료 · 부탁드릴 것 · 보낼 것 · 당일 챙길 것 · 도와주실 분 · D-7 없음 [MK_HELPERS]', /미완료 \d+/.test(tSum) && /부탁드릴 것/.test(tSum) && !/부탁드릴 것 \d/.test(tSum) && /성혼 선언문 읽어 주실 분 정하기/.test(tSum) && /보낼 것/.test(tSum) && /당일 챙길 것/.test(tSum) && /도와주실 분/.test(tSum) && !/D-7|D-14/.test(tSum), tSum.slice(0, 300));
   /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 부모님께 드릴 말 칸은 미완료 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
   await pg.evaluate(() => mkGo('tribute')); await pg.waitForTimeout(300);
   const tb = await pg.evaluate(() => { const u0 = mkUndone(); const t = document.getElementById('mkt_tribute_g'); t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, same: mkUndone() === u0, inScript: /카드로 인쇄/.test(sc) && /엄마 아빠 고마워요/.test(sc), gone: !/엄마 아빠 고마워요/.test(scriptText()) }; });
@@ -318,8 +322,10 @@ for (const w of [390, 1280]) {
   }
   ok(`1-2 예시 넷 모두 ④ 가 열린다(${opened}/4) [SAVED_OK]`, opened === 4, errs.join(' | '));
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
+  /* ★[DECLARE_BY_PERSON 2026-10-12 사장님] «하객 박수로 답하기»(clap)는 걷었다 — 예시는 읽을 분을 박지 않는다. 고른 분이 새로고침 뒤에도 그대로인지 본다 */
+  const exWho = await pg.evaluate(() => { const w = S.declareWho; RitualOpen.setChip(S, 'declare', 'bdad'); _persist(); return w; });
   await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800);
-  ok('1-2 «하객 박수로 답하기»가 새로고침 뒤에도 그대로(clap)', await pg.evaluate(() => S.declare === 'clap'));
+  ok('1-2 ‹기록› 예시는 읽을 분을 박지 않는다 · 고른 «신부 아버님»이 새로고침 뒤에도 그대로 [DECLARE_BY_PERSON]', exWho === '' && await pg.evaluate(() => S.declareWho === 'bdad'), exWho);
   const saved = await pg.evaluate(() => { let n = 0, nm = ''; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) { n++; nm = this.download; } }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return { n, nm, first: scriptText().split('\n')[0] }; });
   ok('1-1 «파일로 저장»이 내려받기를 건다 · 파일 이름 · 첫 줄 [SAVE_TXT_LIVE]', saved.n === 1 && saved.nm === '우리예식대본.txt' && /^우리 예식 대본 · /.test(saved.first), JSON.stringify(saved));
   await ctx.close();
@@ -355,8 +361,8 @@ for (const w of [390, 1280]) {
   await pg.goForward(); await pg.waitForTimeout(500);
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } }); await pg.waitForTimeout(1200);
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
-  ok('2-6 이름표(박수를 청하는 말 · 하객 입장 때 · 여는 말) · «성우» 없음', /박수를 청하는 말/.test(labs) && /하객 입장 때/.test(labs) && !/하객이 박수로 답하는|입장 직후|성우/.test(labs), labs);
-  ok('2-6 선언 칩 «나레이션 · 엄숙하게»', await pg.evaluate(() => RitualOpen.CHIPS.declare[0][1] === '나레이션 · 엄숙하게'));
+  ok('2-6 이름표(하객 입장 때 · 여는 말) · «성우» 없음 · 박수 판 이름(«박수를 청하는 말») 없음(DECLARE_BY_PERSON 으로 박수 판을 걷었다)', /하객 입장 때/.test(labs) && !/하객이 박수로 답하는|박수를 청하는 말|입장 직후|성우/.test(labs), labs);
+  ok('2-6 선언 칩 «신랑 아버님» · «나레이션» 칩 없음 [DECLARE_BY_PERSON]', await pg.evaluate(() => RitualOpen.CHIPS.declare[0][1] === '신랑 아버님' && !RitualOpen.CHIPS.declare.some((c) => /나레이션/.test(c[1]))));
   // 크게 보기 · 끝 화면(③ 연습하기에서)
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }); await pg.waitForTimeout(800);
   await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
@@ -489,7 +495,7 @@ else {
       cross: set('tribute', { S: { tributeSay: 'long', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
       sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
       sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
-  ok('9-9 참고 예시 표 144줄(EX_MORE) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담이 없어도 고른 넷만(부모님 예시 덧붙이기 걷음) [REF_TABLE · EX_MORE · REF_BEST4 · REF_BEST4_ONLY]', rt.rows === 144 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 4, JSON.stringify(rt));
+  ok(`9-9 참고 예시 표 ${REF_ROWS}줄(EX_MORE + 감사문 − 선언문) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담이 없어도 고른 넷만(부모님 예시 덧붙이기 걷음) [REF_TABLE · EX_MORE · REF_BEST4 · REF_BEST4_ONLY]`, rt.rows === REF_ROWS && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 4, JSON.stringify(rt));
   ok('9-8 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -639,7 +645,7 @@ else {
     S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; mkGo('vow'); render(); mkRefPick('vow', 3, 1); mkRefStart('vow');
     o.filled = !!String(S.tx['vow.g'] || '').trim() && !!String(S.tx['vow.b'] || '').trim(); o.warn = (document.getElementById('mkw_vow_g') || {}).textContent || '';
     o.startGone = !document.querySelector('[data-fk="mkrstart:vow"]'); return o; });
-  ok('13 [EX_MORE · REF_BEST4 · REF_ROW4 · REF_BEST4_ONLY] 참고 예시 144줄 · 카드는 고른 네 벌(360 에서 2×2) · 카드 줄 아래 글 단추 없음(상황 · 부모님 예시) · 넷째를 눌러도 카드는 그대로 넷(가로 스크롤 없음)', e.rows === 144 && e.long0 === 4 && e.links === 0 && e.sets === 4 && !e.sitIn && e.long === 4 && e.lines <= 2 /* [EX_ROW] 칩 줄 — 두 줄 이내 */ && e.long1 === 4 && !e.hs, JSON.stringify(e));
+  ok(`13 [EX_MORE · REF_BEST4 · REF_ROW4 · REF_BEST4_ONLY] 참고 예시 ${REF_ROWS}줄 · 카드는 고른 네 벌(360 에서 2×2) · 카드 줄 아래 글 단추 없음(상황 · 부모님 예시) · 넷째를 눌러도 카드는 그대로 넷(가로 스크롤 없음)`, e.rows === REF_ROWS && e.long0 === 4 && e.links === 0 && e.sets === 4 && !e.sitIn && e.long === 4 && e.lines <= 2 /* [EX_ROW] 칩 줄 — 두 줄 이내 */ && e.long1 === 4 && !e.hs, JSON.stringify(e));
   ok('13 배지 «참고 예시 4»(화면 읽기에만) · 상황 도움말(먼저 떠나신 분께 · 한 분께 · 가족이 된 날) 없음 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL · REF_BEST4_ONLY]', e.b4 === '참고 예시 4' && !e.help && !e.mood, JSON.stringify(e));
   ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌만 · «부모님이 하실 때 예시 ›»와 부모님 예시 줄 없음 [REF_BEST4_ONLY 2026-10-09 사장님 «베스트 4개만»]', e.free0 === 4 && e.freeSets === 4 && !e.par && !e.parIn, JSON.stringify(e));
   ok('13 «이 예시로 시작하기» — 빈 두 칸을 채우고 단추는 사라진다 · 예시 속 이름이 남으면 한 줄 알림 [EX_NAMES]', e.filled && e.startGone && /예시 속 이름 «.+»이 남아 있어요/.test(e.warn), JSON.stringify(e));

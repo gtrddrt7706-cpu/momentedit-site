@@ -42,7 +42,7 @@ const G = [
     ['G3-8', '사이 순서: 케이크', 'narr-valley-cake', D.NARR.valleyCake],
     ['G3-9', '축가 도입', 'narr-song', D.NARR.song],
     ['G3-10', '편지 낭독 마무리', 'narr-letter-end', D.NARR.letterEnd],
-    ['G3-11', '성혼 선언(가족) 도입', 'narr-declare-family-intro', D.NARR.declareFamilyIntro],
+    /* ★G3-11 «성혼 선언(가족) 도입»(21) 금지 — 2026-10-12 사용자 지시로 삭제 [DECLARE_BY_PERSON] · 읽는 분마다 여는 말(G5-5~7)이 그 자리 */
     ['G3-12', '부모님 덕담: 문 여는 버전', 'narr-bless-open', D.NARR.blessOpenFamily],
     ['G3-13', '부모님 덕담: 중간 버전', 'narr-bless-mid', D.NARR.blessMid],
     ['G3-14', '부모님 덕담 마무리', 'narr-bless-end', D.NARR.blessEnd],
@@ -56,11 +56,15 @@ const G = [
     Object.keys(D.LETTER).map((k) => [`G4-${k}`, D.LETTER[k].d, `letter-${k}`, D.LETTER[k].nar]),
     note: '최우선 리테이크 구간. 나레이터는 프레임만 얹고 물러난다 · 낭독 뒤 해설하지 않는다.' },
 
-  { n: 5, t: '성혼 선언', tone: '엄숙·상승 · 예식의 공식 하이라이트', items: [
-    ['G5-1', '나레이션 선언(엄숙하게)', 'declare-1-solemn', D.DECLARE['1'].nar],
-    ['G5-2', '나레이션 선언(따뜻하게)', 'declare-2-warm', D.DECLARE['2'].nar],
-    ['G5-4', '가족 낭독 · 당일 대체용 폴백', 'declare-family', D.DECLWHO.family.nar],
-  ], note: '★DECL_PAUSE_POS — 선언문 "이제 두 사람은 부부입니다" 앞에 0.5초 · 뒤에 1초 무음. (2026-09-20 정정 — 호명 「신랑 신부,」는 PERF_CANON_2 로 빠졌다)\n  이 문장은 세 클립 모두 **끝에서 두 번째**다(마지막은 박수 요청: G5-1 "…큰 박수를 부탁드립니다" · G5-2 "다 함께 큰 박수로…" · G5-4 "가족 여러분과 함께…").\n  구 지시가 "마지막 문장 앞"이라 그대로 편집하면 정적이 박수 요청 앞에 붙어 정점이 어긋났다(2026-07-26 실측 정정).\n선언문 한 문장으로 통일된 것은 브랜드 자산이라 유지한다.\nG5-3(하객 합송)은 보류라 녹음하지 않는다.\n★가족 코스의 기본 재생은 가족 대표가 인쇄물을 직접 읽는 것이다. G5-4 mp3는 당일 가족이 부담스러워할 때 쓰는 폴백이며, 그래서 무이름이어야 즉시 재생할 수 있다.' },
+  /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만 할 거야 · 그게 싫다면 서약으로»]
+     선언문은 사람만 읽는다 — 나레이션은 누가 선언하는지 알리는 여는 말(읽는 분마다 한 줄)과 맺는 말(G12-5)만.
+     ★G5-1 · G5-2(나레이션 선언 · 30 · 31) · G5-4(가족 낭독 폴백 · 32) 금지 — 사용자 지시로 삭제. 고를 수 있는 갈래가 아니라 대본에서 뺐다([ASK_RETIRED] 와 같은 까닭).
+       번호 30 · 31 · 32 는 FILES 에 남겨 뒤 번호를 안 밀었다(RETIRED). */
+  { n: 5, t: '성혼 선언 · 여는 말', tone: '정중하게 · 짧게 · 누가 선언하는지만 알리고 물러난다', items: [
+    ['G5-5', '성혼 선언 여는 말 · 신랑 아버님', 'narr-declare-in-gdad', D.NARR.declareInGdad],
+    ['G5-6', '성혼 선언 여는 말 · 신부 아버님', 'narr-declare-in-bdad', D.NARR.declareInBdad],
+    ['G5-7', '성혼 선언 여는 말 · 친구 · 지인(아직 안 고른 날도)', 'narr-declare-in-friend', D.NARR.declareInFriend],
+  ], note: '선언 여는 말 3종(택1 · 고른 분에 따라). 이 줄 뒤에 고른 분이 큰 글씨 선언문을 직접 읽는다 — 나레이션은 선언문을 읽지 않는다.\n화촉 여는 줄(«…께서 앞으로 나와 주시겠습니다»)과 같은 결로 · 동작을 시키지 않는다(«그대로 읽어 주십시오» 뺌).' },
 
   /* ★★[ASK_RETIRED 2026-09-21 사장님 지시] 「G5 택1 · 하객 응답」 그룹을 통째로 뺐다.
      사장님 원문: *「ai성우라서 한계가잇어 자연스럽지못해」*
@@ -160,8 +164,7 @@ const G = [
     ['N13-c', '화촉 여는 말 · 아버님 두 분', 'narr-candle-in-fathers', RC.EXTRA['narr-candle-in-fathers']],
     ['N13-d', '화촉 여는 말 · 다른 두 분', 'narr-candle-in-others', RC.EXTRA['narr-candle-in-others']],
     ['N14', '화촉 맺는 말', 'narr-candle-out', RC.EXTRA['narr-candle-out']],
-    ['N15-a', '성혼 선언 · 박수 판 · 증인 청하기', 'declare-clap-a', RC.EXTRA['declare-clap-a']],
-    ['N15-b', '성혼 선언 · 박수 판 · 박수 뒤 선언', 'declare-clap-b', RC.EXTRA['declare-clap-b']],
+    /* ★N15-a · N15-b «성혼 선언 · 박수 판»(96 · 97) 금지 — 2026-10-12 사용자 지시로 삭제 [DECLARE_BY_PERSON] · 나레이션이 선언하는 판이었다 */
     ['N16-a', '축배 · 두 와인을 한 잔에', 'toast-pour-mix', RC.EXTRA['toast-pour-mix']],
     ['N16-b', '축배 · 양가가 한 병씩(여는 말)', 'toast-pour-family', RC.EXTRA['toast-pour-family']],
     /* [NAR_0925 2026-09-25 코워크 회신 둘째 판] 100~107 */
@@ -219,7 +222,7 @@ const G = [
     ['G12-4', '축배 닫는 말', 'narr-toast-out', D.NARR.toastOut],
     // [TOAST_SCENE 2026-08-09] 케이크만 고른 자리의 닫는 말 — 잔이 없는 손에 잔 이야기를 하지 않는다
     ['G12-8', '케이크 커팅 닫는 말', 'narr-cake-out', D.NARR.cakeOut],
-    ['G12-5', '성혼 선언(가족 낭독) 닫는 말', 'narr-declare-family-out', D.NARR.declareFamilyOut],
+    ['G12-5', '성혼 선언 맺는 말 · 축하 박수', 'narr-declare-family-out', D.NARR.declareFamilyOut],   // [DECLARE_BY_PERSON] 읽는 분이 누구든 같은 한 줄
     ['G12-6', '자유 한 칸 여는 말', 'narr-free-in', D.NARR.freeIn],
     ['G12-7', '자유 한 칸 닫는 말', 'narr-free-out', D.NARR.freeOut],
   ], note: '닫는 말은 그 순간을 맺기만 하고 다음을 지목하지 않는다 — 순서를 바꿔도 안 깨지게 하려는 것이다.\n★링 워밍 닫는 말은 폐지됐다(RINGWARM_RETIRED) · 녹음하지 않는다.' },
@@ -259,7 +262,7 @@ for (const g of G) for (const it of g.items) { no++; totalSyl += syl(it[3]); row
 
 md.push(`## 총량 · 녹음 대상 **${no}클립 · ${totalSyl.toLocaleString()}음절 ≒ ${(totalSyl / 300).toFixed(1)}분**`, '');
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-md.push('택1 세트가 여럿이라(입장 6종·선언 2종(나레이션 1·가족 1)·링워밍 2종·축배 3종·편지 3종·N1 2종·N4/N5 2종) **한 예식의 실제 재생량은 이보다 훨씬 적습니다.**');
+md.push('택1 세트가 여럿이라(입장 6종·선언 3종(여는 말 · 신랑 아버님 · 신부 아버님 · 친구 · 지인)·링워밍 2종·축배 3종·편지 3종·N1 2종·N4/N5 2종) **한 예식의 실제 재생량은 이보다 훨씬 적습니다.**');
 md.push('하객 합송(구 G5-3)은 보류라 이 목록에 없습니다. 폐기가 아니라 보류이므로 빌더 선택지와 문안은 그대로 살아 있습니다.');
 md.push('보류를 풀지는 응답형(W2)으로 2~3회 운영해 본 뒤 다시 판단합니다.', '');
 
