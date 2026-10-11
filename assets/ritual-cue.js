@@ -644,9 +644,12 @@
       return [cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-in-' + who, name: '화촉 시작',
         text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckMusic, pick: '서는 분 · ' + nm,
+        /* ★[CANDLE_BOW_1012 2026-10-12 사장님 «부모님 입장을 생략한다는 얘기였어 · 신랑 신부는 입장해야지»] 생략한 것은 부모님이 따로 걸어 들어오는 입장 하나다.
+             불을 밝힌 뒤 하객께 드리는 인사는 입장이 아니라 화촉의 한 동작이다(자료 D «점화 → 어머님 맞절 → 하객 인사 → 착석» · G «어머님끼리 맞절» · O «점화 후 인사 타이밍 통일»).
+             두 분이 서면 서로 한 번 · 하객께 한 번 · 네 분이면 하객께 한 번. 몇 초라 시간 표(TIME.candle 여유 38초) 안이다 */
         live: (who === 'parents'
-          ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나와 불만 밝힌다(입장 · 하객 인사 없음 · «두 분»이라 적지 않는다)
-          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' })
+          ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로', est: 70, self: true, doing: 'move' }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나온다(따로 걸어 들어오는 입장 없음 · «두 분»이라 적지 않는다) · [CANDLE_BOW_1012]
+          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고, 서로 · 하객께 인사한 뒤 자리로', est: 70, self: true, doing: 'move' })
       }), cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',
         text: EXTRA['narr-candle-out'], duck: PARAM.duckMusic,

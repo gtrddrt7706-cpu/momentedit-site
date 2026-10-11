@@ -7586,6 +7586,17 @@ nochk '함께 들어와 하객께 인사하시면' assets/ritual-open.js 0
 nochk '양가 부모님이 함께 입장 · 하객께 인사' assets/ritual-cue.js 0
 nochk '양가 부모님이 함께 입장 · 하객께 인사' assets/ritual-story.js 0
 nochk '양가 부모님이 함께 들어와 인사하고' order-preview.html 0
+# ★[CANDLE_BOW_1012 2026-10-12 사장님 «부모님 입장을 생략한다는 얘기였어 · 신랑 신부는 입장해야지»] 생략은 부모님이 따로 걷는 입장 하나 · 신랑 신부 입장은 늘(ALWAYS.entry)
+#   불을 밝힌 뒤 하객께 인사는 입장이 아니라 화촉의 한 동작(자료 D · G · O) — 두 분이면 서로 · 하객께 · 네 분이면 하객께. open-course 가 엔진 · 늘 있는 입장을, ghi-polish 가 빌더 줄을 잰다
+chk 'CANDLE_BOW_1012' assets/ritual-cue.js 2
+chk 'CANDLE_BOW_1012' assets/ritual-open.js 3
+chk 'CANDLE_BOW_1012' assets/ritual-story.js 2
+chk 'CANDLE_BOW_1012' order-preview.html 1
+chk 'CANDLE_BOW_1012' api/_ritual-kb.js 1
+chk 'CANDLE_BOW_1012' scripts/audit/open-course.mjs 4
+chk "t: '서는 두 분이 앞으로 나와 초에 불을 밝히고, 서로 · 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
+chk "t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
+chk "var ALWAYS = { guest: 1, entry: 1 };" assets/ritual-open.js 1   # 신랑 신부 입장은 빼지 못한다
 # ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 새 코스 입장 끝 맞절 한 줄(132) · 3·3·3 · 15초 · 고를 것 없음
 #   open-course 가 뜻(입장 바로 뒤 · 디렉터 GO · 바라보기 도착 큐 없음 · 입장 몫 +15초)을 잰다
 chk 'MATJEOL_1011' assets/ritual-cue.js 5
