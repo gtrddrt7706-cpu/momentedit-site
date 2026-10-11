@@ -17643,7 +17643,7 @@ chk 'ENTRY_MUSIC_1012' scripts/audit/entry-music.mjs 1
 #   목소리 = 빌더가 트는 입장 줄(_lSteps · 두 분 목소리 / 나레이션) · 곡 = 이 기기에 올린 곡 · 마지막 말 끝 + 0.3초 = 고른 자리(시험실 plan · envDb 그대로)
 #   두 분 AI 를 안 만들었으면 그래프 없이 흐린 알약(AI_PLAY_READY) · 크게 보기는 2단계-나 · 아래 entry-music 점검 10 ~ 18
 chk 'ENTRY_SCENE_1012' order-preview.html 2
-chk "EntryMusic.sceneHtml?EntryMusic.sceneHtml():''" order-preview.html 1
+chk "if(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml) h+=EntryMusic.sceneHtml();" order-preview.html 1
 chk '.mk-pick:has(+.em-scene){padding-bottom:0}' order-preview.html 1
 chk 'ENTRY_SCENE_1012' assets/entry-music.js 3
 chk 'EM.sceneHtml=sceneHtml' assets/entry-music.js 1
