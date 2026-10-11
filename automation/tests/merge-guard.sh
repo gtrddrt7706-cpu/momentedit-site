@@ -1852,7 +1852,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.12'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.13'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행' assets/ritual-data.js 2   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2486,7 +2486,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.12'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.13'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -4040,8 +4040,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1\.12' contract/v1-1.html 6   # [CONTRACT_V111 · 머리 주석 포함] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.12'" automation/platform/70_journey.gs 1
+chk 'v1\.13' contract/v1-1.html 6   # [CONTRACT_V113 · 머리 주석 포함] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.13'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -12037,6 +12037,18 @@ chk 'PARENT_AT_EMPTY' scripts/check-source-drift.mjs 1
 chk 'PARENT_AT_EMPTY' parents.html 1
 chk '<td>09:50</td><td>10:20</td>' parents.html 1
 chk 'CONTRACT_V111' contract/v1-1.html 1
+# ★[CONTRACT_VER_ONE 2026-10-11] 계약서 버전은 «보이는 자리 다섯 + 서명 기록 docVersion + 보존본 분기»가 한 값.
+#   v1.13 으로 올리며 고객이 읽는 세 자리(16조③ 예시 · 서명 문구 · 바닥글)를 v1.12 로 남겼는데,
+#   «v1.NN 이 든 줄 수»만 세는 줄(4043)은 새 주석의 옛 버전 덕에 통과했다 — 주석을 빼고 보이는 글만 잰다.
+if command -v node >/dev/null 2>&1; then
+  _cvOut=$(node scripts/audit/contract-version.mjs 2>&1) \
+    || { echo 'FAIL contract-version: 계약서 버전이 한 값이 아니다 — node scripts/audit/contract-version.mjs'
+         printf '%s\n' "$_cvOut" | sed 's/^/    | /'; fail=1; }
+  node scripts/audit/contract-version.mjs --selftest >/dev/null 2>&1 \
+    || { echo 'FAIL contract-version --selftest: 깨 본 판을 못 잡는다'; fail=1; }
+fi
+chk 'CONTRACT_VER_ONE' scripts/audit/contract-version.mjs 1
+chk 'CONTRACT_VER_ONE' automation/tests/merge-guard.sh 3
 chk 'Version v1.13' contract/v1-1.html 1   # [CONTRACT_V113]
 chk 'Version v1.12' contract/archive/v1-12.html 1   # [CONTRACT_V113] v1.12 보존본
 chk 'Version v1.11' contract/archive/v1-11.html 1   # [CONTRACT_V112] v1.11 보존본
