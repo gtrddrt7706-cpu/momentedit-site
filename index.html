@@ -2664,6 +2664,10 @@ a.ig-handle:hover {
   font-family: var(--serif);
   font-size: 24px;
   font-weight: 300;
+  /* ★[STEP_FIG_LINING 2026-10-11 디자인 점검 #15 · 사장님 «추천대로»] Cormorant 기본 숫자는 올드스타일이라 01 · 02 · 03 이 «OI · O2 · O3»로 읽혔다
+     — 140분 표 [SEQ_FIG_LINING] 과 같은 처방을 순서 번호 세 곳(상담 3단계 · 하객 화면 01~04 · 마이페이지 01~05)에. 가격 숫자는 [HOME_PRICE_FMT] 대로 그대로 */
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
   color: var(--gold-text); /* [GOLD_TEXT_AA] 예약 단계 번호 = 정보 · 2.54:1 → 5.71:1 */
   text-align: center;
   padding-top: 2px;
@@ -4529,6 +4533,8 @@ footer {
   flex-shrink: 0;
   line-height: 1;
   padding-top: 4px;
+  font-variant-numeric: lining-nums tabular-nums;   /* [STEP_FIG_LINING] 01 · 02 가 «OI · O2»로 읽히지 않게 */
+  font-feature-settings: "lnum" 1, "tnum" 1;
   transition: color 0.45s var(--ease);
 }
 .mockup-item.active .mockup-num {
@@ -5722,6 +5728,8 @@ body {
   letter-spacing: 0.14em;
   padding-top: 4px;
   margin: 0;
+  font-variant-numeric: lining-nums tabular-nums;   /* [STEP_FIG_LINING] 01 · 02 가 «OI · O2»로 읽히지 않게 */
+  font-feature-settings: "lnum" 1, "tnum" 1;
   transition: color 0.45s var(--ease);
 }
 .jr-step.on .jr-n {
