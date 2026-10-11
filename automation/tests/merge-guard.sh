@@ -7567,6 +7567,13 @@ chk 'SONG_BACK_1011' api/_ritual-kb.js 3
 chk 'SONG_BACK_1011' assets/advisor-kb.js 2
 chk 'SONG_BACK_1011' index.html 1
 chk 'SONG_BACK_1011' scripts/audit/open-course.mjs 3
+# ★[VOW_DECL_DIFF 2026-10-11 사장님 «서약과 성혼선언 차이를 헷갈릴 수 있으니 · 조사한 자료를 참고해서 · 이벤트 클릭하면 나오는 설명에»]
+#   자료 R «누가 읽느냐로 구분한다» — 서약 = 두 분이 서로에게 직접 / 선언 = 하객 앞에서 · 두 분 대신 나레이션이나 가족(open-course 가 뜻을 잰다)
+chk 'VOW_DECL_DIFF' assets/ritual-open.js 2
+chk 'VOW_DECL_DIFF' order-preview.html 2
+chk 'VOW_DECL_DIFF' api/_ritual-kb.js 1
+chk 'VOW_DECL_DIFF' scripts/audit/open-course.mjs 3
+nochk "declare:'두 분이 부부가 되었음을 알리고" order-preview.html 0   # [VOW_DECL_DIFF] 두 분이 알리는 것처럼 읽혔다 · 되살리지 말 것
 chk 'SONG_BACK_1011' scripts/audit/merge-extra-0926.mjs 2
 nochk '라이브 노래 · 연주는 받지 않아요' assets/ritual-open.js 0
 nochk '라이브 노래 · 연주는 받지 않아요' assets/advisor-kb.js 0

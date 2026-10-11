@@ -104,6 +104,17 @@ const TXT = JSON.stringify([O.CARDS, O.CHIPS, O.SECTIONS, O.EXAMPLES, O.NOTICE, 
 ok('축가 자리 = 성혼 선언 뒤 · 부모님께 인사 앞 [SONG_BACK_1011]', (() => { const q = O.bodySeq({ on: { declare: 1, song: 1, tribute: 1 } }); return q.indexOf('declare') + 1 === q.indexOf('song') && q.indexOf('song') + 1 === q.indexOf('tribute'); })());
 ok('축가 카드 · 준비한 순서 카드가 «악기 연주는 받지 않아요»를 말한다 · «라이브 노래 · 연주는 받지 않아요»는 없다 [SONG_BACK_1011]', /악기 연주는 받지 않아요/.test(O.CARDS.song.one) && /노래는 «축가»로/.test(O.CARDS.free.one) && !/라이브 노래/.test(TXT));
 
+/* ★[VOW_DECL_DIFF 2026-10-11 사장님 «서약과 성혼선언 차이를 헷갈릴 수 있으니 · 조사한 자료를 참고해서 · 이벤트 클릭하면 나오는 설명에»]
+   자료 R «누가 읽느냐로 구분한다» — 서약 = 두 분이 서로에게 직접 / 선언 = 하객 앞에서 · 두 분 대신 나레이션이나 가족.
+   ① 미리 보기 창(PV_DESC) · ② 순간 쪽 설명과 AI 상담 지식(CARDS.one) 두 곳이 같은 기준을 말한다 */
+{
+  const OP = fs.readFileSync(P('order-preview.html'), 'utf8');
+  const pv = (k) => ((OP.match(new RegExp("\\n  " + k + ":'([^']+)'")) || [])[1] || '');
+  const vowOk = (t) => /서로에게/.test(t) && /직접/.test(t), declOk = (t) => /하객 앞에서/.test(t) && /두 분 대신/.test(t) && /나레이션이나 가족/.test(t) && /성혼 선언문을 읽으면/.test(t);
+  ok('[VOW_DECL_DIFF] ② · AI 지식 — 서약 «서로에게 · 직접» / 선언 «하객 앞에서 · 두 분 대신 나레이션이나 가족»', vowOk(O.CARDS.vow.one) && declOk(O.CARDS.declare.one), O.CARDS.vow.one + ' | ' + O.CARDS.declare.one);
+  ok('[VOW_DECL_DIFF] ① 미리 보기 창 — 같은 기준 · 옛 «부부가 되었음을 알리고»(두 분이 알리는 것처럼 읽힘) 없음', vowOk(pv('vow')) && declOk(pv('declare')) && !/되었음을 알리고/.test(pv('declare')), pv('vow') + ' | ' + pv('declare'));
+}
+
 /* ── 5. 엔진 — 고른 값이 콘솔 큐로 그대로 간다 ── */
 const slugs = (S) => C.build(S, { mode: 'console' }).cues.map((c) => c.slug);
 ok('빈 채: 하객 맞이 넷 + 입장 + 닫는 인사(식전 영상 없음 · 04 는 원래 판) [PREVIDEO_PICK]', (() => { const r = C.build({ course: 'open', on: {} }, { mode: 'console' }); const s = slugs({ course: 'open', on: {} }); return r.seq.join(',') === 'guest,entry' && s.indexOf('guest-4-1min') > -1 && s.indexOf('narr-prevideo-in') < 0; })());
