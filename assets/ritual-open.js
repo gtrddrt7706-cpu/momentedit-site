@@ -169,18 +169,14 @@
        전부는 인사 한마디를 «서로의 부모님께»(편지를 각자 부모님께 쓰므로 · TRIBUTE_CROSS).
      ★식전 영상은 넷 모두 담아 둔다(PREVIDEO_PICK · 종전 PREVIDEO_ALWAYS 와 같은 화면). 준비한 순서는 어느 예시에도 없다 — «고객이 특별히 준비했을 때만 · 몇 없음»(사장님).
        기록은 12~17분 그대로(«시간보다 자연스러운 예식» — 사장님). */
-  /* ★★[COURSE_LEAN_1011 2026-10-11 사장님 «반지 교환 이런 건 코스에서 빼고 원하면 넣을 수 있게 · 선언문 빼고 감사문 추가»]
-       예시 넷에서 반지 · 케이크 · 성혼 선언을 뺐다 — 셋 다 «순간 더하고 빼기»에서 + 로 담는다(엔진 · 저장 초안은 그대로).
-       반지 · 케이크는 준비물이 있는 순간이라 두 분이 고른다. 성혼 선언은 MC 없는 예식이라 서약 · 감사문으로 맺는다(감사문 카드는 다음 판).
-       예시에 다시 ring · cake · declare 를 넣지 말 것 — merge-guard 가 막는다. */
   var EXAMPLES = [
     /* ★★[EX_BRIEF 2026-09-26 사장님 결정 · 코워크 회신 9/26 3-2] 넷째 «전부» → «간결» · «약속»의 부모님께 인사 → 말 없이.
          «전부»(all)는 거뒀다 — 저장된 초안의 pickFrom:'all' 은 exampleOf 가 null 이라 originOf 가 «직접 고르셨어요.»로 조용히 보인다
          (담은 순간은 그대로). 되살리지 말 것. feel = 카드의 분위기 한 줄(① 개편 [PICK_V2] 이 쓴다). */
-    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객과 가까이' /* [TABLE_GREET_1008 사장님 «기록에 넣고 소개를 바꾼다»] 옛 «단체 사진을 넉넉히» — 테이블 인사 9분이 들어 단체 사진 15~20 */, on: ['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'toast', 'table'], set: { entry: 'A', declare: 'clap', tribute: 'none' } },
-    { k: 'promise', nm: '약속', title: '서로에게 쓴 말', feel: '서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹', on: ['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'letter', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'none', letter: 'each' } },
-    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'bless', 'vow', 'tribute', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long' } },
-    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 서로의 약속에 집중', on: ['prevideo', 'vow', 'toast'], set: { entry: 'A', declare: 'solemn' } }
+    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객과 가까이' /* [TABLE_GREET_1008 사장님 «기록에 넣고 소개를 바꾼다»] 옛 «단체 사진을 넉넉히» — 테이블 인사 9분이 들어 단체 사진 15~20 */, on: ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'cake', 'toast', 'table'], set: { entry: 'A', declare: 'clap', tribute: 'none' } },
+    { k: 'promise', nm: '약속', title: '서로에게 쓴 말', feel: '서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹', on: ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'letter', 'cake', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'none', letter: 'each' } },
+    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'cake', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long' } },
+    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'vow', 'ring', 'declare', 'cake', 'toast'], set: { entry: 'A', declare: 'solemn' } }
   ];
   function exampleOf(k) { for (var i = 0; i < EXAMPLES.length; i++) if (EXAMPLES[i].k === k) return EXAMPLES[i]; return null; }
   // 예시를 S 에 입힌다 — 순간은 통째로 바꾸고, 판은 기본 위에 예시 값을 얹는다
