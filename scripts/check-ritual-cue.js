@@ -415,8 +415,11 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
       /* [MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 입장 끝 맞절 15초가 본식에 들어 단체 사진이 그만큼 준다(구현 뒤 게이트 값) —
          옛 기록 15~20 · 약속 21~27 · 가족 요청 2 2/4 · 가장 긴 조합 10~18 */
       /* [DECLARE_BY_PERSON 2026-10-12] 선언 시간이 «누가 읽든 하나»(12 · 15 · 8 · 20)가 돼 예시의 본식이 몇 초씩 움직였다(구현 뒤 게이트 값) — 옛 기록 15~19(박수 판) · 가족 17~24(나레이션 엄숙) */
-      ['기록', O.applyExample({}, 'record'), '15~20', '1/3', '1/2'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 */, ['약속', O.applyExample({}, 'promise'), '20~26', '3/5', '3/5'],
-      ['가족', O.applyExample({}, 'family'), '17~23', '2/4', '1/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
+      /* [EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결»] 예시를 다시 짰다(반지 · 케이크 · 편지 빠짐 · 정석 · 가족에 축가) — 구현 뒤 게이트 값 ·
+         옛 기록 15~20 · 1/3 · 1/2 · 약속 20~26 · 3/5 · 3/5 · 가족 17~23 · 2/4 · 1/4(가족은 반지 · 케이크 대신 축가라 요청 2 가 한 컷 준다) */
+      ['정석', O.applyExample({}, 'standard'), '21~26', '3/5', '3/4'],
+      ['기록', O.applyExample({}, 'record'), '18~22', '3/4', '2/3'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 → [EX_STD_1012] 18~22 */,
+      ['가족', O.applyExample({}, 'family'), '17~23', '2/4', '1/3'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
       ['가장 긴 조합', longest, '10~17', '0/2', '0/2']];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
@@ -485,7 +488,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   };
   for (const course of AX.course) for (const entry of AX.entry) for (const declareWho of AX.declareWho) for (const declare of AX.declare)
     for (const letter of AX.letter) for (const bless of AX.bless) check({ course, entry, declareWho, declare, letter, bless }, course);
-  for (const ex of ['record', 'promise', 'family', 'all'])
+  for (const ex of ['standard', 'record', 'family', 'brief'])   // [EX_STD_1012 2026-10-12] 예시 넷 그대로(옛 promise · all 은 걷혀 빈 판이었다)
     for (const dc of ['solemn', 'warm', 'clap', 'family'])
       for (const tr of ['one', 'long', 'none']) for (const how of ['flower', 'bowGroom'])
         for (const ts of ['both', 'toast', 'cake']) for (const wn of ['mix', 'family', 'none'])

@@ -7597,6 +7597,25 @@ chk 'CANDLE_BOW_1012' scripts/audit/open-course.mjs 4
 chk "t: '서는 두 분이 앞으로 나와 초에 불을 밝히고, 서로 · 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
 chk "t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
 chk "var ALWAYS = { guest: 1, entry: 1 };" assets/ritual-open.js 1   # 신랑 신부 입장은 빼지 못한다
+# ★★[EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결 (추천)» · 테이블 인사 «지금처럼»] 2단계 — 예시 넷 = 같은 뼈대(식전 영상 · 화촉 · 서약 · 선언 · 부모님께 인사 · 축배) + 성격 한두 개
+#   정석 + 첫인사 · 축가 / 기록 + 첫인사 · 테이블 인사 / 가족 + 첫인사 · 덕담 · 축가 / 간결 뼈대만 · 반지 · 케이크 · 편지는 예시에 없다(+ 로 담기) · 편지 중심 «약속» 예시는 걷었다
+#   open-course 가 구성 · 시간 · 알림 없음을, check-ritual-cue 가 마이페이지 단체 사진 표를, source-basis 가 장부 8장(엔진이 잰 값) · 예시마다 «왜»를 잰다
+chk 'EX_STD_1012' assets/ritual-open.js 5
+chk 'EX_STD_1012' order-preview.html 1
+chk 'EX_STD_1012' api/_ritual-kb.js 1
+chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
+chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
+chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
+chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'song', 'tribute', 'toast'], set: { entry: 'C', tribute: 'long' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'A', tribute: 'none' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute', 'toast'], set: { entry: 'E', tribute: 'long' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'A', tribute: 'none' } }" assets/ritual-open.js 1
+nochk "k: 'promise', nm: '약속'" assets/ritual-open.js          # 편지 중심 «약속» 예시는 걷었다 — 되살리지 말 것
+nochk "on: \['prevideo', 'candle', 'welcome', 'vow', 'ring'" assets/ritual-open.js   # 반지는 예시에 넣지 않는다(10/11 사장님 «반지 · 케이크는 코스에서 빼고») — + 로 담는다
+chk "스냅 촬영 «손과 반지» 장면으로 남길 수 있어요" order-preview.html 1
+chk "name: '손과 반지'" assets/snap-refs.js 1                      # 반지 미리 보기 한 줄이 가리키는 스냅 장면 — 이름을 바꾸면 이 줄도
+node scripts/audit/source-basis.mjs --stage2 || fail=1
 # ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 새 코스 입장 끝 맞절 한 줄(132) · 3·3·3 · 15초 · 고를 것 없음
 #   open-course 가 뜻(입장 바로 뒤 · 디렉터 GO · 바라보기 도착 큐 없음 · 입장 몫 +15초)을 잰다
 chk 'MATJEOL_1011' assets/ritual-cue.js 5

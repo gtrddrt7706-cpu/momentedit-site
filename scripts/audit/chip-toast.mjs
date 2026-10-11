@@ -98,7 +98,7 @@ for (const W of [320, 390, 1280]) {
     const e = await pg.evaluate(() => { window.toast('확인용 알림'); const t = document.getElementById('_toast'), cs = getComputedStyle(t), nb = document.querySelector('.btn-next'); return { bg: cs.backgroundColor, fg: cs.color, bw: cs.borderTopWidth, rad: cs.borderRadius, next: nb ? getComputedStyle(nb).backgroundColor : '' }; });
     ok('390 5 window.toast — «다음» 단추와 같은 브라운 · 흰 글 · 테두리 없음 · 알약 [TOAST_BROWN · TOAST_PILL]', e.bg === BROWN && e.fg === WHITE && e.bw === '0px' && e.rad === '999px' && e.next === BROWN, e);
     await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'pick') { idx = i; render(); break; } }); await wait(400);
-    const f = await pg.evaluate(() => { opEx('promise'); const u = document.getElementById('pkUndo'), cs = getComputedStyle(u); return { shown: !u.hidden, text: u.textContent, bg: cs.backgroundColor, fg: cs.color, bw: cs.borderTopWidth, rad: cs.borderRadius }; });
+    const f = await pg.evaluate(() => { opEx('standard'); const u = document.getElementById('pkUndo'), cs = getComputedStyle(u); return { shown: !u.hidden, text: u.textContent, bg: cs.backgroundColor, fg: cs.color, bw: cs.borderTopWidth, rad: cs.borderRadius }; });
     ok('390 5 ① 예시 알림(#pkUndo) — 같은 모양 [TOAST_BROWN · TOAST_PILL]', f.shown && f.bg === BROWN && f.fg === WHITE && f.bw === '0px' && f.rad === '999px', f);
   }
   ok(`${W} 화면 오류 없음`, errs.length === 0, errs.slice(0, 2));

@@ -98,12 +98,18 @@ for (const w of [390, 1280]) {
     && g5b.ring[0] === '두 분이 서로 반지를 끼워요' && g5b.declare[0] === '하객이 박수로 축하해요' /* [STAGE_LINES 2026-10-06] 종전 «하객 박수 · 두 분이 부부가 돼요» */ && g5b._close[0] === '두 분이 하객께 목례 · 박수'
     && g5b.fams === '신부 아버님:1,gdad:1,:1' /* [DECLARE_BY_PERSON · DECLARE_ANYONE] 누가 읽든(적은 이름 · 옛 칩 값 · 빈칸) 축하 박수 한 줄(57 뒤) · 옛 박수판의 «증인의 박수»는 걷었다 */, JSON.stringify(g5b));
   ok(`${w} G5 첫 줄 이름 — 화촉 «시작할 때» · 선언 «시작할 때»(여는 말 · DECLARE_BY_PERSON · STAGE_LINES) [FIRST_LINE_NAME]`, g5b.labs.candle === '시작할 때' && g5b.labs.declare === '시작할 때' /* [STAGE_LINES 2026-10-06] 줄 이름 = 언제 · 선언문이 곧 선언 */   /* [R3-10] 갈래 표가 «나레이션»이라 이름에서 뺐다 */, JSON.stringify(g5b.labs));
-  await pg.evaluate(() => mkGo('toast')); await pg.waitForTimeout(300);
+  /* [EX_STD_1012 2026-10-12] 예시 넷에서 케이크가 빠졌다 — 잔 드는 옅은 줄(케이크와 축배 판)은 케이크를 담아 잰다 · 축배만 판은 아래에서 따로 */
+  await pg.evaluate(() => { if (!RitualOpen.onOf(S, 'cake')) { S.on.cake = 1; opSync(); } mkGo('toast'); }); await pg.waitForTimeout(300);
   const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.mk-pg .mk-flow li')];
     return { txt: li.map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return (l.className === 'q' ? '[quiet]' : '') + c.textContent; }), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
   /* [FLOW_MAKE] ② 쪽 흐름에서 «위하여»는 두 분 차례(«신랑 차례» · 글은 연습에서 흐른다) — 잔 드는 큐 바로 뒤에 온다 */
   const wi = g5c.txt.findIndex((t) => /^신랑 차례/.test(t)), pi = g5c.txt.findIndex((t) => /한 잔에 (모아요|부어요)/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
   ok(`${w} G5 화면 — 잔 드는 큐 → «위하여» 순서 · 붓기 줄 없음 [WINE_POUR_OFF]`, pi < 0 && gi >= 0 && wi === gi + 1, JSON.stringify(g5c));
+  /* [EX_STD_1012] 축배만(예시 넷의 판) — 잔 드는 말(«잔을 들어 주세요») 바로 뒤가 «위하여»(신랑 차례) · 붓기 줄 없음 */
+  await pg.evaluate(() => { delete S.on.cake; opSync(); mkGo('toast'); }); await pg.waitForTimeout(300);
+  const g5t = await pg.evaluate(() => [...document.querySelectorAll('.mk-pg .mk-flow li')].map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return c.textContent; }));
+  const ti = g5t.findIndex((t) => /잔을 들어 주세요/.test(t)), tw = g5t.findIndex((t) => /^신랑 차례/.test(t));
+  ok(`${w} G5 축배만 — 잔을 드는 말 → «위하여» 순서 · 붓기 줄 없음 [EX_STD_1012 · WINE_POUR_OFF]`, ti >= 0 && tw === ti + 1 && !g5t.some((t) => /한 잔에 (모아요|부어요)/.test(t)), JSON.stringify(g5t));
   /* 옅은 줄의 색 · 재생 길이는 반지 교환 쪽(말 없이 지나가는 줄)에서 잰다 — 축배의 옅은 줄(붓기)은 걷었다 */
   await pg.evaluate(() => { S.on.ring = 1; opSync(); mkGo('ring'); render(); }); await pg.waitForTimeout(300);
   /* ★[FLOW_THREAD 2026-10-07 사장님 → 시안 A «흐름선»] 행동 줄 = 먹빛 · ● 마디 — 종전 «G5 옅은 줄 색 = --light»(QUIET_LINES)는 이 결정으로 바뀌었다(행동이 위 멘트의 각주처럼 읽혔다) · 자세한 잣대는 flow-thread.mjs */

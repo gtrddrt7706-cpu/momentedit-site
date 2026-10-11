@@ -21,8 +21,15 @@
            node scripts/audit/source-basis.mjs --closed   (1단계가 닫혔나 — «진행» 줄이 하나라도 있으면 빨강)
    6. ★[STAGE1_CLOSE 2026-10-11 사장님 «1단계에서 더 이상 추가 · 빼기 · 수정할 게 없는지 확실하게 마무리하고 2단계로»]
       모든 줄에 상태(state)를 단다 — 끝(main 반영) · 2단계(기본 코스에서) · 3단계(나레이션 문안에서) · 다른 섹션 · 그대로 · 진행.
-      부딪혔던 줄(conflict)은 사장님 결정(decided)을 함께 적는다 · 결정이 없으면 «진행»이 아니라 빨강이다(묻지 않고 넘어가지 않는다). */
+      부딪혔던 줄(conflict)은 사장님 결정(decided)을 함께 적는다 · 결정이 없으면 «진행»이 아니라 빨강이다(묻지 않고 넘어가지 않는다).
+   7. ★[EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결 (추천)»] 2단계(예시 코스) — 자료표 courses 에 예시마다 «왜»를 적고,
+      담는 순간 · 자료 포함률 · 본식 · 테이블 인사 · 단체 사진 · 알림은 엔진(EXAMPLES · span · noticeList)이 재서 장부 8장에 쓴다.
+      예시를 바꾸면 장부가 달라져 빨강 → --write 로 다시 만든다 · 예시마다 «왜»가 없거나 부딪힌 결정에 사장님 결정이 없으면 빨강.
+      --stage2 = 2단계가 닫혔나(«2단계» 줄이 하나라도 남으면 빨강). */
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
+/* ★[EX_STD_1012 2026-10-12] 2단계 예시 코스 — 담는 순간 · 시간 · 알림은 엔진이 잰다(장부 8장 · 사람이 적지 않는다) */
+const O = createRequire(import.meta.url)('../../assets/ritual-open.js');
 
 const J = 'docs/plans/식순연구/순간개편_자료표.json';
 const MD = 'docs/plans/식순연구/순간개편_근거장부.md';
@@ -86,6 +93,13 @@ function validate(d) {
       if (m.verdict === '우리 고유') bad.push(at + ' 자료에 있는 순간을 «우리 고유»라 했다');
     } else if (!String(m.near || '').trim()) bad.push(at + ' 자료에 없는 순간인데 가장 가까운 자료(near)가 없다');
   });
+  /* [EX_STD_1012] 2단계 — 예시마다 «왜» · 엔진의 예시와 한 줄씩 맞물린다 · 담는 순간은 모두 장부 줄로 이어진다 */
+  const C = d.courses || {}, list = Array.isArray(C.list) ? C.list : [], names = new Set((d.moments || []).map((m) => m.name));
+  if (list.map((c) => c.k).join(',') !== O.EXAMPLES.map((e) => e.k).join(',')) bad.push('예시 코스(courses.list)가 엔진의 예시와 다르다 — 엔진 ' + O.EXAMPLES.map((e) => e.k).join(',') + ' · 자료표 ' + list.map((c) => c.k).join(',') + ' [EX_STD_1012]');
+  list.forEach((c) => { if (!String(c.why || '').trim()) bad.push('예시 «' + c.k + '»에 «왜»가 없다 [EX_STD_1012]'); });
+  O.EXAMPLES.forEach((e) => e.on.forEach((k) => { if (!names.has((d.keyOf || {})[k])) bad.push('예시 «' + e.nm + '»의 순간 ' + k + ' 가 장부 줄로 이어지지 않는다(keyOf) [EX_STD_1012]'); }));
+  (C.conflict || []).forEach((c) => { if (!String(c.decided || '').trim()) bad.push('예시 코스가 부딪힌 결정 «' + c.what + '»에 사장님 결정(decided)이 없다 [EX_STD_1012]'); });
+  if (!String(C.spine || '').trim() || !String(C.out || '').trim()) bad.push('예시 코스의 뼈대(spine) · 넣지 않는 것(out)이 비었다 [EX_STD_1012]');
   return bad;
 }
 
@@ -168,6 +182,27 @@ function render(d) {
     ks.forEach((k) => L.push('  - [' + k + '] ' + m.prior[k]));
   });
   L.push('');
+  /* ★[EX_STD_1012] 2단계 — 예시 코스(엔진이 잰 값) */
+  const C = d.courses || {}, why = {}, row = {};
+  (C.list || []).forEach((c) => { why[c.k] = c.why; });
+  d.moments.forEach((m) => { row[m.name] = m; });
+  const pctOf = (k) => { const m = row[(d.keyOf || {})[k]]; if (!m) return '?'; if (!m.data) return '우리'; const s = stat(d, m); return Math.round((s.base / s.n) * 100) + '%'; };
+  L.push('## 8. 예시 코스 — 2단계 ([EX_STD_1012])');
+  L.push('');
+  L.push('> 담는 순간 · 자료 포함률 · 시간 · 알림은 엔진(`assets/ritual-open.js` EXAMPLES)이 잰 값이다 — 예시를 바꾸면 이 장이 달라져 검사가 붉어진다. 시간은 6테이블(하객 30명) 기준.');
+  L.push('');
+  L.push('- **뼈대** ' + C.spine);
+  L.push('- **넣지 않는 것** ' + C.out);
+  L.push('');
+  L.push('| 예시 | 담는 순간(자료 기본 포함률) | 본식 | 테이블 인사 | 단체 사진 | 알림 | 왜 |');
+  L.push('|---|---|---|---|---|---:|---|');
+  O.EXAMPLES.forEach((e) => {
+    const T = O.applyExample({}, e.k), p = O.span(T);
+    const on = O.ORDER.filter((k) => !O.ALWAYS[k] && T.on[k]).map((k) => O.CARDS[k].sn + ' ' + pctOf(k)).join(' · ');
+    L.push('| ' + ['**' + e.nm + '** · ' + e.feel, on, p.body, p.table || '—', p.photo, String(O.noticeList(T).length), why[e.k] || '—'].join(' | ') + ' |');
+  });
+  if ((C.conflict || []).length) { L.push(''); L.push('예전 결정과 부딪힌 것'); L.push(''); C.conflict.forEach((c) => L.push('- **' + c.what + '** ↔ ' + c.was + ' → **' + c.decided + '**')); }
+  L.push('');
   return L.join('\n');
 }
 
@@ -187,13 +222,15 @@ if (arg === '--selftest') {
   const t8 = JSON.parse(JSON.stringify(d)); delete pick(t8).kw;                                                         // 찾을 말이 없다
   const t9 = JSON.parse(JSON.stringify(d)); delete t9.moments[0].state;                                                 // [STAGE1_CLOSE] 상태 없음
   const t10 = JSON.parse(JSON.stringify(d)); const cfm = t10.moments.find((m) => m.conflict); if (cfm) { delete cfm.decided; cfm.state = '그대로'; }   // 부딪힌 줄을 결정 없이 닫음
-  const fails = [t1, t2, t3, t4, t9, t10].map((t) => validate(t).length > 0).concat([t5, t6, t7, t8].map((t) => priorCheck(t, true).bad.length > 0));
+  const t11 = JSON.parse(JSON.stringify(d)); t11.courses.list.pop();                                                // [EX_STD_1012] 예시 하나의 «왜»가 빠짐(엔진과 어긋남)
+  const t12 = JSON.parse(JSON.stringify(d)); delete t12.courses.conflict[0].decided;                                 // [EX_STD_1012] 부딪힌 결정에 사장님 결정이 없음
+  const fails = [t1, t2, t3, t4, t9, t10, t11, t12].map((t) => validate(t).length > 0).concat([t5, t6, t7, t8].map((t) => priorCheck(t, true).bad.length > 0));
   const md = render(d).replace(/\| \*\*유지\*\* \|/, '| **추가** |');            // 손으로 고친 장부
   const mdFail = md !== render(d);
   /* 지금 자료표는 «모양»만 본다(strict 아님) — 코드에 새 결정 표식이 생겼다고 다른 작업의 PR 이 깨 보기에서 막히면 안 된다.
      ★첫 판의 깨 보기가 여기서 strict 로 돌아, 같은 PR 에서 AI 지식 줄에 표식을 단 것만으로 빨강이 났다(2026-10-11). 엄격한 검사는 --write 몫이다. */
   const realOk = priorCheck(d, false).bad.length === 0;
-  if (fails.every(Boolean) && mdFail && realOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 11종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN] [STAGE1_CLOSE]'); process.exit(0); }
+  if (fails.every(Boolean) && mdFail && realOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 13종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN] [STAGE1_CLOSE] [EX_STD_1012]'); process.exit(0); }
   console.log('FAIL [SOURCE_BASIS] 깨 보기 중 빨강이 안 난 것이 있다', fails, mdFail, realOk); process.exit(1);
 }
 
@@ -201,6 +238,11 @@ if (arg === '--closed') {   // [STAGE1_CLOSE] 1단계가 닫혔나
   const open = d.moments.filter((m) => m.state === '진행').map((m) => m.name);
   if (open.length) { console.log('FAIL [STAGE1_CLOSE] 1단계에 아직 «진행» 줄이 있다 — ' + open.join(' · ')); process.exit(1); }
   console.log('ok   [STAGE1_CLOSE] 1단계 닫힘 — 순간 ' + d.moments.length + '줄 모두 끝 · 2단계 · 3단계 · 다른 섹션 · 그대로'); process.exit(0);
+}
+if (arg === '--stage2') {   // [EX_STD_1012] 2단계(예시 코스)가 닫혔나
+  const open = d.moments.filter((m) => m.state === '2단계').map((m) => m.name), vb = validate(d).filter((b) => /EX_STD_1012/.test(b));
+  if (open.length || vb.length) { console.log('FAIL [EX_STD_1012] 2단계가 덜 닫혔다 — ' + open.concat(vb).join(' · ')); process.exit(1); }
+  console.log('ok   [EX_STD_1012] 2단계 닫힘 — «2단계» 줄 없음 · 예시 ' + O.EXAMPLES.map((e) => e.nm).join(' · ') + ' 모두 «왜»가 있다'); process.exit(0);
 }
 const pc = priorCheck(d, arg === '--write');
 const bad = validate(d).concat(pc.bad);
