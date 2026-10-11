@@ -9074,6 +9074,22 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/bar-smooth.mjs >/dev
     *) echo 'ok bar-smooth: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
 fi
+# ★★[CINE_SCOPE 2026-10-11 사장님 «여기 영상 비율 너무 큰 거 같은데 와이드로» → «짤려도 되니깐 시네마 느낌 나게 비율을 감각 있게 바꿔 봐»]
+#   장면 영상(② 하나씩 만들기 · ① 창 · 목소리 창 · ③ 연습 장면 · 크게 보기) = 영화관 비율 2.39 : 1 · 위아래를 자른다.
+#   자르는 높이 --fy(기본 35% · 입장 15 · 닫는 인사 45 · _VFY) · 작은 칸 · 64px 썸네일은 16 : 9 그대로.
+#   cine-scope.mjs 가 비율 · 높이 규칙 · 그리는 네 곳 · _vfyN 을 본다(깨 보기 7개 내장 · 옛 16 : 9 판 20건 빨강 확인).
+chk 'CINE_SCOPE' order-preview.html 6
+chk 'CINE_SCOPE' scripts/audit/cine-scope.mjs 2
+chk 'CINE_SCOPE' .claude/skills/momentedit-design/SKILL.md 1
+chk 'var _VFY={entry:15,close:45};' order-preview.html 1
+nochk '.pv-media{position:relative;aspect-ratio:16/9' order-preview.html
+nochk '.mk-vu-img{aspect-ratio:16/9' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/cine-scope.mjs >/dev/null 2>&1; _cs=$?
+  case "$_cs" in
+    0) echo 'ok cine-scope: 장면 영상 2.39 : 1 · 장면마다 높이 · 칸 · 썸네일 16 : 9' ;;
+    *) echo 'FAIL cine-scope: 장면 영상 비율 · 자르는 높이가 정한 것과 다릅니다 — node scripts/audit/cine-scope.mjs'; fail=1 ;;
+  esac
+fi
 chk '_mkVidAfter(el,_mv0)' order-preview.html 1
 nochk '<video muted loop playsinline' order-preview.html
 chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
