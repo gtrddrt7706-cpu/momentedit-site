@@ -7549,6 +7549,11 @@ chk 'ENTRY_HOLD' scripts/build-typecast-import.mjs 1
 # ★[NARR_PLAY_LOOP 2026-10-10 사장님] 나레이션 청취 플레이 — 중복 없음 · [지적 N] 은 장부에만
 chk 'NARR_PLAY_LOOP' CLAUDE.md 1
 chk 'NARR_PLAY_LOOP' scripts/audit/narr-play.mjs 1
+# ★[SOURCE_BASIS 2026-10-11 사장님] 순간 개편은 실전 자료 평균 → 우리 컨셉 거르기 · 장부는 자료표에서 만든다(손으로 고치지 않는다)
+chk 'SOURCE_BASIS' CLAUDE.md 1
+chk 'SOURCE_BASIS' scripts/audit/source-basis.mjs 1
+node scripts/audit/source-basis.mjs || fail=1
+node scripts/audit/source-basis.mjs --selftest || fail=1
 node scripts/audit/narr-play.mjs || fail=1
 # ★[FOOD_NO_WELCOME 2026-10-10 사장님] 홈페이지 제공 항목에서 «웰컴» 뺌 — 핑거 푸드는 사진용 차림 · 건배 뒤에 드시게
 chk 'FOOD_NO_WELCOME' index.html 1
