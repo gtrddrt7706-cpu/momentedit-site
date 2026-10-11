@@ -672,6 +672,7 @@ else {
     return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote'), aiTxt: /AI로 만든|(^|\s)AI(\s|$)/.test([...document.querySelectorAll('.pk-tile .pk-media')].map((m) => m.textContent).join(' ')) }; });
   /* [AI_LABEL_OFF 2026-10-03 사장님 «ai 그 문구도 지워»] 종전 «칸마다 AI · 한 줄 안내» → «AI 0 · 한 줄 없음» */
   ok('V-3 ① 칸 그림 = 실제 640 판이 뜬다(빈 그림 0) · 칸 구석 «AI» 0 · 칸에 영상 0 · «AI로 만든» 한 줄 없음 [AI_LABEL_OFF]', tl.n >= 8 && tl.ok === tl.n && tl.ai === 0 && tl.vids === 0 && !tl.note && !tl.aiTxt, JSON.stringify(tl));
+  await pg.evaluate(() => opTgl('ring')); await pg.waitForTimeout(300);   /* [EX_STD_1012 2026-10-12] 가족 예시에 반지가 없어졌다 — 반지 쪽 영상은 고객처럼 + 로 담고 잰다 */
   await clickNext(pg); await pg.waitForTimeout(1200); await pg.evaluate(() => { mkGo('ring'); render(); }); await pg.waitForTimeout(500);
   const mk = await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'), b = document.querySelector('.mk-vid'); return { src: v ? v.getAttribute('src') : '', poster: v ? v.getAttribute('poster') : '', ai: b ? (/AI로 만든 장면/.test(b.textContent) || !!b.querySelector('.lv-ai')) : false }; });
   /* [AI_LABEL_OFF 2026-10-03 사장님] 종전 «이름표가 있다» → «없다» */
