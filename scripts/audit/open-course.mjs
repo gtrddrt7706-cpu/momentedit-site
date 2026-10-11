@@ -21,7 +21,7 @@ process.on('exit', (code) => { if (bad && code === 0) process.exitCode = 1; });
 
 /* ── 1. 순서 · 코스 ── */
 ok('COURSES.open.seq = ritual-open.js ORDER (v4 · guest 포함)', JSON.stringify(D.COURSES.open.seq) === JSON.stringify(O.ORDER), D.COURSES.open.seq.join(','));
-ok('v4 순서(명세 0장) + 닫는 인사 뒤 테이블 인사 [TABLE_GREET_1008] · 덕담은 선언 바로 뒤 [BLESS_AFTER_DECLARE]', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,vow,ring,declare,bless,song,tribute,free,letter,cake,toast,table' && O.AFTER_CLOSE.table === 1 && O.bodySeq({ on: { vow: 1, table: 1 } }).join(',') === 'entry,vow,_close,table');   // [CAKE_TOAST_SPLIT]
+ok('v4 순서(명세 0장) + 닫는 인사 뒤 테이블 인사 [TABLE_GREET_1008] · 덕담은 선언 바로 뒤 [BLESS_AFTER_DECLARE] · 마음의 순간 = 덕담 → 준비한 순서 → 축가 → 편지 → 인사 [HEART_ORDER_1012]', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,vow,ring,declare,bless,free,song,letter,tribute,cake,toast,table' && O.AFTER_CLOSE.table === 1 && O.bodySeq({ on: { vow: 1, table: 1 } }).join(',') === 'entry,vow,_close,table');   // [CAKE_TOAST_SPLIT]
 ok('옛 코스 여섯은 지우지 않고 숨긴다(Q1 ①)', ['damback', 'gamdong', 'family', 'minimal', 'festive', 'record'].every((k) => D.COURSES[k] && D.COURSES[k].hidden));
 ok('새 코스도 옛 카드 목록엔 없다(hidden)', D.COURSES.open.hidden === true && D.COURSES.open.open === true);
 
@@ -77,8 +77,21 @@ ok('모든 순간에 칸 글이 있다(tileOf 빈 값 0) [TILE_SWALLOW]', Object
 /* ── 3. 알림 넷 — 조건 그대로(명세 3-6 · 둘째 판 4-1 · 4-7) ── */
 ok('① 앞쪽 사슬(서약 · 덕담 · 인사 · 덕담은 선언 뒤라 서약 다음) → 알림 ①', O.noticeOf({ on: { bless: 1, vow: 1, toast: 1 }, tributeSay: 'one' }) === '' && O.noticeOf({ on: { bless: 1, vow: 1, tribute: 1, toast: 1 } }) === O.NOTICE.heavy);
 { const _bs = { on: { declare: 1, bless: 1, tribute: 1, letter: 1, toast: 1 } }, _n = O.noticeFull(_bs);   /* [BLESS_AFTER_DECLARE 2026-10-12] 반지 · 선언은 덕담 앞이라 이 사슬을 못 푼다 */
-  ok('① 덕담으로 시작하는 사슬(덕담 · 인사 · 편지)은 뒤쪽 문구 · 단추 «인사를 말 없이로» — «반지나 선언»이 아니다 [BLESS_AFTER_DECLARE]', O.noticeOf(_bs) === O.NOTICE.heavyBack && !!_n && _n.acts.map((a) => a[0]).join('|') === '인사를 «말 없이»로', _n && _n.msg); }
-ok('① 뒤쪽 사슬(인사 · 축사 · 편지) → 뒤쪽 문구', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' }) === O.NOTICE.heavyBack);
+  ok('① 덕담으로 시작해 인사로 끝나는 사슬(덕담 · 편지 · 인사)은 뒤쪽 문구 · 단추 «인사를 말 없이로» — «반지나 선언»이 아니다 [BLESS_AFTER_DECLARE · HEART_ORDER_1012]', O.noticeOf(_bs) === O.NOTICE.heavyBack && !!_n && _n.acts.map((a) => a[0]).join('|') === '인사를 «말 없이»로', _n && _n.msg); }
+{ /* ★[HEART_ORDER_1012 2026-10-12] 인사가 마음의 순간 끝 — 사슬에 인사가 있으면 «말 없이», 없으면(덕담 → 축사 → 편지) 그 사이 빈 자리는 축가 하나 */
+  const mid = { on: { declare: 1, bless: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' }, nm = O.noticeFull(mid);
+  ok('① 인사 없는 사슬(덕담 · 축사 · 편지) → «축가를 담으면» · 단추 «축가 담기» [HEART_ORDER_1012]', O.noticeOf(mid) === O.NOTICE.heavyMid && !!nm && nm.acts.map((a) => a[0]).join('|') === '축가 담기' && /^부모님 덕담 → 준비한 순서 → 편지 낭독 · /.test(nm.msg), nm && nm.msg);
+  ok('① 축가를 담으면 그 사슬은 풀린다(축가가 축사와 편지 사이) [HEART_ORDER_1012]', O.noticeOf(Object.assign({}, mid, { on: Object.assign({}, mid.on, { song: 1 }) })) !== O.NOTICE.heavyMid);
+  const four = { on: { declare: 1, bless: 1, free: 1, letter: 1, tribute: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' }, n4 = O.noticeFull(four);
+  ok('① 넷 이어진 사슬(덕담 · 축사 · 편지 · 인사) — 이름 셋은 인사까지(«인사를 말 없이로»를 말하니까) [HEART_ORDER_1012]', O.noticeOf(four) === O.NOTICE.heavyBack && !!n4 && /^준비한 순서 → 편지 낭독 → 부모님께 인사 · /.test(n4.msg), n4 && n4.msg);
+  ok('[HEART_ORDER_1012] 까닭 — 인사 · 준비한 순서는 이웃을 담았을 때만 그 말을(WHY_NEIGHBOR)', O.whyOf('tribute', { on: { tribute: 1 } }) !== O.CARDS.tribute.why && O.whyOf('tribute', { on: { tribute: 1, letter: 1 } }) === O.CARDS.tribute.why
+    && O.whyOf('free', { on: { free: 1 } }) !== O.CARDS.free.why && O.whyOf('free', { on: { free: 1, song: 1 } }) === O.CARDS.free.why && !/편지 앞|선언 다음/.test(O.CARDS.free.why + O.CARDS.tribute.why));
+  ok('[HEART_ORDER_1012] 막 — 약속의 순간 = 서약 · 반지 · 선언 · 덕담 / 마음의 순간 = 준비한 순서 · 축가 · 편지 · 부모님께 인사(막마다 넷 · 막을 이으면 ORDER 와 같다)', (O.SECTIONS.find((x) => x.n === '약속의 순간') || {}).ks.join(',') === 'vow,ring,declare,bless' && (O.SECTIONS.find((x) => x.n === '마음의 순간') || {}).ks.join(',') === 'free,song,letter,tribute'
+    && O.SECTIONS.map((x) => x.ks.join(',')).join(',') === O.ORDER.filter((k) => !O.PRE[k] || k === 'prevideo').filter((k) => k !== 'table').join(',') + ',_close,table');
+}
+ok('[SONG_3MIN] 축가 MR 보낼 것에 «3분 안팎 한 곡»(자료 B · C · L · 시간 표 210초)', O.prepOf('song', { on: { song: 1 } }).some((q) => /축가 반주\(MR\) 파일 · 곡 이름과 함께 · 3분 안팎 한 곡/.test(q[1])) && O.TIME.song[2] === 210);
+ok('[TRIBUTE_BRIDE_FIRST] 콘솔 메모 — 신부 부모님께 먼저(자료 G · P · Q) · 새 코스만', (() => { const r = C.build({ course: 'open', on: { tribute: 1 } }, { mode: 'console' }); const c = r.cues.find((x) => x.slug === 'tribute-in'); return !!c && /신부 부모님께 먼저/.test(c.note || ''); })());
+ok('① 뒤쪽 사슬(축사 · 편지 · 인사) → 뒤쪽 문구', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' }) === O.NOTICE.heavyBack);
 ok('① 인사 «말 없이»면 앉아 듣는 순간이 아니다', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, tributeSay: 'none', freeWhat: 'speech', freeLen: '1' }) !== O.NOTICE.heavyBack);
 { const _mk = (t) => { const S = O.applyExample({}, 'promise'); delete S.on.cake; delete S.on.toast; if (t) S.on.table = 1; return S; };   /* [QUIET_END_CLOSE 2026-10-09 A~Z 1라운드 A-6] 테이블 인사는 닫는 인사 뒤에 선다(bodySeq) — «닫는 인사 바로 앞»을 seq[len-2] 로 집으면 _close 를 집어 알림이 사라졌다 */
   ok('② 끝이 조용한 편(축배 없음) 알림은 테이블 인사를 담아도 그대로 [QUIET_END_CLOSE]', O.noticeList(_mk(false)).indexOf(O.NOTICE.toast) > -1 && O.noticeList(_mk(true)).indexOf(O.NOTICE.toast) > -1, JSON.stringify([O.noticeList(_mk(false)).length, O.noticeList(_mk(true)).length])); }
@@ -96,7 +109,7 @@ ok('④ 가족 + 준비한 순서 3분 → 알림 ④(단체 사진 < 16분 · �
 ok('준비한 순서 칩이 시간 · 준비 목록에 곧장', (() => { const S = { on: { free: 1 } }; const a = O.bodySec(S)[0]; O.setChip(S, 'freeLen', '1'); const b = O.bodySec(S)[0]; O.setChip(S, 'free', 'speech'); O.setChip(S, 'freeLen', '2'); const c = O.bodySec(S);
   return a - b === 120 && Math.round(O.partsOf('free', S).reduce((x, y) => x + y) - 10) === 126 - 0 && /축사하실 분/.test(O.prepOf('free', S)[0][1]); })());
 ok('축사 2분 = 대본 126초 · 넉넉 161초', (() => { const S = { on: { free: 1 }, freeWhat: 'speech', freeLen: '2' }; const p = O.partsOf('free', S); return p[0] + p[1] + p[2] === 126 && Math.round(p[0] + 1.25 * p[1] + p[2] + p[3]) === 161; })());
-ok('준비한 순서 자리 = 부모님께 인사 뒤 · 편지 앞', (() => { const q = O.bodySeq({ on: { declare: 1, tribute: 1, free: 1, letter: 1 } }); return q.indexOf('tribute') + 1 === q.indexOf('free') && q.indexOf('free') + 1 === q.indexOf('letter'); })());
+ok('준비한 순서 자리 = 덕담 뒤 · 축가 앞 · 편지 → 인사 [HEART_ORDER_1012]', (() => { const q = O.bodySeq({ on: { declare: 1, bless: 1, tribute: 1, free: 1, song: 1, letter: 1 } }); return q.indexOf('bless') + 1 === q.indexOf('free') && q.indexOf('free') + 1 === q.indexOf('song') && q.indexOf('song') + 1 === q.indexOf('letter') && q.indexOf('letter') + 1 === q.indexOf('tribute'); })());
 /* ★[PREVIDEO_PICK 2026-09-27 사장님 «식전 영상은 필수로 하지 말자 · 선택할 수 있게»] 종전 «늘 있다(PREVIDEO_ALWAYS)»를 뒤집었다 */
 ok('식전 영상은 담는 순간(빈 채엔 없음 · 담으면 식전 · 예시 넷은 담아 둔다) [PREVIDEO_PICK]', !O.ALWAYS.prevideo && O.PICKABLE.indexOf('prevideo') > -1 && O.seqOf({ on: {} }).indexOf('prevideo') < 0 && O.seqOf({ on: { prevideo: 1 } }).indexOf('prevideo') > -1 && !!O.PRE.prevideo && O.EXAMPLES.every((e) => e.on.indexOf('prevideo') > -1));
 ok('«축하의 말» 칸은 거뒀다(축사는 준비한 순서의 한 판)', O.ORDER.indexOf('speech') < 0 && !O.CARDS.speech && O.CHIPS.free.some((c) => c[0] === 'speech'));
@@ -224,9 +237,11 @@ ok('[GUEST_EX_NAR] 나레이션 예시 2~4 → 115~126 · 두 분 목소리 판�
   const sl = (S, m) => C.build(S, { mode: m || 'console' }).cues.map((c) => c.slug);
   const full = { course: 'open', on: { welcome: 1, vow: 1, ring: 1, declare: 1, tribute: 1, free: 1, letter: 1, cake: 1, toast: 1 }, freeWhat: 'video' };
   const a = sl(full), at = (s) => a.indexOf(s);
-  ok('[BRIDGE_LINK] 다 담은 판 — 넷이 각자 자리(선언 뒤 · 인사 뒤 · 영상 뒤 · 편지 → 케이크)',
+  ok('[BRIDGE_LINK] 다 담은 판 — 셋이 각자 자리(선언 뒤 · 인사 뒤 · 영상 뒤) · 편지 뒤는 인사라 B6 없음 [HEART_ORDER_1012]',
     at('bridge-b3-clap-thanks') === at('narr-declare-family-out') + 1 && at('bridge-b4-breath') === at('tribute-out') + 1   /* [DECLARE_BY_PERSON] 선언 박수는 맺는 말 57 뒤 */
-    && at('bridge-b5-video-out') === at('narr-free-in-video') + 1 && at('bridge-b6-lighter') === at('narr-letter-end') + 1, a.join(' '));
+    && at('bridge-b5-video-out') === at('narr-free-in-video') + 1 && at('bridge-b6-lighter') < 0, a.join(' '));
+  { const nt = sl(Object.assign({}, full, { on: Object.assign({}, full.on, { tribute: 0 }) }));   /* [HEART_ORDER_1012] 인사를 안 담으면 편지 바로 뒤가 케이크 */
+    ok('[BRIDGE_LINK] 인사를 안 담으면 편지 → 케이크 사이 B6 [HEART_ORDER_1012]', nt.indexOf('bridge-b6-lighter') > -1 && nt.indexOf('bridge-b6-lighter') === nt.indexOf('narr-letter-end') + 1, nt.join(' ')); }
   ok('[BRIDGE_LINK] 옛 코스에는 없다', !sl({ course: 'damback' }).some((s) => /^bridge-b/.test(s)));
   ok('[BRIDGE_LINK] 준비한 것이 영상이 아니면 B5 없음', !sl(Object.assign({}, full, { freeWhat: 'speech' })).includes('bridge-b5-video-out'));
   const noCake = sl(Object.assign({}, full, { on: Object.assign({}, full.on, { cake: 0 }) }));
@@ -273,7 +288,7 @@ if (process.argv.includes('--live')) {
     ok(`${w} 빈 채 알림 없음 · 늘 있어요 둘(입장 · 닫는 인사 · 식전 영상은 담는 칸 [PREVIDEO_PICK]) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 2 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
     ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '추가 비용'].some((x) => s.text.indexOf(x) > -1));   // [SONG_BACK_1011] «축가»는 이제 순간 이름
     await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); s = await g();
-    ok(`${w} ‹가족› 예시 → 본식 약 16~23분`, /약 16~23분/.test(s.band), s.band);   // [WINE_POUR_OFF]
+    ok(`${w} ‹가족› 예시 → 본식 약 17~23분(정적 WANT 와 같은 값)`, /약 17~23분/.test(s.band), s.band);   // [WINE_POUR_OFF] · [DECLARE_BY_PERSON 10/12] 정적 WANT 는 17~23 으로 고쳤는데 이 실브라우저 줄만 16~23 에 남아 있었다
     // [ACTS_FOUR] 준비한 순서는 «마음의 순간»의 «있을 때만» 칸 — 담기 원을 누르면 담긴다(옛 [FREE_OWN] 맨 아래 묶음 · ② 더하기 단추는 거뒀다)
     const addBtn = await pg.$('[data-fk="opt:free"]');
     ok(`${w} 준비한 순서 칸에 담기 원이 있다(«있을 때만»)`, !!addBtn && await pg.evaluate(() => /있을 때만/.test(document.querySelector('[data-fk="pto:free"]').textContent)));
@@ -287,7 +302,7 @@ if (process.argv.includes('--live')) {
     await pg.click('[data-fk="opt:letter"]'); await pg.waitForTimeout(300); await pg.evaluate(() => { S.letter = 'parent'; render(); }); await pg.waitForTimeout(300); s = await g();
     ok(`${w} [TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → «말이 두 번» 알림 없음`, s.note !== O.NOTICE.twice, s.note);
     const steps = await pg.evaluate(() => (window.STEPS || []).map((x) => x.k).join(','));
-    ok(`${w} 네 걸음 = 고르기 · 보고 듣기 · 글 적기 · 완성 [LISTEN_PAGE]`, steps === 'intro,intro2,pick,listen,write,done', steps);
+    ok(`${w} 네 걸음 = 고르기 · 보고 듣기 · 연습하기 · 완성 [LISTEN_PAGE · PRACTICE_STEP]`, steps === 'intro,intro2,pick,listen,practice,done', steps);   // [PRACTICE_STEP] ③ «글 적기»(write)가 «연습하기»(practice)로 바뀐 뒤 이 줄만 남아 있었다
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
   }
