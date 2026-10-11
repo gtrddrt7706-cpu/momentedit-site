@@ -201,7 +201,7 @@ for (const w of [390, 1280]) {
   /* [REC_STATE_FREE] 아래 ②③ 은 «두 줄만 재녹음»을 흉내 낸다 — 먼저 녹음 기록을 비워 출발점을 «전부 녹음 전»으로 맞춘다 */
   await pg.evaluate(() => { for (const k in LREC) delete LREC[k]; render(); }); await pg.waitForTimeout(300);
   // ② 두 줄만 «재녹음»(녹음된 글 = 지금 글) → 그 둘만 소리 · 나머지는 글 · 줄 꼬리표가 돌아온다
-  await pg.evaluate(() => { const st = _lSteps(ENG, ['ring', 'declare']).filter((x) => x.file); st.forEach((x) => { LREC[x.file] = { text: x.txt }; }); window.__fix = st.map((x) => x.file); render(); });
+  await pg.evaluate(() => { const st = _lSteps(ENG, ['declare', 'bless']).filter((x) => x.file); st.forEach((x) => { LREC[x.file] = { text: x.txt }; }); window.__fix = st.map((x) => x.file); render(); });   // [EX_STD_1012 2026-10-12] 가족 예시에 반지가 없어졌다 — 예시 안의 두 순간(선언 · 덕담)으로(옛 반지 · 선언은 반지를 잠깐 켠 줄까지 세어 쪽의 소리 수와 갈렸다)
   await pg.waitForTimeout(300);
   r = await chk();
   const fix = await pg.evaluate(() => window.__fix);
@@ -255,6 +255,8 @@ for (const w of [390, 1280]) {
   await toPick(pg);
   ok('3-5 ① 머리 = 네 걸음 표시 하나(옛 눈썹 · 막대 · 순서 n/N 숨김) · 처음부터 다시 만들기는 걸음 아래', await pg.evaluate(() => document.body.classList.contains('op4') && getComputedStyle(document.getElementById('pnow')).display === 'none' && getComputedStyle(document.querySelector('.prog-bar')).display === 'none'));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  /* [EX_STD_1012 2026-10-12] 가족 예시에 반지 · 케이크가 없어졌다 — 이 장은 반지 쪽(당일 챙길 것) · 케이크(저희가 준비해요)를 재므로 고객처럼 + 로 담아 잰다 */
+  await pg.evaluate(() => { opTgl('ring'); opTgl('cake'); }); await pg.waitForTimeout(300);
   // [HEAD_PILLS 2026-09-27 사장님] 걸음 아래 밑줄 글 → 머리 알약 넷(안내 보기 · 다시 만들기 · 저장 · 나가기)
   /* [TOP_MENU 2026-10-03 사장님] 두 줄은 «⋯» 안 — 창을 열고 같은 것을 잰다 */
   await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150);
@@ -378,8 +380,8 @@ for (const w of [390, 1280]) {
   await pg.focus('.mk-pg [role=radio][tabindex="0"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);   // [CHIP_UNPICKED] 탭 자리 = 고른 칩(안 골랐으면 첫 칩) · ★[LP_WAIT_FIX 2026-09-28] 기다림이 주석 안에 들어가 있어 결과를 바로 읽었다(main 에서도 빨강이던 한 건)
   ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => { const a = document.activeElement, fk = (a && a.getAttribute('data-fk')) || ''; return !!c && fk !== c && a.getAttribute('role') === 'radio' && a.getAttribute('aria-checked') === 'true' && fk.slice(fk.lastIndexOf(':') + 1) === (S.candleWho || ''); }, c0));
   ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radio]')].filter((r) => r.closest('[role=radiogroup]')).every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
-  await pg.evaluate(() => mkGo('ring')); await pg.waitForTimeout(400);
-  await pg.evaluate(() => mkDrop('ring')); await pg.waitForTimeout(400);   /* [MK_NO_DROP_LINK] 단추가 없어 옛 초안 길로 */
+  await pg.evaluate(() => mkGo('welcome')); await pg.waitForTimeout(400);   /* [EX_STD_1012 2026-10-12] 기록 예시에 반지가 없어졌다 — 예시 안의 첫인사로 뺐다 넣는다 */
+  await pg.evaluate(() => mkDrop('welcome')); await pg.waitForTimeout(400);   /* [MK_NO_DROP_LINK] 단추가 없어 옛 초안 길로 */
   ok('3장 빼기 뒤 포커스 = «다시 넣기» [DROP_DIM]', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'mkundrop'));
   await pg.click('[data-fk="mkundrop"]'); await pg.waitForTimeout(400);
   /* ★[MK_NO_DROP_LINK 2026-10-03] 종전 «다시 넣은 뒤 포커스 = «이 순간 빼기»(같은 자리)» → 그 단추가 없어졌다 · 쪽 제목으로 */

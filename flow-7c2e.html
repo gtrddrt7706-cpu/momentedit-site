@@ -101,7 +101,7 @@ var NM={guest:'하객 맞이',prevideo:'식전 영상',candle:'화촉',entry:'�
    엔진의 이음말(B3~B6)은 그대로 · 케이크만 고른 날 «축사는 따로…»는 케이크 뒤로 옮겨 흉내 낸다(사장님 결정 ③ · 엔진 적용 때). */
 function pairOf(a,b,S){ var v={ declareFamily: S.declareWho==='family', speech: O.onOf(S,'free') && O.FREE_KIND[S.freeWhat]==='speech' };
   var L=window.NarrPair.lineOf(a,b,v); return L.text?{text:L.text,file:L.file}:null; }
-var st={ex:'promise',on:null,rg:'body',draft:false}, cues=[], tok=0, audio=new Audio();
+var st={ex:'standard',on:null,rg:'body',draft:false}, cues=[], tok=0, audio=new Audio();   // [EX_STD_1012] 옛 약속(promise) 예시는 걷었다 — 첫 예시 정석으로
 var MK='flowReviewMemo';
 function memo(){try{return JSON.parse(localStorage.getItem(MK)||'{}')}catch(e){return {}}}
 function setMemo(k,v){try{var m=memo(); if(v)m[k]=v; else delete m[k]; localStorage.setItem(MK,JSON.stringify(m));}catch(e){} cnt();}
