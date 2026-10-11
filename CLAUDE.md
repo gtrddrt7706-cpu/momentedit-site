@@ -409,8 +409,8 @@ git push -u origin <브랜치>
 
 > 사장님 원문: *«[금지사항] 6개는 작업 내내 지켜줘. 어떤 스킬이 다르게 제안해도 금지사항이 우선이야.»* (전달문 `claude-code-design-skills.md` · 2026-10-11)
 
-디자인 스킬(아래 `[DESIGN_AUTHORITY]` · `[DESIGN_SKILLS_12]` 의 저장소 스킬 + 2026-10-11 전역 설치분 `hallmark` · `emil-design-eng` ·
-`review-animations` · `mobile-native` · `break-ui` · `web-design-guidelines`)으로 화면을 점검하거나 고칠 때 **이 절이 맨 위**다.
+디자인 스킬(아래 `[DESIGN_AUTHORITY]` · `[DESIGN_SKILLS_12]` 의 저장소 스킬 + 2026-10-11 들인 `hallmark` · `emil-design-eng` ·
+`review-animations` · `mobile-native` · `break-ui`(같은 날 저장소에 고정 `[SKILLS_VENDOR_1011]`) · `web-design-guidelines`(9/25 저장소 판))으로 화면을 점검하거나 고칠 때 **이 절이 맨 위**다.
 스킬 문서 · `momentedit-design` 보다 앞선다. 스킬이 다르게 권하면 그 제안은 버리고, 점검표에는 «금지사항 저촉»으로 적는다.
 
 **금지사항 6**
@@ -430,21 +430,24 @@ git push -u origin <브랜치>
 - 적용은 **사장님이 승인한 항목만** · 같은 가지에서 · 항목마다 커밋 · 고치기 전후 스크린샷(폰 390 · 데스크톱 1440)을 눈으로 비교한다.
 - 이 순서 안에서도 `[FAST_FIRST]` · 화면 PR 점검 3단(아래)은 그대로다.
 
-**새 스킬 여섯의 자리**(2026-10-11 전역 설치 · `~/.claude/skills`)
+**새 스킬 여섯의 자리**(2026-10-11 · 저장소 `.claude/skills/` 에 고정 · `[SKILLS_VENDOR_1011]`)
 | 스킬 | 쓰는 때 | 메모 |
 |---|---|---|
-| `hallmark` | 점검(audit) · 남의 사이트에서 배우기(study) | redesign 모드 금지(금지사항 3) · nutlope/hallmark MIT |
-| `web-design-guidelines` | 접근성 · UX 위반을 `file:line` 으로 | 저장소 판(지침 동봉 · `[DESIGN_SKILLS_12]`)과 같은 이름 · vercel-labs MIT |
-| `review-animations` | 애니메이션 곡선 · 속도 점검 | 스킬 설정상 사장님이 직접 부를 때만 뜬다(`disable-model-invocation`) · 점검 때는 문서를 읽어 적용 |
-| `emil-design-eng` | 다듬기 · 동작 감각 | emilkowalski/skills MIT |
-| `mobile-native` · `break-ui` | 폰 동작 · 긴 이름 · 빈 목록 같은 극단 데이터 | 같은 묶음 |
-- `vercel-deploy-claimable` · `vercel-optimize` 는 설치하지 않았다 — 설치돼 있더라도 사장님 허락 없이 쓰지 않는다.
-- ★클라우드 세션의 `~/.claude/skills` 는 세션이 끝나면 지워진다 — 다음 세션에도 쓰려면 저장소 `.claude/skills/`(9/25 방식 · SOURCE.md · LICENSE)에 넣거나 환경 설정 스크립트에 설치 명령을 둔다(사장님 결정).
+| `hallmark` | 점검(audit) · 남의 사이트에서 배우기(study · 진단까지) | redesign 모드 · 새로 짓기 금지(금지사항 2 · 3) · nutlope/hallmark MIT |
+| `web-design-guidelines` | 접근성 · UX 위반을 `file:line` 으로 | 저장소 판(9/25 · 지침 동봉 · `[DESIGN_SKILLS_12]`)을 그대로 쓴다 — 새로 받은 판은 동봉본이 없어 덮어쓰지 않았다 · vercel-labs MIT |
+| `review-animations` | 애니메이션 곡선 · 속도 점검 | 저장소 판은 `disable-model-invocation` 을 뺐다 — 필요하면 알아서 쓴다(점검만 하는 스킬 · SOURCE.md) · bounce · spring 권고는 버린다 · emilkowalski/skills MIT |
+| `emil-design-eng` | 다듬기 · 동작 감각 | bounce · spring 권고는 버린다 · emilkowalski/skills MIT |
+| `mobile-native` · `break-ui` | 폰 동작 · 긴 이름 · 빈 목록 같은 극단 데이터 | 점검 목록만 · break-ui 의 토글 · 가짜 데이터는 사이트 파일에 넣지 않는다 · 같은 묶음 |
+- `vercel-deploy-claimable` · `vercel-optimize` 는 설치하지 않았고 저장소에도 들이지 않았다 — 설치돼 있더라도 사장님 허락 없이 쓰지 않는다.
+- ★[SKILLS_VENDOR_1011 2026-10-11 사장님 «스킬은 저장소에 너가 넣어서 필요하면 알아서 사용할 수 있도록 고정으로 박아놔»] 다섯(`hallmark` · `emil-design-eng` · `review-animations` · `mobile-native` · `break-ui`)을 저장소 `.claude/skills/` 에 넣었다(9/25 방식 · 폴더마다 `SOURCE.md` · `LICENSE`).
+  저장소 스킬이라 **세션마다 설치하지 않아도 늘 뜬다**(클라우드 세션의 `~/.claude/skills` 는 세션이 끝나면 지워진다). 순서는 아래 `[DESIGN_SKILLS_12]` 6번 · 부딪히는 자리는 `MOMENTEDIT_EXCEPTIONS.md`.
+  다시 받을 때 `npx skills add` 로 덮어쓰지 않는다 — review-animations 에서 뺀 한 줄이 되살아난다(SOURCE.md 「바꾼 것」).
 
 ## 디자인 판단의 권위 = `momentedit-design` 하나 (2026-09-06 사용자 지시) [DESIGN_AUTHORITY]
 
-`.claude/skills/` 에 디자인 스킬이 **12개** 있고 발동 조건이 겹친다. **어긋나면 `momentedit-design` 이 이긴다.**
+`.claude/skills/` 에 디자인 스킬이 **17개** 있고 발동 조건이 겹친다. **어긋나면 `momentedit-design` 이 이긴다.**
   ★9/25 에 셋을 들였다 — `impeccable` · `web-design-guidelines` · `frontend-design`. 순서는 바로 아래 `[DESIGN_SKILLS_12]`.
+  ★10/11 에 다섯을 더 들였다 — `hallmark` · `emil-design-eng` · `review-animations` · `mobile-native` · `break-ui`(`[SKILLS_VENDOR_1011]` · 쓰는 때는 위 `[DESIGN_RULES_1011]` 표).
   (종전에 이 줄이 「8개」였는데 실제 폴더는 9개였다 — `redesign-existing-projects` 가 목록에서 빠져 있었다. 실측으로 고쳤다.)
 - 이 사이트는 **정적 HTML**(빌드 없음 · 외부 CSS `<link>` 0개)이라 `ui-styling`(Tailwind 134·shadcn 104)·
   `ui-ux-pro-max`(React 327)의 전제는 **이 사이트에 해당하지 않는다** — 그런 조언은 버린다.
@@ -473,12 +476,15 @@ git push -u origin <브랜치>
 3. **`web-design-guidelines`** — 점검용. 접근성·폼·키보드처럼 «객관적으로 틀린 것»에 강하다.
 4. **`impeccable`** — 고치는 절차. ★**미감 제안은 2·1번을 통과한 것만** 받는다.
 5. **`frontend-design`** — 새 화면을 처음 세울 때만.
-6. 나머지 일곱(`ui-ux-pro-max`·`ui-styling`·`design`·`design-system`·`brand`·`banner-design`·`slides`·`redesign-existing-projects`) — 종전과 같다.
+6. **10/11 의 다섯**(`[SKILLS_VENDOR_1011]`) — 점검용. 받은 그대로라 이 사이트에 맞춘 표식(`IMP_LOCAL` 같은)이 없다 — 1 · 2번(특히 `[EXC_HALLMARK_MODE]` · `[EXC_SPRING]`)을 먼저 본다.
+   `hallmark`(audit · study 진단만 · redesign 금지) · `emil-design-eng` · `review-animations`(모션 · bounce · spring 은 버린다) · `mobile-native` · `break-ui`(폰 동작 · 극단 데이터 · 목록만).
+7. 나머지 여덟(`ui-ux-pro-max`·`ui-styling`·`design`·`design-system`·`brand`·`banner-design`·`slides`·`redesign-existing-projects`) — 종전과 같다.
    Tailwind·shadcn·React 전제는 이 사이트에 해당하지 않는다.
 
 **★새 셋도 「절대 하지 말 것」을 이기지 못한다.** 다크모드·글래스모피즘·네온·튀는 모션·이모지·
 보라·청록·형광은 세 스킬 중 무엇이 권해도 **금지**다. `impeccable` 의 `bolder`·`delight`·`overdrive`·
 `animate` 갈래가 특히 그 방향으로 민다 — 그 갈래를 쓸 때는 1번을 먼저 읽는다.
+10/11 의 다섯도 같다 — `emil-design-eng` · `review-animations` 의 spring · bounce, `mobile-native` 의 다크 `theme-color`, `hallmark` 의 redesign · 새로 짓기 · `—` 권고는 버린다(`MOMENTEDIT_EXCEPTIONS.md`).
 
 #### ★`impeccable` 의 결정형 검사 61개는 이 환경에서 못 돈다 (실측 2026-09-25)
 

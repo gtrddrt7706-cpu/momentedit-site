@@ -7,10 +7,11 @@ description: momentedit.kr(모먼트에딧 프라이빗 웨딩 스튜디오) 사
 
 ## ★★이 문서가 디자인 판단의 최종 권위다 (2026-09-06 사용자 지시)
 
-**다른 디자인 스킬과 어긋나면 이 문서가 이긴다.** 저장소에 디자인 스킬이 **12개** 있고
+**다른 디자인 스킬과 어긋나면 이 문서가 이긴다.** 저장소에 디자인 스킬이 **17개** 있고
 (`momentedit-design` · `ui-ux-pro-max` · `design` · `design-system` · `brand` ·
 `ui-styling` · `banner-design` · `slides` · `redesign-existing-projects` ·
-**9/25 추가** `impeccable` · `web-design-guidelines` · `frontend-design`) 발동 조건이 서로 겹치는데,
+**9/25 추가** `impeccable` · `web-design-guidelines` · `frontend-design` ·
+**10/11 추가** `hallmark` · `emil-design-eng` · `review-animations` · `mobile-native` · `break-ui`) 발동 조건이 서로 겹치는데,
 **우선순위를 선언한 곳이 어디에도 없었다** — 다른 7개 중 이 문서를 아는 것은 하나도 없다(실측 0건).
 
 ### 전제가 다르다 (실측 2026-09-06)
@@ -53,7 +54,10 @@ GSAP·bounce·spring·패럴랙스(132) · 이모지(44).
 2. **이모지를 아이콘 대용으로 쓰면 결함으로 본다** → 허용된 기능 아이콘(🍽🍃 · 🔊🎵)과 D-day 🤍 1곳은 CLAUDE.md 가 정한 예외다.
 3. **`cubic-bezier(0.16, 1, 0.3, 1)` 을 리터럴로 권한다** → 값은 우리 `--ease` 와 같다. 리터럴로 쓰지 말고 `var(--ease)`([MOTION_RAMP5]).
 
-★이 절을 지우지 말 것 — 지우면 12개가 다시 같은 무게로 부딪힌다.
+10/11 의 다섯(`[SKILLS_VENDOR_1011]`)이 부딪히는 자리도 같은 문서에 닫았다 — `[EXC_HALLMARK_MODE]` · `[EXC_HALLMARK_SHAPE]` ·
+`[EXC_SPRING]` · `[EXC_UNDER_300]` · `[EXC_EMDASH]` · `[EXC_SILENT_TOAST]` · `[EXC_APPLY_LATER]`.
+
+★이 절을 지우지 말 것 — 지우면 17개가 다시 같은 무게로 부딪힌다.
 
 
 ## 이 사이트가 무엇인가
