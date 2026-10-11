@@ -84,11 +84,12 @@ for (const W of [320, 390, 1280]) {
   if (W !== 320) {
     // 4 — 크게 보기
     await go(pg, 'candle'); await pg.evaluate(() => lsBig('candle')); await wait(600); await quiet(pg);
-    await tap(pg, '#lsFull [data-fk="lfc:candleWho:parents"]');
+    /* [CANDLE_PARENTS_FIRST 2026-10-11] «양가 부모님 함께 입장»은 흐름 글이 통째로 바뀌어 알림 대신 글이 말한다([CHIP_FEW_WORDS]) — 이름만 바뀌는 «양가 어머님»으로 잰다 */
+    await tap(pg, '#lsFull [data-fk="lfc:candleWho:mothers"]');
     const d = await pg.evaluate(() => { const t = (function () { const u = document.getElementById('lsToast'); return u && !u.hidden ? u : null; })(); const ctl = document.querySelector('#lsFull .lf-ctl');
       if (!t || !ctl) return { shown: !!t, ctl: !!ctl }; const r = t.getBoundingClientRect(); t.style.pointerEvents = 'auto'; const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); t.style.pointerEvents = '';
       return { shown: true, text: t.textContent, gap: Math.round(ctl.getBoundingClientRect().top - r.bottom), onTop: !!(top && t.contains(top)) }; });
-    ok(`${W} 4 크게 보기 칩 «양가 부모님 함께 입장» → 같은 안내 · 재생 단추 줄 8px 위 · 크게 보기 위 [CHIP_TOAST] [CANDLE_PARENTS_FIRST]`, d.shown && d.text === '‹양가 부모님 함께 입장›으로 바꿨어요' && Math.abs(d.gap - 8) <= 1 && d.onTop, d);
+    ok(`${W} 4 크게 보기 칩 «양가 어머님» → 같은 안내 · 재생 단추 줄 8px 위 · 크게 보기 위 [CHIP_TOAST] [CANDLE_PARENTS_FIRST]`, d.shown && d.text === '‹양가 어머님›으로 바꿨어요' && Math.abs(d.gap - 8) <= 1 && d.onTop, d);
     await pg.evaluate(() => lsCloseBig()); await wait(300);
   }
   if (W === 390) {
