@@ -7567,6 +7567,17 @@ chk 'CANDLE_PARENTS_FIRST' order-preview.html 1
 chk 'CANDLE_PARENTS_FIRST' api/_ritual-kb.js 1
 chk 'CANDLE_PARENTS_FIRST' scripts/audit/open-course.mjs 3
 nochk "\['parents', '양가 부모님 네 분'\]" assets/ritual-open.js 0   # 옛 셋째 칸 이름 · 되살리지 말 것
+# ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 새 코스 입장 끝 맞절 한 줄(132) · 3·3·3 · 15초 · 고를 것 없음
+#   open-course 가 뜻(입장 바로 뒤 · 디렉터 GO · 바라보기 도착 큐 없음 · 입장 몫 +15초)을 잰다
+chk 'MATJEOL_1011' assets/ritual-cue.js 5
+chk 'MATJEOL_1011' assets/ritual-data.js 2
+chk 'MATJEOL_1011' assets/ritual-open.js 3
+chk 'MATJEOL_1011' order-preview.html 4
+chk 'MATJEOL_1011' assets/ritual-story.js 1
+chk 'MATJEOL_1011' api/_ritual-kb.js 1
+chk 'MATJEOL_1011' scripts/audit/open-course.mjs 5
+chk 'MATJEOL_1011' scripts/check-ritual-cue.js 2
+chk "'narr-entry-bow'" assets/ritual-cue.js 2
 # ★[SONG_SELF_1011 2026-10-11 사장님] 축가는 두 분이 직접 불러도 된다
 chk 'SONG_SELF_1011' assets/ritual-open.js 1
 chk 'SONG_SELF_1011' order-preview.html 1

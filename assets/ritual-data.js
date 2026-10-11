@@ -697,6 +697,9 @@ var NARR={
       주석이 지키라고 적어 둔 한 마디가 정작 다섯 갈래에 없었던 것이다. 데이터를 주석에 맞췄다
       (좋은 선언은 버리지 않고 앞에 두고, 동작을 맨 끝에 — [AFTER_PARTY] 규칙과 같은 순서).
     ★A 는 2026-09-21 에 바뀌었다([ENTRY_OUT_A_REWORD]) — 52_narr-entry-out.mp3 는 **다시 받아야 한다.** */
+ /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 132 — 입장 끝 맞절을 청하는 한 줄.
+    자료 16개 중 15개 · 실제 예식 5개 중 4개에 있다(장부). 새 코스에서만 · 두 분이 앞에 나란히 서면 디렉터 GO. 글만 두고 녹음은 3단계(나레이션 베스트 예시)에서 */
+ entryBow:"두 분, 서로 마주 보고 맞절해 주세요.",
  entryOut:"두 사람이 나란히 있습니다. 잠시, 서로를 바라봐 주세요.",
  entryOutBy:{
   A:"두 사람이 나란히 있습니다. 잠시, 서로를 바라봐 주세요.",
@@ -752,7 +755,7 @@ var VOWBOTH=["이 약속, 꼭 지키겠습니다.","가까이서 오래 응원�
      검사를 속이지 말고, 왜 없는지를 데이터 옆에 적는다.
    ★새 키를 여기 넣기 전에 물을 것: 고객이 이 문장을 고르거나 미리 듣는가?
      그렇다면 콘솔 전용이 아니라 빌더에 사본이 있어야 한다. */
-var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn'];   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
+var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn','entryBow'];   /* [MATJEOL_1011] 132 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · tableIn 과 같은 길) */   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
 
 /* ★★[PHOTOCUE 2026-08-08] 호명·연출 안내 — **디렉터가 골라 트는 판**이다(큐 체인이 아니다).
    ★왜 체인이 아닌가: 촬영 시간은 순서가 정해지지 않는다. 어른이 먼저 가셔야 하면 순서를 바꾸고

@@ -39,6 +39,7 @@ function courseLines(full) {
 
 function narrLines() {
   const E = D.ENTRY, out = [];
+  out.push('- 입장 끝 맞절: 두 분이 앞에 나란히 서면 나레이션이 «' + D.NARR.entryBow + '»로 청하고, 서로 마주 보고 맞절한다(3초 숙이고 · 3초 멈추고 · 3초 일어나기 · 약 15초). 늘 있다 — 고를 것이 아니다 [MATJEOL_1011].');
   out.push('[입장 멘트 6종 · 나레이션 전문]');
   for (const k of Object.keys(E)) out.push(`- ${k}(${E[k].d}): "${E[k].nar}"`);
   out.push('※ 입장을 두 분 목소리(녹음)로 여는 옵션 있음 · 그 경우 위 문안의 1인칭 버전을 두 분이 녹음(D-7 업로드).');

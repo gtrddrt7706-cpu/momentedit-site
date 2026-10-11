@@ -50,9 +50,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 29,
-      "sents": 66,
-      "chars": 1822
+      "clips": 30,
+      "sents": 67,
+      "chars": 1849
     },
     {
       "file": "3_진행_후반.txt",
@@ -1908,6 +1908,25 @@
         {
           "i": 2,
           "text": "신부부터 시작하겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "132",
+      "id": "G3-16",
+      "label": "입장 끝 · 맞절 청하기",
+      "file": "narr-entry-bow",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "두 분, 서로 마주 보고 맞절해 주세요.",
           "before": 0,
           "after": 0
         }
