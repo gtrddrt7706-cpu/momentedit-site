@@ -7598,6 +7598,8 @@ chk "'narr-thanks-in'" assets/ritual-cue.js 3
 chk "if (S.vowKind === 'thanks') {" assets/ritual-cue.js 1
 chk 'var THANKSBOTH=\["서로 아끼며 잘 살겠습니다.","오늘 와 주셔서 감사합니다."\];' assets/ritual-data.js 1
 chk 'THANKS_IN_VOW' scripts/audit/thanks-in-vow.mjs 1
+chk 'THANKS_IN_VOW' mypage.html 2   # «직접 쓰는 글» 감사문이면 «감사문»
+chk 'THANKS_IN_VOW' admin.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/thanks-in-vow.mjs >/dev/null 2>&1; _tiv=$?; if [ "$_tiv" = 1 ]; then echo 'FAIL thanks-in-vow: 서약 카드 «무엇을 읽나요 · 감사문»이 어긋났습니다 — node scripts/audit/thanks-in-vow.mjs'; fail=1; else echo "ok thanks-in-vow ($_tiv)"; fi; fi
 # ★[SONG_SELF_1011 2026-10-11 사장님] 축가는 두 분이 직접 불러도 된다
 chk 'SONG_SELF_1011' assets/ritual-open.js 1
@@ -13346,6 +13348,8 @@ fi
 # ★[STAGE_ORDER_SWAP_FAR 2026-10-03] ② 의 틀린 차례가 2_진행_전반 63문장에서 r=0.854 로 «더 그럴듯해» 보였다(바른 차례 0.845).
 #   짝을 입장 ↔ 같은 클립의 가장 긴 문장으로 바꾸고(예상 0.680) 재기 전에 사전 계산으로 이빨을 확인한다. 문턱 0.85 는 그대로.
 chk 'STAGE_ORDER_SWAP_FAR' scripts/audit/stage-order-name.mjs 2
+# ★[STAGE_ORDER_GOOD_LOW 2026-10-11] ① 의 바른 차례도 r<0.85 여야 이름 증명 길을 잰다 — 133 이 들어 68문장이 되자 0.858 로 올라 ① 이 이빨을 잃었다(세 문장에 하나 1.7배 · ①-0 이 먼저 본다)
+chk 'STAGE_ORDER_GOOD_LOW' scripts/audit/stage-order-name.mjs 2
 chk 'IMPORT_VOICE_LOCK' scripts/sent-lib.mjs 4
 chk 'ENTRY_GAP_KEEP' scripts/sent-lib.mjs 3
 chk 'TODO_RETIRED' scripts/sent-lib.mjs 1
