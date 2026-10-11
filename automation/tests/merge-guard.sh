@@ -7552,8 +7552,15 @@ chk 'NARR_PLAY_LOOP' scripts/audit/narr-play.mjs 1
 # ★[SOURCE_BASIS 2026-10-11 사장님] 순간 개편은 실전 자료 평균 → 우리 컨셉 거르기 · 장부는 자료표에서 만든다(손으로 고치지 않는다)
 chk 'SOURCE_BASIS' CLAUDE.md 1
 chk 'SOURCE_BASIS' scripts/audit/source-basis.mjs 1
+# ★[PRIOR_SEEN 2026-10-11] 바꾸는 줄은 코드의 예전 결정 표식을 다 읽었다는 표시를 단다 — 축가 «추가»가 9/25 FREE_WHAT · 8/09 SONG_RETIRED 를 못 보고 나갔다
+chk 'PRIOR_SEEN' CLAUDE.md 1
+chk 'PRIOR_SEEN' scripts/audit/source-basis.mjs 3
 node scripts/audit/source-basis.mjs || fail=1
 node scripts/audit/source-basis.mjs --selftest || fail=1
+# ★[KB_WINE_CAKE_1011] AI 상담 지식이 «와인은 축배 안에서 붓는다 · 케이크 커팅을 따로 두지 않는다»라고 말했다 — 9/27 WINE_POUR_OFF · CAKE_TOAST_SPLIT 와 어긋남
+chk 'KB_WINE_CAKE_1011' api/_ritual-kb.js 2
+nochk '그 안에서 붓' api/_ritual-kb.js 0
+nochk '케이크 커팅을 따로 두지 않는다' api/_ritual-kb.js 0
 node scripts/audit/narr-play.mjs || fail=1
 # ★[FOOD_NO_WELCOME 2026-10-10 사장님] 홈페이지 제공 항목에서 «웰컴» 뺌 — 핑거 푸드는 사진용 차림 · 건배 뒤에 드시게
 chk 'FOOD_NO_WELCOME' index.html 1
