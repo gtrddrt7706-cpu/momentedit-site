@@ -7750,7 +7750,7 @@ chk 'BLESS_AFTER_DECLARE' api/_ritual-kb.js 1
 chk 'BLESS_AFTER_DECLARE' scripts/audit/open-course.mjs 3
 chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
 # ★★[HEART_ORDER_1012 2026-10-12 사장님 «1단계 … 개선 없을 때까지 추천대로 개선»] 마음의 순간 = 덕담 → 준비한 순서 → 축가 → 편지 → 부모님께 인사
-#   자료 17곳 중 16곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
+#   자료 22곳 중 21곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
 #   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
 chk 'HEART_ORDER_1012' assets/ritual-open.js 13
 chk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js 1   # 덕담은 «약속의 순간» 끝 칸 — 막마다 넷(PC 한 줄)
@@ -12176,7 +12176,7 @@ chk 'FREE_WHAT' assets/ritual-open.js 2               # 준비한 순서 무엇�
 # [ACTS_FOUR 2026-09-26 코워크 최종판 3-5] ① 맨 아래 «준비한 순서» 묶음([FREE_OWN])과 ② 더하기 단추를 거뒀다 — 네 막 «마음의 순간»의 «있을 때만» 칸으로. 되살리지 말 것.
 chk 'ACTS_FOUR' assets/ritual-open.js 1
 # ★★[SPEECH_TILE_1012 2026-10-12 사장님 «만약 축사 이벤트를 따로 추가해도 된다고 하면 추가해» → «축사로 바꾸기 (추천)»] «준비한 순서» 칸(free)이 «축사» —
-#   자료 축사 58% · 실제 예식 5/7 · «덕담 또는 축사» 14/18 · 영상은 식전 영상 · 깜짝 선물 · 기타는 새로 고르지 않는다(옛 초안은 그대로 돈다 · 이름 nameOf)
+#   자료 축사 59% · 실제 예식 6/8 · «덕담 또는 축사» 18/23 · 영상은 식전 영상 · 깜짝 선물 · 기타는 새로 고르지 않는다(옛 초안은 그대로 돈다 · 이름 nameOf)
 #   open-course 가 뜻(새 칸 = 축사 · 정석에 축사 · 옛 초안 이름 · 무엇을 줄 · 장면 영상)을 잰다
 chk 'SPEECH_TILE_1012' assets/ritual-open.js 8
 chk 'SPEECH_TILE_1012' order-preview.html 12
