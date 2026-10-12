@@ -12029,6 +12029,18 @@ chk "require('./_livehook')" api/lead.js 2
 # ★★[PREVIEW_BRANCH_ONLY] 가지 미리보기는 이름에 preview 가 든 가지만 만든다 — 세션 가지마다 쌓이지 않게.
 #   main 은 종전 규칙 그대로(automation/·*.md 만 바뀐 커밋은 건너뜀).
 chk 'preview\*) exit 1' vercel.json 1
+# ★★[BRANCH_DEPLOY_OFF 2026-10-13 사장님 «추천대로»] 이름에 preview 가 없는 claude/ 가지는 Vercel 이 받지도 않는다(git.deploymentEnabled).
+#   위 ignoreCommand 로 건너뛰어도 Vercel 은 먼저 GitHub 에서 코드를 받아 와야 해서, 가지 푸시가 몰리면 GitHub 요청 한도(403)에 걸렸다 —
+#   2026-10-12 밤 코워크 가지 미리보기 실패 메일 세 통 · 같은 시각 main #1212 배포가 통째로 빠짐(사장님이 Create Deployment 로 올림).
+#   preview 가 든 가지는 그대로 받는다(규칙이 여럿 맞으면 true 가 하나라도 있으면 배포 · Vercel 문서 · minimatch 로 대조함).
+chk '"claude/\*\*": false' vercel.json 1
+chk '"\*\*/\*preview\*": true' vercel.json 1
+# ★★[DEPLOY_SINCE_LAST] main 은 «마지막 성공 배포»(VERCEL_GIT_PREVIOUS_SHA) 이후 바뀐 것을 본다 — 비어 있으면 종전대로 HEAD^.
+#   배포가 한 번 빠진 뒤 문서만 바뀐 병합이 와도 빠진 것까지 올라간다(HEAD^ 만 보면 그대로 빠진 채 남는다).
+chk 'VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- ' vercel.json 1
+nochk 'diff --quiet HEAD^ HEAD' vercel.json
+if command -v node >/dev/null 2>&1; then node -e "JSON.parse(require('fs').readFileSync('vercel.json','utf8'))" 2>/dev/null \
+  || { echo 'FAIL [BRANCH_DEPLOY_OFF] vercel.json 이 JSON 으로 안 읽힌다 — 베르셀 배포가 통째로 멈춘다'; fail=1; }; fi
 # ★★[RAW_OFF_GITHUB 2026-09-25 사장님 결정 «저장소 비공개 전환»] 부부폼 미리보기 그림을 깃허브 raw 가 아니라
 #   사이트에서 받는다. 비공개가 되면 raw 주소는 토큰 없이 404 다.
 #   ★(2026-09-25 LETTER_MERGED) 이 두 줄이 지키던 form-to-couple.gs 의 폼 생성 그림 주소는 구글폼 부부폼을 은퇴시키며 함께 끝났다.
