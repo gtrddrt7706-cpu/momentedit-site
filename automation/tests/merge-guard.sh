@@ -17703,9 +17703,9 @@ chk '<script src="/assets/rec-process.js' console.html 1                 # 소�
 nochk 'function sentSplit' assets/entry-music.js                         # 계산 사본 금지 — 엔진 한 곳
 nochk 'function envDb' console.html                                      # 콘솔도 엔진을 쓴다(사본 금지)
 nochk 'function sentSplit' console.html
-chk 'ENTRY_SCENE_DAY' console.html 14
+chk 'ENTRY_SCENE_DAY' console.html 16
 chk 'ENTRY_SCENE_DAY' scripts/audit/entry-scene-day.mjs 1
-chk "'입장 음악 없음 · 배경음으로'); }" console.html 1                  # 입장 음악 칩은 갈래 칩 사슬(if · else if · else) 밖 맨 끝 — 끼우면 두 분 목소리 줄에 «나레이션»이 겹쳐 붙는다(entry-scene-day 8)
+chk 'vkPill(c); muPill(c);' console.html 1                             # 입장 음악 칩은 따로 함수(muPill) — 갈래 칩 사슬(vkPill · RF_KIND_0928)에 끼우면 두 분 목소리 줄에 «나레이션»이 겹쳐 붙는다(entry-scene-day 8)
 chk 'ES.prepVoice(b, ES.sentN(txt), isNar)' console.html 1               # 대사 조각은 «실제로 나가는 소리»로 센다 — 두 분 자리인데 파일이 없으면 나레이션 글(entry-scene-day 8a · c.text 로 세면 낮추기가 한 문장 일찍)
 chk 'PILL_WRAP' console.html 2                                           # 디렉터 칩 줄은 넘치면 다음 줄로 · 알약 안 글은 한 줄(entry-scene-day 8 이 높이로 잰다) — 한 줄에 끼우면 «잘린 알약»
 chk 'if (esdTry(c, done)) return;' console.html 1                       # 입장 큐는 장면부터(준비가 안 됐으면 종전 길)

@@ -1426,8 +1426,9 @@ function render(){
   function vkPill(q){ if (GUEST || !q) return; var key = null; Object.keys(RF_SLUG).forEach(function(k){ if (RF_SLUG[k] === q.slug) key = k; }); if (q.slug === 'entry-' + (S.entry || 'A')) key = 'entry';
     if (key && rfKeys().indexOf(key) > -1) pill('vk', CLIPS[q.slug] ? rfKindLab(key) : '두 분 목소리 없음 · 나레이션으로');   // [RF_KIND_0928] 두 분 녹음 · AI 목소리
     else if (q.live) pill('vk', (window.RitualOpen && RitualOpen.voiceLab) ? RitualOpen.voiceLab(q.k, S, { talk: true }) : '당일 직접');
-    else pill('vk', '나레이션');   // [RF_KIND_0928] 큐마다 갈래 칩 — 나레이션 · 두 분 녹음 · AI 목소리 · 당일 직접
-    if (esdMain(q) && esdWant()) pill('vk mu', esdReady(q) ? '입장 음악 · ' + ((S.mu || {}).t || (S.mu || {}).name || '두 분이 고른 곡') : '입장 음악 없음 · 배경음으로'); }   // [ENTRY_SCENE_DAY] 갈래 칩 옆에 하나 더(위 사슬 밖 · 끼우면 다른 줄에 «나레이션»이 겹쳐 붙는다) · GO 전에 장면이 나갈지 본다
+    else pill('vk', '나레이션'); }   // [RF_KIND_0928] 큐마다 갈래 칩 — 나레이션 · 두 분 녹음 · AI 목소리 · 당일 직접
+  /* [ENTRY_SCENE_DAY] 입장 음악 칩 — 갈래 칩 옆에 따로 하나(위 vkPill 사슬에 끼우지 않는다 · 끼우면 두 분 목소리 줄에 «나레이션»이 겹쳐 붙는다) · GO 전에 장면이 나갈지 본다 */
+  function muPill(q){ if (GUEST || !q || !esdMain(q) || !esdWant()) return; pill('vk mu', esdReady(q) ? '입장 음악 · ' + ((S.mu || {}).t || (S.mu || {}).name || '두 분이 고른 곡') : '입장 음악 없음 · 배경음으로'); }
 
   if (phase === 'end') {
     $('#nName').textContent = GUEST ? '다 들으셨어요' : '진행이 끝났습니다';
@@ -1523,7 +1524,7 @@ function render(){
   if (c.no) { var no = document.createElement('span'); no.className = 'no'; no.textContent = c.no + '번'; tag.appendChild(no); }
   if (c.pick) pill('p', c.pick);
   if (c.altSec) pill('p', '길어짐 대응 · ' + fmt(c.altSec) + ' 경과');
-  vkPill(c);   // [VOICE_KIND]
+  vkPill(c); muPill(c);   // [VOICE_KIND] · [ENTRY_SCENE_DAY] 입장 음악 칩
   if (phase === 'live') pill('l', liveBadge(c.live));
   if (c.own) pill('l', '두 분 목소리');
 
