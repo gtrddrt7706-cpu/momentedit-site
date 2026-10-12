@@ -357,7 +357,7 @@ var COURSES={
        seq 는 그 파일의 ORDER 와 같아야 한다(scripts/audit/open-course.mjs 가 대조).
      ★hidden 인 까닭 — 옛 «코스 고르기» 카드 목록에 새 코스가 끼어들지 않게. 새 화면(고르기)이 따로 있다. */
   open:{nm:'직접 고른', badge:'순간 먼저', ready:true, hidden:true, open:true, min:'',
-    seq:['guest','prevideo','candle','entry','welcome','vow','ring','declare','bless','free','song','letter','tribute','cake','toast','table'],   // [HEART_ORDER_1012 2026-10-12] 덕담 → 준비한 순서 → 축가 → 편지 → 부모님께 인사(자료 16곳 중 15곳 · 인사가 축사 · 축가 뒤) · [BLESS_AFTER_DECLARE 2026-10-12] 덕담 = 선언 바로 뒤(자료 B · D · L · P · Q)   // [SONG_BACK_1011] 축가 = 선언 뒤 · 인사 앞   // [TABLE_GREET_1008] table = 닫는 인사 뒤 테이블 인사 · [CAKE_TOAST_SPLIT] ritual-open.js ORDER 와 같다(open-course.mjs 가 대조) · 축사는 free 의 한 판(SPEECH_IN_FREE)
+    seq:['guest','prevideo','candle','entry','welcome','vow','ring','declare','bless','free','song','letter','tribute','cake','toast','table'],   // [HEART_ORDER_1012 2026-10-12] 덕담 → 준비한 순서 → 축가 → 편지 → 부모님께 인사(자료 17곳 중 16곳 · 인사가 축사 · 축가 뒤) · [BLESS_AFTER_DECLARE 2026-10-12] 덕담 = 선언 바로 뒤(자료 B · D · L · P · Q)   // [SONG_BACK_1011] 축가 = 선언 뒤 · 인사 앞   // [TABLE_GREET_1008] table = 닫는 인사 뒤 테이블 인사 · [CAKE_TOAST_SPLIT] ritual-open.js ORDER 와 같다(open-course.mjs 가 대조) · 축사는 free 의 한 판(SPEECH_IN_FREE)
     opt:[], one:'필요한 순간만 담으면 예식 순서대로 제자리에 들어가요', feel:'', flow:[], detail:[]
 },
   minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, hidden:true, min:'약 18분',   // [COURSE_HIDDEN] 기록에 흡수
@@ -719,7 +719,7 @@ var NARR={
       (좋은 선언은 버리지 않고 앞에 두고, 동작을 맨 끝에 — [AFTER_PARTY] 규칙과 같은 순서).
     ★A 는 2026-09-21 에 바뀌었다([ENTRY_OUT_A_REWORD]) — 52_narr-entry-out.mp3 는 **다시 받아야 한다.** */
  /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 132 — 입장 끝 맞절을 청하는 한 줄.
-    자료 17개 중 16개 · 실제 예식 6개 중 5개에 있다(장부). 새 코스에서만 · 두 분이 앞에 나란히 서면 디렉터 GO. 글만 두고 녹음은 3단계(나레이션 베스트 예시)에서 */
+    자료 18개 중 17개 · 실제 예식 7개 중 6개에 있다(장부). 새 코스에서만 · 두 분이 앞에 나란히 서면 디렉터 GO. 글만 두고 녹음은 3단계(나레이션 베스트 예시)에서 */
  entryBow:"두 분, 서로 마주 보고 맞절해 주세요.",
  /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말이 이 한 줄이다.
     자료(honeyg.snap «혼인서약서 대신 감사문» 5유형 · N «신랑 · 신부의 축사(감사 편지)»)에서 감사문은 따로 순서가 아니라 서약 자리에서 읽는 다른 결이다.
