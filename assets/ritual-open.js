@@ -586,7 +586,7 @@
   function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: '', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'speech', freeLen: '3', candleWho: (S && S.candleWho) || DEF.candleWho }; }   // [SPEECH_TILE_1012]
 
   /* ══ [PREVIEW_SHEET 2026-09-26 코워크 추가 전달 3 F2] 미리 보기 창 «② 하나씩 만들기에서 고를 것» — ② 묶음 이름(G3 로 고친 이름)과 같은 말 ══ */
-  var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리', declare: '읽어 주실 분', tribute: '인사 말'   /* [TRIB_ONE_SAY · GROOM_BOW_TIP] 인사 방식 칩 걷음 · [GOODS_STUDIO] 케이크 · 꽃은 저희가(고를 것 없음 · cake 키 걷음) */, letter: '받는 분', free: '무엇을 · 길이' };
+  var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리', declare: '읽어 주실 분', tribute: '인사 말'   /* [TRIB_ONE_SAY · GROOM_BOW_TIP] 인사 방식 칩 걷음 · [GOODS_STUDIO] 케이크 · 꽃은 저희가(고를 것 없음 · cake 키 걷음) */, letter: '받는 분', free: '길이' };   // ★[SPEECH_TILE_1012] 축사 칸 ② 는 길이 하나(무엇을 줄은 옛 초안에만)
   /* ★[REC_DLG 2026-09-28] 목소리 문이 열린 판(FEATURE.upLive)의 ② 입장 묶음 이름은 «어떻게 준비할까요»(VP_CHOICE) — 창도 같은 말을 쓴다(pick-v2 F2 · G3 가 잡았다) */
   /* ★[VP_NO_DIRECT 2026-09-28] 직접 녹음을 뺀 뒤 «어떻게 준비할까요»는 AI 가 켜진 예식에만 보인다(AI · 나레이션) — 꺼진 예식은 고를 것이 나레이션 하나라 칸이 없다 */
   Object.defineProperty(CHOOSE_AT_LISTEN, 'entry', { enumerable: true, get: function () { return '입장 멘트' + (FEATURE.upLive && FEATURE.voiceClone ? ' · 어떻게 준비할까요' : ''); } });   // [ENTRY_OUT_OFF] 첫 모습 없음
