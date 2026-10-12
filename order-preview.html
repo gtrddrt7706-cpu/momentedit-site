@@ -2047,6 +2047,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-mu .mu-up>.mu-cs:first-child,.ls-mu .mu-up>.mu-upbusy:first-child{margin-top:0}
 .ls-mu .mu-cs.on{color:var(--seal);font-weight:600}
 .ls-mu .mu-card.on .mu-upbusy{margin:0 0 8px}
+.ls-mu .mu-sv{margin:6px 0 0;word-break:keep-all;text-wrap:pretty}   /* [ENTRY_SONG_UP] 곡 줄 아래 한 줄 — 보내는 중(옅은 글) · 못 보냄(진사 글 + 다시 보내기) */
+.ls-mu .mu-sv .pk-link{font-size:inherit}
+.ls-mu .mu-nw{white-space:nowrap}   /* 할 일(다시 보내기 · MP3로 올려 주세요)은 한 덩어리로 다음 줄에 */
 .ls-mu .mu-card.on .mu-mine{margin-top:0}
 .ls-mu .mu-upgo{margin:14px 0 0}
 .ls-mu .mu-upgo .mk-hbtn{width:100%}
@@ -2137,7 +2140,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-music.js?v=1012c"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-music.js?v=1012d"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
@@ -6546,7 +6549,7 @@ function _mkUpDrop(k){ var v=(S.up||{})[k]; if(!v||typeof v!=='object') return; 
 var RF_DELQ={};
 function _rfDelSend(key,id,v,all,keep){ var q=RF_DELQ[id]=RF_DELQ[id]||{key:key,v:null,n:0}; if(v) q.v=v; if(keep&&keep.length) q.keep=keep.slice(0,8); if(MK.lineErr&&/\(코드 D\d/.test(MK.lineErr[key]||'')) delete MK.lineErr[key];
   try{ parent.postMessage({type:'momentedit:ritualFileDel',data:{key:key,id:id,all:all?1:0,t:all?Date.now():0,keep:q.keep||[]}},window.location.origin);   /* ★[RF_DEL_TQ · RF_DEL_KEEP 2026-10-09 A~Z 점검 2라운드 E2-3 · E2-4] «모두»는 누른 때(t)까지 만든 그 자리 파일을 · keep(되돌리기로 쓸 녹음)은 어느 쓸기에서도 뺀다 — 다시 묻기(3초 뒤)도 같은 keep */   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»(첫 보내기만)는 그 자리 두 분 파일을 모두 — 다시 보내기(UP_AGAIN)로 같은 자리 사본이 둘 생기면 하나만 지워져 당일 콘솔이 남은 것을 틀었다. 다시 묻기(3초 뒤)는 그 파일만(그 사이 새로 올린 것을 지우지 않게) */ }catch(e){ setTimeout(function(){ _rfDelDone({key:key,id:id,ok:false,kind:'net'}); },0); } }
-function _rfDelDone(d){ if(!d||!d.id) return; var q=RF_DELQ[d.id]; if(d.ok){ delete RF_DELQ[d.id]; return; }
+function _rfDelDone(d){ if(!d||!d.id||d.key==='mu') return;   /* [ENTRY_SONG_UP] */ var q=RF_DELQ[d.id]; if(d.ok){ delete RF_DELQ[d.id]; return; }
   var key=(q&&q.key)||d.key||'', t=String(d.error||'').trim(), c=_ecHas(t)?_ecCodeOf(t):'', n=c?+c.charAt(1):_ecN(d,t), _el=/^([A-Z])\d$/.exec(String(d.ecode==null?'':d.ecode).trim()); if(!(n>=0)) n=0; if(!c) c=(_el?_el[1]:'D')+n;
   if(q&&n!==8&&q.n<1){ q.n++; setTimeout(function(){ if(RF_DELQ[d.id]===q) _rfDelSend(key,d.id,null); },3000); return; }
   delete RF_DELQ[d.id]; var now=(S.up||{})[key]; if(now&&typeof now==='object') return;
@@ -6587,7 +6590,7 @@ function _rfLineOff(key){ var e=MK.lineErr&&MK.lineErr[key]; if(e&&(/\(코드 [L
 function _rfErrT(E,key){ if(!E.local) return E.t||_ecWord('L',0); if(!EMBED) return '이 기기에 없어요 · 마이페이지에서 열어 주세요'; var s=((S.up||{})[key]||{}).src;   // 받아 올 곳이 없는 것은 실패가 아니라 상태 — 코드 없음
   return s==='file'?'이 기기에 없는 파일이에요 · 다시 올려 주세요':s==='ai'?'이 기기에 없는 소리예요 · 다시 만들어 주세요':'이 기기에 없는 녹음이에요 · 다시 녹음해 주세요'; }
 function _rfRedraw(){ var a=document.activeElement; if(!a||a.tagName!=='TEXTAREA') render(); }
-function _rfData(d){ if(d&&!d.ok&&d.id) delete RF_LOAD[d.id];   /* [PLAY_WAIT_FILE] 받기에 실패한 파일은 다음에 다시 묻는다(종전엔 한 번 실패하면 이 창에서 영영 안 물었다) */
+function _rfData(d){ if(d&&d.key==='mu') return;   /* [ENTRY_SONG_UP] 곡 파일은 이 기기 줄 저장소(me-ritual-files)에 넣지 않는다 */ if(d&&!d.ok&&d.id) delete RF_LOAD[d.id];   /* [PLAY_WAIT_FILE] 받기에 실패한 파일은 다음에 다시 묻는다(종전엔 한 번 실패하면 이 창에서 영영 안 물었다) */
   if(!d||!d.id) return; if(!d.ok||!d.data){ var _gone=!!d.error&&/찾을 수 없/.test(String(d.error))&&!/^L[1-9]/.test(String(d.ecode||'')), _gv=(S.up||{})[d.key];
     if(_gone&&_gv&&_gv.id===d.id&&_gv.src==='ai'&&_vcReadyFor(d.key)){ _rfErr(d.key,d.id,{t:'소리 파일이 없어요 · «목소리 만들기»를 눌러 주세요',gone:1}); render(); return; }   /* ★[RF_GONE_REMAKE 2026-10-08 목소리 1라운드 #74] 서버에 없는 AI 줄 소리 — 머리는 «목소리 만들기»(확정 숨김) · 할 일을 글로. 종전엔 «파일을 찾을 수 없어요»만 두고 머리는 «확정하기»라 없는 소리가 «✓ 확정됨»이 됐다 */
     _rfErr(d.key,d.id,{t:_ecLine('L',d),gone:_gone?1:0}); return; }   /* ★[ERR_CODE_BUILDER] 받기 실패를 흘리지 않는다(못 찾음 · 로그인 · 연결 · 드라이브) — 기다리던 ▶ 줄 아래 까닭(코드) */
@@ -6687,7 +6690,7 @@ function _upAgain(key,pend,d){ if(!pend||(pend.n||0)>=2) return false; var e=Str
   clearTimeout(MK_UP[key]); MK_UP[key]=1; var _g=UP_GEN[key];
   setTimeout(function(){ if(UP_GEN[key]!==_g) return;   /* ★[UP_AGAIN_GEN] 기다리는 사이 같은 자리에 새 소리를 보냈으면(예시를 바꿔 누름) 옛 소리를 다시 보내지 않는다 — 늦게 다시 보낸 옛 소리가 새 소리를 덮었다(새 보내기가 MK_UP · 기다림을 이어받는다) */ try{ _mkSendWav0(key,pend.blob,pend.url,pend.src,pend.nm,pend.meta,(pend.n||0)+1); }catch(e){ delete MK_UP[key]; _upFail(key,_ecWord('U',0)); _upWaitDone(key,false); render(); } },(pend.n||0)?20000:8000);   /* ★[UP_AGAIN_THROW 2026-10-07 1라운드 점검] 보내기 전에 던진 것(파일 읽기 · 기기 쪽)은 연결이 아니다 — 첫 보내기(_mkSendWav)와 같은 U0 */
   return true; }
-function _mkUpDone(d){ var key=d.key; if(!key) return;
+function _mkUpDone(d){ var key=d.key; if(!key||key==='mu') return;   /* [ENTRY_SONG_UP] 입장 음악 곡(mu)은 입장 음악 칸(entry-music.js)이 받는다 — 줄 파일이 아니다 */
   /* [UP_RACE] 답의 번호(d.tk) — 옛 마이페이지(번호를 안 돌려줌)면 먼저 보낸 것부터(차례대로 온다) · 마지막에 보낸 것이 아니면 S.up 을 건드리지 않는다(뒤 것이 곧 온다) */
   var P=MK_PEND[key]||{}, ks=Object.keys(P).filter(function(x){ return x!=='last'; }).map(Number).sort(function(a,b){ return a-b; }), tk=d.tk!=null?+d.tk:ks[0], pend=P[tk]; delete P[tk];
   if(pend&&tk!==P.last) return;

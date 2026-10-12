@@ -17676,3 +17676,17 @@ chk 'function closeBig' assets/entry-music.js 1
 chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
 chk '#emFull .lg-scene{display:none}' order-preview.html 1           # 크게 보기는 자막이 장면을 말한다(장면 줄 숨김)
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-music.mjs >/dev/null 2>&1; _emu=$?; if [ "$_emu" = 1 ]; then echo 'FAIL entry-music: ② 입장 «입장 음악» 줄(올리기 · 자리 · 직접 적기 · 안내 창 · 저장 · 되살리기) · 음악과 함께 듣기 · 크게 보기가 깨졌습니다 — node scripts/audit/entry-music.mjs'; fail=1; elif [ "$_emu" = 0 ]; then echo 'ok entry-music: 입장 음악 줄 · 음악과 함께 듣기 390 · 1280'; else echo 'skip entry-music: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-12 입장 음악 3단계-가 [ENTRY_SONG_UP] — 올린 곡을 스튜디오로(마이페이지 → GAS handleRitualFile · 자리 mu · 드라이브 · 공개 주소 없음)
+#   초안 S.mu.fid = 서버 파일 id(당일 콘솔이 미리 받는다 · 3-나) · 다른 기기에서는 그 id 로 다시 받아 같은 자리 · 곡을 바꾸거나 빼면 서버 파일도 지운다 · 20MB 넘는 파일은 안 보낸다
+chk 'ENTRY_SONG_UP' assets/entry-music.js 6
+chk 'ENTRY_SONG_UP' order-preview.html 4
+chk 'ENTRY_SONG_UP' mypage.html 1
+chk 'ENTRY_SONG_UP' automation/platform/80_production.gs 2
+chk 'ENTRY_SONG_UP' scripts/audit/entry-song-up.mjs 1
+chk "mu: '입장 음악'" automation/platform/80_production.gs 1          # 서버 자리 이름 — 파일 이름 머리(입장 음악 · …)와 지우기 쓸기(_rfKeyOfName)가 이것을 본다
+chk "맞췄어요'); srvUp(f); }" assets/entry-music.js 1                       # 새로 올린 곡은 바로 스튜디오로(대괄호 없는 조각 · chk 는 BRE)
+chk "if(!b){ if(emb()&&mu.fid){ srvGet(mu); return; }" assets/entry-music.js 1                  # 이 기기에 없으면 스튜디오 파일로 되살린다
+chk "function _mkUpDone(d){ var key=d.key; if(!key||key==='mu') return;" order-preview.html 1      # 줄 파일 처리기는 곡(mu)을 건너뛴다
+chk "function _rfData(d){ if(d&&d.key==='mu') return;" order-preview.html 1
+chk "d.data.key==='mu'?180000:60000" mypage.html 1                                                # 곡은 줄 녹음보다 커서 180초
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-song-up.mjs >/dev/null 2>&1; _esu=$?; if [ "$_esu" = 1 ]; then echo 'FAIL entry-song-up: 입장 음악 곡을 스튜디오로 보내기(보냄 · 바꿈 · 다시 보내기 · 20MB · 다른 기기 되살림 · 빼기)가 깨졌습니다 — node scripts/audit/entry-song-up.mjs'; fail=1; elif [ "$_esu" = 0 ]; then echo 'ok entry-song-up: 곡 보내기 · 다른 기기 되살림 390 · 1280'; else echo 'skip entry-song-up: 브라우저가 없어 재지 못함'; fi; fi
