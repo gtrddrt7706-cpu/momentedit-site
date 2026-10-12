@@ -7611,10 +7611,16 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'song', 'tribute', 'toast'], set: { entry: 'C', tribute: 'long' } }" assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'A', tribute: 'none' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'song', 'tribute', 'toast'], set: { entry: 'A', tribute: 'long' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } }" assets/ritual-open.js 1
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute', 'toast'], set: { entry: 'E', tribute: 'long' } }" assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'A', tribute: 'none' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'C', tribute: 'none' } }" assets/ritual-open.js 1
+# ★★[EX_ENTRY_FEEL_1012 2026-10-12 사장님 «느낌에 맞춰 넷 다 (추천)»] 예시가 누르는 입장 멘트 칩 = 예시 느낌 — 정석 담백하게(빌더 기본값) · 기록 힘차게 · 가족 다정하게 · 간결 격식 있게
+#   (옛 정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초는 걷었다) · 멘트 글은 3단계(«멘트는 대대적으로 한번 개선 작업을 할 거야 따로»)에서 · 그때 이 짝도 다시 본다
+chk 'EX_ENTRY_FEEL_1012' assets/ritual-open.js 5
+chk 'EX_ENTRY_FEEL_1012' scripts/audit/open-course.mjs 4
+chk 'EX_ENTRY_FEEL_1012' scripts/check-ritual-cue.js 2
+nochk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'A'" assets/ritual-open.js   # 간결에 가장 긴 입장 멘트(담백하게 23초)를 되살리지 말 것
 nochk "k: 'promise', nm: '약속'" assets/ritual-open.js          # 편지 중심 «약속» 예시는 걷었다 — 되살리지 말 것
 nochk "on: \['prevideo', 'candle', 'welcome', 'vow', 'ring'" assets/ritual-open.js   # 반지는 예시에 넣지 않는다(10/11 사장님 «반지 · 케이크는 코스에서 빼고») — + 로 담는다
 chk "스냅 촬영 «손과 반지» 장면으로 남길 수 있어요" order-preview.html 1
