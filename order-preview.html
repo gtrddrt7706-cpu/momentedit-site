@@ -2103,6 +2103,17 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .em-scene .em-play .mk-hbtn.off{opacity:.45;cursor:default}   /* [AI_PLAY_READY] 목소리가 없으면 흐리게 — 누르면 아래 알림 */
 @media (hover:hover){ .em-scene .em-play .mk-hbtn.off:hover{background:var(--card)} }
 .em-scene .em-play .mk-hbtn[aria-busy=true]{cursor:progress}
+/* ★★[ENTRY_BIG_1012 2026-10-12] 크게 보기 — 알약 옆 작은 단추(알약과 같은 높이 52 · 테두리 아이콘만) · 크게 보기 칸은 빌더 .ls-full 틀 그대로 · 그래프는 단추 줄 바로 위에 붙여 플레이어로 묶는다(시험실 BIG_DOCK) */
+.em-scene .em-play{display:flex;flex-wrap:nowrap;align-items:center;gap:8px}
+.em-scene .em-play .em-scp{flex:1 1 auto;min-width:0;margin:0}
+.em-scene .em-play .em-bigbtn{flex:0 0 52px;width:52px;min-width:52px;min-height:52px;padding:0;justify-content:center;margin:0}
+.em-scene .em-play .em-bigbtn svg{width:18px;height:18px;padding:0;border-radius:0;background:none;color:var(--gold-deeper)}
+#emFull .lg-scene{display:none}   /* 크게 보기는 자막이 지금 장면을 말한다 */
+#emFull .lf-body{flex:1 1 auto}   /* 그래프가 단추 줄 바로 위로 내려앉게(아래 빈 칸 대신 자막 아래가 빈다) */
+#emFull .lf-body>.em-graph{margin:auto 0 8px;padding:12px 10px 10px}
+#emFull .em-graph .lg-plot{height:64px}
+#emFull .em-cap{min-height:5.55em}   /* [LF_STEADY] 자막이 짧아도 세 줄 자리 — 아래가 흔들리지 않게 */
+@media (max-height:600px){ #emFull .lf-body>.em-graph{display:none} }
 </style>
 </head>
 <body>
@@ -2126,7 +2137,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-music.js?v=1012b"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-music.js?v=1012c"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,

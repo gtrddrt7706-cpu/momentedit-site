@@ -17657,4 +17657,14 @@ chk 'var EM={ scene:true };' assets/entry-music.js 1                  # 안내 �
 nochk 'var EM={ scene:false };' assets/entry-music.js
 nochk 'fakeVox' assets/entry-music.js                                # [GRAPH_MIN] 없는 소리를 그래프로 그리지 않는다
 nochk "cssv('--seal'" assets/entry-music.js                         # [GRAPH_NO_SEAL_LINE] 그래프 가운데 진사 세로선 되살리기 금지
-if command -v node >/dev/null 2>&1; then node scripts/audit/entry-music.mjs >/dev/null 2>&1; _emu=$?; if [ "$_emu" = 1 ]; then echo 'FAIL entry-music: ② 입장 «입장 음악» 줄(올리기 · 자리 · 직접 적기 · 안내 창 · 저장 · 되살리기) · 음악과 함께 듣기가 깨졌습니다 — node scripts/audit/entry-music.mjs'; fail=1; elif [ "$_emu" = 0 ]; then echo 'ok entry-music: 입장 음악 줄 · 음악과 함께 듣기 390 · 1280'; else echo 'skip entry-music: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-12 입장 음악 2단계-나 [ENTRY_BIG_1012] — «음악과 함께 듣기» 크게 보기(빌더 크게 보기 틀 · 문 영상 · 다섯 칸 막대 · 자막 · 그래프 · 앞뒤 줄)
+#   알약 옆 작은 네모 단추로만 연다([PLAYER_ORDER]) · 열면 듣던 자리에서 이어서 · ⌄ · Esc · 뒤로 가기로 닫힌다 · 아래 entry-music 점검 19 ~ 23
+chk 'ENTRY_BIG_1012' order-preview.html 1
+chk 'ENTRY_BIG_1012' assets/entry-music.js 3
+chk 'ENTRY_BIG_1012' scripts/audit/entry-music.mjs 1
+chk "pillHtml(st,PL)+bigBtnHtml(st)+'</div></section>'" assets/entry-music.js 1   # 크게 보기 단추는 알약 옆 한 자리
+chk 'function openBig' assets/entry-music.js 1
+chk 'function closeBig' assets/entry-music.js 1
+chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
+chk '#emFull .lg-scene{display:none}' order-preview.html 1           # 크게 보기는 자막이 장면을 말한다(장면 줄 숨김)
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-music.mjs >/dev/null 2>&1; _emu=$?; if [ "$_emu" = 1 ]; then echo 'FAIL entry-music: ② 입장 «입장 음악» 줄(올리기 · 자리 · 직접 적기 · 안내 창 · 저장 · 되살리기) · 음악과 함께 듣기 · 크게 보기가 깨졌습니다 — node scripts/audit/entry-music.mjs'; fail=1; elif [ "$_emu" = 0 ]; then echo 'ok entry-music: 입장 음악 줄 · 음악과 함께 듣기 390 · 1280'; else echo 'skip entry-music: 브라우저가 없어 재지 못함'; fi; fi
