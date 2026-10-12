@@ -2423,6 +2423,10 @@ chk 'D.DAY' scripts/check-source-drift.mjs 3
 #   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
 chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
 chk 'ref-time' scripts/check-source-drift.mjs 1
+# [DRIFT_LEAD_TIME 2026-10-12] «본식 5분 전부터»(시작 전 시각)를 본식 길이로 세지 않는다 · «N분 전후»(약 N분)는 여전히 잰다.
+#   실측: PR #1205 의 입장 그래프 읽기용 설명이 이 오독으로 빨갰고, 그 줄이 FAIL 로 시작하지 않아 CI 꼬리에서 안 보였다([GUARD_FAIL_TAIL]).
+chk 'DRIFT_LEAD_TIME' scripts/check-source-drift.mjs 1
+chk '전(?!후)' scripts/check-source-drift.mjs 1
 # [SLOT_CLOCK 2026-09-25] 표 밖의 예식 시각(마이페이지 D-day·임시고정·관리자·청첩장·라이브·알림톡)은 슬롯 ID(13:20)를
 #   본예식으로 찍고 있었다 — 8/9 부터 5분 어긋남. 이제 SLOT_CLOCK 한 표를 거치고, drift (6-b)가 여섯 벌을 DAY 로 잰다.
 chk 'SLOT_CLOCK' scripts/check-source-drift.mjs 2

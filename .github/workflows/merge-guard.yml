@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      # ★★[GUARD_FAIL_TAIL 2026-10-12] 출력을 파일로도 받아 두고, 빨개지면 다음 단계가 FAIL · REVERT? 줄만 끝에 다시 찍는다.
+      # ★★[GUARD_FAIL_TAIL 2026-10-12] 출력을 파일로도 받아 두고, 빨개지면 다음 단계가 실패 줄을 끝에 모아 다시 찍는다.
       #   왜 — 게이트 출력이 만 줄을 넘는다. 로그를 «끝에서 몇천 줄»만 주는 도구로는 앞쪽의 빨간 줄이 안 보여
       #   PR #1205 에서 원인을 찾느라 로컬에서 게이트를 통째로 다시 돌렸다(15분 넘게). 끝에 모아 두면 꼬리 몇 줄로 끝난다.
       #   ★pipefail 이 없으면 tee 의 종료코드(0)가 판정이 된다 — 게이트가 빨개도 초록으로 지는 길이니 지우지 말 것.
@@ -40,7 +40,15 @@ jobs:
         run: |
           set -o pipefail
           sh automation/tests/merge-guard.sh 2>&1 | tee "$RUNNER_TEMP/merge-guard.txt"
+      #   ★실패 줄이 늘 FAIL 로 시작하지는 않는다 — 시간표 검사는 «DRIFT?», 몇몇은 «✗»·«MISSED» 로 알린다.
+      #     첫 판은 FAIL · REVERT? 만 골라 «못 찾았다»로 끝났다(PR #1205 · 원인은 DRIFT? 줄). 그래서 둘째 칸에
+      #     «ok · skip 이 아닌 줄»을 함께 싣는다(로컬 실측 백 줄 안팎 · 끝 150줄까지).
       - name: 빨간 줄만 다시 보기
         if: failure()
         shell: bash
-        run: grep -nE '^(FAIL|REVERT\?)' "$RUNNER_TEMP/merge-guard.txt" || echo '빨간 줄을 못 찾았다 — 위 판정 줄(역전 의심 · 중단)을 볼 것'
+        run: |
+          F="$RUNNER_TEMP/merge-guard.txt"
+          echo '── FAIL · REVERT? 줄'
+          grep -nE '^(FAIL|REVERT\?)' "$F" || echo '(없음 — 아래 칸에서 찾을 것)'
+          echo '── 그 밖의 줄(ok · skip 이 아닌 것 · DRIFT? · ✗ · MISSED 같은 실패가 여기 있다)'
+          grep -nvE '^(ok |skip |FAIL|REVERT\?)' "$F" | cut -c1-300 | tail -n 150
