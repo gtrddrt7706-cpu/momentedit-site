@@ -20,6 +20,12 @@
    16 새로고침 뒤에도 장면 칸이 다시 선다(이 기기에 둔 곡)
    17 두 분 AI 목소리를 아직 안 만들었으면 — 그래프 없이 흐린 알약(aria-disabled) · 눌러도 틀지 않고 빌더 알림
    18 빼기 → 장면 칸도 없어진다
+   ★★[ENTRY_BIG_1012] 2단계-나 크게 보기
+   19 알약 옆 작은 단추(알약과 같은 높이 · 네모) · 목소리가 없으면 함께 흐림
+   20 누르면 크게 보기(빌더 크게 보기 틀 · 뒤는 잠김 · 뒤로 가기 한 칸) · 듣던 자리에서 이어서 · 자막 «음악이 작게 흐르기 시작해요» · 첫 칸 · ▶ 에 초점 · 그래프 그림(장면 줄은 숨김)
+   21 ⏸ = 그 자리에 멈춤(이어 듣기) · ▶ = 이어서
+   22 마지막 줄 → 자막이 그 줄(나레이션 «신랑 신부, 입장!») → 음악이 크게 올라오면 «음악이 크게 올라와요» · 장면 영상이 그 자리부터 · › 는 마지막 칸에서 꺼진다
+   23 ⌄ · Esc · 뒤로 가기로 닫힌다 — 잠금이 풀리고 초점은 연 단추로 · 페이지는 그대로
    시험 곡은 여기서 만든다(저작권 없는 합성음 · 저장소에 음원을 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
    EM_OP · EM_MOD = 돌연변이 확인용 — 그 판의 order-preview · entry-music.js 로 잰다 */
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -93,6 +99,28 @@ try {
     await pg.click('[data-fk="muhkp:0"]'); await pg.waitForTimeout(150); await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(500);
     await pg.evaluate(() => _stopMk()); await pg.waitForTimeout(150); const S14b = await scene();
     ok(`${W} 14 소리 하나 — 자리 ▶ 를 누르면 장면은 멈추고(이어 듣기) · 빌더가 제 소리를 틀어도(_stopMk) 멈춘다`, S14a.prev === 'up#0' && !S14a.run && S14a.pause > 0 && S14a.pill === '이어 듣기' && !S14b.run && S14b.pause > 0 && S14b.pill === '이어 듣기', { S14a, S14b });
+    // 19 ~ 23 — 크게 보기
+    const big = () => pg.evaluate(() => { const f = document.getElementById('emFull'), cv = f && f.querySelector('.em-graph canvas'); let ink = 0; if (cv && cv.width) { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) ink++; }
+      const t = f && f.querySelector('[data-fk="embtog"]'), fw = f && f.querySelector('[data-fk="embfwd"]'), v = f && f.querySelector('.lv video'), sc = f && f.querySelector('.lg-scene');
+      return { open: !!(f && !f.hidden), role: f && f.getAttribute('role'), modal: f && f.getAttribute('aria-modal'), inert: document.querySelector('.wrap').hasAttribute('inert'), hist: !!(history.state && history.state.em), lab: (document.getElementById('emBigLab') || {}).textContent, cap: (document.getElementById('emBigTxt') || {}).textContent, seg: f ? [...f.querySelectorAll('.lf-seg span')].map((x) => x.className || '-').join(',') : '', tog: t && t.getAttribute('aria-label'), fwdOff: !!(fw && fw.disabled), focus: document.activeElement && document.activeElement.getAttribute('data-fk'), vid: v ? Math.round(v.currentTime * 10) / 10 : null, ink, sceneHidden: !!(sc && getComputedStyle(sc).display === 'none'), s: EntryMusic._t.scene() }; });
+    const B19 = await pg.evaluate(() => { const p = document.querySelector('.em-scene [data-fk="emscene"]').getBoundingClientRect(), b = document.querySelector('.em-scene [data-fk="embig"]'), r = b.getBoundingClientRect(); return { ph: Math.round(p.height), bh: Math.round(r.height), bw: Math.round(r.width), top: Math.round(r.top - p.top), off: b.classList.contains('off'), lbl: b.getAttribute('aria-label'), over: document.documentElement.scrollWidth > innerWidth }; });
+    ok(`${W} 19 크게 보기 단추 — 알약 옆 같은 높이 네모 · «크게 보며 듣기»`, B19.bh === B19.ph && B19.bw === B19.bh && B19.top === 0 && !B19.off && B19.lbl === '크게 보며 듣기' && !B19.over, B19);
+    await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(1200); const B20 = await big();
+    const capAtX = (x) => x < P.tv ? '음악이 작게 흐르기 시작해요' : x < P.th ? null : x < P.th + 1.4 ? '음악이 크게 올라와요' : x < P.th + 3.2 ? '문이 열려요' : '두 분이 함께 걸어 들어와요';   // 시험실 STEP_AT · STEP_TXT
+    ok(`${W} 20 누르면 크게 보기(뒤는 잠김 · 뒤로 가기 한 칸) · 멈춘 자리에서 이어서 · 그 자리 자막 · ▶ 에 초점 · 그래프(장면 줄 숨김)`, B20.open && B20.role === 'dialog' && B20.modal === 'true' && B20.inert && B20.hist && B20.s.run && B20.s.x >= S14b.pause - 0.05 && (capAtX(B20.s.x) === null || B20.cap === capAtX(B20.s.x)) && B20.tog === '멈추기' && B20.focus === 'embtog' && B20.ink > 300 && B20.sceneHidden, B20);
+    await pg.click('#emFull [data-fk="embtog"]'); await pg.waitForTimeout(300); const B21a = await big(); await pg.click('#emFull [data-fk="embtog"]'); await pg.waitForTimeout(500); const B21b = await big();
+    ok(`${W} 21 ⏸ = 그 자리에 멈춤(이어 듣기) · ▶ = 이어서`, !B21a.s.run && B21a.s.pause > 0 && B21a.tog === '이어 듣기' && B21b.s.run && B21b.s.x >= B21a.s.pause - 0.05 && B21b.tog === '멈추기', { B21a, B21b });
+    await pg.click('#emFull [data-fk="emblast"]'); await pg.waitForTimeout(900); const B22a = await big();
+    await pg.waitForTimeout(Math.max(0, (P.th + 0.9 - B22a.s.x) * 1000)); const B22b = await big();
+    await pg.click('#emFull [data-fk="embfwd"]'); await pg.waitForTimeout(800); const B22c = await big();   // › = 다음 연출 칸 0.2초 앞부터(시험실 STEP_NAV) · 재생은 0.15초 뒤에 시작한다
+    await pg.click('#emFull [data-fk="embfwd"]'); await pg.waitForTimeout(800); const B22d = await big();
+    if (process.env.EM_DEBUG) console.log(JSON.stringify({ B22a, B22b, B22c, B22d }));
+    ok(`${W} 22 마지막 줄 → 그 줄 자막 → 크게 올라오면 «음악이 크게 올라와요»(셋째 칸) → › «문이 열려요» → › «걸어 들어와요» · 영상이 그 자리부터 · › 는 마지막 칸에서 꺼짐`, B22a.lab === '나레이션' && B22a.cap === '신랑 신부, 입장!' && /^done,on,/.test(B22a.seg) && B22b.cap === '음악이 크게 올라와요' && /^done,done,on,/.test(B22b.seg) && B22b.vid != null && B22c.cap === '문이 열려요' && /^done,done,done,on,/.test(B22c.seg) && !B22c.fwdOff && B22d.cap === '두 분이 함께 걸어 들어와요' && /^done,done,done,done,on$/.test(B22d.seg) && B22d.fwdOff && B22d.vid > 0.5, { B22a, B22b, B22c, B22d });
+    await pg.click('#emFull [data-fk="embigmin"]'); await pg.waitForTimeout(500); const B23a = await big();
+    await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(500); await pg.keyboard.press('Escape'); await pg.waitForTimeout(400); const B23b = await big();
+    const u0 = pg.url(); await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(500); await pg.goBack(); await pg.waitForTimeout(600); const B23c = Object.assign(await big(), { same: pg.url() === u0, page: await pg.evaluate(() => _mkState().at) });
+    ok(`${W} 23 ⌄ · Esc · 뒤로 가기로 닫힌다 — 잠금이 풀리고 초점은 연 단추 · 페이지는 그대로(② 입장)`, !B23a.open && !B23a.inert && !B23a.hist && B23a.focus === 'embig' && !B23b.open && !B23b.inert && B23b.focus === 'embig' && !B23c.open && !B23c.inert && B23c.same && B23c.page === 'entry', { B23a, B23b, B23c });
+    await pg.evaluate(() => _stopMk()); await pg.waitForTimeout(150);
     // 4
     await pg.click('[data-fk="muhkp:0"]'); await pg.waitForTimeout(250);
     const R4a = await pg.evaluate(() => ({ prev: EntryMusic._t.prev(), p: document.querySelector('[data-fk="muhkp:0"]').getAttribute('aria-pressed'), song: document.querySelector('[data-fk="muprev"]').getAttribute('aria-pressed') }));
@@ -123,7 +151,8 @@ try {
     if (aiChip) { await pg.click('[data-fk="lsc:entryVoice:ai"]'); await pg.waitForTimeout(700); for (let i = 0; i < 3; i++) { if (await pg.evaluate(() => !!document.getElementById('mkRecDlg'))) { await pg.evaluate(() => mkDlgClose()); await pg.waitForTimeout(400); } } }
     const S17a = await scene(); await pg.click('[data-fk="emscene"]', { force: true }); await pg.waitForTimeout(500);
     const S17b = Object.assign(await scene(), { toast: await pg.evaluate(() => { const t = document.getElementById('lsToast'); return t && !t.hidden ? t.textContent : ''; }) });
-    ok(`${W} 17 두 분 AI 목소리를 아직 안 만들었으면 — 그래프 없이 흐린 알약 · 눌러도 틀지 않고 빌더 알림`, aiChip && S17a.has && !S17a.graph && S17a.off && S17a.dis === 'true' && !S17b.run && !S17b.pend && !!S17b.toast, { aiChip, S17a, S17b });
+    const S17c = await pg.evaluate(() => { const b = document.querySelector('.em-scene [data-fk="embig"]'); return { off: !!(b && b.classList.contains('off')), dis: b && b.getAttribute('aria-disabled') }; });
+    ok(`${W} 17 두 분 AI 목소리를 아직 안 만들었으면 — 그래프 없이 흐린 알약(크게 보기 단추도) · 눌러도 틀지 않고 빌더 알림`, aiChip && S17a.has && !S17a.graph && S17a.off && S17a.dis === 'true' && S17c.off && S17c.dis === 'true' && !S17b.run && !S17b.pend && !!S17b.toast, { aiChip, S17a, S17b, S17c });
     // 8
     await pg.click('[data-fk="muupdel"]'); await pg.waitForTimeout(400);
     const R8 = await pg.evaluate(() => ({ mu: S.mu || null, empty: !!document.querySelector('.ls-mu [data-fk="muupopen"]'), rows: document.querySelectorAll('.ls-mu .mu-row').length }));
