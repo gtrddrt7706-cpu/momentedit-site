@@ -106,16 +106,18 @@ try {
     const want = _mkPages().filter((k) => k[0] !== '_' && !_mkOff(k) && _mkKinds(k)[0] && TX_WHO.some((w) => !String((S.tx || {})[_mkKinds(k)[0] + '.' + w[0]] || '').trim() && !_txSite(_mkKinds(k)[0], _mkChk(), _mkKinds(k)[0] + '.' + w[0]))).length;
     return { shown: m ? +m[1] : 0, want, todo: _mkTodoN() }; });
   ok('⑫ ③ 연습 «아직 안 적은 N곳» = 글칸이 빈 순간 수(미완료 셈과 다를 수 있다) [PR_TODO_TRUE]', !!pr && pr.shown === pr.want && pr.want > 0, JSON.stringify(pr));
-  /* ⑬ 준비한 순서 «무엇을» 갈래를 바꾸면 할 일 표시가 따라오지 않는다 — 칸 번호(p:free:0)가 같다 [FREE_MARK_RESET] */
+  /* ⑬ [FREE_MARK_RESET] · ★[SPEECH_TILE_1012 2026-10-12] 무엇을 줄은 옛 초안(영상 · 선물 · 기타)에만 — 새 칸(축사)에는 없다.
+     옛 영상 «보냈어요» → 축사로 바꾸면 «부탁드렸어요»가 따라오지 않는다(칸 번호 p:free:0 이 같다) · 바꾼 뒤엔 줄이 사라진다 */
   await go('free');
-  await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0]; if (q) mkChk(q.id, true, 'site'); S.tx = S.tx || {}; S.tx['free.p'] = ''; render(); }); await pg.waitForTimeout(200);
   const vk = '[data-fk="lsc:free:video"]', sk = '[data-fk="lsc:free:speech"]';
-  let fm = { video: null, speech: null };
-  if (await pg.$(vk)) { await pg.click(vk); await pg.waitForTimeout(350);
-    fm.video = await pg.evaluate(() => { const v = _mkItems('free')[0], tg = v && document.querySelector('.mk-pg [data-fk="mktg:' + v.id + '"]'); const r = { done: v ? _mkItemDone(v) : null, pressed: tg ? tg.getAttribute('aria-pressed') : null }; if (v) mkChk(v.id, true); return r; });
-    await pg.waitForTimeout(200); await pg.click(sk); await pg.waitForTimeout(350);
-    fm.speech = await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0], tg = q && document.querySelector('.mk-pg [data-fk="mktg:' + q.id + '"]'); return { done: q ? _mkItemDone(q) : null, pressed: tg ? tg.getAttribute('aria-pressed') : null }; }); }
-  ok('⑬ 축사 «원고 없이» → 영상: «보냈어요» 안 눌림 · 할 일 남음 / 영상 «보냈어요» → 축사: «부탁드렸어요» 안 눌림 [FREE_MARK_RESET]', !!fm.video && fm.video.done === false && fm.video.pressed !== 'true' && !!fm.speech && fm.speech.done === false && fm.speech.pressed !== 'true', JSON.stringify(fm));
+  const fm = { row: !(await pg.$(vk)), speech: null, gone: null };
+  await pg.evaluate(() => { S.freeWhat = 'video'; render(); }); await pg.waitForTimeout(350);
+  if (await pg.$(sk)) {
+    await pg.evaluate(() => { const v = _mkItems('free')[0]; if (v) mkChk(v.id, true); render(); }); await pg.waitForTimeout(200);
+    await pg.click(sk); await pg.waitForTimeout(350);
+    fm.speech = await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0], tg = q && document.querySelector('.mk-pg [data-fk="mktg:' + q.id + '"]'); return { done: q ? _mkItemDone(q) : null, pressed: tg ? tg.getAttribute('aria-pressed') : null }; });
+    fm.gone = !(await pg.$(vk)); }
+  ok('⑬ 축사 칸에는 무엇을 줄이 없다 · 옛 영상 «보냈어요» → 축사로 바꾸면 «부탁드렸어요» 안 눌림 · 바꾼 뒤 줄이 사라진다 [FREE_MARK_RESET] [SPEECH_TILE_1012]', fm.row === true && !!fm.speech && fm.speech.done === false && fm.speech.pressed !== 'true' && fm.gone === true, JSON.stringify(fm));
   ok('⑥ 화면 오류 0', errs.length === 0, errs.slice(0, 3).join(' | '));
 } catch (e) { console.log('못 쟀다 —', e && e.message); await br.close(); srv.close(); process.exit(2); }
 await br.close(); srv.close();

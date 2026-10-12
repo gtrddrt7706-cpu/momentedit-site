@@ -5231,7 +5231,10 @@ chk 'KB_ALL_THREE' scripts/check-retired-scene.mjs 1
 chk 'MUSIC_GONE' scripts/check-retired-scene.mjs 3
 chk 'MUSIC_GONE' assets/advisor-kb.js 1
 chk 'MUSIC_GONE' api/_kb.js 1
-chk '자유 한 칸\|준비한 순서' assets/advisor-kb.js 3       # 축가는 없앤 게 아니라 옮긴 것 — 어디로 옮겼는지를 고객에게 적는다 · [NO_LIVE_SONG_KB 2026-09-26] 그 자리의 새 이름 «준비한 순서»도 센다
+# ★[SPEECH_TILE_1012 2026-10-12 사장님 «축사로 바꾸기 (추천)»] 옛 줄 chk '자유 한 칸\|준비한 순서' advisor-kb 3 — 축가가 그 칸으로 옮겨 가던 때(8/09)의 길 안내다.
+#   10/11 축가는 «축가» 순간으로 돌아왔고(SONG_BACK_1011) 10/12 그 칸은 «축사»가 됐다 — 고객 답은 축사 · 축가 · 식전 영상으로 길을 적는다
+chk '«축사»' assets/advisor-kb.js 2
+nochk '«준비한 순서»에 담' assets/advisor-kb.js
 nochk '입퇴장 음악·축가 등 구성을 직접 입력' assets/advisor-kb.js   # ★없는 칸을 있다고 하던 줄
 chk 'WINE_RETIRED' mypage.html 1
 chk 'WINE_RETIRED' api/_ritual-kb.js 3
@@ -7611,7 +7614,7 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'song', 'tribute', 'toast'], set: { entry: 'A', tribute: 'long' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute', 'toast'], set: { entry: 'A', tribute: 'long', free: 'speech' } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } }" assets/ritual-open.js 1
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute', 'toast'], set: { entry: 'E', tribute: 'long' } }" assets/ritual-open.js 1
 chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'C', tribute: 'none' } }" assets/ritual-open.js 1
@@ -12172,6 +12175,20 @@ nochk "speech: { n: '축하의 말'" assets/ritual-open.js 0
 chk 'FREE_WHAT' assets/ritual-open.js 2               # 준비한 순서 무엇을 × 길이
 # [ACTS_FOUR 2026-09-26 코워크 최종판 3-5] ① 맨 아래 «준비한 순서» 묶음([FREE_OWN])과 ② 더하기 단추를 거뒀다 — 네 막 «마음의 순간»의 «있을 때만» 칸으로. 되살리지 말 것.
 chk 'ACTS_FOUR' assets/ritual-open.js 1
+# ★★[SPEECH_TILE_1012 2026-10-12 사장님 «만약 축사 이벤트를 따로 추가해도 된다고 하면 추가해» → «축사로 바꾸기 (추천)»] «준비한 순서» 칸(free)이 «축사» —
+#   자료 축사 56% · 실제 예식 4/6 · «덕담 또는 축사» 13/17 · 영상은 식전 영상 · 깜짝 선물 · 기타는 새로 고르지 않는다(옛 초안은 그대로 돈다 · 이름 nameOf)
+#   open-course 가 뜻(새 칸 = 축사 · 정석에 축사 · 옛 초안 이름 · 무엇을 줄 · 장면 영상)을 잰다
+chk 'SPEECH_TILE_1012' assets/ritual-open.js 8
+chk 'SPEECH_TILE_1012' order-preview.html 12
+chk 'SPEECH_TILE_1012' assets/ritual-cue.js 1
+chk 'SPEECH_TILE_1012' assets/ritual-story.js 1
+chk 'SPEECH_TILE_1012' api/_ritual-kb.js 2
+chk 'SPEECH_TILE_1012' mypage.html 1
+chk "free: { n: '축사', sn: '축사'" assets/ritual-open.js 1
+nochk "'담기 · 준비한 게 있을 때'" order-preview.html
+nochk 'class="pk-opt"' order-preview.html
+nochk '«준비한 순서»로 담으시면' index.html
+nochk '«준비한 순서»로 담으시면' api/_kb.js
 nochk '특별히 준비한 것이 있다면' order-preview.html
 nochk 'opAddFree' order-preview.html
 chk 'FREE_RESCUE' console.html 2                      # 재생 안 됨 한 줄(105) · 맺는 말 건너뜀

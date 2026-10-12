@@ -900,7 +900,7 @@
         var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)', etc: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)',   // [FREE_ETC] 기타 = 옛 «자유 한 칸» 지문(장면 설명 열쇠 그대로)
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         return [cue({
-          k: 'free', blockN: '준비한 순서', slug: fk === 'etc' ? 'narr-free-in' : 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
+          k: 'free', blockN: fk === 'speech' ? '축사' : '준비한 순서', slug: fk === 'etc' ? 'narr-free-in' : 'narr-free-in-' + fk, name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
           text: fk === 'etc' ? D.NARR.freeIn : EXTRA['narr-free-in-' + fk], duck: PARAM.duckMusic, pick: nm,
           rescue: play ? { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] } : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
