@@ -17704,7 +17704,7 @@ chk "mu: '입장 음악'" automation/platform/80_production.gs 1          # 서�
 chk "맞췄어요'); srvUp(f); }" assets/entry-music.js 1                       # 새로 올린 곡은 바로 스튜디오로(대괄호 없는 조각 · chk 는 BRE)
 chk "if(!b){ if(emb()&&mu.fid){ srvGet(mu); return; }" assets/entry-music.js 1                  # 이 기기에 없으면 스튜디오 파일로 되살린다
 chk "function _mkUpDone(d){ var key=d.key; if(!key||key==='mu') return;" order-preview.html 1      # 줄 파일 처리기는 곡(mu)을 건너뛴다
-chk "function _rfData(d){ if(d&&d.key==='mu') return;" order-preview.html 1
+chk "function _rfData(d){ if(d&&(d.key==='mu'||d.key==='rec')) return;" order-preview.html 1   # [REC_SONG_1012] 추천 곡(rec) 응답도 줄 파일 처리기를 건너뛴다
 chk "d.data.key==='mu'?180000:60000" mypage.html 1                                                # 곡은 줄 녹음보다 커서 180초
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-song-up.mjs >/dev/null 2>&1; _esu=$?; if [ "$_esu" = 1 ]; then echo 'FAIL entry-song-up: 입장 음악 곡을 스튜디오로 보내기(보냄 · 바꿈 · 다시 보내기 · 20MB · 다른 기기 되살림 · 빼기)가 깨졌습니다 — node scripts/audit/entry-song-up.mjs'; fail=1; elif [ "$_esu" = 0 ]; then echo 'ok entry-song-up: 곡 보내기 · 다른 기기 되살림 390 · 1280'; else echo 'skip entry-song-up: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-12 입장 음악 3단계-나 [ENTRY_SCENE_ENGINE · ENTRY_SCENE_DAY] — 당일 콘솔이 GO 한 번에 곡(계산한 자리에서 페이드인) · 입장 대사 · 마지막 말 끝 하이라이트
@@ -17730,3 +17730,38 @@ chk 'if (ESD.run) { esdDuck(db, ms); db = -90; }' console.html 1          # 입�
 chk 'ES.plan(V0, Sg, H, { after: 1e5 })' console.html 1                  # 하이라이트 뒤 곡은 디렉터가 다음을 누를 때까지(걸음은 자동으로 넘기지 않는다)
 chk "esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4))" console.html 1       # 입장 묶음을 떠나면 곡 4초 잦아듦
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-scene-day.mjs >/dev/null 2>&1; _esd=$?; if [ "$_esd" = 1 ]; then echo 'FAIL entry-scene-day: 당일 콘솔 입장 장면(곡 받기 · GO · 하이라이트 계획 · 배경음 내림 · 맞절 · 다음 묶음 · 곡 없음/못 받음 종전 길)이 깨졌습니다 — node scripts/audit/entry-scene-day.mjs'; fail=1; elif [ "$_esd" = 0 ]; then echo 'ok entry-scene-day: 당일 콘솔 입장 장면'; else echo 'skip entry-scene-day: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-12 입장 음악 «추천 곡» 4-가 서버 길 [REC_SONG_1012] — 사장님 «추천대로»(1번 · 드라이브에 곡을 두고 로그인한 고객에게만)
+#   곡 파일 · 곡 목록(songs.json · 가사 포함)은 사이트 저장소가 아니라 드라이브 ME_추천곡 폴더에 둔다 · GAS 가 로그인한 두 분(ritualFileGet key 'rec')과
+#   당일 콘솔(adminRitualFileGet 'rec:<키>')에게만 base64 로 건넨다 · 마이페이지 중계는 목록(songs)도 넘기고 곡은 180초 · 콘솔은 추천 곡도 장면으로
+chk 'REC_SONG_1012' automation/platform/80_production.gs 3
+chk "if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id, false); }" automation/platform/80_production.gs 1
+chk "if (/^rec:/.test(String(id || ''))) { try { return _recGet_(" automation/platform/80_production.gs 1
+chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;" automation/platform/80_production.gs 1
+chk 'REC_SONG_1012' mypage.html 1
+chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'))?180000:60000)" mypage.html 1
+chk 'songs:Array.isArray(r.songs)?r.songs:undefined' mypage.html 1
+chk 'REC_SONG_1012' console.html 2
+chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
+chk 'REC_SONG_1012' scripts/audit/rec-song-server.mjs 1
+chk 'REC_SONG_1012' scripts/audit/entry-scene-day.mjs 1
+nochk 'songs.json' assets/entry-music.js                 # 곡 목록은 서버(드라이브)에서만 — 저장소에 목록 · 가사를 두지 않는다
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+# ── 2026-10-12 입장 음악 «추천 곡» 4-나 화면 [REC_SONG_1012] — 사장님 «추천대로»(추천 곡 1번 · 드라이브에 두고 로그인한 두 분에게만) · «왜 추천 노래 부분이 없어?»
+#   빌더 ② 입장 «입장 음악» 줄 = 칩 둘 «두 분이 고른 곡 · 추천 곡»(MU_SRC · 처음엔 안 눌린 모양) · 추천 곡 = 시험실 v50 카드(와이드 사진 · 가사 · ‹ ▶ › · ✓ · 접힌 한 줄)
+#   목록 · 곡은 마이페이지 → GAS(4-가)에서만 받는다(저장소에 곡 · 목록 · 가사 없음) · 고르면 S.mu={src:'rec',k,…,hook:hook0}(당일 콘솔이 보는 그것) · 올린 곡 기록은 S.muUp 으로 비켜 둔다
+#   장면(음악과 함께 듣기)도 고른 곡으로 짠다 · 받은 곡은 이 기기에 셋까지(me-rec-song) · rec-song-ui 가 손가락처럼 누른다(390 · 1280 · 못 받음 · 마이페이지 밖)
+chk 'REC_SONG_1012' assets/entry-music.js 10
+chk 'REC_SONG_1012' order-preview.html 1
+chk 'REC_SONG_1012' scripts/audit/rec-song-ui.mjs 1
+chk 'REC_SONG_1012' scripts/audit/entry-music.mjs 1
+chk "srcChip('두 분이 고른 곡','up',src)+srcChip('추천 곡','rec',src)" assets/entry-music.js 1   # 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래
+chk "post('momentedit:ritualFileGet',{key:'rec',id:'list'})" assets/entry-music.js 1              # 목록은 서버(드라이브)에서만
+chk "post('momentedit:ritualFileGet',{key:'rec',id:k})" assets/entry-music.js 1                   # 곡도 서버에서만 — 공개 주소 없음
+chk "if(mu&&mu.src==='up') s.muUp=mu;" assets/entry-music.js 1                                     # 추천 곡을 고르면 올린 곡 기록(서버 파일)은 비켜 둔다 — 지우지 않는다
+chk 'function scSong()' assets/entry-music.js 1                                                    # 장면 곡 = 고른 곡 하나(올린 곡 · 추천 곡)
+chk 'CAR_PRE=6, CAR_LEN=80' assets/entry-music.js 1                                                # [CAR_LEN80] 문이 열리는 자리 6초 앞부터 1분 20초
+chk 'LY_LEAD=0.35, LY_LAT_MAX=0.12' assets/entry-music.js 1                                        # [LY_LEAD] 가사는 0.35초 앞서
+chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                                      # 받은 곡은 이 기기에 — 다시 들을 때 다시 묻지 않는다(서버 시간당 60번)
+nochk 'songs.json' assets/entry-music.js                                                           # 곡 목록 · 가사는 저장소에 두지 않는다
+nochk 'audio/music/' assets/entry-music.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-ui.mjs >/dev/null 2>&1; _rsu=$?; if [ "$_rsu" = 1 ]; then echo 'FAIL rec-song-ui: 추천 곡 카드(칩 · 목록 · 들어 보기 · 가사 · 고르기 · 접힘 · 장면 · 올린 곡과 바꾸기 · 못 받음) — node scripts/audit/rec-song-ui.mjs'; fail=1; elif [ "$_rsu" = 2 ]; then echo 'skip rec-song-ui — 브라우저 없음'; fi; fi

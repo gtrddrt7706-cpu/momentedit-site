@@ -2742,6 +2742,18 @@
    "fn": "handleRitualFile",
    "mark": "ENTRY_SONG_UP",
    "why": "입장 음악 곡(자리 mu)도 두 분 목소리 파일과 같은 길로 받는다 — 붙이고 새 버전으로 배포해야 식순 화면의 곡이 스튜디오(당일 콘솔)로 간다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileGet",
+   "mark": "REC_SONG_1012",
+   "why": "입장 음악 «추천 곡»(사장님 «추천대로» 10/12 · 드라이브에 곡을 두고 로그인한 고객에게만) — key 'rec' 를 받아 드라이브 ME_추천곡 폴더의 곡 목록(songs.json) · 곡 파일을 건넨다(마이페이지 중계 · 콘솔은 adminRitualFileGet 'rec:<키>'). 이 판이 안 올라가 있으면 화면에 «추천 곡을 불러오지 못했어요»만 뜬다"
+  },
+  {
+   "file": "80_production",
+   "fn": "adminRitualFileGet",
+   "mark": "REC_SONG_1012",
+   "why": "당일 콘솔이 두 분이 고른 «추천 곡»을 드라이브 ME_추천곡 폴더에서 미리 받는다('rec:<곡 키>') — 이 판이 안 올라가 있으면 추천 곡을 고른 예식은 입장 장면 대신 배경음으로 나간다"
   }
  ],
  "fns": {
@@ -2976,6 +2988,10 @@
    "handleRitualFile",
    "_rfFileIn",
    "handleRitualFileGet",
+   "_recFolder_",
+   "_recManifest_",
+   "_recSongFile_",
+   "_recGet_",
    "handleRitualFilePurgeMine",
    "handleRitualFileDel",
    "_rfKeyOfName",
@@ -3633,6 +3649,7 @@
    "VOICE_UP",
    "RF_ROOT_FOLDER",
    "RF_KEYS",
+   "REC_ROOT_FOLDER",
    "VC_BASE",
    "VC_DOWN",
    "VC_COLOR",
@@ -3834,7 +3851,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-12 21:35 · 61bd369f",
+ "_생성": "2026-10-13 00:00 · ffa32c0f",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4044,6 +4061,12 @@
    "key": "PRACTICE_TTS_ENABLED",
    "kind": "switch",
    "a": "연습 공간 AI 읽기 — Y 일 때만 · 처음엔 비움(꺼짐) [VOICE_CLONE 4-2]",
+   "b": ""
+  },
+  {
+   "key": "REC_FID",
+   "kind": "state",
+   "a": "",
    "b": ""
   },
   {
@@ -4354,5 +4377,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "542b08dbc326"
+ "_표식서명": "17ecf1fdb0bc"
 }

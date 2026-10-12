@@ -1269,12 +1269,56 @@ function handleRitualFileGet(body) { _gsr_();
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  // [REC_SONG_1012 2026-10-12] key 'rec' = 입장 «추천 곡» — 두 분 폴더가 아니라 드라이브 ME_추천곡 폴더에서(로그인한 두 분만 · id 'list' = 곡 목록 · 그 밖 = 곡 키)
+  if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id, false); } catch (e) { return { ok: false, ecode: 'L4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '곡을 불러오지 못했어요. 다시 눌러 주세요.' }; } }
   try {   // [ERR_CODE_GAS] 드라이브 실패는 L4 로(종전엔 doPost 의 일반 문구)
     var f = _rfFileIn(code, String(body.id || '').trim());
     if (!f) return { ok: false, error: '파일을 찾을 수 없어요.' };
     var b = f.getBlob(); if (b.getBytes().length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
     return { ok: true, key: String(body.key || ''), id: f.getId(), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
   } catch (e) { return { ok: false, ecode: 'L4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 불러오지 못했어요. 다시 눌러 주세요.' }; }
+}
+/* ★★[REC_SONG_1012 2026-10-12 사장님 «추천대로»(추천 곡 1번 · 드라이브에 곡을 두고 로그인한 고객에게만)] 입장 음악 «추천 곡»
+   곡 파일과 곡 목록(songs.json · 제목 · 가수 · 크게 올라오는 자리 · 사진 · 줄마다 시각이 붙은 가사)은 사이트 저장소가 아니라 드라이브 «ME_추천곡» 폴더에 둔다 —
+   사장님이 폴더째 올린다 · 공개 주소를 만들지 않고 로그인한 두 분(handleRitualFileGet key 'rec')과 당일 콘솔(adminRitualFileGet 'rec:<키>')에게만 base64 로 건넨다.
+   · 폴더는 이름으로 찾되 songs.json 이 든 것만(여러 개면 목록이 가장 새것) · 찾은 id 는 REC_FID 에 적어 둔다 — 폴더를 지우고 다시 올려도 다음 요청이 다시 찾는다
+   · 곡 목록은 10분 캐시(REC_MF) — 목록을 고친 뒤 10분 안에는 옛 목록이 나갈 수 있다
+   · 두 분 쪽 곡 받기는 한 예식에 한 시간 REC_HOUR_MAX(60)번까지(넘으면 L1 «잠시 뒤») — 미리 듣기마다 곡 하나를 받는다 · 콘솔은 상한 없음 */
+var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;
+function _recFolder_() {
+  var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_FID');
+  if (fid) { try { var f0 = DriveApp.getFolderById(fid); if (!f0.isTrashed() && f0.getFilesByName(REC_MANIFEST).hasNext()) return f0; } catch (e) {} }
+  var it = DriveApp.getFoldersByName(REC_ROOT_FOLDER), best = null, bt = -1;
+  while (it.hasNext()) { var f = it.next(); try { if (f.isTrashed()) continue; var mi = f.getFilesByName(REC_MANIFEST); if (!mi.hasNext()) continue; var t = mi.next().getLastUpdated().getTime(); if (t > bt) { best = f; bt = t; } } catch (e) {} }
+  if (best) { try { props.setProperty('REC_FID', best.getId()); } catch (e) {} }
+  return best;
+}
+function _recManifest_() {
+  var ck = null; try { ck = CacheService.getScriptCache(); var c = ck.get('REC_MF'); if (c) return JSON.parse(c); } catch (e) {}
+  var fo = _recFolder_(); if (!fo) return null;
+  var mi = fo.getFilesByName(REC_MANIFEST); if (!mi.hasNext()) return null;
+  var m = JSON.parse(mi.next().getBlob().getDataAsString('UTF-8')), raw = (m && Array.isArray(m.songs)) ? m.songs : (Array.isArray(m) ? m : []);
+  var songs = raw.filter(function (x) { return x && /^[A-Za-z0-9_-]{1,16}$/.test(String(x.k || '')) && +x.hook > 0; });
+  var out = { v: (m && m.v) || 1, songs: songs };
+  try { var js = JSON.stringify(out); if (ck && js.length < 95000) ck.put('REC_MF', js, 600); } catch (e) {}
+  return out;
+}
+function _recSongFile_(k) {
+  var m = _recManifest_(), s = null; if (!m) return null;
+  m.songs.forEach(function (x) { if (String(x.k) === k) s = x; }); if (!s) return null;
+  var fo = _recFolder_(); if (!fo) return null;
+  var it = fo.getFilesByName(String(s.file || (k + '.mp3')).replace(/^.*[\\/]/, ''));
+  while (it.hasNext()) { var f = it.next(); if (!f.isTrashed()) return f; }
+  return null;
+}
+function _recGet_(code, id, admin) {
+  id = String(id || '').trim();
+  if (id === 'list') { var m = _recManifest_(); if (!m || !m.songs.length) return { ok: false, ecode: 'L3', error: '추천 곡을 아직 준비하지 못했어요.' }; return { ok: true, key: 'rec', id: 'list', songs: m.songs }; }
+  if (!/^[A-Za-z0-9_-]{1,16}$/.test(id)) return { ok: false, error: '곡을 찾을 수 없어요.' };
+  if (!admin) { try { var ck = CacheService.getScriptCache(), qk = 'RECQ_' + code, n = +(ck.get(qk) || 0); if (n >= REC_HOUR_MAX) return { ok: false, ecode: 'L1', error: '잠시 뒤 다시 눌러 주세요.' }; ck.put(qk, String(n + 1), 3600); } catch (e) {} }
+  var f = _recSongFile_(id); if (!f) return { ok: false, ecode: 'L3', error: '곡 파일을 찾을 수 없어요.' };
+  var b = f.getBlob(), by = b.getBytes(); if (by.length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
+  return { ok: true, key: 'rec', id: id, mime: b.getContentType() || 'audio/mpeg', data: Utilities.base64Encode(by) };
 }
 /* ★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] 두 분이 먼저 «목소리 파일 모두 지우기» — 그 예식 폴더(안내 소리 · 대신 올린 파일 · AI 소리 · 읽은 녹음 · 연습 소리)를 통째로 휴지통,
    업체 쪽 AI 목소리도 지운다(_vcPurgeNow). 기록 RFGONE_<코드>=오늘 — 마이페이지 알림 줄이 사라지고, 30일 지우기(purgeRitualFiles)는 건너뛴다 */
@@ -1358,6 +1402,8 @@ function adminRitualFileUp(code, key, name, mime, data) {
 }
 function adminRitualFileGet(code, id) {
   _requireAdmin('');   // [REC_ADMIN]
+  // [REC_SONG_1012] 당일 콘솔이 두 분이 고른 «추천 곡»을 미리 받는다 — id 'rec:<곡 키>'(관리자 토큰 · 받기 횟수 상한 없음)
+  if (/^rec:/.test(String(id || ''))) { try { return _recGet_(String(code || '').trim(), String(id).slice(4), true); } catch (e) { return { ok: false, ecode: 'L4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '곡을 불러오지 못했어요.' }; } }
   var f = _rfFileIn(String(code || '').trim(), String(id || '').trim()); if (!f) return { ok: false, error: '파일을 찾을 수 없어요.' };
   var b = f.getBlob(); return { ok: true, id: f.getId(), key: _rfKeyOfName(f.getName()), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
 }

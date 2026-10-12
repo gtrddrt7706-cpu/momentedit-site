@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* ★★[ENTRY_MUSIC_1012 2026-10-12 사장님 «마이페이지 식순 입장 부분에 올려 보자 · 일단 전부 올려 · 지금 오픈 전이니깐»]
    진짜 식순 화면(order-preview.html) ② 입장 쪽 «입장 음악» 줄 — 1단계(두 분이 고른 곡 올리기 · 크게 올라오는 자리 · 직접 적기 · 안내 창)를 390 · 1280 에서 손가락처럼 누른다.
-   1 줄 — 고르기 칸 맨 아래 · 이름표 «입장 음악» · 줄 끝 «올리기 안내 보기» · 빈 카드(설명 · «곡 파일 올리기» · MP3 · M4A)
-   2 처음 «곡 파일 올리기» → 안내 창(빌더 창 #mkRecDlg · 단계 넷 · 아래 단추 «알겠어요» 하나 [GUIDE_OK]) · 창이 열린 동안 파일 창 없음 · «알겠어요» → 닫히고 그 단추로 초점
+   1 줄 — 고르기 칸 맨 아래 · 이름표 «입장 음악» · 칩 둘 «두 분이 고른 곡 · 추천 곡»(처음엔 안 눌린 모양 · ★[REC_SONG_1012] MU_SRC) · 아래 카드 없음
+   2 «두 분이 고른 곡» → 안내 창(빌더 창 #mkRecDlg · 단계 넷 · 아래 단추 «알겠어요» 하나 [GUIDE_OK] · [UP_GUIDE_CHIP]) · 파일 창 없음 · «알겠어요» → 닫히고 칩으로 초점 · 아래 빈 카드(설명 · «곡 파일 올리기» · MP3 · M4A) · 줄 끝 «올리기 안내 보기» · «곡 파일 올리기» → 바로 파일 창
    3 올리기(시험 곡 · 150초 · 40초부터 크게) → 후보에 0:40 «추천» · 고름 · S.mu 저장(곡 · 자리) · 링크 한 줄 «맞추기 · 다른 곡 올리기 · 빼기» [UP_LINKS_ONE]
    4 자리 ▶ = 앞뒤 들어 보기(■ 로 바뀜 · 다시 누르면 멈춤 · aria-pressed true/false [PRESSED_BOOL])
    5 직접 적기 «105» → 1:05 · 맨 아래 줄 · 고름 · S.mu.typed 65 [HOOK_TYPE]
@@ -57,19 +57,20 @@ try {
     await pg.evaluate(() => mkGo('entry')); await pg.waitForTimeout(800);
     const vp = await pg.evaluate(() => !!document.querySelector('[data-fk="lsc:entryVoice:nar"]'));
     if (vp) { await pg.click('[data-fk="lsc:entryVoice:nar"]'); await pg.waitForTimeout(600); }
-    // 1
-    const R1 = await pg.evaluate(() => { const r = document.querySelector('.mk-pick .ls-vars > .ls-mu'), last = r && r === r.parentElement.lastElementChild; return { row: !!r, last, gl: r && (r.querySelector('.gl') || {}).textContent, link: r && (r.querySelector('.cg-links [data-fk="muguide"]') || {}).textContent, cs: r && (r.querySelector('.mu-cs') || {}).textContent, go: r && (r.querySelector('[data-fk="muupopen"]') || {}).textContent, hint: r && (r.querySelector('.mu-uphint') || {}).textContent, input: document.querySelectorAll('body > #muUpFile').length, acc: (document.getElementById('muUpFile') || {}).accept }; });
-    ok(`${W} 1 입장 음악 줄 — 고르기 칸 맨 아래 · 이름표 · 줄 끝 «올리기 안내 보기» · 빈 카드 · 파일 칸은 화면 밖 하나(확장자만)`, R1.row && R1.last && R1.gl === '입장 음악' && R1.link === '올리기 안내 보기' && /크게 올라오는 자리를 찾아/.test(R1.cs || '') && /곡 파일 올리기/.test(R1.go || '') && R1.hint === 'MP3 · M4A' && R1.input === 1 && R1.acc === '.mp3,.m4a,.aac,.wav,.flac', R1);
-    // 2
-    await pg.click('[data-fk="muupopen"]'); await pg.waitForTimeout(500);
+    // 1 — ★[REC_SONG_1012 · MU_SRC] 칩 둘 «두 분이 고른 곡 · 추천 곡» · 처음엔 안 눌린 모양 · 카드 없음
+    const R1 = await pg.evaluate(() => { const r = document.querySelector('.mk-pick .ls-vars > .ls-mu'), last = r && r === r.parentElement.lastElementChild, ch = r ? [...r.querySelectorAll('.mu-src [role="radio"]')] : [];
+      return { row: !!r, last, gl: r && (r.querySelector('.gl') || {}).textContent, chips: ch.map((c) => c.textContent + ':' + c.getAttribute('aria-checked')).join('|'), tab: ch.map((c) => c.getAttribute('tabindex')).join(','), box: r ? r.querySelector('.mu-box').innerHTML.length : -1, link: !!(r && r.querySelector('[data-fk="muguide"]')), input: document.querySelectorAll('body > #muUpFile').length, acc: (document.getElementById('muUpFile') || {}).accept }; });
+    ok(`${W} 1 입장 음악 줄 — 고르기 칸 맨 아래 · 이름표 · 칩 둘(처음엔 안 눌린 모양 [MU_SRC]) · 아래 카드 · 링크 없음 · 파일 칸은 화면 밖 하나(확장자만)`, R1.row && R1.last && R1.gl === '입장 음악' && R1.chips === '두 분이 고른 곡:false|추천 곡:false' && R1.tab === '0,-1' && R1.box === 0 && !R1.link && R1.input === 1 && R1.acc === '.mp3,.m4a,.aac,.wav,.flac', R1);
+    // 2 — 칩 «두 분이 고른 곡» → 아직 올린 곡이 없으면 안내 창 [UP_GUIDE_CHIP]
+    await pg.click('[data-fk="musrc:up"]'); await pg.waitForTimeout(500);
     const R2 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { open: !!d, t: d && (d.querySelector('#mkDlgT') || {}).textContent, steps: d ? [...d.querySelectorAll('.mk-rd-steps p > b')].map((b) => b.textContent).join('|') : '', btns: d ? [...d.querySelectorAll('.mk-dlg-go')].map((b) => b.textContent).join('|') : '', focus: document.activeElement && document.activeElement.getAttribute('data-fk'), scene: !!(d && /음악과 함께 듣기/.test(d.textContent)), nar: !!(d && /멘트부터 입장까지/.test(d.textContent) && /입장!»?이 끝나는 순간/.test(d.textContent)), seen: (S.tipSeen || {}).mu }; });
-    ok(`${W} 2 처음 «곡 파일 올리기» → 안내 창(빌더 창 · 단계 넷 · 아래 단추 «알겠어요» 하나 [GUIDE_OK]) · 파일 창 없음`, R2.open && R2.t === '내 곡을 올리면 이렇게 돼요' && R2.steps === '곡 파일을 올려요|크게 올라오는 자리를 찾아 드려요|들어 보고 골라요|원하는 자리가 없으면 직접 적어요' && R2.btns === '알겠어요' && R2.focus === 'muguideok' && R2.seen === 1 && fileWins === 0, { ...R2, fileWins });
+    ok(`${W} 2 «두 분이 고른 곡» 칩 → 안내 창(빌더 창 · 단계 넷 · 아래 단추 «알겠어요» 하나 [GUIDE_OK] · [UP_GUIDE_CHIP]) · 파일 창 없음`, R2.open && R2.t === '내 곡을 올리면 이렇게 돼요' && R2.steps === '곡 파일을 올려요|크게 올라오는 자리를 찾아 드려요|들어 보고 골라요|원하는 자리가 없으면 직접 적어요' && R2.btns === '알겠어요' && R2.focus === 'muguideok' && R2.seen === 1 && fileWins === 0, { ...R2, fileWins });
     ok(`${W} 9 안내 창이 «음악과 함께 듣기»를 말한다 · 나레이션 판은 «멘트부터 입장까지»`, R2.scene === true && R2.nar === true, R2);
     await pg.click('#mkRecDlg .mk-dlg-go'); await pg.waitForTimeout(400);
-    const R2b = await pg.evaluate(() => ({ open: !!document.getElementById('mkRecDlg'), focus: document.activeElement && document.activeElement.getAttribute('data-fk') }));
-    ok(`${W} 2b «알겠어요» → 창만 닫힘 · 파일 창 없음 · 초점은 «곡 파일 올리기»`, !R2b.open && R2b.focus === 'muupopen' && fileWins === 0, { ...R2b, fileWins });
+    const R2b = await pg.evaluate(() => { const r = document.querySelector('.ls-mu'); return { open: !!document.getElementById('mkRecDlg'), focus: document.activeElement && document.activeElement.getAttribute('data-fk'), chip: r.querySelector('[data-fk="musrc:up"]').getAttribute('aria-checked'), link: (r.querySelector('.cg-links [data-fk="muguide"]') || {}).textContent, cs: (r.querySelector('.mu-cs') || {}).textContent, go: (r.querySelector('[data-fk="muupopen"]') || {}).textContent, hint: (r.querySelector('.mu-uphint') || {}).textContent }; });
+    ok(`${W} 2b «알겠어요» → 창만 닫힘 · 칩이 눌린 모양 · 아래 빈 카드(설명 · «곡 파일 올리기» · MP3 · M4A) · 줄 끝 «올리기 안내 보기» · 초점은 칩 · 파일 창 없음`, !R2b.open && R2b.chip === 'true' && R2b.link === '올리기 안내 보기' && /크게 올라오는 자리를 찾아/.test(R2b.cs || '') && /곡 파일 올리기/.test(R2b.go || '') && R2b.hint === 'MP3 · M4A' && R2b.focus === 'musrc:up' && fileWins === 0, { ...R2b, fileWins });
     const fc = pg.waitForEvent('filechooser', { timeout: 5000 }).catch(() => null); await pg.click('[data-fk="muupopen"]'); const ch = await fc;
-    ok(`${W} 2c 두 번째 «곡 파일 올리기» → 바로 파일 창`, !!ch, { ch: !!ch });
+    ok(`${W} 2c «곡 파일 올리기» → 바로 파일 창(안내는 칩에서 이미 봤다)`, !!ch, { ch: !!ch });
     // 3
     if (ch) await ch.setFiles(SONG); else await pg.setInputFiles('#muUpFile', SONG);
     await pg.waitForFunction(() => { const u = EntryMusic._t.ups(); return u && u.Sg && !u.busy; }, null, { timeout: 60000 }); await pg.waitForTimeout(300);
