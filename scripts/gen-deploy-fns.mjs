@@ -137,6 +137,7 @@ const PROPS = {
   NOTIFY_FAIL_: ['state'], NOTIFY_FAILMAIL_: ['state'],   /* 날짜가 뒤에 붙는 접두사 */
   SNAPBRIEF_: ['state'],   /* [SNAP_BRIEF] 촬영 브리프 주소 → 개인코드(주소 토큰이 뒤에 붙는 접두사 · adminSnapBrief 가 만들고 purgeSnapRefs 가 지운다) */
   KAKAO_REST_KEY: ['state'], KAKAO_TEMPLATES: ['state'],  /* 설정 함수가 넣어 두는 값 */
+  REC_FID: ['state'],   /* [REC_SONG_1012] 입장 «추천 곡» 드라이브 폴더(ME_추천곡 · songs.json 이 든 것) id — 서버가 처음 찾을 때 적고, 폴더가 사라지면 다시 찾는다 */
   RF_: ['state'], RFOK_: ['state'], RFGONE_: ['state'],   /* [RITUAL_FILE · REC_ADMIN · REC_PURGE] 두 분 목소리 — 코드별 드라이브 폴더 · 스튜디오 확인 ✓ · 30일 지운 날(코드가 뒤에 붙는 접두사) */
 
   /* switch */

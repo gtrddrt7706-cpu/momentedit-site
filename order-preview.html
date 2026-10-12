@@ -6590,7 +6590,7 @@ function _rfLineOff(key){ var e=MK.lineErr&&MK.lineErr[key]; if(e&&(/\(코드 [L
 function _rfErrT(E,key){ if(!E.local) return E.t||_ecWord('L',0); if(!EMBED) return '이 기기에 없어요 · 마이페이지에서 열어 주세요'; var s=((S.up||{})[key]||{}).src;   // 받아 올 곳이 없는 것은 실패가 아니라 상태 — 코드 없음
   return s==='file'?'이 기기에 없는 파일이에요 · 다시 올려 주세요':s==='ai'?'이 기기에 없는 소리예요 · 다시 만들어 주세요':'이 기기에 없는 녹음이에요 · 다시 녹음해 주세요'; }
 function _rfRedraw(){ var a=document.activeElement; if(!a||a.tagName!=='TEXTAREA') render(); }
-function _rfData(d){ if(d&&d.key==='mu') return;   /* [ENTRY_SONG_UP] 곡 파일은 이 기기 줄 저장소(me-ritual-files)에 넣지 않는다 */ if(d&&!d.ok&&d.id) delete RF_LOAD[d.id];   /* [PLAY_WAIT_FILE] 받기에 실패한 파일은 다음에 다시 묻는다(종전엔 한 번 실패하면 이 창에서 영영 안 물었다) */
+function _rfData(d){ if(d&&(d.key==='mu'||d.key==='rec')) return;   /* [ENTRY_SONG_UP] 곡 파일은 이 기기 줄 저장소(me-ritual-files)에 넣지 않는다 */ if(d&&!d.ok&&d.id) delete RF_LOAD[d.id];   /* [PLAY_WAIT_FILE] 받기에 실패한 파일은 다음에 다시 묻는다(종전엔 한 번 실패하면 이 창에서 영영 안 물었다) */
   if(!d||!d.id) return; if(!d.ok||!d.data){ var _gone=!!d.error&&/찾을 수 없/.test(String(d.error))&&!/^L[1-9]/.test(String(d.ecode||'')), _gv=(S.up||{})[d.key];
     if(_gone&&_gv&&_gv.id===d.id&&_gv.src==='ai'&&_vcReadyFor(d.key)){ _rfErr(d.key,d.id,{t:'소리 파일이 없어요 · «목소리 만들기»를 눌러 주세요',gone:1}); render(); return; }   /* ★[RF_GONE_REMAKE 2026-10-08 목소리 1라운드 #74] 서버에 없는 AI 줄 소리 — 머리는 «목소리 만들기»(확정 숨김) · 할 일을 글로. 종전엔 «파일을 찾을 수 없어요»만 두고 머리는 «확정하기»라 없는 소리가 «✓ 확정됨»이 됐다 */
     _rfErr(d.key,d.id,{t:_ecLine('L',d),gone:_gone?1:0}); return; }   /* ★[ERR_CODE_BUILDER] 받기 실패를 흘리지 않는다(못 찾음 · 로그인 · 연결 · 드라이브) — 기다리던 ▶ 줄 아래 까닭(코드) */

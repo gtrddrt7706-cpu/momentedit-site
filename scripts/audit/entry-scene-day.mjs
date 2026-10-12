@@ -11,6 +11,7 @@
    7 곡을 못 받으면 «받지 못함 · 배경음으로 나감 · … (코드 L0)» + «다시 받기» · 입장 GO 는 종전 길 · 쪽 오류 없음
    8 갈래 칩은 줄마다 하나(두 분 목소리 줄 포함) · 입장 줄만 «입장 음악» 칩이 하나 더 ·
      8a 두 분 목소리 자리인데 파일을 못 받으면 대사 조각을 실제로 나가는 나레이션으로 센다
+   9 [REC_SONG_1012] 추천 곡을 고른 예식 — 곡은 rec:<곡 키> 로 받고 장면 · 이름표는 두 분이 올린 곡과 같다
    시험 곡은 여기서 만든다(합성음 · 저장소에 음원을 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
    EM_CON = 돌연변이 확인용 — 그 판의 console.html 로 잰다 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -132,6 +133,19 @@ try {
     const couple = seen.filter((t) => t.i < I.e && t.all.includes('두 분 목소리 없음 · 나레이션으로')).length;
     ok('8 갈래 칩은 줄마다 하나(두 분 목소리 줄 포함) · 입장 줄만 «입장 음악 · 시험 곡» 칩이 하나 더 · 알약 안 글이 한 줄(PILL_WRAP) · 쪽 오류 없음',
       I.e > 0 && couple >= 1 && seen.some((t) => t.i === I.e && t.all.includes('입장 음악 · 시험 곡')) && !bad.length && errs.length === 0, { e: I.e, couple, bad, last: seen.slice(-2), errs });
+    await ctx.close();
+  }
+  // 9 — [REC_SONG_1012] 추천 곡을 고른 예식: 곡은 드라이브 ME_추천곡 폴더에서(adminRitualFileGet 'rec:<곡 키>') · 이름표 · 장면은 두 분이 올린 곡과 같다
+  {
+    const S0 = { course: 'open', entry: 'A', entryVoice: 'nar', mu: { src: 'rec', k: 'r1', t: 'Popcorn', a: '도경수', dur: 150, hook: 40 } };
+    const { ctx, pg, errs, gets } = await open(S0, '');
+    await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
+    const A = await st(pg);
+    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
+    const I = await idxOf(pg); await fireAt(pg, I.e); await pg.waitForTimeout(400);
+    const B = await st(pg);
+    ok('9 추천 곡 — rec:r1 로 받아 «✓ ‹Popcorn› · 0:40 하이라이트 · 받아 둠» · 입장 GO 장면 · 이름표 «입장 음악 · Popcorn» · 쪽 오류 없음',
+      A.st === 'ok' && gets.includes('rec:r1') && !gets.includes(FID) && A.rf === '✓ ‹Popcorn› · 0:40 하이라이트 · 받아 둠' && B.run && B.ri === I.e && B.tags.includes('입장 음악 · Popcorn') && errs.length === 0, { rf: A.rf, gets, run: B.run, tags: B.tags, errs });
     await ctx.close();
   }
 } catch (e) { ok('잴 수 없었다 — ' + (e && e.message || e).split('\n')[0], false); }
