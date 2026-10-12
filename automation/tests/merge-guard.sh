@@ -7737,7 +7737,7 @@ chk 'BLESS_AFTER_DECLARE' api/_ritual-kb.js 1
 chk 'BLESS_AFTER_DECLARE' scripts/audit/open-course.mjs 3
 chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
 # ★★[HEART_ORDER_1012 2026-10-12 사장님 «1단계 … 개선 없을 때까지 추천대로 개선»] 마음의 순간 = 덕담 → 준비한 순서 → 축가 → 편지 → 부모님께 인사
-#   자료 15곳 중 14곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
+#   자료 16곳 중 15곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
 #   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
 chk 'HEART_ORDER_1012' assets/ritual-open.js 13
 chk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js 1   # 덕담은 «약속의 순간» 끝 칸 — 막마다 넷(PC 한 줄)
@@ -7753,6 +7753,8 @@ nochk '부모님께 인사 뒤에 한 분이 하십니다' api/_kb.js 0
 chk "heavyMid: '앉아서 듣는 순간이 셋 이어져요. 축가를 담으면 사이가 풀려요.'," assets/ritual-open.js 1
 chk 'TRIBUTE_BRIDE_FIRST' assets/ritual-cue.js 1                         # 양가 차례 — 디렉터 메모만(신부 부모님께 먼저 · 자료 G · P · Q)
 chk 'TRIBUTE_BRIDE_FIRST' scripts/audit/open-course.mjs 1
+chk 'BLESS_ORDER_1012' assets/ritual-cue.js 1                            # 덕담 양가 차례 — 디렉터 메모만(양가 모두면 신랑 측 먼저 · 자료 O · D «덕담자 순서 확인»)
+chk 'BLESS_ORDER_1012' scripts/audit/open-course.mjs 1
 chk 'SONG_3MIN' assets/ritual-open.js 1                                  # 축가 MR «3분 안팎 한 곡»(자료 B · C · L)
 chk 'SONG_3MIN' api/_ritual-kb.js 1
 chk 'SONG_3MIN' scripts/audit/open-course.mjs 1
