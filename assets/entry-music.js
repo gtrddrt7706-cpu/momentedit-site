@@ -16,7 +16,7 @@
   'use strict';
   if(window.EntryMusic) return;
   var D=document;
-  var UP_WALK=102, UP_PRE=15, UP_MIN=60, UP_MAX=60*1024*1024, SONG_LUFS=-12, BED_TRIM=-6;   /* 걷는 시간 = 콘솔 입장 큐 어림(1분 42초) · 앞부분 15초 · 1분 넘는 곡 · 시험실과 같은 값 */
+  var UP_WALK=102, UP_PRE=15, UP_MIN=60, UP_MAX=60*1024*1024, ES=window.EntryScene, SONG_LUFS=ES.SONG_LUFS, BED_TRIM=ES.BED_TRIM;   /* 걷는 시간 = 콘솔 입장 큐 어림(1분 42초) · 앞부분 15초 · 1분 넘는 곡 · 시험실과 같은 값 */
   var UPS=null, UP_ID=0, PREV=null, AC=null, DEC=null, RESTORE=0;
   var EM={ scene:true };   /* [ENTRY_SCENE_1012] 2단계가 들어와 안내 창이 «음악과 함께 듣기로 …» 문장을 말한다 */
 
@@ -42,9 +42,7 @@
   function wake(){ var a=ac(); try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(x){} try{ if(a.state!=='running') a.resume(); }catch(x){} return a; }   /* 아이폰 무음 스위치에도 들리게 */
   function decoder(){ if(DEC) return DEC; var O=window.OfflineAudioContext||window.webkitOfflineAudioContext; DEC=new O(1,1,48000); return DEC; }
   function decode(ab){ return new Promise(function(ok,no){ try{ var p=decoder().decodeAudioData(ab,ok,no); if(p&&p.then) p.then(ok,no); }catch(x){ no(x); } }); }
-  function mono(buf){ var n=buf.length, c=buf.numberOfChannels, y=new Float32Array(n); for(var k=0;k<c;k++){ var x=buf.getChannelData(k); for(var i=0;i<n;i++) y[i]+=x[i]/c; } return y; }
-  function lufsOf(x,sr){ try{ var v=window.RecProcess.lufs(x,sr); return isFinite(v)?v:-30; }catch(x2){ return -30; } }   /* [REC_SHARED] rec-process.js 의 BS.1770 */
-  function peakOf(x){ var p=0; for(var i=0;i<x.length;i++){ var a=x[i]<0?-x[i]:x[i]; if(a>p) p=a; } return p; }
+  var mono=ES.mono, lufsOf=ES.lufsOf, peakOf=ES.peakOf;   /* [ENTRY_SCENE_ENGINE] 소리 크기 · 봉우리는 엔진 한 곳(entry-scene.js) — 당일 콘솔과 같은 자 */
   function p20(x,sr){ var hop=Math.max(1,Math.round(sr/20)), n=Math.ceil(x.length/hop), r=new Float32Array(n); for(var i=0;i<n;i++){ var m=0, en=Math.min(x.length,(i+1)*hop); for(var j=i*hop;j<en;j++){ var v=x[j]<0?-x[j]:x[j]; if(v>m) m=v; } r[i]=m; } return r; }
   /* 하이라이트 후보 — 뒤 6초가 앞 8초보다 커지고 곡 전체보다도 큰 곳 + 그 순간 확 커지는 정도 · 10초 이상 떨어진 셋 · 박(10ms)까지 당겨 맞춘다(시험실 hookCands 그대로) */
   function hookCands(x,sr){ var hop=Math.round(sr*0.05), n=Math.floor(x.length/hop); if(n<400) return [];
@@ -60,8 +58,7 @@
   function onset(x,sr,t){ var fr=Math.round(sr*0.01), a=Math.max(0,Math.round((t-0.12)*sr)), b=Math.min(x.length-fr,Math.round((t+0.12)*sr)), best=t, bv=-1, prev=[];
     for(var s=a;s<b;s+=fr){ var q=0; for(var j=s;j<s+fr;j++) q+=x[j]*x[j]; q/=fr; var m=prev.length?prev.reduce(function(u,v){ return u+v; },0)/prev.length:q; var jump=q-m*1.6; if(jump>bv){ bv=jump; best=s/sr; } prev.push(q); if(prev.length>8) prev.shift(); }
     return Math.round(best*100)/100; }
-  function prepSong(buf){ var x=mono(buf), sr=buf.sampleRate, L=lufsOf(x,sr), pk=peakOf(x), g=Math.min(db2g(SONG_LUFS-L),0.98/Math.max(pk,1e-4)*db2g(6));
-    return {buf:buf,sr:sr,dur:buf.duration,gain:g,lufs:L,cands:hookCands(x,sr),p20:p20(x,sr)}; }
+  function prepSong(buf){ var o=ES.prepSong(buf), x=o.x; delete o.x; o.cands=hookCands(x,o.sr); o.p20=p20(x,o.sr); return o; }   /* [ENTRY_SCENE_ENGINE] 크기는 엔진 · 자리 찾기는 이 칸 */
   function upLoud(Sg){ var p=Sg.p20, w=120, sum=0, best=-1, bi=0; for(var i=0;i<p.length;i++){ sum+=p[i]; if(i>=w) sum-=p[i-w]; if(i>=w-1&&sum>best){ best=sum; bi=i-w+1; } } return Math.round(bi/20*100)/100; }
   /* 후보 — 찾기 점수 순서 그대로 두고 규칙(걷는 동안 이어짐 · 앞부분 15초)을 지키는 첫 후보가 «추천» · 없으면 뒤가 가장 긴 후보 · 화면은 시간 순서 */
   function upCands(Sg){ var raw=(Sg.cands&&Sg.cands.length?Sg.cands:[upLoud(Sg)]).filter(function(t,i,a){ return a.indexOf(t)===i; }), L=raw.map(function(t){ return {t:t,after:Sg.dur-t}; }), rec=null;
@@ -226,30 +223,14 @@
      목소리 = 빌더 «이 순간 전체 듣기»가 트는 그 줄(_lSteps 첫 줄 · 두 분 목소리면 own · 나레이션이면 entry-A~F) · 곡 = 이 기기에 올린 곡(위 UPS).
      목소리는 한 파일이라 문장 사이 쉼으로 조각을 나눈다(시험실 sentSplit) — 조각은 «끝에서 두 번째 말이 끝나면 음악이 한 번 더 낮아지는 자리»와 그래프 목소리 대시에만 쓴다.
      하이라이트 = 마지막 말이 끝난 뒤 0.3초(breath) — 파일 끝 빈소리를 걷은 실제 말끝이라 기기 목소리(시험실 TTS 어림)처럼 어긋나지 않는다. 그래서 «이어 듣기»도 같은 계획을 다시 짜면 된다 */
-  var SP={lead:4,fade:5,under:-12,build:3,dip:4,breath:0.3,rise:0.3,after:20}, FADE_DN=0.4, OUTF=4, LATE_T=0.3, VOICE_LUFS=-16;   /* 시험실 DEF_P · CUE.fadeDownMs · OUTF · LATE_T · VOICE_LUFS 그대로(곡 낮추기 BED_TRIM −6 은 위) */
+  var SP=ES.SP, FADE_DN=ES.FADE_DN, OUTF=ES.OUTF, LATE_T=ES.LATE_T, VOICE_LUFS=ES.VOICE_LUFS;   /* [ENTRY_SCENE_ENGINE] 시험실 DEF_P · CUE.fadeDownMs · OUTF · LATE_T · VOICE_LUFS — 값은 entry-scene.js 한 곳(당일 콘솔과 같은 계산) */
   var RUN=null, RID=0, PAUSE=null, ENDED=false, LASTRUN=null, PEND=false, LIM=null, VB={}, VR={}, VFAIL={};
   function lerp(a,b,t){ return a+(b-a)*clamp(t,0,1); }
   function fmtLen(t){ var s=Math.round(t); if(s<60) return '약 '+s+'초'; var m=Math.floor(s/60), r=s%60; return '약 '+m+'분'+(r?' '+r+'초':''); }   /* 시험실 LEN_FMT */
   function vStep(){ try{ if(typeof ENG==='undefined'||!ENG||typeof _lSteps!=='function') return null; var a=_lSteps(ENG,['entry']); for(var i=0;i<a.length;i++){ var x=a[i]; if((x.own&&x.up==='entry')||/^entry-[A-F]$/.test(x.slug||'')) return x; } }catch(x2){} return null; }
-  function sentN(t){ return Math.max(1,String(t||'').replace(/([.!?])\s+/g,'$1\n').split('\n').filter(function(s){ return /\S/.test(s); }).length); }
+  var sentN=ES.sentN;
   function vNow(){ var x=vStep(); if(!x) return null; var v={src:x.src||null,txt:String(x.txt||''),nar:!x.own,n:sentN(x.txt)}; v.key=(v.src||'')+'|'+v.n+'|'+(v.nar?1:0); return v; }   /* src 가 없으면 두 분 AI 를 아직 안 만든 것 */
-  /* 말 앞뒤 빈소리 — 시험실 edgeTrimIdx(빌더 _edgeTrim 과 같은 문턱) · 문장 조각 — 시험실 sentSplit(빌더 _gapFit 과 같은 문장 끝 찾기) */
-  function edgeTrimIdx(x,a,b,sr,side){ var fr=Math.max(1,Math.round(sr*0.01)), nf=Math.floor((b-a)/fr); if(nf<3) return [a,b];
-    var r=new Float32Array(nf), mx=0; for(var f=0;f<nf;f++){ var q=0, s0=a+f*fr; for(var j=s0;j<s0+fr;j++) q+=x[j]*x[j]; r[f]=Math.sqrt(q/fr); if(r[f]>mx) mx=r[f]; }
-    var th=mx*0.06, keep=Math.round(sr*0.04);
-    if(side==='end'){ var en=nf-1; while(en>0&&r[en]<th) en--; return [a,Math.min(b,a+(en+1)*fr+keep)]; }
-    var st=0; while(st<nf-1&&r[st]<th) st++; return [Math.max(a,a+st*fr-keep),b]; }
-  function sentSplit(x,sr,n){ var fr=Math.max(1,Math.round(sr*0.02)), nf=Math.floor(x.length/fr), rms=new Float32Array(nf);
-    for(var f=0;f<nf;f++){ var q=0; for(var j=f*fr;j<(f+1)*fr;j++) q+=x[j]*x[j]; rms[f]=Math.sqrt(q/fr); }
-    var so=Array.prototype.slice.call(rms).sort(function(p,q2){ return p-q2; }), thr=Math.max(Math.pow(10,-45/20),(so[Math.floor(nf*0.1)]||0)*3), first=-1, last=-1;
-    for(var f2=0;f2<nf;f2++) if(rms[f2]>thr){ if(first<0) first=f2; last=f2; }
-    if(first<0) return [];
-    var runs=[], a=-1; for(var f3=first;f3<=last;f3++){ if(rms[f3]<=thr){ if(a<0) a=f3; } else if(a>=0){ if(f3-a>=4) runs.push([a,f3]); a=-1; } }
-    runs.sort(function(p,q2){ return (q2[1]-q2[0])-(p[1]-p[0]); }); runs=runs.slice(0,Math.max(0,n-1)).sort(function(p,q2){ return p[0]-q2[0]; });
-    var pad=Math.round(sr*0.12), segs=[], s=first*fr;
-    runs.forEach(function(r){ var mid=Math.round((r[0]+r[1])/2*fr); segs.push([Math.max(0,s-pad),Math.min(r[0]*fr+pad,mid)]); s=Math.max(r[1]*fr-pad,mid); });
-    segs.push([Math.max(0,s),Math.min(x.length,(last+1)*fr+pad)]); segs[0][0]=Math.max(0,first*fr-pad);
-    return segs; }
+  var edgeTrimIdx=ES.edgeTrimIdx, sentSplit=ES.sentSplit;   /* [ENTRY_SCENE_ENGINE] 말 앞뒤 빈소리 · 문장 조각 — 엔진 한 곳 */
   /* 받기 — 15초 동안 아무것도 안 오면 끊는다 · 코드는 [ERR_CODES] 표대로(L3 파일 없음 · L5 오래 걸림 · L6 연결 · M6 기기가 못 엶 · M7 재생 막힘) */
   function getAB(url){ var ctl=window.AbortController?new AbortController():null, lim=0, arm=function(){ clearTimeout(lim); lim=setTimeout(function(){ if(ctl) ctl.abort(); },15000); }; arm();
     return fetch(url,ctl?{signal:ctl.signal}:{}).then(function(r){ if(!r.ok){ var y=new Error('http'); y.code='L3'; throw y; } arm(); return r.arrayBuffer(); })
@@ -263,37 +244,15 @@
     return '소리를 준비하지 못했어요 · 다시 눌러 주세요 (코드 L4)'; }
   function vPrep(st){ var k=st.key; if(VR[k]) return Promise.resolve(VR[k]); if(VB[k]) return VB[k];
     VB[k]=getAB(st.src).then(function(ab){ return decode(ab).catch(function(){ var y=new Error('decode'); y.code='M6'; throw y; }); }).then(function(b){
-      var x=mono(b), sr=b.sampleRate, L=lufsOf(x,sr), pk=peakOf(x), g=Math.min(db2g(VOICE_LUFS-L),0.95/Math.max(pk,1e-4)), n=st.n, segs=sentSplit(x,sr,st.nar?n+1:n);
-      /* 시험실 buildVO — 나레이션은 모두 «신랑 신부, 입장!»으로 끝나고 쉼표 자리에서 길게 숨을 쉰다(문장 사이보다 길다) → 문장 수 + 1 로 자르고 마지막 둘을 한 줄로 */
-      if(st.nar&&segs.length===n+1&&segs.length>1){ var z=segs.pop(); segs[segs.length-1]=[segs[segs.length-1][0],z[1]]; }
-      if(segs.length){ var l=segs[segs.length-1]; l[1]=edgeTrimIdx(x,l[0],l[1],sr,'end')[1]; }   /* 마지막 말 끝 빈소리를 걷는다 — «숨»이 실제 말끝에서 하이라이트까지가 되게 */
-      var ps=segs.map(function(sg){ return {a:sg[0]/sr,d:(sg[1]-sg[0])/sr}; }), gaps=[]; for(var i=0;i<ps.length-1;i++) gaps.push(Math.max(0,ps[i+1].a-(ps[i].a+ps[i].d)));
-      var V0={buf:b,gain:g,pieces:ps,gaps:gaps,key:k,caps:capsOf(st)}; VR={}; VR[k]=V0; delete VB[k]; delete VFAIL[k]; return V0; },function(err){ delete VB[k]; VFAIL[k]=Date.now(); throw err; });
+      var V0=ES.prepVoice(b,st.n,st.nar); V0.key=k; V0.caps=capsOf(st);   /* [ENTRY_SCENE_ENGINE] 크기 · 문장 조각 · 말끝 걷기(시험실 buildVO)는 엔진 한 곳 */ VR={}; VR[k]=V0; delete VB[k]; delete VFAIL[k]; return V0; },function(err){ delete VB[k]; VFAIL[k]=Date.now(); throw err; });
     return VB[k]; }
   function hookNow(u){ var c=upList(u)[u.pick]||upList(u)[0]; return clamp(c?c.t:u.Sg.dur*0.4,0.5,u.Sg.dur-0.5); }
-  /* 장면 짜기 — 마지막 말 끝 + 숨 = 하이라이트. 거기서 거꾸로 곡 시작점을 정한다(시험실 plan · new 그대로) */
-  function plan(V0,Sg,H){ var P=SP, rel=[], t=0; V0.pieces.forEach(function(p,i){ rel.push(t); t+=p.d; if(i<V0.gaps.length) t+=V0.gaps[i]; });
-    var n=V0.pieces.length, V=t, PL={V:V,rel:rel,n:n,H:H,Sg:Sg}; PL.lastS=n?rel[n-1]:0; PL.penEnd=n>1?rel[n-2]+V0.pieces[n-2].d:0;
-    var pre=H-V-P.breath;
-    if(pre>=P.lead){ PL.tv=P.lead; PL.tm=0; PL.off=pre-P.lead; }
-    else if(pre>=0){ PL.tv=pre; PL.tm=0; PL.off=0; }   /* 곡 앞부분이 짧아 음악이 목소리보다 조금만 먼저 깔린다 */
-    else { PL.tv=0; PL.tm=-pre; PL.off=0; }   /* [LATE_MUSIC] 목소리가 곡 앞부분보다 길다 — 목소리가 먼저 · 음악은 뒤에 들어온다 */
-    PL.th=PL.tv+V+P.breath; PL.tdip=PL.tv+PL.penEnd;
-    var songEnd=PL.tm+(Sg.dur-PL.off); PL.tend=Math.min(PL.th+P.after+OUTF,songEnd); if(PL.tend<PL.tv+V+0.2) PL.tend=Math.min(songEnd,PL.tv+V+0.2);
-    return PL; }
-  /* 음악 크기(dB) — 목소리 밑에 작게 깔렸다가 · 끝에서 두 번째 말이 끝나면 한 번 더 낮아지고 · 마지막 말 끝에서 0.3초에 걸쳐 크게 · 20초 머문 뒤 4초에 걸쳐 잦아든다 */
-  function envDb(PL,x){ var P=SP; if(x<PL.tm||x>PL.tend) return -120;
-    var L1=P.under-P.build, Ld=P.under-P.dip, hr=Math.max(PL.tdip,PL.th-P.rise), dr=Math.max(0.05,Math.min(FADE_DN,hr-PL.tdip)), d;
-    if(x<PL.tv) d=L1;
-    else if(x<PL.tdip) d=lerp(L1,P.under,(x-PL.tv)/Math.max(0.01,PL.tdip-PL.tv));
-    else if(x<PL.tdip+dr) d=lerp(PL.n>1?P.under:L1,Ld,(x-PL.tdip)/dr);
-    else if(x<hr) d=Ld;
-    else if(x<PL.th) d=lerp(Ld,0,(x-hr)/Math.max(0.01,PL.th-hr));
-    else if(x<PL.th+P.after) d=0;
-    else d=lerp(0,-80,(x-PL.th-P.after)/OUTF);
-    return d+BED_TRIM; }
-  function envGain(PL,x){ var g=db2g(envDb(PL,x)), u=(x-PL.tm)/Math.max(0.05,SP.fade); if(u<1) g*=u<=0?0:u*u; return g; }   /* 처음 5초는 0 에서 천천히 */
-  function envCurve(PL,x0,x1){ var n=Math.max(2,Math.ceil((x1-x0)*200)+1), c=new Float32Array(n); for(var i=0;i<n;i++) c[i]=envGain(PL,x0+(x1-x0)*i/(n-1)); return c; }
+  /* 장면 짜기 · 음량 곡선 — [ENTRY_SCENE_ENGINE] entry-scene.js 한 곳(마지막 말 끝 + 0.3초 = 하이라이트 · 거꾸로 곡 시작점 · 목소리 밑 작게 → 크게 → 20초 머문 뒤 4초에 잦아듦).
+     당일 콘솔이 같은 식을 쓴다(그쪽은 디렉터가 다음을 누를 때까지 크게 머문다) */
+  function plan(V0,Sg,H){ return ES.plan(V0,Sg,H); }
+  function envDb(PL,x){ return ES.envDb(PL,x); }
+  function envGain(PL,x){ return ES.envGain(PL,x); }
+  function envCurve(PL,x0,x1){ return ES.envCurve(PL,x0,x1); }
   function outNode(){ var a=ac(); if(LIM&&LIM.context===a) return LIM; LIM=a.createDynamicsCompressor(); LIM.threshold.value=-2; LIM.knee.value=0; LIM.ratio.value=20; LIM.attack.value=0.002; LIM.release.value=0.15; LIM.connect(a.destination); return LIM; }   /* 시험실 ac() 의 리미터 — 곡은 −12 LUFS 로 맞춰 터지는 자리에서 겹칠 수 있다 */
   function acReady(){ var a=ac(); if(a.state==='running') return Promise.resolve(a); var r=null; try{ r=a.resume(); }catch(x){}
     return Promise.race([Promise.resolve(r).then(function(){ return a; },function(){ return a; }),new Promise(function(ok){ setTimeout(function(){ ok(a); },1500); })]).then(function(a2){ if(a2.state!=='running'){ var y=new Error('blocked'); y.code='M7'; throw y; } return a2; }); }
