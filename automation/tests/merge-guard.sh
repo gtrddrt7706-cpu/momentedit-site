@@ -17677,7 +17677,7 @@ chk '.mk-pick:has(+.em-scene){padding-bottom:0}' order-preview.html 1
 chk 'ENTRY_SCENE_1012' assets/entry-music.js 3
 chk 'EM.sceneHtml=sceneHtml' assets/entry-music.js 1
 chk 'redraw(); scHalt(); };' assets/entry-music.js 1                 # 빌더가 제 소리를 틀면(_stopMk) 장면은 그 자리에 멈춘다([ONE_SOUND])
-chk 'breath:0.3,' assets/entry-music.js 1                            # 마지막 말 끝 + 0.3초 = 하이라이트(시험실 DEF_P)
+chk 'breath:0.3,' assets/entry-scene.js 1                            # 마지막 말 끝 + 0.3초 = 하이라이트(시험실 DEF_P) · [ENTRY_SCENE_ENGINE] 2026-10-12 계산 한 곳으로 옮김
 chk 'var EM={ scene:true };' assets/entry-music.js 1                  # 안내 창이 «음악과 함께 듣기로 …»를 말한다
 nochk 'var EM={ scene:false };' assets/entry-music.js
 nochk 'fakeVox' assets/entry-music.js                                # [GRAPH_MIN] 없는 소리를 그래프로 그리지 않는다
@@ -17707,3 +17707,26 @@ chk "function _mkUpDone(d){ var key=d.key; if(!key||key==='mu') return;" order-p
 chk "function _rfData(d){ if(d&&d.key==='mu') return;" order-preview.html 1
 chk "d.data.key==='mu'?180000:60000" mypage.html 1                                                # 곡은 줄 녹음보다 커서 180초
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-song-up.mjs >/dev/null 2>&1; _esu=$?; if [ "$_esu" = 1 ]; then echo 'FAIL entry-song-up: 입장 음악 곡을 스튜디오로 보내기(보냄 · 바꿈 · 다시 보내기 · 20MB · 다른 기기 되살림 · 빼기)가 깨졌습니다 — node scripts/audit/entry-song-up.mjs'; fail=1; elif [ "$_esu" = 0 ]; then echo 'ok entry-song-up: 곡 보내기 · 다른 기기 되살림 390 · 1280'; else echo 'skip entry-song-up: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-12 입장 음악 3단계-나 [ENTRY_SCENE_ENGINE · ENTRY_SCENE_DAY] — 당일 콘솔이 GO 한 번에 곡(계산한 자리에서 페이드인) · 입장 대사 · 마지막 말 끝 하이라이트
+#   계산은 한 곳(assets/entry-scene.js) — 식순 화면 «음악과 함께 듣기»와 당일 콘솔이 같은 식을 쓴다(두 곳에 사본을 두면 고객이 들은 장면과 당일 장면이 갈라진다)
+#   입장 동안 배경음은 내려 두고(-90) · 맞절(같은 입장 묶음)은 곡을 그 큐 덕 값으로 · 다음 묶음에서 곡 4초 잦아듦 · 곡을 못 받으면 종전 방식 · 고객 미리 듣기는 그대로
+chk 'ENTRY_SCENE_ENGINE' assets/entry-scene.js 1
+chk 'window.EntryScene=' assets/entry-scene.js 1
+chk 'ENTRY_SCENE_ENGINE' assets/entry-music.js 6
+chk 'ENTRY_SCENE_ENGINE' order-preview.html 1
+chk '<script src="/assets/entry-scene.js' order-preview.html 1
+chk '<script src="/assets/entry-scene.js' console.html 1
+chk '<script src="/assets/rec-process.js' console.html 1                 # 소리 크기(BS.1770) — 없으면 곡 · 대사 크기가 어림값(-30)으로 간다
+nochk 'function sentSplit' assets/entry-music.js                         # 계산 사본 금지 — 엔진 한 곳
+nochk 'function envDb' console.html                                      # 콘솔도 엔진을 쓴다(사본 금지)
+nochk 'function sentSplit' console.html
+chk 'ENTRY_SCENE_DAY' console.html 16
+chk 'ENTRY_SCENE_DAY' scripts/audit/entry-scene-day.mjs 1
+chk 'vkPill(c); muPill(c);' console.html 1                             # 입장 음악 칩은 따로 함수(muPill) — 갈래 칩 사슬(vkPill · RF_KIND_0928)에 끼우면 두 분 목소리 줄에 «나레이션»이 겹쳐 붙는다(entry-scene-day 8)
+chk 'ES.prepVoice(b, ES.sentN(txt), isNar)' console.html 1               # 대사 조각은 «실제로 나가는 소리»로 센다 — 두 분 자리인데 파일이 없으면 나레이션 글(entry-scene-day 8a · c.text 로 세면 낮추기가 한 문장 일찍)
+chk 'PILL_WRAP' console.html 2                                           # 디렉터 칩 줄은 넘치면 다음 줄로 · 알약 안 글은 한 줄(entry-scene-day 8 이 높이로 잰다) — 한 줄에 끼우면 «잘린 알약»
+chk 'if (esdTry(c, done)) return;' console.html 1                       # 입장 큐는 장면부터(준비가 안 됐으면 종전 길)
+chk 'if (ESD.run) { esdDuck(db, ms); db = -90; }' console.html 1          # 입장 곡이 흐르는 동안 배경음은 내려 둔다
+chk 'ES.plan(V0, Sg, H, { after: 1e5 })' console.html 1                  # 하이라이트 뒤 곡은 디렉터가 다음을 누를 때까지(걸음은 자동으로 넘기지 않는다)
+chk "esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4))" console.html 1       # 입장 묶음을 떠나면 곡 4초 잦아듦
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-scene-day.mjs >/dev/null 2>&1; _esd=$?; if [ "$_esd" = 1 ]; then echo 'FAIL entry-scene-day: 당일 콘솔 입장 장면(곡 받기 · GO · 하이라이트 계획 · 배경음 내림 · 맞절 · 다음 묶음 · 곡 없음/못 받음 종전 길)이 깨졌습니다 — node scripts/audit/entry-scene-day.mjs'; fail=1; elif [ "$_esd" = 0 ]; then echo 'ok entry-scene-day: 당일 콘솔 입장 장면'; else echo 'skip entry-scene-day: 브라우저가 없어 재지 못함'; fi; fi
