@@ -2470,7 +2470,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
        api() 의 12초는 파일에는 짧다 — 60초로 따로 보낸다. 결과(성공 · 실패 사유)는 빌더로 돌려준다(빌더가 칸에 «보냈어요 · 파일 이름»을 그린다). */
     if(d.type==='momentedit:ritualFile' && d.data){
       var _rfBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:ritualFileDone', key:d.data.key, tk:d.data.tk}, o)   /* [UP_RACE 2026-10-06] 보낸 번호를 그대로 돌려준다 — 식순 화면이 «마지막에 보낸 것»만 적는다 */, location.origin); }catch(e){} };
-      _post({action:'ritualFile', token:getToken(), key:d.data.key, name:d.data.name, mime:d.data.mime, src:String(d.data.src||'').slice(0,8), data:d.data.data}, d.data.key==='mu'?180000:60000)   /* ★[ENTRY_SONG_UP 2026-10-12] 입장 음악 곡(20MB 까지)은 줄 녹음보다 커서 180초 */   /* [RF_MAIL_AI 2026-10-04] AI 줄이면 «도착» 메일 없음 */
+      _post({action:'ritualFile', token:getToken(), key:d.data.key, name:d.data.name, mime:d.data.mime, src:String(d.data.src||'').slice(0,8), data:d.data.data}, d.data.key==='mu'?180000:60000)   /* ★[ENTRY_SONG_UP 2026-10-12] 입장 곡(20MB 까지)은 줄 녹음보다 커서 180초 · 이 파일에는 음·악 두 글자를 붙여 쓰지 않는다(kb-truth MUSIC_GONE 이 글자로 잰다) */   /* [RF_MAIL_AI 2026-10-04] AI 줄이면 «도착» 메일 없음 */
         .then(function(r){ _rfBack(r&&r.ok?{ok:true,name:r.name,id:r.id,at:r.at}:_relayFail(r,'U','파일을 올리지 못했어요 · 다시 눌러 주세요')); },
               function(e){ _rfBack(_relayFail(e,'U','파일을 올리지 못했어요 · 다시 눌러 주세요')); });   // ★[ERR_CODE_MYPAGE F7] 종전 «올리지 못했어요. 연결을 확인하고…» 하나 — 늦음 U5(서버는 저장했을 수 있다) · 끊김 U6 · 깨진 답 U7 · 서버 U4 · 로그인 풀림 U8
       return;
