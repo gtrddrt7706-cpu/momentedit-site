@@ -1072,7 +1072,7 @@
         var bi = seq.indexOf('bless'), prev = bi > 0 ? seq[bi - 1] : '', next = seq[bi + 1] || '';
         afterLetter = prev === 'letter'; famOpen = !afterLetter && next === 'vow';
       }
-      return [
+      var out = [
         cue({
           k: 'bless', blockN: '부모님 덕담',
           slug: famOpen ? 'narr-bless-open' : 'narr-bless-mid', name: '부모님 덕담 시작',
@@ -1097,6 +1097,11 @@
           }
         })
       ];
+      /* ★[BLESS_ORDER_1012 2026-10-12 2단계 점검] 양가가 다 말씀하시면 어느 쪽 먼저 — 자료 O «양가 모두 하면 순서 미리 합의(보통 신랑 측 → 신부 측)» · D «덕담자 순서 확인».
+         새 코스의 덕담은 양가 누구나 한다(GROOM_PARENT_OPEN_OFF) · 부모님께 인사(TRIBUTE_BRIDE_FIRST · 신부 측 먼저)와 차례가 반대라 같은 자리(디렉터 메모 · 콘솔)에 둔다.
+         고객 화면 글은 그대로 · 집안 뜻이 다르면 그대로 따른다 · 옛 코스는 그대로 */
+      if (D.COURSES[S.course].open) out[0].note = '양가 모두 말씀하시면 보통 신랑 측 먼저, 이어서 신부 측(자료 O) · 집안 뜻이 다르면 그대로';
+      return out;
     }
   };
 
