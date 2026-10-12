@@ -2070,6 +2070,84 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-mu .mu-ownl{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 6px 8px 2px;color:var(--accent);cursor:text}
 .ls-mu .mu-ownl .mu-a{font-variant-numeric:tabular-nums}
 .ls-mu .mu-upft{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:2px 8px -6px 0;font-size:12.5px;color:var(--light)}   /* 링크는 빌더 .pk-link 그대로(12.5px · [RIT_TYPE5] 다섯 단계) */
+/* ★★[REC_SONG_1012 2026-10-12 사장님 «추천대로»(추천 곡 · 드라이브 · 로그인한 두 분만) · «왜 추천 노래 부분이 없어?»] 4단계-나 추천 곡 카드 — 시험실 v50(lab.css .lab-mu) 그대로 · 빌더 칸(.ls-mu)으로
+   칩 둘 «두 분이 고른 곡 · 추천 곡»은 빌더 칩 줄 그대로(.op-chip · cg-vq 폰 반반 두 칸) · 카드 = 와이드 사진(폰 1.85:1 · 넓은 카드 2.39:1 · 작은 폰 1.5:1) 위 제목 · 가사 · ‹ ▶ › · ✓ · 점
+   사진 위 글 · 단추는 사진 색 위라 크림 글자(#FBF6EE) · 가사 영문 금빛(#EBD08A · [LY_STYLE_REF]) — 크림 바탕 쪽 글은 :root 토큰만 · 작은 글은 빌더 다섯 단계([RIT_TYPE5] · 시험실 13px → 12.5px) */
+.ls-mu .mu-box>.mu-carw,.ls-mu .mu-box>.mu-fold{margin-top:8px}
+.ls-mu .mu-car{--car-ar:1.85/1}
+.ls-mu .mu-vp{position:relative;container-type:inline-size;overflow:hidden;overflow:clip;border-radius:10px;background:none;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.ls-mu .mu-track{display:flex;transition:transform .38s cubic-bezier(.22,1,.36,1)}
+.ls-mu .mu-car.drag .mu-track,.ls-mu .mu-track.noanim{transition:none}
+.ls-mu .mu-slide{flex:0 0 100%;min-width:0}
+.ls-mu .mu-car.still:not(.drag) .mu-slide:not(.cur){visibility:hidden}   /* [CAR_EDGE] 멈춰 있을 때 옆 카드는 그리지 않는다(소수 배율에서 옆 사진 끝 1px 이 비치던 어두운 줄) */
+.ls-mu .mu-scr{position:relative}
+.ls-mu .mu-ph{position:relative;aspect-ratio:var(--car-ar);max-width:100%;overflow:hidden;background:#2A2420}   /* [CAR_EDGE] 어두운 바탕은 사진 칸에만(틀 .mu-vp 에 두지 않는다) */
+.ls-mu .mu-ph img{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);max-width:none;object-fit:cover;display:block;transform:scale(1.02);filter:saturate(.92) brightness(.92);transition:filter .9s cubic-bezier(.22,1,.36,1);-webkit-user-drag:none;pointer-events:none}
+.ls-mu .mu-slide.lit .mu-ph img{filter:none}   /* 문이 열리는 순간 사진이 밝아진다 */
+.ls-mu .mu-ph::before{content:'';position:absolute;z-index:1;left:0;right:0;top:0;height:46%;background:linear-gradient(180deg,rgba(20,16,12,.5),rgba(20,16,12,0))}   /* 밝은 사진에서도 제목이 읽히게 */
+.ls-mu .mu-ph::after{content:'';position:absolute;z-index:1;inset:0;background:radial-gradient(ellipse 72% 44% at 50% 52%,rgba(20,16,12,.42),rgba(20,16,12,0) 100%)}   /* 가사 뒤만 살짝 어둡게 */
+.ls-mu .mu-top{position:absolute;z-index:2;left:14px;right:56px;top:10px;margin:0;display:flex;flex-direction:column;gap:1px;color:#FBF6EE;text-shadow:0 1px 6px rgba(0,0,0,.45);pointer-events:none}
+.ls-mu .mu-ttr{display:flex;align-items:center;gap:8px;min-width:0}
+.ls-mu .mu-tt{flex:0 1 auto;min-width:0;font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:italic;font-weight:500;font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mu .mu-tt.ko{font-family:'Noto Serif KR','Nanum Myeongjo',Georgia,serif;font-style:normal;font-weight:500;font-size:14px;line-height:24px;letter-spacing:-.01em}   /* [TT_KO] 한글 제목은 명조 14px · 줄 높이는 영문 제목(20 × 1.2)과 같게 = 가수 줄이 같은 자리 · 시험실 18px 은 빌더 다섯 단계([RIT_TYPE5])에 없어 20px */
+.ls-mu .mu-ta{font-size:11px;line-height:1.4;letter-spacing:.06em;color:rgba(251,246,238,.86);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mu .mu-ly{position:absolute;z-index:2;left:10px;right:10px;top:52px;bottom:50px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none}   /* [LY_LOWER] 제목 줄과 재생 줄 사이 */
+.ls-mu .mu-lines{display:flex;flex-direction:column;align-items:center;gap:1px;max-width:100%;text-shadow:0 1px 2px rgba(0,0,0,.66),0 0 14px rgba(0,0,0,.5);opacity:0;transform:translateY(5px);transition:opacity .22s cubic-bezier(.22,1,.36,1),transform .22s cubic-bezier(.22,1,.36,1)}
+.ls-mu .mu-lines.cur{opacity:1;transform:none}   /* [LY_ON_CUE] 그 줄이 불리는 동안만 · [LY_LEAD] 바뀔 때 0.12초 흐려졌다 새 줄 */
+.ls-mu .mu-en{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:italic;font-weight:600;font-size:16px;font-size:clamp(15px,5cqw,18px);line-height:1.2;letter-spacing:.01em;color:#EBD08A;text-wrap:balance}
+.ls-mu .mu-ko{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;font-size:14px;font-size:clamp(12px,3.9cqw,14px);line-height:1.45;letter-spacing:-.01em;color:#FFFFFF;word-break:keep-all;text-wrap:balance}
+.ls-mu .mu-ko.mu-nt{font-size:16px;font-size:clamp(13px,4.5cqw,16px);line-height:1.4}
+.ls-mu .mu-wt{font-size:12.5px;font-weight:500;line-height:1.5;color:#FBF6EE;letter-spacing:.02em}   /* 곡을 받는 동안 그 카드 가운데 한 줄 */
+.ls-mu .mu-tp{position:absolute;z-index:3;left:0;right:0;bottom:0;height:62px;display:flex;align-items:center;justify-content:center;gap:20px;padding:0 0 14px;background:linear-gradient(0deg,rgba(20,16,12,.5),rgba(20,16,12,.18) 58%,rgba(20,16,12,0));pointer-events:none}   /* [CAR_TRANSPORT] ‹ ▶ › 사진 안 아래 가운데 */
+.ls-mu .mu-tb{flex:none;width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;background:none;display:grid;place-items:center;color:#FBF6EE;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));transition:opacity .2s;-webkit-tap-highlight-color:transparent}
+.ls-mu .mu-tb svg,.ls-mu .mu-pk svg{display:block}
+.ls-mu .mu-tpp{width:48px;height:48px}
+.ls-mu .mu-tpp[aria-busy=true]{cursor:progress;opacity:.75}
+.ls-mu .mu-tb[aria-disabled="true"]{opacity:.3;cursor:default}
+.ls-mu .mu-tb:focus-visible,.ls-mu .mu-pk:focus-visible{outline:2px solid #FBF6EE;outline-offset:-4px}
+.ls-mu .mu-pk{position:absolute;z-index:3;top:3px;right:3px;width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;background:none;display:grid;place-items:center;color:#FBF6EE;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));-webkit-tap-highlight-color:transparent}   /* [PICK_ICON] 고르기 = 사진 오른쪽 위 동그라미 */
+.ls-mu .mu-pkc,.ls-mu .mu-pkv{transition:fill .25s,stroke .25s,opacity .25s}
+.ls-mu .mu-pkv{opacity:.8}
+.ls-mu .mu-pk.on .mu-pkc{fill:#FBF6EE;stroke:#FBF6EE}
+.ls-mu .mu-pk.on .mu-pkv{stroke:var(--seal);opacity:1}
+.ls-mu .mu-eq{flex:none;height:12px;display:flex;align-items:flex-end;gap:2px;opacity:0;transition:opacity .4s}   /* [NOW_EQ] 듣는 곡 제목 옆 소리 막대 */
+.ls-mu .mu-eq i{width:3px;height:12px;border-radius:1px;background:#FBF6EE;box-shadow:0 0 3px rgba(0,0,0,.35);transform-origin:50% 100%;transform:scaleY(.45)}   /* [EQ_NO_DOT] 바닥 45% */
+.ls-mu .mu-slide.pl .mu-eq{opacity:1}
+.ls-mu .mu-dots{position:absolute;z-index:3;left:0;right:0;bottom:7px;margin:0;display:flex;justify-content:center;gap:6px;pointer-events:none}   /* [CAR_DOTS_IN] 점은 사진 안 맨 아래 */
+.ls-mu .mu-dots i{width:6px;height:6px;border-radius:999px;background:rgba(251,246,238,.42);box-shadow:0 0 2px rgba(0,0,0,.25);transition:width .3s cubic-bezier(.22,1,.36,1),background-color .3s}
+.ls-mu .mu-dots i.pl{background:var(--gold)}   /* 듣고 있는 곡(다른 카드를 보는 동안) */
+.ls-mu .mu-dots i.on{width:16px;background:#FBF6EE}
+.ls-mu .mu-fold{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;margin:0;padding:8px 14px 8px 8px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--accent);font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .2s;animation:muFoldIn .32s cubic-bezier(.22,1,.36,1)}   /* [MU_FOLD] 고른 뒤 한 줄 — 줄 전체가 단추(누르면 펼친다) */
+@media (hover:hover){ .ls-mu .mu-fold:hover{border-color:var(--gold)} }
+.ls-mu .mu-fold:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+.ls-mu .mu-fph{position:relative;flex:none;width:48px;height:48px;border-radius:6px;background:#2A2420}
+.ls-mu .mu-fph img{display:block;width:48px;height:48px;border-radius:6px;object-fit:cover;-webkit-user-drag:none}
+.ls-mu .mu-fck{position:absolute;right:-6px;bottom:-6px;width:18px;height:18px;display:grid;place-items:center;border-radius:999px;background:var(--card);line-height:0}
+.ls-mu .mu-ftx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ls-mu .mu-ftt{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:italic;font-weight:500;font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mu .mu-ftt.ko{font-family:'Noto Serif KR','Nanum Myeongjo',Georgia,serif;font-style:normal;font-size:14px;line-height:24px;letter-spacing:-.01em}
+.ls-mu .mu-fta{font-size:11px;line-height:1.4;letter-spacing:.06em;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mu .mu-fgo{flex:none;display:inline-flex;align-items:center;gap:3px;font-size:12.5px;color:var(--sub)}
+@keyframes muFoldIn{from{opacity:0}to{opacity:1}}
+@container (max-width:300px){ .ls-mu .mu-ph{aspect-ratio:1.5/1} }   /* [CAR_FIT] 작은 폰(카드 300px 아래)은 조금 높게 — 제목 · 가사 · 재생 줄이 맞붙지 않게 */
+@container (min-width:560px){   /* [PC_WIDE] 넓은 카드는 2.39:1(극장 비율) · 글은 카드 폭에 맞춰 */
+  .ls-mu .mu-ph{aspect-ratio:2.39/1}
+  .ls-mu .mu-top{left:20px;top:16px}
+  .ls-mu .mu-tt{font-size:22px}
+  .ls-mu .mu-tt.ko{font-size:16px;line-height:26.4px}
+  .ls-mu .mu-ly{left:40px;right:40px;top:70px;bottom:72px}
+  .ls-mu .mu-en{font-size:clamp(20px,calc(2.4cqw + 8px),26px)}
+  .ls-mu .mu-ko{font-size:clamp(15px,calc(1.5cqw + 7px),19px)}
+  .ls-mu .mu-ko.mu-nt{font-size:clamp(17px,calc(1.8cqw + 8px),22px)}
+  .ls-mu .mu-tp{height:84px;gap:32px;padding-bottom:20px}
+  .ls-mu .mu-dots{bottom:10px}
+  .ls-mu .mu-tb svg{width:26px;height:26px}
+  .ls-mu .mu-tpp svg{width:30px;height:30px}
+  .ls-mu .mu-pk{top:10px;right:10px}
+  .ls-mu .mu-pk svg{width:30px;height:30px}
+  .ls-mu .mu-eq{height:14px}.ls-mu .mu-eq i{height:14px}
+}
+@media (prefers-reduced-motion:reduce){ .ls-mu .mu-track{transition:none} .ls-mu .mu-lines{transform:none;transition:opacity .2s linear} .ls-mu .mu-ph img{transition:none} .ls-mu .mu-fold{animation:none} }
 .mu-gd-c{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
 .mu-gd-c .mk-kp{font-variant-numeric:tabular-nums}
 .mu-gd-in{display:flex;align-items:center;justify-content:center;width:58px;height:36px;margin:8px 0 2px;border:1px solid var(--gold-btn);border-radius:999px;background:var(--card);font-size:16px;color:var(--accent);font-variant-numeric:tabular-nums}   /* 카드의 적는 칸과 같은 꼴 */
@@ -2138,7 +2216,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-scene.js?v=1012e"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1012e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-scene.js?v=1012e"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1012r"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,

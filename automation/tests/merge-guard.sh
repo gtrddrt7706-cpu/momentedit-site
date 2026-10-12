@@ -17746,3 +17746,22 @@ chk 'REC_SONG_1012' scripts/audit/rec-song-server.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-scene-day.mjs 1
 nochk 'songs.json' assets/entry-music.js                 # 곡 목록은 서버(드라이브)에서만 — 저장소에 목록 · 가사를 두지 않는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+# ── 2026-10-12 입장 음악 «추천 곡» 4-나 화면 [REC_SONG_1012] — 사장님 «추천대로»(추천 곡 1번 · 드라이브에 두고 로그인한 두 분에게만) · «왜 추천 노래 부분이 없어?»
+#   빌더 ② 입장 «입장 음악» 줄 = 칩 둘 «두 분이 고른 곡 · 추천 곡»(MU_SRC · 처음엔 안 눌린 모양) · 추천 곡 = 시험실 v50 카드(와이드 사진 · 가사 · ‹ ▶ › · ✓ · 접힌 한 줄)
+#   목록 · 곡은 마이페이지 → GAS(4-가)에서만 받는다(저장소에 곡 · 목록 · 가사 없음) · 고르면 S.mu={src:'rec',k,…,hook:hook0}(당일 콘솔이 보는 그것) · 올린 곡 기록은 S.muUp 으로 비켜 둔다
+#   장면(음악과 함께 듣기)도 고른 곡으로 짠다 · 받은 곡은 이 기기에 셋까지(me-rec-song) · rec-song-ui 가 손가락처럼 누른다(390 · 1280 · 못 받음 · 마이페이지 밖)
+chk 'REC_SONG_1012' assets/entry-music.js 10
+chk 'REC_SONG_1012' order-preview.html 1
+chk 'REC_SONG_1012' scripts/audit/rec-song-ui.mjs 1
+chk 'REC_SONG_1012' scripts/audit/entry-music.mjs 1
+chk "srcChip('두 분이 고른 곡','up',src)+srcChip('추천 곡','rec',src)" assets/entry-music.js 1   # 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래
+chk "post('momentedit:ritualFileGet',{key:'rec',id:'list'})" assets/entry-music.js 1              # 목록은 서버(드라이브)에서만
+chk "post('momentedit:ritualFileGet',{key:'rec',id:k})" assets/entry-music.js 1                   # 곡도 서버에서만 — 공개 주소 없음
+chk "if(mu&&mu.src==='up') s.muUp=mu;" assets/entry-music.js 1                                     # 추천 곡을 고르면 올린 곡 기록(서버 파일)은 비켜 둔다 — 지우지 않는다
+chk 'function scSong()' assets/entry-music.js 1                                                    # 장면 곡 = 고른 곡 하나(올린 곡 · 추천 곡)
+chk 'CAR_PRE=6, CAR_LEN=80' assets/entry-music.js 1                                                # [CAR_LEN80] 문이 열리는 자리 6초 앞부터 1분 20초
+chk 'LY_LEAD=0.35, LY_LAT_MAX=0.12' assets/entry-music.js 1                                        # [LY_LEAD] 가사는 0.35초 앞서
+chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                                      # 받은 곡은 이 기기에 — 다시 들을 때 다시 묻지 않는다(서버 시간당 60번)
+nochk 'songs.json' assets/entry-music.js                                                           # 곡 목록 · 가사는 저장소에 두지 않는다
+nochk 'audio/music/' assets/entry-music.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-ui.mjs >/dev/null 2>&1; _rsu=$?; if [ "$_rsu" = 1 ]; then echo 'FAIL rec-song-ui: 추천 곡 카드(칩 · 목록 · 들어 보기 · 가사 · 고르기 · 접힘 · 장면 · 올린 곡과 바꾸기 · 못 받음) — node scripts/audit/rec-song-ui.mjs'; fail=1; elif [ "$_rsu" = 2 ]; then echo 'skip rec-song-ui — 브라우저 없음'; fi; fi
