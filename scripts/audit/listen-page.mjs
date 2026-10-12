@@ -665,7 +665,7 @@ else {
   const stray = disk.filter((f) => !ready.some((n) => f === n + '.mp4' || f === n + '.webp' || f === n + '-640.webp'));
   ok(`V-1 목록 ${ready.length}편 = 디스크 — 이름마다 mp4 · webp · 640.webp 셋 · 목록 밖 파일 0 [VIDEO_IN_1003]`, ready.length === 17 && lack.length === 0 && stray.length === 0 && disk.length === ready.length * 3, JSON.stringify({ lack, stray }));
   const keys = await pg.evaluate(() => { const R = RitualOpen, o = {}; R.ORDER.concat(['_close']).forEach((k) => { o[k] = R.videoKeys(k, S).filter((n) => !R.videoOf(n)); }); return o; });
-  const asked = await pg.evaluate(() => { const R = RitualOpen, a = {}; R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => { a[n] = 1; })); return Object.keys(a); });
+  const asked = await pg.evaluate(() => { const R = RitualOpen, a = {}; R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => { a[n] = 1; })); R.videoKeys('free', { on: { free: 1 }, freeWhat: 'video' }).forEach((n) => { a[n] = 1; }); return Object.keys(a); });   // ★[SPEECH_TILE_1012] free.mp4 는 옛 초안의 «영상» 판만 찾는다(새 칸은 축사 · 장면 글)
   ok('V-2 들어온 17편은 모두 화면이 찾는 이름(안 쓰는 파일 0) [TABLE_VIDEO_1009]', ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(900);
   const tl = await pg.evaluate(async () => { const im = [...document.querySelectorAll('.pk-tile img')]; await Promise.all(im.map((i) => (i.decode ? i.decode().catch(() => 0) : 0)));
