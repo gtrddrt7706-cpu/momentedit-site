@@ -11,7 +11,7 @@ import path from 'node:path';
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const MAX = 20;
-const FILES = ['order-preview.html', 'mypage.html', 'index.html', 'assets/advisor-widget.js'];
+const FILES = ['order-preview.html', 'mypage.html', 'index.html', 'assets/advisor-widget.js', 'assets/entry-music.js'];   // [ENTRY_SCENE_1012] 입장 음악 알림도 같은 자로
 const FNS = ['_lsToast', '_noteToast', 'toast', '_miniToast', 'mpToast', 'meToast'];
 const MIN_FOUND = 40;   // 지금 약 50 — 읽기가 깨져 0 이 되면 조용히 통과하지 않게
 

@@ -2423,6 +2423,10 @@ chk 'D.DAY' scripts/check-source-drift.mjs 3
 #   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
 chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
 chk 'ref-time' scripts/check-source-drift.mjs 1
+# [DRIFT_LEAD_TIME 2026-10-12] «본식 5분 전부터»(시작 전 시각)를 본식 길이로 세지 않는다 · «N분 전후»(약 N분)는 여전히 잰다.
+#   실측: PR #1205 의 입장 그래프 읽기용 설명이 이 오독으로 빨갰고, 그 줄이 FAIL 로 시작하지 않아 CI 꼬리에서 안 보였다([GUARD_FAIL_TAIL]).
+chk 'DRIFT_LEAD_TIME' scripts/check-source-drift.mjs 1
+chk '전(?!후)' scripts/check-source-drift.mjs 1
 # [SLOT_CLOCK 2026-09-25] 표 밖의 예식 시각(마이페이지 D-day·임시고정·관리자·청첩장·라이브·알림톡)은 슬롯 ID(13:20)를
 #   본예식으로 찍고 있었다 — 8/9 부터 5분 어긋남. 이제 SLOT_CLOCK 한 표를 거치고, drift (6-b)가 여섯 벌을 DAY 로 잰다.
 chk 'SLOT_CLOCK' scripts/check-source-drift.mjs 2
@@ -17641,4 +17645,28 @@ chk 'ENTRY_MUSIC_1012' scripts/check-retired-scene.mjs 1
 nochk '곡을 넣는 칸은 따로 없다' api/_kb.js                       # 입장 음악 칸이 생겼다 — 없다고 말하지 않는다
 nochk '화면에 곡을 넣는 칸은 따로 없다' api/_ritual-kb.js
 chk 'ENTRY_MUSIC_1012' scripts/audit/entry-music.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/entry-music.mjs >/dev/null 2>&1; _emu=$?; if [ "$_emu" = 1 ]; then echo 'FAIL entry-music: ② 입장 «입장 음악» 줄(올리기 · 자리 · 직접 적기 · 안내 창 · 저장 · 되살리기)이 깨졌습니다 — node scripts/audit/entry-music.mjs'; fail=1; elif [ "$_emu" = 0 ]; then echo 'ok entry-music: 입장 음악 줄 390 · 1280'; else echo 'skip entry-music: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-12 입장 음악 2단계-가 [ENTRY_SCENE_1012] — «음악과 함께 듣기»(그래프 · 긴 알약 · 그 자리 재생 · 이어 듣기 · 그래프 누르면 그 자리부터)
+#   목소리 = 빌더가 트는 입장 줄(_lSteps · 두 분 목소리 / 나레이션) · 곡 = 이 기기에 올린 곡 · 마지막 말 끝 + 0.3초 = 고른 자리(시험실 plan · envDb 그대로)
+#   두 분 AI 를 안 만들었으면 그래프 없이 흐린 알약(AI_PLAY_READY) · 크게 보기는 2단계-나 · 아래 entry-music 점검 10 ~ 18
+chk 'ENTRY_SCENE_1012' order-preview.html 2
+chk "if(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml) h+=EntryMusic.sceneHtml();" order-preview.html 1
+chk '.mk-pick:has(+.em-scene){padding-bottom:0}' order-preview.html 1
+chk 'ENTRY_SCENE_1012' assets/entry-music.js 3
+chk 'EM.sceneHtml=sceneHtml' assets/entry-music.js 1
+chk 'redraw(); scHalt(); };' assets/entry-music.js 1                 # 빌더가 제 소리를 틀면(_stopMk) 장면은 그 자리에 멈춘다([ONE_SOUND])
+chk 'breath:0.3,' assets/entry-music.js 1                            # 마지막 말 끝 + 0.3초 = 하이라이트(시험실 DEF_P)
+chk 'var EM={ scene:true };' assets/entry-music.js 1                  # 안내 창이 «음악과 함께 듣기로 …»를 말한다
+nochk 'var EM={ scene:false };' assets/entry-music.js
+nochk 'fakeVox' assets/entry-music.js                                # [GRAPH_MIN] 없는 소리를 그래프로 그리지 않는다
+nochk "cssv('--seal'" assets/entry-music.js                         # [GRAPH_NO_SEAL_LINE] 그래프 가운데 진사 세로선 되살리기 금지
+# ── 2026-10-12 입장 음악 2단계-나 [ENTRY_BIG_1012] — «음악과 함께 듣기» 크게 보기(빌더 크게 보기 틀 · 문 영상 · 다섯 칸 막대 · 자막 · 그래프 · 앞뒤 줄)
+#   알약 옆 작은 네모 단추로만 연다([PLAYER_ORDER]) · 열면 듣던 자리에서 이어서 · ⌄ · Esc · 뒤로 가기로 닫힌다 · 아래 entry-music 점검 19 ~ 23
+chk 'ENTRY_BIG_1012' order-preview.html 1
+chk 'ENTRY_BIG_1012' assets/entry-music.js 3
+chk 'ENTRY_BIG_1012' scripts/audit/entry-music.mjs 1
+chk "pillHtml(st,PL)+bigBtnHtml(st)+'</div></section>'" assets/entry-music.js 1   # 크게 보기 단추는 알약 옆 한 자리
+chk 'function openBig' assets/entry-music.js 1
+chk 'function closeBig' assets/entry-music.js 1
+chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
+chk '#emFull .lg-scene{display:none}' order-preview.html 1           # 크게 보기는 자막이 장면을 말한다(장면 줄 숨김)
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-music.mjs >/dev/null 2>&1; _emu=$?; if [ "$_emu" = 1 ]; then echo 'FAIL entry-music: ② 입장 «입장 음악» 줄(올리기 · 자리 · 직접 적기 · 안내 창 · 저장 · 되살리기) · 음악과 함께 듣기 · 크게 보기가 깨졌습니다 — node scripts/audit/entry-music.mjs'; fail=1; elif [ "$_emu" = 0 ]; then echo 'ok entry-music: 입장 음악 줄 · 음악과 함께 듣기 390 · 1280'; else echo 'skip entry-music: 브라우저가 없어 재지 못함'; fi; fi
