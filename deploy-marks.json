@@ -2736,6 +2736,12 @@
    "fn": "handleRequestContract",
    "mark": "PHONE_LEN_SRV",
    "why": "계약 요청(입력 정보 수정)의 신랑 · 신부 연락처 길이를 서버에서도 본다(거절 C0) — 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFile",
+   "mark": "ENTRY_SONG_UP",
+   "why": "입장 음악 곡(자리 mu)도 두 분 목소리 파일과 같은 길로 받는다 — 붙이고 새 버전으로 배포해야 식순 화면의 곡이 스튜디오(당일 콘솔)로 간다"
   }
  ],
  "fns": {
