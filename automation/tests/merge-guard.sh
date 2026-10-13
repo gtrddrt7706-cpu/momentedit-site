@@ -17912,8 +17912,16 @@ nochk '.em-graph .lg-scene.wait{visibility:hidden}' order-preview.html          
 chk 'LY_KO_TOP' order-preview.html 4
 chk 'LY_KO_TOP' assets/entry-music.js 1
 chk 'LY_KO_TOP' scripts/audit/rec-song-ui.mjs 2                                                  # 4b 순서 · 색 · 기울임 · 크기
+# ★[LY_ORIG_TOP 2026-10-13 사장님 «영문 노래는 영문이 위에 노란색 · 한글 노래는 한글이 위에 노란색 · 전부 반대여야지»] 원래 부르는 말이 위(노란색 ly-o) · 옮긴 말이 아래(흰색 ly-t)
+#   곡의 원래 말 = entry-music LY_ORIG(한국어 곡 r1 · r8 · 섞인 곡 r6 줄마다 · 그 밖 영문) · rec-song-ui 4b · 4c 가 순서 · 색을 잰다 · «늘 한글이 위»로 되돌리지 말 것
+chk 'LY_ORIG_TOP' assets/entry-music.js 3
+chk "var LY_ORIG={r1:'ko',r8:'ko',r6:{en:" assets/entry-music.js 1
+chk 'LY_ORIG_TOP' order-preview.html 2
+chk 'LY_ORIG_TOP' scripts/audit/rec-song-ui.mjs 3
+nochk "function lyHtml(line){ return (line\[2\]?'<span class=\"mu-ko'" assets/entry-music.js   # 옛 «늘 한글이 위» 판
 chk 'Cormorant+Garamond:ital,wght@0,500;0,600;1,500' order-preview.html 1                         # 기울임꼴 500 을 불러야 영문 가사가 실제로 기운다
-chk "function lyHtml(line){ return (line\[2\]?" assets/entry-music.js 1                              # 한글(line[2])이 먼저
+chk "function lyHtml(line,k){ var en=" assets/entry-music.js 1                                  # [LY_ORIG_TOP] 곡(k)마다 원래 말이 먼저 — 종전 «한글(line[2])이 먼저» 줄을 바꿨다
+nochk "function lyHtml(line){" assets/entry-music.js                                               # 곡을 모르는 옛 판(늘 한글이 위)
 nochk 'family=Cormorant+Garamond:wght@500;600&' order-preview.html                                 # ★기울임꼴 없는 옛 주소로 되돌리지 말 것 — 영문 가사가 바로 선다
 chk 'LY_LEAD=0.35, LY_LAT_MAX=0.12' assets/entry-music.js 1                                        # [LY_LEAD] 가사는 0.35초 앞서
 chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                                      # 받은 곡은 이 기기에 — 다시 들을 때 다시 묻지 않는다(서버 시간당 60번)
