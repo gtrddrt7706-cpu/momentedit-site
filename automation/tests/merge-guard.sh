@@ -17920,7 +17920,8 @@ chk 'LY_ORIG_TOP' order-preview.html 2
 chk 'LY_ORIG_TOP' scripts/audit/rec-song-ui.mjs 3
 nochk "function lyHtml(line){ return (line\[2\]?'<span class=\"mu-ko'" assets/entry-music.js   # 옛 «늘 한글이 위» 판
 chk 'Cormorant+Garamond:ital,wght@0,500;0,600;1,500' order-preview.html 1                         # 기울임꼴 500 을 불러야 영문 가사가 실제로 기운다
-chk "function lyHtml(line){ return (line\[2\]?" assets/entry-music.js 1                              # 한글(line[2])이 먼저
+chk "function lyHtml(line,k){ var en=" assets/entry-music.js 1                                  # [LY_ORIG_TOP] 곡(k)마다 원래 말이 먼저 — 종전 «한글(line[2])이 먼저» 줄을 바꿨다
+nochk "function lyHtml(line){" assets/entry-music.js                                               # 곡을 모르는 옛 판(늘 한글이 위)
 nochk 'family=Cormorant+Garamond:wght@500;600&' order-preview.html                                 # ★기울임꼴 없는 옛 주소로 되돌리지 말 것 — 영문 가사가 바로 선다
 chk 'LY_LEAD=0.35, LY_LAT_MAX=0.12' assets/entry-music.js 1                                        # [LY_LEAD] 가사는 0.35초 앞서
 chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                                      # 받은 곡은 이 기기에 — 다시 들을 때 다시 묻지 않는다(서버 시간당 60번)
