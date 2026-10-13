@@ -2470,8 +2470,8 @@ nochk "'>'+LABELS\[t\]+' '+t+'</option>'" mypage.html
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '8~25m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 12~25 (스냅 50 · (가) 안)
-chk '15~32m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 25~38 [RANGE_EX4] · 두 시간의 합 50분
+chk '7~25m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 12~25 (스냅 50 · (가) 안) → [TOAST_LAST_1013] 8~25 → 7~25
+chk '15~33m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 25~38 [RANGE_EX4] · 두 시간의 합 50분 → [TOAST_LAST_1013] 15~32 → 15~33(합 40)
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
 #   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
@@ -7616,10 +7616,10 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute', 'toast'], set: { entry: 'A', tribute: 'long', free: 'speech' } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech' } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } }" assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute', 'toast'], set: { entry: 'E', tribute: 'long' } }" assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'C', tribute: 'none' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none' } }" assets/ritual-open.js 1
 # ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간 줄이기 제안에서 편지 카드는 남긴다 — 표식이 카드 줄에 붙어 있어 카드를 지우면 빨강
 chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
 chk "letter: { n: '편지 낭독', sn: '편지'," assets/ritual-open.js 1
@@ -7650,7 +7650,7 @@ chk 'CAKE_OFF_1013' docs/plans/식순연구/순간개편_근거장부.md 3
 chk 'EX_ENTRY_FEEL_1012' assets/ritual-open.js 5
 chk 'EX_ENTRY_FEEL_1012' scripts/audit/open-course.mjs 4
 chk 'EX_ENTRY_FEEL_1012' scripts/check-ritual-cue.js 2
-nochk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'A'" assets/ritual-open.js   # 간결에 가장 긴 입장 멘트(담백하게 23초)를 되살리지 말 것
+nochk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'A'" assets/ritual-open.js   # 간결에 가장 긴 입장 멘트(담백하게 23초)를 되살리지 말 것
 nochk "k: 'promise', nm: '약속'" assets/ritual-open.js          # 편지 중심 «약속» 예시는 걷었다 — 되살리지 말 것
 nochk "on: \['prevideo', 'candle', 'welcome', 'vow', 'ring'" assets/ritual-open.js   # 반지는 예시에 넣지 않는다(10/11 사장님 «반지 · 케이크는 코스에서 빼고») — + 로 담는다
 chk "스냅 촬영 «손과 반지» 장면으로 남길 수 있어요" order-preview.html 1
@@ -12379,8 +12379,8 @@ nochk '사진과 인사' order-preview.html
 nochk '사진과 인사' api/_ritual-kb.js
 nochk '인사 사진' assets/advisor-kb.js
 nochk "'인사 사진'" assets/sequence-modal.js
-chk "['단체 사진', '15~32분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1
-chk 'Private Snap 60분 · Ceremony 8~25분 · 단체 사진 15~32분' index.html 1
+chk "['단체 사진', '15~33분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1   # [TOAST_LAST_1013] 15~32 → 15~33
+chk 'Private Snap 60분 · Ceremony 7~25분 · 단체 사진 15~33분' index.html 1   # [TOAST_LAST_1013]
 chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 전체 사진과 두 분의 감사 인사 뒤 식사 자리로' index.html 1   # [FAQ_SLOT_WORD 코워크 추가 점검 P3] 본식 시각을 함께 · [PHOTO_THANKS] 옛 «11시 10분 배웅»
 nochk '9시 50분 입장' index.html
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
@@ -15299,9 +15299,10 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-server.mjs >/d
 chk 'TABLE_APART' assets/ritual-open.js 11
 chk 'function spanText(S)' assets/ritual-open.js 1
 chk 'spanText: spanText, tableSec: tableSec' assets/ritual-open.js 1
-chk "after: !!AFTER_CLOSE" assets/ritual-open.js 1
+chk "after: !!APART" assets/ritual-open.js 1   # [TOAST_LAST_1013] 곡선 «본식 뒤»는 테이블 인사 하나(축배는 닫는 인사 뒤여도 본식 톤)
 chk "LEVEL3 = { candle: 1, welcome: 1, table: 1 }" assets/ritual-open.js 1
-chk "d: '축배를 들고, 본식 뒤 테이블 인사까지'" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다(«본식 뒤 테이블 인사까지»는 TABLE_APART 그대로)
+chk "d: '본식을 닫고, 축배와 테이블 인사까지', ks: \['cake', '_close', 'toast', 'table'\]" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례(닫는 인사 → 축배 → 테이블 인사)
+nochk "d: '축배를 들고, 본식 뒤 테이블 인사까지'" assets/ritual-open.js   # [TOAST_LAST_1013] 축배가 닫는 인사 앞이던 판
 nochk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritual-open.js
 nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js
 chk 'TABLE_APART' order-preview.html 18
@@ -17201,7 +17202,9 @@ chk 'function _bkDoneDeep(id,n){' mypage.html 1
 chk 'ENG_ONCE' order-preview.html 10
 chk 'function _engBox(' order-preview.html 1
 chk 'QUIET_END_CLOSE' assets/ritual-open.js 1
-chk "var _ci = seq.indexOf('_close'), last = seq" assets/ritual-open.js 1
+nochk "var _ci = seq.indexOf('_close'), last = seq" assets/ritual-open.js   # [TOAST_LAST_1013] «끝이 조용한 편» 알림은 걷었다(사장님 «축배 코스 한 곳에») — 되살리지 말 것
+nochk '끝이 조용한 편이에요. «축배»를 담으면' assets/ritual-open.js
+nochk "n.acts.push(\['축배 담기', 'on', 'toast'\])" assets/ritual-open.js
 chk 'ONE_SOUND' order-preview.html 1
 chk 'PLAY_TOK' order-preview.html 1
 chk 'UP_TMR_OWN' order-preview.html 1
@@ -17939,3 +17942,19 @@ chk 'var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);' console.html 1           
 nochk 'vs.start(t0 + PL.tv, V0.pieces.length ? V0.pieces\[0\].a : 0, PL.V);' console.html          # ★대사를 한 줄로 이어 틀면 쉼이 녹음 그대로(0.7초) — 되살리지 말 것
 nochk 'vs.start(t0+Math.max(0,tp-from),a0+off,d0-off)' assets/entry-music.js                       # ★식순 화면도 같다
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-call-pause.mjs >/dev/null 2>&1; _ecp=$?; if [ "$_ecp" != 0 ]; then echo 'FAIL entry-call-pause: 입장 «음악과 함께» — «입장!» 앞 쉼 1.8초가 깨졌습니다(엔진 · 실제 녹음) — node scripts/audit/entry-call-pause.mjs'; fail=1; else echo 'ok entry-call-pause: «입장!» 앞 쉼 1.8초(엔진 · 녹음 여섯)'; fi; fi
+# ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에 하는 게 좋을 것 같아» · «축배 코스 한 곳에 넣어 볼까? 제안 있어?» → «우선 내가 시킨 것들 전부 진행해»]
+#   축배 = 닫는 인사 뒤 · 테이블 인사 앞(AFTER_CLOSE) · 시간 · 본식 n / N · 곡선은 본식 안(APART = 테이블 인사 하나) · 예시는 «기록» 한 곳 · «끝이 조용한 편» 알림 걷음 ·
+#   본식 범위 7~25 · 단체 사진 15~33(간결 7:13 · 계약서 v1.14 같은 판) · open-course 가 차례 · 큐 · 자리 글 · 옛 코스 그대로를 실행으로 잰다
+chk 'TOAST_LAST_1013' assets/ritual-open.js 8
+chk 'var AFTER_CLOSE = { toast: 1, table: 1 };' assets/ritual-open.js 1
+chk 'var APART = { table: 1 };' assets/ritual-open.js 1
+chk 'var RANGE = { body: \[7, 25\], photo: \[15, 33\], rep: 20 };' assets/ritual-open.js 1
+chk 'TOAST_LAST_1013' assets/ritual-cue.js 2
+chk "if (_openC && seq.indexOf('toast') > -1) cues.push.apply(cues, BUILD.toast(S, seq));" assets/ritual-cue.js 1
+chk 'TOAST_LAST_1013' order-preview.html 4
+chk 'TOAST_LAST_1013' scripts/audit/open-course.mjs 10
+chk 'TOAST_LAST_1013' api/_ritual-kb.js 3
+chk 'TOAST_LAST_1013' contract/v1-1.html 1
+chk '(예시 기준 약 7~25분)' contract/v1-1.html 1
+chk '(예시 기준 약 15~33분)' contract/v1-1.html 1
+nochk '(예시 기준 약 8~25분)' contract/v1-1.html

@@ -53,7 +53,12 @@
        종전 v4(9/25) «덕담 · 축가 → 인사 → 준비한 순서 → 편지»(준비한 순서 = 인사 뒤 · 편지 = 마지막 큰 순간)는 걷었다 — 되살리지 말 것.
        우리 컨셉: 행진이 없어 인사 뒤에는 2부 몫(케이크 · 축배)과 닫는 인사가 온다 */
   var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];
-  var AFTER_CLOSE = { table: 1 };   // [TABLE_GREET_1008] 닫는 인사 뒤에 서는 순간
+  /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에 하는 게 좋을 것 같아» · «축배 코스 한 곳에 넣어 볼까? 제안 있어?» → 우선 시킨 것 전부 진행]
+       축배는 닫는 인사 뒤 · 테이블 인사 앞이다(자료 D · S · AA 다섯 릴스 모두 «1부를 닫은 뒤 2부의 축배 → 테이블 인사») · 우리는 2부가 없어 닫는 인사가 1부의 끝이다.
+       ★차례만 닫는 인사 뒤다 — 시간 셈 · 화면의 «본식 n / N» · 흐름 곡선은 축배를 본식 안에 둔다(APART 는 테이블 인사 하나 · TABLE_APART 그대로).
+       종전 «부모님께 인사 → 축배 → 닫는 인사»(9/27 CAKE_TOAST_SPLIT · 10/12 EX_STD_1012 뼈대)는 걷었다 — 되살리지 말 것. */
+  var AFTER_CLOSE = { toast: 1, table: 1 };   // [TABLE_GREET_1008] 닫는 인사 뒤에 서는 순간 · [TOAST_LAST_1013] + 축배(테이블 인사 앞)
+  var APART = { table: 1 };                   // [TABLE_APART · TOAST_LAST_1013] 본식과 따로 세는 순간(시간 · «본식 뒤» 묶음 · 옅은 곡선) — 축배는 닫는 인사 뒤여도 본식 안
   var TABLE_SEC = 90;               // [TABLE_GREET_1008] 테이블당 1분 30초(사장님 결정 · 고정)
   function tableN(S) { var n = +((S || {}).tableN); if (!(n >= 1)) n = 6; return Math.min(6, Math.max(1, Math.round(n))); }   /* ★[TABLE_MAX6 2026-10-08] 상한 = 좌석 배치도 상한(mypage SEAT_ADD_CAP · 6테이블 × 5석) — 종전 12 는 좌석이 허락하지 않는 수였다 */   // [TABLE_GREET_1008] 좌석 배치도 테이블 수 · 모르면 6(30명 ÷ 5 · SEAT_PER5)
   var ALWAYS = { guest: 1, entry: 1 };   // [PREVIDEO_PICK] prevideo 는 뺐다
@@ -72,7 +77,7 @@
     { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'welcome'] },
     { n: '약속의 순간', d: '말과 반지로 부부가 되는 자리', ks: ['vow', 'ring', 'declare', 'bless'] },   // ★[HEART_ORDER_1012] 덕담은 이 막의 끝 칸 — 선언 바로 뒤이고 자료 B · P · Py · Q 는 선언과 덕담을 한 덩어리로 둔다 · 막마다 넷(PC 한 줄 · pick-v2 «4 · 4 · 4 · 4»)
     { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['free', 'song', 'letter', 'tribute'] },   // [SONG_BACK_1011] 축가는 선언 뒤 · [HEART_ORDER_1012] 부모님께 인사가 이 막의 끝 · 덕담은 «약속의 순간» 끝 칸(10/12 BLESS_AFTER_DECLARE 때 이 막 첫 칸에 두었더니 PC 가 3 · 5 칸으로 어긋났다)
-    { n: '축하 · 닫는 순간', d: '축배를 들고, 본식 뒤 테이블 인사까지', ks: ['cake', 'toast', '_close', 'table'] }   // [CAKE_OFF_1013] 설명에서 케이크를 뺐다(칸은 옛 초안이 담아 뒀을 때만 보인다) · [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 줄은 그대로 · 설명이 «본식 뒤»(흐름 묶음 이름과 같은 말)를 말한다 · 옛 «케이크를 자르고 잔을 들고, 인사와 사진으로»
+    { n: '축하 · 닫는 순간', d: '본식을 닫고, 축배와 테이블 인사까지', ks: ['cake', '_close', 'toast', 'table'] }   // [CAKE_OFF_1013] 설명에서 케이크를 뺐다(칸은 옛 초안이 담아 뒀을 때만 보인다) · [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 줄은 그대로 · 설명이 «본식 뒤»(흐름 묶음 이름과 같은 말)를 말한다 · 옛 «케이크를 자르고 잔을 들고, 인사와 사진으로»   // [TOAST_LAST_1013] 칸 차례 = 실제 차례(닫는 인사 → 축배 → 테이블 인사)
   ];
 
   /* ── 카드 문구(시안 2판 EV + 명세 4장 고침) ──
@@ -111,7 +116,7 @@
        읽어 주실 분은 두 분이 칸에 직접 적는다(declBy · DECL_HINT 는 그 칸의 예시). ★읽는 분 칩 되살리지 말 것:
        10/12 첫 판(신랑 아버님 · 신부 아버님 · 친구 · 지인 · DECLARE_BY_PERSON) · 그 전 판(나레이션 · 엄숙하게 / 따뜻하게 · 하객 박수로 답하기 · 가족이 낭독) */
     /* ★★[TRIB_ONE_SAY 2026-10-06 사장님 «한마디씩 · 1분쯤씩 겹치니깐 하나로 개선»] 말의 길이는 «말로 인사» 하나 + «말 없이» — 한마디부터 1분쯤까지 두 분 마음대로.
-       ★값은 long 하나로 모은다 — 시간 몫(1분쯤씩)을 넉넉한 쪽으로 잡아야 140분 시간표 · 단체 사진 표 · 본식 8~25분이 그대로다(one 으로 모으면 표가 줄어 계약 문구까지 흔들린다).
+       ★값은 long 하나로 모은다 — 시간 몫(1분쯤씩)을 넉넉한 쪽으로 잡아야 140분 시간표 · 단체 사진 표 · 본식 범위(RANGE)가 그대로다(one 으로 모으면 표가 줄어 계약 문구까지 흔들린다).
        옛 값 one 은 CHIP_OK 에서 떨어져 long 으로 읽힌다(엔진 norm 도 DEF 로) · ★«한마디씩» · «1분쯤씩» 두 칩 되살리지 말 것 */
     tribute: [['long', '말로 인사'], ['none', '말 없이']],   /* [DETAIL_0925 E] 준비 목록에는 «한 분 300자 안팎»([R1-20] 1분쯤 = 300자) */
     letter: [['each', '서로에게'], ['parent', '각자 부모님께']],
@@ -220,23 +225,25 @@
     /* ★★[EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결 (추천)» · 2단계 «스탠다드가 되는 작업이니깐 실전 자료들 잘 참고해서 완성도 높게»]
          예시 넷 = 같은 뼈대 + 예시마다 성격 한두 개(나침반 «필수는 고정 · 선택은 2~3개» — P · yoonypic · N).
          뼈대 = 화촉(자료 23/23) · 입장 · 맞절(22) · 서약(21) · 성혼 선언(21) · 부모님께 인사(23) + 우리 몫 식전 영상 · 축배(2부가 없어 본식 끝 축하 · 빼면 «끝이 조용한 편» 알림).
+         ★[TOAST_LAST_1013 2026-10-13 사장님 «축배 코스 한 곳에 넣어 볼까?» → 추천 «기록» 한 곳] 축배는 뼈대에서 내려 «기록» 예시에만 둔다 — 자료 23곳 중 본식에 둔 곳 0 · 2부에 둔 곳 2(D · S) + AA 릴스 다섯 모두 2부.
+           «기록»(밝고 경쾌하게 · 하객과 가까이)은 테이블 인사가 있어 «축배 → 테이블 인사»(AA 이재련 · D)가 그대로 선다 · «끝이 조용한 편» 알림은 함께 걷었다(아래 NOTICE).
          정석 = + 첫인사 · 축사 3분(«덕담 또는 축사» 자리 18/23 · 실제 예식 7/8 · [SPEECH_TILE_1012]) · 축가(19.5/23 · 실제 예식 8곳 중 7곳) — 자료의 «실패 없는 뼈대» 그대로 · 기록 = + 첫인사 · 테이블 인사(우리 고유 · 자료 D 는 2부) ·
          가족 = + 첫인사 · 덕담(B · P · Q — 선언을 읽은 아버님이 덕담까지) · 축가 · 간결 = 뼈대만(A — 축사 · 축가 없이도 «깔끔»).
          ★예시에 넣지 말 것: 반지(9/23 · 10/11 사장님 «반지교환 이런 건 코스에 빼고 원하면 넣을 수 있게» → «반지 · 케이크») · 케이크(같은 결정 · 자료는 2부 → 10/13 [CAKE_OFF_1013] 새로 담지 않는다) ·
            편지(0/23 · «서로에게 쓴 말»은 서약이 맡는다 · 10/13 [LETTER_KEEP_1013] 카드는 남긴다) — 반지 · 편지는 + 로 담는다(장부 «기본에서 내림»).
          ★«약속»(promise · 편지 중심)은 걷었다 — 저장된 초안의 pickFrom:'promise' 는 exampleOf 가 null 이라 «직접 고르셨어요.»(담은 순간은 그대로 · EX_BRIEF 와 같은 길). 되살리지 말 것.
          ★테이블 인사는 기록에만 — 6테이블 9분이라 축가와 함께면 늦어진 날 단체 사진 14분(SHORT_MIN 16 아래 · 5테이블까지는 괜찮다) · 사장님 10/12 «지금처럼»(테이블마다 한 장 따로 남기지 않는다).
-         ★숫자(본식 · 테이블 인사 · 단체 사진)는 엔진이 잰다 — scripts/audit/open-course.mjs 의 WANT · SEC. 넷 모두 알림 없음 · 홈 · 계약서의 «본식 약 8~25분»(RANGE) 그대로. */
+         ★숫자(본식 · 테이블 인사 · 단체 사진)는 엔진이 잰다 — scripts/audit/open-course.mjs 의 WANT · SEC. 넷 모두 알림 없음 · 홈 · 계약서의 «본식 약 N~M분»(RANGE)은 아래 RANGE 주석(TOAST_LAST_1013 · 7~25). */
     /* ★★[EX_ENTRY_FEEL_1012 2026-10-12 사장님 «느낌에 맞춰 넷 다 (추천)» · 2단계 점검] 예시가 미리 누르는 입장 멘트 칩 = 그 예시의 느낌 한 줄과 같은 결.
          정석(익숙하고 편안하게) 담백하게 — 빌더 기본값(A)과 같다 · 기록(밝고 경쾌하게 · 하객과 가까이) 힘차게 12초 ·
          가족(격식 있고 뭉클하게) 다정하게 그대로(«부모님께는 여전히 아이 같은 두 사람이») · 간결(짧고 단정하게) 격식 있게 16초 —
          간결에는 첫인사가 없어 «귀한 걸음 해 주신 여러분» 감사 한마디가 입장에서 한 번 나간다(자료 M «참석 감사 멘트는 필수»).
          옛 짝(정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초)은 걷었다.
          ★멘트 글은 그대로다 — 사장님 «멘트는 대대적으로 한번 개선 작업을 할 거야 따로»(3단계) · 그때 이 짝도 함께 다시 본다. */
-    { k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute', 'toast'], set: { entry: 'A', tribute: 'long', free: 'speech' } },   // [EX_STD_1012] · [EX_ENTRY_FEEL_1012] 입장 담백하게(빌더 기본값과 같다 · 옛 격식 있게)
+    { k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech' } },   // [EX_STD_1012] · [EX_ENTRY_FEEL_1012] 입장 담백하게(빌더 기본값과 같다 · 옛 격식 있게)
     { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객과 가까이' /* [TABLE_GREET_1008 사장님 «기록에 넣고 소개를 바꾼다»] 옛 «단체 사진을 넉넉히» — 테이블 인사 9분이 들어 단체 사진 15~20 → [EX_STD_1012] 반지 · 케이크가 빠져 18~22 */, on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } },
-    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute', 'toast'], set: { entry: 'E', tribute: 'long' } },   // [EX_STD_1012] + 축가 · − 반지 · 케이크
-    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'C', tribute: 'none' } }   // [EX_ENTRY_FEEL_1012] 입장 격식 있게(옛 담백하게 23초) · [EX_STD_1012] + 화촉 · 부모님께 인사(말 없이) · − 반지 · 케이크(본식 8~12 그대로)
+    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long' } },   // [EX_STD_1012] + 축가 · − 반지 · 케이크
+    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none' } }   // [EX_ENTRY_FEEL_1012] 입장 격식 있게(옛 담백하게 23초) · [EX_STD_1012] + 화촉 · 부모님께 인사(말 없이) · − 반지 · 케이크(본식 8~12 그대로)
   ];
   function exampleOf(k) { for (var i = 0; i < EXAMPLES.length; i++) if (EXAMPLES[i].k === k) return EXAMPLES[i]; return null; }
   // 예시를 S 에 입힌다 — 순간은 통째로 바꾸고, 판은 기본 위에 예시 값을 얹는다
@@ -343,11 +350,13 @@
      (기록 11:33~ · 전부 ~24:41 을 분으로 둥글림 · 둘을 더해 50). 빈 채 · 가장 긴 조합은 이 밖으로 나갈 수 있다 — 띠가
      그 판의 실제 값을 따로 보여 주므로 이 한 줄은 «대개 이만큼»이다. 가운데 한 칸(rep)은 그대로. */
   /* ★★[RANGE_40 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-3] 스냅 60 으로 합이 50 → 40 · «사진과 인사» → «단체 사진».
-       8 = «간결» 예시 아래 값(8:24) · 25 = 가족 예시 넉넉 합(23:37)에 1분 남짓 여유(P14 그대로) · 단체 사진 15~32 = 40 − 본식 범위.
+       8 = «간결» 예시 아래 값(8:24) · 25 = 가족 예시 넉넉 합(23:37)에 1분 남짓 여유(P14 그대로) · 단체 사진 15~32 = 40 − 본식 범위(10/13 [TOAST_LAST_1013] 에 7~25 · 15~33).
        [EX_STD_1012 2026-10-12] 예시를 다시 짠 뒤에도 그대로 — 간결 8:02 · 가족 넉넉 합 23:12 · 정석 14:26~19:11 · 기록 본식 9~13(+ 테이블 인사 9).
        [EX_ENTRY_FEEL_1012 2026-10-12] 입장 멘트 짝을 바꾼 뒤에도 그대로 — 간결 7:55(«약 8분») · 가족 23:12 · 정석 14:33~19:18 · 기록 본식 9~12(+ 테이블 인사 9).
        rep 20 → 단체 사진 대표 20분(시작 10:40 = 본식 10:20 + 20). */
-  var RANGE = { body: [8, 25], photo: [15, 32], rep: 20 };
+  /* ★[TOAST_LAST_1013 2026-10-13] 축배가 «기록» 한 곳으로 가서 «간결»이 7:13 ~ 10:17 이 됐다(축배 42 ~ 82초를 뺌) — 아래 값 8 → 7 · 단체 사진 32 → 33(합 40 그대로).
+       위 값 25 는 그대로(가족 넉넉 합 21:49 · 정석 넉넉 합 21:52 · 담을수록 길어지는 판의 여유) · 계약서 v1.14 · 홈 · 빌더 · AI 상담이 같은 값을 쓴다(check-source-drift). */
+  var RANGE = { body: [7, 25], photo: [15, 33], rep: 20 };
   var DAYMIN = 40;   // 본식 + 단체 사진 = DAY.total − ready − snap − farewell (ritual-data.js [DAY_PLAN] · [DAY_60]) · open-course.mjs 가 대조
   function rng(x, y) { return x === y ? ('약 ' + x + '분') : ('약 ' + x + '~' + y + '분'); }
   // 띠 한 줄에 필요한 모든 값
@@ -398,7 +407,7 @@
     var seq = bodySeq(S), t = 0, out = [];
     seq.forEach(function (k) {
       var r = lohi(partsOf(k, S, seq)), d = (r[0] + r[1]) / 2;
-      out.push({ k: k, n: CARDS[k].sn, st: t, d: d, lo: r[0], hi: r[1], lv: level(k, S), after: !!AFTER_CLOSE[k] });   // [TABLE_APART] 본식 뒤 순간 — 곡선이 옅은 톤으로 그린다
+      out.push({ k: k, n: CARDS[k].sn, st: t, d: d, lo: r[0], hi: r[1], lv: level(k, S), after: !!APART[k] });   // [TABLE_APART] 본식 뒤 순간 — 곡선이 옅은 톤으로 그린다 · [TOAST_LAST_1013] 축배는 닫는 인사 뒤여도 본식 톤
       t += d;
     });
     return out;
@@ -694,7 +703,8 @@
   var NOTICE = {
     heavy: '앉아서 듣는 순간이 셋 이어져요. 반지나 선언을 담으면 사이가 풀려요. 반지는 끼고 오셔도 할 수 있어요.',   /* [DETAIL_0925 A2] «남겨 두면» → «담으면» */
     /* ★twice(«부모님께 드리는 말이 두 번 · 한마디씩으로») 금지 — 2026-10-06 사용자 지시로 «한마디씩» 판을 걷어 함께 삭제 [TRIB_ONE_SAY] */
-    toast: '끝이 조용한 편이에요. «축배»를 담으면 하객 모두가 함께 잔을 들며 밝게 끝나요(술 대신 음료도 돼요).',
+    /* ★«끝이 조용한 편이에요 · 축배를 담으면» 알림(NOTICE.toast · 축배 담기 단추) 금지 — 2026-10-13 사용자 지시로 삭제 [TOAST_LAST_1013]
+         축배는 닫는 인사 뒤의 고르는 순간이 됐고(예시는 «기록» 한 곳) · 닫는 인사가 9/26 부터 «인사!» 구호와 박수로 끝나 끝이 조용하지 않다(CLOSE_BOW) */
     /* [NOTICE_0925 코워크 4-7] 뒤쪽 사슬(인사 · 축사 · 편지) — 앞쪽(덕담 · 서약)은 위 heavy 그대로 · [BLESS_AFTER_DECLARE 10/12] 앞쪽은 이제 «서약 → 덕담» · 덕담으로 시작하면 뒤쪽 */
     heavyBack: '앉아서 듣는 순간이 셋 이어져요. 부모님께 인사를 «말 없이»로 하면 사이가 풀려요.',
     /* ★[HEART_ORDER_1012 2026-10-12] 덕담 → 축사 → 편지(인사 없음)는 반지 · 선언도 «말 없이»도 못 푼다 — 그 사이 빈 자리는 축가 하나 */
@@ -718,15 +728,13 @@
   }
   function noticeList(S) {
     if (!picked(S).length) return [];
-    var seq = bodySeq(S), L = [], best = _heavyRun(S);
+    var L = [], best = _heavyRun(S);
     /* ★[BLESS_AFTER_DECLARE 2026-10-12] 덕담이 성혼 선언 바로 뒤로 가서 앞쪽 사슬은 «서약으로 시작»(서약 → 덕담 · 반지 · 선언이 그 사이)뿐이다.
          덕담으로 시작하는 사슬(덕담 → 인사 → 축사 · 편지)은 뒤쪽 — 반지 · 선언은 덕담 앞이라 풀지 못하고 «인사를 말 없이»가 푼다 */
     /* [HEART_ORDER_1012] 인사가 마음의 순간 끝으로 가서 사슬에 인사가 있으면 그 사슬의 끝이 인사다 → «말 없이»가 푼다 · 인사가 없으면(덕담 → 축사 → 편지) 축가 자리 */
     if (best.length >= 3) L.push(best[0] === 'vow' ? NOTICE.heavy : best.indexOf('tribute') > -1 ? NOTICE.heavyBack : NOTICE.heavyMid);
     /* ★[TRIB_ONE_SAY 2026-10-06] «부모님께 드리는 말이 두 번» 알림 걷음 — 말로 인사 + 편지 «각자 부모님께»는 서로의 부모님께(crossTribute)라 겹치지 않는다 */
-    var noToast = seq.indexOf('toast') < 0;   // [CAKE_TOAST_SPLIT] 축배 칸 하나로 본다
-    var _ci = seq.indexOf('_close'), last = seq[(_ci > 0 ? _ci : seq.length - 1) - 1];   // 닫는 인사 바로 앞 · ★[QUIET_END_CLOSE 2026-10-09 A~Z 점검 1라운드 A-6] 테이블 인사가 닫는 인사 뒤에 붙으면 seq[len-2] 가 닫는 인사(_close)를 집어 «끝이 조용한 편이에요» 알림이 사라졌다 — 닫는 인사의 자리로 찾는다
-    if (noToast && picked(S).length > 3 && (heavy(last, S) || last === 'declare' || last === 'tribute' || seq.indexOf('declare') < 0)) L.push(NOTICE.toast);   // [DETAIL_0925 A2] 고른 순간이 셋 넘을 때만 · [HEART_ORDER_1012] 인사(말 없이 포옹이어도)로 끝나면 조용한 끝 — 종전엔 편지가 끝을 맡았다
+    /* [TOAST_LAST_1013] «끝이 조용한 편» 알림(QUIET_END_CLOSE)은 걷었다 — 위 NOTICE 주석 */
     var pa = span(S).pa;   // [DETAIL_0925 A2] 띠의 «단체 사진» 아래 값과 같은 반올림
     if (pa < SHORT_MIN) L.push(NOTICE.short(pa));
     return L;
@@ -748,8 +756,7 @@
       else if (msg === NOTICE.heavyMid) n.acts.push(['축가 담기', 'on', 'song']);   // 축가를 담았으면 이 사슬은 생기지 않는다(축가가 축사와 편지 사이)
       else { if (!onOf(S, 'ring')) n.acts.push(['반지 교환 담기', 'on', 'ring']); if (!onOf(S, 'declare')) n.acts.push(['성혼 선언 담기', 'on', 'declare']); }
       n.key = 'heavy:' + three.join(',');
-    } else if (msg === NOTICE.toast) { n.acts.push(['축배 담기', 'on', 'toast']); n.key = 'toast'; }   // [CAKE_TOAST_SPLIT]
-    else { n.close = false; n.key = 'short'; }
+    } else { n.close = false; n.key = 'short'; }   // [TOAST_LAST_1013] 축배 알림 갈래는 걷었다
     return n;
   }
   function noticeFull(S, shut) {
@@ -762,7 +769,12 @@
   function slotText(k, S) {
     if (k === 'prevideo') return '예식 시작 시각 · 입장 바로 앞';   // [CEREMONY_AT_VIDEO]   // [ONEMIN_FIRST 2026-10-05] 1분 전 공지 → 식전 영상 → 입장
     if (PRE[k]) return '하객이 앉는 동안 · 본식 앞';
-    if (AFTER_CLOSE[k]) return onOf(S, k) ? (bodySeq(S).indexOf(k) + 1) + '번째 · 닫는 인사 다음' : '담으면 닫는 인사 다음, 단체 사진 앞에 들어가요';   // [TABLE_GREET_1008]
+    if (AFTER_CLOSE[k]) {   // [TABLE_GREET_1008] · [TOAST_LAST_1013] 닫는 인사 뒤 순간끼리도 앞뒤를 말한다(축배 → 테이블 인사)
+      var ao = bodyOrder(), ai = ao.indexOf(k), ap = '_close', an = '';
+      for (var y = ai - 1; y >= 0 && ao[y] !== '_close'; y--) if (onOf(S, ao[y])) { ap = ao[y]; break; }
+      for (var z = ai + 1; z < ao.length; z++) if (onOf(S, ao[z])) { an = ao[z]; break; }
+      return onOf(S, k) ? (bodySeq(S).indexOf(k) + 1) + '번째 · ' + CARDS[ap].n + ' 다음' : '담으면 ' + CARDS[ap].n + ' 다음, ' + (an ? CARDS[an].n : '단체 사진') + ' 앞에 들어가요';
+    }
     var order = bodyOrder().filter(function (x) { return !AFTER_CLOSE[x]; });
     var i = order.indexOf(k), p = null, n = null, x;
     for (x = i - 1; x >= 0; x--) if (onOf(S, order[x])) { p = order[x]; break; }
@@ -996,7 +1008,7 @@
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
-    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
+    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
