@@ -1855,7 +1855,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.13'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.14'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행' assets/ritual-data.js 2   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2493,7 +2493,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.13'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.14'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -4047,8 +4047,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1\.13' contract/v1-1.html 6   # [CONTRACT_V113 · 머리 주석 포함] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.13'" automation/platform/70_journey.gs 1
+chk 'v1\.14' contract/v1-1.html 6   # [CONTRACT_V114 · 머리 주석 포함] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.14'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -7624,6 +7624,27 @@ chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { e
 chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
 chk "letter: { n: '편지 낭독', sn: '편지'," assets/ritual-open.js 1
 chk 'LETTER_KEEP_1013' docs/plans/식순연구/순간개편_근거장부.md 2   # 1장 제안 · 7장 예전 결정
+# ★★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] 케이크 커팅은 새로 담지 않는다 — 고르기 칸(담겨 있을 때만) · 담지 않은 순간 · AI 상담에서 걷음 · 옛 초안은 그대로 돈다(ORDER · PICKABLE 에 남는다)
+#   계약서 v1.14 별도 비용 줄도 함께(CONTRACT_V114) · open-course 가 «OFFER 에 없음 · 옛 초안 케이크는 돈다»를 실행으로 잰다
+chk 'CAKE_OFF_1013' assets/ritual-open.js 3
+chk 'var RETIRED = { cake: 1 };' assets/ritual-open.js 1
+chk 'var OFFER = PICKABLE.filter(function (k) { return !RETIRED\[k\]; });' assets/ritual-open.js 1
+chk 'RETIRED: RETIRED, OFFER: OFFER' assets/ritual-open.js 1
+chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다
+chk 'CAKE_OFF_1013' order-preview.html 3
+chk 'function _pkShow(k)' order-preview.html 1
+chk 'a.ks.filter(_pkShow).map(_pkTile)' order-preview.html 1
+chk '(R.OFFER||R.PICKABLE).filter' order-preview.html 1
+chk 'CAKE_OFF_1013' api/_ritual-kb.js 5
+chk '(O.OFFER || O.PICKABLE).forEach' api/_ritual-kb.js 1
+nochk "out.push('\[축배 · 케이크\]');" api/_ritual-kb.js
+nochk '케이크 커팅과 축배는 따로 고르는 두 순간이다' api/_ritual-kb.js
+chk 'CAKE_OFF_1013' api/_kb.js 1
+nochk '- 케이크 · 부모님께 드릴 꽃 \[GOODS_STUDIO' api/_kb.js
+chk 'CAKE_OFF_1013' assets/advisor-kb.js 1
+nochk '부모님께 드릴 꽃과 케이크도' assets/advisor-kb.js
+chk 'CAKE_OFF_1013' scripts/audit/open-course.mjs 1
+chk 'CAKE_OFF_1013' docs/plans/식순연구/순간개편_근거장부.md 3
 # ★★[EX_ENTRY_FEEL_1012 2026-10-12 사장님 «느낌에 맞춰 넷 다 (추천)»] 예시가 누르는 입장 멘트 칩 = 예시 느낌 — 정석 담백하게(빌더 기본값) · 기록 힘차게 · 가족 다정하게 · 간결 격식 있게
 #   (옛 정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초는 걷었다) · 멘트 글은 3단계(«멘트는 대대적으로 한번 개선 작업을 할 거야 따로»)에서 · 그때 이 짝도 다시 본다
 chk 'EX_ENTRY_FEEL_1012' assets/ritual-open.js 5
@@ -12321,7 +12342,8 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'CONTRACT_VER_ONE' scripts/audit/contract-version.mjs 1
 chk 'CONTRACT_VER_ONE' automation/tests/merge-guard.sh 3
-chk 'Version v1.13' contract/v1-1.html 1   # [CONTRACT_V113]
+chk 'Version v1.14' contract/v1-1.html 1   # [CONTRACT_V114]
+chk 'Version v1.13' contract/archive/v1-13.html 1   # [CONTRACT_V114] v1.13 보존본
 chk 'Version v1.12' contract/archive/v1-12.html 1   # [CONTRACT_V113] v1.12 보존본
 chk 'Version v1.11' contract/archive/v1-11.html 1   # [CONTRACT_V112] v1.11 보존본
 chk 'CONTRACT_V112' contract/v1-1.html 1
@@ -12329,6 +12351,15 @@ chk 'v1-11.html' admin.html 1
 chk 'v1-11.html' mypage.html 1
 chk 'CONTRACT_V112' automation/platform/70_journey.gs 2
 # ★[CONTRACT_V113 2026-10-11 사장님 «축가 만들자» · SONG_BACK_1011] v1.13 — 3조 ①-3 축가(가족 · 친구가 '갑'이 보낸 MR 에 맞춰 한 곡 · 악기 연주 없음) · ①-2 끝 «라이브 노래·연주는 진행하지 않는다» 걷음
+# ★[CONTRACT_V114 2026-10-13 사장님 «케익은 빼자» · CAKE_OFF_1013] v1.14 — 3조 ⑥ 별도 비용에서 «케이크 · '을' 준비(별도 비용)» 줄을 걷고 칸을 한 칸씩 올렸다 · 보존본 v1-13 은 그 판 그대로
+chk 'CONTRACT_V114' contract/v1-1.html 1
+chk 'CONTRACT_V114' automation/platform/70_journey.gs 2
+chk 'v1-13.html' admin.html 1
+chk 'v1-13.html' mypage.html 1
+nochk "<td>케이크 · '을' 준비(별도 비용)</td>" contract/v1-1.html 0
+chk "<td>케이크 · '을' 준비(별도 비용)</td>" contract/archive/v1-13.html 1   # 보존본은 그 판 그대로
+chk "<tr><td>본식영상(편집본)</td><td>부모님께 드릴 꽃 · '을' 준비(별도 비용)</td></tr>" contract/v1-1.html 1
+chk "<tr><td>모바일 청첩장(8종 중 셀프 선택)</td><td>생화 부케 · 협력 플로리스트 소개(별도 비용)</td></tr>" contract/v1-1.html 1
 chk 'CONTRACT_V113' contract/v1-1.html 1
 chk 'CONTRACT_V113' automation/platform/70_journey.gs 2
 chk 'v1-12.html' admin.html 1
@@ -15270,7 +15301,8 @@ chk 'function spanText(S)' assets/ritual-open.js 1
 chk 'spanText: spanText, tableSec: tableSec' assets/ritual-open.js 1
 chk "after: !!AFTER_CLOSE" assets/ritual-open.js 1
 chk "LEVEL3 = { candle: 1, welcome: 1, table: 1 }" assets/ritual-open.js 1
-chk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritual-open.js 1
+chk "d: '축배를 들고, 본식 뒤 테이블 인사까지'" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다(«본식 뒤 테이블 인사까지»는 TABLE_APART 그대로)
+nochk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritual-open.js
 nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js
 chk 'TABLE_APART' order-preview.html 18
 chk 'id="mkFgAfter">본식 뒤</p>' order-preview.html 1

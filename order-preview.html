@@ -4289,7 +4289,7 @@ function _lRecText(file){ var v=LREC&&file?LREC[file]:null; return v==null?null:
 function _lHasSound(file,text){ var r=_lRecText(file); return r!=null && _lNorm(r)!=='' && _lNorm(r)===_lNorm(text); }
 function _lName(k){ return k==='guest'?'하객 맞이 안내':(k==='vow'&&_vowKind()==='thanks')?'감사문':RitualOpen.nameOf(k,S); }   /* [THANKS_IN_VOW] 감사문을 고르면 ② 이후 이름이 «감사문» · 고르기(①) 칸은 그대로 «혼인 서약» */
 function _lRows(){ var R=RitualOpen, on=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }); return ['guest'].concat(on.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat(['_close']).concat(on.filter(function(k){ return !!R.AFTER_CLOSE[k]; })); }   /* [TABLE_GREET_1008] 닫는 인사 뒤 순간(테이블 인사)은 _close 다음에 */
-function _lOffRows(){ var R=RitualOpen; return R.PICKABLE.filter(function(k){ return !R.onOf(S,k); }); }   // ★[SPEECH_TILE_1012] 축사(옛 준비한 순서 · «있을 때만»)도 다른 순간처럼 여기서 다시 담는다
+function _lOffRows(){ var R=RitualOpen; return (R.OFFER||R.PICKABLE).filter(function(k){ return !R.onOf(S,k); }); }   /* [CAKE_OFF_1013] 담지 않은 순간 목록에 케이크를 다시 내지 않는다(OFFER) */   // ★[SPEECH_TILE_1012] 축사(옛 준비한 순서 · «있을 때만»)도 다른 순간처럼 여기서 다시 담는다
 function _josa(w,a,b){ var c=String(w).charCodeAt(String(w).length-1); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b; }
 /* 목록 번호 — 식전은 «식전», 본식은 1 부터(닫는 인사까지). 크게 보기도 같은 번호를 쓴다(칩으로 이어 들어도 전체 기준) */
 function _lNo(k){ if(k==='guest'||RitualOpen.PRE[k]) return '식전'; var b=RitualOpen.bodySeq(S); var i=b.indexOf(k); return i<0?'':String(i+1); }
@@ -8202,7 +8202,7 @@ function renderPick(){
   h+=_pkPanel();
   /* 순간 칸 — 네 막 [ACTS_FOUR · TILE_PICK · D7] */
   h+='<div class="pk-sh" id="pkActsH"><h3 class="pk-h">순간 더하고 빼기</h3><span class="pk-aux">칸을 누르면 미리 보고 들어요 · ＋로 담아요</span></div>';   /* ★범례(✓ 고른 순간 · ⊙ 늘 있는 순간) 금지 — 2026-10-06 사용자 지시로 삭제 [FIX_LEG_OFF] · 표만으로 읽힌다 */
-  h+='<div class="pk-acts">'+R.SECTIONS.map(function(a,i){ return '<section class="pk-act" aria-labelledby="pkA'+i+'"><div class="pk-act-l"><h4 class="pk-act-h" id="pkA'+i+'">'+esc(a.n)+'</h4><p class="pk-act-d">'+esc(a.d)+'</p></div><div class="pk-tiles">'+a.ks.map(_pkTile).join('')+'</div></section>'; }).join('')+'</div>';
+  h+='<div class="pk-acts">'+R.SECTIONS.map(function(a,i){ return '<section class="pk-act" aria-labelledby="pkA'+i+'"><div class="pk-act-l"><h4 class="pk-act-h" id="pkA'+i+'">'+esc(a.n)+'</h4><p class="pk-act-d">'+esc(a.d)+'</p></div><div class="pk-tiles">'+a.ks.filter(_pkShow).map(_pkTile).join('')+'</div></section>'; }).join('')+'</div>';   /* [CAKE_OFF_1013] 새로 담지 않는 칸은 담겨 있을 때만 */
   /* ★① 칸 아래 «칸의 그림 자리에는 AI로 만든 장면 영상의 첫 장면이 들어가요» 한 줄 금지 — 2026-10-03 사용자 지시로 삭제 [AI_LABEL_OFF] */
   h+='</div>';
   return h;
@@ -8245,6 +8245,11 @@ function _pkPanel(){
 }
 /* [FIX_MARK_O] 늘 있는 순간 표 — 누르는 단추가 아니다(그림 · 이름은 화면 읽기에) · 담김 ✓(먹빛 꽉 찬 동그라미)과 같은 26px 동그라미 · 속은 비고 가운데 점 */
 function _fixMk(cls){ return '<span class="'+cls+'" role="img" aria-label="늘 있는 순간 · 빼지 않아요"><i class="fixmk" aria-hidden="true"></i></span>'; }
+/* ★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] 새로 담지 않는 순간(RitualOpen.RETIRED · 케이크 커팅)은 담겨 있을 때만 칸을 보인다 —
+   옛 초안이 담아 둔 케이크는 보이고 뺄 수 있다. 이 쪽을 연 동안 한 번 보인 칸은 빼도 자리에 남는다(누르자마자 칸이 사라져 줄이 흔들리지 않게 · 잘못 뺐으면 다시 담는다).
+   ★케이크 칸을 늘 보이게(새로 담게) 되살리기 금지 — 2026-10-13 사용자 지시로 삭제 */
+var _pkRetSeen={};
+function _pkShow(k){ var R=RitualOpen; if(!(R.RETIRED&&R.RETIRED[k])) return true; if(R.onOf(S,k)) _pkRetSeen[k]=1; return !!_pkRetSeen[k]; }
 function _pkTile(k){
   var R=RitualOpen, c=R.CARDS[k], always=!!R.ALWAYS[k]||k==='_close', on=always||R.onOf(S,k), nm=R.nameOf(k,S), v=R.firstVideo(k,S);   /* ★[SPEECH_TILE_1012] «있을 때만» 칸(opt) 걷음 · 옛 초안의 영상 · 선물 · 기타는 이름 «준비한 순서» */
   var media=v?('<img src="'+esc(v.small||v.poster)+'" alt="" loading="lazy" decoding="async">'):_pkArt(k);   /* [TILE_PICK] 칸에서는 영상이 저절로 돌지 않는다 — 첫 장면 사진만 */

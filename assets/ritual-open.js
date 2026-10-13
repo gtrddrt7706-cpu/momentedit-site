@@ -59,6 +59,12 @@
   var ALWAYS = { guest: 1, entry: 1 };   // [PREVIDEO_PICK] prevideo 는 뺐다
   var PRE = { guest: 1, prevideo: 1 };          // 본식 시간에 들지 않는다(하객이 앉는 동안)
   var PICKABLE = ORDER.filter(function (k) { return !ALWAYS[k]; });
+  /* ★★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] 케이크 커팅은 새로 담지 않는다 — 자료 23곳 중 본식에 둔 곳 0(D 노션 템플릿 2부 한 곳) · 실제 예식 0/8 ·
+       본식 끝 축하는 축배가 맡는다(예시 넷 모두). ★케이크 커팅을 새로 담게 하기 금지 — 2026-10-13 사용자 지시로 삭제(계약서 v1.14 별도 비용 줄도 함께 걷음).
+       옛 초안(케이크를 담아 둔 식순)은 그대로 돈다 — ORDER · PICKABLE · SECTIONS 에서 빼지 않는다(PICKABLE 에서 빼면 ritual-cue 가 저장된 케이크를 조용히 거른다).
+       새로 담는 목록은 OFFER — 고르기 칸(담겨 있을 때만 보임 · order-preview _pkShow) · 담지 않은 순간 · AI 상담. */
+  var RETIRED = { cake: 1 };
+  var OFFER = PICKABLE.filter(function (k) { return !RETIRED[k]; });
 
   /* ★★[ACTS_FOUR 2026-09-26 코워크 회신 6 3-5] 네 막 — 휴대폰 · PC 같게. 준비한 순서는 실제 자리(인사와 편지 사이 → 10/12 [HEART_ORDER_1012] 덕담과 축가 사이)에 «있을 때만» 칸으로. ★[SPEECH_TILE_1012] 그 칸이 «축사»가 됐다(다른 순간과 같은 칸).
        종전 [FREE_OWN] 맨 아래 따로 묶음(«특별히 준비한 것이 있다면»)은 거뒀다 — 되살리지 말 것. */
@@ -66,7 +72,7 @@
     { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'welcome'] },
     { n: '약속의 순간', d: '말과 반지로 부부가 되는 자리', ks: ['vow', 'ring', 'declare', 'bless'] },   // ★[HEART_ORDER_1012] 덕담은 이 막의 끝 칸 — 선언 바로 뒤이고 자료 B · P · Py · Q 는 선언과 덕담을 한 덩어리로 둔다 · 막마다 넷(PC 한 줄 · pick-v2 «4 · 4 · 4 · 4»)
     { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['free', 'song', 'letter', 'tribute'] },   // [SONG_BACK_1011] 축가는 선언 뒤 · [HEART_ORDER_1012] 부모님께 인사가 이 막의 끝 · 덕담은 «약속의 순간» 끝 칸(10/12 BLESS_AFTER_DECLARE 때 이 막 첫 칸에 두었더니 PC 가 3 · 5 칸으로 어긋났다)
-    { n: '축하 · 닫는 순간', d: '케이크와 축배, 본식 뒤 테이블 인사까지', ks: ['cake', 'toast', '_close', 'table'] }   // [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 줄은 그대로 · 설명이 «본식 뒤»(흐름 묶음 이름과 같은 말)를 말한다 · 옛 «케이크를 자르고 잔을 들고, 인사와 사진으로»
+    { n: '축하 · 닫는 순간', d: '축배를 들고, 본식 뒤 테이블 인사까지', ks: ['cake', 'toast', '_close', 'table'] }   // [CAKE_OFF_1013] 설명에서 케이크를 뺐다(칸은 옛 초안이 담아 뒀을 때만 보인다) · [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 줄은 그대로 · 설명이 «본식 뒤»(흐름 묶음 이름과 같은 말)를 말한다 · 옛 «케이크를 자르고 잔을 들고, 인사와 사진으로»
   ];
 
   /* ── 카드 문구(시안 2판 EV + 명세 4장 고침) ──
@@ -216,8 +222,8 @@
          뼈대 = 화촉(자료 23/23) · 입장 · 맞절(22) · 서약(21) · 성혼 선언(21) · 부모님께 인사(23) + 우리 몫 식전 영상 · 축배(2부가 없어 본식 끝 축하 · 빼면 «끝이 조용한 편» 알림).
          정석 = + 첫인사 · 축사 3분(«덕담 또는 축사» 자리 18/23 · 실제 예식 7/8 · [SPEECH_TILE_1012]) · 축가(19.5/23 · 실제 예식 8곳 중 7곳) — 자료의 «실패 없는 뼈대» 그대로 · 기록 = + 첫인사 · 테이블 인사(우리 고유 · 자료 D 는 2부) ·
          가족 = + 첫인사 · 덕담(B · P · Q — 선언을 읽은 아버님이 덕담까지) · 축가 · 간결 = 뼈대만(A — 축사 · 축가 없이도 «깔끔»).
-         ★예시에 넣지 말 것: 반지(9/23 · 10/11 사장님 «반지교환 이런 건 코스에 빼고 원하면 넣을 수 있게» → «반지 · 케이크») · 케이크(같은 결정 · 자료는 2부) ·
-           편지(0/23 · «서로에게 쓴 말»은 서약이 맡는다) — 셋 다 + 로 담는다(장부 «기본에서 내림»).
+         ★예시에 넣지 말 것: 반지(9/23 · 10/11 사장님 «반지교환 이런 건 코스에 빼고 원하면 넣을 수 있게» → «반지 · 케이크») · 케이크(같은 결정 · 자료는 2부 → 10/13 [CAKE_OFF_1013] 새로 담지 않는다) ·
+           편지(0/23 · «서로에게 쓴 말»은 서약이 맡는다 · 10/13 [LETTER_KEEP_1013] 카드는 남긴다) — 반지 · 편지는 + 로 담는다(장부 «기본에서 내림»).
          ★«약속»(promise · 편지 중심)은 걷었다 — 저장된 초안의 pickFrom:'promise' 는 exampleOf 가 null 이라 «직접 고르셨어요.»(담은 순간은 그대로 · EX_BRIEF 와 같은 길). 되살리지 말 것.
          ★테이블 인사는 기록에만 — 6테이블 9분이라 축가와 함께면 늦어진 날 단체 사진 14분(SHORT_MIN 16 아래 · 5테이블까지는 괜찮다) · 사장님 10/12 «지금처럼»(테이블마다 한 장 따로 남기지 않는다).
          ★숫자(본식 · 테이블 인사 · 단체 사진)는 엔진이 잰다 — scripts/audit/open-course.mjs 의 WANT · SEC. 넷 모두 알림 없음 · 홈 · 계약서의 «본식 약 8~25분»(RANGE) 그대로. */
@@ -990,7 +996,7 @@
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
-    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
+    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
