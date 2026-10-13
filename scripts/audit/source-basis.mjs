@@ -72,6 +72,34 @@ function priorCheck(d, strict) {
   return { bad, note };
 }
 
+/* ★[COUNT_STALE_1013 2026-10-13] 자료를 더하면 손으로 적은 «총수»도 바뀐다 — 장부를 다시 만들 때(--write) 자료 수가 바뀌었으면
+   옛 총수를 «전체»로 적은 줄(«/18» · «자료 18곳» · «18개 중»)과 옛 실제 예식 수(«실제 예식 n/7» · «실제 예식 7곳»)를 찾아 하나라도 남으면 장부를 쓰지 않는다.
+   까닭: S(18번째)를 넣을 때 자료표 문장 둘(2부 «자료 1곳만» · 신부 측 먼저 목록)을 놓쳤고, T · U(23개)를 넣을 때 «/18 · 18곳 · 자료 18개»가
+   자료표 7줄 · 코드 · 주석 · AI 상담 지식 11줄에 남아 있었다(손으로 grep 해 찾음 · 이 검사를 그 판에 돌려 18줄 모두 잡는 것을 확인). 결정 기록(prior · decided · conflict · was)은 그날의 근거라 그대로 둔다.
+   ★«목록» 문장(어느 자료가 그렇다)은 이 검사가 못 잡는다 — 새 자료가 ● 인 줄의 근거 목록은 사람이 다시 읽는다(3단계 대본 검토 11장). */
+const COUNT_SCAN = SCAN.concat(['automation/tests/merge-guard.sh']);
+function prevTotals() {
+  if (!fs.existsSync(MD)) return null;
+  const m = fs.readFileSync(MD, 'utf8').match(/## 5\. 자료 (\d+)개 \(실제 예식 (\d+)곳\)/);
+  return m ? { n: +m[1], real: +m[2] } : null;
+}
+function staleCounts(d, prev, lines) {
+  const ks = Object.keys(d.sources || {}), n = ks.length, real = ks.filter((k) => d.sources[k].real).length, out = [], pats = [];
+  if (!prev) return out;
+  if (prev.n !== n) pats.push(new RegExp('/' + prev.n + '(?![\\d.])'), new RegExp('자료 ' + prev.n + '(?:곳|개)'), new RegExp('(?<![\\d.])' + prev.n + '(?:곳|개) 중'));
+  if (prev.real !== real) pats.push(new RegExp('실제 예식 [\\d.]+/' + prev.real + '(?![\\d.])'), new RegExp('실제 예식 ' + prev.real + '(?:곳|개)'));
+  if (!pats.length) return out;
+  const hit = (t) => pats.some((p) => p.test(t)), HIST = { prior: 1, decided: 1, conflict: 1, was: 1, data: 1, sources: 1 };
+  (function walk(o, at) {
+    if (typeof o === 'string') { if (hit(o)) out.push('자료표 ' + at + ' «' + o.slice(0, 60) + '…»'); return; }
+    if (Array.isArray(o)) { o.forEach((x, i) => walk(x, at + '[' + i + ']')); return; }
+    if (o && typeof o === 'object') Object.keys(o).forEach((k) => { if (!HIST[k]) walk(o[k], at + (o.name ? '«' + o.name + '»' : '') + '.' + k); });
+  })(d, '');
+  (lines || COUNT_SCAN.filter((f) => fs.existsSync(f)).reduce((a, f) => a.concat(fs.readFileSync(f, 'utf8').split('\n').map((l, i) => [f, i + 1, l])), []))
+    .forEach(([f, i, l]) => { if (/자료|실제 예식|장부/.test(l) && hit(l)) out.push(f + ':' + i); });   // «장부» — 이어지는 줄(«편지(0/18 …(장부 …)») · 10/13 깨 보기에서 놓친 한 줄
+  return out;
+}
+
 function validate(d) {
   const bad = [];
   const keys = Object.keys(d.sources || {});
@@ -224,14 +252,19 @@ if (arg === '--selftest') {
   const t10 = JSON.parse(JSON.stringify(d)); const cfm = t10.moments.find((m) => m.conflict); if (cfm) { delete cfm.decided; cfm.state = '그대로'; }   // 부딪힌 줄을 결정 없이 닫음
   const t11 = JSON.parse(JSON.stringify(d)); t11.courses.list.pop();                                                // [EX_STD_1012] 예시 하나의 «왜»가 빠짐(엔진과 어긋남)
   const t12 = JSON.parse(JSON.stringify(d)); delete t12.courses.conflict[0].decided;                                 // [EX_STD_1012] 부딪힌 결정에 사장님 결정이 없음
+  /* [COUNT_STALE_1013] 자료가 하나 늘었는데 옛 총수(«n/옛 총수»)가 남은 자료표 · 코드 줄 — 빨강이어야 한다 · 자료 수가 그대로면 검사하지 않는다 */
+  const N = Object.keys(d.sources).length, R = Object.keys(d.sources).filter((k) => d.sources[k].real).length;
+  const t13 = JSON.parse(JSON.stringify(d)); t13.moments[0].concept += ' · 기본 3/' + (N - 1);
+  const staleOk = staleCounts(t13, { n: N - 1, real: R }, []).length > 0 && staleCounts(d, { n: N, real: R }, [['x.js', 1, '자료 ' + (N - 1) + '곳 중 3곳']]).length === 0
+    && staleCounts(d, { n: N - 1, real: R - 1 }, [['x.js', 1, '실제 예식 5/' + (R - 1)]]).length > 0;
   const fails = [t1, t2, t3, t4, t9, t10, t11, t12].map((t) => validate(t).length > 0).concat([t5, t6, t7, t8].map((t) => priorCheck(t, true).bad.length > 0));
   const md = render(d).replace(/\| \*\*유지\*\* \|/, '| **추가** |');            // 손으로 고친 장부
   const mdFail = md !== render(d);
   /* 지금 자료표는 «모양»만 본다(strict 아님) — 코드에 새 결정 표식이 생겼다고 다른 작업의 PR 이 깨 보기에서 막히면 안 된다.
      ★첫 판의 깨 보기가 여기서 strict 로 돌아, 같은 PR 에서 AI 지식 줄에 표식을 단 것만으로 빨강이 났다(2026-10-11). 엄격한 검사는 --write 몫이다. */
   const realOk = priorCheck(d, false).bad.length === 0;
-  if (fails.every(Boolean) && mdFail && realOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 13종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN] [STAGE1_CLOSE] [EX_STD_1012]'); process.exit(0); }
-  console.log('FAIL [SOURCE_BASIS] 깨 보기 중 빨강이 안 난 것이 있다', fails, mdFail, realOk); process.exit(1);
+  if (fails.every(Boolean) && mdFail && realOk && staleOk) { console.log('ok   [SOURCE_BASIS] 깨 보기 14종 모두 빨강 · 지금 자료표는 초록 [PRIOR_SEEN] [STAGE1_CLOSE] [EX_STD_1012] [COUNT_STALE_1013]'); process.exit(0); }
+  console.log('FAIL [SOURCE_BASIS] 깨 보기 중 빨강이 안 난 것이 있다', fails, mdFail, realOk, staleOk); process.exit(1);
 }
 
 if (arg === '--closed') {   // [STAGE1_CLOSE] 1단계가 닫혔나
@@ -249,7 +282,10 @@ const bad = validate(d).concat(pc.bad);
 if (bad.length) { bad.forEach((b) => console.log('FAIL [SOURCE_BASIS] ' + b)); process.exit(1); }
 pc.note.forEach((n) => console.log('참고 [SOURCE_BASIS] ' + n + ' — 다음에 자료표를 고칠 때 읽는다'));
 const out = render(d);
-if (arg === '--write') { fs.writeFileSync(MD, out); console.log('ok   [SOURCE_BASIS] 장부를 다시 만들었다 → ' + MD + ' · 바꾸는 줄의 예전 결정 다 읽음 [PRIOR_SEEN]'); process.exit(0); }
+if (arg === '--write') {
+  const pv = prevTotals(), st = staleCounts(d, pv);   // [COUNT_STALE_1013]
+  if (st.length) { st.forEach((x) => console.log('FAIL [COUNT_STALE_1013] 옛 총수가 남은 줄 — ' + x)); console.log('FAIL [COUNT_STALE_1013] 자료 ' + pv.n + '개(실제 예식 ' + pv.real + '곳) → ' + Object.keys(d.sources).length + '개로 바뀌었다 · 위 줄의 숫자를 고친 뒤 다시 --write'); process.exit(1); }
+  fs.writeFileSync(MD, out); console.log('ok   [SOURCE_BASIS] 장부를 다시 만들었다 → ' + MD + ' · 바꾸는 줄의 예전 결정 다 읽음 [PRIOR_SEEN]'); process.exit(0); }
 const cur = fs.existsSync(MD) ? fs.readFileSync(MD, 'utf8') : '';
 if (cur !== out) { console.log('FAIL [SOURCE_BASIS] 장부가 자료표와 다르다 — node scripts/audit/source-basis.mjs --write 로 다시 만든다(손으로 고치지 않는다)'); process.exit(1); }
 console.log('ok   [SOURCE_BASIS] 순간 ' + d.moments.length + '개 · 자료 ' + Object.keys(d.sources).length + '개 · 모든 줄에 근거 · 장부 = 자료표');
