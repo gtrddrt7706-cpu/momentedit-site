@@ -12998,6 +12998,10 @@ chk 'SCENE_FROM_SEQ' mypage.html 1
 chk 'NO_LIVE_SONG_KB' assets/advisor-kb.js 2   # [SONG_BACK_1011] 두 줄 다 «→ SONG_BACK_1011» 로 넘어간 기록 — 뜻은 아래 SONG_BACK_1011 묶음이 지킨다
 nochk '축가·영상 상영처럼' assets/advisor-kb.js
 chk 'SPEECH_NO_NONE' assets/ritual-cue.js 2
+# ★[TOAST_NONE_OFF_1012 2026-10-12 사장님 «빼기 (추천)»] 새 코스는 87 «축사는 따로 두지 않았습니다…»를 내지 않는다(축사가 두 분이 고르는 순간이 됨 · 실전 대본에 «없는 순서» 알림 없음 · 뒷문장은 짐작) ·
+#   옛 코스(옛 초안)는 그대로 · 동작은 merge-extra-0926 P1-6 이 잰다(새 코스 축사 · 영상 · 없음 판 모두 87 없음 · 옛 코스 있음) · 새 코스에 되살리지 말 것
+chk 'TOAST_NONE_OFF_1012' assets/ritual-cue.js 5
+chk 'TOAST_NONE_OFF_1012' scripts/audit/merge-extra-0926.mjs 2
 chk 'SCRIPT_LAB' order-preview.html 3
 chk 'PV_TOP' order-preview.html 1
 chk 'NOTICE_QUEUE' assets/ritual-open.js 1

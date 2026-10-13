@@ -48,7 +48,9 @@ await safe('P1-6 축사를 담은 날 «축사는 따로 두지 않았습니다�
   const mk = (fw) => ({ course: openCourse, on: { toast: 1, free: 1, declare: 1 }, freeWhat: fw, freeLen: '2' });
   const slugs = (S) => { const r = C.build(S, { mode: 'console' }); return r.cues.map((c) => c.slug); };
   const sp = slugs(mk('speech')), vd = slugs(mk('video'));
-  ok('P1-6 준비한 순서가 축사면 narr-toast-none 빠짐 · 영상이면 그대로 [SPEECH_NO_NONE]', sp.indexOf('narr-toast-none') < 0 && vd.indexOf('narr-toast-none') > -1 && sp.indexOf('toast-toast') > -1, JSON.stringify({ sp: sp.filter((x) => /toast/.test(x)), vd: vd.filter((x) => /toast/.test(x)) }));
+  /* ★[TOAST_NONE_OFF_1012 2026-10-12 사장님 «빼기 (추천)»] 종전 «영상이면 그대로»를 뒤집었다 — 새 코스는 축사를 담든 안 담든 87 이 없다 · 옛 코스는 그대로 낸다 */
+  const none = slugs({ course: openCourse, on: { toast: 1, declare: 1 } }), oldC = slugs({ course: 'damback', on: {} });
+  ok('P1-6 새 코스는 축사 · 영상 · 축사 없음 어느 판에도 narr-toast-none 이 없다 · 옛 코스는 그대로 · 선창은 남는다 [SPEECH_NO_NONE] [TOAST_NONE_OFF_1012]', [sp, vd, none].every((s) => s.indexOf('narr-toast-none') < 0 && s.indexOf('toast-toast') > -1) && oldC.indexOf('narr-toast-none') > -1, JSON.stringify({ sp: sp.filter((x) => /toast/.test(x)), vd: vd.filter((x) => /toast/.test(x)), none: none.filter((x) => /toast/.test(x)), old: oldC.filter((x) => /toast/.test(x)) }));
   const pour = slugs({ course: openCourse, on: { toast: 1, free: 1 }, freeWhat: 'speech', freeLen: '2', toast: 'toast', wine: 'mix' }).filter((x) => /toast/.test(x));
   ok('P1-6 축배만 + (옛 값) 두 와인 + 축사 — [WINE_POUR_OFF] 붓기 없음 · 선창은 남는다', pour.every((x) => x.indexOf('toast-pour') < 0) && pour.indexOf('toast-toast') > -1, pour.join(' '));
 });
