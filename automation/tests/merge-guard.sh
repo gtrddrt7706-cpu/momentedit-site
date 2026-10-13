@@ -18158,3 +18158,6 @@ chk 'THANKS_WORD_1013' order-preview.html 1
 nochk '의 감사 인사를 적어 주세요' order-preview.html                               # 감사 인사는 이제 다른 순간 이름
 chk 'FLOWER_OFF_OLD_1013' mypage.html 1
 chk 'FLOWER_OFF_OLD_1013' admin.html 1
+# ── 2026-10-13 밤 줄 검토 덧 — 감사문을 고른 날 «남는 장면» [THANKS_SHOT_1013]
+chk 'THANKS_SHOT_1013' assets/ritual-open.js 1
+chk 'THANKS_SHOT_1013' scripts/audit/open-course.mjs 1
