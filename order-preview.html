@@ -10,7 +10,7 @@
 <title>우리 예식 짓기 · Moment Edit</title><!-- [RIT_NAME_TWO 2026-09-27 4부 25] 이름은 둘 — 마이페이지 행 «식순» · 화면 안 «우리 예식 짓기» -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 /* [SEL_SEAL 2026-10-03 사장님 «파란 거 말고 우리 메인 홈페이지에서 사용한 진사 색상으로»] 글을 고를 때 진사 바탕 · 메인 페이지와 같은 줄 */
 ::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}
@@ -2090,15 +2090,15 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-mu .mu-ph::after{content:'';position:absolute;z-index:1;inset:0;background:radial-gradient(ellipse 72% 44% at 50% 52%,rgba(20,16,12,.42),rgba(20,16,12,0) 100%)}   /* 가사 뒤만 살짝 어둡게 */
 .ls-mu .mu-top{position:absolute;z-index:2;left:14px;right:56px;top:10px;margin:0;display:flex;flex-direction:column;gap:1px;color:#FBF6EE;text-shadow:0 1px 6px rgba(0,0,0,.45);pointer-events:none}
 .ls-mu .mu-ttr{display:flex;align-items:center;gap:8px;min-width:0}
-.ls-mu .mu-tt{flex:0 1 auto;min-width:0;font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:italic;font-weight:500;font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mu .mu-tt{flex:0 1 auto;min-width:0;font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:normal;font-weight:500;font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* [LY_KO_TOP] 가사 영문 때문에 Cormorant 기울임꼴(1,500)을 불러온 뒤에도 곡 제목은 지금 보이던 대로 바로 선 글씨(종전 italic 이었지만 글꼴이 없어 바로 서 보였다) */
 .ls-mu .mu-tt.ko{font-family:'Noto Serif KR','Nanum Myeongjo',Georgia,serif;font-style:normal;font-weight:500;font-size:14px;line-height:24px;letter-spacing:-.01em}   /* [TT_KO] 한글 제목은 명조 14px · 줄 높이는 영문 제목(20 × 1.2)과 같게 = 가수 줄이 같은 자리 · 시험실 18px 은 빌더 다섯 단계([RIT_TYPE5])에 없어 20px */
 .ls-mu .mu-ta{font-size:11px;line-height:1.4;letter-spacing:.06em;color:rgba(251,246,238,.86);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ls-mu .mu-ly{position:absolute;z-index:2;left:10px;right:10px;top:52px;bottom:50px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none}   /* [LY_LOWER] 제목 줄과 재생 줄 사이 */
 .ls-mu .mu-lines{display:flex;flex-direction:column;align-items:center;gap:1px;max-width:100%;text-shadow:0 1px 2px rgba(0,0,0,.66),0 0 14px rgba(0,0,0,.5);opacity:0;transform:translateY(5px);transition:opacity .22s cubic-bezier(.22,1,.36,1),transform .22s cubic-bezier(.22,1,.36,1)}
 .ls-mu .mu-lines.cur{opacity:1;transform:none}   /* [LY_ON_CUE] 그 줄이 불리는 동안만 · [LY_LEAD] 바뀔 때 0.12초 흐려졌다 새 줄 */
-.ls-mu .mu-en{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:italic;font-weight:600;font-size:16px;font-size:clamp(15px,5cqw,18px);line-height:1.2;letter-spacing:.01em;color:#EBD08A;text-wrap:balance}
-.ls-mu .mu-ko{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;font-size:14px;font-size:clamp(12px,3.9cqw,14px);line-height:1.45;letter-spacing:-.01em;color:#FFFFFF;word-break:keep-all;text-wrap:balance}
-.ls-mu .mu-ko.mu-nt{font-size:16px;font-size:clamp(13px,4.5cqw,16px);line-height:1.4}
+.ls-mu .mu-en{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:15px;font-size:clamp(14px,4.4cqw,16px);line-height:1.25;letter-spacing:.01em;color:#FFFFFF;text-wrap:balance}   /* ★[LY_KO_TOP 2026-10-13 사장님 참고 사진 «사람들은 / People say»] 영문 = 아래 · 흰색 · 살짝 기울임(Cormorant 진짜 기울임꼴 · 위 글꼴 주소 1,500) · 작게 */
+.ls-mu .mu-ko{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;font-size:13px;font-size:clamp(12px,3.6cqw,13px);line-height:1.45;letter-spacing:-.01em;color:#EBD08A;word-break:keep-all;text-wrap:balance}   /* [LY_KO_TOP] 한글 = 위 · 노란색(종전 영문 금빛) · 작게 */
+.ls-mu .mu-ko.mu-nt{font-size:14px;font-size:clamp(13px,4cqw,15px);line-height:1.4}   /* 한글만 있는 곡(원래 가사) — 같은 노란색 · 조금 크게 */
 .ls-mu .mu-wt{font-size:12.5px;font-weight:500;line-height:1.5;color:#FBF6EE;letter-spacing:.02em}   /* 곡을 받는 동안 그 카드 가운데 한 줄 */
 .ls-mu .mu-tp{position:absolute;z-index:3;left:0;right:0;bottom:0;height:62px;display:flex;align-items:center;justify-content:center;gap:20px;padding:0 0 14px;background:linear-gradient(0deg,rgba(20,16,12,.5),rgba(20,16,12,.18) 58%,rgba(20,16,12,0));pointer-events:none}   /* [CAR_TRANSPORT] ‹ ▶ › 사진 안 아래 가운데 */
 .ls-mu .mu-tb{flex:none;width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;background:none;display:grid;place-items:center;color:#FBF6EE;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));transition:opacity .2s;-webkit-tap-highlight-color:transparent}
@@ -2126,7 +2126,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-mu .mu-fph img{display:block;width:48px;height:48px;border-radius:6px;object-fit:cover;-webkit-user-drag:none}
 .ls-mu .mu-fck{position:absolute;right:-6px;bottom:-6px;width:18px;height:18px;display:grid;place-items:center;border-radius:999px;background:var(--card);line-height:0}
 .ls-mu .mu-ftx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
-.ls-mu .mu-ftt{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:italic;font-weight:500;font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mu .mu-ftt{font-family:'Cormorant Garamond','Noto Serif KR',Georgia,serif;font-style:normal;font-weight:500;font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ls-mu .mu-ftt.ko{font-family:'Noto Serif KR','Nanum Myeongjo',Georgia,serif;font-style:normal;font-size:14px;line-height:24px;letter-spacing:-.01em}
 .ls-mu .mu-fta{font-size:11px;line-height:1.4;letter-spacing:.06em;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ls-mu .mu-fgo{flex:none;display:inline-flex;align-items:center;gap:3px;font-size:12.5px;color:var(--sub)}
@@ -2138,9 +2138,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   .ls-mu .mu-tt{font-size:22px}
   .ls-mu .mu-tt.ko{font-size:16px;line-height:26.4px}
   .ls-mu .mu-ly{left:40px;right:40px;top:70px;bottom:72px}
-  .ls-mu .mu-en{font-size:clamp(20px,calc(2.4cqw + 8px),26px)}
-  .ls-mu .mu-ko{font-size:clamp(15px,calc(1.5cqw + 7px),19px)}
-  .ls-mu .mu-ko.mu-nt{font-size:clamp(17px,calc(1.8cqw + 8px),22px)}
+  .ls-mu .mu-en{font-size:clamp(17px,calc(1.8cqw + 7px),21px)}   /* [LY_KO_TOP] 넓은 카드도 작게 */
+  .ls-mu .mu-ko{font-size:clamp(14px,calc(1.2cqw + 7px),17px)}
+  .ls-mu .mu-ko.mu-nt{font-size:clamp(15px,calc(1.5cqw + 7px),19px)}
   .ls-mu .mu-tp{height:84px;gap:32px;padding-bottom:20px}
   .ls-mu .mu-dots{bottom:10px}
   .ls-mu .mu-tb svg{width:26px;height:26px}

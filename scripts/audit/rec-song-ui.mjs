@@ -151,7 +151,12 @@ try {
     // 4 — 문 앞 줄(37.5~40.4)은 안 뜬다 · 문이 열리는 줄(40.4)은 그 순간 · 사진이 밝아진다
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 38.6; }, null, { timeout: 15000 }).catch(() => {}); const V4a = await view(f);
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 40.9; }, null, { timeout: 15000 }).catch(() => {}); await f.waitForTimeout(250); const V4b = await view(f); await shot(f, W, '4-lyric');
-    ok(`${W} 4 가사 — 문이 열리기 전에 끝나는 줄 «before the door»는 안 뜬다 · 문이 열리는 줄 «line one · 첫 줄»은 그 순간 · 사진이 밝아진다(lit) [LY_FROM_HOOK · LY_ON_CUE]`, V4a.ly === '' && !V4a.lit && V4b.ly === 'line one첫 줄' && V4b.lyOn && V4b.lit, { V4a: { x: V4a.rec.x, ly: V4a.ly, lit: V4a.lit }, V4b: { x: V4b.rec.x, ly: V4b.ly, lit: V4b.lit } });
+    ok(`${W} 4 가사 — 문이 열리기 전에 끝나는 줄 «before the door»는 안 뜬다 · 문이 열리는 줄 «첫 줄 · line one»은 그 순간 · 사진이 밝아진다(lit) [LY_FROM_HOOK · LY_ON_CUE]`, V4a.ly === '' && !V4a.lit && V4b.ly === '첫 줄line one' && V4b.lyOn && V4b.lit, { V4a: { x: V4a.rec.x, ly: V4a.ly, lit: V4a.lit }, V4b: { x: V4b.rec.x, ly: V4b.ly, lit: V4b.lit } });
+    // 4b ★[LY_KO_TOP 2026-10-13 사장님 참고 사진 «사람들은 / People say»] 한글이 위(노란색) · 영문이 아래(흰색 · 기울임) · 글씨는 종전보다 작게
+    const LY4 = await f.evaluate(() => { const b = document.querySelector('.ls-mu .mu-slide.cur .mu-lines'), k = b && b.children[0], n = b && b.children[1], cs = (x) => x && getComputedStyle(x);
+      return { first: k && k.className, second: n && n.className, koC: cs(k) && cs(k).color, enC: cs(n) && cs(n).color, enI: cs(n) && cs(n).fontStyle, koPx: cs(k) && parseFloat(cs(k).fontSize), enPx: cs(n) && parseFloat(cs(n).fontSize), koTop: k && n ? k.getBoundingClientRect().top < n.getBoundingClientRect().top : null }; });
+    ok(`${W} 4b [LY_KO_TOP] 가사 한글이 위 노란색(${LY4.koC} · ${LY4.koPx}px) · 영문이 아래 흰색 기울임(${LY4.enC} · ${LY4.enI} · ${LY4.enPx}px) · 작게`,
+      /^mu-ko/.test(LY4.first || '') && LY4.second === 'mu-en' && LY4.koTop === true && LY4.koC === 'rgb(235, 208, 138)' && LY4.enC === 'rgb(255, 255, 255)' && LY4.enI === 'italic' && LY4.koPx <= (W < 700 ? 13 : 17) && LY4.enPx <= (W < 700 ? 16 : 21), LY4);
     // 5
     await f.click('.ls-mu [data-fk="mucarnext"]'); await f.waitForTimeout(600); const V5a = await view(f);
     await f.click('.ls-mu [data-fk="mucarplay"]'); await f.waitForTimeout(700); const V5b = await view(f);
@@ -254,7 +259,7 @@ try {
     await o6.f.click('.ls-mu [data-fk="mucarplay"]'); await o6.f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.prev === 'r1' && r.x != null; }, null, { timeout: 15000 }).catch(() => {});
     const X15 = await o6.f.evaluate(() => EntryMusic._t.rec().x), PV15 = await o6.f.evaluate(() => EntryMusic._t.pv());
     await o6.f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 40.9; }, null, { timeout: 15000 }).catch(() => {}); await o6.f.waitForTimeout(250); const V15c = await view(o6.f);
-    ok(`${W} 15b 짧은 판 미리 듣기 자리 · 가사는 원곡 시각 그대로 — 문 열림 12초 앞(${X15 == null ? '-' : X15.toFixed(2)}초)부터 판 끝(66초)까지 · 40.4초 줄 «line one · 첫 줄»이 그 순간 [PREV_12_60_1013]`, X15 != null && X15 >= 28 && X15 < 30.5 && V15c.ly === 'line one첫 줄' && V15c.lit
+    ok(`${W} 15b 짧은 판 미리 듣기 자리 · 가사는 원곡 시각 그대로 — 문 열림 12초 앞(${X15 == null ? '-' : X15.toFixed(2)}초)부터 판 끝(66초)까지 · 40.4초 줄 «첫 줄 · line one»이 그 순간 [PREV_12_60_1013]`, X15 != null && X15 >= 28 && X15 < 30.5 && V15c.ly === '첫 줄line one' && V15c.lit
       && !!PV15 && Math.abs(PV15.x0 - (PV15.H - 12)) < 0.01 && Math.abs(PV15.d - Math.min(60, 66 - PV15.x0)) < 0.02, { X15, ly: V15c.ly, lit: V15c.lit, x: V15c.rec.x, PV15 });
     await o6.f.click('.ls-mu [data-fk="mucarplay"]'); await o6.f.waitForTimeout(300);
     await o6.f.click('.ls-mu [data-fk="mucarpick"]'); await o6.f.waitForFunction(() => !!document.querySelector('.em-scene') && EntryMusic._t.scene().plan, null, { timeout: 30000 }).catch(() => {}); await o6.f.waitForTimeout(300);
