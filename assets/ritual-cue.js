@@ -662,7 +662,8 @@
       /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시] 새 코스 입장은 도착 큐(«두 사람이 나란히 있습니다 · 잠시, 서로를 바라봐 주세요» ·
          바라보기 / 맞절 사람 순간)를 싣지 않는다 — 문 앞 멘트 한 줄로 걸어 들어오고, 다음 순간(첫인사)이 디렉터 GO 로 연다.
          옛 코스는 저장해 둔 소리가 그대로여야 해서 종전대로 둘(도착 큐 포함)이다. 되살리지 말 것.
-         ★[MATJEOL_1011 2026-10-11] 맞절만은 사장님 결정(«입장 끝에 늘 넣기»)으로 다시 들어왔다 — 아래 concat 의 132 한 줄. 바라보기 도착 큐(narr-entry-out)는 여전히 없다. */
+         ★[MATJEOL_1011 2026-10-11] 맞절만은 사장님 결정(«입장 끝에 늘 넣기»)으로 다시 들어왔다 — 132 한 줄. 바라보기 도착 큐(narr-entry-out)는 여전히 없다.
+         ★[MATJEOL_SPLIT_1013 2026-10-13] 그 132 는 이제 입장 끝이 아니라 바로 다음 순간(matjeol)이 싣는다. */
       var openC = !!(D.COURSES[S.course] && D.COURSES[S.course].open);
       return [cue({
         k: 'entry', blockN: '신랑·신부 입장', slug: 'entry-' + S.entry, name: '신랑·신부 입장',
@@ -703,14 +704,21 @@
           live: { t: '두 분이 서로 바라봄', est: PARAM.look.lookSec,
             self: true, doing: 'move', duck: -12, consoleOnly: true, hintNext: '두 분이 다시 앞을 보면', previewPost: [] }
         });
-      })()].slice(0, openC ? 1 : 2).concat(openC ? [cue({
-        /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로)] 새 코스 입장 끝 — 두 분이 앞에 나란히 서면 디렉터 GO → 맞절을 청하는 한 줄(132) →
-           마주 보고 맞절(3초 숙이고 · 3초 멈추고 · 3초 일어나기) → 다음 순간은 디렉터 GO(«두 분이 다시 앞을 보면»).
-           [ENTRY_OUT_OFF] 의 «바라보기» 도착 큐(narr-entry-out)는 여전히 없다 — 맞절만 늘 있다(고를 것 없음). 절 영상은 만들지 않는다(BOW_VIDEO_OFF · 바라보기 영상) */
-        k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
+      })()].slice(0, openC ? 1 : 2);   // [ENTRY_OUT_OFF] · ★[MATJEOL_SPLIT_1013] 맞절(132)은 이제 다음 순간 matjeol 이 싣는다 — 입장 끝 concat 으로 되돌리지 말 것
+    },
+
+    /* ★★[MATJEOL_SPLIT_1013 2026-10-13 사장님 «맞절 만들자 · 대본이랑 포즈 관련 자료 줄 테니 우선 형태 뼈대만» · «입장 이후 맞절»] 맞절은 입장 바로 뒤의 따로 순간이다(새 코스 · 늘 있음).
+         줄 · 사람 순간은 [MATJEOL_1011](10/11 «입장 끝에 늘 넣기»)의 그것 그대로 — 두 분이 앞에 나란히 서면 디렉터 GO → 맞절을 청하는 한 줄(132) →
+         마주 보고 맞절(3초 숙이고 · 3초 멈추고 · 3초 일어나기) → 다음 순간은 디렉터 GO(«두 분이 다시 앞을 보면»).
+         [ENTRY_OUT_OFF] 의 «바라보기» 도착 큐(narr-entry-out)는 여전히 없다 · 절 영상은 만들지 않는다(BOW_VIDEO_OFF · 바라보기 영상).
+         ★콘솔은 이 순간을 입장 묶음으로 잇는다 — 입장 곡이 -12 로 낮게 이어지고 다음 묶음에서 줄어든다(console ESD_BUNDLE · [ENTRY_SCENE_DAY] 그대로).
+         대본 · 포즈 자료가 오면 여는 줄(NARR.entryBow) · 사람 순간 글(live.t)을 고친다 — 이야기 장면(ritual-story LIVE 키)도 같은 글로 */
+    matjeol: function (S) {
+      return [cue({
+        k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
         fire: 'manual', hint: '두 분이 앞에 나란히 서면',
         live: { t: '두 분이 마주 보고 맞절 (3초 숙이고 · 3초 멈추고 · 3초 일어나기)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
-      })] : []);   // [ENTRY_OUT_OFF] · [MATJEOL_1011]
+      })];   // [MATJEOL_1011] 의 큐 그대로 · k 와 blockN 만 맞절
     },
 
     welcome: function (S) {

@@ -7680,6 +7680,25 @@ chk 'MATJEOL_1011' api/_ritual-kb.js 1
 chk 'MATJEOL_1011' scripts/audit/open-course.mjs 5
 chk 'MATJEOL_1011' scripts/check-ritual-cue.js 2
 chk "'narr-entry-bow'" assets/ritual-cue.js 2
+# ★★[MATJEOL_SPLIT_1013 2026-10-13 사장님 «맞절 만들자 · 이벤트 대본이랑 포즈 관련 자료 줄 테니 우선 형태 뼈대만» · «입장 이후 맞절»] 맞절 = 입장 바로 뒤의 따로 순간(matjeol · 늘 있음)
+#   줄(132) · 15초 · 3·3·3 장면은 그대로 옮겼다 · 콘솔은 입장 묶음으로 잇는다(esdIn · 곡이 -12 로 이어짐) · open-course 가 순서 · 큐(k · blockN) · 몫 · 카드 · 영상을 잰다
+#   입장 끝 concat · 입장 몫 +15초로 되돌리지 말 것
+chk 'MATJEOL_SPLIT_1013' assets/ritual-open.js 10
+chk 'MATJEOL_SPLIT_1013' assets/ritual-cue.js 3
+chk 'MATJEOL_SPLIT_1013' assets/ritual-data.js 1
+chk 'MATJEOL_SPLIT_1013' assets/ritual-story.js 2
+chk 'MATJEOL_SPLIT_1013' order-preview.html 6
+chk 'MATJEOL_SPLIT_1013' api/_ritual-kb.js 2
+chk 'MATJEOL_SPLIT_1013' console.html 1
+chk 'MATJEOL_SPLIT_1013' scripts/audit/open-course.mjs 4
+chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome'," assets/ritual-open.js 1
+chk "var ALWAYS = { guest: 1, entry: 1, matjeol: 1 };" assets/ritual-open.js 1
+chk "k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow'" assets/ritual-cue.js 1
+chk "function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol')); }" console.html 1
+chk "'신랑·신부 맞절': {" assets/ritual-story.js 1
+nochk "})()\].slice(0, openC ? 1 : 2).concat(openC ? \[cue({" assets/ritual-cue.js     # 입장 끝 concat 으로 되돌리지 말 것
+nochk "et\[0\] + BOW\[0\], et\[1\] + BOW\[1\]" assets/ritual-open.js                          # 입장 몫 +15초로 되돌리지 말 것
+nochk "if (ESD.run && (c.k !== 'entry' || esdMain(c)))" console.html                   # 맞절에서 입장 곡이 끊기지 않게
 # ★★[THANKS_IN_VOW 2026-10-11 사장님 «감사문 — 서약 카드 안에서 고르기»(추천대로 · 오전 «새 순간 카드»를 바꿈)] 서약 카드 «무엇을 읽나요 · 서약 / 감사문»
 #   감사문 = 여는 말 133 · 하객 쪽을 보고 읽기 · 마지막 두 문장(THANKSBOTH) 함께 · 맺는 말 없음 · 글칸은 서약과 같은 자리 · 시간 −14초
 #   open-course 가 엔진 · 시간 · 이름 · 미리듣기 주소를, thanks-in-vow 가 화면(칩 · 이름 · 예시 넷 · 두 분 함께 · 흐름 · 대본 · 되돌리면 글 그대로)을 잰다

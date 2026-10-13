@@ -19,7 +19,7 @@
 
   /* ── 순서(v4 · 고정) ────────────────────────────────────────────────────────
      ★두 분이 순서를 바꾸지 않는다(↑↓ 없음 · 사장님 9/25). 담으면 이 자리에 들어간다.
-     guest(하객 맞이)는 목록에 안 보이고 늘 들어간다. entry 와 _close 는 «늘 있어요». */
+     guest(하객 맞이)는 목록에 안 보이고 늘 들어간다. entry · matjeol(맞절) · _close 는 «늘 있어요»([MATJEOL_SPLIT_1013]). */
   /* ★★[SPEECH_IN_FREE 2026-09-25 코워크 회신 둘째 판 · 사장님 결정 4] «축하의 말»을 따로 두지 않는다 —
        친구 · 가족의 축사는 «준비한 순서»의 한 판이다(덕담 뒤 · 축가 앞 [HEART_ORDER_1012 10/12 · 종전 부모님께 인사 뒤] · 10분 안 · 드물게 쓰임).
        첫째 판의 speech 칸(선언 바로 뒤)은 거뒀다. 되살리지 말 것 — 사장님 «준비한 순서만 추가 가능하게».
@@ -52,7 +52,12 @@
        편지 · 감사 한마디는 인사 바로 앞(D «특별 순서 → 양가 부모님께 인사» · G «감사 한마디 → 인사»). 10/11 참고식순 기준표 4장 «맞춰 본 뼈대»(감사가 마음 칸 뒤)가 결정 대기로 남아 있던 몫이다.
        종전 v4(9/25) «덕담 · 축가 → 인사 → 준비한 순서 → 편지»(준비한 순서 = 인사 뒤 · 편지 = 마지막 큰 순간)는 걷었다 — 되살리지 말 것.
        우리 컨셉: 행진이 없어 인사 뒤에는 2부 몫(케이크 · 축배)과 닫는 인사가 온다 */
-  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];
+  /* ★★[MATJEOL_SPLIT_1013 2026-10-13 사장님 «맞절 만들자 · 이벤트 대본이랑 포즈 관련 자료 줄 테니 우선 형태 뼈대만» · «입장 이후 맞절»]
+       맞절이 입장 끝 15초([MATJEOL_1011] 10/11 «입장 끝에 늘 넣기»)에서 입장 바로 뒤의 따로 순간(matjeol)이 됐다 — 늘 있다(ALWAYS · 고를 것이 아니다 · 10/11 결정 그대로).
+       뼈대만 세웠다: 줄(132 «두 분, 서로 마주 보고 맞절해 주세요.») · 시간(15초 · 본식 합은 그대로) · 이야기 장면(3초 숙이고 · 3초 멈추고 · 3초 일어나기) · 장면 영상(entry-look)은 입장 끝에 있던 것을 그대로 옮겼다.
+       대본 · 포즈 자료가 오면 자료표 «맞절» 줄에 자료를 더한 뒤 CARDS.matjeol · TILE · NARR.entryBow · ritual-story 장면 · 빌더 맞절 쪽을 채운다.
+       키는 bow 가 아니라 matjeol — bow 는 옛 코스 부모님께 인사 «큰절»(MODE · TONE · S.tribute) 값 이름이라 겹친다. 입장 끝 맞절(입장 몫 +15초)로 되돌리지 말 것 */
+  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];
   /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에 하는 게 좋을 것 같아» · «축배 코스 한 곳에 넣어 볼까? 제안 있어?» → 우선 시킨 것 전부 진행]
        축배는 닫는 인사 뒤 · 테이블 인사 앞이다(자료 D · S · AA 다섯 릴스 모두 «1부를 닫은 뒤 2부의 축배 → 테이블 인사») · 우리는 2부가 없어 닫는 인사가 1부의 끝이다.
        ★차례만 닫는 인사 뒤다 — 시간 셈 · 화면의 «본식 n / N» · 흐름 곡선은 축배를 본식 안에 둔다(APART 는 테이블 인사 하나 · TABLE_APART 그대로).
@@ -61,7 +66,7 @@
   var APART = { table: 1 };                   // [TABLE_APART · TOAST_LAST_1013] 본식과 따로 세는 순간(시간 · «본식 뒤» 묶음 · 옅은 곡선) — 축배는 닫는 인사 뒤여도 본식 안
   var TABLE_SEC = 90;               // [TABLE_GREET_1008] 테이블당 1분 30초(사장님 결정 · 고정)
   function tableN(S) { var n = +((S || {}).tableN); if (!(n >= 1)) n = 6; return Math.min(6, Math.max(1, Math.round(n))); }   /* ★[TABLE_MAX6 2026-10-08] 상한 = 좌석 배치도 상한(mypage SEAT_ADD_CAP · 6테이블 × 5석) — 종전 12 는 좌석이 허락하지 않는 수였다 */   // [TABLE_GREET_1008] 좌석 배치도 테이블 수 · 모르면 6(30명 ÷ 5 · SEAT_PER5)
-  var ALWAYS = { guest: 1, entry: 1 };   // [PREVIDEO_PICK] prevideo 는 뺐다
+  var ALWAYS = { guest: 1, entry: 1, matjeol: 1 };   // [PREVIDEO_PICK] prevideo 는 뺐다 · [MATJEOL_SPLIT_1013] 맞절은 늘(입장 바로 뒤)
   var PRE = { guest: 1, prevideo: 1 };          // 본식 시간에 들지 않는다(하객이 앉는 동안)
   var PICKABLE = ORDER.filter(function (k) { return !ALWAYS[k]; });
   /* ★★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] 케이크 커팅은 새로 담지 않는다 — 자료 23곳 중 본식에 둔 곳 0(D 노션 템플릿 2부 한 곳) · 실제 예식 0/8 ·
@@ -74,7 +79,7 @@
   /* ★★[ACTS_FOUR 2026-09-26 코워크 회신 6 3-5] 네 막 — 휴대폰 · PC 같게. 준비한 순서는 실제 자리(인사와 편지 사이 → 10/12 [HEART_ORDER_1012] 덕담과 축가 사이)에 «있을 때만» 칸으로. ★[SPEECH_TILE_1012] 그 칸이 «축사»가 됐다(다른 순간과 같은 칸).
        종전 [FREE_OWN] 맨 아래 따로 묶음(«특별히 준비한 것이 있다면»)은 거뒀다 — 되살리지 말 것. */
   var SECTIONS = [
-    { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'welcome'] },
+    { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'matjeol', 'welcome'] },   // [MATJEOL_SPLIT_1013] 맞절은 입장 바로 뒤 칸
     { n: '약속의 순간', d: '말과 반지로 부부가 되는 자리', ks: ['vow', 'ring', 'declare', 'bless'] },   // ★[HEART_ORDER_1012] 덕담은 이 막의 끝 칸 — 선언 바로 뒤이고 자료 B · P · Py · Q 는 선언과 덕담을 한 덩어리로 둔다 · 막마다 넷(PC 한 줄 · pick-v2 «4 · 4 · 4 · 4»)
     { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['free', 'song', 'letter', 'tribute'] },   // [SONG_BACK_1011] 축가는 선언 뒤 · [HEART_ORDER_1012] 부모님께 인사가 이 막의 끝 · 덕담은 «약속의 순간» 끝 칸(10/12 BLESS_AFTER_DECLARE 때 이 막 첫 칸에 두었더니 PC 가 3 · 5 칸으로 어긋났다)
     { n: '축하 · 닫는 순간', d: '본식을 닫고, 축배와 테이블 인사까지', ks: ['cake', '_close', 'toast', 'table'] }   // [CAKE_OFF_1013] 설명에서 케이크를 뺐다(칸은 옛 초안이 담아 뒀을 때만 보인다) · [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 줄은 그대로 · 설명이 «본식 뒤»(흐름 묶음 이름과 같은 말)를 말한다 · 옛 «케이크를 자르고 잔을 들고, 인사와 사진으로»   // [TOAST_LAST_1013] 칸 차례 = 실제 차례(닫는 인사 → 축배 → 테이블 인사)
@@ -86,7 +91,8 @@
   var CARDS = {
     prevideo: { n: '식전 영상', sn: '식전 영상', one: '예식 시작 시각에 두 분이 준비한 영상을 상영하고, 끝나면 두 분이 입장해요. 영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요.', shot: '영상을 보는 가족들의 얼굴', who: '하객(두 분은 문 밖에서 기다려요)' },
     candle: { n: '화촉', sn: '화촉', one: '두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요.', shot: '초에 불이 옮겨붙는 순간 · 불빛에 비친 얼굴',   /* [DETAIL_0925 B15] 서는 분에 따라 «누가»는 빌더가 바꾼다 */ who: '양가 어머님(누가 서실지는 두 분이 정해요)' },
-    entry: { n: '입장', sn: '입장', one: '두 분이 함께 걸어 들어와 나란히 선 뒤, 서로 마주 보고 맞절해요.',   /* [MATJEOL_1011 2026-10-11 사장님] 입장 끝 맞절은 늘 있다 */ shot: '문이 열리는 순간 · 두 분의 첫 장면', who: '두 분' },
+    entry: { n: '입장', sn: '입장', one: '두 분이 함께 걸어 들어와, 나란히 서는 첫 장면을 남겨요.',   /* [MATJEOL_SPLIT_1013] 맞절은 바로 다음 순간 — 입장 글은 10/11 전 글로(MATJEOL_1011 때 «…맞절해요»를 붙였던 자리) */ shot: '문이 열리는 순간 · 두 분의 첫 장면', who: '두 분' },
+    matjeol: { n: '맞절', sn: '맞절', one: '앞에 나란히 선 두 분이 서로 마주 보고 맞절해요.', shot: '마주 보고 고개 숙인 두 분의 옆모습', who: '두 분' },   // ★[MATJEOL_SPLIT_1013] 뼈대 글 — 대본 · 포즈 자료가 오면 고친다(자료표 «맞절» · 동작 팁 J · O «사진이 남는 순간»)
     welcome: { n: '감사 인사', sn: '감사 인사', one: '두 분이 하객께 짧게 감사 인사를 드려요.', shot: '하객을 바라보며 인사하는 두 분', who: '두 분' },   // ★[THANKS_GREET_1013 2026-10-13 사장님 «첫인사가 감사인사 부분이잖아» → «적절한 이름으로»] 이름 «첫인사» → «감사 인사» — «감사문»은 서약 카드 선택지 이름이라 겹친다 · 키 welcome · 녹음된 나레이션 글(«첫인사를 직접 드리겠습니다»)은 3단계 녹음이 바꾼다
     bless: { n: '부모님 덕담', sn: '덕담', one: '부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤).', shot: '말씀하시는 부모님과 듣는 두 분', who: '부모님 한 분~네 분', why: '성혼 선언 바로 뒤예요. 부부가 된 두 분께 부모님이 건네는 첫 말씀이에요.' },   /* [BLESS_AFTER_DECLARE] 선언을 읽은 아버님이 이어서 하셔도 돼요(자료 B · P · Q) */
     vow: { n: '혼인 서약', sn: '서약', one: '두 분이 서로에게 하는 약속을 직접 읽어요(한 분 1분쯤).', oneT: '두 분이 오늘 와 주신 분들께 드리는 감사문을 직접 읽어요(한 분 1분쯤).',   /* [THANKS_IN_VOW] 감사문을 고르면 ② 머리 줄이 이 글(oneOf) */   /* ★[VOW_DECL_DIFF 2026-10-11 사장님 «서약과 성혼선언 차이를 헷갈릴 수 있으니 · 조사한 자료를 참고해서 · 이벤트 클릭하면 나오는 설명에»] 자료 R(혼인서약서 vs 성혼선언문 · «누가 읽느냐로 구분한다») · I(성혼선언문 다섯 판 · 낭독자 = 하객 대표 · 양가 아버지) — 서약 = 두 분이 서로에게 · 본인이 읽는다 / 선언 = 하객 앞에서 부부가 되었음을 · 두 분 대신 다른 분이 읽는다. 두 설명이 «누가 · 누구에게»를 같은 자리에서 말한다(① 미리 보기 PV_DESC 와 같은 뜻) */ shot: '서로를 보며 약속하는 옆얼굴', who: '두 분' },
@@ -287,6 +293,7 @@
     prevideo: [7, 0, 180, 0],
     candle: [12.5, 0, 70, 38],   // [PARENTS_ENTRY_OFF 2026-10-12] 판 없이 하나(입장 +20초 걷음) · [CANDLE_BOW_1012] 불을 밝힌 뒤 인사 몇 초는 여유 38초 안
     entry: { A: [23, 0, 25, 42], B: [12, 0, 25, 42], C: [16, 0, 25, 42], D: [20, 0, 25, 42], E: [20, 0, 25, 42], F: [17, 0, 25, 42] },
+    matjeol: [3, 0, 12, 0],   // [MATJEOL_SPLIT_1013] 맞절 몫 15초(아래 BOW 와 같은 값 · 종전엔 입장 몫에 더했다)
     welcome: [5, 26, 8, 0],
     bless: [17, 153, 8, 20],
     vow: [21, 100, 8, 10],
@@ -309,7 +316,7 @@
   };
   /* [MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 맞절 몫 15초 — 청하는 한 줄 3초(14음절) · 마주 보기 · 3초 숙이고 · 3초 멈추고 · 3초 일어나기 · 다시 앞 보기 12초.
      따로 여유를 두지 않는다 — 걸어 들어와 서는 차이는 입장 여유(42초)가 이미 맡는다. ★기록 예시 단체 사진이 15분 경계(넉넉 합 25.49분)라 2단계(예시 다시 짜기)에서 숫자를 한 번에 맞춘다 → [EX_STD_1012 2026-10-12] 반지 · 케이크가 빠져 기록 단체 사진 18~22(넉넉 합 21.6분 · 알림 없음) → [EX_ENTRY_FEEL_1012] 입장 힘차게(12초)로 19~22 */
-  var BOW = [3, 0, 12, 0];
+  var BOW = TIME.matjeol;   // [MATJEOL_SPLIT_1013] 따로 순간이 되어 입장 몫에 더하지 않는다 — 값은 TIME.matjeol 한 곳
   /* ★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»] 감사문 몫 — 여는 말 7초(133 · 29음절)뿐이고 맺는 말이 없다(서약은 여는 말 + 맺는 말 21초).
      두 분이 읽는 시간(한 분 300자쯤) · 말 없는 시간 · 여유는 서약과 같다 */
   var THANKS_TIME = [7, 100, 8, 10];
@@ -317,7 +324,7 @@
     S = S || {}; seq = seq || bodySeq(S);
     var t = TIME[k], i = seq.indexOf(k);
     switch (k) {
-      case 'entry': { var et = t[String(S.entry || 'A').toUpperCase()] || t.A; return [et[0] + BOW[0], et[1] + BOW[1], et[2] + BOW[2], et[3] + BOW[3]]; }   // [MATJEOL_1011] 입장 끝 맞절
+      case 'entry': return t[String(S.entry || 'A').toUpperCase()] || t.A;   // [MATJEOL_SPLIT_1013] 맞절 몫(BOW)은 matjeol 순간이 진다 — 종전 [MATJEOL_1011] 입장 끝 +15초
       case 'vow': return S.vowKind === 'thanks' ? THANKS_TIME : t;   // [THANKS_IN_VOW]
       case 'ring': return seq[i + 1] === 'declare' ? t.toDeclare : t.other;
       case 'declare': return t;   // [DECLARE_BY_PERSON] 판 없이 하나
@@ -562,7 +569,7 @@
 
   /* ══ [TILE_PICK 2026-09-26 코워크 회신 6 3-5] 칸 글 — «무엇인지»만(두 줄 안) · CARDS.one 은 미리 보기 창에서 쓴다 ══ */
   var TILE = {
-    prevideo: '입장 바로 앞, 예식을 여는 두 분의 영상', candle: '양가 어머님이 촛불로 시작을 알려요', entry: '두 분이 함께 걸어 들어와 나란히 서요' /* [R2-41] ② 설명(«나란히 서는 첫 장면»)과 같은 모습 */,
+    prevideo: '입장 바로 앞, 예식을 여는 두 분의 영상', candle: '양가 어머님이 촛불로 시작을 알려요', entry: '두 분이 함께 걸어 들어와 나란히 서요' /* [R2-41] ② 설명(«나란히 서는 첫 장면»)과 같은 모습 */, matjeol: '서로 마주 보고 맞절해요' /* [MATJEOL_SPLIT_1013] */,
     welcome: '두 분이 하객께 짧게 감사\u00a0인사를 드려요' /* [THANKS_GREET_1013] 이름이 두 줄에 갈리지 않게(390 실렌더 «감사 / 인사를») */, bless: '부모님이 두 분께 덕담을 들려주세요', vow: '서로에게 하는 약속을 소리 내어 읽어요',
     ring: '서로의 손에 반지를 끼워 줘요', declare: '선언문을 읽는 순간, 두 분이 부부가 돼요' /* [STAGE_LINES] */, song: '가족 · 친구가 두 분께 노래를 불러요' /* [SONG_BACK_1011] */, tribute: '부부가 되어 처음 부모님께 드리는 인사',
     // [TILE_FREE_COMMA 코워크 회신7] 360 에서 «· 축사…»가 줄 머리로 — 칸 글만 쉼표
@@ -583,7 +590,7 @@
      slug: 소리 파일 · cut: 앞 몇 문장(0 이면 통째) · screen: 화면 글(소리는 쉼표 · 화면은 따옴표). ══ */
   var SAMPLE = {
     prevideo: { slug: 'narr-prevideo-in' }, candle: { slug: 'narr-candle-in-', who: 1 },
-    entry: { slug: 'entry-A', cut: 2 }, welcome: { slug: 'narr-welcome-in' }, bless: { slug: 'narr-bless-mid' } /* [BLESS_AFTER_DECLARE 10/12] 새 코스의 덕담 여는 말은 늘 가운데 문안(23) — «서약의 문을 여는»(22)은 옛 가족 코스만 */,
+    entry: { slug: 'entry-A', cut: 2 }, matjeol: { slug: 'narr-entry-bow' } /* [MATJEOL_SPLIT_1013] 132 통째(14음절) · 녹음 전엔 글로 */, welcome: { slug: 'narr-welcome-in' }, bless: { slug: 'narr-bless-mid' } /* [BLESS_AFTER_DECLARE 10/12] 새 코스의 덕담 여는 말은 늘 가운데 문안(23) — «서약의 문을 여는»(22)은 옛 가족 코스만 */,
     vow: { slug: 'narr-vow-in', cut: 2 }, ring: { slug: 'narr-ring-in', cut: 2 },
     declare: { slug: 'narr-declare-in-friend' } /* [DECLARE_BY_PERSON] 옛 30 나레이션 선언 걷음 · 여는 말(녹음 전 · 글로 먼저) */, song: { slug: 'narr-song' } /* [SONG_BACK_1011] 여는 말 통째(10초 안) */, tribute: { slug: 'tribute-in', cut: 2 },
     free: { slug: 'narr-free-in-speech' } /* [SPEECH_TILE_1012] 103 축사 여는 말 */, letter: { slug: 'letter-each' },
@@ -787,7 +794,7 @@
 
   /* ── 시작점 줄(명세 3-4) — 예시에서 시작했으면 무엇이 달라졌나 ── */
   function originOf(S) {
-    if (!picked(S).length) return '아직 담은 순간이 없어요. 입장 · 닫는 인사는 늘 있어요.';   // [WHY_NEIGHBOR 2-7] [PREVIDEO_PICK] 식전 영상은 이제 담는 순간
+    if (!picked(S).length) return '아직 담은 순간이 없어요. 입장 · 맞절 · 닫는 인사는 늘 있어요.';   // [MATJEOL_SPLIT_1013]   // [WHY_NEIGHBOR 2-7] [PREVIDEO_PICK] 식전 영상은 이제 담는 순간
     var ex = exampleOf(S.pickFrom);
     if (!ex) return '직접 고르셨어요.';
     var base = {}, bits = [], diff = 0;
@@ -941,7 +948,7 @@
      talkOf     사람이 말하는 자리의 글 카드(«여기서 … · 약 n분») — 보고 듣기는 그 자리를 기다리지 않고 3초 보여 주고 넘어간다 */
   var SCENE = {
     guest: '테이블에 앉는 하객들 사이로 촛불이 흔들려요', prevideo: '불을 낮춘 방 · 화면 빛을 받는 하객들의 뒷모습',
-    candle: '두 손이 긴 초에 불을 옮겨요', entry: '문이 열리고 두 분이 함께 걸어 들어와요',
+    candle: '두 손이 긴 초에 불을 옮겨요', entry: '문이 열리고 두 분이 함께 걸어 들어와요', matjeol: '마주 선 두 분이 천천히 고개를 숙여요' /* [MATJEOL_SPLIT_1013] */,
     welcome: '두 분이 마이크 하나로 차례로 인사해요', bless: '자리에서 마이크를 든 부모님 · 듣는 두 분의 뒷모습',
     vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
     song: '노래하는 분 · 손을 잡고 듣는 두 분',   // [SONG_BACK_1011] 장면 영상이 아직 없다 — 영상이 오면 VIDEO_READY 에 이름만 더한다
@@ -969,7 +976,8 @@
     if (k === 'toast') return ['toast'];
     /* ★[BOW_VIDEO_OFF 2026-09-26 코워크 회신5 4-7 · 연구 F02] 절 영상(entry-bow · tribute-bow)은 만들지 않는다 — AI 가 절 모양을 자주 틀린다.
        맞절을 고른 분도 바라보기 영상 · 신랑 큰절도 인사 영상이 나온다(19편 → 17편). 되살리지 말 것. */
-    if (k === 'entry') return ['entry', 'entry-look'];
+    if (k === 'entry') return ['entry'];   // [MATJEOL_SPLIT_1013] 바라보기 영상(entry-look)은 맞절 순간으로 옮겼다 — 같은 영상이 두 순간에서 되풀이되지 않게
+    if (k === 'matjeol') return ['entry-look'];   // [MATJEOL_SPLIT_1013 · BOW_VIDEO_OFF] 맞절 영상은 만들지 않는다 — 마주 보는 바라보기 영상
     if (k === 'tribute') return ['tribute'];
     if (k === '_close') return ['close'];
     if (k === 'table') return ['table'];   // ★[TABLE_VIDEO_1009 2026-10-09 사장님 «table 넣어»] 테이블 인사도 영상 — 10/8 «영상 없음(장면 글 한 줄)»을 뒤집었다
