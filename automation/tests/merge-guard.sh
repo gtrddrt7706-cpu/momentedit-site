@@ -17781,6 +17781,7 @@ chk 'REC_SONG_1012' assets/entry-music.js 10
 chk 'REC_SONG_1012' order-preview.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-ui.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-music.mjs 1
+chk 'MU_SRC 2026-10-12 입장 음악 4-나' scripts/audit/ghi-polish.mjs 1   # G4 입장 쪽 묶음 = 입장 멘트 + 입장 음악(+ AI) · 음악 칩 줄을 세는 기준(10/13 게이트에서 드러난 낡은 기대값을 고침)
 chk "srcChip('두 분이 고른 곡','up',src)+srcChip('추천 곡','rec',src)" assets/entry-music.js 1   # 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래
 chk "post('momentedit:ritualFileGet',{key:'rec',id:'list'})" assets/entry-music.js 1              # 목록은 서버(드라이브)에서만
 chk "post('momentedit:ritualFileGet',{key:'rec',id:k})" assets/entry-music.js 1                   # 곡도 서버에서만 — 공개 주소 없음

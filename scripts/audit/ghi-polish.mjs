@@ -57,9 +57,11 @@ for (const w of [390, 1280]) {
   /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시] 맺는 말 · 첫 모습을 걷었다 — 입장 쪽 묶음은 입장 멘트(+ AI 가 켜지면 «어떻게 준비할까요»)뿐 · «더 고르기»도 없다 */
   await pg.evaluate(() => { LS.more = {}; S.entryOut = ''; mkGo('entry'); }); await pg.waitForTimeout(300);
   const g4 = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'); const b = r && r.querySelector('[data-fk="lsmore:entry"]');
-    return { btn: !!b, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), scene: !!(r && r.querySelector('[role=radiogroup][aria-label="첫 모습"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0, vc: !!RitualOpen.FEATURE.voiceClone, bow: /맞절/.test(r ? r.textContent : '') }; });
+    return { btn: !!b, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), scene: !!(r && r.querySelector('[role=radiogroup][aria-label="첫 모습"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0, mu: !!(r && r.querySelector('[role=radiogroup][aria-label="입장 음악 고르는 곳"]')), vc: !!RitualOpen.FEATURE.voiceClone, bow: /맞절/.test(r ? r.textContent : '') }; });
   /* ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 맞절은 다시 들어왔다 — 고르는 칩이 아니라 늘 있는 한 줄(흐름 · 설명). 종전 «맞절 없음»은 이 결정으로 «맞절 있음 · 칩 없음»이 됐다 */
-  ok(`${w} G4 입장 쪽 — 맺는 말 · 첫 모습 · 더 고르기 없음 · «맞절»은 늘 있는 한 줄(칩 아님) · 묶음 하나(AI 가 켜지면 둘) [ENTRY_OUT_OFF · VP_NO_DIRECT · MATJEOL_1011]`, !g4.btn && !g4.outRow && !g4.scene && g4.bow && g4.rows === (g4.vc ? 2 : 1), JSON.stringify(g4));
+  /* ★[MU_SRC 2026-10-12 입장 음악 4-나 · REC_SONG_1012] 입장 쪽에 «입장 음악» 칩 줄(두 분이 고른 곡 · 추천 곡 · 시험실 그대로)이 들어왔다 —
+     묶음은 입장 멘트 + 입장 음악(+ AI 가 켜지면 «어떻게 준비할까요») · 종전 «묶음 하나»는 음악 칩 전의 기준이었다(10/13 게이트에서 드러남) */
+  ok(`${w} G4 입장 쪽 — 맺는 말 · 첫 모습 · 더 고르기 없음 · «맞절»은 늘 있는 한 줄(칩 아님) · 묶음은 입장 멘트 · 입장 음악(AI 가 켜지면 셋) [ENTRY_OUT_OFF · VP_NO_DIRECT · MATJEOL_1011 · MU_SRC]`, !g4.btn && !g4.outRow && !g4.scene && g4.bow && g4.mu && g4.rows === (g4.vc ? 3 : 2), JSON.stringify(g4));
   // G5 이렇게 흘러요 — 예시 넷 × 축배 판 셋 × 와인 셋
   const g5 = await pg.evaluate(() => {
     const R = RitualOpen, keep = JSON.parse(JSON.stringify(S)), bad = [], seen = {};
