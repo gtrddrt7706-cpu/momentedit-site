@@ -534,6 +534,9 @@ else {
   /* [REC_UPLOAD] 파일도 먼저 다듬어 들어 보기 → [이걸로 쓰기] */
   await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 8000 }).catch(() => {});
   const v1r = await pg.evaluate(() => ({ ph: MK_REC && MK_REC.ph, raw: !!(MK_REC && MK_REC.raw), dur: MK_REC && MK_REC.dur }));
+  /* ★[REVIEW_TAP_WAIT 2026-10-13] 들어 보기 화면이 뜬 뒤 0.6초 안의 누름은 받지 않는다(REVIEW_TAP_GUARD · #1171) — 사람처럼 잠깐 듣고 누른다.
+     종전엔 뜨자마자 눌러 누름이 버려졌고(보낸 것 0 · «보내는 중» 없음) 10/10 부터 이 두 줄이 빨강이었다(CI 는 브라우저가 없어 못 잰다) */
+  await pg.waitForTimeout(700);
   await pg.click('[data-fk="mkrecuse"]'); await pg.waitForTimeout(500);
   const v1 = await pg.evaluate(() => ({ sent: window.__sent.map((d) => d.key + ':' + d.mime + ':' + d.name + ':' + /^data:audio\/wav;base64,/.test(d.data)), busy: /보내는 중/.test(document.querySelector('.mk-voice').textContent) }));
   ok('RF 올리기 → 다듬어 들어 보기 → 마이페이지로 파일(키 · wav · 이름 · base64)이 넘어가고 «보내는 중…» [REC_UPLOAD]', v1r.ph === 'review' && !v1r.raw && v1r.dur > 1 && v1r.dur < 1.5 && v1.sent.join() === 'g0:audio/wav:하객 입장 때 · 입장.wav:true' && v1.busy, JSON.stringify({ v1r, v1 }));
@@ -554,7 +557,7 @@ else {
   await clickNext(p2); await p2.waitForTimeout(400); await clickNext(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await clickNext(p2); await p2.waitForTimeout(1200);
   await p2.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await p2.waitForTimeout(300);
   const [fc3] = await Promise.all([p2.waitForEvent('filechooser'), p2.click('[data-fk="mkup:g0"]')]); await fc3.setFiles({ name: 'a.wav', mimeType: 'audio/wav', buffer: wav });   // [REC_TRIM] 못 여는 파일은 이제 안 보낸다 — 풀리는 파일로
-  await p2.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 8000 }).catch(() => {}); await p2.click('[data-fk="mkrecuse"]'); await p2.waitForTimeout(300);
+  await p2.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 8000 }).catch(() => {}); await p2.waitForTimeout(700); await p2.click('[data-fk="mkrecuse"]'); await p2.waitForTimeout(300);   // [REVIEW_TAP_WAIT]
   ok('RF 그냥 연 미리보기 — 이 기기에서만 그 자리에 들어가고 «마이페이지에서 열면 저희에게 보내져요» 한 줄 [REC_UPLOAD]', await p2.evaluate(() => /마이페이지에서 열면 저희에게 보내져요/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !!(S.up.g0 && S.up.g0.local)));
   await c2.close();
 }
@@ -790,9 +793,11 @@ for (const w of [390, 1280]) {
   const b = await st();
   const one = await pg.evaluate(() => { const sc = document.querySelector('#mkStrip .mk-sc'), its = [...sc.querySelectorAll('.mk-it')]; return { lines: new Set(its.map((x) => Math.round(x.getBoundingClientRect().top))).size, scroll: sc.scrollWidth > sc.clientWidth + 1, focus: document.activeElement && document.activeElement.getAttribute('data-fk') }; });
   ok(`NF-2 ${w} 누르면 펼침 — aria-expanded=true · «접기» · 종전 줄 그대로(${w < 600 ? '한 줄 넘기기' : '줄바꿈'}) · 초점은 단추에`, !b.hidden && b.h > 30 && b.ex === 'true' && b.lab === '접기' && one.focus === 'mkfold' && (w < 600 ? (one.lines === 1 && one.scroll) : !one.scroll), JSON.stringify({ b, one }));
-  await pg.click('[data-fk="mkg:ring"]'); await pg.waitForTimeout(600);
+  /* ★[NF_PICK_DECLARE 2026-10-13] 고를 순간은 성혼 선언 — 예시 넷 모두의 뼈대다(EX_STD_1012). 종전 반지는 10/12 «반지 · 케이크는 코스에서 빼고 원하면 넣게»로
+     «가족» 예시에서 빠져 줄에 칸이 없었다(30초 기다리다 검사 전체가 멈췄다 · CI 는 브라우저가 없어 못 잰다) */
+  await pg.click('[data-fk="mkg:declare"]'); await pg.waitForTimeout(600);
   const c = await st();
-  ok(`NF-3 ${w} 순간을 고르면 그 쪽으로 가고 다시 접힌다 · 접힌 줄 번호 = 쪽 제목 번호(«${c.pos}»)`, c.at === 'ring' && c.hidden && c.ex === 'false' && c.pos.indexOf(c.want) === 0 && c.headOk && /^본식/.test(c.pos), JSON.stringify(c));
+  ok(`NF-3 ${w} 순간을 고르면 그 쪽으로 가고 다시 접힌다 · 접힌 줄 번호 = 쪽 제목 번호(«${c.pos}»)`, c.at === 'declare' && c.hidden && c.ex === 'false' && c.pos.indexOf(c.want) === 0 && c.headOk && /^본식/.test(c.pos), JSON.stringify(c));
   await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(200); await pg.keyboard.press('Escape'); await pg.waitForTimeout(250);
   const d = await st();
   ok(`NF-4 ${w} 펼친 줄에서 Esc — 접히기만 한다(빌더 나가기 아님)`, d.hidden && d.ex === 'false' && STEPS_K(await pg.evaluate(() => STEPS[idx].k)) && (await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'))) === 'mkfold', JSON.stringify(d));
@@ -802,7 +807,7 @@ for (const w of [390, 1280]) {
   const e = await st();
   ok(`NF-5 ${w} ② 에 다시 들어오면(④ 에서 와도) 접힌 채`, e.hidden && e.ex === 'false', JSON.stringify(e));
   /* 미완료 — 지나온 미완료 순간이 있으면 접힌 줄에 «미완료 순간 n»(진사 글자 · 점 없음) · 줄의 진사 칸 수와 같다 */
-  const t = await pg.evaluate(() => { if (_mkState().at === 'vow') mkGo('ring'); S.on.vow = 1; opSync(); S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; _mkState().seen.vow = 1; render();   /* 혼인 서약을 지나왔고 비어 있다 → 미완료 하나는 반드시 있다 */
+  const t = await pg.evaluate(() => { if (_mkState().at === 'vow') mkGo('declare');   /* [NF_PICK_DECLARE] */ S.on.vow = 1; opSync(); S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; _mkState().seen.vow = 1; render();   /* 혼인 서약을 지나왔고 비어 있다 → 미완료 하나는 반드시 있다 */
     const n = document.querySelectorAll('#mkStrip .mk-it.todo').length, el = document.querySelector('#mkStrip .mk-left'), m = el ? el.textContent.match(/미완료 순간 (\d+)/) : null;
     return { n, shown: m ? +m[1] : 0, col: el ? getComputedStyle(el).color : '', dot: el ? getComputedStyle(el, '::after').content : '' }; });
   ok(`NF-6 ${w} 미완료 수 = 줄의 진사 칸 수(1 이상으로 만들어 잰다) · 진사 글자 · 점 없음 [TODO_NODOT]`, t.n >= 1 && t.shown === t.n && ((/rgb\(107, 42, 36\)/.test(t.col) && /none|normal/.test(t.dot))), JSON.stringify(t));
@@ -814,7 +819,9 @@ function STEPS_K(k) { return k === 'listen'; }
 /* ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 · 뺀 이벤트는 옅은 투명으로»] ② 첫 쪽 = 예식 흐름 */
 for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(w);
-  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1500);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300);
+  await pg.evaluate(() => opTgl('ring')); await pg.waitForTimeout(300);   /* [NF_PICK_DECLARE · EX_STD_1012] 가족 예시에 반지가 없어졌다 — 아래 CF 는 반지 줄을 빼고 담아 보므로 고객처럼 + 로 담고 잰다(V 블록과 같은 길) */
+  await clickNext(pg); await pg.waitForTimeout(1500);
   const rd = () => pg.evaluate(() => { const R = RitualOpen, rows = [...document.querySelectorAll('.mk-intro .cf-r')];
     return { at: _mkState().at, keys: rows.map((r) => r.getAttribute('data-k')), off: rows.filter((r) => r.classList.contains('off')).map((r) => r.getAttribute('data-k')),
       /* ★[FLOW_TIMELINE 2026-10-03 사장님] 번호 칸 · «약 n분» 칸을 걷었다 — 종전 «번호» 검사는 «시작 시각»(본식 처음부터 몇 분째)으로 옮겼다 */
@@ -898,7 +905,9 @@ for (const w of [390, 1280]) {
    ② 장면 영상이 도는 길은 «그 쪽에 들어올 때 한 번»뿐 — 칩 · 줄 ▶ · 들어 보기 · 글 적기 · 진행 줄 접기 · 그림 누르기 · Enter 는 횟수를 늘리지 않는다 */
 for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(w, { stubPlay: true });
-  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1500);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300);
+  await pg.evaluate(() => opTgl('ring')); await pg.waitForTimeout(300);   /* [NF_PICK_DECLARE · EX_STD_1012] 아래 P-13 이 반지 쪽 영상도 잰다 — 가족 예시에 없으니 + 로 담는다 */
+  await clickNext(pg); await pg.waitForTimeout(1500);
   const n = (f) => pg.evaluate((f) => window.__vplays.filter((p) => p.w === 'make' && p.f === f).length, f);
   const clickAll = async (sel) => { const els = await pg.$$(sel); for (const e of els) { if (await e.isVisible()) { await e.click(); await pg.waitForTimeout(250); } } return els.length; };
   await pg.evaluate(() => { window.__vplays = []; mkGo('candle'); }); await pg.waitForTimeout(500);
