@@ -7575,6 +7575,8 @@ chk 'PRIOR_SEEN' CLAUDE.md 1
 chk 'PRIOR_SEEN' scripts/audit/source-basis.mjs 3
 node scripts/audit/source-basis.mjs || fail=1
 node scripts/audit/source-basis.mjs --selftest || fail=1
+# ★[COUNT_STALE_1013 2026-10-13] 자료를 더하면 손으로 적은 총수도 바뀐다 — --write 가 옛 총수(«/18» · «자료 18곳» · «실제 예식 n/7»)가 남은 줄을 찾으면 장부를 쓰지 않는다(S · T · U 를 넣을 때 두 번 놓친 것) · 깨 보기는 --selftest 14종
+chk 'COUNT_STALE_1013' scripts/audit/source-basis.mjs 4
 # ★[STAGE1_CLOSE 2026-10-11 사장님 «1단계에서 더 이상 추가 · 빼기 · 수정할 게 없는지 확실하게 마무리하고 2단계로»] 장부 모든 줄에 상태 · 부딪힌 줄엔 결정
 chk 'STAGE1_CLOSE' scripts/audit/source-basis.mjs 5
 #   ★2026-10-11 1단계를 닫았다(감사문까지 «끝») — 장부에 «진행»이 하나라도 생기면 빨강. 새 순간 개편은 2단계 줄로 연다
