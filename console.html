@@ -983,6 +983,7 @@ function duckTo(db, ms){
 var ES = window.EntryScene || null, ESD = { Sg: null, st: '', why: '', V0: null, vurl: '', vBusy: null, run: null };
 function esdWant(){ return !!(ES && MODE !== 'preview' && !GUEST && S && S.mu && (S.mu.src === 'up' || (S.mu.src === 'rec' && /^[A-Za-z0-9_-]{1,16}$/.test(String(S.mu.k || '')))) && S.mu.hook != null); }   // [REC_SONG_1012] 두 분이 올린 곡 · 추천 곡(곡 키) 둘 다
 function esdMain(c){ return !!(c && c.k === 'entry' && c.slug === 'entry-' + (S.entry || 'A')); }
+function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol')); }   // ★[MATJEOL_SPLIT_1013 · ESD_BUNDLE] 맞절은 10/13 부터 따로 순간(matjeol)이지만 입장 묶음으로 잇는다 — 곡이 그 큐 덕 값으로 낮게 이어지고 그다음 묶음에서 잦아든다
 function esdDecode(ab){ var O = window.OfflineAudioContext || window.webkitOfflineAudioContext, dc = new O(1, 1, 48000); return new Promise(function(ok, no){ try { var p = dc.decodeAudioData(ab, ok, no); if (p && p.then) p.then(ok, no); } catch (e) { no(e); } }); }
 function esdEntryCue(){ try { var src = R || RitualCue.build(S, { mode: MODE }), cs = (src && src.cues) || []; for (var i = 0; i < cs.length; i++) if (esdMain(cs[i])) return cs[i]; } catch (e) {} return null; }
 /* 입장 대사 — 콘솔이 그 큐에 틀 바로 그 소리(srcOf · 두 분 목소리를 받았으면 그것 · 아니면 나레이션)를 미리 풀어 문장 조각까지 잰다 */
@@ -1251,7 +1252,7 @@ function fire(i, opt){
   clearT();
   cur = i; fired[i] = true; GWHY = null;   // [GUEST_WHY] 새 순서 — 앞 판(다시 듣기 · 이전)의 까닭이 남지 않게
   var c = resolve(R.cues[i]);
-  if (ESD.run && (c.k !== 'entry' || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
+  if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
   liveT0 = 0;                          // 방금 판정에 썼다 · 다음 큐로 새지 않게 여기서 끊는다
   castNow = null;                      // ★배역 예시는 큐를 넘어가지 않는다(배지가 다음 자리로 새는 것을 막는다)
   blkFresh = (c.blockN || '') !== blkNow;
@@ -1910,7 +1911,7 @@ window.__rfState = function(){ return { st: JSON.stringify(RF_ST), clip: String(
 window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.why, sg: !!ESD.Sg, v0: !!ESD.V0, vp: ESD.V0 ? ESD.V0.pieces.length : null, run: !!r, ri: r ? r.i : null, cur: cur, phase: phase, duck: duckNow,
     pl: r ? { tv: r.PL.tv, tm: r.PL.tm, off: r.PL.off, th: r.PL.th, V: r.PL.V, H: r.PL.H, H0: r.PL.H0 } : null, dk: r ? r.dk.gain.value : null, ac: AC ? AC.state : null,
     vsn: r ? (r.vs || []).length : null, cut: ESD.V0 && ESD.V0.cut ? { at: ESD.V0.cut.at, add: ESD.V0.cut.add, was: ESD.V0.cut.was } : null }; },   /* [ENTRY_CALL_PAUSE_1013] 목소리 마디 수 · 끊은 자리 */
-  idx: function(){ var cs = (R && R.cues) || [], e = -1, bow = -1, next = -1; cs.forEach(function(c, i){ if (e < 0 && esdMain(c)) e = i; }); for (var i = e + 1; e >= 0 && i < cs.length; i++) { if (cs[i].k === 'entry' && bow < 0) { bow = i; continue; } if (cs[i].k !== 'entry') { next = i; break; } } return { e: e, bow: bow, next: next, n: cs.length }; },
+  idx: function(){ var cs = (R && R.cues) || [], e = -1, bow = -1, next = -1; cs.forEach(function(c, i){ if (e < 0 && esdMain(c)) e = i; }); for (var i = e + 1; e >= 0 && i < cs.length; i++) { if (esdIn(cs[i]) && bow < 0) { bow = i; continue; } if (!esdIn(cs[i])) { next = i; break; } } return { e: e, bow: bow, next: next, n: cs.length }; },
   duckOf: function(i){ return R && R.cues[i] ? R.cues[i].duck : null; }, fire: function(i){ fire(i); } };
 
 /* ★GUEST_SKIN — 고객 화면 부팅. 설정 패널 대신 인트로 카드 한 장을 세운다.
