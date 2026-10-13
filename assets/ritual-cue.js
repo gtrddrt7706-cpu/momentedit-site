@@ -931,12 +931,12 @@
        마무리 문안도 모드에서 고른다 — 케이크만 골랐는데 잔 이야기가 나가던 자리를 막는다. */
     /* ★★[CAKE_TOAST_SPLIT 2026-09-27] 새 코스는 케이크(cake) · 축배(toast) 두 순간이다 — 아래 _toastAll 이 만든 한 줄을 그대로 나눠 담는다.
        케이크 몫: 케이크 커팅 줄(+ 케이크만이면 여는 말 · 케이크 마무리) · 축배 몫: 여는 말(둘 다면 여기로 옮김) · 잔 안내 · 선창 · 마무리.
-       ★둘 다 담은 날 «축사는 따로 두지 않았습니다»는 케이크 앞이 아니라 잔 안내 앞이다(축배 순간의 첫 줄) — 줄 수 · 녹음 · 합 시간 그대로.
+       (옛 기록) 둘 다 담은 날 «축사는 따로 두지 않았습니다»는 케이크 앞이 아니라 잔 안내 앞이었다 — 10/12 새 코스에서 그 줄을 뺐다([TOAST_NONE_OFF_1012] 아래).
        옛 코스는 _toastAll 그대로(한 덩어리 · 소리 같음). */
     cake: function (S) {
       if (!D.COURSES[S.course] || !D.COURSES[S.course].open) return [];
-      var all = BUILD._toastAll(S), both = O.onOf(S, 'toast');
-      return all.filter(function (c) { return /^toast-(both|cake)$|^narr-cake-out$/.test(c.slug) || (!both && c.slug === 'narr-toast-none'); })
+      var all = BUILD._toastAll(S);
+      return all.filter(function (c) { return /^toast-(both|cake)$|^narr-cake-out$/.test(c.slug); })   // [TOAST_NONE_OFF_1012] 케이크만인 날 87 을 케이크 몫으로 옮기던 갈래는 걷었다(새 코스는 87 이 없다)
         .map(function (c) { c.k = 'cake'; c.blockN = '케이크 커팅'; return c; });
     },
     toast: function (S) {
@@ -955,13 +955,19 @@
            그날의 사정이 아니다. 갈래로 두면 아무도 안 켜고, 그러면 없는 순서가 말없이 지나간다.
          ★되살릴 조건 — 하객 축사를 다시 받기로 «사장님이» 정하면, 그때 이 큐를 빼고
            15_toast 를 RETIRED 에서 꺼낸다. 문안을 고쳐서 될 일이 아니다. */
-      /* ★[SPEECH_NO_NONE 코워크 추가 점검 P1-6 2026-09-26] 새 코스에서 «준비한 순서»를 축사로 담았으면 «축사는 따로 두지 않았습니다»가 거짓말이 된다 — 그날은 뺀다. */
-      var _speech = D.COURSES[S.course].open && O.onOf(S, 'free') && O.FREE_KIND[S.freeWhat] === 'speech';
-      var seq = (_speech ? [] : [cue({
+      /* ★[SPEECH_NO_NONE 코워크 추가 점검 P1-6 2026-09-26] 새 코스에서 «준비한 순서»를 축사로 담았으면 «축사는 따로 두지 않았습니다»가 거짓말이 된다 — 그날은 뺀다.
+         → 2026-10-12 부터 새 코스는 늘 뺀다(아래 [TOAST_NONE_OFF_1012]) · 옛 코스는 위 TOAST_NONE 그대로. */
+      /* ★★[TOAST_NONE_OFF_1012 2026-10-12 사장님 «빼기 (추천)»] 새 코스는 87 «축사는 따로 두지 않았습니다. 여기 계신 분들이, 이미 두 사람을 잘 아시니까요.»를 내지 않는다.
+         ① 10/12 축사가 두 분이 고르는 순간이 됐다([SPEECH_TILE_1012]) — «축사가 없는 날»은 이 예식의 설계가 아니라 그날의 선택이다(위 TOAST_NONE 의 «설계»라는 전제가 바뀌었다).
+         ② 실전 사회 대본 어디에도 «없는 순서»를 소리로 알리는 멘트는 없다(3단계 대본 검토 · 자료 23곳).
+         ③ 뒷문장은 하객 마음을 짐작한다(G4 · 10/10 연결 멘트 원칙 «짐작 · 추정 빼기»).
+         옛 코스(옛 초안)는 그대로 낸다 — 이미 짠 예식의 소리를 바꾸지 않는다. 새 코스에 되살리지 말 것. */
+      var _old = !D.COURSES[S.course].open;   // [TOAST_NONE_OFF_1012] 87 은 옛 코스만
+      var seq = (_old ? [cue({
         k: 'toast', blockN: '축배 · 케이크', slug: 'narr-toast-none', name: '축사 없음 안내',
         text: EXTRA['narr-toast-none'], duck: -12,
-        note: '★없는 순서를 말없이 건너뛰지 않는다 — 기다리던 하객이 「축사는?」 하고 남는다'
-      })]).concat([cue({
+        note: '★없는 순서를 말없이 건너뛰지 않는다 — 기다리던 하객이 「축사는?」 하고 남는다(옛 코스만 · 새 코스는 [TOAST_NONE_OFF_1012])'
+      })] : []).concat([cue({
         k: 'toast', blockN: '축배 · 케이크', slug: 'toast-' + S.toast, name: '축배 · 케이크', text: t.nar,
         duck: PARAM.duckMusic, pick: t.d, note: t.note,
         live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing, fallback: t.fallback || '' }   // [TOAST_COUPLE] 막힐 때 한 줄
