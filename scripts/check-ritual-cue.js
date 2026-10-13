@@ -417,9 +417,10 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
       /* [DECLARE_BY_PERSON 2026-10-12] 선언 시간이 «누가 읽든 하나»(12 · 15 · 8 · 20)가 돼 예시의 본식이 몇 초씩 움직였다(구현 뒤 게이트 값) — 옛 기록 15~19(박수 판) · 가족 17~24(나레이션 엄숙) */
       /* [EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결»] 예시를 다시 짰다(반지 · 케이크 · 편지 빠짐 · 정석 · 가족에 축가) — 구현 뒤 게이트 값 ·
          옛 기록 15~20 · 1/3 · 1/2 · 약속 20~26 · 3/5 · 3/5 · 가족 17~23 · 2/4 · 1/4(가족은 반지 · 케이크 대신 축가라 요청 2 가 한 컷 준다) */
-      ['정석', O.applyExample({}, 'standard'), '17~22', '2/4', '1/3'] /* [EX_ENTRY_FEEL_1012 2026-10-12] 입장 담백하게(23초)로 옛 21~26 · [SPEECH_TILE_1012] 축사 3분이 들어 옛 21~25 · 3/5 · 3/4(가족과 같은 구도 수) */,
+      /* [TOAST_LAST_1013 2026-10-13] 축배가 «기록» 한 곳으로 가서 정석 · 가족 · 간결의 본식이 42 ~ 82초 줄고 단체 사진이 는다(구현 뒤 게이트 값) — 옛 정석 17~22 · 2/4 · 1/3 · 가족 17~23 · 2/4 · 1/3 · 간결 28~32 */
+      ['정석', O.applyExample({}, 'standard'), '18~23', '3/4', '2/4'] /* [EX_ENTRY_FEEL_1012 2026-10-12] 입장 담백하게(23초)로 옛 21~26 · [SPEECH_TILE_1012] 축사 3분이 들어 옛 21~25 · 3/5 · 3/4(가족과 같은 구도 수) */,
       ['기록', O.applyExample({}, 'record'), '19~22', '3/4', '2/3'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 → [EX_STD_1012] 18~22 → [EX_ENTRY_FEEL_1012] 입장 힘차게(12초)로 19~22 */,
-      ['가족', O.applyExample({}, 'family'), '17~23', '2/4', '1/3'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
+      ['가족', O.applyExample({}, 'family'), '18~23', '3/4', '2/4'], ['간결', O.applyExample({}, 'brief'), '30~33', '5/5', '5/5'],
       ['가장 긴 조합', longest, '10~17', '0/2', '0/2']];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
@@ -429,7 +430,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     /* 문장 세 갈래 — k = max · k < max · k = 0 · k = max = 0(짧은 사진 시간을 일부러 만든다) */
     const L = (sec, w) => F.line(F.cap({ summary: { sec } }, false, w));
     const lines = [[O.bodySec(O.applyExample({}, 'brief')), 0, '가족 구도는 5컷이 알맞아요.'],   // [PHOTO_THANKS] k = max 갈래는 간결로(기록은 4/5 가 됐다)
-      [O.bodySec(O.applyExample({}, 'family')), 0, '가족 구도는 2컷이 알맞고, 제시간에 진행되면 4컷까지 돼요.'],
+      [O.bodySec(O.applyExample({}, 'family')), 0, '가족 구도는 3컷이 알맞고, 제시간에 진행되면 4컷까지 돼요.'],   // [TOAST_LAST_1013] 옛 2컷
       [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 가족 구도 2컷까지 돼요.'],
       [[30 * 60, 35 * 60], 0, '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.']];
     lines.forEach(([sec, w, want]) => { const g = L(sec, w); if (g !== want) bad.push(`문장: «${g}» ≠ «${want}»`); if (/구도 0개|구도 0컷/.test(g)) bad.push(`«구도 0개»가 나왔다: ${g}`); });   // [PHOTO_UNIT_ONE 2026-09-27] «구도 N개» → «가족 구도 N컷»

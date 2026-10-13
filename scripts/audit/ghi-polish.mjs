@@ -101,7 +101,7 @@ for (const w of [390, 1280]) {
     && g5b.fams === '신부 아버님:1,gdad:1,:1' /* [DECLARE_BY_PERSON · DECLARE_ANYONE] 누가 읽든(적은 이름 · 옛 칩 값 · 빈칸) 축하 박수 한 줄(57 뒤) · 옛 박수판의 «증인의 박수»는 걷었다 */, JSON.stringify(g5b));
   ok(`${w} G5 첫 줄 이름 — 화촉 «시작할 때» · 선언 «시작할 때»(여는 말 · DECLARE_BY_PERSON · STAGE_LINES) [FIRST_LINE_NAME]`, g5b.labs.candle === '시작할 때' && g5b.labs.declare === '시작할 때' /* [STAGE_LINES 2026-10-06] 줄 이름 = 언제 · 선언문이 곧 선언 */   /* [R3-10] 갈래 표가 «나레이션»이라 이름에서 뺐다 */, JSON.stringify(g5b.labs));
   /* [EX_STD_1012 2026-10-12] 예시 넷에서 케이크가 빠졌다 — 잔 드는 옅은 줄(케이크와 축배 판)은 케이크를 담아 잰다 · 축배만 판은 아래에서 따로 */
-  await pg.evaluate(() => { if (!RitualOpen.onOf(S, 'cake')) { S.on.cake = 1; opSync(); } mkGo('toast'); }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { var ch = 0; if (!RitualOpen.onOf(S, 'toast')) { S.on.toast = 1; ch = 1; } if (!RitualOpen.onOf(S, 'cake')) { S.on.cake = 1; ch = 1; } if (ch) opSync(); mkGo('toast'); }); await pg.waitForTimeout(300);   // [TOAST_LAST_1013] 축배는 «기록» 예시에만 — 이 예시에 없으면 담아서 잰다
   const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.mk-pg .mk-flow li')];
     return { txt: li.map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return (l.className === 'q' ? '[quiet]' : '') + c.textContent; }), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
   /* [FLOW_MAKE] ② 쪽 흐름에서 «위하여»는 두 분 차례(«신랑 차례» · 글은 연습에서 흐른다) — 잔 드는 큐 바로 뒤에 온다 */
