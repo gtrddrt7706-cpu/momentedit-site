@@ -16,9 +16,13 @@
      W10 시간을 재는 말(잠시 후 · 잠시만 · 곧)은 한 줄에 한 번 — NARV ④ («잠시 진동 모드로»처럼 «동안»의 뜻은 세지 않는다)
      W11 전각 줄표 · 이모지 — 문구 규칙
      W12 부정형 허락(~실 것 없습니다 · ~필요는 없습니다) — 허용형으로(구글 자문 · 3-2 와 같은 꼴)
+     ★[NARR_REREAD_1013 2026-10-13 사장님 «우리 대사 한 줄씩 검토해 보고 개선할 것은 없는지»] 2판에서 더한 둘 — 1판이 자를 다 통과했는데도 한 줄씩 읽으니 걸린 것
+     W13 한 줄 안에 같은 말 두 번(세 글자 이상 · 끝말 · 구호 «위하여»는 빼고) — 1판 «부모님께 … 부모님께» · «남기겠습니다 … 남기겠습니다» · «반지를 … 반지를»
+     W14 축가 여는 말은 누가 불러도 참 — «두 사람을 위해»는 두 분이 직접 부르는 날 틀린 말([SONG_OPEN_ANYONE_1013] · 10/11 SONG_SELF_1011 «두 분이 직접 불러도 돼요» 뒤로 1판이 놓쳤다)
    쓰는 법
      node scripts/audit/narr-words.mjs            원고 나레이션 줄(2 · 3장 표의 «3단계 글» · «대안» 칸) — 하나라도 걸리면 빨강(merge-guard)
      node scripts/audit/narr-words.mjs --engine   지금 엔진이 새 코스에서 내는 줄 전부를 같은 자로 — 3단계를 엔진에 적용하기 전까지는 보고용(빨강이 정상)
+     node scripts/audit/narr-words.mjs --flow     예시 코스 넷을 처음부터 끝까지 원고 글로 이어 찍는다(보고용 · 늘 0) — 붙어 나오는 줄끼리 겹치는 말은 한 줄 자로는 안 보인다(1판 «준비하셨습니다 → 준비한 노래» · «인사드립니다 → 인사를 드리러»)
      node scripts/audit/narr-words.mjs --selftest 깨 보기 — 규칙마다 걸려야 할 줄을 넣어 빨강이 되는지
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import { createRequire } from 'node:module';
@@ -40,11 +44,21 @@ const RULES = [
   ['W12', /(실|하실|서두르실) 것 없습니다|필요는 없습니다/],
 ];
 const CLAP_ASK = /박수(를|로)?\s*(부탁|보내|주시|축복해|맞이해|맞아|반겨|열어|답해|청)/;
+// [NARR_REREAD_1013] W13 — 끝말(주세요 · 있습니다 …)과 구호(위하여) · 부르는 말(여러분 · 사람이 …)은 두 번 나와도 겹침이 아니다
+const TWICE_OK = /^(위하여|주세요|주십시오|있습니다|드립니다|됩니다|좋습니다|하겠습니다|바랍니다|감사드립니다|감사하겠습니다|여러분|여러분께|사람이|사람의|사람을|사람과|사람에게)$/;
+function twice(text) {
+  const seen = new Set(), out = new Set();
+  for (const t of text.replace(/[.,!?«»·()]/g, ' ').split(/\s+/)) { if ([...t].length < 3 || TWICE_OK.test(t)) continue; if (seen.has(t)) out.add(t); seen.add(t); }
+  return [...out];
+}
+const SONG_OPEN = /^narr-song$/, SONG_FOR = /(사람|분)(을|를)?\s*위해|바치/;   // [SONG_OPEN_ANYONE_1013] W14
 function judge(slug, text) {
   const hit = [];
   for (const [id, re] of RULES) if (re.test(text)) hit.push(id);
   if (CLAP_ASK.test(text) && !CLAP_OK.test(slug)) hit.push('W7');
   if ((text.match(/잠시 (후|뒤)|잠시만|잠시,|곧 /g) || []).length > 1) hit.push('W10');   // «휴대폰은 잠시 진동»의 «잠시»는 시간을 재는 말이 아니다
+  if (twice(text).length) hit.push('W13');
+  if (SONG_OPEN.test(slug) && SONG_FOR.test(text)) hit.push('W14');
   return hit;
 }
 
@@ -101,10 +115,13 @@ if (arg === '--selftest') {
     ['W7', 'narr-song-out', '노래로 전한 축하였습니다. 박수 부탁드립니다.'], ['W8', 'guest-1-arrival', '기다리시는 동안, 편안히 머물러 주십시오.'],
     ['W9', 'narr-welcome-in', '신랑 이서준이 인사드리겠습니다.'], ['W10', 'narr-x', '곧 시작합니다. 잠시 후 모시겠습니다.'],
     ['W11', 'narr-x', '두 사람 — 입장'], ['W12', 'toast-cake', '서두르실 것 없습니다.'],
+    ['W13', 'letter-parent', '두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 부모님께 전해 주세요.'], ['W14', 'narr-song', '두 사람을 위해 준비한 노래가 있습니다.'],
   ];
   const miss = bad.filter(([id, slug, t]) => !judge(slug, t).includes(id)).map(([id]) => id);
-  ok('[NARR_WORDS_1013] 깨 보기 — 규칙 열둘이 각자 걸려야 할 줄을 잡는다', miss.length === 0, '못 잡음 ' + miss.join(','));
+  ok('[NARR_WORDS_1013] 깨 보기 — 규칙 열넷이 각자 걸려야 할 줄을 잡는다', miss.length === 0, '못 잡음 ' + miss.join(','));
   ok('[NARR_WORDS_1013] 깨 보기 — 박수 자리(입장 · 선언 맺음 · 닫는 인사)는 W7 이 아니다', !judge('entry-B', '큰 박수 부탁드립니다. 신랑 신부, 입장!').includes('W7') && !judge('narr-close-bow', '마지막 박수를 부탁드립니다.').includes('W7'));
+  ok('[NARR_REREAD_1013] 깨 보기 — 구호 «위하여» · 끝말 · 두 글자 말은 W13 이 아니다', !judge('toast-toast', '두 분이 위하여, 하시면 함께 위하여, 하고 답해 주세요.').includes('W13') && !judge('end-1c-thanks-nomeal', '가족분들께서는, 잠시 남아 주십시오. 다른 분들도, 함께 남아 주십시오.').includes('W13'));
+  ok('[SONG_OPEN_ANYONE_1013] 깨 보기 — W14 는 축가 여는 말에만(다른 자리의 «위해»는 걸지 않는다)', !judge('narr-free-in-gift', '오늘을 위해 마음을 담아 준비한 선물이 있습니다.').includes('W14'));
   const doc = '## 2. 나레이션\n| 번호 · 자리 | 지금 | 3단계 글 | 근거 | 녹음 |\n|---|---|---|---|---|\n| 01 guest-1-arrival | x | 기다리시는 동안, 편안히 머물러 주십시오. | x | x |\n';
   ok('[NARR_WORDS_1013] 깨 보기 — 원고 표에 걸리는 줄을 넣으면 읽어서 잡는다', readDoc(doc).some((r) => judge(r.slug, r.text).includes('W8')));
   ok('[NARR_WORDS_1013] 깨 보기 — 표를 못 읽으면(0줄) 통과가 아니다', readDoc('## 2. 나레이션\n아무 표도 없음\n').length === 0);
@@ -118,9 +135,24 @@ if (arg === '--engine') {
   process.exit(bad.length ? 1 : 0);
 }
 
+if (arg === '--flow') {
+  // [NARR_REREAD_1013] 예시 넷을 원고 글로 이어 찍는다 — 엔진 글 대신 원고의 «3단계 글»(길었을 때 · 대안 칸 빼고) · 원고에 없는 줄은 엔진 글 그대로(«엔진»)
+  if (!fs.existsSync(DOC)) { console.log('원고 파일이 없다 ' + DOC); process.exit(1); }
+  const O = require(path.join(ROOT, 'assets/ritual-open.js'));
+  const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
+  const by = new Map();
+  readDoc(fs.readFileSync(DOC, 'utf8')).forEach((r) => { if (!r.tag && !/길었을 때/.test(r.where) && !by.has(r.slug)) by.set(r.slug, r.text); });
+  O.EXAMPLES.forEach((ex) => {
+    const S = O.applyExample(O.sampleS(), ex.k); const r = C.build(C.norm ? C.norm(S) : S, { mode: 'console' }); const cues = Array.isArray(r) ? r : (r.cues || []);
+    console.log(`\n── ${ex.nm || ex.k} (${ex.k}) · ${cues.length}줄`);
+    cues.forEach((c) => { const s = c.slug || c.k || ''; const t = by.get(s); console.log(`  [${c.no || '-'}] ${s}${t ? '' : ' (엔진)'}\n       ${t || c.text || '(소리 없음)'}`); });
+  });
+  process.exit(0);
+}
+
 if (!fs.existsSync(DOC)) { ok('[NARR_WORDS_1013] 원고 파일이 있다', false, DOC); process.exit(1); }
 const rows = readDoc(fs.readFileSync(DOC, 'utf8'));
 ok(`[NARR_WORDS_1013] 원고 나레이션 줄을 읽었다(${rows.length}줄)`, rows.length >= 60, '표를 못 읽었다 — «3단계 글» 머리 칸 · 2 · 3장 제목을 확인');
 const bad = rows.map((r) => ({ ...r, hit: judge(r.slug, r.text) })).filter((r) => r.hit.length);
-ok('[NARR_WORDS_1013] 원고 나레이션 줄이 자연스러움 자(W1 ~ W12)를 모두 통과', bad.length === 0, bad.map((r) => `${r.where}${r.tag ? ' (' + r.tag + ')' : ''} — ${r.hit.join(' · ')} «${r.text}»`).join('\n     '));
+ok('[NARR_WORDS_1013] 원고 나레이션 줄이 자연스러움 자(W1 ~ W14)를 모두 통과', bad.length === 0, bad.map((r) => `${r.where}${r.tag ? ' (' + r.tag + ')' : ''} — ${r.hit.join(' · ')} «${r.text}»`).join('\n     '));
 console.log(fail ? `\nNARR WORDS FAIL ${fail}` : '\nNARR WORDS OK'); process.exit(fail ? 1 : 0);
