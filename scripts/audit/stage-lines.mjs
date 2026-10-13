@@ -46,7 +46,10 @@ try {
   ok('③ 줄 이름에 «여는 말 · 맺는 말 · 이음말» 없음 [STAGE_LINES]', !n3.length, n3.join(' | '));
   ok('④ 선언 — 나레이션은 «시작할 때 · 끝나면»뿐 · 수행문은 나레이션이 말하지 않는다 · 사이에 읽는 분 차례 · «박수 · 부부가 돼요» 없음 [STAGE_LINES · DECLARE_BY_PERSON]', !n4.length, n4.join(' | '));
   const tn = res.find((m) => m.k === 'tribute' && /none/.test(m.c)), ck = res.find((m) => m.k === 'cake'), vw = res.find((m) => m.k === 'vow');
-  ok('부모님께 인사 «말 없이» — 여는 말과 맺는 말 사이 «인사하고 안겨요 · 말 없이»(꽃 없이 · FLOWER_OFF_1013)', !!tn && tn.rows.some((x) => x.t === 'A' && /앞으로 가 인사하고 안겨요 · 말 없이$/.test(x.txt)), tn && JSON.stringify(tn.rows));
+  ok('부모님께 인사 «말 없이» — 여는 말과 맺는 말 사이 «인사하고 안아 드려요 · 말 없이»(꽃 없이 · FLOWER_OFF_1013 · HUG_WORDS_1013)', !!tn && tn.rows.some((x) => x.t === 'A' && /앞으로 가 인사하고 안아 드려요 · 말 없이$/.test(x.txt)), tn && JSON.stringify(tn.rows));
+  const tl = res.find((m) => m.k === 'tribute' && !/none/.test(m.c)), cl = res.find((m) => m.k === '_close'), tb = res.find((m) => m.k === 'table');
+  ok('[HUG_WORDS_1013] 부모님께 인사 «말로 인사» — 앞으로 가요 → 사람 줄 → 인사하고 안아 드려요(말 → 인사 → 포옹 · 자료 FF 2-1 · S · G · T4 · O)', !!tl && (() => { const t = tl.rows.map((x) => x.txt); const a = t.findIndex((x) => /부모님 앞으로 가요$/.test(x)), b = t.findIndex((x) => /고마운 말을 전해요/.test(x)), c = t.findIndex((x) => /^두 분이 부모님께 인사하고 안아 드려요$/.test(x)); return a > -1 && a < b && b < c; })(), tl && JSON.stringify(tl.rows));
+  ok('[CLOSE_LAST_1013] 축배 · 테이블 인사를 담은 날 — 닫는 인사 쪽엔 26(사진 안내) 없음 · 26 은 테이블 인사 끝(당일 엔진 차례)', !!cl && !!tb && !cl.rows.some((x) => /이제 사진을 남기겠습니다/.test(x.txt)) && /이제 사진을 남기겠습니다/.test((tb.rows[tb.rows.length - 1] || {}).txt || ''), cl && tb && JSON.stringify([cl.rows.map((x) => x.txt), tb.rows.map((x) => x.txt)]));
   ok('케이크 — «두 분이 함께 케이크를 잘라요» · 서약 — «마지막 두 문장은 … 하객 쪽으로 돌아서서»', !!ck && ck.rows.some((x) => x.t === 'A' && /케이크를 잘라요/.test(x.txt)) && !!vw && vw.rows.some((x) => x.t === 'A' && /하객 쪽으로 돌아서서/.test(x.txt)));
   ok('성혼 선언 설명 «성혼 선언문을 읽으면 두 분이 부부가 돼요»', await pg.evaluate(() => RitualOpen.CARDS ? /성혼 선언문을 읽으면/.test(JSON.stringify(RitualOpen.CARDS.declare || '')) : true));
   ok('pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));
