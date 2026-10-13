@@ -9194,7 +9194,7 @@ function _wishFromFx(fx){
      scripts/check-photo-scene.mjs 가 order-preview.html 을 훑어 전수 대조한다. 검사를 지우지 말 것. */
 var PHOTO_SCENE=[
  {n:'신랑·신부 입장', s:'문이 열리는 순간 · 손잡고 걸어 들어오는 두 분'},
- {n:'환영·첫인사',   s:'두 분의 첫 목소리 · 그걸 듣는 하객분들 얼굴'},
+ {n:'감사 인사',   s:'두 분의 첫 목소리 · 그걸 듣는 하객분들 얼굴'},   // [THANKS_GREET_1013] 옛 이름 «환영·첫인사»
  {n:'혼인 서약',     s:'마주 본 두 분 · 서약문을 쥔 손'},
  /* ★[RINGWARM_RETIRED] 「링 워밍」은 넣지 않는다 — 2026-08-07 사용자 판단("유치하고 별로")으로 폐지돼
     팔레트에 없다. 빌더 블록·클립은 번호 밀림 때문에 남아 있을 뿐이라, 이름만 보고 여기 되살리면
@@ -10610,7 +10610,7 @@ function prodConfirmHtml(p, inv){
        확정 기록(스냅샷)은 줄바꿈을 « · »로 이어 적는다(아래 wireProdConfirm). 옛 코스 요약(아래 else)은 그대로. */
     rv='담은 순간 '+escapeHtml(String(rd.summary.moments||0))+' · 본식 '+escapeHtml(String(rd.summary.min||''))+(rd.summary.table?'<br>테이블 인사 '+escapeHtml(String(rd.summary.table)):'')+(rd.summary.photo?'<br>단체 사진 '+escapeHtml(String(rd.summary.photo)):'');   /* [TABLE_APART 2026-10-08] 테이블 인사는 본식 · 단체 사진과 따로 한 줄 */
     var _mi=[]; if(rd.summary.from) _mi.push('‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작');
-    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] 서약 카드에서 감사문을 골랐으면 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('첫인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
+    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] 서약 카드에서 감사문을 골랐으면 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('감사 인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
     if(_mi.length) rv+='<br><span class="cc-mini">'+_mi.join('<br>')+'</span>'; }
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
     if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] */ if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }

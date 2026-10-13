@@ -7645,6 +7645,19 @@ chk 'CAKE_OFF_1013' assets/advisor-kb.js 1
 nochk '부모님께 드릴 꽃과 케이크도' assets/advisor-kb.js
 chk 'CAKE_OFF_1013' scripts/audit/open-course.mjs 1
 chk 'CAKE_OFF_1013' docs/plans/식순연구/순간개편_근거장부.md 3
+# ★[THANKS_GREET_1013 2026-10-13 사장님 «첫인사가 감사인사 부분이잖아» → «적절한 이름으로»] 순간 이름 «첫인사» → «감사 인사»(키 welcome 그대로)
+#   «감사문»은 서약 카드 선택지 이름이라 겹쳐 쓰지 않는다 · 녹음된 나레이션 글(«첫인사를 직접 드리겠습니다»)은 3단계 녹음이 바꾼다
+#   대본 복사는 묶음 이름으로 두 분 글을 찾는다 — 새 이름 · 옛 이름 둘 다 본다(바꾸지 않으면 인사 글이 대본에서 빠진다)
+chk 'THANKS_GREET_1013' assets/ritual-open.js 1
+chk "welcome: { n: '감사 인사', sn: '감사 인사', one: '두 분이 하객께 짧게 감사 인사를 드려요.'" assets/ritual-open.js 1
+nochk "welcome: { n: '첫인사'" assets/ritual-open.js
+chk "blockN: '감사 인사', slug: 'narr-welcome-in'" assets/ritual-cue.js 1
+chk "welcome:{nm:'감사 인사',leg:'welcomeText'" order-preview.html 1
+nochk "welcome:{nm:'첫인사'" order-preview.html
+chk "b.n.indexOf('감사 인사')>-1||b.n.indexOf('첫인사')>-1" order-preview.html 1
+chk '감사 인사(옛 이름 첫인사' api/_ritual-kb.js 1
+# [TILE_FIT_1013] 축사 칸 설명이 360 폭에서 두 줄을 넘어 잘렸다(pick-v2 «360 칸 글 말줄임 0») — «두 분께»를 걷어 한 줄 줄임
+chk "free: '친구 · 형제자매가 축하의 말을 전해요'" assets/ritual-open.js 1
 # ★★[EX_ENTRY_FEEL_1012 2026-10-12 사장님 «느낌에 맞춰 넷 다 (추천)»] 예시가 누르는 입장 멘트 칩 = 예시 느낌 — 정석 담백하게(빌더 기본값) · 기록 힘차게 · 가족 다정하게 · 간결 격식 있게
 #   (옛 정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초는 걷었다) · 멘트 글은 3단계(«멘트는 대대적으로 한번 개선 작업을 할 거야 따로»)에서 · 그때 이 짝도 다시 본다
 chk 'EX_ENTRY_FEEL_1012' assets/ritual-open.js 5
@@ -12500,13 +12513,13 @@ chk '순간마다 한 화면이에요. 듣고, 고르고, 적은 뒤 «다음»�
 nochk '고른 순서대로 장면을 보며 나레이션을 들어 보세요' order-preview.html   # [G9] «고른 순서대로»는 «내가 누른 차례»로 읽힌다
 nochk '고른 차례대로 장면과 나레이션을' order-preview.html   # [INTRO_ORDER_WORD] 안내 2 의 ② 줄도 같은 까닭
 chk 'H1_FIRST_HELLO' order-preview.html 1
-chk '<div class="wn">첫인사</div>' order-preview.html 1
-chk 'aria-label="첫인사"' order-preview.html 1
-chk '첫인사(두 분 작성):' order-preview.html 2
+chk '<div class="wn">감사 인사</div>' order-preview.html 1   # [THANKS_GREET_1013] 옛 «첫인사»
+chk 'aria-label="감사 인사"' order-preview.html 1   # [THANKS_GREET_1013]
+chk '감사 인사(두 분 작성):' order-preview.html 2   # [THANKS_GREET_1013]
 nochk '인사말(두 분 작성)' order-preview.html
 nochk '인사말 예시 보기' order-preview.html   # [H1] 칸 안 예시 단추도 «첫인사 예시 보기»(390 실렌더에서 찾음)
 nochk "welcome:'하객 맞이 인사말'" order-preview.html
-chk "_wo.push('첫인사')" mypage.html 1   # [H1] 마이페이지 식순 요약(새 코스 갈래) · 옛 코스 요약은 그대로
+chk "_wo.push('감사 인사')" mypage.html 1   # [THANKS_GREET_1013]   # [H1] 마이페이지 식순 요약(새 코스 갈래) · 옛 코스 요약은 그대로
 chk 'H2_SEND_LUMP' order-preview.html 1   # [H2] 식전 영상 한 덩어리 · 축배 음료 줄은 그 뒤
 chk 'H3_CALLER_HELPER' assets/ritual-open.js 1
 chk '가족사진 때 친척분들을 불러 모아 주실 분' assets/ritual-open.js 1
