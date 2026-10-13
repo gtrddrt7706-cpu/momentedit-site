@@ -904,7 +904,8 @@
 
   /* ── 남는 장면(«그날 남는 사진» · 코워크 1장 고침) — 준비한 순서는 무엇을에 따라 ── */
   var FREE_SHOT = { video: '함께 보며 웃는 하객들', etc: '두 분이 준비한 순간', gift: '선물을 건네받는 두 분', speech: '말하는 분을 보며 웃는 두 분' };   // [FREE_ETC]
-  function shotOf(k, S) { return k === 'free' ? FREE_SHOT[FREE_KIND[chipOf('free', S)]] : (CARDS[k] || {}).shot; }
+  function shotOf(k, S) { if (k === 'vow' && S && S.vowKind === 'thanks') return '하객을 바라보며 읽는 두 분';   /* ★[THANKS_SHOT_1013] 감사문을 고른 날 «남는 장면»(마이페이지 summary.scenes)이 서약 장면(«서로를 보며 약속하는 옆얼굴»)이었다 — oneOf(oneT)와 같은 갈래 */
+    return k === 'free' ? FREE_SHOT[FREE_KIND[chipOf('free', S)]] : (CARDS[k] || {}).shot; }
 
   /* ── 도와주실 분(코워크 5-6) — 두 분 준비 · 마이페이지 준비 칸. [누가, 언제] ──
      ★«식사 자리로 안내할 분»은 애프터 웨딩을 고른 날만이라 식순만으로는 모른다 — 마이페이지가 덧붙인다(mealGuide). */
