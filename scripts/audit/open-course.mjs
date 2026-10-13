@@ -187,7 +187,8 @@ ok('축가 카드가 «악기 연주는 받지 않아요»를 말한다 · 축�
 /* ★[PARENTS_ENTRY_OFF 2026-10-12 사장님 «양가부모님 입장은 생략»] 화촉 «서는 분» = 10/11 전 차례 — 양가 어머님(기본) · 양가 아버님 · 양가 부모님 네 분 · 다른 두 분 · 입장 +20초 · 하객 인사 걷음 */
 ok('[PARENTS_ENTRY_OFF] 칩 = 어머님 · 아버님 · 부모님 네 분 · 다른 두 분 · 기본은 어머님 · 네 분 판도 시간 같다 · 부탁 글에 «함께 들어와» 없음', O.CANDLE_WHO.map((c) => c[1]).join() === '양가 어머님,양가 아버님,양가 부모님 네 분,다른 두 분' && O.DEF.candleWho === 'mothers'
   && O.partsOf('candle', { candleWho: 'parents' }).join() === O.partsOf('candle', { candleWho: 'mothers' }).join()
-  && !/함께 들어와|하객께 인사/.test(JSON.stringify(O.prepOf('candle', { candleWho: 'parents' }))));
+  && !/함께 들어와|들어와 하객께|입장/.test(JSON.stringify(O.prepOf('candle', { candleWho: 'parents' }))));   /* [OPEN_WORDS_1013] 막는 것은 «들어와(입장) → 하객께 인사»(옛 CANDLE_PARENTS_FIRST) · 불을 밝힌 뒤 인사는 화촉의 한 동작이라 부탁 글에 적는다([CANDLE_BOW_1012]) */
+ok('[OPEN_WORDS_1013] 화촉 부탁 글 = 불을 밝히고 하객께 인사(콘솔 · 이야기와 같은 동작) · 다른 두 분 판은 부탁 줄 그대로', ['mothers', 'parents', 'fathers'].every((w) => /불을 밝히고 하객께 인사해 주세요$/.test(O.prepOf('candle', { candleWho: w })[0][1])) && O.prepOf('candle', { candleWho: 'others' })[0][1] === '화촉을 밝혀 주실 두 분께 부탁드리기');
 ok('[PARENTS_ENTRY_OFF] 콘솔 — 네 분 판은 자리에서 나와 불을 밝힌다 · 따로 걷는 입장 없음 · [CANDLE_BOW_1012] 불을 밝힌 뒤 하객께 인사', (() => { const r = C.build({ course: 'open', on: { candle: 1 }, candleWho: 'parents' }, { mode: 'console' }); const c = r.cues.find((x) => /^narr-candle-in-parents$/.test(x.slug || '')); const t = ((c && c.live) || {}).t || ''; return !!c && /네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로/.test(t) && !/입장/.test(t); })());
 /* ★[CANDLE_BOW_1012 2026-10-12 사장님 «부모님 입장을 생략한다는 얘기였어 · 신랑 신부는 입장해야지»] 생략은 부모님 입장 하나 · 신랑 신부 입장은 늘 · 불을 밝힌 뒤 인사는 화촉의 한 동작(자료 D · G · O) */
 ok('[CANDLE_BOW_1012] 신랑 신부 입장은 늘 있다(아무것도 안 담아도 입장 · 맞절 · 닫는 인사 [MATJEOL_SPLIT_1013])', O.ALWAYS.entry === 1 && O.ALWAYS.matjeol === 1 && O.bodySeq({ on: {} }).join(',') === 'entry,matjeol,_close');
@@ -217,8 +218,14 @@ ok('화촉 서는 분 → 여는 말 판', ['mothers', 'parents', 'fathers', 'ot
 /* ★[DECLARE_BY_PERSON 2026-10-12 사장님] 선언 박수 판(96 · 97)은 걷었다 — 옛 초안의 clap 값이 와도 여는 말 136 → 사람 낭독 → 맺는 말 57 */
 ok('[DECLARE_BY_PERSON · DECLARE_ANYONE] 옛 박수 판(clap) 값 → 96 · 97 없음 · 여는 말 136 · 맺는 말 57 · 누가 읽든 여는 말 하나(134 · 135 없음)', (() => { const s = slugs({ course: 'open', on: { declare: 1 }, declare: 'clap' }); return s.indexOf('declare-clap-a') < 0 && s.indexOf('declare-clap-b') < 0 && s.indexOf('narr-declare-in-friend') > -1 && s.indexOf('narr-declare-family-out') === s.indexOf('narr-declare-in-friend') + 1; })()
   && ['gdad', 'bdad', '신부 아버님', ''].every((w) => { const s = slugs({ course: 'open', on: { declare: 1 }, declareWho: w }); return s.indexOf('narr-declare-in-friend') > -1 && s.indexOf('narr-declare-in-gdad') < 0 && s.indexOf('narr-declare-in-bdad') < 0; }));
-ok('[WINE_POUR_OFF] 옛 초안의 «두 와인» 값이 와도 붓기 없음 · 선창 81 그대로', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'mix' }); return s.every((x) => x.indexOf('toast-pour') < 0) && s.indexOf('toast-both-b') > -1 && s.indexOf('toast-both-pour-b') < 0; })());
-ok('붓지 않는 날은 선창 81 그대로', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'none' }); return s.indexOf('toast-both-b') > -1 && s.indexOf('toast-both-pour-b') < 0; })());
+ok('[WINE_POUR_OFF] 옛 초안의 «두 와인» 값이 와도 붓기 없음 · 선창은 40 [TOAST_40_OPEN_1013]', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'mix' }); return s.every((x) => x.indexOf('toast-pour') < 0) && s.indexOf('toast-toast') > -1 && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0; })());
+/* ★[TOAST_40_OPEN_1013 2026-10-13] 옛 초안(케이크 + 축배)이어도 새 코스 축배는 40 — 케이크 몫(42)은 케이크 칸 그대로 · 76 «잔이 가는 동안»은 닫는 인사 뒤에 나가지 않는다 · 옛 코스는 76 그대로 */
+ok('[TOAST_40_OPEN_1013] 옛 초안(케이크 + 축배) → 축배는 40 · 56 · 76 없음 · 케이크는 42 · 닫는 인사가 그 사이 · 옛 코스는 76 그대로', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'none' });
+  const o = C.build({ course: 'festive', toast: 'both', extra: { toast: 1 } }, { mode: 'console' }).cues.map((x) => x.slug);
+  return s.indexOf('toast-toast') > -1 && s.indexOf('narr-toast-out') > s.indexOf('toast-toast') && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0
+    && s.indexOf('toast-both') > -1 && s.indexOf('toast-both') < s.indexOf('narr-close-bow') && s.indexOf('narr-close-bow') < s.indexOf('toast-toast') && o.indexOf('toast-both-b') > -1; })());
+ok('[TOAST_40_OPEN_1013] ① 대표 줄도 40 · 화면 글은 엔진 글과 같다(따옴표만 다르다)', (() => { const sm = O.sampleOf('toast', {}); const t = (C.build(O.sampleS({}), { mode: 'console' }).cues.find((c) => c.slug === 'toast-toast') || {}).text || '';
+  return sm.slug === 'toast-toast' && t.length > 0 && sm.screen.replace(/[«»]/g, '').replace(/\s+/g, '').replace(/,/g, '') === t.replace(/[«»]/g, '').replace(/\s+/g, '').replace(/,/g, ''); })());
 ok('[WINE_POUR_OFF] 옛 초안의 «양가 한 병씩» 값이 와도 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'toast', wine: 'family' }).every((x) => x.indexOf('toast-pour') < 0));
 ok('케이크만이면 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'cake', wine: 'mix' }).every((x) => x.indexOf('toast-pour') < 0));
 /* ★[CLAP_FEW 2026-09-26 사장님] 104(맺는 말 «따뜻한 박수 부탁드립니다»)는 흐름에서 뺐다 · 클립은 FILES 에 둔다 */

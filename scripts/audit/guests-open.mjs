@@ -33,6 +33,8 @@ const FILES = [
   'api/_kb.js', 'api/advisor.js', 'api/ritual-advisor.js', 'api/schedule-advisor.js', 'api/_ritual-kb.js',
   'assets/advisor-kb.js',
   'docs/smartstore/상세페이지_원본.html',
+  /* ★[GUESTS_OPEN_BUILDER 2026-10-13] 식순 화면과 그 원천도 고객이 읽는 면이다 — 빠져 있어 «영상을 보는 가족들의 얼굴» · «가까운 분들만 모신 자리»가 검사 밖이었다 */
+  'order-preview.html', 'assets/ritual-open.js', 'assets/ritual-data.js', 'assets/ritual-story.js',
 ];
 for (const dir of ['i', 'i/invitations', 'i-family']) {
   for (const f of fs.readdirSync(path.join(ROOT, dir))) if (f.endsWith('.html')) FILES.push(`${dir}/${f}`);
@@ -45,7 +47,7 @@ const BAN = [
   [/직계가족\s*(중심|을 위한|만)/, '「직계가족 중심·을 위한·만」'],
   [/가족\s*중심/, '「가족 중심」 — 예식을 가족의 것으로 좁힌다(작은 예식 · 가까운 분들로)'],
   [/가족만을\s*위해/, '「가족만을 위해」 — 공간 독점은 «초대하신 분들»의 것이다'],
-  [/가까운\s*(가족|이들)만/, '「가까운 가족만·가까운 이들만」'],
+  [/가까운\s*(가족|이들|분들)만/, '「가까운 가족만·가까운 이들만·가까운 분들만」'],   // [GUESTS_OPEN_BUILDER] «분들만» 더함
   [/가족\s*\d+\s*명의/, '「가족 N명의」 — 하객을 가족으로 센다'],
   [/양가\s*가족만\s*모시는/, '「양가 가족만 모시는」 — 9/9 에 걷은 옛 히어로'],
   [/가족스냅/, '「가족스냅」 — 가격 줄 구성 이름(단체사진)'],

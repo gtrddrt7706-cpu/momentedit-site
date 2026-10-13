@@ -923,7 +923,7 @@
       return [cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-in', name: '자유 한 칸 시작',
         text: D.NARR.freeIn, duck: PARAM.duckMusic, pick: '두 분이 정한 순서',
-        live: { t: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)', est: 120, duck: PARAM.duckOff, self: true, doing: 'move', note: '무엇이 올지 모른다 — 음악·마이크·화면 필요 여부를 리허설에서 미리 물어 둔다' }
+        live: { t: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)', est: 120, duck: PARAM.duckOff, self: true, doing: 'move', note: '무엇이 올지 모른다 — 음악·마이크·화면 필요 여부를 예식 전에 미리 물어 둔다(별도 리허설은 없다 [NO_REHEARSAL_1013])' }
       }), cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-out', name: '자유 한 칸 마무리',
         text: D.NARR.freeOut, duck: PARAM.duckMusic
@@ -950,8 +950,13 @@
     toast: function (S) {
       if (!D.COURSES[S.course] || !D.COURSES[S.course].open) return BUILD._toastAll(S);
       if (!O.onOf(S, 'toast')) return [];
-      return BUILD._toastAll(S).filter(function (c) { return !/^toast-(both|cake)$|^narr-cake-out$/.test(c.slug); })
-        .map(function (c) { c.blockN = '축배'; return c; });
+      /* ★[TOAST_40_OPEN_1013 2026-10-13 닫는 순간 줄 검토 · 자료 AA] 새 코스 축배는 판(케이크를 함께 담았나)과 상관없이 40 축배 판 글로 간다.
+         축배가 닫는 인사 뒤로 옮긴 뒤([TOAST_LAST_1013]) 케이크와 축배 사이에 닫는 인사가 들어가, 옛 초안(케이크 + 축배)의
+         76 «두 사람에게 잔이 가는 동안»(나이프를 걷고 잔을 쥐여 드리는 사이를 덮던 줄)이 닫는 인사 뒤에 나갔다.
+         케이크 몫(42)은 위 BUILD.cake 가 S 그대로 만든다 · 옛 코스는 _toastAll 그대로. 76 으로 되돌리지 말 것. */
+      var T = {}; for (var _k in S) T[_k] = S[_k];
+      T.toast = 'toast';
+      return BUILD._toastAll(T).map(function (c) { c.blockN = '축배'; return c; });
     },
     _toastAll: function (S) {
       var t = D.TOAST[S.toast] || D.TOAST.toast;
@@ -1210,7 +1215,7 @@
       k: 'table', blockN: '테이블 인사', slug: 'narr-table-in', name: '테이블 인사 · 두 분이 하객께', text: D.NARR.tableIn,
       duck: -12, note: '닫는 인사 박수가 잦아들면 · 두 분이 자리를 떠나기 전에 · 오늘 ' + O.tableN(S) + '테이블 × 1분 30초',   /* [TABLE_GREET_1008] 테이블 수는 note 에 — live.t 는 이야기 표(ritual-story LIVE)의 열쇠라 판마다 바뀌면 안 된다(STORY_COVER) */
       live: { t: '두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초쯤 · 다 돌면 GO → 사진 안내', est: O.TABLE_SEC * O.tableN(S), self: true, doing: 'move', duck: -12,
-        fallback: '시간이 다 되면 디렉터 GO → 26 이 모두를 사진으로 모은다 · 못 들른 테이블은 배웅 줄에서 인사' }   /* [TABLE_GREET_1008] 사장님 «두 분 자유 · 시간 다 되면 안내 한 줄» — 디렉터가 테이블을 넘기지 않는다 */
+        fallback: '시간이 다 되면 디렉터 GO → 26 이 모두를 사진으로 모은다 · 못 들른 테이블은 단체 사진 뒤 감사 인사(목례)에서 함께' }   /* [CLOSE_WORDS_1013] 배웅 줄은 9/26 PHOTO_THANKS 로 없앴다 */   /* [TABLE_GREET_1008] 사장님 «두 분 자유 · 시간 다 되면 안내 한 줄» — 디렉터가 테이블을 넘기지 않는다 */
     }));
     // 폐식 — 목록 밖 고정
     cues.push(cue({

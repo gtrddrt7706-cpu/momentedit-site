@@ -749,7 +749,7 @@ else {
   ok(`P-1 ① 창 — 영상 있는 ${r.n}순간 모두 열면 영상이 돈다(대표 줄이 없어도) [PV_VID_NOLINE]`, r.n >= 13 && r.sheet.length === 0, r.sheet.join(','));
   ok('P-2 ① 창 «다시 듣기 · 처음부터» 누르면 다시 돈다 · 모든 순간', r.again.length === 0, r.again.join(','));
   ok('P-2b ① 창 영상 — 눌러도 · Enter 도 아무 일 없음 · tabindex · 손가락 커서 · controls 없음 · 꾸밈(«다시 듣기»만 다시 튼다) [VID_AUTO_ONLY 2026-10-03 사장님]', !(r.sheetTap || []).length, JSON.stringify(r.sheetTap || []));
-  ok('P-3 ① 창 대표 줄 — 케이크 밖 모든 순간이 엔진에서 찾힌다(축배 76 · 죽은 slug 0) [SAMPLE_TOAST_LIVE]', r.line.length === 0, r.line.join(','));
+  ok('P-3 ① 창 대표 줄 — 케이크 밖 모든 순간이 엔진에서 찾힌다(축배 40 TOAST_40_OPEN_1013 · 죽은 slug 0) [SAMPLE_TOAST_LIVE]', r.line.length === 0, r.line.join(','));
   ok('P-4 크게 보기 — 모든 순간에서 영상이 불린다 · 다시 그려도 같은 영상 요소(처음으로 안 돌아감) [LF_VID_KEEP]', r.full.length === 0 && r.keep.length === 0, JSON.stringify({ full: r.full, keep: r.keep }));
   /* [VID_AUTO_ONLY 2026-10-03 사장님] P-5 · P-6 은 «누르면 돈다 · 소리를 틀면 돈다» → «아무 일 없음»으로 뒤집었다(칩 · 들어 보기가 끝난 영상을 다시 틀던 원인) */
   ok('P-5 ② 하나씩 만들기 — 그림을 눌러도(Enter 도) 아무 일 없음 · tabindex 없음 · 손가락 커서 없음 · 꾸밈 [VID_AUTO_ONLY]', r.make.length === 0 && r.makeKey.length === 0, JSON.stringify({ make: r.make, key: r.makeKey }));

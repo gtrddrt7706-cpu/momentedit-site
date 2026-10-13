@@ -12563,7 +12563,9 @@ chk 'ENTRY_LAB_QUOTE' order-preview.html 1
 chk 'TILE_FREE_COMMA' assets/ritual-open.js 1
 nochk '고른 순간에만 나서요' order-preview.html 1   # 옛 코스 갈래 한 줄만 남는다(새 코스는 «담은 순간에만»)
 chk '담은 순간에만 나서요' order-preview.html 1
-chk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.' assets/ritual-open.js 1
+chk '단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.' assets/ritual-open.js 1   # [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날도 참
+nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' assets/ritual-open.js 0
+nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' order-preview.html 0
 chk '두 분이 하객께 목례 · 박수' order-preview.html 1
 chk '<em>→ 한눈에 보기에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번 · [STEP_NONUM_OP 2026-10-03] «③에서» → 이름
 chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»
@@ -18072,3 +18074,40 @@ nochk 'lyFirst(L,+p.H-off)' assets/entry-music.js                               
 nochk 'g.gain.linearRampToValueAtTime(lv,t0+0.5)' assets/entry-music.js                                         # ★미리 듣기 첫소리 0.5초 직선(종전) — 2.5초 u² 로 바뀌었다
 nochk 't0=a.currentTime+0.08, x0=' assets/entry-music.js                                                        # ★누르자마자(0.08초) 걸던 옛 시작 — 앞이 씹혔다
 nochk 'var t0=a.currentTime+0.15, R={id:id' assets/entry-music.js
+# ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
+#   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
+#   여는 순간: 식전 영상 «끝나면 입장»(화촉을 담으면 영상 뒤가 화촉) · 화촉 «예식의 시작을 알려요»(시작은 1분 전 안내 · 개식이 알린다) 걷기
+#   닫는 순간: 닫는 인사 «이어서 하객 모두와 한 장»(축배 · 테이블 인사를 담은 날 틀림) · 테이블 인사 «못 들른 테이블은 배웅 때»(배웅 줄 없음) 걷기
+#   축배: 새 코스는 판과 상관없이 40(옛 초안 케이크 + 축배의 76 «잔이 가는 동안»이 닫는 인사 뒤에 나가던 것) · ① 대표 줄도 40
+#   리허설: 별도 예행연습은 없다(_kb.js) — «리허설 때 한 번 같이 읽어 봐요» · «리허설 때 알려 주세요» 걷기
+chk 'OPEN_WORDS_1013' assets/ritual-open.js 6
+chk 'OPEN_WORDS_1013' assets/ritual-story.js 8
+chk 'OPEN_WORDS_1013' order-preview.html 3
+chk 'OPEN_WORDS_1013' scripts/audit/open-course.mjs 2
+chk 'CLOSE_WORDS_1013' assets/ritual-open.js 2
+chk 'CLOSE_WORDS_1013' assets/ritual-story.js 4
+chk 'CLOSE_WORDS_1013' assets/ritual-cue.js 1
+chk 'CLOSE_WORDS_1013' order-preview.html 2
+chk 'TOAST_40_OPEN_1013' assets/ritual-cue.js 1
+chk 'TOAST_40_OPEN_1013' assets/ritual-open.js 1
+chk 'TOAST_40_OPEN_1013' scripts/audit/open-course.mjs 4
+chk 'TOAST_40_OPEN_1013' scripts/audit/listen-page.mjs 1
+chk "T.toast = 'toast';" assets/ritual-cue.js 1                                          # 새 코스 축배 = 40 축배 판 글
+chk "toast: { slug: 'toast-toast', screen: '마지막으로, 다 같이 잔을 들어 주세요." assets/ritual-open.js 1
+nochk "toast: { slug: 'toast-both-b'" assets/ritual-open.js                              # ★76(케이크 판 글)을 축배 대표 줄로 되돌리지 말 것
+chk 'NO_REHEARSAL_1013' assets/ritual-data.js 1
+chk 'NO_REHEARSAL_1013' order-preview.html 1
+chk 'NO_REHEARSAL_1013' api/_ritual-kb.js 1
+chk 'NO_REHEARSAL_1013' assets/ritual-cue.js 1
+nochk '리허설 때 한 번 같이 읽어 봐요, 틀려도' assets/ritual-data.js                       # 별도 예행연습은 없다
+nochk '리허설 때 한 번 같이 읽어 봐요, 틀려도' order-preview.html
+nochk "safe: '리허설 때" assets/ritual-story.js
+nochk '하고 싶으시면 리허설 때' assets/ritual-story.js
+nochk '리허설 때 한 번 같이 읽어 보면 좋다' api/_ritual-kb.js
+nochk '필요 여부를 리허설에서 미리 물어' assets/ritual-cue.js
+chk 'GUESTS_OPEN_BUILDER' live.html 1
+chk 'GUESTS_OPEN_BUILDER' scripts/audit/guests-open.mjs 2
+nochk '두 분의 가까운 분들만을 위해' live.html                                           # [GUESTS_OPEN] 하객을 좁히지 않는다
+nochk '가까운 분들만 모신 자리라' assets/ritual-data.js
+nochk '가까운 분들만 모신 자리라' order-preview.html
+chk 'BALL_BOW_TIP_1013' assets/ritual-story.js 1
