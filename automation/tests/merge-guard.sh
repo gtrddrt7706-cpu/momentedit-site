@@ -17728,7 +17728,7 @@ nochk "cssv('--seal'" assets/entry-music.js                         # [GRAPH_NO_
 chk 'ENTRY_BIG_1012' order-preview.html 1
 chk 'ENTRY_BIG_1012' assets/entry-music.js 3
 chk 'ENTRY_BIG_1012' scripts/audit/entry-music.mjs 1
-chk "pillHtml(st,PL)+bigBtnHtml(st)+'</div></section>'" assets/entry-music.js 1   # 크게 보기 단추는 알약 옆 한 자리
+chk "'<div class=\"mk-sech mk-sech-r em-play\">'+pillHtml(st,PL)+bigBtnHtml(st)+'</div>';" assets/entry-music.js 1   # 크게 보기 단추는 알약 옆 한 자리 · [ONE_PLAY_1013] 그 줄 아래 다 못 만든 줄 알림(_lsNote) 뒤에 칸을 닫는다
 chk 'function openBig' assets/entry-music.js 1
 chk 'function closeBig' assets/entry-music.js 1
 chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
