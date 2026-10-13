@@ -17832,6 +17832,14 @@ chk 'SCENE_WAIT_FILL' assets/entry-music.js 2
 chk 'SCENE_WAIT_FILL' order-preview.html 2
 chk 'SCENE_WAIT_FILL' scripts/audit/rec-song-ui.mjs 2                                             # 15g 받는 동안 목소리 조각 · 장면 줄이 보이고 · 받은 뒤 장면 줄이 그 자리
 nochk '.em-graph .lg-scene.wait{visibility:hidden}' order-preview.html                            # ★받는 동안 장면 줄을 숨기지 말 것 — 2026-10-13 사용자 지시
+# ── 2026-10-13 추천 곡 가사 [LY_KO_TOP] — 사장님 참고 사진 «사람들은 / People say»: 한글이 위(노란색 · 종전 영문 금빛) · 영문이 아래(흰색 · 살짝 기울임) · 글씨 작게
+#   영문이 기울지 않던 까닭 = 빌더가 Cormorant 기울임꼴을 안 불렀고 html{font-synthesis:weight}(KO_NO_FAUX_ITALIC)라 흉내 기울임도 없었다 → 글꼴 주소에 1,500
+chk 'LY_KO_TOP' order-preview.html 4
+chk 'LY_KO_TOP' assets/entry-music.js 1
+chk 'LY_KO_TOP' scripts/audit/rec-song-ui.mjs 2                                                  # 4b 순서 · 색 · 기울임 · 크기
+chk 'Cormorant+Garamond:ital,wght@0,500;0,600;1,500' order-preview.html 1                         # 기울임꼴 500 을 불러야 영문 가사가 실제로 기운다
+chk "function lyHtml(line){ return (line\[2\]?" assets/entry-music.js 1                              # 한글(line[2])이 먼저
+nochk 'family=Cormorant+Garamond:wght@500;600&' order-preview.html                                 # ★기울임꼴 없는 옛 주소로 되돌리지 말 것 — 영문 가사가 바로 선다
 chk 'LY_LEAD=0.35, LY_LAT_MAX=0.12' assets/entry-music.js 1                                        # [LY_LEAD] 가사는 0.35초 앞서
 chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                                      # 받은 곡은 이 기기에 — 다시 들을 때 다시 묻지 않는다(서버 시간당 60번)
 nochk 'songs.json' assets/entry-music.js                                                           # 곡 목록 · 가사는 저장소에 두지 않는다

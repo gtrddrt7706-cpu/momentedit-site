@@ -409,7 +409,7 @@
   function lyAt(L,x){ for(var i=L.length-1;i>=0;i--) if(+L[i][0]<=x+0.05) return x<lyEnd(L,i)?i:-1; return -1; }
   function lyFirst(L,H){ var hx=H+LY_HOOK_AT; for(var j=0;j<L.length;j++){ if(+L[j][0]>hx||hx<lyEnd(L,j)) return j; } return L.length; }
   function lyBr(s){ return e(s).replace(/\n/g,'<br>'); }   /* 한 시각에 묶인 두 줄 */
-  function lyHtml(line){ return (line[1]?'<span class="mu-en" lang="en">'+lyBr(line[1])+'</span>':'')+(line[2]?'<span class="mu-ko'+(line[1]?'':' mu-nt')+'">'+lyBr(line[2])+'</span>':''); }
+  function lyHtml(line){ return (line[2]?'<span class="mu-ko'+(line[1]?'':' mu-nt')+'">'+lyBr(line[2])+'</span>':'')+(line[1]?'<span class="mu-en" lang="en">'+lyBr(line[1])+'</span>':''); }   /* ★[LY_KO_TOP 2026-10-13 사장님 참고 사진] 한글(노란색)이 위 · 영문(흰색 · 살짝 기울임)이 아래 — 종전 영문 위 · 한글 아래 */
   function lyPut(sl,h){ var b=sl&&sl.querySelector('.mu-lines'); if(!b||b.__h===h) return; var was=!!b.__h; b.__h=h; clearTimeout(b.__t);
     if(!h){ b.classList.remove('cur'); b.__t=setTimeout(function(){ if(!b.__h) b.innerHTML=''; },RM?0:400); return; }   /* 사라질 때 = 흐려진 뒤 비운다 */
     if(!was){ b.innerHTML=h; void b.offsetWidth; b.classList.add('cur'); return; }   /* 처음 나타날 때 = 그 순간 떠오른다 */
