@@ -17729,6 +17729,9 @@ chk 'function openBig' assets/entry-music.js 1
 chk 'function closeBig' assets/entry-music.js 1
 chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
 chk '#emFull .lg-scene{display:none}' order-preview.html 1           # 크게 보기는 자막이 장면을 말한다(장면 줄 숨김)
+# ── 2026-10-13 [VK_ROW_MID] 크게 보기 머리 줄의 표 둘(«나레이션» + «입장 음악 · 곡») · 표 + 덧말을 한 줄 가운데로 — 아이콘 든 표가 3~4px 떠 있었다 · entry-music 점검 20 이 잰다(1px 안)
+chk '.lf-vk .vk,.lf-vk .vk-note{vertical-align:middle}' order-preview.html 1
+chk 'VK_ROW_MID' scripts/audit/entry-music.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-music.mjs >/dev/null 2>&1; _emu=$?; if [ "$_emu" = 1 ]; then echo 'FAIL entry-music: ② 입장 «입장 음악» 줄(올리기 · 자리 · 직접 적기 · 안내 창 · 저장 · 되살리기) · 음악과 함께 듣기 · 크게 보기가 깨졌습니다 — node scripts/audit/entry-music.mjs'; fail=1; elif [ "$_emu" = 0 ]; then echo 'ok entry-music: 입장 음악 줄 · 음악과 함께 듣기 390 · 1280'; else echo 'skip entry-music: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-12 입장 음악 3단계-가 [ENTRY_SONG_UP] — 올린 곡을 스튜디오로(마이페이지 → GAS handleRitualFile · 자리 mu · 드라이브 · 공개 주소 없음)
 #   초안 S.mu.fid = 서버 파일 id(당일 콘솔이 미리 받는다 · 3-나) · 다른 기기에서는 그 id 로 다시 받아 같은 자리 · 곡을 바꾸거나 빼면 서버 파일도 지운다 · 20MB 넘는 파일은 안 보낸다
