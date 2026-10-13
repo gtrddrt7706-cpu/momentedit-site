@@ -7804,6 +7804,10 @@ chk 'SONG_OPEN_ANYONE_1013' scripts/audit/narr-words.mjs 1
 chk 'SOURCE_WORDS_1013' docs/plans/식순연구/3단계_원고_1013.md 1   # 자료 글은 구호 · 정형구 · 뼈대만 그대로 · 문장은 우리 말로
 node scripts/audit/narr-words.mjs || fail=1
 node scripts/audit/narr-words.mjs --selftest || fail=1
+# ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
+#   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
+chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
+node scripts/build-rev1013.mjs --check || fail=1
 # ★[FOOD_NO_WELCOME 2026-10-10 사장님] 홈페이지 제공 항목에서 «웰컴» 뺌 — 핑거 푸드는 사진용 차림 · 건배 뒤에 드시게
 chk 'FOOD_NO_WELCOME' index.html 1
 nochk '<li>웰컴 핑거 푸드' index.html
