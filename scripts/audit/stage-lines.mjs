@@ -40,13 +40,13 @@ try {
       if (N.some((x) => /부부입니다|부부가 되었습니다/.test(x.txt))) n4.push(id + ' 나레이션이 수행문을 말한다');
       if (!r.some((x) => x.t === 'A' && /차례$|읽어요/.test(x.txt + x.lab))) n4.push(id + ' 읽는 분 차례 없음');
       if (r.some((x) => /박수 · 두 분이 부부가 돼요/.test(x.txt))) n4.push(id + ' 옛 박수 줄'); } });
-  ok(`조합 ${res.length}개를 다 봤다(순간 ${new Set(res.map((m) => m.k)).size}개)`, res.length >= 30 && new Set(res.map((m) => m.k)).size >= 14, String(res.length));
+  ok(`조합 ${res.length}개를 다 봤다(순간 ${new Set(res.map((m) => m.k)).size}개)`, res.length >= 28 && new Set(res.map((m) => m.k)).size >= 14, String(res.length));   // [CAKE_OFF_1013] 케이크 칸을 새로 담지 않아 조합이 30 → 28 로 줄었다(맞절 순간으로 29) — 기준을 맞췄다
   ok('① 나레이션이 있는 순간마다 하는 일 줄이 하나 이상 [STAGE_LINES]', !n1.length, n1.join(' | '));
   ok('② «…끝나면» 줄 바로 앞은 하는 일 줄 [STAGE_LINES]', !n2.length, n2.join(' | '));
   ok('③ 줄 이름에 «여는 말 · 맺는 말 · 이음말» 없음 [STAGE_LINES]', !n3.length, n3.join(' | '));
   ok('④ 선언 — 나레이션은 «시작할 때 · 끝나면»뿐 · 수행문은 나레이션이 말하지 않는다 · 사이에 읽는 분 차례 · «박수 · 부부가 돼요» 없음 [STAGE_LINES · DECLARE_BY_PERSON]', !n4.length, n4.join(' | '));
   const tn = res.find((m) => m.k === 'tribute' && /none/.test(m.c)), ck = res.find((m) => m.k === 'cake'), vw = res.find((m) => m.k === 'vow');
-  ok('부모님께 인사 «말 없이» — 여는 말과 맺는 말 사이 «꽃을 건네고 안겨요 · 말 없이»', !!tn && tn.rows.some((x) => x.t === 'A' && /꽃을 건네고 안겨요 · 말 없이$/.test(x.txt)), tn && JSON.stringify(tn.rows));
+  ok('부모님께 인사 «말 없이» — 여는 말과 맺는 말 사이 «인사하고 안겨요 · 말 없이»(꽃 없이 · FLOWER_OFF_1013)', !!tn && tn.rows.some((x) => x.t === 'A' && /앞으로 가 인사하고 안겨요 · 말 없이$/.test(x.txt)), tn && JSON.stringify(tn.rows));
   ok('케이크 — «두 분이 함께 케이크를 잘라요» · 서약 — «마지막 두 문장은 … 하객 쪽으로 돌아서서»', !!ck && ck.rows.some((x) => x.t === 'A' && /케이크를 잘라요/.test(x.txt)) && !!vw && vw.rows.some((x) => x.t === 'A' && /하객 쪽으로 돌아서서/.test(x.txt)));
   ok('성혼 선언 설명 «성혼 선언문을 읽으면 두 분이 부부가 돼요»', await pg.evaluate(() => RitualOpen.CARDS ? /성혼 선언문을 읽으면/.test(JSON.stringify(RitualOpen.CARDS.declare || '')) : true));
   ok('pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));

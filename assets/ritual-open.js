@@ -689,9 +689,16 @@
      되살리지 말 것: «저희가 준비해요 · 케이크 · 부모님께 드릴 꽃»은 값에 든 것처럼 읽힌다.
      꽃은 인사 방식이 «꽃과 포옹»일 때만(신랑 큰절은 꽃이 없다) · 케이크는 «축배만»이 아닐 때만. */
   var GOODS = [
-    { k: 'cake', key: 'cakeBy', what: '케이크', need: function () { return true; } },   // [CAKE_TOAST_SPLIT]
-    { k: 'tribute', key: 'flowerBy', what: '부모님께 드릴 꽃', need: function (S) { return (S && S.tribute) !== 'bowGroom'; } }
+    { k: 'cake', key: 'cakeBy', what: '케이크', need: function () { return true; } }   // [CAKE_TOAST_SPLIT]
+    /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «부모님께 드릴 꽃»(tribute · flowerBy) 줄 금지 — 2026-10-13 사용자 지시로 삭제.
+       부모님께 인사는 다가가 인사하고 안아 드리는 것까지(TRIB_ACT) · 저희가 꽃을 준비하지 않는다(계약서 v1.15 별도 비용 줄도 걷음 · CONTRACT_V115).
+       키 flowerBy 는 옛 초안 호환으로만 남는다(chipOf · setChip) */
   ];
+  /* ★★[FLOWER_OFF_1013] 새 코스의 부모님께 인사 «방식» 글은 여기 하나 — 엔진 값 S.tribute 는 옛 초안 호환 이름 «flower» 그대로(뜻은 인사와 포옹).
+     옛 코스(ritual-data TRIBUTE.modes · 녹음된 옛 어조 문안)는 그대로다 — 옛 예식의 소리가 바뀌지 않게.
+     ritual-cue(큐 이름 · 현장 지문) · 빌더(요약 · 연출 줄) · AI 상담이 이것을 읽는다. «꽃을 건네고» · «꽃 전달» 되살리지 말 것 */
+  var TRIB_ACT = { d: '인사와 포옹', how: '부모님께 다가가 인사하고 안아 드려요',
+    cue: '양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 인사 · 포옹' };
   var GOODS_COST = '별도 비용이에요';   // [GOODS_STUDIO] 식순은 상담을 다 마친 뒤 짓는다 — «상담 때 안내» 금지(2026-10-06 사장님 «식순을 준비하는 단계는 이미 상담을 전부 진행한 후야»)
   var BOUQUET = ['기본 조화 부케', '생화를 원하시면 별도 비용이에요'];   // [GOODS_STUDIO] 부케는 순간에 매이지 않는다 · «저희가 준비해요»에 늘 한 줄
   var BOUQUET_LINE = BOUQUET[0] + '는 저희가 준비해요 · ' + BOUQUET[1];
@@ -952,13 +959,14 @@
                  파일: /assets/video/moments/<이름>.mp4 (16:9 · 1280×720 · 6~10초 · 소리 없음 · [VIDEO_V8_0928]) + <이름>.webp(첫 장면)
      videoKeys  한 순간이 쓰는 장면 이름들(판에 따라 · 차례대로) — 케이크만 cake · 축배만 toast · 둘 다 cake → toast
      talkOf     사람이 말하는 자리의 글 카드(«여기서 … · 약 n분») — 보고 듣기는 그 자리를 기다리지 않고 3초 보여 주고 넘어간다 */
+  /* ★[FLOWER_OFF_1013 2026-10-13 사장님] 부모님께 인사 장면 글은 꽃 없이(인사하고 안겨요) — «꽃을 건네고» 되살리지 말 것 */
   var SCENE = {
     guest: '테이블에 앉는 하객들 사이로 촛불이 흔들려요', prevideo: '불을 낮춘 방 · 화면 빛을 받는 하객들의 뒷모습',
     candle: '두 손이 긴 초에 불을 옮겨요', entry: '문이 열리고 두 분이 함께 걸어 들어와요', matjeol: '마주 선 두 분이 천천히 고개를 숙여요' /* [MATJEOL_SPLIT_1013] */,
     welcome: '두 분이 마이크 하나로 차례로 인사해요', bless: '자리에서 마이크를 든 부모님 · 듣는 두 분의 뒷모습',
     vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
     song: '노래하는 분 · 손을 잡고 듣는 두 분',   // [SONG_BACK_1011] 장면 영상이 아직 없다 — 영상이 오면 VIDEO_READY 에 이름만 더한다
-    tribute: '두 분이 부모님께 꽃을 건네고 안겨요', free: '말하는 분을 보며 웃는 두 분' /* [SPEECH_TILE_1012] 축사 · 옛 «영상» 판은 영상(free.mp4)이 이 글 대신 나온다 */, letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
+    tribute: '두 분이 부모님께 인사하고 안겨요', free: '말하는 분을 보며 웃는 두 분' /* [SPEECH_TILE_1012] 축사 · 옛 «영상» 판은 영상(free.mp4)이 이 글 대신 나온다 */, letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
     cake: '두 손이 함께 나이프로 케이크를 잘라요', toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요',
     table: '두 분이 테이블 사이를 걸어요 · 하객들이 자리에서 맞아요'   // [TABLE_GREET_1008] 장면 글 · ★[TABLE_VIDEO_1009 2026-10-09] 이제 영상(table.mp4)이 있어 다른 순간처럼 영상이 없을 때만 쓴다
   };
@@ -971,6 +979,7 @@
        entry   8.0초          첫 장면은 손과 부케 가까이 · 문으로 들어오는 두 분
        toast   2.5초          사장님 지정 · 두 분이 잔을 가슴 높이로 든 장면(10/9 v8)
        tribute 8.0초          사장님 지정 · 부케를 든 어머님을 안는 신부 · 곁의 신랑
+                              ★[FLOWER_OFF_1013] 10/13 부터 꽃을 건네지 않는다 — 이 영상은 어머님이 부케를 든 장면이라 새 영상(꽃 없이 안기는 장면)이 오면 같은 이름으로 바꾼다
        prevideo 7.7초         사장님 지정 · 화면을 보는 하객 뒷모습
        나머지  첫 장면        (끝 장면은 주인공이 빠진다 · 덕담 뒷모습 · 편지 손 · 닫는 인사 발)
        ★초는 v8 받은 원본 기준(10/9 · 종전 v2 표의 6.0 · 2.0 · 6.0 은 옛 판) · 고른 다섯 편의 칸 그림은 그 원본에서 뽑아 둔 그대로다.
@@ -1021,7 +1030,7 @@
 
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
-    prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
+    prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
