@@ -7795,9 +7795,12 @@ chk 'KB_WINE_CAKE_1011' api/_ritual-kb.js 2
 nochk '그 안에서 붓' api/_ritual-kb.js 0
 nochk '케이크 커팅을 따로 두지 않는다' api/_ritual-kb.js 0
 node scripts/audit/narr-play.mjs || fail=1
-# ★[NARR_WORDS_1013 2026-10-13 사장님 «대본 대사 전부 … 최선으로 셋팅한 거야? 자연스럽게?»] 나레이션 자연스러움 자(W1 ~ W12 · 평가 형용사 · 하객 통제어 · 자세 · 음식 · 짐작 · 박수 자리 · 이름 …)
-#   3단계 원고 나레이션 줄은 다 통과해야 한다 · 엔진 줄(--engine)은 3단계를 엔진에 적용하는 PR 에서 여기에 건다(10/13 실측 78줄 중 28줄이 걸린다 · 그 전엔 보고용)
+# ★[NARR_WORDS_1013 2026-10-13 사장님 «대본 대사 전부 … 최선으로 셋팅한 거야? 자연스럽게?»] 나레이션 자연스러움 자(W1 ~ W14 · 평가 형용사 · 하객 통제어 · 자세 · 음식 · 짐작 · 박수 자리 · 이름 · 한 줄에 같은 말 두 번 · 축가 여는 말 …)
+#   3단계 원고 나레이션 줄은 다 통과해야 한다 · 엔진 줄(--engine)은 3단계를 엔진에 적용하는 PR 에서 여기에 건다(10/13 실측 78줄 중 29줄이 걸린다 · 그 전엔 보고용)
+#   ★[NARR_REREAD_1013 2판 · 사장님 «우리 대사 한 줄씩 검토»] W13 한 줄 안 같은 말 두 번 · W14 축가 여는 말은 두 분이 직접 부르는 날도 참([SONG_OPEN_ANYONE_1013]) — 1판이 자를 다 통과했는데 한 줄씩 읽으니 걸린 것
 chk 'NARR_WORDS_1013' scripts/audit/narr-words.mjs 1
+chk 'NARR_REREAD_1013' scripts/audit/narr-words.mjs 1
+chk 'SONG_OPEN_ANYONE_1013' scripts/audit/narr-words.mjs 1
 chk 'SOURCE_WORDS_1013' docs/plans/식순연구/3단계_원고_1013.md 1   # 자료 글은 구호 · 정형구 · 뼈대만 그대로 · 문장은 우리 말로
 node scripts/audit/narr-words.mjs || fail=1
 node scripts/audit/narr-words.mjs --selftest || fail=1
