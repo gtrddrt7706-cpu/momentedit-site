@@ -99,8 +99,8 @@ try {
   /* ⑪ ④ 완성 요약 — 선택 칸(축배 · 부모님께 인사)이 비어도 «글 비어 있음 · 채우기»가 아니다 [TX_OPT] */
   const done = await pg.evaluate(() => { S.tx = S.tx || {}; ['toast.g', 'toast.b', 'tribute.g', 'tribute.b'].forEach((id) => { S.tx[id] = ''; }); const i = STEPS.findIndex((x) => x.k === 'done'); if (i < 0) return null; idx = i; render();
     const row = (nm) => { const r = [...document.querySelectorAll('.sumrow')].find((x) => (x.querySelector('.sr-l') || {}).textContent === nm); return r ? { mark: ((r.querySelector('.sr-empty') || {}).textContent || ''), btn: (r.querySelector('.sr-c') || {}).textContent } : null; };
-    return { toast: row('축배'), trib: row('부모님께 인사'), welcome: row('첫인사') }; });
-  ok('⑪ ④ 요약 — 축배 · 부모님께 인사(선택 칸)는 비어도 «글 비어 있음» 없음 · 첫인사는 표시 [TX_OPT]', !!done && done.toast && !/글 비어 있음/.test(done.toast.mark) && (!done.trib || !/글 비어 있음/.test(done.trib.mark)) && done.welcome && /글 비어 있음/.test(done.welcome.mark), JSON.stringify(done));
+    return { toast: row('축배'), trib: row('부모님께 인사'), welcome: row('감사 인사') }; });   // [THANKS_GREET_1013] 순간 이름 «첫인사» → «감사 인사»
+  ok('⑪ ④ 요약 — 축배 · 부모님께 인사(선택 칸)는 비어도 «글 비어 있음» 없음 · 감사 인사는 표시 [TX_OPT]', !!done && done.toast && !/글 비어 있음/.test(done.toast.mark) && (!done.trib || !/글 비어 있음/.test(done.trib.mark)) && done.welcome && /글 비어 있음/.test(done.welcome.mark), JSON.stringify(done));
   /* ⑫ ③ 연습 «아직 안 적은 N곳» = 두 분 글칸이 빈 순간 수(부탁 · 보낼 것은 세지 않는다) [PR_TODO_TRUE] */
   const pr = await pg.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'practice'); if (i < 0) return null; idx = i; render(); const t = ((document.querySelector('.pr-todo') || {}).textContent || ''); const m = t.match(/아직 안 적은 (\d+)곳/);
     const want = _mkPages().filter((k) => k[0] !== '_' && !_mkOff(k) && _mkKinds(k)[0] && TX_WHO.some((w) => !String((S.tx || {})[_mkKinds(k)[0] + '.' + w[0]] || '').trim() && !_txSite(_mkKinds(k)[0], _mkChk(), _mkKinds(k)[0] + '.' + w[0]))).length;
