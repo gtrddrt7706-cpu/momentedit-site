@@ -166,8 +166,16 @@ try {
     // 4b ★[LY_KO_TOP 2026-10-13 사장님 참고 사진 «사람들은 / People say»] 한글이 위(노란색) · 영문이 아래(흰색 · 기울임) · 글씨는 종전보다 작게
     const LY4 = await f.evaluate(() => { const b = document.querySelector('.ls-mu .mu-slide.cur .mu-lines'), k = b && b.children[0], n = b && b.children[1], cs = (x) => x && getComputedStyle(x);
       return { first: k && k.className, second: n && n.className, koC: cs(k) && cs(k).color, enC: cs(n) && cs(n).color, enI: cs(n) && cs(n).fontStyle, koPx: cs(k) && parseFloat(cs(k).fontSize), enPx: cs(n) && parseFloat(cs(n).fontSize), koTop: k && n ? k.getBoundingClientRect().top < n.getBoundingClientRect().top : null }; });
-    ok(`${W} 4b [LY_KO_TOP] 가사 한글이 위 노란색(${LY4.koC} · ${LY4.koPx}px) · 영문이 아래 흰색 기울임(${LY4.enC} · ${LY4.enI} · ${LY4.enPx}px) · 작게`,
-      /^mu-ko/.test(LY4.first || '') && LY4.second === 'mu-en' && LY4.koTop === true && LY4.koC === 'rgb(235, 208, 138)' && LY4.enC === 'rgb(255, 255, 255)' && LY4.enI === 'italic' && LY4.koPx <= (W < 700 ? 13 : 17) && LY4.enPx <= (W < 700 ? 16 : 21), LY4);
+    /* ★[LY_ORIG_TOP 2026-10-13 사장님 «영문 노래는 영문이 위에 노란색 · 한글 노래는 한글이 위에 노란색»] r1 은 한국어 곡(LY_ORIG) — 한글이 위 노란색 그대로 · 영어 곡은 아래 4c */
+    ok(`${W} 4b [LY_KO_TOP · LY_ORIG_TOP] 한국어 곡 가사 한글이 위 노란색(${LY4.koC} · ${LY4.koPx}px) · 영문이 아래 흰색 기울임(${LY4.enC} · ${LY4.enI} · ${LY4.enPx}px) · 작게`,
+      /(^| )mu-ko( |$)/.test(LY4.first || '') && /(^| )ly-o( |$)/.test(LY4.first || '') && /(^| )mu-en( |$)/.test(LY4.second || '') && /(^| )ly-t( |$)/.test(LY4.second || '') && LY4.koTop === true && LY4.koC === 'rgb(235, 208, 138)' && LY4.enC === 'rgb(255, 255, 255)' && LY4.enI === 'italic' && LY4.koPx <= (W < 700 ? 13 : 17) && LY4.enPx <= (W < 700 ? 16 : 21), LY4);
+    // 4c ★[LY_ORIG_TOP] 영어 곡(r9 · 표에 없는 곡)은 영문이 위 노란색 · 한글이 아래 흰색 · 섞인 곡 r6 는 줄마다(영문으로 부르는 줄만 영문이 위)
+    const LY4c = await f.evaluate(() => { const T = EntryMusic._t, box = document.createElement('div'); box.className = 'mu-lines cur'; const sl = document.querySelector('.ls-mu .mu-slide.cur .mu-ly') || document.querySelector('.ls-mu .mu-ly'); if (sl) sl.appendChild(box);
+      const put = (h) => { box.innerHTML = h; const a = box.children[0], b = box.children[1], cs = (x) => x && getComputedStyle(x); return { first: a && a.className, second: b && b.className, c1: cs(a) && cs(a).color, c2: cs(b) && cs(b).color }; };
+      const r = { en: put(T.lyHtml([40.4, 'line one', '첫 줄'], 'r9')), ko: put(T.lyHtml([40.4, 'line one', '첫 줄'], 'r8')), mixEn: T.lyOrig('r6', 52.12), mixKo: T.lyOrig('r6', 48.75), one: put(T.lyHtml([1, '', '한글만'], 'r9')) }; box.remove(); return r; });
+    ok(`${W} 4c [LY_ORIG_TOP] 영어 곡은 영문이 위 노란색 · 한글이 아래 흰색 · 한국어 곡은 한글이 위 · 섞인 곡은 줄마다 · 한쪽뿐이면 그 줄이 노란색`,
+      /mu-en/.test(LY4c.en.first || '') && /ly-o/.test(LY4c.en.first || '') && LY4c.en.c1 === 'rgb(235, 208, 138)' && /mu-ko/.test(LY4c.en.second || '') && LY4c.en.c2 === 'rgb(255, 255, 255)'
+      && /mu-ko/.test(LY4c.ko.first || '') && LY4c.ko.c1 === 'rgb(235, 208, 138)' && LY4c.mixEn === 'en' && LY4c.mixKo === 'ko' && /ly-o/.test(LY4c.one.first || '') && LY4c.one.c1 === 'rgb(235, 208, 138)', LY4c);
     // 5
     await f.click('.ls-mu [data-fk="mucarnext"]'); await f.waitForTimeout(600); const V5a = await view(f);
     await f.click('.ls-mu [data-fk="mucarplay"]'); await f.waitForTimeout(700); const V5b = await view(f);

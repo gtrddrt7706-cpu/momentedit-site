@@ -7605,7 +7605,8 @@ chk 'CANDLE_BOW_1012' api/_ritual-kb.js 1
 chk 'CANDLE_BOW_1012' scripts/audit/open-course.mjs 4
 chk "t: '서는 두 분이 앞으로 나와 초에 불을 밝히고, 서로 · 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
 chk "t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
-chk "var ALWAYS = { guest: 1, entry: 1 };" assets/ritual-open.js 1   # 신랑 신부 입장은 빼지 못한다
+chk "var ALWAYS = { guest: 1, entry: 1, matjeol: 1 };" assets/ritual-open.js 1   # 신랑 신부 입장 · 맞절은 빼지 못한다 [MATJEOL_SPLIT_1013]
+nochk "var ALWAYS = { guest: 1, entry: 1 };" assets/ritual-open.js 0   # 옛 판(맞절 순간 전) — 되살리면 맞절이 빠질 수 있다
 # ★★[EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결 (추천)» · 테이블 인사 «지금처럼»] 2단계 — 예시 넷 = 같은 뼈대(식전 영상 · 화촉 · 서약 · 선언 · 부모님께 인사 · 축배) + 성격 한두 개
 #   정석 + 첫인사 · 축가 / 기록 + 첫인사 · 테이블 인사 / 가족 + 첫인사 · 덕담 · 축가 / 간결 뼈대만 · 반지 · 케이크 · 편지는 예시에 없다(+ 로 담기) · 편지 중심 «약속» 예시는 걷었다
 #   open-course 가 구성 · 시간 · 알림 없음을, check-ritual-cue 가 마이페이지 단체 사진 표를, source-basis 가 장부 8장(엔진이 잰 값) · 예시마다 «왜»를 잰다
@@ -7630,7 +7631,7 @@ chk 'CAKE_OFF_1013' assets/ritual-open.js 3
 chk 'var RETIRED = { cake: 1 };' assets/ritual-open.js 1
 chk 'var OFFER = PICKABLE.filter(function (k) { return !RETIRED\[k\]; });' assets/ritual-open.js 1
 chk 'RETIRED: RETIRED, OFFER: OFFER' assets/ritual-open.js 1
-chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다
+chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
 chk 'CAKE_OFF_1013' order-preview.html 3
 chk 'function _pkShow(k)' order-preview.html 1
 chk 'a.ks.filter(_pkShow).map(_pkTile)' order-preview.html 1
@@ -7680,6 +7681,25 @@ chk 'MATJEOL_1011' api/_ritual-kb.js 1
 chk 'MATJEOL_1011' scripts/audit/open-course.mjs 5
 chk 'MATJEOL_1011' scripts/check-ritual-cue.js 2
 chk "'narr-entry-bow'" assets/ritual-cue.js 2
+# ★★[MATJEOL_SPLIT_1013 2026-10-13 사장님 «맞절 만들자 · 이벤트 대본이랑 포즈 관련 자료 줄 테니 우선 형태 뼈대만» · «입장 이후 맞절»] 맞절 = 입장 바로 뒤의 따로 순간(matjeol · 늘 있음)
+#   줄(132) · 15초 · 3·3·3 장면은 그대로 옮겼다 · 콘솔은 입장 묶음으로 잇는다(esdIn · 곡이 -12 로 이어짐) · open-course 가 순서 · 큐(k · blockN) · 몫 · 카드 · 영상을 잰다
+#   입장 끝 concat · 입장 몫 +15초로 되돌리지 말 것
+chk 'MATJEOL_SPLIT_1013' assets/ritual-open.js 10
+chk 'MATJEOL_SPLIT_1013' assets/ritual-cue.js 3
+chk 'MATJEOL_SPLIT_1013' assets/ritual-data.js 1
+chk 'MATJEOL_SPLIT_1013' assets/ritual-story.js 2
+chk 'MATJEOL_SPLIT_1013' order-preview.html 6
+chk 'MATJEOL_SPLIT_1013' api/_ritual-kb.js 2
+chk 'MATJEOL_SPLIT_1013' console.html 1
+chk 'MATJEOL_SPLIT_1013' scripts/audit/open-course.mjs 4
+chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome'," assets/ritual-open.js 1
+chk "var ALWAYS = { guest: 1, entry: 1, matjeol: 1 };" assets/ritual-open.js 1
+chk "k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow'" assets/ritual-cue.js 1
+chk "function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol')); }" console.html 1
+chk "'신랑·신부 맞절': {" assets/ritual-story.js 1
+nochk "})()\].slice(0, openC ? 1 : 2).concat(openC ? \[cue({" assets/ritual-cue.js     # 입장 끝 concat 으로 되돌리지 말 것
+nochk "et\[0\] + BOW\[0\], et\[1\] + BOW\[1\]" assets/ritual-open.js                          # 입장 몫 +15초로 되돌리지 말 것
+nochk "if (ESD.run && (c.k !== 'entry' || esdMain(c)))" console.html                   # 맞절에서 입장 곡이 끊기지 않게
 # ★★[THANKS_IN_VOW 2026-10-11 사장님 «감사문 — 서약 카드 안에서 고르기»(추천대로 · 오전 «새 순간 카드»를 바꿈)] 서약 카드 «무엇을 읽나요 · 서약 / 감사문»
 #   감사문 = 여는 말 133 · 하객 쪽을 보고 읽기 · 마지막 두 문장(THANKSBOTH) 함께 · 맺는 말 없음 · 글칸은 서약과 같은 자리 · 시간 −14초
 #   open-course 가 엔진 · 시간 · 이름 · 미리듣기 주소를, thanks-in-vow 가 화면(칩 · 이름 · 예시 넷 · 두 분 함께 · 흐름 · 대본 · 되돌리면 글 그대로)을 잰다
@@ -7793,12 +7813,15 @@ chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
 #   자료 22곳 중 21곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
 #   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
 chk 'HEART_ORDER_1012' assets/ritual-open.js 12   # [TOAST_LAST_1013] «끝이 조용한 편» 알림 줄(이 표식 한 자리)을 걷어 13 → 12
-chk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js 1   # 덕담은 «약속의 순간» 끝 칸 — 막마다 넷(PC 한 줄)
+chk "ks: \['welcome', 'vow', 'ring', 'declare'] }" assets/ritual-open.js 1   # [ACTS_SHIFT_1013] 맞절 칸이 생겨 막 경계를 한 칸씩 — 막마다 넷(PC 한 줄) · 덕담은 마음의 순간 첫 칸으로 돌아갔다
+chk "ks: \['bless', 'free', 'song', 'letter'] }" assets/ritual-open.js 1
+nochk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js   # 옛 막 경계(맞절 칸 전) — 되살리면 여는 순간이 다섯 칸
 chk 'HEART_ORDER_1012' assets/ritual-data.js 1
 chk 'HEART_ORDER_1012' assets/ritual-story.js 1
 chk 'HEART_ORDER_1012' api/_ritual-kb.js 2
 chk 'HEART_ORDER_1012' scripts/audit/open-course.mjs 12
-chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1
+chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1
+nochk "'candle', 'entry', 'welcome', 'vow'" assets/ritual-open.js 0   # 옛 차례(맞절 순간 전) · [MATJEOL_SPLIT_1013]
 nochk "'bless', 'song', 'tribute', 'free', 'letter'" assets/ritual-open.js 0   # 옛 v4 차례(인사 뒤 준비한 순서 · 편지) · 되살리지 말 것
 nochk "'bless','song','tribute','free','letter'" assets/ritual-data.js 0
 nochk '부모님께 인사 뒤에 한 분이 하십니다' index.html 0                     # 홈 FAQ · 축사 자리(덕담 뒤 · 축가 앞)
@@ -15317,7 +15340,8 @@ chk 'function spanText(S)' assets/ritual-open.js 1
 chk 'spanText: spanText, tableSec: tableSec' assets/ritual-open.js 1
 chk "after: !!APART" assets/ritual-open.js 1   # [TOAST_LAST_1013] 곡선 «본식 뒤»는 테이블 인사 하나(축배는 닫는 인사 뒤여도 본식 톤)
 chk "LEVEL3 = { candle: 1, welcome: 1, table: 1 }" assets/ritual-open.js 1
-chk "d: '본식을 닫고, 축배와 테이블 인사까지', ks: \['cake', '_close', 'toast', 'table'\]" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례(닫는 인사 → 축배 → 테이블 인사)
+chk "d: '부모님께 인사하고 본식을 닫는 자리, 축배와 테이블 인사까지', ks: \['tribute', 'cake', '_close', 'toast', 'table'\]" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례 · [ACTS_SHIFT_1013] 부모님께 인사가 닫는 막 첫 칸
+nochk "d: '본식을 닫고, 축배와 테이블 인사까지', ks: \['cake', '_close', 'toast', 'table'\]" assets/ritual-open.js   # [ACTS_SHIFT_1013] 맞절 칸 전 판
 nochk "d: '축배를 들고, 본식 뒤 테이블 인사까지'" assets/ritual-open.js   # [TOAST_LAST_1013] 축배가 닫는 인사 앞이던 판
 nochk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritual-open.js
 nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js
@@ -17888,8 +17912,16 @@ nochk '.em-graph .lg-scene.wait{visibility:hidden}' order-preview.html          
 chk 'LY_KO_TOP' order-preview.html 4
 chk 'LY_KO_TOP' assets/entry-music.js 1
 chk 'LY_KO_TOP' scripts/audit/rec-song-ui.mjs 2                                                  # 4b 순서 · 색 · 기울임 · 크기
+# ★[LY_ORIG_TOP 2026-10-13 사장님 «영문 노래는 영문이 위에 노란색 · 한글 노래는 한글이 위에 노란색 · 전부 반대여야지»] 원래 부르는 말이 위(노란색 ly-o) · 옮긴 말이 아래(흰색 ly-t)
+#   곡의 원래 말 = entry-music LY_ORIG(한국어 곡 r1 · r8 · 섞인 곡 r6 줄마다 · 그 밖 영문) · rec-song-ui 4b · 4c 가 순서 · 색을 잰다 · «늘 한글이 위»로 되돌리지 말 것
+chk 'LY_ORIG_TOP' assets/entry-music.js 3
+chk "var LY_ORIG={r1:'ko',r8:'ko',r6:{en:" assets/entry-music.js 1
+chk 'LY_ORIG_TOP' order-preview.html 2
+chk 'LY_ORIG_TOP' scripts/audit/rec-song-ui.mjs 3
+nochk "function lyHtml(line){ return (line\[2\]?'<span class=\"mu-ko'" assets/entry-music.js   # 옛 «늘 한글이 위» 판
 chk 'Cormorant+Garamond:ital,wght@0,500;0,600;1,500' order-preview.html 1                         # 기울임꼴 500 을 불러야 영문 가사가 실제로 기운다
-chk "function lyHtml(line){ return (line\[2\]?" assets/entry-music.js 1                              # 한글(line[2])이 먼저
+chk "function lyHtml(line,k){ var en=" assets/entry-music.js 1                                  # [LY_ORIG_TOP] 곡(k)마다 원래 말이 먼저 — 종전 «한글(line[2])이 먼저» 줄을 바꿨다
+nochk "function lyHtml(line){" assets/entry-music.js                                               # 곡을 모르는 옛 판(늘 한글이 위)
 nochk 'family=Cormorant+Garamond:wght@500;600&' order-preview.html                                 # ★기울임꼴 없는 옛 주소로 되돌리지 말 것 — 영문 가사가 바로 선다
 chk 'LY_LEAD=0.35, LY_LAT_MAX=0.12' assets/entry-music.js 1                                        # [LY_LEAD] 가사는 0.35초 앞서
 chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                                      # 받은 곡은 이 기기에 — 다시 들을 때 다시 묻지 않는다(서버 시간당 60번)

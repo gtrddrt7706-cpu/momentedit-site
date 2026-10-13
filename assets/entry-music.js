@@ -412,14 +412,23 @@
   function lyAt(L,x){ for(var i=L.length-1;i>=0;i--) if(+L[i][0]<=x+0.05) return x<lyEnd(L,i)?i:-1; return -1; }
   function lyStart(L,xs){ for(var j=0;j<L.length;j++) if(+L[j][0]>=xs-0.05) return j; return L.length; }   /* [LY_FROM_START_1013] xs = 재생을 시작한 자리(가사 시각) — 그 뒤에 시작하는 첫 줄 */
   function lyBr(s){ return e(s).replace(/\n/g,'<br>'); }   /* 한 시각에 묶인 두 줄 */
-  function lyHtml(line){ return (line[2]?'<span class="mu-ko'+(line[1]?'':' mu-nt')+'">'+lyBr(line[2])+'</span>':'')+(line[1]?'<span class="mu-en" lang="en">'+lyBr(line[1])+'</span>':''); }   /* ★[LY_KO_TOP 2026-10-13 사장님 참고 사진] 한글(노란색)이 위 · 영문(흰색 · 살짝 기울임)이 아래 — 종전 영문 위 · 한글 아래 */
+  /* ★★[LY_ORIG_TOP 2026-10-13 사장님 «영문 노래는 영문이 위에 노란색 · 한글 노래는 한글이 위에 노란색 · 전부 반대여야지»(Reality 화면을 보시고)]
+       원래 부르는 말이 위(노란색 · ly-o) · 옮긴 말이 아래(흰색 · ly-t) — 종전 [LY_KO_TOP] «늘 한글이 위»는 한국어 곡에만 맞았다.
+       곡의 원래 말은 아래 표 — 한국어 곡 r1 · r8 · 섞인 곡 r6 는 줄마다(원곡에서 영문으로 부르는 줄의 시각) · 그 밖의 곡은 영문.
+       근거: docs 저장소 operations/rec-songs 의 번역 전 목록(d5d4bfa) — 한국어 곡은 한글만 · 영어 곡은 영문이 원문 · r6 는 영문 줄 열 개.
+       ★곡을 바꾸면 이 표도 함께(docs operations/rec-songs/README «곡을 바꿀 때») */
+  var LY_ORIG={r1:'ko',r8:'ko',r6:{en:[52.12,55.76,59.3,63.29,66.55,92.14,95.74,99.48,102.74,132.27]}};
+  function lyOrig(k,t){ var o=LY_ORIG[k]; if(!o) return 'en'; if(typeof o==='string') return o; return (o.en||[]).some(function(x){ return Math.abs(x-(+t))<0.05; })?'en':'ko'; }
+  function lyHtml(line,k){ var en=line[1]?'<span class="mu-en" lang="en">'+lyBr(line[1])+'</span>':'', ko=line[2]?'<span class="mu-ko'+(line[1]?'':' mu-nt')+'">'+lyBr(line[2])+'</span>':'';
+    if(!en||!ko) return (en||ko).replace('<span class="','<span class="ly-o ');   /* 한쪽뿐이면 그 줄이 원래 말 */
+    return lyOrig(k,line[0])==='en'?en.replace('<span class="','<span class="ly-o ')+ko.replace('<span class="','<span class="ly-t '):ko.replace('<span class="','<span class="ly-o ')+en.replace('<span class="','<span class="ly-t '); }   /* [LY_ORIG_TOP] 원래 말 위 · 옮긴 말 아래 */   /* ★[LY_KO_TOP 2026-10-13 사장님 참고 사진] 한글(노란색)이 위 · 영문(흰색 · 살짝 기울임)이 아래 — 종전 영문 위 · 한글 아래 */
   function lyPut(sl,h){ var b=sl&&sl.querySelector('.mu-lines'); if(!b||b.__h===h) return; var was=!!b.__h; b.__h=h; clearTimeout(b.__t);
     if(!h){ b.classList.remove('cur'); b.__t=setTimeout(function(){ if(!b.__h) b.innerHTML=''; },RM?0:400); return; }   /* 사라질 때 = 흐려진 뒤 비운다 */
     if(!was){ b.innerHTML=h; void b.offsetWidth; b.classList.add('cur'); return; }   /* 처음 나타날 때 = 그 순간 떠오른다 */
     b.classList.remove('cur'); b.__t=setTimeout(function(){ b.innerHTML=h; void b.offsetWidth; b.classList.add('cur'); },RM?0:LY_SWAP_MS); }   /* 줄이 바뀔 때 = 0.12초 흐려졌다 새 줄 */
   function lyTick(p){ var m=recMeta(p.k); if(!m||!AC) return; var L=lyLines(m); if(!L.length) return;
     var off=m.lyOff||0, x=p.x0+(AC.currentTime-p.t0)-Math.min(AC.outputLatency||0,LY_LAT_MAX)+LY_LEAD-off, i=lyAt(L,x); if(p.lyF==null) p.lyF=lyStart(L,p.x0-off); if(i>=0&&i<p.lyF) i=-1;
-    if(i===p.lyI) return; p.lyI=i; var sl=D.querySelector('.ls-mu .mu-slide[data-k="'+p.k+'"]'); if(!sl) return; sl.__lyMod=true; sl.__wt=false; lyPut(sl,i>=0?lyHtml(L[i]):''); }
+    if(i===p.lyI) return; p.lyI=i; var sl=D.querySelector('.ls-mu .mu-slide[data-k="'+p.k+'"]'); if(!sl) return; sl.__lyMod=true; sl.__wt=false; lyPut(sl,i>=0?lyHtml(L[i],p.k):''); }   // [LY_ORIG_TOP] 곡 키로 원래 말을 가린다 · [LY_FROM_START_1013] 시작할 때 불리던 줄만 건너뛴다
   function lyRest(){ var pk=PREV&&PREV.k; [].forEach.call(D.querySelectorAll('.ls-mu .mu-slide'),function(sl){ if(!sl.__lyMod||sl.getAttribute('data-k')===pk) return; sl.__lyMod=false; lyPut(sl,''); }); }   /* 멈추면 그 카드 가사는 걷힌다 */
   /* [MUS_CAROUSEL] 손가락 · 마우스로 넘기기 — 가로로 8px 넘게 움직이면 끌기(세로가 먼저면 화면 스크롤 · touch-action:pan-y) · 폭의 18% 넘게 또는 빠르게 밀면 다음 곡 · 끝 카드에서는 덜 끌린다 · 끌고 난 손에는 누르기를 보내지 않는다 */
   D.addEventListener('pointerdown',function(ev){ var vp=ev.target&&ev.target.closest&&ev.target.closest('.ls-mu .mu-car:not(.mu-car0) .mu-vp'); if(!vp||ev.button>0||!ev.isPrimary) return; CD={vp:vp,id:ev.pointerId,x:ev.clientX,y:ev.clientY,t:performance.now(),on:false,dx:0,w:vp.getBoundingClientRect().width||1}; });
@@ -720,7 +729,7 @@
     fitPill(); paintGraph(); }   /* 빌더가 다시 그리면 그래프 캔버스가 새것이다 — 지금 자리로 다시 그린다(트는 중이면 다음 틀이 이어 그린다) */
 
   EM.rowHtml=rowHtml; EM.sceneHtml=sceneHtml; EM.guideBody=guideBody; EM.after=after; EM.whole=whole; EM.paint=paintPill;   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기» 입구 · 빌더 재생 상태가 바뀔 때(_lPaint) 알약만 다시 */ EM.hush=function(){ if(hush()) redraw(); scHalt(); };   /* 빌더가 제 소리를 틀 때(_stopMk) — 이 칸 ▶ 만 되돌리고 장면은 그 자리에 멈춘다(쪽 전체를 다시 그리지 않는다) */
-  EM._t={ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
+  EM._t={lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
     pv:function(){ return PREV?{key:PREV.key,x0:PREV.x0,d:PREV.d,H:PREV.H}:null; },car:function(){ return {pre:CAR_PRE,len:CAR_LEN}; },   /* [PREV_12_60_1013] 점검용 — 지금 미리 듣기가 원곡 몇 초부터 몇 초 동안인가 */
     scene:function(){ var P2=scenePlan(); return {run:!!RUN,pend:PEND,pause:PAUSE?PAUSE.x:null,ended:ENDED,x:RUN?tau(RUN):null,plan:P2?{tv:P2.PL.tv,tm:P2.PL.tm,off:P2.PL.off,th:P2.PL.th,tend:P2.PL.tend,V:P2.PL.V,n:P2.PL.n,tdip:P2.PL.tdip,H:P2.PL.H}:null,pieces:P2?P2.V0.pieces.length:0,
       cut:P2&&P2.V0.cut?{at:P2.V0.cut.at,add:P2.V0.cut.add,was:P2.V0.cut.was}:null,vsn:RUN?RUN.vsn:null}; },   /* [ENTRY_CALL_PAUSE_1013] 점검용 — 끊은 자리 · 늘린 초 · 지금 걸린 목소리 마디 수 */

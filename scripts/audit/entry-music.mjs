@@ -137,11 +137,19 @@ try {
     const rest = await pg.evaluate(() => { const a = _lSteps(ENG, ['entry']).filter((x) => !x.quiet), j = a.findIndex((x) => (x.own && x.up === 'entry') || /^entry-[A-F]$/.test(x.slug || '')); return { n: a.length, j, next: j > -1 && a[j + 1] ? (a[j + 1].slug || a[j + 1].lab || '?') : '' }; });
     const g25 = await pg.evaluate(() => { const r = document.querySelector('.em-scene .em-graph canvas').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }), P25 = (await scene()).plan;
     await pg.mouse.click(g25.x + g25.w * Math.max(0, (P25.tend - 1.2) / P25.tend), g25.y + g25.h / 2);
+    /* ★[MATJEOL_SPLIT_1013 2026-10-13] 맞절이 입장 바로 뒤의 따로 순간이 되어 새 코스 입장 순간의 줄은 장면 하나다(다음 줄 없음) —
+       그때는 장면이 끝나면 이어 틀 줄 없이 멈추고 알약이 제 이름으로 돌아오는지 잰다. 입장에 줄이 다시 생기면(3단계 원고 7장 «입장 받는 말») 아래 이어 듣기 검사가 저절로 돈다 */
+    if (!rest.next) {
+      await pg.waitForFunction(() => { const s = EntryMusic._t.scene(); return s.ended && !s.run; }, null, { timeout: 15000 }).catch(() => {}); await pg.waitForTimeout(600);
+      const S25n = Object.assign(await scene(), { lp: await pg.evaluate(() => ({ n: LP.q.length, on: _mpOn('entry') })) });
+      ok(`${W} 25 [ONE_PLAY_1013 · MATJEOL_SPLIT_1013] 입장 순간 줄은 장면 하나 — 장면이 끝나면 이어 틀 줄 없이 멈추고 알약은 «이 순간 전체 듣기 · 음악과 함께»(맞절은 다음 순간 쪽)`, rest.j > -1 && rest.n === 1 && S25n.ended && !S25n.run && S25n.lp.n === 0 && !S25n.lp.on && S25n.pill === '이 순간 전체 듣기 · 음악과 함께' && S25n.pressed === 'false', { rest, S25n });
+    } else {
     await pg.waitForFunction(() => typeof LP !== 'undefined' && LP.q.length > 0 && _mpOn('entry'), null, { timeout: 12000 }).catch(() => {}); await pg.waitForTimeout(200);
     const S25a = Object.assign(await scene(), { lp: await pg.evaluate(() => { const st = LP.q[LP.i]; return { n: LP.q.length, i: LP.i, k: st && st.k, own: !!(st && st.own), slug: (st && st.slug) || '', on: _mpOn('entry') }; }) });
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(400);
     const S25b = Object.assign(await scene(), { lp: await pg.evaluate(() => LP.q.length) });
     ok(`${W} 25 [ONE_PLAY_1013] 장면이 끝나면 다음 줄(${rest.next || '없음'})부터 이어서 · 그동안 알약 «멈추기» · 누르면 멈추고 «이 순간 전체 듣기 · 음악과 함께»`, rest.j > -1 && !!rest.next && S25a.ended && !S25a.run && S25a.lp.on && S25a.lp.k === 'entry' && !S25a.lp.own && !/^entry-[A-F]$/.test(S25a.lp.slug) && S25a.pill === '멈추기' && S25a.pressed === 'true' && S25b.lp === 0 && S25b.pill === '이 순간 전체 듣기 · 음악과 함께' && S25b.pressed === 'false', { rest, S25a, S25b });
+    }   // [MATJEOL_SPLIT_1013] 이어 듣기 갈래 끝
     // 26 — ★[ONE_PLAY_1013 · LS_MAKE_ALL] 빌더가 이 순간 줄을 만드는 동안 알약은 «만드는 중»(차오름 · 눌러도 틀지 않는다) · 다 되면 제 이름으로
     const pill26 = () => pg.evaluate(() => { const b = document.querySelector('.em-scene [data-fk="emscene"]'), s = EntryMusic._t.scene(); return { t: b && b.textContent.replace(/\s+/g, ' ').trim(), dis: !!(b && b.disabled), busy: b && b.getAttribute('aria-busy'), fill: !!(b && b.classList.contains('wfill')), run: s.run, pend: s.pend, lp: LP.q.length }; });
     await pg.evaluate(() => { MK.lsMake = MK.lsMake || {}; MK.lsMake.entry = { at: Date.now(), d: 5 }; EntryMusic.paint(); }); const S26a = await pill26();
@@ -191,8 +199,10 @@ try {
     await pg.click('[data-fk="muupdel"]'); await pg.waitForTimeout(400);
     const R8 = await pg.evaluate(() => ({ mu: S.mu || null, empty: !!document.querySelector('.ls-mu [data-fk="muupopen"]'), rows: document.querySelectorAll('.ls-mu .mu-row').length }));
     ok(`${W} 8 빼기 → S.mu 없음 · 빈 카드`, R8.mu === null && R8.empty && R8.rows === 0, R8);
-    const S18 = await pg.evaluate(() => ({ sc: !!document.querySelector('.em-scene'), mp: [...document.querySelectorAll('.mk-hbtn[data-mp="entry"]')].filter((x) => x.offsetParent).length }));
-    ok(`${W} 18 빼기 → 장면 칸도 없어진다 · 빌더 «이 순간 전체 듣기» 알약이 돌아온다(알약은 늘 하나 [ONE_PLAY_1013])`, !S18.sc && S18.mp === 1, S18);
+    const S18 = await pg.evaluate(() => ({ sc: !!document.querySelector('.em-scene'), mp: [...document.querySelectorAll('.mk-hbtn[data-mp="entry"]')].filter((x) => x.offsetParent).length, n: _lSteps(ENG, ['entry']).filter((x) => !x.quiet).length }));
+    /* ★[MATJEOL_SPLIT_1013 2026-10-13] 맞절이 따로 순간이 되어 새 코스 입장 줄은 하나다 — 줄 하나면 «이 순간 전체 듣기» 알약이 없다(PLAY_ONE · 줄의 ▶ 가 그 자리).
+       입장에 줄이 둘 이상이면(3단계 원고 7장 «입장 받는 말») 종전대로 빌더 알약이 하나 돌아온다 */
+    ok(`${W} 18 빼기 → 장면 칸도 없어진다 · 빌더 알약은 줄이 둘 이상일 때만 하나(알약은 늘 하나 이하 [ONE_PLAY_1013 · PLAY_ONE · MATJEOL_SPLIT_1013])`, !S18.sc && S18.mp === (S18.n >= 2 ? 1 : 0) && S18.n >= 1, S18);
     ok(`${W} 9b 쪽 오류 없음`, errs.length === 0, errs.slice(0, 3));
     await ctx.close();
   }

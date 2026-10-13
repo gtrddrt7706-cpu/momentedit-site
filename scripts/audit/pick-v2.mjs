@@ -139,7 +139,7 @@ for (const w of [390, 360]) {
   ok('PC 아래 단추 줄은 숨김(흐름 띠 · 얇은 띠에 «다음 · 하나씩 만들기»)', pc.nav === 'none', pc.nav);
   ok('PC 레일 자리(오른쪽 88px)에 아무것도 안 닿음 [RAIL_LOCKED]', pc.right.length === 0, pc.right.join(','));
   ok('PC 얇은 띠는 처음엔 안 보인다', !/\bon\b/.test(pc.slim), pc.slim);
-  ok('PC 막마다 한 줄(4 · 4 · 4 · 3 · 둘째 막 = 서약 · 반지 · 선언 · 덕담 · 셋째 막 = 축사(옛 준비한 순서 · SPEECH_TILE_1012) · 축가 · 편지 · 부모님께 인사 [SONG_BACK_1011 · HEART_ORDER_1012] · 마지막 막 = 축배 · 닫는 인사 · 테이블 인사 [TABLE_GREET_1008] · 케이크 커팅은 옛 초안이 담아 둔 때만 [CAKE_OFF_1013])', pc.tiles === '4,4,4,3', pc.tiles);
+  ok('PC 막마다 한 줄(4 · 4 · 4 · 4 · 첫 막 = 식전 영상 · 화촉 · 입장 · 맞절 [MATJEOL_SPLIT_1013] · 둘째 막 = 감사 인사 · 서약 · 반지 · 선언 · 셋째 막 = 덕담 · 축사(옛 준비한 순서 · SPEECH_TILE_1012) · 축가 · 편지 [SONG_BACK_1011 · HEART_ORDER_1012 · ACTS_SHIFT_1013] · 마지막 막 = 부모님께 인사 · 닫는 인사 · 축배 · 테이블 인사 [TABLE_GREET_1008] · 케이크 커팅은 옛 초안이 담아 둔 때만 [CAKE_OFF_1013])', pc.tiles === '4,4,4,4', pc.tiles);
   await pg.evaluate(() => document.getElementById('pkActsH').scrollIntoView({ block: 'start' })); await pg.waitForTimeout(500);
   const sl = await pg.evaluate((lim) => { const s = document.getElementById('pkSlim'); const r = [...s.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width > 0 && b.right > lim + 0.5; }).length; return { on: s.classList.contains('on'), t: s.textContent, r, pk: !!s.querySelector('.op-pk') }; }, lim);
   ok('PC 흐름 띠가 나가면 얇은 띠(시간 둘 · 진사 벅찬 순간 이름 · ★ 없음 [PEAK_COLOR]) · 레일 자리 비움', sl.on && /본식\s약\s?\d+~\d+분\s·\s단체\s사진/.test(sl.t) && !/★/.test(sl.t) && sl.pk && sl.r === 0, JSON.stringify(sl));
