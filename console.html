@@ -995,7 +995,8 @@ function esdPrepVoice(){ if (!esdWant()) return; var c = esdEntryCue(); if (!c) 
     .then(function(b){ if (ESD.vBusy !== my) return; ESD.V0 = ES.prepVoice(b, ES.sentN(txt), isNar); ESD.vBusy = null; try { render(); } catch (e) {} },
           function(){ if (ESD.vBusy !== my) return; ESD.vBusy = null; ESD.vurl = ''; ESD.V0 = null; try { render(); } catch (e) {} }); }
 function esdReady(c){ return !!(esdMain(c) && esdWant() && ESD.Sg && ESD.V0 && ESD.vurl === srcOf(c) && wired && AC && AC.state !== 'closed'); }
-/* 시작 — 곡은 t0 + tm 에서 off 자리부터(곡선 = 식순 화면과 같은 envCurve · 처음 5초 페이드인) · 대사는 t0 + tv 에서 · 대사가 끝나면 큐를 넘긴다(뒤처리 · 걸음은 종전 그대로) */
+/* 시작 — 곡은 t0 + tm 에서 off 자리부터(곡선 = 식순 화면과 같은 envCurve · 처음 SP.fade 2.5초에 걸쳐 잔잔하게 [SOFT_START_1013]) · 대사는 t0 + tv 에서 · 대사가 끝나면 큐를 넘긴다(뒤처리 · 걸음은 종전 그대로)
+   t0 = 누르고 0.15초 — 식순 화면은 0.3초(PRE_ROLL · 씹힘 방지)지만 여기는 배경음이 늘 흘러 소리 장치가 깨어 있다 · 아래 차례(대사 끝 +150ms)가 이 값에 묶여 있다 */
 function esdTry(c, done){ if (!esdReady(c)) return false;
   try {
     esdStop(0.05);

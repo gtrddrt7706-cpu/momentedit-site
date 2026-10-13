@@ -5,7 +5,9 @@
    1 칩 둘 · 처음엔 안 눌린 모양 · «추천 곡» → 목록을 한 번 묻는다 · 받는 동안 카드 자리 «추천 곡을 불러오는 중이에요» → 카드(곡 수만큼 · 첫 카드 · 제목 · 가수 · 분위기 · 사진은 사이트 그림) · ‹ 꺼짐 · ✓ 안 눌림
    2 › → 다음 카드 · 점 · 알림 줄 · ← → 도 같다
    3 ▶ → 그 곡을 한 번 묻는다 · 받는 동안 ■(aria-busy) + 그 카드 가운데 «곡을 불러오는 중이에요» → 소리 · 소리 막대([NOW_EQ]) · 문이 열리는 자리 12초 앞부터 1분([PREV_12_60_1013] · 종전 6초 앞부터 1분 20초)
-   4 가사([LY_SYNC · LY_ON_CUE · LY_FROM_HOOK]) — 문이 열리기 전에 끝나는 줄은 안 뜬다 · 문이 열리는 줄은 그 순간 뜬다 · 사진이 밝아진다(lit)
+   4 가사([LY_SYNC · LY_ON_CUE · LY_FROM_START_1013]) — 들기 시작할 때 이미 불리고 있던 줄은 안 뜬다 · 그다음 줄부터 불릴 때 바로(문 열림 전이어도) · 문이 열리는 줄 · 사진이 밝아진다(lit)
+     ★[LY_FROM_START_1013 2026-10-13 사장님 «처음 시작하는 문단 빼고 그다음 문단부터 가사 바로»] 종전 [LY_FROM_HOOK](문 열림 전 줄은 안 띄움)은 걷었다
+   3c [SOFT_START_1013 · PRE_ROLL_1013] ▶ 를 누르면 0.3초 뒤에 소리를 건다(씹힘 방지) · 첫소리는 2.5초에 걸쳐 0 에서 u² 로 올라온다 · 15h 장면(음악과 함께)도 0.3초 뒤 · 2.5초
    5 넘겨도 듣던 노래는 그대로([CAR_KEEP_PLAY]) · 다른 카드에서도 ■ = 그 곡 멈추기 · 점이 금빛 · ■ → 멈춤 · 가사 걷힘
    6 ✓ → S.mu = 추천 곡(키 · 이름 · 가수 · 자리 = hook0 · 사진) · 접힌 한 줄([MU_FOLD]) · 알림 · 장면(음악과 함께 듣기)이 이 곡으로 짠다(H = hook0)
    7 «바꾸기» → 펼쳐 고른 곡 카드 · ✓ 눌린 모양 · 다시 ✓ → 풀림(S.mu 없음 · 장면 없음 · «고른 곡을 풀었어요»)
@@ -39,7 +41,7 @@ function wav(sec, hook, f, sr = 22050) { const n = sr * sec, b = Buffer.alloc(44
 /* 곡 목록 — 드라이브 목록과 같은 칸(키 · 이름 · 가수 · 분위기 · 자리 · 사진 · 가사) · 가사는 시험 글(가짜) */
 const LIST = [
   { k: 'r1', name: '경쾌하게', t: 'Test Song One', a: '시험 가수', hook: 40, hook0: 40.06, len: 70, img: '/assets/home/snap.webp', pos: '58% 50%', file: 'r1.mp3',
-    ly: [[37.5, 'before the door', '문 앞'], [40.4, 'line one', '첫 줄'], [43.2, 'line two', '둘째 줄']] },
+    ly: [[27.0, 'already singing', '부르던 줄', 30.5], [37.5, 'before the door', '문 앞'], [40.4, 'line one', '첫 줄'], [43.2, 'line two', '둘째 줄']] },   // [LY_FROM_START_1013] 27초 줄은 ▶(28.06초부터) 때 이미 불리는 중
   { k: 'r3', name: '웅장하게', t: '시험 행진곡', a: '시험 작곡가', hook: 40, hook0: 40.07, len: 70, img: '/assets/home/gallery-05.webp', pos: '50% 24%', file: 'r3.mp3' },
   { k: 'r9', name: '잔잔하게', t: 'Test Song Nine', a: '시험 OST', hook: 40, hook0: 40.05, len: 70, img: '/assets/home/gallery-01.webp', pos: '38% 50%', file: 'r9.mp3', lyEn: 'dreams line', lyKo: '꿈 줄', lyT: [36, 40.3, 44], lyAt: [40.3] },
   { k: '../bad', name: '나쁜 키', t: 'bad', hook: 10, len: 70 } ];   // 키가 이상하다 — 화면에서 빠진다
@@ -105,6 +107,11 @@ async function toEntry(f) {
   return f.evaluate(() => !!document.querySelector('.ls-mu'));
 }
 const HL = (pg) => pg.evaluate(() => H.log.slice());
+/* [SOFT_START_1013 · PRE_ROLL_1013] 소리 걸기 기록 — 소스 start(언제 · 그때 기기 시각) · 음량 곡선(setValueCurveAtTime: 시작 · 길이 · 값) */
+const AUD_TAP = (f) => f.evaluate(() => { window.__aud = []; if (window.__audOn) return; window.__audOn = true; const S0 = AudioBufferSourceNode.prototype.start, C0 = AudioParam.prototype.setValueCurveAtTime;
+  AudioBufferSourceNode.prototype.start = function (when) { try { window.__aud.push({ k: 'start', now: this.context.currentTime, when: when || 0 }); } catch (e) {} return S0.apply(this, arguments); };
+  AudioParam.prototype.setValueCurveAtTime = function (c, t, d) { try { window.__aud.push({ k: 'curve', t, d, arr: Array.from(c.slice(0, Math.min(c.length, 1400))), n: c.length, v1: c[c.length - 1] }); } catch (e) {} return C0.apply(this, arguments); }; });
+const AUD = (f) => f.evaluate(() => (window.__aud || []).slice());
 const recReqs = (log, id) => log.filter((x) => x === 'momentedit:ritualFileGet:rec:' + id).length;
 const view = (f) => f.evaluate(() => { const r = document.querySelector('.ls-mu'), c = r && r.querySelector('.mu-car:not(.mu-car0)'), sl = c ? [...c.querySelectorAll('.mu-slide')] : [], cur = sl.find((x) => x.classList.contains('cur'));
   const t = c && c.querySelector('.mu-tpp'), pk = c && c.querySelector('.mu-pk'), fd = r && r.querySelector('.mu-fold');
@@ -141,17 +148,21 @@ try {
     await f.click('.ls-mu [data-fk="mucarprev"]'); await f.waitForTimeout(600);   // 첫 카드(r1)로
     // 3
     await f.waitForFunction(() => EntryMusic._t.rec().buf.includes('r1'), null, { timeout: 15000 }).catch(() => {});   // 칩을 눌렀으니 지금 카드(r1)는 받아서 풀어 둔다
-    await f.click('.ls-mu [data-fk="mucarplay"]'); await f.waitForTimeout(350); const V3a = await view(f);
+    await AUD_TAP(f); await f.click('.ls-mu [data-fk="mucarplay"]'); await f.waitForTimeout(350); const V3a = await view(f), A3 = await AUD(f);
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.prev === 'r1'; }, null, { timeout: 30000 }).catch(() => {}); await f.waitForTimeout(500);
     const V3 = await view(f), L3 = await HL(pg); await shot(f, W, '3-play');
     ok(`${W} 3a ▶ → 미리 받아 둔 곡이라 바로 소리(기다림 없음 · aria-busy 없음) · 곡은 모두 한 번만 물었다([REC_CLIP_1013])`, V3a.rec.prev === 'r1' && !V3a.rec.want && V3a.tpp.p === 'true' && V3a.tpp.b === null && V3a.tpp.l === 'Test Song One 멈추기' && recReqs(L3, 'r1') === 1, { V3a: { prev: V3a.rec.prev, want: V3a.rec.want, tpp: V3a.tpp, ly: V3a.ly }, req: recReqs(L3, 'r1') });
     const PV3 = await f.evaluate(() => ({ pv: EntryMusic._t.pv(), car: EntryMusic._t.car() }));
+    { const st = A3.find((x) => x.k === 'start'), cv = A3.find((x) => x.k === 'curve'), n = cv ? cv.arr.length : 0, at = (u) => cv.arr[Math.round((n - 1) * u)] / (cv.v1 || 1);
+      ok(`${W} 3c [PRE_ROLL_1013 · SOFT_START_1013] ▶ → ${st ? (st.when - st.now).toFixed(3) : '?'}초 뒤에 소리(0.3초 · 씹힘 방지) · 첫소리 ${cv ? cv.d.toFixed(2) : '?'}초에 걸쳐 0 에서 u²(절반 지점 ${cv ? at(0.5).toFixed(3) : '?'} · 0.25)`,
+        !!st && Math.abs(st.when - st.now - 0.3) < 0.005 && !!cv && Math.abs(cv.t - st.when) < 1e-6 && Math.abs(cv.d - 2.5) < 1e-6 && cv.arr[0] === 0 && cv.v1 > 0 && Math.abs(at(0.5) - 0.25) < 0.01 && Math.abs(at(0.25) - 0.0625) < 0.01 && cv.arr.every((v, i) => i === 0 || v >= cv.arr[i - 1]),
+        { st, cv: cv ? { t: cv.t, d: cv.d, n: cv.n, v0: cv.arr[0], v1: cv.v1 } : null }); }
     ok(`${W} 3b 받으면 소리 · ■ · 소리 막대 보임([NOW_EQ]) · 문이 열리는 자리 12초 앞부터 1분([PREV_12_60_1013] · 곡이 70초라 곡 끝까지 ${PV3.pv ? PV3.pv.d.toFixed(2) : '?'}초)`, V3.rec.prev === 'r1' && V3.tpp.p === 'true' && V3.tpp.b === null && V3.pl === 'r1' && +V3.eq > 0.5 && V3.rec.x != null && V3.rec.x >= 28 && V3.rec.x < 30.5 && V3.ly === ''
       && PV3.car.pre === 12 && PV3.car.len === 60 && !!PV3.pv && PV3.pv.key === 'rec:r1' && Math.abs(PV3.pv.x0 - (PV3.pv.H - 12)) < 0.01 && Math.abs(PV3.pv.d - Math.min(60, 70 - PV3.pv.x0)) < 0.01, { prev: V3.rec.prev, tpp: V3.tpp, pl: V3.pl, eq: V3.eq, x: V3.rec.x, ly: V3.ly, PV3 });
-    // 4 — 문 앞 줄(37.5~40.4)은 안 뜬다 · 문이 열리는 줄(40.4)은 그 순간 · 사진이 밝아진다
+    // 4 — [LY_FROM_START_1013] 들기 시작할 때 불리던 줄(27초)은 안 뜬다(3b) · 문 앞 줄(37.5초)은 불릴 때 바로 · 문이 열리는 줄(40.4)은 그 순간 · 사진이 밝아진다
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 38.6; }, null, { timeout: 15000 }).catch(() => {}); const V4a = await view(f);
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 40.9; }, null, { timeout: 15000 }).catch(() => {}); await f.waitForTimeout(250); const V4b = await view(f); await shot(f, W, '4-lyric');
-    ok(`${W} 4 가사 — 문이 열리기 전에 끝나는 줄 «before the door»는 안 뜬다 · 문이 열리는 줄 «첫 줄 · line one»은 그 순간 · 사진이 밝아진다(lit) [LY_FROM_HOOK · LY_ON_CUE]`, V4a.ly === '' && !V4a.lit && V4b.ly === '첫 줄line one' && V4b.lyOn && V4b.lit, { V4a: { x: V4a.rec.x, ly: V4a.ly, lit: V4a.lit }, V4b: { x: V4b.rec.x, ly: V4b.ly, lit: V4b.lit } });
+    ok(`${W} 4 가사 — 들기 시작할 때 불리던 줄 «부르던 줄»은 안 뜬다 · 그다음 줄 «문 앞 · before the door»는 문이 열리기 전이어도 불릴 때 바로 · 문이 열리는 줄 «첫 줄 · line one»은 그 순간 · 사진이 밝아진다(lit) [LY_FROM_START_1013 · LY_ON_CUE]`, V3.ly === '' && V4a.ly === '문 앞before the door' && V4a.lyOn && !V4a.lit && V4b.ly === '첫 줄line one' && V4b.lyOn && V4b.lit, { V3: { x: V3.rec.x, ly: V3.ly }, V4a: { x: V4a.rec.x, ly: V4a.ly, lit: V4a.lit }, V4b: { x: V4b.rec.x, ly: V4b.ly, lit: V4b.lit } });
     // 4b ★[LY_KO_TOP 2026-10-13 사장님 참고 사진 «사람들은 / People say»] 한글이 위(노란색) · 영문이 아래(흰색 · 기울임) · 글씨는 종전보다 작게
     const LY4 = await f.evaluate(() => { const b = document.querySelector('.ls-mu .mu-slide.cur .mu-lines'), k = b && b.children[0], n = b && b.children[1], cs = (x) => x && getComputedStyle(x);
       return { first: k && k.className, second: n && n.className, koC: cs(k) && cs(k).color, enC: cs(n) && cs(n).color, enI: cs(n) && cs(n).fontStyle, koPx: cs(k) && parseFloat(cs(k).fontSize), enPx: cs(n) && parseFloat(cs(n).fontSize), koTop: k && n ? k.getBoundingClientRect().top < n.getBoundingClientRect().top : null }; });
@@ -265,6 +276,13 @@ try {
     await o6.f.click('.ls-mu [data-fk="mucarpick"]'); await o6.f.waitForFunction(() => !!document.querySelector('.em-scene') && EntryMusic._t.scene().plan, null, { timeout: 30000 }).catch(() => {}); await o6.f.waitForTimeout(300);
     const SC15d = await o6.f.evaluate(() => EntryMusic._t.scene()), L15d = await HL(o6.pg);
     ok(`${W} 15d 판이 장면을 다 담으면 그 판으로 — 곡 전체를 묻지 않는다 · 문 열림 = hook0`, SC15d.plan && Math.abs(SC15d.plan.H - 40.06) < 0.01 && recReqs(L15d, 'r1') === 0, { plan: SC15d.plan, L15d });
+    // 15h [PRE_ROLL_1013 · SOFT_START_1013] 장면(음악과 함께)도 누르고 0.3초 뒤 · 음악은 0 에서 2.5초에 걸쳐(u²) · 멘트(4초) 전에 다 올라와 있다
+    await AUD_TAP(o6.f); await o6.f.click('.em-scene .lg-scene .lgs-greet'); await o6.f.waitForFunction(() => EntryMusic._t.scene().run, null, { timeout: 20000 }).catch(() => {}); await o6.f.waitForTimeout(200);
+    const A15 = await AUD(o6.f), X15h = await o6.f.evaluate(() => EntryMusic._t.scene()); await o6.f.evaluate(() => emAct('scene')); await o6.f.waitForTimeout(300);
+    { const st = A15.find((x) => x.k === 'start'), cv = A15.find((x) => x.k === 'curve' && x.arr[0] === 0 && x.n > 600), g = (sec) => cv.arr[Math.round(sec / cv.d * (cv.n - 1))];
+      ok(`${W} 15h [PRE_ROLL_1013 · SOFT_START_1013] 장면도 ${st ? (st.when - st.now).toFixed(3) : '?'}초 뒤에 소리 · 음악은 0 에서 2.5초에 걸쳐 올라온다(1.25초 ${cv ? (g(1.25) / g(2.6)).toFixed(3) : '?'} · 0.25) · 멘트(${X15h.plan ? X15h.plan.tv : '?'}초) 전에 다 올라와 있다`,
+        !!st && Math.abs(st.when - st.now - 0.3) < 0.005 && !!cv && Math.abs(cv.t - st.when) < 1e-6 && Math.abs(g(1.25) / g(2.6) - 0.25) < 0.02 && g(0.5) < g(2.6) * 0.06 && Math.abs(g(3.0) - g(2.6)) < g(2.6) * 0.02 && !!X15h.plan && X15h.plan.tv === 4,
+        { st, cv: cv ? { t: cv.t, d: cv.d, n: cv.n } : null, plan: X15h.plan, n: A15.length }); }
     await o6.f.click('.ls-mu [data-fk="mufold"]'); await o6.f.waitForTimeout(600); await o6.f.click('.ls-mu [data-fk="mucarnext"]'); await o6.f.waitForTimeout(500);
     await o6.f.click('.ls-mu [data-fk="mucarpick"]'); await o6.f.waitForFunction(() => { const p = EntryMusic._t.scene().plan; return !!(p && Math.abs(p.H - 12) > 0.01 || (p && document.querySelector('.ls-mu .mu-fold') && /이른 자리/.test(document.querySelector('.ls-mu .mu-fold').textContent))); }, null, { timeout: 30000 }).catch(() => {}); await o6.f.waitForTimeout(400);
     const SC15e = await o6.f.evaluate(() => ({ s: EntryMusic._t.scene(), late: !!document.querySelector('.em-scene .em-late'), k: window.S && S.mu && S.mu.k, hooks: window.S && S.mu && S.mu.hooks }));

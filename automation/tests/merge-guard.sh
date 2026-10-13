@@ -17938,7 +17938,7 @@ chk 'BGM_FIRST_1013' console.html 1
 chk 'BGM_FIRST_1013' scripts/audit/bgm-first.mjs 1
 chk 'BGM_FIRST_1013' scripts/audit/entry-scene-day.mjs 3
 chk 'BGM_FIRST_1013' scripts/audit/rec-song-ui.mjs 2
-chk 'lead:4,fade:1.2,intro:-6,duck:0.5' assets/entry-scene.js 1                                    # 멘트 앞 4초 · 1.2초에 올라와 · -6dB · 멘트 0.5초 전부터 낮춤
+chk 'lead:4,fade:2.5,intro:-6,duck:0.5' assets/entry-scene.js 1                                    # 멘트 앞 4초 · 2.5초에 걸쳐 잔잔하게 올라와([SOFT_START_1013] · 종전 1.2초) · -6dB · 멘트 0.5초 전부터 낮춤
 chk 'H=pickHook(H,opts&&opts.hooks,V);' assets/entry-scene.js 1                                    # 멘트가 길면 뒤 자리
 chk 'hooks: Array.isArray(S.mu.hooks) ? S.mu.hooks : null' console.html 1                          # 당일 콘솔도 같은 후보
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-first.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" != 0 ]; then echo 'FAIL bgm-first: 멘트 앞 음악이 들리는가 · 멘트가 길면 뒤 자리에 문 열림(엔진) — node scripts/audit/bgm-first.mjs'; fail=1; else echo 'ok bgm-first: 엔진 — 음악이 먼저 · 뒤 자리'; fi; fi
@@ -17985,3 +17985,25 @@ chk "return { ok: true, key: 'rec', name: name, same: true, h: h };" automation/
 chk "return { ok: true, key: 'rec', name: name, need: true, h: h };" automation/platform/80_production.gs 1
 chk "return { ok: true, key: 'rec', name: name, put: true, size: by.length, h: h };" automation/platform/80_production.gs 1
 nochk "'songs.json': 'd355371af8d178d0bea57c28d34723a4a637b64be7072197a01fb824cd04b41d'" automation/platform/80_production.gs     # ★한 언어 줄이 섞인 옛 목록 — 되살리지 말 것
+# ── 2026-10-13 입장 음악 첫소리 [SOFT_START_1013 · PRE_ROLL_1013 · LY_FROM_START_1013] — 사장님 «처음 부분 잔잔하게(페이드인) 시작 · 미리 듣기도 · 입장 멘트 동시 듣기도»
+#   «듣기 플레이 버튼 누르고 30초 후 들리게 · 씹힘 방지»(0.3초로 읽었다) · «가사 나오는 것도 처음 시작하는 문단 빼고 그다음 문단부터 바로 · 전부 개선»
+#   엔진 한 곳(entry-scene.js): 첫소리 2.5초 u²(SP.fade · fadeCurve) · 식순 화면은 누르고 0.3초 뒤(PRE_ROLL · 당일 콘솔은 배경음이 흘러 0.15초 그대로)
+#   가사: 재생을 시작할 때 불리던 줄만 건너뛰고 그다음 줄부터(종전 LY_FROM_HOOK = 문 열림 전 줄은 안 띄움 · 걷었다) · bgm-first 1 · rec-song-ui 3c · 4 · 15h 가 잰다
+chk 'SOFT_START_1013' assets/entry-scene.js 3
+chk 'PRE_ROLL_1013' assets/entry-scene.js 1
+chk 'SOFT_START_1013' assets/entry-music.js 2
+chk 'PRE_ROLL_1013' assets/entry-music.js 6
+chk 'LY_FROM_START_1013' assets/entry-music.js 3
+chk 'SOFT_START_1013' scripts/audit/bgm-first.mjs 2
+chk 'PRE_ROLL_1013' scripts/audit/rec-song-ui.mjs 4
+chk 'LY_FROM_START_1013' scripts/audit/rec-song-ui.mjs 4
+chk 'BED_TRIM=-6, PRE_ROLL=0.3;' assets/entry-scene.js 1                                                       # 누르고 0.3초 뒤(씹힘 방지)
+chk 'function fadeCurve(lv,F){' assets/entry-scene.js 1                                                         # 미리 듣기 첫소리 = 장면 처음과 같은 u²
+chk 't0=a.currentTime+ES.PRE_ROLL, x0=Math.max(so,h-pre)' assets/entry-music.js 1                              # 미리 듣기(카드 ▶ · 올린 곡 ▶ · 자리 ▶)
+chk 'var t0=a.currentTime+ES.PRE_ROLL, R={id:id' assets/entry-music.js 1                                       # 장면(음악과 함께 · 크게 보기)
+chk 'g.gain.setValueCurveAtTime(ES.fadeCurve(lv,F),t0,F)' assets/entry-music.js 1
+chk 'p.lyF=lyStart(L,p.x0-off)' assets/entry-music.js 1                                                         # 시작할 때 불리던 줄만 건너뛴다
+nochk 'lyFirst(L,+p.H-off)' assets/entry-music.js                                                               # ★문 열림 전 가사를 숨기던 옛 규칙(LY_FROM_HOOK) — 되살리지 말 것
+nochk 'g.gain.linearRampToValueAtTime(lv,t0+0.5)' assets/entry-music.js                                         # ★미리 듣기 첫소리 0.5초 직선(종전) — 2.5초 u² 로 바뀌었다
+nochk 't0=a.currentTime+0.08, x0=' assets/entry-music.js                                                        # ★누르자마자(0.08초) 걸던 옛 시작 — 앞이 씹혔다
+nochk 'var t0=a.currentTime+0.15, R={id:id' assets/entry-music.js

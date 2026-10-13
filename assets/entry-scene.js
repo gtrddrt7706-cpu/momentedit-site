@@ -5,7 +5,11 @@
    ★여기 값을 바꾸면 식순 화면 미리 듣기와 당일 콘솔이 함께 바뀐다 — 그게 이 파일이 있는 까닭이다. */
 (function(){
   'use strict';
-  var SP={lead:4,fade:1.2,intro:-6,duck:0.5,under:-12,build:3,dip:4,breath:0.3,rise:0.3,after:20,call:1.8}, FADE_DN=0.4, OUTF=4, LATE_T=0.3, VOICE_LUFS=-16, SONG_LUFS=-12, BED_TRIM=-6;
+  var SP={lead:4,fade:2.5,intro:-6,duck:0.5,under:-12,build:3,dip:4,breath:0.3,rise:0.3,after:20,call:1.8}, FADE_DN=0.4, OUTF=4, LATE_T=0.3, VOICE_LUFS=-16, SONG_LUFS=-12, BED_TRIM=-6, PRE_ROLL=0.3;
+  /* ★★[SOFT_START_1013 2026-10-13 사장님 «처음 부분 잔잔하게(페이드인) 시작하게 해 줘 · 미리 듣기 부분도 · 입장 멘트 동시 듣기 부분도»] 첫 소리는 2.5초에 걸쳐 0 에서 올라온다(fade · 종전 1.2초).
+     장면(식순 화면 · 당일 콘솔이 같은 곡선)과 미리 듣기(카드 ▶ · 올린 곡 ▶ · 자리 ▶)가 같은 값 · 같은 모양(u² · fadeCurve). 멘트는 여전히 4초에 시작한다(lead) — 음악은 2.5초에 다 올라와 1초 깔린 뒤 멘트 0.5초 전부터 낮아진다.
+     ★★[PRE_ROLL_1013 같은 날 «듣기 플레이 버튼 누르고 30초 후 들리게 해 줘 · 씹힘 방지»] 0.3초로 읽었다(누르고 30초 조용하면 고장으로 보인다) — 식순 화면은 누르고 0.3초 뒤에 소리를 건다(종전 미리 듣기 0.08초 · 장면 0.15초).
+       폰 · 블루투스 기기가 깨어나는 동안 첫소리가 잘리지 않게. 당일 콘솔은 배경음이 늘 흐르고 있어(소리 장치가 깨어 있다) 종전 0.15초 그대로 — 그 시각에 묶인 차례(대사 끝 · 진행 막대)를 건드리지 않는다 */
   /* ★★[ENTRY_CALL_PAUSE_1013 2026-10-13 사장님 «따뜻한 박수로 맞이해 주시면 감사하겠습니다. 이후 신랑 신부 입장까지 적절하게 쉼을 좀 주는 게 좋을 것 같아»]
      음악과 함께 듣는 장면에서만 «신랑 신부, 입장!» 앞 쉼을 1.8초(call · 말끝에서 다음 말머리까지)로 늘린다 — 녹음은 0.66 ~ 0.78초(C 만 1.09초 · 실측 2026-10-13).
      ★같은 날 1초로 넣은 뒤 사장님 «신랑 신부 입장 앞 쉼 부분 1.8초로 해 보자» → 1.8초. 값은 이 한 곳(SP.call)이다.
@@ -96,9 +100,10 @@
     else if(x<PL.th+after) d=0;
     else d=lerp(0,-80,(x-PL.th-after)/OUTF);
     return d+BED_TRIM; }
-  function envGain(PL,x){ var g=db2g(envDb(PL,x)), u=(x-PL.tm)/Math.max(0.05,SP.fade); if(u<1) g*=u<=0?0:u*u; return g; }   /* 처음 1.2초는 0 에서(종전 5초 · [BGM_FIRST_1013]) */
+  function envGain(PL,x){ var g=db2g(envDb(PL,x)), u=(x-PL.tm)/Math.max(0.05,SP.fade); if(u<1) g*=u<=0?0:u*u; return g; }   /* 처음 SP.fade(2.5초 [SOFT_START_1013] · 종전 1.2초 [BGM_FIRST_1013] · 그 전 5초)는 0 에서 */
+  function fadeCurve(lv,F){ var n=Math.max(2,Math.ceil(F*200)+1), c=new Float32Array(n); for(var i=0;i<n;i++){ var u=i/(n-1); c[i]=lv*u*u; } return c; }   /* [SOFT_START_1013] 미리 듣기 첫소리 — 장면 처음(envGain)과 같은 u² 로 0 → lv */
   function envCurve(PL,x0,x1){ var n=Math.max(2,Math.ceil((x1-x0)*200)+1), c=new Float32Array(n); for(var i=0;i<n;i++) c[i]=envGain(PL,x0+(x1-x0)*i/(n-1)); return c; }
-  window.EntryScene={SP:SP,FADE_DN:FADE_DN,OUTF:OUTF,LATE_T:LATE_T,VOICE_LUFS:VOICE_LUFS,SONG_LUFS:SONG_LUFS,BED_TRIM:BED_TRIM,
+  window.EntryScene={SP:SP,FADE_DN:FADE_DN,OUTF:OUTF,LATE_T:LATE_T,VOICE_LUFS:VOICE_LUFS,SONG_LUFS:SONG_LUFS,BED_TRIM:BED_TRIM,PRE_ROLL:PRE_ROLL,fadeCurve:fadeCurve,
     clamp:clamp,db2g:db2g,lerp:lerp,mono:mono,lufsOf:lufsOf,peakOf:peakOf,sentN:sentN,edgeTrimIdx:edgeTrimIdx,sentSplit:sentSplit,
     prepVoice:prepVoice,prepSong:prepSong,pickHook:pickHook,plan:plan,envDb:envDb,envGain:envGain,envCurve:envCurve,voiceSegs:voiceSegs,voiceStart:voiceStart};
 })();
