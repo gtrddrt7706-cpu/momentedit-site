@@ -9,8 +9,13 @@
    6 목록은 캐시(REC_MF) — 두 번째 목록 요청은 드라이브를 다시 읽지 않는다
    7 적어 둔 폴더가 휴지통으로 가면 다음 요청이 다시 찾는다
    8 key 가 'rec' 가 아니면 종전 두 분 목소리 받기 그대로(추천 곡 폴더를 보지 않는다)
+   ★[REC_PUT_1013 2026-10-13 사장님 «드라이브 너가 저장 따로 해»] 서버가 곡 파일을 직접 받는다(ritualFile · key 'rec')
+   9a 이름만 오면 «없다(need)» · 폴더가 없으면 만든다 9b 표에 없는 이름 = 거절 9c 지문(SHA-256)이 다르면 거절 · 아무것도 안 쓴다
+   9d 지문이 같으면 저장 · 설명 칸에 지문 9e 다시 오면 «있다(same)» · 받은 내용을 풀지 않는다 9f songs.json 이 들어가면 목록이 열린다(REC_FID · 캐시 비움)
+   9g 지문 없는 같은 이름 파일(손으로 올린 것)은 새 파일로 바꾸고 옛것은 휴지통 9h 한 시간 120번 넘으면 U1 9i key 가 rec 가 아니면 종전대로 로그인을 본다
    종료 코드 0 통과 · 1 실패 */
 import { loadGas } from './gas-lint.mjs';
+import { createHash } from 'node:crypto';
 
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 400)}`); if (!c) fail++; };
 const { sandbox: G, errors } = loadGas();
@@ -18,19 +23,27 @@ if (errors.length) { console.log('FAIL GAS 로드 — ' + errors[0].file + ': ' 
 
 /* ── 흉내: 드라이브 ── */
 let reads = 0;
-const mkFile = (name, bytes, at, mime) => ({ name, bytes: Buffer.from(bytes), at, mime: mime || 'audio/mpeg', trashed: false,
-  getName() { return this.name; }, isTrashed() { return this.trashed; }, getLastUpdated() { return new Date(this.at); }, getId() { return 'F_' + this.name; },
+let NID = 0;
+const mkFile = (name, bytes, at, mime, id) => ({ name, bytes: Buffer.from(bytes), at, mime: mime || 'audio/mpeg', trashed: false, desc: '', id: id || ('F_' + name),
+  getName() { return this.name; }, isTrashed() { return this.trashed; }, getLastUpdated() { return new Date(this.at); }, getId() { return this.id; },
+  getDescription() { return this.desc; }, setDescription(d) { this.desc = String(d); return this; }, setTrashed(t) { this.trashed = !!t; return this; },
   getBlob() { const f = this; reads++; return { getBytes: () => [...f.bytes], getContentType: () => f.mime, getDataAsString: () => f.bytes.toString('utf8') }; } });
 const iter = (arr) => { let i = 0; return { hasNext: () => i < arr.length, next: () => arr[i++] }; };
 const mkFolder = (id, files) => ({ id, files, trashed: false, getId() { return this.id; }, isTrashed() { return this.trashed; },
-  getFilesByName(n) { return iter(this.files.filter((f) => f.name === n)); } });
+  getFilesByName(n) { return iter(this.files.filter((f) => f.name === n)); },
+  createFile(b) { const f = mkFile(b.name, b.bytes, Date.now(), b.mime, 'N_' + (++NID)); this.files.push(f); return f; } });
 let FOLDERS = [];
 G.DriveApp = { getFoldersByName: (n) => iter(n === 'ME_추천곡' ? FOLDERS : []),
-  getFolderById: (id) => { const f = FOLDERS.find((x) => x.id === id); if (!f) throw new Error('not found'); return f; } };
+  getFolderById: (id) => { const f = FOLDERS.find((x) => x.id === id); if (!f) throw new Error('not found'); return f; },
+  createFolder: (n) => { const f = mkFolder('FD_NEW' + (++NID), []); f.name = n; FOLDERS.push(f); return f; } };
 /* ── 흉내: 스크립트 속성 · 캐시 ── */
 let PROPS = {}; G.PropertiesService = { getScriptProperties: () => ({ getProperty: (k) => (k in PROPS ? PROPS[k] : null), setProperty: (k, v) => { PROPS[k] = String(v); }, deleteProperty: (k) => { delete PROPS[k]; }, getProperties: () => ({ ...PROPS }) }) };
 let CACHE = {}; G.CacheService = { getScriptCache: () => ({ get: (k) => (k in CACHE ? CACHE[k] : null), put: (k, v) => { CACHE[k] = String(v); }, remove: (k) => { delete CACHE[k]; } }) };
-G.Utilities = Object.assign({}, G.Utilities, { base64Encode: (b) => Buffer.from(b).toString('base64') });
+let DECODES = 0; const signed = (buf) => [...buf].map((x) => (x > 127 ? x - 256 : x));   // GAS 의 byte[] 는 -128 ~ 127
+G.Utilities = Object.assign({}, G.Utilities, { base64Encode: (b) => Buffer.from(b.map ? b.map((x) => (x + 256) % 256) : b).toString('base64'),
+  base64Decode: (s) => { DECODES++; return signed(Buffer.from(String(s), 'base64')); },
+  DigestAlgorithm: { SHA_256: 'SHA_256' }, computeDigest: (a, b) => signed(createHash('sha256').update(Buffer.from(b.map((x) => (x + 256) % 256))).digest()),
+  newBlob: (bytes, mime, name) => ({ bytes: Buffer.from(bytes.map((x) => (x + 256) % 256)), mime, name }) });
 /* ── 흉내: 로그인 ── */
 G.resolveSession = (t) => (t === 'T0K' ? { ok: true, row: { get: (h) => (h === '개인코드' ? 'ME0001' : '') } } : { ok: false, reason: 'expired' });
 G._sessionMsg = () => '로그인이 풀렸어요';
@@ -73,6 +86,37 @@ try {
   // 8
   { RF_CALLS = 0; reads = 0; const r = G.handleRitualFileGet({ token: 'T0K', key: 'entry', id: 'F_SOMEFILE123' });
     ok('8 key 가 rec 가 아니면 종전 길(두 분 폴더 · 추천 곡 폴더를 안 본다)', RF_CALLS === 1 && reads === 0 && r && r.ok === false, { RF_CALLS, reads, r }); }
+  // 9 [REC_PUT_1013] 서버가 곡 파일을 직접 받는다
+  { const sha = (x) => createHash('sha256').update(Buffer.from(x)).digest('hex'), b64 = (x) => Buffer.from(x).toString('base64');
+    const real = Object.assign({}, G.REC_PUT_HASH), SJ = JSON.stringify(SONGS);
+    ok('9 · 진짜 표는 파일 9개(곡 8 + songs.json) · 지문은 64자리', Object.keys(real).length === 9 && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)), Object.keys(real));
+    G.REC_PUT_HASH = { 'r1.mp3': sha('ID3-put-r1'), 'r9.mp3': sha('ID3-put-r9'), 'songs.json': sha(SJ) };
+    FOLDERS = []; PROPS = {}; CACHE = {};
+    const put = (name, data) => G.handleRitualFile(Object.assign({ key: 'rec', name }, data === undefined ? {} : { data }));
+    const a = put('r1.mp3'); const fo = FOLDERS[0];
+    ok('9a 이름만 오면 need · 폴더가 없으면 만든다(ME_추천곡) · REC_PUT_FID', a && a.ok === true && a.need === true && FOLDERS.length === 1 && fo.name === 'ME_추천곡' && PROPS.REC_PUT_FID === fo.id, { a, n: FOLDERS.length, fid: PROPS.REC_PUT_FID });
+    const b1 = put('x.mp3', b64('ID3-put-r1')), b2 = put('../songs.json', b64(SJ)), b3 = put('', b64('x')), b4 = put('x.mp3'), b5 = put('toString');
+    ok('9b 표에 없는 이름 = 거절(이름만 물어도)', [b1, b2, b3, b4, b5].every((r) => r && r.ok === false && !r.need) && fo.files.length === 0, { b1, b2, b3, b4, b5 });
+    const c = put('r1.mp3', b64('ID3-evil'));
+    ok('9c 지문이 다르면 거절 · 아무것도 안 쓴다', c && c.ok === false && fo.files.length === 0, { c, files: fo.files.length });
+    DECODES = 0; const d = put('r1.mp3', b64('ID3-put-r1')), f1 = fo.files.find((f) => f.name === 'r1.mp3' && !f.trashed);
+    ok('9d 지문이 같으면 저장 · 설명 칸에 지문 · mp3', d && d.ok && d.put && f1 && f1.desc === G.REC_PUT_HASH['r1.mp3'] && f1.mime === 'audio/mpeg' && f1.bytes.toString() === 'ID3-put-r1' && DECODES === 1, { d, f1: f1 && { desc: f1.desc, mime: f1.mime } });
+    DECODES = 0; const e1 = put('r1.mp3'), e2 = put('r1.mp3', b64('ID3-put-r1'));
+    ok('9e 다시 오면 same · 받은 내용을 풀지 않는다', e1 && e1.same === true && e2 && e2.same === true && DECODES === 0 && fo.files.filter((f) => f.name === 'r1.mp3').length === 1, { e1, e2, DECODES });
+    put('r9.mp3', b64('ID3-put-r9'));
+    const lst0 = get('list');
+    ok('9f-1 songs.json 이 오기 전에는 목록이 없다(L3)', lst0 && lst0.ok === false && lst0.ecode === 'L3', lst0);
+    CACHE.REC_MF = JSON.stringify({ v: 1, songs: [{ k: 'old', hook: 1 }] });
+    const f = put('songs.json', b64(SJ)), lst = get('list'), song = get('r1');
+    const mf = fo.files.find((x) => x.name === 'songs.json' && !x.trashed);
+    ok('9f-2 songs.json 이 들어가면 목록이 열린다 · REC_FID · 옛 목록 캐시를 비움 · 곡 받기', f && f.put && mf && mf.mime === 'application/json' && PROPS.REC_FID === fo.id && lst && lst.ok && lst.songs.map((x) => x.k).join(',') === 'r1,r9' && song && song.ok && Buffer.from(song.data, 'base64').toString() === 'ID3-put-r1', { f, fid: PROPS.REC_FID, lst: lst && lst.songs && lst.songs.map((x) => x.k) });
+    f1.desc = ''; const g = put('r1.mp3', b64('ID3-put-r1')), live = fo.files.filter((x) => x.name === 'r1.mp3' && !x.trashed);
+    ok('9g 지문 없는 같은 이름 파일은 새 파일로 · 옛것은 휴지통', g && g.put && live.length === 1 && live[0] !== f1 && f1.trashed === true, { g, live: live.length });
+    CACHE.RECPUT_N = '120'; const h = put('r1.mp3');
+    ok('9h 한 시간 120번 넘으면 U1', h && h.ok === false && h.ecode === 'U1', h); delete CACHE.RECPUT_N;
+    const i = G.handleRitualFile({ key: 'g0', name: 'x.webm', data: b64('x') });
+    ok('9i key 가 rec 가 아니면 종전대로 로그인을 본다', i && i.ok === false && i.reason === 'expired', i);
+    G.REC_PUT_HASH = real; }
 } catch (e) { ok('잴 수 없었다 — ' + (e && e.stack || e).split('\n').slice(0, 3).join(' | '), false); }
 G._rfFileIn = _rfIn;
 console.log(fail ? `rec-song-server: FAIL ${fail}` : 'rec-song-server: ok');

@@ -1222,6 +1222,7 @@ function _rfMailFlush() { _gsr_();
 }
 function handleRitualFile(body) { _gsr_();
   body = body || {};   // [RITUAL_FILE]
+  if (String(body.key || '').trim() === 'rec') return _recPut_(body);   // ★[REC_PUT_1013] 추천 곡 파일 9개는 로그인 대신 «내용 지문(SHA-256)»으로 받는다 — 아래 _recPut_
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1280,7 +1281,7 @@ function handleRitualFileGet(body) { _gsr_();
 }
 /* ★★[REC_SONG_1012 2026-10-12 사장님 «추천대로»(추천 곡 1번 · 드라이브에 곡을 두고 로그인한 고객에게만)] 입장 음악 «추천 곡»
    곡 파일과 곡 목록(songs.json · 제목 · 가수 · 크게 올라오는 자리 · 사진 · 줄마다 시각이 붙은 가사)은 사이트 저장소가 아니라 드라이브 «ME_추천곡» 폴더에 둔다 —
-   사장님이 폴더째 올린다 · 공개 주소를 만들지 않고 로그인한 두 분(handleRitualFileGet key 'rec')과 당일 콘솔(adminRitualFileGet 'rec:<키>')에게만 base64 로 건넨다.
+   ★파일은 서버가 직접 받는다(아래 REC_PUT_1013 · 10/13 사장님 «드라이브 너가 저장 따로 해») — 사장님이 폴더를 올리지 않는다 · 공개 주소를 만들지 않고 로그인한 두 분(handleRitualFileGet key 'rec')과 당일 콘솔(adminRitualFileGet 'rec:<키>')에게만 base64 로 건넨다.
    · 폴더는 이름으로 찾되 songs.json 이 든 것만(여러 개면 목록이 가장 새것) · 찾은 id 는 REC_FID 에 적어 둔다 — 폴더를 지우고 다시 올려도 다음 요청이 다시 찾는다
    · 곡 목록은 10분 캐시(REC_MF) — 목록을 고친 뒤 10분 안에는 옛 목록이 나갈 수 있다
    · 두 분 쪽 곡 받기는 한 예식에 한 시간 REC_HOUR_MAX(60)번까지(넘으면 L1 «잠시 뒤») — 미리 듣기마다 곡 하나를 받는다 · 콘솔은 상한 없음 */
@@ -1319,6 +1320,57 @@ function _recGet_(code, id, admin) {
   var f = _recSongFile_(id); if (!f) return { ok: false, ecode: 'L3', error: '곡 파일을 찾을 수 없어요.' };
   var b = f.getBlob(), by = b.getBytes(); if (by.length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
   return { ok: true, key: 'rec', id: id, mime: b.getContentType() || 'audio/mpeg', data: Utilities.base64Encode(by) };
+}
+/* ★★[REC_PUT_1013 2026-10-13 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»] 추천 곡 파일을 서버가 직접 받아 «ME_추천곡»에 둔다
+   사장님이 폴더를 만들어 올리지 않는다 — 비공개 문서 저장소의 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 하나씩 보낸다(action 'ritualFile' · key 'rec').
+   · 받는 것은 아래 표의 이름 9개뿐이고, 내용의 SHA-256 이 표와 같아야 저장한다 — 비밀 열쇠 없이도 다른 것은 아무것도 쓰지 못한다(표는 공개돼도 내용을 알려 주지 않는다)
+   · data 없이 이름만 오면 «있다(same) · 없다(need)»만 답한다 · 같은 파일이 이미 있으면 받은 내용을 풀지 않는다(설명 칸에 지문을 적어 둔다)
+   · songs.json 은 맨 끝에 온다 — 목록이 생기는 순간 곡은 이미 다 있다 · 그때 목록 캐시(REC_MF)를 지우고 폴더 기록(REC_FID)을 새로 한다
+   · 한 시간 REC_PUT_HOUR(120)번까지(넘으면 U1) · 곡을 바꾸면 이 표와 문서 저장소의 파일 · songs.json 을 같은 날 함께 바꾼다 */
+var REC_PUT_HASH = {
+  'r1.mp3': '9b62e9abce22c8d966b0d38a9eeaaaa50f861b94697c081c4ece0bcd1c7b4d19',
+  'r2.mp3': '1e38755ae14102aaca4f1bb4bcb2438712aaac39b4bdf09fdb0dda671517db22',
+  'r3.mp3': 'd08651e21a257704ab0d5292f1728e1ebce7cf1656e3bded6695cc31dd67e750',
+  'r4.mp3': '3235de381e66d06daf2139253958e65072acd1039301c17d6114466f2dd771ca',
+  'r5.mp3': 'ca1382724f00c6ffcaa87b35d4aef3d569d5793068fe44fd69057e6b4982b732',
+  'r6.mp3': '9c9b645f0a0b7091a115214e6599c58083be618afb488bc18c829924a0a22d76',
+  'r8.mp3': '573eef1b8d4dd5e73278efdd32916bd18ec80e201ee782cf42c0910261ed9f4f',
+  'r9.mp3': 'beba6f25d2234fe652420444f0456fe99a9738874ecfc639ff1233aadfd11eeb',
+  'songs.json': '017845400a96a08b8ad582b9c659822f139c8b8c3b9895088083dc486b64540e'
+}, REC_PUT_HOUR = 120;
+function _recPutFolder_() {
+  var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');
+  if (fid) { try { var f0 = DriveApp.getFolderById(fid); if (!f0.isTrashed()) return f0; } catch (e) {} }
+  var f = _recFolder_();   // 이미 목록이 든 폴더가 있으면 그 폴더에 채운다
+  if (!f) { var it = DriveApp.getFoldersByName(REC_ROOT_FOLDER); while (it.hasNext()) { var x = it.next(); try { if (!x.isTrashed()) { f = x; break; } } catch (e) {} } }
+  if (!f) f = DriveApp.createFolder(REC_ROOT_FOLDER);
+  try { props.setProperty('REC_PUT_FID', f.getId()); } catch (e) {}
+  return f;
+}
+function _recPutHas_(fo, name, h) {
+  var it = fo.getFilesByName(name);
+  while (it.hasNext()) { var f = it.next(); try { if (!f.isTrashed() && String(f.getDescription() || '') === h) return f; } catch (e) {} }
+  return null;
+}
+function _recPut_(body) {
+  var mk = '[REC_PUT_1013]', name = String((body && body.name) || '').trim(), h = Object.prototype.hasOwnProperty.call(REC_PUT_HASH, name) ? REC_PUT_HASH[name] : '';
+  if (!h) return { ok: false, error: '받을 수 없는 파일이에요.' };
+  try { var ck = CacheService.getScriptCache(), n = +(ck.get('RECPUT_N') || 0); if (n >= REC_PUT_HOUR) return { ok: false, ecode: 'U1', error: '잠시 뒤 다시 보내 주세요.' }; ck.put('RECPUT_N', String(n + 1), 3600); } catch (e) {}
+  var fo;
+  try { fo = _recPutFolder_(); if (_recPutHas_(fo, name, h)) return { ok: true, key: 'rec', name: name, same: true }; }
+  catch (e) { return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 저장하지 못했어요.' }; }
+  var b64 = String((body && body.data) || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, '');
+  if (!b64) return { ok: true, key: 'rec', name: name, need: true };
+  if (b64.length > 16 * 1048576) return { ok: false, error: '받을 수 없는 파일이에요.' };
+  var by; try { by = Utilities.base64Decode(b64); } catch (e) { return { ok: false, error: '받을 수 없는 파일이에요.' }; }
+  var hx = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, by).map(function (x) { return ('0' + ((x + 256) % 256).toString(16)).slice(-2); }).join('');
+  if (hx !== h) return { ok: false, error: '받을 수 없는 파일이에요.' };
+  try {
+    var nf = fo.createFile(Utilities.newBlob(by, /\.json$/.test(name) ? 'application/json' : 'audio/mpeg', name)); nf.setDescription(h);
+    var it = fo.getFilesByName(name); while (it.hasNext()) { var o = it.next(); if (o.getId() !== nf.getId()) { try { o.setTrashed(true); } catch (e) {} } }
+    if (name === REC_MANIFEST) { try { PropertiesService.getScriptProperties().setProperty('REC_FID', fo.getId()); } catch (e) {} try { CacheService.getScriptCache().remove('REC_MF'); } catch (e) {} }
+    return { ok: true, key: 'rec', name: name, put: true, size: by.length };
+  } catch (e) { return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 저장하지 못했어요.' }; }
 }
 /* ★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] 두 분이 먼저 «목소리 파일 모두 지우기» — 그 예식 폴더(안내 소리 · 대신 올린 파일 · AI 소리 · 읽은 녹음 · 연습 소리)를 통째로 휴지통,
    업체 쪽 AI 목소리도 지운다(_vcPurgeNow). 기록 RFGONE_<코드>=오늘 — 마이페이지 알림 줄이 사라지고, 30일 지우기(purgeRitualFiles)는 건너뛴다 */

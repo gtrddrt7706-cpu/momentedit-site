@@ -17761,7 +17761,18 @@ chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-server.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-scene-day.mjs 1
 nochk 'songs.json' assets/entry-music.js                 # 곡 목록은 서버(드라이브)에서만 — 저장소에 목록 · 가사를 두지 않는다
-if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+# ── 2026-10-13 추천 곡 파일을 서버가 직접 받는다 [REC_PUT_1013] — 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»
+#   사장님이 드라이브에 폴더를 올리지 않는다. 비공개 문서 저장소 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 ritualFile · key 'rec' 로 보낸다.
+#   서버는 «이름 표 9개 + 내용 지문(SHA-256)»이 맞을 때만 저장한다 — 비밀 열쇠 없이 다른 것은 쓰지 못하게(rec-song-server 9a ~ 9i · 깨 보기 넷: 지문 비교 · same 지름길 · 길 · 이름 표)
+chk 'REC_PUT_1013' automation/platform/80_production.gs 4
+chk "  if (String(body.key || '').trim() === 'rec') return _recPut_(body);" automation/platform/80_production.gs 1   # 로그인 확인보다 먼저(곡 파일은 로그인으로 받지 않는다)
+chk "  if (hx !== h) return { ok: false, error: '받을 수 없는 파일이에요.' };" automation/platform/80_production.gs 1   # 지문이 다르면 아무것도 안 쓴다
+chk "h = Object.prototype.hasOwnProperty.call(REC_PUT_HASH, name) ? REC_PUT_HASH" automation/platform/80_production.gs 1   # 표에 없는 이름(toString 같은 것 포함)은 거절
+chk 'REC_PUT_1013' scripts/audit/rec-song-server.mjs 2
+chk 'REC_PUT_1013' deploy-marks.json 1
+chk 'REC_PUT_FID' scripts/gen-deploy-fns.mjs 1
+nochk '사장님이 폴더째 올린다' automation/platform/80_production.gs   # 옛 안내 — 이제 사장님이 올리지 않는다
 # ── 2026-10-12 입장 음악 «추천 곡» 4-나 화면 [REC_SONG_1012] — 사장님 «추천대로»(추천 곡 1번 · 드라이브에 두고 로그인한 두 분에게만) · «왜 추천 노래 부분이 없어?»
 #   빌더 ② 입장 «입장 음악» 줄 = 칩 둘 «두 분이 고른 곡 · 추천 곡»(MU_SRC · 처음엔 안 눌린 모양) · 추천 곡 = 시험실 v50 카드(와이드 사진 · 가사 · ‹ ▶ › · ✓ · 접힌 한 줄)
 #   목록 · 곡은 마이페이지 → GAS(4-가)에서만 받는다(저장소에 곡 · 목록 · 가사 없음) · 고르면 S.mu={src:'rec',k,…,hook:hook0}(당일 콘솔이 보는 그것) · 올린 곡 기록은 S.muUp 으로 비켜 둔다
