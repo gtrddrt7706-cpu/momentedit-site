@@ -2754,6 +2754,12 @@
    "fn": "adminRitualFileGet",
    "mark": "REC_SONG_1012",
    "why": "당일 콘솔이 두 분이 고른 «추천 곡»을 드라이브 ME_추천곡 폴더에서 미리 받는다('rec:<곡 키>') — 이 판이 안 올라가 있으면 추천 곡을 고른 예식은 입장 장면 대신 배경음으로 나간다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFile",
+   "mark": "REC_PUT_1013",
+   "why": "추천 곡 파일을 서버가 직접 받아 드라이브 ME_추천곡에 둔다(사장님 «드라이브 너가 저장 따로 해» 10/13) — 정해 둔 9개 파일만 · 내용 지문(SHA-256)이 같아야 저장 · 이 판이 안 올라가 있으면 곡이 드라이브에 들어가지 않아 마이페이지 추천 곡 칸이 «불러오지 못했어요»로 남는다"
   }
  ],
  "fns": {
@@ -2992,6 +2998,9 @@
    "_recManifest_",
    "_recSongFile_",
    "_recGet_",
+   "_recPutFolder_",
+   "_recPutHas_",
+   "_recPut_",
    "handleRitualFilePurgeMine",
    "handleRitualFileDel",
    "_rfKeyOfName",
@@ -3650,6 +3659,7 @@
    "RF_ROOT_FOLDER",
    "RF_KEYS",
    "REC_ROOT_FOLDER",
+   "REC_PUT_HASH",
    "VC_BASE",
    "VC_DOWN",
    "VC_COLOR",
@@ -3851,7 +3861,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-13 00:00 · ffa32c0f",
+ "_생성": "2026-10-13 09:08 · 2c32f454",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4065,6 +4075,12 @@
   },
   {
    "key": "REC_FID",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "REC_PUT_FID",
    "kind": "state",
    "a": "",
    "b": ""
@@ -4377,5 +4393,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "17ecf1fdb0bc"
+ "_표식서명": "cfa6c014c3a0"
 }
