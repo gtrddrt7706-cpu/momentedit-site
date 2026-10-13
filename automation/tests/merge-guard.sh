@@ -17771,7 +17771,7 @@ chk 'ES.prepVoice(b, ES.sentN(txt), isNar)' console.html 1               # 대�
 chk 'PILL_WRAP' console.html 2                                           # 디렉터 칩 줄은 넘치면 다음 줄로 · 알약 안 글은 한 줄(entry-scene-day 8 이 높이로 잰다) — 한 줄에 끼우면 «잘린 알약»
 chk 'if (esdTry(c, done)) return;' console.html 1                       # 입장 큐는 장면부터(준비가 안 됐으면 종전 길)
 chk 'if (ESD.run) { esdDuck(db, ms); db = -90; }' console.html 1          # 입장 곡이 흐르는 동안 배경음은 내려 둔다
-chk 'ES.plan(V0, Sg, H, { after: 1e5 })' console.html 1                  # 하이라이트 뒤 곡은 디렉터가 다음을 누를 때까지(걸음은 자동으로 넘기지 않는다)
+chk 'ES.plan(V0, Sg, H, { after: 1e5, hooks:' console.html 1             # 하이라이트 뒤 곡은 디렉터가 다음을 누를 때까지(걸음은 자동으로 넘기지 않는다) · [BGM_FIRST_1013] 문 열림 후보(hooks)를 함께 넘긴다
 chk "esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4))" console.html 1       # 입장 묶음을 떠나면 곡 4초 잦아듦
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-scene-day.mjs >/dev/null 2>&1; _esd=$?; if [ "$_esd" = 1 ]; then echo 'FAIL entry-scene-day: 당일 콘솔 입장 장면(곡 받기 · GO · 하이라이트 계획 · 배경음 내림 · 맞절 · 다음 묶음 · 곡 없음/못 받음 종전 길)이 깨졌습니다 — node scripts/audit/entry-scene-day.mjs'; fail=1; elif [ "$_esd" = 0 ]; then echo 'ok entry-scene-day: 당일 콘솔 입장 장면'; else echo 'skip entry-scene-day: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-12 입장 음악 «추천 곡» 4-가 서버 길 [REC_SONG_1012] — 사장님 «추천대로»(1번 · 드라이브에 곡을 두고 로그인한 고객에게만)
