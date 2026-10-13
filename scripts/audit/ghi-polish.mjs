@@ -119,8 +119,8 @@ for (const w of [390, 1280]) {
   ok(`${w} G5 옅은 줄은 재생 목록 · 들을 길이에 안 든다`, await pg.evaluate(() => { const st = _lSteps(ENG, ['ring']), q = st.filter((x) => x.quiet); return q.length === 1 && _lLen(q) === 0; }));
   // H1 · H2 · H3 — [FLOW_MAKE] 옛 ③ 준비하기는 걷었다: 첫인사 칸은 ② 첫인사 쪽 · 보낼 길은 ② 식전 영상 쪽 · 도와주실 분은 ② 한눈에 보기
   await pg.evaluate(() => { S.on.welcome = 1; S.welcome = 'self'; S.on.prevideo = 1; opSync(); mkGo('welcome'); }); await pg.waitForTimeout(400);
-  const h1 = await pg.evaluate(() => ({ ta: !!document.querySelector('textarea[aria-label="첫인사 · 신랑"]') && !!document.querySelector('textarea[aria-label="첫인사 · 신부"]'), oldName: /인사말/.test(document.getElementById('stage').textContent) }));
-  ok(`${w} H1 ② 첫인사 칸 이름 · aria-label = «첫인사 · 신랑/신부» [H1_FIRST_HELLO]`, h1.ta && !h1.oldName, JSON.stringify(h1));
+  const h1 = await pg.evaluate(() => ({ ta: !!document.querySelector('textarea[aria-label="감사 인사 · 신랑"]') && !!document.querySelector('textarea[aria-label="감사 인사 · 신부"]'), oldName: /인사말/.test(document.getElementById('stage').textContent) }));
+  ok(`${w} H1 ② 감사 인사 칸 이름 · aria-label = «감사 인사 · 신랑/신부» [H1_FIRST_HELLO] [THANKS_GREET_1013]`, h1.ta && !h1.oldName, JSON.stringify(h1));
   await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(300);
   const h2 = await pg.evaluate(() => { const st = document.getElementById('stage'), link = st.querySelector('input[aria-label="식전 영상 링크"]'), how = st.querySelector('.send-how');
     return { link: !!link, how: !!how, order: !!(link && how && (link.compareDocumentPosition(how) & Node.DOCUMENT_POSITION_FOLLOWING)) }; });
@@ -128,7 +128,7 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => mkGo('_sum')); await pg.waitForTimeout(300);
   ok(`${w} H3 ② 한눈에 보기 도와주실 분 «불러 모아 주실 분 · «가족 · 친구 스냅»» [H3_CALLER_HELPER]`, await pg.evaluate(() => /가족사진 때 친척분들을 불러 모아 주실 분\s*양가 한 분씩 · 마이페이지 «?가족\s·\s친구\s스냅»?에 적어 두면 디렉터가 먼저 말씀드려요/.test(document.getElementById('stage').textContent)));
   const scr = await pg.evaluate(() => { S.welcomeText = '안녕하세요'; return typeof buildScript === 'function' ? buildScript() : (typeof scriptText === 'function' ? scriptText() : ''); });
-  if (scr) ok(`${w} H1 대본 줄 «첫인사(두 분 작성):»`, /첫인사\(두 분 작성\):\n안녕하세요/.test(scr) && !/인사말\(두 분 작성\)/.test(scr), scr.slice(0, 80));
+  if (scr) ok(`${w} H1 대본 줄 «감사 인사(두 분 작성):»`, /감사 인사\(두 분 작성\):\n안녕하세요/.test(scr) && !/인사말\(두 분 작성\)/.test(scr), scr.slice(0, 80));
   // I1 · I2 · I3 ④
   await go(pg, 'done'); await pg.waitForTimeout(400);
   const d = await pg.evaluate(() => { const hd = document.querySelector('.done-hd .s'), f = document.querySelector('.done-flow'), svg = f && f.querySelector('svg.flow-svg');

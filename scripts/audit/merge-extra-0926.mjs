@@ -149,7 +149,7 @@ await safe('P1-4', async () => {
   await p2.route('**/*', (rt) => rt.request().url().startsWith(B) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
   await p2.goto(B + '/mypage.html', { waitUntil: 'domcontentloaded' }); await p2.waitForTimeout(800);
   const L = await p2.evaluate((s) => typeof photoSceneList === 'function' ? photoSceneList({ summary: s, S: {} }) : null, sm.sm);
-  ok('P1-4 마이페이지가 그 목록을 그대로 그린다(첫인사 · 반지 교환 포함 · 차례 같음)', L && JSON.stringify(L.map((x) => x.n)) === JSON.stringify(sm.seq) && L.some((x) => x.n === '첫인사'), JSON.stringify(L && L.map((x) => x.n)));
+  ok('P1-4 마이페이지가 그 목록을 그대로 그린다(감사 인사 · 반지 교환 포함 · 차례 같음)', L && JSON.stringify(L.map((x) => x.n)) === JSON.stringify(sm.seq) && L.some((x) => x.n === '감사 인사'), JSON.stringify(L && L.map((x) => x.n)));
   await c2.close();
 });
 /* P1-7 · 대본 파일 겹이름 */

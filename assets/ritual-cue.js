@@ -717,7 +717,7 @@
       var n = D.NARR.welcome;
       return [
         cue({
-          k: 'welcome', blockN: '환영·첫인사', slug: 'narr-welcome-in', name: '환영·첫인사 시작', text: n.nar,
+          k: 'welcome', blockN: '감사 인사', slug: 'narr-welcome-in', name: '감사 인사 시작', text: n.nar,   /* [THANKS_GREET_1013] 옛 이름 «환영·첫인사» */
           hint: '두 분이 중앙에서 하객 쪽으로 돌아서면 · 속으로 셋을 세고',
           live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: 46, self: true, doing: 'say', fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴' }
         })

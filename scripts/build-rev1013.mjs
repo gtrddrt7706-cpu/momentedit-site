@@ -105,7 +105,11 @@ if (process.argv[2] === '--check') {
   const inClip = new Set(); const man = JSON.parse(fs.readFileSync(path.join(PLAN, '타입캐스트/manifest.json'), 'utf8'));
   const mp3s = fs.readdirSync(NARR);
   for (const c of man.clips || []) if (c.file && mp3s.some((f) => f.endsWith('_' + c.file + '.mp3'))) for (const s of c.sents || []) inClip.add(norm(typeof s === 'string' ? s : s.text));
-  let n = 0, a = 0, b = 0; const none = [];
+  /* ★[NARR_AUDIO_WAIT 2026-10-13] 녹음을 맡긴 문장은 «소리 없음»이 아니라 «녹음 대기»로 센다 — 맡긴 목록 = docs/plans/식순연구/타입캐스트_<n>판_<성우>_<날짜>.txt(사장님께 드린 타입캐스트 대본 · «성우: 문장» 한 줄씩).
+       원고 판(3판 · 4판 …)은 글을 먼저 고치고 녹음은 사장님이 받아 주신다 — 그 사이 이 검사가 빨갛면 원고를 고칠 수 없다. 목록에도 없고 소리도 없는 문장은 종전대로 빨강.
+       대기 수는 늘 찍는다(조용해지지 않는다) · 녹음이 오면 --import 로 rev1013/src 에 넣어 «낱개 소리»가 된다 · 2판 목록(타입캐스트_3단계_*)은 이미 받은 것이라 대기로 세지 않는다 */
+  const wait = new Map(); for (const f of fs.readdirSync(PLAN).filter((x) => /^타입캐스트_\d+판_.+\.txt$/.test(x))) for (const l of fs.readFileSync(path.join(PLAN, f), 'utf8').split('\n')) { const m = l.match(/^[^:]+:\s*(.+)$/); if (m) wait.set(norm(m[1].trim()), f); }
+  let n = 0, a = 0, b = 0, w = 0; const none = [], waits = [];
   let h2 = '', cols = null;
   for (const line of fs.readFileSync(DOC, 'utf8').split('\n')) {
     if (/^## /.test(line)) { h2 = line; cols = null; continue; }
@@ -113,9 +117,10 @@ if (process.argv[2] === '--check') {
     const cells = line.split('|').slice(1, -1).map((c) => c.trim()); if (!cols) { cols = cells; continue; }
     if (cells.every((c) => /^:?-+:?$/.test(c))) continue; const ti = cols.indexOf('3단계 글'); if (ti < 0) continue;
     const t = cells[ti]; if (!t || t === '—' || /^\(/.test(t)) continue;
-    for (const s of (t.match(/[^.!?]+[.!?]/g) || []).map((x) => x.trim())) { n++; const k = norm(s); if (one.has(k)) a++; else if (inClip.has(k)) b++; else none.push(`${cells[0].slice(0, 30)} «${s}»`); }
+    for (const s of (t.match(/[^.!?]+[.!?]/g) || []).map((x) => x.trim())) { n++; const k = norm(s); if (one.has(k)) a++; else if (inClip.has(k)) b++; else if (wait.has(k)) { w++; waits.push(`${cells[0].slice(0, 30)} «${s}» · ${wait.get(k)}`); } else none.push(`${cells[0].slice(0, 30)} «${s}»`); }
   }
-  console.log(`원고 문장 ${n} · 낱개 소리 ${a} · 옛 줄째 클립 안에만 ${b} · 소리 없음 ${none.length}`);
+  console.log(`원고 문장 ${n} · 낱개 소리 ${a} · 옛 줄째 클립 안에만 ${b} · 녹음 대기 ${w} · 소리 없음 ${none.length}`);
+  waits.forEach((x) => console.log('… 녹음 대기 — ' + x));   // [NARR_AUDIO_WAIT]
   none.forEach((x) => fail('소리 없음 — ' + x));
   console.log(bad ? `NARR AUDIO FAIL ${bad}` : 'NARR AUDIO OK'); process.exit(bad ? 1 : 0);
 }
