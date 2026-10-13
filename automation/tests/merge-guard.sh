@@ -15040,6 +15040,11 @@ chk 'CHIP_W_FIX' order-preview.html 2
 chk 'PR_MODE_ONE_LINE' order-preview.html 1
 chk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html 1
 chk 'VP_ASK_FIRST' scripts/audit/vp-ask-first.mjs 1
+# ── [VP_ASK_ONLY 2026-10-13 사장님 «담백하게 눌러져 있는 거 개선»] «어떻게 준비할까요»를 안 골랐으면 그 칸 하나만 — 입장 멘트 칩 줄(EX_CHIP_ON 눌린 모양)은 고른 뒤에
+#   하객 맞이 · 식전 영상 소개의 예시 줄 · 입장 음악 줄과 같게 · vp-ask-first 가 셋 다 잰다(안 고름 = 다른 칩 줄 0 · 입장은 고르면 담백하게 하나만 눌림)
+chk 'VP_ASK_ONLY' order-preview.html 1
+chk 'VP_ASK_ONLY' scripts/audit/vp-ask-first.mjs 3
+chk "if(gs.some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; })) gs=gs.filter(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key); });" order-preview.html 1
 # ── [VP_MUST 2026-10-08 사장님 «고르지 않으면 스튜디오 나레이션으로 진행돼요 · 이 문구 수정 · 무조건 고르게» → «저 문구 삭제하고 · 다음으로 넘기려 하면 안내 문구(알림)»] 안내 목소리는 꼭 고른다 — ② «다음» · ② → ③ · ④ 저장 세 문에서 막고 아래 알림 한 번 · 칩 아래 상시 줄 없음
 chk 'VP_MUST' order-preview.html 8
 chk 'VP_MUST' scripts/audit/vp-ask-first.mjs 4

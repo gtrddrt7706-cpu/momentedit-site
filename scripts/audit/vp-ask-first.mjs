@@ -9,7 +9,8 @@ const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '.
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 const T = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png' };
-const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
+const VP_OP = process.env.VP_OP || '';   // [VP_ASK_ONLY] 돌연변이 확인용 — 그 판의 order-preview.html 로 잰다
+const srv = http.createServer((q, r) => { const u0 = decodeURIComponent(q.url.split('?')[0]), p = (VP_OP && u0 === '/order-preview.html') ? VP_OP : path.join(ROOT, u0); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch(); } catch (e) { console.log('못 쟀다 — 브라우저 없음'); srv.close(); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
@@ -31,11 +32,13 @@ for (const W of [390, 1280]) {
   for (const [k, vk] of [['guest', 'guestVoice'], ['entry', 'entryVoice'], ['prevideo', 'pvVoice']]) {
     await pg.evaluate((k) => { mkGo(k); try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }, k); await pg.waitForTimeout(400);
     const look = (vk) => pg.evaluate((vk) => ({ ask: ((([...document.querySelectorAll('.ls-cg')].find((g) => g.querySelector('[data-fk^="lsc:' + vk + ':"]')) || document).querySelector('.mk-vpask1')) || {}).textContent || '',   /* [EX_ROW 2026-10-07] 예시 칩 줄도 같은 줄(mk-vpask1 · «아직 고르지 않았어요 · 고르지 않으면 담백하게로») — 목소리 칩 줄 것만 */ box: !!document.querySelector('.mk-vpask'), flow: !!document.querySelector('.mk-flow'), cards: document.querySelectorAll('.mk-vc').length,
-      note: [...document.querySelectorAll('.ls-gnote')].map((e) => e.textContent).join('|'), toast: ((u) => (u && !u.hidden ? u.textContent : ''))(document.getElementById('lsToast')) /* [NOTE_TOAST] 누른 그 순간 아래 알림 */, on: [...document.querySelectorAll('[data-fk^="lsc:' + vk + ':"]')].filter((e) => e.getAttribute('aria-checked') === 'true' || e.classList.contains('on')).length }), vk);
+      note: [...document.querySelectorAll('.ls-gnote')].map((e) => e.textContent).join('|'), toast: ((u) => (u && !u.hidden ? u.textContent : ''))(document.getElementById('lsToast')) /* [NOTE_TOAST] 누른 그 순간 아래 알림 */, on: [...document.querySelectorAll('[data-fk^="lsc:' + vk + ':"]')].filter((e) => e.getAttribute('aria-checked') === 'true' || e.classList.contains('on')).length,
+      /* [VP_ASK_ONLY] 목소리 칸 말고 다른 칩 줄 · 그 줄에서 눌린 칩(입장 음악 줄은 처음엔 안 눌림이라 뺀다) */ others: [...document.querySelectorAll('#stage .ls-cg')].filter((g) => !g.querySelector('[data-fk^="lsc:' + vk + ':"]')).length, exPressed: [...document.querySelectorAll('#stage .ls-cg')].filter((g) => !g.querySelector('[data-fk^="lsc:' + vk + ':"]') && !g.closest('.ls-mu')).reduce((n, g) => n + g.querySelectorAll('.op-chip[aria-checked="true"]').length, 0) }), vk);
     const a = await look(vk);
     if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `vp-ask-${k}-${W}.png`), fullPage: true });
     ok(`${W} ${k} 안 고름 — 칩 아래 한 줄 없음(VP_MUST · 사장님 «저 문구 삭제») · 상자 없음 [VP_ASK_ONE] · 흐름 · 줄 카드 · «나레이터가 읽어요» 없음 · 칩 비어 있음`,
       !a.ask && !a.box /* [VP_ASK_ONE] 상자 없이 칩 아래 한 줄 */ && !a.flow && a.cards === 0 && !/나레이터가 읽어요/.test(a.note) && a.on === 0, JSON.stringify(a));
+    ok(`${W} ${k} [VP_ASK_ONLY] 안 고름 — «어떻게 준비할까요» 칸 하나만(입장 멘트 같은 다른 칩 줄 없음 · 눌린 칩 없음 · 사장님 «담백하게 눌러져 있는 거 개선»)`, a.others === 0 && a.exPressed === 0, JSON.stringify(a));
     /* ★★[VP_ROW_A 2026-10-08 사장님 «추천두개» = 안 A · «PC 는 지금이 적절 · 바꾼다면 모바일만»] 폰 = 질문 14px 먹색 600 한 줄 · 칩 반반(줄을 꽉 채운 같은 폭 두 칸) · 링크 12.5px 는 질문 줄 오른쪽 · 질문과 안 겹친다
        PC = 칩은 글자 폭 그대로 · 제목 글씨는 같다(CG_TITLE · 질문 옆에 칩 한 줄 · VP_CHIP_ROW) */
     const vr = await vpRow(pg, vk);
@@ -43,6 +46,7 @@ for (const W of [390, 1280]) {
     else ok(`${W} ${k} [VP_ROW_A · CG_TITLE] PC — 제목 14px · 600 · 먹색 · 한 줄 · 질문 옆에 칩(사장님 «제목 폰트는 PC 도»)`, vr && vr.fs === '14px' && vr.fw === '600' && vr.col === 'rgb(58, 45, 34)' && vr.lines === 1 && vr.beside, JSON.stringify(vr));
     await pg.click(`[data-fk="lsc:${vk}:nar"]`); await pg.waitForTimeout(400);
     const b = await look(vk);
+    if (k === 'entry') ok(`${W} entry [VP_ASK_ONLY] 고르면 입장 멘트 줄이 열린다 · 담백하게 하나만 눌림(아래 글이 그 예시 · EX_CHIP_ON)`, b.others >= 1 && b.exPressed === 1, JSON.stringify(b));
     ok(`${W} ${k} 스튜디오 나레이션 고름 — 칸이 걷히고 흐름이 열린다 · «나레이터가 …»는 칩 아래가 아니라 아래 알림 «나레이터가 읽어요» [NOTE_TOAST · TOAST_MIN]`, !b.ask && b.flow && !/나레이터가/.test(b.note) && b.toast === '나레이터가 읽어요' && b.on === 1, JSON.stringify(b));
   }
   /* ★★[VP_MUST 2026-10-08 사장님 «무조건 고르게»] 안 고른 채 «다음»을 누르면 그 쪽에 머물고 한 줄이 진사색(must) · 고르면 넘어간다 · ② → ③ 문도 안 고른 쪽으로 데려간다 */

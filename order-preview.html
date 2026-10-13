@@ -6992,6 +6992,9 @@ function renderMake(){
        고를 것이 있는 쪽 = 칩이 곧 듣기(누르면 그 판으로 들린다 · 아래 재생 막대가 멈춤을 맡는다) → 단추를 걷었다. 고를 것이 없는 쪽만 «흐름» 머리에 «이 순간 들어 보기». 되살리지 말 것 */
     var lb=_mpBtn(k,'mkplay');   /* [UI_ONE] 이 순간 들어 보기 = ▶ / ■ 멈추기(줄 ▶ 와 같은 말) · 만드는 중 */
     if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') gs=gs.filter(function(g){ return g.key!=='entry'; });   // [EX_ONE] AI 판은 입장 멘트 대신 «참고 예시» 줄
+    /* ★★[VP_ASK_ONLY 2026-10-13 사장님 «담백하게 눌러져 있는 거 개선»] «어떻게 준비할까요»를 아직 안 골랐으면 그 칸 하나만 — 입장 멘트 칩 줄(EX_CHIP_ON 눌린 모양)은 고른 뒤에 연다.
+       하객 맞이 · 식전 영상 소개의 예시 줄 · 입장 음악 줄(VP_ASK_FIRST)과 같게 · 아래 글이 없는데 칩만 눌려 «미리 골라 둔» 것처럼 보이지 않게(BOSS_WAY 1). 고르기 전 칩 줄을 다시 그리지 말 것 */
+    if(gs.some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; })) gs=gs.filter(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key); });
     if(!gs.some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; })) gs=gs.concat(_exRows(k));   /* [EX_ROW] 어떻게 준비할까요 바로 아래 · 아직 안 골랐으면 붙이지 않는다(VP_ASK_FIRST) */
     var _muRow=(k==='entry'&&window.EntryMusic&&!gs.some(function(g){ return g.key==='entryVoice'&&g.picked===false; }))?EntryMusic.rowHtml():'';   /* ★★[ENTRY_MUSIC_1012 2026-10-12 사장님 «마이페이지 식순 입장 부분에 올려 보자 · 일단 전부 올려»] 입장 음악 줄 = 고르기 칸 맨 아래 · 안내 목소리를 고른 뒤에만(VP_ASK_FIRST) · assets/entry-music.js */
     KEEP_ROW={}; if(gs.length) h+='<section class="mk-sec mk-pick" aria-label="고르기"><div class="ls-vars">'+_lGroupsHtml(k,gs,{vsLink:true})+_muRow+'</div></section>';   /* [KEEP_IN_ROW] 칩 줄이 먼저 그려진다 */   // [MK_NO_HEADS]
