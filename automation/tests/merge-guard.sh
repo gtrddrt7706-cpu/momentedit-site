@@ -9195,6 +9195,12 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/listen-page.mjs >/de
     *) echo 'ok listen-page: 재지 못했습니다(브라우저 · ffmpeg 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
 fi
+# ★[REVIEW_TAP_WAIT · NF_PICK_DECLARE 2026-10-13] listen-page 가 화면 결정 둘을 따라가지 못해 사흘 빨강이었다(PR 잡은 브라우저가 없어 못 잰다 · 로컬 · 야간만 잰다).
+#   ① 들어 보기 화면이 뜬 뒤 0.6초 안의 누름은 버린다(REVIEW_TAP_GUARD · #1171) — 검사가 뜨자마자 «이걸로 쓰기»를 눌러 보낸 것 0 으로 읽혔다(고객 결함 아님).
+#   ② 예시 코스에 반지가 없다(EX_STD_1012) — «가족» 예시의 반지 칸을 누르던 NF-3 이 30초 기다리다 검사 전체를 멈췄다. 성혼 선언(예시 넷의 뼈대)을 고르고 · 반지를 재는 블록은 + 로 담는다.
+chk 'REVIEW_TAP_WAIT' scripts/audit/listen-page.mjs 2
+chk 'NF_PICK_DECLARE' scripts/audit/listen-page.mjs 4
+nochk "pg.click('\[data-fk=\"mkg:ring\"\]')" scripts/audit/listen-page.mjs
 chk 'LISTEN_PAGE' order-preview.html 10
 # ★★[REC_UPLOAD · VOICE_KIND 2026-09-27 코워크 «두 분 목소리 · 직접 녹음과 AI» 1단계 · 사장님 «올리면 그 자리에서 자동 재생까지»]
 #   가짜 마이크로 녹음 → 다듬기(앞뒤 빈소리 · 소리 크기 나레이션 쪽 · 봉우리 ≤ -1dB · WAV) → 쓰기 → 그 자리만 두 분 소리 · 지우면 되돌아감 · 줄 머리 갈래 표
