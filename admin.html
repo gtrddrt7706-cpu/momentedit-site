@@ -3095,7 +3095,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
          행을 남겨 둔 이유는 하나뿐 — 폐지 전에 저장된 초안이 이 값을 쥐고 있으면 관리자가 알아야 한다.
          row() 는 값이 없으면 아무것도 안 그리므로 새 고객에게는 빈 줄도 안 생긴다. */
       +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')   /* [LEGACY_LABEL] 폐지 전 초안만 값을 갖는다 */
-      +row('부모님 헌정', ({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||'')
+      +row('부모님 헌정', s3d.course==='open'?((s3d.on&&s3d.on.tribute)?'인사 · 포옹(꽃 없음)':''):(({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||''))   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스 값 flower 는 옛 초안 호환 이름 — «꽃»으로 읽혀 꽃을 준비하지 않게 · 옛 코스는 그대로 */
       +row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||'')
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
       /* [R4-02] 두 분이 «원고 없이 부모님이 현장에서 바로»를 골랐으면(덕담 부탁 칸 mkc 'p:bless:N' = 'site') 숨은 원고를 보이지 않는다 — 카드를 만들 원고가 아니다 */
@@ -4027,8 +4027,9 @@ function contractPath(product, docVersion){
   if(v==='v1.11') return '/contract/archive/v1-11.html';   // [CONTRACT_V112] v1.11 서명자는 준비한 순서 «3분 안» · 케이크 · 꽃 «직접 준비 또는» 이 적힌 보존본으로
   if(v==='v1.12') return '/contract/archive/v1-12.html';   // [CONTRACT_V113] v1.12 서명자는 3조 ①-2 «라이브 노래·연주는 진행하지 않는다» · 축가 조항 없는 보존본으로
   if(v==='v1.13') return '/contract/archive/v1-13.html';   // [CONTRACT_V114] v1.13 서명자는 3조 ⑥ 별도 비용에 «케이크 · '을' 준비» 줄이 있는 보존본으로
+  if(v==='v1.14') return '/contract/archive/v1-14.html';   // [CONTRACT_V115] v1.14 서명자는 3조 ⑥ 별도 비용에 «부모님께 드릴 꽃 · '을' 준비» 줄이 있는 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 «성우 나레이션» · 케이크 · 꽃 줄 없는 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.14) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
+  return '/contract/v1-1.html';   // 현행(v1.15) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

@@ -142,6 +142,26 @@ ok('식전 영상은 담는 순간(빈 채엔 없음 · 담으면 식전 · 예�
   ok('[CAKE_OFF_1013] 케이크는 새로 담지 않는다(OFFER 에 없음 · RETIRED) · 옛 초안의 케이크는 순서 · 큐에 그대로',
     O.RETIRED && O.RETIRED.cake === 1 && O.OFFER.indexOf('cake') < 0 && O.OFFER.length === O.PICKABLE.length - 1 && O.PICKABLE.indexOf('cake') > -1
     && O.seqOf(L).indexOf('cake') > -1 && O.picked(L).indexOf('cake') > -1 && O.EXAMPLES.every((e) => e.on.indexOf('cake') < 0)); }
+/* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스의 부모님께 인사는 꽃 없이 — 큐 이름 · 현장 지문 · 예식 이야기 장면 · 준비물 · 장면 글 어디에도 «꽃»이 없다 · 옛 코스는 그대로 */
+{ const ST = require(P('assets/ritual-story.js'));
+  const flw = (x) => /꽃/.test(JSON.stringify(x || ''));
+  const miss = [];
+  for (const say of ['long', 'none']) for (const ex of O.EXAMPLES.map((e) => e.k).concat([''])) {
+    const S = ex ? O.applyExample({ course: 'open' }, ex) : { course: 'open', on: {} };
+    S.course = 'open'; S.on.tribute = 1; O.setChip(S, 'tribute', say);
+    const cs = C.build(C.norm(JSON.parse(JSON.stringify(S))), { mode: 'console' }).cues.filter((c) => c.k === 'tribute');
+    if (!cs.length) miss.push((ex || '빈') + ':' + say + ' 큐 없음');
+    cs.forEach((c) => {
+      if (flw([c.name, c.pick, c.live, c.note, c.hint])) miss.push((ex || '빈') + ':' + say + ' ' + c.slug);
+      const sc = c.live && c.live.t ? ST.liveOf(c) : null;
+      if (c.live && c.live.t && (!sc || flw(sc))) miss.push((ex || '빈') + ':' + say + ' 이야기 ' + (sc ? '꽃' : '없음'));
+    });
+    if (flw(O.goodsOf(S))) miss.push((ex || '빈') + ':' + say + ' 준비물');
+  }
+  ok('[FLOWER_OFF_1013] 새 코스 부모님께 인사 — 큐 · 현장 지문 · 예식 이야기 · 준비물에 «꽃» 없음(예시 넷 + 빈 초안 · 말로 인사 / 말 없이) · 장면 글 · 인사 판 글도',
+    !miss.length && !flw(O.SCENE.tribute) && !flw(O.TRIB_ACT) && O.TRIB_ACT.d === '인사와 포옹' && !O.goodsOf({ course: 'open', on: { tribute: 1 } }).length, miss.join(' · '));
+  const old = C.build(C.norm({ course: 'gamdong' }), { mode: 'console' }).cues.filter((c) => c.k === 'tribute');
+  ok('[FLOWER_OFF_1013] 옛 코스 부모님 헌정은 그대로(꽃 헌정 판 · 지문) — 옛 예식의 소리 · 지문이 바뀌지 않는다', old.length > 0 && old.some((c) => flw([c.pick, c.live]))); }
 ok('«축하의 말» 칸은 거뒀다 — 축사는 free 칸(옛 준비한 순서 · [SPEECH_TILE_1012])이 맡는다 · 새 키를 만들지 않았다', O.ORDER.indexOf('speech') < 0 && !O.CARDS.speech && O.CHIPS.free.some((c) => c[0] === 'speech'));
 ok('[SPEECH_TILE_1012] 새 칸 = 축사 — 이름 · 기본 갈래(빈 값 · 모르는 값도) · 장면 영상 없음(축가처럼 장면 글) · 정석 큐는 103 여는 말 · «축사 없음 안내» 빠짐', O.CARDS.free.n === '축사' && O.CARDS.free.sn === '축사' && O.DEF.freeWhat === 'speech' && O.chipOf('free', {}) === 'speech' && O.chipOf('free', { freeWhat: 'zzz' }) === 'speech' && O.firstVideo('free', { on: { free: 1 } }) === null && (() => { const cs = C.build(C.norm(O.applyExample({ course: 'open' }, 'standard')), { mode: 'console' }).cues; const f = cs.find((c) => c.k === 'free'); return !!f && f.slug === 'narr-free-in-speech' && f.blockN === '축사' && cs.every((c) => c.slug !== 'narr-toast-none'); })());
 ok('[SPEECH_TILE_1012] 옛 초안(영상 · 선물 · 기타)은 그대로 돈다 — 이름 «준비한 순서» · 영상 판은 free.mp4 · 큐 블록도 옛 이름 · 저장된 값은 그대로', ['video', 'gift', 'etc'].every((w) => { const L = { course: 'open', on: { free: 1 }, freeWhat: w }; const cs = C.build(C.norm(JSON.parse(JSON.stringify(L))), { mode: 'console' }).cues.filter((c) => c.k === 'free'); return O.nameOf('free', L) === '준비한 순서' && O.chipOf('free', L) === w && cs.length && cs[0].blockN === '준비한 순서'; }) && !!O.firstVideo('free', { on: { free: 1 }, freeWhat: 'video' }) && O.nameOf('free', { on: { free: 1 } }) === '축사');

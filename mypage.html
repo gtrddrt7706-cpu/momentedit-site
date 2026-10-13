@@ -2131,8 +2131,9 @@ function contractSrc(product, docVersion){
   if(v==='v1.11') return '/contract/archive/v1-11.html';   // [CONTRACT_V112] v1.11 서명자는 준비한 순서 «3분 안» · 케이크 · 꽃 «직접 준비 또는» 이 적힌 보존본으로
   if(v==='v1.12') return '/contract/archive/v1-12.html';   // [CONTRACT_V113] v1.12 서명자는 3조 ①-2 «라이브 노래·연주는 진행하지 않는다» · 축가 조항 없는 보존본으로
   if(v==='v1.13') return '/contract/archive/v1-13.html';   // [CONTRACT_V114] v1.13 서명자는 3조 ⑥ 별도 비용에 «케이크 · '을' 준비» 줄이 있는 보존본으로
+  if(v==='v1.14') return '/contract/archive/v1-14.html';   // [CONTRACT_V115] v1.14 서명자는 3조 ⑥ 별도 비용에 «부모님께 드릴 꽃 · '을' 준비» 줄이 있는 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 그 판 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.14) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  return '/contract/v1-1.html';   // 현행(v1.15) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -9218,7 +9219,7 @@ var PHOTO_SCENE=[
  /* [SCENE_0925 코워크 1장] «두 분»은 화면 전체에서 신랑 · 신부다 — 화촉을 밝히는 분은 부모님이라 «두 분의 손»이 틀렸다.
     인사 · 준비한 순서는 고른 판에 따라 장면이 달라 photoSceneList 가 초안(rd.S)을 보고 바꾼다(SCENE_BY_PICK). */
  {n:'화촉',          s:'초에 불이 옮겨붙는 순간 · 불빛에 비친 부모님 얼굴'},
- {n:'부모님께 인사', s:'꽃을 건네고 안기는 순간'},
+ {n:'부모님께 인사', s:'부모님께 인사하고 안기는 순간'},   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «꽃을 건네고» 되살리지 말 것 */
  {n:'축사', s:'말하는 분을 보며 웃는 두 분'},   /* ★[SPEECH_TILE_1012] 옛 «준비한 순서» 칸이 축사가 됐다(새 초안은 summary.scenes 가 이름 · 장면을 싣는다 · 이 줄은 옛 판 flow 맞추기용) */
  {n:'준비한 순서', s:'함께 보며 웃는 하객들'},   /* [DETAIL_0925 B3] 옛 이름 «두 사람이 준비한 순서»는 아래 flow 정규화가 받는다 */
  {n:'폐식·단체촬영', s:'예식을 맺는 한 컷 · 여기서 아래 구도로 이어져요'}
@@ -9237,7 +9238,7 @@ function photoSceneList(rd){
   var St=(rd||{}).S||{};
   var FREE_SCENE={video:'함께 보며 웃는 하객들',etc:'두 분이 준비한 순간',   /* [FREE_ETC 2026-10-06] 기타 */ stage:'무대를 보며 웃는 두 분',dance:'무대를 보며 웃는 두 분',show:'무대를 보며 웃는 두 분',gift:'선물을 건네받는 두 분',hand:'선물을 건네받는 두 분',speech:'말하는 분을 보며 웃는 두 분'};
   on=on.map(function(x){
-    /* ★[GROOM_BOW_TIP 2026-10-06] 신랑 큰절 판은 걷었다 — 옛 초안의 bowGroom 도 꽃과 포옹 장면 그대로 */
+    /* ★[GROOM_BOW_TIP 2026-10-06] 신랑 큰절 판은 걷었다 — 옛 초안의 bowGroom 도 인사 · 포옹 장면 그대로(FLOWER_OFF_1013 · 꽃 없이) */
     if(x.n==='준비한 순서' && FREE_SCENE[St.freeWhat]) return {n:x.n, s:FREE_SCENE[St.freeWhat]};
     return x;
   });

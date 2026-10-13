@@ -4408,7 +4408,8 @@ function _lSum(k){
   var _p=((R.partsOf(k,S)||[])[1])||0, _tn=_lTurnN(k);
   function _each(x){ return _tn>1?'한 분 '+_perSec(k,Math.round(x/_tn))+'씩':_perSec(k,x); }   /* [R4-01] */
   if(k==='welcome'||k==='bless'||k==='vow') return '말하는 시간 '+((k==='vow'&&_vowHow()==='alt')?_sumSec(_p||100):_each(_p||({welcome:30,bless:150,vow:100})[k]));
-  if(k==='tribute'){ bits.push(R.chipOf('tribute',S)==='none'?R.chipLabel('tribute',S):'말하는 시간 '+_each(_p||30)); if(false) bits.push('신랑 큰절')   /* [GROOM_BOW_TIP] */; R.goodsOf(S,'tribute').forEach(function(g){ bits.push(g.by==='studio'?'꽃은 저희가 준비':'꽃 직접 준비'); }); return bits.join(' · '); }   /* [R6-04] 꽃 준비도 케이크 줄([R2-20])과 같은 꼴 — 맡기기는 비용이 붙는 선택 · 신랑 큰절이면 goodsOf 가 비어 붙지 않는다 */   /* [R3-02] 칩 이름 뒤 합계를 걷었다 · [R4-01] 칩 이름과 시간을 겹쳐 쓰지 않는다 — «1분쯤씩 · 한 분 약 1분 10초» → «말하는 시간 한 분 약 1분씩» */
+  /* ★[FLOWER_OFF_1013 2026-10-13] 부모님께 인사 요약 줄에 «꽃은 저희가 준비 · 꽃 직접 준비» 몫 금지 — 사용자 지시로 삭제(꽃을 건네지 않는다) */
+  if(k==='tribute'){ bits.push(R.chipOf('tribute',S)==='none'?R.chipLabel('tribute',S):'말하는 시간 '+_each(_p||30)); if(false) bits.push('신랑 큰절')   /* [GROOM_BOW_TIP] */; return bits.join(' · '); }   /* [R6-04] 꽃 준비도 케이크 줄([R2-20])과 같은 꼴 — 맡기기는 비용이 붙는 선택 · 신랑 큰절이면 goodsOf 가 비어 붙지 않는다 */   /* [R3-02] 칩 이름 뒤 합계를 걷었다 · [R4-01] 칩 이름과 시간을 겹쳐 쓰지 않는다 — «1분쯤씩 · 한 분 약 1분 10초» → «말하는 시간 한 분 약 1분씩» */
   if(k==='letter') return R.chipLabel('letter',S)+' · 말하는 시간 '+_sumSec(_p||120);
   var t=R.talkOf(k,S);
   if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech') return R.chipLabel('free',S);
@@ -4511,7 +4512,7 @@ function _lQuiet(k,c){
   /* ★[STAGE_LINES 2026-10-06 사장님 «성혼 선언을 한 것인가? 의문이 들 수 있어 · 화면에 액션 내용이 없으니 헷갈려»] 나레이션 두 줄 사이에는 그 사이에 하는 일을 한 줄로.
      선언은 나레이션 문장 «자체»가 선언이다 — 종전 «하객 박수 · 두 분이 부부가 돼요»는 박수 뒤에 부부가 되는 것처럼 읽혔다(박수는 선언을 «축하»하는 것). 박수판은 청한 박수가 «증인의 대답» */
   if(k==='declare'&&sl==='narr-declare-family-out') return '하객이 박수로 축하해요';   /* [DECLARE_BY_PERSON] 박수 판(«증인이 되어 주는 박수») · 나레이션 선언 줄은 걷었다 */
-  if(k==='tribute'&&/^tribute-in/.test(sl)) return '두 분이 부모님 앞으로 가 꽃을 건네고 안겨요'+(RitualOpen.chipOf('tribute',S)==='none'?' · 말 없이':'');   /* [STAGE_LINES] «말 없이»를 고르면 사람 줄이 없어 여는 말과 맺는 말 사이가 비었다 · 꽃은 늘 저희가([GOODS_STUDIO]) */
+  if(k==='tribute'&&/^tribute-in/.test(sl)) return '두 분이 부모님 앞으로 가 인사하고 안겨요'   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «꽃을 건네고» 되살리지 말 것 */+(RitualOpen.chipOf('tribute',S)==='none'?' · 말 없이':'');   /* [STAGE_LINES] «말 없이»를 고르면 사람 줄이 없어 여는 말과 맺는 말 사이가 비었다 · 꽃은 늘 저희가([GOODS_STUDIO]) */
   if(k==='cake'&&sl==='toast-both') return '두 분이 함께 케이크를 잘라요';   /* [STAGE_LINES] 나레이션 한 줄뿐이라 정작 자르는 장면이 화면에 없었다 */   // 나레이션 판 · 박수 판(-clap-a 뒤 박수) · 가족 낭독 판(마무리 뒤)
   if(k==='toast'&&sl==='toast-pour-family') return '양가 와인을 한 잔에 모아요';   // [POUR_BY_PICK 코워크 회신7 #872-1] 판 이름과 같은 말 — «양가 와인 한 병씩»을 골랐는데 «두 와인…»이면 «안 먹혔나?»로 읽힌다
   if(k==='toast'&&/^toast-pour-/.test(sl)) return '두 분이 고른 와인을 한 잔에 부어요';
@@ -8072,7 +8073,7 @@ var VP_NOTE={couple:'두 분 목소리 그대로 · 휴대폰으로 한 줄씩 �
 function _vpChoice(k){ var c=[]; if(_vcOn()) c.push(['ai','AI 두 분 목소리']); c.push(VP_CHOICE[1]); if(_vpCur(k)==='couple') c.push(VP_CHOICE[0]); return c; }
 function _vpCur(k){ var key=k==='guest'?'guestVoice':k==='prevideo'?'pvVoice':'entryVoice';   /* [PV_INTRO] */ return S[key]==='couple'?(((S.vfill||{})[k]==='ai'&&_vcOn())?'ai':'couple'):'nar'; }
 var VOICE_LATE_UP='예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요';   // [VOICE_LATE] 문이 열린 뒤의 발 한 줄
-/* [STUDIO_PREP P11] 담은 순간에서 스튜디오가 준비하는 것 — 케이크 · 부모님께 드릴 꽃 */
+/* [STUDIO_PREP P11] 담은 순간에서 스튜디오가 준비하는 것 — 케이크(옛 초안) · ★[FLOWER_OFF_1013] 부모님께 드릴 꽃은 없다 */
 function _studioLis(){ var R=RitualOpen, stu=_studioList(), li=function(a,b){ return '<li class="mk-hp"><span>'+esc(_ndd(a))+'</span><span class="wr-due">'+esc(_ndd(b))+'</span></li>'; }; return (stu.length?li(stu.join(' · '),R.GOODS_COST):'')+li(R.BOUQUET[0],R.BOUQUET[1]); }   /* ★[STUDIO_TWO_LINE 2026-10-09 A~Z 점검 1라운드 A-13] ③ 과 같은 «이름 / 아래 한 줄»(hpLi) — 종전 « · 별도 비용이에요»를 같은 줄에 붙여 좁은 폭에서 오른쪽 칸이 «·»로 시작했다 */   // [GOODS_STUDIO] ③ · 정리 화면 같은 두 줄
 function _studioList(){ var R=RitualOpen, out=[]; R.ORDER.filter(function(k){ return R.onOf(S,k); }).forEach(function(k){ R.studioOf(k,S).forEach(function(x){ if(out.indexOf(x)<0) out.push(x); }); }); return out; }
 function _dueDate(n){
@@ -8527,7 +8528,7 @@ function rowVal(k){
    case 'valley': return S.valley==='none'?'없음':S.valley==='wine'?'와인 세리머니':'케이크 커팅';
    case 'toast': return TOAST[S.toast].d;
    case 'song': return S.song==='live'?'어쿠스틱 라이브 연주':'가족·지인이 직접';
-   case 'tribute': return TRIBUTE.modes[S.tribute].d;
+   case 'tribute': return (isOpen()&&RitualOpen.TRIB_ACT)?RitualOpen.TRIB_ACT.d:TRIBUTE.modes[S.tribute].d;   // [FLOWER_OFF_1013] 새 코스는 «인사와 포옹»
    case 'letter': return LETTER[S.letter].d+(S.flash&&S.course==='gamdong'?' · 플래시 세리머니':'');
    case 'bless': return S.bless==='on'?(S.blessProxy?'나레이션 대독':'부모님이 직접'):'';   // [ORD_BADGE_AXIS] 위 ring 주석과 같은 이유
   }
@@ -8939,9 +8940,9 @@ function renderStep(k){
          읽어야 하고(LEGACY_LABEL 과 같은 이유), 어조표는 21_B_제안.md 가 원천인 생성물이다.
          «고를 수 있나»만 닫는다. 이 저장소가 SONG_RETIRED·WINE_RETIRED 에서 쓴 방식 그대로다. */
     /* [BOW_GROOM 2026-09-25 사장님 결정 5] 새 코스는 «꽃과 포옹 · 신랑 큰절» 둘이다(옛 두 분 큰절 bow 는 닫힌 채 · 옛 코스는 지금 그대로). */
-    (isOpen()?['flower']:['flower','hug']).forEach(function(v){   /* [GROOM_BOW_TIP] 새 코스는 꽃과 포옹 하나 */
-      var m=TRIBUTE.modes[v];
-      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 '+GOODS_WORD:null);   // [NO_EXTRA_COST] [GOODS_CHOICE]
+    (isOpen()?['flower']:['flower','hug']).forEach(function(v){   /* [GROOM_BOW_TIP] 새 코스는 한 판 · ★[FLOWER_OFF_1013] 새 코스 판 글은 인사와 포옹(RitualOpen.TRIB_ACT · 값 이름 flower 는 옛 초안 호환) */
+      var m=(isOpen()&&RitualOpen.TRIB_ACT)?RitualOpen.TRIB_ACT:TRIBUTE.modes[v];
+      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(!isOpen()&&v==='flower'&&S.tribute==='flower')?'꽃은 '+GOODS_WORD:null);   // [NO_EXTRA_COST] [GOODS_CHOICE] · 옛 코스만
     });
     h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시면 돼요</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(타이밍은 디렉터가 안내한다) 삭제 · 복원 금지. 앞절이 이미 "일어나지 않으셔도 된다"를 말해 걱정에 답한다 */
   }
@@ -10432,7 +10433,7 @@ var RITUAL_CHIPS={
  toast:['축배는 어떻게 진행되나요?','케이크와 둘 다 하면 몇 분인가요?','건배 잔은 어떻게 준비되나요?'],
  song:['축가는 누가 부를 수 있나요?','반주는 어떻게 준비되나요?','축가 없이도 괜찮나요?'],
  letter:['편지는 보통 얼마나 길게 쓰나요?','읽다가 울 것 같으면 어떻게 하나요?','부모님께와 서로에게, 뭐가 다른가요?'],
- tribute:['부모님께 인사는 어떤 방식들이 있나요?','부모님께 인사를 빼도 괜찮을까요?','부모님께 드릴 꽃은 어떻게 준비되나요?'],   /* ★[AI_CHIP_WORDS 코워크 추가 점검 P2-8] 화면 이름(첫인사 · 부모님께 인사 · 박수로 답하기)과 같은 말 */
+ tribute:['부모님께 인사는 어떤 방식들이 있나요?','부모님께 인사를 빼도 괜찮을까요?','부모님께 드릴 말은 어떻게 준비하면 좋을까요?'],   /* ★[FLOWER_OFF_1013] «부모님께 드릴 꽃» 질문 금지 — 꽃을 건네지 않는다 */   /* ★[AI_CHIP_WORDS 코워크 추가 점검 P2-8] 화면 이름(첫인사 · 부모님께 인사 · 박수로 답하기)과 같은 말 */
  bless:['덕담은 누가 하는 게 좋을까요?','부모님이 부담스러워하시면요?','덕담은 몇 분 정도인가요?'],
  write:['글은 지금 다 써야 하나요?','쓴 글은 어디에 저장되나요?','글 쓰는 공식이 있나요?'],
  done:['지금 구성이면 몇 분인가요?','저장하면 언제까지 고칠 수 있나요?','다음엔 뭘 준비하면 되나요?'],

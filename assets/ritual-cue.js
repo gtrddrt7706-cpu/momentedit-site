@@ -361,7 +361,7 @@
       s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;
       s.pvEx = /^[0-3]$/.test(String(s.pvEx)) ? +s.pvEx : 0;   // [PV_EX_NAR] 식전 영상 소개 나레이션 예시(0 = 90 그대로)   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
-      /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹.
+      /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹(★[FLOWER_OFF_1013] 10/13 부터 꽃 없이 인사 · 포옹 · 값 이름 flower 는 옛 초안 호환).
          옛 초안의 bowGroom 도 flower 로(큰절 여는 줄 · 방석 지문이 안 나간다) · 빌더는 «원하시면 큰절을 올리셔도 돼요» 한 줄만 · ★신랑 큰절 칩 되살리지 말 것 */
       if (s.tribute !== 'flower') s.tribute = 'flower';
       s.entryScene = 'look';   // [ENTRY_SCENE] · ★[ENTRY_OUT_OFF 2026-10-02] 새 코스에 맞절 없음 — 옛 초안의 bow 도 바라보기로
@@ -1034,12 +1034,15 @@
     },
 
     tribute: function (S) {
-      var m = D.TRIBUTE.modes[S.tribute] || D.TRIBUTE.modes.flower;
+      /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스는 꽃 없이 다가가 인사 · 포옹(O.TRIB_ACT · 큐 이름 · 현장 지문) —
+         옛 코스는 고른 판(TRIBUTE.modes) 그대로 · 새 코스에 «꽃 헌정 · 꽃 전달» 되살리지 말 것 */
+      var open = !!D.COURSES[S.course].open;
+      var m = (open && O && O.TRIB_ACT) || D.TRIBUTE.modes[S.tribute] || D.TRIBUTE.modes.flower;
       /* ★★[GROOM_PARENT_OPEN_OFF 2026-09-26 사장님 · 코워크 회신5 3-3] 새 코스에서는 «신랑 어머님 한 마디»를 뺀다.
          GROOM_PARENT(9/12)는 옛 코스의 «덕담 = 신부 부모님»에 맞춘 자리였다 — 새 코스의 덕담은 양가 누구나 해서 그 까닭이 없다.
          게다가 «말 없이»를 골라도 콘솔이 디렉터에게 마이크를 드리라고 했고, ③ · 어른 안내 어디에도 이 말이 없어
          어머님이 준비 없이 마이크를 받으시게 됐다. ★더했던 est +25 도 되돌린다(95 → 70). ★옛 코스는 그대로. */
-      var open = !!D.COURSES[S.course].open, GP = ' → ★신랑 어머님 한 마디(디렉터가 마이크 전달 · 길어야 20초)';
+      var GP = ' → ★신랑 어머님 한 마디(디렉터가 마이크 전달 · 길어야 20초)';
       var mcue = m.cue.replace(GP, ''), base = 70;   // ★★[STEPMOM_RETIRE 2026-09-26 사장님] 옛 코스도 같게 — 원천(ritual-data TRIBUTE)에서 한 마디를 뺐고 est 도 70(GP 때문에 더했던 25초 되돌림)
       var out = [
         cue({

@@ -1855,7 +1855,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.14'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.15'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행' assets/ritual-data.js 2   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2493,7 +2493,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.14'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.15'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -4047,8 +4047,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1\.14' contract/v1-1.html 6   # [CONTRACT_V114 · 머리 주석 포함] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.14'" automation/platform/70_journey.gs 1
+chk 'v1\.15' contract/v1-1.html 6   # [CONTRACT_V115 · 머리 주석 포함] [CONTRACT_V114] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.15'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -12381,7 +12381,8 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'CONTRACT_VER_ONE' scripts/audit/contract-version.mjs 1
 chk 'CONTRACT_VER_ONE' automation/tests/merge-guard.sh 3
-chk 'Version v1.14' contract/v1-1.html 1   # [CONTRACT_V114]
+chk 'Version v1.15' contract/v1-1.html 1   # [CONTRACT_V115]
+chk 'Version v1.14' contract/archive/v1-14.html 1   # [CONTRACT_V115] v1.14 보존본
 chk 'Version v1.13' contract/archive/v1-13.html 1   # [CONTRACT_V114] v1.13 보존본
 chk 'Version v1.12' contract/archive/v1-12.html 1   # [CONTRACT_V113] v1.12 보존본
 chk 'Version v1.11' contract/archive/v1-11.html 1   # [CONTRACT_V112] v1.11 보존본
@@ -12397,8 +12398,40 @@ chk 'v1-13.html' admin.html 1
 chk 'v1-13.html' mypage.html 1
 nochk "<td>케이크 · '을' 준비(별도 비용)</td>" contract/v1-1.html 0
 chk "<td>케이크 · '을' 준비(별도 비용)</td>" contract/archive/v1-13.html 1   # 보존본은 그 판 그대로
-chk "<tr><td>본식영상(편집본)</td><td>부모님께 드릴 꽃 · '을' 준비(별도 비용)</td></tr>" contract/v1-1.html 1
-chk "<tr><td>모바일 청첩장(8종 중 셀프 선택)</td><td>생화 부케 · 협력 플로리스트 소개(별도 비용)</td></tr>" contract/v1-1.html 1
+# ★★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스의 부모님께 인사 = 다가가 인사하고 안아 드리기(RitualOpen.TRIB_ACT · 꽃 없이)
+#   준비물 «부모님께 드릴 꽃» · 홈 «별도» 목록 · AI 상담 · 계약서 v1.15 별도 비용 줄 걷음 · 옛 코스(꽃 헌정 판 · 녹음된 옛 어조)는 그대로
+#   open-course 가 예시 넷 + 빈 초안 × 말로 인사 / 말 없이로 큐 · 현장 지문 · 예식 이야기 · 준비물에 «꽃»이 없는지 실행으로 잰다(옛 판으로 깨 보면 FAIL)
+chk 'FLOWER_OFF_1013' assets/ritual-open.js 4
+chk 'FLOWER_OFF_1013' assets/ritual-cue.js 2
+chk 'FLOWER_OFF_1013' assets/ritual-story.js 3
+chk 'FLOWER_OFF_1013' order-preview.html 6
+chk 'FLOWER_OFF_1013' mypage.html 2
+chk 'FLOWER_OFF_1013' admin.html 1
+chk 'FLOWER_OFF_1013' index.html 1
+chk 'FLOWER_OFF_1013' api/_ritual-kb.js 3
+chk 'FLOWER_OFF_1013' api/_kb.js 1
+chk 'FLOWER_OFF_1013' assets/advisor-kb.js 1
+chk 'FLOWER_OFF_1013' scripts/audit/open-course.mjs 3
+chk 'TRIB_ACT: TRIB_ACT' assets/ritual-open.js 1
+chk "var m = (open && O && O.TRIB_ACT) || D.TRIBUTE.modes" assets/ritual-cue.js 1
+chk "두 분이 다가가 인사 · 포옹': {" assets/ritual-story.js 2
+nochk "what: '부모님께 드릴 꽃'" assets/ritual-open.js 0
+nochk "부모님께 꽃을 건네고 안겨요" assets/ritual-open.js 0
+nochk "앞으로 가 꽃을 건네고 안겨요" order-preview.html 0
+nochk "꽃을 건네고 안기는 순간" mypage.html 0
+nochk "<li>부모님께 드릴 꽃" index.html 0
+nochk "부모님께 드릴 꽃도 저희가 준비하며" assets/advisor-kb.js 0
+nochk "부모님께 인사: 꽃과 포옹 하나다" api/_ritual-kb.js 0
+nochk "부모님께 드릴 꽃은 어떻게 준비되나요" order-preview.html 0
+nochk "'꽃은 저희가 준비':'꽃 직접 준비'" order-preview.html 0
+# ★[CONTRACT_V115 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자» · FLOWER_OFF_1013] v1.15 — 3조 ⑥ 별도 비용에서 «부모님께 드릴 꽃 · '을' 준비(별도 비용)» 줄을 걷고 칸을 한 칸씩 올렸다 · 보존본 v1-14 는 그 판 그대로
+chk 'CONTRACT_V115' contract/v1-1.html 1
+chk 'CONTRACT_V115' automation/platform/70_journey.gs 2
+chk 'v1-14.html' admin.html 1
+chk 'v1-14.html' mypage.html 1
+nochk "부모님께 드릴 꽃 · '을' 준비(별도 비용)</td>" contract/v1-1.html 0
+chk "<tr><td>본식영상(편집본)</td><td>부모님께 드릴 꽃 · '을' 준비(별도 비용)</td></tr>" contract/archive/v1-14.html 1   # 보존본은 그 판 그대로
+chk "<tr><td>본식영상(편집본)</td><td>생화 부케 · 협력 플로리스트 소개(별도 비용)</td></tr>" contract/v1-1.html 1
 chk 'CONTRACT_V113' contract/v1-1.html 1
 chk 'CONTRACT_V113' automation/platform/70_journey.gs 2
 chk 'v1-12.html' admin.html 1
