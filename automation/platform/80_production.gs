@@ -1305,10 +1305,14 @@ function _recManifest_() {
   return out;
 }
 function _recSongFile_(k) {
+  /* ★★[REC_CLIP_1013 2026-10-13 사장님 «기다림 완전 짧게 · 없으면 더 좋고»] '<곡 키>-p' = 미리 듣기용 짧은 판(목록 pf · 문 열림 앞뒤만 · 원곡 프레임 그대로 자른 것)
+     식순 화면은 이것을 받는다(곡 전체의 37~67%) · 당일 콘솔(adminRitualFileGet 'rec:<키>')은 종전대로 곡 전체 · 목록에 pf 가 없으면(옛 목록) 찾지 않는다(L3 → 화면이 곡 전체로) */
+  var pv = /-p$/.test(k), kk = pv ? k.slice(0, -2) : k;
   var m = _recManifest_(), s = null; if (!m) return null;
-  m.songs.forEach(function (x) { if (String(x.k) === k) s = x; }); if (!s) return null;
+  m.songs.forEach(function (x) { if (String(x.k) === kk) s = x; }); if (!s) return null;
+  var nm = pv ? String(s.pf || '') : String(s.file || (kk + '.mp3')); if (!nm) return null;
   var fo = _recFolder_(); if (!fo) return null;
-  var it = fo.getFilesByName(String(s.file || (k + '.mp3')).replace(/^.*[\\/]/, ''));
+  var it = fo.getFilesByName(nm.replace(/^.*[\\/]/, ''));
   while (it.hasNext()) { var f = it.next(); if (!f.isTrashed()) return f; }
   return null;
 }
@@ -1323,7 +1327,7 @@ function _recGet_(code, id, admin) {
 }
 /* ★★[REC_PUT_1013 2026-10-13 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»] 추천 곡 파일을 서버가 직접 받아 «ME_추천곡»에 둔다
    사장님이 폴더를 만들어 올리지 않는다 — 비공개 문서 저장소의 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 하나씩 보낸다(action 'ritualFile' · key 'rec').
-   · 받는 것은 아래 표의 이름 9개뿐이고, 내용의 SHA-256 이 표와 같아야 저장한다 — 비밀 열쇠 없이도 다른 것은 아무것도 쓰지 못한다(표는 공개돼도 내용을 알려 주지 않는다)
+   · 받는 것은 아래 표의 이름 17개뿐이고(곡 8 · 미리 듣기용 짧은 판 8 [REC_CLIP_1013] · 목록), 내용의 SHA-256 이 표와 같아야 저장한다 — 비밀 열쇠 없이도 다른 것은 아무것도 쓰지 못한다(표는 공개돼도 내용을 알려 주지 않는다)
    · data 없이 이름만 오면 «있다(same) · 없다(need)»만 답한다 · 같은 파일이 이미 있으면 받은 내용을 풀지 않는다(설명 칸에 지문을 적어 둔다)
    · songs.json 은 맨 끝에 온다 — 목록이 생기는 순간 곡은 이미 다 있다 · 그때 목록 캐시(REC_MF)를 지우고 폴더 기록(REC_FID)을 새로 한다
    · 한 시간 REC_PUT_HOUR(120)번까지(넘으면 U1) · 곡을 바꾸면 이 표와 문서 저장소의 파일 · songs.json 을 같은 날 함께 바꾼다 */
@@ -1336,7 +1340,15 @@ var REC_PUT_HASH = {
   'r6.mp3': '9c9b645f0a0b7091a115214e6599c58083be618afb488bc18c829924a0a22d76',
   'r8.mp3': '573eef1b8d4dd5e73278efdd32916bd18ec80e201ee782cf42c0910261ed9f4f',
   'r9.mp3': 'beba6f25d2234fe652420444f0456fe99a9738874ecfc639ff1233aadfd11eeb',
-  'songs.json': '017845400a96a08b8ad582b9c659822f139c8b8c3b9895088083dc486b64540e'
+  'r1p.mp3': '86947b06ea3f4ed70b2fdf21ae29f42527758229d7e68c81998c65fbea8d63fa',
+  'r2p.mp3': 'ec55bce0f61ae797bf8c284aa5c384eb9da77de6fc0dc065879eec187e6d9af9',
+  'r3p.mp3': 'b9ffffbc33da0f733171b7f306f4de24a4a7bcd13533862df0d50c10e119f1af',
+  'r4p.mp3': '61c703aa8256b9f63d183560d97aedaf617dd70192bb3c02ce6d2327571a4a25',
+  'r5p.mp3': '405c71904fec9e01d26fe8d454d9a1bef0bfbc0d4037c6029a7972d24240f7e8',
+  'r6p.mp3': 'c3bb47509912819193a423456ec6db6364ca8591b8ba14f87e314b72ea733bdc',
+  'r8p.mp3': '29a1f2ac38dd0e00d05735fcf4aa88ac7b5880280e24bfe4a810744e3e576d7f',
+  'r9p.mp3': 'f837950e90bdbb335ff2f009c8b814572652072883093cce3964865bc4670fc3',
+  'songs.json': 'd355371af8d178d0bea57c28d34723a4a637b64be7072197a01fb824cd04b41d'   /* [REC_CLIP_1013] 목록에 pf · p0 · p1 · g · hooks 를 더한 판(10/13) */
 }, REC_PUT_HOUR = 120;
 function _recPutFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');

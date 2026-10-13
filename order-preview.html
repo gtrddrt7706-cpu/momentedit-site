@@ -2165,6 +2165,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .em-graph .lg-names span:last-child{padding-top:6px}
 .em-graph .lg-plot{position:relative;height:84px;min-width:0}
 .em-graph .lg-plot canvas{display:block;width:100%;height:100%}
+.em-graph .lg-wait{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--light);letter-spacing:.01em;pointer-events:none}
+.em-graph .lg-wait[hidden]{display:none}   /* ★[REC_CLIP_1013 2026-10-13 사장님 «추천대로»(2번)] 고른 곡을 받는 동안 빈 그래프 대신 카드와 같은 말 한 줄 */
 .em-graph .lg-scene{grid-column:2;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;min-width:0;font-size:12.5px;line-height:17px;color:var(--sub);word-break:keep-all;letter-spacing:.01em}
 .em-graph .lg-scene.wait{visibility:hidden}   /* [SCENE_HOLD] 목소리를 받는 동안 자리만 — 받고 나서 카드가 자라며 아래 글을 밀지 않게 */
 .em-graph .lg-scene>span{min-width:0;padding-top:8px;text-wrap:balance;overflow-wrap:normal}   /* [SCENE_FIT_WORD] 낱말을 쪼개지 않는다 — 넘치면 짧은 말로(entry-music.js fitTxt) */

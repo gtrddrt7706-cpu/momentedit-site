@@ -4,7 +4,11 @@
    ★여기 값을 바꾸면 식순 화면 미리 듣기와 당일 콘솔이 함께 바뀐다 — 그게 이 파일이 있는 까닭이다. */
 (function(){
   'use strict';
-  var SP={lead:4,fade:5,under:-12,build:3,dip:4,breath:0.3,rise:0.3,after:20}, FADE_DN=0.4, OUTF=4, LATE_T=0.3, VOICE_LUFS=-16, SONG_LUFS=-12, BED_TRIM=-6;
+  var SP={lead:4,fade:1.2,intro:-6,duck:0.5,under:-12,build:3,dip:4,breath:0.3,rise:0.3,after:20}, FADE_DN=0.4, OUTF=4, LATE_T=0.3, VOICE_LUFS=-16, SONG_LUFS=-12, BED_TRIM=-6;
+  /* ★★[BGM_FIRST_1013 2026-10-13 사장님 «bgm이 먼저 조금 깔리다가 멘트를 하는 게 좋을 것 같은데»] 멘트 앞 4초(lead)에 음악이 «들리게» —
+     종전 곡선은 처음 5초를 0 에서 천천히 올리고(fade 5) 멘트 전에도 목소리 밑 크기(-15dB)라 앞 4초가 거의 들리지 않았다(시험 곡 실측 -49 ~ -25dB).
+     이제 1.2초에 걸쳐 올라와(fade) 멘트 전에는 -6dB(intro · 하이라이트보다 6dB 아래)로 깔리고, 멘트 시작 0.5초 전부터(duck) 목소리 밑 크기로 내려간다.
+     멘트가 곡 앞부분보다 길면 같은 소절이 다시 나오는 뒤 자리(목록 hooks)에 문 열림을 맞춘다(pickHook) — 음악이 늘 먼저 4초. 당일 콘솔도 같은 식(S.mu.hooks) */
   function clamp(x,a,b){ return x<a?a:x>b?b:x; }
   function db2g(db){ return db<=-89?0:Math.pow(10,db/20); }
   function lerp(a,b,t){ return a+(b-a)*clamp(t,0,1); }
@@ -43,19 +47,25 @@
     return {buf:buf,sr:sr,dur:buf.duration,gain:g,lufs:L,x:x}; }
   /* 장면 짜기 — 마지막 말 끝 + 숨 = 하이라이트. 거기서 거꾸로 곡 시작점을 정한다(시험실 plan · new 그대로)
      opts.after — 하이라이트 뒤 크게 머무는 초(식순 화면 20초 · 당일 콘솔은 디렉터가 다음을 누를 때까지라 곡 끝까지) */
+  /* [BGM_FIRST_1013] 문 열림 자리 고르기 — 고른 자리(H)에서 음악이 멘트보다 lead 초 먼저 깔릴 수 있으면 그대로(사장님이 귀로 고른 자리가 먼저) ·
+     모자라면 같은 소절이 다시 나오는 뒤 자리 중 처음으로 넉넉한 곳 · 어디도 모자라면 가장 뒤(가장 덜 늦는 곳). 후보가 없으면(두 분이 올린 곡) 고른 자리 그대로 */
+  function pickHook(H,hooks,V){ var need=V+SP.breath+SP.lead; if(!(H<need)||!Array.isArray(hooks)) return H;
+    var L=hooks.map(Number).filter(function(h){ return isFinite(h)&&h>H+0.5; }).sort(function(a,b){ return a-b; });
+    for(var i=0;i<L.length;i++) if(L[i]>=need) return L[i];
+    return L.length?L[L.length-1]:H; }
   function plan(V0,Sg,H,opts){ var P=SP, rel=[], t=0, after=(opts&&opts.after!=null)?opts.after:P.after; V0.pieces.forEach(function(p,i){ rel.push(t); t+=p.d; if(i<V0.gaps.length) t+=V0.gaps[i]; });
-    var n=V0.pieces.length, V=t, PL={V:V,rel:rel,n:n,H:H,Sg:Sg,after:after}; PL.lastS=n?rel[n-1]:0; PL.penEnd=n>1?rel[n-2]+V0.pieces[n-2].d:0;
+    var n=V0.pieces.length, V=t, H0=H; H=pickHook(H,opts&&opts.hooks,V); var PL={V:V,rel:rel,n:n,H:H,H0:H0,Sg:Sg,after:after}; PL.lastS=n?rel[n-1]:0; PL.penEnd=n>1?rel[n-2]+V0.pieces[n-2].d:0;   /* [BGM_FIRST_1013] H = 실제 문 열림 자리 · H0 = 고른 자리 */
     var pre=H-V-P.breath;
     if(pre>=P.lead){ PL.tv=P.lead; PL.tm=0; PL.off=pre-P.lead; }
     else if(pre>=0){ PL.tv=pre; PL.tm=0; PL.off=0; }   /* 곡 앞부분이 짧아 음악이 목소리보다 조금만 먼저 깔린다 */
     else { PL.tv=0; PL.tm=-pre; PL.off=0; }   /* [LATE_MUSIC] 목소리가 곡 앞부분보다 길다 — 목소리가 먼저 · 음악은 뒤에 들어온다 */
     PL.th=PL.tv+V+P.breath; PL.tdip=PL.tv+PL.penEnd;
-    var songEnd=PL.tm+(Sg.dur-PL.off); PL.tend=Math.min(PL.th+after+OUTF,songEnd); if(PL.tend<PL.tv+V+0.2) PL.tend=Math.min(songEnd,PL.tv+V+0.2);
+    var songEnd=PL.tm+((Sg.end!=null?Sg.end:Sg.dur)-PL.off);   /* [REC_CLIP_1013] 미리 듣기용 짧은 판이면 그 판의 끝(곡 시각)까지 */ PL.tend=Math.min(PL.th+after+OUTF,songEnd); if(PL.tend<PL.tv+V+0.2) PL.tend=Math.min(songEnd,PL.tv+V+0.2);
     return PL; }
   /* 음악 크기(dB) — 목소리 밑에 작게 깔렸다가 · 끝에서 두 번째 말이 끝나면 한 번 더 낮아지고 · 마지막 말 끝에서 0.3초에 걸쳐 크게 · after 초 머문 뒤 4초에 걸쳐 잦아든다 */
   function envDb(PL,x){ var P=SP, after=PL.after!=null?PL.after:P.after; if(x<PL.tm||x>PL.tend) return -120;
     var L1=P.under-P.build, Ld=P.under-P.dip, hr=Math.max(PL.tdip,PL.th-P.rise), dr=Math.max(0.05,Math.min(FADE_DN,hr-PL.tdip)), d;
-    if(x<PL.tv) d=L1;
+    if(x<PL.tv){ var ds=Math.max(PL.tm,PL.tv-P.duck); d=x<ds?P.intro:lerp(P.intro,L1,(x-ds)/Math.max(0.01,PL.tv-ds)); }   /* [BGM_FIRST_1013] 멘트 앞은 들리게(intro) · 멘트 0.5초 전부터 목소리 밑 크기로 */
     else if(x<PL.tdip) d=lerp(L1,P.under,(x-PL.tv)/Math.max(0.01,PL.tdip-PL.tv));
     else if(x<PL.tdip+dr) d=lerp(PL.n>1?P.under:L1,Ld,(x-PL.tdip)/dr);
     else if(x<hr) d=Ld;
@@ -63,9 +73,9 @@
     else if(x<PL.th+after) d=0;
     else d=lerp(0,-80,(x-PL.th-after)/OUTF);
     return d+BED_TRIM; }
-  function envGain(PL,x){ var g=db2g(envDb(PL,x)), u=(x-PL.tm)/Math.max(0.05,SP.fade); if(u<1) g*=u<=0?0:u*u; return g; }   /* 처음 5초는 0 에서 천천히 */
+  function envGain(PL,x){ var g=db2g(envDb(PL,x)), u=(x-PL.tm)/Math.max(0.05,SP.fade); if(u<1) g*=u<=0?0:u*u; return g; }   /* 처음 1.2초는 0 에서(종전 5초 · [BGM_FIRST_1013]) */
   function envCurve(PL,x0,x1){ var n=Math.max(2,Math.ceil((x1-x0)*200)+1), c=new Float32Array(n); for(var i=0;i<n;i++) c[i]=envGain(PL,x0+(x1-x0)*i/(n-1)); return c; }
   window.EntryScene={SP:SP,FADE_DN:FADE_DN,OUTF:OUTF,LATE_T:LATE_T,VOICE_LUFS:VOICE_LUFS,SONG_LUFS:SONG_LUFS,BED_TRIM:BED_TRIM,
     clamp:clamp,db2g:db2g,lerp:lerp,mono:mono,lufsOf:lufsOf,peakOf:peakOf,sentN:sentN,edgeTrimIdx:edgeTrimIdx,sentSplit:sentSplit,
-    prepVoice:prepVoice,prepSong:prepSong,plan:plan,envDb:envDb,envGain:envGain,envCurve:envCurve};
+    prepVoice:prepVoice,prepSong:prepSong,pickHook:pickHook,plan:plan,envDb:envDb,envGain:envGain,envCurve:envCurve};
 })();

@@ -10,6 +10,7 @@
    6 20MB 넘는 파일은 보내지 않고 «20MB가 넘어 …» 한 줄 · 바꾸기 전 곡의 서버 파일은 지운다
    B 기기(이 기기에 파일 없음 · 같은 초안)
    7 스튜디오에 보낸 파일로 다시 받아 같은 자리를 되살린다(«‹곡› 불러오는 중이에요» → 곡 줄 · 고른 자리 · 음악과 함께 듣기 칸)
+     7b 두 분이 고른 곡이면 추천 곡(목록 · 짧은 판)은 미리 받지 않는다 [REC_CLIP_1013]
    8 못 받으면 «곡을 불러오지 못했어요 · 다시 불러오기 (코드 L6)» → 다시 불러오기 → 되살림
    9 빼기 → 서버 파일도 지운다 · 쪽 오류 없음
    시험 곡은 여기서 만든다(합성음 · 저장소에 음원을 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
@@ -143,6 +144,7 @@ try {
     await o2.f.waitForFunction(() => { const u = EntryMusic._t.ups(); return u && u.Sg && !u.busy; }, null, { timeout: 60000 }).catch(() => {}); await o2.f.waitForTimeout(800);
     const S7 = await st(o2.f), H7 = await H(o2.pg);
     ok(`${W} 7 다른 기기 — 스튜디오에 보낸 파일로 다시 받아 같은 자리(«‹곡› 불러오는 중이에요» → 곡 줄 · 고른 자리 · 음악과 함께 듣기 칸)`, at2 && /불러오는 중이에요$/.test(S7a.busy) && S7.ups && S7.ups.sg && S7.ups.dur === 130 && S7.mu && S7.mu.fid === carry.song.fid && S7.mu.hook === carry.song.hook && H7.log.includes('momentedit:ritualFileGet:mu') && !H7.log.includes('momentedit:ritualFile:mu') && S7.scene, { at2, busy: S7a.busy, ups: S7.ups, mu: S7.mu, log: H7.log, scene: S7.scene });
+    ok(`${W} 7b [REC_CLIP_1013] 두 분이 고른 곡이면 추천 곡(목록 · 짧은 판)을 미리 받지 않는다`, !H7.log.includes('momentedit:ritualFileGet:rec'), { log: H7.log });
     await ctx2.close();
     const ctx3 = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 });
     const o3 = await open(ctx3, carry);

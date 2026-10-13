@@ -13,6 +13,9 @@
    9a 이름만 오면 «없다(need)» · 폴더가 없으면 만든다 9b 표에 없는 이름 = 거절 9c 지문(SHA-256)이 다르면 거절 · 아무것도 안 쓴다
    9d 지문이 같으면 저장 · 설명 칸에 지문 9e 다시 오면 «있다(same)» · 받은 내용을 풀지 않는다 9f songs.json 이 들어가면 목록이 열린다(REC_FID · 캐시 비움)
    9g 지문 없는 같은 이름 파일(손으로 올린 것)은 새 파일로 바꾸고 옛것은 휴지통 9h 한 시간 120번 넘으면 U1 9i key 가 rec 가 아니면 종전대로 로그인을 본다
+   ★[REC_CLIP_1013 2026-10-13 사장님 «기다림 완전 짧게»] 미리 듣기용 짧은 판 — 표는 17개(곡 8 · 짧은 판 8 · 목록) · 곡마다 짧은 판이 짝으로 있다
+   10a '<키>-p' = 목록 pf 파일(짧은 판) 10b 목록에 pf 가 없으면(옛 목록) L3 — 화면이 곡 전체로 10c 짧은 판도 한 시간 60번 셈에 든다
+   10d 콘솔(rec:<키>)은 종전대로 곡 전체 10e 이상한 꼬리(-px · -p 만) = 찾지 않는다
    종료 코드 0 통과 · 1 실패 */
 import { loadGas } from './gas-lint.mjs';
 import { createHash } from 'node:crypto';
@@ -89,7 +92,8 @@ try {
   // 9 [REC_PUT_1013] 서버가 곡 파일을 직접 받는다
   { const sha = (x) => createHash('sha256').update(Buffer.from(x)).digest('hex'), b64 = (x) => Buffer.from(x).toString('base64');
     const real = Object.assign({}, G.REC_PUT_HASH), SJ = JSON.stringify(SONGS);
-    ok('9 · 진짜 표는 파일 9개(곡 8 + songs.json) · 지문은 64자리', Object.keys(real).length === 9 && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)), Object.keys(real));
+    const nm = Object.keys(real), songs8 = nm.filter((n) => /^r\d\.mp3$/.test(n)), clips8 = nm.filter((n) => /^r\dp\.mp3$/.test(n));
+    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리', nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
     G.REC_PUT_HASH = { 'r1.mp3': sha('ID3-put-r1'), 'r9.mp3': sha('ID3-put-r9'), 'songs.json': sha(SJ) };
     FOLDERS = []; PROPS = {}; CACHE = {};
     const put = (name, data) => G.handleRitualFile(Object.assign({ key: 'rec', name }, data === undefined ? {} : { data }));
@@ -117,6 +121,14 @@ try {
     const i = G.handleRitualFile({ key: 'g0', name: 'x.webm', data: b64('x') });
     ok('9i key 가 rec 가 아니면 종전대로 로그인을 본다', i && i.ok === false && i.reason === 'expired', i);
     G.REC_PUT_HASH = real; }
+  // 10 [REC_CLIP_1013] 미리 듣기용 짧은 판
+  { const SJ2 = { v: 1, songs: [{ k: 'r1', t: 'Popcorn', hook: 38.1, len: 181.3, file: 'r1.mp3', pf: 'r1p.mp3', p0: 0, p1: 112.6, hooks: [38.1, 87.14] }, { k: 'r9', t: 'Reality', hook: 39.5, len: 280.3, file: 'r9.mp3' }] };
+    FOLDERS = [mkFolder('FD_CLIP', [mkFile('songs.json', JSON.stringify(SJ2), 4e12, 'application/json'), mkFile('r1.mp3', 'FULL-r1', 4e12), mkFile('r1p.mp3', 'CLIP-r1', 4e12), mkFile('r9.mp3', 'FULL-r9', 4e12)])]; PROPS = {}; CACHE = {};
+    const a = get('r1-p'); ok('10a 짧은 판 받기 = 목록 pf 파일', a && a.ok && a.id === 'r1-p' && Buffer.from(a.data, 'base64').toString() === 'CLIP-r1', a && { ok: a.ok, id: a.id, d: a.data && Buffer.from(a.data, 'base64').toString() });
+    const b = get('r9-p'); ok('10b 목록에 pf 가 없으면 L3(화면이 곡 전체로)', b && b.ok === false && b.ecode === 'L3', b);
+    const n0 = +(CACHE.RECQ_ME0001 || 0); get('r1-p'); ok('10c 짧은 판도 한 시간 셈에 든다', +(CACHE.RECQ_ME0001 || 0) === n0 + 1, { n0, n1: CACHE.RECQ_ME0001 });
+    const c = G.adminRitualFileGet('ME0001', 'rec:r1'); ok('10d 콘솔은 곡 전체', c && c.ok && Buffer.from(c.data, 'base64').toString() === 'FULL-r1', c && c.ok);
+    const d1 = get('r1-px'), d2 = get('-p'), d3 = get('r1-p-p'); ok('10e 이상한 꼬리 = 찾지 않는다', [d1, d2, d3].every((r) => r && r.ok === false && !r.data), [d1, d2, d3]); }
 } catch (e) { ok('잴 수 없었다 — ' + (e && e.stack || e).split('\n').slice(0, 3).join(' | '), false); }
 G._rfFileIn = _rfIn;
 console.log(fail ? `rec-song-server: FAIL ${fail}` : 'rec-song-server: ok');
