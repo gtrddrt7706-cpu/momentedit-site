@@ -7605,7 +7605,8 @@ chk 'CANDLE_BOW_1012' api/_ritual-kb.js 1
 chk 'CANDLE_BOW_1012' scripts/audit/open-course.mjs 4
 chk "t: '서는 두 분이 앞으로 나와 초에 불을 밝히고, 서로 · 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
 chk "t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
-chk "var ALWAYS = { guest: 1, entry: 1 };" assets/ritual-open.js 1   # 신랑 신부 입장은 빼지 못한다
+chk "var ALWAYS = { guest: 1, entry: 1, matjeol: 1 };" assets/ritual-open.js 1   # 신랑 신부 입장 · 맞절은 빼지 못한다 [MATJEOL_SPLIT_1013]
+nochk "var ALWAYS = { guest: 1, entry: 1 };" assets/ritual-open.js 0   # 옛 판(맞절 순간 전) — 되살리면 맞절이 빠질 수 있다
 # ★★[EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결 (추천)» · 테이블 인사 «지금처럼»] 2단계 — 예시 넷 = 같은 뼈대(식전 영상 · 화촉 · 서약 · 선언 · 부모님께 인사 · 축배) + 성격 한두 개
 #   정석 + 첫인사 · 축가 / 기록 + 첫인사 · 테이블 인사 / 가족 + 첫인사 · 덕담 · 축가 / 간결 뼈대만 · 반지 · 케이크 · 편지는 예시에 없다(+ 로 담기) · 편지 중심 «약속» 예시는 걷었다
 #   open-course 가 구성 · 시간 · 알림 없음을, check-ritual-cue 가 마이페이지 단체 사진 표를, source-basis 가 장부 8장(엔진이 잰 값) · 예시마다 «왜»를 잰다
@@ -7630,7 +7631,7 @@ chk 'CAKE_OFF_1013' assets/ritual-open.js 3
 chk 'var RETIRED = { cake: 1 };' assets/ritual-open.js 1
 chk 'var OFFER = PICKABLE.filter(function (k) { return !RETIRED\[k\]; });' assets/ritual-open.js 1
 chk 'RETIRED: RETIRED, OFFER: OFFER' assets/ritual-open.js 1
-chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다
+chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
 chk 'CAKE_OFF_1013' order-preview.html 3
 chk 'function _pkShow(k)' order-preview.html 1
 chk 'a.ks.filter(_pkShow).map(_pkTile)' order-preview.html 1
@@ -7819,7 +7820,8 @@ chk 'HEART_ORDER_1012' assets/ritual-data.js 1
 chk 'HEART_ORDER_1012' assets/ritual-story.js 1
 chk 'HEART_ORDER_1012' api/_ritual-kb.js 2
 chk 'HEART_ORDER_1012' scripts/audit/open-course.mjs 12
-chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1
+chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1
+nochk "'candle', 'entry', 'welcome', 'vow'" assets/ritual-open.js 0   # 옛 차례(맞절 순간 전) · [MATJEOL_SPLIT_1013]
 nochk "'bless', 'song', 'tribute', 'free', 'letter'" assets/ritual-open.js 0   # 옛 v4 차례(인사 뒤 준비한 순서 · 편지) · 되살리지 말 것
 nochk "'bless','song','tribute','free','letter'" assets/ritual-data.js 0
 nochk '부모님께 인사 뒤에 한 분이 하십니다' index.html 0                     # 홈 FAQ · 축사 자리(덕담 뒤 · 축가 앞)
