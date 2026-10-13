@@ -7812,7 +7812,9 @@ chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
 #   자료 22곳 중 21곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
 #   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
 chk 'HEART_ORDER_1012' assets/ritual-open.js 12   # [TOAST_LAST_1013] «끝이 조용한 편» 알림 줄(이 표식 한 자리)을 걷어 13 → 12
-chk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js 1   # 덕담은 «약속의 순간» 끝 칸 — 막마다 넷(PC 한 줄)
+chk "ks: \['welcome', 'vow', 'ring', 'declare'] }" assets/ritual-open.js 1   # [ACTS_SHIFT_1013] 맞절 칸이 생겨 막 경계를 한 칸씩 — 막마다 넷(PC 한 줄) · 덕담은 마음의 순간 첫 칸으로 돌아갔다
+chk "ks: \['bless', 'free', 'song', 'letter'] }" assets/ritual-open.js 1
+nochk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js   # 옛 막 경계(맞절 칸 전) — 되살리면 여는 순간이 다섯 칸
 chk 'HEART_ORDER_1012' assets/ritual-data.js 1
 chk 'HEART_ORDER_1012' assets/ritual-story.js 1
 chk 'HEART_ORDER_1012' api/_ritual-kb.js 2
@@ -15336,7 +15338,8 @@ chk 'function spanText(S)' assets/ritual-open.js 1
 chk 'spanText: spanText, tableSec: tableSec' assets/ritual-open.js 1
 chk "after: !!APART" assets/ritual-open.js 1   # [TOAST_LAST_1013] 곡선 «본식 뒤»는 테이블 인사 하나(축배는 닫는 인사 뒤여도 본식 톤)
 chk "LEVEL3 = { candle: 1, welcome: 1, table: 1 }" assets/ritual-open.js 1
-chk "d: '본식을 닫고, 축배와 테이블 인사까지', ks: \['cake', '_close', 'toast', 'table'\]" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례(닫는 인사 → 축배 → 테이블 인사)
+chk "d: '부모님께 인사하고 본식을 닫는 자리, 축배와 테이블 인사까지', ks: \['tribute', 'cake', '_close', 'toast', 'table'\]" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례 · [ACTS_SHIFT_1013] 부모님께 인사가 닫는 막 첫 칸
+nochk "d: '본식을 닫고, 축배와 테이블 인사까지', ks: \['cake', '_close', 'toast', 'table'\]" assets/ritual-open.js   # [ACTS_SHIFT_1013] 맞절 칸 전 판
 nochk "d: '축배를 들고, 본식 뒤 테이블 인사까지'" assets/ritual-open.js   # [TOAST_LAST_1013] 축배가 닫는 인사 앞이던 판
 nochk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritual-open.js
 nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js

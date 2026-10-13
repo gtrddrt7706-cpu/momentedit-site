@@ -7999,7 +7999,8 @@ function _lSceneName(st){
      «케이크와 축배» 판은 잔 들기 줄에서 케이크 영상 · «축배만 + 붓기» 판은 붓기 영상이 나왔다(실측). 되살리지 말 것. */
   if(st.k==='cake') return 'cake';   // [CAKE_TOAST_SPLIT]
   if(st.k==='toast'){ if(/^toast-(both|cake)$|cake-out/.test(s)) return 'cake'; if(/pour/.test(s)&&!/pour-b/.test(s)) return 'toast-pour'; return 'toast'; }
-  if((st.k==='entry'||st.k==='matjeol')&&/entry-out|entry-bow/.test(s)) return 'entry-look';   // [MATJEOL_SPLIT_1013] 맞절 순간도 바라보기 영상   // [BOW_VIDEO_OFF 2026-09-26] 맞절도 바라보기 영상 · 절 영상은 만들지 않는다 · [MATJEOL_1011] 입장 끝 맞절 줄도
+  if(st.k==='matjeol') return 'entry-look';   // [MATJEOL_SPLIT_1013 · BOW_VIDEO_OFF] 맞절 순간은 어느 줄이든 바라보기 영상(절 영상은 만들지 않는다 · videoKeys 와 같은 이름)
+  if(st.k==='entry'&&/entry-out|entry-bow/.test(s)) return 'entry-look';   // 옛 초안 · 옛 코스의 입장 끝 줄   // [BOW_VIDEO_OFF 2026-09-26] 맞절도 바라보기 영상 · 절 영상은 만들지 않는다 · [MATJEOL_1011] 입장 끝 맞절 줄도
   if(st.k==='tribute'&&/bow-groom/.test(s)) return 'tribute';      // [BOW_VIDEO_OFF] 신랑 큰절도 인사 영상
   if(st.k==='_close') return 'close';
   return st.k;
