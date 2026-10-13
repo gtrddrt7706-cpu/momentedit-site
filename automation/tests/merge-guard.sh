@@ -12569,7 +12569,9 @@ chk 'ENTRY_LAB_QUOTE' order-preview.html 1
 chk 'TILE_FREE_COMMA' assets/ritual-open.js 1
 nochk '고른 순간에만 나서요' order-preview.html 1   # 옛 코스 갈래 한 줄만 남는다(새 코스는 «담은 순간에만»)
 chk '담은 순간에만 나서요' order-preview.html 1
-chk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.' assets/ritual-open.js 1
+chk '단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.' assets/ritual-open.js 1   # [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날도 참
+nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' assets/ritual-open.js 0
+nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' order-preview.html 0
 chk '두 분이 하객께 목례 · 박수' order-preview.html 1
 chk '<em>→ 한눈에 보기에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번 · [STEP_NONUM_OP 2026-10-03] «③에서» → 이름
 chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»
@@ -18078,3 +18080,81 @@ nochk 'lyFirst(L,+p.H-off)' assets/entry-music.js                               
 nochk 'g.gain.linearRampToValueAtTime(lv,t0+0.5)' assets/entry-music.js                                         # ★미리 듣기 첫소리 0.5초 직선(종전) — 2.5초 u² 로 바뀌었다
 nochk 't0=a.currentTime+0.08, x0=' assets/entry-music.js                                                        # ★누르자마자(0.08초) 걸던 옛 시작 — 앞이 씹혔다
 nochk 'var t0=a.currentTime+0.15, R={id:id' assets/entry-music.js
+# ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
+#   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
+#   여는 순간: 식전 영상 «끝나면 입장»(화촉을 담으면 영상 뒤가 화촉) · 화촉 «예식의 시작을 알려요»(시작은 1분 전 안내 · 개식이 알린다) 걷기
+#   닫는 순간: 닫는 인사 «이어서 하객 모두와 한 장»(축배 · 테이블 인사를 담은 날 틀림) · 테이블 인사 «못 들른 테이블은 배웅 때»(배웅 줄 없음) 걷기
+#   축배: 새 코스는 판과 상관없이 40(옛 초안 케이크 + 축배의 76 «잔이 가는 동안»이 닫는 인사 뒤에 나가던 것) · ① 대표 줄도 40
+#   리허설: 별도 예행연습은 없다(_kb.js) — «리허설 때 한 번 같이 읽어 봐요» · «리허설 때 알려 주세요» 걷기
+chk 'OPEN_WORDS_1013' assets/ritual-open.js 6
+chk 'OPEN_WORDS_1013' assets/ritual-story.js 8
+chk 'OPEN_WORDS_1013' order-preview.html 3
+chk 'OPEN_WORDS_1013' scripts/audit/open-course.mjs 2
+chk 'CLOSE_WORDS_1013' assets/ritual-open.js 2
+chk 'CLOSE_WORDS_1013' assets/ritual-story.js 4
+chk 'CLOSE_WORDS_1013' assets/ritual-cue.js 1
+chk 'CLOSE_WORDS_1013' order-preview.html 2
+chk 'TOAST_40_OPEN_1013' assets/ritual-cue.js 1
+chk 'TOAST_40_OPEN_1013' assets/ritual-open.js 1
+chk 'TOAST_40_OPEN_1013' scripts/audit/open-course.mjs 4
+chk 'TOAST_40_OPEN_1013' scripts/audit/listen-page.mjs 1
+chk "T.toast = 'toast';" assets/ritual-cue.js 1                                          # 새 코스 축배 = 40 축배 판 글
+chk "toast: { slug: 'toast-toast', screen: '마지막으로, 다 같이 잔을 들어 주세요." assets/ritual-open.js 1
+nochk "toast: { slug: 'toast-both-b'" assets/ritual-open.js                              # ★76(케이크 판 글)을 축배 대표 줄로 되돌리지 말 것
+chk 'NO_REHEARSAL_1013' assets/ritual-data.js 1
+chk 'NO_REHEARSAL_1013' order-preview.html 1
+chk 'NO_REHEARSAL_1013' api/_ritual-kb.js 1
+chk 'NO_REHEARSAL_1013' assets/ritual-cue.js 1
+nochk '리허설 때 한 번 같이 읽어 봐요, 틀려도' assets/ritual-data.js                       # 별도 예행연습은 없다
+nochk '리허설 때 한 번 같이 읽어 봐요, 틀려도' order-preview.html
+nochk "safe: '리허설 때" assets/ritual-story.js
+nochk '하고 싶으시면 리허설 때' assets/ritual-story.js
+nochk '리허설 때 한 번 같이 읽어 보면 좋다' api/_ritual-kb.js
+nochk '필요 여부를 리허설에서 미리 물어' assets/ritual-cue.js
+chk 'GUESTS_OPEN_BUILDER' live.html 1
+chk 'GUESTS_OPEN_BUILDER' scripts/audit/guests-open.mjs 2
+nochk '두 분의 가까운 분들만을 위해' live.html                                           # [GUESTS_OPEN] 하객을 좁히지 않는다
+nochk '가까운 분들만 모신 자리라' assets/ritual-data.js
+nochk '가까운 분들만 모신 자리라' order-preview.html
+chk 'BALL_BOW_TIP_1013' assets/ritual-story.js 1
+# ── 2026-10-13 밤 멘트 한 줄씩 검토 2묶음 — 닫는 순간 · 약속 · 마음의 순간 글만 [HUG_WORDS_1013 · TRIB_PICK_CHIP_1013 · CLOSE_LAST_1013 · SONG_ANYONE_WORDS_1013 · SPEECH_WORDS_1013 · TOAST_SAY_TALK_1013 · BRIDGE_BY_PICK_1013 · KB_MATCH_SCREEN_1013 · THANKS_WORD_1013 · FLOWER_OFF_OLD_1013]
+#   부모님께 인사: 동작 말은 «안아 드려요» 하나 · 말로 인사 날 ② 차례는 말 → 인사 → 포옹(자료 FF 2-1 · S · G · T4 · O) · 배지는 칩 이름만 · 글자 세기 1분쯤 = 300자
+#   닫는 순간: 26(사진 안내)은 그날 마지막 순간 끝(② · ④ · 처음부터 끝까지 보기가 축배 · 테이블 인사보다 먼저 실었다) · 줄 이름 «본식을 마치며 · 시작할 때» · 26 이름 «단체 사진 안내»
+#   축가 · 축사: 두 분이 직접 부르는 날 · 이웃 순간을 안 담은 날 · 길이를 바꾼 날도 참인 글 · AI 지식은 지금 화면에 맞게(편지 두 갈래 · 대독 칸 없음 · 400자)
+chk 'HUG_WORDS_1013' assets/ritual-open.js 2
+chk 'HUG_WORDS_1013' order-preview.html 3
+chk 'HUG_WORDS_1013' scripts/audit/stage-lines.mjs 2
+chk "tribute: '두 분이 부모님께 인사하고 안아 드려요', free:" assets/ritual-open.js 1
+nochk "인사하고 안겨요'" assets/ritual-open.js                                      # 동작 말 하나(안아 드려요)
+nochk "인사하고 안겨요'" order-preview.html
+nochk '부모님께 다가가 인사하고 안겨요' assets/ritual-story.js
+chk "if(k==='tribute') out.push({k:k,lab:'말 없이 흐르는 자리',txt:'두 분이 부모님께 인사하고 안아 드려요'" order-preview.html 1   # 말 → 인사 → 포옹
+chk "tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:300}," order-preview.html 1
+chk 'TRIB_PICK_CHIP_1013' assets/ritual-cue.js 3
+chk "pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말 없이') : m.d," assets/ritual-cue.js 1
+chk 'CLOSE_LAST_1013' order-preview.html 2
+chk 'CLOSE_LAST_1013' scripts/audit/stage-lines.mjs 1
+chk "if(_lateK&&c.slug==='narr-close') return k===_lateK;" order-preview.html 1     # 26 은 엔진 차례대로 맨 끝
+chk "slug: 'narr-close', name: '단체 사진 안내'," assets/ritual-cue.js 1
+nochk "slug: 'narr-close', name: '폐식 · 단체촬영 전환'," assets/ritual-cue.js       # «폐식»은 고객 화면 말이 아니다
+chk 'SONG_ANYONE_WORDS_1013' assets/ritual-open.js 2
+chk 'SONG_ANYONE_WORDS_1013' assets/ritual-story.js 2
+nochk '축가를 불러 주실 분께 부탁드리기' assets/ritual-open.js                      # 두 분이 직접 부르는 날 틀린 말
+nochk '두 분은 그 자리에서 들으시면 돼요' assets/ritual-story.js
+chk 'SPEECH_WORDS_1013' assets/ritual-open.js 2
+chk 'SPEECH_WORDS_1013' assets/ritual-story.js 4
+nochk '덕담 뒤, 축가 앞에' assets/ritual-story.js                                  # 이웃 순간을 안 담으면 틀린 말
+nochk '두 분을 오래 지켜본 분이 짧은 축사' assets/ritual-story.js                    # 짐작
+nochk '3분쯤 되면 저희가' assets/ritual-story.js                                    # 길이는 두 분이 정한다(1 ~ 10분)
+nochk '원고는 분당 300자' assets/ritual-open.js
+chk 'TOAST_SAY_TALK_1013' assets/ritual-open.js 1
+chk 'BRIDGE_BY_PICK_1013' order-preview.html 3
+chk "'vow.thanks':'두 분이 하객께 직접 감사문을 읽는 시간입니다.'" order-preview.html 1
+chk 'KB_MATCH_SCREEN_1013' api/_ritual-kb.js 4
+nochk '편지 낭독 3방향' api/_ritual-kb.js
+nochk '나레이션이 대독하는 옵션 있음' api/_ritual-kb.js
+nochk '덕담은 나레이션이 대독한다' api/_ritual-kb.js
+chk 'THANKS_WORD_1013' order-preview.html 1
+nochk '의 감사 인사를 적어 주세요' order-preview.html                               # 감사 인사는 이제 다른 순간 이름
+chk 'FLOWER_OFF_OLD_1013' mypage.html 1
+chk 'FLOWER_OFF_OLD_1013' admin.html 1

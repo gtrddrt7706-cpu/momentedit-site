@@ -7242,7 +7242,7 @@ function _ritPrepFold(rd, base, dd, asLink){
   (sm.prep||[]).filter(function(q){ return !_oldGoods.test(String((q&&q.what)||'')); }).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
   var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
   /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 맡긴 케이크 · 꽃 — 직접 준비분은 이미 prep(챙길 것)에 있다 */
-  var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.what; }).map(function(g){ return String(g.what||''); });   // [GOODS_STUDIO] 옛 «직접 준비»도 이제 저희가
+  var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.what&&!/^부모님께 드릴 꽃/.test(String(g.what)); }).map(function(g){ return String(g.what||''); });   /* ★[FLOWER_OFF_OLD_1013] 10/13 전에 저장한 식순의 «부모님께 드릴 꽃»은 보이지 않는다(꽃 전달 폐지 · 계약서 v1.15 · 식순 화면 ③ 과 같게) */   // [GOODS_STUDIO] 옛 «직접 준비»도 이제 저희가
   var _bq=Array.isArray(sm.prep);   // [GOODS_STUDIO] 기본 조화 부케 줄 — 준비 목록이 있는 초안에만(옛 초안은 아무것도 안 그린다)
   var n=two.length+par.length+hp.length+stu.length+(_bq?1:0); if(!n) return '';
   var _opt=(sm.prep||[]).filter(function(q){ return q&&q.who!=='parents'&&/비워 두셔도 돼요/.test(String(q.note||'')); }).length;   /* [R4-06] 선택 항목(부모님께 드릴 말 · 빌더 RitualOpen.prepOpt)은 목록엔 두고 셈에서 뺀다 — 빌더 ① · ④ 와 같은 셈 */
@@ -9209,7 +9209,7 @@ var PHOTO_SCENE=[
     ★잔을 드는 자리는 「축배 · 케이크」 하나다(아래에 있다). 노래는 「자유 한 칸」으로 간다.
     ★되살리지 말 것. scripts/check-retired-scene.mjs 가 «고를 수 있는가»로 대조한다.
        (옆의 check-photo-scene 은 «이름이 있나»를 볼 뿐이라 이 자리를 못 봤다 — 그래서 따로 만들었다) */
- {n:'편지 낭독',     s:'편지를 든 손 · 듣는 부모님의 얼굴'},
+ {n:'편지 낭독',     s:'편지를 든 손 · 듣는 얼굴'},   /* [HUG_WORDS_1013] 서로에게 쓰는 날도 참 */
  {n:'부모님 헌정',   s:'큰절·포옹의 순간 · 일어나 마주 보는 얼굴'},
  {n:'부모님 덕담',   s:'말씀하시는 얼굴 · 나란히 듣는 두 분'},
  {n:'축배 · 케이크', s:'잔을 든 방 전체 · 부딪히는 순간'},
@@ -9219,7 +9219,7 @@ var PHOTO_SCENE=[
  /* [SCENE_0925 코워크 1장] «두 분»은 화면 전체에서 신랑 · 신부다 — 화촉을 밝히는 분은 부모님이라 «두 분의 손»이 틀렸다.
     인사 · 준비한 순서는 고른 판에 따라 장면이 달라 photoSceneList 가 초안(rd.S)을 보고 바꾼다(SCENE_BY_PICK). */
  {n:'화촉',          s:'초에 불이 옮겨붙는 순간 · 불빛에 비친 부모님 얼굴'},
- {n:'부모님께 인사', s:'부모님께 인사하고 안기는 순간'},   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «꽃을 건네고» 되살리지 말 것 */
+ {n:'부모님께 인사', s:'부모님께 안기는 순간'},   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «꽃을 건네고» 되살리지 말 것 */
  {n:'축사', s:'말하는 분을 보며 웃는 두 분'},   /* ★[SPEECH_TILE_1012] 옛 «준비한 순서» 칸이 축사가 됐다(새 초안은 summary.scenes 가 이름 · 장면을 싣는다 · 이 줄은 옛 판 flow 맞추기용) */
  {n:'준비한 순서', s:'함께 보며 웃는 하객들'},   /* [DETAIL_0925 B3] 옛 이름 «두 사람이 준비한 순서»는 아래 flow 정규화가 받는다 */
  {n:'폐식·단체촬영', s:'예식을 맺는 한 컷 · 여기서 아래 구도로 이어져요'}

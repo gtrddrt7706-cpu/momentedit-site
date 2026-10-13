@@ -2334,7 +2334,7 @@ var DECLBY={
  /* ★[DECLARE_ANYONE 2026-10-12] 원천 assets/ritual-data.js DECLBY 의 사본(선언문 한 벌 · 누가 읽든 같은 글). scripts/check-ritual-mirror.js 가 대조한다.
     ★읽는 분 목록(신랑 아버님 · 신부 아버님 · 친구 · 지인) · «나레이션» · «가족이 낭독» · «하객이 함께 답하기» · «하객 합송» 갈래 금지 — 사용자 지시로 삭제(10/12 · 9/21) */
  nar:"신랑 신부는, 이 자리에 함께한 우리 모두를 증인으로, 서로의 평생이 되었습니다. 이로써 두 사람의 성혼을 선언합니다.",
- prep:'선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요'
+ prep:'선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 미리 한 번 소리 내어 읽어 보시면 편해요, 틀려도 괜찮아요'   /* ★[NO_REHEARSAL_1013] «리허설 때 한 번 같이 읽어 봐요» 금지 — 별도 예행연습은 없다(_kb.js 리허설 줄 · 8/10 «리허설에서 맞춰요» 삭제) */
 };
 var LETTER={
  parent:{d:"부모님께",nar:"평소엔 쑥스러워 다 못 한 이야기를, 한 장의 편지에 담았습니다. 그 편지를, 부모님께 들려 드리세요.",prep:"부모님께 드릴 편지"},
@@ -2995,7 +2995,7 @@ var EXLETTER=[
 ];
 var EXWEL=[
  "바쁘신 중에 저희 두 사람의 시작을 함께해 주셔서 진심으로 감사드립니다. 오늘 이 자리를, 오래 기억하겠습니다.",
- "가까운 분들만 모신 자리라 저희에겐 더 특별합니다. 편하게, 오늘 하루 저희와 함께 즐겨 주세요.",
+ "이렇게 함께해 주셔서 오늘이 더 든든합니다. 편하게, 오늘 하루 저희와 함께 즐겨 주세요.",
  "먼 길, 바쁜 하루를 건너 와 주셔서 감사합니다. 오늘 오신 분들 얼굴을 한 분씩 보면서, 저희가 어떤 사랑을 받고 살았는지 알았습니다. 짧은 예식이지만, 오래 기억하겠습니다.",
  "저희 두 사람, 오늘 처음으로 여러분 앞에 부부로 섭니다. 떨리는 만큼 진심입니다. 편하게 웃으면서 봐 주세요."
 ];
@@ -4396,7 +4396,7 @@ function _lSum(k){
     return (S.guestVoice!=='couple'||_gn===_gks.length?'나레이션':_gn?'두 분 목소리 · 일부 나레이션':'두 분 목소리')+' · 하객이 들어오실 때 · 예식 10분 전 · 5분 전 · 1분 전'; }   /* ★[GUEST_SUM_FOUR 2026-10-09 A~Z 점검 1라운드 A-14] ② 하객 맞이 줄은 넷(시작 1분 전 포함 · ONEMIN_FIRST) — ④ 요약도 넷 */
   if(k==='prevideo') return (S.pvVoice==='couple'&&_vcOn()&&_recNeed('pv')&&!_vcToNar('pv')?'두 분 소개글 · 두 분 목소리':'나레이션 소개')   /* [R7-04] 목소리를 다 쓴 빈 줄은 나레이션(VC_TO_NAR) */+' → 두 분의 영상';   /* [ONEMIN_FIRST] 1분 전 안내는 영상 앞(하객 맞이) */   /* [R6-03] 하객 맞이 · 입장처럼 목소리를 보인다 · 판정은 ② own 과 같다(소개글이 비면 스튜디오 한 줄) */   // [PREVIDEO_FREE]
   if(k==='ring') return '말 없이 반지를 끼워요 · 앞뒤로 나레이션';
-  if(k==='_close') return '닫는 말 → 그 자리에서 단체 사진';
+  if(k==='_close') return '끝 인사와 박수 · 단체 사진은 맨 끝에';   // [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날 «→ 그 자리에서 단체 사진»은 차례와 다르다
   if(k==='table') return '두 분이 함께 테이블을 돌며 인사 · 테이블마다 1분 30초쯤 → 모여서 단체 사진';   /* [TABLE_GREET_1008] */
   if(k==='song') return '노래 한 곡 · 반주는 MR';   /* [SONG_BACK_1011] · [SONG_SELF_1011] 부르는 분은 가족 · 친구 · 두 분 누구든 */
   if(k==='candle') return _candleWho();
@@ -4424,7 +4424,8 @@ function _lSum(k){
 /* ★[LAB_FIX 2026-09-25 코워크 회신3 3-3] ② «이렇게 흘러요» 이름표 — 엔진 이름(콘솔 · 대본용)을 고객 말로.
    엔진 이름은 그대로 둔다(현장 콘솔 · 생성기가 쓴다) · 여기서만 바꿔 보인다. 칩 이름과 같게(꽃과 포옹 · 1분쯤씩). */
 var LAB_FIX={'하객이 박수로 답하는':'박수를 청하는 말','부모님께':'여는 말','서로에게':'여는 말','입장 직후':'하객 입장 때',   /* [LAB_FIX2 2-6] */
-  '편지 뒤 자리':'여는 말','예식의 문을 여는 자리':'여는 말','덕담 여는 말':'여는 말','축사 없음 안내':'여는 말','둘 다':'케이크 커팅','폐식 · 단체촬영 전환':'닫는 말'};
+  '편지 뒤 자리':'여는 말','예식의 문을 여는 자리':'여는 말','덕담 여는 말':'여는 말','축사 없음 안내':'여는 말','둘 다':'케이크 커팅','폐식 · 단체촬영 전환':'닫는 말',
+  '단체 사진 안내':'닫는 말','본식 끝 · 두 분 인사':'본식을 마치며','테이블 인사 · 두 분이 하객께':'여는 말'};   /* [CLOSE_WORDS_1013] 26 콘솔 이름 «단체 사진 안내» · 108 «본식을 마치며» · 131 «시작할 때»(_lWhen) · 축배 첫 줄은 이름 «축배 시작»이라 «시작할 때» */
 function _lLabFix(l){ l=String(l||''); if(LAB_FIX[l]) return LAB_FIX[l]; if(/^(영상|춤 · 공연|기타|깜짝 선물 · 전달|친구 · 가족의 축사) · \d+분$/.test(l)) return '여는 말'; return l.replace(/^꽃 헌정 · 준비한 말 400자씩$/,'꽃과 포옹 · 1분쯤씩').replace(/^꽃 헌정/,'꽃과 포옹'); }
 /* ★[OFF_LISTEN 2026-09-25 코워크 추가전달 2-1] «담지 않은 순간 · 들어 보고 담을 수 있어요»가 되게 한다.
    담지 않은 순간은 큐가 없어 ▶ 가 아무 일도 안 했고, 작은 그림은 크게 보기를 곧장 끝 화면으로 열었다.
@@ -4439,12 +4440,14 @@ var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};   // [G5]
 function _lSteps0(g,ks){
   var r; try{ r=g.RitualCue.build(S,{mode:'preview'}); }catch(e){ return []; }
   var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[], rN=null;   /* rN = [VC_TO_NAR] 나레이션 판 큐(필요할 때 한 번) */
+  var _lateK=(function(){ var a=_lRows().filter(function(x){ return R.AFTER_CLOSE&&R.AFTER_CLOSE[x]; }); return a.length?a[a.length-1]:''; })();   /* ★[CLOSE_LAST_1013] 닫는 인사 뒤 순간(축배 · 테이블 인사)을 담은 날 — 26(사진 안내)은 엔진 차례대로 그 마지막 순간 끝 */
   ks.forEach(function(k){
     var talked=false, ownDone=false, quietDone=false;
     var cs=r.cues.filter(function(c){
       /* ★[ONEMIN_HOME 2026-09-27 사장님 «왜 1분 전 안내는 없어?»] 1분 전 안내는 식전 영상이 «있을 때만» 그 뒤에서 듣는다(실제 차례: 영상 → 1분 전 → 입장).
          종전엔 식전 영상을 안 담아도 식전 영상 줄로 보내 — 식전 영상이 선택이 된 뒤(PREVIDEO_PICK) 1분 전 안내가 ② · 연습에서 통째로 사라졌다. */
       /* ★[ONEMIN_FIRST 2026-10-05 사장님] 엔진 차례가 «1분 전 공지 → 식전 영상 → 입장»으로 바뀌어 1분 전 안내는 늘 하객 맞이 순간이다 — 식전 영상 줄로 보내던 길(ONEMIN_HOME) 걷음 */
+      if(_lateK&&c.slug==='narr-close') return k===_lateK;   /* [CLOSE_LAST_1013] ② · ④ 대본 · 처음부터 끝까지 보기가 26 을 축배 · 테이블 인사보다 먼저 실었다(당일 엔진은 맨 끝) · 닫는 인사 쪽에는 108 · 목례 줄만 */
       return c.k===k;
     });
     if(k==='prevideo'){ var pre=cs.filter(function(c){ return c.k==='prevideo'; }), one=cs.filter(function(c){ return c.k!=='prevideo'; }); cs=pre.concat(one); }
@@ -4481,11 +4484,12 @@ function _lSteps0(g,ks){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요 · 미리 듣기에서는 넘겨요',skip:true,ms:1600}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
           /* [SONG_BACK_1011] 축가는 두 분이 말하는 자리가 아니다 — «두 분 차례»(talk)가 아니라 준비한 순서 영상처럼 «미리 듣기에서는 넘겨요» 한 줄 */
-          if(k==='song'){ talked=true; out.push({k:k,lab:'축가가 흐르는 자리',txt:'여기서 축가를 불러요 · 약 '+Math.round(((R.partsOf('song',S)||[])[2]||210)/60)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000}); }
+          if(k==='song'){ talked=true; out.push({k:k,lab:'축가가 흐르는 자리',txt:'여기서 축가를 불러요 · 한 곡 3분 안팎 · 미리 듣기에서는 넘겨요'   /* [SONG_ANYONE_WORDS_1013] «약 4분»은 시간 표 210초를 반올림한 값 · 준비 줄(«3분 안팎 한 곡»)과 같은 말 */,skip:true,ms:3000}); }
           else if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
             var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='etc'?'두 분이 준비한 순서가 이어져요':'준비한 선물을 건네요';
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000}); }
           else { var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+t,talk:true,ms:3000});
+            if(k==='tribute') out.push({k:k,lab:'말 없이 흐르는 자리',txt:'두 분이 부모님께 인사하고 안아 드려요',quiet:true,ms:0});   /* [HUG_WORDS_1013] 말을 전한 뒤 인사 · 포옹 */
             if(k==='vow') out.push({k:k,lab:'말 없이 흐르는 자리',txt:_vowKind()==='thanks'?'마지막 두 문장은 두 분이 함께 읽어요':'마지막 두 문장은 두 분이 하객 쪽으로 돌아서서 함께 읽어요',quiet:true,ms:0}); } }   /* [STAGE_LINES] _vowHowHint 와 같은 사실 · 할 말 카드 아래에만 있어 흐름에선 안 보였다 */
         }
       }
@@ -4512,7 +4516,7 @@ function _lQuiet(k,c){
   /* ★[STAGE_LINES 2026-10-06 사장님 «성혼 선언을 한 것인가? 의문이 들 수 있어 · 화면에 액션 내용이 없으니 헷갈려»] 나레이션 두 줄 사이에는 그 사이에 하는 일을 한 줄로.
      선언은 나레이션 문장 «자체»가 선언이다 — 종전 «하객 박수 · 두 분이 부부가 돼요»는 박수 뒤에 부부가 되는 것처럼 읽혔다(박수는 선언을 «축하»하는 것). 박수판은 청한 박수가 «증인의 대답» */
   if(k==='declare'&&sl==='narr-declare-family-out') return '하객이 박수로 축하해요';   /* [DECLARE_BY_PERSON] 박수 판(«증인이 되어 주는 박수») · 나레이션 선언 줄은 걷었다 */
-  if(k==='tribute'&&/^tribute-in/.test(sl)) return '두 분이 부모님 앞으로 가 인사하고 안겨요'   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «꽃을 건네고» 되살리지 말 것 */+(RitualOpen.chipOf('tribute',S)==='none'?' · 말 없이':'');   /* [STAGE_LINES] «말 없이»를 고르면 사람 줄이 없어 여는 말과 맺는 말 사이가 비었다 · 꽃은 늘 저희가([GOODS_STUDIO]) */
+  if(k==='tribute'&&/^tribute-in/.test(sl)) return RitualOpen.chipOf('tribute',S)==='none'?'두 분이 부모님 앞으로 가 인사하고 안아 드려요 · 말 없이':'두 분이 부모님 앞으로 가요';   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «꽃을 건네고» 되살리지 말 것 · ★[HUG_WORDS_1013] 말로 인사 날은 말 → 인사 → 포옹(자료 FF 2-1 · S · G · T4 · O · 콘솔 이야기와 같은 차례) — 인사 · 포옹 줄은 사람 줄 뒤(_lSteps0) */   /* [STAGE_LINES] «말 없이»를 고르면 사람 줄이 없어 여는 말과 맺는 말 사이가 비었다 · 꽃은 늘 저희가([GOODS_STUDIO]) */
   if(k==='cake'&&sl==='toast-both') return '두 분이 함께 케이크를 잘라요';   /* [STAGE_LINES] 나레이션 한 줄뿐이라 정작 자르는 장면이 화면에 없었다 */   // 나레이션 판 · 박수 판(-clap-a 뒤 박수) · 가족 낭독 판(마무리 뒤)
   if(k==='toast'&&sl==='toast-pour-family') return '양가 와인을 한 잔에 모아요';   // [POUR_BY_PICK 코워크 회신7 #872-1] 판 이름과 같은 말 — «양가 와인 한 병씩»을 골랐는데 «두 와인…»이면 «안 먹혔나?»로 읽힌다
   if(k==='toast'&&/^toast-pour-/.test(sl)) return '두 분이 고른 와인을 한 잔에 부어요';
@@ -4588,7 +4592,7 @@ var TX_KIND={
   welcome:{nm:'감사 인사',leg:'welcomeText',chk:'현장에서 바로 할게요',lim:180},   /* ★★[CUE_SIG 2026-10-04 사장님 «적을 수 있게 하고 · 현장에서 진행할게요 체크하면 큐사인 신호를 직접 적게»] 체크를 되살리고(아래 SITE_CHK_OFF 는 이걸로 바뀌었다) 체크하면 끝 신호 칸(_cueBox) — 적어야 다 됨 · 적은 글은 마지막 문장이 콘솔의 끝 신호가 된다(ritual-cue endSig) */   /* ★[SITE_CHK_OFF 2026-10-04 사장님 «현장에서 바로 할게요 삭제 · 그래야 우리가 큐사인을 알 수 있다»] 첫인사 · 서약은 글을 받아야 진행이 큐를 잡는다 — 체크 되살리지 말 것 · 옛 체크(S.mkc)는 다 된 것으로 세지 않는다(_txSite) */
   vow:{nm:'서약',leg:'vowText',chk:'현장에서 바로 할게요',lim:360},
   letter:{nm:'편지',leg:'letterText',chk:'따로 써서 가져올게요',lim:480},
-  tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:480},
+  tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:300},   /* [HUG_WORDS_1013] «한마디부터 1분쯤까지» = 300자(R1-20) · 480자(약 96초)에야 «조금 길어요»가 떴다 */
   /* ★[TOAST_SAY 2026-10-07 사장님 «다른 곳들과 다르게 텍스트박스가 아닌데»] 축배 한마디 — 첫인사와 같은 신랑 · 신부 칸 · 선택(부모님께 인사처럼 체크 칸 없음 · 미완료 셈 밖).
      ★옛 한 칸(leg)이 없다 — 처음부터 두 칸이라 옮길 옛 글이 없고, 서버 합치기(80_production TX_MERGE_LEG)를 안 고쳐도 S.tx 칸마다 합쳐진다.
      ④ 대본 · 관리자 · 마이페이지는 S.tx['toast.g' · 'toast.b']를 바로 읽는다(_txJoin) */
@@ -4853,7 +4857,7 @@ function _vowForm(K,c){ var f=_vowFirst(), nm={g:'신랑',b:'신부'}, h='';
     h+='<div class="mk-fld mk-txr'+(chk?' site':'')+'"><div class="mk-txh"><label class="mk-who" for="'+fid+'">'+nm[wk]+(wk===f?' · 먼저':' · 다음')+'</label>'
       +'<label class="upchk mk-ck"><input type="checkbox"'+(chk?' checked':'')+' data-fk="mkchk:'+id+'" onchange="mkChk(\''+id+'\',this.checked)"><span>'+esc(K.chk)+'</span></label></div>'
       +(chk?'<p class="mk-note mk-cue-first">'+esc(_txNextNote('vow',wk))+'</p>'
-        :'<textarea class="ta grow mk-txta" id="'+fid+'" rows="2" maxlength="4000" aria-label="'+esc(_vowNm()+' · '+nm[wk])+'" placeholder="'+esc(nm[wk]+(_vowKind()==='thanks'?'의 감사 인사를 적어 주세요':'의 서약을 적어 주세요'))+'" oninput="mkTx(\''+id+'\',this)">'+esc(v)+'</textarea>'
+        :'<textarea class="ta grow mk-txta" id="'+fid+'" rows="2" maxlength="4000" aria-label="'+esc(_vowNm()+' · '+nm[wk])+'" placeholder="'+esc(nm[wk]+(_vowKind()==='thanks'?'의 감사문을 적어 주세요':'의 서약을 적어 주세요')   /* [THANKS_WORD_1013] «감사 인사»는 이제 다른 순간 이름(THANKS_GREET_1013) */)+'" oninput="mkTx(\''+id+'\',this)">'+esc(v)+'</textarea>'
           +'<p class="mk-exw" id="mkw_'+id.replace('.','_')+'" role="status">'+esc(_exWarn(id,v))+'</p>'
           +'<div class="mk-fl">'+_mkCnt(id,v,K.lim)+'</div>')
       +'</div>'; });
@@ -7486,9 +7490,11 @@ function _lRefDay(k,set){ if(set&&set[0]&&set[0].parent) return '당일엔 준�
    ② «이 순간 들어 보기»(작은 재생 · 크게 보기 아님)에서 사람이 말하는 자리(talk)와 영상이 흐르는 자리(skip)는 «신랑 차례 · 신부 차례» 빈 시간 대신 안내 한 줄 → 바로 다음 나레이션.
    소리는 미리 듣기 전용(당일 예식에는 없다) — 녹음(우성 · 재녹음_20261004)이 오면 TALK_BRIDGE_SRC 에 잇는다 · 그 전에는 글만 2.5초.
    ③ 연습하기 · 크게 보기는 종전대로 차례 시간을 둔다(두 분이 연습하는 자리). 코스 전체 — 첫인사 · 덕담 · 서약 · 부모님께 인사 · 편지 · 축배 · 식전 영상 · 준비한 순서 */
-var TALK_BRIDGE={welcome:'두 분이 하객께 직접 감사 인사를 드리는 시간입니다.',bless:'부모님께서 직접 덕담을 들려주시는 시간입니다.',vow:'두 분이 서로에게 직접 서약을 읽는 시간입니다.',tribute:'두 분이 부모님께 직접 마음을 전하는 시간입니다.',letter:'두 분이 서로에게 쓴 편지를 직접 읽는 시간입니다.',toast:'두 분이 위하여를 외치면, 하객이 함께 답하는 시간입니다.',prevideo:'이 자리에는 두 분이 준비한 영상이 흐릅니다.',free:'이 자리에는 두 분이 준비한 순서가 이어집니다.'};
+var TALK_BRIDGE={welcome:'두 분이 하객께 직접 감사 인사를 드리는 시간입니다.',bless:'부모님께서 직접 덕담을 들려주시는 시간입니다.',vow:'두 분이 서로에게 직접 서약을 읽는 시간입니다.',tribute:'두 분이 부모님께 직접 마음을 전하는 시간입니다.',letter:'두 분이 서로에게 쓴 편지를 직접 읽는 시간입니다.',toast:'두 분이 위하여를 외치면, 하객이 함께 답하는 시간입니다.',prevideo:'이 자리에는 두 분이 준비한 영상이 흐릅니다.',free:'이 자리에는 두 분이 준비한 순서가 이어집니다.',
+  'vow.thanks':'두 분이 하객께 직접 감사문을 읽는 시간입니다.','letter.parent':'두 분이 부모님께 쓴 편지를 직접 읽는 시간입니다.','free.speech':'축사하실 분이 직접 축하의 말을 전하는 시간입니다.',declare:'부탁하신 분이 직접 성혼 선언문을 읽는 시간입니다.'};   /* ★[BRIDGE_BY_PICK_1013] 고른 판과 다른 말이 나가던 셋(감사문 · 부모님께 편지 · 축사) + 선언(덕담 · 서약 · 편지와 같은 꼴) — 녹음 전엔 글만 2.5초 */
+function _lBridgeKey(k){ var R=RitualOpen; if(k==='vow'&&_vowKind()==='thanks') return 'vow.thanks'; if(k==='letter'&&R.chipOf('letter',S)!=='each') return 'letter.parent'; if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]==='speech') return 'free.speech'; return k; }   // [BRIDGE_BY_PICK_1013]
 var TALK_BRIDGE_SRC={};   // 녹음이 오면 {welcome:'/assets/narration/…mp3', …}
-function _lBridge(q){ var out=[]; q.forEach(function(x){ if((x.talk||x.skip)&&TALK_BRIDGE[x.k]){ var src=TALK_BRIDGE_SRC[x.k]||null; out.push({k:x.k,lab:'직접 하는 자리',txt:TALK_BRIDGE[x.k],src:src,pending:!src,bridge:true,ms:2500}); return; } out.push(x); }); return out; }
+function _lBridge(q){ var out=[]; q.forEach(function(x){ var bk=_lBridgeKey(x.k); if((x.talk||x.skip)&&TALK_BRIDGE[bk]){ var src=TALK_BRIDGE_SRC[bk]||null; out.push({k:x.k,lab:'직접 하는 자리',txt:TALK_BRIDGE[bk],src:src,pending:!src,bridge:true,ms:2500}); return; } out.push(x); }); return out; }   // [BRIDGE_BY_PICK_1013] 소리 열쇠도 판마다
 function _lRefExpand(q){
   var out=[]; LS.ref=LS.ref||{};
   q.forEach(function(x){
@@ -8400,8 +8406,8 @@ window.pvEngRetry=function(){ var k=PV.k; if(!k) return; ENG_ERR=''; var s=docum
    ① 미리보기 창의 설명(c.one)과 «남는 사진»(c.shot)을 순간마다 한 문장으로 — 무엇을 하는지 + 무엇이 사진에 남는지. 시간 · 받는 것 · 준비하는 것 같은 사실은 한 글자도 빼지 않았다.
    원천(ritual-open CARDS.one · shot)은 그대로 둔다(엔진 · AI 상담 · 다른 화면이 쓴다) — 이 창 문장만 여기서 */
 var PV_DESC={
-  prevideo:'하객이 모두 자리에 앉은 뒤 두 분이 준비한 영상이 흐르고, 영상을 보는 가족들의 얼굴을 사진으로 남겨요. 영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요.',
-  candle:'두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요. 불이 옮겨붙는 순간과 불빛에 비친 얼굴을 담아요.',
+  prevideo:'예식 시작 시각, 불을 낮추고 두 분이 준비한 영상이 흘러요. 영상을 보는 하객들의 얼굴을 사진으로 남겨요. 영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요.',   /* [OPEN_WORDS_1013] 시작 시각에 흐른다(CEREMONY_AT_VIDEO) · «모두 앉은 뒤»는 약속 못 한다 · GUESTS_OPEN */
+  candle:'두 집을 대표해 초에 불을 붙이고, 두 분이 걸어올 길을 먼저 밝혀요. 불이 옮겨붙는 순간과 불빛에 비친 얼굴을 담아요.',   /* [OPEN_WORDS_1013] */
   entry:'문이 열리고 두 분이 함께 걸어 들어와 나란히 서요. 두 분의 첫 장면을 사진으로 남겨요.',   /* [MATJEOL_1011] · [MATJEOL_SPLIT_1013] 맞절은 다음 순간(아래 matjeol) */
   matjeol:'앞에 나란히 선 두 분이 서로 마주 보고 맞절해요. 고개 숙인 두 분의 옆모습을 사진으로 남겨요.',   /* ★[MATJEOL_SPLIT_1013] 뼈대 글 — 대본 · 포즈 자료가 오면 고친다 */
   welcome:'두 분이 하객을 바라보며 짧게 감사 인사를 드려요.',   /* [THANKS_GREET_1013] */
@@ -8414,7 +8420,7 @@ var PV_DESC={
   letter:'부모님께, 또는 서로에게 쓴 편지를 읽어요. 읽는 목소리와 듣는 얼굴을 함께 담아요.',
   cake:'두 분이 나이프를 함께 잡고 케이크를 잘라요. 맞잡은 두 손을 가까이 담아요.',
   toast:'두 분이 먼저 «위하여»를 외치면 하객이 잔을 들고 함께 답해요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',
-  _close:'두 분이 인사를 드리고 본식을 마쳐요. 이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.',
+  _close:'두 분이 하객께 인사를 드리고 본식을 마쳐요. 단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.',   /* [CLOSE_WORDS_1013] */
   table:'본식을 마친 두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블로 다가가는 두 분과 자리에서 맞는 얼굴들을 담아요.',   /* [TABLE_GREET_1008] */
   free:'친구나 형제자매가 두 분께 축하의 말을 전해요(3분 안팎). 말하는 분과 웃으며 듣는 두 분을 함께 담아요.'   /* ★[SPEECH_TILE_1012] 축사 · 옛 «준비한 순서»는 고른 칩마다 사진이 달라 원문 설명만 두었다 */
 };
@@ -9221,7 +9227,7 @@ var BLOCK={
   guest:function(){ return null; }, // 식전 안내 트랙 · 본식 대본에는 미포함
   /* [OPEN_COURSE] 새 코스의 두 순간 — 문안 원천은 ritual-open.js 의 NAR */
   prevideo:function(){
-    return {n:'식전 영상',nar:RitualOpen.NAR.prevideoIn,cue:'예식 시작 시각 · 1분 전 안내 뒤 · 두 분이 준비한 영상 상영 · 두 분은 문 밖에서 대기 · 끝나면 입장'};
+    return {n:'식전 영상',nar:RitualOpen.NAR.prevideoIn,cue:'예식 시작 시각 · 1분 전 안내 뒤 · 두 분이 준비한 영상 상영 · 두 분은 문 밖에서 대기 · 끝나면 '+(RitualOpen.onOf(S,'candle')?'화촉':'입장')};   // [OPEN_WORDS_1013] 화촉을 담으면 영상 뒤는 화촉
   },
   candle:function(){
     var w=S.candleWho, nm=''; RitualOpen.CANDLE_WHO.forEach(function(c){ if(c[0]===w) nm=c[1]; }); if(!nm){ w=RitualOpen.DEF.candleWho; nm='양가 어머님'; }
@@ -10428,7 +10434,7 @@ var RITUAL_CHIPS={
  vow:['서약문은 얼마나 길게 쓰나요?','읽다가 울 것 같으면 어떻게 하나요?','서약 쓰는 공식이 있나요?'],
  ringwarm:['링 워밍이 뭔가요?','가족만 돌리면 몇 분 걸리나요?','반지 교환과 어떻게 이어지나요?'],
  ring:['반지 교환은 어떻게 진행되나요?','반지를 빼면 흐름이 이상한가요?','반지는 당일 누가 챙기나요?'],
- declare:['성혼 선언문은 누가 읽나요?','아버님께 부탁하기 어려우면 어떡하죠?','성혼 선언을 빼도 되나요?'],   /* [DECLARE_BY_PERSON] */
+ declare:['성혼 선언문은 누가 읽나요?','읽어 주실 분이 마땅치 않으면요?','성혼 선언을 빼도 되나요?'],   /* [DECLARE_ANYONE] 아버님이 아니어도 된다(친구 · 지인) */   /* [DECLARE_BY_PERSON] */
  valley:['와인 세리머니가 뭔가요?','비워도 괜찮나요?','케이크는 어디서 고르나요?'],   /* [CAKE_ONE_HOME] 케이크의 집은 축배·케이크 */
  toast:['축배는 어떻게 진행되나요?','케이크와 둘 다 하면 몇 분인가요?','건배 잔은 어떻게 준비되나요?'],
  song:['축가는 누가 부를 수 있나요?','반주는 어떻게 준비되나요?','축가 없이도 괜찮나요?'],

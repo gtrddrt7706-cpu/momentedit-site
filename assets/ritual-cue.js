@@ -923,7 +923,7 @@
       return [cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-in', name: '자유 한 칸 시작',
         text: D.NARR.freeIn, duck: PARAM.duckMusic, pick: '두 분이 정한 순서',
-        live: { t: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)', est: 120, duck: PARAM.duckOff, self: true, doing: 'move', note: '무엇이 올지 모른다 — 음악·마이크·화면 필요 여부를 리허설에서 미리 물어 둔다' }
+        live: { t: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)', est: 120, duck: PARAM.duckOff, self: true, doing: 'move', note: '무엇이 올지 모른다 — 음악·마이크·화면 필요 여부를 예식 전에 미리 물어 둔다(별도 리허설은 없다 [NO_REHEARSAL_1013])' }
       }), cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-out', name: '자유 한 칸 마무리',
         text: D.NARR.freeOut, duck: PARAM.duckMusic
@@ -950,8 +950,15 @@
     toast: function (S) {
       if (!D.COURSES[S.course] || !D.COURSES[S.course].open) return BUILD._toastAll(S);
       if (!O.onOf(S, 'toast')) return [];
-      return BUILD._toastAll(S).filter(function (c) { return !/^toast-(both|cake)$|^narr-cake-out$/.test(c.slug); })
-        .map(function (c) { c.blockN = '축배'; return c; });
+      /* ★[TOAST_40_OPEN_1013 2026-10-13 닫는 순간 줄 검토 · 자료 AA] 새 코스 축배는 판(케이크를 함께 담았나)과 상관없이 40 축배 판 글로 간다.
+         축배가 닫는 인사 뒤로 옮긴 뒤([TOAST_LAST_1013]) 케이크와 축배 사이에 닫는 인사가 들어가, 옛 초안(케이크 + 축배)의
+         76 «두 사람에게 잔이 가는 동안»(나이프를 걷고 잔을 쥐여 드리는 사이를 덮던 줄)이 닫는 인사 뒤에 나갔다.
+         케이크 몫(42)은 위 BUILD.cake 가 S 그대로 만든다 · 옛 코스는 _toastAll 그대로. 76 으로 되돌리지 말 것. */
+      var T = {}; for (var _k in S) T[_k] = S[_k];
+      T.toast = 'toast';
+      return BUILD._toastAll(T).map(function (c) { c.blockN = '축배';
+        if (c.slug === 'toast-toast') { c.name = '축배 시작'; c.pick = ''; }   /* [TOAST_40_OPEN_1013] 케이크가 없는데 «축배 · 케이크» · 고를 판이 없는데 «여기는 고를 수 있어요 · 축배»(CAKE_OFF_1013 · 축배 칩 없음) */
+        return c; });
     },
     _toastAll: function (S) {
       var t = D.TOAST[S.toast] || D.TOAST.toast;
@@ -1046,21 +1053,21 @@
       var mcue = m.cue.replace(GP, ''), base = 70;   // ★★[STEPMOM_RETIRE 2026-09-26 사장님] 옛 코스도 같게 — 원천(ritual-data TRIBUTE)에서 한 마디를 뺐고 est 도 70(GP 때문에 더했던 25초 되돌림)
       var out = [
         cue({
-          k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-in', name: '부모님 헌정 시작', text: D.TRIBUTE.nar,
+          k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-in', name: open ? '부모님께 인사 시작' : '부모님 헌정 시작', text: D.TRIBUTE.nar,   /* ★[TRIB_PICK_CHIP_1013] 새 코스 이름은 카드 이름과 같게(«헌정»은 꽃을 건네던 때 말) · blockN 은 순서 흐름 열쇠라 그대로 */
           /* ★★[GROOM_PARENT 2026-09-12] est 70 → 95. 헌정 끝에 «신랑 어머님 한 마디»가 붙었다.
              신부 쪽 부모는 덕담에서 말하는데 신랑 쪽 부모는 받기만 하고 있었다(사장님 결정 ④).
              ★덕담을 하나 더 주지 «않았다» — 넷이 되면 정점이 쪼개진다(PEAK_ONE).
                받는 자리에서 짧게 답하면 희소해서 오히려 세다. 길어야 20초로 못박는다.
              ★예시 음성은 27_tribute-reply(배역) 이지만 당일 콘솔은 배역 클립을 재생하지 않는다 —
                그래서 «여기 live 지문»에 자리를 만들어야 실제 예식에서 그 순간이 생긴다. */
-          pick: m.d + (D.COURSES[S.course].open && S.tributeSay !== 'none' ? ' · ' + '말로 인사' : ''),   // [TRIB_ONE_SAY] 한마디부터 1분쯤까지 · 시간 몫은 1분쯤씩(140)
+          pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말 없이') : m.d,   /* [TRIB_PICK_CHIP_1013] 새 코스 배지 «여기는 고를 수 있어요 · ○○»는 고르는 칩 이름만 — «인사와 포옹»은 고르는 칸이 아니다(GROOM_BOW_TIP · FLOWER_OFF_1013) */   // [TRIB_ONE_SAY] 한마디부터 1분쯤까지 · 시간 몫은 1분쯤씩(140)
           /* [OPEN_COURSE] 새 코스는 인사의 «말»을 고른다(한마디씩 · 400자씩 · 말 없이). 옛 코스는 지금 그대로 말 없이다. */
           live: (open && S.tributeSay !== 'none')
             ? { t: '두 분이 부모님께 인사 말을 전한 뒤 · ' + mcue, est: base + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
             : { t: mcue, est: base, self: true, doing: 'move' }
         }),
         cue({
-          k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-out', name: '부모님 헌정 마무리', text: D.TRIBUTE.end,
+          k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-out', name: open ? '부모님께 인사 마무리' : '부모님 헌정 마무리', text: D.TRIBUTE.end,   // [TRIB_PICK_CHIP_1013]
           hint: '두 분이 자리로 돌아오면'
         })
       ];
@@ -1199,7 +1206,7 @@
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
       duck: -12,
-      live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec)
+      live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec, (_openC && seq.indexOf('toast') > -1) ? '박수가 줄고 «잔 됨» 신호가 오면' : '')   // [TOAST_40_OPEN_1013] 다음이 축배면 잔 확인 뒤(GLASS_READY · 자료 AA 6-5)
     }));
     /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에»] 새 코스의 축배는 닫는 인사(108 · 목례 · 박수) 뒤 · 테이블 인사 앞 — 자료 D · S · AA 의 «1부를 닫은 뒤 축배 → 테이블 인사».
          닫는 인사가 사람 순간(박수)이라 축배 첫 줄은 디렉터 GO([CLAP_GO] 그대로) · 옛 코스는 위 차례 그대로(소리를 바꾸지 않는다) */
@@ -1208,13 +1215,13 @@
        131 여는 말 → 사람 순간(두 분이 함께 테이블을 돌며 인사 · TABLE_SEC × 테이블 수 · 두 분 자유 · 다 돌면 디렉터 GO) → 26 이 사진으로 모은다(마무리 줄을 따로 두지 않는다). */
     if (seq.indexOf('table') > -1 && D.COURSES[S.course] && D.COURSES[S.course].open) cues.push(cue({
       k: 'table', blockN: '테이블 인사', slug: 'narr-table-in', name: '테이블 인사 · 두 분이 하객께', text: D.NARR.tableIn,
-      duck: -12, note: '닫는 인사 박수가 잦아들면 · 두 분이 자리를 떠나기 전에 · 오늘 ' + O.tableN(S) + '테이블 × 1분 30초',   /* [TABLE_GREET_1008] 테이블 수는 note 에 — live.t 는 이야기 표(ritual-story LIVE)의 열쇠라 판마다 바뀌면 안 된다(STORY_COVER) */
+      duck: -12, note: (seq.indexOf('toast') > -1 ? '축배가 끝나면' : '닫는 인사 박수가 잦아들면') + ' · 보통 신부 측 테이블부터(자료 AA · 집안 뜻이 다르면 그대로) · 오늘 ' + O.tableN(S) + '테이블 × 1분 30초',   /* [CLOSE_WORDS_1013] 축배가 닫는 인사 뒤로 옮긴 뒤(TOAST_LAST_1013) */   /* [TABLE_GREET_1008] 테이블 수는 note 에 — live.t 는 이야기 표(ritual-story LIVE)의 열쇠라 판마다 바뀌면 안 된다(STORY_COVER) */
       live: { t: '두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초쯤 · 다 돌면 GO → 사진 안내', est: O.TABLE_SEC * O.tableN(S), self: true, doing: 'move', duck: -12,
-        fallback: '시간이 다 되면 디렉터 GO → 26 이 모두를 사진으로 모은다 · 못 들른 테이블은 배웅 줄에서 인사' }   /* [TABLE_GREET_1008] 사장님 «두 분 자유 · 시간 다 되면 안내 한 줄» — 디렉터가 테이블을 넘기지 않는다 */
+        fallback: '시간이 다 되면 디렉터 GO → 26 이 모두를 사진으로 모은다 · 못 들른 테이블은 단체 사진 뒤 감사 인사(목례)에서 함께' }   /* [CLOSE_WORDS_1013] 배웅 줄은 9/26 PHOTO_THANKS 로 없앴다 */   /* [TABLE_GREET_1008] 사장님 «두 분 자유 · 시간 다 되면 안내 한 줄» — 디렉터가 테이블을 넘기지 않는다 */
     }));
     // 폐식 — 목록 밖 고정
     cues.push(cue({
-      k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close', name: '폐식 · 단체촬영 전환', text: D.NARR.close,
+      k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close', name: '단체 사진 안내', text: D.NARR.close,   /* ★[CLOSE_WORDS_1013] 이름 «폐식 · 단체촬영 전환» 금지 — 콘솔 고객판에 보인다 · blockN 은 순서 흐름 열쇠라 그대로 */
       duck: -12, note: '예식의 마지막 소리 · 가장 느리게',
       /* ★[GATHER_WAIT 2026-08-08] 사람이 모이는 시간을 큐가 알아야 한다.
          전에는 post wait 30초 뒤 다음 큐가 **자동으로** 나갔다. 그런데 이 클립이
