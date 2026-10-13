@@ -313,7 +313,8 @@
      «추천 곡» 칩을 누르기 전에는 받아만 둔다(풀면 기기 메모리를 쓴다) */
   function recWarm(){ if(!emb()){ if(srcNow()==='rec'||recOn()) recListAuto(); return; } recListAuto();   /* 마이페이지 밖은 종전대로(칩을 볼 때 «마이페이지에서 들어 볼 수 있어요» · 아무것도 받지 않는다) */ var L=REC.ls; if(REC.lst!=='ok'||!L||!L.length) return;
     var want=[], add=function(k,dec){ if(k&&recMeta(k)&&!want.some(function(w){ return w[0]===k; })) want.push([k,dec]); }, on=srcNow()==='rec', i=clamp(CAR_I==null?carIdx():CAR_I,0,L.length-1);
-    if(recOn()) add(St().mu.k,true); add(L[i].k,on); if(on&&L[i+1]) add(L[i+1].k,false);
+    var sm=function(k){ return !!clipOf(recMeta(k)); };   /* 짧은 판이 없으면(옛 목록 · 곡 전체 4~8MB) 칩을 누르기 전에는 받지 않는다 · 다음 카드도 짧은 판만 */
+    if(recOn()) add(St().mu.k,true); if(on||sm(L[i].k)) add(L[i].k,on); if(on&&L[i+1]&&sm(L[i+1].k)) add(L[i+1].k,false);
     WARM.q=want; warmNext(); }
   function warmNext(){ if(WARM.busy) return; var w=WARM.q.shift(); if(!w) return; var k=w[0], m=recMeta(k), c=clipOf(m);
     if(!m||REC.buf[k]||REC.pend[k]||(REC.ferr[k]&&Date.now()-REC.ferr[k]<15000)){ warmNext(); return; }

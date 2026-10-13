@@ -129,7 +129,7 @@ try {
     await f.click('[data-fk="musrc:rec"]'); await f.waitForTimeout(400); const V1a = await view(f), L1a = await HL(pg); await shot(f, W, '1-wait');
     await f.waitForFunction(() => !!document.querySelector('.ls-mu .mu-car:not(.mu-car0) .mu-slide'), null, { timeout: 20000 }).catch(() => {}); await f.waitForTimeout(400);
     const V1 = await view(f), L1 = await HL(pg); await shot(f, W, '1-card'); await vshot(pg, f, W, '1-card');
-    ok(`${W} 1a 칩 둘 처음엔 안 눌린 모양 · 칩을 누르기 전에 목록을 한 번 받아 둔다([REC_CLIP_1013]) · «추천 곡» → 눌린 모양 · 다시 묻지 않는다 · 아직 받는 중이면 카드 자리 «추천 곡을 불러오는 중이에요»`, V0.chips === 'false,false' && recReqs(L0, 'list') === 1 && V1a.chips === 'false,true' && V1a.wait === '추천 곡을 불러오는 중이에요' && recReqs(L1a, 'list') === 1, { V0: V0.chips, L0, V1a: { chips: V1a.chips, wait: V1a.wait }, L1a });
+    ok(`${W} 1a 칩 둘 처음엔 안 눌린 모양 · 칩을 누르기 전에 목록을 한 번 받아 둔다([REC_CLIP_1013] · 짧은 판이 없는 옛 목록이면 곡은 받지 않는다) · «추천 곡» → 눌린 모양 · 다시 묻지 않는다 · 아직 받는 중이면 카드 자리 «추천 곡을 불러오는 중이에요»`, V0.chips === 'false,false' && recReqs(L0, 'list') === 1 && L0.every((x) => !/:rec:r\d/.test(x)) && V1a.chips === 'false,true' && V1a.wait === '추천 곡을 불러오는 중이에요' && recReqs(L1a, 'list') === 1, { V0: V0.chips, L0, V1a: { chips: V1a.chips, wait: V1a.wait }, L1a });
     ok(`${W} 1b 카드 — 곡 수만큼(이상한 키는 빠진다) · 첫 카드 · 제목 · «가수 · 분위기» · 사진은 사이트 그림 · ‹ 꺼짐 › 켜짐 · ✓ 안 눌림 · ▶ «… 들어 보기» · 목록은 한 번만`,
       V1.n === 3 && V1.keys === 'r1,r3,r9' && V1.cur === 'r1' && V1.tt === 'Test Song One' && V1.ta === '시험 가수 · 경쾌하게' && V1.img === '/assets/home/snap.webp' && V1.arl === 'true' && V1.arr === 'false' && V1.pk && V1.pk.p === 'false' && !V1.pk.on && V1.tpp && V1.tpp.p === 'false' && V1.tpp.l === 'Test Song One 들어 보기' && V1.dots === 'on,-,-' && recReqs(L1, 'list') === 1 && !V1.over,
       { n: V1.n, keys: V1.keys, cur: V1.cur, tt: V1.tt, ta: V1.ta, img: V1.img, arl: V1.arl, arr: V1.arr, pk: V1.pk, tpp: V1.tpp, dots: V1.dots, list: recReqs(L1, 'list'), over: V1.over });
@@ -227,18 +227,19 @@ try {
     await ctx4.close();
     // 14 [REC_CLIP_1013] 미리 받기 — 칩 전 · 칩 후 · 받는 중 ▶
     const ctx5 = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 });
-    const o5 = await open(ctx5, null); await toEntry(o5.f);
+    const o5 = await open(ctx5, { list: LISTC, songs: SONGSC }); await toEntry(o5.f);   // 짧은 판이 있는 목록
     await o5.f.waitForFunction(() => EntryMusic._t.rec().lst === 'ok', null, { timeout: 15000 }).catch(() => {}); await o5.f.waitForTimeout(900);
     const L14a = await HL(o5.pg), R14a = await o5.f.evaluate(() => EntryMusic._t.rec());
-    ok(`${W} 14a 칩을 누르기 전 — 목록 · 첫 카드 곡을 한 번씩 받아 둔다 · 풀지는 않는다(기기 메모리)`, recReqs(L14a, 'list') === 1 && recReqs(L14a, 'r1') === 1 && recReqs(L14a, 'r3') === 0 && R14a.buf.length === 0, { L14a, buf: R14a.buf });
+    ok(`${W} 14a 칩을 누르기 전 — 목록 · 첫 카드 짧은 판을 한 번씩 받아 둔다 · 풀지는 않는다(기기 메모리)`, recReqs(L14a, 'list') === 1 && recReqs(L14a, 'r1-p') === 1 && recReqs(L14a, 'r3-p') === 0 && recReqs(L14a, 'r1') === 0 && R14a.buf.length === 0, { L14a, buf: R14a.buf });
     await o5.f.click('[data-fk="musrc:rec"]'); await o5.f.waitForFunction(() => EntryMusic._t.rec().buf.includes('r1'), null, { timeout: 15000 }).catch(() => {}); await o5.f.waitForTimeout(700);
     const L14b = await HL(o5.pg), R14b = await o5.f.evaluate(() => EntryMusic._t.rec());
-    ok(`${W} 14b 칩을 누르면 — 지금 카드(r1)를 풀어 둔다(이 기기에 둔 것 · 다시 묻지 않는다) · 다음 카드(r3)를 받아 둔다`, R14b.buf.includes('r1') && recReqs(L14b, 'r1') === 1 && recReqs(L14b, 'r3') === 1 && recReqs(L14b, 'r9') === 0, { buf: R14b.buf, L14b });
+    ok(`${W} 14b 칩을 누르면 — 지금 카드(r1)를 풀어 둔다(이 기기에 둔 것 · 다시 묻지 않는다) · 다음 카드(r3) 짧은 판을 받아 둔다`, R14b.buf.includes('r1') && recReqs(L14b, 'r1-p') === 1 && recReqs(L14b, 'r3-p') === 1 && recReqs(L14b, 'r9-p') === 0, { buf: R14b.buf, L14b });
     await o5.pg.evaluate(() => { H.delay = 2500; });
     await o5.f.click('.ls-mu [data-fk="mucarnext"]'); await o5.f.waitForTimeout(150); await o5.f.click('.ls-mu [data-fk="mucarnext"]'); await o5.f.waitForTimeout(150);   // r9 — 아직 안 받은 카드
     await o5.f.click('.ls-mu [data-fk="mucarplay"]'); await o5.f.waitForTimeout(300); const V14c = await view(o5.f);
     await o5.f.waitForFunction(() => EntryMusic._t.rec().prev === 'r9', null, { timeout: 30000 }).catch(() => {}); const L14c = await HL(o5.pg), V14d = await view(o5.f);
-    ok(`${W} 14c 받는 중에 ▶ — 같은 받기를 기다린다(■ aria-busy · «곡을 불러오는 중이에요») · 받으면 소리 · r9 는 한 번만 물었다`, V14c.rec.want === 'r9' && V14c.tpp && V14c.tpp.b === 'true' && V14c.ly === '곡을 불러오는 중이에요' && V14d.rec.prev === 'r9' && recReqs(L14c, 'r9') === 1, { V14c: { want: V14c.rec.want, tpp: V14c.tpp, ly: V14c.ly }, prev: V14d.rec.prev, n: recReqs(L14c, 'r9') });
+    ok(`${W} 14c 받는 중에 ▶ — 같은 받기를 기다린다(■ aria-busy · «곡을 불러오는 중이에요») · 받으면 소리 · r9 판은 한 번만 물었다`, V14c.rec.want === 'r9' && V14c.tpp && V14c.tpp.b === 'true' && V14c.ly === '곡을 불러오는 중이에요' && V14d.rec.prev === 'r9' && recReqs(L14c, 'r9-p') === 1, { V14c: { want: V14c.rec.want, tpp: V14c.tpp, ly: V14c.ly }, prev: V14d.rec.prev, n: recReqs(L14c, 'r9-p') });
+    const L14e = await HL(o5.pg); ok(`${W} 14d 옛 목록(짧은 판 없음)이었다면 — 이 쪽은 짧은 판만 받았다(곡 전체 0)`, ['r1', 'r3', 'r9'].every((k) => recReqs(L14e, k) === 0), L14e);
     await o5.f.click('.ls-mu [data-fk="mucarplay"]'); await o5.f.waitForTimeout(300);
     ok(`${W} 13e 쪽 오류 없음(미리 받기)`, o5.errs.length === 0, o5.errs);
     await ctx5.close();
