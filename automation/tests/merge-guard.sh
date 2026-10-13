@@ -7620,6 +7620,10 @@ chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 't
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } }" assets/ritual-open.js 1
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute', 'toast'], set: { entry: 'E', tribute: 'long' } }" assets/ritual-open.js 1
 chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute', 'toast'], set: { entry: 'C', tribute: 'none' } }" assets/ritual-open.js 1
+# ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간 줄이기 제안에서 편지 카드는 남긴다 — 표식이 카드 줄에 붙어 있어 카드를 지우면 빨강
+chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
+chk "letter: { n: '편지 낭독', sn: '편지'," assets/ritual-open.js 1
+chk 'LETTER_KEEP_1013' docs/plans/식순연구/순간개편_근거장부.md 2   # 1장 제안 · 7장 예전 결정
 # ★★[EX_ENTRY_FEEL_1012 2026-10-12 사장님 «느낌에 맞춰 넷 다 (추천)»] 예시가 누르는 입장 멘트 칩 = 예시 느낌 — 정석 담백하게(빌더 기본값) · 기록 힘차게 · 가족 다정하게 · 간결 격식 있게
 #   (옛 정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초는 걷었다) · 멘트 글은 3단계(«멘트는 대대적으로 한번 개선 작업을 할 거야 따로»)에서 · 그때 이 짝도 다시 본다
 chk 'EX_ENTRY_FEEL_1012' assets/ritual-open.js 5
