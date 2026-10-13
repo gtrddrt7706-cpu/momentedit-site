@@ -34,7 +34,7 @@ try {
     const c = await pg.evaluate(() => ({ entry: S.entry, txt: _recNeed('entry'), self: ENTRY.B.self, tag: !!document.querySelector('.mk-extag') }));
     ok(`${w} ④ 바꾸면 예시 2 글로 · 표는 없음 [EXTAG_OFF]`, c.entry === 'B' && c.txt.replace(/\s/g, '') === c.self.replace(/\s/g, '') && !c.tag, JSON.stringify(c));
     // 스튜디오 판은 칩 줄
-    await pg.evaluate(() => { S.vfill.entry = 'nar'; S.entryVoice = 'nar'; render(); }); await wait(300);
+    await pg.evaluate(() => { S.vfill.entry = 'nar'; S.entryVoice = 'nar'; S.touched = Object.assign({}, S.touched, { entryVoice: 1 }); render(); }); await wait(300);   /* [VP_ASK_ONLY 2026-10-13] 두 분이 «스튜디오 나레이션»을 고른 뒤 — 안 고른 채로는 그 칸 하나만 보인다 */
     ok(`${w} ① 스튜디오 나레이션 판은 «입장 멘트» 칩 줄 그대로 · 예시 카드 없음`, await pg.evaluate(() => document.querySelectorAll('[data-fk^="lsc:entry:"]').length === 6 && !document.querySelector('[data-fk^="mkex:entry:"]')));
     // ② 식전 영상 소개
     await pg.evaluate(() => { S.pvText = ''; mkGo('prevideo'); }); await until(pg, () => !!document.querySelector('[data-fk^="mkex:pv:"]'));

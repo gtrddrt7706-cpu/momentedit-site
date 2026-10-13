@@ -912,7 +912,7 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'); if (v) v.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); }); await pg.waitForTimeout(150);
   const ta = await pg.$('.mk-pg textarea'); if (ta) { await ta.type('가나다'); await pg.waitForTimeout(300); used.ta = 1; }
   const c1 = await n('candle.mp4');
-  await pg.evaluate(() => { mkGo('entry'); }); await pg.waitForTimeout(500);
+  await pg.evaluate(() => { S.touched = Object.assign({}, S.touched, { entryVoice: 1 }); mkGo('entry'); }); await pg.waitForTimeout(500);   /* [VP_ASK_ONLY 2026-10-13] 안내 목소리를 고른 뒤라야 입장 멘트 칩 줄이 열린다 */
   const e0 = await n('entry.mp4');
   used.entryChips = await clickAll('[data-fk^="lsc:entry:"]'); await pg.evaluate(() => lsStop());
   const e1 = await n('entry.mp4');
