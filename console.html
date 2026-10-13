@@ -1006,7 +1006,7 @@ function esdTry(c, done){ if (!esdReady(c)) return false;
     var eg = a.createGain(); eg.gain.setValueAtTime(0, t0); eg.gain.setValueCurveAtTime(ES.envCurve(PL, PL.tm, x1), t0 + PL.tm, Math.max(0.05, x1 - PL.tm)); eg.connect(mg);
     var src = a.createBufferSource(); src.buffer = Sg.buf; src.connect(eg); src.start(t0 + PL.tm, PL.off);
     var vg = a.createGain(); vg.gain.value = V0.gain; vg.connect(a.destination);
-    var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);   /* [ENTRY_CALL_PAUSE_1013] 목소리는 엔진이 끊어 건다 — «신랑 신부, 입장!» 앞 1초 쉼(식순 화면 미리 듣기와 같은 자리) */
+    var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);   /* [ENTRY_CALL_PAUSE_1013] 목소리는 엔진이 끊어 건다 — «신랑 신부, 입장!» 앞 쉼(SP.call · 식순 화면 미리 듣기와 같은 자리) */
     var run = ESD.run = { i: cur, t0: t0, PL: PL, src: src, vs: vv.nodes, vgs: vv.gains, eg: eg, dk: dk, mg: mg, lim: lim, vg: vg, a: a };
     src.onended = function(){ if (ESD.run === run) { ESD.run = null; esdBedBack(3000); try { render(); } catch (e) {} } };   /* 곡이 먼저 끝나면 배경음이 이어받는다 */
     duckTo(-90, 1200);   /* 배경음은 1.2초에 걸쳐 내린다(위 duckTo 가 run 을 보고 -90 으로) */

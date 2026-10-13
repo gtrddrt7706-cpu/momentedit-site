@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /* ★★[ENTRY_CALL_PAUSE_1013 2026-10-13 사장님 «따뜻한 박수로 맞이해 주시면 감사하겠습니다. 이후 신랑 신부 입장까지 적절하게 쉼을 좀 주는 게 좋을 것 같아»]
-   입장 «음악과 함께» 장면 — «…감사하겠습니다.» 말끝에서 «신랑 신부, 입장!» 말머리까지 1초(엔진 SP.call · 식순 화면 = 당일 콘솔).
+   입장 «음악과 함께» 장면 — «…감사하겠습니다.» 말끝에서 «신랑 신부, 입장!» 말머리까지 1.8초(엔진 SP.call · 식순 화면 = 당일 콘솔 · 같은 날 1초 → 사장님 «1.8초로 해 보자»).
    가 엔진만(브라우저 없이 · 합성 목소리)
-     1 나레이션 — 쉼이 1초가 된다 · 다른 문장 사이는 그대로 · 하이라이트(th)도 그만큼 뒤로 · 음악 낮춤(tdip)은 «감사하겠습니다» 끝 그대로
+     1 나레이션 — 쉼이 1.8초가 된다 · 다른 문장 사이는 그대로 · 하이라이트(th)도 그만큼 뒤로 · 음악 낮춤(tdip)은 «감사하겠습니다» 끝 그대로
      2 쉼 동안 음악은 한 번 더 낮춘 크기(dip)에 머문다 · «입장!» 뒤 0.3초에 크게
      3 목소리 마디(voiceSegs) — 빈자리 한가운데서 둘로 · 마지막 조각이 rel 자리에 · 길이 합 = V
-     4 걸어서 튼 소리(voiceStart · 가짜 소리판으로 섞어 잰다) — 말끝 → «입장» 말머리 1초 · 끊는 자리 딸깍 없음 · 이어 듣기(from)도 같은 자리
-     5 늘리기만 — 녹음 쉼이 이미 1초가 넘으면 그대로 · 두 분 목소리(나레이션 아님) · 문장 수가 안 맞아 «입장!»을 못 짚으면 손대지 않는다
-   나 실제 녹음(브라우저 · 05_entry-A ~ 10_entry-F) — 여섯 다 쉼 1초(C 는 녹음 1.09초 그대로) · 오프라인으로 걸어 튼 소리에서도 1초 · 딸깍 없음
+     4 걸어서 튼 소리(voiceStart · 가짜 소리판으로 섞어 잰다) — 말끝 → «입장» 말머리 1.8초 · 끊는 자리 딸깍 없음 · 이어 듣기(from)도 같은 자리
+     5 늘리기만 — 녹음 쉼이 이미 1.8초가 넘으면 그대로 · 두 분 목소리(나레이션 아님) · 문장 수가 안 맞아 «입장!»을 못 짚으면 손대지 않는다
+   나 실제 녹음(브라우저 · 05_entry-A ~ 10_entry-F) — 여섯 다 쉼 1.8초 · 오프라인으로 걸어 튼 소리에서도 1.8초 · 딸깍 없음
    종료 코드 0 통과(나는 브라우저가 없으면 건너뜀 표시) · 1 실패.  ES_MOD = 돌연변이 확인용(그 판의 entry-scene.js 로 잰다) */
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -18,8 +18,8 @@ const ES = sb.window.EntryScene;
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 400)}`); if (!c) fail++; };
 const r2 = (v) => Math.round(v * 1000) / 1000;
 if (!ES || typeof ES.prepVoice !== 'function') { console.log('FAIL 엔진을 읽지 못했다'); process.exit(1); }
-const CALL = 1.0;
-ok(`0 쉼 값 = ${CALL}초(SP.call) — 9/09 1.2초는 «너무 느리다»로 거뒀고 10/10 나레이션만은 0.6초(PACE_D)`, ES.SP && ES.SP.call === CALL, ES.SP);
+const CALL = 1.8;
+ok(`0 쉼 값 = ${CALL}초(SP.call · 10/13 사장님 «1.8초로 해 보자») — 나레이션만 들을 때는 녹음 그대로 0.6초(10/10 PACE_D)`, ES.SP && ES.SP.call === CALL, ES.SP);
 if (typeof ES.voiceSegs !== 'function' || typeof ES.voiceStart !== 'function') { ok('0 엔진에 voiceSegs · voiceStart 가 있다', false); console.log(`entry-call-pause: FAIL ${fail}`); process.exit(1); }
 
 /* 합성 목소리 — 말(잡음 섞인 소리 · 끊김 없음)과 빈자리(방 소리 1e-4) */
@@ -67,8 +67,8 @@ try { const b = NAR(0.6), V0 = ES.prepVoice(b, 4, true), P = V0.pieces, n = P.le
   ok(`4 이어 듣기(마지막 조각 0.5초 앞에서) — 마디 ${R1.n}개 · «신랑»이 ${r2(t1)}초에(장면과 같은 자리)`, R1.n === 1 && rms(y1, 0, t1 - 0.05) < 1e-3 && rms(y1, t1 + 0.05, t1 + 0.3) > 0.05, { n: R1.n, t1 });
 } catch (e) { ok('1~4 잴 수 없었다(마디가 모자라거나 엔진이 다르다) — ' + (e && e.message || e), false); }
 // 5 — 늘리기만 · 나레이션만 · 짚을 수 있을 때만
-{ const b = NAR(1.3), V0 = ES.prepVoice(b, 4, true), sp = spoken(V0, b);
-  ok(`5 녹음 쉼이 이미 1초가 넘으면(${r2(sp.was)}초) 그대로 — 줄이지 않는다`, !V0.cut && ES.voiceSegs(V0).length === 1, V0.cut); }
+{ const b = NAR(2.0), V0 = ES.prepVoice(b, 4, true), sp = spoken(V0, b);
+  ok(`5 녹음 쉼이 이미 ${CALL}초가 넘으면(${r2(sp.was)}초) 그대로 — 줄이지 않는다`, !V0.cut && ES.voiceSegs(V0).length === 1, V0.cut); }
 { const b = NAR(0.6), V0 = ES.prepVoice(b, 4, false);
   ok('5 두 분 목소리(나레이션 아님)는 손대지 않는다 — 마디 하나', !V0.cut && ES.voiceSegs(V0).length === 1, V0.cut); }
 { const b = NAR(0.6), V0 = ES.prepVoice(b, 5, true);
@@ -101,9 +101,9 @@ else {
       }
       return out; });
     for (const [k, v] of Object.entries(res)) {
-      const want = Math.max(1.0, v.was);
+      const want = Math.max(CALL, v.was);
       ok(`나 ${k} 녹음 쉼 ${v.was}초 → 장면 ${v.now}초 · 마디 ${v.segs} · 쉼은 «입장» 소리보다 ${-v.dB}dB 조용 · 끊는 자리 최대 ${v.jump.toExponential(1)}`,
-        v.pieces === v.n && Math.abs(v.now - want) < 0.01 && (v.was >= 1.0 ? v.segs === 1 : v.segs === 2) && v.dB < -25 && v.jump < 0.01, v);
+        v.pieces === v.n && Math.abs(v.now - want) < 0.01 && (v.was >= CALL ? v.segs === 1 : v.segs === 2) && v.dB < -25 && v.jump < 0.01, v);
     }
   } catch (e) { ok('나 잴 수 없었다 — ' + (e && e.message || e).split('\n')[0], false); }
   await br.close(); srv.close();

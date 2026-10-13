@@ -2166,10 +2166,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .em-graph .lg-names span:last-child{padding-top:6px}
 .em-graph .lg-plot{position:relative;height:84px;min-width:0}
 .em-graph .lg-plot canvas{display:block;width:100%;height:100%}
-.em-graph .lg-wait{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--light);letter-spacing:.01em;pointer-events:none}
+.em-graph .lg-wait{position:absolute;inset:0 0 46% 0;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--light);letter-spacing:.01em;pointer-events:none}   /* [SCENE_WAIT_FILL] 음악 칸(위 54%) 가운데 — 아래 목소리 조각은 먼저 그려진다 */
 .em-graph .lg-wait[hidden]{display:none}   /* ★[REC_CLIP_1013 2026-10-13 사장님 «추천대로»(2번)] 고른 곡을 받는 동안 빈 그래프 대신 카드와 같은 말 한 줄 */
 .em-graph .lg-scene{grid-column:2;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;min-width:0;font-size:12.5px;line-height:17px;color:var(--sub);word-break:keep-all;letter-spacing:.01em}
-.em-graph .lg-scene.wait{visibility:hidden}   /* [SCENE_HOLD] 목소리를 받는 동안 자리만 — 받고 나서 카드가 자라며 아래 글을 밀지 않게 */
+.em-graph .lg-scene.wait{color:var(--light)}   /* [SCENE_HOLD · SCENE_WAIT_FILL 2026-10-13] 받는 동안에도 자리를 지키고 글은 옅게 보인다(종전 visibility:hidden 이라 목소리 아래가 텅 비었다 · 사장님 «간격이 너무 넓은데») — 숨기지 말 것 */
 .em-graph .lg-scene>span{min-width:0;padding-top:8px;text-wrap:balance;overflow-wrap:normal}   /* [SCENE_FIT_WORD] 낱말을 쪼개지 않는다 — 넘치면 짧은 말로(entry-music.js fitTxt) */
 .em-graph .lgs-greet{padding-right:8px}
 .em-graph .lgs-walk{display:flex;align-items:flex-end;gap:8px}
