@@ -17821,3 +17821,33 @@ chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                   
 nochk 'songs.json' assets/entry-music.js                                                           # 곡 목록 · 가사는 저장소에 두지 않는다
 nochk 'audio/music/' assets/entry-music.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-ui.mjs >/dev/null 2>&1; _rsu=$?; if [ "$_rsu" = 1 ]; then echo 'FAIL rec-song-ui: 추천 곡 카드(칩 · 목록 · 들어 보기 · 가사 · 고르기 · 접힘 · 장면 · 올린 곡과 바꾸기 · 못 받음) — node scripts/audit/rec-song-ui.mjs'; fail=1; elif [ "$_rsu" = 2 ]; then echo 'skip rec-song-ui — 브라우저 없음'; fi; fi
+# ── 2026-10-13 추천 곡 기다림 없애기 [REC_CLIP_1013] — 사장님 «추천대로 · 기다림 완전 짧게 · 없으면 더 좋고»
+#   식순 화면은 곡 전체 대신 미리 듣기용 짧은 판('<키>-p' · 원곡 프레임 그대로 자른 것 · 원곡의 37~67%)을 받는다 · 재생 · 그래프 · 가사는 원곡 시각(판의 0초 = p0)
+#   ② 입장 쪽을 열면 목록과 첫 카드 판을 미리 받는다(칩 전에는 받아만 · 칩을 누르면 지금 카드를 풀고 다음 카드를 받는다) · 판이 장면을 못 담으면 그때만 곡 전체
+#   고른 곡을 받는 동안 그래프 칸 «곡을 불러오는 중이에요»(사장님 2번) · 당일 콘솔은 곡 전체 그대로 · rec-song-ui 14 · 15 · rec-song-server 10a ~ 10e 가 잰다
+chk 'REC_CLIP_1013' assets/entry-music.js 10
+chk 'REC_CLIP_1013' automation/platform/80_production.gs 3
+chk 'REC_CLIP_1013' deploy-marks.json 1
+chk 'REC_CLIP_1013' scripts/audit/rec-song-ui.mjs 7
+chk 'REC_CLIP_1013' scripts/audit/rec-song-server.mjs 3
+chk 'REC_CLIP_1013' order-preview.html 1
+chk 'REC_CLIP_1013' assets/entry-scene.js 1
+chk 'function clipOf(m){' assets/entry-music.js 1                                                  # 목록 pf · p0 · p1 이 있으면 짧은 판
+chk 'setTimeout(recWarm,0)' assets/entry-music.js 1                                                # ② 입장 쪽을 그릴 때 미리 받기
+chk '곡을 불러오는 중이에요</span>' assets/entry-music.js 1                                          # 그래프 빈 칸 대신 한 줄(카드와 같은 말)
+chk "var pv = /-p$/.test(k), kk = pv ? k.slice(0, -2) : k;" automation/platform/80_production.gs 1   # 서버 '<키>-p' = 목록 pf
+chk "  'r9p.mp3': '" automation/platform/80_production.gs 1                                         # 지문 표에 짧은 판(문서 저장소 files/rNp.mp3 와 같은 지문)
+nochk "if(src==='rec'||recOn()) recListAuto();" assets/entry-music.js                             # 종전 «칩을 볼 때만 목록» — 미리 받기로 바뀌었다
+# ── 2026-10-13 BGM 이 먼저 깔리고 멘트 [BGM_FIRST_1013] — 사장님 «bgm이 먼저 조금 깔리다가 멘트를 하는 게 좋을 것 같은데»
+#   엔진 한 곳(entry-scene.js · 식순 화면 = 당일 콘솔): 멘트 앞 4초는 들리게(1.2초에 올라와 -6dB · 멘트 0.5초 전부터 낮춤) · 멘트가 길면 같은 소절이 다시 나오는 뒤 자리(hooks)에 문 열림
+#   bgm-first 가 엔진만 잰다(옛 엔진으로 돌리면 빨강 넷) · rec-song-ui 15e · entry-scene-day 10 이 화면 · 콘솔을 잰다(콘솔에서 hooks 를 빼면 빨강)
+chk 'BGM_FIRST_1013' assets/entry-scene.js 5
+chk 'BGM_FIRST_1013' assets/entry-music.js 4
+chk 'BGM_FIRST_1013' console.html 1
+chk 'BGM_FIRST_1013' scripts/audit/bgm-first.mjs 1
+chk 'BGM_FIRST_1013' scripts/audit/entry-scene-day.mjs 3
+chk 'BGM_FIRST_1013' scripts/audit/rec-song-ui.mjs 2
+chk 'lead:4,fade:1.2,intro:-6,duck:0.5' assets/entry-scene.js 1                                    # 멘트 앞 4초 · 1.2초에 올라와 · -6dB · 멘트 0.5초 전부터 낮춤
+chk 'H=pickHook(H,opts&&opts.hooks,V);' assets/entry-scene.js 1                                    # 멘트가 길면 뒤 자리
+chk 'hooks: Array.isArray(S.mu.hooks) ? S.mu.hooks : null' console.html 1                          # 당일 콘솔도 같은 후보
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-first.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" != 0 ]; then echo 'FAIL bgm-first: 멘트 앞 음악이 들리는가 · 멘트가 길면 뒤 자리에 문 열림(엔진) — node scripts/audit/bgm-first.mjs'; fail=1; else echo 'ok bgm-first: 엔진 — 음악이 먼저 · 뒤 자리'; fi; fi
