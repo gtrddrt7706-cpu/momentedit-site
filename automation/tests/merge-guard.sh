@@ -7575,6 +7575,8 @@ chk 'PRIOR_SEEN' CLAUDE.md 1
 chk 'PRIOR_SEEN' scripts/audit/source-basis.mjs 3
 node scripts/audit/source-basis.mjs || fail=1
 node scripts/audit/source-basis.mjs --selftest || fail=1
+# ★[COUNT_STALE_1013 2026-10-13] 자료를 더하면 손으로 적은 총수도 바뀐다 — --write 가 옛 총수(«/18» · «자료 18곳» · «실제 예식 n/7»)가 남은 줄을 찾으면 장부를 쓰지 않는다(S · T · U 를 넣을 때 두 번 놓친 것) · 깨 보기는 --selftest 14종
+chk 'COUNT_STALE_1013' scripts/audit/source-basis.mjs 4
 # ★[STAGE1_CLOSE 2026-10-11 사장님 «1단계에서 더 이상 추가 · 빼기 · 수정할 게 없는지 확실하게 마무리하고 2단계로»] 장부 모든 줄에 상태 · 부딪힌 줄엔 결정
 chk 'STAGE1_CLOSE' scripts/audit/source-basis.mjs 5
 #   ★2026-10-11 1단계를 닫았다(감사문까지 «끝») — 장부에 «진행»이 하나라도 생기면 빨강. 새 순간 개편은 2단계 줄로 연다
@@ -13014,6 +13016,12 @@ chk 'SPEECH_NO_NONE' assets/ritual-cue.js 2
 #   옛 코스(옛 초안)는 그대로 · 동작은 merge-extra-0926 P1-6 이 잰다(새 코스 축사 · 영상 · 없음 판 모두 87 없음 · 옛 코스 있음) · 새 코스에 되살리지 말 것
 chk 'TOAST_NONE_OFF_1012' assets/ritual-cue.js 5
 chk 'TOAST_NONE_OFF_1012' scripts/audit/merge-extra-0926.mjs 2
+# ★[TERM_BY_SPEAKER_1013 2026-10-13 코워크 레퍼런스 모음 3-9] 용어는 말하는 사람으로 — 축사 = 친구 · 형제자매(부모님은 덕담) · 화면 · FAQ · AI 지식에 «가족이나 친구»(축사)가 돌아오면 빨강
+chk 'TERM_BY_SPEAKER_1013' assets/ritual-open.js 2
+nochk '가족이나 친구가 두 분께 축하' assets/ritual-open.js 0
+nochk '가족이나 친구가 두 분께 축하' order-preview.html 0
+nochk '축가 앞에 가족이나 친구 한 분이' index.html 0
+nochk '축가 앞에 가족이나 친구 한 분이' api/_kb.js 0
 chk 'SCRIPT_LAB' order-preview.html 3
 chk 'PV_TOP' order-preview.html 1
 chk 'NOTICE_QUEUE' assets/ritual-open.js 1
