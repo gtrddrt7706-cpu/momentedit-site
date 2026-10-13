@@ -13,6 +13,7 @@
    ★★[ENTRY_SCENE_1012] 2단계 «음악과 함께 듣기»
    10 올리면 고르기 칸 바로 아래 장면 칸(16px) · 그래프 그림 · 알약 «이 순간 전체 듣기 · 음악과 함께» · 계획 = 목소리 끝 + 0.3초가 고른 자리(곡은 그만큼 앞에서 · 목소리보다 4초 먼저)
    11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «기다려요» 칸이 진하게
+   11b [ENTRY_CALL_PAUSE_1013] 나레이션이면 목소리를 «입장!» 앞에서 둘로 끊어 건다 — «…감사하겠습니다» 말끝 → «신랑» 말머리 1초(당일 콘솔과 같은 엔진)
    12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터
    13 그래프를 누르면 그 자리부터(문이 열린 뒤 = «걸어 들어와요» 칸)
    14 소리 하나 — 자리 ▶ 를 누르면 장면은 멈추고(이어 듣기) · 빌더가 제 소리를 틀어도(_stopMk) 멈춘다
@@ -94,6 +95,8 @@ try {
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(1800);
     const S11 = await scene();
     ok(`${W} 11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «기다려요» 칸이 진하게`, S11.run && S11.x > 0.8 && S11.pill === '멈추기' && S11.pressed === 'true' && S11.at === 'greet', S11);
+    ok(`${W} 11b [ENTRY_CALL_PAUSE_1013] 나레이션 «입장!» 앞 쉼 — 목소리 마디 둘(${S11.vsn}) · 녹음 ${S11.cut ? S11.cut.was.toFixed(2) : '?'}초 → 1초(당일 콘솔과 같은 엔진)`,
+      S11.vsn === 2 && !!S11.cut && Math.abs(S11.cut.was + S11.cut.add - 1) < 0.01 && S11.cut.add > 0.2, { vsn: S11.vsn, cut: S11.cut });
     // 12
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(300); const S12a = await scene();
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(600); const S12b = await scene();

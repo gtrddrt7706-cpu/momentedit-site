@@ -1006,8 +1006,8 @@ function esdTry(c, done){ if (!esdReady(c)) return false;
     var eg = a.createGain(); eg.gain.setValueAtTime(0, t0); eg.gain.setValueCurveAtTime(ES.envCurve(PL, PL.tm, x1), t0 + PL.tm, Math.max(0.05, x1 - PL.tm)); eg.connect(mg);
     var src = a.createBufferSource(); src.buffer = Sg.buf; src.connect(eg); src.start(t0 + PL.tm, PL.off);
     var vg = a.createGain(); vg.gain.value = V0.gain; vg.connect(a.destination);
-    var vs = a.createBufferSource(); vs.buffer = V0.buf; vs.connect(vg); vs.start(t0 + PL.tv, V0.pieces.length ? V0.pieces[0].a : 0, PL.V);
-    var run = ESD.run = { i: cur, t0: t0, PL: PL, src: src, vs: vs, eg: eg, dk: dk, mg: mg, lim: lim, vg: vg, a: a };
+    var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);   /* [ENTRY_CALL_PAUSE_1013] 목소리는 엔진이 끊어 건다 — «신랑 신부, 입장!» 앞 1초 쉼(식순 화면 미리 듣기와 같은 자리) */
+    var run = ESD.run = { i: cur, t0: t0, PL: PL, src: src, vs: vv.nodes, vgs: vv.gains, eg: eg, dk: dk, mg: mg, lim: lim, vg: vg, a: a };
     src.onended = function(){ if (ESD.run === run) { ESD.run = null; esdBedBack(3000); try { render(); } catch (e) {} } };   /* 곡이 먼저 끝나면 배경음이 이어받는다 */
     duckTo(-90, 1200);   /* 배경음은 1.2초에 걸쳐 내린다(위 duckTo 가 run 을 보고 -90 으로) */
     runProg(PL.tv + PL.V, null);
@@ -1020,8 +1020,8 @@ function esdBedBack(ms){ var c = cueAt(cur), db = (phase === 'live' && c && c.li
 function esdStop(sec){ var r = ESD.run; if (!r) return; ESD.run = null; var a = r.a, now = a.currentTime, f = Math.max(0.02, sec || 0), fv = Math.min(f, 0.3);
   try { r.dk.gain.cancelScheduledValues(now); r.dk.gain.setValueAtTime(Math.max(0.0001, r.dk.gain.value), now); r.dk.gain.linearRampToValueAtTime(0.0001, now + f); } catch (e) {}
   try { r.vg.gain.cancelScheduledValues(now); r.vg.gain.setValueAtTime(r.vg.gain.value, now); r.vg.gain.linearRampToValueAtTime(0.0001, now + fv); } catch (e) {}
-  try { r.src.onended = null; r.src.stop(now + f + 0.05); } catch (e) {} try { r.vs.stop(now + fv + 0.05); } catch (e) {}
-  setTimeout(function(){ [r.eg, r.mg, r.dk, r.lim, r.vg].forEach(function(n){ try { n.disconnect(); } catch (e) {} }); }, Math.round((f + 0.4) * 1000)); }
+  try { r.src.onended = null; r.src.stop(now + f + 0.05); } catch (e) {} (r.vs || []).forEach(function(n){ try { n.stop(now + fv + 0.05); } catch (e) {} });   /* [ENTRY_CALL_PAUSE_1013] 목소리 마디는 둘일 수 있다 */
+  setTimeout(function(){ [r.eg, r.mg, r.dk, r.lim, r.vg].concat(r.vgs || []).forEach(function(n){ try { n.disconnect(); } catch (e) {} }); }, Math.round((f + 0.4) * 1000)); }
 function esdLab(){ var mu = S.mu || {}, nm = mu.t || mu.name || '두 분이 고른 곡';
   if (ESD.st === 'ok') return '✓ ‹' + nm + '› · ' + fmt(+mu.hook || 0) + ' 하이라이트 · 받아 둠';
   if (ESD.st === 'busy') return '받는 중…';
@@ -1908,7 +1908,8 @@ try { rfPrefetch(); } catch (e) {}   // [REC_ADMIN] 두 분 목소리 — 시작
 window.__rfState = function(){ return { st: JSON.stringify(RF_ST), clip: String(CLIPS['guest-1-arrival'] || '').slice(0, 5) }; };   // 읽기 전용 · 검사(rec-upload)가 본다
 /* [ENTRY_SCENE_DAY] 읽기 전용 + 점검용 GO(fire) — entry-scene-day 점검이 본다 */
 window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.why, sg: !!ESD.Sg, v0: !!ESD.V0, vp: ESD.V0 ? ESD.V0.pieces.length : null, run: !!r, ri: r ? r.i : null, cur: cur, phase: phase, duck: duckNow,
-    pl: r ? { tv: r.PL.tv, tm: r.PL.tm, off: r.PL.off, th: r.PL.th, V: r.PL.V, H: r.PL.H, H0: r.PL.H0 } : null, dk: r ? r.dk.gain.value : null, ac: AC ? AC.state : null }; },
+    pl: r ? { tv: r.PL.tv, tm: r.PL.tm, off: r.PL.off, th: r.PL.th, V: r.PL.V, H: r.PL.H, H0: r.PL.H0 } : null, dk: r ? r.dk.gain.value : null, ac: AC ? AC.state : null,
+    vsn: r ? (r.vs || []).length : null, cut: ESD.V0 && ESD.V0.cut ? { at: ESD.V0.cut.at, add: ESD.V0.cut.add, was: ESD.V0.cut.was } : null }; },   /* [ENTRY_CALL_PAUSE_1013] 목소리 마디 수 · 끊은 자리 */
   idx: function(){ var cs = (R && R.cues) || [], e = -1, bow = -1, next = -1; cs.forEach(function(c, i){ if (e < 0 && esdMain(c)) e = i; }); for (var i = e + 1; e >= 0 && i < cs.length; i++) { if (cs[i].k === 'entry' && bow < 0) { bow = i; continue; } if (cs[i].k !== 'entry') { next = i; break; } } return { e: e, bow: bow, next: next, n: cs.length }; },
   duckOf: function(i){ return R && R.cues[i] ? R.cues[i].duck : null; }, fire: function(i){ fire(i); } };
 

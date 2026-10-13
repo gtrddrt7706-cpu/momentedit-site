@@ -17872,3 +17872,19 @@ chk 'lead:4,fade:1.2,intro:-6,duck:0.5' assets/entry-scene.js 1                 
 chk 'H=pickHook(H,opts&&opts.hooks,V);' assets/entry-scene.js 1                                    # 멘트가 길면 뒤 자리
 chk 'hooks: Array.isArray(S.mu.hooks) ? S.mu.hooks : null' console.html 1                          # 당일 콘솔도 같은 후보
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-first.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" != 0 ]; then echo 'FAIL bgm-first: 멘트 앞 음악이 들리는가 · 멘트가 길면 뒤 자리에 문 열림(엔진) — node scripts/audit/bgm-first.mjs'; fail=1; else echo 'ok bgm-first: 엔진 — 음악이 먼저 · 뒤 자리'; fi; fi
+# ── 2026-10-13 «입장!» 앞 쉼 [ENTRY_CALL_PAUSE_1013] — 사장님 «따뜻한 박수로 맞이해 주시면 감사하겠습니다. 이후 신랑 신부 입장까지 적절하게 쉼을 좀 주는 게 좋을 것 같아»
+#   음악과 함께 듣는 장면만(엔진 한 곳 · 식순 화면 = 당일 콘솔): «…감사하겠습니다» 말끝 → «신랑» 말머리 1초(녹음 0.66 ~ 0.78초 · 늘리기만)
+#   나레이션만 들을 때는 녹음 그대로(10/10 PACE_D «너무 느려» → 0.6초) · 9/09 ENTRY_HOLD 1.2초는 «너무 느리다»로 거뒀다 — 장면 쉼을 1.2초 넘게 늘리지 말 것
+#   entry-call-pause 가 엔진(합성 목소리) · 실제 녹음 여섯을 소리로 잰다(옛 엔진 · 0.6초 · 끊지 않기 셋 다 빨강) · entry-music 11b · entry-scene-day 2b 가 화면 · 콘솔
+chk 'ENTRY_CALL_PAUSE_1013' assets/entry-scene.js 4
+chk 'ENTRY_CALL_PAUSE_1013' assets/entry-music.js 2
+chk 'ENTRY_CALL_PAUSE_1013' console.html 3
+chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-call-pause.mjs 1
+chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-music.mjs 2
+chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-scene-day.mjs 2
+chk 'after:20,call:1.0}' assets/entry-scene.js 1                                                   # 장면 «입장!» 앞 쉼 1초(SP.call)
+chk 'var vv=ES.voiceStart(a,V0,vg,t0,PL.tv,from);' assets/entry-music.js 1                         # 식순 화면 — 목소리는 엔진이 끊어 건다
+chk 'var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);' console.html 1                              # 당일 콘솔 — 같은 자리에서 끊는다
+nochk 'vs.start(t0 + PL.tv, V0.pieces.length ? V0.pieces\[0\].a : 0, PL.V);' console.html          # ★대사를 한 줄로 이어 틀면 쉼이 녹음 그대로(0.7초) — 되살리지 말 것
+nochk 'vs.start(t0+Math.max(0,tp-from),a0+off,d0-off)' assets/entry-music.js                       # ★식순 화면도 같다
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-call-pause.mjs >/dev/null 2>&1; _ecp=$?; if [ "$_ecp" != 0 ]; then echo 'FAIL entry-call-pause: 입장 «음악과 함께» — «입장!» 앞 쉼 1초가 깨졌습니다(엔진 · 실제 녹음) — node scripts/audit/entry-call-pause.mjs'; fail=1; else echo 'ok entry-call-pause: «입장!» 앞 쉼 1초(엔진 · 녹음 여섯)'; fi; fi

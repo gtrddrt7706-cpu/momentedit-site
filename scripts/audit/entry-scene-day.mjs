@@ -13,6 +13,7 @@
      8a 두 분 목소리 자리인데 파일을 못 받으면 대사 조각을 실제로 나가는 나레이션으로 센다
    9 [REC_SONG_1012] 추천 곡을 고른 예식 — 곡은 rec:<곡 키> 로 받고 장면 · 이름표는 두 분이 올린 곡과 같다
    10 [BGM_FIRST_1013] 멘트가 고른 자리보다 길면 S.mu.hooks 의 뒤 자리에 문 열림 · 음악이 4초 먼저(식순 화면과 같은 식)
+   2b [ENTRY_CALL_PAUSE_1013] 대사는 «입장!» 앞에서 둘로 끊어 건다 — «…감사하겠습니다» 말끝에서 «신랑» 말머리까지 1초(식순 화면과 같은 엔진 · entry-call-pause 가 소리로 잰다)
    시험 곡은 여기서 만든다(합성음 · 저장소에 음원을 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
    EM_CON = 돌연변이 확인용 — 그 판의 console.html 로 잰다 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -73,6 +74,8 @@ try {
     const pl = B.pl || {};
     ok('2 입장 GO — 장면(곡 · 대사 Web Audio) · 계획 = 식순 화면과 같은 식(앞 4초 · 마지막 말 끝 + 0.3초 = 0:40 · 곡은 그만큼 앞에서) · 배경음 -90 · 이름표 «입장 음악 · 시험 곡»',
       B.run && B.ri === I.e && B.phase === 'clip' && pl.tv === 4 && pl.tm === 0 && Math.abs(pl.th - (4 + pl.V + 0.3)) < 0.001 && Math.abs(pl.off - (40 - pl.V - 0.3 - 4)) < 0.001 && pl.H === 40 && B.duck === -90 && B.ac === 'running' && B.tags.includes('입장 음악 · 시험 곡'), B);
+    ok(`2b [ENTRY_CALL_PAUSE_1013] 대사는 «입장!» 앞에서 둘로 끊어 건다(마디 ${B.vsn}) — 녹음 쉼 ${B.cut ? B.cut.was.toFixed(2) : '?'}초 → 1초 · 대사가 그만큼 길어져 큐도 그 뒤에 넘어간다(식순 화면과 같은 자리)`,
+      B.vsn === 2 && !!B.cut && Math.abs(B.cut.was + B.cut.add - 1) < 0.01 && B.cut.add > 0.2, { vsn: B.vsn, cut: B.cut, V: pl.V });
     const wait = Math.ceil((pl.tv + pl.V) * 1000) + 1500;
     await pg.waitForTimeout(wait);
     const C = await st(pg);
