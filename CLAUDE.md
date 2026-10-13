@@ -270,6 +270,8 @@
   ③ 취향 판단이 필요한 변경(타이포·색·레이아웃 대개편)은 시안으로 사용자 선택을 받은 뒤 푸시.
   되돌리기: 사용자가 "되돌려줘" 하면 revert 커밋을 즉시 main에 푸시.
 - `momentedit.kr`(`index.html`·`inquiry.html`·`admin.html`·`mypage.html` 등)은 `main` 푸시 시 Vercel 자동 배포.
+  - ★[BRANCH_DEPLOY_OFF · DEPLOY_SINCE_LAST 2026-10-13 사장님 «추천대로»] 이름에 `preview` 가 없는 `claude/` 가지는 Vercel 이 받지 않는다(`vercel.json` `git.deploymentEnabled`) — 가지 푸시가 몰리면 GitHub 요청 한도(403)로 미리보기 실패 메일이 오고 main #1212 배포까지 빠졌다(10/12 밤). main 은 «마지막 성공 배포» 이후 바뀐 것을 본다.
+    병합 뒤 그 커밋의 Vercel 배포 기록이 10분 넘게 없으면 빠진 것이다 — 사장님께 «Vercel → Deployments → Create Deployment → `main`» 한 줄로 알린다(내가 못 누른다).
 - GAS 백엔드(`.gs`·GAS 화면 파일 `ScreenA`·`ScreenB`·`ScreenC` `.html`)는 내가 배포할 수 없으므로, **GAS 반영 + `R3n9Mr` 재배포가 필요한 변경이면 ① '🙋 네가 할 일'에 명시하고 ② 재배포할 `.gs`(·화면 `.html`) 파일을 항상 응답에 첨부(업로드)**한다 — 사용자가 매번 요청하지 않아도.
   - ★[ADMIN_BACKUP_RETIRE 2026-10-08 사장님 «추천대로해»] GAS 예비 관리 화면(`Admin.html` · `/exec?admin=1`)은 **은퇴했다.** 관리 화면은 momentedit.kr/admin.html 하나다. 옛 주소는 안내 한 장만 보인다(`admin.gs` `serveAdmin`). 되살리지 말 것 — merge-guard 가 막는다.
 - GAS 재배포는 코드 저장만으론 `/exec`에 안 먹는다 → **항상 "새 버전"으로 배포 관리에서 재배포**해야 함을 안내한다.
