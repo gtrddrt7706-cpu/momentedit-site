@@ -17820,7 +17820,18 @@ chk "post('momentedit:ritualFileGet',{key:'rec',id:'list'})" assets/entry-music.
 chk "post('momentedit:ritualFileGet',{key:'rec',id:k})" assets/entry-music.js 1                   # 곡도 서버에서만 — 공개 주소 없음
 chk "if(mu&&mu.src==='up') s.muUp=mu;" assets/entry-music.js 1                                     # 추천 곡을 고르면 올린 곡 기록(서버 파일)은 비켜 둔다 — 지우지 않는다
 chk 'function scSong()' assets/entry-music.js 1                                                    # 장면 곡 = 고른 곡 하나(올린 곡 · 추천 곡)
-chk 'CAR_PRE=6, CAR_LEN=80' assets/entry-music.js 1                                                # [CAR_LEN80] 문이 열리는 자리 6초 앞부터 1분 20초
+chk 'CAR_PRE=12, CAR_LEN=60' assets/entry-music.js 1                                               # [PREV_12_60_1013] 문이 열리는 자리 12초 앞부터 1분(종전 [CAR_LEN80] 6초 앞부터 1분 20초)
+chk 'PREV_12_60_1013' assets/entry-music.js 4                                                     # [PREV_12_60_1013 2026-10-13 사장님 «12초 앞부터 1분 듣기로 변경»] 추천 곡 카드 ▶ · 올린 곡 ▶ 같은 값
+chk 'PREV_12_60_1013' scripts/audit/rec-song-ui.mjs 3                                              # 3b · 15b 가 시작 자리(문 열림 12초 앞) · 길이(1분 · 곡 끝까지)를 잰다
+chk 'PREV_12_60_1013' scripts/audit/entry-music.mjs 2                                              # 4c 올린 곡 ▶ = 12초 앞부터 1분(150초 시험 곡이라 꼭 60초)
+chk "play('up',upList(u)\[u.pick\]?upList(u)\[u.pick\].t:u.Sg.dur\*0.3,CAR_PRE,CAR_LEN);" assets/entry-music.js 1   # 올린 곡도 같은 값(숫자를 따로 적지 않는다)
+nochk 'CAR_PRE=6, CAR_LEN=80' assets/entry-music.js                                                # ★옛 미리 듣기(6초 앞부터 1분 20초) — 2026-10-13 사용자 지시로 바꿈
+# ── 2026-10-13 곡을 받는 동안 목소리 아래 빈칸 [SCENE_WAIT_FILL] — 사장님 «목소리 밑에 간격이 너무 넓은데 개선»
+#   받는 동안 장면 줄을 숨겨(visibility:hidden) 목소리 아래가 텅 비었다 → 목소리만으로 짠 계획으로 목소리 조각 · 장면 줄(옅게)을 먼저 · 안내 글은 음악 칸 안
+chk 'SCENE_WAIT_FILL' assets/entry-music.js 2
+chk 'SCENE_WAIT_FILL' order-preview.html 2
+chk 'SCENE_WAIT_FILL' scripts/audit/rec-song-ui.mjs 2                                             # 15g 받는 동안 목소리 조각 · 장면 줄이 보이고 · 받은 뒤 장면 줄이 그 자리
+nochk '.em-graph .lg-scene.wait{visibility:hidden}' order-preview.html                            # ★받는 동안 장면 줄을 숨기지 말 것 — 2026-10-13 사용자 지시
 chk 'LY_LEAD=0.35, LY_LAT_MAX=0.12' assets/entry-music.js 1                                        # [LY_LEAD] 가사는 0.35초 앞서
 chk "indexedDB.open('me-rec-song',1)" assets/entry-music.js 1                                      # 받은 곡은 이 기기에 — 다시 들을 때 다시 묻지 않는다(서버 시간당 60번)
 nochk 'songs.json' assets/entry-music.js                                                           # 곡 목록 · 가사는 저장소에 두지 않는다
@@ -17873,8 +17884,8 @@ chk 'H=pickHook(H,opts&&opts.hooks,V);' assets/entry-scene.js 1                 
 chk 'hooks: Array.isArray(S.mu.hooks) ? S.mu.hooks : null' console.html 1                          # 당일 콘솔도 같은 후보
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-first.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" != 0 ]; then echo 'FAIL bgm-first: 멘트 앞 음악이 들리는가 · 멘트가 길면 뒤 자리에 문 열림(엔진) — node scripts/audit/bgm-first.mjs'; fail=1; else echo 'ok bgm-first: 엔진 — 음악이 먼저 · 뒤 자리'; fi; fi
 # ── 2026-10-13 «입장!» 앞 쉼 [ENTRY_CALL_PAUSE_1013] — 사장님 «따뜻한 박수로 맞이해 주시면 감사하겠습니다. 이후 신랑 신부 입장까지 적절하게 쉼을 좀 주는 게 좋을 것 같아»
-#   음악과 함께 듣는 장면만(엔진 한 곳 · 식순 화면 = 당일 콘솔): «…감사하겠습니다» 말끝 → «신랑» 말머리 1초(녹음 0.66 ~ 0.78초 · 늘리기만)
-#   나레이션만 들을 때는 녹음 그대로(10/10 PACE_D «너무 느려» → 0.6초) · 9/09 ENTRY_HOLD 1.2초는 «너무 느리다»로 거뒀다 — 장면 쉼을 1.2초 넘게 늘리지 말 것
+#   음악과 함께 듣는 장면만(엔진 한 곳 · 식순 화면 = 당일 콘솔): «…감사하겠습니다» 말끝 → «신랑» 말머리 1.8초(녹음 0.66 ~ 1.09초 · 늘리기만)
+#   같은 날 1초로 넣은 뒤 사장님 «신랑 신부 입장 앞 쉼 부분 1.8초로 해 보자» → 1.8초 · 나레이션만 들을 때는 녹음 그대로(10/10 PACE_D 0.6초)
 #   entry-call-pause 가 엔진(합성 목소리) · 실제 녹음 여섯을 소리로 잰다(옛 엔진 · 0.6초 · 끊지 않기 셋 다 빨강) · entry-music 11b · entry-scene-day 2b 가 화면 · 콘솔
 chk 'ENTRY_CALL_PAUSE_1013' assets/entry-scene.js 4
 chk 'ENTRY_CALL_PAUSE_1013' assets/entry-music.js 2
@@ -17882,9 +17893,9 @@ chk 'ENTRY_CALL_PAUSE_1013' console.html 3
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-call-pause.mjs 1
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-music.mjs 2
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-scene-day.mjs 2
-chk 'after:20,call:1.0}' assets/entry-scene.js 1                                                   # 장면 «입장!» 앞 쉼 1초(SP.call)
+chk 'after:20,call:1.8}' assets/entry-scene.js 1                                                   # 장면 «입장!» 앞 쉼 1.8초(SP.call · 10/13 사장님)
 chk 'var vv=ES.voiceStart(a,V0,vg,t0,PL.tv,from);' assets/entry-music.js 1                         # 식순 화면 — 목소리는 엔진이 끊어 건다
 chk 'var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);' console.html 1                              # 당일 콘솔 — 같은 자리에서 끊는다
 nochk 'vs.start(t0 + PL.tv, V0.pieces.length ? V0.pieces\[0\].a : 0, PL.V);' console.html          # ★대사를 한 줄로 이어 틀면 쉼이 녹음 그대로(0.7초) — 되살리지 말 것
 nochk 'vs.start(t0+Math.max(0,tp-from),a0+off,d0-off)' assets/entry-music.js                       # ★식순 화면도 같다
-if command -v node >/dev/null 2>&1; then node scripts/audit/entry-call-pause.mjs >/dev/null 2>&1; _ecp=$?; if [ "$_ecp" != 0 ]; then echo 'FAIL entry-call-pause: 입장 «음악과 함께» — «입장!» 앞 쉼 1초가 깨졌습니다(엔진 · 실제 녹음) — node scripts/audit/entry-call-pause.mjs'; fail=1; else echo 'ok entry-call-pause: «입장!» 앞 쉼 1초(엔진 · 녹음 여섯)'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-call-pause.mjs >/dev/null 2>&1; _ecp=$?; if [ "$_ecp" != 0 ]; then echo 'FAIL entry-call-pause: 입장 «음악과 함께» — «입장!» 앞 쉼 1.8초가 깨졌습니다(엔진 · 실제 녹음) — node scripts/audit/entry-call-pause.mjs'; fail=1; else echo 'ok entry-call-pause: «입장!» 앞 쉼 1.8초(엔진 · 녹음 여섯)'; fi; fi

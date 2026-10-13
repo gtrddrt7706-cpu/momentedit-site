@@ -4,7 +4,7 @@
    A 기기(390 · 1280)
    1 칩 둘 · 처음엔 안 눌린 모양 · «추천 곡» → 목록을 한 번 묻는다 · 받는 동안 카드 자리 «추천 곡을 불러오는 중이에요» → 카드(곡 수만큼 · 첫 카드 · 제목 · 가수 · 분위기 · 사진은 사이트 그림) · ‹ 꺼짐 · ✓ 안 눌림
    2 › → 다음 카드 · 점 · 알림 줄 · ← → 도 같다
-   3 ▶ → 그 곡을 한 번 묻는다 · 받는 동안 ■(aria-busy) + 그 카드 가운데 «곡을 불러오는 중이에요» → 소리 · 소리 막대([NOW_EQ]) · 문이 열리는 자리 6초 앞부터([CAR_LEN80])
+   3 ▶ → 그 곡을 한 번 묻는다 · 받는 동안 ■(aria-busy) + 그 카드 가운데 «곡을 불러오는 중이에요» → 소리 · 소리 막대([NOW_EQ]) · 문이 열리는 자리 12초 앞부터 1분([PREV_12_60_1013] · 종전 6초 앞부터 1분 20초)
    4 가사([LY_SYNC · LY_ON_CUE · LY_FROM_HOOK]) — 문이 열리기 전에 끝나는 줄은 안 뜬다 · 문이 열리는 줄은 그 순간 뜬다 · 사진이 밝아진다(lit)
    5 넘겨도 듣던 노래는 그대로([CAR_KEEP_PLAY]) · 다른 카드에서도 ■ = 그 곡 멈추기 · 점이 금빛 · ■ → 멈춤 · 가사 걷힘
    6 ✓ → S.mu = 추천 곡(키 · 이름 · 가수 · 자리 = hook0 · 사진) · 접힌 한 줄([MU_FOLD]) · 알림 · 장면(음악과 함께 듣기)이 이 곡으로 짠다(H = hook0)
@@ -145,7 +145,9 @@ try {
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.prev === 'r1'; }, null, { timeout: 30000 }).catch(() => {}); await f.waitForTimeout(500);
     const V3 = await view(f), L3 = await HL(pg); await shot(f, W, '3-play');
     ok(`${W} 3a ▶ → 미리 받아 둔 곡이라 바로 소리(기다림 없음 · aria-busy 없음) · 곡은 모두 한 번만 물었다([REC_CLIP_1013])`, V3a.rec.prev === 'r1' && !V3a.rec.want && V3a.tpp.p === 'true' && V3a.tpp.b === null && V3a.tpp.l === 'Test Song One 멈추기' && recReqs(L3, 'r1') === 1, { V3a: { prev: V3a.rec.prev, want: V3a.rec.want, tpp: V3a.tpp, ly: V3a.ly }, req: recReqs(L3, 'r1') });
-    ok(`${W} 3b 받으면 소리 · ■ · 소리 막대 보임([NOW_EQ]) · 문이 열리는 자리 6초 앞부터([CAR_LEN80])`, V3.rec.prev === 'r1' && V3.tpp.p === 'true' && V3.tpp.b === null && V3.pl === 'r1' && +V3.eq > 0.5 && V3.rec.x != null && V3.rec.x >= 34 && V3.rec.x < 36.5 && V3.ly === '', { prev: V3.rec.prev, tpp: V3.tpp, pl: V3.pl, eq: V3.eq, x: V3.rec.x, ly: V3.ly });
+    const PV3 = await f.evaluate(() => ({ pv: EntryMusic._t.pv(), car: EntryMusic._t.car() }));
+    ok(`${W} 3b 받으면 소리 · ■ · 소리 막대 보임([NOW_EQ]) · 문이 열리는 자리 12초 앞부터 1분([PREV_12_60_1013] · 곡이 70초라 곡 끝까지 ${PV3.pv ? PV3.pv.d.toFixed(2) : '?'}초)`, V3.rec.prev === 'r1' && V3.tpp.p === 'true' && V3.tpp.b === null && V3.pl === 'r1' && +V3.eq > 0.5 && V3.rec.x != null && V3.rec.x >= 28 && V3.rec.x < 30.5 && V3.ly === ''
+      && PV3.car.pre === 12 && PV3.car.len === 60 && !!PV3.pv && PV3.pv.key === 'rec:r1' && Math.abs(PV3.pv.x0 - (PV3.pv.H - 12)) < 0.01 && Math.abs(PV3.pv.d - Math.min(60, 70 - PV3.pv.x0)) < 0.01, { prev: V3.rec.prev, tpp: V3.tpp, pl: V3.pl, eq: V3.eq, x: V3.rec.x, ly: V3.ly, PV3 });
     // 4 — 문 앞 줄(37.5~40.4)은 안 뜬다 · 문이 열리는 줄(40.4)은 그 순간 · 사진이 밝아진다
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 38.6; }, null, { timeout: 15000 }).catch(() => {}); const V4a = await view(f);
     await f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 40.9; }, null, { timeout: 15000 }).catch(() => {}); await f.waitForTimeout(250); const V4b = await view(f); await shot(f, W, '4-lyric');
@@ -250,9 +252,10 @@ try {
     const L15a = await HL(o6.pg);
     ok(`${W} 15a 목록에 pf 가 있으면 짧은 판만 묻는다(r1-p · r3-p) · 곡 전체는 묻지 않는다`, recReqs(L15a, 'r1-p') === 1 && recReqs(L15a, 'r1') === 0 && recReqs(L15a, 'r3-p') === 1 && recReqs(L15a, 'r3') === 0, L15a);
     await o6.f.click('.ls-mu [data-fk="mucarplay"]'); await o6.f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.prev === 'r1' && r.x != null; }, null, { timeout: 15000 }).catch(() => {});
-    const X15 = await o6.f.evaluate(() => EntryMusic._t.rec().x);
+    const X15 = await o6.f.evaluate(() => EntryMusic._t.rec().x), PV15 = await o6.f.evaluate(() => EntryMusic._t.pv());
     await o6.f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 40.9; }, null, { timeout: 15000 }).catch(() => {}); await o6.f.waitForTimeout(250); const V15c = await view(o6.f);
-    ok(`${W} 15b 짧은 판 미리 듣기 자리 · 가사는 원곡 시각 그대로 — 문 열림 6초 앞(${X15 == null ? '-' : X15.toFixed(2)}초)부터 · 40.4초 줄 «line one · 첫 줄»이 그 순간`, X15 != null && X15 >= 34 && X15 < 36.5 && V15c.ly === 'line one첫 줄' && V15c.lit, { X15, ly: V15c.ly, lit: V15c.lit, x: V15c.rec.x });
+    ok(`${W} 15b 짧은 판 미리 듣기 자리 · 가사는 원곡 시각 그대로 — 문 열림 12초 앞(${X15 == null ? '-' : X15.toFixed(2)}초)부터 판 끝(66초)까지 · 40.4초 줄 «line one · 첫 줄»이 그 순간 [PREV_12_60_1013]`, X15 != null && X15 >= 28 && X15 < 30.5 && V15c.ly === 'line one첫 줄' && V15c.lit
+      && !!PV15 && Math.abs(PV15.x0 - (PV15.H - 12)) < 0.01 && Math.abs(PV15.d - Math.min(60, 66 - PV15.x0)) < 0.02, { X15, ly: V15c.ly, lit: V15c.lit, x: V15c.rec.x, PV15 });
     await o6.f.click('.ls-mu [data-fk="mucarplay"]'); await o6.f.waitForTimeout(300);
     await o6.f.click('.ls-mu [data-fk="mucarpick"]'); await o6.f.waitForFunction(() => !!document.querySelector('.em-scene') && EntryMusic._t.scene().plan, null, { timeout: 30000 }).catch(() => {}); await o6.f.waitForTimeout(300);
     const SC15d = await o6.f.evaluate(() => EntryMusic._t.scene()), L15d = await HL(o6.pg);
@@ -267,7 +270,19 @@ try {
     await o6.f.click('.ls-mu [data-fk="mucarpick"]');
     await o6.f.waitForFunction(() => { const w = document.querySelector('.em-scene .lg-wait'); return !!(w && !w.hidden); }, null, { timeout: 15000 }).catch(() => {});
     const W15f = await o6.f.evaluate(() => { const w = document.querySelector('.em-scene .lg-wait'), r = w && w.getBoundingClientRect(); return { txt: w && w.textContent, vis: !!(w && !w.hidden && r.width > 0), plan: !!EntryMusic._t.scene().plan }; });
+    const G15a = await o6.f.evaluate(() => { const g = document.querySelector('.em-scene .em-graph'), sc = g && g.querySelector('.lg-scene'), cv = g && g.querySelector('canvas'), w = g && g.querySelector('.lg-wait'), walk = sc && sc.querySelector('.lgs-walk');
+      const cs = sc && getComputedStyle(sc), cr = cv && cv.getBoundingClientRect(), wr = w && !w.hidden ? w.getBoundingClientRect() : null; let vInk = 0, mInk = 0;
+      if (cv && cv.width) { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, W0 = cv.width, H0 = cv.height, yV = Math.round(H0 * 0.54) + 4, yM = Math.round(H0 * 0.54) - 4; for (let y = 0; y < H0; y++) for (let x = 0; x < W0; x++) if (d[(y * W0 + x) * 4 + 3] > 40) { if (y >= yV) vInk++; else if (y < yM) mInk++; } }
+      return { vis: cs && cs.visibility, wait: !!(sc && sc.classList.contains('wait')), txt: sc ? sc.textContent.replace(/\s+/g, ' ').trim() : '', vInk, mInk, wBottom: wr && cr ? Math.round(wr.bottom - cr.top) : null, cH: cr ? Math.round(cr.height) : null, walkX: walk ? Math.round(walk.getBoundingClientRect().left) : null }; });   /* [SCENE_WAIT_FILL] 받는 동안 */
+    if (SHOT) await o6.f.locator('.em-scene').screenshot({ path: path.join(SHOT, `scene-${W}-wait.png`) }).catch(() => {});
     await o6.f.waitForFunction(() => !!EntryMusic._t.scene().plan, null, { timeout: 30000 }).catch(() => {}); await o6.f.waitForTimeout(400);
+    const G15b = await o6.f.evaluate(() => { const g = document.querySelector('.em-scene .em-graph'), sc = g && g.querySelector('.lg-scene'), cv = g && g.querySelector('canvas'), w = g && g.querySelector('.lg-wait'), walk = sc && sc.querySelector('.lgs-walk');
+      const cs = sc && getComputedStyle(sc), cr = cv && cv.getBoundingClientRect(), wr = w && !w.hidden ? w.getBoundingClientRect() : null; let vInk = 0, mInk = 0;
+      if (cv && cv.width) { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, W0 = cv.width, H0 = cv.height, yV = Math.round(H0 * 0.54) + 4, yM = Math.round(H0 * 0.54) - 4; for (let y = 0; y < H0; y++) for (let x = 0; x < W0; x++) if (d[(y * W0 + x) * 4 + 3] > 40) { if (y >= yV) vInk++; else if (y < yM) mInk++; } }
+      return { vis: cs && cs.visibility, wait: !!(sc && sc.classList.contains('wait')), txt: sc ? sc.textContent.replace(/\s+/g, ' ').trim() : '', vInk, mInk, wBottom: wr && cr ? Math.round(wr.bottom - cr.top) : null, cH: cr ? Math.round(cr.height) : null, walkX: walk ? Math.round(walk.getBoundingClientRect().left) : null }; });   /* 받은 뒤 */
+    if (SHOT) await o6.f.locator('.em-scene').screenshot({ path: path.join(SHOT, `scene-${W}-ready.png`) }).catch(() => {});
+    ok(`${W} 15g [SCENE_WAIT_FILL] 곡을 받는 동안에도 목소리 조각 · 장면 줄이 보인다(옅게 · 목소리 아래가 비지 않는다) · «곡을 불러오는 중이에요»는 음악 칸 안 · 받으면 음악이 더해지고 장면 줄은 그 자리 그대로`,
+      G15a.vis === 'visible' && G15a.wait && /기다/.test(G15a.txt) && G15a.vInk > 40 && G15a.mInk === 0 && G15a.wBottom != null && G15a.wBottom <= G15a.cH * 0.54 + 1 && G15b.vis === 'visible' && !G15b.wait && G15b.mInk > 40 && G15a.walkX != null && Math.abs(G15b.walkX - G15a.walkX) <= 1, { G15a, G15b });
     const SC15f = await o6.f.evaluate(() => ({ s: EntryMusic._t.scene(), wait: !!(document.querySelector('.em-scene .lg-wait') && !document.querySelector('.em-scene .lg-wait').hidden) })), L15f = await HL(o6.pg);
     ok(`${W} 15f 판이 장면 앞부분을 못 담으면 곡 전체를 한 번 묻는다 · 받는 동안 그래프 칸 «곡을 불러오는 중이에요» · 받으면 그래프`, W15f.vis && W15f.txt === '곡을 불러오는 중이에요' && !W15f.plan && SC15f.s.plan && Math.abs(SC15f.s.plan.H - 40.05) < 0.01 && !SC15f.wait && recReqs(L15f, 'r9') === 1 && recReqs(L15f, 'r9-p') === 1, { W15f, plan: SC15f.s.plan, wait: SC15f.wait, L15f });
     ok(`${W} 13f 쪽 오류 없음(짧은 판)`, o6.errs.length === 0, o6.errs);
