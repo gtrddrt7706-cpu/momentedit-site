@@ -7779,7 +7779,7 @@ chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
 # ★★[HEART_ORDER_1012 2026-10-12 사장님 «1단계 … 개선 없을 때까지 추천대로 개선»] 마음의 순간 = 덕담 → 준비한 순서 → 축가 → 편지 → 부모님께 인사
 #   자료 22곳 중 21곳이 인사를 축사 · 축가 뒤에 둔다 · 편지 · 감사 한마디는 인사 바로 앞(D · G) · 종전 v4(인사 = 선언 다음 · 준비한 순서 · 편지는 인사 뒤)는 걷었다.
 #   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
-chk 'HEART_ORDER_1012' assets/ritual-open.js 13
+chk 'HEART_ORDER_1012' assets/ritual-open.js 12   # [TOAST_LAST_1013] «끝이 조용한 편» 알림 줄(이 표식 한 자리)을 걷어 13 → 12
 chk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js 1   # 덕담은 «약속의 순간» 끝 칸 — 막마다 넷(PC 한 줄)
 chk 'HEART_ORDER_1012' assets/ritual-data.js 1
 chk 'HEART_ORDER_1012' assets/ritual-story.js 1
@@ -16471,7 +16471,7 @@ if command -v node >/dev/null 2>&1; then PAR=8 ONLY='^(ok-fast|ios-cut-70s|pc-10
 #   고르기에 다른 순간과 같은 모양 · 기본은 «기록» 예시만 · 길어지면 그대로 두고 단체 사진 부족 알림 · 마무리 줄 없음(26 이 모은다) · 131 narr-table-in(녹음 전 글) · 배웅 줄 그대로.
 #   ★9/26 NO_TABLE_ROUND(단체 사진 뒤 자리 찾아가기 · narr-round-open)는 그대로 닫혀 있다 — 이것은 본식 끝의 새 순간이다.
 chk 'TABLE_GREET_1008' assets/ritual-open.js 12
-chk "var AFTER_CLOSE = { table: 1 };" assets/ritual-open.js 1
+chk 'var AFTER_CLOSE = { toast: 1, table: 1 };' assets/ritual-open.js 1   # [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · [TOAST_LAST_1013] 축배도(테이블 인사 앞)
 chk "function bodyOrder()" assets/ritual-open.js 1
 chk "'toast', 'table'\]" assets/ritual-open.js 2
 chk "table: { n: '테이블 인사'" assets/ritual-open.js 1
