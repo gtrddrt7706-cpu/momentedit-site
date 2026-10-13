@@ -311,7 +311,7 @@
     recSong(k,full).then(function(){ if(recOn()&&St().mu.k===k) sceneSync(); },function(){ if(recOn()&&St().mu.k===k) paintGraph(); }); }
   /* [REC_CLIP_1013] 미리 받기 — 고른 곡 · 지금 카드는 받아서 풀어 두고(▶ · 장면이 바로) · 다음 카드는 받아만 둔다 · 하나씩 차례로(서로 길을 나눠 먹지 않게)
      «추천 곡» 칩을 누르기 전에는 받아만 둔다(풀면 기기 메모리를 쓴다) */
-  function recWarm(){ if(!emb()){ if(srcNow()==='rec'||recOn()) recListAuto(); return; } recListAuto();   /* 마이페이지 밖은 종전대로(칩을 볼 때 «마이페이지에서 들어 볼 수 있어요» · 아무것도 받지 않는다) */ var L=REC.ls; if(REC.lst!=='ok'||!L||!L.length) return;
+  function recWarm(){ var sn=srcNow(); if(!emb()||sn==='up'){ if(sn==='rec'||recOn()) recListAuto(); return; } recListAuto();   /* 마이페이지 밖은 종전대로(칩을 볼 때 «마이페이지에서 들어 볼 수 있어요» · 아무것도 받지 않는다) · [REC_CLIP_1013] 두 분이 고른 곡(up)이면 추천 곡 목록 · 짧은 판을 미리 받지 않는다(데이터 아끼기 · 그 곡 받기와 겹치지 않게) */ var L=REC.ls; if(REC.lst!=='ok'||!L||!L.length) return;
     var want=[], add=function(k,dec){ if(k&&recMeta(k)&&!want.some(function(w){ return w[0]===k; })) want.push([k,dec]); }, on=srcNow()==='rec', i=clamp(CAR_I==null?carIdx():CAR_I,0,L.length-1);
     var sm=function(k){ return !!clipOf(recMeta(k)); };   /* 짧은 판이 없으면(옛 목록 · 곡 전체 4~8MB) 칩을 누르기 전에는 받지 않는다 · 다음 카드도 짧은 판만 */
     if(recOn()) add(St().mu.k,true); if(on||sm(L[i].k)) add(L[i].k,on); if(on&&L[i+1]&&sm(L[i+1].k)) add(L[i+1].k,false);

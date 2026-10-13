@@ -17834,6 +17834,8 @@ chk 'REC_CLIP_1013' order-preview.html 1
 chk 'REC_CLIP_1013' assets/entry-scene.js 1
 chk 'function clipOf(m){' assets/entry-music.js 1                                                  # 목록 pf · p0 · p1 이 있으면 짧은 판
 chk 'setTimeout(recWarm,0)' assets/entry-music.js 1                                                # ② 입장 쪽을 그릴 때 미리 받기
+chk "var sn=srcNow(); if(!emb()||sn==='up'){" assets/entry-music.js 1                              # 두 분이 고른 곡(up)이면 추천 곡 목록 · 짧은 판을 미리 받지 않는다
+chk 'REC_CLIP_1013' scripts/audit/entry-song-up.mjs 2                                              # entry-song-up 7b 가 그것을 잰다
 chk '곡을 불러오는 중이에요</span>' assets/entry-music.js 1                                          # 그래프 빈 칸 대신 한 줄(카드와 같은 말)
 chk "var pv = /-p$/.test(k), kk = pv ? k.slice(0, -2) : k;" automation/platform/80_production.gs 1   # 서버 '<키>-p' = 목록 pf
 chk "  'r9p.mp3': '" automation/platform/80_production.gs 1                                         # 지문 표에 짧은 판(문서 저장소 files/rNp.mp3 와 같은 지문)
