@@ -78,7 +78,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 에 걸음 표시(① 고르기가 지금)`, await pg.evaluate(() => { const o = document.querySelector('.op-steps li.on'); return !!o && /고르기/.test(o.textContent); }));
   /* [PICK_V2 2026-09-26 코워크 최종판 3장] ① 은 예시 → 감동 흐름 → 네 막 칸 → 아래 막대. 판 칩 · 카드 · 자동 재생 영상은 없다. */
   ok(`${w} ① 칸에 판 칩이 없다(② 로 옮김)`, await pg.evaluate(() => document.querySelectorAll('.pk .op-chip').length === 0));
-  ok(`${w} ① 칸 열여섯(케이크 커팅 · 축배 따로 · CAKE_TOAST_SPLIT · 테이블 인사 TABLE_GREET_1008 · 축가 SONG_BACK_1011) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 16 /* [TABLE_GREET_1008] + 테이블 인사 · [SONG_BACK_1011] + 축가 */ && t.every((c) => c.querySelector('.pk-media')); }));
+  ok(`${w} ① 칸 열다섯(축배 · 테이블 인사 TABLE_GREET_1008 · 축가 SONG_BACK_1011 · 케이크 커팅은 옛 초안이 담아 둔 때만 CAKE_OFF_1013) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 15 /* [TABLE_GREET_1008] + 테이블 인사 · [SONG_BACK_1011] + 축가 · [CAKE_OFF_1013] − 케이크 커팅 */ && t.every((c) => c.querySelector('.pk-media')); }));
   ok(`${w} ① 빈 채 아래 막대는 숫자 없이 «입장 · 닫는 인사만으로도 …»([R1-33]) [BAR_SUM]`, await pg.evaluate(() => { const c = document.getElementById('opCta'); return !!c && /입장 · 닫는 인사만으로도 다음으로 갈 수 있어요/.test(c.textContent) && !/\d/.test(c.textContent); }));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));

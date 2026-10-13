@@ -1136,8 +1136,10 @@
       });
     }
 
+    var _openC = !!(D.COURSES[S.course] && D.COURSES[S.course].open);
     seq.forEach(function (k) {
       if (!BUILD[k]) return;
+      if (_openC && O.AFTER_CLOSE && O.AFTER_CLOSE[k]) return;   // [TOAST_LAST_1013] 새 코스의 닫는 인사 뒤 순간(축배)은 아래 닫는 인사 다음에 넣는다
       if (k === 'declare' && askOn && !askPre) cues.push(askCue());
       /* ★★[PREVIDEO_AT_4 2026-09-25 코워크 3장 → CEREMONY_AT_VIDEO 2026-10-05] 식전 영상은 예식 시작 시각에 시작한다(4분 전 아님).
          ★[ONEMIN_FIRST 2026-10-05] 자리는 하객 맞이 «끝»(04 · 사진 부탁 · 식전 안내 클립 뒤)으로 옮겼다 — 공지를 다 하고 불을 낮춘 뒤 영상 → 입장.
@@ -1188,6 +1190,9 @@
       duck: -12,
       live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec)
     }));
+    /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에»] 새 코스의 축배는 닫는 인사(108 · 목례 · 박수) 뒤 · 테이블 인사 앞 — 자료 D · S · AA 의 «1부를 닫은 뒤 축배 → 테이블 인사».
+         닫는 인사가 사람 순간(박수)이라 축배 첫 줄은 디렉터 GO([CLAP_GO] 그대로) · 옛 코스는 위 차례 그대로(소리를 바꾸지 않는다) */
+    if (_openC && seq.indexOf('toast') > -1) cues.push.apply(cues, BUILD.toast(S, seq));
     /* ★★[TABLE_GREET_1008 2026-10-08 사장님 결정] 테이블 인사 — 닫는 인사(108 · 목례 · 박수) 뒤 · 사진 안내(26) 앞. 새 코스에서 담은 날만.
        131 여는 말 → 사람 순간(두 분이 함께 테이블을 돌며 인사 · TABLE_SEC × 테이블 수 · 두 분 자유 · 다 돌면 디렉터 GO) → 26 이 사진으로 모은다(마무리 줄을 따로 두지 않는다). */
     if (seq.indexOf('table') > -1 && D.COURSES[S.course] && D.COURSES[S.course].open) cues.push(cue({
