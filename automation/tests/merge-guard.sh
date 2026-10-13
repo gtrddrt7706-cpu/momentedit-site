@@ -17907,3 +17907,14 @@ chk 'var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);' console.html 1           
 nochk 'vs.start(t0 + PL.tv, V0.pieces.length ? V0.pieces\[0\].a : 0, PL.V);' console.html          # ★대사를 한 줄로 이어 틀면 쉼이 녹음 그대로(0.7초) — 되살리지 말 것
 nochk 'vs.start(t0+Math.max(0,tp-from),a0+off,d0-off)' assets/entry-music.js                       # ★식순 화면도 같다
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-call-pause.mjs >/dev/null 2>&1; _ecp=$?; if [ "$_ecp" != 0 ]; then echo 'FAIL entry-call-pause: 입장 «음악과 함께» — «입장!» 앞 쉼 1.8초가 깨졌습니다(엔진 · 실제 녹음) — node scripts/audit/entry-call-pause.mjs'; fail=1; else echo 'ok entry-call-pause: «입장!» 앞 쉼 1.8초(엔진 · 녹음 여섯)'; fi; fi
+# ── 2026-10-13 추천 곡 가사 두 언어 [REC_LY_BI_1013] — 사장님 «감성을 위해 무조건 두 개 언어가 같이 나오게 해 · 번역 뜻에 맞게 잘해서»
+#   가사 줄마다 한글 · 영문 둘 다(한국어 곡 둘(r1 · r8)은 영어 번역 · 영어 곡의 영어만 줄은 한국어) — 곡 목록(songs.json)은 문서 저장소에 있고 서버(80_production)는 지문 표의 것만 받는다
+#   서버 답(need · put · same)에 표의 지문(h)을 싣는다 — 옛 판은 같은 이름이면 내용이 달라도 «있다»고 답해, 보내는 쪽이 새 판을 기다리지 못했다(rec-song-server 9e-2)
+chk 'REC_LY_BI_1013' automation/platform/80_production.gs 2
+chk 'REC_LY_BI_1013' deploy-marks.json 1
+chk 'REC_LY_BI_1013' scripts/audit/rec-song-server.mjs 2
+chk "  'songs.json': '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997'" automation/platform/80_production.gs 1   # 두 언어 판의 지문(문서 저장소 files/songs.json 과 같다)
+chk "return { ok: true, key: 'rec', name: name, same: true, h: h };" automation/platform/80_production.gs 1                         # 답에 지문 — 보내는 쪽이 새 판인지 가린다
+chk "return { ok: true, key: 'rec', name: name, need: true, h: h };" automation/platform/80_production.gs 1
+chk "return { ok: true, key: 'rec', name: name, put: true, size: by.length, h: h };" automation/platform/80_production.gs 1
+nochk "'songs.json': 'd355371af8d178d0bea57c28d34723a4a637b64be7072197a01fb824cd04b41d'" automation/platform/80_production.gs     # ★한 언어 줄이 섞인 옛 목록 — 되살리지 말 것

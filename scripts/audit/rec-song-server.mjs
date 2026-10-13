@@ -93,7 +93,7 @@ try {
   { const sha = (x) => createHash('sha256').update(Buffer.from(x)).digest('hex'), b64 = (x) => Buffer.from(x).toString('base64');
     const real = Object.assign({}, G.REC_PUT_HASH), SJ = JSON.stringify(SONGS);
     const nm = Object.keys(real), songs8 = nm.filter((n) => /^r\d\.mp3$/.test(n)), clips8 = nm.filter((n) => /^r\dp\.mp3$/.test(n));
-    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리', nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
+    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = 두 언어 가사 판 [REC_LY_BI_1013]', real['songs.json'] === '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997' && nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
     G.REC_PUT_HASH = { 'r1.mp3': sha('ID3-put-r1'), 'r9.mp3': sha('ID3-put-r9'), 'songs.json': sha(SJ) };
     FOLDERS = []; PROPS = {}; CACHE = {};
     const put = (name, data) => G.handleRitualFile(Object.assign({ key: 'rec', name }, data === undefined ? {} : { data }));
@@ -107,6 +107,8 @@ try {
     ok('9d 지문이 같으면 저장 · 설명 칸에 지문 · mp3', d && d.ok && d.put && f1 && f1.desc === G.REC_PUT_HASH['r1.mp3'] && f1.mime === 'audio/mpeg' && f1.bytes.toString() === 'ID3-put-r1' && DECODES === 1, { d, f1: f1 && { desc: f1.desc, mime: f1.mime } });
     DECODES = 0; const e1 = put('r1.mp3'), e2 = put('r1.mp3', b64('ID3-put-r1'));
     ok('9e 다시 오면 same · 받은 내용을 풀지 않는다', e1 && e1.same === true && e2 && e2.same === true && DECODES === 0 && fo.files.filter((f) => f.name === 'r1.mp3').length === 1, { e1, e2, DECODES });
+    // 9e-2 ★[REC_LY_BI_1013] 답마다 이 판 표의 지문(h) — 보내는 쪽(push.py)이 자기 파일 지문과 대조해 «서버가 새 표를 아는가»를 가린다(옛 판은 h 가 없다)
+    ok('9e-2 [REC_LY_BI_1013] need · put · same 답에 표의 지문(h) · 거절에는 없다', a.h === G.REC_PUT_HASH['r1.mp3'] && d.h === G.REC_PUT_HASH['r1.mp3'] && e1.h === G.REC_PUT_HASH['r1.mp3'] && e2.h === G.REC_PUT_HASH['r1.mp3'] && !c.h && !b1.h, { a: a.h, d: d.h, e1: e1.h, c: c.h });
     put('r9.mp3', b64('ID3-put-r9'));
     const lst0 = get('list');
     ok('9f-1 songs.json 이 오기 전에는 목록이 없다(L3)', lst0 && lst0.ok === false && lst0.ecode === 'L3', lst0);

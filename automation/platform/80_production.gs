@@ -1348,7 +1348,7 @@ var REC_PUT_HASH = {
   'r6p.mp3': 'c3bb47509912819193a423456ec6db6364ca8591b8ba14f87e314b72ea733bdc',
   'r8p.mp3': '29a1f2ac38dd0e00d05735fcf4aa88ac7b5880280e24bfe4a810744e3e576d7f',
   'r9p.mp3': 'f837950e90bdbb335ff2f009c8b814572652072883093cce3964865bc4670fc3',
-  'songs.json': 'd355371af8d178d0bea57c28d34723a4a637b64be7072197a01fb824cd04b41d'   /* [REC_CLIP_1013] 목록에 pf · p0 · p1 · g · hooks 를 더한 판(10/13) */
+  'songs.json': '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997'   /* [REC_LY_BI_1013] 가사 줄마다 한글 · 영문 둘 다(한국어 곡 영어 번역 · 영어만 줄 한국어) — 종전 [REC_CLIP_1013] 판 d355371a… */
 }, REC_PUT_HOUR = 120;
 function _recPutFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');
@@ -1367,12 +1367,14 @@ function _recPutHas_(fo, name, h) {
 function _recPut_(body) {
   var mk = '[REC_PUT_1013]', name = String((body && body.name) || '').trim(), h = Object.prototype.hasOwnProperty.call(REC_PUT_HASH, name) ? REC_PUT_HASH[name] : '';
   if (!h) return { ok: false, error: '받을 수 없는 파일이에요.' };
+  /* ★[REC_LY_BI_1013 2026-10-13 사장님 «감성을 위해 무조건 두 개 언어가 같이 나오게»] 답에 이 표의 지문(h)을 함께 싣는다 — 보내는 쪽(push.py)이 자기 파일 지문과 대조해
+     «서버가 새 표를 아는가»를 가린다(옛 판은 h 를 안 돌려준다). 같은 이름 · 다른 내용(목록 고침)도 옛 판이 «있다(same)»고 답해 새 목록을 안 올린 채 끝나는 일이 없다. 표는 공개라 숨길 것이 없다 */
   try { var ck = CacheService.getScriptCache(), n = +(ck.get('RECPUT_N') || 0); if (n >= REC_PUT_HOUR) return { ok: false, ecode: 'U1', error: '잠시 뒤 다시 보내 주세요.' }; ck.put('RECPUT_N', String(n + 1), 3600); } catch (e) {}
   var fo;
-  try { fo = _recPutFolder_(); if (_recPutHas_(fo, name, h)) return { ok: true, key: 'rec', name: name, same: true }; }
+  try { fo = _recPutFolder_(); if (_recPutHas_(fo, name, h)) return { ok: true, key: 'rec', name: name, same: true, h: h }; }
   catch (e) { return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 저장하지 못했어요.' }; }
   var b64 = String((body && body.data) || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, '');
-  if (!b64) return { ok: true, key: 'rec', name: name, need: true };
+  if (!b64) return { ok: true, key: 'rec', name: name, need: true, h: h };
   if (b64.length > 16 * 1048576) return { ok: false, error: '받을 수 없는 파일이에요.' };
   var by; try { by = Utilities.base64Decode(b64); } catch (e) { return { ok: false, error: '받을 수 없는 파일이에요.' }; }
   var hx = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, by).map(function (x) { return ('0' + ((x + 256) % 256).toString(16)).slice(-2); }).join('');
@@ -1381,7 +1383,7 @@ function _recPut_(body) {
     var nf = fo.createFile(Utilities.newBlob(by, /\.json$/.test(name) ? 'application/json' : 'audio/mpeg', name)); nf.setDescription(h);
     var it = fo.getFilesByName(name); while (it.hasNext()) { var o = it.next(); if (o.getId() !== nf.getId()) { try { o.setTrashed(true); } catch (e) {} } }
     if (name === REC_MANIFEST) { try { PropertiesService.getScriptProperties().setProperty('REC_FID', fo.getId()); } catch (e) {} try { CacheService.getScriptCache().remove('REC_MF'); } catch (e) {} }
-    return { ok: true, key: 'rec', name: name, put: true, size: by.length };
+    return { ok: true, key: 'rec', name: name, put: true, size: by.length, h: h };
   } catch (e) { return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 저장하지 못했어요.' }; }
 }
 /* ★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] 두 분이 먼저 «목소리 파일 모두 지우기» — 그 예식 폴더(안내 소리 · 대신 올린 파일 · AI 소리 · 읽은 녹음 · 연습 소리)를 통째로 휴지통,
