@@ -28,7 +28,8 @@ const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 // [REF_ROWS_ONE 2026-10-12] 참고 예시 표 줄 수는 한 곳 — 9-9 와 13 이 따로 적어 13 만 144 에 남았다(THANKS_IN_VOW 뒤로 빨강).
 //   144(EX_MORE) + 8(THANKS_IN_VOW 감사문 예시 네 벌 × 두 분 · 10/11) − 3(DECLARE_BY_PERSON 선언문 넷 → 한 벌 · 10/12)
-const REF_ROWS = 149;
+//   + 4([EX_LINE_REVIEW_1013] 말로 인사 짧은 판 두 벌 × 두 분 · 10/13)
+const REF_ROWS = 153;
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0, cant = 0;

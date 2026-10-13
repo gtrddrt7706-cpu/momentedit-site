@@ -7465,7 +7465,8 @@ function _lRefRows(want){ var rows=(window.RITUAL_REF&&RITUAL_REF.rows)||[], by=
    서약은 «나 ○○○은 …» 격식 판을 남겼다(찾는 분이 많은 틀) · 축배는 짧은 세 줄이 살아 있는 넷 · 편지(서로에게)는 짧게 판을 남겼다(글이 막힐 때의 출구).
    ★★[REF_BEST4_ONLY 2026-10-09 사장님 «예시가 너무 많아 베스트 4개만»] 상황 예시(한 분께 · 먼저 떠나신 분께 · 가족이 된 날 · 한 분이 하실 때)와
    부모님 예시(축하의 말 · 덕담 없는 식순)는 화면에 내지 않는다 — 고른 넷만. 표(TSV · assets/ritual-ref.js)에는 남는다. 연습(③)의 «예시 N»도 같은 넷이다. */
-var REF_BEST={welcome:[1,2,3,6],vow:[1,2,3,4],thanks:[1,2,3,4],toast:[1,3,5,6],'letter:parent':[1,2,3,5],'letter:each':[1,3,4,6],'tribute:one':[1,2,3,5],'tribute:cross':[1,2,3,5],'tribute:long':[1,2,3,4],bless:[1,3,5,7],free:[1,2,3,4]};
+var REF_BEST={welcome:[1,2,3,6],vow:[1,2,3,4],thanks:[1,2,3,4],toast:[1,3,5,6],'letter:parent':[1,2,3,5],'letter:each':[1,3,4,6],'tribute:one':[1,2,3,5],'tribute:cross':[1,2,3,5],'tribute:long':[9,10,1,4],bless:[1,3,5,7],free:[1,2,3,4]};   /* ★[EX_LINE_REVIEW_1013 2026-10-13 참고 예시 글 줄 검토 반영] 말로 인사 = 짧은 둘(9 담백 · 10 다정 · 내 부모님께 고마움 한 문장 + 배우자 부모님께 약속 한 문장) + 1분 둘(1 · 4) — «한마디부터 1분쯤까지»의 «한마디»가 카드에 보이게.
+   카드 차례는 표 차례(9 · 10 이 표에서 1 앞) · 옛 2 · 3 은 표에 남긴다(전에 칸에 채운 그 글의 이름 바꾸기 _exMineOld 가 표 전체를 읽는다) */
 function _refKeep(key,sets){ var a=String(key).split(':'), b=REF_BEST[a[0]+':'+(a[1]||'')]||REF_BEST[a[0]]||null;
   return sets.filter(function(set){ return !_refSit(set)&&(!b||b.indexOf((set[0]||{}).n)>-1); }); }   /* [REF_BEST4_ONLY] 고른 넷만 · ★상황 예시를 넷 뒤에 붙이기 금지 — 2026-10-09 사용자 지시로 삭제 */
 function _lRefSets(k){

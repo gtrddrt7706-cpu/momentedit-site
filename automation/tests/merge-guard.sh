@@ -18161,3 +18161,23 @@ chk 'FLOWER_OFF_OLD_1013' admin.html 1
 # ── 2026-10-13 밤 줄 검토 덧 — 감사문을 고른 날 «남는 장면» [THANKS_SHOT_1013]
 chk 'THANKS_SHOT_1013' assets/ritual-open.js 1
 chk 'THANKS_SHOT_1013' scripts/audit/open-course.mjs 1
+# ── 2026-10-13 밤 참고 예시 글 줄 검토 반영 [EX_LINE_REVIEW_1013]
+#   원천 표(TSV) → assets/ritual-ref.js · 검토 문서(약속 · 마음 / 닫는 순간)의 «제안 글» 그대로 26줄 고침 + 4줄 새로
+#   서약 넷 = 번갈아 읽어도 서는 짝(«그걸 · 그때»가 남의 줄에 붙지 않게) · 감사문 ① ② ③ = 짝마다 같은 주제(②의 우산은 편지(서로에게) ①과 같은 일화라 뺐다)
+#   덕담 ⑦ = 30초 판 · ⑤ 사위 맞는 말은 우리 말로 · 축사 ③ = 두 사람을 소개한 신랑 친구 · ② 맺는 말에서 습관 지적 농담을 뺐다
+#   선언문 = 이름을 넣은 한 벌(«과/와»는 이름 바꾸기 _exMine 이 못 고쳐 쉼표) · 말로 인사 = 짧은 둘(9 · 10) + 1분 둘(1 · 4) · 축배 ⑥ 신부 = 본식이 끝난 자리에 맞게
+chk 'EX_LINE_REVIEW_1013' order-preview.html 1
+chk 'EX_LINE_REVIEW_1013' scripts/audit/listen-page.mjs 1
+chk "'tribute:long':\[9,10,1,4]" order-preview.html 1                         # 짧은 판 둘이 카드에 보이는 자리
+chk '신랑 이서준, 신부 정하윤은,' assets/ritual-ref.js 1
+chk '부엌 물소리가 길어지는 이유를 알아채는 데' assets/ritual-ref.js 1
+chk '하윤 씨 댁에 처음 인사드리러 간 날' assets/ritual-ref.js 1
+chk '두 사람을 처음 만나게 한 신랑 친구 한지호입니다' assets/ritual-ref.js 1
+chk '장인어른, 장모님. 하윤이가 웃는 날이 더 많도록' assets/ritual-ref.js 1
+chk '이제야 웃는 신랑 신부를 위하여!' assets/ritual-ref.js 1
+nochk '신랑 이서준과' assets/ritual-ref.js                  # 이름 바꾸기가 «과/와»를 못 고친다(받침 없는 이름이면 «김민수과»)
+nochk '그걸 알아채는 데 삼 년이 걸렸어' assets/ritual-ref.js  # 번갈아 읽으면 «그걸»이 앞 신부 줄을 가리킨다
+nochk '저는 우산을 두고 나왔습니다' assets/ritual-ref.js       # 편지(서로에게) ① 신부와 같은 일화
+nochk '우리 식구가 되어 줘서 고맙다' assets/ritual-ref.js      # 자료 X 2 예시 문장과 거의 같다(SOURCE_WORDS_1013)
+nochk '빌려 간 내 전공책은' assets/ritual-ref.js                # 습관 지적 농담은 빼기
+nochk '떨리는 신랑 신부를 위하여' assets/ritual-ref.js
