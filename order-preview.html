@@ -1268,6 +1268,7 @@ body.lsfull{overflow:hidden}
 .mk-it.mk-add::before{content:'';width:1px;height:14px;background:var(--border);margin-right:10px}
 .mk-pick{padding-bottom:14px}
 .mk-sech{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:8px 14px;margin:0 0 10px}   /* ★[MK_SECH_NEAR 2026-09-28 사장님 «읽을 글 복사하기 버튼을 두 분 목소리 준비 오른쪽으로»] 제목과 단추를 양 끝으로 벌리면 PC 에서 둘 사이가 600px 넘게 비어 딴 줄처럼 읽혔다 → 제목 바로 오른쪽 · «부모님께 부탁드릴 것 · 부탁 글 복사하기»도 같은 줄 모양 */
+.mk-sech[hidden],.mk-ploff[hidden]{display:none}   /* [ONE_PLAY_1013] 입장에 곡을 골라 장면 알약이 서면 빌더 «이 순간 전체 듣기» 알약 줄을 숨긴다(entry-music mpSync · 알약은 늘 하나) */
 .mk-sech h4{margin:0}
 .mk-hbtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid var(--gold-deeper);border-radius:999px;background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .mk-hbtn svg{width:10px;height:10px}
@@ -7007,8 +7008,8 @@ function renderMake(){
     /* ★[VP_ASK_ONE 2026-10-06 사장님 «나레이션 자세히와 '먼저 골라 주세요' 상자가 중복 · 통합해서 하나만 · 고객 입장에서»] 상자(두 갈래 설명 목록)를 걷었다 —
        두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
     if(_vpAsk){}
-    else { if(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml) h+=EntryMusic.sceneHtml();   /* ★★[ENTRY_SCENE_1012 2026-10-12 사장님 «일단 전부 올려»] 입장 «음악과 함께 듣기»(그래프 · 긴 알약) = 고르기 칸 바로 아래 · 흐름 위 — 시험실 PLAYER_ORDER · SCENE_FIRST(고르기 → 듣기 → 흐름 → 글) · 이 기기에 올린 곡이 있을 때만 · 아래 흐름 줄은 그대로 한 줄(merge-guard 표식) */
-      h+=_mkFlow(k,_pn>=2?lb:'');
+    else { var _scn=(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml)?EntryMusic.sceneHtml():''; h+=_scn;   /* ★★[ENTRY_SCENE_1012 2026-10-12 사장님 «일단 전부 올려»] 입장 «음악과 함께 듣기»(그래프 · 긴 알약) = 고르기 칸 바로 아래 · 흐름 위 — 시험실 PLAYER_ORDER · SCENE_FIRST(고르기 → 듣기 → 흐름 → 글) · 이 기기에 올린 곡이 있을 때만 · 아래 흐름 줄은 그대로 한 줄(merge-guard 표식) */
+      h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'');   /* ★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개» → «a»] 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(음악과 함께 · 다음 줄까지) — 이 알약을 다시 함께 그리지 말 것 */
       /* [EX_ROW] 스튜디오 판 하객 맞이 넷(안내 멘트) · 식전 영상 소개 넷(소개 멘트)은 위쪽 칩 줄로 옮겼다 */ }
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);
@@ -7575,7 +7576,8 @@ function _lStart(ks,all,hold){   /* hold = [CHIP_NO_AUTOPLAY] 줄은 새로 세�
   if(!hold) _stopMk();   // [PLAY_TOGGLE_FIX] 아래 작은 플레이어가 틀면 줄 ▶ 소리는 멈춘다(겹치지 않게)
   _stopAud(); if(hold){ try{ if(LP.el) LP.el.pause(); }catch(e){} } else _lUnlock();   // [INAPP_UNLOCK] 탭 호출 스택 안에서
   LP.range={ks:ks.slice(),all:!!all}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null; LP.one=false;   // [CHIP_STAY] · [PRACTICE_CHOOSE] · [LINE_STEP] 쪽 · 전체 재생은 이어서 흐른다
-  function go(){ var _q0=_lSteps(ENG,ks).filter(function(x){ return !x.quiet; }); LP.q=LP.fast?_q0:_lRefExpand(_q0); if(LP.startK){ var _sk=LP.startK; LP.startK=null; for(var _si=0;_si<LP.q.length;_si++){ if(LP.q[_si].k===_sk) break; } if(_si<LP.q.length) LP.__si=_si; }   /* [PR_JUMP] */ if(!LP.big&&STEPS[idx]&&STEPS[idx].k==='listen'){ LP.q=_lBridge(_q0); if(!all&&ks.length===1&&ks[0]==='guest') LP.q=LP.q.concat(_lGuestTail()); }   /* [GUEST_ALL_G3] 하객 맞이 쪽 «전체 듣기»는 카드 넷 다 */   /* [TALK_BRIDGE] ② 작은 재생은 안내 한 줄로 · 크게 보기 · 연습은 차례 시간 */   /* ★[QA_FAST 2026-10-04 점검] «빠르게 훑기»는 말하는 자리를 3초 글 카드로 둔다(약 n분 셈 _lLen 과 같은 목록) — 종전엔 LP.fast 를 아무도 안 읽어 «처음부터 끝까지»와 같았다 */ LP.i=LP.__si||0; LP.__si=0; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
+  var _ao=LP.afterOwn; LP.afterOwn=null;   // [ONE_PLAY_1013] lsRest — 이 순간 멘트 줄(장면이 맡았다) 다음부터 · 들어올 때 한 번만 읽는다(엔진을 받는 사이 다른 듣기에 남지 않게)
+  function go(){ var _q0=_lSteps(ENG,ks).filter(function(x){ return !x.quiet; }); LP.q=LP.fast?_q0:_lRefExpand(_q0); if(LP.startK){ var _sk=LP.startK; LP.startK=null; for(var _si=0;_si<LP.q.length;_si++){ if(LP.q[_si].k===_sk) break; } if(_si<LP.q.length) LP.__si=_si; }   /* [PR_JUMP] */ if(!LP.big&&STEPS[idx]&&STEPS[idx].k==='listen'){ LP.q=_lBridge(_q0); if(!all&&ks.length===1&&ks[0]==='guest') LP.q=LP.q.concat(_lGuestTail()); }   /* [GUEST_ALL_G3] 하객 맞이 쪽 «전체 듣기»는 카드 넷 다 */   /* [TALK_BRIDGE] ② 작은 재생은 안내 한 줄로 · 크게 보기 · 연습은 차례 시간 */   /* ★[QA_FAST 2026-10-04 점검] «빠르게 훑기»는 말하는 자리를 3초 글 카드로 둔다(약 n분 셈 _lLen 과 같은 목록) — 종전엔 LP.fast 를 아무도 안 읽어 «처음부터 끝까지»와 같았다 */ if(_ao){ var _ar=new RegExp('^'+_ao+'-[A-F]$'), _aj=0; for(;_aj<LP.q.length;_aj++){ var _ax=LP.q[_aj]; if(_ax.k===_ao&&((_ax.own&&_ax.up===_ao)||_ar.test(_ax.slug||''))) break; } LP.__si=Math.min(LP.q.length,_aj+1); }   /* [ONE_PLAY_1013] 멘트 줄을 못 찾으면 아무것도 다시 틀지 않는다(장면이 이미 들려줬다) */ LP.i=LP.__si||0; LP.__si=0; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
   if(ENG&&LREC) go();
   else engine().then(function(g){ if(!g){ var _et='소리를 불러오지 못했어요 · 잠시 뒤 다시 눌러 주세요 (코드 '+(ENG_ERR||'L6')+')'; if(isOpen()){ if(LP.big) lsCloseBig(); try{ toast(_et,6000,true); }catch(e){} } else LS.msg=_et; render(); return; } _lrec().then(go); });   // [ERR_CODE_BUILDER]
   /* ★[ENG_FAIL_SHOW 2026-10-07 1라운드 점검] 새 코스(② · ③ · ④)는 LS.msg 를 그리지 않는다(옛 renderListen 하나만) — 종전엔 엔진을 못 받으면 아무 말이 없었고,
@@ -7702,8 +7704,13 @@ window.lsPlay=function(k){ if(_playOffAll(k)){ mkPlayOff('mp:'+k); return; } MK.
   MK.lsPend=MK.lsPend||{}; if(hk.length){ if(MK.lsPend[k]) return; MK.lsPend[k]=1; MK.lsPendAt=MK.lsPendAt||{}; var _pd=0; hk.forEach(function(x){ try{ _pd+=_waitEst(_vcArgs(x,{}).t); }catch(e){ _pd+=6; } }); MK.lsPendAt[k]={at:Date.now(),d:Math.min(20,_pd)}; render();   /* [WAIT_FILL] 만들 줄들의 어림을 더한다(20초면 먼저 튼다 · SIM_R3) */ var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R3] 이 순간 들어 보기도 20초까지만 — 넘으면 지금 소리로 먼저 · [SIM_R4] 제 깃발(lsPend)을 쓴다 — 플레이어의 lsBusy 와 섞이면 누른 것이 버려졌다 */
     Promise.race([_vtBake(hk),_slow]).then(function(r){ if(!MK.lsPend[k]) return; delete MK.lsPend[k];
       if(r==='slow'){ var t=Date.now(); hk.forEach(function(q){ VT_SLOW[q]=t; }); }   /* [SIM_R4] 이미 20초 기다린 줄은 플레이어가 또 기다리지 않는다 */
-      render(); _lStart([k],false); if(r==='slow') setTimeout(function(){ MK.toast=_vtWhyT(hk.filter(function(q){ return _upStale(q); })[0]||hk[0],true); render(); },80); }); return; }   /* [ERR_CODE_BUILDER] 글이 바뀐 줄이 있으면 «글로 보여 드려요»(그 줄은 옛 소리를 틀지 않는다) */   /* [SIM_R2] 두 번 눌러도 한 번 */   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
-  _lStart([k],false); };
+      render(); _lsGo(k); if(r==='slow') setTimeout(function(){ MK.toast=_vtWhyT(hk.filter(function(q){ return _upStale(q); })[0]||hk[0],true); render(); },80); }); return; }   /* [ERR_CODE_BUILDER] 글이 바뀐 줄이 있으면 «글로 보여 드려요»(그 줄은 옛 소리를 틀지 않는다) */   /* [SIM_R2] 두 번 눌러도 한 번 */   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
+  _lsGo(k); };
+/* ★★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개 · 디자인적으로 별로» → 시안 «a»] ② 입장에 곡을 골라 장면이 섰으면 «이 순간 전체 듣기»는 장면 알약 하나 —
+   위 입구(목소리 확인 · 안 만든 줄 만들기 · 바뀐 줄 다시 만들기)를 지난 뒤 장면(음악 → 멘트 → 문 열림)을 틀고(EntryMusic.whole), 장면이 끝나면 다음 줄부터 이어서(lsRest).
+   곡이 없으면 종전대로 줄만. ★두 알약을 다시 위아래로 두지 말 것 — 2026-10-13 사용자 지시 */
+function _lsGo(k){ try{ if(k==='entry'&&window.EntryMusic&&EntryMusic.whole&&EntryMusic.whole()) return; }catch(e){} _lStart([k],false); }
+window.lsRest=function(k){ LP.fast=false; LP.afterOwn=k; _lStart([k],false); };   // [ONE_PLAY_1013] 장면이 그 순간 멘트 줄을 맡았다 — 그 다음 줄부터
 window.lsPlayAll=function(){ LP.fast=false; LP.noChips=!!(STEPS[idx]&&STEPS[idx].k==='done'); _lOpenBig(); _lStart(_lRows(),true); _lFull(); };   // ④ 에서는 바꿀 것 칩 없이
 window.lsBig=function(k){ LP.fast=false; LP.noChips=false; _lOpenBig(); _lStart([k],false); _lFull(); };
 window.lsAgain=function(){ var r=(LP.ended&&LP.ended.range)||LP.range; if(!r) return; _lStart(r.ks,r.all); if(r.sec) LP.range.sec=r.sec;   // [QA_SEC]
@@ -7800,7 +7807,7 @@ function _lMini(){
 }
 function _lSay(t){ var el=document.getElementById('lsLive'); if(!el){ el=document.createElement('div'); el.id='lsLive'; el.className='sr-only'; el.setAttribute('aria-live','polite'); el.setAttribute('role','status'); document.body.appendChild(el); } el.textContent=t; }
 function _lPaint(){
-  var el=_lMini(), st=LP.q[LP.i]; try{ _mlPaint(); _mpPaint(); }catch(e){}   // [PLAY_ONE_LOOK] · [UI_ONE]
+  var el=_lMini(), st=LP.q[LP.i]; try{ _mlPaint(); _mpPaint(); }catch(e){} try{ if(window.EntryMusic&&EntryMusic.paint) EntryMusic.paint(); }catch(e){}   // [PLAY_ONE_LOOK] · [UI_ONE] · [ONE_PLAY_1013] 장면 알약도(다음 줄을 트는 동안 «멈추기»)
   document.querySelectorAll('.ls-row').forEach(function(r){ var k=r.getAttribute('data-lk'), on=!!st && k===st.k; r.classList.toggle('now', on);
     var b=r.querySelector('.ls-play'), pl=on&&!LP.paused; if(b&&b.getAttribute('data-pl')!==(pl?'1':'0')){ b.setAttribute('data-pl',pl?'1':'0');   // [A11Y_PLAYTOG] 재생 중인 줄은 «멈춤»
       var pi=b.querySelector('.ls-pi'); if(pi) pi.innerHTML=pl?ICO_PAUSE:ICO_PLAY;   /* [PLAY_BESIDE_NUM] 그림은 두고 원 안 아이콘만 바꾼다 */ b.setAttribute('aria-label',_lName(k)+(pl?' 멈춤':' 듣기')); b.setAttribute('onclick',pl?'lsToggle()':"lsPlay('"+k+"')"); } });

@@ -9460,7 +9460,7 @@ chk 'NOTE_OFF_1003' order-preview.html 4
 nochk "ai:'각자 1분쯤 소리 내어 읽으면" order-preview.html   # ★칩 아래 AI 설명 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'멘트를 바꾸면 두 분 목소리 입장 인사도 아래에서 다시 만들어 주세요.'" order-preview.html   # ★금지 — 2026-10-03 사용자 지시로 삭제(R8-03 이 같은 말)
 chk 'MK_FORM_ONE' order-preview.html 6
-chk "h+=_mkFlow(k,_pn>=2?lb:'');" order-preview.html 1
+chk "h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'');" order-preview.html 1   # [ONE_PLAY_1013] ② 입장에 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(MK_FORM_ONE 의 그 알약 · 음악과 함께)
 nochk "(gs.some(function(g){ return !g.q; })||_pn<2)?'':lb" order-preview.html   # ★«칩이 있으면 들어 보기 숨김» 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 길이 금지 — 2026-10-03
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
@@ -17713,7 +17713,7 @@ chk 'ENTRY_MUSIC_1012' scripts/audit/entry-music.mjs 1
 #   목소리 = 빌더가 트는 입장 줄(_lSteps · 두 분 목소리 / 나레이션) · 곡 = 이 기기에 올린 곡 · 마지막 말 끝 + 0.3초 = 고른 자리(시험실 plan · envDb 그대로)
 #   두 분 AI 를 안 만들었으면 그래프 없이 흐린 알약(AI_PLAY_READY) · 크게 보기는 2단계-나 · 아래 entry-music 점검 10 ~ 18
 chk 'ENTRY_SCENE_1012' order-preview.html 2
-chk "if(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml) h+=EntryMusic.sceneHtml();" order-preview.html 1
+chk "var _scn=(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml)?EntryMusic.sceneHtml():''; h+=_scn;" order-preview.html 1   # [ONE_PLAY_1013] 장면이 섰는지를 아래 흐름 알약이 본다
 chk '.mk-pick:has(+.em-scene){padding-bottom:0}' order-preview.html 1
 chk 'ENTRY_SCENE_1012' assets/entry-music.js 3
 chk 'EM.sceneHtml=sceneHtml' assets/entry-music.js 1
@@ -17728,7 +17728,7 @@ nochk "cssv('--seal'" assets/entry-music.js                         # [GRAPH_NO_
 chk 'ENTRY_BIG_1012' order-preview.html 1
 chk 'ENTRY_BIG_1012' assets/entry-music.js 3
 chk 'ENTRY_BIG_1012' scripts/audit/entry-music.mjs 1
-chk "pillHtml(st,PL)+bigBtnHtml(st)+'</div></section>'" assets/entry-music.js 1   # 크게 보기 단추는 알약 옆 한 자리
+chk "'<div class=\"mk-sech mk-sech-r em-play\">'+pillHtml(st,PL)+bigBtnHtml(st)+'</div>';" assets/entry-music.js 1   # 크게 보기 단추는 알약 옆 한 자리 · [ONE_PLAY_1013] 그 줄 아래 다 못 만든 줄 알림(_lsNote) 뒤에 칸을 닫는다
 chk 'function openBig' assets/entry-music.js 1
 chk 'function closeBig' assets/entry-music.js 1
 chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
@@ -17840,6 +17840,20 @@ chk '곡을 불러오는 중이에요</span>' assets/entry-music.js 1           
 chk "var pv = /-p$/.test(k), kk = pv ? k.slice(0, -2) : k;" automation/platform/80_production.gs 1   # 서버 '<키>-p' = 목록 pf
 chk "  'r9p.mp3': '" automation/platform/80_production.gs 1                                         # 지문 표에 짧은 판(문서 저장소 files/rNp.mp3 와 같은 지문)
 nochk "if(src==='rec'||recOn()) recListAuto();" assets/entry-music.js                             # 종전 «칩을 볼 때만 목록» — 미리 받기로 바뀌었다
+# ── 2026-10-13 알약 하나 [ONE_PLAY_1013] — 사장님 «플레이 위아래 두 개 있으니 디자인적으로 별로» → 시안 «a»
+#   ② 입장에 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(«이 순간 전체 듣기 · 음악과 함께») — 빌더 입구(lsPlay · 목소리 확인 · 안 만든 줄 만들기 [LS_MAKE_ALL])를 지나
+#   장면(음악 → 멘트 → 문 열림)부터 틀고, 장면이 끝나면 그 순간 다음 줄부터 이어서(lsRest). 곡이 없으면 종전 빌더 알약 하나. entry-music 18 · 24 · 25 · 26 이 잰다
+chk 'ONE_PLAY_1013' assets/entry-music.js 10
+chk 'ONE_PLAY_1013' order-preview.html 6
+chk 'ONE_PLAY_1013' scripts/audit/entry-music.mjs 8
+chk "'이 순간 전체 듣기 · 음악과 함께'" assets/entry-music.js 1                       # 알약 이름(시안 a)
+chk "if(R.whole&&!BIG) restGo();" assets/entry-music.js 1                              # 장면이 끝나면 다음 줄부터
+chk "if(typeof lsPlay==='function'){ lsPlay('entry'); return; }" assets/entry-music.js 1   # 처음부터는 빌더 입구를 지난다(목소리 확인 · 만들기)
+chk 'function _lsGo(k){' order-preview.html 1
+chk 'window.lsRest=function(k){' order-preview.html 1
+chk '\.mk-sech\[hidden\],\.mk-ploff\[hidden\]{display:none}' order-preview.html 1             # 장면이 나중에 서면(곡을 막 올림) 빌더 알약 줄을 숨긴다(mpSync)
+nochk "h+=_mkFlow(k,_pn>=2?lb:'');" order-preview.html                                  # ★장면 알약과 빌더 알약을 위아래로 두지 말 것 — 2026-10-13 사용자 지시
+nochk "'음악과 함께 듣기')+(len?" assets/entry-music.js                                  # 옛 알약 이름 «음악과 함께 듣기 약 N초»
 # ── 2026-10-13 BGM 이 먼저 깔리고 멘트 [BGM_FIRST_1013] — 사장님 «bgm이 먼저 조금 깔리다가 멘트를 하는 게 좋을 것 같은데»
 #   엔진 한 곳(entry-scene.js · 식순 화면 = 당일 콘솔): 멘트 앞 4초는 들리게(1.2초에 올라와 -6dB · 멘트 0.5초 전부터 낮춤) · 멘트가 길면 같은 소절이 다시 나오는 뒤 자리(hooks)에 문 열림
 #   bgm-first 가 엔진만 잰다(옛 엔진으로 돌리면 빨강 넷) · rec-song-ui 15e · entry-scene-day 10 이 화면 · 콘솔을 잰다(콘솔에서 hooks 를 빼면 빨강)
