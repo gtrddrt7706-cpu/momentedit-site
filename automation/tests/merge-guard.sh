@@ -13016,6 +13016,12 @@ chk 'SPEECH_NO_NONE' assets/ritual-cue.js 2
 #   옛 코스(옛 초안)는 그대로 · 동작은 merge-extra-0926 P1-6 이 잰다(새 코스 축사 · 영상 · 없음 판 모두 87 없음 · 옛 코스 있음) · 새 코스에 되살리지 말 것
 chk 'TOAST_NONE_OFF_1012' assets/ritual-cue.js 5
 chk 'TOAST_NONE_OFF_1012' scripts/audit/merge-extra-0926.mjs 2
+# ★[TERM_BY_SPEAKER_1013 2026-10-13 코워크 레퍼런스 모음 3-9] 용어는 말하는 사람으로 — 축사 = 친구 · 형제자매(부모님은 덕담) · 화면 · FAQ · AI 지식에 «가족이나 친구»(축사)가 돌아오면 빨강
+chk 'TERM_BY_SPEAKER_1013' assets/ritual-open.js 2
+nochk '가족이나 친구가 두 분께 축하' assets/ritual-open.js 0
+nochk '가족이나 친구가 두 분께 축하' order-preview.html 0
+nochk '축가 앞에 가족이나 친구 한 분이' index.html 0
+nochk '축가 앞에 가족이나 친구 한 분이' api/_kb.js 0
 chk 'SCRIPT_LAB' order-preview.html 3
 chk 'PV_TOP' order-preview.html 1
 chk 'NOTICE_QUEUE' assets/ritual-open.js 1
