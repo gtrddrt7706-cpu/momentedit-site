@@ -9,9 +9,9 @@
    6 적는 칸 = ▶ 알약과 같은 크기 · 같은 금빛 테 [OWN_PILL_SAME] · 가로 넘침 없음
    7 새로고침 → 이 기기에 둔 곡으로 다시 풀고 고른 자리(1:05) 그대로
    8 빼기 → S.mu 없음 · 빈 카드
-   9 안내 창이 «음악과 함께 듣기»를 말한다(나레이션 판 = «멘트부터 입장까지») · 쪽 오류 없음
+   9 안내 창이 «이 순간 전체 듣기 · 음악과 함께»를 말한다(나레이션 판 = «멘트부터 입장까지») · 쪽 오류 없음
    ★★[ENTRY_SCENE_1012] 2단계 «음악과 함께 듣기»
-   10 올리면 고르기 칸 바로 아래 장면 칸(16px) · 그래프 그림 · 알약 «음악과 함께 듣기 약 N초» · 계획 = 목소리 끝 + 0.3초가 고른 자리(곡은 그만큼 앞에서 · 목소리보다 4초 먼저)
+   10 올리면 고르기 칸 바로 아래 장면 칸(16px) · 그래프 그림 · 알약 «이 순간 전체 듣기 · 음악과 함께» · 계획 = 목소리 끝 + 0.3초가 고른 자리(곡은 그만큼 앞에서 · 목소리보다 4초 먼저)
    11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «기다려요» 칸이 진하게
    12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터
    13 그래프를 누르면 그 자리부터(문이 열린 뒤 = «걸어 들어와요» 칸)
@@ -26,6 +26,10 @@
    21 ⏸ = 그 자리에 멈춤(이어 듣기) · ▶ = 이어서
    22 마지막 줄 → 자막이 그 줄(나레이션 «신랑 신부, 입장!») → 음악이 크게 올라오면 «음악이 크게 올라와요» · 장면 영상이 그 자리부터 · › 는 마지막 칸에서 꺼진다
    23 ⌄ · Esc · 뒤로 가기로 닫힌다 — 잠금이 풀리고 초점은 연 단추로 · 페이지는 그대로
+   ★★[ONE_PLAY_1013] 알약 하나(사장님 10/13 «플레이 위아래 두 개 · 디자인적으로 별로» → 시안 «a»)
+   24 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나 — 빌더 알약(n줄 이어서)은 그리지 않는다
+   25 장면이 끝나면(음악이 잦아든 뒤) 그 순간 다음 줄부터 이어서 · 그동안 알약 «멈추기» · 누르면 멈춘다
+   26 빌더가 이 순간 줄을 만드는 동안(LS_MAKE_ALL) 알약 «만드는 중»(차오름 · 잠김) · 끝나면 제 이름
    시험 곡은 여기서 만든다(저작권 없는 합성음 · 저장소에 음원을 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
    EM_OP · EM_MOD = 돌연변이 확인용 — 그 판의 order-preview · entry-music.js 로 잰다 */
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -63,9 +67,9 @@ try {
     ok(`${W} 1 입장 음악 줄 — 고르기 칸 맨 아래 · 이름표 · 칩 둘(처음엔 안 눌린 모양 [MU_SRC]) · 아래 카드 · 링크 없음 · 파일 칸은 화면 밖 하나(확장자만)`, R1.row && R1.last && R1.gl === '입장 음악' && R1.chips === '두 분이 고른 곡:false|추천 곡:false' && R1.tab === '0,-1' && R1.box === 0 && !R1.link && R1.input === 1 && R1.acc === '.mp3,.m4a,.aac,.wav,.flac', R1);
     // 2 — 칩 «두 분이 고른 곡» → 아직 올린 곡이 없으면 안내 창 [UP_GUIDE_CHIP]
     await pg.click('[data-fk="musrc:up"]'); await pg.waitForTimeout(500);
-    const R2 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { open: !!d, t: d && (d.querySelector('#mkDlgT') || {}).textContent, steps: d ? [...d.querySelectorAll('.mk-rd-steps p > b')].map((b) => b.textContent).join('|') : '', btns: d ? [...d.querySelectorAll('.mk-dlg-go')].map((b) => b.textContent).join('|') : '', focus: document.activeElement && document.activeElement.getAttribute('data-fk'), scene: !!(d && /음악과 함께 듣기/.test(d.textContent)), nar: !!(d && /멘트부터 입장까지/.test(d.textContent) && /입장!»?이 끝나는 순간/.test(d.textContent)), seen: (S.tipSeen || {}).mu }; });
+    const R2 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { open: !!d, t: d && (d.querySelector('#mkDlgT') || {}).textContent, steps: d ? [...d.querySelectorAll('.mk-rd-steps p > b')].map((b) => b.textContent).join('|') : '', btns: d ? [...d.querySelectorAll('.mk-dlg-go')].map((b) => b.textContent).join('|') : '', focus: document.activeElement && document.activeElement.getAttribute('data-fk'), scene: !!(d && /이 순간 전체 듣기/.test(d.textContent) && /음악과 함께/.test(d.textContent)), nar: !!(d && /멘트부터 입장까지/.test(d.textContent) && /입장!»?이 끝나는 순간/.test(d.textContent)), seen: (S.tipSeen || {}).mu }; });
     ok(`${W} 2 «두 분이 고른 곡» 칩 → 안내 창(빌더 창 · 단계 넷 · 아래 단추 «알겠어요» 하나 [GUIDE_OK] · [UP_GUIDE_CHIP]) · 파일 창 없음`, R2.open && R2.t === '내 곡을 올리면 이렇게 돼요' && R2.steps === '곡 파일을 올려요|크게 올라오는 자리를 찾아 드려요|들어 보고 골라요|원하는 자리가 없으면 직접 적어요' && R2.btns === '알겠어요' && R2.focus === 'muguideok' && R2.seen === 1 && fileWins === 0, { ...R2, fileWins });
-    ok(`${W} 9 안내 창이 «음악과 함께 듣기»를 말한다 · 나레이션 판은 «멘트부터 입장까지»`, R2.scene === true && R2.nar === true, R2);
+    ok(`${W} 9 안내 창이 «이 순간 전체 듣기 · 음악과 함께»를 말한다 · 나레이션 판은 «멘트부터 입장까지» [ONE_PLAY_1013]`, R2.scene === true && R2.nar === true, R2);
     await pg.click('#mkRecDlg .mk-dlg-go'); await pg.waitForTimeout(400);
     const R2b = await pg.evaluate(() => { const r = document.querySelector('.ls-mu'); return { open: !!document.getElementById('mkRecDlg'), focus: document.activeElement && document.activeElement.getAttribute('data-fk'), chip: r.querySelector('[data-fk="musrc:up"]').getAttribute('aria-checked'), link: (r.querySelector('.cg-links [data-fk="muguide"]') || {}).textContent, cs: (r.querySelector('.mu-cs') || {}).textContent, go: (r.querySelector('[data-fk="muupopen"]') || {}).textContent, hint: (r.querySelector('.mu-uphint') || {}).textContent }; });
     ok(`${W} 2b «알겠어요» → 창만 닫힘 · 칩이 눌린 모양 · 아래 빈 카드(설명 · «곡 파일 올리기» · MP3 · M4A) · 줄 끝 «올리기 안내 보기» · 초점은 칩 · 파일 창 없음`, !R2b.open && R2b.chip === 'true' && R2b.link === '올리기 안내 보기' && /크게 올라오는 자리를 찾아/.test(R2b.cs || '') && /곡 파일 올리기/.test(R2b.go || '') && R2b.hint === 'MP3 · M4A' && R2b.focus === 'musrc:up' && fileWins === 0, { ...R2b, fileWins });
@@ -82,7 +86,10 @@ try {
     const S10 = await pg.evaluate(() => { const sc = document.querySelector('.em-scene'), mu = document.querySelector('.ls-mu'), pick = mu && mu.closest('.mk-pick'), cv = sc && sc.querySelector('.em-graph canvas'); let ink = 0; if (cv) { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) ink++; }
       const b = sc && sc.querySelector('[data-fk="emscene"]'), s = EntryMusic._t.scene(); return { after: !!(sc && pick && pick.nextElementSibling === sc), gap: sc && mu ? Math.round(sc.getBoundingClientRect().top - mu.getBoundingClientRect().bottom) : null, ink, pill: b && b.textContent.replace(/\s+/g, ' ').trim(), pressed: b && b.getAttribute('aria-pressed'), plan: s.plan, pieces: s.pieces, scn: (sc && sc.querySelector('.lg-scene').textContent) || '', lbl: (sc && sc.querySelector('.em-graph').getAttribute('aria-label')) || '', over: document.documentElement.scrollWidth > innerWidth }; });
     const P = S10.plan || {};
-    ok(`${W} 10 올리면 고르기 칸 바로 아래 장면(16px) · 그래프 · 알약 «음악과 함께 듣기 약 N초» · 목소리 끝 + 0.3초 = 고른 자리 · 곡이 목소리보다 4초 먼저`, S10.after && S10.gap === 16 && S10.ink > 500 && S10.pressed === 'false' && /^음악과 함께 듣기 약 (\d+분 )?\d+초$/.test(S10.pill || '') && S10.plan && Math.abs(P.th - (P.tv + P.V + 0.3)) < 0.01 && Math.abs(P.H - 40) < 0.3 && P.tm === 0 && P.tv === 4 && Math.abs(P.off - (P.H - P.V - 0.3 - 4)) < 0.01 && S10.pieces >= 3 && /문\s앞에서\s기다려요/.test(S10.scn) && /도착/.test(S10.scn) && /«입장!»이 끝나면/.test(S10.lbl) && !S10.over, S10);
+    ok(`${W} 10 올리면 고르기 칸 바로 아래 장면(16px) · 그래프 · 알약 «이 순간 전체 듣기 · 음악과 함께» · 목소리 끝 + 0.3초 = 고른 자리 · 곡이 목소리보다 4초 먼저`, S10.after && S10.gap === 16 && S10.ink > 500 && S10.pressed === 'false' && S10.pill === '이 순간 전체 듣기 · 음악과 함께' && S10.plan && Math.abs(P.th - (P.tv + P.V + 0.3)) < 0.01 && Math.abs(P.H - 40) < 0.3 && P.tm === 0 && P.tv === 4 && Math.abs(P.off - (P.H - P.V - 0.3 - 4)) < 0.01 && S10.pieces >= 3 && /문\s앞에서\s기다려요/.test(S10.scn) && /도착/.test(S10.scn) && /«입장!»이 끝나면/.test(S10.lbl) && !S10.over, S10);
+    // 24 — ★[ONE_PLAY_1013] 알약 하나 — 장면이 서면 빌더 «이 순간 전체 듣기 · n줄 이어서» 알약은 그리지 않는다(사장님 10/13 «플레이 위아래 두 개» → «a»)
+    const S24 = await pg.evaluate(() => ({ mp: [...document.querySelectorAll('.mk-hbtn[data-mp="entry"]')].filter((b) => b.offsetParent).length, scp: document.querySelectorAll('.em-scene [data-fk="emscene"]').length, all: [...document.querySelectorAll('button')].filter((b) => b.offsetParent && /이 순간 전체 듣기/.test(b.textContent)).length }));
+    ok(`${W} 24 [ONE_PLAY_1013] 알약 하나 — 장면 알약만 «이 순간 전체 듣기» · 빌더 알약(n줄 이어서)은 없다`, S24.mp === 0 && S24.scp === 1 && S24.all === 1, S24);
     // 11
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(1800);
     const S11 = await scene();
@@ -121,6 +128,21 @@ try {
     await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(500); await pg.keyboard.press('Escape'); await pg.waitForTimeout(400); const B23b = await big();
     const u0 = pg.url(); await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(500); await pg.goBack(); await pg.waitForTimeout(600); const B23c = Object.assign(await big(), { same: pg.url() === u0, page: await pg.evaluate(() => _mkState().at) });
     ok(`${W} 23 ⌄ · Esc · 뒤로 가기로 닫힌다 — 잠금이 풀리고 초점은 연 단추 · 페이지는 그대로(② 입장)`, !B23a.open && !B23a.inert && !B23a.hist && B23a.focus === 'embig' && !B23b.open && !B23b.inert && B23b.focus === 'embig' && !B23c.open && !B23c.inert && B23c.same && B23c.page === 'entry', { B23a, B23b, B23c });
+    // 25 — ★[ONE_PLAY_1013] 장면이 끝나면(음악이 잦아든 뒤) 그 순간 다음 줄부터 빌더가 이어서 · 그동안 알약은 «멈추기» · 누르면 멈춘다
+    const rest = await pg.evaluate(() => { const a = _lSteps(ENG, ['entry']).filter((x) => !x.quiet), j = a.findIndex((x) => (x.own && x.up === 'entry') || /^entry-[A-F]$/.test(x.slug || '')); return { n: a.length, j, next: j > -1 && a[j + 1] ? (a[j + 1].slug || a[j + 1].lab || '?') : '' }; });
+    const g25 = await pg.evaluate(() => { const r = document.querySelector('.em-scene .em-graph canvas').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }), P25 = (await scene()).plan;
+    await pg.mouse.click(g25.x + g25.w * Math.max(0, (P25.tend - 1.2) / P25.tend), g25.y + g25.h / 2);
+    await pg.waitForFunction(() => typeof LP !== 'undefined' && LP.q.length > 0 && _mpOn('entry'), null, { timeout: 12000 }).catch(() => {}); await pg.waitForTimeout(200);
+    const S25a = Object.assign(await scene(), { lp: await pg.evaluate(() => { const st = LP.q[LP.i]; return { n: LP.q.length, i: LP.i, k: st && st.k, own: !!(st && st.own), slug: (st && st.slug) || '', on: _mpOn('entry') }; }) });
+    await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(400);
+    const S25b = Object.assign(await scene(), { lp: await pg.evaluate(() => LP.q.length) });
+    ok(`${W} 25 [ONE_PLAY_1013] 장면이 끝나면 다음 줄(${rest.next || '없음'})부터 이어서 · 그동안 알약 «멈추기» · 누르면 멈추고 «이 순간 전체 듣기 · 음악과 함께»`, rest.j > -1 && !!rest.next && S25a.ended && !S25a.run && S25a.lp.on && S25a.lp.k === 'entry' && !S25a.lp.own && !/^entry-[A-F]$/.test(S25a.lp.slug) && S25a.pill === '멈추기' && S25a.pressed === 'true' && S25b.lp === 0 && S25b.pill === '이 순간 전체 듣기 · 음악과 함께' && S25b.pressed === 'false', { rest, S25a, S25b });
+    // 26 — ★[ONE_PLAY_1013 · LS_MAKE_ALL] 빌더가 이 순간 줄을 만드는 동안 알약은 «만드는 중»(차오름 · 눌러도 틀지 않는다) · 다 되면 제 이름으로
+    const pill26 = () => pg.evaluate(() => { const b = document.querySelector('.em-scene [data-fk="emscene"]'), s = EntryMusic._t.scene(); return { t: b && b.textContent.replace(/\s+/g, ' ').trim(), dis: !!(b && b.disabled), busy: b && b.getAttribute('aria-busy'), fill: !!(b && b.classList.contains('wfill')), run: s.run, pend: s.pend, lp: LP.q.length }; });
+    await pg.evaluate(() => { MK.lsMake = MK.lsMake || {}; MK.lsMake.entry = { at: Date.now(), d: 5 }; EntryMusic.paint(); }); const S26a = await pill26();
+    await pg.click('[data-fk="emscene"]', { force: true }); await pg.waitForTimeout(400); const S26b = await pill26();
+    await pg.evaluate(() => { delete MK.lsMake.entry; EntryMusic.paint(); }); await pg.waitForTimeout(800); const S26c = await pill26();
+    ok(`${W} 26 [ONE_PLAY_1013 · LS_MAKE_ALL] 만드는 동안 알약 «만드는 중»(차오름 · 잠김) · 눌러도 틀지 않음 · 끝나면 «이 순간 전체 듣기 · 음악과 함께»`, S26a.t === '만드는 중' && S26a.dis && S26a.busy === 'true' && S26a.fill && !S26b.run && !S26b.pend && S26b.lp === 0 && S26c.t === '이 순간 전체 듣기 · 음악과 함께' && !S26c.dis && !S26c.run, { S26a, S26b, S26c });
     await pg.evaluate(() => _stopMk()); await pg.waitForTimeout(150);
     // 4
     await pg.click('[data-fk="muhkp:0"]'); await pg.waitForTimeout(250);
@@ -133,7 +155,7 @@ try {
     const R5 = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.ls-mu .mu-hks .mu-row')]; return { last: rows.length && rows[rows.length - 1].querySelector('.mu-t').textContent, on: [...document.querySelectorAll('.ls-mu .mu-hks .mu-row.on .mu-t')].map((x) => x.textContent).join(), mu: S.mu, val: document.getElementById('muOwn').value }; });
     ok(`${W} 5 직접 적기 105 → 1:05 · 맨 아래 줄 · 고름 · S.mu.typed 65 [HOOK_TYPE]`, R5.last === '1:05' && R5.on === '1:05' && R5.mu.typed === 65 && R5.mu.hook >= 64.75 && R5.mu.hook <= 66 && R5.val === '1:05', R5);
     const S15 = await scene();
-    ok(`${W} 15 자리를 바꾸면(1:05) 멈춘 자리를 걷고 새 자리로 다시 짠다 — «음악과 함께 듣기 약 N초»`, !S15.run && S15.pause === null && S15.plan && Math.abs(S15.plan.H - R5.mu.hook) < 0.01 && /^음악과 함께 듣기 약 /.test(S15.pill || ''), S15);
+    ok(`${W} 15 자리를 바꾸면(1:05) 멈춘 자리를 걷고 새 자리로 다시 짠다 — «이 순간 전체 듣기 · 음악과 함께»`, !S15.run && S15.pause === null && S15.plan && Math.abs(S15.plan.H - R5.mu.hook) < 0.01 && S15.pill === '이 순간 전체 듣기 · 음악과 함께', S15);
     // 6
     const R6 = await pg.evaluate(() => { const pl = document.querySelector('.ls-mu .mu-hks .mu-row .mu-pl'), b = pl.getBoundingClientRect(), cs = getComputedStyle(pl, '::before'), inp = document.getElementById('muOwn'), ib = inp.getBoundingClientRect();
       return { pw: Math.round(b.width - parseFloat(cs.left) - parseFloat(cs.right)), ph: Math.round(b.height - parseFloat(cs.top) - parseFloat(cs.bottom)), iw: Math.round(ib.width), ih: Math.round(ib.height), dx: Math.round(ib.left - b.left), pbd: (/rgb\([^)]*\)/.exec(cs.boxShadow) || [''])[0], ibd: getComputedStyle(inp).borderTopColor, fs: getComputedStyle(inp).fontSize, over: document.documentElement.scrollWidth > innerWidth }; });
@@ -145,7 +167,7 @@ try {
     const R7 = await pg.evaluate(() => { const u = EntryMusic._t.ups(); return { ok: !!(u && u.Sg), on: [...document.querySelectorAll('.ls-mu .mu-hks .mu-row.on .mu-t')].map((x) => x.textContent).join(), val: (document.getElementById('muOwn') || {}).value, mu: S.mu }; });
     ok(`${W} 7 새로고침 → 이 기기에 둔 곡으로 다시 풀고 고른 자리(1:05) 그대로`, R7.ok && R7.on === '1:05' && R7.val === '1:05' && R7.mu && R7.mu.typed === 65, R7);
     await pg.waitForFunction(() => EntryMusic._t.scene().plan, null, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(300); const S16 = await scene();
-    ok(`${W} 16 새로고침 뒤에도 장면 칸이 다시 선다(이 기기에 둔 곡 · 1:05)`, S16.has && S16.graph && S16.plan && Math.abs(S16.plan.H - R7.mu.hook) < 0.06 && /^음악과 함께 듣기 약 /.test(S16.pill || ''), S16);
+    ok(`${W} 16 새로고침 뒤에도 장면 칸이 다시 선다(이 기기에 둔 곡 · 1:05)`, S16.has && S16.graph && S16.plan && Math.abs(S16.plan.H - R7.mu.hook) < 0.06 && S16.pill === '이 순간 전체 듣기 · 음악과 함께', S16);
     // 17 — 두 분 AI 목소리를 아직 안 만들었을 때
     await pg.evaluate(() => { RitualOpen.FEATURE = RitualOpen.FEATURE || {}; RitualOpen.FEATURE.voiceClone = true; render(); }); await pg.waitForTimeout(400);
     const aiChip = await pg.evaluate(() => !!document.querySelector('[data-fk="lsc:entryVoice:ai"]'));
@@ -158,7 +180,8 @@ try {
     await pg.click('[data-fk="muupdel"]'); await pg.waitForTimeout(400);
     const R8 = await pg.evaluate(() => ({ mu: S.mu || null, empty: !!document.querySelector('.ls-mu [data-fk="muupopen"]'), rows: document.querySelectorAll('.ls-mu .mu-row').length }));
     ok(`${W} 8 빼기 → S.mu 없음 · 빈 카드`, R8.mu === null && R8.empty && R8.rows === 0, R8);
-    ok(`${W} 18 빼기 → 장면 칸도 없어진다`, !(await pg.evaluate(() => !!document.querySelector('.em-scene'))), {});
+    const S18 = await pg.evaluate(() => ({ sc: !!document.querySelector('.em-scene'), mp: [...document.querySelectorAll('.mk-hbtn[data-mp="entry"]')].filter((x) => x.offsetParent).length }));
+    ok(`${W} 18 빼기 → 장면 칸도 없어진다 · 빌더 «이 순간 전체 듣기» 알약이 돌아온다(알약은 늘 하나 [ONE_PLAY_1013])`, !S18.sc && S18.mp === 1, S18);
     ok(`${W} 9b 쪽 오류 없음`, errs.length === 0, errs.slice(0, 3));
     await ctx.close();
   }
