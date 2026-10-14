@@ -87,6 +87,11 @@ const PLAY = [
 
 const idx = fs.existsSync(IDX) ? JSON.parse(fs.readFileSync(IDX, 'utf8')) : {};
 const lib = JSON.parse(fs.readFileSync(LIBIDX, 'utf8')).slots;
+/* ★★[PLAY03_FROZEN_1014] 플레이 03 은 들으신 그대로 둔다 — s: (옛 창고 자리) · c: (옛 줄째 클립)는 10/13 그때 소리를 docs/plans/식순연구/플레이/플레이03_옛원천 에 얼려 두고 거기서 읽는다.
+   ★왜 — 10/14 PR B 가 원고를 엔진에 옮기며 창고 자리를 다시 묶고(89 #5 → #4 · 28 #2 → #1) 91 을 새 글로 갈았다. 표가 «지금 창고»를 읽으면 들으신 플레이 03 이 다른 소리 · 다른 글이 되고 검사가 빨갛다.
+     얼린 파일은 b1603c90 의 것 그대로라 git 에서는 같은 덩어리(늘지 않는다) · docs 라 배포되지 않는다. 얼린 것이 없을 때만 지금 창고 · 클립을 읽는다(플레이 03 뒤에 생긴 줄). */
+const OLD = path.join(PLAN, '플레이/플레이03_옛원천');
+let old = { s: {}, c: [] }; try { old = JSON.parse(fs.readFileSync(path.join(OLD, '_index.json'), 'utf8')); } catch {}
 const doc = norm(fs.readFileSync(DOC, 'utf8'));
 
 if (process.argv[2] === '--check') {
@@ -127,8 +132,10 @@ if (process.argv[2] === '--check') {
 function part(tok) {   // → { file, text, from?, chant }
   const chant = tok.startsWith('!'); const t = chant ? tok.slice(1) : tok; const [kind, rest] = [t.slice(0, 1), t.slice(2)];
   if (kind === 'u' || kind === 'j' || kind === 'r') { const k = `${kind}/${pad(+rest)}`; const e = idx[k]; if (!e) throw new Error(`창고에 없다 ${k} — --import 먼저`); return { file: path.join(SRC, k + '.flac'), text: e.text, chant }; }
-  if (kind === 's') { const e = lib[rest]; const [d, i] = rest.split('#'); const f = path.join(LIB, d, i + '.flac'); if (!e || !fs.existsSync(f)) throw new Error(`옛 원천에 없다 ${rest}`); return { file: f, text: e.text, chant }; }
-  if (kind === 'c') { const m = rest.match(/^([^@]+)@([\d.]+)\|(.+)$/); const f = path.join(NARR, m[1] + '.mp3'); if (!fs.existsSync(f)) throw new Error(`클립이 없다 ${m[1]}`); return { file: f, text: m[3], from: m[2], chant }; }
+  if (kind === 's') { const [d, i] = rest.split('#'); const o = old.s[rest];   // [PLAY03_FROZEN_1014] 얼린 옛 원천이 먼저
+    if (o) { const f = path.join(OLD, d + '_' + i + '.flac'); if (!fs.existsSync(f)) throw new Error(`얼린 옛 원천 파일이 없다 ${rest}`); return { file: f, text: o.text, chant }; }
+    const e = lib[rest]; const f = path.join(LIB, d, i + '.flac'); if (!e || !fs.existsSync(f)) throw new Error(`옛 원천에 없다 ${rest}`); return { file: f, text: e.text, chant }; }
+  if (kind === 'c') { const m = rest.match(/^([^@]+)@([\d.]+)\|(.+)$/); const fo = path.join(OLD, m[1] + '.mp3'); const f = (old.c || []).includes(m[1]) && fs.existsSync(fo) ? fo : path.join(NARR, m[1] + '.mp3'); if (!fs.existsSync(f)) throw new Error(`클립이 없다 ${m[1]}`); return { file: f, text: m[3], from: m[2], chant }; }
   throw new Error('모르는 조각 ' + tok);
 }
 const dur = (f) => +execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).toString().trim();

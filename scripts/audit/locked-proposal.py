@@ -78,10 +78,19 @@ for f in sorted(glob.glob('scripts/audit/copycheck/round[0-9].json')):
             if s['old'] != s['new']:
                 props.append((d['round'], c['no'], s['i'], s['old'], s['new']))
 
+# ★★[LATER_DECISION_1014] 옛 회차 제안의 «새 문면»을 나중 결정이 거꾸로 되돌린 자리 — 그 제안은 이제 옛 판이다(날짜가 나중인 결정이 이긴다).
+#   자리째 면제하지 않는다([JUDGED_TSV] 의 교훈) — (회차 · 번호 · 문장 · 새 문면)이 다 같은 그 제안 하나만 넘기고, 넘긴 것은 세어 찍는다.
+_LATER = {
+    ('0', '28', 0, '서로에게 쓴 편지를 읽겠습니다.'): '10/13 원고 2판 «두 사람이 서로에게 쓴 편지가 있습니다»(짐작 W5 걷기 · 녹음 받음 · 10/14 엔진)',
+    ('5', '44', 0, '여기서부터는 사진입니다.'): '10/10 코워크 회신 6 · 사장님 «추천대로» «여기서부터는 작가님이 안내해 드립니다»(지시권을 넘기는 말 · 녹음 받음 · 10/14 엔진)',
+}
+later = []
 bad, skipped = [], []
 for rd, no, i, old, new in props:
     if (no, i) in JUDGED:
         continue
+    if (str(rd), str(no), i, new) in _LATER:
+        later.append((rd, no, i, _LATER[(str(rd), str(no), i, new)])); continue
     for s in NO:
         if s in new:
             # ★[JUDGED_TSV] 그 nochk 가 «내가 방금 일부러 지운 말»이면 이 제안은 이미 판정된 옛 판이다.
@@ -97,6 +106,9 @@ for rd, no, i, old, new in props:
             bad.append((rd, no, i, 'chk', s, new))
 
 print('제안 %d건 · 게이트 잠금 chk %d · nochk %d' % (len(props), len(YES), len(NO)))
+if later:
+    print('  · 나중 결정이 되돌린 옛 제안이라 넘긴 것 %d건 [LATER_DECISION_1014]' % len(later))
+    for rd, no, i, why in later: print('      R%s [%s]#%s  %s' % (rd, no, i, why[:70]))
 if skipped:
     print('  · 이미 판정한 자리라 넘긴 것 %d건 (표: %s)' % (len(skipped), _TSV.split('/')[-1]))
     for rd, no, i, w in skipped[:6]: print('      R%s [%s]#%s  %s' % (rd, no, i, w[:30]))
