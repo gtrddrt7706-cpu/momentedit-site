@@ -6963,10 +6963,10 @@ window.lsLine=function(d){ var a=LP.q[LP.i], j=LP.i+d, b=LP.q[j]; if(!a||!b||b.k
 window.mkDrop=function(k){ var R=RitualOpen, m=_mkState(), b0=R.bodySec(S), crossBefore=R.crossTribute(S);
   if(LP.cur===k) lsStop(); S.on[k]=0; delete S.on[k]; m.drop[k]=1; opSync();
   var cut=Math.max(0,Math.round((b0[0]-R.bodySec(S)[0])/60)); m.dropMin=m.dropMin||{}; m.dropMin[k]=cut;
-  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»으로 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }
+  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»'+_josaRo(R.chipLabel('tribute',S))+' 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }   /* [R2_TRIB_JOSA_1014] 판 이름이 «인사»로 끝나 «으로»가 틀렸다(_josaRo) */
   _fxNext='[data-fk="mkundrop"]'; _persist(); render(); };   // [A11Y_FOCUS] 뺀 뒤 포커스 = «다시 넣기»
 window.mkUndrop=function(k){ var R=RitualOpen, m=_mkState(), crossBefore=R.crossTribute(S); S.on[k]=1; delete m.drop[k]; opSync();
-  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»으로 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }
+  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»'+_josaRo(R.chipLabel('tribute',S))+' 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }
   _fxNext='#mkHead'; _persist(); render(); };   // [A11Y_FOCUS] 다시 넣은 뒤 포커스 = 쪽 제목([MK_NO_DROP_LINK] 같은 자리의 «이 순간 빼기»가 없어졌다)
 function renderMake(){
   var R=RitualOpen, m=_mkState();

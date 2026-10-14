@@ -18288,3 +18288,5 @@ chk 'R2_CANDLE_BLOCK_1014' assets/ritual-story.js 1      # 라운드 2 G2 — �
 nochk "자리에서 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로 돌아가세요" assets/ritual-story.js
 chk 'R2_MATJEOL_SCENE_1014' assets/ritual-story.js 1    # 라운드 2 G2 — 맞절 장면 첫 문장(블록 설명 되풀이 · 지난 동작) 빼기
 nochk "scene: '앞에 나란히 서면 안내 음성에 맞춰 서로 마주 봐요." assets/ritual-story.js
+chk 'R2_TRIB_JOSA_1014' order-preview.html 1            # 라운드 2 G5 — «말로 인사»으로 → 로(_josaRo)
+nochk "»으로 바뀌었어요. 적은 글을 한 번 봐 주세요." order-preview.html
