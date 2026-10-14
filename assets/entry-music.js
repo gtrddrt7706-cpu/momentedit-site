@@ -416,12 +416,15 @@
        원래 부르는 말이 위(노란색 · ly-o) · 옮긴 말이 아래(흰색 · ly-t) — 종전 [LY_KO_TOP] «늘 한글이 위»는 한국어 곡에만 맞았다.
        곡의 원래 말은 아래 표 — 한국어 곡 r1 · r8 · 섞인 곡 r6 는 줄마다(원곡에서 영문으로 부르는 줄의 시각) · 그 밖의 곡은 영문.
        근거: docs 저장소 operations/rec-songs 의 번역 전 목록(d5d4bfa) — 한국어 곡은 한글만 · 영어 곡은 영문이 원문 · r6 는 영문 줄 열 개.
-       ★곡을 바꾸면 이 표도 함께(docs operations/rec-songs/README «곡을 바꿀 때») */
-  var LY_ORIG={r1:'ko',r8:'ko',r6:{en:[52.12,55.76,59.3,63.29,66.55,92.14,95.74,99.48,102.74,132.27]}};
-  function lyOrig(k,t){ var o=LY_ORIG[k]; if(!o) return 'en'; if(typeof o==='string') return o; return (o.en||[]).some(function(x){ return Math.abs(x-(+t))<0.05; })?'en':'ko'; }
+       ★곡을 바꾸면 이 표도 함께(docs operations/rec-songs/README «곡을 바꿀 때»)
+     ★★[LY_ORIG_TEXT_1014 2026-10-14 사장님 «이 노래 가사랑 전혀 안 맞아»(Welcome to the Show)] r6 의 영문 줄은 «시각»이 아니라 «영문 글»로 가린다 —
+       그 곡 줄 시각을 실제 노래에 다시 맞추자(LY_REALIGN_1014) 시각 표(52.12 · 55.76 …)가 한 줄도 안 맞게 됐다. 시각으로 적어 두면 시각을 고칠 때마다 이 표가 함께 깨진다.
+       영문으로 부르는 줄 = «If so, … welcome to the show» 와 «Whoa-oh …» 합창 — 옛 목록 · 새 목록 둘 다 같은 글이라 서버 판이 바뀌는 사이에도 맞다 */
+  var LY_ORIG={r1:'ko',r8:'ko',r6:{en:/^(If so\b|Whoa)/}};
+  function lyOrig(k,line){ var o=LY_ORIG[k]; if(!o) return 'en'; if(typeof o==='string') return o; return o.en.test(String((line&&line[1])||''))?'en':'ko'; }
   function lyHtml(line,k){ var en=line[1]?'<span class="mu-en" lang="en">'+lyBr(line[1])+'</span>':'', ko=line[2]?'<span class="mu-ko'+(line[1]?'':' mu-nt')+'">'+lyBr(line[2])+'</span>':'';
     if(!en||!ko) return (en||ko).replace('<span class="','<span class="ly-o ');   /* 한쪽뿐이면 그 줄이 원래 말 */
-    return lyOrig(k,line[0])==='en'?en.replace('<span class="','<span class="ly-o ')+ko.replace('<span class="','<span class="ly-t '):ko.replace('<span class="','<span class="ly-o ')+en.replace('<span class="','<span class="ly-t '); }   /* [LY_ORIG_TOP] 원래 말 위 · 옮긴 말 아래 */   /* ★[LY_KO_TOP 2026-10-13 사장님 참고 사진] 한글(노란색)이 위 · 영문(흰색 · 살짝 기울임)이 아래 — 종전 영문 위 · 한글 아래 */
+    return lyOrig(k,line)==='en'?en.replace('<span class="','<span class="ly-o ')+ko.replace('<span class="','<span class="ly-t '):ko.replace('<span class="','<span class="ly-o ')+en.replace('<span class="','<span class="ly-t '); }   /* [LY_ORIG_TOP] 원래 말 위 · 옮긴 말 아래 */   /* ★[LY_KO_TOP 2026-10-13 사장님 참고 사진] 한글(노란색)이 위 · 영문(흰색 · 살짝 기울임)이 아래 — 종전 영문 위 · 한글 아래 */
   function lyPut(sl,h){ var b=sl&&sl.querySelector('.mu-lines'); if(!b||b.__h===h) return; var was=!!b.__h; b.__h=h; clearTimeout(b.__t);
     if(!h){ b.classList.remove('cur'); b.__t=setTimeout(function(){ if(!b.__h) b.innerHTML=''; },RM?0:400); return; }   /* 사라질 때 = 흐려진 뒤 비운다 */
     if(!was){ b.innerHTML=h; void b.offsetWidth; b.classList.add('cur'); return; }   /* 처음 나타날 때 = 그 순간 떠오른다 */
