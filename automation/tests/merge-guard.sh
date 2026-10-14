@@ -18053,11 +18053,18 @@ nochk '(예시 기준 약 8~25분)' contract/v1-1.html
 chk 'REC_LY_BI_1013' automation/platform/80_production.gs 2
 chk 'REC_LY_BI_1013' deploy-marks.json 1
 chk 'REC_LY_BI_1013' scripts/audit/rec-song-server.mjs 2
-chk "  'songs.json': '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997'" automation/platform/80_production.gs 1   # 두 언어 판의 지문(문서 저장소 files/songs.json 과 같다)
+chk "  'songs.json': '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257'" automation/platform/80_production.gs 1   # [LY_REALIGN_1014] 줄 시각을 다시 맞춘 판의 지문(문서 저장소 files/songs.json 과 같다)
 chk "return { ok: true, key: 'rec', name: name, same: true, h: h };" automation/platform/80_production.gs 1                         # 답에 지문 — 보내는 쪽이 새 판인지 가린다
 chk "return { ok: true, key: 'rec', name: name, need: true, h: h };" automation/platform/80_production.gs 1
 chk "return { ok: true, key: 'rec', name: name, put: true, size: by.length, h: h };" automation/platform/80_production.gs 1
 nochk "'songs.json': 'd355371af8d178d0bea57c28d34723a4a637b64be7072197a01fb824cd04b41d'" automation/platform/80_production.gs     # ★한 언어 줄이 섞인 옛 목록 — 되살리지 말 것
+# ── 2026-10-14 추천 곡 가사 줄 시각 = 실제 노래 [LY_REALIGN_1014 · LY_ORIG_TEXT_1014] — 사장님 «이 노래 가사랑 전혀 안 맞아»(Welcome to the Show 카드)
+#   2절 «알아 너의 결정이 …»가 실제(88.7초)보다 11초 일찍 떴다 — 10/11 음성 인식 맞춤이 곡마다 앞 몇 줄만 쟀고 크게 다른 값은 버렸다(틀린 것은 지금 값이었다).
+#   곡 목록은 문서 저장소(operations/rec-songs) · 줄 시각 검사는 거기 ly_check.py(push.py 가 보내기 전에 부른다) · 여기는 서버 표의 지문과 영문 줄 가리기
+chk 'LY_REALIGN_1014' automation/platform/80_production.gs 2
+chk 'LY_REALIGN_1014' deploy-marks.json 1
+chk 'LY_REALIGN_1014' scripts/audit/rec-song-server.mjs 1
+nochk "'songs.json': '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997'" automation/platform/80_production.gs     # ★줄 시각이 어긋난 옛 목록(r6 2절이 11초 일찍 뜨던 판) — 되살리지 말 것
 # ── 2026-10-14 r6 영문 줄 가리기 [LY_ORIG_TEXT_1014] — 사장님 «이 노래 가사랑 전혀 안 맞아»(Welcome to the Show) 뒤 줄 시각을 실제 노래에 다시 맞추자
 #   «영문으로 부르는 줄의 시각» 표(52.12 · 55.76 …)가 한 줄도 안 맞게 됐다 — 영문 글 머리(«If so» · «Whoa»)로 가린다 · 옛 목록 · 새 목록 둘 다 맞다
 chk 'LY_ORIG_TEXT_1014' assets/entry-music.js 1

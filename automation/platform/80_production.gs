@@ -1348,7 +1348,7 @@ var REC_PUT_HASH = {
   'r6p.mp3': 'c3bb47509912819193a423456ec6db6364ca8591b8ba14f87e314b72ea733bdc',
   'r8p.mp3': '29a1f2ac38dd0e00d05735fcf4aa88ac7b5880280e24bfe4a810744e3e576d7f',
   'r9p.mp3': 'f837950e90bdbb335ff2f009c8b814572652072883093cce3964865bc4670fc3',
-  'songs.json': '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997'   /* [REC_LY_BI_1013] 가사 줄마다 한글 · 영문 둘 다(한국어 곡 영어 번역 · 영어만 줄 한국어) — 종전 [REC_CLIP_1013] 판 d355371a… */
+  'songs.json': '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257'   /* [LY_REALIGN_1014] 줄 시각을 실제 노래에 다시 맞춘 판(Welcome to the Show 전부 · 팡파레 뒤 13줄 · Popcorn 6줄 · Reality 4줄 · A Lover's Concerto 1줄) — 종전 [REC_LY_BI_1013] 두 언어 판 5cb9bee1… */
 }, REC_PUT_HOUR = 120;
 function _recPutFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');
@@ -1367,6 +1367,7 @@ function _recPutHas_(fo, name, h) {
 function _recPut_(body) {
   var mk = '[REC_PUT_1013]', name = String((body && body.name) || '').trim(), h = Object.prototype.hasOwnProperty.call(REC_PUT_HASH, name) ? REC_PUT_HASH[name] : '';
   if (!h) return { ok: false, error: '받을 수 없는 파일이에요.' };
+  /* ★[LY_REALIGN_1014 2026-10-14 사장님 «이 노래 가사랑 전혀 안 맞아»] 표의 songs.json = 줄 시각을 실제 노래에 다시 맞춘 판 — 이 판이 배포돼야 새 목록이 드라이브에 올라간다(보내는 쪽이 h 로 가린다) */
   /* ★[REC_LY_BI_1013 2026-10-13 사장님 «감성을 위해 무조건 두 개 언어가 같이 나오게»] 답에 이 표의 지문(h)을 함께 싣는다 — 보내는 쪽(push.py)이 자기 파일 지문과 대조해
      «서버가 새 표를 아는가»를 가린다(옛 판은 h 를 안 돌려준다). 같은 이름 · 다른 내용(목록 고침)도 옛 판이 «있다(same)»고 답해 새 목록을 안 올린 채 끝나는 일이 없다. 표는 공개라 숨길 것이 없다 */
   try { var ck = CacheService.getScriptCache(), n = +(ck.get('RECPUT_N') || 0); if (n >= REC_PUT_HOUR) return { ok: false, ecode: 'U1', error: '잠시 뒤 다시 보내 주세요.' }; ck.put('RECPUT_N', String(n + 1), 3600); } catch (e) {}
