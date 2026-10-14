@@ -18058,6 +18058,12 @@ chk "return { ok: true, key: 'rec', name: name, same: true, h: h };" automation/
 chk "return { ok: true, key: 'rec', name: name, need: true, h: h };" automation/platform/80_production.gs 1
 chk "return { ok: true, key: 'rec', name: name, put: true, size: by.length, h: h };" automation/platform/80_production.gs 1
 nochk "'songs.json': 'd355371af8d178d0bea57c28d34723a4a637b64be7072197a01fb824cd04b41d'" automation/platform/80_production.gs     # ★한 언어 줄이 섞인 옛 목록 — 되살리지 말 것
+# ── 2026-10-14 r6 영문 줄 가리기 [LY_ORIG_TEXT_1014] — 사장님 «이 노래 가사랑 전혀 안 맞아»(Welcome to the Show) 뒤 줄 시각을 실제 노래에 다시 맞추자
+#   «영문으로 부르는 줄의 시각» 표(52.12 · 55.76 …)가 한 줄도 안 맞게 됐다 — 영문 글 머리(«If so» · «Whoa»)로 가린다 · 옛 목록 · 새 목록 둘 다 맞다
+chk 'LY_ORIG_TEXT_1014' assets/entry-music.js 1
+chk 'LY_ORIG_TEXT_1014' scripts/audit/rec-song-ui.mjs 1
+chk 'r6:{en:/^(If so' assets/entry-music.js 1
+nochk 'r6:{en:\[52.12' assets/entry-music.js     # ★시각으로 적은 옛 표 — 시각을 고치면 깨진다
 # ── 2026-10-13 입장 음악 첫소리 [SOFT_START_1013 · PRE_ROLL_1013 · LY_FROM_START_1013] — 사장님 «처음 부분 잔잔하게(페이드인) 시작 · 미리 듣기도 · 입장 멘트 동시 듣기도»
 #   «듣기 플레이 버튼 누르고 30초 후 들리게 · 씹힘 방지»(0.3초로 읽었다) · «가사 나오는 것도 처음 시작하는 문단 빼고 그다음 문단부터 바로 · 전부 개선»
 #   엔진 한 곳(entry-scene.js): 첫소리 2.5초 u²(SP.fade · fadeCurve) · 식순 화면은 누르고 0.3초 뒤(PRE_ROLL · 당일 콘솔은 배경음이 흘러 0.15초 그대로)
