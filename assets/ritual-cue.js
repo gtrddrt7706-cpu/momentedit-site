@@ -1107,7 +1107,12 @@
             est: 100, self: !S.blessProxy, doing: 'say',
             swellAt: PARAM.bless.swellAt, swellTo: PARAM.bless.swellTo, swellMs: PARAM.bless.swellMs,
             longThreshold: PARAM.bless.longThreshold,
-            fallback: '2:30에 BGM이 자동으로 부풀어 신호 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다'
+            /* ★[BLESS_PER_SPEAKER 2026-10-14 사장님 «추천대로»] 음악 신호(2:30) · 길었을 때(3:00)는 «한 분 말씀»마다 잰다 — 카드 «한 분 1분쯤»대로
+               네 분이 하시면 덕담 전체로는 넷째 분 중에 «길었을 때» 맺는 말로 바뀌었다. 콘솔이 다음 분께 마이크를 건넬 때 [다음 분]으로 시간을 새로 잰다.
+               대독(나레이션이 읽는다)은 한 번에 흐르니 종전 그대로 */
+            perSpeaker: !S.blessProxy,
+            fallback: S.blessProxy ? '2:30에 BGM이 자동으로 부풀어 신호 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다'
+              : '한 분 말씀이 2:30이면 BGM이 자동으로 부풀어 신호 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다 · 다음 분께 마이크를 건네면 [다음 분]'
           }
         }),
         cue({
@@ -1117,7 +1122,7 @@
           alt: {
             overSec: PARAM.bless.longThreshold, slug: 'narr-bless-end-long',
             name: '부모님 덕담 마무리 (길었을 때)', text: D.NARR.blessEndLong,
-            why: '덕담이 3분을 넘겨 디렉터가 받아 끊었다'
+            why: '마지막 분 말씀이 3분을 넘겨 디렉터가 받아 끊었다'   // [BLESS_PER_SPEAKER] 콘솔이 [다음 분]마다 시간을 새로 잰다
           }
         })
       ];

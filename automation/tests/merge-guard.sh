@@ -13165,7 +13165,7 @@ chk 'AI_CHIP_WORDS' order-preview.html 1
 nochk '헌정은 어떤 방식들이' order-preview.html
 nochk '코스와 순간 하나하나' order-preview.html
 chk 'RESET_WORD' order-preview.html 1
-chk '식전 영상을 담으셨다면 이 시각에 불을 낮추고 영상을 먼저 틀고, 끝나면 입장해요' assets/sequence-modal.js 1   # [CEREMONY_AT_VIDEO 2026-10-05] 옛 «본식 시작 4분 전에는 불을 낮추고» 자리 — 영상은 예식 시작 시각
+chk '식전 영상이 있으면 이 시각에 불을 낮추고 영상을 먼저 틀어요' assets/sequence-modal.js 1   # ★[SEQ_PV_ORDER_1014] 영상 → 화촉 → 입장 · [CEREMONY_AT_VIDEO 2026-10-05] 옛 «본식 시작 4분 전에는 불을 낮추고» 자리 — 영상은 예식 시작 시각
 nochk '예식 시작 4분 전' assets/sequence-modal.js
 nochk '청첩장·식순은 언제든' index.html
 chk '순서와 이음은 저희가 맞춥니다' index.html 3
@@ -15093,7 +15093,7 @@ chk 'PT_PREP_RETRY' scripts/audit/play-wait-file.mjs 1
 # ★[PREVIDEO_FREE 남은 자리 2026-10-05 · ONEMIN_FIRST 점검] 식전 영상 길이 규정 없음 — 빌더 힌트 · AI 상담 지식에 남았던 «3분 이내» 걷음
 nochk '가로 mp4 3분 이내' order-preview.html
 nochk '가로 mp4 · 3분 이내' api/_ritual-kb.js
-chk '두 분 입장 바로 앞에 불을 낮추고' api/_ritual-kb.js 1
+chk '본식 맨 앞(화촉 · 입장 앞)에 불을 낮추고' api/_ritual-kb.js 1   # [SEQ_PV_ORDER_1014] 10/14 «입장 바로 앞» → 화촉을 담으면 영상 뒤가 화촉(OPEN_WORDS_1013)
 :
 # ★[ONEMIN_CLOCK_KEEP 2026-10-05 사장님 «추천대로»] 안내 시각은 영상 시작 기준(-14 · -9 · -5) · 영상은 본식 시작 4분 전 — 청첩장 시각과 4분 차이는 알고 유지
 chk 'ONEMIN_CLOCK_KEEP' assets/ritual-cue.js 1   # (기록) 같은 날 CEREMONY_AT_VIDEO 로 걷음
@@ -18210,7 +18210,7 @@ nochk '그다음 디렉터 대독' assets/ritual-cue.js
 nochk '그다음 디렉터 대독' assets/ritual-story.js
 nochk "scene: '나레이션이 부르면" assets/ritual-story.js
 nochk '부모님 품에 안기는' order-preview.html
-chk "'부모님이 덕담을 들려주세요 · 한 분 1분쯤'" assets/ritual-open.js 1
+chk "'부모님이 덕담을 들려주세요 · 약 1분씩'" assets/ritual-open.js 1   # [R2_BLESS_TALK_1014] 라운드 2 G3 — ④ 대본에서 시간을 한 번만
 chk "'축사 원고 · 1분에 300자쯤" assets/ritual-open.js 1
 nochk '축사하실 분께 부탁드리기' assets/ritual-open.js
 chk "song:'노래하실 분께서 직접 축가를 불러 주시는 시간입니다.'" order-preview.html 1
@@ -18221,3 +18221,70 @@ nochk '삼십 분을 따져도 다 듣고 나서' assets/ritual-ref.js          
 nochk '먼저 와 주신 여러분과 사돈' assets/ritual-ref.js
 chk 'REBIND_VOICE' scripts/sent-lib.mjs 1                    # [LINE_R1_1014] 창고 자리 옮기기는 글자 · 읽는 사람이 다 같을 때만(입장 번갈아)
 chk 'CAKE_OFF_1013' scripts/audit/ghi-polish.mjs 1        # 케이크를 담아 둔 판도 새 코스 ②는 축배만(옛 «케이크와 축배» 기대값을 걷었다)
+# ── 2026-10-14 여쭘 결정 반영(라운드 1 «사장님께 여쭐 것» · 사장님 «전부 추천대로 묻지말고») + 라운드 2 G1
+#   [TXWHY_US_1014] ② «적어 두시면 저희가»(고객 화면 말투 · GUEST_SKIN) · [VOW_CARD_PRINT_1014] 서약문 · 감사문은 큰 글씨 카드로 인쇄(준비 줄 · 대본 · 관리 화면)
+#   [STORY_TIPS_1014] 이야기 팁 다섯(입장 한 박자 · 카드 높이 · 반지 직전 한 박자 · 선언 듣는 동안 · 덕담 떨림) · [HUG_STAND_1014] 안아 주실 때는 부모님도 일어나셔도
+#   [BLESS_PER_SPEAKER] 덕담 음악 신호(2:30) · 길었을 때(3:00)는 한 분마다 — 콘솔 [다음 분] · 음악 신호를 콘솔이 실제로 튼다(런북 §8 2단 · 종전엔 파라미터만)
+#   [TRIB_HUG_CROP_1014] 부모님께 인사 장면 영상 = «안기» 반만(꽃 건네기 · 부케 잘라 냄) · [SEQ_PV_ORDER_1014] 진행표 · AI 지식 «영상 끝나면 입장» 걷기(영상 → 화촉 → 입장)
+#   [R2_PV_SCENE_1014] 식전 영상 장면 첫 문장(블록 설명 · fx 와 같은 말 세 번) 빼기
+chk 'TXWHY_US_1014' order-preview.html 1
+nochk '적어 두시면 디렉터가' order-preview.html
+chk 'VOW_CARD_PRINT_1014' order-preview.html 1
+chk 'VOW_CARD_PRINT_1014' assets/ritual-open.js 1
+chk 'VOW_CARD_PRINT_1014' admin.html 1
+chk '적어 주시면 큰 글씨 카드로 드려요' assets/ritual-open.js 1
+chk "(두 분 작성 · 카드로 인쇄):'" order-preview.html 1
+chk 'STORY_TIPS_1014' assets/ritual-story.js 5
+chk '문이 열리면 바로 걷지 말고, 한 박자 서 있다가 출발해요.' assets/ritual-story.js 1
+chk '카드는 얼굴이 가려지지 않게 가슴 아래 높이로 들어 주세요.' assets/ritual-story.js 4
+chk '끼우기 직전 한 박자 멈추고 반지가 보이게 잡아 주세요.' assets/ritual-story.js 1
+chk '두 분은 선언을 듣는 동안 손을 잡고' assets/ritual-story.js 1
+chk '목소리가 떨리셔도 괜찮아요.' assets/ritual-story.js 1
+chk 'HUG_STAND_1014' assets/ritual-story.js 1
+chk 'HUG_STAND_1014' order-preview.html 1
+chk '안아 주실 때 일어나셔도 돼요' assets/ritual-story.js 4
+chk '안아 주실 때는 일어나셔도 돼요' assets/ritual-story.js 1
+chk '편지 쓰는 요령(막막하실 때)' api/_ritual-kb.js 1   # [LETTER_GUIDE_KB_1014] 자료 GG 1 질문 가이드의 뼈대 · 우리 말로 · AI 상담에만(화면은 그대로)
+chk 'BLESS_PER_SPEAKER' assets/ritual-cue.js 2
+chk 'BLESS_PER_SPEAKER' console.html 9
+chk 'BLESS_PER_SPEAKER' assets/ritual-story.js 1
+chk 'perSpeaker: !S.blessProxy' assets/ritual-cue.js 1
+chk 'function swellArm(c)' console.html 1
+chk "duckTo(c.live.swellTo, c.live.swellMs)" console.html 1       # 음악 신호 — 파라미터만 있고 콘솔이 안 틀던 자리(런북 §8 2단)
+chk 'id="bSpk"' console.html 1
+chk '한 분 말씀이 2분 30초쯤 되면' assets/ritual-story.js 1
+chk 'BLESS_PER_SPEAKER' scripts/audit/bless-per-speaker.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bless-per-speaker.mjs >/dev/null 2>&1; _bps=$?; if [ "$_bps" = 1 ]; then echo 'FAIL bless-per-speaker: 덕담 한 분마다 시간 신호([다음 분] · 음악 신호 · 맺는 말 고르기 · 대독 · 고객 미리 듣기)가 깨졌습니다 — node scripts/audit/bless-per-speaker.mjs'; fail=1; elif [ "$_bps" = 0 ]; then echo 'ok bless-per-speaker: 덕담 한 분마다 시간 신호'; else echo 'skip bless-per-speaker: 브라우저가 없어 재지 못함'; fi; fi
+chk 'TRIB_HUG_CROP_1014' assets/ritual-open.js 1
+chk 'TRIB_HUG_CROP_1014' scripts/video/encode-moment.sh 1
+chk 'SEQ_PV_ORDER_1014' assets/sequence-modal.js 1
+nochk '끝나면 입장해요' assets/sequence-modal.js
+nochk '두 분의 입장으로 시작해요' assets/sequence-modal.js
+nochk '입장 바로 앞에 상영' api/_ritual-kb.js
+nochk '두 분 입장 바로 앞에 불을 낮추고' api/_ritual-kb.js
+nochk '영상이 끝나면 두 분이 입장한다' api/_ritual-kb.js
+chk 'R2_PV_SCENE_1014' assets/ritual-story.js 1
+nochk '불이 낮아지고 두 분이 준비한 영상이 흘러요' assets/ritual-story.js
+chk 'R2_SPEECH_LEN_1014' order-preview.html 1          # 라운드 2 G4 — ② 축사 머리 «(3분 안팎)» 떼기(길이 칩 «약 n분»과 한 줄)
+chk '한 분 1분쯤|3분 안팎' order-preview.html 1          # ② 머리 설명에서 떼는 두 괄호(BRE 의 | 는 글자 그대로)
+chk 'R2_SPEECH_LABEL_1014' assets/ritual-open.js 1      # 라운드 2 G4 곁 — 축사 칩 이름 «축사»(콘솔 배지 · 옛 화면 큐 줄이 칸 이름과 같게)
+chk 'R2_SPEECH_LABEL_1014' order-preview.html 1
+nochk "\['speech', '친구 · 가족의 축사'\]" assets/ritual-open.js
+# ── 라운드 2 G3 · 원고 9장 ③ ⑧(10/14 «전부 추천대로») [R2_VOW_MUSIC_1014 · R2_BLESS_TALK_1014 · R2_DECL_NAMES_1014 · THANKS_DUP_TOAST_1014 · BLESS_STORY_NOTE_1014]
+chk 'R2_VOW_MUSIC_1014' assets/ritual-story.js 1
+chk '이 자리에는 안내 음성이 없어요.' assets/ritual-story.js 4      # 서약 · 감사문 넷 판 — 엔진은 음악을 끄지 않고 낮춘다
+nochk '이 자리에는 음악도 안내 음성도 없어요' assets/ritual-story.js 1   # 남는 하나 = 편지(duckOff · 참)
+chk 'R2_BLESS_TALK_1014' assets/ritual-open.js 1
+chk 'R2_DECL_NAMES_1014' order-preview.html 1
+chk "누가 읽든 같은 글): '+_declNar()" order-preview.html 1
+chk 'THANKS_DUP_TOAST_1014' order-preview.html 1
+chk 'BLESS_STORY_NOTE_1014' assets/ritual-open.js 1
+chk '화분마다 물을 언제 주는지도 이제 다 외웠으니' assets/ritual-ref.js 1   # 라운드 2 G3 — 편지(서로에게) ① 신랑 «나도 좀 달라졌어»와 겹침 풀기
+nochk '나도 네 곁에서 많이 자랐다는 걸' assets/ritual-ref.js
+chk '아빠는 내가 올 때까지 거실 불을 끄지 않았고' assets/ritual-ref.js 1   # 덕담 ⑤ 신부 아버지(현관 · 신발 소리)와 같은 장치 풀기
+nochk '현관문 소리 날 때까지' assets/ritual-ref.js
+chk 'TXWHY_US_1014' scripts/audit/cue-form.mjs 1       # 왜 적나 한 줄 «저희가» — 옛 «디렉터» 기대값을 걷었다
+chk 'R2_CANDLE_BLOCK_1014' assets/ritual-story.js 1      # 라운드 2 G2 — 화촉 블록 설명 «초에 불을 밝혀요»까지(인사 차례는 장면이)
+nochk "자리에서 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로 돌아가세요" assets/ritual-story.js
+chk 'R2_MATJEOL_SCENE_1014' assets/ritual-story.js 1    # 라운드 2 G2 — 맞절 장면 첫 문장(블록 설명 되풀이 · 지난 동작) 빼기
+nochk "scene: '앞에 나란히 서면 안내 음성에 맞춰 서로 마주 봐요." assets/ritual-story.js

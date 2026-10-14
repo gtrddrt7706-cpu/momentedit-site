@@ -94,7 +94,8 @@ try {
     const u = document.getElementById('lsToast'); return { note, cards, chip: !!c, toast: u && !u.hidden ? u.textContent : '' }; });
   ok('⑦ 선언문 예시 안내 = «선언문은 저희가 인쇄해 드려요»(TOAST_MIN · «바꿔도 돼요 · 가상 인물» 없음) — 카드 줄 아래가 아니라 읽는 분을 칸에 적을 때 아래 알림 · 예시 카드 한 벌 [DECL_REF_HEAD · NOTE_TOAST · DECLARE_ANYONE]', dh.chip && dh.cards === 1 && dh.note === '' && dh.toast === '선언문은 저희가 인쇄해 드려요', JSON.stringify(dh));
   /* ⑧ 한눈에 보기 — 두 분이 부탁하는 줄(축사하실 분)도 목록에 · 머리 «부탁드릴 것» [SUM_ASK_ALL] */
-  await go('_sum'); const sm = await pg.evaluate(() => { const t = document.querySelector('.mk-pg').textContent.replace(/\u00a0/g, ' '); return { speech: /축사하실 분께 부탁드리기/.test(t), head: /(^|[^모님께 ])부탁드릴 것/.test(t.replace(/부모님께 부탁드릴 것/g, '')), par: /부모님께 부탁드릴 것/.test(t) }; });
+  /* [LINE_R1_1014] 축사 준비 줄은 «축사 원고 · 1분에 300자쯤 · …»(덕담 줄과 같은 꼴 · «부탁드리기»로 열면 사흘 전 마감이 «사흘 전에 부탁해도 된다»로 읽힌다) — 옛 기대값을 걷었다 */
+  await go('_sum'); const sm = await pg.evaluate(() => { const t = document.querySelector('.mk-pg').textContent.replace(/\u00a0/g, ' '); return { speech: /축사 원고 · 1분에 300자쯤/.test(t), head: /(^|[^모님께 ])부탁드릴 것/.test(t.replace(/부모님께 부탁드릴 것/g, '')), par: /부모님께 부탁드릴 것/.test(t) }; });
   ok('⑧ 한눈에 보기 — 축사 부탁 줄이 있고 머리는 «부탁드릴 것»(부모님 것만일 때만 «부모님께») [SUM_ASK_ALL]', sm.speech && sm.head && !sm.par, JSON.stringify(sm));
   /* ⑪ ④ 완성 요약 — 선택 칸(축배 · 부모님께 인사)이 비어도 «글 비어 있음 · 채우기»가 아니다 [TX_OPT] */
   const done = await pg.evaluate(() => { S.tx = S.tx || {}; ['toast.g', 'toast.b', 'tribute.g', 'tribute.b'].forEach((id) => { S.tx[id] = ''; }); const i = STEPS.findIndex((x) => x.k === 'done'); if (i < 0) return null; idx = i; render();
