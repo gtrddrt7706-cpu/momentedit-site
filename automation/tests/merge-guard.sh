@@ -18235,7 +18235,7 @@ chk 'VOW_CARD_PRINT_1014' admin.html 1
 chk '적어 주시면 큰 글씨 카드로 드려요' assets/ritual-open.js 1
 chk "(두 분 작성 · 카드로 인쇄):'" order-preview.html 1
 chk 'STORY_TIPS_1014' assets/ritual-story.js 5
-chk '문이 열리면 바로 걷지 말고, 한 박자 서 있다가 출발해요.' assets/ritual-story.js 1
+chk '문이 열리면 바로 걷지 말고 한 박자 서 있다가 출발해요.' assets/ritual-story.js 1   # humanize-korean light(연결어미 뒤 쉼표 C-11)
 chk '카드는 얼굴이 가려지지 않게 가슴 아래 높이로 들어 주세요.' assets/ritual-story.js 4
 chk '끼우기 직전 한 박자 멈추고 반지가 보이게 잡아 주세요.' assets/ritual-story.js 1
 chk '두 분은 선언을 듣는 동안 손을 잡고' assets/ritual-story.js 1
