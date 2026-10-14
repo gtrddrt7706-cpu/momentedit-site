@@ -681,7 +681,7 @@ else {
   const mk = await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'), b = document.querySelector('.mk-vid'); return { src: v ? v.getAttribute('src') : '', poster: v ? v.getAttribute('poster') : '', ai: b ? (/AI로 만든 장면/.test(b.textContent) || !!b.querySelector('.lv-ai')) : false }; });
   /* [AI_LABEL_OFF 2026-10-03 사장님] 종전 «이름표가 있다» → «없다» */
   ok('V-4 ② 반지 쪽 = ring.mp4 · 첫 장면 ring.webp · 그림 위 «AI로 만든 장면» 이름표 없음 [AI_LABEL_OFF]', /moments\/ring\.mp4$/.test(mk.src) && /moments\/ring\.webp$/.test(mk.poster) && !mk.ai, JSON.stringify(mk));
-  /* ★[THUMB_PICK 2026-10-03] ① 칸 그림만 고른 장면(candle 마지막 · entry 6.0초 · toast 2.0초 사장님 · tribute 8.0초 사장님 · prevideo 6.0초 사장님) — 나머지는 첫 장면.
+  /* ★[THUMB_PICK 2026-10-03] ① 칸 그림만 고른 장면(candle 마지막 · entry 6.0초 · toast 2.0초 사장님 · tribute 2.8초(10/14 자른 판 · TRIB_HUG_CROP_1014) · prevideo 6.0초 사장님) — 나머지는 첫 장면.
      창 · 영상 첫 장면(.webp)과 64×36 회색으로 견준다. 실측: 고른 넷 3.6~18.8 · 나머지 0.3~0.4(같은 장면의 압축 차) — 넷째 값 없이 다시 구우면 여기서 빨강 */
   const PICK = ['candle', 'entry', 'toast', 'tribute', 'prevideo'];
   const dif = await pg.evaluate(async (ready) => {

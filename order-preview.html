@@ -4371,7 +4371,7 @@ function _lSet(key,v){
   else if(key==='entryOut') S.entryOut=v;
   else if(key==='entryScene') S.entryScene=(v==='bow'?'bow':'look');   // [ENTRY_SCENE] 새 키
   else if(key==='tributeHow') S.tribute='flower';   // [GROOM_BOW_TIP] 신랑 큰절 판은 걷었다
-  else if(key==='vowKind') S.vowKind=(v==='thanks'?'thanks':'vow');   // [THANKS_IN_VOW] 모르는 값은 서약
+  else if(key==='vowKind'){ S.vowKind=(v==='thanks'?'thanks':'vow'); if(S.vowKind==='thanks'&&R.onOf(S,'welcome')) _noteToast('감사 인사와 내용이 겹쳐요'); }   // [THANKS_IN_VOW] 모르는 값은 서약 · ★[THANKS_DUP_TOAST_1014 원고 9장 ⑧ · 사장님 «전부 추천대로»] 감사 인사 + 감사문 = 하객 감사 두 번 — 누르는 순간 한 줄(고르는 것은 두 분)
   else if(key==='vowHow') S.vowHow=(v==='each'?'each':'alt');   // [VOW_HOW] 모르는 값은 번갈아
   else if(key==='vowFirst') S.vowFirst=(v==='b'?'b':'g');   // [VOW_FIRST]
   else if(key==='free'){ var _fk0=R.FREE_KIND[R.chipOf('free',S)]; R.setChip(S,key,v); var _fk1=R.FREE_KIND[R.chipOf('free',S)];
@@ -4426,7 +4426,7 @@ function _lSum(k){
 var LAB_FIX={'하객이 박수로 답하는':'박수를 청하는 말','부모님께':'여는 말','서로에게':'여는 말','입장 직후':'하객 입장 때',   /* [LAB_FIX2 2-6] */
   '편지 뒤 자리':'여는 말','예식의 문을 여는 자리':'여는 말','덕담 여는 말':'여는 말','축사 없음 안내':'여는 말','둘 다':'케이크 커팅','폐식 · 단체촬영 전환':'닫는 말',
   '단체 사진 안내':'닫는 말','본식 끝 · 두 분 인사':'본식을 마치며','테이블 인사 · 두 분이 하객께':'여는 말'};   /* [CLOSE_WORDS_1013] 26 콘솔 이름 «단체 사진 안내» · 108 «본식을 마치며» · 131 «시작할 때»(_lWhen) · 축배 첫 줄은 이름 «축배 시작»이라 «시작할 때» */
-function _lLabFix(l){ l=String(l||''); if(LAB_FIX[l]) return LAB_FIX[l]; if(/^(영상|춤 · 공연|기타|깜짝 선물 · 전달|친구 · 가족의 축사) · \d+분$/.test(l)) return '여는 말'; return l.replace(/^꽃 헌정 · 준비한 말 400자씩$/,'꽃과 포옹 · 1분쯤씩').replace(/^꽃 헌정/,'꽃과 포옹'); }
+function _lLabFix(l){ l=String(l||''); if(LAB_FIX[l]) return LAB_FIX[l]; if(/^(영상|춤 · 공연|기타|깜짝 선물 · 전달|친구 · 가족의 축사|축사) · \d+분$/.test(l)) return '여는 말';   /* [R2_SPEECH_LABEL_1014] 새 이름 «축사 · n분»도 여는 말(옛 이름은 옛 저장분 이름표) */ return l.replace(/^꽃 헌정 · 준비한 말 400자씩$/,'꽃과 포옹 · 1분쯤씩').replace(/^꽃 헌정/,'꽃과 포옹'); }
 /* ★[OFF_LISTEN 2026-09-25 코워크 추가전달 2-1] «담지 않은 순간 · 들어 보고 담을 수 있어요»가 되게 한다.
    담지 않은 순간은 큐가 없어 ▶ 가 아무 일도 안 했고, 작은 그림은 크게 보기를 곧장 끝 화면으로 열었다.
    그 순간만 잠깐 담은 셈 치고(기본 칩 값) 큐를 만든 뒤 S 를 그대로 되돌린다 — 고객의 선택은 바뀌지 않는다. */
@@ -4880,8 +4880,8 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return ''; try{ _
      직접 육성으로 말하는 부분이지만 큐 사인을 알기 위해 적는 것 · 원치 않으면 체크하고 끝 신호만»]
      ① 참고 예시 카드를 누르면 글이 이 칸에 바로 들어간다(_mkRefFill) ② 왜 적는지 한 줄 ③ 신랑 · 신부 칸 = 한 카드(줄 편집기와 같은 모양)
      ④ 체크하면 그 분 글칸이 접히고 끝 신호(말이나 동작) 칸 — 적은 글은 지우지 않는다(풀면 그대로) */
-  if(kind==='letter') h+='<p class="mk-note mk-txwhy">편지는 당일 직접 읽어요 · 적어 두시면 디렉터가 마지막 줄을 보고 다음 순서를 이어요 · «'+esc(K.chk)+'»에 체크하면 끝 신호만 알려 주세요</p>';   // NOTE_READ 뜻은 그대로(보내지 않아도 된다 = 체크)
-  else if(kind==='welcome'||kind==='vow') h+='<p class="mk-note mk-txwhy">당일엔 두 분이 직접 말해요 · 적어 두시면 디렉터가 글을 보며 다음 순서로 넘어갈 때를 맞춰요</p>';
+  if(kind==='letter') h+='<p class="mk-note mk-txwhy">편지는 당일 직접 읽어요 · 적어 두시면 저희가 마지막 줄을 보고 다음 순서를 이어요 · «'+esc(K.chk)+'»에 체크하면 끝 신호만 알려 주세요</p>';   // NOTE_READ 뜻은 그대로(보내지 않아도 된다 = 체크)
+  else if(kind==='welcome'||kind==='vow') h+='<p class="mk-note mk-txwhy">당일엔 두 분이 직접 말해요 · 적어 두시면 저희가 글을 보며 다음 순서로 넘어갈 때를 맞춰요</p>';   // ★[TXWHY_US_1014 2026-10-14 사장님 «추천대로»] 고객 화면 말투 «저희가»(GUEST_SKIN) · «디렉터가» 되살리지 말 것
   if(S.txMig&&S.txMig[kind]) h+='<p class="mk-note">전에 한 칸에 적어 두신 글을 신랑 칸에 옮겨 두었어요 · 두 칸으로 나눠 주세요</p>';
   if(kind==='vow'){ h+=_vowForm(K,c); }
   else { h+='<div class="mk-slc mk-txc">';
@@ -6963,10 +6963,10 @@ window.lsLine=function(d){ var a=LP.q[LP.i], j=LP.i+d, b=LP.q[j]; if(!a||!b||b.k
 window.mkDrop=function(k){ var R=RitualOpen, m=_mkState(), b0=R.bodySec(S), crossBefore=R.crossTribute(S);
   if(LP.cur===k) lsStop(); S.on[k]=0; delete S.on[k]; m.drop[k]=1; opSync();
   var cut=Math.max(0,Math.round((b0[0]-R.bodySec(S)[0])/60)); m.dropMin=m.dropMin||{}; m.dropMin[k]=cut;
-  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»으로 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }
+  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»'+_josaRo(R.chipLabel('tribute',S))+' 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }   /* [R2_TRIB_JOSA_1014] 판 이름이 «인사»로 끝나 «으로»가 틀렸다(_josaRo) */
   _fxNext='[data-fk="mkundrop"]'; _persist(); render(); };   // [A11Y_FOCUS] 뺀 뒤 포커스 = «다시 넣기»
 window.mkUndrop=function(k){ var R=RitualOpen, m=_mkState(), crossBefore=R.crossTribute(S); S.on[k]=1; delete m.drop[k]; opSync();
-  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»으로 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }
+  if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»'+_josaRo(R.chipLabel('tribute',S))+' 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }
   _fxNext='#mkHead'; _persist(); render(); };   // [A11Y_FOCUS] 다시 넣은 뒤 포커스 = 쪽 제목([MK_NO_DROP_LINK] 같은 자리의 «이 순간 빼기»가 없어졌다)
 function renderMake(){
   var R=RitualOpen, m=_mkState();
@@ -6989,8 +6989,9 @@ function renderMake(){
   h+='<div class="mk-h"><h3 id="mkHead" tabindex="-1">'+((no&&!(no==='식전'&&/^식전/.test(_mkName(k))))?'<span class="mk-hn">'+esc(no)+'</span> · ':'')+_pkName(esc(_mkName(k)),k===peak&&!off)+'</h3>'
     +'</div>';   /* ★순간 쪽 «이 순간 빼기» 글 단추(.mk-drop) 금지 — 2026-10-03 사용자 지시로 삭제 [MK_NO_DROP_LINK 2026-10-03 사장님 «빼기는 예식 흐름의 ✓/＋에서만»] · 뺀 순간 쪽(«이 순간을 뺐어요 · 다시 넣기»)은 남긴다 — 옛 초안(S.mk.drop)이 그 쪽을 연다 */
   var one=(R.CARDS[k]&&R.oneOf(k,S))||(k==='guest'?'하객이 들어와 자리에 앉는 동안 안내가 흘러요.':'');
-  if(one||sec) h+='<p class="mk-one">'+esc(_n2(one.replace(/\(한 분 1분쯤\)/,'')))+(sec&&k!=='guest'?' <span class="mk-sec-t">'+esc(R.secTxt(sec))+'</span>':'')+'</p>';
-  /* [R2-27] ② 순간 쪽 설명에서만 «(한 분 1분쯤)»을 뗀다 — 바로 아래 차례 줄이 사람마다 시간을 말한다(① 미리 보기 · ② 첫 쪽 펼침은 그대로) */
+  if(one||sec) h+='<p class="mk-one">'+esc(_n2(one.replace(/\((?:한 분 1분쯤|3분 안팎)\)/,'')))+(sec&&k!=='guest'?' <span class="mk-sec-t">'+esc(R.secTxt(sec))+'</span>':'')+'</p>';
+  /* [R2-27] ② 순간 쪽 설명에서만 «(한 분 1분쯤)»을 뗀다 — 바로 아래 차례 줄이 사람마다 시간을 말한다(① 미리 보기 · ② 첫 쪽 펼침은 그대로)
+     ★[R2_SPEECH_LEN_1014] 축사 «(3분 안팎)»도 같다 — 바로 뒤 «약 n분»(길이 칩)과 한 줄에 다른 숫자가 남았다(1분을 고르면 «(3분 안팎). 약 1분») */
   /* ★설명 줄과 그림 사이 «반지는 단상 위에 미리 놓아 둬요» 따로 줄 금지 — 2026-10-07 사용자 지시로 옮김 [SAME_PLACE · RING_STAGE] (사장님 «다른 곳과 형태 · 배치가 다른 것 점검») 그림 위에 안내가 붙은 쪽은 반지뿐이었다 → «당일 챙길 것» 반지 줄 아래 작은 글(다른 쪽 «예식 7일 전까지»와 같은 자리) */
   if(!off){
     if(_lAnyVid()) h+='<div class="mk-vid">'+_lVid(k,{big:true,tap:true})+'</div>';   /* [VID_AUTO_ONLY] data-vk 가 붙은 ② 장면 — 쪽에 들어올 때 한 번 */   // ★[MK_VID_CHIP 2026-09-27] 고른 판대로(firstVideo) — name:k 는 «케이크만»에도 잔 들기(toast.mp4)를 억지로 띄웠다
@@ -8951,7 +8952,7 @@ function renderStep(k){
       var m=(isOpen()&&RitualOpen.TRIB_ACT)?RitualOpen.TRIB_ACT:TRIBUTE.modes[v];
       h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(!isOpen()&&v==='flower'&&S.tribute==='flower')?'꽃은 '+GOODS_WORD:null);   // [NO_EXTRA_COST] [GOODS_CHOICE] · 옛 코스만
     });
-    h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시면 돼요</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(타이밍은 디렉터가 안내한다) 삭제 · 복원 금지. 앞절이 이미 "일어나지 않으셔도 된다"를 말해 걱정에 답한다 */
+    h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시고, 안아 주실 때는 일어나셔도 돼요</div>';   /* ★[HUG_STAND_1014 2026-10-14 사장님 «추천대로»] 앉아서 맞되 포옹은 일어나서(자료 FF 2-1 · O) */   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(타이밍은 디렉터가 안내한다) 삭제 · 복원 금지. 앞절이 이미 "일어나지 않으셔도 된다"를 말해 걱정에 답한다 */
   }
   else if(k==='song'){
     h+=clip('song');
@@ -9420,6 +9421,10 @@ function _doneOpen(){
 function _blessSite(){ var c=_mkChk(), q=_mkItems('bless').filter(function(x){ return x.cat==='ask'; })[0]; return !!(q&&c[q.id]==='site'); }
 /* [R4-03] 대본의 두 분 글 줄 — «현장에서 바로 할게요»(편지는 «따로 써서 가져올게요») 체크를 본다. ② · ④는 체크를 다 된 것으로 세는데([R2-07])
    대본만 «미입력 · 예식 7일 전까지»라고 해 할 일이 남은 것처럼 읽혔다. «미입력» 문구는 글도 체크도 없을 때만 */
+/* ★[R2_DECL_NAMES_1014 라운드 2] ④ 선언문 = 관리자 낭독 카드(admin _declareCardDoc)와 같은 꼴 — 두 분 이름이 다 있으면 «신랑 신부는,» 자리에 «신랑 ○○○, 신부 ○○○ 두 사람은,»
+   (② 참고 예시도 같은 꼴 · «인쇄해 드려요»라 하면서 인쇄본과 다른 글을 보이지 않게 · 한 칸만 있으면 이름 없이) */
+function _declNar(){ var s=DECLBY.nar, g=String((CUST&&CUST.groom)||'').replace(/\s/g,''), b=String((CUST&&CUST.bride)||'').replace(/\s/g,'');
+  return (_exNmOk(g)&&_exNmOk(b)&&/^신랑 신부는,/.test(s))?s.replace(/^신랑 신부는,/,'신랑 '+g+', 신부 '+b+' 두 사람은,'):s; }
 function _scTx(kind,nm,txt,none,both,one,rest){ var c=_mkChk(), g=!!c[kind+'.g'], b=!!c[kind+'.b'];
   var who=g&&!b?'신랑은':b&&!g?'신부는':'', other=g?'신부':'신랑';
   if(txt) return nm+'(두 분 작성):\n'+txt+(who?'\n('+who+' '+one+')':'');
@@ -9436,12 +9441,12 @@ function scriptTextOpen(){
     _lSteps(ENG,[k]).forEach(function(x){
       if(x.skip) lines.push('('+x.txt.replace(/ · 미리 듣기에서는 넘겨요$/,'')+')');
       else if(x.quiet) lines.push('('+x.txt+')');   // [G5] 말 없는 사람 순간
-      else if(x.talk) { lines.push('직접: '+(/^(welcome|bless|vow|tribute)$/.test(k)?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,'')+' · '+_lSum(k):k==='toast'?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,/한마디/.test(x.txt)?'':' · 한마디'):x.txt.replace(/^여기서 /,''))); if(k==='declare') lines.push('선언문(큰 글씨로 인쇄해 드려요 · 누가 읽든 같은 글): '+DECLBY.nar); }   /* [R4-10] 말하는 시간은 ② · ④ 와 같은 숫자(_lSum) — 엔진 글(분 반올림 · 순간 전체)이 세 번째 숫자를 냈다 */   /* [DECLARE_BY_PERSON] 선언문 한 줄 — 읽어 주실 분이 미리 읽어 볼 수 있게(대본을 받는 사람이 그분이다) */   /* [TOAST_SAY_TALK_1013] 한마디를 적은 날 ② 줄이 이미 «한마디와 함께»라 ④ 에 « · 한마디»를 또 붙이지 않는다 */
+      else if(x.talk) { lines.push('직접: '+(/^(welcome|bless|vow|tribute)$/.test(k)?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,'')+' · '+_lSum(k):k==='toast'?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,/한마디/.test(x.txt)?'':' · 한마디'):x.txt.replace(/^여기서 /,''))); if(k==='declare') lines.push('선언문(큰 글씨로 인쇄해 드려요 · 누가 읽든 같은 글): '+_declNar()); }   /* [R4-10] 말하는 시간은 ② · ④ 와 같은 숫자(_lSum) — 엔진 글(분 반올림 · 순간 전체)이 세 번째 숫자를 냈다 */   /* [DECLARE_BY_PERSON] 선언문 한 줄 — 읽어 주실 분이 미리 읽어 볼 수 있게(대본을 받는 사람이 그분이다) */   /* [TOAST_SAY_TALK_1013] 한마디를 적은 날 ② 줄이 이미 «한마디와 함께»라 ④ 에 « · 한마디»를 또 붙이지 않는다 */
       else if(x.own){ var _ol=String(x.lab||'').replace(/^두 분이 녹음하실 글\(예시\)( · )?/,'').trim(); lines.push((_vpCur(k)==='ai'?'AI 두 분 목소리':'두 분 녹음')+(_ol?'('+_ol+')':'')+': '+x.txt); }   /* [R4-09] AI 로 만든 판은 «녹음»이라 하지 않는다(R1-28 · 화면과 같게) */   // [RIT_NO_CUE_COPY] 안쪽 표지 «두 분이 녹음하실 글(예시)»는 뺀다(시각 이름표만 남긴다)
       else lines.push('나레이션('+(x.slab||x.lab)+'): '+x.txt);   // [SCRIPT_LAB]
     });
     if(k==='welcome' && S.welcomeText) lines.push('감사 인사(두 분 작성):\n'+S.welcomeText);   /* [THANKS_GREET_1013] */
-    if(k==='vow'){ var _vn=_vowKind()==='thanks'?'감사문':'서약문'; lines.push(_scTx('vow',_vn,S.vowText,'('+_vn+' 미입력 · 예식 7일 전까지 적으면 여기 담겨요)',(_vowKind()==='thanks'?'감사문':'서약')+': 두 분이 현장에서 바로 해요','현장에서 바로 해요',_vn+'은 예식 7일 전까지 적으면 여기 담겨요')); }   // [THANKS_IN_VOW]   // [P12] · [R4-03]
+    if(k==='vow'){ var _vn=_vowKind()==='thanks'?'감사문':'서약문'; lines.push(_scTx('vow',_vn,S.vowText,'('+_vn+' 미입력 · 예식 7일 전까지 적으면 여기 담겨요)',(_vowKind()==='thanks'?'감사문':'서약')+': 두 분이 현장에서 바로 해요','현장에서 바로 해요',_vn+'은 예식 7일 전까지 적으면 여기 담겨요').replace(_vn+'(두 분 작성):',_vn+'(두 분 작성 · 카드로 인쇄):')); }   // [THANKS_IN_VOW] · ★[VOW_CARD_PRINT_1014] 적은 글은 큰 글씨 카드로 인쇄(부모님께 드릴 말과 같은 표시)   // [P12] · [R4-03]
     if(k==='letter') lines.push(_scTx('letter','편지',S.letterText,'(편지 미입력 · 적으면 여기 담겨요)','편지: 두 분이 따로 써서 가져와 읽어요','따로 써서 가져와요','편지는 적으면 여기 담겨요'));   // [R4-03]
     if(k==='tribute' && S.tributeText) lines.push('부모님께 드릴 말(두 분 작성 · 카드로 인쇄):\n'+S.tributeText);   // [TRIB_CARD_OPT] 선택 — 비었으면 당일 직접
     if(k==='toast' && _txJoin('toast')) lines.push('축배 한마디(두 분 작성):\n'+_txJoin('toast'));   // [TOAST_SAY] 선택 — 비었으면 당일 «위하여»만
