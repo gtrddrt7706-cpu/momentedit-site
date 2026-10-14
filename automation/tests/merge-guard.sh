@@ -7933,6 +7933,11 @@ chk "'declareFamilyIntro','entryArrive'\]" assets/ritual-data.js 1
 chk 'N2_GUEST_ASK_1014' scripts/check-narr-rule.mjs 2   # 같은 문장이 하객을 부르면(다 같이 · 여러분 · 하객) 시키는 말은 하객에게 간다 — 축배 40 이 N2 에 붉던 자를 좁혔다 · SELFPASS 한 줄이 지킨다
 chk 'STAGE_ORDER_CALL_TEXT_1014' scripts/audit/stage-order-name.mjs 1   # 입장 구호 자리를 번호가 아니라 글로 찾는다(입장 A 넷 → 셋)
 chk 'NAR_B2_1014' scripts/audit/copycheck/전수표.py 1   # 137~144 전수표 SKIP — 나레이션 원고(3단계) 글이라 화면 문구 전수 대상이 아니다
+chk 'OPEN_ROW_1014' scripts/audit/listen-page.mjs 1   # 두 분 목소리 판 하객 맞이 흐름에 남는 줄은 개식 선언(나레이션)뿐 — [VP_ONE_LIST] «나레이션 줄만 흐름에 남는다»
+chk 'OPEN_ROW_1014' scripts/audit/vc-screen.mjs 1
+chk 'OPEN_ROW_1014' scripts/audit/turn-gap.mjs 1     # 하객 맞이 «전체 듣기» = 카드 넷 + 개식(5줄)
+chk 'PEND_FIRST_1014' scripts/audit/make-shell.mjs 2  # 첫 줄이 녹음 대기(글 먼저)면 줄의 첫 자리가 새로 고른 판인지로
+chk 'PEND_ENTRY_1014' scripts/audit/entry-music.mjs 2 # 장면 시험은 소리가 있는 입장 멘트 판으로(녹음 대기 판은 그래프를 그리지 않는다 · GRAPH_MIN)
 # ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
 #   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
 chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
