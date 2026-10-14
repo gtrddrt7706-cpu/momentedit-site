@@ -7416,7 +7416,7 @@ nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     G1-1·G1-3·G1-4 나레이션판은 이미 전부 합쇼체인데 G1-2만 두 분 목소리판에서 복사된 채였다.
 #     두 분 목소리판은 그대로 해요체다 — 그래서 1건이 «남아 있어야» 맞다.
 chk '자리에 앉아 주시면 됩니다.' assets/ritual-data.js 1
-chk '자리에 앉아 주시면 됩니다' assets/ritual-data.js 2
+chk '자리에 앉아 주시면 됩니다' assets/ritual-data.js 1   # [LINE_R1_1014] 두 분 판은 사장님 지적 3-2(10/10 «앉아 있으라고 얘기 안 해도 된다»)로 걷었다 · 나레이션 판(녹음)은 엔진 적용 때
 nochk '음료가 준비되어 있습니다' assets/ritual-data.js
 nochk '편히 계시다 자리에 앉아' assets/ritual-data.js
 chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
@@ -8714,8 +8714,8 @@ chk '예식 시작 오 분 전입니다' assets/ritual-data.js 1               #
 chk '곧 문이 열리고, 예식이 시작됩니다.' assets/ritual-data.js 1   # 04a — 곧
 nochk '십 분쯤 뒤에 시작합니다' assets/ritual-data.js
 nochk '오 분쯤 뒤에 시작합니다' assets/ritual-data.js
-chk '저희 예식이 십 분 뒤 시작됩니다.' assets/ritual-data.js 1   # 02c — 부부판도 같은 계단
-chk '저희 예식까지 오 분 남았어요' assets/ritual-data.js 1           # 03c
+chk '저희 예식이 십 분 뒤에 시작됩니다.' assets/ritual-data.js 1   # 02c — 부부판도 같은 계단 · [LINE_R1_1014] «뒤에»(나레이션 02 와 같은 꼴 · 계단은 그대로)
+chk '저희 예식까지 오 분 남았습니다' assets/ritual-data.js 1           # 03c · [LINE_R1_1014] 하객 맞이 두 분 판은 합쇼체(EX_TEXT_1007)
 chk '곧 저희 예식이 시작됩니다' assets/ritual-data.js 1              # 04c
 chk 'TIME_STAIR' scripts/audit/copycheck/check-copy.py 1             # 검사가 반대로 세워져 있는가
 chk 'TIME_STAIR' scripts/audit/guest-ear.js 1                        # 「남았」도 시각의 답이다(03c)
@@ -14728,7 +14728,7 @@ chk 'function _whoStale(key)' order-preview.html 1
 chk 'WHO_IF_FILE' order-preview.html 1   # [R8-07] 읽는 사람은 파일이 바뀐 줄만 지금 값(R7-01 의 무조건 목록을 좁혔다)
 chk 'R7-01' scripts/audit/edit-cancel-files.mjs 2
 chk 'G0_KEEP' order-preview.html 2
-chk '자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요. 기다리시는 동안 편안히 머물러 주세요.' assets/ritual-data.js 1
+chk '자리 안내가 필요하시면, 입구에 도와드릴 분이 계십니다."' assets/ritual-data.js 1   # [LINE_R1_1014] 합쇼체 · «편안히 머물러»는 사장님 지적 1(10/10)을 두 분 판에도
 chk 'cast 01_guest-1' 'docs/plans/식순연구/재녹음_목록_20261003.md' 2
 chk 'EDIT_SNAP_SAVED' order-preview.html 2
 chk '두 분 목소리 준비됨' order-preview.html 1
@@ -15644,8 +15644,8 @@ chk "(n===6||n===9)&&sec" order-preview.html 1
 chk 'VC_NET_SPLIT' scripts/audit/vc-down-kind.mjs 2
 # ★[THANKS_DEURIM 2026-10-07 사장님 «결혼식에 와 주셔서 (진심으로) 감사합니다 보단 감사드립니다 · 목소리 녹음 후 예시 글도»] 하객 맞이 담백하게 첫 줄 · 맞추기 예시 글 · 첫인사 예시
 chk 'THANKS_DEURIM' order-preview.html 1
-chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요' assets/ritual-data.js 1
-chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요' order-preview.html 1
+chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계십니다' assets/ritual-data.js 1
+chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계십니다' order-preview.html 1
 chk "var VC_SAMPLE='오늘 저희 두 사람의 결혼식에 와 주셔서 진심으로 감사드립니다." order-preview.html 1
 nochk '함께해 주셔서 진심으로 감사합니다' order-preview.html
 chk 'var EX_OLD_1006={"0": {"0": \["저희 두 사람의 결혼식에 와 주셔서 감사합니다.' order-preview.html 1
@@ -18169,7 +18169,7 @@ chk 'THANKS_SHOT_1013' scripts/audit/open-course.mjs 1
 chk 'EX_LINE_REVIEW_1013' order-preview.html 1
 chk 'EX_LINE_REVIEW_1013' scripts/audit/listen-page.mjs 1
 chk "'tribute:long':\[9,10,1,4]" order-preview.html 1                         # 짧은 판 둘이 카드에 보이는 자리
-chk '신랑 이서준, 신부 정하윤은,' assets/ritual-ref.js 1
+chk '신랑 이서준, 신부 정하윤 두 사람은,' assets/ritual-ref.js 1   # [LINE_R1_1014] 관리자 낭독 카드(인쇄본)와 같은 꼴 · «정하윤은»은 이름 받침에 따라 «은 · 는»이 갈려 이름 바꾸기가 못 고친다
 chk '부엌 물소리가 길어지는 이유를 알아채는 데' assets/ritual-ref.js 1
 chk '하윤 씨 댁에 처음 인사드리러 간 날' assets/ritual-ref.js 1
 chk '두 사람을 처음 만나게 한 신랑 친구 한지호입니다' assets/ritual-ref.js 1
@@ -18181,3 +18181,43 @@ nochk '저는 우산을 두고 나왔습니다' assets/ritual-ref.js       # 편
 nochk '우리 식구가 되어 줘서 고맙다' assets/ritual-ref.js      # 자료 X 2 예시 문장과 거의 같다(SOURCE_WORDS_1013)
 nochk '빌려 간 내 전공책은' assets/ritual-ref.js                # 습관 지적 농담은 빼기
 nochk '떨리는 신랑 신부를 위하여' assets/ritual-ref.js
+# ── 2026-10-14 식순 줄 검토 라운드 1 — 순간마다 문장 전부 × 자료집 41 [LINE_R1_1014]
+#   하객 맞이 두 분 판 = 착석 · 기립 말 걷기(사장님 지적 3-2 · 10/10) · 합쇼체 · 옛 글은 EX_OLD_1006 · PV_OLD · ENTRY_OLD(ex-old-cover)
+#   화촉 두 분 = 서로 한 번 · 하객께 한 번(CANDLE_BOW_1012) · 편지 장면 = 서약 장면과 같은 말 · 디렉터 대독은 없다(NO_DIRECTOR_READ)
+#   덕담 차례 줄 = 한 분 1분쯤 · 축사 준비 = «축사 원고 · …» · 미리 듣기 이음말 = 읽어 주시는 분을 높이고 축가에도
+chk 'LINE_R1_1014' order-preview.html 3
+chk 'LINE_R1_1014' assets/ritual-open.js 3
+chk 'LINE_R1_1014' assets/ritual-story.js 6
+chk 'LINE_R1_1014' scripts/audit/open-course.mjs 2
+chk 'LINE_R1_1014' scripts/audit/ghi-polish.mjs 1
+chk '"저희 예식이 십 분 뒤에 시작됩니다. 첫 순간부터, 자연스러운 사진으로 담깁니다."' assets/ritual-data.js 1
+chk '"저희 예식까지 오 분 남았습니다."' assets/ritual-data.js 1
+nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' assets/ritual-data.js
+nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' order-preview.html 1   # 남는 한 줄 = EX_OLD_1006(옛 글)
+nochk '이제 자리를 잡아 주시면 감사하겠습니다' assets/ritual-data.js
+chk '자, 그럼 이따 앞에서 뵙겠습니다.' order-preview.html 1
+chk '그다음부터는, 있는 그대로 사진에 담깁니다.' order-preview.html 1
+chk '이 영상으로, 저희가 고맙다는 인사를 드리겠습니다.' order-preview.html 1
+chk 'self:"마주 보던 저희 두 사람이, 이제 같은 곳을 보며 들어갑니다.' assets/ritual-data.js 1
+chk 'self:"마주 보던 저희 두 사람이, 이제 같은 곳을 보며 들어갑니다.' order-preview.html 1
+chk "(four?'':'서로 한 번, ')" order-preview.html 1
+chk "(cw === 'parents' ? '' : '서로 한 번, ')" assets/ritual-open.js 1
+nochk '두 분이 고른 두 분' assets/ritual-story.js
+nochk '가장 많이 우시는 자리' assets/ritual-story.js
+nochk '예식에서 가장 조용한 자리' assets/ritual-story.js
+nochk '티가 나지 않아요' assets/ritual-story.js
+nochk '그다음 디렉터 대독' assets/ritual-cue.js
+nochk '그다음 디렉터 대독' assets/ritual-story.js
+nochk "scene: '나레이션이 부르면" assets/ritual-story.js
+nochk '부모님 품에 안기는' order-preview.html
+chk "'부모님이 덕담을 들려주세요 · 한 분 1분쯤'" assets/ritual-open.js 1
+chk "'축사 원고 · 1분에 300자쯤" assets/ritual-open.js 1
+nochk '축사하실 분께 부탁드리기' assets/ritual-open.js
+chk "song:'노래하실 분께서 직접 축가를 불러 주시는 시간입니다.'" order-preview.html 1
+chk "declare:'부탁하신 분께서 직접 성혼 선언문을 읽어 주시는 시간입니다.'" order-preview.html 1
+nochk '오늘은 편하게 앉으셔서' assets/ritual-ref.js
+nochk '이 속도면 평생 갚아야' assets/ritual-ref.js
+nochk '삼십 분을 따져도 다 듣고 나서' assets/ritual-ref.js          # 편지(서로에게) ① 신랑과 같은 장치
+nochk '먼저 와 주신 여러분과 사돈' assets/ritual-ref.js
+chk 'REBIND_VOICE' scripts/sent-lib.mjs 1                    # [LINE_R1_1014] 창고 자리 옮기기는 글자 · 읽는 사람이 다 같을 때만(입장 번갈아)
+chk 'CAKE_OFF_1013' scripts/audit/ghi-polish.mjs 1        # 케이크를 담아 둔 판도 새 코스 ②는 축배만(옛 «케이크와 축배» 기대값을 걷었다)
