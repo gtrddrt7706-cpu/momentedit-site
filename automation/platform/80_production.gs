@@ -1348,7 +1348,7 @@ var REC_PUT_HASH = {
   'r6p.mp3': 'c3bb47509912819193a423456ec6db6364ca8591b8ba14f87e314b72ea733bdc',
   'r8p.mp3': '29a1f2ac38dd0e00d05735fcf4aa88ac7b5880280e24bfe4a810744e3e576d7f',
   'r9p.mp3': 'f837950e90bdbb335ff2f009c8b814572652072883093cce3964865bc4670fc3',
-  'songs.json': '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257'   /* [LY_REALIGN_1014] 줄 시각을 실제 노래에 다시 맞춘 판(Welcome to the Show 전부 · 팡파레 뒤 13줄 · Popcorn 6줄 · Reality 4줄 · A Lover's Concerto 1줄) — 종전 [REC_LY_BI_1013] 두 언어 판 5cb9bee1… */
+  'songs.json': '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257'   /* [LY_REALIGN_1014] 줄 시각을 실제 노래에 다시 맞춘 판(Welcome to the Show 전부 · 팡파레 뒤 13줄 · Popcorn 6줄 · Reality 4줄 · A Lover's Concerto 1줄) — 종전 [REC_LY_BI_1013] 두 언어 판 5cb9bee1… · 그 앞 [REC_CLIP_1013] 판 d355371a… */
 }, REC_PUT_HOUR = 120;
 function _recPutFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');
