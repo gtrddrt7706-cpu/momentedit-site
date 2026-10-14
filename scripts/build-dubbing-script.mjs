@@ -83,6 +83,10 @@ const G = [
   { n: 8, t: '부모님 헌정', tone: '감사·헌정 · 가장 낮고 느리게(정점 사이 완충 구간)', items: [
     ['G8-in', '헌정 시작', 'tribute-in', D.TRIBUTE.nar],
     ['G8-out', '헌정 마무리', 'tribute-out', D.TRIBUTE.end],
+    /* ★[TRIB_NAME_1014 · TRIB_CALL_1014 2026-10-14] 141 · 142 · 143 — 이름 줄 · 짝 줄(선언 바로 뒤) · 구호 · 새 코스만 · 문안은 RC.EXTRA(원천 ritual-open NAR) */
+    ['G8-name', '부모님께 인사 · 이름 줄', 'narr-tribute-name', RC.EXTRA['narr-tribute-name']],
+    ['G8-pair', '부모님께 인사 · 짝 줄 (성혼 선언 바로 뒤인 날)', 'narr-tribute-pair', RC.EXTRA['narr-tribute-pair']],
+    ['G8-call', '부모님께 인사 · 구호', 'tribute-call', RC.EXTRA['tribute-call']],
   ], note: '감동 코스에서 편지와 성혼 선언 사이의 완충이다. 감정적으로 녹음하면 세 정점이 평평해진다.' },
 
   /* ★[TOAST_SCENE 2026-08-09] 「둘 다」는 문안이 둘이다 — 커팅 뒤 나이프를 걷고 잔을 쥐여 드리는
@@ -204,6 +208,12 @@ const G = [
     ['G3-16', '입장 끝 · 맞절 청하기', 'narr-entry-bow', D.NARR.entryBow],
     /* ★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»] 133 감사문 여는 말 — 문안은 D.NARR.thanksIn · 진행(우성) · 2_진행_전반(G3-) · 녹음은 3단계 */
     ['G3-17', '감사문 · 여는 말', 'narr-thanks-in', D.NARR.thanksIn],
+    /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · ENTRY_ARRIVE_1014 2026-10-14] 137 · 138 · 139 · 140 · 144 — 원고 3 · 4 · 5판 새 줄 · 문안은 RC.EXTRA(원천 ritual-open NAR · ritual-data NARR) · 진행(우성) · 2_진행_전반(G3-) */
+    ['G3-18', '개식 선언 (예식 시작 시각)', 'narr-open', RC.EXTRA['narr-open']],
+    ['G3-19', '화촉 · 인사 안내 (두 분이 밝힌 날)', 'narr-candle-bow', RC.EXTRA['narr-candle-bow']],
+    ['G3-20', '화촉 · 인사 안내 (네 분이 밝힌 날)', 'narr-candle-bow-four', RC.EXTRA['narr-candle-bow-four']],
+    ['G3-21', '화촉 맺는 말 · 입장 «격식 있게»를 고른 날', 'narr-candle-out-formal', RC.EXTRA['narr-candle-out-formal']],
+    ['G3-22', '입장 받는 말 (두 분이 앞에 선 뒤)', 'narr-entry-arrive', RC.EXTRA['narr-entry-arrive']],
   ], note: 'N1-a와 N1-b는 택1 · N4와 N5도 택1이다.\nN2는 하객이 듣는 마지막 소리다 · 정보를 0으로 두고 감정만 남겼으니 가장 느리게.\nN3 재생 조건: Couples 시트 digitalAttendance = Y인 날만. 예식 시작 직전(G1-4 뒤, 입장 전).\nN4는 지연 사유를 절대 말하지 않는다 · 틀고 나서 아무것도 하지 않는다(다음 큐는 디렉터 판단).\n식사·이동처럼 회장마다 달라지는 정보는 넣지 않았다 · 그 자리는 스태프 육성이 맡는다.\n★이 그룹이 왜 생겼나: 폐식(G3-15) 뒤로 단체 기록 30분 + 배웅 20분, 도합 50분을 클립 하나도 담당하지 않았다. 하객이 공간을 떠나는 순간이 실제 "엔드"인데, 그 구조는 가장 공들인 폐식 나레이션을 중간에 써 버리고 있었다.\nN4(감정)와 N5(준비)를 나눈 이유: 멈추는 사유가 두 종류이고 대응 톤이 정반대다. 오열로 멈춘 자리에 사무적인 멘트를 틀면 그 순간을 사고로 만들고, 장비 문제인데 감정 멘트를 틀면 우스워진다.\nN3가 삽입구가 아니라 독립 클립인 이유: 삽입구면 입장 6종 × 온라인 유무 = 12개로 녹음이 배가 된다. 빌더에 별도 토글도 만들지 않는다(이중 토글 폐지 지시).' },
   /* ★[AFTER_PARTY 2026-08-08] 아래 셋은 나중에 생긴 클립이라 대본에 없었다 —
      생성기가 51개만 알고 실제 클립은 75개였다. 대본을 읽는 사람은 51개가 전부인 줄 안다.

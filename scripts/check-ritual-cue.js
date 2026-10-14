@@ -48,7 +48,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
 // [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114 · B3 박수 뒤 · B4 숨 고르기 · B5 영상 끝 · B6 편지 → 케이크) → 114. ★맨 끝에 붙였다.
 // [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126) → 126. ★맨 끝에 붙였다.
-const N_FILES = 136;   // [DECLARE_BY_PERSON 2026-10-12] 134~136 narr-declare-in-gdad · bdad · friend (성혼 선언 여는 말 · 읽는 분마다)   // [THANKS_IN_VOW 2026-10-11] 133 narr-thanks-in (감사문 여는 말)   // [MATJEOL_1011 2026-10-11] 132 narr-entry-bow (입장 끝 맞절)   // [TABLE_GREET_1008 2026-10-08] 131 narr-table-in (테이블 인사 여는 말)   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
+const N_FILES = 144;   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] 137~144 개식 선언 · 화촉 인사 안내 둘 · 화촉 맺는 말(격식) · 부모님께 인사 이름 줄 · 짝 줄 · 구호 · 입장 받는 말   // [DECLARE_BY_PERSON 2026-10-12] 134~136 narr-declare-in-gdad · bdad · friend (성혼 선언 여는 말 · 읽는 분마다)   // [THANKS_IN_VOW 2026-10-11] 133 narr-thanks-in (감사문 여는 말)   // [MATJEOL_1011 2026-10-11] 132 narr-entry-bow (입장 끝 맞절)   // [TABLE_GREET_1008 2026-10-08] 131 narr-table-in (테이블 인사 여는 말)   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
 //   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
@@ -419,8 +419,8 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
          옛 기록 15~20 · 1/3 · 1/2 · 약속 20~26 · 3/5 · 3/5 · 가족 17~23 · 2/4 · 1/4(가족은 반지 · 케이크 대신 축가라 요청 2 가 한 컷 준다) */
       /* [TOAST_LAST_1013 2026-10-13] 축배가 «기록» 한 곳으로 가서 정석 · 가족 · 간결의 본식이 42 ~ 82초 줄고 단체 사진이 는다(구현 뒤 게이트 값) — 옛 정석 17~22 · 2/4 · 1/3 · 가족 17~23 · 2/4 · 1/3 · 간결 28~32 */
       ['정석', O.applyExample({}, 'standard'), '18~23', '3/4', '2/4'] /* [EX_ENTRY_FEEL_1012 2026-10-12] 입장 담백하게(23초)로 옛 21~26 · [SPEECH_TILE_1012] 축사 3분이 들어 옛 21~25 · 3/5 · 3/4(가족과 같은 구도 수) */,
-      ['기록', O.applyExample({}, 'record'), '19~22', '3/4', '2/3'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 → [EX_STD_1012] 18~22 → [EX_ENTRY_FEEL_1012] 입장 힘차게(12초)로 19~22 */,
-      ['가족', O.applyExample({}, 'family'), '18~23', '3/4', '2/4'], ['간결', O.applyExample({}, 'brief'), '30~33', '5/5', '5/5'],
+      ['기록', O.applyExample({}, 'record'), '18~22', '3/4', '2/3'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 → [EX_STD_1012] 18~22 → [EX_ENTRY_FEEL_1012] 입장 힘차게(12초)로 19~22 → ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −22.5 = +6.5초로 18~22(구현 뒤 게이트 값) */,
+      ['가족', O.applyExample({}, 'family'), '18~23', '2/4', '2/4'] /* ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −18 = +11초로 요청 0 이 3/4 → 2/4(경계 · 구현 뒤 게이트 값) */, ['간결', O.applyExample({}, 'brief'), '30~33', '5/5', '5/5'],
       ['가장 긴 조합', longest, '10~17', '0/2', '0/2']];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
@@ -430,7 +430,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     /* 문장 세 갈래 — k = max · k < max · k = 0 · k = max = 0(짧은 사진 시간을 일부러 만든다) */
     const L = (sec, w) => F.line(F.cap({ summary: { sec } }, false, w));
     const lines = [[O.bodySec(O.applyExample({}, 'brief')), 0, '가족 구도는 5컷이 알맞아요.'],   // [PHOTO_THANKS] k = max 갈래는 간결로(기록은 4/5 가 됐다)
-      [O.bodySec(O.applyExample({}, 'family')), 0, '가족 구도는 3컷이 알맞고, 제시간에 진행되면 4컷까지 돼요.'],   // [TOAST_LAST_1013] 옛 2컷
+      [O.bodySec(O.applyExample({}, 'family')), 0, '가족 구도는 2컷이 알맞고, 제시간에 진행되면 4컷까지 돼요.'],   // [TOAST_LAST_1013] 옛 2컷 → 3컷 · ★[B2_TIME_1014] 다시 2컷(경계)
       [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 가족 구도 2컷까지 돼요.'],
       [[30 * 60, 35 * 60], 0, '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.']];
     lines.forEach(([sec, w, want]) => { const g = L(sec, w); if (g !== want) bad.push(`문장: «${g}» ≠ «${want}»`); if (/구도 0개|구도 0컷/.test(g)) bad.push(`«구도 0개»가 나왔다: ${g}`); });   // [PHOTO_UNIT_ONE 2026-09-27] «구도 N개» → «가족 구도 N컷»

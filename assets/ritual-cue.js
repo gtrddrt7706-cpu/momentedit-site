@@ -167,7 +167,10 @@
     /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만»] 134 · 135 · 136 — 누가 선언하는지 알리는 여는 말.
        **맨 끝에 붙였다**(위 경고 그대로). 원천 문안 assets/ritual-data.js NARR.declareIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계)
        ★[DECLARE_ANYONE 2026-10-12 사장님 «특정한 인물을 넣어 놓지는 말자»] 134 · 135(신랑 아버님 · 신부 아버님을 부르는 판)는 녹음 전에 쉰다(RETIRED · 번호 보존) — 여는 말은 136 하나 */
-    'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'
+    'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend',
+    /* ★★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14 사장님 «자료집 멘트를 식순에 녹이는 게 가장 중요»] 137 ~ 144 — 원고 3 · 4 · 5판의 새 줄.
+       **맨 끝에 붙였다**(위 경고 그대로). 원천 문안은 assets/ritual-open.js NAR(open · candleBow · candleOutFormal · tribute*) · ritual-data NARR.entryArrive */
+    'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -233,6 +236,9 @@
     'narr-candle-in-mothers': O.NAR.candleIn.mothers, 'narr-candle-in-parents': O.NAR.candleIn.parents,
     'narr-candle-in-fathers': O.NAR.candleIn.fathers, 'narr-candle-in-others': O.NAR.candleIn.others,
     'narr-candle-out': O.NAR.candleOut,
+    /* [OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137 ~ 144 — 이름표만(글은 원천) */
+    'narr-open': O.NAR.open, 'narr-candle-bow': O.NAR.candleBow.two, 'narr-candle-bow-four': O.NAR.candleBow.four, 'narr-candle-out-formal': O.NAR.candleOutFormal,
+    'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive,
     'declare-clap-a': O.NAR.clapAsk, 'declare-clap-b': O.NAR.clapDeclare,
     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
     'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
@@ -547,7 +553,7 @@
       duck: (o.duck === undefined ? PARAM.duckSpeech : o.duck),
       live: o.live || null, post: o.post || [], hint: o.hint || '',
       k: o.k || '', blockN: o.blockN || '', pick: o.pick || '', own: !!o.own,
-      fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin),
+      fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin), gapMs: o.gapMs || 0,   // ★[CHAIN_GAP_1014] 사슬로 이어 나갈 때 앞 줄과의 사이(밀리초 · 0 이면 PARAM.gapMs) — 원고 «1.25초 사슬» · «사이 1초»
       note: o.note || '', alt: null,
       rescue: o.rescue ? { slug: o.rescue.slug, no: noOf(o.rescue.slug), file: fileOf(o.rescue.slug), name: o.rescue.name || '', text: o.rescue.text || '' } : null   // [FREE_RESCUE] 콘솔이 사람 구간 동안 «재생 안 됨»으로 쓴다
     };
@@ -632,7 +638,7 @@
       return [cue({
         k: 'prevideo', blockN: '식전 영상', slug: pslug, name: '식전 영상 소개',
         text: EXTRA[pslug], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
-        fire: 'clock', atMin: 0,   // [CEREMONY_AT_VIDEO 2026-10-05] 불을 낮추고 예식 시작 시각에 · 옛 [PREVIDEO_AT_4](본식 시작 4분 전) 걷음
+        fire: (D.COURSES[S.course] && D.COURSES[S.course].open) ? 'chain' : 'clock', atMin: 0,   // [CEREMONY_AT_VIDEO 2026-10-05] 불을 낮추고 예식 시작 시각에 · 옛 [PREVIDEO_AT_4](본식 시작 4분 전) 걷음 · ★[OPEN_DECL_1014] 새 코스는 개식 선언(시각에)에 이어 사슬
         note: '영상 링크는 D-3 까지 받는다(영상이 없으면 링크로 받은 사진으로 저희가 영상 · 첫 장에 이름 · 날짜 · 길이 · 장수 규정 없음 [PREVIDEO_FREE]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }
       })];
@@ -647,13 +653,20 @@
         /* ★[CANDLE_BOW_1012 2026-10-12 사장님 «부모님 입장을 생략한다는 얘기였어 · 신랑 신부는 입장해야지»] 생략한 것은 부모님이 따로 걸어 들어오는 입장 하나다.
              불을 밝힌 뒤 하객께 드리는 인사는 입장이 아니라 화촉의 한 동작이다(자료 D «점화 → 어머님 맞절 → 하객 인사 → 착석» · G «어머님끼리 맞절» · O «점화 후 인사 타이밍 통일»).
              두 분이 서면 서로 한 번 · 하객께 한 번 · 네 분이면 하객께 한 번. 몇 초라 시간 표(TIME.candle 여유 38초) 안이다 */
+        /* ★★[CANDLE_CALL_1014] 사람 순간을 둘로 나눴다 — ① 나와서 불을 밝힘(여기) → 맺는 말(불을 다 밝히면 · 지적 7) → 인사 안내(사슬) → ② 인사 · 자리로(인사 안내 줄 · [CANDLE_BOW_1012] 의 인사를 안내 줄이 청한다) */
         live: (who === 'parents'
-          ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝히고, 하객께 인사한 뒤 자리로', est: 70, self: true, doing: 'move' }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나온다(따로 걸어 들어오는 입장 없음 · «두 분»이라 적지 않는다) · [CANDLE_BOW_1012]
-          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고, 서로 · 하객께 인사한 뒤 자리로', est: 70, self: true, doing: 'move' })
+          ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move' }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나온다(따로 걸어 들어오는 입장 없음)
+          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move' })
       }), cue({
-        k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',
-        text: EXTRA['narr-candle-out'], duck: PARAM.duckMusic,
-        hint: '두 분이 자리에 앉으시면'
+        k: 'candle', blockN: '화촉', slug: (S.entry === 'C' ? 'narr-candle-out-formal' : 'narr-candle-out'), name: '화촉 마무리',   // ★[CANDLE_TONE_1014] 입장 «격식 있게»면 맺는 말 대안(140)
+        text: EXTRA[S.entry === 'C' ? 'narr-candle-out-formal' : 'narr-candle-out'], duck: PARAM.duckMusic,
+        hint: '불을 다 밝히면'   // ★[CANDLE_CALL_1014] 10/10 지적 7 «때를 불을 다 밝히면으로 당김» — 옛 «두 분이 자리에 앉으시면»
+      }), cue({
+        k: 'candle', blockN: '화촉', slug: (who === 'parents' ? 'narr-candle-bow-four' : 'narr-candle-bow'), name: '인사 안내',
+        text: EXTRA[who === 'parents' ? 'narr-candle-bow-four' : 'narr-candle-bow'], duck: PARAM.duckMusic, fire: 'chain', gapMs: 1250,   // [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
+        live: (who === 'parents'
+          ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 25, self: true, doing: 'move' }
+          : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 25, self: true, doing: 'move' })
       })];
     },
 
@@ -665,7 +678,7 @@
          ★[MATJEOL_1011 2026-10-11] 맞절만은 사장님 결정(«입장 끝에 늘 넣기»)으로 다시 들어왔다 — 132 한 줄. 바라보기 도착 큐(narr-entry-out)는 여전히 없다.
          ★[MATJEOL_SPLIT_1013 2026-10-13] 그 132 는 이제 입장 끝이 아니라 바로 다음 순간(matjeol)이 싣는다. */
       var openC = !!(D.COURSES[S.course] && D.COURSES[S.course].open);
-      return [cue({
+      var entryCues = [cue({
         k: 'entry', blockN: '신랑·신부 입장', slug: 'entry-' + S.entry, name: '신랑·신부 입장',
         text: own ? e.self : e.nar, own: own, duck: -12,
         fire: 'manual', hint: '신부 준비 완료 · 문 앞 대기 확인 후',
@@ -705,6 +718,13 @@
             self: true, doing: 'move', duck: -12, consoleOnly: true, hintNext: '두 분이 다시 앞을 보면', previewPost: [] }
         });
       })()].slice(0, openC ? 1 : 2);   // [ENTRY_OUT_OFF] · ★[MATJEOL_SPLIT_1013] 맞절(132)은 이제 다음 순간 matjeol 이 싣는다 — 입장 끝 concat 으로 되돌리지 말 것
+      /* ★★[ENTRY_ARRIVE_1014] 새 코스 — 입장 받는 말(144). 두 분이 앞에 서고 박수가 잦아들면 디렉터 GO · 다음 맞절(132)이 사슬로 이어진다.
+         옛 «바라보기» 도착 큐(narr-entry-out)를 되살리는 것이 아니다 — 바라보기 · 맞절 사람 순간 없이 «섰다»만 받는 한 줄 */
+      if (openC) entryCues.push(cue({
+        k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-arrive', name: '입장 받는 말', text: D.NARR.entryArrive, duck: -12,
+        hint: '두 분이 앞에 서고 박수가 잦아들면'
+      }));
+      return entryCues;
     },
 
     /* ★★[MATJEOL_SPLIT_1013 2026-10-13 사장님 «맞절 만들자 · 대본이랑 포즈 관련 자료 줄 테니 우선 형태 뼈대만» · «입장 이후 맞절»] 맞절은 입장 바로 뒤의 따로 순간이다(새 코스 · 늘 있음).
@@ -716,7 +736,7 @@
     matjeol: function (S) {
       return [cue({
         k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
-        fire: 'manual', hint: '두 분이 앞에 나란히 서면',
+        fire: 'chain', gapMs: 1250,   // ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
         live: { t: '두 분이 마주 보고 맞절 (3초 숙이고 · 3초 멈추고 · 3초 일어나기)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
       })];   // [MATJEOL_1011] 의 큐 그대로 · k 와 blockN 만 맞절
     },
@@ -1040,7 +1060,7 @@
       ];
     },
 
-    tribute: function (S) {
+    tribute: function (S, seq) {
       /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스는 꽃 없이 다가가 인사 · 포옹(O.TRIB_ACT · 큐 이름 · 현장 지문) —
          옛 코스는 고른 판(TRIBUTE.modes) 그대로 · 새 코스에 «꽃 헌정 · 꽃 전달» 되살리지 말 것 */
       var open = !!D.COURSES[S.course].open;
@@ -1068,18 +1088,32 @@
         }),
         cue({
           k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-out', name: open ? '부모님께 인사 마무리' : '부모님 헌정 마무리', text: D.TRIBUTE.end,   // [TRIB_PICK_CHIP_1013]
-          hint: '포옹이 끝나면'   // ★[TRIB_END_CALL_1014] 이 줄이 «두 분, 다시 앞으로 와 주세요»로 앞으로 부른다 — 돌아온 뒤가 아니라 포옹이 끝난 자리에서 GO
+          hint: '포옹이 끝나면',   // ★[TRIB_END_CALL_1014] 이 줄이 «두 분, 다시 앞으로 와 주세요»로 앞으로 부른다 — 돌아온 뒤가 아니라 포옹이 끝난 자리에서 GO
+          /* ★[TRIB_BACK_1014] 두 분이 앞으로 돌아오는 사람 순간 — 없으면 다음 큐(닫는 인사 «… 하객 여러분께 인사!» · 옛 코스의 다음 순간)가 2초 사슬로 걷는 중에 나갔다.
+             다음 큐는 디렉터 GO(«두 분이 앞에 나란히 서면») · 미리 듣기는 걷는다(consoleOnly) */
+          live: { t: '두 분이 앞으로 돌아와 나란히 섬', est: 15, self: true, doing: 'move', duck: -12, consoleOnly: true, hintNext: '두 분이 앞에 나란히 서면', previewPost: [] }
         })
       ];
       /* ★[TRIBUTE_BRIDE_FIRST 2026-10-12 1단계 점검] 양가 중 어느 쪽 먼저 — 자료 G · P · Q(와 D 첫 판)가 모두 «신부 측 → 신랑 측»이다.
          고객 화면 글은 그대로 두고 디렉터 메모(콘솔)에만 둔다 · 집안 뜻이 다르면 그대로 따른다 */
       if (open) out[0].note = '보통 신부 부모님께 먼저, 이어서 신랑 부모님께(자료 G · P · Q) · 집안 뜻이 다르면 그대로';
-      /* ★[BOW_GROOM 2026-09-25 사장님 결정 5] 신랑 큰절 판 — 여는 말 뒤에 한 줄을 더 얹고, 사람 구간은 그 줄 뒤로 옮긴다.
-         방석은 신랑 부모님 앞 → 신부 부모님 앞(놓는 분은 인력표). 새 코스에만 있다(norm 이 옛 코스에서 flower 로 되돌린다). */
-      if (D.COURSES[S.course].open && S.tribute === 'bowGroom') {
-        var lv = out[0].live; out[0].live = null;
-        out.splice(1, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-bow-groom', name: '부모님께 인사 · 신랑 큰절',
-          text: EXTRA['tribute-bow-groom'], live: lv, note: '방석 둘 — 신랑 부모님 앞 먼저, 신부 부모님 앞 다음' }));
+      /* ★★[TRIB_NAME_1014 · TRIB_CALL_1014] 새 코스 — 이름 줄(141 · 성혼 선언 바로 뒤인 날은 짝 줄 142 · PAIR_DRAFT_V3 10/10 «추천대로») → 여는 말(38 · 1초 사슬 · 디렉터 GO 한 번) →
+           두 분이 부모님 앞으로(말로 인사 날은 그 자리에서 말까지) → 구호 «신랑 신부, 양가 부모님께 인사!»(143 · 디렉터 GO) → 인사 · 포옹 → 맺는 말(39 · 포옹이 끝나면).
+           구호는 자료 S 12 · G 12 · FF 2-1 · O — 꽃이 빠져(FLOWER_OFF_1013) «인사»가 이 순간의 동작이 됐다.
+           신랑 큰절 판(BOW_GROOM 9/25 · 큰절 줄 tribute-bow-groom)은 10/06 걷혔다(GROOM_BOW_TIP · norm 이 늘 flower) — 큰절은 원하면 이 구호에 자연스럽게.
+           ★옛 코스는 종전 그대로(38 하나가 다가가 인사 · 포옹까지) */
+      if (open) {
+        var ti = seq ? seq.indexOf('tribute') : -1, pairT = ti > 0 && seq[ti - 1] === 'declare';
+        var sayT = S.tributeSay !== 'none', at = ' · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로';
+        var act = { t: '두 분이 부모님께 인사 · 포옹', est: base - 20, self: true, doing: 'move' };   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
+        out[0].name = '부모님 앞으로'; out[0].fire = 'chain'; out[0].gapMs = 1000;   // [CHAIN_GAP_1014] 원고 «사이 1초»
+        out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사 말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck }
+          : { t: '두 분이 부모님 앞으로 걸어감' + at, est: 20, self: true, doing: 'move', duck: out[0].duck };
+        out.unshift(cue({ k: 'tribute', blockN: '부모님 헌정', slug: pairT ? 'narr-tribute-pair' : 'narr-tribute-name', name: '부모님께 인사 시작',
+          text: EXTRA[pairT ? 'narr-tribute-pair' : 'narr-tribute-name'], pick: out[0].pick }));
+        out[1].pick = '';
+        out.splice(2, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-call', name: '인사 구호', text: EXTRA['tribute-call'], duck: -12,
+          hint: sayT ? '인사 말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
       }
       return out;
     },
@@ -1153,7 +1187,7 @@
     function askCue() {
       askPre = true;
       return cue({
-        k: 'guest', blockN: '식전 안내', slug: 'declare-ask-a', name: '응답형 예고 (개식 직후)',
+        k: 'guest', blockN: '식전 안내', slug: 'declare-ask-a', name: '응답형 예고 (1분 전 안내 뒤)',
         text: EXTRA['declare-ask-a'],
         note: '응답형을 고른 예식에만 붙는다 · 성혼 선언 자리가 아니라 여기서 한 번 예고한다'
       });
@@ -1177,6 +1211,12 @@
           text: EXTRA['online-3-welcome'], note: 'Couples 시트 digitalAttendance = Y인 날만'
         }));
         if (askOn) cues.push(askCue());
+        /* ★★[OPEN_DECL_1014] 개식 선언(137) — 새 코스에 늘 · 예식 시작 시각(청첩장 시각)에 · 하객 맞이 끝(1분 전 · 사진 부탁 · 식전 안내 클립 뒤) → 식전 영상 · 화촉 · 입장 앞(원고 7장 8).
+           하객 맞이 묶음(PRE)이라 본식 시간에 들지 않는다 · 두 분 목소리 판이어도 이 줄은 나레이션이다(개식 감사는 진행자의 몫 · 원고 8장 8 «두 판이 같은 감사를 듣는다») */
+        if (_openC) cues.push(cue({
+          k: 'guest', blockN: '하객 맞이', slug: 'narr-open', name: '개식 선언', text: EXTRA['narr-open'], duck: PARAM.duckSpeech,
+          fire: 'clock', atMin: 0, note: '예식 시작 시각 · 불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다'
+        }));
         if (seq.indexOf('prevideo') > -1) cues.push.apply(cues, BUILD.prevideo(S));   // [ONEMIN_FIRST] 공지 다음 · 입장 앞
       }
     });
