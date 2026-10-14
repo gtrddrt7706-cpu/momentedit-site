@@ -21,7 +21,7 @@
      W14 축가 여는 말은 누가 불러도 참 — «두 사람을 위해»는 두 분이 직접 부르는 날 틀린 말([SONG_OPEN_ANYONE_1013] · 10/11 SONG_SELF_1011 «두 분이 직접 불러도 돼요» 뒤로 1판이 놓쳤다)
    쓰는 법
      node scripts/audit/narr-words.mjs            원고 나레이션 줄(2 · 3장 표의 «3단계 글» · «대안» 칸) — 하나라도 걸리면 빨강(merge-guard)
-     node scripts/audit/narr-words.mjs --engine   지금 엔진이 새 코스에서 내는 줄 전부를 같은 자로 — 3단계를 엔진에 적용하기 전까지는 보고용(빨강이 정상)
+     node scripts/audit/narr-words.mjs --engine   지금 엔진이 새 코스에서 내는 줄 전부를 같은 자로 — ★10/14 부터 merge-guard 가 막는다(NARR_ENGINE_GATE_1014 · 녹음 대기 줄만 봐준다)
      node scripts/audit/narr-words.mjs --flow     예시 코스 넷을 처음부터 끝까지 원고 글로 이어 찍는다(보고용 · 늘 0) — 붙어 나오는 줄끼리 겹치는 말은 한 줄 자로는 안 보인다(1판 «준비하셨습니다 → 준비한 노래» · «인사드립니다 → 인사를 드리러»)
      node scripts/audit/narr-words.mjs --selftest 깨 보기 — 규칙마다 걸려야 할 줄을 넣어 빨강이 되는지
    종료 코드 0 = 통과 · 1 = 실패 */
@@ -129,10 +129,24 @@ if (arg === '--selftest') {
 }
 
 if (arg === '--engine') {
+  /* ★★[NARR_ENGINE_GATE_1014] 3단계 원고를 엔진에 옮겼다(PR B) — 이제 엔진 줄도 자로 막는다(merge-guard).
+     봐주는 것은 하나 — «녹음 대기»: 원고에 고친 글이 있고(그 글은 자를 통과) 엔진 글에 없는 그 문장이 전부 녹음 목록(docs/plans/식순연구/타입캐스트_<n>판_*.txt)에 맡겨진 줄.
+     녹음이 오면 엔진에 들어가 이 목록에서 사라진다 · 목록에도 원고에도 없는 걸린 줄은 빨강(새로 쓴 엔진 줄이 자를 건너뛰지 못하게) */
   const L = engineLines(); const bad = L.map((x) => ({ ...x, hit: judge(x.slug, x.text) })).filter((x) => x.hit.length);
-  bad.forEach((x) => console.log(`  [${x.no}] ${x.slug}${x.tag ? ' (' + x.tag + ')' : ''} — ${x.hit.join(' · ')}\n       «${x.text}»`));
-  console.log(`\n엔진(새 코스) 나레이션 ${L.length}줄 중 자에 걸린 줄 ${bad.length}`);
-  process.exit(bad.length ? 1 : 0);
+  const PLAN = path.dirname(DOC), nm = (t) => String(t).replace(/[\s.,!?·«»~_]/g, '');
+  const wait = new Set(); if (fs.existsSync(PLAN)) for (const f of fs.readdirSync(PLAN).filter((x) => /^타입캐스트_\d+판_.+\.txt$/.test(x))) for (const l of fs.readFileSync(path.join(PLAN, f), 'utf8').split('\n')) { const m = l.match(/^[^:]+:\s*(.+)$/); if (m) wait.add(nm(m[1])); }
+  // 이미 받은 낱개 소리(창고 · 3단계 녹음) — 기다리는 문장과 함께 들어갈 줄의 나머지 문장
+  const have = new Set(); for (const f of ['assets/audio/_src/_index.json', 'assets/audio/narration-draft/rev1013/src/_index.json']) { try { const j = JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8')); Object.values(j.slots || j).forEach((v) => { if (v && v.text) have.add(nm(v.text)); }); } catch {} }
+  const doc = fs.existsSync(DOC) ? readDoc(fs.readFileSync(DOC, 'utf8')) : [];
+  const sents = (t) => (String(t).match(/[^.!?]+[.!?]/g) || []).map((x) => x.trim());
+  const pend = (x) => doc.some((r) => { if (r.slug !== x.slug || r.tag || judge(r.slug, r.text).length) return false;
+    const miss = sents(r.text).filter((s) => !nm(x.text).includes(nm(s)));
+    return miss.some((s) => wait.has(nm(s))) && miss.every((s) => wait.has(nm(s)) || have.has(nm(s))); });
+  const waitL = bad.filter(pend), red = bad.filter((x) => !pend(x));
+  red.forEach((x) => console.log(`  [${x.no}] ${x.slug}${x.tag ? ' (' + x.tag + ')' : ''} — ${x.hit.join(' · ')}\n       «${x.text}»`));
+  waitL.forEach((x) => console.log(`  … 녹음 대기 [${x.no}] ${x.slug} — ${x.hit.join(' · ')} (원고 글은 자 통과 · 새 문장은 녹음 목록에 있다)`));
+  console.log(`\n엔진(새 코스) 나레이션 ${L.length}줄 중 자에 걸린 줄 ${red.length}${waitL.length ? ' · 녹음 대기 ' + waitL.length : ''}`);
+  process.exit(red.length ? 1 : 0);
 }
 
 if (arg === '--flow') {

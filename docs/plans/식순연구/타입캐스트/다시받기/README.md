@@ -11,7 +11,6 @@
 |---|---|---|---|
 | 1_예슬.txt | 예슬 | 9 | 4 |
 | 2_진한.txt | 진한 | 5 | 4 |
-| 3_우성.txt | 우성 | 3 | 3 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -28,10 +27,4 @@ node scripts/assemble-narration.mjs --in <진한_받은폴더> \
   --clip =01_guest-1,=03_guest-3,=18_entry-A,=20_entry-C
 ```
 ★18_entry-A · 20_entry-C 은 두 사람이 한 클립에 섞여 있습니다. 진한 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
-
-```
-# 우성 — 3줄 · 3클립
-node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =132_narr-entry-bow,=133_narr-thanks-in,=136_narr-declare-in-friend
-```
 
