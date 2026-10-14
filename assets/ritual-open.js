@@ -647,7 +647,7 @@
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝히고 ' + (cw === 'parents' ? '' : '서로 한 번, ') + '하객께' + (cw === 'parents' ? '' : ' 한 번') + ' 인사해 주세요', 'ask', null, NOTE_ASK]]   /* [LINE_R1_1014] 두 분이면 «서로 한 번, 하객께 한 번»(CANDLE_BOW_1012) */   /* [OPEN_WORDS_1013] 부탁받는 분이 «인사까지»를 미리 안다(CANDLE_BOW_1012) */; }
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사 ' + voiceState(S, ['entry']) : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
-      case 'welcome': return [['couple', '감사 인사 한두 문장', 'write', 7]];
+      case 'welcome': return [['couple', '감사 인사 한두 문장 · 적어 주시면 큰 글씨 카드로 드려요', 'write', 7]];   // ★[WELCOME_CARD_1014 라운드 3] 이야기 안심(«미리 적어 주신 인사말 카드를 저희가 바로 건네 드려요») · 콘솔 사다리가 약속한 카드를 준비 줄도 말한다 — 서약문 줄과 같은 말(VOW_CARD_PRINT_1014 · 실제로 인쇄)
       case 'bless': return [['parents', '덕담 원고 · 한 분 300자 안팎(1분쯤) · 받으면 큰 글씨 카드로 돌려드려요', 'ask', 7, '덕담에 넣을 이야기 하나를 골라 건네 드리면 쓰기 쉬워요']];   // ★[BLESS_STORY_NOTE_1014 원고 9장 ③ · 자료 X 1 «재료 모으기»]   // [R1-20] 400자는 약 80초라 «1분쯤»과 안 맞았다 · 끊긴 괄호 말을 끝맺음
       case 'vow': return [['couple', (S && S.vowKind === 'thanks' ? '감사문' : '서약문') + ' · 한 분 300자쯤(모두 600자쯤) · 적어 주시면 큰 글씨 카드로 드려요', 'write', 7]];   // ★[VOW_CARD_PRINT_1014 2026-10-14 사장님 «추천대로»] 실제로 인쇄한다 — 안심 «배우자분께 건네»는 종이가 있어야 된다   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자 · [THANKS_IN_VOW] 감사문이면 이름만 바뀐다
       case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring', 0]];
@@ -885,7 +885,7 @@
     candleOutFormal: '양가의 촛불이 모두 켜졌습니다.',
     /* ★★[TRIB_NAME_1014] 부모님께 인사 — 이름 줄(141) · 선언 바로 뒤인 날 짝 줄(142)(PAIR_DRAFT_V3 10/10 «추천대로» · 원고 5판 · 38 첫 문장은 순간 이름을 말하지 않는다) ·
          구호(143 · 원고 4판 · 사장님 아침 확인 2 «추천대로» · 자료 S 12 · G 12 · FF 2-1 · O — 꽃이 빠져 «인사»가 이 순간의 동작이 됐다) */
-    tributeName: '부모님께 감사를 전하겠습니다.', tributePair: '부부가 되어 처음으로, 부모님께 갑니다.', tributeCall: '신랑 신부, 양가 부모님께 인사!',
+    tributeName: '부모님께 감사를 전하겠습니다.', tributePair: '부부가 되어 처음으로, 부모님께 갑니다.', tributeCall: '신랑 신부, 양가 부모님께 인사!', tributeCallSay: '그 마음을 담아, 신랑 신부, 양가 부모님께 인사!',   /* ★[TRIB_CALL_SAY_1014 라운드 3] 말로 인사 날 구호(145) — 자료 GG 1 · FF 2-1 · EE 넷 자리 · T4 «마음을 담아 → 구호» 뼈대 · «그 마음»은 두 분이 방금 한 말을 받아 늘 참 · 말 없이 날은 구호만(143) */
     clapAsk: '여러분은 방금 두 사람의 약속을 함께 지켜보셨습니다. 이 약속의 증인이 되어 주신다면, 큰 박수로 답해 주십시오.',
     clapDeclare: '오늘 이 자리에서, 두 사람은 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다.',
     pourMix: '두 분이 각자 고른 와인을 한 잔에 붓습니다. 한 번 어우러진 맛은 다시 나뉘지 않지요.',

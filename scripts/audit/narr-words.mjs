@@ -22,7 +22,7 @@
    쓰는 법
      node scripts/audit/narr-words.mjs            원고 나레이션 줄(2 · 3장 표의 «3단계 글» · «대안» 칸) — 하나라도 걸리면 빨강(merge-guard)
      node scripts/audit/narr-words.mjs --engine   지금 엔진이 새 코스에서 내는 줄 전부를 같은 자로 — ★10/14 부터 merge-guard 가 막는다(NARR_ENGINE_GATE_1014 · 녹음 대기 줄만 봐준다)
-     node scripts/audit/narr-words.mjs --flow     예시 코스 넷을 처음부터 끝까지 원고 글로 이어 찍는다(보고용 · 늘 0) — 붙어 나오는 줄끼리 겹치는 말은 한 줄 자로는 안 보인다(1판 «준비하셨습니다 → 준비한 노래» · «인사드립니다 → 인사를 드리러»)
+     node scripts/audit/narr-words.mjs --flow     예시 코스 넷을 처음부터 끝까지 엔진 글로 이어 찍는다(FLOW_NOW_1014 · 원고 칸이 다르면 한 줄 덧붙임)(보고용 · 늘 0) — 붙어 나오는 줄끼리 겹치는 말은 한 줄 자로는 안 보인다(1판 «준비하셨습니다 → 준비한 노래» · «인사드립니다 → 인사를 드리러»)
      node scripts/audit/narr-words.mjs --selftest 깨 보기 — 규칙마다 걸려야 할 줄을 넣어 빨강이 되는지
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import { createRequire } from 'node:module';
@@ -104,6 +104,22 @@ function engineLines() {
   return [...seen.values()].sort((a, b) => (+a.no || 999) - (+b.no || 999));
 }
 
+/* ★[BRIDGE_NO_ECHO_1014 라운드 3] 미리 듣기 이음말(order-preview TALK_BRIDGE)은 바로 앞 여는 말에 이어 들린다 — 둘을 한 줄로 이어 W13(같은 말 두 번)을 잰다.
+   10/14 라운드 3 에 여덟이 여는 말의 낱말(서로에게 · 분께서 · 덕담을 · 축가를 · 부모님께 · 인사를)을 되풀이하고 있었다 · 이음말을 못 읽으면 빨강(통과가 아니다) */
+function bridgePairs() {
+  const O = require(path.join(ROOT, 'assets/ritual-open.js')), C = require(path.join(ROOT, 'assets/ritual-cue.js'));
+  const m = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8').match(/var TALK_BRIDGE=(\{[\s\S]*?\});/);
+  if (!m) return null;
+  const TB = Function('return ' + m[1])();
+  const V = { welcome: {}, vow: {}, 'vow.thanks': { vowKind: 'thanks' }, declare: {}, bless: {}, 'free.speech': { freeWhat: 'speech' }, song: {}, letter: { letter: 'each' }, 'letter.parent': { letter: 'parent' }, toast: {}, tribute: {} };
+  const out = [];
+  for (const [key, ex] of Object.entries(V)) { const k = key.split('.')[0], br = TB[key]; if (!br) continue;
+    const S = O.sampleS(); S.on = Object.assign({}, S.on, { [k]: 1 }); Object.assign(S, ex);
+    const cs = C.build(S, { mode: 'preview' }).cues.filter((c) => c.k === k), lv = cs.find((c) => c.live);
+    if (lv) out.push({ key, nar: lv.text, br, hit: twice(lv.text + ' ' + br) }); }
+  return out;
+}
+
 const arg = process.argv[2] || '';
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : '\n     ' + d}`); if (!c) fail++; };
 
@@ -122,6 +138,7 @@ if (arg === '--selftest') {
   ok('[NARR_WORDS_1013] 깨 보기 — 박수 자리(입장 · 선언 맺음 · 닫는 인사)는 W7 이 아니다', !judge('entry-B', '큰 박수 부탁드립니다. 신랑 신부, 입장!').includes('W7') && !judge('narr-close-bow', '마지막 박수를 부탁드립니다.').includes('W7'));
   ok('[NARR_REREAD_1013] 깨 보기 — 구호 «위하여» · 끝말 · 두 글자 말은 W13 이 아니다', !judge('toast-toast', '두 분이 위하여, 하시면 함께 위하여, 하고 답해 주세요.').includes('W13') && !judge('end-1c-thanks-nomeal', '가족분들께서는, 잠시 남아 주십시오. 다른 분들도, 함께 남아 주십시오.').includes('W13'));
   ok('[SONG_OPEN_ANYONE_1013] 깨 보기 — W14 는 축가 여는 말에만(다른 자리의 «위해»는 걸지 않는다)', !judge('narr-free-in-gift', '오늘을 위해 마음을 담아 준비한 선물이 있습니다.').includes('W14'));
+  ok('[BRIDGE_NO_ECHO_1014] 깨 보기 — 옛 감사 인사 이음말은 여는 말과 이어 W13(«인사를»)', twice('신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다. 두 분이 하객께 직접 감사 인사를 드리는 시간입니다.').includes('인사를'));
   const doc = '## 2. 나레이션\n| 번호 · 자리 | 지금 | 3단계 글 | 근거 | 녹음 |\n|---|---|---|---|---|\n| 01 guest-1-arrival | x | 기다리시는 동안, 편안히 머물러 주십시오. | x | x |\n';
   ok('[NARR_WORDS_1013] 깨 보기 — 원고 표에 걸리는 줄을 넣으면 읽어서 잡는다', readDoc(doc).some((r) => judge(r.slug, r.text).includes('W8')));
   ok('[NARR_WORDS_1013] 깨 보기 — 표를 못 읽으면(0줄) 통과가 아니다', readDoc('## 2. 나레이션\n아무 표도 없음\n').length === 0);
@@ -145,8 +162,10 @@ if (arg === '--engine') {
   const waitL = bad.filter(pend), red = bad.filter((x) => !pend(x));
   red.forEach((x) => console.log(`  [${x.no}] ${x.slug}${x.tag ? ' (' + x.tag + ')' : ''} — ${x.hit.join(' · ')}\n       «${x.text}»`));
   waitL.forEach((x) => console.log(`  … 녹음 대기 [${x.no}] ${x.slug} — ${x.hit.join(' · ')} (원고 글은 자 통과 · 새 문장은 녹음 목록에 있다)`));
-  console.log(`\n엔진(새 코스) 나레이션 ${L.length}줄 중 자에 걸린 줄 ${red.length}${waitL.length ? ' · 녹음 대기 ' + waitL.length : ''}`);
-  process.exit(red.length ? 1 : 0);
+  const bp = bridgePairs(), bpRed = (bp || []).filter((x) => x.hit.length);
+  bpRed.forEach((x) => console.log(`  [이음말 ${x.key}] W13 ${x.hit.join(' · ')}\n       «${x.nar}» → «${x.br}»`));
+  console.log(`\n엔진(새 코스) 나레이션 ${L.length}줄 중 자에 걸린 줄 ${red.length}${waitL.length ? ' · 녹음 대기 ' + waitL.length : ''} · 이음말 ${bp ? bp.length : '못 읽음'}개 중 여는 말과 겹침 ${bpRed.length} [BRIDGE_NO_ECHO_1014]`);
+  process.exit(red.length || !bp || !bp.length || bpRed.length ? 1 : 0);
 }
 
 if (arg === '--flow') {
@@ -159,7 +178,9 @@ if (arg === '--flow') {
   O.EXAMPLES.forEach((ex) => {
     const S = O.applyExample(O.sampleS(), ex.k); const r = C.build(C.norm ? C.norm(S) : S, { mode: 'console' }); const cues = Array.isArray(r) ? r : (r.cues || []);
     console.log(`\n── ${ex.nm || ex.k} (${ex.k}) · ${cues.length}줄`);
-    cues.forEach((c) => { const s = c.slug || c.k || ''; const t = by.get(s); console.log(`  [${c.no || '-'}] ${s}${t ? '' : ' (엔진)'}\n       ${t || c.text || '(소리 없음)'}`); });
+    /* ★[FLOW_NOW_1014 라운드 3] 엔진 글(실제 나가는 글)을 이어 찍는다 — 원고가 엔진에 다 들어간 뒤(PR B · B2)로 «3단계 글» 칸은 플레이 03 녹음 조각과 짝인 옛 글이라,
+       그 칸을 찍으면 실제 소리 차례와 다른 글이 이어졌다(라운드 3 G1 · G2 · G5) · 원고 칸이 다르면 아래에 한 줄로 */
+    cues.forEach((c) => { const s = c.slug || c.k || ''; const t = by.get(s); console.log(`  [${c.no || '-'}] ${s}\n       ${c.text || '(소리 없음)'}${t && c.text && t !== c.text ? '\n       (원고 3단계 글 · 플레이 03: ' + t + ')' : ''}`); });
   });
   process.exit(0);
 }

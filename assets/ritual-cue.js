@@ -170,7 +170,8 @@
     'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend',
     /* ★★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14 사장님 «자료집 멘트를 식순에 녹이는 게 가장 중요»] 137 ~ 144 — 원고 3 · 4 · 5판의 새 줄.
        **맨 끝에 붙였다**(위 경고 그대로). 원천 문안은 assets/ritual-open.js NAR(open · candleBow · candleOutFormal · tribute*) · ritual-data NARR.entryArrive */
-    'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive'
+    'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive',
+    'tribute-call-say'   /* ★[TRIB_CALL_SAY_1014 라운드 3] 145 · 말로 인사 날 구호 «그 마음을 담아, 신랑 신부, 양가 부모님께 인사!» */
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -238,7 +239,7 @@
     'narr-candle-out': O.NAR.candleOut,
     /* [OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137 ~ 144 — 이름표만(글은 원천) */
     'narr-open': O.NAR.open, 'narr-candle-bow': O.NAR.candleBow.two, 'narr-candle-bow-four': O.NAR.candleBow.four, 'narr-candle-out-formal': O.NAR.candleOutFormal,
-    'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive,
+    'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive, 'tribute-call-say': O.NAR.tributeCallSay,   /* [TRIB_CALL_SAY_1014] 145 */
     'declare-clap-a': O.NAR.clapAsk, 'declare-clap-b': O.NAR.clapDeclare,
     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
     'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
@@ -640,7 +641,10 @@
         text: EXTRA[pslug], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
         fire: (D.COURSES[S.course] && D.COURSES[S.course].open) ? 'chain' : 'clock', atMin: 0,   // [CEREMONY_AT_VIDEO 2026-10-05] 불을 낮추고 예식 시작 시각에 · 옛 [PREVIDEO_AT_4](본식 시작 4분 전) 걷음 · ★[OPEN_DECL_1014] 새 코스는 개식 선언(시각에)에 이어 사슬
         note: '영상 링크는 D-3 까지 받는다(영상이 없으면 링크로 받은 사진으로 저희가 영상 · 첫 장에 이름 · 날짜 · 길이 · 장수 규정 없음 [PREVIDEO_FREE]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
-        live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }
+        /* ★[PV_RESCUE_1014 라운드 3] 같은 영상 상영인 준비한 순서(영상)처럼 [재생 안 됨](105 · FREE_RESCUE)을 든다 — 식전 영상만 실패 처리가 없었다(자료 T1 · V 3-5 돌발 «음향 · 영상 트러블») */
+        rescue: { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] },
+        live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff,
+          fallback: '영상이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로' }
       })];
     },
     /* ★[OPEN_COURSE] 화촉 — 입장 바로 앞. 서는 분(S.candleWho)에 따라 여는 말만 달라진다(명세 7장). */
@@ -900,7 +904,7 @@
           k: 'song', blockN: '축가', slug: 'narr-song', name: '축가 시작', text: D.NARR.song, duck: PARAM.duckMusic,
           live: { t: '축가 한 곡 (부르실 분이 앞으로 · MR 은 디렉터가 튼다)', est: 230, duck: PARAM.duckOff, self: true, doing: 'sing',
             note: 'BGM 은 완전히 끈다 · MR 은 두 분이 예식 사흘 전까지 보낸 파일 · 악기 연주는 받지 않는다',
-            fallback: 'MR 이 안 나오면 다시 튼다 · 그래도 안 되면 부르실 분께 반주 없이 부를지 묻는다' }
+            fallback: '부르시는 분이 멈춰도 MR 은 그대로 둔다 · MR 이 안 나오면 다시 튼다 · 그래도 안 되면 부르실 분께 반주 없이 부를지 묻는다' }   // ★[SONG_CALM_1014 라운드 3] 목이 메거나 가사를 놓쳐도 반주는 끊지 않는다(자료 T1)
         })];
       }
       return [cue({
@@ -1107,12 +1111,12 @@
         var sayT = S.tributeSay !== 'none', at = ' · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로';
         var act = { t: '두 분이 부모님께 인사 · 포옹', est: base - 20, self: true, doing: 'move' };   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
         out[0].name = '부모님 앞으로'; out[0].fire = 'chain'; out[0].gapMs = 1000;   // [CHAIN_GAP_1014] 원고 «사이 1초»
-        out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사 말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck }
+        out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사 말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
           : { t: '두 분이 부모님 앞으로 걸어감' + at, est: 20, self: true, doing: 'move', duck: out[0].duck };
         out.unshift(cue({ k: 'tribute', blockN: '부모님 헌정', slug: pairT ? 'narr-tribute-pair' : 'narr-tribute-name', name: '부모님께 인사 시작',
           text: EXTRA[pairT ? 'narr-tribute-pair' : 'narr-tribute-name'], pick: out[0].pick }));
         out[1].pick = '';
-        out.splice(2, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-call', name: '인사 구호', text: EXTRA['tribute-call'], duck: -12,
+        out.splice(2, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: sayT ? 'tribute-call-say' : 'tribute-call', name: '인사 구호', text: EXTRA[sayT ? 'tribute-call-say' : 'tribute-call'], duck: -12,   // ★[TRIB_CALL_SAY_1014] 말로 인사 날은 «그 마음을 담아,»로 두 분 말을 받아 구호(145)
           hint: sayT ? '인사 말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
       }
       return out;
@@ -1214,7 +1218,7 @@
         /* ★★[OPEN_DECL_1014] 개식 선언(137) — 새 코스에 늘 · 예식 시작 시각(청첩장 시각)에 · 하객 맞이 끝(1분 전 · 사진 부탁 · 식전 안내 클립 뒤) → 식전 영상 · 화촉 · 입장 앞(원고 7장 8).
            하객 맞이 묶음(PRE)이라 본식 시간에 들지 않는다 · 두 분 목소리 판이어도 이 줄은 나레이션이다(개식 감사는 진행자의 몫 · 원고 8장 8 «두 판이 같은 감사를 듣는다») */
         if (_openC) cues.push(cue({
-          k: 'guest', blockN: '하객 맞이', slug: 'narr-open', name: '개식 선언', text: EXTRA['narr-open'], duck: PARAM.duckSpeech,
+          k: 'guest', blockN: '예식 시작', slug: 'narr-open', name: '개식 선언', text: EXTRA['narr-open'], duck: PARAM.duckSpeech,   // ★[OPEN_BLOCK_1014 라운드 3] 블록은 따로(자료 모두 개식을 한 순서로 둔다) — «하객 맞이»에 얹으면 콘솔이 하객 맞이 설명을 빌려 쓰고, 디지털 참석 날엔 식전 안내 뒤에 같은 설명 · 팁이 두 번 떴다
           fire: 'clock', atMin: 0, note: '예식 시작 시각 · 불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다'
         }));
         if (seq.indexOf('prevideo') > -1) cues.push.apply(cues, BUILD.prevideo(S));   // [ONEMIN_FIRST] 공지 다음 · 입장 앞
@@ -1330,6 +1334,13 @@
       /* ★★[PHOTO_THANKS 2026-09-26 사장님 결정 · 코워크 «사장님 제안 둘» 1] 전체 사진 바로 뒤 — 두 분이 하객 모두께 함께 감사 인사(목례).
          가실 분은 여기서 식사 자리로 먼저 가시고, 가족 · 친구는 남아 사진을 더 남긴다. 옛 «문 앞에서 한 분 한 분 배웅»은 없앴다(되살리지 말 것).
          ★둘째 문장 뒤 3초 무음이 목례 자리다([THANKS_BOW] · 조립기가 넣는다). 한 큐 · 디렉터 GO 하나(앞 큐에 사람 구간이 있어 manual). */
+      /* ★★[PHOTO_SEND_FIRST_1014 라운드 1 결정 · 사장님 10/14 «전부 추천대로»(아침 확인 6 «옮기기»)] 사진 보내기 안내(85)는 전체 사진 바로 뒤 · 감사 인사(110 · 45) 앞 —
+           감사 인사 뒤에는 가실 분이 식사 자리 · 귀가로 먼저 가신다(PHOTO_THANKS) · 하객 모두가 계실 때 한 번 · 링크가 없으면 통째로 빠진다(감사 인사가 종전대로 디렉터 GO) */
+      if (S.photoShare) cues.push(cue({
+        k: '_photo', blockN: '단체 사진', slug: 'narr-photo-send', name: '사진 보내기 안내',
+        text: EXTRA['narr-photo-send'], duck: -14, hint: '전체 사진을 담고 나면',
+        note: '하객 안내 페이지에 사진 링크가 있을 때만 나간다 · 이어서 두 분 감사 인사(사슬)'
+      }));
       cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: _thx,
         name: S.meal ? '두 분 감사 인사 · 식사 자리로' : '두 분 감사 인사 · 귀가 인사', text: EXTRA[_thx], duck: -14,
@@ -1388,11 +1399,7 @@
       /* ★[PHOTO_ASK] 끝에 두는 이유 — 단체촬영·인사 사진이 **다 끝난 뒤**다.
          그때가 하객 손에 사진이 가장 많다. 링크가 없으면 통째로 빠진다.
          ★[PHOTO_THANKS 2026-09-26] 이제 여기서 듣는 분은 남은 가족 · 친구다(가실 분은 감사 인사 뒤 식사 자리로 먼저 가셨다). 자리는 코워크 제안으로 올렸다. */
-      if (S.photoShare) cues.push(cue({
-        k: '_farewell', blockN: '마무리', slug: 'narr-photo-send', name: '사진 보내기 안내',
-        text: EXTRA['narr-photo-send'], duck: -14, fire: 'chain',
-        note: '하객 안내 페이지에 사진 링크가 있을 때만 나간다'
-      }));
+      /* ★[PHOTO_SEND_FIRST_1014] 85 는 위(전체 사진 바로 뒤 · 감사 인사 앞)로 옮겼다 — 여기 두면 가실 분이 먼저 가신 뒤라 정작 사진을 가장 많이 찍은 하객이 못 듣는다 */
       cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: 'end-2-goodbye', name: '마무리 · 귀가 인사', text: EXTRA['end-2-goodbye'], duck: -14,
         /* ★[WF_FINDINGS 2026-09-12] 「하객 대부분이 나가시면」이었는데 바로 아래 note 가
@@ -1418,6 +1425,12 @@
       /* [CLAP_GO] 박수 동안 올려 둔 음악은 GO 뒤 1.5초에 걸쳐 내린다(종전 선언 post 의 toLetterMs 와 같은 값) */
       if (prev && prev.live && prev.live.applause) c.fadeMs = PARAM.declare.toLetterMs;
       c.idx = i;
+    }
+
+    /* ★[OPEN_GAP_1014 라운드 3] 개식 선언(137) 뒤 다음 줄(식전 영상 소개 · 영상을 뺀 날은 화촉 · 입장)은 3초 쉬고 사슬 —
+         순서(화제)가 바뀌는 자리(자료 G2 5-2 «3 ~ 3.5초») · «…예식을 시작하겠습니다»는 자료가 박수와 함께 쓰는 말이라(BB ⑥) 청하지 않아도 손뼉이 나올 수 있다 */
+    for (var og = 0; og < cues.length - 1; og++) {
+      if (cues[og].slug === 'narr-open' && cues[og + 1].fire === 'chain' && !cues[og + 1].gapMs) cues[og + 1].gapMs = 3000;
     }
 
     // 반지 교환 마무리 → 성혼 선언 사이는 '음악 페이드 8초 + 침묵 3초'가 시간 고정이다(§3-A · 대본 153~159행).
