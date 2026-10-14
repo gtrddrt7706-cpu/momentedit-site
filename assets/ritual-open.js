@@ -141,7 +141,7 @@
     /* [DETAIL_0925 E] 여섯 → 넷(FREE_KIND 네 갈래와 같게). 옛 값 dance · show · hand 는 chipOf · norm 이 갈래로 옮긴다 */
     /* ★★[FREE_ETC 2026-10-06 사장님 «기타 칸 만들자 · 직접 적을 수 있게 · 길이도 직접 · 춤 공연은 빼고»] 춤 · 공연(stage) 걷음 → 기타(etc) — 무엇을 글칸(S.freeEtc) · 길이 분 칸(S.freeLen 1~10).
        옛 값 stage · dance · show 는 기타로 읽는다(FREE_OLD) · ★«춤 · 공연» 칩 되살리지 말 것 */
-    free: [['video', '영상'], ['gift', '깜짝 선물 · 전달'], ['speech', '친구 · 가족의 축사'], ['etc', '기타']],
+    free: [['video', '영상'], ['gift', '깜짝 선물 · 전달'], ['speech', '축사'], ['etc', '기타']],   // ★[R2_SPEECH_LABEL_1014] «친구 · 가족의 축사» → «축사»(칸 이름과 같게 · TERM_BY_SPEAKER_1013 덕담 = 부모님 · 콘솔 배지 «여기는 고를 수 있어요 · 축사 · 3분»)
     freeLen: [['3', '3분'], ['2', '2분'], ['1', '1분']],
     /* ★[ENTRY_SCENE 2026-09-25 코워크 회신 4-3 · 추가 전달 B7] 입장의 «첫 모습»(새 키 하나) — 서로 바라보기 · 맞절.
        소리는 같다(모습 · 영상만 달라진다) · 시간표 그대로. 새 코스에만 · 옛 코스는 norm 이 look 으로 둔다. */
@@ -648,8 +648,8 @@
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝히고 ' + (cw === 'parents' ? '' : '서로 한 번, ') + '하객께' + (cw === 'parents' ? '' : ' 한 번') + ' 인사해 주세요', 'ask', null, NOTE_ASK]]   /* [LINE_R1_1014] 두 분이면 «서로 한 번, 하객께 한 번»(CANDLE_BOW_1012) */   /* [OPEN_WORDS_1013] 부탁받는 분이 «인사까지»를 미리 안다(CANDLE_BOW_1012) */; }
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사 ' + voiceState(S, ['entry']) : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '감사 인사 한두 문장', 'write', 7]];
-      case 'bless': return [['parents', '덕담 원고 · 한 분 300자 안팎(1분쯤) · 받으면 큰 글씨 카드로 돌려드려요', 'ask', 7]];   // [R1-20] 400자는 약 80초라 «1분쯤»과 안 맞았다 · 끊긴 괄호 말을 끝맺음
-      case 'vow': return [['couple', (S && S.vowKind === 'thanks' ? '감사문' : '서약문') + ' · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자 · [THANKS_IN_VOW] 감사문이면 이름만 바뀐다
+      case 'bless': return [['parents', '덕담 원고 · 한 분 300자 안팎(1분쯤) · 받으면 큰 글씨 카드로 돌려드려요', 'ask', 7, '덕담에 넣을 이야기 하나를 골라 건네 드리면 쓰기 쉬워요']];   // ★[BLESS_STORY_NOTE_1014 원고 9장 ③ · 자료 X 1 «재료 모으기»]   // [R1-20] 400자는 약 80초라 «1분쯤»과 안 맞았다 · 끊긴 괄호 말을 끝맺음
+      case 'vow': return [['couple', (S && S.vowKind === 'thanks' ? '감사문' : '서약문') + ' · 한 분 300자쯤(모두 600자쯤) · 적어 주시면 큰 글씨 카드로 드려요', 'write', 7]];   // ★[VOW_CARD_PRINT_1014 2026-10-14 사장님 «추천대로»] 실제로 인쇄한다 — 안심 «배우자분께 건네»는 종이가 있어야 된다   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자 · [THANKS_IN_VOW] 감사문이면 이름만 바뀐다
       case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring', 0]];
       case 'declare': { var dp = declBy(S);   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 적은 분께 부탁 · 안 적었으면 «정하기»가 할 일로 남는다(예시는 칸에만)
         return dp ? [['couple', '성혼 선언문 낭독 · ' + dp + '께 부탁드리기', 'ask', null, NOTE_ASK]] : [['couple', '성혼 선언문 읽어 주실 분 정하기', 'ask', null, NOTE_ASK]]; }
@@ -980,11 +980,13 @@
        candle  9.8초          첫 장면은 초가 꺼져 있다 · 끝은 두 초 다 켜짐
        entry   8.0초          첫 장면은 손과 부케 가까이 · 문으로 들어오는 두 분
        toast   2.5초          사장님 지정 · 두 분이 잔을 가슴 높이로 든 장면(10/9 v8)
-       tribute 8.0초          사장님 지정 · 부케를 든 어머님을 안는 신부 · 곁의 신랑
-                              ★[FLOWER_OFF_1013] 10/13 부터 꽃을 건네지 않는다 — 이 영상은 어머님이 부케를 든 장면이라 새 영상(꽃 없이 안기는 장면)이 오면 같은 이름으로 바꾼다
+       tribute 2.8초          어머님을 안는 신부 · 곁의 신랑(자른 판 기준)
+                              ★★[TRIB_HUG_CROP_1014 2026-10-14 사장님 «추천대로» · FLOWER_OFF_1013] 받은 v8 판의 «꽃 건네기» 앞 반(5.2초 컷 앞)을 자르고
+                                부케를 든 오른쪽 손을 잘라(왼쪽 위 928×522 → 1280×720) «안기» 반만 남겼다(4.27초) — 칸 그림도 새로(옛 칸 그림은 부케가 보였다).
+                                꽃 없이 안기는 새 영상이 오면 같은 이름으로 바꾼다(KEEP_CARD 없이 · 넷째 값으로 칸 그림을 고른다)
        prevideo 7.7초         사장님 지정 · 화면을 보는 하객 뒷모습
        나머지  첫 장면        (끝 장면은 주인공이 빠진다 · 덕담 뒷모습 · 편지 손 · 닫는 인사 발)
-       ★초는 v8 받은 원본 기준(10/9 · 종전 v2 표의 6.0 · 2.0 · 6.0 은 옛 판) · 고른 다섯 편의 칸 그림은 그 원본에서 뽑아 둔 그대로다.
+       ★초는 v8 받은 원본 기준(10/9 · 종전 v2 표의 6.0 · 2.0 · 6.0 은 옛 판) · 고른 다섯 편의 칸 그림은 그 원본에서 뽑아 둔 그대로다(tribute 만 10/14 자른 판에서 다시).
      ★[VID_MOVE_NOW 2026-10-09 사장님 «열자마자 움직일 수 있게»] 영상은 앞의 멈춘 구간(편마다 0.10~3.10초)을 잘라 가볍게(CRF 24 · 합 65.0MB → 21.2MB) 다시 구웠다 — 첫 장면(poster)은 자른 판의 첫 장면.
        다시 구울 때: 고른 다섯 편은 KEEP_CARD=1 sh scripts/video/encode-moment.sh 받은파일.mp4 <이름> · 나머지는 KEEP_CARD 없이(칸 그림 = 새 첫 장면) · 칸 그림을 새로 고르면 넷째 값(자른 뒤 기준 초) */
   var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 2026-10-09 사장님 «table 넣어» — 테이블 인사 영상(v8 묶음 · 10초)
@@ -1015,7 +1017,7 @@
     try { p = (partsOf(k, S) || [])[1] || 0; } catch (e) { p = 0; }
     switch (k) {
       case 'welcome': return '두 분이 하객께 감사 인사를 해요 · ' + secTxt(p || 30);
-      case 'bless': return '부모님이 덕담을 들려주세요 · 한 분 1분쯤';   // [LINE_R1_1014] «약 3분»(시간 표 합)은 한 분이 하시는 날 3분으로 읽혔다 · 카드 · 준비 줄 · ④ 대본과 같은 말
+      case 'bless': return '부모님이 덕담을 들려주세요 · 약 1분씩';   // ★[R2_BLESS_TALK_1014] ④ 는 끝의 «· 약 …»를 떼고 «말하는 시간 한 분 약 1분씩»을 붙인다 — «한 분 1분쯤»이면 시간을 두 번 말했다(«씩»이 한 분 몫) · [LINE_R1_1014] «약 3분»(시간 표 합)은 한 분이 하시는 날 3분으로 읽혔다 · 카드 · 준비 줄 · ④ 대본과 같은 말
       case 'vow': return (S && S.vowKind === 'thanks' ? '두 분이 하객께 감사문을 읽어요 · ' : '두 분이 서약을 읽어요 · ') + secTxt(p || 100);   // [THANKS_IN_VOW]
       case 'declare': { var dw = declBy(S); return (dw ? dw + josaOf(dw, '이', '가') : '선언하실 분이') + ' 성혼 선언문을 읽어요 · ' + secTxt(p || 15); }   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 두 분이 적은 분
       case 'tribute': { var t = chipOf('tribute', S); if (t === 'none') return '';

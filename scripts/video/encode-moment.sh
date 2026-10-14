@@ -15,7 +15,7 @@
 #        나머지는 KEEP_CARD 없이 — 칸 그림 = 새 첫 장면(받은 표지는 뒤 장면과 조금 달라 옛 칸 그림을 두면 ① 창에서 그림이 튄다 · listen-page V-5).
 #     ★받은 파일을 그대로 assets 에 넣지 않는다 — 10/9 v8 교체 때 그대로 넣어 위 둘이 다 빠졌다. video-start.mjs 가 막는다.
 #   ★[THUMB_PICK 2026-10-03] 칸 그림(-640.webp)만 다른 장면에서 뜰 수 있다 — 넷째 값이 그 초(★자른 뒤 기준). 창 · 영상 첫 장면(<이름>.webp)은 늘 첫 장면(재생이 튀지 않게).
-#     지금 칸 그림(v8 받은 원본 기준 초): candle 9.8(두 초 다 켜짐) · entry 8.0 · prevideo 7.7 · tribute 8.0 · toast 2.5(사장님 지정 · 가슴 높이로 든 잔) · 나머지 첫 장면.
+#     지금 칸 그림(v8 받은 원본 기준 초): candle 9.8(두 초 다 켜짐) · entry 8.0 · prevideo 7.7 · tribute 2.8(10/14 «안기» 반만 자른 판 기준 · TRIB_HUG_CROP_1014) · toast 2.5(사장님 지정 · 가슴 높이로 든 잔) · 나머지 첫 장면.
 #     다시 구울 때 넷째 값을 빼먹으면 첫 장면으로 돌아간다 — 표는 assets/ritual-open.js 의 [THUMB_PICK].
 #   만드는 것: assets/video/moments/<이름>.mp4 (H.264 High · 1280×720 · 소리 트랙 없음 · faststart)
 #             assets/video/moments/<이름>.webp (첫 장면 · poster · 창에서)
