@@ -172,10 +172,10 @@ try {
     // 4c ★[LY_ORIG_TOP] 영어 곡(r9 · 표에 없는 곡)은 영문이 위 노란색 · 한글이 아래 흰색 · 섞인 곡 r6 는 줄마다(영문으로 부르는 줄만 영문이 위)
     const LY4c = await f.evaluate(() => { const T = EntryMusic._t, box = document.createElement('div'); box.className = 'mu-lines cur'; const sl = document.querySelector('.ls-mu .mu-slide.cur .mu-ly') || document.querySelector('.ls-mu .mu-ly'); if (sl) sl.appendChild(box);
       const put = (h) => { box.innerHTML = h; const a = box.children[0], b = box.children[1], cs = (x) => x && getComputedStyle(x); return { first: a && a.className, second: b && b.className, c1: cs(a) && cs(a).color, c2: cs(b) && cs(b).color }; };
-      const r = { en: put(T.lyHtml([40.4, 'line one', '첫 줄'], 'r9')), ko: put(T.lyHtml([40.4, 'line one', '첫 줄'], 'r8')), mixEn: T.lyOrig('r6', 52.12), mixKo: T.lyOrig('r6', 48.75), one: put(T.lyHtml([1, '', '한글만'], 'r9')) }; box.remove(); return r; });
-    ok(`${W} 4c [LY_ORIG_TOP] 영어 곡은 영문이 위 노란색 · 한글이 아래 흰색 · 한국어 곡은 한글이 위 · 섞인 곡은 줄마다 · 한쪽뿐이면 그 줄이 노란색`,
+      const r = { en: put(T.lyHtml([40.4, 'line one', '첫 줄'], 'r9')), ko: put(T.lyHtml([40.4, 'line one', '첫 줄'], 'r8')), mixEn: T.lyOrig('r6', [52.12, "If so, then let's go, welcome to the show", '그렇다면 가자']), mixCh: T.lyOrig('r6', [117.75, 'Whoa-oh-oh, oh-oh, oh-oh', '워-오-오']), mixKo: T.lyOrig('r6', [41.15, "If you still won't let go of my hand", '그래도 내 손 놓지 않겠다면']), mixNew: T.lyOrig('r6', [48.5, "If so, then let's go, welcome to the show", '그렇다면 가자']),   /* [LY_ORIG_TEXT_1014] 시각이 아니라 영문 글로 — 줄 시각을 고쳐도(48.5) 그대로 */ one: put(T.lyHtml([1, '', '한글만'], 'r9')) }; box.remove(); return r; });
+    ok(`${W} 4c [LY_ORIG_TOP] 영어 곡은 영문이 위 노란색 · 한글이 아래 흰색 · 한국어 곡은 한글이 위 · 섞인 곡은 줄마다(영문 글로 가린다 [LY_ORIG_TEXT_1014]) · 한쪽뿐이면 그 줄이 노란색`,
       /mu-en/.test(LY4c.en.first || '') && /ly-o/.test(LY4c.en.first || '') && LY4c.en.c1 === 'rgb(235, 208, 138)' && /mu-ko/.test(LY4c.en.second || '') && LY4c.en.c2 === 'rgb(255, 255, 255)'
-      && /mu-ko/.test(LY4c.ko.first || '') && LY4c.ko.c1 === 'rgb(235, 208, 138)' && LY4c.mixEn === 'en' && LY4c.mixKo === 'ko' && /ly-o/.test(LY4c.one.first || '') && LY4c.one.c1 === 'rgb(235, 208, 138)', LY4c);
+      && /mu-ko/.test(LY4c.ko.first || '') && LY4c.ko.c1 === 'rgb(235, 208, 138)' && LY4c.mixEn === 'en' && LY4c.mixCh === 'en' && LY4c.mixNew === 'en' && LY4c.mixKo === 'ko' && /ly-o/.test(LY4c.one.first || '') && LY4c.one.c1 === 'rgb(235, 208, 138)', LY4c);
     // 5
     await f.click('.ls-mu [data-fk="mucarnext"]'); await f.waitForTimeout(600); const V5a = await view(f);
     await f.click('.ls-mu [data-fk="mucarplay"]'); await f.waitForTimeout(700); const V5b = await view(f);

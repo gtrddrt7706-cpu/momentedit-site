@@ -93,7 +93,7 @@ try {
   { const sha = (x) => createHash('sha256').update(Buffer.from(x)).digest('hex'), b64 = (x) => Buffer.from(x).toString('base64');
     const real = Object.assign({}, G.REC_PUT_HASH), SJ = JSON.stringify(SONGS);
     const nm = Object.keys(real), songs8 = nm.filter((n) => /^r\d\.mp3$/.test(n)), clips8 = nm.filter((n) => /^r\dp\.mp3$/.test(n));
-    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = 두 언어 가사 판 [REC_LY_BI_1013]', real['songs.json'] === '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997' && nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
+    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = 줄 시각을 실제 노래에 맞춘 두 언어 판 [REC_LY_BI_1013 · LY_REALIGN_1014]', real['songs.json'] === '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257' && nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
     G.REC_PUT_HASH = { 'r1.mp3': sha('ID3-put-r1'), 'r9.mp3': sha('ID3-put-r9'), 'songs.json': sha(SJ) };
     FOLDERS = []; PROPS = {}; CACHE = {};
     const put = (name, data) => G.handleRitualFile(Object.assign({ key: 'rec', name }, data === undefined ? {} : { data }));
