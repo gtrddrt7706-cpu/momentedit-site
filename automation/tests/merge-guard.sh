@@ -18219,3 +18219,5 @@ nochk '오늘은 편하게 앉으셔서' assets/ritual-ref.js
 nochk '이 속도면 평생 갚아야' assets/ritual-ref.js
 nochk '삼십 분을 따져도 다 듣고 나서' assets/ritual-ref.js          # 편지(서로에게) ① 신랑과 같은 장치
 nochk '먼저 와 주신 여러분과 사돈' assets/ritual-ref.js
+chk 'REBIND_VOICE' scripts/sent-lib.mjs 1                    # [LINE_R1_1014] 창고 자리 옮기기는 글자 · 읽는 사람이 다 같을 때만(입장 번갈아)
+chk 'CAKE_OFF_1013' scripts/audit/ghi-polish.mjs 1        # 케이크를 담아 둔 판도 새 코스 ②는 축배만(옛 «케이크와 축배» 기대값을 걷었다)

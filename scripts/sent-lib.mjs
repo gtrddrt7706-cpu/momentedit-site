@@ -508,7 +508,8 @@ function rebind() {
     const used = new Set();
     const neo = {};
     for (const s of list) {
-      const h = held.find((x) => !used.has(x.i) && x.text === s.text);
+      const wantV = VOICE[s.role] || null;
+      const h = held.find((x) => !used.has(x.i) && x.text === s.text && (!wantV || !x.voice || x.voice === wantV));   // ★[REBIND_VOICE 2026-10-14] 글자가 같아도 읽는 사람이 바뀐 자리(번갈아 · ENTRY_ALT)는 옮기지 않는다 — 입장 A «이 첫걸음을…»이 신랑 → 신부 차례가 됐다
       if (!h) { left.push({ id: key + '#' + s.i, text: s.text }); continue; }
       used.add(h.i);
       neo[key + '#' + s.i] = { file: path.join(tmp, h.i + '.flac'), voice: h.voice, from: h.i };
