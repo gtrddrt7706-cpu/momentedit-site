@@ -645,7 +645,7 @@
       case 'guest': return S && S.guestVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 하객 맞이 안내 ' + voiceState(S, ['g0', 'g1', 'g2', 'g3']) : '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 글
       case 'prevideo': return [['couple', '식전 영상 링크', 'send', 3]];   /* ★[PV_LINK_ONE 2026-10-04 사장님 «(영상이나 사진) 삭제 · 무조건 영상 · 날짜는 오른쪽 한 줄»] */   // ★[PREVIDEO_FREE 2026-10-02 사장님] 길이 · 장수 규정 없음 · 링크 하나   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
-        return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝히고 하객께 인사해 주세요', 'ask', null, NOTE_ASK]]   /* [OPEN_WORDS_1013] 부탁받는 분이 «인사까지»를 미리 안다(CANDLE_BOW_1012) */; }
+        return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝히고 ' + (cw === 'parents' ? '' : '서로 한 번, ') + '하객께' + (cw === 'parents' ? '' : ' 한 번') + ' 인사해 주세요', 'ask', null, NOTE_ASK]]   /* [LINE_R1_1014] 두 분이면 «서로 한 번, 하객께 한 번»(CANDLE_BOW_1012) */   /* [OPEN_WORDS_1013] 부탁받는 분이 «인사까지»를 미리 안다(CANDLE_BOW_1012) */; }
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사 ' + voiceState(S, ['entry']) : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '감사 인사 한두 문장', 'write', 7]];
       case 'bless': return [['parents', '덕담 원고 · 한 분 300자 안팎(1분쯤) · 받으면 큰 글씨 카드로 돌려드려요', 'ask', 7]];   // [R1-20] 400자는 약 80초라 «1분쯤»과 안 맞았다 · 끊긴 괄호 말을 끝맺음
@@ -661,7 +661,7 @@
         var fk = FREE_KIND[chipOf('free', S)], n = chipOf('freeLen', S);
         if (fk === 'video') return [['couple', '준비한 순서 영상(휴대폰으로 가로로 찍은 영상 · ' + n + '분 안)', 'send', 3]];   // [SEND_WORDS 2-8] 이름 없이 붙던 «영상 파일»
         if (fk === 'etc') return [['couple', '준비한 순서 알려 주기 · ' + (String(S.freeEtc || '').trim() || '무엇을 할지') + ' · ' + n + '분 · 필요한 것(음악 · 마이크 · 화면)', 'send', 7]];   // [FREE_ETC]
-        if (fk === 'speech') return [['couple', '축사하실 분께 부탁드리기 · 원고는 1분에 300자쯤 · 받으면 큰 글씨 카드로 돌려드려요 · 전 연인 · 술자리 이야기는 빼 주세요'   /* [SPEECH_WORDS_1013] «분당» → «1분에» · 다른 순간과 같은 «큰 글씨 카드» */, 'ask', 3]];
+        if (fk === 'speech') return [['couple', '축사 원고 · 1분에 300자쯤 · 받으면 큰 글씨 카드로 돌려드려요 · 전 연인 · 술자리 이야기는 빼 주세요'   /* [LINE_R1_1014] «부탁드리기»로 열면 사흘 전 마감이 «사흘 전에 부탁해도 된다»로 읽힌다 · 덕담 줄과 같은 꼴 */   /* [SPEECH_WORDS_1013] «분당» → «1분에» · 다른 순간과 같은 «큰 글씨 카드» */, 'ask', 3]];
         return [['couple', '무엇을 누가 건넬지 알려 주기(저희가 자리를 맞춰요)', 'send', 7]];
       }
       case 'letter': return [['couple', chipOf('letter', S) === 'each' ? '서로에게 편지 · 한 분 400자쯤' : '부모님께 편지 · 한 분 400자쯤', 'write', null, NOTE_READ]];
@@ -1015,7 +1015,7 @@
     try { p = (partsOf(k, S) || [])[1] || 0; } catch (e) { p = 0; }
     switch (k) {
       case 'welcome': return '두 분이 하객께 감사 인사를 해요 · ' + secTxt(p || 30);
-      case 'bless': return '부모님이 덕담을 들려주세요 · ' + secTxt(p || 150);
+      case 'bless': return '부모님이 덕담을 들려주세요 · 한 분 1분쯤';   // [LINE_R1_1014] «약 3분»(시간 표 합)은 한 분이 하시는 날 3분으로 읽혔다 · 카드 · 준비 줄 · ④ 대본과 같은 말
       case 'vow': return (S && S.vowKind === 'thanks' ? '두 분이 하객께 감사문을 읽어요 · ' : '두 분이 서약을 읽어요 · ') + secTxt(p || 100);   // [THANKS_IN_VOW]
       case 'declare': { var dw = declBy(S); return (dw ? dw + josaOf(dw, '이', '가') : '선언하실 분이') + ' 성혼 선언문을 읽어요 · ' + secTxt(p || 15); }   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 두 분이 적은 분
       case 'tribute': { var t = chipOf('tribute', S); if (t === 'none') return '';

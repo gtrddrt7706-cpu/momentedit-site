@@ -99,7 +99,7 @@ for (const w of [390, 1280]) {
     Object.assign(S, JSON.parse(JSON.stringify(keep))); delete S.entryScene; if (keep.entryScene) S.entryScene = keep.entryScene;
     return out;
   });
-  ok(`${w} G5 말 없는 줄 — 순간마다 하나 · 표 그대로([R1-45] 입장 · 반지는 위 설명과 겹치지 않게) [QUIET_LINES]`, g5b.candle.length === 1 && /[이가] 앞으로 나와 불을 밝히고 하객께 인사해요 · 말 없이$/.test(g5b.candle[0])   /* [CANDLE_BOW_1012] 불을 밝힌 뒤 하객께 인사(화촉의 한 동작) */
+  ok(`${w} G5 말 없는 줄 — 순간마다 하나 · 표 그대로([R1-45] 입장 · 반지는 위 설명과 겹치지 않게) [QUIET_LINES]`, g5b.candle.length === 1 && (/부모님 네 분/.test(g5b.candle[0]) ? /[이가] 앞으로 나와 불을 밝히고 하객께 인사해요 · 말 없이$/ : /[이가] 앞으로 나와 불을 밝히고 서로 한 번, 하객께 한 번 인사해요 · 말 없이$/).test(g5b.candle[0])   /* [LINE_R1_1014] 두 분이면 서로 한 번 · 하객께 한 번 */   /* [CANDLE_BOW_1012] 불을 밝힌 뒤 하객께 인사(화촉의 한 동작) */
     && g5b.entry.length === 1 && g5b.entry[0] === '음악에 맞춰 걸어 들어와요' && g5b.matjeol.length === 1 && g5b.matjeol[0] === BOW_Q && g5b.bow === '음악에 맞춰 걸어 들어와요'   /* [MATJEOL_SPLIT_1013] 입장은 걸음 한 줄 · 맞절 줄은 맞절 순간(큐마다 한 줄 · STAGE_LINES) · 옛 초안 bow 도 입장은 같다 */
     && g5b.ring[0] === '두 분이 서로 반지를 끼워요' && g5b.declare[0] === '하객이 박수로 축하해요' /* [STAGE_LINES 2026-10-06] 종전 «하객 박수 · 두 분이 부부가 돼요» */ && g5b._close[0] === '두 분이 하객께 목례 · 박수'
     && g5b.fams === '신부 아버님:1,gdad:1,:1' /* [DECLARE_BY_PERSON · DECLARE_ANYONE] 누가 읽든(적은 이름 · 옛 칩 값 · 빈칸) 축하 박수 한 줄(57 뒤) · 옛 박수판의 «증인의 박수»는 걷었다 */, JSON.stringify(g5b));

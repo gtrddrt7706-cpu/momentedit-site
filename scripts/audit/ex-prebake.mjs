@@ -63,7 +63,7 @@ try {
         _exKeep1006(); const r = { g0: _recNeed('g0') === EX_OLD_1006[1][0][0], g0stale: _txStale('g0'), g1: _recNeed('g1') === EX_OLD_1006[1][1][1] && !_txStale('g1'), g2: _recNeed('g2') === GUEST_EX[1][1][2], g1new: GUEST_EX[1][1][1] !== EX_OLD_1006[1][1][1] };
         _exKeep1006(); r.twice = _recNeed('g0') === EX_OLD_1006[1][0][0]; const k = JSON.parse(keep); S.up = k.up; S.vtext = k.vt; S.gExC = k.ex; S.vlines = k.vl; return r; });
       ok(`${w} [EX_TEXT_1006] 옛 예시 글로 만든 AI 소리는 그 글을 두 분 글로(«글을 고쳤어요» 아님) · 소리 없는 줄은 새 예시 글 · 두 번 불러도 같다`, mg.g0 && !mg.g0stale && mg.g1 && mg.g2 && mg.g1new && mg.twice, JSON.stringify(mg));
-      ok(`${w} [EX_TEXT_1006] 식전 영상 소개 AI 예시 넷 = 코워크 확정 글`, await pg.evaluate(() => PV_EX.map((x) => x[1]).join('|') === '저희 두 사람의 영상입니다. 먼저 보여 드릴게요.|여러분께 꼭 보여 드리고 싶었던 장면들이에요.|본편에 앞서, 저희가 예고편을 가져왔어요. 편하게 즐겨 주세요.|이 영상으로 먼저 고맙다는 인사를 드릴게요.'));
+      ok(`${w} [EX_TEXT_1006] 식전 영상 소개 AI 예시 넷 = 코워크 확정 글`, await pg.evaluate(() => PV_EX.map((x) => x[1]).join('|') === '저희 두 사람의 영상입니다. 먼저 보여 드리겠습니다.|여러분께 꼭 보여 드리고 싶었던 장면들입니다.|본편에 앞서, 저희가 예고편을 가져왔습니다. 편하게 즐겨 주세요.|이 영상으로, 저희가 고맙다는 인사를 드리겠습니다.'   /* [LINE_R1_1014] 하객 맞이와 같은 합쇼체(PV_OLD 에 옛 글) */));
       ok(`${w} ①②③ pageerror 0`, !errs.length, errs.slice(0, 2).join(' | '));
       await pg.close(); }
   }

@@ -1029,7 +1029,7 @@
           live: {
             t: '두 분이 직접 편지 낭독', est: 165, self: true, doing: 'say', peak: true,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt, duck: PARAM.duckOff,
-            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 배우자가 이어 읽기 · 그다음 디렉터 대독'
+            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 편지를 배우자에게 건네 이어 읽기'
           }
         }),
         cue({
