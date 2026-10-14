@@ -7886,6 +7886,10 @@ chk 'TABLE_IN_ROLE_1014' scripts/build-typecast-import.mjs 1
 node -e "const m=require('./docs/plans/식순연구/타입캐스트/manifest.json');const c=m.clips.find(x=>x.file==='narr-table-in'&&x.dir==='assets/audio/narration');if(!c||m.voice[c.role]!=='우성'){console.log('REVERT? TABLE_IN_ROLE_1014: 131 성우가 우성이 아니다 '+(c&&c.role));process.exit(1)}console.log('ok TABLE_IN_ROLE_1014 131 = '+c.role+'('+m.voice[c.role]+')')" || fail=1
 # ★[PLAY03_FROZEN_1014] 플레이 03 은 들으신 그대로 — 옛 창고 자리 · 옛 클립을 얼려 두고 거기서 읽는다(창고를 다시 묶어도 플레이 03 이 바뀌지 않게)
 chk 'PLAY03_FROZEN_1014' scripts/build-rev1013.mjs 2
+# ★[ENTRY_C_THANKS_MOVED_1014] «간결»(첫인사 없음)의 하객 감사는 입장 멘트(옛 «귀한 걸음»)가 아니라 입장 앞 줄이 맡는다 · ★[NO_FOOD_EAR_1014] 음식 말은 결정으로 비운 칸(NO_FOOD_TALK) · ★[LATER_DECISION_1014] 나중 결정이 되돌린 옛 회차 제안 둘
+chk 'ENTRY_C_THANKS_MOVED_1014' scripts/audit/open-course.mjs 1
+chk 'NO_FOOD_EAR_1014' scripts/audit/guest-ear.js 1
+chk 'LATER_DECISION_1014' scripts/audit/locked-proposal.py 2
 # ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
 #   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
 chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
