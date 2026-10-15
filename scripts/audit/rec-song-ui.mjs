@@ -103,6 +103,10 @@ async function toEntry(f) {
     for (let i = 0; i < 3; i++) { await clickNext(f); await f.waitForTimeout(i === 2 ? 1500 : 500); }
     await f.evaluate(() => mkGo('entry')); await f.waitForTimeout(800);
     if (await f.evaluate(() => !!document.querySelector('[data-fk="lsc:entryVoice:nar"]'))) { await f.click('[data-fk="lsc:entryVoice:nar"]'); await f.waitForTimeout(600); }
+    /* ★[PEND_ENTRY_1014] 녹음 대기 판(글 먼저 · 소리 없음)은 장면을 세우지 않는다 — 장면 시험은 소리가 있는 입장 멘트 판으로 고른다(entry-music.mjs 와 같은 고르기 · 다시 받으면 기본 판 그대로) */
+    const pickE = await f.evaluate(() => { const has = (e) => { S.entry = e; try { opSync(); } catch (x) {} const st = _lSteps(ENG, ['entry']).filter((x) => /^entry-/.test(x.slug || ''))[0]; return !!(st && st.src); }; const e0 = S.entry; if (has(e0)) return e0; for (const e of ['A', 'B', 'C', 'D', 'E', 'F']) if (has(e)) { render(); return e; } S.entry = e0; return ''; });
+    if (!pickE) console.log('note rec-song-ui: 소리가 있는 입장 멘트 판이 없다(전부 녹음 대기)');
+    await f.waitForTimeout(400);
   }
   return f.evaluate(() => !!document.querySelector('.ls-mu'));
 }
