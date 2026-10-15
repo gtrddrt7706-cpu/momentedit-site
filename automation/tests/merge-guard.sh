@@ -4607,6 +4607,8 @@ chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 chk 'ONLINE_ALREADY_ENDED' assets/ritual-cue.js 2
 # [MIC_PIN 2026-08-16] 주인공=핀 · 하객(혼주 포함)=핸드. 「마이크가 전해지면」은 핸드를 건네는 그림이라
 #   신랑·신부 자리에서 지웠다. 부모님(bless) 자리는 그대로 둔다 — 혼주는 건네받는 것이 맞다.
+#   ★걷힘 [MIC_HAND_1015 2026-10-15 사장님] 두 분도 핸드. 그래도 감사 인사 여는 말은 «마이크가 전해지면»으로 되돌리지 않는다 —
+#     지금 글(«…감사 인사를 직접 드리겠습니다»)은 어느 마이크든 참이고, 건네는 동작은 디렉터 몫(콘솔)이다. 아래 nochk 는 그 뜻으로 남긴다.
 chk 'MIC_PIN' docs/plans/식순연구/개편_진행판.md 1
 nochk '마이크가 전해지면, 편하게' assets/ritual-data.js
 nochk '마이크가 전해지면, 편하게' order-preview.html
@@ -7865,6 +7867,8 @@ chk 'NARR_WORDS_1013' scripts/audit/narr-words.mjs 1
 chk 'NARR_REREAD_1013' scripts/audit/narr-words.mjs 1
 chk 'SONG_OPEN_ANYONE_1013' scripts/audit/narr-words.mjs 1
 chk 'SOURCE_WORDS_1013' docs/plans/식순연구/3단계_원고_1013.md 1   # 자료 글은 구호 · 정형구 · 뼈대만 그대로 · 문장은 우리 말로
+chk 'SOURCE_BEST_1015' docs/plans/식순연구/3단계_원고_1013.md 1   # ★10/15 사장님 — 고정 멘트 없음 · 자료집 베스트 멘트를 그대로 또는 단어만 바꿔서(위 10/13 기준을 바꿈)
+chk 'SOURCE_BEST_1015' CLAUDE.md 1
 node scripts/audit/narr-words.mjs || fail=1
 node scripts/audit/narr-words.mjs --selftest || fail=1
 # ★★[NARR_ENGINE_GATE_1014] 3단계 원고를 엔진에 옮겼다(PR B) — 이제 엔진 줄도 같은 자로 막는다 · 봐주는 것은 «녹음 대기»(원고 글은 자 통과 · 새 문장은 타입캐스트_<n>판 목록에 맡김)뿐
@@ -7994,8 +7998,13 @@ chk 'PV_RESCUE_WORDS_1015' assets/ritual-open.js 1     # 105 «잠시 뒤» 뺐�
 nochk "이 순서는 잠시 뒤, 사진 시간에" assets/ritual-open.js
 chk 'PRE_DIGITAL_FX_1015' assets/ritual-story.js 1     # 식전 안내 블록 fx(걷은 응답형 선언 예고의 효과 글) 걷음
 nochk "fx: '하객분들이 무엇을 하시면" assets/ritual-story.js
-chk 'WELCOME_MIC_1015' assets/ritual-story.js 1        # 감사 인사 장면에 «마이크를 손에 쥐어» 없음(MIC_PIN 8/16 «주인공은 핀»과 어긋남 · 어느 마이크든 참인 말만)
-nochk '마이크는 저희가 손에 쥐어 드려요. 안내 음성이 인사를' assets/ritual-story.js
+# ★[MIC_HAND_1015 2026-10-15 사장님 «핀마이크 안 하는 게 좋을 것 같아»] 두 분도 핸드 마이크 — 라운드 4 의 WELCOME_MIC_1015(핀 전제로 감사 인사 장면 마이크 문장 걷음)를 되돌렸다
+chk 'MIC_HAND_1015' assets/ritual-story.js 1          # 감사 인사 장면 «마이크는 저희가 손에 쥐어 드려요» 되살림
+chk '마이크는 저희가 손에 쥐어 드려요. 안내 음성이 인사를' assets/ritual-story.js 1
+nochk 'WELCOME_MIC_1015' assets/ritual-story.js         # 핀 전제 표식이 되살아나면 빨강
+chk 'MIC_HAND_1015' console.html 1                    # 콘솔 «직접 말하는 시간» 머리글 — 마이크는 말할 분 손에 건네고 끝나면 받는다
+chk '마이크는 말할 분 손에 건네고, 끝나면 받습니다.' console.html 1
+chk 'MIC_HAND_1015' docs/plans/식순연구/개편_진행판.md 2   # 8/16 MIC_PIN 절과 «핀 2개 + 핸드 1개» 줄에 «걷힘» 표시
 chk 'VOW_EACH_WHO_1015' assets/ritual-story.js 1       # 서약 «각자 차례로» 장면 «한 분이 … 다른 한 분이»(신부부터 날 틀린 말)
 nochk '신랑님이 먼저 준비하신 서약문' assets/ritual-story.js
 chk 'THANKS_SCENE_TRIM_1015' assets/ritual-story.js 2  # 감사문 두 판 장면은 블록 설명을 되풀이하지 않는다
