@@ -1311,7 +1311,7 @@ function fire(i, opt){
         duckTo(PARAM.duckMusic, PARAM.fadeUpMs);
         render();
         var nx = R.cues[i+1];
-        if (nx && nx.fire === 'chain') later(function(){ advance(); }, PARAM.gapMs);
+        if (nx && nx.fire === 'chain') later(function(){ advance(); }, nx.gapMs || PARAM.gapMs);   // ★[CHAIN_GAP_1014] 큐가 정한 사이(원고 «1.25초 사슬» · «사이 1초») · 없으면 기본 2초
         else if (!nx) later(finish, PARAM.gapMs);
       }
     });

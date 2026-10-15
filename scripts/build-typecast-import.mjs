@@ -373,7 +373,7 @@ const clips = parse(SRC);
 /* [VOW_FIRST 2026-10-06 사장님 «신랑 신부 먼저 할 사람 순서»] 121 → 122 — 혼인 서약 여는 말 · 신부부터(127 narr-vow-in-b · G3-3b). 녹음 전엔 13번 앞 두 문장을 잘라 쓴다 */
 /* [PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 122 → 125 — 식전 영상 소개 나레이션 예시 2~4(128~130 · N23-a~c) */
 /* [DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만»] 128 → 125 — 나레이션 선언 · 가족 낭독 · 박수 판 여섯(21 · 30 · 31 · 32 · 96 · 97)을 대본에서 빼고(고를 수 있는 갈래가 아니다 · ASK_RETIRED 와 같은 까닭) 읽는 분마다 여는 말 셋(134~136 · G5-5~7)을 더했다 */
-const CLIP_COUNT = 123;   // [DECLARE_ANYONE 2026-10-12] −2(134 · 135 사람을 부르는 여는 말 RETIRED) · 옛 125   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
+const CLIP_COUNT = 131;   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] +8 — 137 개식 선언(G3-18) · 138 · 139 화촉 인사 안내(G3-19 · 20) · 140 화촉 맺는 말 격식(G3-21) · 144 입장 받는 말(G3-22) · 141 · 142 · 143 부모님께 인사 이름 줄 · 짝 줄 · 구호(G8-name · pair · call) · 옛 123   // [DECLARE_ANYONE 2026-10-12] −2(134 · 135 사람을 부르는 여는 말 RETIRED) · 옛 125   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
@@ -502,6 +502,11 @@ for (const P of PARTS) {
       /* ★★[THANKS_BOW 2026-09-26 사장님 결정 · 코워크 «사장님 제안 둘» 1 · PHOTO_THANKS] 「두 사람이, 다시 한번 감사 인사를 드립니다.」 뒤 3초(식사 있는 날 45 · 없는 날 110 둘 다).
          두 분이 함께 목례하는 자리다 — 곧바로 «식사 자리는…»이 이어지면 인사가 안내에 묻힌다. 소리를 다시 받을 필요 없음(조립기가 무음을 넣는다). */
       else if ((c.file === 'end-1a-farewell' || c.file === 'end-1c-thanks-nomeal') && s.text === '두 사람이, 다시 한번 감사 인사를 드립니다.' && !last) after = 3.0;
+      /* ★[MATJEOL_HOLD_1014 2026-10-14 원고 4판 ② · 사장님 아침 확인 1 «추천대로»] 맞절(132) «두 분, 서로 마주 봐 주세요.» 뒤 3초 — 두 분이 마주 보고 눈을 맞추는 정적(자료 EE 1).
+         곧바로 뜻 줄이 이어지면 마주 보는 순간이 말에 묻힌다 · THANKS_BOW 와 같은 방법(조립기가 무음을 넣는다 · 다시 받을 필요 없음) */
+      else if (c.file === 'narr-entry-bow' && s.text === '두 분, 서로 마주 봐 주세요.' && !last) after = 3.0;
+      /* ★[CALL_HOLD_1014] «신랑 신부, 맞절!» 앞은 «입장!»과 같은 0.6초(PACE_D · 원고 2-3 «입장 구호와 같은 꼴») — 뜻 줄 뒤 곧바로 선창 */
+      else if (c.file === 'narr-entry-bow' && sents[k + 1] && sents[k + 1].text === '신랑 신부, 맞절!') after = 0.6;
       // 문단 경계는 한 박 더 쉰다
       // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }

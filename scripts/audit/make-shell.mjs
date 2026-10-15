@@ -152,8 +152,9 @@ for (const w of [390, 1280]) {
     ok(`${w} [CHIP_NO_AUTOPLAY] 듣는 중에 칩 → 소리가 멈춘다(줄 비움 · 새 play 없음)`, p0.q > 0 && p1.q === 0 && p1.n === p0.n, JSON.stringify({ p0, p1 }));
     await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(400);   /* [PLAY_LEAD] 처음 1초는 빈소리 — 이 시험은 play() 를 막아 두어 «끝남»이 저절로 안 온다 · 빈소리가 끝난 것으로 친다 */
     await pg.evaluate(() => { if (LP.el && LP.el._lead) LP.el.dispatchEvent(new Event('ended')); }); await pg.waitForTimeout(300);
-    const p2 = await pg.evaluate((fk) => { const want = fk.split(':')[2]; const st = _lSteps(ENG, ['candle']).filter((x) => x.src)[0]; const real = window.__aplays.filter((u) => !/^blob:/.test(String(u))); return { n: window.__aplays.length, cur: S.candleWho, want, first: real[real.length - 1], exp: st && st.src }; }, other);
-    ok(`${w} [CHIP_NO_AUTOPLAY] «이 순간 들어 보기» = 새로 고른 대로(고른 값 ${p2.want} · 처음 튼 파일 = 지금 판의 첫 소리)`, p2.n > p1.n && p2.cur === p2.want && !!p2.exp && String(p2.first).endsWith(p2.exp.replace(/^\.?\//, '')), JSON.stringify(p2));
+    /* ★[PEND_FIRST_1014] 첫 줄이 녹음 대기(글 먼저 · 소리 없음)면 글 카드로 먼저 흐른다 — 처음 튼 «파일» 대신 줄의 첫 자리가 새로 고른 판의 첫 줄인지로 본다 */
+    const p2 = await pg.evaluate((fk) => { const want = fk.split(':')[2]; const all = _lSteps(ENG, ['candle']), s0 = all[0] || {}, st = all.filter((x) => x.src)[0]; const real = window.__aplays.filter((u) => !/^blob:/.test(String(u))); return { n: window.__aplays.length, cur: S.candleWho, want, first: real[real.length - 1], exp: st && st.src, pend: !!s0.pending, s0: s0.slug || '', q0: ((LP.q || [])[0] || {}).slug || '', on: !!(LP.q && LP.q.length) && !LP.paused }; }, other);
+    ok(`${w} [CHIP_NO_AUTOPLAY] «이 순간 들어 보기» = 새로 고른 대로(고른 값 ${p2.want} · 처음 튼 파일 = 지금 판의 첫 소리)`, p2.cur === p2.want && (p2.pend ? (p2.on && p2.q0 === p2.s0 && p2.s0.indexOf(p2.want) > -1) : (p2.n > p1.n && !!p2.exp && String(p2.first).endsWith(p2.exp.replace(/^\.?\//, '')))), JSON.stringify(p2));   /* [PEND_FIRST_1014] 글 카드는 play() 를 부르지 않는다 — 줄이 섰고(멈춤 아님) 첫 자리가 새 판인지로 */
     await shot(pg, `moment-candle-${w}`);
     /* ★[PRACTICE_NO_CHOOSE 2026-10-05 사장님 «연습 공간에서 이 부분은 삭제»] 연습 «이 순간 바꾸기» 단추를 걷었다 — 연습은 듣기만 · 칩은 어느 순간에도 없다 */
     await pg.evaluate(() => { lsStop(); opGoStep('practice'); }); await pg.waitForTimeout(800);

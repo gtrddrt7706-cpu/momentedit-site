@@ -52,7 +52,7 @@ ok(`① 이름 차례 = 대장 차례 → 멈추지 않는다(${flat.length}자�
    그 짝은 오히려 상관을 올렸다(바른 차례 r = 0.845 → 바꾼 차례 0.854). 3.4초 입장이 예상 1.6초 자리로 가면 «더 그럴듯해» 보였다.
    그래서 같은 클립(entry-A) 안에서 입장과 «가장 긴 문장»을 바꾼다 — 같은 클립 안의 두 이름 맞바꿈이라는 뜻은 그대로다.
    문턱 0.85 는 손대지 않는다. 아래 사전 계산이 0.85 를 못 넘기면(짝이 이빨을 잃으면) 재기 전에 그 사실을 먼저 말한다. */
-const sw = flat.slice(); const i = sw.findIndex((x) => /entry-A_3$/.test(x.id));
+const sw = flat.slice(); const i = sw.findIndex((x) => /^05_entry-A_/.test(x.id) && x.text === '신랑 신부, 입장!');   // ★[STAGE_ORDER_CALL_TEXT_1014] 구호 자리를 번호(_3)가 아니라 글로 찾는다 — 입장 A 가 넷 → 세 문장이 되자(원고 3단계) 번호가 비어 검사가 멈췄다
 const sylOf = (t) => (t.match(/[가-힣]/g) || []).length;
 const j = sw.reduce((b, x, k) => (/^05_entry-A_/.test(x.id) && sylOf(x.text) > sylOf(sw[b].text) ? k : b), i);
 [sw[i], sw[j]] = [sw[j], sw[i]];
