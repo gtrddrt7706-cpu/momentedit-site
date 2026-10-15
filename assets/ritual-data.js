@@ -98,7 +98,7 @@ var DECLBY={
   ───────────────────────────────────────────────────────────────── */
 };
 var LETTER={
- parent:{d:"부모님께",nar:"두 사람이 쓴 편지가 있습니다. 두 분, 부모님께 읽어 드리세요.",prep:"부모님께 드릴 편지"},
+ parent:{d:"부모님께",nar:"두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세요.",prep:"부모님께 드릴 편지"},   /* ★[LETTER_TO_FIRST_1014 라운드 3] 받는 분을 첫 문장에(자료 GG 1 · G1 · G3 · 서로에게 판과 같은 꼴) — 4판 «읽어 드리세요»는 받는 분 없이도 홀로 선다 · 둘째 문장의 «부모님께»는 걷었다(W13) */
  each:{d:"서로에게",nar:"두 사람이 서로에게 쓴 편지가 있습니다. 두 분, 마주 보고 전해 주세요.",prep:"서로에게 쓸 편지"},
  both:{d:"부모님께, 그리고 서로에게",nar:"신랑 신부가 편지를 써 왔습니다. 부모님께 먼저, 그리고 서로에게. 두 분, 차례로 전해 주세요.",prep:"부모님께 드릴 편지 · 서로에게 쓸 편지"}
 };
@@ -724,7 +724,7 @@ var NARR={
  /* ★★[ENTRY_ARRIVE_1014] 입장 받는 말(144 · 우성) — 두 분이 앞에 서고 박수가 잦아들면 디렉터 GO · 이어서 맞절(132)이 사슬로(원고 2-3 · 사장님 결정 10/10 지적 10 · 플레이 01) ·
     걷는 동안은 입장곡만(B1 «입장곡이 주인공» 그대로 — 말은 선 뒤에) */
  entryArrive:"여러분 곁을 지나, 두 사람이 이 자리에 섰습니다.",
- entryBow:"이어서, 두 사람의 맞절이 있겠습니다. 두 분, 서로 마주 봐 주세요. 누가 먼저랄 것 없이, 함께 고개를 숙이는 인사입니다. 신랑 신부, 맞절!",   /* ★[MATJEOL_4_1014] 원고 4판 ② 정중하게(사장님 아침 확인 1 «추천대로» · 자료 EE 1 뼈대: 순서 안내 → 눈 맞춤 · 3초 정적 → 뜻 → 구호) · «마주 봐 주세요» 뒤 3초는 조립기가 무음으로(build-typecast-import [MATJEOL_HOLD_1014]) */
+ entryBow:"이어서, 맞절이 있겠습니다. 두 분, 서로 마주 봐 주세요. 누가 먼저랄 것 없이, 함께 고개를 숙이는 인사입니다. 신랑 신부, 맞절!",   /* ★[MATJEOL_ONE_1014 라운드 3] 첫 문장 «두 사람의»를 뺐다 — 1.25초 앞 받는 말(144) «…두 사람이 이 자리에 섰습니다»와 같은 말이 잇달았다(자료 G1 원칙 4 · G4 · 뼈대 EE ① «…맞절이 있겠습니다» 그대로) */   /* ★[MATJEOL_4_1014] 원고 4판 ② 정중하게(사장님 아침 확인 1 «추천대로» · 자료 EE 1 뼈대: 순서 안내 → 눈 맞춤 · 3초 정적 → 뜻 → 구호) · «마주 봐 주세요» 뒤 3초는 조립기가 무음으로(build-typecast-import [MATJEOL_HOLD_1014]) */
  /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말이 이 한 줄이다.
     자료(honeyg.snap «혼인서약서 대신 감사문» 5유형 · N «신랑 · 신부의 축사(감사 편지)»)에서 감사문은 따로 순서가 아니라 서약 자리에서 읽는 다른 결이다.
     서약 여는 말(«이제 두 사람이 서로에게 약속을 건넬 차례입니다»)과 같은 틀 · 누가 먼저인지는 말하지 않는다(디렉터가 마이크로 연다).
@@ -792,6 +792,9 @@ var THANKSBOTH=["서로 아끼며 잘 살겠습니다.","오늘 와 주셔서 �
    ★새 키를 여기 넣기 전에 물을 것: 고객이 이 문장을 고르거나 미리 듣는가?
      그렇다면 콘솔 전용이 아니라 빌더에 사본이 있어야 한다. */
 var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn','entryBow','thanksIn','declareFamilyIntro','entryArrive'];   /* ★[ENTRY_ARRIVE_1014] 144 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · entryBow 와 같은 길) */   /* [DECLARE_BY_PERSON 2026-10-12] 21 은 쉰다(빌더 사본 걷음) · 여는 말 셋(declareIn*)은 빌더 옛 화면에 사본(DECL_IN)이 있어 거울 검사가 본다 */   /* [MATJEOL_1011] 132 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · tableIn 과 같은 길) */   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
+/* ★[NARR_RETIRED_END 2026-10-14 라운드 3 · WELCOME_KB_1014] 엔진이 끈 맺는 줄(RETIRED)의 원천 글 — 빌더 사본을 요구하지 않고 오히려 «없어야» 한다(거울 검사).
+   welcome.end(12 «지금 들으신 것이 두 사람의 첫 인사였습니다.»)는 9/20 큐에서 걷었는데(WELCOME_OUT_DROP) 옛 코스 화면이 «나레이션이 마무리해요»로 보이고 있었다 · 글은 걷은 명단(옛 녹음)이 쓰니 지우지 않는다 */
+var NARR_RETIRED_END=['welcome'];
 
 /* ★★[PHOTOCUE 2026-08-08] 호명·연출 안내 — **디렉터가 골라 트는 판**이다(큐 체인이 아니다).
    ★왜 체인이 아닌가: 촬영 시간은 순서가 정해지지 않는다. 어른이 먼저 가셔야 하면 순서를 바꾸고
@@ -888,5 +891,5 @@ var MIN={
  delta:{ringOff:-1,valley:3,bless:2,ringwarmAll:2,toastBoth:2,letterBoth:2}
 };
 // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLBY:DECLBY,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,NARV:NARV,TONE:TONE,TONE_NAR:TONE_NAR,VOWBOTH:VOWBOTH,THANKSBOTH:THANKSBOTH,MIN:MIN,DAY:DAY,PHOTOCUE:PHOTOCUE,NARR_CONSOLE_ONLY:NARR_CONSOLE_ONLY};
+return {ENTRY:ENTRY,ENTRY_ALT:ENTRY_ALT,DECLARE:DECLARE,DECLBY:DECLBY,LETTER:LETTER,RINGWARM:RINGWARM,TRIBUTE:TRIBUTE,TOAST:TOAST,GUEST:GUEST,COURSES:COURSES,EXVOW:EXVOW,EXLETTER:EXLETTER,EXWEL:EXWEL,NARR:NARR,NARV:NARV,TONE:TONE,TONE_NAR:TONE_NAR,VOWBOTH:VOWBOTH,THANKSBOTH:THANKSBOTH,MIN:MIN,DAY:DAY,PHOTOCUE:PHOTOCUE,NARR_CONSOLE_ONLY:NARR_CONSOLE_ONLY,NARR_RETIRED_END:NARR_RETIRED_END};
 });

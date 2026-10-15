@@ -107,12 +107,18 @@ pushNar('DECLBY', (D.DECLBY || {}).nar);   // [DECLARE_ANYONE 2026-10-12] 선언
 // [NARR_CONSOLE_ONLY] 빌더가 보여주지 않는 키는 사본을 요구하지 않는다.
 //   목록은 원천(assets/ritual-data.js)에 있다 — 검사에 또 적으면 두 곳이 갈린다.
 const CONSOLE_ONLY = new Set(D.NARR_CONSOLE_ONLY || []);
+const RET_END = new Set(D.NARR_RETIRED_END || []);   // [NARR_RETIRED_END] 목록은 원천에
 Object.keys(D.NARR || {}).forEach((k) => {
   if (CONSOLE_ONLY.has(k)) return;
   const v = D.NARR[k];
   if (typeof v === 'string') pushNar('NARR.' + k, v);
-  else { pushNar('NARR.' + k + '.nar', v.nar); pushNar('NARR.' + k + '.end', v.end); }
+  else { pushNar('NARR.' + k + '.nar', v.nar); if (!RET_END.has(k)) pushNar('NARR.' + k + '.end', v.end); }
 });
+// ★[NARR_RETIRED_END 2026-10-14 · WELCOME_KB_1014] 엔진이 끈 맺는 줄은 빌더에 «없어야» 한다 — 걷은 줄을 화면이 다시 약속하지 않게(옛 코스 «나레이션이 마무리해요»)
+{
+  const back = [...RET_END].filter((k) => D.NARR[k] && D.NARR[k].end && html.includes(D.NARR[k].end));
+  ok('빌더에 엔진이 끈 맺는 줄 없음 [NARR_RETIRED_END]' + (back.length ? ' — 되살아남: ' + back.join(',') : ''), back.length === 0 && RET_END.size > 0);
+}
 pushNar('TRIBUTE.nar', D.TRIBUTE.nar);
 pushNar('TRIBUTE.end', D.TRIBUTE.end);
 const drift = narAll.filter(([, s]) => !html.includes(s));

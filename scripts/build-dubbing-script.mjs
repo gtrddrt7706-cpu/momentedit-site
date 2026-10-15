@@ -87,6 +87,7 @@ const G = [
     ['G8-name', '부모님께 인사 · 이름 줄', 'narr-tribute-name', RC.EXTRA['narr-tribute-name']],
     ['G8-pair', '부모님께 인사 · 짝 줄 (성혼 선언 바로 뒤인 날)', 'narr-tribute-pair', RC.EXTRA['narr-tribute-pair']],
     ['G8-call', '부모님께 인사 · 구호', 'tribute-call', RC.EXTRA['tribute-call']],
+    ['G8-call-say', '부모님께 인사 · 구호 (말로 인사 날)', 'tribute-call-say', RC.EXTRA['tribute-call-say']],   // ★[TRIB_CALL_SAY_1014 라운드 3] 145
   ], note: '감동 코스에서 편지와 성혼 선언 사이의 완충이다. 감정적으로 녹음하면 세 정점이 평평해진다.' },
 
   /* ★[TOAST_SCENE 2026-08-09] 「둘 다」는 문안이 둘이다 — 커팅 뒤 나이프를 걷고 잔을 쥐여 드리는
@@ -140,7 +141,7 @@ const G = [
        ★NAR_MIRROR(check-ritual-mirror.js)는 order-preview.html 만 본다. 여기는 아무도 안 본다.
        그래서 사본을 맞추지 않고 «없앴다». 맞추기로 하면 세 번째가 온다. */
     ['N7', '사진 부탁 (예식 직전)', 'narr-photo-ask', RC.EXTRA['narr-photo-ask']],
-    ['N8', '사진 보내기 안내 (배웅)', 'narr-photo-send', RC.EXTRA['narr-photo-send']],
+    ['N8', '사진 보내기 안내 (전체 사진 뒤 · 감사 인사 앞)', 'narr-photo-send', RC.EXTRA['narr-photo-send']],   // ★[PHOTO_SEND_FIRST_1014] 자리를 옮겼다(라운드 1 결정)
     ['N0', '단체촬영 개시 신호', 'end-0-photo', RC.EXTRA['end-0-photo']],
     ['N1-a', '두 분 감사 인사 · 식사 있는 날 (전체 사진 뒤)', 'end-1a-farewell', RC.EXTRA['end-1a-farewell']],   // [PHOTO_THANKS 2026-09-26] 옛 «촬영 종료 → 배웅 전환»
     ['N1-c', '두 분 감사 인사 · 식사 없는 날 (전체 사진 뒤)', 'end-1c-thanks-nomeal', RC.EXTRA['end-1c-thanks-nomeal']],   // [THANKS_TEXT] 110

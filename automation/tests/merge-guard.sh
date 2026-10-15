@@ -7938,6 +7938,53 @@ chk 'OPEN_ROW_1014' scripts/audit/vc-screen.mjs 1
 chk 'OPEN_ROW_1014' scripts/audit/turn-gap.mjs 1     # 하객 맞이 «전체 듣기» = 카드 넷 + 개식(5줄)
 chk 'PEND_FIRST_1014' scripts/audit/make-shell.mjs 2  # 첫 줄이 녹음 대기(글 먼저)면 줄의 첫 자리가 새로 고른 판인지로
 chk 'PEND_ENTRY_1014' scripts/audit/entry-music.mjs 2 # 장면 시험은 소리가 있는 입장 멘트 판으로(녹음 대기 판은 그래프를 그리지 않는다 · GRAPH_MIN)
+# ★★[R3_APPLY_1014 · 라운드 3 반영 2026-10-14 사장님 «자료집 멘트를 식순에 녹이는 게 가장 중요 · 완성도 높게» · «전부 추천대로»] 자료 → 우리 역방향 대조에서 나온 고침
+#   깨 보기(10/14 실제로 깨 봤다): 개식 블록을 «하객 맞이»로 · 개식 뒤 쉼을 0 으로 · 식전 영상 rescue 를 빼면 → open-course [OPEN_BLOCK_1014] 빨강(셋 다)
+chk 'OPEN_BLOCK_1014' assets/ritual-cue.js 1          # 개식 선언 = 콘솔 블록 «예식 시작»(설명 한 줄) — 하객 맞이 설명을 빌리지 않는다 · 디지털 참석 날 두 번 뜨지 않는다
+chk 'OPEN_BLOCK_1014' assets/ritual-story.js 1
+chk "blockN: '예식 시작', slug: 'narr-open'" assets/ritual-cue.js 1
+chk 'OPEN_GAP_1014' assets/ritual-cue.js 1            # 개식 뒤 다음 줄은 3초 쉬고 사슬(자료 G2 5-2 · BB ⑥)
+chk 'PV_RESCUE_1014' assets/ritual-cue.js 1           # 식전 영상도 [재생 안 됨](105) · 이야기 안심 = 준비한 순서(영상)와 같은 말
+chk 'PV_RESCUE_1014' assets/ritual-story.js 1
+chk 'OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014' scripts/audit/open-course.mjs 2
+chk 'OPEN_SUM_1014' order-preview.html 1              # ④ 하객 맞이 요약도 «예식 시작»까지(두 분 목소리 판이면 «예식 시작은 나레이션»)
+chk 'MATJEOL_ONE_1014' assets/ritual-data.js 1        # 맞절 첫 문장 «이어서, 맞절이 있겠습니다.» — 1.25초 앞 받는 말(144)의 «두 사람이»를 되풀이하지 않는다
+chk 'entryBow:"이어서, 맞절이 있겠습니다.' assets/ritual-data.js 1
+nochk '이어서, 두 사람의 맞절이' assets/ritual-data.js
+chk 'BRIDGE_NO_ECHO_1014' order-preview.html 1        # 미리 듣기 이음말은 여는 말이 말하지 않은 «누가 · 어떻게»만 — narr-words --engine 이 여는 말과 이어 W13 으로 잰다
+chk 'BRIDGE_NO_ECHO_1014' scripts/audit/narr-words.mjs 3
+chk "welcome:'두 분이 한두 문장씩, 차례로 말하는 시간입니다.'" order-preview.html 1
+chk 'WELCOME_CARD_1014' assets/ritual-open.js 1       # 감사 인사 준비 줄도 카드(이야기 안심 · 콘솔 사다리가 약속한 것) · 관리 화면 «감사 인사(카드 인쇄)»
+chk 'WELCOME_CARD_1014' admin.html 1
+chk 'CHIP_NAME_1014' order-preview.html 1             # AI 상담 칩 · 마이페이지 옛 판 요약도 «감사 인사»(THANKS_GREET_1013)
+chk 'CHIP_NAME_1014' mypage.html 1
+nochk '첫인사는 얼마나 길게' order-preview.html
+chk 'WELCOME_KB_1014' api/_ritual-kb.js 1             # 걷은 맺는 줄(12 · WELCOME_OUT_DROP)을 AI 지식 · 옛 코스 화면이 «마무리»로 약속하지 않는다
+chk 'WELCOME_KB_1014' order-preview.html 3
+chk 'NARR_RETIRED_END' assets/ritual-data.js 3         # 엔진이 끈 맺는 줄은 빌더에 «없어야» 한다(거울 검사) · 깨 보기: 글을 빌더에 되돌리면 check-ritual-mirror 빨강(10/14 확인)
+chk 'NARR_RETIRED_END' scripts/check-ritual-mirror.js 3
+chk 'VOW_PRACTICE_1014' assets/ritual-story.js 4      # 서약 · 감사문 넷 판 팁 끝 «미리 두세 번 소리 내어 맞춰 보시면 편해요.»(자료 M · O · V · N · 리허설 없음)
+chk '미리 두세 번 소리 내어 맞춰 보시면 편해요.' assets/ritual-story.js 4
+chk 'BLESS_LISTEN_1014' assets/ritual-story.js 2      # 덕담 듣는 두 분 «부모님 쪽을 보고, 가끔 고개를 끄덕여 주세요.»(자료 O) · 대독 판에도
+chk 'SPEECH_CALM_1014' assets/ritual-story.js 1       # 축사 안심 = 덕담 안심과 같은 말(자료 Y 1-5 «축사 · 덕담 공통»)
+chk 'SONG_HELLO_1014' assets/ritual-story.js 1        # 축가 앞 «짧게 인사나 곡 소개를 하셔도 되고»(자료 M 11 · U1 · S 11 · T1)
+chk 'SONG_CALM_1014' assets/ritual-story.js 1         # 축가 안심 «목이 메거나 가사를 놓치셔도 · 반주는 그대로» · 콘솔 fallback 과 짝
+chk 'SONG_CALM_1014' assets/ritual-cue.js 1
+chk 'LETTER_TIP_1014' assets/ritual-story.js 1        # 편지 팁 «편지는 얼굴이 가려지지 않게 가슴 아래 높이로» — 서약 팁과 같은 말
+chk '편지는 얼굴이 가려지지 않게 가슴 아래 높이로 들어 주세요.' assets/ritual-story.js 1
+chk 'LETTER_TO_FIRST_1014' assets/ritual-data.js 1    # 편지(부모님께) 27 받는 분을 첫 문장에(자료 GG 1 · G1 · G3)
+chk 'LETTER_TO_FIRST_1014' order-preview.html 1
+chk 'TRIB_CALL_SAY_1014' assets/ritual-cue.js 3       # 말로 인사 날 구호 145 «그 마음을 담아, …» · 말 없이 날 143 · 깨 보기: 145 를 143 으로 되돌리면 open-course 빨강(10/14 확인)
+chk 'TRIB_CALL_SAY_1014' assets/ritual-open.js 1
+chk 'TRIB_CALL_SAY_1014' api/_ritual-kb.js 1
+chk 'TRIB_CALL_SAY_1014' scripts/build-dubbing-script.mjs 1
+chk 'TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014' scripts/audit/open-course.mjs 2
+chk "tributeCallSay: '그 마음을 담아, 신랑 신부, 양가 부모님께 인사!'" assets/ritual-open.js 1
+chk 'TRIB_SAY_SAFE_1014' assets/ritual-cue.js 1       # 말로 인사 울컥할 때 — 디렉터가 보고 구호로 넘긴다(fallback) · 이야기 안심(safe · fbSrc 짝)
+chk 'TRIB_SAY_SAFE_1014' assets/ritual-story.js 1
+chk 'HUG_HOLD_1014' assets/ritual-story.js 1          # 포옹 팁 «2~3초쯤 그대로 머물러 주세요»(자료 O · V · J)
+chk 'PHOTO_SEND_FIRST_1014' assets/ritual-cue.js 2    # 사진 보내기 안내(85) = 전체 사진 뒤 · 감사 인사 앞(라운드 1 결정 · 아침 확인 6) · 깨 보기: 85 를 빼면 open-course 빨강
+chk 'FLOW_NOW_1014' scripts/audit/narr-words.mjs 2    # --flow 는 엔진 글(실제 소리 차례)을 찍는다 · 원고 칸이 다르면 한 줄 덧붙임
 # ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
 #   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
 chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
@@ -8273,7 +8320,7 @@ nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_�
 nochk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt'
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOW_OPENS_COLD] 「다 지웠어」 프레임은 새 [11]에도 없다 — nochk 가 이미 막는다
-chk '두 사람이 쓴 편지가 있습니다. 두 분, 부모님께 읽어 드리세요.' assets/ritual-data.js 1   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로
+chk '두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세요.' assets/ritual-data.js 1   # ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로
 chk '두 사람이 서로에게 쓴 편지가 있습니다.' assets/ritual-data.js 1   # 28 — 진행자가 읽는 것처럼 들렸다 · ★[NAR_ENGINE_1014] 10/14 원고 3단계 글(«못 한 말이 있습니다»는 짐작 W5)
 chk '신랑 신부가 편지를 써 왔습니다.' assets/ritual-data.js 1
 
@@ -10519,7 +10566,7 @@ chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 #   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
 #   새 문장도 주어가 사람이고, 하객의 시선을 부모님께 돌리는 기능도 그대로다. 형태만 짧아졌다.
 #   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
-chk '두 사람이 쓴 편지가 있습니다. 두 분, 부모님께 읽어 드리세요.' assets/ritual-data.js 1   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로
+chk '두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세요.' assets/ritual-data.js 1   # ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로
 nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
 nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
 nochk '오늘 이 자리를 함께 채워 주셔서' assets/ritual-cue.js
@@ -10650,7 +10697,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 144' scripts/check-ritual-cue.js 1   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 145' scripts/check-ritual-cue.js 1   # ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -11868,10 +11915,10 @@ chk 'SOFT_TONE' scripts/apply-soft-narration.mjs 1
 # ★옛 문구를 nochk 로 막으려다 멀쩡한 자리를 잡았다 — ritual-data 의 TONE_TABLE 블록은
 #   «어조 60벌»(21_B_제안.md §3 에서 생성)이고 그쪽은 이미 186개를 녹음해 둔 다른 묶음이다.
 #   같은 문장이라도 자리가 다르면 다르게 본다(SOFT_NOT_BLANKET) — 그래서 새 문구가 있는지로만 지킨다.
-chk '두 사람이 쓴 편지가 있습니다. 두 분, 부모님께 읽어 드리세요.' assets/ritual-data.js 1   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면
+chk '두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세요.' assets/ritual-data.js 1   # ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면
 # ★셋에서 둘로 준 까닭 — 27#1 이 「직접 읽어 드리시면 됩니다」로 바뀌었다(부모님께 읽는 것이라 높임).
 #   숫자만 내리지 않고 **옮겨 간 자리를 함께 잠근다** — 안 그러면 그 한 줄이 아무 검사도 안 받는다.
-chk '두 분, 부모님께 읽어 드리세요.' assets/ritual-data.js 1   # ★[NAR_ENGINE_1014] 10/14 원고 3단계 · ★[NAR_B2_1014] 4판 «읽어 드리세요»를 엔진에(글 먼저 · 녹음 대기)
+chk '두 분, 읽어 드리세요.' assets/ritual-data.js 1   # ★[LETTER_TO_FIRST_1014] «부모님께»는 첫 문장으로   # ★[NAR_ENGINE_1014] 10/14 원고 3단계 · ★[NAR_B2_1014] 4판 «읽어 드리세요»를 엔진에(글 먼저 · 녹음 대기)
 nochk '두 분, 부모님께 전해 주세요.' assets/ritual-data.js   # 편지를 건네러 가는 말로 읽혔다(원고 4판 · GG 1)
 chk '두 분, 차례로 전해 주세요.' assets/ritual-data.js 1
 chk '두 분, 신랑부터 차례로 서로의 손에 끼워 주세요.' assets/ritual-data.js 2   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«반지를» 두 번 W13)
@@ -12658,7 +12705,7 @@ nochk '고른 차례대로 장면과 나레이션을' order-preview.html   # [IN
 chk 'H1_FIRST_HELLO' order-preview.html 1
 chk '<div class="wn">감사 인사</div>' order-preview.html 1   # [THANKS_GREET_1013] 옛 «첫인사»
 chk 'aria-label="감사 인사"' order-preview.html 1   # [THANKS_GREET_1013]
-chk '감사 인사(두 분 작성):' order-preview.html 2   # [THANKS_GREET_1013]
+chk '감사 인사(두 분 작성 · 카드로 인쇄):' order-preview.html 2   # [THANKS_GREET_1013] · ★[WELCOME_CARD_1014] 카드로 인쇄한다는 표시(서약문 · 부모님께 드릴 말과 같은 꼴)
 nochk '인사말(두 분 작성)' order-preview.html
 nochk '인사말 예시 보기' order-preview.html   # [H1] 칸 안 예시 단추도 «첫인사 예시 보기»(390 실렌더에서 찾음)
 nochk "welcome:'하객 맞이 인사말'" order-preview.html
@@ -14888,7 +14935,7 @@ chk 'PV_LINK_ONE' order-preview.html 1
 # ★[TALK_BRIDGE 2026-10-04 사장님 «이 순간 들어 보기 = 전체 자동 재생 · 직접 말하는 자리는 "직접 읽어 주시는 시간입니다"로 한 번 짚고 바로 다음 나레이션»] ② 작은 재생만 · 연습 · 크게 보기는 차례 시간 그대로
 chk 'TALK_BRIDGE' order-preview.html 4
 chk 'function _lBridge(q)' order-preview.html 1
-chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-preview.html 1
+chk "두 분이 직접 서약을 읽는 시간입니다." order-preview.html 1   # ★[BRIDGE_NO_ECHO_1014] 여는 말과 겹치는 낱말을 뺐다
 chk 'SL_TIDY' order-preview.html 6   # ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?»] 줄 편집기 — 글칸 폭 같게(× 는 칸 안) · 읽는 분 단추 첫 줄 높이 · 줄 더하기와 처음 글로 한 줄
 chk 'class="mk-whog mk-slwg" role="radiogroup"' order-preview.html 1   # ★[SL_TIDY 2026-10-05 사장님 «신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?»] 줄마다 [신랑 | 신부] 둘 다 보인다
 nochk 'class="mk-slw" data-fk="mkslw' order-preview.html   # 한 단추 «신부»(누르면 신랑) 금지 — 2026-10-05 사용자 지시로 삭제
@@ -16638,7 +16685,7 @@ chk 'tableIn:"두 사람이 여러분께 직접 인사를 드리러 갑니다. �
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
-chk 'const N_FILES = 144;' scripts/check-ritual-cue.js 1   # [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
+chk 'const N_FILES = 145;' scripts/check-ritual-cue.js 1   # [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1
@@ -18217,8 +18264,8 @@ chk "tribute: '두 분이 부모님께 인사하고 안아 드려요', free:" as
 nochk "인사하고 안겨요'" assets/ritual-open.js                                      # 동작 말 하나(안아 드려요)
 nochk "인사하고 안겨요'" order-preview.html
 nochk '부모님께 다가가 인사하고 안겨요' assets/ritual-story.js
-chk "if(k==='tribute'&&!cs.some(function(x){ return x.slug==='tribute-call'; })) out.push({k:k,lab:'말 없이 흐르는 자리',txt:'두 분이 부모님께 인사하고 안아 드려요'" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤
-chk "if(k==='tribute'&&sl==='tribute-call') return '두 분이 부모님께 인사하고 안아 드려요'" order-preview.html 1   # 말 → 인사 → 포옹
+chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말 없이 흐르는 자리',txt:'두 분이 부모님께 인사하고 안아 드려요'" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤
+chk "if(k==='tribute'&&/^tribute-call/.test(sl)) return '두 분이 부모님께 인사하고 안아 드려요'" order-preview.html 1   # 말 → 인사 → 포옹
 chk "tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:300}," order-preview.html 1
 chk 'TRIB_PICK_CHIP_1013' assets/ritual-cue.js 3
 chk "pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말 없이') : m.d," assets/ritual-cue.js 1
@@ -18303,8 +18350,8 @@ nochk '부모님 품에 안기는' order-preview.html
 chk "'부모님이 덕담을 들려주세요 · 약 1분씩'" assets/ritual-open.js 1   # [R2_BLESS_TALK_1014] 라운드 2 G3 — ④ 대본에서 시간을 한 번만
 chk "'축사 원고 · 1분에 300자쯤" assets/ritual-open.js 1
 nochk '축사하실 분께 부탁드리기' assets/ritual-open.js
-chk "song:'노래하실 분께서 직접 축가를 불러 주시는 시간입니다.'" order-preview.html 1
-chk "declare:'부탁하신 분께서 직접 성혼 선언문을 읽어 주시는 시간입니다.'" order-preview.html 1
+chk "song:'노래하실 분께서 직접 불러 주시는 시간입니다.'" order-preview.html 1   # ★[BRIDGE_NO_ECHO_1014] 여는 말과 겹치는 낱말을 뺐다
+chk "declare:'선언문을 직접 읽어 주시는 시간입니다.'" order-preview.html 1   # ★[BRIDGE_NO_ECHO_1014] 여는 말과 겹치는 낱말을 뺐다
 nochk '오늘은 편하게 앉으셔서' assets/ritual-ref.js
 nochk '이 속도면 평생 갚아야' assets/ritual-ref.js
 nochk '삼십 분을 따져도 다 듣고 나서' assets/ritual-ref.js          # 편지(서로에게) ① 신랑과 같은 장치

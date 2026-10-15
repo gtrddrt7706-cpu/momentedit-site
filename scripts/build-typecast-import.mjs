@@ -316,7 +316,7 @@ const clips = parse(SRC);
               사용자 원문: *"추천대로 진행해 우선 내가 실청테스트하면서 거를거니깐"*
               narr-photo-ask  : 예식 직전(04_guest-4-1min 뒤) — 04 의 마지막이 「휴대폰은 진동으로」라
                                 「그리고」로 이어 붙였다. 소리를 줄이는 것과 사진을 남기는 것은 다른 부탁이다.
-              narr-photo-send : 배웅(45_end-1a-farewell 뒤) — 단체촬영·인사 사진이 다 끝난 뒤라
+              narr-photo-send : 전체 사진 뒤 · 감사 인사(45 · 110) 앞 [PHOTO_SEND_FIRST_1014] (옛: 배웅 · 45 뒤) — 단체촬영·인사 사진이 다 끝난 뒤라
                                 그때가 하객 손에 사진이 가장 많다.
               ★두 클립 다 «사진 링크를 넣은 두 분에게만» 나간다(S.photoShare) — 04·45 «안»에
                 문장을 더하지 않고 별도 클립으로 뺀 이유가 그것이다. 안에 넣으면 링크 없는
@@ -373,7 +373,7 @@ const clips = parse(SRC);
 /* [VOW_FIRST 2026-10-06 사장님 «신랑 신부 먼저 할 사람 순서»] 121 → 122 — 혼인 서약 여는 말 · 신부부터(127 narr-vow-in-b · G3-3b). 녹음 전엔 13번 앞 두 문장을 잘라 쓴다 */
 /* [PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 122 → 125 — 식전 영상 소개 나레이션 예시 2~4(128~130 · N23-a~c) */
 /* [DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만»] 128 → 125 — 나레이션 선언 · 가족 낭독 · 박수 판 여섯(21 · 30 · 31 · 32 · 96 · 97)을 대본에서 빼고(고를 수 있는 갈래가 아니다 · ASK_RETIRED 와 같은 까닭) 읽는 분마다 여는 말 셋(134~136 · G5-5~7)을 더했다 */
-const CLIP_COUNT = 131;   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] +8 — 137 개식 선언(G3-18) · 138 · 139 화촉 인사 안내(G3-19 · 20) · 140 화촉 맺는 말 격식(G3-21) · 144 입장 받는 말(G3-22) · 141 · 142 · 143 부모님께 인사 이름 줄 · 짝 줄 · 구호(G8-name · pair · call) · 옛 123   // [DECLARE_ANYONE 2026-10-12] −2(134 · 135 사람을 부르는 여는 말 RETIRED) · 옛 125   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
+const CLIP_COUNT = 132;   // ★[TRIB_CALL_SAY_1014 라운드 3] +1 — 145 말로 인사 날 구호(G8-call-say)   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] +8 — 137 개식 선언(G3-18) · 138 · 139 화촉 인사 안내(G3-19 · 20) · 140 화촉 맺는 말 격식(G3-21) · 144 입장 받는 말(G3-22) · 141 · 142 · 143 부모님께 인사 이름 줄 · 짝 줄 · 구호(G8-name · pair · call) · 옛 123   // [DECLARE_ANYONE 2026-10-12] −2(134 · 135 사람을 부르는 여는 말 RETIRED) · 옛 125   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

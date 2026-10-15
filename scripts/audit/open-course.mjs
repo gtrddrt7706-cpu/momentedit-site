@@ -215,6 +215,16 @@ ok('[ONEMIN_FIRST · CEREMONY_AT_VIDEO] 식전 영상을 담으면 04(89 판) �
   const op = r.cues[s.indexOf('narr-open')] || {};   // ★[OPEN_DECL_1014] 예식 시작 시각(0)에 개식 선언 → 식전 영상은 사슬로 이어서
   return s.indexOf('guest-4-1min') < 0 && s.indexOf('guest-4-1min-pre') < s.indexOf('narr-open') && s.indexOf('narr-open') + 1 === s.indexOf('narr-prevideo-in') && r.cues.slice(s.indexOf('narr-prevideo-in') + 1).every((c) => c.k !== 'guest')
     && op.fire === 'clock' && op.atMin === 0 && pv.fire === 'chain' && g === '-10,-5,-1'; })());
+/* ★[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014 라운드 3] 개식 선언은 블록 «예식 시작»(설명 한 줄 · 하객 맞이 설명을 빌리지 않는다) · 뒤 줄은 3초 쉬고 사슬 · 식전 영상은 [재생 안 됨](105) */
+ok('[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014] 개식 = 블록 «예식 시작» · 디지털 참석 날에도 하객 맞이 블록이 두 번 서지 않는다 · 뒤 줄(영상 · 화촉) 3초 사슬 · 식전 영상 [재생 안 됨] = 105 + 이야기 안심', (() => {
+  const ST = require(P('assets/ritual-story.js'));
+  const r = C.build({ course: 'open', on: { prevideo: 1 }, digital: 1 }, { mode: 'console' }), s = r.cues.map((c) => c.slug), i = s.indexOf('narr-open'), op = r.cues[i] || {}, nx = r.cues[i + 1] || {};
+  const runs = []; r.cues.forEach((c) => { if (!runs.length || runs[runs.length - 1] !== c.blockN) runs.push(c.blockN); });
+  const r2 = C.build({ course: 'open', on: { candle: 1 } }, { mode: 'console' }), s2 = r2.cues.map((c) => c.slug), nx2 = r2.cues[s2.indexOf('narr-open') + 1] || {};
+  const pv = r.cues.find((c) => c.k === 'prevideo') || {}, sc = ST.LIVE ? ST.LIVE[(pv.live || {}).t] : (ST.liveOf ? ST.liveOf((pv.live || {}).t) : null);
+  return op.blockN === '예식 시작' && runs.filter((b) => b === '하객 맞이').length === 1 && !!(ST.blockOf && ST.blockOf('예식 시작') && ST.blockOf('예식 시작').how)
+    && nx.slug === 'narr-prevideo-in' && nx.fire === 'chain' && nx.gapMs === 3000 && /^narr-candle-in-/.test(nx2.slug || '') && nx2.fire === 'chain' && nx2.gapMs === 3000
+    && pv.rescue && pv.rescue.slug === 'narr-free-fail' && !!(pv.live && pv.live.fallback) && (!sc || (sc.safe && sc.fbSrc === pv.live.fallback)); })());
 ok('[ONEMIN_FIRST] 식전 영상 + 사진 부탁 + 온라인 참석 — 공지 클립이 모두 영상 앞', (() => { const s = slugs({ course: 'open', on: { prevideo: 1 }, photoShare: 1, digital: 1 }); const v = s.indexOf('narr-prevideo-in');
   return v > s.indexOf('narr-photo-ask') && v > s.indexOf('online-3-welcome') && s.indexOf('narr-photo-ask') > -1 && s.indexOf('online-3-welcome') > -1; })());
 ok('[ONEMIN_FIRST] 식전 영상이 없어도 시각 같음(-10 · -5 · -1)', C.build({ course: 'open', on: {} }, { mode: 'console' }).cues.filter((c) => /^guest-[234]/.test(c.slug || '')).map((c) => c.atMin).join(',') === '-10,-5,-1');
@@ -240,7 +250,17 @@ ok('준비한 순서 판별 → 영상 · 선물 · 축사는 여는 말 100 · 
 /* [FREE_ETC 2026-10-06] 춤 · 공연 걷음 · 기타 = 지목하지 않는 여는 말(58) · 옛 dance · stage 도 기타 · 길이는 직접(1~10분 · 계약서 v1.12 [FREE_LEN10]) */
 ok('[FREE_ETC] 기타(옛 dance · stage 포함) → 여는 말 58(narr-free-in) · 이름은 적은 글 · 길이 6분이면 사람 구간 60×6+8 · 12분을 적으면 기본 3분 · 칩에 춤 · 공연 없음', ['etc', 'dance', 'stage'].every((w) => slugs({ course: 'open', on: { free: 1 }, freeWhat: w }).indexOf('narr-free-in') > -1) && (() => { const c = C.build({ course: 'open', on: { free: 1 }, freeWhat: 'etc', freeEtc: '형제 깜짝 영상편지', freeLen: '6' }, { mode: 'console' }).cues.filter((x) => x.k === 'free')[0]; return c.name === '준비한 순서 시작 · 형제 깜짝 영상편지 · 6분' && c.live.est === 368 && !c.rescue; })() && O.chipOf('freeLen', { freeLen: '12' }) === '3' && O.chipOf('freeLen', { freeLen: '10' }) === '10' && O.CHIPS.free.map((x) => x[1]).join('|') === '영상|깜짝 선물 · 전달|축사|기타');   // [R2_SPEECH_LABEL_1014] 축사 칩 이름 = 칸 이름
 ok('영상 판만 «재생 안 됨»(105)을 든다 · [FREE_ETC] 기타는 없다', (() => { const f = (w) => C.build({ course: 'open', on: { free: 1 }, freeWhat: w }, { mode: 'console' }).cues.filter((c) => c.k === 'free')[0].rescue; return f('video').slug === 'narr-free-fail' && !f('etc') && !f('gift') && !f('speech'); })());
-ok('[GROOM_BOW_TIP] 옛 초안의 신랑 큰절(bowGroom)도 꽃과 포옹 — 큰절 줄(106) 없음 · 사람 구간은 여는 말에', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'narr-tribute-name,tribute-in,tribute-call,tribute-out' && !!r[1].live && !!r[2].live; })());   // ★[TRIB_NAME_1014 · TRIB_CALL_1014] 이름 줄 → 여는 말(걸음) → 구호(인사 · 포옹) → 맺는 말
+/* ★[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014 라운드 3] 말로 인사 날 구호는 «그 마음을 담아,»(145) · 말 없이 날은 구호만(143) · 사진 보내기 안내(85)는 전체 사진 뒤 · 감사 인사 앞 */
+ok('[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014] 말로 인사 = 145 «그 마음을 담아, …» + 울컥할 때 안심(fallback) · 말 없이 = 143 · 사진 링크 날 85 는 전체 사진 → 85 → 감사 인사(사슬) · 링크 없으면 85 없이 감사 인사가 디렉터 GO', (() => {
+  const tr = (say) => C.build({ course: 'open', on: { tribute: 1 }, tributeSay: say }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute');
+  const a = tr('long'), b = tr('none'), ca = a.find((c) => /^tribute-call/.test(c.slug || '')) || {}, cb = b.find((c) => /^tribute-call/.test(c.slug || '')) || {};
+  const ph = (on) => { const r = C.build({ course: 'open', on: {}, photoShare: on, meal: 1 }, { mode: 'console' }).cues, s = r.map((c) => c.slug); return { s, r }; };
+  const p1 = ph(1), p0 = ph(0), i85 = p1.s.indexOf('narr-photo-send'), ith = p1.s.indexOf('end-1a-farewell');
+  return ca.slug === 'tribute-call-say' && /^그 마음을 담아, 신랑 신부, 양가 부모님께 인사!$/.test(ca.text || '') && cb.slug === 'tribute-call' && cb.text === '신랑 신부, 양가 부모님께 인사!'
+    && !!(a[1] && a[1].live && a[1].live.fallback) && !(b[1] && b[1].live && b[1].live.fallback)
+    && i85 > p1.s.indexOf('end-0-photo') && i85 + 1 === ith && p1.r[ith].fire === 'chain' && p1.r[i85].fire === 'manual'
+    && p0.s.indexOf('narr-photo-send') < 0 && p0.r[p0.s.indexOf('end-1a-farewell')].fire === 'manual'; })());
+ok('[GROOM_BOW_TIP] 옛 초안의 신랑 큰절(bowGroom)도 꽃과 포옹 — 큰절 줄(106) 없음 · 사람 구간은 여는 말에', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'narr-tribute-name,tribute-in,tribute-call-say,tribute-out' && !!r[1].live && !!r[2].live; })());   // [TRIB_CALL_SAY_1014] 말 칸을 안 고른 옛 초안도 말로 인사 판(sayT) → 145   // ★[TRIB_NAME_1014 · TRIB_CALL_1014] 이름 줄 → 여는 말(걸음) → 구호(인사 · 포옹) → 맺는 말
 /* ★[TRIB_BACK_1014] 맺는 말(39 «두 분, 다시 앞으로 와 주세요») 뒤 돌아오는 사람 순간 — 다음 큐(닫는 인사 · 옛 코스의 다음 순간)는 두 분이 나란히 선 뒤 디렉터 GO(사슬이면 걷는 중에 «하객 여러분께 인사!») */
 ok('[TRIB_BACK_1014] 부모님께 인사 맺는 말 뒤는 사람 순간(돌아와 나란히 섬 · 미리 듣기에서는 걷음) → 닫는 인사는 디렉터 GO «두 분이 앞에 나란히 서면»', [{ course: 'open', on: { tribute: 1 } }, { course: 'open', on: { tribute: 1 }, tributeSay: 'none' }].every((S0) => { const cs = C.build(S0, { mode: 'console' }).cues; const i = cs.findIndex((c) => c.slug === 'tribute-out'), t = cs[i] || {}, nx = cs[i + 1] || {};
   return !!t.live && t.live.consoleOnly === true && /돌아와 나란히/.test(t.live.t) && nx.slug === 'narr-close-bow' && nx.fire === 'manual' && nx.hint === '두 분이 앞에 나란히 서면'; }));
@@ -263,8 +283,8 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   'narr-entry-bow',   /* ★[MATJEOL_1011 2026-10-11] 132 · 입장 끝 맞절 */   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
   'narr-thanks-in',   /* ★[THANKS_IN_VOW 2026-10-11] 133 · 감사문 여는 말 */
   'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend',   /* ★[DECLARE_BY_PERSON 2026-10-12] 134~136 · 성혼 선언 여는 말 · [DECLARE_ANYONE] 134 · 135 는 RETIRED(번호 보존) */
-  'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive'];   /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144 */
-ok('FILES 맨 끝 89~144 이 새 줄 56개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive', 'tribute-call-say'];   /* ★[TRIB_CALL_SAY_1014] 145 */   /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144 */
+ok('FILES 맨 끝 89~145 이 새 줄 57개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
 
 /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 서약 카드 «무엇을 읽나요» — 감사문을 고르면
    여는 말 133 → 두 분이 하객 쪽을 본 채 읽고 마지막 두 문장(THANKSBOTH)은 함께 · 맺는 말(서약의 «약속은 말로 끝나지 않습니다») 없음 · 다음 순간은 디렉터 GO.
