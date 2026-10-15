@@ -85,23 +85,38 @@ function readDoc(src) {
   return rows;
 }
 
-// ── 엔진 줄 모으기 — 새 코스(open) 조합을 돌려 slug 별 글을 모은다 ──
-function engineLines() {
+// ── 새 코스(open) 조합을 돌려 콘솔 큐 목록마다 fn 을 부른다(엔진 줄 모으기 · 사슬 이음 재기가 같은 조합을 본다) ──
+function forCombos(fn) {
   const O = require(path.join(ROOT, 'assets/ritual-open.js'));
   const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
   const PICK = ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];
   const dims = { entry: ['A', 'B', 'C', 'D', 'E', 'F'], candleWho: ['mothers', 'fathers', 'parents', 'others'], letter: ['each', 'parent'], tributeSay: ['long', 'none'],
     freeWhat: ['speech', 'video', 'gift', 'etc'], vowFirst: ['g', 'b'], vowKind: ['vow', 'thanks'], guestEx: [0, 1, 2, 3], pvEx: [0, 1, 2, 3], photoShare: [0, 1, 'up', 'link'], digital: [0, 1], meal: [0, 1] };
-  const seen = new Map();
-  const run = (S) => { const r = C.build(C.norm ? C.norm(S) : S, { mode: 'console' }); const cues = Array.isArray(r) ? r : (r.cues || []);
-    cues.forEach((c) => { [[c.text, ''], [c.alt && c.alt.text, '길었을 때']].forEach(([t, tag]) => { if (!t) return; const k = (c.slug || c.k) + '|' + t; if (!seen.has(k)) seen.set(k, { slug: c.slug || c.k, no: c.no || '', tag, text: t }); }); }); };
+  const run = (S) => { const r = C.build(C.norm ? C.norm(S) : S, { mode: 'console' }); fn(Array.isArray(r) ? r : (r.cues || [])); };
   const base = (on) => { const S = O.sampleS(); if (on) { S.on = {}; on.forEach((k) => { S.on[k] = 1; }); } return S; };
   for (const [k, vals] of Object.entries(dims)) for (const v of vals) { const S = base(); S[k] = v; run(S); }
   for (const k of PICK) { const S = base(); delete S.on[k]; run(S); run(base([k])); }
   O.EXAMPLES.forEach((ex) => run(O.applyExample(base(), ex.k)));
   let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
   for (let i = 0; i < 1500; i++) { const S = base(PICK.filter(() => rnd() < 0.5)); for (const [k, vals] of Object.entries(dims)) if (rnd() < 0.5) S[k] = vals[Math.floor(rnd() * vals.length)]; run(S); }
+}
+// ── 엔진 줄 모으기 — slug 별 글 ──
+function engineLines() {
+  const seen = new Map();
+  forCombos((cues) => cues.forEach((c) => { [[c.text, ''], [c.alt && c.alt.text, '길었을 때']].forEach(([t, tag]) => { if (!t) return; const k = (c.slug || c.k) + '|' + t; if (!seen.has(k)) seen.set(k, { slug: c.slug || c.k, no: c.no || '', tag, text: t }); }); }));
   return [...seen.values()].sort((a, b) => (+a.no || 999) - (+b.no || 999));
+}
+/* ★[CHAIN_ECHO_1015 라운드 4] 사슬 이음 — 사람 구간이 없는 앞 줄 바로 뒤에 사슬(chain)로 붙는 줄은 한 호흡으로 들린다.
+   이음매(앞 줄 끝 두 문장 + 뒤 줄 첫 두 문장 · 10초 안팎)에서 같은 말(W13)이 나오면 빨강 — 한 줄 자로는 안 보인다(10/14 라운드 4: 개식 137 «오늘은» → 3초 뒤 화촉 «… 오늘은 먼저 앞에 서십니다»).
+   이음매 밖의 되풀이(예: 사진 보내기 85 → 감사 인사 45 의 다섯째 문장 «받으신 안내 페이지»)는 기능 이름을 같게 부르는 것이라 재지 않는다 */
+const sents = (t) => (String(t).match(/[^.!?]+[.!?]+/g) || [String(t)]).map((x) => x.trim()).filter(Boolean);
+const head2 = (t) => sents(t).slice(0, 2).join(' '), tail2 = (t) => sents(t).slice(-2).join(' ');
+function junction(a, b) { const A = tail2(a), B = head2(b), own = new Set([...twice(A), ...twice(B)]); return twice(A + ' ' + B).filter((w) => !own.has(w)); }
+function chainEchoes() {
+  const out = new Map();
+  forCombos((cues) => { for (let i = 1; i < cues.length; i++) { const a = cues[i - 1], b = cues[i]; if (b.fire !== 'chain' || a.live || !a.text || !b.text) continue;
+    const hit = junction(a.text, b.text); if (!hit.length) continue; const k = a.slug + '>' + b.slug + '|' + hit.join(','); if (!out.has(k)) out.set(k, { a: (a.no || '') + ' ' + a.slug, b: (b.no || '') + ' ' + b.slug, hit, at: tail2(a.text), bt: head2(b.text) }); } });
+  return [...out.values()];
 }
 
 /* ★[BRIDGE_NO_ECHO_1014 라운드 3] 미리 듣기 이음말(order-preview TALK_BRIDGE)은 바로 앞 여는 말에 이어 들린다 — 둘을 한 줄로 이어 W13(같은 말 두 번)을 잰다.
@@ -111,12 +126,16 @@ function bridgePairs() {
   const m = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8').match(/var TALK_BRIDGE=(\{[\s\S]*?\});/);
   if (!m) return null;
   const TB = Function('return ' + m[1])();
-  const V = { welcome: {}, vow: {}, 'vow.thanks': { vowKind: 'thanks' }, declare: {}, bless: {}, 'free.speech': { freeWhat: 'speech' }, song: {}, letter: { letter: 'each' }, 'letter.parent': { letter: 'parent' }, toast: {}, tribute: {} };
+  /* ★[BRIDGE_NEXT_1015 라운드 4] 이음말 바로 뒤 줄(같은 순간의 다음 큐 · 첫 두 문장)과도 잰다 — 라운드 4: 부모님께 인사 이음말 «… 부모님께 직접 마음을 전하는 …» 뒤 145 «그 마음을 담아, … 양가 부모님께 인사!» ·
+     판마다(식전 영상 소개 넷 · 준비한 순서 영상 · 선물 · 기타 · 말로 인사 둘) — 라운드 3 정리에서 식전 영상 이음말이 빠진 까닭이 이 목록이었다 */
+  const V = [['welcome', {}], ['vow', {}], ['vow.thanks', { vowKind: 'thanks' }], ['declare', {}], ['bless', {}], ['free.speech', { freeWhat: 'speech' }], ['free', { freeWhat: 'video' }], ['free', { freeWhat: 'gift' }], ['free', { freeWhat: 'etc' }],
+    ['song', {}], ['letter', { letter: 'each' }], ['letter.parent', { letter: 'parent' }], ['toast', {}], ['tribute', { tributeSay: 'long' }], ['tribute', { tributeSay: 'short' }],
+    ['prevideo', { pvEx: 0 }], ['prevideo', { pvEx: 1 }], ['prevideo', { pvEx: 2 }], ['prevideo', { pvEx: 3 }]];
   const out = [];
-  for (const [key, ex] of Object.entries(V)) { const k = key.split('.')[0], br = TB[key]; if (!br) continue;
+  for (const [key, ex] of V) { const k = key.split('.')[0], br = TB[key]; if (!br) continue;
     const S = O.sampleS(); S.on = Object.assign({}, S.on, { [k]: 1 }); Object.assign(S, ex);
-    const cs = C.build(S, { mode: 'preview' }).cues.filter((c) => c.k === k), lv = cs.find((c) => c.live);
-    if (lv) out.push({ key, nar: lv.text, br, hit: twice(lv.text + ' ' + br) }); }
+    const cs = C.build(S, { mode: 'preview' }).cues.filter((c) => c.k === k), li = cs.findIndex((c) => c.live), lv = cs[li], nx = li > -1 ? cs[li + 1] : null;
+    if (lv) out.push({ key: key + (Object.keys(ex).length ? ' ' + JSON.stringify(ex) : ''), nar: lv.text, br, nx: nx ? head2(nx.text) : '', hit: [...new Set([...twice(lv.text + ' ' + br), ...(nx ? junction(br, nx.text) : [])])] }); }
   return out;
 }
 
@@ -138,6 +157,9 @@ if (arg === '--selftest') {
   ok('[NARR_WORDS_1013] 깨 보기 — 박수 자리(입장 · 선언 맺음 · 닫는 인사)는 W7 이 아니다', !judge('entry-B', '큰 박수 부탁드립니다. 신랑 신부, 입장!').includes('W7') && !judge('narr-close-bow', '마지막 박수를 부탁드립니다.').includes('W7'));
   ok('[NARR_REREAD_1013] 깨 보기 — 구호 «위하여» · 끝말 · 두 글자 말은 W13 이 아니다', !judge('toast-toast', '두 분이 위하여, 하시면 함께 위하여, 하고 답해 주세요.').includes('W13') && !judge('end-1c-thanks-nomeal', '가족분들께서는, 잠시 남아 주십시오. 다른 분들도, 함께 남아 주십시오.').includes('W13'));
   ok('[SONG_OPEN_ANYONE_1013] 깨 보기 — W14 는 축가 여는 말에만(다른 자리의 «위해»는 걸지 않는다)', !judge('narr-free-in-gift', '오늘을 위해 마음을 담아 준비한 선물이 있습니다.').includes('W14'));
+  ok('[CHAIN_ECHO_1015] 깨 보기 — 옛 개식 «오늘은 …» 3초 뒤 화촉 «늘 … 오늘은 …»은 이음매에서 잡힌다', junction('신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 오늘은 이 자리에 계신 모든 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.', '늘 두 사람의 뒤에 계셨던 분들이, 오늘은 먼저 앞에 서십니다. 양가 어머님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다.').includes('오늘은'));
+  ok('[CHAIN_ECHO_1015] 깨 보기 — 이음매 밖(앞 줄 첫 문장)의 같은 말은 재지 않는다', junction('신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 이 자리에 계신 모든 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.', '양가를 대표하는 두 분께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다.').length === 0);
+  ok('[BRIDGE_NEXT_1015] 깨 보기 — 옛 부모님께 인사 이음말은 뒤 줄 145 와 이어 W13', junction('두 분이 부모님께 직접 마음을 전하는 시간입니다.', '그 마음을 담아, 신랑 신부, 양가 부모님께 인사!').length > 0);
   ok('[BRIDGE_NO_ECHO_1014] 깨 보기 — 옛 감사 인사 이음말은 여는 말과 이어 W13(«인사를»)', twice('신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다. 두 분이 하객께 직접 감사 인사를 드리는 시간입니다.').includes('인사를'));
   const doc = '## 2. 나레이션\n| 번호 · 자리 | 지금 | 3단계 글 | 근거 | 녹음 |\n|---|---|---|---|---|\n| 01 guest-1-arrival | x | 기다리시는 동안, 편안히 머물러 주십시오. | x | x |\n';
   ok('[NARR_WORDS_1013] 깨 보기 — 원고 표에 걸리는 줄을 넣으면 읽어서 잡는다', readDoc(doc).some((r) => judge(r.slug, r.text).includes('W8')));
@@ -163,9 +185,11 @@ if (arg === '--engine') {
   red.forEach((x) => console.log(`  [${x.no}] ${x.slug}${x.tag ? ' (' + x.tag + ')' : ''} — ${x.hit.join(' · ')}\n       «${x.text}»`));
   waitL.forEach((x) => console.log(`  … 녹음 대기 [${x.no}] ${x.slug} — ${x.hit.join(' · ')} (원고 글은 자 통과 · 새 문장은 녹음 목록에 있다)`));
   const bp = bridgePairs(), bpRed = (bp || []).filter((x) => x.hit.length);
-  bpRed.forEach((x) => console.log(`  [이음말 ${x.key}] W13 ${x.hit.join(' · ')}\n       «${x.nar}» → «${x.br}»`));
-  console.log(`\n엔진(새 코스) 나레이션 ${L.length}줄 중 자에 걸린 줄 ${red.length}${waitL.length ? ' · 녹음 대기 ' + waitL.length : ''} · 이음말 ${bp ? bp.length : '못 읽음'}개 중 여는 말과 겹침 ${bpRed.length} [BRIDGE_NO_ECHO_1014]`);
-  process.exit(red.length || !bp || !bp.length || bpRed.length ? 1 : 0);
+  bpRed.forEach((x) => console.log(`  [이음말 ${x.key}] W13 ${x.hit.join(' · ')}\n       «${x.nar}» → «${x.br}»${x.nx ? ' → «' + x.nx + '»' : ''}`));
+  const ce = chainEchoes();
+  ce.forEach((x) => console.log(`  [사슬 이음 ${x.a} → ${x.b}] W13 ${x.hit.join(' · ')}\n       «${x.at}» → «${x.bt}»`));
+  console.log(`\n엔진(새 코스) 나레이션 ${L.length}줄 중 자에 걸린 줄 ${red.length}${waitL.length ? ' · 녹음 대기 ' + waitL.length : ''} · 이음말 ${bp ? bp.length : '못 읽음'}개 중 앞뒤 줄과 겹침 ${bpRed.length} [BRIDGE_NO_ECHO_1014 · BRIDGE_NEXT_1015] · 사슬 이음 겹침 ${ce.length} [CHAIN_ECHO_1015]`);
+  process.exit(red.length || !bp || !bp.length || bpRed.length || ce.length ? 1 : 0);
 }
 
 if (arg === '--flow') {

@@ -9,7 +9,7 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 38 | 19 |
+| 1_우성.txt | 우성 | 39 | 20 |
 | 2_예슬.txt | 예슬 | 9 | 4 |
 | 3_진희.txt | 진희 | 7 | 2 |
 | 4_진한.txt | 진한 | 5 | 4 |
@@ -17,9 +17,9 @@
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 38줄 · 19클립
+# 우성 — 39줄 · 20클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =05_entry-A,=06_entry-B,=11_narr-welcome-in,=91_narr-candle-in-mothers,=92_narr-candle-in-parents,=93_narr-candle-in-fathers,=132_narr-entry-bow,=137_narr-open,=138_narr-candle-bow,=139_narr-candle-bow-four,=140_narr-candle-out-formal,=144_narr-entry-arrive,=27_letter-parent,=141_narr-tribute-name,=142_narr-tribute-pair,=143_tribute-call,=145_tribute-call-say,=40_toast-toast,=131_narr-table-in
+  --clip =05_entry-A,=06_entry-B,=11_narr-welcome-in,=91_narr-candle-in-mothers,=92_narr-candle-in-parents,=93_narr-candle-in-fathers,=132_narr-entry-bow,=137_narr-open,=138_narr-candle-bow,=139_narr-candle-bow-four,=140_narr-candle-out-formal,=144_narr-entry-arrive,=27_letter-parent,=141_narr-tribute-name,=142_narr-tribute-pair,=143_tribute-call,=145_tribute-call-say,=40_toast-toast,=105_narr-free-fail,=131_narr-table-in
 ```
 
 ```
