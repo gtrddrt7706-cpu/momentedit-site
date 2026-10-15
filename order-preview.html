@@ -1441,7 +1441,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-vlist > li:last-child,.mk-vlist .mk-vr:last-child{border-bottom:0}   /* [R1-13] 마지막 줄 아랫선 + 다음 .mk-sec 윗선 겹선 걷기 */
 /* ★.mk-voice>.mk-aisec(순간 쪽 사람 카드 칸) 금지 — 2026-10-03 사용자 지시로 삭제 [VOICE_ONCE] · 사람 카드는 «두 분 목소리 만들기» 쪽(.mk-vpage) */
 .mk-sec.mk-pick{border-top:0;padding-top:0;margin-top:14px}   /* [MK_FORM_ONE] 장면 아래 첫 칸은 고르기든 흐름이든 같은 간격(14 · 종전 16 이라 고르기가 있는 쪽만 2px 더 떨어졌다) */   /* [MK_NO_HEADS] 칩은 순간 설명 바로 아래 · 선 없이 */
-.mk-flowsec{border-top:0;padding-top:0;margin-top:14px}   /* [MK_NO_HEADS] 흐름은 칩(없으면 순간 설명) 바로 아래 · 선 없이 */
+.mk-flowsec{border-top:0;padding-top:0;margin-top:14px}
+.mk-voice .mk-vtail{margin:14px 0}   /* [GUEST_TAIL_1015] 카드 넷 뒤 나레이션 줄 — 흐름 칸과 같은 간격 */   /* [MK_NO_HEADS] 흐름은 칩(없으면 순간 설명) 바로 아래 · 선 없이 */
 .mk-sech-r{justify-content:flex-start;margin-bottom:10px}
 .mk-sech-r .mk-hbtn{min-width:220px;justify-content:center;min-height:46px;padding:0 22px;font-size:14px;margin-right:0}   /* ★[MK_PLAY_LEFT 2026-09-28 사장님 «들어 보기 버튼이 애매하게 있다 · 길게 바꾸든 좌측으로 붙이든»] 오른쪽 끝에 홀로 떠 있던 작은 알약 → 흐름 바로 위 왼쪽 · 길게. 읽는 눈이 내려오는 자리(왼쪽 · 흐름 첫 줄 위)에서 «먼저 들어 보고 읽는다» */
 /* ★[PLAY_ROW 2026-10-02 사장님 «이 순간 들어 보기 버튼 디자인 개선 · 구도»] 테두리 알약 → 작은 플레이어 줄. 왼쪽 진한 동그라미 ▶(줄 카드 ▶ 와 같은 말) · 글 14px 600 ·
@@ -4878,7 +4879,7 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return ''; try{ _
   var kind=ks[0], K=TX_KIND[kind], R=RitualOpen, c=_mkChk();
   h+='<section class="mk-sec mk-say" aria-labelledby="mkSay"><h4 id="mkSay">두 분이 할 말</h4>';
   /* ★서약 글칸 위 «마지막 두 문장은 하객분들 쪽으로 … 저희가 준비해 둬요» 안내 줄 금지 — 2026-10-06 사장님 «추천대로»로 옮김 [VOW_BOTH_ROWS] · 글칸 맨 아래 «두 분 함께» 줄이 보여 준다 */
-  if(kind==='tribute') h+='<p class="mk-note">한마디부터 1분쯤까지 · 적어 두시면 카드로 드려요 · 비워 두셔도 돼요</p>';
+  if(kind==='tribute') h+='<p class="mk-note">한마디부터 1분쯤까지 · 적어 주시면 큰 글씨 카드로 드려요 · 비워 두셔도 돼요</p>';   /* [TRIB_CARD_SAME_1015] */
   else if(kind==='toast') h+='<p class="mk-note">한 분 한 문장쯤 · 비워 두시면 당일 «위하여»만 외치셔도 돼요</p>';   // [TOAST_SAY] 안 적으면 어떻게 되는지 한 줄(엔진 cue2 · 나레이션이 하객 답을 청한다)   // [R1-20] 1분쯤 = 300자 · [TRIB_CARD_OPT] 그대로
   /* ★★[CUE_FORM 2026-10-06 사장님 «전에 쓰던 폼 그대로 · 텍스트박스에 바로 들어가는 것(AI 목소리 만드는 형태) · 현장에서 바로 할게요 체크 ·
      직접 육성으로 말하는 부분이지만 큐 사인을 알기 위해 적는 것 · 원치 않으면 체크하고 끝 신호만»]
@@ -5384,6 +5385,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
   h+='</ul>'
     +(k==='prevideo'?'<p class="mk-note mk-vnext">이어서 두 분의 영상이 흘러요</p>':k==='entry'?'<p class="mk-note mk-vnext">이어서 음악에 맞춰 걸어 들어와요</p>':'')   /* [R2-03] 실제 차례대로 — 흐름 칸에 먼저 놓이던 말 없는 줄을 카드 뒤로 */
     +(ai&&!anySelf?'':'<p class="mk-note mk-vfile">파일은 직접 녹음한 것을 올려 주세요 · 아이폰 음성 메모는 공유에서 «파일에 저장»한 뒤 올릴 수 있어요</p>')   // [VP_ONLY_PICKED]
+    +_mkFlowTail(k)   /* [GUEST_TAIL_1015] 하객 맞이 — 카드 넷(과 그 파일 안내) 뒤에 나레이션 줄(개식 선언 등) · 실제 차례대로 */
     +(ai?'':'<div class="mk-vnow"><p class="mk-note" role="status">'+esc(_vpNow(k))+'</p>'+_mpBtn(k,'mkvnowplay')+'</div>')   /* ★[VP_FOOT_OFF 2026-10-02 사장님 «여기도 필요 없는 정보 전부 빼기»] AI 를 고르면 줄 카드 아래 덧말(파일 안내 · «지금은 n줄 나레이션» · 이 순간 들어 보기 · 녹음 도움말 · 올리기가 어렵다면)을 하나도 두지 않는다 — 듣기는 줄 카드 ▶ 와 아래 작은 플레이어 */
     /* ★[LATE_LINE_OFF 2026-09-28 사장님 «예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요 — 이건 사실과 달라 빼»] 되살리지 말 것 — VOICE_LATE · VOICE_LATE_UP 문장을 화면 · 문자 어디에도 쓰지 않는다 */
     +(ai&&!anySelf?'':'<details class="mk-valt"><summary>녹음 도움말</summary><p class="mk-note">조용한 방에서 · 휴대폰을 입에서 한 뼘 떨어뜨려서 · 한 줄씩 천천히 읽어 주세요. 녹음해 둔 파일이 있으면 «파일 올리기»로 올려도 돼요(m4a · mp3 · wav · 한 개 20MB · 60초 안)</p></details>'
@@ -6829,6 +6831,11 @@ function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; var v=R.voice
 /* [FLOW_THREAD] 행동 줄(● 마디) — 끝의 «말 없이» · «미리 듣기에서는 넘겨요»만 작은 표로 뗀다(엔진 글은 그대로 · 다른 « · »는 행동의 일부라 두 분이 하객께 «목례 · 박수»처럼 남긴다) */
 var Q_TAG=/ · (말 없이|미리 듣기에서는 넘겨요)$/;
 function _qRow(t){ t=String(t||''); var m=t.match(Q_TAG); return '<li class="q"><span class="qa">'+esc(m?t.slice(0,m.index):t)+'</span>'+(m?'<span class="mk-qt"><span class="sr-only"> · </span>'+esc(m[1])+'</span>':'')+'</li>'; }
+function _mkNarLi(k,x,i){ return '<li class="n">'+(function(w){ return '<button type="button" class="mk-pl'+(_mlOn(k+':'+i)?' on':'')+w.c+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':''); })(_mlWait(k+':'+i))+' data-ml="'+k+':'+i+'" aria-pressed="'+_mlOn(k+':'+i)+'" aria-label="'+esc((x.lab||'나레이션')+(_mlOn(k+':'+i)?' 멈추기':' 듣기'))+'" onclick="mkLine(\''+k+'\','+i+')">'+(_mlOn(k+':'+i)?ICO_STOP:ICO_PLAY)+'</button><span><span class="mk-lab">'+(x.lab?'<b class="mk-ln">'+esc(x.lab)+'</b>':'')+_vTag(k,x)+(x.pending?' · <span class="ls-new">'+esc(_pendT(x))+'</span>':'')+'</span>'+(x.own&&_upLive()?'<span class="mk-ltx1">'+esc(x.txt||'')+'</span>':esc(x.txt||''))+'</span></li>'; }   /* [GUEST_TAIL_1015] 흐름 칸 · 카드 뒤 꼬리가 같은 줄 */
+function _mkTailFrom(st){ var last=-1; st.forEach(function(x,i){ if(x.own) last=i; }); return last>-1?last+1:-1; }   /* [GUEST_TAIL_1015] 마지막 두 분 목소리 줄 다음 자리 */
+function _mkFlowTail(k){ if(!ENG||k!=='guest'||!_upLive()||_vpCur(k)==='nar') return ''; var st=_lSteps(ENG,[k]), from=_mkTailFrom(st), h=''; if(from<0) return '';
+  st.forEach(function(x,i){ if(i<from||x.own||x.quiet||x.skip||x.talk) return; h+=_mkNarLi(k,x,i); });
+  return h?'<ol class="mk-flow mk-vtail">'+h+'</ol>':''; }   /* [GUEST_TAIL_1015] 카드 넷 뒤 · 실제 차례대로 */
 function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r">'+btn+'</div>'+_lsNote(k):'';   /* [AI_PLAY_READY · LS_MAKE_ALL] 단추 바로 아래 한 줄 */
   if(!ENG) return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+_engBox()+'</section>';   // [WAIT_BOX] · [ENG_ONCE]
   var st=_lSteps(ENG,[k]), exN=st.filter(function(x){ return x.own&&!x.couple; }).length;
@@ -6836,9 +6843,13 @@ function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r
      듣기(▶)는 줄 카드 머리로 옮겼다(_mkVoice). 나레이션 줄만 흐름에 남고, 남는 것이 없으면 흐름 칸을 통째로 걷는다 */
   var one=_upLive()&&(k==='guest'||k==='entry'||k==='prevideo')&&_vpCur(k)!=='nar';   /* [PV_INTRO] 식전 영상 소개도 줄 카드로 */
   if(one){ var st2=st.filter(function(x){ return !x.own&&!x.quiet&&!x.skip&&!(k==='prevideo'&&_vpCur(k)==='ai'); });   /* [PV_FILL] AI 판 식전 영상은 카드 하나 — 소개글을 비워 둔 때의 나레이션 한 줄은 카드 안내가 말한다(같은 자리를 두 곳에 그리지 않는다) */ if(!st2.length) return btn?'<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'</section>':''; exN=0; }   /* [R2-03] 줄 카드 판에서는 말 없는 줄(«여기서 두 분의 영상이 흘러요» · «음악에 맞춰…»)을 흐름에 먼저 그리지 않는다 — 카드 뒤 «이어서 …»가 실제 차례로 말한다 */
+  /* ★[GUEST_TAIL_1015 라운드 4] 두 분 목소리 판 하객 맞이 — 줄 카드 넷(입장 직후 · 10분 · 5분 · 1분 전) 뒤에 나가는 나레이션 줄(개식 선언 137 · 사진 부탁 · 화면 참석 환영)은
+     흐름 칸이 아니라 카드 뒤 꼬리(_mkFlowTail)에 실제 차례대로 — 종전엔 «예식 시작»이 카드 넷 위에 서서 차례가 거꾸로였다(④ 요약 «… · 1분 전 · 예식 시작은 나레이션»과도 달랐다) */
+  var tailFrom=(one&&k==='guest')?_mkTailFrom(st):-1;
+  if(tailFrom>-1&&!st.some(function(x,i){ return i<tailFrom&&!x.own&&!x.quiet&&!x.skip; })) return btn?'<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'</section>':'';
   /* [MK_MIN] 하객 맞이 — 줄마다 붙던 «두 분이 녹음하실 글(예시)»를 머리 아래 한 번으로 · [VOICE_KIND] 두 분 목소리 줄은 줄 머리 표가 «두 분 목소리 · 미리 준비»를 말한다 */
   var h='<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+(exN?'<p class="mk-note">'+(_upLive()?((k==='guest'||k==='entry')&&_vpCur(k)==='ai'?'두 분 목소리 줄은 «두 분 목소리 만들기»에서 목소리를 만들면 채워져요':'두 분 목소리 줄은 아래 «두 분 목소리 준비»에서 한 줄씩 준비해요'):exN>1?'두 분이 녹음하실 글(예시)이에요':'두 분 목소리 줄의 글은 녹음하실 글(예시)이에요')+'</p>':'')+'<ol class="mk-flow">';   // [VP_FLOW_CLAMP] 문이 열리면 글 전문은 아래 줄 카드가 보인다 — 흐름에선 첫 줄만
-  st.forEach(function(x,i){ if(one&&(x.own||x.quiet||x.skip)) return;   // [VP_ONE_LIST] · [R2-03]
+  st.forEach(function(x,i){ if(one&&(x.own||x.quiet||x.skip)) return; if(tailFrom>-1&&i>=tailFrom) return;   // [VP_ONE_LIST] · [R2-03] · [GUEST_TAIL_1015]
     if(x.own) x={lab:String(x.lab||'').replace(/^(두 분이 녹음하실 글\(예시\)|두 분 목소리)( · )?/,''),txt:x.txt,pending:x.pending,own:true,up:x.up,couple:x.couple};
     if(x.quiet){ h+=_qRow(x.txt); return; }
     if(x.talk){ var sets=_lRefSets(k), whos=sets.length?sets[0].map(function(p){ return p.who; }):['두 분'], hs=R.partsOf(k,S)[1]||0, each=whos.length?Math.round(hs/whos.length):0;
@@ -6849,7 +6860,7 @@ function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r
       whos=whos.filter(function(w,i){ return !i||w!==whos[i-1]; });   /* [FLOW_ONE_TURN] 같은 분이 잇달아 말하면 한 줄 */   /* ★[MK_FORM_ONE] «· 한 분 약 1분» 금지 — 2026-10-03 사용자 지시로 삭제 */   /* [R6-02] 덕담은 말할 분을 고르는 칸이 없다 — 참고 예시 1의 인물(«신랑 아버지 · 신부 어머니»)을 차례로 박으면 순서가 정해진 것처럼 읽혔다(① «한 분만 하셔도 · 다른 어른이 하셔도») · «부모님 차례»는 앞 표 «부모님»과 겹쳐 쓰지 않는다 */
       whos.forEach(function(w){ h+='<li class="t"><b>'+esc(w)+' 차례</b>'+(k==='toast'?' · 한마디':'')+_vTag(k,{talk:true})+'</li>'; }); return; }   /* ★[MK_FORM_ONE] 차례 줄 «· 약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 · 축배 «한마디»는 길이가 아니라 말의 꼴이라 둔다 */   /* [R2-30] 축배 차례만 길이가 비었다 */   /* [R4-01] 덕담 · 인사 «1분쯤씩»은 한 분 «약 1분»(_perSec) */   /* [R3-02] 한 분 시간은 ④ 요약과 같은 _sumSec — ②는 분 반올림(R.secTxt) · ④는 10초 단위라 덕담이 «약 1분 + 약 1분» ↔ «약 2분 30초»로 갈렸다 */   /* [R1-31] 차례 카드는 5초 단위 — 첫인사 한 분 13초가 «약 10초»로 내려가 바로 아래 예시(13~14초)와 어긋났다. 원천 TIME 은 명세 고정(open-course 예시 시간)이라 그대로 */
     if(x.skip){ h+=_qRow(String(x.txt||'').replace(/ · 약 \d+분(?= · |$)/,'')); return; }   /* ★[MK_FORM_ONE] 흐름 줄 «· 약 n분»(마음의 순간 영상 길이) 금지 — 2026-10-03 사용자 지시로 삭제 · 고른 길이는 바로 위 칩이 말한다 · ④ 대본(6701)은 그대로 */
-    h+='<li class="n">'+(function(w){ return '<button type="button" class="mk-pl'+(_mlOn(k+':'+i)?' on':'')+w.c+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':''); })(_mlWait(k+':'+i))+' data-ml="'+k+':'+i+'" aria-pressed="'+_mlOn(k+':'+i)+'" aria-label="'+esc((x.lab||'나레이션')+(_mlOn(k+':'+i)?' 멈추기':' 듣기'))+'" onclick="mkLine(\''+k+'\','+i+')">'+(_mlOn(k+':'+i)?ICO_STOP:ICO_PLAY)+'</button><span><span class="mk-lab">'+(x.lab?'<b class="mk-ln">'+esc(x.lab)+'</b>':'')+_vTag(k,x)+(x.pending?' · <span class="ls-new">'+esc(_pendT(x))+'</span>':'')+'</span>'+(x.own&&_upLive()?'<span class="mk-ltx1">'+esc(x.txt||'')+'</span>':esc(x.txt||''))+'</span></li>';
+    h+=_mkNarLi(k,x,i);
   });
   /* ★«1분 전 안내는 식전 영상이 끝난 뒤에 흘러요 · 다음 쪽에서» 줄 금지 — 2026-10-05 사장님 결정으로 1분 전이 영상 앞이 됐다 [ONEMIN_FIRST] */
   return h+'</ol></section>'; }
@@ -7496,8 +7507,8 @@ function _lRefDay(k,set){ if(set&&set[0]&&set[0].parent) return '당일엔 준�
    ② «이 순간 들어 보기»(작은 재생 · 크게 보기 아님)에서 사람이 말하는 자리(talk)와 영상이 흐르는 자리(skip)는 «신랑 차례 · 신부 차례» 빈 시간 대신 안내 한 줄 → 바로 다음 나레이션.
    소리는 미리 듣기 전용(당일 예식에는 없다) — 녹음(우성 · 재녹음_20261004)이 오면 TALK_BRIDGE_SRC 에 잇는다 · 그 전에는 글만 2.5초.
    ③ 연습하기 · 크게 보기는 종전대로 차례 시간을 둔다(두 분이 연습하는 자리). 코스 전체 — 첫인사 · 덕담 · 서약 · 부모님께 인사 · 편지 · 축배 · 식전 영상 · 준비한 순서 */
-var TALK_BRIDGE={welcome:'두 분이 한두 문장씩, 차례로 말하는 시간입니다.',bless:'부모님께서 직접 들려주시는 시간입니다.',vow:'두 분이 직접 서약을 읽는 시간입니다.',tribute:'두 분이 부모님께 직접 마음을 전하는 시간입니다.',letter:'두 분이 차례로, 직접 읽는 시간입니다.',toast:'두 분이 위하여를 외치면, 하객이 함께 답하는 시간입니다.',prevideo:'이 자리에는 두 분이 준비한 영상이 흐릅니다.',free:'이 자리에는 두 분이 준비한 순서가 이어집니다.',
-  'vow.thanks':'두 분이 하객께 직접 감사문을 읽는 시간입니다.','letter.parent':'두 분이 각자, 직접 읽는 시간입니다.','free.speech':'축하의 말을 직접 전해 주시는 시간입니다.',declare:'선언문을 직접 읽어 주시는 시간입니다.',song:'노래하실 분께서 직접 불러 주시는 시간입니다.'};   /* ★[BRIDGE_NO_ECHO_1014 라운드 3] 이음말은 바로 앞 여는 말이 말하지 않은 «누가 · 어떻게»만 — 여는 말의 낱말(서로에게 · 분께서 · 덕담을 · 축가를 · 부모님께 · 인사를)을 되풀이하던 여덟을 고쳤다(narr-words W13 로 이어 재서 0 · 자료 G1 원칙 4) · 녹음 전이라 다시 받을 소리 없음 */   /* [LINE_R1_1014] 축가(10/11)만 이음말이 없어 «이 순간 전체 듣기»가 소리 없이 넘어갔다 · 누가 불러도 참(W14) */   /* ★[BRIDGE_BY_PICK_1013] 고른 판과 다른 말이 나가던 셋(감사문 · 부모님께 편지 · 축사) + 선언(덕담 · 서약 · 편지와 같은 꼴) — 녹음 전엔 글만 2.5초 */
+var TALK_BRIDGE={welcome:'두 분이 한두 문장씩, 차례로 말하는 시간입니다.',bless:'부모님께서 직접 들려주시는 시간입니다.',vow:'두 분이 직접 서약을 읽는 시간입니다.',tribute:'두 분이 차례로, 직접 말씀드리는 시간입니다.',letter:'두 분이 차례로, 직접 읽는 시간입니다.',toast:'두 분이 직접 외치는 시간입니다.',prevideo:'두 분의 영상이 흐르는 시간입니다.',free:'모두가 지켜보는 시간입니다.',
+  'vow.thanks':'두 분이 직접 감사문을 읽는 시간입니다.','letter.parent':'두 분이 각자, 직접 읽는 시간입니다.','free.speech':'축하의 말을 직접 전해 주시는 시간입니다.',declare:'선언문을 직접 읽어 주시는 시간입니다.',song:'노래하실 분께서 직접 불러 주시는 시간입니다.'};   /* ★[BRIDGE_R4_1015 라운드 4] 다섯 더(부모님께 인사 · 축배 · 식전 영상 · 준비한 순서 · 감사문) — 부모님께 인사는 뒤 줄 145 «그 마음을 담아, … 부모님께 인사!»와 «마음을 · 부모님께» · 축배는 여는 말 40 둘째 문장을 말만 바꿔 되풀이 · 식전 영상 · 준비한 순서는 소개 멘트의 «준비했습니다 · 준비한 · 마련된 순서»와 · 감사문은 여는 말 133(«… 함께해 주신 분들께») 뒤 «하객께» · narr-words --engine 이 앞 줄 · 뒤 줄과 이어 잰다(BRIDGE_NEXT_1015) */   /* ★[BRIDGE_NO_ECHO_1014 라운드 3] 이음말은 바로 앞 여는 말이 말하지 않은 «누가 · 어떻게»만 — 여는 말의 낱말(서로에게 · 분께서 · 덕담을 · 축가를 · 부모님께 · 인사를)을 되풀이하던 여덟을 고쳤다(narr-words W13 로 이어 재서 0 · 자료 G1 원칙 4) · 녹음 전이라 다시 받을 소리 없음 */   /* [LINE_R1_1014] 축가(10/11)만 이음말이 없어 «이 순간 전체 듣기»가 소리 없이 넘어갔다 · 누가 불러도 참(W14) */   /* ★[BRIDGE_BY_PICK_1013] 고른 판과 다른 말이 나가던 셋(감사문 · 부모님께 편지 · 축사) + 선언(덕담 · 서약 · 편지와 같은 꼴) — 녹음 전엔 글만 2.5초 */
 function _lBridgeKey(k){ var R=RitualOpen; if(k==='vow'&&_vowKind()==='thanks') return 'vow.thanks'; if(k==='letter'&&R.chipOf('letter',S)!=='each') return 'letter.parent'; if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]==='speech') return 'free.speech'; return k; }   // [BRIDGE_BY_PICK_1013]
 var TALK_BRIDGE_SRC={};   // 녹음이 오면 {welcome:'/assets/narration/…mp3', …}
 function _lBridge(q){ var out=[]; q.forEach(function(x){ var bk=_lBridgeKey(x.k); if((x.talk||x.skip)&&TALK_BRIDGE[bk]){ var src=TALK_BRIDGE_SRC[bk]||null; out.push({k:x.k,lab:'직접 하는 자리',txt:TALK_BRIDGE[bk],src:src,pending:!src,bridge:true,ms:2500}); return; } out.push(x); }); return out; }   // [BRIDGE_BY_PICK_1013] 소리 열쇠도 판마다
@@ -9024,7 +9035,7 @@ function writeCard(kind, showStatus){
   }
   if(kind==='tribute'){   // [TRIB_CARD_OPT] 선택 칸 · [TRIB_ONE_SAY] 길이는 한마디부터 1분쯤까지 하나
     var lg=false;
-    return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'':'한마디부터 1분쯤까지')+' · 적어 두시면 카드로 인쇄해 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="부모님께 드릴 말" aria-describedby="tribCntOv" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\');_taGrow(this)" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
+    return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'':'한마디부터 1분쯤까지')+' · 적어 주시면 큰 글씨 카드로 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="부모님께 드릴 말" aria-describedby="tribCntOv" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\');_taGrow(this)" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
       +'<div class="lenhint">'+wcCntSpan('tribCnt',S.tributeText)+'</div>'+_wcOv('tribCnt',S.tributeText)
       +'<div class="prep-hint">이렇게 쓰면 쉬워요 · 부모님이 해 주신 일 한 장면 → 그때 내 마음 → 앞으로 한 줄</div></div>';   /* [WRITE_FRAME] */
   }
@@ -9244,7 +9255,7 @@ var BLOCK={
     return {n:'신랑·신부 입장',nar:eCouple?ENTRY[S.entry].self:ENTRY[S.entry].nar,self:eCouple?'두 분 목소리로 인사':null,cue:eCouple?'두 분 목소리 인사가 흐름 → 나레이션 "입장!" 큐·입장곡 → 손잡고 함께 입장':'나레이션 안내 후 "입장!" 소리 → 두 분이 손잡고 함께 걸어 들어오기'};
   },
   welcome:function(){
-    return {n:'감사 인사',nar:"신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다.",self:'두 분이 직접 인사' /* [WELCOME_KB_1014] 맺는 줄 없음(WELCOME_OUT_DROP) */,cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 나레이션 마무리가 서약으로 이어줘요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
+    return {n:'감사 인사',nar:"신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다.",self:'두 분이 직접 인사' /* [WELCOME_KB_1014] 맺는 줄 없음(WELCOME_OUT_DROP) · ★[WELCOME_CUE_OLD_1015 라운드 4] 큐 줄도 맺는 줄을 약속하지 않는다(옛 코스 화면 «인사가 끝나면 다음 순서로 이어 가요»와 같은 말) */,cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 다음 순서로 이어 가요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
   },
   vow:function(){
     return {n:'혼인 서약',nar:(_vowFirst()==='b'?"이제 두 사람이 서로에게 약속을 건넬 차례입니다. 두 분, 한 걸음씩 다가서 주세요.":"이제 두 사람이 서로에게 약속을 건넬 차례입니다. 두 분, 한 걸음씩 다가서 주세요. 신랑부터 시작하겠습니다."),self:(_vowHow()==='each'?(_vowFirst()==='b'?'신부 먼저, 신랑 다음으로 낭독 · 마지막 두 문장은 함께':'신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께'):'두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께'),   /* [VOW_FIRST] ritual-data NARR.vow.narB 사본 */both:VOWBOTH_T,end:"약속은 말로 끝나지 않습니다. 두 사람의 삶으로 이어집니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장 직전 하객 쪽으로 나란히 돌아서서 함께 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};

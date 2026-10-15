@@ -7898,7 +7898,7 @@ chk 'OPEN_DECL_1014' assets/ritual-cue.js 2          # 개식 선언(137) — �
 chk 'OPEN_DECL_1014' assets/ritual-open.js 1
 chk 'OPEN_DECL_1014' api/_ritual-kb.js 1
 chk 'OPEN_DECL_1014' scripts/audit/open-course.mjs 2
-chk "open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 오늘은 이 자리에 계신 모든 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.'" assets/ritual-open.js 1
+chk "open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 이 자리에 계신 모든 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.'" assets/ritual-open.js 1   # [OPEN_TODAY_1015 라운드 4] «오늘은» 뺐다
 chk "c.slug!=='narr-open'" order-preview.html 2        # 두 분 목소리 판이어도 개식 선언은 나레이션(두 분 줄로 바꾸지 않는다)
 chk 'CANDLE_CALL_1014' assets/ritual-cue.js 2          # 화촉 — 불을 밝힘 → 맺는 말(불을 다 밝히면 GO) → 인사 안내(138 · 139 · 1.25초 사슬) → 인사 · 자리로
 chk 'CANDLE_CALL_1014' assets/ritual-story.js 1
@@ -7985,6 +7985,44 @@ chk 'TRIB_SAY_SAFE_1014' assets/ritual-story.js 1
 chk 'HUG_HOLD_1014' assets/ritual-story.js 1          # 포옹 팁 «2~3초쯤 그대로 머물러 주세요»(자료 O · V · J)
 chk 'PHOTO_SEND_FIRST_1014' assets/ritual-cue.js 2    # 사진 보내기 안내(85) = 전체 사진 뒤 · 감사 인사 앞(라운드 1 결정 · 아침 확인 6) · 깨 보기: 85 를 빼면 open-course 빨강
 chk 'FLOW_NOW_1014' scripts/audit/narr-words.mjs 2    # --flow 는 엔진 글(실제 소리 차례)을 찍는다 · 원고 칸이 다르면 한 줄 덧붙임
+# ★★[R4_APPLY_1015 · 라운드 4 반영 2026-10-15 사장님 «개선점 없을 때까지 라운드별로» · «전부 추천대로»] 라운드 3 이 바꾼 자리를 먼저 보고 · 자료 → 우리 다시 한 번
+chk 'OPEN_WHEN_1015' assets/ritual-story.js 1          # 개식 블록 설명 = 때 · 누가만(바로 아래 137 글을 되풀이하지 않는다)
+nochk '안내 음성이 두 분과 양가를 대신해 하객분들께 감사를 전하고' assets/ritual-story.js
+chk 'OPEN_TODAY_1015' assets/ritual-open.js 1          # 137 «오늘은» 뺐다 — 식전 영상을 뺀 날 화촉 여는 말 «… 오늘은 …»과 사슬 이음 겹침
+nochk "오늘은 이 자리에 계신 모든 분이" assets/ritual-open.js
+chk 'PV_RESCUE_WORDS_1015' assets/ritual-open.js 1     # 105 «잠시 뒤» 뺐다 — 식전 영상(예식 맨 앞)에서 «잠시 뒤»는 본식 전체 뒤
+nochk "이 순서는 잠시 뒤, 사진 시간에" assets/ritual-open.js
+chk 'PRE_DIGITAL_FX_1015' assets/ritual-story.js 1     # 식전 안내 블록 fx(걷은 응답형 선언 예고의 효과 글) 걷음
+nochk "fx: '하객분들이 무엇을 하시면" assets/ritual-story.js
+chk 'WELCOME_MIC_1015' assets/ritual-story.js 1        # 감사 인사 장면에 «마이크를 손에 쥐어» 없음(MIC_PIN 8/16 «주인공은 핀»과 어긋남 · 어느 마이크든 참인 말만)
+nochk '마이크는 저희가 손에 쥐어 드려요. 안내 음성이 인사를' assets/ritual-story.js
+chk 'VOW_EACH_WHO_1015' assets/ritual-story.js 1       # 서약 «각자 차례로» 장면 «한 분이 … 다른 한 분이»(신부부터 날 틀린 말)
+nochk '신랑님이 먼저 준비하신 서약문' assets/ritual-story.js
+chk 'THANKS_SCENE_TRIM_1015' assets/ritual-story.js 2  # 감사문 두 판 장면은 블록 설명을 되풀이하지 않는다
+chk 'THANKS_EYE_1015' assets/ritual-story.js 1         # 감사문 번갈아 팁 «눈을 마주쳐»(«맞춰» 두 번)
+nochk '하객분들과 눈을 맞춰 주세요' assets/ritual-story.js
+chk 'CALM_FAR_1015' assets/ritual-story.js 1           # 덕담 · 축사 안심 «먼 곳을 보며»(부모님은 앞줄 자리 · 하객석은 등 뒤)
+chk '울컥하시면 먼 곳을 보며 숨을 한 번 고르시면 돼요.' assets/ritual-story.js 2
+nochk '하객석 뒤쪽을 보며' assets/ritual-story.js
+chk 'SPEECH_LISTEN_1015' assets/ritual-story.js 1      # 축사 듣는 두 분 = 덕담 팁과 같은 꼴 · 같은 자리(팁)
+nochk '말씀하시는 분을 바라보며 들으시면' assets/ritual-story.js
+chk 'LETTER_PRACTICE_1015' assets/ritual-story.js 1    # 편지 팁 «미리 두세 번 소리 내어 읽어 보시면 편해요.»
+chk 'SONG_HELLO_WAIT_1015' assets/ritual-cue.js 1      # 축가 디렉터 메모 — 인사 · 곡 소개가 끝나고 눈짓에 MR(고객 이야기 약속과 짝)
+chk 'BRIDGE_R4_1015' order-preview.html 1              # 이음말 다섯(부모님께 인사 · 축배 · 식전 영상 · 준비한 순서 · 감사문)
+nochk "tribute:'두 분이 부모님께 직접 마음을 전하는" order-preview.html
+nochk "toast:'두 분이 위하여를 외치면" order-preview.html
+nochk "prevideo:'이 자리에는 두 분이 준비한 영상이" order-preview.html
+chk 'BRIDGE_NEXT_1015' scripts/audit/narr-words.mjs 3  # 이음말을 뒤 줄(첫 두 문장)과도 이어 잰다 · 판마다 19개 · 깨 보기
+chk 'CHAIN_ECHO_1015' scripts/audit/narr-words.mjs 4   # 사슬로 붙는 나레이션 두 줄의 이음매(앞 끝 두 문장 + 뒤 첫 두 문장) W13 · 깨 보기
+chk 'WELCOME_CUE_OLD_1015' order-preview.html 1        # 옛 코스 감사 인사 큐 줄 — 걷은 맺는 줄을 약속하지 않는다
+nochk '나레이션 마무리가 서약으로' order-preview.html
+chk 'TRIB_CARD_SAME_1015' assets/ritual-open.js 1      # 부모님께 드릴 말 카드 말 = 감사 인사 · 서약문 · 감사문(«적어 주시면 큰 글씨 카드로 드려요»)
+chk 'TRIB_CARD_SAME_1015' order-preview.html 1
+chk 'TRIB_CARD_SAME_1015' scripts/audit/listen-page.mjs 1
+nochk '적어 두시면 카드로' assets/ritual-open.js
+nochk '적어 두시면 카드로' order-preview.html
+chk 'GUEST_TAIL_1015' order-preview.html 7             # 두 분 목소리 판 하객 맞이 — 카드 넷 뒤에 나레이션 줄(개식 선언 등) · 실제 차례대로
+chk 'GUEST_TAIL_1015' scripts/audit/listen-page.mjs 2   # 브라우저 — 개식 선언 줄이 카드 뒤 · 목소리 칸 안
 # ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
 #   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
 chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
@@ -18286,7 +18324,7 @@ nochk '3분쯤 되면 저희가' assets/ritual-story.js                         
 nochk '원고는 분당 300자' assets/ritual-open.js
 chk 'TOAST_SAY_TALK_1013' assets/ritual-open.js 1
 chk 'BRIDGE_BY_PICK_1013' order-preview.html 3
-chk "'vow.thanks':'두 분이 하객께 직접 감사문을 읽는 시간입니다.'" order-preview.html 1
+chk "'vow.thanks':'두 분이 직접 감사문을 읽는 시간입니다.'" order-preview.html 1   # [BRIDGE_R4_1015] «하객께» 걷음(여는 말 133 이 받는 분을 이미 말한다)
 chk 'KB_MATCH_SCREEN_1013' api/_ritual-kb.js 4
 nochk '편지 낭독 3방향' api/_ritual-kb.js
 nochk '나레이션이 대독하는 옵션 있음' api/_ritual-kb.js
