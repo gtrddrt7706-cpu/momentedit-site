@@ -1220,7 +1220,7 @@
            하객 맞이 묶음(PRE)이라 본식 시간에 들지 않는다 · 두 분 목소리 판이어도 이 줄은 나레이션이다(개식 감사는 진행자의 몫 · 원고 8장 8 «두 판이 같은 감사를 듣는다») */
         if (_openC) cues.push(cue({
           k: 'guest', blockN: '예식 시작', slug: 'narr-open', name: '개식 선언', text: EXTRA['narr-open'], duck: PARAM.duckSpeech,   // ★[OPEN_BLOCK_1014 라운드 3] 블록은 따로(자료 모두 개식을 한 순서로 둔다) — «하객 맞이»에 얹으면 콘솔이 하객 맞이 설명을 빌려 쓰고, 디지털 참석 날엔 식전 안내 뒤에 같은 설명 · 팁이 두 번 떴다
-          fire: 'clock', atMin: 0, note: '예식 시작 시각 · ' + (seq.indexOf('prevideo') > -1 ? '불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다' : seq.indexOf('candle') > -1 ? '다음 줄(화촉 여는 말)은 이어서 나간다' : '다음 입장은 [다음]으로(신부 준비 완료 · 문 앞 대기 확인 후)')   // ★[OPEN_MEMO_R7_1016 라운드 7] 늘 «식전 영상 소개»라던 메모를 담은 순간에 따라 — 영상을 뺀 날 틀린 말이었다
+          fire: 'clock', atMin: 0, note: '예식 시작 시각 · ' + (seq.indexOf('prevideo') > -1 ? '불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다' : seq.indexOf('candle') > -1 ? '다음 줄(화촉 시작)은 이어서 나간다' : '다음 입장은 [다음]으로(신부 준비 완료 · 문 앞 대기 확인 후)')   // ★[OPEN_MEMO_R7_1016 라운드 7] 늘 «식전 영상 소개»라던 메모를 담은 순간에 따라 — 영상을 뺀 날 틀린 말이었다 · ★[OPEN_MEMO_NAME_R8_1016 라운드 8] 괄호 안은 다음 큐의 이름 그대로(식전 영상 소개 · 화촉 시작) — 디렉터가 «다음» 줄에서 바로 찾는다
         }));
         if (seq.indexOf('prevideo') > -1) cues.push.apply(cues, BUILD.prevideo(S));   // [ONEMIN_FIRST] 공지 다음 · 입장 앞
       }
