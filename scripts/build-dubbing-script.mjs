@@ -211,10 +211,13 @@ const G = [
     ['G3-17', '감사문 · 여는 말', 'narr-thanks-in', D.NARR.thanksIn],
     /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · ENTRY_ARRIVE_1014 2026-10-14] 137 · 138 · 139 · 140 · 144 — 원고 3 · 4 · 5판 새 줄 · 문안은 RC.EXTRA(원천 ritual-open NAR · ritual-data NARR) · 진행(우성) · 2_진행_전반(G3-) */
     ['G3-18', '개식 선언 (예식 시작 시각)', 'narr-open', RC.EXTRA['narr-open']],
-    ['G3-19', '화촉 · 인사 안내 (두 분이 밝힌 날)', 'narr-candle-bow', RC.EXTRA['narr-candle-bow']],
+    ['G3-19', '화촉 · 인사 구호 (어머님 두 분이 밝힌 날)', 'narr-candle-bow', RC.EXTRA['narr-candle-bow']],
     ['G3-20', '화촉 · 인사 안내 (네 분이 밝힌 날)', 'narr-candle-bow-four', RC.EXTRA['narr-candle-bow-four']],
     ['G3-21', '화촉 맺는 말 · 입장 «격식 있게»를 고른 날', 'narr-candle-out-formal', RC.EXTRA['narr-candle-out-formal']],
     ['G3-22', '입장 받는 말 (두 분이 앞에 선 뒤)', 'narr-entry-arrive', RC.EXTRA['narr-entry-arrive']],
+    /* ★[CANDLE_CALL_SRC_1016] 146 · 147 — 화촉 인사 구호에 서는 분 이름이 들어가 판마다 한 줄(자료 G 5 · S 3 · G2 6) */
+    ['G3-23', '화촉 · 인사 구호 (아버님 두 분이 밝힌 날)', 'narr-candle-bow-fathers', RC.EXTRA['narr-candle-bow-fathers']],
+    ['G3-24', '화촉 · 인사 구호 (다른 두 분이 밝힌 날)', 'narr-candle-bow-others', RC.EXTRA['narr-candle-bow-others']],
   ], note: 'N1-a와 N1-b는 택1 · N4와 N5도 택1이다.\nN2는 하객이 듣는 마지막 소리다 · 정보를 0으로 두고 감정만 남겼으니 가장 느리게.\nN3 재생 조건: Couples 시트 digitalAttendance = Y인 날만. 예식 시작 직전(G1-4 뒤, 입장 전).\nN4는 지연 사유를 절대 말하지 않는다 · 틀고 나서 아무것도 하지 않는다(다음 큐는 디렉터 판단).\n식사·이동처럼 회장마다 달라지는 정보는 넣지 않았다 · 그 자리는 스태프 육성이 맡는다.\n★이 그룹이 왜 생겼나: 폐식(G3-15) 뒤로 단체 기록 30분 + 배웅 20분, 도합 50분을 클립 하나도 담당하지 않았다. 하객이 공간을 떠나는 순간이 실제 "엔드"인데, 그 구조는 가장 공들인 폐식 나레이션을 중간에 써 버리고 있었다.\nN4(감정)와 N5(준비)를 나눈 이유: 멈추는 사유가 두 종류이고 대응 톤이 정반대다. 오열로 멈춘 자리에 사무적인 멘트를 틀면 그 순간을 사고로 만들고, 장비 문제인데 감정 멘트를 틀면 우스워진다.\nN3가 삽입구가 아니라 독립 클립인 이유: 삽입구면 입장 6종 × 온라인 유무 = 12개로 녹음이 배가 된다. 빌더에 별도 토글도 만들지 않는다(이중 토글 폐지 지시).' },
   /* ★[AFTER_PARTY 2026-08-08] 아래 셋은 나중에 생긴 클립이라 대본에 없었다 —
      생성기가 51개만 알고 실제 클립은 75개였다. 대본을 읽는 사람은 51개가 전부인 줄 안다.

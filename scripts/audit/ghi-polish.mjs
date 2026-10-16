@@ -110,12 +110,12 @@ for (const w of [390, 1280]) {
     return { txt: li.map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return (l.className === 'q' ? '[quiet]' : '') + c.textContent; }), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
   /* [FLOW_MAKE] ② 쪽 흐름에서 «위하여»는 두 분 차례(«신랑 차례» · 글은 연습에서 흐른다) — 잔 드는 큐 바로 뒤에 온다 */
   const wi = g5c.txt.findIndex((t) => /^신랑 차례/.test(t)), pi = g5c.txt.findIndex((t) => /한 잔에 (모아요|부어요)/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
-  const ci = g5c.txt.findIndex((t) => /잔을 들어 주세요/.test(t));   /* ★[LINE_R1_1014] 케이크를 담아 둔 판도 새 코스 ②는 축배만(CAKE_OFF_1013 · #1239 «새 코스는 늘 40») — 옛 «케이크와 축배 · 잔을 들고 선창» 줄은 옛 초안에서만 */
+  const ci = g5c.txt.findIndex((t) => /축배를 드는 시간입니다|잔을 들어 주세요/.test(t));   /* [SOURCE_FIRST_1016] 축배 여는 말 = 자료 AA «…다 같이 축배를 드는 시간입니다» */   /* ★[LINE_R1_1014] 케이크를 담아 둔 판도 새 코스 ②는 축배만(CAKE_OFF_1013 · #1239 «새 코스는 늘 40») — 옛 «케이크와 축배 · 잔을 들고 선창» 줄은 옛 초안에서만 */
   ok(`${w} G5 화면 — 케이크를 담아 둔 판도 축배만 · 잔을 드는 말 → «위하여» · 케이크 · 붓기 줄 없음 [WINE_POUR_OFF · CAKE_OFF_1013]`, pi < 0 && gi < 0 && ci >= 0 && wi === ci + 1 && !g5c.txt.some((t) => /나이프|케이크/.test(t)), JSON.stringify(g5c));
   /* [EX_STD_1012] 축배만(예시 넷의 판) — 잔 드는 말(«잔을 들어 주세요») 바로 뒤가 «위하여»(신랑 차례) · 붓기 줄 없음 */
   await pg.evaluate(() => { delete S.on.cake; opSync(); mkGo('toast'); }); await pg.waitForTimeout(300);
   const g5t = await pg.evaluate(() => [...document.querySelectorAll('.mk-pg .mk-flow li')].map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return c.textContent; }));
-  const ti = g5t.findIndex((t) => /잔을 들어 주세요/.test(t)), tw = g5t.findIndex((t) => /^신랑 차례/.test(t));
+  const ti = g5t.findIndex((t) => /축배를 드는 시간입니다|잔을 들어 주세요/.test(t)), tw = g5t.findIndex((t) => /^신랑 차례/.test(t));
   ok(`${w} G5 축배만 — 잔을 드는 말 → «위하여» 순서 · 붓기 줄 없음 [EX_STD_1012 · WINE_POUR_OFF]`, ti >= 0 && tw === ti + 1 && !g5t.some((t) => /한 잔에 (모아요|부어요)/.test(t)), JSON.stringify(g5t));
   /* 옅은 줄의 색 · 재생 길이는 반지 교환 쪽(말 없이 지나가는 줄)에서 잰다 — 축배의 옅은 줄(붓기)은 걷었다 */
   await pg.evaluate(() => { S.on.ring = 1; opSync(); mkGo('ring'); render(); }); await pg.waitForTimeout(300);

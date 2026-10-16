@@ -37,13 +37,14 @@ try {
         note: (document.querySelector('.mk-vpask1') || {}).textContent || '', lab: (document.querySelector('.mk-vwl') || {}).getAttribute ? document.querySelector('.mk-vwl').getAttribute('aria-label') : '' }; });
     ok(`${w} ② 감사문 → 이름 «감사문» · 머리 설명 · 참고 예시 넷 · 맨 아래 «두 분 함께» = THANKSBOTH · 줄 칸 이름 «감사문»`, b.kind === 'thanks' && /감사문/.test(b.head) && !/혼인 서약/.test(b.head) && /감사문을 직접 읽어요/.test(b.one)
       && b.refs === 4 && JSON.stringify(b.both) === JSON.stringify(D.THANKSBOTH) && /번갈아 읽을 감사문/.test(b.lab), JSON.stringify(b));
-    ok(`${w} ② 흐름 «하객께 감사문» · «마지막 두 문장은 두 분이 함께» · 엔진 여는 말 133 하나(맺는 말 없음) · 안 고른 한 줄에 «서약» 없음`, b.steps.some((t) => /하객께 감사문을 읽어요/.test(t)) && b.steps.some((t) => t === '마지막 두 문장은 두 분이 함께 읽어요')
+    ok(`${w} ② 흐름 «하객께 감사문» · «마지막 한 문장은 두 분이 함께» · 엔진 여는 말 133 하나(맺는 말 없음) · 안 고른 한 줄에 «서약» 없음`, b.steps.some((t) => /하객께 감사문을 읽어요/.test(t)) && b.steps.some((t) => t === '마지막 한 문장은 두 분이 함께 읽어요')
       && !b.steps.some((t) => /돌아서서/.test(t)) && b.files.join() === '133_narr-thanks-in' && !/서약/.test(b.note), JSON.stringify(b.steps) + ' ' + b.files.join() + ' ' + b.note);
     await shot(pg, '.mk-one', `thanks-${w}`);
     await pg.click('[data-fk^="mkrc:vow:0"]').catch(() => {}); await wait(500);
     const c = await pg.evaluate(() => { let link = ''; try { link = RitualPreviewLink.pick(S).vowKind; } catch (e) { link = 'ERR ' + e.message; }
       return { g: String((S.tx || {})['vow.g'] || ''), b: String((S.tx || {})['vow.b'] || ''), script: scriptTextOpen(), link }; });
-    ok(`${w} ③ 예시 카드 → 두 분 글칸에 감사문 예시 · 대본 내보내기 «감사문» · 미리듣기 주소 vowKind=thanks`, /와 주신/.test(c.g + c.b) && /부모님/.test(c.g + c.b) && /\n\d+\. 감사문/.test(c.script) && /감사문/.test(c.script) && c.link === 'thanks',
+    /* [SOURCE_FIRST_1016] 감사문 예시는 자료 글 그대로(띄어쓰기 «와주신» 포함) — 띄어쓰기는 자료를 따른다 */
+    ok(`${w} ③ 예시 카드 → 두 분 글칸에 감사문 예시 · 대본 내보내기 «감사문» · 미리듣기 주소 vowKind=thanks`, /와 ?주신/.test(c.g + c.b) && /부모님/.test(c.g + c.b) && /\n\d+\. 감사문/.test(c.script) && /감사문/.test(c.script) && c.link === 'thanks',
       JSON.stringify({ g: c.g.slice(0, 40), b: c.b.slice(0, 40), link: c.link, s: (c.script.match(/.*감사문.*/g) || []).slice(0, 3) }));
     await shot(pg, '.mk-say', `thanks-filled-${w}`);
     const kept = await pg.evaluate(() => String((S.tx || {})['vow.g'] || ''));

@@ -95,12 +95,19 @@ const stemOf = (t) => {
   const m = /([가-힣]{1,6}?)(습니다|입니다|어요|에요|예요|세요|시죠|죠|겠다)[.!?]?$/.exec(t.trim());
   return m && !AUX.has(m[1]) ? m[1] : null;
 };
-let pred = 0;
+/* ★★[SOURCE_FIRST_1016 2026-10-16 사장님 «정해 놨던 것들은 전부 무시하고 자료집에 있는 멘트들을 최우선시해»]
+     자료 글 그대로 넣은 문장(docs/plans/식순연구/자료그대로_1016.json)은 서술어 반복을 세지 않는다 — 실전 대본의 정형구
+     «다음은 … 있겠습니다» · «…시작하겠습니다»는 줄마다 같은 끝을 쓴다. 우리 문장끼리의 반복은 그대로 잰다(narr-words 의 이음매와 같은 나눔). */
+const fs = require('fs');
+const srcNorm = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
+const SRC = new Set((() => { try { return (JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents || []).map((x) => srcNorm(x.text)).filter(Boolean); } catch (e) { return []; } })());
+let pred = 0, predSrc = 0;
 for (const course of Object.keys(D.COURSES)) {
   const cues = RC.build({ course }, { mode: 'console' }).cues.filter((c) => c.text);
   const seq = [];
   cues.forEach((c, i) => String(c.text).split(/(?<=[.!?])\s+/).forEach((t) => {
     const v = stemOf(t);
+    if (v && SRC.has(srcNorm(t))) { predSrc++; return; }   // [SOURCE_FIRST_1016] 자료 그대로 문장
     if (v) seq.push({ i, v, t, slug: c.slug, b: c.blockN });
   }));
   const hits = [];
@@ -131,6 +138,7 @@ if (pred > PRED_KNOWN) {
   process.exit(1);
 }
 if (pred) console.log(`\n· 이웃 큐 서술어 반복 ${pred}건 — 알려진 것(${PRED_KNOWN})과 같습니다. 결정 대기 중이라 게이트로 세지 않습니다.`);
+console.log(`· 자료 그대로 문장 ${predSrc}개(코스 합)는 서술어 반복에서 뺐다 [SOURCE_FIRST_1016]`);
 
 if (bad && !ALL) {
   console.log(`\n✗ 한 예식 안에서 블록을 건너뛰어 반복되는 구절 ${bad}건 — 하객이 «아까 그 말» 하고 알아챕니다.`);

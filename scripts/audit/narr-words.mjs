@@ -19,6 +19,8 @@
      ★[NARR_REREAD_1013 2026-10-13 사장님 «우리 대사 한 줄씩 검토해 보고 개선할 것은 없는지»] 2판에서 더한 둘 — 1판이 자를 다 통과했는데도 한 줄씩 읽으니 걸린 것
      W13 한 줄 안에 같은 말 두 번(세 글자 이상 · 끝말 · 구호 «위하여»는 빼고) — 1판 «부모님께 … 부모님께» · «남기겠습니다 … 남기겠습니다» · «반지를 … 반지를»
      W14 축가 여는 말은 누가 불러도 참 — «두 사람을 위해»는 두 분이 직접 부르는 날 틀린 말([SONG_OPEN_ANYONE_1013] · 10/11 SONG_SELF_1011 «두 분이 직접 불러도 돼요» 뒤로 1판이 놓쳤다)
+     ★★[SOURCE_FIRST_1016 2026-10-16 사장님 «정해 놨던 것들은 전부 무시하고 자료집에 있는 멘트들을 최우선시해»] 자료 그대로 넣은 문장(docs/plans/식순연구/자료그대로_1016.json)에는
+       문체 자를 대지 않는다 — 이름(W9) · 현장 단정(W6) · 전각 줄표(W11)만 잰다. 한 줄에 우리 문장과 자료 문장이 섞이면 우리 문장만 문체 자로 잰다.
    쓰는 법
      node scripts/audit/narr-words.mjs            원고 나레이션 줄(2 · 3장 표의 «3단계 글» · «대안» 칸) — 하나라도 걸리면 빨강(merge-guard)
      node scripts/audit/narr-words.mjs --engine   지금 엔진이 새 코스에서 내는 줄 전부를 같은 자로 — ★10/14 부터 merge-guard 가 막는다(NARR_ENGINE_GATE_1014 · 녹음 대기 줄만 봐준다)
@@ -43,6 +45,12 @@ const RULES = [
   ['W11', /—|[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u],
   ['W12', /(실|하실|서두르실) 것 없습니다|필요는 없습니다/],
 ];
+// [SOURCE_FIRST_1016] 자료 그대로 문장 — 문체 자(W1 ~ W5 · W7 · W8 · W10 · W12 ~ W14)를 대지 않는다 · 이름 · 현장 단정 · 줄표(ALWAYS)는 늘 잰다
+const SRC_FILE = path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json');
+const srcNorm = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
+const SRC = new Set((() => { try { return (JSON.parse(fs.readFileSync(SRC_FILE, 'utf8')).sents || []).map((x) => srcNorm(x.text)).filter(Boolean); } catch (e) { return []; } })());
+const ALWAYS = new Set(['W6', 'W9', 'W11']);
+function ownPart(text) { const ss = String(text).match(/[^.!?]+[.!?]*/g) || [String(text)]; return ss.filter((x) => !SRC.has(srcNorm(x))).join(' ').trim(); }
 const CLAP_ASK = /박수(를|로)?\s*(부탁|보내|주시|축복해|맞이해|맞아|반겨|열어|답해|청)/;
 // [NARR_REREAD_1013] W13 — 끝말(주세요 · 있습니다 …)과 구호(위하여) · 부르는 말(여러분 · 사람이 …)은 두 번 나와도 겹침이 아니다
 const TWICE_OK = /^(위하여|주세요|주십시오|있습니다|드립니다|됩니다|좋습니다|하겠습니다|바랍니다|감사드립니다|감사하겠습니다|여러분|여러분께|사람이|사람의|사람을|사람과|사람에게)$/;
@@ -53,12 +61,12 @@ function twice(text) {
 }
 const SONG_OPEN = /^narr-song$/, SONG_FOR = /(사람|분)(을|를)?\s*위해|바치/;   // [SONG_OPEN_ANYONE_1013] W14
 function judge(slug, text) {
-  const hit = [];
-  for (const [id, re] of RULES) if (re.test(text)) hit.push(id);
-  if (CLAP_ASK.test(text) && !CLAP_OK.test(slug)) hit.push('W7');
-  if ((text.match(/잠시 (후|뒤)|잠시만|잠시,|곧 /g) || []).length > 1) hit.push('W10');   // «휴대폰은 잠시 진동»의 «잠시»는 시간을 재는 말이 아니다
-  if (twice(text).length) hit.push('W13');
-  if (SONG_OPEN.test(slug) && SONG_FOR.test(text)) hit.push('W14');
+  const hit = [], mine = ownPart(text);   // [SOURCE_FIRST_1016] 자료 그대로 문장은 문체 자 밖
+  for (const [id, re] of RULES) if (re.test(ALWAYS.has(id) ? text : mine)) hit.push(id);
+  if (CLAP_ASK.test(mine) && !CLAP_OK.test(slug)) hit.push('W7');
+  if ((mine.match(/잠시 (후|뒤)|잠시만|잠시,|곧 /g) || []).length > 1) hit.push('W10');   // «휴대폰은 잠시 진동»의 «잠시»는 시간을 재는 말이 아니다
+  if (twice(mine).length) hit.push('W13');
+  if (SONG_OPEN.test(slug) && SONG_FOR.test(mine)) hit.push('W14');
   return hit;
 }
 
@@ -111,7 +119,7 @@ function engineLines() {
    이음매 밖의 되풀이(예: 사진 보내기 85 → 감사 인사 45 의 다섯째 문장 «받으신 안내 페이지»)는 기능 이름을 같게 부르는 것이라 재지 않는다 */
 const sents = (t) => (String(t).match(/[^.!?]+[.!?]+/g) || [String(t)]).map((x) => x.trim()).filter(Boolean);
 const head2 = (t) => sents(t).slice(0, 2).join(' '), tail2 = (t) => sents(t).slice(-2).join(' ');
-function junction(a, b) { const A = tail2(a), B = head2(b), own = new Set([...twice(A), ...twice(B)]); return twice(A + ' ' + B).filter((w) => !own.has(w)); }
+function junction(a, b) { const A = tail2(ownPart(a)), B = head2(ownPart(b)), own = new Set([...twice(A), ...twice(B)]); return twice(A + ' ' + B).filter((w) => !own.has(w)); }   // [SOURCE_FIRST_1016] 자료 그대로 문장은 이음매 자 밖
 function chainEchoes() {
   const out = new Map();
   forCombos((cues) => { for (let i = 1; i < cues.length; i++) { const a = cues[i - 1], b = cues[i]; if (b.fire !== 'chain' || a.live || !a.text || !b.text) continue;
@@ -135,7 +143,7 @@ function bridgePairs() {
   for (const [key, ex] of V) { const k = key.split('.')[0], br = TB[key]; if (!br) continue;
     const S = O.sampleS(); S.on = Object.assign({}, S.on, { [k]: 1 }); Object.assign(S, ex);
     const cs = C.build(S, { mode: 'preview' }).cues.filter((c) => c.k === k), li = cs.findIndex((c) => c.live), lv = cs[li], nx = li > -1 ? cs[li + 1] : null;
-    if (lv) out.push({ key: key + (Object.keys(ex).length ? ' ' + JSON.stringify(ex) : ''), nar: lv.text, br, nx: nx ? head2(nx.text) : '', hit: [...new Set([...twice(lv.text + ' ' + br), ...(nx ? junction(br, nx.text) : [])])] }); }
+    if (lv) out.push({ key: key + (Object.keys(ex).length ? ' ' + JSON.stringify(ex) : ''), nar: lv.text, br, nx: nx ? head2(nx.text) : '', hit: [...new Set([...twice(ownPart(lv.text) + ' ' + br), ...(nx ? junction(br, nx.text) : [])])] }); }   /* [SOURCE_FIRST_1016] */
   return out;
 }
 
@@ -161,6 +169,12 @@ if (arg === '--selftest') {
   ok('[CHAIN_ECHO_1015] 깨 보기 — 이음매 밖(앞 줄 첫 문장)의 같은 말은 재지 않는다', junction('신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 이 자리에 계신 모든 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.', '양가를 대표하는 두 분께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다.').length === 0);
   ok('[BRIDGE_NEXT_1015] 깨 보기 — 옛 부모님께 인사 이음말은 뒤 줄 145 와 이어 W13', junction('두 분이 부모님께 직접 마음을 전하는 시간입니다.', '그 마음을 담아, 신랑 신부, 양가 부모님께 인사!').length > 0);
   ok('[BRIDGE_NO_ECHO_1014] 깨 보기 — 옛 감사 인사 이음말은 여는 말과 이어 W13(«인사를»)', twice('신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다. 두 분이 하객께 직접 감사 인사를 드리는 시간입니다.').includes('인사를'));
+  { const t = '하객 여러분께서는 자리에 착석해 주시길 바랍니다.', had = SRC.has(srcNorm(t)); SRC.add(srcNorm(t));
+    ok('[SOURCE_FIRST_1016] 깨 보기 — 자료 그대로 문장은 문체 자(W2 통제어)에 걸리지 않는다', !judge('guest-1-arrival', t).includes('W2'));
+    ok('[SOURCE_FIRST_1016] 깨 보기 — 같은 줄에 붙은 우리 문장은 그대로 잰다', judge('guest-1-arrival', t + ' 기다리시는 동안, 편안히 머물러 주십시오.').includes('W8'));
+    const n = '신랑 이서준 군과 신부 정하윤 양의 결혼식을 시작하겠습니다.'; SRC.add(srcNorm(n));
+    ok('[SOURCE_FIRST_1016] 깨 보기 — 자료 그대로여도 이름(W9)은 늘 잰다', judge('narr-open', n).includes('W9'));
+    if (!had) SRC.delete(srcNorm(t)); SRC.delete(srcNorm(n)); }
   const doc = '## 2. 나레이션\n| 번호 · 자리 | 지금 | 3단계 글 | 근거 | 녹음 |\n|---|---|---|---|---|\n| 01 guest-1-arrival | x | 기다리시는 동안, 편안히 머물러 주십시오. | x | x |\n';
   ok('[NARR_WORDS_1013] 깨 보기 — 원고 표에 걸리는 줄을 넣으면 읽어서 잡는다', readDoc(doc).some((r) => judge(r.slug, r.text).includes('W8')));
   ok('[NARR_WORDS_1013] 깨 보기 — 표를 못 읽으면(0줄) 통과가 아니다', readDoc('## 2. 나레이션\n아무 표도 없음\n').length === 0);

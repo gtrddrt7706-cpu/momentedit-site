@@ -198,6 +198,9 @@ const chorus = [];
   const ids = ['24_vow-both-1', '25_vow-both-2', '26_vow-both'];
   if (!want) chorus.push(`ritual-data.js 의 VOWBOTH 가 비어 있습니다`);
   else for (const id of ids) {
+    /* ★[CHORUS_MUTED_1016] [CAST_TEXT_ONLY 2026-09-27] 합창 셋(24 · 25 · 26)은 미리 듣기 · 연습 어디에서도 틀지 않는다(Story.CAST_MUTE) — 화면에 뜨는 글과 견줄 «들리는 소리»가 없다.
+       10/16 VOWBOTH 가 자료 서약서 MMW_03 함께 줄로 바뀌어(SOURCE_FIRST_1016) 옛 녹음과 달라졌다 · 다시 틀게 되면(CAST_MUTE 에서 빼면) 이 대조가 다시 문다 */
+    if (Story.CAST_MUTE && Story.CAST_MUTE[id]) continue;
     const got = SAY.get(CST + '|' + id);
     if (!got) chorus.push(`대본에 ${id} 이 없습니다 — node scripts/build-typecast-import.mjs 를 다시 도세요`);
     else if (norm(got.text) !== norm(want)) chorus.push(`${id} 의 대본이 VOWBOTH 와 다릅니다\n    화면 "${want}"\n    소리 "${got.text}"`);
