@@ -84,6 +84,17 @@ chk(){ _ran=$((_ran+1)); case "$3" in ''|*[!0-9]*) echo "REVERT? merge-guard: ch
 #   게이트는 **그대로 초록**이었다(실측 — 내가 410행대에 두 줄 넣었다가 당했다).
 #   쓰는 자리가 정의보다 위면 그 검사는 안 쏜 화살이 된다(★11-c). 정의를 위로 올려 그 창을 없앤다.
 nochk(){ case "${3:-0}" in ''|*[!0-9]*) echo "REVERT? merge-guard: nochk '$1' $2 — 셋째 인자 '$3' 가 정수가 아니다 · 그 줄은 조용히 초록이 된다(CHK_ARG_SPACE)"; fail=1; return;; esac; n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' ${n}개 (한도 ${3:-0})"; fi; }
+# ★★[SCRIPT_SYNTAX_1016 2026-10-16] 검사 스크립트 «자체»의 문법을 맨 먼저 본다 — scripts/audit/script-syntax.cjs(한 프로세스 · 1초 안).
+#   왜 — 검사 파일이 문법 오류로 바로 끝나면(종료 코드 1) 아래 그 검사 줄이 «○○ 기준이 깨졌습니다»로 빨개진다.
+#   검사는 돌지도 않았는데 화면 쪽 실패로 읽힌다 — PR #1256 에서 rec-upload.mjs 의 꼬리 // 주석이 같은 줄의 닫는 괄호를 먹었고,
+#   로컬에선 «main 에도 빨간 화면 검사»로 잘못 읽었다(CI 가 잡음). 여기서 «어느 파일 · 무슨 오류»를 먼저 찍는다.
+#   일부러 깨진 글 둘(꼬리 주석이 괄호 · 쉼표를 먹은 꼴)로 자기를 시험한다 — 못 잡으면 빨강.
+if command -v node >/dev/null 2>&1; then
+  if _so=$(node --no-warnings --experimental-vm-modules scripts/audit/script-syntax.cjs 2>&1); then echo "ok $(echo "$_so" | tail -1) [SCRIPT_SYNTAX_1016]"
+  else echo "$_so" | grep '^BAD ' | sed 's/^BAD /FAIL 검사 스크립트 문법 — /; s/$/ [SCRIPT_SYNTAX_1016]/'; echo "$_so" | grep -q '^BAD ' || echo "FAIL 검사 스크립트 문법 검사가 돌지 못했다 — $(echo "$_so" | head -2 | tr '\n' ' ')[SCRIPT_SYNTAX_1016]"; fail=1; fi
+fi
+chk 'SCRIPT_SYNTAX_1016' automation/tests/merge-guard.sh 5
+chk 'SCRIPT_SYNTAX_1016' scripts/audit/script-syntax.cjs 1
 # ── 2026-07-18 위저드·대시보드 수정 마커
 chk '_t04prev' mypage.html 2                       # 04 호칭 복원
 chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 발행 차단
@@ -15754,6 +15765,7 @@ chk 'function _lsToast(msg,act,forId)' order-preview.html 1   # [OFF_TOAST 10/09
 chk 'function _chgSmall(b0,b1)' order-preview.html 1
 chk 'var CHG_LIM=24;' order-preview.html 1
 chk 'CHIP_FEW_WORDS' order-preview.html 3
+chk 'CHG_NO_PEND_1016' order-preview.html 3   # [SOURCE_FIRST_1016] 칩 알림은 녹음 대기 꼬리표를 빼고 잰다(«말 없이» 알림이 사라졌던 자리) · note-toast · chip-toast 가 잰다
 chk "if(LP.big&&k) return _lSteps(ENG,\[k\])" order-preview.html 1
 chk "#lsFull:not(\[hidden\]) .lf-ctl" order-preview.html 1
 chk '#lsToast{z-index:2147482100}' order-preview.html 1

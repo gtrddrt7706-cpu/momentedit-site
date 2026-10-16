@@ -30,8 +30,8 @@ try {
     await shot(pg, '.mk-say', `alt-empty-${w}`);
     await pg.click('[data-fk^="mkrc:vow:0"]').catch(() => {}); await wait(400);
     const b = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const both = [...document.querySelectorAll('.mk-vwboth .mk-vwfix')].map((r) => r.textContent); const bl = (document.querySelector('.mk-vwboth .mk-vwn') || {}).textContent;
-      return { rows, both, bl, add: !!document.querySelector('[data-fk="mkvwadd"]'), cue: document.querySelectorAll('.mk-say .mk-cue').length, hint: !!document.querySelector('.mk-say>.prep-hint'), alt: !!document.querySelector('.mk-txalt') }; });
-    ok(`${w} ② 번갈아 · 예시 → 신랑 · 신부 번갈아 · ＋ 줄 더하기 · 맨 아래 두 분 함께 둘 · 위 안내 줄 · 아래 안내 줄 없음`, b.rows.length >= 4 && b.rows[0] === '신랑' && b.rows[1] === '신부' && b.rows[2] === '신랑' && b.both.length === 2 && b.bl === '두 분 함께' && /꼭 지키겠습니다/.test(b.both[0]) && b.add && !b.hint && !b.alt, JSON.stringify(b));
+      return { rows, both, vb: VOWBOTH.slice(), bl, add: !!document.querySelector('[data-fk="mkvwadd"]'), cue: document.querySelectorAll('.mk-say .mk-cue').length, hint: !!document.querySelector('.mk-say>.prep-hint'), alt: !!document.querySelector('.mk-txalt') }; });
+    ok(`${w} ② 번갈아 · 예시 → 신랑 · 신부 번갈아 · ＋ 줄 더하기 · 맨 아래 두 분 함께(원천 VOWBOTH 그대로) · 위 안내 줄 · 아래 안내 줄 없음`, b.rows.length >= 4 && b.rows[0] === '신랑' && b.rows[1] === '신부' && b.rows[2] === '신랑' && b.both.length >= 1 && b.both.join('|') === b.vb.join('|') /* [SOURCE_FIRST_1016] 함께 읽는 끝 문장은 자료 그대로 한 문장 — 줄 수 · 낱말을 박지 않고 원천과 같은지 본다 */ && b.bl === '두 분 함께' && b.add && !b.hint && !b.alt, JSON.stringify(b));
     await shot(pg, '.mk-say', `alt-${w}`);
     await pg.click('[data-fk="lsc:vowFirst:b"]'); await wait(600);
     const c = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const flow = [...document.querySelectorAll('.mk-flowsec li.t b')].map((x) => x.textContent);

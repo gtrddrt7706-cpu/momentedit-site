@@ -107,13 +107,14 @@ try {
     ok(`${w} 멈춰도 말하는 차례엔 막대 자리가 남는다 [TBAR_ALWAYS]`, await pg.evaluate(() => LP.paused && !!document.querySelector('#lsFull .lf-tbar.still')));
     await pg.evaluate(() => lsStop()); await wait(300);
     // [PT_PREP_RETRY] 준비 중 실패 → 한 번 더 → 그래도 실패면 그 차례는 기다리지 않는다
-    await pg.evaluate(() => { RitualOpen.FEATURE.practiceTts = true; try { localStorage.setItem('me_ptts_ok', '1'); } catch (e) {} PT.mode = 'ai'; PT.prep = null; PT.failH = {}; for (const k in PT.url) delete PT.url[k]; window.__n = {};
-      _vc0 = (op, d) => { const h = d.text; window.__n[h] = (window.__n[h] || 0) + 1; const bad = /하윤아|서준아/.test(h); return new Promise((ok) => setTimeout(() => ok(bad ? { ok: false, down: true, error: 'x' } : { ok: true, mime: 'audio/mpeg', data: btoa('MP3') }), 80)); }; render(); });
+    await pg.evaluate(() => { RitualOpen.FEATURE.practiceTts = true; try { localStorage.setItem('me_ptts_ok', '1'); } catch (e) {} PT.mode = 'ai'; PT.prep = null; PT.failH = {}; for (const k in PT.url) delete PT.url[k]; window.__n = {}; window.__bad = null;
+      /* [SOURCE_FIRST_1016] 서약 예시가 자료 글로 바뀌어 이름(하윤아 · 서준아)이 없을 수 있다 — 이름 대신 «처음 만들러 온 차례 글»을 실패시킨다 */
+      _vc0 = (op, d) => { const h = d.text; window.__n[h] = (window.__n[h] || 0) + 1; if (window.__bad == null) window.__bad = h; const bad = h === window.__bad; return new Promise((ok) => setTimeout(() => ok(bad ? { ok: false, down: true, error: 'x' } : { ok: true, mime: 'audio/mpeg', data: btoa('MP3') }), 80)); }; render(); });
     for (let t = 0; t < 40; t++) { await wait(250); if (await pg.evaluate(() => PT.prep && !PT.prep.run)) break; }
-    const rp = await pg.evaluate(() => ({ run: PT.prep.run, fail: PT.prep.fail, tries: Object.entries(window.__n).filter(([k]) => /하윤아|서준아/.test(k)).map(([, v]) => v), fh: Object.keys(PT.failH).length, txt: (document.getElementById('prPrep') || {}).textContent || '' }));
+    const rp = await pg.evaluate(() => ({ run: PT.prep.run, fail: PT.prep.fail, tries: Object.entries(window.__n).filter(([k]) => k === window.__bad).map(([, v]) => v), fh: Object.keys(PT.failH).length, txt: (document.getElementById('prPrep') || {}).textContent || '' }));
     ok(`${w} 준비 중 실패한 차례는 한 번 더 · 그래도 못 만들면 수를 알린다 [PT_PREP_RETRY]`, !rp.run && rp.fail >= 1 && rp.tries.every((n) => n === 2) && rp.fh === rp.fail && /만들지 못/.test(rp.txt) /* [PT_PREP_WORD] */, JSON.stringify(rp));
     await pg.evaluate(() => { prFrom('vow', 1); }); await wait(400);
-    const rp2 = await pg.evaluate(() => { const j = LP.q.findIndex((x) => x.talk2 && /하윤아|서준아/.test(x.txt)); if (j > -1) { LP.i = j; LP.paused = false; _lShow(); } return { load: LP.loadK, err: (document.querySelector('#lsFull .lf-state') || {}).textContent || '', found: j }; });
+    const rp2 = await pg.evaluate(() => { const nz = (s) => String(s || '').replace(/[«»]/g, '').replace(/\s+/g, ' ').trim(), b = nz(window.__bad); const j = LP.q.findIndex((x) => x.talk2 && !!b && (nz(x.txt) === b || b.indexOf(nz(x.txt).slice(0, 12)) === 0 || nz(x.txt).indexOf(b.slice(0, 12)) === 0)); if (j > -1) { LP.i = j; LP.paused = false; _lShow(); } return { load: LP.loadK, err: (document.querySelector('#lsFull .lf-state') || {}).textContent || '', found: j }; });
     ok(`${w} 못 만든 차례에 와도 «만드는 중»으로 기다리지 않는다 · 글을 보며 읽기 안내`, rp2.found > -1 && !rp2.load && /만들지 못했어요/.test(rp2.err), JSON.stringify(rp2));
     await pg.evaluate(() => { lsStop(); PT.mode = 'self'; RitualOpen.FEATURE.practiceTts = false; });
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));

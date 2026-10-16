@@ -484,7 +484,8 @@ async function open(w) {
     /* ⓔ 재생 막힘(M7) → 한 줄 · 누르면 그 손가락 안에서 소리 요소를 푼다 */
     cx = await openC('', () => { const P = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.id === 'aNarr' && window.__block !== false && !/^data:/.test(this.getAttribute('src') || '')) return Promise.reject(new DOMException('blocked', 'NotAllowedError')); return P.apply(this, arguments); }; });
     await cx.pg.click('#giGo');
-    let m7 = false; for (let i = 0; i < 24 && !m7; i++) { await cx.pg.waitForTimeout(500); m7 = await cx.pg.evaluate(() => { const w = document.getElementById('gWhy'); return !!(w && !w.hidden && /M7/.test(w.textContent)); }); if (!m7 && i % 6 === 5) await cx.pg.evaluate(() => { const b0 = document.getElementById('mBtn'); if (b0) b0.click(); }); }
+    /* [SOURCE_FIRST_1016] 앞쪽 줄(하객 맞이 넷 등)이 다시 받는 중이라 글만 흐르면 소리 재생이 늦게 온다 — «다음 순서로»(mBtn · pointerup 이 mainTap · click 은 안 먹는다)를 2초마다 눌러 소리 있는 줄까지 넘긴다 · 넉넉히 20초 */
+    let m7 = false; for (let i = 0; i < 40 && !m7; i++) { await cx.pg.waitForTimeout(500); m7 = await cx.pg.evaluate(() => { const w = document.getElementById('gWhy'); return !!(w && !w.hidden && /M7/.test(w.textContent)); }); if (!m7 && i % 4 === 3) await cx.pg.evaluate(() => { const b0 = document.getElementById('mBtn'); if (b0) { b0.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); b0.dispatchEvent(new PointerEvent('pointerup', { bubbles: true })); } }); }
     const e = await cx.pg.evaluate(() => (document.getElementById('gWhy') || {}).textContent || '');
     await cx.pg.evaluate(() => { window.__block = false; document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); });
     await cx.pg.waitForTimeout(250);

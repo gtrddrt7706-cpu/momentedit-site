@@ -87,9 +87,12 @@ else {
     const pg = await br.newPage(); await pg.goto(`http://127.0.0.1:${port}/__blank`);
     for (const s of ['assets/ritual-data.js', 'assets/rec-process.js', 'assets/entry-scene.js']) await pg.addScriptTag({ url: `http://127.0.0.1:${port}/${s}` });
     const res = await pg.evaluate(async () => { const ES = window.EntryScene, files = { A: '05_entry-A', B: '06_entry-B', C: '07_entry-C', D: '08_entry-D', E: '09_entry-E', F: '10_entry-F' }, out = {};
+      /* ★[SOURCE_FIRST_1016] 문장 수는 «그 녹음에 실제로 든 글»(_recorded.json)로 센다 — 입장 멘트가 자료 글로 바뀌어 다시 받는 중이면 지금 글과 옛 녹음의 문장 수가 달라
+         «입장!»을 엉뚱한 마디에서 찾았다(B · D). 화면은 녹음 글 ≠ 지금 글이면 그 녹음을 틀지 않는다(_lHasSound) · 이 검사는 엔진이 실제 녹음의 쉼을 다루는지를 잰다 */
+      const recJ = await (await fetch('/assets/audio/narration/_recorded.json')).json().catch(() => ({ clips: {} })), recT = (f) => { const v = (recJ.clips || {})[f]; return v == null ? '' : (typeof v === 'string' ? v : String(v.text || '')); };
       for (const k of Object.keys(files)) {
         const ab = await (await fetch('/assets/audio/narration/' + files[k] + '.mp3')).arrayBuffer(), dc = new OfflineAudioContext(1, 1, 24000), b = await dc.decodeAudioData(ab);
-        const n = ES.sentN(ENTRY[k].nar), V0 = ES.prepVoice(b, n, true), P = V0.pieces, x = ES.mono(b), sr = b.sampleRate, q = P.length - 2, I = (s) => Math.round(s * sr);
+        const n = ES.sentN(recT(files[k]) || ENTRY[k].nar), V0 = ES.prepVoice(b, n, true), P = V0.pieces, x = ES.mono(b), sr = b.sampleRate, q = P.length - 2, I = (s) => Math.round(s * sr);
         const pe = ES.edgeTrimIdx(x, I(P[q].a), I(P[q].a + P[q].d), sr, 'end')[1] / sr, ls = ES.edgeTrimIdx(x, I(P[q + 1].a), I(P[q + 1].a + P[q + 1].d), sr, 'start')[0] / sr, segs = ES.voiceSegs(V0);
         const at = (f) => { for (let i = segs.length - 1; i >= 0; i--) if (f >= segs[i].a - 1e-9) return segs[i].t + (f - segs[i].a); return f - segs[0].a; };
         const PL = ES.plan(V0, { dur: 200, gain: 1, buf: null }, 60), len = PL.V + 0.5, oc = new OfflineAudioContext(1, Math.ceil(len * 24000), 24000);

@@ -7368,13 +7368,19 @@ window.lsChip=function(key,v){
 function _chgRows(){ return [].slice.call(document.querySelectorAll('#stage .mk-flow > li, #stage .mk-vcards .mk-vtx, #stage .mk-sec .mk-vlist:not(.mk-vcards) > li')); }   // 흐름 줄 · AI 줄 글 · 부탁드릴 것(«양가 어머님께서 불을 밝혀 주세요»)
 function _chgSnap(k){ try{ var t=function(x){ return String(x||'').replace(/[«»]/g,'').replace(/\s+/g,' ').trim(); };   /* [CHIP_TOAST] «»는 그린 뒤 굵은 글씨로 바뀐다(GUIL_OFF · 다음 틈) — 바뀌기 전 · 뒤를 같은 글로 읽게 걷는다(안 고른 기본 «이야기처럼»을 처음 고를 때 헛알림이 났다) */
     if(LP.big&&k) return _lSteps(ENG,[k]).map(function(x){ return t(x.txt); }).filter(Boolean);   /* [CHIP_TOAST] 크게 보기 = 그 순간의 줄 글(칩을 바꾸면 첫 줄로 돌아가 «보이는 한 줄»끼리는 비교가 안 된다) */
-    return _chgRows().map(function(e){ return t(e.textContent); }); }catch(e){ return null; } }
+    return _chgRows().map(function(e){ return t(_chgTxt(e)); }); }catch(e){ return null; } }   /* [CHG_NO_PEND_1016] */
+/* ★[CHG_NO_PEND_1016 2026-10-16] 녹음 대기 꼬리표(.ls-new · «녹음 전이라 글로 먼저 보여 드려요» · 못 불러온 까닭)는 빼고 잰다 — 앞뒤 판에 똑같이 붙어도
+   이름표와 글 사이에 끼어 «바뀐 가운데»를 늘린다. 자료 글로 바꾸며 녹음 대기 줄이 늘자 단어 하나만 바뀐 칩(부모님께 인사 «말 없이»)을 «크게 바뀜»으로 읽어 알림이 사라졌다.
+   꼬리표와 그 앞 « · »를 걷은 글로 비교한다(화면은 그대로) */
+function _chgTxt(e){ var c=e.cloneNode(true); [].forEach.call(c.querySelectorAll('.ls-new'),function(n){ var p=n.previousSibling; if(p&&p.nodeType===3) p.nodeValue=p.nodeValue.replace(/\s*·\s*$/,''); n.parentNode.removeChild(n); }); return c.textContent; }
 /* [CHIP_CHANGED] 작은 바뀜만 알린다 — 글이 크게 바뀌면 눈에 보이므로 말을 보태지 않는다(사장님 «다른 것들은 글들이 크게 바뀌니깐 알 수 있는데 단어 하나만 바뀌는 것들은»)
    ★★[CHIP_FEW_WORDS 2026-10-08 사장님 «단어 몇 개만 바뀌면 고객이 뭐가 바뀌었나 헷갈릴 거 같아서 · 확실하게 · 다른 이벤트들 써먹을 만한 곳들도 있으면»]
      «작은 바뀜» = 단어 몇 개 — 바뀐 줄마다 앞뒤 같은 글을 걷은 가운데가 24자 안(CHG_LIM). 종전 8자는 화촉 «다른 두 분»(«양가 어머님께서» → «양가를 대표하는 두 분께서» · 21자)을 놓쳤다.
      줄 수가 달라져도 짧은 줄(24자 안)이 생기고 사라지거나 한 줄이 둘로 갈리는 정도면 작다 — 서약 «각자 차례로» · 부모님께 인사 «말 없이».
      전 순간 칩 실측(2026-10-08): 알림 = 화촉 서는 분 셋 · 서약 먼저 읽는 분 · 읽는 방식 · 부모님께 인사 «말 없이» · 준비한 순서 길이 /
-     말 안 함(문장이 통째로 바뀐다) = 입장 멘트 · 성혼 선언 말투 · 하객 박수 · 가족 낭독 · 편지 받는 분 · 준비한 순서 무엇을 */
+     말 안 함(문장이 통째로 바뀐다) = 입장 멘트 · 성혼 선언 말투 · 하객 박수 · 가족 낭독 · 편지 받는 분 · 준비한 순서 무엇을
+     ★[SOURCE_FIRST_1016] 화촉 서는 분도 이제 «말 안 함» — 어머님 판 여는 말이 자료 글(FF 1-2 어머님 이야기) 그대로라 서는 분을 바꾸면 여는 말이 통째로 바뀐다(눈에 보인다).
+       서약 «먼저 읽는 분 · 읽는 방식» · 부모님께 인사 «말 없이»는 그대로 알린다(녹음 대기 꼬리표는 빼고 잰다 · CHG_NO_PEND_1016) */
 var CHG_LIM=24;   // [CHIP_FEW_WORDS] «단어 몇 개»
 function _chgDiff(a,b){ var i=0, j=0, n=Math.min(a.length,b.length); while(i<n&&a[i]===b[i]) i++; while(j<n-i&&a[a.length-1-j]===b[b.length-1-j]) j++; return Math.max(a.length-i-j,b.length-i-j); }
 /* [CHIP_FEW_WORDS] 앞 글(b0) → 뒤 글(b1)이 «단어 몇 개»만 바뀌었나 — 사라진 줄 · 생긴 줄마다 «짧거나(24자 안) · 짝이 되는 줄과 24자 안으로만 다른가» */

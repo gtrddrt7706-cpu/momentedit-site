@@ -108,6 +108,13 @@ async function toEntry(f) {
     if (!pickE) console.log('note rec-song-ui: 소리가 있는 입장 멘트 판이 없다(전부 녹음 대기)');
     await f.waitForTimeout(400);
   }
+  /* ★[SOURCE_FIRST_1016] 입장 멘트 여섯 판이 모두 자료 글로 바뀌어 다시 받는 중이면(녹음 글 ≠ 지금 글) 소리 있는 판이 없다 — 시험용 소리(옛 입장 녹음 05_entry-A)를 걸어
+     장면 기계를 잰다(entry-music.mjs 와 같은 방식 · S 를 건드리지 않는다 · 받으면 위 고르기가 그 판을 쓴다) */
+  await f.evaluate(() => { if (window.__emStand) return; const F = { A: '05_entry-A', B: '06_entry-B', C: '07_entry-C', D: '08_entry-D', E: '09_entry-E', F: '10_entry-F' };
+    if (Object.keys(F).some((k) => ENTRY[k] && _lHasSound(F[k], ENTRY[k].nar))) return;
+    window.__emStand = 1; const L0 = window._lSteps; window._lSteps = function (e, ks) { const a = L0.apply(this, arguments); if (ks && ks.length === 1 && ks[0] === 'entry') a.forEach((x) => { if (/^entry-[A-F]$/.test(x.slug || '') && !x.src) { x.src = '/assets/audio/narration/05_entry-A.mp3'; x.pending = false; } }); return a; };
+    try { render(); } catch (x) {} });
+  await f.waitForTimeout(300);
   return f.evaluate(() => !!document.querySelector('.ls-mu'));
 }
 const HL = (pg) => pg.evaluate(() => H.log.slice());
