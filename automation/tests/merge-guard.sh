@@ -8152,6 +8152,15 @@ chk 'REDUB_BYVOICE' scripts/build-redub-byvoice.mjs 1
 chk '_recorded.json' scripts/build-redub-byvoice.mjs 1
 chk 'RETIRED.has' scripts/build-redub-byvoice.mjs 1
 chk '다시받기' scripts/build-redub-byvoice.mjs 2
+# ★★[RECORD_ONE_LIST 2026-10-16 사장님 «추천대로 녹음해서 올릴게 · 근데 케익커팅은 없애기로 했잖아»] 녹음할 목록은 다시받기/ 하나
+#   «받으실 목록은 9판»이라고 안내했더니 타입캐스트에 남은 10/13 목록(나이프 줄 포함 · 이미 받은 녹음)을 다시 받으셨다.
+#   옛 붙여넣기 판(75문장_다시받기 · 10/08)에도 케이크 줄이 남아 있었다. 다시받기 = 소리 기준 전부 · 케이크 커팅(CAKE_OFF_1013) 줄 없음.
+#   ★케이크 클립(41 · 42 · 77) 글을 고치면 여기서 빨개진다 — 옛 초안 전용이다. 꼭 고치려면 생성기와 redub-covers 에 같은 거르기를 넣는다.
+chk 'RECORD_ONE_LIST' scripts/build-redub-byvoice.mjs 1
+chk '녹음할 것은 이 폴더의 성우별 파일이 전부입니다' 'docs/plans/식순연구/타입캐스트/다시받기/README.md' 1
+for _rf in docs/plans/식순연구/타입캐스트/다시받기/*.txt; do nochk '케이크\|나이프' "$_rf"; done
+if [ -e 'docs/plans/식순연구/타입캐스트/75문장_다시받기' ]; then echo "REVERT? 옛 붙여넣기 폴더 75문장_다시받기 가 되살아났다(10/08 판 · 케이크 줄) — 녹음 목록은 다시받기/ 하나 [RECORD_ONE_LIST]"; fail=1; else echo "ok 옛 붙여넣기 폴더 75문장_다시받기 없음 [RECORD_ONE_LIST]"; fi
+chk 'RECORD_ONE_LIST' 'docs/plans/식순연구/3단계_원고_1013.md' 3
 
 # ★★[LETTER_REAL 2026-09-11 사장님 지적 "편지부분 너무 오글거리게 아침드라마 처럼말고 요즘 스타일로"]
 #   병렬 조사 4건 뒤 편지·서약·덕담 8클립을 다시 썼다. 되돌리지 말 것 — 출처가 특정된 클리셰다.
