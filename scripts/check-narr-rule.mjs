@@ -43,7 +43,7 @@ const REPORT = process.argv.includes('--report');
    고객 예시(EXVOW·EXLETTER·EXWEL·ENTRY[].self)는 **다른 기준(C1~C5)** 이라 여기 안 넣는다.
    라벨(d·nm)·연출 안내(how·prep·cue)도 스피커로 안 나간다. */
 const NAR_KEYS = new Set(['nar', 'end', 'endLong']);
-const WHOLE = new Set(['NARR', 'VOWBOTH', 'THANKSBOTH', 'NARR_CONSOLE_ONLY']);   // 통째로 나레이션인 가지 · [THANKS_IN_VOW] 감사문 마지막 두 문장도 VOWBOTH 와 같은 자
+const WHOLE = new Set(['NARR', 'VOWBOTH', 'THANKSBOTH', 'NARR_CONSOLE_ONLY']);   // 통째로 나레이션인 가지 · [THANKS_IN_VOW] 감사문 마지막 한 문장도 VOWBOTH 와 같은 자
 const SKIP_TOP = new Set(['EXVOW', 'EXLETTER', 'EXWEL', 'MIN', 'DAY', 'ENTRY_ALT', 'PHOTOCUE']);
 
 const corpus = [];
@@ -92,6 +92,15 @@ const PERF_CANON = '이제 두 사람은 부부입니다';
 const PERF_SNIFF = /부부(입니다|가 되었습니다|가 됩니다)/;
 const isDeclare = (id) => /^(DECLARE|DECLWHO)\./.test(id);
 
+/* ★★[SOURCE_FIRST_1016 2026-10-16 사장님 «정해 놨던 것들은 전부 무시하고 자료집에 있는 멘트들을 최우선시해»]
+   자료 그대로 넣은 문장(docs/plans/식순연구/자료그대로_1016.json)은 우리가 정한 문체 자 N1 · N2 · N4 를 대지 않는다.
+   현장 단정(N7)과 수행문 꼴(N8)은 늘 잰다(narr-words 의 W6 · W9 · W11 과 같은 나눔).
+   같은 문안에 붙은 우리 문장은 그대로 잰다 — 한 글자라도 다르면 자료 문장이 아니다(구두점 · 띄어쓰기만 무시). */
+const SRC_FILE = path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json');
+const srcNorm = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
+const SRC = new Set((() => { try { return (JSON.parse(fs.readFileSync(SRC_FILE, 'utf8')).sents || []).map((x) => srcNorm(x.text)).filter(Boolean); } catch (e) { return []; } })());
+const isSrc = (x) => SRC.has(srcNorm(x));
+
 /* ───────── ★판정은 **한 곳**에서만 한다.
    종전엔 본문 루프와 자가진단이 같은 규칙을 두 벌 들고 있었다. 그 둘이 갈라지면
    자가진단이 초록인데 본문이 틀린다 — 이 저장소가 여러 번 밟은 「이중 원천」 함정 그대로다.
@@ -103,8 +112,9 @@ export function judge(id, s) {
   let reqGuest = 0, reqCouple = 0;
 
   sent.forEach((x) => {
+    const src = isSrc(x);   // [SOURCE_FIRST_1016] 자료 그대로 문장 — N1 · N2 · N4 밖
     /* N1 — 문장 단위: 한 문장에 요청 동작 둘 이상 */
-    const n = (x.match(new RegExp(REQ.source, 'g')) || []).length;
+    const n = src ? 0 : (x.match(new RegExp(REQ.source, 'g')) || []).length;
     if (n >= 2) hit('N1', `한 문장에 요청 ${n}개 · 「${x.slice(0, 34)}…」`);
     if (n >= 1) { if (TO_COUPLE.test(x)) reqCouple++; else reqGuest++; }
 
@@ -113,7 +123,7 @@ export function judge(id, s) {
        「두 사람에게 큰 박수 부탁드립니다」류는 하객 요청이라 IMPER2 에 안 걸린다. */
     /* ★[N2_GUEST_ASK_1014] 같은 문장이 하객을 부르면(«다 같이 · 여러분 · 하객») 시키는 말은 하객에게 간다 — 혼용이 아니다.
        10/14 축배 40 «두 사람의 앞날을 축복하며, 다 같이 잔을 들어 주세요.»(원고 3판 · AA 뼈대)가 이 자에 붉었다(자가 넓었다 · 위 머리말 «고칠 것은 늘 자다») */
-    if (/두 사람/.test(x) && !/두 분/.test(x) && !/(다 같이|여러분|하객)/.test(x) && IMPER2.test(x)) {
+    if (!src && /두 사람/.test(x) && !/두 분/.test(x) && !/(다 같이|여러분|하객)/.test(x) && IMPER2.test(x)) {
       hit('N2', `한 문장 안 3인칭+2인칭 혼용 · 「${x.slice(0, 34)}…」`);
     }
 
@@ -138,9 +148,10 @@ export function judge(id, s) {
   if (reqGuest > 2) hit('N1', `한 문안에 하객 요청 ${reqGuest}개 (상한 2)`);
   if (reqCouple > 2) hit('N1', `한 문안에 두 분 요청 ${reqCouple}개 (상한 2)`);
 
-  /* N4 — 시간어는 한 문안에 한 번 */
-  const tw = (s.match(TIMEW) || []).length;
-  if (tw > 1) hit('N4', `시간어 ${tw}회 (상한 1) · ${(s.match(TIMEW) || []).join('·')}`);
+  /* N4 — 시간어는 한 문안에 한 번 · [SOURCE_FIRST_1016] 자료 그대로 문장의 시간어는 세지 않는다 */
+  const own = sent.filter((x) => !isSrc(x)).join(' ');
+  const tw = (own.match(TIMEW) || []).length;
+  if (tw > 1) hit('N4', `시간어 ${tw}회 (상한 1) · ${(own.match(TIMEW) || []).join('·')}`);
 
   /* N7 — 실시간 관찰 주장 */
   if (LIVE.test(s)) hit('N7', `현장을 실시간으로 본다고 말한다 · 「${s.match(LIVE)[0]}」`);
@@ -227,7 +238,10 @@ const SELFPASS = [
   ['N4', 'X.__t', '이제 두 사람이 들어옵니다. 지금 문이 열립니다.'],                              // 이제·지금은 시간어가 아니다
   ['N7', 'X.__t', '곁에서 힘이 되어 주시겠습니까?'],                                              // 물음 자체는 위반이 아니다
   ['N8', 'NARR.__t', '선언은 가족의 목소리로 남았습니다. 이제 두 사람은 부부입니다.'],            // 되짚음은 수행문이 아니다
+  ['N1', 'ENTRY.__t', '오늘 귀한 발걸음 해 주신 내빈 여러분들께서는 두 사람의 첫 시작을 큰 박수와 함성으로 축복해 주시고 응원해 주시기 바랍니다.'],   // [SOURCE_FIRST_1016] 자료 그대로(CC2 43)
 ];
+/* [SOURCE_FIRST_1016] 깨 보기 — 자료 문장에서 한 낱말만 바꾸면(여러분들께서는 → 여러분께서는) 우리 문장이라 다시 잰다 */
+SELFTEST.push(['N1', 'ENTRY.__t', '오늘 귀한 발걸음 해 주신 내빈 여러분께서는 두 사람의 첫 시작을 큰 박수와 함성으로 축복해 주시고 응원해 주시기 바랍니다.']);
 /* ★자가진단도 본문과 **같은 `judge`** 를 부른다 — 규칙을 두 벌 들고 있으면
    자가진단만 초록인 날이 온다(이중 원천 함정). 부르는 자리만 다르고 자는 하나다. */
 const ruled = (id, s) => judge(id, s).map((v) => v.rule);

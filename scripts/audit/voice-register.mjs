@@ -43,6 +43,12 @@ const HAE = /(어요|아요|에요|예요|해요|세요|려요|워요|죠)[.!?]?
      진희 한 층 검사에서 뺐었다. 10/7 코워크 회신으로 다정하게 · 유쾌하게도 합쇼체로 다시 녹음해 셋 다 합쇼체가 됐다 —
      그래서 예외를 걷었다. 이제 guest-ex 도 다른 진희 클립과 같이 한 층(합쇼체) 검사를 받는다.
      ★예외를 되살리지 않는다 — 새 예시가 해요체로 오면 빨강이 맞다. */
+/* ★★[SOURCE_FIRST_1016 2026-10-16 사장님 «정해 놨던 것들은 전부 무시하고 자료집에 있는 멘트들을 최우선시해»]
+     자료 글 그대로 넣은 문장(docs/plans/식순연구/자료그대로_1016.json)은 층을 세지 않는다 — 실전 사회자도
+     알릴 때 «~합니다» · 끝인사는 «행복하게 보내세요»처럼 말한다(자료 DD 템플릿 7 · 8). 우리 문장은 그대로 잰다. */
+const srcNorm = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
+const SRC = new Set((() => { try { return (JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents || []).map((x) => srcNorm(x.text)).filter(Boolean); } catch (e) { return []; } })());
+let srcSkip = 0;
 const byVoice = new Map();
 for (const c of man.clips) {
   const v = c.voice || (man.voice || {})[c.role];
@@ -51,6 +57,7 @@ for (const c of man.clips) {
   let hap = 0, hae = 0;
   for (const s of c.sents) {
     const t = (s.text || '').trim();
+    if (SRC.has(srcNorm(t))) { srcSkip++; continue; }   // [SOURCE_FIRST_1016] 자료 그대로 문장
     if (HAP.test(t)) hap++; else if (HAE.test(t)) hae++;
   }
   if (!byVoice.has(v)) byVoice.set(v, []);
@@ -59,6 +66,7 @@ for (const c of man.clips) {
 
 let bad = 0;
 console.log('[VOICE_REGISTER] 사회자 목소리의 말투 층이 한 겹인가\n');
+console.log(`  (자료 그대로 문장 ${srcSkip}개는 세지 않음 · [SOURCE_FIRST_1016])`);
 for (const [v, rows] of byVoice) {
   const want = ONE_LEVEL[v];
   const mixed = rows.filter((r) => r.hap && r.hae);

@@ -171,7 +171,10 @@
     /* ★★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14 사장님 «자료집 멘트를 식순에 녹이는 게 가장 중요»] 137 ~ 144 — 원고 3 · 4 · 5판의 새 줄.
        **맨 끝에 붙였다**(위 경고 그대로). 원천 문안은 assets/ritual-open.js NAR(open · candleBow · candleOutFormal · tribute*) · ritual-data NARR.entryArrive */
     'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive',
-    'tribute-call-say'   /* ★[TRIB_CALL_SAY_1014 라운드 3] 145 · 말로 인사 날 구호 «그 마음을 담아, 신랑 신부, 양가 부모님께 인사!» */
+    'tribute-call-say',   /* ★[TRIB_CALL_SAY_1014 라운드 3] 145 · 말로 인사 날 구호 «그 마음을 담아 신랑 신부, 인사!»(10/16 자료 GG 1 구호 그대로) */
+    /* ★★[CANDLE_CALL_SRC_1016 2026-10-16 사장님 «자료집 멘트 최우선»] 146 · 147 — 화촉 인사 구호에 서는 분 이름이 들어가 판마다 글이 갈렸다(138 은 어머님 판).
+       **맨 끝에 붙였다**(위 경고 그대로). 원천 문안 assets/ritual-open.js NAR.candleBow(fathers · others) · 녹음 전엔 글로 */
+    'narr-candle-bow-fathers', 'narr-candle-bow-others'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -193,7 +196,7 @@
        ★[PHOTO_ASK_R6_1016 라운드 6 · SOURCE_ALL_1016] 자료 G4 표 2 다정 «1분 전 바로 뒤» 글자에 단어 둘만 바꿈(«를 통해 → 로» · «전해 주실 → 보내실»).
          사진 허락(«마음껏 담아 …»)은 라운드 5 에서 10분 전으로 옮겼다 — 첫 문장만으로는 «무엇을 보내나»가 비어 «여러분의 시선이 담긴 장면을»이 그 자리를 채운다.
          옛 둘째 문장(«같은 장면도, 계신 곳마다 …» · 지적 4 · 플레이 01)의 뜻은 «여러분의 시선이 담긴»이 한 문장으로 말한다 · 되살리지 말 것 */
-    'narr-photo-ask': '안내 페이지의 사진 올리기로, 여러분의 시선이 담긴 장면을 신랑 신부에게 보내실 수 있습니다.',
+    'narr-photo-ask': '안내 페이지의 사진 올리기를 통해, 간직하신 장면을 신랑 신부에게 보내실 수 있습니다.',
     /* ★[PHOTO_ASK] 버튼 이름을 낫표로 인용하지 않는다 — 타입캐스트가 괄호·낫표를 읽는다.
        이름을 부르는 대신 «보내 주시면 전해집니다»로 행동만 말한다. */
     'narr-photo-send': '사진은, 받으신 안내 페이지에서 신랑 신부에게 바로 보내실 수 있습니다.',
@@ -218,7 +221,7 @@
        ★둘째 문장 뒤 3초는 목례 자리다 — build-typecast-import 의 [THANKS_BOW] 가 무음으로 넣는다(다시 받을 필요 없음).
        ★식사 자리는 이 줄이 말한다 — 88 guide-meal 은 이 흐름에서 틀지 않는다(«나가시는 길에 입구에서 안내»의 근거인 배웅 줄이 없어졌다).
        ★녹음 전 — 옛 녹음은 옛 글이다. 미리 듣기는 글로 지나가고(TEXT_AUDIO_MATCH) 다시받기 목록에 오른다. 되살리지 말 것(옛 «문 앞에서 한 분 한 분 배웅»). */
-    'end-1a-farewell': '오늘의 예식은 여기까지입니다. 두 사람이, 다시 한번 감사 인사를 드립니다. 양가 직계 가족분들께서는, 가족사진 촬영이 있으니 잠시 남아 주십시오. 두 사람과 따로 사진을 남기고 싶으신 분들도, 함께 남아 주십시오. 먼저 가시는 분들께서는, 식사 자리와 시간을 받으신 안내 페이지에서 한 번 더 확인해 주십시오. 그 시간에 맞춰, 식사 자리로 모여 주시면 됩니다.',
+    'end-1a-farewell': '오늘의 예식은 여기까지입니다. 두 사람이, 다시 한번 감사 인사를 드립니다. 양가 직계 가족분들께서는, 가족사진 촬영이 있으니 잠시 남아 주십시오. 두 사람과 따로 사진을 남기고 싶으신 분들도, 함께 남아 주십시오. 먼저 가시는 분들께서는, 식사 자리와 시간을 받으신 안내 페이지에서 한 번 더 확인해 주십시오. 한 분도 빠짐없이 함께해 주세요.',
     /* ★★[THANKS_TEXT 2026-09-26 사장님 확인 · 코워크 제안 고친 판 · 덧 7] 식사 없는 날 판(110) — 1 · 2 · 3 · 4 · 7 뒤에 귀가 인사. 같은 글은 한 번 받아 두 판에 함께 쓴다([DUP_ONCE]). */
     'end-1c-thanks-nomeal': '오늘의 예식은 여기까지입니다. 두 사람이, 다시 한번 감사 인사를 드립니다. 양가 직계 가족분들께서는, 가족사진 촬영이 있으니 잠시 남아 주십시오. 두 사람과 따로 사진을 남기고 싶으신 분들도, 함께 남아 주십시오. 들어가시는 길, 편안하시길 바랍니다.',
     /* ★[ONLINE_ALREADY_ENDED 2026-08-16] 이 문안은 **더 이상 쓰이지 않는다.**
@@ -227,7 +230,7 @@
        ★지우지는 않는다 — 46_end-1b-farewell-online.mp3 가 녹음돼 있고, 「쓰이지 않는 문안」과
          「없는 문안」은 다르다. 결정이 되돌아오면 여기가 근거가 된다. 되살릴 땐 마지막 문장부터 다시 볼 것. */
     'end-1b-farewell-online': '오늘의 예식은 여기까지입니다. 자리를 옮기시기 전에, 두고 가시는 물건이 없는지 한 번만 살펴 주십시오. 화면으로 함께해 주신 분들께도, 두 사람이 곧 인사드리겠습니다.',
-    'end-2-goodbye': '끝까지 두 사람의 곁을 지켜 주셔서 감사합니다. 여러분 덕분에, 부부로서의 첫날이 시작되었습니다. 남은 하루도, 행복하게 보내시기 바랍니다.',
+    'end-2-goodbye': '끝까지 두 사람의 곁을 지켜 주셔서 감사합니다. 여러분 덕분에, 부부로서의 첫날이 시작되었습니다. 남은 하루 행복하게 보내세요.',
     'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다. 이 하루를, 신랑 신부는 여러분과도 나누고 싶었습니다. 같은 시간에 계신 것만으로 충분합니다.',
     'bridge-4-wait-emotion': '잠시 이대로 두겠습니다. 이 시간도, 예식의 한 부분입니다.',
     'bridge-5-wait-setup': '다음 순서를 준비하고 있습니다. 끝나는 대로 이어 가겠습니다.',
@@ -239,7 +242,7 @@
     'narr-candle-in-fathers': O.NAR.candleIn.fathers, 'narr-candle-in-others': O.NAR.candleIn.others,
     'narr-candle-out': O.NAR.candleOut,
     /* [OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137 ~ 144 — 이름표만(글은 원천) */
-    'narr-open': O.NAR.open, 'narr-candle-bow': O.NAR.candleBow.two, 'narr-candle-bow-four': O.NAR.candleBow.four, 'narr-candle-out-formal': O.NAR.candleOutFormal,
+    'narr-open': O.NAR.open, 'narr-candle-bow': O.NAR.candleBow.two, 'narr-candle-bow-four': O.NAR.candleBow.four, 'narr-candle-bow-fathers': O.NAR.candleBow.fathers, 'narr-candle-bow-others': O.NAR.candleBow.others,   /* [CANDLE_CALL_SRC_1016] */ 'narr-candle-out-formal': O.NAR.candleOutFormal,
     'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive, 'tribute-call-say': O.NAR.tributeCallSay,   /* [TRIB_CALL_SAY_1014] 145 */
     'declare-clap-a': O.NAR.clapAsk, 'declare-clap-b': O.NAR.clapDeclare,
     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
@@ -652,6 +655,7 @@
     candle: function (S) {
       var who = O.CANDLE_WHO.some(function (c) { return c[0] === S.candleWho; }) ? S.candleWho : O.DEF.candleWho;
       var nm = ''; O.CANDLE_WHO.forEach(function (c) { if (c[0] === who) nm = c[1]; });
+      var BOWSL = { mothers: 'narr-candle-bow', parents: 'narr-candle-bow-four', fathers: 'narr-candle-bow-fathers', others: 'narr-candle-bow-others' };   // [CANDLE_CALL_SRC_1016]
       return [cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-in-' + who, name: '화촉 시작',
         text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckMusic, pick: '서는 분 · ' + nm,
@@ -667,11 +671,11 @@
         text: EXTRA[S.entry === 'C' ? 'narr-candle-out-formal' : 'narr-candle-out'], duck: PARAM.duckMusic,
         hint: '불을 다 밝히면'   // ★[CANDLE_CALL_1014] 10/10 지적 7 «때를 불을 다 밝히면으로 당김» — 옛 «두 분이 자리에 앉으시면»
       }), cue({
-        k: 'candle', blockN: '화촉', slug: (who === 'parents' ? 'narr-candle-bow-four' : 'narr-candle-bow'), name: '인사 안내',
-        text: EXTRA[who === 'parents' ? 'narr-candle-bow-four' : 'narr-candle-bow'], duck: PARAM.duckMusic, fire: 'chain', gapMs: 1250,   // [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
+        k: 'candle', blockN: '화촉', slug: BOWSL[who] || 'narr-candle-bow', name: '인사 안내',   /* ★[CANDLE_CALL_SRC_1016] 서는 분마다 구호가 달라 판마다 한 줄(어머님 138 · 네 분 139 · 아버님 146 · 다른 두 분 147) */
+        text: EXTRA[BOWSL[who] || 'narr-candle-bow'], duck: PARAM.duckMusic, fire: 'chain', gapMs: 1250,   // [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
         live: (who === 'parents'
-          ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 25, self: true, doing: 'move' }
-          : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 25, self: true, doing: 'move' })
+          ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 15, self: true, doing: 'move' }   /* [CANDLE_CALL_SRC_1016] 인사는 구호 뒤 쉼(4초)에 들어가 자리로 돌아가는 시간만 남는다 */
+          : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 15, self: true, doing: 'move' })
       })];
     },
 
@@ -773,21 +777,21 @@
          (ring 은 원래부터 S.ring 을 본다 — 같은 규칙을 vow 에도 둔다) */
       if (S.vow !== 'ok') return [];
       /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] S.vowKind — 'vow'(기본 · 서약) | 'thanks'(감사문).
-         감사문이면 여는 말 133 → 두 분이 하객 쪽을 본 채 읽고(읽는 방식 · 먼저 읽는 분은 서약과 같은 칩) 마지막 두 문장(THANKSBOTH)은 함께.
+         감사문이면 여는 말 133 → 두 분이 하객 쪽을 본 채 읽고(읽는 방식 · 먼저 읽는 분은 서약과 같은 칩) 마지막 한 문장(THANKSBOTH)은 함께.
          맺는 말(«약속은 말로 끝나지 않습니다»)은 서약의 말이라 싣지 않는다 — 두 분의 «감사합니다»가 맺고, 다음 순간은 종전대로 이어진다.
          ★live.t 는 ritual-story.js 의 LIVE 키다(한 글자만 달라도 장면 안내가 끊긴다 · 같은 커밋에서 함께). 모르는 값은 서약 */
       if (S.vowKind === 'thanks') {
         var tEach = S.vowHow === 'each', tB = S.vowFirst === 'b';
-        var tKey = tEach ? '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 두 문장은 함께' : '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독 · 마지막 두 문장은 함께';
+        var tKey = tEach ? '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 한 문장은 함께' : '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독 · 마지막 한 문장은 함께';
         return [cue({
           k: 'vow', blockN: '감사문', slug: 'narr-thanks-in', name: '감사문 시작', text: D.NARR.thanksIn,
           live: {
             t: tKey, est: 70, self: true, doing: 'say', peak: true,
             first: tB ? 'b' : 'g',
-            tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 두 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 두 문장은 함께' : tKey),
-            both: D.THANKSBOTH, hintNext: '마지막 두 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
+            tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 한 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 한 문장은 함께' : tKey),
+            both: D.THANKSBOTH, hintNext: '마지막 한 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
-            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 두 문장이 어긋나면 신부가 반 박자 먼저'   // ★[VOW_FB_WORDS_R7_1016 라운드 7] «마지막 합창» → «마지막 두 문장»(같은 화면 제목 · 감사문 판과 같은 말)
+            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 한 문장이 어긋나면 신부가 반 박자 먼저'   // ★[VOW_FB_WORDS_R7_1016 라운드 7] «마지막 합창» → «마지막 한 문장»(같은 화면 제목 · 감사문 판과 같은 말)
           }
         })];
       }
@@ -804,18 +808,18 @@
             //   할지 모른다 — 화면이 소리를 설명하지 못하면 폴백이 조용했던 때와 같은 사고다.
             /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] S.vowHow — 'alt'(기본 · 번갈아) | 'each'(각자 차례로).
                모르는 값은 'alt'. 'each' 의 문자열도 ritual-story.js 의 LIVE · CAST_AT 키다(같은 커밋에서 함께). */
-            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께',   /* [R2-04] «마지막 두 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true,
+            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',   /* [R2-04] «마지막 한 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true,
             /* [VOW_FIRST] t 는 장면 열쇠라 그대로 두고(ritual-story LIVE · CAST_AT) 보여 줄 글만 tv · first 로 — 신부부터 «각자 차례로»면 «신부 먼저, 신랑 다음으로» */
             first: S.vowFirst === 'b' ? 'b' : 'g',
-            tv: S.vowHow === 'each' ? (S.vowFirst === 'b' ? '신부 먼저, 신랑 다음으로 낭독 · 마지막 두 문장은 함께' : '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께') : (S.vowFirst === 'b' ? '두 분이 한 줄씩 번갈아 낭독(신부부터) · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께'),
+            tv: S.vowHow === 'each' ? (S.vowFirst === 'b' ? '신부 먼저, 신랑 다음으로 낭독 · 마지막 한 문장은 함께' : '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께') : (S.vowFirst === 'b' ? '두 분이 한 줄씩 번갈아 낭독(신부부터) · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께'),
             both: D.VOWBOTH,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
-            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 두 문장이 어긋나면 신부가 반 박자 먼저'
+            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 한 문장이 어긋나면 신부가 반 박자 먼저'
           }
         }),
         cue({
           k: 'vow', blockN: '혼인 서약', slug: 'narr-vow-out', name: '혼인 서약 마무리', text: n.end,
-          hint: '낭독이 끝나고 2초 (55초일 수도 75초일 수도 있다 · 오늘 처음 아는 숫자)'
+          hint: '낭독이 끝나고 2초 (55초일 수도 75초일 수도 있다 · 오늘 처음 아는 숫자) · 박수가 나면 잦아든 뒤'   /* [VOW_OUT_GAP_1016] 자료 G2 1-3 «서약 뒤 4 ~ 5초 여백» */
         })
       ];
     },
@@ -1103,7 +1107,7 @@
          고객 화면 글은 그대로 두고 디렉터 메모(콘솔)에만 둔다 · 집안 뜻이 다르면 그대로 따른다 */
       if (open) out[0].note = '보통 신부 부모님께 먼저, 이어서 신랑 부모님께(자료 G · P · Q) · 집안 뜻이 다르면 그대로';
       /* ★★[TRIB_NAME_1014 · TRIB_CALL_1014] 새 코스 — 이름 줄(141 · 성혼 선언 바로 뒤인 날은 짝 줄 142 · PAIR_DRAFT_V3 10/10 «추천대로») → 여는 말(38 · 1초 사슬 · 디렉터 GO 한 번) →
-           두 분이 부모님 앞으로(말로 인사 날은 그 자리에서 말까지) → 구호 «신랑 신부, 양가 부모님께 인사!»(143 · 디렉터 GO) → 인사 · 포옹 → 맺는 말(39 · 포옹이 끝나면).
+           두 분이 부모님 앞으로(말로 인사 날은 그 자리에서 말까지) → 구호 «신랑 신부, 인사!»(143 · 디렉터 GO) → 인사 · 포옹 → 맺는 말(39 · 포옹이 끝나면).
            구호는 자료 S 12 · G 12 · FF 2-1 · O — 꽃이 빠져(FLOWER_OFF_1013) «인사»가 이 순간의 동작이 됐다.
            신랑 큰절 판(BOW_GROOM 9/25 · 큰절 줄 tribute-bow-groom)은 10/06 걷혔다(GROOM_BOW_TIP · norm 이 늘 flower) — 큰절은 원하면 이 구호에 자연스럽게.
            ★옛 코스는 종전 그대로(38 하나가 다가가 인사 · 포옹까지) */
@@ -1431,7 +1435,11 @@
     /* ★[OPEN_GAP_1014 라운드 3] 개식 선언(137) 뒤 다음 줄(식전 영상 소개 · 영상을 뺀 날은 화촉 · 입장)은 3초 쉬고 사슬 —
          순서(화제)가 바뀌는 자리(자료 G2 5-2 «3 ~ 3.5초») · «…예식을 시작하겠습니다»는 자료가 박수와 함께 쓰는 말이라(BB ⑥) 청하지 않아도 손뼉이 나올 수 있다 */
     for (var og = 0; og < cues.length - 1; og++) {
-      if (cues[og].slug === 'narr-open' && cues[og + 1].fire === 'chain' && !cues[og + 1].gapMs) cues[og + 1].gapMs = 3000;
+      if (cues[og].slug === 'narr-open' && cues[og + 1].fire === 'chain' && !cues[og + 1].gapMs) cues[og + 1].gapMs = 4500;   /* ★[SOURCE_FIRST_1016] 개식이 자료 BB 3 «여러분의 박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 박수가 잦아들 만큼(자료 G2 5-3 «4 ~ 5초») 3 → 4.5초 */
+    }
+    /* ★[VOW_OUT_GAP_1016] 서약 맺는 말(«두 사람의 서약이었습니다.» · 14) 뒤 다음 순간 여는 말은 4.5초 사슬 — 자료 G2 1-3 «서약 뒤 약 4 ~ 5초 여백»(박수 · 여운) · 맺는 말 앞 2초는 그대로 */
+    for (var vg = 0; vg < cues.length - 1; vg++) {
+      if (cues[vg].slug === 'narr-vow-out' && cues[vg + 1].fire === 'chain' && !cues[vg + 1].gapMs) cues[vg + 1].gapMs = 4500;
     }
 
     // 반지 교환 마무리 → 성혼 선언 사이는 '음악 페이드 8초 + 침묵 3초'가 시간 고정이다(§3-A · 대본 153~159행).

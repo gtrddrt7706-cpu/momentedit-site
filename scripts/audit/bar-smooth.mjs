@@ -73,8 +73,16 @@ function smooth(r, secs) {
 
 async function sheet(w, opt, k) {
   const { ctx, pg, errs } = await open(w, opt);
-  await pg.evaluate((k) => opPv(k), k || 'letter'); await pg.waitForTimeout(900);
-  const src = await pg.evaluate(() => (PV.au && PV.au.getAttribute('src') || '').split('/').pop());
+  /* ★[SOURCE_FIRST_1016] 편지 줄이 자료 글로 바뀌어 다시 받는 중이면 소리가 없다(data: 빈 소리 · 길이 0) — 소리 있는 순간을 차례로 고른다(편지 먼저 · 받으면 다시 편지).
+     빈 소리로 재면 화면이 0 이라 아래 «깨 보기»가 아무것도 안 재고 초록이 된다 */
+  let src = '';
+  for (const kk of [k || 'letter', 'bless', 'tribute', 'declare']) {
+    await pg.evaluate((kk) => opPv(kk), kk); await pg.waitForTimeout(900);
+    src = await pg.evaluate(() => (PV.au && PV.au.getAttribute('src') || ''));
+    if (/\.mp3(\?|$)/.test(src)) break;
+    await pg.evaluate(() => { try { _pvClose(); } catch (e) {} }); await pg.waitForTimeout(200);
+  }
+  src = src.split('/').pop();
   const r = await sample(pg, { bar: 'pvBar', au: 'pv' });
   await ctx.close();
   return { r, src, errs };
@@ -103,7 +111,7 @@ async function bigTurn(w, opt) {
 
 for (const w of [390, 1280]) {
   const a = await sheet(w);
-  const ja = smooth(a.r); ok(`${w} ① 창 소리 막대(${a.src}) — ${ja.why}`, ja.pass && /letter/.test(a.src || ''));
+  const ja = smooth(a.r); ok(`${w} ① 창 소리 막대(${a.src}) — ${ja.why}`, ja.pass && /\.mp3$/.test(a.src || ''));   /* [SOURCE_FIRST_1016] 실제 녹음 mp3(편지 · 다시 받는 중이면 소리 있는 다른 순간) */
   const b = await sheetText(w);
   const jb = smooth(b.r, b.ms / 1000); ok(`${w} ① 창 글만 있는 순간(${b.ms}ms) — ${jb.why}`, jb.pass);
   const c = await sheet(w, { coarse: true });

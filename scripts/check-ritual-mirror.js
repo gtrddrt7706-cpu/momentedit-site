@@ -153,10 +153,10 @@ const vb = D.VOWBOTH || [];
 const vbMiss = vb.filter((t) => !html.includes(t));
 ok('빌더 VOWBOTH 사본이 원천과 일치(' + vb.length + '문장 · drift ' + vbMiss.length + '건)', vb.length > 0 && vbMiss.length === 0);
 vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
-/* ★[THANKS_IN_VOW 2026-10-11] 감사문의 마지막 두 문장도 같은 인라인 사본이다(order-preview THANKSBOTH) — 원천을 따라가는지 본다 */
+/* ★[THANKS_IN_VOW 2026-10-11] 감사문의 마지막 한 문장도 같은 인라인 사본이다(order-preview THANKSBOTH) — 원천을 따라가는지 본다 */
 const tb = D.THANKSBOTH || [];
 const tbMiss = tb.filter((t) => !html.includes(t));
-ok('빌더 THANKSBOTH 사본이 원천과 일치(' + tb.length + '문장 · drift ' + tbMiss.length + '건)', tb.length === 2 && tbMiss.length === 0);
+ok('빌더 THANKSBOTH 사본이 원천과 일치(' + tb.length + '문장 · drift ' + tbMiss.length + '건)', tb.length > 0 && tbMiss.length === 0);   // [SOURCE_FIRST_1016] 감사문 맺음은 자료 끝말 «감사합니다.» 한 문장(종전 두 문장)
 tbMiss.forEach((t) => console.log('   DRIFT THANKSBOTH : ' + t));
 
 /* ★[ENTRY_OUT_MIRROR 2026-08-11] 도착 직후 닫는 말 여섯 갈래도 인라인 사본이다.

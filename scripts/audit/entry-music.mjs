@@ -65,7 +65,11 @@ try {
     if (vp) { await pg.click('[data-fk="lsc:entryVoice:nar"]'); await pg.waitForTimeout(600); }
     /* ★[PEND_ENTRY_1014] 녹음 대기 판(글 먼저 · 소리 없음)은 그래프를 그리지 않는다(GRAPH_MIN) — 장면 시험은 소리가 있는 입장 멘트 판으로 고른다(다시 받으면 기본 판 그대로) */
     const pickE = await pg.evaluate(() => { const has = (e) => { S.entry = e; try { opSync(); } catch (x) {} const st = _lSteps(ENG, ['entry']).filter((x) => /^entry-/.test(x.slug || ''))[0]; return !!(st && st.src); }; const e0 = S.entry; if (has(e0)) return e0; for (const e of ['A', 'B', 'C', 'D', 'E', 'F']) if (has(e)) { render(); return e; } S.entry = e0; return ''; });
-    if (!pickE) console.log('note entry-music: 소리가 있는 입장 멘트 판이 없다(전부 녹음 대기)');
+    if (!pickE) console.log('note entry-music: 소리가 있는 입장 멘트 판이 없다(전부 녹음 대기) — 시험용 소리(옛 입장 녹음)를 걸어 장면 기계만 잰다');
+    /* ★[SOURCE_FIRST_1016] 입장 멘트 여섯 판이 모두 자료 글로 바뀌어 다시 받는 중이면 소리 있는 판이 없다 — 그 줄에 시험용 소리(옛 입장 녹음 05_entry-A)를 걸어
+       장면 기계(계획 · 그래프 · 이어 듣기 · 크게 보기)를 잰다. 화면은 녹음 대기 줄에 그래프를 안 그린다(GRAPH_MIN · 설계) — 받으면 위 고르기가 그 판을 바로 쓴다 */
+    const stand = async () => { if (!pickE) await pg.evaluate(() => { if (window.__emStand) return; window.__emStand = 1; const L0 = window._lSteps; window._lSteps = function (e, ks) { const a = L0.apply(this, arguments); if (ks && ks.length === 1 && ks[0] === 'entry') a.forEach((x) => { if (/^entry-[A-F]$/.test(x.slug || '') && !x.src) { x.src = '/assets/audio/narration/05_entry-A.mp3'; x.pending = false; } }); return a; }; try { render(); } catch (e) {} }); };
+    await stand();
     // 1 — ★[REC_SONG_1012 · MU_SRC] 칩 둘 «두 분이 고른 곡 · 추천 곡» · 처음엔 안 눌린 모양 · 카드 없음
     const R1 = await pg.evaluate(() => { const r = document.querySelector('.mk-pick .ls-vars > .ls-mu'), last = r && r === r.parentElement.lastElementChild, ch = r ? [...r.querySelectorAll('.mu-src [role="radio"]')] : [];
       return { row: !!r, last, gl: r && (r.querySelector('.gl') || {}).textContent, chips: ch.map((c) => c.textContent + ':' + c.getAttribute('aria-checked')).join('|'), tab: ch.map((c) => c.getAttribute('tabindex')).join(','), box: r ? r.querySelector('.mu-box').innerHTML.length : -1, link: !!(r && r.querySelector('[data-fk="muguide"]')), input: document.querySelectorAll('body > #muUpFile').length, acc: (document.getElementById('muUpFile') || {}).accept }; });
@@ -183,7 +187,7 @@ try {
       return { pw: Math.round(b.width - parseFloat(cs.left) - parseFloat(cs.right)), ph: Math.round(b.height - parseFloat(cs.top) - parseFloat(cs.bottom)), iw: Math.round(ib.width), ih: Math.round(ib.height), dx: Math.round(ib.left - b.left), pbd: (/rgb\([^)]*\)/.exec(cs.boxShadow) || [''])[0], ibd: getComputedStyle(inp).borderTopColor, fs: getComputedStyle(inp).fontSize, over: document.documentElement.scrollWidth > innerWidth }; });
     ok(`${W} 6 적는 칸 = ▶ 알약과 같은 크기 · 같은 금빛 테 · 16px [OWN_PILL_SAME] · 가로 넘침 없음`, R6.iw === R6.pw && R6.ih === R6.ph && R6.dx === 0 && R6.ibd === R6.pbd && R6.fs === '16px' && !R6.over, R6);
     // 7
-    await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(1200);
+    await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(1200); await stand();   /* [SOURCE_FIRST_1016] 새로고침하면 시험용 소리를 다시 건다 */
     const at = await pg.evaluate(() => _mkState().at); if (at !== 'entry') { await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') idx = i; mkGo('entry'); }); await pg.waitForTimeout(800); }
     await pg.waitForFunction(() => window.EntryMusic && EntryMusic._t.restore() === 2, null, { timeout: 30000 }).catch(() => {}); await pg.waitForTimeout(500);
     const R7 = await pg.evaluate(() => { const u = EntryMusic._t.ups(); return { ok: !!(u && u.Sg), on: [...document.querySelectorAll('.ls-mu .mu-hks .mu-row.on .mu-t')].map((x) => x.textContent).join(), val: (document.getElementById('muOwn') || {}).value, mu: S.mu }; });

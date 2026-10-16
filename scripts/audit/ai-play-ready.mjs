@@ -154,8 +154,11 @@ const SC = [
     await tap(f, '.mk-hbtn[data-mp="guest"]'); await adv(pg, 1500); const l2 = await ALL(f, 'guest'), c1 = await CARD(f, 'g1');
     await SHOT(pg, f, '1-전체', '.mk-hbtn[data-mp="guest"]');
     ok('1 이 순간 전체 듣기를 누르면 바로 아래 «두 분 목소리가 아직 없어요 · 만들러 가기»(TOAST_MIN) · 줄 글은 걷힘 · 소리 없음', l2.hint === '두 분 목소리가 아직 없어요 · 만들러 가기' && l2.go && !c1.hint && (await plays(f)) === p0 && !(await f.evaluate(() => LP.q.length)), JSON.stringify({ l2, c1 }));
-    const cast = await f.evaluate(() => { const g = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''), S0 = JSON.stringify(S.vfill); S.vfill = { entry: 'ai', prevideo: 'ai' }; const self = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''); S.vfill = JSON.parse(S0); return { g, self, mode: _vpCur('guest') }; });
-    ok('1 AI 판 하객 맞이 줄에는 배역 예시 녹음(cast)을 싣지 않는다 · 직접 녹음 판은 그대로(읽는 법 참고) [AI_NO_CAST]', cast.mode === 'ai' && cast.g.length === 4 && cast.g.every((s) => !/\/cast\//.test(s)) && cast.self.some((s) => /\/cast\/0[2-4]_guest/.test(s)), JSON.stringify(cast));
+    const cast = await f.evaluate(() => { const g = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''), S0 = JSON.stringify(S.vfill); S.vfill = { entry: 'ai', prevideo: 'ai' }; const sl = _lSteps(ENG, ['guest']).filter((x) => x.own), self = sl.map((x) => x.src || ''), selfTxt = sl.map((x) => x.txt || ''); S.vfill = JSON.parse(S0); return { g, self, selfTxt, mode: _vpCur('guest') }; });
+    /* [SOURCE_FIRST_1016] 하객 맞이 넷이 자료(G4) 글로 바뀌어 배역 예시 녹음은 다시 받는 중일 수 있다 — 소리가 비었으면 그 글이 «다시받기» 목록(문장마다)에 다 있어야 한다(받으면 다시 소리로) */
+    const REDUB = (() => { try { return fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'), 'utf8').split('\n').map((l) => l.replace(/^[^:]+:\s*/, '').trim()).filter(Boolean); } catch (e) { return []; } })();
+    const castWait = cast.self.every((s) => !s) && cast.selfTxt.length === 4 && cast.selfTxt.every((t) => t.split(/(?<=[.!?])\s+/).every((x) => REDUB.includes(x.trim())));
+    ok('1 AI 판 하객 맞이 줄에는 배역 예시 녹음(cast)을 싣지 않는다 · 직접 녹음 판은 그대로(읽는 법 참고 · 다시 받는 중이면 다시받기 목록에) [AI_NO_CAST]', cast.mode === 'ai' && cast.g.length === 4 && cast.g.every((s) => !/\/cast\//.test(s)) && (cast.self.some((s) => /\/cast\/0[2-4]_guest/.test(s)) || castWait), JSON.stringify(cast));
     const rt = await realTap(pg, f, '#lsToast [data-fk="mkploffgo:mp:guest"]'); await adv(pg, 800);
     ok('1 알림 안 «만들러 가기»를 손가락으로 누르면(그 자리에 닿는 것이 단추) → 두 분 목소리 만들기 쪽 · 알림은 닫힘 [OFF_TOAST_TAP]', rt === 'ok' && await f.evaluate(() => _mkRO().at === '_voice' && document.getElementById('lsToast').hidden), rt);
     /* 입장 인사 · 영상 앞 소개도 같은 꼴(COURSE_WIDE) */

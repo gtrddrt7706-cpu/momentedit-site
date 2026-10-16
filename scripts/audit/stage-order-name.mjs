@@ -31,7 +31,7 @@ const src = path.join(T, 'src'); fs.mkdirSync(src);
    문턱 0.85 는 손대지 않는다. */
 const sylOf0 = (t) => (t.match(/[가-힣]/g) || []).length;
 flat.forEach((x, k) => {
-  x.sec = x.text === '신랑 신부, 입장!' ? 3.4 : Math.max(0.6, sylOf0(x.text) / 5) * (k % 3 === 0 ? 1.7 : 1);
+  x.sec = x.text === '신랑 신부, 입장!' ? 3.4 : Math.max(0.6, sylOf0(x.text) / 5) * (k % 3 === 0 ? 2.0 : 1);   // [SOURCE_FIRST_1016] 자료 글로 문장이 길어져 1.7배로는 r = 0.866 — 2.0배로(r ≈ 0.79) · 문턱은 그대로
   x.f = path.join(src, k + '.flac');
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', `sine=frequency=${300 + k}:duration=${x.sec.toFixed(2)}`, '-ar', '44100', '-ac', '1', x.f]);
 });

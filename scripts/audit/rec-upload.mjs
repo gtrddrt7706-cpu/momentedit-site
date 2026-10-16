@@ -52,10 +52,10 @@ for (const w of [360, 1280]) {
   /* ★[REC_DLG] [녹음] → 작은 창(읽을 글 · 누가 · 마이크 허용 안내 · [녹음 시작]) → [녹음 시작] 뒤에야 마이크 · 3 · 2 · 1 */
   await pg.click('[data-fk="mkrec:g0"]'); await pg.waitForTimeout(300);
   const c0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { ph: MK_REC && MK_REC.ph, dlg: !!d, role: d && d.querySelector('[role=dialog][aria-modal=true]') ? 1 : 0, txt: d ? (d.querySelector('.mk-rect') || {}).textContent || '' : '', mic: d ? /«?허용»?을 눌러 주세요/.test(d.textContent) : false   /* [GUIL_OFF 2026-10-05] «» 는 글꼴로 바뀌어 화면 글자에서 빠진다 */, go: !!(d && d.querySelector('[data-fk="mkrecgo"]')), focus: document.activeElement && document.activeElement.getAttribute('data-fk'), inline: document.querySelectorAll('.mk-vcards .mk-recp').length, inert: !!document.querySelector('.wrap[inert]') }; });
-  ok(`${w} [녹음] → 작은 창(읽을 글 · 마이크 허용 안내 · [녹음 시작] 포커스 · 뒤는 잠김) · 카드 아래로 펼치지 않는다 [REC_DLG]`, c0.ph === 'ready' && c0.dlg && c0.role && c0.txt.length > 20 && c0.mic && c0.go && c0.focus === 'mkrecgo' && !c0.inline && c0.inert, JSON.stringify(c0));
+  ok(`${w} [녹음] → 작은 창(읽을 글 · 마이크 허용 안내 · [녹음 시작] 포커스 · 뒤는 잠김) · 카드 아래로 펼치지 않는다 [REC_DLG]`, c0.ph === 'ready' && c0.dlg && c0.role && c0.txt.length >= 10 /* [SOURCE_FIRST_1016] 하객 맞이 첫 줄이 자료 G4 «발걸음해 주신 여러분, 고맙습니다.»(18자)로 짧아졌다 · 옛 > 20 */ && c0.mic && c0.go && c0.focus === 'mkrecgo' && !c0.inline && c0.inert, JSON.stringify(c0));
   await pg.click('[data-fk="mkrecgo"]'); await pg.waitForTimeout(250);
   const c1 = await pg.evaluate(() => ({ ph: MK_REC && MK_REC.ph, cd: (document.querySelector('#mkRecDlg .mk-reccd') || {}).textContent || '', txt: (document.querySelector('#mkRecDlg .mk-rect') || {}).textContent || '' }));
-  ok(`${w} [녹음 시작] → 3 · 2 · 1 · 그 줄 글이 창 안에 큰 글씨로`, c1.ph === 'count' && /^[123]$/.test(c1.cd) && c1.txt.length > 20, JSON.stringify(c1));
+  ok(`${w} [녹음 시작] → 3 · 2 · 1 · 그 줄 글이 창 안에 큰 글씨로`, c1.ph === 'count' && /^[123]$/.test(c1.cd) && c1.txt.length >= 10 && c1.txt === c0.txt /* [SOURCE_FIRST_1016] 글 길이 대신 «창의 그 글이 그대로» */, JSON.stringify(c1));
   await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'rec', null, { timeout: 8000 }).catch(() => {}); await pg.waitForTimeout(2600);
   const c2 = await pg.evaluate(() => ({ ph: MK_REC && MK_REC.ph, bar: !!document.getElementById('mkRecLvl'), t: (document.getElementById('mkRecT') || {}).textContent || '' }));
   await shot(pg, w + '-rec');
