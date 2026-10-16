@@ -8100,6 +8100,28 @@ chk 'KB_GUEST_VOICE_R6_1016' api/_ritual-kb.js 1         # AI 지식 — 하객 
 nochk '더빙 사이트 → D-7 업로드' api/_ritual-kb.js
 nochk '담으면 하객이 모두 앉은 뒤' api/_ritual-kb.js
 chk 'MS4_SYNC_R6_1016' docs/plans/식순연구/3단계_원고_1013.md 2   # 원고 4-1 · 4-2 = 엔진 글 · 0-11 라운드 6 표
+# ★★[R7_APPLY_1016 2026-10-16 줄 검토 라운드 7 — 라운드 6 고친 자리 점검 · 블록 머리 설명과 사람 구간 장면(지난 일 되풀이 빼기 · 라운드 2 맞절 처방) · 디렉터 글이 고객 안심 · 담은 순간과 같은 말]
+#   줄마다 근거 = docs research/식순_참고자료/줄검토_라운드7_1016.md · 녹음 줄 바뀜 없음(화면 · 디렉터 글만)
+chk 'CANDLE_SCENE_TRIM_R7_1016' assets/ritual-story.js 2   # 화촉 인사 장면 두 판 — 불을 다 밝히고 인사 안내가 나간 뒤 뜬다
+nochk '불을 다 밝히면 안내 음성에 맞춰' assets/ritual-story.js
+chk 'PV_FX_TRIM_R7_1016' assets/ritual-story.js 1          # 식전 영상 fx — 같은 화면 how «…불을 낮추고 …» 되풀이 뺌
+nochk "fx: '불을 낮추고 영상이 흐르면" assets/ritual-story.js
+chk 'SPEECH_FB_LEN_R7_1016' assets/ritual-cue.js 1         # 축사 디렉터 막힘 글 = 고른 길이(1 ~ 10분) · 고객 안심 «정해 두신 시간»
+nochk "'3분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : ''" assets/ritual-cue.js
+chk 'OPEN_MEMO_R7_1016' assets/ritual-cue.js 1             # 137 디렉터 메모 — 담은 순간에 따라(영상 · 화촉 · 둘 다 없음)
+chk 'CLOSE_MEMO_R7_1016' assets/ritual-cue.js 1            # 26 디렉터 메모 «가장 느리게»(마지막 소리는 47)
+nochk "note: '예식의 마지막 소리" assets/ritual-cue.js
+chk 'KB_PV_TIME_R7_1016' api/_ritual-kb.js 1               # AI 지식 · 상담 빠른 답 — 식전 영상은 «예식 시작 시각에»
+nochk '예식 시작 전에 튼다' api/_ritual-kb.js
+nochk '예식 시작 전 «식전 영상»' assets/advisor-kb.js
+chk 'VOW_FB_WORDS_R7_1016' assets/ritual-cue.js 1         # 서약 디렉터 막힘 글 «마지막 두 문장»(같은 화면 제목 · 감사문 판과 같은 말)
+nochk '마지막 합창이 어긋나면' assets/ritual-cue.js
+nochk '마지막 합창이 어긋나면' assets/ritual-story.js
+chk 'KB_CRY_R7_1016' api/_ritual-kb.js 1                   # AI 지식 «읽다가 울 것 같아요» 첫 단계 = 화면 안심(먼 곳 · 숨)
+# [THANKS_DUP_BOTH_R7_1016] 감사 인사 + 감사문 겹침 알림 — 고르는 순서와 상관없이(브라우저로 잰다 · 고치기 전 판에선 «감사문 먼저» 순서가 빨강)
+chk 'THANKS_DUP_BOTH_R7_1016' order-preview.html 1
+chk '_thanksDupToast(k)' order-preview.html 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/thanks-dup-toast.mjs >/dev/null 2>&1; _tdt=$?; if [ "$_tdt" = 1 ]; then echo 'FAIL thanks-dup-toast: 감사 인사 · 감사문 겹침 알림이 한쪽 순서에서만 뜬다 — node scripts/audit/thanks-dup-toast.mjs'; fail=1; elif [ "$_tdt" = 0 ]; then echo 'ok thanks-dup-toast: 겹침 알림 양쪽 순서'; else echo 'skip thanks-dup-toast: 브라우저 없음(재지 못함)'; fi; fi
 # ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
 #   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
 chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
