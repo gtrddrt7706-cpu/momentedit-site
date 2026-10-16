@@ -4128,7 +4128,9 @@ var _pkMsg='';
 function _pkSayOf(k,on){ var R=RitualOpen, nm=R.nameOf(k,S), sp=R.span(S); return nm+_josa(nm,'을','를')+(on?' 담았어요':' 뺐어요')+(R.picked(S).length?' · '+R.spanText(S):''); }   /* [TABLE_APART] */
 /* [R1-43] ① 에서 다시 담거나 빼거나 예시를 바꾸면 ② 의 «이 순간 빼기» 기록(S.mk.drop · dropMin)도 지운다 — 남으면 흐린 «뺀 순간» 쪽 · «다시 넣기» · 지난 «본식 약 n분 줄었어요»가 되살아났다 */
 function _mkForget(ks){ var m=S.mk; if(!m) return; (ks||Object.keys(m.drop||{})).forEach(function(k){ if(m.drop) delete m.drop[k]; if(m.dropMin) delete m.dropMin[k]; }); }
-window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); };
+/* ★[THANKS_DUP_BOTH_R7_1016 라운드 7] 겹침 알림(THANKS_DUP_TOAST_1014)은 감사문을 고를 때만 떴다 — 감사문을 먼저 고르고 감사 인사(또는 서약 카드)를 담는 순서에서도 같은 알림 */
+function _thanksDupToast(k){ if((k==='welcome'||k==='vow')&&S.vowKind==='thanks'&&RitualOpen.onOf(S,'welcome')&&RitualOpen.onOf(S,'vow')) _noteToast('감사 인사와 내용이 겹쳐요'); }
+window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
 window.opChip=function(k,v){ RitualOpen.setChip(S,k,v); opSync(); };
 /* ★★[PICK_V2 3-1 · 3-2] 예시를 누르면 그 자리에서 바뀌고(화면은 옮기지 않는다) 6초 «‹가족› 예시로 바꿨어요 · 되돌리기» ·
    «빈 칸에서 직접 고를게요»도 같은 알림 줄. 되돌리기는 예시가 바꾸는 키만 되돌린다(applyExample 과 같은 목록). */
@@ -7434,7 +7436,7 @@ window.lsAdd=function(k){
   S.on[k]=1; if(k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] */ LS.open=k; LS.flash=k; LS.undo=null;
   var pos=RitualOpen.bodySeq(S).indexOf(k)+1;
   LS.msg='«'+_lName(k)+'»'+_josa(_lName(k),'을','를')+' '+pos+'번째에 담았어요.';
-  opSync(); _lScrollTo(k);   // ★[OP_SYNC_ALL 코워크 추가 점검 P1-3] 종전 buildSteps · render 만 — S.bless 가 'off' 로 남아 요약 흐름에서 덕담 · 반지가 빠졌다
+  opSync(); _lScrollTo(k); _thanksDupToast(k);   // ★[OP_SYNC_ALL 코워크 추가 점검 P1-3] 종전 buildSteps · render 만 — S.bless 가 'off' 로 남아 요약 흐름에서 덕담 · 반지가 빠졌다
 };
 function _lScrollTo(k){ var el=document.getElementById('lsr_'+k); if(el&&el.scrollIntoView){ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; el.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'}); } }
 

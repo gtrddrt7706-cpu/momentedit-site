@@ -266,7 +266,7 @@ const DEMO_LINE = '네, 그러겠습니다.';
 //     아직 잔을 든 손 위로 겹쳐 든다. 여백을 줄이는 일과 진행을 밀어붙이는 일은 다르다.
 const clipGap = (id, file, lastSent) => {
   if (/위하여!$/.test(lastSent)) return { tail: 4.5 };     // 축배 뒤 온도 낙차 4~5초 (동작 대기)
-  if (file === 'narr-close') return { tail: 2.5 };         // 예식의 마지막 소리 — 여운을 길게
+  if (file === 'narr-close') return { tail: 2.5 };         // 사진 안내 — 여운을 길게(하객이 일어서기 시작하는 시간)
   return {};
 };
 
@@ -848,7 +848,7 @@ R.push(`| 클립 앞 | ${GAP.head} | 실청 축소 2차 (원 0.4 → 0.35 → ${
 R.push(`| 문장 사이 | ${GAP.sent} | 실청 축소 2차 (원 1.8 → 0.9 → ${GAP.sent}) · ★타입캐스트가 넣어 준 앞뒤 무음은 조립기가 깎아 내고, 클립 안쪽 쉼도 이 값을 상한으로 줄입니다(SENT_CAP) |`);
 R.push(`| 클립 뒤 | ${GAP.tail} | 실청 축소 2차 (원 1.0 → 0.9 → ${GAP.tail}) |`);
 R.push('| `…위하여!`로 끝나는 클립 뒤 | 4.5 | 축배 뒤 환호가 터진 자리의 낙차 (G9-toast·G9-both 둘 다) · ★잔을 들었다 내리는 동작 대기라 축소 대상이 아닙니다 |');
-R.push('| 폐식(`narr-close`) 뒤 | 2.5 | 예식의 마지막 소리 · 여운 · ★사람이 일어서기 시작하는 시간이라 축소 대상이 아닙니다 |');
+R.push('| 폐식(`narr-close`) 뒤 | 2.5 | 사진 안내 · 여운 · ★사람이 일어서기 시작하는 시간이라 축소 대상이 아닙니다 |');
 R.push(`| \`${DECL_LINE}\` 앞/뒤 | ${FINE.decl[0]} / ${FINE.decl[1]} | ★DECL_PAUSE_POS |`);
 R.push(`| \`${DEMO_LINE}\` 앞/뒤 | ${FINE.demo[0]} / ${FINE.demo[1]} | W2-b 답 시연 구간 |`);
 R.push(`| 혼주 편지 소제목(하나~넷) 앞/뒤 | ${FINE.head4[0]} / ${FINE.head4[1]} | 3분 편지의 구조를 귀로 듣게 |`);

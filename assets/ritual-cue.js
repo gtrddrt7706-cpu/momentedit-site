@@ -787,7 +787,7 @@
             tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 두 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 두 문장은 함께' : tKey),
             both: D.THANKSBOTH, hintNext: '마지막 두 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
-            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 두 문장이 어긋나면 신부가 반 박자 먼저'
+            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 두 문장이 어긋나면 신부가 반 박자 먼저'   // ★[VOW_FB_WORDS_R7_1016 라운드 7] «마지막 합창» → «마지막 두 문장»(같은 화면 제목 · 감사문 판과 같은 말)
           }
         })];
       }
@@ -810,7 +810,7 @@
             tv: S.vowHow === 'each' ? (S.vowFirst === 'b' ? '신부 먼저, 신랑 다음으로 낭독 · 마지막 두 문장은 함께' : '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께') : (S.vowFirst === 'b' ? '두 분이 한 줄씩 번갈아 낭독(신부부터) · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께'),
             both: D.VOWBOTH,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
-            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 합창이 어긋나면 신부가 반 박자 먼저'
+            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 두 문장이 어긋나면 신부가 반 박자 먼저'
           }
         }),
         cue({
@@ -940,7 +940,7 @@
           live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 6 : 60 * len + 8, duck: PARAM.duckOff, self: true,
             doing: fk === 'video' ? 'watch' : fk === 'speech' ? 'say' : 'move',
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로'
-              : fk === 'speech' ? '3분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }
+              : fk === 'speech' ? len + '분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }   // ★[SPEECH_FB_LEN_R7_1016 라운드 7] 늘 «3분»이던 것을 고른 길이로(큐 이름 · 진행 막대 · 고객 안심 «정해 두신 시간»과 같은 값) · ritual-story fbSrc 는 기본 3분 판
         })];
         /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 104 narr-free-out-clap(«따뜻한 박수 부탁드립니다»)은 흐름에서 뺐다.
            클립 · 번호 · EXTRA 는 둔다(되살리려면 박수 자리 셋이 넷이 된다 — 사장님 결정이 먼저). 다음 큐는 앞 live 로 GO. */
@@ -1220,7 +1220,7 @@
            하객 맞이 묶음(PRE)이라 본식 시간에 들지 않는다 · 두 분 목소리 판이어도 이 줄은 나레이션이다(개식 감사는 진행자의 몫 · 원고 8장 8 «두 판이 같은 감사를 듣는다») */
         if (_openC) cues.push(cue({
           k: 'guest', blockN: '예식 시작', slug: 'narr-open', name: '개식 선언', text: EXTRA['narr-open'], duck: PARAM.duckSpeech,   // ★[OPEN_BLOCK_1014 라운드 3] 블록은 따로(자료 모두 개식을 한 순서로 둔다) — «하객 맞이»에 얹으면 콘솔이 하객 맞이 설명을 빌려 쓰고, 디지털 참석 날엔 식전 안내 뒤에 같은 설명 · 팁이 두 번 떴다
-          fire: 'clock', atMin: 0, note: '예식 시작 시각 · 불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다'
+          fire: 'clock', atMin: 0, note: '예식 시작 시각 · ' + (seq.indexOf('prevideo') > -1 ? '불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다' : seq.indexOf('candle') > -1 ? '다음 줄(화촉 여는 말)은 이어서 나간다' : '다음 입장은 [다음]으로(신부 준비 완료 · 문 앞 대기 확인 후)')   // ★[OPEN_MEMO_R7_1016 라운드 7] 늘 «식전 영상 소개»라던 메모를 담은 순간에 따라 — 영상을 뺀 날 틀린 말이었다
         }));
         if (seq.indexOf('prevideo') > -1) cues.push.apply(cues, BUILD.prevideo(S));   // [ONEMIN_FIRST] 공지 다음 · 입장 앞
       }
@@ -1272,7 +1272,7 @@
     // 폐식 — 목록 밖 고정
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close', name: '단체 사진 안내', text: D.NARR.close,   /* ★[CLOSE_WORDS_1013] 이름 «폐식 · 단체촬영 전환» 금지 — 콘솔 고객판에 보인다 · blockN 은 순서 흐름 열쇠라 그대로 */
-      duck: -12, note: '예식의 마지막 소리 · 가장 느리게',
+      duck: -12, note: '가장 느리게',   // ★[CLOSE_MEMO_R7_1016 라운드 7] «예식의 마지막 소리»는 47 메모(남은 분들이 듣는 마지막 소리)와 겹쳤다
       /* ★[GATHER_WAIT 2026-08-08] 사람이 모이는 시간을 큐가 알아야 한다.
          전에는 post wait 30초 뒤 다음 큐가 **자동으로** 나갔다. 그런데 이 클립이
          "모두 앞으로 나와, 두 분 곁에 서 주세요" 라고 부르는 말이 됐다([CLOSE_V2]).
