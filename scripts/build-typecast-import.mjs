@@ -504,7 +504,7 @@ for (const P of PARTS) {
       else if ((c.file === 'end-1a-farewell' || c.file === 'end-1c-thanks-nomeal') && s.text === '두 사람이, 다시 한번 감사 인사를 드립니다.' && !last) after = 3.0;
       /* ★[MATJEOL_HOLD_1014 2026-10-14 원고 4판 ② · 사장님 아침 확인 1 «추천대로»] 맞절(132) «두 분, 서로 마주 봐 주세요.» 뒤 3초 — 두 분이 마주 보고 눈을 맞추는 정적(자료 EE 1).
          곧바로 뜻 줄이 이어지면 마주 보는 순간이 말에 묻힌다 · THANKS_BOW 와 같은 방법(조립기가 무음을 넣는다 · 다시 받을 필요 없음) */
-      else if (c.file === 'narr-entry-bow' && s.text === '두 분, 서로 마주 봐 주세요.' && !last) after = 3.0;
+      else if (c.file === 'narr-entry-bow' && s.text === '두 분, 서로의 눈을 바라봐 주세요.' && !last) after = 3.0;   // ★[SOURCE_BEST_1015 라운드 5] 글이 «서로의 눈을 바라봐»로 바뀌어 쉼 열쇠도 함께(옛 열쇠면 3초 쉼이 조용히 사라진다)
       /* ★[CALL_HOLD_1014] «신랑 신부, 맞절!» 앞은 «입장!»과 같은 0.6초(PACE_D · 원고 2-3 «입장 구호와 같은 꼴») — 뜻 줄 뒤 곧바로 선창 */
       else if (c.file === 'narr-entry-bow' && sents[k + 1] && sents[k + 1].text === '신랑 신부, 맞절!') after = 0.6;
       // 문단 경계는 한 박 더 쉰다
