@@ -43,6 +43,7 @@ body{
   background:var(--bg);color:var(--text);font-family:var(--sans);
   font-size:16px;line-height:1.6;overscroll-behavior:none;
   -webkit-user-select:none;user-select:none;
+  word-break:keep-all;overflow-wrap:break-word;   /* ★[CONSOLE_KEEPALL_1015 라운드 5] 고객판 미리듣기(390)에서 «돌려드려|요.» · «자|연스럽게»처럼 낱말 가운데서 꺾였다 — 다른 쪽(order-preview · mypage · guide)과 같은 규칙 · 띄어쓰기 없는 긴 글은 break-word 가 받는다 */
 }
 button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
 .wrap{max-width:1280px;margin:0 auto;padding:0 16px;padding-bottom:env(safe-area-inset-bottom)}
@@ -1156,7 +1157,7 @@ function playSrc(url, estSec, cb){
 /* ★★[CUE_SIG 2026-10-04 사장님 «누군가는 끝나는 멘트에 맞춰 나레이션을 켜야 한다 · 적을 수 있게 · 현장이면 큐사인을 직접 적게»] 끝 신호 — 디렉터 화면에만.
    글을 적었으면 그 글의 마지막 문장, «현장에서 바로»면 두 분이 적은 신호(S.cueSig). 두 분 글은 엔진(미리 듣기 링크가 싣는 키)에 넣지 않고 여기서만 읽는다 */
 function cueEnd(c){ if (!c || !c.live || c.live.doing !== 'say') return '';
-  var M = { welcome: [['welcome.g','신랑'],['welcome.b','신부']], vow: [['vow.g','신랑'],['vow.b','신부']], letter: [['letter.g','신랑'],['letter.b','신부']], bless: [['p:bless:0','부모님','bless.p']], toast: [['toast.g','신랑'],['toast.b','신부']], free: [['p:free:0','축사하시는 분','free.p']] };   /* [SPEECH_SCRIPT 2026-10-07] 축사(말하는 판만 doing 'say') — 받은 원고 끝 문장 · «원고 없이»면 끝 신호 */   /* [TOAST_SAY 2026-10-07] 축배 한마디(선택) — 적었으면 마지막 분 끝 문장 · 비었으면 종전 큐(«위하여») */
+  var M = { welcome: [['welcome.g','신랑'],['welcome.b','신부']], vow: [['vow.g','신랑'],['vow.b','신부']], letter: [['letter.g','신랑'],['letter.b','신부']], bless: [['p:bless:0','부모님','bless.p']], toast: [['toast.g','신랑'],['toast.b','신부']], tribute: [['tribute.g','신랑'],['tribute.b','신부']], free: [['p:free:0','축사하시는 분','free.p']] };   /* ★[TRIB_CUE_END_1015 라운드 5] 말로 인사 날도 디렉터가 마지막 분의 끝 문장을 보고 구호(145)를 낸다 */   /* [SPEECH_SCRIPT 2026-10-07] 축사(말하는 판만 doing 'say') — 받은 원고 끝 문장 · «원고 없이»면 끝 신호 */   /* [TOAST_SAY 2026-10-07] 축배 한마디(선택) — 적었으면 마지막 분 끝 문장 · 비었으면 종전 큐(«위하여») */
   var it = M[c.k]; if (!it || (c.k === 'bless' && S.blessProxy)) return '';
   var tx = S.tx || {}, mk = S.mkc || {}, cs = S.cueSig || {}, out = [];
   var last = function(s){ var p = String(s || '').replace(/\s+/g, ' ').trim().match(/[^.!?。]+[.!?。]*/g) || []; var l = (p[p.length - 1] || '').trim(); return l.length > 40 ? '…' + l.slice(-40) : l; };
@@ -1166,7 +1167,7 @@ function cueEnd(c){ if (!c || !c.live || c.live.doing !== 'say') return '';
   /* ★[CUE_LAST 2026-10-06 사장님 «마지막 사람만 큐사인 알려 주면 되잖아»] 디렉터는 마지막 분이 끝났을 때만 알면 된다 —
      서약은 끝에 두 분이 함께 읽는 두 문장(live.both)이 끝 신호 · 첫인사 · 편지는 마지막 분(신부 · 없으면 남은 분) 하나 */
   if (c.k === 'vow' && c.live.both) { var _b = [].concat(c.live.both); return '두 분 함께 «' + last(_b[_b.length - 1]) + '»'; }
-  if (c.k === 'welcome' || c.k === 'letter' || c.k === 'toast') return out.length ? out[out.length - 1] : '';   // [TOAST_SAY] 축배도 신랑 다음 신부 — 마지막 분 하나
+  if (c.k === 'welcome' || c.k === 'letter' || c.k === 'toast' || c.k === 'tribute') return out.length ? out[out.length - 1] : '';   // [TOAST_SAY] 축배도 신랑 다음 신부 — 마지막 분 하나
   return out.join(' / '); }
 /* ★★[GUEST_WHY 2026-10-07 1라운드 점검] 고객 미리 듣기에서 소리가 «실패해서» 글 카드로 흐른 순서는 그 까닭 한 줄(코드)을 글 아래에 —
    종전엔 setPill 이 고객 화면에서 바로 돌아가 녹음 목록을 못 받음 · 파일을 못 엶 · 재생 막힘이 전부 말없는 글 카드였다(배경 음악만 흐른다).
@@ -1387,6 +1388,9 @@ function liveLead(l){ var d = l && DOING[l.doing]; return (l && l.self && d) ? d
    빌더(scripts/build-course-story.mjs)가 전 코스·전 축에서 빠진 자리를 전수로 잡는다.
    여기 나가는 말의 원천은 셋뿐이다 — 장면 레이어(liveOf/blockOf) · 코스 표(detail[]) · 나레이션 문안(c.text). */
 var GDOING = { say:'직접 말하는 시간', move:'움직이는 시간', sing:'노래하는 시간' };
+/* ★[GUEST_CUE_TERM_1015 라운드 5] 고객판에 뜨는 큐 이름 — TERM_DIGITAL(9/12 사장님 결정 ③)은 «고객 글은 디지털 참석»이고 디렉터 라벨(«온라인 참석자 환영» · «온라인 인사»)은 그대로 둔다.
+   그런데 고객판 콘솔도 c.name 을 그대로 띄웠다 — 고객판에서만 바꿔 부른다 */
+function gName(c){ return String((c && c.name) || '').replace('온라인 참석자 환영', '디지털 참석 환영').replace(/^온라인 인사$/, '디지털 참석 인사'); }
 function gScene(c){ return (STORY && STORY.liveOf(c)) || null; }
 function gLiveTitle(c, sc){
   // 조사를 붙이지 않는다 — who 가 '두 분'·'부모님'·'하객 여러분'으로 바뀌어 '이/가'가 매번 틀린다
@@ -1527,7 +1531,7 @@ function render(){
       h.hidden = !(sc.tip || bfx);   h.textContent = sc.tip || bfx || '';
       sf.hidden = !sc.safe; sf.textContent = sc.safe || '';
     } else {
-      $('#nName').textContent = c.name;
+      $('#nName').textContent = gName(c);   // [GUEST_CUE_TERM_1015]
       tx.className = 'txt'; tx.textContent = c.text || '';
       h.hidden = !bfx; h.textContent = bfx;
       sf.hidden = true; sf.textContent = '';
@@ -1594,7 +1598,7 @@ function up(n1, n2){
     if (GUEST) {
       // ★디렉터 정보는 한 줄도 내지 않는다 — 발사 방식·클립 번호·'녹음 없음'·'문안 자동 교체'는
       //   전부 우리 사정이고, 고객이 읽으면 "준비가 덜 됐나" 하는 신호로만 남는다
-      el.querySelector('.nm').textContent = c.name;
+      el.querySelector('.nm').textContent = gName(c);   // [GUEST_CUE_TERM_1015]
       el.querySelector('.es').textContent = fmt(c.est + (c.live ? (c.live.est || 0) : 0));
       return;
     }
