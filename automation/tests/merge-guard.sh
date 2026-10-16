@@ -8109,6 +8109,10 @@ nochk "fx: '불을 낮추고 영상이 흐르면" assets/ritual-story.js
 chk 'SPEECH_FB_LEN_R7_1016' assets/ritual-cue.js 1         # 축사 디렉터 막힘 글 = 고른 길이(1 ~ 10분) · 고객 안심 «정해 두신 시간»
 nochk "'3분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : ''" assets/ritual-cue.js
 chk 'OPEN_MEMO_R7_1016' assets/ritual-cue.js 1             # 137 디렉터 메모 — 담은 순간에 따라(영상 · 화촉 · 둘 다 없음)
+# [OPEN_MEMO_NAME_R8_1016 라운드 8] 137 메모 괄호 = 다음 큐 이름 그대로(식전 영상 소개 · 화촉 시작) · 근거 = docs 줄검토_라운드7_1016.md 6장(라운드 8)
+chk 'OPEN_MEMO_NAME_R8_1016' assets/ritual-cue.js 1
+chk '다음 줄(화촉 시작)은 이어서 나간다' assets/ritual-cue.js 1
+nochk '화촉 여는 말)은 이어서' assets/ritual-cue.js
 chk 'CLOSE_MEMO_R7_1016' assets/ritual-cue.js 1            # 26 디렉터 메모 «가장 느리게»(마지막 소리는 47)
 nochk "note: '예식의 마지막 소리" assets/ritual-cue.js
 chk 'KB_PV_TIME_R7_1016' api/_ritual-kb.js 1               # AI 지식 · 상담 빠른 답 — 식전 영상은 «예식 시작 시각에»
