@@ -2505,7 +2505,7 @@ chk 'padOf(file)' scripts/build-dubbing-script.mjs 1
 #     '대기' 버튼에 '51' 이 손으로 박혀 있었다(진짜 번호는 49 · 51 은 bridge-6-resume '재개').
 #     디렉터가 클립 파일을 불러오면 CLIPS 에 번호 열쇠가 생기므로, 당일 '대기' 를 눌렀을 때
 #     재개 안내가 나갔을 자리다. 숫자를 다시 박으면 이 줄이 빨간불을 켠다.
-chk 'CLIPS\[RitualCue.noOf' console.html 3
+chk 'CLIPS\[RitualCue.noOf' console.html 2   # ★[WAIT_CLIP_OFF_1016 라운드 6] 셋 중 «대기» 자리(49 · 9/6 폐지)를 걷어 둘이 남았다 — 남은 둘도 번호는 noOf 에서
 nochk "CLIPS\['[0-9]" console.html 0
 # [CLIP_COUNT] 대본 클립 수 가드 — 51 로 굳어 있는 동안 대본은 74 가 됐고, 생성기가 매번
 #   실패하면서 manifest.json 이 옛 51클립짜리로 얼어붙어 있었다(사람 눈에만 뜨는 실패였다).
@@ -7869,6 +7869,8 @@ chk 'SONG_OPEN_ANYONE_1013' scripts/audit/narr-words.mjs 1
 chk 'SOURCE_WORDS_1013' docs/plans/식순연구/3단계_원고_1013.md 1   # 자료 글은 구호 · 정형구 · 뼈대만 그대로 · 문장은 우리 말로
 chk 'SOURCE_BEST_1015' docs/plans/식순연구/3단계_원고_1013.md 1   # ★10/15 사장님 — 고정 멘트 없음 · 자료집 베스트 멘트를 그대로 또는 단어만 바꿔서(위 10/13 기준을 바꿈)
 chk 'SOURCE_BEST_1015' CLAUDE.md 1
+chk 'SOURCE_ALL_1016' docs/plans/식순연구/3단계_원고_1013.md 1   # ★10/16 사장님 — 쓸 수 있는 자료 멘트는 전부 · 같은 자리는 베스트 하나 · 예시도 베스트 · 자료 없는 자리는 사장님께 목록으로
+chk 'SOURCE_ALL_1016' CLAUDE.md 1
 node scripts/audit/narr-words.mjs || fail=1
 node scripts/audit/narr-words.mjs --selftest || fail=1
 # ★★[NARR_ENGINE_GATE_1014] 3단계 원고를 엔진에 옮겼다(PR B) — 이제 엔진 줄도 같은 자로 막는다 · 봐주는 것은 «녹음 대기»(원고 글은 자 통과 · 새 문장은 타입캐스트_<n>판 목록에 맡김)뿐
@@ -7902,12 +7904,12 @@ chk 'OPEN_DECL_1014' assets/ritual-cue.js 2          # 개식 선언(137) — �
 chk 'OPEN_DECL_1014' assets/ritual-open.js 1
 chk 'OPEN_DECL_1014' api/_ritual-kb.js 1
 chk 'OPEN_DECL_1014' scripts/audit/open-course.mjs 2
-chk "open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 하객 한 분 한 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.'" assets/ritual-open.js 1  # ★[SOURCE_BEST_1015 라운드 5] [OPEN_WITNESS_1015] BB 93 단어 바꿈 · 화촉 «…계셨던 분들이»와 같은 꼴 풂
+chk "open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 하객 한 분 한 분이, 이 결혼식의 증인입니다. 지금부터, 예식을 시작하겠습니다.'" assets/ritual-open.js 1  # ★[SOURCE_BEST_1015 라운드 5] [OPEN_WITNESS_1015] BB 93 단어 바꿈 · 화촉 «…계셨던 분들이»와 같은 꼴 풂
 chk "c.slug!=='narr-open'" order-preview.html 2        # 두 분 목소리 판이어도 개식 선언은 나레이션(두 분 줄로 바꾸지 않는다)
 chk 'CANDLE_CALL_1014' assets/ritual-cue.js 2          # 화촉 — 불을 밝힘 → 맺는 말(불을 다 밝히면 GO) → 인사 안내(138 · 139 · 1.25초 사슬) → 인사 · 자리로
 chk 'CANDLE_CALL_1014' assets/ritual-story.js 1
 chk 'CANDLE_CALL_1014' scripts/audit/open-course.mjs 2
-chk 'CANDLE_TONE_1014' assets/ritual-cue.js 2          # 입장 «격식 있게»면 맺는 말 «양가의 촛불이 모두 켜졌습니다»(140)
+chk 'CANDLE_TONE_1014' assets/ritual-cue.js 2          # 입장 «격식 있게»면 맺는 말 «두 가정의 마음이 하나의 불꽃이 되었습니다»(140 · 라운드 5 SOURCE_BEST_1015 · 옛 «양가의 촛불이 모두 켜졌습니다»)
 chk "slug: (S.entry === 'C' ? 'narr-candle-out-formal' : 'narr-candle-out')" assets/ritual-cue.js 1
 chk 'CANDLE_FF_1014' assets/ritual-open.js 1          # 화촉 여는 말 앞 문장(부모님 판 셋 · 다른 두 분 판은 그대로 · 참이 아닐 수 있다)
 chk 'ENTRY_ARRIVE_1014' assets/ritual-cue.js 3         # 입장 받는 말(144 · 두 분이 앞에 서고 박수가 잦아들면 GO) → 맞절 1.25초 사슬
@@ -8062,6 +8064,42 @@ nochk '적어 두시면 카드로' assets/ritual-open.js
 nochk '적어 두시면 카드로' order-preview.html
 chk 'GUEST_TAIL_1015' order-preview.html 7             # 두 분 목소리 판 하객 맞이 — 카드 넷 뒤에 나레이션 줄(개식 선언 등) · 실제 차례대로
 chk 'GUEST_TAIL_1015' scripts/audit/listen-page.mjs 2   # 브라우저 — 개식 선언 줄이 카드 뒤 · 목소리 칸 안
+# ★★[R6_APPLY_1016 2026-10-16 줄 검토 라운드 6 · ★SOURCE_ALL_1016 사장님 10/16 «자료집에 있는 대본 쓸 수 있는 건 전부 넣고 여러 개가 많으면 베스트로 · 예시도 베스트로»]
+#   줄마다 자료 글자 = docs research/식순_참고자료/줄검토_라운드6_1016.md · 녹음은 9판 대기 목록에 더함
+chk 'OPEN_WITNESS_R6_1016' assets/ritual-open.js 1      # 137 둘째 문장 = BB 9 «하객 한 분 한 분이 결혼식의 증인»(+«이»)
+nochk '두 사람의 약속을 지켜보는 증인입니다' assets/ritual-open.js
+chk 'PHOTO_ASK_R6_1016' assets/ritual-cue.js 1          # 84 = G4 표 2 다정 «1분 전 바로 뒤» 단어 둘
+chk 'RING_SHARE_R6_1016' assets/ritual-data.js 1        # 반지 여는 말 «나누겠습니다»(부모님께 인사 «…전하겠습니다»와 서술어 겹침)
+chk 'CLOSE_PHOTO_R6_1016' assets/ritual-data.js 1       # 26 첫 문장 = DD 템플릿 6 «잠시 후 기념 촬영이 있습니다»
+chk '잠시 후, 기념 촬영이 있습니다. 먼저 다 함께 한 장 담겠습니다.' assets/ritual-data.js 2
+chk '잠시 후, 기념 촬영이 있습니다. 먼저 다 함께 한 장 담겠습니다.' order-preview.html 1
+nochk '이제 사진을 남기겠습니다.' assets/ritual-data.js
+nochk '이제 사진을 남기겠습니다.' order-preview.html
+chk '여러분 덕분에, 오늘 이 순간이 더 행복합니다.' assets/ritual-ref.js 1   # 감사 인사 담백 신랑 셋째 · Z 1 흐름 5 + 감사문 캡처 «여러분 덕분에»
+nochk '준비한 이야기를 들려드리겠습니다' assets/ritual-ref.js
+chk '우리 가족이 되어 주신 서준 씨, 하윤이를 사랑해 줘서 고맙습니다.' assets/ritual-ref.js 1   # 축사 예시 ① 맺는 말 · Y 4-1 ③
+nochk '서준 씨, 우리 가족이 된 걸 환영합니다.' assets/ritual-ref.js
+# [WAIT_SAFE_R6_1016] 서약 · 감사문 · 편지 안심 — 폐지된 대기 클립(WAIT_BRIDGE_RETIRED 9/6)을 약속하지 않는다
+chk 'WAIT_SAFE_R6_1016' assets/ritual-story.js 1
+chk '먼 곳을 보며 숨을 한 번 고르시고, 그래도 힘드시면' assets/ritual-story.js 5
+nochk '자리를 메워 드리고, 그래도' assets/ritual-story.js
+nochk '\[대기 클립\]' assets/ritual-story.js
+nochk '\[대기 클립\]' assets/ritual-cue.js
+chk 'TABLE_SCENE_TRIM_R6_1016' assets/ritual-story.js 1   # 테이블 인사 장면 — 같은 화면 머리 설명과 같은 «다 돌면 사진» 뺌
+nochk '다 돌면 모두 앞으로 모여 사진을 남겨요' assets/ritual-story.js
+# [WAIT_CLIP_OFF_1016] 콘솔 — 대기 클립(49) 판 · 편지 알림 걷기 · 단추는 «재생 안 됨» 하나
+chk 'WAIT_CLIP_OFF_1016' console.html 5
+nochk 'bridge-4-wait-emotion' console.html
+nochk '대기 클립<small>' console.html
+nochk '말이 끊기면 \[대기 클립\]' console.html
+# [RESCUE_REPLAY_1016] 미룬 순서를 사진 시간 첫 큐에 한 줄(고객 안심 «사진 시간에 다시 틀어 드려요»의 짝) — 브라우저로 잰다 · 깨 보면 빨강(10/16)
+chk 'RESCUE_REPLAY_1016' console.html 4
+chk 'RESCUE_REPLAY_1016' scripts/audit/rescue-replay.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/rescue-replay.mjs >/dev/null 2>&1; _rr=$?; if [ "$_rr" = 1 ]; then echo 'FAIL rescue-replay: «재생 안 됨»으로 미룬 순서를 사진 시간에 알리는 장치가 깨졌습니다 — node scripts/audit/rescue-replay.mjs'; fail=1; elif [ "$_rr" = 0 ]; then echo 'ok rescue-replay: 미룬 순서를 사진 시간에 한 줄'; else echo 'skip rescue-replay: 브라우저 없음(재지 못함)'; fi; fi
+chk 'KB_GUEST_VOICE_R6_1016' api/_ritual-kb.js 1         # AI 지식 — 하객 맞이 두 분 목소리 길 · 식전 영상 «예식 시작 시각 · 예식 맨 앞»
+nochk '더빙 사이트 → D-7 업로드' api/_ritual-kb.js
+nochk '담으면 하객이 모두 앉은 뒤' api/_ritual-kb.js
+chk 'MS4_SYNC_R6_1016' docs/plans/식순연구/3단계_원고_1013.md 2   # 원고 4-1 · 4-2 = 엔진 글 · 0-11 라운드 6 표
 # ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
 #   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
 chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
@@ -9059,7 +9097,9 @@ chk '이 약속은 두 사람만의 것이 아닙니다' assets/ritual-data.js 1
 # ★[RING_FRAME 2026-09-20 사장님 「박수유도는?」] 반지 구간에 «왜 반지인가»와 «박수»가 둘 다 없었다.
 #   박수를 여는 진행 클립이 13개인데 반지만 0개였고, 서른 명 예식은 누가 먼저 치지 않으면 박수가 안 난다.
 #   ★수식어 없이 「박수」만 — 「큰 박수」는 성혼선언 네 갈래가, 「따뜻한 박수」는 입장 여섯 갈래가 이미 쓴다.
-chk '반지로 마음을 전하겠습니다. 두 분, 신랑부터 차례로 서로의 손에 끼워 주세요.' assets/ritual-data.js 2  # ★[SOURCE_BEST_1015 라운드 5] G1 58 · G3 49(«말 대신,» 뺌)   # ★[NAR_ENGINE_1014] 10/14 원고 3단계 + 5판(«줄 것입니다»는 짐작 W5 · 앞 순서와 «이제» 잇달음) · 옛 주석: 15 — 왜 하는 순서인지 들리게 · [REDUB_1003] «거예요»(해요체) → «것입니다»(나레이션 합쇼체 · 녹음 받음 10/3)
+chk '반지로 마음을 나누겠습니다. 두 분, 신랑부터 차례로 서로의 손에 끼워 주세요.' assets/ritual-data.js 2  # ★[RING_SHARE_R6_1016 라운드 6] «전하겠습니다 → 나누겠습니다» 한 낱말 — 반지 바로 뒤가 부모님께 인사인 날 이름 줄 «부모님께 감사를 전하겠습니다»(PAIR_DRAFT_V3 사장님)와 큐 둘 거리 서술어 같음(PRED_ECHO 65,536 중 512) · 편지 «…전해 주세요»도 · ★[SOURCE_BEST_1015 라운드 5] G1 58 · G3 49(«말 대신,» 뺌)
+nochk '반지로 마음을 전하겠습니다.' assets/ritual-data.js
+nochk '반지로 마음을 전하겠습니다.' order-preview.html   # ★[NAR_ENGINE_1014] 10/14 원고 3단계 + 5판(«줄 것입니다»는 짐작 W5 · 앞 순서와 «이제» 잇달음) · 옛 주석: 15 — 왜 하는 순서인지 들리게 · [REDUB_1003] «거예요»(해요체) → «것입니다»(나레이션 합쇼체 · 녹음 받음 10/3)
 # ★코워크 물음 「두 곳 중 하나가 어디냐」 — 실측: NARR.ring 본문과 어조표 «담백»(COURSES 갈래) 둘이다.
 #   둘은 같은 문장을 들고 있어 **함께** 바꿔야 한다. 한쪽만 고치면 코스에 따라 옛 말이 나간다.
 nochk '오래 기억되도록, 박수를 부탁드립니다.' assets/ritual-data.js   # ★[CLAP_FEW 2026-09-26] 반지 박수 문장은 뺐다(NARR.ring · 어조표 담백 둘 다)
@@ -10899,7 +10939,8 @@ chk 'PHOTO_OK' scripts/apply-photo-ok.mjs 1   # ★넣은 날부터 1개뿐이�
 # ★[SOURCE_BEST_1015 라운드 5] 사진 허락(PHOTO_FREE)은 1분 전에서 10분 전으로 옮겼다(자료 G4 분배 · 1분 전 바로 뒤 사진 올리기 84 는 그대로)
 chk '마음껏 담아 주시길 바랍니다.' assets/ritual-data.js 2
 chk '마음껏 담아 주시길 바랍니다.' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '안내 페이지의 사진 올리기로, 신랑 신부에게 보내실 수 있습니다.' assets/ritual-cue.js 1   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(지적 4 · 플레이 01) · 낫표 없이 이름만
+chk '안내 페이지의 사진 올리기로, 여러분의 시선이 담긴 장면을 신랑 신부에게 보내실 수 있습니다.' assets/ritual-cue.js 1   # ★[PHOTO_ASK_R6_1016 라운드 6] G4 표 2 다정 단어 둘 바꿈
+nochk '같은 장면도, 계신 곳마다 다르게 담깁니다.' assets/ritual-cue.js   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(지적 4 · 플레이 01) · 낫표 없이 이름만
 nochk '휴대폰 소리는 잠시만 꺼 주시면' assets/ritual-data.js
 
 # ★[GUEST_EAR] 하객 귀로만 대본을 따라가는 검사. 25명 중 한 사람이 되어 자기가 무엇을 듣고
@@ -15293,7 +15334,7 @@ chk 'PT_PREP_RETRY' scripts/audit/play-wait-file.mjs 1
 # ★[PREVIDEO_FREE 남은 자리 2026-10-05 · ONEMIN_FIRST 점검] 식전 영상 길이 규정 없음 — 빌더 힌트 · AI 상담 지식에 남았던 «3분 이내» 걷음
 nochk '가로 mp4 3분 이내' order-preview.html
 nochk '가로 mp4 · 3분 이내' api/_ritual-kb.js
-chk '본식 맨 앞(화촉 · 입장 앞)에 불을 낮추고' api/_ritual-kb.js 1   # [SEQ_PV_ORDER_1014] 10/14 «입장 바로 앞» → 화촉을 담으면 영상 뒤가 화촉(OPEN_WORDS_1013)
+chk '예식 맨 앞(화촉 · 입장 앞)에 불을 낮추고' api/_ritual-kb.js 1   # ★[KB_GUEST_VOICE_R6_1016 라운드 6] «본식 → 예식»(식전 영상은 본식 시간 밖 · PRE) · [SEQ_PV_ORDER_1014] 10/14 «입장 바로 앞» → 화촉을 담으면 영상 뒤가 화촉(OPEN_WORDS_1013)
 :
 # ★[ONEMIN_CLOCK_KEEP 2026-10-05 사장님 «추천대로»] 안내 시각은 영상 시작 기준(-14 · -9 · -5) · 영상은 본식 시작 4분 전 — 청첩장 시각과 4분 차이는 알고 유지
 chk 'ONEMIN_CLOCK_KEEP' assets/ritual-cue.js 1   # (기록) 같은 날 CEREMONY_AT_VIDEO 로 걷음
