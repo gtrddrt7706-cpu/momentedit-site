@@ -163,6 +163,7 @@ body:not(.guest) .tm{min-height:26px;align-items:center}   /* [BLESS_PER_SPEAKER
 }
 .sub3 button small{display:block;font-size:10px;font-weight:400;color:var(--dim);margin-top:2px}
 .sub3 button.on{background:var(--gold);border-color:var(--gold);color:#20180F}
+.sub3 button:disabled{opacity:.38;cursor:default}   /* [WAIT_CLIP_OFF_1016] «재생 안 됨»은 영상 · 음원 순서에서만 */
 .vol{display:flex;align-items:center;gap:12px;margin-top:12px}
 .vol span{font-size:11px;color:var(--dim);flex:0 0 auto}
 .vol input{flex:1;accent-color:var(--gold);height:26px}
@@ -680,7 +681,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       <button class="main" id="mBtn">시작 <small>길게 누르면 전체 정지</small></button>
       <div>
         <div class="sub3">
-          <button id="bWait">대기 클립<small>지금 기다립니다</small></button>
+          <button id="bWait" disabled>재생 안 됨<small>사진 시간으로 미룸</small></button><!-- ★[WAIT_CLIP_OFF_1016] 대기 클립(49 · WAIT_BRIDGE_RETIRED 9/6) 판 없음 · 되살리지 말 것 -->
           <button id="bMute">음악만 멈춤<small>말은 그대로</small></button>
           <button id="bBack">뒤로<small>한 칸 되돌림</small></button>
         </div>
@@ -1048,6 +1049,7 @@ var muted = false;
 var fired = {};            // clock 큐 중복 발사 막기
 var wakeLock = null;
 var progT = null;
+var RESCUED = [];          // ★[RESCUE_REPLAY_1016] «재생 안 됨»으로 미룬 순서 이름 — 고객 안심 «사진 시간에 다시 틀어 드려요»를 콘솔이 기억한다
 var progS = null;            // [GUEST_PAUSE] 지금 흐르는 진행(초·끝나면 할 일·시작시각)
 var PAUSED = false;          // [GUEST_PAUSE] 고객이 '멈춤'을 눌러 선 상태
 var bgmWas = false;          // [GUEST_PAUSE] 멈추기 직전 배경 음악이 흐르고 있었나
@@ -1058,7 +1060,7 @@ function cueAt(i){ return (R && (shown[i] || R.cues[i])) || null; }
 var castNow = null;                       // 지금 흐르는 배역 예시 클립(배지의 원천)
 var blkNow = '', blkFresh = false;        // 블록 머리말은 블록이 바뀌는 첫 큐에서만 띄운다
 function resetRun(){
-  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0;
+  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; RESCUED = [];
   castNow = null; blkNow = ''; blkFresh = false;
 }
 
@@ -1304,8 +1306,7 @@ function fire(i, opt){
         else {
           runProg(c.live.est || 30, null);
           swellArm(c);   // [BLESS_PER_SPEAKER]
-          // 편지 낭독 중 오래 말이 없으면 대기 클립을 권한다(런북 §11-C read.waitClipAt)
-          if (c.k === 'letter') later(function(){ toast('말이 끊기면 [대기 클립]을 눌러도 됩니다'); }, (PARAM.read.waitClipAt + 20) * 1000);
+          // ★[WAIT_CLIP_OFF_1016 라운드 6] 편지 낭독 중 «대기 클립을 눌러도 된다»는 알림은 뺐다 — 대기 클립은 9/6 폐지 · 멈추면 소리 없이 기다린다(live.fallback)
         }
       } else {
         phase = 'done';
@@ -1419,13 +1420,12 @@ function gBlock(bn){
 function render(){
   if (!R) return;
   gWhyPaint();   // [GUEST_WHY] 지금 순서의 까닭 한 줄만(다음 순서로 가면 걷힌다)
-  // [FREE_RESCUE] 사람 구간이 «재생 안 됨»을 가진 큐면 대기 클립 단추의 이름을 바꾼다 — 누르면 할 일이 이름이다.
+  // [FREE_RESCUE] 사람 구간이 «재생 안 됨»을 가진 큐(식전 영상 · 준비한 순서의 영상 · 음원)에서만 이 단추가 눌린다.
+  // ★[WAIT_CLIP_OFF_1016 라운드 6] 그 밖에서 틀던 대기 클립(49 «잠시 이대로 두겠습니다»)은 9/6 사장님 결정(WAIT_BRIDGE_RETIRED · 감정 멈춤엔 목소리 없음)으로 폐지됐는데 단추가 남아 있었다 — 판을 걷고 흐리게 둔다(자리 · 크기 그대로 · 화면이 흔들리지 않게).
   var _sp = $('#bSpk'), _sc = cueAt(cur);   // [BLESS_PER_SPEAKER]
   if (_sp) _sp.hidden = !(!GUEST && MODE !== 'preview' && phase === 'live' && _sc && _sc.live && _sc.live.perSpeaker);
   var _bw = $('#bWait');
-  if (_bw) { var _rs = (phase === 'live' && R.cues[cur] && R.cues[cur].rescue);
-    var _lb = _rs ? '재생 안 됨<small>사진 시간으로 미룸</small>' : '대기 클립<small>지금 기다립니다</small>';
-    if (_bw.innerHTML !== _lb) _bw.innerHTML = _lb; }
+  if (_bw) _bw.disabled = !(phase === 'live' && R.cues[cur] && R.cues[cur].rescue);
   // ★[GUEST_PREV] 첫 순서에서는 되돌아갈 데가 없다 — 살아 있는 버튼으로 두지 않는다
   var _gp = $('#gPrev'); if (_gp) _gp.disabled = !GUEST || (phase !== 'end' && cur <= 0);
   // [GUEST_PAUSE] 멈춤 버튼 — 끝난 뒤엔 멈출 것이 없다. 라벨은 지금 상태가 아니라 **누르면 될 일**을 적는다.
@@ -1564,6 +1564,8 @@ function render(){
     tx.textContent = c.text || '';
   }
   var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
+  /* ★[RESCUE_REPLAY_1016 라운드 6] «재생 안 됨»으로 미룬 순서가 있으면 사진 시간 첫 큐에서 한 줄 — 고객 화면 안심 «사진 시간에 다시 틀어 드려요»(식전 영상 · 준비한 순서)의 짝 */
+  if (RESCUED.length && (c.slug === 'narr-close' || c.slug === 'end-0-photo')) htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
   h.hidden = !htxt; h.textContent = htxt;
   sf.hidden = true; nb.hidden = true;
   $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
@@ -1702,11 +1704,7 @@ $('#bSpk').onclick = function(){
   toast('다음 분 · 시간을 새로 잽니다');
 };
 
-// 대기 클립(감정이 지나가기를 함께 기다리는 안내). 체인은 멈춘다.
-// [FILE_NO_SOURCE] 번호를 손으로 적지 않는다 — 여기 '51' 이 박혀 있었고, 엔진이 세는
-//   진짜 번호는 49(bridge-4-wait-emotion)였다. 51 은 bridge-6-resume('재개')이다.
-//   디렉터가 클립 파일을 불러오면 CLIPS 에 번호 열쇠가 생기므로(위 파일 적재부),
-//   당일 '대기' 를 눌렀을 때 재개 안내가 나갔을 자리다. 번호는 언제나 noOf 에서 온다.
+// «재생 안 됨»(FREE_RESCUE) — 영상 · 음원 순서가 안 나올 때. ★[WAIT_CLIP_OFF_1016] 옛 «대기 클립»(감정이 지나가기를 기다리는 안내 · 49)은 9/6 폐지(WAIT_BRIDGE_RETIRED) — 여기서 틀지 않는다.
 $('#bWait').onclick = function(){
   /* ★[FREE_RESCUE 2026-09-25 코워크 4-4] 준비한 순서(영상 · 음원)가 흐르는 동안에는 이 단추가 «재생 안 됨»이다.
      누르면 «이 순서는 사진 시간에 함께 보겠습니다» 한 줄을 틀고, 맺는 말(박수 부탁)은 건너뛴다 —
@@ -1714,25 +1712,13 @@ $('#bWait').onclick = function(){
   var rc = (phase === 'live' && R && R.cues[cur] && R.cues[cur].rescue) ? R.cues[cur] : null;
   if (rc) {
     playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.text);
+    var rn = rc.blockN || rc.name; if (RESCUED.indexOf(rn) < 0) RESCUED.push(rn);   // [RESCUE_REPLAY_1016] 사진 시간에 디렉터 칸에 한 줄(식전 영상 · 준비한 순서)
     if (R.cues[cur + 1] && R.cues[cur + 1].k === rc.k) cur = cur + 1;
     phase = 'done'; render();
     toast('사진 시간으로 미뤘습니다 · 준비되면 [다음]');
     return;
   }
-  clearT(); audioOn();
-  var slug = 'bridge-4-wait-emotion';
-  var u = CLIPS[RitualCue.noOf(slug)] || CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
-  duckTo(PARAM.duckSpeech, 300);
-  var txt = RitualCue.EXTRA[slug] || '';
-  $('#nName').textContent = '잠시 기다립니다';
-  $('#nTxt').className = 'txt'; $('#nTxt').textContent = txt;
-  aNarr.onended = null; aNarr.onerror = null;
-  aNarr.src = u;
-  var p = aNarr.play();
-  if (p && p.catch) p.catch(function(){ runProg(RitualCue.sylSec(txt), null); });
-  runProg(RitualCue.sylSec(txt), null);
-  phase = 'done';
-  toast('기다리는 중 — 준비되면 [다음]');
+  /* ★[WAIT_CLIP_OFF_1016] 대기 클립(49) 갈래는 걷었다 — 9/6 WAIT_BRIDGE_RETIRED · 멈춘 자리는 디렉터가 사람 말로 · 단추는 영상 · 음원 순서 밖에선 흐리다 */
 };
 
 /* [PHOTOCUE_BOARD] 판을 채운다. 문안은 원천(ritual-data.js 의 PHOTOCUE)에서만 읽는다 —
@@ -1947,6 +1933,9 @@ window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.w
     vsn: r ? (r.vs || []).length : null, cut: ESD.V0 && ESD.V0.cut ? { at: ESD.V0.cut.at, add: ESD.V0.cut.add, was: ESD.V0.cut.was } : null }; },   /* [ENTRY_CALL_PAUSE_1013] 목소리 마디 수 · 끊은 자리 */
   idx: function(){ var cs = (R && R.cues) || [], e = -1, bow = -1, next = -1; cs.forEach(function(c, i){ if (e < 0 && esdMain(c)) e = i; }); for (var i = e + 1; e >= 0 && i < cs.length; i++) { if (esdIn(cs[i]) && bow < 0) { bow = i; continue; } if (!esdIn(cs[i])) { next = i; break; } } return { e: e, bow: bow, next: next, n: cs.length }; },
   duckOf: function(i){ return R && R.cues[i] ? R.cues[i].duck : null; }, fire: function(i){ fire(i); } };
+/* [RESCUE_REPLAY_1016] 점검용 · 읽기 전용 — rescue-replay 가 본다(미룬 순서 · 디렉터 칸 · «재생 안 됨» 단추) */
+window.__rr = { cues: function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, rescue: !!c.rescue, live: !!c.live }; }); },
+  st: function(){ var h = $('#nHint'), b = $('#bWait'); return { phase: phase, cur: cur, rescued: RESCUED.slice(), hint: h ? h.textContent : '', hintOn: h ? !h.hidden : false, bw: b ? b.disabled : null, bwText: b ? b.textContent : '' }; } };
 /* [BLESS_PER_SPEAKER] 점검용 — bless-per-speaker 가 본다(덕담 큐 · 음악 · 사람 구간 시각 · 실제로 나간 맺는 말) */
 window.__bps = { cues: function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, live: !!c.live, ps: !!(c.live && c.live.perSpeaker), alt: c.alt ? c.alt.slug : '' }; }); },
   swell: function(i, s){ if (R && R.cues[i] && R.cues[i].live) R.cues[i].live.swellAt = s; },
