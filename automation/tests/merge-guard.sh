@@ -8908,12 +8908,12 @@ chk 'EAR_WHAT_NOT_HOW' scripts/audit/guest-ear.js 1
 #     지금은 셋이 다른 꼴로 «다가온다»를 만든다 — 얼마 뒤 / 카운트다운 / 곧.
 chk '십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다.' assets/ritual-data.js 1  # ★[SOURCE_BEST_1015 라운드 5] G4 표 1 · 사진 허락이 10분 전으로   # 02a — 얼마 뒤(주어 있음) · ★[NAR_ENGINE_1014] 10/14 원고 3단계(다과 · 착석 말 빼고 사진 한 줄 · NO_FOOD_TALK)
 chk '예식 시작 오 분 전입니다' assets/ritual-data.js 1               # 03a — 카운트다운
-chk '곧 시작하겠습니다. 오늘 예식은 신랑 신부의 뜻에 따라' assets/ritual-data.js 1   # 04a — 곧 · [SOURCE_BEST_1015] G4 표 1
+chk '곧 시작됩니다. 오늘 예식은 신랑 신부의 뜻에 따라' assets/ritual-data.js 1   # 04a — 곧 · [SOURCE_BEST_1015] G4 표 1 · ★«시작하겠습니다»는 1분 뒤 개식 선언 «지금부터, 예식을 시작하겠습니다»와 이웃 큐 서술어 반복(check-echo-inrun) — «시작됩니다»
 nochk '십 분쯤 뒤에 시작합니다' assets/ritual-data.js
 nochk '오 분쯤 뒤에 시작합니다' assets/ritual-data.js
 chk '저희 예식이 십 분 뒤에 시작됩니다.' assets/ritual-data.js 1   # 02c — 부부판도 같은 계단 · [LINE_R1_1014] «뒤에»(나레이션 02 와 같은 꼴 · 계단은 그대로)
 chk '저희 예식까지 오 분 남았습니다' assets/ritual-data.js 1           # 03c · [LINE_R1_1014] 하객 맞이 두 분 판은 합쇼체(EX_TEXT_1007)
-chk '곧 시작하겠습니다. 오늘 예식은 저희 뜻에 따라' assets/ritual-data.js 1              # 04c · [SOURCE_BEST_1015]
+chk '곧 시작됩니다. 오늘 예식은 저희 뜻에 따라' assets/ritual-data.js 1              # 04c · [SOURCE_BEST_1015]
 chk 'TIME_STAIR' scripts/audit/copycheck/check-copy.py 1             # 검사가 반대로 세워져 있는가
 chk 'TIME_STAIR' scripts/audit/guest-ear.js 1                        # 「남았」도 시각의 답이다(03c)
 # ★★[DROP_ANSWER 2026-09-21 코워크 §7-G] 「확인 필요」를 답으로 두지 않는다.

@@ -34,7 +34,7 @@
       "dir": "assets/audio/narration",
       "clips": 32,
       "sents": 72,
-      "chars": 2208
+      "chars": 2198
     },
     {
       "file": "2_진행_전반.txt",
@@ -131,7 +131,7 @@
       "dir": "assets/audio/cast",
       "clips": 21,
       "sents": 124,
-      "chars": 3672
+      "chars": 3670
     }
   ],
   "clips": [
@@ -217,7 +217,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "곧 시작하겠습니다.",
+          "text": "곧 시작됩니다.",
           "before": 0,
           "after": 1.25
         },
@@ -577,7 +577,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "곧 시작하겠습니다.",
+          "text": "곧 시작됩니다.",
           "before": 0,
           "after": 1.25
         },
@@ -696,7 +696,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "잠시 뒤 시작하겠습니다.",
+          "text": "잠시 뒤 시작됩니다.",
           "before": 0,
           "after": 1.25
         },
@@ -796,7 +796,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "곧 시작하겠습니다.",
+          "text": "곧 시작됩니다.",
           "before": 0,
           "after": 1.25
         },
@@ -896,7 +896,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "잠시 뒤 시작하겠습니다.",
+          "text": "잠시 뒤 시작됩니다.",
           "before": 0,
           "after": 1.25
         },
@@ -3733,7 +3733,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "곧 시작하겠습니다.",
+          "text": "곧 시작됩니다.",
           "before": 0,
           "after": 1.25
         },
