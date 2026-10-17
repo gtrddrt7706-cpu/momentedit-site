@@ -190,7 +190,9 @@
     'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2',
     /* ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어»] 191 ~ 196 — 자료 T3(원작자 허락) 예시 여섯 · **맨 끝에 붙였다**(번호는 바꾸지 않는다) ·
        원천 assets/ritual-open.js NAR_EX(화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4 여는 말 · 받는 말 · 축사 4) · 녹음 전엔 글로(진행 · 우성) */
-    'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4'
+    'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4',
+    /* ★[NARR_LOOP_1018 첫 판 2026-10-18 · 자료 루프] 197 ~ 200 — 선언 맺는 말 예시 3 · 4(자료 T2 · U1) · 편지 여는 말 · 맺는 말 예시 4(자료 OO) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
+    'narr-declare-family-out-ex3', 'narr-declare-family-out-ex4', 'letter-each-ex4', 'narr-letter-end-ex4'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;

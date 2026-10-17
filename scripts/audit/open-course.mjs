@@ -299,8 +299,9 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   'narr-letter-end-ex2', 'narr-tribute-name-ex2', 'narr-tribute-name-ex3', 'narr-tribute-name-ex4', 'tribute-in-ex3',
   'tribute-call-ex3', 'tribute-out-ex4', 'narr-close-bow-ex2', 'narr-close-bow-ex3', 'narr-close-bow-ex4',
   'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2',
-  'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4'];   /* ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯 */   /* ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43) */   /* ★[CANDLE_CALL_SRC_1016] 146 · 147 */   /* ★[TRIB_CALL_SAY_1014] 145 */   /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144 */
-ok('FILES 맨 끝 89~196 이 새 줄 108개(148 ~ 190 = 나레이션 멘트 예시 · EX_MANY_1017 · 191 ~ 196 = 자료 T3 예시 · T3_OK_1017)', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4',
+  'narr-declare-family-out-ex3', 'narr-declare-family-out-ex4', 'letter-each-ex4', 'narr-letter-end-ex4'];   /* ★[NARR_LOOP_1018 첫 판] 197 ~ 200 */   /* ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯 */   /* ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43) */   /* ★[CANDLE_CALL_SRC_1016] 146 · 147 */   /* ★[TRIB_CALL_SAY_1014] 145 */   /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144 */
+ok('FILES 맨 끝 89~200 이 새 줄 112개(148 ~ 190 = 나레이션 멘트 예시 · EX_MANY_1017 · 191 ~ 196 = 자료 T3 예시 · T3_OK_1017 · 197 ~ 200 = 자료 루프 첫 판 · NARR_LOOP_1018)', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
 
 /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 서약 카드 «무엇을 읽나요» — 감사문을 고르면
    여는 말 133 → 두 분이 하객 쪽을 본 채 읽고 마지막 한 문장(THANKSBOTH)은 함께 · 맺는 말(서약의 «약속은 말로 끝나지 않습니다») 없음 · 다음 순간은 디렉터 GO.
