@@ -60,12 +60,16 @@ for (const w of [390, 1280]) {
     return { btn: !!b, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), scene: !!(r && r.querySelector('[role=radiogroup][aria-label="첫 모습"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0, mu: !!(r && r.querySelector('[role=radiogroup][aria-label="입장 음악 고르는 곳"]')), vc: !!RitualOpen.FEATURE.voiceClone, bow: (r ? r.textContent : '').indexOf('3초 숙이고') > -1 }; });
   /* ★[MATJEOL_SPLIT_1013 2026-10-13 사장님 «입장 이후 맞절»] 맞절은 입장 바로 뒤의 따로 순간 — 입장 쪽에는 맞절 줄이 없고 맞절 쪽에 늘 있는 한 줄(칩 없음) */
   await pg.evaluate(() => { mkGo('matjeol'); }); await pg.waitForTimeout(300);
-  const g4m = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'); return { bowLine: (r ? r.textContent : '').indexOf('3초 숙이고') > -1, rows: r ? r.querySelectorAll('[role=radiogroup]').length : -1, h: ((r && r.querySelector('h2,h3')) || {}).textContent || '' }; });
+  /* ★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 · 다른 곳도»] 맞절 쪽에 «맞절 멘트» 칩 줄(나레이션 글 고르기 · data-fk mkex:narex:matjeol:)이 들어왔다 —
+     맞절을 넣을지 고르는 칩이 아니다(MATJEOL_1011 «늘 있는 한 줄» 그대로) · 그 줄은 따로 세고, 나머지 고르는 칩은 여전히 0 이어야 한다 */
+  const g4m = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'); const all = r ? [...r.querySelectorAll('[role=radiogroup]')] : null;
+    const nx = all ? all.filter((g) => g.querySelector('[data-fk^="mkex:narex:matjeol:"]')) : [];
+    return { bowLine: (r ? r.textContent : '').indexOf('3초 숙이고') > -1, rows: all ? all.length - nx.length : -1, narRows: nx.length, narChips: nx.length ? nx[0].querySelectorAll('[data-fk^="mkex:narex:matjeol:"]').length : 0, h: ((r && r.querySelector('h2,h3')) || {}).textContent || '' }; });
   /* ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 맞절은 다시 들어왔다 — 고르는 칩이 아니라 늘 있는 한 줄(흐름 · 설명). 종전 «맞절 없음»은 이 결정으로 «맞절 있음 · 칩 없음»이 됐다 */
   /* ★[MU_SRC 2026-10-12 입장 음악 4-나 · REC_SONG_1012] 입장 쪽에 «입장 음악» 칩 줄(두 분이 고른 곡 · 추천 곡 · 시험실 그대로)이 들어왔다 —
      묶음은 입장 멘트 + 입장 음악(+ AI 가 켜지면 «어떻게 준비할까요») · 종전 «묶음 하나»는 음악 칩 전의 기준이었다(10/13 게이트에서 드러남) */
   ok(`${w} G4 입장 쪽 — 맺는 말 · 첫 모습 · 더 고르기 없음 · 맞절 줄은 맞절 쪽으로(입장 쪽엔 없음) · 묶음은 입장 멘트 · 입장 음악(AI 가 켜지면 셋) [ENTRY_OUT_OFF · VP_NO_DIRECT · MATJEOL_1011 · MATJEOL_SPLIT_1013 · MU_SRC]`, !g4.btn && !g4.outRow && !g4.scene && !g4.bow && g4.mu && g4.rows === (g4.vc ? 3 : 2), JSON.stringify(g4));
-  ok(`${w} G4 맞절 쪽 — 늘 있는 한 줄(3초 숙이고 · 3초 멈추고 · 3초 일어나요) · 고르는 칩 없음 [MATJEOL_SPLIT_1013]`, g4m.bowLine && g4m.rows === 0, JSON.stringify(g4m));
+  ok(`${w} G4 맞절 쪽 — 늘 있는 한 줄(3초 숙이고 · 3초 멈추고 · 3초 일어나요) · 맞절을 고르는 칩 없음 · 나레이션 «맞절 멘트» 줄 하나(예시 2 개 이상) [MATJEOL_SPLIT_1013 · EX_MANY_1017]`, g4m.bowLine && g4m.rows === 0 && g4m.narRows === 1 && g4m.narChips >= 2, JSON.stringify(g4m));
   // G5 이렇게 흘러요 — 예시 넷 × 축배 판 셋 × 와인 셋
   const g5 = await pg.evaluate(() => {
     const R = RitualOpen, keep = JSON.parse(JSON.stringify(S)), bad = [], seen = {};
