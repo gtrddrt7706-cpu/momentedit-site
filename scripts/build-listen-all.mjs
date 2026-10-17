@@ -97,9 +97,13 @@ if (!OUT) die('--out <경로> 가 필요하다', 2);
 
 /* ── ① 기존 105클립 (manifest = 정본) ─────────────────────────────────────── */
 const man = JSON.parse(fs.readFileSync(path.join(DIR, 'manifest.json'), 'utf8'));
+/* ★[LISTEN_EX_PART 2026-10-17] 7_예시_멘트(나레이션 멘트 예시 [EX_MANY_1017])는 맨 뒤 «멘트 예시» 묶음이다.
+   이 목록에 없던 때는 indexOf 가 -1 이라 예시 49클립이 «전체» 맨 앞(하객 안내보다 먼저)에 섰고 이름표가 파일 이름 그대로였다.
+   묶음 안은 대장 차례(mi) — 번호순이면 나중에 붙인 191 ~ 196 이 끝에 몰려 순간끼리 안 모인다. 파트를 새로 만들면 여기와 build-redub-pick 에 함께 넣는다. */
 const PART_KO = { '1_안내.txt': '하객 안내', '2_진행_전반.txt': '진행 · 전반', '3_진행_후반.txt': '진행 · 후반',
-  '4_혼주편지.txt': '혼주 편지', '5_배역.txt': '배역(신랑·신부·가족)', '6_예식뒤.txt': '예식 뒤' };
-const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt', '4_혼주편지.txt', '5_배역.txt', '6_예식뒤.txt'];
+  '4_혼주편지.txt': '혼주 편지', '5_배역.txt': '배역(신랑·신부·가족)', '6_예식뒤.txt': '예식 뒤', '7_예시_멘트.txt': '멘트 예시' };
+const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt', '4_혼주편지.txt', '5_배역.txt', '6_예식뒤.txt', '7_예시_멘트.txt'];
+const BY_MAN_ORDER = { '7_예시_멘트.txt': 1 };   // [LISTEN_EX_PART] 이 파트는 번호가 아니라 대장 차례로 늘어놓는다
 
 const srcOf = (c) => ['narration', 'cast']
   .map((d) => path.join(ROOT, 'assets/audio', d, `${c.no}_${c.file}.mp3`)).find((p) => fs.existsSync(p)) || '';
@@ -128,7 +132,8 @@ const RETIRED = Cue.RETIRED || {};
    ★이 저장소가 같은 병을 두 번 앓았다(--redub 의 클립번호 정렬 · 여기). 고치는 자리도 하나로 맞춘다. */
 const RETIRED_ROWS = man.clips.filter((c) => RETIRED[c.file]).map((c) => `${c.no}_${c.file}`);
 const OLDC0 = man.clips.map((c, mi) => ({ c, mi })).filter(({ c }) => !RETIRED[c.file])
-  .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part)) || (+a.c.no - +b.c.no))
+  .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part))
+    || (BY_MAN_ORDER[a.c.part] ? a.mi - b.mi : +a.c.no - +b.c.no))   // [LISTEN_EX_PART] 멘트 예시 묶음 안은 대장 차례
   .map(({ c, mi }) => ({ id: `${c.no}_${c.file}`, no: c.no, mi, ko: c.label || c.file, part: c.part,
     role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
     sents: (c.sents || []).map((s) => String(s.text || '').trim()).filter(Boolean) }));

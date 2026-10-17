@@ -4218,6 +4218,13 @@ chk 'LISTEN_ALL' scripts/build-listen-all.mjs 1
 # [TOO_SHORT] 소리가 글보다 짧은 클립을 화면에 띄운다(못 듣는 내가 «틀렸다»고 하지 않고 «먼저 들어 보라»고 한다)
 chk 'SENT_SEEK' scripts/build-listen-all.mjs 1
 chk 'TOO_SHORT' scripts/build-listen-all.mjs 1
+# [LISTEN_EX_PART 2026-10-17] 7_예시_멘트(멘트 예시 [EX_MANY_1017])는 맨 뒤 «멘트 예시» 묶음 · 묶음 안은 대장 차례 —
+#   파트 목록에 없으면 indexOf -1 로 «전체» 맨 앞에 파일 이름 그대로 선다(실측 49클립). 고르기 판(build-redub-pick)도 같은 이름표
+chk 'LISTEN_EX_PART' scripts/build-listen-all.mjs 3
+chk "'7_예시_멘트.txt': '멘트 예시'" scripts/build-listen-all.mjs 1
+chk "'6_예식뒤.txt', '7_예시_멘트.txt']" scripts/build-listen-all.mjs 1
+chk 'LISTEN_EX_PART' scripts/build-redub-pick.mjs 1
+chk "'7_예시_멘트.txt': '멘트 예시'" scripts/build-redub-pick.mjs 1
 # ── [AUDIO_SENTS 2026-08-16] 소리에 대본만큼의 문장이 실제로 있는가 ──
 # ★실사고: 4클립이 대본 2문장인데 소리엔 1문장뿐이었다(둘째가 통째로 빠짐).
 #   check-text-audio 는 글↔글만 봐서 초록이었다 — 「A=B」를 아무리 봐도 둘 다 실물과 다르면 소용없다.

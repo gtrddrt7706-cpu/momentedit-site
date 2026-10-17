@@ -58,9 +58,10 @@ if (!fs.existsSync(MARK)) die(`${MARK} 이 없다 — 실청에서 낸 「다시
 
 const man = JSON.parse(fs.readFileSync(path.join(DIR, 'manifest.json'), 'utf8'));
 const V = man.voice || {};
-const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt', '4_혼주편지.txt', '5_배역.txt', '6_예식뒤.txt'];
+/* [LISTEN_EX_PART 2026-10-17] 7_예시_멘트(멘트 예시)도 파트 목록에 — 없으면 맨 앞에 파일 이름 그대로 선다(build-listen-all 과 같은 이름표) */
+const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt', '4_혼주편지.txt', '5_배역.txt', '6_예식뒤.txt', '7_예시_멘트.txt'];
 const PART_KO = { '1_안내.txt': '하객 안내', '2_진행_전반.txt': '진행 · 전반', '3_진행_후반.txt': '진행 · 후반',
-  '4_혼주편지.txt': '혼주 편지', '5_배역.txt': '배역', '6_예식뒤.txt': '예식 뒤' };
+  '4_혼주편지.txt': '혼주 편지', '5_배역.txt': '배역', '6_예식뒤.txt': '예식 뒤', '7_예시_멘트.txt': '멘트 예시' };
 const norm = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, '');
 const srcOf = (c) => ['narration', 'cast']
   .map((d) => path.join(ROOT, 'assets/audio', d, `${c.no}_${c.file}.mp3`)).find((p) => fs.existsSync(p)) || '';
