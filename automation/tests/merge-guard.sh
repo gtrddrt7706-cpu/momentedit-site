@@ -14870,6 +14870,11 @@ if command -v node >/dev/null 2>&1; then
   _sw=$(node -e "const O=require('./assets/ritual-open.js'); process.stdout.write(O.narExList({on:{song:1}},'song').length+','+O.narExList({on:{song:1,declare:1}},'song').length)" 2>&1)
   if [ "$_sw" = "1,2" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 [NARR_R9_1018]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 사라졌다($_sw · 기대 1,2) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
 fi
+# ★[FLOW_LIVE_1018 2026-10-18 라운드 9] 이어 읽기(narr-words --flow) · 검토 판(narr-now)에 사람 구간 줄 — 줄만 이어 찍으면 붙어 들리는 줄처럼 보여
+#   65 «오늘 함께해 주신 …» → 47 «오늘의 시작을 함께해 주신 …»을 겹침으로 읽었다(사이에 자유 사진 약 2분 · CHAIN_ECHO 도 사람 구간 뒤는 재지 않는다)
+chk 'FLOW_LIVE_1018' scripts/audit/narr-words.mjs 1
+chk 'FLOW_LIVE_1018' scripts/build-narr-now.mjs 1
+chk '\[사람 구간' docs/handoff/narr-now.md 20
 # ★★[NARR_REVIEW_1018 · NARR_ROUNDS_1018 2026-10-18 사장님 «저쪽 섹션에서도 직접 검토 · 더블체크» · «라운드별로 개선점이 없을 때까지»] 검토 판은 늘 지금 엔진 글
 chk 'NARR_REVIEW_1018' docs/handoff/insta-find.md 1
 chk '^## 검토 답' docs/handoff/insta-find.md 1
