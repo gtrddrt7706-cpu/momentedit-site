@@ -91,6 +91,24 @@
       "chars": 1695
     },
     {
+      "file": "7_예시_멘트.txt",
+      "title": "나레이션 멘트 예시 2 ~ 4 (두 분이 고르는 판)",
+      "role": "진행",
+      "speakers": [
+        "우성"
+      ],
+      "note": [
+        "타입캐스트 「대본 가져오기 → 텍스트 붙여넣기」에 파일 내용을 통째로 붙여넣으세요.",
+        "★이 파일에는 안내 주석이 한 줄도 없습니다(PASTE_NO_COMMENT). 붙여넣은 그대로가 낭독 대상입니다.",
+        "화자 1인 — 우성. 전부 타입캐스트 캐릭터 이름이라 자동 배정됩니다.",
+        "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
+      ],
+      "dir": "assets/audio/narration",
+      "clips": 43,
+      "sents": 130,
+      "chars": 4688
+    },
+    {
       "file": "6_예식뒤.txt",
       "title": "닫는 말 · 다 함께 · 골라 트는 판",
       "role": "진행",
@@ -3087,6 +3105,1345 @@
         {
           "i": 48,
           "text": "모먼트에디트 올림.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "148",
+      "id": "X-narr-open-ex2",
+      "label": "개식 멘트 예시 2 · 격식 있게",
+      "file": "narr-open-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "바쁘신 일정 속에서도 두 사람의 결혼을 축하해 주시기 위해 먼 걸음 해 주신 가족, 친구, 그리고 지인 분들께 신랑 신부를 대신하여 깊은 감사의 말씀 드리겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "하객 여러분들께서도 소중한 자리의 증인이신 만큼 진심 어린 마음으로 두 사람을 축복해 주시기 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "그럼, 지금부터 신랑 신부의 결혼식을 거행하도록 하겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "149",
+      "id": "X-narr-open-ex3",
+      "label": "개식 멘트 예시 3 · 담백하게",
+      "file": "narr-open-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "하객 여러분, 안녕하십니까.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "이제 예식을 시작하려 합니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "양가를 대신해 감사드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "두 사람의 행복한 날을 축복해 주시기 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 4,
+          "text": "신랑과 신부의 예식을 시작하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 5,
+          "text": "큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "150",
+      "id": "X-narr-open-ex4",
+      "label": "개식 멘트 예시 4 · 다정하게",
+      "file": "narr-open-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "바쁘신 중에도 귀한 자리 해 주신 내빈께, 양가 혼주님과 신랑 신부를 대신해 감사드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "오늘은 두 사람이 함께 걸어갈 삶의 속도와 방향을 맞추는 뜻깊은 날입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "하객 여러분께 세 가지를 부탁드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "뜨거운 박수, 따뜻한 눈빛, 진심 어린 축하의 마음입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 4,
+          "text": "끝까지 함께해 주시기 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 5,
+          "text": "큰 박수로 식을 시작하겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "151",
+      "id": "X-narr-candle-in-mothers-ex2",
+      "label": "화촉 멘트 예시 2 · 담백하게 · 양가 어머님",
+      "file": "narr-candle-in-mothers-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "152",
+      "id": "X-narr-candle-in-mothers-ex3",
+      "label": "화촉 멘트 예시 3 · 잔잔하게 · 양가 어머님",
+      "file": "narr-candle-in-mothers-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "양가 어머님, 단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "153",
+      "id": "X-narr-candle-in-mothers-ex4",
+      "label": "화촉 멘트 예시 4 · 다정하게 · 양가 어머님",
+      "file": "narr-candle-in-mothers-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "하객 여러분, 어릴 땐 엄마가 좋다며 엄마 뒤만 졸졸 쫓아다니던 우리 어린아이들이 지금은 전화 한 통도 참 쉽지 않습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "세월은 빠르게 흘러 어느덧 결혼할 나이가 되었지만, 아직도 '차 조심해라' 말씀하시는 우리 어머님들의 시간은 아직도 저희의 어린 시절에 멈춰 있는 듯합니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "오늘 그 고장 난 시계가 다시 움직이길, 그리고 두 분을 위해 흐르길 바라며, 양가 어머님께서 두 사람이 걸어갈 길을 밝혀 주시겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 4,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "154",
+      "id": "X-narr-candle-in-fathers-ex2",
+      "label": "화촉 멘트 예시 2 · 담백하게 · 양가 아버님",
+      "file": "narr-candle-in-fathers-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 양가 아버님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "155",
+      "id": "X-narr-candle-in-fathers-ex3",
+      "label": "화촉 멘트 예시 3 · 잔잔하게 · 양가 아버님",
+      "file": "narr-candle-in-fathers-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "양가 아버님, 단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "156",
+      "id": "X-narr-candle-in-parents-ex2",
+      "label": "화촉 멘트 예시 2 · 담백하게 · 양가 부모님 네 분",
+      "file": "narr-candle-in-parents-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 양가 부모님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "157",
+      "id": "X-narr-candle-in-parents-ex3",
+      "label": "화촉 멘트 예시 3 · 잔잔하게 · 양가 부모님 네 분",
+      "file": "narr-candle-in-parents-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "양가 부모님, 단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "158",
+      "id": "X-narr-candle-in-parents-ex4",
+      "label": "화촉 멘트 예시 4 · 뭉클하게 · 양가 부모님 네 분",
+      "file": "narr-candle-in-parents-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "누군가의 소중한 아들이었고 딸이었던 두 분은 한 가정을 이루고, 어느덧 부모가 되어 또 다른 사랑을 키워 오셨습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "그리고 오늘, 새로운 인생의 길을 사랑과 축복으로 앞장서 주시려 합니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "양가 부모님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 4,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "159",
+      "id": "X-narr-candle-in-others-ex3",
+      "label": "화촉 멘트 예시 3 · 잔잔하게 · 다른 두 분",
+      "file": "narr-candle-in-others-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "양가를 대표하는 두 분, 단상 위로 올라와 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "준비된 초에 함께 불을 붙여 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "160",
+      "id": "X-narr-entry-bow-ex2",
+      "label": "맞절 멘트 예시 2 · 격식 있게",
+      "file": "narr-entry-bow-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "맞절은 부부로서의 첫 예를 올리는 인사인데요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "그럼 서로의 눈을 바라보며 맞절하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "서로를 존중하는 마음으로, 신랑 신부 맞절!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "161",
+      "id": "X-narr-entry-bow-ex3",
+      "label": "맞절 멘트 예시 3 · 뭉클하게",
+      "file": "narr-entry-bow-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "바로 이어서 두 사람이 부부가 되는 예를 갖추는 순서로 신랑, 신부의 맞절 순서가 있겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "지금부터 서로의 눈을 바라봐 주시기 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "긴 시간 동안 내 곁에 있어 준 나의 사랑하는 사람이 바로 앞에 서 있습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "깊게 사랑하고 존경하는 나의 연인이 이제는 나의 평생 반려자가 되는 순간입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 4,
+          "text": "이 깊은 마음을 눈과 미소에 담아 예를 갖추어 맞절하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 5,
+          "text": "신랑 신부, 맞절!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "162",
+      "id": "X-narr-entry-bow-ex4",
+      "label": "맞절 멘트 예시 4 · 다정하게",
+      "file": "narr-entry-bow-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "지금부터 서로의 눈을 지그시 바라봐 주세요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "그리고 처음 만났던 날, 함께 웃으면서 행복했던 지난 시간들을 회상해 주시기 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "이제 우리 두 사람은 지난 아름다운 시간을 지나 부부라는 이름으로 새로운 여정을 시작하려 합니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "인생에서 만날 그 어떤 순간일지라도 늘 감사하고 아껴 주며 사랑할 것을 다짐하며 서로에게 인사하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 4,
+          "text": "신랑 신부, 맞절!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "163",
+      "id": "X-narr-vow-in-ex2",
+      "label": "서약 멘트 예시 2 · 격식 있게",
+      "file": "narr-vow-in-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 두 사람이 평생의 동반자가 될 것을 약속하는 혼인 서약이 있겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 분, 한 걸음씩 다가서 주세요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "신랑부터 시작하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "천천히 하셔도 괜찮습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "164",
+      "id": "X-narr-vow-in-ex3",
+      "label": "서약 멘트 예시 3 · 다정하게",
+      "file": "narr-vow-in-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 두 사람이 사랑과 신뢰로 영원히 함께하겠다는 약속, 혼인 서약 순서입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 분, 한 걸음씩 다가서 주세요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "신랑부터 시작하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "천천히 하셔도 괜찮습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "165",
+      "id": "X-narr-vow-in-ex4",
+      "label": "서약 멘트 예시 4 · 잔잔하게",
+      "file": "narr-vow-in-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "사랑하는 가족, 신뢰 깊은 친구, 고마운 지인들 앞에서 평생 하나 됨을 약속하는 사랑의 서약 순서입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 분, 한 걸음씩 다가서 주세요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "신랑부터 시작하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "천천히 하셔도 괜찮습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "166",
+      "id": "X-narr-vow-in-b-ex2",
+      "label": "서약 멘트 예시 2 · 격식 있게 · 신부부터",
+      "file": "narr-vow-in-b-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 두 사람이 평생의 동반자가 될 것을 약속하는 혼인 서약이 있겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 분, 한 걸음씩 다가서 주세요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "신부부터 시작하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "천천히 하셔도 괜찮습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "167",
+      "id": "X-narr-vow-in-b-ex3",
+      "label": "서약 멘트 예시 3 · 다정하게 · 신부부터",
+      "file": "narr-vow-in-b-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 두 사람이 사랑과 신뢰로 영원히 함께하겠다는 약속, 혼인 서약 순서입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 분, 한 걸음씩 다가서 주세요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "신부부터 시작하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "천천히 하셔도 괜찮습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "168",
+      "id": "X-narr-vow-in-b-ex4",
+      "label": "서약 멘트 예시 4 · 잔잔하게 · 신부부터",
+      "file": "narr-vow-in-b-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "사랑하는 가족, 신뢰 깊은 친구, 고마운 지인들 앞에서 평생 하나 됨을 약속하는 사랑의 서약 순서입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 분, 한 걸음씩 다가서 주세요.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "신부부터 시작하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "천천히 하셔도 괜찮습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "169",
+      "id": "X-narr-ring-in-ex2",
+      "label": "반지 멘트 예시 2 · 격식 있게",
+      "file": "narr-ring-in-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 두 사람의 약속의 증표가 되어 줄 사랑의 예물 교환의 순서가 있겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "신랑부터 차례로 서로의 손에 반지를 끼워 줍니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "170",
+      "id": "X-narr-ring-in-ex3",
+      "label": "반지 멘트 예시 3 · 다정하게",
+      "file": "narr-ring-in-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저 신랑이 신부의 왼손 약지에 반지를 끼워 주도록 하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "신랑님!",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "다시 한 번 더 프로포즈한다는 마음을 담아 반지를 끼워 주시기 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "이어서 신부도 신랑의 왼손 약지에 반지를 끼워 주도록 하겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "171",
+      "id": "X-narr-declare-family-out-ex2",
+      "label": "선언 멘트 예시 2 · 격식 있게",
+      "file": "narr-declare-family-out-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이상으로 성혼 선언을 마치겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 사람의 새로운 출발에 큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "172",
+      "id": "X-narr-bless-mid-ex2",
+      "label": "덕담 멘트 예시 2 · 격식 있게",
+      "file": "narr-bless-mid-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 두 사람의 행복한 가정을 기원하는 부모님의 귀중한 덕담 말씀이 있겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "편히 말씀해 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "173",
+      "id": "X-narr-bless-mid-ex3",
+      "label": "덕담 멘트 예시 3 · 다정하게",
+      "file": "narr-bless-mid-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이어서, 두 사람의 앞날을 축복하는 부모님의 덕담을 듣겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "편히 말씀해 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "174",
+      "id": "X-narr-free-in-speech-ex2",
+      "label": "축사 멘트 예시 2 · 격식 있게",
+      "file": "narr-free-in-speech-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 축하의 메시지를 전하는 축사 순서입니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "175",
+      "id": "X-narr-free-in-speech-ex3",
+      "label": "축사 멘트 예시 3 · 다정하게",
+      "file": "narr-free-in-speech-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 두 사람을 위해 준비된 축사 순서입니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "176",
+      "id": "X-letter-each-ex2",
+      "label": "편지 멘트 예시 2 · 다정하게",
+      "file": "letter-each-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "두 사람의 아름다운 고백과 다짐을 따뜻한 마음으로 함께 들어 주시길 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "그럼 지금부터 편지를 낭독해 주시기 바랍니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "177",
+      "id": "X-letter-each-ex3",
+      "label": "편지 멘트 예시 3 · 잔잔하게",
+      "file": "letter-each-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "그동안 서로에게 전하고 싶었던 마음을 가득 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "그럼 지금부터 편지를 낭독해 주시기 바랍니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "178",
+      "id": "X-narr-letter-end-ex2",
+      "label": "편지 멘트 예시 2 · 다정하게",
+      "file": "narr-letter-end-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "서로가 서로에게 전한 그 약속을 꼭 지키셔서 행복만 가득한 결혼생활이 되기를 바라겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "179",
+      "id": "X-narr-tribute-name-ex2",
+      "label": "인사 멘트 예시 2 · 담백하게",
+      "file": "narr-tribute-name-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 양가 부모님께 감사의 인사를 드리는 순서입니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "180",
+      "id": "X-narr-tribute-name-ex3",
+      "label": "인사 멘트 예시 3 · 감사하게",
+      "file": "narr-tribute-name-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "자 그럼 이제 부부로서 첫걸음을 내딛기 전, 지금까지 키워 주신 양가 부모님께 감사의 인사를 올리겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "181",
+      "id": "X-narr-tribute-name-ex4",
+      "label": "인사 멘트 예시 4 · 다정하게",
+      "file": "narr-tribute-name-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 신랑, 신부 양가 부모님께 인사를 올리겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "182",
+      "id": "X-tribute-in-ex3",
+      "label": "인사 멘트 예시 3 · 감사하게",
+      "file": "tribute-in-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘이 있기까지 가장 많은 사랑과 고생을 하신 분들입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "신랑 신부, 천천히 걸음을 옮겨 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "183",
+      "id": "X-tribute-call-ex3",
+      "label": "인사 멘트 예시 3 · 감사하게",
+      "file": "tribute-call-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "존경과 감사의 마음을 담아 신랑 신부, 인사!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "184",
+      "id": "X-tribute-out-ex4",
+      "label": "인사 멘트 예시 4 · 다정하게",
+      "file": "tribute-out-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "양가 부모님께 부부로 처음 인사를 드리는 따뜻한 시간이었습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 분, 다시 앞으로 와 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "185",
+      "id": "X-narr-close-bow-ex2",
+      "label": "닫는 멘트 예시 2 · 잔잔하게",
+      "file": "narr-close-bow-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신랑 신부의 매일이 항상 행복하고 찬란하길 바라면서, 오늘 결혼식을 모두 마치겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "마지막까지 큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "신랑 신부, 하객 여러분께 인사!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "186",
+      "id": "X-narr-close-bow-ex3",
+      "label": "닫는 멘트 예시 3 · 다정하게",
+      "file": "narr-close-bow-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이것으로 신랑 신부의 예식을 모두 마치겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "이전에도 그랬듯이 앞으로 두 사람의 삶은 여러분의 사랑 덕분에 더욱이 빛날 것입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "하객 여러분들께서 앞으로도 이 두 사람을 끝까지 지켜 주시고 아껴 주시길 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "신랑 신부, 하객 여러분께 인사!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "187",
+      "id": "X-narr-close-bow-ex4",
+      "label": "닫는 멘트 예시 4 · 격식 있게",
+      "file": "narr-close-bow-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이것으로 신랑 신부의 결혼식을 모두 마치겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "두 사람이 오늘 부부라는 이름으로 새로운 인생의 여정을 시작합니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "이 자리에 함께해 주신 모든 분들의 축복과 응원을 담아 큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "신랑 신부, 하객 여러분께 인사!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "188",
+      "id": "X-toast-toast-ex2",
+      "label": "축배 멘트 예시 2 · 격식 있게",
+      "file": "toast-toast-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "두 사람의 무궁한 행복을 기원하며 모든 분과 함께 축배를 드는 시간입니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "신랑 신부가 선창하면 '위하여'라고 해 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "189",
+      "id": "X-toast-toast-ex3",
+      "label": "축배 멘트 예시 3 · 잔잔하게",
+      "file": "toast-toast-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "두 분의 앞날이 맑고 따뜻하기를 바라며 축배하겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "신랑 신부가 선창하면 '위하여'라고 해 주세요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "190",
+      "id": "X-narr-table-in-ex2",
+      "label": "테이블 멘트 예시 2 · 다정하게",
+      "file": "narr-table-in-ex2",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신랑 신부가 오늘 참석해 주신 모든 하객 여러분들의 테이블마다 찾아뵙고 감사의 인사를 드리겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "신랑 신부가 테이블에 도착했을 때 테이블에 계시는 분들께서는 큰 박수로 맞이해 주십시오.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "다 돌고 나면, 단체 사진으로 이어집니다.",
           "before": 0,
           "after": 0
         }

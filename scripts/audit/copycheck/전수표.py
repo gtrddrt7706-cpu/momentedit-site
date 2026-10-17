@@ -134,6 +134,12 @@ SKIP = {
  ('26','vow-both'):    '24·25를 겹쳐 만드는 합창 결과물이라 내 문안이 따로 없다. 24·25를 고치지 않기로 한 판단이 이 클립을 덮는다',
  ('15','toast'):       '사장님 「친구부분멘트 아예 삭제」 — 삭제 대상이라 문안을 고치지 않는다',
 }
+# ★★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 · 4개 정도 · 자료집에서 좋은 멘트 붙여서»] 148 ~ 190 나레이션 멘트 예시 2 ~ 4 —
+#   판정 회차 뒤에 태어났다 · 문장은 자료 그대로(SOURCE_FIRST_1016 · 문장마다 출처 docs/plans/식순연구/자료그대로_1016.json · scripts/audit/nar-ex.mjs 가 잰다)라
+#   문체 회차에 올리지 않는다. ★43줄을 손으로 적지 않고 원천(manifest 번호 · slug 꼴)에서 고른다 — 번호 밖 · 꼴 밖 새 클립은 여전히 «미착수»로 붉다.
+for _no, _sl, *_r in rows:
+    if _no.isdigit() and 148 <= int(_no) <= 190 and re.search(r'-ex[234]$', _sl):
+        SKIP.setdefault((_no, _sl), '2026-10-17 신설 — 나레이션 멘트 예시 [EX_MANY_1017] · 자료 그대로(SOURCE_FIRST_1016 · 출처 자료그대로_1016.json) · 사장님 «자료집에서 좋은 멘트 붙여서 · 4개 정도». 판정 회차 뒤에 태어났다')
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}
 
