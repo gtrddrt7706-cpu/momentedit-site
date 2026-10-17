@@ -42,6 +42,13 @@ function courseLines(full) {
 function narrLines() {
   const E = D.ENTRY, out = [];
   out.push('- 맞절(입장 바로 뒤 순간): 두 분이 앞에 서면 나레이션이 «' + D.NARR.entryArrive + '»로 받고 이어서 «' + D.NARR.entryBow + '»로 청한다. 두 분은 서로 마주 보고 맞절한다(3초 숙이고 · 3초 멈추고 · 3초 일어나기 · 약 30초 [ENTRY_ARRIVE_1014 · MATJEOL_4_1014]). 늘 있다 — 고를 것이 아니다 [MATJEOL_1011 · MATJEOL_SPLIT_1013 2026-10-13 입장 끝에서 따로 순간으로].');
+  /* ★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 · 4개 정도 · 자료집에서»] 순간마다 나레이션 «○○ 멘트» 2 ~ 4개 — 이름표만 싣는다(글은 화면에서 보고 듣는다 · 원천 ritual-open NAR_EX) */
+  if (O.NAR_EX && O.narExKeys) {
+    out.push('[나레이션 멘트 고르기 — 순간마다 «○○ 멘트» 칩]');
+    out.push('- 개식 · 화촉 · 맞절 · 서약 · 반지 교환 · 성혼 선언 · 덕담 · 축사 · 편지 · 부모님께 인사 · 닫는 인사 · 축배 · 테이블 인사는 나레이션 멘트를 2 ~ 4개 중 고를 수 있다(실제 사회자 대본 · 자료 멘트 그대로). 고르지 않으면 첫째 멘트가 나간다. 녹음 전인 멘트는 미리 듣기에서 글로 먼저 보인다.');
+    O.narExKeys().forEach((k) => { const e = O.NAR_EX[k], nm = typeof e.names === 'function' ? e.names({}) : e.names; out.push(`- ${e.lab}: ${nm.filter(Boolean).join(' · ')}`); });
+    out.push('');
+  }
   out.push('[입장 멘트 6종 · 나레이션 전문]');
   for (const k of Object.keys(E)) out.push(`- ${k}(${E[k].d}): "${E[k].nar}"`);
   out.push('※ 입장을 두 분 목소리(녹음)로 여는 옵션 있음 · 그 경우 위 문안의 1인칭 버전을 두 분이 녹음(D-7 업로드).');

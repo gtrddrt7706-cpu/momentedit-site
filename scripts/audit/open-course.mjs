@@ -289,8 +289,17 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   'narr-thanks-in',   /* ★[THANKS_IN_VOW 2026-10-11] 133 · 감사문 여는 말 */
   'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend',   /* ★[DECLARE_BY_PERSON 2026-10-12] 134~136 · 성혼 선언 여는 말 · [DECLARE_ANYONE] 134 · 135 는 RETIRED(번호 보존) */
   'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive', 'tribute-call-say',
-  'narr-candle-bow-fathers', 'narr-candle-bow-others'];   /* ★[CANDLE_CALL_SRC_1016] 146 · 147 */   /* ★[TRIB_CALL_SAY_1014] 145 */   /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144 */
-ok('FILES 맨 끝 89~147 이 새 줄 59개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-candle-bow-fathers', 'narr-candle-bow-others',
+  'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-ex2', 'narr-candle-in-mothers-ex3',
+  'narr-candle-in-mothers-ex4', 'narr-candle-in-fathers-ex2', 'narr-candle-in-fathers-ex3', 'narr-candle-in-parents-ex2', 'narr-candle-in-parents-ex3',
+  'narr-candle-in-parents-ex4', 'narr-candle-in-others-ex3', 'narr-entry-bow-ex2', 'narr-entry-bow-ex3', 'narr-entry-bow-ex4',
+  'narr-vow-in-ex2', 'narr-vow-in-ex3', 'narr-vow-in-ex4', 'narr-vow-in-b-ex2', 'narr-vow-in-b-ex3',
+  'narr-vow-in-b-ex4', 'narr-ring-in-ex2', 'narr-ring-in-ex3', 'narr-declare-family-out-ex2', 'narr-bless-mid-ex2',
+  'narr-bless-mid-ex3', 'narr-free-in-speech-ex2', 'narr-free-in-speech-ex3', 'letter-each-ex2', 'letter-each-ex3',
+  'narr-letter-end-ex2', 'narr-tribute-name-ex2', 'narr-tribute-name-ex3', 'narr-tribute-name-ex4', 'tribute-in-ex3',
+  'tribute-call-ex3', 'tribute-out-ex4', 'narr-close-bow-ex2', 'narr-close-bow-ex3', 'narr-close-bow-ex4',
+  'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'];   /* ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43) */   /* ★[CANDLE_CALL_SRC_1016] 146 · 147 */   /* ★[TRIB_CALL_SAY_1014] 145 */   /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144 */
+ok('FILES 맨 끝 89~190 이 새 줄 102개(148 ~ 190 = 나레이션 멘트 예시 · EX_MANY_1017)', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
 
 /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 서약 카드 «무엇을 읽나요» — 감사문을 고르면
    여는 말 133 → 두 분이 하객 쪽을 본 채 읽고 마지막 한 문장(THANKSBOTH)은 함께 · 맺는 말(서약의 «약속은 말로 끝나지 않습니다») 없음 · 다음 순간은 디렉터 GO.

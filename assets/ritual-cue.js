@@ -174,7 +174,20 @@
     'tribute-call-say',   /* ★[TRIB_CALL_SAY_1014 라운드 3] 145 · 말로 인사 날 구호 «그 마음을 담아 신랑 신부, 인사!»(10/16 자료 GG 1 구호 그대로) */
     /* ★★[CANDLE_CALL_SRC_1016 2026-10-16 사장님 «자료집 멘트 최우선»] 146 · 147 — 화촉 인사 구호에 서는 분 이름이 들어가 판마다 글이 갈렸다(138 은 어머님 판).
        **맨 끝에 붙였다**(위 경고 그대로). 원천 문안 assets/ritual-open.js NAR.candleBow(fathers · others) · 녹음 전엔 글로 */
-    'narr-candle-bow-fathers', 'narr-candle-bow-others'
+    'narr-candle-bow-fathers', 'narr-candle-bow-others',
+    /* ★★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 · 4개 정도 · 자료집에서»] 148 ~ 190 — 나레이션 멘트 예시 2 ~ 4(43줄).
+       **맨 끝에 붙였다**(위 경고 그대로 · 번호는 한 번 붙으면 바꾸지 않는다). 원천 문안 assets/ritual-open.js NAR_EX · 녹음 전엔 글로(진행 · 우성) */
+    'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-ex2',
+    'narr-candle-in-mothers-ex3', 'narr-candle-in-mothers-ex4', 'narr-candle-in-fathers-ex2', 'narr-candle-in-fathers-ex3',
+    'narr-candle-in-parents-ex2', 'narr-candle-in-parents-ex3', 'narr-candle-in-parents-ex4', 'narr-candle-in-others-ex3',
+    'narr-entry-bow-ex2', 'narr-entry-bow-ex3', 'narr-entry-bow-ex4', 'narr-vow-in-ex2',
+    'narr-vow-in-ex3', 'narr-vow-in-ex4', 'narr-vow-in-b-ex2', 'narr-vow-in-b-ex3',
+    'narr-vow-in-b-ex4', 'narr-ring-in-ex2', 'narr-ring-in-ex3', 'narr-declare-family-out-ex2',
+    'narr-bless-mid-ex2', 'narr-bless-mid-ex3', 'narr-free-in-speech-ex2', 'narr-free-in-speech-ex3',
+    'letter-each-ex2', 'letter-each-ex3', 'narr-letter-end-ex2', 'narr-tribute-name-ex2',
+    'narr-tribute-name-ex3', 'narr-tribute-name-ex4', 'tribute-in-ex3', 'tribute-call-ex3',
+    'tribute-out-ex4', 'narr-close-bow-ex2', 'narr-close-bow-ex3', 'narr-close-bow-ex4',
+    'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -272,6 +285,9 @@
     'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
     'narr-declare-in-friend': D.NARR.declareIn   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 여는 말은 하나(이름은 옛 판 그대로 · 134 · 135 는 RETIRED)
   };
+  /* ★★[EX_MANY_1017] 나레이션 멘트 예시 2 ~ 4 의 글 — 원천은 ritual-open NAR_EX 하나(손으로 옮겨 적지 않는다 · narExClips 가 같은 글을 한 번만 낸다) ·
+       slug = 지금 slug + «-ex2 ~ -ex4» · FILES 맨 끝에 같은 이름이 있어야 번호(파일)가 생긴다(scripts/audit/nar-ex.mjs 가 둘을 맞댄다) */
+  (O.narExClips ? O.narExClips() : []).forEach(function (x) { EXTRA[x.slug] = x.text; });
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
@@ -371,6 +387,8 @@
       s.freeLen = O.chipOf('freeLen', s);
       s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;
       s.pvEx = /^[0-3]$/.test(String(s.pvEx)) ? +s.pvEx : 0;   // [PV_EX_NAR] 식전 영상 소개 나레이션 예시(0 = 90 그대로)   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
+      /* ★[EX_MANY_1017] 나레이션 멘트 예시(S.narEx[순간] = 1 ~ 3 · 0 = 예시 1) — 모르는 순간 · 범위 밖 값만 지운다 · «맞는 날»(when)은 쓸 때 본다(서약 ↔ 감사문을 오가도 고른 값은 남는다) */
+      if (s.narEx && typeof s.narEx === 'object') { var _ne = {}; Object.keys(s.narEx).forEach(function (k) { var v = Math.floor(+s.narEx[k]); if (O.NAR_EX && O.NAR_EX[k] && v >= 1 && v <= 3) _ne[k] = v; }); if (Object.keys(_ne).length) s.narEx = _ne; else delete s.narEx; } else delete s.narEx;
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹(★[FLOWER_OFF_1013] 10/13 부터 꽃 없이 인사 · 포옹 · 값 이름 flower 는 옛 초안 호환).
          옛 초안의 bowGroom 도 flower 로(큰절 여는 줄 · 방석 지문이 안 나간다) · 빌더는 «원하시면 큰절을 올리셔도 돼요» 한 줄만 · ★신랑 큰절 칩 되살리지 말 것 */
@@ -1509,6 +1527,11 @@
       }
       if (cues[0]) cues[0].fire = 'manual';   // 첫 재생만 사람이 시작(브라우저 자동재생 정책)
     }
+
+    /* ★★[EX_MANY_1017] 고른 나레이션 멘트 예시 — 줄 slug 는 그대로 둔다(화면의 행동 줄 · 콘솔 · 이음말 판정이 slug 를 본다) ·
+         소리 파일(file · no) · 글(text) · 길이(est · 글로 잰 값일 때만)만 그 예시로 · c.ex = 예시 slug(녹음 기록 · 검사가 본다) */
+    if (O.narExCue) cues.forEach(function (c) { var s2 = c.slug ? O.narExCue(S, c.slug) : ''; if (!s2 || !SLUG[s2] || !EXTRA[s2]) return;
+      var e0 = sylSec(c.text); c.ex = s2; c.no = noOf(s2); c.file = fileOf(s2); if (c.est === e0) c.est = sylSec(EXTRA[s2]); c.text = EXTRA[s2]; });
 
     /* [PREVIEW_UPTO] 자른 사실을 **결과에 실어** 보낸다 — 화면이 「이 뒤는 아직」이라고 말할 근거다.
        ★소리로는 아무 말도 만들지 않는다(새 음원 없음). 화면 글로만 닫는다. */

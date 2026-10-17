@@ -14,6 +14,8 @@ const D = require(path.join(root, 'assets/ritual-data.js'));
    큐 엔진만 쓰는 문안이라 ritual-data 에 자리가 없다. 여기서 베끼지 말고 그쪽을 읽는다.
    ★선언을 파일 맨 위로 올렸다 — 아래 padOf 가 쓰던 것과 «같은» RC 다. 둘로 만들면 죽는다. */
 const RC = require(path.join(root, 'assets/ritual-cue.js'));
+/* [EX_MANY_1017] 나레이션 멘트 예시의 원천(NAR_EX · narExClips) — 글은 RC.EXTRA 로 읽는다(같은 원천) · 목록 · 이름표만 여기서 */
+const RO = require(path.join(root, 'assets/ritual-open.js'));
 
 const syl = (s) => (s.match(/[가-힣]/g) || []).length;
 const sec = (s) => Math.round((syl(s) / 300) * 60);
@@ -259,6 +261,12 @@ const G = [
   { n: 14, t: '촬영 안내 · 골라 트는 판', tone: '짧고 분명하게 · 하객에게 배역을 시키지 않는다', items:
     [].concat(D.PHOTOCUE.call, D.PHOTOCUE.fx).map((g, i) => [`G14-${i + 1}`, g.k, g.slug, g.t]),
     note: '순서가 정해져 있지 않다 — 디렉터가 콘솔에서 골라 튼다. 그날 고른 것만 나가지만 전부 녹음해 둔다.\n★"다 함께 웃어 주세요" 같은 배역 지시는 넣지 않는다. 동작 하나만 준다.' },
+  /* ★★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 · 4개 정도 · 자료집에서»] 148 ~ 190 — 나레이션 멘트 예시 2 ~ 4(43줄).
+     문안은 RC.EXTRA(원천 assets/ritual-open.js NAR_EX · narExClips 가 같은 글은 한 번만) · 진행(우성) · 7_예시_멘트 · 문장마다 자료 출처는 docs/plans/식순연구/자료그대로_1016.json */
+  { n: 15, t: '나레이션 멘트 예시 (두 분이 고르는 예시 2 ~ 4)', tone: '같은 순간 예시 1 과 같은 자리 · 이름표(담백 · 격식 · 다정 · 잔잔 · 뭉클 …)대로 결만 달리 · 구호(맞절! · 인사!)는 또렷하게', items:
+    RO.narExClips().map((x) => { const who = (x.base.match(/^narr-candle-in-(\w+)$/) || [])[1]; const W = { mothers: '양가 어머님', fathers: '양가 아버님', parents: '양가 부모님 네 분', others: '다른 두 분' };
+      return [`X-${x.slug}`, `${x.lab} 예시 ${x.n + 1} · ${x.name}${who ? ' · ' + W[who] : ''}${/-b$/.test(x.base) ? ' · 신부부터' : ''}`, x.slug, RC.EXTRA[x.slug]]; }),
+    note: '고객이 순간마다 «○○ 멘트» 칩으로 고른다(안 고르면 예시 1 · 지금 녹음). 녹음 전엔 글로 먼저 보인다.\n편지 맺는 말(narr-letter-end-ex2)은 예시 2 · 3 이 같은 글이라 한 번만 녹음한다.' },
 ];
 
 // ── 조립
