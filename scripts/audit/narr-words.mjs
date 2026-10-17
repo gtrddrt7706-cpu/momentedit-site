@@ -221,7 +221,11 @@ if (arg === '--flow') {
     console.log(`\n── ${ex.nm || ex.k} (${ex.k}) · ${cues.length}줄`);
     /* ★[FLOW_NOW_1014 라운드 3] 엔진 글(실제 나가는 글)을 이어 찍는다 — 원고가 엔진에 다 들어간 뒤(PR B · B2)로 «3단계 글» 칸은 플레이 03 녹음 조각과 짝인 옛 글이라,
        그 칸을 찍으면 실제 소리 차례와 다른 글이 이어졌다(라운드 3 G1 · G2 · G5) · 원고 칸이 다르면 아래에 한 줄로 */
-    cues.forEach((c) => { const s = c.slug || c.k || ''; const t = by.get(s); console.log(`  [${c.no || '-'}] ${s}\n       ${c.text || '(소리 없음)'}${t && c.text && t !== c.text ? '\n       (원고 3단계 글 · 플레이 03: ' + t + ')' : ''}`); });
+    /* ★[FLOW_LIVE_1018 라운드 9] 사람 구간(낭독 · 상영 · 자유 사진 …)을 그 줄 아래에 한 줄로 — 줄만 이어 찍으면 붙어 들리는 줄처럼 보인다.
+       라운드 9 에 65 «오늘 함께해 주신 …» → 47 «오늘의 시작을 함께해 주신 …»을 겹침으로 읽었는데 사이에 자유 사진(약 2분)이 있었다 ·
+       CHAIN_ECHO 도 사람 구간 뒤 이음매는 재지 않는다 · 검토 판(narr-now)을 읽는 인스타 섹션도 같은 판을 본다 */
+    const liveLine = (c) => { if (!c.live || !c.live.t) return ''; const sec = +c.live.est || 0; return `\n       [사람 구간${sec >= 60 ? ' · 약 ' + Math.round(sec / 60) + '분' : sec > 0 ? ' · ' + sec + '초' : ''}] ${c.live.t}`; };
+    cues.forEach((c) => { const s = c.slug || c.k || ''; const t = by.get(s); console.log(`  [${c.no || '-'}] ${s}\n       ${c.text || '(소리 없음)'}${t && c.text && t !== c.text ? '\n       (원고 3단계 글 · 플레이 03: ' + t + ')' : ''}${liveLine(c)}`); });
   });
   process.exit(0);
 }

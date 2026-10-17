@@ -192,7 +192,9 @@
        원천 assets/ritual-open.js NAR_EX(화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4 여는 말 · 받는 말 · 축사 4) · 녹음 전엔 글로(진행 · 우성) */
     'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4',
     /* ★[NARR_LOOP_1018 첫 판 2026-10-18 · 자료 루프] 197 ~ 200 — 선언 맺는 말 예시 3 · 4(자료 T2 · U1) · 편지 여는 말 · 맺는 말 예시 4(자료 OO) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
-    'narr-declare-family-out-ex3', 'narr-declare-family-out-ex4', 'letter-each-ex4', 'narr-letter-end-ex4'
+    'narr-declare-family-out-ex3', 'narr-declare-family-out-ex4', 'letter-each-ex4', 'narr-letter-end-ex4',
+    /* ★[NARR_R9_1018 라운드 9 2026-10-18 · 자료 루프] 201 ~ 203 — 반지 맺는 말 예시 4(자료 T2) · 축가 여는 말 예시 2(자료 OO · 선언 있는 날) · 테이블 인사 예시 3(자료 U1) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
+    'narr-ring-out-ex4', 'narr-song-ex2', 'narr-table-in-ex3'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -248,7 +250,9 @@
        ★지우지는 않는다 — 46_end-1b-farewell-online.mp3 가 녹음돼 있고, 「쓰이지 않는 문안」과
          「없는 문안」은 다르다. 결정이 되돌아오면 여기가 근거가 된다. 되살릴 땐 마지막 문장부터 다시 볼 것. */
     'end-1b-farewell-online': '오늘의 예식은 여기까지입니다. 자리를 옮기시기 전에, 두고 가시는 물건이 없는지 한 번만 살펴 주십시오. 화면으로 함께해 주신 분들께도, 두 사람이 곧 인사드리겠습니다.',
-    'end-2-goodbye': '끝까지 두 사람의 곁을 지켜 주셔서 감사합니다. 여러분 덕분에, 부부로서의 첫날이 시작되었습니다. 남은 하루 행복하게 보내세요.',
+    /* ★[END2_T2_1018 라운드 9 2026-10-18 · SOURCE_FIRST_1016] 앞 두 문장(우리 글 «끝까지 두 사람의 곁을 … · 여러분 덕분에, 부부로서의 첫날이 …»)을 자료 T2 «폐식 안내» 끝 문장으로 — 뜻(감사 · 오늘의 시작)이 같고 어느 날에도 참 ·
+       띄어쓰기만(«함께 해주신» → «함께해 주신») · 끝 «남은 하루 행복하게 보내세요.»는 자료 DD ⑦ 그대로 · 옛 두 문장 되살리지 말 것 */
+    'end-2-goodbye': '오늘의 시작을 함께해 주신 모든 분들께 감사드리며, 두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다. 남은 하루 행복하게 보내세요.',
     'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다. 이 하루를, 신랑 신부는 여러분과도 나누고 싶었습니다. 같은 시간에 계신 것만으로 충분합니다.',
     'bridge-4-wait-emotion': '잠시 이대로 두겠습니다. 이 시간도, 예식의 한 부분입니다.',
     'bridge-5-wait-setup': '다음 순서를 준비하고 있습니다. 끝나는 대로 이어 가겠습니다.',
