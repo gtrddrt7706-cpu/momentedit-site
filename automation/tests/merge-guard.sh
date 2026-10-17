@@ -7723,6 +7723,7 @@ chk 'EX_MANY_1017' scripts/audit/narr-words.mjs 1
 chk 'EX_MANY_1017' CLAUDE.md 1
 chk 'EX_MANY_1017' api/_ritual-kb.js 1   # AI 상담 지식 — 순간마다 «○○ 멘트» 이름표(원천 NAR_EX)
 chk 'EX_MANY_1017' scripts/audit/copycheck/전수표.py 2   # 새 예시 43줄 = 자료 그대로라 문체 회차 제외(번호 · 꼴로 고른다 · 밖은 «미착수»)
+chk 'EX_MANY_1017' scripts/audit/ghi-polish.mjs 2   # 맞절 쪽 — 맞절을 고르는 칩은 0 · «맞절 멘트» 줄 하나(MATJEOL_1011 과 함께 산다)
 chk 'function narExCue(S, slug)' assets/ritual-open.js 1
 chk 'if (O.narExCue) cues.forEach(function (c)' assets/ritual-cue.js 1
 chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-ex2'," assets/ritual-cue.js 1   # FILES 148 ~ 151 (번호는 한 번 붙으면 바꾸지 않는다)
