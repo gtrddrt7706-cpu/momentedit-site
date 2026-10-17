@@ -13,13 +13,13 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 130 | 43 |
+| 1_우성.txt | 우성 | 145 | 49 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 130줄 · 43클립
+# 우성 — 145줄 · 49클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =148_narr-open-ex2,=149_narr-open-ex3,=150_narr-open-ex4,=151_narr-candle-in-mothers-ex2,=152_narr-candle-in-mothers-ex3,=153_narr-candle-in-mothers-ex4,=154_narr-candle-in-fathers-ex2,=155_narr-candle-in-fathers-ex3,=156_narr-candle-in-parents-ex2,=157_narr-candle-in-parents-ex3,=158_narr-candle-in-parents-ex4,=159_narr-candle-in-others-ex3,=160_narr-entry-bow-ex2,=161_narr-entry-bow-ex3,=162_narr-entry-bow-ex4,=163_narr-vow-in-ex2,=164_narr-vow-in-ex3,=165_narr-vow-in-ex4,=166_narr-vow-in-b-ex2,=167_narr-vow-in-b-ex3,=168_narr-vow-in-b-ex4,=169_narr-ring-in-ex2,=170_narr-ring-in-ex3,=171_narr-declare-family-out-ex2,=172_narr-bless-mid-ex2,=173_narr-bless-mid-ex3,=174_narr-free-in-speech-ex2,=175_narr-free-in-speech-ex3,=176_letter-each-ex2,=177_letter-each-ex3,=178_narr-letter-end-ex2,=179_narr-tribute-name-ex2,=180_narr-tribute-name-ex3,=181_narr-tribute-name-ex4,=182_tribute-in-ex3,=183_tribute-call-ex3,=184_tribute-out-ex4,=185_narr-close-bow-ex2,=186_narr-close-bow-ex3,=187_narr-close-bow-ex4,=188_toast-toast-ex2,=189_toast-toast-ex3,=190_narr-table-in-ex2
+  --clip =148_narr-open-ex2,=149_narr-open-ex3,=150_narr-open-ex4,=151_narr-candle-in-mothers-ex2,=152_narr-candle-in-mothers-ex3,=153_narr-candle-in-mothers-ex4,=154_narr-candle-in-fathers-ex2,=155_narr-candle-in-fathers-ex3,=191_narr-candle-in-fathers-ex4,=156_narr-candle-in-parents-ex2,=157_narr-candle-in-parents-ex3,=158_narr-candle-in-parents-ex4,=192_narr-candle-in-others-ex2,=159_narr-candle-in-others-ex3,=160_narr-entry-bow-ex2,=161_narr-entry-bow-ex3,=162_narr-entry-bow-ex4,=163_narr-vow-in-ex2,=164_narr-vow-in-ex3,=165_narr-vow-in-ex4,=166_narr-vow-in-b-ex2,=167_narr-vow-in-b-ex3,=168_narr-vow-in-b-ex4,=169_narr-ring-in-ex2,=170_narr-ring-in-ex3,=193_narr-ring-in-ex4,=171_narr-declare-family-out-ex2,=172_narr-bless-mid-ex2,=173_narr-bless-mid-ex3,=194_narr-bless-mid-ex4,=195_narr-bless-end-ex4,=174_narr-free-in-speech-ex2,=175_narr-free-in-speech-ex3,=196_narr-free-in-speech-ex4,=176_letter-each-ex2,=177_letter-each-ex3,=178_narr-letter-end-ex2,=179_narr-tribute-name-ex2,=180_narr-tribute-name-ex3,=181_narr-tribute-name-ex4,=182_tribute-in-ex3,=183_tribute-call-ex3,=184_tribute-out-ex4,=185_narr-close-bow-ex2,=186_narr-close-bow-ex3,=187_narr-close-bow-ex4,=188_toast-toast-ex2,=189_toast-toast-ex3,=190_narr-table-in-ex2
 ```
 

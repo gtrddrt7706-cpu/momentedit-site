@@ -7712,7 +7712,7 @@ if command -v node >/dev/null 2>&1; then
 fi
 # ★★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 · 4개 정도 · 자료집에서 · 다른 곳도 찾아보고»] 나레이션 «○○ 멘트» 예시 2 ~ 4 —
 #   13 순간(개식 · 화촉 · 맞절 · 서약 · 반지 · 선언 · 덕담 · 축사 · 편지 · 부모님께 인사 · 닫는 인사 · 축배 · 테이블 인사) · 소리 148 ~ 190(맨 끝에 붙였다) · 문장마다 자료 출처(자료그대로_1016.json · 지어낸 문장 0) ·
-#   원본에 «외부공유 절대 금지»가 적힌 자료(T3)는 공개 사이트 예시에 쓰지 않는다 · nar-ex.mjs 가 번호 · 이름표 · 엔진 · 맞는 날 · 저장 값 · 자료 · 화면 · 녹음 대본을 잰다(main 이면 빨강 · 깨 보기 셋)
+#   T3(원본 «외부공유 절대 금지»)는 10/17 원작자 허락을 받아 예시 여섯만(191 ~ 196 · T3_OK_1017 · 아래) · nar-ex.mjs 가 번호 · 이름표 · 엔진 · 맞는 날 · 저장 값 · 자료 · 화면 · 녹음 대본을 잰다(main 이면 빨강 · 깨 보기 셋)
 chk 'EX_MANY_1017' assets/ritual-open.js 2
 chk 'EX_MANY_1017' assets/ritual-cue.js 4
 chk 'EX_MANY_1017' order-preview.html 2
@@ -7730,8 +7730,17 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 177;' scripts/build-typecast-import.mjs 1
+chk 'const CLIP_COUNT = 183;' scripts/build-typecast-import.mjs 1   # [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)
 chk "has: (id) => /^X-/.test(id) }" scripts/build-typecast-import.mjs 1
+# ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
+#   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
+#   T3 성혼 선언 문장(«정식으로 부부가 되셨습니다»)은 DECLARE_BY_PERSON(나레이션은 선언하지 않는다)과 부딪혀 쓰지 않았다 · T4 원문은 여전히 쓰지 않는다
+chk 'T3_OK_1017' assets/ritual-open.js 7
+chk 'T3_OK_1017' assets/ritual-cue.js 1
+chk 'T3_OK_1017' CLAUDE.md 1
+chk "'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4'" assets/ritual-cue.js 1   # FILES 191 ~ 196
+nochk '자료 T3(원본 «외부공유 절대 금지») · T4 원문은 이 예시에 쓰지 않았다' assets/ritual-open.js
+nochk '자, 지금 이 순간부터 신랑과 신부는' assets/ritual-open.js   # DECLARE_BY_PERSON — 나레이션은 성혼을 선언하지 않는다(T3 성혼 선언 문장은 안 쓴다)
 if command -v node >/dev/null 2>&1; then
   if node scripts/audit/nar-ex.mjs >/dev/null 2>&1; then echo 'ok nar-ex [EX_MANY_1017]'; else echo 'FAIL nar-ex: 나레이션 멘트 예시(번호 · 이름표 · 엔진 · 맞는 날 · 자료 · 화면 · 녹음 대본)가 어긋났습니다 — node scripts/audit/nar-ex.mjs'; fail=1; fi
   if node scripts/audit/nar-ex.mjs --selftest >/dev/null 2>&1; then echo 'ok nar-ex --selftest(깨 보기 셋을 잡는다) [EX_MANY_1017]'; else echo 'FAIL nar-ex --selftest: 깨 보기를 못 잡는다 — node scripts/audit/nar-ex.mjs --selftest'; fail=1; fi
@@ -10963,7 +10972,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 190' scripts/check-ritual-cue.js 1   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 196' scripts/check-ritual-cue.js 1   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -16962,7 +16971,7 @@ chk 'tableIn:"두 사람이 여러분께 직접 인사를 드리러 갑니다. �
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
-chk 'const N_FILES = 190;' scripts/check-ritual-cue.js 1   # ★[EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
+chk 'const N_FILES = 196;' scripts/check-ritual-cue.js 1   # ★[T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1

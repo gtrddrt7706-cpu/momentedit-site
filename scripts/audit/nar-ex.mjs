@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[EX_MANY_1017 2026-10-17 사장님 «우리 시스템에 예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 하자 · 4개 정도 · 자료집에서 좋은 멘트들 붙여서 · 저 섹션 말고도 예시가 없는 곳 찾아보고 개선»]
-   나레이션 멘트 예시(ritual-open NAR_EX · 13 순간 · 소리 43줄 148 ~ 190)를 잰다 — 엔진 · 번호 · 자료 · 화면 · 녹음 대본.
+   나레이션 멘트 예시(ritual-open NAR_EX · 13 순간 · 소리 49줄 148 ~ 196 · 191 ~ 196 = 자료 T3 [T3_OK_1017])를 잰다 — 엔진 · 번호 · 자료 · 화면 · 녹음 대본.
      ① 소리 번호 — 예시 소리마다 FILES 에 있고 147 뒤(맨 끝에 붙였다 · 앞 번호를 밀지 않는다) · EXTRA 글 = 원천 글 · 같은 글은 한 소리
      ② 이름표 — «~하게» 한 낱말(격식 있게 포함 · EX_NAME_HAGE) · 한 순간 안에서 겹치지 않는다
      ③ 엔진 — 고르면 그 줄 소리 · 번호 · 글이 예시로(줄 slug 는 그대로 · c.ex) · 안 고르면 예시 소리가 한 줄도 없다
@@ -64,7 +64,7 @@ function run(mut) {
   // ⑥ 자료 그대로
   const nz = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
   const SRC = new Set(JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.map((x) => nz(x.text)));
-  const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn };
+  const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn };
   const sents = (t) => (String(t).match(/[^.!?]+[.!?]*/g) || [String(t)]).map((s) => s.trim()).filter(Boolean);
   const CALL = /^(양가 (어머님|아버님|부모님)|양가를 대표하는 두 분), 단상 위로 올라와 주십시오\.$/;
   const made = [];
