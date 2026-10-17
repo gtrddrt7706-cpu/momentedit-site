@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[FLOW_THREAD 2026-10-07 사장님 «이런 상황에서 이런 멘트가 나오고 그다음 이런 액션이 있구나 한눈에 · 다른 곳들도 · 여기서 정하고 일괄 수정» → 시안 A «흐름선»]
-   ② 순간 쪽 흐름(.mk-flow)을 390 · 1280 실렌더로 잰다 — 화촉(멘트 · 행동 · 멘트) · 부모님께 인사(행동 · 차례 둘 · 멘트 둘) · 축배(차례 · 한마디) · 케이크(행동으로 끝남) · 식전 영상(넘기는 자리)
+   ② 순간 쪽 흐름(.mk-flow)을 390 · 1280 실렌더로 잰다 — 화촉(멘트 · 행동 · 멘트) · 부모님께 인사(행동 · 차례 둘 · 멘트 둘) · 축배(차례 · 한마디) · 반지(행동 · 멘트) · 식전 영상(넘기는 자리) · [CAKE_OLD_OFF_1017] 케이크는 옛 초안에서도 빠져 반지로 바꿨다
    ① 세 갈래(▶ 나레이션 · ● 행동 · ○ 직접 말하는 차례) 글 왼끝이 한 세로선(±1px)
    ② 마디 가운데가 한 세로선(±1.5px) — ▶ 원 · ● 점 · ○ 테
    ③ 흐름선 — 줄 사이 틈 0 · 첫 마디에서 시작 · 마지막 마디에서 멈춘다
@@ -18,7 +18,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch(); } catch (e) { console.log('못 쟀다 — 브라우저를 못 띄움', e && e.message); srv.close(); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
-const KS = ['candle', 'tribute', 'toast', 'cake', 'prevideo'];
+const KS = ['candle', 'tribute', 'toast', 'ring', 'prevideo'];
 try {
   for (const w of [390, 1280]) {
     const pg = await br.newPage({ viewport: { width: w, height: w < 1000 ? 844 : 900 }, hasTouch: w < 1000 }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));

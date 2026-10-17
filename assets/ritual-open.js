@@ -73,6 +73,10 @@
        본식 끝 축하는 축배가 맡는다(예시 넷 모두). ★케이크 커팅을 새로 담게 하기 금지 — 2026-10-13 사용자 지시로 삭제(계약서 v1.14 별도 비용 줄도 함께 걷음).
        옛 초안(케이크를 담아 둔 식순)은 그대로 돈다 — ORDER · PICKABLE · SECTIONS 에서 빼지 않는다(PICKABLE 에서 빼면 ritual-cue 가 저장된 케이크를 조용히 거른다).
        새로 담는 목록은 OFFER — 고르기 칸(담겨 있을 때만 보임 · order-preview _pkShow) · 담지 않은 순간 · AI 상담. */
+  /* ★★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 위 «옛 초안은 그대로 돈다»를 걷었다 — 케이크를 담아 둔 옛 초안도 케이크 커팅을 내지 않는다.
+       걷은 순간(RETIRED)은 S.on 에 남아 있어도 «담김»이 아니다 — onOf · picked 가 거른다(화면 ② ③ ④ · 엔진 · 당일 콘솔 · 시간 · 준비물 · 요약이 모두 이 둘을 지난다).
+       저장된 S.on.cake 는 지우지 않는다(되돌리기 쉽게 · 이 거름만 걷으면 돌아온다) · 옛 코스(축배 판 both · cake)는 ritual-cue norm 이 «축배»로 옮긴다.
+       ★옛 초안에 케이크를 되살리기 금지 — 2026-10-17 사용자 지시로 삭제 */
   var RETIRED = { cake: 1 };
   var OFFER = PICKABLE.filter(function (k) { return !RETIRED[k]; });
 
@@ -162,7 +166,7 @@
     if (k === 'declare') return '';   // [DECLARE_ANYONE] 칩이 없다 — 읽는 분은 declBy(S)
     if (k === 'tribute') return CHIP_OK('tribute', S.tributeSay) ? S.tributeSay : 'long';   // [TRIB_ONE_SAY] 옛 one → long
     if (k === 'letter') return S.letter === 'parent' ? 'parent' : 'each';
-    if (k === 'toast') return (S && S.on && (S.on.cake || S.on.toast)) ? toastMode(S) : (CHIP_OK('toast', S && S.toast) ? S.toast : 'both');   // [CAKE_TOAST_SPLIT] 담은 두 칸에서 따라 정한다
+    if (k === 'toast') return 'toast';   // ★[CAKE_OLD_OFF_1017] 축배 판은 «축배» 하나 — 케이크가 든 판(both · cake)은 옛 초안에도 없다(종전: 담은 두 칸에서 따라 · 안 담으면 S.toast · 기본 both)
     if (k === 'wine') return 'none';   // [WINE_POUR_OFF]
     if (k === 'free') { var fv = FREE_OLD[S.freeWhat] || S.freeWhat; return CHIP_OK('free', fv) ? fv : 'speech'; }   // [SPEECH_TILE_1012] 모르는 값 · 빈 값은 축사(옛 기본 video)
     if (k === 'freeLen') return /^(10|[1-9])$/.test(String(S.freeLen)) ? String(S.freeLen) : '3';   // [FREE_LEN10 2026-10-06 사장님] 분을 직접 적는다 · 1~10분(계약서 v1.12 ①-2 «10분 안 · 길어진 만큼 단체 사진이 준다»)
@@ -274,7 +278,7 @@
   }
 
   /* ── 순서 계산 ── */
-  function onOf(S, k) { return !!(ALWAYS[k] || (S && S.on && S.on[k])); }
+  function onOf(S, k) { return !!(ALWAYS[k] || (!RETIRED[k] && S && S.on && S.on[k])); }   // [CAKE_OLD_OFF_1017] 걷은 순간은 담아 둔 옛 초안에서도 «안 담김»
   /* [CAKE_TOAST_SPLIT] 엔진 판(S.toast)은 두 칸에서 따라 정한다 — 둘 다 both · 케이크만 cake · 축배만 toast */
   function toastMode(S) { var c = onOf(S, 'cake'), t = onOf(S, 'toast'); return c && t ? 'both' : c ? 'cake' : 'toast'; }
   /* [CAKE_TOAST_SPLIT] 옛 초안 옮기기(한 번 · ctSplit 표시) — on.toast + S.toast(both · cake · 없음) → on.cake · on.toast. 되돌리지 말 것 */
@@ -288,7 +292,7 @@
   /* [TABLE_GREET_1008] 본식 차례 = 담은 순간(식전 · 닫는 인사 뒤 것 제외) → 닫는 인사 → 닫는 인사 뒤 순간(테이블 인사) */
   function bodyOrder() { return ORDER.filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(['_close']).concat(ORDER.filter(function (k) { return AFTER_CLOSE[k]; })); }
   function bodySeq(S) { return seqOf(S).filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(['_close']).concat(seqOf(S).filter(function (k) { return AFTER_CLOSE[k]; })); }   // 본식만 + 닫는 인사 + 그 뒤 순간
-  function picked(S) { return PICKABLE.filter(function (k) { return S && S.on && S.on[k]; }); }
+  function picked(S) { return PICKABLE.filter(function (k) { return !RETIRED[k] && S && S.on && S.on[k]; }); }   // [CAKE_OLD_OFF_1017]
 
   /* ── 시간 표(부록 A · 초) — [대본(성우), 사람 말, 말 없는 시간, 여유] ──
      ★«축배만 · 케이크만»은 명세가 «지금 코드 길이를 옮긴 뒤 코워크가 채운다»고 비워 둔 줄이다.

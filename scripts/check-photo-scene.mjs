@@ -5,7 +5,7 @@
  *   식순 초안의 `summary.flow` 에 실린 **블록 이름 문자열**로 맞춰 본다. 그 이름을 만드는 곳은
  *   order-preview.html 의 `BLOCK`(과 fullBlocks 가 뒤에 붙이는 '폐식·단체촬영') — 옛 코스 · 옛 초안.
  *   ★[FLOW_FROM_TWO_1017] 새 코스 흐름은 ② 줄 이름이다(_flowOpen → _lName → ritual-open.js CARDS[k].n · «준비한 순서» · «감사문»).
- *   그래서 link.when 은 **새 코스 이름**이어야 하고(새 초안과 맞아야 한다), 옛 이름은 link.old 로 함께 받는다.
+ *   그래서 link.when 은 **새 코스 이름**이어야 한다(새 초안과 맞아야 한다) · 옛 이름(«축배 · 케이크»)은 마이페이지 _flowFix 가 «축배»로 옮긴다([CAKE_OLD_OFF_1017] · 종전 link.old).
  *
  * ■ 왜 검사가 필요한가 — 어긋나도 화면이 안 깨진다
  *   빌더가 '축배 · 케이크' 를 '축배' 로 줄이면, mypage 의 대조는 그냥 **거짓이 된다.**
@@ -62,7 +62,7 @@ for (const [label, list] of [['PHOTO_SCENE', scenes], ['link.when', whens], ['li
 
 // [FLOW_FROM_TWO_1017] link.when 은 새 코스 이름이어야 한다 — 옛 이름(«축배 · 케이크»)만 적으면 새 초안과 영영 안 맞아,
 //   축배를 담은 두 분에게 «식순에 축배가 없어요 · 잔을 따로 챙겨 드려요»가 뜬다. 옛 이름은 link.old 로.
-for (const w of whens) if (!openNames.has(w)) { bad++; console.log(`  ✖ link.when: ${w}  ← 새 코스 흐름(② 이름)에 없는 이름 — 옛 이름은 link.old 로 [FLOW_FROM_TWO_1017]`); }
+for (const w of whens) if (!openNames.has(w)) { bad++; console.log(`  ✖ link.when: ${w}  ← 새 코스 흐름(② 이름)에 없는 이름 — 옛 이름은 _flowFix 가 옮긴다 [FLOW_FROM_TWO_1017 · CAKE_OLD_OFF_1017]`); }
 
 // 경고만 — 빌더에는 있는데 장면을 안 정한 순서(사진으로 남길 것이 아닐 수 있다)
 const known = new Set([...scenes, ...whens, '하객 맞이 안내', '입장 멘트', '첫인사 진행', '사이 순서']);

@@ -359,7 +359,7 @@
     if (D.COURSES[s.course].open) {
       O.migrateCakeToast(s);   // [CAKE_TOAST_SPLIT] 옛 초안 on.toast + S.toast → on.cake · on.toast
       var on = {};
-      if (s.on && typeof s.on === 'object') for (k in s.on) if (s.on[k] && O.PICKABLE.indexOf(k) > -1) on[k] = 1;
+      if (s.on && typeof s.on === 'object') for (k in s.on) if (s.on[k] && O.PICKABLE.indexOf(k) > -1 && !(O.RETIRED && O.RETIRED[k])) on[k] = 1;   // [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 옛 초안에 담겨 있어도 거른다
       s.on = on; s.extra = {}; s.off = {}; s.ord = null;
       s.ring = on.ring ? 'on' : 'off'; s.bless = on.bless ? 'on' : 'off'; s.vow = 'ok';
       s.toast = O.toastMode(s);   // [CAKE_TOAST_SPLIT] 판은 담은 두 칸이 정한다
@@ -380,6 +380,11 @@
       /* 옛 코스는 새 판이 없던 때와 **소리가 같아야** 한다 — 와인 붓기는 **값과 상관없이** 없다.
          ★빌더의 새 기본 S(wine:'mix')가 옛 초안에 섞여 들어와도 옛 예식에 붓는 말이 끼지 않게(scripts/audit/open-course.mjs 가 잡았다). */
       s.wine = 'none';
+      /* ★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 옛 코스 «축배 · 케이크» 판에서 케이크를 뺀다 — 둘 다 → 축배 · 케이크만 → 그 순간을 뺀다(축배를 고르지 않았다) ·
+         사이 순서 케이크 → 없음. 빌더(order-preview _applySaved)가 같은 옮기기를 한다. 되돌리지 말 것 */
+      if (s.toast === 'both' || s.toast === '2') s.toast = 'toast';
+      else if (s.toast === 'cake') { s.toast = 'toast'; s.off.toast = 1; }
+      if (s.valley === 'cake') s.valley = 'none';
       if (s.declare === 'clap') s.declare = '1';
       if (s.tribute === 'bowGroom') s.tribute = 'flower';   // [BOW_GROOM] 새 판은 새 코스에만
       s.entryScene = 'look';   // [ENTRY_SCENE] 맞절 판은 새 코스에만 — 옛 예식의 도착 멘트는 그대로
@@ -1008,11 +1013,11 @@
          옛 코스(옛 초안)는 그대로 낸다 — 이미 짠 예식의 소리를 바꾸지 않는다. 새 코스에 되살리지 말 것. */
       var _old = !D.COURSES[S.course].open;   // [TOAST_NONE_OFF_1012] 87 은 옛 코스만
       var seq = (_old ? [cue({
-        k: 'toast', blockN: '축배 · 케이크', slug: 'narr-toast-none', name: '축사 없음 안내',
+        k: 'toast', blockN: '축배', slug: 'narr-toast-none', name: '축사 없음 안내',
         text: EXTRA['narr-toast-none'], duck: -12,
         note: '★없는 순서를 말없이 건너뛰지 않는다 — 기다리던 하객이 「축사는?」 하고 남는다(옛 코스만 · 새 코스는 [TOAST_NONE_OFF_1012])'
       })] : []).concat([cue({
-        k: 'toast', blockN: '축배 · 케이크', slug: 'toast-' + S.toast, name: '축배 · 케이크', text: t.nar,
+        k: 'toast', blockN: '축배', slug: 'toast-' + S.toast, name: '축배', text: t.nar,   // [CAKE_OLD_OFF_1017] 옛 코스 판도 케이크가 없다 — 블록 · 큐 이름 «축배»
         duck: PARAM.duckMusic, pick: t.d, note: t.note,
         live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing, fallback: t.fallback || '' }   // [TOAST_COUPLE] 막힐 때 한 줄
       })]);
@@ -1024,7 +1029,7 @@
       /* 두 와인 → 붓는 말 한 줄 · 양가 → 양가 여는 말 한 줄(«두 분이 각자 고른» 문장은 양가 판과 맞지 않아 안 붙인다).
          붓는 동안(사람의 시간)은 그 한 줄이 안고 간다 — 뒤 선창은 붓기가 끝난 걸 보고 사람이 낸다. */
       if (wine === 'mix' || wine === 'family') pour.push(cue({
-        k: 'toast', blockN: '축배 · 케이크', slug: 'toast-pour-' + wine,
+        k: 'toast', blockN: '축배', slug: 'toast-pour-' + wine,
         name: wine === 'mix' ? '축배 · 두 와인 붓기' : '축배 · 양가 와인 붓기',
         text: EXTRA['toast-pour-' + wine], duck: PARAM.duckMusic, pick: wine === 'mix' ? '두 와인을 한 잔에' : '양가가 한 병씩',
         live: { t: '두 분이 두 와인을 한 잔에 붓기', est: 25, duck: 0, self: true, doing: 'move' }
@@ -1035,12 +1040,12 @@
          «두 사람에게 잔이 가는 동안»을 뺀 108 로 간다. 붓지 않는 날은 지금 줄(81) 그대로. */
       var pourB = pour.length && S.toast === 'both';
       if (t.nar2) seq.push(cue({
-        k: 'toast', blockN: '축배 · 케이크', slug: pourB ? 'toast-both-pour-b' : 'toast-both-b', name: '축배 · 잔을 들고 선창',
+        k: 'toast', blockN: '축배', slug: pourB ? 'toast-both-pour-b' : 'toast-both-b', name: '축배 · 잔을 들고 선창',
         text: pourB ? EXTRA['toast-both-pour-b'] : t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가고 «잔 됨» 신호가 오면', note: t.note2,
         live: { t: t.cue2, est: t.est2, duck: 0, self: true, doing: 'say', fallback: t.fallback2 || '' }
       }));
       seq.push(cue({
-        k: 'toast', blockN: '축배 · 케이크',
+        k: 'toast', blockN: '축배',
         slug: t.out === 'cakeOut' ? 'narr-cake-out' : 'narr-toast-out',
         name: t.out === 'cakeOut' ? '케이크 커팅 마무리' : '축배 마무리',
         text: D.NARR[t.out], duck: PARAM.duckMusic

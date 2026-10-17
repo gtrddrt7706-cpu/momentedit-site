@@ -143,9 +143,9 @@ ok('준비한 순서 자리 = 덕담 뒤 · 축가 앞 · 편지 → 인사 [HEA
 ok('식전 영상은 담는 순간(빈 채엔 없음 · 담으면 식전 · 예시 넷은 담아 둔다) [PREVIDEO_PICK]', !O.ALWAYS.prevideo && O.PICKABLE.indexOf('prevideo') > -1 && O.seqOf({ on: {} }).indexOf('prevideo') < 0 && O.seqOf({ on: { prevideo: 1 } }).indexOf('prevideo') > -1 && !!O.PRE.prevideo && O.EXAMPLES.every((e) => e.on.indexOf('prevideo') > -1));
 /* ★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] 케이크 커팅은 새로 담지 않는다 — 새로 담는 목록(OFFER)에 없고, 옛 초안이 담아 둔 케이크는 그대로 돈다(PICKABLE · 순서 · 큐) */
 { const L = { course: 'open', on: { cake: 1, toast: 1 } }; L.toast = O.toastMode(L);
-  ok('[CAKE_OFF_1013] 케이크는 새로 담지 않는다(OFFER 에 없음 · RETIRED) · 옛 초안의 케이크는 순서 · 큐에 그대로',
+  ok('[CAKE_OFF_1013 · CAKE_OLD_OFF_1017] 케이크는 새로 담지 않는다(OFFER 에 없음 · RETIRED) · ★10/17 옛 초안에 담아 둔 케이크도 순서 · 큐에 없다(PICKABLE 에는 옛 값 읽기용으로 남는다)',
     O.RETIRED && O.RETIRED.cake === 1 && O.OFFER.indexOf('cake') < 0 && O.OFFER.length === O.PICKABLE.length - 1 && O.PICKABLE.indexOf('cake') > -1
-    && O.seqOf(L).indexOf('cake') > -1 && O.picked(L).indexOf('cake') > -1 && O.EXAMPLES.every((e) => e.on.indexOf('cake') < 0)); }
+    && O.seqOf(L).indexOf('cake') < 0 && O.picked(L).indexOf('cake') < 0 && !O.onOf(L, 'cake') && O.EXAMPLES.every((e) => e.on.indexOf('cake') < 0)); }
 /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스의 부모님께 인사는 꽃 없이 — 큐 이름 · 현장 지문 · 예식 이야기 장면 · 준비물 · 장면 글 어디에도 «꽃»이 없다 · 옛 코스는 그대로 */
 { const ST = require(P('assets/ritual-story.js'));
   const flw = (x) => /꽃/.test(JSON.stringify(x || ''));
@@ -239,11 +239,12 @@ ok('화촉 서는 분 → 여는 말 판', ['mothers', 'parents', 'fathers', 'ot
 ok('[DECLARE_BY_PERSON · DECLARE_ANYONE] 옛 박수 판(clap) 값 → 96 · 97 없음 · 여는 말 136 · 맺는 말 57 · 누가 읽든 여는 말 하나(134 · 135 없음)', (() => { const s = slugs({ course: 'open', on: { declare: 1 }, declare: 'clap' }); return s.indexOf('declare-clap-a') < 0 && s.indexOf('declare-clap-b') < 0 && s.indexOf('narr-declare-in-friend') > -1 && s.indexOf('narr-declare-family-out') === s.indexOf('narr-declare-in-friend') + 1; })()
   && ['gdad', 'bdad', '신부 아버님', ''].every((w) => { const s = slugs({ course: 'open', on: { declare: 1 }, declareWho: w }); return s.indexOf('narr-declare-in-friend') > -1 && s.indexOf('narr-declare-in-gdad') < 0 && s.indexOf('narr-declare-in-bdad') < 0; }));
 ok('[WINE_POUR_OFF] 옛 초안의 «두 와인» 값이 와도 붓기 없음 · 선창은 40 [TOAST_40_OPEN_1013]', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'mix' }); return s.every((x) => x.indexOf('toast-pour') < 0) && s.indexOf('toast-toast') > -1 && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0; })());
-/* ★[TOAST_40_OPEN_1013 2026-10-13] 옛 초안(케이크 + 축배)이어도 새 코스 축배는 40 — 케이크 몫(42)은 케이크 칸 그대로 · 76 «잔이 가는 동안»은 닫는 인사 뒤에 나가지 않는다 · 옛 코스는 76 그대로 */
-ok('[TOAST_40_OPEN_1013] 옛 초안(케이크 + 축배) → 축배는 40 · 56 · 76 없음 · 케이크는 42 · 닫는 인사가 그 사이 · 옛 코스는 76 그대로', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'none' });
+/* ★[TOAST_40_OPEN_1013 2026-10-13] 옛 초안(케이크 + 축배)이어도 새 코스 축배는 40 — 76 «잔이 가는 동안»은 닫는 인사 뒤에 나가지 않는다.
+   ★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 케이크 몫(42)도 이제 안 나간다 · 옛 코스 «둘 다»도 축배(40)만(종전 76 그대로) */
+ok('[TOAST_40_OPEN_1013 · CAKE_OLD_OFF_1017] 옛 초안(케이크 + 축배) → 축배는 40 · 56 · 76 · 42 없음 · 닫는 인사 뒤 · 옛 코스 «둘 다»도 40 · 케이크 줄 없음', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'none' });
   const o = C.build({ course: 'festive', toast: 'both', extra: { toast: 1 } }, { mode: 'console' }).cues.map((x) => x.slug);
   return s.indexOf('toast-toast') > -1 && s.indexOf('narr-toast-out') > s.indexOf('toast-toast') && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0
-    && s.indexOf('toast-both') > -1 && s.indexOf('toast-both') < s.indexOf('narr-close-bow') && s.indexOf('narr-close-bow') < s.indexOf('toast-toast') && o.indexOf('toast-both-b') > -1; })());
+    && s.indexOf('toast-both') < 0 && s.indexOf('narr-close-bow') < s.indexOf('toast-toast') && o.indexOf('toast-toast') > -1 && o.indexOf('toast-both-b') < 0 && o.indexOf('toast-both') < 0 && !o.some((x) => /cake/.test(x)); })());
 ok('[THANKS_SHOT_1013] 감사문을 고른 날 남는 장면은 감사문 장면 · 서약은 그대로', O.shotOf('vow', { vowKind: 'thanks' }) === '하객을 바라보며 읽는 두 분' && O.shotOf('vow', {}) === O.CARDS.vow.shot);
 ok('[TOAST_40_OPEN_1013] ① 대표 줄도 40 · 화면 글은 엔진 글과 같다(따옴표만 다르다)', (() => { const sm = O.sampleOf('toast', {}); const t = (C.build(O.sampleS({}), { mode: 'console' }).cues.find((c) => c.slug === 'toast-toast') || {}).text || '';
   return sm.slug === 'toast-toast' && t.length > 0 && sm.screen.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '') === t.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '')   /* [SOURCE_FIRST_1016] 엔진 글은 자료 AA 따옴표 «'위하여'» · 화면은 «위하여» */; })());
@@ -336,13 +337,14 @@ ok('[GUEST_EX_NAR] 나레이션 예시 2~4 → 115~126 · 두 분 목소리 판�
 /* [BRIDGE_LINK 2026-10-03] 이음말은 새 코스에서만 · 이웃 두 순간이 다 있을 때만 */
 {
   const sl = (S, m) => C.build(S, { mode: m || 'console' }).cues.map((c) => c.slug);
+  /* ★[CAKE_OLD_OFF_1017] 케이크(옛 초안 포함)가 돌지 않아 부모님께 인사 · 편지 뒤 본식 순간이 없다 — B4(숨 고르기) · B6(가벼운 순서로)는 이제 안 나간다(소리는 FILES 에 둔다) */
   const full = { course: 'open', on: { welcome: 1, vow: 1, ring: 1, declare: 1, tribute: 1, free: 1, letter: 1, cake: 1, toast: 1 }, freeWhat: 'video' };
   const a = sl(full), at = (s) => a.indexOf(s);
-  ok('[BRIDGE_LINK] 다 담은 판 — 셋이 각자 자리(선언 뒤 · 인사 뒤 · 영상 뒤) · 편지 뒤는 인사라 B6 없음 [HEART_ORDER_1012]',
-    at('bridge-b3-clap-thanks') === at('narr-declare-family-out') + 1 && at('bridge-b4-breath') === at('tribute-out') + 1   /* [DECLARE_BY_PERSON] 선언 박수는 맺는 말 57 뒤 */
+  ok('[BRIDGE_LINK · CAKE_OLD_OFF_1017] 다 담은 판(옛 초안 케이크 포함) — 선언 뒤 B3 · 영상 뒤 B5 · 인사 뒤는 닫는 인사라 B4 없음 · B6 없음 [HEART_ORDER_1012]',
+    at('bridge-b3-clap-thanks') === at('narr-declare-family-out') + 1 && at('bridge-b4-breath') < 0   /* [DECLARE_BY_PERSON] 선언 박수는 맺는 말 57 뒤 */
     && at('bridge-b5-video-out') === at('narr-free-in-video') + 1 && at('bridge-b6-lighter') < 0, a.join(' '));
-  { const nt = sl(Object.assign({}, full, { on: Object.assign({}, full.on, { tribute: 0 }) }));   /* [HEART_ORDER_1012] 인사를 안 담으면 편지 바로 뒤가 케이크 */
-    ok('[BRIDGE_LINK] 인사를 안 담으면 편지 → 케이크 사이 B6 [HEART_ORDER_1012]', nt.indexOf('bridge-b6-lighter') > -1 && nt.indexOf('bridge-b6-lighter') === nt.indexOf('narr-letter-end') + 1, nt.join(' ')); }
+  { const nt = sl(Object.assign({}, full, { on: Object.assign({}, full.on, { tribute: 0 }) }));   /* [HEART_ORDER_1012] 인사를 안 담으면 편지 바로 뒤가 (옛) 케이크 — 케이크가 안 돌아 B6 도 없다 */
+    ok('[BRIDGE_LINK · CAKE_OLD_OFF_1017] 인사를 안 담고 케이크를 담아 둔 옛 초안도 편지 뒤 B6 없음 [HEART_ORDER_1012]', nt.indexOf('bridge-b6-lighter') < 0 && !nt.some((x) => /cake/.test(x)), nt.join(' ')); }
   ok('[BRIDGE_LINK] 옛 코스에는 없다', !sl({ course: 'damback' }).some((s) => /^bridge-b/.test(s)));
   ok('[BRIDGE_LINK] 준비한 것이 영상이 아니면 B5 없음', !sl(Object.assign({}, full, { freeWhat: 'speech' })).includes('bridge-b5-video-out'));
   const noCake = sl(Object.assign({}, full, { on: Object.assign({}, full.on, { cake: 0 }) }));

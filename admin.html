@@ -1087,6 +1087,10 @@ function _printOverlay(id, title, doc){
   x.addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
 }
 
+/* ★★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 저장된 흐름에서 케이크를 걷는다(마이페이지 _flowFix 와 같은 판정) — 고객이 빌더를 다시 저장하기 전 옛 초안에 남은 이름.
+   «케이크 커팅» 뺌 · «축배 · 케이크» → «축배» · 옛 코스 «케이크만» 판(S.toast cake)은 그 순간이 통째로 빠진다 */
+function _admFlowFix(flow,S){ if(!Array.isArray(flow)) return flow; var _co=!!(S&&S.course&&S.course!=='open'&&S.toast==='cake'), _ct=/^축배\s*·\s*케이크$/;
+  return flow.filter(function(n){ return n!=='케이크 커팅'&&!(_co&&_ct.test(n)); }).map(function(n){ return _ct.test(n)?'축배':n; }); }
 // 하객 식순지 · A5 양면 1장. 앞면=이름·날짜·식순 / 뒷면=진행 안내(AI 고지·기립 없음·응답형 예고·도움 요청)
 function _orderSheetDoc(d){
   var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||{};
@@ -1094,7 +1098,7 @@ function _orderSheetDoc(d){
   var nm=_printNames(d);
   var head=nm.ok?(esc(nm.groom)+' · '+esc(nm.bride)):esc(nm.raw||'');
   var wdate=esc(_printDateKo((d&&d.pin&&d.pin['예식일'])||''));
-  var flow=(sm.flow&&sm.flow.length)?sm.flow:[];
+  var flow=(sm.flow&&sm.flow.length)?_admFlowFix(sm.flow,S):[];   /* [CAKE_OLD_OFF_1017] 하객 식순지에 케이크가 찍히지 않게 */
   var list=flow.map(function(v,i){ return '<li>'+esc(String(v))+'</li>'; }).join('');
   // ★응답형(ask) 예고 — '답할 말'은 절대 인쇄하지 않는다. W2-a와 같은 수준(순서가 있다·짧다)만.
   //   정답을 박으면 하객이 질문 전에 답해 버리고, DECLWHO.ask.prep의 "인쇄물이 필요 없어요"와도 어긋난다.
@@ -3083,13 +3087,14 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
       _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'&rf='+encodeURIComponent((curDetail&&curDetail.code)||'')+'">당일 콘솔</a>'; }catch(e){}   /* [REC_ADMIN] rf=코드 — 콘솔이 두 분 목소리 파일을 미리 받는다(관리자 토큰) */
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
-      +row('순서 흐름', (Array.isArray(sm3.flow)&&sm3.flow.length)?sm3.flow.join(' → '):'')   /* [ADM_SUM_ESC] 배열 아니면(깨진 초안) 행만 비운다 — join 이 던져 상세가 통째로 죽던 것 */
+      +row('순서 흐름', (Array.isArray(sm3.flow)&&sm3.flow.length)?_admFlowFix(sm3.flow,s3d).join(' → '):'')   /* [CAKE_OLD_OFF_1017] */   /* [ADM_SUM_ESC] 배열 아니면(깨진 초안) 행만 비운다 — join 이 던져 상세가 통째로 죽던 것 */
       +row('성혼 선언', _declOn(s3d)?('읽는 분 · '+_declWhoLabel(s3d.declareWho)):'')   // ★DECL_ADMIN_MIRROR · [DECLARE_ANYONE] 두 분이 적은 분(안 적었으면 «아직 안 정함») · 선언을 뺀 예식은 행 없음
       +row('반지 교환', s3d.ring==='off'?'뺌':'')
       /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 부모님께 드릴 꽃 — 맡긴 예식은 주문해야 한다(별도 비용).
          초안(summary.goods)은 고객 기기가 만든 값이라 배열이 아니면 행을 비운다([ADM_SUM_ESC]). */
-      +row('케이크 · 꽃', Array.isArray(sm3.goods)?(function(){ var a=sm3.goods.map(function(g){ return String((g&&g.what)||''); }).filter(Boolean), live=a.filter(function(w){ return !/^부모님께 드릴 꽃/.test(w); });   /* ★[FLOWER_OFF_OLD_1013] 10/13 전에 저장한 식순의 «부모님께 드릴 꽃»은 주문하지 않는다(폐지 · 계약서 v1.15) */
-        return live.join(' · ')+(live.length?' · 저희가 준비(별도 비용 · 주문 필요)':'')+(a.length>live.length?(live.length?' · ':'')+'부모님께 드릴 꽃(10/13 폐지 · 주문 안 함)':''); })():'')   /* [GOODS_STUDIO 2026-10-06 사장님] 늘 저희가 준비 · 옛 초안의 «두 분이 준비»도 이제 저희가 · 기본 조화 부케는 모든 예식에 */
+      +row('케이크 · 꽃', Array.isArray(sm3.goods)?(function(){ var a=sm3.goods.map(function(g){ return String((g&&g.what)||''); }).filter(Boolean), live=a.filter(function(w){ return !/^(부모님께 드릴 꽃|케이크)/.test(w); }), off=[];   /* ★[FLOWER_OFF_OLD_1013] 10/13 전에 저장한 식순의 «부모님께 드릴 꽃»은 주문하지 않는다(폐지 · 계약서 v1.15) · ★[CAKE_OLD_OFF_1017] 케이크도(옛 초안 · 10/17 폐지) */
+        if(a.some(function(w){ return /^케이크/.test(w); })) off.push('케이크(10/17 폐지 · 주문 안 함)'); if(a.some(function(w){ return /^부모님께 드릴 꽃/.test(w); })) off.push('부모님께 드릴 꽃(10/13 폐지 · 주문 안 함)');
+        return live.join(' · ')+(live.length?' · 저희가 준비(별도 비용 · 주문 필요)':'')+(off.length?(live.length?' · ':'')+off.join(' · '):''); })():'')   /* [GOODS_STUDIO 2026-10-06 사장님] 늘 저희가 준비 · 옛 초안의 «두 분이 준비»도 이제 저희가 · 기본 조화 부케는 모든 예식에 */
       /* ★[VEIL_RETIRED 2026-08-03] 베일 다운 행 삭제 — 전 예식 동시입장이라 실행 불가.
          값을 만들 경로가 코스·팔레트·큐 어디에도 없어 늘 빈 줄이었다. 되살리지 말 것. */
       /* ★[RINGWARM_RETIRED 2026-08-07 · LEGACY_LABEL] 링 워밍은 폐지됐고 새로 고를 길이 없다.
@@ -3097,7 +3102,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
          row() 는 값이 없으면 아무것도 안 그리므로 새 고객에게는 빈 줄도 안 생긴다. */
       +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')   /* [LEGACY_LABEL] 폐지 전 초안만 값을 갖는다 */
       +row('부모님 헌정', s3d.course==='open'?((s3d.on&&s3d.on.tribute)?'인사 · 포옹(꽃 없음)':''):(({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||''))   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스 값 flower 는 옛 초안 호환 이름 — «꽃»으로 읽혀 꽃을 준비하지 않게 · 옛 코스는 그대로 */
-      +(s3d.course==='open'?row('축배', (s3d.on&&s3d.on.toast)?'두 분 선창 «위하여»':''):row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||''))   /* ★[FLOW_FROM_TWO_1017 · CAKE_OFF_1013] 새 코스는 «축배» 행(담았을 때만) — 종전엔 S.toast(축배를 안 담아도 «축배»)를 읽어 담지 않은 날도 «축배·케이크 · 축배»가 떴다 · 옛 코스 행은 그대로 */
+      +(s3d.course==='open'?row('축배', (s3d.on&&s3d.on.toast)?'두 분 선창 «위하여»':''):row('축배', ({toast:'축배',cake:'뺌(옛 «케이크만» 판 · 10/17 케이크 폐지)','2':'축배(케이크 10/17 폐지)',both:'축배(케이크 10/17 폐지)'})[s3d.toast]||''))   /* ★[FLOW_FROM_TWO_1017 · CAKE_OFF_1013] 새 코스는 «축배» 행(담았을 때만) — 종전엔 S.toast(축배를 안 담아도 «축배»)를 읽어 담지 않은 날도 «축배·케이크 · 축배»가 떴다 · 옛 코스 행은 그대로 */
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
       /* [R4-02] 두 분이 «원고 없이 부모님이 현장에서 바로»를 골랐으면(덕담 부탁 칸 mkc 'p:bless:N' = 'site') 숨은 원고를 보이지 않는다 — 카드를 만들 원고가 아니다 */
       +((s3d.mkc&&Object.keys(s3d.mkc).some(function(id){ return /^p:bless:/.test(id)&&s3d.mkc[id]==='site'; }))?'<div class="kv"><span class="k">덕담 원고</span><span class="v">원고 없이 부모님이 현장에서 바로</span></div>'

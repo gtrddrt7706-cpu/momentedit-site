@@ -2226,7 +2226,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 <script src="/assets/ritual-open.js?v=1007u"></script><script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-scene.js?v=1012e"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1012r"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
-       ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
+       ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'',growth:'off',growthLink:'',blessProxy:false,
        tune:{entry:true}, extra:{}, up:{}, touched:{}, ctSplit:1};   // [CAKE_TOAST_SPLIT] 새 판은 처음부터 두 칸   // [CHIP_UNPICKED] touched = 두 분이 직접 누른 칩 묶음
@@ -2419,7 +2419,7 @@ var COURSES={
    "반지 교환",
    "성혼 선언",
    "편지 낭독",
-   "축배 · 케이크",
+   "축배",
    "폐식·단체촬영"
   ],
   "detail": [
@@ -2467,10 +2467,10 @@ var COURSES={
    },
    {
     "k": "toast",
-    "n": "축배 · 케이크",
+    "n": "축배",
     "how": "나레이션이 답할 말을 먼저 알려 드리고, 선창에 이어 하객분들이 다 함께 「위하여!」 하고 답해요.",
     "fx": "하객분들이 목소리를 내는 유일한 자리예요. 방 전체가 한 번에 밝아집니다.",
-    "pick": "축배 / 케이크 / 둘 다"
+    "pick": "축배"
    },
    {
     "k": "_close",
@@ -2695,7 +2695,7 @@ var COURSES={
    "감사 인사",
    "혼인 서약",
    "성혼 선언",
-   "축배 · 케이크",
+   "축배",
    "폐식·단체촬영"
   ],
   "detail": [
@@ -2739,7 +2739,7 @@ var COURSES={
     "n": "축배",
     "how": "곧바로 잔을 들어요. 길게 끄는 순서 없이 짧고 밝게 지나가요.",
     "fx": "모두의 표정이 한 장에 담기는 자리예요.",
-    "pick": "축배 / 케이크 / 둘 다"
+    "pick": "축배"
    },
    {
     "k": "_close",
@@ -2879,7 +2879,7 @@ var COURSES={
    }
   ],
   "one": "친구 하객이 많은 두 분께 · 웃음과 축배의 활기",
-  "feel": "즐겁게 축하하고 싶은 두 분께 · 편지로 마음을 한 번 모으고, 축배·케이크로 밝게 마무리하는 코스예요.",
+  "feel": "즐겁게 축하하고 싶은 두 분께 · 편지로 마음을 한 번 모으고, 축배로 밝게 마무리하는 코스예요.",
   "flow": [
    "입장 멘트",
    "감사 인사",
@@ -2887,7 +2887,7 @@ var COURSES={
    "반지 교환",
    "성혼 선언",
    "편지 낭독",
-   "축배 · 케이크",
+   "축배",
    "폐식·단체촬영"
   ],
   "detail": [
@@ -2935,10 +2935,10 @@ var COURSES={
    },
    {
     "k": "toast",
-    "n": "축배·케이크",
-    "how": "작은 케이크를 자르고, 모두가 잔을 들어 함께 축하해요.",
+    "n": "축배",
+    "how": "모두가 잔을 들어 함께 축하해요.",
     "fx": "감동을 밝게 끌어올려, 축제처럼 마무리되는 순간이에요.",
-    "pick": "축배 / 케이크 / 둘 다"
+    "pick": "축배"
    },
    {
     "k": "_close",
@@ -3269,7 +3269,7 @@ var STEPDEF={
  ring:{k:'ring',title:'반지 교환, 넣을까요?',sub:''},
  declare:{k:'declare',title:'성혼 선언문, 누가 읽을까요?',sub:''},   /* [DECLARE_BY_PERSON] 아버님이나 친구 · 지인 한 분 */
  valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
- toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
+ toast:{k:'toast',title:'축배, 이렇게 진행돼요',sub:''},   /* [CAKE_OLD_OFF_1017] 옛 코스 «축배와 케이크» 판 걷음 */
  song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
  free:{k:'free',title:'준비한 순서',sub:'특별히 준비한 순서가 있을 때 담아요(10분 안 · 길이는 두 분이 정해요). 노래는 «축가»로 담아요 · 악기 연주는 받지 않아요. 목록에 없는 것은 «기타»에 적어 주세요.'}   /* [SONG_BACK_1011] 종전 판은 라이브 노래도 받지 않았다 */,   // [FREE_WHAT] 새 코스는 나레이션이 무엇을에 맞춰 앞을 연다
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
@@ -3432,14 +3432,14 @@ var MOMENT={
  ring:{ph:'반지 교환',t:'',act:'넣을지 뺄지 골라주세요.'},
  declare:{ph:'성혼 선언',t:'하객 앞에서 성혼 선언문을 읽어 두 분이 부부가 되는 순서예요',act:'선언문을 읽어 주실 분(아버님이나 친구 · 지인)을 골라 주세요.'},   /* [DECLARE_BY_PERSON] 나레이션 · 합송 · 가족 낭독 금지 · [VOW_DECL_DIFF] «알리는»은 두 분이 알리는 것처럼 읽혔다 */
  valley:{ph:'축하 한 호흡',t:'비움이 기본이에요 · 원하면 하나만 더해요',act:'없음이 기본 · 원하면 하나만 더해요.'},
- toast:{ph:'축배 · 케이크',t:'',act:'축배 · 케이크 · 둘 다 중 골라주세요.'},
+ toast:{ph:'축배',t:'',act:'잔을 들어 함께 축하해요.'},   /* [CAKE_OLD_OFF_1017] */
  song:{ph:'축가',t:'',act:'누가 부를지 골라주세요.'}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
  free:{ph:'자유 한 칸',t:'두 분이 정한 순서가 들어가는 자리예요',act:'무엇을 하실지만 알려 주시면, 앞뒤는 나레이션이 열고 닫아 드려요.',info:true},
  letter:{ph:'편지 낭독 · 감정 정점',t:'이 예식에서 마음이 가장 깊어지는 순간이에요',act:'누구에게 전할지 골라주세요.'},
  tribute:{ph:'부모님 헌정',t:'몸짓으로 감사를 전하는 순서예요',act:'꽃과 포옹 중 골라주세요.'   /* [BOW_RETIRED] 큰절 되살리지 말 것 */},
  bless:{ph:'부모님 덕담',t:'부모님이 짧게 말씀을 전해요',act:'넣을지 뺄지 골라주세요.'}
 };
-var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',pick:'우리 예식 짓기',prevideo:'식전 영상',candle:'화촉',guest:'하객 맞이',entry:'입장',welcome:'감사 인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'}; /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
+var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',pick:'우리 예식 짓기',prevideo:'식전 영상',candle:'화촉',guest:'하객 맞이',entry:'입장',welcome:'감사 인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'}; /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
 
 var _navKey='';
 /* [THIN_WARN] 엔진이 계산한 경고를 렌더 뒤에 얹는다. 규칙은 엔진 한 곳에만 있다. */
@@ -4066,7 +4066,7 @@ var TUNE={
  ring:{n:'반지 교환',c:'약속의 증표를 서로 끼우는 순간이에요'},
  declare:{n:'성혼 선언',c:'두 사람이 부부가 되었음을 선언해요'},
  valley:{n:'사이 순서',c:'두 잔을 하나로 모으는 와인 세리머니로 한 호흡 쉬어요'},   /* [CAKE_ONE_HOME] 케이크는 축배·케이크가 맡는다 */
- toast:{n:'축배 · 케이크',c:'잔을 들어 함께 축하하고 케이크를 잘라요'},
+ toast:{n:'축배',c:'잔을 들어 함께 축하해요'},   /* [CAKE_OLD_OFF_1017] */
  song:{n:'축가',c:'가족 · 친구가 노래 한 곡으로 마음을 전해요'}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 코스 팔레트(GADD)에는 여전히 없다 · ★[SONG_BACK_1011 2026-10-11 사장님] 새 코스는 «축가» 순간으로 고른다(RitualOpen.CARDS.song) */
  /* [OPEN_PALETTE 2026-08-09] 자유 한 칸 — 팔레트 카드는 TUNE 에 문안이 있어야 그려진다
     (paletteCand 가 `if(!t) return;` 로 조용히 건너뛴다). GADD 만 열고 여기를 안 적으면 아무 일도 안 난다. */
@@ -4130,7 +4130,7 @@ function _pkSayOf(k,on){ var R=RitualOpen, nm=R.nameOf(k,S), sp=R.span(S); retur
 function _mkForget(ks){ var m=S.mk; if(!m) return; (ks||Object.keys(m.drop||{})).forEach(function(k){ if(m.drop) delete m.drop[k]; if(m.dropMin) delete m.dropMin[k]; }); }
 /* ★[THANKS_DUP_BOTH_R7_1016 라운드 7] 겹침 알림(THANKS_DUP_TOAST_1014)은 감사문을 고를 때만 떴다 — 감사문을 먼저 고르고 감사 인사(또는 서약 카드)를 담는 순서에서도 같은 알림 */
 function _thanksDupToast(k){ if((k==='welcome'||k==='vow')&&S.vowKind==='thanks'&&RitualOpen.onOf(S,'welcome')&&RitualOpen.onOf(S,'vow')) _noteToast('감사 인사와 내용이 겹쳐요'); }
-window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
+window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return;   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
 window.opChip=function(k,v){ RitualOpen.setChip(S,k,v); opSync(); };
 /* ★★[PICK_V2 3-1 · 3-2] 예시를 누르면 그 자리에서 바뀌고(화면은 옮기지 않는다) 6초 «‹가족› 예시로 바꿨어요 · 되돌리기» ·
    «빈 칸에서 직접 고를게요»도 같은 알림 줄. 되돌리기는 예시가 바꾸는 키만 되돌린다(applyExample 과 같은 목록). */
@@ -8938,7 +8938,7 @@ function renderStep(k){
   else if(k==='valley'){
     /* [WINE_RETIRED 2026-08-16] 고르는 카드를 전부 걷었다 — 팔레트에서 뺐으므로 새로 올 길이 없다.
        옛 초안이 S.valley 를 쥐고 여기 오면 «왜 비었나»를 적어 준다. 빈 화면은 고장으로 보인다. */
-    h+='<p class="sub" style="text-align:center">이 자리는 「축배 · 케이크」로 합쳤어요.<br>잔을 드는 순간은 그 한 자리에서 고르시면 됩니다.</p>';
+    h+='<p class="sub" style="text-align:center">이 자리는 「축배」로 합쳤어요.<br>잔을 드는 순간은 축배 한 자리예요.</p>';
   }
   else if(k==='letter'){
     h+=clip('letter');
@@ -9007,15 +9007,15 @@ function renderStep(k){
     if(TOAST[tv].nar2) tt.push((wv!=='none'&&tv==='both')?RitualOpen.NAR.toastBothPour:TOAST[tv].nar2);   // [TOAST_POUR_B] 붓는 날은 «잔이 가는 동안»을 뺀 줄
     h+=narBox(tt.join(' '),TOAST[tv].out==='cakeOut'?OUT_CAKE:OUT_TOAST)+playBtn('toast',tv);
     if(wv!=='none') h+='<div class="noplay">와인을 붓는 말은 새로 녹음하는 줄이라 아직 소리가 없어요</div>';
-    h+='<div class="prep-hint">샴페인은 저희가 준비해요'+(S.toast!=='toast'?' · 케이크는 '+GOODS_WORD:'')+(wv==='mix'?' · 두 분은 색이 다른 와인 두 병(또는 음료 둘)을 골라 주세요':wv==='family'?' · 양가에서 와인을 한 병씩 골라 주세요':'')+'</div>';
+    h+='<div class="prep-hint">샴페인은 저희가 준비해요'+(wv==='mix'?' · 두 분은 색이 다른 와인 두 병(또는 음료 둘)을 골라 주세요':wv==='family'?' · 양가에서 와인을 한 병씩 골라 주세요':'')+'</div>';
   }
   else if(k==='toast'){
     h+=clip('toast');
-    ['toast','cake','both'].forEach(function(v){
+    ['toast'].forEach(function(v){   /* ★[CAKE_OLD_OFF_1017] 케이크만 · 둘 다 판 걷음 — 옛 코스도 축배 하나 · 되살리지 말 것 */
       /* [TOAST_SCENE] 고른 판만 문안을 편다 — 둘 다는 문안이 둘이라 사이 문장까지 보여 준다.
          마무리도 모드에서 고른다(케이크만 고르면 잔 이야기가 아니라 나이프 이야기로 닫힌다). */
       var _tn=(S.toast===v)?(TOAST[v].nar+(TOAST[v].nar2?' '+TOAST[v].nar2:'')):null;
-      h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?('샴페인은 저희가 준비해요'+(v!=='toast'?' · 케이크는 '+GOODS_WORD:'')):null);   // [NO_EXTRA_COST]
+      h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?'샴페인은 저희가 준비해요':null);   // [NO_EXTRA_COST] · [CAKE_OLD_OFF_1017] 케이크 준비 줄 걷음
     });
   }
   else if(k==='write' && isOpen()){ h+=_openWrite(); }   // [LISTEN_PAGE 코워크 4-5] 새 코스의 ③ — 옛 코스는 아래 그대로
@@ -9313,7 +9313,7 @@ var BLOCK={
     var wv=(isOpen()&&S.toast!=='cake')?RitualOpen.chipOf('wine',S):'none';
     var nar=TOAST[S.toast].nar+(wv==='mix'?' '+RitualOpen.NAR.pourMix:wv==='family'?' '+RitualOpen.NAR.pourFamily:'')
       +((isOpen()&&TOAST[S.toast].nar2)?' '+((wv!=='none'&&S.toast==='both')?RitualOpen.NAR.toastBothPour:TOAST[S.toast].nar2):'');   // [TOAST_POUR_B]
-    return {n:isOpen()?'축배':'축배 · 케이크',nar:nar,self:'하객 모두 함께',   /* [FLOW_FROM_TWO_1017 · CAKE_OFF_1013] 새 코스(옛 표로 넘어간 대본 · 화면)는 «축배» · 옛 코스 이름은 그대로 */
+    return {n:'축배',nar:nar,self:'하객 모두 함께',   /* [FLOW_FROM_TWO_1017 · CAKE_OLD_OFF_1017] 블록 이름 «축배» — 옛 코스 판에도 케이크가 없다(10/17) */
      cue:TOAST[S.toast].cue+(wv!=='none'?' · 두 분이 두 와인을 한 잔에 붓기':'')};
   },
   letter:function(){
@@ -10170,6 +10170,8 @@ function _applySaved(_sv,fresh){
   Object.keys(_loc).forEach(function(_k){ var a=_loc[_k], b=S[_k]; if(b==null) S[_k]=a; else if(typeof a==='object'&&typeof b==='object'&&!Array.isArray(a)&&!Array.isArray(b)) S[_k]=Object.assign({},a,b); });   /* [SAVED_FRESH] 이 기기 몫(SAVED_LOCAL)은 서버 판에 없으면 그대로 · 둘 다 있으면 합친다(서버 값이 이긴다) */
   /* [CAKE_TOAST_SPLIT] 옛 초안은 ctSplit 이 없다 — 기본 S 의 표시가 남아 옮기기를 건너뛰지 않게 지우고 옮긴다 */
   if(!_sv.S.ctSplit) delete S.ctSplit; if(window.RitualOpen&&S.course==='open') RitualOpen.migrateCakeToast(S);
+  /* ★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 옛 코스 판의 케이크를 뺀다 — 엔진 norm(ritual-cue)과 같은 옮기기: 둘 다 → 축배 · 케이크만 → 그 순간 뺌 · 사이 순서 케이크 → 없음 */
+  if(S.course!=='open'){ if(S.toast==='both'||S.toast==='2') S.toast='toast'; else if(S.toast==='cake'){ S.toast='toast'; S.off=S.off||{}; S.off.toast=1; } if(S.valley==='cake') S.valley='none'; }
   _g0Keep();   /* [R7-03 G0_KEEP] */
   _g3Open();   /* [G3_OPEN] 옛 «뒤만» 초안을 글 전체로 한 번 */
   _exKeep1006();   /* [EX_TEXT_1006] 옛 예시 글로 만든 AI 소리는 그 글을 두 분 글로 · G3_OPEN 뒤(옮긴 글에 앞 두 문장을 또 붙이지 않게) */
@@ -10473,7 +10475,7 @@ var RITUAL_CHIPS={
  ringwarm:['링 워밍이 뭔가요?','가족만 돌리면 몇 분 걸리나요?','반지 교환과 어떻게 이어지나요?'],
  ring:['반지 교환은 어떻게 진행되나요?','반지를 빼면 흐름이 이상한가요?','반지는 당일 누가 챙기나요?'],
  declare:['성혼 선언문은 누가 읽나요?','읽어 주실 분이 마땅치 않으면요?','성혼 선언을 빼도 되나요?'],   /* [DECLARE_ANYONE] 아버님이 아니어도 된다(친구 · 지인) */   /* [DECLARE_BY_PERSON] */
- valley:['와인 세리머니가 뭔가요?','비워도 괜찮나요?','케이크는 어디서 고르나요?'],   /* [CAKE_ONE_HOME] 케이크의 집은 축배·케이크 */
+ valley:['와인 세리머니가 뭔가요?','비워도 괜찮나요?','축배는 언제 하나요?'],   /* [CAKE_OLD_OFF_1017] «케이크는 어디서 고르나요?» 걷음 */   /* [CAKE_ONE_HOME] 케이크의 집은 축배·케이크 */
  toast:['축배는 어떻게 진행되나요?','축배는 몇 분 정도인가요?','건배 잔은 어떻게 준비되나요?'],   /* ★[CAKE_OFF_1013 · FLOW_FROM_TWO_1017] «케이크와 둘 다 하면 몇 분인가요?» 되살리지 말 것 — ② 축배 줄을 열면 뜨던 질문(케이크는 10/13 뺐다) */
  song:['축가는 누가 부를 수 있나요?','반주는 어떻게 준비되나요?','축가 없이도 괜찮나요?'],
  letter:['편지는 보통 얼마나 길게 쓰나요?','읽다가 울 것 같으면 어떻게 하나요?','부모님께와 서로에게, 뭐가 다른가요?'],
