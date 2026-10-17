@@ -14826,6 +14826,12 @@ chk '결혼하면 행복할 줄 알았습니다' assets/ritual-ref.js 1
 chk '1108_letter-each-bride' assets/ritual-ref.js 1
 chk 'GG3_LETTER_1018' CLAUDE.md 1
 chk 'GG3_LETTER_1018' scripts/audit/listen-page.mjs 1
+# ★[INSTA_DIRECT_1018 2026-10-18 사장님 «너가 직접 저 섹션이랑 소통하면서 개선할 순 없어?»] 인스타 자료를 찾는 다른 섹션(사장님 컴퓨터)은 이 공개 파일을 매번 읽고 «나래이션» 세션에 메시지로 바로 보낸다
+#   클라우드 세션은 그쪽에 먼저 말을 걸 수 없다 → 답은 이 파일의 «지금 찾는 자료»를 고치는 것 · 짝은 비공개 자료집 «찾을 자료» 목록(같은 날 함께 고친다)
+chk 'INSTA_DIRECT_1018' docs/handoff/insta-find.md 1
+chk '^## 지금 찾는 자료' docs/handoff/insta-find.md 1
+chk 'session_016JZYSSoSdYj1ERsbAYW95L' docs/handoff/insta-find.md 1
+chk 'INSTA_DIRECT_1018' CLAUDE.md 1
 chk 'MK_TODO_DOT' order-preview.html 3
 nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
 chk 'MK_INTRO_OPEN' order-preview.html 1   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(펼침 · 남은 표식은 삭제 주석)
