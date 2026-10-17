@@ -13,15 +13,15 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 20 | 8 |
+| 1_우성.txt | 우성 | 29 | 13 |
 | 2_진희.txt | 진희 | 2 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 20줄 · 8클립
+# 우성 — 29줄 · 13클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =09_entry-E,=201_narr-ring-out-ex4,=197_narr-declare-family-out-ex3,=198_narr-declare-family-out-ex4,=202_narr-song-ex2,=199_letter-each-ex4,=200_narr-letter-end-ex4,=203_narr-table-in-ex3
+  --clip =09_entry-E,=24_narr-bless-end,=26_narr-close,=201_narr-ring-out-ex4,=197_narr-declare-family-out-ex3,=198_narr-declare-family-out-ex4,=206_narr-bless-end-ex3,=202_narr-song-ex2,=204_narr-song-ex3,=205_narr-song-ex4,=199_letter-each-ex4,=200_narr-letter-end-ex4,=203_narr-table-in-ex3
 ```
 
 ```

@@ -194,7 +194,9 @@
     /* ★[NARR_LOOP_1018 첫 판 2026-10-18 · 자료 루프] 197 ~ 200 — 선언 맺는 말 예시 3 · 4(자료 T2 · U1) · 편지 여는 말 · 맺는 말 예시 4(자료 OO) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
     'narr-declare-family-out-ex3', 'narr-declare-family-out-ex4', 'letter-each-ex4', 'narr-letter-end-ex4',
     /* ★[NARR_R9_1018 라운드 9 2026-10-18 · 자료 루프] 201 ~ 203 — 반지 맺는 말 예시 4(자료 T2) · 축가 여는 말 예시 2(자료 OO · 선언 있는 날) · 테이블 인사 예시 3(자료 U1) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
-    'narr-ring-out-ex4', 'narr-song-ex2', 'narr-table-in-ex3'
+    'narr-ring-out-ex4', 'narr-song-ex2', 'narr-table-in-ex3',
+    /* ★[R10_SRC_1018 라운드 10 2026-10-18 · 자료 루프] 204 ~ 206 — 축가 여는 말 예시 3(자료 NN) · 4(자료 U1) · 덕담 받는 말 예시 3(자료 OO) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
+    'narr-song-ex3', 'narr-song-ex4', 'narr-bless-end-ex3'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -1193,6 +1195,7 @@
         cue({
           k: 'bless', blockN: '부모님 덕담', slug: 'narr-bless-end', name: '부모님 덕담 마무리', text: D.NARR.blessEnd,
           hint: '말씀이 끝나면 · 또는 3분을 넘어 절단하기로 판단하면',
+          live: applause('하객 박수 · 말씀해 주신 부모님께', PARAM.declare.applauseMs / 1000),   // ★[R10_SRC_1018 · CLAP_GO] 받는 말(자료 U1 · 예시 3 OO)이 박수를 청한다 — 다음 줄은 디렉터 GO(박수가 여는 말에 묻히지 않게) · 성혼 선언 맺는 말과 같은 박수 몫
           // 3분을 넘겼으면 '끝난 뒤 하는 말'로는 헐겁다 — 끊고 들어온 자리를 덮는 문안으로 자동 교체.
           alt: {
             overSec: PARAM.bless.longThreshold, slug: 'narr-bless-end-long',

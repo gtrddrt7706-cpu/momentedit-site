@@ -52,7 +52,7 @@
       "dir": "assets/audio/narration",
       "clips": 37,
       "sents": 102,
-      "chars": 3344
+      "chars": 3349
     },
     {
       "file": "3_진행_후반.txt",
@@ -104,9 +104,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 56,
-      "sents": 157,
-      "chars": 5709
+      "clips": 59,
+      "sents": 162,
+      "chars": 5905
     },
     {
       "file": "6_예식뒤.txt",
@@ -1548,7 +1548,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "그 말씀을, 이 자리의 모두가 들었습니다.",
+          "text": "좋은 말씀 들려주신 부모님께 큰 박수 부탁드립니다.",
           "before": 0,
           "after": 0
         }
@@ -1617,7 +1617,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "잠시 후, 기념 촬영이 있습니다.",
+          "text": "계속해서 기념 촬영이 있겠습니다.",
           "before": 0,
           "after": 1.25
         },
@@ -4236,6 +4236,25 @@
       ]
     },
     {
+      "no": "206",
+      "id": "X-narr-bless-end-ex3",
+      "label": "덕담 멘트 예시 3 · 다정하게",
+      "file": "narr-bless-end-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘을 위해 훌륭한 덕담을 준비해 주신 부모님께 큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
       "no": "195",
       "id": "X-narr-bless-end-ex4",
       "label": "덕담 멘트 예시 4 · 감사하게",
@@ -4331,6 +4350,56 @@
         {
           "i": 0,
           "text": "이어서 두 사람이 하나가 된 특별한 순간을 위해 준비한 축가가 있겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "여러분 큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "204",
+      "id": "X-narr-song-ex3",
+      "label": "축가 멘트 예시 3 · 유쾌하게",
+      "file": "narr-song-ex3",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘 같은 날 이 순서는 정말 빠질 수 없는 순서죠?",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "205",
+      "id": "X-narr-song-ex4",
+      "label": "축가 멘트 예시 4 · 격식 있게",
+      "file": "narr-song-ex4",
+      "role": "진행",
+      "part": "7_예시_멘트.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "네, 이제 신랑, 신부의 결혼을 축하하고 두 사람의 앞날을 축복하는 축하공연이 있겠습니다.",
           "before": 0,
           "after": 0
         }

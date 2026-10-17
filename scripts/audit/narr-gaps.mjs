@@ -79,7 +79,8 @@ if (docsAt) {
   const open = find.split('\n').filter((l) => /^- \[ \]/.test(l));
   const foundSecs = (find.match(/^## 찾음[^\n]*아직 예시에 안 넣음[^\n]*$/gm) || []);
   const foundItems = []; let inSec = false;
-  for (const l of find.split('\n')) { if (/^## /.test(l)) inSec = /^## 찾음[^\n]*아직 예시에 안 넣음/.test(l); else if (inSec && /^- /.test(l)) foundItems.push(l); }
+  // ★[GAPS_OPEN_ONLY_1018 라운드 10] «찾음» 묶음에서는 열린 줄(- [ ])만 센다 — 닫힌 줄([x]) · 메모 줄까지 낱말로 세면 «찾았는데 안 넣은 줄»이 부풀어 다음 판이 정한 것을 다시 연다
+  for (const l of find.split('\n')) { if (/^## /.test(l)) inSec = /^## 찾음[^\n]*아직 예시에 안 넣음/.test(l); else if (inSec && /^- \[ \]/.test(l)) foundItems.push(l); }
   const reqs = req.split('\n').filter((l) => /^- \[R\d+\]/.test(l));
   console.log(`\n④ 자료집 · 요청 (docs ${path.basename(path.resolve(docsAt))})`);
   console.log(`  찾을자료.md 열린 줄 ${open.length} · «찾음 · 아직 예시에 안 넣음» ${foundSecs.length}묶음 ${foundItems.length}줄 · 공개 요청 ${reqs.length}개`);
@@ -93,5 +94,18 @@ if (docsAt) {
     const wait = foundItems.filter((l) => l.includes(w)).length;
     console.log(`  ${hit.length ? '요청 있음' : '요청 없음'} ${label(t.k)} — ${t.why}` + (hit.length ? ' · ' + hit.join(' ') : '') + (wait ? ` · 찾았는데 아직 안 넣은 줄 ${wait}` : ''));
   }
+}
+/* ★[ROUND_REASON_1018 라운드 10 · SOURCE_FIRST_1016] 라운드 기록 «보고 안 바꾼 것»의 까닭에 SOURCE_FIRST 로 걷힌 자(박수 자리 · 서술어 겹침)를 쓴 줄을 센다.
+   라운드 9 가 «박수를 청한다(CLAP_FEW)» · «서술어 겹침(PRED_ECHO)»을 까닭으로 자료 글을 뺐다 — 사장님 10/16 «자료 멘트가 지난 결정보다 앞선다 · 박수 자리 수는 자료 멘트를 막는 근거가 아니다».
+   남는 까닭은 ①이름 · 날짜 · 숫자 ②사회자 · 주례 ③우리 식순에 없는 순서 · 동선 ④현장 단정 · 틀린 날 · 같은 자리 둘 · 옛 초안 전용뿐 · 바로잡은 줄은 «바로잡음»을 적으면 세지 않는다 */
+if (docsAt) {
+  const dir = path.join(docsAt, 'research/식순_참고자료');
+  let files = []; try { files = fs.readdirSync(dir).filter((f) => /^줄검토_라운드\d+_\d{4}\.md$/.test(f)).sort(); } catch (e) { /* 폴더 없음 */ }
+  const BAD = /CLAP_FEW|박수 자리|박수를 청한|PRED_ECHO|서술어 겹침/;
+  const hits = [];
+  for (const f of files) { let sec = ''; for (const l of fs.readFileSync(path.join(dir, f), 'utf8').split('\n')) { if (/^## /.test(l)) sec = l; else if (/보고 안 바꾼/.test(sec) && /^\|/.test(l) && !/^\|\s*-/.test(l) && BAD.test(l) && !/바로잡음/.test(l)) hits.push(f + ' · ' + l.slice(0, 110)); } }
+  console.log(`\n⑤ 라운드 기록 — «안 바꾼 까닭»에 걷힌 자(박수 자리 · 서술어 겹침)를 쓴 줄 ${hits.length} [ROUND_REASON_1018]` + (files.length ? ` · 기록 ${files.length}개` : ' · 기록 없음'));
+  hits.forEach((h) => console.log('  FAIL ' + h));
+  if (hits.length) process.exitCode = 1;
 }
 console.log(`\n빈 곳 ${thin.length}자리 — 다음 판: 찾았는데 안 넣은 것부터 넣고 · 요청 없는 자리는 공개 요청 파일에 더한다 · 개선 후보는 node scripts/audit/narr-words.mjs --engine`);

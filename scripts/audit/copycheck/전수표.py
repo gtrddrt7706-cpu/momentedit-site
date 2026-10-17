@@ -138,7 +138,7 @@ SKIP = {
 #   판정 회차 뒤에 태어났다 · 문장은 자료 그대로(SOURCE_FIRST_1016 · 문장마다 출처 docs/plans/식순연구/자료그대로_1016.json · scripts/audit/nar-ex.mjs 가 잰다)라
 #   문체 회차에 올리지 않는다. ★43줄을 손으로 적지 않고 원천(manifest 번호 · slug 꼴)에서 고른다 — 번호 밖 · 꼴 밖 새 클립은 여전히 «미착수»로 붉다.
 for _no, _sl, *_r in rows:
-    if _no.isdigit() and 148 <= int(_no) <= 203 and re.search(r'-ex[234]$', _sl):   # [NARR_R9_1018 라운드 9] 201 ~ 203 도 같은 까닭(자료 그대로) · [NARR_LOOP_1018 첫 판] 197 ~ 200 도 같은 까닭(자료 그대로) · [T3_OK_1017] 191 ~ 196 자료 T3 예시(원작자 허락)도 같은 까닭
+    if _no.isdigit() and 148 <= int(_no) <= 206 and re.search(r'-ex[234]$', _sl):   # [R10_SRC_1018 라운드 10] 204 ~ 206 도 · [NARR_R9_1018 라운드 9] 201 ~ 203 도 같은 까닭(자료 그대로) · [NARR_LOOP_1018 첫 판] 197 ~ 200 도 같은 까닭(자료 그대로) · [T3_OK_1017] 191 ~ 196 자료 T3 예시(원작자 허락)도 같은 까닭
         SKIP.setdefault((_no, _sl), '2026-10-17 신설 — 나레이션 멘트 예시 [EX_MANY_1017] · 자료 그대로(SOURCE_FIRST_1016 · 출처 자료그대로_1016.json) · 사장님 «자료집에서 좋은 멘트 붙여서 · 4개 정도». 판정 회차 뒤에 태어났다')
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}
