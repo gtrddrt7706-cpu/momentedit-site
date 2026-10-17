@@ -14842,6 +14842,26 @@ if command -v node >/dev/null 2>&1; then
   _ng=$(node scripts/audit/narr-gaps.mjs 2>&1); _ngrc=$?
   if [ "$_ngrc" -eq 0 ] && printf '%s\n' "$_ng" | grep -q '^NARR GAPS'; then echo 'ok narr-gaps 빈 곳 점검이 돈다 [NARR_LOOP_1018]'; else echo "FAIL narr-gaps(rc=$_ngrc): 빈 곳 점검이 원천을 못 읽는다 — node scripts/audit/narr-gaps.mjs"; fail=1; fi
 fi
+# ★★[ENTRY_E_KK_1018 2026-10-18 자료 루프 첫 판] 입장 «다정하게» = KK(업체 사회자 «신랑 신부 동시 입장» 소개) — 종전 글은 개인 창작 글 인용 표기 자료와 같아 걷었다 · 되살리지 않는다
+chk 'ENTRY_E_KK_1018' assets/ritual-data.js 1
+chk '오늘의 주인공을 여러분께 소개합니다' assets/ritual-data.js 1
+chk '오늘의 주인공을 여러분께 소개합니다' order-preview.html 1
+nochk '사랑일지도 모른다고 걸음을 멈춰' assets/ritual-data.js
+nochk '사랑일지도 모른다고 걸음을 멈춰' order-preview.html
+# ★[NARR_LOOP_1018 첫 판] 선언 맺는 말 예시 3 · 4(T2 · U1) · 편지 예시 4(OO) · 소리 197 ~ 200 · RR 39 «부부가 되었습니다»는 수행문이라 쓰지 않는다(DECLARE_BY_PERSON)
+chk '온 세상에 선포하였습니다' assets/ritual-open.js 1
+chk '다짐보다 더 깊은 사랑으로' assets/ritual-open.js 1
+chk 'narr-letter-end-ex4' assets/ritual-cue.js 1
+nochk '두 사람은 이제 부부가 되었습니다' assets/ritual-open.js
+# ★★[NARR_REVIEW_1018 · NARR_ROUNDS_1018 2026-10-18 사장님 «저쪽 섹션에서도 직접 검토 · 더블체크» · «라운드별로 개선점이 없을 때까지»] 검토 판은 늘 지금 엔진 글
+chk 'NARR_REVIEW_1018' docs/handoff/insta-find.md 1
+chk '^## 검토 답' docs/handoff/insta-find.md 1
+chk 'NARR_NOW_1018' scripts/build-narr-now.mjs 1
+chk 'NARR_ROUNDS_1018' CLAUDE.md 1
+chk 'NARR_REVIEW_1018' CLAUDE.md 1
+if command -v node >/dev/null 2>&1; then
+  if node scripts/build-narr-now.mjs --check >/dev/null 2>&1; then echo 'ok narr-now.md = 지금 엔진 글 [NARR_NOW_1018]'; else echo 'FAIL narr-now.md 가 지금 엔진 글과 다르다 — node scripts/build-narr-now.mjs 로 다시 만든다(다른 섹션이 낡은 판을 검토한다) [NARR_NOW_1018]'; fail=1; fi
+fi
 chk 'MK_TODO_DOT' order-preview.html 3
 nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
 chk 'MK_INTRO_OPEN' order-preview.html 1   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(펼침 · 남은 표식은 삭제 주석)
