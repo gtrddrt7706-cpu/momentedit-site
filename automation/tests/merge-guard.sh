@@ -14832,6 +14832,16 @@ chk 'INSTA_DIRECT_1018' docs/handoff/insta-find.md 1
 chk '^## 지금 찾는 자료' docs/handoff/insta-find.md 1
 chk 'session_016JZYSSoSdYj1ERsbAYW95L' docs/handoff/insta-find.md 1
 chk 'INSTA_DIRECT_1018' CLAUDE.md 1
+# ★★[NARR_LOOP_1018 2026-10-18 사장님 «… 저쪽 섹션에 자료 요청하고 그걸 받아 작업하고 검토하고 · 반복해서 자동으로»] 자료 루프 — 빈 곳 점검(narr-gaps) → 요청판(공개 파일 요청 번호) → 받기 · 반영 · 검토
+chk 'NARR_LOOP_1018' scripts/audit/narr-gaps.mjs 1
+chk 'NARR_LOOP_1018' docs/handoff/insta-find.md 1
+chk '^- \[R1\]' docs/handoff/insta-find.md 1
+chk '요청판 [0-9]' docs/handoff/insta-find.md 1
+chk 'NARR_LOOP_1018' CLAUDE.md 1
+if command -v node >/dev/null 2>&1; then
+  _ng=$(node scripts/audit/narr-gaps.mjs 2>&1); _ngrc=$?
+  if [ "$_ngrc" -eq 0 ] && printf '%s\n' "$_ng" | grep -q '^NARR GAPS'; then echo 'ok narr-gaps 빈 곳 점검이 돈다 [NARR_LOOP_1018]'; else echo "FAIL narr-gaps(rc=$_ngrc): 빈 곳 점검이 원천을 못 읽는다 — node scripts/audit/narr-gaps.mjs"; fail=1; fi
+fi
 chk 'MK_TODO_DOT' order-preview.html 3
 nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
 chk 'MK_INTRO_OPEN' order-preview.html 1   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(펼침 · 남은 표식은 삭제 주석)
