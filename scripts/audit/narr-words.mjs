@@ -53,7 +53,7 @@ const ALWAYS = new Set(['W6', 'W9', 'W11']);
 function ownPart(text) { const ss = String(text).match(/[^.!?]+[.!?]*/g) || [String(text)]; return ss.filter((x) => !SRC.has(srcNorm(x))).join(' ').trim(); }
 const CLAP_ASK = /박수(를|로)?\s*(부탁|보내|주시|축복해|맞이해|맞아|반겨|열어|답해|청)/;
 // [NARR_REREAD_1013] W13 — 끝말(주세요 · 있습니다 …)과 구호(위하여) · 부르는 말(여러분 · 사람이 …)은 두 번 나와도 겹침이 아니다
-const TWICE_OK = /^(위하여|주세요|주십시오|있습니다|드립니다|됩니다|좋습니다|하겠습니다|바랍니다|감사드립니다|감사하겠습니다|여러분|여러분께|사람이|사람의|사람을|사람과|사람에게)$/;
+const TWICE_OK = /^(위하여|주세요|주십시오|주시면|있습니다|드립니다|됩니다|좋습니다|하겠습니다|바랍니다|감사드립니다|감사하겠습니다|여러분|여러분께|사람이|사람의|사람을|사람과|사람에게)$/;   // [JUNCTION_MIXED_1018] «주시면»(…주시면 됩니다 · 감사하겠습니다)도 끝말
 function twice(text) {
   const seen = new Set(), out = new Set();
   for (const t of text.replace(/[.,!?«»·()]/g, ' ').split(/\s+/)) { if ([...t].length < 3 || TWICE_OK.test(t)) continue; if (seen.has(t)) out.add(t); seen.add(t); }
@@ -122,7 +122,10 @@ function engineLines() {
    이음매 밖의 되풀이(예: 사진 보내기 85 → 감사 인사 45 의 다섯째 문장 «받으신 안내 페이지»)는 기능 이름을 같게 부르는 것이라 재지 않는다 */
 const sents = (t) => (String(t).match(/[^.!?]+[.!?]+/g) || [String(t)]).map((x) => x.trim()).filter(Boolean);
 const head2 = (t) => sents(t).slice(0, 2).join(' '), tail2 = (t) => sents(t).slice(-2).join(' ');
-function junction(a, b) { const A = tail2(ownPart(a)), B = head2(ownPart(b)), own = new Set([...twice(A), ...twice(B)]); return twice(A + ' ' + B).filter((w) => !own.has(w)); }   // [SOURCE_FIRST_1016] 자료 그대로 문장은 이음매 자 밖
+/* ★[JUNCTION_MIXED_1018 라운드 10] 이음매는 실제 끝 두 문장 · 첫 두 문장으로 잰다 — 자료 글끼리 겹치면 봐주고(SOURCE_FIRST_1016 · 고칠 수 없는 글) · 우리 글이 한쪽이라도 끼면 잰다(고칠 쪽은 우리 글).
+   옛 판은 자료 글을 양쪽에서 통째로 빼 «자료 글 → 우리 글» 이음매를 못 봤다(10/18 라운드 10 · 56 축배 맺는 말(AA 41) → 131 테이블 인사(우리 글) «주시면 … 주시면» · 끝말이라 TWICE_OK) */
+const jWords = (arr) => { const m = new Map(); arr.forEach((x) => { const own = !SRC.has(srcNorm(x)); x.replace(/[.,!?«»·()]/g, ' ').split(/\s+/).forEach((t) => { if ([...t].length < 3 || TWICE_OK.test(t)) return; const o = m.get(t) || { n: 0, own: false }; o.n++; o.own = o.own || own; m.set(t, o); }); }); return m; };
+function junction(a, b) { const mA = jWords(sents(a).slice(-2)), mB = jWords(sents(b).slice(0, 2)), out = []; for (const [w, oa] of mA) { const ob = mB.get(w); if (ob && oa.n === 1 && ob.n === 1 && (oa.own || ob.own)) out.push(w); } return out; }
 function chainEchoes() {
   const out = new Map();
   forCombos((cues) => { for (let i = 1; i < cues.length; i++) { const a = cues[i - 1], b = cues[i]; if (b.fire !== 'chain' || a.live || !a.text || !b.text) continue;
@@ -170,6 +173,11 @@ if (arg === '--selftest') {
   ok('[SONG_OPEN_ANYONE_1013] 깨 보기 — W14 는 축가 여는 말에만(다른 자리의 «위해»는 걸지 않는다)', !judge('narr-free-in-gift', '오늘을 위해 마음을 담아 준비한 선물이 있습니다.').includes('W14'));
   ok('[CHAIN_ECHO_1015] 깨 보기 — 옛 개식 «오늘은 …» 3초 뒤 화촉 «늘 … 오늘은 …»은 이음매에서 잡힌다', junction('신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 오늘은 이 자리에 계신 모든 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.', '늘 두 사람의 뒤에 계셨던 분들이, 오늘은 먼저 앞에 서십니다. 양가 어머님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다.').includes('오늘은'));
   ok('[CHAIN_ECHO_1015] 깨 보기 — 이음매 밖(앞 줄 첫 문장)의 같은 말은 재지 않는다', junction('신랑 신부와 양가를 대신해, 와 주신 여러분께 감사드립니다. 이 자리에 계신 모든 분이, 두 사람의 약속을 지켜보는 증인입니다. 지금부터, 예식을 시작하겠습니다.', '양가를 대표하는 두 분께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다.').length === 0);
+  { const a = '하객 한 분 한 분이 결혼식의 증인입니다.', b = '오늘 결혼식의 주인공은 두 사람입니다.', hadA = SRC.has(srcNorm(a)), hadB = SRC.has(srcNorm(b)); SRC.add(srcNorm(a));
+    ok('[JUNCTION_MIXED_1018] 깨 보기 — 앞 줄이 자료 글이어도 뒤 우리 글과 겹치면 이음매에서 잡힌다(«결혼식의»)', junction(a, b).includes('결혼식의'));
+    SRC.add(srcNorm(b)); ok('[JUNCTION_MIXED_1018] 깨 보기 — 양쪽 다 자료 글이면 봐준다(고칠 수 없는 글)', junction(a, b).length === 0);
+    if (!hadA) SRC.delete(srcNorm(a)); if (!hadB) SRC.delete(srcNorm(b));
+    ok('[JUNCTION_MIXED_1018] 깨 보기 — 끝말 «주시면»은 이음매 겹침이 아니다(56 → 131)', junction('즐겨 주시면 되겠습니다.', '두 사람이 여러분께 직접 인사를 드리러 갑니다. 자리에서 편히 맞아 주시면 됩니다.').length === 0); }
   ok('[BRIDGE_NEXT_1015] 깨 보기 — 옛 부모님께 인사 이음말은 뒤 줄 145 와 이어 W13', junction('두 분이 부모님께 직접 마음을 전하는 시간입니다.', '그 마음을 담아, 신랑 신부, 양가 부모님께 인사!').length > 0);
   ok('[BRIDGE_NO_ECHO_1014] 깨 보기 — 옛 감사 인사 이음말은 여는 말과 이어 W13(«인사를»)', twice('신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다. 두 분이 하객께 직접 감사 인사를 드리는 시간입니다.').includes('인사를'));
   { const t = '하객 여러분께서는 자리에 착석해 주시길 바랍니다.', had = SRC.has(srcNorm(t)); SRC.add(srcNorm(t));
