@@ -14818,6 +14818,14 @@ nochk '.mk-sech-r{justify-content:flex-end' order-preview.html
 chk 'REF_BEST4' order-preview.html 3
 chk "var REF_BEST={welcome:" order-preview.html 1   # [REF_BEST4] 대괄호는 grep 정규식이라 앞머리만
 chk 'REF_BEST4' scripts/audit/listen-page.mjs 4
+# [GG3_LETTER_1018 2026-10-18 사장님 «허락받았어 · 원래 쓰라고 받아온 거야 · 출처 없어도 돼»] 편지(서로에게) 첫 예시 = 표 7번(GG 3 «결혼에 대한 다짐 편지»)
+#   신랑 앞 절반 · 신부 뒤 절반 · 띄어쓰기 · 문장부호만 고침 · «장면 하나» 자리의 옛 1번(MMW 8장)은 표에 남는다(화면엔 넷만)
+chk 'GG3_LETTER_1018' order-preview.html 1
+chk "'letter:each':\[7,3,4,6]" order-preview.html 1
+chk '결혼하면 행복할 줄 알았습니다' assets/ritual-ref.js 1
+chk '1108_letter-each-bride' assets/ritual-ref.js 1
+chk 'GG3_LETTER_1018' CLAUDE.md 1
+chk 'GG3_LETTER_1018' scripts/audit/listen-page.mjs 1
 chk 'MK_TODO_DOT' order-preview.html 3
 nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
 chk 'MK_INTRO_OPEN' order-preview.html 1   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(펼침 · 남은 표식은 삭제 주석)
