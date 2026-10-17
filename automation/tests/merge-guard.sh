@@ -15714,6 +15714,13 @@ chk 'function spanText(S)' assets/ritual-open.js 1
 chk 'spanText: spanText, tableSec: tableSec' assets/ritual-open.js 1
 chk "after: !!APART" assets/ritual-open.js 1   # [TOAST_LAST_1013] 곡선 «본식 뒤»는 테이블 인사 하나(축배는 닫는 인사 뒤여도 본식 톤)
 chk "LEVEL3 = { candle: 1, welcome: 1, table: 1 }" assets/ritual-open.js 1
+# ★★[FLOW_DIST_1017 2026-10-17 사장님 «식순에 그래프 똑같은데 개선해 봐»] 곡선 높이 = 순간마다 세기(flowLv · 자료집 P · AA · X · B · Y) — 정점 5 는 선언 · 편지 그대로(level · peakOf).
+#   flow-distinct.mjs 가 예시 넷 곡선 차이 · 정점 · 준비한 순서 4 이상을 잰다(옛 세 단계면 정석 · 가족 0.033 으로 빨강 · 깨 보기 내장).
+chk 'FLOW_DIST_1017' assets/ritual-open.js 2
+chk 'FLOW_DIST_1017' scripts/audit/flow-distinct.mjs 1
+chk 'function flowLv(k, S) {' assets/ritual-open.js 1
+chk 'lv: flowLv(k, S), after: !!APART' assets/ritual-open.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-distinct.mjs >/dev/null 2>&1 || { echo 'FAIL flow-distinct: 예시 넷 감동 곡선이 다시 같은 모양이거나 정점이 바뀌었습니다 — node scripts/audit/flow-distinct.mjs'; fail=1; }; fi
 chk "d: '부모님께 인사하고 본식을 닫는 자리, 축배와 테이블 인사까지', ks: \['tribute', 'cake', '_close', 'toast', 'table'\]" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례 · [ACTS_SHIFT_1013] 부모님께 인사가 닫는 막 첫 칸
 nochk "d: '본식을 닫고, 축배와 테이블 인사까지', ks: \['cake', '_close', 'toast', 'table'\]" assets/ritual-open.js   # [ACTS_SHIFT_1013] 맞절 칸 전 판
 nochk "d: '축배를 들고, 본식 뒤 테이블 인사까지'" assets/ritual-open.js   # [TOAST_LAST_1013] 축배가 닫는 인사 앞이던 판

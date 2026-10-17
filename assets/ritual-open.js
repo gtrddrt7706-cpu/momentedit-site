@@ -408,6 +408,18 @@
        꼭대기는 종전대로 저절로(선언 · 편지) · 저장된 초안에 남은 고른 값은 읽지 않는다(없는 값처럼) */
   function level(k, S) { if (k === 'declare' || k === 'letter') return 5; if (k === 'tribute') return 4;   /* [TRIB_ONE_SAY] 말로 인사 하나 — 종전 한마디씩과 같은 4(정점은 선언 · 편지) */ return LEVEL3[k] ? 3 : 4; }
   function peakOf(S) { var p = null; bodySeq(S).forEach(function (k) { if (level(k, S) === 5) p = k; }); return p; }
+  /* ★★[FLOW_DIST_1017 2026-10-17 사장님 «식순에 그래프 똑같은데 개선해 봐»] 곡선 높이 = 순간마다 세기 — 종전 세 단계(3 · 4 · 5)만 그려 예시 넷이 거의 같은 모양이었다(정석 = 가족 한 픽셀도 안 다름).
+       정점 5 는 그대로 선언 · 편지(level · peakOf · ★ · «가장 벅찬 순간» 글은 안 바뀐다). 나머지는 자료집 말로 3 ~ 4.8:
+       부모님께 인사 4.8(P «눈물이 가장 많이 나는 순서») · 말 없이 인사 4.5 · 축배 4.7(AA «2부 예식의 하이라이트가 축배») · 덕담 4.5(X «아버지 덕담을 듣고 눈물이 났다») · 축가 4.5 ·
+       입장 4.4(B «결혼식의 하이라이트») · 서약 4.4 · 반지 4.2 · 영상 4.2 · 축사 4.0(Y «추억 소환과 뭉클함의 밸런스») · 닫는 인사 4 · 맞절 3.8 · 감사 인사 3.4 · 화촉 · 테이블 인사 3.
+       ★준비한 순서(축사 · 영상 · 그 밖)는 4 아래로 내리지 않는다 — 곡선이 꺼지면 «우리가 준비한 것이 흐름을 깨나?» 걱정한다(FLOW_LINE D6). 검사 scripts/audit/flow-distinct.mjs */
+  var FLOW_LV = { candle: 3, welcome: 3.4, matjeol: 3.8, _close: 4, ring: 4.2, cake: 4.2, entry: 4.4, vow: 4.4, song: 4.5, bless: 4.5, toast: 4.7, table: 3 };
+  function flowLv(k, S) {
+    var L = level(k, S); if (L === 5) return 5;
+    if (k === 'tribute') return chipOf('tribute', S) === 'none' ? 4.5 : 4.8;
+    if (k === 'free') return chipOf('free', S) === 'video' ? 4.2 : 4;
+    return FLOW_LV[k] != null ? FLOW_LV[k] : L;
+  }
 
   /* ══ [FLOW_LINE 2026-09-26 코워크 회신 6 3-3 · 3-4 · 추가 전달 2 D3 · D5 · 3 F1] 감동 흐름 — 한 함수가 모든 자리를 그린다 ══
      자료: 본식 순간마다 [시작 초, 길이 초, 세기] · 길이 = (대본 합 + 넉넉 합) ÷ 2 · 순서 = bodySeq.
@@ -420,7 +432,7 @@
     var seq = bodySeq(S), t = 0, out = [];
     seq.forEach(function (k) {
       var r = lohi(partsOf(k, S, seq)), d = (r[0] + r[1]) / 2;
-      out.push({ k: k, n: CARDS[k].sn, st: t, d: d, lo: r[0], hi: r[1], lv: level(k, S), after: !!APART[k] });   // [TABLE_APART] 본식 뒤 순간 — 곡선이 옅은 톤으로 그린다 · [TOAST_LAST_1013] 축배는 닫는 인사 뒤여도 본식 톤
+      out.push({ k: k, n: CARDS[k].sn, st: t, d: d, lo: r[0], hi: r[1], lv: flowLv(k, S), after: !!APART[k] });   // [FLOW_DIST_1017] 곡선 높이   // [TABLE_APART] 본식 뒤 순간 — 곡선이 옅은 톤으로 그린다 · [TOAST_LAST_1013] 축배는 닫는 인사 뒤여도 본식 톤
       t += d;
     });
     return out;
@@ -1060,7 +1072,7 @@
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
-    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
+    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, flowLv: flowLv, FLOW_LV: FLOW_LV, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf,
     declBy: declBy, DECL_HINT: DECL_HINT, DECL_MAX: DECL_MAX   // [DECLARE_ANYONE]
   };
