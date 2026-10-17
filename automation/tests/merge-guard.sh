@@ -7672,13 +7672,44 @@ chk 'o.flow=isOpen()?_flowOpen(true):summaryRows()' order-preview.html 1
 chk "rows=isOpen()?_flowOpen(true):summaryRows()" order-preview.html 1
 nochk '케이크와 둘 다 하면 몇 분인가요' order-preview.html 1
 chk 'FLOW_FROM_TWO_1017' mypage.html 4
-chk "link:{when:'축배', old:'축배 · 케이크'" mypage.html 1
+chk "link:{when:'축배', on:" mypage.html 1   # ★[CAKE_OLD_OFF_1017] 옛 이름 old 는 걷었다 — 저장 흐름의 «축배 · 케이크»는 _flowFix 가 «축배»로 옮긴다
+nochk "old:'축배 · 케이크'" mypage.html
 nochk "link:{when:'축배 · 케이크'" mypage.html
 nochk 'indexOf(c.link.when)' mypage.html
 chk 'FLOW_FROM_TWO_1017' admin.html 1
 chk 'FLOW_FROM_TWO_1017' scripts/check-photo-scene.mjs 5
 chk 'FLOW_FROM_TWO_1017' scripts/audit/flow-from-two.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-from-two.mjs >/dev/null 2>&1; _fft=$?; if [ "$_fft" = 1 ]; then echo 'FAIL flow-from-two: 새 코스 순서 흐름(하객 식순지 · AI 상담 맥락)이 ② 줄과 어긋났거나 케이크가 남았습니다 — node scripts/audit/flow-from-two.mjs'; fail=1; elif [ "$_fft" = 2 ]; then echo 'skip flow-from-two: 브라우저 없음(정적 검사만)'; else echo 'ok flow-from-two [FLOW_FROM_TWO_1017]'; fi; fi
+# ★★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 옛 초안도 케이크가 어디에도 안 나온다 — 10/13 [CAKE_OFF_1013] 은 «새로 담지 않는다»였고 옛 초안은 그대로 돌았다.
+#   엔진: 담아 둔 cake 는 «안 담김»(onOf · picked) · 옛 코스 «둘 다 · 2» → 축배 · «케이크만» → 축배 칸을 뺀다 · 사이 순서 케이크 → 없음 · 블록 이름 «축배»
+#   화면 · 저장: 식순 화면 복원(_applySaved)이 같은 옮기기 · 저장된 흐름은 마이페이지 _flowFix · 관리자 _admFlowFix 가 읽을 때 «축배»로(«케이크만» 판은 줄째 뺌) · 단계 이름표 «축배»
+#   AI 상담 지식 · 녹음 목록 안내 한 줄 · cake-old-off.mjs(브라우저 없이 · CI 에서도 돈다) · flow-from-two.mjs 옛 코스 판 둘(OLDBOTH · OLDCAKE)
+chk 'CAKE_OLD_OFF_1017' assets/ritual-open.js 3
+chk 'CAKE_OLD_OFF_1017' assets/ritual-cue.js 2
+chk 'CAKE_OLD_OFF_1017' order-preview.html 8
+chk 'CAKE_OLD_OFF_1017' mypage.html 5
+chk 'CAKE_OLD_OFF_1017' admin.html 3
+chk 'CAKE_OLD_OFF_1017' api/_ritual-kb.js 1
+chk 'CAKE_OLD_OFF_1017' api/_kb.js 1
+chk "function onOf(S, k) { return !!(ALWAYS\[k\] || (!RETIRED\[k\] && S && S.on && S.on\[k\])); }" assets/ritual-open.js 1
+chk "else if (s.toast === 'cake') { s.toast = 'toast'; s.off.toast = 1; }" assets/ritual-cue.js 1
+nochk "blockN: '축배 · 케이크'" assets/ritual-cue.js
+chk "if(S.course!=='open'){ if(S.toast==='both'||S.toast==='2') S.toast='toast'; else if(S.toast==='cake'){ S.toast='toast'; S.off=S.off||{}; S.off.toast=1; } if(S.valley==='cake') S.valley='none'; }" order-preview.html 1
+chk "valley:'사이 순서',toast:'축배',song:'축가'" order-preview.html 1   # 옛 코스 단계 이름표(«다음은 · 축배»)
+nochk "toast:'축배 · 케이크',song:'축가'" order-preview.html
+chk 'function _flowFix(flow,S)' mypage.html 1
+chk 'function _admFlowFix(flow,S)' admin.html 1
+chk 'CAKE_OLD_OFF_1017' scripts/audit/cake-old-off.mjs 2
+chk 'CAKE_OLD_OFF_1017' scripts/audit/flow-from-two.mjs 3
+chk 'CAKE_OLD_OFF_1017' CLAUDE.md 1
+# ★[SOURCE_WHY_1017 · BY_EVENT_1017 · FIND_LIST_1017 2026-10-17 사장님] 자료가 먼저인 까닭(실전 데이터가 없다 · 시장에서 검증된 자료가 길) · 이벤트별 자료 폴더 · 찾을 자료 한 곳 — 작업 규칙에서 사라지지 않게
+chk 'SOURCE_WHY_1017' CLAUDE.md 1
+chk 'BY_EVENT_1017' CLAUDE.md 1
+chk 'FIND_LIST_1017' CLAUDE.md 1
+if command -v node >/dev/null 2>&1; then
+  if node scripts/audit/cake-old-off.mjs >/dev/null 2>&1; then echo 'ok cake-old-off [CAKE_OLD_OFF_1017]'; else echo 'FAIL cake-old-off: 옛 초안에서 케이크가 다시 나온다 — node scripts/audit/cake-old-off.mjs'; fail=1; fi
+  if node scripts/audit/cake-old-off.mjs --selftest >/dev/null 2>&1; then echo 'ok cake-old-off --selftest(되돌린 판 둘을 잡는다) [CAKE_OLD_OFF_1017]'; else echo 'FAIL cake-old-off --selftest: 되돌린 판을 못 잡는다 — 검사가 죽었다'; fail=1; fi
+fi
 # ★[THANKS_GREET_1013 2026-10-13 사장님 «첫인사가 감사인사 부분이잖아» → «적절한 이름으로»] 순간 이름 «첫인사» → «감사 인사»(키 welcome 그대로)
 #   «감사문»은 서약 카드 선택지 이름이라 겹쳐 쓰지 않는다 · 녹음된 나레이션 글(«첫인사를 직접 드리겠습니다»)은 3단계 녹음이 바꾼다
 #   대본 복사는 묶음 이름으로 두 분 글을 찾는다 — 새 이름 · 옛 이름 둘 다 본다(바꾸지 않으면 인사 글이 대본에서 빠진다)
@@ -14732,7 +14763,9 @@ chk 'CAKE_TOAST_SPLIT' assets/ritual-cue.js 2
 chk 'O.migrateCakeToast(s);' assets/ritual-cue.js 1
 chk 'CAKE_TOAST_SPLIT' order-preview.html 10
 chk "if(!_sv.S.ctSplit) delete S.ctSplit;" order-preview.html 1
-chk "'케이크 커팅': {" assets/ritual-story.js 1
+nochk "'케이크 커팅': {" assets/ritual-story.js   # ★[CAKE_OLD_OFF_1017 2026-10-17] 옛 초안 · 옛 코스도 케이크 줄이 없어 죽은 블록이 됐다(STORY_COVER) — 걷었다
+chk 'CAKE_OLD_OFF_1017' assets/ritual-story.js 3   # 별칭 · 블록 · 사람 구간 둘을 걷은 자리
+nochk "var ALIAS = { '축배·케이크'" assets/ritual-story.js
 nochk "L('toast','무엇을'" order-preview.html
 # ★[2026-09-28 사장님 식순 ② 개선 여섯 + 추가 1 + 점검 둘] 진행 줄 마우스 줄바꿈 · 들어 보기 왼쪽 · 참고 예시 네 벌 · 미완료 점 · 고른 순서 펼침 · 목소리 표 위로 · 중복 제목 · 줄 재생 동그라미
 chk 'MK_STRIP_MOUSE' order-preview.html 1

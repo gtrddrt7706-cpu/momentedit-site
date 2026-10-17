@@ -407,7 +407,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   if (!bad.length) {
     const F = new Function(src + '\nreturn { cap: photoCapOf, line: photoCapLine };')();
     const longest = Object.assign(O.applyExample({}, 'family'), { freeWhat: 'video', freeLen: '3', tributeSay: 'long', letter: 'parent' });
-    longest.on = {}; ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast'].forEach((k) => { longest.on[k] = 1; });   // [CAKE_TOAST_SPLIT] 케이크 · 축배 두 칸
+    longest.on = {}; ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'toast'].forEach((k) => { longest.on[k] = 1; });   // ★[CAKE_OLD_OFF_1017] 케이크는 옛 초안에서도 돌지 않는다 — 가장 긴 조합에서 뺐다(종전 [CAKE_TOAST_SPLIT] 케이크 · 축배 두 칸)
     /* ★[PHOTO_THANKS 2026-09-26] 감사 인사 1분(PHOTO_THANKS)이 단체 사진 안에 들어와 구도 자리가 1분 준다 — 경계 칸이 움직였다(구현 뒤 게이트 값 · 코워크 표에 알림).
        옛 표: 기록 5/5 · 4/5 · 약속 4/5 · 3/5 · 가족 2/5 · 2/4 · 가장 긴 조합 0/3 · 0/2 */
     const WANT = [   // [이름, S, 단체 사진 a~b, 요청 0 k/max, 요청 2 k/max]
@@ -421,7 +421,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
       ['정석', O.applyExample({}, 'standard'), '17~22', '2/4', '1/3']   /* ★[SOURCE_FIRST_1016] 자료 멘트 그대로로 본식이 약 1분 늘어(화촉 어머님 판 FF 1-2 · 구호 뒤 쉼 · 맞절 EE 46 · 감사 인사 40초(Z 3) · 부모님께 인사 이름 줄 FF 2-1) 단체 사진이 1분 준다(구현 뒤 게이트 값) — 옛 18~23 · 3/4 · 2/4 */ /* [EX_ENTRY_FEEL_1012 2026-10-12] 입장 담백하게(23초)로 옛 21~26 · [SPEECH_TILE_1012] 축사 3분이 들어 옛 21~25 · 3/5 · 3/4(가족과 같은 구도 수) */,
       ['기록', O.applyExample({}, 'record'), '17~21', '2/3', '1/3']   /* [SOURCE_FIRST_1016] 옛 18~22 · 3/4 · 2/3 */ /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 → [EX_STD_1012] 18~22 → [EX_ENTRY_FEEL_1012] 입장 힘차게(12초)로 19~22 → ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −22.5 = +6.5초로 18~22(구현 뒤 게이트 값) */,
       ['가족', O.applyExample({}, 'family'), '17~22', '2/4', '1/3']   /* [SOURCE_FIRST_1016] 옛 18~23 · 2/4 · 2/4 */ /* ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −18 = +11초로 요청 0 이 3/4 → 2/4(경계 · 구현 뒤 게이트 값) */, ['간결', O.applyExample({}, 'brief'), '29~32', '5/5', '5/5']   /* [SOURCE_FIRST_1016] 옛 30~33 */,
-      ['가장 긴 조합', longest, '8~16', '0/2', '0/1']   /* [SOURCE_FIRST_1016] 옛 10~17 · 0/2 · 0/2 */];
+      ['가장 긴 조합', longest, '10~17', '0/2', '0/1']   /* ★[CAKE_OLD_OFF_1017] 케이크 칸(옛 초안)이 빠져 본식이 짧아졌다(구현 뒤 게이트 값) · 옛 8~16 · 0/2 · 0/1 · [SOURCE_FIRST_1016] 옛 10~17 · 0/2 · 0/2 */];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
       const got = [`${r0.a}~${r0.b}`, `${r0.k}/${r0.max}`, `${r2.k}/${r2.max}`];

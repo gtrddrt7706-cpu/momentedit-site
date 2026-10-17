@@ -7242,7 +7242,7 @@ function _ritPrepFold(rd, base, dd, asLink){
   (sm.prep||[]).filter(function(q){ return !_oldGoods.test(String((q&&q.what)||'')); }).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
   var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
   /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 맡긴 케이크 · 꽃 — 직접 준비분은 이미 prep(챙길 것)에 있다 */
-  var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.what&&!/^부모님께 드릴 꽃/.test(String(g.what)); }).map(function(g){ return String(g.what||''); });   /* ★[FLOWER_OFF_OLD_1013] 10/13 전에 저장한 식순의 «부모님께 드릴 꽃»은 보이지 않는다(꽃 전달 폐지 · 계약서 v1.15 · 식순 화면 ③ 과 같게) */   // [GOODS_STUDIO] 옛 «직접 준비»도 이제 저희가
+  var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.what&&!/^(부모님께 드릴 꽃|케이크)/.test(String(g.what)); })   /* [CAKE_OLD_OFF_1017] 옛 초안의 케이크도 «저희가 준비해요»에 안 싣는다 */.map(function(g){ return String(g.what||''); });   /* ★[FLOWER_OFF_OLD_1013] 10/13 전에 저장한 식순의 «부모님께 드릴 꽃»은 보이지 않는다(꽃 전달 폐지 · 계약서 v1.15 · 식순 화면 ③ 과 같게) */   // [GOODS_STUDIO] 옛 «직접 준비»도 이제 저희가
   var _bq=Array.isArray(sm.prep);   // [GOODS_STUDIO] 기본 조화 부케 줄 — 준비 목록이 있는 초안에만(옛 초안은 아무것도 안 그린다)
   var n=two.length+par.length+hp.length+stu.length+(_bq?1:0); if(!n) return '';
   var _opt=(sm.prep||[]).filter(function(q){ return q&&q.who!=='parents'&&/비워 두셔도 돼요/.test(String(q.note||'')); }).length;   /* [R4-06] 선택 항목(부모님께 드릴 말 · 빌더 RitualOpen.prepOpt)은 목록엔 두고 셈에서 뺀다 — 빌더 ① · ④ 와 같은 셈 */
@@ -9150,11 +9150,15 @@ function photoMins(sel, w){ return PHOTO_ALL + (sel||[]).length * PHOTO_PER + Ma
    ★`need`·`link` 를 지우지 말 것 — ②③이 여기 매여 있다. */
 /* [FLOW_FROM_TWO_1017] 식순 흐름에 그 순간이 있나 — 지금 이름(when) 또는 옛 이름(old). 연동 줄(_lkNote)과 확인서 대조(PHOTO_FX_STALE)가 같은 자로 본다 */
 function _flowHas(flow,lk){ return !!(flow&&lk) && (flow.indexOf(lk.when)>-1 || (!!lk.old && flow.indexOf(lk.old)>-1)); }
+/* ★★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 저장된 흐름(summary.flow)에서 케이크를 걷는다 — 빌더가 다시 저장하기 전 옛 초안에 남은 이름을 읽는 자리에서 고친다.
+   «케이크 커팅» 은 뺀다 · «축배 · 케이크»는 «축배»로(그 판에도 케이크가 없다) · 옛 코스 «케이크만» 판(S.toast cake)은 그 순간이 통째로 빠진다(엔진 norm 과 같은 판정) */
+function _flowFix(flow,S){ if(!Array.isArray(flow)) return flow; var _co=!!(S&&S.course&&S.course!=='open'&&S.toast==='cake'), _ct=/^축배\s*·\s*케이크$/;
+  return flow.filter(function(n){ return n!=='케이크 커팅'&&!(_co&&_ct.test(n)); }).map(function(n){ return _ct.test(n)?'축배':n; }); }
 var PHOTO_WISH_EX=[
  {n:'앉은 줄 + 선 줄', c:'의자에 앉은 줄 뒤로 선 줄', need:'의자 몇 개 · 어르신 대기용으로 두는 그 의자를 그대로 써요'},
  {n:'V자로 어깨만 안쪽으로', c:'두 분 쪽으로 살짝 돌려 서요 · 한 마디면 돼요', need:''},
  {n:'잔 부딪히기', c:'옆 사람과 잔을 부딪히는 순간 · 시선이 서로에게 가요', need:'잔',
-  link:{when:'축배', old:'축배 · 케이크', on:'축배 때 든 잔 그대로 이어져요', off:'식순에 축배가 없어요 · 잔을 따로 챙겨 드려요'}},   /* ★[FLOW_FROM_TWO_1017] 새 코스 흐름은 ② 이름(«축배») · 옛 초안(10/17 전 저장 · 옛 코스)의 «축배 · 케이크»는 old 로 받는다 · when 을 «축배 · 케이크»로 되돌리지 말 것 */
+  link:{when:'축배', on:'축배 때 든 잔 그대로 이어져요', off:'식순에 축배가 없어요 · 잔을 따로 챙겨 드려요'}},   /* ★[FLOW_FROM_TWO_1017] 새 코스 흐름은 ② 이름(«축배») · 옛 초안(10/17 전 저장 · 옛 코스)의 «축배 · 케이크»는 old 로 받는다 · when 을 «축배 · 케이크»로 되돌리지 말 것 */
  {n:'정렬 직전', c:'줄 서기 직전의 웃음과 매무새 고치는 순간', need:''},
  {n:'리액션 컷', c:'두 분의 한 동작에 하객분들이 반응하는 얼굴', need:''},
  {n:'하객 속 부부', c:'넓게 물러나 두 분을 사람들 한가운데 두고', need:'물러날 거리 · 공간을 보고 정해요'},
@@ -9215,7 +9219,7 @@ var PHOTO_SCENE=[
  {n:'편지 낭독',     s:'편지를 든 손 · 듣는 얼굴'},   /* [HUG_WORDS_1013] 서로에게 쓰는 날도 참 */
  {n:'부모님 헌정',   s:'큰절·포옹의 순간 · 일어나 마주 보는 얼굴'},
  {n:'부모님 덕담',   s:'말씀하시는 얼굴 · 나란히 듣는 두 분'},
- {n:'축배 · 케이크', s:'잔을 든 방 전체 · 부딪히는 순간'},
+ {n:'축배', s:'잔을 든 방 전체 · 부딪히는 순간'},   /* [CAKE_OLD_OFF_1017] 옛 흐름의 «축배 · 케이크»는 _flowFix 가 «축배»로 읽는다 */
  {n:'자유 한 칸',    s:'두 분이 정한 순서 그대로'},
  /* [OPEN_COURSE 2026-09-25 설계 명세 1] 새 코스(순간 먼저)는 이름이 셋 다르다 — 이름으로 맞추므로 없으면 장면이 통째로 빠진다.
     옛 이름 줄은 지우지 않는다(옛 초안이 그 이름으로 저장돼 있다). */
@@ -9232,8 +9236,8 @@ function photoSceneList(rd){
   /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4] 새 코스 초안은 빌더가 실은 목록(summary.scenes · 본식 차례 · 카드 이름 · 장면)을 그대로 쓴다.
      옛 코스 초안 · 이 줄 전에 저장된 새 코스 초안은 아래 이름 맞추기 그대로(빌더를 한 번 열면 자동 저장이 새 목록을 싣는다). */
   var _sm=((rd||{}).summary||{});
-  if(_sm.open&&_sm.scenes&&_sm.scenes.length) return _sm.scenes.map(function(x){ return {n:String(x.n||''), s:String(x.s||'')}; });
-  var flow=_sm.flow;
+  if(_sm.open&&_sm.scenes&&_sm.scenes.length) return _sm.scenes.filter(function(x){ return x&&String(x.n||'')!=='케이크 커팅'; }).map(function(x){ return {n:String(x.n||''), s:String(x.s||'')}; });   /* [CAKE_OLD_OFF_1017] 옛 초안 장면의 케이크 커팅 걷음 */
+  var flow=_flowFix(_sm.flow,(rd||{}).S);   /* [CAKE_OLD_OFF_1017] */
   if(!flow||!flow.length) return null;
   flow=flow.map(function(n){ return n==='두 사람이 준비한 순서'?'준비한 순서':n; });   // [DETAIL_0925 B3] 9/25 하루 저장된 초안의 옛 이름
   var on=PHOTO_SCENE.filter(function(x){ return flow.indexOf(x.n)>-1; });
@@ -9467,7 +9471,7 @@ function renderPhoto(box){
           자리표시 글이 "누구와 함께인지"까지 적게 이끌면 칸을 하나 더 세울 이유가 없다.
         ★who 필드는 데이터에 남겨 둔다(옛 저장분·서버 정규화 호환). 화면에서만 안 묻는다.
      ★참고 링크 주의·예시는 전부 접힘 안으로 내렸다 — 적기 전에 읽을 글이 아니다. */
-  var _flow=((PHOTOFLOW.rd||{}).summary||{}).flow||null;   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 안 그린다(넘겨짚지 않는다)
+  var _flow=_flowFix(((PHOTOFLOW.rd||{}).summary||{}).flow||null,(PHOTOFLOW.rd||{}).S);   /* [CAKE_OLD_OFF_1017] */   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 안 그린다(넘겨짚지 않는다)
   h+='<div class="ph-sec ph-sec-in">꼭 담고 싶은 사진 <span class="opt-tag">· 선택</span></div>';   // [PHOTO_SHOOT_ORDER] 전체 하객 바로 뒤에 찍는다 — 그래서 1번 차례 안
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">전체 사진 바로 뒤, 모두 함께 있을 때 이어서 찍어요.</span><span class="ln-bal">가족 구도 말고 더 남기고 싶은 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span></div>';   /* ★[PHOTO_SHOOT_ORDER 2026-09-27] 옛 «위에 없는 사진만»은 이 칸이 장면 · 구도 아래에 있던 때의 말이다 — 이제 맨 위 차례라 «위»가 없다 */   // [PH_DOT_SPLIT 2026-09-26 · 점검 L5 B9] « · »로 잇던 두 마디를 마침표 두 줄로 — 전역 balance 가 320 · 360 에서 «· 안 적으셔도»를 줄 머리로 밀었다
   if(wish.length){
@@ -10726,7 +10730,7 @@ function prodConfirmHtml(p, inv){
        그날 화면과 확인서가 서로 다른 말을 한다(그게 이 대조가 막으려는 바로 그 사고다).
      ★막지 않는다 — 잔은 우리가 챙기면 되는 일이라 '틀렸다'가 아니라 '이렇게 진행된다'로 적는다. */
   if((_phFx||_phW) && rd && (rd.summary||{}).flow && (rd.summary.flow||[]).length){
-    var _rf=rd.summary.flow;
+    var _rf=_flowFix(rd.summary.flow,rd.S);   /* [CAKE_OLD_OFF_1017] */
     /* [PHOTO_WISH] 대조 대상이 둘이다 — 옛 이름 목록(photoFx)과, 요청의 글(photoWish[].what).
        요청은 자유 서술이라 이름이 그 안에 **들어 있기만 해도** 잡는다(이어받기가 '이름 · 설명' 꼴로 넣으므로).
        ★두 곳을 각각 세지 않고 한 줄로 합친 것은 같은 요청이 두 번 경고되지 않게 하려는 것이다. */

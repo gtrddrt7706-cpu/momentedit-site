@@ -259,7 +259,7 @@ for (const w of [390, 1280]) {
   ok('3-5 ① 머리 = 네 걸음 표시 하나(옛 눈썹 · 막대 · 순서 n/N 숨김) · 처음부터 다시 만들기는 걸음 아래', await pg.evaluate(() => document.body.classList.contains('op4') && getComputedStyle(document.getElementById('pnow')).display === 'none' && getComputedStyle(document.querySelector('.prog-bar')).display === 'none'));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   /* [EX_STD_1012 2026-10-12] 가족 예시에 반지 · 케이크가 없어졌다 — 이 장은 반지 쪽(당일 챙길 것) · 케이크(저희가 준비해요)를 재므로 고객처럼 + 로 담아 잰다 */
-  await pg.evaluate(() => { opTgl('ring'); opTgl('cake'); }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { opTgl('ring'); }); await pg.waitForTimeout(300);   /* ★[CAKE_OLD_OFF_1017] 케이크는 + 로도 담기지 않는다(opTgl 이 걷은 순간을 받지 않는다) */
   // [HEAD_PILLS 2026-09-27 사장님] 걸음 아래 밑줄 글 → 머리 알약 넷(안내 보기 · 다시 만들기 · 저장 · 나가기)
   /* [TOP_MENU 2026-10-03 사장님] 두 줄은 «⋯» 안 — 창을 열고 같은 것을 잰다 */
   await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150);
@@ -288,7 +288,7 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => mkGo('tribute')); await pg.waitForTimeout(300);
   const tb = await pg.evaluate(() => { const u0 = mkUndone(); const t = document.getElementById('mkt_tribute_g'); t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, same: mkUndone() === u0, inScript: /카드로 인쇄/.test(sc) && /엄마 아빠 고마워요/.test(sc), gone: !/엄마 아빠 고마워요/.test(scriptText()) }; });
   ok('사장님 · 부모님께 드릴 말 선택 칸 — 미완료 셈 밖 · 적으면 대본에 · 비우면 없음', tb.has && tb.same && tb.inScript && tb.gone, JSON.stringify(tb));
-  ok('3-4 도와주실 분 문구([RING_STAGE] 반지 건넬 분 없음) · [GOODS_STUDIO] 케이크는 «챙길 것»에 없고 «저희가 준비해요 · 별도 비용이에요» · [FLOWER_OFF_1013] 부모님께 드릴 꽃은 없다 · 기본 조화 부케 줄 · «상담 때» 없음', !/반지를 건넬/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && /저희가 준비해요/.test(w.t) && /케이크/.test(w.t) && !/부모님께 드릴 꽃/.test(w.t) && /별도 비용이에요/.test(w.t) && /기본 조화 부케/.test(w.t) && /생화를 원하시면 별도 비용이에요/.test(w.t) && !/당일 가져오기/.test(w.t) && !/상담 때/.test(w.t) && !/크기 · 도착 시각/.test(w.t), JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /상담 때/.test(w.t)]) + ' … ' + w.t.slice(-250));
+  ok('3-4 도와주실 분 문구([RING_STAGE] 반지 건넬 분 없음) · [GOODS_STUDIO · CAKE_OLD_OFF_1017] 케이크는 어디에도 없고(10/17 옛 식순도) 부케가 «저희가 준비해요 · 별도 비용이에요» · [FLOWER_OFF_1013] 부모님께 드릴 꽃은 없다 · 기본 조화 부케 줄 · «상담 때» 없음', !/반지를 건넬/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && /저희가 준비해요/.test(w.t) && !/케이크/.test(w.t) && !/부모님께 드릴 꽃/.test(w.t) && /별도 비용이에요/.test(w.t) && /기본 조화 부케/.test(w.t) && /생화를 원하시면 별도 비용이에요/.test(w.t) && !/당일 가져오기/.test(w.t) && !/상담 때/.test(w.t) && !/크기 · 도착 시각/.test(w.t), JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /상담 때/.test(w.t)]) + ' … ' + w.t.slice(-250));
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'done') { idx = i; render(); } }); await pg.waitForTimeout(900);
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + _lName(k) + (k === RitualOpen.peakOf(S) ? ' · 가장 벅찬 순간' : '')), pkRow: !!document.querySelector('.sumrow .sr-l .op-pk'), star: /★/.test(document.getElementById('stage').textContent) }))   /* [R2-33] · [PEAK_COLOR 2026-10-07] ★ 대신 진사 이름(화면 읽기용 숨은 글 « · 가장 벅찬 순간») */;
   ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · 벅찬 순간은 진사 · ★ 없음)', JSON.stringify(d.rows) === JSON.stringify(d.want) && d.pkRow && !d.star, JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
@@ -297,7 +297,7 @@ for (const w of [390, 1280]) {
   /* ★[GOODS_STUDIO 2026-10-06 사장님 «케이크 · 꽃 · 부케는 우리가 준비»] ② 칩(직접 준비 · 맡기기) 없음 · 옛 초안의 self 도 studio · 초안 summary.goods 에 실림 */
   const gd = await pg.evaluate(() => {
     const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};
-    S.cakeBy = 'self'; S.flowerBy = 'self';   // 옛 초안 값
+    S.cakeBy = 'self'; S.flowerBy = 'self'; S.on.cake = 1;   // 옛 초안 값 · ★[CAKE_OLD_OFF_1017] 케이크를 담아 둔 옛 초안
     out.chips = _lGroups('cake').map((g) => g.key).concat(_lGroups('tribute').map((g) => g.key));
     out.w = _mkSum(); out.sm = _ordPayload(false).summary.goods; out.bring = R.prepList(S).filter((q) => q.cat === 'bring').map((q) => q.what).join('|');
     delete S.on.cake; S.on.toast = 1; S.toast = R.toastMode(S); out.toastOnly = R.goodsOf(S).filter((g) => g.key === 'cakeBy').length;   // [CAKE_TOAST_SPLIT] 축배만 = 케이크 칸을 뺀 것
@@ -305,7 +305,7 @@ for (const w of [390, 1280]) {
     return out;
   });
   ok('[GOODS_STUDIO] ② 칩 «케이크 준비» · «꽃 준비» 없음 · 축배만이면 케이크 없음', !gd.chips.includes('cakeBy') && !gd.chips.includes('flowerBy') && gd.toastOnly === 0, JSON.stringify(gd.chips) + gd.toastOnly);
-  ok('[GOODS_STUDIO] 옛 «직접 준비» 초안도 ③ «저희가 준비해요 · 별도 비용이에요» · 챙길 것에 케이크 · 꽃 없음 · summary.goods = studio', /저희가 준비해요/.test(gd.w) && /별도 비용이에요/.test(gd.w) && !/상담 때/.test(gd.w) && !/케이크|꽃/.test(gd.bring) && JSON.stringify(gd.sm) === JSON.stringify([{ what: '케이크', by: 'studio' }])   /* [FLOWER_OFF_1013] 꽃 줄 없음 */, JSON.stringify(gd.sm) + ' ' + gd.bring);
+  ok('[GOODS_STUDIO · CAKE_OLD_OFF_1017] 케이크를 담아 둔 옛 «직접 준비» 초안도 ③ 에 케이크 없음 · 챙길 것에 케이크 · 꽃 없음 · summary.goods 에 케이크 없음(부케 «저희가 준비해요 · 별도 비용이에요»는 그대로)', /저희가 준비해요/.test(gd.w) && /별도 비용이에요/.test(gd.w) && !/케이크/.test(gd.w) && !/상담 때/.test(gd.w) && !/케이크|꽃/.test(gd.bring) && !JSON.stringify(gd.sm || []).includes('케이크')   /* [FLOWER_OFF_1013] 꽃 줄 없음 */, JSON.stringify(gd.sm) + ' ' + gd.bring);
   const sc = await pg.evaluate(() => scriptText());
   /* [RIT_NO_CUE_COPY 2026-09-27 4부 20] 고객용 복사 · 파일 저장에는 «큐:»(현장 지시) 줄이 없다 — 케이크 · 축배 큐(GLASS_READY)는 엔진 · 콘솔이 그대로 지닌다 */
   ok('3-2 대본 = 엔진 순서(«큐:» 줄 없음 [RIT_NO_CUE_COPY] · 편지 낭독 중 잔 없음 · 번호 ② 와 같음)', !/^큐: /m.test(sc) && !/편지 낭독 중 하객 잔/.test(sc) && /\n1\. 화촉/.test(sc) && !/폐식·단체촬영/.test(sc) && !/D-7/.test(sc), sc.slice(0, 500));
@@ -595,7 +595,7 @@ else {
   const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};
     for (const [t, pg2] of [['cake', 'cake'], ['toast', 'toast'], ['both', 'cake'], ['both2', 'toast']]) { if (t === 'cake') { S.on.cake = 1; delete S.on.toast; } else if (t === 'toast') { delete S.on.cake; S.on.toast = 1; } else { S.on.cake = 1; S.on.toast = 1; } opSync(); mkGo(pg2); render(); out[t] = nm(); }   // [CAKE_TOAST_SPLIT] 쪽마다 제 영상
     return out; });
-  ok('11-1 ② 케이크 커팅 쪽 영상 = cake · 축배 쪽 영상 = toast(둘 다 담아도 쪽마다 제 영상) [MK_VID_CHIP · CAKE_TOAST_SPLIT]', v.cake === 'cake' && v.toast === 'toast' && v.both === 'cake' && v.both2 === 'toast', JSON.stringify(v));
+  ok('11-1 ② 축배 쪽 영상 = toast · 케이크를 담아 둔 옛 초안도 케이크 쪽이 없다(축배 쪽은 toast) [MK_VID_CHIP · CAKE_OLD_OFF_1017]', v.cake === '(없음)' && v.toast === 'toast' && v.both === '(없음)' && v.both2 === 'toast', JSON.stringify(v));
   ok('11-1 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -705,7 +705,7 @@ else {
   await pg.evaluate(() => Promise.all([engine(), _lrec()]));
   const r = await pg.evaluate(async () => {
     const R = RitualOpen, wait = (ms) => new Promise((z) => setTimeout(z, ms)), out = { sheet: [], again: [], full: [], keep: [], make: [], makeKey: [], makeSound: [], label: [], line: [] };
-    const ks = Object.keys(R.CARDS).filter((k) => R.firstVideo(k, S));
+    const ks = Object.keys(R.CARDS).filter((k) => R.firstVideo(k, S) && !(R.RETIRED || {})[k]);   /* ★[CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 어디서도 열리지 않는다 */
     for (const k of ks) {
       const want = R.firstVideo(k, S).mp4.split('/').pop();
       window.__vplays = []; opPv(k); await wait(350);
@@ -727,7 +727,7 @@ else {
       if (document.querySelector('#lsFull .lv-ai') || /AI로 만든 장면/.test((document.querySelector('#lsFull .lv') || {}).textContent || '')) out.label.push('full:' + k);
       lsStop(); await wait(150);
     }
-    R.PICKABLE.forEach((k) => { S.on[k] = 1; }); opSync(); idx = STEPS.findIndex((x) => x.k === 'listen'); render(); await wait(300);
+    (R.OFFER || R.PICKABLE).forEach((k) => { S.on[k] = 1; }); opSync(); idx = STEPS.findIndex((x) => x.k === 'listen'); render(); await wait(300);   /* [CAKE_OLD_OFF_1017] 담을 수 있는 순간만 */
     out.once = []; out.keep2 = []; out.loop = [];
     for (const k of ks.filter((k) => k !== '_close')) {
       window.__vplays = []; mkGo(k); render(); await wait(120);
