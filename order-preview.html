@@ -10240,7 +10240,7 @@ function _ordPayload(fin){
   /* [OPEN_COURSE] 새 코스는 코스 이름이 없다 — 마이페이지가 «○○ 코스» 대신 «순간 n개 · 본식 약 a~b분»을 쓴다.
      예시에서 시작했으면 그 이름도 싣는다(«‹가족› 예시에서 시작»). 옛 코스 요약은 한 글자도 안 바뀐다. */
   if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
-    try{ var _fo=_flowOpen(); if(_fo.length){ _sm.flow=_fo; _sm.count=_fo.length; } }catch(eF){}   /* ★[FLOW_FROM_TWO_1017] 하객 식순지 · 마이페이지 · 관리자가 읽는 순서 = ② 줄 */
+    try{ var _fo=_flowOpen(); if(_fo.length){ _sm.flow=_fo; _sm.count=_opMoments(); } }catch(eF){}   /* ★[FLOW_FROM_TWO_1017] 하객 식순지 · 마이페이지 · 관리자가 읽는 순서 = ② 줄 · 수(관리자 «n개 순간»)는 ④ 머리 «담은 순간»과 같은 셈(식전 영상 뺌) */
     _sm.open=true; _sm.moments=_opMoments();   /* [RIT_DONE_TITLE] */ _sm.photo=_sp.photo; _sm.table=_sp.table; _sm.from=_ex?_ex.nm:'';   /* [TABLE_APART] 테이블 인사 약 n분(안 담으면 '') */
     _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])];
     /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4 2026-09-26] 마이페이지 «예식 순서에서 남는 사진»은 이 목록을 그대로 그린다 —

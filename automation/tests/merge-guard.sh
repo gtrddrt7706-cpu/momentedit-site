@@ -7667,7 +7667,7 @@ chk 'CAKE_OFF_1013' docs/plans/식순연구/순간개편_근거장부.md 3
 #   ② 축배 줄을 열면 뜨던 AI 질문 «케이크와 둘 다 하면 몇 분인가요?»도 걷었다 · 마이페이지 잔 연동은 «축배» + 옛 이름 old · 관리자 축배 행은 담았을 때만
 chk 'FLOW_FROM_TWO_1017' order-preview.html 6
 chk 'function _flowOpen(withVal)' order-preview.html 1
-chk '_sm.flow=_fo; _sm.count=_fo.length;' order-preview.html 1
+chk '_sm.flow=_fo; _sm.count=_opMoments();' order-preview.html 1
 chk 'o.flow=isOpen()?_flowOpen(true):summaryRows()' order-preview.html 1
 chk "rows=isOpen()?_flowOpen(true):summaryRows()" order-preview.html 1
 nochk '케이크와 둘 다 하면 몇 분인가요' order-preview.html 1

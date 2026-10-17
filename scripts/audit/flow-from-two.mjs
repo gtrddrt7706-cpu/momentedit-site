@@ -3,7 +3,7 @@
    저장 요약(summary.flow)은 하객 식순지(관리자 인쇄) · 마이페이지 사진 연결 · 관리자 «순서 흐름»이 읽고, AI 상담 맥락(«구성»)은 상담 답에 들어간다.
    종전엔 둘 다 옛 표(fullBlocks · TUNE) 이름이라 케이크가 없는 날도 «축배 · 케이크»가 찍혔고, 맞절 · 반지 교환 · 테이블 인사가 빠지고, 축배가 닫는 인사 앞에 섰다.
    진짜 식순 화면(order-preview.html)을 띄워 예시 넷 + 모두 담은 판 + 옛 초안(케이크를 담아 둔 판)으로 잰다.
-   1 summary.flow = ② 줄(하객 맞이 안내 뺌) · count = 줄 수
+   1 summary.flow = ② 줄(하객 맞이 안내 뺌) · count = ④ 머리 «담은 순간»(관리자 «n개 순간»이 같은 수를 말한다)
    2 케이크를 안 담은 판 — 흐름 · 장면 · AI 맥락 · 대본 받기 · 옛 표 이름 · AI 질문 칩 어디에도 «케이크»가 없다
    3 옛 초안(10/13 전 케이크를 담아 둔 판)은 흐름에 «케이크 커팅»이 제자리에 남는다(그날 실제로 한다) · 축배 이름은 «축배»
    4 마이페이지 — 잔 연동은 지금 이름(축배) · 옛 이름(축배 · 케이크) 둘 다 «있음» · 두 자리(연동 줄 · 확인서)가 같은 자(_flowHas)
@@ -59,7 +59,7 @@ async function measure(mode) {
     try { fb = fullBlocks().map((b) => b.n); } catch (e) { fb = ['ERR ' + e.message]; }
     const chipKeys = rows.concat(STEPS.map((s) => s.k), ['_def']);
     const chips = []; chipKeys.forEach((k) => { (RITUAL_CHIPS[k] || []).forEach((q) => chips.push(k + ':' + q)); });
-    return { cake: !!R.onOf(S, 'cake'), two, flow: sm.flow, count: sm.count, scenes: (sm.scenes || []).map((x) => x.n + ' ' + x.s), ai, aiTxt, script, fb, chips };
+    return { cake: !!R.onOf(S, 'cake'), two, mom: _opMoments(), flow: sm.flow, count: sm.count, scenes: (sm.scenes || []).map((x) => x.n + ' ' + x.s), ai, aiTxt, script, fb, chips };
   }, mode);
   r.errs = errs; await ctx.close(); return r;
 }
@@ -67,7 +67,7 @@ async function measure(mode) {
 const MODES = ['standard', 'record', 'family', 'brief', 'ALL', 'CAKE'];
 for (const mode of MODES) {
   let r; try { r = await measure(mode); } catch (e) { ok(`${mode} 재기`, false, e.message); continue; }
-  ok(`${mode} 1 summary.flow = ② 줄(하객 맞이 안내 뺌) · count = ${r.two.length}`, JSON.stringify(r.flow) === JSON.stringify(r.two) && r.count === r.two.length, { flow: r.flow, two: r.two, count: r.count });
+  ok(`${mode} 1 summary.flow = ② 줄(하객 맞이 안내 뺌) · count = ④ «담은 순간» ${r.mom}`, JSON.stringify(r.flow) === JSON.stringify(r.two) && r.count === r.mom && r.mom > 0, { flow: r.flow, two: r.two, count: r.count, mom: r.mom });
   const toastAt = r.flow.indexOf('축배'), closeAt = r.flow.indexOf('닫는 인사');
   if (toastAt > -1) ok(`${mode} 1 축배는 닫는 인사 뒤 · 이름 «축배» [TOAST_LAST_1013]`, closeAt > -1 && toastAt > closeAt, r.flow);
   if (mode !== 'CAKE') {
