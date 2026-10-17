@@ -5265,7 +5265,7 @@ if command -v node >/dev/null 2>&1; then node scripts/check-retired-scene.mjs >/
 #   어긋난 채로 당일을 맞는다. 확인서에서 한 번 더 대조한다(좌석 인원 대조와 같은 자리).
 #   ★판정 근거는 PHOTO_WISH_EX 의 link 하나 — 조건을 손으로 또 적으면 화면과 확인서가 다른 말을 한다.
 chk 'PHOTO_FX_STALE' mypage.html 1
-chk '_rf.indexOf(c.link.when)<0' mypage.html 1
+chk '!_flowHas(_rf,c.link)' mypage.html 1   # [FLOW_FROM_TWO_1017] 확인서 대조도 연동 줄과 같은 자(지금 이름 · 옛 이름) — 종전 '_rf.indexOf(c.link.when)<0'
 # [ORD_RESET_MID 2026-08-16 사용자 지시 "처음부터 다시 만들기 코스 진행하는 중간에도 클릭할 수 있게"]
 #   식순 빌더 진행 줄(2행 오른쪽)의 「처음부터 다시 만들기」 — 완성 화면에만 있던 것을 걷는 동안에도 둔다.
 #   ★아래(이전·다음 옆)로 옮기지 말 것(EXIT_TAP44 와 같은 원칙 · 지우는 동작이라 더 세게 적용).
@@ -7661,6 +7661,24 @@ chk 'CAKE_OFF_1013' assets/advisor-kb.js 1
 nochk '부모님께 드릴 꽃과 케이크도' assets/advisor-kb.js
 chk 'CAKE_OFF_1013' scripts/audit/open-course.mjs 1
 chk 'CAKE_OFF_1013' docs/plans/식순연구/순간개편_근거장부.md 3
+# ★★[FLOW_FROM_TWO_1017 2026-10-17 사장님 «케익이벤트는 완전히 뺀거지?»] 새 코스 «순서 흐름» = ② 줄 이름 · 차례 —
+#   저장 요약(summary.flow → 하객 식순지 · 마이페이지 사진 연결 · 관리자 «순서 흐름»)과 AI 상담 맥락(«구성»)이 _flowOpen 하나를 쓴다.
+#   종전엔 옛 표(fullBlocks · TUNE) 이름이라 케이크가 없는 날도 식순지에 «축배 · 케이크» · 맞절 · 반지 · 테이블 인사 빠짐 · 축배가 닫는 인사 앞이었다.
+#   ② 축배 줄을 열면 뜨던 AI 질문 «케이크와 둘 다 하면 몇 분인가요?»도 걷었다 · 마이페이지 잔 연동은 «축배» + 옛 이름 old · 관리자 축배 행은 담았을 때만
+chk 'FLOW_FROM_TWO_1017' order-preview.html 6
+chk 'function _flowOpen(withVal)' order-preview.html 1
+chk '_sm.flow=_fo; _sm.count=_fo.length;' order-preview.html 1
+chk 'o.flow=isOpen()?_flowOpen(true):summaryRows()' order-preview.html 1
+chk "rows=isOpen()?_flowOpen(true):summaryRows()" order-preview.html 1
+nochk '케이크와 둘 다 하면 몇 분인가요' order-preview.html 1
+chk 'FLOW_FROM_TWO_1017' mypage.html 4
+chk "link:{when:'축배', old:'축배 · 케이크'" mypage.html 1
+nochk "link:{when:'축배 · 케이크'" mypage.html
+nochk 'indexOf(c.link.when)' mypage.html
+chk 'FLOW_FROM_TWO_1017' admin.html 1
+chk 'FLOW_FROM_TWO_1017' scripts/check-photo-scene.mjs 5
+chk 'FLOW_FROM_TWO_1017' scripts/audit/flow-from-two.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-from-two.mjs >/dev/null 2>&1; _fft=$?; if [ "$_fft" = 1 ]; then echo 'FAIL flow-from-two: 새 코스 순서 흐름(하객 식순지 · AI 상담 맥락)이 ② 줄과 어긋났거나 케이크가 남았습니다 — node scripts/audit/flow-from-two.mjs'; fail=1; elif [ "$_fft" = 2 ]; then echo 'skip flow-from-two: 브라우저 없음(정적 검사만)'; else echo 'ok flow-from-two [FLOW_FROM_TWO_1017]'; fi; fi
 # ★[THANKS_GREET_1013 2026-10-13 사장님 «첫인사가 감사인사 부분이잖아» → «적절한 이름으로»] 순간 이름 «첫인사» → «감사 인사»(키 welcome 그대로)
 #   «감사문»은 서약 카드 선택지 이름이라 겹쳐 쓰지 않는다 · 녹음된 나레이션 글(«첫인사를 직접 드리겠습니다»)은 3단계 녹음이 바꾼다
 #   대본 복사는 묶음 이름으로 두 분 글을 찾는다 — 새 이름 · 옛 이름 둘 다 본다(바꾸지 않으면 인사 글이 대본에서 빠진다)

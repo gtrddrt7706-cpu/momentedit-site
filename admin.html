@@ -3097,7 +3097,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
          row() 는 값이 없으면 아무것도 안 그리므로 새 고객에게는 빈 줄도 안 생긴다. */
       +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')   /* [LEGACY_LABEL] 폐지 전 초안만 값을 갖는다 */
       +row('부모님 헌정', s3d.course==='open'?((s3d.on&&s3d.on.tribute)?'인사 · 포옹(꽃 없음)':''):(({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||''))   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스 값 flower 는 옛 초안 호환 이름 — «꽃»으로 읽혀 꽃을 준비하지 않게 · 옛 코스는 그대로 */
-      +row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||'')
+      +(s3d.course==='open'?row('축배', (s3d.on&&s3d.on.toast)?'두 분 선창 «위하여»':''):row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||''))   /* ★[FLOW_FROM_TWO_1017 · CAKE_OFF_1013] 새 코스는 «축배» 행(담았을 때만) — 종전엔 S.toast(축배를 안 담아도 «축배»)를 읽어 담지 않은 날도 «축배·케이크 · 축배»가 떴다 · 옛 코스 행은 그대로 */
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
       /* [R4-02] 두 분이 «원고 없이 부모님이 현장에서 바로»를 골랐으면(덕담 부탁 칸 mkc 'p:bless:N' = 'site') 숨은 원고를 보이지 않는다 — 카드를 만들 원고가 아니다 */
       +((s3d.mkc&&Object.keys(s3d.mkc).some(function(id){ return /^p:bless:/.test(id)&&s3d.mkc[id]==='site'; }))?'<div class="kv"><span class="k">덕담 원고</span><span class="v">원고 없이 부모님이 현장에서 바로</span></div>'

@@ -4295,6 +4295,11 @@ function _lRecText(file){ var v=LREC&&file?LREC[file]:null; return v==null?null:
 function _lHasSound(file,text){ var r=_lRecText(file); return r!=null && _lNorm(r)!=='' && _lNorm(r)===_lNorm(text); }
 function _lName(k){ return k==='guest'?'하객 맞이 안내':(k==='vow'&&_vowKind()==='thanks')?'감사문':RitualOpen.nameOf(k,S); }   /* [THANKS_IN_VOW] 감사문을 고르면 ② 이후 이름이 «감사문» · 고르기(①) 칸은 그대로 «혼인 서약» */
 function _lRows(){ var R=RitualOpen, on=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }); return ['guest'].concat(on.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat(['_close']).concat(on.filter(function(k){ return !!R.AFTER_CLOSE[k]; })); }   /* [TABLE_GREET_1008] 닫는 인사 뒤 순간(테이블 인사)은 _close 다음에 */
+/* ★★[FLOW_FROM_TWO_1017 2026-10-17 사장님 «케익이벤트는 완전히 뺀거지?»] 새 코스의 «순서 흐름»은 ② 줄과 같은 이름 · 같은 차례다 —
+   저장 요약(summary.flow → 하객 식순지 · 마이페이지 사진 연결 · 관리자 «순서 흐름»)과 AI 상담 맥락(«구성»)이 이것 하나를 쓴다.
+   종전엔 옛 표(fullBlocks · TUNE)의 이름이라 케이크가 없는 날도 식순지에 «축배 · 케이크»가 찍혔고, 맞절 · 반지 교환 · 테이블 인사가 빠지고, 축배가 닫는 인사 앞에 섰다.
+   withVal = AI 상담 맥락(하객 맞이 안내 · 칩 값까지) · 없으면 식순지 이름만(하객 맞이 안내는 순서가 아니라 뺀다). 옛 코스는 그대로(summaryRows · fullBlocks). 옛 표로 되돌리지 말 것 */
+function _flowOpen(withVal){ return _lRows().filter(function(k){ return withVal||k!=='guest'; }).map(function(k){ var v=(withVal&&k!=='toast')?rowVal(k):''; return _lName(k)+(v?'('+v+')':''); }); }   /* 축배는 고를 판이 없다 — 옛 판 값(«축배 · 둘 다»)을 붙이지 않는다 */
 function _lOffRows(){ var R=RitualOpen; return (R.OFFER||R.PICKABLE).filter(function(k){ return !R.onOf(S,k); }); }   /* [CAKE_OFF_1013] 담지 않은 순간 목록에 케이크를 다시 내지 않는다(OFFER) */   // ★[SPEECH_TILE_1012] 축사(옛 준비한 순서 · «있을 때만»)도 다른 순간처럼 여기서 다시 담는다
 function _josa(w,a,b){ var c=String(w).charCodeAt(String(w).length-1); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b; }
 /* 목록 번호 — 식전은 «식전», 본식은 1 부터(닫는 인사까지). 크게 보기도 같은 번호를 쓴다(칩으로 이어 들어도 전체 기준) */
@@ -9308,7 +9313,8 @@ var BLOCK={
     var wv=(isOpen()&&S.toast!=='cake')?RitualOpen.chipOf('wine',S):'none';
     var nar=TOAST[S.toast].nar+(wv==='mix'?' '+RitualOpen.NAR.pourMix:wv==='family'?' '+RitualOpen.NAR.pourFamily:'')
       +((isOpen()&&TOAST[S.toast].nar2)?' '+((wv!=='none'&&S.toast==='both')?RitualOpen.NAR.toastBothPour:TOAST[S.toast].nar2):'');   // [TOAST_POUR_B]
-    return {n:'축배 · 케이크',nar:nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue+(wv!=='none'?' · 두 분이 두 와인을 한 잔에 붓기':'')};
+    return {n:isOpen()?'축배':'축배 · 케이크',nar:nar,self:'하객 모두 함께',   /* [FLOW_FROM_TWO_1017 · CAKE_OFF_1013] 새 코스(옛 표로 넘어간 대본 · 화면)는 «축배» · 옛 코스 이름은 그대로 */
+     cue:TOAST[S.toast].cue+(wv!=='none'?' · 두 분이 두 와인을 한 잔에 붓기':'')};
   },
   letter:function(){
     return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"글로 적은 말이, 목소리가 되었습니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
@@ -10234,6 +10240,7 @@ function _ordPayload(fin){
   /* [OPEN_COURSE] 새 코스는 코스 이름이 없다 — 마이페이지가 «○○ 코스» 대신 «순간 n개 · 본식 약 a~b분»을 쓴다.
      예시에서 시작했으면 그 이름도 싣는다(«‹가족› 예시에서 시작»). 옛 코스 요약은 한 글자도 안 바뀐다. */
   if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
+    try{ var _fo=_flowOpen(); if(_fo.length){ _sm.flow=_fo; _sm.count=_fo.length; } }catch(eF){}   /* ★[FLOW_FROM_TWO_1017] 하객 식순지 · 마이페이지 · 관리자가 읽는 순서 = ② 줄 */
     _sm.open=true; _sm.moments=_opMoments();   /* [RIT_DONE_TITLE] */ _sm.photo=_sp.photo; _sm.table=_sp.table; _sm.from=_ex?_ex.nm:'';   /* [TABLE_APART] 테이블 인사 약 n분(안 담으면 '') */
     _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])];
     /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4 2026-09-26] 마이페이지 «예식 순서에서 남는 사진»은 이 목록을 그대로 그린다 —
@@ -10467,7 +10474,7 @@ var RITUAL_CHIPS={
  ring:['반지 교환은 어떻게 진행되나요?','반지를 빼면 흐름이 이상한가요?','반지는 당일 누가 챙기나요?'],
  declare:['성혼 선언문은 누가 읽나요?','읽어 주실 분이 마땅치 않으면요?','성혼 선언을 빼도 되나요?'],   /* [DECLARE_ANYONE] 아버님이 아니어도 된다(친구 · 지인) */   /* [DECLARE_BY_PERSON] */
  valley:['와인 세리머니가 뭔가요?','비워도 괜찮나요?','케이크는 어디서 고르나요?'],   /* [CAKE_ONE_HOME] 케이크의 집은 축배·케이크 */
- toast:['축배는 어떻게 진행되나요?','케이크와 둘 다 하면 몇 분인가요?','건배 잔은 어떻게 준비되나요?'],
+ toast:['축배는 어떻게 진행되나요?','축배는 몇 분 정도인가요?','건배 잔은 어떻게 준비되나요?'],   /* ★[CAKE_OFF_1013 · FLOW_FROM_TWO_1017] «케이크와 둘 다 하면 몇 분인가요?» 되살리지 말 것 — ② 축배 줄을 열면 뜨던 질문(케이크는 10/13 뺐다) */
  song:['축가는 누가 부를 수 있나요?','반주는 어떻게 준비되나요?','축가 없이도 괜찮나요?'],
  letter:['편지는 보통 얼마나 길게 쓰나요?','읽다가 울 것 같으면 어떻게 하나요?','부모님께와 서로에게, 뭐가 다른가요?'],
  tribute:['부모님께 인사는 어떤 방식들이 있나요?','부모님께 인사를 빼도 괜찮을까요?','부모님께 드릴 말은 어떻게 준비하면 좋을까요?'],   /* ★[FLOWER_OFF_1013] «부모님께 드릴 꽃» 질문 금지 — 꽃을 건네지 않는다 */   /* ★[AI_CHIP_WORDS 코워크 추가 점검 P2-8] 화면 이름(첫인사 · 부모님께 인사 · 박수로 답하기)과 같은 말 */
@@ -10489,7 +10496,7 @@ function ritualAiState(){
     var c=(typeof COURSES!=='undefined'&&COURSES[S.course])||{nm:''}, st=(typeof STEPS!=='undefined'&&STEPS[idx])||{};
     var L=['[지금 만드는 식순]'];
     L.push('코스: '+c.nm+' · 현재 화면: '+(st.title||st.k||'시작'));
-    try{ var rows=summaryRows().map(function(r){ return r[0]+(r[1]?'('+r[1]+')':''); }); if(rows.length) L.push('구성: '+rows.join(' → ')); }catch(e0){}
+    try{ var rows=isOpen()?_flowOpen(true):summaryRows().map(function(r){ return r[0]+(r[1]?'('+r[1]+')':''); }); if(rows.length) L.push('구성: '+rows.join(' → ')); }catch(e0){}   /* [FLOW_FROM_TWO_1017] 새 코스는 ② 줄 그대로 */
     try{ L.push('시간 합: '+estMin()); }catch(em){}
     try{ var bl=fillBlanks(); if(bl.length) L.push('아직 미작성: '+bl.map(function(b){return b[1];}).join(' · ')); }catch(e1){}
     if(CUST){
@@ -10509,7 +10516,7 @@ function ritualAiStateData(){
     if(typeof courseStarted!=='undefined' && !courseStarted) return CUST?{pre:true}:null;
     var c=(typeof COURSES!=='undefined'&&COURSES[S.course])||{nm:''}, st=(typeof STEPS!=='undefined'&&STEPS[idx])||{};
     var o={course:c.nm||'', screen:(st.title||st.k||'시작')};
-    try{ o.flow=summaryRows().map(function(r){ return r[0]+(r[1]?'('+r[1]+')':''); }); }catch(e0){}
+    try{ o.flow=isOpen()?_flowOpen(true):summaryRows().map(function(r){ return r[0]+(r[1]?'('+r[1]+')':''); }); }catch(e0){}   /* [FLOW_FROM_TWO_1017] 새 코스는 ② 줄 그대로(종전 «축배 · 케이크(축배)» · «부모님 헌정») */
     try{ o.min=estMin(); }catch(em){}
     try{ o.blanks=fillBlanks().map(function(b){ return b[1]; }); }catch(e1){}
     if(CUST){ o.groom=CUST.groom||''; o.bride=CUST.bride||''; o.weddingDate=CUST.weddingDate||''; if(CUST.dday!=null) o.dday=CUST.dday; if(CUST.pastD14) o.pastD14=true; }

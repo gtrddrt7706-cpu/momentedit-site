@@ -9121,6 +9121,7 @@ function photoMins(sel, w){ return PHOTO_ALL + (sel||[]).length * PHOTO_PER + Ma
    ② 그 빈 자리에 **식순 연동**(link)을 넣었다. 두 분이 고른 순서에 따라 같은 카드의 뜻이 달라진다 —
       축배를 고르셨으면 잔은 이미 손에 있고, 안 고르셨으면 잔부터 챙겨야 한다.
       `link.when` 은 식순 초안 summary.flow 에 실리는 **블록 이름 그대로**여야 한다
+      (★[FLOW_FROM_TWO_1017] 새 코스 흐름은 ② 줄 이름 — 옛 이름은 `link.old` 로 함께 받는다)
       (scripts/check-photo-scene.mjs 가 order-preview.html 과 대조한다). */
 /* ★★★[PHOTO_WISH 2026-08-16 사용자 지시] **고르는 카드를 없앴다.** 이 목록은 이제 «예시»다.
    사용자 원문: *"어차피 식순이벤트에서 정해져있는 포토가 있고 그또한 고객한테 안내하는걸로
@@ -9147,11 +9148,13 @@ function photoMins(sel, w){ return PHOTO_ALL + (sel||[]).length * PHOTO_PER + Ma
      ③ **확인서 대조(PHOTO_FX_STALE)의 근거**가 link 필드다 — 축배를 뺐는데 잔이 필요한 요청이
         남아 있는지 본다. 근거를 두 곳에 적지 않으려고 한 목록으로 겸한다.
    ★`need`·`link` 를 지우지 말 것 — ②③이 여기 매여 있다. */
+/* [FLOW_FROM_TWO_1017] 식순 흐름에 그 순간이 있나 — 지금 이름(when) 또는 옛 이름(old). 연동 줄(_lkNote)과 확인서 대조(PHOTO_FX_STALE)가 같은 자로 본다 */
+function _flowHas(flow,lk){ return !!(flow&&lk) && (flow.indexOf(lk.when)>-1 || (!!lk.old && flow.indexOf(lk.old)>-1)); }
 var PHOTO_WISH_EX=[
  {n:'앉은 줄 + 선 줄', c:'의자에 앉은 줄 뒤로 선 줄', need:'의자 몇 개 · 어르신 대기용으로 두는 그 의자를 그대로 써요'},
  {n:'V자로 어깨만 안쪽으로', c:'두 분 쪽으로 살짝 돌려 서요 · 한 마디면 돼요', need:''},
  {n:'잔 부딪히기', c:'옆 사람과 잔을 부딪히는 순간 · 시선이 서로에게 가요', need:'잔',
-  link:{when:'축배 · 케이크', on:'축배 때 든 잔 그대로 이어져요', off:'식순에 축배가 없어요 · 잔을 따로 챙겨 드려요'}},
+  link:{when:'축배', old:'축배 · 케이크', on:'축배 때 든 잔 그대로 이어져요', off:'식순에 축배가 없어요 · 잔을 따로 챙겨 드려요'}},   /* ★[FLOW_FROM_TWO_1017] 새 코스 흐름은 ② 이름(«축배») · 옛 초안(10/17 전 저장 · 옛 코스)의 «축배 · 케이크»는 old 로 받는다 · when 을 «축배 · 케이크»로 되돌리지 말 것 */
  {n:'정렬 직전', c:'줄 서기 직전의 웃음과 매무새 고치는 순간', need:''},
  {n:'리액션 컷', c:'두 분의 한 동작에 하객분들이 반응하는 얼굴', need:''},
  {n:'하객 속 부부', c:'넓게 물러나 두 분을 사람들 한가운데 두고', need:'물러날 거리 · 공간을 보고 정해요'},
@@ -9492,7 +9495,7 @@ function renderPhoto(box){
        묻지도 않은 것에 답하는 안내는 도움이 아니라 소음이고, 정작 진짜로 걸리는 날 눈에 안 들어온다.
        ★확인서 대조(PHOTO_FX_STALE)는 진작 글자를 보고 있었다 — 두 곳의 기준을 같게 맞춘 것이다. */
     PHOTO_WISH_EX.forEach(function(c){ if(!c.link||!c.link.off) return;
-      if(_flow.indexOf(c.link.when)>-1) return;
+      if(_flowHas(_flow,c.link)) return;   // [FLOW_FROM_TWO_1017] 옛 이름(축배 · 케이크)도 «있음»
       if(!wish.some(function(w){ return String(w.what||'').indexOf(c.n)>-1; })) return;
       _lkNote.push('식순에 <b>'+escapeHtml(c.link.when)+'</b>가 없어요 · '+escapeHtml(c.need||'준비물')+'을 저희가 따로 챙겨 드려요'); });
     if(_lkNote.length) h+='<div class="cc-note" style="text-align:left;margin-top:8px">'+_lkNote.join('<br>')+'</div>';
@@ -10732,7 +10735,7 @@ function prodConfirmHtml(p, inv){
       if(!c.link || !c.link.off) return;
       var hit=_hay.some(function(t){ return t===c.n || t.indexOf(c.n)>-1; });
       /* [CF_INFO_TONE] 막는 것이 아니라 「이렇게 진행된다」는 안내다(윗 블록 주석과 같은 취지) — 조용한 상자로 */
-      if(hit && _rf.indexOf(c.link.when)<0) L+='<div class="cf-info">'+escapeHtml('「'+c.n+'」 · '+c.link.off)+'</div>';
+      if(hit && !_flowHas(_rf,c.link)) L+='<div class="cf-info">'+escapeHtml('「'+c.n+'」 · '+c.link.off)+'</div>';
     });
   }
   // 좌석 배치 인원 ↔ 최종 확정 인원 대조(표시만 · 값 안 건드림) — 좌석은 마지막 주에 그리므로 확정과 어긋난 채 예식을 맞는 것 방지(2026-07-18 검토 반영)
