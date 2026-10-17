@@ -7737,7 +7737,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 187;' scripts/build-typecast-import.mjs 1   # [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)
+chk 'const CLIP_COUNT = 190;' scripts/build-typecast-import.mjs 1   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)
 chk "has: (id) => /^X-/.test(id) }" scripts/build-typecast-import.mjs 1
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -10979,7 +10979,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 200' scripts/check-ritual-cue.js 1   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 203' scripts/check-ritual-cue.js 1   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -14853,6 +14853,23 @@ chk '온 세상에 선포하였습니다' assets/ritual-open.js 1
 chk '다짐보다 더 깊은 사랑으로' assets/ritual-open.js 1
 chk 'narr-letter-end-ex4' assets/ritual-cue.js 1
 nochk '두 사람은 이제 부부가 되었습니다' assets/ritual-open.js
+# ★★[NARR_R9_1018 · END2_T2_1018 2026-10-18 자료 루프 라운드 9] 반지 맺는 말 예시 4(T2) · 축가 여는 말 예시 2(OO · 성혼 선언이 있는 날만) · 테이블 인사 예시 3(U1) · 소리 201 ~ 203 · 끝인사 47 앞 두 문장 = T2 «폐식 안내» 끝 문장
+#   넣지 않은 것: U1 반지 맺는 말(«서약의 증표로서» · 감사문 날 틀림) · AA 1 축배(미리 듣기 이음말 TALK_BRIDGE.toast 와 같은 문장 · 두 번 들린다)
+chk 'NARR_R9_1018' assets/ritual-open.js 4
+chk 'NARR_R9_1018' assets/ritual-cue.js 1
+chk '사랑을 담은 약속이 예물로 완성되었습니다' assets/ritual-open.js 1
+chk '하나가 된 특별한 순간을 위해 준비한 축가' assets/ritual-open.js 1
+chk '조금만 기다리셨다가 새로 시작하는 부부에게' assets/ritual-open.js 1
+chk 'narr-table-in-ex3' assets/ritual-cue.js 1
+chk 'END2_T2_1018' assets/ritual-cue.js 1
+chk '오늘의 시작을 함께해 주신 모든 분들께 감사드리며' assets/ritual-cue.js 1
+nochk '첫날이 시작되었습니다. 남은 하루' assets/ritual-cue.js
+nochk '신랑 신부 두 사람이 평생 사랑하겠다는' assets/ritual-open.js
+nochk '크게 외치겠습니다. 신랑 신부가 선창하면' assets/ritual-open.js
+if command -v node >/dev/null 2>&1; then
+  _sw=$(node -e "const O=require('./assets/ritual-open.js'); process.stdout.write(O.narExList({on:{song:1}},'song').length+','+O.narExList({on:{song:1,declare:1}},'song').length)" 2>&1)
+  if [ "$_sw" = "1,2" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 [NARR_R9_1018]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 사라졌다($_sw · 기대 1,2) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
+fi
 # ★★[NARR_REVIEW_1018 · NARR_ROUNDS_1018 2026-10-18 사장님 «저쪽 섹션에서도 직접 검토 · 더블체크» · «라운드별로 개선점이 없을 때까지»] 검토 판은 늘 지금 엔진 글
 chk 'NARR_REVIEW_1018' docs/handoff/insta-find.md 1
 chk '^## 검토 답' docs/handoff/insta-find.md 1
@@ -17022,7 +17039,7 @@ chk 'tableIn:"두 사람이 여러분께 직접 인사를 드리러 갑니다. �
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
-chk 'const N_FILES = 200;' scripts/check-ritual-cue.js 1   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
+chk 'const N_FILES = 203;' scripts/check-ritual-cue.js 1   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1
