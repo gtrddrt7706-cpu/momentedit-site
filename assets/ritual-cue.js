@@ -187,7 +187,10 @@
     'letter-each-ex2', 'letter-each-ex3', 'narr-letter-end-ex2', 'narr-tribute-name-ex2',
     'narr-tribute-name-ex3', 'narr-tribute-name-ex4', 'tribute-in-ex3', 'tribute-call-ex3',
     'tribute-out-ex4', 'narr-close-bow-ex2', 'narr-close-bow-ex3', 'narr-close-bow-ex4',
-    'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'
+    'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2',
+    /* ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어»] 191 ~ 196 — 자료 T3(원작자 허락) 예시 여섯 · **맨 끝에 붙였다**(번호는 바꾸지 않는다) ·
+       원천 assets/ritual-open.js NAR_EX(화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4 여는 말 · 받는 말 · 축사 4) · 녹음 전엔 글로(진행 · 우성) */
+    'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
