@@ -15057,7 +15057,6 @@ chk "hint: '낭독이 끝나고 2초 · 박수가 나면 잦아든 뒤'" assets/
 chk "hint: '말씀이 끝나면 · 또는 3분을 넘겨 끊기로 하면'" assets/ritual-cue.js 1
 nochk '오늘 처음 아는 숫자' assets/ritual-cue.js
 nochk '절단하기로 판단하면' assets/ritual-cue.js
-chk '우성: 양가 부모님께서는, 따뜻한 포옹으로 두 사람을 안아 주시기 바랍니다.' docs/handoff/녹음/다음판_1018_3_진행_후반.txt 1
 chk '=256_tribute-hug' docs/handoff/녹음/다음판_1018_clip.txt 1
 chk '| 검토 125 |' docs/handoff/insta-find.md 1
 # ★[REVIEW17_1018 2026-10-18 인스타 섹션 검토 126] 단체 사진 안내 예시 2 · 3 «직장 동료분들» 걷기(219 · 220 · 다음판 · 패치)
