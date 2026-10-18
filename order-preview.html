@@ -6860,7 +6860,7 @@ function _mkAskText(qs){ var R=RitualOpen, wed=(CUST&&CUST.weddingDate)||'', nee
   var lines=qs.map(function(q){ var due=R.dueWord(q,wed); if(/원고|말씀|글/.test(q.what)) needTxt=true; return '· '+q.what+(due&&!/당일/.test(due)?' · '+due+'까지':''); });
   return ['[예식 준비 부탁드려요]'].concat(lines).concat(needTxt?['글이 필요한 것은 저희 두 사람에게 보내 주세요.']:[]).join('\n'); }
 function _parTellTxt(){ var R=RitualOpen, tr=R.onOf(S,'tribute'), say=S.tributeSay!=='none', L=['예식 날 부탁드릴 것이 있어요.','· 단상에서 가장 가까운 정면 첫 줄에 앉아 주세요.'];   /* [PAR_TELL_1019] 엔진과 같은 사실(TRIB_CALL_1014 · TRIB_HUG_CALL_1018 · end-1a 가족사진) */
-  if(tr){ L.push(say?'· 저희가 앞으로 가서 감사 말씀을 드린 뒤 인사를 드려요.':'· 저희가 앞으로 가서 인사를 드려요.'); L.push('· 안내 음성이 청하면 저희를 안아 주세요. 앉으신 채로도 괜찮아요.'); }
+  if(tr){ /* [PARENT_WORDS_1019 검토 136-2] 두 분이 부모님께 보내는 글이라 앞일은 «~할게요» · «드린 뒤 … 드려요» 겹침 풀기 */ L.push(say?'· 저희가 앞으로 가서 감사 말씀을 드리고 인사드릴게요.':'· 저희가 앞으로 가서 인사드릴게요.'); L.push('· 안내 음성이 청하면 저희를 안아 주세요. 앉으신 채로도 괜찮아요.'); }
   L.push('· 단체 사진 뒤 가족사진까지 함께 남아 주세요.'); return L.join('\n'); }
 window.mkParCopy=function(){ var t=_parTellTxt(); try{ navigator.clipboard.writeText(t).then(function(){ toast('글을 복사했어요'); },function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };
 function _mkCopy(t,msg){ try{ navigator.clipboard.writeText(t).then(function(){ MK.toast=msg; render(); },function(){ MK.toast='복사하지 못했어요 · 길게 눌러 직접 복사해 주세요'; render(); }); }catch(e){ MK.toast='복사하지 못했어요 · 길게 눌러 직접 복사해 주세요'; render(); } }

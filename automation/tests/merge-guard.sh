@@ -15654,6 +15654,14 @@ chk 'function _vsMk()' order-preview.html 1
 chk 'R5-04' order-preview.html 1
 chk 'R5-05' order-preview.html 1
 chk "'양가 한 분씩 · 사진 때'" assets/ritual-open.js 1
+# ★[REVIEW26_1019 2026-10-19 대본 섹션 검토 136] 262 «담아»(65 «남았습니다»와 겹침) · 부모님께 전할 글 «~할게요»
+chk 'PHOTO_DAMA_1019' assets/ritual-data.js 1
+chk '영상과 사진으로 담아 두 사람에게 선물해 주세요.' assets/ritual-data.js 1
+nochk '영상과 사진으로 남겨 두 사람에게' assets/ritual-data.js
+nochk '영상과 사진으로 남겨 두 사람에게' docs/handoff/녹음/다음판_1019_6_예식뒤.txt
+chk 'PARENT_WORDS_1019' order-preview.html 1
+chk '감사 말씀을 드리고 인사드릴게요.' order-preview.html 1
+nochk '감사 말씀을 드린 뒤 인사를 드려요.' order-preview.html
 
 # ★[MINI_OFF_ROWS 2026-10-04 사장님 «여기 밑에 재생 박스는 굳이 안 나와도 될 것 같아»] ② 순간 쪽(줄 ▶ 가 있는 곳)은 작은 플레이어를 띄우지 않는다 — 흐르는 줄 ▶ 가 ❚❚(멈춤 · 이어서)
 chk 'MINI_OFF_ROWS' order-preview.html 3
