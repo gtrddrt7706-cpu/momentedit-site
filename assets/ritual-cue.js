@@ -200,7 +200,9 @@
     /* ★[REVIEW1_1018 2026-10-18 · 인스타 섹션 검토] 207 · 208 — 축배 여는 말 예시 4(자료 SS 46) · 감사 인사 여는 말 예시 2(자료 PP 14) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
     'toast-toast-ex4', 'narr-welcome-in-ex2',
     /* ★[REVIEW23_1018 2026-10-18 · 인스타 섹션 검토 2 · 3판] 209 · 210 — 축가 여는 말 예시 5(자료 TT 51 · «따뜻하게») · 축가 맺는 말(자료 TT 52 끝 문장 · SONG_END_1018) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
-    'narr-song-ex5', 'narr-song-end'
+    'narr-song-ex5', 'narr-song-end',
+    /* ★[REVIEW4_1018 인스타 섹션 검토 4판 · 사장님 «최소 4개»] 211 ~ 223 — 화촉 맺는 말 2 ~ 4 · 감사 인사 3 · 4 · 반지 맺는 말 2 · 3 · 선언 여는 말 2 · 단체 사진 안내 2 ~ 4 · 테이블 4 · 5(원천 ritual-open NAR_EX · 녹음 전엔 글로) */
+    'narr-candle-out-ex2', 'narr-candle-out-ex3', 'narr-candle-out-ex4', 'narr-welcome-in-ex3', 'narr-welcome-in-ex4', 'narr-ring-out-ex2', 'narr-ring-out-ex3', 'narr-declare-in-friend-ex2', 'narr-close-ex2', 'narr-close-ex3', 'narr-close-ex4', 'narr-table-in-ex4', 'narr-table-in-ex5'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
