@@ -15195,6 +15195,10 @@ nochk "window.opMood=function" order-preview.html
 nochk "_moodKeep(); }catch(e){}" order-preview.html
 nochk "R.applyExample(S,k); _moodCourse();" order-preview.html
 chk 'MOOD_ROW_OFF_1019' scripts/audit/mood-screen.mjs 3
+# ★[CHIP_FULL_1019 2026-10-19 사장님 «버튼 짝수로 · 서약 감사문 버튼 좌우 꽉 차게 · 그 아래 버튼들도»] 폰 칩 줄 — 둘 이상이면 같은 폭 칸 · 혼자 남는 칩 없음 · 상담 말풍선 자리 비움(레일은 그대로)
+chk 'CHIP_FULL_1019' order-preview.html 4
+chk "padding-right:36px}}   /\* ★\[CHIP_FULL_1019\]" order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/chip-full.mjs >/dev/null 2>&1; _chf=$?; [ "$_chf" = 1 ] && { echo 'FAIL chip-full: 폰 칩 줄이 꽉 차지 않거나 혼자 남는 칩 · 말풍선 자리 — node scripts/audit/chip-full.mjs'; fail=1; }; if [ "$_chf" = 0 ]; then echo 'OK   chip-full [CHIP_FULL_1019]'; fi; fi
 chk 'MOOD_REF_1018' order-preview.html 1
 chk 'SCRIPT_VIEW_1018' order-preview.html 5
 chk 'data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>' order-preview.html 1
