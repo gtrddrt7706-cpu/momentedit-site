@@ -15056,6 +15056,19 @@ chk '예슬: 저희 결혼식은 십 분 뒤에 시작합니다.' docs/handoff/�
 chk '우성: 예식의 순서는 신랑 신부 뜻대로 정합니다.' docs/handoff/녹음/다음판_1018_4_혼주편지.txt 1
 chk '우성: 사람이 많은 자리에서는 인사를 제대로 나누기 어렵습니다.' docs/handoff/녹음/다음판_1018_4_혼주편지.txt 1
 chk '| 검토 123 |' docs/handoff/insta-find.md 1
+# ★[REVIEW16_1018 2026-10-18 인스타 섹션 검토 124 · 125] 포옹 청하는 줄 256(다음판 · 패치) · 콘솔 hint 둘(만든 사람 메모 · «절단» 걷기)
+chk "hint: '낭독이 끝나고 2초 · 박수가 나면 잦아든 뒤'" assets/ritual-cue.js 1
+chk "hint: '말씀이 끝나면 · 또는 3분을 넘겨 끊기로 하면'" assets/ritual-cue.js 1
+nochk '오늘 처음 아는 숫자' assets/ritual-cue.js
+nochk '절단하기로 판단하면' assets/ritual-cue.js
+chk '우성: 양가 부모님께서는, 따뜻한 포옹으로 두 사람을 안아 주시기 바랍니다.' docs/handoff/녹음/다음판_1018_3_진행_후반.txt 1
+chk '=256_tribute-hug' docs/handoff/녹음/다음판_1018_clip.txt 1
+chk '| 검토 125 |' docs/handoff/insta-find.md 1
+# ★[REVIEW17_1018 2026-10-18 인스타 섹션 검토 126] 단체 사진 안내 예시 2 · 3 «직장 동료분들» 걷기(219 · 220 · 다음판 · 패치)
+chk '우성: 일가 친척, 친지, 친구분들께서는 촬영을 함께해 주시면 감사하겠습니다.' docs/handoff/녹음/다음판_1018_7_예시_멘트.txt 1
+chk '=219_narr-close-ex2,=220_narr-close-ex3' docs/handoff/녹음/다음판_1018_clip.txt 1
+nochk '직장 동료' docs/handoff/녹음/다음판_1018_7_예시_멘트.txt
+chk '| 검토 126 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1

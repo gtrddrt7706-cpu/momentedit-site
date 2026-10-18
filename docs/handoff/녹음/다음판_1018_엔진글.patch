@@ -1,19 +1,30 @@
 diff --git a/assets/ritual-cue.js b/assets/ritual-cue.js
-index d7a0aaac..50471bca 100644
+index d7a0aaac..29ee9d58 100644
 --- a/assets/ritual-cue.js
 +++ b/assets/ritual-cue.js
-@@ -208,7 +208,9 @@
+@@ -208,7 +208,11 @@
      /* ★[BRIDGE_MORE_1018 인스타 섹션 검토 6판(연결 멘트) · 사장님 «고정된 틀 외에도 추가해도 돼»] 243 ~ 250 — 이음말 일곱(B7 ~ B13 · 원천 ritual-open NAR.bridge) · 축가 맺는 말 가족 · 친구 판(SONG_BY_1018 · 원천 D.NARR.songEndFriend) · 녹음 전엔 글로 */
      'bridge-b7-entry-ready', 'bridge-b8-face-guests', 'bridge-b9-declare-seat', 'bridge-b10-speech-clap', 'bridge-b11-song-light', 'bridge-b12-tribute-calm', 'bridge-b13-toast-stay', 'narr-song-end-friend',
      /* ★[REVIEW7_1018 인스타 섹션 검토 7판 75 ~ 78] 251 ~ 254 — 개식 5(Y3) · 맞절 5(Y2) · 반지 맺는 말 4(B13 · 201 쉬는 소리 대신 새 이름 EX_SLUG_MOVED_1018) · 부모님께 인사 5(Y4) · 녹음 전엔 글로 */
 -    'narr-open-ex5', 'narr-entry-bow-ex5', 'narr-ring-out-ex9', 'narr-tribute-name-ex5'
 +    'narr-open-ex5', 'narr-entry-bow-ex5', 'narr-ring-out-ex9', 'narr-tribute-name-ex5',
 +    /* ★[REVIEW13_1018 검토 112] 255 — 선언이 마지막인 날 닫는 인사 앞 B9 판(«…돌아가셔도 좋습니다.») */
-+    'bridge-b9-declare-seat-end'
++    'bridge-b9-declare-seat-end',
++    /* ★[TRIB_HUG_CALL_1018 검토 124] 256 — 부모님께 인사 구호 뒤 포옹 청하기(디렉터 GO) */
++    'tribute-hug'
    ];
    var SLUG = {};
    for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
-@@ -294,7 +296,7 @@
+@@ -284,7 +288,7 @@
+     'narr-candle-out': O.NAR.candleOut,
+     /* [OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137 ~ 144 — 이름표만(글은 원천) */
+     'narr-open': O.NAR.open, 'narr-candle-bow': O.NAR.candleBow.two, 'narr-candle-bow-four': O.NAR.candleBow.four, 'narr-candle-bow-fathers': O.NAR.candleBow.fathers, 'narr-candle-bow-others': O.NAR.candleBow.others,   /* [CANDLE_CALL_SRC_1016] */ 'narr-candle-out-formal': O.NAR.candleOutFormal,
+-    'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive, 'tribute-call-say': O.NAR.tributeCallSay,   /* [TRIB_CALL_SAY_1014] 145 */
++    'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive, 'tribute-call-say': O.NAR.tributeCallSay, 'tribute-hug': O.NAR.tributeHug,   /* [TRIB_CALL_SAY_1014] 145 */
+     'declare-clap-a': O.NAR.clapAsk, 'declare-clap-b': O.NAR.clapDeclare,
+     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
+     'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
+@@ -294,7 +298,7 @@
      'bridge-b3-clap-thanks': O.NAR.bridge.clapThanks, 'bridge-b4-breath': O.NAR.bridge.breath,
      'bridge-b5-video-out': O.NAR.bridge.videoOut, 'bridge-b6-lighter': O.NAR.bridge.lighter,
      /* [BRIDGE_MORE_1018] 이음말 일곱 · 축가 맺는 말 가족 · 친구 판 */
@@ -22,7 +33,27 @@ index d7a0aaac..50471bca 100644
      'bridge-b10-speech-clap': O.NAR.bridge.speechClap, 'bridge-b11-song-light': O.NAR.bridge.songLight, 'bridge-b12-tribute-calm': O.NAR.bridge.tributeCalm,
      'bridge-b13-toast-stay': O.NAR.bridge.toastStay, 'narr-song-end-friend': D.NARR.songEndFriend,
      /* [PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 — 원천 ritual-open NAR.pvEx */
-@@ -1362,15 +1364,15 @@
+@@ -1183,7 +1187,7 @@
+       if (open) {
+         var ti = seq ? seq.indexOf('tribute') : -1, pairT = ti > 0 && seq[ti - 1] === 'declare';
+         var sayT = S.tributeSay !== 'none', at = ' · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로';
+-        var act = { t: '두 분이 부모님께 인사 · 포옹', est: base - 20, self: true, doing: 'move' };   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
++        var act = { t: '두 분이 부모님께 인사', est: 15, self: true, doing: 'move' };   // [TRIB_HUG_CALL_1018] 포옹은 다음 줄(256)이 청한다 · 합계 est 는 그대로(15 + 35 = base - 20)   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
+         out[0].name = '부모님 앞으로'; out[0].fire = 'chain'; out[0].gapMs = 1000;   // [CHAIN_GAP_1014] 원고 «사이 1초»
+         out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사 말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
+           : { t: '두 분이 부모님 앞으로 걸어감' + at, est: 20, self: true, doing: 'move', duck: out[0].duck };
+@@ -1192,6 +1196,10 @@
+         out[1].pick = '';
+         out.splice(2, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: sayT ? 'tribute-call-say' : 'tribute-call', name: '인사 구호', text: EXTRA[sayT ? 'tribute-call-say' : 'tribute-call'], duck: -12,   // ★[TRIB_CALL_SAY_1014] 말로 인사 날은 «그 마음을 담아,»로 두 분 말을 받아 구호(145)
+           hint: sayT ? '인사 말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
++        /* ★[TRIB_HUG_CALL_1018 검토 124] 구호 뒤 포옹을 소리로 청한다 — 그 전엔 콘솔만 «포옹이 끝나면»을 기다리고 아무도 포옹을 청하지 않아, 두 분은 서 있고 부모님은 앉아 계신 몇 초가 생겼다.
++           디렉터 GO(인사를 마치고 두 분이 고개를 들면) · 다음 tribute-out 은 그대로 «포옹이 끝나면» */
++        out.splice(3, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-hug', name: '포옹 청하기', text: EXTRA['tribute-hug'], duck: -12, fire: 'manual',
++          hint: '인사를 마치고 두 분이 고개를 들면', live: { t: '양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)', est: base - 35, self: true, doing: 'move' } }));
+       }
+       return out;
+     },
+@@ -1362,15 +1370,15 @@
      var _cSeam = '', _cLast = cues[cues.length - 1];
      if (D.COURSES[S.course] && D.COURSES[S.course].open && _cLast && seq.indexOf(_cLast.k) > -1) {
        if (_cLast.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech') _cSeam = 'bridge-b10-speech-clap';
@@ -67,7 +98,7 @@ index 14354e72..ba6ca873 100644
   /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말이 이 한 줄이다.
      자료(honeyg.snap «혼인서약서 대신 감사문» 5유형 · N «신랑 · 신부의 축사(감사 편지)»)에서 감사문은 따로 순서가 아니라 서약 자리에서 읽는 다른 결이다.
 diff --git a/assets/ritual-open.js b/assets/ritual-open.js
-index bb4894d8..d71b6d3b 100644
+index bb4894d8..4785da52 100644
 --- a/assets/ritual-open.js
 +++ b/assets/ritual-open.js
 @@ -868,20 +868,20 @@
@@ -97,6 +128,15 @@ index bb4894d8..d71b6d3b 100644
      candleIn: {
        mothers: '우리는 늘 엄마가 당연히 그 자리에 있는 존재라고 생각하지만, 사실 그 자리는 누군가의 수많은 포기와 사랑으로 지켜진 자리입니다. 그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다. 양가 어머님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',   /* ★[SOURCE_FIRST_1016] 자료 FF 1-2 첫 두 문장 · T 68 */
        parents: '두 사람에게 삶의 첫 기둥이신 분들이, 오늘은 먼저 앞에 서십니다. 양가 부모님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',   /* ★[SOURCE_FIRST_1016] 자료 T 51 · T 68 */
+@@ -903,7 +903,7 @@
+     candleOutFormal: '두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.',   /* ★[SOURCE_FIRST_1016] 자료 T1 그대로 · «따뜻한»을 다시 넣었다(W1 로 빼던 것은 지난 결정) */   // ★[SOURCE_BEST_1015 라운드 5] 자료 T1 에서 «따뜻한»(W1)만 뺐다 · 옛 «양가의 촛불이 모두 켜졌습니다»
+     /* ★★[TRIB_NAME_1014] 부모님께 인사 — 이름 줄(141) · 선언 바로 뒤인 날 짝 줄(142)(PAIR_DRAFT_V3 10/10 «추천대로» · 원고 5판 · 38 첫 문장은 순간 이름을 말하지 않는다) ·
+          구호(143 · 원고 4판 · 사장님 아침 확인 2 «추천대로» · 자료 S 12 · G 12 · FF 2-1 · O — 꽃이 빠져 «인사»가 이 순간의 동작이 됐다) */
+-    tributeName: '기쁘면서도 섭섭하고, 대견하면서도 마음 한편이 뭉클하실 부모님께 신랑 신부가 감사의 마음을 전하겠습니다.', tributePair: '부부가 되어 처음 드리는 인사는, 부모님께 올리겠습니다.',   /* ★[SOURCE_FIRST_1016] 자료 G1 60(선언 → 부모님 인사 · «유지» 판정 문장) 그대로 · 옛 «부부가 되어 처음으로, 부모님께 갑니다»(PAIR_DRAFT_V3)는 걷힘 */ tributeCall: '신랑 신부, 인사!', tributeCallSay: '그 마음을 담아 신랑 신부, 인사!',   /* ★[TRIB_CALL_SAY_1014 라운드 3] 말로 인사 날 구호(145) — 자료 GG 1 · FF 2-1 · EE 넷 자리 · T4 «마음을 담아 → 구호» 뼈대 · «그 마음»은 두 분이 방금 한 말을 받아 늘 참 · 말 없이 날은 구호만(143) */
++    tributeName: '기쁘면서도 섭섭하고, 대견하면서도 마음 한편이 뭉클하실 부모님께 신랑 신부가 감사의 마음을 전하겠습니다.', tributePair: '부부가 되어 처음 드리는 인사는, 부모님께 올리겠습니다.',   /* ★[SOURCE_FIRST_1016] 자료 G1 60(선언 → 부모님 인사 · «유지» 판정 문장) 그대로 · 옛 «부부가 되어 처음으로, 부모님께 갑니다»(PAIR_DRAFT_V3)는 걷힘 */ tributeCall: '신랑 신부, 인사!', tributeCallSay: '그 마음을 담아 신랑 신부, 인사!', tributeHug: '양가 부모님께서는, 따뜻한 포옹으로 두 사람을 안아 주시기 바랍니다.',   /* ★[TRIB_HUG_CALL_1018 검토 124] 인사 구호 뒤 포옹을 청하는 한 줄 — 자료 WW1(«…께서는 일어나셔서 따뜻한 포옹으로 두 사람을 안아주시기 바랍니다.») · f_olry · weddinggdh «포옹도 사회자가 하나씩 안내» · 우리 구호는 한 번 · 양가가 같은 정면 열이라 «양가» · 앉은 채로 안으셔도 맞게 «일어나셔서»는 뺐다(HUG_STAND_1014) · 분위기 판 없이 하나 */   /* ★[TRIB_CALL_SAY_1014 라운드 3] 말로 인사 날 구호(145) — 자료 GG 1 · FF 2-1 · EE 넷 자리 · T4 «마음을 담아 → 구호» 뼈대 · «그 마음»은 두 분이 방금 한 말을 받아 늘 참 · 말 없이 날은 구호만(143) */
+     clapAsk: '여러분은 방금 두 사람의 약속을 함께 지켜보셨습니다. 이 약속의 증인이 되어 주신다면, 큰 박수로 답해 주십시오.',
+     clapDeclare: '오늘 이 자리에서, 두 사람은 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다.',
+     pourMix: '두 분이 각자 고른 와인을 한 잔에 붓습니다. 한 번 어우러진 맛은 다시 나뉘지 않지요.',
 @@ -936,7 +936,8 @@
           자료 글이 있는 이음새만 — 모두 «이웃 두 순간이 다 있을 때만»(BRIDGE_LINK 규칙 그대로) · 끼우는 자리는 ritual-cue build() 의 [BRIDGE_LINK] 블록 */
        entryReady: '이제 오늘의 주인공들을 만나 볼 준비를 모두 마쳤습니다.',   /* B7 입장 앞(입장 멘트가 «입장»으로 열지 않는 날 · E 빼고) — 자료 XX1(유튜브 «4. 화촉점화»와 «5. 신랑입장» 사이 줄 · «네» 뺌) */
@@ -107,6 +147,53 @@ index bb4894d8..d71b6d3b 100644
        speechClap: '축사해 주신 분께 박수 부탁드립니다.',   /* B10 축사 → 다음 순간 — 자료 U1 «(축사끝) 000양에게 박수 부탁드립니다»(이름 → «축사해 주신 분께» ②) · 박수 구간 뒤 디렉터 GO */
        songLight: '이번에는 조금 산뜻한 분위기로 넘어가 보겠습니다.',   /* B11 엄숙한 순간(선언 · 축사 · 덕담) → 축가 — 자료 XX1 «14. 축가» 첫 줄(«네» 뺌 · 괄호 두 낱말 중 «산뜻한») */
        tributeCalm: '이제 분위기를 잠시 바꿔서, 조금 경건한 시간을 가져 보겠습니다.',   /* B12 축가 → 부모님께 인사 — 자료 WW1(블로그 «11. 부모님/내빈 인사» 첫 줄 앞 절 · «가져보려고 하는데요» → «가져 보겠습니다») */
+@@ -1193,8 +1194,8 @@
+          3 = 자료 WW4(블로그 폐식 멘트 · 부르는 분들 앞 «신랑·신부,»는 사진에 찍히는 두 분이라 뺐다 ②) · 4 = 자료 WW5(블로그 14. 폐회사 · «자리를 지켜주시기 바랍니다» → «모두 단상 앞으로 모여 주시면 감사하겠습니다» ④ 같은 까닭) ·
+          뒤 «먼저 다 함께 한 장 담겠습니다 · 사진 촬영을 위해, 모두 단상 앞으로 모여 주시면 감사하겠습니다»는 이 줄이 하던 일(지금 글 · 자료 G2 143 · GATHER_WAIT) · «감사하겠습니다» 겹침은 자료 글이라 둔다(ROUND_REASON_1018) · 띄어쓰기 */
+       'narr-close': [
+-        '계속해서 신랑 신부와의 사진촬영이 있겠습니다. 일가 친척, 친지, 친구, 직장 동료분들께서는 촬영을 함께해 주시면 감사하겠습니다. 먼저 다 함께 한 장 담겠습니다. 사진 촬영을 위해, 모두 단상 앞으로 모여 주시면 감사하겠습니다.',
+-        '곧이어 사진 촬영이 진행될 예정이오니 가족, 친지, 직장 동료분들께서는 끝까지 함께해 주시면 감사하겠습니다. 먼저 다 함께 한 장 담겠습니다. 사진 촬영을 위해, 모두 단상 앞으로 모여 주시면 감사하겠습니다.',
++        '계속해서 신랑 신부와의 사진촬영이 있겠습니다. 일가 친척, 친지, 친구분들께서는 촬영을 함께해 주시면 감사하겠습니다. 먼저 다 함께 한 장 담겠습니다. 사진 촬영을 위해, 모두 단상 앞으로 모여 주시면 감사하겠습니다.',
++        '곧이어 사진 촬영이 진행될 예정이오니 가족, 친지, 친구분들께서는 끝까지 함께해 주시면 감사하겠습니다. 먼저 다 함께 한 장 담겠습니다. 사진 촬영을 위해, 모두 단상 앞으로 모여 주시면 감사하겠습니다.',   /* [REVIEW17_1018 검토 126] 219 · 220 «직장 동료분들» 걷음 — 우리 사진 차례는 하객 모두 → 가족 · 친구(_close.one) · 직장을 부르면 동료가 없는 날 틀린 말 · «친지»가 가까운 지인까지 이른다 */
+         '잠시 후, 기념촬영이 있을 예정이오니 가족 및 하객분들께서는 모두 단상 앞으로 모여 주시면 감사하겠습니다. 먼저 다 함께 한 장 담겠습니다.'
+       ] } },
+     /* 축배 여는 말(40) — 첫 문장만 자료: 2 = 자료 AA 2(구현우 · 격식 있는 호텔 예식 톤 · «잔을 채워 들어 달라»는 저희가 채워 뺐다 ④) · 3 = AA 4(정지윤 · «오늘의 하늘처럼» ④ 뺌 → «앞날도» → «앞날이») ·
+diff --git a/assets/ritual-story.js b/assets/ritual-story.js
+index 253e2a78..9c343c91 100644
+--- a/assets/ritual-story.js
++++ b/assets/ritual-story.js
+@@ -195,9 +195,13 @@
+       who: '두 분 · 양가 부모님',
+       scene: '양가 부모님은 단상에서 가장 가까운 앞줄에 앉아 계세요. 안내 음성이 흐르는 동안 두 분이 부모님 앞으로 걸어가요.'
+     },
+-    '두 분이 부모님께 인사 · 포옹': {
++    '두 분이 부모님께 인사': {   // ★[TRIB_HUG_CALL_1018 검토 124] 인사 · 포옹을 두 큐로 — 포옹은 안내 음성(256)이 청한다
++      who: '두 분',
++      scene: '안내 음성이 인사를 청하면 두 분이 부모님께 인사해요.'
++    },
++    '양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)': {
+       who: '두 분 · 양가 부모님',
+-      scene: '안내 음성이 인사를 청하면 부모님께 인사하고 안아 드려요. 부모님은 앉은 자리에서 맞아 주시고, 안아 주실 때는 일어나셔도 돼요.',   // [HUG_STAND_1014]
++      scene: '이어서 안내 음성이 포옹을 청하면 부모님이 두 분을 안아 주세요. 부모님은 앉은 자리에서 맞아 주시고, 안아 주실 때는 일어나셔도 돼요.',   // [HUG_STAND_1014]
+       tip: '안아 드릴 때는 2~3초쯤 그대로 머물러 주세요. 그 순간이 사진에 또렷하게 남아요.'   // ★[HUG_HOLD_1014 라운드 3] 자료 O · V «포옹은 2~3초 이상» · J «포옹 사진을 못 건짐» — 반지 팁(STORY_TIPS_1014)과 같은 꼴
+     },
+     '두 분이 앞으로 돌아와 나란히 섬': { only: 'console', who: '두 분', scene: '두 분이 앞으로 돌아와 나란히 서면 다음 순서로 이어져요.' },   // [TRIB_BACK_1014]
+diff --git a/automation/tests/merge-guard.sh b/automation/tests/merge-guard.sh
+index 6c952c4e..43d565d7 100644
+--- a/automation/tests/merge-guard.sh
++++ b/automation/tests/merge-guard.sh
+@@ -12831,7 +12831,10 @@ chk 'TRIB_ACT: TRIB_ACT' assets/ritual-open.js 1
+ chk "var m = (open && O && O.TRIB_ACT) || D.TRIBUTE.modes" assets/ritual-cue.js 1
+ chk "'두 분이 부모님 앞으로 가서 인사 말을 전함 · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로': {" assets/ritual-story.js 1   # ★[TRIB_CALL_1014] 부모님 앞으로(말) → 구호 → 인사 · 포옹 — 장면도 둘
+ chk "'두 분이 부모님 앞으로 걸어감 · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로': {" assets/ritual-story.js 1
+-chk "'두 분이 부모님께 인사 · 포옹': {" assets/ritual-story.js 1
++chk "'두 분이 부모님께 인사': {" assets/ritual-story.js 1   # [TRIB_HUG_CALL_1018 검토 124] 인사 · 포옹을 두 큐로
++chk "'양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)': {" assets/ritual-story.js 1
++chk 'TRIB_HUG_CALL_1018' assets/ritual-cue.js 3
++chk "slug: 'tribute-hug'" assets/ritual-cue.js 1
+ nochk "what: '부모님께 드릴 꽃'" assets/ritual-open.js 0
+ nochk "부모님께 꽃을 건네고 안겨요" assets/ritual-open.js 0
+ nochk "앞으로 가 꽃을 건네고 안겨요" order-preview.html 0
 diff --git "a/docs/plans/\354\213\235\354\210\234\354\227\260\352\265\254/parents-letter-\353\214\200\352\270\260.json" "b/docs/plans/\354\213\235\354\210\234\354\227\260\352\265\254/parents-letter-\353\214\200\352\270\260.json"
 index 39ea375c..d49b376f 100644
 --- "a/docs/plans/\354\213\235\354\210\234\354\227\260\352\265\254/parents-letter-\353\214\200\352\270\260.json"
@@ -141,7 +228,7 @@ index d3963946..744c7e0b 100644
  [03] R-guest-3 · 신랑 · 식전 안내 · 오 분 전 → 03_guest-3.mp3
  시작 오 분 전입니다.
 diff --git "a/docs/plans/\354\213\235\354\210\234\354\227\260\352\265\254/\354\236\220\353\243\214\352\267\270\353\214\200\353\241\234_1016.json" "b/docs/plans/\354\213\235\354\210\234\354\227\260\352\265\254/\354\236\220\353\243\214\352\267\270\353\214\200\353\241\234_1016.json"
-index c3631be8..24bfda4a 100644
+index c3631be8..4c5ea32e 100644
 --- "a/docs/plans/\354\213\235\354\210\234\354\227\260\352\265\254/\354\236\220\353\243\214\352\267\270\353\214\200\353\241\234_1016.json"
 +++ "b/docs/plans/\354\213\235\354\210\234\354\227\260\352\265\254/\354\236\220\353\243\214\352\267\270\353\214\200\353\241\234_1016.json"
 @@ -12,8 +12,8 @@
@@ -155,7 +242,25 @@ index c3631be8..24bfda4a 100644
     "where": "GUEST[1][1]"
    },
    {
-@@ -1425,6 +1425,16 @@
+@@ -1177,13 +1177,13 @@
+    "where": "NAR_EX narr-close-ex2 단체 사진 안내 예시 2"
+   },
+   {
+-   "text": "일가 친척, 친지, 친구, 직장 동료분들께서는 촬영을 함께해 주시면 감사하겠습니다.",
+-   "src": "WW3 블로그 kimraalee «결혼식 사회자 대본 샘플» 【 촬영 안내 】 세 줄(«자리를 이동하지마시고» 뺌 ④ 우리는 앞으로 모인다) · 뒤 두 문장은 지금 글 [REVIEW4_1018 검토 23 · R1]",
++   "text": "일가 친척, 친지, 친구분들께서는 촬영을 함께해 주시면 감사하겠습니다.",
++   "src": "WW3 블로그 kimraalee «결혼식 사회자 대본 샘플» 【 촬영 안내 】 세 줄(«자리를 이동하지마시고» 뺌 ④ 우리는 앞으로 모인다) · 뒤 두 문장은 지금 글 [REVIEW4_1018 검토 23 · R1] · [REVIEW17_1018 검토 126] 틀린 날(직장 동료 없는 날)만 «직장 동료분들» 뺌",
+    "where": "NAR_EX narr-close-ex2 단체 사진 안내 예시 2"
+   },
+   {
+-   "text": "곧이어 사진 촬영이 진행될 예정이오니 가족, 친지, 직장 동료분들께서는 끝까지 함께해 주시면 감사하겠습니다.",
+-   "src": "WW4 블로그 kse318402 «주례 있는 결혼식 식순 & 사회자 멘트» 폐식 멘트(«신랑·신부,» 뺌 ② 찍히는 두 분) · 띄어쓰기 · 뒤 두 문장은 지금 글 [REVIEW4_1018 검토 23 · R1]",
++   "text": "곧이어 사진 촬영이 진행될 예정이오니 가족, 친지, 친구분들께서는 끝까지 함께해 주시면 감사하겠습니다.",
++   "src": "WW4 블로그 kse318402 «주례 있는 결혼식 식순 & 사회자 멘트» 폐식 멘트(«신랑·신부,» 뺌 ② 찍히는 두 분) · 띄어쓰기 · 뒤 두 문장은 지금 글 [REVIEW4_1018 검토 23 · R1] · [REVIEW17_1018 검토 126] 틀린 날만 «직장 동료» → «친구»(우리 사진 차례 가족 · 친구)",
+    "where": "NAR_EX narr-close-ex3 단체 사진 안내 예시 3"
+   },
+   {
+@@ -1425,6 +1425,21 @@
     "text": "이번에는 부모님의 은혜에 앞으로 평생 보답하겠다는 의미로 양가 부모님께 감사의 인사를 드리는 시간을 갖도록 하겠습니다.",
     "src": "Y4 유튜브 고은천(aGuvCQzdhSQ · 77twO0AW95w · HWP «주례없는 예식 대본(기본)» 부모님 인사 첫 문장)",
     "where": "narr-tribute-name-ex5"
@@ -169,6 +274,11 @@ index c3631be8..24bfda4a 100644
 +   "text": "두 사람의 이야기를 함께 만나보시겠습니다.",
 +   "src": "WW28 감둥(실사용 · 검토 113 · 119)",
 +   "where": "narr-prevideo-in"
++  },
++  {
++   "text": "양가 부모님께서는, 따뜻한 포옹으로 두 사람을 안아 주시기 바랍니다.",
++   "src": "WW1 given_one 223482274362 «11. 부모님/내빈 인사» · [TRIB_HUG_CALL_1018 검토 124] 사람(«신부 부모님» → «양가 부모님» · 구호 한 번) · 틀린 날(«일어나셔서» 뺌 · 앉은 채로도) 둘만 고침",
++   "where": "tribute-hug"
    }
   ]
  }
@@ -244,10 +354,20 @@ index e0beb5de..3c759141 100644
    }
    return r;
 diff --git a/scripts/build-dubbing-script.mjs b/scripts/build-dubbing-script.mjs
-index 6d092a13..13305cba 100644
+index 6d092a13..7cd31ad1 100644
 --- a/scripts/build-dubbing-script.mjs
 +++ b/scripts/build-dubbing-script.mjs
-@@ -113,11 +113,11 @@ const G = [
+@@ -89,7 +89,8 @@ const G = [
+     ['G8-name', '부모님께 인사 · 이름 줄', 'narr-tribute-name', RC.EXTRA['narr-tribute-name']],
+     ['G8-pair', '부모님께 인사 · 짝 줄 (성혼 선언 바로 뒤인 날)', 'narr-tribute-pair', RC.EXTRA['narr-tribute-pair']],
+     ['G8-call', '부모님께 인사 · 구호', 'tribute-call', RC.EXTRA['tribute-call']],
+-    ['G8-call-say', '부모님께 인사 · 구호 (말로 인사 날)', 'tribute-call-say', RC.EXTRA['tribute-call-say']],   // ★[TRIB_CALL_SAY_1014 라운드 3] 145
++    ['G8-call-say', '부모님께 인사 · 구호 (말로 인사 날)', 'tribute-call-say', RC.EXTRA['tribute-call-say']],
++    ['G8-hug', '부모님께 인사 · 포옹 청하기(구호 뒤 · TRIB_HUG_CALL_1018 검토 124)', 'tribute-hug', RC.EXTRA['tribute-hug']],   // ★[TRIB_CALL_SAY_1014 라운드 3] 145
+   ], note: '감동 코스에서 편지와 성혼 선언 사이의 완충이다. 감정적으로 녹음하면 세 정점이 평평해진다.' },
+ 
+   /* ★[TOAST_SCENE 2026-08-09] 「둘 다」는 문안이 둘이다 — 커팅 뒤 나이프를 걷고 잔을 쥐여 드리는
+@@ -113,11 +114,11 @@ const G = [
        '두 분께서 궁금해하실 것들을 미리 정리해 드린 안내입니다. 천천히 살펴봐 주십시오.',
        /* ★[PARENTS_B 2026-09-19] 차례를 화면(PAR_ORDER)과 같게 뒤집고, 손님 식사 네 문장을 넣었다.
           ★[PAR_PYEBAEK_OUT 2026-09-19 사용자 지시] 폐백 세 문장은 뺐다 — 되살리지 말 것. */
@@ -262,7 +382,7 @@ index 6d092a13..13305cba 100644
        '두 분 어른께, 예식을 맡은 사람으로서 인사드립니다.',
        '모먼트에디트 올림.',   // ★2026-08-03 되살림 — 사용자가 이 한 줄만 따로 뽑아 보내 주셨다
      ].join('\n')],
-@@ -227,6 +227,7 @@ const G = [
+@@ -227,6 +228,7 @@ const G = [
      ['N21-e', '이음말 · 입장 앞', 'bridge-b7-entry-ready', RC.EXTRA['bridge-b7-entry-ready']],
      ['N21-f', '이음말 · 맞절 → 감사 인사(하객 쪽으로)', 'bridge-b8-face-guests', RC.EXTRA['bridge-b8-face-guests']],
      ['N21-g', '이음말 · 선언 박수 뒤(읽은 분 자리로)', 'bridge-b9-declare-seat', RC.EXTRA['bridge-b9-declare-seat']],
@@ -271,7 +391,7 @@ index 6d092a13..13305cba 100644
      /* ★[B11_OFF_1018 인스타 섹션 검토 7판 70 ②] N21-i(축가 앞 이음말 247)는 녹음 전에 걷었다 — 대본에서 뺐다(번호는 RETIRED 로 남는다) */
      ['N21-j', '이음말 · 축가 → 부모님께 인사', 'bridge-b12-tribute-calm', RC.EXTRA['bridge-b12-tribute-calm']],
 diff --git a/scripts/build-typecast-import.mjs b/scripts/build-typecast-import.mjs
-index 7059070c..6b523607 100644
+index 7059070c..d668541e 100644
 --- a/scripts/build-typecast-import.mjs
 +++ b/scripts/build-typecast-import.mjs
 @@ -380,7 +380,7 @@ const clips = parse(SRC);
@@ -279,7 +399,7 @@ index 7059070c..6b523607 100644
  /* [NARR_LOOP_1018 2026-10-18 자료 루프 첫 판] 183 → 187 — 선언 맺는 말 예시 3 · 4 · 편지 여는 말 · 맺는 말 예시 4(197 ~ 200 · 같은 그룹 15 · 7_예시_멘트) */
  /* [NARR_R9_1018 2026-10-18 자료 루프 라운드 9] 187 → 190 — 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3(201 ~ 203 · 같은 그룹 15 · 7_예시_멘트) */
 -const CLIP_COUNT = 238;   // ★[REVIEW7_1018 인스타 섹션 검토 7판] 235 → 238(새 예시 넷 · 247 B11 걷음)   // ★[REVIEW5_1018 인스타 섹션 검토 5판] 208 → 229(예시 21 · 224 ~ 244)   // ★[REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   // ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말 · SONG_END_1018)   // ★[REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   // ★[R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 둘 — 201 반지 맺는 말 예시 4 · 190 테이블 인사 예시 2 가 기본 글과 같은 글이 됐다 · RETIRED · 번호 보존)   // ★[R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   // ★[CANDLE_CALL_SRC_1016] +2 — 146 · 147 화촉 인사 구호(아버님 · 다른 두 분 · 서는 분 이름이 구호에 들어가 판마다 한 줄)   // ★[TRIB_CALL_SAY_1014 라운드 3] +1 — 145 말로 인사 날 구호(G8-call-say)   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] +8 — 137 개식 선언(G3-18) · 138 · 139 화촉 인사 안내(G3-19 · 20) · 140 화촉 맺는 말 격식(G3-21) · 144 입장 받는 말(G3-22) · 141 · 142 · 143 부모님께 인사 이름 줄 · 짝 줄 · 구호(G8-name · pair · call) · 옛 123   // [DECLARE_ANYONE 2026-10-12] −2(134 · 135 사람을 부르는 여는 말 RETIRED) · 옛 125   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
-+const CLIP_COUNT = 239;   // ★[REVIEW13_1018 검토 112] 238 → 239(255 B9 닫는 판 · 선언이 마지막인 날)   // ★[REVIEW7_1018 인스타 섹션 검토 7판] 235 → 238(새 예시 넷 · 247 B11 걷음)   // ★[REVIEW5_1018 인스타 섹션 검토 5판] 208 → 229(예시 21 · 224 ~ 244)   // ★[REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   // ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말 · SONG_END_1018)   // ★[REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   // ★[R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 둘 — 201 반지 맺는 말 예시 4 · 190 테이블 인사 예시 2 가 기본 글과 같은 글이 됐다 · RETIRED · 번호 보존)   // ★[R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   // ★[CANDLE_CALL_SRC_1016] +2 — 146 · 147 화촉 인사 구호(아버님 · 다른 두 분 · 서는 분 이름이 구호에 들어가 판마다 한 줄)   // ★[TRIB_CALL_SAY_1014 라운드 3] +1 — 145 말로 인사 날 구호(G8-call-say)   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] +8 — 137 개식 선언(G3-18) · 138 · 139 화촉 인사 안내(G3-19 · 20) · 140 화촉 맺는 말 격식(G3-21) · 144 입장 받는 말(G3-22) · 141 · 142 · 143 부모님께 인사 이름 줄 · 짝 줄 · 구호(G8-name · pair · call) · 옛 123   // [DECLARE_ANYONE 2026-10-12] −2(134 · 135 사람을 부르는 여는 말 RETIRED) · 옛 125   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
++const CLIP_COUNT = 240;   // ★[TRIB_HUG_CALL_1018 검토 124] 239 → 240(256 포옹 청하기)   // ★[REVIEW13_1018 검토 112] 238 → 239(255 B9 닫는 판 · 선언이 마지막인 날)   // ★[REVIEW7_1018 인스타 섹션 검토 7판] 235 → 238(새 예시 넷 · 247 B11 걷음)   // ★[REVIEW5_1018 인스타 섹션 검토 5판] 208 → 229(예시 21 · 224 ~ 244)   // ★[REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   // ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말 · SONG_END_1018)   // ★[REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   // ★[R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 둘 — 201 반지 맺는 말 예시 4 · 190 테이블 인사 예시 2 가 기본 글과 같은 글이 됐다 · RETIRED · 번호 보존)   // ★[R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   // ★[CANDLE_CALL_SRC_1016] +2 — 146 · 147 화촉 인사 구호(아버님 · 다른 두 분 · 서는 분 이름이 구호에 들어가 판마다 한 줄)   // ★[TRIB_CALL_SAY_1014 라운드 3] +1 — 145 말로 인사 날 구호(G8-call-say)   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] +8 — 137 개식 선언(G3-18) · 138 · 139 화촉 인사 안내(G3-19 · 20) · 140 화촉 맺는 말 격식(G3-21) · 144 입장 받는 말(G3-22) · 141 · 142 · 143 부모님께 인사 이름 줄 · 짝 줄 · 구호(G8-name · pair · call) · 옛 123   // [DECLARE_ANYONE 2026-10-12] −2(134 · 135 사람을 부르는 여는 말 RETIRED) · 옛 125   // [DECLARE_BY_PERSON 2026-10-12] −6 +3 · 옛 128   // [THANKS_IN_VOW 2026-10-11] +1 — 133 narr-thanks-in(감사문 여는 말 · G3-17) · 옛 127   // [MATJEOL_1011 2026-10-11] +1 — 132 narr-entry-bow(입장 끝 맞절 · G3-16) · 옛 126   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
  if (clips.length !== CLIP_COUNT) {
    console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
    console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
