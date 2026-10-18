@@ -206,7 +206,9 @@
     /* ★[REVIEW5_1018 인스타 섹션 검토 5판 · 사장님 «최소 4개»] 224 ~ 242 — 화촉(다른 두 분) 4 · 서약 맺는 말 2 ~ 4 · 감사문 여는 말 2 · 3 · 선언 여는 말 3 · 4 · 덕담 받는 말 2 · (축가 맺는 말 예시 둘은 병합 전에 걷음 · SONG_END_NO_PRAISE_1018) · 부모님께 편지 여는 말 2 ~ 4 · 부모님께 인사 걸음 · 구호 · 말로 인사 구호(원천 ritual-open NAR_EX · 녹음 전엔 글로) */
     'narr-candle-in-others-ex4', 'narr-vow-out-ex2', 'narr-vow-out-ex3', 'narr-vow-out-ex4', 'narr-thanks-in-ex2', 'narr-thanks-in-ex3', 'narr-declare-in-friend-ex3', 'narr-declare-in-friend-ex4', 'narr-bless-end-ex2', 'letter-parent-ex2', 'letter-parent-ex3', 'letter-parent-ex4', 'tribute-in-ex2', 'tribute-in-ex4', 'tribute-call-ex2', 'tribute-call-ex4', 'tribute-call-say-ex2', 'tribute-call-say-ex3', 'tribute-call-say-ex4',
     /* ★[BRIDGE_MORE_1018 인스타 섹션 검토 6판(연결 멘트) · 사장님 «고정된 틀 외에도 추가해도 돼»] 243 ~ 250 — 이음말 일곱(B7 ~ B13 · 원천 ritual-open NAR.bridge) · 축가 맺는 말 가족 · 친구 판(SONG_BY_1018 · 원천 D.NARR.songEndFriend) · 녹음 전엔 글로 */
-    'bridge-b7-entry-ready', 'bridge-b8-face-guests', 'bridge-b9-declare-seat', 'bridge-b10-speech-clap', 'bridge-b11-song-light', 'bridge-b12-tribute-calm', 'bridge-b13-toast-stay', 'narr-song-end-friend'
+    'bridge-b7-entry-ready', 'bridge-b8-face-guests', 'bridge-b9-declare-seat', 'bridge-b10-speech-clap', 'bridge-b11-song-light', 'bridge-b12-tribute-calm', 'bridge-b13-toast-stay', 'narr-song-end-friend',
+    /* ★[REVIEW7_1018 인스타 섹션 검토 7판 75 ~ 78] 251 ~ 254 — 개식 5(Y3) · 맞절 5(Y2) · 반지 맺는 말 4(B13 · 201 쉬는 소리 대신 새 이름 EX_SLUG_MOVED_1018) · 부모님께 인사 5(Y4) · 녹음 전엔 글로 */
+    'narr-open-ex5', 'narr-entry-bow-ex5', 'narr-ring-out-ex9', 'narr-tribute-name-ex5'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -541,7 +543,9 @@
     'narr-song-out': 1,
     /* ★[R11_SRC_1018 라운드 11 2026-10-18] 예시 소리 둘이 기본 글과 같은 글이 되어 쉰다 — 201 반지 맺는 말 예시 4(T2 짝이 기본 글 15 · 16 이 됐다) ·
        190 테이블 인사 예시 2(S 원본이 기본 글 131 이 됐다 · 같은 글로 받은 소리는 131 자리로 옮겨 쓴다). 파일 · 번호는 그대로 둔다(번호 보존). 되살리지 말 것 */
-    'narr-ring-out-ex4': 1, 'narr-table-in-ex2': 1 };
+    'narr-ring-out-ex4': 1, 'narr-table-in-ex2': 1,
+    /* ★[B11_OFF_1018 인스타 섹션 검토 7판 70 ②] 축가 앞 이음말 247 은 녹음 전에 걷었다(build [BRIDGE_SKIP_1018] 주석) · 번호 보존 · 되살리지 말 것 */
+    'bridge-b11-song-light': 1 };
 
   /*
    ★[SONG_RETIRED 2026-08-09 사용자 지시 *"팔레트 빼자"*] 축가를 팔레트에서도 뺐다.
@@ -635,6 +639,9 @@
      박수는 보통 7~9초지만 매번 크게 다르다(연구 B02 · D02) — 고정 대기(8초)로 밀면 박수를 밟거나 빈 정적이 남는다.
      ★미리 듣기는 지금과 같게 둔다(consoleOnly) — build 가 preview 에서 live 를 걷고 previewPost 를 붙인다.
      ★음악: 박수 동안 올라가 있다(live.duck) → GO 뒤 다음 큐가 1.5초에 걸쳐 내린다(fadeMs · build 가 다음 큐에 싣는다). */
+  /* [BRIDGE_SKIP_1018] 이음말 판정 — 이음말로 여는 첫 낱말 · 박수를 청하는 말(«박수, 고맙습니다.»는 청하지 않는다) */
+  var BRIDGE_OPEN = /^(다음은|다음으로|자 그럼 이제|이제|먼저|이어서|이번에는|그럼)(\s|,|$)/;
+  var CLAP_ASK = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|맞아)/;
   function applause(t, est, hintNext, previewPost) {
     return { t: t, est: est, self: true, doing: 'move', duck: PARAM.duckMusic, applause: true, consoleOnly: true,
       hintNext: hintNext || '박수가 줄기 시작하면', previewPost: previewPost || [] };
@@ -1309,20 +1316,28 @@
         /* ★★[BRIDGE_MORE_1018 인스타 섹션 검토 6판 · 사장님 «다양한 각도로»] 이음말 일곱 — 한 이음새에 여럿이면 차례대로(박수 · 돌려보내기 → 분위기 → 다음 순간 이름).
              B7 입장 앞(입장 멘트 E 만 «입장»으로 연다) · B8 맞절 → 감사 인사(돌아서기) · B9 선언 박수 뒤(읽은 분 자리로) · B10 축사 끝(박수 · 디렉터 GO) ·
              B11 엄숙한 순간 → 축가 · B12 축가 → 부모님께 인사 · B13 닫는 인사 → 축배는 아래 [TOAST_LAST_1013] 자리에서 */
+        /* ★★[BRIDGE_SKIP_1018 인스타 섹션 검토 7판 70] 이음말은 이음새만 보고 서는데 그 뒤 첫 줄은 칩(멘트 예시)마다 다르다 — 글은 그대로 · «언제 빼는지»만.
+             뒤 첫 줄은 고른 예시 글로 본다(_nxT · 예시 바꾸기는 build 끝에서 하니 여기서 미리 묻는다).
+             ① B8 감사 인사 첫 줄이 «이제»로 열거나 같은 지시(«하객을 향해 서»)가 있으면 뺀다(같은 지시 두 번)
+             ③ B12 부모님께 인사 첫 줄이 이음말로 열면 뺀다(예시 1 일 때만 남는다)
+             ④ B9 다음 순간이 덕담이면 뺀다(아버님이 읽은 날 자리로 가자마자 다시 불려 나온다 · 그날 자리 안내는 디렉터)
+             ⑤ B10 바로 뒤 줄이 박수를 청하면 뺀다(원문 박수가 남는다)
+           ★[B11_OFF_1018 검토 70 ②] 축가 앞 이음말(247)은 걷었다 — 축가 여는 말 예시 셋이 이음말로 열어 이음말이 두 번 · 같은 대본의 B12 와 «분위기» 두 번 ·
+             발라드 날 틀린 말(G1 원칙 7) · 앞 박수 8초가 이미 넘어가는 몫 · 녹음 전이라 RETIRED(번호 보존) · 되살리지 말 것 */
+        var _nxT = (O.narExCue && bn.slug && EXTRA[O.narExCue(S, bn.slug)]) || bn.text || '';
         var _more = [];
-        if (slugB === 'bridge-b3-clap-thanks') _more.push('bridge-b9-declare-seat');
-        if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech') _more.push('bridge-b10-speech-clap');
-        if (bc.k === 'matjeol' && bn.k === 'welcome') _more.push('bridge-b8-face-guests');
-        if (bn.k === 'song' && (bc.k === 'declare' || bc.k === 'bless' || (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech'))) _more.push('bridge-b11-song-light');
-        if (bc.k === 'song' && bn.k === 'tribute') _more.push('bridge-b12-tribute-calm');
+        if (slugB === 'bridge-b3-clap-thanks' && bn.k !== 'bless') _more.push('bridge-b9-declare-seat');
+        if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');
+        if (bc.k === 'matjeol' && bn.k === 'welcome' && !/^이제/.test(_nxT) && _nxT.indexOf('하객을 향해 서') < 0) _more.push('bridge-b8-face-guests');
+        if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT)) _more.push('bridge-b12-tribute-calm');
         if (bn.k === 'entry' && String(S.entry || 'A').toUpperCase() !== 'E') _more.push('bridge-b7-entry-ready');
         _bl.push(bc);
         if (slugB) _bl.push(cue({ k: bc.k, blockN: bc.blockN, slug: slugB, name: '이음말 · ' + ({ 'bridge-b3-clap-thanks': '박수 뒤', 'bridge-b4-breath': '숨 고르기', 'bridge-b5-video-out': '영상 끝', 'bridge-b6-lighter': '가벼운 순서로' })[slugB],
           text: EXTRA[slugB], duck: PARAM.duckMusic, note: '이음말 · 다음 순간이 무엇이든 맞는 한 줄(BRIDGE_LINK)' }));
         _more.forEach(function (sm) {
-          var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b11-song-light' || sm === 'bridge-b12-tribute-calm', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
+          var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b12-tribute-calm', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
           _bl.push(cue({ k: _at.k, blockN: _at.blockN, slug: sm, name: '이음말 · ' + ({ 'bridge-b7-entry-ready': '입장 앞', 'bridge-b8-face-guests': '하객 쪽으로', 'bridge-b9-declare-seat': '읽은 분 자리로',
-              'bridge-b10-speech-clap': '축사 박수', 'bridge-b11-song-light': '산뜻하게', 'bridge-b12-tribute-calm': '경건하게' })[sm],
+              'bridge-b10-speech-clap': '축사 박수', 'bridge-b12-tribute-calm': '경건하게' })[sm],
             text: EXTRA[sm], duck: PARAM.duckMusic, note: '이음말 · 이 두 순간 사이에서만(BRIDGE_MORE_1018)',
             fire: sm === 'bridge-b7-entry-ready' ? 'manual' : '', hint: sm === 'bridge-b7-entry-ready' ? '신부 준비 완료 · 문 앞 대기 확인 후(이 줄 뒤 입장 멘트는 문이 열릴 때 한 번 더 GO)' : '',   // ★[CUE_FIRE_RULE] 입장 앞은 엔진이 손으로 내는 자리 — 입장 멘트와 같은 대기
             live: sm === 'bridge-b10-speech-clap' ? applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
@@ -1355,6 +1370,10 @@
       live: { t: '두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초쯤 · 다 돌면 GO → 사진 안내', est: O.TABLE_SEC * O.tableN(S), self: true, doing: 'move', duck: -12,
         fallback: '시간이 다 되면 디렉터 GO → 26 이 모두를 사진으로 모은다 · 못 들른 테이블은 단체 사진 뒤 감사 인사(목례)에서 함께' }   /* [CLOSE_WORDS_1013] 배웅 줄은 9/26 PHOTO_THANKS 로 없앴다 */   /* [TABLE_GREET_1008] 사장님 «두 분 자유 · 시간 다 되면 안내 한 줄» — 디렉터가 테이블을 넘기지 않는다 */
     }));
+    /* ★[TOAST_PUTDOWN_1018 인스타 섹션 검토 7판 71] 테이블 인사 없이 축배를 담은 날은 «즐겨 주시면 되겠습니다.» 2초 뒤 사진 안내(26)가 나갔다 — 하객은 아직 잔을 들고 있다.
+         그날만 축배 맺는 말 뒤에 사람 구간(잔 내려놓기 · 20초 안팎 · 디렉터 GO · CUE_FIRE_RULE) · 글은 그대로 */
+    if (_openC && seq.indexOf('toast') > -1 && seq.indexOf('table') < 0) { var _to = cues[cues.length - 1];
+      if (_to && _to.slug === 'narr-toast-out' && !_to.live) _to.live = { t: '하객이 잔을 내려놓음 · 두 분도 잔을 건넴', est: 20, self: false, doing: 'move', duck: PARAM.duckMusic, consoleOnly: true, hintNext: '잔이 다 내려가면', previewPost: [] }; }
     // 폐식 — 목록 밖 고정
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close', name: '단체 사진 안내', text: D.NARR.close,   /* ★[CLOSE_WORDS_1013] 이름 «폐식 · 단체촬영 전환» 금지 — 콘솔 고객판에 보인다 · blockN 은 순서 흐름 열쇠라 그대로 */
@@ -1638,7 +1657,44 @@
     };
   }
 
+  /* ★★[MOOD_FIT_1018 인스타 섹션 검토 7판 69] 분위기를 고른 날만 — 표대로 넣은 뒤, 사람 구간 없이(박수 정도만 두고) 바로 붙는 두 나레이션 줄이
+       ① 같은 첫 낱말로 열거나(다음은 · 다음으로 · 이제 · 자 그럼 이제 · 먼저 · 이어서 · 이번에는 · 그럼) ② 둘 다 박수를 청하면(사이 줄이 «박수, 고맙습니다.»여도 같다)
+       뒤 순간을 그 순간의 다음 예시로 넘긴다(첫 낱말만 갈아 끼우지 않고 예시를 고른다 · 검토 66 (나) · 21_연결멘트 G1 원칙 4 · G2 1-4 · CLAP_FEW 취지).
+       넘기는 차례는 순간마다(표에 없는 순간은 0 1 2 3) · 화면 변화는 없다(순간 칩이 넘긴 예시로 눌린다) */
+  var MOOD_SHIFT = { matjeol: [1, 0, 3, 2], welcome: [0, 3, 1, 2], vow: [0, 1, 2, 3], thanks: [1, 0, 2], ring: [0, 1, 3, 2], declare: [0, 1, 2, 3], bless: [0, 1, 2, 3],
+    speech: [0, 3, 1, 2], song: [0, 1, 3, 4, 2], tribute: [1, 0, 3, 2], table: [0, 3, 2, 4] };
+  function _fw(t) { var m = String(t || '').match(BRIDGE_OPEN); return m ? m[1] : ''; }
+  function moodClash(T) {
+    var cs; try { cs = build(T, { mode: 'console' }).cues; } catch (e) { return null; }
+    var gap = function (c) { return !c.live || !!c.live.applause; };
+    for (var i = 0; i < cs.length - 1; i++) {
+      var a = cs[i], b = cs[i + 1], via = false;
+      if (!gap(a)) continue;
+      if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2]; }
+      var k = O.narExKey ? O.narExKey(b.slug) : '';
+      if (!k || (a.k === b.k && !/^bridge-/.test(a.slug))) continue;
+      var f = _fw(a.text);
+      if ((!via && f && f === _fw(b.text)) || (CLAP_ASK.test(a.text) && CLAP_ASK.test(b.text))) return { k: k, at: i };
+    }
+    return null;
+  }
+  function moodFit(T) {
+    if (!T || !O.MOOD || !O.MOOD[T.mood]) return T;   /* [MOOD_FIT_1018] 매개변수 이름은 T — 미리듣기 키 검사(PREVIEW_KEYS)는 엔진 build 가 읽는 S 만 센다(분위기 값은 빌더가 S.narEx 로 이미 옮긴다) */
+    var tried = {};
+    for (var n = 0; n < 24; n++) {
+      var c = moodClash(T); if (!c) break;
+      var k = c.k, ord = MOOD_SHIFT[k] || [0, 1, 2, 3], cur = O.narExOf(T, k);
+      tried[k] = tried[k] || {}; tried[k][cur] = 1;
+      var p = ord.indexOf(cur), nx = -1;
+      for (var j = 1; j <= ord.length; j++) { var v = ord[(p + j) % ord.length]; if (p < 0) v = ord[j - 1]; if (v === undefined || tried[k][v]) continue; if (v === 0 || O.narExOk(T, k, v)) { nx = v; break; } }
+      if (nx < 0) break;
+      T.narEx = T.narEx || {}; if (nx) T.narEx[k] = nx; else delete T.narEx[k]; if (!Object.keys(T.narEx).length) delete T.narEx;
+    }
+    return T;
+  }
+
   return {
+    moodFit: moodFit, moodClash: moodClash, MOOD_SHIFT: MOOD_SHIFT,
     build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, FILES: FILES, EXTRA: EXTRA,
     COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, version: 'cue-v1'
   };
