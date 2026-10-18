@@ -14974,7 +14974,7 @@ chk "letterParent: { lab: '편지 멘트', at: 'letter'" assets/ritual-open.js 1
 chk 'SONG_END_NO_PRAISE_1018' assets/ritual-open.js 1
 nochk '멋지고 아름다운 축가였습니다' assets/ritual-open.js   # 녹음은 노래를 평할 수 없다(검토 10 과 같은 까닭 · 인스타 바로잡기)
 nochk 'narr-song-end-ex' assets/ritual-cue.js
-chk "'narr-vow-out': \['신랑, 신부 모두 서약을 마쳤습니다. 박수 부탁드립니다.'" assets/ritual-open.js 1
+chk "'narr-vow-out': \['신랑, 신부 모두 서약을 마쳤습니다.'," assets/ritual-open.js 1
 chk "'tribute-call-say': \['이제 이 마음을 다해 인사를 드리겠습니다. 신랑 신부, 부모님께 인사!'" assets/ritual-open.js 1
 chk "'tribute-call-say-ex2', 'tribute-call-say-ex3', 'tribute-call-say-ex4'" assets/ritual-cue.js 1
 chk '이 문장은 미리 넣어 두었어요' order-preview.html 1
