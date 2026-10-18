@@ -15011,7 +15011,7 @@ chk 'SONG_END_1018' assets/ritual-cue.js 2
 chk 'SONG_END_1018' assets/ritual-story.js 1
 chk 'SONG_END_1018' scripts/build-dubbing-script.mjs 1
 chk 'songEnd:"우리 두 사람을 위해 다시 한 번 큰 박수 부탁드리겠습니다."' assets/ritual-data.js 1
-chk "slug: 'narr-song-end', name: '축가 마무리', text: D.NARR.songEnd" assets/ritual-cue.js 1
+chk "slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend', name: '축가 마무리', text: S.songBy === 'self' ? D.NARR.songEnd : D.NARR.songEndFriend" assets/ritual-cue.js 1   # [SONG_BY_1018] 부르는 분으로 갈림 · 옛 핀 = 210 하나
 chk "'하객 박수 · 노래해 주신 분과 두 사람께'" assets/ritual-story.js 1
 nochk '노래를 잘 하는 건 아니에요' assets/ritual-data.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 녹음은 노래를 듣고 평하지 않는다(④ 현장 단정)
 chk "names: \['담백하게', '다정하게', '유쾌하게', '격식 있게', '따뜻하게'\]" assets/ritual-open.js 1
