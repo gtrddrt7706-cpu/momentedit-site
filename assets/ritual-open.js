@@ -963,10 +963,12 @@
   var NAR_EX = {
     /* 개식 선언(137) — 하객 맞이 쪽 칩 줄(at) · 2 = U1 원본(실제 예식 사회자 대본) «1부 개식 선언» · 3 = 자료 BB 3(허정인) · 4 = BB 5(박상현 «하객에게 부탁하는 3가지») · 사회자 소개는 뺐다 */
     /* ★[REVIEW7_1018 인스타 섹션 검토 77] 5 «뭉클하게» = 자료 Y3(유튜브 사회자이상윤 설명란 개식선언) 그대로 — «신랑 군과 신부 양의» → «신랑 신부의»(이름 ①) · «아름다운예식» 띄어쓰기 · 쉼표 둘 */
+    /* ★[REVIEW22_1018 검토 130-2] 3(담백 · 149) 넷째 문장 «두 사람의 행복한 날을 축복해 주시기 바랍니다.» 금지 — 바로 뒤 화촉 151 «두 사람의 행복한 앞날 … 축복» · 입장 A «두 사람의 첫걸음을 … 축복해 주시기 바랍니다»와
+       같은 자리 같은 말(SOURCE_FIRST_1016 같은 자리 겹침) · 남은 다섯 문장은 자료 그대로 · 창고 문장을 다시 묶었다(새 녹음 없음) */
     open: { lab: '개식 멘트', at: 'guest', names: ['힘차게', '격식 있게', '담백하게', '다정하게', '뭉클하게'],
       lines: { 'narr-open': [
         '바쁘신 일정 속에서도 두 사람의 결혼을 축하해 주시기 위해 먼 걸음 해 주신 가족, 친구, 그리고 지인분들께 신랑 신부를 대신하여 깊은 감사의 말씀 드리겠습니다. 하객 여러분들께서도 소중한 자리의 증인이신 만큼 진심 어린 마음으로 두 사람을 축복해 주시기 바랍니다. 그럼, 지금부터 신랑 신부의 결혼식을 거행하도록 하겠습니다.',
-        '하객 여러분, 안녕하십니까. 이제 예식을 시작하려 합니다. 양가를 대신해 감사드립니다. 두 사람의 행복한 날을 축복해 주시기 바랍니다. 신랑과 신부의 예식을 시작하겠습니다. 큰 박수 부탁드립니다.',
+        '하객 여러분, 안녕하십니까. 이제 예식을 시작하려 합니다. 양가를 대신해 감사드립니다. 신랑과 신부의 예식을 시작하겠습니다. 큰 박수 부탁드립니다.',
         '바쁘신 중에도 귀한 자리 해 주신 내빈께, 양가 혼주님과 신랑 신부를 대신해 감사드립니다. 오늘은 두 사람이 함께 걸어갈 삶의 속도와 방향을 맞추는 뜻깊은 날입니다. 하객 여러분께 세 가지를 부탁드립니다. 뜨거운 박수, 따뜻한 눈빛, 진심 어린 축하의 마음입니다. 끝까지 함께해 주시기 바랍니다. 큰 박수로 식을 시작하겠습니다.',
         '정연복 시인의 부부의 인연이라는 시에는 이런 말이 나옵니다. 두 사람이 만나는 것은 참으로 기막힌 인연이고, 그리고 참 기적 같은 일이라고 말합니다. 오늘 두 사람의 기적 같은 시작을 함께해 주신 여러분, 진심으로 고맙습니다. 그럼 지금부터 신랑 신부의 아름다운 예식을 거행하도록 하겠습니다.'
       ] } },
@@ -1265,11 +1267,14 @@
   var MOOD = {
     plain: { entry: 'A', guestEx: 0, pvEx: 0, narEx: { open: 2, candle: { mothers: 1, fathers: 1, parents: 1, others: 0 }, matjeol: 4, welcome: 0, vow: 0, thanks: 0, ring: 0, declare: 0, bless: 0, speech: 0, song: 0, letter: 0, letterParent: 0, tribute: 1, close: 0, toast: 2, table: 0 } },
     formal: { entry: 'C', guestEx: 3, pvEx: 0, narEx: { open: 1, candle: { mothers: 2, fathers: 0, parents: 0, others: 1 }, matjeol: 1, welcome: 3, vow: 1, thanks: 2, ring: 1, declare: 1, bless: 1, speech: 1, song: 3, letter: 0, letterParent: 3, tribute: 4, close: 3, toast: 1, table: 2 } },
-    warm: { entry: 'E', guestEx: 1, pvEx: 0, narEx: { open: 3, candle: { mothers: 3, fathers: 3, parents: 3, others: 3 }, matjeol: 3, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 0, bless: 2, speech: 2, song: 1, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 0, table: 3 } },
-    moving: { entry: 'D', guestEx: 1, pvEx: 0, narEx: { open: 4, candle: { mothers: 0, fathers: 3, parents: 3, others: 2 }, matjeol: 2, welcome: 0, vow: 3, thanks: 1, ring: 3, declare: 3, bless: 3, speech: 2, song: 0, letter: 3, letterParent: 2, tribute: 0, close: 1, toast: 2, table: 4 } },
+    warm: { entry: 'E', guestEx: 1, pvEx: 0, narEx: { open: 3, candle: { mothers: 3, fathers: 3, parents: 3, others: 3 }, matjeol: 3, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 0, bless: 3, speech: 1, song: 1, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 0, table: 3 } },
+    moving: { entry: 'D', guestEx: 1, pvEx: 0, narEx: { open: 4, candle: { mothers: 0, fathers: 3, parents: 3, others: 2 }, matjeol: 2, welcome: 0, vow: 3, thanks: 1, ring: 3, declare: 3, bless: 3, speech: 1, song: 0, letter: 3, letterParent: 2, tribute: 0, close: 1, toast: 2, table: 4 } },
     bright: { entry: 'B', guestEx: 2, pvEx: 0, narEx: { open: 0, candle: { mothers: 1, fathers: 1, parents: 1, others: 0 }, matjeol: 1, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 2, bless: 2, speech: 3, song: 2, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 3, table: 3 } }
   };
   /* [MOOD_1018 검토 73] 분위기를 고른 날 두 분 몫 «참고 예시» 맨 위에 둘 결(RITUAL_REF kyeol) */
+  /* ★[REVIEW22_1018 인스타 섹션 검토 130-1] 다정 · 뭉클의 축사 여는 말 175(«두 사람을 위해 준비된») → 174(«축하의 메시지를 전하는») ·
+       다정의 덕담 3(173 → 206 «오늘을 위해 덕담을 준비해 주신») → 4(194 → 195 · 선언이 있는 날 moodFit 이 이미 고르던 짝) —
+       «위해 … 준비»가 덕담 받는 말 · 축사 · 축가 여는 말로 4분 안에 네 번 나오던 것(활용형이 달라 붙은 줄 겹침 검사가 못 셌다) · 새 녹음 없음 · 173 ↔ 206 짝은 밝게에 그대로 */
   var MOOD_REF = { plain: ['담백', '짧게'], formal: ['격식', '담백'], warm: ['다정', '장면 하나'], moving: ['장면 하나', '그리움', '다정'], bright: ['유머+진심', '다정'] };
   function moodOf(S) { return (S && MOOD_NAME[S.mood]) ? S.mood : ''; }
   /* 표의 순간 값(화촉은 지금 서는 분 칸) — 0 은 넣지 않는다(예시 1) */

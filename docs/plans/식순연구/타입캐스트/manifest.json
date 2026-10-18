@@ -51,8 +51,8 @@
       ],
       "dir": "assets/audio/narration",
       "clips": 39,
-      "sents": 105,
-      "chars": 3502
+      "sents": 104,
+      "chars": 3473
     },
     {
       "file": "3_진행_후반.txt",
@@ -105,8 +105,8 @@
       ],
       "dir": "assets/audio/narration",
       "clips": 96,
-      "sents": 232,
-      "chars": 8890
+      "sents": 231,
+      "chars": 8859
     },
     {
       "file": "6_예식뒤.txt",
@@ -1071,16 +1071,10 @@
           "i": 5,
           "text": "자, 그럼 이 축복의 여정의 막을 열어 보겠습니다.",
           "before": 0,
-          "after": 1.25
-        },
-        {
-          "i": 6,
-          "text": "끊이지 않는 박수와 함성으로 출발하겠습니다.",
-          "before": 0,
           "after": 0.6
         },
         {
-          "i": 7,
+          "i": 6,
           "text": "신랑 신부, 입장!",
           "before": 0,
           "after": 0
@@ -3374,18 +3368,12 @@
         },
         {
           "i": 3,
-          "text": "두 사람의 행복한 날을 축복해 주시기 바랍니다.",
-          "before": 0,
-          "after": 1.25
-        },
-        {
-          "i": 4,
           "text": "신랑과 신부의 예식을 시작하겠습니다.",
           "before": 0,
           "after": 1.25
         },
         {
-          "i": 5,
+          "i": 4,
           "text": "큰 박수 부탁드립니다.",
           "before": 0,
           "after": 0

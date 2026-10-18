@@ -52,10 +52,15 @@ function run(mut) {
       if (a.slug === 'bridge-b10-speech-clap' && CL.test(b.text)) add('③ B10 뒤 박수 청', tag);
       if (a.slug === 'narr-toast-out' && b.slug === 'narr-close' && !a.live) add('③ 축배 맺는 말 → 사진 안내(잔 내려놓기 없음)', tag);
       if (/^bridge-/.test(a.slug) && /^bridge-/.test(b.slug) && a.slug !== 'bridge-b3-clap-thanks') add('③ 이음말 뒤 이음말', tag); }
+    /* ★[REVIEW22_1018 검토 130] 멀리 떨어진 되풀이 — 다정 · 뭉클에 «위해(위한) … 준비» 두 줄 이상(덕담 받는 말 · 축사 · 축가 여는 말) ·
+       선언 박수 → «박수, 고맙습니다» → «선언해 주신 분께서는, …» → 다시 박수 청(14초) */
+    if ((mood === 'warm' || mood === 'moving') && cs.filter((c) => /위(해|한)[^.]*준비/.test(c.text || '')).length > 1) add('⑥ «위해 … 준비» 되풀이', tag);
+    for (let i = 0; i + 3 < cs.length; i++) if (CL.test(cs[i].text || '') && cs[i + 1].slug === 'bridge-b3-clap-thanks' && /^bridge-b9-declare-seat/.test(cs[i + 2].slug) && CL.test(cs[i + 3].text || '')) { add('⑥ 박수 청 → 고맙습니다 → 자리 → 박수 청', tag); break; }
   }
   T(`② 분위기를 고른 대본 ${nm}편 — 겹침 0`, !Object.keys(bad).some((k) => k[0] === '②'), JSON.stringify(Object.entries(bad).filter(([k]) => k[0] === '②')));
   T(`③ 대본 ${n}편 — 이음말 빼는 조건 · 잔 내려놓기 · «분위기» 한 번`, !Object.keys(bad).some((k) => k[0] === '③'), JSON.stringify(Object.entries(bad).filter(([k]) => k[0] === '③')).slice(0, 400));
   T('④ «지금 그대로»는 값을 안 바꾼다 · 분위기 값은 저장(norm)을 지난다', !Object.keys(bad).some((k) => k[0] === '④'), JSON.stringify(Object.entries(bad).filter(([k]) => k[0] === '④')).slice(0, 300));
+  T('⑥ 멀리 떨어진 되풀이 0 — 다정 · 뭉클 «위해 … 준비» · 선언 뒤 박수 두 번 [REVIEW22_1018]', !Object.keys(bad).some((k) => k[0] === '⑥'), JSON.stringify(Object.entries(bad).filter(([k]) => k[0] === '⑥')).slice(0, 300));
   T('⑤ 반지 맺는 말 예시 4 는 쉬는 소리(201) 대신 새 이름 [EX_SLUG_MOVED_1018]', O.narExCue({ narEx: { ring: 3 } }, 'narr-ring-out') === 'narr-ring-out-ex9' && C.FILES.indexOf('narr-ring-out-ex9') > -1);
   return R;
 }
