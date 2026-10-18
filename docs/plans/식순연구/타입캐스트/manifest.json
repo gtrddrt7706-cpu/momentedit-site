@@ -52,7 +52,7 @@
       "dir": "assets/audio/narration",
       "clips": 44,
       "sents": 110,
-      "chars": 3658
+      "chars": 3659
     },
     {
       "file": "3_진행_후반.txt",
@@ -122,9 +122,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 33,
-      "sents": 52,
-      "chars": 1353
+      "clips": 34,
+      "sents": 53,
+      "chars": 1403
     },
     {
       "file": "5_배역.txt",
@@ -1178,7 +1178,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "다음은 신랑 신부의 감사 인사가 있겠습니다.",
+          "text": "이어서, 신랑 신부의 감사 인사가 있겠습니다.",
           "before": 0,
           "after": 0
         }
@@ -6573,6 +6573,25 @@
         {
           "i": 0,
           "text": "오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "262",
+      "id": "G13-7",
+      "label": "자유 사진 여는 말(65 뒤 · PHOTO_FREE_OPEN_1019 검토 133-3)",
+      "file": "narr-photo-free",
+      "role": "진행",
+      "part": "6_예식뒤.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "하객 여러분께서는 가까이 오셔서 영상과 사진으로 남겨 두 사람에게 선물해 주세요.",
           "before": 0,
           "after": 0
         }

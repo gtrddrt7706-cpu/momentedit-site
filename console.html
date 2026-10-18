@@ -642,7 +642,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         <div class="hint" id="nHint" hidden></div>
         <div class="safe" id="nSafe" hidden></div>
         <div class="prog" id="nProg"><i></i></div>
-        <div class="tm"><span id="nEl">0:00</span><button type="button" class="spk" id="bSpk" hidden>다음 분<small>시간 새로</small></button><span id="nTo">0:00</span></div><!-- [BLESS_PER_SPEAKER] 덕담 · 다음 분께 마이크를 건넬 때 -->
+        <div class="tm"><span id="nEl">0:00</span><button type="button" class="spk" id="bSpk" hidden>다음 분<small>시간 새로</small></button><button type="button" class="spk" id="bTake" hidden>천천히<small>한 번만</small></button><span id="nTo">0:00</span></div><!-- [BLESS_PER_SPEAKER] 덕담 · 다음 분께 마이크를 건넬 때 -->
       </div>
     </div>
     <div class="up">
@@ -1049,6 +1049,7 @@ var muted = false;
 var fired = {};            // clock 큐 중복 발사 막기
 var wakeLock = null;
 var progT = null;
+var TAKE_URL = 'assets/audio/console/take-time.mp3', TAKE_K = { vow: 1, letter: 1, tribute: 1, bless: 1, free: 1, speech: 1, welcome: 1 }, TAKE_USED = {};   // [TAKE_TIME_1019]
 var RESCUED = [];          // ★[RESCUE_REPLAY_1016] «재생 안 됨»으로 미룬 순서 이름 — 고객 안심 «사진 시간에 다시 틀어 드려요»를 콘솔이 기억한다
 var progS = null;            // [GUEST_PAUSE] 지금 흐르는 진행(초·끝나면 할 일·시작시각)
 var PAUSED = false;          // [GUEST_PAUSE] 고객이 '멈춤'을 눌러 선 상태
@@ -1060,7 +1061,7 @@ function cueAt(i){ return (R && (shown[i] || R.cues[i])) || null; }
 var castNow = null;                       // 지금 흐르는 배역 예시 클립(배지의 원천)
 var blkNow = '', blkFresh = false;        // 블록 머리말은 블록이 바뀌는 첫 큐에서만 띄운다
 function resetRun(){
-  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; RESCUED = [];
+  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; RESCUED = []; TAKE_USED = {};
   castNow = null; blkNow = ''; blkFresh = false;
 }
 
@@ -1424,6 +1425,10 @@ function render(){
   // ★[WAIT_CLIP_OFF_1016 라운드 6] 그 밖에서 틀던 대기 클립(49 «잠시 이대로 두겠습니다»)은 9/6 사장님 결정(WAIT_BRIDGE_RETIRED · 감정 멈춤엔 목소리 없음)으로 폐지됐는데 단추가 남아 있었다 — 판을 걷고 흐리게 둔다(자리 · 크기 그대로 · 화면이 흔들리지 않게).
   var _sp = $('#bSpk'), _sc = cueAt(cur);   // [BLESS_PER_SPEAKER]
   if (_sp) _sp.hidden = !(!GUEST && MODE !== 'preview' && phase === 'live' && _sc && _sc.live && _sc.live.perSpeaker);
+  /* ★[TAKE_TIME_1019 검토 133-4] 말하는 사람 순간(서약 · 감사문 · 편지 · 부모님께 드리는 말 · 덕담 · 축사 · 감사 인사)에서 말이 10 ~ 15초 멈추면 디렉터가 한 번 —
+     «천천히 하셔도 괜찮습니다.»(서약 여는 말에 이미 녹음된 우성 판을 잘라 쓴다 · 새 녹음 없음 · 자료 T1 돌발 «신랑·신부가 울 때») · 한 순간에 한 번만 · 진행 위치는 그대로 */
+  var _tk = $('#bTake'), _tc = cueAt(cur);
+  if (_tk) { _tk.hidden = !(!GUEST && MODE !== 'preview' && phase === 'live' && _tc && _tc.live && TAKE_K[_tc.k]); _tk.disabled = !!(_tc && TAKE_USED[_tc.k + '|' + cur]); }
   var _bw = $('#bWait');
   if (_bw) _bw.disabled = !(phase === 'live' && R.cues[cur] && R.cues[cur].rescue);
   // ★[GUEST_PREV] 첫 순서에서는 되돌아갈 데가 없다 — 살아 있는 버튼으로 두지 않는다
@@ -1694,6 +1699,12 @@ function panic(){
 }
 
 /* [BLESS_PER_SPEAKER] 다음 분께 마이크를 건넸다 — 시간을 새로 재고(ALT_CLIP 판정 · 진행 막대) 올렸던 음악을 내리고 신호를 다시 건다 */
+$('#bTake').onclick = function(){
+  var c = cueAt(cur); if (!(phase === 'live' && c && c.live && TAKE_K[c.k]) || TAKE_USED[c.k + '|' + cur]) return;
+  TAKE_USED[c.k + '|' + cur] = 1;
+  try { var a = new Audio(TAKE_URL); var p = a.play(); if (p && p.catch) p.catch(function(){}); } catch (e) {}
+  toast('천천히 하셔도 괜찮습니다 · 이 순간엔 한 번만'); render();
+};
 $('#bSpk').onclick = function(){
   var c = cueAt(cur);
   if (phase !== 'live' || !c || !c.live || !c.live.perSpeaker) return;
