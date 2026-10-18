@@ -15040,6 +15040,12 @@ chk '=255_bridge-b9-declare-seat-end' docs/handoff/녹음/다음판_1018_clip.tx
 chk '진희: 두 사람의 이야기를 함께 만나보시겠습니다.' docs/handoff/녹음/다음판_1018_1_안내.txt 1
 chk '우성: 선언해 주신 분께서는, 이제 자리로 돌아가셔도 좋습니다.' docs/handoff/녹음/다음판_1018_3_진행_후반.txt 1
 chk '| 검토 119 |' docs/handoff/insta-find.md 1
+# ★[REVIEW14_1018 2026-10-18 인스타 섹션 검토 120 · 121] 편지 예시(아빠 · 첫 출근 날) — 두 분이 함께 들어오는 입장이라 «여기까지 데려다주셨네요»를 걷었다 · 사본 둘(빌더 · 원천)
+chk '오늘 제가 여기 선 것도 그 걸음 덕분이에요.' order-preview.html 1
+chk '오늘 제가 여기 선 것도 그 걸음 덕분이에요.' assets/ritual-data.js 1
+nochk '저를 여기까지 데려다주셨네요' order-preview.html
+nochk '저를 여기까지 데려다주셨네요' assets/ritual-data.js
+chk '| 검토 121 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
