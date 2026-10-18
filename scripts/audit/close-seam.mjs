@@ -5,11 +5,12 @@
      ③ B9 뒤 닫는 인사는 디렉터 GO(사슬 아님) · ④ B10 과 닫는 멘트가 둘 다 박수를 청하는 판 0 · ⑤ 옛 코스는 그대로(이음말 없음)
    화면(폰 390 · PC 1280 · 브라우저가 있을 때) — 정석에서 축가 · 부모님께 인사를 빼면 닫는 멘트 칩이 예시 3 으로 눌리고 ·
      순간을 되살리면 예시 1 로 돌아오고 · 두 분이 닫는 멘트 칩을 누른 날은 그대로
-   --selftest = 깨 보기(이음새를 끄면 ① 이 빨강) · 종료 코드 0 통과 · 1 실패 */
+   --selftest = 깨 보기(이음새를 끄면 ① 이 빨강) · --fast = 가드용(CI 3분 한도 · 뒤쪽 순간 8개만 전수 × 앞쪽 두 판 · 화면 건너뜀) · 종료 코드 0 통과 · 1 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
-const SELF = process.argv.includes('--selftest');
+const SELF = process.argv.includes('--selftest'), FAST = process.argv.includes('--fast');
+const TAIL = ['declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'];   // 닫는 인사 앞 «마지막 순간»을 가르는 순간들
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 
 function load(off) {
@@ -26,7 +27,12 @@ function sweep({ O, C }) {
   const P = O.PICKABLE.filter((k) => O.picked({ course: 'open', on: { [k]: 1 } }).length);
   const base = O.applyExample({ course: 'open' }, 'standard');
   const r = { n: 0, sp: 0, spMiss: 0, de: 0, deMiss: 0, chain: 0, dbl: 0, P: P.length };
-  for (let m = 1; m < (1 << P.length); m++) {
+  const masks = [];
+  if (!FAST) for (let m = 1; m < (1 << P.length); m++) masks.push(m);
+  else { const head = P.filter((k) => !TAIL.includes(k)), all = (1 << P.length) - 1;
+    const hb = head.reduce((a, k) => a | (1 << P.indexOf(k)), 0);
+    for (const h of [hb, 0]) for (let t = 0; t < (1 << P.length); t++) { if (t & hb) continue; const m = h | t; if (m && m <= all) masks.push(m); } }
+  for (const m of masks) {
     const S = JSON.parse(JSON.stringify(base)); S.on = {}; P.forEach((k, i) => { if (m >> i & 1) S.on[k] = 1; });
     C.seamFit(S, 'close');
     let cs; try { cs = C.build(S, { mode: 'console' }).cues; } catch (e) { continue; } r.n++;
@@ -58,8 +64,8 @@ ok('엔진 · ④ B10 과 닫는 멘트가 둘 다 박수를 청하는 판 0(sea
   ok('엔진 · 분위기 날도 같은 판정(moodFit 이 닫는 멘트를 박수 없는 예시로)', (() => { const M = JSON.parse(JSON.stringify(S)); E.O.moodApply(M, 'formal'); E.C.moodFit(M); const t = E.C.EXTRA[E.O.narExCue(M, 'narr-close-bow')] || ''; return t && !CLAP.test(t); })()); }
 
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
-let br = null; if (pw) { try { br = await pw.chromium.launch(); } catch (e) {} }
-if (!br) console.log('skip 화면 — 브라우저 없음(엔진 검사만 돌았다)');
+let br = null; if (pw && !FAST) { try { br = await pw.chromium.launch(); } catch (e) {} }
+if (!br || FAST) console.log(FAST ? 'skip 화면 — --fast(가드)' : 'skip 화면 — 브라우저 없음(엔진 검사만 돌았다)');
 else {
   const T = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png' };
   const srv = http.createServer((q, s) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(p, (e, b) => { if (e) { s.writeHead(404); s.end(); return; } s.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); s.end(b); }); });

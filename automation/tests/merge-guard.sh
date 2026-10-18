@@ -15035,8 +15035,9 @@ chk '십 분 뒤 저희 결혼식을 시작하겠습니다.' order-preview.html 
 chk '| 검토 86 |' docs/handoff/insta-find.md 1
 chk '| 검토 90 |' docs/handoff/insta-find.md 1
 if command -v node >/dev/null 2>&1; then
-  node scripts/audit/close-seam.mjs >/dev/null 2>&1; _cls=$?; if [ "$_cls" = 0 ]; then echo 'ok close-seam [CLOSE_SEAM_1018]'; else echo 'FAIL close-seam: 마지막 순간 → 닫는 인사 이음말 · 닫는 멘트 넘기기가 어긋났습니다 — node scripts/audit/close-seam.mjs'; fail=1; fi
-  if node scripts/audit/close-seam.mjs --selftest >/dev/null 2>&1; then echo 'ok close-seam --selftest(이음새를 끄면 빨강)'; else echo 'FAIL close-seam --selftest: 깨 보기를 못 잡는다 — node scripts/audit/close-seam.mjs --selftest'; fail=1; fi
+  node scripts/audit/close-seam.mjs --fast >/dev/null 2>&1; _cls=$?;   # [CLOSE_SEAM_1018] CI 3분 한도 — 전수 · 화면은 손으로(node scripts/audit/close-seam.mjs)
+  if [ "$_cls" = 0 ]; then echo 'ok close-seam [CLOSE_SEAM_1018]'; else echo 'FAIL close-seam: 마지막 순간 → 닫는 인사 이음말 · 닫는 멘트 넘기기가 어긋났습니다 — node scripts/audit/close-seam.mjs'; fail=1; fi
+  if node scripts/audit/close-seam.mjs --fast --selftest >/dev/null 2>&1; then echo 'ok close-seam --selftest(이음새를 끄면 빨강)'; else echo 'FAIL close-seam --selftest: 깨 보기를 못 잡는다 — node scripts/audit/close-seam.mjs --selftest'; fail=1; fi
 fi
 # ★[REVIEW8_1018 · PHOTO_END_LINE_1018 2026-10-18 인스타 섹션 검토 8판 79 ~ 85 · 사장님 «지금 폼 그대로 업그레이드» · 결정 대기함 [110] «추천대로»] 예시 글 다듬기 일곱 곳 · 45 · 110 첫 문장
 chk 'REVIEW8_1018' assets/ritual-open.js 1
