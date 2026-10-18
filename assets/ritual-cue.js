@@ -196,7 +196,9 @@
     /* ★[NARR_R9_1018 라운드 9 2026-10-18 · 자료 루프] 201 ~ 203 — 반지 맺는 말 예시 4(자료 T2) · 축가 여는 말 예시 2(자료 OO · 선언 있는 날) · 테이블 인사 예시 3(자료 U1) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
     'narr-ring-out-ex4', 'narr-song-ex2', 'narr-table-in-ex3',
     /* ★[R10_SRC_1018 라운드 10 2026-10-18 · 자료 루프] 204 ~ 206 — 축가 여는 말 예시 3(자료 NN) · 4(자료 U1) · 덕담 받는 말 예시 3(자료 OO) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
-    'narr-song-ex3', 'narr-song-ex4', 'narr-bless-end-ex3'
+    'narr-song-ex3', 'narr-song-ex4', 'narr-bless-end-ex3',
+    /* ★[REVIEW1_1018 2026-10-18 · 인스타 섹션 검토] 207 · 208 — 축배 여는 말 예시 4(자료 SS 46) · 감사 인사 여는 말 예시 2(자료 PP 14) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
+    'toast-toast-ex4', 'narr-welcome-in-ex2'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
