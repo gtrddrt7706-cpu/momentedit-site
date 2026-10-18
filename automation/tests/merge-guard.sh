@@ -12831,7 +12831,10 @@ chk 'TRIB_ACT: TRIB_ACT' assets/ritual-open.js 1
 chk "var m = (open && O && O.TRIB_ACT) || D.TRIBUTE.modes" assets/ritual-cue.js 1
 chk "'두 분이 부모님 앞으로 가서 인사 말을 전함 · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로': {" assets/ritual-story.js 1   # ★[TRIB_CALL_1014] 부모님 앞으로(말) → 구호 → 인사 · 포옹 — 장면도 둘
 chk "'두 분이 부모님 앞으로 걸어감 · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로': {" assets/ritual-story.js 1
-chk "'두 분이 부모님께 인사 · 포옹': {" assets/ritual-story.js 1
+chk "'두 분이 부모님께 인사': {" assets/ritual-story.js 1   # [TRIB_HUG_CALL_1018 검토 124] 인사 · 포옹을 두 큐로
+chk "'양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)': {" assets/ritual-story.js 1
+chk 'TRIB_HUG_CALL_1018' assets/ritual-cue.js 3
+chk "slug: 'tribute-hug'" assets/ritual-cue.js 1
 nochk "what: '부모님께 드릴 꽃'" assets/ritual-open.js 0
 nochk "부모님께 꽃을 건네고 안겨요" assets/ritual-open.js 0
 nochk "앞으로 가 꽃을 건네고 안겨요" order-preview.html 0

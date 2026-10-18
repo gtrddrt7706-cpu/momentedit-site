@@ -39,8 +39,8 @@ function sweep({ O, C }) {
     const i = cs.findIndex((c) => c.slug === 'narr-close-bow'); if (i < 1) continue;
     const seam = /^bridge-b(9|10)-/.test(cs[i - 1].slug) ? cs[i - 1] : null, last = seam ? cs[i - 2] : cs[i - 1];
     if (last.k === 'free' && S.freeWhat === 'speech' && O.picked(S).includes('free')) { r.sp++; if (!seam || seam.slug !== 'bridge-b10-speech-clap') r.spMiss++; }
-    if (last.k === 'declare' && last.live && last.live.applause) { r.de++; if (!seam || seam.slug !== 'bridge-b9-declare-seat') r.deMiss++; }
-    if (seam && seam.slug === 'bridge-b9-declare-seat' && cs[i].fire !== 'manual') r.chain++;
+    if (last.k === 'declare' && last.live && last.live.applause) { r.de++; if (!seam || seam.slug !== 'bridge-b9-declare-seat-end') r.deMiss++; }
+    if (seam && seam.slug === 'bridge-b9-declare-seat-end' && cs[i].fire !== 'manual') r.chain++;
     if (seam && CLAP.test(seam.text) && CLAP.test(cs[i].text)) r.dbl++;
   }
   return r;
