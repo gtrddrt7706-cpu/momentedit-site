@@ -8015,7 +8015,7 @@ nochk '두 사람과 양가를 대신해' assets/ritual-data.js 0
 chk 'TRIB_END_CALL_1014' assets/ritual-cue.js 1
 chk "hint: '포옹이 끝나면'" assets/ritual-cue.js 1
 chk 'CLOSE_BOW_CALL_1014' assets/ritual-cue.js 1
-chk "hint: '두 분이 앞에 나란히 서면'" assets/ritual-cue.js 1
+chk ": '두 분이 앞에 나란히 서면'," assets/ritual-cue.js 1   # [CLOSE_SEAM_1018] B9 뒤만 «선언하신 분이 자리로 …» · 그 밖은 그대로
 # ★[TABLE_IN_ROLE_1014] 131 테이블 인사는 진행(우성) — 파트(3_진행_후반)와 역할(ROLE_OF)이 같은 자를 쓴다
 chk 'TABLE_IN_ROLE_1014' scripts/build-typecast-import.mjs 1
 node -e "const m=require('./docs/plans/식순연구/타입캐스트/manifest.json');const c=m.clips.find(x=>x.file==='narr-table-in'&&x.dir==='assets/audio/narration');if(!c||m.voice[c.role]!=='우성'){console.log('REVERT? TABLE_IN_ROLE_1014: 131 성우가 우성이 아니다 '+(c&&c.role));process.exit(1)}console.log('ok TABLE_IN_ROLE_1014 131 = '+c.role+'('+m.voice[c.role]+')')" || fail=1
@@ -15023,6 +15023,22 @@ chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.
 chk '| 검토 56 |' docs/handoff/insta-find.md 1
 chk '| 검토 66 |' docs/handoff/insta-find.md 1
 chk '요청판 10' docs/handoff/insta-find.md 1
+# ★[CLOSE_SEAM_1018 · REVIEW9_1018 2026-10-18 인스타 섹션 검토 9판 86 ~ 90 · 사장님 18:41 «이벤트 중간에 하나 빼더라도 그것이 맞게 나래이션이 입혀지고»]
+#   86 축사가 마지막이면 닫는 인사 앞 B10 · 박수 부탁 겹침은 닫는 멘트를 예시 3 으로(seamFit · 빌더 _closeFit · 칩 누른 날은 그대로) · 87 선언이 마지막이면 B9 + 닫는 인사 디렉터 GO
+#   88 ~ 90 두 분 AI 목소리 예시 글(GUEST_EX) 셋 · 옛 글은 EX_OLD_1006 · 녹음 대사 글은 안 바꿨다(녹음 PR 동결)
+chk 'CLOSE_SEAM_1018' assets/ritual-cue.js 4
+chk 'CLOSE_SEAM_1018' order-preview.html 4
+chk 'seamFit: seamFit' assets/ritual-cue.js 1
+chk 'REVIEW9_1018' order-preview.html 1
+chk '식전 안내는 저희 두 사람이 맡았습니다.' order-preview.html 1
+chk '십 분 뒤 저희 결혼식을 시작하겠습니다.' order-preview.html 1
+chk '| 검토 86 |' docs/handoff/insta-find.md 1
+chk '| 검토 90 |' docs/handoff/insta-find.md 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/close-seam.mjs --fast >/dev/null 2>&1; _cls=$?;   # [CLOSE_SEAM_1018] CI 3분 한도 — 전수 · 화면은 손으로(node scripts/audit/close-seam.mjs)
+  if [ "$_cls" = 0 ]; then echo 'ok close-seam [CLOSE_SEAM_1018]'; else echo 'FAIL close-seam: 마지막 순간 → 닫는 인사 이음말 · 닫는 멘트 넘기기가 어긋났습니다 — node scripts/audit/close-seam.mjs'; fail=1; fi
+  if node scripts/audit/close-seam.mjs --fast --selftest >/dev/null 2>&1; then echo 'ok close-seam --selftest(이음새를 끄면 빨강)'; else echo 'FAIL close-seam --selftest: 깨 보기를 못 잡는다 — node scripts/audit/close-seam.mjs --selftest'; fail=1; fi
+fi
 # ★[REVIEW8_1018 · PHOTO_END_LINE_1018 2026-10-18 인스타 섹션 검토 8판 79 ~ 85 · 사장님 «지금 폼 그대로 업그레이드» · 결정 대기함 [110] «추천대로»] 예시 글 다듬기 일곱 곳 · 45 · 110 첫 문장
 chk 'REVIEW8_1018' assets/ritual-open.js 1
 chk 'PHOTO_END_LINE_1018' assets/ritual-cue.js 1
@@ -15119,7 +15135,7 @@ chk "'narr-ring-out': \[" assets/ritual-open.js 1
 chk "'narr-declare-in-friend': \['다음은 두 사람의 성혼선언이 있겠습니다." assets/ritual-open.js 1
 chk "'narr-close': \[" assets/ritual-open.js 1
 chk 'narr-table-in-ex5' assets/ritual-cue.js 1
-chk '저희 목소리로 미리 준비한 안내 음성' order-preview.html 2
+chk '저희가 미리 준비한 안내 음성' order-preview.html 2   # [REVIEW9_1018] 검토 88 «저희 목소리로» 뺌
 chk '함께 봐 주세요.' order-preview.html 1
 chk '저희 결혼식은 십 분 뒤에 시작합니다.' assets/ritual-data.js 1
 nochk '"다정하게",\["귀한 걸음 해 주신 여러분, 고맙습니다."' order-preview.html

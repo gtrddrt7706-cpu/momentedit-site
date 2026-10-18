@@ -37,7 +37,7 @@ function judgeA(X) {
     const S = { course: c, declareWho: w, declare: dec };
     if (D.COURSES[c].open) S.on = { declare: 1, vow: 1, ring: 1 };
     let r; try { r = C.build(S, { mode: 'console' }); } catch (e) { bad.push(`① ${c}/${w}: 엔진이 멈췄다 ${e.message}`); continue; }
-    const cs = r.cues.filter((x) => x.k === 'declare');
+    const cs = r.cues.filter((x) => x.k === 'declare' && !/^bridge-/.test(x.slug));   // [CLOSE_SEAM_1018] 선언이 마지막인 날 B9(이음말)도 선언 몫에 선다 — 선언 대사만 센다
     const gone = r.cues.filter((x) => GONE.includes(x.slug));
     if (gone.length) bad.push(`① ${c}/${w}/${dec}: 걷은 선언 클립이 섰다 ${gone.map((x) => x.slug).join(',')}`);
     if (!cs.length) continue;
@@ -146,14 +146,14 @@ try {
     const a = await look();
     ok(`${w} ① 칸 «읽어 주실 분» 하나 · 칩 없음 · 예시 «예) 아버님 · 친구 · 지인»(칸 안 · 잘리지 않음) · 비었을 때 한 줄 «없으면 선언을 빼고 서약으로»`,
       a.n === 1 && a.chips === 0 && a.lab === '읽어 주실 분' && a.ph === '예) 아버님 · 친구 · 지인' && a.val === '' && a.fit && /아직 적지 않았어요 · 읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요/.test(a.note), JSON.stringify(a));
-    ok(`${w} ① 흐름 «시작할 때 → 읽으실 차례 → 끝나면» · 나레이션 선언 줄 없음`, a.labs.join('|') === '시작할 때|T|끝나면' && a.turn.some((t) => /읽으실 차례/.test(t)), JSON.stringify({ labs: a.labs, turn: a.turn }));
+    ok(`${w} ① 흐름 «시작할 때 → 읽으실 차례 → 끝나면» · 나레이션 선언 줄 없음`, a.labs.filter((l) => l !== '다음 순서로 넘어가며').join('|') === '시작할 때|T|끝나면' && a.turn.some((t) => /읽으실 차례/.test(t)), JSON.stringify({ labs: a.labs, turn: a.turn }));
     if (SHOT) await pg.screenshot({ path: `${SHOT}/declare-${w}-empty.png`, fullPage: false });
     await pg.fill('[data-fk="declwho"]', '신부  아버님 '); await pg.press('[data-fk="declwho"]', 'Tab'); await wait(700);
     const b = await look();
     ok(`${w} ② «신부 아버님» 적음 → 다듬어 저장 · 한 줄 사라짐 · 차례 «신부 아버님 차례» · 참고 예시에 «신부 아버님»`,
       b.who === '신부 아버님' && b.val === '신부 아버님' && !b.note && b.turn.some((t) => t === '신부 아버님 차례') && b.ref.some((t) => /^신부 아버님/.test(t)),
       JSON.stringify({ who: b.who, val: b.val, note: b.note, turn: b.turn, ref: b.ref.map((t) => t.slice(0, 20)) }));
-    const eng = await pg.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'console' }).cues.filter((x) => x.k === 'declare'); return { f: cs.map((x) => x.file).join(), who: (cs[0].live || {}).who }; });
+    const eng = await pg.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'console' }).cues.filter((x) => x.k === 'declare' && !/^bridge-/.test(x.slug)); return { f: cs.map((x) => x.file).join(), who: (cs[0].live || {}).who }; });
     ok(`${w} ② 엔진 큐 = 136 여는 말 · 57 맺는 말 · 콘솔 읽는 분 «신부 아버님»`, eng.f === '136_narr-declare-in-friend,57_narr-declare-family-out' && eng.who === '신부 아버님', JSON.stringify(eng));
     if (SHOT) await pg.screenshot({ path: `${SHOT}/declare-${w}-filled.png`, fullPage: false });
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
