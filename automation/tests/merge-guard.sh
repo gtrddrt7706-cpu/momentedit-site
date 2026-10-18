@@ -15094,7 +15094,7 @@ chk '| 검토 129 |' docs/handoff/insta-find.md 1
 # ★[REVIEW22_1018 2026-10-18 인스타 섹션 검토 130] 멀리 떨어진 되풀이 — 다정 · 뭉클 축사 174 · 다정 덕담 4 · 담백 개식 넷째 문장 걷기 · 입장 B 박수 문장 걷기 · 선언 뒤 박수 두 번 넘기기(새 녹음 없음)
 chk "declare: 0, bless: 3, speech: 1, song: 1," assets/ritual-open.js 1
 chk "declare: 3, bless: 3, speech: 1, song: 0," assets/ritual-open.js 1
-chk "/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 3]" assets/ritual-cue.js 1
+chk 'REVIEW22_1018 검토 130-4' assets/ritual-cue.js 1
 nochk '양가를 대신해 감사드립니다. 두 사람의 행복한 날을' assets/ritual-open.js
 nochk '끊이지 않는 박수와 함성으로 출발하겠습니다. 신랑 신부' assets/ritual-data.js
 nochk '끊이지 않는 박수와 함성으로 출발하겠습니다. 신랑 신부' order-preview.html
