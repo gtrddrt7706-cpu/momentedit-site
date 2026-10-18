@@ -15034,6 +15034,12 @@ nochk '존중하기로 하였습니다' assets/ritual-ref.js
 nochk '흐르길 바라며.' assets/ritual-ref.js
 chk '| 검토 114 |' docs/handoff/insta-find.md 1
 chk '| 검토 118 |' docs/handoff/insta-find.md 1
+# ★[REVIEW13_1018 · REC_NEXT_1018 2026-10-18 인스타 섹션 검토 119] 녹음 풀리면 받을 9클립(다시 받기 8 + 새 클립 255) — 글은 확정 · 엔진 글은 녹음 PR 병합 뒤(패치 동봉)
+chk 'REC_NEXT_1018' docs/handoff/녹음/README.md 1
+chk '=255_bridge-b9-declare-seat-end' docs/handoff/녹음/다음판_1018_clip.txt 1
+chk '진희: 두 사람의 이야기를 함께 만나보시겠습니다.' docs/handoff/녹음/다음판_1018_1_안내.txt 1
+chk '우성: 선언해 주신 분께서는, 이제 자리로 돌아가셔도 좋습니다.' docs/handoff/녹음/다음판_1018_3_진행_후반.txt 1
+chk '| 검토 119 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
