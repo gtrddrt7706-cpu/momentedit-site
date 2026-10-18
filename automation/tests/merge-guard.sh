@@ -15023,6 +15023,17 @@ chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.
 chk '| 검토 56 |' docs/handoff/insta-find.md 1
 chk '| 검토 66 |' docs/handoff/insta-find.md 1
 chk '요청판 10' docs/handoff/insta-find.md 1
+# ★[REVIEW12_1018 · VOWKIND_TEXT_1018 2026-10-18 인스타 섹션 검토 114 ~ 118] 참고 예시 넷(실사용 꼴로 · 옛 글 REF_OLD_1018) · 서약 ↔ 감사문 칩을 바꿀 때 칸에 글이 있으면 한 줄(글은 안 지움)
+chk 'VOWKIND_TEXT_1018' order-preview.html 1
+chk '적은 글을 한 번 봐 주세요' order-preview.html 1
+chk '존중할 것을 굳게 다짐하였습니다.' assets/ritual-ref.js 1
+chk '지금의 제가 있기까지' assets/ritual-ref.js 1
+chk '흐르길 바랍니다.' assets/ritual-ref.js 1
+chk '서준아, 고맙다. 이제 드디어 모두가 인정하는 우리 가족이 되는구나!' assets/ritual-ref.js 1
+nochk '존중하기로 하였습니다' assets/ritual-ref.js
+nochk '흐르길 바라며.' assets/ritual-ref.js
+chk '| 검토 114 |' docs/handoff/insta-find.md 1
+chk '| 검토 118 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
@@ -15032,7 +15043,7 @@ chk '| 검토 113 |' docs/handoff/insta-find.md 1
 #   우리 글 줄은 제안대로 · 옛 글은 order-preview REF_OLD_1018(_exMineOld 가 옛 글 칸도 이름만 바꾼다) · 말투 · 다른 순간 겹침 · 부름말 넣기는 안 함(자료 글 그대로)
 chk 'REF_OLD_1018' order-preview.html 3
 chk '이제 잘 살겠다는 약속만 지키면 됩니다.' assets/ritual-ref.js 1
-chk '서로 아끼고 존중하기로 하였습니다.' assets/ritual-ref.js 1
+chk '서로 아끼고 존중할 것을 굳게 다짐하였습니다.' assets/ritual-ref.js 1   # 검토 114 로 고침
 chk '가족의 인연을 허락해주신 사돈댁에' assets/ritual-ref.js 1
 chk '아낌없는 사랑으로 키워주셔서 감사합니다. 소중한 아드님을' assets/ritual-ref.js 1
 chk '당연하다는 이유로' assets/ritual-ref.js 1
