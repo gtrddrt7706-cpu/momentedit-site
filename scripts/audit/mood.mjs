@@ -7,6 +7,8 @@
      ③ 모든 대본(6,912) — B11 «산뜻한» 없음 · B9 → 덕담 없음 · B8 뒤 «이제» · 같은 지시 없음 · B12 뒤 이음말 없음 · B10 뒤 박수 청 없음 ·
         축배 맺는 말 → 사진 안내 사이 사람 구간 · «분위기» 한 대본에 한 번까지
      ④ «지금 그대로»는 아무것도 안 바꾼다 · 분위기 값은 norm 을 지난다(저장해도 남는다)
+   ★[MOOD_ROW_OFF_1019 2026-10-19 사장님] 고르기 화면의 분위기 칩 줄은 걷었다 — 이 검사는 «두 분이 순간마다 고를 수 있는 예시 조합»을 지킨다.
+     분위기 표(MOOD)는 사람이 실제로 고를 만한 조합 묶음으로만 남는다(손으로 같은 예시를 골라도 130 의 겹침 ⑥ 이 다시 날 수 있다)
    node scripts/audit/mood.mjs [--selftest]   (--selftest = moodFit 을 끄면 ②가 빨강인지) */
 import path from 'node:path'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);

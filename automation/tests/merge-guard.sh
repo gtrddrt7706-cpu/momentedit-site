@@ -15187,10 +15187,14 @@ chk "var MOOD_REF = { plain: \['담백', '짧게'\]" assets/ritual-open.js 1
 chk 'EX_SLUG_MOVED_1018' assets/ritual-open.js 1
 chk "var EX_SLUG_MOVED = { 'narr-ring-out-ex4': 'narr-ring-out-ex9' };" assets/ritual-open.js 1
 chk "'narr-open-ex5', 'narr-entry-bow-ex5', 'narr-ring-out-ex9', 'narr-tribute-name-ex5'" assets/ritual-cue.js 1   # FILES 251 ~ 254
-chk 'MOOD_1018' order-preview.html 5
-chk "h+=_moodRow();" order-preview.html 1
-chk "R.applyExample(S,k); _moodCourse();" order-preview.html 1
-chk 'function _persist(over){ try{ _moodKeep(); }catch(e){}' order-preview.html 1
+chk 'MOOD_1018' order-preview.html 2   # [MOOD_ROW_OFF_1019] 칩 줄 · 분위기 몫 주석이 빠졌다
+# ★[MOOD_ROW_OFF_1019 2026-10-19 사장님 «나래이션분위기 저거는 빼도될거같아»] 칩 줄 · 분위기 몫 함수 걷음 — 표(MOOD) · moodFit 은 예시 조합 검사용으로 남는다(mood.mjs ② ⑥)
+chk 'MOOD_ROW_OFF_1019' order-preview.html 4
+nochk "h+=_moodRow();" order-preview.html
+nochk "window.opMood=function" order-preview.html
+nochk "_moodKeep(); }catch(e){}" order-preview.html
+nochk "R.applyExample(S,k); _moodCourse();" order-preview.html
+chk 'MOOD_ROW_OFF_1019' scripts/audit/mood-screen.mjs 3
 chk 'MOOD_REF_1018' order-preview.html 1
 chk 'SCRIPT_VIEW_1018' order-preview.html 5
 chk 'data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>' order-preview.html 1

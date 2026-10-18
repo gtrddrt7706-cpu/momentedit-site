@@ -882,7 +882,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-h{font-size:16px;font-weight:600;color:var(--accent);margin:0;line-height:1.4}
 .pk-aux{font-size:12.5px;color:var(--light)}
 .pk-exs{display:grid;grid-template-columns:1fr;gap:8px}
-.pk-mood{margin:18px 0 2px}   /* [MOOD_1018] 코스 카드 아래 · 감동 흐름 위 — 카드와 한 덩어리로 붙지 않게 */
+.pk-mood{display:none}   /* [MOOD_ROW_OFF_1019] 칩 줄을 걷었다(2026-10-19 사장님) */
 .pk-ex{display:grid;grid-template-columns:minmax(0,1fr) 112px;align-items:center;column-gap:10px;width:100%;min-height:44px;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font:inherit;color:var(--accent);cursor:pointer}
 .pk-ex[aria-pressed="true"]{border-color:var(--seal);box-shadow:inset 0 0 0 1px var(--seal)}   /* [PK_EX_SEAL 2026-09-27 사장님] 고른 예시 = 진사 테두리 · 굵기(1px + 안쪽 1px)는 그대로 */
 .pk-ex-t{min-width:0}
@@ -4176,7 +4176,7 @@ window.opEx=function(k){
      종전엔 같은 예시를 다시 누르면 아무것도 안 했다 — 그래서 «빈 칸에서 직접 고를게요» 링크가 따로 있었다(그 링크는 뺐다 · 이 동작이 대신한다). */
   if(R.sameAsExample(S,k)){ _opPrev=_pkSnap(); S.on={}; delete S.pickFrom; _mkForget(); _pkMsg='‹'+ex.nm+'› 예시를 뺐어요'; _fxNext='[data-fk="opx:'+k+'"]'; opSync(); _pkUndo('‹'+ex.nm+'› 예시를 뺐어요'); return; }   /* [QA_FX_ORDER] 그리기 전에 — 뒤에 걸면 다음 ＋ 가 포커스를 이 카드로 끌어왔다 */
   _opPrev=_pkSnap();   // 빈 채에서 시작해도 되돌리기가 뜬다(빈 칸으로 돌아간다)
-  R.applyExample(S,k); _moodCourse(); _mkForget(); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · '+R.spanText(S);   /* [TABLE_APART] */   /* [MOOD_1018] 분위기를 고른 채 코스를 바꾸면 분위기 값을 다시 입힌다 */
+  R.applyExample(S,k); _mkForget(); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · '+R.spanText(S);   /* [TABLE_APART] */   /* [MOOD_1018] 분위기를 고른 채 코스를 바꾸면 분위기 값을 다시 입힌다 */
   opSync(); _pkUndo('‹'+ex.nm+'› 예시로 바꿨어요');
 };
 window.opBlank=function(){
@@ -8306,7 +8306,8 @@ function renderPick(){
   /* 예시 [EX_BRIEF · D1 · D2] */
   /* ★[EX_HEAD_OFF 2026-10-04 사장님 «예시로 시작해요 삭제 · 아래 설명 문구도 같이»] 예시 카드 위 제목 «예시로 시작하기»와 그 아래 가격 설명 한 줄(PRICE_SAME · RIT_PRICE_WORD)은 걷었다 — 되살리지 말 것 */
   h+='<div class="pk-exs">'+R.EXAMPLES.map(_pkEx).join('')+'</div>';
-  h+=_moodRow();   /* ★[MOOD_1018 검토 67] 코스 카드 바로 아래 · «우리 예식의 감동 흐름» 위 · 칩 한 줄(틀은 그대로 · 사장님 16:36 «이런 틀은 그대로») */
+  /* ★«나레이션 분위기» 칩 줄(칩 여섯 · «바꾼 곳 있음» · 누르면 아래 알림) 금지 — 2026-10-19 사장님 지시로 삭제 [MOOD_ROW_OFF_1019] («나래이션분위기 저거는 빼도될거같아»).
+     코스 카드가 이미 결을 말한다(«익숙하고 편안하게 · 밝고 경쾌하게 …») — 그 아래 결을 또 고르면 서로 다른 말을 함께 고르게 된다. 결은 ② 순간마다 «○○ 멘트» 칩에서 하나씩. 되살리지 말 것 */
   /* ★[EX_TOGGLE 2026-09-27 사장님 «이것도 중복 같으니 적절하게 지우던가»] «빈 칸에서 직접 고를게요» 링크는 뺐다 — 고른 예시 칸을 한 번 더 누르면 빈 칸이 된다. 되살리지 말 것. */
   /* 감동 흐름 판(휴대폰) · 흐름 띠(PC) — 한 벌의 글을 CSS 가 두 모양으로 [FLOW_LINE] */
   h+=_pkPanel();
@@ -8317,36 +8318,15 @@ function renderPick(){
   h+='</div>';
   return h;
 }
-/* ★★[MOOD_1018 인스타 섹션 검토 7판 67 · 68 · 69 · 73] 나레이션 분위기 — 누르면 입장 · 안내 · 소개 · 순간마다 «○○ 멘트»를 표(RitualOpen.MOOD)대로 한 번에 넣는다.
-     ★«고를 것»이라 처음엔 눌린 칩이 없다(BOSS_WAY 1 · 안 고르면 어떻게 되는지 한 줄) · 순간 쪽 칩은 그대로 하나씩 바꿀 수 있다(바꾸면 «바꾼 곳 있음»).
-     ★코스가 분위기를 미리 누르지 않는다(사장님 16:44 «A만» · B 안 함) · 분위기를 고른 채 코스를 바꾸면 분위기 값을 다시 입힌다(_moodCourse) ·
-       서는 분 · 담은 순간 · 부르는 분을 바꾸면 두 분이 안 바꾼 칸만 새 판으로 맞춘다(_moodKeep · 화촉은 서는 분마다 표가 다르다) ·
-       표대로 넣은 뒤 겹치는 이음새는 엔진 moodFit 이 뒤 순간을 다음 예시로 넘긴다(MOOD_FIT_1018 · 화면 변화 없음) */
-function _moodNoEntry(){ return !!((S.vlines||{})[_slVk('entry')]||(S.vkeep||{}).entry); }   /* 두 분이 입장 인사를 고쳐 쓰거나 확정했으면 입장 칸은 덮지 않는다 */
-function _moodCfg(){ return JSON.stringify([S.course,S.pickFrom,S.on,S.candleWho,S.vowKind,S.letter,S.freeWhat,S.songBy,S.tributeSay,S.declare,S.toast]); }
-function _moodBaseNow(){ var R=RitualOpen, m=R.moodOf(S); if(m==='keep'){ var c=JSON.parse(JSON.stringify(S)); R.moodClear(c,{noEntry:_moodNoEntry()}); return R.moodPart(c); } return S.moodBase||null; }
-function _moodDirty(){ var R=RitualOpen, b=R.moodOf&&R.moodOf(S)?_moodBaseNow():null; return !!(b&&R.moodDiff(R.moodPart(S),b)); }
-function _moodFitNow(){ var R=RitualOpen, m=R.moodOf(S); if(!m||m==='keep'){ delete S.moodBase; delete S.moodCfg; return; }
-  if(ENG&&ENG.RitualCue&&ENG.RitualCue.moodFit){ ENG.RitualCue.moodFit(S); S.moodCfg=_moodCfg(); } else S.moodCfg='';   /* 엔진이 아직이면 _moodKeep 이 받은 뒤 맞춘다 */
-  S.moodBase=R.moodPart(S); }
-/* 판이 바뀌면(서는 분 · 담은 순간 · 부르는 분 …) — 두 분이 안 바꾼 칸만 새 판의 값으로 · _persist 가 저장 직전에 부른다 */
-function _moodKeep(){ var R=RitualOpen; if(!R||!R.moodOf) return; var m=R.moodOf(S); if(!m||m==='keep'||!(ENG&&ENG.RitualCue&&ENG.RitualCue.moodFit)) return;
-  var cfg=_moodCfg(); if(S.moodCfg===cfg) return;
-  var F=JSON.parse(JSON.stringify(S)); R.moodApply(F,m,{noEntry:_moodNoEntry()}); ENG.RitualCue.moodFit(F);
-  var fr=R.moodPart(F), b=S.moodBase, cur=R.moodPart(S);
-  if(!b||cur.entry===b.entry) S.entry=fr.entry;
-  if(!b||cur.guestEx===b.guestEx){ if(fr.guestEx) S.guestEx=fr.guestEx; else delete S.guestEx; }
-  if(!b||cur.pvEx===b.pvEx){ if(fr.pvEx) S.pvEx=fr.pvEx; else delete S.pvEx; }
-  var ks={}; Object.keys(cur.narEx).concat(Object.keys(fr.narEx),Object.keys((b||{}).narEx||{})).forEach(function(k){ ks[k]=1; });
-  var ne=S.narEx||{}; Object.keys(ks).forEach(function(k){ if(!b||(cur.narEx[k]||0)===((b.narEx||{})[k]||0)){ if(fr.narEx[k]) ne[k]=fr.narEx[k]; else delete ne[k]; } });
-  if(Object.keys(ne).length) S.narEx=ne; else delete S.narEx;
-  S.moodBase=fr; S.moodCfg=cfg; }
-/* 코스를 바꾸면 분위기 값을 다시 입힌다(순간만 바뀌고 분위기는 그대로) */
+/* ★[MOOD_ROW_OFF_1019 2026-10-19 사장님] 분위기 칩 줄을 걷으며 분위기 몫 함수(_moodRow · opMood · _moodKeep · _moodCourse · _moodFitNow · _moodDirty · MOOD_TOAST)도 걷었다.
+     [CLOSE_SEAM_1018 · SEAM_KEEP_1018] 분위기를 고를 때 closeHand · seamHand 를 풀던 길도 함께 걷혔다(이제 두 분이 누른 칩만 그대로 남긴다).
+     옛 초안의 S.mood 는 그대로 둔다 — 고른 예시(S.narEx)를 다시 덮어쓰지 않는다 · 참고 예시 차례(MOOD_REF)만 읽는다 · 콘솔 · 엔진 build 는 S.mood 를 읽지 않는다.
+     분위기 표(RitualOpen.MOOD)와 moodFit 은 «두 분이 순간마다 고를 수 있는 예시 조합» 검사(scripts/audit/mood.mjs)용으로 남는다 */
 /* ★[CLOSE_SEAM_1018 인스타 섹션 검토 86] 분위기를 안 고른 날 — 마지막 순간이 축사면 닫는 인사 앞에 «축사해 주신 분께 박수»(B10)가 선다.
      닫는 멘트도 박수를 청하면 박수를 청하지 않는 예시로 넘긴다(엔진 seamFit · 분위기 날은 moodFit 이 같은 판정) · 칩이 넘긴 예시로 눌린다(칩과 글이 같은 것을 말한다).
    ★두 분이 닫는 멘트 칩을 누른 날은 그대로(closeHand · 분위기를 고르면 풀린다) · 넘긴 값(closeAuto)은 판이 바뀌어 겹침이 없어지면 되돌린다 */
 function _closeFit(){ var R=RitualOpen; if(!R||!R.narExOf||!(ENG&&ENG.RitualCue&&ENG.RitualCue.seamFit)) return;
-  if(S.closeHand||(R.MOOD&&R.moodOf&&R.MOOD[R.moodOf(S)])){ delete S.closeAuto; return; }
+  if(S.closeHand){ delete S.closeAuto; return; }   /* [MOOD_ROW_OFF_1019] 분위기 날 건너뛰기를 걷었다 — 옛 분위기 초안은 moodFit 을 지나 겹침이 없어 그대로다 */
   var cur=R.narExOf(S,'close'), a=S.closeAuto; if(a&&a.to!==cur) a=null;
   var from=a?a.from:cur, T=JSON.parse(JSON.stringify(S)); T.narEx=T.narEx||{}; if(from) T.narEx.close=from; else delete T.narEx.close;
   ENG.RitualCue.seamFit(T,'close'); var to=R.narExOf(T,'close');
@@ -8356,25 +8336,13 @@ function _closeFit(){ var R=RitualOpen; if(!R||!R.narExOf||!(ENG&&ENG.RitualCue&
    두 분이 그 칩을 누른 날은 그대로(seamHand · 분위기를 고르면 풀린다) · 넘긴 값(seamAuto)은 판이 바뀌어 겹침이 없어지면 되돌린다 — _closeFit 과 같은 규칙 */
 var SEAM_KEYS=['speech','song'];
 function _seamFitKeep(){ var R=RitualOpen; if(!R||!R.narExOf||!(ENG&&ENG.RitualCue&&ENG.RitualCue.seamFit)) return;
-  if(R.MOOD&&R.moodOf&&R.MOOD[R.moodOf(S)]){ delete S.seamAuto; return; }
   SEAM_KEYS.forEach(function(k){ if((S.seamHand||{})[k]||!R.NAR_EX[k]) return;
     var cur=R.narExOf(S,k), a=(S.seamAuto||{})[k]; if(a&&a.to!==cur) a=null;
     var from=a?a.from:cur, T=JSON.parse(JSON.stringify(S)); T.narEx=T.narEx||{}; if(from) T.narEx[k]=from; else delete T.narEx[k];
     ENG.RitualCue.seamFit(T,k); var to=R.narExOf(T,k);
     S.narEx=S.narEx||{}; if(to) S.narEx[k]=to; else delete S.narEx[k]; if(!Object.keys(S.narEx).length) delete S.narEx;
     if(to!==from){ S.seamAuto=S.seamAuto||{}; S.seamAuto[k]={from:from,to:to}; } else if(S.seamAuto){ delete S.seamAuto[k]; if(!Object.keys(S.seamAuto).length) delete S.seamAuto; } }); }
-function _moodCourse(){ var R=RitualOpen, m=R.moodOf&&R.moodOf(S); if(!m||m==='keep') return; R.moodApply(S,m,{noEntry:_moodNoEntry()}); _moodFitNow(); }
-function _moodRow(){ var R=RitualOpen; if(!R.MOOD_KEYS||!R.picked(S).length) return ''; var cur=R.moodOf(S);
-  return '<div class="pk-mood">'+_lChipRow({key:'mood',l:'나레이션 분위기',list:R.MOOD_KEYS.map(function(k,i){ return [i,R.MOOD_NAME[k]]; }),cur:cur?R.MOOD_KEYS.indexOf(cur):-1,picked:!!cur,fn:'opMood',fk:'opmood:',
-    unote:cur?'':'아직 고르지 않았어요 · 고르지 않으면 지금 멘트 그대로예요',tip:(cur&&_moodDirty())?'바꾼 곳 있음':''})+'</div>'; }
-window.opMood=function(i){ var R=RitualOpen, key=R.MOOD_KEYS[+i]; if(!key) return; if(R.moodOf(S)===key&&!_moodDirty()) return;
-  var was=R.moodOf(S), ne=_moodNoEntry(); delete S.closeHand; delete S.closeAuto; delete S.seamHand; delete S.seamAuto;   /* [CLOSE_SEAM_1018 · SEAM_KEEP_1018] 분위기가 닫는 멘트 · 축사 · 축가 멘트를 다시 정한다 */
-  if(key==='keep'){ if(was&&was!=='keep') R.moodClear(S,{noEntry:ne}); S.mood='keep'; }
-  else R.moodApply(S,key,{noEntry:ne});
-  _moodFitNow(); if(!ENG&&!ENG_ERR) engine().then(function(){ _persist(); render(); });
-  _stopMk&&_stopMk(); buildSteps(); _fxNext='[data-fk="opmood:'+i+'"]'; _persist(); render();
-  _noteToast(key==='keep'?(was&&was!=='keep'?MOOD_TOAST.keep:''):MOOD_TOAST.set.replace('{n}',R.MOOD_NAME[key])); };
-var MOOD_TOAST={set:'‹{n}›로 맞췄어요',keep:'멘트를 예시 1로 돌렸어요'};   /* [TOAST_MIN] 20자 안 */
+
 function _pkEx(ex){
   var R=RitualOpen, T=R.applyExample({},ex.k), es=R.span(T), on=R.sameAsExample(S,ex.k);   /* ★[QA_EX_PRESSED 2026-10-04 점검] 눌린 모양 = 지금 그 예시 그대로일 때만 — 종전(pickFrom)엔 고친 뒤에도 눌려 있어 다시 누르면 고친 것이 말없이 예시로 돌아갔다 */
   var f=String(ex.feel||'').split(' · ');   /* [D1] 분위기 두 구절을 두 줄로 — 가운뎃점 없이 */
@@ -10194,7 +10162,7 @@ function _latestApply(m){ m=m||{}; var dS=m.draft&&m.draft.S, keep=idx, sk=Objec
 /* ★[BASE_AFTER_PULL 2026-10-09 A~Z 점검 2라운드 A2-2] 저장 답의 바탕 = 보낸 판 + 서버가 지킨 칸(pull · 다른 기기가 더 나중에 고친 칸) — 종전엔 pull 이 있으면 바탕을 «모름»으로 두어,
    다른 기기 글이 한 칸 합쳐진 뒤로는 이 기기의 저장 안 한 고침이 다시 열 때 늘 버려졌다. 서버는 그 칸만 서버 값으로 바꿔 저장하므로 같은 일을 여기서 해 지문을 낸다 */
 function _baseAfter(sS,p){ try{ var x=JSON.parse(JSON.stringify(sS||{})); if(p) ['tx','mkc','up'].forEach(function(g){ var pg=p[g]; if(!pg||typeof pg!=='object') return; Object.keys(pg).forEach(function(k){ if(!x[g]||typeof x[g]!=='object') x[g]={}; if(pg[k]===undefined) delete x[g][k]; else x[g][k]=pg[k]; }); }); return _canonS(x); }catch(e){ return ''; } }
-function _persist(over){ try{ _moodKeep(); }catch(e){} try{ _closeFit(); }catch(e){} try{ _seamFitKeep(); }catch(e){}   /* [MOOD_1018] 판이 바뀌었으면 분위기 몫을 저장 전에 맞춘다 · [CLOSE_SEAM_1018] 닫는 멘트 이음새 */
+function _persist(over){ try{ _closeFit(); }catch(e){} try{ _seamFitKeep(); }catch(e){}   /* [MOOD_1018] 판이 바뀌었으면 분위기 몫을 저장 전에 맞춘다 · [CLOSE_SEAM_1018] 닫는 멘트 이음새 */
   try{ var rec={v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who,base:_srvBase,dirty:!!(courseStarted&&_autoKey()!==_autoLast)}; if(over) for(var _o in over) rec[_o]=over[_o]; localStorage.setItem('me_order', JSON.stringify(rec)); _persistBad=false; }catch(e){ _persistBad=true; } _dirtyMark(); }
 /* ★[PERSIST_TRUE 2026-10-09 A~Z 점검 2라운드 A2-16] 이 기기에 남기지 못했으면(저장 공간 가득 · 막힘) 나가기 판이 «이 기기에는 남아 있어요»라고 약속하지 않는다 */
 var _persistBad=false;
