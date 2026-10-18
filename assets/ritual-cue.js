@@ -214,7 +214,9 @@
     /* ★[TRIB_HUG_CALL_1018 검토 124] 256 — 부모님께 인사 구호 뒤 포옹 청하기(디렉터 GO) */
     'tribute-hug',
     /* ★[REVIEW24_1019 검토 132 덧 2] 257 ~ 261 — 개식 6(OO) · 맞절 6(EE B-1) · 부모님께 인사 6(PP 22) · 감사문 4(PP 14) · 식전 영상 받는 말(RR 115 · PV_OUT_1019) · 녹음 전엔 글로 */
-    'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out'
+    'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out',
+    /* ★[PHOTO_FREE_OPEN_1019 검토 133-3] 262 — 자유 사진 여는 말(65 뒤 · 자료 DD 폐식사 템플릿 2) · 녹음 전엔 글로 */
+    'narr-photo-free'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -686,7 +688,7 @@
           text: gx ? O.NAR.guestEx[gx - 1][i] : (i === 3 && preFirst) ? EXTRA['guest-4-1min-pre'] : D.GUEST[i][vi], own: own, duck: PARAM.duckSpeech,
           fire: i === 0 ? 'manual' : 'clock', atMin: at[i],
           hint: i === 0 ? '문이 열리고 하객이 들어오기 시작하면' : '',
-          note: i === 0 ? '입장 시간 동안 5~7분 간격으로 반복 재생(반복은 콘솔이 자동)' :
+          note: i === 0 ? '문이 열릴 때 한 번(되풀이하지 않는다 · 일찍 오신 분이 같은 인사를 여러 번 듣지 않게) · 10분 · 5분 · 1분 전 안내가 시각에 이어 나온다' :   // ★[GUEST_ONCE_1019 검토 133-5] 옛 메모 «5~7분 간격 반복(콘솔이 자동)»은 콘솔에 반복 코드가 없어 틀린 말이었다
             i === 3 ? '★둘째 문장이 안내 음성 알림이다(AI고지_G1-4 · 계약서 서명 확인 줄과 짝) · 빼지 말 것' : '',   // ★[SOURCE_BEST_1015 라운드 5] 1분 전은 «곧 시작 · 알림 한 마디 · 휴대폰» 셋(자료 G4 분배)
           pick: own ? '두 분 목소리로 녹음' : ''
         }));
@@ -917,6 +919,7 @@
       return [
         cue({
           k: 'ring', blockN: '반지 교환', slug: 'narr-ring-in', name: '반지 교환 시작', text: n.nar,
+          note: '하객 쪽 시야 확인 — 꽃 · 장식 · 서는 자리가 두 분 손을 가리지 않게',   // ★[RING_SIGHT_1019 검토 133-6] 후기: 화병에 가려 가족이 반지 끼우는 걸 못 봤다 · 2층 하객은 식이 안 보였다
           live: { t: '신랑 먼저, 신부 다음으로 반지 끼우기', est: 30, self: true, doing: 'move' }
         }),
         cue({
@@ -1500,9 +1503,15 @@
         note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
         live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: _go['narr-online-in'], self: true, doing: 'say' }
       }));
+      var _freeOpen = !!(D.COURSES[S.course] && D.COURSES[S.course].open);   // [PHOTO_FREE_OPEN_1019]
       cues.push(cue({
         k: '_final', blockN: '단체 사진', slug: 'narr-photo-out', name: '사진 닫는 말', text: D.NARR.photoOut, duck: -12,
         note: '★예식 전체에서 마지막으로 나가는 감정이다(피크엔드) · 없으면 마무리 인사로 끝난다',
+        live: _freeOpen ? null : { t: '자유 사진 · 남는 시간만큼 · 두 분 숨 고르기 포함', est: 0, self: true, doing: 'move' }   // 옛 코스는 종전 그대로(65 가 자유 사진)
+      }));
+      /* ★[PHOTO_FREE_OPEN_1019 검토 133-3] 262 자유 사진 여는 말 — 새 코스만 · 65 에 사슬로 이어 «이제 무엇을 해도 되는지»를 말한다(자료 DD 폐식사 템플릿 2) · 자유 사진(사람 순간)은 이 줄이 맡는다 */
+      if (_freeOpen) cues.push(cue({
+        k: '_final', blockN: '단체 사진', slug: 'narr-photo-free', name: '자유 사진 여는 말', text: D.NARR.photoFree, duck: -12,
         live: { t: '자유 사진 · 남는 시간만큼 · 두 분 숨 고르기 포함', est: 0, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다
       }));
       /* [ROUND_FIT 2패스 본체 · GROUP_PHOTO · PHOTO_GO2GO] 단체 사진 창 = 본식이 끝난 뒤((26) 말이 끝난 뒤)부터 마무리 GO 까지.
@@ -1522,8 +1531,9 @@
         fit(by[_thx], _go[_thx]);   // [PHOTO_THANKS]
         fit(by['narr-photo-split'], _go['narr-photo-split']);
         fit(by['narr-online-in'], _go['narr-online-in']);
-        fit(by['narr-photo-out'], goFree);
-        if (by['narr-photo-out'] && by['narr-photo-out'].live) by['narr-photo-out'].live.goFree = goFree;   // 콘솔 · 검사가 읽는 «자유 사진 목표»(말 포함)
+        var _fc = by['narr-photo-free'] || by['narr-photo-out'];   // [PHOTO_FREE_OPEN_1019] 새 코스는 262 · 옛 코스는 65
+        fit(_fc, goFree, _fc === by['narr-photo-free'] ? ((by['narr-photo-out'] && by['narr-photo-out'].est) || 0) : 0);   // 새 코스는 65 의 말도 자유 사진 몫 안
+        if (_fc && _fc.live) _fc.live.goFree = goFree;   // 콘솔 · 검사가 읽는 «자유 사진 목표»(말 포함)
       })();
       /* ★★[ONLINE_ALREADY_ENDED 2026-08-16 사용자 지적] 배웅에서 온라인을 갈라 말하지 않는다.
          사용자 원문: *"본식끝나고 온라인 화면도 종료 한다고 우리 정했잖아 이건 그걸기억못하는듯한 진행인데"*

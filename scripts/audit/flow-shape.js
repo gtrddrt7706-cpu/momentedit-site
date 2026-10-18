@@ -75,7 +75,7 @@ for (const course of COURSES) {
   console.log('\n  ── 한 목소리가 연속으로 끄는 시간');
   let vrun = 0, vfrom = null, vruns = [];
   for (const r of row) {
-    /* ★[GUEST_SPACED] 하객 맞이 네 클립은 «5~7분 간격으로 반복 재생»된다(큐 note).
+    /* ★[GUEST_SPACED] 하객 맞이 네 클립은 시각(문 열림 · 10분 · 5분 · 1분 전)에 따로따로 나간다(큐 note · GUEST_ONCE_1019).
        붙여서 재면 70초 연속으로 잡히는데 실제로는 그렇게 안 나간다. 블록째 뺀다. */
     if (r.blockN === '하객 맞이') { if (vrun) vruns.push({ vfrom, vrun }); vrun = 0; vfrom = null; continue; }
     if (r.kind !== '말') { if (vrun) vruns.push({ vfrom, vrun }); vrun = 0; vfrom = null; continue; }
