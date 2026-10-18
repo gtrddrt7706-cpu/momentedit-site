@@ -958,11 +958,13 @@
        ★[CANDLE_TONE_1014] «새 고르기 칸 없음»(입장 «격식 있게»에 화촉 맺는 말 대안을 묶던 결정)은 그대로 — 화촉 예시는 여는 말만 바꾼다(맺는 말 · 인사 구호는 지금 글). */
   var NAR_EX = {
     /* 개식 선언(137) — 하객 맞이 쪽 칩 줄(at) · 2 = U1 원본(실제 예식 사회자 대본) «1부 개식 선언» · 3 = 자료 BB 3(허정인) · 4 = BB 5(박상현 «하객에게 부탁하는 3가지») · 사회자 소개는 뺐다 */
-    open: { lab: '개식 멘트', at: 'guest', names: ['힘차게', '격식 있게', '담백하게', '다정하게'],
+    /* ★[REVIEW7_1018 인스타 섹션 검토 77] 5 «뭉클하게» = 자료 Y3(유튜브 사회자이상윤 설명란 개식선언) 그대로 — «신랑 군과 신부 양의» → «신랑 신부의»(이름 ①) · «아름다운예식» 띄어쓰기 · 쉼표 둘 */
+    open: { lab: '개식 멘트', at: 'guest', names: ['힘차게', '격식 있게', '담백하게', '다정하게', '뭉클하게'],
       lines: { 'narr-open': [
         '바쁘신 일정 속에서도 두 사람의 결혼을 축하해 주시기 위해 먼 걸음 해 주신 가족, 친구, 그리고 지인 분들께 신랑 신부를 대신하여 깊은 감사의 말씀 드리겠습니다. 하객 여러분들께서도 소중한 자리의 증인이신 만큼 진심 어린 마음으로 두 사람을 축복해 주시기 바랍니다. 그럼, 지금부터 신랑 신부의 결혼식을 거행하도록 하겠습니다.',
         '하객 여러분, 안녕하십니까. 이제 예식을 시작하려 합니다. 양가를 대신해 감사드립니다. 두 사람의 행복한 날을 축복해 주시기 바랍니다. 신랑과 신부의 예식을 시작하겠습니다. 큰 박수 부탁드립니다.',
-        '바쁘신 중에도 귀한 자리 해 주신 내빈께, 양가 혼주님과 신랑 신부를 대신해 감사드립니다. 오늘은 두 사람이 함께 걸어갈 삶의 속도와 방향을 맞추는 뜻깊은 날입니다. 하객 여러분께 세 가지를 부탁드립니다. 뜨거운 박수, 따뜻한 눈빛, 진심 어린 축하의 마음입니다. 끝까지 함께해 주시기 바랍니다. 큰 박수로 식을 시작하겠습니다.'
+        '바쁘신 중에도 귀한 자리 해 주신 내빈께, 양가 혼주님과 신랑 신부를 대신해 감사드립니다. 오늘은 두 사람이 함께 걸어갈 삶의 속도와 방향을 맞추는 뜻깊은 날입니다. 하객 여러분께 세 가지를 부탁드립니다. 뜨거운 박수, 따뜻한 눈빛, 진심 어린 축하의 마음입니다. 끝까지 함께해 주시기 바랍니다. 큰 박수로 식을 시작하겠습니다.',
+        '정연복 시인의 부부의 인연이라는 시에는 이런 말이 나옵니다. 두 사람이 만나는 것은 참으로 기막힌 인연이고, 그리고 참 기적 같은 일이라고 말합니다. 오늘 두 사람의 기적 같은 시작을 함께해 주신 여러분, 진심으로 고맙습니다. 그럼 지금부터 신랑 신부의 아름다운 예식을 거행하도록 하겠습니다.'
       ] } },
     /* 화촉 여는 말(91 ~ 94) — 서는 분마다 · 2 = G 원본(애봉네 대본) «화촉점화» · 3 = U1 원본 «화촉점화» 첫 문장 · 4 = 어머님 FF 1-1(«멈춘 시계» · 혼주 입장 구호는 지금 부르는 말로 ③) · 네 분 G 원본 «양가 부모님 입장».
        끝 «단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.»는 지금 글 그대로(나와서 할 일). 예시 1 의 결이 서는 분마다 달라 이름도 판마다 · 빈 이름('')은 그 판에 없는 예시 */
@@ -970,17 +972,17 @@
       names: function (S) { var w = S.candleWho || DEF.candleWho; return w === 'mothers' ? ['뭉클하게', '담백하게', '잔잔하게', '다정하게'] : w === 'others' ? ['담백하게', '격식 있게', '잔잔하게', '다정하게'] : w === 'fathers' ? ['격식 있게', '담백하게', '잔잔하게', '감사하게'] : ['격식 있게', '담백하게', '잔잔하게', '뭉클하게']; },
       lines: {
         'narr-candle-in-mothers': [
-          '이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
+          '이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
           '먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다. 양가 어머님, 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
           "하객 여러분, 어릴 땐 엄마가 좋다며 엄마 뒤만 졸졸 쫓아다니던 우리 어린아이들이 지금은 전화 한 통도 참 쉽지 않습니다. 세월은 빠르게 흘러 어느덧 결혼할 나이가 되었지만, 아직도 '차 조심해라' 말씀하시는 우리 어머님들의 시간은 아직도 저희의 어린 시절에 멈춰 있는 듯합니다. 오늘 그 고장 난 시계가 다시 움직이길, 그리고 두 분을 위해 흐르길 바라며, 양가 어머님께서 두 사람이 걸어갈 길을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오."
         ],
         'narr-candle-in-fathers': [
-          '이제 양가 아버님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
+          '이제 양가 아버님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
           '먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다. 양가 아버님, 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
           '먼저 예식의 시작을 알리는 양가 아버님의 촛불 점화가 있겠습니다. 오늘 이 자리에 서기까지 사랑과 희생으로 보살피시느라 애쓰신 양가 아버님께 감사와 격려의 박수 부탁드립니다. 양가 아버님, 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.'   // [T3_OK_1017] T3 «양가 부모님 입장»(어머님 → 아버님 ① · 입장 박수가 없어 «다시 한번» 뺌 ③)
         ],
         'narr-candle-in-parents': [
-          '이제 양가 부모님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
+          '이제 양가 부모님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
           '먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다. 양가 부모님, 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
           '누군가의 소중한 아들이었고 딸이었던 두 분은 한 가정을 이루고, 어느덧 부모가 되어 또 다른 사랑을 키워 오셨습니다. 그리고 오늘, 새로운 인생의 길을 사랑과 축복으로 앞장서 주시려 합니다. 양가 부모님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.'
         ],
@@ -1000,11 +1002,13 @@
         ]
       } },
     /* 맞절(132) — 2 = 자료 EE A-1(박은지 · 격식형 짧은 범용 · 원문 그대로) · 3 = S 원본(게으른닭 대본) «신랑 신부 맞절» · 4 = EE A-3(세나운서 · 회상 요청형 · 원문 그대로) */
-    matjeol: { lab: '맞절 멘트', names: ['잔잔하게', '격식 있게', '뭉클하게', '다정하게'],
+    /* ★[REVIEW7_1018 인스타 섹션 검토 76] 5 «담백하게» = 자료 Y2(유튜브 한석준 «결혼식 사회(한석준ver)» 맞절) 그대로(띄어쓰기만) — 입장 도착 뒤 나란히 선 두 분을 마주 보게 하는 말이 글 안에 있다 */
+    matjeol: { lab: '맞절 멘트', names: ['잔잔하게', '격식 있게', '뭉클하게', '다정하게', '담백하게'],
       lines: { 'narr-entry-bow': [
         '다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다. 맞절은 부부로서의 첫 예를 올리는 인사인데요. 그럼 서로의 눈을 바라보며 맞절하겠습니다. 서로를 존중하는 마음으로, 신랑 신부 맞절!',
         '바로 이어서 두 사람이 부부가 되는 예를 갖추는 순서로 신랑, 신부의 맞절 순서가 있겠습니다. 지금부터 서로의 눈을 바라봐 주시기 바랍니다. 긴 시간 동안 내 곁에 있어 준 나의 사랑하는 사람이 바로 앞에 서 있습니다. 깊게 사랑하고 존경하는 나의 연인이 이제는 나의 평생 반려자가 되는 순간입니다. 이 깊은 마음을 눈과 미소에 담아 예를 갖추어 맞절하겠습니다. 신랑 신부, 맞절!',
-        '지금부터 서로의 눈을 지그시 바라봐 주세요. 그리고 처음 만났던 날, 함께 웃으면서 행복했던 지난 시간들을 회상해 주시기 바랍니다. 이제 우리 두 사람은 지난 아름다운 시간을 지나 부부라는 이름으로 새로운 여정을 시작하려 합니다. 인생에서 만날 그 어떤 순간일지라도 늘 감사하고 아껴 주며 사랑할 것을 다짐하며 서로에게 인사하겠습니다. 신랑 신부, 맞절!'
+        '지금부터 서로의 눈을 지그시 바라봐 주세요. 그리고 처음 만났던 날, 함께 웃으면서 행복했던 지난 시간들을 회상해 주시기 바랍니다. 이제 우리 두 사람은 지난 아름다운 시간을 지나 부부라는 이름으로 새로운 여정을 시작하려 합니다. 인생에서 만날 그 어떤 순간일지라도 늘 감사하고 아껴 주며 사랑할 것을 다짐하며 서로에게 인사하겠습니다. 신랑 신부, 맞절!',
+        '신랑 신부 서로 마주 보고 서 주십시오. 신랑 신부, 맞절!'
       ] } },
     /* ★[REVIEW1_1018 2026-10-18 · 인스타 섹션 검토 8] 감사 인사 여는 말(11) — 2 = 자료 PP 14(사회자 박요한 릴스 · 하객께 드리는 감사 인사) 여는 문장 ·
        «버진로드 중앙에 서서»는 뺐다(③ · 우리는 두 분이 앞 중앙에서 하객 쪽으로 돌아선다 · 큐 hint) · 띄어쓰기 · 뒤 감사문 대독은 우리 동선이 아니다(두 분이 직접 말한다) */
@@ -1061,7 +1065,10 @@
          4 는 기본 글 그대로(소리 201 narr-ring-out-ex4 는 RETIRED · 번호 보존 — 그 자리를 다시 쓰지 않는다) */
       , 'narr-ring-out': [
         '이 반지는 변치 않는 사랑과 영원한 약속의 상징입니다. 두 사람은 오늘 이 자리에서 서로를 평생의 동반자로 약속했습니다.',
-        '이로써 신랑 신부의 예물 교환이 완료되었습니다. 두 사람의 영원한 사랑을 상징하는 이 반지를 통해 앞으로의 모든 순간을 행복하게 함께할 수 있기를 바랍니다.'
+        '이로써 신랑 신부의 예물 교환이 완료되었습니다. 두 사람의 영원한 사랑을 상징하는 이 반지를 통해 앞으로의 모든 순간을 행복하게 함께할 수 있기를 바랍니다.',
+        /* ★[REVIEW7_1018 인스타 섹션 검토 75 · R14] 4 = 자료 B13(블로그 polarisians «셀프웨딩 사회자 대본&식순 샘플» 11쪽 반지 교환 끝) 그대로(띄어쓰기 · 줄 이어 붙임) ·
+           «서약»이 없어 감사문 날에도 맞다 · 원문 바로 뒤 성혼 선언 줄은 쓰지 않는다 · 소리 번호는 201(쉬는 소리) 대신 새 자리(EX_SLUG_MOVED) */
+        '이 반지가 두 사람이 어디에 있더라도 내 남편이, 내 아내가 곁에 있음을 잊지 않도록 해 주는 징표가 되어 주길 바랍니다.'
       ]
       } },
     /* 성혼 선언 맺는 말(박수 청 · 성혼 선언 마무리) — 2 = G 원본 «성혼 선언» 낭독 뒤 두 문장 · 수행문(«부부가 되었습니다»)은 여전히 나레이션이 말하지 않는다(DECLARE_BY_PERSON) */
@@ -1152,13 +1159,16 @@
       ] } },
     /* 부모님께 인사(이름 줄 141 · 여는 말 38 · 구호 143 · 맺는 말 39) — 2 = S 원본 «양가 부모님께 인사» 첫 문장 · 3 = U1 원본 «양가 부모님 & 하객 인사» 첫 문장 + G 원본 «오늘이 있기까지 …» + (말 없이 날 구호) U1 «존경과 감사의 마음을 담아»(구호는 지금 구호 · 양가께 한 번 ③) ·
        4 = G 원본 «양가 부모 및 내빈께 인사» 첫 문장 + 맺는 말 «양가 부모님께 부부로 처음 인사를 드리는 따뜻한 시간이었습니다.» — 성혼 선언 바로 뒤 날(짝 줄 142 «처음 드리는 인사»)엔 «처음 인사»가 겹쳐 4 가 없다 */
-    tribute: { lab: '인사 멘트', names: ['뭉클하게', '담백하게', '감사하게', '다정하게'],
+    /* ★[REVIEW7_1018 인스타 섹션 검토 78] 5 «격식 있게» = 자료 Y4(유튜브 고은천 «주례없는 예식 대본(기본)» 부모님 인사 첫 문장) 그대로 — 뒤 «먼저 신부측 부모님께 이동해주시기 바랍니다»는 양가에 한 번에 가는 우리 동선과 달라 뺐다(④) ·
+       걸어가는 말 · 구호 · 맺는 말은 예시 1 글(줄 없음) · «이번에는»으로 열어 B12 가 빠진다(BRIDGE_SKIP_1018 ③) */
+    tribute: { lab: '인사 멘트', names: ['뭉클하게', '담백하게', '감사하게', '다정하게', '격식 있게'],
       when: [null, null, function (S) { var q = seqOf(S), i = q.indexOf('tribute'); return !(i > 0 && q[i - 1] === 'declare'); }],
       lines: {
         'narr-tribute-name': [
           '다음은 양가 부모님께 감사의 인사를 드리는 순서입니다.',
           '자 그럼 이제 부부로서 첫걸음을 내딛기 전, 지금까지 키워 주신 양가 부모님께 감사의 인사를 올리겠습니다.',
-          '이제 신랑, 신부 양가 부모님께 인사를 올리겠습니다.'
+          '이제 신랑, 신부 양가 부모님께 인사를 올리겠습니다.',
+          '이번에는 부모님의 은혜에 앞으로 평생 보답하겠다는 의미로 양가 부모님께 감사의 인사를 드리는 시간을 갖도록 하겠습니다.'
         ],
         /* ★[REVIEW5_1018 검토 42 · 43 · 사장님 «최소 4개»] 걸어가는 말 — 2 = 자료 WW1(블로그 «천천히 신랑 측 혼주석으로 이동해 주시기 바랍니다» · «신랑 측 혼주석으로» → «부모님 앞으로» ④ 양가를 한 번에) · 4 = 자료 WW2(블로그 13. 그대로) ·
            말 없이 날 구호 — 2 = 자료 PP 21 · 4 = 자료 WW6(블로그 «… 앞으로 잘 살겠습니다~ 라는 마음으로» → «잘 살겠다는 마음으로» 물결 · 따옴표 없는 인용을 말로) ·
@@ -1220,10 +1230,14 @@
   function narExOf(S, k) { var v = Math.floor(+((S && S.narEx) || {})[k] || 0); return narExOk(S, k, v) ? v : 0; }
   function narExList(S, k) { return narExNames(S, k).map(function (nm, i) { return [i, nm]; }).filter(function (x) { return x[0] === 0 || narExOk(S, k, x[0]); }); }
   /* 같은 글은 한 소리 — 그 글이 처음 나온 자리의 번호(편지 맺는 말: 예시 2 · 3 이 같은 글 → 둘 다 -ex2) */
-  function narExSlugN(k, slug, n) { var L = (NAR_EX[k] && NAR_EX[k].lines[slug]) || [], t = L[n - 1]; return t ? slug + '-ex' + (L.indexOf(t) + 2) : ''; }
+  /* ★[EX_SLUG_MOVED_1018 검토 75] 쉬는 소리 번호(RETIRED · 번호 보존)를 다시 쓰지 않는다 — 그 자리에 새 글이 오면 새 이름으로(FILES 맨 끝) */
+  var EX_SLUG_MOVED = { 'narr-ring-out-ex4': 'narr-ring-out-ex9' };
+  function exSlugAt(slug, i) { var s = slug + '-ex' + (i + 2); return EX_SLUG_MOVED[s] || s; }
+  function narExSlugN(k, slug, n) { var L = (NAR_EX[k] && NAR_EX[k].lines[slug]) || [], t = L[n - 1]; return t ? exSlugAt(slug, L.indexOf(t)) : ''; }
   function narExSlug(S, k, slug) { var n = narExOf(S, k); return (n && narExSlugN(k, slug, n)) || slug; }
   var NAR_EX_BY = {}; Object.keys(NAR_EX).forEach(function (k) { Object.keys(NAR_EX[k].lines).forEach(function (sl) { NAR_EX_BY[sl] = k; }); });
   /* 엔진(ritual-cue build 끝)이 줄마다 묻는다 — 이 줄에 고른 예시 소리가 있으면 그 slug · 없으면 '' */
+  function narExKey(slug) { return NAR_EX_BY[slug] || ''; }   // [MOOD_FIT_1018] 줄 slug → 예시 순간 키
   function narExCue(S, slug) { var k = NAR_EX_BY[slug], n = k ? narExOf(S, k) : 0; return n ? narExSlugN(k, slug, n) : ''; }
   /* 소리 목록(녹음 대본 · FILES 대조 · 검사) — 같은 글은 한 번 */
   function narExClips() {
@@ -1231,10 +1245,52 @@
     Object.keys(NAR_EX).forEach(function (k) { var e = NAR_EX[k];
       Object.keys(e.lines).forEach(function (sl) { var L = e.lines[sl], who = /^narr-candle-in-/.test(sl) ? sl.replace('narr-candle-in-', '') : '';
         L.forEach(function (t, i) { if (!t || L.indexOf(t) !== i) return; var nm = narExNames(who ? { candleWho: who } : {}, k)[i + 1] || '';
-          out.push({ k: k, lab: e.lab, base: sl, slug: sl + '-ex' + (i + 2), n: i + 1, name: nm, text: t }); }); }); });
+          out.push({ k: k, lab: e.lab, base: sl, slug: exSlugAt(sl, i), n: i + 1, name: nm, text: t }); }); }); });
     return out;
   }
   function narExKeys() { return Object.keys(NAR_EX); }
+
+  /* ★★[MOOD_1018 인스타 섹션 검토 7판 67 · 68 · 사장님 10/18 «A만 반영하자» · «이런 틀은 그대로»] 나레이션 분위기 — ① 고르기 코스 카드 아래 칩 한 줄.
+       다섯 중 하나를 누르면 아래 표대로 입장 멘트(entry) · 안내 멘트(guestEx) · 소개 멘트(pvEx) · 순간마다 «○○ 멘트»(narEx)를 한 번에 넣는다(값 0 = 예시 1).
+       새 글은 없다 — 이미 있는 칩을 한 번에 누르는 일 · 순간 쪽 칩은 그대로 하나씩 바꿀 수 있다(바꾸면 «바꾼 곳 있음»).
+       화촉은 서는 분마다 칩 이름 결이 달라 표도 서는 분마다 · 코스가 분위기를 미리 누르지 않는다(사장님 16:44 · B 안 함) ·
+       «지금 그대로»(keep) = 예시 1 · 코스 입장 그대로. 고른 법(같은 이름 칩 → 가장 가까운 결 → 조회가 많은 원문)은 docs/handoff/insta-find.md 검토 68.
+       ★[MOOD_FIT_1018 검토 69] 표만으로 겹치는 이음새는 ritual-cue moodFit 이 뒤 순간을 다음 예시로 넘긴다(분위기를 고른 날만) */
+  var MOOD_KEYS = ['keep', 'plain', 'formal', 'warm', 'moving', 'bright'];
+  var MOOD_NAME = { keep: '지금 그대로', plain: '담백하게', formal: '격식 있게', warm: '다정하게', moving: '뭉클하게', bright: '밝고 힘차게' };
+  var MOOD = {
+    plain: { entry: 'A', guestEx: 0, pvEx: 0, narEx: { open: 2, candle: { mothers: 1, fathers: 1, parents: 1, others: 0 }, matjeol: 4, welcome: 0, vow: 0, thanks: 0, ring: 0, declare: 0, bless: 0, speech: 0, song: 0, letter: 0, letterParent: 0, tribute: 1, close: 0, toast: 2, table: 0 } },
+    formal: { entry: 'C', guestEx: 3, pvEx: 0, narEx: { open: 1, candle: { mothers: 2, fathers: 0, parents: 0, others: 1 }, matjeol: 1, welcome: 3, vow: 1, thanks: 2, ring: 1, declare: 1, bless: 1, speech: 1, song: 3, letter: 0, letterParent: 3, tribute: 4, close: 3, toast: 1, table: 2 } },
+    warm: { entry: 'E', guestEx: 1, pvEx: 0, narEx: { open: 3, candle: { mothers: 3, fathers: 3, parents: 3, others: 3 }, matjeol: 3, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 0, bless: 2, speech: 2, song: 1, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 0, table: 3 } },
+    moving: { entry: 'D', guestEx: 1, pvEx: 0, narEx: { open: 4, candle: { mothers: 0, fathers: 3, parents: 3, others: 2 }, matjeol: 2, welcome: 0, vow: 3, thanks: 1, ring: 3, declare: 3, bless: 3, speech: 2, song: 0, letter: 3, letterParent: 2, tribute: 0, close: 1, toast: 2, table: 4 } },
+    bright: { entry: 'B', guestEx: 2, pvEx: 0, narEx: { open: 0, candle: { mothers: 1, fathers: 1, parents: 1, others: 0 }, matjeol: 1, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 2, bless: 2, speech: 3, song: 2, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 3, table: 3 } }
+  };
+  /* [MOOD_1018 검토 73] 분위기를 고른 날 두 분 몫 «참고 예시» 맨 위에 둘 결(RITUAL_REF kyeol) */
+  var MOOD_REF = { plain: ['담백', '짧게'], formal: ['격식', '담백'], warm: ['다정', '장면 하나'], moving: ['장면 하나', '그리움', '다정'], bright: ['유머+진심', '다정'] };
+  function moodOf(S) { return (S && MOOD_NAME[S.mood]) ? S.mood : ''; }
+  /* 표의 순간 값(화촉은 지금 서는 분 칸) — 0 은 넣지 않는다(예시 1) */
+  function moodNarEx(S, key) { var m = MOOD[key], out = {}; if (!m) return out;
+    Object.keys(m.narEx).forEach(function (k) { var v = m.narEx[k]; if (v && typeof v === 'object') v = v[(S && S.candleWho) || DEF.candleWho] || 0; if (v && NAR_EX[k]) out[k] = v; });
+    return out; }
+  /* 지금 S 의 분위기 몫 네 칸(입장 · 안내 · 소개 · 순간 멘트) — «바꾼 곳 있음»은 이것을 고른 때 찍어 둔 값(S.moodBase)과 칸마다 대조한다 */
+  function moodPart(S) { var n = {}; Object.keys((S && S.narEx) || {}).forEach(function (k) { var v = +S.narEx[k] || 0; if (v) n[k] = v; });
+    return { entry: (S && S.entry) || DEF.entry, guestEx: +(S && S.guestEx) || 0, pvEx: +(S && S.pvEx) || 0, narEx: n }; }
+  function moodDiff(a, b) { if (!a || !b) return false; if (a.entry !== b.entry || a.guestEx !== b.guestEx || a.pvEx !== b.pvEx) return true;
+    var ks = {}; Object.keys(a.narEx || {}).concat(Object.keys(b.narEx || {})).forEach(function (k) { ks[k] = 1; });
+    return Object.keys(ks).some(function (k) { return (+(a.narEx || {})[k] || 0) !== (+(b.narEx || {})[k] || 0); }); }
+  /* 분위기 넣기 — opt.noEntry = 두 분이 입장 인사를 고쳐 쓰거나 확정했으면 입장 칸은 그대로(글을 덮지 않는다) */
+  function moodApply(S, key, opt) { opt = opt || {};
+    if (key === 'keep') { S.mood = 'keep'; return S; }
+    var m = MOOD[key]; if (!m) return S;
+    S.mood = key;
+    if (!opt.noEntry) S.entry = m.entry;
+    if (m.guestEx) S.guestEx = m.guestEx; else delete S.guestEx;
+    if (m.pvEx) S.pvEx = m.pvEx; else delete S.pvEx;
+    var ne = moodNarEx(S, key); if (Object.keys(ne).length) S.narEx = ne; else delete S.narEx;
+    return S; }
+  /* «지금 그대로»로 돌아가기 — 분위기가 넣은 값만 걷는다(예시 1 · 코스 입장) */
+  function moodClear(S, opt) { opt = opt || {}; var ex = exampleOf(S && S.pickFrom);
+    delete S.narEx; delete S.guestEx; delete S.pvEx; if (!opt.noEntry) S.entry = (ex && ex.set && ex.set.entry) || DEF.entry; return S; }
 
   /* ── 남는 장면(«그날 남는 사진» · 코워크 1장 고침) — 준비한 순서는 무엇을에 따라 ── */
   var FREE_SHOT = { video: '함께 보며 웃는 하객들', etc: '두 분이 준비한 순간', gift: '선물을 건네받는 두 분', speech: '말하는 분을 보며 웃는 두 분' };   // [FREE_ETC]
@@ -1379,6 +1435,7 @@
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, flowLv: flowLv, FLOW_LV: FLOW_LV, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf,
     declBy: declBy, DECL_HINT: DECL_HINT, DECL_MAX: DECL_MAX,   // [DECLARE_ANYONE]
-    NAR_EX: NAR_EX, narExOf: narExOf, narExOk: narExOk, narExList: narExList, narExSlug: narExSlug, narExCue: narExCue, narExClips: narExClips, narExKeys: narExKeys   // [EX_MANY_1017]
+    MOOD: MOOD, MOOD_KEYS: MOOD_KEYS, MOOD_NAME: MOOD_NAME, MOOD_REF: MOOD_REF, moodOf: moodOf, moodNarEx: moodNarEx, moodPart: moodPart, moodDiff: moodDiff, moodApply: moodApply, moodClear: moodClear,
+    NAR_EX: NAR_EX, narExOf: narExOf, narExOk: narExOk, narExList: narExList, narExSlug: narExSlug, narExCue: narExCue, narExKey: narExKey, narExNames: narExNames, narExClips: narExClips, narExKeys: narExKeys   // [EX_MANY_1017]
   };
 });
