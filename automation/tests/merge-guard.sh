@@ -14951,6 +14951,20 @@ chk '^## 검토 답' docs/handoff/insta-find.md 1
 chk 'NARR_NOW_1018' scripts/build-narr-now.mjs 1
 chk 'NARR_ROUNDS_1018' CLAUDE.md 1
 chk 'NARR_REVIEW_1018' CLAUDE.md 1
+# ★[CHECK_WITH_SRC_1018 2026-10-18 사장님 «인스타 섹션이 직접 보고 부족한 부분 체크 · 필요한 자료는 직접 찾아 정리해서 · 수정할 것은 너에게 요청» · «수정은 너가»] 공개 지시문 8판
+#   검토는 근거 자료와 한 통 · 로그인 없이 보는 화면(order-preview.html = 마이페이지 «식순 만들기») · 자료집 주소 — 아래 빌더 단추 이름을 바꾸면 지시문 «실제 화면 보기»도 같은 PR 에서 고친다
+chk 'CHECK_WITH_SRC_1018' docs/handoff/insta-find.md 1
+chk 'CHECK_WITH_SRC_1018' CLAUDE.md 1
+chk '^## 실제 화면 보기' docs/handoff/insta-find.md 1
+chk '^## 자료집 보는 곳' docs/handoff/insta-find.md 1
+chk 'https://www.momentedit.kr/order-preview.html' docs/handoff/insta-find.md 1
+chk 'momentedit-docs/tree/main/research/식순_참고자료/이벤트별' docs/handoff/insta-find.md 1
+chk '이 흐름으로 시작하기' order-preview.html 1
+chk '다음 · 하나씩 만들기' order-preview.html 1
+chk '모든 순간 보기' order-preview.html 1
+chk '아직 남은 일이 있어요' order-preview.html 1
+chk '처음부터 다시 만들기' order-preview.html 1
+chk '모두 비우기' order-preview.html 1
 if command -v node >/dev/null 2>&1; then
   if node scripts/build-narr-now.mjs --check >/dev/null 2>&1; then echo 'ok narr-now.md = 지금 엔진 글 [NARR_NOW_1018]'; else echo 'FAIL narr-now.md 가 지금 엔진 글과 다르다 — node scripts/build-narr-now.mjs 로 다시 만든다(다른 섹션이 낡은 판을 검토한다) [NARR_NOW_1018]'; fail=1; fi
 fi
