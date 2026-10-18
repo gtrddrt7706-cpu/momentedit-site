@@ -15050,6 +15050,12 @@ chk '오늘 제가 여기 선 것도 그 걸음 덕분이에요.' assets/ritual-
 nochk '저를 여기까지 데려다주셨네요' order-preview.html
 nochk '저를 여기까지 데려다주셨네요' assets/ritual-data.js
 chk '| 검토 121 |' docs/handoff/insta-find.md 1
+# ★[REVIEW15_1018 2026-10-18 인스타 섹션 검토 122 · 123] 다음판_1018 에 배역 02(두 분 판 1인칭) · 혼주 편지 49문장(두 분 → 신랑 신부 · 인사를 제대로) — 글은 패치로 녹음 PR 뒤
+chk '=43_parents-letter,=02_guest-2' docs/handoff/녹음/다음판_1018_clip.txt 1
+chk '예슬: 저희 결혼식은 십 분 뒤에 시작합니다.' docs/handoff/녹음/다음판_1018_5_배역.txt 1
+chk '우성: 예식의 순서는 신랑 신부 뜻대로 정합니다.' docs/handoff/녹음/다음판_1018_4_혼주편지.txt 1
+chk '우성: 사람이 많은 자리에서는 인사를 제대로 나누기 어렵습니다.' docs/handoff/녹음/다음판_1018_4_혼주편지.txt 1
+chk '| 검토 123 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
