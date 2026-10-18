@@ -14907,7 +14907,7 @@ chk 'R10_SRC_1018' order-preview.html 1
 chk '준비한 축가가 있겠습니다. 여러분 큰 박수 부탁드립니다.' assets/ritual-open.js 1
 chk '우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.' assets/ritual-open.js 1
 chk '두 사람의 앞날을 축복하는 축하공연이 있겠습니다.' assets/ritual-open.js 1
-chk '오늘을 위해 훌륭한 덕담을 준비해 주신 부모님께 다시 한번 큰 박수 부탁드립니다.' assets/ritual-open.js 1   # [R11_SRC_1018 라운드 11] 여는 말 OO 와 한 짝 · «다시 한번» 원본 그대로
+chk '오늘을 위해 덕담을 준비해 주신 부모님께 다시 한번 큰 박수 부탁드립니다.' assets/ritual-open.js 1   # [REVIEW8_1018] «훌륭한» 평가 뺌 · [R11_SRC_1018 라운드 11] 여는 말 OO 와 한 짝 · «다시 한번» 원본 그대로
 chk "'narr-song-ex3', 'narr-song-ex4', 'narr-bless-end-ex3'" assets/ritual-cue.js 1
 # ★[ROUND_REASON_1018 · JUNCTION_MIXED_1018 · GAPS_OPEN_ONLY_1018 라운드 10] 걷힌 자로 자료 글을 빼지 않게 · 자료 글 → 우리 글 이음매도 재게 · «찾음» 묶음은 열린 줄만
 chk 'ROUND_REASON_1018' CLAUDE.md 2
@@ -14953,7 +14953,7 @@ fi
 chk 'REVIEW1_1018' assets/ritual-open.js 2
 chk 'REVIEW1_1018' assets/ritual-cue.js 1
 chk "'toast-toast-ex4', 'narr-welcome-in-ex2'" assets/ritual-cue.js 1
-chk "여러분! 신랑 신부가 선창으로 외치면 우리 하객 여러분들께서는 다 함께 '위하여!'라고 외쳐 주시고 건배를 들어 주시면 감사하겠습니다!" assets/ritual-open.js 1
+chk "여러분! 신랑 신부가 선창으로 외치면 우리 하객 여러분들께서는 다 함께 '위하여!'라고 외쳐 주시고 잔을 들어 주시면 감사하겠습니다!" assets/ritual-open.js 1   # [REVIEW8_1018] 건배를 들어 → 잔을 들어
 nochk '두 사람의 행복한 결혼생활을 위하여' assets/ritual-open.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 선창 문구는 두 분이 고르는 축배 한마디 — 나레이션이 정하지 않는다(④)
 chk "names: \['다정하게', '격식 있게', '잔잔하게', '힘차게'\]" assets/ritual-open.js 1
 chk '이제 우리 신랑 신부 두 분은요 이 자리를 가득 채워 주신 내빈 여러분들께 감사 인사를 올리겠습니다.' assets/ritual-open.js 1
