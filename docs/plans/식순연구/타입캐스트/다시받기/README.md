@@ -13,15 +13,15 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 48 | 20 |
+| 1_우성.txt | 우성 | 51 | 22 |
 | 2_진희.txt | 진희 | 2 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 48줄 · 20클립
+# 우성 — 51줄 · 22클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =09_entry-E,=13_narr-vow-in,=15_narr-ring-in,=16_narr-ring-out,=24_narr-bless-end,=26_narr-close,=127_narr-vow-in-b,=39_tribute-out,=197_narr-declare-family-out-ex3,=198_narr-declare-family-out-ex4,=172_narr-bless-mid-ex2,=173_narr-bless-mid-ex3,=206_narr-bless-end-ex3,=202_narr-song-ex2,=204_narr-song-ex3,=205_narr-song-ex4,=199_letter-each-ex4,=200_narr-letter-end-ex4,=184_tribute-out-ex4,=203_narr-table-in-ex3
+  --clip =09_entry-E,=13_narr-vow-in,=15_narr-ring-in,=16_narr-ring-out,=24_narr-bless-end,=26_narr-close,=127_narr-vow-in-b,=39_tribute-out,=208_narr-welcome-in-ex2,=197_narr-declare-family-out-ex3,=198_narr-declare-family-out-ex4,=172_narr-bless-mid-ex2,=173_narr-bless-mid-ex3,=206_narr-bless-end-ex3,=202_narr-song-ex2,=204_narr-song-ex3,=205_narr-song-ex4,=199_letter-each-ex4,=200_narr-letter-end-ex4,=184_tribute-out-ex4,=207_toast-toast-ex4,=203_narr-table-in-ex3
 ```
 
 ```

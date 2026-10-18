@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[EX_MANY_1017 2026-10-17 사장님 «우리 시스템에 예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 하자 · 4개 정도 · 자료집에서 좋은 멘트들 붙여서 · 저 섹션 말고도 예시가 없는 곳 찾아보고 개선»]
-   나레이션 멘트 예시(ritual-open NAR_EX · 14 순간 · 소리 57줄 148 ~ 206(쉬는 소리 201 · 190 둘 · RETIRED · [R11_SRC_1018]) · 191 ~ 196 = 자료 T3 [T3_OK_1017] · 197 ~ 200 = 자료 루프 첫 판 [NARR_LOOP_1018] · 201 ~ 203 = 라운드 9 [NARR_R9_1018] · 204 ~ 206 = 라운드 10 [R10_SRC_1018])를 잰다 — 엔진 · 번호 · 자료 · 화면 · 녹음 대본.
+   나레이션 멘트 예시(ritual-open NAR_EX · 15 순간 · 소리 59줄 148 ~ 208(쉬는 소리 201 · 190 둘 · RETIRED · [R11_SRC_1018]) · 191 ~ 196 = 자료 T3 [T3_OK_1017] · 197 ~ 200 = 자료 루프 첫 판 [NARR_LOOP_1018] · 201 ~ 203 = 라운드 9 [NARR_R9_1018] · 204 ~ 206 = 라운드 10 [R10_SRC_1018] · 207 · 208 = 인스타 섹션 검토 [REVIEW1_1018])를 잰다 — 엔진 · 번호 · 자료 · 화면 · 녹음 대본.
      ① 소리 번호 — 예시 소리마다 FILES 에 있고 147 뒤(맨 끝에 붙였다 · 앞 번호를 밀지 않는다) · EXTRA 글 = 원천 글 · 같은 글은 한 소리
      ② 이름표 — «~하게» 한 낱말(격식 있게 포함 · EX_NAME_HAGE) · 한 순간 안에서 겹치지 않는다
      ③ 엔진 — 고르면 그 줄 소리 · 번호 · 글이 예시로(줄 slug 는 그대로 · c.ex) · 안 고르면 예시 소리가 한 줄도 없다
@@ -65,9 +65,10 @@ function run(mut) {
   T('⑤ norm — 범위 밖(5 · 0) · 모르는 순간 값만 지운다 · 고른 값은 «맞는 날»이 아니어도 남는다', JSON.stringify(nv) === JSON.stringify({ candle: 2, vow: 3 }) && (C.norm(Object.assign(O.sampleS(), { vowKind: 'thanks', narEx: { vow: 2 } })).narEx || {}).vow === 2, JSON.stringify(nv));
   // ⑥ 자료 그대로
   const nz = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
-  const SRC = new Set(JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.map((x) => nz(x.text)));
-  const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn };
   const sents = (t) => (String(t).match(/[^.!?]+[.!?]*/g) || [String(t)]).map((s) => s.trim()).filter(Boolean);
+  /* ★[EX_BANG_SPLIT_1018] 자료 문장 안의 «!»(«'위하여!'라고» · 인스타 SS 46)에서 예시가 갈려도 그 조각은 자료 글이다 — 장부 문장도 같은 자로 나눠 함께 넣는다(통째 · 조각 둘 다) */
+  const SRC = new Set(JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.flatMap((x) => [x.text].concat(sents(x.text))).map(nz));
+  const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn };
   const CALL = /^(양가 (어머님|아버님|부모님)|양가를 대표하는 두 분), 단상 위로 올라와 주십시오\.$/;
   const made = [];
   clips.forEach((x) => { const own = new Set(sents(BASE[x.base] || C.EXTRA[x.base] || '').map(nz));
