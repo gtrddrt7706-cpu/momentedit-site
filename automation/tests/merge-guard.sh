@@ -15091,6 +15091,15 @@ nochk '두 분께서 궁금해하실' parents.html
 chk "'어른께, 예식을 맡은 사람으로서 인사드립니다.'," scripts/build-dubbing-script.mjs 1
 chk '우성: 궁금해하실 것들을 미리 정리해 드린 안내입니다.' docs/handoff/녹음/다음판_1018_4_혼주편지.txt 1
 chk '| 검토 129 |' docs/handoff/insta-find.md 1
+# ★[REVIEW22_1018 2026-10-18 인스타 섹션 검토 130] 멀리 떨어진 되풀이 — 다정 · 뭉클 축사 174 · 다정 덕담 4 · 담백 개식 넷째 문장 걷기 · 입장 B 박수 문장 걷기 · 선언 뒤 박수 두 번 넘기기(새 녹음 없음)
+chk "declare: 0, bless: 3, speech: 1, song: 1," assets/ritual-open.js 1
+chk "declare: 3, bless: 3, speech: 1, song: 0," assets/ritual-open.js 1
+chk 'REVIEW22_1018 검토 130-4' assets/ritual-cue.js 1
+nochk '양가를 대신해 감사드립니다. 두 사람의 행복한 날을' assets/ritual-open.js
+nochk '끊이지 않는 박수와 함성으로 출발하겠습니다. 신랑 신부' assets/ritual-data.js
+nochk '끊이지 않는 박수와 함성으로 출발하겠습니다. 신랑 신부' order-preview.html
+chk '⑥ 멀리 떨어진 되풀이' scripts/audit/mood.mjs 1
+chk '| 검토 130-4 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1

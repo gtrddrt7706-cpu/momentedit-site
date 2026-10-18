@@ -1696,7 +1696,9 @@
     for (var i = 0; i < cs.length - 1; i++) {
       var a = cs[i], b = cs[i + 1], via = false;
       if (!gap(a)) continue;
-      if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2]; }
+      if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2];
+        /* ★[REVIEW22_1018 검토 130-4] 선언 박수 → «박수, 고맙습니다» → «선언해 주신 분께서는, …» → 다음 여는 말 — 사이 자리 줄이 하나 더 끼어도 박수 두 번은 같다(14초) */
+        if (/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 3]) b = cs[i + 3]; }
       var k = O.narExKey ? O.narExKey(b.slug) : '';
       if (!k || (a.k === b.k && !/^bridge-/.test(a.slug))) continue;
       if (only && k !== only) continue;
