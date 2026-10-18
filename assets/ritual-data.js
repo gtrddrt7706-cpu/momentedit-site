@@ -806,7 +806,7 @@ var THANKSBOTH=["감사합니다."];   /* ★[SOURCE_FIRST_1016] 감사문 자�
      검사를 속이지 말고, 왜 없는지를 데이터 옆에 적는다.
    ★새 키를 여기 넣기 전에 물을 것: 고객이 이 문장을 고르거나 미리 듣는가?
      그렇다면 콘솔 전용이 아니라 빌더에 사본이 있어야 한다. */
-var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn','entryBow','thanksIn','declareFamilyIntro','entryArrive'];   /* ★[ENTRY_ARRIVE_1014] 144 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · entryBow 와 같은 길) */   /* [DECLARE_BY_PERSON 2026-10-12] 21 은 쉰다(빌더 사본 걷음) · 여는 말 셋(declareIn*)은 빌더 옛 화면에 사본(DECL_IN)이 있어 거울 검사가 본다 */   /* [MATJEOL_1011] 132 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · tableIn 과 같은 길) */   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
+var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn','entryBow','thanksIn','declareFamilyIntro','entryArrive','photoFree'];   /* ★[PHOTO_FREE_OPEN_1019] 262 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · photoOut 과 같은 길) */   /* ★[ENTRY_ARRIVE_1014] 144 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · entryBow 와 같은 길) */   /* [DECLARE_BY_PERSON 2026-10-12] 21 은 쉰다(빌더 사본 걷음) · 여는 말 셋(declareIn*)은 빌더 옛 화면에 사본(DECL_IN)이 있어 거울 검사가 본다 */   /* [MATJEOL_1011] 132 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · tableIn 과 같은 길) */   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
 /* ★[NARR_RETIRED_END 2026-10-14 라운드 3 · WELCOME_KB_1014] 엔진이 끈 맺는 줄(RETIRED)의 원천 글 — 빌더 사본을 요구하지 않고 오히려 «없어야» 한다(거울 검사).
    welcome.end(12 «지금 들으신 것이 두 사람의 첫 인사였습니다.»)는 9/20 큐에서 걷었는데(WELCOME_OUT_DROP) 옛 코스 화면이 «나레이션이 마무리해요»로 보이고 있었다 · 글은 걷은 명단(옛 녹음)이 쓰니 지우지 않는다 */
 var NARR_RETIRED_END=['welcome'];
