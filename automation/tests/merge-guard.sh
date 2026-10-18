@@ -15195,6 +15195,10 @@ nochk "window.opMood=function" order-preview.html
 nochk "_moodKeep(); }catch(e){}" order-preview.html
 nochk "R.applyExample(S,k); _moodCourse();" order-preview.html
 chk 'MOOD_ROW_OFF_1019' scripts/audit/mood-screen.mjs 3
+# ★[CHIP_FULL_1019 2026-10-19 사장님 «버튼 짝수로 · 서약 감사문 버튼 좌우 꽉 차게 · 그 아래 버튼들도»] 폰 칩 줄 — 둘 이상이면 같은 폭 칸 · 혼자 남는 칩 없음 · 상담 말풍선 자리 비움(레일은 그대로)
+chk 'CHIP_FULL_1019' order-preview.html 4
+chk "padding-right:36px}}   /\* ★\[CHIP_FULL_1019\]" order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/chip-full.mjs >/dev/null 2>&1; _chf=$?; [ "$_chf" = 1 ] && { echo 'FAIL chip-full: 폰 칩 줄이 꽉 차지 않거나 혼자 남는 칩 · 말풍선 자리 — node scripts/audit/chip-full.mjs'; fail=1; }; if [ "$_chf" = 0 ]; then echo 'OK   chip-full [CHIP_FULL_1019]'; fi; fi
 chk 'MOOD_REF_1018' order-preview.html 1
 chk 'SCRIPT_VIEW_1018' order-preview.html 5
 chk 'data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>' order-preview.html 1
@@ -16989,7 +16993,7 @@ chk "if(cat==='bring'&&q.k==='ring'&&!due) due='반지는 단상 위에 미리 �
 nochk ":'아래에서 고른 멘트를 나레이터가 읽어요');" order-preview.html
 nochk "+'<p class=\"mk-note\">영상이 시작되기 바로 전에 나와요</p>'" order-preview.html
 nochk "<p class=\"mk-note mk-txalt\">보내지 않아도 돼요" order-preview.html
-chk 'if(rows<2&&b.length<4) return;' order-preview.html 1
+chk 'if(rows<2&&!nar) return;   /\* \[CHIP_FULL_1019\]' order-preview.html 1   # ★[CHIP_FULL_1019 2026-10-19 사장님] 폰은 한 줄에 들어가는 넷 미만 줄도 꽉 채운다(종전 «rows<2&&b.length<4 면 그대로»를 걷음) · PC 는 한 줄이면 그대로
 # ★[BLESS_CK_TOP 2026-10-07 사장님 «추천대로»] 덕담 · 축사 «원고 없이» 체크 = 원고 칸 위 머리 줄 오른쪽(첫인사 · 서약 · 편지와 같은 자리)
 chk 'BLESS_CK_TOP' order-preview.html 2
 chk "h+='<li class=\"mk-vx\">'+'<div class=\"mk-txh mk-bsh\"><label class=\"upchk mk-ck\">" order-preview.html 1
