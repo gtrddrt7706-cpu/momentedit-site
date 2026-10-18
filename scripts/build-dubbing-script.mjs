@@ -202,10 +202,12 @@ const G = [
     ['N22-l', '하객 맞이 예시 4 · 격식 있게 · 1분 전', 'guest-ex4-4-1min', RC.EXTRA['guest-ex4-4-1min']],
     /* ★[VOW_FIRST 2026-10-06 사장님 «신랑 신부 먼저 할 사람 순서»] 127 — 혼인 서약 여는 말 · 신부부터(G3-3 의 짝) · 문안은 D.NARR.vow.narB · 진행(우성) */
     ['G3-3b', '혼인 서약 시작 · 신부부터', 'narr-vow-in-b', D.NARR.vow.narB],
-    /* ★[PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 식전 영상 소개 나레이션 예시 2~4(128~130) — 문안은 RC.EXTRA(원천 assets/ritual-open.js NAR.pvEx) · 안내(진희) · 1_안내 */
+    /* ★[PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 식전 영상 소개 나레이션 예시 2~4(128~130) — 문안은 RC.EXTRA(원천 assets/ritual-open.js NAR.pvEx) · ★[PV_HOST_1019 검토 132] 90 · 128 ~ 130 은 진행(우성) · 2_진행_전반(앞 개식 137 · 뒤 화촉이 우성 · 다시 받는다) */
     ['N23-a', '식전 영상 소개 예시 2 · 다정하게', 'narr-prevideo-in-ex2', RC.EXTRA['narr-prevideo-in-ex2']],
-    ['N23-b', '식전 영상 소개 예시 3 · 유쾌하게', 'narr-prevideo-in-ex3', RC.EXTRA['narr-prevideo-in-ex3']],
-    ['N23-c', '식전 영상 소개 예시 4 · 감사하게', 'narr-prevideo-in-ex4', RC.EXTRA['narr-prevideo-in-ex4']],   // id G3- = 2_진행_전반(우성 · 13 의 짝) · [EX_NAME_HAGE 2026-10-09] 이름표 종전 «고마움을 담아» → 화면 PV_EX 와 같은 «감사하게»
+    ['N23-b', '식전 영상 소개 예시 3 · 잔잔하게', 'narr-prevideo-in-ex3', RC.EXTRA['narr-prevideo-in-ex3']],
+    ['N23-c', '식전 영상 소개 예시 4 · 격식 있게', 'narr-prevideo-in-ex4', RC.EXTRA['narr-prevideo-in-ex4']],   // id G3- = 2_진행_전반(우성 · 13 의 짝) · [EX_NAME_HAGE 2026-10-09] 이름표 종전 «고마움을 담아» → 화면 PV_EX 와 같은 «감사하게»
+    /* ★[PV_OUT_1019 검토 132] 261 식전 영상 끝 · 받는 말 — 문안은 RC.EXTRA(원천 ritual-open NAR.prevideoOut · 자료 RR 115) · 진행(우성) · 2_진행_전반 · 녹음 전엔 글로 */
+    ['N25', '식전 영상 받는 말', 'narr-prevideo-out', RC.EXTRA['narr-prevideo-out']],
     /* ★[TABLE_GREET_1008 2026-10-08 사장님 결정] 131 테이블 인사 여는 말 — 닫는 인사(108) 뒤 · 사진 안내(26) 앞 · 문안은 D.NARR.tableIn · 진행(우성) · 3_진행_후반([TABLE_IN_HOST 2026-10-09] 사장님 녹음 우성 · 앞뒤 108 · 26 과 같은 목소리) */
     ['N24', '테이블 인사 · 여는 말', 'narr-table-in', RC.EXTRA['narr-table-in']],
     /* ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 132 입장 끝 맞절 한 줄 — 문안은 D.NARR.entryBow · 진행(우성) · 2_진행_전반(G3-) · 녹음은 3단계 */

@@ -212,7 +212,9 @@
     /* ★[REVIEW13_1018 검토 112] 255 — 선언이 마지막인 날 닫는 인사 앞 B9 판(«…돌아가셔도 좋습니다.») */
     'bridge-b9-declare-seat-end',
     /* ★[TRIB_HUG_CALL_1018 검토 124] 256 — 부모님께 인사 구호 뒤 포옹 청하기(디렉터 GO) */
-    'tribute-hug'
+    'tribute-hug',
+    /* ★[REVIEW24_1019 검토 132 덧 2] 257 ~ 261 — 개식 6(OO) · 맞절 6(EE B-1) · 부모님께 인사 6(PP 22) · 감사문 4(PP 14) · 식전 영상 받는 말(RR 115 · PV_OUT_1019) · 녹음 전엔 글로 */
+    'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -302,6 +304,7 @@
     'bridge-b10-speech-clap': O.NAR.bridge.speechClap, 'bridge-b11-song-light': O.NAR.bridge.songLight, 'bridge-b12-tribute-calm': O.NAR.bridge.tributeCalm,
     'bridge-b13-toast-stay': O.NAR.bridge.toastStay, 'narr-song-end-friend': D.NARR.songEndFriend,
     /* [PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 — 원천 ritual-open NAR.pvEx */
+    'narr-prevideo-out': O.NAR.prevideoOut,   // [PV_OUT_1019]
     'narr-prevideo-in-ex2': O.NAR.pvEx[0], 'narr-prevideo-in-ex3': O.NAR.pvEx[1], 'narr-prevideo-in-ex4': O.NAR.pvEx[2],
     /* [GUEST_EX_NAR] 하객 맞이 나레이션 예시 2~4 — 원천 ritual-open NAR.guestEx */
     'guest-ex2-1-arrival': O.NAR.guestEx[0][0],
@@ -716,6 +719,11 @@
         rescue: { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] },
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff,
           fallback: '영상이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로' }
+      }), cue({
+        /* ★[PV_OUT_1019 검토 132] 영상이 끝나면(디렉터 GO) 받는 한 줄 — 앞 큐에 사람 순간(상영)이 있어 손으로 나간다(CUE_FIRE_RULE) · 두 분 목소리 판에도 같다(진행자 몫) ·
+           다음 줄은 이어서 나간다(화촉) · 입장은 늘 손으로(entry 첫 줄 manual · B7) · [재생 안 됨]을 누른 날은 콘솔이 다음으로 넘긴다 */
+        k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-out', name: '영상 받는 말', text: EXTRA['narr-prevideo-out'], duck: PARAM.duckSpeech,
+        hint: '영상이 끝나면'
       })];
     },
     /* ★[OPEN_COURSE] 화촉 — 입장 바로 앞. 서는 분(S.candleWho)에 따라 여는 말만 달라진다(명세 7장). */

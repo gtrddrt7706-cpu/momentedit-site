@@ -164,7 +164,11 @@ for (const c of man.clips) {
   if (c.mix || RETIRED.has(c.file) || isWholeTake(c)) continue;   // [LETTER_WHOLE_TAKE]
   const key = pad2(c.no) + '_' + c.file;
   const said = rec[(c.dir || NAR) + '|' + key];
-  if (said !== undefined && norm(said) === norm(c.sents.map((s) => s.text).join(' '))) continue;
+  /* ★[VOICE_MOVED_FLAT 2026-10-19 검토 132] 위 낱개 판과 같은 자 — 글이 같아도 읽은 사람이 바뀌었으면 다시 받는다.
+     이 한 파일 판만 글만 보아, 식전 영상 소개 90 · 128(진희 → 우성)이 낱개 판에는 있고 여기에는 빠졌다(redub-covers 가 잡음) */
+  const recVf = recVoice[(c.dir || NAR) + '|' + key], nowVf = VOICE[String(c.role).split('|')[0]];
+  const movedF = recVf !== undefined && nowVf !== undefined && recVf !== nowVf;
+  if (said !== undefined && norm(said) === norm(c.sents.map((s) => s.text).join(' ')) && !movedF) continue;
   /* ★[VOICE_PENDING] 성우 미정인 줄은 «여기서도» 뺀다 — 한 번 샜다.
      개별 파일에서만 거르고 이 전체 파일은 안 걸러서 「undefined: 대사」 네 줄이 들어갔다.
      그대로 타입캐스트에 붙이면 «undefined» 라는 화자가 생긴다. 한 곳만 막으면 다른 곳으로 샌다. */
