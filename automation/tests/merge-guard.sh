@@ -14924,7 +14924,7 @@ chk 'R11_SRC_1018' assets/ritual-data.js 6
 chk 'R11_SRC_1018' assets/ritual-open.js 6
 chk 'R11_SRC_1018' assets/ritual-cue.js 2
 chk 'R11_SRC_1018' order-preview.html 3
-chk "'narr-ring-out-ex4': 1, 'narr-table-in-ex2': 1 };" assets/ritual-cue.js 1
+chk "'narr-ring-out-ex4': 1, 'narr-table-in-ex2': 1," assets/ritual-cue.js 1   # [B11_OFF_1018] 줄 끝에 247 이 더해졌다(쉬는 소리 셋)
 chk '이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.' assets/ritual-data.js 1
 chk '이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.' order-preview.html 1
 chk '이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.' assets/ritual-open.js 1
@@ -14946,7 +14946,7 @@ nochk '다음은 혼인 서약이 있겠습니다.' assets/ritual-data.js
 nochk '다음은 혼인 서약이 있겠습니다.' order-preview.html
 if command -v node >/dev/null 2>&1; then
   _r11=$(node -e "const O=require('./assets/ritual-open.js'); const f=(S,k)=>O.narExList(S,k).map(x=>x[0]).join(''); process.stdout.write([f({on:{bless:1}},'bless'),f({on:{bless:1,declare:1}},'bless'),f({on:{table:1}},'table'),O.narExCue({narEx:{table:1}},'narr-table-in')||'-',O.narExCue({narEx:{table:2}},'narr-table-in')||'-',O.narExCue({narEx:{ring:3}},'narr-ring-out')||'-'].join(','))" 2>&1)
-  if [ "$_r11" = "023,0123,0234,-,narr-table-in-ex3,-" ]; then echo 'ok 덕담 예시 2(NN)는 성혼 선언이 있는 날만 · 테이블 예시 2 자리는 비고 3(U1)은 그대로 · 반지 맺는 말은 넷 다 기본 글 [R11_SRC_1018]'; else echo "FAIL 라운드 11 예시 자리가 어긋났다($_r11 · 기대 023,0123,0234,-,narr-table-in-ex3,-) — 덕담 2(NN «정식으로 부부가 된»)는 선언 있는 날만 · 테이블 2 는 빈 자리 · 반지 맺는 말 예시 소리 201 은 쉰다 [R11_SRC_1018]"; fail=1; fi
+  if [ "$_r11" = "023,0123,0234,-,narr-table-in-ex3,narr-ring-out-ex9" ]; then echo 'ok 덕담 예시 2(NN)는 성혼 선언이 있는 날만 · 테이블 예시 2 자리는 비고 3(U1)은 그대로 · 반지 맺는 말 예시 4 는 B13(201 대신 새 이름 ex9) [R11_SRC_1018 · EX_SLUG_MOVED_1018]'; else echo "FAIL 라운드 11 예시 자리가 어긋났다($_r11 · 기대 023,0123,0234,-,narr-table-in-ex3,narr-ring-out-ex9) — 덕담 2(NN «정식으로 부부가 된»)는 선언 있는 날만 · 테이블 2 는 빈 자리 · 반지 맺는 말 예시 4 는 B13 · 소리 201 은 쉰다(새 이름 ex9) [R11_SRC_1018 · EX_SLUG_MOVED_1018]"; fail=1; fi
 fi
 # ★★[REVIEW1_1018 2026-10-18 인스타 섹션 검토 1판(8건)] 받아들인 둘만 엔진에 — 축배 여는 말 예시 4(자료 SS 46 · 선창 문구는 두 분이 고르는 축배 한마디라 뺌 ④) ·
 #   감사 인사 여는 말 예시 2(자료 PP 14 · «버진로드 중앙에 서서»는 우리 동선이 아니라 뺌 ③) · 소리 207 · 208(맨 끝 · 녹음 전엔 글로) · 안 받은 여섯은 공개 파일 «검토 답» 표에 까닭
