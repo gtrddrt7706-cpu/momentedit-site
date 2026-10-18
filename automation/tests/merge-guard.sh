@@ -15083,6 +15083,14 @@ chk "gift: '마음을 담은 선물을 전합니다.'," assets/ritual-open.js 1
 nochk "video: '오늘을 위해 준비한 영상이 있습니다" assets/ritual-open.js
 chk '=100_narr-free-in-video,=102_narr-free-in-gift' docs/handoff/녹음/다음판_1018_clip.txt 1
 chk '| 검토 128 |' docs/handoff/insta-find.md 1
+# ★[REVIEW21_1018 2026-10-18 인스타 섹션 검토 129] 어른께 드리는 편지 «두 분 어른» 셋 걷기(한 분이신 집 · 43 · 우성 3문장)
+chk '예식을 준비하는 사람으로서, 어른께 먼저 인사드리는 것이' parents.html 1
+chk '<div class="sign-from">어른께 · 예식을 맡은 사람이</div>' parents.html 1
+nochk '두 분 어른께' parents.html
+nochk '두 분께서 궁금해하실' parents.html
+chk "'어른께, 예식을 맡은 사람으로서 인사드립니다.'," scripts/build-dubbing-script.mjs 1
+chk '우성: 궁금해하실 것들을 미리 정리해 드린 안내입니다.' docs/handoff/녹음/다음판_1018_4_혼주편지.txt 1
+chk '| 검토 129 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
