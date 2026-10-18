@@ -106,7 +106,7 @@ function forCombos(fn) {
   for (const k of PICK) { const S = base(); delete S.on[k]; run(S); run(base([k])); }
   O.EXAMPLES.forEach((ex) => run(O.applyExample(base(), ex.k)));
   /* ★[EX_MANY_1017] 나레이션 멘트 예시 — 순간마다 예시 2 ~ 4 를 하나씩 골라 엔진 글을 모은다(서는 분 · 신부부터 · 서약 끈 날까지) · 예시 글도 같은 자로 잰다 */
-  if (O.narExKeys) O.narExKeys().forEach((k) => [1, 2, 3].forEach((n) => [{}, { candleWho: 'fathers' }, { candleWho: 'parents' }, { candleWho: 'others' }, { vowFirst: 'b' }, { noVow: 1 }].forEach((ex) => {
+  if (O.narExKeys) O.narExKeys().forEach((k) => Array.from({ length: (Array.isArray(O.NAR_EX[k].names) ? Math.max(3, O.NAR_EX[k].names.length - 1) : 3) }, (_, i) => i + 1).forEach((n) => [{}, { candleWho: 'fathers' }, { candleWho: 'parents' }, { candleWho: 'others' }, { vowFirst: 'b' }, { noVow: 1 }].forEach((ex) => {
     const S = base(); Object.keys(ex).forEach((x) => { if (x !== 'noVow') S[x] = ex[x]; }); if (ex.noVow) delete S.on.vow; S.narEx = { [k]: n }; run(S); })));
   let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
   for (let i = 0; i < 1500; i++) { const S = base(PICK.filter(() => rnd() < 0.5)); for (const [k, vals] of Object.entries(dims)) if (rnd() < 0.5) S[k] = vals[Math.floor(rnd() * vals.length)]; run(S); }

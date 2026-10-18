@@ -44,7 +44,7 @@ function run(mut) {
   const SS = (k, n, x) => { const S = O.sampleS(); Object.assign(S, x || {}); S.narEx = { [k]: n }; return S; };
   const VAR = { candle: [{ candleWho: 'mothers' }, { candleWho: 'fathers' }, { candleWho: 'parents' }, { candleWho: 'others' }], vow: [{}, { vowFirst: 'b' }], letter: [{ letter: 'each' }, { letter: 'each', _noVow: 1 }], speech: [{ freeWhat: 'speech' }], tribute: [{ tributeSay: 'none' }, { tributeSay: 'long' }] };
   const miss = [], wrong = [];
-  O.narExKeys().forEach((k) => (VAR[k] || [{}]).forEach((x) => [1, 2, 3].forEach((n) => {
+  O.narExKeys().forEach((k) => (VAR[k] || [{}]).forEach((x) => Array.from({ length: (Array.isArray(O.NAR_EX[k].names) ? Math.max(3, O.NAR_EX[k].names.length - 1) : 3) }, (_, i) => i + 1).forEach((n) => {   // ★[EX_MAX_BY_NAMES_1018] 예시 수만큼(축가는 5 · 서는 분마다 바뀌는 names 는 종전 3) — 종전 [1, 2, 3] 고정은 예시 5를 재지 않았다
     const S = SS(k, n, x); if (x._noVow) { delete S._noVow; S.on = Object.assign({}, S.on); delete S.on.vow; }
     const S2 = C.norm(S); if (!O.narExOk(S2, k, n)) return;
     const cues = C.build(S2, { mode: 'console' }).cues; const want = Object.keys(O.NAR_EX[k].lines).filter((sl) => cues.some((q) => q.slug === sl)).map((sl) => O.narExCue(S2, sl)).filter(Boolean);   // 그날 나가는 줄만(화촉은 서는 분 한 줄)
@@ -63,6 +63,7 @@ function run(mut) {
   // ⑤ 저장 값
   const nv = C.norm(Object.assign(O.sampleS(), { narEx: { open: 5, foo: 1, candle: 2, vow: '3', letter: 0 } })).narEx || {};
   T('⑤ norm — 범위 밖(5 · 0) · 모르는 순간 값만 지운다 · 고른 값은 «맞는 날»이 아니어도 남는다', JSON.stringify(nv) === JSON.stringify({ candle: 2, vow: 3 }) && (C.norm(Object.assign(O.sampleS(), { vowKind: 'thanks', narEx: { vow: 2 } })).narEx || {}).vow === 2, JSON.stringify(nv));
+  T('⑤-b norm — 상한은 그 순간 예시 수(names) · 축가 예시 5(값 4)도 남는다 [EX_MAX_BY_NAMES_1018]', ((C.norm(Object.assign(O.sampleS(), { narEx: { song: 4 } })).narEx || {}).song === 4) && !((C.norm(Object.assign(O.sampleS(), { narEx: { song: (O.NAR_EX.song.names || []).length } })).narEx || {}).song), JSON.stringify((C.norm(Object.assign(O.sampleS(), { narEx: { song: 4 } })).narEx || {})));
   // ⑥ 자료 그대로
   const nz = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
   const sents = (t) => (String(t).match(/[^.!?]+[.!?]*/g) || [String(t)]).map((s) => s.trim()).filter(Boolean);

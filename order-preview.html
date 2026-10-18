@@ -2258,6 +2258,7 @@ var OUT_ENTRY=ENTRY_OUT.A;   /* 갈래를 모를 때의 바탕 — 종전 문안
 var OUT_RINGWARM="반지가 모두의 손을 지나, 두 사람에게 돌아왔습니다. 담긴 마음까지 함께 왔습니다.";
 var OUT_VALLEY="어우러진 맛은, 다시 나뉘지 않지요.";
 var OUT_SONG="노래로 전한 축하였습니다. 따뜻한 박수 부탁드립니다.";
+var SONG_END="우리 두 사람을 위해 다시 한 번 큰 박수 부탁드리겠습니다.";   /* ★[SONG_END_1018] 새 코스 축가 맺는 말 사본 — 원천 D.NARR.songEnd(자료 TT 52) · 엔진 없이 뽑는 대본(BLOCK.song)이 쓴다 · check-ritual-mirror 가 대조 */
 var OUT_TOAST="즐겨 주시면 되겠습니다.";
 /* ★[TOAST_SCENE 2026-08-09] 케이크만 고른 자리의 마무리 — 옛 판은 여기서도 잔 이야기가 나갔다.
    잔이 없는 손에 "잔은 편히 내려놓으셔도 좋습니다" 는 장면을 깬다. */
@@ -7104,8 +7105,11 @@ function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
     +'<div class="op-leg'+(_tw?' op-leg3':'')+'" aria-hidden="true"><span>본식</span>'+(_tw?'<span class="lt" style="left:'+Math.max(22,Math.min(78,_bw+_tw/2)).toFixed(2)+'%">테이블 인사</span>':'')+'<span>단체 사진</span></div>';   /* 단체 사진 = 본식 뒤 이어지는 실제 한 덩어리(DAYMIN 40 − 본식 · SPAN_SUM40) */
   /* [FLOW_TIMELINE] 시작 시각 — 본식 처음부터, 담긴 본식 순간의 가운데 길이(_flowSec · LEN_ONE)를 차례로 더한다 */
   var at={}, acc=0; body.concat(aft).forEach(function(k){ if(k==='_close'||R.onOf(S,k)){ at[k]=acc; var t0=_flowSec(k); acc+=(t0.lo+t0.hi)/2; } });   // [TABLE_APART] 본식 뒤 줄도 같은 시계로 이어서
+  /* ★[FLOW_MIN_UNIQ_1018 인스타 섹션 검토 12] 시작 분은 가까운 분으로 반올림하되, 앞 순간과 같거나 이르면 한 분 뒤로 — 반올림만 하면 1분이 안 되는 순간(선언 약 50초 · 맞절 · 감사 인사) 뒤에서
+     «8분 · 성혼 선언 · 8분 · 축사»처럼 두 순서가 같은 분에 서 겹쳐 보였다(정석 · 가족 · 간결 · 차이는 1분 안) · data-at(초)은 그대로 */
+  var atMin={}, _pm=-1; body.concat(aft).forEach(function(k){ if(at[k]==null) return; var m=Math.round(at[k]/60); if(m<=_pm) m=_pm+1; atMin[k]=m; _pm=m; });
   function row(k){ var on=R.onOf(S,k)||k==='_close', fixed=!!R.ALWAYS[k]||k==='_close', t=_flowSec(k), nm=_mkName(k), mid=(t.lo+t.hi)/2;
-    var tm=!on?'':(R.PRE[k]||k==='guest')?'예식 전':Math.round(at[k]/60)+'분';   /* 뺀 줄은 제 시작 시각이 없다 */
+    var tm=!on?'':(R.PRE[k]||k==='guest')?'예식 전':atMin[k]+'분';   /* 뺀 줄은 제 시작 시각이 없다 · [FLOW_MIN_UNIQ_1018] 같은 분이 둘이면 뒤가 한 분 뒤로 */
     return '<li class="cf-r'+(on?'':' off')+'" data-k="'+k+'"'+(k!=='guest'?' data-mid="'+mid+'"':'')+(on&&!R.PRE[k]?' data-lo="'+t.lo+'" data-hi="'+t.hi+'" data-at="'+(at[k]||0)+'"':'')+'>'
       +'<span class="sr-only">'+esc((tm?tm+' · ':'')+nm+' · '+(on?'담김':'빠짐'))+'</span>'
       +'<span class="cf-t" aria-hidden="true">'+esc(tm)+'</span><span class="cf-dot" aria-hidden="true"></span>'
@@ -9316,6 +9320,7 @@ var BLOCK={
       cue:'나레이션이 앞을 열어 줌 → 두 분이 준비한 순서 진행 → 끝나면 나레이션이 닫음(무엇인지 지목하지 않아요)'};
   },
   song:function(){
+    if(isOpen()) return {n:'축가',nar:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다.",self:'가족 · 친구나 두 분이 직접 노래',end:SONG_END,cue:'나레이션 소개 → 노래 1곡 → 나레이션 맺는 말 · 박수 → 다음 순간은 디렉터 신호로'};   /* [SONG_END_1018 · SONG_TILE_SELF_1018] 새 코스 — 엔진과 같은 맺는 말(210) · 두 분이 직접 불러도 된다 */
     return {n:'축가',nar:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다.",self:S.song==='live'?'어쿠스틱 라이브 연주(저희가 연결·추가 비용 안내)':'가족·지인이 직접 노래',cue:'나레이션 소개 → 노래 1곡 → 박수와 함께 다음 순서로'};
   },
   toast:function(){

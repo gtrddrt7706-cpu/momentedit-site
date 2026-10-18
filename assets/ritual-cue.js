@@ -198,7 +198,9 @@
     /* ★[R10_SRC_1018 라운드 10 2026-10-18 · 자료 루프] 204 ~ 206 — 축가 여는 말 예시 3(자료 NN) · 4(자료 U1) · 덕담 받는 말 예시 3(자료 OO) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
     'narr-song-ex3', 'narr-song-ex4', 'narr-bless-end-ex3',
     /* ★[REVIEW1_1018 2026-10-18 · 인스타 섹션 검토] 207 · 208 — 축배 여는 말 예시 4(자료 SS 46) · 감사 인사 여는 말 예시 2(자료 PP 14) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
-    'toast-toast-ex4', 'narr-welcome-in-ex2'
+    'toast-toast-ex4', 'narr-welcome-in-ex2',
+    /* ★[REVIEW23_1018 2026-10-18 · 인스타 섹션 검토 2 · 3판] 209 · 210 — 축가 여는 말 예시 5(자료 TT 51 · «따뜻하게») · 축가 맺는 말(자료 TT 52 끝 문장 · SONG_END_1018) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
+    'narr-song-ex5', 'narr-song-end'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -400,8 +402,8 @@
       s.freeLen = O.chipOf('freeLen', s);
       s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;
       s.pvEx = /^[0-3]$/.test(String(s.pvEx)) ? +s.pvEx : 0;   // [PV_EX_NAR] 식전 영상 소개 나레이션 예시(0 = 90 그대로)   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
-      /* ★[EX_MANY_1017] 나레이션 멘트 예시(S.narEx[순간] = 1 ~ 3 · 0 = 예시 1) — 모르는 순간 · 범위 밖 값만 지운다 · «맞는 날»(when)은 쓸 때 본다(서약 ↔ 감사문을 오가도 고른 값은 남는다) */
-      if (s.narEx && typeof s.narEx === 'object') { var _ne = {}; Object.keys(s.narEx).forEach(function (k) { var v = Math.floor(+s.narEx[k]); if (O.NAR_EX && O.NAR_EX[k] && v >= 1 && v <= 3) _ne[k] = v; }); if (Object.keys(_ne).length) s.narEx = _ne; else delete s.narEx; } else delete s.narEx;
+      /* ★[EX_MANY_1017] 나레이션 멘트 예시(S.narEx[순간] = 1 ~ (예시 수 − 1) · 0 = 예시 1) — 모르는 순간 · 범위 밖 값만 지운다 · «맞는 날»(when)은 쓸 때 본다(서약 ↔ 감사문을 오가도 고른 값은 남는다) */
+      if (s.narEx && typeof s.narEx === 'object') { var _ne = {}; Object.keys(s.narEx).forEach(function (k) { var v = Math.floor(+s.narEx[k]); var _nm = O.NAR_EX && O.NAR_EX[k] && O.NAR_EX[k].names, _mx = Array.isArray(_nm) ? Math.max(3, _nm.length - 1) : 3; if (O.NAR_EX && O.NAR_EX[k] && v >= 1 && v <= _mx) _ne[k] = v; });   /* ★[EX_MAX_BY_NAMES_1018 인스타 섹션 검토 9] 상한은 그 순간 예시 수(names 배열 · 넷보다 많을 때만 늘린다 · 서는 분마다 바뀌는 names(함수)는 종전 3) — «3» 고정이라 축가 예시 5(값 4)를 고르면 저장 값이 지워져 예시 1로 돌아갔다 */ if (Object.keys(_ne).length) s.narEx = _ne; else delete s.narEx; } else delete s.narEx;
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹(★[FLOWER_OFF_1013] 10/13 부터 꽃 없이 인사 · 포옹 · 값 이름 flower 는 옛 초안 호환).
          옛 초안의 bowGroom 도 flower 로(큰절 여는 줄 · 방석 지문이 안 나간다) · 빌더는 «원하시면 큰절을 올리셔도 돼요» 한 줄만 · ★신랑 큰절 칩 되살리지 말 것 */
@@ -939,8 +941,9 @@
     },
 
     song: function (S) {
-      /* ★★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자» → 순간 따로 · 노래만 · MR 반주] 새 코스 축가 — 여는 말(19) → 노래(사람 순간) → 다음 순간은 디렉터 GO.
-         ★맺는 말(55 «따뜻한 박수 부탁드립니다»)은 싣지 않는다([CLAP_FEW] · 노래 뒤 박수는 저절로 나온다 · 청하지 않는다).
+      /* ★★[SONG_BACK_1011 2026-10-11 사장님 «축가 만들자» → 순간 따로 · 노래만 · MR 반주] 새 코스 축가 — 여는 말(19) → 노래(사람 순간) → 맺는 말(210) → 다음 순간은 디렉터 GO.
+         ★맺는 말(55 «따뜻한 박수 부탁드립니다» · 우리 글)은 싣지 않는다([CLAP_FEW]).
+         ★[SONG_END_1018 인스타 섹션 검토 10] 맺는 말은 자료 글로 되살렸다 — 210 narr-song-end(자료 TT 52 끝 문장 · 누가 불러도 참) · 박수를 청하니 박수 구간 뒤 다음 순간은 디렉터 GO([CLAP_GO]).
          ★pick 을 두지 않는다 — 고를 판이 없고, ② 이름표는 «…시작» 이름으로 «여는 말 → 시작할 때»가 된다(_lLabFix).
          ★live.t 는 장면 설명(ritual-story LIVE)의 열쇠다 — 한 글자만 바꿔도 그쪽을 같이 고친다(STORY_COVER). */
       if (D.COURSES[S.course] && D.COURSES[S.course].open) {
@@ -948,7 +951,11 @@
           k: 'song', blockN: '축가', slug: 'narr-song', name: '축가 시작', text: D.NARR.song, duck: PARAM.duckMusic,
           live: { t: '축가 한 곡 (부르실 분이 앞으로 · MR 은 디렉터가 튼다)', est: 230, duck: PARAM.duckOff, self: true, doing: 'sing',
             note: '부르실 분이 짧게 인사하거나 곡을 소개하면 끝날 때까지 기다렸다가, 준비됐다는 눈짓에 MR 을 튼다 · BGM 은 완전히 끈다 · MR 은 두 분이 예식 사흘 전까지 보낸 파일 · 악기 연주는 받지 않는다',   // ★[SONG_HELLO_WAIT_1015 라운드 4] 고객 이야기(SONG_HELLO_1014 «짧게 인사나 곡 소개를 하셔도 되고, 준비되시면 반주가 시작돼요»)의 약속을 디렉터 메모에도 — 서자마자 MR 을 틀면 인사가 전주에 묻힌다(자료 U1 · V 3-1 큐 · 연출 «자기소개 시간 주기» · M 11)
-            fallback: '부르시는 분이 멈춰도 MR 은 그대로 둔다 · MR 이 안 나오면 다시 튼다 · 그래도 안 되면 부르실 분께 반주 없이 부를지 묻는다' }   // ★[SONG_CALM_1014 라운드 3] 목이 메거나 가사를 놓쳐도 반주는 끊지 않는다(자료 T1)
+            fallback: '부르시는 분이 멈춰도 MR 은 그대로 둔다 · MR 이 안 나오면 다시 튼다 · 그래도 안 되면 부르실 분께 반주 없이 부를지 묻는다' }   // ★[SONG_CALM_1014 라운드 3]목이 메거나 가사를 놓쳐도 반주는 끊지 않는다(자료 T1)
+        }), cue({
+          k: 'song', blockN: '축가', slug: 'narr-song-end', name: '축가 마무리', text: D.NARR.songEnd, duck: PARAM.duckMusic,
+          hint: '노래가 끝나고 박수가 잦아들면',
+          live: applause('하객 박수 · 노래해 주신 분과 두 사람께', PARAM.declare.applauseMs / 1000)   // ★[SONG_END_1018 · CLAP_GO] 자료 글이 박수를 청한다 — 다음 순간은 디렉터 GO(박수가 여는 말에 묻히지 않게)
         })];
       }
       return [cue({
