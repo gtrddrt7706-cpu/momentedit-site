@@ -204,7 +204,9 @@
     /* ★[REVIEW4_1018 인스타 섹션 검토 4판 · 사장님 «최소 4개»] 211 ~ 223 — 화촉 맺는 말 2 ~ 4 · 감사 인사 3 · 4 · 반지 맺는 말 2 · 3 · 선언 여는 말 2 · 단체 사진 안내 2 ~ 4 · 테이블 4 · 5(원천 ritual-open NAR_EX · 녹음 전엔 글로) */
     'narr-candle-out-ex2', 'narr-candle-out-ex3', 'narr-candle-out-ex4', 'narr-welcome-in-ex3', 'narr-welcome-in-ex4', 'narr-ring-out-ex2', 'narr-ring-out-ex3', 'narr-declare-in-friend-ex2', 'narr-close-ex2', 'narr-close-ex3', 'narr-close-ex4', 'narr-table-in-ex4', 'narr-table-in-ex5',
     /* ★[REVIEW5_1018 인스타 섹션 검토 5판 · 사장님 «최소 4개»] 224 ~ 242 — 화촉(다른 두 분) 4 · 서약 맺는 말 2 ~ 4 · 감사문 여는 말 2 · 3 · 선언 여는 말 3 · 4 · 덕담 받는 말 2 · (축가 맺는 말 예시 둘은 병합 전에 걷음 · SONG_END_NO_PRAISE_1018) · 부모님께 편지 여는 말 2 ~ 4 · 부모님께 인사 걸음 · 구호 · 말로 인사 구호(원천 ritual-open NAR_EX · 녹음 전엔 글로) */
-    'narr-candle-in-others-ex4', 'narr-vow-out-ex2', 'narr-vow-out-ex3', 'narr-vow-out-ex4', 'narr-thanks-in-ex2', 'narr-thanks-in-ex3', 'narr-declare-in-friend-ex3', 'narr-declare-in-friend-ex4', 'narr-bless-end-ex2', 'letter-parent-ex2', 'letter-parent-ex3', 'letter-parent-ex4', 'tribute-in-ex2', 'tribute-in-ex4', 'tribute-call-ex2', 'tribute-call-ex4', 'tribute-call-say-ex2', 'tribute-call-say-ex3', 'tribute-call-say-ex4'
+    'narr-candle-in-others-ex4', 'narr-vow-out-ex2', 'narr-vow-out-ex3', 'narr-vow-out-ex4', 'narr-thanks-in-ex2', 'narr-thanks-in-ex3', 'narr-declare-in-friend-ex3', 'narr-declare-in-friend-ex4', 'narr-bless-end-ex2', 'letter-parent-ex2', 'letter-parent-ex3', 'letter-parent-ex4', 'tribute-in-ex2', 'tribute-in-ex4', 'tribute-call-ex2', 'tribute-call-ex4', 'tribute-call-say-ex2', 'tribute-call-say-ex3', 'tribute-call-say-ex4',
+    /* ★[BRIDGE_MORE_1018 인스타 섹션 검토 6판(연결 멘트) · 사장님 «고정된 틀 외에도 추가해도 돼»] 243 ~ 250 — 이음말 일곱(B7 ~ B13 · 원천 ritual-open NAR.bridge) · 축가 맺는 말 가족 · 친구 판(SONG_BY_1018 · 원천 D.NARR.songEndFriend) · 녹음 전엔 글로 */
+    'bridge-b7-entry-ready', 'bridge-b8-face-guests', 'bridge-b9-declare-seat', 'bridge-b10-speech-clap', 'bridge-b11-song-light', 'bridge-b12-tribute-calm', 'bridge-b13-toast-stay', 'narr-song-end-friend'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -262,7 +264,9 @@
     'end-1b-farewell-online': '오늘의 예식은 여기까지입니다. 자리를 옮기시기 전에, 두고 가시는 물건이 없는지 한 번만 살펴 주십시오. 화면으로 함께해 주신 분들께도, 두 사람이 곧 인사드리겠습니다.',
     /* ★[END2_T2_1018 라운드 9 2026-10-18 · SOURCE_FIRST_1016] 앞 두 문장(우리 글 «끝까지 두 사람의 곁을 … · 여러분 덕분에, 부부로서의 첫날이 …»)을 자료 T2 «폐식 안내» 끝 문장으로 — 뜻(감사 · 오늘의 시작)이 같고 어느 날에도 참 ·
        띄어쓰기만(«함께 해주신» → «함께해 주신») · 끝 «남은 하루 행복하게 보내세요.»는 자료 DD ⑦ 그대로 · 옛 두 문장 되살리지 말 것 */
-    'end-2-goodbye': '오늘의 시작을 함께해 주신 모든 분들께 감사드리며, 두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다. 남은 하루 행복하게 보내세요.',
+    /* ★[END_ONCE_1018 인스타 섹션 검토 6판 65] 이 줄을 듣는 것은 가족 · 따로 사진 남길 분뿐이다(나머지는 110 뒤 귀가) — «오늘의 시작을 함께해 주신 모든 분들께»(T2)는 그 자리에 없는 분까지 부른다(④) ·
+       자료 U1 «끝까지 함께 해주신 하객 여러분께»의 «끝까지 함께해 주신»으로 · 뒤는 T2 그대로 */
+    'end-2-goodbye': '끝까지 함께해 주신 분들께 감사드리며, 두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다. 남은 하루 행복하게 보내세요.',
     'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다. 이 하루를, 신랑 신부는 여러분과도 나누고 싶었습니다. 같은 시간에 계신 것만으로 충분합니다.',
     'bridge-4-wait-emotion': '잠시 이대로 두겠습니다. 이 시간도, 예식의 한 부분입니다.',
     'bridge-5-wait-setup': '다음 순서를 준비하고 있습니다. 끝나는 대로 이어 가겠습니다.',
@@ -284,6 +288,10 @@
     /* [BRIDGE_LINK] 이음말 넷 — 원천 ritual-open NAR.bridge(여기는 이름표만) */
     'bridge-b3-clap-thanks': O.NAR.bridge.clapThanks, 'bridge-b4-breath': O.NAR.bridge.breath,
     'bridge-b5-video-out': O.NAR.bridge.videoOut, 'bridge-b6-lighter': O.NAR.bridge.lighter,
+    /* [BRIDGE_MORE_1018] 이음말 일곱 · 축가 맺는 말 가족 · 친구 판 */
+    'bridge-b7-entry-ready': O.NAR.bridge.entryReady, 'bridge-b8-face-guests': O.NAR.bridge.faceGuests, 'bridge-b9-declare-seat': O.NAR.bridge.declareSeat,
+    'bridge-b10-speech-clap': O.NAR.bridge.speechClap, 'bridge-b11-song-light': O.NAR.bridge.songLight, 'bridge-b12-tribute-calm': O.NAR.bridge.tributeCalm,
+    'bridge-b13-toast-stay': O.NAR.bridge.toastStay, 'narr-song-end-friend': D.NARR.songEndFriend,
     /* [PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 — 원천 ritual-open NAR.pvEx */
     'narr-prevideo-in-ex2': O.NAR.pvEx[0], 'narr-prevideo-in-ex3': O.NAR.pvEx[1], 'narr-prevideo-in-ex4': O.NAR.pvEx[2],
     /* [GUEST_EX_NAR] 하객 맞이 나레이션 예시 2~4 — 원천 ritual-open NAR.guestEx */
@@ -957,7 +965,8 @@
             note: '부르실 분이 짧게 인사하거나 곡을 소개하면 끝날 때까지 기다렸다가, 준비됐다는 눈짓에 MR 을 튼다 · BGM 은 완전히 끈다 · MR 은 두 분이 예식 사흘 전까지 보낸 파일 · 악기 연주는 받지 않는다',   // ★[SONG_HELLO_WAIT_1015 라운드 4] 고객 이야기(SONG_HELLO_1014 «짧게 인사나 곡 소개를 하셔도 되고, 준비되시면 반주가 시작돼요»)의 약속을 디렉터 메모에도 — 서자마자 MR 을 틀면 인사가 전주에 묻힌다(자료 U1 · V 3-1 큐 · 연출 «자기소개 시간 주기» · M 11)
             fallback: '부르시는 분이 멈춰도 MR 은 그대로 둔다 · MR 이 안 나오면 다시 튼다 · 그래도 안 되면 부르실 분께 반주 없이 부를지 묻는다' }   // ★[SONG_CALM_1014 라운드 3]목이 메거나 가사를 놓쳐도 반주는 끊지 않는다(자료 T1)
         }), cue({
-          k: 'song', blockN: '축가', slug: 'narr-song-end', name: '축가 마무리', text: D.NARR.songEnd, duck: PARAM.duckMusic,
+          /* ★[SONG_BY_1018 인스타 섹션 검토 6판 63] 부르는 분(S.songBy) — «두 분이 직접»(self)만 TT 52 «우리 두 사람을 위해 …» · 그 밖(가족 · 친구 · 안 고름)은 «노래해 주신 분께 …»(자료 WW2) */
+          k: 'song', blockN: '축가', slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend', name: '축가 마무리', text: S.songBy === 'self' ? D.NARR.songEnd : D.NARR.songEndFriend, duck: PARAM.duckMusic,
           hint: '노래가 끝나고 박수가 잦아들면',
           live: applause('하객 박수 · 노래해 주신 분과 두 사람께', PARAM.declare.applauseMs / 1000)   // ★[SONG_END_1018 · CLAP_GO] 자료 글이 박수를 청한다 — 다음 순간은 디렉터 GO(박수가 여는 말에 묻히지 않게)
         })];
@@ -1297,9 +1306,27 @@
         else if (bc.k === 'tribute') slugB = 'bridge-b4-breath';
         else if (bc.k === 'free' && (O.FREE_KIND[S.freeWhat] || 'video') === 'video') slugB = 'bridge-b5-video-out';
         else if (bc.k === 'letter' && bn.k === 'cake') slugB = 'bridge-b6-lighter';
+        /* ★★[BRIDGE_MORE_1018 인스타 섹션 검토 6판 · 사장님 «다양한 각도로»] 이음말 일곱 — 한 이음새에 여럿이면 차례대로(박수 · 돌려보내기 → 분위기 → 다음 순간 이름).
+             B7 입장 앞(입장 멘트 E 만 «입장»으로 연다) · B8 맞절 → 감사 인사(돌아서기) · B9 선언 박수 뒤(읽은 분 자리로) · B10 축사 끝(박수 · 디렉터 GO) ·
+             B11 엄숙한 순간 → 축가 · B12 축가 → 부모님께 인사 · B13 닫는 인사 → 축배는 아래 [TOAST_LAST_1013] 자리에서 */
+        var _more = [];
+        if (slugB === 'bridge-b3-clap-thanks') _more.push('bridge-b9-declare-seat');
+        if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech') _more.push('bridge-b10-speech-clap');
+        if (bc.k === 'matjeol' && bn.k === 'welcome') _more.push('bridge-b8-face-guests');
+        if (bn.k === 'song' && (bc.k === 'declare' || bc.k === 'bless' || (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech'))) _more.push('bridge-b11-song-light');
+        if (bc.k === 'song' && bn.k === 'tribute') _more.push('bridge-b12-tribute-calm');
+        if (bn.k === 'entry' && String(S.entry || 'A').toUpperCase() !== 'E') _more.push('bridge-b7-entry-ready');
         _bl.push(bc);
         if (slugB) _bl.push(cue({ k: bc.k, blockN: bc.blockN, slug: slugB, name: '이음말 · ' + ({ 'bridge-b3-clap-thanks': '박수 뒤', 'bridge-b4-breath': '숨 고르기', 'bridge-b5-video-out': '영상 끝', 'bridge-b6-lighter': '가벼운 순서로' })[slugB],
           text: EXTRA[slugB], duck: PARAM.duckMusic, note: '이음말 · 다음 순간이 무엇이든 맞는 한 줄(BRIDGE_LINK)' }));
+        _more.forEach(function (sm) {
+          var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b11-song-light' || sm === 'bridge-b12-tribute-calm', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
+          _bl.push(cue({ k: _at.k, blockN: _at.blockN, slug: sm, name: '이음말 · ' + ({ 'bridge-b7-entry-ready': '입장 앞', 'bridge-b8-face-guests': '하객 쪽으로', 'bridge-b9-declare-seat': '읽은 분 자리로',
+              'bridge-b10-speech-clap': '축사 박수', 'bridge-b11-song-light': '산뜻하게', 'bridge-b12-tribute-calm': '경건하게' })[sm],
+            text: EXTRA[sm], duck: PARAM.duckMusic, note: '이음말 · 이 두 순간 사이에서만(BRIDGE_MORE_1018)',
+            fire: sm === 'bridge-b7-entry-ready' ? 'manual' : '', hint: sm === 'bridge-b7-entry-ready' ? '신부 준비 완료 · 문 앞 대기 확인 후(이 줄 뒤 입장 멘트는 문이 열릴 때 한 번 더 GO)' : '',   // ★[CUE_FIRE_RULE] 입장 앞은 엔진이 손으로 내는 자리 — 입장 멘트와 같은 대기
+            live: sm === 'bridge-b10-speech-clap' ? applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
+        });
       }
       cues = _bl;
     }
@@ -1311,10 +1338,14 @@
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
       duck: -12, hint: '두 분이 앞에 나란히 서면',   // ★[CLOSE_BOW_CALL_1014] 구호(«신랑 신부, 하객 여러분께 인사!»)로 끝난다 — 두 분이 하객 쪽으로 서 있어야 바로 목례
-      live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec, (_openC && seq.indexOf('toast') > -1) ? '박수가 줄고 «잔 됨» 신호가 오면' : '')   // [TOAST_40_OPEN_1013] 다음이 축배면 잔 확인 뒤(GLASS_READY · 자료 AA 6-5)
+      live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec, '')   /* ★[BRIDGE_MORE_1018 B13] 축배가 있는 날도 박수 뒤 바로 «잠시 자리를 지켜 …»(B13) · «잔 됨» 기다림은 B13 의 사람 구간이 맡는다 */ //   // [TOAST_40_OPEN_1013] 다음이 축배면 잔 확인 뒤(GLASS_READY · 자료 AA 6-5)
     }));
     /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에»] 새 코스의 축배는 닫는 인사(108 · 목례 · 박수) 뒤 · 테이블 인사 앞 — 자료 D · S · AA 의 «1부를 닫은 뒤 축배 → 테이블 인사».
          닫는 인사가 사람 순간(박수)이라 축배 첫 줄은 디렉터 GO([CLAP_GO] 그대로) · 옛 코스는 위 차례 그대로(소리를 바꾸지 않는다) */
+    /* ★[BRIDGE_MORE_1018 B13 · 인스타 섹션 검토 6판 64] «결혼식을 마치겠습니다» 박수 뒤 하객이 일어서기 전에 — 잔이 놓이는 사이(«잔 됨» 신호까지) 자리를 지켜 달라는 한 줄(자료 U1) */
+    if (_openC && seq.indexOf('toast') > -1 && O.onOf(S, 'toast')) cues.push(cue({ k: '_close', blockN: '폐식·단체촬영', slug: 'bridge-b13-toast-stay', name: '이음말 · 축배 앞 자리 지키기',
+      text: EXTRA['bridge-b13-toast-stay'], duck: PARAM.duckMusic, note: '이음말 · 닫는 인사 → 축배(BRIDGE_MORE_1018)',
+      live: { t: '잔을 나눠 드리는 동안 · 하객은 자리에서 기다림', est: 40, self: false, doing: 'move', duck: PARAM.duckMusic, consoleOnly: true, hintNext: '두 분 손에 잔이 들어가고 «잔 됨» 신호가 오면', previewPost: [] } }));
     if (_openC && seq.indexOf('toast') > -1) cues.push.apply(cues, BUILD.toast(S, seq));
     /* ★★[TABLE_GREET_1008 2026-10-08 사장님 결정] 테이블 인사 — 닫는 인사(108 · 목례 · 박수) 뒤 · 사진 안내(26) 앞. 새 코스에서 담은 날만.
        131 여는 말 → 사람 순간(두 분이 함께 테이블을 돌며 인사 · TABLE_SEC × 테이블 수 · 두 분 자유 · 다 돌면 디렉터 GO) → 26 이 사진으로 모은다(마무리 줄을 따로 두지 않는다). */

@@ -71,6 +71,7 @@
     /* ★[DECLARE_ANYONE 2026-10-12] declareWho 는 뺐다 — 이제 두 분이 칸에 적은 «읽는 분» 글(사람 이름일 수 있다)이라 공개 주소에 싣지 않는다(PREVIEW_KEYS 규칙).
        엔진은 빈칸이어도 같은 소리를 낸다(여는 말은 누가 읽든 하나 · 136). */
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
+    'songBy',                                  // ★[SONG_BY_1018] 축가 부르는 분 'friend'|'self' — 맺는 말 소리가 갈린다(210 · 250)
     'letter',                                  // 편지 낭독 대상
     'bless', 'blessProxy',                     // 부모님 덕담 · 나레이션 대독
     'digital',                                 // 디지털 참석(배웅 장면이 갈린다) — ★INJECT · 식순 S 에는 없다
