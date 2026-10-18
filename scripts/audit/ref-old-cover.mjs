@@ -13,9 +13,9 @@ try { base = execFileSync('git', ['show', 'origin/main:assets/ritual-ref.js'], {
 catch (e) { console.log('못 쟀다 — origin/main 의 assets/ritual-ref.js 없음'); process.exit(2); }
 const now = rowsOf(fs.readFileSync(path.join(ROOT, 'assets/ritual-ref.js'), 'utf8'));
 const html = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
-function check(OLD) {
+function check(OLD, baseRows) {
   const bad = [], byId = Object.fromEntries(now.map((r) => [r.id, r]));
-  for (const r of rowsOf(base)) {
+  for (const r of baseRows || rowsOf(base)) {
     const n = byId[r.id]; if (!n || n.text === r.text) continue;
     if (!(OLD[r.id] || []).includes(r.text)) bad.push(`${r.id}: 옛 글이 REF_OLD_1018 에 없다 «${r.text.slice(0, 30)}…»`);
   }
@@ -24,8 +24,10 @@ function check(OLD) {
 }
 const OLD = oldOf(html);
 if (SELF) {
-  const k = Object.keys(OLD)[0]; const broken = { ...OLD }; delete broken[k];
-  const b = check(broken);
+  /* 깨 보기는 main 과 지금 표가 같아도 돌아야 한다 — «main 이 옛 글이었던 판»을 스스로 만든다(한 줄을 옛 글로 되돌린 표) */
+  const k = Object.keys(OLD).find((id) => now.some((r) => r.id === id)); const broken = { ...OLD }; delete broken[k];
+  const fake = now.map((r) => (r.id === k ? { ...r, text: OLD[k][0] } : r));
+  const b = check(broken, fake);
   console.log(`${b.length ? 'ok  ' : 'FAIL'} 깨 보기 — 목록에서 ${k} 를 빼면 빨강(${b.length}건)`);
   process.exit(b.length ? 0 : 1);
 }
