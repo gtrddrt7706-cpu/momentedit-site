@@ -14873,7 +14873,7 @@ nochk '신랑 신부 두 사람이 평생 사랑하겠다는' assets/ritual-open
 nochk '크게 외치겠습니다. 신랑 신부가 선창하면' assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then
   _sw=$(node -e "const O=require('./assets/ritual-open.js'); process.stdout.write(O.narExList({on:{song:1}},'song').length+','+O.narExList({on:{song:1,declare:1}},'song').length)" 2>&1)
-  if [ "$_sw" = "3,4" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 · 3 · 4 는 늘 [NARR_R9_1018 · R10_SRC_1018]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 3 · 4 가 사라졌다($_sw · 기대 3,4) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
+  if [ "$_sw" = "4,5" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 · 3 · 4 · 5 는 늘 [NARR_R9_1018 · R10_SRC_1018 · REVIEW23_1018]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 3 · 4 · 5 가 사라졌다($_sw · 기대 4,5 · REVIEW23_1018 로 예시 5 «따뜻하게»가 늘었다) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
 fi
 # ★★[R10_SRC_1018 2026-10-18 자료 루프 라운드 10] 라운드 9 가 박수 자리 · 서술어 겹침(SOURCE_FIRST 로 걷힌 자)을 까닭으로 뺀 자료 글을 되살리고 · 실전 대본이 있는 자리의 기본 글을 자료 글로
 #   사진 안내 26 첫 문장 = RR 39 · 덕담 받는 말 기본 = U1 · 예시 3 = OO · 축가 여는 말 예시 2 끝 «여러분 큰 박수 부탁드립니다.»(OO) · 예시 3 = NN · 4 = U1 · 소리 204 ~ 206
@@ -17161,7 +17161,7 @@ chk 'tableIn:"신랑 신부가 오늘 참석해 주신 모든 하객 여러분�
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
-chk 'const N_FILES = 208;' scripts/check-ritual-cue.js 1   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
+chk 'const N_FILES = 210;' scripts/check-ritual-cue.js 1   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1
