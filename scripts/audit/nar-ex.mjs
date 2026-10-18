@@ -69,7 +69,7 @@ function run(mut) {
   const sents = (t) => (String(t).match(/[^.!?]+[.!?]*/g) || [String(t)]).map((s) => s.trim()).filter(Boolean);
   /* ★[EX_BANG_SPLIT_1018] 자료 문장 안의 «!»(«'위하여!'라고» · 인스타 SS 46)에서 예시가 갈려도 그 조각은 자료 글이다 — 장부 문장도 같은 자로 나눠 함께 넣는다(통째 · 조각 둘 다) */
   const SRC = new Set(JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.flatMap((x) => [x.text].concat(sents(x.text))).map(nz));
-  const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn };
+  const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn, 'narr-close': D.NARR.close };   /* [REVIEW4_1018] 단체 사진 안내 예시의 뒤 문장은 지금 글 */
   const CALL = /^(양가 (어머님|아버님|부모님)|양가를 대표하는 두 분), 단상 위로 올라와 주십시오\.$/;
   const made = [];
   clips.forEach((x) => { const own = new Set(sents(BASE[x.base] || C.EXTRA[x.base] || '').map(nz));
