@@ -8062,7 +8062,7 @@ chk 'B2_TIME_1014' scripts/check-ritual-cue.js 2
 chk 'ENTRY_TIME_1014' assets/ritual-open.js 1
 chk 'TABLE_NEXT_1014' assets/ritual-data.js 1
 chk 'ENTRY_ARRIVE_1014' assets/ritual-data.js 1         # 144 도 콘솔 전용(NARR_CONSOLE_ONLY) — 빌더 옛 화면에 사본이 없다 · 거울 검사가 «빠진 사본»으로 읽지 않게
-chk "'declareFamilyIntro','entryArrive'\]" assets/ritual-data.js 1
+chk "'declareFamilyIntro','entryArrive','photoFree'\]" assets/ritual-data.js 1   # [PHOTO_FREE_OPEN_1019] 262 도 콘솔 전용(photoOut 과 같은 길)
 chk 'N2_GUEST_ASK_1014' scripts/check-narr-rule.mjs 2   # 같은 문장이 하객을 부르면(다 같이 · 여러분 · 하객) 시키는 말은 하객에게 간다 — 축배 40 이 N2 에 붉던 자를 좁혔다 · SELFPASS 한 줄이 지킨다
 chk 'STAGE_ORDER_CALL_TEXT_1014' scripts/audit/stage-order-name.mjs 1   # 입장 구호 자리를 번호가 아니라 글로 찾는다(입장 A 넷 → 셋)
 chk 'NAR_B2_1014' scripts/audit/copycheck/전수표.py 1   # 137~144 전수표 SKIP — 나레이션 원고(3단계) 글이라 화면 문구 전수 대상이 아니다
