@@ -2971,7 +2971,7 @@ function _vowNm(){ return _vowKind()==='thanks'?'감사문':'서약'; }
 function _vowHow(){ return S.vowHow==='each'?'each':'alt'; }
 /* ★★[VOW_FIRST 2026-10-06 사장님 «신랑 신부 먼저 할 사람 순서 정할 수 있게» → «추천대로»] 'g'(기본 · 신랑부터) | 'b'(신부부터) — 엔진 여는 말(127) · 흐름 줄 · 글칸 순서가 같은 값을 읽는다 */
 function _vowFirst(){ return S.vowFirst==='b'?'b':'g'; }
-function _vowHowHint(){ return (_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요. «':'마지막 한 문장은 하객분들 쪽으로 돌아서서 함께 읽어요. «')+_vowBoth().join(' ')+'» · 이 문장은 저희가 준비해 둬요'; }   /* [THANKS_IN_VOW] 감사문은 처음부터 하객 쪽을 본다 */   /* [R2-28] 읽는 방식은 바로 위 칩 · 흐름 줄이 말한다(«번갈아» 세 번) — 두 판 공통 */
+function _vowHowHint(){ return (_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요. «':'마지막 한 문장은 하객분들 쪽으로 돌아서서 함께 읽어요. «')+_vowBoth().join(' ')+'» · 이 문장은 미리 넣어 두었어요'; }   /* [THANKS_IN_VOW] 감사문은 처음부터 하객 쪽을 본다 */   /* [R2-28] 읽는 방식은 바로 위 칩 · 흐름 줄이 말한다(«번갈아» 세 번) — 두 판 공통 */
 
 /* ★[WRITE_FRAME 2026-09-26 코워크 회신5 4-4] 예시 꼬리표 «눈물» → «장면 하나» — 감정을 요구하는 이름을 피한다(연구 B03). 글은 그대로. */
 var EXVOW=[

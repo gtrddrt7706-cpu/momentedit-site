@@ -14977,7 +14977,7 @@ nochk 'narr-song-end-ex' assets/ritual-cue.js
 chk "'narr-vow-out': \['신랑, 신부 모두 서약을 마쳤습니다.'," assets/ritual-open.js 1
 chk "'tribute-call-say': \['이제 이 마음을 다해 인사를 드리겠습니다. 신랑 신부, 부모님께 인사!'" assets/ritual-open.js 1
 chk "'tribute-call-say-ex2', 'tribute-call-say-ex3', 'tribute-call-say-ex4'" assets/ritual-cue.js 1
-chk '이 문장은 미리 넣어 두었어요' order-preview.html 1
+chk '이 문장은 미리 넣어 두었어요' order-preview.html 2   # «두 분 함께» 칸 아래 · 서약 안내 힌트(_vowHowHint)
 nochk '이 문장은 저희가 준비해 둬요' order-preview.html   # 검토 36 · 이미 들어 있는 문장을 앞으로 할 일처럼 읽혔다
 chk '»를 고르시면 끝 신호만 알려 주세요' order-preview.html 1
 nochk '»에 체크하면 끝 신호만' order-preview.html   # 검토 37
