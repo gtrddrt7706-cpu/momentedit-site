@@ -15065,6 +15065,10 @@ chk '우성: 일가 친척, 친지, 친구분들께서는 촬영을 함께해 �
 chk '=219_narr-close-ex2,=220_narr-close-ex3' docs/handoff/녹음/다음판_1018_clip.txt 1
 nochk '직장 동료' docs/handoff/녹음/다음판_1018_7_예시_멘트.txt
 chk '| 검토 126 |' docs/handoff/insta-find.md 1
+# ★[REVIEW18_1018 2026-10-18 인스타 섹션 검토 127] 144 입장 받는 말 — 부르는 말을 걷어 맞절 여는 말과 안 겹치게(다음판 · 패치)
+chk '우성: 여러분의 축복 속에, 두 사람이 한 자리에 섰습니다.' docs/handoff/녹음/다음판_1018_2_진행_전반.txt 1
+nochk '사랑하는 가족과 소중한 하객' docs/handoff/녹음/다음판_1018_2_진행_전반.txt
+chk '| 검토 127 |' docs/handoff/insta-find.md 1
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
