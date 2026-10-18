@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[EX_MANY_1017 2026-10-17 사장님 «우리 시스템에 예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 하자 · 4개 정도 · 자료집에서 좋은 멘트들 붙여서 · 저 섹션 말고도 예시가 없는 곳 찾아보고 개선»]
-   나레이션 멘트 예시(ritual-open NAR_EX · 14 순간 · 소리 59줄 148 ~ 206 · 191 ~ 196 = 자료 T3 [T3_OK_1017] · 197 ~ 200 = 자료 루프 첫 판 [NARR_LOOP_1018] · 201 ~ 203 = 라운드 9 [NARR_R9_1018] · 204 ~ 206 = 라운드 10 [R10_SRC_1018])를 잰다 — 엔진 · 번호 · 자료 · 화면 · 녹음 대본.
+   나레이션 멘트 예시(ritual-open NAR_EX · 14 순간 · 소리 57줄 148 ~ 206(쉬는 소리 201 · 190 둘 · RETIRED · [R11_SRC_1018]) · 191 ~ 196 = 자료 T3 [T3_OK_1017] · 197 ~ 200 = 자료 루프 첫 판 [NARR_LOOP_1018] · 201 ~ 203 = 라운드 9 [NARR_R9_1018] · 204 ~ 206 = 라운드 10 [R10_SRC_1018])를 잰다 — 엔진 · 번호 · 자료 · 화면 · 녹음 대본.
      ① 소리 번호 — 예시 소리마다 FILES 에 있고 147 뒤(맨 끝에 붙였다 · 앞 번호를 밀지 않는다) · EXTRA 글 = 원천 글 · 같은 글은 한 소리
      ② 이름표 — «~하게» 한 낱말(격식 있게 포함 · EX_NAME_HAGE) · 한 순간 안에서 겹치지 않는다
      ③ 엔진 — 고르면 그 줄 소리 · 번호 · 글이 예시로(줄 slug 는 그대로 · c.ex) · 안 고르면 예시 소리가 한 줄도 없다
@@ -21,7 +21,7 @@ function run(mut) {
   if (mut === 'text') { const L = O.NAR_EX.ring.lines['narr-ring-in']; L[0] = L[0].replace('다음은', '오늘 우리는 정말 행복한 날입니다. 다음은'); }
   if (mut === 'cue') O.narExCue = () => '';
   const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
-  if (mut === 'files') C.FILES.splice(C.FILES.indexOf('narr-table-in-ex2'), 1);
+  if (mut === 'files') C.FILES.splice(C.FILES.indexOf('narr-table-in-ex3'), 1);   // [R11_SRC_1018] 190(narr-table-in-ex2)은 쉬는 소리라 203 을 뺀다
   const D = require(path.join(ROOT, 'assets/ritual-data.js'));
   let f0 = fail; const R = [];
   const T = (m, c, d) => { R.push([m, c, d]); };
@@ -30,7 +30,9 @@ function run(mut) {
   // ① 번호
   const first = FILES.indexOf('narr-candle-bow-others');
   T(`① 예시 소리 ${clips.length}줄이 모두 FILES 에 · 147(narr-candle-bow-others) 뒤에 붙었다`, clips.length >= 40 && clips.every((x) => FILES.indexOf(x.slug) > first && first === 146), clips.filter((x) => FILES.indexOf(x.slug) <= first).map((x) => x.slug).join(' '));
-  T('① FILES 의 «-exN» 예시 소리(하객 맞이 · 식전 영상 소개 밖)는 모두 원천(NAR_EX)에 글이 있다', FILES.filter((f) => /-ex\d$/.test(f) && !/^guest-ex|^narr-prevideo-in-ex/.test(f)).every((f) => clips.some((x) => x.slug === f)), FILES.filter((f) => /-ex\d$/.test(f) && !/^guest-ex|^narr-prevideo-in-ex/.test(f) && !clips.some((x) => x.slug === f)).join(' '));
+  const LIVE_EX = (f) => /-ex\d$/.test(f) && !/^guest-ex|^narr-prevideo-in-ex/.test(f) && !(C.RETIRED && C.RETIRED[f]);   // ★[R11_SRC_1018 라운드 11] 쉬는 소리(RETIRED · 번호 보존 · 기본 글과 같은 글이 된 예시)는 원천에 글이 없어도 된다
+  T('① FILES 의 «-exN» 예시 소리(하객 맞이 · 식전 영상 소개 · 쉬는 소리 밖)는 모두 원천(NAR_EX)에 글이 있다', FILES.filter(LIVE_EX).every((f) => clips.some((x) => x.slug === f)), FILES.filter((f) => LIVE_EX(f) && !clips.some((x) => x.slug === f)).join(' '));
+  T('① 쉬는 예시 소리는 원천(NAR_EX)에서도 안 나간다 [R11_SRC_1018]', FILES.filter((f) => /-ex\d$/.test(f) && C.RETIRED && C.RETIRED[f]).every((f) => !clips.some((x) => x.slug === f)), FILES.filter((f) => /-ex\d$/.test(f) && C.RETIRED && C.RETIRED[f] && clips.some((x) => x.slug === f)).join(' '));
   T('① EXTRA 글 = 원천 글(손으로 옮겨 적지 않는다)', clips.every((x) => C.EXTRA[x.slug] === x.text), clips.filter((x) => C.EXTRA[x.slug] !== x.text).map((x) => x.slug).join(' '));
   T('① 같은 글은 한 소리 — 편지 맺는 말 예시 2 · 3 은 하나(narr-letter-end-ex2)', !clips.some((x) => x.slug === 'narr-letter-end-ex3') && O.narExCue({ letter: 'each', narEx: { letter: 2 }, on: {} }, 'narr-letter-end') === 'narr-letter-end-ex2');
   // ② 이름표

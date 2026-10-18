@@ -107,5 +107,31 @@ if (docsAt) {
   console.log(`\n⑤ 라운드 기록 — «안 바꾼 까닭»에 걷힌 자(박수 자리 · 서술어 겹침)를 쓴 줄 ${hits.length} [ROUND_REASON_1018]` + (files.length ? ` · 기록 ${files.length}개` : ' · 기록 없음'));
   hits.forEach((h) => console.log('  FAIL ' + h));
   if (hits.length) process.exitCode = 1;
+  /* ★[QUOTE_FILE_1018 라운드 11] «보고 안 바꾼 것»의 자료 칸에 인용한 «…» 문장은 그 순간의 이벤트별 파일에 있어야 한다.
+     라운드 9 가 서약 자리 «안 바꾼» 줄에 맞절 자리 문장(«서로 마주 보고 서 주시기 바랍니다» · II 47 · OO 132 · U1 120)을 서약 자료로 적었고
+     라운드 10 은 그 줄을 근거로 서약 꼬리를 라운드 11 로 미뤘다. 라운드 11 부터 그 칸에는 «[05]»처럼 이벤트별 파일 번호를 함께 적고, 여기서 그 파일에 문장이 있는지 잰다
+     (괄호 · 띄어쓰기 · 문장부호는 빼고 줄마다 대조 · «…»로 끊은 토막은 토막마다 · 6글자 아래 토막은 안 잰다). */
+  const evDir = path.join(dir, '이벤트별');
+  const evFiles = {}; try { for (const f of fs.readdirSync(evDir)) { const m = /^(\d{2})_.*\.md$/.exec(f); if (m) evFiles[m[1]] = f; } } catch (e) { /* 폴더 없음 */ }
+  const nz = (s) => String(s).replace(/\([^)\n]*\)/g, '').replace(/[^0-9A-Za-z가-힣]/g, '');
+  const qBad = []; let qN = 0;
+  for (const f of files) {
+    if (!(+((/라운드(\d+)_/.exec(f) || [])[1]) >= 11)) continue;
+    let sec = '';
+    for (const l of fs.readFileSync(path.join(dir, f), 'utf8').split('\n')) {
+      if (/^## /.test(l)) { sec = l; continue; }
+      if (!/보고 안 바꾼/.test(sec) || !/^\|/.test(l) || /^\|\s*-/.test(l) || /안 바꾼 까닭/.test(l)) continue;
+      const src = l.split('|').map((x) => x.trim())[2] || '';
+      const quotes = [...src.matchAll(/«([^»]+)»/g)].map((m) => m[1]).filter((q) => nz(q).length >= 6);
+      if (!quotes.length) continue;
+      const codes = [...src.matchAll(/\[(\d{2})\]/g)].map((m) => m[1]);
+      if (!codes.length) { qBad.push(f + ' · 자료 칸에 이벤트별 파일 번호([05] 꼴)가 없다 · ' + l.slice(0, 80)); continue; }
+      const body = codes.map((c) => (evFiles[c] ? fs.readFileSync(path.join(evDir, evFiles[c]), 'utf8') : '').split('\n').map(nz).join('\n')).join('\n');
+      for (const q of quotes) { qN++; for (const part of q.split('…').map(nz).filter((x) => x.length >= 6)) if (!body.includes(part)) qBad.push(f + ` · [${codes.join(' ')}] 에 없는 문장 «${q.slice(0, 40)}»`); }
+    }
+  }
+  console.log(`\n⑥ 라운드 기록 — «안 바꾼 것»에 인용한 자료 문장 ${qN}개 · 그 순간 이벤트별 파일에 없는 것 ${qBad.length} [QUOTE_FILE_1018]`);
+  qBad.forEach((h) => console.log('  FAIL ' + h));
+  if (qBad.length) process.exitCode = 1;
 }
 console.log(`\n빈 곳 ${thin.length}자리 — 다음 판: 찾았는데 안 넣은 것부터 넣고 · 요청 없는 자리는 공개 요청 파일에 더한다 · 개선 후보는 node scripts/audit/narr-words.mjs --engine`);
