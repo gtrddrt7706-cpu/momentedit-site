@@ -12209,7 +12209,7 @@ chk '신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니�
 chk '두 분, 읽어 드리세요.' assets/ritual-data.js 1   # ★[LETTER_TO_FIRST_1014] «부모님께»는 첫 문장으로   # ★[NAR_ENGINE_1014] 10/14 원고 3단계 · ★[NAR_B2_1014] 4판 «읽어 드리세요»를 엔진에(글 먼저 · 녹음 대기)
 nochk '두 분, 부모님께 전해 주세요.' assets/ritual-data.js   # 편지를 건네러 가는 말로 읽혔다(원고 4판 · GG 1)
 chk '두 분, 차례로 전해 주세요.' assets/ritual-data.js 1
-chk '신랑부터 차례로 서로의 손에 반지를 끼워 줍니다.' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 신랑부터 차례로 서로의 손에 끼워 주세요.…» · 옛 주석 ★[NAR_ENGINE_1014] 10/14 원고 3단계(«반지를» 두 번 W13)
+nochk '신랑부터 차례로 서로의 손에 반지를 끼워 줍니다.' assets/ritual-data.js   # ★[R11_SRC_1018 라운드 11] 반지 여는 말은 자료 T2 «예물 교환»(새 글은 위 R11 핀이 잠근다) · 옛 핀 chk 2 = G1 58(★[SOURCE_FIRST_1016] 자료 글로 옮김 · 그 전 «두 분, 신랑부터 차례로 서로의 손에 끼워 주세요.…» · ★[NAR_ENGINE_1014] «반지를» 두 번 W13) · 되살리지 말 것
 # ★[CUE_READ 2026-09-20] 「이제」를 뺐다 — 큐 순서에서 18·20·21 이 연달아 「이제」로 열고 있었다.
 #   문중이라 문두 반복 검사에 안 걸렸고, 셋이 다른 클립이라 클립 안 검사에도 안 걸렸다.
 chk '여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
@@ -15301,7 +15301,7 @@ chk "'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge
 chk 'REDUB_1003' assets/ritual-data.js 1
 chk 'REDUB_KEEP_RULE' assets/ritual-data.js 1
 chk '이제 두 사람은 부부입니다. 하객 여러분, 새 출발을 큰 박수로 축복해 주시면 감사하겠습니다.' assets/ritual-data.js 1   # [REDUB_KEEP_RULE] PERF_CANON_2 표준 수행문을 지킨다(옛 녹음 재사용)
-chk '혼인 서약이 있겠습니다.' assets/ritual-data.js 2  # ★[SOURCE_BEST_1015 라운드 5] G1 29 · G3 32 «다음은 ~이 있겠습니다»
+nochk '다음은 혼인 서약이 있겠습니다.' assets/ritual-data.js  # ★[R11_SRC_1018 라운드 11] 서약 여는 말 첫 문장은 자료 T2 «다음은 혼인 서약 순서입니다.»(RR 같은 문장 · 새 글은 nar · narB 핀이 잠근다) · 옛 핀 chk 2 = ★[SOURCE_BEST_1015 라운드 5] G1 29 · G3 32 «다음은 ~이 있겠습니다» · 되살리지 말 것
 chk '먼저 다 함께 한 장 담겠습니다.' order-preview.html 1   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«남기겠습니다» 두 번 W13 · 가족 · 친구 차례는 감사 인사가 말한다)
 chk 'R5-02' order-preview.html 1
 chk 'function _vsMk()' order-preview.html 1
