@@ -15023,6 +15023,27 @@ chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.
 chk '| 검토 56 |' docs/handoff/insta-find.md 1
 chk '| 검토 66 |' docs/handoff/insta-find.md 1
 chk '요청판 10' docs/handoff/insta-find.md 1
+# ★[REVIEW10_1018 · REF_OLD_1018 2026-10-18 인스타 섹션 검토 10판 91 ~ 106] 참고 예시 글(ritual-ref · 글로만) — 자료 원문 줄은 틀린 날 · 같은 자리에 같은 말 둘 · 맞춤법 · 비문만,
+#   우리 글 줄은 제안대로 · 옛 글은 order-preview REF_OLD_1018(_exMineOld 가 옛 글 칸도 이름만 바꾼다) · 말투 · 다른 순간 겹침 · 부름말 넣기는 안 함(자료 글 그대로)
+chk 'REF_OLD_1018' order-preview.html 3
+chk '이제 잘 살겠다는 약속만 지키면 됩니다.' assets/ritual-ref.js 1
+chk '서로 아끼고 존중하기로 하였습니다.' assets/ritual-ref.js 1
+chk '가족의 인연을 허락해주신 사돈댁에' assets/ritual-ref.js 1
+chk '아낌없는 사랑으로 키워주셔서 감사합니다. 소중한 아드님을' assets/ritual-ref.js 1
+chk '당연하다는 이유로' assets/ritual-ref.js 1
+chk '진실한 행동을' assets/ritual-ref.js 1
+nochk '조금 있다 드릴 약속' assets/ritual-ref.js
+nochk '굳게 약속하였습니다' assets/ritual-ref.js
+nochk '귀한 주말 시간' assets/ritual-ref.js
+nochk '오빠에게 보냅니다' assets/ritual-ref.js
+nochk '당연함에 미루어' assets/ritual-ref.js
+nochk '진실된 행동' assets/ritual-ref.js
+chk '| 검토 91 |' docs/handoff/insta-find.md 1
+chk '| 검토 106 |' docs/handoff/insta-find.md 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/ref-old-cover.mjs >/dev/null 2>&1; _roc=$?; if [ "$_roc" = 1 ]; then echo 'FAIL ref-old-cover: 바뀐 참고 예시 글의 옛 글이 REF_OLD_1018 에 없습니다 — node scripts/audit/ref-old-cover.mjs'; fail=1; else echo "ok ref-old-cover [REF_OLD_1018] ($_roc)"; fi
+  if node scripts/audit/ref-old-cover.mjs --selftest >/dev/null 2>&1; then echo 'ok ref-old-cover --selftest'; else echo 'FAIL ref-old-cover --selftest: 깨 보기를 못 잡는다'; fail=1; fi
+fi
 # ★[CLOSE_SEAM_1018 · REVIEW9_1018 2026-10-18 인스타 섹션 검토 9판 86 ~ 90 · 사장님 18:41 «이벤트 중간에 하나 빼더라도 그것이 맞게 나래이션이 입혀지고»]
 #   86 축사가 마지막이면 닫는 인사 앞 B10 · 박수 부탁 겹침은 닫는 멘트를 예시 3 으로(seamFit · 빌더 _closeFit · 칩 누른 날은 그대로) · 87 선언이 마지막이면 B9 + 닫는 인사 디렉터 GO
 #   88 ~ 90 두 분 AI 목소리 예시 글(GUEST_EX) 셋 · 옛 글은 EX_OLD_1006 · 녹음 대사 글은 안 바꿨다(녹음 PR 동결)
@@ -18927,7 +18948,7 @@ chk '신랑 이서준 군과 신부 정하윤 양은' assets/ritual-ref.js 1   #
 chk '함께 걸었던 등산길에서 당신은 늘 한 발 앞서' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «부엌 물소리가 길어지는 이유를 알아채는 데…»
 chk '서로 다른 삶을 살다가 우연한 인연으로 만나' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «하윤 씨 댁에 처음 인사드리러 간 날…»
 chk '두 사람을 이어준 신랑 친구 한지호입니다' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람을 처음 만나게 한 신랑 친구 한지호입니다…»
-chk '소중한 딸을 평생 아끼고 지켜 주겠습니다' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «장인어른, 장모님. 하윤이가 웃는 날이 더 많도록…»
+chk '소중한 따님을 평생 아끼고 지켜 주겠습니다' assets/ritual-ref.js 1   # [REVIEW10_1018] 검토 100 «딸 → 따님»(상대 부모님께 · 높임)   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «장인어른, 장모님. 하윤이가 웃는 날이 더 많도록…»
 chk '우리의 행복을 위하여!' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «이제야 웃는 신랑 신부를 위하여!…»
 nochk '신랑 이서준과' assets/ritual-ref.js                  # 이름 바꾸기가 «과/와»를 못 고친다(받침 없는 이름이면 «김민수과»)
 nochk '그걸 알아채는 데 삼 년이 걸렸어' assets/ritual-ref.js  # 번갈아 읽으면 «그걸»이 앞 신부 줄을 가리킨다
@@ -19033,7 +19054,7 @@ chk 'R2_DECL_NAMES_1014' order-preview.html 1
 chk "누가 읽든 같은 글): '+_declNar()" order-preview.html 1
 chk 'THANKS_DUP_TOAST_1014' order-preview.html 1
 chk 'BLESS_STORY_NOTE_1014' assets/ritual-open.js 1
-chk '당신과 함께라면 등산이 근사한 경험이 되었습니다' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «화분마다 물을 언제 주는지도 이제 다 외웠으니…» · 옛 주석 라운드 2 G3 — 편지(서로에게) ① 신랑 «나도 좀 달라졌어»와 겹침 풀기
+chk '당신과 함께여서 등산이 근사한 경험이 되었습니다' assets/ritual-ref.js 1   # [REVIEW10_1018] 검토 106 «-라면 … 되었습니다» 호응   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «화분마다 물을 언제 주는지도 이제 다 외웠으니…» · 옛 주석 라운드 2 G3 — 편지(서로에게) ① 신랑 «나도 좀 달라졌어»와 겹침 풀기
 nochk '나도 네 곁에서 많이 자랐다는 걸' assets/ritual-ref.js
 chk '아빠는 내가 올 때까지 거실 불을 끄지 않았고' assets/ritual-ref.js 1   # 덕담 ⑤ 신부 아버지(현관 · 신발 소리)와 같은 장치 풀기
 nochk '현관문 소리 날 때까지' assets/ritual-ref.js
