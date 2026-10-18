@@ -9079,7 +9079,7 @@ nochk '편히 일어나셔서 움직이세요' assets/ritual-cue.js
 chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.js 1   # ★[NAR_ENGINE_1014] 10/14 — 10/10 결정(녹음 받음 r/25)이 9/20 «사진입니다»보다 나중이다
 nochk '여기서부터는 사진 순서입니다' assets/ritual-cue.js
 chk '가까이 모여 주시면 됩니다' assets/ritual-data.js 1
-chk '오늘의 예식은 여기까지입니다.' assets/ritual-cue.js 1
+chk '오늘의 예식은 여기까지입니다.' assets/ritual-cue.js 1   # 46(온라인) · [PHOTO_END_LINE_1018] 45 · 110 은 «다 함께하는 촬영은 여기까지입니다»
 chk 'ENGINE_CALLS' scripts/audit/cue-order-text.mjs 1
 chk 'SPOT_NOT_BLOB' scripts/audit/tone-text-applied.py 1
 chk 'PARSE_ZERO' scripts/audit/tone-text-applied.py 2
@@ -12213,7 +12213,7 @@ nochk '신랑부터 차례로 서로의 손에 반지를 끼워 줍니다.' asse
 # ★[CUE_READ 2026-09-20] 「이제」를 뺐다 — 큐 순서에서 18·20·21 이 연달아 「이제」로 열고 있었다.
 #   문중이라 문두 반복 검사에 안 걸렸고, 셋이 다른 클립이라 클립 안 검사에도 안 걸렸다.
 chk '여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
-chk '오늘의 예식은 여기까지입니다' assets/ritual-cue.js 2
+chk '다 함께하는 촬영은 여기까지입니다' assets/ritual-cue.js 2   # [PHOTO_END_LINE_1018] 45 · 110(사장님 10/18 «추천대로»)
 # ★[LETTER_HEARD_OK 2026-09-19] 편지 낱말을 사장님이 귀로 확인하셨다는 기록.
 #   기계는 낱말을 못 듣는다(ASR 차단). 이 사실은 검사로 재생산할 수 없어, 지우면 영영 사라진다.
 #   ★문안을 고치거나 mp3 를 다시 받으면 이 칸을 지우고 다시 확인받는다 — 그때는 이 chk 도 함께 뺀다.
@@ -15023,6 +15023,18 @@ chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.
 chk '| 검토 56 |' docs/handoff/insta-find.md 1
 chk '| 검토 66 |' docs/handoff/insta-find.md 1
 chk '요청판 10' docs/handoff/insta-find.md 1
+# ★[REVIEW8_1018 · PHOTO_END_LINE_1018 2026-10-18 인스타 섹션 검토 8판 79 ~ 85 · 사장님 «지금 폼 그대로 업그레이드» · 결정 대기함 [110] «추천대로»] 예시 글 다듬기 일곱 곳 · 45 · 110 첫 문장
+chk 'REVIEW8_1018' assets/ritual-open.js 1
+chk 'PHOTO_END_LINE_1018' assets/ritual-cue.js 1
+nochk '그리고 지인 분들께' assets/ritual-open.js
+nochk '프로포즈' assets/ritual-open.js
+nochk '덕분에 더욱이 빛날' assets/ritual-open.js
+nochk '건배를 들어 주시면' assets/ritual-open.js
+nochk '훌륭한 덕담을' assets/ritual-open.js
+nochk '먼저 예식의 시작을 알리는' assets/ritual-open.js
+nochk '저희의 어린 시절' assets/ritual-open.js
+chk '| 검토 79 |' docs/handoff/insta-find.md 1
+chk '| 검토 85 |' docs/handoff/insta-find.md 1
 # ★★[MOOD_1018 · MOOD_FIT_1018 · BRIDGE_SKIP_1018 · B11_OFF_1018 · TOAST_PUTDOWN_1018 · SCRIPT_VIEW_1018 · MOOD_REF_1018 · EX_SLUG_MOVED_1018 2026-10-18 인스타 섹션 검토 7판(67 ~ 78) · 사장님 «A만 반영하자» · «이런 틀은 그대로»]
 #   ① 고르기 코스 카드 아래 «나레이션 분위기» 칩 한 줄(표 RitualOpen.MOOD · 코스가 미리 누르지 않는다 · B 안 함) · 겹치는 이음새는 moodFit 이 뒤 순간을 다음 예시로 ·
 #   이음말 빼는 조건(B8 · B12 · B9 · B10) · B11(축가 앞 247)은 녹음 전에 걷음 · 테이블 없이 축배 → 사진 안내 사이 잔 내려놓기 사람 구간 · 화촉 예시 2 «밝혀 주시겠습니다» ·
