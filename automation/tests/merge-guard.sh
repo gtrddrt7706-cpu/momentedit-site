@@ -15040,6 +15040,10 @@ chk '=255_bridge-b9-declare-seat-end' docs/handoff/녹음/다음판_1018_clip.tx
 chk '진희: 두 사람의 이야기를 함께 만나보시겠습니다.' docs/handoff/녹음/다음판_1018_1_안내.txt 1
 chk '우성: 선언해 주신 분께서는, 이제 자리로 돌아가셔도 좋습니다.' docs/handoff/녹음/다음판_1018_3_진행_후반.txt 1
 chk '| 검토 119 |' docs/handoff/insta-find.md 1
+# ★[GUHO_ONE_TAKE_1018 2026-10-18 음성 섹션 · 디자인 섹션 «같은 구호는 한 판»] 입장 · 맞절 · 인사 구호는 예시마다 같은 판 — 문장 창고(_src) flac md5 로 잰다 · 갈라지면 sent-lib --patch 로 모든 자리에 넣고 다시 붙인다(전체_1018 녹음 넣기)
+chk 'GUHO_ONE_TAKE_1018' scripts/audit/guho-one-take.mjs 1
+chk 'GUHO_ONE_TAKE_1018' docs/handoff/녹음/README.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/guho-one-take.mjs >/dev/null 2>&1; _gho=$?; if [ "$_gho" = 1 ]; then echo 'FAIL guho-one-take: 같은 구호가 자리마다 다른 판입니다 — node scripts/audit/guho-one-take.mjs'; fail=1; fi; fi
 # ★[REVIEW14_1018 2026-10-18 인스타 섹션 검토 120 · 121] 편지 예시(아빠 · 첫 출근 날) — 두 분이 함께 들어오는 입장이라 «여기까지 데려다주셨네요»를 걷었다 · 사본 둘(빌더 · 원천)
 chk '오늘 제가 여기 선 것도 그 걸음 덕분이에요.' order-preview.html 1
 chk '오늘 제가 여기 선 것도 그 걸음 덕분이에요.' assets/ritual-data.js 1
