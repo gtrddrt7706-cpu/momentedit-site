@@ -1,5 +1,5 @@
 // [VID_SMOOTH 2026-10-09 사장님 «각각 넘기면서 나오는 영상 · 그 외 영상 전부 점검했지? 프레임이 뚝뚝 끊어 보이는 현상»]
-// 받은 영상의 그림을 «움직임이 고르게» 다시 놓고, 그 사이를 움직임을 따라 새로 그려 30fps 를 채운다 — 프레임 수 · 길이 그대로.
+// 받은 영상의 그림을 «움직임이 고르게» 다시 놓고, 그 사이를 움직임을 따라 새로 그려 30fps 를 채운다 — 길이 그대로(30fps 원본은 프레임 수도 그대로).
 //   node scripts/video/smooth-dups.mjs 받은.mp4 시작초 나갈.mkv      (encode-moment.sh 가 부른다 · 한 편 1~2분)
 //
 // 왜 (받은 v8 묶음 17편 실측 · 숫자는 docs/plans/식순연구/순간영상_장면대본_0927.md 의 [VID_SMOOTH])
@@ -8,6 +8,9 @@
 //      같은 그림 자리만 채우면 «느림 · 느림 · 빠름»이 남는다 — 그래서 각 그림의 시각을 «실제로 움직인 양»에 맞춰 고르게 다시 놓는다.
 //   ③ [VID_CUT] 컷(장면이 바뀌는 자리) 앞뒤를 사이 그림으로 채우면 두 장면이 겹친 유령 그림이 생긴다(덕담 1장 · 닫는 인사 2장) — 컷에서 끊는다.
 // 어떻게
+//   ⓪ [VID_FPS_IN 2026-10-18] 24fps 원본도 받는다 — 읽을 때 30fps 칸에 먼저 놓는다(빈 칸은 앞 그림이 한 번 더 채운다).
+//      그 «같은 그림»은 ① 이 걸러 내고 ④ 가 고르게 다시 놓는다 → 길이 · 걸음이 원본 그대로. 30fps 원본은 그대로 지나간다(같은 결과).
+//      ★칸을 맞추지 않으면 24fps 원본의 그림이 1/30초 간격으로 놓여 25% 빨리 지나간다(유화판 지시문 1018 이 24 · 30fps 를 다 받는다고 했다).
 //   ① 새 그림 — 320×180 으로 «평균 낸» 회색 그림에서, 마지막 새 그림 대비 밝기 차 > 3 인 칸이 0.4% 넘으면 새 그림. 같은 그림은 넣지 않는다.
 //      ★한 점씩 뽑아 보면 미세한 결 흔들림이 0.3~1.1% 로 잡혀 거의 같은 그림까지 새 그림으로 센다(하객 맞이 실측) — 평균 낸 그림으로 본다.
 //   ② 컷 — 앞 프레임 대비 바뀐 칸 > 35% 이고 평균 밝기 차 > 8 (17편의 컷 11.8~45.3 · 컷이 아닌 가장 큰 걸음 5.7).
@@ -22,7 +25,7 @@ const [IN, START, OUT] = process.argv.slice(2);
 if (!IN || !OUT) { console.error('쓰는 법: node scripts/video/smooth-dups.mjs 받은.mp4 시작초 나갈.mkv'); process.exit(2); }
 const W = 1280, H = 720, FS = W * H * 3 / 2;
 const DUP = 0.004, MAXGAP = 7, CUT_CH = 0.35, CUT_MAD = 8, EPS = 0.25, SPREAD = [5, 6], START_KEEP = 8;   // ★DUP · MAXGAP 은 새 그림 · 긴 멈춤의 셈 · START_KEEP = 첫 8프레임(0.27초)
-const VF = `scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2,format=yuv420p`;
+const VF = `fps=30,scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2,format=yuv420p`;   // [VID_FPS_IN] 30fps 칸에 먼저 놓는다
 const dec = (vf) => execFileSync('ffmpeg', ['-nostdin', '-loglevel', 'error', '-ss', String(START || 0), '-i', IN, '-an', '-vf', vf, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 30 });
 const raw = dec(VF), n = Math.floor(raw.length / FS);
 const SW = 320, SH = 180, SN = SW * SH;
