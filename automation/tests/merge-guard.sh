@@ -15043,7 +15043,7 @@ chk '| 검토 113 |' docs/handoff/insta-find.md 1
 #   우리 글 줄은 제안대로 · 옛 글은 order-preview REF_OLD_1018(_exMineOld 가 옛 글 칸도 이름만 바꾼다) · 말투 · 다른 순간 겹침 · 부름말 넣기는 안 함(자료 글 그대로)
 chk 'REF_OLD_1018' order-preview.html 3
 chk '이제 잘 살겠다는 약속만 지키면 됩니다.' assets/ritual-ref.js 1
-chk '서로 아끼고 존중하기로 하였습니다.' assets/ritual-ref.js 1
+chk '서로 아끼고 존중할 것을 굳게 다짐하였습니다.' assets/ritual-ref.js 1   # 검토 114 로 고침
 chk '가족의 인연을 허락해주신 사돈댁에' assets/ritual-ref.js 1
 chk '아낌없는 사랑으로 키워주셔서 감사합니다. 소중한 아드님을' assets/ritual-ref.js 1
 chk '당연하다는 이유로' assets/ritual-ref.js 1
