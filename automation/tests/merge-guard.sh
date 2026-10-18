@@ -8015,7 +8015,7 @@ nochk '두 사람과 양가를 대신해' assets/ritual-data.js 0
 chk 'TRIB_END_CALL_1014' assets/ritual-cue.js 1
 chk "hint: '포옹이 끝나면'" assets/ritual-cue.js 1
 chk 'CLOSE_BOW_CALL_1014' assets/ritual-cue.js 1
-chk "hint: '두 분이 앞에 나란히 서면'" assets/ritual-cue.js 1
+chk ": '두 분이 앞에 나란히 서면'," assets/ritual-cue.js 1   # [CLOSE_SEAM_1018] B9 뒤만 «선언하신 분이 자리로 …» · 그 밖은 그대로
 # ★[TABLE_IN_ROLE_1014] 131 테이블 인사는 진행(우성) — 파트(3_진행_후반)와 역할(ROLE_OF)이 같은 자를 쓴다
 chk 'TABLE_IN_ROLE_1014' scripts/build-typecast-import.mjs 1
 node -e "const m=require('./docs/plans/식순연구/타입캐스트/manifest.json');const c=m.clips.find(x=>x.file==='narr-table-in'&&x.dir==='assets/audio/narration');if(!c||m.voice[c.role]!=='우성'){console.log('REVERT? TABLE_IN_ROLE_1014: 131 성우가 우성이 아니다 '+(c&&c.role));process.exit(1)}console.log('ok TABLE_IN_ROLE_1014 131 = '+c.role+'('+m.voice[c.role]+')')" || fail=1
