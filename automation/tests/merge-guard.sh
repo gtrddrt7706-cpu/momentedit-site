@@ -15100,6 +15100,14 @@ nochk '끊이지 않는 박수와 함성으로 출발하겠습니다. 신랑 신
 nochk '끊이지 않는 박수와 함성으로 출발하겠습니다. 신랑 신부' order-preview.html
 chk '⑥ 멀리 떨어진 되풀이' scripts/audit/mood.mjs 1
 chk '| 검토 130-4 |' docs/handoff/insta-find.md 1
+# ★[REVIEW23_1018 2026-10-18 인스타 섹션 검토 131] 연습하기 · 글로 한눈에 보기를 당일 콘솔 차례로 — 서약 먼저 읽는 분 · 한 줄씩 번갈아 · 끝 «두 분 함께» [VOW_PRACT_1018] · 부모님께 인사 포옹 줄 [TRIB_HUG_LINE_1018] · 분위기 안 고른 날 선언 뒤 박수 두 번 [SEAM_KEEP_1018]
+chk 'function _vowPract(grp,x)' order-preview.html 1
+chk 'function _vowScript()' order-preview.html 1
+chk 'function _seamFitKeep()' order-preview.html 1
+chk "부모님이 두 분을 안아 주세요 · 앉으신 채로도, 일어나셔도" order-preview.html 1
+chk 'VOW_PRACT_1018' scripts/audit/vow-pract.mjs 1
+chk '| 검토 131-1 |' docs/handoff/insta-find.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vow-pract.mjs >/dev/null 2>&1; _vpr=$?; [ "$_vpr" = 1 ] && { echo 'FAIL vow-pract: 연습 · 글로 한눈에 보기의 서약 차례 · 두 분 함께 · 포옹 줄 · 선언 뒤 박수가 어긋났습니다 — node scripts/audit/vow-pract.mjs'; fail=1; }; if [ "$_vpr" = 0 ]; then echo 'OK   vow-pract [VOW_PRACT_1018]'; fi; fi
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
 chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
@@ -18984,8 +18992,8 @@ chk "tribute: '두 분이 부모님께 인사하고 안아 드려요', free:" as
 nochk "인사하고 안겨요'" assets/ritual-open.js                                      # 동작 말 하나(안아 드려요)
 nochk "인사하고 안겨요'" order-preview.html
 nochk '부모님께 다가가 인사하고 안겨요' assets/ritual-story.js
-chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말 없이 흐르는 자리',txt:'두 분이 부모님께 인사하고 안아 드려요'" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤
-chk "if(k==='tribute'&&/^tribute-call/.test(sl)) return '두 분이 부모님께 인사하고 안아 드려요'" order-preview.html 1   # 말 → 인사 → 포옹
+chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말 없이 흐르는 자리',txt:cs.some(" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤 · [TRIB_HUG_LINE_1018] 포옹 줄이 있는 날은 인사만
+chk "if(k==='tribute'&&/^tribute-call/.test(sl)) return '두 분이 부모님께 인사해요'" order-preview.html 1   # 말 → 인사 → 포옹 · [TRIB_HUG_LINE_1018 검토 131-4] 포옹은 256 뒤 줄
 chk "tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:300}," order-preview.html 1
 chk 'TRIB_PICK_CHIP_1013' assets/ritual-cue.js 3
 chk "pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말 없이') : m.d," assets/ritual-cue.js 1
