@@ -34,7 +34,7 @@
       "dir": "assets/audio/narration",
       "clips": 32,
       "sents": 71,
-      "chars": 2217
+      "chars": 2210
     },
     {
       "file": "2_진행_전반.txt",
@@ -50,9 +50,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 38,
-      "sents": 104,
-      "chars": 3478
+      "clips": 39,
+      "sents": 105,
+      "chars": 3507
     },
     {
       "file": "3_진행_후반.txt",
@@ -68,9 +68,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 31,
-      "sents": 54,
-      "chars": 1702
+      "clips": 38,
+      "sents": 61,
+      "chars": 1938
     },
     {
       "file": "4_혼주편지.txt",
@@ -427,7 +427,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "오늘의 시작을 함께해 주신 모든 분들께 감사드리며, 두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+          "text": "끝까지 함께해 주신 분들께 감사드리며, 두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
           "before": 0,
           "after": 1.25
         },
@@ -2114,6 +2114,25 @@
       ]
     },
     {
+      "no": "250",
+      "id": "G3-26",
+      "label": "축가 마무리 · 가족 · 친구가 부른 날",
+      "file": "narr-song-end-friend",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "노래해 주신 분께 뜨거운 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
       "no": "27",
       "id": "G4-parent",
       "label": "부모님께",
@@ -2835,6 +2854,139 @@
         {
           "i": 2,
           "text": "다 돌고 나면, 단체 사진으로 이어집니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "243",
+      "id": "N21-e",
+      "label": "이음말 · 입장 앞",
+      "file": "bridge-b7-entry-ready",
+      "role": "진행",
+      "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 오늘의 주인공들을 만나 볼 준비를 모두 마쳤습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "244",
+      "id": "N21-f",
+      "label": "이음말 · 맞절 → 감사 인사(하객 쪽으로)",
+      "file": "bridge-b8-face-guests",
+      "role": "진행",
+      "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 신랑 신부는 하객 여러분을 향해 서시겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "245",
+      "id": "N21-g",
+      "label": "이음말 · 선언 박수 뒤(읽은 분 자리로)",
+      "file": "bridge-b9-declare-seat",
+      "role": "진행",
+      "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "선언해 주신 분께서는, 이제 자리로 돌아가 예식을 지켜봐 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "246",
+      "id": "N21-h",
+      "label": "이음말 · 축사 끝(박수)",
+      "file": "bridge-b10-speech-clap",
+      "role": "진행",
+      "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "축사해 주신 분께 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "247",
+      "id": "N21-i",
+      "label": "이음말 · 엄숙한 순간 → 축가",
+      "file": "bridge-b11-song-light",
+      "role": "진행",
+      "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이번에는 조금 산뜻한 분위기로 넘어가 보겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "248",
+      "id": "N21-j",
+      "label": "이음말 · 축가 → 부모님께 인사",
+      "file": "bridge-b12-tribute-calm",
+      "role": "진행",
+      "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 분위기를 잠시 바꿔서, 조금 경건한 시간을 가져 보겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "249",
+      "id": "N21-k",
+      "label": "이음말 · 닫는 인사 → 축배(자리 지키기)",
+      "file": "bridge-b13-toast-stay",
+      "role": "진행",
+      "part": "3_진행_후반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "잠시 자리를 지켜 주시면 감사하겠습니다.",
           "before": 0,
           "after": 0
         }
