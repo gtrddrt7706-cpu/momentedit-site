@@ -37,12 +37,15 @@
 | 3 | 배역 02 `guest-2`(두 분 목소리 예시 · 신부) | 소리는 옛 나레이션 글 · 두 분 판 1인칭 글 «저희 결혼식은 십 분 뒤에 시작합니다. 오늘 하루는 …»로 | 122 |
 
 - 클립 안의 다른 문장(«십 분 뒤 본식을 시작하겠습니다.» 같은)도 같은 클립이라 함께 받아요 — 한 클립을 한 목소리 · 한 번에 받아야 이어 붙였을 때 소리가 고르다.
-- **차례**: ① 전체_1018 녹음 PR 병합 → ② 나래이션 섹션이 `다음판_1018_엔진글.patch` 를 main 에 넣는다(엔진 글 · 빌더 사본 · 옛 글 EX_OLD · 새 클립 255 · 자료그대로 목록 · 생성기 숫자 · close-seam 검사) → ③ 받은 파일을 `node scripts/assemble-narration.mjs --in <폴더> --clip "$(cat docs/handoff/녹음/다음판_1018_clip.txt)"`
+- **차례**: ① 전체_1018 녹음 PR 병합 → ② 나래이션 섹션이 `다음판_1018_엔진글.patch` 를 main 에 넣는다(엔진 글 · 빌더 사본 · 옛 글 EX_OLD · 새 클립 255 · 자료그대로 목록 · 생성기 숫자 · close-seam 검사) → ③ 받은 zip 을 아래 «사이트에 넣을 때» 차례로 넣는다(`--clip` 은 `다음판_1018_clip.txt`)
   받는 것은 ② 전에 해도 돼요. **넣는 것은 ② 뒤에** — 글이 main 에 없으면 글 · 소리 대조(TEXT_AUDIO_MATCH)가 옛 글과 비교해 멈춰요.
 - 패치를 넣은 뒤 생성물: `node scripts/build-dubbing-script.mjs --write` → `node scripts/build-typecast-import.mjs` → `node scripts/build-course-story.mjs`(장면 대본) — 그다음 letter-mirror · narr-words `--engine` · close-seam 초록을 보고 올린다.
 - 패치는 main `68980365` 위에서 만들었어요(혼주 편지 화면 글 · 배역 원천 · 자료그대로 목록 · 귀 확인 기록 «다시 열림»도 들어 있어요). 전체_1018 PR 이 같은 줄을 건드리면 나래이션 섹션이 손으로 맞춘다(엔진 글 줄은 위 표가 정본).
 
-## ★지금 받을 것 = 「전체_1018」 한 벌 (10/18 18:48 · 성우 틀림 46 + 다시 받을 줄 81) [REC_ALL_1018]
+## 「전체_1018」 한 벌 (10/18 18:48 · 성우 틀림 46 + 다시 받을 줄 81) [REC_ALL_1018] · ✓ 10/18 21:02 받아 넣음
+
+받아 넣은 것: 음성 섹션이 고른 판 284문장(zip 7개 · flac) → 창고 284자리 · 클립 117 · 구호 맞춤으로 묶음 밖 7클립(05 · 06 · 07 · 08 · 10 · 108 · 132)도 다시 붙임.
+넣은 뒤: 다시받기 0줄 · 재더빙 명단 1클립(02 `guest-2-10min` · 화면 글만 바뀐 자리 · 위 «다음판_1018» 에 있다) · check-recorded 1:1.
 
 7판 · 8판 파일은 이 안에 다 들어 있어요. **이 네 파일만 쓰면 돼요.**
 
@@ -56,7 +59,7 @@
 - 117클립 · 284문장 = 다시 받을 줄 81클립(`docs/plans/식순연구/타입캐스트/다시받기/` · 7판 · 8판 · 그 전 판 글 바뀜) ∪ 성우 틀림 46클립(23 · 121 · 130 · 131 · 148 ~ 189) · 겹침 10(148 · 151 · 153 · 154 · 156 · 170 · 172 · 173 · 184 · 186).
   성우 틀림 36클립은 글이 그대로라 지금 글로 받으면 돼요.
 - 넣을 때 `--clip` 은 **`전체_1018_clip.txt` 를 그대로** 넘겨요(`=번호_slug` 117개). 앞글자로 고르면 번져요 — `narr-table-in` 은 ex2 ~ ex5 까지, `narr-bless-mid` 는 ex2 ~ ex4 까지 딸려 와요.
-  `node scripts/assemble-narration.mjs --in <폴더> --clip "$(cat docs/handoff/녹음/전체_1018_clip.txt)"`
+  넣는 차례는 아래 «사이트에 넣을 때»(창고 → 깔기 → 조립)예요.
 - 넣은 뒤 차례: `node scripts/check-text-audio.mjs --redub`(재더빙 명단을 새로 씀 · 검사가 명단 ↔ 어긋남을 양방향으로 본다) → `node scripts/build-redub-byvoice.mjs --write`(다시받기/ 를 비움) → `node scripts/check-recorded.mjs`.
   CI 가 생성물(듣기 페이지 등)을 짚으면 build-voice-parts --write → build-script-review → build-listen-all --out listen-abb5d829.html --web → build-listen-tone --write 순서로 다시 뽑아요.
 - 쓰지 않는 자리: 201 `narr-ring-out-ex4` · 247 `bridge-b11-song-light` 는 걷은 줄(RETIRED)이라 받지 않아요. 253 이름은 `narr-ring-out-ex9` 예요.
@@ -65,6 +68,12 @@
 - 나래이션 섹션은 이 녹음 PR 이 병합될 때까지 `assets/audio/narration` · `_recorded.json` · ritual-cue `FILES` · 다시받기 명단 · **나레이션 글(ritual-open · ritual-cue 의 대사)** 을 건드리지 않아요. 글을 바꾸면 위 목록이 달라져서예요.
 
 ## 사이트에 넣을 때 (디자인 섹션 · Claude Code)
-- 받은 문장 파일을 한 폴더에 두고 `node scripts/assemble-narration.mjs --in <폴더> --clip <slug,…>` — 파일 이름(FILES 번호_slug.mp3) · 무음 · 음량 · `assets/audio/narration/_recorded.json` 을 이 도구가 함께 맞춰요. **_recorded.json 을 손으로 고치지 않아요.**
+받은 zip 은 풀지 않고 한 폴더에 둬요. 파일 이름은 `audio_<순서표 번호>_<글>` 그대로예요(순서표 = `--clip` 목록의 대장 문장 차례 · 번호는 0 부터).
+1. 창고에 넣기 — `node scripts/sent-lib.mjs --import <zip 폴더> --clip "$(cat <clip 목록>)"` · 번호와 글이 둘 다 맞는 파일만 들어가요
+2. 깔기 — `node scripts/sent-lib.mjs --stage <폴더> --clip "$(cat <clip 목록>)"` · 클립 안 문장이 하나라도 비면 깔지 않아요
+3. 조립 — `node scripts/assemble-narration.mjs --in <폴더> --clip "$(cat <clip 목록>)"` — 파일 이름(FILES 번호_slug.mp3) · 무음 · 음량 · `assets/audio/narration/_recorded.json` 을 이 도구가 함께 맞춰요. **_recorded.json 을 손으로 고치지 않아요.**
+- ★창고(1)를 건너뛰고 조립(3)만 하면 옛 판이 창고에 남아, 다음에 한 문장만 고칠 때(--patch → --stage) 그 옛 소리가 되살아나요. 이번 전체_1018 에서 성우 틀림 36클립이 그 경우였어요(글이 같아 창고에 옛 판이 그대로 있었다).
+- ★같은 구호는 한 판 [GUHO_ONE_TAKE_1018] — «신랑 신부, 입장!»(05 ~ 10) · «신랑 신부, 맞절!»(132 · 161 · 162 · 252) · «신랑 신부, 하객 여러분께 인사!»(108 · 185 · 186 · 187).
+  묶음에 구호가 들어 있으면 `node scripts/sent-lib.mjs --patch --sent "<구호>" --wav <그 판>` 으로 모든 자리에 넣고, 찍혀 나온 클립을 2 · 3 으로 다시 붙여요. `node scripts/audit/guho-one-take.mjs` 가 잰다(merge-guard).
 - 그러면 나래이션 쪽 검사(TEXT_AUDIO_MATCH · 다시 받기 목록 · 녹음 전 표시)는 따로 바꿀 것 없이 초록이 돼요. 넣은 뒤 `node scripts/check-text-audio.mjs --redub` 로 다시 받기 목록에서 빠졌는지만 봐 주세요.
 - slug 는 각 판 PR 의 «다시 받을 줄»에 있어요. 253 의 이름은 `narr-ring-out-ex9` 예요(201 `narr-ring-out-ex4` 는 쉬는 소리라 다시 쓰지 않아요).
