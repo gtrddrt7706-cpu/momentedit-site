@@ -15023,6 +15023,11 @@ chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.
 chk '| 검토 56 |' docs/handoff/insta-find.md 1
 chk '| 검토 66 |' docs/handoff/insta-find.md 1
 chk '요청판 10' docs/handoff/insta-find.md 1
+# ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
+chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
+chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
+chk '| 검토 107 |' docs/handoff/insta-find.md 1
+chk '| 검토 113 |' docs/handoff/insta-find.md 1
 # ★[REVIEW10_1018 · REF_OLD_1018 2026-10-18 인스타 섹션 검토 10판 91 ~ 106] 참고 예시 글(ritual-ref · 글로만) — 자료 원문 줄은 틀린 날 · 같은 자리에 같은 말 둘 · 맞춤법 · 비문만,
 #   우리 글 줄은 제안대로 · 옛 글은 order-preview REF_OLD_1018(_exMineOld 가 옛 글 칸도 이름만 바꾼다) · 말투 · 다른 순간 겹침 · 부름말 넣기는 안 함(자료 글 그대로)
 chk 'REF_OLD_1018' order-preview.html 3
