@@ -208,7 +208,11 @@
     /* ★[BRIDGE_MORE_1018 인스타 섹션 검토 6판(연결 멘트) · 사장님 «고정된 틀 외에도 추가해도 돼»] 243 ~ 250 — 이음말 일곱(B7 ~ B13 · 원천 ritual-open NAR.bridge) · 축가 맺는 말 가족 · 친구 판(SONG_BY_1018 · 원천 D.NARR.songEndFriend) · 녹음 전엔 글로 */
     'bridge-b7-entry-ready', 'bridge-b8-face-guests', 'bridge-b9-declare-seat', 'bridge-b10-speech-clap', 'bridge-b11-song-light', 'bridge-b12-tribute-calm', 'bridge-b13-toast-stay', 'narr-song-end-friend',
     /* ★[REVIEW7_1018 인스타 섹션 검토 7판 75 ~ 78] 251 ~ 254 — 개식 5(Y3) · 맞절 5(Y2) · 반지 맺는 말 4(B13 · 201 쉬는 소리 대신 새 이름 EX_SLUG_MOVED_1018) · 부모님께 인사 5(Y4) · 녹음 전엔 글로 */
-    'narr-open-ex5', 'narr-entry-bow-ex5', 'narr-ring-out-ex9', 'narr-tribute-name-ex5'
+    'narr-open-ex5', 'narr-entry-bow-ex5', 'narr-ring-out-ex9', 'narr-tribute-name-ex5',
+    /* ★[REVIEW13_1018 검토 112] 255 — 선언이 마지막인 날 닫는 인사 앞 B9 판(«…돌아가셔도 좋습니다.») */
+    'bridge-b9-declare-seat-end',
+    /* ★[TRIB_HUG_CALL_1018 검토 124] 256 — 부모님께 인사 구호 뒤 포옹 청하기(디렉터 GO) */
+    'tribute-hug'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -284,7 +288,7 @@
     'narr-candle-out': O.NAR.candleOut,
     /* [OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137 ~ 144 — 이름표만(글은 원천) */
     'narr-open': O.NAR.open, 'narr-candle-bow': O.NAR.candleBow.two, 'narr-candle-bow-four': O.NAR.candleBow.four, 'narr-candle-bow-fathers': O.NAR.candleBow.fathers, 'narr-candle-bow-others': O.NAR.candleBow.others,   /* [CANDLE_CALL_SRC_1016] */ 'narr-candle-out-formal': O.NAR.candleOutFormal,
-    'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive, 'tribute-call-say': O.NAR.tributeCallSay,   /* [TRIB_CALL_SAY_1014] 145 */
+    'narr-tribute-name': O.NAR.tributeName, 'narr-tribute-pair': O.NAR.tributePair, 'tribute-call': O.NAR.tributeCall, 'narr-entry-arrive': D.NARR.entryArrive, 'tribute-call-say': O.NAR.tributeCallSay, 'tribute-hug': O.NAR.tributeHug,   /* [TRIB_CALL_SAY_1014] 145 */
     'declare-clap-a': O.NAR.clapAsk, 'declare-clap-b': O.NAR.clapDeclare,
     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
     'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
@@ -294,7 +298,7 @@
     'bridge-b3-clap-thanks': O.NAR.bridge.clapThanks, 'bridge-b4-breath': O.NAR.bridge.breath,
     'bridge-b5-video-out': O.NAR.bridge.videoOut, 'bridge-b6-lighter': O.NAR.bridge.lighter,
     /* [BRIDGE_MORE_1018] 이음말 일곱 · 축가 맺는 말 가족 · 친구 판 */
-    'bridge-b7-entry-ready': O.NAR.bridge.entryReady, 'bridge-b8-face-guests': O.NAR.bridge.faceGuests, 'bridge-b9-declare-seat': O.NAR.bridge.declareSeat,
+    'bridge-b7-entry-ready': O.NAR.bridge.entryReady, 'bridge-b8-face-guests': O.NAR.bridge.faceGuests, 'bridge-b9-declare-seat': O.NAR.bridge.declareSeat, 'bridge-b9-declare-seat-end': O.NAR.bridge.declareSeatEnd,
     'bridge-b10-speech-clap': O.NAR.bridge.speechClap, 'bridge-b11-song-light': O.NAR.bridge.songLight, 'bridge-b12-tribute-calm': O.NAR.bridge.tributeCalm,
     'bridge-b13-toast-stay': O.NAR.bridge.toastStay, 'narr-song-end-friend': D.NARR.songEndFriend,
     /* [PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 — 원천 ritual-open NAR.pvEx */
@@ -1183,7 +1187,7 @@
       if (open) {
         var ti = seq ? seq.indexOf('tribute') : -1, pairT = ti > 0 && seq[ti - 1] === 'declare';
         var sayT = S.tributeSay !== 'none', at = ' · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로';
-        var act = { t: '두 분이 부모님께 인사 · 포옹', est: base - 20, self: true, doing: 'move' };   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
+        var act = { t: '두 분이 부모님께 인사', est: 15, self: true, doing: 'move' };   // [TRIB_HUG_CALL_1018] 포옹은 다음 줄(256)이 청한다 · 합계 est 는 그대로(15 + 35 = base - 20)   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
         out[0].name = '부모님 앞으로'; out[0].fire = 'chain'; out[0].gapMs = 1000;   // [CHAIN_GAP_1014] 원고 «사이 1초»
         out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사 말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
           : { t: '두 분이 부모님 앞으로 걸어감' + at, est: 20, self: true, doing: 'move', duck: out[0].duck };
@@ -1192,6 +1196,10 @@
         out[1].pick = '';
         out.splice(2, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: sayT ? 'tribute-call-say' : 'tribute-call', name: '인사 구호', text: EXTRA[sayT ? 'tribute-call-say' : 'tribute-call'], duck: -12,   // ★[TRIB_CALL_SAY_1014] 말로 인사 날은 «그 마음을 담아,»로 두 분 말을 받아 구호(145)
           hint: sayT ? '인사 말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
+        /* ★[TRIB_HUG_CALL_1018 검토 124] 구호 뒤 포옹을 소리로 청한다 — 그 전엔 콘솔만 «포옹이 끝나면»을 기다리고 아무도 포옹을 청하지 않아, 두 분은 서 있고 부모님은 앉아 계신 몇 초가 생겼다.
+           디렉터 GO(인사를 마치고 두 분이 고개를 들면) · 다음 tribute-out 은 그대로 «포옹이 끝나면» */
+        out.splice(3, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-hug', name: '포옹 청하기', text: EXTRA['tribute-hug'], duck: -12, fire: 'manual',
+          hint: '인사를 마치고 두 분이 고개를 들면', live: { t: '양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)', est: base - 35, self: true, doing: 'move' } }));
       }
       return out;
     },
@@ -1362,15 +1370,15 @@
     var _cSeam = '', _cLast = cues[cues.length - 1];
     if (D.COURSES[S.course] && D.COURSES[S.course].open && _cLast && seq.indexOf(_cLast.k) > -1) {
       if (_cLast.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech') _cSeam = 'bridge-b10-speech-clap';
-      else if (_cLast.k === 'declare' && _cLast.live && _cLast.live.applause) _cSeam = 'bridge-b9-declare-seat';
-      if (_cSeam) cues.push(cue({ k: _cLast.k, blockN: _cLast.blockN, slug: _cSeam, name: '이음말 · ' + (_cSeam === 'bridge-b9-declare-seat' ? '읽은 분 자리로' : '축사 박수'),
+      else if (_cLast.k === 'declare' && _cLast.live && _cLast.live.applause) _cSeam = 'bridge-b9-declare-seat-end';   // [REVIEW13_1018 검토 112] 닫는 판(남은 순서 없음)
+      if (_cSeam) cues.push(cue({ k: _cLast.k, blockN: _cLast.blockN, slug: _cSeam, name: '이음말 · ' + (_cSeam === 'bridge-b9-declare-seat-end' ? '읽은 분 자리로' : '축사 박수'),
         text: EXTRA[_cSeam], duck: PARAM.duckMusic, note: '이음말 · 마지막 순간 → 닫는 인사(CLOSE_SEAM_1018)',
         live: _cSeam === 'bridge-b10-speech-clap' ? applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
     }
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
-      duck: -12, hint: _cSeam === 'bridge-b9-declare-seat' ? '선언하신 분이 자리로 돌아가고 두 분이 나란히 서면' : '두 분이 앞에 나란히 서면',
-      fire: _cSeam === 'bridge-b9-declare-seat' ? 'manual' : undefined,   // [CLOSE_SEAM_1018 ②] B9 뒤는 디렉터 GO   // ★[CLOSE_BOW_CALL_1014] 구호(«신랑 신부, 하객 여러분께 인사!»)로 끝난다 — 두 분이 하객 쪽으로 서 있어야 바로 목례
+      duck: -12, hint: _cSeam === 'bridge-b9-declare-seat-end' ? '선언하신 분이 자리로 돌아가고 두 분이 나란히 서면' : '두 분이 앞에 나란히 서면',
+      fire: _cSeam === 'bridge-b9-declare-seat-end' ? 'manual' : undefined,   // [CLOSE_SEAM_1018 ②] B9 뒤는 디렉터 GO   // ★[CLOSE_BOW_CALL_1014] 구호(«신랑 신부, 하객 여러분께 인사!»)로 끝난다 — 두 분이 하객 쪽으로 서 있어야 바로 목례
       live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec, '')   /* ★[BRIDGE_MORE_1018 B13] 축배가 있는 날도 박수 뒤 바로 «잠시 자리를 지켜 …»(B13) · «잔 됨» 기다림은 B13 의 사람 구간이 맡는다 */ //   // [TOAST_40_OPEN_1013] 다음이 축배면 잔 확인 뒤(GLASS_READY · 자료 AA 6-5)
     }));
     /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에»] 새 코스의 축배는 닫는 인사(108 · 목례 · 박수) 뒤 · 테이블 인사 앞 — 자료 D · S · AA 의 «1부를 닫은 뒤 축배 → 테이블 인사».
