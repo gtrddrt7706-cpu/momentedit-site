@@ -14756,6 +14756,11 @@ chk 'const DUP = 0.004, MAXGAP = 7, CUT_CH = 0.35, CUT_MAD = 8, EPS = 0.25' scri
 chk 'settb=1/3000,setpts=' scripts/video/smooth-dups.mjs 1   # 다시 놓은 시각을 실제로 넣는 자리 — 빠지면 «채우기만» 하는 판으로 돌아간다
 chk '!cut\[keep\[e + 1\]\]' scripts/video/smooth-dups.mjs 1   # 줄을 컷에서 끊는 자리 — 빠지면 컷 앞뒤가 섞인다
 chk 'mi_mode=mci' scripts/video/smooth-dups.mjs 1
+# ★[VID_FPS_IN 2026-10-18] 24fps 원본도 받는다 — 읽을 때 30fps 칸에 먼저 놓고(빈 칸 = 앞 그림) ① 같은 그림 걸러 내기 · ④ 고르게 다시 놓기가 맞춘다.
+#   빠지면 24fps 원본의 그림이 1/30초 간격으로 놓여 25% 빨리 지나간다(유화판 지시문 1018 이 24 · 30fps 를 다 받기로 했다).
+chk 'VID_FPS_IN' scripts/video/smooth-dups.mjs 2
+chk 'const VF = `fps=30,scale=' scripts/video/smooth-dups.mjs 1
+chk 'VID_FPS_IN' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'const MAX_STUTTER = 0.08' scripts/audit/video-start.mjs 1
 chk 'const GHOST_D = 8, GHOST_R = 0.65' scripts/audit/video-start.mjs 1
 chk 'const EVEN_MAX = 0.75, EVEN_FLOOR = 0.05, EVEN_TRIM = 0.05' scripts/audit/video-start.mjs 1
@@ -14778,6 +14783,24 @@ chk 'VIDEO_V8_0928' assets/ritual-open.js 2
 chk 'sec >= 6 && sec <= 10' scripts/audit/moment-script-check.mjs 1
 # ★[VIDEO_V81_0928 사장님 v8.1 «잘 지켜서 바로 진행»] 흰 의자 · 시험 순서 반지 → 입장 · 첫 0.3초 정지 · 원본 파일로 받기
 chk 'VIDEO_V81_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[VIDEO_V9_1018 사장님 «새로 개편된 현황 보고 영상 지시문 다시 만들어 줘» · «그림체 이걸로 할 거야»] 유화판 지시문(GPT 에 넘긴다) —
+#   그림체 유화(붓 · 색 · 빛만) · 얼굴은 멀리 · 옆 · 뒤에서 작게만 · 17편 모두 저녁 파란 시간 + 촛불(사장님 선택 · 추천은 낮) · 축사(speech) · 축가(song) 새로.
+#   ★넷 중 하나라도 지시문에서 빠지면 다음 판이 옛 결정(색연필 · 얼굴 없이 · 낮 · 축사 영상 없음)으로 돌아간다. 장면 대본 맨 위 블록이 결정 · 버린 것 · 받는 쪽 준비를 적는다.
+chk 'VIDEO_V9_1018' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '순간영상_지시문_유화_1018.md' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '## 3. 그림체 · 유화' docs/plans/식순연구/순간영상_지시문_유화_1018.md 1
+chk '멀리 · 옆 · 뒤에서 작게만' docs/plans/식순연구/순간영상_지시문_유화_1018.md 2
+chk '저녁 파란 시간' docs/plans/식순연구/순간영상_지시문_유화_1018.md 3
+chk '`speech.mp4`' docs/plans/식순연구/순간영상_지시문_유화_1018.md 1
+chk '`song.mp4`' docs/plans/식순연구/순간영상_지시문_유화_1018.md 1
+chk 'faces only small and distant, never in close-up' docs/plans/식순연구/순간영상_지시문_유화_1018.md 1
+# ★[ONE_VIDEO_ANY_PICK 2026-10-18 사장님 «새로 바뀐 영상들 설명만»] 고르는 칩이 있는 순간의 영상은 어느 쪽을 골라도 맞게 — 서약(감사문 날 · 하객을 보고 읽는다) · 축가(두 분이 직접 부르는 날).
+#   지난 판(마주 선 두 분 · 손잡고 듣는 두 분)이 되살아나면 그날 영상이 틀린 장면이 된다.
+chk 'ONE_VIDEO_ANY_PICK' docs/plans/식순연구/순간영상_지시문_유화_1018.md 1
+chk 'ONE_VIDEO_ANY_PICK' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '감사문을 고른 날도 이 영상이 나간다' docs/plans/식순연구/순간영상_지시문_유화_1018.md 1
+chk '두 분이 직접 부르는 날도 있다' docs/plans/식순연구/순간영상_지시문_유화_1018.md 2
+chk '하객 쪽에서 노래를 향해 본다' docs/plans/식순연구/순간영상_지시문_유화_1018.md 1
 # ★[SNP_UP_FULL 2026-09-28 사장님] 스냅 기획 «사진 올리기» 줄 전체 너비 · 링크 칸과 같은 높이 48px
 chk 'SNP_UP_FULL' mypage.html 1
 chk '.cc-btn-ghost.snp-upbtn{display:flex;align-items:center;justify-content:center;width:100%' mypage.html 1
