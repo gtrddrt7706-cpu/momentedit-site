@@ -14,6 +14,12 @@ const pg = await br.newPage({ viewport: { width: W, height: 900 }, hasTouch: W <
 await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' })));
 await pg.goto(`http://127.0.0.1:${port}/order-preview.html`); await pg.waitForTimeout(700);
 const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
+/* ★[PK_EX_BUBBLE_1019 검토 132 덧 2] ① 고르기 쪽 예시 카드 넷 — 감동 흐름 선(오른쪽 끝)이 상담 말풍선 자리(36px)를 비운다 · 카드 테두리는 끝까지 */
+const pkx = async () => pg.evaluate(() => { const iw = document.documentElement.clientWidth; return [...document.querySelectorAll('.pk-exs .pk-ex')].filter((c) => c.offsetParent).map((c) => { const g = c.querySelector('svg') || c.lastElementChild; const cr = c.getBoundingClientRect(); return { n: (c.textContent || '').trim().slice(0, 6), g: Math.round(g.getBoundingClientRect().right), c: Math.round(cr.right), iw }; }); });
+let pkSeen = null; for (let t = 0; t < 3 && !pkSeen; t++) { const r = await pkx(); if (r.length) pkSeen = r; else await nx(); }
+if (!pkSeen) ok('390 ① 고르기 쪽 예시 카드를 찾았다', false);
+else ok('390 ① 고르기 쪽 예시 카드 — 흐름 선은 상담 말풍선 자리(36px)를 비우고 카드 테두리는 끝까지 [PK_EX_BUBBLE_1019]', pkSeen.every((x) => x.g <= x.iw - 16 - 36 + 1 && x.c >= x.iw - 20), JSON.stringify(pkSeen));
+await pg.evaluate(() => { try { localStorage.clear(); sessionStorage.clear(); } catch (e) {} }); await pg.goto(`http://127.0.0.1:${port}/order-preview.html`); await pg.waitForTimeout(700);   /* 저장된 초안을 지워 처음 쪽부터 */
 await nx(); await nx(); await pg.click('[data-fk="opx:standard"]'); await pg.waitForTimeout(400);
 await pg.evaluate(async () => { S.on.vow = 1; S.vow = 'ok'; opToListen(); await new Promise((r) => setTimeout(r, 500)); });
 const errs = []; pg.on('pageerror', (e) => errs.push(e.message));

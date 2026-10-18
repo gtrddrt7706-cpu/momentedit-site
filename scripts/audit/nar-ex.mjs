@@ -61,8 +61,8 @@ function run(mut) {
   T('④ 인사 예시 4(«처음 인사»)는 성혼 선언 바로 뒤 날엔 없다(짝 줄과 겹침)', !/3/.test(ids(pairS, 'tribute')) && /3/.test(ids(S0, 'tribute')), ids(pairS, 'tribute'));
   T('④ 서약 예시는 감사문 날 없음 · 축사 예시는 축사 날만 · 덕담 예시는 옛 가족 코스 없음', ids(Object.assign({}, S0, { vowKind: 'thanks' }), 'vow') === '0' && ids(Object.assign({}, S0, { freeWhat: 'video' }), 'speech') === '0' && ids(Object.assign({}, S0, { freeWhat: 'speech' }), 'speech') !== '0' && ids(Object.assign({}, S0, { course: 'family' }), 'bless') === '0');
   // ⑤ 저장 값
-  const nv = C.norm(Object.assign(O.sampleS(), { narEx: { open: 5, foo: 1, candle: 2, vow: '3', letter: 0 } })).narEx || {};
-  T('⑤ norm — 범위 밖(5 · 0) · 모르는 순간 값만 지운다 · 고른 값은 «맞는 날»이 아니어도 남는다', JSON.stringify(nv) === JSON.stringify({ candle: 2, vow: 3 }) && (C.norm(Object.assign(O.sampleS(), { vowKind: 'thanks', narEx: { vow: 2 } })).narEx || {}).vow === 2, JSON.stringify(nv));
+  const nv = C.norm(Object.assign(O.sampleS(), { narEx: { open: 6, foo: 1, candle: 2, vow: '3', letter: 0 }   /* [REVIEW24_1019] 개식이 여섯이 되어 범위 밖은 6 */ })).narEx || {};
+  T('⑤ norm — 범위 밖(6 · 0) · 모르는 순간 값만 지운다 · 고른 값은 «맞는 날»이 아니어도 남는다', JSON.stringify(nv) === JSON.stringify({ candle: 2, vow: 3 }) && (C.norm(Object.assign(O.sampleS(), { vowKind: 'thanks', narEx: { vow: 2 } })).narEx || {}).vow === 2, JSON.stringify(nv));
   T('⑤-b norm — 상한은 그 순간 예시 수(names) · 축가 예시 5(값 4)도 남는다 [EX_MAX_BY_NAMES_1018]', ((C.norm(Object.assign(O.sampleS(), { narEx: { song: 4 } })).narEx || {}).song === 4) && !((C.norm(Object.assign(O.sampleS(), { narEx: { song: (O.NAR_EX.song.names || []).length } })).narEx || {}).song), JSON.stringify((C.norm(Object.assign(O.sampleS(), { narEx: { song: 4 } })).narEx || {})));
   // ⑥ 자료 그대로
   const nz = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
