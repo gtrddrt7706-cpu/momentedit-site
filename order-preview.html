@@ -2335,7 +2335,7 @@ var ENTRY_ALT=["신랑","신부"];
 var DECLBY={
  /* ★[DECLARE_ANYONE 2026-10-12] 원천 assets/ritual-data.js DECLBY 의 사본(선언문 한 벌 · 누가 읽든 같은 글). scripts/check-ritual-mirror.js 가 대조한다.
     ★읽는 분 목록(신랑 아버님 · 신부 아버님 · 친구 · 지인) · «나레이션» · «가족이 낭독» · «하객이 함께 답하기» · «하객 합송» 갈래 금지 — 사용자 지시로 삭제(10/12 · 9/21) */
- nar:"신랑 신부는 양가 친지와 내빈 앞에서 새 출발을 합니다. 바로 지금 이 순간, 모든 분들의 증인과 축복 속에 이 두 사람이 정식으로 부부가 되었음을 엄숙히 선언합니다.",
+ nar:"신랑 신부는 양가 친지와 내빈 앞에서 새 출발을 합니다. 바로 지금 이 순간, 여기 계신 모든 분들을 증인으로 모시고, 이 두 사람이 정식으로 부부가 되었음을 엄숙히 선언합니다.",
  prep:'선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 미리 한 번 소리 내어 읽어 보시면 편해요, 틀려도 괜찮아요'   /* ★[NO_REHEARSAL_1013] «리허설 때 한 번 같이 읽어 봐요» 금지 — 별도 예행연습은 없다(_kb.js 리허설 줄 · 8/10 «리허설에서 맞춰요» 삭제) */
 };
 var LETTER={
@@ -2971,7 +2971,7 @@ function _vowNm(){ return _vowKind()==='thanks'?'감사문':'서약'; }
 function _vowHow(){ return S.vowHow==='each'?'each':'alt'; }
 /* ★★[VOW_FIRST 2026-10-06 사장님 «신랑 신부 먼저 할 사람 순서 정할 수 있게» → «추천대로»] 'g'(기본 · 신랑부터) | 'b'(신부부터) — 엔진 여는 말(127) · 흐름 줄 · 글칸 순서가 같은 값을 읽는다 */
 function _vowFirst(){ return S.vowFirst==='b'?'b':'g'; }
-function _vowHowHint(){ return (_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요. «':'마지막 한 문장은 하객분들 쪽으로 돌아서서 함께 읽어요. «')+_vowBoth().join(' ')+'» · 이 문장은 저희가 준비해 둬요'; }   /* [THANKS_IN_VOW] 감사문은 처음부터 하객 쪽을 본다 */   /* [R2-28] 읽는 방식은 바로 위 칩 · 흐름 줄이 말한다(«번갈아» 세 번) — 두 판 공통 */
+function _vowHowHint(){ return (_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요. «':'마지막 한 문장은 하객분들 쪽으로 돌아서서 함께 읽어요. «')+_vowBoth().join(' ')+'» · 이 문장은 미리 넣어 두었어요'; }   /* [THANKS_IN_VOW] 감사문은 처음부터 하객 쪽을 본다 */   /* [R2-28] 읽는 방식은 바로 위 칩 · 흐름 줄이 말한다(«번갈아» 세 번) — 두 판 공통 */
 
 /* ★[WRITE_FRAME 2026-09-26 코워크 회신5 4-4] 예시 꼬리표 «눈물» → «장면 하나» — 감정을 요구하는 이름을 피한다(연구 B03). 글은 그대로. */
 var EXVOW=[
@@ -4852,7 +4852,7 @@ window.mkVowAdd=function(){ var R=_vowRows(), f=_vowFirst(), sc=f==='g'?'b':'g',
 window.mkVowDel=function(w,j){ var L=_vowSplit('vow.'+w); if(j>=L.length) return; L.splice(j,1); _vowPut(w,L); _fxNext='[data-fk="mkvwadd"]'; render(); };
 window.mkVowSite=function(on){ if(!S.mkc) S.mkc={}; ['vow.g','vow.b'].forEach(function(id){ S.mkc[id]=on?1:0; _fAt('mkc.'+id); }); _persist(); render(); };   // 번갈아 = 두 분이 한 칸 · 체크도 하나
 function _vowBothRows(){ return '<div class="mk-slr mk-vwr both mk-vwboth" role="group" aria-label="마지막에 두 분이 함께 읽는 문장"><span class="mk-vwn">두 분 함께</span>'+_vowBoth().map(function(x){ return '<p class="mk-vwfix">'+esc(x)+'</p>'; }).join('')+'</div>'
-  +'<p class="mk-note mk-vwbn">이 문장은 저희가 준비해 둬요</p>'; }   /* «하객 쪽으로 돌아서서»는 바로 위 흐름 줄이 말한다(같은 말 두 번 금지) */
+  +'<p class="mk-note mk-vwbn">이 문장은 미리 넣어 두었어요</p>'; }   /* [REVIEW5_1018] 검토 36 «준비해 둬요»는 앞으로 할 일처럼 읽힌다 · 이미 들어 있는 문장 */   /* «하객 쪽으로 돌아서서»는 바로 위 흐름 줄이 말한다(같은 말 두 번 금지) */
 function _vowForm(K,c){ var f=_vowFirst(), nm={g:'신랑',b:'신부'}, h='';
   if(_vowHow()==='alt'){ var site=!!(c['vow.g']&&c['vow.b']), R=_vowRows(), n=R.length;
     h+='<div class="mk-slc mk-txc mk-vwc"><div class="mk-txh mk-vwh"><span class="mk-who">번갈아 읽을 글</span><label class="upchk mk-ck"><input type="checkbox"'+(site?' checked':'')+' data-fk="mkvwsite" onchange="mkVowSite(this.checked)"><span>'+esc(K.chk)+'</span></label></div>';
@@ -4893,7 +4893,7 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return ''; try{ _
      직접 육성으로 말하는 부분이지만 큐 사인을 알기 위해 적는 것 · 원치 않으면 체크하고 끝 신호만»]
      ① 참고 예시 카드를 누르면 글이 이 칸에 바로 들어간다(_mkRefFill) ② 왜 적는지 한 줄 ③ 신랑 · 신부 칸 = 한 카드(줄 편집기와 같은 모양)
      ④ 체크하면 그 분 글칸이 접히고 끝 신호(말이나 동작) 칸 — 적은 글은 지우지 않는다(풀면 그대로) */
-  if(kind==='letter') h+='<p class="mk-note mk-txwhy">편지는 당일 직접 읽어요 · 적어 두시면 저희가 마지막 줄을 보고 다음 순서를 이어요 · «'+esc(K.chk)+'»에 체크하면 끝 신호만 알려 주세요</p>';   // NOTE_READ 뜻은 그대로(보내지 않아도 된다 = 체크)
+  if(kind==='letter') h+='<p class="mk-note mk-txwhy">편지는 당일 직접 읽어요 · 적어 두시면 저희가 마지막 줄을 보고 다음 순서를 이어요 · «'+esc(K.chk)+'»를 고르시면 끝 신호만 알려 주세요</p>';   /* [REVIEW5_1018] 검토 37 «체크하면»은 기계 말 · 화면 다른 곳은 «고르시면» */   // NOTE_READ 뜻은 그대로(보내지 않아도 된다 = 체크)
   else if(kind==='welcome'||kind==='vow') h+='<p class="mk-note mk-txwhy">당일엔 두 분이 직접 말해요 · 적어 두시면 저희가 글을 보며 다음 순서로 넘어갈 때를 맞춰요</p>';   // ★[TXWHY_US_1014 2026-10-14 사장님 «추천대로»] 고객 화면 말투 «저희가»(GUEST_SKIN) · «디렉터가» 되살리지 말 것
   if(S.txMig&&S.txMig[kind]) h+='<p class="mk-note">전에 한 칸에 적어 두신 글을 신랑 칸에 옮겨 두었어요 · 두 칸으로 나눠 주세요</p>';
   if(kind==='vow'){ h+=_vowForm(K,c); }
@@ -7134,7 +7134,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   var todo=_mkTodoAll();
   /* ★[MK_SUM_ONE 2026-09-27 사장님 «지저분한 중복 전부 제거 · 미니멀하게»] 종전엔 «미완료 14» 목록과 아래 «부탁 · 보낼 것» 목록이 같은 항목을 두 번 늘어놓았다(녹음 네 줄은 두 번씩 여덟 줄).
      이제 한 항목은 한 번만 — 미완료 수는 머리 한 줄에 · «두 분이 할 말»만 따로 모으고 · 부탁 · 보낼 것은 줄마다 ✓ 또는 «가기» · 녹음은 순간마다 한 줄(몇 개 중 몇 개). 되살리지 말 것 */
-  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(sp.tm?' · 테이블 인사 '+esc(_nb(sp.table)):'')+(todo.length?' · <b class="mk-todo-n">미완료 '+_mkTodoN()+'가지</b>':'')+'</p>';   /* ★[QA_TODO_UNIT 2026-10-04 점검] 진행 줄은 «미완료 순간 2»(순간 수) · 여기는 할 일 수 — 단위 없이 «미완료 6»이라 둘이 어긋나 보였다 */
+  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(sp.tm?' · 테이블 인사 '+esc(_nb(sp.table)):'')+(todo.length?' · <b class="mk-todo-n">남은 할 일 '+_mkTodoN()+'가지</b>':'')+'</p>';   /* ★[QA_TODO_UNIT 2026-10-04 점검] 진행 줄은 «미완료 순간 2»(순간 수) · 여기는 할 일 수 — 단위 없이 «미완료 6»이라 둘이 어긋나 보였다 */
   var txTodo=todo.filter(function(x){ return x.t.kind==='tx'; }), txK=[], txW={};
   txTodo.forEach(function(x){ if(!txW[x.k]){ txW[x.k]=[]; txK.push(x.k); } txW[x.k].push(x.t.who); });   // 순간마다 한 줄(신랑 · 신부 두 줄로 나누지 않는다)
   if(txK.length){ h+='<section class="mk-sec"><h4>두 분이 할 말</h4><ul class="mk-vlist">';
@@ -9445,7 +9445,7 @@ function _doneOpen(){
      이제 한 줄(몇 가지 · 미완료 몇) + «② 한눈에 보기에서 보기» — 목록은 ② 한 곳에만. 되살리지 말 것(grp 는 옛 코스 호환으로만 남긴다) */
   var _td=_mkTodoN();   // [TODO_ROWS]
   h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><p class="mk-one">'+(two.length?'두'+NBS+'분'+NBS+two.length+'가지':'')+(two.length&&par.length?' · ':'')+(par.length?'부모님께'+NBS+'부탁'+NBS+par.length+'가지':'')
-    +(_td?' · <b class="mk-todo-n">미완료 '+_td+'가지</b>':'')+'</p>';
+    +(_td?' · <b class="mk-todo-n">남은 할 일 '+_td+'가지</b>':'')+'</p>';   /* [TODO_NAME_1018] 위 «미완료 순간 n»(순간 수)과 다른 셈이라 이름을 «남은 할 일»로 · 검토 참고 */
   /* ★«한눈에 보기로 이동하기» 단추 금지 — 2026-10-06 사용자 지시로 삭제 [DONE_NO_SUM_LINK] · 셈 줄(«두 분 N가지 · 부모님께 부탁 N가지 · 미완료 N»)은 그대로 */
   /* ★[AI_NOTICE_0928 2026-09-28 코워크 0928 9-1] 0927 의 스위치(program · narration · both · none)와 이 자리의 «일부 안내는 … AI 음성이에요» 한 줄은 없앴다.
      하객에게 «AI»를 적는 곳은 식순지 뒷면 한 줄 하나(admin.html admAiLine) · 두 분 화면의 AI 표시는 줄 카드 배지(«AI로 만든 두 분 목소리»)가 한다 */

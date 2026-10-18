@@ -202,7 +202,9 @@
     /* ★[REVIEW23_1018 2026-10-18 · 인스타 섹션 검토 2 · 3판] 209 · 210 — 축가 여는 말 예시 5(자료 TT 51 · «따뜻하게») · 축가 맺는 말(자료 TT 52 끝 문장 · SONG_END_1018) · **맨 끝에 붙였다**(번호는 바꾸지 않는다) · 녹음 전엔 글로 */
     'narr-song-ex5', 'narr-song-end',
     /* ★[REVIEW4_1018 인스타 섹션 검토 4판 · 사장님 «최소 4개»] 211 ~ 223 — 화촉 맺는 말 2 ~ 4 · 감사 인사 3 · 4 · 반지 맺는 말 2 · 3 · 선언 여는 말 2 · 단체 사진 안내 2 ~ 4 · 테이블 4 · 5(원천 ritual-open NAR_EX · 녹음 전엔 글로) */
-    'narr-candle-out-ex2', 'narr-candle-out-ex3', 'narr-candle-out-ex4', 'narr-welcome-in-ex3', 'narr-welcome-in-ex4', 'narr-ring-out-ex2', 'narr-ring-out-ex3', 'narr-declare-in-friend-ex2', 'narr-close-ex2', 'narr-close-ex3', 'narr-close-ex4', 'narr-table-in-ex4', 'narr-table-in-ex5'
+    'narr-candle-out-ex2', 'narr-candle-out-ex3', 'narr-candle-out-ex4', 'narr-welcome-in-ex3', 'narr-welcome-in-ex4', 'narr-ring-out-ex2', 'narr-ring-out-ex3', 'narr-declare-in-friend-ex2', 'narr-close-ex2', 'narr-close-ex3', 'narr-close-ex4', 'narr-table-in-ex4', 'narr-table-in-ex5',
+    /* ★[REVIEW5_1018 인스타 섹션 검토 5판 · 사장님 «최소 4개»] 224 ~ 242 — 화촉(다른 두 분) 4 · 서약 맺는 말 2 ~ 4 · 감사문 여는 말 2 · 3 · 선언 여는 말 3 · 4 · 덕담 받는 말 2 · (축가 맺는 말 예시 둘은 병합 전에 걷음 · SONG_END_NO_PRAISE_1018) · 부모님께 편지 여는 말 2 ~ 4 · 부모님께 인사 걸음 · 구호 · 말로 인사 구호(원천 ritual-open NAR_EX · 녹음 전엔 글로) */
+    'narr-candle-in-others-ex4', 'narr-vow-out-ex2', 'narr-vow-out-ex3', 'narr-vow-out-ex4', 'narr-thanks-in-ex2', 'narr-thanks-in-ex3', 'narr-declare-in-friend-ex3', 'narr-declare-in-friend-ex4', 'narr-bless-end-ex2', 'letter-parent-ex2', 'letter-parent-ex3', 'letter-parent-ex4', 'tribute-in-ex2', 'tribute-in-ex4', 'tribute-call-ex2', 'tribute-call-ex4', 'tribute-call-say-ex2', 'tribute-call-say-ex3', 'tribute-call-say-ex4'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
