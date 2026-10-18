@@ -9111,12 +9111,12 @@ chk 'EAR_WHAT_NOT_HOW' scripts/audit/guest-ear.js 1
 #     그래서 지우는 데서 멈추지 않고 **반대 방향으로** 세웠다 — check-copy 26 이 이제 «두 칸이 같은 꼴이면 빨강»이다.
 #   ★「옛 판 통째 되돌리기」가 아니다. 옛 부부판도 02c·03c 가 어미만 다른 같은 꼴이라 같은 병이었다.
 #     지금은 셋이 다른 꼴로 «다가온다»를 만든다 — 얼마 뒤 / 카운트다운 / 곧.
-chk '십 분 뒤 본식을 시작하겠습니다. 오늘 촬영은 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다.' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] G4 표 1 · 사진 허락이 10분 전으로   # 02a — 얼마 뒤(주어 있음) · ★[NAR_ENGINE_1014] 10/14 원고 3단계(다과 · 착석 말 빼고 사진 한 줄 · NO_FOOD_TALK)
+chk '십 분 뒤 본식을 시작하겠습니다. 오늘 촬영은 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다.' assets/ritual-data.js 1   # ★[AI_FIRST_PERSON_1018] 두 분 판은 «저희 결혼식은 십 분 뒤에 시작합니다. …»(1인칭 · 사장님 10/18) — 나레이션 판만 이 글   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] G4 표 1 · 사진 허락이 10분 전으로   # 02a — 얼마 뒤(주어 있음) · ★[NAR_ENGINE_1014] 10/14 원고 3단계(다과 · 착석 말 빼고 사진 한 줄 · NO_FOOD_TALK)
 chk '시작 오 분 전입니다' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «예식 시작 오 분 전입니다…» · 옛 주석 03a — 카운트다운
 chk '곧 순서를 시작하겠습니다. 오늘 모든 안내는 신랑 신부가 미리 준비한' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «곧 시작됩니다. 오늘 예식은 신랑 신부의 뜻에 따라…» · 옛 주석 04a — 곧 · [SOURCE_BEST_1015] G4 표 1 · ★«시작하겠습니다»는 1분 뒤 개식 선언 «지금부터, 예식을 시작하겠습니다»와 이웃 큐 서술어 반복(check-echo-inrun) — «시작됩니다»
 nochk '십 분쯤 뒤에 시작합니다' assets/ritual-data.js
 nochk '오 분쯤 뒤에 시작합니다' assets/ritual-data.js
-chk '십 분 뒤 본식을 시작하겠습니다.' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다.…» · 옛 주석 02c — 부부판도 같은 계단 · [LINE_R1_1014] «뒤에»(나레이션 02 와 같은 꼴 · 계단은 그대로)
+chk '십 분 뒤 본식을 시작하겠습니다.' assets/ritual-data.js 1   # ★[AI_FIRST_PERSON_1018] 두 분 판은 1인칭   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다.…» · 옛 주석 02c — 부부판도 같은 계단 · [LINE_R1_1014] «뒤에»(나레이션 02 와 같은 꼴 · 계단은 그대로)
 chk '시작 오 분 전입니다' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식까지 오 분 남았습니다…» · 옛 주석 03c · [LINE_R1_1014] 하객 맞이 두 분 판은 합쇼체(EX_TEXT_1007)
 chk '곧 순서를 시작하겠습니다. 오늘 모든 안내는 저희가 미리 준비한' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «곧 시작됩니다. 오늘 예식은 저희 뜻에 따라…» · 옛 주석 04c · [SOURCE_BEST_1015]
 chk 'TIME_STAIR' scripts/audit/copycheck/check-copy.py 1             # 검사가 반대로 세워져 있는가
@@ -14923,7 +14923,7 @@ nochk '다음은 혼인 서약이 있겠습니다.' assets/ritual-data.js
 nochk '다음은 혼인 서약이 있겠습니다.' order-preview.html
 if command -v node >/dev/null 2>&1; then
   _r11=$(node -e "const O=require('./assets/ritual-open.js'); const f=(S,k)=>O.narExList(S,k).map(x=>x[0]).join(''); process.stdout.write([f({on:{bless:1}},'bless'),f({on:{bless:1,declare:1}},'bless'),f({on:{table:1}},'table'),O.narExCue({narEx:{table:1}},'narr-table-in')||'-',O.narExCue({narEx:{table:2}},'narr-table-in')||'-',O.narExCue({narEx:{ring:3}},'narr-ring-out')||'-'].join(','))" 2>&1)
-  if [ "$_r11" = "023,0123,02,-,narr-table-in-ex3,-" ]; then echo 'ok 덕담 예시 2(NN)는 성혼 선언이 있는 날만 · 테이블 예시 2 자리는 비고 3(U1)은 그대로 · 반지 맺는 말은 넷 다 기본 글 [R11_SRC_1018]'; else echo "FAIL 라운드 11 예시 자리가 어긋났다($_r11 · 기대 023,0123,02,-,narr-table-in-ex3,-) — 덕담 2(NN «정식으로 부부가 된»)는 선언 있는 날만 · 테이블 2 는 빈 자리 · 반지 맺는 말 예시 소리 201 은 쉰다 [R11_SRC_1018]"; fail=1; fi
+  if [ "$_r11" = "023,0123,0234,-,narr-table-in-ex3,-" ]; then echo 'ok 덕담 예시 2(NN)는 성혼 선언이 있는 날만 · 테이블 예시 2 자리는 비고 3(U1)은 그대로 · 반지 맺는 말은 넷 다 기본 글 [R11_SRC_1018]'; else echo "FAIL 라운드 11 예시 자리가 어긋났다($_r11 · 기대 023,0123,0234,-,narr-table-in-ex3,-) — 덕담 2(NN «정식으로 부부가 된»)는 선언 있는 날만 · 테이블 2 는 빈 자리 · 반지 맺는 말 예시 소리 201 은 쉰다 [R11_SRC_1018]"; fail=1; fi
 fi
 # ★★[REVIEW1_1018 2026-10-18 인스타 섹션 검토 1판(8건)] 받아들인 둘만 엔진에 — 축배 여는 말 예시 4(자료 SS 46 · 선창 문구는 두 분이 고르는 축배 한마디라 뺌 ④) ·
 #   감사 인사 여는 말 예시 2(자료 PP 14 · «버진로드 중앙에 서서»는 우리 동선이 아니라 뺌 ③) · 소리 207 · 208(맨 끝 · 녹음 전엔 글로) · 안 받은 여섯은 공개 파일 «검토 답» 표에 까닭
@@ -14935,7 +14935,7 @@ nochk '두 사람의 행복한 결혼생활을 위하여' assets/ritual-open.js 
 chk "names: \['다정하게', '격식 있게', '잔잔하게', '힘차게'\]" assets/ritual-open.js 1
 chk '이제 우리 신랑 신부 두 분은요 이 자리를 가득 채워 주신 내빈 여러분들께 감사 인사를 올리겠습니다.' assets/ritual-open.js 1
 nochk '버진로드' assets/ritual-open.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 우리 동선이 아니다(③ · 두 분은 앞 중앙에서 하객 쪽으로 돌아선다)
-chk "welcome: { lab: '감사 인사 멘트', names: \['담백하게', '다정하게'\]" assets/ritual-open.js 1
+chk "welcome: { lab: '감사 인사 멘트', names: \['담백하게', '다정하게'" assets/ritual-open.js 1   # [REVIEW4_1018] 뒤에 뭉클하게 · 격식 있게(4개)
 chk 'EX_BANG_SPLIT_1018' scripts/audit/nar-ex.mjs 1   # 자료 문장 안 «!»에서 갈린 조각도 자료 글(장부도 같은 자로 나눈다)
 chk '| 검토 1 |' docs/handoff/insta-find.md 1   # 검토 답 표 — 받은 검토 8건마다 한 줄(받아들임 · 다르게 · 안 씀과 까닭)
 chk '| 검토 8 |' docs/handoff/insta-find.md 1
@@ -18818,7 +18818,7 @@ chk 'LINE_R1_1014' assets/ritual-open.js 3
 chk 'LINE_R1_1014' assets/ritual-story.js 6
 chk 'LINE_R1_1014' scripts/audit/open-course.mjs 2
 chk 'LINE_R1_1014' scripts/audit/ghi-polish.mjs 1
-chk '"십 분 뒤 본식을 시작하겠습니다. 오늘 촬영은 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다."' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다. 오늘의 순간은 자연스러운…»
+chk '"십 분 뒤 본식을 시작하겠습니다. 오늘 촬영은 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다."' assets/ritual-data.js 1   # ★[AI_FIRST_PERSON_1018] 두 분 판은 1인칭   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다. 오늘의 순간은 자연스러운…»
 chk '"시작 오 분 전입니다."' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식까지 오 분 남았습니다.…»
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' assets/ritual-data.js
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' order-preview.html 1   # 남는 한 줄 = EX_OLD_1006(옛 글)
