@@ -1353,9 +1353,24 @@
        «끝 선언 → 두 분 목례 → 박수 → 음악 바뀜»을 끝 신호로 둔다. ① 카드의 «두 분이 인사를 드리고 본식을 마쳐요»가 이제 소리에도 있다.
        ★박수를 청하는 셋째 자리다([CLAP_FEW] 입장 · 성혼 선언 · 닫는 인사) — 뒤는 사람 순간 · 디렉터 GO([CLAP_GO]).
        ★108 은 녹음 전(텍스트 카드) · 미리 듣기에서는 사람 순간을 걷는다(consoleOnly). */
+    /* ★★[CLOSE_SEAM_1018 인스타 섹션 검토 86 · 87] 마지막 순간이 축사 · 성혼 선언인 날 — 닫는 인사(_close)는 순간이 아니라 위 이음말 고리 밖이라 B10 · B9 가 빠졌다.
+         축사하신 분이 마이크 앞에 선 채로 · 선언문을 읽으신 분이 두 분 옆에 선 채로 «이상으로 …»가 나갔다(49,152 판 중 1,548 · 768 판).
+         ① 축사(FREE_KIND speech) → B10 «축사해 주신 분께 박수» · 사람 구간 박수 → 닫는 인사는 디렉터 GO(CLAP_GO 그대로).
+            닫는 인사도 박수를 청해 «박수 부탁» 둘이 8초 사이로 붙는다 — 두 분 박수와 축사하신 분 박수는 대상이 달라 B10 을 빼지 않는다(실전 대본 onulin 도 잇달아 청한다).
+            그 대신 닫는 멘트를 박수를 청하지 않는 예시로 넘긴다 — 분위기 날은 moodFit · 안 고른 날은 빌더 _closeFit(seamFit · 두 분이 닫는 멘트 칩을 누른 날은 그대로).
+         ② 선언 박수 → B9 «선언해 주신 분께서는, 이제 자리로 …»만(B3 은 닫는 인사 앞이라 원칙대로 뺀다) · B9 뒤 닫는 인사는 디렉터 GO — 사슬이면 읽으신 분이 걸어가는 사이에 «이상으로 …»가 나간다. */
+    var _cSeam = '', _cLast = cues[cues.length - 1];
+    if (D.COURSES[S.course] && D.COURSES[S.course].open && _cLast && seq.indexOf(_cLast.k) > -1) {
+      if (_cLast.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech') _cSeam = 'bridge-b10-speech-clap';
+      else if (_cLast.k === 'declare' && _cLast.live && _cLast.live.applause) _cSeam = 'bridge-b9-declare-seat';
+      if (_cSeam) cues.push(cue({ k: _cLast.k, blockN: _cLast.blockN, slug: _cSeam, name: '이음말 · ' + (_cSeam === 'bridge-b9-declare-seat' ? '읽은 분 자리로' : '축사 박수'),
+        text: EXTRA[_cSeam], duck: PARAM.duckMusic, note: '이음말 · 마지막 순간 → 닫는 인사(CLOSE_SEAM_1018)',
+        live: _cSeam === 'bridge-b10-speech-clap' ? applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
+    }
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
-      duck: -12, hint: '두 분이 앞에 나란히 서면',   // ★[CLOSE_BOW_CALL_1014] 구호(«신랑 신부, 하객 여러분께 인사!»)로 끝난다 — 두 분이 하객 쪽으로 서 있어야 바로 목례
+      duck: -12, hint: _cSeam === 'bridge-b9-declare-seat' ? '선언하신 분이 자리로 돌아가고 두 분이 나란히 서면' : '두 분이 앞에 나란히 서면',
+      fire: _cSeam === 'bridge-b9-declare-seat' ? 'manual' : undefined,   // [CLOSE_SEAM_1018 ②] B9 뒤는 디렉터 GO   // ★[CLOSE_BOW_CALL_1014] 구호(«신랑 신부, 하객 여러분께 인사!»)로 끝난다 — 두 분이 하객 쪽으로 서 있어야 바로 목례
       live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec, '')   /* ★[BRIDGE_MORE_1018 B13] 축배가 있는 날도 박수 뒤 바로 «잠시 자리를 지켜 …»(B13) · «잔 됨» 기다림은 B13 의 사람 구간이 맡는다 */ //   // [TOAST_40_OPEN_1013] 다음이 축배면 잔 확인 뒤(GLASS_READY · 자료 AA 6-5)
     }));
     /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에»] 새 코스의 축배는 닫는 인사(108 · 목례 · 박수) 뒤 · 테이블 인사 앞 — 자료 D · S · AA 의 «1부를 닫은 뒤 축배 → 테이블 인사».
@@ -1667,7 +1682,7 @@
   var MOOD_SHIFT = { matjeol: [1, 0, 3, 2], welcome: [0, 3, 1, 2], vow: [0, 1, 2, 3], thanks: [1, 0, 2], ring: [0, 1, 3, 2], declare: [0, 1, 2, 3], bless: [0, 1, 2, 3],
     speech: [0, 3, 1, 2], song: [0, 1, 3, 4, 2], tribute: [1, 0, 3, 2], table: [0, 3, 2, 4] };
   function _fw(t) { var m = String(t || '').match(BRIDGE_OPEN); return m ? m[1] : ''; }
-  function moodClash(T) {
+  function moodClash(T, only) {   /* [CLOSE_SEAM_1018] only = 그 예시 키의 이음새만 본다(seamFit) */
     var cs; try { cs = build(T, { mode: 'console' }).cues; } catch (e) { return null; }
     var gap = function (c) { return !c.live || !!c.live.applause; };
     for (var i = 0; i < cs.length - 1; i++) {
@@ -1676,6 +1691,7 @@
       if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2]; }
       var k = O.narExKey ? O.narExKey(b.slug) : '';
       if (!k || (a.k === b.k && !/^bridge-/.test(a.slug))) continue;
+      if (only && k !== only) continue;
       var f = _fw(a.text);
       if ((!via && f && f === _fw(b.text)) || (CLAP_ASK.test(a.text) && CLAP_ASK.test(b.text))) return { k: k, at: i };
     }
@@ -1683,9 +1699,14 @@
   }
   function moodFit(T) {
     if (!T || !O.MOOD || !O.MOOD[T.mood]) return T;   /* [MOOD_FIT_1018] 매개변수 이름은 T — 미리듣기 키 검사(PREVIEW_KEYS)는 엔진 build 가 읽는 S 만 센다(분위기 값은 빌더가 S.narEx 로 이미 옮긴다) */
+    return _fit(T);
+  }
+  /* [CLOSE_SEAM_1018] 분위기를 안 고른 날 — 한 예시 키(only)의 이음새만 같은 판정으로 넘긴다(빌더 _closeFit 이 닫는 멘트 «close» 에만 쓴다) */
+  function seamFit(T, only) { return T && only ? _fit(T, only) : T; }
+  function _fit(T, only) {
     var tried = {};
     for (var n = 0; n < 24; n++) {
-      var c = moodClash(T); if (!c) break;
+      var c = moodClash(T, only); if (!c) break;
       var k = c.k, ord = MOOD_SHIFT[k] || [0, 1, 2, 3], cur = O.narExOf(T, k);
       tried[k] = tried[k] || {}; tried[k][cur] = 1;
       var p = ord.indexOf(cur), nx = -1;
@@ -1697,7 +1718,7 @@
   }
 
   return {
-    moodFit: moodFit, moodClash: moodClash, MOOD_SHIFT: MOOD_SHIFT,
+    moodFit: moodFit, moodClash: moodClash, seamFit: seamFit, MOOD_SHIFT: MOOD_SHIFT,
     build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, FILES: FILES, EXTRA: EXTRA,
     COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, version: 'cue-v1'
   };
