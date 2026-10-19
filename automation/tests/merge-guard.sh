@@ -15701,6 +15701,19 @@ chk 'PV_REC_KEEP_1019' assets/ritual-open.js 2   # 137 덧 — 261 · 129 는 #1
 nochk '전해졌으리라 믿습니다' assets/ritual-open.js
 nochk '"영상 함께 감상하시겠습니다. 한 장면씩' assets/ritual-open.js
 chk 'EX_CHIP_DEF_1019' assets/ritual-open.js 3
+# ★[REVIEW28_1019 대본 섹션 검토 142] 하객 맞이 절제(01 «다시 알림» 한 문장 · 02 받은 녹음 글) · 박수 청하는 개식 뒤 식전 영상 소개는 디렉터 GO
+chk 'GUEST_TRIM_1019' assets/ritual-data.js 1
+chk 'GUEST_TRIM_1019' order-preview.html 2
+chk 'GUEST_TRIM_1019' assets/ritual-open.js 1
+nochk '자유롭게 둘러보셔도 좋습니다' assets/ritual-data.js
+nochk '자유롭게 둘러보셔도 좋습니다' assets/ritual-open.js
+nochk '이 공간을 천천히 둘러보셔도 좋습니다' assets/ritual-open.js
+nochk '지켜보실 자리도 마련되어 있습니다' assets/ritual-data.js
+nochk '지켜보실 자리도 마련되어 있습니다' assets/ritual-open.js
+nochk '좌석도 마련되어 있습니다' assets/ritual-open.js
+chk '"발걸음해 주신 여러분, 고맙습니다. 시작할 때가 되면, 다시 알려 드리겠습니다."' assets/ritual-data.js 1
+chk 'OPEN_CLAP_GO_1019' assets/ritual-cue.js 2
+chk 'OPEN_CLAP_GO_1019' scripts/audit/open-course.mjs 3
 if node scripts/audit/console-inject.mjs >/dev/null 2>&1; then echo "ok scripts/audit/console-inject.mjs [CONSOLE_INJECT_1019]"; else echo "REVERT? scripts/audit/console-inject.mjs 빨강 — 당일 콘솔 · 미리듣기 값(식사 · 사진 · 하객 안내 · 온라인)"; fail=1; fi
 
 # ★[MINI_OFF_ROWS 2026-10-04 사장님 «여기 밑에 재생 박스는 굳이 안 나와도 될 것 같아»] ② 순간 쪽(줄 ▶ 가 있는 곳)은 작은 플레이어를 띄우지 않는다 — 흐르는 줄 ▶ 가 ❚❚(멈춤 · 이어서)
@@ -17092,7 +17105,7 @@ chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언�
 chk 'keepWhen(rec._언제' scripts/sample-cut.mjs 1   # [WHEN_KEEP_MARKS] sample-cut 도 표식을 남긴다(10/10 두 번째로 지워졌다)
 chk 'PACE_D' scripts/build-typecast-import.mjs 2   # 문장 사이 1.25 · «입장!» 앞 0.6 (사장님 견본 D)
 chk 'man.gap?.inner' scripts/assemble-narration.mjs 1   # [PACE_D] 쉼표 쉼 상한은 문장 사이와 따로 — 되돌리면 «입장!» 안 쉼이 늘어난다
-chk "'십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주시길 바랍니다. 가까이서 지켜보실 자리도 마련되어 있습니다.'," assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]
+chk "'십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주시길 바랍니다.'," assets/ritual-open.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js
 #   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
@@ -19136,7 +19149,7 @@ chk 'LINE_R1_1014' assets/ritual-open.js 3
 chk 'LINE_R1_1014' assets/ritual-story.js 5   # [CANDLE_FOUR_OFF_1019] 네 분 장면을 걷어 6 → 5
 chk 'LINE_R1_1014' scripts/audit/open-course.mjs 2
 chk 'LINE_R1_1014' scripts/audit/ghi-polish.mjs 1
-chk '"십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다. ' assets/ritual-data.js 1   # ★[AI_FIRST_PERSON_1018] 두 분 판은 1인칭   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다. 오늘의 순간은 자연스러운…»   # [GUEST_FLESH_1019] 셋째 문장을 붙였다
+chk '"십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다."' assets/ritual-data.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[AI_FIRST_PERSON_1018] 두 분 판은 1인칭   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다. 오늘의 순간은 자연스러운…»   # [GUEST_FLESH_1019] 셋째 문장을 붙였다
 chk '"시작 오 분 전입니다. ' assets/ritual-data.js 2   # [GUEST_FLESH_1019] 둘째 문장(입장 준비)을 붙였다 · 첫 문장은 그대로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식까지 오 분 남았습니다.…»
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' assets/ritual-data.js
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' order-preview.html 1   # 남는 한 줄 = EX_OLD_1006(옛 글)

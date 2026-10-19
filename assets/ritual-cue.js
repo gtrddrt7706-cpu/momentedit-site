@@ -1330,9 +1330,14 @@
         if (askOn) cues.push(askCue());
         /* ★★[OPEN_DECL_1014] 개식 선언(137) — 새 코스에 늘 · 예식 시작 시각(청첩장 시각)에 · 하객 맞이 끝(1분 전 · 사진 부탁 · 식전 안내 클립 뒤) → 식전 영상 · 화촉 · 입장 앞(원고 7장 8).
            하객 맞이 묶음(PRE)이라 본식 시간에 들지 않는다 · 두 분 목소리 판이어도 이 줄은 나레이션이다(개식 감사는 진행자의 몫 · 원고 8장 8 «두 판이 같은 감사를 듣는다») */
+        /* ★[OPEN_CLAP_GO_1019 검토 142-4] 박수를 청하는 개식 칩(힘차게 · 담백하게 · 다정하게) 뒤에 식전 영상 소개가 오면 — 4.5초 사슬 대신 하객 박수 사람 순간 → 디렉터 GO([CLAP_GO]).
+             박수 · 함성은 보통 7 ~ 9초이고 날마다 달라(연구 B02 · D02) 4.5초면 함성 끝에 소개가 묻힌다 · 영상도 디렉터가 트는 자리 · 미리 듣기는 그대로 4.5초(consoleOnly · 아래 OPEN_GAP 이 사이를 둔다) ·
+             영상이 없는 날(화촉 · 입장 앞)과 박수를 청하지 않는 칩은 종전 사슬(OPEN_GAP_CHIP_1019) */
+        var _openClap = _openC && seq.indexOf('prevideo') > -1 && /박수/.test((O.narExCue && EXTRA[O.narExCue(S, 'narr-open')]) || EXTRA['narr-open'] || '');
         if (_openC) cues.push(cue({
+          live: _openClap ? applause('하객 박수 · 예식 시작', PARAM.declare.applauseMs / 1000) : null,
           k: 'guest', blockN: '예식 시작', slug: 'narr-open', name: '개식 선언', text: EXTRA['narr-open'], duck: PARAM.duckSpeech,   // ★[OPEN_BLOCK_1014 라운드 3] 블록은 따로(자료 모두 개식을 한 순서로 둔다) — «하객 맞이»에 얹으면 콘솔이 하객 맞이 설명을 빌려 쓰고, 디지털 참석 날엔 식전 안내 뒤에 같은 설명 · 팁이 두 번 떴다
-          fire: 'clock', atMin: 0, note: '예식 시작 시각 · ' + (seq.indexOf('prevideo') > -1 ? '불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다' : seq.indexOf('candle') > -1 ? '다음 줄(화촉 시작)은 이어서 나간다' : '다음 입장은 [다음]으로(신부 준비 완료 · 문 앞 대기 확인 후)')   // ★[OPEN_MEMO_R7_1016 라운드 7] 늘 «식전 영상 소개»라던 메모를 담은 순간에 따라 — 영상을 뺀 날 틀린 말이었다 · ★[OPEN_MEMO_NAME_R8_1016 라운드 8] 괄호 안은 다음 큐의 이름 그대로(식전 영상 소개 · 화촉 시작) — 디렉터가 «다음» 줄에서 바로 찾는다
+          fire: 'clock', atMin: 0, note: '예식 시작 시각 · ' + (seq.indexOf('prevideo') > -1 ? (_openClap ? '불을 낮추기 직전 · 박수가 잦아들면 [다음]으로 식전 영상 소개' : '불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다') : seq.indexOf('candle') > -1 ? '다음 줄(화촉 시작)은 이어서 나간다' : '다음 입장은 [다음]으로(신부 준비 완료 · 문 앞 대기 확인 후)')   // ★[OPEN_MEMO_R7_1016 라운드 7] 늘 «식전 영상 소개»라던 메모를 담은 순간에 따라 — 영상을 뺀 날 틀린 말이었다 · ★[OPEN_MEMO_NAME_R8_1016 라운드 8] 괄호 안은 다음 큐의 이름 그대로(식전 영상 소개 · 화촉 시작) — 디렉터가 «다음» 줄에서 바로 찾는다
         }));
         if (seq.indexOf('prevideo') > -1) cues.push.apply(cues, BUILD.prevideo(S));   // [ONEMIN_FIRST] 공지 다음 · 입장 앞
       }
@@ -1607,7 +1612,11 @@
     for (var og = 0; og < cues.length - 1; og++) {
       /* ★[OPEN_GAP_CHIP_1019 검토 139-2] 4.5초는 박수를 청하는 칩(힘차게 · 담백하게 · 다정하게)에만 — 박수를 청하지 않는 칩(격식 있게 · 뭉클하게 · 차분하게)은 3초(OPEN_GAP_1014 값) ·
            뭉클하게 뒤 4.5초 정적이 영상 소개를 따로 떨어진 두 번째 안내로 들리게 했다 · 판정은 고른 예시 글에 «박수»가 있나 */
-      if (cues[og].slug === 'narr-open' && cues[og + 1].fire === 'chain' && !cues[og + 1].gapMs) cues[og + 1].gapMs = /박수/.test((O.narExCue && EXTRA[O.narExCue(S, 'narr-open')]) || cues[og].text || EXTRA['narr-open'] || '') ? 4500 : 3000;   /* ★[SOURCE_FIRST_1016] 개식이 자료 BB 3 «여러분의 박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 박수가 잦아들 만큼(자료 G2 5-3 «4 ~ 5초») 3 → 4.5초 */
+      if (cues[og].slug === 'narr-open' && (cues[og + 1].fire === 'chain' || (cues[og].live && cues[og].live.applause)) && !cues[og + 1].gapMs) cues[og + 1].gapMs = /박수/.test((O.narExCue && EXTRA[O.narExCue(S, 'narr-open')]) || cues[og].text || EXTRA['narr-open'] || '') ? 4500 : 3000;   /* ★[SOURCE_FIRST_1016] 개식이 자료 BB 3 «여러분의 박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 박수가 잦아들 만큼(자료 G2 5-3 «4 ~ 5초») 3 → 4.5초 */
+    }
+    /* [OPEN_CLAP_GO_1019] 영상 소개는 BUILD.prevideo 가 새 코스에서 'chain' 을 박아 둔다 — 개식 줄에 박수 사람 순간이 있으면 여기서 디렉터 GO 로(힌트 · 음악 내림 fadeMs 는 위 [CLAP_GO] 고리가 이미 싣는다) · 미리 듣기는 아래에서 사슬(위 4.5초)로 돌아간다 */
+    for (var oc = 0; oc < cues.length - 1; oc++) {
+      if (cues[oc].slug === 'narr-open' && cues[oc].live && cues[oc].live.applause) { var _ocN = cues[oc + 1]; _ocN.fire = 'manual'; _ocN.hint = cues[oc].live.hintNext; }
     }
     /* ★[VOW_OUT_GAP_1016] 서약 맺는 말(«두 사람의 서약이었습니다.» · 14) 뒤 다음 순간 여는 말은 4.5초 사슬 — 자료 G2 1-3 «서약 뒤 약 4 ~ 5초 여백»(박수 · 여운) · 맺는 말 앞 2초는 그대로 */
     for (var vg = 0; vg < cues.length - 1; vg++) {
