@@ -215,7 +215,7 @@ ok('[ONEMIN_FIRST · CEREMONY_AT_VIDEO] 식전 영상을 담으면 04(89 판) �
   const g = r.cues.filter((c) => /^guest-[234]/.test(c.slug || '')).map((c) => c.atMin).join(',');
   const op = r.cues[s.indexOf('narr-open')] || {};   // ★[OPEN_DECL_1014] 예식 시작 시각(0)에 개식 선언 → 식전 영상은 사슬로 이어서
   return s.indexOf('guest-4-1min') < 0 && s.indexOf('guest-4-1min-pre') < s.indexOf('narr-open') && s.indexOf('narr-open') + 1 === s.indexOf('narr-prevideo-in') && r.cues.slice(s.indexOf('narr-prevideo-in') + 1).every((c) => c.k !== 'guest')
-    && op.fire === 'clock' && op.atMin === 0 && pv.fire === 'chain' && g === '-10,-5,-1'; })());
+    && op.fire === 'clock' && op.atMin === 0 && pv.fire === (op.live ? 'manual' : 'chain') && g === '-10,-5,-1'; })());   /* [OPEN_CLAP_GO_1019] 기본 개식(힘차게)은 박수를 청해 영상 소개가 디렉터 GO */
 /* ★[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014 라운드 3] 개식 선언은 블록 «예식 시작»(설명 한 줄 · 하객 맞이 설명을 빌리지 않는다) · 뒤 줄은 3초 쉬고 사슬 · 식전 영상은 [재생 안 됨](105) */
 ok('[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014] 개식 = 블록 «예식 시작» · 디지털 참석 날에도 하객 맞이 블록이 두 번 서지 않는다 · 뒤 줄(영상 · 화촉) 4.5초 사슬 · 식전 영상 [재생 안 됨] = 105 + 이야기 안심', (() => {
   const ST = require(P('assets/ritual-story.js'));
@@ -224,11 +224,19 @@ ok('[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014] 개식 = 블록 «예�
   const r2 = C.build({ course: 'open', on: { candle: 1 } }, { mode: 'console' }), s2 = r2.cues.map((c) => c.slug), nx2 = r2.cues[s2.indexOf('narr-open') + 1] || {}, nx3 = r2.cues[s2.indexOf('narr-open') + 2] || {};   /* [CANDLE_NAME_1019] 개식 → B14 → 화촉 여는 말 */
   const pv = r.cues.find((c) => c.k === 'prevideo') || {}, sc = ST.LIVE ? ST.LIVE[(pv.live || {}).t] : (ST.liveOf ? ST.liveOf((pv.live || {}).t) : null);
   return op.blockN === '예식 시작' && runs.filter((b) => b === '하객 맞이').length === 1 && !!(ST.blockOf && ST.blockOf('예식 시작') && ST.blockOf('예식 시작').how)
-    && nx.slug === 'narr-prevideo-in' && nx.fire === 'chain' && nx.gapMs === 4500 && nx2.slug === 'bridge-b14-candle-name' && nx2.fire === 'chain' && nx2.gapMs === 4500 && /^narr-candle-in-/.test(nx3.slug || '') && nx3.fire === 'chain' && !nx3.gapMs   /* [SOURCE_FIRST_1016] 개식이 자료 BB 3 «…박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 잦아들 4.5초 · 옛 3초 */
+    && nx.slug === 'narr-prevideo-in' && nx.fire === 'manual' && !!(op.live && op.live.applause) && nx2.slug === 'bridge-b14-candle-name' && nx2.fire === 'chain' && nx2.gapMs === 4500 && /^narr-candle-in-/.test(nx3.slug || '') && nx3.fire === 'chain' && !nx3.gapMs   /* [SOURCE_FIRST_1016] 개식이 자료 BB 3 «…박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 잦아들 4.5초 · 옛 3초 */
     && pv.rescue && pv.rescue.slug === 'narr-free-fail' && !!(pv.live && pv.live.fallback) && (!sc || (sc.safe && sc.fbSrc === pv.live.fallback)); })());
 ok('[ONEMIN_FIRST · PHOTO_UP_1019] 식전 영상 + 사진 부탁(하객 안내 · 바깥 링크) + 온라인 참석 — 공지 클립이 모두 영상 앞', (() => { const s = slugs({ course: 'open', on: { prevideo: 1 }, guide: 1, photoShare: 1, digital: 1 }); const v = s.indexOf('narr-prevideo-in');
   return v > s.indexOf('narr-photo-ask') && v > s.indexOf('online-3-welcome') && s.indexOf('narr-photo-ask') > -1 && s.indexOf('online-3-welcome') > -1; })());
 /* ★[CANDLE_NAME_1019 · OPEN_GAP_CHIP_1019 · PHOTO_UP_1019 검토 138-2 · 139] */
+/* ★[OPEN_CLAP_GO_1019 검토 142-4] 박수를 청하는 개식 칩(힘차게 · 담백하게 · 다정하게) + 식전 영상 — 개식 줄에 하객 박수 사람 순간 · 영상 소개는 디렉터 GO(힌트 · 음악 내림) · 미리 듣기는 사슬 4.5초 그대로 · 나머지 칩 · 영상 없는 날은 사슬 그대로 */
+ok('[OPEN_CLAP_GO_1019] 박수 청하는 개식 뒤 식전 영상 소개 = 디렉터 GO(콘솔) · 미리 듣기 4.5초 사슬 · 나머지 칩 3초 사슬 · 영상 없는 날 사슬', (() => {
+  const at = (n, mode, on) => { const r = C.build({ course: 'open', on: on || { prevideo: 1 }, narEx: { open: n } }, { mode }); const i = r.cues.findIndex((c) => c.slug === 'narr-open'); return [r.cues[i], r.cues[i + 1]]; };
+  const con = [0, 1, 2, 3, 4, 5].map((n) => { const [a, b] = at(n, 'console'); return (a.live && a.live.applause ? 'L' : '-') + b.fire[0] + (b.gapMs || 0); }).join();
+  const pre = [0, 1, 2, 3, 4, 5].map((n) => { const [a, b] = at(n, 'preview'); return (a.live ? 'L' : '-') + b.fire[0] + (b.gapMs || 0); }).join();
+  const [a0, b0] = at(0, 'console'), [c0, d0] = at(0, 'console', { candle: 1 });
+  return con === 'Lm4500,-c3000,Lm4500,Lm4500,-c3000,-c3000' && pre === '-c4500,-c3000,-c4500,-c4500,-c3000,-c3000'
+    && b0.slug === 'narr-prevideo-in' && !!b0.hint && b0.fadeMs > 0 && !c0.live && d0.fire === 'chain' && d0.gapMs === 4500; })());
 ok('[OPEN_GAP_CHIP_1019] 개식 뒤 쉼 — 박수를 청하는 칩(힘차게 · 담백하게 · 다정하게) 4.5초 · 나머지(격식 있게 · 뭉클하게 · 차분하게) 3초', (() => { const g = (n) => { const r = C.build({ course: 'open', on: { prevideo: 1 }, narEx: { open: n } }, { mode: 'console' }); const s = r.cues.map((c) => c.slug); return r.cues[s.indexOf('narr-open') + 1].gapMs; }; return [0, 1, 2, 3, 4, 5].map(g).join() === '4500,3000,4500,4500,3000,3000'; })());
 ok('[CANDLE_NAME_1019] 영상 받는 말(261) → 3초 → «이어서, 화촉 점화가 있겠습니다.» → 화촉 여는 말(사슬) · 화촉 멘트가 «이제 · 먼저 · 그럼»으로 열면 안 끼운다 · 옛 코스엔 없다', (() => {
   const r = C.build({ course: 'open', on: { prevideo: 1, candle: 1 } }, { mode: 'console' }), s = r.cues.map((c) => c.slug), i = s.indexOf('bridge-b14-candle-name'), b = r.cues[i] || {}, n = r.cues[i + 1] || {};
