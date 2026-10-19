@@ -544,6 +544,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     <div class="row"><label>곁들임</label><span id="rValley"></span></div>
     <div class="row"><label>하객 맞이 목소리</label><span id="rGV"></span></div>
     <div class="row"><label>온라인 참석 안내</label><span id="rDigital"></span></div>
+    <div class="row"><label>식사 자리</label><span id="rMeal"></span></div>
+    <div class="row"><label>하객 안내 · 사진 올리기</label><span id="rGuide"></span></div>
   </div>
 
   <div class="sec">
@@ -765,7 +767,10 @@ var OPT = {
   rBless:  ['bless', [['off','없음'],['on','있음']]],
   rValley: ['valley',[['none','없음'],['wine','와인'],['cake','케이크']]],
   rGV:     ['guestVoice',[['nar','나레이션'],['couple','두 분 목소리']]],
-  rDigital:['digital',[[false,'없음'],[true,'있음']]]
+  rDigital:['digital',[[false,'없음'],[true,'있음']]],
+  /* ★[CONSOLE_INJECT_1019 검토 138-0] 관리자 «당일 콘솔» 단추가 실어 오는 값 — 디렉터가 현장에서 바로잡을 수 있게 칩으로도 둔다 */
+  rMeal:   ['meal',[[false,'없음'],[true,'있음']]],
+  rGuide:  ['guide',[[false,'없음'],[true,'있음']]]
 };
 
 function paint(){

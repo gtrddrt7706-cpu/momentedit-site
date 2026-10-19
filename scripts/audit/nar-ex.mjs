@@ -37,12 +37,12 @@ function run(mut) {
   T('① 같은 글은 한 소리 — 편지 맺는 말 예시 2 · 3 은 하나(narr-letter-end-ex2)', !clips.some((x) => x.slug === 'narr-letter-end-ex3') && O.narExCue({ letter: 'each', narEx: { letter: 2 }, on: {} }, 'narr-letter-end') === 'narr-letter-end-ex2');
   // ② 이름표
   const bad = [];
-  O.narExKeys().forEach((k) => { const sets = typeof O.NAR_EX[k].names === 'function' ? ['mothers', 'fathers', 'parents', 'others'].map((w) => O.NAR_EX[k].names({ candleWho: w })) : [O.NAR_EX[k].names];
+  O.narExKeys().forEach((k) => { const sets = typeof O.NAR_EX[k].names === 'function' ? ['mothers', 'fathers', 'others'].map((w) => O.NAR_EX[k].names({ candleWho: w })) : [O.NAR_EX[k].names];
     sets.forEach((nm) => { const v = nm.filter(Boolean); if (new Set(v).size !== v.length || v.some((x) => !/^([가-힣]+게|격식 있게)$/.test(x)) || !nm[0]) bad.push(k + ':' + nm.join('/')); }); });
   T('② 이름표 «~하게» 한 낱말 · 순간 안에서 겹치지 않음 · 예시 1 이름 있음 [EX_NAME_HAGE]', !bad.length, bad.join(' | '));
   // ③ 엔진
   const SS = (k, n, x) => { const S = O.sampleS(); Object.assign(S, x || {}); S.narEx = { [k]: n }; return S; };
-  const VAR = { candle: [{ candleWho: 'mothers' }, { candleWho: 'fathers' }, { candleWho: 'parents' }, { candleWho: 'others' }], vow: [{}, { vowFirst: 'b' }], letter: [{ letter: 'each' }, { letter: 'each', _noVow: 1 }], speech: [{ freeWhat: 'speech' }], tribute: [{ tributeSay: 'none' }, { tributeSay: 'long' }] };
+  const VAR = { candle: [{ candleWho: 'mothers' }, { candleWho: 'fathers' }, { candleWho: 'others' }], vow: [{}, { vowFirst: 'b' }], letter: [{ letter: 'each' }, { letter: 'each', _noVow: 1 }], speech: [{ freeWhat: 'speech' }], tribute: [{ tributeSay: 'none' }, { tributeSay: 'long' }] };
   const miss = [], wrong = [];
   O.narExKeys().forEach((k) => (VAR[k] || [{}]).forEach((x) => Array.from({ length: (Array.isArray(O.NAR_EX[k].names) ? Math.max(3, O.NAR_EX[k].names.length - 1) : 3) }, (_, i) => i + 1).forEach((n) => {   // ★[EX_MAX_BY_NAMES_1018] 예시 수만큼(축가는 5 · 서는 분마다 바뀌는 names 는 종전 3) — 종전 [1, 2, 3] 고정은 예시 5를 재지 않았다
     const S = SS(k, n, x); if (x._noVow) { delete S._noVow; S.on = Object.assign({}, S.on); delete S.on.vow; }

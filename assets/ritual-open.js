@@ -224,7 +224,11 @@
        불을 밝힌 뒤 하객께 인사는 입장이 아니라 화촉의 한 동작이라 어느 분이 서든 한다(자료 D · G · O)
      (자료 7곳 B · C · G · M · N · P · Q 의 «리마인드 입장»은 장부 «양가 부모님 입장» 줄에서 우리 컨셉으로 걸렀다).
      ★되살리지 말 것: 첫 칸 «부모님 함께 입장»(10/11 CANDLE_PARENTS_FIRST · 네 분 입장 → 하객께 인사 → 어머님 점화 · +20초) */
-  var CANDLE_WHO = [['mothers', '양가 어머님'], ['fathers', '양가 아버님'], ['parents', '양가 부모님 네 분'], ['others', '다른 두 분']];   // [R2-34] 두 분짜리끼리 먼저(어머님 · 아버님) · 키는 그대로라 저장 초안과 호환   // [R1-36] 둘째만 «양가»가 빠져 한쪽 부모님인지 네 분인지 헷갈렸다(부탁 글은 «양가 어머님과 아버님께서»)
+  /* ★★[CANDLE_FOUR_OFF_1019 검토 140 · 사장님 10/19 17:28 «양가 부모님 네 분이 화촉하는 경우는 없을 것 같으니 빼자»] 고르는 칩에서 «양가 부모님 네 분»을 뺐다.
+       저장된 'parents' 는 읽을 때 기본(양가 어머님)으로 — candleWhoOf 한 곳 · 엔진은 CANDLE_WHO 에 없는 값을 기본으로 바꾼다(ritual-cue).
+       네 분 판 글 · 소리(narr-candle-in-parents · narr-candle-bow-four 139)는 번호 그대로 두고 쓰지 않는다 — ★되살리지 말 것(칩 · 부탁 글 · AI 지식) */
+  var CANDLE_WHO = [['mothers', '양가 어머님'], ['fathers', '양가 아버님'], ['others', '다른 두 분']];
+  function candleWhoOf(S) { var w = (S && S.candleWho) || DEF.candleWho; return CANDLE_WHO.some(function (c) { return c[0] === w; }) ? w : DEF.candleWho; }   // [R2-34] 두 분짜리끼리 먼저(어머님 · 아버님) · 키는 그대로라 저장 초안과 호환   // [R1-36] 둘째만 «양가»가 빠져 한쪽 부모님인지 네 분인지 헷갈렸다(부탁 글은 «양가 어머님과 아버님께서»)
 
   /* ── 예시 넷(명세 5장) · on = 담는 순간(늘 있는 guest·entry 제외) · set = 판 ── */
   /* ★★[EXAMPLES_0925 2026-09-25 사장님 결정 3 · 코워크 회신 둘째 판 4-5] 기록 · 약속에 부모님께 인사를 더함 ·
@@ -258,8 +262,8 @@
          ★멘트 글은 그대로다 — 사장님 «멘트는 대대적으로 한번 개선 작업을 할 거야 따로»(3단계) · 그때 이 짝도 함께 다시 본다. */
     { k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech' } },   // [EX_STD_1012] · [EX_ENTRY_FEEL_1012] 입장 담백하게(빌더 기본값과 같다 · 옛 격식 있게)
     { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객과 가까이' /* [TABLE_GREET_1008 사장님 «기록에 넣고 소개를 바꾼다»] 옛 «단체 사진을 넉넉히» — 테이블 인사 9분이 들어 단체 사진 15~20 → [EX_STD_1012] 반지 · 케이크가 빠져 18~22 */, on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } },
-    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long' } },   // [EX_STD_1012] + 축가 · − 반지 · 케이크
-    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none' } }   // [EX_ENTRY_FEEL_1012] 입장 격식 있게(옛 담백하게 23초) · [EX_STD_1012] + 화촉 · 부모님께 인사(말 없이) · − 반지 · 케이크(본식 8~12 그대로)
+    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1 } } },   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «격식 있게»(148 · U1 · «격식 있고 뭉클하게»와 맞다)   // [EX_STD_1012] + 축가 · − 반지 · 케이크
+    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, candle: { mothers: 2 }, matjeol: 4 } } }   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «담백하게»(149) · 화촉 «잔잔하게»(152 · 어머님일 때만) · 맞절 «담백하게»(252) — 개식 137 «박수와 함성» · 입장 C «큰 박수와 함성» 5분 안 둘을 풀었다 · 화촉 «담백하게»(«이제 …»)는 B7 «이제 …»와 85초라 «잔잔하게»   // [EX_ENTRY_FEEL_1012] 입장 격식 있게(옛 담백하게 23초) · [EX_STD_1012] + 화촉 · 부모님께 인사(말 없이) · − 반지 · 케이크(본식 8~12 그대로)
   ];
   function exampleOf(k) { for (var i = 0; i < EXAMPLES.length; i++) if (EXAMPLES[i].k === k) return EXAMPLES[i]; return null; }
   // 예시를 S 에 입힌다 — 순간은 통째로 바꾸고, 판은 기본 위에 예시 값을 얹는다
@@ -270,6 +274,11 @@
     /* [DECLARE_BY_PERSON · DECLARE_ANYONE] 예시는 읽을 분을 정하지 않는다(두 분이 적는다) · 적어 둔 분은 그대로 둔다 */
     setChip(S, 'tribute', ex.set.tribute || DEF.tributeSay);
     setChip(S, 'letter', ex.set.letter || DEF.letter);
+    /* ★[EX_CHIP_DEF_1019 검토 137-3] 예시가 정하는 «○○ 멘트» 칩(개식 · 화촉 · 맞절) — 예시를 누를 때만 그 예시의 기본으로(저장된 주문은 보던 글 그대로 · MOOD_ROW_OFF_1019 때처럼) ·
+         정하지 않은 예시(정석 · 기록)는 세 칩을 예시 1 로 되돌린다(앞서 누른 예시의 칩이 남지 않게) · 화촉은 서는 분마다(어머님일 때만 잔잔하게 · 다른 분은 그분 기본) */
+    (function () { var ne = ex.set.narEx || {}, cur = S.narEx || {};
+      ['open', 'candle', 'matjeol'].forEach(function (k) { var v = ne[k]; if (v && typeof v === 'object') v = v[candleWhoOf(S)] || 0; if (v) cur[k] = v; else delete cur[k]; });
+      if (Object.keys(cur).length) S.narEx = cur; else delete S.narEx; })();
     S.ctSplit = 1; S.toast = toastMode(S); S.wine = 'none';   // [CAKE_TOAST_SPLIT] 케이크 · 축배는 담은 칸이 정한다 · [WINE_POUR_OFF]
     setChip(S, 'free', ex.set.free || DEF.freeWhat);
     setChip(S, 'freeLen', ex.set.freeLen || DEF.freeLen);
@@ -602,7 +611,7 @@
   };
   var TILE_CANDLE = { parents: '양가 부모님이 초에 불을 밝혀요', fathers: '양가 아버님이 초에 불을 밝혀요', others: '두 분이 부탁한 분들이 촛불을 밝혀요' };
   for (var _tk in TILE) if (CARDS[_tk]) CARDS[_tk].tile = TILE[_tk];
-  function tileOf(k, S) { if (k === 'candle') { var w = (S && S.candleWho) || DEF.candleWho; if (TILE_CANDLE[w]) return TILE_CANDLE[w]; } return TILE[k] || ''; }
+  function tileOf(k, S) { if (k === 'candle') { var w = candleWhoOf(S); if (TILE_CANDLE[w]) return TILE_CANDLE[w]; } return TILE[k] || ''; }
 
   /* ══ [SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 — 칸 · 미리 보기 창에서 순간마다 고정(판 칩과 상관없이 · 화촉만 서는 분을 따라)
      짧은 여는 말(10초 안)은 클립을 통째로 · 긴 다섯은 **같은 부모 클립**을 처음부터 틀다 둘째 문장 끝에서 멈춘다(새 녹음 0).
@@ -628,10 +637,10 @@
     table: { slug: 'narr-table-in' }   // [TABLE_GREET_1008] 131 · 녹음 전엔 글로
   };
   function sampleOf(k, S) { var sm = SAMPLE[k]; if (!sm) return null; var o = { slug: sm.slug, cut: sm.cut || 0, screen: sm.screen || '' };
-    if (sm.who) o.slug = 'narr-candle-in-' + ((S && S.candleWho) || DEF.candleWho); return o; }
+    if (sm.who) o.slug = 'narr-candle-in-' + candleWhoOf(S); return o; }
   function firstSentences(t, n) { var parts = String(t || '').match(/[^.?!]+[.?!]+/g) || [String(t || '')]; return parts.slice(0, n).join(' ').replace(/\s+/g, ' ').trim(); }
   /* 대표 한 줄을 들을 때 엔진을 부를 S — 모든 순간을 담고 판은 표의 판(입장 A · 엄숙 · 서로에게 · 케이크와 축배 · 와인 두 병 · 영상) */
-  function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: '', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'speech', freeLen: '3', candleWho: (S && S.candleWho) || DEF.candleWho }; }   // [SPEECH_TILE_1012]
+  function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: '', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'speech', freeLen: '3', candleWho: candleWhoOf(S) }; }   // [SPEECH_TILE_1012]
 
   /* ══ [PREVIEW_SHEET 2026-09-26 코워크 추가 전달 3 F2] 미리 보기 창 «② 하나씩 만들기에서 고를 것» — ② 묶음 이름(G3 로 고친 이름)과 같은 말 ══ */
   var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리', declare: '읽어 주실 분', tribute: '인사 말'   /* [TRIB_ONE_SAY · GROOM_BOW_TIP] 인사 방식 칩 걷음 · [GOODS_STUDIO] 케이크 · 꽃은 저희가(고를 것 없음 · cake 키 걷음) */, letter: '받는 분', free: '길이' };   // ★[SPEECH_TILE_1012] 축사 칸 ② 는 길이 하나(무엇을 줄은 옛 초안에만)
@@ -660,7 +669,7 @@
       /* [REC_UPLOAD 2026-09-27 코워크 3-8] 준비 목록 이름 «두 분 목소리 준비» · 마감 D-7 · 스튜디오 나레이션을 고르면 빠진다(아래 조건 그대로) */
       case 'guest': return S && S.guestVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 하객 맞이 안내 ' + voiceState(S, ['g0', 'g1', 'g2', 'g3']) : '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 글
       case 'prevideo': return [['couple', '식전 영상 링크', 'send', 3]];   /* ★[PV_LINK_ONE 2026-10-04 사장님 «(영상이나 사진) 삭제 · 무조건 영상 · 날짜는 오른쪽 한 줄»] */   // ★[PREVIDEO_FREE 2026-10-02 사장님] 길이 · 장수 규정 없음 · 링크 하나   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
-      case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
+      case 'candle': { var cw = candleWhoOf(S);
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝히고 ' + (cw === 'parents' ? '' : '서로 한 번, ') + '하객께' + (cw === 'parents' ? '' : ' 한 번') + ' 인사해 주세요', 'ask', null, NOTE_ASK]]   /* [LINE_R1_1014] 두 분이면 «서로 한 번, 하객께 한 번»(CANDLE_BOW_1012) */   /* [OPEN_WORDS_1013] 부탁받는 분이 «인사까지»를 미리 안다(CANDLE_BOW_1012) */; }
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사 ' + voiceState(S, ['entry']) : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '감사 인사 한두 문장 · 적어 주시면 큰 글씨 카드로 드려요', 'write', 7]];   // ★[WELCOME_CARD_1014 라운드 3] 이야기 안심(«미리 적어 주신 인사말 카드를 저희가 바로 건네 드려요») · 콘솔 사다리가 약속한 카드를 준비 줄도 말한다 — 서약문 줄과 같은 말(VOW_CARD_PRINT_1014 · 실제로 인쇄)
@@ -854,7 +863,7 @@
     /* ★★[NAR_1006 2026-10-07 코워크 회신 · 사장님 확인 · 진희 다시 녹음] 128~130 글을 바꿨다(영상 내용 · 사연을 짐작하지 않는 말) — 녹음과 같은 글.
     ★★[PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 식전 영상 소개 스튜디오 나레이션 예시 2~4 — 예시 1 은 prevideoIn(90 클립) 그대로.
        [0]=다정하게 · [1]=잔잔하게 · [2]=격식 있게(이름은 pvExNames · [REVIEW24_1019] 종전 유쾌하게 · 감사하게는 두 분 목소리 판 PV_EX 에만) · 녹음은 바꿀 수 없어 어느 예식에나 맞는 말로 · 녹음 클립 128~130. 글을 고치면 다시 녹음 — 손대지 말 것 */
-    pvEx: ["두 사람의 지난 시간이 담긴 영상을, 먼저 만나보겠습니다.", "한 장면씩 여러분의 마음에도 남겨 보시길 바랍니다. 영상 함께 감상하시겠습니다.", "두 사람의 이야기가 담긴 영상을 스크린으로 전해 드립니다."],   // [NAR_ENGINE_1014] 원고 4판(130) · ★[REVIEW24_1019 검토 132] 129 = 자료 T2 101~103 · 130 = 자료 G2 121 대안 2(옛 «예고편» · «고마움을 전합니다»는 영상 내용을 짐작하는 말 · 녹음 전 · 되살리지 말 것)
+    pvEx: ["두 사람의 지난 시간이 담긴 영상을, 먼저 만나보겠습니다.", "영상 함께 감상하시겠습니다. 한 장면씩 여러분의 마음에도 남겨 보시길 바랍니다.", "두 사람의 이야기가 담긴 영상을 스크린으로 전해 드립니다."],   // [NAR_ENGINE_1014] 원고 4판(130) · ★[REVIEW24_1019 검토 132] 129 = 자료 T2 101~103 · 130 = 자료 G2 121 대안 2(옛 «예고편» · «고마움을 전합니다»는 영상 내용을 짐작하는 말 · 녹음 전 · 되살리지 말 것)   // [PV_ORDER_1019 검토 137-2] 129 «잔잔하게» 두 문장 차례만 — 무엇을 보는지 먼저 · 개식 끝 «여러분의 …» 뒤에 붙던 «여러분의»가 한 문장 떨어진다 · 글자는 그대로
     /* ★[REVIEW24_1019 검토 132] 스튜디오 «소개 멘트» 칩 이름 — 두 분 목소리 판(order-preview PV_EX · 예고편 · 고맙다는 인사)과 글이 갈라져 이름을 따로 둔다 · 0 = 90(PV_EX[0] 과 같은 «담백하게») */
     pvExNames: ['담백하게', '다정하게', '잔잔하게', '격식 있게'],
     /* ★★[NAR_1006 2026-10-07 코워크 지시 · 사장님 확인 · 진희 다시 녹음] 115 · 116 · 117 · 119 · 120 · 123 · 125 · 126 글을 바꿨다(118 · 121 · 122 · 124 는 그대로) — 녹음과 같은 글.
@@ -865,25 +874,25 @@
        ★★[NAR_ENGINE_1014 2026-10-14 사장님 «전부 추천대로 … 개편해»] 3단계 원고를 옮겼다 — 기립 말(입장 때 서실 것 없다는 말) 걷기(W3 · W12 · 89 · 04 와 같은 꼴) ·
          1분 전의 «양가를 대신한 감사»는 넣지 않는다(라운드 1 결정 · 개식 선언 몫) · 10분 · 5분 줄 · 126 끝 «이제, 두 사람을 기다리겠습니다»(5판 · ★라운드 5 SOURCE_BEST_1015 에서 G4 표 글로 다시 짜며 걷었다).
          소리는 받은 녹음 + 옛 통녹음에서 쉼으로 잘라 낸 문장(창고 대장 cut · 원고 7장 5) — 다시 받으면 sent-lib --patch 로 덮는다. 기립 말 되살리지 말 것 */
-    guestEx: [   // ★[NAR_1007 2026-10-07 코워크 회신 · 사장님 확인] 다정하게 · 유쾌하게 여덟 줄 합쇼체(AI 글 EX_TEXT_1007 과 같은 글) · 115~122 다시 녹음(진희)
+    guestEx: [   // ★[GUEST_FLESH_1019 검토 138-1] 01 · 02 · 03 에 살을 붙였다(첫 문장은 녹음 글 그대로 · 기본과 같은 꼴을 말결만) ·   // ★[NAR_1007 2026-10-07 코워크 회신 · 사장님 확인] 다정하게 · 유쾌하게 여덟 줄 합쇼체(AI 글 EX_TEXT_1007 과 같은 글) · 115~122 다시 녹음(진희)
       [
-      '귀한 걸음 해 주신 여러분, 고맙습니다.',
-      '십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남게 되니, 곁에서 마음껏 담아 주시길 바랍니다.',
-      '기다리시던 시작 오 분 전입니다.',
+      '귀한 걸음 해 주신 여러분, 고맙습니다. 본식 전까지는 반가운 얼굴들과 인사 나누시며, 이 공간을 천천히 둘러보셔도 좋습니다. 시간이 가까워지면, 다시 알려 드리겠습니다.',
+      '십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남게 되니, 곁에서 마음껏 담아 주시길 바랍니다. 함께 지켜보실 자리도 마련되어 있습니다.',
+      '기다리시던 시작 오 분 전입니다. 신랑 신부도 지금, 문 너머에서 입장을 준비하고 있습니다.',
       '잠시 뒤 순서를 시작하겠습니다. 오늘 모든 안내는 신랑 신부가 미리 준비한 목소리로 진행됩니다. 자리에 착석해 주시길 바랍니다. 모두를 위해 휴대폰은 진동 모드로 바꾸어 주시길 부탁드립니다.'],
       [
-      '함께해 주신 여러분, 반갑습니다.',
-      '십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주시길 바랍니다.',
-      '드디어 시작 오 분 전입니다.',
+      '함께해 주신 여러분, 반갑습니다. 못다 한 인사는 지금이 기회입니다. 본식 전까지, 이 공간 구석구석을 자유롭게 둘러보셔도 좋습니다. 시간이 가까워지면, 다시 알려 드리겠습니다.',
+      '십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주시길 바랍니다. 가까이서 지켜보실 자리도 마련되어 있습니다.',
+      '드디어 시작 오 분 전입니다. 신랑 신부도 지금, 문 앞에서 입장을 준비하고 있습니다.',   // [GUEST_FLESH_1019] 제안 «입장 신호를 기다리고 있습니다»는 자 W5(짐작 «기다리고 있습니다»)라 다른 판과 같은 서술어로
       '곧 순서를 시작하겠습니다. 오늘 모든 안내는 신랑 신부가 미리 준비한 인공지능 목소리로 진행됩니다. 자리에 착석해 주시길 바랍니다. 원활한 진행을 위해 주머니 속 휴대폰은 진동 모드로 변경을 부탁드립니다.'],
       [
-      '참석해 주신 내빈 여러분, 고맙습니다.',
-      '십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 기록되오니, 내빈 여러분께서도 마음껏 담아 주시길 바랍니다.',
-      '본식 시작 오 분 전입니다.',
+      '참석해 주신 내빈 여러분, 고맙습니다. 예식에 앞서 장내를 자유롭게 둘러보시며, 반가운 분들과 담소 나누셔도 좋습니다. 시간이 가까워지면, 다시 안내 말씀 드리겠습니다.',
+      '십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 기록되오니, 내빈 여러분께서도 마음껏 담아 주시길 바랍니다. 예식을 지켜보실 좌석도 마련되어 있습니다.',
+      '본식 시작 오 분 전입니다. 신랑 신부도 지금, 입장을 준비하고 있습니다.',
       '잠시 뒤 순서를 시작하겠습니다. 오늘 모든 안내는 신랑 신부가 사전에 준비한 목소리로 진행됩니다. 자리에 착석해 주시기 바랍니다. 원활한 진행을 위하여 휴대폰은 진동 모드로 바꾸어 주시길 부탁드립니다.']
     ],
     guest4Pre: '곧 순서를 시작하겠습니다. 오늘 모든 안내는 신랑 신부가 미리 준비한 목소리로 진행됩니다. 자리에 착석해 주시길 바랍니다. 원활한 진행을 위해 휴대폰은 진동 모드로 부탁드립니다.',
-    prevideoOut: '두 사람의 진심이 잘 전해졌으리라 생각합니다.',   /* ★[PV_OUT_1019 검토 132] 식전 영상이 끝나면(디렉터 GO) 받는 한 줄 — 자료 RR 115 첫 문장 그대로 · 박수 청은 넣지 않는다(T2 105 · 개식 · 입장과 5분 안 셋 · CLAP_FEW) · 누가 만들었는지 말하지 않는다 */
+    prevideoOut: '두 사람의 진심이 잘 전해졌으리라 믿습니다.',   /* ★[PV_OUT_TRUST_1019 검토 137-1] «생각합니다» → «믿습니다» — 정석 기본 길(영상 → 화촉 어머님 91 «… 존재라고 생각하지만»)에서 «생각»이 3초 사이 둘이었다 · RR 115 끝 낱말 하나(SOURCE_BEST_1015) · 녹음 전 */   /* ★[PV_OUT_1019 검토 132] 식전 영상이 끝나면(디렉터 GO) 받는 한 줄 — 자료 RR 115 첫 문장 그대로 · 박수 청은 넣지 않는다(T2 105 · 개식 · 입장과 5분 안 셋 · CLAP_FEW) · 누가 만들었는지 말하지 않는다 */
     prevideoIn: '두 사람의 이야기를 함께 만나보시겠습니다.',   /* ★[SOURCE_FIRST_1016] 자료 WW28 감둥 실사용 그대로 · [REVIEW13_1018 검토 119 · 113] 종전 G2 121 대안 2 «본식에 앞서, …»는 개식 선언(«…시작하겠습니다!») 바로 뒤라 어긋났다 */   // ★[NAR_1006 2026-10-07 코워크 회신 · 사장님 확인] 종전 «두 분이 준비한 영상을 함께 보시겠습니다.» — «준비한»이 바로 앞 1분 전 고지(«미리 준비한 안내 음성»)와 겹쳤다 · 90 다시 녹음(진희)
     candleIn: {
       mothers: '우리는 늘 엄마가 당연히 그 자리에 있는 존재라고 생각하지만, 사실 그 자리는 누군가의 수많은 포기와 사랑으로 지켜진 자리입니다. 그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다. 양가 어머님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',   /* ★[SOURCE_FIRST_1016] 자료 FF 1-2 첫 두 문장 · T 68 */
@@ -944,6 +953,7 @@
       speechClap: '축사해 주신 분께 박수 부탁드립니다.',   /* B10 축사 → 다음 순간 — 자료 U1 «(축사끝) 000양에게 박수 부탁드립니다»(이름 → «축사해 주신 분께» ②) · 박수 구간 뒤 디렉터 GO */
       songLight: '이번에는 조금 산뜻한 분위기로 넘어가 보겠습니다.',   /* B11 엄숙한 순간(선언 · 축사 · 덕담) → 축가 — 자료 XX1 «14. 축가» 첫 줄(«네» 뺌 · 괄호 두 낱말 중 «산뜻한») */
       tributeCalm: '이제 분위기를 잠시 바꿔서, 조금 경건한 시간을 가져 보겠습니다.',   /* B12 축가 → 부모님께 인사 — 자료 WW1(블로그 «11. 부모님/내빈 인사» 첫 줄 앞 절 · «가져보려고 하는데요» → «가져 보겠습니다») */
+      candleName: '이어서, 화촉 점화가 있겠습니다.',   /* ★[CANDLE_NAME_1019 검토 139-1] B14 화촉 앞(영상 받는 말 · 개식 뒤) — 자료 G3 43 «예식에 앞서, 양가 어머님의 화촉 점화가 있겠습니다.»에서 개식이 먼저라 «예식에 앞서» → «이어서» · 누가는 여는 말이 말해 뺐다 */
       toastStay: '잠시 자리를 지켜 주시면 감사하겠습니다.',   /* B13 닫는 인사 → 축배(잔이 놓이는 사이) — 자료 U1 «… 잠시 자리를 지켜주시면 감사하겠습니다» 그대로(띄어쓰기만) */
       lighter: '이제, 조금 가벼운 순서로 넘어가겠습니다.',   /* B6 편지 → 케이크(바로 붙을 때만) · ★케이크가 없어진 뒤로 나오지 않는다(CAKE_OFF_1013) · 소리 114 는 남긴다 */
     }
@@ -980,7 +990,7 @@
     /* 화촉 여는 말(91 ~ 94) — 서는 분마다 · 2 = G 원본(애봉네 대본) «화촉점화» · 3 = U1 원본 «화촉점화» 첫 문장 · 4 = 어머님 FF 1-1(«멈춘 시계» · 혼주 입장 구호는 지금 부르는 말로 ③) · 네 분 G 원본 «양가 부모님 입장».
        끝 «단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.»는 지금 글 그대로(나와서 할 일). 예시 1 의 결이 서는 분마다 달라 이름도 판마다 · 빈 이름('')은 그 판에 없는 예시 */
     candle: { lab: '화촉 멘트',
-      names: function (S) { var w = S.candleWho || DEF.candleWho; return w === 'mothers' ? ['뭉클하게', '담백하게', '잔잔하게', '다정하게'] : w === 'others' ? ['담백하게', '격식 있게', '잔잔하게', '다정하게'] : w === 'fathers' ? ['격식 있게', '담백하게', '잔잔하게', '감사하게'] : ['격식 있게', '담백하게', '잔잔하게', '뭉클하게']; },
+      names: function (S) { var w = candleWhoOf(S); return w === 'mothers' ? ['뭉클하게', '담백하게', '잔잔하게', '다정하게'] : w === 'others' ? ['담백하게', '격식 있게', '잔잔하게', '다정하게'] : w === 'fathers' ? ['격식 있게', '담백하게', '잔잔하게', '감사하게'] : ['격식 있게', '담백하게', '잔잔하게', '뭉클하게']; },
       lines: {
         'narr-candle-in-mothers': [
           '이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',
@@ -1291,7 +1301,7 @@
   function moodOf(S) { return (S && MOOD_NAME[S.mood]) ? S.mood : ''; }
   /* 표의 순간 값(화촉은 지금 서는 분 칸) — 0 은 넣지 않는다(예시 1) */
   function moodNarEx(S, key) { var m = MOOD[key], out = {}; if (!m) return out;
-    Object.keys(m.narEx).forEach(function (k) { var v = m.narEx[k]; if (v && typeof v === 'object') v = v[(S && S.candleWho) || DEF.candleWho] || 0; if (v && NAR_EX[k]) out[k] = v; });
+    Object.keys(m.narEx).forEach(function (k) { var v = m.narEx[k]; if (v && typeof v === 'object') v = v[candleWhoOf(S)] || 0; if (v && NAR_EX[k]) out[k] = v; });
     return out; }
   /* 지금 S 의 분위기 몫 네 칸(입장 · 안내 · 소개 · 순간 멘트) — «바꾼 곳 있음»은 이것을 고른 때 찍어 둔 값(S.moodBase)과 칸마다 대조한다 */
   function moodPart(S) { var n = {}; Object.keys((S && S.narEx) || {}).forEach(function (k) { var v = +S.narEx[k] || 0; if (v) n[k] = v; });
@@ -1448,7 +1458,7 @@
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
-    CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
+    CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,

@@ -83,7 +83,10 @@
     /* ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 한 줄의 스위치 — ★INJECT · 식순 S 에는 없다.
        원천은 애프터 웨딩 트랙의 `diningDraft.venuePick`(모일 식당)이다. 값은 **유무 boolean 뿐** —
        식당 이름은 싣지 않는다(photoShare 와 같은 규칙). */
-    'meal'                                     // 모일 식당을 골랐나 — ★INJECT · 식순 S 에는 없다
+    'meal',                                    // 모일 식당을 골랐나 — ★INJECT · 식순 S 에는 없다
+    /* ★[GUIDE_ON_1019 검토 138-2] 하객 안내 링크가 열려 있나 — 우리 «사진 올리기» 안내(5분 전 뒤 · 단체 사진 뒤)의 스위치 — ★INJECT · 식순 S 에는 없다.
+       값은 유무 boolean 뿐 — 열쇠(토큰)는 싣지 않는다(photoShare 와 같은 규칙) · 원천은 production.guideToken + 예식 +30일 안 */
+    'guide'
   ];
 
   /* ★INJECT = 엔진은 읽는데 식순 초안 S 에는 없는 키 [PREVIEW_DIGITAL]
@@ -94,7 +97,7 @@
      이 목록이 있어야 [PREVIEW_KEYS] 검사가 "엔진은 읽는데 아무도 값을 안 만드는 키"를 잡을 수 있다.
      (2026-08-02 실제 사고: digital 이 KEYS 에만 있고 값을 넣는 곳이 없어, 디지털 참석 예식도 미리듣기는
       늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
-  var INJECT = ['digital', 'photoShare', 'meal', 'photoN', 'photoWishN'];   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
+  var INJECT = ['digital', 'photoShare', 'meal', 'guide', 'photoN', 'photoWishN'];   // [GUIDE_ON_1019] guide 도 밖에서   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
 
   // 고를 것만 골라 담는다. undefined·null 은 넣지 않는다 — 미리듣기 쪽 기본값이 그대로 서게(병합 주입).
   function pick(S) {
@@ -137,6 +140,11 @@
     return placeholders.indexOf(p) === -1;
   }
 
+  /* ★[CONSOLE_INJECT_1019 검토 138-0] 모일 식당 자리표시(장소가 아닌 고르기 값) 단일 원천 — 마이페이지 DN_PLACEHOLDER · 관리자 «당일 콘솔»이 같은 목록을 쓴다(console-inject.mjs 가 대조) */
+  var DINE_PH = ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'];
+  /* [GUIDE_ON_1019] 하객 안내가 «열려 있나» — 열쇠가 있고 닫히지 않았다(닫힘 판정은 부르는 쪽 · 마이페이지 _guideLinkClosed · 관리자는 예식일 +30) */
+  function guideOf(token, closed) { return !!String(token || '').trim() && !closed; }
+
   function digitalOf(inv) {
     if (!inv) return false;
     if (typeof inv.digital === 'boolean') return inv.digital;
@@ -170,5 +178,5 @@
     return url(rd.S, extra);
   }
 
-  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf, mealOf: mealOf };
+  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf, mealOf: mealOf, guideOf: guideOf, DINE_PH: DINE_PH };
 })(window);
