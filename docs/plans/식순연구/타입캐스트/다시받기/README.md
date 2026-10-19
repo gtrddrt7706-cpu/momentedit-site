@@ -15,6 +15,8 @@
 |---|---|---|---|
 | 1_진희.txt | 진희 | 36 | 14 |
 | 2_우성.txt | 우성 | 22 | 12 |
+| 3_진한.txt | 진한 | 5 | 2 |
+| 4_예슬.txt | 예슬 | 3 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -28,5 +30,17 @@ node scripts/assemble-narration.mjs --in <진희_받은폴더> \
 # 우성 — 22줄 · 12클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
   --clip =11_narr-welcome-in,=90_narr-prevideo-in,=128_narr-prevideo-in-ex2,=129_narr-prevideo-in-ex3,=130_narr-prevideo-in-ex4,=261_narr-prevideo-out,=263_bridge-b14-candle-name,=257_narr-open-ex6,=258_narr-entry-bow-ex6,=260_narr-thanks-in-ex4,=259_narr-tribute-name-ex6,=262_narr-photo-free
+```
+
+```
+# 진한 — 5줄 · 2클립
+node scripts/assemble-narration.mjs --in <진한_받은폴더> \
+  --clip =01_guest-1,=03_guest-3
+```
+
+```
+# 예슬 — 3줄 · 1클립
+node scripts/assemble-narration.mjs --in <예슬_받은폴더> \
+  --clip =02_guest-2
 ```
 
