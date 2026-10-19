@@ -18943,7 +18943,8 @@ chk 'BGM_FIRST_1013' console.html 1
 chk 'BGM_FIRST_1013' scripts/audit/bgm-first.mjs 1
 chk 'BGM_FIRST_1013' scripts/audit/entry-scene-day.mjs 3
 chk 'BGM_FIRST_1013' scripts/audit/rec-song-ui.mjs 2
-chk 'lead:4,fade:2.5,intro:-6,duck:0.5' assets/entry-scene.js 1                                    # 멘트 앞 4초 · 2.5초에 걸쳐 잔잔하게 올라와([SOFT_START_1013] · 종전 1.2초) · -6dB · 멘트 0.5초 전부터 낮춤
+chk 'lead:10,fade:6,intro:-6,duck:1.5' assets/entry-scene.js 1                                     # [ENTRY_BGM_1019] 멘트 앞 10초 · 장면 첫소리 6초에 걸쳐 0 에서 · -6dB · 멘트 1.5초 전부터 낮춤(종전 4 · 2.5 · 0.5 — [SOFT_START_1013] · 그 앞 1.2초)
+nochk 'lead:4,fade:2.5' assets/entry-scene.js                                                      # ★10/13 판(음악 4초 먼저 · 2.5초에 올라옴) — 10/19 사장님 «처음 도입 부분을 좀 더 길게» · 되살리지 말 것
 chk 'H=pickHook(H,opts&&opts.hooks,V);' assets/entry-scene.js 1                                    # 멘트가 길면 뒤 자리
 chk 'hooks: Array.isArray(S.mu.hooks) ? S.mu.hooks : null' console.html 1                          # 당일 콘솔도 같은 후보
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-first.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" != 0 ]; then echo 'FAIL bgm-first: 멘트 앞 음악이 들리는가 · 멘트가 길면 뒤 자리에 문 열림(엔진) — node scripts/audit/bgm-first.mjs'; fail=1; else echo 'ok bgm-first: 엔진 — 음악이 먼저 · 뒤 자리'; fi; fi
@@ -18957,7 +18958,8 @@ chk 'ENTRY_CALL_PAUSE_1013' console.html 3
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-call-pause.mjs 1
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-music.mjs 2
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-scene-day.mjs 2
-chk 'after:20,call:1.8}' assets/entry-scene.js 1                                                   # 장면 «입장!» 앞 쉼 1.8초(SP.call · 10/13 사장님)
+chk 'after:60,call:1.8}' assets/entry-scene.js 1                                                   # 장면 «입장!» 앞 쉼 1.8초(SP.call · 10/13 사장님) · 문 열린 뒤 60초 + 잦아듦 4초 = «도착» 64초([ENTRY_BGM_1019] · 종전 20초)
+nochk 'after:20,call' assets/entry-scene.js                                                        # ★문 열린 뒤 24초에 끝나던 판 — 10/19 사장님 «도착까지 행진 이후 1분 이상» · 되살리지 말 것
 chk 'var vv=ES.voiceStart(a,V0,vg,t0,PL.tv,from);' assets/entry-music.js 1                         # 식순 화면 — 목소리는 엔진이 끊어 건다
 chk 'var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);' console.html 1                              # 당일 콘솔 — 같은 자리에서 끊는다
 nochk 'vs.start(t0 + PL.tv, V0.pieces.length ? V0.pieces\[0\].a : 0, PL.V);' console.html          # ★대사를 한 줄로 이어 틀면 쉼이 녹음 그대로(0.7초) — 되살리지 말 것
@@ -18985,7 +18987,7 @@ nochk '(예시 기준 약 8~25분)' contract/v1-1.html
 chk 'REC_LY_BI_1013' automation/platform/80_production.gs 2
 chk 'REC_LY_BI_1013' deploy-marks.json 1
 chk 'REC_LY_BI_1013' scripts/audit/rec-song-server.mjs 2
-chk "  'songs.json': '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257'" automation/platform/80_production.gs 1   # [LY_REALIGN_1014] 줄 시각을 다시 맞춘 판의 지문(문서 저장소 files/songs.json 과 같다)
+chk "  'songs.json': 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5'" automation/platform/80_production.gs 1   # [ENTRY_BGM_1019] 짧은 판 자리(p0 · p1)를 다시 자른 목록의 지문(문서 저장소 files/songs.json 과 같다 · 가사 줄 시각은 [LY_REALIGN_1014] 그대로)
 chk "return { ok: true, key: 'rec', name: name, same: true, h: h };" automation/platform/80_production.gs 1                         # 답에 지문 — 보내는 쪽이 새 판인지 가린다
 chk "return { ok: true, key: 'rec', name: name, need: true, h: h };" automation/platform/80_production.gs 1
 chk "return { ok: true, key: 'rec', name: name, put: true, size: by.length, h: h };" automation/platform/80_production.gs 1
@@ -18997,6 +18999,7 @@ chk 'LY_REALIGN_1014' automation/platform/80_production.gs 2
 chk 'LY_REALIGN_1014' deploy-marks.json 1
 chk 'LY_REALIGN_1014' scripts/audit/rec-song-server.mjs 1
 nochk "'songs.json': '5cb9bee1988cb3b993095dc911d88b6bc04d10d4712d656b793b44ac244e6997'" automation/platform/80_production.gs     # ★줄 시각이 어긋난 옛 목록(r6 2절이 11초 일찍 뜨던 판) — 되살리지 말 것
+nochk "'songs.json': '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257'" automation/platform/80_production.gs     # ★짧은 판이 음악 4초 먼저 · 문 열린 뒤 24초만 담던 목록([ENTRY_BGM_1019] 앞) — 되살리지 말 것
 # ── 2026-10-14 r6 영문 줄 가리기 [LY_ORIG_TEXT_1014] — 사장님 «이 노래 가사랑 전혀 안 맞아»(Welcome to the Show) 뒤 줄 시각을 실제 노래에 다시 맞추자
 #   «영문으로 부르는 줄의 시각» 표(52.12 · 55.76 …)가 한 줄도 안 맞게 됐다 — 영문 글 머리(«If so» · «Whoa»)로 가린다 · 옛 목록 · 새 목록 둘 다 맞다
 chk 'LY_ORIG_TEXT_1014' assets/entry-music.js 1
@@ -19025,6 +19028,34 @@ nochk 'lyFirst(L,+p.H-off)' assets/entry-music.js                               
 nochk 'g.gain.linearRampToValueAtTime(lv,t0+0.5)' assets/entry-music.js                                         # ★미리 듣기 첫소리 0.5초 직선(종전) — 2.5초 u² 로 바뀌었다
 nochk 't0=a.currentTime+0.08, x0=' assets/entry-music.js                                                        # ★누르자마자(0.08초) 걸던 옛 시작 — 앞이 씹혔다
 nochk 'var t0=a.currentTime+0.15, R={id:id' assets/entry-music.js
+# ── 2026-10-19 입장 BGM 도입 10초 · 0 에서 · 멘트 앞 낮춤 · 도착 1분 넘게 [ENTRY_BGM_1019] — BGM 섹션 설계 명세 1
+#   사장님 «처음도입부분을 좀더 길게 늘리고 서서히 0에서 볼륨을 높였다가 멘트 직전에 낮출것이고 모든 bgm전부(입장)» · «도착 까지 시간을 좀더 늘릴거야 행진이후 1분이상»
+#   엔진 한 곳(entry-scene.js · 식순 화면 = 당일 콘솔): lead 10 · 장면 첫소리 fade 6(카드 ▶ 미리 듣기는 PREV_FADE 2.5 그대로 — 값을 나눴다) · duck 1.5 · after 60(«도착» 64초 · 콘솔은 1e5 그대로)
+#   그래프 첫머리 = 0(다듬기 뒤에 첫 페이드를 실제 크기로 · smoothTo 가 들어 올리지 않게) · 짧은 판 8 = 문서 저장소 make_clips.py 로 다시 자른 판(48 조합 전부 판 안)
+#   ★받은 판 길이가 목록(p1 − p0)과 다르면 그 판을 버리고 곡 전체 [CLIP_LEN_CHECK] — 이름은 그대로라 판 · 목록이 따로 올라가는 사이 옛 목록 + 새 판이 만날 수 있다
+#   entry-bgm(6판 × 8곡 · 실제 녹음) · bgm-first 1 · 7(엔진) · rec-song-ui 15a2 · 15h · 15i · entry-scene-day · entry-music · rec-song-server 9 · 9-1 이 잰다
+chk 'ENTRY_BGM_1019' assets/entry-scene.js 7
+chk 'ENTRY_BGM_1019' assets/entry-music.js 6
+chk 'ENTRY_BGM_1019' console.html 1
+chk 'ENTRY_BGM_1019' scripts/audit/entry-bgm.mjs 1
+chk 'ENTRY_BGM_1019' scripts/audit/bgm-first.mjs 6
+chk 'ENTRY_BGM_1019' scripts/audit/rec-song-ui.mjs 8
+chk 'ENTRY_BGM_1019' scripts/audit/entry-scene-day.mjs 4
+chk 'ENTRY_BGM_1019' scripts/audit/entry-music.mjs 2
+chk 'ENTRY_BGM_1019' scripts/audit/rec-song-server.mjs 4
+chk 'ENTRY_BGM_1019' automation/platform/80_production.gs 3
+chk 'ENTRY_BGM_1019' deploy-marks.json 1
+chk 'PREV_FADE=2.5, FADE_DN=0.4' assets/entry-scene.js 1                                              # 카드 ▶ 미리 듣기 첫소리는 2.5초 그대로(장면만 6초)
+chk 'F=Math.min(ES.PREV_FADE||2.5,' assets/entry-music.js 1                                            # 미리 듣기(카드 ▶ · 올린 곡 ▶ · 자리 ▶)가 장면 값(SP.fade)을 쓰지 않는다
+nochk 'F=Math.min(ES.SP.fade,' assets/entry-music.js                                                   # ★미리 듣기가 장면 값을 따라가면 카드 ▶ 첫소리가 6초로 늘어난다 — 되살리지 말 것
+chk 'fu\[i\]=Math.min(1,(tc-PL.tm)/F)' assets/entry-music.js 1                                         # 그래프 첫 페이드 몫(0 → 1)을 따로 적는다
+chk 'if(G.fu) for(var i4=0;i4<n;i4++)' assets/entry-music.js 1                                         # 다듬은 뒤 첫 페이드를 실제 크기로 — 왼쪽 끝이 0 에서
+chk 'CLIP_LEN_CHECK' assets/entry-music.js 2
+chk 'CLIP_LEN_CHECK' scripts/audit/rec-song-ui.mjs 3
+chk 'var CLIP_TOL=0.5;' assets/entry-music.js 1
+chk 'if(c&&!(Math.abs(buf.duration-(c.end-c.o))<=CLIP_TOL)){ rcDel(c.id); c=null; return dec(k); }' assets/entry-music.js 1
+nochk "'r1p.mp3': '86947b06ea3f\|'r2p.mp3': 'ec55bce0f61a\|'r3p.mp3': 'b9ffffbc33da\|'r4p.mp3': '61c703aa8256\|'r5p.mp3': '405c71904fec\|'r6p.mp3': 'c3bb47509912\|'r8p.mp3': '29a1f2ac38dd\|'r9p.mp3': 'f837950e90bd" automation/platform/80_production.gs   # ★10/13 짧은 판 8(음악 4초 먼저 · 24초) — 표에 되살리면 서버가 옛 판만 받는다
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-bgm.mjs >/dev/null 2>&1; _ebg=$?; if [ "$_ebg" = 1 ]; then echo 'FAIL entry-bgm: 입장 멘트 6판 × 추천 곡 8곡 — 음악 10초 먼저 · 0 에서 · 멘트 앞 낮춤 · 도착 64초 · 짧은 판 안이 깨졌습니다 — node scripts/audit/entry-bgm.mjs'; fail=1; elif [ "$_ebg" = 0 ]; then echo 'ok entry-bgm: 48 조합'; else echo 'skip entry-bgm: 문서 저장소 · 브라우저가 없어 다 재지 못함(엔진 값은 bgm-first 가 잰다)'; fi; fi
 # ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
 #   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
 #   여는 순간: 식전 영상 «끝나면 입장»(화촉을 담으면 영상 뒤가 화촉) · 화촉 «예식의 시작을 알려요»(시작은 1분 전 안내 · 개식이 알린다) 걷기
