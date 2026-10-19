@@ -5229,7 +5229,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1
+chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -7608,8 +7608,8 @@ chk 'PARENTS_ENTRY_OFF' assets/ritual-cue.js 1
 chk 'PARENTS_ENTRY_OFF' assets/ritual-story.js 1
 chk 'PARENTS_ENTRY_OFF' order-preview.html 1
 chk 'PARENTS_ENTRY_OFF' api/_ritual-kb.js 1
-chk 'PARENTS_ENTRY_OFF' scripts/audit/open-course.mjs 3
-chk "\['parents', '양가 부모님 네 분'\]" assets/ritual-open.js 1   # 셋째 칸 = 네 분 점화(10/11 전 그대로)
+chk 'PARENTS_ENTRY_OFF' scripts/audit/open-course.mjs 2   # [CANDLE_FOUR_OFF_1019] 네 분 시험 줄을 «걷힘» 시험으로 바꿔 3 → 2
+# [CANDLE_FOUR_OFF_1019 검토 140] 셋째 칸(네 분)을 걷었다 — 옛 chk 는 REVIEW27_1019 의 nochk 가 대신한다 · 되살리지 말 것
 nochk "\['parents', '양가 부모님 함께 입장'\]" assets/ritual-open.js 0   # 걷은 첫 칸 · 되살리지 말 것
 nochk '함께 들어와 하객께 인사하시면' assets/ritual-open.js 0
 nochk '양가 부모님이 함께 입장 · 하객께 인사' assets/ritual-cue.js 0
@@ -7622,7 +7622,7 @@ chk 'CANDLE_BOW_1012' assets/ritual-open.js 3
 chk 'CANDLE_BOW_1012' assets/ritual-story.js 2
 chk 'CANDLE_BOW_1012' order-preview.html 1
 chk 'CANDLE_BOW_1012' api/_ritual-kb.js 1
-chk 'CANDLE_BOW_1012' scripts/audit/open-course.mjs 4
+chk 'CANDLE_BOW_1012' scripts/audit/open-course.mjs 1   # [CANDLE_FOUR_OFF_1019] 네 분 시험 셋을 걷어 4 → 1
 chk "t: '서는 두 분이 앞으로 나와 초에 불을 밝힘'" assets/ritual-cue.js 1   # ★[CANDLE_CALL_1014] 사람 순간 둘 — 불을 밝힘 → 맺는 말 → 인사 안내(1.25초 사슬) → 인사 · 자리로
 chk "t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝힘'" assets/ritual-cue.js 1
 chk "t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로'" assets/ritual-cue.js 1
@@ -7641,8 +7641,8 @@ chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech' } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } }" assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long' } }" assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none' } }" assets/ritual-open.js 1
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩
+chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, candle: { mothers: 2 }, matjeol: 4 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩
 # ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간 줄이기 제안에서 편지 카드는 남긴다 — 표식이 카드 줄에 붙어 있어 카드를 지우면 빨강
 chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
 chk "letter: { n: '편지 낭독', sn: '편지'," assets/ritual-open.js 1
@@ -8231,7 +8231,7 @@ nochk '담으면 하객이 모두 앉은 뒤' api/_ritual-kb.js
 chk 'MS4_SYNC_R6_1016' docs/plans/식순연구/3단계_원고_1013.md 2   # 원고 4-1 · 4-2 = 엔진 글 · 0-11 라운드 6 표
 # ★★[R7_APPLY_1016 2026-10-16 줄 검토 라운드 7 — 라운드 6 고친 자리 점검 · 블록 머리 설명과 사람 구간 장면(지난 일 되풀이 빼기 · 라운드 2 맞절 처방) · 디렉터 글이 고객 안심 · 담은 순간과 같은 말]
 #   줄마다 근거 = docs research/식순_참고자료/줄검토_라운드7_1016.md · 녹음 줄 바뀜 없음(화면 · 디렉터 글만)
-chk 'CANDLE_SCENE_TRIM_R7_1016' assets/ritual-story.js 2   # 화촉 인사 장면 두 판 — 불을 다 밝히고 인사 안내가 나간 뒤 뜬다
+chk 'CANDLE_SCENE_TRIM_R7_1016' assets/ritual-story.js 1   # 화촉 인사 장면 두 판 — 불을 다 밝히고 인사 안내가 나간 뒤 뜬다   # [CANDLE_FOUR_OFF_1019] 네 분 장면을 걷어 2 → 1
 nochk '불을 다 밝히면 안내 음성에 맞춰' assets/ritual-story.js
 chk 'PV_FX_TRIM_R7_1016' assets/ritual-story.js 1          # 식전 영상 fx — 같은 화면 how «…불을 낮추고 …» 되풀이 뺌
 nochk "fx: '불을 낮추고 영상이 흐르면" assets/ritual-story.js
@@ -17092,7 +17092,7 @@ chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언�
 chk 'keepWhen(rec._언제' scripts/sample-cut.mjs 1   # [WHEN_KEEP_MARKS] sample-cut 도 표식을 남긴다(10/10 두 번째로 지워졌다)
 chk 'PACE_D' scripts/build-typecast-import.mjs 2   # 문장 사이 1.25 · «입장!» 앞 0.6 (사장님 견본 D)
 chk 'man.gap?.inner' scripts/assemble-narration.mjs 1   # [PACE_D] 쉼표 쉼 상한은 문장 사이와 따로 — 되돌리면 «입장!» 안 쉼이 늘어난다
-chk "'십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주시길 바랍니다.'," assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2
+chk "'십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주시길 바랍니다. 가까이서 지켜보실 자리도 마련되어 있습니다.'," assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js
 #   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
@@ -19032,9 +19032,9 @@ nochk 'var t0=a.currentTime+0.15, R={id:id' assets/entry-music.js
 #   축배: 새 코스는 판과 상관없이 40(옛 초안 케이크 + 축배의 76 «잔이 가는 동안»이 닫는 인사 뒤에 나가던 것) · ① 대표 줄도 40
 #   리허설: 별도 예행연습은 없다(_kb.js) — «리허설 때 한 번 같이 읽어 봐요» · «리허설 때 알려 주세요» 걷기
 chk 'OPEN_WORDS_1013' assets/ritual-open.js 6
-chk 'OPEN_WORDS_1013' assets/ritual-story.js 8
+chk 'OPEN_WORDS_1013' assets/ritual-story.js 7   # [CANDLE_FOUR_OFF_1019] 네 분 장면을 걷어 8 → 7
 chk 'OPEN_WORDS_1013' order-preview.html 3
-chk 'OPEN_WORDS_1013' scripts/audit/open-course.mjs 2
+chk 'OPEN_WORDS_1013' scripts/audit/open-course.mjs 1   # [CANDLE_FOUR_OFF_1019] 네 분 부탁 글 시험을 걷어 2 → 1
 chk 'CLOSE_WORDS_1013' assets/ritual-open.js 2
 chk 'CLOSE_WORDS_1013' assets/ritual-story.js 4
 chk 'CLOSE_WORDS_1013' assets/ritual-cue.js 1
@@ -19133,10 +19133,10 @@ nochk '떨리는 신랑 신부를 위하여' assets/ritual-ref.js
 #   덕담 차례 줄 = 한 분 1분쯤 · 축사 준비 = «축사 원고 · …» · 미리 듣기 이음말 = 읽어 주시는 분을 높이고 축가에도
 chk 'LINE_R1_1014' order-preview.html 3
 chk 'LINE_R1_1014' assets/ritual-open.js 3
-chk 'LINE_R1_1014' assets/ritual-story.js 6
+chk 'LINE_R1_1014' assets/ritual-story.js 5   # [CANDLE_FOUR_OFF_1019] 네 분 장면을 걷어 6 → 5
 chk 'LINE_R1_1014' scripts/audit/open-course.mjs 2
 chk 'LINE_R1_1014' scripts/audit/ghi-polish.mjs 1
-chk '"십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다."' assets/ritual-data.js 1   # ★[AI_FIRST_PERSON_1018] 두 분 판은 1인칭   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다. 오늘의 순간은 자연스러운…»
+chk '"십 분 뒤 본식을 시작하겠습니다. 오늘 하루는 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다. ' assets/ritual-data.js 1   # ★[AI_FIRST_PERSON_1018] 두 분 판은 1인칭   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다. 오늘의 순간은 자연스러운…»   # [GUEST_FLESH_1019] 셋째 문장을 붙였다
 chk '"시작 오 분 전입니다. ' assets/ritual-data.js 2   # [GUEST_FLESH_1019] 둘째 문장(입장 준비)을 붙였다 · 첫 문장은 그대로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식까지 오 분 남았습니다.…»
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' assets/ritual-data.js
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' order-preview.html 1   # 남는 한 줄 = EX_OLD_1006(옛 글)
