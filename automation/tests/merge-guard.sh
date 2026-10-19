@@ -15213,6 +15213,16 @@ chk 'RAIL_IGNORE_1019' scripts/audit/turn-gap.mjs 1   # 쉼 점 줄도 폰은 �
 chk 'CHIP_GRID_PC_1019' order-preview.html 7
 chk 'CHIP_GRID_PC_1019' scripts/audit/chip-full.mjs 2
 chk 'function _cgPlan(c){' order-preview.html 1
+# ★[LINK_ONE_LINE_1019 2026-10-19 사장님 «배치가 좀 이상한데 버튼 옆에 개선해 줘» → «2줄은 좀 이상한데 문구를 줄여서 한 줄로»] PC 칩 격자에서 «확정 안내 · 나레이션 자세히»는 고를 것 둘이 남긴 두 칸에 한 줄로.
+#   «확정 안내 보기»(203px)가 두 칸(181px)에 못 들어 칩 아래 제 줄로 떠 있던 것 → 이름을 «확정 안내»로 줄였다(약 172px) · 두 줄 세우기(cg-lkst)는 사장님이 «이상하다»로 걷었다 — 되살리지 말 것.
+chk 'LINK_ONE_LINE_1019' order-preview.html 3
+nochk '>확정 안내 보기</button>' order-preview.html
+nochk 'cg-lkst' order-preview.html
+chk 'LINK_ONE_LINE_1019' scripts/audit/chip-full.mjs 2
+# ★[MU_REDRAW_EVEN_1019 2026-10-19 사장님 «추천 곡 누르면 버튼이 작아지는 현상»] 입장 음악 줄을 새로 끼우면(rowRedraw) 그 자리에서 칸 맞춤(_cgEven) — 빠지면 1280 에서 181 → 114 · 68px 로 줄었다가 다음 그리기 때 돌아온다
+chk 'MU_REDRAW_EVEN_1019' assets/entry-music.js 1
+chk "try{ if(typeof _cgEven==='function') _cgEven(); }catch(x){}" assets/entry-music.js 1
+chk 'MU_REDRAW_EVEN_1019' scripts/audit/chip-full.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/rail-ignore.mjs >/dev/null 2>&1; _rig=$?; if [ "$_rig" = 1 ]; then echo 'FAIL rail-ignore: 식순 화면이 오른쪽 레일(말풍선) 자리를 비웁니다 — node scripts/audit/rail-ignore.mjs'; fail=1; else echo 'OK   rail-ignore [RAIL_IGNORE_1019]'; fi; fi
 # ★[REVIEW24_1019 2026-10-19 대본 섹션 검토 132 · 132 덧 2] 여섯째 · 넷째 예시(개식 OO · 맞절 EE B-1 · 부모님께 인사 PP 22 · 감사문 PP 14) · 식전 영상 소개 129 · 130 자료 글 · 소개 넷 우성 · 영상 뒤 받는 말 261 · 고르기 쪽 예시 카드 말풍선 자리
 chk 'REVIEW24_1019' assets/ritual-open.js 7
@@ -16867,7 +16877,7 @@ nochk 'spellcheck="true"' order-preview.html
 # ★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 · 처음 하객 맞이만 펼치고 이후는 접기» → «추천대로»] 확정 안내 네 줄(목소리 → 예시 → 확정 → 그대로·풀기) · 첫 AI 순간만 펼침
 chk 'KEEP_ORDER' order-preview.html 2
 chk '<li>두 분 목소리를 만들면 아래 글이 그 목소리로 채워져요</li>' order-preview.html 1
-chk '확정 안내 보기' order-preview.html 1
+chk '>확정 안내</button>' order-preview.html 2   # [LINK_ONE_LINE_1019] 이름 «확정 안내»(종전 «확정 안내 보기» · 10/19 줄였다)
 nochk '<li>다시 고치고 싶으면 확정됨을 한 번 더 눌러 풀어요</li>' order-preview.html
 chk 'KEEP_ORDER' scripts/audit/keep-order.mjs 1
 # ★[KEEP_DLG 2026-10-07 사장님 «확정 안내 보기 누르면 다시 녹음 창처럼 · 상황에 맞게» → «추천대로»] 펼치지 않고 작은 창(세 걸음 + 그림 두 줄 · 첫 줄 = 지금 순간)

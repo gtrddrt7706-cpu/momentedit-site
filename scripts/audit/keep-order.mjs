@@ -1,6 +1,6 @@
 // ★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 시작 · 처음 하객 맞이 부분만 펼쳐 있고 그 이후는 접힌 상태» → «추천대로»] 확정 안내(390 · 1280)
-//   ①[TIP_FLY 2026-10-07] 펼친 네 줄 없음 · 칩 줄 «확정 안내 보기» ②입장 인사도 칩 줄(나레이션 자세히 왼쪽)
-//   ③누르면 작은 창(KEEP_DLG) ④만든 줄이 없어도 AI 를 고르면 «확정 안내 보기»
+//   ①[TIP_FLY 2026-10-07] 펼친 네 줄 없음 · 칩 줄 «확정 안내»(10/19 전 «확정 안내 보기» · LINK_ONE_LINE_1019) ②입장 인사도 칩 줄(나레이션 자세히 왼쪽)
+//   ③누르면 작은 창(KEEP_DLG) ④만든 줄이 없어도 AI 를 고르면 «확정 안내»
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -25,13 +25,13 @@ try {
     await pg.evaluate(() => { S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.up = S.up || {}; ['g0', 'g1', 'g2', 'g3', 'entry', 'pv'].forEach((k) => { S.up[k] = { src: 'ai', by: 'groom', name: 'x.mp3' }; }); S.vkeep = {}; });
     await wait(300); await pg.evaluate(() => mkGo('guest')); await wait(600);
     const a = await pg.evaluate(() => ({ inline: !!document.querySelector('.mk-keepl'), link: !!document.querySelector('.mk-pick [data-fk="mkkeept:guest"]') }));
-    /* ★[TIP_FLY 2026-10-07] 첫 순간에 펼쳐 두던 네 줄은 걷었다 — 처음 칩을 누를 때 한 번 창으로 보여 주고 «확정 안내 보기»로 접혀 들어간다(tip-fly 검사) */
-    ok(`${w} ① 하객 맞이도 펼친 네 줄 없음 · 칩 줄에 «확정 안내 보기» [TIP_FLY]`, !a.inline && a.link, JSON.stringify(a));
+    /* ★[TIP_FLY 2026-10-07] 첫 순간에 펼쳐 두던 네 줄은 걷었다 — 처음 칩을 누를 때 한 번 창으로 보여 주고 «확정 안내»로 접혀 들어간다(tip-fly 검사) */
+    ok(`${w} ① 하객 맞이도 펼친 네 줄 없음 · 칩 줄에 «확정 안내» [TIP_FLY]`, !a.inline && a.link, JSON.stringify(a));
     await pg.evaluate(() => mkGo('entry')); await wait(600);
     const b = await look(pg);
     /* ★[KEEP_IN_ROW 2026-10-06 사장님 «확정 안내 보기도 나레이션 자세히 좌측으로»] 접힌 단추는 칩 줄(나레이션 자세히 왼쪽) — 두 가로선 사이 따로 뜬 줄 없음 */
     const br2 = await pg.evaluate(() => { const t = document.querySelector('.mk-pick .cg-links [data-fk="mkkeept:entry"]'), v = t && t.nextElementSibling; return { inRow: !!t, t: t && t.textContent, next: v && v.getAttribute('data-fk'), alone: !!document.querySelector('.mk-keepg.shut') }; });
-    ok(`${w} ② 입장 인사 = 접힘 · «확정 안내 보기»는 칩 줄 «나레이션 자세히» 왼쪽 · 따로 뜬 줄 없음 [KEEP_IN_ROW]`, b.none && br2.inRow && br2.t === '확정 안내 보기' && br2.next === 'mkvsopen' && !br2.alone, JSON.stringify({ b, br2 }));
+    ok(`${w} ② 입장 인사 = 접힘 · «확정 안내»는 칩 줄 «나레이션 자세히» 왼쪽 · 따로 뜬 줄 없음 [KEEP_IN_ROW · LINK_ONE_LINE_1019]`, b.none && br2.inRow && br2.t === '확정 안내' && br2.next === 'mkvsopen' && !br2.alone, JSON.stringify({ b, br2 }));
     if (SHOT) { await pg.evaluate(() => document.querySelector('[data-fk="mkkeept:entry"]').scrollIntoView({ block: 'center' })); await pg.screenshot({ path: `${SHOT}-e-${w}.png` }); }
     /* ★[KEEP_DLG 2026-10-07 사장님 «다시 녹음 창처럼» → «추천대로»] 누르면 펼치지 않고 작은 창 — 세 걸음 · 그림 두 줄(첫 줄 = 지금 순간) · 알겠어요로 닫으면 연 단추로 */
     const y0 = await pg.evaluate(() => document.querySelector('[data-fk="mkkeept:entry"]').getBoundingClientRect().top);
@@ -44,10 +44,10 @@ try {
     if (SHOT) await pg.screenshot({ path: `${SHOT}-dlg-${w}.png` });
     await pg.click('[data-fk="mkkeepok"]'); await wait(300);
     const c2 = await pg.evaluate(() => ({ dlg: !!document.getElementById('mkRecDlg'), f: (document.activeElement || {}).getAttribute && document.activeElement.getAttribute('data-fk'), y: document.querySelector('[data-fk="mkkeept:entry"]').getBoundingClientRect().top, open: !!document.querySelector('.mk-keepg .mk-keepl') }));
-    ok(`${w} ③-2 알겠어요 → 창 닫힘 · 초점은 «확정 안내 보기» · 아래로 펼치지 않음(자리 그대로)`, !c2.dlg && c2.f === 'mkkeept:entry' && !c2.open && Math.abs(c2.y - y0) < 2, JSON.stringify({ c2, y0 }));
+    ok(`${w} ③-2 알겠어요 → 창 닫힘 · 초점은 «확정 안내» · 아래로 펼치지 않음(자리 그대로)`, !c2.dlg && c2.f === 'mkkeept:entry' && !c2.open && Math.abs(c2.y - y0) < 2, JSON.stringify({ c2, y0 }));
     await pg.evaluate(() => { S.up = {}; render(); }); await wait(300);
     const d = await pg.evaluate(() => !!document.querySelector('.mk-pick [data-fk="mkkeept:entry"]'));
-    ok(`${w} ④ 만든 줄이 아직 없어도 AI 를 고르면 «확정 안내 보기»가 있다(처음 창이 들어갈 자리) [TIP_FLY]`, d, String(d));
+    ok(`${w} ④ 만든 줄이 아직 없어도 AI 를 고르면 «확정 안내»가 있다(처음 창이 들어갈 자리) [TIP_FLY]`, d, String(d));
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
   }

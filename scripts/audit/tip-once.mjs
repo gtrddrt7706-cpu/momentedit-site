@@ -1,5 +1,5 @@
 // ★[TIP_ONCE 2026-10-07 사장님 «모션그래픽 부분만 없애고 팝업은 AI 두 분 목소리 누르면 나오게»] (390 · 1280)
-//   ①AI 두 분 목소리를 처음 누르면 «확정하면 이렇게 돼요» 창 ②알겠어요 → 그냥 닫힘(움직임 · 빛남 없음) · 본 것 기억 · «확정 안내 보기» 링크가 있다
+//   ①AI 두 분 목소리를 처음 누르면 «확정하면 이렇게 돼요» 창 ②알겠어요 → 그냥 닫힘(움직임 · 빛남 없음) · 본 것 기억 · «확정 안내» 링크가 있다
 //   ③스튜디오 나레이션을 눌러도 창이 안 뜬다 ④AI 를 다시 눌러도 안 뜬다 ⑤코드가 값을 바꿀 때는 안 뜬다 ⑥첫 AI 순간에 네 줄을 펼쳐 두지 않는다
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -24,7 +24,7 @@ try {
     await pg.click('[data-fk="lsc:guestVoice:ai"]'); await wait(400);
     const a = await st(pg); ok(`${w} ① AI 두 분 목소리 처음 → «확정하면 이렇게 돼요» 창`, a.t === '확정하면 이렇게 돼요' && a.dlg, JSON.stringify(a));
     await pg.click('[data-fk="mkkeepok"]'); await wait(80);
-    const b = await st(pg); ok(`${w} ② 알겠어요 → 바로 닫힘 · 움직임 · 빛남 없음 · 본 것 기억 · «확정 안내 보기» 있음`, !b.dlg && !b.anim && !b.glow && b.link && /"keep":1/.test(b.seen), JSON.stringify(b));
+    const b = await st(pg); ok(`${w} ② 알겠어요 → 바로 닫힘 · 움직임 · 빛남 없음 · 본 것 기억 · «확정 안내» 있음`, !b.dlg && !b.anim && !b.glow && b.link && /"keep":1/.test(b.seen), JSON.stringify(b));
     ok(`${w} ⑥ 첫 AI 순간에 네 줄을 펼쳐 두지 않는다`, b.open === 0, JSON.stringify(b));
     await pg.click('[data-fk="lsc:guestVoice:nar"]'); await wait(400);
     const c = await st(pg); ok(`${w} ③ 스튜디오 나레이션은 창이 안 뜬다`, !c.dlg, JSON.stringify(c));

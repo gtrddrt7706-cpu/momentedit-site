@@ -115,7 +115,7 @@ for (const w of [390, 1280]) {
     /* ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460)은 질문 줄 오른쪽 · PC 는 칩 줄 오른쪽 그대로 */
     if (w <= 460) ok(`${w} [VS_LINK_TOP] 폰 — «나레이션 자세히»는 질문 줄(어떻게 준비할까요) 오른쪽 · 글씨 12.5px(질문 14px · VP_ROW_A) · 글자 아래 선 맞춤 · 칩보다 위`, vp.every((k) => rows[k].top && rows[k].top.fs && Math.abs(rows[k].top.dB) <= 1 && rows[k].top.above), vp.map((k) => k + ':' + JSON.stringify(rows[k].top)).join(' '));
     /* ★[CHIP_GRID_PC_1019 2026-10-19 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게»] PC 칩이 6칸 격자가 된 뒤 — 링크 묶음은 줄 오른쪽 끝 · 남는 칸에 들면 같은 줄(링크 하나 · chip-full 이 잰다) ·
-       «확정 안내 보기 · 나레이션 자세히» 둘(197px)이 남는 두 칸(182px)에 안 들면 칩 아래 제 줄 오른쪽 끝 · 어느 쪽이든 칩과 안 겹친다 */
+       «확정 안내 · 나레이션 자세히» 둘(약 172px · 10/19 «확정 안내 보기»를 줄였다 [LINK_ONE_LINE_1019])은 남는 두 칸(181px)에 든다 · 안 들면 칩 아래 제 줄 오른쪽 끝 · 어느 쪽이든 칩과 안 겹친다 */
     else ok(`${w} [VS_LINK_TOP · CHIP_GRID_PC_1019] PC — 링크 묶음은 칩 줄 오른쪽 끝(남는 칸에 안 들면 칩 아래 제 줄) · 칩과 안 겹친다`, vp.every((k) => rows[k].top && rows[k].top.endR && rows[k].top.clear), vp.map((k) => k + ':' + JSON.stringify(rows[k].top)).join(' '));
     ok(`${w} [MK_NO_DROP_LINK] 순간 쪽에 «이 순간 빼기» 없음(빼기는 예식 흐름 ✓/＋)`, ks.every((k) => !rows[k].drop), ks.filter((k) => rows[k].drop).join(','));
     ok(`${w} [NOTE_OFF_1003] 칩 아래 AI 설명(«각자 1분쯤 …» · «말투는 …») · 입장 «멘트를 바꾸면 …» 없음`, ks.every((k) => !rows[k].aiNote), ks.filter((k) => rows[k].aiNote).join(','));

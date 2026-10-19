@@ -246,7 +246,9 @@
   function srcNow(){ if(SRC==='up'||SRC==='rec') return SRC; var mu=St().mu; if(mu&&(mu.src==='up'||mu.src==='rec')) return mu.src; return St().muUp?'up':null; }   /* 칩을 누른 적이 없으면 고른 곡 쪽(없으면 둘 다 안 눌림 · BOSS_WAY 1) */
   function srcChip(t,v,src){ var on=src===v; return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!src&&v==='up'))?0:-1)+'" data-fk="musrc:'+v+'" onclick="emAct(\'src\',\''+v+'\')"><span class="cg-t" data-t="'+t+'">'+t+'</span></button>'; }
   function boxHtml(){ var src=srcNow(); return src==='up'?card():src==='rec'?recHtml():''; }
-  function rowRedraw(){ var row=D.querySelector('.ls-mu'); if(!row){ renderAll(); return; } var oc=row.querySelector('.mu-car'), t=D.createElement('div'); t.innerHTML=rowHtml(); var nw=t.firstChild; row.parentNode.replaceChild(nw,row); carKeep(oc); sceneSync(); }
+  function rowRedraw(){ var row=D.querySelector('.ls-mu'); if(!row){ renderAll(); return; } var oc=row.querySelector('.mu-car'), t=D.createElement('div'); t.innerHTML=rowHtml(); var nw=t.firstChild; row.parentNode.replaceChild(nw,row);
+    try{ if(typeof _cgEven==='function') _cgEven(); }catch(x){}   /* ★[MU_REDRAW_EVEN_1019 2026-10-19 사장님 «추천 곡 누르면 버튼이 작아지는 현상»] 새로 끼운 칩 줄은 칸 맞춤(cg-grid · --cgs)이 없어 글자 폭(1280 · 181 → 114 · 68px)으로 줄었다가 다음 그리기 때 돌아왔다 — 끼운 그 자리에서 맞춘다(쪽 전체 · 격자 여부는 쪽의 모든 칩 줄로 정한다) */
+    carKeep(oc); sceneSync(); }
   function srcSet(v){ if((v!=='up'&&v!=='rec')||srcNow()===v) return; hush(); SRC=v;   /* 칩을 바꾸면 듣던 미리 듣기는 멈춘다(단추가 사라진 채 소리만 남지 않게) */
     if(v==='up'&&!UPS&&!upRec()){ guideOpen(); return; }   /* [UP_GUIDE_CHIP] 아직 올린 곡이 없으면 칩을 누를 때마다 안내 창(빌더가 다시 그리며 칩도 함께) */
     rowRedraw(); var sc=D.querySelector('.ls-mu [data-fk="musrc:'+v+'"]'); if(sc) try{ sc.focus({preventScroll:true}); }catch(x){} }

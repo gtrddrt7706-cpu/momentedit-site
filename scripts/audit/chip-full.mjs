@@ -63,6 +63,18 @@ for (const PW of [1280, 768]) {
     const bad = r.filter((x) => PW >= 1000 ? (!x.grid || x.nl !== 1 || !x.same || !x.onGrid || !x.fitW || (x.n >= 4 ? x.cells !== 1 : x.cells < 2) || x.lkSame === false) : (!x.even || x.lone || !x.same));
     ok(PW >= 1000 ? `${PW} ${k} — PC 칩 줄 6칸 격자(한 줄 · 같은 크기 · 칸 선 맞춤 · 고를 것 두 칸 · 멘트 한 칸 · 링크 같은 줄 끝) [CHIP_GRID_PC_1019]` : `${PW} ${k} — 좁은 태블릿 칩 줄 같은 폭 칸(혼자 남는 칩 없음) [CHIP_GRID_PC_1019]`, r.length > 0 && !bad.length, JSON.stringify(bad.length ? bad : r).slice(0, 600));
   }
+  if (PW >= 1000) {   /* ★[LINK_ONE_LINE_1019 · MU_REDRAW_EVEN_1019 2026-10-19 사장님 «버튼 옆에 · 2줄은 이상 · 문구를 줄여 한 줄로» · «추천 곡 누르면 버튼이 작아지는 현상»] AI 를 고른 판(링크가 둘)도 잰다 — 위 쪽마다 검사는 스튜디오 나레이션 판(링크 하나)만 봤다 */
+    await p2.evaluate(async () => { mkGo('entry'); await new Promise((r) => setTimeout(r, 600)); window.scrollTo(0, 0); });
+    const aiB = await p2.evaluateHandle(() => [...document.querySelectorAll('.ls-cg .cg-c>button')].find((x) => x.offsetParent && x.textContent.trim() === 'AI 두 분 목소리') || null);
+    if (aiB.asElement()) { await aiB.asElement().click(); await p2.waitForTimeout(600); if (await p2.isVisible('[data-fk="mkkeepok"]')) { await p2.click('[data-fk="mkkeepok"]'); await p2.waitForTimeout(300); } }
+    const lk = await p2.evaluate(() => { const c = [...document.querySelectorAll('.ls-cg .cg-c')].find((x) => x.offsetParent && x.querySelector(':scope>.cg-links')); if (!c) return null; const cr = c.getBoundingClientRect(), bs = [...c.children].filter((x) => x.tagName === 'BUTTON' && x.offsetParent).map((x) => x.getBoundingClientRect());
+      const ls = [...c.querySelector(':scope>.cg-links').children].filter((a) => a.offsetParent).map((a) => { const q = a.getBoundingClientRect(); return { t: a.textContent.trim(), top: Math.round(q.top - bs[0].top), b: Math.round(q.bottom - bs[0].bottom) }; });
+      return { n: ls.length, ls, one: ls.every((q) => Math.abs(q.top) <= 2 && Math.abs(q.b) <= 2), rowH: Math.round(cr.height), chipH: Math.round(bs[0].height), endR: Math.abs(c.querySelector(':scope>.cg-links').getBoundingClientRect().right - cr.right) <= 2, kt: ls.some((q) => q.t === '확정 안내') }; });
+    ok(`${PW} entry · AI 고른 판 — «확정 안내 · 나레이션 자세히» 둘이 칩과 같은 줄 · 한 줄 · 오른쪽 끝(제 줄 · 두 줄로 내려가지 않는다) [LINK_ONE_LINE_1019]`, !!lk && lk.n === 2 && lk.kt && lk.one && lk.rowH === lk.chipH && lk.endR, JSON.stringify(lk));
+    const mu = await p2.evaluate(() => { const c0 = document.querySelector('.ls-mu .cg-c.mu-src'); if (!c0) return null; const w = (c) => [...c.querySelectorAll(':scope>button')].map((b) => Math.round(b.getBoundingClientRect().width)).join('/');
+      const before = w(c0), b = [...c0.querySelectorAll(':scope>button')].find((x) => x.textContent.trim() === '추천 곡'); if (!b) return { before }; b.click(); const c1 = document.querySelector('.ls-mu .cg-c.mu-src'); return { before, at0: w(c1), replaced: c1 !== c0, grid: c1.classList.contains('cg-grid') }; });
+    ok(`${PW} entry · «추천 곡»을 누른 그 순간에도 칩 크기 그대로(줄을 새로 끼우면 그 자리에서 칸 맞춤) [MU_REDRAW_EVEN_1019]`, !!mu && !!mu.at0 && mu.before === mu.at0 && mu.grid, JSON.stringify(mu));
+  }
   ok(`${PW} 화면 오류 없음`, !e2.length, e2.slice(0, 2).join(' | ')); await p2.close();
 }
 await br.close(); srv.close();

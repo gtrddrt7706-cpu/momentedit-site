@@ -83,7 +83,7 @@ for (const W of [390, 1280]) {
   ok(`${W} 화면 오류 없음`, !errs.length, errs.slice(0, 2).join(' | '));
   await ctx.close();
 }
-/* ★[VP_ROW_A] 링크가 둘(«확정 안내 보기» · «나레이션 자세히»)일 때 — 320 은 12.5px 둘이 질문 끝에 7px 겹쳤다(실렌더) · 360 아래 폰은 11px · 사이 12 ·
+/* ★[VP_ROW_A] 링크가 둘(«확정 안내»(10/19 전 «확정 안내 보기») · «나레이션 자세히»)일 때 — 320 은 12.5px 둘이 질문 끝에 7px 겹쳤다(실렌더) · 360 아래 폰은 11px · 사이 12 ·
    그래도 질문 글자와 12px 안이면(폴드 바깥 화면 280 · 대체 글꼴) 칩 아래 제 줄 오른쪽(cg-lkdn) — 어느 쪽이든 겹치지 않는다 */
 for (const W of [280, 320, 390]) {
   const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: true }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
