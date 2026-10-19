@@ -15697,9 +15697,9 @@ nochk "'narr-photo-send': '사진은, 받으신 안내 페이지에서" assets/r
 chk 'GUEST_FLESH_1019' assets/ritual-data.js 1
 chk 'GUEST_FLESH_1019' order-preview.html 2
 chk 'GUEST_FLESH_1019' assets/ritual-open.js 2
-chk 'PV_OUT_TRUST_1019' assets/ritual-open.js 1
-nochk '전해졌으리라 생각합니다' assets/ritual-open.js
-chk 'PV_ORDER_1019' assets/ritual-open.js 1
+chk 'PV_REC_KEEP_1019' assets/ritual-open.js 2   # 137 덧 — 261 · 129 는 #1307 녹음 글 그대로
+nochk '전해졌으리라 믿습니다' assets/ritual-open.js
+nochk '"영상 함께 감상하시겠습니다. 한 장면씩' assets/ritual-open.js
 chk 'EX_CHIP_DEF_1019' assets/ritual-open.js 3
 if node scripts/audit/console-inject.mjs >/dev/null 2>&1; then echo "ok scripts/audit/console-inject.mjs [CONSOLE_INJECT_1019]"; else echo "REVERT? scripts/audit/console-inject.mjs 빨강 — 당일 콘솔 · 미리듣기 값(식사 · 사진 · 하객 안내 · 온라인)"; fail=1; fi
 
