@@ -19069,6 +19069,20 @@ chk 'var CLIP_TOL=0.5;' assets/entry-music.js 1
 chk 'if(c&&!(Math.abs(buf.duration-(c.end-c.o))<=CLIP_TOL)){ rcDel(c.id); c=null; return dec(k); }' assets/entry-music.js 1
 nochk "'r1p.mp3': '86947b06ea3f\|'r2p.mp3': 'ec55bce0f61a\|'r3p.mp3': 'b9ffffbc33da\|'r4p.mp3': '61c703aa8256\|'r5p.mp3': '405c71904fec\|'r6p.mp3': 'c3bb47509912\|'r8p.mp3': '29a1f2ac38dd\|'r9p.mp3': 'f837950e90bd" automation/platform/80_production.gs   # ★10/13 짧은 판 8(음악 4초 먼저 · 24초) — 표에 되살리면 서버가 옛 판만 받는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-bgm.mjs >/dev/null 2>&1; _ebg=$?; if [ "$_ebg" = 1 ]; then echo 'FAIL entry-bgm: 입장 멘트 6판 × 추천 곡 8곡 — 음악 10초 먼저 · 0 에서 · 멘트 앞 낮춤 · 도착 64초 · 짧은 판 안이 깨졌습니다 — node scripts/audit/entry-bgm.mjs'; fail=1; elif [ "$_ebg" = 0 ]; then echo 'ok entry-bgm: 48 조합'; else echo 'skip entry-bgm: 문서 저장소 · 브라우저가 없어 다 재지 못함(엔진 값은 bgm-first 가 잰다)'; fi; fi
+# ── 2026-10-19 올린 곡 «추천» 자리 = 지금 입장 목소리 길이로 [UP_REC_V_1019] — BGM 섹션 명세 2(코드 제안 받아들임) · 사장님 «모든 bgm전부(입장)»
+#   추천 = 문 열림 t ≥ V + 숨 0.3 + 음악 먼저 10 이고 걷는 동안 이어지는(뒤 ≥ UP_WALK) 첫 후보(찾기 점수 순) → t ≥ 그 값 중 뒤가 가장 긴 것 → 지금 규칙(UP_PRE · UP_WALK)
+#   V = 장면 plan 의 V · 목소리를 못 풀었으면 지금 규칙 · 풀리면 «추천 ·» 표시만 다시(고른 자리 · 직접 적은 자리는 그대로) · 올리자마자 고르는 첫 자리만 새 추천(목소리를 함께 풀어 길어야 4초 기다림)
+#   올린 곡 문 열림은 엔진이 다른 후보로 옮기지 않는다(hooksOf 는 추천 곡만) · up-rec-v 가 잰다(시험 곡 30 · 50 · 80 × 멘트 A · B · E · 옛 판으로 돌리면 빨강 12)
+chk 'UP_REC_V_1019' assets/entry-music.js 8
+chk 'UP_REC_V_1019' scripts/audit/up-rec-v.mjs 1
+chk 'function upRecOf(L,need){' assets/entry-music.js 1
+chk 'if(need!=null&&isFinite(need)){ L.forEach(function(c){ if(!rec&&c.t>=need&&c.after>=UP_WALK) rec=c; });' assets/entry-music.js 1
+chk 'return ES.plan(V0,{dur:1e5,gain:1},5e4).V+ES.SP.breath+ES.SP.lead; }' assets/entry-music.js 1      # V 는 장면과 같은 값 · 음악 먼저 10초 · 숨 0.3초
+chk 'L=upCands(Sg,upNeed())' assets/entry-music.js 1                                                     # 올리자마자 고르는 첫 자리
+chk 'upMark(c0);' assets/entry-music.js 1                                                                # 그릴 때 «추천 ·» 표시만
+chk 'function hooksOf(u){ if(!u||!u.rec) return null;' assets/entry-music.js 1                            # 올린 곡 문 열림은 엔진이 옮기지 않는다
+nochk 'function upCands(Sg){' assets/entry-music.js                                                      # ★목소리 길이를 안 보던 옛 추천(긴 멘트면 늦게 들어오거나 짧게 깔림) — 되살리지 말 것
+if command -v node >/dev/null 2>&1; then node scripts/audit/up-rec-v.mjs >/dev/null 2>&1; _urv=$?; if [ "$_urv" = 1 ]; then echo 'FAIL up-rec-v: 올린 곡 «추천» 자리(멘트 길이 · 첫 자리 · 표시만 다시 · 직접 적은 자리 그대로)가 깨졌습니다 — node scripts/audit/up-rec-v.mjs'; fail=1; elif [ "$_urv" = 0 ]; then echo 'ok up-rec-v: 올린 곡 추천 자리'; else echo 'skip up-rec-v: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
 #   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
 #   여는 순간: 식전 영상 «끝나면 입장»(화촉을 담으면 영상 뒤가 화촉) · 화촉 «예식의 시작을 알려요»(시작은 1분 전 안내 · 개식이 알린다) 걷기
