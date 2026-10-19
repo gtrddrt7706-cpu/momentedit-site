@@ -13,27 +13,6 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_진희.txt | 진희 | 20 | 10 |
-| 2_진한.txt | 진한 | 4 | 2 |
-| 3_우성.txt | 우성 | 1 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
-
-```
-# 진희 — 20줄 · 10클립
-node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =01_guest-1-arrival,=03_guest-3-5min,=85_narr-photo-send,=264_narr-photo-upload,=115_guest-ex2-1-arrival,=117_guest-ex2-3-5min,=119_guest-ex3-1-arrival,=121_guest-ex3-3-5min,=123_guest-ex4-1-arrival,=125_guest-ex4-3-5min
-```
-
-```
-# 진한 — 4줄 · 2클립
-node scripts/assemble-narration.mjs --in <진한_받은폴더> \
-  --clip =01_guest-1,=03_guest-3
-```
-
-```
-# 우성 — 1줄 · 1클립
-node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =263_bridge-b14-candle-name
-```
 
