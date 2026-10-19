@@ -20,7 +20,7 @@ function run(mut) {
   const R = []; const T = (m, c, d) => R.push([m, !!c, d || '']);
   if (!O.MOOD || !C.moodFit) { T('[MOOD_1018] MOOD · moodFit 이 있다', false, '없다'); return R; }
   // ①
-  const badT = [], whos = ['mothers', 'fathers', 'parents', 'others'];
+  const badT = [], whos = ['mothers', 'fathers', 'others'];
   for (const [mk, m] of Object.entries(O.MOOD)) {
     if (!D.ENTRY[m.entry]) badT.push(mk + ' entry ' + m.entry);
     if (!(m.guestEx >= 0 && m.guestEx <= 3)) badT.push(mk + ' guestEx'); if (m.pvEx !== 0) badT.push(mk + ' pvEx');

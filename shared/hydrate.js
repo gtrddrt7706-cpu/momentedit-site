@@ -554,7 +554,7 @@
           /* [CTA_EYEBROW] opacity .55는 11px에서 3.1:1로 AA 미달(axe, 2026-08-01). .68 → 5.0:1.
              ★고정 hex로 바꾸지 말 것 — 08 같은 어두운 디자인에서는 상속색이 반전돼야 한다. 위계는 opacity가 아니라 크기(11px)가 낸다. */
           + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:10px">Guest Guide</div>'
-          + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>'
+          + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내 · 자리 찾기 ·<br>사진 올리기를 한 곳에 모아 두었어요.</div>'   /* [PHOTO_UP_1019 검토 138-2] 나레이션(5분 전 · 단체 사진 뒤)이 «청첩장 속 하객 안내 → 사진 올리기»로 부른다 — 카드에도 그 이름이 있어야 지나치지 않는다 */
           + '<a id="meGuideCtaBtn" href="' + href + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
           + '</div>';
         // 100vh~118vh 본문 섹션 뒤에 홀로 떨어져 '너무 내려가' 보이던 문제(family-02·03·06·07) → 마지막 본문 섹션(.sec) 안 끝에 삽입해 계좌와 함께 흐르게. 섹션이 없으면 footer 앞으로 폴백(2026-07-22 · marker: meGuideCta-inline)

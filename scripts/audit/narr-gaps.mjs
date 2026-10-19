@@ -40,7 +40,7 @@ spots.push({ k: 'entry', n: Object.keys(D.ENTRY).length, how: '입장 멘트' })
 for (const k of O.narExKeys()) {
   const nm = O.NAR_EX[k].names;
   if (typeof nm === 'function') {
-    for (const w of ['mothers', 'fathers', 'parents', 'others']) spots.push({ k, sub: w, n: nm({ candleWho: w }).filter(Boolean).length, how: { mothers: '어머님 두 분', fathers: '아버님 두 분', parents: '부모님', others: '다른 두 분' }[w] });
+    for (const w of ['mothers', 'fathers', 'others']) spots.push({ k, sub: w, n: nm({ candleWho: w }).filter(Boolean).length, how: { mothers: '어머님 두 분', fathers: '아버님 두 분', parents: '부모님', others: '다른 두 분' }[w] });
   } else spots.push({ k, n: nm.filter(Boolean).length, how: Object.keys(O.NAR_EX[k].lines).join(' · ') });
 }
 const hasPick = new Set(spots.map((s) => ({ speech: 'free', close: '_close' }[s.k] || s.k)));

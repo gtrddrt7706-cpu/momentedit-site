@@ -20,7 +20,7 @@ function courseLines(full) {
       const c = O.CARDS[k], chips = (k === 'toast' ? [] /* [CAKE_OFF_1013] 축배는 고를 판이 없다(케이크 판 · 붓기 걷음) */ : k === 'free' ? ['free', 'freeLen'] : (O.CHIPS[k] ? [k] : [])).map((x) => O.CHIPS[x].map((y) => y[1]).join(' / '));
       out.push(`  · ${c.n}: ${c.one} (누가 · ${c.who})${chips.length ? ' · 고를 판: ' + chips.join(' · ') : ''}`);
     });
-    out.push('  · 화촉에 서실 분: ' + O.CANDLE_WHO.map((c) => c[1]).join(' / ') + '(연출 단계에서 고른다 · 고르지 않으면 양가 어머님) · «양가 부모님 네 분»은 자리에서 앞으로 나와 함께 불을 밝힌다. 어느 분이 서든 불을 밝힌 뒤 하객께 인사하고 자리로 돌아간다([CANDLE_BOW_1012]). 부모님이 따로 걸어 들어오는 «부모님 입장»은 두지 않는다 — 신랑 신부 입장은 늘 있고, 두 분 입장 한 번이 행진이다([PARENTS_ENTRY_OFF 2026-10-12])');
+    out.push('  · 화촉에 서실 분: ' + O.CANDLE_WHO.map((c) => c[1]).join(' / ') + '(연출 단계에서 고른다 · 고르지 않으면 양가 어머님 · 네 분이 함께 서는 판은 두지 않는다 [CANDLE_FOUR_OFF_1019]). 어느 분이 서든 불을 밝힌 뒤 하객께 인사하고 자리로 돌아간다([CANDLE_BOW_1012]). 부모님이 따로 걸어 들어오는 «부모님 입장»은 두지 않는다 — 신랑 신부 입장은 늘 있고, 두 분 입장 한 번이 행진이다([PARENTS_ENTRY_OFF 2026-10-12])');
   }
   out.push('- 예시 넷(«추천»이 아니라 «예시» — 누르면 그 순간들이 담기고, 그다음 더하고 빼면 된다):');
   O.EXAMPLES.forEach((ex) => {

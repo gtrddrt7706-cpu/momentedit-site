@@ -216,7 +216,11 @@
     /* ★[REVIEW24_1019 검토 132 덧 2] 257 ~ 261 — 개식 6(OO) · 맞절 6(EE B-1) · 부모님께 인사 6(PP 22) · 감사문 4(PP 14) · 식전 영상 받는 말(RR 115 · PV_OUT_1019) · 녹음 전엔 글로 */
     'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out',
     /* ★[PHOTO_FREE_OPEN_1019 검토 133-3] 262 — 자유 사진 여는 말(65 뒤 · 자료 DD 폐식사 템플릿 2) · 녹음 전엔 글로 */
-    'narr-photo-free'
+    'narr-photo-free',
+    /* ★[CANDLE_NAME_1019 검토 139-1] 263 — 화촉 앞 이음말 B14 «이어서, 화촉 점화가 있겠습니다.»(자료 G1 52 · G3 43 · T2 · NN · WW6 · WW11) · 녹음 전엔 글로 */
+    'bridge-b14-candle-name',
+    /* ★[PHOTO_UP_1019 검토 138-2] 264 — 우리 «사진 올리기» 안내(5분 전 뒤 · 하객 안내가 열린 날 · 바깥 링크 날은 84) · 녹음 전엔 글로 */
+    'narr-photo-upload'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -241,7 +245,12 @@
     'narr-photo-ask': '안내 페이지의 사진 올리기를 통해, 간직하신 장면을 신랑 신부에게 보내실 수 있습니다.',
     /* ★[PHOTO_ASK] 버튼 이름을 낫표로 인용하지 않는다 — 타입캐스트가 괄호·낫표를 읽는다.
        이름을 부르는 대신 «보내 주시면 전해집니다»로 행동만 말한다. */
-    'narr-photo-send': '사진은, 받으신 안내 페이지에서 신랑 신부에게 바로 보내실 수 있습니다.',
+    /* ★[PHOTO_UP_1019 검토 138-2] 85 = 5분 전 안내와 같은 길 · 같은 이름(청첩장 속 하객 안내 → 사진 올리기)으로 한 번 더 · 바로 뒤 45 «받으신 … 에서» 되풀이를 풀었다 · 바깥 링크 날에도 맞는 말(«바로» 뺌)
+       옛 글 «사진은, 받으신 안내 페이지에서 신랑 신부에게 바로 보내실 수 있습니다.» · 되살리지 말 것 */
+    'narr-photo-send': '오늘 담으신 장면은, 청첩장 속 하객 안내에서 사진 올리기를 누르시면, 두 분께 전해집니다.',
+    /* ★[PHOTO_UP_1019 검토 138-2] 264 — 우리 사진 올리기(하객 안내가 열린 날 · 바깥 링크가 없는 날) · [무엇] → [어디서] → [한 동작] → [안심](웹 조사 39곳 · G2 3-3 «가입 없이»)
+       «담으신»은 10분 전 «마음껏 담아»를 받는다 · 앞 03 «신랑 신부도»와 겹치지 않게 «두 분께» · «예식이 끝난 뒤에도»(하객 안내는 예식 +30일까지 열린다) */
+    'narr-photo-upload': '담으신 장면은, 받으신 청첩장 속 하객 안내에서 사진 올리기를 누르시면, 두 분께 바로 전해집니다. 앱 설치나 가입 없이, 예식이 끝난 뒤에도 보내실 수 있습니다.',
     /* ★★[TOAST_NONE 2026-09-20 사장님 확정] 친구 축사 자리를 닫는 말.
        사장님 지시 *「친구부분멘트 아예 삭제」* 로 배역 15_toast(하객대표 7문장)를 폐지했다.
        ★없는 순서를 말없이 건너뛰지 않는다 — 기다리던 하객이 「축사는?」 하고 남는다.
@@ -305,6 +314,7 @@
     'bridge-b7-entry-ready': O.NAR.bridge.entryReady, 'bridge-b8-face-guests': O.NAR.bridge.faceGuests, 'bridge-b9-declare-seat': O.NAR.bridge.declareSeat, 'bridge-b9-declare-seat-end': O.NAR.bridge.declareSeatEnd,
     'bridge-b10-speech-clap': O.NAR.bridge.speechClap, 'bridge-b11-song-light': O.NAR.bridge.songLight, 'bridge-b12-tribute-calm': O.NAR.bridge.tributeCalm,
     'bridge-b13-toast-stay': O.NAR.bridge.toastStay, 'narr-song-end-friend': D.NARR.songEndFriend,
+    'bridge-b14-candle-name': O.NAR.bridge.candleName,   // [CANDLE_NAME_1019]
     /* [PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 — 원천 ritual-open NAR.pvEx */
     'narr-prevideo-out': O.NAR.prevideoOut,   // [PV_OUT_1019]
     'narr-prevideo-in-ex2': O.NAR.pvEx[0], 'narr-prevideo-in-ex3': O.NAR.pvEx[1], 'narr-prevideo-in-ex4': O.NAR.pvEx[2],
@@ -682,6 +692,7 @@
       var preFirst = vi === 1 && !gx && seq && (seq.indexOf('candle') > -1 || pvOn);   // 예시 2~4 의 1분 전은 «곧 문이 열리고»가 없어 89 판이 필요 없다
       var own = S.guestVoice === 'couple';
       var at = [null, -10, -5, -1], out = [];   // [CEREMONY_AT_VIDEO] 늘 예식 시작 기준
+      var _openG = !!(D.COURSES[S.course] && D.COURSES[S.course].open);   // [PHOTO_UP_1019] 새 코스만 5분 전 뒤 · guide 조건
       for (var i = 0; i < 4; i++) {
         out.push(cue({
           k: 'guest', blockN: '하객 맞이', slug: gx ? 'guest-ex' + (gx + 1) + '-' + ['1-arrival', '2-10min', '3-5min', '4-1min'][i] : (i === 3 && preFirst) ? 'guest-4-1min-pre' : FILES[i], name: '하객 맞이 · ' + D.GUEST[i][0],
@@ -692,10 +703,18 @@
             i === 3 ? '★둘째 문장이 안내 음성 알림이다(AI고지_G1-4 · 계약서 서명 확인 줄과 짝) · 빼지 말 것' : '',   // ★[SOURCE_BEST_1015 라운드 5] 1분 전은 «곧 시작 · 알림 한 마디 · 휴대폰» 셋(자료 G4 분배)
           pick: own ? '두 분 목소리로 녹음' : ''
         }));
+        /* ★★[PHOTO_UP_1019 검토 138-2] 새 코스 = 사진 안내는 5분 전(03) 바로 뒤 사슬 · 하객 안내가 열린 날(S.guide · 사진 올리기 버튼이 있는 날) —
+             10분 전 «마음껏 담아»(허락) → 5분 전 «보내는 법» → 1분 전 «자리 · 진동» · 한 시점에 한 가지(G4 40~48) · 1분 전 뒤에 두면 개식 · 영상이 시작될 때 하객이 휴대폰을 붙든다.
+             바깥 링크 날(photoShare)은 84 지금 글 그대로(«가입 없이»는 바깥 앨범 · 오픈채팅에선 틀린 말 · GUIDE_PHOTO_INFO) · 옛 코스는 종전대로(1분 전 뒤 · photoShare) */
+        if (i === 2 && _openG && S.guide) out.push(cue({
+          k: 'guest', blockN: '하객 맞이', slug: S.photoShare ? 'narr-photo-ask' : 'narr-photo-upload', name: '사진 올리기 안내 · 5분 전 뒤',
+          text: EXTRA[S.photoShare ? 'narr-photo-ask' : 'narr-photo-upload'], duck: PARAM.duckSpeech, fire: 'chain',
+          note: '하객 안내가 열린 날만 나간다 · 5분 전 안내에 이어서'
+        }));
       }
       /* ★[PHOTO_ASK] 04번 «안»에 문장을 더하지 않고 별도 클립으로 뺀다.
          안에 넣으면 링크 없는 두 분에게도 나가거나, 04 를 두 벌로 만들어야 한다. */
-      if (S.photoShare) out.push(cue({
+      if (S.photoShare && !_openG) out.push(cue({
         k: 'guest', blockN: '하객 맞이', slug: 'narr-photo-ask', name: '사진 부탁 · 예식 직전',
         text: EXTRA['narr-photo-ask'], duck: PARAM.duckSpeech, fire: 'chain',
         note: '하객 안내 페이지에 사진 링크가 있을 때만 나간다'
@@ -1353,15 +1372,21 @@
         if (bc.k === 'matjeol' && bn.k === 'welcome' && !/^이제/.test(_nxT) && _nxT.indexOf('하객을 향해 서') < 0) _more.push('bridge-b8-face-guests');
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT)) _more.push('bridge-b12-tribute-calm');
         if (bn.k === 'entry' && String(S.entry || 'A').toUpperCase() !== 'E') _more.push('bridge-b7-entry-ready');
+        /* ★★[CANDLE_NAME_1019 검토 139-1 · 사장님 10/19 17:28 «영상이 끝나고 바로 화촉 멘트가 나오면 어색하다»] B14 화촉 앞 «이어서, 화촉 점화가 있겠습니다.» —
+             하객은 무슨 순서가 시작되는지 모른 채 긴 헌사를 들었다 · 순서 이름을 한 번(자료 G1 52 · G3 43 «명시적 식순명을 고지» · T2 40~56 · NN 54~70 · WW6 · WW11) ·
+             서는 분과 상관없이 한 소리(누가 서는지는 바로 뒤 여는 말이 말한다) · 영상이 없는 날(개식 → 화촉)도 같은 자리 ·
+             고른 화촉 멘트가 순서를 알리며 열면(«이제 …» · «먼저 …» · «그럼 먼저, …») BRIDGE_SKIP_1018 대로 안 끼운다 */
+        if (bn.k === 'candle' && bc.k !== 'candle' && !BRIDGE_OPEN.test(_nxT)) _more.push('bridge-b14-candle-name');
         _bl.push(bc);
         if (slugB) _bl.push(cue({ k: bc.k, blockN: bc.blockN, slug: slugB, name: '이음말 · ' + ({ 'bridge-b3-clap-thanks': '박수 뒤', 'bridge-b4-breath': '숨 고르기', 'bridge-b5-video-out': '영상 끝', 'bridge-b6-lighter': '가벼운 순서로' })[slugB],
           text: EXTRA[slugB], duck: PARAM.duckMusic, note: '이음말 · 다음 순간이 무엇이든 맞는 한 줄(BRIDGE_LINK)' }));
         _more.forEach(function (sm) {
-          var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b12-tribute-calm', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
+          var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b12-tribute-calm' || sm === 'bridge-b14-candle-name', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
           _bl.push(cue({ k: _at.k, blockN: _at.blockN, slug: sm, name: '이음말 · ' + ({ 'bridge-b7-entry-ready': '입장 앞', 'bridge-b8-face-guests': '하객 쪽으로', 'bridge-b9-declare-seat': '읽은 분 자리로',
-              'bridge-b10-speech-clap': '축사 박수', 'bridge-b12-tribute-calm': '경건하게' })[sm],
+              'bridge-b10-speech-clap': '축사 박수', 'bridge-b12-tribute-calm': '경건하게', 'bridge-b14-candle-name': '화촉 순서 알림' })[sm],
             text: EXTRA[sm], duck: PARAM.duckMusic, note: '이음말 · 이 두 순간 사이에서만(BRIDGE_MORE_1018)',
             fire: sm === 'bridge-b7-entry-ready' ? 'manual' : '', hint: sm === 'bridge-b7-entry-ready' ? '신부 준비 완료 · 문 앞 대기 확인 후(이 줄 뒤 입장 멘트는 문이 열릴 때 한 번 더 GO)' : '',   // ★[CUE_FIRE_RULE] 입장 앞은 엔진이 손으로 내는 자리 — 입장 멘트와 같은 대기
+            gapMs: (sm === 'bridge-b14-candle-name' && bc.k === 'prevideo') ? 3000 : undefined,   /* [CANDLE_NAME_1019] 영상 받는 말(261) 뒤 3초(화제가 바뀌는 자리 · G2 5-2 · 영상 끝 조명이 오르는 사이 RR 115) · 개식 바로 뒤면 아래 OPEN_GAP 이 정한다 · 이음말 → 여는 말은 사슬 그대로 */
             live: sm === 'bridge-b10-speech-clap' ? applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
         });
       }
@@ -1479,10 +1504,10 @@
          ★둘째 문장 뒤 3초 무음이 목례 자리다([THANKS_BOW] · 조립기가 넣는다). 한 큐 · 디렉터 GO 하나(앞 큐에 사람 구간이 있어 manual). */
       /* ★★[PHOTO_SEND_FIRST_1014 라운드 1 결정 · 사장님 10/14 «전부 추천대로»(아침 확인 6 «옮기기»)] 사진 보내기 안내(85)는 전체 사진 바로 뒤 · 감사 인사(110 · 45) 앞 —
            감사 인사 뒤에는 가실 분이 식사 자리 · 귀가로 먼저 가신다(PHOTO_THANKS) · 하객 모두가 계실 때 한 번 · 링크가 없으면 통째로 빠진다(감사 인사가 종전대로 디렉터 GO) */
-      if (S.photoShare) cues.push(cue({
+      if ((D.COURSES[S.course] && D.COURSES[S.course].open) ? S.guide : S.photoShare) cues.push(cue({   // [PHOTO_UP_1019] 새 코스는 하객 안내가 열린 날 · 옛 코스는 종전대로 링크 날
         k: '_photo', blockN: '단체 사진', slug: 'narr-photo-send', name: '사진 보내기 안내',
         text: EXTRA['narr-photo-send'], duck: -14, hint: '전체 사진을 담고 나면',
-        note: '하객 안내 페이지에 사진 링크가 있을 때만 나간다 · 이어서 두 분 감사 인사(사슬)'
+        note: '하객 안내가 열린 날만 나간다(옛 코스는 사진 링크 날) · 이어서 두 분 감사 인사(사슬)'
       }));
       cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: _thx,
@@ -1580,7 +1605,9 @@
     /* ★[OPEN_GAP_1014 라운드 3] 개식 선언(137) 뒤 다음 줄(식전 영상 소개 · 영상을 뺀 날은 화촉 · 입장)은 3초 쉬고 사슬 —
          순서(화제)가 바뀌는 자리(자료 G2 5-2 «3 ~ 3.5초») · «…예식을 시작하겠습니다»는 자료가 박수와 함께 쓰는 말이라(BB ⑥) 청하지 않아도 손뼉이 나올 수 있다 */
     for (var og = 0; og < cues.length - 1; og++) {
-      if (cues[og].slug === 'narr-open' && cues[og + 1].fire === 'chain' && !cues[og + 1].gapMs) cues[og + 1].gapMs = 4500;   /* ★[SOURCE_FIRST_1016] 개식이 자료 BB 3 «여러분의 박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 박수가 잦아들 만큼(자료 G2 5-3 «4 ~ 5초») 3 → 4.5초 */
+      /* ★[OPEN_GAP_CHIP_1019 검토 139-2] 4.5초는 박수를 청하는 칩(힘차게 · 담백하게 · 다정하게)에만 — 박수를 청하지 않는 칩(격식 있게 · 뭉클하게 · 차분하게)은 3초(OPEN_GAP_1014 값) ·
+           뭉클하게 뒤 4.5초 정적이 영상 소개를 따로 떨어진 두 번째 안내로 들리게 했다 · 판정은 고른 예시 글에 «박수»가 있나 */
+      if (cues[og].slug === 'narr-open' && cues[og + 1].fire === 'chain' && !cues[og + 1].gapMs) cues[og + 1].gapMs = /박수/.test((O.narExCue && EXTRA[O.narExCue(S, 'narr-open')]) || cues[og].text || EXTRA['narr-open'] || '') ? 4500 : 3000;   /* ★[SOURCE_FIRST_1016] 개식이 자료 BB 3 «여러분의 박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 박수가 잦아들 만큼(자료 G2 5-3 «4 ~ 5초») 3 → 4.5초 */
     }
     /* ★[VOW_OUT_GAP_1016] 서약 맺는 말(«두 사람의 서약이었습니다.» · 14) 뒤 다음 순간 여는 말은 4.5초 사슬 — 자료 G2 1-3 «서약 뒤 약 4 ~ 5초 여백»(박수 · 여운) · 맺는 말 앞 2초는 그대로 */
     for (var vg = 0; vg < cues.length - 1; vg++) {
