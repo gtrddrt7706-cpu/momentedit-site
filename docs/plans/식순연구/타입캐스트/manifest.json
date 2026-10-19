@@ -70,7 +70,7 @@
       "dir": "assets/audio/narration",
       "clips": 40,
       "sents": 62,
-      "chars": 1973
+      "chars": 1970
     },
     {
       "file": "4_혼주편지.txt",
@@ -2971,7 +2971,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "이제 오늘의 주인공들을 만나 볼 준비를 모두 마쳤습니다.",
+          "text": "오늘의 주인공들을 만나 볼 준비를 모두 마쳤습니다.",
           "before": 0,
           "after": 0
         }
