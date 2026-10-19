@@ -1137,6 +1137,8 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 @media (max-width:460px){.ls-cg .cg-c.cg-even{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}.ls-cg .cg-c.cg-even>.op-chip{width:100%;padding:0 8px;white-space:nowrap}.ls-cg .cg-c.cg-even>:not(button){grid-column:1/-1}}   /* ★[CG_EVEN 2026-10-07] 한 줄에 안 들어가는 칩 줄은 3+1 처럼 들쭉날쭉 접지 않고 같은 폭 칸으로(넷 = 2 × 2 · 여섯 = 3 × 2 · 글이 안 들어가면 칸 수를 줄인다) · 한 줄에 들어가는 줄은 그대로 · _cgEven 이 잰다 */   /* [EX_ROW] 예시 줄도 같은 꼴(폰에서 이름표 위) — 한 묶음 안 칩 시작선이 한 줄 */   /* [R3-06] 좁은 폭에서만 라벨 위 · 칩 아래(VP_CHIP_ROW 원뜻) — 폭과 상관없이 두니 1280 에서 칩 시작선이 370 → 298 → 370 으로 들쭉날쭉했다 */
 /* ★[RAIL_IGNORE_1019] ② 칩 줄 — 레일(상담 말풍선) 자리를 비우지 않는다 — 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게» 지시로 삭제 · 되살리지 말 것(종전 CHIP_FULL_1019 의 오른쪽 36px · 칩은 줄 끝까지 · 같은 폭 칸 · 혼자 남는 칩 없음은 그대로) */
 @media (min-width:461px){.ls-cg{grid-template-columns:120px minmax(0,1fr)}}   /* [CG_TITLE] 96 → 120 — 14px 제목(«어떻게 준비할까요» 106.6px 실측)이 한 줄에 서고 칩까지 21px · 칩 시작선은 모든 줄이 같다(R3-06) */
+@media (min-width:461px){ .ls-cg .cg-c.cg-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:center} .ls-cg .cg-c.cg-grid>.op-chip{grid-column:span var(--cgs,1);width:100%;padding:0 8px;white-space:nowrap} .ls-cg .cg-c.cg-grid>:not(button){grid-column:1/-1} .ls-cg .cg-c.cg-grid>.cg-links{justify-self:end} .ls-cg .cg-c.cg-grid.cg-lkin>.cg-links{grid-column:var(--cglk,5)/-1} }   /* ★[CHIP_GRID_PC_1019 2026-10-19 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게»] PC 칩 줄 = 6칸 격자 · 같은 크기 · 칸 선이 줄끼리 맞는다(칸 수는 _cgGrid 가 정한다) */
+@media (min-width:461px){ .ls-cg .cg-c.cg-even{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px} .ls-cg .cg-c.cg-even>.op-chip{width:100%;padding:0 8px;white-space:nowrap} .ls-cg .cg-c.cg-even>:not(button){grid-column:1/-1} .ls-cg .cg-c.cg-even>.cg-links{justify-self:end} }   /* [CHIP_GRID_PC_1019] 6칸 격자에 못 서는 좁은 태블릿 쪽은 폰처럼 같은 폭 칸(둘 = 반반 · 넷 = 2 × 2 · 여섯 = 3 × 2) */
 @media (max-width:460px){.ls-vars>.ls-cg+.ls-cg,.lf-vars>.ls-cg+.ls-cg{margin-top:11px}}   /* [CG_TITLE] 폰은 제목이 칩 위에 선다 — 줄 사이 7 → 18px(제목 아래 6px 의 세 배) · 제목이 위 칩 줄이 아니라 제 칩과 한 묶음으로 읽힌다(TYPO_RHYTHM «라벨 위 여백은 아래의 2배 이상») */
 /* ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460 · 이름표가 칩 위에 서는 폭)에선
    «확정 안내 보기 · 나레이션 자세히»를 칩 아래 제 줄이 아니라 질문 줄(«어떻게 준비할까요») 오른쪽 끝에 — 이름표와 같은 11px · 같은 줄 높이(1.4) · 글자 아래 선을 맞춘다.
@@ -1153,6 +1155,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
    폰(≤460)은 칩 둘을 반반 두 칸으로 — 바로 아래 «참고 예시» · «입장 멘트» 칩 줄(CG_EVEN 같은 폭 칸)과 같은 모양 · 칩이 글자 폭만큼이라 오른쪽이 비던 것.
    «확정 안내 보기 · 나레이션 자세히»는 질문 줄 오른쪽 그대로(VS_LINK_TOP) · 글씨는 12.5px(질문보다 한 단 아래 · 종전 «이름표와 같은 11px»는 질문이 11px 일 때의 맞춤) · 글자 아래 선은 질문과 맞춘다.
    ★PC(≥461) 칩은 글자 폭 그대로(사장님 «PC 는 지금이 적절한 거 같은데 · 바꾼다면 모바일만») — PC 는 아래 칩 줄도 글자 폭이다(CG_EVEN 은 폰만).
+   → ★10/19 [CHIP_GRID_PC_1019] 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게 크기를 조절해서 하고싶어»로 바꿨다 — PC 칩 줄은 6칸 격자(같은 크기 · 칸 선 맞춤 · _cgGrid).
    제목 글씨는 PC 도 같다(CG_TITLE · 사장님 «제목 폰트랑 하단 안내 멘트 팝업은 PC 도 적용 전부») — 그래서 PC 이름표 칸이 96 → 120px */
 @media (max-width:460px){
   .ls-cg.cg-vq .cg-c{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}
@@ -4739,9 +4742,21 @@ function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
   h+='<button type="button" class="mk-it mk-vi" data-fk="mkvi" aria-label="예식 흐름 다시 보기 · 누가 말하는지" onclick="mkVoiceInfo()"><span aria-hidden="true">ⓘ</span></button>';   // [VOICE_MAP] 다시 보기
   return h+'</div></nav>'; }
 /* [STEP_COMPACT] 접힌 줄이 잘리면(390 · 미완료가 있을 때) 걸음 이름부터 뺀다 — 위 접은 표시가 이미 «하나씩 만들기»를 말한다(코디 결정 2026-10-03). 자리 · 미완료는 남긴다 */
-function _cgEven(){ try{ var root=arguments[0], nar=window.innerWidth<=460; (root||document).querySelectorAll('.ls-cg .cg-c, .mk-vu-exs').forEach(function(c){ var dl=c.classList.contains('mk-vu-exs'); c.classList.remove('cg-even'); c.style.removeProperty('--cgn'); if(!nar&&!dl) return;   /* [CG_EVEN] 폰에서 칩이 두 줄 이상으로 접히면 같은 폭 칸으로 */   /* ★[VU_CHIP_EVEN 2026-10-08 목소리 1라운드 #56] «나오는 곳» 창의 예시 칩도 같은 규칙 — 390 에서 넷이 3+1(«격식 있게» · «고마움을 담아» 홀로) · PC 창(최대 520px)에서 여섯이 5+1 이었다. 창은 넓은 화면에서도 접히면 같은 폭 칸 */
-    var b=[].filter.call(c.children,function(x){ return x.tagName==='BUTTON'&&x.offsetParent; }); if(b.length<(nar&&!dl?2:3)) return;   /* ★[CHIP_FULL_1019 2026-10-19 사장님 «버튼 짝수로 · 서약 감사문 저 부분도 버튼 좌우 꽉 차게 · 그 아래 버튼들도»] 폰은 두 갈래 줄(서약 · 감사문 · 읽는 방식 · 먼저 읽는 분 …)도 반반 두 칸 — 입장 음악(cg-vq)과 같은 꼴 */
-    var rows=1, t=b[0].offsetTop, mw=0; b.forEach(function(x){ if(x.offsetTop>t+4){ rows++; t=x.offsetTop; } mw=Math.max(mw,x.scrollWidth-28+16); }); if(rows<2&&!nar) return;   /* [CHIP_FULL_1019] 폰은 한 줄에 들어가는 둘 · 셋도 칸을 꽉 채운다(종전 «한 줄이면 글자 폭 그대로») */   // [VU_CHIP_EVEN] PC 창은 한 줄에 들어가면 그대로   // 칩 안 여백 14+14 → 칸 안 8+8
+/* ★★[CHIP_GRID_PC_1019 2026-10-19 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게 크기를 조절해서 하고싶어»] PC(≥461 · 이름표 왼쪽 칸)의 칩 줄은 6칸 격자 —
+   한 줄의 칩은 같은 크기 · 칸 선이 줄끼리 맞는다(종전 글자 폭 칩은 줄마다 끝이 들쭉날쭉 · 세로 선이 안 맞았다).
+   고를 것이 둘 · 셋인 줄(서약 · 감사문 · 읽는 방식 · 입장 음악 · 어떻게 준비할까요)은 두 칸씩 · 넷 ~ 여섯인 멘트 줄은 한 칸씩 — 같은 일을 하는 줄은 같은 크기다.
+   글자가 칸보다 길면 그 줄만 칸 수를 늘린다 · 한 줄에 못 서면(6칸 넘음) 종전 글자 폭 그대로 · «확정 안내 보기 · 나레이션 자세히»는 남는 칸 오른쪽 끝(모자라면 아래 제 줄 오른쪽).
+   ★10/08 VP_ROW_A «PC 는 지금이 적절 · 바꾼다면 모바일만»을 이 말씀으로 바꿨다. 폰(≤460)은 그대로 CG_EVEN · CHIP_FULL_1019 */
+function _cgPlan(c){ if(c.closest('.fe-row,.mk-tp')) return null;   // 칩 줄이 아니면 null · 6칸 격자 한 줄에 못 서면 false · 서면 {sp 칸 수 · lk 링크 시작 칸}
+  var b=[].filter.call(c.children,function(x){ return x.tagName==='BUTTON'&&x.offsetParent; }), L=b.length; if(L<2||b.some(function(x){ return !x.classList.contains('op-chip'); })) return null;
+  var G=6, cw=(c.clientWidth-5*G)/6, mw=0; b.forEach(function(x){ var cs=getComputedStyle(x); mw=Math.max(mw,x.scrollWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0)+16); });   // 칸 안 여백 8+8
+  var sp=L<=3?2:1; while(sp<6&&mw>sp*cw+(sp-1)*G) sp++; if(L*sp>6) return false;
+  var lk=c.querySelector(':scope>.cg-links'), fr=6-L*sp; return { sp:sp, lk:(lk&&lk.offsetParent&&fr>0&&lk.scrollWidth<=fr*cw+(fr-1)*G)?L*sp+1:0 }; }
+function _cgEven(){ try{ var root=arguments[0], nar=window.innerWidth<=460, all=[].slice.call((root||document).querySelectorAll('.ls-cg .cg-c, .mk-vu-exs')); all.forEach(function(c){ c.classList.remove('cg-even','cg-grid','cg-lkin'); ['--cgn','--cgs','--cglk'].forEach(function(p){ c.style.removeProperty(p); }); });
+  var plan=nar?[]:all.map(function(c){ return c.classList.contains('mk-vu-exs')?null:_cgPlan(c); }), wide=!nar&&plan.indexOf(false)<0;   /* [CHIP_GRID_PC_1019] 쪽의 칩 줄이 다 6칸 격자 한 줄에 서면 격자 · 하나라도 못 서면(좁은 태블릿) 쪽 전체를 폰처럼 같은 폭 칸 */
+  all.forEach(function(c,i){ var dl=c.classList.contains('mk-vu-exs'); if(!nar&&!dl&&wide){ var p=plan[i]; if(p){ c.style.setProperty('--cgs',p.sp); c.classList.add('cg-grid'); if(p.lk){ c.style.setProperty('--cglk',p.lk); c.classList.add('cg-lkin'); } } return; }   /* [CG_EVEN] 폰에서 칩이 두 줄 이상으로 접히면 같은 폭 칸으로 · [CHIP_GRID_PC_1019] PC 는 6칸 격자(_cgGrid) */   /* ★[VU_CHIP_EVEN 2026-10-08 목소리 1라운드 #56] «나오는 곳» 창의 예시 칩도 같은 규칙 — 390 에서 넷이 3+1(«격식 있게» · «고마움을 담아» 홀로) · PC 창(최대 520px)에서 여섯이 5+1 이었다. 창은 넓은 화면에서도 접히면 같은 폭 칸 */
+    var b=[].filter.call(c.children,function(x){ return x.tagName==='BUTTON'&&x.offsetParent; }); if(b.length<(!dl?2:3)) return;   /* ★[CHIP_FULL_1019 2026-10-19 사장님 «버튼 짝수로 · 서약 감사문 저 부분도 버튼 좌우 꽉 차게 · 그 아래 버튼들도»] 폰은 두 갈래 줄(서약 · 감사문 · 읽는 방식 · 먼저 읽는 분 …)도 반반 두 칸 — 입장 음악(cg-vq)과 같은 꼴 */
+    var rows=1, t=b[0].offsetTop, mw=0; b.forEach(function(x){ if(x.offsetTop>t+4){ rows++; t=x.offsetTop; } mw=Math.max(mw,x.scrollWidth-28+16); }); if(rows<2&&!nar&&dl) return;   /* [CHIP_FULL_1019] 폰은 한 줄에 들어가는 둘 · 셋도 칸을 꽉 채운다(종전 «한 줄이면 글자 폭 그대로») · [CHIP_GRID_PC_1019] 격자에 못 서는 좁은 태블릿 쪽도 같다(PC 창 dl 은 종전대로) */   // [VU_CHIP_EVEN] PC 창은 한 줄에 들어가면 그대로   // 칩 안 여백 14+14 → 칸 안 8+8
     /* ★[SAME_PLACE 2026-10-07] 넷 이상인 줄은 한 줄에 들어가도 같은 폭 칸 — 하객 맞이 «참고 예시»만 한 줄 알약이고 바로 다음 식전 영상은 2 × 2 라 같은 줄이 쪽마다 달랐다 */
     var W=c.clientWidth, L=b.length, n=dl?((L%3===0||L>4)?3:2):(L%3===0?3:L%2===0?2:3);   /* [CHIP_FULL_1019] 폭은 줄 전체([RAIL_IGNORE_1019] 말풍선 자리를 빼지 않는다) · 여섯 = 3 × 2 · 넷 = 2 × 2 · 둘 = 2 · 셋 = 3 · 다섯 = 3 + 2(혼자 남는 칸 없이 · 여섯째 예시가 오기 전까지) */ while(n>1&&mw>(W-(n-1)*6)/n) n--; if(n<2) n=1;   // [VU_CHIP_EVEN] 창의 다섯 · 일곱(두 분 글 + 예시)은 셋씩(3+2 · 3+3+1) — 들어가지 않으면 둘씩
     c.style.setProperty('--cgn',n); c.classList.add('cg-even'); });

@@ -3,6 +3,7 @@
    둘 이상이면 같은 폭 칸으로 좌우를 채운다(둘 = 반반 · 넷 = 2 × 2 · 여섯 = 3 × 2) · 혼자 남는 칩이 없다
    ★★[RAIL_IGNORE_1019 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게 다시만들기»] 오른쪽 끝까지 — 상담 말풍선(레일) 자리를 비우지 않는다(종전 36px 비우기는 걷었다 · 말풍선이 얹혀도 괜찮다)
    ① 예시 카드 흐름 선 · ② 칩 줄 · ④ 완성 단추 덩어리 · 순서 요약 «변경 · 채우기»를 잰다 · 모양 검사(어느 자리든)는 rail-ignore.mjs
+   ★★[CHIP_GRID_PC_1019] PC 1280 은 6칸 격자 · 좁은 태블릿 768 은 같은 폭 칸도 잰다(아래)
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url); const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..'); const W = 390;
@@ -41,5 +42,28 @@ await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(700);
     return { acts: !!p && bs.length > 0, pr: p ? parseFloat(getComputedStyle(p).paddingRight) || 0 : -1, gap: p && bs.length ? Math.round(p.getBoundingClientRect().right - Math.max(...bs.map((b) => b.getBoundingClientRect().right))) : -1, sr: sr.length, srm: sr.map((x) => parseFloat(getComputedStyle(x).marginRight) || 0).filter((v) => v > 0).length }; });
   ok('390 ④ 완성 단추 덩어리 · 순서 요약 «변경 · 채우기» — 오른쪽 끝까지(말풍선 자리를 비우지 않는다) [RAIL_IGNORE_1019]', d.acts && d.pr === 0 && d.gap <= 1 && d.sr > 0 && d.srm === 0, JSON.stringify(d)); }
 ok('화면 오류 없음', !errs.length, errs.slice(0, 2).join(' | '));
+/* ★★[CHIP_GRID_PC_1019 2026-10-19 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게 크기를 조절해서 하고싶어»] PC 1280 = 6칸 격자(한 줄 · 같은 크기 · 칸 선이 줄끼리 맞는다)
+   고를 것 둘 · 셋 = 두 칸 · 멘트 넷 ~ 여섯 = 한 칸 · «나레이션 자세히»는 같은 줄 오른쪽 끝 / 좁은 태블릿 768 = 폰처럼 같은 폭 칸(혼자 남는 칩 없음) */
+for (const PW of [1280, 768]) {
+  const p2 = await br.newPage({ viewport: { width: PW, height: 900 } }); const e2 = []; p2.on('pageerror', (e) => e2.push(e.message));
+  await p2.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' })));
+  await p2.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`); await p2.waitForTimeout(700);
+  const nx2 = async () => { if (await p2.isVisible('#next')) await p2.click('#next'); else await p2.click('.pk-go'); await p2.waitForTimeout(450); };
+  await nx2(); await nx2(); await p2.click('[data-fk="opx:standard"]'); await p2.waitForTimeout(300); await nx2(); await p2.waitForTimeout(900);
+  await p2.evaluate(() => { window._vc = function (op) { if (op === 'status') return Promise.resolve({ ok: true, on: true, groom: { consent: true, ready: true }, bride: { consent: true, ready: true }, per: {} }); return Promise.resolve({ ok: false }); };
+    RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; S.vsChip = 1; S.vsAsked = 1; S.on.vow = 1; S.vow = 'ok'; S.guestVoice = 'nar'; S.entryVoice = 'nar'; });
+  for (const k of ['guest', 'vow', 'entry', 'tribute']) {
+    const r = await p2.evaluate(async (k) => { mkGo(k); await new Promise((r) => setTimeout(r, 600)); const b0 = [...document.querySelectorAll('.ls-cg .cg-c button')].find((x) => x.offsetParent && x.textContent.trim() === '스튜디오 나레이션' && x.getAttribute('aria-checked') !== 'true'); if (b0) { b0.click(); await new Promise((r) => setTimeout(r, 600)); }
+      return [...document.querySelectorAll('.ls-cg .cg-c')].filter((c) => c.offsetParent).map((c) => { const bs = [...c.children].filter((x) => x.tagName === 'BUTTON' && x.offsetParent && x.classList.contains('op-chip')); if (bs.length < 2) return null;
+        const cr = c.getBoundingClientRect(), cw = (cr.width - 30) / 6, rs = bs.map((x) => x.getBoundingClientRect()), lines = {}; rs.forEach((q) => { const t = Math.round(q.top); lines[t] = (lines[t] || 0) + 1; });
+        const ws = rs.map((q) => q.width), unit = cw + 6, lk = c.querySelector(':scope>.cg-links'), lr = lk && lk.offsetParent ? lk.getBoundingClientRect() : null;
+        return { g: ((c.parentElement.querySelector('.gl') || {}).textContent || '').slice(0, 8), n: bs.length, grid: c.classList.contains('cg-grid'), even: c.classList.contains('cg-even'), nl: Object.keys(lines).length, lone: Object.values(lines).some((v) => v === 1),
+          same: Math.max(...ws) - Math.min(...ws) <= 1, cells: Math.round((ws[0] + 6) / unit), onGrid: rs.every((q) => { const o = (q.left - cr.left) / unit; return Math.abs(o - Math.round(o)) * unit <= 1.5; }), fitW: Math.abs(ws[0] - (Math.round((ws[0] + 6) / unit) * unit - 6)) <= 1.5,
+          lkSame: lr ? Math.abs(lr.top - rs[0].top) < rs[0].height && Math.abs(lr.right - cr.right) <= 2 : null }; }).filter(Boolean); }, k);
+    const bad = r.filter((x) => PW >= 1000 ? (!x.grid || x.nl !== 1 || !x.same || !x.onGrid || !x.fitW || (x.n >= 4 ? x.cells !== 1 : x.cells < 2) || x.lkSame === false) : (!x.even || x.lone || !x.same));
+    ok(PW >= 1000 ? `${PW} ${k} — PC 칩 줄 6칸 격자(한 줄 · 같은 크기 · 칸 선 맞춤 · 고를 것 두 칸 · 멘트 한 칸 · 링크 같은 줄 끝) [CHIP_GRID_PC_1019]` : `${PW} ${k} — 좁은 태블릿 칩 줄 같은 폭 칸(혼자 남는 칩 없음) [CHIP_GRID_PC_1019]`, r.length > 0 && !bad.length, JSON.stringify(bad.length ? bad : r).slice(0, 600));
+  }
+  ok(`${PW} 화면 오류 없음`, !e2.length, e2.slice(0, 2).join(' | ')); await p2.close();
+}
 await br.close(); srv.close();
 console.log(fail ? `CHIP FULL FAIL ${fail}` : 'CHIP FULL OK'); process.exit(fail ? 1 : 0);
