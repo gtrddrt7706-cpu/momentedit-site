@@ -15015,7 +15015,9 @@ chk '| 검토 55 |' docs/handoff/insta-find.md 1
 #   이음말 일곱(B7 입장 앞 · B8 맞절 → 감사 인사 · B9 선언 읽은 분 자리로 · B10 축사 박수 · B11 → 축가 · B12 축가 → 부모님께 인사 · B13 닫는 인사 → 축배) — 실전 원문(XX1 · WW1 · U1)만 ·
 #   축가 «부르는 분» 칩(두 분이 직접 = TT 52 · 그 밖 = WW2) · 47 «끝까지 함께해 주신» · 44 · 110 · 45 는 사장님 확인 글이라 그대로(결정 대기함)
 chk 'BRIDGE_MORE_1018' assets/ritual-cue.js 7
-chk "entryReady: '이제 오늘의 주인공들을 만나 볼 준비를 모두 마쳤습니다.'" assets/ritual-open.js 1
+chk "entryReady: '오늘의 주인공들을 만나 볼 준비를 모두 마쳤습니다.'" assets/ritual-open.js 1   # [ENTRY_READY_1019 검토 143-1] 머리 «이제» 뺌
+chk 'ENTRY_READY_1019' assets/ritual-open.js 1
+nochk "entryReady: '이제 " assets/ritual-open.js
 chk "toastStay: '잠시 자리를 지켜 주시면 감사하겠습니다.'" assets/ritual-open.js 1
 chk "slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend'" assets/ritual-cue.js 1
 chk 'songEndFriend:"노래해 주신 분께 뜨거운 박수 부탁드립니다."' assets/ritual-data.js 1
