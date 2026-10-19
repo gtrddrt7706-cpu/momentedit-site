@@ -7,18 +7,41 @@
 | 검토7판_1018_우성.txt | 17 | 151 · 154 · 156(화촉 예시 2 «밝혀 주시겠습니다» 다시 받기) · 251 · 252 · 253 · 254(새 예시) |
 | 검토8판_1018_진희_우성.txt | 37 | 진희 11줄 = 45 · 110(첫 문장 «다 함께하는 촬영은 …») · 우성 26줄 = 148 · 153 · 170 · 186 · 191 · 192(다시 받기) · 206 · 207(새로) |
 
-## 다음 판 = 「다음판_1019」 26클립 · 57문장 · 우성 21 + 진희 36 · 배역 견본 3클립 8문장(진한 · 예슬) (10/19 · 검토 132 · 132 덧 2 · 133-3 · 134 · 136 · 137 ~ 139) [REC_NEXT_1019]
+## 다음 판 = 「다음판_1019b」 18클립 · 45문장 (10/19 · 검토 138-1 · 138-2 · 139-1 · 137 덧) [REC_NEXT_1019B]
+
+글은 이 판(#1306)과 함께 main 에 들어가요 — 녹음 전엔 글로 먼저 보여요. 261 · 129 는 #1307 녹음 글 그대로라 이 목록에 없어요(137 덧).
+받는 법은 위와 같아요 — 문장별 분리 · `--clip` 을 붙여 조립. 배역 8문장은 배역 폴더(assets/audio/cast)로 가요.
+
+| 파일 | 폴더(--in 아래) | 줄 | 화자 |
+|---|---|---|---|
+| 다음판_1019b_1_안내.txt | 1_안내 | 36 | 진희 |
+| 다음판_1019b_3_진행_후반.txt | 3_진행_후반 | 1 | 우성 |
+| 다음판_1019b_5_배역.txt | 5_배역 | 8 | 진한 5 · 예슬 3 |
+
+| 클립 | 무엇 | 검토 |
+|---|---|---|
+| 01 · 02 · 03 `guest-1-arrival` · `-2-10min` · `-3-5min` | 하객 맞이 세 줄 살 붙이기(나레이션 · 두 분 목소리 견본 배역 01 ~ 03) | 138-1 |
+| 115 ~ 117 · 119 ~ 121 · 123 ~ 125 `guest-ex2~4-*` | 하객 맞이 예시 2 ~ 4 세 줄씩 | 138-1 |
+| 85 `narr-photo-send` | 사진 보내기 새 글(하객 안내 날) | 138-2 |
+| 264 `narr-photo-upload` | 새 줄 · 5분 전 뒤 사진 올리기 안내(하객 안내가 열린 날) | 138-2 |
+| 263 `bridge-b14-candle-name` | 새 줄 · 화촉 여는 말 앞 «이어서, 화촉 점화가 있겠습니다.» | 139-1 |
+
+    node scripts/assemble-narration.mjs --in <받은 폴더> --clip =guest-1-arrival,=guest-2-10min,=guest-3-5min,=guest-ex2-1-arrival,=guest-ex2-2-10min,=guest-ex2-3-5min,=guest-ex3-1-arrival,=guest-ex3-2-10min,=guest-ex3-3-5min,=guest-ex4-1-arrival,=guest-ex4-2-10min,=guest-ex4-3-5min,=narr-photo-send,=narr-photo-upload,=bridge-b14-candle-name
+
+## 다음 판 = 「다음판_1019」 11클립 · 20문장 · 우성 하나 (10/19 · 검토 132 · 132 덧 2 · 133-3 · 134) [REC_NEXT_1019] · ✓ 10/19 받아 넣음 [REC_1019]
+
+받아 넣은 것: zip 3개 · 20문장(우성 · 타입캐스트 기본 설정 = 빠르기 1 · 끝음 0 · 쉼만 손질 · 사장님 10/19) · 창고 20자리 → 깔기 21문장(맞절 구호는 창고의 한 판) → 조립 11클립(순서 r = 0.948 · 0.986).
+넣은 뒤: check-text-audio 90곳 모두 맞음 · 다시받기 0 · check-recorded 1:1 · 원고 칸 11 · 129 · 130 을 엔진 글로 맞춤(소리 없음 0).
+★262 «자유 사진 여는 말»은 문장이 하나라 순서 검사가 못 본다 — 사장님 귀 확인 대기(실청 화면 233번).
+이어서 «되돌림» 묶음이 온다 — 빠르기 ≠ 1 · 끝음 ≠ 0 으로 받은 173자리(94클립 · 43 편지 30문장 · 입장 구호 한 판 포함)를 기본 설정 판으로. 받는 법은 같다(창고 → 깔기 → 조립 · 43 편지는 통낭독).
 
 글은 main 에 들어가 있어요(녹음 전엔 글로 먼저 보여요). 받는 법은 위와 같아요 — 문장별 분리 · `--clip` 을 붙여 조립.
 
 | 파일 | 폴더(--in 아래) | 줄 | 화자 |
 |---|---|---|---|
-| 다음판_1019_1_안내.txt | 1_안내 | 36 | 진희 |
 | 다음판_1019_2_진행_전반.txt | 2_진행_전반 | 7 | 우성 |
-| 다음판_1019_3_진행_후반.txt | 3_진행_후반 | 1 | 우성 |
 | 다음판_1019_6_예식뒤.txt | 6_예식뒤 | 1 | 우성 |
 | 다음판_1019_7_예시_멘트.txt | 7_예시_멘트 | 12 | 우성 |
-| 다음판_1019_5_배역.txt | 5_배역(assets/audio/cast) | 8 | 진한 · 예슬 — 두 분 목소리 견본 01 ~ 03(하객 맞이 · 138-1 두 분 기본 글) |
 
 | 클립 | 무엇 | 검토 |
 |---|---|---|
@@ -30,15 +53,9 @@
 | 259 `narr-tribute-name-ex6` | 부모님께 인사 예시 6 «밝게»(PP 22) | 132 덧 2 |
 | 260 `narr-thanks-in-ex4` | 감사문 예시 4 «뭉클하게»(PP 14 · 끝 문장은 창고에 이미 있음) | 132 덧 2 |
 | 11 `narr-welcome-in` | 감사 인사 여는 말 «다음은» → «이어서,»(앞 맞절 · 개식이 «다음은»을 이미 씀) | 134 |
-| 262 `narr-photo-free` | 새 줄 · 열린 코스 65 뒤 자유 사진 여는 말(DD 폐식사 템플릿 2 · «친구분들께서는» → «하객 여러분께서는») | 133-3 · 136 «담아» |
-| 01 · 02 · 03 `guest-1-arrival` · `-2-10min` · `-3-5min` | 하객 맞이 세 줄에 살 붙임(진희 · 첫 문장은 옛 녹음 글 그대로) | 138-1 |
-| 115 ~ 117 · 119 ~ 121 · 123 ~ 125 `guest-ex2 ~ ex4` | 하객 맞이 예시 2 ~ 4 같은 꼴(진희) | 138-1 |
-| 85 `narr-photo-send` | 단체 사진 뒤 사진 안내 새 글 «오늘 담으신 장면은, 청첩장 속 하객 안내에서 …»(진희) | 138-2 |
-| 264 `narr-photo-upload` | 새 줄 · 5분 전 뒤 우리 사진 올리기 안내(진희) | 138-2 |
-| 263 `bridge-b14-candle-name` | 새 줄 · 화촉 앞 «이어서, 화촉 점화가 있겠습니다.»(우성) | 139-1 |
-| 261 · 129 | 261 «… 믿습니다» · 129 두 문장 차례 바꿈(둘 다 녹음 전) | 137-1 · 137-2 |
+| 262 `narr-photo-free` | 새 줄 · 열린 코스 65 뒤 자유 사진 여는 말(DD 폐식사 템플릿 2 · «친구분들께서는» → «하객 여러분께서는») | 133-3 |
 
-    node scripts/assemble-narration.mjs --in <받은 폴더> --clip =narr-prevideo-in,=narr-prevideo-in-ex2,=narr-prevideo-in-ex3,=narr-prevideo-in-ex4,=narr-prevideo-out,=narr-open-ex6,=narr-entry-bow-ex6,=narr-tribute-name-ex6,=narr-thanks-in-ex4,=narr-welcome-in,=narr-photo-free,=guest-1-arrival,=guest-2-10min,=guest-3-5min,=narr-photo-send,=narr-photo-upload,=guest-ex2-1-arrival,=guest-ex2-2-10min,=guest-ex2-3-5min,=guest-ex3-1-arrival,=guest-ex3-2-10min,=guest-ex3-3-5min,=guest-ex4-1-arrival,=guest-ex4-2-10min,=guest-ex4-3-5min,=bridge-b14-candle-name
+    node scripts/assemble-narration.mjs --in <받은 폴더> --clip =narr-prevideo-in,=narr-prevideo-in-ex2,=narr-prevideo-in-ex3,=narr-prevideo-in-ex4,=narr-prevideo-out,=narr-open-ex6,=narr-entry-bow-ex6,=narr-tribute-name-ex6,=narr-thanks-in-ex4,=narr-welcome-in,=narr-photo-free
 
 ## 다음 판 = 「다음판_1018」 16클립 · 82문장 (10/18 · 검토 108 ~ 113 · 119 · 122 ~ 128) [REC_NEXT_1018] · ✓ 10/18 23:14 받아 넣음
 

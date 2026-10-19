@@ -14,9 +14,9 @@
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
 | 1_진희.txt | 진희 | 36 | 14 |
-| 2_우성.txt | 우성 | 22 | 12 |
-| 3_진한.txt | 진한 | 5 | 2 |
-| 4_예슬.txt | 예슬 | 3 | 1 |
+| 2_진한.txt | 진한 | 5 | 2 |
+| 3_예슬.txt | 예슬 | 3 | 1 |
+| 4_우성.txt | 우성 | 1 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -24,12 +24,6 @@
 # 진희 — 36줄 · 14클립
 node scripts/assemble-narration.mjs --in <진희_받은폴더> \
   --clip =01_guest-1-arrival,=02_guest-2-10min,=03_guest-3-5min,=85_narr-photo-send,=264_narr-photo-upload,=115_guest-ex2-1-arrival,=116_guest-ex2-2-10min,=117_guest-ex2-3-5min,=119_guest-ex3-1-arrival,=120_guest-ex3-2-10min,=121_guest-ex3-3-5min,=123_guest-ex4-1-arrival,=124_guest-ex4-2-10min,=125_guest-ex4-3-5min
-```
-
-```
-# 우성 — 22줄 · 12클립
-node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =11_narr-welcome-in,=90_narr-prevideo-in,=128_narr-prevideo-in-ex2,=129_narr-prevideo-in-ex3,=130_narr-prevideo-in-ex4,=261_narr-prevideo-out,=263_bridge-b14-candle-name,=257_narr-open-ex6,=258_narr-entry-bow-ex6,=260_narr-thanks-in-ex4,=259_narr-tribute-name-ex6,=262_narr-photo-free
 ```
 
 ```
@@ -42,5 +36,11 @@ node scripts/assemble-narration.mjs --in <진한_받은폴더> \
 # 예슬 — 3줄 · 1클립
 node scripts/assemble-narration.mjs --in <예슬_받은폴더> \
   --clip =02_guest-2
+```
+
+```
+# 우성 — 1줄 · 1클립
+node scripts/assemble-narration.mjs --in <우성_받은폴더> \
+  --clip =263_bridge-b14-candle-name
 ```
 
