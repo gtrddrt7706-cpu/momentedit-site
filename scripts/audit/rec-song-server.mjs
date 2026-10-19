@@ -14,6 +14,7 @@
    9d 지문이 같으면 저장 · 설명 칸에 지문 9e 다시 오면 «있다(same)» · 받은 내용을 풀지 않는다 9f songs.json 이 들어가면 목록이 열린다(REC_FID · 캐시 비움)
    9g 지문 없는 같은 이름 파일(손으로 올린 것)은 새 파일로 바꾸고 옛것은 휴지통 9h 한 시간 120번 넘으면 U1 9i key 가 rec 가 아니면 종전대로 로그인을 본다
    ★[REC_CLIP_1013 2026-10-13 사장님 «기다림 완전 짧게»] 미리 듣기용 짧은 판 — 표는 17개(곡 8 · 짧은 판 8 · 목록) · 곡마다 짧은 판이 짝으로 있다
+   9-1 ★[ENTRY_BGM_1019] 문서 저장소가 곁에 있으면 표의 지문 17개 = 그 파일의 지문(다시 자른 판 · 목록과 표가 함께 바뀌었나) · 없으면 건너뛴다
    10a '<키>-p' = 목록 pf 파일(짧은 판) 10b 목록에 pf 가 없으면(옛 목록) L3 — 화면이 곡 전체로 10c 짧은 판도 한 시간 60번 셈에 든다
    10d 콘솔(rec:<키>)은 종전대로 곡 전체 10e 이상한 꼬리(-px · -p 만) = 찾지 않는다
    종료 코드 0 통과 · 1 실패 */
@@ -93,7 +94,14 @@ try {
   { const sha = (x) => createHash('sha256').update(Buffer.from(x)).digest('hex'), b64 = (x) => Buffer.from(x).toString('base64');
     const real = Object.assign({}, G.REC_PUT_HASH), SJ = JSON.stringify(SONGS);
     const nm = Object.keys(real), songs8 = nm.filter((n) => /^r\d\.mp3$/.test(n)), clips8 = nm.filter((n) => /^r\dp\.mp3$/.test(n));
-    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = 줄 시각을 실제 노래에 맞춘 두 언어 판 [REC_LY_BI_1013 · LY_REALIGN_1014]', real['songs.json'] === '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257' && nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
+    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = 음악 10초 먼저 · 문 열린 뒤 64초에 맞춰 다시 자른 판의 목록 [ENTRY_BGM_1019 · 그 앞 LY_REALIGN_1014]', real['songs.json'] === 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5' && nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
+    /* 9-1 ★[ENTRY_BGM_1019] 문서 저장소(operations/rec-songs/files)가 곁에 있으면 표의 지문 17개 = 그 파일들의 지문 — 판을 다시 자르고 표를 안 바꾸면(또는 반대) 서버가 새 판을 거절해 옛 판이 남는다.
+       CI 에는 비공개 문서 저장소가 없어 건너뛴다(REC_DOCS 로 자리를 줄 수 있다) */
+    { const DOC = process.env.REC_DOCS || new URL('../../../momentedit-docs/operations/rec-songs/files/', import.meta.url).pathname;
+      const fs = await import('node:fs');
+      if (fs.existsSync(DOC + 'songs.json')) { const bad = nm.filter((n) => { try { return sha(fs.readFileSync(DOC + n)) !== real[n]; } catch (e) { return true; } });
+        ok('9-1 [ENTRY_BGM_1019] 표의 지문 17개 = 문서 저장소 파일의 지문(곡 · 짧은 판 · songs.json)', bad.length === 0, bad); }
+      else console.log('skip 9-1 문서 저장소가 곁에 없다(' + DOC + ')'); }
     G.REC_PUT_HASH = { 'r1.mp3': sha('ID3-put-r1'), 'r9.mp3': sha('ID3-put-r9'), 'songs.json': sha(SJ) };
     FOLDERS = []; PROPS = {}; CACHE = {};
     const put = (name, data) => G.handleRitualFile(Object.assign({ key: 'rec', name }, data === undefined ? {} : { data }));

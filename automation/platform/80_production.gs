@@ -1340,15 +1340,16 @@ var REC_PUT_HASH = {
   'r6.mp3': '9c9b645f0a0b7091a115214e6599c58083be618afb488bc18c829924a0a22d76',
   'r8.mp3': '573eef1b8d4dd5e73278efdd32916bd18ec80e201ee782cf42c0910261ed9f4f',
   'r9.mp3': 'beba6f25d2234fe652420444f0456fe99a9738874ecfc639ff1233aadfd11eeb',
-  'r1p.mp3': '86947b06ea3f4ed70b2fdf21ae29f42527758229d7e68c81998c65fbea8d63fa',
-  'r2p.mp3': 'ec55bce0f61ae797bf8c284aa5c384eb9da77de6fc0dc065879eec187e6d9af9',
-  'r3p.mp3': 'b9ffffbc33da0f733171b7f306f4de24a4a7bcd13533862df0d50c10e119f1af',
-  'r4p.mp3': '61c703aa8256b9f63d183560d97aedaf617dd70192bb3c02ce6d2327571a4a25',
-  'r5p.mp3': '405c71904fec9e01d26fe8d454d9a1bef0bfbc0d4037c6029a7972d24240f7e8',
-  'r6p.mp3': 'c3bb47509912819193a423456ec6db6364ca8591b8ba14f87e314b72ea733bdc',
-  'r8p.mp3': '29a1f2ac38dd0e00d05735fcf4aa88ac7b5880280e24bfe4a810744e3e576d7f',
-  'r9p.mp3': 'f837950e90bdbb335ff2f009c8b814572652072883093cce3964865bc4670fc3',
-  'songs.json': '98eb13b940e5466f7b32b75cdcfeabf8fc708461a78d03064d2a0325317eb257'   /* [LY_REALIGN_1014] 줄 시각을 실제 노래에 다시 맞춘 판(Welcome to the Show 전부 · 팡파레 뒤 13줄 · Popcorn 6줄 · Reality 4줄 · A Lover's Concerto 1줄) — 종전 [REC_LY_BI_1013] 두 언어 판 5cb9bee1… · 그 앞 [REC_CLIP_1013] 판 d355371a… */
+  /* 짧은 판 8 = [ENTRY_BGM_1019] 음악 10초 먼저 · 문 열린 뒤 64초에 맞춰 다시 자른 판(문서 저장소 make_clips.py) — 종전 [REC_CLIP_1013] 판 r1p 86947b06… · r9p f837950e… */
+  'r1p.mp3': 'eb93631ed39575f0fb28bfa5c4a555bed486bef51ff7d734c1ddcc675989ed43',
+  'r2p.mp3': 'd560a76b5cf850740ca9b38c69ae28321fd778412fbf590573910b4df70dd41a',
+  'r3p.mp3': '9c97295d7e9e6064453618c8599fcec8d484c6af4f6e6072ee10ce0fbf5b20e5',
+  'r4p.mp3': '71b35161c58d73ec991f7d6908512d414034681e16118a440834dddf8007b574',
+  'r5p.mp3': '2160155a807307d16dbfe5db335a984999d69db2722be1015364b4e929cafe3f',
+  'r6p.mp3': 'cdb472579bf385bf0114ab99807a4f69904ad48a130bda25bede57a14ac77bb5',
+  'r8p.mp3': '7bea6e5ea92733e11b1ae13804104bc2e9734dab11d7e108d879b96b2fabcfd7',
+  'r9p.mp3': '30fcaa3cc38326eb0005d1f8edafa0bb9f8ab0c7b69a4dcf15d9953f4b031161',
+  'songs.json': 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5'   /* [ENTRY_BGM_1019] 짧은 판의 자리(p0 · p1)만 바꾼 판 — 가사 · 곡 순서 · 하이라이트는 그대로 · 종전 [LY_REALIGN_1014] 줄 시각 판 98eb13b9… · [REC_LY_BI_1013] 두 언어 판 5cb9bee1… · [REC_CLIP_1013] 판 d355371a… */
 }, REC_PUT_HOUR = 120;
 function _recPutFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');
@@ -1367,6 +1368,9 @@ function _recPutHas_(fo, name, h) {
 function _recPut_(body) {
   var mk = '[REC_PUT_1013]', name = String((body && body.name) || '').trim(), h = Object.prototype.hasOwnProperty.call(REC_PUT_HASH, name) ? REC_PUT_HASH[name] : '';
   if (!h) return { ok: false, error: '받을 수 없는 파일이에요.' };
+  /* ★[ENTRY_BGM_1019 2026-10-19 사장님 «처음도입부분을 좀더 길게 늘리고 서서히 0에서 볼륨을 높였다가 멘트 직전에 낮출것이고 모든 bgm전부(입장)» · «도착 까지 시간을 좀더 늘릴거야 행진이후 1분이상»]
+     표의 짧은 판 8 + songs.json = 음악 10초 먼저 · 문 열린 뒤 64초가 짧은 판 안에 들도록 다시 자른 판 — 이 판이 배포돼야 새 판이 드라이브에 올라간다.
+     배포 전에는 옛 판 · 옛 목록이 그대로 짝을 이룬다(화면은 받은 판 길이가 목록과 다르면 곡 전체로 · [CLIP_LEN_CHECK]) */
   /* ★[LY_REALIGN_1014 2026-10-14 사장님 «이 노래 가사랑 전혀 안 맞아»] 표의 songs.json = 줄 시각을 실제 노래에 다시 맞춘 판 — 이 판이 배포돼야 새 목록이 드라이브에 올라간다(보내는 쪽이 h 로 가린다) */
   /* ★[REC_LY_BI_1013 2026-10-13 사장님 «감성을 위해 무조건 두 개 언어가 같이 나오게»] 답에 이 표의 지문(h)을 함께 싣는다 — 보내는 쪽(push.py)이 자기 파일 지문과 대조해
      «서버가 새 표를 아는가»를 가린다(옛 판은 h 를 안 돌려준다). 같은 이름 · 다른 내용(목록 고침)도 옛 판이 «있다(same)»고 답해 새 목록을 안 올린 채 끝나는 일이 없다. 표는 공개라 숨길 것이 없다 */

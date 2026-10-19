@@ -7,7 +7,7 @@
    3 ▶ → 그 곡을 한 번 묻는다 · 받는 동안 ■(aria-busy) + 그 카드 가운데 «곡을 불러오는 중이에요» → 소리 · 소리 막대([NOW_EQ]) · 문이 열리는 자리 12초 앞부터 1분([PREV_12_60_1013] · 종전 6초 앞부터 1분 20초)
    4 가사([LY_SYNC · LY_ON_CUE · LY_FROM_START_1013]) — 들기 시작할 때 이미 불리고 있던 줄은 안 뜬다 · 그다음 줄부터 불릴 때 바로(문 열림 전이어도) · 문이 열리는 줄 · 사진이 밝아진다(lit)
      ★[LY_FROM_START_1013 2026-10-13 사장님 «처음 시작하는 문단 빼고 그다음 문단부터 가사 바로»] 종전 [LY_FROM_HOOK](문 열림 전 줄은 안 띄움)은 걷었다
-   3c [SOFT_START_1013 · PRE_ROLL_1013] ▶ 를 누르면 0.3초 뒤에 소리를 건다(씹힘 방지) · 첫소리는 2.5초에 걸쳐 0 에서 u² 로 올라온다 · 15h 장면(음악과 함께)도 0.3초 뒤 · 2.5초
+   3c [SOFT_START_1013 · PRE_ROLL_1013] ▶ 를 누르면 0.3초 뒤에 소리를 건다(씹힘 방지) · 첫소리는 2.5초에 걸쳐 0 에서 u² 로 올라온다(PREV_FADE · 카드 ▶ 는 그대로) · 15h 장면(음악과 함께)도 0.3초 뒤 · 장면은 6초([ENTRY_BGM_1019])
    5 넘겨도 듣던 노래는 그대로([CAR_KEEP_PLAY]) · 다른 카드에서도 ■ = 그 곡 멈추기 · 점이 금빛 · ■ → 멈춤 · 가사 걷힘
    6 ✓ → S.mu = 추천 곡(키 · 이름 · 가수 · 자리 = hook0 · 사진) · 접힌 한 줄([MU_FOLD]) · 알림 · 장면(음악과 함께 듣기)이 이 곡으로 짠다(H = hook0)
    7 «바꾸기» → 펼쳐 고른 곡 카드 · ✓ 눌린 모양 · 다시 ✓ → 풀림(S.mu 없음 · 장면 없음 · «고른 곡을 풀었어요»)
@@ -21,7 +21,7 @@
    1 · 3 은 이제 — ② 입장 쪽을 열면 칩을 누르기 전에 목록과 첫 카드 곡을 받아 둔다 · «추천 곡»을 누르면 목록을 다시 묻지 않는다 · ▶ 는 바로 소리
    14 미리 받기 — 칩 전에는 받아만(풀지 않는다) · 칩을 누르면 지금 카드를 풀고 다음 카드를 받는다 · 받는 중에 ▶ 를 누르면 같은 받기를 기다린다(두 번 묻지 않는다 · ■ aria-busy)
    15 짧은 판 — 목록에 pf 가 있으면 '<키>-p' 만 묻는다 · 미리 듣기 자리 · 가사는 원곡 시각 그대로 · 장면은 판이 다 담으면 그 판 · 못 담으면 곡 전체를 묻는다
-      [BGM_FIRST_1013] 멘트가 곡 앞부분보다 길면 같은 소절이 다시 나오는 뒤 자리(hooks)에 문 열림 · 음악이 4초 먼저 · «늦게 들어와요» 알림 없음
+      [BGM_FIRST_1013] 멘트가 곡 앞부분보다 길면 같은 소절이 다시 나오는 뒤 자리(hooks)에 문 열림 · 음악이 10초 먼저([ENTRY_BGM_1019] · 종전 4초) · «늦게 들어와요» 알림 없음
       [REC_CLIP_1013 2번] 고른 곡을 받는 동안 그래프 칸에 «곡을 불러오는 중이에요»
    시험 곡은 여기서 만든다(합성음 · 저장소에 음원 · 가사를 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
    EM_MOD = 돌연변이 확인용 — 그 판의 entry-music.js 로 잰다 · SHOT=폴더 — 카드를 그림으로 남긴다(눈으로 보기) */
@@ -43,16 +43,16 @@ const LIST = [
   { k: 'r1', name: '경쾌하게', t: 'Test Song One', a: '시험 가수', hook: 40, hook0: 40.06, len: 70, img: '/assets/home/snap.webp', pos: '58% 50%', file: 'r1.mp3',
     ly: [[27.0, 'already singing', '부르던 줄', 30.5], [37.5, 'before the door', '문 앞'], [40.4, 'line one', '첫 줄'], [43.2, 'line two', '둘째 줄']] },   // [LY_FROM_START_1013] 27초 줄은 ▶(28.06초부터) 때 이미 불리는 중
   { k: 'r3', name: '웅장하게', t: '시험 행진곡', a: '시험 작곡가', hook: 40, hook0: 40.07, len: 70, img: '/assets/home/gallery-05.webp', pos: '50% 24%', file: 'r3.mp3' },
-  { k: 'r9', name: '잔잔하게', t: 'Test Song Nine', a: '시험 OST', hook: 40, hook0: 40.05, len: 70, img: '/assets/home/gallery-01.webp', pos: '38% 50%', file: 'r9.mp3', lyEn: 'dreams line', lyKo: '꿈 줄', lyT: [36, 40.3, 44], lyAt: [40.3] },
+  { k: 'r9', name: '잔잔하게', t: 'Test Song Nine', a: '시험 OST', hook: 40, hook0: 40.05, len: 120, img: '/assets/home/gallery-01.webp', pos: '38% 50%', file: 'r9.mp3', lyEn: 'dreams line', lyKo: '꿈 줄', lyT: [36, 40.3, 44], lyAt: [40.3] },
   { k: '../bad', name: '나쁜 키', t: 'bad', hook: 10, len: 70 } ];   // 키가 이상하다 — 화면에서 빠진다
-const SONGS = { r1: wav(70, 40, 220), r3: wav(70, 40, 262), r9: wav(70, 40, 196) };
+const SONGS = { r1: wav(70, 40, 220), r3: wav(70, 40, 262), r9: wav(120, 40, 196) };   // [ENTRY_BGM_1019] r9 는 120초 — 문 열린 뒤 64초를 담는 곡(실제 추천 곡 8곡은 모두 담는다 · entry-bgm.mjs) · 15g 장면 줄이 받기 전후 같은 자리
 /* [REC_CLIP_1013] 짧은 판 — 같은 WAV 의 [t0, t1) 만(원곡 프레임을 그대로 자른 것과 같은 뜻) */
 function wavCut(b64, t0, t1, sr = 22050) { const b = Buffer.from(b64, 'base64'), a = Math.round(t0 * sr), z = Math.round(t1 * sr), n = z - a, o = Buffer.alloc(44 + n * 2); b.copy(o, 0, 0, 44); o.writeUInt32LE(36 + n * 2, 4); o.writeUInt32LE(n * 2, 40); b.copy(o, 44, 44 + a * 2, 44 + z * 2); return o.toString('base64'); }
 const LISTC = [
-  Object.assign({}, LIST[0], { pf: 'r1p.mp3', p0: 10, p1: 66, g: 1.5, hooks: [40.06] }),   // 장면을 다 담는 판
+  Object.assign({}, LIST[0], { pf: 'r1p.mp3', p0: 10, p1: 70, g: 1.5, hooks: [40.06] }),   // 장면을 다 담는 판([ENTRY_BGM_1019] 문 열린 뒤 64초 — 곡 끝 70초까지 · 종전 66초)
   { k: 'r3', name: '웅장하게', t: '이른 자리 곡', a: '시험 작곡가', hook: 12, hook0: 12, len: 70, img: '/assets/home/gallery-05.webp', pos: '50% 24%', file: 'r3.mp3', pf: 'r3p.mp3', p0: 0, p1: 70, hooks: [12, 45] },   // 앞부분(12초)이 멘트보다 짧다 — 뒤 자리 45초
-  Object.assign({}, LIST[2], { pf: 'r9p.mp3', p0: 34, p1: 70, hooks: [40.05] }) ];   // 판이 장면 앞부분을 못 담는다 — 곡 전체
-const SONGSC = { 'r1-p': wavCut(SONGS.r1, 10, 66), 'r3-p': wavCut(SONGS.r3, 0, 70), 'r9-p': wavCut(SONGS.r9, 34, 70), r1: SONGS.r1, r3: SONGS.r3, r9: SONGS.r9 };
+  Object.assign({}, LIST[2], { pf: 'r9p.mp3', p0: 34, p1: 120, hooks: [40.05] }) ];   // 판이 장면 앞부분을 못 담는다 — 곡 전체
+const SONGSC = { 'r1-p': wavCut(SONGS.r1, 10, 70), 'r3-p': wavCut(SONGS.r3, 0, 70), 'r9-p': wavCut(SONGS.r9, 34, 120), r1: SONGS.r1, r3: SONGS.r3, r9: SONGS.r9 };
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
 <script>
 window.H={files:{},log:[],dels:[],draft:null,saved:null,failList:0,failSong:0,failId:{},delay:60,listDelay:60,n:0,list:null,songs:null};
@@ -286,26 +286,27 @@ try {
     await o6.f.click('[data-fk="musrc:rec"]'); await o6.f.waitForFunction(() => EntryMusic._t.rec().buf.includes('r1'), null, { timeout: 15000 }).catch(() => {}); await o6.f.waitForTimeout(700);
     const L15a = await HL(o6.pg);
     ok(`${W} 15a 목록에 pf 가 있으면 짧은 판만 묻는다(r1-p · r3-p) · 곡 전체는 묻지 않는다`, recReqs(L15a, 'r1-p') === 1 && recReqs(L15a, 'r1') === 0 && recReqs(L15a, 'r3-p') === 1 && recReqs(L15a, 'r3') === 0, L15a);
+    { const R15a = await o6.f.evaluate(() => EntryMusic._t.rec()); ok(`${W} 15a2 [CLIP_LEN_CHECK] 길이가 목록(p1 − p0)과 맞는 판은 그대로 판으로 푼다(곡 전체로 바꾸지 않는다)`, R15a.clip.includes('r1'), R15a); }
     await o6.f.click('.ls-mu [data-fk="mucarplay"]'); await o6.f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.prev === 'r1' && r.x != null; }, null, { timeout: 15000 }).catch(() => {});
     const X15 = await o6.f.evaluate(() => EntryMusic._t.rec().x), PV15 = await o6.f.evaluate(() => EntryMusic._t.pv());
     await o6.f.waitForFunction(() => { const r = EntryMusic._t.rec(); return r.x != null && r.x >= 40.9; }, null, { timeout: 15000 }).catch(() => {}); await o6.f.waitForTimeout(250); const V15c = await view(o6.f);
-    ok(`${W} 15b 짧은 판 미리 듣기 자리 · 가사는 원곡 시각 그대로 — 문 열림 12초 앞(${X15 == null ? '-' : X15.toFixed(2)}초)부터 판 끝(66초)까지 · 40.4초 줄 «첫 줄 · line one»이 그 순간 [PREV_12_60_1013]`, X15 != null && X15 >= 28 && X15 < 30.5 && V15c.ly === '첫 줄line one' && V15c.lit
-      && !!PV15 && Math.abs(PV15.x0 - (PV15.H - 12)) < 0.01 && Math.abs(PV15.d - Math.min(60, 66 - PV15.x0)) < 0.02, { X15, ly: V15c.ly, lit: V15c.lit, x: V15c.rec.x, PV15 });
+    ok(`${W} 15b 짧은 판 미리 듣기 자리 · 가사는 원곡 시각 그대로 — 문 열림 12초 앞(${X15 == null ? '-' : X15.toFixed(2)}초)부터 판 끝(70초)까지 · 40.4초 줄 «첫 줄 · line one»이 그 순간 [PREV_12_60_1013]`, X15 != null && X15 >= 28 && X15 < 30.5 && V15c.ly === '첫 줄line one' && V15c.lit
+      && !!PV15 && Math.abs(PV15.x0 - (PV15.H - 12)) < 0.01 && Math.abs(PV15.d - Math.min(60, 70 - PV15.x0)) < 0.02, { X15, ly: V15c.ly, lit: V15c.lit, x: V15c.rec.x, PV15 });
     await o6.f.click('.ls-mu [data-fk="mucarplay"]'); await o6.f.waitForTimeout(300);
     await o6.f.click('.ls-mu [data-fk="mucarpick"]'); await o6.f.waitForFunction(() => !!document.querySelector('.em-scene') && EntryMusic._t.scene().plan, null, { timeout: 30000 }).catch(() => {}); await o6.f.waitForTimeout(300);
     const SC15d = await o6.f.evaluate(() => EntryMusic._t.scene()), L15d = await HL(o6.pg);
     ok(`${W} 15d 판이 장면을 다 담으면 그 판으로 — 곡 전체를 묻지 않는다 · 문 열림 = hook0`, SC15d.plan && Math.abs(SC15d.plan.H - 40.06) < 0.01 && recReqs(L15d, 'r1') === 0, { plan: SC15d.plan, L15d });
-    // 15h [PRE_ROLL_1013 · SOFT_START_1013] 장면(음악과 함께)도 누르고 0.3초 뒤 · 음악은 0 에서 2.5초에 걸쳐(u²) · 멘트(4초) 전에 다 올라와 있다
+    // 15h [PRE_ROLL_1013 · ENTRY_BGM_1019] 장면(음악과 함께)도 누르고 0.3초 뒤 · 음악은 0 에서 6초에 걸쳐(u² · 종전 2.5초 [SOFT_START_1013]) · 멘트(10초) 전에 다 올라와 있다
     await AUD_TAP(o6.f); await o6.f.click('.em-scene .lg-scene .lgs-greet'); await o6.f.waitForFunction(() => EntryMusic._t.scene().run, null, { timeout: 20000 }).catch(() => {}); await o6.f.waitForTimeout(200);
     const A15 = await AUD(o6.f), X15h = await o6.f.evaluate(() => EntryMusic._t.scene()); await o6.f.evaluate(() => emAct('scene')); await o6.f.waitForTimeout(300);
     { const st = A15.find((x) => x.k === 'start'), cv = A15.find((x) => x.k === 'curve' && x.arr[0] === 0 && x.n > 600), g = (sec) => cv.arr[Math.round(sec / cv.d * (cv.n - 1))];
-      ok(`${W} 15h [PRE_ROLL_1013 · SOFT_START_1013] 장면도 ${st ? (st.when - st.now).toFixed(3) : '?'}초 뒤에 소리 · 음악은 0 에서 2.5초에 걸쳐 올라온다(1.25초 ${cv ? (g(1.25) / g(2.6)).toFixed(3) : '?'} · 0.25) · 멘트(${X15h.plan ? X15h.plan.tv : '?'}초) 전에 다 올라와 있다`,
-        !!st && Math.abs(st.when - st.now - 0.3) < 0.005 && !!cv && Math.abs(cv.t - st.when) < 1e-6 && Math.abs(g(1.25) / g(2.6) - 0.25) < 0.02 && g(0.5) < g(2.6) * 0.06 && Math.abs(g(3.0) - g(2.6)) < g(2.6) * 0.02 && !!X15h.plan && X15h.plan.tv === 4,
+      ok(`${W} 15h [PRE_ROLL_1013 · ENTRY_BGM_1019] 장면도 ${st ? (st.when - st.now).toFixed(3) : '?'}초 뒤에 소리 · 음악은 0 에서 6초에 걸쳐 올라온다(3초 ${cv ? (g(3) / g(6.2)).toFixed(3) : '?'} · 0.25) · 멘트(${X15h.plan ? X15h.plan.tv : '?'}초) 전에 다 올라와 있다`,
+        !!st && Math.abs(st.when - st.now - 0.3) < 0.005 && !!cv && Math.abs(cv.t - st.when) < 1e-6 && cv.arr[0] === 0 && Math.abs(g(3) / g(6.2) - 0.25) < 0.02 && g(0.5) < g(6.2) * 0.06 && Math.abs(g(6.9) - g(6.2)) < g(6.2) * 0.02 /* 기록은 앞 1400점(7초)까지 · 6 ~ 8.5초는 intro 그대로 */ && !!X15h.plan && X15h.plan.tv === 10,
         { st, cv: cv ? { t: cv.t, d: cv.d, n: cv.n } : null, plan: X15h.plan, n: A15.length }); }
     await o6.f.click('.ls-mu [data-fk="mufold"]'); await o6.f.waitForTimeout(600); await o6.f.click('.ls-mu [data-fk="mucarnext"]'); await o6.f.waitForTimeout(500);
     await o6.f.click('.ls-mu [data-fk="mucarpick"]'); await o6.f.waitForFunction(() => { const p = EntryMusic._t.scene().plan; return !!(p && Math.abs(p.H - 12) > 0.01 || (p && document.querySelector('.ls-mu .mu-fold') && /이른 자리/.test(document.querySelector('.ls-mu .mu-fold').textContent))); }, null, { timeout: 30000 }).catch(() => {}); await o6.f.waitForTimeout(400);
     const SC15e = await o6.f.evaluate(() => ({ s: EntryMusic._t.scene(), late: !!document.querySelector('.em-scene .em-late'), k: window.S && S.mu && S.mu.k, hooks: window.S && S.mu && S.mu.hooks }));
-    ok(`${W} 15e 멘트(${SC15e.s.plan ? SC15e.s.plan.V.toFixed(1) : '-'}초)가 앞부분(12초)보다 길면 같은 소절이 다시 나오는 45초에 문 열림 · 음악이 4초 먼저 · «늦게 들어와요» 없음 · 초안에 hooks(당일 콘솔)`, SC15e.k === 'r3' && SC15e.s.plan && Math.abs(SC15e.s.plan.H - 45) < 0.01 && SC15e.s.plan.tm === 0 && SC15e.s.plan.tv === 4 && !SC15e.late && JSON.stringify(SC15e.hooks) === '[12,45]', SC15e);
+    ok(`${W} 15e 멘트(${SC15e.s.plan ? SC15e.s.plan.V.toFixed(1) : '-'}초)가 앞부분(12초)보다 길면 같은 소절이 다시 나오는 45초에 문 열림 · 음악이 10초 먼저([ENTRY_BGM_1019]) · «늦게 들어와요» 없음 · 초안에 hooks(당일 콘솔)`, SC15e.k === 'r3' && SC15e.s.plan && Math.abs(SC15e.s.plan.H - 45) < 0.01 && SC15e.s.plan.tm === 0 && SC15e.s.plan.tv === 10 && !SC15e.late && JSON.stringify(SC15e.hooks) === '[12,45]', SC15e);
     await o6.pg.evaluate(() => { H.delay = 2500; });
     await o6.f.click('.ls-mu [data-fk="mufold"]'); await o6.f.waitForTimeout(600); await o6.f.click('.ls-mu [data-fk="mucarnext"]'); await o6.f.waitForTimeout(400);
     await o6.f.waitForFunction(() => EntryMusic._t.rec().buf.includes('r9'), null, { timeout: 15000 }).catch(() => {});   // 지금 카드(r9) 짧은 판은 미리 받아 풀어 둔다
@@ -329,6 +330,15 @@ try {
     ok(`${W} 15f 판이 장면 앞부분을 못 담으면 곡 전체를 한 번 묻는다 · 받는 동안 그래프 칸 «곡을 불러오는 중이에요» · 받으면 그래프`, W15f.vis && W15f.txt === '곡을 불러오는 중이에요' && !W15f.plan && SC15f.s.plan && Math.abs(SC15f.s.plan.H - 40.05) < 0.01 && !SC15f.wait && recReqs(L15f, 'r9') === 1 && recReqs(L15f, 'r9-p') === 1, { W15f, plan: SC15f.s.plan, wait: SC15f.wait, L15f });
     ok(`${W} 13f 쪽 오류 없음(짧은 판)`, o6.errs.length === 0, o6.errs);
     await ctx6.close();
+    // 15i ★[CLIP_LEN_CHECK · ENTRY_BGM_1019] 받은 짧은 판의 길이가 목록(p1 − p0)과 다르면(판을 다시 자른 날 옛 목록 + 새 판 · 또는 반대) 그 판을 버리고 곡 전체 — 엉뚱한 자리가 울리지 않는다
+    { const ctx7 = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 });
+      const LISTX = [Object.assign({}, LISTC[0], { p1: 60 })].concat(LISTC.slice(1));   // 목록은 50초짜리 판이라는데 받은 판은 60초(10 ~ 70)
+      const o7 = await open(ctx7, { list: LISTX, songs: SONGSC }); await toEntry(o7.f);
+      await o7.f.click('[data-fk="musrc:rec"]'); await o7.f.waitForFunction(() => EntryMusic._t.rec().buf.includes('r1'), null, { timeout: 20000 }).catch(() => {}); await o7.f.waitForTimeout(500);
+      const L15i = await HL(o7.pg), R15i = await o7.f.evaluate(() => EntryMusic._t.rec());
+      ok(`${W} 15i [CLIP_LEN_CHECK] 받은 짧은 판 길이(60초)가 목록(50초)과 다르면 그 판을 버리고 곡 전체를 한 번 묻는다 · 풀어 둔 곡은 곡 전체`,
+        recReqs(L15i, 'r1-p') === 1 && recReqs(L15i, 'r1') === 1 && R15i.buf.includes('r1') && !R15i.clip.includes('r1') && o7.errs.length === 0, { L15i, R15i, errs: o7.errs });
+      await ctx7.close(); }
   }
 } catch (e) { ok('잴 수 없었다 — ' + (e && e.stack || e).split('\n').slice(0, 3).join(' | '), false); }
 await br.close(); srv.close();

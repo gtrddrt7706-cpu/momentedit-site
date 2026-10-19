@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 /* ★★[BGM_FIRST_1013 2026-10-13 사장님 «bgm이 먼저 조금 깔리다가 멘트를 하는 게 좋을 것 같은데»] 입장 «음악과 함께» — 음악이 늘 멘트보다 먼저 들린다
    엔진(assets/entry-scene.js)만 브라우저 없이 잰다 — 식순 화면 미리 듣기와 당일 콘솔이 같은 식을 쓴다.
-   1 멘트 앞 4초(lead)에 음악이 들린다 — 2.5초에 걸쳐 0 에서 잔잔하게 올라와([SOFT_START_1013] · 종전 1.2초) 멘트 앞에서 하이라이트보다 6dB 아래(intro) · 종전처럼 거의 안 들리는 크기(-21dB 아래)가 아니다
-     [SOFT_START_1013] 첫소리 — 0.5초는 intro 보다 20dB 넘게 작고 · 1.3초도 아직 올라오는 중 · 2.6초면 intro · 그 사이 줄곧 커진다 · 미리 듣기 첫소리(fadeCurve)도 같은 u² · 식순 화면은 누르고 0.3초 뒤(PRE_ROLL)
-   2 멘트가 시작되면 목소리 밑 크기로 내려가 있다(0.5초 전부터 내려간다) · 마지막 말 끝 + 0.3초에 하이라이트(0dB)
-   3 문 열림 자리 고르기(pickHook) — 고른 자리에서 음악이 4초 먼저 깔릴 수 있으면 그대로 · 모자라면 같은 소절이 다시 나오는 뒤 자리 중 처음으로 넉넉한 곳 · 어디도 모자라면 가장 뒤 · 후보가 없으면 그대로
-   4 plan — 멘트가 곡 앞부분보다 길어도(A Lover's Concerto 16초 · 멘트 17초) 뒤 자리로 옮겨 음악이 4초 먼저(늦게 들어오지 않는다 · tm 0)
+   ★★[ENTRY_BGM_1019 2026-10-19 사장님 «처음도입부분을 좀더 길게 늘리고 서서히 0에서 볼륨을 높였다가 멘트 직전에 낮출것» · «도착 까지 … 행진이후 1분이상»]
+     값 = lead 10 · fade 6 · duck 1.5 · after 60(종전 4 · 2.5 · 0.5 · 20) · 미리 듣기 첫소리 PREV_FADE 2.5 그대로 — 1 · 7 이 값을 잡는다(6판 × 8곡은 entry-bgm.mjs)
+   1 멘트 앞 10초(lead)에 음악이 들린다 — 6초에 걸쳐 0 에서 서서히 올라와(종전 2.5초 [SOFT_START_1013] · 1.2초) 멘트 앞에서 하이라이트보다 6dB 아래(intro) · 종전처럼 거의 안 들리는 크기(-21dB 아래)가 아니다
+     첫소리 — 0.5초는 intro 보다 20dB 넘게 작고 · 3초도 아직 올라오는 중 · 6.1초면 intro · 그 사이 줄곧 커진다 · 미리 듣기 첫소리(fadeCurve · PREV_FADE 2.5초)도 같은 u² · 식순 화면은 누르고 0.3초 뒤(PRE_ROLL)
+   2 멘트가 시작되면 목소리 밑 크기로 내려가 있다(1.5초 전부터 내려간다 · 그 앞 6 ~ 8.5초는 intro 그대로) · 마지막 말 끝 + 0.3초에 하이라이트(0dB)
+   3 문 열림 자리 고르기(pickHook) — 고른 자리에서 음악이 10초 먼저 깔릴 수 있으면 그대로 · 모자라면 같은 소절이 다시 나오는 뒤 자리 중 처음으로 넉넉한 곳 · 어디도 모자라면 가장 뒤 · 후보가 없으면 그대로
+   4 plan — 멘트가 곡 앞부분보다 길어도(A Lover's Concerto 16초 · 멘트 17초) 뒤 자리로 옮겨 음악이 10초 먼저(늦게 들어오지 않는다 · tm 0)
    5 두 분이 올린 곡(후보 없음)은 종전대로 — 고른 자리 그대로 · 앞부분이 모자라면 늦게 들어온다(알림이 «더 뒤 자리를 고르면»)
    6 미리 듣기용 짧은 판(Sg.end) — 장면 끝은 그 판의 끝을 넘지 않는다
+   7 [ENTRY_BGM_1019] 문 열린 뒤 크게 60초 머문 뒤 4초에 잦아든다 = «도착»까지 64초(식순 화면) · 당일 콘솔(after 1e5)은 곡 끝까지
    종료 코드 0 통과 · 1 실패.  ES_MOD = 돌연변이 확인용(그 판의 entry-scene.js 로 잰다) */
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
@@ -21,29 +24,29 @@ const voice = (V, n = 3) => { const d = (V - 0.4 * (n - 1)) / n, pieces = [], ga
 const song = (dur, extra) => Object.assign({ dur, gain: 1, buf: null }, extra || {});
 // 1 · 2 — 곡 앞부분이 넉넉한 곡(문 열림 40초 · 멘트 17초)
 { const V0 = voice(17), PL = ES.plan(V0, song(150), 40), T = ES.BED_TRIM;
-  ok('1 장면 — 음악이 멘트보다 4초 먼저(tv 4 · tm 0)', PL.tv === 4 && PL.tm === 0 && PL.H === 40, PL);
-  const g05 = dB(ES.envGain(PL, 0.5)), g13 = dB(ES.envGain(PL, 1.3)), g26 = dB(ES.envGain(PL, 2.6)), g30 = dB(ES.envGain(PL, 3.0)), gv = dB(ES.envGain(PL, PL.tv + 0.2)), gpk = dB(ES.envGain(PL, PL.th + 1));
-  ok(`1 멘트 앞 음악이 들린다 — 2.6초 ${g26.toFixed(1)}dB · 3초 ${g30.toFixed(1)}dB ≥ intro(${(ES.SP.intro + T).toFixed(0)}dB)`,
+  ok('1 장면 — 음악이 멘트보다 10초 먼저(tv 10 · tm 0) [ENTRY_BGM_1019]', PL.tv === 10 && PL.tm === 0 && PL.H === 40, PL);
+  const g05 = dB(ES.envGain(PL, 0.5)), g13 = dB(ES.envGain(PL, 3.0)), g26 = dB(ES.envGain(PL, 6.1)), g30 = dB(ES.envGain(PL, 8.0)), gv = dB(ES.envGain(PL, PL.tv + 0.2)), gpk = dB(ES.envGain(PL, PL.th + 1));
+  ok(`1 멘트 앞 음악이 들린다 — 6.1초 ${g26.toFixed(1)}dB · 8초 ${g30.toFixed(1)}dB ≥ intro(${(ES.SP.intro + T).toFixed(0)}dB)`,
     Math.abs(g26 - (ES.SP.intro + T)) < 0.6 && Math.abs(g30 - (ES.SP.intro + T)) < 0.6, { g26, g30 });
   let up = true; for (let x = 0.01; x <= ES.SP.fade; x += 0.01) if (ES.envGain(PL, x) < ES.envGain(PL, x - 0.01)) up = false;
-  const fc = ES.fadeCurve ? ES.fadeCurve(1, 2.5) : null, fn = fc ? fc.length : 0;
-  ok(`1 [SOFT_START_1013] 첫소리 잔잔하게 — 0.5초 ${g05.toFixed(1)}dB · 1.3초 ${g13.toFixed(1)}dB(아직 올라오는 중) · 2.5초 동안 줄곧 커진다 · 값 fade ${ES.SP.fade} · 누르고 ${ES.PRE_ROLL}초 뒤 · 미리 듣기 곡선도 u²`,
-    ES.SP.fade === 2.5 && ES.PRE_ROLL === 0.3 && g05 < g26 - 20 && g13 < g26 - 8 && up && !!fc && fc[0] === 0 && Math.abs(fc[fn - 1] - 1) < 1e-6 && Math.abs(fc[Math.round((fn - 1) / 2)] - 0.25) < 0.005, { fade: ES.SP.fade, pre: ES.PRE_ROLL, g05, g13, g26, up, fn });
-  ok(`1 종전 곡선이 아니다 — 멘트 앞 3초가 -21dB 보다 크다(종전 -30dB 안팎 · 처음 5초 페이드)`, g30 > -18, { g30 });
+  const fc = ES.fadeCurve ? ES.fadeCurve(1, ES.PREV_FADE) : null, fn = fc ? fc.length : 0;
+  ok(`1 [ENTRY_BGM_1019 · SOFT_START_1013] 첫소리 0 에서 서서히 — 0.5초 ${g05.toFixed(1)}dB · 3초 ${g13.toFixed(1)}dB(아직 올라오는 중) · 6초 동안 줄곧 커진다 · 값 fade ${ES.SP.fade} · 미리 듣기 첫소리 ${ES.PREV_FADE}초 · 누르고 ${ES.PRE_ROLL}초 뒤 · 미리 듣기 곡선도 u²`,
+    ES.SP.fade === 6 && ES.PREV_FADE === 2.5 && ES.PRE_ROLL === 0.3 && dB(ES.envGain(PL, 0)) === -120 && g05 < g26 - 20 && g13 < g26 - 8 && up && !!fc && fc[0] === 0 && fc.length === Math.ceil(2.5 * 200) + 1 && Math.abs(fc[fn - 1] - 1) < 1e-6 && Math.abs(fc[Math.round((fn - 1) / 2)] - 0.25) < 0.005, { fade: ES.SP.fade, prev: ES.PREV_FADE, pre: ES.PRE_ROLL, g05, g13, g26, up, fn });
+  ok(`1 종전 곡선이 아니다 — 멘트 앞(8초)이 -21dB 보다 크다(10/13 전 -30dB 안팎 · 처음 5초 페이드)`, g30 > -18, { g30 });
   ok(`2 멘트가 시작되면 목소리 밑 크기(${gv.toFixed(1)}dB ≤ ${(ES.SP.under - ES.SP.build + T + 0.5).toFixed(1)}) · 하이라이트 뒤 ${gpk.toFixed(1)}dB`,
     gv <= ES.SP.under - ES.SP.build + T + 0.5 && Math.abs(gpk - T) < 0.6 && Math.abs(PL.th - (PL.tv + PL.V + ES.SP.breath)) < 1e-9, { gv, gpk, th: PL.th });
-  const gd = dB(ES.envGain(PL, PL.tv - ES.SP.duck + 0.05)), ge = dB(ES.envGain(PL, PL.tv - 0.02));
-  ok(`2 멘트 0.5초 전부터 내려간다 — ${gd.toFixed(1)} → ${ge.toFixed(1)}dB`, gd > ge + 3, { gd, ge }); }
+  const gd = dB(ES.envGain(PL, PL.tv - ES.SP.duck + 0.05)), ge = dB(ES.envGain(PL, PL.tv - 0.02)), gh = dB(ES.envGain(PL, PL.tv - ES.SP.duck - 0.05));
+  ok(`2 멘트 1.5초 전부터 내려간다(duck ${ES.SP.duck}) — ${gh.toFixed(1)} · ${gd.toFixed(1)} → ${ge.toFixed(1)}dB · 그 앞(6.1초 ~ 8.5초)은 intro 그대로`, ES.SP.duck === 1.5 && gd > ge + 3 && Math.abs(gh - g26) < 0.1, { gd, ge, gh, g26 }); }
 // 3 — 문 열림 자리 고르기
 if (typeof ES.pickHook !== 'function') { ok('3 pickHook 이 엔진에 있다', false); console.log('bgm-first: FAIL ' + fail); process.exit(1); }
 { const H = 16.11, hs = [16.11, 49.93, 101.48], need = (V) => V + ES.SP.breath + ES.SP.lead;
-  const c = [[10, H], [11.8, H], [17, 49.93], [45.5, 49.93], [46, 101.48], [97, 101.48], [200, 101.48]].map(([V, want]) => [V, ES.pickHook(H, hs, V), want]);
+  const c = [[5, H], [5.8, H], [5.9, 49.93], [17, 49.93], [39.6, 49.93], [39.7, 101.48], [91.1, 101.48], [200, 101.48]].map(([V, want]) => [V, ES.pickHook(H, hs, V), want]);   // [ENTRY_BGM_1019] 기준 = 멘트 + 0.3 + 10
   ok('3 pickHook — 넉넉하면 고른 자리 · 모자라면 처음으로 넉넉한 뒤 자리 · 어디도 모자라면 가장 뒤', c.every(([, got, want]) => got === want), c);
   ok('3 후보가 없거나 고른 자리보다 앞 후보뿐이면 그대로', ES.pickHook(H, null, 30) === H && ES.pickHook(H, [], 30) === H && ES.pickHook(40, [10, 20], 50) === 40, [ES.pickHook(H, null, 30), ES.pickHook(40, [10, 20], 50)]);
-  ok('3 기준 = 멘트 + 숨 0.3초 + 앞 4초', need(17) === 21.3); }
+  ok('3 기준 = 멘트 + 숨 0.3초 + 앞 10초', Math.abs(need(17) - 27.3) < 1e-9); }
 // 4 — A Lover's Concerto(16.11초) · 멘트 17초 — 뒤 자리(49.93초)로
 { const V0 = voice(17), PL = ES.plan(V0, song(168.19), 16.11, { hooks: [16.11, 49.93, 101.48] });
-  ok(`4 멘트가 앞부분보다 길어도 음악이 4초 먼저 — 문 열림 ${PL.H}초(고른 자리 ${PL.H0}초) · tv ${PL.tv} · tm ${PL.tm}`, PL.H === 49.93 && PL.H0 === 16.11 && PL.tv === 4 && PL.tm === 0 && Math.abs(PL.off - (49.93 - 17 - 0.3 - 4)) < 1e-9, PL);
+  ok(`4 멘트가 앞부분보다 길어도 음악이 10초 먼저 — 문 열림 ${PL.H}초(고른 자리 ${PL.H0}초) · tv ${PL.tv} · tm ${PL.tm}`, PL.H === 49.93 && PL.H0 === 16.11 && PL.tv === 10 && PL.tm === 0 && Math.abs(PL.off - (49.93 - 17 - 0.3 - 10)) < 1e-9, PL);
   const late = PL.tm > ES.LATE_T; ok('4 «늦게 들어와요» 알림이 뜨지 않는다(tm ≤ LATE_T)', !late, { tm: PL.tm }); }
 // 5 — 두 분이 올린 곡(후보 없음)
 { const V0 = voice(17), PL = ES.plan(V0, song(168.19), 16.11);
@@ -51,5 +54,10 @@ if (typeof ES.pickHook !== 'function') { ok('3 pickHook 이 엔진에 있다', f
 // 6 — 짧은 판의 끝
 { const V0 = voice(17), PL = ES.plan(V0, song(280, { end: 62 }), 39.57, { hooks: [39.57, 65.16] });
   ok(`6 짧은 판(끝 62초)이면 장면 끝도 그 안(${PL.tend.toFixed(2)} ≤ ${(PL.tm + 62 - PL.off).toFixed(2)})`, PL.tend <= PL.tm + (62 - PL.off) + 1e-9, PL); }
+// 7 — [ENTRY_BGM_1019] 문 열린 뒤 «도착»까지 64초(크게 60 + 잦아듦 4) · 당일 콘솔은 디렉터가 다음을 누를 때까지
+{ const V0 = voice(17), PL = ES.plan(V0, song(200), 40), DAY = ES.plan(V0, song(200), 40, { after: 1e5 });
+  const gA = dB(ES.envGain(PL, PL.th + 59.9)), gB = dB(ES.envGain(PL, PL.th + 62)), gC = ES.envGain(PL, PL.tend + 0.01);
+  ok(`7 «도착»까지 ${(PL.tend - PL.th).toFixed(1)}초(after ${ES.SP.after} · 잦아듦 ${ES.OUTF}) · 59.9초 ${gA.toFixed(1)}dB(크게 그대로) · 62초 ${gB.toFixed(1)}dB(잦아드는 중) · 끝 뒤 0 · 당일 콘솔 장면 끝 = 곡 끝`,
+    ES.SP.after === 60 && ES.OUTF === 4 && Math.abs(PL.tend - PL.th - 64) < 1e-9 && Math.abs(gA - ES.BED_TRIM) < 0.6 && gB < gA - 10 && gC === 0 && Math.abs(DAY.tend - (DAY.tm + 200 - DAY.off)) < 1e-9, { th: PL.th, tend: PL.tend, gA, gB, day: DAY.tend }); }
 console.log(fail ? `bgm-first: FAIL ${fail}` : 'bgm-first: ok');
 process.exit(fail ? 1 : 0);

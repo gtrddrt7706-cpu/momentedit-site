@@ -2,7 +2,7 @@
 /* ★★[ENTRY_SCENE_DAY 2026-10-12 사장님 «일단 전부 올려»] 입장 음악 3단계-나 — 당일 콘솔(console.html)
    디렉터가 입장 큐를 GO 하면 곡(계산한 자리에서 페이드인) · 입장 대사 · 마지막 말 끝 하이라이트가 한 시계로 흐르는가(기획안 «6. 당일 콘솔»).
    1 미리 받기 — 초안 S.mu.fid 로 곡을 받아 «입장 음악 · ✓ ‹곡› · 0:40 하이라이트 · 받아 둠» · 시작하면 입장 대사(나레이션)를 미리 풀어 둔다
-   2 입장 큐 GO — 장면이 돈다(곡 · 대사 Web Audio) · 계획 = 식순 화면과 같은 식(entry-scene.js · 앞 4초 · 마지막 말 끝 + 0.3초 = 0:40) · 배경음은 내려 둔다(-90)
+   2 입장 큐 GO — 장면이 돈다(곡 · 대사 Web Audio) · 계획 = 식순 화면과 같은 식(entry-scene.js · 앞 10초 [ENTRY_BGM_1019] · 마지막 말 끝 + 0.3초 = 0:40) · 배경음은 내려 둔다(-90)
      · 큐 이름표 «입장 음악 · ‹곡›»
    3 대사가 끝나면 큐가 넘어간다(뒤처리 · 걸음) — 곡은 계속 크게 · 배경음은 여전히 내려 둔 채(뒤처리의 «음악 크게»도 곡 쪽 일이다)
    4 같은 입장 묶음의 다음 큐(맞절) — 곡은 이어서 그 큐의 덕 값(-12dB)으로 낮게 · 배경음은 그대로 내려 둔 채
@@ -12,7 +12,7 @@
    8 갈래 칩은 줄마다 하나(두 분 목소리 줄 포함) · 입장 줄만 «입장 음악» 칩이 하나 더 ·
      8a 두 분 목소리 자리인데 파일을 못 받으면 대사 조각을 실제로 나가는 나레이션으로 센다
    9 [REC_SONG_1012] 추천 곡을 고른 예식 — 곡은 rec:<곡 키> 로 받고 장면 · 이름표는 두 분이 올린 곡과 같다
-   10 [BGM_FIRST_1013] 멘트가 고른 자리보다 길면 S.mu.hooks 의 뒤 자리에 문 열림 · 음악이 4초 먼저(식순 화면과 같은 식)
+   10 [BGM_FIRST_1013] 멘트가 고른 자리보다 길면 S.mu.hooks 의 뒤 자리에 문 열림 · 음악이 10초 먼저([ENTRY_BGM_1019] · 식순 화면과 같은 식)
    2b [ENTRY_CALL_PAUSE_1013] 대사는 «입장!» 앞에서 둘로 끊어 건다 — «…감사하겠습니다» 말끝에서 «신랑» 말머리까지 1.8초(엔진 SP.call · 식순 화면과 같은 엔진 · entry-call-pause 가 소리로 잰다)
    시험 곡은 여기서 만든다(합성음 · 저장소에 음원을 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
    EM_CON = 돌연변이 확인용 — 그 판의 console.html 로 잰다 */
@@ -72,8 +72,8 @@ try {
     await fireAt(pg, I.e); await pg.waitForTimeout(400);
     const B = await st(pg);
     const pl = B.pl || {};
-    ok('2 입장 GO — 장면(곡 · 대사 Web Audio) · 계획 = 식순 화면과 같은 식(앞 4초 · 마지막 말 끝 + 0.3초 = 0:40 · 곡은 그만큼 앞에서) · 배경음 -90 · 이름표 «입장 음악 · 시험 곡»',
-      B.run && B.ri === I.e && B.phase === 'clip' && pl.tv === 4 && pl.tm === 0 && Math.abs(pl.th - (4 + pl.V + 0.3)) < 0.001 && Math.abs(pl.off - (40 - pl.V - 0.3 - 4)) < 0.001 && pl.H === 40 && B.duck === -90 && B.ac === 'running' && B.tags.includes('입장 음악 · 시험 곡'), B);
+    ok('2 입장 GO — 장면(곡 · 대사 Web Audio) · 계획 = 식순 화면과 같은 식(앞 10초 [ENTRY_BGM_1019] · 마지막 말 끝 + 0.3초 = 0:40 · 곡은 그만큼 앞에서) · 배경음 -90 · 이름표 «입장 음악 · 시험 곡»',
+      B.run && B.ri === I.e && B.phase === 'clip' && pl.tv === 10 && pl.tm === 0 && Math.abs(pl.th - (10 + pl.V + 0.3)) < 0.001 && Math.abs(pl.off - (40 - pl.V - 0.3 - 10)) < 0.001 && pl.H === 40 && B.duck === -90 && B.ac === 'running' && B.tags.includes('입장 음악 · 시험 곡'), B);
     const CALL2 = await pg.evaluate(() => window.EntryScene && EntryScene.SP.call);
     ok(`2b [ENTRY_CALL_PAUSE_1013] 대사는 «입장!» 앞에서 둘로 끊어 건다(마디 ${B.vsn}) — 녹음 쉼 ${B.cut ? B.cut.was.toFixed(2) : '?'}초 → ${CALL2}초 · 대사가 그만큼 길어져 큐도 그 뒤에 넘어간다(식순 화면과 같은 자리)`,
       CALL2 === 1.8 && B.vsn === 2 && !!B.cut && Math.abs(B.cut.was + B.cut.add - CALL2) < 0.01 && B.cut.add > 0.2, { vsn: B.vsn, cut: B.cut, V: pl.V, CALL2 });
@@ -161,8 +161,8 @@ try {
     await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
     const I = await idxOf(pg); await fireAt(pg, I.e); await pg.waitForTimeout(400);
     const B = await st(pg), pl = B.pl || {};
-    ok(`10 [BGM_FIRST_1013] 멘트(${(pl.V || 0).toFixed(1)}초)가 고른 자리(8초)보다 길면 뒤 자리 60초에 문 열림 · 음악이 4초 먼저(tv 4 · tm 0) — 식순 화면과 같은 후보(S.mu.hooks)`,
-      B.run && pl.H === 60 && pl.H0 === 8 && pl.tv === 4 && pl.tm === 0 && Math.abs(pl.off - (60 - pl.V - 0.3 - 4)) < 0.001 && errs.length === 0, { pl, errs });
+    ok(`10 [BGM_FIRST_1013] 멘트(${(pl.V || 0).toFixed(1)}초)가 고른 자리(8초)보다 길면 뒤 자리 60초에 문 열림 · 음악이 10초 먼저(tv 10 · tm 0 [ENTRY_BGM_1019]) — 식순 화면과 같은 후보(S.mu.hooks)`,
+      B.run && pl.H === 60 && pl.H0 === 8 && pl.tv === 10 && pl.tm === 0 && Math.abs(pl.off - (60 - pl.V - 0.3 - 10)) < 0.001 && errs.length === 0, { pl, errs });
     await ctx.close();
   }
 } catch (e) { ok('잴 수 없었다 — ' + (e && e.message || e).split('\n')[0], false); }
