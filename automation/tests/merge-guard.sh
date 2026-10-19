@@ -15206,6 +15206,11 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/chip-full.mjs >/dev/
 chk 'RAIL_IGNORE_1019' order-preview.html 9
 chk 'RAIL_IGNORE_1019' scripts/audit/rail-ignore.mjs 2
 chk 'RAIL_IGNORE_1019' scripts/audit/turn-gap.mjs 1   # 쉼 점 줄도 폰은 줄 끝까지(turn-gap 이 390 · 1280 에서 잰다)
+# ★★[CHIP_GRID_PC_1019 2026-10-19 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게 크기를 조절해서 하고싶어»] PC 칩 줄 = 6칸 격자(한 줄 · 같은 크기 · 칸 선이 줄끼리 맞는다 · 고를 것 둘 · 셋 = 두 칸 · 멘트 넷 ~ 여섯 = 한 칸)
+#   좁은 태블릿(격자에 못 서는 쪽)은 폰처럼 같은 폭 칸 · 10/08 VP_ROW_A «PC 는 글자 폭 그대로»를 이 말씀으로 바꿨다 · chip-full.mjs 가 1280 · 768 을 잰다(main 이면 빨강 8)
+chk 'CHIP_GRID_PC_1019' order-preview.html 7
+chk 'CHIP_GRID_PC_1019' scripts/audit/chip-full.mjs 2
+chk 'function _cgPlan(c){' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rail-ignore.mjs >/dev/null 2>&1; _rig=$?; if [ "$_rig" = 1 ]; then echo 'FAIL rail-ignore: 식순 화면이 오른쪽 레일(말풍선) 자리를 비웁니다 — node scripts/audit/rail-ignore.mjs'; fail=1; else echo 'OK   rail-ignore [RAIL_IGNORE_1019]'; fi; fi
 # ★[REVIEW24_1019 2026-10-19 대본 섹션 검토 132 · 132 덧 2] 여섯째 · 넷째 예시(개식 OO · 맞절 EE B-1 · 부모님께 인사 PP 22 · 감사문 PP 14) · 식전 영상 소개 129 · 130 자료 글 · 소개 넷 우성 · 영상 뒤 받는 말 261 · 고르기 쪽 예시 카드 말풍선 자리
 chk 'REVIEW24_1019' assets/ritual-open.js 7
@@ -16091,6 +16096,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/d
 # ★★[VP_ROW_A 2026-10-08 사장님 «추천두개» = 안 A · «PC 는 지금이 적절 · 바꾼다면 모바일만»] «어떻게 준비할까요» 줄(하객 맞이 · 입장 · 식전 영상 소개 · cg-vq) — 폰만:
 #   질문 14px 먹색 600 · 칩 반반(아래 칩 줄과 같은 모양) · 링크 12.5px(360 아래 11px) · 그래도 질문 글자에 붙으면 칩 아래 제 줄(cg-lkdn · _cgEven 이 잰다)
 #   PC 칩은 글자 폭 그대로 · 제목 글씨는 같은 날 CG_TITLE 로 PC 도(사장님 «제목 폰트는 PC 도 전부») · vp-ask-first 가 280 · 320 · 390 · 1280 에서 잰다(되돌리면 빨강 · 돌연변이 확인)
+#   → ★10/19 [CHIP_GRID_PC_1019] 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게 크기를 조절해서»로 PC 칩은 6칸 격자(같은 크기 · 칸 선 맞춤) — chip-full.mjs 가 1280 · 768 에서 잰다
 chk 'VP_ROW_A' order-preview.html 4
 chk 'VP_ROW_A' scripts/audit/vp-ask-first.mjs 9
 chk 'VP_ROW_A' scripts/audit/make-shell.mjs 1
@@ -17060,7 +17066,7 @@ chk "if(cat==='bring'&&q.k==='ring'&&!due) due='반지는 단상 위에 미리 �
 nochk ":'아래에서 고른 멘트를 나레이터가 읽어요');" order-preview.html
 nochk "+'<p class=\"mk-note\">영상이 시작되기 바로 전에 나와요</p>'" order-preview.html
 nochk "<p class=\"mk-note mk-txalt\">보내지 않아도 돼요" order-preview.html
-chk 'if(rows<2&&!nar) return;   /\* \[CHIP_FULL_1019\]' order-preview.html 1   # ★[CHIP_FULL_1019 2026-10-19 사장님] 폰은 한 줄에 들어가는 넷 미만 줄도 꽉 채운다(종전 «rows<2&&b.length<4 면 그대로»를 걷음) · PC 는 한 줄이면 그대로
+chk 'if(rows<2&&!nar&&dl) return;   /\* \[CHIP_FULL_1019\]' order-preview.html 1   # ★[CHIP_FULL_1019 2026-10-19 사장님] 폰은 한 줄에 들어가는 넷 미만 줄도 꽉 채운다(종전 «rows<2&&b.length<4 면 그대로»를 걷음) · PC 는 한 줄이면 그대로
 # ★[BLESS_CK_TOP 2026-10-07 사장님 «추천대로»] 덕담 · 축사 «원고 없이» 체크 = 원고 칸 위 머리 줄 오른쪽(첫인사 · 서약 · 편지와 같은 자리)
 chk 'BLESS_CK_TOP' order-preview.html 2
 chk "h+='<li class=\"mk-vx\">'+'<div class=\"mk-txh mk-bsh\"><label class=\"upchk mk-ck\">" order-preview.html 1

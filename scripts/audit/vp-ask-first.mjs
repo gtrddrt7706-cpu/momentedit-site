@@ -40,7 +40,8 @@ for (const W of [390, 1280]) {
       !a.ask && !a.box /* [VP_ASK_ONE] 상자 없이 칩 아래 한 줄 */ && !a.flow && a.cards === 0 && !/나레이터가 읽어요/.test(a.note) && a.on === 0, JSON.stringify(a));
     ok(`${W} ${k} [VP_ASK_ONLY] 안 고름 — «어떻게 준비할까요» 칸 하나만(입장 멘트 같은 다른 칩 줄 없음 · 눌린 칩 없음 · 사장님 «담백하게 눌러져 있는 거 개선»)`, a.others === 0 && a.exPressed === 0, JSON.stringify(a));
     /* ★★[VP_ROW_A 2026-10-08 사장님 «추천두개» = 안 A · «PC 는 지금이 적절 · 바꾼다면 모바일만»] 폰 = 질문 14px 먹색 600 한 줄 · 칩 반반(줄을 꽉 채운 같은 폭 두 칸) · 링크 12.5px 는 질문 줄 오른쪽 · 질문과 안 겹친다
-       PC = 칩은 글자 폭 그대로 · 제목 글씨는 같다(CG_TITLE · 질문 옆에 칩 한 줄 · VP_CHIP_ROW) */
+       PC = 칩은 글자 폭 그대로 · 제목 글씨는 같다(CG_TITLE · 질문 옆에 칩 한 줄 · VP_CHIP_ROW)
+       → ★10/19 [CHIP_GRID_PC_1019] 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게»로 PC 칩은 6칸 격자(같은 크기)로 바꿨다 — 폭은 chip-full.mjs 가 잰다 */
     const vr = await vpRow(pg, vk);
     if (W <= 460) ok(`${W} ${k} [VP_ROW_A] 폰 — «어떻게 준비할까요» 14px · 600 · 먹색 · 한 줄 · 칩 둘이 같은 폭으로 줄을 꽉 채운다 · 링크 12.5px 는 질문 줄 오른쪽(질문과 12px 넘게)`, vr && vr.vq && vr.fs === '14px' && vr.fw === '600' && vr.col === 'rgb(58, 45, 34)' && vr.lines === 1 && vr.eq && vr.fill && vr.lfs === '12.5px' && vr.gap >= 12 && vr.lup, JSON.stringify(vr));
     else ok(`${W} ${k} [VP_ROW_A · CG_TITLE] PC — 제목 14px · 600 · 먹색 · 한 줄 · 질문 옆에 칩(사장님 «제목 폰트는 PC 도»)`, vr && vr.fs === '14px' && vr.fw === '600' && vr.col === 'rgb(58, 45, 34)' && vr.lines === 1 && vr.beside, JSON.stringify(vr));
