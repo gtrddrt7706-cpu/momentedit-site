@@ -15195,10 +15195,18 @@ nochk "window.opMood=function" order-preview.html
 nochk "_moodKeep(); }catch(e){}" order-preview.html
 nochk "R.applyExample(S,k); _moodCourse();" order-preview.html
 chk 'MOOD_ROW_OFF_1019' scripts/audit/mood-screen.mjs 3
-# ★[CHIP_FULL_1019 2026-10-19 사장님 «버튼 짝수로 · 서약 감사문 버튼 좌우 꽉 차게 · 그 아래 버튼들도»] 폰 칩 줄 — 둘 이상이면 같은 폭 칸 · 혼자 남는 칩 없음 · 상담 말풍선 자리 비움(레일은 그대로)
+# ★[CHIP_FULL_1019 2026-10-19 사장님 «버튼 짝수로 · 서약 감사문 버튼 좌우 꽉 차게 · 그 아래 버튼들도»] 폰 칩 줄 — 둘 이상이면 같은 폭 칸 · 혼자 남는 칩 없음 · 오른쪽 끝까지(10/19 [RAIL_IGNORE_1019] 로 말풍선 자리 비우기는 걷었다 · 레일은 그대로)
 chk 'CHIP_FULL_1019' order-preview.html 5   # [PK_EX_BUBBLE_1019] 예시 카드 줄이 한 번 더 부른다
-chk "padding-right:36px}}   /\* ★\[CHIP_FULL_1019\]" order-preview.html 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/chip-full.mjs >/dev/null 2>&1; _chf=$?; [ "$_chf" = 1 ] && { echo 'FAIL chip-full: 폰 칩 줄이 꽉 차지 않거나 혼자 남는 칩 · 말풍선 자리 — node scripts/audit/chip-full.mjs'; fail=1; }; if [ "$_chf" = 0 ]; then echo 'OK   chip-full [CHIP_FULL_1019]'; fi; fi
+nochk 'cg-vq .cg-c{padding-right:36px}' order-preview.html   # [RAIL_IGNORE_1019] 칩 줄 오른쪽 36px(말풍선 자리) 비우기 — 걷었다 · 되살리지 말 것
+nochk 'nar&&!dl?36:0' order-preview.html   # [RAIL_IGNORE_1019] 칩 칸 폭에서 말풍선 몫 빼기 — 걷었다
+if command -v node >/dev/null 2>&1; then node scripts/audit/chip-full.mjs >/dev/null 2>&1; _chf=$?; [ "$_chf" = 1 ] && { echo 'FAIL chip-full: 폰 칩 줄 · 예시 카드 · ④ 단추가 오른쪽 끝까지 안 가거나 혼자 남는 칩 — node scripts/audit/chip-full.mjs'; fail=1; }; if [ "$_chf" = 0 ]; then echo 'OK   chip-full [CHIP_FULL_1019 · RAIL_IGNORE_1019]'; fi; fi
+# ★★[RAIL_IGNORE_1019 2026-10-19 사장님 «지금 버튼 레일 비켜서 만든거 같은데 우측버튼레일은 신경쓰지마 무시하고 폭넓게 다시만들기»] 식순 화면은 오른쪽 아이콘 레일(상담 말풍선) 자리를 비우지 않는다
+#   10/04 [RAIL_IGNORE_FULL] 과 같은 결정 — 10/19 검토 반영 셋(CHIP_FULL_1019 · PK_EX_BUBBLE_1019 · DONE_BUBBLE_1019)이 다시 비켜 세워 같은 말을 두 번 하셨다
+#   모양으로 잰다(오른쪽 한쪽만 28px 넘게 · 칸 폭에서 빼기 · 레일 까닭 좁히기) — 칸 안 ✓ 자리처럼 레일과 상관없는 여백은 그 줄에 [RIGHT_PAD_OK 까닭]
+chk 'RAIL_IGNORE_1019' order-preview.html 9
+chk 'RAIL_IGNORE_1019' scripts/audit/rail-ignore.mjs 2
+chk 'RAIL_IGNORE_1019' scripts/audit/turn-gap.mjs 1   # 쉼 점 줄도 폰은 줄 끝까지(turn-gap 이 390 · 1280 에서 잰다)
+if command -v node >/dev/null 2>&1; then node scripts/audit/rail-ignore.mjs >/dev/null 2>&1; _rig=$?; if [ "$_rig" = 1 ]; then echo 'FAIL rail-ignore: 식순 화면이 오른쪽 레일(말풍선) 자리를 비웁니다 — node scripts/audit/rail-ignore.mjs'; fail=1; else echo 'OK   rail-ignore [RAIL_IGNORE_1019]'; fi; fi
 # ★[REVIEW24_1019 2026-10-19 대본 섹션 검토 132 · 132 덧 2] 여섯째 · 넷째 예시(개식 OO · 맞절 EE B-1 · 부모님께 인사 PP 22 · 감사문 PP 14) · 식전 영상 소개 129 · 130 자료 글 · 소개 넷 우성 · 영상 뒤 받는 말 261 · 고르기 쪽 예시 카드 말풍선 자리
 chk 'REVIEW24_1019' assets/ritual-open.js 7
 chk 'PV_OUT_1019' assets/ritual-cue.js 3
@@ -15207,8 +15215,8 @@ chk "'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thank
 chk "pvExNames: \['담백하게', '다정하게', '잔잔하게', '격식 있게'\]" assets/ritual-open.js 1
 chk 'R.NAR&&R.NAR.pvExNames' order-preview.html 1
 chk 'PV_HOST_1019' scripts/build-typecast-import.mjs 2
-chk 'PK_EX_BUBBLE_1019' order-preview.html 1
-chk 'PK_EX_BUBBLE_1019' scripts/audit/chip-full.mjs 2
+nochk '.pk-exs .pk-ex{padding-right:48px}' order-preview.html   # [RAIL_IGNORE_1019] 예시 카드 말풍선 자리(종전 PK_EX_BUBBLE_1019) — 걷었다
+chk 'RAIL_IGNORE_1019' scripts/audit/chip-full.mjs 4
 nochk '본편에 앞서, 두 사람이 예고편을 준비했습니다' assets/ritual-open.js   # [REVIEW24_1019] 129 옛 글(영상 내용 짐작) · 되살리지 말 것
 chk 'VOICE_MOVED_FLAT' scripts/build-redub-byvoice.mjs 1   # 한 파일 판도 성우가 바뀐 클립을 담는다(redub-covers DUP_ONCE 가 잰다)
 # ★[REVIEW25_1019 2026-10-19 대본 섹션 검토 133 · 134 · 135] 연습 동작 줄 · 콘솔 «천천히» · 부모님께 미리 전할 글 · 자유 사진 여는 말 262 · «다음은» 셋 · 반지 시야 · 하객 맞이 메모 · 준비할 것 셈 줄 · 완성 쪽 말풍선
@@ -15220,7 +15228,8 @@ chk 'NEXT_THREE_1019' assets/ritual-data.js 1
 chk 'RING_SIGHT_1019' assets/ritual-cue.js 1
 chk 'GUEST_ONCE_1019' assets/ritual-cue.js 1
 chk 'PREP_SUM_1019' order-preview.html 2
-chk 'DONE_BUBBLE_1019' order-preview.html 3
+nochk 'pa-done{padding-right:36px}' order-preview.html   # [RAIL_IGNORE_1019] ④ 완성 단추 덩어리 말풍선 자리(종전 DONE_BUBBLE_1019) — 걷었다
+nochk 'sumrow .sr-c{margin-right:36px}' order-preview.html   # [RAIL_IGNORE_1019] 순서 요약 «변경 · 채우기» 말풍선 자리 — 걷었다
 nochk '5~7분 간격으로 반복 재생(반복은 콘솔이 자동)' assets/ritual-cue.js   # [GUEST_ONCE_1019] 콘솔엔 반복이 없다 · 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/take-time.mjs >/dev/null 2>&1; _tt=$?; [ "$_tt" = 1 ] && { echo 'FAIL take-time: 콘솔 «천천히» 단추 기준이 깨졌습니다 — node scripts/audit/take-time.mjs'; fail=1; }; if [ "$_tt" = 0 ]; then echo 'OK   take-time [TAKE_TIME_1019]'; fi; fi
 chk 'MOOD_REF_1018' order-preview.html 1

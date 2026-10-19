@@ -466,7 +466,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .done-edit{font-size:12.5px;color:var(--sub);line-height:1.6;margin:6px 0 10px;text-align:center;word-break:keep-all}   /* [I3_EDIT_WINDOW] */
 .done-edit .ib{display:inline-block}
 .rehearse-btn{margin:10px 0 4px;background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:999px;padding:14px;width:100%;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer}
-@media (max-width:999px){.play-acts.pa-done{padding-right:36px}}   /* ★[DONE_BUBBLE_1019 검토 135-2] ④ 완성 첫 화면 — 꽉 찬 단추의 오른쪽 끝에 상담 말풍선(#meAdvStack · 레일)이 앉았다 · 레일은 옮기지 않는다(RAIL_LOCKED) · 단추가 오른쪽 36px 를 비킨다(PK_EX_BUBBLE_1019 와 같은 몫) */
+/* ★[RAIL_IGNORE_1019] ④ 완성 단추 덩어리 — 레일(상담 말풍선) 자리를 비우지 않는다 — 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게» 지시로 삭제 · 되살리지 말 것(종전 DONE_BUBBLE_1019 검토 135-2 의 오른쪽 36px) */
 .sec-l{font-size:11px;letter-spacing:.06em;color:var(--gold-deeper);font-weight:600;margin:28px 0 10px}
 .mine .mr{display:flex;gap:11px;padding:10px 12px;border-bottom:1px solid #E7E3DC;align-items:baseline}
 .mine .mr:last-child{border-bottom:none}
@@ -885,7 +885,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-exs{display:grid;grid-template-columns:1fr;gap:8px}
 .pk-mood{display:none}   /* [MOOD_ROW_OFF_1019] 칩 줄을 걷었다(2026-10-19 사장님) */
 .pk-ex{display:grid;grid-template-columns:minmax(0,1fr) 112px;align-items:center;column-gap:10px;width:100%;min-height:44px;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font:inherit;color:var(--accent);cursor:pointer}
-@media (max-width:999px){.pk-exs .pk-ex{padding-right:48px}}   /* ★[PK_EX_BUBBLE_1019 검토 132 덧 2 · #1299 남은 것] 고르기 쪽 예시 카드 — 오른쪽 끝 감동 흐름 선이 상담 말풍선(#meAdvStack · 레일)에 덮였다 · 레일은 옮기지 않는다(RAIL_LOCKED) · 카드 테두리는 끝까지(정렬) · 안쪽 오른쪽만 36px 더 비운다(CHIP_FULL_1019 와 같은 몫) */
+/* ★[RAIL_IGNORE_1019] ① 고르기 쪽 예시 카드 — 레일(상담 말풍선) 자리를 비우지 않는다 — 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게» 지시로 삭제 · 되살리지 말 것(종전 PK_EX_BUBBLE_1019 검토 132 덧 2 의 안쪽 오른쪽 48px · 감동 흐름 선은 카드 끝까지) */
 .pk-ex[aria-pressed="true"]{border-color:var(--seal);box-shadow:inset 0 0 0 1px var(--seal)}   /* [PK_EX_SEAL 2026-09-27 사장님] 고른 예시 = 진사 테두리 · 굵기(1px + 안쪽 1px)는 그대로 */
 .pk-ex-t{min-width:0}
 .pk-ex-n{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;font-size:14px;line-height:1.45}
@@ -1085,7 +1085,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-main .nm::after{content:'';display:inline-block;width:6px;height:6px;margin:0 0 3px 8px;border-right:1px solid var(--light);border-bottom:1px solid var(--light);transform:rotate(45deg);vertical-align:middle}
 .ls-row.open .ls-main .nm::after{transform:rotate(-135deg);margin-bottom:-1px}
 .ls-main .sp{font-size:12.5px;color:var(--sub);line-height:1.5;word-break:keep-all}
-.ls-acts{display:flex;gap:6px;align-items:center;min-width:44px;justify-content:flex-end}   /* [PLAY_BESIDE_NUM P13] ▶ 가 떠난 오른쪽 끝은 «비워 둔 칸»으로 남긴다 — 없애면 이름 단추가 말풍선 밑까지 늘어난다 */
+.ls-acts{display:flex;gap:6px;align-items:center;justify-content:flex-end}   /* [PLAY_BESIDE_NUM P13] ▶ 는 번호 옆 그림 위 · [RAIL_IGNORE_1019] 오른쪽 끝을 «비워 둔 칸»(44px)으로 남기지 않는다 — 이름 단추가 말풍선 밑까지 가도 괜찮다 */
 .ls-add{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap}
 .ls-x{grid-column:1 / -1;padding:4px 2px 6px 32px;font-size:12.5px;color:var(--sub);line-height:1.65;word-break:keep-all}
 .ls-x b{color:var(--accent);font-size:12.5px;font-weight:600}
@@ -1135,7 +1135,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 @media (max-width:460px){.ls-cg{grid-template-columns:minmax(0,1fr);row-gap:6px}.ls-cg .gl{padding-top:0}}   /* ★★[CG_TOP_ALL 2026-10-07 사장님 «화촉 서는 분이 다른 곳들 형태랑 다르다 · 버튼이 지저분하게 2줄»] 폰은 «모든» 고르기 줄이 이름표 위 · 칩 아래(종전엔 목소리 · 예시 줄만 · 서는 분 · 입장 멘트 · 읽는 방식 · 먼저 읽는 분 · 누가 · 말투 · 인사 말 · 무엇을 · 받는 분은 왼쪽 64px 이름표 칸이 칩 자리를 먹어 들쭉날쭉 접혔다) · 이름표 왼쪽 칸으로 되돌리지 말 것 */
 .mk-vu-exs.cg-even{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}.mk-vu-exs.cg-even>.op-chip{width:100%;padding:0 8px;white-space:nowrap}   /* [VU_CHIP_EVEN] 창 칩 줄 — 넷 = 2 × 2 · 여섯 = 3 × 2(_cgEven 이 칸 수를 정한다 · 폭은 JS 가 재고 넣으니 미디어 조건 없음) */
 @media (max-width:460px){.ls-cg .cg-c.cg-even{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}.ls-cg .cg-c.cg-even>.op-chip{width:100%;padding:0 8px;white-space:nowrap}.ls-cg .cg-c.cg-even>:not(button){grid-column:1/-1}}   /* ★[CG_EVEN 2026-10-07] 한 줄에 안 들어가는 칩 줄은 3+1 처럼 들쭉날쭉 접지 않고 같은 폭 칸으로(넷 = 2 × 2 · 여섯 = 3 × 2 · 글이 안 들어가면 칸 수를 줄인다) · 한 줄에 들어가는 줄은 그대로 · _cgEven 이 잰다 */   /* [EX_ROW] 예시 줄도 같은 꼴(폰에서 이름표 위) — 한 묶음 안 칩 시작선이 한 줄 */   /* [R3-06] 좁은 폭에서만 라벨 위 · 칩 아래(VP_CHIP_ROW 원뜻) — 폭과 상관없이 두니 1280 에서 칩 시작선이 370 → 298 → 370 으로 들쭉날쭉했다 */
-@media (max-width:460px){.ls-cg .cg-c.cg-even,.ls-cg.cg-vq .cg-c{padding-right:36px}}   /* ★[CHIP_FULL_1019] 꽉 찬 칩 줄은 오른쪽 끝 상담 말풍선 자리를 비운다 — 말풍선(레일)은 옮기지 않는다 · 비켜서는 쪽은 칸([RAIL_LOCKED] · 선례 .mk-rcs 36px) */
+/* ★[RAIL_IGNORE_1019] ② 칩 줄 — 레일(상담 말풍선) 자리를 비우지 않는다 — 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게» 지시로 삭제 · 되살리지 말 것(종전 CHIP_FULL_1019 의 오른쪽 36px · 칩은 줄 끝까지 · 같은 폭 칸 · 혼자 남는 칩 없음은 그대로) */
 @media (min-width:461px){.ls-cg{grid-template-columns:120px minmax(0,1fr)}}   /* [CG_TITLE] 96 → 120 — 14px 제목(«어떻게 준비할까요» 106.6px 실측)이 한 줄에 서고 칩까지 21px · 칩 시작선은 모든 줄이 같다(R3-06) */
 @media (max-width:460px){.ls-vars>.ls-cg+.ls-cg,.lf-vars>.ls-cg+.ls-cg{margin-top:11px}}   /* [CG_TITLE] 폰은 제목이 칩 위에 선다 — 줄 사이 7 → 18px(제목 아래 6px 의 세 배) · 제목이 위 칩 줄이 아니라 제 칩과 한 묶음으로 읽힌다(TYPO_RHYTHM «라벨 위 여백은 아래의 2배 이상») */
 /* ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460 · 이름표가 칩 위에 서는 폭)에선
@@ -1276,7 +1276,6 @@ body.lsfull{overflow:hidden}
 .mk-sech h4{margin:0}
 .mk-hbtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid var(--gold-deeper);border-radius:999px;background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .mk-hbtn svg{width:10px;height:10px}
-@media (max-width:999px){ .mk-hbtn{margin-right:36px} }   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 비켜선다 */
 .mk-copied{margin:-4px 0 6px;font-size:12.5px;color:var(--gold-deeper);min-height:0}
 .mk-copied:empty{display:none}
 .mk-copied.bad{color:var(--seal)}
@@ -1302,7 +1301,6 @@ body.lsfull{overflow:hidden}
 .mk-tg.on.auto{box-sizing:border-box;min-height:44px;min-width:var(--mk-vb-w,0);justify-content:center;padding:0 15px;border:1px solid var(--gold-deep);border-radius:999px;box-shadow:none;background:#F3ECDF;font-size:12.5px;font-weight:600;color:var(--gold-deeper);gap:6px}   /* ★[DONE_TAG_PLAIN 2026-10-06 사장님 «✓ 다 됐어요 · 여기 좀 이상한데» → «위 이동하기 버튼 크기 똑같이 하면 연속성 때문에 보기 좋겠지»] 끝난 표시는 «이동하기» 알약과 같은 크기 · 같은 틀(44 높이 · 같은 안쪽 여백 · 같은 너비) · 색만 «다 됨»(옅은 금 바탕) · 누르는 것이 아니다(cursor 기본). 종전엔 고른 칩의 안쪽 테만 남아 글자에 꽉 낀 알약이었다 */
 .mk-vlist{--mk-vb-w:104px}   /* [DONE_TAG_PLAIN] «이동하기»(실측 폭)와 같은 너비 — 한 목록 안 오른쪽 끝 열이 한 줄로 선다 */
 .mk-vlist .rowbtn.mk-vb{min-width:var(--mk-vb-w);justify-content:center}
-@media (max-width:999px){ .mk-tg,.mk-vb{margin-right:36px} }
 .mk-vx{padding:4px 0 12px;border-bottom:1px solid var(--border)}
 /* [PV_SEND_ONE] 식전 영상 링크 한 덩어리 — 머리 없음 · 이름 줄과 칸 사이 선 없음 · 이름은 머리 굵기로 */
 .mk-send1 .mk-vt{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;flex:1 1 auto;min-width:0}   /* [PV_LINK_ONE] 이름 왼쪽 · 기한 오른쪽 한 줄 */
@@ -1311,7 +1309,7 @@ body.lsfull{overflow:hidden}
 /* ★«고른 순서» 펼침 목록(.mk-ilist · .mk-irow · 꺾쇠 · 펼친 칸 .mk-idet · 고를 것 · «이 순간 만들러 가기 ›») 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW 2026-10-03 사장님 «이 순간 만들러 가기 › 이건 삭제 · 고를 것도 삭제»]
    ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 후 다음으로 · 뺀 이벤트는 옅은 투명으로 · 미니멀하면서 깔끔하고 군더더기 없이»]
    ② 첫 쪽 = 예식 흐름. 식전 · 본식 두 묶음 · 한 줄 = 번호 · 이름(★) · 목소리 한 낱말 · 약 몇 분 · «빼기». 선은 줄 사이 머리카락 선뿐 · 상자 · 카드 없음.
-   뺀 줄은 그 자리에 옅게(.4 · 줄긋기 · 빨강 없음) · 단추만 또렷하게 «다시 담기». 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 999 이하는 줄이 40px 비켜선다(선례 .mk-hbtn · 옛 .mk-ichev). */
+   뺀 줄은 그 자리에 옅게(.4 · 줄긋기 · 빨강 없음) · 단추만 또렷하게 «다시 담기». 오른쪽 끝까지 쓴다([RAIL_IGNORE_FULL] · 레일 자리를 비키지 않는다). */
 /* ★★[FLOW_TIMELINE 2026-10-03 사장님 «시간 흐름으로 · 고객과 디자이너 눈으로 다듬은 A안»] 줄 = 시작 시각(본식 처음부터 몇 분째) · 세로 실선과 점 · 이름 · ✓/＋ 표.
    번호 칸 · «약 n분» 칸 · 목소리 낱말 금지 — 2026-10-03 사용자 지시로 삭제([FLOW_NO_VOICE 2026-10-03 사장님] · 시작 시각과 위 막대가 길이를 말한다).
    선은 줄 사이 가로선 대신 세로 실선 하나(본식은 끊김 없이 · 식전은 제 짧은 토막) · 점은 꾸밈(aria-hidden) · 뺀 줄은 빈 점 · 시작 시각 없음.
@@ -1341,7 +1339,6 @@ body.lsfull{overflow:hidden}
 .fixmk::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--ink2)}
 .cf-r.off>:not(.cf-mk):not(.cf-dot){opacity:.4}
 .cf-r.off .cf-dot::after{opacity:.6}
-@media (max-width:999px){ .cf-r{padding-right:40px} }   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 비켜선다 */
 .mk-vguide{margin:0 0 14px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}   /* [VOICE_GUIDE] 목록 위 접이 한 줄 */
 .mk-vguide summary{min-height:44px;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--accent);cursor:pointer;list-style:none}
 .mk-vguide summary::-webkit-details-marker{display:none}
@@ -1367,7 +1364,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-wv{display:inline-flex;color:var(--light)}.mk-wv svg{width:11px;height:11px}.mk-wv.ok{color:var(--gold-deeper)}   /* [VOICE_MAP] 진행 줄 물결 */
 .mk-it.mk-vi{color:var(--light);font-size:14px}
 .mk-vgme dt{font-size:12.5px;color:var(--light);white-space:normal;max-width:9em;word-break:keep-all}
-@media (max-width:999px){ .mk-vgb{padding-right:36px} .mk-vgl{grid-template-columns:1fr;gap:2px 0} .mk-vgl dd{margin-bottom:8px} .mk-vgme dt{max-width:none} }   /* 폰은 한 칸으로(이름표 위 · 설명 아래) · 오른쪽 끝은 레일 자리[RAIL_LOCKED] */
+@media (max-width:999px){ .mk-vgl{grid-template-columns:1fr;gap:2px 0} .mk-vgl dd{margin-bottom:8px} .mk-vgme dt{max-width:none} }   /* 폰은 한 칸으로(이름표 위 · 설명 아래) */
 .mk-it.off{opacity:.5}
 .mk-it.off .mk-t{text-decoration:line-through}
 /* ★[NAV_FOLD 2026-10-03 사장님 «하나씩 만들기 윗부분은 접혀져 있는 상태로 시작 · 카테고리가 많아 지저분 · 더 좋은 개선방안 있으면 적용»]
@@ -1634,7 +1631,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-rc.on{border-color:var(--gold-deep);background:#F3ECDF} /* [SEL_THIN] */   /* [UI_ONE · SEL_ONE] 고른 것 한 모양 */
 .mk-rc.mk-rpar{border-style:dashed}
 .mk-rc.mk-rpar b{color:var(--gold-deeper)}
-@media (max-width:999px){ .mk-rcs{padding-right:36px;grid-template-columns:repeat(2,minmax(0,1fr))} }   /* [REF_GRID] */   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 칩이 비켜선다 */
+@media (max-width:999px){ .mk-rcs{grid-template-columns:repeat(2,minmax(0,1fr))} }   /* [REF_GRID] */
 .mk-rsel{padding:14px 0 6px;border-top:1px solid var(--border)}   /* [R8-14] 걷은 알약 자리(.mk-rsh 12px)만큼 선 아래를 띄운다 */
 .mk-rstart{margin-top:6px}
 .mk-exw{margin:4px 0 0;font-size:12.5px;color:var(--seal)}
@@ -1696,11 +1693,10 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-vscmp{margin:6px 0 0}
 /* ★.mk-vsbar 줄 금지 — 2026-10-03 사용자 지시로 삭제 [VS_LINK_IN_ROW] */
 /* [VS_LINK_IN_ROW 2026-10-03 사장님] «나레이션 자세히» = 칩 줄 오른쪽 끝(margin-left:auto) — 1280 은 칩 옆 한 줄 · 좁은 폭은 칩 아래 제 줄 오른쪽(줄이 넘치면 flex 가 내린다)
-   · 오른쪽 끝은 레일 자리[RAIL_LOCKED] 라 ≤999 에서 36px 비킨다(옛 .mk-vsbar 와 같은 값) · 누르는 칸 44 */
+   · 오른쪽 끝까지 쓴다([RAIL_IGNORE_FULL] · 레일 자리를 비키지 않는다) · 누르는 칸 44 */
 .cg-c .cg-vsl{margin-left:auto;min-height:44px;font-size:12.5px;white-space:nowrap}
 .cg-c .cg-kt{margin-left:auto;min-height:44px;font-size:12.5px;white-space:nowrap}
 .cg-c .cg-links{margin-left:auto;display:inline-flex;align-items:center;gap:16px}.cg-links .cg-kt,.cg-links .cg-vsl{margin-left:0}   /* [KEEP_IN_ROW] 오른쪽 끝 한 묶음 */
-@media (max-width:999px){ .cg-c .cg-vsl{margin-right:36px} }
 .mk-dlg-x{flex:none;width:44px;height:44px;margin:-8px -12px 0 0;border:0;border-radius:999px;background:none;color:var(--sub);display:grid;place-items:center;cursor:pointer}
 .mk-dlg-x svg{width:16px;height:16px}
 .mk-dlg-steps{list-style:none;display:flex;gap:6px;margin:0 0 16px;padding:0}
@@ -1817,7 +1813,8 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-sltn.open .mk-sltb i{transform:rotate(90deg)}
 .mk-sltn.set .mk-sltb{color:var(--gold-deeper);font-weight:600}
 .mk-sltb:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:4px}
-.mk-sltn .mk-tdots{max-width:264px;margin:0 auto 2px}   /* [TURN_GAP] 값은 위 «쉼 ○○» 한 줄이 말한다(머리 줄 없음) · 폭을 좁혀 가운데 — 오른쪽 아이콘 레일 자리를 비운다([RAIL_LOCKED] 비켜서는 쪽은 이 칸) */
+.mk-sltn .mk-tdots{margin:0 0 2px}   /* [TURN_GAP] 값은 위 «쉼 ○○» 한 줄이 말한다(머리 줄 없음) · [RAIL_IGNORE_1019] 폰은 줄 끝까지(다른 점 줄 .mk-dots 와 같은 폭) — 레일 자리를 비우려 좁히지 않는다 */
+@media (min-width:1000px){ .mk-sltn .mk-tdots{max-width:264px;margin:0 auto 2px} }   /* PC 는 종전 그대로 가운데 264px — 넓은 카드(650px)에서 점 다섯이 흩어지지 않게(1280 실측) · PC 본문은 아이콘 줄과 겹치지 않는다 */
 .mk-sltn .mk-tplay{display:flex;width:max-content;margin:0 auto}
 .mk-tplay{display:inline-flex;align-items:center;gap:6px;min-height:44px}
 .mk-tnote{margin:2px 0 0}
@@ -1978,11 +1975,12 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .mk-one1l{margin:0 0 4px}
 .mk-vnow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:10px 0 4px}
 .mk-vnow .mk-note{margin:0}
-@media (max-width:999px){ .mk-vcards .mk-vc{padding-right:36px} .mk-vc .mk-vbs{margin-right:0} }
 /* [REC_UPLOAD] 녹음 줄 */
 .mk-vbs{display:inline-flex;gap:6px;flex:0 0 auto}
-@media (max-width:999px){ .mk-vbs{margin-right:36px} .mk-vbs .mk-vb{margin-right:0} }
-@media (max-width:999px){ .mk-vcards .mk-vc{padding-right:0} .mk-vbs,.mk-vb,.mk-tg,.mk-hbtn,.cg-c .cg-vsl{margin-right:0} .cf-r,.mk-vgb,.mk-rcs{padding-right:0} }   /* ★[RAIL_IGNORE_FULL 2026-10-04 사장님 «오른쪽 아이콘 레일 때문에 왼쪽으로 쏠려 있다 · 무시하고 전체로»] 줄 카드 · 사람 카드 · 단추는 레일 자리를 비키지 않고 끝까지 쓴다 · 같은 날 «식순 파트 전부 · 겹침 상관없음»으로 넓혔다(머리 단추 · 흐름 줄 · 길잡이 · 예시 칩 · 나레이션 자세히) */
+@media (max-width:999px){ .mk-vcards .mk-vc{padding-right:0} .mk-vbs,.mk-vb,.mk-tg,.mk-hbtn,.cg-c .cg-vsl{margin-right:0} .cf-r,.mk-vgb,.mk-rcs{padding-right:0} }   /* ★[RAIL_IGNORE_FULL 2026-10-04 사장님 «오른쪽 아이콘 레일 때문에 왼쪽으로 쏠려 있다 · 무시하고 전체로»] 줄 카드 · 사람 카드 · 단추는 레일 자리를 비키지 않고 끝까지 쓴다 · 같은 날 «식순 파트 전부 · 겹침 상관없음»으로 넓혔다(머리 단추 · 흐름 줄 · 길잡이 · 예시 칩 · 나레이션 자세히)
+   ★★[RAIL_IGNORE_1019 2026-10-19 사장님 «지금 버튼 레일 비켜서 만든거 같은데 우측버튼레일은 신경쓰지마 무시하고 폭넓게 다시만들기»] 같은 결정을 두 번 말씀하셨다 —
+   10/19 검토 반영(CHIP_FULL_1019 · PK_EX_BUBBLE_1019 · DONE_BUBBLE_1019)이 칩 줄 · 예시 카드 · ④ 단추 · 순서 요약을 다시 오른쪽 36px 비켜 세웠다. 식순 화면은 «어느 것도» 레일 자리를 비우지 않는다
+   (오른쪽 한쪽만 28px 넘게 비우는 padding · margin · 폭에서 빼기 · 좁혀 가운데 금지 · 말풍선이 얹혀도 괜찮다) · scripts/audit/rail-ignore.mjs 가 막는다 */
 .mk-recp{padding:12px 0 14px}
 .mk-rect{margin:0 0 6px;font-size:16px;line-height:1.8;color:var(--accent);word-break:keep-all}
 .mk-reccd{margin:10px 0;font-size:28px;font-weight:600;color:var(--gold-deeper);text-align:center}
@@ -2032,7 +2030,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .ex-card .nar{background:none;border:none;border-radius:0;padding:0;margin:0}
 /* [RIT_SUMMARY_STACK] 한 줄에 순번 · 이름(오른쪽 «변경» 글 단추), 아래에 값 */
 .sumry.op .sumrow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:"n l c" ". v v";column-gap:8px;row-gap:0;align-items:center;padding:6px 10px 10px 12px}
-@media (max-width:999px){.sumry.op .sumrow .sr-c{margin-right:36px}}   /* [DONE_BUBBLE_1019 검토 135-2] «순서 요약» 채우기 · 변경 글 단추도 말풍선 자리를 비킨다(낮음 · 스크롤하다 말풍선 높이에서 겹쳤다) */
+/* ★[RAIL_IGNORE_1019] «순서 요약» 채우기 · 변경 글 단추 — 레일(상담 말풍선) 자리를 비우지 않는다 — 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게» 지시로 삭제 · 되살리지 말 것(종전 DONE_BUBBLE_1019 의 오른쪽 36px) */
 .sumry.op .sr-n{grid-area:n;flex:none}
 .sumry.op .sr-l{grid-area:l;flex:none}
 .sumry.op .sr-v{grid-area:v;min-width:0}
@@ -2072,7 +2070,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-mu .mu-list{list-style:none;margin:2px 0 0;padding:0}
 .ls-mu .mu-row{display:flex;align-items:center;gap:2px;border-bottom:1px solid var(--border)}
 .ls-mu .mu-row .mu-pl{margin:0}
-.ls-mu .mu-pick{position:relative;flex:1 1 auto;min-width:0;min-height:60px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;padding:8px 34px 8px 2px;border:0;background:none;font:inherit;text-align:left;color:var(--accent);cursor:pointer}
+.ls-mu .mu-pick{position:relative;flex:1 1 auto;min-width:0;min-height:60px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;padding:8px 34px 8px 2px;border:0;background:none;font:inherit;text-align:left;color:var(--accent);cursor:pointer}   /* [RIGHT_PAD_OK] 오른쪽 34px = 고른 곡 ✓ 자리(::after · right 15px) */
 .ls-mu .mu-t{font-size:14px;font-weight:500;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere}
 .ls-mu .mu-a{font-size:12.5px;line-height:1.4;color:var(--light)}
 .ls-mu .mu-pick[aria-checked="true"] .mu-t{color:var(--seal);font-weight:600}
@@ -4745,7 +4743,7 @@ function _cgEven(){ try{ var root=arguments[0], nar=window.innerWidth<=460; (roo
     var b=[].filter.call(c.children,function(x){ return x.tagName==='BUTTON'&&x.offsetParent; }); if(b.length<(nar&&!dl?2:3)) return;   /* ★[CHIP_FULL_1019 2026-10-19 사장님 «버튼 짝수로 · 서약 감사문 저 부분도 버튼 좌우 꽉 차게 · 그 아래 버튼들도»] 폰은 두 갈래 줄(서약 · 감사문 · 읽는 방식 · 먼저 읽는 분 …)도 반반 두 칸 — 입장 음악(cg-vq)과 같은 꼴 */
     var rows=1, t=b[0].offsetTop, mw=0; b.forEach(function(x){ if(x.offsetTop>t+4){ rows++; t=x.offsetTop; } mw=Math.max(mw,x.scrollWidth-28+16); }); if(rows<2&&!nar) return;   /* [CHIP_FULL_1019] 폰은 한 줄에 들어가는 둘 · 셋도 칸을 꽉 채운다(종전 «한 줄이면 글자 폭 그대로») */   // [VU_CHIP_EVEN] PC 창은 한 줄에 들어가면 그대로   // 칩 안 여백 14+14 → 칸 안 8+8
     /* ★[SAME_PLACE 2026-10-07] 넷 이상인 줄은 한 줄에 들어가도 같은 폭 칸 — 하객 맞이 «참고 예시»만 한 줄 알약이고 바로 다음 식전 영상은 2 × 2 라 같은 줄이 쪽마다 달랐다 */
-    var W=c.clientWidth-(nar&&!dl?36:0), L=b.length, n=dl?((L%3===0||L>4)?3:2):(L%3===0?3:L%2===0?2:3);   /* [CHIP_FULL_1019] 여섯 = 3 × 2 · 넷 = 2 × 2 · 둘 = 2 · 셋 = 3 · 다섯 = 3 + 2(혼자 남는 칸 없이 · 여섯째 예시가 오기 전까지) */ while(n>1&&mw>(W-(n-1)*6)/n) n--; if(n<2) n=1;   // [VU_CHIP_EVEN] 창의 다섯 · 일곱(두 분 글 + 예시)은 셋씩(3+2 · 3+3+1) — 들어가지 않으면 둘씩
+    var W=c.clientWidth, L=b.length, n=dl?((L%3===0||L>4)?3:2):(L%3===0?3:L%2===0?2:3);   /* [CHIP_FULL_1019] 폭은 줄 전체([RAIL_IGNORE_1019] 말풍선 자리를 빼지 않는다) · 여섯 = 3 × 2 · 넷 = 2 × 2 · 둘 = 2 · 셋 = 3 · 다섯 = 3 + 2(혼자 남는 칸 없이 · 여섯째 예시가 오기 전까지) */ while(n>1&&mw>(W-(n-1)*6)/n) n--; if(n<2) n=1;   // [VU_CHIP_EVEN] 창의 다섯 · 일곱(두 분 글 + 예시)은 셋씩(3+2 · 3+3+1) — 들어가지 않으면 둘씩
     c.style.setProperty('--cgn',n); c.classList.add('cg-even'); });
   /* [VP_ROW_A] 질문 줄 오른쪽 링크(VS_LINK_TOP)가 질문 글자와 12px 안으로 붙으면 칩 아래 제 줄로 내린다(cg-lkdn) — 먼저 걷고 질문 줄에 둔 채로 잰다 */
   (root||document).querySelectorAll('.ls-cg.cg-hl').forEach(function(row){ row.classList.remove('cg-lkdn'); if(!nar) return; var gl=row.querySelector('.gl'), lk=row.querySelector('.cg-links'); if(!gl||!lk||!lk.offsetParent) return;
@@ -9705,7 +9703,7 @@ function renderDone(){
        단추 이름이 이미 하는 말이다(「미리듣기」 · 「전체 대본 복사」) — 읽을 것만 늘렸다.
      ★셋이 같은 판·같은 모서리·같은 간격(gap 8px)으로 선다. 미리듣기가 한 줄을 다 쓰고
        (완성 직후 가장 하고 싶은 일이라 크게), 대본 둘이 그 아래 반씩 나눈다. */
-  h+='<div class="play-acts'+(isOpen()?' pa-done':'')+'">';   /* [DONE_BUBBLE_1019] 단추 덩어리째 오른쪽 36px 를 비킨다(같은 줄 정렬) */   /* ★이름 주의 — 화면 맨 아래 .done-acts 와 다른 덩어리다(그쪽은 나가는 동작) */
+  h+='<div class="play-acts">';   /* [RAIL_IGNORE_1019] 단추 덩어리는 줄 끝까지(종전 pa-done 의 오른쪽 36px 비우기는 걷었다) */   /* ★이름 주의 — 화면 맨 아래 .done-acts 와 다른 덩어리다(그쪽은 나가는 동작) */
   /* [PREVIEW_LINK_V1] 주소가 없으면(코스 없음) 미리듣기는 빠지고 아래 둘만 남는다 — flex 라 그대로 정렬된다 */
   /* ★[LISTEN_PAGE 코워크 4-5] 새 코스의 ④ — «처음부터 끝까지 보기»가 ② 크게 보기와 같은 플레이어로 연다(고를 것 칩 없이).
      듣기 단추는 하나로 둔다([REHEARSE_MERGED]) — 음악까지 들리는 옛 미리듣기는 그 플레이어의 끝 화면에서 연다. */
