@@ -489,6 +489,9 @@
     'narr-declare-in-gdad': 1, 'narr-declare-in-bdad': 1,
     /* ★[SRC_ALL_1023 검토 144-5] 단체 사진 안내 예시 4(221) — 자료 원문에 «모여 주시면»이 없어 뺐다(NAR_EX close 의 그 자리는 null · 예시 1 글) · 되살리지 말 것 */
     'narr-close-ex4': 1,
+    /* ★[CANDLE_FOUR_RETIRED_1023 검토 148-2] 네 분 화촉 판(92 여는 말 · 예시 2 ~ 4 · 139 인사 안내) — 엔진은 10/19 부터 저장된 네 분을 어머님 판으로 바꿔 틀지 않는다(CANDLE_FOUR_OFF_1019) ·
+       글에 자료 대응이 없어 쉰다(파일 · 문안 · 번호 그대로 · 녹음 목록 · 들어 보기에서 빠진다) · 되살리지 말 것 */
+    'narr-candle-in-parents': 1, 'narr-candle-in-parents-ex2': 1, 'narr-candle-in-parents-ex3': 1, 'narr-candle-in-parents-ex4': 1, 'narr-candle-bow-four': 1,
     /* [WINE_RETIRED 2026-08-16] 사이 순서 폐지 — 잔을 드는 순간의 집은 「축배·케이크」 하나다.
        이미 녹음된 mp3 는 지우지 않는다(번호 보존 · SONG_RETIRED 와 같은 이유). */
     'narr-valley-wine': 1, 'narr-valley-cake': 1, 'narr-valley-out': 1,
@@ -1526,10 +1529,12 @@
         name: S.meal ? '두 분 감사 인사 · 식사 자리로' : '두 분 감사 인사 · 귀가 인사', text: EXTRA[_thx], duck: -14,
         hint: '전체 사진을 담고 나면',
         note: '둘째 문장 뒤 3초 쉼에 두 분이 함께 목례 · 양가 직계 가족과 따로 사진 남길 분만 남음',
-        live: { t: S.meal ? '두 분 감사 인사(목례) · 양가 직계 가족과 따로 사진 남길 분만 남음 · 나머지는 식사 자리로'
-                           : '두 분 감사 인사(목례) · 양가 직계 가족과 따로 사진 남길 분만 남음 · 나머지는 귀가', est: _go[_thx], self: true, doing: 'move' }
+        live: { t: (S.meal ? '두 분 감사 인사(목례) · 양가 직계 가족과 따로 사진 남길 분만 남음 · 나머지는 식사 자리로'
+                            : '두 분 감사 인사(목례) · 양가 직계 가족과 따로 사진 남길 분만 남음 · 나머지는 귀가') + (_photoOpen ? ' → 가족 구도(작가가 불러 모음 · 호명은 골라 트는 판)' : ''), est: _go[_thx], self: true, doing: 'move' }
       }));
-      cues.push(cue({
+      /* ★★[SPLIT_OFF_OPEN_1023 검토 148-1] 새 코스는 60(«자리를 지켜 주시기 바랍니다.»)을 틀지 않는다 — 45 · 110 «안내에 따라 이동» 뒤 «자리를 지켜» → 262 «가까이 오셔서»가 잇달아 하객이 헷갈렸다.
+           가족 구도는 작가가 현장에서 부르는 일이라 녹음 줄이 없어도 된다 · 그 사람 구간(가족 구도 목표)은 감사 인사 줄이 함께 맡는다(아래 ROUND_FIT) · 옛 코스는 종전 그대로(44 · 65 와 같게) */
+      if (!_photoOpen) cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: 'narr-photo-split', name: '나눠 담기 · 대기 안내', text: D.NARR.photoSplit, duck: -14,
         hint: '전체컷을 담고 나면',
         note: '★뒤 문장이 대기를 「알려진 대기」로 바꾼다 — 순번을 알려 주면 이탈이 준다(하버드)',
@@ -1560,13 +1565,14 @@
         var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell) - bodyMin;   // 분 · 단체 사진 몫
         var by = {}, i;
         for (i = 0; i < cues.length; i++) by[cues[i].slug] = cues[i];
-        var goals = 0; for (var g in _go) if (by[g] || (g === 'end-0-photo' && _photoOpen)) goals += _go[g];   // [SRC_ALL_1023] 새 코스의 전체 하객 목표는 26 이 든다
+        var goals = 0; for (var g in _go) if (by[g] || ((g === 'end-0-photo' || g === 'narr-photo-split') && _photoOpen)) goals += _go[g];   // [SPLIT_OFF_OPEN_1023] 새 코스의 가족 구도 목표는 감사 인사 줄이 든다   // [SRC_ALL_1023] 새 코스의 전체 하객 목표는 26 이 든다
         var goFree = Math.max(120, budget * 60 - goals);
         var gather = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
         function fit(c, goal, pre) { if (c && c.live) c.live.est = Math.max(10, Math.round(goal - (pre || 0) - (c.est || 0))); }
         if (_photoOpen) { if (by['narr-close'] && by['narr-close'].live) by['narr-close'].live.est = Math.max(10, _go['end-0-photo']); }   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
         else fit(by['end-0-photo'], _go['end-0-photo'], gather);
-        fit(by[_thx], _go[_thx]);   // [PHOTO_THANKS]
+        fit(by[_thx], _go[_thx] + (_photoOpen ? _go['narr-photo-split'] : 0));   // [PHOTO_THANKS] · [SPLIT_OFF_OPEN_1023] 새 코스는 가족 구도까지
+        if (_photoOpen && by[_thx] && by[_thx].live) by[_thx].live.famGoal = _go['narr-photo-split'];   // [SPLIT_OFF_OPEN_1023] 그 안의 가족 구도 목표(검사 · 콘솔이 읽는다)
         fit(by['narr-photo-split'], _go['narr-photo-split']);
         fit(by['narr-online-in'], _go['narr-online-in']);
         var _fc = by['narr-photo-free'] || by['narr-photo-out'];   // [PHOTO_FREE_OPEN_1019] 새 코스는 262 · 옛 코스는 65

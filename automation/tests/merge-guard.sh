@@ -7737,7 +7737,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 247;' scripts/build-typecast-import.mjs 1   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)
+chk 'const CLIP_COUNT = 244;' scripts/build-typecast-import.mjs 1   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)
 chk "has: (id) => /^X-/.test(id) }" scripts/build-typecast-import.mjs 1
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -9380,6 +9380,10 @@ nochk '참아주셔서 감사합니다' 'docs/plans/식순연구/배역_예시_�
 #   ← [KEEP_AS_IS] 2026-09-20 사장님 결정 「새 글대로 보낸다」로 정류장 유지 결정이 덮였다
 if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
+# ★[REBIND_FIRST_1023 검토 148 덧] 문장을 빼거나 옮긴 뒤 창고는 --rebind → --prune 차례 · 창고 소리만으로 붙일 수 있는 클립은 녹음 대기에 남기지 않는다(144 때 19클립 · 37문장을 헛받게 할 뻔했다)
+chk 'REBIND_FIRST_1023' scripts/audit/sent-lib-rebind.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-rebind.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL sent-lib-rebind: 자리만 옮길 창고 소리가 있거나 녹음 없이 붙일 수 있는 대기 클립이 있습니다 — node scripts/audit/sent-lib-rebind.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
   || { echo 'FAIL letter-mirror: 어른께 드리는 편지의 화면과 소리가 갈렸습니다 — node scripts/audit/letter-mirror.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/make-parents-rerecord.mjs --check >/dev/null 2>&1 \
@@ -19306,3 +19310,18 @@ chk 'R2_MATJEOL_SCENE_1014' assets/ritual-story.js 1    # 라운드 2 G2 — 맞
 nochk "scene: '앞에 나란히 서면 안내 음성에 맞춰 서로 마주 봐요." assets/ritual-story.js
 chk 'R2_TRIB_JOSA_1014' order-preview.html 1            # 라운드 2 G5 — «말로 인사»으로 → 로(_josaRo)
 nochk "»으로 바뀌었어요. 적은 글을 한 번 봐 주세요." order-preview.html
+
+# ★[SRC_ALL_1023 검토 147 · 148 · 10/23] 예시 다듬기 · 단체 사진 60 · 네 분 화촉 판 쉬기
+chk 'SPLIT_OFF_OPEN_1023' assets/ritual-cue.js 3   # 새 코스는 60 을 틀지 않는다 · 가족 구도 목표는 감사 인사 줄(open-course 가 동작을 본다)
+chk 'SPLIT_OFF_OPEN_1023' scripts/audit/open-course.mjs 2
+chk "'narr-candle-in-parents': 1, 'narr-candle-in-parents-ex2': 1, 'narr-candle-in-parents-ex3': 1, 'narr-candle-in-parents-ex4': 1, 'narr-candle-bow-four': 1," assets/ritual-cue.js 1   # [CANDLE_FOUR_RETIRED_1023] 네 분 화촉 판 쉼(번호 보존)
+nochk "'narr-candle-in-parents': \[" assets/ritual-open.js   # [CANDLE_FOUR_RETIRED_1023] 네 분 판 예시(NAR_EX)를 되살리지 말 것
+chk 'CANDLE_FOUR_RETIRED_1023' assets/ritual-open.js 1
+nochk '할리우드 여배우' assets/ritual-ref.js   # [검토 147-1] 13 덕담 예시(앞 문장을 가리키는 수필 대목)를 되살리지 말 것
+nochk '저희 부부가 거짓 주인공' assets/ritual-ref.js   # [검토 147-1] 805 두 사람 목소리 편지
+nochk '사위가 아니라 아들이 될 것' assets/ritual-ref.js   # [검토 147-1] 814 두 사람 목소리
+nochk '며느리의 아버지가 되었다' assets/ritual-ref.js   # [검토 147-1] 609 끝 수필 서술
+chk '아들아, 며늘아. 축하한다. 그리고 사랑한다!' assets/ritual-ref.js 1   # [검토 147-1] 609 원문에서 «축복합니다» 바로 뒤 실제로 한 말
+nochk '쉽게 상처받는 서준이를 위해' assets/ritual-ref.js   # [검토 147-1] 708 그 신랑 성격 단정
+nochk '군대로 치면 일병입니다' assets/ritual-ref.js   # [검토 147-1] 721 캡션 세 문장
+nochk '귀한 주말,' assets/ritual-ref.js   # [검토 147-2] 902 평일 예식이면 틀림
