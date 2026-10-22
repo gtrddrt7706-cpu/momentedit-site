@@ -19105,8 +19105,22 @@ chk 'BGM_FORM_1023' order-preview.html 6
 chk 'BGM_FORM_1023' assets/entry-music.js 1
 chk 'BGM_FORM_1023' scripts/audit/bgm-form.mjs 1
 chk 'BGM_JUMP' order-preview.html 1
-chk "one: '화촉을 밝히는 걸음에 맞춘 밝고 우아한 곡이에요'," assets/bgm-slots.js 1
-chk "one: '테이블 인사 · 사진 동안 재즈 연주가 흐르고, 마지막 곡으로 하루를 닫아요'," assets/bgm-slots.js 1
+chk "one: '화촉을 밝히는 걸음에 맞춰 흘러요'," assets/bgm-slots.js 1
+chk "one: '테이블 인사 · 사진 동안 흐르고, 마지막 곡으로 하루를 닫아요'," assets/bgm-slots.js 1
+#   ★검토 1(10-23) [BGM_LINES_TRUE] 한 줄 = 무엇을 골라도 참인 역할 · 곡 성격은 둘째 줄(sub · 스튜디오 곡일 때) · «음악 없이»면 한 줄도 바뀐다(noneOne) · 펴 있으면 곡 이름은 카드만
+#   [BGM_SUM_CHANGED] ④ «음악» = 두 분이 바꾼 칸만 + «나머지 n곳은 스튜디오가 골라 둘게요» · 하나도 안 바꿨으면 «음악은 모두 스튜디오가 골라 둘게요» 한 줄
+chk 'BGM_LINES_TRUE' assets/bgm-slots.js 2
+chk 'BGM_LINES_TRUE' assets/bgm-form.js 1
+chk 'BGM_SUM_CHANGED' assets/bgm-form.js 1
+chk "noneOne: '편지는 음악 없이 목소리만 들려요'," assets/bgm-slots.js 1
+chk "noneOne: '축사는 음악 없이 목소리만 들려요'," assets/bgm-slots.js 1
+chk "warm: '감동적인 곡으로 스튜디오가 골라 둘게요'" assets/bgm-slots.js 1
+chk 'function lines(s, g, open) {' assets/bgm-slots.js 1
+chk 'return B.lines(s,g,!!OPEN\[s.id\]);' assets/bgm-form.js 1
+chk '음악은 모두 스튜디오가 골라 둘게요' assets/bgm-form.js 1
+nochk "one: '편지 아래 오르골" assets/bgm-slots.js
+nochk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'" assets/bgm-slots.js
+nochk "one: '말 아래 아주 작게 깔리는 잔잔한 피아노예요'" assets/bgm-slots.js
 chk "picks: \['studio', 'warm', 'own'\]," assets/bgm-slots.js 1
 nochk '어머님 걸음에 맞춘' assets/bgm-slots.js
 nochk '개식 안내부터 이어져요' assets/bgm-slots.js

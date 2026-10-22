@@ -33,19 +33,21 @@
 
   /* ── 음악 칸 10 ──
      ks    = 덮는 순간(빌더 키 · 순서대로) — 첫 «담긴» 순간이 고르는 자리 · 나머지는 «앞 순서 곡이 이어져요»
-     one   = 화면 한 줄(성격) · 해요체
+     one   = 화면 한 줄 — 무엇을 골라도 참인 «역할»만 · 해요체 · noneOne = «음악 없이»를 고르면 바뀌는 한 줄(축사 · 편지)
+     sub   = 둘째 줄 — 스튜디오가 고를 때의 곡 성격(잔잔한 피아노 · 오르골 …) · 고른 것마다(studio · warm)
+             ★[BGM_LINES_TRUE 2026-10-23 BGM 섹션 검토 1] 종전 한 줄이 곡 성격까지 말해(«편지 아래 오르골 · 피아노가 …») «음악 없이» · «감동적인 곡» · 우리가 고른 곡을 골라도 그대로였다 — 성격을 한 줄에 되돌리지 말 것
      need  = 필요한 길이(초 · min 보다 짧은 «우리가 고른 곡»이면 한 줄 안내 «반복해서 이어 틀어요») · txt 는 사람이 읽는 말
      picks = 고르기(첫째가 기본 · 손대지 않으면 이것) · lab = 이 칸만 다른 칩 이름
      ref   = 참고 값(역할 · 길이 초 · 크기 단계 · 들어오는 때 · 박수 줄) — 엔진에는 아직 안 넣는다 */
   var SLOTS = [
     { id: 'S1', ks: ['guest'],
-      one: '하객이 들어와 앉는 동안 잔잔한 연주가 흘러요',
+      one: '하객이 들어와 앉는 동안 흘러요', sub: { studio: '잔잔한 연주로 스튜디오가 골라 둘게요' },
       need: { min: 1500, txt: '25~30분 재생목록' }, picks: ['studio', 'own'],
       ref: { role: '배경', sec: [1500, 1800], level: LEVEL.main,
         note: '개식 인사(137)는 S1 이 잦아든 뒤 조용하게, 또는 아주 작게' } },
     /* [BGM_FORM_1023 v2] 화촉을 밝히는 분은 어머님 · 아버님 · 대표 두 분 중 하나라 «어머님»이라 쓰지 않는다 · 개식 안내에서 잇는다는 말은 뺐다(S2 는 화촉 이음말 263 부터) */
     { id: 'S2', ks: ['candle'],
-      one: '화촉을 밝히는 걸음에 맞춘 밝고 우아한 곡이에요',
+      one: '화촉을 밝히는 걸음에 맞춰 흘러요', sub: { studio: '밝고 우아한 곡으로 스튜디오가 골라 둘게요' },
       need: { min: 240, txt: '4분 이상' }, picks: ['studio', 'own'],
       ref: { role: '메인', sec: 240, level: LEVEL.main,
         from: '화촉 이음말(263)부터 · 식전 영상이 없는 날은 개식 끝 박수 뒤부터' } },
@@ -56,7 +58,7 @@
       ref: { role: '메인', sec: null, level: LEVEL.main, note: '입장 음악(assets/entry-music.js · S.mu) 그대로 · 맞절까지 이어진다' } },
     /* [BGM_FORM_1023 v2] 한 곡으로 잇는다 · 크기 단계는 둘(나레이션 아래 «작게» · 사람이 직접 말하는 자리 «아주 작게 · 거의 들리지 않게») · 화면 한 줄은 그대로 */
     { id: 'S4', ks: ['welcome', 'vow', 'ring', 'declare', 'bless'],
-      one: '말 아래 아주 작게 깔리는 잔잔한 피아노예요',
+      one: '말 아래 아주 작게 깔려요', sub: { studio: '잔잔한 피아노로 스튜디오가 골라 둘게요' },
       need: { min: 420, txt: '7분 이상' }, picks: ['studio', 'own'],
       ref: { role: '배경', sec: 420, level: LEVEL.speech,
         levels: [
@@ -65,31 +67,31 @@
         ],
         clap: [{ no: 57, line: '큰 박수로 축하해 주시면…', up: '짧게 올린다', down: '111 «네, 고맙습니다.»와 덕담 여는 말(23) 앞에서 다시 낮춘다' }] } },
     { id: 'S5', ks: ['free'],
-      one: '축사 아래 밝은 연주곡을 아주 작게 깔아요',
+      one: '축사 아래 아주 작게 깔려요', sub: { studio: '밝은 연주곡으로 스튜디오가 골라 둘게요' }, noneOne: '축사는 음악 없이 목소리만 들려요',
       need: { min: 240, txt: '4분 이상' }, picks: ['studio', 'own', 'none'],
       ref: { role: '배경', sec: 240, level: LEVEL.read } },
     { id: 'S6', ks: ['letter'],
-      one: '편지 아래 오르골 · 피아노가 끊기지 않게 흘러요',
+      one: '편지 아래 끊기지 않게 흘러요', sub: { studio: '오르골 · 피아노로 스튜디오가 골라 둘게요' }, noneOne: '편지는 음악 없이 목소리만 들려요',
       need: { min: 330, txt: '5분 30초 이상' }, picks: ['studio', 'own', 'none'],
       ref: { role: '배경', sec: 330, level: LEVEL.read } },
     /* [BGM_FORM_1023 v2] 대본 여는 말이 «뭉클하실 부모님께…»라 기본은 들뜬 곡이 아니라 밝고 따뜻한 곡 · 저장 값 'warm' = 감동적인 곡(명세의 저장 꼴 그대로) */
     { id: 'S7', ks: ['tribute'],
-      one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요',
+      one: '부모님께 인사드리는 동안 흘러요', sub: { studio: '밝고 따뜻한 곡으로 스튜디오가 골라 둘게요', warm: '감동적인 곡으로 스튜디오가 골라 둘게요' },
       need: { min: 240, txt: '4분 이상' }, picks: ['studio', 'warm', 'own'],
       lab: { studio: '밝고 따뜻한 곡' },
       ref: { role: '메인', sec: 240, level: LEVEL.main } },
     { id: 'S8', ks: ['_close'],
-      one: '마지막 인사에 맞춰 힘 있게 시작하는 곡이에요',
+      one: '마지막 인사와 함께 힘 있게 시작해요', sub: { studio: '힘 있는 곡으로 스튜디오가 골라 둘게요' },
       need: { min: 120, txt: '2분 이상' }, picks: ['studio', 'own'],
       ref: { role: '신호', sec: 120, level: LEVEL.main,
         clap: [{ no: 108, line: '… 하객 여러분께 인사!', up: 'S8 이 힘 있게 시작한다' }] } },
     { id: 'S9', ks: ['toast'],
-      one: '«위하여!»와 함께 후렴부터 터지는 곡이에요',
+      one: '«위하여!»에 맞춰 크게 시작해요', sub: { studio: '후렴부터 트는 신나는 곡으로 스튜디오가 골라 둘게요' },
       need: { min: 60, max: 90, txt: '60~90초' }, picks: ['studio', 'own'],
       ref: { role: '신호', sec: [60, 90], level: LEVEL.main } },
     /* [BGM_FORM_1023 v2] 식사가 없는 날도 있어 «식사»는 뺐다 · 우리가 고르는 것은 마지막 곡 하나(재즈 연주는 스튜디오) */
     { id: 'S10', ks: ['table'],
-      one: '테이블 인사 · 사진 동안 재즈 연주가 흐르고, 마지막 곡으로 하루를 닫아요',
+      one: '테이블 인사 · 사진 동안 흐르고, 마지막 곡으로 하루를 닫아요', sub: { studio: '재즈 연주와 마지막 곡을 스튜디오가 골라 둘게요' },
       need: null, picks: ['studio', 'own'], last: true,
       lab: { own: '마지막 곡만 고르기' },
       ref: { role: '배경', sec: 1800, level: LEVEL.speech, note: '30분 + 마지막 곡(테이블 인사 · 사진 · 마무리)',
@@ -146,6 +148,15 @@
   }
   /* «이 곡은 3분이라 · 3분 20초라» — 받침이 있으면 «이라» */
   function lenRa(d) { var t = lenTxt(d), c = t.charCodeAt(t.length - 1); return t + ((c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28) ? '이라' : '라'); }
+  /* [BGM_LINES_TRUE] 접힌 칸의 두 줄 — 한 줄(역할 · 음악 없이면 바뀐다) + 둘째 줄(고른 것) · open = 펴 있나(펴 있으면 곡 이름은 아래 카드가 말한다 · 두 번 보이지 않게) */
+  var NONE_SUB = '음악 없이 조용히 진행해요';
+  function lines(s, g, open) {
+    var o = g.own && +g.own.d > 0 ? g.own : null, one = (g.m === 'none' && s.noneOne) || s.one, now;
+    if (g.m === 'own') now = o ? (open ? (s.last ? '마지막 곡은 우리가 고른 곡' : PICK.own) : (s.last ? '마지막 곡 ' : '') + '‹' + o.n + '›') : (s.last ? '마지막 곡 · ' : PICK.own + ' · ') + '파일을 올려 주세요';
+    else if (g.m === 'none') now = NONE_SUB;
+    else now = (s.sub && s.sub[g.m]) || '곡은 스튜디오가 골라 둘게요';
+    return { one: one, now: now };
+  }
   /* 필요한 길이보다 짧으면 한 줄 — 없으면 '' */
   function shortNote(s, d) {
     if (!s || !s.need || !(+d > 0)) return '';
@@ -155,5 +166,5 @@
   /* m:ss */
   function mss(d) { d = Math.max(0, Math.floor(+d || 0)); var r = d % 60; return Math.floor(d / 60) + ':' + (r < 10 ? '0' : '') + r; }
 
-  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, slot: slot, slotOfKey: slotOfKey, label: label, get: get, viewOf: viewOf, chooser: chooser, lenTxt: lenTxt, shortNote: shortNote, mss: mss };
+  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, NONE_SUB: NONE_SUB, lines: lines, slot: slot, slotOfKey: slotOfKey, label: label, get: get, viewOf: viewOf, chooser: chooser, lenTxt: lenTxt, shortNote: shortNote, mss: mss };
 });

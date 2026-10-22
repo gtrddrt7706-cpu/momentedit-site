@@ -2102,6 +2102,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-bgm .bgm-one{font-size:14px;line-height:1.5;color:var(--accent);word-break:keep-all;text-wrap:pretty}
 .ls-bgm .bgm-now{font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;overflow-wrap:anywhere}
 .ls-bgm .bgm-now.todo{color:var(--seal)}
+.ls-bgm .bgm-now.nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* [BGM_LINES_TRUE] 접힌 칸의 곡 이름은 한 줄 — 펴면 «우리가 고른 곡»(한 줄)으로 바뀌어도 칸 높이가 그대로 */
+.mk-bgm .bgm-rest{color:var(--sub)}   /* [BGM_SUM_CHANGED] «나머지 n곳은 · 모두 스튜디오가 골라 둘게요» */
 .ls-bgm .bgm-cv{flex:none;width:8px;height:8px;margin:0 2px 4px 0;border-right:1.5px solid var(--sub);border-bottom:1.5px solid var(--sub);transform:rotate(45deg);transition:transform .25s cubic-bezier(.22,1,.36,1),margin .25s cubic-bezier(.22,1,.36,1)}
 .ls-bgm .bgm-sum[aria-expanded="true"] .bgm-cv{transform:rotate(-135deg);margin:4px 2px 0 0}
 @media (prefers-reduced-motion:reduce){ .ls-bgm .bgm-cv,.ls-bgm .bgm-sum{transition:none} }

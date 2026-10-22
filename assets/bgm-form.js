@@ -27,12 +27,9 @@
     var fv=false; try{ fv=!!(R&&R.FREE_KIND&&R.FREE_KIND[S.freeWhat]==='video'); }catch(x){}
     return {onOf:onOf, seq:sq, freeVideo:fv}; }
 
-  /* 지금 고른 것 한 줄 — 접힌 줄 · 한눈에 보기가 같은 말을 쓴다 */
-  function now(s,g){ var o=g.own&&+g.own.d>0?g.own:null;
-    if(g.m==='own') return o?(s.last?'마지막 곡 ':'')+'‹'+o.n+'›':(s.last?'마지막 곡 · ':'우리가 고른 곡 · ')+'파일을 올려 주세요';
-    if(g.m==='none') return '음악 없이 조용히 진행해요';
-    if(g.m==='warm') return '감동적인 곡 · 스튜디오가 골라 둘게요';
-    return s.id==='S7'?'밝고 따뜻한 곡 · 스튜디오가 골라 둘게요':'곡은 스튜디오가 골라 둘게요'; }
+  /* [BGM_LINES_TRUE 2026-10-23 BGM 섹션 검토 1] 접힌 칸 두 줄은 원천 한 곳(B.lines) — 한 줄 = 늘 참인 역할(«음악 없이»면 바뀐다) · 둘째 줄 = 고른 것(스튜디오 곡이면 곡 성격) ·
+     펴 있으면 곡 이름 대신 «우리가 고른 곡»(아래 카드가 이름을 말한다 · 한 화면에 두 번 보이지 않게) */
+  function lines(s,g){ return B.lines(s,g,!!OPEN[s.id]); }
   /* 올리기 전 한 줄 — 필요한 길이 */
   function needLine(s){ if(s.last) return '재즈 연주는 스튜디오가 골라 둘게요';   /* «마지막 곡 · 파일을 올려 주세요»는 위 줄이 이미 말한다 */
     return s.need?s.need.txt+' 곡이면 좋아요'+(s.need.max?'':' · 짧으면 반복해서 이어 틀어요'):''; }
@@ -44,9 +41,9 @@
     var h='<div class="ls-cg ls-bgm" role="group" aria-label="음악" data-k="'+e(k)+'"'+(v.s?' data-slot="'+v.s.id+'"':'')+'><span class="gl" aria-hidden="true">음악</span><div class="bgm-w">';
     if(v.kind==='line') return h+'<p class="bgm-line">'+e(v.t)+'</p></div></div>';
     if(v.kind==='cont') return h+'<p class="bgm-line">앞 순서 곡이 이어져요 · 바꾸려면 <button type="button" class="pk-link bgm-go" data-fk="bgmgo:'+e(v.at)+'" onclick="mkGo(\''+e(v.at)+'\')">'+e(nm(v.at))+'</button>에서</p></div></div>';
-    var s=v.s, g=B.get(St(),s.id), op=!!OPEN[s.id];
+    var s=v.s, g=B.get(St(),s.id), op=!!OPEN[s.id], ln=lines(s,g);
     h+='<button type="button" class="bgm-sum" data-fk="bgmopen:'+s.id+'" aria-expanded="'+op+'" aria-controls="bgmB_'+s.id+'" onclick="bgmAct(\'open\',\''+s.id+'\')">'
-      +'<span class="bgm-tx"><span class="bgm-one">'+e(s.one)+'</span><span class="bgm-now'+(g.m==='own'&&!(g.own&&+g.own.d>0)?' todo':'')+'">'+e(now(s,g))+'</span></span><span class="bgm-cv" aria-hidden="true"></span></button>';
+      +'<span class="bgm-tx"><span class="bgm-one">'+e(ln.one)+'</span><span class="bgm-now'+(g.m==='own'&&!(g.own&&+g.own.d>0)?' todo':'')+((g.m==='own'&&g.own&&+g.own.d>0&&!op)?' nm':'')+'">'+e(ln.now)+'</span></span><span class="bgm-cv" aria-hidden="true"></span></button>';
     if(op){ h+='<div class="bgm-b" id="bgmB_'+s.id+'"><span class="cg-c bgm-ch" role="radiogroup" aria-label="음악 고르기">'
         +s.picks.map(function(p,i){ var on=g.set&&g.m===p; return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!g.set&&i===0))?0:-1)+'" data-fk="bgm:'+s.id+':'+p+'" onclick="bgmAct(\'pick\',\''+s.id+'\',\''+p+'\')">'+chipT(B.label(s,p))+'</button>'; }).join('')+'</span>';
       if(g.m==='own') h+=ownCard(s,g);
@@ -112,14 +109,19 @@
   function sumNow(s,g){ var o=g.own&&+g.own.d>0?g.own:null;
     if(g.m==='own') return o?(s.last?'마지막 곡 ':'')+'‹'+o.n+'›':(s.last?'마지막 곡':B.PICK.own)+' · 아직 안 올렸어요';
     return B.label(s,g.m); }
-  /* ④ «음악» 묶음 — 칸마다 한 줄 · 지금 고른 것 */
-  function sumHtml(){ var o=opt(), rows=[];
+  /* ④ «음악» 묶음 — ★[BGM_SUM_CHANGED 2026-10-23 BGM 섹션 검토 1] 두 분이 바꾼 칸만 한 줄씩(이름 + 고른 것) + 맨 끝 «나머지 n곳은 스튜디오가 골라 둘게요» ·
+     하나도 안 바꿨으면 «음악은 모두 스튜디오가 골라 둘게요» 한 줄 — 종전엔 손대지 않은 열 칸이 모두 «스튜디오 곡»으로 서 폰에서 20줄이었다(새로 알려 주는 것이 없다) ·
+     바꾼 칸 = 기본(첫 고르기)이 아닌 것 · 입장 · 맞절(S3)은 입장 곡을 고르거나 올렸을 때만 · «이동하기» 단추는 없다(올릴 파일이 남은 칸은 위 «보낼 것»이 데려간다) */
+  function sumHtml(){ var o=opt(), rows=[], rest=0;
     B.SLOTS.forEach(function(s){ var on=s.ks.filter(function(k){ return o.onOf(k); }), at=s.entry?'entry':chooserOf(s,o); if(!at||!on.length) return;
-      var lab=on.length>2?nm(on[0])+' ~ '+nm(on[on.length-1]):on.map(nm).join(' · '), g=s.entry?null:B.get(St(),s.id), tx=s.entry?entryNow():sumNow(s,g);
+      var g=s.entry?null:B.get(St(),s.id), mu=St().mu||{}, ch=s.entry?(mu.src==='up'||mu.src==='rec'):(g.m!==s.picks[0]);
+      if(!ch){ rest++; return; }
+      var lab=on.length>2?nm(on[0])+' ~ '+nm(on[on.length-1]):on.map(nm).join(' · '), tx=s.entry?entryNow():sumNow(s,g);
       rows.push('<li class="mk-hp" data-slot="'+s.id+'"><span>'+e(lab)+'</span><span class="wr-due">'+e(tx)+'</span></li>'); });
-    /* 할 일이 아니라 지금 상태라 «이동하기» 단추 없이 이름 + 한 줄(«도와주실 분»과 같은 목록) — 올릴 파일이 남은 칸은 위 «보낼 것»이 «이동하기»로 데려간다 */
-    return rows.length?'<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-list">'+rows.join('')+'</ul></section>':''; }
+    if(!rows.length&&!rest) return '';
+    var tail=rows.length?(rest?'<li class="bgm-rest">나머지 '+rest+'곳은 스튜디오가 골라 둘게요</li>':''):'<li class="bgm-rest">음악은 모두 스튜디오가 골라 둘게요</li>';
+    return '<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-list">'+rows.join('')+tail+'</ul></section>'; }
 
   window.bgmAct=act;
-  window.BgmForm={ rowHtml:rowHtml, tasks:tasks, sends:sends, sumHtml:sumHtml, _t:{ open:OPEN, busy:BUSY, now:function(id){ var s=B.slot(id); return s?now(s,B.get(St(),id)):''; }, load:load } };   /* _t = 점검용 */
+  window.BgmForm={ rowHtml:rowHtml, tasks:tasks, sends:sends, sumHtml:sumHtml, _t:{ open:OPEN, busy:BUSY, now:function(id){ var s=B.slot(id); return s?lines(s,B.get(St(),id)).now:''; }, load:load } };   /* _t = 점검용 */
 })();
