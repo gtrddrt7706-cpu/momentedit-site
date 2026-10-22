@@ -2806,25 +2806,25 @@
   {
    "file": "60_mypage",
    "fn": "buildConsultState",
-   "mark": "DRESS_PICK_STATE",
+   "mark": "DRESS_STATE_MP",
    "why": "마이페이지 상담 정보에 시착 준비 판정값(의상 · 상담일 · 마감 · 저장값)을 싣는다. 이 판이 없으면 «시착 준비» 카드가 숨는다"
   },
   {
    "file": "95_notify",
    "fn": "_errArea",
-   "mark": "DRESS_PICK_AREA",
+   "mark": "DRESS_ERR_AREA",
    "why": "시착 준비 저장 실패를 S(저장) 코드로 적는다. 이 판이 없으면 그 실패가 X 코드로 떨어진다"
   },
   {
    "file": "admin",
    "fn": "adminHome",
-   "mark": "DRESS_PICK_ADMIN",
+   "mark": "DRESS_ADMIN_ROWS",
    "why": "관리자 오늘 상담 · 상담확정 줄에 고른 두 벌과 같은 날 겹침을, 아침 보고에 «내일 상담 · 준비할 드레스»를 싣는다. 이 판이 없으면 전날 준비 목록이 안 보인다"
   },
   {
    "file": "96_ai_cost",
    "fn": "aiMorningReport",
-   "mark": "DRESS_PICK_MORNING",
+   "mark": "DRESS_MORNING_ROW",
    "why": "아침 운영 보고 메일에 «내일 상담 · 준비할 드레스» 줄을 넣는다(고른 분이 있을 때만). 이 판이 없으면 전날 준비 목록이 메일에 안 실린다"
   }
  ],
@@ -3936,7 +3936,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-23 03:23 · 5d95417c",
+ "_생성": "2026-10-23 03:40 · ae4cfdb3",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4468,5 +4468,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "4ac10eb87eec"
+ "_표식서명": "547b3e28c0b6"
 }

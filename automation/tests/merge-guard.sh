@@ -13129,7 +13129,7 @@ nochk "var wd=(d.production && d.production.base) ? String(d.production.base.wed
 chk 'var wtKo=wt?wedTimeKo(wt)' mypage.html 1
 nochk "wtKo=(_wh<12?('오전 '+_wh)" mypage.html 0
 chk 'SNAP_TODO_FIRST' mypage.html 1
-chk "_csTodoAt = .('mp_snap'), _csHome = .('mp_fitting')" mypage.html 1
+chk "_csTodoAt = .('mp_snap'), _csHome = .('mp_dress') || .('mp_fitting')" mypage.html 1   # [DRESS_CARD 2026-10-23] 상담 카드의 제자리 = 시착 준비 카드 앞(그 카드가 상담과 시착 동의 사이에 들어왔다 · 없으면 종전대로 시착 동의 앞)
 chk '_csBox.parentNode.insertBefore(_csBox, _csAt)' mypage.html 1
 chk "_csB.status==='완료신호' || (_csB.dday!=null && _csB.dday<=_payDays(d).bal+6)" mypage.html 1
 # [STAGE_NAME_PREP · HEAD_DATE_SIGNED] 2026-09-26 검토 보강 — ①예약금 충당 카드(계약완료 · 납부액 0)의 «제작 단계가 열려요»도 「예식 준비」로(진행 라벨·NOW 와 한 이름) ②머리 날짜 줄은 서명한 계약서만 읽는다(사장님 결정 ⑦) — 합칠 때 B1 [SNAP_DDAY_CHIP] 의 두 번째 읽기(if(!m && 스냅 && contract.fill){ wd=…})가 붙으면 서명 전 날짜와 취소·노쇼 스냅 고객 D-day 가 되살아난다(실렌더 확인) · 그 줄과 B1 가드 파일의 같은 줄 chk 를 함께 뺄 것
@@ -19331,7 +19331,7 @@ chk "_csHome = \$('mp_dress') || \$('mp_fitting')" mypage.html 1           # [SN
 chk "saveDressPick:'S'" mypage.html 1
 chk '<script src="/assets/dress-refs.js"></script>' mypage.html 1
 chk '<script src="/assets/dress-refs.js"></script>' admin.html 1
-chk 'DRESS_PICK_ADMIN' admin.html 2
+chk 'DRESS_ADMIN_ROWS' admin.html 2
 chk '<script src="/assets/dress-refs.js" defer></script>' index.html 1
 chk '<div data-dress-on hidden' index.html 1
 chk '<span data-dress-on hidden>' inquiry.html 1
@@ -19339,11 +19339,11 @@ chk '<script src="/assets/dress-refs.js" defer>' inquiry.html 1
 chk 'DRESS_PICK' automation/consultation/consultation-booking.gs 8
 chk "case 'saveDressPick':" automation/consultation/consultation-booking.gs 1
 chk "'시착준비'" automation/consultation/consultation-booking.gs 1          # HEADERS 끝 — 운영 시트는 저장할 때 맨 뒤에 붙는다
-chk 'DRESS_PICK_STATE' automation/platform/60_mypage.gs 1
-chk 'DRESS_PICK_AREA' automation/platform/95_notify.gs 1
+chk 'DRESS_STATE_MP' automation/platform/60_mypage.gs 1
+chk 'DRESS_ERR_AREA' automation/platform/95_notify.gs 1
 chk "'saveDressPick'\]" automation/platform/95_notify.gs 1
-chk 'DRESS_PICK_ADMIN' automation/admin/admin.gs 4
-chk 'DRESS_PICK_MORNING' automation/platform/96_ai_cost.gs 1
+chk 'DRESS_ADMIN_ROWS' automation/admin/admin.gs 4
+chk 'DRESS_MORNING_ROW' automation/platform/96_ai_cost.gs 1
 chk 'DRESS_REFS' scripts/audit/dress-refs.mjs 1
 chk "'dress'\]" scripts/audit/footer-parity.mjs 1                             # 의상과 소품도 같은 푸터 한 벌
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev/null 2>&1; _drs=$?

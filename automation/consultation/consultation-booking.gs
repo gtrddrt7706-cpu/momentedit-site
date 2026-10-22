@@ -2453,7 +2453,7 @@ function _dressBriefLine_(raw) {   // [DRESS_PICK] 스튜디오가 읽는 한 �
   var picks = v.picks.map(function (id, i) { return (v.names[i] ? v.names[i] + ' ' : '') + '(' + id + ')'; }).join(' · ');
   return picks + (v.memo ? ' · 남긴 말: ' + v.memo.replace(/\s+/g, ' ') : '');
 }
-function _dressLive_() {   // [DRESS_PICK] 기능 스위치 — 사이트 원천 assets/dress-refs.js 의 «live: …, // [DRESS_LIVE]» 한 줄을 읽는다(켜짐 1시간 · 꺼짐 10분 기억 · 못 읽으면 꺼짐)
+function _dressLive_() {   // [DRESS_PICK] 기능 스위치 — 사이트 원천 assets/dress-refs.js 의 «live: …, // DRESS_LIVE» 한 줄을 읽는다(켜짐 1시간 · 꺼짐 10분 기억 · 못 읽으면 꺼짐)
   /* ★스위치를 GAS 에 따로 두지 않는다 — 켜는 곳이 둘이면 어긋난다(사이트를 켜면 메일도 따라 켜진다) */
   var c = null; try { c = CacheService.getScriptCache(); var v = c.get('DRESS_LIVE'); if (v === '1' || v === '0') return v === '1'; } catch (e) { c = null; }
   var on = false;
@@ -2464,12 +2464,12 @@ function _dressLive_() {   // [DRESS_PICK] 기능 스위치 — 사이트 원천
   try { if (c) c.put('DRESS_LIVE', on ? '1' : '0', on ? 3600 : 600); } catch (e) {}
   return on;
 }
-function _dressMailOk_(row) {   // [DRESS_PICK] 확정 메일에 시착 준비 한 줄을 실을까 — 스위치 · 시그니처 · 의상이 «자체 준비»가 아님
+function _dressMailOk_(row) {   // [DRESS_PICK] 확정 메일에 시착 준비 한 줄을 실을까 — 의상이 «자체 준비»가 아님 · 스위치 · 시그니처
   if (/^\s*자체 준비/.test(String(row.get('의상') || ''))) return false;
   var code = String(row.get('개인코드') || '').trim(); if (!code) return false;
+  if (!_dressLive_()) return false;   // 스위치 먼저(대개 기억된 값) — 꺼진 동안은 고객 시트를 더 읽지 않는다
   var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null;
-  if (!cust || String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP) return false;
-  return _dressLive_();
+  return !!cust && String(cust.get('상품타입') || '').trim() !== P.PRODUCT_SNAP;
 }
 function handleSaveDressPick(body) { _gsr_();
   /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 확정된 상담만 · 시그니처 · 단계 상담확정 · 상담일 −2일까지 · 1~2벌 · 남길 말 200자 · 한 사람 한 시간 30번 */

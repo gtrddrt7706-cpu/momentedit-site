@@ -307,7 +307,7 @@ function buildConsultState(code) { _gsr_(); /* [B19_LOCK 2026-10-09] 취소 링�
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',
     proposedTime: String(cr.get('변경제안시간') || '').trim(),
     proposedNote: String(cr.get('변경제안메모') || '').trim(),
-    /* [DRESS_PICK_STATE 2026-10-23] 시착 준비 카드 판정용 — 의상 · 상담일 · 마감(open) · 저장값. 읽기만(consultation-booking _dressState_) · 그 파일이 옛 판이면 null(카드가 숨는다) */
+    /* [DRESS_STATE_MP 2026-10-23] 시착 준비 카드 판정용 — 의상 · 상담일 · 마감(open) · 저장값. 읽기만(consultation-booking _dressState_) · 그 파일이 옛 판이면 null(카드가 숨는다) */
     dress: (typeof _dressState_ === 'function') ? _dressState_(cr) : null
   };
 }
