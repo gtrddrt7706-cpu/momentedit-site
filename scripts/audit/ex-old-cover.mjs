@@ -33,7 +33,7 @@ if (!fail) {
   for (const n of Object.keys(gB)) { const b = gB[n], c = gC[n]; if (!c) { bad(`하객 맞이 예시 ${n}(${b.name})이 사라졌다 — 옛 글 넷을 EX_OLD_1006["${n}"] 에 남기고 이 검사를 손봐야 한다`); continue; }
     b.texts.forEach((t, i) => { if (norm(t) === norm(c.texts[i])) return; const olds = [].concat(((gOld[n] || {})[String(i)]) || []);
       if (!olds.some((o) => norm(o) === norm(t))) bad(`하객 맞이 예시 ${n}(${c.name}) 줄 ${i + 1} 글이 바뀌었는데 옛 글이 EX_OLD_1006["${n}"]["${i}"] 에 없다 → «${t.slice(0, 24)}…»`); }); }
-  pB.forEach((b, i) => { const c = pC[i]; if (!c) { bad(`식전 영상 소개 예시 ${i}(${b.name})가 사라졌다 — 옛 글을 PV_OLD["${i}"] 에 남긴다`); return; }
+  pB.forEach((b, i) => { const c = pC[i]; if (!c) { if (![].concat(pOld[String(i)] || []).some((o) => norm(o) === norm(b.text))) bad(`식전 영상 소개 예시 ${i}(${b.name})가 사라졌다 — 옛 글을 PV_OLD["${i}"] 에 남긴다`); return; }   // [SRC_ALL_1023 검토 146-AI] 예시를 뺀 자리는 옛 글이 PV_OLD 에 있으면 된다(유쾌하게 · 감사하게)
     if (norm(b.text) === norm(c.text)) return; const olds = [].concat(pOld[String(i)] || []);
     if (!olds.some((o) => norm(o) === norm(b.text))) bad(`식전 영상 소개 예시 ${i}(${c.name}) 글이 바뀌었는데 옛 글이 PV_OLD["${i}"] 에 없다 → «${b.text.slice(0, 24)}…»`); });
   Object.keys(eB).forEach((v) => { const c = eC[v]; if (c == null) { bad(`입장 인사 ${v}(${v})가 사라졌다 — 옛 글을 ENTRY_OLD["${v}"] 에 남긴다`); return; }

@@ -76,7 +76,9 @@ async function sheet(w, opt, k) {
   /* ★[SOURCE_FIRST_1016] 편지 줄이 자료 글로 바뀌어 다시 받는 중이면 소리가 없다(data: 빈 소리 · 길이 0) — 소리 있는 순간을 차례로 고른다(편지 먼저 · 받으면 다시 편지).
      빈 소리로 재면 화면이 0 이라 아래 «깨 보기»가 아무것도 안 재고 초록이 된다 */
   let src = '';
-  for (const kk of [k || 'letter', 'bless', 'tribute', 'declare']) {
+  /* ★[SRC_ALL_1023 검토 145 · 146] 편지 · 덕담 · 헌사 · 선언이 한꺼번에 자료 글로 바뀌어 넷 다 다시 받는 중이 됐다 — 넷 뒤에 나머지 순간도 차례로 본다(녹음 오면 다시 편지 먼저) */
+  const rest = await pg.evaluate(() => Object.keys(RitualOpen.CARDS).filter((x) => x.charAt(0) !== '_'));
+  for (const kk of [...new Set([k || 'letter', 'bless', 'tribute', 'declare', ...rest])]) {
     await pg.evaluate((kk) => opPv(kk), kk); await pg.waitForTimeout(900);
     src = await pg.evaluate(() => (PV.au && PV.au.getAttribute('src') || ''));
     if (/\.mp3(\?|$)/.test(src)) break;

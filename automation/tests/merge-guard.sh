@@ -8206,7 +8206,7 @@ nochk '이제 사진을 남기겠습니다.' assets/ritual-data.js
 nochk '이제 사진을 남기겠습니다.' order-preview.html
 chk '오늘 저희의 가장 빛나는 순간을 함께해 주셔서 감사합니다.' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «여러분 덕분에, 오늘 이 순간이 더 행복합니다.…» · 옛 주석 감사 인사 담백 신랑 셋째 · Z 1 흐름 5 + 감사문 캡처 «여러분 덕분에»
 nochk '준비한 이야기를 들려드리겠습니다' assets/ritual-ref.js
-chk '우리 가족이 되어 주신 서준 씨, 하윤이를 사랑해 줘서 고맙습니다.' assets/ritual-ref.js 1   # 축사 예시 ① 맺는 말 · Y 4-1 ③
+chk '사랑하는 하윤이와 서준이에게, 오빠 민재가.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «우리 가족이 되어 주신 서준 씨 …» · 513 = 실제 축사(유튜브 A2SzVDHF5YE)
 nochk '서준 씨, 우리 가족이 된 걸 환영합니다.' assets/ritual-ref.js
 # [WAIT_SAFE_R6_1016] 서약 · 감사문 · 편지 안심 — 폐지된 대기 클립(WAIT_BRIDGE_RETIRED 9/6)을 약속하지 않는다
 chk 'WAIT_SAFE_R6_1016' assets/ritual-story.js 1
@@ -12662,7 +12662,7 @@ chk 'EX_MORE' scripts/build-ref-examples.mjs 1
 chk 'EX_NAMES' order-preview.html 4
 chk 'EX_NAMES' scripts/audit/listen-page.mjs 1
 chk 'EX_START' order-preview.html 1
-chk '"sit":"그리움"' assets/ritual-ref.js 6   # 상황 열이 자료에 실렸다(먼저 떠나신 분께 여섯 줄)
+chk '"sit":"그리움"' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «그리움 여섯 줄» · 146-G 로 다섯 줄 뺌(실제 글 없음) · 1104 하나
 nochk "esc(pt.kyeol" order-preview.html   # ★무드는 화면에 안 쓴다 — 사장님 «참고 예시 숫자까지만»
 chk 'MK_PICK_TOP' order-preview.html 1
 nochk 'data-fk="mktodo"' order-preview.html
@@ -15031,8 +15031,8 @@ chk '요청판 10' docs/handoff/insta-find.md 1
 # ★[REVIEW12_1018 · VOWKIND_TEXT_1018 2026-10-18 인스타 섹션 검토 114 ~ 118] 참고 예시 넷(실사용 꼴로 · 옛 글 REF_OLD_1018) · 서약 ↔ 감사문 칩을 바꿀 때 칸에 글이 있으면 한 줄(글은 안 지움)
 chk 'VOWKIND_TEXT_1018' order-preview.html 1
 chk '적은 글을 한 번 봐 주세요' order-preview.html 1
-chk '존중할 것을 굳게 다짐하였습니다.' assets/ritual-ref.js 1
-chk '지금의 제가 있기까지' assets/ritual-ref.js 1
+chk '서로 아끼고 존중할 것을 굳게 약속하였습니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «굳게 다짐하였습니다» · 514-2 = RR 8 원문
+chk '지금의 저희가 있기까지' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «지금의 제가» · 605 = 감사문_부모님께 «1» 원문
 chk '흐르길 바랍니다.' assets/ritual-ref.js 1
 chk '서준아, 고맙다. 이제 드디어 모두가 인정하는 우리 가족이 되는구나!' assets/ritual-ref.js 1
 nochk '존중하기로 하였습니다' assets/ritual-ref.js
@@ -15050,8 +15050,8 @@ chk 'GUHO_ONE_TAKE_1018' scripts/audit/guho-one-take.mjs 1
 chk 'GUHO_ONE_TAKE_1018' docs/handoff/녹음/README.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/guho-one-take.mjs >/dev/null 2>&1; _gho=$?; if [ "$_gho" = 1 ]; then echo 'FAIL guho-one-take: 같은 구호가 자리마다 다른 판입니다 — node scripts/audit/guho-one-take.mjs'; fail=1; fi; fi
 # ★[REVIEW14_1018 2026-10-18 인스타 섹션 검토 120 · 121] 편지 예시(아빠 · 첫 출근 날) — 두 분이 함께 들어오는 입장이라 «여기까지 데려다주셨네요»를 걷었다 · 사본 둘(빌더 · 원천)
-chk '오늘 제가 여기 선 것도 그 걸음 덕분이에요.' order-preview.html 1
-chk '오늘 제가 여기 선 것도 그 걸음 덕분이에요.' assets/ritual-data.js 1
+chk 'EX_FROM_REF_1023' order-preview.html 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «오늘 제가 여기 선 것도 …» · 옛 화면 예시는 참고 예시 표에서 뽑는다
+chk 'EX_FROM_REF_1023' assets/ritual-data.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «오늘 제가 여기 선 것도 …»
 nochk '저를 여기까지 데려다주셨네요' order-preview.html
 nochk '저를 여기까지 데려다주셨네요' assets/ritual-data.js
 chk '| 검토 121 |' docs/handoff/insta-find.md 1
@@ -15118,17 +15118,17 @@ chk '| 검토 113 |' docs/handoff/insta-find.md 1
 # ★[REVIEW10_1018 · REF_OLD_1018 2026-10-18 인스타 섹션 검토 10판 91 ~ 106] 참고 예시 글(ritual-ref · 글로만) — 자료 원문 줄은 틀린 날 · 같은 자리에 같은 말 둘 · 맞춤법 · 비문만,
 #   우리 글 줄은 제안대로 · 옛 글은 order-preview REF_OLD_1018(_exMineOld 가 옛 글 칸도 이름만 바꾼다) · 말투 · 다른 순간 겹침 · 부름말 넣기는 안 함(자료 글 그대로)
 chk 'REF_OLD_1018' order-preview.html 3
-chk '이제 잘 살겠다는 약속만 지키면 됩니다.' assets/ritual-ref.js 1
-chk '서로 아끼고 존중할 것을 굳게 다짐하였습니다.' assets/ritual-ref.js 1   # 검토 114 로 고침
-chk '가족의 인연을 허락해주신 사돈댁에' assets/ritual-ref.js 1
-chk '아낌없는 사랑으로 키워주셔서 감사합니다. 소중한 아드님을' assets/ritual-ref.js 1
-chk '당연하다는 이유로' assets/ritual-ref.js 1
+chk '저희 둘이 잘 먹고 잘 놀고 강아지 고양이들 잘 키우며 살겠습니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «이제 잘 살겠다는 약속만 …» · 701 = 실제 릴스
+chk '일생 동안 고락을 함께할 부부가 되기를 굳게 맹세하였습니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «굳게 다짐하였습니다» · 514 = YT1 성혼선언문
+chk '제가 세상에서 가장 잘한 일이 우리 아들, 서준을 낳고 키운 것이라고 생각합니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «가족의 인연을 허락해주신 사돈댁에» · 910 = 실제 축사
+chk '부모님의 딸로 이 세상에 태어날 수 있었던 것이' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «아낌없는 사랑으로 …» · 1402 = 실제 편지
+chk '당연함에 미루어' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «당연하다는 이유로» · 1007 = MMW 카드 3 원문
 chk '진실한 행동을' assets/ritual-ref.js 1
 nochk '조금 있다 드릴 약속' assets/ritual-ref.js
-nochk '굳게 약속하였습니다' assets/ritual-ref.js
+# nochk '굳게 약속하였습니다' 걷음   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «» · 514-2 = RR 8 원문 «굳게 약속하였습니다» 되돌림
 nochk '귀한 주말 시간' assets/ritual-ref.js
 nochk '오빠에게 보냅니다' assets/ritual-ref.js
-nochk '당연함에 미루어' assets/ritual-ref.js
+# nochk '당연함에 미루어' 걷음   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «» · 1007 = MMW 카드 3 원문 되돌림
 nochk '진실된 행동' assets/ritual-ref.js
 chk '| 검토 91 |' docs/handoff/insta-find.md 1
 chk '| 검토 106 |' docs/handoff/insta-find.md 1
@@ -15304,7 +15304,7 @@ chk "'narr-ring-out': \[" assets/ritual-open.js 1
 chk "'narr-declare-in-friend': \['다음은 이 두 사람이 온전한 부부가 되었음을 선언하는 성혼선언이 있겠습니다." assets/ritual-open.js 1   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «\['다음은 두 사람의 성혼선언이 있겠습니다.…») · 자료 WW
 chk "'narr-close': \[" assets/ritual-open.js 1
 chk 'narr-table-in-ex5' assets/ritual-cue.js 1
-chk '저희가 미리 준비한 안내 음성' order-preview.html 2   # [REVIEW9_1018] 검토 88 «저희 목소리로» 뺌
+chk '저희가 미리 준비한 안내 음성' order-preview.html 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «2» · GUEST_EX 다정 · 유쾌가 자료 G4 «미리 준비한 목소리로»
 chk '함께 봐 주세요.' order-preview.html 1
 chk '저희가 입장할 준비를 마쳤습니다.' assets/ritual-data.js 1   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «저희 결혼식은 십 분 뒤에 시작합니다.…») · 두 분 판 1인칭은 5분 전 줄이 지킨다
 nochk '"다정하게",\["귀한 걸음 해 주신 여러분, 고맙습니다."' order-preview.html
@@ -16603,7 +16603,7 @@ chk 'VC_NET_SPLIT' scripts/audit/vc-down-kind.mjs 2
 chk 'THANKS_DEURIM' order-preview.html 1
 chk '발걸음해 주신 여러분, 고맙습니다.' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입…»
 chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계십니다' order-preview.html 1
-chk "var VC_SAMPLE='오늘 저희 두 사람의 결혼식에 와 주셔서 진심으로 감사드립니다." order-preview.html 1
+chk "var VC_SAMPLE='저희 두 사람의 새로운 시작을 축복해 주시기 위해 귀한 걸음 해주신 모든 분께 진심으로 감사드립니다." order-preview.html 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «오늘 저희 두 사람의 결혼식에 와 주셔서 …» · 감사문_하객께 «1»
 nochk '함께해 주셔서 진심으로 감사합니다' order-preview.html
 chk 'var EX_OLD_1006={"0": {"0": \["저희 두 사람의 결혼식에 와 주셔서 감사합니다.' order-preview.html 1
 # ★★[TIP_NO_AUTO · TUNE_PLAY_TRUE · IOS_PLAY_SESSION 2026-10-07 사장님 «모바일에서 녹음하고 플레이 누르면 소리가 안 난다 · 말투 안내가 자동으로 자꾸 펼쳐진다»]
@@ -16809,7 +16809,7 @@ nochk 'd:"서사형"' order-preview.html
 chk 'd:"담백하게"' assets/ritual-data.js 1   # [EX_NAME_HAGE 2026-10-09] 종전 이야기처럼
 chk 'd:"산뜻하게"' order-preview.html 1   # [EX_NAME_HAGE 2026-10-09] 종전 새 출발처럼
 # ★★[EX_NAME_HAGE 2026-10-09 사장님 «웃음 뒤에 진심 · 이런 문구는 오글거린다» · «심플하게 담백하게 다정하게 이런 식으로 일관성 있게» · «다른 곳들도»] 예시 이름표는 모든 자리 «~하게» 한 낱말
-chk 'EX_NAME_HAGE' order-preview.html 3
+chk 'EX_NAME_HAGE' order-preview.html 2   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «3» · 식전 영상 소개 예시 둘(유쾌 · 감사 뺌)
 chk 'EX_NAME_HAGE' assets/ritual-data.js 1
 chk 'EX_NAME_HAGE' scripts/audit/ex-name-hage.mjs 1
 nochk 'd:"이야기처럼"' order-preview.html
@@ -19223,12 +19223,12 @@ chk 'THANKS_SHOT_1013' scripts/audit/open-course.mjs 1
 #   선언문 = 이름을 넣은 한 벌(«과/와»는 이름 바꾸기 _exMine 이 못 고쳐 쉼표) · 말로 인사 = 짧은 둘(9 · 10) + 1분 둘(1 · 4) · 축배 ⑥ 신부 = 본식이 끝난 자리에 맞게
 chk 'EX_LINE_REVIEW_1013' order-preview.html 1
 chk 'EX_LINE_REVIEW_1013' scripts/audit/listen-page.mjs 1
-chk "'tribute:long':\[9,10,1,4]" order-preview.html 1                         # 짧은 판 둘이 카드에 보이는 자리
+chk "'tribute:long':\[9,10,1,5]" order-preview.html 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «[9,10,1,4]» · 4(815 · 816) 뺌 → 5(격식)
 chk '신랑 이서준 군과 신부 정하윤 양은' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «신랑 이서준, 신부 정하윤 두 사람은,…» · 옛 주석 [LINE_R1_1014] 관리자 낭독 카드(인쇄본)와 같은 꼴 · «정하윤은»은 이름 받침에 따라 «은 · 는»이 갈려 이름 바꾸기가 못 고친다
 chk '함께 걸었던 등산길에서 당신은 늘 한 발 앞서' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «부엌 물소리가 길어지는 이유를 알아채는 데…»
 chk '서로 다른 삶을 살다가 우연한 인연으로 만나' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «하윤 씨 댁에 처음 인사드리러 간 날…»
-chk '두 사람을 이어준 신랑 친구 한지호입니다' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람을 처음 만나게 한 신랑 친구 한지호입니다…»
-chk '소중한 따님을 평생 아끼고 지켜 주겠습니다' assets/ritual-ref.js 1   # [REVIEW10_1018] 검토 100 «딸 → 따님»(상대 부모님께 · 높임)   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «장인어른, 장모님. 하윤이가 웃는 날이 더 많도록…»
+chk '안녕하십니까 저는 서준 대학 선배입니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «두 사람을 이어준 …» · 619 = 실제 축사(브런치)
+chk '소중한 딸을 평생 아끼고 지켜 주겠습니다' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «따님» · 505 = FF 2-1 원문 «딸»
 chk '우리의 행복을 위하여!' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «이제야 웃는 신랑 신부를 위하여!…»
 nochk '신랑 이서준과' assets/ritual-ref.js                  # 이름 바꾸기가 «과/와»를 못 고친다(받침 없는 이름이면 «김민수과»)
 nochk '그걸 알아채는 데 삼 년이 걸렸어' assets/ritual-ref.js  # 번갈아 읽으면 «그걸»이 앞 신부 줄을 가리킨다
@@ -19253,8 +19253,8 @@ nochk '이제 자리를 잡아 주시면 감사하겠습니다' assets/ritual-da
 chk '자, 그럼 이따 앞에서 뵙겠습니다.' order-preview.html 1
 chk '그다음부터는, 있는 그대로 사진에 담깁니다.' order-preview.html 1
 chk '이 영상으로, 저희가 고맙다는 인사를 드리겠습니다.' order-preview.html 1
-chk 'self:"마주 보던 저희 두 사람이, 이제 같은 곳을 보며 들어갑니다.' assets/ritual-data.js 1
-chk 'self:"마주 보던 저희 두 사람이, 이제 같은 곳을 보며 들어갑니다.' order-preview.html 1
+chk 'self:"각자의 길을 걸어온 저희가, 오늘부터 하나의 길을 함께 걷습니다.' assets/ritual-data.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «마주 보던 …» · 입장 A self = 자료 G2 · NN
+chk 'self:"각자의 길을 걸어온 저희가, 오늘부터 하나의 길을 함께 걷습니다.' order-preview.html 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «마주 보던 …»
 chk "(sl==='narr-candle-bow-four'?'하객께':'서로 한 번, 하객께 한 번')+' 인사하고 자리로 돌아가요'" order-preview.html 1   # ★[CANDLE_CALL_1014] 인사는 인사 안내 줄 뒤(두 분이면 서로 한 번 · 하객께 한 번)
 chk "(cw === 'parents' ? '' : '서로 한 번, ')" assets/ritual-open.js 1
 nochk '두 분이 고른 두 분' assets/ritual-story.js
@@ -19334,9 +19334,9 @@ chk 'R2_DECL_NAMES_1014' order-preview.html 1
 chk "누가 읽든 같은 글): '+_declNar()" order-preview.html 1
 chk 'THANKS_DUP_TOAST_1014' order-preview.html 1
 chk 'BLESS_STORY_NOTE_1014' assets/ritual-open.js 1
-chk '당신과 함께여서 등산이 근사한 경험이 되었습니다' assets/ritual-ref.js 1   # [REVIEW10_1018] 검토 106 «-라면 … 되었습니다» 호응   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «화분마다 물을 언제 주는지도 이제 다 외웠으니…» · 옛 주석 라운드 2 G3 — 편지(서로에게) ① 신랑 «나도 좀 달라졌어»와 겹침 풀기
+chk '당신과 함께라면 등산이 근사한 경험이 되었습니다' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «함께여서» · 09 = MMW 카드 5 원문
 nochk '나도 네 곁에서 많이 자랐다는 걸' assets/ritual-ref.js
-chk '아빠는 내가 올 때까지 거실 불을 끄지 않았고' assets/ritual-ref.js 1   # 덕담 ⑤ 신부 아버지(현관 · 신발 소리)와 같은 장치 풀기
+chk '한평생 못난 딸 사랑해주시며 길러주신 은혜에' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «아빠는 내가 올 때까지 …» · 706 = 실제 릴스
 nochk '현관문 소리 날 때까지' assets/ritual-ref.js
 chk 'TXWHY_US_1014' scripts/audit/cue-form.mjs 1       # 왜 적나 한 줄 «저희가» — 옛 «디렉터» 기대값을 걷었다
 chk 'R2_CANDLE_BLOCK_1014' assets/ritual-story.js 1      # 라운드 2 G2 — 화촉 블록 설명 «초에 불을 밝혀요»까지(인사 차례는 장면이)
