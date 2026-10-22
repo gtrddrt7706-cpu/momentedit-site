@@ -13,31 +13,24 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 134 | 61 |
-| 2_진희.txt | 진희 | 46 | 22 |
-| 3_예슬.txt | 예슬 | 11 | 8 |
-| 4_진한.txt | 진한 | 10 | 8 |
+| 1_우성.txt | 우성 | 115 | 50 |
+| 2_진희.txt | 진희 | 31 | 15 |
+| 3_진한.txt | 진한 | 10 | 8 |
+| 4_예슬.txt | 예슬 | 8 | 7 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 134줄 · 61클립
+# 우성 — 115줄 · 50클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =11_narr-welcome-in,=13_narr-vow-in,=14_narr-vow-out,=20_narr-letter-end,=23_narr-bless-mid,=25_narr-bless-end-long,=26_narr-close,=91_narr-candle-in-mothers,=93_narr-candle-in-fathers,=94_narr-candle-in-others,=127_narr-vow-in-b,=137_narr-open,=27_letter-parent,=28_letter-each,=136_narr-declare-in-friend,=38_tribute-in,=39_tribute-out,=256_tribute-hug,=103_narr-free-in-speech,=111_bridge-b3-clap-thanks,=131_narr-table-in,=255_bridge-b9-declare-seat-end,=248_bridge-b12-tribute-calm,=263_bridge-b14-candle-name,=149_narr-open-ex3,=150_narr-open-ex4,=151_narr-candle-in-mothers-ex2,=152_narr-candle-in-mothers-ex3,=153_narr-candle-in-mothers-ex4,=154_narr-candle-in-fathers-ex2,=155_narr-candle-in-fathers-ex3,=191_narr-candle-in-fathers-ex4,=192_narr-candle-in-others-ex2,=159_narr-candle-in-others-ex3,=224_narr-candle-in-others-ex4,=215_narr-welcome-in-ex4,=163_narr-vow-in-ex2,=164_narr-vow-in-ex3,=165_narr-vow-in-ex4,=166_narr-vow-in-b-ex2,=167_narr-vow-in-b-ex3,=168_narr-vow-in-b-ex4,=228_narr-thanks-in-ex2,=169_narr-ring-in-ex2,=218_narr-declare-in-friend-ex2,=231_narr-declare-in-friend-ex4,=172_narr-bless-mid-ex2,=194_narr-bless-mid-ex4,=206_narr-bless-end-ex3,=235_letter-parent-ex4,=182_tribute-in-ex3,=239_tribute-call-ex4,=219_narr-close-ex2,=220_narr-close-ex3,=207_toast-toast-ex4,=203_narr-table-in-ex3,=222_narr-table-in-ex4,=223_narr-table-in-ex5,=60_narr-photo-split,=62_narr-online-in,=262_narr-photo-free
+  --clip =11_narr-welcome-in,=13_narr-vow-in,=14_narr-vow-out,=20_narr-letter-end,=25_narr-bless-end-long,=91_narr-candle-in-mothers,=93_narr-candle-in-fathers,=94_narr-candle-in-others,=127_narr-vow-in-b,=137_narr-open,=27_letter-parent,=28_letter-each,=136_narr-declare-in-friend,=38_tribute-in,=39_tribute-out,=256_tribute-hug,=103_narr-free-in-speech,=111_bridge-b3-clap-thanks,=255_bridge-b9-declare-seat-end,=248_bridge-b12-tribute-calm,=263_bridge-b14-candle-name,=149_narr-open-ex3,=150_narr-open-ex4,=151_narr-candle-in-mothers-ex2,=152_narr-candle-in-mothers-ex3,=153_narr-candle-in-mothers-ex4,=154_narr-candle-in-fathers-ex2,=155_narr-candle-in-fathers-ex3,=191_narr-candle-in-fathers-ex4,=192_narr-candle-in-others-ex2,=159_narr-candle-in-others-ex3,=224_narr-candle-in-others-ex4,=215_narr-welcome-in-ex4,=163_narr-vow-in-ex2,=164_narr-vow-in-ex3,=165_narr-vow-in-ex4,=166_narr-vow-in-b-ex2,=167_narr-vow-in-b-ex3,=168_narr-vow-in-b-ex4,=228_narr-thanks-in-ex2,=169_narr-ring-in-ex2,=218_narr-declare-in-friend-ex2,=231_narr-declare-in-friend-ex4,=206_narr-bless-end-ex3,=235_letter-parent-ex4,=182_tribute-in-ex3,=239_tribute-call-ex4,=207_toast-toast-ex4,=62_narr-online-in,=262_narr-photo-free
 ```
 
 ```
-# 진희 — 46줄 · 22클립
+# 진희 — 31줄 · 15클립
 node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =01_guest-1-arrival,=02_guest-2-10min,=03_guest-3-5min,=04_guest-4-1min,=85_narr-photo-send,=264_narr-photo-upload,=45_end-1a-farewell,=110_end-1c-thanks-nomeal,=47_end-2-goodbye,=48_online-3-welcome,=89_guest-4-1min-pre,=115_guest-ex2-1-arrival,=117_guest-ex2-3-5min,=118_guest-ex2-4-1min,=119_guest-ex3-1-arrival,=120_guest-ex3-2-10min,=121_guest-ex3-3-5min,=122_guest-ex3-4-1min,=123_guest-ex4-1-arrival,=124_guest-ex4-2-10min,=125_guest-ex4-3-5min,=126_guest-ex4-4-1min
+  --clip =01_guest-1-arrival,=02_guest-2-10min,=03_guest-3-5min,=85_narr-photo-send,=264_narr-photo-upload,=45_end-1a-farewell,=110_end-1c-thanks-nomeal,=47_end-2-goodbye,=115_guest-ex2-1-arrival,=119_guest-ex3-1-arrival,=120_guest-ex3-2-10min,=123_guest-ex4-1-arrival,=124_guest-ex4-2-10min,=125_guest-ex4-3-5min,=126_guest-ex4-4-1min
 ```
-
-```
-# 예슬 — 11줄 · 8클립
-node scripts/assemble-narration.mjs --in <예슬_받은폴더> \
-  --clip =02_guest-2,=04_guest-4,=18_entry-A,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=23_entry-F
-```
-★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 예슬 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
 ```
 # 진한 — 10줄 · 8클립
@@ -45,4 +38,11 @@ node scripts/assemble-narration.mjs --in <진한_받은폴더> \
   --clip =01_guest-1,=03_guest-3,=18_entry-A,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=23_entry-F
 ```
 ★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 진한 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+
+```
+# 예슬 — 8줄 · 7클립
+node scripts/assemble-narration.mjs --in <예슬_받은폴더> \
+  --clip =02_guest-2,=18_entry-A,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=23_entry-F
+```
+★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 예슬 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
