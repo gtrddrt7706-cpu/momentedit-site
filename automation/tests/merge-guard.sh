@@ -19094,6 +19094,11 @@ chk 'L=upCands(Sg,upNeed())' assets/entry-music.js 1                            
 chk 'upMark(c0);' assets/entry-music.js 1                                                                # 그릴 때 «추천 ·» 표시만
 chk 'function hooksOf(u){ if(!u||!u.rec) return null;' assets/entry-music.js 1                            # 올린 곡 문 열림은 엔진이 옮기지 않는다
 nochk 'function upCands(Sg){' assets/entry-music.js                                                      # ★목소리 길이를 안 보던 옛 추천(긴 멘트면 늦게 들어오거나 짧게 깔림) — 되살리지 말 것
+# ── 2026-10-23 [UP_REC_V_REMEASURE] BGM 섹션 따로 알림 «146 · 다음판이 들어오면 새 글 길이로 다시 재 주세요» — 기대값을 그때 잰 멘트 길이로 셈한다
+#   종전 A 30 · B 50 · E 80 · «tv > 9»를 숫자로 박아 녹음이 바뀌자(#1318) 규칙은 맞는데 빨강이 됐다 · 옛 판 엔진으로 돌리면 빨강 8
+chk 'UP_REC_V_REMEASURE' scripts/audit/up-rec-v.mjs 1
+chk 'const expRec = (need) => \[30, 50, 80\].find((t) => typeof need === .number. && t >= need) || 30;' scripts/audit/up-rec-v.mjs 1
+chk 'const expAt = (H, V) => { const pre = H - V - SP.breath;' scripts/audit/up-rec-v.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/up-rec-v.mjs >/dev/null 2>&1; _urv=$?; if [ "$_urv" = 1 ]; then echo 'FAIL up-rec-v: 올린 곡 «추천» 자리(멘트 길이 · 첫 자리 · 표시만 다시 · 직접 적은 자리 그대로)가 깨졌습니다 — node scripts/audit/up-rec-v.mjs'; fail=1; elif [ "$_urv" = 0 ]; then echo 'ok up-rec-v: 올린 곡 추천 자리'; else echo 'skip up-rec-v: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 순간마다 «음악» 칸 — 폼만 · 곡은 나중 [BGM_FORM_1023] — 사장님 «식순부분에 알맞게 디자이너 관점으로 적절하게 bgm 도 구현» · «우선 폼형태부분만» · BGM 섹션 명세 v2(대본 섹션 확인 main 5d95417)
 #   원천 assets/bgm-slots.js(칸 10 · 덮는 순간 · 화면 한 줄 · 고르기 · 참고 값 — 엔진에는 아직 안 넣는다) · 화면 assets/bgm-form.js(고르기 칸 맨 아래 «음악» 줄 · 접힌 한 줄 · 칩 · 우리가 고른 곡)
