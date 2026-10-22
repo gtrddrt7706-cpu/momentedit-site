@@ -19385,6 +19385,18 @@ chk 'MAIL_LINK_INK' automation/platform/95_notify.gs 1
 chk 'MAIL_LINK_INK' automation/platform/40_signup.gs 1
 chk 'WZ_STEPS_STILL' .claude/skills/momentedit-design/SKILL.md 1        # 디자인 권위 문서에도 — 새 입력 화면이 같은 자리에서 다시 흔들리지 않게
 chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호 알약도 진사로 칠하지 않는다
+# ★[DRESS_DETAIL_FIT · 코워크 검토 2 · 10/23] 자세히 첫 화면에서 고르기 단추가 아래 막대에 가리지 않는다 — 단추는 이름 · 한 줄 바로 아래 · 사진 넘김은 사진 위 · 짧은 화면 사진 칸 상한
+#   숫자(390×844 · 390×740 · 1280×900 × 고르기 · 고른 줄 · 다 찼어요)는 dress-fit.mjs 가 브라우저로 잰다 — PR 잡(브라우저 없음)에서는 «재지 못했다»로 넘어가고 야간 · 로컬에서 실제로 잰다
+chk 'DRESS_DETAIL_FIT' dress.html 6
+chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
+nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
+  case "$_dfit" in
+    0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 세 상태 모두 고르기 단추가 막대 위' ;;
+    1) echo 'FAIL dress-fit: 자세히 첫 화면에서 고르기 단추가 막대에 가립니다 — node scripts/audit/dress-fit.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-fit: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev/null 2>&1; _drs=$?
   case "$_drs" in
     0) echo 'ok dress-refs: 원천 모양 · 줄 세우기(명세 6장) · 표본 운영 0벌 · 스위치 · GAS 0 · 서버 짝 · 금지어 · 마이페이지 카드' ;;

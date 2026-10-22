@@ -12,6 +12,8 @@
  * ⑧ 마이페이지 · 관리자 — 같은 원천을 읽는다 · 카드 자리(mp_consult → mp_dress → mp_fitting) · 카드 판정(스위치 · 시그니처 · 상담확정 · 확정 · 자체 준비) · 겹화면 주소 · 미리 보기
  * ⑨ 코워크 검토 1(10/23) — 아래 막대는 #pkBar 가 붙는다 · «Nº» 배지 칠 없음 · 마감 뒤 «준비해 둘게요» · 건너뛰기 옅게 · 진행 표시 높이 그대로 ·
  *    칸 한 줄 «라인 · 길이 · 소재»(넥라인은 자세히) · 슬립 그림이 퍼지지 않는다 · 남길 말 자리 글 · 마감 날 숫자(요일 계산) · 메일 글자 링크 #7A5F37
+ * ⑩ 코워크 검토 2(10/23) — 자세히의 고르기 단추는 이름 · 한 줄 바로 아래(분위기 · 소품은 그 아래) · 사진 넘김은 사진 위 · 짧은 화면에서 사진 칸 상한 ·
+ *    반투명 면 없음. 단추가 막대 위에 «보이는가»는 숫자로 scripts/audit/dress-fit.mjs 가 잰다(브라우저)
  *
  * 종료: 0 통과 · 1 어긋남 · 2 못 쟀다(원천 없음)
  * ★깨 보고 믿는다 — --selftest 는 일부러 틀린 원천(핏 짝 바꿈 · 표본 운영 노출 · 마감 일수 다름)을 넣어 셋 다 빨강이 되는지 본다.
@@ -185,6 +187,16 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0) {
   t(hem > 0 && waist > 0 && hem / waist <= 1.6, `⑨ 슬립 그림 — 밑단이 허리의 1.6배 안(곧게 떨어진다 · 머메이드로 읽히지 않게) · 지금 ${waist ? (hem / waist).toFixed(2) : '?'}배`);
   const GASALL = (function walk(d) { let out = ''; for (const e of fs.readdirSync(path.join(ROOT, d), { withFileTypes: true })) { const q = d + '/' + e.name; if (e.isDirectory()) out += walk(q); else if (/\.gs$/.test(e.name)) out += rd(q) || ''; } return out; })('automation');
   t(GASALL.length > 0 && !/<a [^>]*color:#B89A75/i.test(GASALL), '⑨ [MAIL_LINK_INK] 메일 · GAS 화면의 글자 링크에 선 색(#B89A75)을 쓰지 않는다');
+  // ⑩ 코워크 검토 2(10/23) — 자세히 첫 화면에서 고르기 단추가 막대 위에(숫자는 dress-fit.mjs)
+  const iSum = PAGE.indexOf("'<p class=\"dv-sum\">'"), iCtl = PAGE.indexOf("(ctl ? '<div class=\"pk-ctl\">' + ctl + '</div>' : '')"), iMood = PAGE.indexOf("'<p class=\"dv-mood\">'");
+  t(iSum > -1 && iCtl > iSum && iMood > iCtl, '⑩ [DRESS_DETAIL_FIT] 자세히 = 이름 · 한 줄 → 고르기 단추 → 분위기 · 어울리는 소품');
+  t(/detailHTML\(d, 'pick', ctl\)/.test(PAGE) && !/'<div class="pk-ctl">' \+ ctl \+ '<\/div>';\s*\n\s*\}/.test(PAGE), '⑩ [DRESS_DETAIL_FIT] 고르기 화면은 단추를 자세히 안에 넘긴다(사진 · 글 뒤에 따로 붙이지 않는다)');
+  t(/class="dv-arr dv-prev"/.test(PAGE) && /class="dv-arr dv-next"/.test(PAGE) && !/class="dv-nav"/.test(PAGE) && /\.dv-arr\{position:absolute;top:50%/.test(PAGE), '⑩ [DRESS_DETAIL_FIT] 사진 넘김(‹ › · n / 5)은 사진 위 — 사진 아래 줄로 돌아가면 단추가 다시 내려간다');
+  t(PAGE.indexOf('.pk-main .dv-view{max-width:360px;max-width:min(360px,max(150px,calc((100vh - 430px) * 0.75)));max-width:min(360px,max(150px,calc((100dvh - 430px) * 0.75)))}') > -1, '⑩ [DRESS_DETAIL_FIT] 짧은 화면에서 사진 칸 상한(3:4 그대로)');
+  t(/class="pk-picked"><span class="dr-badge">/.test(PAGE) && /<button type="button" class="pk-txt" data-act="unpick">빼기<\/button><\/div>/.test(PAGE), '⑩ 명세 «고른 드레스예요 · 빼기» 한 줄');
+  t(!/rgba\(255,\s*255,\s*255,\s*0?\.\d+\)/.test(PAGE.replace(/linear-gradient\([^)]*\)[^;]*;/g, '')), '⑩ 사진 위 이름표 · 넘김에 반투명 면 없음([GLASS_MENU_OWNER] «새 반투명 면 금지» · 막대의 흐려지는 15px 그라디언트는 제외)');
+  const FITSRC = rd('scripts/audit/dress-fit.mjs') || '';
+  t(/DRESS_DETAIL_FIT/.test(FITSRC) && /\[390, 844, true\], \[390, 740, true\], \[1280, 900, true\]/.test(FITSRC) && /ctlBottom > m\.barTop/.test(FITSRC), '⑩ dress-fit.mjs 가 세 크기 × 세 상태를 잰다(390×844 · 390×740 · 1280×900)');
   return { bad, okn };
 }
 
@@ -198,7 +210,8 @@ if (process.argv.includes('--selftest')) {
     ['마감 날 요일이 하루 밀린다', SRC.replace("'일월화수목금토'.charAt(t.getUTCDay())", "'일월화수목금토'.charAt((t.getUTCDay() + 1) % 7)"), GAS],
     ['칸 한 줄에서 길이가 빠졌다', SRC.replace("return [l ? l.ko : '', g ? g.ko : '', d.fabric || ''].filter(Boolean).join(' · ');", "return [l ? l.ko : '', d.fabric || ''].filter(Boolean).join(' · ');"), GAS],
     ['막대에 다시 sticky(붙을 자리 없음)', SRC, GAS, PAGE0.replace('#pkBar{position:sticky;bottom:0;z-index:5}', '').replace('.wz-bar{display:flex;', '.wz-bar{position:sticky;bottom:0;display:flex;')],
-    ['«Nº» 배지를 다시 진사로 칠함', SRC, GAS, PAGE0.replace('background:var(--card-white);color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold-deep)', 'background:var(--seal);color:#fff')]
+    ['«Nº» 배지를 다시 진사로 칠함', SRC, GAS, PAGE0.replace('background:var(--card-white);color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold-deep)', 'background:var(--seal);color:#fff')],
+    ['고르기 단추를 다시 사진 · 글 뒤로', SRC, GAS, PAGE0.replace("      + (ctl ? '<div class=\"pk-ctl\">' + ctl + '</div>' : '')", '').replace("+ '</div></div>';\n  }\n  function wireStrip", "+ (ctl ? '<div class=\"pk-ctl\">' + ctl + '</div>' : '') + '</div></div>';\n  }\n  function wireStrip")]
   ];
   let red = 0;
   for (const [nm, s, g, pg] of cases) { if (s === SRC && g === GAS && (!pg || pg === PAGE0)) { console.log('  selftest 틀을 못 만들었다 · ' + nm); continue; } const r = audit(s, g, pg || PAGE0); console.log((r.bad.length ? '  빨강 ' : '  초록?? ') + nm + (r.bad.length ? ' · ' + r.bad[0] : '')); if (r.bad.length) red++; }

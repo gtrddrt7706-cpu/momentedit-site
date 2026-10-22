@@ -161,12 +161,17 @@ footer{text-align:center;padding:22px 28px 20px;background:var(--footer-bg);marg
 .dv-sl picture,.dv-sl picture img{display:block;width:100%;height:100%}
 .dv-sl picture img{object-fit:cover}
 .dv-sl .dr-ph img{object-fit:contain}
-.dv-cap{position:absolute;left:12px;bottom:12px;padding:2px 10px;border-radius:999px;background:rgba(255,255,255,0.88);font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.7}
-.dv-nav{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-.dv-arr{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;background:none;color:var(--sub);font-family:var(--serif);font-size:20px;cursor:pointer;border-radius:999px;-webkit-tap-highlight-color:transparent}
-.dv-arr[disabled]{opacity:0.3;cursor:default}
-.dv-arr:focus-visible{outline:2px solid var(--gold-deep);outline-offset:-2px}
-.dv-cnt{font-family:var(--sans);font-size:12px;color:var(--light);font-variant-numeric:tabular-nums lining-nums}
+.dv-cap{position:absolute;left:12px;bottom:12px;padding:2px 10px;border-radius:999px;background:var(--card-white);font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.7}
+/* ★[DRESS_DETAIL_FIT 2026-10-23 코워크 검토 2] 사진 넘김(‹ › · n / 5)은 사진 위에 — 사진 아래 한 줄(50px)을 비워 «입어 볼 드레스로 고르기»가 막대 위에 선다.
+   공개 · 고르기 같은 모양. ‹ › 는 사진 가운데 높이 양옆(첫 장 ‹ · 끝 장 › 는 숨김) · n / 5 는 오른쪽 아래(왼쪽 아래 «앞 · 뒤» 이름표와 짝).
+   반투명 면은 쓰지 않는다(흰 바탕 · 옅은 테 · [GLASS_MENU_OWNER] 의 «새 반투명 면 금지» — 이름표도 같이 흰 바탕으로) */
+.dv-arr{position:absolute;top:50%;z-index:2;width:44px;height:44px;margin-top:-22px;display:inline-flex;align-items:center;justify-content:center;padding:0 0 2px;border:1px solid var(--border);background:var(--card-white);color:var(--sub);font-family:var(--serif);font-size:20px;line-height:1;cursor:pointer;border-radius:999px;-webkit-tap-highlight-color:transparent}
+.dv-prev{left:8px}
+.dv-next{right:8px}
+.dv-arr[disabled]{visibility:hidden}
+@media (hover:hover){.dv-arr:hover{color:var(--accent);border-color:var(--gold)}}
+.dv-arr:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.dv-cnt{position:absolute;right:12px;bottom:12px;z-index:2;padding:2px 10px;border-radius:999px;background:var(--card-white);font-family:var(--sans);font-size:12px;color:var(--light);line-height:1.7;font-variant-numeric:tabular-nums lining-nums}
 .dv-tx{padding-top:10px}
 .dv-nm{font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);line-height:1.5}
 .dv-sum{font-size:13px;color:var(--light);line-height:1.7;margin-top:2px}
@@ -243,13 +248,17 @@ body.pick{background:var(--bg)}
 .pk-memo-c{display:block;text-align:right;font-family:var(--sans);font-size:11px;color:var(--light);margin-top:4px;font-variant-numeric:tabular-nums}
 
 .pk-back{margin:-6px 0 6px -12px}
-.pk-ctl{margin-top:20px}
-.pk-picked{display:flex;align-items:center;gap:8px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);line-height:1.6;margin-bottom:10px}
+.pk-ctl{margin-top:12px}   /* [DRESS_DETAIL_FIT] 이름 · 한 줄 바로 아래(분위기 · 어울리는 소품은 그 아래) */
+.pk-picked{display:flex;align-items:center;gap:8px;min-height:44px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);line-height:1.6}   /* 명세 «고른 드레스예요 · 빼기» 한 줄 */
+.pk-picked:focus{outline:none}
 .pk-picked .dr-badge{position:static}
+.pk-picked .pk-txt{margin:0 -12px 0 auto}
 .pk-full{font-size:13px;color:var(--sub);line-height:1.7;text-wrap:balance;padding:12px 0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
-.pk-main .dv-view{max-width:360px}
+.pk-full:focus{outline:none}
+/* [DRESS_DETAIL_FIT] 짧은 화면에서는 사진 칸을 화면 높이에 맞춰 줄인다(3:4 그대로 · 가운데) — 자세히 첫 화면에서 고르기 단추가 막대 위에 서게.
+   430px = 머리 · 목록 줄 · 이름 · 한 줄 · 단추 · 막대가 쓰는 높이(390×844 에서 사진 413px · 1280×900 에서 469px · 390×740 에서 310px) */
+.pk-main .dv-view{max-width:360px;max-width:min(360px,max(150px,calc((100vh - 430px) * 0.75)));max-width:min(360px,max(150px,calc((100dvh - 430px) * 0.75)))}
 .pk-main .dv-tx{max-width:360px;margin:0 auto}
-.pk-main .pk-ctl{max-width:360px;margin-left:auto;margin-right:auto}
 
 /* 아래 막대 [WZ_BAR] — 화면 아래에 붙는다 · 위 15px 는 흐려지며 끝난다 · 오류 한 줄은 막대 안
    ★★[DRESS_BAR_STICK 2026-10-23 코워크 검토 1] 붙는 것은 #pkBar(카드의 직계)다 — 막대(.wz-bar)에 sticky 를 걸면 부모 #pkBar 의 높이가 막대와 같아
@@ -408,16 +417,17 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   }
 
   /* 자세히 — 사진 넘김(앞 · 뒤 · 디테일 · 캔들존 · 화이트존) · mood · pair. 사진이 오기 전에는 라인 그림 + 이름표(t) */
-  function detailHTML(d, mode){
+  function detailHTML(d, mode, ctl){
     var ex = (d.ex && d.ex.length) ? d.ex : [{ t: '' }];
     var sl = ex.map(function(e, i){
       var img = e.img || (i === 0 ? d.img : '');
       return '<li class="dv-sl" aria-label="' + esc((i + 1) + ' / ' + ex.length + (e.t ? ' · ' + e.t : '')) + '">' + photo(d, img) + (e.t ? '<span class="dv-cap">' + esc(e.t) + '</span>' : '') + '</li>';
     }).join('');
     return '<div class="dv"><div class="dv-view"><ul class="dv-strip" id="dvStrip" tabindex="0" aria-label="' + esc(d.name) + ' 사진">' + sl + '</ul>'
-      + (ex.length > 1 ? '<div class="dv-nav"><button type="button" class="dv-arr" data-dv="-1" aria-label="앞 사진" disabled>&lsaquo;</button><span class="dv-cnt" id="dvCnt" aria-live="polite">1 / ' + ex.length + '</span><button type="button" class="dv-arr" data-dv="1" aria-label="다음 사진">&rsaquo;</button></div>' : '')
+      + (ex.length > 1 ? '<button type="button" class="dv-arr dv-prev" data-dv="-1" aria-label="앞 사진" disabled>&lsaquo;</button><button type="button" class="dv-arr dv-next" data-dv="1" aria-label="다음 사진">&rsaquo;</button><span class="dv-cnt" id="dvCnt" aria-live="polite">1 / ' + ex.length + '</span>' : '')   // [DRESS_DETAIL_FIT] 넘김은 사진 위에
       + '</div><div class="dv-tx"><h2 class="dv-nm" id="dvName" tabindex="-1">' + esc(d.name) + '</h2>'
       + '<p class="dv-sum">' + esc(R.sumDetail(d)) + '</p>'   // [DRESS_SUM_ONE] 자세히 = 라인 · 길이 · 소재 · 넥라인(공개 · 고르기 같다)
+      + (ctl ? '<div class="pk-ctl">' + ctl + '</div>' : '')   // [DRESS_DETAIL_FIT] 고르기 단추는 이름 · 한 줄 바로 아래 — 분위기 · 어울리는 소품은 그 아래
       + (d.mood ? '<p class="dv-mood">' + esc(d.mood) + '</p>' : '')
       + (d.pair ? '<p class="dv-pair"><span class="dv-k">어울리는 소품</span>' + esc(d.pair) + '</p>' : '')
       + '</div></div>';
@@ -512,10 +522,10 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   function detailPickHTML(){
     var d = R.dress(S.cur); if (!d) return listHTML();
     var k = S.picks.indexOf(d.id), ctl;
-    if (k >= 0) ctl = '<p class="pk-picked"><span class="dr-badge">Nº 0' + (k + 1) + '</span>고른 드레스예요</p><button type="button" class="cc-btn-ghost" data-act="unpick">빼기</button>';
+    if (k >= 0) ctl = '<div class="pk-picked"><span class="dr-badge">Nº 0' + (k + 1) + '</span><span>고른 드레스예요</span><button type="button" class="pk-txt" data-act="unpick">빼기</button></div>';   // 명세 «고른 드레스예요 · 빼기» 한 줄
     else if (count() >= R.pick) ctl = '<p class="pk-full">Nº 01 · Nº 02 가 다 찼어요. 하나를 빼고 골라 주세요.</p>';
     else ctl = '<button type="button" class="cc-btn" data-act="pick">입어 볼 드레스로 고르기</button>';
-    return '<button type="button" class="pk-txt pk-back" data-act="list">&lsaquo; 목록</button>' + detailHTML(d, 'pick') + '<div class="pk-ctl">' + ctl + '</div>';
+    return '<button type="button" class="pk-txt pk-back" data-act="list">&lsaquo; 목록</button>' + detailHTML(d, 'pick', ctl);   // [DRESS_DETAIL_FIT] 단추는 이름 · 한 줄 바로 아래
   }
   function doneHTML(){
     var ds = S.picks.filter(Boolean).map(function(id){ return R.dress(id); }).filter(Boolean);
@@ -582,7 +592,10 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     S.picks[i] = id; S.touched = true; S.err = ''; render(false); focusCtl();
   }
   function unpick(id){ var i = S.picks.indexOf(id); if (i < 0) return; S.picks[i] = null; S.touched = true; S.err = ''; }
-  function focusCtl(){ var c = $('pkMain').querySelector('.pk-ctl button,.pk-ctl p'); if (c) { try { c.setAttribute('tabindex', c.tagName === 'P' ? '-1' : c.getAttribute('tabindex') || '0'); c.focus({ preventScroll: true }); } catch (e) {} } }
+  function focusCtl(){   // 고른 뒤에는 «고른 드레스예요» 줄로(바로 «빼기»에 초점을 두면 Enter 한 번 더에 빠진다) · 다 찼으면 그 줄 · 아니면 고르기 단추
+    var c = $('pkMain').querySelector('.pk-ctl .pk-picked,.pk-ctl .pk-full,.pk-ctl button');
+    if (c) { try { if (c.tagName !== 'BUTTON') c.setAttribute('tabindex', '-1'); c.focus({ preventScroll: true }); } catch (e) {} }
+  }
   function save(){
     if (S.busy || !count()) return;
     var ids = S.picks.filter(Boolean), names = ids.map(function(id){ var d = R.dress(id); return d ? d.name : ''; });
