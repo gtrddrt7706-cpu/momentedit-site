@@ -645,7 +645,7 @@ function serveCancelD(token, row) { _gsr_();
   // 기한 경과 → 취소 불가 안내
   if (!withinCancelDeadline(dateKey, time)) {
     var kakao = (CONFIG.KAKAO_URL && CONFIG.KAKAO_URL.charAt(0) !== '[')
-      ? '<a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:600;text-decoration:none">카카오톡</a>' : '카카오톡';
+      ? '<a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#7A5F37;font-weight:600;text-decoration:none">카카오톡</a>' : '카카오톡';
     return infoPage('온라인 취소 기한이 지났습니다',
       '상담 <b>' + deadlineLabel() + ' 전</b>까지만 온라인 취소가 가능합니다.<br><br>' +
       '예약하신 일정: <b style="color:#3A2D22;white-space:nowrap">' + prettyDate(dateKey) + ' · ' + esc(time) + '</b><br><br>' +
@@ -1460,7 +1460,9 @@ function sendConfirmEmail_(to, names, dateKey, time, isChange, token, row) {
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
   /* [DRESS_PICK] 시착 준비 한 줄 — 스위치(사이트 dress-refs.js live)가 켜졌고 · 시그니처 · 의상이 «자체 준비»가 아닐 때만. 못 가리면 싣지 않는다 */
   var dressLine = '';
-  try { if (row && _dressMailOk_(row)) dressLine = smallP('상담 날 입어 보실 드레스 두 벌을 <a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>에서 미리 고르실 수 있습니다.'); } catch (eD) { dressLine = ''; }
+  /* ★[MAIL_LINK_INK 2026-10-23 코워크 검토 1] 메일 안 글자 링크는 #7A5F37(흰 바탕 5.97:1) — #B89A75 는 선 색(2.65:1)이라 글자에 쓰지 않는다.
+     같은 링크 한 벌(마이페이지 · 카카오톡 · 지도에서 보기)을 상담 메일 · 취소 화면 · 가입 메일 · 대체 메일 모두 맞췄다. 강조 글 · 머리 이름표의 금빛은 따로 정한다 */
+  try { if (row && _dressMailOk_(row)) dressLine = smallP('상담 날 입어 보실 드레스 두 벌을 <a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 미리 고르실 수 있습니다.'); } catch (eD) { dressLine = ''; }
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#B89A75;font-weight:600">예약이 확정</b>되었습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
@@ -1472,7 +1474,7 @@ function sendConfirmEmail_(to, names, dateKey, time, isChange, token, row) {
     ]) +
     emailBtnOutline(gcalUrl('Moment Edit 상담 · ' + names, dateKey, time, CONFIG.SLOT_DURATION_MIN), '내 캘린더에 추가') +
     dressLine +
-    smallP('일정 변경은 <a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>에서 하실 수 있습니다.');
+    smallP('일정 변경은 <a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 하실 수 있습니다.');
   GmailApp.sendEmail(to, '[Moment Edit] 상담 예약이 확정되었습니다 · ' + prettyDate(dateKey) + ' ' + time, '',
     { htmlBody: emailShell(head, inner), name: SYS.FROM_NAME });
 }
@@ -1486,7 +1488,7 @@ function sendCancelEmail_(to, names, dateKey, time) {
     (when ? dateCard('Cancelled', prettyDate(dateKey), esc(time)) : '') +
     noteP('다시 찾아주실 때 언제든 편하게 일정을 잡아드리겠습니다.') +
     emailBtnOutline((CONFIG.FORM_URL && CONFIG.FORM_URL.charAt(0) !== '[') ? CONFIG.FORM_URL : webAppUrl(), '다시 예약하기') +
-    smallP('문의 사항이 있으시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 연락 주세요.');
+    smallP('문의 사항이 있으시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#7A5F37;font-weight:500">카카오톡</a>으로 연락 주세요.');
   GmailApp.sendEmail(to, '[Moment Edit] 상담 예약이 취소되었습니다' + (when ? ' · ' + prettyDate(dateKey) : ''), '',
     { htmlBody: emailShell('예약 취소 안내', inner), name: SYS.FROM_NAME });
 }
@@ -1640,7 +1642,7 @@ function placeValue() { _gsr_();
     return '확정 후 별도 안내드립니다. 방문 시 카카오톡으로 연락 주시면 바로 안내해 드려요.';
   }
   var mapUrl = 'https://map.kakao.com/?q=' + encodeURIComponent(addr);
-  return esc(addr) + '<br><a href="' + safeAttr(mapUrl) + '" style="color:#B89A75;font-weight:500;text-decoration:none;font-size:12px">지도에서 보기 →</a>';
+  return esc(addr) + '<br><a href="' + safeAttr(mapUrl) + '" style="color:#7A5F37;font-weight:500;text-decoration:none;font-size:12px">지도에서 보기 →</a>';
 }
 
 // ============================ 헬퍼 (참고 .gs 패턴) ============================
@@ -2302,7 +2304,7 @@ function sendReminderCustomer(row, dateKey, time) { _gsr_();
       ['장소', placeValue()],
       ['소요 시간', '약 ' + CONFIG.SLOT_DURATION_MIN + '분 · 두 분 함께 방문 권장']
     ]) +
-    smallP('부득이하게 변경이 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 미리 알려 주세요. 내일 뵙겠습니다.');
+    smallP('부득이하게 변경이 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#7A5F37;font-weight:500">카카오톡</a>으로 미리 알려 주세요. 내일 뵙겠습니다.');
   GmailApp.sendEmail(to, '[Moment Edit] 내일 상담 안내 · ' + prettyDate(dateKey) + ' ' + time, '',
     { htmlBody: emailShell('내일 상담이 예정되어 있습니다', inner), name: SYS.FROM_NAME });
 }

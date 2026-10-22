@@ -19366,6 +19366,23 @@ chk 'DRESS_ADMIN_ROWS' automation/admin/admin.gs 4
 chk 'DRESS_MORNING_ROW' automation/platform/96_ai_cost.gs 1
 chk 'DRESS_REFS' scripts/audit/dress-refs.mjs 1
 chk "'dress'\]" scripts/audit/footer-parity.mjs 1                             # 의상과 소품도 같은 푸터 한 벌
+# ★[코워크 검토 1 · 10/23] 막대 붙이기 · «Nº» 배지 칠 걷기 · 마감 뒤 두 줄 · 건너뛰기 옅게 · 진행 표시 높이 · 칸 한 줄 · 마감 날짜 · 메일 글자 링크(값은 dress-refs.mjs ⑨ 가 잰다)
+chk '#pkBar{position:sticky;bottom:0;z-index:5}' dress.html 1           # [DRESS_BAR_STICK] 붙는 것은 #pkBar — 막대(.wz-bar)에 걸면 부모 높이가 막대와 같아 붙을 자리가 없다
+nochk '\.wz-bar{position:sticky' dress.html 0
+chk 'DRESS_BAR_STICK' dress.html 1
+chk 'DRESS_BADGE_NOFILL' dress.html 1                                     # «Nº» = 흰 바탕 · 먹빛 글 · 금빛 테 한 겹(진사 칠 걷음 · [SEL_ONE])
+chk 'DRESS_SKIP_SOFT' dress.html 2                                        # 답이 없을 때 «건너뛰기»는 옅은 단추
+chk 'WZ_STEPS_STILL' dress.html 1                                         # 지나온 걸음 단추가 진행 표시 높이를 키우지 않는다(제목이 걸음마다 같은 자리)
+chk 'WZ_STEPS_STILL' mypage.html 1                                        # [COURSE_WIDE] 마이페이지 진행 표시(청첩장 · 애프터 웨딩 · 기록)도 같은 값
+chk 'DRESS_SUM_ONE' assets/dress-refs.js 1                                # 칸 한 줄 = 라인 · 길이 · 소재(넥라인은 자세히)
+chk 'DRESS_SUM_ONE' dress.html 2
+chk 'DRESS_DUE_DATE' assets/dress-refs.js 1                               # 마감 날 «10월 23일(금)» — 상담일 −2일 · 요일 계산
+chk 'DRESS_DUE_DATE' mypage.html 4
+chk 'DRESS_DUE_DATE' dress.html 2
+chk 'DRESS_CLOSED_KEEP' mypage.html 1                                     # 마감 뒤에도 «준비해 둘게요» 먼저
+chk 'MAIL_LINK_INK' automation/consultation/consultation-booking.gs 1     # 메일 글자 링크 #7A5F37 — #B89A75 는 선 색
+chk 'MAIL_LINK_INK' automation/platform/95_notify.gs 1
+chk 'MAIL_LINK_INK' automation/platform/40_signup.gs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev/null 2>&1; _drs=$?
   case "$_drs" in
     0) echo 'ok dress-refs: 원천 모양 · 줄 세우기(명세 6장) · 표본 운영 0벌 · 스위치 · GAS 0 · 서버 짝 · 금지어 · 마이페이지 카드' ;;

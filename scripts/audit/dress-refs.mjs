@@ -10,6 +10,8 @@
  * ⑥ 서버 짝 — consultation-booking.gs DRESS_PICK(마감 일수 · 벌 수) · DRESS_ANS(답 값) = 원천 · 드레스 id 가 서버 id 규칙을 지난다
  * ⑦ 고객 문구 금지어 — 추천 · 맞춤 · 담기 · 하트 · 커버 · 콤플렉스 · 피하세요 · 체형 · 골격 · 전각 줄표(원천 글 · dress.html · 마이페이지 카드)
  * ⑧ 마이페이지 · 관리자 — 같은 원천을 읽는다 · 카드 자리(mp_consult → mp_dress → mp_fitting) · 카드 판정(스위치 · 시그니처 · 상담확정 · 확정 · 자체 준비) · 겹화면 주소 · 미리 보기
+ * ⑨ 코워크 검토 1(10/23) — 아래 막대는 #pkBar 가 붙는다 · «Nº» 배지 칠 없음 · 마감 뒤 «준비해 둘게요» · 건너뛰기 옅게 · 진행 표시 높이 그대로 ·
+ *    칸 한 줄 «라인 · 길이 · 소재»(넥라인은 자세히) · 슬립 그림이 퍼지지 않는다 · 남길 말 자리 글 · 마감 날 숫자(요일 계산) · 메일 글자 링크 #7A5F37
  *
  * 종료: 0 통과 · 1 어긋남 · 2 못 쟀다(원천 없음)
  * ★깨 보고 믿는다 — --selftest 는 일부러 틀린 원천(핏 짝 바꿈 · 표본 운영 노출 · 마감 일수 다름)을 넣어 셋 다 빨강이 되는지 본다.
@@ -21,13 +23,13 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const rd = (p) => { try { return fs.readFileSync(path.join(ROOT, p), 'utf8'); } catch (e) { return null; } };
-const SRC = rd('assets/dress-refs.js'), PAGE = rd('dress.html'), MP = rd('mypage.html'), AD = rd('admin.html'), IDX = rd('index.html'), INQ = rd('inquiry.html');
+const SRC = rd('assets/dress-refs.js'), PAGE0 = rd('dress.html'), MP0 = rd('mypage.html'), AD = rd('admin.html'), IDX = rd('index.html'), INQ = rd('inquiry.html');
 const GAS = rd('automation/consultation/consultation-booking.gs'), PG = rd('shared/preview-guard.js'), SITEMAP = rd('sitemap.xml') || '';
-if (!SRC || !PAGE || !MP || !GAS || !PG || !IDX || !INQ || !AD) { console.log('못 쟀다 — 원천 파일이 없다'); process.exit(2); }
+if (!SRC || !PAGE0 || !MP0 || !GAS || !PG || !IDX || !INQ || !AD) { console.log('못 쟀다 — 원천 파일이 없다'); process.exit(2); }
 
 const load = (src, host) => { const ctx = { window: { location: { hostname: host || 'localhost' } } }; vm.createContext(ctx); vm.runInContext(src, ctx); return ctx.window.DRESS_REFS; };
 
-function audit(src, gas) {
+function audit(src, gas, PAGE = PAGE0, MP = MP0) {
   const bad = [], okn = [];
   const t = (c, m) => { (c ? okn : bad).push(m); };
   let R; try { R = load(src); } catch (e) { return { bad: ['원천을 읽지 못했다 · ' + e.message], okn }; }
@@ -158,19 +160,48 @@ function audit(src, gas) {
   t(/'\/dress\.html\?pick=1&embed=1&t='\+Date\.now\(\)/.test(pick) && /ev\.source!==fr\.contentWindow \|\| ev\.origin!==location\.origin/.test(pick), '⑧ 겹화면 = dress.html?pick=1&embed=1 · 같은 출처 · 그 창에서 온 말만');
   t(/get\('preview_card'\)!=='dress'/.test(MP) && /Dress Card Preview · 실제 저장 아님/.test(MP), '⑧ ?preview_card=dress — 로그인 없이 상태를 차례로(저장 없음)');
   t(/if\(opt\.demo\)\{ setTimeout\(function\(\)\{ ack\(true\); \}, 400\); return; \}/.test(pick), '⑧ 미리 보기에서는 저장을 부르지 않는다');
+
+  // ⑨ 코워크 검토 1(10/23)
+  t(/#pkBar\{position:sticky;bottom:0;z-index:5\}/.test(PAGE) && !/\.wz-bar\{position:sticky/.test(PAGE), '⑨ [DRESS_BAR_STICK] 붙는 것은 #pkBar(카드의 직계) — 막대에 sticky 를 걸면 붙을 자리가 없다');
+  const badge = (/\.dr-badge\{[^}]*\}/.exec(PAGE) || [''])[0];
+  t(!!badge && !/var\(--seal\)/.test(badge) && /box-shadow:inset 0 0 0 1px var\(--gold-deep\)/.test(badge), '⑨ [DRESS_BADGE_NOFILL] «Nº» 배지 = 흰 바탕 · 먹빛 글 · 금빛 테 한 겹(진사 칠 없음)');
+  t(/if\(closed\)\{ subs=\[\(n===1\?'상담 전날 이 드레스를 준비해 둘게요\.':'상담 전날 이 두 벌을 준비해 둘게요\.'\), '상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요\.'\]; \}/.test(card), '⑨ [DRESS_CLOSED_KEEP] 마감 뒤 카드 = «준비해 둘게요» + «바꿔 입어 보실 수도» 두 줄');
+  t(/\(has \? '' : ' pk-skip'\)/.test(PAGE) && /\.wz-bar \.cc-btn\.pk-skip,\.wz-bar \.cc-btn\.pk-skip:hover\{background:var\(--card-white\)/.test(PAGE), '⑨ [DRESS_SKIP_SOFT] 답이 없을 때 «건너뛰기»는 옅은 단추');
+  for (const [nm, f] of [['dress.html', PAGE], ['mypage', MP]]) t(f.indexOf('.wz-steps li.nav .wz-stepb{margin-bottom:calc(6px + 1.5em - 44px)}') > -1, `⑨ [WZ_STEPS_STILL] ${nm} — 지나온 걸음 단추가 진행 표시 높이를 키우지 않는다`);
+  const d2 = R.dresses.find((d) => d.line === 'column') || R.dresses[0];
+  const cellWant = [R.line(d2.line).ko, R.lengthOf(d2.length).ko, d2.fabric].join(' · ');
+  t(typeof R.sumCell === 'function' && R.sumCell(d2) === cellWant, `⑨ [DRESS_SUM_ONE] 칸 한 줄 = 라인 · 길이 · 소재(«${cellWant}»)`);
+  t(typeof R.sumDetail === 'function' && R.sumDetail(d2) === cellWant + ' · ' + d2.neck, '⑨ [DRESS_SUM_ONE] 자세히 = 라인 · 길이 · 소재 · 넥라인');
+  t(/var sum = R\.sumCell\(d\);/.test(PAGE) && /esc\(R\.sumDetail\(d\)\)/.test(PAGE) && !/sumPick|sumPublic/.test(PAGE), '⑨ [DRESS_SUM_ONE] 공개 · 고르기가 같은 한 줄을 쓴다(옛 «넥라인 · 소재 · 라인» 없음)');
+  const DUE = [['2026-10-25', '10월 23일(금)'], ['2026-03-01', '2월 27일(금)'], ['2027-01-01', '12월 30일(수)'], ['2026-11-02', '10월 31일(토)'], ['', ''], ['2026/10/25', '']];   // 기대값은 python datetime 으로 셈(눈대중 아님 · [DATE_DOW])
+  t(typeof R.untilText === 'function' && DUE.every(([y, w]) => R.untilText(y) === w), '⑨ [DRESS_DUE_DATE] 마감 날 글 = 상담일 −2일 · 요일 계산(달 · 해 넘김 포함) · 못 읽으면 빈 글');
+  t(/due=\(typeof R\.untilText==='function'\)\?R\.untilText\(dr\.ymd\):''/.test(card) && /'<div class="mp-dotln dr-due">'/.test(card) && /바꾸기는 '\+due\+'까지 할 수 있어요\./.test(card), '⑨ [DRESS_DUE_DATE] 카드 0 · 1 · 2벌 = 점 한 줄 «바꾸기는 …까지»(상담일을 못 읽으면 줄 없음)');
+  t(/ymd:\(dr&&dr\.ymd\)\|\|''/.test(pick) && /if \(m && m\.ymd\) S\.due = R\.untilText\(m\.ymd\);/.test(PAGE) && />바꾸기는 ' \+ \(S\.due \? esc\(S\.due\) : '상담 이틀 전'\) \+ '까지 할 수 있어요\.</.test(PAGE), '⑨ [DRESS_DUE_DATE] 완료 화면도 날짜로(겹화면이 상담일을 넘긴다 · 단독은 «상담 이틀 전»)');
+  t(/placeholder="신경 쓰이는 점이나 궁금한 점을 적어 주세요"/.test(PAGE), '⑨ 남길 말 칸 자리 표시 글');
+  const slip = rd('assets/dress-refs/lines/slip.svg') || '';
+  const pts = []; String((/ d="([^"]*)"/.exec(slip) || [])[1] || '').replace(/(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/g, (m0, x, y) => { pts.push([+x, +y]); return m0; });
+  const span = (f) => { const xs = pts.filter(f).map((q) => q[0]); return xs.length ? Math.max(...xs) - Math.min(...xs) : 0; };
+  const hem = span((q) => q[1] === 188), waist = span((q) => q[1] >= 80 && q[1] <= 90);
+  t(hem > 0 && waist > 0 && hem / waist <= 1.6, `⑨ 슬립 그림 — 밑단이 허리의 1.6배 안(곧게 떨어진다 · 머메이드로 읽히지 않게) · 지금 ${waist ? (hem / waist).toFixed(2) : '?'}배`);
+  const GASALL = (function walk(d) { let out = ''; for (const e of fs.readdirSync(path.join(ROOT, d), { withFileTypes: true })) { const q = d + '/' + e.name; if (e.isDirectory()) out += walk(q); else if (/\.gs$/.test(e.name)) out += rd(q) || ''; } return out; })('automation');
+  t(GASALL.length > 0 && !/<a [^>]*color:#B89A75/i.test(GASALL), '⑨ [MAIL_LINK_INK] 메일 · GAS 화면의 글자 링크에 선 색(#B89A75)을 쓰지 않는다');
   return { bad, okn };
 }
 
 if (process.argv.includes('--selftest')) {
-  // 깨 보기 — 셋 다 빨강이어야 이 검사를 믿는다
+  // 깨 보기 — 모두 빨강이어야 이 검사를 믿는다
   const cases = [
     ['핏 짝 바꿈(엠파이어 → 허리)', SRC.replace("key: 'empire', en: 'Empire', ko: '엠파이어', fit: 'loose'", "key: 'empire', en: 'Empire', ko: '엠파이어', fit: 'waist'"), GAS],
     ['표본이 운영에 샌다', SRC.replace('return !(prod && d.sample);', 'return true;'), GAS],
     ['서버 마감 일수가 다르다', SRC, (GAS || '').replace('untilDays: 2,', 'untilDays: 3,')],
-    ['줄 세우기 순서가 다르다(맞은 수 먼저)', SRC.replace('(x.down - y.down) || (y.hit - x.hit)', '(y.hit - x.hit) || (x.down - y.down)'), GAS]
+    ['줄 세우기 순서가 다르다(맞은 수 먼저)', SRC.replace('(x.down - y.down) || (y.hit - x.hit)', '(y.hit - x.hit) || (x.down - y.down)'), GAS],
+    ['마감 날 요일이 하루 밀린다', SRC.replace("'일월화수목금토'.charAt(t.getUTCDay())", "'일월화수목금토'.charAt((t.getUTCDay() + 1) % 7)"), GAS],
+    ['칸 한 줄에서 길이가 빠졌다', SRC.replace("return [l ? l.ko : '', g ? g.ko : '', d.fabric || ''].filter(Boolean).join(' · ');", "return [l ? l.ko : '', d.fabric || ''].filter(Boolean).join(' · ');"), GAS],
+    ['막대에 다시 sticky(붙을 자리 없음)', SRC, GAS, PAGE0.replace('#pkBar{position:sticky;bottom:0;z-index:5}', '').replace('.wz-bar{display:flex;', '.wz-bar{position:sticky;bottom:0;display:flex;')],
+    ['«Nº» 배지를 다시 진사로 칠함', SRC, GAS, PAGE0.replace('background:var(--card-white);color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold-deep)', 'background:var(--seal);color:#fff')]
   ];
   let red = 0;
-  for (const [nm, s, g] of cases) { if (s === SRC && g === GAS) { console.log('  selftest 틀을 못 만들었다 · ' + nm); continue; } const r = audit(s, g); console.log((r.bad.length ? '  빨강 ' : '  초록?? ') + nm + (r.bad.length ? ' · ' + r.bad[0] : '')); if (r.bad.length) red++; }
+  for (const [nm, s, g, pg] of cases) { if (s === SRC && g === GAS && (!pg || pg === PAGE0)) { console.log('  selftest 틀을 못 만들었다 · ' + nm); continue; } const r = audit(s, g, pg || PAGE0); console.log((r.bad.length ? '  빨강 ' : '  초록?? ') + nm + (r.bad.length ? ' · ' + r.bad[0] : '')); if (r.bad.length) red++; }
   console.log(red === cases.length ? 'selftest OK — 깨면 빨강' : 'selftest FAIL — 깨도 초록인 칸이 있다');
   process.exit(red === cases.length ? 0 : 1);
 }

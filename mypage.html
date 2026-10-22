@@ -455,6 +455,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dr-th-empty{box-shadow:none;border:1px dashed var(--border);background:var(--bg);font-family:var(--serif);font-size:11px;letter-spacing:.04em;color:var(--light)}
 .dr-th-n{margin-top:6px;font-family:var(--serif-ko);font-size:11px;color:var(--sub);line-height:1.5;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dr-th-act{margin-top:6px;display:flex;justify-content:center}
+.consult-card .mp-dotln.dr-due{display:inline-block;max-width:100%}   /* [DRESS_DUE_DATE] 가운데 카드 안 점 한 줄 — 줄은 글 폭만큼 가운데에 · 점은 글 앞 */
 .cc-done-row{display:flex;align-items:center;gap:8px;padding:14px 18px;cursor:pointer}
 .cc-done-check{color:var(--gold-deep);font-weight:600}
 .cc-done-label{flex:1;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
@@ -2007,6 +2008,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .wz-steps.n5{font-size:11px}
 .wz-stepb{display:flex;align-items:flex-start;justify-content:center;width:100%;min-height:44px;padding:6px 0 0;border:0;background:none;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
 .wz-steps li.done .wz-stepb{text-decoration:underline}   /* 밑줄은 글자색 그대로(식순 .op-stepb 와 같다) */
+/* ★[WZ_STEPS_STILL 2026-10-23 코워크 검토 1 «시착 준비» · [COURSE_WIDE]] 지나온 걸음 단추(누름 칸 44px)가 줄 높이를 키워, 첫 걸음 → 둘째 걸음에서
+   진행 표시 아래 제목이 20px 내려앉았다(청첩장 · 애프터 웨딩 · 기록 한 벌 모두). 단추 아래를 글줄 높이(윗여백 6px + 글 1줄 = 6px + 1.5em)만큼만 자리로 잡고
+   누름 칸 44px 는 그대로 아래 여백으로 뻗는다 — 걸음마다 제목이 같은 자리에 선다(dress.html 과 같은 값). */
+.wz-steps li.nav .wz-stepb{margin-bottom:calc(6px + 1.5em - 44px)}
 /* [WZ_STEPS_AA] 다섯 걸음 · 좁은 폭(≤360) — «③ 화이트존»(11px ≈ 57px)이 한 칸(320 에서 46px)을 넘어 옆 칸에 닿았다. 번호를 윗줄로 올려 다섯 칸 모두 두 줄로 같게 선다. */
 /* ★[WZ_STEPS_LEVEL 2026-09-27 사장님 «하나씩 올라가는 효과는 조금 유치해 · 고급스러운 무드에는 안 어울려 · 다른 곳들도 개선»]
      모든 칸의 글자는 선 아래 같은 높이(6px)에 선다 — 지금 걸음만 위로 붙고 나머지가 11px 아래로 내려앉아, 걸음을 옮길 때마다 하나씩 튀어 오르는 것처럼 보였다.
@@ -2694,7 +2699,7 @@ function openDressPicker(dr, opt){
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var m=ev.data||{};
-    if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:!(dr&&dr.open===false)}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }
+    if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:!(dr&&dr.open===false), ymd:(dr&&dr.ymd)||''}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // [DRESS_DUE_DATE] ymd = 상담일 — 완료 화면이 마감 날을 숫자로
     if(m.type==='momentedit:dressClose'){ done(); return; }
     if(m.type!=='momentedit:dressSave' || !m.data) return;
     var x=m.data, ack=function(ok, line, r){ post(Object.assign({type:ok?'momentedit:dressSaved':'momentedit:dressSaveFail', msg:line||''}, ok?{}:_relayErr(r))); };
@@ -5001,14 +5006,19 @@ function renderDress(d, boxArg, demo){
                  : '<img class="dr-th-line" src="'+escapeHtml(R.svg(x))+'" alt="" width="150" height="200" decoding="async">';
     return '<span class="dr-th"><span class="dr-th-pv" role="img" aria-label="'+escapeHtml(n+' '+x.name)+'">'+pv+'</span><span class="dr-th-n">'+escapeHtml(x.name)+'</span></span>';
   };
-  var n=ids.length, sub, btn='';
-  if(closed){ sub='상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요.'; }
-  else if(n===0){ sub='상담 날 입어 보실 두 벌을 정해 두시면 전날 준비해 둘게요.'; btn='<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">드레스 둘러보기</button>'; }
-  else if(n===1){ sub='Nº 02 가 비어 있어요'; btn='<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">이어서 고르기</button>'; }
-  else { sub='상담 전날 이 두 벌을 준비해 둘게요'; btn='<div class="dr-th-act"><button type="button" class="cc-btn-ghost trk-act trk-act-min" data-dress-open>바꾸기</button></div>'; }
+  /* ★[DRESS_CLOSED_KEEP 2026-10-23 코워크 검토 1] 마감 뒤에도 «준비해 둘게요»를 먼저 — 고른 것이 준비되는지 확인이 사라지면 안 된다(두 줄).
+     ★[DRESS_DUE_DATE 2026-10-23 코워크 검토 1] 0 · 1 · 2벌에는 마감 날을 숫자로 점 한 줄([NOTE_DOT] · 상담일 −2일 · 요일은 계산). 상담일을 못 읽으면 줄을 두지 않는다.
+     문장 끝 마침표는 카드 안에서 맞춘다(1 · 2벌 문장에도). */
+  var n=ids.length, subs, btn='', note='', due=(typeof R.untilText==='function')?R.untilText(dr.ymd):'';
+  if(closed){ subs=[(n===1?'상담 전날 이 드레스를 준비해 둘게요.':'상담 전날 이 두 벌을 준비해 둘게요.'), '상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요.']; }
+  else if(n===0){ subs=['상담 날 입어 보실 두 벌을 정해 두시면 전날 준비해 둘게요.']; note=due?(due+'까지 고르실 수 있어요.'):''; btn='<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">드레스 둘러보기</button>'; }
+  else if(n===1){ subs=['Nº 02 가 비어 있어요.']; note=due?('바꾸기는 '+due+'까지 할 수 있어요.'):''; btn='<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">이어서 고르기</button>'; }
+  else { subs=['상담 전날 이 두 벌을 준비해 둘게요.']; note=due?('바꾸기는 '+due+'까지 할 수 있어요.'):''; btn='<div class="dr-th-act"><button type="button" class="cc-btn-ghost trk-act trk-act-min" data-dress-open>바꾸기</button></div>'; }
   box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Dress</div><div class="cc-title">시착 준비</div>'
     + (n ? '<div class="dr-ths">'+th(0)+th(1)+'</div>' : '')
-    + '<div class="cc-sub">'+sub+'</div>'+btn+'</div>';
+    + subs.map(function(t,i){ return '<div class="cc-sub"'+(i?' style="margin-top:2px"':'')+'>'+escapeHtml(t)+'</div>'; }).join('')
+    + (note ? '<div class="mp-dotln dr-due">'+escapeHtml(note)+'</div>' : '')
+    + btn+'</div>';
   box.style.display='block';
   var b=box.querySelector('[data-dress-open]');
   if(b) b.addEventListener('click', function(){ openDressPicker(dr, demo ? { demo:true } : null); });
@@ -6222,7 +6232,8 @@ if(window.meCardPay){   // 미리보기 파라미터면 로그인 여부와 무�
   var run=function(){
     var R=window.DRESS_REFS, main=document.querySelector('main'); if(!R||!main||$('mp_preview_dress')) return;
     var L=R.list(), a=L[0]?L[0].id:'', b=L[1]?L[1].id:'';
-    var mk=function(picks, open){ return { stage:'상담확정', product:'시그니처', consult:{ status:'확정', dress:{ attire:'대여 희망 · 2벌', open:open!==false, saved: picks.length ? { picks:picks, names:[], ans:{len:'',fit:'',pref:[]}, memo:'' } : null } } }; };
+    var kst=function(n){ return new Date(Date.now()+9*36e5+n*864e5).toISOString().slice(0,10); };   // [DRESS_DUE_DATE] 보기용 상담일 — 열림은 열흘 뒤 · 마감 뒤는 내일(한국 날짜)
+    var mk=function(picks, open){ return { stage:'상담확정', product:'시그니처', consult:{ status:'확정', dress:{ attire:'대여 희망 · 2벌', ymd:kst(open===false?1:10), open:open!==false, saved: picks.length ? { picks:picks, names:[], ans:{len:'',fit:'',pref:[]}, memo:'' } : null } } }; };
     var states=[['0벌', mk([])], ['1벌', mk([a].filter(Boolean))], ['2벌', mk([a,b].filter(Boolean))], ['마감 뒤', mk([a,b].filter(Boolean), false)]];
     var sec=document.createElement('section'); sec.id='mp_preview_dress';
     sec.style.cssText='display:block;max-width:520px;margin:0 auto 8px;padding:16px 14px 4px';

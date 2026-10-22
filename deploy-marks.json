@@ -2826,6 +2826,24 @@
    "fn": "aiMorningReport",
    "mark": "DRESS_MORNING_ROW",
    "why": "아침 운영 보고 메일에 «내일 상담 · 준비할 드레스» 줄을 넣는다(고른 분이 있을 때만). 이 판이 없으면 전날 준비 목록이 메일에 안 실린다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "sendConfirmEmail_",
+   "mark": "MAIL_LINK_INK",
+   "why": "상담 확정 메일의 글자 링크(마이페이지 · 카카오톡 · 지도에서 보기)를 #7A5F37 로(흰 바탕 5.97:1). 이 판이 없으면 링크가 선 색(#B89A75 · 2.65:1)으로 흐리게 나간다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfCustomerEmailFallback_",
+   "mark": "MAIL_LINK_INK",
+   "why": "카톡 대신 보내는 고객 메일의 «마이페이지» 링크를 #7A5F37 로. 이 판이 없으면 링크가 선 색으로 흐리게 나간다"
+  },
+  {
+   "file": "40_signup",
+   "fn": "sendSignupEmail_",
+   "mark": "MAIL_LINK_INK",
+   "why": "신청 접수 메일의 «카카오톡» 링크를 #7A5F37 로. 이 판이 없으면 링크가 선 색으로 흐리게 나간다"
   }
  ],
  "fns": {
@@ -3936,7 +3954,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-23 03:40 · ae4cfdb3",
+ "_생성": "2026-10-23 04:19 · 2d9333fa",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4468,5 +4486,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "547b3e28c0b6"
+ "_표식서명": "7fccaab44e6f"
 }

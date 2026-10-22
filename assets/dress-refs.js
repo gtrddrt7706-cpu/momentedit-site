@@ -108,14 +108,14 @@
   R.img = function (d, ext) { return (d && d.img) ? ('/assets/dress-refs/' + d.img + '.' + (ext || 'webp')) : ''; };
   R.exImg = function (e, ext) { return (e && e.img) ? ('/assets/dress-refs/' + e.img + '.' + (ext || 'webp')) : ''; };
   R.svg = function (d) { var l = R.line(d && d.line); return l ? l.svg : ''; };
-  /* 한 줄 — 공개 페이지는 «라인 · 길이 · 소재», 고르기 화면은 «넥라인 · 소재 · 라인» */
-  R.sumPublic = function (d) {
+  /* ★[DRESS_SUM_ONE 2026-10-23 코워크 검토 1 · 명세 5장 «넥라인 · 소재 · 라인»을 바꿈] 칸 한 줄은 공개 · 고르기 모두 «라인 · 길이 · 소재» —
+     첫 물음이 길이라 왜 아래로 갔는지 칸에서 보여야 한다. 넥라인은 자세히에만(라인 · 길이 · 소재 · 넥라인). */
+  R.sumCell = function (d) {
     var l = R.line(d.line), g = R.lengthOf(d.length);
     return [l ? l.ko : '', g ? g.ko : '', d.fabric || ''].filter(Boolean).join(' · ');
   };
-  R.sumPick = function (d) {
-    var l = R.line(d.line);
-    return [d.neck || '', d.fabric || '', l ? l.ko : ''].filter(Boolean).join(' · ');
+  R.sumDetail = function (d) {
+    return [R.sumCell(d), d.neck || ''].filter(Boolean).join(' · ');
   };
 
   /* ★[DRESS_RANK] 줄 세우기(명세 6장) — 답 ans = { len, fit, pref[] }
@@ -165,6 +165,13 @@
     return Date.UTC(+m[1], +m[2] - 1, +m[3] - R.changeUntilDays, 23 - 9, 59, 59);
   };
   R.closed = function (ymd, now) { var u = R.until(ymd); return !!u && (now || Date.now()) > u; };
+  /* [DRESS_DUE_DATE 2026-10-23 코워크 검토 1] 바꾸기 마감 날 글 — «10월 23일(금)»(상담일 −changeUntilDays 일 · 요일은 계산 · [DATE_DOW]). 날짜를 못 읽으면 '' */
+  R.untilText = function (ymd) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(ymd || ''));
+    if (!m) return '';
+    var t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3] - R.changeUntilDays));
+    return (t.getUTCMonth() + 1) + '월 ' + t.getUTCDate() + '일(' + '일월화수목금토'.charAt(t.getUTCDay()) + ')';
+  };
 
   w.DRESS_REFS = R;
 })(typeof window !== 'undefined' ? window : globalThis);

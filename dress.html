@@ -123,7 +123,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
 .dr-ph img{display:block;width:100%;height:100%;object-fit:contain}
 .dr-pv:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
 .dr-cell.on .dr-pv{box-shadow:0 0 0 1px var(--gold-deep)}   /* [SEL_ONE] 테가 없는 사진 칸 — 바깥 1px 한 겹(마이페이지 스냅 칸과 같다) */
-.dr-badge{position:absolute;top:8px;left:8px;padding:2px 9px;border-radius:999px;background:var(--seal);color:#fff;font-family:var(--serif);font-size:12px;letter-spacing:0.04em;line-height:1.6}   /* [SNAP_TONE] 진사는 «고른 순번» 점에만 */
+.dr-badge{position:absolute;top:8px;left:8px;padding:2px 9px;border-radius:999px;background:var(--card-white);color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold-deep);font-family:var(--serif);font-size:12px;letter-spacing:0.04em;line-height:1.6}   /* ★[DRESS_BADGE_NOFILL 2026-10-23 코워크 검토 1] «Nº 01» = 흰 바탕 + 먹빛 글 + 금빛 테 한 겹 — 진사 칠 알약은 [SEL_ONE] 이 걷은 모양(진사는 CTA · 점에만) */
 .dr-cap{display:block;margin-top:10px}
 .dr-nm{display:block;font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);line-height:1.5}
 .dr-sum{display:block;font-size:12px;color:var(--light);line-height:1.6;margin-top:2px}
@@ -193,6 +193,9 @@ body.pick{background:var(--bg)}
 .wz-steps li.done{color:var(--sub);border-top-color:var(--gold-deep)}
 .wz-steps li.nav{padding-top:0}
 .wz-stepb{display:flex;align-items:flex-start;justify-content:center;width:100%;min-height:44px;padding:6px 0 0;border:0;background:none;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
+/* ★[WZ_STEPS_STILL 2026-10-23 코워크 검토 1] 지나온 걸음 단추(누름 칸 44px)가 줄 높이를 키워 1 → 2 걸음에서 제목이 20px 내려앉았다.
+   단추 아래를 글줄 높이(윗여백 6px + 글 1줄 = 6px + 1.5em)만큼만 자리로 잡는다 — 누름 칸 44px 는 그대로 아래 여백으로 뻗는다(마이페이지 · 같은 값) */
+.wz-steps li.nav .wz-stepb{margin-bottom:calc(6px + 1.5em - 44px)}
 .wz-stepb:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}
 
 .pk-intro{text-align:center;padding:40px 4px 8px}
@@ -236,6 +239,7 @@ body.pick{background:var(--bg)}
 .pk-memo-l span{color:var(--light);font-size:12px}
 .pk-memo{display:block;width:100%;margin-top:8px;border:1px solid var(--border);border-radius:8px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;line-height:1.6;color:var(--accent);background:#fff;resize:vertical;min-height:84px}
 .pk-memo:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
+.pk-memo::placeholder{font-size:14px;color:var(--label-soft);font-weight:300;opacity:1}   /* 마이페이지 입력칸 안내 글과 같다(14px · 옅은 라벨색) */
 .pk-memo-c{display:block;text-align:right;font-family:var(--sans);font-size:11px;color:var(--light);margin-top:4px;font-variant-numeric:tabular-nums}
 
 .pk-back{margin:-6px 0 6px -12px}
@@ -247,9 +251,16 @@ body.pick{background:var(--bg)}
 .pk-main .dv-tx{max-width:360px;margin:0 auto}
 .pk-main .pk-ctl{max-width:360px;margin-left:auto;margin-right:auto}
 
-/* 아래 막대 [WZ_BAR] — 화면 아래에 붙는다 · 위 15px 는 흐려지며 끝난다 · 오류 한 줄은 막대 안 */
-.wz-bar{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white) 15px)}
+/* 아래 막대 [WZ_BAR] — 화면 아래에 붙는다 · 위 15px 는 흐려지며 끝난다 · 오류 한 줄은 막대 안
+   ★★[DRESS_BAR_STICK 2026-10-23 코워크 검토 1] 붙는 것은 #pkBar(카드의 직계)다 — 막대(.wz-bar)에 sticky 를 걸면 부모 #pkBar 의 높이가 막대와 같아
+   붙을 자리가 없었다(목록 · 자세히에서 Nº 칸 · 보내기 단추 · 차감 안내 줄이 맨 끝까지 내려야 보였다). 카드 아래 여백이 0 이라 [WZ_BAR_EDGE] 보정은 없다. */
+#pkBar{position:sticky;bottom:0;z-index:5}
+html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 초점 간 칸이 막대 뒤로 숨을 수 있다 — 스크롤이 막대 높이(390 에서 137px)만큼 비켜 세운다 */
+.wz-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white) 15px)}
 .wz-bar .cc-btn{flex:1 1 0;min-width:0;width:auto}
+/* ★[DRESS_SKIP_SOFT 2026-10-23 코워크 검토 1] 답이 없을 때 앞 단추 «건너뛰기»는 옅은 단추(외곽 격) — 칠한 단추는 답한 뒤 «다음»에만. 자리 · 크기는 같다 */
+.wz-bar .cc-btn.pk-skip,.wz-bar .cc-btn.pk-skip:hover{background:var(--card-white);color:var(--sub);box-shadow:inset 0 0 0 1px var(--border)}
+@media (hover:hover){.wz-bar .cc-btn.pk-skip:hover{color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold)}}
 .wz-bar .cc-btn-ghost{flex:0 0 auto;width:auto;min-width:82px;background:var(--bg2);border-color:var(--bg2);color:var(--sub)}
 .wz-err{flex:1 0 100%;margin:0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all}
 .wz-err:empty{display:none}
@@ -390,7 +401,7 @@ body.pick{background:var(--bg)}
 
   function cellHTML(d, mode){
     var k = mode === 'pick' ? S.picks.indexOf(d.id) : -1, on = k >= 0;
-    var sum = mode === 'pick' ? R.sumPick(d) : R.sumPublic(d);
+    var sum = R.sumCell(d);   // [DRESS_SUM_ONE] 공개 · 고르기 같은 한 줄(라인 · 길이 · 소재)
     return '<div class="dr-cell' + (on ? ' on' : '') + '"><button type="button" class="dr-pv" data-open="' + esc(d.id) + '" aria-label="' + esc(d.name + ' 자세히 보기' + (on ? ' · 고른 드레스 Nº 0' + (k + 1) : '')) + '">' + photo(d)
       + (on ? '<span class="dr-badge" aria-hidden="true">Nº 0' + (k + 1) + '</span>' : '') + '</button>'
       + '<span class="dr-cap"><span class="dr-nm">' + esc(d.name) + '</span><span class="dr-sum">' + esc(sum) + '</span></span></div>';
@@ -406,7 +417,7 @@ body.pick{background:var(--bg)}
     return '<div class="dv"><div class="dv-view"><ul class="dv-strip" id="dvStrip" tabindex="0" aria-label="' + esc(d.name) + ' 사진">' + sl + '</ul>'
       + (ex.length > 1 ? '<div class="dv-nav"><button type="button" class="dv-arr" data-dv="-1" aria-label="앞 사진" disabled>&lsaquo;</button><span class="dv-cnt" id="dvCnt" aria-live="polite">1 / ' + ex.length + '</span><button type="button" class="dv-arr" data-dv="1" aria-label="다음 사진">&rsaquo;</button></div>' : '')
       + '</div><div class="dv-tx"><h2 class="dv-nm" id="dvName" tabindex="-1">' + esc(d.name) + '</h2>'
-      + '<p class="dv-sum">' + esc(mode === 'pick' ? R.sumPick(d) : R.sumPublic(d)) + '</p>'
+      + '<p class="dv-sum">' + esc(R.sumDetail(d)) + '</p>'   // [DRESS_SUM_ONE] 자세히 = 라인 · 길이 · 소재 · 넥라인(공개 · 고르기 같다)
       + (d.mood ? '<p class="dv-mood">' + esc(d.mood) + '</p>' : '')
       + (d.pair ? '<p class="dv-pair"><span class="dv-k">어울리는 소품</span>' + esc(d.pair) + '</p>' : '')
       + '</div></div>';
@@ -459,7 +470,7 @@ body.pick{background:var(--bg)}
 
   /* ════════════ 고르기 «시착 준비» ════════════ */
   var STEPS = ['길이', '핏', '편한 쪽', '드레스'];
-  var S = { view: 'intro', q: 0, ans: { len: '', fit: '', pref: [] }, seen: [false, false, false], seenList: false, picks: [null, null], memo: '', cur: '', busy: false, err: '', touched: false, wait: 0 };
+  var S = { view: 'intro', q: 0, ans: { len: '', fit: '', pref: [] }, seen: [false, false, false], seenList: false, picks: [null, null], memo: '', cur: '', busy: false, err: '', touched: false, wait: 0, due: '' };
   function count(){ return S.picks.filter(Boolean).length; }
   function stepsHTML(cur){
     return '<ol class="wz-steps" aria-label="진행 단계">' + STEPS.map(function(n, i){
@@ -496,7 +507,7 @@ body.pick{background:var(--bg)}
     }
     return h + '<div class="pk-foot"><button type="button" class="pk-txt" data-act="reask">답 바꾸기</button>'
       + '<label class="pk-memo-l" for="pkMemo">디렉터에게 남길 말 <span>(선택 · 200자)</span></label>'
-      + '<textarea class="pk-memo" id="pkMemo" maxlength="200" rows="3">' + esc(S.memo) + '</textarea><span class="pk-memo-c" id="pkMemoC" aria-hidden="true">' + S.memo.length + ' / 200</span></div>';
+      + '<textarea class="pk-memo" id="pkMemo" maxlength="200" rows="3" placeholder="신경 쓰이는 점이나 궁금한 점을 적어 주세요">' + esc(S.memo) + '</textarea><span class="pk-memo-c" id="pkMemoC" aria-hidden="true">' + S.memo.length + ' / 200</span></div>';
   }
   function detailPickHTML(){
     var d = R.dress(S.cur); if (!d) return listHTML();
@@ -513,7 +524,7 @@ body.pick{background:var(--bg)}
     return '<div class="pk-done"><h2 class="pk-done-t" data-head tabindex="-1">' + (one ? '상담 전날 이 드레스를 준비해 둘게요.' : '상담 전날 이 두 벌을 준비해 둘게요.') + '</h2>'
       + '<div class="pk-figs">' + figs + '</div>'
       + '<div class="pk-bring"><p class="pk-bring-h">준비해 오시면 좋아요</p><ul><li>누드톤 심리스 속옷과 실리콘 브라</li><li>예식 날 신을 굽 높이의 신발</li></ul></div>'
-      + '<p class="pk-done-note">바꾸기는 상담 이틀 전까지 할 수 있어요.</p>'
+      + '<p class="pk-done-note">바꾸기는 ' + (S.due ? esc(S.due) : '상담 이틀 전') + '까지 할 수 있어요.</p>'   // [DRESS_DUE_DATE] 날짜를 알면(마이페이지가 상담일을 넘김) 날짜로
       + '<div class="pk-acts"><button type="button" class="cc-btn" data-act="home">마이페이지로 돌아가기</button></div></div>';
   }
   function slotHTML(i){
@@ -525,7 +536,7 @@ body.pick{background:var(--bg)}
     if (S.view === 'q') {
       var q = R.questions[S.q], v = S.ans[q.key], has = Array.isArray(v) ? v.length > 0 : !!v;
       var fw = has ? (S.q < 2 ? '다음' : '드레스 보기') : '건너뛰기';
-      return '<div class="wz-bar"><button type="button" class="cc-btn-ghost" data-go="-1">이전</button><button type="button" class="cc-btn" data-go="1">' + fw + '</button></div>';
+      return '<div class="wz-bar"><button type="button" class="cc-btn-ghost" data-go="-1">이전</button><button type="button" class="cc-btn' + (has ? '' : ' pk-skip') + '" data-go="1">' + fw + '</button></div>';   // [DRESS_SKIP_SOFT] 답이 없으면 옅은 단추
     }
     if (S.view === 'list' || S.view === 'detail') {
       var c = count(), lab = S.busy ? '보내고 있어요' : (c === 0 ? '두 벌을 골라 주세요' : (c === 1 ? '이 한 벌로 준비해 주세요' : '이 두 벌로 준비해 주세요'));
@@ -588,6 +599,7 @@ body.pick{background:var(--bg)}
   }
   function applyFill(m){
     var sv = m && m.saved;
+    if (m && m.ymd) S.due = R.untilText(m.ymd);   // [DRESS_DUE_DATE] 완료 화면 «바꾸기는 10월 23일(금)까지»
     if (sv && Array.isArray(sv.picks) && !S.touched) {
       var ok = sv.picks.filter(function(id){ return !!R.dress(id); }).slice(0, R.pick);
       S.picks = [ok[0] || null, ok[1] || null];
@@ -599,7 +611,7 @@ body.pick{background:var(--bg)}
   }
 
   function bindPick(){
-    document.body.classList.add('pick');
+    document.body.classList.add('pick'); document.documentElement.classList.add('pk-on');
     document.title = '시착 준비 · 모먼트에디트';
     $('pubView').hidden = true; $('pickView').hidden = false;
     $('pkExit').addEventListener('click', exit);
