@@ -62,38 +62,45 @@ const look = (pg) => pg.evaluate(() => { const u = EntryMusic._t.ups(), sc = Ent
     late: !!late, lateTxt: late ? late.textContent.replace(/\s+/g, ' ').trim() : '', hz: document.documentElement.scrollWidth > innerWidth + 1 }; });
 const shot = async (pg, W, name) => { if (!SHOT) return; fs.mkdirSync(SHOT, { recursive: true }); const box = await pg.evaluate(() => { const a = document.querySelector('.ls-mu'), b = document.querySelector('.em-scene') || a; if (!a) return null; const r1 = a.getBoundingClientRect(), r2 = b.getBoundingClientRect(); return { x: 0, y: Math.max(0, r1.top + scrollY - 8), width: innerWidth, height: Math.min(2400, r2.bottom - r1.top + 16) }; }); if (box) await pg.screenshot({ path: path.join(SHOT, `${name}-${W}.png`), clip: box, fullPage: true }); };
 const sameH = (a, b) => a.hs.length === b.hs.length && a.hs.every((h, i) => Math.abs(h - b.hs[i]) < 0.6) && Math.abs(a.ulh - b.ulh) < 0.6;
-const want = { A: 30, B: 50, E: 80 };
+/* ★[UP_REC_V_REMEASURE 2026-10-23 BGM 섹션 따로 알림 «146 · 다음판이 들어오면 새 글 길이로 다시 재 주세요»] 기대값은 그때 잰 멘트 길이(need = V + 숨 + 음악 먼저)로 셈한다 —
+   종전엔 A 30 · B 50 · E 80 과 «0:50 은 E 에 1초 안쪽 모자람(tv > 9)»을 숫자로 박아, 녹음이 바뀌자(#1318 · 다음판) 규칙은 맞는데 빨강이 됐다.
+   후보 30 · 50 · 80 은 모두 걷는 동안 이어지니(뒤 ≥ 102) 추천 = need 이상인 첫 후보 · 다 이르면 지금 규칙(0:30) · 고른 자리의 장면 = plan(H, V) 식 그대로 */
+let SP = { breath: 0.3, lead: 10 };
+const expRec = (need) => [30, 50, 80].find((t) => typeof need === 'number' && t >= need) || 30;
+const lab = (t) => (t === 30 ? '0:30' : t === 50 ? '0:50' : '1:20');
+const expAt = (H, V) => { const pre = H - V - SP.breath; return pre >= SP.lead ? { tv: SP.lead, tm: 0 } : pre >= 0 ? { tv: pre, tm: 0 } : { tv: null, tm: -pre }; };
+const sceneOk = (x, H) => { if (!x || !x.plan) return false; const e = expAt(H, x.plan.V); return near(x.plan.tm, e.tm, 0.06) && (e.tv == null || near(x.plan.tv, e.tv, 0.06)); };
 try {
   for (const W of [390, 1280]) {
     const { ctx, pg, errs } = await openPage(W, 0);
-    await voice(pg, 'nar');
+    await voice(pg, 'nar'); try { SP = await pg.evaluate(() => ({ breath: EntryScene.SP.breath, lead: EntryScene.SP.lead })); } catch (e) {}
     const src = { A: await hasSrc(pg, 'A'), B: await hasSrc(pg, 'B'), E: await hasSrc(pg, 'E') };
     if (!src.A || !src.B || !src.E) { console.log(`못 쟀다 — 입장 멘트 A · B · E 중 소리가 없는 판이 있다(녹음 대기) ${JSON.stringify(src)}`); await ctx.close(); await br.close(); srv.close(); process.exit(fail ? 1 : 2); }
     // 1 — A 로 올리면 0:30
-    await ver(pg, 'A'); await upload(pg, true); await waitV(pg); await waitPlan(pg, 30); const A1 = await look(pg);
+    await ver(pg, 'A'); await upload(pg, true); await waitV(pg); await waitPlan(pg); const A1 = await look(pg); const rA = expRec(A1.need);
     const ts = (A1.cands || []).slice().sort((a, b) => a.sc - b.sc).map((c) => c.t);
     ok(`${W} 0 시험 곡 후보 0:30 · 0:50 · 1:20 · 찾기 점수 30 > 50 > 80`, ts.length === 3 && near(ts[0], 30) && near(ts[1], 50) && near(ts[2], 80), A1.cands);
     const P = A1.plan || {};
-    ok(`${W} 1 멘트 A(${typeof A1.need === 'number' ? (A1.need - 10.3).toFixed(2) : '?'}초)로 올리면 «추천» · 고른 자리 0:30 · S.mu.hook 30 · 장면 tv 10 · tm 0 · 문 열림 그대로 30(옮기지 않음)`,
-      A1.rec === '0:30' && A1.on === '0:30' && near(A1.hook, 30) && P.tv === 10 && P.tm === 0 && near(P.H, 30) && kept(A1) && !A1.late && !A1.hz, A1);
+    ok(`${W} 1 멘트 A(${typeof A1.need === 'number' ? (A1.need - SP.breath - SP.lead).toFixed(2) : '?'}초)로 올리면 «추천» · 고른 자리 ${lab(rA)} · 장면 tv ${SP.lead} · tm 0 · 문 열림 그대로(옮기지 않음)`,
+      A1.rec === lab(rA) && A1.on === lab(rA) && near(A1.hook, rA) && P.tv === SP.lead && P.tm === 0 && near(P.H, rA) && kept(A1) && !A1.late && !A1.hz, A1);
     // 3 — 멘트를 B 로 바꾸면 표시만 0:50 · 고른 자리 그대로 · 늦게 들어와요 · 줄 높이 그대로
-    await ver(pg, 'B'); await waitV(pg); await pg.waitForFunction(() => { const p = EntryMusic._t.scene().plan; return p && p.V > 30; }, null, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(400); const B3 = await look(pg);
-    ok(`${W} 3 멘트를 B 로 바꾸면 «추천 ·» 표시만 0:50 으로 · 고른 자리 0:30 그대로(S.mu.hook 30) · «늦게 들어와요 · 더 뒤 자리를 고르면…» · 자리 줄 높이 그대로`,
-      B3.rec === '0:50' && B3.on === '0:30' && near(B3.hook, 30) && B3.late && /늦게 들어와요/.test(B3.lateTxt) && /더 뒤 자리를 고르면 음악이 먼저 흘러요/.test(B3.lateTxt) && sameH(A1, B3) && kept(B3) && near(B3.plan.H, 30) && B3.plan.tm > 0, { B3, hsA: A1.hs, ulA: A1.ulh });
+    const vA = A1.plan && A1.plan.V; await ver(pg, 'B'); await waitV(pg); await pg.waitForFunction((vA) => { const p = EntryMusic._t.scene().plan; return p && Math.abs(p.V - vA) > 0.5; }, vA, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(400); const B3 = await look(pg); const rB = expRec(B3.need), lateB = !!(B3.plan && expAt(rA, B3.plan.V).tm > 0);
+    ok(`${W} 3 멘트를 B 로 바꾸면 «추천 ·» 표시만 ${lab(rB)} · 고른 자리 ${lab(rA)} 그대로 · ${lateB ? '«늦게 들어와요 · 더 뒤 자리를 고르면…»' : '늦지 않음'} · 장면 = plan 식 · 자리 줄 높이 그대로`,
+      B3.rec === lab(rB) && B3.on === lab(rA) && near(B3.hook, rA) && B3.late === lateB && (!lateB || (/늦게 들어와요/.test(B3.lateTxt) && /더 뒤 자리를 고르면 음악이 먼저 흘러요/.test(B3.lateTxt))) && sameH(A1, B3) && kept(B3) && near(B3.plan.H, rA) && sceneOk(B3, rA), { B3, hsA: A1.hs, ulA: A1.ulh });
     // 2 — B 로 다시 올리면 0:50 · E 로 바꾸면 표시만 1:20 · E 로 다시 올리면 1:20
-    await upload(pg, false); await waitPlan(pg, 50); const B2 = await look(pg); await shot(pg, W, 'up-rec-B');
-    ok(`${W} 2 멘트 B(${typeof B2.need === 'number' ? (B2.need - 10.3).toFixed(2) : '?'}초)로 올리면 «추천» · 고른 자리 0:50 · 장면 tv 10 · tm 0 · 문 열림 그대로 50`,
-      B2.rec === '0:50' && B2.on === '0:50' && near(B2.hook, 50) && B2.plan && B2.plan.tv === 10 && B2.plan.tm === 0 && near(B2.plan.H, 50) && kept(B2) && !B2.late, B2);
-    await ver(pg, 'E'); await waitV(pg); await pg.waitForFunction(() => { const p = EntryMusic._t.scene().plan; return p && p.V > 38; }, null, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(400); const E3 = await look(pg); await shot(pg, W, 'up-rec-B-to-E');
-    ok(`${W} 3b 멘트를 E 로 바꾸면 «추천 ·» 표시만 1:20 · 고른 자리 0:50 그대로 · 0:50 은 E 에 ${E3.plan ? (10 - E3.plan.tv).toFixed(2) : '?'}초 모자람(음악이 ${E3.plan ? E3.plan.tv.toFixed(2) : '?'}초 먼저) · 줄 높이 그대로`,
-      E3.rec === '1:20' && E3.on === '0:50' && near(E3.hook, 50) && E3.plan && E3.plan.tm === 0 && E3.plan.tv < 10 && E3.plan.tv > 9 && sameH(B2, E3), E3);
-    await upload(pg, false); await waitPlan(pg, 80); const E2 = await look(pg);
-    ok(`${W} 2b 멘트 E(${typeof E2.need === 'number' ? (E2.need - 10.3).toFixed(2) : '?'}초)로 올리면 «추천» · 고른 자리 1:20 · 장면 tv 10 · tm 0 · 문 열림 그대로 80`,
-      E2.rec === '1:20' && E2.on === '1:20' && near(E2.hook, 80) && E2.plan && E2.plan.tv === 10 && E2.plan.tm === 0 && near(E2.plan.H, 80) && kept(E2), E2);
+    await upload(pg, false); await waitPlan(pg, rB); const B2 = await look(pg); await shot(pg, W, 'up-rec-B');
+    ok(`${W} 2 멘트 B(${typeof B2.need === 'number' ? (B2.need - SP.breath - SP.lead).toFixed(2) : '?'}초)로 올리면 «추천» · 고른 자리 ${lab(rB)} · 장면 tv ${SP.lead} · tm 0 · 문 열림 그대로`,
+      B2.rec === lab(rB) && B2.on === lab(rB) && near(B2.hook, rB) && B2.plan && B2.plan.tv === SP.lead && B2.plan.tm === 0 && near(B2.plan.H, rB) && kept(B2) && !B2.late, B2);
+    const vB = B2.plan && B2.plan.V; await ver(pg, 'E'); await waitV(pg); await pg.waitForFunction((vB) => { const p = EntryMusic._t.scene().plan; return p && Math.abs(p.V - vB) > 0.5; }, vB, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(400); const E3 = await look(pg); await shot(pg, W, 'up-rec-B-to-E'); const rE = expRec(E3.need), eE = E3.plan ? expAt(rB, E3.plan.V) : {};
+    ok(`${W} 3b 멘트를 E 로 바꾸면 «추천 ·» 표시만 ${lab(rE)} · 고른 자리 ${lab(rB)} 그대로 · 장면 = plan 식(음악이 ${eE.tv != null ? eE.tv.toFixed(2) + '초 먼저' : (eE.tm || 0).toFixed(2) + '초 늦게'}) · 줄 높이 그대로`,
+      E3.rec === lab(rE) && E3.on === lab(rB) && near(E3.hook, rB) && sceneOk(E3, rB) && sameH(B2, E3), E3);
+    await upload(pg, false); await waitPlan(pg, rE); const E2 = await look(pg);
+    ok(`${W} 2b 멘트 E(${typeof E2.need === 'number' ? (E2.need - SP.breath - SP.lead).toFixed(2) : '?'}초)로 올리면 «추천» · 고른 자리 ${lab(rE)} · 장면 tv ${SP.lead} · tm 0 · 문 열림 그대로`,
+      E2.rec === lab(rE) && E2.on === lab(rE) && near(E2.hook, rE) && E2.plan && E2.plan.tv === SP.lead && E2.plan.tm === 0 && near(E2.plan.H, rE) && kept(E2), E2);
     // 4 — 직접 적은 자리는 멘트를 바꿔도 그대로
-    await pg.fill('#muOwn', '105'); await pg.click('[data-fk="muownset"]'); await pg.waitForTimeout(500); await ver(pg, 'A'); await waitV(pg); await pg.waitForFunction(() => { const p = EntryMusic._t.scene().plan; return p && p.V < 20; }, null, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(400); const O4 = await look(pg);
-    ok(`${W} 4 직접 적은 자리(1:05)는 멘트를 A 로 바꿔도 그대로(S.mu.typed 65 · «직접 적은 자리 ·») · «추천 ·» 표시는 0:30`,
-      O4.typed === 65 && O4.on === '1:05' && O4.rec === '0:30' && O4.notes.some((x) => /^직접 적은 자리 · /.test(x)) && kept(O4), O4);
+    await pg.fill('#muOwn', '105'); await pg.click('[data-fk="muownset"]'); await pg.waitForTimeout(500); const vE = E2.plan && E2.plan.V; await ver(pg, 'A'); await waitV(pg); await pg.waitForFunction((vE) => { const p = EntryMusic._t.scene().plan; return p && Math.abs(p.V - vE) > 0.5; }, vE, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(400); const O4 = await look(pg);
+    ok(`${W} 4 직접 적은 자리(1:05)는 멘트를 A 로 바꿔도 그대로(S.mu.typed 65 · «직접 적은 자리 ·») · «추천 ·» 표시는 ${lab(rA)}`,
+      O4.typed === 65 && O4.on === '1:05' && O4.rec === lab(rA) && O4.notes.some((x) => /^직접 적은 자리 · /.test(x)) && kept(O4), O4);
     ok(`${W} 9 쪽 오류 없음 · 가로 넘침 없음`, errs.length === 0 && !O4.hz, errs);
     await ctx.close();
   }
@@ -109,7 +116,8 @@ try {
     const t0 = Date.now(); await upload(pg, false); const dt = (Date.now() - t0) / 1000; const W6 = await look(pg);
     ok(`390 6 목소리를 받는 중이면(4초 안에 못 풂 · ${dt.toFixed(1)}초 만에 끝) 올리자마자 고르는 자리는 지금 규칙 0:30`, W6.on === '0:30' && W6.rec === '0:30' && near(W6.hook, 30) && W6.need === 'wait', W6);
     await waitV(pg); await pg.waitForTimeout(600); const W6b = await look(pg);
-    ok(`390 6b 다 받으면 «추천 ·» 표시만 0:50 으로 · 고른 자리 0:30 그대로 · 줄 높이 그대로`, W6b.rec === '0:50' && W6b.on === '0:30' && near(W6b.hook, 30) && sameH(W6, W6b), W6b);
+    const r6 = expRec(W6b.need);
+    ok(`390 6b 다 받으면 «추천 ·» 표시만 ${lab(r6)} 으로 · 고른 자리 0:30 그대로 · 줄 높이 그대로`, r6 !== 30 && W6b.rec === lab(r6) && W6b.on === '0:30' && near(W6b.hook, 30) && sameH(W6, W6b), W6b);
     ok(`390 6c 쪽 오류 없음`, errs.length === 0, errs);
     await ctx.close(); }
   // 7 — 규칙 단위
