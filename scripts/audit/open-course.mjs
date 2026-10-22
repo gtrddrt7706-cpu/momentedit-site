@@ -235,14 +235,14 @@ ok('[OPEN_CLAP_GO_1019] 박수 청하는 개식 뒤 식전 영상 소개 = 디�
   const con = [0, 1, 2, 3, 4, 5].map((n) => { const [a, b] = at(n, 'console'); return (a.live && a.live.applause ? 'L' : '-') + b.fire[0] + (b.gapMs || 0); }).join();
   const pre = [0, 1, 2, 3, 4, 5].map((n) => { const [a, b] = at(n, 'preview'); return (a.live ? 'L' : '-') + b.fire[0] + (b.gapMs || 0); }).join();
   const [a0, b0] = at(0, 'console'), [c0, d0] = at(0, 'console', { candle: 1 });
-  return con === 'Lm4500,-c3000,Lm4500,Lm4500,-c3000,-c3000' && pre === '-c4500,-c3000,-c4500,-c4500,-c3000,-c3000'
+  return con === 'Lm4500,-c3000,-c3000,-c3000,-c3000,-c3000' && pre === '-c4500,-c3000,-c3000,-c3000,-c3000,-c3000'   /* ★[SRC_ALL_1023 검토 144-5] 담백하게(149 · T2) · 다정하게(150 · NN)가 실제 개식사로 바뀌어 박수를 청하지 않는다 — 박수 칩은 힘차게(137) 하나 */
     && b0.slug === 'narr-prevideo-in' && !!b0.hint && b0.fadeMs > 0 && !c0.live && d0.fire === 'chain' && d0.gapMs === 4500; })());
-ok('[OPEN_GAP_CHIP_1019] 개식 뒤 쉼 — 박수를 청하는 칩(힘차게 · 담백하게 · 다정하게) 4.5초 · 나머지(격식 있게 · 뭉클하게 · 차분하게) 3초', (() => { const g = (n) => { const r = C.build({ course: 'open', on: { prevideo: 1 }, narEx: { open: n } }, { mode: 'console' }); const s = r.cues.map((c) => c.slug); return r.cues[s.indexOf('narr-open') + 1].gapMs; }; return [0, 1, 2, 3, 4, 5].map(g).join() === '4500,3000,4500,4500,3000,3000'; })());
+ok('[OPEN_GAP_CHIP_1019] 개식 뒤 쉼 — 박수를 청하는 칩(힘차게) 4.5초 · 나머지(격식 있게 · 담백하게 · 다정하게 · 뭉클하게 · 차분하게) 3초', (() => { const g = (n) => { const r = C.build({ course: 'open', on: { prevideo: 1 }, narEx: { open: n } }, { mode: 'console' }); const s = r.cues.map((c) => c.slug); return r.cues[s.indexOf('narr-open') + 1].gapMs; }; return [0, 1, 2, 3, 4, 5].map(g).join() === '4500,3000,3000,3000,3000,3000'; })());   // [SRC_ALL_1023 검토 144-5] 박수를 청하는 칩은 힘차게 하나
 ok('[CANDLE_NAME_1019] 영상 받는 말(261) → 3초 → «이어서, 화촉 점화가 있겠습니다.» → 화촉 여는 말(사슬) · 화촉 멘트가 «이제 · 먼저 · 그럼»으로 열면 안 끼운다 · 옛 코스엔 없다', (() => {
   const r = C.build({ course: 'open', on: { prevideo: 1, candle: 1 } }, { mode: 'console' }), s = r.cues.map((c) => c.slug), i = s.indexOf('bridge-b14-candle-name'), b = r.cues[i] || {}, n = r.cues[i + 1] || {};
   const skip = [1, 2].every((n2) => C.build({ course: 'open', on: { candle: 1 }, narEx: { candle: n2 } }, { mode: 'console' }).cues.every((c) => c.slug !== 'bridge-b14-candle-name'));
   const old = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].open).every((k) => C.build({ course: k }, { mode: 'console' }).cues.every((c) => c.slug !== 'bridge-b14-candle-name'));
-  return s[i - 1] === 'narr-prevideo-out' && b.gapMs === 3000 && b.k === 'candle' && b.text === '이어서, 화촉 점화가 있겠습니다.' && /^narr-candle-in-/.test(n.slug || '') && n.fire === 'chain' && skip && old; })());
+  return s[i - 1] === 'narr-prevideo-out' && b.gapMs === 3000 && b.k === 'candle' && b.text === '먼저 오늘의 성스러운 예식을 위하여 축복의 촛불을 밝히는 순서가 있겠습니다.' /* [SRC_ALL_1023 검토 144-2] 자료 RR 그대로 */ && /^narr-candle-in-/.test(n.slug || '') && n.fire === 'chain' && skip && old; })());
 ok('[PHOTO_UP_1019] 사진 안내 — 새 코스는 5분 전(03) 바로 뒤 · 하객 안내 날 264(우리 올리기) · 바깥 링크 날 84 · 안내 없으면 없음 · 85 도 하객 안내 날 · 옛 코스는 종전대로(1분 전 뒤 · 링크 날)', (() => {
   const s = (o) => slugs(Object.assign({ course: 'open', on: {} }, o));
   const a = s({ guide: 1 }), b = s({ guide: 1, photoShare: 1 }), c = s({ photoShare: 1 }), d = s({});
@@ -283,7 +283,7 @@ ok('[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014] 말로 인사 = 145 «그 마�
   const p1 = ph(1), p0 = ph(0), i85 = p1.s.indexOf('narr-photo-send'), ith = p1.s.indexOf('end-1a-farewell');
   return ca.slug === 'tribute-call-say' && /^그 마음을 담아 신랑 신부, 인사!$/.test(ca.text || '') && cb.slug === 'tribute-call' && cb.text === '신랑 신부, 인사!'   /* [SOURCE_FIRST_1016] 자료 GG 1 구호 그대로 */
     && !!(a[1] && a[1].live && a[1].live.fallback) && !(b[1] && b[1].live && b[1].live.fallback)
-    && i85 > p1.s.indexOf('end-0-photo') && i85 + 1 === ith && p1.r[ith].fire === 'chain' && p1.r[i85].fire === 'manual'
+    && i85 > p1.s.indexOf('narr-close') && p1.s.indexOf('end-0-photo') < 0 && p1.s.indexOf('narr-photo-out') < 0 /* [SRC_ALL_1023 검토 144-4] 새 코스는 44 · 65 없음 */ && i85 + 1 === ith && p1.r[ith].fire === 'chain' && p1.r[i85].fire === 'manual'
     && p0.s.indexOf('narr-photo-send') < 0 && p0.r[p0.s.indexOf('end-1a-farewell')].fire === 'manual'; })());
 ok('[GROOM_BOW_TIP] 옛 초안의 신랑 큰절(bowGroom)도 꽃과 포옹 — 큰절 줄(106) 없음 · 사람 구간은 여는 말에', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'narr-tribute-name,tribute-in,tribute-call-say,tribute-hug,tribute-out' && !!r[1].live && !!r[2].live && !!r[3].live; })());   // [TRIB_CALL_SAY_1014] 말 칸을 안 고른 옛 초안도 말로 인사 판(sayT) → 145   // ★[TRIB_NAME_1014 · TRIB_CALL_1014] 이름 줄 → 여는 말(걸음) → 구호(인사 · 포옹) → 맺는 말
 /* ★[TRIB_BACK_1014] 맺는 말(39 «두 분, 다시 앞으로 와 주세요») 뒤 돌아오는 사람 순간 — 다음 큐(닫는 인사 · 옛 코스의 다음 순간)는 두 분이 나란히 선 뒤 디렉터 GO(사슬이면 걷는 중에 «하객 여러분께 인사!») */

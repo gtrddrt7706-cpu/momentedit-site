@@ -379,7 +379,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     const goal = (S) => { const r = C.build(C.norm(S)); const cs = Array.isArray(r) ? r : r.cues; const by = {}; cs.forEach((c) => { by[c.slug] = c; });
       const g = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
       const t = (k, pre) => by[k] ? (pre || 0) + by[k].est + by[k].live.est : 0;
-      return { all: t('end-0-photo', g), thx: t('end-1a-farewell') || t('end-1c-thanks-nomeal'), per: t('narr-photo-split'), onl: t('narr-online-in'), free: (by['narr-photo-free'] || by['narr-photo-out']).live.goFree }; };
+      return { all: by['end-0-photo'] ? t('end-0-photo', g) : g /* [SRC_ALL_1023 검토 144-4] 새 코스는 44 없이 26 의 사람 구간이 전체 하객 목표를 든다 */, thx: t('end-1a-farewell') || t('end-1c-thanks-nomeal'), per: t('narr-photo-split'), onl: t('narr-online-in'), free: (by['narr-photo-free'] || by['narr-photo-out']).live.goFree }; };
     const base = O.applyExample({ course: 'open' }, 'brief'); base.course = 'open';
     for (const w of [0, 1, 2]) { const q = goal(Object.assign({}, base, { photoWishN: w, photoN: 1 })); if (q.all !== (ALL + w) * 60) bad.push(`요청 ${w}: 엔진 전체 하객 ${q.all}초 ≠ 마이페이지 (${ALL} + ${w})분`); }
     for (const n of [1, 2, 3]) { const q = goal(Object.assign({}, base, { photoWishN: 0, photoN: n })); if (q.per !== PER * 60 * n) bad.push(`구도 ${n}: 엔진 ${q.per}초 ≠ 마이페이지 ${PER}분 × ${n}`); }
