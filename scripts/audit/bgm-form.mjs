@@ -11,7 +11,7 @@
    6 옛 초안 «영상» 축사(freeWhat video)는 «영상에 입힌 소리로 흘러요» 한 줄 · 요약에서도 축사 칸이 없다
    7 ④ «음악» 묶음 — 바꾼 칸만 한 줄씩 + «나머지 n곳은 스튜디오가 골라 둘게요» · 하나도 안 바꿨으면 «음악은 모두 …» 한 줄 [BGM_SUM_CHANGED]
    ★검토 1 [BGM_LINES_TRUE] — 한 줄은 늘 참인 역할 · 둘째 줄이 고른 것 · 펴 있으면 곡 이름은 카드만
-   8 ?mk=letter — 로그인 없이 편지 쪽이 바로 열린다(그냥 연 화면만)
+   8 ?mk=letter — 로그인 없이 편지 쪽이 바로 열린다(그냥 연 화면만) · 초안의 마지막 순간이 같아도 [BGM_JUMP_SAME]
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 · BF_MOD = 돌연변이 확인용(그 판의 bgm-form.js 로 잰다) · SHOT = 그림 폴더 */
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -180,6 +180,12 @@ try {
     await ctx.close(); }
   { const { ctx, pg } = await openPage(390, '?mk=table'); await pg.waitForTimeout(1200); const L = await look(pg);
     ok('8 ?mk=table — 빠져 있던 테이블 인사를 담고 그 쪽', /테이블/.test(L.head) && L.slot === 'S10', L); await ctx.close(); }
+  /* [BGM_JUMP_SAME 2026-10-23 실사이트 확인] 초안의 마지막 순간(S.mk.at)이 주소와 같아도 «고르기»에 머물지 않고 그 순간 쪽이 열린다 */
+  { const { ctx, pg, errs } = await openPage(390, '?mk=letter'); await pg.waitForTimeout(1200);
+    const at0 = await pg.evaluate(() => { try { _persist(); return JSON.parse(localStorage.getItem('me_order')).S.mk.at; } catch (e) { return null; } });
+    await pg.goto(pg.url(), { waitUntil: 'load' }); await pg.waitForTimeout(2000); const L = await look(pg);
+    ok('8 at 이 같은 초안(at=letter)으로 ?mk=letter 를 다시 열어도 편지 쪽(하나씩 만들기) · 음악 줄(S6)', at0 === 'letter' && /편지/.test(L.head) && L.slot === 'S6' && errs.length === 0, { at0, L, errs });
+    await ctx.close(); }
 } finally { await br.close(); srv.close(); }
 console.log(fail ? `bgm-form: FAIL ${fail}` : 'bgm-form: ok');
 process.exit(fail ? 1 : 0);

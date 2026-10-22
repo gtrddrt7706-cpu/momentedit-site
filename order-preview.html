@@ -10347,7 +10347,7 @@ engine();   // [ORD_REAL_AUDIO] 첫 탭이 곧바로 소리로 이어지게 미�
    그 순간을 담고(빠져 있으면) ② 그 쪽을 연다. 화촉 candle · 감사 인사 welcome · 축사 free · 편지 letter · 부모님께 인사 tribute · 테이블 인사 table · 닫는 인사 _close · 축배 toast · 하객 맞이 guest · 한눈에 보기 _sum.
    고객 예식(마이페이지 임베드 ?embed=1)에는 쓰지 않는다 · 이 기기 초안에만 남는다 */
 setTimeout(function(){ if(EMBED) return; var _mq=/[?&]mk=([A-Za-z_]{2,16})/.exec(location.search||''); if(!_mq) return; var k=_mq[1], R=window.RitualOpen; if(!R||!isOpen()) return;
-  try{ if(R.PICKABLE.indexOf(k)>-1&&!(R.RETIRED&&R.RETIRED[k])&&!R.onOf(S,k)){ S.on[k]=1; var _m0=_mkState(); if(_m0.drop) delete _m0.drop[k]; opSync(); } buildSteps(); opGoStep('pick'); if(_mkPages().indexOf(k)>-1) mkGo(k); else opGoStep('listen'); }catch(e){} },0);
+  try{ if(R.PICKABLE.indexOf(k)>-1&&!(R.RETIRED&&R.RETIRED[k])&&!R.onOf(S,k)){ S.on[k]=1; var _m0=_mkState(); if(_m0.drop) delete _m0.drop[k]; opSync(); } buildSteps(); opGoStep('pick'); if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen'); }catch(e){} },0);   /* [BGM_JUMP_SAME 2026-10-23 BGM 섹션 실사이트 확인] 초안의 마지막 순간(at)이 주소와 같으면 mkGo 가 바로 끝나 «고르기»에 머물렀다 → 그때는 «하나씩 만들기»(그 순간 쪽)를 바로 연다 */
 // ── 마이페이지 임베드(?embed=1) — 같은 출처 postMessage로 서버 초안 수신 · 저장 전달 (계약서 오버레이와 동일 관례) ──
 var CUST=null;   // 임베드 신원 번들(orderFill로 수신 · 독립 열람은 null)
 /* [PREVIEW_DIGITAL] 디지털 참석 여부 — 청첩장 트랙이 정한 값을 orderFill 로 받아 둔다.
