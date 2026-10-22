@@ -19114,6 +19114,9 @@ chk 'BGM_FORM_1023' order-preview.html 6
 chk 'BGM_FORM_1023' assets/entry-music.js 1
 chk 'BGM_FORM_1023' scripts/audit/bgm-form.mjs 1
 chk 'BGM_JUMP' order-preview.html 1
+chk 'BGM_JUMP_SAME' order-preview.html 1                                                                   # 초안의 마지막 순간이 주소와 같아도 «하나씩 만들기»를 연다(bgm-form 8번)
+chk 'BGM_JUMP_SAME' scripts/audit/bgm-form.mjs 1
+chk "if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen');" order-preview.html 1
 chk "one: '화촉을 밝히는 걸음에 맞춰 흘러요'," assets/bgm-slots.js 1
 chk "one: '테이블 인사 · 사진 동안 흐르고, 마지막 곡으로 하루를 닫아요'," assets/bgm-slots.js 1
 #   ★검토 1(10-23) [BGM_LINES_TRUE] 한 줄 = 무엇을 골라도 참인 역할 · 곡 성격은 둘째 줄(sub · 스튜디오 곡일 때) · «음악 없이»면 한 줄도 바뀐다(noneOne) · 펴 있으면 곡 이름은 카드만
