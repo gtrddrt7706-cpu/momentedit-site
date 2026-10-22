@@ -19127,6 +19127,11 @@ chk "warm: '감동적인 곡으로 스튜디오가 골라 둘게요'" assets/bgm
 chk 'function lines(s, g, open) {' assets/bgm-slots.js 1
 chk 'return B.lines(s,g,!!OPEN\[s.id\]);' assets/bgm-form.js 1
 chk '음악은 모두 스튜디오가 골라 둘게요' assets/bgm-form.js 1
+# ── 2026-10-23 [BGM_NEED_LIST] BGM 섹션 검토 2 — 하객 맞이(S1) 올리기 전 한 줄 «25~30분 재생목록이면 좋아요» · «재생목록 곡이면»은 어색하다(bgm-form 5번이 아홉 칸을 대조)
+chk 'BGM_NEED_LIST' assets/bgm-form.js 1
+chk 'BGM_NEED_LIST' scripts/audit/bgm-form.mjs 1
+chk "(/재생목록$/.test(s.need.txt)?'이면':' 곡이면')+' 좋아요'" assets/bgm-form.js 1
+nochk "return s.need?s.need.txt+' 곡이면 좋아요'" assets/bgm-form.js                                  # ★«25~30분 재생목록 곡이면 좋아요»로 읽히던 옛 줄 — 되살리지 말 것
 nochk "one: '편지 아래 오르골" assets/bgm-slots.js
 nochk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'" assets/bgm-slots.js
 nochk "one: '말 아래 아주 작게 깔리는 잔잔한 피아노예요'" assets/bgm-slots.js

@@ -144,6 +144,13 @@ try {
     await go(pg, '_sum'); const s1 = await sumLook(pg);
     ok(`${W} 5 «우리가 고른 곡»을 누르면 «4분 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요» · ④ «보낼 것»에 «축사 음악 · 우리가 고른 곡 파일» · 남은 할 일 ${s0.todo} → ${s1.todo}`,
       /^4분 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요/.test(f0.card) && f0.now === '우리가 고른 곡 · 파일을 올려 주세요' && s1.sends.includes('축사 음악 · 우리가 고른 곡 파일') && !s0.sends.includes('축사 음악 · 우리가 고른 곡 파일') && s1.todo === s0.todo + 1, { f0, s0, s1 });
+    /* [BGM_NEED_LIST 2026-10-23 검토 2] 올리기 전 한 줄 — 재생목록 칸은 «…재생목록이면» · «재생목록 곡이면»은 어디에도 없다 */
+    const needs = await pg.evaluate(() => ['S1', 'S2', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10'].map((id) => BgmForm._t.need(id)));
+    const NEED_WANT = ['25~30분 재생목록이면 좋아요 · 짧으면 반복해서 이어 틀어요', '4분 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요', '7분 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요',
+      '4분 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요', '5분 30초 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요', '4분 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요',
+      '2분 이상 곡이면 좋아요 · 짧으면 반복해서 이어 틀어요', '60~90초 곡이면 좋아요', '재즈 연주는 스튜디오가 골라 둘게요'];
+    ok(`${W} 5 올리기 전 한 줄 아홉 칸 — S1 «25~30분 재생목록이면 좋아요 · …» · 나머지 «{길이} 곡이면 좋아요»`,
+      needs.length === NEED_WANT.length && needs.every((t, i) => t === NEED_WANT[i]) && !needs.some((t) => /재생목록 곡이면/.test(t)), { needs });
     await go(pg, 'free'); await upload(pg, 'S5'); const f1 = await look(pg); await shot(pg, W, 'bgm-free-own'); await pg.click('[data-fk="bgmopen:S5"]'); await pg.waitForTimeout(250); const f1c = await look(pg); await pg.click('[data-fk="bgmopen:S5"]'); await pg.waitForTimeout(250);
     const kept = await pg.evaluate(() => new Promise((ok) => { try { const q = indexedDB.open('me-bgm-song', 1); q.onsuccess = () => { const g = q.result.transaction('f').objectStore('f').get('local:S5'); g.onsuccess = () => ok(!!g.result); g.onerror = () => ok(false); }; q.onerror = () => ok(false); } catch (e) { ok(false); } }));
     const ls = await pg.evaluate(() => { try { return JSON.parse(localStorage.getItem('me_order')).S.bgm; } catch (e) { return null; } });

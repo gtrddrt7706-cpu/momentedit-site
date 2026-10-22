@@ -32,7 +32,8 @@
   function lines(s,g){ return B.lines(s,g,!!OPEN[s.id]); }
   /* 올리기 전 한 줄 — 필요한 길이 */
   function needLine(s){ if(s.last) return '재즈 연주는 스튜디오가 골라 둘게요';   /* «마지막 곡 · 파일을 올려 주세요»는 위 줄이 이미 말한다 */
-    return s.need?s.need.txt+' 곡이면 좋아요'+(s.need.max?'':' · 짧으면 반복해서 이어 틀어요'):''; }
+    /* [BGM_NEED_LIST 2026-10-23 BGM 섹션 검토 2] 재생목록 칸(S1)은 «… 재생목록이면 좋아요» — «재생목록 곡이면»은 어색하다 */
+    return s.need?s.need.txt+(/재생목록$/.test(s.need.txt)?'이면':' 곡이면')+' 좋아요'+(s.need.max?'':' · 짧으면 반복해서 이어 틀어요'):''; }
 
   function rec(id){ var S=St(); S.bgm=S.bgm||{}; return S.bgm[id]||(S.bgm[id]={}); }
 
@@ -123,5 +124,5 @@
     return '<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-list">'+rows.join('')+tail+'</ul></section>'; }
 
   window.bgmAct=act;
-  window.BgmForm={ rowHtml:rowHtml, tasks:tasks, sends:sends, sumHtml:sumHtml, _t:{ open:OPEN, busy:BUSY, now:function(id){ var s=B.slot(id); return s?lines(s,B.get(St(),id)).now:''; }, load:load } };   /* _t = 점검용 */
+  window.BgmForm={ rowHtml:rowHtml, tasks:tasks, sends:sends, sumHtml:sumHtml, _t:{ open:OPEN, busy:BUSY, now:function(id){ var s=B.slot(id); return s?lines(s,B.get(St(),id)).now:''; }, need:function(id){ var s=B.slot(id); return s?needLine(s):''; }, load:load } };   /* _t = 점검용 */
 })();
