@@ -113,7 +113,9 @@ const HEADERS = [
   // 동의
   '개인정보동의', '제출시각',
   // 식별
-  '토큰', '캘린더이벤트ID', '개인코드'
+  '토큰', '캘린더이벤트ID', '개인코드',
+  // [DRESS_PICK 2026-10-23] 시착 준비(입어 볼 두 벌 · JSON) — 운영 시트에는 저장할 때 맨 뒤에 붙는다(handleSaveDressPick)
+  '시착준비'
 ];
 // 신청상세(detail 문자열)의 '라벨' → 시트 컬럼 매핑 (폼 출력 라벨과 정확히 일치해야 함)
 var DETAIL_MAP = {
@@ -412,7 +414,7 @@ function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
 
     var _mailErr = '';
     try {
-      sendConfirmEmail_(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
+      sendConfirmEmail_(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'), row);
     } catch (mailErr) { _miss.push('확정 메일'); _mailErr = String((mailErr && mailErr.message) || mailErr); }
     try { sendStudioBriefEmail(row, dateKey, time); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
     try { setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm'); } catch (eS) { _miss.push('마이페이지 단계'); }  // ★③ Customers 현재단계 → 상담/촬영확정
@@ -513,7 +515,7 @@ function actAccept(sheet, colOf, row) { _gsr_();
 
   var _mailOk = true, _mailErr = '';
   try {
-    sendConfirmEmail_(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'));
+    sendConfirmEmail_(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'), row);
   } catch (mailErr) { _mailOk = false; _miss.push('확정 메일'); _mailErr = String((mailErr && mailErr.message) || mailErr); }
   try { sendStudioBriefEmail(row, nd, nt); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
   try { setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm'); } catch (eS) { _miss.push('마이페이지 단계'); }  // ★③ 변경수락→확정도 동일 전이
@@ -1453,9 +1455,12 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard, paid) { _gs
 }
 
 // 메일③/⑤ — 예약 확정 (승인/수락, 고객) · ★완료 · 정확한 주소·준비안내
-function sendConfirmEmail_(to, names, dateKey, time, isChange, token) {
+function sendConfirmEmail_(to, names, dateKey, time, isChange, token, row) {
   if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 확정 상태를 대체
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
+  /* [DRESS_PICK] 시착 준비 한 줄 — 스위치(사이트 dress-refs.js live)가 켜졌고 · 시그니처 · 의상이 «자체 준비»가 아닐 때만. 못 가리면 싣지 않는다 */
+  var dressLine = '';
+  try { if (row && _dressMailOk_(row)) dressLine = smallP('상담 날 입어 보실 드레스 두 벌을 <a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>에서 미리 고르실 수 있습니다.'); } catch (eD) { dressLine = ''; }
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#B89A75;font-weight:600">예약이 확정</b>되었습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
@@ -1466,6 +1471,7 @@ function sendConfirmEmail_(to, names, dateKey, time, isChange, token) {
       ['변경 · 취소', '상담 ' + deadlineLabel() + ' 전까지 가능합니다. 이후 변경은 카카오톡으로 문의해 주세요. 드레스 시착 전 취소는 예약금이 전액 환불됩니다.']
     ]) +
     emailBtnOutline(gcalUrl('Moment Edit 상담 · ' + names, dateKey, time, CONFIG.SLOT_DURATION_MIN), '내 캘린더에 추가') +
+    dressLine +
     smallP('일정 변경은 <a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>에서 하실 수 있습니다.');
   GmailApp.sendEmail(to, '[Moment Edit] 상담 예약이 확정되었습니다 · ' + prettyDate(dateKey) + ' ' + time, '',
     { htmlBody: emailShell(head, inner), name: SYS.FROM_NAME });
@@ -2310,6 +2316,8 @@ function sendReminderStudio(row, dateKey, time, idx, total) { _gsr_();
     infoRow('연락처', telLink(row.get('연락처'))) +
     infoRow('일정', '<b style="color:#3A2D22">' + prettyDate(dateKey) + ' · ' + esc(time) + '</b>');
   var detailRows = applicantDetailRows(row);
+  /* [DRESS_PICK] 고른 두 벌 · id · 남긴 말 한 줄. ★이 메일은 지금 SEND_ADMIN_MAIL(false)로 꺼져 있다 — 실제로 매일 가는 길은 아침 운영 보고(96 aiMorningReport «내일 상담 · 준비할 드레스»)다 */
+  try { var _dl = _dressBriefLine_(row.get(DRESS_PICK.col)); if (_dl) detailRows += infoRow('시착 준비', esc(_dl)); } catch (eD) {}
   var inner =
     centerP(countTxt) +
     dateCard('Tomorrow', prettyDate(dateKey), esc(time)) +
@@ -2411,6 +2419,96 @@ function _sessionToConsult(token) { _gsr_();
   var code = String(s.row.get('개인코드') || '').trim();
   var consult = code ? findRowByPersonalCode(code) : null;  // 상담예약 행(없으면 null·원자성 케이스)
   return { ok: true, code: code, cust: s.row, consult: consult };
+}
+
+/* ★★[DRESS_PICK 2026-10-23 코워크 설계 명세 «시착 준비» 8장] 상담 날 «입어 볼 두 벌» — 마이페이지 «시착 준비» 카드(고르기 화면 dress.html?pick=1)가 저장한다.
+   칸: 상담예약 시트 맨 뒤 «시착준비» = JSON {picks:[id], names:[표시용 이름], ans:{len, fit, pref[]}, memo, at}.
+       열이 없으면 저장할 때 잠금 안에서 맨 뒤에 한 번 붙인다(HEADERS 끝과 같은 자리 · 가운데에 끼우지 않는다).
+   마감: 상담일 −2일 23:59(한국 시각) — 지나면 «바꾸기 마감이 지났어요»로 거절한다(assets/dress-refs.js changeUntilDays 와 같은 값 · 검사가 대조).
+   ★기준은 id 다 — names 는 그날 화면이 보여 준 이름의 사본(목록에서 이름이 바뀌어도 그날 고른 이름이 남는다 · 표시에만 쓴다).
+   ★체형 · 키 · 몸무게는 받지도 담지도 않는다(ans 는 길이 · 핏 · 편한 쪽 세 칸만). */
+var DRESS_PICK = { col: '시착준비', untilDays: 2, max: 2, memoMax: 200, nameMax: 40, capHour: 30 };
+var DRESS_ANS = { len: ['ankle', 'calf', 'knee', 'unsure'], fit: ['body', 'waist', 'loose', 'unsure'], pref: ['low', 'arms'] };
+function _dressParse_(raw) {   // [DRESS_PICK] 저장값 읽기 — 비었거나 깨졌으면 null(읽기만)
+  var s = String(raw == null ? '' : raw).trim(); if (!s) return null;
+  var o = null; try { o = JSON.parse(s); } catch (e) { return null; }
+  if (!o || typeof o !== 'object' || !Array.isArray(o.picks)) return null;
+  var picks = o.picks.map(function (x) { return String(x == null ? '' : x); }).filter(function (x) { return /^[A-Za-z0-9_-]{1,16}$/.test(x); }).slice(0, DRESS_PICK.max);
+  var names = picks.map(function (_, i) { var n = Array.isArray(o.names) ? o.names[i] : ''; return String(n == null ? '' : n).slice(0, DRESS_PICK.nameMax); });
+  var a = (o.ans && typeof o.ans === 'object') ? o.ans : {};
+  return { picks: picks, names: names, ans: { len: DRESS_ANS.len.indexOf(String(a.len)) >= 0 ? String(a.len) : '', fit: DRESS_ANS.fit.indexOf(String(a.fit)) >= 0 ? String(a.fit) : '', pref: (Array.isArray(a.pref) ? a.pref : []).map(String).filter(function (p) { return DRESS_ANS.pref.indexOf(p) >= 0; }) },
+    memo: String(o.memo == null ? '' : o.memo).slice(0, DRESS_PICK.memoMax), at: String(o.at || '') };
+}
+function _dressOpen_(dateKey) {   // [DRESS_PICK] 바꾸기 열림 = 상담일 − 오늘(한국 날짜) ≥ 2 → 상담일 −2일 23:59 까지
+  var ymd = _ymdOf(dateKey); if (!ymd) return false;
+  var dl = _dayDiff(ymd, _kstYmd(new Date()));
+  return dl != null && dl >= DRESS_PICK.untilDays;
+}
+function _dressState_(cr) {   // [DRESS_PICK] 마이페이지 카드 판정용(buildConsultState) — 의상 · 상담일 · 마감 · 저장값. ★읽기만 — getMyState(GMS_MEMO) 길이라 쓰지 않는다
+  if (!cr) return null;
+  return { attire: String(cr.get('의상') || '').trim(), ymd: _ymdOf(cr.get('선택날짜')) || '', open: _dressOpen_(cr.get('선택날짜')), saved: _dressParse_(cr.get(DRESS_PICK.col)) };
+}
+function _dressBriefLine_(raw) {   // [DRESS_PICK] 스튜디오가 읽는 한 줄 — «이름 (id) · 이름 (id) · 남긴 말: …»(없으면 '')
+  var v = _dressParse_(raw); if (!v || !v.picks.length) return '';
+  var picks = v.picks.map(function (id, i) { return (v.names[i] ? v.names[i] + ' ' : '') + '(' + id + ')'; }).join(' · ');
+  return picks + (v.memo ? ' · 남긴 말: ' + v.memo.replace(/\s+/g, ' ') : '');
+}
+function _dressLive_() {   // [DRESS_PICK] 기능 스위치 — 사이트 원천 assets/dress-refs.js 의 «live: …, // [DRESS_LIVE]» 한 줄을 읽는다(켜짐 1시간 · 꺼짐 10분 기억 · 못 읽으면 꺼짐)
+  /* ★스위치를 GAS 에 따로 두지 않는다 — 켜는 곳이 둘이면 어긋난다(사이트를 켜면 메일도 따라 켜진다) */
+  var c = null; try { c = CacheService.getScriptCache(); var v = c.get('DRESS_LIVE'); if (v === '1' || v === '0') return v === '1'; } catch (e) { c = null; }
+  var on = false;
+  try {
+    var r = UrlFetchApp.fetch('https://momentedit.kr/assets/dress-refs.js', { muteHttpExceptions: true, followRedirects: true });
+    if (r.getResponseCode() === 200) { var m = /\blive:\s*(true|false)\s*,\s*\/\/\s*\[DRESS_LIVE\]/.exec(r.getContentText()); on = !!(m && m[1] === 'true'); }
+  } catch (e) { on = false; }
+  try { if (c) c.put('DRESS_LIVE', on ? '1' : '0', on ? 3600 : 600); } catch (e) {}
+  return on;
+}
+function _dressMailOk_(row) {   // [DRESS_PICK] 확정 메일에 시착 준비 한 줄을 실을까 — 스위치 · 시그니처 · 의상이 «자체 준비»가 아님
+  if (/^\s*자체 준비/.test(String(row.get('의상') || ''))) return false;
+  var code = String(row.get('개인코드') || '').trim(); if (!code) return false;
+  var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null;
+  if (!cust || String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP) return false;
+  return _dressLive_();
+}
+function handleSaveDressPick(body) { _gsr_();
+  /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 확정된 상담만 · 시그니처 · 단계 상담확정 · 상담일 −2일까지 · 1~2벌 · 남길 말 200자 · 한 사람 한 시간 30번 */
+  body = body || {};
+  var a = _sessionToConsult(String(body.token || '').trim());
+  if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
+  if (!a.consult) return { ok: false, error: '상담 예약을 찾지 못했어요' };
+  var picks = [], seen = {};
+  (Array.isArray(body.picks) ? body.picks : []).forEach(function (x) {
+    x = String(x == null ? '' : x).trim();
+    if (/^[A-Za-z0-9_-]{1,16}$/.test(x) && !seen[x] && picks.length < DRESS_PICK.max) { seen[x] = 1; picks.push(x); }
+  });
+  if (!picks.length) return { ok: false, error: '드레스를 한 벌 이상 골라 주세요' };
+  var names = picks.map(function (_, i) { var n = Array.isArray(body.names) ? body.names[i] : ''; return String(n == null ? '' : n).replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, DRESS_PICK.nameMax); });
+  var A = (body.ans && typeof body.ans === 'object' && !Array.isArray(body.ans)) ? body.ans : {};
+  var ans = { len: DRESS_ANS.len.indexOf(String(A.len)) >= 0 ? String(A.len) : '', fit: DRESS_ANS.fit.indexOf(String(A.fit)) >= 0 ? String(A.fit) : '',
+    pref: (Array.isArray(A.pref) ? A.pref : []).map(String).filter(function (p, i, arr) { return DRESS_ANS.pref.indexOf(p) >= 0 && arr.indexOf(p) === i; }) };
+  var memo = String(body.memo == null ? '' : body.memo).replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, DRESS_PICK.memoMax);
+  /* [DRESS_PICK] 한 사람이 천 번 누르면? — 같은 개인코드 한 시간 30번(넘으면 «잠시 후» · 시트 잠금을 오래 쥐지 않게) */
+  try {
+    var _cc = CacheService.getScriptCache(), _ck = 'DRESSCAP_' + a.code + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _cn = +(_cc.get(_ck) || 0);
+    if (_cn >= DRESS_PICK.capHour) return { ok: false, error: '잠시 후 다시 시도해 주세요.' };
+    _cc.put(_ck, String(_cn + 1), 3600);
+  } catch (eCap) {}
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (eL) { try { lockBusySignal('saveDressPick'); } catch (_b) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
+    var r = row(sheet, colOf, a.consult.num);
+    if (LOCKED_STATES.indexOf(String(r.get('상태') || '').trim()) === -1) return { ok: false, error: '상담이 확정된 뒤에 고르실 수 있어요' };
+    if (String(a.cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP || String(a.cust.get('현재단계') || '').trim() !== '상담확정') return { ok: false, error: '지금은 바꿀 수 없어요' };
+    if (!_dressOpen_(r.get('선택날짜'))) return { ok: false, error: '바꾸기 마감이 지났어요' };
+    if (!colOf[DRESS_PICK.col]) { sheet.getRange(SYS.HEADER_ROW, sheet.getLastColumn() + 1).setValue(DRESS_PICK.col); colOf = buildHeaderIndex(sheet); }   // 맨 뒤에 한 번(잠금 안)
+    if (!colOf[DRESS_PICK.col]) return { ok: false, error: '고른 드레스를 저장하지 못했어요', _why: 'no column' };   // writeCell 은 칸이 없으면 조용히 건너뛴다 — «됐다»고 말하지 않게
+    var at = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
+    var val = { picks: picks, names: names, ans: ans, memo: memo, at: at };
+    writeCell(sheet, colOf, r.num, DRESS_PICK.col, JSON.stringify(val));
+    return { ok: true, at: at, saved: val };
+  } finally { try { lock.releaseLock(); } catch (eR) {} }
 }
 
 /* ★[RESCHED_NOW 2026-10-09 점검 D-3] 상담 예약금을 이미 냈나 — 예약 시트 «입금확인»(계좌 입금 확인 · 승인 때도 적힌다) 또는 카드 승인(동의기록.결제수단.예약금 = '카드').
@@ -2550,6 +2648,7 @@ function doPost(e) { _SRV = true; _IN_POST = true; /* [GSR_GATE 2026-10-09] 입�
       case 'emailCancelInfo':   return jsonOut(handleEmailCancelInfo(body));
       case 'emailCancel':       return jsonOut(handleEmailCancel(body));
       case 'acceptProposal':    return jsonOut(handleAcceptProposal(body));
+      case 'saveDressPick':     return jsonOut(handleSaveDressPick(body));   // [DRESS_PICK] 시착 준비 «입어 볼 두 벌»(세션 인증 · 상담 확정 뒤 · 상담일 −2일까지)
       // ── 02 여정(계약·입금) — 세션→Customers ──
       case 'weddingAvailability': return jsonOut(handleWeddingAvailability(body));
       case 'changeWeddingHold':   return jsonOut(handleChangeWeddingHold(body));

@@ -7094,7 +7094,7 @@ chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
 #   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
 #   ★스위트를 추가하면 이 목록에도 넣을 것.
 if command -v node >/dev/null 2>&1; then
-  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend; do
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend dress-pick; do
     node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
       || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
   done
@@ -9583,7 +9583,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/
 #       설치만 30~60초라 이 잡의 성격(빠른 마커 검사)이 바뀐다. 무거운 실렌더는 야간의 몫이다.
 if command -v node >/dev/null 2>&1; then node scripts/audit/footer-parity.mjs >/dev/null 2>&1; _fp=$?
   case "$_fp" in
-    0) echo 'ok footer-parity: 네 면 푸터가 한 벌 (문구·링크 주소·링크 표기·대비 AA·넘침 0)' ;;
+    0) echo 'ok footer-parity: 다섯 면 푸터가 한 벌 (index · inquiry · privacy · parents · dress — 문구·링크 주소·링크 표기·대비 AA·넘침 0)' ;;
     1) echo 'FAIL footer-parity: 네 면 푸터가 한 벌이 아닙니다 — node scripts/audit/footer-parity.mjs'; fail=1 ;;
     *) echo 'ok footer-parity: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
@@ -19306,3 +19306,50 @@ chk 'R2_MATJEOL_SCENE_1014' assets/ritual-story.js 1    # 라운드 2 G2 — 맞
 nochk "scene: '앞에 나란히 서면 안내 음성에 맞춰 서로 마주 봐요." assets/ritual-story.js
 chk 'R2_TRIB_JOSA_1014' order-preview.html 1            # 라운드 2 G5 — «말로 인사»으로 → 로(_josaRo)
 nochk "»으로 바뀌었어요. 적은 글을 한 번 봐 주세요." order-preview.html
+# ── ★★[DRESS_REFS · DRESS_PAGE · DRESS_CARD · DRESS_PICK · DRESS_LIVE · DRESS_SAMPLE · DRESS_RANK 2026-10-23 코워크 설계 명세 «시착 준비»] ──
+#   상담이 확정된 분이 마이페이지에서 «입어 볼 두 벌»을 골라 두면 스튜디오가 상담 전날 준비한다(명세 docs/handoff/설계명세_시착준비_1023.md).
+#   ①원천은 assets/dress-refs.js 하나 — 공개 dress.html · 고르기 ?pick=1 · 마이페이지 카드 · 관리자가 같은 파일을 읽는다
+#   ②스위치(live)가 꺼진 동안 홈 · 신청서 · 마이페이지는 화면 차이 0(자리는 hidden · 카드는 숨김) — 켜는 것은 사장님이 사진을 넣은 뒤
+#   ③표본 6벌(sample:true)은 운영 주소에서 0벌 · ④줄 세우기 = 명세 6장(답 조합 100가지 대조) · ⑤dress.html 은 GAS 를 부르지 않는다
+#   ⑥서버: 상담예약 맨 뒤 «시착준비» · 상담일 −2일 23:59 마감(«바꾸기 마감이 지났어요») · 아침 보고 «내일 상담 · 준비할 드레스»
+#   모양 · 규칙 · 짝은 scripts/audit/dress-refs.mjs(--selftest 로 깨 보고 믿었다) · 서버 동작은 automation/tests/dress-pick.test.js
+chk '\[DRESS_LIVE\]' assets/dress-refs.js 2
+chk 'live: false,             // \[DRESS_LIVE\]' assets/dress-refs.js 1     # 스위치는 이번 범위에서 켜지 않는다 — 켤 때 이 줄을 «live: true»로 · 표본 지우기 · noindex 걷기 · sitemap(dress-refs.mjs 가 짝을 본다)
+chk 'DRESS_SAMPLE' assets/dress-refs.js 2
+chk 'return !(prod && d.sample);' assets/dress-refs.js 1                   # 운영 주소에서 표본을 빼는 한 줄
+chk 'DRESS_RANK' assets/dress-refs.js 1
+chk '<meta name="robots" content="noindex">' dress.html 1                   # 스위치가 꺼진 동안은 검색에 싣지 않는다
+chk 'DRESS_NO_GAS' dress.html 1
+nochk 'script.google' dress.html 0
+nochk 'preview-guard.js' dress.html 0                                        # GAS 를 안 부르는 쪽 — 미리보기 띠(«서버 연결을 막아 두었어요»)를 싣지 않는다
+chk 'momentedit:dressSave' dress.html 1
+chk 'momentedit:dressSave' mypage.html 1
+chk 'id="mp_dress"' mypage.html 1
+chk 'DRESS_CARD' mypage.html 6
+chk 'DRESS_PICK' mypage.html 1
+chk "_csHome = \$('mp_dress') || \$('mp_fitting')" mypage.html 1           # [SNAP_TODO_FIRST] 상담 카드의 제자리 = 시착 준비 카드 앞(종전대로 두면 매번 시착 준비 뒤로 옮겨 놓는다)
+chk "saveDressPick:'S'" mypage.html 1
+chk '<script src="/assets/dress-refs.js"></script>' mypage.html 1
+chk '<script src="/assets/dress-refs.js"></script>' admin.html 1
+chk 'DRESS_PICK_ADMIN' admin.html 2
+chk '<script src="/assets/dress-refs.js" defer></script>' index.html 1
+chk '<div data-dress-on hidden' index.html 1
+chk '<span data-dress-on hidden>' inquiry.html 1
+chk '<script src="/assets/dress-refs.js" defer>' inquiry.html 1
+chk 'DRESS_PICK' automation/consultation/consultation-booking.gs 8
+chk "case 'saveDressPick':" automation/consultation/consultation-booking.gs 1
+chk "'시착준비'" automation/consultation/consultation-booking.gs 1          # HEADERS 끝 — 운영 시트는 저장할 때 맨 뒤에 붙는다
+chk 'DRESS_PICK_STATE' automation/platform/60_mypage.gs 1
+chk 'DRESS_PICK_AREA' automation/platform/95_notify.gs 1
+chk "'saveDressPick'\]" automation/platform/95_notify.gs 1
+chk 'DRESS_PICK_ADMIN' automation/admin/admin.gs 4
+chk 'DRESS_PICK_MORNING' automation/platform/96_ai_cost.gs 1
+chk 'DRESS_REFS' scripts/audit/dress-refs.mjs 1
+chk "'dress'\]" scripts/audit/footer-parity.mjs 1                             # 의상과 소품도 같은 푸터 한 벌
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev/null 2>&1; _drs=$?
+  case "$_drs" in
+    0) echo 'ok dress-refs: 원천 모양 · 줄 세우기(명세 6장) · 표본 운영 0벌 · 스위치 · GAS 0 · 서버 짝 · 금지어 · 마이페이지 카드' ;;
+    1) echo 'FAIL dress-refs: 시착 준비 값이 곳곳에서 어긋났습니다 — node scripts/audit/dress-refs.mjs'; fail=1 ;;
+    *) echo 'ok dress-refs: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi   # 서버 스위트(dress-pick.test.js)는 위 [UNIT_SUITES_RUN] 목록이 돌린다

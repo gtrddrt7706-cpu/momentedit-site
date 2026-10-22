@@ -10,6 +10,8 @@
 <script src="/shared/edge-back.js" defer></script>
 <!-- [GPM_MODAL] 하객 사진 안내 모달 - 청첩장 소개의 트리거를 누를 때만 열린다(자동 노출 없음) -->
 <script src="/assets/guest-photo-modal.js" defer></script>
+<!-- [DRESS_LIVE] 시착 준비 스위치 — 켜졌을 때만 Styling Collection 아래 «드레스 둘러보기 →»가 보인다 -->
+<script src="/assets/dress-refs.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -6194,6 +6196,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <div class="reveal">
   <h3 class="sec-label">Styling Collection ·<span class="ll-ko"> 의상과 소품</span></h3>
   <p class="t-body" style="margin-bottom:24px">드레스·면사포·주얼리와 웨딩 소품은 스튜디오에 갖춰져 있습니다.<br class="pc-hide"> 신랑은 자켓·보타이를 준비해 드리니, 셔츠와 바지만 챙겨 오시면 됩니다.</p>
+  <!-- [DRESS_LIVE] 기존 외곽 단추(.journal-guide-link · [BTN_TIER]) 그대로 — 스위치가 꺼진 동안은 hidden(화면 차이 0) -->
+  <div data-dress-on hidden style="margin:0 0 8px"><a href="dress.html" class="journal-guide-link">드레스 둘러보기 <span class="arrow">→</span></a></div>
 </div>
 <div class="photo-placeholder half" style="height:380px;margin:24px 0 0;border-radius:8px">
   <picture><source type="image/webp" srcset="/assets/home/styling.webp"><img class="ph-img" src="/assets/home/styling.jpg" alt="웨딩드레스 스타일링 컬렉션" loading="lazy" onerror="this.style.display='none'"></picture>
@@ -9549,5 +9553,9 @@ nav .nav-links a, .nav-links a, .f-links a {
   on();
 })();
 </script>
+<script>/* [DRESS_LIVE] 시착 준비 스위치(assets/dress-refs.js live)가 켜졌을 때만 바뀌는 자리 — data-dress-on 은 보이고 data-dress-off 는 숨는다.
+   꺼진 동안(지금)은 아무것도 바꾸지 않는다(화면 차이 0). dress-refs.js 는 defer 라 DOMContentLoaded 앞에 이미 읽혀 있다 */
+document.addEventListener('DOMContentLoaded',function(){try{if(!(window.DRESS_REFS&&window.DRESS_REFS.live))return;
+document.querySelectorAll('[data-dress-on]').forEach(function(el){el.hidden=false;});document.querySelectorAll('[data-dress-off]').forEach(function(el){el.hidden=true;});}catch(e){}});</script>
 </body>
 </html>

@@ -37,7 +37,7 @@ import { launchBrowser } from './_browser.mjs';
 import { freePort } from './_freeport.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const PAGES = ['index', 'inquiry', 'privacy', 'parents'];
+const PAGES = ['index', 'inquiry', 'privacy', 'parents', 'dress'];   // [DRESS_PAGE 2026-10-23] 의상과 소품(dress.html)도 같은 푸터 한 벌
 const MIME = { '.html': 'text/html;charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.woff2': 'font/woff2' };
 
 const PORT = await freePort();
@@ -135,10 +135,10 @@ for (const p of noFooter) no(`${p}: 우리 화면인데 사이트 푸터(.f-copy
 for (const p of noFooter) delete got[p];
 
 const base = PAGES.find((p) => got[p]);
-if (!base) { console.log('\n✗ 푸터가 한 벌이 아닙니다 — 네 면 모두 푸터 없음'); process.exit(1); }
+if (!base) { console.log('\n✗ 푸터가 한 벌이 아닙니다 — 모든 면에 푸터 없음'); process.exit(1); }
 const B = got[base];
 
-console.log(`━━ footer-parity — 기준 ${base} · 네 면 대조 (390px 실렌더)`);
+console.log(`━━ footer-parity — 기준 ${base} · ${PAGES.length}면 대조 (390px 실렌더)`);
 
 /* ★★[FOOTER_WORDSET 2026-09-25] ① 을 «줄 단위»에서 «낱말 묶음»으로 바꾼다.
    왜 — 이 검사가 태어난 이유는 «줄이 통째로 빠짐 · 표기 표류 · 대비»이지 «줄 배치»가 아니다.
@@ -193,5 +193,5 @@ for (const p of PAGES) {
   else no(`${p}: 가로로 ${got[p].overflow}px 넘친다`);
 }
 
-console.log(bad ? `\n✗ 푸터가 한 벌이 아닙니다 — ${bad}건` : '\n✓ 네 면 푸터가 한 벌입니다');
+console.log(bad ? `\n✗ 푸터가 한 벌이 아닙니다 — ${bad}건` : `\n✓ ${PAGES.length}면 푸터가 한 벌입니다`);
 process.exit(bad ? 1 : 0);

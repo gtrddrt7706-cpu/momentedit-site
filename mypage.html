@@ -445,6 +445,16 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* ★[FOCUS_ONE 2026-09-27 사장님 «일관성»] 입력칸 초점 한 벌 = 짙은 금빛 테 두 겹 — 옅은 금빛 한 겹(2.5:1 · 잘 안 보였다) · 좌석 메모의 진사 빛 번짐 · 겹화면의 바깥 테가 섞여 있었다 */
 /* 완료 카드 접기 */
 .consult-card.cc-done{padding:0;text-align:left}
+/* [DRESS_CARD] 시착 준비 카드의 작은 사진 두 칸(Nº 01 · Nº 02) — 고른 칸 = 짙은 금빛 1px([SEL_ONE]) · 빈 칸 = 점선(고르기 화면 아래 막대와 같은 꼴) */
+.dr-ths{display:flex;justify-content:center;gap:14px;margin:14px 0 2px}
+.dr-th{display:flex;flex-direction:column;align-items:center;width:72px}
+.dr-th-pv{display:flex;align-items:center;justify-content:center;width:60px;height:80px;border-radius:6px;overflow:hidden;background:var(--bg2);box-shadow:0 0 0 1px var(--gold-deep)}
+.dr-th-pv picture,.dr-th-pv img{display:block;width:100%;height:100%}
+.dr-th-pv picture img{object-fit:cover}
+.dr-th-pv .dr-th-line{object-fit:contain}
+.dr-th-empty{box-shadow:none;border:1px dashed var(--border);background:var(--bg);font-family:var(--serif);font-size:11px;letter-spacing:.04em;color:var(--light)}
+.dr-th-n{margin-top:6px;font-family:var(--serif-ko);font-size:11px;color:var(--sub);line-height:1.5;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dr-th-act{margin-top:6px;display:flex;justify-content:center}
 .cc-done-row{display:flex;align-items:center;gap:8px;padding:14px 18px;cursor:pointer}
 .cc-done-check{color:var(--gold-deep);font-weight:600}
 .cc-done-label{flex:1;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
@@ -1516,6 +1526,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 
     <div class="consult-sec" id="mp_consult" style="display:none"></div>
 
+    <!-- [DRESS_CARD] 시착 준비 — 상담 확정 뒤 · 입어 볼 두 벌 미리 고르기(스위치 DRESS_REFS.live 가 꺼져 있으면 늘 숨김) -->
+    <div class="consult-sec" id="mp_dress" style="display:none"></div>
+
     <!-- 드레스 시착 동의 (02-2) — 상담 다음·계약 전 -->
     <div class="consult-sec" id="mp_fitting" style="display:none"></div>
 
@@ -2096,6 +2109,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
 <script src="/assets/ritual-preview-link.js"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
+<script src="/assets/dress-refs.js"></script><!-- [DRESS_REFS] 시착 드레스 목록(단 하나의 원천) · 스위치 live 가 꺼져 있으면 카드가 그려지지 않는다 -->
 <script src="/assets/photo-refs.js"></script><!-- [PHOTO_EX_VIEW] 가족 · 친구 스냅 예시 사진 목록(단 하나의 원천) -->
 
 <script>
@@ -2657,6 +2671,51 @@ function openFittingView(){
   x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 닫기
 }
 
+/* ★★[DRESS_PICK 2026-10-23 코워크 설계 명세 5장] 시착 준비 고르기 — /dress.html?pick=1&embed=1 을 겹화면 iframe 으로 연다(식순 만들기와 같은 길).
+   t 는 캐시 깨기(토큰 아님 · [ASSET_V]) — 로그인 토큰은 iframe 에 넘기지 않는다. 고르기 화면은 GAS 를 부르지 않고, 저장(saveDressPick)은 여기서 해 결과만 돌려준다.
+   주고받는 것: dressReady → dressFill{saved, open} · dressSave{data} → dressSaved / dressSaveFail{msg, ecode, sess, kind} · dressClose.
+   opt.demo = ?preview_card=dress — 저장하지 않고 «저장됐다»만 돌려준다(라이브 무해). */
+var DRESS_SAVE_BASE='고른 드레스를 보내지 못했어요 · 다시 눌러 주세요';
+function openDressPicker(dr, opt){
+  opt=opt||{};
+  var old=$('mp_drViewer'); if(old&&old.parentNode) return;
+  var ov=document.createElement('div'); ov.id='mp_drViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','시착 준비');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
+  var fr=document.createElement('iframe'); fr.id='mp_drFrame'; fr.src='/dress.html?pick=1&embed=1&t='+Date.now(); fr.title='시착 준비';
+  fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
+  ov.appendChild(fr); document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
+  _mpLock(); _layerInertOn(ov);
+  var saved=false, closed=false;
+  function post(m){ try{ fr.contentWindow.postMessage(m, location.origin); }catch(e){} }
+  function done(){ if(closed) return; closed=true; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); if(saved && !opt.demo) _mpRefresh(); }
+  function onKey(e){ if(e.key==='Escape' && document.activeElement!==fr) done(); }
+  function same(a,b){ a=(a||[]).slice().sort().join(','); b=(b||[]).slice().sort().join(','); return a===b; }
+  function onMsg(ev){
+    if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
+    var m=ev.data||{};
+    if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:!(dr&&dr.open===false)}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }
+    if(m.type==='momentedit:dressClose'){ done(); return; }
+    if(m.type!=='momentedit:dressSave' || !m.data) return;
+    var x=m.data, ack=function(ok, line, r){ post(Object.assign({type:ok?'momentedit:dressSaved':'momentedit:dressSaveFail', msg:line||''}, ok?{}:_relayErr(r))); };
+    if(opt.demo){ setTimeout(function(){ ack(true); }, 400); return; }
+    var p={action:'saveDressPick', token:getToken(), picks:x.picks, names:x.names, ans:x.ans, memo:x.memo};
+    api(p).then(function(d){
+      if(d&&d.ok){ saved=true; ack(true); return; }
+      if(_errSess(d)){ done(); _errGoLogin(d,'S'); return; }   // 로그인이 풀렸다 — 겹화면을 닫고 로그인으로(다른 쓰기 동작과 같다)
+      ack(false, _errLine(d,'S',DRESS_SAVE_BASE), d);
+    }, function(e){
+      if(_errKind(e)!=='slow'){ ack(false, _errLine(e,'S',DRESS_SAVE_BASE), e); return; }
+      api({action:'getMyState', token:getToken()}).then(function(st){   // 결과 모름(5) — 상태를 다시 불러 반영됐으면 성공과 같은 길로
+        var sv=st&&st.ok&&st.consult&&st.consult.dress&&st.consult.dress.saved;
+        if(sv && same(sv.picks, x.picks) && String(sv.memo||'')===String(x.memo||'')){ saved=true; ack(true); return; }
+        ack(false, _errLine(e,'S',DRESS_SAVE_BASE), e);
+      }, function(){ ack(false, _errLine(e,'S',DRESS_SAVE_BASE), e); });
+    });
+  }
+  document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); var _bkId=bkOpen(done);   // 뒤로가기 = 닫기(고르던 것은 저장 전이면 남지 않는다)
+}
+
 // '계약서 보기'(.js-view-contract) 클릭 위임 — 카드가 매 렌더마다 다시 그려져도 동작.
 document.addEventListener('click', function(e){
   var b=(e.target&&e.target.closest)?e.target.closest('.js-view-contract'):null;
@@ -2991,7 +3050,7 @@ var ERR_ACT={login:'L',autologin:'L',verify:'L',getMyState:'L',findCode:'L',rese
   weddingAvailability:'C',changeWeddingHold:'C',cancelWeddingHold:'C',quoteWeddingChange:'C',requestWeddingChange:'C',cancelWeddingChange:'C',requestContract:'C',requestContractResend:'C',signFittingConsent:'C',signContract:'C',
   paymentSignal:'P',midSignal:'P',balanceSignal:'P',extraRetouchSignal:'P',cardConfirm:'P',cardPayConfig:'P',saveCashReceipt:'P',saveRefundAccount:'P',
   submitResultSelection:'R',requestExtraRetouch:'R',confirmRetouch:'R',requestRevision:'R',submitSurvey:'R',
-  saveProductionBase:'S',saveProductionTrack:'S',saveInvitationDraft:'S',saveInvitationPreview:'S',publishInvitation:'S',
+  saveProductionBase:'S',saveProductionTrack:'S',saveInvitationDraft:'S',saveInvitationPreview:'S',publishInvitation:'S',saveDressPick:'S',
   snapRefUpload:'U',ritualFile:'U',ritualFileDel:'D',ritualFilePurgeMine:'D',snapWithdraw:'D',voiceClone:'V'};   // 서버 95_notify ERR_AREA 와 같은 글자 — 브라우저에서 난 실패도 같은 글자로
 var ERR_SESS={expired:1,invalid:1,no_token:1};
 var ERR_BUSY_OLD=/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 옛 서버의 잠금 대기 문구(서버 ERR_BUSY_RE 와 같다)
@@ -3951,7 +4010,7 @@ function renderMyPage(d){
 
   // 종료 상태(취소·노쇼·미계약)면 상세 카드 전부 숨김 — 취소 안내(NOW)+상태 배지+잠긴 단계(자물쇠)만 노출
   if (d.isException){
-    ['mp_hold','mp_consult','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_snap','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
+    ['mp_hold','mp_consult','mp_dress','mp_fitting','mp_contract','mp_payment','mp_midpayment','mp_balance','mp_snap','mp_production','mp_result','mp_ledger'].forEach(function(id){ var el=$(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
     if (d.stage==='취소' || d.stage==='노쇼'){ var _upx=$('mp_upcoming'); if(_upx){ _upx.innerHTML=''; _upx.style.display='none'; } }   // MPD_G2 취소·노쇼 종료 고객에게 잠긴 미래 로드맵 미노출 — 종료 안내와 모순(stageIndex=-1이라 지난 단계 필터도 꺼짐). 미계약은 재시작 여지로 유지(결정 대기함)
     else renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);   // 자물쇠(잠긴 단계)만 유지(미계약)
     renderRefundBank(d.refundBank);                                   // [환불 안전망] 수령분 있으면 환불 계좌 셀프 제출 카드
@@ -3962,6 +4021,7 @@ function renderMyPage(d){
     var _holdBannerOk = (function(){ var li=(d.stageList||[]).indexOf('상담완료'); var ci=(typeof d.stageIndex==='number')?d.stageIndex:-1; return !(li>=0 && ci>=0 && ci>=li); })();
     renderHold(_holdBannerOk ? d.hold : null);                       // 예식일 임시 고정(가예약) 상태 (①)
     renderConsult(d.consult, d.product, d);                           // 상담/촬영 (P1.5) · d = [SNAP_SIGNED_LOCK] 계약 서명 여부
+    renderDress(d);                                                   // [DRESS_CARD] 시착 준비(상담확정 · 시그니처 · 스위치 켜짐일 때만)
     renderFitting(d.fitting, d);                                      // 드레스 시착 동의 (02-2)
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
     renderMid(d.midpayment, d.balance);                              // 중도금 (02-4b) + 잔금 함께결제
@@ -4025,6 +4085,7 @@ function applyCardStageView(d){
   var visitDone = sIdx('상담완료'), fitIdx = sIdx('시착'), shootDone = sIdx('촬영완료');   // 스냅: 촬영 끝나면 '촬영 예약 확정' 카드도 지난 정보 → 숨김(시그의 상담완료/시착 숨김과 동일 취지)
   if ((visitDone >= 0 && cur >= visitDone) || (fitIdx >= 0 && cur >= fitIdx) || (shootDone >= 0 && cur >= shootDone)) {
     var cb = $('mp_consult'); if (cb) cb.style.display = 'none';
+    var db = $('mp_dress'); if (db) db.style.display = 'none';   // [DRESS_CARD] 상담완료부터 숨김 — 명세 7장
   }
 
   // #신규2 — 강제 되돌리기 시 현재보다 '앞선' 단계의 카드는 숨김(화면상 초기화처럼).
@@ -4061,7 +4122,7 @@ function applyCardStageView(d){
          [계약서 재발송 요청] 버튼이 촬영 카드(441px) 아래 첫 화면 밖(390 y=1154)에 섰다. 순서만 바뀐다(MPD4_C1 경계 안).
      · 할 일이 없으면 원래 자리(내 내역 아래 · 시착 카드 앞)로 돌려놓는다 — 다시 그릴 때마다 판정한다.
      · 시그니처는 건드리지 않는다(상담 카드가 상담완료부터 숨어 이 문제가 없다). */
-  var _csBox = $('mp_consult'), _csTodoAt = $('mp_snap'), _csHome = $('mp_fitting');
+  var _csBox = $('mp_consult'), _csTodoAt = $('mp_snap'), _csHome = $('mp_dress') || $('mp_fitting');   // [DRESS_CARD] 제자리 = 시착 준비 카드 앞 — 시착 동의 카드 앞으로 두면 매번 시착 준비 카드 뒤로 옮겨 놓았다
   if (_csBox && _csTodoAt && _csHome && _csBox.parentNode === _csTodoAt.parentNode && _csBox.parentNode === _csHome.parentNode) {
     var _csShown = function(id){ var b=$(id); return !!(b && b.style.display!=='none' && b.innerHTML); };
     var _csC = d.contract, _csP = d.payment, _csB = d.balance, _csTodo = false;
@@ -4914,6 +4975,44 @@ function _fitRefundV(f, lit){
   return '<span class="ln-bal">미계약으로 취소되면 예약금에서</span><span class="ln-bal">진행한 시착 벌수만큼'+amt+' 공제하고 나머지를 돌려드려요.</span>';
 }
 // [02-2] 드레스 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
+/* ★★[DRESS_CARD 2026-10-23 코워크 설계 명세 7장] «시착 준비» 카드 — 상담 날 입어 볼 두 벌을 미리 골라 두면 스튜디오가 상담 전날 준비한다.
+   보이는 때: 스위치(DRESS_REFS.live) · 시그니처 · 단계 상담확정 · 상담 예약이 확정(승인완료 · 확정) · 의상이 «자체 준비»가 아님 ·
+   서버가 consult.dress 칸을 준다(재배포 전 옛 서버면 숨김 — 저장 길도 없으니까). 상담완료부터는 숨긴다(시착 동의 카드가 이어받는다).
+   마감(상담일 −2일 23:59 · 서버가 open 으로 판정) 뒤: 고른 게 있으면 바꾸기 없이 · 없으면 숨김.
+   단추 격은 스냅 기획 카드와 같다 — 외곽(cc-btn-ghost) · 글 단추(cc-btn-ghost trk-act trk-act-min). 새 단추 모양을 만들지 않는다([BTN_TIER]).
+   box · demo 는 ?preview_card=dress 가 쓴다(로그인 없이 상태를 차례로 보여 주는 길 · 저장 없음). */
+function renderDress(d, boxArg, demo){
+  var box=boxArg||$('mp_dress'); if(!box) return;
+  var hide=function(){ box.style.display='none'; box.innerHTML=''; };
+  var R=window.DRESS_REFS, c=d&&d.consult, dr=c&&c.dress;
+  if(!R || !dr){ hide(); return; }
+  if(!demo){
+    if(!R.live || d.isException || d.product==='웨딩스냅' || d.stage!=='상담확정'){ hide(); return; }
+    if(!(c.status==='승인완료' || c.status==='확정')){ hide(); return; }
+    if(/^\s*자체 준비/.test(String(dr.attire||''))){ hide(); return; }
+  }
+  var sv=dr.saved, ids=((sv&&Array.isArray(sv.picks))?sv.picks:[]).filter(function(id){ return !!R.dress(id); }).slice(0, R.pick);
+  var closed=(dr.open===false);
+  if(closed && !ids.length){ hide(); return; }
+  var th=function(i){
+    var x=ids[i]?R.dress(ids[i]):null, n='Nº 0'+(i+1);
+    if(!x) return '<span class="dr-th"><span class="dr-th-pv dr-th-empty" role="img" aria-label="'+n+' 비어 있어요">'+n+'</span><span class="dr-th-n">&nbsp;</span></span>';
+    var pv=x.img ? '<picture><source type="image/webp" srcset="'+escapeHtml(R.img(x))+'"><img src="'+escapeHtml(R.img(x,'jpg'))+'" alt="" loading="lazy" decoding="async"></picture>'
+                 : '<img class="dr-th-line" src="'+escapeHtml(R.svg(x))+'" alt="" width="150" height="200" decoding="async">';
+    return '<span class="dr-th"><span class="dr-th-pv" role="img" aria-label="'+escapeHtml(n+' '+x.name)+'">'+pv+'</span><span class="dr-th-n">'+escapeHtml(x.name)+'</span></span>';
+  };
+  var n=ids.length, sub, btn='';
+  if(closed){ sub='상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요.'; }
+  else if(n===0){ sub='상담 날 입어 보실 두 벌을 정해 두시면 전날 준비해 둘게요.'; btn='<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">드레스 둘러보기</button>'; }
+  else if(n===1){ sub='Nº 02 가 비어 있어요'; btn='<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">이어서 고르기</button>'; }
+  else { sub='상담 전날 이 두 벌을 준비해 둘게요'; btn='<div class="dr-th-act"><button type="button" class="cc-btn-ghost trk-act trk-act-min" data-dress-open>바꾸기</button></div>'; }
+  box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Dress</div><div class="cc-title">시착 준비</div>'
+    + (n ? '<div class="dr-ths">'+th(0)+th(1)+'</div>' : '')
+    + '<div class="cc-sub">'+sub+'</div>'+btn+'</div>';
+  box.style.display='block';
+  var b=box.querySelector('[data-dress-open]');
+  if(b) b.addEventListener('click', function(){ openDressPicker(dr, demo ? { demo:true } : null); });
+}
 function renderFitting(f, d){
   var box = $('mp_fitting');
   if (!box) return;
@@ -6114,6 +6213,28 @@ if(window.meCardPay){   // 미리보기 파라미터면 로그인 여부와 무�
     }
   }catch(e){}
 }
+
+/* [DRESS_CARD] ?preview_card=dress — 로그인 없이 «시착 준비» 카드의 상태를 위에서부터 차례로(0벌 · 1벌 · 2벌 · 마감 뒤).
+   스위치(live)와 무관하게 그린다 · 단추를 누르면 고르기 화면이 열리고 «저장»은 하지 않는다(라이브 무해 · preview_card=1 과 같은 길).
+   표본 드레스는 운영 주소에서 그려지지 않으므로 운영에서는 0벌 상태만 보인다([DRESS_SAMPLE]). */
+(function(){
+  try{ if(new URLSearchParams(location.search).get('preview_card')!=='dress') return; }catch(e){ return; }
+  var run=function(){
+    var R=window.DRESS_REFS, main=document.querySelector('main'); if(!R||!main||$('mp_preview_dress')) return;
+    var L=R.list(), a=L[0]?L[0].id:'', b=L[1]?L[1].id:'';
+    var mk=function(picks, open){ return { stage:'상담확정', product:'시그니처', consult:{ status:'확정', dress:{ attire:'대여 희망 · 2벌', open:open!==false, saved: picks.length ? { picks:picks, names:[], ans:{len:'',fit:'',pref:[]}, memo:'' } : null } } }; };
+    var states=[['0벌', mk([])], ['1벌', mk([a].filter(Boolean))], ['2벌', mk([a,b].filter(Boolean))], ['마감 뒤', mk([a,b].filter(Boolean), false)]];
+    var sec=document.createElement('section'); sec.id='mp_preview_dress';
+    sec.style.cssText='display:block;max-width:520px;margin:0 auto 8px;padding:16px 14px 4px';
+    sec.innerHTML='<div style="border:1px dashed var(--gold);border-radius:12px;padding:6px 6px 2px;background:#FCFAF5">'
+      +'<div style="text-align:center;font-family:var(--serif);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);padding:8px 0 10px">Dress Card Preview · 실제 저장 아님</div>'
+      + states.map(function(s, i){ return '<div style="text-align:center;font-family:var(--serif-ko);font-size:11px;color:var(--light);padding:2px 0 6px">'+escapeHtml(s[0])+'</div><div class="consult-sec" id="mp_pvDress'+i+'"></div>'; }).join('')
+      +'</div>';
+    main.insertBefore(sec, main.firstChild);
+    states.forEach(function(s, i){ renderDress(s[1], $('mp_pvDress'+i), true); });
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
 
 // ── 완료 카드 접기 (✓ 한 줄 + 탭하면 펼침) ── sigType('시착'·'계약') 주면 펼칠 때 손글씨 서명 lazy-load
 function collapsedCard(box, label, fullHtml, sigType, openByDefault){

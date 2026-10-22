@@ -444,6 +444,8 @@ function aiMorningReport(preview) { _gsr_();
   var rows = [];
   if (brief) {
     rows.push(['오늘 상담', brief.todays && brief.todays.length ? (brief.todays.length + '건 · ' + brief.todays.join(' / ')) : '없음', false]);
+    /* [DRESS_PICK_MORNING 2026-10-23] 내일 상담 · 준비할 드레스 — 고른 분이 있을 때만 줄을 만든다(같은 날 겹침 · 남긴 말 함께) */
+    if (brief.tomorrowDress && brief.tomorrowDress.length) rows.push(['내일 상담 · 준비할 드레스 (' + brief.tomorrowDress.length + '건)', brief.tomorrowDress.join('\n'), false]);
     var todo = (brief.total || 0) + '건' + (brief.urgent ? (' · 급함 ' + brief.urgent) : '') + (brief.kindLine ? (' · ' + brief.kindLine) : '');
     rows.push(['처리할 일', todo + (brief.urgentNames && brief.urgentNames.length ? ('\n' + brief.urgentNames.join(' / ')) : ''), (brief.urgent || 0) > 0]);
   }
