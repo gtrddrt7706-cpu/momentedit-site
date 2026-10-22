@@ -629,9 +629,9 @@ NARR GAPS — 빈 곳 점검 [NARR_LOOP_1018] · 목표 자리마다 4개
   ok     letter:parent — 7개
   ok     letter:each — 7개
   ok     bless — 7개
-  ok     tribute:one — 7개
-  ok     tribute:cross — 6개
-  ok     tribute:long — 10개
+  ok     tribute:one — 4개
+  ok     tribute:cross — 5개
+  ok     tribute:long — 6개
   ok     toast:toast|both — 6개
   ok     free:speech:1|2|3 — 5개
   ok     free:speech:2|3 — 5개

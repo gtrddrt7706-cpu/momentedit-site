@@ -30,7 +30,8 @@ const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '.
 //   144(EX_MORE) + 8(THANKS_IN_VOW 감사문 예시 네 벌 × 두 분 · 10/11) − 3(DECLARE_BY_PERSON 선언문 넷 → 한 벌 · 10/12)
 //   + 4([EX_LINE_REVIEW_1013] 말로 인사 짧은 판 두 벌 × 두 분 · 10/13)
 //   + 2([GG3_LETTER_1018] 편지(서로에게) 7번 · 신랑 · 신부 · 10/18)
-const REF_ROWS = 155;
+//   + 2(10/18 이후 · 표 157) − 23([SRC_ALL_1023 검토 146-G] 실제 글을 못 찾은 줄 · 10/23) = 134
+const REF_ROWS = 134;
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0, cant = 0;
