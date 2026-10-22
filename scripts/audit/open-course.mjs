@@ -285,6 +285,11 @@ ok('[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014] 말로 인사 = 145 «그 마�
     && !!(a[1] && a[1].live && a[1].live.fallback) && !(b[1] && b[1].live && b[1].live.fallback)
     && i85 > p1.s.indexOf('narr-close') && p1.s.indexOf('end-0-photo') < 0 && p1.s.indexOf('narr-photo-out') < 0 /* [SRC_ALL_1023 검토 144-4] 새 코스는 44 · 65 없음 */ && i85 + 1 === ith && p1.r[ith].fire === 'chain' && p1.r[i85].fire === 'manual'
     && p0.s.indexOf('narr-photo-send') < 0 && p0.r[p0.s.indexOf('end-1a-farewell')].fire === 'manual'; })());
+/* ★[SPLIT_OFF_OPEN_1023 검토 148-1] 새 코스는 60(«자리를 지켜 주시기 바랍니다.»)을 틀지 않는다 — 감사 인사(45 · 110) 다음이 바로 262 · 가족 구도 목표는 감사 인사 사람 구간이 맡아 자유 사진 몫이 그대로 · 옛 코스는 60 그대로 */
+ok('[SPLIT_OFF_OPEN_1023] 새 코스 = 감사 인사 → 262(60 없음 · 가족 구도 시간은 감사 인사 줄) · 옛 코스는 60 그대로', [0, 1].every((meal) => {
+  const r = C.build({ course: 'open', on: {}, meal }, { mode: 'console' }).cues, s = r.map((c) => c.slug), th = meal ? 'end-1a-farewell' : 'end-1c-thanks-nomeal', t = r[s.indexOf(th)] || {};
+  return s.indexOf('narr-photo-split') < 0 && s[s.indexOf(th) + 1] === 'narr-photo-free' && !!t.live && /→ 가족 구도/.test(t.live.t) && t.live.est > 300;
+}) && slugs({ course: 'damback', meal: 1 }).indexOf('narr-photo-split') > -1);
 ok('[GROOM_BOW_TIP] 옛 초안의 신랑 큰절(bowGroom)도 꽃과 포옹 — 큰절 줄(106) 없음 · 사람 구간은 여는 말에', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'narr-tribute-name,tribute-in,tribute-call-say,tribute-hug,tribute-out' && !!r[1].live && !!r[2].live && !!r[3].live; })());   // [TRIB_CALL_SAY_1014] 말 칸을 안 고른 옛 초안도 말로 인사 판(sayT) → 145   // ★[TRIB_NAME_1014 · TRIB_CALL_1014] 이름 줄 → 여는 말(걸음) → 구호(인사 · 포옹) → 맺는 말
 /* ★[TRIB_BACK_1014] 맺는 말(39 «두 분, 다시 앞으로 와 주세요») 뒤 돌아오는 사람 순간 — 다음 큐(닫는 인사 · 옛 코스의 다음 순간)는 두 분이 나란히 선 뒤 디렉터 GO(사슬이면 걷는 중에 «하객 여러분께 인사!») */
 ok('[TRIB_BACK_1014] 부모님께 인사 맺는 말 뒤는 사람 순간(돌아와 나란히 섬 · 미리 듣기에서는 걷음) → 닫는 인사는 디렉터 GO «두 분이 앞에 나란히 서면»', [{ course: 'open', on: { tribute: 1 } }, { course: 'open', on: { tribute: 1 }, tributeSay: 'none' }].every((S0) => { const cs = C.build(S0, { mode: 'console' }).cues; const i = cs.findIndex((c) => c.slug === 'tribute-out'), t = cs[i] || {}, nx = cs[i + 1] || {};

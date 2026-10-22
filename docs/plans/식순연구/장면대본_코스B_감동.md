@@ -266,4 +266,4 @@
 
 ---
 
-*생성: `node scripts/build-course-story.mjs` · 장면 지문 48종 중 이 코스가 쓰는 것 8종*
+*생성: `node scripts/build-course-story.mjs` · 장면 지문 50종 중 이 코스가 쓰는 것 8종*
