@@ -20,6 +20,8 @@
  *     ★[DRESS_BACK_STEP 코워크 디자인 라운드 2 · 1] 휴대폰 뒤로가기(history.back) = 겹화면 안에서 한 걸음 — 390×844 마이페이지 겹화면에서
  *       자세히 → 목록(읽던 자리 · 그 칸 초점) · 물음 3 → 2 → 1 → 목록 · 목록(바뀐 것 없음) → 닫힘(마이페이지에 남는다) · 고른 뒤 목록 → «저장하지 않은 변경이 있어요» 판.
  *       ★[DRESS_NEXT_PREV] 덤으로 자세히 맨 아래 «‹ 이전 드레스 · 다음 드레스 ›»(첫 드레스는 다음만 · 누르면 다음 드레스 · 44px).
+ *     ★[코워크 디자인 라운드 3] 두 벌 찬 뒤 다른 드레스 «두 벌을 다 골랐어요.» + «Nº 01과 바꾸기 · Nº 02와 바꾸기»(한 줄 · 44px) → «Nº 02와 바꾸기» = 막대 Nº 02 만 바뀐다([DRESS_FULL_SWAP]) ·
+ *       막대 작은 사진 = 그 드레스 자세히(고른 수 그대로 · [DRESS_SLOT_SEE]) · 답을 바꾼 뒤에도 고른 두 벌 그대로 · 띠 아래 점 줄 하나([DRESS_NO_PICK_CARD]).
  *     375×667(작은 폰)은 «참고»로만 찍는다 — 코워크 기준 밖이라 빨강으로 세지 않는다.
  *     ★[DRESS_BAR_FIT 코워크 디자인 라운드 1 · 2 «390 · 1280 목록 · 자세히에서 막대에 반쯤 걸린 글 0»] 첫 화면(스크롤 0)의 글줄이 막대 위 끝을 가르지 않는다 —
  *       여섯 크기(360×780 · 375×812 · 390×844 · 390×740 · 414×896 · 1280×900) × (목록 + 표본 여섯 자세히)를 마이페이지 겹화면(고객이 실제 보는 길 · 목록에서 칸을 눌러 들어간다)에서,
@@ -98,7 +100,7 @@ try {
         over: document.documentElement.scrollWidth > window.innerWidth };
     }, s0);
     const f0 = await flow('열기');
-    if (gate && (f0.cells < 3 || f0.steps !== 0 || f0.band !== '원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요' || f0.btn !== '답하기 ›' || f0.btnH < 44 || f0.dot !== 2 || f0.gh !== '' || f0.grids !== 1 || /1/.test(f0.fit) || f0.over)) no(`${tag} 열면 목록 · 띠 «답하기 ›» · 점 줄 둘 · 보이는 소제목 없음 · 한 그리드 · 진행 표시 없음이 아니다 ${JSON.stringify(f0)} [DRESS_LIST_FIRST · DRESS_BAND_WORDS · DRESS_BAND_DOTS]`);
+    if (gate && (f0.cells < 3 || f0.steps !== 0 || f0.band !== '원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요' || f0.btn !== '답하기 ›' || f0.btnH < 44 || f0.dot !== 1 || f0.gh !== '' || f0.grids !== 1 || /1/.test(f0.fit) || f0.over)) no(`${tag} 열면 목록 · 띠 «답하기 ›» · 점 줄 둘 · 보이는 소제목 없음 · 한 그리드 · 진행 표시 없음이 아니다 ${JSON.stringify(f0)} [DRESS_LIST_FIRST · DRESS_BAND_WORDS · DRESS_BAND_DOTS]`);
     await page.click('.pk-band [data-act="ask"]');
     const f1 = await flow('첫 물음');
     if (gate && (f1.steps !== 3 || f1.anyDot || f1.band || /아직 몰라요/.test(f1.opts) || f1.steps2 !== '길이|핏|노출 · 소매')) no(`${tag} «답하기 ›» 뒤 첫 물음 — 진행 표시 셋(길이 · 핏 · 노출 · 소매) · 점 줄 없음 · «아직 몰라요» 없음이 아니다 ${JSON.stringify(f1)} [DRESS_LIST_FIRST · DRESS_Q_TRIM]`);
@@ -106,7 +108,7 @@ try {
     await page.click('.pk-opt[data-a="body"]'); await page.click('.wz-bar [data-go="1"]');
     await page.click('.pk-opt[data-a="low"]'); await page.click('.wz-bar [data-go="1"]');
     const f2 = await flow('답한 뒤');
-    if (gate && (f2.steps !== 0 || f2.band !== '발목까지 · 몸 선을 따라 · 노출이 적은 드레스' || f2.btn !== '답 바꾸기 ›' || f2.btnH < 44 || f2.dot !== 2 || f2.gh !== '' || f2.grids !== 1 || !/^1+0*$/.test(f2.fit) || !/1/.test(f2.fit) || f2.over)) no(`${tag} 답한 뒤 목록 — 띠 «발목까지 · 몸 선을 따라 · 노출이 적은 드레스 · 답 바꾸기 ›» · 한 그리드 · 맞는 칸이 앞(«답과 맞아요»)이 아니다 ${JSON.stringify(f2)} [DRESS_LIST_FIRST · DRESS_ONE_GRID]`);
+    if (gate && (f2.steps !== 0 || f2.band !== '발목까지 · 몸 선을 따라 · 노출이 적은 드레스' || f2.btn !== '답 바꾸기 ›' || f2.btnH < 44 || f2.dot !== 1 || f2.gh !== '' || f2.grids !== 1 || !/^1+0*$/.test(f2.fit) || !/1/.test(f2.fit) || f2.over)) no(`${tag} 답한 뒤 목록 — 띠 «발목까지 · 몸 선을 따라 · 노출이 적은 드레스 · 답 바꾸기 ›» · 한 그리드 · 맞는 칸이 앞(«답과 맞아요»)이 아니다 ${JSON.stringify(f2)} [DRESS_LIST_FIRST · DRESS_ONE_GRID]`);
     rows.push(`${tag} 목록부터: 열기 띠 «${f0.btn}» ${f0.btnH}px · 점 줄 ${f0.dot} · 진행 ${f0.steps} → 물음 «${f1.steps2}» → 답한 뒤 «${f2.band}» «${f2.btn}» · 그리드 ${f2.grids} · 맞는 칸 ${f2.fit}${gate ? '' : ' (참고)'}`);
     await page.click('.pk-band [data-act="ask"]'); await page.click('.pk-skipq');   // 답은 그대로 두고 목록으로(아래 네 상태는 표본 순서와 상관없이 처음 세 칸을 쓴다)
     const ids = await page.$$eval('.pk-main [data-open]', (els) => els.map((e) => e.getAttribute('data-open')));
@@ -121,8 +123,8 @@ try {
     const cLab = await page.evaluate(() => { const e = document.querySelector('.pk-ctl [data-act="pick"]'); return e ? e.className + '|' + e.textContent : ''; });
     await page.click('.pk-ctl [data-act="pick"]');
     await open(ids[2]);
-    const d = await shot(page, '.pk-ctl .pk-full');                          // ④ 다 참
-    const st = [['고르기 단추(0벌)', a], ['고른 줄 · 빼기', b], ['Nº 02로 고르기', c], ['다 찼어요 줄', d]];
+    const d = await shot(page, '.pk-ctl .pk-swap');                          // ④ 다 참 — «두 벌을 다 골랐어요.» + 바꾸기 둘([DRESS_FULL_SWAP])
+    const st = [['고르기 단추(0벌)', a], ['고른 줄 · 빼기', b], ['Nº 02로 고르기', c], ['두 벌 다 고름 · 바꾸기 줄', d]];
     for (const [nm, m] of st) {
       if (!m) { if (gate) no(`${tag} ${nm} — 찾지 못했다`); continue; }
       rows.push(`${tag} ${nm}: 아래 끝 ${m.ctlBottom} · 막대 위 끝 ${m.barTop} · 사진 ${m.photoH}px · 칠한 단추 ${m.dark}${gate ? '' : ' (참고)'}`);
@@ -131,6 +133,24 @@ try {
       if (gate && m.dark > 1) no(`${tag} ${nm} — 진한 단추가 한 화면에 ${m.dark}개([DRESS_PICK_TIER])`);
     }
     if (gate && c && !/cc-btn-ghost\|Nº 02로 고르기/.test(cLab)) no(`${tag} 한 벌 고른 뒤 다른 드레스의 단추가 외곽 «Nº 02로 고르기»가 아니다 — ${cLab}`);
+    // ★[코워크 디자인 라운드 3] ② 두 벌 찬 뒤 다른 드레스 «Nº 02와 바꾸기» → 막대 Nº 02 가 이 드레스 · Nº 01 그대로 ① 막대 작은 사진 → 그 드레스 자세히(고른 수 그대로) ③ 답 바꾸기 뒤에도 두 벌 그대로
+    const slots = () => page.evaluate(() => [...document.querySelectorAll('#pkBar .pk-slot')].map((e) => e.getAttribute('aria-label') || ''));
+    const nm = (i) => page.evaluate((i) => window.DRESS_REFS.dress(i).name, i);
+    const [n0, n1, n2] = [await nm(ids[0]), await nm(ids[1]), await nm(ids[2])];
+    const sw = await page.evaluate(() => { const r = (e) => e ? e.getBoundingClientRect() : null; const bs = [...document.querySelectorAll('.pk-ctl .pk-swap-b button')]; const t = document.querySelector('.pk-ctl .pk-swap-t'); return { t: t ? t.textContent : '', btn: bs.map((e) => e.textContent), h: bs.map((e) => Math.round(r(e).height)), row: bs.length === 2 && Math.abs(r(bs[0]).top - r(bs[1]).top) < 1, cls: bs.map((e) => e.className).join('|'), over: document.documentElement.scrollWidth > innerWidth }; });
+    if (gate && (sw.t !== '두 벌을 다 골랐어요.' || sw.btn.join('|') !== 'Nº 01과 바꾸기|Nº 02와 바꾸기' || !sw.row || sw.h.some((x) => x < 44) || sw.cls !== 'cc-btn-ghost|cc-btn-ghost' || sw.over)) no(`${tag} 두 벌 찬 뒤 다른 드레스 = «두 벌을 다 골랐어요.» + 외곽 «Nº 01과 바꾸기 · Nº 02와 바꾸기» 한 줄 44px 가 아니다 ${JSON.stringify(sw)} [DRESS_FULL_SWAP]`);
+    await page.click('.pk-ctl [data-swap="1"]'); await page.waitForTimeout(120);
+    const s1 = await slots(), afterSw = await page.evaluate(() => (document.querySelector('.pk-ctl .pk-picked') || {}).textContent || '');
+    rows.push(`${tag} 바꾸기: «Nº 02와 바꾸기» → 막대 ${JSON.stringify(s1)} · 단추 줄 «${afterSw}»`);
+    if (gate && (s1[0] !== `Nº 01 ${n0} 자세히 보기` || s1[1] !== `Nº 02 ${n2} 자세히 보기` || !/Nº 02/.test(afterSw) || !/빼기/.test(afterSw))) no(`${tag} «Nº 02와 바꾸기» 뒤 막대 Nº 02 = ${n2} · Nº 01 = ${n0} 그대로 · 단추 줄 «Nº 02 고른 드레스예요 · 빼기»가 아니다 ${JSON.stringify(s1)} «${afterSw}» [DRESS_FULL_SWAP]`);
+    await page.click('#pkBar .pk-slot[data-i="0"]'); await page.waitForTimeout(150);
+    const s2 = await slots(), see0 = await page.evaluate(() => (document.querySelector('.dv-nm') || {}).textContent || '');
+    rows.push(`${tag} 막대 작은 사진 Nº 01 누름 → 자세히 «${see0}» · 막대 ${s2.filter((x) => /자세히 보기/.test(x)).length}벌`);
+    if (gate && (see0 !== n0 || JSON.stringify(s2) !== JSON.stringify(s1) || /빼기|&times;|×/.test(s2.join('')))) no(`${tag} 막대 작은 사진을 누르면 그 드레스 자세히(고른 수 그대로)가 아니다 «${see0}» ${JSON.stringify(s2)} [DRESS_SLOT_SEE]`);
+    await page.click('.pk-main [data-act="list"]'); await page.click('.pk-band [data-act="ask"]'); await page.click('.pk-opt[data-a="calf"]'); await page.click('.pk-skipq'); await page.waitForTimeout(120);
+    const s3 = await slots(), band3 = await page.evaluate(() => (document.querySelector('.pk-band-t') || {}).textContent || '');
+    rows.push(`${tag} 답 바꾸기(«${band3.replace(/ /g, ' ')}») 뒤 막대 ${JSON.stringify(s3)}`);
+    if (gate && JSON.stringify(s3) !== JSON.stringify(s1)) no(`${tag} 답을 바꾼 뒤 고른 두 벌이 그대로가 아니다 ${JSON.stringify(s3)} [DRESS_FULL_SWAP]`);
     // ★[DRESS_SOLO_NOSAVE] 단독 완료 화면 — 저장이 없으니 머리 «저장» · 완료 «남기기»가 안 보이고 «저장됨 · 남겼어요»라 말하지 않는다(«나가기» · 머리 아래 한 줄은 그대로)
     await page.click('.wz-bar [data-act="save"]');
     await page.fill('#pkMemo', '남길 말');   // [DRESS_MEMO_ONEBTN] 단독은 글을 써도 «남기고»라 하지 않는다(저장이 없다)
@@ -267,4 +287,4 @@ try {
 }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-fit — 실패 ${bad}건 [DRESS_DETAIL_FIT]`); process.exit(1); }
-console.log(`━━ dress-fit — 통과 · 열면 목록(띠 · 점 줄 둘 · 물음 셋 · 답한 뒤 한 그리드) · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 뒤로가기 한 걸음(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단) · 이웃 넘기기 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT · DRESS_BACK_STEP]`);
+console.log(`━━ dress-fit — 통과 · 열면 목록(띠 · 점 줄 하나 · 물음 셋 · 답한 뒤 한 그리드) · 두 벌 찬 뒤 바꾸기 · 막대 작은 사진 = 자세히 · 답 바꾸기 뒤 두 벌 그대로 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 뒤로가기 한 걸음(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단) · 이웃 넘기기 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT · DRESS_BACK_STEP]`);

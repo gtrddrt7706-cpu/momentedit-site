@@ -19765,6 +19765,23 @@ chk 'DRESS_DUE_SAME' dress.html 2
 chk 'DRESS_DUE_SAME' mypage.html 1
 chk 'R.dueLine = function (ymd) {' assets/dress-refs.js 1
 nochk '상담 이틀 전' dress.html 0                                             # 완료 화면이 카드와 다른 말(«상담 이틀 전»)을 쓰던 옛 줄 — 날짜가 없으면 «상담 날짜가 정해지면 …»
+# ── ★★[코워크 디자인 라운드 3 · 2026-10-23 사장님 «고객입장에서 디테일한 개선점들도» · 외부 검토를 걸러 합친 것] 드레스 미리 보기 ──
+# 동작은 dress-fit.mjs(작은 사진 → 자세히 · Nº 02와 바꾸기 · 답 바꾸기 뒤 두 벌) · 모양 · 깨 보기는 dress-refs.mjs(⑮ · --selftest)
+chk 'DRESS_SLOT_SEE' dress.html 3                                          # 막대 작은 사진 = 그 드레스 자세히(«Nº 01 이름 자세히 보기») — 누르면 빼기 · × 는 걷었다
+chk 'DRESS_SLOT_SEE' scripts/audit/dress-fit.mjs 2
+nochk 'data-act="unslot"' dress.html 0                                      # 작은 사진 «누르면 빼기» 되살리기 금지(다시 보려고 누른 고객이 말없이 잃었다)
+nochk 'pk-slot-x' dress.html 0
+chk 'DRESS_FULL_SWAP' dress.html 3                                         # 두 벌 찬 뒤 다른 드레스 = «두 벌을 다 골랐어요.» + «Nº 01과 바꾸기 · Nº 02와 바꾸기»(순서 번호 그대로)
+chk 'DRESS_FULL_SWAP' scripts/audit/dress-fit.mjs 5
+chk 'data-swap="1">Nº 02와 바꾸기</button>' dress.html 1
+nochk '다 찼어요. 하나를 빼고 골라 주세요' dress.html 0                       # 막다른 길(뺄 드레스로 가서 빼고 다시 오는 세 걸음) 되살리기 금지
+chk 'DRESS_NO_PICK_CARD' mypage.html 1                                     # «안 고르셔도 상담 날 함께 골라요.»는 카드 0벌 점 줄 둘째 — 고르기 화면 띠 아래에서는 뺐다(같은 말 한 번)
+chk 'DRESS_NO_PICK_CARD' dress.html 1
+chk "notes=[due?(due+'까지 고르실 수 있어요.'):'', '안 고르셔도 상담 날 함께 골라요.'];" mypage.html 1
+chk 'DRESS_SKIP_WORDS' dress.html 1                                        # 물음 글 단추 «드레스 바로 보기 ›»(둘째 · 셋째 물음은 이미 답한 것이 있다)
+nochk '질문 없이 바로 보기 <span' dress.html 0
+chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «둘 다 골라도 되고, 안 골라도 돼요.»
+chk "sub: '둘 다 골라도 되고, 안 골라도 돼요.'" assets/dress-refs.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
