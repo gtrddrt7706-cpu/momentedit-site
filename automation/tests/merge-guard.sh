@@ -19112,41 +19112,48 @@ chk 'UP_REC_V_REMEASURE' scripts/audit/up-rec-v.mjs 1
 chk 'const expRec = (need) => \[30, 50, 80\].find((t) => typeof need === .number. && t >= need) || 30;' scripts/audit/up-rec-v.mjs 1
 chk 'const expAt = (H, V) => { const pre = H - V - SP.breath;' scripts/audit/up-rec-v.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/up-rec-v.mjs >/dev/null 2>&1; _urv=$?; if [ "$_urv" = 1 ]; then echo 'FAIL up-rec-v: 올린 곡 «추천» 자리(멘트 길이 · 첫 자리 · 표시만 다시 · 직접 적은 자리 그대로)가 깨졌습니다 — node scripts/audit/up-rec-v.mjs'; fail=1; elif [ "$_urv" = 0 ]; then echo 'ok up-rec-v: 올린 곡 추천 자리'; else echo 'skip up-rec-v: 브라우저가 없어 재지 못함'; fi; fi
-# ── 2026-10-23 순간마다 «음악» 칸 — 폼만 · 곡은 나중 [BGM_FORM_1023] — 사장님 «식순부분에 알맞게 디자이너 관점으로 적절하게 bgm 도 구현» · «우선 폼형태부분만» · BGM 섹션 명세 v2(대본 섹션 확인 main 5d95417)
-#   원천 assets/bgm-slots.js(칸 10 · 덮는 순간 · 화면 한 줄 · 고르기 · 참고 값 — 엔진에는 아직 안 넣는다) · 화면 assets/bgm-form.js(고르기 칸 맨 아래 «음악» 줄 · 접힌 한 줄 · 칩 · 우리가 고른 곡)
-#   ★v2 문구 — 화촉 «화촉을 밝히는 걸음에 맞춘 …»(«어머님» · «개식 안내부터 이어져요» 금지) · 테이블 인사 «테이블 인사 · 사진 동안 …»(«식사» 금지) · 부모님께 인사 기본 = 밝고 따뜻한 곡
-#   손대지 않은 칸은 S.bgm 에 적지 않는다(비어 있으면 studio) · S3(입장 · 맞절)는 입장 음악(entry-music.js) 그대로 · bgm-form 이 잰다(옛 판 · 돌연변이는 빨강)
-chk 'BGM_FORM_1023' assets/bgm-slots.js 6
-chk 'BGM_FORM_1023' assets/bgm-form.js 1
-chk 'BGM_FORM_1023' order-preview.html 6
-chk 'BGM_FORM_1023' assets/entry-music.js 1
-chk 'BGM_FORM_1023' scripts/audit/bgm-form.mjs 1
+# ── 2026-10-23 순간마다 «음악» 칸 [BGM_FORM_1023] → 다시 짜기 [BGM_INFO_1023] — 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «입장곡은 지금 세팅처럼 직접 할 수 있게» · «최선인지 한 번 더 검토해 보고 제안대로 구현» · BGM 섹션 안
+#   대부분 한 줄 안내(맞절 «입장 곡이 이어져요» 꼴) · 축사 · 편지만 칩 둘(«음악 없이» 기본 · «음악과 함께») → 엔진 duckRead −20(축사 사람 구간 · 편지 첫 큐 · 사람 구간 · 마무리 · 정적 없이 4초) · 편지 장면 글 판 · 미리 듣기 주소는 bed 만
+#   ★음악 칸 «우리가 고른 곡»(올리기 · 곡 카드 · 이 기기 보관 me-bgm-song · «보낼 것» 음악 줄 · 할 일) · 접는 카드 · 부모님께 인사 칩 · «마지막 곡만 고르기» 금지 — 되살리지 말 것 ·
+#   기본(음악 없이) 초안은 엔진 값이 한 글자도 안 바뀐다(bgm-form 0번 · 옛 값 own · studio · none · warm 도) · S3(입장 · 맞절)는 입장 음악(entry-music.js) 그대로
+chk 'BGM_INFO_1023' assets/bgm-slots.js 6
+chk 'BGM_INFO_1023' assets/bgm-form.js 2
+chk 'BGM_INFO_1023' order-preview.html 6
+chk 'BGM_INFO_1023' assets/ritual-cue.js 4
+chk 'BGM_INFO_1023' assets/ritual-story.js 1
+chk 'BGM_INFO_1023' assets/ritual-preview-link.js 3
+chk 'BGM_INFO_1023' scripts/audit/bgm-form.mjs 1
+chk 'BGM_INFO_1023' scripts/build-course-story.mjs 1
 chk 'BGM_JUMP' order-preview.html 1
 chk 'BGM_JUMP_SAME' order-preview.html 1                                                                   # 초안의 마지막 순간이 주소와 같아도 «하나씩 만들기»를 연다(bgm-form 8번)
 chk 'BGM_JUMP_SAME' scripts/audit/bgm-form.mjs 1
 chk "if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen');" order-preview.html 1
-chk "one: '화촉을 밝히는 걸음에 맞춰 흘러요'," assets/bgm-slots.js 1
-chk "one: '테이블 인사 · 사진 동안 흐르고, 마지막 곡으로 하루를 닫아요'," assets/bgm-slots.js 1
-#   ★검토 1(10-23) [BGM_LINES_TRUE] 한 줄 = 무엇을 골라도 참인 역할 · 곡 성격은 둘째 줄(sub · 스튜디오 곡일 때) · «음악 없이»면 한 줄도 바뀐다(noneOne) · 펴 있으면 곡 이름은 카드만
-#   [BGM_SUM_CHANGED] ④ «음악» = 두 분이 바꾼 칸만 + «나머지 n곳은 스튜디오가 골라 둘게요» · 하나도 안 바꿨으면 «음악은 모두 스튜디오가 골라 둘게요» 한 줄
-chk 'BGM_LINES_TRUE' assets/bgm-slots.js 2
-chk 'BGM_LINES_TRUE' assets/bgm-form.js 1
-chk 'BGM_SUM_CHANGED' assets/bgm-form.js 1
-chk "noneOne: '편지는 음악 없이 목소리만 들려요'," assets/bgm-slots.js 1
-chk "noneOne: '축사는 음악 없이 목소리만 들려요'," assets/bgm-slots.js 1
-chk "warm: '감동적인 곡으로 스튜디오가 골라 둘게요'" assets/bgm-slots.js 1
-chk 'function lines(s, g, open) {' assets/bgm-slots.js 1
-chk 'return B.lines(s,g,!!OPEN\[s.id\]);' assets/bgm-form.js 1
-chk '음악은 모두 스튜디오가 골라 둘게요' assets/bgm-form.js 1
-# ── 2026-10-23 [BGM_NEED_LIST] BGM 섹션 검토 2 — 하객 맞이(S1) 올리기 전 한 줄 «25~30분 재생목록이면 좋아요» · «재생목록 곡이면»은 어색하다(bgm-form 5번이 아홉 칸을 대조)
-chk 'BGM_NEED_LIST' assets/bgm-form.js 1
-chk 'BGM_NEED_LIST' scripts/audit/bgm-form.mjs 1
-chk "(/재생목록$/.test(s.need.txt)?'이면':' 곡이면')+' 좋아요'" assets/bgm-form.js 1
-nochk "return s.need?s.need.txt+' 곡이면 좋아요'" assets/bgm-form.js                                  # ★«25~30분 재생목록 곡이면 좋아요»로 읽히던 옛 줄 — 되살리지 말 것
-nochk "one: '편지 아래 오르골" assets/bgm-slots.js
-nochk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'" assets/bgm-slots.js
-nochk "one: '말 아래 아주 작게 깔리는 잔잔한 피아노예요'" assets/bgm-slots.js
-chk "picks: \['studio', 'warm', 'own'\]," assets/bgm-slots.js 1
+chk "picks: \['none', 'bed'\], short: '축사'," assets/bgm-slots.js 1
+chk "picks: \['none', 'bed'\], short: '편지'," assets/bgm-slots.js 1
+chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 아래 밝은 연주곡이 아주 작게 깔려요' }," assets/bgm-slots.js 1
+chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 아래 오르골 · 피아노가 아주 작게 흘러요' }," assets/bgm-slots.js 1
+chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-slots.js 1
+chk "one: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1
+chk "one: '말 아래 잔잔한 피아노가 아주 작게 깔려요'," assets/bgm-slots.js 1
+chk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1
+chk "one: '테이블 인사 · 사진 동안 재즈가 흐르고, 마지막 곡으로 닫아요'," assets/bgm-slots.js 1
+chk "cont: '앞 순서 곡이 그대로 이어져요'" assets/bgm-slots.js 1
+chk "duckRead: -20," assets/ritual-cue.js 1
+chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true," assets/ritual-cue.js 1
+chk "var bed = bgmBed(S, 'S6'), dk = bed ? PARAM.duckRead : PARAM.duckOff;" assets/ritual-cue.js 1
+chk "LIVE\['두 분이 직접 편지 낭독 (음악이 아주 작게)'\] = {" assets/ritual-story.js 1
+chk "if (k === 'bgm') { var bg = bgmOf(S.bgm); if (bg) o.bgm = bg; continue; }" assets/ritual-preview-link.js 1    # 옛 곡 이름(own.n)이 미리 듣기 주소로 안 나간다
+chk "if(window.BgmSlots){ var _bg=BgmSlots.clean(S.bgm);" order-preview.html 1                           # 불러올 때 옛 값을 버린다
+chk "indexedDB.deleteDatabase('me-bgm-song')" assets/bgm-form.js 1
+nochk "indexedDB.open('me-bgm-song'" assets/bgm-form.js                                                    # ★음악 칸 «우리가 고른 곡» 이 기기 보관 — 되살리지 말 것
+nochk 'data-fk="bgmup:' assets/bgm-form.js
+nochk 'class="bgm-sum"' assets/bgm-form.js
+nochk 't=t.concat(BgmForm.tasks(k))' order-preview.html
+nochk 'BgmForm.sends()' order-preview.html
+nochk "own: '우리가 고른 곡'" assets/bgm-slots.js
+nochk "warm: '감동적인 곡'" assets/bgm-slots.js
+nochk "lab: { own: '마지막 곡만 고르기' }" assets/bgm-slots.js
+nochk 'EM.fileTags=upTags' assets/entry-music.js
 nochk '어머님 걸음에 맞춘' assets/bgm-slots.js
 nochk '개식 안내부터 이어져요' assets/bgm-slots.js
 nochk '식사 · 테이블 인사 동안' assets/bgm-slots.js
@@ -19154,11 +19161,8 @@ chk "<script src=\"/assets/bgm-slots.js?v=" order-preview.html 1
 chk "<script src=\"/assets/bgm-form.js?v=" order-preview.html 1
 chk 'BgmForm.rowHtml(k)' order-preview.html 1
 chk '_muRow+_bgRow' order-preview.html 1
-chk 't=t.concat(BgmForm.tasks(k))' order-preview.html 1
-chk 'BgmForm.sends()' order-preview.html 1
 chk 'h+=BgmForm.sumHtml()' order-preview.html 1
-chk 'EM.fileTags=upTags; EM.fileName=upName;' assets/entry-music.js 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-form.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" = 1 ]; then echo 'FAIL bgm-form: 순간 «음악» 칸(자리 · 이어지는 순간 · 접힌 한 줄 · 칩 · 우리가 고른 곡 · 요약 · 바로 열기)이 깨졌습니다 — node scripts/audit/bgm-form.mjs'; fail=1; elif [ "$_bgf" = 0 ]; then echo 'ok bgm-form: 순간 음악 칸'; else echo 'skip bgm-form: 브라우저가 없어 화면은 재지 못함(원천은 쟀다)'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-form.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" = 1 ]; then echo 'FAIL bgm-form: 순간 «음악» 칸(한 줄 안내 · 축사 · 편지 칩 둘 · 엔진 −90 ↔ −20 · 요약 · 옛 값 버리기)이 깨졌습니다 — node scripts/audit/bgm-form.mjs'; fail=1; elif [ "$_bgf" = 0 ]; then echo 'ok bgm-form: 순간 음악 칸'; else echo 'skip bgm-form: 브라우저가 없어 화면은 재지 못함(원천 · 엔진은 쟀다)'; fi; fi
 # ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
 #   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
 #   여는 순간: 식전 영상 «끝나면 입장»(화촉을 담으면 영상 뒤가 화촉) · 화촉 «예식의 시작을 알려요»(시작은 1분 전 안내 · 개식이 알린다) 걷기

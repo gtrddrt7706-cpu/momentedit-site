@@ -30,6 +30,7 @@
     duckSpeech: -16,       // 말이 주인공(서약·편지·안내) — 큐시트 -15~-18dB
     duckMusic: -8,         // 음악이 주인공(입장·축배) — 큐시트 -6~-10dB
     duckOff: -90,          // 사실상 무음
+    duckRead: -20,         // 낭독 아래 — 축사 · 편지에서 두 분이 «음악과 함께»를 고른 날만(S.bgm.S5 · S6 = 'bed') · 아니면 지금처럼 duckOff [BGM_INFO_1023]
     fadeDownMs: 400,       // 더킹 페이드 다운 0.3~0.5초
     fadeUpMs: 1200,        // 더킹 복귀 0.8~1.5초
     /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 반지 박수가 빠져 «음악 8초 내림 + 정적 3초»가 빈 시간이 됐다 →
@@ -635,6 +636,8 @@
   //       "직접 말하는 시간입니다"를 띄운다(2026-07-31 실렌더에서 실제로 그랬다).
   //       고객에게 이 표시를 다는 목적이 '직접 대사하는 곳'을 알려 주는 것이므로 그건 의도를 뒤집는다.
   //       그래서 self가 있으면 doing은 필수다. check-ritual-cue.js가 전 조합에서 강제한다.
+  /* [BGM_INFO_1023] 두 분이 이 음악 칸에 «음악과 함께»를 골랐나 — 저장 꼴은 { S5:{m:'bed'}, S6:{m:'bed'} } 만(assets/bgm-slots.js) · 옛 값(own · studio · warm · none)은 아니다 */
+  function bgmBed(S, id) { return !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed'); }
   function cue(o) {
     var c = {
       slug: o.slug || '', no: o.slug ? noOf(o.slug) : '', file: o.slug ? fileOf(o.slug) : '',
@@ -1049,7 +1052,7 @@
           text: fk === 'etc' ? D.NARR.freeIn : EXTRA['narr-free-in-' + fk], duck: PARAM.duckMusic, pick: nm,
           rescue: play ? { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] } : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
-          live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 6 : 60 * len + 8, duck: PARAM.duckOff, self: true,
+          live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 6 : 60 * len + 8, duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true,   /* [BGM_INFO_1023] 축사 «음악과 함께» = 낭독 아래 −20 · 아니면 무음 그대로 */
             doing: fk === 'video' ? 'watch' : fk === 'speech' ? 'say' : 'move',
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로'
               : fk === 'speech' ? len + '분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }   // ★[SPEECH_FB_LEN_R7_1016 라운드 7] 늘 «3분»이던 것을 고른 길이로(큐 이름 · 진행 막대 · 고객 안심 «정해 두신 시간»과 같은 값) · ritual-story fbSrc 는 기본 3분 판
@@ -1158,21 +1161,26 @@
 
     letter: function (S) {
       var l = D.LETTER[S.letter] || D.LETTER.parent;
+      /* ★[BGM_INFO_1023 2026-10-23 사장님 «최선인지 한 번 더 검토해 보고 제안대로 구현» · BGM 섹션] 두 분이 «음악과 함께»를 고른 날(S.bgm.S6 = 'bed')만
+         낭독 아래 음악을 아주 작게(−20 · duckRead) 깔고, 마무리 뒤 «2초 정적» 없이 4초에 걸쳐 말 아래(−16)로 올린다 — 아니면 지금 그대로(무음 · 2초 정적 뒤 4초) ·
+         장면 글(ritual-story LIVE)은 live.t 로 갈린다(VOW_HOW 와 같은 꼴) */
+      var bed = bgmBed(S, 'S6'), dk = bed ? PARAM.duckRead : PARAM.duckOff;
       return [
         cue({
           k: 'letter', blockN: '편지 낭독', slug: 'letter-' + S.letter, name: '편지 낭독 시작', text: l.nar,
-          duck: PARAM.duckOff, pick: l.d,
-          note: '이 구간은 애초에 무음이라 더킹 홀드 버튼이 필요 없다(§3-A)',
+          duck: dk, pick: l.d,
+          note: bed ? '음악이 낭독 아래 아주 작게(−20) 깔린다 — 처음부터 낮춰 두어 더킹 홀드 버튼이 필요 없다(§3-A)' : '이 구간은 애초에 무음이라 더킹 홀드 버튼이 필요 없다(§3-A)',
           live: {
-            t: '두 분이 직접 편지 낭독', est: 165, self: true, doing: 'say', peak: true,
-            waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt, duck: PARAM.duckOff,
+            t: bed ? '두 분이 직접 편지 낭독 (음악이 아주 작게)' : '두 분이 직접 편지 낭독', est: 165, self: true, doing: 'say', peak: true,
+            waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt, duck: dk,
             fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 편지를 배우자에게 건네 이어 읽기'
           }
         }),
         cue({
           k: 'letter', blockN: '편지 낭독', slug: 'narr-letter-end', name: '편지 낭독 마무리', text: D.NARR.letterEnd,
-          duck: PARAM.duckOff, hint: '낭독이 끝나고 (오열이 있으면 잦아들 때까지 기다린다)',
-          post: [{ wait: PARAM.letter.postSilenceMs }, { music: 'to', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs }]
+          duck: dk, hint: '낭독이 끝나고 (오열이 있으면 잦아들 때까지 기다린다)',
+          post: bed ? [{ music: 'to', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs }]
+            : [{ wait: PARAM.letter.postSilenceMs }, { music: 'to', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs }]
         })
       ];
     },
