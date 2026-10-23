@@ -8037,7 +8037,7 @@ chk 'CANDLE_CALL_1014' assets/ritual-cue.js 2          # 화촉 — 불을 밝�
 chk 'CANDLE_CALL_1014' assets/ritual-story.js 1
 chk 'CANDLE_CALL_1014' scripts/audit/open-course.mjs 2
 chk 'CANDLE_TONE_1014' assets/ritual-cue.js 2          # 입장 «격식 있게»면 맺는 말 «두 가정의 마음이 하나의 불꽃이 되었습니다»(140 · 라운드 5 SOURCE_BEST_1015 · 옛 «양가의 촛불이 모두 켜졌습니다»)
-chk "slug: (S.entry === 'C' ? 'narr-candle-out-formal' : 'narr-candle-out')" assets/ritual-cue.js 1
+chk "slug: 'narr-candle-out', name: '화촉 마무리'," assets/ritual-cue.js 1   # ★[CANDLE_OUT_ONE_1023 검토 152] 입장 C 갈래(140) 걷음 · 옛 핀 «slug: (S.entry === 'C' ? 'narr-candle-out-formal' : …)»
 chk 'CANDLE_FF_1014' assets/ritual-open.js 1          # 화촉 여는 말 앞 문장(부모님 판 셋 · 다른 두 분 판은 그대로 · 참이 아닐 수 있다)
 chk 'ENTRY_ARRIVE_1014' assets/ritual-cue.js 3         # 입장 받는 말(144 · 두 분이 앞에 서고 박수가 잦아들면 GO) → 맞절 1.25초 사슬
 chk "slug: 'narr-entry-arrive'" assets/ritual-cue.js 1
@@ -9322,7 +9322,7 @@ nochk '다과' assets/ritual-data.js 0   # ★[NAR_ENGINE_1014] NO_FOOD_TALK(10/
 #     「고른」은 «남이 차린 것에서 집었다»는 말이라, 두 사람이 직접 만든 예식이라는 이 상품의 뿌리와
 #     정면으로 어긋난다. 「정했습니다」로 바꾸니 그 결정을 지키면서 27음절→16음절 낙차는 그대로 얻었다.
 chk '미리 준비한 목소리로 진행됩니다.' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «미리 준비한 안내 음성으로 진행됩니다.…» · 옛 주석 04a·04c — ★[SOURCE_BEST_1015 2026-10-15 사장님 «고정 멘트 없음»] 알림은 한 마디(계약서 서명 확인 줄과 짝) · «순서도 목소리도 …정했습니다»는 걷었다
-chk '원활한 진행을 위해 휴대폰은 진동 모드로 부탁드립니다.' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «휴대폰은 잠시 진동 모드로 부탁드립니다.…»
+chk '"다시 한번 말씀드립니다, 잠시 후 예식이 시작됩니다. 자리 착석과 휴대폰 진동 전환 부탁드립니다."' assets/ritual-data.js 2   # ★[REVIEW28_1023 검토 152] 1분 전 = T2 21 ~ 23 · 옛 핀 «원활한 진행을 위해 휴대폰은 진동 모드로 부탁드립니다.» · ★[SOURCE_FIRST_1016]
 chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니다' assets/ritual-data.js 1
 # ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
 #   창고에 «없거나 낡은» 자리만 뽑아 붙여넣기 판을 만든다(--todo).
@@ -10977,7 +10977,7 @@ nochk '앉으신 자리에서 편히 보시면 됩니다' assets/ritual-data.js
 chk '두 분, 나이프를 함께 잡고 천천히 잘라 주세요' assets/ritual-data.js 2   # ★[NAR_ENGINE_1014] 10/14 «서두르실 것 없습니다»(부정형 허락 W12)를 «천천히»로 합친 판 · 잡으라는 말은 그대로
 # ★[PHONE_SRC 2026-09-12] 이 문장의 «원천»이 ritual-cue.js 에서 ritual-data.js 로 옮겨졌다(45adff23).
 #   사본을 없애는 방향(EXTRA_SOURCE)과 같은 정리라 되돌릴 것이 아니다. 검사가 옛 자리를 보고 있었다.
-chk '원활한 진행을 위해 휴대폰은 진동 모드로 부탁드립니다.' assets/ritual-data.js 2   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «휴대폰은 잠시 진동 모드로 부탁드립니다.…»
+chk '"다시 한번 말씀드립니다, 잠시 후 예식이 시작됩니다. 자리 착석과 휴대폰 진동 전환 부탁드립니다."' assets/ritual-data.js 2   # ★[REVIEW28_1023 검토 152] 1분 전 = T2 21 ~ 23 · 옛 핀 «원활한 진행을 위해 휴대폰은 진동 모드로 부탁드립니다.» · ★[SOURCE_FIRST_1016]
 
 # ★★[EXTRA_SOURCE 2026-09-12] 생성기가 들고 있던 문안 하드코딩 사본 열 줄을 «없앴다».
 #   맞추는 대신 없앤 이유 — 두 번 당했다. 원천을 고쳐도 사본이 옛 글을 들고 manifest 를 먹어
@@ -19563,7 +19563,7 @@ nochk "slug: 'narr-free-fail'" assets/ritual-cue.js   # [FREE_FAIL_VOICE_OFF_102
 chk '하객분들의 따뜻한 박수와 함께 모시겠습니다. 단상 위로 올라와 주십시오.' assets/ritual-open.js 1   # [검토 151-1 5)] 153 = FF 1-1 원문
 chk '이 잔에는 두 사람의 영원한 사랑이 이어지길 바라는 모두의 마음이 담겨있는데요.' assets/ritual-open.js 1   # [검토 151-1 6)] 188 = SS 묶음 d
 chk ' entryArrive:"사랑하는 가족과 소중한 하객 여러분의 축복 속에 두 사람이 한 자리에 섰습니다.",' assets/ritual-data.js 1   # [검토 151-2] 144 = WW29 한 문장 그대로
-chk '그럼 지금부터 신랑 신부의 결혼식을 거행하도록 하겠습니다.' assets/ritual-open.js 1   # [검토 151-2] 149
+chk '그럼 지금부터 신랑 신부의 결혼식을 거행하겠습니다.' assets/ritual-open.js 1   # [검토 152] 149 = T2 36 끝말(151-2 의 «거행하도록»은 출처 착오)
 chk '마음으로 촛불을 밝게 밝혀주고 계십니다.' assets/ritual-open.js 1   # [검토 151-2] 213 = WW1 원문
 nochk '"id":"506_tribute-cross-bride"' assets/ritual-ref.js   # [검토 151-3] 506 뺌
 nochk '하윤아. 언제나 당신보다' assets/ritual-ref.js   # [검토 151-3] 907 앞 «하윤아.» 뺌
@@ -19745,3 +19745,16 @@ chk 'TA_TAB_KEEP' scripts/audit/voice-setup.mjs 3   # Tab 동작 검사 · 사�
 chk 'OPEN_TEXT_ENGINE' scripts/audit/listen-page.mjs 1   # 개식 줄은 엔진 글로 찾는다(EX_CHIP_DEF_1019 뒤 예시 글)
 chk 'REC_BY_PAUSE_1023' docs/handoff/녹음/README.md 1   # 녹음은 음성 쉼 섹션이 받는다
 chk '| 검토 150-2 7) | 그대로 · 닫음(10/23 대본 섹션) |' docs/handoff/insta-find.md 1   # PHOTO_THANKS 우선 · 대기 닫음
+# ★[REVIEW28_1023 검토 152 · 10/23] 라운드 1 «자리마다 수집 자료 중 베스트» — 식전 · 입장 글 · 화촉 맺는 말 하나 · B14 촛불 겹침 · 기록형 코스 입장 E
+chk 'REVIEW28_1023 검토 152' scripts/audit/open-course.mjs 3   # 동작 검사 셋(CANDLE_OUT_ONE · B14_SKIP_CANDLE · ENTRY_E_NODOOR)
+chk "'narr-candle-out-formal': 1," assets/ritual-cue.js 1   # [CANDLE_OUT_ONE_1023] 140 RETIRED
+chk 'B14_SKIP_CANDLE_1023' assets/ritual-cue.js 1   # [B14_SKIP_CANDLE_1023]
+chk "(S.course === 'record' && S.entry === 'E') ? 'F' : S.entry" assets/ritual-cue.js 1   # [ENTRY_E_NODOOR_1023]
+chk "filter(function(v){ return !(S.course==='record'&&v==='E'); })" order-preview.html 3   # [ENTRY_E_NODOOR_1023] 칩 숨김
+chk '오늘의 두 주인공을 만나 뵙기 전에 먼저 영상으로 함께하겠습니다.' assets/ritual-open.js 1   # 128 = NN
+chk '양가 어머님께서 화촉에 불을 밝히실 때, 내빈 여러분들도 같은 마음으로 행복을 빌어 주시면 대단히 감사하겠습니다.' assets/ritual-open.js 1   # 91 = WW5
+chk '묵묵히 가지를 뻗어주신 우리들의 아버지입니다.' assets/ritual-open.js 1   # 191 = SS 41
+chk "이제 두 분께서는 자리에 착석해 주시기 바랍니다.'" assets/ritual-open.js 1   # 한 줄에 셋   # 138 · 146 · 147 = U1 79
+nochk '불을 밝혀 주신 두 분은, 이제 자리로 돌아가 예식을 지켜봐 주십시오.' assets/ritual-open.js   # G2 AI 글 걷음
+chk '곧바로 순서를 시작하겠습니다. 자리에 착석해 주시길 바랍니다. 원활한 진행을 위해 주머니 속' order-preview.html 1   # 두 분 유쾌 g3 = 122 글
+chk 'PASTE_ORDER_VOICE_1023' scripts/check-paste-format.mjs 1   # [REVIEW28_1023] 같은 글 · 다른 화자 = 다른 녹음(못 잰 줄)
