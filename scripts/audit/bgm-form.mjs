@@ -86,8 +86,9 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
     V('free', { freeKind: 'video' }).kind === 'flow' && V('free', { freeKind: 'video' }).t === '영상에 입힌 소리로 흘러요' && V('free', { freeKind: 'video' }).at === 'video' && V('free', { freeKind: 'gift' }) === null && V('free', { freeKind: 'etc' }) === null
     && V('vow', { onOf: (k) => k !== 'welcome' }).t === ONE.welcome && V('ring', { onOf: (k) => k !== 'welcome' }).t === '혼인 서약부터 피아노가 조용히 이어져요');
   const r4 = B.slot('S4').ref, cl = B.SLOTS.flatMap((s) => (s.ref.clap || []).map((c) => c.no)).join();
-  ok('0 참고 값 그대로 — S4 크기 단계 둘 · 박수 줄 57 · 108 · 131 · S2 이음말(263) · 개식 인사(137)',
-    r4.levels.length === 2 && r4.levels[0].lv === '작게' && r4.levels[1].lv === '아주 작게 · 거의 들리지 않게' && cl === '57,108,131' && /263/.test(B.slot('S2').ref.from) && /137/.test(B.slot('S1').ref.note), { r4, cl });
+  /* [BGM_CONSOLE1_1023] 131 박수 줄은 걷었다(대본 157 로 «큰 박수로 맞이해 주십시오»가 빠졌다) · 108 은 «목례 · 박수 뒤 힘 있게 시작»(엔진 narr-close-bow live 와 같은 차례) */
+  ok('0 참고 값 그대로 — S4 크기 단계 둘 · 박수 줄 57 · 108(목례 · 박수 뒤) · S2 이음말(263) · 개식 인사(137)',
+    r4.levels.length === 2 && r4.levels[0].lv === '작게' && r4.levels[1].lv === '아주 작게 · 거의 들리지 않게' && cl === '57,108' && B.slot('S8').ref.clap[0].up === '목례 · 박수 뒤 힘 있게 시작' && !B.slot('S10').ref.clap && /263/.test(B.slot('S2').ref.from) && /137/.test(B.slot('S1').ref.note), { r4, cl });
   const OLD = { S1: { m: 'own', own: { n: '옛 곡', a: '가수', d: 200 } }, S5: { m: 'studio' }, S6: { m: 'none' }, S7: { m: 'warm' }, S10: { m: 'own' } };
   ok('0 옛 값은 버린다 — get: own · studio · none · warm → 기본 · clean: «음악과 함께»만 남고 곡 이름은 사라진다',
     B.get({ bgm: OLD }, 'S5').m === 'none' && !B.get({ bgm: OLD }, 'S5').set && B.get({ bgm: OLD }, 'S1').m === null && B.clean(OLD) === undefined

@@ -14787,6 +14787,7 @@ chk 'TOAST_MEDIUM_1023' order-preview.html 1   # 축배 칸 높이 10%(_VFY 주�
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
+chk 'HEAD_FOLLOWS_ACTION' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ④ 주인공 고개는 동작을 따라간다(위하여 = 하객 · 건배 = 서로 · 끝 = 하객)
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
@@ -19332,6 +19333,12 @@ nochk "srcChip('추천 곡'" assets/entry-music.js
 nochk "lab: '개식 멘트'" assets/ritual-open.js
 nochk '두 분은 편하게 환복해요' assets/ritual-story.js
 nochk '남은 사진을 마치고 환복' order-preview.html
+# ── 2026-10-23 [EASY_CHANGE_1023] 코워크 · 사장님 «바꾸기» — 홈(FAQ · 진행 설명 · 140분 안내 창) · 문의 화면의 «환복» → «옷 갈아입기» 결 · AI 상담 글 · 계약서 · 콘솔 · 관리 화면은 그대로
+chk 'EASY_CHANGE_1023' assets/sequence-modal.js 1
+nochk '편하게 환복' index.html
+nochk '편하게 환복' assets/sequence-modal.js
+nochk '마무리·환복' assets/sequence-modal.js
+nochk '마무리·환복' inquiry.html
 # ── 2026-10-23 [BGM_AUDIT_CANDLE_1023] bgm-form 검사 — 화촉 · 감사 인사 음악 줄 자리 기대는 고정값이 아니라 그 쪽 첫 줄(이음말이면 fi 1 · 아니면 fi 0) · 화촉 B14 가 서는 판 · 안 서는 판 둘 다 잰다
 chk 'BGM_AUDIT_CANDLE_1023' scripts/audit/bgm-form.mjs 4
 chk '/넘어가며/.test(L.first)' scripts/audit/bgm-form.mjs 1
@@ -19995,6 +20002,18 @@ chk '지금 보이는 안내로 진행해요. 들어 보고 바꿀 수 있어요
 chk 'TONE_FOLD_1023' scripts/audit/tone-fold.mjs 1
 for _tf in chip-toast chip-full ex-one ghi-polish pv-fill up-rec-v vp-ask-first listen-page; do chk 'TONE_FOLD_1023' scripts/audit/$_tf.mjs 1; done
 if command -v node >/dev/null 2>&1; then node scripts/audit/tone-fold.mjs >/dev/null 2>&1; _tfd=$?; if [ "$_tfd" = 1 ]; then echo 'FAIL tone-fold: 말투 줄 접기(첫 문장 · 듣기 · 말투 바꾸기 · 펼침 · 첫 순간 한 줄)가 어긋났습니다 — node scripts/audit/tone-fold.mjs'; fail=1; else echo "ok tone-fold ($_tfd)"; fi; fi
+# ★[BGM_CONSOLE1_1023 2026-10-23 BGM 섹션 «당일 콘솔 라운드 1»] 재기 표 docs/handoff/BGM_CONSOLE_1023.md(node scripts/build-bgm-console-table.cjs · 녹음이 바뀌면 다시 돌린다 · 게이트엔 안 건다)
+#   ref 메모 둘(S8 «목례 · 박수 뒤 힘 있게 시작» · S10 131 박수 줄 걷음) · 낮춤 모양 이름(PARAM.duck = fadeDownMs · fadeUpMs 의 한 원천 · holdMs 0 = 지금 버티지 않음) · duckRead «리허설 시작값»
+#   깨 보고 믿음: bgm-slots.js 를 옛 판으로 되돌리면 bgm-form 0번이 빨강
+chk 'BGM_CONSOLE1_1023' assets/bgm-slots.js 2
+chk 'BGM_CONSOLE1_1023' assets/ritual-cue.js 3
+chk "var DUCK_ENV = { downMs: 400, holdMs: 0, upMs: 1200 };" assets/ritual-cue.js 1
+chk '    duck: DUCK_ENV,' assets/ritual-cue.js 1
+chk "up: '목례 · 박수 뒤 힘 있게 시작'" assets/bgm-slots.js 1
+nochk "up: 'S8 이 힘 있게 시작한다'" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] «인사!» 순간처럼 읽혔다
+nochk "no: 131, line" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] 대본 157 로 «큰 박수로 맞이해 주십시오»가 빠졌다
+chk 'BGM_CONSOLE1_1023' scripts/audit/bgm-form.mjs 1
+chk 'TABLE:START' docs/handoff/BGM_CONSOLE_1023.md 1
 # ★[PV_PHOTO_OFF_1023 검토 158] 식전 영상 «사진으로 저희가 영상을 만들어요» 대목 뺌(PV_LINK_ONE «무조건 영상»)
 chk 'PV_PHOTO_OFF_1023' scripts/audit/open-course.mjs 2
 nochk '영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요' assets/ritual-open.js 0
