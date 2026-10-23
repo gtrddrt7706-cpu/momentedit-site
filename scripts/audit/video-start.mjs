@@ -19,6 +19,10 @@
 //   ⑤ 걸음이 고른가 [VID_RETIME] — 8×8 칸 찾기(±8)로 잰 프레임마다 속도가 앞뒤 3프레임 중앙값 L 에서 벗어난 정도(|속도−L|/L)의 평균 ≤ 0.75
 //      컷 앞뒤 3프레임 · 거의 안 움직이는 곳(L < 0.05 · 잡음이 비를 키운다)은 빼고 · 가장 큰 5% 는 버린다(손이 한 번 빨라지는 것 같은 진짜 가속).
 //      받은 판 0.43~1.30(7편이 0.75 넘음) · 새 판 0.14~0.65(케이크 0.65 · 손 결이 촘촘해 보간이 겹침에 가깝다) — ★거친 자다: 받은 판도 10편이 0.75 아래라 혼자로는 못 가른다 · ③ ④ 와 함께 본다.
+//   ⑥ [VID_CADENCE_1023 2026-10-23 사장님 «성혼선언 영상 끊기는 거 같은데 · 다른 영상들도 확인해 봐»] 사람이 2 · 3장에 한 번씩만 움직이지 않는가 — 원본(Seedance)은 사람을 2 · 3장마다 한 번 그리는 일이 잦다.
+//      카메라가 움직이면 «같은 그림»이 아니라 ③ 이 못 잡는다 · 30fps 로 늘리면(옛 smooth 판) 4장마다 덜 움직이는 박자가 더해졌다(성혼선언 · 닫는 인사 · 입장 · 서약 · 축가).
+//      그래서 (가) 유화판은 원래 박자 24fps(옛 cake · free 만 예외) (나) 바뀐 칸 몫이 앞뒤 7장 중앙값의 1.4배를 넘는 «튀는 장»이 2 · 3장 간격으로 이어진 몫 ≤ 10%(움직이는 장 기준).
+//      고친 판 0% · 고치기 전 하객 맞이 58% · 감사 인사 16% · 서약 16%. 옛 cake · free(옛 초안에서만 보인다)는 재기만 한다(25% · 14%). --selftest 가 «3장마다 한 번» 판을 만들어 잡히는지 본다.
 // ★종료 코드 [CANT_LOOK] 0 = 통과 · 1 = 실패 · 2 = 재지 못함(ffmpeg 없음 · ① 은 통과)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -140,6 +144,22 @@ if (process.argv[2] === '--start') {
   if (!hasFfmpeg) { console.error('ffmpeg 없음'); process.exit(2); }
   console.log(startPoint(process.argv[3]).toFixed(3)); process.exit(0);
 }
+/* [VID_CADENCE_1023] 튀는 장(바뀐 칸 몫이 앞뒤 7장 중앙값의 1.4배 넘는 봉우리)이 2 · 3장 간격으로 이어진 장 수 / 움직이는 장 수 */
+function cadenceBuf(sm) {
+  const n = Math.floor(sm.length / N), ch = [0];
+  for (let i = 1; i < n; i++) { let c = 0; const o = i * N, p = (i - 1) * N; for (let j = 0; j < N; j++) if (Math.abs(sm[o + j] - sm[p + j]) > 3) c++; ch.push(c / N); }
+  const J = [];
+  for (let q = 1; q < n; q++) {
+    const w = ch.slice(Math.max(1, q - 3), Math.min(n, q + 4)).sort((a, b) => a - b), med = w[w.length >> 1];
+    if (ch[q] > 0.01 && ch[q] > 1.4 * med && ch[q] >= ch[Math.max(1, q - 1)] && (q + 1 >= n || ch[q] >= ch[q + 1])) J.push(q);
+  }
+  let cov = 0; for (let k = 1; k < J.length; k++) { const g = J[k] - J[k - 1]; if (g >= 2 && g <= 3) cov += g; }
+  const mv = ch.filter((c) => c > 0.01).length;
+  return { cov, mv, r: cov / Math.max(1, mv) };
+}
+function cadence(file) { return cadenceBuf(execFileSync('ffmpeg', ['-loglevel', 'error', '-i', file, '-vf', `scale=${W}:${H},format=gray`, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 28 })); }
+function fpsOf(file) { const r = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=r_frame_rate', '-of', 'csv=p=0', file], { encoding: 'utf8' }).trim().split('/'); return Number(r[0]) / Number(r[1] || 1); }
+const CAD_MAX = 0.10, OLD_SET = ['cake', 'free'];
 /* [VID_CUT_MOTION] 깨 보기 — 실제 장면 영상 한 편에 ① 다른 장면과 섞은 프레임 ② 같은 장면이 14칸 튄 자리를 섞어 메운 프레임을 넣으면 둘 다 잡혀야 하고,
    ③ 한 장면을 6% 다가가는(줌) 프레임들은 잡히면 안 된다. node scripts/audit/video-start.mjs --selftest [영상] */
 if (process.argv[2] === '--selftest') {
@@ -159,7 +179,14 @@ if (process.argv[2] === '--selftest') {
   const okA = caught.includes(g1) && caught.includes(g2), okB = zoomed.length === 0;
   console.log(`${okA ? 'ok  ' : 'FAIL'} 깨 보기 ① 다른 장면 섞음 · ② 튄 자리 섞음 → 잡힘 ${JSON.stringify(caught)}`);
   console.log(`${okB ? 'ok  ' : 'FAIL'} 깨 보기 ③ 6% 다가가기(줌)는 유령 아님 → ${JSON.stringify(zoomed)}`);
-  process.exit(okA && okB ? 0 : 1);
+  /* [VID_CADENCE_1023] ④ 3장마다 한 번만 바뀌는 판(앞 60장을 3장씩 붙잡음)은 잡히고 ⑤ 원래 판은 통과 */
+  const n3 = Math.min(60, n), thr = Buffer.alloc(n3 * N);
+  for (let f = 0; f < n3; f++) sm.copy(thr, f * N, (f - f % 3) * N, (f - f % 3 + 1) * N);
+  const c3 = cadenceBuf(thr), c0 = cadenceBuf(Buffer.from(execFileSync('ffmpeg', ['-loglevel', 'error', '-i', src, '-t', '2.5', '-vf', `scale=${W}:${H},format=gray`, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 28 })));
+  const okC = c3.r > CAD_MAX, okD = c0.r <= CAD_MAX;
+  console.log(`${okC ? 'ok  ' : 'FAIL'} 깨 보기 ④ 3장마다 한 번 바뀌는 판 → 튀는 몫 ${(c3.r * 100).toFixed(0)}%(> ${CAD_MAX * 100}%면 잡힘)`);
+  console.log(`${okD ? 'ok  ' : 'FAIL'} 깨 보기 ⑤ 원래 판 → 튀는 몫 ${(c0.r * 100).toFixed(0)}%`);
+  process.exit(okA && okB && okC && okD ? 0 : 1);
 }
 if (process.argv[2] === '--onset') {
   if (!hasFfmpeg) { console.error('ffmpeg 없음'); process.exit(2); }
@@ -236,5 +263,14 @@ for (const n of names) {
 }
 console.log('     걸음 고르기 ' + evs.join(' · '));
 ok(`⑤ 걸음이 고르다 — 프레임 속도가 앞뒤 중앙값에서 벗어난 정도 평균(컷 · 멈춤 · 가장 큰 5% 빼고) ≤ ${EVEN_MAX} [VID_RETIME]`, uneven.length === 0, uneven.join(' | '));
+const jud = [], cds = [];
+for (const n of names) {
+  const f = path.join(DIR, n + '.mp4'); if (!fs.existsSync(f)) continue;
+  const fps = fpsOf(f), c = cadence(f); cds.push(`${n} ${Math.round(fps)}fps ${(c.r * 100).toFixed(0)}%`);
+  if (!OLD_SET.includes(n) && Math.abs(fps - 24) > 0.01) jud.push(`${n}:${fps.toFixed(2)}fps`);
+  if (!OLD_SET.includes(n) && !(c.r <= CAD_MAX)) jud.push(`${n}:튀는 몫 ${(c.r * 100).toFixed(0)}%(${c.cov}/${c.mv})`);   // 옛 cake · free(옛 초안에서만 · 새로 담지 않는다)는 옛 판 그대로 — 재기만 한다
+}
+console.log('     박자 ' + cds.join(' · '));
+ok(`⑥ 사람이 2 · 3장마다 끊겨 움직이지 않는다 — 유화판 24fps · 튀는 장이 2 · 3장 간격으로 이어진 몫 ≤ ${CAD_MAX * 100}% [VID_CADENCE_1023]`, jud.length === 0, jud.join(' | '));
 console.log(fail ? `\n★ 실패 ${fail}건` : `\nVIDEO START OK — ${names.length}편`);
 process.exit(fail ? 1 : 0);
