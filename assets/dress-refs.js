@@ -75,8 +75,9 @@
         opts: [['ankle', '발목까지'], ['calf', '미디(종아리)'], ['knee', '미니(무릎 근처)']] },
       { key: 'fit', step: '핏', q: '어떤 핏이 편하세요?', figs: { body: 'slip', waist: 'aline', loose: 'empire' },
         opts: [['body', '몸 선을 따라'], ['waist', '허리만 잡고 아래는 여유'], ['loose', '전체적으로 여유']] },
-      { key: 'pref', step: '노출 · 소매', q: '이런 드레스가 편하신가요?', sub: '둘 다 골라도 되고, 안 골라도 돼요.', multi: true,   // ★[DRESS_Q3_SUB 2026-10-23 코워크 디자인 라운드 3 · 5] 끊긴 메모처럼 읽히던 «여러 개 · 고르지 않으셔도 돼요»
-        opts: [['low', '노출이 적은 드레스'], ['arms', '소매나 볼레로가 있는 드레스']] }
+      /* ★[DRESS_Q_FIRST 2026-10-24 사장님 «드레스 질문을 먼저 의무적으로 묻고»] 셋째 물음도 답해야 다음 — 보기 끝 «특별히 없어요»(none · 다른 보기와 함께 고르지 않는다)로 답하기 쉽게 · 보조 글 «둘 다 골라도 돼요.» */
+      { key: 'pref', step: '노출 · 소매', q: '이런 드레스가 편하신가요?', sub: '둘 다 골라도 돼요.', multi: true, none: 'none',   // ★[DRESS_Q3_SUB 2026-10-23 코워크 디자인 라운드 3 · 5] 끊긴 메모처럼 읽히던 «여러 개 · 고르지 않으셔도 돼요»
+        opts: [['low', '노출이 적은 드레스'], ['arms', '소매나 볼레로가 있는 드레스'], ['none', '특별히 없어요']] }
     ],
 
     /* 드레스 — expo: 'deep'(깊은 V넥 · 로우백) / 'soft' · sleeve: 'none' / 'sleeve' / 'bolero'(sleeve · bolero 는 «소매나 볼레로가 있는 드레스»)
@@ -152,13 +153,21 @@
      돌려주는 것: { asked, match:[드레스], rest:[드레스], near } — near = 답했는데 맞는 것이 0벌(«가까운 순서로 놓았어요») */
   R.FITS = ['body', 'waist', 'loose'];
   R.PREFS = ['low', 'arms'];
+  R.PREF_NONE = 'none';   // ★[DRESS_Q_FIRST] «특별히 없어요» — 줄 세우기는 보지 않는다 · 다른 보기와 함께 두지 않는다(함께 오면 none 을 뺀다)
   R.cleanAns = function (a) {
     a = a || {};
     var len = R.lengthOf(a.len) ? a.len : (a.len === 'unsure' ? 'unsure' : '');
     var fit = R.FITS.indexOf(a.fit) >= 0 ? a.fit : (a.fit === 'unsure' ? 'unsure' : '');
     var pref = [];
-    (Array.isArray(a.pref) ? a.pref : []).forEach(function (p) { if (R.PREFS.indexOf(p) >= 0 && pref.indexOf(p) < 0) pref.push(p); });
+    (Array.isArray(a.pref) ? a.pref : []).forEach(function (p) { if ((R.PREFS.indexOf(p) >= 0 || p === R.PREF_NONE) && pref.indexOf(p) < 0) pref.push(p); });
+    if (pref.length > 1 && pref.indexOf(R.PREF_NONE) >= 0) pref.splice(pref.indexOf(R.PREF_NONE), 1);
     return { len: len, fit: fit, pref: pref };
+  };
+  /* ★[DRESS_Q_FIRST 2026-10-24 사장님] 물음 셋을 다 답했나 — 길이 · 핏(«아직 몰라요»였던 옛 'unsure'는 답이 아니다) · 셋째 하나 이상(특별히 없어요 포함).
+     loose = 저장본에서 왔고 셋째가 비었으면 답한 것으로 본다(옛 서버가 none 을 버린 판 · 옛 저장본) */
+  R.answered = function (a, loose) {
+    a = R.cleanAns(a);
+    return !!(R.lengthOf(a.len) && R.FITS.indexOf(a.fit) >= 0 && (a.pref.length > 0 || loose));
   };
   R.rank = function (ans, list) {
     var a = R.cleanAns(ans);

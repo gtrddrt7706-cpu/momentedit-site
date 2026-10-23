@@ -2747,7 +2747,7 @@ function openDressPicker(dr, opt){
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var m=ev.data||{};
-    if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:true, ymd:(dr&&dr.ymd)||''}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // ★[DRESS_NO_DEADLINE 2026-10-23 사장님] 늘 열림(open:true) — 마감 뒤 «보기만»으로 보내지 않는다 · ymd 는 넘기지만 완료 화면이 마감 날을 쓰지 않는다
+    if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:true, ymd:(dr&&dr.ymd)||'', key:opt.key||''}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // ★[DRESS_NO_DEADLINE 2026-10-23 사장님] 늘 열림(open:true) — 마감 뒤 «보기만»으로 보내지 않는다 · ymd 는 넘기지만 완료 화면이 마감 날을 쓰지 않는다
     if(m.type==='momentedit:dressState'){ st.dirty=!!m.dirty; st.failed=!!m.failed; st.busy=!!m.busy; if(exitWait && !st.busy){ exitWait=false; askExit(false); } return; }   // [DRESS_EXIT_ASK]
     if(m.type==='momentedit:dressExit'){ askExit(false); return; }
     if(m.type==='momentedit:dressBackDone'){ if(!backT) return; clearTimeout(backT); backT=0; if(!m.stepped) askExit(false); return; }   // [DRESS_BACK_STEP] 한 걸음 물러섰으면 그대로 · 아니면 나가기 판단
@@ -5082,7 +5082,7 @@ function renderDress(d, boxArg, demo){
     if(!x) return '<span class="dr-th"><span class="dr-th-pv dr-th-empty" role="img" aria-label="'+n+' 비어 있어요">'+n+'</span><span class="dr-th-n">&nbsp;</span></span>';
     return '<button type="button" class="dr-th" data-dress-see="'+escapeHtml(x.id)+'" aria-label="'+escapeHtml(n+' '+x.name+' 자세히 보기')+'"><span class="dr-th-pv">'+pv(x)+'<span class="dr-th-badge" aria-hidden="true">'+n+'</span></span><span class="dr-th-n">'+escapeHtml(x.name)+'</span></button>';   // [DRESS_CARD_NUM] 고른 사진에 Nº
   };
-  var see=function(x){ return '<button type="button" class="dr-th" data-dress-see="'+escapeHtml(x.id)+'" aria-label="'+escapeHtml(x.name+' 자세히 보기')+'"><span class="dr-th-pv">'+pv(x)+'</span></button>'; };
+  /* [DRESS_CARD_MIN] 0벌 표본 세 칸(see)은 걷었다 */
   /* ★[DRESS_CLOSED_KEEP 2026-10-23 코워크 검토 1] 마감 뒤에도 «준비해 둘게요»를 먼저 — 고른 것이 준비되는지 확인이 사라지면 안 된다(두 줄).
      ★[DRESS_DUE_DATE 2026-10-23 코워크 검토 1] 0 · 1 · 2벌에는 마감 날을 숫자로 점 한 줄([NOTE_DOT] · 상담일 −2일 · 요일은 계산). 상담일을 못 읽으면 줄을 두지 않는다.
      문장 끝 마침표는 카드 안에서 맞춘다(1 · 2벌 문장에도). */
@@ -5096,24 +5096,20 @@ function renderDress(d, boxArg, demo){
   /* ★★[DRESS_NO_DEADLINE 2026-10-23 사장님 «참고용이고 · 현장 와서 한 번 더 보는 거야 · 픽스를 하고 그것만 입어 볼 수 있는 게 아니고 · 가볍게»] 카드 글을 참고용 결로 —
      0벌 «상담 전에 드레스를 미리 둘러보세요.» + «마음에 드는 드레스를 골라 두시면 상담 날 먼저 보여 드릴게요.» · 1 · 2벌 «상담 날 이 …을 먼저 보여 드릴게요.» ·
      점 줄은 셋 다 «시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.» 하나. 마감 날짜 줄(R.dueLine) · «상담 전날 준비해 둘게요» · «안 고르셔도 상담 날 함께 골라요.»는 걷었다 */
-  var n=ids.length, subs, btn='', notes=['시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.'];
-  var cnt=R.list().length;   // [DRESS_CARD_COUNT] 몇 벌 중에서 고르는지
-  var obtn=function(t){ return '<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">'+t+'</button>'; };
-  if(n===0){ subs=['상담 전에 드레스를 미리 둘러보세요.', '마음에 드는 드레스를 골라 두시면 상담 날 먼저 보여 드릴게요.']; btn=obtn(cnt?('드레스 '+cnt+'벌 둘러보기'):'드레스 둘러보기'); }   // ★[DRESS_CARD_COUNT 2026-10-23 코워크 디자인 라운드 2 · 2] 단추에 벌 수(원천 R.list() 개수)
-  else if(n===1){ subs=['상담 날 이 드레스를 먼저 보여 드릴게요.']; btn=obtn('이어서 고르기'); }
-  else { subs=['상담 날 이 두 벌을 먼저 보여 드릴게요.']; btn=obtn('바꾸기'); }
-  var row = n ? '<div class="dr-ths">'+th(0)+th(1)+'</div>'
-              : (R.list().length ? '<div class="dr-ths dr-ths-see">'+R.list().slice(0,3).map(see).join('')+'</div>' : '');
+  /* ★★[DRESS_CARD_MIN 2026-10-24 사장님 «사진에 저 부분은 미니멀하게 최소한의 버튼만»] 카드 = 작은 제목 Dress · 제목 «드레스 미리 보기» · 외곽 단추 하나 «드레스 보러 가기».
+     걷은 것: 표본 세 칸 사진 · 글 두 줄 · 점 줄(«시착(기본 2벌)…»은 고르기 화면 결과 맨 아래 한 줄로). 단추 글은 늘 같다 — 답한 적이 있으면 고르기 화면이 결과로 바로 연다([DRESS_Q_FIRST]).
+     고른 드레스가 있으면 제목 아래 Nº 01 · Nº 02 작은 사진 두 칸만(누르면 그 드레스 자세히 [DRESS_SEE_TAP]) · 글 줄 없음. 되살리지 말 것 */
+  var n=ids.length;
+  var btn='<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">드레스 보러 가기</button>';
+  var row = n ? '<div class="dr-ths">'+th(0)+th(1)+'</div>' : '';
   box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Dress</div><div class="cc-title">드레스 미리 보기</div>'
     + row
-    + subs.map(function(t,i){ return '<div class="cc-sub"'+(i?' style="margin-top:2px"':'')+'>'+escapeHtml(t)+'</div>'; }).join('')
-    + (notes.filter(Boolean).length ? '<div class="dr-dues">'+notes.filter(Boolean).map(function(t){ return '<div class="mp-dotln dr-due">'+escapeHtml(t)+'</div>'; }).join('')+'</div>' : '')
     + btn+'</div>';
   box.style.display='block';
   var b=box.querySelector('[data-dress-open]');
-  if(b) b.addEventListener('click', function(){ openDressPicker(dr, demo ? { demo:true } : null); });
+  if(b) b.addEventListener('click', function(){ openDressPicker(dr, { demo:!!demo, key:String((d&&d.code)||'') }); });   // [DRESS_Q_FIRST] key = 개인코드(이 기기에 남긴 답)
   Array.prototype.forEach.call(box.querySelectorAll('[data-dress-see]'), function(t){   // [DRESS_SEE_TAP] 칸 = 그 드레스 자세히로
-    t.addEventListener('click', function(){ openDressPicker(dr, { demo:!!demo, open:t.getAttribute('data-dress-see') }); });
+    t.addEventListener('click', function(){ openDressPicker(dr, { demo:!!demo, open:t.getAttribute('data-dress-see'), key:String((d&&d.code)||'') }); });
   });
 }
 function renderFitting(f, d){

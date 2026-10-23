@@ -19718,7 +19718,7 @@ chk '#pkBar{position:sticky;bottom:0;z-index:5}' dress.html 1           # [DRESS
 nochk '\.wz-bar{position:sticky' dress.html 0
 chk 'DRESS_BAR_STICK' dress.html 1
 chk 'DRESS_BADGE_NOFILL' dress.html 1                                     # «Nº» = 흰 바탕 · 먹빛 글 · 금빛 테 한 겹(진사 칠 걷음 · [SEL_ONE])
-chk 'DRESS_SKIP_SOFT' dress.html 2                                        # 답이 없을 때 «건너뛰기»는 옅은 단추
+nochk "'건너뛰기'" dress.html 0                                        # ★[DRESS_Q_FIRST 2026-10-24 사장님 «질문 먼저 의무»] «건너뛰기»는 없다 — 답하기 전엔 «다음»이 옅고 눌리지 않는다
 chk 'WZ_STEPS_STILL' dress.html 1                                         # 지나온 걸음 단추가 진행 표시 높이를 키우지 않는다(제목이 걸음마다 같은 자리)
 chk 'WZ_STEPS_STILL' mypage.html 1                                        # [COURSE_WIDE] 마이페이지 진행 표시(청첩장 · 애프터 웨딩 · 기록)도 같은 값
 chk 'DRESS_SUM_ONE' assets/dress-refs.js 1                                # 칸 한 줄 = 라인 · 길이 · 소재(넥라인은 자세히)
@@ -19771,9 +19771,9 @@ chk 'DRESS_SOLO_NOSAVE' dress.html 3                                      # 단�
 chk 'html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}' dress.html 1   # 단독 · 마감 뒤 보기만([DRESS_SEE_CLOSED])이면 머리 «저장»을 숨긴다(저장할 수 없으면 알약을 두지 않는다)
 nochk '저장하지 않는다(모양만 같게)' dress.html 0
 chk 'DRESS_SOLO_NOSAVE' scripts/audit/dress-fit.mjs 2
-chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(목록 띠 아래 · 카드 0벌 · 물음 화면에는 없다)
+chk 'DRESS_Q_FIRST' dress.html 6                                          # 열면 물음 1 · 답해야 다음 · 답한 적 있으면 결과로 바로
 chk 'DRESS_NO_PICK_OK' mypage.html 1
-chk 'DRESS_SKIP_Q' dress.html 3                                           # 물음마다 «질문 없이 바로 보기»
+nochk 'data-act="browse"' dress.html 0                                   # [DRESS_Q_FIRST] 물음 아래 «드레스 바로 보기 ›»(browse) 없음
 chk 'DRESS_PICK_TIER' dress.html 4                                        # 진한 단추가 한 화면에 둘 서지 않게 · 막대 0벌 «드레스를 골라 주세요»(한 줄)
 nochk '두 벌을 골라 주세요' dress.html 0
 chk 'DRESS_MEMO_DONE' dress.html 3                                        # 남길 말은 완료 화면 · 그림 140 · Nº 표시 — 작은 «남기기» 알약은 라운드 1 에서 걷었다([DRESS_MEMO_ONEBTN])
@@ -19812,7 +19812,7 @@ chk 'DRESS_PUBLIC_OFF' assets/dress-refs.js 2                              # 켤
 nochk 'noindex 줄을 지운다' assets/dress-refs.js 0
 nochk 'dress.html' sitemap.xml 0
 chk 'DRESS_LIST_FIRST' dress.html 6                                       # 열면 드레스 목록 · 맨 위 띠(«답하기 ›» · «답 바꾸기 ›») · 진행 표시는 물음 셋에서만
-chk "var S = { view: 'list', q: 0," dress.html 1
+chk "var S = { view: 'q', q: 0," dress.html 1
 chk 'DRESS_LINE_IN_DETAIL' dress.html 3                                   # 자세히 = 그 드레스 라인의 한 줄 설명 · 함께 볼 점(고르기 단추 아래 — [DRESS_DETAIL_FIT])
 chk 'DRESS_LINE_IN_DETAIL' assets/dress-refs.js 1
 chk 'DRESS_MOOD_OWN' assets/dress-refs.js 1                               # 분위기 글이 라인 설명을 되풀이하지 않는다(5글자 넘게 겹침 0 · dress-refs.mjs ⑫)
@@ -19834,7 +19834,9 @@ chk 'DRESS_SIGNUP_MAIL' automation/platform/40_signup.gs 2               # 고�
 #   ⑦완료 화면 «남기기» 알약 걷고 단추 하나(«남기고 돌아가기») ⑧⑨상담 카드 — 드레스 카드가 보일 때만 진행 흐름 시착 줄 빼기 · 방문 전 안내 «챙겨 오실 것»
 #   모양 · 깨 보기는 scripts/audit/dress-refs.mjs ⑬ · 흐름은 dress-fit.mjs(브라우저)
 chk 'DRESS_CARD_PHOTOS' mypage.html 2                                      # 카드 칸 = 96px 안팎 · 3:4 · 사이 8px · 이름 두 줄 · 누르면 그 드레스 자세히
-chk 'R.list().slice(0,3).map(see)' mypage.html 1                           # 0벌 = 원천 앞 세 벌
+nochk 'R.list().slice(0,3).map(see)' mypage.html 0                         # [DRESS_CARD_MIN] 카드 0벌 표본 세 칸은 걷었다
+chk 'DRESS_CARD_MIN' mypage.html 1
+chk 'data-dress-open style="margin-top:14px">드레스 보러 가기</button>' mypage.html 1
 chk 'DRESS_CARD_ONE_LINE' mypage.html 1                                    # 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄
 nochk "'고르지 않으셔도 상담 날 함께 골라요.'" mypage.html 0                     # 카드에서는 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번)
 chk 'DRESS_SEE_TAP' mypage.html 2                                          # 카드 칸 → openDressPicker(… open:id) → dress.html &open=
@@ -19874,7 +19876,7 @@ chk 'DRESS_BACK_STEP' dress.html 4                                         # 휴
 chk 'DRESS_BACK_STEP' mypage.html 3                                        # 마이페이지 — 층을 바로 다시 걸고 겹화면에 묻는다(momentedit:dressBack) · 물러설 곳이 없을 때만 나가기 판단
 chk 'DRESS_BACK_STEP' scripts/audit/dress-fit.mjs 8                        # 뒤로가기 검사(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단 · 고른 뒤 → 판)
 chk 'DRESS_BACK_STEP' scripts/audit/dress-refs.mjs 6
-chk "if (S.view === 'q') { if (S.q > 0) go('q', { q: S.q - 1 }); else go('list'); return true; }" dress.html 1   # 물음은 한 걸음씩(바로 목록으로 건너뛰지 않는다)
+chk "if (S.view === 'list') { go('q', { q: R.questions.length - 1 }); return true; }" dress.html 1   # [DRESS_Q_FIRST] 결과 → 물음 3 → 2 → 1 → 닫기 판단
 chk 'momentedit:dressBackDone' dress.html 1
 chk "if(m.type==='momentedit:dressBackDone')" mypage.html 1
 nochk 'bkOpen(function(){ askExit(true); })' mypage.html 0                   # 뒤로가기가 겹화면을 통째로 닫으려 하던 옛 동작 — 되살리지 말 것
@@ -19889,7 +19891,7 @@ chk 'dr-th-badge' mypage.html 2
 chk 'DRESS_CARD_WIDE' mypage.html 1                                        # PC 칸 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px · 폰은 96px 그대로
 chk '@media (min-width:600px){ .dr-th{flex:0 1 140px} }' mypage.html 1
 chk 'DRESS_FIT_BELOW' dress.html 1                                         # «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않게)
-chk 'DRESS_CARD_COUNT' mypage.html 2                                       # 카드 단추 «드레스 n벌 둘러보기»(R.list() 개수)
+nochk '벌 둘러보기' mypage.html 0                                          # [DRESS_CARD_MIN] 단추 글은 늘 «드레스 보러 가기»
 chk 'DRESS_DUE_SAME' assets/dress-refs.js 1                                # 바꾸기 마감 한 줄 = 한 곳(R.dueLine) — 카드(1 · 2벌)와 고르기 완료 화면이 같은 말
 nochk 'esc(R.dueLine(S.ymd))' dress.html 0                                   # [DRESS_NO_DEADLINE] 완료 화면 마감 줄을 걷었다
 nochk 'var dueLine=' mypage.html 0
@@ -19906,13 +19908,17 @@ chk 'DRESS_FULL_SWAP' scripts/audit/dress-fit.mjs 5
 chk 'data-swap="1">Nº 02와 바꾸기</button>' dress.html 1
 nochk '다 찼어요. 하나를 빼고 골라 주세요' dress.html 0                       # 막다른 길(뺄 드레스로 가서 빼고 다시 오는 세 걸음) 되살리기 금지
 nochk "'안 고르셔도 상담 날 함께 골라요.'" mypage.html 0                     # [DRESS_NO_DEADLINE] «시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.» 한 줄로 대신
-chk 'DRESS_NO_PICK_CARD' dress.html 1
-chk "'시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.'];" mypage.html 1   # 대괄호를 앞에 두지 않는다 — BRE 에서 [ 는 글자 묶음이라 로캘에 따라 0건이 된다(CI 실측)
-chk "subs=\['상담 전에 드레스를 미리 둘러보세요.', '마음에 드는 드레스를 골라 두시면 상담 날 먼저 보여 드릴게요.'\]" mypage.html 1
-chk 'DRESS_SKIP_WORDS' dress.html 1                                        # 물음 글 단추 «드레스 바로 보기 ›»(둘째 · 셋째 물음은 이미 답한 것이 있다)
+chk 'DRESS_RESULT_SPLIT' dress.html 3
+chk '<h3 class="pk-sub-h">답에 맞는 드레스</h3>' dress.html 1
+chk 'data-act="more">다른 드레스도 보기</button>' dress.html 1
+chk '<div class="pk-end-dots"><p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>' dress.html 1   # [DRESS_CARD_MIN] 카드 점 줄은 결과 맨 아래로
+nochk "subs=\['상담 전에 드레스를" mypage.html 0
+nochk 'pk-skipq' dress.html 0
 nochk '질문 없이 바로 보기 <span' dress.html 0
-chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «둘 다 골라도 되고, 안 골라도 돼요.»
-chk "sub: '둘 다 골라도 되고, 안 골라도 돼요.'" assets/dress-refs.js 1
+chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «둘 다 골라도 돼요.»(DRESS_Q_FIRST · 하나 이상 골라야 다음)
+chk "sub: '둘 다 골라도 돼요.'" assets/dress-refs.js 1
+chk "\['none', '특별히 없어요'\]" assets/dress-refs.js 1
+chk "pref: \['low', 'arms', 'none'\]" automation/consultation/consultation-booking.gs 1   # [DRESS_PREF_NONE] 서버도 «특별히 없어요»를 받는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
