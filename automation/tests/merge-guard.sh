@@ -19244,7 +19244,7 @@ chk "<script src=\"/assets/bgm-form.js?v=" order-preview.html 1
 chk 'BgmForm.rowHtml(k)' order-preview.html 1
 chk '_muRow+_bgRow' order-preview.html 1
 chk 'h+=BgmForm.sumHtml()' order-preview.html 1
-# ── 2026-10-23 [BGM_R1_1023] BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만» — 고를 것이 없는 음악 안내는 흐름의 채운 점 줄 하나(li.q.bgm-q · 자리 = 음악이 시작되는 때 · n · 듣기 차례에 안 낀다) ·
+# ── 2026-10-23 [BGM_R1_1023] BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만» — 고를 것이 없는 음악 안내는 흐름의 채운 점 줄 하나(li.q[data-bgm] · 자리 = 음악이 시작되는 때 · n · 듣기 차례에 안 낀다) ·
 #   «고르기» 음악 줄은 입장 · 축사 · 편지만(이름표 «… 음악») · ④ 입장 곡 안 골랐으면 «고르지 않으시면 스튜디오가 준비해요» + «이동하기» · ★고르기 칸 글 한 줄(.bgm-line · 이름표 «음악») 되살리지 말 것
 chk 'BGM_R1_1023' assets/bgm-slots.js 4
 chk 'BGM_R1_1023' assets/bgm-form.js 3

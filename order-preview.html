@@ -1482,7 +1482,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
    종전엔 행동 줄이 12.5px 옅은 글(QUIET_LINES)이라 위 멘트의 각주처럼 읽혔고, 세 갈래가 세 모양 · 세 들여쓰기(47 · 42 · 42+아이콘)였다.
    글 · 차례 · 소리는 그대로 — 모양만. 행동 줄을 옅게 · 작게 되돌리지 말 것 */
 .mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px;background:rgba(184,154,117,.55)}   /* [FLOW_THREAD] 선 = 장식(--gold 55%) · ▶ 원 테와 같은 금빛 */
-.mk-flow>li:first-child::before{top:15px}.mk-flow>li:last-child::before{bottom:auto;height:13px}.mk-flow>li.n:last-child::before{height:15px}.mk-flow>li:only-child::before{display:none}   /* 첫 마디에서 시작 · 마지막 마디에서 멈춘다(▶ 원 가운데 15 · 점 가운데 13) · ★[PLAY_OPTIC 2026-10-07] ▶ 가 글자 잉크 가운데로 4px 올라가 19 → 15 */
+.mk-flow>li:first-child::before{top:15px}.mk-flow>li.q:first-child::before,.mk-flow>li.t:first-child::before{top:13px}.mk-flow>li:last-child::before{bottom:auto;height:13px}.mk-flow>li.n:last-child::before{height:15px}.mk-flow>li:only-child::before{display:none}   /* 첫 마디에서 시작 · 마지막 마디에서 멈춘다(▶ 원 가운데 15 · 점 가운데 13) · ★[PLAY_OPTIC 2026-10-07] ▶ 가 글자 잉크 가운데로 4px 올라가 19 → 15 */   /* ★[BGM_R1_1023] 첫 줄이 점 줄(흐름 맨 앞 음악 줄)이면 선도 점 가운데(13)에서 — 종전엔 첫 줄이 늘 ▶ 줄이라 15 하나였다 */
 .mk-flow li.n .mk-pl{position:relative;z-index:1}   /* ▶ 원이 선 위에 앉는다 */
 .mk-flow li.n .mk-pl{width:44px;margin-left:-5px} .mk-flow li.n .mk-pl::before{inset:5px}   /* ★[FLOW_NODE_ROUND 2026-10-07] 흐름 ▶ 는 선 위 «마디»(▶ ● ○ 세 모양 · FLOW_THREAD)라 원 34 로 둔다 · 바탕 · 테 · 트는 동안 먹색은 줄 카드 알약(PLAY_PILL)과 한 집안. 가로 가운데 17 = 흐름선 · 글 47 = 행동 · 차례 줄과 같은 세로선. ★알약(58)으로 넓히면 선이 가운데를 비껴가고 글 줄이 갈린다 */
 .mk-flow li.q::after,.mk-flow li.t::after{content:'';position:absolute;left:13px;top:8.5px;width:9px;height:9px;border-radius:50%;box-sizing:border-box;z-index:1}
@@ -2096,7 +2096,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-mu .mu-upft{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:2px 8px -6px 0;font-size:12.5px;color:var(--light)}   /* 링크는 빌더 .pk-link 그대로(12.5px · [RIT_TYPE5] 다섯 단계) */
 /* ★★[BGM_INFO_1023 2026-10-23 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «최선인지 한 번 더 검토해 보고 제안대로 구현»] 순간 «음악» 줄(assets/bgm-form.js)
    ★★[BGM_R1_1023 2026-10-23 BGM 섹션 라운드 1] «고르기»에는 축사 · 편지 칩 줄만(이름표 «축사 음악 · 편지 음악» · 빌더 칩 줄 그대로 · .op-chip · _cgEven 칸 맞춤) + 아래 한 줄(12.5px · 고른 것에 따라 바뀐다).
-   고를 것이 없는 음악 안내는 «흐름»의 채운 점 줄(li.q.bgm-q · 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴 · 새 CSS 없음).
+   고를 것이 없는 음악 안내는 «흐름»의 채운 점 줄(li.q[data-bgm] · 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴 · 새 CSS 없음).
    ★고르기 칸의 글 한 줄(.bgm-line · 이름표 «음악» + 글) 금지 — 2026-10-23 사용자 지시로 흐름으로 옮김 [BGM_R1_1023] ·
    ★접는 카드(.bgm-sum · 꺾쇠) · 곡 카드(.bgm-card · 곡 파일 올리기) 금지 — 2026-10-23 사장님 지시로 삭제 [BGM_INFO_1023] · 왼쪽 굵은 선 · 칠한 안내 상자 없음([NO_SIDE_STRIPE]) */
 .ls-bgm .bgm-note{flex:0 0 100%;margin:2px 0 4px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* 칩 아래 한 줄 — 칩 격자(cg-even · cg-grid)는 단추 아닌 자식을 한 줄 전체로 편다 */

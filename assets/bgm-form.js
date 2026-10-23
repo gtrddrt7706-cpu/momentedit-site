@@ -38,10 +38,10 @@
         return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!pr&&i===0))?0:-1)+'" data-fk="bgm:'+s.id+':'+p+'" onclick="bgmAct(\'pick\',\''+s.id+'\',\''+p+'\')">'+chipT(B.label(s,p))+'</button>'; }).join('')
       +'<span class="bgm-note">'+e(B.lineOf(s,g.m))+'</span></span></div>'; }
 
-  /* ── ② 순간 쪽 «흐름» 음악 줄 [BGM_R1_1023] — 고를 것이 없는 안내 한 줄 · 채운 점 줄(li.q · 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴) ·
+  /* ── ② 순간 쪽 «흐름» 음악 줄 [BGM_R1_1023] — 고를 것이 없는 안내 한 줄 · 채운 점 줄(li.q[data-bgm] · 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴) ·
      st = 빌더 엔진 줄(_lSteps) · at = «이 번호 줄 앞에»(0 맨 앞 · st.length 맨 뒤) · ▶ 가 없어 줄 수 · 듣기 차례에 끼지 않는다 ── */
   function flowRow(k,st){ var v=B.viewOf(k,opt()); if(!v||v.kind!=='flow') return null;
-    return { at:B.flowAt(v.at,st||[]), html:'<li class="q bgm-q" data-bgm="'+e(v.s?v.s.id:k)+'"><span class="qa">'+e(v.t)+'</span></li>' }; }
+    return { at:B.flowAt(v.at,st||[]), html:'<li class="q" data-bgm="'+e(v.s?v.s.id:k)+'"><span class="qa">'+e(v.t)+'</span></li>' }; }   /* 행동 줄과 같은 class(q) — 음악 줄 표시는 data-bgm 하나(흐름선 · 점 · 글 검사가 같은 줄로 잰다) */
 
   /* 이 칸만 다시 — 빌더 render() 는 흐르던 소리를 끈다 · 줄 하나만 바꾸고 칩 칸 맞춤(_cgEven)은 쪽 전체로(입장 음악 MU_REDRAW_EVEN_1019 와 같다) */
   function redraw(id,fx){ var row=D.querySelector('.ls-bgm[data-slot="'+id+'"]');

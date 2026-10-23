@@ -13,7 +13,7 @@
    6 옛 초안 «영상» 축사(freeWhat video)는 «영상에 입힌 소리로 흘러요» 한 줄 · 요약에 안 센다 · 엔진도 무음 그대로
    8 ?mk=letter — 로그인 없이 편지 쪽이 바로 열린다(그냥 연 화면만) · 초안의 마지막 순간이 같아도 [BGM_JUMP_SAME]
    ★★[BGM_R1_1023 2026-10-23 BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만»] 1 · 3 · 5 · 6 · 8 을 새 꼴로 —
-     고를 것이 없는 음악 안내는 «고르기»에 없다 · «흐름»의 채운 점 줄 하나(li.q.bgm-q · 입장 «음악에 맞춰 걸어 들어와요»와 같은 글자 크기 · 굵기 · 색 · 단추 · data-ml 없음) · 자리(맨 앞 · 영상 줄 앞 · 이음말 뒤 · 목례 뒤 · 위하여 뒤) ·
+     고를 것이 없는 음악 안내는 «고르기»에 없다 · «흐름»의 채운 점 줄 하나(li.q[data-bgm] · 입장 «음악에 맞춰 걸어 들어와요»와 같은 글자 크기 · 굵기 · 색 · 단추 · data-ml 없음) · 자리(맨 앞 · 영상 줄 앞 · 이음말 뒤 · 목례 뒤 · 위하여 뒤) ·
      «이 순간 전체 듣기 · n줄»의 n 은 엔진 나레이션 줄 수 그대로(음악 줄을 세지 않는다) · «고르기» 음악 줄은 입장 · 축사 · 편지만(이름표 «입장 음악 · 축사 음악 · 편지 음악») ·
      ④ 입장 곡을 안 골랐으면 «입장 곡 · 고르지 않으시면 스튜디오가 준비해요» + «이동하기»(입장 쪽 · 미완료 셈 그대로) · 골랐으면 곡 이름(이동하기 없음)
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 · BF_MOD = 돌연변이 확인용(그 판의 bgm-form.js 로 잰다) · RC_MOD = 그 판의 ritual-cue.js · BS_MOD = 그 판의 bgm-slots.js · OP_MOD = 그 판의 order-preview.html · SHOT = 그림 폴더 */
@@ -120,7 +120,7 @@ const look = (pg) => pg.evaluate(() => { const row = document.querySelector('.ls
     bgm: JSON.stringify(S.bgm === undefined ? null : S.bgm), hz: document.documentElement.scrollWidth > innerWidth + 1, head: (document.querySelector('#mkHead') || { textContent: '' }).textContent,
     gl: gl ? t(gl) : '', gls: vars ? [...vars.querySelectorAll('.ls-cg > .gl')].map(t) : [],
     /* [BGM_R1_1023] 흐름 음악 줄 — 몇 개 · 글 · 칸 · 자리(앞뒤 줄) · 단추 · 모양(글자 크기 · 굵기 · 색 · 들여쓰기 · 점 색) · 나레이션 줄 수 · 알약 n */
-    ...(() => { const lis = [...document.querySelectorAll('.mk-flow > li')], bq = [...document.querySelectorAll('.mk-flow > li.bgm-q')], q0 = bq[0] || null, qi = q0 ? lis.indexOf(q0) : -1, qa = q0 && q0.querySelector('.qa');
+    ...(() => { const lis = [...document.querySelectorAll('.mk-flow > li')], bq = [...document.querySelectorAll('.mk-flow > li[data-bgm]')], q0 = bq[0] || null, qi = q0 ? lis.indexOf(q0) : -1, qa = q0 && q0.querySelector('.qa');
       const cs = qa ? getComputedStyle(qa) : null, lcs = q0 ? getComputedStyle(q0) : null, pill = document.querySelector('.mk-hbtn[data-mp]'), m = pill ? /· (\d+)줄/.exec(pill.textContent) : null;
       return { fq: bq.length, ftxt: q0 ? t(q0) : '', fslot: q0 ? q0.getAttribute('data-bgm') : '', fi: qi, fcls: q0 ? q0.className : '',
         prev: qi > 0 ? t(lis[qi - 1]) : '', prevCls: qi > 0 ? lis[qi - 1].className : '', next: qi > -1 && qi < lis.length - 1 ? t(lis[qi + 1]) : '', nextCls: qi > -1 && qi < lis.length - 1 ? lis[qi + 1].className : '',
