@@ -2263,7 +2263,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023x"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023d"></script><script src="/assets/bgm-form.js?v=1023c"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023y"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023d"></script><script src="/assets/bgm-form.js?v=1023c"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3102,7 +3102,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1023x';   // [ASSET_V] 위 주석
+  var ASSET_V='1023y';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -8152,7 +8152,7 @@ function _lSceneName(st){
      «케이크와 축배» 판은 잔 들기 줄에서 케이크 영상 · «축배만 + 붓기» 판은 붓기 영상이 나왔다(실측). 되살리지 말 것. */
   if(st.k==='cake') return 'cake';   // [CAKE_TOAST_SPLIT]
   if(st.k==='toast'){ if(/^toast-(both|cake)$|cake-out/.test(s)) return 'cake'; if(/pour/.test(s)&&!/pour-b/.test(s)) return 'toast-pour'; return 'toast'; }
-  if(st.k==='matjeol') return 'entry-look';   // [MATJEOL_SPLIT_1013 · BOW_VIDEO_OFF] 맞절 순간은 어느 줄이든 바라보기 영상(절 영상은 만들지 않는다 · videoKeys 와 같은 이름)
+  if(st.k==='matjeol') return 'entry-look';   // [MATJEOL_SPLIT_1013 · BOW_VIDEO_OFF · BALL_BOW_VIDEO_1023] 맞절 순간은 어느 줄이든 entry-look 파일 = 무도회 맞절 영상(10/23 · videoKeys 와 같은 이름 · 큰절 영상은 만들지 않는다)
   if(st.k==='entry'&&/entry-out|entry-bow/.test(s)) return 'entry-look';   // 옛 초안 · 옛 코스의 입장 끝 줄   // [BOW_VIDEO_OFF 2026-09-26] 맞절도 바라보기 영상 · 절 영상은 만들지 않는다 · [MATJEOL_1011] 입장 끝 맞절 줄도
   if(st.k==='tribute'&&/bow-groom/.test(s)) return 'tribute';      // [BOW_VIDEO_OFF] 신랑 큰절도 인사 영상
   if(st.k==='_close') return 'close';
