@@ -7639,10 +7639,10 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech' } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none' } }" assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩
-chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, candle: { mothers: 2 }, matjeol: 4 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, bless: 1 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
+chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, candle: { mothers: 1 }, matjeol: 4 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
 # ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간 줄이기 제안에서 편지 카드는 남긴다 — 표식이 카드 줄에 붙어 있어 카드를 지우면 빨강
 chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
 chk "letter: { n: '편지 낭독', sn: '편지'," assets/ritual-open.js 1
@@ -7737,7 +7737,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 244;' scripts/build-typecast-import.mjs 1   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)
+chk 'const CLIP_COUNT = 242;' scripts/build-typecast-import.mjs 1   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)
 chk "has: (id) => /^X-/.test(id) }" scripts/build-typecast-import.mjs 1
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -8031,7 +8031,7 @@ chk 'OPEN_DECL_1014' assets/ritual-cue.js 2          # 개식 선언(137) — �
 chk 'OPEN_DECL_1014' assets/ritual-open.js 1
 chk 'OPEN_DECL_1014' api/_ritual-kb.js 1
 chk 'OPEN_DECL_1014' scripts/audit/open-course.mjs 2
-chk "open: '오늘 두 사람을 축복해 주시기 위하여 먼 걸음 해주신 하객분들께 양가를 대표하여 감사의 말씀을 드립니다. 오늘 결혼식은 하객 여러분께서 예식의 증인이 되는 주례 없는 결혼식으로 진행됩니다. 지금부터 신랑과 신부의 예식을 여러분의 박수와 함성으로 시작하겠습니다!'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] [OPEN_WITNESS_1015] BB 93 단어 바꿈 · 화촉 «…계셨던 분들이»와 같은 꼴 풂   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «open: '바쁜 일정에도 자리를 빛내 주신 하객께 신랑 신부와 양가를 …») · 자료 OO · II
+chk "open: '오늘 두 사람을 축복해 주시기 위하여 먼 걸음 해 주신 하객분들께 양가를 대표하여 감사의 말씀을 드립니다. 오늘 결혼식은 하객 여러분께서 예식의 증인이 되는 주례 없는 결혼식으로 진행됩니다. 지금부터 신랑과 신부의 예식을 여러분의 박수와 함성으로 시작하겠습니다!'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] [OPEN_WITNESS_1015] BB 93 단어 바꿈 · 화촉 «…계셨던 분들이»와 같은 꼴 풂   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «open: '바쁜 일정에도 자리를 빛내 주신 하객께 신랑 신부와 양가를 …») · 자료 OO · II   # ★[REVIEW26_1023 검토 150] 옛 핀 «먼 걸음 해주신 하객분들께»
 chk "c.slug!=='narr-open'" order-preview.html 2        # 두 분 목소리 판이어도 개식 선언은 나레이션(두 분 줄로 바꾸지 않는다)
 chk 'CANDLE_CALL_1014' assets/ritual-cue.js 2          # 화촉 — 불을 밝힘 → 맺는 말(불을 다 밝히면 GO) → 인사 안내(138 · 139 · 1.25초 사슬) → 인사 · 자리로
 chk 'CANDLE_CALL_1014' assets/ritual-story.js 1
@@ -8150,7 +8150,7 @@ chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 �
 chk '지금부터 서로의 눈을 지그시 바라봐 주세요.' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
 chk "s.text === '지금부터 서로의 눈을 지그시 바라봐 주세요.'" scripts/build-typecast-import.mjs 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «s.text === '두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 뒤 3초 쉼 열쇠 — 글과 함께 바뀌어야 한다(옛 열쇠면 쉼이 조용히 사라진다)
 chk ' thanksIn:"다음은 감사문 낭독이 있겠습니다. 천천히 하셔도 괜찮습니다."' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « thanksIn:"감사문 낭독이 있겠습니다.…» · 옛 주석 감사문 여는 말 · 서약과 같은 틀
-chk ' song:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다."' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « song:"축가가 있겠습니다.…» · 옛 주석 축가 여는 말 · 덕담 맺는 말 «…들었습니다» 뒤 «들어 보시겠습니다» 되풀이도 풂
+chk ' song:"오늘 같은 날 이 순서는 정말 빠질 수 없는 순서죠? 우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다."' assets/ritual-data.js 1   # ★[SONG_DEF_NN_1023 검토 151-1 2)] 자료 NN 원문(옛 예시 3) · 옛 핀 « song:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다."» · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « song:"축가가 있겠습니다.…» · 옛 주석 축가 여는 말 · 덕담 맺는 말 «…들었습니다» 뒤 «들어 보시겠습니다» 되풀이도 풂
 chk '남은 하루 행복하게 보내세요.' assets/ritual-cue.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «남은 하루도, 행복하게 보내시기 바랍니다.…» · 옛 주석 마지막 인사 47 · DD ⑦
 chk '모두의 행복을 위하여!' assets/ritual-ref.js 1                                  # 축배 담백 신부 · AA 6-3 #2 그대로
 chk '여러분이 보내주신 축복을 마음 깊이 간직하며' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «한 분 한 분 모두, 지금의 저희를 있게 해 주신 분들입니다.…» · 옛 주석 감사 인사 담백 신부 · Z 1 · S 1부 13
@@ -14941,13 +14941,13 @@ chk '하나가 된 특별한 순간을 위해 준비한 축가' assets/ritual-op
 chk '조금만 기다리셨다가 새로 시작하는 부부에게' assets/ritual-open.js 1
 chk 'narr-table-in-ex3' assets/ritual-cue.js 1
 chk 'END2_T2_1018' assets/ritual-cue.js 1
-chk '오늘의 시작을 함께 해주신 모든 분들께 감사드리며' assets/ritual-cue.js 1   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 47 = 자료 T2 원문 되돌림(옛 핀 «끝까지 함께해 주신 분들께» · END_ONCE_1018)
+chk '오늘의 시작을 함께해 주신 모든 분들께 감사드리며' assets/ritual-cue.js 1   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 47 = 자료 T2 원문 되돌림(옛 핀 «끝까지 함께해 주신 분들께» · END_ONCE_1018)   # ★[REVIEW26_1023 검토 150] 옛 핀 «오늘의 시작을 함께 해주신 모든 분들께 감사드리며»
 nochk '첫날이 시작되었습니다. 남은 하루' assets/ritual-cue.js
 nochk '신랑 신부 두 사람이 평생 사랑하겠다는' assets/ritual-open.js
 nochk '크게 외치겠습니다. 신랑 신부가 선창하면' assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then
   _sw=$(node -e "const O=require('./assets/ritual-open.js'); process.stdout.write(O.narExList({on:{song:1}},'song').length+','+O.narExList({on:{song:1,declare:1}},'song').length)" 2>&1)
-  if [ "$_sw" = "4,5" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 · 3 · 4 · 5 는 늘 [NARR_R9_1018 · R10_SRC_1018 · REVIEW23_1018]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 3 · 4 · 5 가 사라졌다($_sw · 기대 4,5 · REVIEW23_1018 로 예시 5 «따뜻하게»가 늘었다) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
+  if [ "$_sw" = "3,4" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 · 4 · 5 는 늘 · 3 은 예시 1 이 됐다 [NARR_R9_1018 · R10_SRC_1018 · REVIEW23_1018 · SONG_DEF_NN_1023]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 4 · 5 가 사라졌다($_sw · 기대 3,4 · REVIEW23_1018 로 예시 5 «따뜻하게»가 늘었다 · ★SONG_DEF_NN_1023 검토 151-1 2) 옛 예시 3(NN)이 예시 1 이 돼 그 자리는 비웠다 · 옛 기대 4,5) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
 fi
 # ★★[R10_SRC_1018 2026-10-18 자료 루프 라운드 10] 라운드 9 가 박수 자리 · 서술어 겹침(SOURCE_FIRST 로 걷힌 자)을 까닭으로 뺀 자료 글을 되살리고 · 실전 대본이 있는 자리의 기본 글을 자료 글로
 #   사진 안내 26 첫 문장 = RR 39 · 덕담 받는 말 기본 = U1 · 예시 3 = OO · 축가 여는 말 예시 2 끝 «여러분 큰 박수 부탁드립니다.»(OO) · 예시 3 = NN · 4 = U1 · 소리 204 ~ 206
@@ -14956,9 +14956,9 @@ chk 'R10_SRC_1018' assets/ritual-data.js 3
 chk 'R10_SRC_1018' assets/ritual-cue.js 1
 chk 'R10_SRC_1018' order-preview.html 1
 chk '준비한 축가가 있겠습니다. 여러분 큰 박수 부탁드립니다.' assets/ritual-open.js 1
-chk '우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.' assets/ritual-open.js 1
+chk '우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.' assets/ritual-data.js 1   # [SONG_DEF_NN_1023] NN 둘째 문장이 예시 3 → 기본 글(D.NARR.song)로 옮겼다
 chk '두 사람의 앞날을 축복하는 축하공연이 있겠습니다.' assets/ritual-open.js 1
-chk '오늘을 위해 훌륭한 덕담을 준비해주신 부모님께 다시 한번 큰 박수 부탁드립니다.' assets/ritual-open.js 1   # [REVIEW8_1018] «훌륭한» 평가 뺌 · [R11_SRC_1018 라운드 11] 여는 말 OO 와 한 짝 · «다시 한번» 원본 그대로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘을 위해 덕담을 준비해 주신 부모님께…») · 자료 OO 원문(«훌륭한» 되살림)
+chk '오늘을 위해 훌륭한 덕담을 준비해 주신 부모님께 다시 한번 큰 박수 부탁드립니다.' assets/ritual-open.js 1   # [REVIEW8_1018] «훌륭한» 평가 뺌 · [R11_SRC_1018 라운드 11] 여는 말 OO 와 한 짝 · «다시 한번» 원본 그대로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘을 위해 덕담을 준비해 주신 부모님께…») · 자료 OO 원문(«훌륭한» 되살림)   # ★[REVIEW26_1023 검토 150] 옛 핀 «오늘을 위해 훌륭한 덕담을 준비해주신 부모님께»
 chk "'narr-song-ex3', 'narr-song-ex4', 'narr-bless-end-ex3'" assets/ritual-cue.js 1
 # ★[ROUND_REASON_1018 · JUNCTION_MIXED_1018 · GAPS_OPEN_ONLY_1018 라운드 10] 걷힌 자로 자료 글을 빼지 않게 · 자료 글 → 우리 글 이음매도 재게 · «찾음» 묶음은 열린 줄만
 chk 'ROUND_REASON_1018' CLAUDE.md 2
@@ -15081,7 +15081,7 @@ chk 'VOWKIND_TEXT_1018' order-preview.html 1
 chk '적은 글을 한 번 봐 주세요' order-preview.html 1
 chk '서로 아끼고 존중할 것을 굳게 약속하였습니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «굳게 다짐하였습니다» · 514-2 = RR 8 원문
 chk '지금의 저희가 있기까지' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «지금의 제가» · 605 = 감사문_부모님께 «1» 원문
-chk '흐르길 바랍니다.' assets/ritual-ref.js 1
+nochk '앞으로의 시간은 부디 두 분을 위해 흐르길 바랍니다' assets/ritual-ref.js   # ★[REVIEW27_1023 검토 151-3] 501 끝 문장은 원문(어머님 입장 멘트)의 사회자 말이라 뺐다 · 옛 핀 «chk '흐르길 바랍니다.' ritual-ref.js 1»
 chk '서준아, 고맙다. 이제 드디어 모두가 인정하는 우리 가족이 되는구나!' assets/ritual-ref.js 1
 nochk '존중하기로 하였습니다' assets/ritual-ref.js
 nochk '흐르길 바라며.' assets/ritual-ref.js
@@ -15143,7 +15143,7 @@ chk '우성: 궁금해하실 것들을 미리 정리해 드린 안내입니다.'
 chk '| 검토 129 |' docs/handoff/insta-find.md 1
 # ★[REVIEW22_1018 2026-10-18 인스타 섹션 검토 130] 멀리 떨어진 되풀이 — 다정 · 뭉클 축사 174 · 다정 덕담 4 · 담백 개식 넷째 문장 걷기 · 입장 B 박수 문장 걷기 · 선언 뒤 박수 두 번 넘기기(새 녹음 없음)
 chk "declare: 0, bless: 3, speech: 1, song: 1," assets/ritual-open.js 1
-chk "declare: 3, bless: 3, speech: 1, song: 0," assets/ritual-open.js 1
+chk "declare: 3, bless: 3, speech: 1, song: 4 " assets/ritual-open.js 1   # [SONG_DEF_NN_1023] 뭉클 = 축가 예시 5(예시 1 이 «유쾌하게»가 됐다) · 옛 핀 «song: 0,»
 chk 'REVIEW22_1018 검토 130-4' assets/ritual-cue.js 1
 nochk '양가를 대신해 감사드립니다. 두 사람의 행복한 날을' assets/ritual-open.js
 nochk '끊이지 않는 박수와 함성으로 출발하겠습니다. 신랑 신부' assets/ritual-data.js
@@ -15159,7 +15159,7 @@ chk 'VOW_PRACT_1018' scripts/audit/vow-pract.mjs 1
 chk '| 검토 131-1 |' docs/handoff/insta-find.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vow-pract.mjs >/dev/null 2>&1; _vpr=$?; [ "$_vpr" = 1 ] && { echo 'FAIL vow-pract: 연습 · 글로 한눈에 보기의 서약 차례 · 두 분 함께 · 포옹 줄 · 선언 뒤 박수가 어긋났습니다 — node scripts/audit/vow-pract.mjs'; fail=1; }; if [ "$_vpr" = 0 ]; then echo 'OK   vow-pract [VOW_PRACT_1018]'; fi; fi
 # ★[REVIEW11_1018 2026-10-18 인스타 섹션 검토 107 ~ 113] 107 출처만(자료그대로_1016.json src · 글 그대로) · 108 ~ 113 은 녹음 풀리면(docs 자료루프_운영 REC_FREEZE_1018)
-chk 'WW24 스몰핸드 seheeoh 224411357986' docs/plans/식순연구/자료그대로_1016.json 1
+nochk '"text": "두 사람의 서약이었습니다."' docs/plans/식순연구/자료그대로_1016.json   # ★[REVIEW27_1023 검토 151-4] 엔진에 없는 줄 정리 — 서약 맺는 말은 검토 144 에서 원문 «두 사람의 진심과 사랑이 가득 담긴 서약이었습니다.»로 되돌아갔다 · 옛 핀 «chk 'WW24 스몰핸드 seheeoh 224411357986' 1»
 chk 'WW25 영이 miss001129 223743343027' docs/plans/식순연구/자료그대로_1016.json 1
 chk '| 검토 107 |' docs/handoff/insta-find.md 1
 chk '| 검토 113 |' docs/handoff/insta-find.md 1
@@ -15215,7 +15215,7 @@ nochk '그리고 지인 분들께' assets/ritual-open.js
 nochk '프로포즈' assets/ritual-open.js
 nochk '덕분에 더욱이 빛날' assets/ritual-open.js
 nochk '잔을 들어 주시면' assets/ritual-open.js   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 207 = 자료 SS 원문 «건배를 들어» 되돌림(옛 nochk «건배를 들어 주시면» · REVIEW8_1018)
-nochk '덕담을 준비해 주신 부모님께' assets/ritual-open.js   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 206 = 자료 OO 원문 «훌륭한 덕담을 준비해주신» 되돌림(옛 nochk «훌륭한 덕담을» · REVIEW8_1018)
+nochk '위해 덕담을 준비해 주신 부모님께' assets/ritual-open.js   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 206 = 자료 OO 원문 «훌륭한 덕담을 준비해주신» 되돌림(옛 nochk «훌륭한 덕담을» · REVIEW8_1018)   # ★[REVIEW26_1023 검토 150] 옛 핀 «nochk '덕담을 준비해 주신 부모님께'»
 nochk '먼저 예식의 시작을 알리는' assets/ritual-open.js
 nochk '저희의 어린 시절' assets/ritual-open.js
 chk '| 검토 79 |' docs/handoff/insta-find.md 1
@@ -15230,12 +15230,12 @@ chk 'B11_OFF_1018' scripts/build-dubbing-script.mjs 1
 chk "    'bridge-b11-song-light': 1 };" assets/ritual-cue.js 1   # RETIRED — 녹음 전에 걷었다(번호 보존)
 nochk "_more.push('bridge-b11-song-light')" assets/ritual-cue.js
 nochk "\['N21-i', '이음말 · 엄숙한 순간 → 축가'" scripts/build-dubbing-script.mjs
-chk "if (slugB === 'bridge-b3-clap-thanks' && bn.k !== 'bless') _more.push('bridge-b9-declare-seat');" assets/ritual-cue.js 1
-chk "&& !/\^이제/.test(_nxT) && _nxT.indexOf('하객을 향해 서') < 0) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1
-chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT)) _more.push('bridge-b12-tribute-calm');" assets/ritual-cue.js 1
+chk "if (slugB === 'bridge-b3-clap-thanks' && bn.k !== 'bless') _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «_more.push('bridge-b9-declare-seat');»
+chk "&& _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «&& !/\^이제/.test(_nxT) && _nxT.indexOf('하»
+chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «!BRIDGE_OPEN.test(_nxT)) _more.push('bri»
 chk "&& !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1
 chk 'TOAST_PUTDOWN_1018' assets/ritual-cue.js 1
-chk "'하객이 잔을 내려놓음 · 두 분도 잔을 건넴'" assets/ritual-story.js 1
+chk "→ 음악 → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'" assets/ritual-story.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «chk "'하객이 잔을 내려놓음 · 두 분도 잔을 건넴'"»
 chk '기원하며 축복의 불을 밝히겠습니다' assets/ritual-open.js 2   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 151 · 154 = 자료 G 원문 되돌림(옛 핀 «밝혀 주시겠습니다» 3 · 남은 하나는 쉬는 parents 판)
 # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 옛 nochk «밝히겠습니다» 걷음(위 줄이 지킨다)
 chk 'MOOD_FIT_1018' assets/ritual-cue.js 2
@@ -15330,7 +15330,7 @@ chk 'songEnd:"우리 두 사람을 위해 다시 한 번 큰 박수 부탁드리
 chk "slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend', name: '축가 마무리', text: S.songBy === 'self' ? D.NARR.songEnd : D.NARR.songEndFriend" assets/ritual-cue.js 1   # [SONG_BY_1018] 부르는 분으로 갈림 · 옛 핀 = 210 하나
 chk "'하객 박수 · 노래해 주신 분과 두 사람께'" assets/ritual-story.js 1
 nochk '노래를 잘 하는 건 아니에요' assets/ritual-data.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 녹음은 노래를 듣고 평하지 않는다(④ 현장 단정)
-chk "names: \['담백하게', '다정하게', '유쾌하게', '격식 있게', '따뜻하게'\]" assets/ritual-open.js 1
+chk "names: \['유쾌하게', '다정하게', '', '격식 있게', '따뜻하게'\]" assets/ritual-open.js 1   # [SONG_DEF_NN_1023] 예시 1 = 옛 예시 3(NN «유쾌하게») · 3 자리는 비움 · 옛 핀 «names: ['담백하게', '다정하게', '유쾌하게', …]»
 chk '자 그럼, 축가 출발합니다.' assets/ritual-open.js 1
 nochk '두 사람의 축가 출발합니다' assets/ritual-open.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 친구 · 가족이 부르는 날 틀린 말(SONG_OPEN_ANYONE_1013)
 chk 'SONG_TILE_SELF_1018' assets/ritual-open.js 1
@@ -15362,7 +15362,7 @@ chk "'narr-close': \[" assets/ritual-open.js 1
 chk 'narr-table-in-ex5' assets/ritual-cue.js 1
 chk '저희가 미리 준비한 안내 음성' order-preview.html 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «2» · GUEST_EX 다정 · 유쾌가 자료 G4 «미리 준비한 목소리로»
 chk '함께 봐 주세요.' order-preview.html 1
-chk '저희가 입장할 준비를 마쳤습니다.' assets/ritual-data.js 1   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «저희 결혼식은 십 분 뒤에 시작합니다.…») · 두 분 판 1인칭은 5분 전 줄이 지킨다
+nochk '전입니다. 두 사람이 입장할 준비\|전입니다. 저희가 입장할 준비' assets/ritual-data.js   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «저희 결혼식은 십 분 뒤에 시작합니다.…») · 두 분 판 1인칭은 5분 전 줄이 지킨다   # ★[REVIEW26_1023 검토 150] 옛 핀 «chk '저희가 입장할 준비를 마쳤습니다.' assets/ritual-d»
 nochk '"다정하게",\["귀한 걸음 해 주신 여러분, 고맙습니다."' order-preview.html
 if command -v node >/dev/null 2>&1; then
   if node scripts/build-narr-now.mjs --check >/dev/null 2>&1; then echo 'ok narr-now.md = 지금 엔진 글 [NARR_NOW_1018]'; else echo 'FAIL narr-now.md 가 지금 엔진 글과 다르다 — node scripts/build-narr-now.mjs 로 다시 만든다(다른 섹션이 낡은 판을 검토한다) [NARR_NOW_1018]'; fail=1; fi
@@ -19319,7 +19319,7 @@ chk 'LINE_R1_1014' assets/ritual-story.js 5   # [CANDLE_FOUR_OFF_1019] 네 분 �
 chk 'LINE_R1_1014' scripts/audit/open-course.mjs 2
 chk 'LINE_R1_1014' scripts/audit/ghi-polish.mjs 1
 chk '"십 분 뒤 본식을 시작하겠습니다. 오늘 촬영은 자연스러운 사진으로 남으니, 마음껏 담아 주시길 바랍니다."' assets/ritual-data.js 2   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[AI_FIRST_PERSON_1018] 두 분 판은 1인칭   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식이 십 분 뒤에 시작됩니다. 오늘의 순간은 자연스러운…»   # [GUEST_FLESH_1019] 셋째 문장을 붙였다   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘 하루는 자연스러운…»)
-chk '"시작 오 분 전입니다. ' assets/ritual-data.js 2   # [GUEST_FLESH_1019] 둘째 문장(입장 준비)을 붙였다 · 첫 문장은 그대로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식까지 오 분 남았습니다.…»
+chk '"시작 오 분 전입니다."' assets/ritual-data.js 2   # [GUEST_FLESH_1019] 둘째 문장(입장 준비)을 붙였다 · 첫 문장은 그대로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «저희 예식까지 오 분 남았습니다.…»   # ★[REVIEW26_1023 검토 150] 옛 핀 «chk '"시작 오 분 전입니다. ' assets/ritual-data.»
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' assets/ritual-data.js
 nochk '저희가 들어갈 때, 따로 일어서실 것 없습니다' order-preview.html 1   # 남는 한 줄 = EX_OLD_1006(옛 글)
 nochk '이제 자리를 잡아 주시면 감사하겠습니다' assets/ritual-data.js
@@ -19434,6 +19434,42 @@ nochk '쉽게 상처받는 서준이를 위해' assets/ritual-ref.js   # [검토
 nochk '군대로 치면 일병입니다' assets/ritual-ref.js   # [검토 147-1] 721 캡션 세 문장
 nochk '귀한 주말,' assets/ritual-ref.js   # [검토 147-2] 902 평일 예식이면 틀림
 
+# ★[REVIEW26_1023 검토 150 · 10/23] 하객 귀로 다시 듣기 — 화촉 간결 · 감사문 칩 · 닫는 멘트 220 · 56 · 마지막 순간 뒤 B8 · B9 255 · B12 · 예시 칩 · 알림 · 5분 전 · 창고 빌려 오기 · 표기 맞추기
+chk 'REVIEW26_1023 검토 150' scripts/audit/open-course.mjs 4   # 동작 검사 셋 + 축배 56(테이블 인사 날만)
+chk "'narr-close-ex3': 1, 'bridge-b9-declare-seat': 1," assets/ritual-cue.js 1   # 220 · 245 쉼(번호 보존)
+chk "_cSeam = 'bridge-b8-face-guests';" assets/ritual-cue.js 1   # 마지막 순간이 서약 · 편지(서로에게) · 반지면 B8 → 108 디렉터 GO
+chk "thanksTwice: '감사문이 하객께 드리는 인사를 함께 해요. 감사 인사는 빼도 돼요.'," assets/ritual-open.js 1
+chk "else if(a\[1\]==='off'){ if(S.on) delete S.on\[a\[2\]\]; }" order-preview.html 1   # 알림 «감사 인사 빼기»
+chk "keys\[0\]==='thanks'&&_vowFirst()==='b'" order-preview.html 1   # 신부부터 감사문은 «그리고 …»로 여는 예시 1 · 2 를 뺀다
+chk 'SENT_BORROW' scripts/sent-lib.mjs 2   # 같은 성우 · 같은 글자 소리 빌려 오기(고른 자리만)
+chk 'SENT_RETEXT' scripts/sent-lib.mjs 2   # 띄어쓰기 · 문장부호만 바뀐 자리 대장 맞추기
+nochk "candle: { mothers: 2 }" assets/ritual-open.js   # 간결 화촉 «잔잔하게»(152)를 기본으로 되살리지 말 것(151)
+nochk '그리고 엄마아빠도 어린이날 챙겨주세요' assets/ritual-ref.js   # [검토 150-3 3)] 711 끝 문장(원문은 신부 말을 받는 말)
+nochk '이제 많이 떠들었으니' assets/ritual-ref.js   # [검토 150-3 1)] 622 1분 판 첫 문장
+chk '사랑하는 아들과 며느리야, 내 말을 덕담으로 귀담아 들어라!' assets/ritual-ref.js 1   # [검토 150-3 4)] 810 실제 신랑 아버지 덕담
+# ★[REVIEW27_1023 검토 151 · 10/23] 원문 글자 대조 재점검 — 선언 카드 = 고른 참고 예시 · 축가 기본 NN · 준비한 순서 여는 말 RR 109 · B5 · 재생 안 됨 한 줄 쉼 · 153 · 188 · 144 · 149 · 213 원문 · 참고 예시 표 · 자료그대로 정리
+if command -v node >/dev/null 2>&1; then node scripts/audit/decl-ref-print.mjs >/dev/null 2>&1; _drp=$?; [ "$_drp" = 1 ] && { echo 'FAIL decl-ref-print: 성혼 선언 낭독 카드가 두 분이 고른 참고 예시와 다르다 [DECL_REF_PRINT]'; fail=1; }; [ "$_drp" = 0 ] && echo 'ok decl-ref-print [DECL_REF_PRINT]'; fi
+chk 'DECL_REF_PRINT' admin.html 2   # 고른 예시 읽기 · 이름 꼴
+chk "/^(이제 )?신랑 신부는 /,'\$1신랑 '+nm.groom+' 군과 신부 '+nm.bride+' 양은 '" admin.html 1   # [DECL_REF_PRINT] 원문 514 꼴 · 옛 «신랑 ○○○, 신부 ○○○ 두 사람은,»
+nochk 'nar:"신랑 신부는 양가 친지와 내빈 앞에서' assets/ritual-data.js   # [DECL_REF_PRINT] 옛 선언문(자료 요약 말을 이어 붙인 글) 되살리지 말 것
+chk "'narr-song-ex3': 1, 'narr-free-in-video': 1, 'narr-free-in-gift': 1, 'bridge-b5-video-out': 1, 'narr-free-fail': 1," assets/ritual-cue.js 1   # [SONG_DEF_NN_1023 · FREE_IN_RR_1023 · B5_OFF_1023 · FREE_FAIL_VOICE_OFF_1023] 쉬는 클립 다섯
+chk "slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in'," assets/ritual-cue.js 1   # [FREE_IN_RR_1023] 축사 말고는 여는 말 하나
+chk ' freeIn:"다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다.",' assets/ritual-data.js 1   # [FREE_IN_RR_1023] RR 109 원문
+chk 'var FREE_IN="다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다.";' order-preview.html 1   # [FREE_IN_RR_1023] 빌더 사본
+chk 'B5_OFF_1023' assets/ritual-cue.js 2   # B5 «영상은 여기까지입니다» 금지 · RETIRED
+nochk "slugB = 'bridge-b5-video-out'" assets/ritual-cue.js   # [B5_OFF_1023] 되살리지 말 것
+chk "if (rc.rescue.slug) playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.text);" console.html 1   # [FREE_FAIL_VOICE_OFF_1023] 소리가 있을 때만 튼다
+nochk "slug: 'narr-free-fail'" assets/ritual-cue.js   # [FREE_FAIL_VOICE_OFF_1023] 재생 안 됨 한 줄(105)은 쉰다 · 디렉터가 말로
+chk '하객분들의 따뜻한 박수와 함께 모시겠습니다. 단상 위로 올라와 주십시오.' assets/ritual-open.js 1   # [검토 151-1 5)] 153 = FF 1-1 원문
+chk '이 잔에는 두 사람의 영원한 사랑이 이어지길 바라는 모두의 마음이 담겨있는데요.' assets/ritual-open.js 1   # [검토 151-1 6)] 188 = SS 묶음 d
+chk ' entryArrive:"사랑하는 가족과 소중한 하객 여러분의 축복 속에 두 사람이 한 자리에 섰습니다.",' assets/ritual-data.js 1   # [검토 151-2] 144 = WW29 한 문장 그대로
+chk '그럼 지금부터 신랑 신부의 결혼식을 거행하도록 하겠습니다.' assets/ritual-open.js 1   # [검토 151-2] 149
+chk '마음으로 촛불을 밝게 밝혀주고 계십니다.' assets/ritual-open.js 1   # [검토 151-2] 213 = WW1 원문
+nochk '"id":"506_tribute-cross-bride"' assets/ritual-ref.js   # [검토 151-3] 506 뺌
+nochk '하윤아. 언제나 당신보다' assets/ritual-ref.js   # [검토 151-3] 907 앞 «하윤아.» 뺌
+chk '집에서 큰 딸 부를 때 항상' assets/ritual-ref.js 1   # [검토 151-3] 1009 둘째 문장 원문 그대로
+chk '=144_narr-entry-arrive,=149_narr-open-ex3,=153_narr-candle-in-mothers-ex4,=213_narr-candle-out-ex4,=188_toast-toast-ex2,=58_narr-free-in' docs/handoff/녹음/다음판_1023c_clips.txt 1   # [REC_NEXT_1023C] 6클립
+chk 'FREE_IN_RR_1023 검토 151-1 3)' scripts/audit/open-course.mjs 1   # 동작 검사 — 영상 · 선물은 58 · 재생 안 됨은 소리 없이 · B5 없음
 # ── ★★[DRESS_REFS · DRESS_PAGE · DRESS_CARD · DRESS_PICK · DRESS_LIVE · DRESS_SAMPLE · DRESS_RANK 2026-10-23 코워크 설계 명세 «시착 준비»] ──
 #   상담이 확정된 분이 마이페이지에서 «입어 볼 두 벌»을 골라 두면 스튜디오가 상담 전날 준비한다(명세 docs/handoff/설계명세_시착준비_1023.md).
 #   ①원천은 assets/dress-refs.js 하나 — 공개 dress.html · 고르기 ?pick=1 · 마이페이지 카드 · 관리자가 같은 파일을 읽는다

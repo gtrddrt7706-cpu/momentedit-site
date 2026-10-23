@@ -217,7 +217,7 @@ ok('[ONEMIN_FIRST · CEREMONY_AT_VIDEO] 식전 영상을 담으면 04(89 판) �
   return s.indexOf('guest-4-1min') < 0 && s.indexOf('guest-4-1min-pre') < s.indexOf('narr-open') && s.indexOf('narr-open') + 1 === s.indexOf('narr-prevideo-in') && r.cues.slice(s.indexOf('narr-prevideo-in') + 1).every((c) => c.k !== 'guest')
     && op.fire === 'clock' && op.atMin === 0 && pv.fire === (op.live ? 'manual' : 'chain') && g === '-10,-5,-1'; })());   /* [OPEN_CLAP_GO_1019] 기본 개식(힘차게)은 박수를 청해 영상 소개가 디렉터 GO */
 /* ★[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014 라운드 3] 개식 선언은 블록 «예식 시작»(설명 한 줄 · 하객 맞이 설명을 빌리지 않는다) · 뒤 줄은 3초 쉬고 사슬 · 식전 영상은 [재생 안 됨](105) */
-ok('[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014] 개식 = 블록 «예식 시작» · 디지털 참석 날에도 하객 맞이 블록이 두 번 서지 않는다 · 뒤 줄(영상 · 화촉) 4.5초 사슬 · 식전 영상 [재생 안 됨] = 105 + 이야기 안심', (() => {
+ok('[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014] 개식 = 블록 «예식 시작» · 디지털 참석 날에도 하객 맞이 블록이 두 번 서지 않는다 · 뒤 줄(영상 · 화촉) 4.5초 사슬 · 식전 영상 [재생 안 됨] = 소리 없이 디렉터가 말로(FREE_FAIL_VOICE_OFF_1023) + 이야기 안심', (() => {
   const ST = require(P('assets/ritual-story.js'));
   const r = C.build({ course: 'open', on: { prevideo: 1 }, digital: 1 }, { mode: 'console' }), s = r.cues.map((c) => c.slug), i = s.indexOf('narr-open'), op = r.cues[i] || {}, nx = r.cues[i + 1] || {};
   const runs = []; r.cues.forEach((c) => { if (!runs.length || runs[runs.length - 1] !== c.blockN) runs.push(c.blockN); });
@@ -225,7 +225,7 @@ ok('[OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014] 개식 = 블록 «예�
   const pv = r.cues.find((c) => c.k === 'prevideo') || {}, sc = ST.LIVE ? ST.LIVE[(pv.live || {}).t] : (ST.liveOf ? ST.liveOf((pv.live || {}).t) : null);
   return op.blockN === '예식 시작' && runs.filter((b) => b === '하객 맞이').length === 1 && !!(ST.blockOf && ST.blockOf('예식 시작') && ST.blockOf('예식 시작').how)
     && nx.slug === 'narr-prevideo-in' && nx.fire === 'manual' && !!(op.live && op.live.applause) && nx2.slug === 'bridge-b14-candle-name' && nx2.fire === 'chain' && nx2.gapMs === 4500 && /^narr-candle-in-/.test(nx3.slug || '') && nx3.fire === 'chain' && !nx3.gapMs   /* [SOURCE_FIRST_1016] 개식이 자료 BB 3 «…박수와 함성으로 시작하겠습니다!»로 박수를 청한다 — 잦아들 4.5초 · 옛 3초 */
-    && pv.rescue && pv.rescue.slug === 'narr-free-fail' && !!(pv.live && pv.live.fallback) && (!sc || (sc.safe && sc.fbSrc === pv.live.fallback)); })());
+    && pv.rescue && pv.rescue.slug === '' && /디렉터가/.test((pv.live || {}).fallback || '') && !!(pv.live && pv.live.fallback)   /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] [재생 안 됨]은 남고 녹음 한 줄(105)은 쉰다 — 디렉터가 말로 */ && (!sc || (sc.safe && sc.fbSrc === pv.live.fallback)); })());
 ok('[ONEMIN_FIRST · PHOTO_UP_1019] 식전 영상 + 사진 부탁(하객 안내 · 바깥 링크) + 온라인 참석 — 공지 클립이 모두 영상 앞', (() => { const s = slugs({ course: 'open', on: { prevideo: 1 }, guide: 1, photoShare: 1, digital: 1 }); const v = s.indexOf('narr-prevideo-in');
   return v > s.indexOf('narr-photo-ask') && v > s.indexOf('online-3-welcome') && s.indexOf('narr-photo-ask') > -1 && s.indexOf('online-3-welcome') > -1; })());
 /* ★[CANDLE_NAME_1019 · OPEN_GAP_CHIP_1019 · PHOTO_UP_1019 검토 138-2 · 139] */
@@ -263,18 +263,39 @@ ok('[WINE_POUR_OFF] 옛 초안의 «두 와인» 값이 와도 붓기 없음 · 
    ★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 케이크 몫(42)도 이제 안 나간다 · 옛 코스 «둘 다»도 축배(40)만(종전 76 그대로) */
 ok('[TOAST_40_OPEN_1013 · CAKE_OLD_OFF_1017] 옛 초안(케이크 + 축배) → 축배는 40 · 56 · 76 · 42 없음 · 닫는 인사 뒤 · 옛 코스 «둘 다»도 40 · 케이크 줄 없음', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'none' });
   const o = C.build({ course: 'festive', toast: 'both', extra: { toast: 1 } }, { mode: 'console' }).cues.map((x) => x.slug);
-  return s.indexOf('toast-toast') > -1 && s.indexOf('narr-toast-out') > s.indexOf('toast-toast') && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0
+  const st = slugs({ course: 'open', on: { toast: 1, table: 1 }, toast: 'both', wine: 'none' });   /* ★[REVIEW26_1023 검토 150-1 4)] 56 은 테이블 인사가 있는 날만 */
+  return s.indexOf('toast-toast') > -1 && s.indexOf('narr-toast-out') < 0 && st.indexOf('narr-toast-out') > st.indexOf('toast-toast') && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0
     && s.indexOf('toast-both') < 0 && s.indexOf('narr-close-bow') < s.indexOf('toast-toast') && o.indexOf('toast-toast') > -1 && o.indexOf('toast-both-b') < 0 && o.indexOf('toast-both') < 0 && !o.some((x) => /cake/.test(x)); })());
+/* ★★[REVIEW26_1023 검토 150] 하객 귀로 다시 듣기 — 간결 화촉 · 감사문 칩 · 닫는 멘트 220 · 56 · 마지막 순간 뒤 B8 · B9 255 · B12 · 예시 칩 · 알림 · 5분 전 */
+ok('[REVIEW26_1023 검토 150] 간결 화촉 151 · 정석 축사 174 · 가족 덕담 232 · 기록 닫는 187 · 감사 인사 담은 날 감사문 칩 2 없음 · 220 없음 · 5분 전 한 문장', (() => {
+  const ex = (k, base) => { const S = O.applyExample({ course: 'open' }, k); S.course = 'open'; return O.narExCue(S, base); };   // 큐는 기본 이름 · 고른 예시는 narExCue 가 바꿔 끼운다
+  const b = ex('brief', 'narr-candle-in-mothers'), st = ex('standard', 'narr-free-in-speech'), fa = ex('family', 'narr-bless-end'), re = ex('record', 'narr-close-bow');
+  const thx = (w) => O.narExOk({ course: 'open', on: { vow: 1, welcome: w ? 1 : 0 }, vowKind: 'thanks' }, 'thanks', 1);
+  const g = C.build({ course: 'open', on: {} }, { mode: 'console' }).cues.find((c) => c.slug === 'guest-3-5min') || {};
+  return b === 'narr-candle-in-mothers-ex2' && st === 'narr-free-in-speech-ex2' && fa === 'narr-bless-end-ex2' && re === 'narr-close-bow-ex4'
+    && thx(false) && !thx(true) && O.NAR_EX.close.lines['narr-close'][1] === null && C.RETIRED['narr-close-ex3'] && g.text === '시작 오 분 전입니다.'; })());
+ok('[REVIEW26_1023 검토 150] 마지막 순간이 서약 · 반지 · 편지(서로에게)면 B8 → 108 디렉터 GO · 감사문이면 B8 없음 · B9 는 늘 255 · 인사 «밝게»면 B12 없음', (() => {
+  const end = (S) => { const cs = C.build(Object.assign({ course: 'open' }, S), { mode: 'console' }).cues, i = cs.findIndex((c) => c.slug === 'narr-close-bow'); return [cs[i - 1] && cs[i - 1].slug, cs[i] && cs[i].fire]; };
+  const v = end({ on: { vow: 1 } }), r = end({ on: { ring: 1 } }), l = end({ on: { letter: 1 }, letter: 'each' }), t = end({ on: { vow: 1 }, vowKind: 'thanks' });
+  const d = C.build({ course: 'open', on: { declare: 1, tribute: 1 } }, { mode: 'console' }).cues.map((c) => c.slug);
+  const sg = (n) => C.build({ course: 'open', on: { song: 1, tribute: 1, declare: 1 }, narEx: { tribute: n } }, { mode: 'console' }).cues.map((c) => c.slug).indexOf('bridge-b12-tribute-calm');
+  return v[0] === 'bridge-b8-face-guests' && v[1] === 'manual' && r[0] === 'bridge-b8-face-guests' && l[0] === 'bridge-b8-face-guests' && t[0] !== 'bridge-b8-face-guests'
+    && d.indexOf('bridge-b9-declare-seat') < 0 && d.indexOf('bridge-b9-declare-seat-end') > -1 && sg(0) > -1 && sg(5) < 0; })());
+ok('[REVIEW26_1023 검토 150-1 7)] 감사문 + 감사 인사를 담은 날만 알림(빼는 단추 · 닫기)', (() => {
+  const a = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' }), b = O.noticeList({ course: 'open', on: { vow: 1 }, vowKind: 'thanks' }), c = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 } });
+  const n = O.noticeFull({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' });
+  return a.some((m) => /감사 인사는 빼도 돼요/.test(m)) && !b.some((m) => /감사 인사는 빼도/.test(m)) && !c.some((m) => /감사 인사는 빼도/.test(m)) && !!n && n.key === 'thanks2' && n.close && n.acts.length === 1; })());
 ok('[THANKS_SHOT_1013] 감사문을 고른 날 남는 장면은 감사문 장면 · 서약은 그대로', O.shotOf('vow', { vowKind: 'thanks' }) === '하객을 바라보며 읽는 두 분' && O.shotOf('vow', {}) === O.CARDS.vow.shot);
 ok('[TOAST_40_OPEN_1013] ① 대표 줄도 40 · 화면 글은 엔진 글과 같다(따옴표만 다르다)', (() => { const sm = O.sampleOf('toast', {}); const t = (C.build(O.sampleS({}), { mode: 'console' }).cues.find((c) => c.slug === 'toast-toast') || {}).text || '';
   return sm.slug === 'toast-toast' && t.length > 0 && sm.screen.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '') === t.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '')   /* [SOURCE_FIRST_1016] 엔진 글은 자료 AA 따옴표 «'위하여'» · 화면은 «위하여» */; })());
 ok('[WINE_POUR_OFF] 옛 초안의 «양가 한 병씩» 값이 와도 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'toast', wine: 'family' }).every((x) => x.indexOf('toast-pour') < 0));
 ok('케이크만이면 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'cake', wine: 'mix' }).every((x) => x.indexOf('toast-pour') < 0));
 /* ★[CLAP_FEW 2026-09-26 사장님] 104(맺는 말 «따뜻한 박수 부탁드립니다»)는 흐름에서 뺐다 · 클립은 FILES 에 둔다 */
-ok('준비한 순서 판별 → 영상 · 선물 · 축사는 여는 말 100 · 102 · 103 · 맺는 말 104 는 안 나온다(CLAP_FEW)', ['video', 'gift', 'speech'].every((w) => { const s = slugs({ course: 'open', on: { free: 1 }, freeWhat: w }); const kind = O.FREE_KIND[w]; return s.indexOf('narr-free-in-' + kind) > -1 && s.indexOf('narr-free-out-clap') < 0 && s.indexOf('narr-free-in') < 0; }));
+/* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 여는 말(100 · 102)은 쉰다 — 축사 말고는 여는 말 58(RR 109) 하나 */
+ok('준비한 순서 판별 → 축사는 여는 말 103 · 영상 · 선물은 58(100 · 102 쉼) · 맺는 말 104 는 안 나온다(CLAP_FEW · FREE_IN_RR_1023)', ['video', 'gift', 'speech'].every((w) => { const s = slugs({ course: 'open', on: { free: 1 }, freeWhat: w }); const want = w === 'speech' ? 'narr-free-in-speech' : 'narr-free-in'; return s.indexOf(want) > -1 && s.indexOf('narr-free-out-clap') < 0 && s.indexOf('narr-free-in-video') < 0 && s.indexOf('narr-free-in-gift') < 0 && (w === 'speech' ? s.indexOf('narr-free-in') < 0 : s.indexOf('narr-free-in-speech') < 0); }));
 /* [FREE_ETC 2026-10-06] 춤 · 공연 걷음 · 기타 = 지목하지 않는 여는 말(58) · 옛 dance · stage 도 기타 · 길이는 직접(1~10분 · 계약서 v1.12 [FREE_LEN10]) */
 ok('[FREE_ETC] 기타(옛 dance · stage 포함) → 여는 말 58(narr-free-in) · 이름은 적은 글 · 길이 6분이면 사람 구간 60×6+8 · 12분을 적으면 기본 3분 · 칩에 춤 · 공연 없음', ['etc', 'dance', 'stage'].every((w) => slugs({ course: 'open', on: { free: 1 }, freeWhat: w }).indexOf('narr-free-in') > -1) && (() => { const c = C.build({ course: 'open', on: { free: 1 }, freeWhat: 'etc', freeEtc: '형제 깜짝 영상편지', freeLen: '6' }, { mode: 'console' }).cues.filter((x) => x.k === 'free')[0]; return c.name === '준비한 순서 시작 · 형제 깜짝 영상편지 · 6분' && c.live.est === 368 && !c.rescue; })() && O.chipOf('freeLen', { freeLen: '12' }) === '3' && O.chipOf('freeLen', { freeLen: '10' }) === '10' && O.CHIPS.free.map((x) => x[1]).join('|') === '영상|깜짝 선물 · 전달|축사|기타');   // [R2_SPEECH_LABEL_1014] 축사 칩 이름 = 칸 이름
-ok('영상 판만 «재생 안 됨»(105)을 든다 · [FREE_ETC] 기타는 없다', (() => { const f = (w) => C.build({ course: 'open', on: { free: 1 }, freeWhat: w }, { mode: 'console' }).cues.filter((c) => c.k === 'free')[0].rescue; return f('video').slug === 'narr-free-fail' && !f('etc') && !f('gift') && !f('speech'); })());
+ok('영상 판만 «재생 안 됨»을 든다(소리 없이 · 105 쉼 · FREE_FAIL_VOICE_OFF_1023) · [FREE_ETC] 기타는 없다', (() => { const f = (w) => C.build({ course: 'open', on: { free: 1 }, freeWhat: w }, { mode: 'console' }).cues.filter((c) => c.k === 'free')[0].rescue; return !!f('video') && f('video').slug === '' && !f('etc') && !f('gift') && !f('speech'); })());
 /* ★[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014 라운드 3] 말로 인사 날 구호는 «그 마음을 담아,»(145) · 말 없이 날은 구호만(143) · 사진 보내기 안내(85)는 전체 사진 뒤 · 감사 인사 앞 */
 ok('[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014] 말로 인사 = 145 «그 마음을 담아, …» + 울컥할 때 안심(fallback) · 말 없이 = 143 · 사진 링크 날 85 는 전체 사진 → 85 → 감사 인사(사슬) · 링크 없으면 85 없이 감사 인사가 디렉터 GO', (() => {
   const tr = (say) => C.build({ course: 'open', on: { tribute: 1 }, tributeSay: say }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute');
@@ -377,9 +398,9 @@ ok('[GUEST_EX_NAR] 나레이션 예시 2~4 → 115~126 · 두 분 목소리 판�
   /* ★[CAKE_OLD_OFF_1017] 케이크(옛 초안 포함)가 돌지 않아 부모님께 인사 · 편지 뒤 본식 순간이 없다 — B4(숨 고르기) · B6(가벼운 순서로)는 이제 안 나간다(소리는 FILES 에 둔다) */
   const full = { course: 'open', on: { welcome: 1, vow: 1, ring: 1, declare: 1, tribute: 1, free: 1, letter: 1, cake: 1, toast: 1 }, freeWhat: 'video' };
   const a = sl(full), at = (s) => a.indexOf(s);
-  ok('[BRIDGE_LINK · CAKE_OLD_OFF_1017] 다 담은 판(옛 초안 케이크 포함) — 선언 뒤 B3 · 영상 뒤 B5 · 인사 뒤는 닫는 인사라 B4 없음 · B6 없음 [HEART_ORDER_1012]',
+  ok('[BRIDGE_LINK · CAKE_OLD_OFF_1017] 다 담은 판(옛 초안 케이크 포함) — 선언 뒤 B3 · 영상 뒤 B5 없음(B5_OFF_1023 · 디렉터 GO) · 인사 뒤는 닫는 인사라 B4 없음 · B6 없음 [HEART_ORDER_1012]',
     at('bridge-b3-clap-thanks') === at('narr-declare-family-out') + 1 && at('bridge-b4-breath') < 0   /* [DECLARE_BY_PERSON] 선언 박수는 맺는 말 57 뒤 */
-    && at('bridge-b5-video-out') === at('narr-free-in-video') + 1 && at('bridge-b6-lighter') < 0, a.join(' '));
+    && at('bridge-b5-video-out') < 0 && at('narr-free-in') > -1 && at('bridge-b6-lighter') < 0, a.join(' '));   /* ★B5 «영상은 여기까지입니다» 금지 — 2026-10-23 검토 151-1 4) [B5_OFF_1023] */
   { const nt = sl(Object.assign({}, full, { on: Object.assign({}, full.on, { tribute: 0 }) }));   /* [HEART_ORDER_1012] 인사를 안 담으면 편지 바로 뒤가 (옛) 케이크 — 케이크가 안 돌아 B6 도 없다 */
     ok('[BRIDGE_LINK · CAKE_OLD_OFF_1017] 인사를 안 담고 케이크를 담아 둔 옛 초안도 편지 뒤 B6 없음 [HEART_ORDER_1012]', nt.indexOf('bridge-b6-lighter') < 0 && !nt.some((x) => /cake/.test(x)), nt.join(' ')); }
   ok('[BRIDGE_LINK] 옛 코스에는 없다', !sl({ course: 'damback' }).some((s) => /^bridge-b/.test(s)));

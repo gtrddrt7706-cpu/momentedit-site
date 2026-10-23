@@ -52,8 +52,8 @@ function judgeA(X) {
   }
   // ③ 원천 · 칩 · 예시
   if (D.DECLWHO) bad.push('③ 원천에 읽는 분 목록(DECLWHO)이 남았다');
-  /* [SOURCE_FIRST_1016] 선언문은 자료 I 공통 구조 3 · 4(«양가 친지와 내빈 앞에서 새 출발 … 엄숙히 선언합니다») 그대로 — 옛 «성혼을 선언합니다»만 보던 자를 넓혔다 */
-  if (!D.DECLBY || !/(성혼을|부부가 되었음을 엄숙히) 선언합니다/.test(D.DECLBY.nar || '')) bad.push('③ 원천 선언문(DECLBY.nar)이 없다');
+  /* [SOURCE_FIRST_1016] 선언문은 자료 그대로 — 옛 «성혼을 선언합니다»만 보던 자를 넓혔다 · ★10/23 부터 참고 예시 1(514 · YT1 «… 엄숙하게 선언합니다») [DECL_REF_PRINT] */
+  if (!D.DECLBY || !/(성혼을|부부가 되었음을 엄숙히|엄숙하게) 선언합니다/.test(D.DECLBY.nar || '')) bad.push('③ 원천 선언문(DECLBY.nar)이 없다');
   if (D.NARR.declareInGdad || D.NARR.declareInBdad) bad.push('③ 사람을 부르는 여는 말(NARR.declareInGdad · Bdad)이 남았다');
   if (!D.NARR.declareIn || PERSONS.test(D.NARR.declareIn)) bad.push('③ 여는 말(NARR.declareIn)이 없거나 특정한 분을 부른다');
   if (O.CHIPS.declare) bad.push('③ 성혼 선언 칩(CHIPS.declare)이 되살아났다');
