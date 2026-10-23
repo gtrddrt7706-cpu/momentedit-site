@@ -20008,7 +20008,7 @@ chk 'var TUNE_MAX=160;' order-preview.html 1
 #   깨 보고 믿음: bgm-slots.js 를 옛 판으로 되돌리면 bgm-form 0번이 빨강
 chk 'BGM_CONSOLE1_1023' assets/bgm-slots.js 2
 chk 'BGM_CONSOLE1_1023' assets/ritual-cue.js 3
-chk "var DUCK_ENV = { downMs: 400, holdMs: 0, upMs: 1200 };" assets/ritual-cue.js 1
+chk "var DUCK_ENV = { downMs: 400, holdMs: " assets/ritual-cue.js 1   # [BGM_CONSOLE1_1023] 낮춤 모양 한 원천 · 값은 라운드 2 에서 holdMs 3500 · leadMs 400(아래 BGM_CONSOLE2_1023 줄이 값을 잰다)
 chk '    duck: DUCK_ENV,' assets/ritual-cue.js 1
 chk "up: '목례 · 박수 뒤 힘 있게 시작'" assets/bgm-slots.js 1
 nochk "up: 'S8 이 힘 있게 시작한다'" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] «인사!» 순간처럼 읽혔다
@@ -20023,6 +20023,17 @@ nochk '영상이 없으면 사진을 올린 링크' order-preview.html 0
 nochk '영상이 없으면 보내 주신 사진으로' order-preview.html 0
 nochk '영상이 없으면 사진으로 저희가' api/_ritual-kb.js 0
 nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
+# ★★[BGM_CONSOLE2_1023 2026-10-23 사장님 결정 «8구간» · BGM 섹션 라운드 2 PR 1 «음악이 사람보다 먼저 커지지 않게»]
+#   축배 «위하여» 동안 −8 대기 → 디렉터 GO 에 0.6초로 toastLevel [TOAST_GO] · 짧은 이음(≤3.5초)에서 −8 로 오르지 않음 [HOLD_LINK] · 사람 구간은 GO 까지 그 크기 [HOLD_LIVE] · 음성 0.4초 앞 낮춤 [PRE_DUCK]
+#   깨 보고 믿음: 콘솔에서 넷을 하나씩 되돌리면(BC_CON) bgm-console2 의 그 칸이 빨강
+chk 'BGM_CONSOLE2_1023' console.html 8
+chk 'BGM_CONSOLE2_1023' assets/ritual-cue.js 3
+chk "var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 400 };" assets/ritual-cue.js 1
+chk "cheer: { level: PARAM.toastLevel, upMs: PARAM.toastUpMs }" assets/ritual-cue.js 2
+nochk "live: { t: t.cue, est: t.est, duck: 0, self: true" assets/ritual-cue.js   # [TOAST_GO] «위하여» 사람 구간이 클립 끝에 0 dB 로 오르던 자리
+nochk "live: { t: t.cue2, est: t.est2, duck: 0, self: true" assets/ritual-cue.js
+chk 'BGM_CONSOLE2_1023' scripts/audit/bgm-console2.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-console2.mjs >/dev/null 2>&1; _bc2=$?; [ "$_bc2" = 1 ] && { echo 'FAIL bgm-console2: 콘솔 음악 크기(축배 GO · 짧은 이음 버팀 · 앞 낮춤 · 사람 구간 유지)가 어긋났습니다 — node scripts/audit/bgm-console2.mjs'; fail=1; }; :; fi
 # ── 2026-10-23 [TONE_OPEN_KEEP] 사장님 «접기 하지마 · 버튼이랑 밑에 순서 일부러 시간순서대로 펼쳐놓은거야» — 순간 화면 말투 칩 줄은 펼쳐 둔다(PR #1374 TONE_FOLD 닫음)
 chk 'TONE_OPEN_KEEP' order-preview.html 1
 nochk 'function _toneRow(' order-preview.html 0

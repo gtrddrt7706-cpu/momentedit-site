@@ -969,8 +969,9 @@ aBgm.addEventListener('playing', function(){ var e = $('#gBed'); if (e && GUEST)
 aBgm.addEventListener('pause',   function(){ var e = $('#gBed'); if (e) e.classList.remove('on'); });
 aBgm.addEventListener('error',   function(){ var e = $('#gBed'); if (e) e.classList.remove('on'); });
 
-var duckNow = 0;
+var duckNow = 0, duckWant = 0;   // [BGM_CONSOLE2_1023] duckWant = 마지막으로 청한 크기(입장 곡이 흐르는 동안 duckNow 는 −90 이라 버팀 · 앞 낮춤 판정은 이것을 본다)
 function duckTo(db, ms){
+  duckWant = db; if (window.__bgmLog) window.__bgmLog.push({ t: Math.round(performance.now()), db: db, ms: ms });   // [BGM_CONSOLE2_1023] 점검이 켰을 때만 적는다
   if (ESD.run) { esdDuck(db, ms); db = -90; }   // [ENTRY_SCENE_DAY] 입장 곡이 흐르는 동안 배경음은 내려 둔다 · 같은 입장 묶음의 다음 큐(맞절) 덕 값은 곡에 건다
   duckNow = db;
   var g = dbGain(db + (MODE === 'preview' ? BED_TRIM_DB : 0));   // ★PREVIEW_BED
@@ -1292,15 +1293,20 @@ function fire(i, opt){
   render();
   audioOn();
 
+  /* ★[BGM_CONSOLE2_1023 PRE_DUCK] 음악을 내려야 하는 큐는 음성보다 leadMs(0.4초) 먼저 내린다 — 종전엔 음성과 동시에 0.4초 동안 내려 첫 음절이 큰 음악 위에 놓였다.
+     이어지는 큐는 사이 끝 0.4초 전에 이미 내려 두어(아래 preDuck) 여기서 기다리지 않는다 · 입장 장면은 제 시계(10초 앞 음악)가 맡아 빼고 · 고객 미리 듣기는 종전 그대로 */
+  var _lead = (MODE !== 'preview' && !esdMain(c) && duckWant > c.duck + 0.5) ? (PARAM.duck && PARAM.duck.leadMs || 0) : 0;
+  cheerAt = -1;   // [TOAST_GO] 축배 오름은 그 큐에서 한 번
   duckTo(c.duck, c.fadeMs || PARAM.fadeDownMs);   // [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
 
-  playClip(c, function(){
+  var _run = function(){ playClip(c, function(){
     phase = 'post';
     runPost(c.post, 0, function(){
       if (c.live) {
         phase = 'live';
         liveT0 = Date.now();
-        duckTo(c.live.duck === undefined ? c.duck : c.live.duck, PARAM.fadeUpMs);
+        if (c.live.cheer && MODE === 'preview') duckTo(c.live.cheer.level, c.live.cheer.upMs);   // [BGM_CONSOLE2_1023 TOAST_GO] 미리 듣기는 종전처럼 «위하여»와 함께 오른다(GO 가 없다)
+        else duckTo(c.live.duck === undefined ? c.duck : c.live.duck, PARAM.fadeUpMs);   // [HOLD_LIVE] ⓑ 사람 구간은 GO 까지 이 크기(낭독 −20 · 무음 −90 을 풀지 않는다)
         render();
         if (MODE === 'preview') {
           // ★사람이 말하는 자리 — 고객 화면에서는 배우 예시 목소리가 그 시간을 채운다.
@@ -1316,15 +1322,27 @@ function fire(i, opt){
         }
       } else {
         phase = 'done';
-        duckTo(PARAM.duckMusic, PARAM.fadeUpMs);
+        var nx = R.cues[i+1], _gap = nx ? (nx.gapMs || PARAM.gapMs) : 0;
+        if (!holdLink(c, nx, _gap)) duckTo(PARAM.duckMusic, PARAM.fadeUpMs);   // [BGM_CONSOLE2_1023 HOLD_LINK] ⓐ 짧은 이음에서는 −8 로 올리지 않는다
         render();
-        var nx = R.cues[i+1];
-        if (nx && nx.fire === 'chain') later(function(){ advance(); }, nx.gapMs || PARAM.gapMs);   // ★[CHAIN_GAP_1014] 큐가 정한 사이(원고 «1.25초 사슬» · «사이 1초») · 없으면 기본 2초
+        if (nx && nx.fire === 'chain') { preDuck(nx, _gap); later(function(){ advance(); }, _gap); }   // ★[CHAIN_GAP_1014] 큐가 정한 사이(원고 «1.25초 사슬» · «사이 1초») · 없으면 기본 2초
         else if (!nx) later(finish, PARAM.gapMs);
       }
     });
-  });
+  }); };
+  if (_lead) later(_run, _lead); else _run();
 }
+
+/* ★[BGM_CONSOLE2_1023 HOLD_LINK] ⓐ 이음 보호 — 사람 구간이 없는 클립 뒤 다음 큐가 chain 이고 음성이 holdMs(3.5초) 안에 시작하면 −8 로 올리지 않고 그 크기에서 버틴다.
+   빼는 자리(그 연출이 크기를 정한다): 다음이 입장 장면(esdMain) · 축배 · 이 클립의 뒤처리에 음악 단계(post music)가 있을 때 · 고객 미리 듣기는 종전 그대로 */
+function holdLink(c, nx, gap){ var H = PARAM.duck && PARAM.duck.holdMs || 0;
+  return !!(MODE !== 'preview' && H && c && nx && nx.fire === 'chain' && gap <= H && !esdMain(nx) && nx.k !== 'toast' && !(c.post || []).some(function(p){ return p && p.music; })); }
+/* [BGM_CONSOLE2_1023 PRE_DUCK] 이어지는 큐 — 사이 끝 leadMs 전에 그 큐 크기로 미리 내린다(내려야 할 때만 · 입장 장면은 빼고) */
+function preDuck(nx, gap){ var L = (PARAM.duck && PARAM.duck.leadMs) || 0; if (MODE === 'preview' || !L || !nx || esdMain(nx)) return;
+  later(function(){ if (duckWant > nx.duck + 0.5) duckTo(nx.duck, Math.min(L, gap)); }, Math.max(0, gap - L)); }
+/* [BGM_CONSOLE2_1023 TOAST_GO] 지금 «위하여» 사람 구간이고 아직 축배 음악을 안 올렸나 */
+var cheerAt = -1;
+function cheerPending(){ var c = cur >= 0 ? cueAt(cur) : null; return !!(MODE !== 'preview' && !GUEST && phase === 'live' && c && c.live && c.live.cheer && cheerAt !== cur); }
 
 function advance(){
   if (cur + 1 >= R.cues.length) return finish();
@@ -1585,6 +1603,9 @@ function render(){
   if (n1 && n1.fire === 'chain' && phase !== 'live') {
     main.innerHTML = '지금 바로 → <small>' + esc(n1.name) + ' · 기다리지 않고 내보냅니다</small>';
     main.className = 'main wait';
+  } else if (cheerPending()) {
+    main.innerHTML = '축배 음악 올리기 <small>«위하여!»가 끝나면 누르세요</small>';   // [BGM_CONSOLE2_1023 TOAST_GO]
+    main.className = 'main';
   } else if (n1 && n1.fire === 'clock' && startAt) {
     main.innerHTML = '지금 바로 → <small>' + esc(n1.name) + ' · ' + clockAt(n1) + '에 저절로 나갑니다</small>';
     main.className = 'main wait';
@@ -1671,6 +1692,8 @@ function mainTap(){
     if (now - lastGo < GO_GUARD_MS) { toast('방금 눌렀어요 · 건너뛰려면 잠시 뒤 다시 누르세요'); return; }
     lastGo = now;
   }
+  /* ★[BGM_CONSOLE2_1023 TOAST_GO] 축배 «위하여» 사람 구간 — 첫 GO 는 다음 순서가 아니라 축배 음악을 0.6초에 올린다(두 분 · 하객의 «위하여!»가 끝난 뒤) · 마무리는 그다음 GO */
+  if (!GUEST && MODE !== 'preview' && phase === 'live' && cheerPending()) { var _cl = cueAt(cur).live.cheer; cheerAt = cur; duckTo(_cl.level, _cl.upMs); toast('축배 음악을 올렸어요 · 다음 GO 로 이어 갑니다'); render(); return; }
   if (phase === 'end') {
     resetRun(); render();
     if (GUEST) later(function(){ advance(); }, 400);   // 고객은 '다시 듣기' 한 번으로 바로 이어 간다
@@ -1949,6 +1972,10 @@ window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.w
     vsn: r ? (r.vs || []).length : null, cut: ESD.V0 && ESD.V0.cut ? { at: ESD.V0.cut.at, add: ESD.V0.cut.add, was: ESD.V0.cut.was } : null }; },   /* [ENTRY_CALL_PAUSE_1013] 목소리 마디 수 · 끊은 자리 */
   idx: function(){ var cs = (R && R.cues) || [], e = -1, bow = -1, next = -1; cs.forEach(function(c, i){ if (e < 0 && esdMain(c)) e = i; }); for (var i = e + 1; e >= 0 && i < cs.length; i++) { if (esdIn(cs[i]) && bow < 0) { bow = i; continue; } if (!esdIn(cs[i])) { next = i; break; } } return { e: e, bow: bow, next: next, n: cs.length }; },
   duckOf: function(i){ return R && R.cues[i] ? R.cues[i].duck : null; }, fire: function(i){ fire(i); } };
+/* [BGM_CONSOLE2_1023] 점검용 · 읽기 전용 — bgm-console2 가 본다(지금 순서 · 단계 · 청한 음악 크기 · 축배 오름 · 큰 단추 글) */
+window.__bgmSt = function(){ var c = cur >= 0 ? cueAt(cur) : null, m = $('#mBtn'); return { cur: cur, slug: c ? c.slug : null, phase: phase, want: duckWant, now: duckNow, cheerAt: cheerAt, main: m ? m.textContent : '' }; };
+window.__bgmR = function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, fire: c.fire, duck: c.duck, live: !!c.live }; }); };
+window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); } };   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)
 /* [RESCUE_REPLAY_1016] 점검용 · 읽기 전용 — rescue-replay 가 본다(미룬 순서 · 디렉터 칸 · «재생 안 됨» 단추) */
 window.__rr = { cues: function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, rescue: !!c.rescue, live: !!c.live }; }); },
   st: function(){ var h = $('#nHint'), b = $('#bWait'); return { phase: phase, cur: cur, rescued: RESCUED.slice(), hint: h ? h.textContent : '', hintOn: h ? !h.hidden : false, bw: b ? b.disabled : null, bwText: b ? b.textContent : '' }; } };
