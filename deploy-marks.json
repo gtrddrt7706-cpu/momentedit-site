@@ -2850,6 +2850,30 @@
    "fn": "sendSignupEmail_",
    "mark": "MAIL_LINK_INK",
    "why": "신청 접수 메일의 «카카오톡» 링크를 #7A5F37 로. 이 판이 없으면 링크가 선 색으로 흐리게 나간다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "sendConfirmEmail_",
+   "mark": "MAIL_TEXT_INK",
+   "why": "상담 메일의 강조 글(예약이 확정 · 접수 · 다른 시간을 제안 · 대면 상담) · 머리 이름표 · 항목 이름을 #7A5F37 로(흰 바탕 5.97:1). 이 판이 없으면 그 글자가 선 색(#B89A75 · 2.65:1)으로 흐리게 나간다"
+  },
+  {
+   "file": "40_signup",
+   "fn": "sendSignupEmail_",
+   "mark": "MAIL_TEXT_INK",
+   "why": "신청 접수 메일의 머리 이름표(Your Personal Code · For Parents) · 강조 글(접수 · 마이페이지)을 #7A5F37 로. 이 판이 없으면 선 색으로 흐리게 나간다"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "sendFindCodeEmail_",
+   "mark": "MAIL_TEXT_INK",
+   "why": "개인코드 찾기 · 비밀번호 재설정 메일의 머리 이름표 · 강조 글을 #7A5F37 로. 이 판이 없으면 선 색으로 흐리게 나간다"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "MAIL_TEXT_INK",
+   "why": "아침 보고 메일의 항목 이름을 #7A5F37 로(경고는 붉게 그대로). 이 판이 없으면 항목 이름이 선 색으로 흐리게 나간다"
   }
  ],
  "fns": {
@@ -3960,7 +3984,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-23 09:33 · b2e39301",
+ "_생성": "2026-10-23 10:58 · 745be737",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4492,5 +4516,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "de8dc2700756"
+ "_표식서명": "54610ccb275b"
 }
