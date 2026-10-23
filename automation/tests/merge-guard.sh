@@ -14800,6 +14800,7 @@ chk 'LOOK_FIRST_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 
 chk 'STYLE_MATJEOL_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑦ 정답 느낌 = 맞절(맑은 공기 · 작은 촛불 · 초크 파랑 · 읽히는 하객) · 편집 위에 편집 금지
 chk 'BG_VARY_1024' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑧ 배경은 순간마다 다르게(같은 방 반복 = 스튜디오 시그니처로 오해) · 맞추는 것은 그림체 · 빛 · 색 온도
 chk 'TABLE_REAL_1024' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑨ 테이블 = 실제 차림(흰 보 · 아이보리 기둥 초 · 시폰 · 접시 · 메뉴 카드) · 붉은 꽃 덩어리 없음
+chk 'PRIMARY_REF_1024' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑩ 배경은 바뀌어도 처음 레퍼런스의 원색 면(머스터드 · 에메랄드 · 코발트) 틀 안에서
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
