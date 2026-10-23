@@ -102,7 +102,8 @@ const pushNar = (id, s) => { if (typeof s === 'string' && s.trim()) narAll.push(
 ['ENTRY', 'LETTER', 'RINGWARM', 'TOAST'].forEach((t) => {
   Object.keys(D[t] || {}).forEach((k) => pushNar(t + '.' + k, (D[t][k] || {}).nar));
 });
-pushNar('DECLBY', (D.DECLBY || {}).nar);   // [DECLARE_ANYONE 2026-10-12] 선언문은 한 벌(누가 읽든 같은 글) — 빌더 사본 DECLBY 가 그대로 들고 있어야 한다
+pushNar('DECLBY', (D.DECLBY || {}).nar);
+((D.DECLBY || {}).alt || []).forEach((t, i) => pushNar('DECLBY.alt.' + i, t));   // [DECL_REF_PRINT 2026-10-23] 참고 예시 2 · 3 선언문도 빌더 사본에   // [DECLARE_ANYONE 2026-10-12] 선언문은 한 벌(누가 읽든 같은 글) — 빌더 사본 DECLBY 가 그대로 들고 있어야 한다
 (D.GUEST || []).forEach((g, i) => pushNar('GUEST.' + i, g[1]));
 // [NARR_CONSOLE_ONLY] 빌더가 보여주지 않는 키는 사본을 요구하지 않는다.
 //   목록은 원천(assets/ritual-data.js)에 있다 — 검사에 또 적으면 두 곳이 갈린다.
