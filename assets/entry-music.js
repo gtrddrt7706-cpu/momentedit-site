@@ -267,8 +267,8 @@
   function imgOk(v){ return /^\/assets\/[A-Za-z0-9_\/.-]+\.(webp|jpe?g|png)$/.test(String(v||''))&&String(v).indexOf('..')<0?String(v):''; }
   function posOk(v){ return /^\d{1,3}(\.\d+)?% \d{1,3}(\.\d+)?%$/.test(String(v||''))?String(v):'50% 50%'; }
   /* ★★[ENTRY_OPEN_1023 2026-10-23 사장님 «웰컴투더쇼 볼륨 커지는 부분이 멘트와 안 맞는다» → 0.5초 단계 시안 «뒤로 2초» · «문 열림을 그래프에 세로선으로»(17:38 «추천대로»)]
-     곡 목록(드라이브 songs.json)은 서버가 내용 지문(REC_PUT_HASH)으로 고정해 서버 재배포 없이 고칠 수 없다 — 바뀐 곡 값만 여기서 덮는다(목록보다 이 표가 이긴다).
-     songs.json 을 다시 만들 때 이 값을 그 파일로 옮기고 이 표에서 지운다. 다른 곡의 hook · 멘트–노래 싱크는 그대로.
+     곡 목록 파일(드라이브)은 서버가 내용 지문(REC_PUT_HASH)으로 고정해 서버 재배포 없이 고칠 수 없다 — 바뀐 곡 값만 여기서 덮는다(목록보다 이 표가 이긴다).
+     곡 목록 파일을 다시 만들 때 이 값을 그 파일로 옮기고 이 표에서 지운다. 다른 곡의 hook · 멘트–노래 싱크는 그대로.
      open = hooks 와 같은 차례의 «문이 열려 두 분이 출발하는» 곡 시각 — 그래프 «open» 세로선은 장면 시각 th + (open − 실제 문 열림 자리 H) · 없는 곡 · 올린 곡은 th */
   var REC_FIX={ r6:{ hook:50.18, hook0:50.18, hooks:[50.18,112.0], open:[54.96,116.77] } };   /* Welcome to the Show — 52.18 → 50.18 · 114 → 112.0 · «쇼» 54.96 / 116.77 */
   function recFix(o){ var f=o&&REC_FIX[o.k]; if(f) Object.keys(f).forEach(function(k){ o[k]=Array.isArray(f[k])?f[k].slice():f[k]; }); return o; }

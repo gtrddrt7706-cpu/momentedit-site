@@ -2206,7 +2206,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 /* ★★[ENTRY_OPEN_1023 2026-10-23 사장님 «문 열림을 그래프에 세로선으로» · «소문자로 느낌 있게» · «선 옆 번짐 효과 삭제» · «밑에 글씨들은 전부 삭제»] 장면 줄(대기 · 입장 · 도착) 대신 open 세로선 —
    선 1px · #8A724C · 0.85 · 그래프 위 2px 에서 목소리 줄까지 · 글자 «open» Cormorant Garamond 기울임 500 18/22 · #6B5639 · 선 머리 위 5px · 그래프 위 여백 32px(글자가 곡선과 안 겹친다) ·
    그림자 · 번짐 · 점 없음 · 재생 중에도 그대로. ★장면 줄 · 대문자 OPEN · 번짐을 되살리지 말 것 */
-.em-graph .lg-open{position:absolute;left:0;right:0;top:2px;height:calc(100% - 10px);pointer-events:none}
+.em-graph .lg-open{position:absolute;left:0;right:0;top:2px;height:calc(100% - 10px);pointer-events:none}   /* [ENTRY_OPEN_1023] 장면 줄 대신 open 세로선 하나 · 받는 동안 목소리 아래 칸은 [SCENE_WAIT_FILL] lg-wait 그대로 */
 .em-graph .lg-open[hidden]{display:none}
 .em-graph .lg-open .lgo-l{position:absolute;top:0;bottom:0;left:0;width:1px;background:#8A724C;opacity:.85}
 .em-graph .lg-open .lgo-t{position:absolute;bottom:calc(100% + 5px);left:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:18px;line-height:22px;letter-spacing:0;color:#6B5639;white-space:nowrap}   /* ★[REC_CLIP_1013 2026-10-13 사장님 «추천대로»(2번)] 고른 곡을 받는 동안 빈 그래프 대신 카드와 같은 말 한 줄 */

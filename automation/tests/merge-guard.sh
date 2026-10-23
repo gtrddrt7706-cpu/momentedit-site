@@ -14552,7 +14552,7 @@ chk 'RIT_KO_SERIF_FIRST' order-preview.html 1       # 21 한글 문단은 Noto S
 nochk 'font-family:var(--serif)' order-preview.html 0
 chk 'RIT_WRAP' order-preview.html 5                 # 22 NBSP 묶음 · text-wrap:pretty
 chk 'RIT_TYPE5' order-preview.html 2                # 23 글자 크기 다섯 단계
-nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 0
+nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 1   # 예외 한 곳 [ENTRY_OPEN_1023] 그래프 open 글자 18/22 (사장님 확정 · .lgo-t)
 chk 'RIT_PILL_SANS' order-preview.html 1            # 24 알약 고딕 · 꺼진 «저장됨» 3:1 이상
 nochk '\.ob-save:disabled{opacity:\.5' order-preview.html 0
 chk 'RIT_NAME_TWO' order-preview.html 4             # 25 이름은 «식순»(마이페이지 행) · «우리 예식 짓기»(화면 안) 둘
