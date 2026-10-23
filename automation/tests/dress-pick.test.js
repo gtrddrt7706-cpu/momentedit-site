@@ -1,7 +1,8 @@
 /**
  * Moment Edit · «시착 준비» 서버 검증 [DRESS_PICK 2026-10-23 코워크 설계 명세 8장] — 실서버 코드(gas-lint 샌드박스)로 구동.
- *   저장 길(세션 · 확정된 상담만 · 시그니처 · 상담확정 · 상담일 −2일 23:59 마감 · 0~2벌(0 = 비우기 [DRESS_CLEAR]) · 남길 말 200자 · 한 시간 30번) ·
- *   칸이 없으면 맨 뒤에 한 번 붙이기 · 읽기(_dressState_ · 깨진 값은 null) · 스튜디오 한 줄 · 확정 메일 한 줄(스위치 · 시그니처 · 의상) ·
+ *   저장 길(세션 · 시그니처 · 신청접수 ~ 상담확정 [DRESS_APPLY_OPEN] · 상담일 −2일 23:59 마감(날짜가 없으면 마감 없음 [DRESS_NO_DATE]) · 0~2벌(0 = 비우기 [DRESS_CLEAR]) · 남길 말 200자 · 한 시간 30번) ·
+ *   칸이 없으면 맨 뒤에 한 번 붙이기 · 읽기(_dressState_ · 깨진 값은 null) · 스튜디오 한 줄 · 확정 메일 한 줄(스위치 · 시그니처 · 의상 · 0벌만 [DRESS_CONFIRM_ZERO]) ·
+ *   신청 접수 메일 한 줄(40_signup sendSignupEmail_ · [DRESS_SIGNUP_MAIL]) ·
  *   아침 보고 «내일 상담 · 준비할 드레스»(같은 날 겹침 · 남긴 말).
  * 실행: node automation/tests/dress-pick.test.js
  */
@@ -22,7 +23,7 @@ let SH, CUST, CACHE, MAIL, FETCH;
 const fresh = (o) => {
   o = o || {};
   SH = { H: HEAD0.slice(), R: {} };
-  const rowArr = SH.H.map((h) => ({ '상태': o.status || '확정', '선택날짜': ymd(o.days == null ? 5 : o.days), '선택시간': '14:50', '개인코드': 'C1', '성함(신랑)': '정희준', '성함(신부)': '미쿠', '의상': o.attire || '대여 희망 · 2벌', '이메일': 'a@b.c', '토큰': 'tk' }[h] || ''));
+  const rowArr = SH.H.map((h) => ({ '상태': o.status || '확정', '선택날짜': o.date != null ? o.date : ymd(o.days == null ? 5 : o.days), '선택시간': '14:50', '개인코드': 'C1', '성함(신랑)': '정희준', '성함(신부)': '미쿠', '의상': o.attire || '대여 희망 · 2벌', '이메일': 'a@b.c', '토큰': 'tk' }[h] || ''));
   SH.R[2] = rowArr;
   CUST = { '개인코드': 'C1', '상품타입': o.product || '시그니처', '현재단계': o.stage || '상담확정' };
   CACHE = {}; MAIL = []; FETCH = o.fetch || null;
@@ -39,7 +40,8 @@ sb.getSheet = () => sheet;
 const custRow = () => ({ get: (k) => (CUST[k] !== undefined ? CUST[k] : '') });
 sb.resolveSession = (t) => (t === 't1' ? { ok: true, row: custRow() } : { ok: false, reason: 'invalid' });
 sb._sessionMsg = () => '로그인이 필요해요';
-sb.findRowByPersonalCode = () => { const colOf = sb.buildHeaderIndex(sheet); return sb.rowFromValues(colOf, SH.R[2], 2); };
+let NO_ROW = false;   // 상담 행이 없다(신청 때 행 생성이 실패한 경우)
+sb.findRowByPersonalCode = () => { if (NO_ROW) return null; const colOf = sb.buildHeaderIndex(sheet); return sb.rowFromValues(colOf, SH.R[2], 2); };
 sb.findCustomerByCode = () => custRow();
 sb.LockService = { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) };
 sb.CacheService = { getScriptCache: () => ({ get: (k) => (k in CACHE ? CACHE[k] : null), put: (k, v) => { CACHE[k] = String(v); }, remove: (k) => { delete CACHE[k]; } }) };
@@ -87,10 +89,28 @@ fresh();
 r = save({ token: 'nope' });
 ok(r.ok === false && r.reason === 'invalid', '2-6 로그인이 풀렸으면 reason 을 넘긴다(화면이 로그인으로)', r);
 
-// 3) 확정 · 단계 · 상품
-fresh({ status: '시간선택완료' });
+// 3) 단계 · 상담 상태 · 상품 — ★[DRESS_APPLY_OPEN 명세 2] 신청접수 ~ 상담확정 · 취소면 거절 · ★[DRESS_NO_DATE] 날짜가 없으면 마감 없음
+fresh({ stage: '신청접수', status: '신청접수', date: '' });
 r = save();
-ok(r.ok === false && /확정된 뒤/.test(r.error) && cell() === '', '3-1 상담이 확정되기 전에는 거절', r);
+ok(r.ok === true && JSON.parse(cell()).picks.join() === 'S01,S02', '3-1 신청접수(일정 선택 전 · 날짜 없음)에서 저장된다 — 마감 없음', r);
+fresh({ stage: '신청접수', status: '신청접수', days: 1 });
+ok(save().ok === true, '3-1b 신청접수면 시트에 날짜가 남아 있어도 «날짜 없음»으로 본다(일정 선택 전)');
+fresh({ stage: '신청접수', status: '시간선택완료', days: 5 });
+ok(save().ok === true, '3-1c 시간선택완료(디렉터 확인 대기 · 상담일 5일 전) = 저장된다');
+fresh({ stage: '신청접수', status: '시간선택완료', days: 1 });
+r = save();
+ok(r.ok === false && r.error === '바꾸기 마감이 지났어요' && cell() === '', '3-1d 시간선택완료라도 고른 날의 −2일이 지나면 거절', r);
+fresh({ stage: '신청접수', status: '변경제안', days: 1 });
+ok(save().ok === true, '3-1e 변경제안(새 시간 수락 전) = 날짜 없음 · 마감 없음 — 옛 날짜(내일)에 묶이지 않는다');
+fresh({ stage: '신청접수', status: '취소', date: '' });
+r = save();
+ok(r.ok === false && r.error === '지금은 바꿀 수 없어요' && cell() === '', '3-1f 상담 예약이 취소면 거절', r);
+fresh({ stage: '노쇼' });
+r = save();
+ok(r.ok === false && r.error === '지금은 바꿀 수 없어요', '3-1g 노쇼(종료 고객)는 거절', r);
+fresh({ stage: '취소', status: '취소' });
+ok(save().ok === false, '3-1h 취소 단계(종료 고객)는 거절');
+ok(JSON.stringify(sb.DRESS_PICK.stages) === '["신청접수","상담확정"]', '3-1i 받는 단계 = 신청접수 · 상담확정(마이페이지 DRESS_STAGES 와 같은 목록 — dress-refs.mjs 가 대조)');
 fresh({ stage: '상담완료' });
 r = save();
 ok(r.ok === false && r.error === '지금은 바꿀 수 없어요', '3-2 상담완료부터는 거절(시착 동의 카드가 이어받는다)', r);
@@ -121,6 +141,19 @@ ok(sb._dressParse_('{깨짐') === null && sb._dressParse_('') === null && sb._dr
 fresh({ days: 1 });
 st = sb._dressState_(sb.findRowByPersonalCode('C1'));
 ok(st.open === false, '6-3 마감 뒤 open:false(화면이 «바꾸기» 없이 · 안 골랐으면 카드 숨김)', st);
+fresh({ stage: '신청접수', status: '신청접수', days: 1 });
+st = sb._dressState_(sb.findRowByPersonalCode('C1'));
+ok(st.ymd === '' && st.open === true, '6-3b [DRESS_NO_DATE] 신청접수 = ymd 빈칸 · open:true(카드가 마감 줄 없이 열린다)', st);
+fresh({ stage: '신청접수', status: '변경제안', days: 1 });
+st = sb._dressState_(sb.findRowByPersonalCode('C1'));
+ok(st.ymd === '' && st.open === true, '6-3c [DRESS_NO_DATE] 변경제안 = 날짜 없음 · 열림', st);
+fresh({ stage: '신청접수', status: '시간선택완료', days: 6 });
+st = sb._dressState_(sb.findRowByPersonalCode('C1'));
+ok(st.ymd === ymd(6) && st.open === true, '6-3d 시간선택완료 = 고른 날짜가 상담일(마감 날 글이 나온다)', st);
+fresh({ status: '확정', date: '날짜 모름' });
+st = sb._dressState_(sb.findRowByPersonalCode('C1'));
+ok(st.ymd === '' && st.open === false, '6-3e 확정인데 날짜를 못 읽으면 닫힘(마감을 셀 수 없으면 바꾸지 않는다)', st);
+ok(sb._dressOpen_('') === true && sb._dressOpen_(null) === false && sb._dressOpen_(ymd(2)) === true && sb._dressOpen_(ymd(1)) === false, '6-3f _dressOpen_ = 빈 날짜 열림 · 못 읽음 닫힘 · D-2 열림 · D-1 닫힘');
 const gms = fs.readFileSync(new URL('../platform/60_mypage.gs', import.meta.url), 'utf8');
 ok(/dress:\s*\(typeof _dressState_ === 'function'\) \? _dressState_\(cr\) : null/.test(gms), '6-4 buildConsultState 가 같은 상담 행(cr)으로 싣는다(다시 찾지 않는다 · GMS_MEMO)');
 
@@ -148,6 +181,31 @@ ok(confirm().indexOf(line) < 0 && CACHE.DRESS_LIVE === '0', '8-5 원천을 못 �
 fresh({ fetch: LIVE_ON });
 MAIL = []; sb.sendConfirmEmail_('a@b.c', '정희준 · 미쿠', ymd(5), '14:50', false, 'tk');
 ok(MAIL.length === 1 && MAIL[0].html.indexOf(line) < 0, '8-6 상담 행을 안 넘기는 옛 호출도 메일은 그대로 나간다(한 줄만 빠진다)');
+fresh({ fetch: LIVE_ON });
+save();
+ok(confirm().indexOf(line) < 0, '8-7 [DRESS_CONFIRM_ZERO] 이미 한 벌이라도 골랐으면 확정 메일에 그 줄을 싣지 않는다(신청 직후부터 고를 수 있다)');
+fresh({ fetch: LIVE_ON });
+save(); save({ picks: [] });
+ok(confirm().indexOf(line) > -1, '8-8 다 빼서 비웠으면(0벌) 다시 싣는다');
+
+// 10) 신청 접수 메일 한 줄 — ★[DRESS_SIGNUP_MAIL 명세 2 · 6장] 고객이 실제로 받는 접수 메일(40_signup sendSignupEmail_ «신청이 접수되었습니다 · 개인코드»)
+const sline = '상담 날 입어 보실 드레스도';
+const signup = (product) => { MAIL = []; sb.sendSignupEmail_('a@b.c', '정희준 · 미쿠', 'C1', 'tok123', product || '시그니처', '희망 예식 일자: 2027-05-01'); return MAIL[0] || { subj: '', html: '' }; };
+fresh({ fetch: SRC, stage: '신청접수', status: '신청접수', date: '' });
+let sm = signup();
+ok(/신청이 접수되었습니다/.test(sm.subj) && sm.html.indexOf(sline) < 0, '10-1 스위치가 꺼져 있으면(지금) 접수 메일에 싣지 않는다 — 메일은 그대로 나간다', sm.subj);
+fresh({ fetch: LIVE_ON, stage: '신청접수', status: '신청접수', date: '' });
+sm = signup();
+const sIdx = sm.html.indexOf(sline);
+ok(sIdx > -1 && /상담 날 입어 보실 드레스도 <a href="[^"]*mypage\.html\?token=tok123" style="color:#7A5F37;font-weight:500">마이페이지<\/a>에서 미리 둘러보실 수 있습니다\./.test(sm.html), '10-2 켜지면 «상담 날 입어 보실 드레스도 마이페이지에서 미리 둘러보실 수 있습니다.» + 자동 로그인 마이페이지 링크(글자 링크 #7A5F37)');
+ok(sIdx > sm.html.indexOf('버튼이 열리지 않나요?') && sIdx < sm.html.indexOf('For Parents'), '10-3 자리 = 마이페이지 묶음 끝(«버튼이 열리지 않나요?» 뒤 · «어른께 드리는 안내» 앞)');
+fresh({ fetch: LIVE_ON, attire: '자체 준비', stage: '신청접수', status: '신청접수', date: '' });
+ok(signup().html.indexOf(sline) < 0, '10-4 의상 «자체 준비»면 싣지 않는다');
+fresh({ fetch: LIVE_ON, product: '웨딩스냅', stage: '신청접수', status: '신청접수', date: '' });
+ok(signup('웨딩스냅').html.indexOf(sline) < 0, '10-5 웨딩스냅 신청이면 싣지 않는다');
+fresh({ fetch: LIVE_ON, stage: '신청접수', status: '신청접수', date: '' });
+NO_ROW = true; sm = signup(); NO_ROW = false;
+ok(/신청이 접수되었습니다/.test(sm.subj) && sm.html.indexOf(sline) < 0, '10-6 상담 행이 없으면(신청 때 행 생성 실패) 줄 없이 메일은 나간다');
 
 // 9) 아침 보고 — 내일 상담 · 준비할 드레스(같은 날 겹침 · 남긴 말)
 const _ah = sb.adminHome;

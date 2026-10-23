@@ -2874,6 +2874,24 @@
    "fn": "aiMorningReport",
    "mark": "MAIL_TEXT_INK",
    "why": "아침 보고 메일의 항목 이름을 #7A5F37 로(경고는 붉게 그대로). 이 판이 없으면 항목 이름이 선 색으로 흐리게 나간다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleSaveDressPick",
+   "mark": "DRESS_APPLY_OPEN",
+   "why": "마이페이지 «드레스 미리 보기»에서 상담 신청 직후(신청접수 ~ 상담확정)부터 고른 드레스를 저장한다 · 상담 예약이 취소면 거절. 이 판이 없으면 확정 전 고객의 저장이 «지금은 바꿀 수 없어요»로 거절된다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_dressState_",
+   "mark": "DRESS_NO_DATE",
+   "why": "상담 날짜가 아직 없으면(일정 선택 전 · 변경 제안 중) 드레스 고르기를 마감 없이 연다. 이 판이 없으면 신청 직후 마이페이지에 «드레스 미리 보기» 카드가 안 보인다"
+  },
+  {
+   "file": "40_signup",
+   "fn": "sendSignupEmail_",
+   "mark": "DRESS_SIGNUP_MAIL",
+   "why": "신청 접수 메일에 «상담 날 입어 보실 드레스도 마이페이지에서 미리 둘러보실 수 있습니다» 한 줄과 마이페이지 링크를 싣는다(스위치가 켜졌을 때만). 이 판이 없으면 그 줄이 빠진다"
   }
  ],
  "fns": {
@@ -3698,8 +3716,10 @@
    "formatConsultationSheet",
    "_sessionToConsult",
    "_dressParse_",
+   "_dressYmd_",
    "_dressOpen_",
    "_dressState_",
+   "_dressPicked_",
    "_dressBriefLine_",
    "_dressLive_",
    "_dressMailOk_",
@@ -3984,7 +4004,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-23 10:58 · 745be737",
+ "_생성": "2026-10-23 12:41 · 0c999cea",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4516,5 +4536,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "54610ccb275b"
+ "_표식서명": "ffab8d0a320b"
 }

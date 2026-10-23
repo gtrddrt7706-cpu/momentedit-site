@@ -1528,7 +1528,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 
     <div class="consult-sec" id="mp_consult" style="display:none"></div>
 
-    <!-- [DRESS_CARD] 시착 준비 — 상담 확정 뒤 · 입어 볼 두 벌 미리 고르기(스위치 DRESS_REFS.live 가 꺼져 있으면 늘 숨김) -->
+    <!-- [DRESS_CARD] 드레스 미리 보기 — ★[DRESS_APPLY_OPEN 명세 2] 상담 신청 뒤(신청접수 ~ 상담확정) · 상담 카드 바로 아래 · 입어 볼 두 벌 미리 고르기(스위치 DRESS_REFS.live 가 꺼져 있으면 늘 숨김) -->
     <div class="consult-sec" id="mp_dress" style="display:none"></div>
 
     <!-- 드레스 시착 동의 (02-2) — 상담 다음·계약 전 -->
@@ -2677,7 +2677,7 @@ function openFittingView(){
   x.addEventListener('click',done); document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); var _bkId=bkOpen(done);   // 브라우저 뒤로가기 = 닫기
 }
 
-/* ★★[DRESS_PICK 2026-10-23 코워크 설계 명세 5장] 시착 준비 고르기 — /dress.html?pick=1&embed=1 을 겹화면 iframe 으로 연다(식순 만들기와 같은 길).
+/* ★★[DRESS_PICK 2026-10-23 코워크 설계 명세 5장] 드레스 미리 보기(고르기) — /dress.html?pick=1&embed=1 을 겹화면 iframe 으로 연다(식순 만들기와 같은 길).
    t 는 캐시 깨기(토큰 아님 · [ASSET_V]) — 로그인 토큰은 iframe 에 넘기지 않는다. 고르기 화면은 GAS 를 부르지 않고, 저장(saveDressPick)은 여기서 해 결과만 돌려준다.
    주고받는 것: dressReady → dressFill{saved, open} · dressSave{data} → dressSaved / dressSaveFail{msg, ecode, sess, kind} · dressClose.
    opt.demo = ?preview_card=dress — 저장하지 않고 «저장됐다»만 돌려준다(라이브 무해). */
@@ -2685,9 +2685,9 @@ var DRESS_SAVE_BASE='고른 드레스를 보내지 못했어요 · 다시 눌러
 function openDressPicker(dr, opt){
   opt=opt||{};
   var old=$('mp_drViewer'); if(old&&old.parentNode) return;
-  var ov=document.createElement('div'); ov.id='mp_drViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','시착 준비');
+  var ov=document.createElement('div'); ov.id='mp_drViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','드레스 미리 보기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  var fr=document.createElement('iframe'); fr.id='mp_drFrame'; fr.src='/dress.html?pick=1&embed=1&t='+Date.now(); fr.title='시착 준비';
+  var fr=document.createElement('iframe'); fr.id='mp_drFrame'; fr.src='/dress.html?pick=1&embed=1&t='+Date.now(); fr.title='드레스 미리 보기';   // [DRESS_CARD_SEE] 카드 · 고르기 화면 머리와 같은 이름
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(fr); document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
@@ -4056,7 +4056,7 @@ function renderMyPage(d){
     var _holdBannerOk = (function(){ var li=(d.stageList||[]).indexOf('상담완료'); var ci=(typeof d.stageIndex==='number')?d.stageIndex:-1; return !(li>=0 && ci>=0 && ci>=li); })();
     renderHold(_holdBannerOk ? d.hold : null);                       // 예식일 임시 고정(가예약) 상태 (①)
     renderConsult(d.consult, d.product, d);                           // 상담/촬영 (P1.5) · d = [SNAP_SIGNED_LOCK] 계약 서명 여부
-    renderDress(d);                                                   // [DRESS_CARD] 시착 준비(상담확정 · 시그니처 · 스위치 켜짐일 때만)
+    renderDress(d);                                                   // [DRESS_CARD] 드레스 미리 보기(신청접수 ~ 상담확정 · 시그니처 · 스위치 켜짐일 때만 [DRESS_APPLY_OPEN])
     renderFitting(d.fitting, d);                                      // 드레스 시착 동의 (02-2)
     renderContractPayment(d.contract, d.payment, d);                 // 본 계약+계약금 (02-3+02-4)
     renderMid(d.midpayment, d.balance);                              // 중도금 (02-4b) + 잔금 함께결제
@@ -5010,20 +5010,24 @@ function _fitRefundV(f, lit){
   return '<span class="ln-bal">미계약으로 취소되면 예약금에서</span><span class="ln-bal">진행한 시착 벌수만큼'+amt+' 공제하고 나머지를 돌려드려요.</span>';
 }
 // [02-2] 드레스 시착 동의 카드 — fitting 없으면 숨김. 미서명=동의서+[동의하고 서명] / 서명=완료+[동의서 보기] 재열람.
-/* ★★[DRESS_CARD 2026-10-23 코워크 설계 명세 7장] «시착 준비» 카드 — 상담 날 입어 볼 두 벌을 미리 골라 두면 스튜디오가 상담 전날 준비한다.
-   보이는 때: 스위치(DRESS_REFS.live) · 시그니처 · 단계 상담확정 · 상담 예약이 확정(승인완료 · 확정) · 의상이 «자체 준비»가 아님 ·
+/* ★★[DRESS_CARD 2026-10-23 코워크 설계 명세 7장] «드레스 미리 보기» 카드 — 상담 날 입어 볼 두 벌을 미리 골라 두면 스튜디오가 상담 전날 준비한다.
+   ★★[DRESS_APPLY_OPEN 2026-10-23 코워크 설계 명세 2 · 사장님 «대면 상담 신청 후 웨딩 드레스 볼 수 있게»] 보이는 때를 «신청 직후»로 넓혔다 —
+   스위치(DRESS_REFS.live) · 시그니처 · 단계 신청접수 ~ 상담확정 · 상담 예약이 있고 취소가 아님(노쇼 · 취소 단계는 종료 고객이라 위에서 숨는다) · 의상이 «자체 준비»가 아님 ·
    서버가 consult.dress 칸을 준다(재배포 전 옛 서버면 숨김 — 저장 길도 없으니까). 상담완료부터는 숨긴다(시착 동의 카드가 이어받는다).
-   마감(상담일 −2일 23:59 · 서버가 open 으로 판정) 뒤: 고른 게 있으면 바꾸기 없이 · 없으면 숨김.
+   자리는 상담 카드(mp_consult · 일정 선택 · 확정) 바로 아래 — 일정 선택이 늘 먼저 보인다.
+   ★[DRESS_NO_DATE 명세 2] 상담 날짜가 아직 없으면(일정 선택 전 · 변경 제안 중 · 서버 ymd '') 마감이 없다(open) — 날짜가 생기면 상담일 −2일 23:59 까지.
+   마감(서버가 open 으로 판정) 뒤: 고른 게 있으면 바꾸기 없이 · 없으면 숨김.
    단추 격은 스냅 기획 카드와 같다 — 외곽(cc-btn-ghost) · 글 단추(cc-btn-ghost trk-act trk-act-min). 새 단추 모양을 만들지 않는다([BTN_TIER]).
    box · demo 는 ?preview_card=dress 가 쓴다(로그인 없이 상태를 차례로 보여 주는 길 · 저장 없음). */
+var DRESS_STAGES=['신청접수','상담확정'];   // [DRESS_APPLY_OPEN] 카드가 보이는 단계 — 서버(consultation-booking DRESS_PICK.stages)와 같은 목록(scripts/audit/dress-refs.mjs 가 대조)
 function renderDress(d, boxArg, demo){
   var box=boxArg||$('mp_dress'); if(!box) return;
   var hide=function(){ box.style.display='none'; box.innerHTML=''; };
   var R=window.DRESS_REFS, c=d&&d.consult, dr=c&&c.dress;
   if(!R || !dr){ hide(); return; }
   if(!demo){
-    if(!R.live || d.isException || d.product==='웨딩스냅' || d.stage!=='상담확정'){ hide(); return; }
-    if(!(c.status==='승인완료' || c.status==='확정')){ hide(); return; }
+    if(!R.live || d.isException || d.product==='웨딩스냅' || DRESS_STAGES.indexOf(d.stage)<0){ hide(); return; }   // [DRESS_APPLY_OPEN] 신청접수 ~ 상담확정
+    if(!c.status || c.status==='취소'){ hide(); return; }
     if(/^\s*자체 준비/.test(String(dr.attire||''))){ hide(); return; }
   }
   var sv=dr.saved, ids=((sv&&Array.isArray(sv.picks))?sv.picks:[]).filter(function(id){ return !!R.dress(id); }).slice(0, R.pick);
@@ -5040,14 +5044,17 @@ function renderDress(d, boxArg, demo){
      ★[DRESS_DUE_DATE 2026-10-23 코워크 검토 1] 0 · 1 · 2벌에는 마감 날을 숫자로 점 한 줄([NOTE_DOT] · 상담일 −2일 · 요일은 계산). 상담일을 못 읽으면 줄을 두지 않는다.
      문장 끝 마침표는 카드 안에서 맞춘다(1 · 2벌 문장에도). */
   /* ★[DRESS_CARD_WORDS 2026-10-23 코워크 검토 4] 0 · 1 · 2벌 단추는 같은 자리 · 같은 모양(외곽 단추 한 벌) — 종전 2벌 «바꾸기»만 글 단추라 자리가 달랐다.
-     0벌 «두 벌 고르기» + 점 줄 둘(마감 날 · 안 골라도 된다 [DRESS_NO_PICK_OK]) · 1벌 «한 벌 더 고르실 수 있어요.» · 2벌 «바꾸기» */
+     ★[DRESS_CARD_SEE 2026-10-23 코워크 설계 명세 2] 제목 «시착 준비» → «드레스 미리 보기»(할 일보다 «볼 수 있다»가 먼저 읽히게 · 작은 제목 Dress 그대로) ·
+     0벌 = «상담 날 입어 보실 드레스를 미리 둘러보세요.» / «두 벌을 골라 두시면 전날 준비해 둘게요.»(문장마다 한 줄 · 마감 뒤 두 줄과 같은 꼴) + 점 줄(마감 날 · 안 골라도 된다 [DRESS_NO_PICK_OK]) + «드레스 둘러보기» ·
+     1벌 «한 벌 더 고르실 수 있어요.» · 2벌 «바꾸기» · 마감 뒤는 종전 그대로. 상담 날짜가 아직 없으면(due '') 0벌은 마감 줄을 빼고 · 1 · 2벌은 «상담 날짜가 정해지면 …»([DRESS_NO_DATE]) */
   var n=ids.length, subs, btn='', notes=[], due=(typeof R.untilText==='function')?R.untilText(dr.ymd):'';
+  var noDate='상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.';
   var obtn=function(t){ return '<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">'+t+'</button>'; };
   if(closed){ subs=[(n===1?'상담 전날 이 드레스를 준비해 둘게요.':'상담 전날 이 두 벌을 준비해 둘게요.'), '상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요.']; }
-  else if(n===0){ subs=['상담 날 입어 보실 두 벌을 정해 두시면 전날 준비해 둘게요.']; notes=[due?(due+'까지 고르실 수 있어요.'):'', '고르지 않으셔도 상담 날 함께 골라요.']; btn=obtn('두 벌 고르기'); }
-  else if(n===1){ subs=['한 벌 더 고르실 수 있어요.']; notes=[due?('바꾸기는 '+due+'까지 할 수 있어요.'):'']; btn=obtn('이어서 고르기'); }
-  else { subs=['상담 전날 이 두 벌을 준비해 둘게요.']; notes=[due?('바꾸기는 '+due+'까지 할 수 있어요.'):'']; btn=obtn('바꾸기'); }
-  box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Dress</div><div class="cc-title">시착 준비</div>'
+  else if(n===0){ subs=['상담 날 입어 보실 드레스를 미리 둘러보세요.', '두 벌을 골라 두시면 전날 준비해 둘게요.']; notes=[due?(due+'까지 고르실 수 있어요.'):'', '고르지 않으셔도 상담 날 함께 골라요.']; btn=obtn('드레스 둘러보기'); }
+  else if(n===1){ subs=['한 벌 더 고르실 수 있어요.']; notes=[due?('바꾸기는 '+due+'까지 할 수 있어요.'):noDate]; btn=obtn('이어서 고르기'); }
+  else { subs=['상담 전날 이 두 벌을 준비해 둘게요.']; notes=[due?('바꾸기는 '+due+'까지 할 수 있어요.'):noDate]; btn=obtn('바꾸기'); }
+  box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Dress</div><div class="cc-title">드레스 미리 보기</div>'
     + (n ? '<div class="dr-ths">'+th(0)+th(1)+'</div>' : '')
     + subs.map(function(t,i){ return '<div class="cc-sub"'+(i?' style="margin-top:2px"':'')+'>'+escapeHtml(t)+'</div>'; }).join('')
     + (notes.filter(Boolean).length ? '<div class="dr-dues">'+notes.filter(Boolean).map(function(t){ return '<div class="mp-dotln dr-due">'+escapeHtml(t)+'</div>'; }).join('')+'</div>' : '')
@@ -6257,7 +6264,8 @@ if(window.meCardPay){   // 미리보기 파라미터면 로그인 여부와 무�
   }catch(e){}
 }
 
-/* [DRESS_CARD] ?preview_card=dress — 로그인 없이 «시착 준비» 카드의 상태를 위에서부터 차례로(0벌 · 1벌 · 2벌 · 마감 뒤).
+/* [DRESS_CARD] ?preview_card=dress — 로그인 없이 «드레스 미리 보기» 카드의 상태를 위에서부터 차례로(일정 선택 전 · 0벌 · 1벌 · 2벌 · 마감 뒤).
+   ★[DRESS_APPLY_OPEN 2026-10-23 코워크 설계 명세 2 · 8장] 맨 앞 = «일정 선택 전 · 0벌»(단계 신청접수 · 상담 날짜 없음 = 마감 없음 [DRESS_NO_DATE]).
    스위치(live)와 무관하게 그린다 · 단추를 누르면 고르기 화면이 열리고 «저장»은 하지 않는다(라이브 무해 · preview_card=1 과 같은 길).
    표본 드레스는 운영 주소에서 그려지지 않으므로 운영에서는 0벌 상태만 보인다([DRESS_SAMPLE]). */
 (function(){
@@ -6267,7 +6275,8 @@ if(window.meCardPay){   // 미리보기 파라미터면 로그인 여부와 무�
     var L=R.list(), a=L[0]?L[0].id:'', b=L[1]?L[1].id:'';
     var kst=function(n){ return new Date(Date.now()+9*36e5+n*864e5).toISOString().slice(0,10); };   // [DRESS_DUE_DATE] 보기용 상담일 — 열림은 열흘 뒤 · 마감 뒤는 내일(한국 날짜)
     var mk=function(picks, open){ return { stage:'상담확정', product:'시그니처', consult:{ status:'확정', dress:{ attire:'대여 희망 · 2벌', ymd:kst(open===false?1:10), open:open!==false, saved: picks.length ? { picks:picks, names:[], ans:{len:'',fit:'',pref:[]}, memo:'' } : null } } }; };
-    var states=[['0벌', mk([])], ['1벌', mk([a].filter(Boolean))], ['2벌', mk([a,b].filter(Boolean))], ['마감 뒤', mk([a,b].filter(Boolean), false)]];
+    var pre={ stage:'신청접수', product:'시그니처', consult:{ status:'신청접수', dress:{ attire:'대여 희망 · 2벌', ymd:'', open:true, saved:null } } };   // [DRESS_NO_DATE] 날짜 없음 · 열림
+    var states=[['일정 선택 전 · 0벌', pre], ['0벌', mk([])], ['1벌', mk([a].filter(Boolean))], ['2벌', mk([a,b].filter(Boolean))], ['마감 뒤', mk([a,b].filter(Boolean), false)]];
     var sec=document.createElement('section'); sec.id='mp_preview_dress';
     sec.style.cssText='display:block;max-width:520px;margin:0 auto 8px;padding:16px 14px 4px';
     sec.innerHTML='<div style="border:1px dashed var(--gold);border-radius:12px;padding:6px 6px 2px;background:#FCFAF5">'

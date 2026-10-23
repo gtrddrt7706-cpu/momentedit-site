@@ -159,6 +159,18 @@ function sendSignupEmail_(to, names, code, token, product, detail) { /* [B19_LOC
       '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;color:#A39C8E;margin-top:8px">로그인·조회에 쓰는 나만의 코드입니다</div>' +
     '</div>';
 
+  /* ★[DRESS_SIGNUP_MAIL 2026-10-23 코워크 설계 명세 2 · 6장 · 사장님 «대면 상담 신청 후 웨딩 드레스 볼 수 있게»] 접수 메일에 드레스 한 줄 + 마이페이지 링크 —
+     마이페이지 «드레스 미리 보기» 카드가 신청 접수부터 보인다. 판정은 확정 메일 줄과 같다(스위치 · 시그니처 · 의상 «자체 준비» 아님 · consultation-booking _dressMailOk_).
+     ★명세가 가리킨 «상담 일정을 선택해 주세요 (신청 접수)»(sendUrlEmail)는 지금 고객에게 나가지 않는 옛 메일이다 — 고객이 받는 접수 메일은 이것 한 통이다.
+     스위치를 먼저 본다(대개 기억된 값) — 꺼진 동안은 상담 시트를 더 읽지 않는다 · 상담 행 생성이 실패했으면(위 7-b) 줄 없이 나간다 */
+  var dressLine = '';
+  try {
+    if (!isSnap && typeof _dressLive_ === 'function' && typeof _dressMailOk_ === 'function' && typeof findRowByPersonalCode === 'function' && _dressLive_()) {
+      var _dRow = findRowByPersonalCode(code);
+      if (_dRow && _dressMailOk_(_dRow)) dressLine = smallP('상담 날 입어 보실 드레스도 <a href="' + safeAttr(mypage) + '" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 미리 둘러보실 수 있습니다.');
+    }
+  } catch (eD) { dressLine = ''; }
+
   var inner =
     centerP(esc(names) + ' 님,<br>' + (isSnap ? '웨딩스냅' : '방문 상담') + ' 신청이 <span style="color:#7A5F37;font-weight:500">접수</span>되었습니다.') +
     summaryBlock +
@@ -177,6 +189,7 @@ function sendSignupEmail_(to, names, code, token, product, detail) { /* [B19_LOC
         '</div>' +
       '</details>' +
     '</div>' +
+    dressLine +   // [DRESS_SIGNUP_MAIL] 마이페이지 묶음 끝 — «…마이페이지에서 진행 상황을» 다음에 «드레스도»
     // 어른께 드리는 안내(부모님 안내문) — 예식 신청에만 동봉(스냅 제외). FAQ 약속 이행.
     // ★PARENTS_MINIMAL(2026-07-25 사용자 지시 "군더더기없이"): 본문 2문장→1문장 중앙 정렬, 하단 코칭 각주 3문장(운 떼기·재촉 금지·동반 상담) 삭제 — 복원 금지. 상세 설명은 parents.html 본문이 담당.
     (isSnap ? '' :

@@ -37,7 +37,7 @@ import { launchBrowser } from './_browser.mjs';
 import { freePort } from './_freeport.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const PAGES = ['index', 'inquiry', 'privacy', 'parents', 'dress'];   // [DRESS_PAGE 2026-10-23] 의상과 소품(dress.html)도 같은 푸터 한 벌
+const PAGES = ['index', 'inquiry', 'privacy', 'parents'];   // ★[DRESS_PUBLIC_OFF 2026-10-23 코워크 설계 명세 2 · 사장님 «마이페이지만»] 의상과 소품(dress.html) 공개 화면을 걷어 푸터도 없다 — 네 면
 const MIME = { '.html': 'text/html;charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.woff2': 'font/woff2' };
 
 const PORT = await freePort();

@@ -10,8 +10,6 @@
 <script src="/shared/edge-back.js" defer></script>
 <!-- [GPM_MODAL] 하객 사진 안내 모달 - 청첩장 소개의 트리거를 누를 때만 열린다(자동 노출 없음) -->
 <script src="/assets/guest-photo-modal.js" defer></script>
-<!-- [DRESS_LIVE] 시착 준비 스위치 — 켜졌을 때만 Styling Collection 아래 «드레스 둘러보기 →»가 보인다 -->
-<script src="/assets/dress-refs.js" defer></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -3029,7 +3027,6 @@ a.ig-handle:hover {
    ★화살표(→)는 여기 남긴다 — '이 페이지를 떠나 다른 문서로 간다'는 신호. 채움 전환 버튼에는 붙이지 않는다. */
 .journal-guide-link {
   display: inline-block;
-  text-align: center;   /* [DRESS_HOME_BELOW] 단추 안 글은 가운데 — 1281px 이상에서 최소폭 288px 단추의 글이 왼쪽에 붙었다(부모가 가운데면 종전과 같다) */
   font-family: var(--serif-ko);
   font-size: 14px; /* [CTA_TYPE_QUIET] [BTN_TIER] 채움 쌍둥이(.cta-btn)와 같은 글자 격 14px/0.08em (2026-07-31 통일) */
   font-weight: 400;
@@ -6198,12 +6195,9 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <h3 class="sec-label">Styling Collection ·<span class="ll-ko"> 의상과 소품</span></h3>
   <p class="t-body" style="margin-bottom:24px">드레스·면사포·주얼리와 웨딩 소품은 스튜디오에 갖춰져 있습니다.<br class="pc-hide"> 신랑은 자켓·보타이를 준비해 드리니, 셔츠와 바지만 챙겨 오시면 됩니다.</p>
 </div>
-<div class="photo-placeholder half" data-dress-photo style="height:380px;margin:24px 0 0;border-radius:8px">
+<div class="photo-placeholder half" style="height:380px;margin:24px 0 0;border-radius:8px">
   <picture><source type="image/webp" srcset="/assets/home/styling.webp"><img class="ph-img" src="/assets/home/styling.jpg" alt="웨딩드레스 스타일링 컬렉션" loading="lazy" onerror="this.style.display='none'"></picture>
 </div>
-<!-- [DRESS_LIVE] ★[DRESS_HOME_BELOW 2026-10-23 코워크 검토 4] 단추는 사진 아래 · 켜지면 사진도 같은 곳으로(data-dress-photo) — 모양은 기존 외곽 단추(.journal-guide-link · [BTN_TIER]) 그대로.
-     폰에서는 사진과 같은 좌우 끝에 선다(외곽 단추의 폰 여백 20px 를 이 자리만 걷었다) · 스위치가 꺼진 동안은 hidden(화면 차이 0) -->
-<div data-dress-on hidden style="margin:24px 0 0"><a href="dress.html" class="journal-guide-link" style="margin-left:0;margin-right:0">드레스 둘러보기 <span class="arrow">→</span></a></div>
 <div class="divider-line"></div>
 <!-- THE 140 SEQUENCE -->
 <div class="reveal">
@@ -9555,11 +9549,5 @@ nav .nav-links a, .nav-links a, .f-links a {
   on();
 })();
 </script>
-<script>/* [DRESS_LIVE] 시착 준비 스위치(assets/dress-refs.js live)가 켜졌을 때만 바뀌는 자리 — data-dress-on 은 보이고 data-dress-off 는 숨는다.
-   꺼진 동안(지금)은 아무것도 바꾸지 않는다(화면 차이 0). dress-refs.js 는 defer 라 DOMContentLoaded 앞에 이미 읽혀 있다 */
-document.addEventListener('DOMContentLoaded',function(){try{if(!(window.DRESS_REFS&&window.DRESS_REFS.live))return;
-document.querySelectorAll('[data-dress-on]').forEach(function(el){el.hidden=false;});document.querySelectorAll('[data-dress-off]').forEach(function(el){el.hidden=true;});
-/* [DRESS_HOME_BELOW] 사진도 드레스 페이지로 — 사진 위 한 겹(키보드 · 화면 읽기는 아래 단추 하나만 만난다 · 같은 곳 링크 둘을 읽히지 않는다) */
-document.querySelectorAll('[data-dress-photo]').forEach(function(el){var a=document.createElement('a');a.href='dress.html';a.tabIndex=-1;a.setAttribute('aria-hidden','true');a.style.cssText='position:absolute;inset:0;z-index:1';el.appendChild(a);});}catch(e){}});</script>
 </body>
 </html>
