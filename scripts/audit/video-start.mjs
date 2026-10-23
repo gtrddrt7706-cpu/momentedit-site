@@ -61,8 +61,8 @@ function stutter(file) {
 /* ④ [VID_CUT] 유령 그림 — 앞뒤 k(1~4)프레임 사이 평균 밝기 차 > 8 인데, 가운데가 A + α(B−A)(최소제곱 α · 0.15~0.85)와 거의 같은 프레임
    남는 차 / min(가운데−A, 가운데−B) < 0.65 면 섞인 그림(움직임이면 테두리가 옮겨 가 남는 차가 크다) */
 const GHOST_D = 8, GHOST_R = 0.65;
-function ghosts(file) {
-  const sm = execFileSync('ffmpeg', ['-loglevel', 'error', '-i', file, '-vf', `scale=${W}:${H},format=gray`, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 28 });
+function ghosts(file) { return ghostsBuf(execFileSync('ffmpeg', ['-loglevel', 'error', '-i', file, '-vf', `scale=${W}:${H},format=gray`, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 28 })); }
+function ghostsBuf(sm) {
   const n = Math.floor(sm.length / N), out = [];
   const mad = (a, b) => { let s = 0; const oa = a * N, ob = b * N; for (let j = 0; j < N; j++) s += Math.abs(sm[oa + j] - sm[ob + j]); return s / N; };
   for (let i = 1; i < n - 1; i++) for (let k = 1; k <= 4; k++) {
@@ -71,9 +71,33 @@ function ghosts(file) {
     let num = 0, den = 0; for (let j = 0; j < N; j++) { const A = sm[a * N + j], d = sm[b * N + j] - A; num += (sm[i * N + j] - A) * d; den += d * d; }
     const al = den ? num / den : 0; if (al < 0.15 || al > 0.85) continue;
     let r = 0; for (let j = 0; j < N; j++) { const A = sm[a * N + j]; r += Math.abs(sm[i * N + j] - (A + al * (sm[b * N + j] - A))); }
-    if (r / N / Math.min(mad(i, a), mad(i, b)) < GHOST_R) { out.push(i); break; }
+    if (r / N / Math.min(mad(i, a), mad(i, b)) < GHOST_R) { if (blendBeatsMotion(sm, i, a, b, al)) out.push(i); break; }
   }
   return out;
+}
+/* ★[VID_CUT_MOTION 2026-10-23] 섞임 시험만 맞은 프레임은 «움직임으로도 설명되는가»를 한 번 더 본다 — 카메라가 다가가는(줌) · 흐르는 장면은
+   부드러운 그림일수록 «앞뒤 섞음»과 거의 같아 보여(남는 차 비 0.56~0.65) 유령으로 잘못 잡혔다(유화판 선언 다가가기 118곳 · 식전 영상 18곳 · 받은 원본 그대로도 42곳).
+   한쪽 끝을 8×8 칸 찾기(±8)로 옮겨 맞춘 남는 차(움직임)와 섞음의 남는 차를 견줘, 섞음이 움직임의 절반보다 작을 때만 유령이다.
+   진짜 유령(다른 장면과 섞임 · 같은 장면이 튄 자리를 섞어 메움)은 섞음 0.00 대 움직임 5.7~22.7 로 그대로 잡힌다(--selftest). */
+const GHOST_MC = 0.5, GB = 8, GR = 8;
+function bmResid(sm, s, d) {
+  const hb = Math.floor((H - 2 * GR) / GB), wb = Math.floor((W - 2 * GR) / GB), os = s * N, od = d * N; let tot = 0;
+  for (let by = 0; by < hb; by++) for (let bx = 0; bx < wb; bx++) {
+    const y0 = GR + by * GB, x0 = GR + bx * GB; let best = Infinity;
+    for (let dy = -GR; dy <= GR; dy++) for (let dx = -GR; dx <= GR; dx++) {
+      let e = 0;
+      for (let y = 0; y < GB && e < best; y++) { const rd = od + (y0 + y) * W + x0, rs = os + (y0 + y + dy) * W + x0 + dx; for (let x = 0; x < GB; x++) e += Math.abs(sm[rd + x] - sm[rs + x]); }
+      if (e < best) best = e;
+    }
+    tot += best;
+  }
+  return tot / (hb * wb * GB * GB);
+}
+function blendBeatsMotion(sm, i, a, b, al) {
+  let br = 0, c = 0;
+  for (let y = GR; y < H - GR; y++) for (let x = GR; x < W - GR; x++) { const j = y * W + x, A = sm[a * N + j]; br += Math.abs(sm[i * N + j] - (A + al * (sm[b * N + j] - A))); c++; }
+  br /= c;
+  return br < GHOST_MC * Math.min(bmResid(sm, a, i), bmResid(sm, b, i));
 }
 /* ⑤ [VID_RETIME] 걸음 고르기 — 320×180(넓게 평균) · 8×8 칸마다 ±8 칸 찾기(SAD · 포물선 소수점) · 질감 있는 칸의 이동량 평균 = 그 프레임의 속도
    앞뒤 3프레임 중앙값 L ≥ 0.05 · 컷(바뀐 칸 > 35% · 평균 밝기 차 > 8) 앞뒤 3프레임 제외 · |속도 − L| / L 중 가장 큰 5% 를 버린 평균 */
@@ -115,6 +139,27 @@ const hasFfmpeg = (() => { try { execFileSync('ffmpeg', ['-version'], { stdio: '
 if (process.argv[2] === '--start') {
   if (!hasFfmpeg) { console.error('ffmpeg 없음'); process.exit(2); }
   console.log(startPoint(process.argv[3]).toFixed(3)); process.exit(0);
+}
+/* [VID_CUT_MOTION] 깨 보기 — 실제 장면 영상 한 편에 ① 다른 장면과 섞은 프레임 ② 같은 장면이 14칸 튄 자리를 섞어 메운 프레임을 넣으면 둘 다 잡혀야 하고,
+   ③ 한 장면을 6% 다가가는(줌) 프레임들은 잡히면 안 된다. node scripts/audit/video-start.mjs --selftest [영상] */
+if (process.argv[2] === '--selftest') {
+  if (!hasFfmpeg) { console.error('ffmpeg 없음'); process.exit(2); }
+  const src = process.argv[3] || path.join(DIR, 'declare.mp4');   // 다가가는 장면(옛 시험은 여기서 줌을 유령으로 잡는다 · 반지 영상으로는 옛 시험도 안 잡혀 깨 보기가 안 된다)
+  const sm = Buffer.from(execFileSync('ffmpeg', ['-loglevel', 'error', '-i', src, '-t', '4', '-vf', `scale=${W}:${H},format=gray`, '-f', 'rawvideo', '-'], { maxBuffer: 1 << 28 }));
+  const n = Math.floor(sm.length / N), at = (f, x, y) => sm[f * N + Math.min(H - 1, Math.max(0, y)) * W + Math.min(W - 1, Math.max(0, x))];
+  const g1 = 40, g2 = 70;   // ① 다른 장면(좌우 뒤집은 다른 프레임)으로 넘어가며 반쯤 섞인 한 장 · ② 14칸 튄 자리를 반쯤 섞은 한 장
+  const other = Math.floor(n / 2), oth = Buffer.alloc(N), shf = Buffer.alloc(N);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { oth[y * W + x] = at(other, W - 1 - x, y); shf[y * W + x] = at(g2 - 1, x - 14, y); }
+  for (let j = 0; j < N; j++) { sm[g1 * N + j] = (sm[(g1 - 1) * N + j] + oth[j]) >> 1; sm[(g1 + 1) * N + j] = oth[j]; sm[g2 * N + j] = (sm[(g2 - 1) * N + j] + shf[j]) >> 1; sm[(g2 + 1) * N + j] = shf[j]; }
+  const caught = ghostsBuf(sm.subarray(0, (g2 + 8) * N));
+  const z = Buffer.alloc(12 * N), base = 100;   // ③ 줌 1.00 → 1.06(12장)
+  for (let f = 0; f < 12; f++) { const s = 1 + 0.06 * f / 11; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const u = (x - W / 2) / s + W / 2, v = (y - H / 2) / s + H / 2, x0 = Math.floor(u), y0 = Math.floor(v), fx = u - x0, fy = v - y0;
+    z[f * N + y * W + x] = Math.round((1 - fy) * ((1 - fx) * at(base, x0, y0) + fx * at(base, x0 + 1, y0)) + fy * ((1 - fx) * at(base, x0, y0 + 1) + fx * at(base, x0 + 1, y0 + 1))); } }
+  const zoomed = ghostsBuf(z);
+  const okA = caught.includes(g1) && caught.includes(g2), okB = zoomed.length === 0;
+  console.log(`${okA ? 'ok  ' : 'FAIL'} 깨 보기 ① 다른 장면 섞음 · ② 튄 자리 섞음 → 잡힘 ${JSON.stringify(caught)}`);
+  console.log(`${okB ? 'ok  ' : 'FAIL'} 깨 보기 ③ 6% 다가가기(줌)는 유령 아님 → ${JSON.stringify(zoomed)}`);
+  process.exit(okA && okB ? 0 : 1);
 }
 if (process.argv[2] === '--onset') {
   if (!hasFfmpeg) { console.error('ffmpeg 없음'); process.exit(2); }

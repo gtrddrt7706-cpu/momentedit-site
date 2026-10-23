@@ -9678,7 +9678,7 @@ chk 'VIDEO_IN_1003' scripts/audit/listen-page.mjs 5
 #   10/8 «테이블 인사는 영상을 만들지 않는다»(TABLE_GREET_1008)를 뒤집은 결정이다. 되돌리면 ① 칸 · ② · ③ 의 table 이 장면 글로 돌아간다.
 chk 'TABLE_VIDEO_1009' assets/ritual-open.js 2
 chk "if (k === 'table') return \['table'\];" assets/ritual-open.js 1
-chk "'toast', 'close', 'table'\];" assets/ritual-open.js 1
+chk "'toast', 'close', 'table', 'speech', 'song'\];" assets/ritual-open.js 1   # ★[VIDEO_SET_1023] 끝에 축사 · 축가 영상
 chk 'TABLE_VIDEO_1009' scripts/audit/listen-page.mjs 2
 chk '### 17. table · 테이블 인사 · 10초' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'PV_VID_ONCE' order-preview.html 1   # ① 미리보기 영상: 소리가 끝나도 끝까지 · 반복 없이 마지막 장면에서 멈춤(사장님 10/3) → 10/9 끝나면 첫 장면 사진으로 [VID_REST_THUMB]
@@ -9726,6 +9726,20 @@ chk '_vidKeep(o,n)' order-preview.html 1
 chk '.lv video.rest,.mk-vu-img video.rest{opacity:0' order-preview.html 1
 chk 'VID_REST_THUMB' scripts/audit/vid-rest.mjs 2
 chk 'VID_REST_THUMB' .claude/skills/momentedit-design/SKILL.md 1
+# ★★[VIDEO_SET_1023 2026-10-23 사장님 «마지막 검수 거치고 문제없으면 홈페이지에 구현»] 장면 영상 = 유화판 17편(+ 옛 cake · free) — VIDEO_READY 19개 이름 · 축사 칸(free · 축사 갈래)은 speech.mp4 · 축가는 song.mp4.
+#   마감이 끝난 파일이다 — encode-moment.sh 로 다시 굽지 않는다(매끄러운 24fps 판에 잔상). 칸 그림은 모두 첫 장면(listen-page V-5).
+#   ★[VID_REST_END] 끝나면 밑의 사진을 끝 장면(<이름>-end.webp)으로 — 첫 장면으로 돌아가 되감기처럼 보이지 않게(입장 · 닫는 인사). 다시 돌면 첫 장면으로. vid-rest 가 잰다.
+chk 'VIDEO_SET_1023' assets/ritual-open.js 4
+chk "fk === 'speech' ? \['speech'\]" assets/ritual-open.js 1
+chk "rest: VIDEO_DIR + name + '-end.webp'" assets/ritual-open.js 1
+chk 'VIDEO_SET_1023' scripts/audit/listen-page.mjs 3
+chk 'VIDEO_SET_1023' scripts/audit/open-course.mjs 1
+chk 'VID_REST_END' order-preview.html 3
+chk 'function _vidRestEnd(v,t)' order-preview.html 1
+chk '_vidRestEnd(v,e.type); }' order-preview.html 1
+chk "+_vrA(v)+' alt=\"\"" order-preview.html 4
+chk 'VID_REST_END' scripts/audit/vid-rest.mjs 2
+if command -v node >/dev/null 2>&1; then _ve=$(node -e "const fs=require('fs'),R=require('./assets/ritual-open.js'),D='assets/video/moments/';const m=[];R.VIDEO_READY.forEach(function(n){['.mp4','.webp','-640.webp','-end.webp'].forEach(function(x){if(!fs.existsSync(D+n+x))m.push(n+x);});});if(m.length){console.log(m.join(','));process.exit(1);}" 2>&1) && echo 'ok video-set: 영상 이름마다 mp4 · webp · 640 · end 넷 [VIDEO_SET_1023 · VID_REST_END]' || { echo "REVERT? video-set: 빠진 파일 $_ve [VIDEO_SET_1023]"; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vid-rest.mjs >/dev/null 2>&1; _vr=$?
   case "$_vr" in
     0) echo 'ok vid-rest: 장면 영상이 쉬는 동안 썸네일(② · 크게 보기 · ① 창 · 목소리 창)' ;;
@@ -14738,6 +14752,17 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs >/de
   esac
 fi
 chk 'VID_MOVE_NOW' scripts/audit/video-start.mjs 3
+# ★[VID_CUT_MOTION 2026-10-23] ④ 유령 그림은 «섞음이 움직임(8×8 칸 찾기)보다 확실히 잘 맞을 때»만 — 카메라 다가가기(줌)를 유령으로 잡지 않는다.
+#   깨 보기(--selftest): 다른 장면 섞음 · 튄 자리 섞음은 잡고 · 6% 줌은 안 잡는다(옛 시험은 선언 영상의 줌을 잡았다).
+chk 'VID_CUT_MOTION' scripts/audit/video-start.mjs 2
+chk 'if (blendBeatsMotion(sm, i, a, b, al)) out.push(i)' scripts/audit/video-start.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
+  case "$_vt" in
+    0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
+    1) echo 'FAIL video-start selftest: 유령 그림 시험이 죽었거나 줌을 유령으로 잡는다 — node scripts/audit/video-start.mjs --selftest'; fail=1 ;;
+    *) echo 'ok video-start selftest: 재지 못했습니다(ffmpeg 없음)' ;;
+  esac
+fi
 chk 'VID_MOVE_NOW' scripts/video/encode-moment.sh 2
 chk 'video-start.mjs" --start' scripts/video/encode-moment.sh 1   # 앞을 자를 자리 = 검사와 같은 셈(startPoint)
 chk 'video-start.mjs" --onset' scripts/video/encode-moment.sh 1   # 구운 뒤 «첫 장면에서 바로 움직이나»를 그 자리에서 찍는다

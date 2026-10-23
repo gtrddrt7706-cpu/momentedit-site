@@ -712,6 +712,7 @@ section:not(#rsvp) > *:last-child { margin-bottom: 0 }
 - **장면 영상은 도는 동안만 영상, 쉬는 동안은 썸네일 사진**([VID_REST_THUMB] 2026-10-09 사장님 «시간 지나면 영상 부분 검은색 · 썸네일 화면 계속 남아 있게») —
   멈춘 영상의 그림은 기기가 쉬게 하며 놓아 검게 칠할 때가 있다. 영상 밑에 썸네일 `<img>` 를 깔고, 멈추거나 끝나면 영상을 걷는다(0.7초).
   새 영상 자리를 만들면 같은 모양(`.lv` · `.pv-media` · `.mk-vu-img` + `_vidRest`)을 쓴다. 검사 `scripts/audit/vid-rest.mjs`.
+  ★[VID_REST_END 2026-10-23] 끝나면 밑의 사진은 **끝 장면**(`<이름>-end.webp` · `data-rest`)으로 바뀐다 — 첫 장면으로 돌아가면 되감기처럼 보인다. 새 영상은 끝 장면 사진도 함께 넣는다.
 - **소리를 따라 차오르는 막대는 매 화면 조금씩**([BAR_SMOOTH] 2026-10-10 사장님 «로딩 바 차오르는 게 살짝 뚝뚝 끊기는 느낌») —
   `transform: scaleX(소수)` 를 requestAnimationFrame 으로 그린다(`_barSet` · 소리 시각은 `_medMs`). 너비 % 반올림 · `timeupdate`(약 0.25초마다)로 그리지 않는다. 검사 `scripts/audit/bar-smooth.mjs`.
 - **장면 영상은 영화관 비율 2.39 : 1**([CINE_SCOPE] 2026-10-11 사장님 «짤려도 되니깐 시네마 느낌 나게 비율을 감각 있게») —
