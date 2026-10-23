@@ -11,6 +11,7 @@
  *     기준: 그 아래 끝 ≤ 막대 위 끝. 덤으로 가로 넘침 0 · 페이지 오류 0 · 진한 단추가 한 화면에 둘이 아니다.
  *     ★[DRESS_SLIDES 코워크 검토 4] 넘겨 보는 사진은 사진이 있는 장만 — 표본(사진 없음)은 한 장이라 ‹ › · n / 5 가 없어야 하고,
  *       사진을 넣은 사본(이 검사가 시험 사진을 꽂는다)에서는 ‹ › 가 사진 칸 안에 있어야 한다(사진 아래 줄로 돌아가면 단추가 다시 내려간다).
+ *     ★[DRESS_SOLO_NOSAVE] 그다음 막대 단추로 완료 화면에 가서, 단독(저장 없음)이면 머리 «저장» · «남기기»가 안 보이고 «저장됨 · 남겼어요»라 말하지 않는지 본다.
  *     375×667(작은 폰)은 «참고»로만 찍는다 — 코워크 기준 밖이라 빨강으로 세지 않는다.
  *
  *   종료: 0 통과 · 1 가린다 · 2 재지 못했다(브라우저 없음 — 화면 결함이 아니다)
@@ -97,6 +98,14 @@ try {
       if (gate && m.dark > 1) no(`${tag} ${nm} — 진한 단추가 한 화면에 ${m.dark}개([DRESS_PICK_TIER])`);
     }
     if (gate && c && !/cc-btn-ghost\|Nº 02로 고르기/.test(cLab)) no(`${tag} 한 벌 고른 뒤 다른 드레스의 단추가 외곽 «Nº 02로 고르기»가 아니다 — ${cLab}`);
+    // ★[DRESS_SOLO_NOSAVE] 단독 완료 화면 — 저장이 없으니 머리 «저장» · 완료 «남기기»가 안 보이고 «저장됨 · 남겼어요»라 말하지 않는다(«나가기» · 머리 아래 한 줄은 그대로)
+    await page.click('.wz-bar [data-act="save"]');
+    const solo = await page.evaluate(() => {
+      const el = (id) => document.getElementById(id), vis = (id) => !!(el(id) && el(id).offsetParent);
+      return { done: !!el('pkMemo'), save: vis('pkSave'), leave: vis('pkLeave'), exit: vis('pkExit'), line: vis('pkSolo'),
+        said: [el('pkSave'), el('pkLeave')].some((e) => !!e && /저장됨|남겼어요/.test(e.textContent)) };
+    });
+    if (gate && (!solo.done || solo.save || solo.leave || !solo.exit || !solo.line || solo.said)) no(`${tag} 단독 완료 화면 — 저장이 없는데 «저장» · «남기기»가 보이거나 «저장됨 · 남겼어요»라 말한다 ${JSON.stringify(solo)} [DRESS_SOLO_NOSAVE]`);
     if (gate && a && (a.slides !== 1 || a.nav || a.cnt)) no(`${tag} 사진 없는 표본인데 넘김(‹ › · n / 5)이 있다 — 장 ${a.slides}([DRESS_SLIDES])`);
     if (gate && errors.length) no(`${tag} 페이지 오류 ${errors.length} · ${errors[0]}`);
     await page.close();
@@ -121,4 +130,4 @@ try {
 }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-fit — 실패 ${bad}건 [DRESS_DETAIL_FIT]`); process.exit(1); }
-console.log(`━━ dress-fit — 통과 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 [DRESS_DETAIL_FIT]`);
+console.log(`━━ dress-fit — 통과 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 [DRESS_DETAIL_FIT]`);

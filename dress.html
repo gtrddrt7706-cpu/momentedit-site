@@ -214,6 +214,7 @@ body.pick{background:var(--bg)}
 .wiz-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
 .wiz-save:disabled{color:var(--light);cursor:default}
 .wiz-save:disabled:hover{color:var(--light);border-color:var(--border);background:var(--card-white)}
+html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}   /* ★[DRESS_SOLO_NOSAVE 2026-10-23] 단독(?pick=1)은 저장이 없다 — 머리 «저장» · 완료 «남기기»를 숨긴다(마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴 [SNAP_PRECONSENT_EXIT]) · 저장한 척 «저장됨»이 머리 아래 «이 화면에서 고른 것은 저장되지 않아요»와 어긋났다 */
 .pk-solo{margin:-4px 0 14px;font-size:12px;color:var(--light);line-height:1.7}   /* 단독(?pick=1)일 때만 — 마이페이지 겹화면에는 없다 */
 .pk-main{flex:1 0 auto;padding-bottom:24px}
 .pk-main:focus{outline:none}
@@ -697,18 +698,15 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     if (S.busy) return;
     var ids = S.picks.filter(Boolean);
     if (mode === 'done' && !ids.length) return;
+    if (!EMBED) {   // [DRESS_SOLO_NOSAVE] 단독 = 검토용 · 저장하지 않는다 — 막대 단추는 완료 화면으로 넘기기만 한다(저장한 척 «저장됨 · 남겼어요»를 띄우지 않는다)
+      if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();
+      return;
+    }
     if (!ids.length && !dirty()) { if (mode === 'exit') exitNow(); return; }   // 보낼 것도 비울 것도 없다
     var names = ids.map(function(id){ var d = R.dress(id); return d ? d.name : ''; });
     var data = { picks: ids, names: names, ans: R.cleanAns(S.ans), memo: S.memo.trim().slice(0, 200) };
     var k = keyOf(ids, data.memo);
     S.err = ''; S.mode = mode;
-    if (!EMBED) {   // 단독 = 검토용 · 저장하지 않는다(모양만 같게)
-      S.base = k; S.saved = true; S.failed = false; S.mode = '';
-      if (mode === 'leave') S.left = true;
-      if (mode === 'done') { go('done'); return; }
-      if (mode === 'exit') { exitNow(); return; }
-      renderBar(); syncState(); return;
-    }
     S.busy = true; S.sentKey = k; renderBar(); syncState();
     try { window.parent.postMessage({ type: 'momentedit:dressSave', data: data, exit: mode === 'exit' }, location.origin); }
     catch (e) { S.busy = false; S.failed = true; S.err = '저장하지 못했어요 · 다시 눌러 주세요 (코드 S0)'; renderBar(); syncState(); return; }
@@ -751,6 +749,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     document.title = '시착 준비 · 모먼트에디트';
     $('pubView').hidden = true; $('pickView').hidden = false;
     if (!EMBED) $('pkSolo').hidden = false;   // [DRESS_NO_INTRO] 단독일 때만 머리 아래 한 줄
+    if (!EMBED) document.documentElement.classList.add('pk-alone');   // [DRESS_SOLO_NOSAVE] 저장할 수 없으면 «저장» · «남기기»를 두지 않는다
     $('pkExit').addEventListener('click', exit);
     $('pkSave').addEventListener('click', function(){ save('stay'); });
     $('pickView').addEventListener('click', function(e){

@@ -19452,7 +19452,7 @@ chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호
 chk 'DRESS_DETAIL_FIT' dress.html 6
 chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
 nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
-# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 17가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
+# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 19가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
 chk 'DRESS_LIVE_READY' assets/dress-refs.js 1                             # 켤 때 할 일 ㄹ — 실물 4벌 이상 · 모두 사진 · ex 는 사진 있는 장만(dress-refs.mjs ④ 가 막는다)
 chk 'DRESS_SLIDES' assets/dress-refs.js 1                                 # 자세히 = 사진 있는 장만 · 한 장이면 ‹ › · n / 5 없음
 chk 'DRESS_SLIDES' dress.html 2
@@ -19468,6 +19468,10 @@ chk '<p class="pk-bar-note">안 입은 드레스는 시착비가 들지 않아�
 chk 'DRESS_NO_INTRO' dress.html 3                                         # 인트로 걷음 — 열면 첫 물음부터(카드가 같은 말을 이미 했다)
 nochk 'function introHTML' dress.html 0
 nochk '몇 가지 답하고 보기' dress.html 0
+chk 'DRESS_SOLO_NOSAVE' dress.html 3                                      # 단독(?pick=1)은 저장이 없다 — «저장» · «남기기» 숨김 · 저장한 척 «저장됨» 없음(머리 아래 «저장되지 않아요» 한 줄과 어긋났다)
+chk 'html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}' dress.html 1   # 마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴(저장할 수 없으면 «저장» 알약을 두지 않는다)
+nochk '저장하지 않는다(모양만 같게)' dress.html 0
+chk 'DRESS_SOLO_NOSAVE' scripts/audit/dress-fit.mjs 2
 chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(첫 물음 · 카드 0벌)
 chk 'DRESS_NO_PICK_OK' mypage.html 1
 chk 'DRESS_SKIP_Q' dress.html 3                                           # 물음마다 «질문 없이 바로 보기»
@@ -19491,7 +19495,7 @@ chk 'DRESS_NUM_LINING' mypage.html 1
 chk 'DRESS_HOME_BELOW' index.html 3                                       # 홈 «드레스 둘러보기»는 사진 아래 · 켜지면 사진도 같은 곳 · 단추 글 가운데
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
-    0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만' ;;
+    0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
     1) echo 'FAIL dress-fit: 자세히 첫 화면에서 고르기 단추가 막대에 가립니다 — node scripts/audit/dress-fit.mjs --print'; fail=1 ;;
     *) echo 'ok dress-fit: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac

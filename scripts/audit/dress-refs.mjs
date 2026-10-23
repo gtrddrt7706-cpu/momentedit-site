@@ -262,6 +262,10 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/mpConfirm\(\{ title:st\.failed\?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요',/.test(op) && /'저장하고 나갈까요\? 저장하지 않으면 방금 고치신 내용은 남지 않아요\.'/.test(op) && /yes:'저장하고 나가기', no:'그냥 나가기', dismissNull:true/.test(op), '⑪ [DRESS_EXIT_ASK] 판 = 마이페이지 입력 화면의 그 판(저장하지 않은 변경이 있어요 · 저장하고 나가기 · 그냥 나가기 · 닫으면 그대로)');
   t(/if\(!st\.dirty && !st\.failed\)\{ done\(\); return; \}/.test(op) && /var _bkId=bkOpen\(function\(\)\{ askExit\(true\); \}\);/.test(op) && /if\(e\.key==='Escape' && document\.activeElement!==fr\) askExit\(false\);/.test(op) && /if\(m\.type==='momentedit:dressExit'\)\{ askExit\(false\); return; \}/.test(op), '⑪ [DRESS_EXIT_ASK] 바뀐 게 없으면 바로 닫힌다 · 머리 «나가기» · 뒤로가기 · Esc 셋이 한 곳(askExit)을 지난다');
   t(/if\(st\.busy\)\{ exitWait=true;/.test(op) && /var win=function\(\)\{ saved=true; failCode=''; if\(toExit\)\{ done\(\); return; \} ack\(true\); \};/.test(op), '⑪ [DRESS_EXIT_ASK] 저장 중이면 기다렸다 판단 · «저장하고 나가기»는 저장이 닿은 뒤에 닫는다');
+  // [DRESS_SOLO_NOSAVE] 단독(?pick=1)은 저장이 없다 — «저장» · «남기기»를 숨기고(마이페이지 스냅 동의 전과 같은 꼴) 저장한 척하지 않는다
+  const svSolo = (fnOf('save').match(/if \(!EMBED\) \{[\s\S]*?\n    \}/) || [''])[0];
+  t(PAGE.indexOf('html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}') > -1 && /if \(!EMBED\) document\.documentElement\.classList\.add\('pk-alone'\);/.test(JS), '⑪ [DRESS_SOLO_NOSAVE] 단독이면 머리 «저장» · 완료 «남기기»를 숨긴다');
+  t(!!svSolo && !/S\.saved|S\.left|S\.base/.test(svSolo) && /go\('done'\)/.test(svSolo), '⑪ [DRESS_SOLO_NOSAVE] 단독은 저장한 척하지 않는다(«저장됨 · 남겼어요» 없음) · 막대 단추는 완료 화면으로 넘기기만');
   // [DRESS_SLIDES] 사진 있는 장만 · 한 장이면 넘김 없음
   const Rs = load(src);
   t(typeof Rs.slides === 'function' && JSON.stringify(Rs.slides({ img: 'a', ex: [{ t: '앞', img: 'b' }, { t: '뒤' }] })) === '[{"img":"b","t":"앞"}]' && JSON.stringify(Rs.slides({ img: 'a', ex: [{ t: '앞' }] })) === '[{"img":"a","t":""}]', '⑪ [DRESS_SLIDES] 넘겨 보는 사진 = 사진 있는 장만 · 없으면 대표 사진 한 장');
@@ -301,7 +305,9 @@ if (process.argv.includes('--selftest')) {
     ['신청서 Note 를 다시 span 으로 쪼갬', SRC, GAS, PAGE0, MP0, { INQ: INQ.replace(/<span data-dress-text="[^"]*">(대여 의상은 프리 사이즈\(44~88 내외\)로, 상담에서 직접 보고 확인하실 수 있습니다\.)/, '<span data-dress-off>$1</span><span>') }],
     ['나가기가 다시 닫기 신호만 보낸다', SRC, GAS, PAGE0.replace("window.parent.postMessage({ type: 'momentedit:dressExit' }, location.origin); } catch (e) {} return; }\n    location.href = '/dress.html';\n  }\n  function applyFill", "window.parent.postMessage({ type: 'momentedit:dressClose' }, location.origin); } catch (e) {} return; }\n    location.href = '/dress.html';\n  }\n  function applyFill")],
     ['시착비 숫자가 시착 동의서와 다르다', SRC, GAS, PAGE0.replace('3벌째부터 1벌당 50,000원입니다.', '3벌째부터 1벌당 70,000원입니다.')],
-    ['사진 없는 장도 다시 넘긴다', SRC.replace('.filter(function (e) { return e && e.img; })', '.filter(function (e) { return !!e; })'), GAS]
+    ['사진 없는 장도 다시 넘긴다', SRC.replace('.filter(function (e) { return e && e.img; })', '.filter(function (e) { return !!e; })'), GAS],
+    ['단독에서 «저장»이 다시 보인다', SRC, GAS, PAGE0.replace('html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}', '')],
+    ['단독이 다시 저장한 척(«저장됨»)', SRC, GAS, PAGE0.replace("if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();", "S.saved = true; if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();")]
   ];
   /* ★[DRESS_LIVE_READY] 켜기 조건 — 다 갖춘 켠 사본(실물 4벌 · 모두 사진 · ex 도 사진 · noindex 없음 · sitemap)이 먼저 초록이어야 한다(대조).
      거기서 한 가지씩 깬다 — 표본만 · 사진 없음 · 4벌 미만 · ex 에 사진 없는 장. 사진 자리는 있는 파일(홈 Styling 사진)을 가리킨다 */
