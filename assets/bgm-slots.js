@@ -32,6 +32,12 @@
      ★음악 칸의 «우리가 고른 곡»(칩 · 곡 파일 올리기 · 곡 카드 · 짧은 곡 안내 · 이 기기 보관 me-bgm-song · «보낼 것» 음악 줄) 금지 — 2026-10-23 사장님 지시로 삭제 [BGM_INFO_1023] ·
        부모님께 인사 칩(밝고 따뜻한 곡 · 감동적인 곡) · 테이블 인사 «마지막 곡만 고르기»도 같은 날 뺐다(인사 멘트 분위기와 같은 질문을 두 번 묻는다 · 대본 판정 «뭉클한 여는 말에도 밝고 따뜻한 곡») ·
        입장 음악(S3 · assets/entry-music.js · S.mu)은 그대로다 */
+  /* ★★[BGM_R1_1023 2026-10-23 사장님 «최선인지 디자이너 시선으로 개선 검토해 봐 · 라운드별로» → BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만»]
+     고를 것이 없는 음악 안내(one · LINE)는 «고르기» 칸이 아니라 «흐름»(이 순간 전체 듣기 아래 줄)의 채운 점 줄 하나다 — 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴(li.q · 새 아이콘 · 색 · ♪ 없음).
+     ▶ 가 없는 줄이라 «이 순간 전체 듣기 · n줄»의 n · 듣기 · 이어 듣기 순서에 끼지 않는다(화면만 그린다 · 엔진 줄이 아니다).
+     자리(at) = 음악이 시작되는 때 — top 맨 앞 · video 영상 상영 줄 바로 앞(없으면 맨 앞) · bridge 첫 줄(넘어가는 이음말 263)이면 그 바로 뒤 · bow «목례» 줄 바로 뒤 · cheers «위하여!» 줄 바로 뒤.
+     «고르기»에 남는 음악 칸은 입장 · 축사 · 편지뿐 · 이름표 «입장 음악 · 축사 음악 · 편지 음악».
+     ★고를 것이 없는 음악 한 줄을 «고르기» 칸(이름표 «음악» + 글)에 다시 두지 말 것 — 2026-10-23 사용자 지시로 옮김 [BGM_R1_1023] */
   var PICK = { none: '음악 없이', bed: '음악과 함께' };
 
   /* 크기 단계 이름(참고 값) — 말 아래 · 낭독 아래 · 음악이 주인공 */
@@ -43,12 +49,12 @@
      picks = 고르기(축사 · 편지만 · 첫째가 기본) · lines = 고른 것마다 아래 한 줄 · short = 한눈에 보기에 쓰는 짧은 이름
      ref   = 참고 값(역할 · 길이 초 · 크기 단계 · 들어오는 때 · 박수 줄) — 다음 단계(곡 고르기 · 콘솔)가 쓴다 */
   var SLOTS = [
-    { id: 'S1', ks: ['guest'], picks: [],
+    { id: 'S1', ks: ['guest'], picks: [], at: 'top',
       one: '하객이 앉는 동안 잔잔한 연주가 흘러요',
       ref: { role: '배경', sec: [1500, 1800], level: LEVEL.main,
         note: '개식 인사(137)는 S1 이 잦아든 뒤 조용하게, 또는 아주 작게' } },
     /* [BGM_FORM_1023 v2] 화촉을 밝히는 분은 어머님 · 아버님 · 대표 두 분 중 하나라 «어머님»이라 쓰지 않는다 · 개식 안내에서 잇는다는 말은 뺐다(S2 는 화촉 이음말 263 부터) */
-    { id: 'S2', ks: ['candle'], picks: [],
+    { id: 'S2', ks: ['candle'], picks: [], at: 'bridge',
       one: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요',
       ref: { role: '메인', sec: 240, level: LEVEL.main,
         from: '화촉 이음말(263)부터 · 식전 영상이 없는 날은 개식 끝 박수 뒤부터' } },
@@ -57,8 +63,8 @@
       one: '입장 음악',
       ref: { role: '메인', sec: null, level: LEVEL.main, note: '입장 음악(assets/entry-music.js · S.mu) 그대로 · 맞절까지 이어진다' } },
     /* [BGM_FORM_1023 v2] 한 곡으로 잇는다 · 크기 단계는 둘(나레이션 아래 «작게» · 사람이 직접 말하는 자리 «아주 작게 · 거의 들리지 않게») */
-    { id: 'S4', ks: ['welcome', 'vow', 'ring', 'declare', 'bless'], picks: [],
-      one: '말 아래 잔잔한 피아노가 아주 작게 깔려요',
+    { id: 'S4', ks: ['welcome', 'vow', 'ring', 'declare', 'bless'], picks: [], at: 'top',
+      one: '목소리 뒤로 잔잔한 피아노가 아주 작게 흘러요',   /* [BGM_R1_1023] «말 아래»는 고객에게 낯선 말 */
       ref: { role: '배경', sec: 420, level: LEVEL.speech,
         levels: [
           { at: '나레이션 아래', lv: '작게' },
@@ -66,35 +72,35 @@
         ],
         clap: [{ no: 57, line: '큰 박수로 축하해 주시면…', up: '짧게 올린다', down: '111 «네, 고맙습니다.»와 덕담 여는 말(23) 앞에서 다시 낮춘다' }] } },
     /* [BGM_INFO_1023] 축사 · 편지는 엔진이 무음(duckOff)이다 — 기본은 «음악 없이» · «음악과 함께»를 고른 칸만 엔진 · 장면 글 · 미리 듣기 · 당일 콘솔이 낭독 아래 −20 으로 따라간다 */
-    { id: 'S5', ks: ['free'], picks: ['none', 'bed'], short: '축사',
+    { id: 'S5', ks: ['free'], picks: ['none', 'bed'], short: '축사',   /* 이름표 «축사 음악»(short + ' 음악' · BGM_R1_1023) */
       lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 아래 밝은 연주곡이 아주 작게 깔려요' },
       ref: { role: '배경', sec: 240, level: LEVEL.read } },
     { id: 'S6', ks: ['letter'], picks: ['none', 'bed'], short: '편지',
       lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 아래 오르골 · 피아노가 아주 작게 흘러요' },
       ref: { role: '배경', sec: 330, level: LEVEL.read } },
     /* [BGM_INFO_1023] 대본 판정 «뭉클한 여는 말에도 밝고 따뜻한 곡» · 자료(슬픈 곡이면 더 운다) — 고르기 없이 한 줄 */
-    { id: 'S7', ks: ['tribute'], picks: [],
+    { id: 'S7', ks: ['tribute'], picks: [], at: 'top',
       one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요',
       ref: { role: '메인', sec: 240, level: LEVEL.main } },
-    { id: 'S8', ks: ['_close'], picks: [],
+    { id: 'S8', ks: ['_close'], picks: [], at: 'bow',
       one: '«인사!»와 함께 힘 있는 곡이 시작돼요',
       ref: { role: '신호', sec: 120, level: LEVEL.main,
         clap: [{ no: 108, line: '… 하객 여러분께 인사!', up: 'S8 이 힘 있게 시작한다' }] } },
-    { id: 'S9', ks: ['toast'], picks: [],
-      one: '«위하여!»와 함께 신나는 곡이 터져요',
+    { id: 'S9', ks: ['toast'], picks: [], at: 'cheers',
+      one: '«위하여!»와 함께 신나는 곡이 울려 퍼져요',   /* [BGM_R1_1023] «터져요»는 브랜드 톤보다 가볍다 */
       ref: { role: '신호', sec: [60, 90], level: LEVEL.main } },
     /* [BGM_FORM_1023 v2] 식사가 없는 날도 있어 «식사»는 뺐다 */
-    { id: 'S10', ks: ['table'], picks: [],
-      one: '테이블 인사 · 사진 동안 재즈가 흐르고, 마지막 곡으로 닫아요',
+    { id: 'S10', ks: ['table'], picks: [], at: 'top',
+      one: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요',   /* [BGM_R1_1023] 무엇을 닫는지(하루) */
       ref: { role: '배경', sec: 1800, level: LEVEL.speech, note: '30분 + 마지막 곡(테이블 인사 · 사진 · 마무리)',
         clap: [{ no: 131, line: '… 큰 박수로 맞이해 주십시오.', up: '올라와도 좋다' }] } }
   ];
 
-  /* 음악 칸이 없는 순간 · 이어지는 순간 — 화면에는 한 줄만 */
+  /* 음악 칸이 없는 순간 · 이어지는 순간 — 흐름 줄 하나(BGM_R1_1023) · cont 의 {at} = 그 칸의 첫 담긴 순간 이름(chooser · 빌더 nameOf) */
   var LINE = {
     prevideo: '영상에 입힌 소리로 흘러요',
     matjeol: '입장 곡이 이어져요',
-    cont: '앞 순서 곡이 그대로 이어져요'   /* S4 의 서약 · 반지 · 선언 · 덕담 — 바꿀 것이 없어 링크도 없다 */
+    cont: '{at}부터 흐르던 피아노가 아주 작게 이어져요'   /* S4 의 서약 · 반지 · 선언 · 덕담 — 감사 인사부터 흐르던 곡(감사 인사를 뺀 식순이면 «혼인 서약부터…») */
   };
 
   var BY = {}, OF = {};
@@ -120,20 +126,34 @@
   /* 아래 한 줄 — 고른 것에 따라 */
   function lineOf(s, m) { return (s && s.lines && s.lines[m]) || ''; }
 
-  /* 순간 쪽에서 무엇을 그리나 — onOf(k) · seq(본식 차례) · freeKind(축사 칸의 판)는 빌더가 넘긴다
-     {kind:'pick', s} 축사 · 편지 칩 둘 · {kind:'line', t, s?} 한 줄 · {kind:'entry'} 입장 음악 칸 · null 없음 */
+  /* 순간 쪽에서 무엇을 그리나 — onOf(k) · seq(본식 차례) · freeKind(축사 칸의 판) · nameOf(k)(순간 이름)는 빌더가 넘긴다
+     {kind:'pick', s} 축사 · 편지 칩 둘(«고르기») · {kind:'entry'} 입장 음악 칸(«고르기») · {kind:'flow', t, at, s?} 흐름 줄 하나 · null 없음 [BGM_R1_1023] */
   function viewOf(k, o) {
     o = o || {};
-    if (k === 'prevideo') return { kind: 'line', t: LINE.prevideo };
-    if (k === 'free' && o.freeKind === 'video') return { kind: 'line', t: LINE.prevideo };   /* 옛 초안 «영상» 갈래(FREE_KIND video) */
+    if (k === 'prevideo') return { kind: 'flow', t: LINE.prevideo, at: 'video' };
+    if (k === 'free' && o.freeKind === 'video') return { kind: 'flow', t: LINE.prevideo, at: 'video' };   /* 옛 초안 «영상» 갈래(FREE_KIND video) */
     if (k === 'free' && o.freeKind && o.freeKind !== 'speech') return null;                  /* 옛 초안 선물 · 기타 — 엔진도 그대로 무음 */
-    if (k === 'matjeol') return { kind: 'line', t: LINE.matjeol };
+    if (k === 'matjeol') return { kind: 'flow', t: LINE.matjeol, at: 'top' };
     if (k === 'entry') return { kind: 'entry' };
     var s = slotOfKey(k); if (!s || s.entry) return null;   /* 축가(MR 흐름) · 케이크(은퇴) 등은 없다 */
     if (s.picks.length) return { kind: 'pick', s: s };
-    var at = chooser(s, o);
-    if (at && at !== k) return { kind: 'line', t: LINE.cont, s: s };
-    return { kind: 'line', t: s.one, s: s };
+    var first = chooser(s, o);
+    if (first && first !== k) {
+      var nm = ''; try { nm = typeof o.nameOf === 'function' ? String(o.nameOf(first) || '') : ''; } catch (e) {}
+      return { kind: 'flow', t: LINE.cont.replace('{at}', nm || '앞 순서'), at: 'top', s: s };
+    }
+    return { kind: 'flow', t: s.one, at: s.at || 'top', s: s };
+  }
+  /* 흐름 줄을 놓을 자리 — 엔진 줄(빌더 _lSteps) 차례에서 «이 줄 앞에»의 번호(0 = 맨 앞 · st.length = 맨 뒤)
+     x.skip = 영상 상영 줄 · x.talk = 차례 줄 · x.quiet = 행동 줄 · x.slug 'bridge-…' = 넘어가는 이음말 */
+  function flowAt(at, st) {
+    st = st || []; var i;
+    if (at === 'video') { for (i = 0; i < st.length; i++) if (st[i] && st[i].skip) return i; return 0; }
+    if (at === 'bridge') return (st[0] && /^bridge-/.test(String(st[0].slug || ''))) ? 1 : 0;
+    if (at === 'bow') { for (i = 0; i < st.length; i++) if (st[i] && st[i].quiet && /목례/.test(String(st[i].txt || ''))) return i + 1; return 0; }
+    if (at === 'cheers') { for (i = 0; i < st.length; i++) if (st[i] && st[i].talk && /위하여/.test(String(st[i].txt || ''))) return i + 1;
+      for (i = st.length - 1; i >= 0; i--) if (st[i] && /위하여/.test(String(st[i].txt || ''))) return i + 1; return 0; }
+    return 0;
   }
   /* 칸의 첫 순간 = 이 칸의 순간 중 «담긴» 첫 순간(본식 차례) — 감사 인사를 담지 않은 식순이면 다음 담긴 순간이 안내 한 줄을 받는다 */
   function chooser(s, o) {
@@ -144,5 +164,5 @@
     return ks[0] || null;
   }
 
-  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, chooser: chooser };
+  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, flowAt: flowAt, chooser: chooser };
 });
