@@ -478,14 +478,14 @@ ok('[REVIEW33_1023 검토 159-2] 01 · 02 · 116 · 119 · 122 · 124 · 130 · 
     && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가') && N.guestEx[0][0] !== D.GUEST[0][1]
     && D.GUEST[1][1].indexOf('잠시 후 신랑 신부의 결혼식이 진행될 예정입니다. ') === 0 && D.GUEST[1][2].indexOf('잠시 후 저희의 결혼식이 진행될 예정입니다. ') === 0
     && N.guestEx[0][1].indexOf('잠시 후 아름다운 두 사람의 시작을 함께하게 될 텐데요. ') === 0 && N.guestEx[1][0].indexOf('바쁜 주말 귀한 시간 내주셔서 감사합니다. ') === 0
-    && N.guestEx[1][3] === '잠시 후 신랑 신부의 결혼식을 시작하겠습니다. 하객 여러분께서는 자리에 앉아 주시기 바랍니다. 간혹 식 중에 전화벨이 울리기도 하는데 오늘은 그런 일이 없도록 지금 다시 한번 확인해 봐 주십시오.'
+    && N.guestEx[1][3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.'   /* [YUKWAE_MODERN_1024] 122 다시 */
     && N.guestEx[2][1].indexOf('잠시 후 신랑 신부의 성스러운 예식이 시작될 예정입니다. ') === 0 && N.pvEx[2] === '내빈 여러분께서는 스크린을 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.'
     && /'narr-photo-upload': '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다\.'/.test(fs.readFileSync(P('assets/ritual-cue.js'), 'utf8')); })());
 ok('[REVIEW33_1023 검토 159-3 · 159-4] 두 분 예시(다정 g0 · 격식 g0 · 유쾌 g3 · 입장 E) · 축배 예시 다섯 = 새 글 · 옛 글은 _OLD 에', (() => {
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
   const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text;
   return /\['다정하게',\["저희 커플을 위해 시간 내 함께해 주셔서 정말 감사합니다\./.test(B) && /\['격식 있게',\["이렇게 좋은 날, 저희를 축복해 주시기 위해 어려운 걸음 소중한 걸음 해 주셨습니다\./.test(B)
-    && B.indexOf('"잠시 후 저희의 결혼식을 시작하겠습니다. 하객 여러분께서는 자리에 앉아 주시기 바랍니다.') > -1 && D.ENTRY.E.self.indexOf('오늘은 저희에게 평생 아름답게 기억될 것 같습니다. ') === 0
+    && B.indexOf('"잠시 후 저희의 결혼식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요."]],') > -1 /* [YUKWAE_MODERN_1024] */ && D.ENTRY.E.self.indexOf('오늘은 저희에게 평생 아름답게 기억될 것 같습니다. ') === 0
     && t('509_toast-bride') === '모든 분들과 저희의 미래를 위하여!' && t('618_toast-bride') === '저희의 행복한 결혼생활을 위하여!' && t('818_toast-bride') === '저희의 영원한 사랑을 위하여!'
     && t('617_toast-groom').indexOf('오신 걸음걸음') === 0 && t('817_toast-groom') === '앞으로 행복하게 잘 살며 여러분과 함께하겠습니다.'
     && /"509_toast-bride": \[[^\]]*"모두의 행복을 위하여!"/.test(B) && B.indexOf('이제, 저희가 함께 걸음을 내딛습니다.') > B.indexOf('var ENTRY_OLD='); })());
@@ -501,6 +501,16 @@ ok('[GUEST_5MIN_OFF_1023 검토 159-1] 5분 전 칸 없음 — 엔진(나레이�
     && ['guest-3-5min', 'guest-ex2-3-5min', 'guest-ex3-3-5min', 'guest-ex4-3-5min'].every((k) => C.RETIRED[k])
     && /var GUEST_KEYS=\['g0','g1','g3'\];/.test(B5) && !/\['g2','시작 5분 전','guest'\]/.test(B5) && !/'g0','g1','g2','g3'/.test(B5) && !/'g0','g1','g2','g3'/.test(CO) && !/'g0','g1','g2','g3'/.test(AD)
     && (C.build({ course: 'open', on: {}, guide: 1 }, { mode: 'console' }).cues.find((c) => /^narr-photo/.test(c.slug || '')) || {}).atMin === -5; })());
+/* ★★[YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024 검토 160 고침판 · 사장님 10/24 «자료에 있다고 무조건 붙이지 말고 좋은 글인지 검토 · 유쾌는 너무 올드해»] */
+ok('[YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024] 유쾌 120 · 122 · 85 = 요즘 입말 · 두 분 유쾌 g0 · g1 · g3 짝 · 옛 사회자 말투 0 · 48 · 입장 A · 717 그대로', (() => {
+  const X = fs.readFileSync(P('assets/ritual-cue.js'), 'utf8'), N = O.NAR.guestEx[1];
+  const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
+  const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '';
+  const old = /주시길 바랍니다|간혹 .*하는데|너무나도 좋을 것 같습니다|사랑의 이름으로|확인해 봐 주십시오/;
+  return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.'
+    && /'narr-photo-send': '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요\.'/.test(X) && /'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다\.'/.test(X)
+    && /\['유쾌하게',\["바쁜 주말 귀한 시간 내주셔서 감사합니다\. 오늘 모든 안내는 저희가 미리 준비한 목소리로 진행됩니다\.",\s*"십 분 뒤 저희의 결혼식이 시작됩니다\./.test(B)
+    && ![N[0], N[1], N[3]].some((x) => old.test(x)) && /^각자의 길을 걸어온 저희가/.test(D.ENTRY.A.self) && t('717_toast-groom') === '멋지게 잘 살겠습니다!'; })());
 /* ── 8. 실브라우저(--live) ── */
 if (process.argv.includes('--live')) {
   let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
