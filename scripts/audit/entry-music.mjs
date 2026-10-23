@@ -12,11 +12,11 @@
    9 안내 창이 «이 순간 전체 듣기 · 음악과 함께»를 말한다(나레이션 판 = «멘트부터 입장까지») · 쪽 오류 없음
    ★★[ENTRY_SCENE_1012] 2단계 «음악과 함께 듣기»
    10 올리면 고르기 칸 바로 아래 장면 칸(16px) · 그래프 그림 · 알약 «이 순간 전체 듣기 · 음악과 함께» · 계획 = 목소리 끝 + 0.3초가 고른 자리(곡은 그만큼 앞에서 · 목소리보다 10초 먼저 [ENTRY_BGM_1019])
-   11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «기다려요» 칸이 진하게
+   11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «대기»가 진하게
    4c [PREV_12_60_1013] 곡 줄 ▶(음악만 듣기) = 문이 열리는 자리 12초 앞부터 1분 — 추천 곡 카드 ▶ 와 같은 값
    11b [ENTRY_CALL_PAUSE_1013] 나레이션이면 목소리를 «입장!» 앞에서 둘로 끊어 건다 — «…감사하겠습니다» 말끝 → «신랑» 말머리 1.8초(엔진 SP.call · 당일 콘솔과 같은 엔진)
    12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터
-   13 그래프를 누르면 그 자리부터(문이 열린 뒤 = «걸어 들어와요» 칸)
+   13 그래프를 누르면 그 자리부터(문이 열린 뒤 = «입장» 칸)
    14 소리 하나 — 자리 ▶ 를 누르면 장면은 멈추고(이어 듣기) · 빌더가 제 소리를 틀어도(_stopMk) 멈춘다
    15 자리를 바꾸면(직접 적기 1:05) 멈춘 자리를 걷고 새 자리로 다시 짠다
    16 새로고침 뒤에도 장면 칸이 다시 선다(이 기기에 둔 곡)
@@ -95,14 +95,14 @@ try {
     const S10 = await pg.evaluate(() => { const sc = document.querySelector('.em-scene'), mu = document.querySelector('.ls-mu'), pick = mu && mu.closest('.mk-pick'), cv = sc && sc.querySelector('.em-graph canvas'); let ink = 0; if (cv) { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) ink++; }
       const b = sc && sc.querySelector('[data-fk="emscene"]'), s = EntryMusic._t.scene(); return { after: !!(sc && pick && pick.nextElementSibling === sc), gap: sc && mu ? Math.round(sc.getBoundingClientRect().top - mu.getBoundingClientRect().bottom) : null, ink, pill: b && b.textContent.replace(/\s+/g, ' ').trim(), pressed: b && b.getAttribute('aria-pressed'), plan: s.plan, pieces: s.pieces, scn: (sc && sc.querySelector('.lg-scene').textContent) || '', lbl: (sc && sc.querySelector('.em-graph').getAttribute('aria-label')) || '', over: document.documentElement.scrollWidth > innerWidth }; });
     const P = S10.plan || {};
-    ok(`${W} 10 올리면 고르기 칸 바로 아래 장면(16px) · 그래프 · 알약 «이 순간 전체 듣기 · 음악과 함께» · 목소리 끝 + 0.3초 = 고른 자리 · 곡이 목소리보다 10초 먼저 [ENTRY_BGM_1019]`, S10.after && S10.gap === 16 && S10.ink > 500 && S10.pressed === 'false' && S10.pill === '이 순간 전체 듣기 · 음악과 함께' && S10.plan && Math.abs(P.th - (P.tv + P.V + 0.3)) < 0.01 && Math.abs(P.H - 40) < 0.3 && P.tm === 0 && P.tv === 10 && Math.abs(P.off - (P.H - P.V - 0.3 - 10)) < 0.01 && S10.pieces >= 3 && /기다려요/.test(S10.scn) /* [PEND_ENTRY_1014] 짧은 판이면 «문 앞에서»를 접는다(SCENE_FIT_WORD) */ && /도착/.test(S10.scn) && /«입장!»이 끝나면/.test(S10.lbl) && !S10.over, S10);
+    ok(`${W} 10 올리면 고르기 칸 바로 아래 장면(16px) · 그래프 · 알약 «이 순간 전체 듣기 · 음악과 함께» · 목소리 끝 + 0.3초 = 고른 자리 · 곡이 목소리보다 10초 먼저 [ENTRY_BGM_1019]`, S10.after && S10.gap === 16 && S10.ink > 500 && S10.pressed === 'false' && S10.pill === '이 순간 전체 듣기 · 음악과 함께' && S10.plan && Math.abs(P.th - (P.tv + P.V + 0.3)) < 0.01 && Math.abs(P.H - 40) < 0.3 && P.tm === 0 && P.tv === 10 && Math.abs(P.off - (P.H - P.V - 0.3 - 10)) < 0.01 && S10.pieces >= 3 && S10.scn === '대기입장도착' /* [SCENE_WORDS_1023] 장면 줄 = 낱말 셋(자리 · 겹침은 scene-words.mjs) · 종전 [PEND_ENTRY_1014] 짧은 판 접기는 낱말이라 필요 없다 */ && /«입장!»이 끝나면/.test(S10.lbl) && !S10.over, S10);
     // 24 — ★[ONE_PLAY_1013] 알약 하나 — 장면이 서면 빌더 «이 순간 전체 듣기 · n줄 이어서» 알약은 그리지 않는다(사장님 10/13 «플레이 위아래 두 개» → «a»)
     const S24 = await pg.evaluate(() => ({ mp: [...document.querySelectorAll('.mk-hbtn[data-mp="entry"]')].filter((b) => b.offsetParent).length, scp: document.querySelectorAll('.em-scene [data-fk="emscene"]').length, all: [...document.querySelectorAll('button')].filter((b) => b.offsetParent && /이 순간 전체 듣기/.test(b.textContent)).length }));
     ok(`${W} 24 [ONE_PLAY_1013] 알약 하나 — 장면 알약만 «이 순간 전체 듣기» · 빌더 알약(n줄 이어서)은 없다`, S24.mp === 0 && S24.scp === 1 && S24.all === 1, S24);
     // 11
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(1800);
     const S11 = await scene();
-    ok(`${W} 11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «기다려요» 칸이 진하게`, S11.run && S11.x > 0.8 && S11.pill === '멈추기' && S11.pressed === 'true' && S11.at === 'greet', S11);
+    ok(`${W} 11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «대기»가 진하게`, S11.run && S11.x > 0.8 && S11.pill === '멈추기' && S11.pressed === 'true' && S11.at === 'greet', S11);
     const CALL11 = await pg.evaluate(() => EntryScene.SP.call);
     ok(`${W} 11b [ENTRY_CALL_PAUSE_1013] 나레이션 «입장!» 앞 쉼 — 목소리 마디 둘(${S11.vsn}) · 녹음 ${S11.cut ? S11.cut.was.toFixed(2) : '?'}초 → ${CALL11}초(엔진 SP.call · 당일 콘솔과 같은 엔진)`,
       CALL11 === 1.8 && S11.vsn === 2 && !!S11.cut && Math.abs(S11.cut.was + S11.cut.add - CALL11) < 0.01 && S11.cut.add > 0.2, { vsn: S11.vsn, cut: S11.cut, CALL11 });
@@ -113,7 +113,7 @@ try {
     // 13
     const gbox = await pg.evaluate(() => { const r = document.querySelector('.em-graph canvas').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
     await pg.mouse.click(gbox.x + gbox.w * ((P.th + 1) / P.tend), gbox.y + gbox.h / 2); await pg.waitForTimeout(500); const S13 = await scene();
-    ok(`${W} 13 그래프를 누르면 그 자리부터 — 문이 열린 뒤 = «걸어 들어와요» 칸`, S13.run && Math.abs(S13.x - (P.th + 1)) < 1.2 && S13.at === 'walk', S13);
+    ok(`${W} 13 그래프를 누르면 그 자리부터 — 문이 열린 뒤 = «입장» 칸`, S13.run && Math.abs(S13.x - (P.th + 1)) < 1.2 && S13.at === 'walk', S13);
     // 14
     await pg.click('[data-fk="muhkp:0"]'); await pg.waitForTimeout(250); const S14a = Object.assign(await scene(), { prev: await pg.evaluate(() => EntryMusic._t.prev()) });
     await pg.click('[data-fk="muhkp:0"]'); await pg.waitForTimeout(150); await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(500);
