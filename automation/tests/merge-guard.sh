@@ -20000,7 +20000,14 @@ chk 'TONE_FOLD_1023' order-preview.html 4
 chk 'function _toneRow(' order-preview.html 1
 chk '지금 보이는 안내로 진행해요. 들어 보고 바꿀 수 있어요.' order-preview.html 1
 chk 'TONE_FOLD_1023' scripts/audit/tone-fold.mjs 1
-for _tf in chip-toast chip-full ex-one ghi-polish pv-fill up-rec-v vp-ask-first listen-page; do chk 'TONE_FOLD_1023' scripts/audit/$_tf.mjs 1; done
+chk 'TONE_FOLD_1023' scripts/audit/chip-toast.mjs 1
+chk 'TONE_FOLD_1023' scripts/audit/chip-full.mjs 1
+chk 'TONE_FOLD_1023' scripts/audit/ex-one.mjs 1
+chk 'TONE_FOLD_1023' scripts/audit/ghi-polish.mjs 1
+chk 'TONE_FOLD_1023' scripts/audit/pv-fill.mjs 1
+chk 'TONE_FOLD_1023' scripts/audit/up-rec-v.mjs 1
+chk 'TONE_FOLD_1023' scripts/audit/vp-ask-first.mjs 1
+chk 'TONE_FOLD_1023' scripts/audit/listen-page.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/tone-fold.mjs >/dev/null 2>&1; _tfd=$?; if [ "$_tfd" = 1 ]; then echo 'FAIL tone-fold: 말투 줄 접기(첫 문장 · 듣기 · 말투 바꾸기 · 펼침 · 첫 순간 한 줄)가 어긋났습니다 — node scripts/audit/tone-fold.mjs'; fail=1; else echo "ok tone-fold ($_tfd)"; fi; fi
 # ★[BGM_CONSOLE1_1023 2026-10-23 BGM 섹션 «당일 콘솔 라운드 1»] 재기 표 docs/handoff/BGM_CONSOLE_1023.md(node scripts/build-bgm-console-table.cjs · 녹음이 바뀌면 다시 돌린다 · 게이트엔 안 건다)
 #   ref 메모 둘(S8 «목례 · 박수 뒤 힘 있게 시작» · S10 131 박수 줄 걷음) · 낮춤 모양 이름(PARAM.duck = fadeDownMs · fadeUpMs 의 한 원천 · holdMs 0 = 지금 버티지 않음) · duckRead «리허설 시작값»
