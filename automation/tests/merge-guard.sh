@@ -14552,7 +14552,7 @@ chk 'RIT_KO_SERIF_FIRST' order-preview.html 1       # 21 한글 문단은 Noto S
 nochk 'font-family:var(--serif)' order-preview.html 0
 chk 'RIT_WRAP' order-preview.html 5                 # 22 NBSP 묶음 · text-wrap:pretty
 chk 'RIT_TYPE5' order-preview.html 2                # 23 글자 크기 다섯 단계
-nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 0
+nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 1   # 예외 한 곳 [ENTRY_OPEN_1023] 그래프 open 글자 18/22 (사장님 확정 · .lgo-t)
 chk 'RIT_PILL_SANS' order-preview.html 1            # 24 알약 고딕 · 꺼진 «저장됨» 3:1 이상
 nochk '\.ob-save:disabled{opacity:\.5' order-preview.html 0
 chk 'RIT_NAME_TWO' order-preview.html 4             # 25 이름은 «식순»(마이페이지 행) · «우리 예식 짓기»(화면 안) 둘
@@ -18886,7 +18886,7 @@ chk "'<div class=\"mk-sech mk-sech-r em-play\">'+pillHtml(st,PL)+bigBtnHtml(st)+
 chk 'function openBig' assets/entry-music.js 1
 chk 'function closeBig' assets/entry-music.js 1
 chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
-chk '#emFull .lg-scene{display:none}' order-preview.html 1           # 크게 보기는 자막이 장면을 말한다(장면 줄 숨김)
+nochk '.lg-scene{' order-preview.html                                   # [ENTRY_OPEN_1023] 장면 줄은 걷었다(크게 보기도 · 종전 #emFull 숨김 줄째로)
 # ── 2026-10-13 [VK_ROW_MID] 크게 보기 머리 줄의 표 둘(«나레이션» + «입장 음악 · 곡») · 표 + 덧말을 한 줄 가운데로 — 아이콘 든 표가 3~4px 떠 있었다 · entry-music 점검 20 이 잰다(1px 안)
 chk '.lf-vk .vk,.lf-vk .vk-note{vertical-align:middle}' order-preview.html 1
 chk 'VK_ROW_MID' scripts/audit/entry-music.mjs 2
@@ -19184,10 +19184,24 @@ chk "(sp.tm?'':'<br><span class=\"pk-pad\" aria-hidden=\"true\">'+NBS+'</span>')
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-steady.mjs >/dev/null 2>&1; _fls=$?; if [ "$_fls" = 1 ]; then echo 'FAIL flow-steady: 예시를 바꾸면 «감동 흐름» 판 높이 · «다음» 단추 자리가 흔들립니다 — node scripts/audit/flow-steady.mjs'; fail=1; elif [ "$_fls" = 0 ]; then echo 'ok flow-steady: 감동 흐름 판 높이 그대로'; else echo 'skip flow-steady: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 [SCENE_WORDS_1023] 사장님 «본식 5분 전부터 문 앞에서 기다려요 · 문이 열리고 걸어 들어와요 · 도착 — 이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»
 #   입장 «음악과 함께» 그래프 아래 장면 줄 = 낱말 셋 «대기 · 입장 · 도착» 한 줄 11px · 입장 = 문 열림 시점 · 겹치면 입장이 이긴다(placeWords) · ★두 줄 장면 문장 되살리지 말 것
-chk 'SCENE_WORDS_1023' assets/entry-music.js 4
-chk 'SCENE_WORDS_1023' order-preview.html 1
-chk 'SCENE_WORDS_1023' scripts/audit/scene-words.mjs 3
-chk '<span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span>' assets/entry-music.js 1
+chk 'SCENE_WORDS_1023' assets/entry-music.js 1                                        # 장면 줄 기록(아래 ENTRY_OPEN_1023 이 걷었다)
+nochk 'lgs-greet' assets/entry-music.js                                                 # ★[ENTRY_OPEN_1023] 장면 줄 «대기 · 입장 · 도착» — 2026-10-23 사용자 지시로 삭제(«밑에 글씨들은 전부 삭제»)
+nochk 'function placeWords' assets/entry-music.js
+# ── 2026-10-23 [ENTRY_OPEN_1023] 사장님 «문 열림을 그래프에 세로선으로» · «소문자로 느낌 있게» · «선 옆 번짐 효과 삭제» · «밑에 글씨들은 전부 삭제» · Welcome «뒤로 2초»(17:38 «추천대로»)
+#   그래프 안 «open» 세로선(1px #8A724C 0.85 · 위 2px ~ 목소리 줄) + 글자 «open»(Cormorant Garamond 기울임 500 18/22 #6B5639) · 자리 = th + (곡 open − H) · 없으면 th ·
+#   Welcome(r6) 목록 값 덮기(REC_FIX · 서버 지문 고정이라) 52.18 → 50.18 · hooks [50.18, 112.0] · open [54.96, 116.77] · ★장면 줄 · 대문자 OPEN · 선 옆 번짐 되살리지 말 것
+chk 'ENTRY_OPEN_1023' assets/entry-music.js 5
+chk 'ENTRY_OPEN_1023' order-preview.html 2
+chk 'ENTRY_OPEN_1023' scripts/audit/scene-words.mjs 5
+chk 'ENTRY_OPEN_1023' scripts/audit/entry-music.mjs 2
+chk 'ENTRY_OPEN_1023' scripts/audit/rec-song-ui.mjs 3
+chk "var REC_FIX={ r6:{ hook:50.18, hook0:50.18, hooks:\[50.18,112.0\], open:\[54.96,116.77\] } };" assets/entry-music.js 1
+chk 'function openAt(PL,m0)' assets/entry-music.js 1
+chk 'function openMark(g,PL)' assets/entry-music.js 1
+chk '<span class="lg-open" aria-hidden="true" hidden><i class="lgo-l"></i><em class="lgo-t">open</em></span>' assets/entry-music.js 1
+chk ".em-graph .lg-open .lgo-l{position:absolute;top:0;bottom:0;left:0;width:1px;background:#8A724C;opacity:.85}" order-preview.html 1
+chk "font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:18px;line-height:22px;letter-spacing:0;color:#6B5639" order-preview.html 1
+nochk '>OPEN<' assets/entry-music.js                                                       # ★대문자 OPEN(«식당 같다»)
 nochk 'var SCENE_WAIT=' assets/entry-music.js                                         # ★옛 장면 문장(«본식 5분 전부터 문 앞에서 기다려요» · 줄어드는 말 목록) — 2026-10-23 사용자 지시로 삭제
 nochk 'function fitWalk' assets/entry-music.js                                          # 옛 두 줄 맞추기
 # ── 2026-10-23 [PLAY_MID_1023] 사장님 «이거 다시 취소 · 가운데 쪽으로 다시 하고 이어 듣기 · 멈춤 이걸로 바꾸자» — 듣기 알약은 동그라미 + 글 가운데 · 트는 동안 «멈춤» · «멈춤 ↔ 이어 듣기» 글 칸 폭 고정(em-lab-tg)
@@ -19200,7 +19214,7 @@ nochk '>svg:first-child{position:absolute;left:10px' order-preview.html         
 nochk "on?'멈추기'" order-preview.html                                                     # 보이는 글은 «멈춤»(aria-label 의 « 멈추기»는 그대로)
 nochk "on?'멈추기':ps?'이어 듣기'" assets/entry-music.js                                  # 장면 알약 보이는 글(크게 보기 aria-label 은 그대로)
 nochk "pl?'멈추기'" order-preview.html
-if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: 장면 줄 낱말 셋 자리 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: open 세로선 · Welcome 숫자 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 [TAP_NO_RING] 사장님 «엑스표 주변 색 들어가 있는 거 개선» — 창이 열릴 때 스크립트 초점(× · 돌아가는 칸 · 첫 단추)에 아이폰이 금색 고리를 그렸다 → 손가락 · 마우스면 html.tap-mode 로 고리 없음 · 키보드로 옮겨 다니면 고리
 chk 'TAP_NO_RING' order-preview.html 2
 chk 'TAP_NO_RING' scripts/audit/tap-no-ring.mjs 1
