@@ -17223,7 +17223,7 @@ chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언�
 chk 'keepWhen(rec._언제' scripts/sample-cut.mjs 1   # [WHEN_KEEP_MARKS] sample-cut 도 표식을 남긴다(10/10 두 번째로 지워졌다)
 chk 'PACE_D' scripts/build-typecast-import.mjs 2   # 문장 사이 1.25 · «입장!» 앞 0.6 (사장님 견본 D)
 chk 'man.gap?.inner' scripts/assemble-narration.mjs 1   # [PACE_D] 쉼표 쉼 상한은 문장 사이와 따로 — 되돌리면 «입장!» 안 쉼이 늘어난다
-chk "'십 분 뒤 본식을 시작하겠습니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분의 카메라도 마음껏 셔터를 눌러 주시길 바랍니다.'," assets/ritual-open.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏…»)
+chk "'십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.'," assets/ritual-open.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏…»)
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js
 #   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
@@ -20094,3 +20094,11 @@ chk "var GUEST_KEYS=\['g0','g1','g3'\];" order-preview.html 1
 nochk "\['g2','시작 5분 전','guest'\]" order-preview.html
 nochk "'g0','g1','g2','g3'" console.html
 nochk "'g0','g1','g2','g3'" admin.html
+# ── 2026-10-24 [YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024 검토 160 고침판] 사장님 «자료에 있다고 무조건 붙이지 말고 좋은 글인지 검토 · 유쾌는 너무 올드해» — 옛 사회자 말투 · 청첩장 상투구는 고르지 않는다 · 검사 open-course «YUKWAE_MODERN_1024»
+chk 'YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024 사장님 2026-10-24' assets/ritual-open.js 1
+chk '십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.' assets/ritual-open.js 1
+chk '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.' assets/ritual-open.js 1
+chk '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요.' assets/ritual-cue.js 1
+nochk '간혹 식 중에 전화벨이 울리기도 하는데' assets/ritual-open.js
+nochk '너무나도 좋을 것 같습니다' assets/ritual-cue.js
+nochk '자, 이제 식이 십 분 정도밖에 남지 않았는데요' assets/ritual-open.js

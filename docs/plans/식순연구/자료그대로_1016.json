@@ -82,21 +82,6 @@
    "where": "NAR.guestEx[1][2]"
   },
   {
-   "text": "곧바로 순서를 시작하겠습니다.",
-   "src": "G4 표 2 · 유쾌",
-   "where": "NAR.guestEx[1][3]"
-  },
-  {
-   "text": "오늘 모든 안내는 신랑 신부가 직접 고른 인공지능 목소리로 진행됩니다.",
-   "src": "G4 표 2 · 유쾌",
-   "where": "NAR.guestEx[1][3]"
-  },
-  {
-   "text": "원활한 진행을 위해 주머니 속 휴대폰은 진동 모드로 변경을 부탁드립니다.",
-   "src": "G4 표 2 · 유쾌",
-   "where": "NAR.guestEx[1][3]"
-  },
-  {
    "text": "참석해 주신 내빈 여러분, 고맙습니다.",
    "src": "G4 표 2 · 격식",
    "where": "NAR.guestEx[2][0]"
@@ -2397,21 +2382,6 @@
    "where": "NAR.guestEx[1][0]"
   },
   {
-   "text": "잠시 후 신랑 신부의 결혼식을 시작하겠습니다.",
-   "src": "한석준 HWP 대본(이름 ①) [REVIEW33_1023 검토 159]",
-   "where": "NAR.guestEx[1][3]"
-  },
-  {
-   "text": "하객 여러분께서는 자리에 앉아 주시기 바랍니다.",
-   "src": "한석준 HWP 대본 [REVIEW33_1023 검토 159]",
-   "where": "NAR.guestEx[1][3]"
-  },
-  {
-   "text": "간혹 식 중에 전화벨이 울리기도 하는데 오늘은 그런 일이 없도록 지금 다시 한번 확인해 봐 주십시오.",
-   "src": "한석준 HWP 대본 [REVIEW33_1023 검토 159]",
-   "where": "NAR.guestEx[1][3]"
-  },
-  {
    "text": "잠시 후 신랑 신부의 성스러운 예식이 시작될 예정입니다.",
    "src": "고은천 대본(이름 ①) [REVIEW33_1023 검토 159]",
    "where": "NAR.guestEx[2][1]"
@@ -2435,6 +2405,31 @@
    "text": "오늘은 저희에게 평생 아름답게 기억될 것 같습니다.",
    "src": "polarisians 셀프웨딩 [REVIEW33_1023 검토 159-3]",
    "where": "ENTRY.E.self"
+  },
+  {
+   "text": "십 분 뒤 예식이 시작됩니다.",
+   "src": "T2 «잠시 후 예식이 시작됩니다.» 시점만(«잠시 후» → «십 분 뒤») [REVIEW34_1024 검토 160 고침판 · YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024]",
+   "where": "NAR.guestEx[1][1](120)"
+  },
+  {
+   "text": "오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.",
+   "src": "사장님 결정(자연스러운 사진 · 하객 촬영 환영) 그대로 · 옛 말투 «주시길 바랍니다» → «주세요» · «카메라도 … 셔터를» 호응 → «여러분도 … 셔터를» [REVIEW34_1024 검토 160 고침판 · YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024]",
+   "where": "NAR.guestEx[1][1](120)"
+  },
+  {
+   "text": "잠시 후 예식이 시작됩니다.",
+   "src": "T2 첫 문장 그대로 [REVIEW34_1024 검토 160 고침판 · YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024]",
+   "where": "NAR.guestEx[1][3](122)"
+  },
+  {
+   "text": "자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.",
+   "src": "한석준 «자리에 앉아 주시기 바랍니다» 잇는 꼴 + 지금필름 «센스 미쳤다는 결혼식 하객 안내영상»(youtube pNSLT_NDzUk) «핸드폰은 무음으로 부탁드려요» 그대로(ADAPT_OK_1023) [REVIEW34_1024 검토 160 고침판 · YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024]",
+   "where": "NAR.guestEx[1][3](122)"
+  },
+  {
+   "text": "찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요.",
+   "src": "지금필름 안내영상 «식권 QR로 예쁜 사진 공유해주세요» ADAPT(«식권 QR» → «하객 안내의 사진 올리기» · «예쁜» 뺌 · ADAPT_OK_1023) [REVIEW34_1024 검토 160 고침판 · YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024]",
+   "where": "EXTRA narr-photo-send(85)"
   }
  ]
 }
