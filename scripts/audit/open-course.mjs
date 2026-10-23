@@ -453,8 +453,8 @@ ok('[BASE_SWAP_1023 검토 156] 기본 = 151 «담백하게» · 160 «격식 �
 ok('[REVIEW31_1023 검토 157] 01 · 02 · 09 · 131 · 213 · 257 글 · 선언 칩 «힘차게» · MOOD 밝게 3 · 뭉클 2 · 반지 둘째 동작 앞 8초 · 덕담 박수 뒤 축가 202 는 seamFit 이 넘긴다', (() => {
   const man = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8')), hold = (no) => { const c = man.clips.find((x) => x.no === no); return c ? c.sents.map((x) => x.after).join(',') : ''; };
   const S = { course: 'open', on: { declare: 1, bless: 1, song: 1 }, narEx: { song: 1 } }, clash = C.moodClash(S, 'song'); C.seamFit(S, 'song');
-  return D.GUEST[0][1] === '귀한 걸음 해 주신 여러분, 고맙습니다. 오늘 모든 안내는 신랑 신부가 정성껏 고른 목소리로 진행됩니다.' && /저희가 정성껏 고른 목소리/.test(D.GUEST[0][2])
-    && /^십 분 뒤 본식을 시작하겠습니다\. 오늘 하루는 자연스러운 사진으로 남게 되니/.test(D.GUEST[1][1]) && D.ENTRY.E.nar.indexOf('신랑 신부의 입장이 있겠습니다.') < 0
+  return /신랑 신부가 정성껏 고른 목소리로 진행됩니다\.$/.test(D.GUEST[0][1]) && /저희가 정성껏 고른 목소리/.test(D.GUEST[0][2])   // [REVIEW33_1023 검토 159] 01 · 02 첫 문장은 159 에서 다시 바뀜(아래 검사)
+    && / 오늘 하루는 자연스러운 사진으로 남게 되니/.test(D.GUEST[1][1]) && D.ENTRY.E.nar.indexOf('신랑 신부의 입장이 있겠습니다.') < 0
     && D.NARR.tableIn.indexOf('테이블에 도착했을 때') < 0 && O.NAR_EX.candle.lines['narr-candle-out'][2] === '촛불이 밝혀졌습니다.' && /^바쁘신 와중에도 .*거행하겠습니다\.$/.test(O.NAR_EX.open.lines['narr-open'][4])
     && O.NAR_EX.declare.names.join() === '담백하게,격식 있게,엄숙하게,힘차게' && O.MOOD.bright.narEx.declare === 3 && O.MOOD.moving.narEx.declare === 2
     && hold('169') === '8,0' && hold('170') === '1,1,8,0' && hold('193') === '1,8,0' && !!clash && O.narExOf(S, 'song') !== 1 && !C.moodClash(S, 'song') && /var SEAM_KEYS=\[[^\]]*'song'/.test(fs.readFileSync(P('order-preview.html'), 'utf8')); })());
@@ -470,6 +470,27 @@ ok('[PV_PHOTO_OFF_1023 검토 158] 식전 영상 글(카드 · 흐름 설명 · 
   const ST = require(P('assets/ritual-story.js')), how = ((ST.blockOf && ST.blockOf('식전 영상')) || {}).how || '';
   const files = ['assets/ritual-open.js', 'assets/ritual-story.js', 'assets/ritual-cue.js', 'api/_ritual-kb.js', 'order-preview.html'].map((f) => fs.readFileSync(P(f), 'utf8').split('\n').filter((l) => bad.test(l) && !/PV_PHOTO_OFF_1023|^\s*(\/\/|\/\*|\*)/.test(l)).length);
   return !bad.test(O.CARDS.prevideo.one) && !bad.test(how) && files.every((n) => n === 0); })());
+/* ★★[REVIEW33_1023 검토 159 · ADAPT_OK_1023 사장님 2026-10-23 «자료 없는 자리는 실제 멘트를 단어 몇 개만 고쳐 써도 된다»] 하객 맞이 · 사진 올리기 · 식전 영상 격식 · 두 분 예시 · 축배 예시를 실제 자료 글로 */
+ok('[REVIEW33_1023 검토 159-2] 01 · 02 · 116 · 119 · 122 · 124 · 130 · 264 = 실제 자료 글 · 두 분 판은 «저희»', (() => {
+  const N = O.NAR, X = C.EXTRA || {};
+  return D.GUEST[0][1] === '바쁘신 와중에 시간을 할애하시어, 오늘 결혼식에 참석해 주셔서 감사드립니다. 오늘 모든 안내는 신랑 신부가 정성껏 고른 목소리로 진행됩니다.'
+    && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가') && N.guestEx[0][0] !== D.GUEST[0][1]
+    && D.GUEST[1][1].indexOf('잠시 후 신랑 신부의 결혼식이 진행될 예정입니다. ') === 0 && D.GUEST[1][2].indexOf('잠시 후 저희의 결혼식이 진행될 예정입니다. ') === 0
+    && N.guestEx[0][1].indexOf('잠시 후 아름다운 두 사람의 시작을 함께하게 될 텐데요. ') === 0 && N.guestEx[1][0].indexOf('바쁜 주말 귀한 시간 내주셔서 감사합니다. ') === 0
+    && N.guestEx[1][3] === '잠시 후 신랑 신부의 결혼식을 시작하겠습니다. 하객 여러분께서는 자리에 앉아 주시기 바랍니다. 간혹 식 중에 전화벨이 울리기도 하는데 오늘은 그런 일이 없도록 지금 다시 한번 확인해 봐 주십시오.'
+    && N.guestEx[2][1].indexOf('잠시 후 신랑 신부의 성스러운 예식이 시작될 예정입니다. ') === 0 && N.pvEx[2] === '내빈 여러분께서는 스크린을 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.'
+    && /'narr-photo-upload': '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다\.'/.test(fs.readFileSync(P('assets/ritual-cue.js'), 'utf8')); })());
+ok('[REVIEW33_1023 검토 159-3 · 159-4] 두 분 예시(다정 g0 · 격식 g0 · 유쾌 g3 · 입장 E) · 축배 예시 다섯 = 새 글 · 옛 글은 _OLD 에', (() => {
+  const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
+  const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text;
+  return /\['다정하게',\["저희 커플을 위해 시간 내 함께해 주셔서 정말 감사합니다\./.test(B) && /\['격식 있게',\["이렇게 좋은 날, 저희를 축복해 주시기 위해 어려운 걸음 소중한 걸음 해 주셨습니다\./.test(B)
+    && B.indexOf('"잠시 후 저희의 결혼식을 시작하겠습니다. 하객 여러분께서는 자리에 앉아 주시기 바랍니다.') > -1 && D.ENTRY.E.self.indexOf('오늘은 저희에게 평생 아름답게 기억될 것 같습니다. ') === 0
+    && t('509_toast-bride') === '모든 분들과 저희의 미래를 위하여!' && t('618_toast-bride') === '저희의 행복한 결혼생활을 위하여!' && t('818_toast-bride') === '저희의 영원한 사랑을 위하여!'
+    && t('617_toast-groom').indexOf('오신 걸음걸음') === 0 && t('817_toast-groom') === '앞으로 행복하게 잘 살며 여러분과 함께하겠습니다.'
+    && /"509_toast-bride": \[[^\]]*"모두의 행복을 위하여!"/.test(B) && B.indexOf('이제, 저희가 함께 걸음을 내딛습니다.') > B.indexOf('var ENTRY_OLD='); })());
+ok('[ADAPT_OK_1023] 결정 주석이 엔진에 있고 · 고쳐 쓴(ADAPT) 자료 줄마다 출처에 ADAPT_OK_1023', (() => {
+  const src = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.filter((x) => /REVIEW33_1023/.test(x.src) && /ADAPT/.test(x.src));
+  return /\[ADAPT_OK_1023 사장님 2026-10-23/.test(fs.readFileSync(P('assets/ritual-data.js'), 'utf8')) && src.length >= 1 && src.every((x) => /ADAPT_OK_1023/.test(x.src)); })());
 /* ── 8. 실브라우저(--live) ── */
 if (process.argv.includes('--live')) {
   let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
