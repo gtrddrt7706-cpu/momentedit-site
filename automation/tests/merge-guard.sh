@@ -14780,6 +14780,7 @@ chk 'VID_MOVE_NOW' scripts/audit/video-start.mjs 3
 chk 'VID_CUT_MOTION' scripts/audit/video-start.mjs 2
 chk 'if (blendBeatsMotion(sm, i, a, b, al)) out.push(i)' scripts/audit/video-start.mjs 1
 chk 'VID_CADENCE_1023' scripts/audit/video-start.mjs 3   # ⑥ 사람이 2 · 3장마다 끊겨 움직이지 않는다 · 유화판 24fps(10/23 사장님 «성혼선언 영상 끊기는 거 같은데 · 다른 영상들도 확인해 봐»)
+chk 'RING_TITLE_CLEAR_1023' assets/ritual-open.js 1   # 반지 판 = 손을 위로 다시 잡아 반지가 제목 글자에 가리지 않는다(10/23 사장님 «반지 영상 처음부터 끝까지 검토»)
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
@@ -19237,14 +19238,14 @@ chk 'BGM_JUMP_SAME' scripts/audit/bgm-form.mjs 1
 chk "if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen');" order-preview.html 1
 chk "picks: \['none', 'bed'\], short: '축사'," assets/bgm-slots.js 1
 chk "picks: \['none', 'bed'\], short: '편지'," assets/bgm-slots.js 1
-chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 아래 밝은 연주곡이 아주 작게 깔려요' }," assets/bgm-slots.js 1
-chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 아래 오르골 · 피아노가 아주 작게 흘러요' }," assets/bgm-slots.js 1
+chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
+chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-slots.js 1
-chk "one: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1
-chk "one: '목소리 뒤로 피아노가 아주 작게 흘러요'," assets/bgm-slots.js 1        # [BGM_R1_1023] «말 아래» → «목소리 뒤로» · [BGM_R2_1023] «잔잔한» 뺌(폰 한 줄)
+chk "one: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
+chk "one: '이 순간부터 피아노가 아주 작게 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023] «목소리 뒤로» → «이 순간부터»
 chk "one: '인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1        # [BGM_R2_1023]
 chk "one: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요'," assets/bgm-slots.js 1
-chk "one: '«위하여!»와 함께 신나는 곡이 울려 퍼져요'," assets/bgm-slots.js 1
+chk "one: '«위하여!»에 맞춰 신나는 곡이 시작돼요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "cont: '{at}부터 피아노가 조용히 이어져요'" assets/bgm-slots.js 1        # [BGM_R2_1023]
 chk "duckRead: -20," assets/ritual-cue.js 1
 chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true," assets/ritual-cue.js 1
@@ -19298,6 +19299,22 @@ chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" a
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
 nochk "picks: \[\], at: 'bridge'," assets/bgm-slots.js                                                    # 맨 앞(top)이 이음말 규칙을 품는다 · 갈래를 둘로 다시 나누지 말 것
+# ── 2026-10-23 [BGM_R4_1023] BGM 라운드 4 «글 · 요약» — 한눈에 보기 «음악»은 담긴 축사 · 편지마다 «… · 음악 없이 / 음악과 함께» 한 줄 + «그 밖의 음악은 스튜디오가 준비해요» ·
+#   칩 아래 한 줄은 안 누름이면 «고르지 않으시면 …» · S2 · S4 · S5 · S6 · S8 · S9 글 바꿈(엔진 · 저장 꼴 · 입장 음악 그대로)
+#   ★«축사는 음악과 함께 · 나머지는 …» 한 줄 요약 · «아래 · 깔려요 · 오르골» · ««인사!»와 함께»를 되살리지 말 것
+chk 'BGM_R4_1023' assets/bgm-slots.js 6
+chk 'BGM_R4_1023' assets/bgm-form.js 4
+chk 'BGM_R4_1023' order-preview.html 1
+chk 'BGM_R4_1023' scripts/audit/bgm-form.mjs 6
+chk "one: '박수와 함께 힘 있는 곡이 시작돼요'," assets/bgm-slots.js 1
+chk "function pickRows(){" assets/bgm-form.js 1
+chk "그 밖의 음악은 스튜디오가 준비해요" assets/bgm-form.js 1
+chk "B.lineOf(s,'unset')" assets/bgm-form.js 1
+chk ".mk-bgm .mk-vn{word-break:keep-all}" order-preview.html 1
+nochk "는 음악과 함께 · 나머지는 스튜디오가 준비해요" assets/bgm-form.js
+nochk "아래 밝은 연주곡이 아주 작게 깔려요" assets/bgm-slots.js
+nochk "오르골 · 피아노가 아주 작게" assets/bgm-slots.js
+nochk "one: '«인사!»와 함께" assets/bgm-slots.js
 # ── 2026-10-23 [BGM_R3_1023] BGM 섹션 라운드 3 «다른 섹션 작업에 깨지지 않게» — 식전 영상 흐름 음악 줄 → 링크 칸 아래 한 줄 ·
 #   닫는 인사 · 축배 자리는 글자 대신 줄의 큐 열쇠(of)로(못 찾으면 bgm-form 9 가 코스 · 조합 전부에서 빨강) · 편지 «음악과 함께» 장면은 기본 글에서 한 대목만 바꿔 만든다(못 찾으면 build-course-story 빨강)
 #   ★식전 영상 흐름 음악 줄 · 글자로 자리 찾기 · 편지 음악 판 장면 글 통째 적기를 되살리지 말 것
