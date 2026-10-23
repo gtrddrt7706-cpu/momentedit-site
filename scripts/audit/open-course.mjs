@@ -458,6 +458,12 @@ ok('[REVIEW31_1023 검토 157] 01 · 02 · 09 · 131 · 213 · 257 글 · 선언
     && D.NARR.tableIn.indexOf('테이블에 도착했을 때') < 0 && O.NAR_EX.candle.lines['narr-candle-out'][2] === '촛불이 밝혀졌습니다.' && /^바쁘신 와중에도 .*거행하겠습니다\.$/.test(O.NAR_EX.open.lines['narr-open'][4])
     && O.NAR_EX.declare.names.join() === '담백하게,격식 있게,엄숙하게,힘차게' && O.MOOD.bright.narEx.declare === 3 && O.MOOD.moving.narEx.declare === 2
     && hold('169') === '8,0' && hold('170') === '1,1,8,0' && hold('193') === '1,8,0' && !!clash && O.narExOf(S, 'song') !== 1 && !C.moodClash(S, 'song') && /var SEAM_KEYS=\[[^\]]*'song'/.test(fs.readFileSync(P('order-preview.html'), 'utf8')); })());
+/* ★[SPEECH_EX_GUIDE_1023 · SONG_OPEN_PLAIN_1023 코워크 10/23 · 외부 검토] 고객은 안내보다 예시를 따라 쓴다 — 축사 예시에 안내가 빼라는 이야기(술자리 · 전 연인 · 몰래 쓴 돈)가 없다 · 축가 여는 말이 필수처럼 들리지 않는다 */
+ok('[SPEECH_EX_GUIDE_1023] 축사 참고 예시 전부 술집 · 술자리 · 기억을 잃 · 몰래 · 저금통 · 세뱃돈 · 전 연인 0건 · 안내는 «술자리 이야기는 빼 주세요» 그대로', (() => {
+  const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
+  const rows = w.RITUAL_REF.rows.filter((r) => /^free:speech/.test(r.key)), bad = rows.filter((r) => /술집|술자리|술을|기억을 잃|몰래|저금통|세뱃돈|전 연인|전여친|전남친/.test(r.text));
+  return rows.length >= 15 && !bad.length && /술자리 이야기는 빼 주세요/.test(fs.readFileSync(P('assets/ritual-open.js'), 'utf8')); })());
+ok('[SONG_OPEN_PLAIN_1023] 축가 여는 말 기본 = «우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.»(«빠질 수 없는 순서» 없음) · 식순 화면 사본 같은 글 · 칩 «담백하게»', D.NARR.song === '우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.' && !/빠질 수 없는/.test(fs.readFileSync(P('order-preview.html'), 'utf8')) && O.NAR_EX.song.names[0] === '담백하게');
 /* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] 식전 영상은 영상만 받는다 — «사진으로 저희가 영상을 만들어요» 길을 말하는 글이 없다 */
 ok('[PV_PHOTO_OFF_1023 검토 158] 식전 영상 글(카드 · 흐름 설명 · 식순 화면 · AI 상담 지식 · 콘솔 메모)에 «사진으로 저희가 · 사진을 올린 링크 · 영상으로 만들어» 0건', (() => {
   const bad = /사진으로 저희가|사진으로 영상|사진을 올린|영상으로 만들어/;
