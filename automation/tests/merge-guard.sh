@@ -19445,6 +19445,16 @@ chk 'DRESS_CLOSED_KEEP' mypage.html 1                                     # 마�
 chk 'MAIL_LINK_INK' automation/consultation/consultation-booking.gs 1     # 메일 글자 링크 #7A5F37 — #B89A75 는 선 색
 chk 'MAIL_LINK_INK' automation/platform/95_notify.gs 1
 chk 'MAIL_LINK_INK' automation/platform/40_signup.gs 1
+# ★[MAIL_TEXT_INK 2026-10-23 사장님 «진행» · 코워크 회신 3] 메일의 강조 글 · 머리 이름표 · 항목 이름도 #7A5F37 — 금빛 #B89A75 는 선 · 테두리에만
+#   메일만이다 — GAS 화면(취소 화면 셋 · 신청 · 일정 · 변경)의 금빛 글자는 따로 본다. 그래서 consultation-booking 은 취소 화면 글자 셋 + 입력칸 테두리 하나 = 4 까지만
+chk 'MAIL_TEXT_INK' automation/consultation/consultation-booking.gs 1
+chk 'MAIL_TEXT_INK' automation/platform/40_signup.gs 1
+chk 'MAIL_TEXT_INK' automation/platform/50_auth-handlers.gs 1
+chk 'MAIL_TEXT_INK' automation/platform/96_ai_cost.gs 1
+nochk 'color:#B89A75' automation/consultation/consultation-booking.gs 4
+nochk 'color:#B89A75' automation/platform/40_signup.gs 0
+nochk 'color:#B89A75' automation/platform/50_auth-handlers.gs 0
+nochk "'#B89A75'" automation/platform/96_ai_cost.gs 0
 chk 'WZ_STEPS_STILL' .claude/skills/momentedit-design/SKILL.md 1        # 디자인 권위 문서에도 — 새 입력 화면이 같은 자리에서 다시 흔들리지 않게
 chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호 알약도 진사로 칠하지 않는다
 # ★[DRESS_DETAIL_FIT · 코워크 검토 2 · 10/23] 자세히 첫 화면에서 고르기 단추가 아래 막대에 가리지 않는다 — 단추는 이름 · 한 줄 바로 아래 · 사진 넘김은 사진 위 · 짧은 화면 사진 칸 상한

@@ -1303,7 +1303,7 @@ function sendUrlEmail(to, names, url, summary) { _requireAdmin();
     : '';
   var inner =
     '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#3A2D22;margin:20px 0 0">' +
-      esc(names) + ' 님,<br>대면 상담 신청이 <span style="color:#B89A75;font-weight:500">접수</span>되었습니다.' +
+      esc(names) + ' 님,<br>대면 상담 신청이 <span style="color:#7A5F37;font-weight:500">접수</span>되었습니다.' +
     '</p>' +
     summaryBlock +
     '<div style="margin:16px auto 0;max-width:300px;padding:10px 0;border-top:1px solid rgba(184,154,117,0.4);border-bottom:1px solid rgba(184,154,117,0.4);text-align:center;font-family:\'Noto Serif KR\',serif;font-size:12px;font-weight:400;color:#8A7A5E;letter-spacing:0.02em">' +
@@ -1389,7 +1389,7 @@ function applicantDetailRows(row) { _gsr_();
 }
 // 섹션 소제목 (운영자 메일 구획)
 function sectionLabel(txt) { _gsr_();
-  return '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#B89A75;text-align:center;margin:26px 0 4px">' + esc(txt) + '</div>';
+  return '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7A5F37;text-align:center;margin:26px 0 4px">' + esc(txt) + '</div>';
 }
 
 function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) { _requireAdmin();
@@ -1461,10 +1461,12 @@ function sendConfirmEmail_(to, names, dateKey, time, isChange, token, row) {
   /* [DRESS_PICK] 시착 준비 한 줄 — 스위치(사이트 dress-refs.js live)가 켜졌고 · 시그니처 · 의상이 «자체 준비»가 아닐 때만. 못 가리면 싣지 않는다 */
   var dressLine = '';
   /* ★[MAIL_LINK_INK 2026-10-23 코워크 검토 1] 메일 안 글자 링크는 #7A5F37(흰 바탕 5.97:1) — #B89A75 는 선 색(2.65:1)이라 글자에 쓰지 않는다.
-     같은 링크 한 벌(마이페이지 · 카카오톡 · 지도에서 보기)을 상담 메일 · 취소 화면 · 가입 메일 · 대체 메일 모두 맞췄다. 강조 글 · 머리 이름표의 금빛은 따로 정한다 */
+     같은 링크 한 벌(마이페이지 · 카카오톡 · 지도에서 보기)을 상담 메일 · 취소 화면 · 가입 메일 · 대체 메일 모두 맞췄다. 강조 글 · 머리 이름표의 금빛은 따로 정한다
+     ★[MAIL_TEXT_INK 2026-10-23 사장님 «진행» · 코워크 회신 3] 그 «따로»를 정했다 — 강조 글(예약이 확정 · 접수 · 다른 시간을 제안 · 대면 상담) · 머리 이름표(Confirmed …) · 항목 이름도 #7A5F37.
+     금빛 #B89A75 는 선 · 테두리에만 쓴다. 메일만이다 — GAS 화면(취소 화면 · 신청 · 일정 · 변경)의 금빛 글자는 따로 본다 */
   try { if (row && _dressMailOk_(row)) dressLine = smallP('상담 날 입어 보실 드레스 두 벌을 <a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 미리 고르실 수 있습니다.'); } catch (eD) { dressLine = ''; }
   var inner =
-    centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#B89A75;font-weight:600">예약이 확정</b>되었습니다.') +
+    centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#7A5F37;font-weight:600">예약이 확정</b>되었습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
     infoBlock([
       ['장소', placeValue()],
@@ -1551,7 +1553,7 @@ function sendProposalEmail(row, newDate, newTime, memo) { _gsr_();
   var acceptUrl = actionUrl_('accept', token);
   var reselectUrl = actionUrl_('reselect', token);
   var inner =
-    centerP(coupleNames(row) + ' 님,<br>선택하신 시간이 어려워 <b style="color:#B89A75;font-weight:600">다른 시간을 제안</b>드립니다.') +
+    centerP(coupleNames(row) + ' 님,<br>선택하신 시간이 어려워 <b style="color:#7A5F37;font-weight:600">다른 시간을 제안</b>드립니다.') +
     (function(){
       var od = row.get('선택날짜'), ot = row.get('선택시간');
       if (!od || !ot) return '';
@@ -1605,7 +1607,7 @@ function infoRow(label, valHtml) { _gsr_();
 }
 function infoBlock(pairs) { _gsr_();
   var rows = pairs.map(function (p) {
-    return '<div style="padding:12px 0;border-bottom:1px solid #ECE8E1"><div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.04em;color:#B89A75;margin-bottom:3px">' + esc(p[0]) + '</div><div style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.75;color:#5A554C">' + p[1] + '</div></div>';
+    return '<div style="padding:12px 0;border-bottom:1px solid #ECE8E1"><div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.04em;color:#7A5F37;margin-bottom:3px">' + esc(p[0]) + '</div><div style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.75;color:#5A554C">' + p[1] + '</div></div>';
   }).join('');
   return '<div style="margin:6px 0 0">' + rows + '</div>';
 }
@@ -1613,7 +1615,7 @@ function infoBlock(pairs) { _gsr_();
 // 날짜·시간 카드 (메일 주인공 정보 — 날짜 크게, 시간 pill)
 function dateCard(eyebrow, dateStr, timeStr) { _gsr_();
   return '<div style="background:#F7F5F1;padding:24px 20px;border:1px solid #E6E1D8;border-radius:8px;margin:24px 0;text-align:center">' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:12px">' + esc(eyebrow) + '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#7A5F37;text-transform:uppercase;margin-bottom:12px">' + esc(eyebrow) + '</div>' +
     '<div style="font-family:\'Noto Serif KR\',serif;font-size:23px;font-weight:600;color:#3A2D22;line-height:1.3;letter-spacing:.01em">' + esc(dateStr) + '</div>' +
     '<div style="display:inline-block;margin-top:12px;padding:6px 18px;background:#FFFFFF;border:1px solid #DDD3C2;border-radius:20px;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;color:#8A7A5E;letter-spacing:.06em">' + esc(timeStr) + '</div>' +
   '</div>';
@@ -2298,7 +2300,7 @@ function sendReminderCustomer(row, dateKey, time) { _gsr_();
   var to = row.get('이메일');
   if (!to) return;
   var inner =
-    centerP(coupleNames(row) + ' 님,<br>내일 <b style="color:#B89A75;font-weight:600">대면 상담</b>이 예정되어 있습니다.') +
+    centerP(coupleNames(row) + ' 님,<br>내일 <b style="color:#7A5F37;font-weight:600">대면 상담</b>이 예정되어 있습니다.') +
     dateCard('Tomorrow', prettyDate(dateKey), esc(time)) +
     infoBlock([
       ['장소', placeValue()],
