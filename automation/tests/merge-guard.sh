@@ -14790,6 +14790,8 @@ chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1  
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
 chk 'HEAD_FOLLOWS_ACTION' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ④ 주인공 고개는 동작을 따라간다(위하여 = 하객 · 건배 = 서로 · 끝 = 하객)
 chk 'COURSE_LIGHT_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑤ 빛은 두 막(앞 = 오후 햇살 · 뒤 = 저녁 촛불 · 예외 맞절)
+chk 'LOOK_FIRST_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑥ 그림 판정 첫 줄 = 예쁜가(기준 그림과 마감 후 나란히) · 숫자는 그다음
+chk 'STYLE_MATJEOL_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑦ 정답 느낌 = 맞절(맑은 공기 · 작은 촛불 · 초크 파랑 · 읽히는 하객) · 편집 위에 편집 금지
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
