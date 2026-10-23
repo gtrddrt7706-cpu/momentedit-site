@@ -120,9 +120,14 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   // ③ 표본 — 운영 주소에서 0벌
   const pgHosts = (/PROD_HOSTS\s*=\s*\[([^\]]*)\]/.exec(PG) || [])[1];
   t(!!pgHosts && JSON.stringify(R.PROD_HOSTS) === JSON.stringify(pgHosts.split(',').map((x) => x.trim().replace(/^'|'$/g, ''))), '③ 운영 주소 목록 = shared/preview-guard.js PROD_HOSTS');
+  /* ★[DRESS_SAMPLE_PROD 2026-10-23 사장님 «지금뜨게해»] 표식이 참인 동안만 운영 주소에도 표본이 보인다 — 표식은 그 모양 그대로(주석의 결정 이름까지) 있어야 한다 */
+  const sampleProd = R.SAMPLES_ON_PROD === true;
+  t(R.SAMPLES_ON_PROD === undefined || typeof R.SAMPLES_ON_PROD === 'boolean', '③ SAMPLES_ON_PROD 는 참/거짓');
+  if (sampleProd) t(/\n    SAMPLES_ON_PROD: true,\s+\/\/ \[DRESS_SAMPLE_PROD /.test(src), '③ [DRESS_SAMPLE_PROD] 운영에서 표본을 여는 줄은 사장님 결정 표식과 한 줄');
   for (const h of ['momentedit.kr', 'www.momentedit.kr', 'MOMENTEDIT.KR.']) {
     const Rp = load(src, h);
-    t(Rp.list().every((d) => !d.sample), `③ 운영 주소(${h})에서는 표본 0벌`);
+    if (sampleProd) t(Rp.list().length === R.dresses.length, `③ [DRESS_SAMPLE_PROD] 사장님 결정으로 표본 운영 중 — 운영 주소(${h})에도 ${R.dresses.length}벌`);
+    else t(Rp.list().every((d) => !d.sample), `③ 운영 주소(${h})에서는 표본 0벌`);
   }
   const Rv = load(src, 'momentedit-site-git-x-preview.vercel.app');
   t(Rv.list().length === R.dresses.length, '③ 미리보기 · 로컬에서는 표본까지 보인다');
@@ -132,7 +137,10 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(noindex, '④ [DRESS_PUBLIC_OFF] dress.html 은 늘 noindex(스위치와 상관없이 · 마이페이지 겹화면 전용)');
   t(!/dress\.html/.test(SITE), '④ [DRESS_PUBLIC_OFF] sitemap.xml 에 /dress.html 을 넣지 않는다');
   t(!/ㄴ\. dress\.html 의 noindex 줄을 지운다|sitemap\.xml 에 \/dress\.html 을 넣는다/.test(src), '④ [DRESS_PUBLIC_OFF] 원천의 «켤 때 할 일»에 noindex · sitemap 줄이 없다');
-  if (R.live) {
+  if (R.live && sampleProd) {
+    /* ★[DRESS_SAMPLE_PROD] 켜기 조건(실물 4벌 · 모두 사진)은 표식이 참인 동안 보류 — 사장님이 표본으로 켜기를 골랐다. 표식을 false 로 돌리면 아래 줄이 다시 본다 */
+    t(R.dresses.length > 0 && R.dresses.every((d) => d.sample), '④ [DRESS_SAMPLE_PROD] 사장님 결정으로 표본 운영 중 — 표본만 있다(실물을 넣으면 표본을 지우고 표식을 false 로)');
+  } else if (R.live) {
     t(R.dresses.every((d) => !d.sample), '④ 켜졌다 — 표본은 지워야 한다');
     /* ★[DRESS_LIVE_READY 2026-10-23 코워크 검토 4] 켤 때 할 일 ㄴ — 사진 없이 켜면 고르기 화면 칸이 라인 그림만 남고(같은 라인끼리 같은 그림 · 미니 · 미디도 바닥 길이) · 0벌이면 목록이 통째로 빈다 */
     const real = R.dresses.filter((d) => !d.sample);
@@ -400,7 +408,9 @@ if (process.argv.includes('--selftest')) {
   // 깨 보기 — 모두 빨강이어야 이 검사를 믿는다
   const cases = [
     ['핏 짝 바꿈(엠파이어 → 허리)', SRC.replace("key: 'empire', en: 'Empire', ko: '엠파이어', fit: 'loose'", "key: 'empire', en: 'Empire', ko: '엠파이어', fit: 'waist'"), GAS],
-    ['표본이 운영에 샌다', SRC.replace('return !(prod && d.sample);', 'return true;'), GAS],
+    ['표본이 운영에 샌다(표식 없이)', SRC.replace('return !(prod && d.sample);', 'return true;').replace('SAMPLES_ON_PROD: true,', 'SAMPLES_ON_PROD: false,'), GAS],
+    ['표식은 참인데 운영에서 표본이 빠진다', SRC.replace('var prod = R.isProd() && R.SAMPLES_ON_PROD !== true;', 'var prod = R.isProd();'), GAS],
+    ['표식 줄에서 사장님 결정 이름이 빠졌다', SRC.replace('// [DRESS_SAMPLE_PROD 2026-10-23', '// [표본 운영 2026-10-23'), GAS],
     ['서버 마감 일수가 다르다', SRC, (GAS || '').replace('untilDays: 2,', 'untilDays: 3,')],
     ['줄 세우기 순서가 다르다(맞은 수 먼저)', SRC.replace('(x.down - y.down) || (y.hit - x.hit)', '(y.hit - x.hit) || (x.down - y.down)'), GAS],
     ['마감 날 요일이 하루 밀린다', SRC.replace("'일월화수목금토'.charAt(t.getUTCDay())", "'일월화수목금토'.charAt((t.getUTCDay() + 1) % 7)"), GAS],
@@ -500,14 +510,16 @@ if (process.argv.includes('--selftest')) {
   const one = (id, line, len, img, exs) => "      { id: '" + id + "', name: '드레스 " + id + "', line: '" + line + "', length: '" + len + "', neck: '보트넥', fabric: '크레이프', expo: 'soft', sleeve: 'none', mood: '단정한 선', pair: '짧은 베일', img: '" + img + "', ex: " + exs + " }";
   const P = '../home/styling';
   const four = (o) => { o = o || {}; return [one('D01', 'column', 'ankle', o.noImg ? '' : P, ex(P)), one('D02', 'slip', 'calf', P, o.emptyEx ? "[{ t: '앞', img: '" + P + "' }, { t: '뒤' }]" : ex(P)), one('D03', 'aline', 'knee', P, ex(P)), one('D04', 'empire', 'ankle', P, ex(P))].slice(0, o.n || 4).join(',\n'); };
-  const LIVE_SRC = (dresses) => SRC.replace('live: false,             // [DRESS_LIVE]', 'live: true,              // [DRESS_LIVE]').replace(/dresses: \[[\s\S]*?\n    \]\n  \};/, () => 'dresses: [\n' + dresses + '\n    ]\n  };');
+  const ON = (s) => s.replace(/live: (true|false),\s+\/\/ \[DRESS_LIVE\]/, 'live: true,              // [DRESS_LIVE]').replace('SAMPLES_ON_PROD: true,', 'SAMPLES_ON_PROD: false,');   // 켬 · 표본 운영 표식 끔
+  const LIVE_SRC = (dresses) => ON(SRC).replace(/dresses: \[[\s\S]*?\n    \]\n  \};/, () => 'dresses: [\n' + dresses + '\n    ]\n  };');
   const LIVE_PAGE = PAGE0;     // [DRESS_PUBLIC_OFF] 켜도 noindex 는 그대로
   const LIVE_SITE = SITEMAP;   // [DRESS_PUBLIC_OFF] 켜도 sitemap 에 넣지 않는다
   const okSrc = LIVE_SRC(four());
   const ctl = audit(okSrc, GAS, LIVE_PAGE, MP0, { SITE: LIVE_SITE });
   const ctlOk = okSrc !== SRC && /live: true,/.test(okSrc) && !ctl.bad.length;
   console.log((ctlOk ? '  대조 초록 ' : '  대조가 빨강?? ') + '다 갖춘 켠 사본(실물 4벌 · 모두 사진 · ex 도 사진)' + (ctl.bad.length ? ' · ' + ctl.bad.slice(0, 3).join(' / ') : ''));
-  cases.push(['켜기 — 표본만(실물 0벌)', LIVE_SRC('') === SRC ? SRC : SRC.replace('live: false,             // [DRESS_LIVE]', 'live: true,              // [DRESS_LIVE]'), GAS, LIVE_PAGE, MP0, { SITE: LIVE_SITE }]);
+  cases.push(['켜기 — 표식 없이 표본만(live 만 켬)', ON(SRC), GAS, LIVE_PAGE, MP0, { SITE: LIVE_SITE }]);
+  cases.push(['표식은 참인데 실물이 섞였다', SRC.replace(/dresses: \[/, () => 'dresses: [\n' + four({ n: 1 }) + ','), GAS, LIVE_PAGE, MP0, { SITE: LIVE_SITE }]);
   cases.push(['켜기 — 사진 없는 드레스', LIVE_SRC(four({ noImg: true })), GAS, LIVE_PAGE, MP0, { SITE: LIVE_SITE }]);
   cases.push(['켜기 — 4벌 미만(3벌)', LIVE_SRC(four({ n: 3 })), GAS, LIVE_PAGE, MP0, { SITE: LIVE_SITE }]);
   cases.push(['켜기 — ex 에 사진 없는 장', LIVE_SRC(four({ emptyEx: true })), GAS, LIVE_PAGE, MP0, { SITE: LIVE_SITE }]);

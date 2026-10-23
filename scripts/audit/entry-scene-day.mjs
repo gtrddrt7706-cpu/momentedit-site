@@ -34,6 +34,7 @@ function wav(sec, hook) { const sr = 22050, n = sr * sec, b = Buffer.alloc(44 + 
   let s = 7; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647 - 0.5; };
   for (let i = 0; i < n; i++) { const t = i / sr, a = t >= hook ? 0.45 * ((t % 0.5) < 0.06 ? 1 : 0.35) : 0.05; const v = a * (Math.sin(2 * Math.PI * 220 * t) * 0.6 + Math.sin(2 * Math.PI * 330 * t) * 0.3 + rnd() * 0.2); b.writeInt16LE(Math.max(-32767, Math.min(32767, Math.round(v * 32767))), 44 + i * 2); }
   return b.toString('base64'); }
+const SHORT = ' · 곡 길이 모자람 · 맞절은 피아노로';   // [BGM_SEG8_1023 ENTRY_SHORT] 150초 곡 · 하이라이트 40초 → 뒤 110초
 const SONG = wav(150, 40), FID = 'SONGID0123456789abcd';
 const S_OK = { course: 'open', entry: 'A', entryVoice: 'nar', mu: { src: 'up', name: 'song-day', t: '시험 곡', a: '', dur: 150, hook: 40, typed: null, sid: 'x1', fid: FID } };
 async function open(S0, mode) {
@@ -64,7 +65,7 @@ try {
     const { ctx, pg, errs, gets } = await open(S_OK, '');
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
     const A = await st(pg);
-    ok('1a 미리 받기 — 초안의 곡 id 로 받아 «입장 음악 · ✓ ‹시험 곡› · 0:40 하이라이트 · 받아 둠»', A.st === 'ok' && A.sg && gets.includes(FID) && A.rf === '✓ ‹시험 곡› · 0:40 하이라이트 · 받아 둠', { A, gets });
+    ok('1a 미리 받기 — 초안의 곡 id 로 받아 «입장 음악 · ✓ ‹시험 곡› · 0:40 하이라이트 · 받아 둠»', A.st === 'ok' && A.sg && gets.includes(FID) && A.rf === '✓ ‹시험 곡› · 0:40 하이라이트 · 받아 둠' + SHORT, { A, gets });   /* [BGM_SEG8_1023 ENTRY_SHORT] 시험 곡은 하이라이트 뒤 110초(< 180) — «곡 길이 모자람 · 맞절은 피아노로» */
     await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
     const I = await idxOf(pg), B0 = await st(pg);
     VP_NAR = B0.vp;
@@ -150,7 +151,7 @@ try {
     const I = await idxOf(pg); await fireAt(pg, I.e); await pg.waitForTimeout(400);
     const B = await st(pg);
     ok('9 추천 곡 — rec:r1 로 받아 «✓ ‹Popcorn› · 0:40 하이라이트 · 받아 둠» · 입장 GO 장면 · 이름표 «입장 음악 · Popcorn» · 쪽 오류 없음',
-      A.st === 'ok' && gets.includes('rec:r1') && !gets.includes(FID) && A.rf === '✓ ‹Popcorn› · 0:40 하이라이트 · 받아 둠' && B.run && B.ri === I.e && B.tags.includes('입장 음악 · Popcorn') && errs.length === 0, { rf: A.rf, gets, run: B.run, tags: B.tags, errs });
+      A.st === 'ok' && gets.includes('rec:r1') && !gets.includes(FID) && A.rf === '✓ ‹Popcorn› · 0:40 하이라이트 · 받아 둠' + SHORT && B.run && B.ri === I.e && B.tags.includes('입장 음악 · Popcorn') && errs.length === 0, { rf: A.rf, gets, run: B.run, tags: B.tags, errs });
     await ctx.close();
   }
   // 10 — [BGM_FIRST_1013] 문 열림 자리가 멘트보다 앞이면(8초) 같은 소절이 다시 나오는 뒤 자리(60초)에 — 식순 화면과 같은 식(S.mu.hooks) · 음악이 4초 먼저

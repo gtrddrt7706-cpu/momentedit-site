@@ -163,12 +163,15 @@ ok(sb._dressBriefLine_('') === '', '7-2 고른 게 없으면 빈 줄');
 
 // 8) 확정 메일 한 줄 — 스위치(사이트 원천) · 시그니처 · 의상
 const SRC = fs.readFileSync(new URL('../../assets/dress-refs.js', import.meta.url), 'utf8');
-const LIVE_ON = SRC.replace(/live:\s*false\s*,(\s*\/\/\s*\[DRESS_LIVE\])/, 'live: true,$1');
-ok(LIVE_ON !== SRC, '8-0 원천의 스위치 줄을 찾았다(«live: false, // [DRESS_LIVE]»)');
+/* ★[DRESS_SAMPLE_PROD 2026-10-23 사장님 «지금뜨게해»] 원천 스위치가 켜졌다 — 꺼짐 동작은 꺼진 사본(OFF)으로, 켜짐은 켜진 사본(LIVE_ON)으로 잰다 */
+const LIVE_ON = SRC.replace(/live:\s*(true|false)\s*,(\s*\/\/\s*\[DRESS_LIVE\])/, 'live: true,$2');
+const OFF = SRC.replace(/live:\s*(true|false)\s*,(\s*\/\/\s*\[DRESS_LIVE\])/, 'live: false,$2');
+ok(OFF !== LIVE_ON && /live:\s*true\s*,\s*\/\/\s*\[DRESS_LIVE\]/.test(LIVE_ON), '8-0 원천의 스위치 줄을 찾았다(«live: …, // [DRESS_LIVE]»)');
+ok(SRC === LIVE_ON, '8-0b [DRESS_SAMPLE_PROD] 지금 원천 스위치는 켜져 있다(사장님 «지금뜨게해») — 서버도 이 원천을 읽어 켜짐으로 본다');
 const line = '상담 날 입어 보실 드레스 두 벌을';
 const confirm = () => { MAIL = []; sb.sendConfirmEmail_('a@b.c', '정희준 · 미쿠', ymd(5), '14:50', false, 'tk', sb.findRowByPersonalCode('C1')); return MAIL[0] ? MAIL[0].html : ''; };
-fresh({ fetch: SRC });
-ok(confirm().indexOf(line) < 0, '8-1 스위치가 꺼져 있으면(지금) 메일에 싣지 않는다 — 머리 주석의 «live:true» 글자에 속지 않는다');
+fresh({ fetch: OFF });
+ok(confirm().indexOf(line) < 0, '8-1 스위치가 꺼져 있으면 메일에 싣지 않는다 — 주석 속 «live:true» 글자에 속지 않는다');
 fresh({ fetch: LIVE_ON });
 let html = confirm();
 ok(html.indexOf(line) > -1 && html.indexOf('momentedit.kr/mypage.html') > -1, '8-2 켜지면 «…마이페이지에서 미리 고르실 수 있습니다» + 마이페이지 링크');
@@ -191,9 +194,9 @@ ok(confirm().indexOf(line) > -1, '8-8 다 빼서 비웠으면(0벌) 다시 싣�
 // 10) 신청 접수 메일 한 줄 — ★[DRESS_SIGNUP_MAIL 명세 2 · 6장] 고객이 실제로 받는 접수 메일(40_signup sendSignupEmail_ «신청이 접수되었습니다 · 개인코드»)
 const sline = '상담 날 입어 보실 드레스도';
 const signup = (product) => { MAIL = []; sb.sendSignupEmail_('a@b.c', '정희준 · 미쿠', 'C1', 'tok123', product || '시그니처', '희망 예식 일자: 2027-05-01'); return MAIL[0] || { subj: '', html: '' }; };
-fresh({ fetch: SRC, stage: '신청접수', status: '신청접수', date: '' });
+fresh({ fetch: OFF, stage: '신청접수', status: '신청접수', date: '' });
 let sm = signup();
-ok(/신청이 접수되었습니다/.test(sm.subj) && sm.html.indexOf(sline) < 0, '10-1 스위치가 꺼져 있으면(지금) 접수 메일에 싣지 않는다 — 메일은 그대로 나간다', sm.subj);
+ok(/신청이 접수되었습니다/.test(sm.subj) && sm.html.indexOf(sline) < 0, '10-1 스위치가 꺼져 있으면 접수 메일에 싣지 않는다 — 메일은 그대로 나간다', sm.subj);
 fresh({ fetch: LIVE_ON, stage: '신청접수', status: '신청접수', date: '' });
 sm = signup();
 const sIdx = sm.html.indexOf(sline);
