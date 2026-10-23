@@ -117,7 +117,7 @@ BGM 섹션 요청(10/23 · 대본 152 ~ 157 다시 녹음 32클립 main 08f495c 
 | 138_narr-candle-bow | 16.1 |
 | 139_narr-candle-bow-four | 11.9 |
 | 146_narr-candle-bow-fathers | 16.1 |
-| 147_narr-candle-bow-others | 14.9 |
+| 147_narr-candle-bow-others | 15.0 |
 | 151_narr-candle-in-mothers | 14.1 |
 | 152_narr-candle-in-mothers-ex3 | 19.3 |
 | 153_narr-candle-in-mothers-ex4 | 36.6 |
