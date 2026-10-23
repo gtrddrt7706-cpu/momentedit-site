@@ -90,7 +90,7 @@ BGM 섹션 요청(10/23 · 대본 152 ~ 157 다시 녹음 32클립 main 08f495c 
 | S4 welcome · vow · ring · declare · bless | 420 | 3분 41초 · GO 5 · 남음 199초 | 3분 41초 · GO 5 · 남음 199초 | 5분 35초 · GO 6 | 2분 44초 · GO 4 · 남음 256초 |
 | S5 free | 240 | 3분 23초 · GO 1 | 없음 | 없음 | 없음 |
 | S6 letter | 330 | 없음 | 없음 | 없음 | 없음 |
-| S7 tribute | 240 | 4분 25초 · GO 4 · **모자람 25초** | 1분 56초 · GO 3 · 남음 124초 | 4분 25초 · GO 4 · **모자람 25초** | 1분 56초 · GO 3 · 남음 124초 |
+| S7 tribute | 300 | 4분 25초 · GO 4 | 1분 56초 · GO 3 · 남음 184초 | 4분 25초 · GO 4 | 1분 56초 · GO 3 · 남음 184초 |
 | S8 _close | 120 | 0분 23초 · GO 1 · 남음 97초 | 1분 11초 · GO 2 · 남음 49초 | 0분 23초 · GO 1 · 남음 97초 | 0분 23초 · GO 1 · 남음 97초 |
 | S9 toast | 60~90 | 없음 | 0분 23초 · GO 2 · 남음 37초 | 없음 | 없음 |
 | S10 table | 1800 | 없음 | 9분 09초 · GO 0 · 남음 1251초 | 없음 | 없음 |
@@ -218,7 +218,7 @@ BGM 섹션 요청(10/23 · 대본 152 ~ 157 다시 녹음 32클립 main 08f495c 
 | 26 | tribute | tribute-out | 39 | 11.0 | 15 | -12 | -16 | manual |  | S7 |
 | 27 | _close | narr-close-bow | 187 | 15.7 | 12 박수 | -8 | -12 | manual |  | S8 |
 | 28 | _close | bridge-b13-toast-stay | 249 | 3.4 | 40 | -8 | -8 | manual |  · 내림 1.5초 | S8 |
-| 29 | toast | toast-toast | 40 | 10.7 | 10 | 0 | -8 | manual |  | S9 |
+| 29 | toast | toast-toast | 40 | 10.7 | 10 | -8 | -8 | manual |  | S9 |
 | 30 | toast | narr-toast-out | 56 | 2.3 |  |  | -8 | manual |  | S9 |
 | 31 | table | narr-table-in | 131 | 7.2 | 540 | -12 | -12 | chain | 2초 | S10 |
 | 32 | _close | narr-close | 26 | 10.3 | 480 | -8 | -12 | manual |  | S8+ |
