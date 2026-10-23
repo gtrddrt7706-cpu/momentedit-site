@@ -45,7 +45,7 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
     badL.length === 0 && !/어머님|개식/.test(ONE.candle) && !/식사/.test(ONE.table) && !B.SLOTS.some((s) => /말 아래|터져요|곡으로 닫아요/.test(s.one || '')), badL.map((k) => [k, V(k)]));
   /* 자리 — 엔진 줄 차례로 «이 줄 앞에» 번호 */
   const S0 = (a) => a.map((x) => Object.assign({ slug: '', txt: '' }, x));
-  const FA = { video: B.flowAt('video', S0([{ slug: 'narr-prevideo-in' }, { skip: true, txt: '여기서 두 분의 영상이 흘러요' }, { slug: 'narr-prevideo-out' }])), video0: B.flowAt('video', S0([{ slug: 'a' }, { slug: 'b' }])),
+  const FA = typeof B.flowAt !== 'function' ? { none: 'flowAt 없음' } : { video: B.flowAt('video', S0([{ slug: 'narr-prevideo-in' }, { skip: true, txt: '여기서 두 분의 영상이 흘러요' }, { slug: 'narr-prevideo-out' }])), video0: B.flowAt('video', S0([{ slug: 'a' }, { slug: 'b' }])),
     bridge: B.flowAt('bridge', S0([{ slug: 'bridge-b14-candle-name' }, { slug: 'narr-candle-in' }])), bridge0: B.flowAt('bridge', S0([{ slug: 'narr-candle-in' }])),
     bow: B.flowAt('bow', S0([{ slug: 'narr-close-bow' }, { quiet: true, txt: '두 분이 하객께 목례 · 박수' }, { slug: 'b13' }])),
     cheers: B.flowAt('cheers', S0([{ slug: 'toast-toast', txt: '… 위하여 …' }, { talk: true, txt: '여기서 두 분이 «위하여!»를 외치면' }, { slug: 'narr-toast-out' }])), top: B.flowAt('top', S0([{}, {}])) };
@@ -175,7 +175,7 @@ try {
     await pg.evaluate(() => { delete S.bgm; delete S.mu; _persist(); }); await go(pg, 'free'); await go(pg, '_sum'); const z0 = await sumLook(pg); await shot(pg, W, 'bgm-sum-none', '.mk-sum .mk-bgm');
     await pg.evaluate(() => { S.bgm = { S5: { m: 'bed' }, S6: { m: 'bed' } }; _persist(); }); await go(pg, 'free'); await go(pg, '_sum'); const z1 = await sumLook(pg); await shot(pg, W, 'bgm-sum-bed', '.mk-sum .mk-bgm');
     await pg.evaluate(() => { S.bgm = { S6: { m: 'bed' } }; S.mu = { src: 'rec', k: 'r1', t: '시험 곡', hook: 30 }; _persist(); }); await go(pg, 'free'); await go(pg, '_sum'); const z2 = await sumLook(pg);
-    await pg.evaluate(() => { delete S.bgm; delete S.mu; _persist(); }); await go(pg, 'free'); await go(pg, '_sum'); await pg.click('[data-fk="bgmgo:entry"]'); await pg.waitForTimeout(500);
+    await pg.evaluate(() => { delete S.bgm; delete S.mu; _persist(); }); await go(pg, 'free'); await go(pg, '_sum'); await pg.click('[data-fk="bgmgo:entry"]', { timeout: 3000 }).catch(() => {}); await pg.waitForTimeout(500);
     const zGo = await pg.evaluate(() => /입장/.test((document.querySelector('#mkHead') || {}).textContent || '') && !!document.querySelector('.ls-mu'));
     ok(`${W} 4 [BGM_R1_1023] 요약 — 안 골랐으면 «입장 곡 · 고르지 않으시면 스튜디오가 준비해요» + «이동하기»(누르면 입장 쪽) · 골랐으면 곡 이름(이동하기 없음) · 둘째 줄 그대로 · 다른 묶음과 같은 줄 꼴 · 남은 할 일 수 그대로(${z0.todoN} · ${z2.todoN}) · «보낼 것» 다음 · 보낼 것에 음악 줄 없음`,
       z0.rows.join(' / ') === '입장 곡 · 고르지 않으시면 스튜디오가 준비해요 [이동하기] / 나머지 음악은 스튜디오가 준비해요' && z1.rows.join(' / ') === '입장 곡 · 고르지 않으시면 스튜디오가 준비해요 [이동하기] / 축사 · 편지는 음악과 함께 · 나머지는 스튜디오가 준비해요'
