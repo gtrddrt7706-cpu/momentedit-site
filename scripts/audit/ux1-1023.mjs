@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★★[UX1_1023 2026-10-23 사장님 «음악을 제외한 나머지 추천대로 진행 · 너가 판단해서»(BGM 섹션 전달 · GPT 식순 빌더 검토 다섯)]
    고친 둘을 실렌더로 잰다 — 나머지 셋(예시 칩 눌림 EX_CHIP_ON · 예시 = 바로 채움 REF_START_OFF · CUE_FORM · 식전 영상 한 칸 PV_LINK_ONE · 넘길 때 팝업 LEAVE_POP)은 사장님 결정이라 그대로다.
-   ① [UNPICK_LINE] 화촉 «서는 분» · 편지 «받는 분»을 안 골랐으면 칩 아래 한 줄(«아직 고르지 않았어요 · 고르지 않으면 …») · 고르면 걷힌다
+   ① [UNPICK_LINE] 화촉 «서는 분» · 편지 «받는 분»을 안 골랐으면 칩 아래 한 줄(«고르지 않으시면 …» · 음악 줄과 같은 12.5px [UNPICK_WORDS_1023]) · 고르면 걷힌다
    ② [REF_FOLD] 보기만 하는 참고 예시(축사)는 첫 네 줄 남짓 + «예시 전체 보기» · 같은 단추 «예시 접기»로 다시 접고 단추는 화면에서 같은 자리
    ③ 네 줄 안에 드는 예시(1280 성혼 선언)는 단추 없이 그대로 · 다른 예시 칩을 누르면 다시 접힌 모양
    ④ 화면 오류 0
@@ -34,7 +34,7 @@ const fold = (pg, k) => pg.evaluate((k) => { const b = document.getElementById('
 try {
   /* ① 안 고른 한 줄 */
   { const { pg, errs } = await open(390);
-    for (const [k, lab, want, pick] of [['candle', '서는 분', '아직 고르지 않았어요 · 고르지 않으면 양가 어머님께서 밝혀요', 'lsc:candleWho:fathers'], ['letter', '받는 분', '아직 고르지 않았어요 · 고르지 않으면 서로에게 읽어요', 'lsc:letter:parent']]) {
+    for (const [k, lab, want, pick] of [['candle', '서는 분', '고르지 않으시면 양가 어머님께서 밝혀요', 'lsc:candleWho:fathers'], ['letter', '받는 분', '고르지 않으시면 서로에게 읽어요', 'lsc:letter:parent']]) {
       await go(pg, k); const n0 = await notes(pg, lab);
       ok(`① ${k} «${lab}» — 안 골랐으면 칩 아래 한 줄 [UNPICK_LINE]`, !!n0 && n0.length === 1 && n0[0] === want, JSON.stringify(n0));
       const b = await pg.$(`[data-fk="${pick}"]`); if (b) { await b.click(); await pg.waitForTimeout(400); if (await pg.evaluate(() => [...document.querySelectorAll('[role=dialog],[role=alertdialog]')].some((d) => d.offsetParent))) { await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); } }

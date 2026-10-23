@@ -19780,8 +19780,10 @@ chk 'PASTE_ORDER_VOICE_1023' scripts/check-paste-format.mjs 1   # [REVIEW28_1023
 #   깨 보고 믿음: main 에 ux1-1023 을 돌리면 8건 빨강 · _refClipFit 을 빼면 1280 성혼 선언(네 줄 안)에 단추가 남아 1건 빨강
 chk 'UNPICK_LINE' order-preview.html 1
 chk 'REF_FOLD' order-preview.html 4
-chk "_gc.unote='아직 고르지 않았어요 · 고르지 않으면 양가 어머님께서 밝혀요'" order-preview.html 1
-chk "_gl.unote='아직 고르지 않았어요 · 고르지 않으면 서로에게 읽어요'" order-preview.html 1
+chk "_gc.unote='고르지 않으시면 양가 어머님께서 밝혀요'" order-preview.html 1
+chk "_gl.unote='고르지 않으시면 서로에게 읽어요'" order-preview.html 1
+chk 'UNPICK_WORDS_1023' order-preview.html 2
+nochk "unote='아직 고르지 않았어요" order-preview.html   # [UNPICK_WORDS_1023] 안 고른 한 줄은 «고르지 않으시면 …» 한 꼴
 chk 'try{ requestAnimationFrame(_refClipFit); }catch(e){}' order-preview.html 1
 chk 'UX1_1023' scripts/audit/ux1-1023.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/ux1-1023.mjs >/dev/null 2>&1; _ux1=$?; [ "$_ux1" = 1 ] && { echo 'FAIL ux1-1023: 안 고른 한 줄(화촉 · 편지) 또는 긴 참고 예시 접기가 어긋났습니다 — node scripts/audit/ux1-1023.mjs'; fail=1; }; :; fi
