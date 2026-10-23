@@ -21,7 +21,7 @@
 ```
 # 우성 — 58줄 · 20클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =11_narr-welcome-in,=13_narr-vow-in,=91_narr-candle-in-mothers,=127_narr-vow-in-b,=128_narr-prevideo-in-ex2,=132_narr-entry-bow,=138_narr-candle-bow,=146_narr-candle-bow-fathers,=147_narr-candle-bow-others,=39_tribute-out,=142_narr-tribute-pair,=40_toast-toast,=149_narr-open-ex3,=191_narr-candle-in-fathers-ex4,=226_narr-vow-out-ex3,=169_narr-ring-in-ex2,=184_tribute-out-ex4,=186_narr-close-bow-ex3,=187_narr-close-bow-ex4,=219_narr-close-ex2
+  --clip =11_narr-welcome-in,=13_narr-vow-in,=127_narr-vow-in-b,=128_narr-prevideo-in-ex2,=138_narr-candle-bow,=146_narr-candle-bow-fathers,=147_narr-candle-bow-others,=39_tribute-out,=142_narr-tribute-pair,=40_toast-toast,=149_narr-open-ex3,=91_narr-candle-in-mothers-ex2,=191_narr-candle-in-fathers-ex4,=132_narr-entry-bow-ex2,=226_narr-vow-out-ex3,=169_narr-ring-in-ex2,=184_tribute-out-ex4,=186_narr-close-bow-ex3,=187_narr-close-bow-ex4,=219_narr-close-ex2
 ```
 
 ```

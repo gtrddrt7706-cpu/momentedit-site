@@ -7641,8 +7641,8 @@ chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, bless: 1 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
-chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, candle: { mothers: 1 }, matjeol: 4 } } }" assets/ritual-open.js 1   # [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
+chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
 # ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간 줄이기 제안에서 편지 카드는 남긴다 — 표식이 카드 줄에 붙어 있어 카드를 지우면 빨강
 chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
 chk "letter: { n: '편지 낭독', sn: '편지'," assets/ritual-open.js 1
@@ -7733,7 +7733,7 @@ chk 'EX_MANY_1017' scripts/audit/copycheck/전수표.py 2   # 새 예시 43줄 =
 chk 'EX_MANY_1017' scripts/audit/ghi-polish.mjs 2   # 맞절 쪽 — 맞절을 고르는 칩은 0 · «맞절 멘트» 줄 하나(MATJEOL_1011 과 함께 산다)
 chk 'function narExCue(S, slug)' assets/ritual-open.js 1
 chk 'if (O.narExCue) cues.forEach(function (c)' assets/ritual-cue.js 1
-chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-ex2'," assets/ritual-cue.js 1   # FILES 148 ~ 151 (번호는 한 번 붙으면 바꾸지 않는다)
+chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers'," assets/ritual-cue.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · FILES 148 ~ 151 (번호는 한 번 붙으면 바꾸지 않는다)
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
@@ -8082,7 +8082,7 @@ chk 'PV_RESCUE_1014' assets/ritual-story.js 1
 chk 'OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014' scripts/audit/open-course.mjs 2
 chk 'OPEN_SUM_1014' order-preview.html 1              # ④ 하객 맞이 요약도 «예식 시작»까지(두 분 목소리 판이면 «예식 시작은 나레이션»)
 chk 'MATJEOL_ONE_1014' assets/ritual-data.js 1        # 맞절 첫 문장 «이어서, 맞절이 있겠습니다.» — 1.25초 앞 받는 말(144)의 «두 사람이»를 되풀이하지 않는다
-chk 'entryBow:"이어서 신랑 신부의 맞절을 진행하도록 하겠습니다.' assets/ritual-data.js 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «entryBow:"이어서, 맞절이 있겠습니다.…»
+chk "'이어서 신랑 신부의 맞절을 진행하도록 하겠습니다. " assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «entryBow:"이어서, 맞절이 있겠습니다.…»
 nochk '이어서, 두 사람의 맞절이' assets/ritual-data.js
 chk 'BRIDGE_NO_ECHO_1014' order-preview.html 1        # 미리 듣기 이음말은 여는 말이 말하지 않은 «누가 · 어떻게»만 — narr-words --engine 이 여는 말과 이어 W13 으로 잰다
 chk 'BRIDGE_NO_ECHO_1014' scripts/audit/narr-words.mjs 3
@@ -8147,7 +8147,7 @@ chk '두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.' ass
 chk "candleOutFormal: '두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 가정의 마음이 하나의 불꽃이 되었습니다.…» · 옛 주석 140(격식 날) · T1 «따뜻한» 뺌
 chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 되어' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «오늘의 주인공을, 앞으로 모시겠습니다.…» · 옛 주석 입장 B · G2 4 선창 4
 chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 되어' order-preview.html 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «오늘의 주인공을, 앞으로 모시겠습니다.…»
-chk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.' assets/ritual-data.js 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
+chk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.' assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
 chk "s.text === '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.'" scripts/build-typecast-import.mjs 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «s.text === '두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 뒤 3초 쉼 열쇠 — 글과 함께 바뀌어야 한다(옛 열쇠면 쉼이 조용히 사라진다)
 chk ' thanksIn:"다음은 감사문 낭독이 있겠습니다. 천천히 하셔도 괜찮습니다."' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « thanksIn:"감사문 낭독이 있겠습니다.…» · 옛 주석 감사문 여는 말 · 서약과 같은 틀
 chk ' song:"오늘 같은 날 이 순서는 정말 빠질 수 없는 순서죠? 우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다."' assets/ritual-data.js 1   # ★[SONG_DEF_NN_1023 검토 151-1 2)] 자료 NN 원문(옛 예시 3) · 옛 핀 « song:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다."» · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « song:"축가가 있겠습니다.…» · 옛 주석 축가 여는 말 · 덕담 맺는 말 «…들었습니다» 뒤 «들어 보시겠습니다» 되풀이도 풂
@@ -15259,7 +15259,7 @@ chk "→ 음악 → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'" 
 chk '기원하며 축복의 불을 밝히겠습니다' assets/ritual-open.js 2   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 151 · 154 = 자료 G 원문 되돌림(옛 핀 «밝혀 주시겠습니다» 3 · 남은 하나는 쉬는 parents 판)
 # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 옛 nochk «밝히겠습니다» 걷음(위 줄이 지킨다)
 chk 'MOOD_FIT_1018' assets/ritual-cue.js 2
-chk 'var MOOD_SHIFT = { matjeol: \[1, 0, 3, 2\]' assets/ritual-cue.js 1
+chk 'var MOOD_SHIFT = { matjeol: \[0, 1, 3, 2\]' assets/ritual-cue.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2
 chk "var MOOD_KEYS = \['keep', 'plain', 'formal', 'warm', 'moving', 'bright'\];" assets/ritual-open.js 1
 chk "var MOOD_REF = { plain: \['담백', '짧게'\]" assets/ritual-open.js 1
 chk 'EX_SLUG_MOVED_1018' assets/ritual-open.js 1
@@ -19878,7 +19878,7 @@ chk 'PASTE_ORDER_VOICE_1023' scripts/check-paste-format.mjs 1   # [REVIEW28_1023
 chk 'REVIEW29_1023' scripts/audit/open-course.mjs 3
 chk 'SEAM_BLESS_1023' scripts/audit/open-course.mjs 2
 chk "var SEAM_KEYS=\['speech','song','bless'\];" order-preview.html 1
-chk 'entryBow:"이어서 신랑 신부의 맞절을 진행하도록 하겠습니다.' assets/ritual-data.js 1
+chk 'entryBow:"다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다. 맞절은 부부로서의 첫 예를' assets/ritual-data.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2
 chk 'welcome:{nar:"자리해 주신 하객들을 향한 신랑 신부의 감사 인사가 있겠습니다."' assets/ritual-data.js 1
 chk 'vow:{nar:"다음은 혼인 서약의 순서가 있겠습니다.' assets/ritual-data.js 1
 chk "names: \['담백하게', '격식 있게', '엄숙하게', '뭉클하게'\]" assets/ritual-open.js 1
@@ -19891,3 +19891,17 @@ chk "'이것으로 신랑 신부의 결혼식을 모두 마치겠습니다. 이�
 chk '일가 친척, 친지, 친구, 직장 동료분들께서는 촬영을' assets/ritual-open.js 1
 chk 'nar:"자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다.' assets/ritual-data.js 1
 chk "nar:\"자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여" order-preview.html 1
+
+# ★[BASE_SWAP_1023 검토 156] 화촉 어머님 기본 «담백하게»(151) · 맞절 기본 «격식 있게»(160) — 소리 번호는 글을 따라 그대로 · 옛 초안의 «1»은 기본으로 옮긴다
+chk 'BASE_SWAP_1023' assets/ritual-open.js 5
+chk 'BASE_SWAP_1023' assets/ritual-cue.js 4
+chk 'BASE_SWAP_1023' scripts/audit/open-course.mjs 5
+chk "'narr-candle-in-mothers-ex2', 'narr-candle-in-parents', 'narr-candle-in-fathers'" assets/ritual-cue.js 1
+chk "    'narr-entry-bow-ex2',   /\* ★\[BASE_SWAP_1023" assets/ritual-cue.js 1
+chk "'narr-entry-bow', 'narr-entry-bow-ex3', 'narr-entry-bow-ex4', 'narr-vow-in-ex2'," assets/ritual-cue.js 1
+chk "return w === 'mothers' ? \['담백하게', '뭉클하게', '잔잔하게', '애틋하게'\]" assets/ritual-open.js 1
+chk "matjeol: { lab: '맞절 멘트', names: \['격식 있게', '잔잔하게'," assets/ritual-open.js 1
+chk "if(+_sv.S.exv!==2){" order-preview.html 1
+chk "var S={course:'open',exv:2," order-preview.html 1
+chk "'exv'," assets/ritual-preview-link.js 1
+chk "function exSwapped(S, k) { return !!(S && S.entryScene != null && +S.exv !== 2" assets/ritual-open.js 1
