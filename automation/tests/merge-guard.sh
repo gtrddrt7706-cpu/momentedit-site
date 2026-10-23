@@ -19901,6 +19901,18 @@ chk "이제 두 분께서는 자리에 착석해 주시기 바랍니다.'" asset
 nochk '불을 밝혀 주신 두 분은, 이제 자리로 돌아가 예식을 지켜봐 주십시오.' assets/ritual-open.js   # G2 AI 글 걷음
 chk '곧바로 순서를 시작하겠습니다. 자리에 착석해 주시길 바랍니다. 원활한 진행을 위해 주머니 속' order-preview.html 1   # 두 분 유쾌 g3 = 122 글
 chk 'PASTE_ORDER_VOICE_1023' scripts/check-paste-format.mjs 1   # [REVIEW28_1023] 같은 글 · 다른 화자 = 다른 녹음(못 잰 줄)
+# ★[UX1_1023 2026-10-23 사장님 «음악을 제외한 나머지 추천대로 진행 · 너가 판단해서»(BGM 섹션 전달 · GPT 식순 빌더 검토 다섯)] 화촉 «서는 분» · 편지 «받는 분» 안 고른 한 줄 [UNPICK_LINE]
+#   · 보기만 하는 긴 참고 예시는 첫 네 줄 남짓 + «예시 전체 보기» · 같은 단추로 접기 [REF_FOLD] — 나머지 셋은 사장님 결정(EX_CHIP_ON · REF_START_OFF · PV_LINK_ONE · LEAVE_POP)이라 그대로
+#   깨 보고 믿음: main 에 ux1-1023 을 돌리면 8건 빨강 · _refClipFit 을 빼면 1280 성혼 선언(네 줄 안)에 단추가 남아 1건 빨강
+chk 'UNPICK_LINE' order-preview.html 1
+chk 'REF_FOLD' order-preview.html 4
+chk "_gc.unote='고르지 않으시면 양가 어머님께서 밝혀요'" order-preview.html 1
+chk "_gl.unote='고르지 않으시면 서로에게 읽어요'" order-preview.html 1
+chk 'UNPICK_WORDS_1023' order-preview.html 2
+nochk "unote='아직 고르지 않았어요" order-preview.html   # [UNPICK_WORDS_1023] 안 고른 한 줄은 «고르지 않으시면 …» 한 꼴
+chk 'try{ requestAnimationFrame(_refClipFit); }catch(e){}' order-preview.html 1
+chk 'UX1_1023' scripts/audit/ux1-1023.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ux1-1023.mjs >/dev/null 2>&1; _ux1=$?; [ "$_ux1" = 1 ] && { echo 'FAIL ux1-1023: 안 고른 한 줄(화촉 · 편지) 또는 긴 참고 예시 접기가 어긋났습니다 — node scripts/audit/ux1-1023.mjs'; fail=1; }; :; fi
 # ★[REVIEW29_1023 검토 153] 본식 전반 자료 글(132 EE A-2 · 11 polarisians · 13 · 127 고은천 · 226 innpirit · 169 이용진 · 230 엄숙하게) · 덕담 박수 겹침 이음새(SEAM_BLESS_1023)
 chk 'REVIEW29_1023' scripts/audit/open-course.mjs 3
 chk 'SEAM_BLESS_1023' scripts/audit/open-course.mjs 2
