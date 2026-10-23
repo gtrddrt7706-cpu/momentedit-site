@@ -130,14 +130,19 @@ if (!fs.existsSync(PASTE)) {
     const man = JSON.parse(fs.readFileSync(MANP, 'utf8'));
     const flat = [];
     (man.clips || []).forEach((c, ci) => (c.sents || []).forEach((s, si) =>
-      flat.push({ ci, si, id: `${c.no}_${c.file}`, text: String(s.text).trim() })));
-    const texts = fs.readFileSync(PASTE, 'utf8').split('\n').filter((l) => l.trim())
-      .map((l) => l.replace(/^[^:]+:\s*/, '').trim());
+      flat.push({ ci, si, id: `${c.no}_${c.file}`, text: String(s.text).trim(), voice: (man.voice || {})[c.role] || '' })));
+    const lines = fs.readFileSync(PASTE, 'utf8').split('\n').filter((l) => l.trim());
+    const texts = lines.map((l) => l.replace(/^[^:]+:\s*/, '').trim());
+    const spk = lines.map((l) => ((/^([^:]+):/.exec(l) || [])[1] || '').trim());
+    /* ★[PASTE_ORDER_VOICE_1023] 같은 글이 대장 앞자리에 있어도 **화자가 다르면** 그 자리의 녹음이 아니다 —
+       대장 밖 클립(두 분 판 예시 · 예슬)이 «다시 한번 말씀드립니다 …»(04 진희와 같은 글)를 읽어 «뒤로 간다»로 붉었다(검토 152).
+       화자가 같은 앞자리만 «어긋남»으로 세고, 화자까지 다르면 «못 잰 줄»(CANT_PLACE)로 적는다. */
+    const sameV = (x, k) => !spk[k] || !x.voice || x.voice === spk[k];
     let cur = 0, back = null, gone = [];
     for (let k = 0; k < texts.length && !back; k++) {
       const at = flat.findIndex((x, i) => i >= cur && x.text === texts[k]);
       if (at >= 0) { cur = at + 1; continue; }
-      const before = flat.findIndex((x) => x.text === texts[k]);
+      const before = flat.findIndex((x) => x.text === texts[k] && sameV(x, k));
       if (before >= 0) back = { k, line: k + 1, at: flat[before], from: flat[cur - 1] };
       else gone.push(`${k + 1}행 "${texts[k].slice(0, 30)}"`);
     }
