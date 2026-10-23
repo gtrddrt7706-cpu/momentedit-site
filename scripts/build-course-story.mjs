@@ -164,6 +164,13 @@ for (const [b, ks] of [...seenBlock].sort()) {
 }
 for (const b of Object.keys(ST.BLOCK)) if (!seenBlock.has(b)) bad(`STORY.BLOCK '${b}' — 어떤 조합에서도 안 나오는 죽은 블록`);
 
+// 2-b'. ★[BGM_R3_1023] 편지 «음악과 함께» 장면 = 기본 편지 장면에서 한 대목만 바꾼 글 — 대본이 기본 글을 고쳐 그 대목이 사라지면 여기서 멈춘다
+{ const sw = ST.LETTER_BED_SWAP, b0 = ST.LIVE['두 분이 직접 편지 낭독'], b1 = ST.LIVE['두 분이 직접 편지 낭독 (음악이 아주 작게)'];
+  if (!sw || !b0 || !b1) bad('편지 «음악과 함께» 장면 — LETTER_BED_SWAP · 기본 판 · 음악 판 중 없는 것이 있다(assets/ritual-story.js)');
+  else if (String(b0.scene || '').indexOf(sw.from) < 0) bad(`편지 «음악과 함께» 장면을 만들 대목을 기본 편지 장면 글에서 못 찾았다 — 기본 글이 바뀌었으면 LETTER_BED_SWAP.from 을 새 글의 «음악도 안내 음성도 없다»는 대목으로 맞출 것\n         대목: '${sw.from}'\n         기본 글: '${b0.scene}'`);
+  else if (b1.scene !== b0.scene.replace(sw.from, sw.to) || !b1.scene.endsWith(sw.to)) bad(`편지 «음악과 함께» 장면이 기본 글에서 한 대목만 바꾼 글이 아니다 — '${b1.scene}'`);
+}
+
 // 2-c. 모든 사람 구간이 장면 지문을 갖는가 + 원문 대조
 for (const [t, e] of seenLive) {
   const s = ST.LIVE[t];
