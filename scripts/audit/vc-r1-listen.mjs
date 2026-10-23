@@ -14,7 +14,7 @@
    #51 VU_ONE_WAIT    한 번 듣기는 50초에 끊지 않는다(PC 55초 · 아이폰 70초 끊김 → 저장본)
    #52 PT_DEADLINE    연습 한 차례는 다시 묻기까지 50초 안
    #53 VU_ENTRY_MIX   입장 인사 들어 보기 = 두 분 목소리(나눠 읽는 줄 · practice 아님)
-   #54 VU_STOP        트는 동안 단추는 «■ 멈추기» · 누르면 멈춘다
+   #54 VU_STOP        트는 동안 단추는 «■ 멈춤» · 누르면 멈춘다
    #55 VU_WAIT_WHO · VU_LIMIT_INFO   한 분만 만든 예식은 빠진 분 이름 · 예산은 중립 한 줄
    #56 VU_CHIP_EVEN   창 예시 칩이 3+1 · 5+1 로 접히지 않는다(같은 폭 칸)
    ONLY=<번호,…>  SHOTS=<폴더>  VERBOSE=1(통과한 장면도 잰 값)  VC_R1_OP=<order-preview.html 경로>(그 판으로 잰다 — 고치기 전 판 · 돌연변이 확인용)
@@ -335,7 +335,7 @@ const SC = [
     await toVoice(pg, f); await openUse(pg, f, 'g0');
     await click(f, '#mkRecDlg [data-fk="mkuseplay"]'); await until(pg, f, () => window.__plays.length > 0, 30000); await adv(pg, 200);
     const a = await dlg(f); await shot(pg, '54-트는중');
-    ok('#54 트는 동안 단추 = «■ 멈추기»(aria-pressed=true) [VU_STOP]', a.btn === '멈추기' && a.pressed === 'true' && a.aud, JSON.stringify(a));
+    ok('#54 트는 동안 단추 = «■ 멈춤»(aria-pressed=true) [VU_STOP]', a.btn === '멈춤' && a.pressed === 'true' && a.aud, JSON.stringify(a));
     await click(f, '#mkRecDlg [data-fk="mkuseplay"]'); await adv(pg, 300); const b = await dlg(f);
     ok('#54 다시 누르면 멈춘다(처음부터 다시 틀지 않는다) · 단추는 «들어 보기»로 [VU_STOP]', !b.aud && b.plays === a.plays && b.btn === '들어 보기' && b.pressed === 'false', JSON.stringify(b));
   } },

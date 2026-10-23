@@ -12,7 +12,7 @@
    9 안내 창이 «이 순간 전체 듣기 · 음악과 함께»를 말한다(나레이션 판 = «멘트부터 입장까지») · 쪽 오류 없음
    ★★[ENTRY_SCENE_1012] 2단계 «음악과 함께 듣기»
    10 올리면 고르기 칸 바로 아래 장면 칸(16px) · 그래프 그림 · 알약 «이 순간 전체 듣기 · 음악과 함께» · 계획 = 목소리 끝 + 0.3초가 고른 자리(곡은 그만큼 앞에서 · 목소리보다 10초 먼저 [ENTRY_BGM_1019])
-   11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «대기»가 진하게
+   11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈춤» · aria-pressed true · 장면 줄 «대기»가 진하게
    4c [PREV_12_60_1013] 곡 줄 ▶(음악만 듣기) = 문이 열리는 자리 12초 앞부터 1분 — 추천 곡 카드 ▶ 와 같은 값
    11b [ENTRY_CALL_PAUSE_1013] 나레이션이면 목소리를 «입장!» 앞에서 둘로 끊어 건다 — «…감사하겠습니다» 말끝 → «신랑» 말머리 1.8초(엔진 SP.call · 당일 콘솔과 같은 엔진)
    12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터
@@ -30,7 +30,7 @@
    23 ⌄ · Esc · 뒤로 가기로 닫힌다 — 잠금이 풀리고 초점은 연 단추로 · 페이지는 그대로
    ★★[ONE_PLAY_1013] 알약 하나(사장님 10/13 «플레이 위아래 두 개 · 디자인적으로 별로» → 시안 «a»)
    24 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나 — 빌더 알약(n줄 이어서)은 그리지 않는다
-   25 장면이 끝나면(음악이 잦아든 뒤) 그 순간 다음 줄부터 이어서 · 그동안 알약 «멈추기» · 누르면 멈춘다
+   25 장면이 끝나면(음악이 잦아든 뒤) 그 순간 다음 줄부터 이어서 · 그동안 알약 «멈춤» · 누르면 멈춘다
    26 빌더가 이 순간 줄을 만드는 동안(LS_MAKE_ALL) 알약 «만드는 중»(차오름 · 잠김) · 끝나면 제 이름
    시험 곡은 여기서 만든다(저작권 없는 합성음 · 저장소에 음원을 두지 않는다).  종료 코드 0 통과 · 1 실패 · 2 재지 못함
    EM_OP · EM_MOD = 돌연변이 확인용 — 그 판의 order-preview · entry-music.js 로 잰다 */
@@ -102,7 +102,7 @@ try {
     // 11
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(1800);
     const S11 = await scene();
-    ok(`${W} 11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈추기» · aria-pressed true · 장면 줄 «대기»가 진하게`, S11.run && S11.x > 0.8 && S11.pill === '멈추기' && S11.pressed === 'true' && S11.at === 'greet', S11);
+    ok(`${W} 11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈춤» · aria-pressed true · 장면 줄 «대기»가 진하게`, S11.run && S11.x > 0.8 && S11.pill === '멈춤' && S11.pressed === 'true' && S11.at === 'greet', S11);
     const CALL11 = await pg.evaluate(() => EntryScene.SP.call);
     ok(`${W} 11b [ENTRY_CALL_PAUSE_1013] 나레이션 «입장!» 앞 쉼 — 목소리 마디 둘(${S11.vsn}) · 녹음 ${S11.cut ? S11.cut.was.toFixed(2) : '?'}초 → ${CALL11}초(엔진 SP.call · 당일 콘솔과 같은 엔진)`,
       CALL11 === 1.8 && S11.vsn === 2 && !!S11.cut && Math.abs(S11.cut.was + S11.cut.add - CALL11) < 0.01 && S11.cut.add > 0.2, { vsn: S11.vsn, cut: S11.cut, CALL11 });
@@ -140,7 +140,7 @@ try {
     await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(500); await pg.keyboard.press('Escape'); await pg.waitForTimeout(400); const B23b = await big();
     const u0 = pg.url(); await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(500); await pg.goBack(); await pg.waitForTimeout(600); const B23c = Object.assign(await big(), { same: pg.url() === u0, page: await pg.evaluate(() => _mkState().at) });
     ok(`${W} 23 ⌄ · Esc · 뒤로 가기로 닫힌다 — 잠금이 풀리고 초점은 연 단추 · 페이지는 그대로(② 입장)`, !B23a.open && !B23a.inert && !B23a.hist && B23a.focus === 'embig' && !B23b.open && !B23b.inert && B23b.focus === 'embig' && !B23c.open && !B23c.inert && B23c.same && B23c.page === 'entry', { B23a, B23b, B23c });
-    // 25 — ★[ONE_PLAY_1013] 장면이 끝나면(음악이 잦아든 뒤) 그 순간 다음 줄부터 빌더가 이어서 · 그동안 알약은 «멈추기» · 누르면 멈춘다
+    // 25 — ★[ONE_PLAY_1013] 장면이 끝나면(음악이 잦아든 뒤) 그 순간 다음 줄부터 빌더가 이어서 · 그동안 알약은 «멈춤» · 누르면 멈춘다
     const rest = await pg.evaluate(() => { const a = _lSteps(ENG, ['entry']).filter((x) => !x.quiet), j = a.findIndex((x) => (x.own && x.up === 'entry') || /^entry-[A-F]$/.test(x.slug || '')); return { n: a.length, j, next: j > -1 && a[j + 1] ? (a[j + 1].slug || a[j + 1].lab || '?') : '' }; });
     const g25 = await pg.evaluate(() => { const r = document.querySelector('.em-scene .em-graph canvas').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }), P25 = (await scene()).plan;
     await pg.mouse.click(g25.x + g25.w * Math.max(0, (P25.tend - 1.2) / P25.tend), g25.y + g25.h / 2);
@@ -155,7 +155,7 @@ try {
     const S25a = Object.assign(await scene(), { lp: await pg.evaluate(() => { const st = LP.q[LP.i]; return { n: LP.q.length, i: LP.i, k: st && st.k, own: !!(st && st.own), slug: (st && st.slug) || '', on: _mpOn('entry') }; }) });
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(400);
     const S25b = Object.assign(await scene(), { lp: await pg.evaluate(() => LP.q.length) });
-    ok(`${W} 25 [ONE_PLAY_1013] 장면이 끝나면 다음 줄(${rest.next || '없음'})부터 이어서 · 그동안 알약 «멈추기» · 누르면 멈추고 «이 순간 전체 듣기 · 음악과 함께»`, rest.j > -1 && !!rest.next && S25a.ended && !S25a.run && S25a.lp.on && S25a.lp.k === 'entry' && !S25a.lp.own && !/^entry-[A-F]$/.test(S25a.lp.slug) && S25a.pill === '멈추기' && S25a.pressed === 'true' && S25b.lp === 0 && S25b.pill === '이 순간 전체 듣기 · 음악과 함께' && S25b.pressed === 'false', { rest, S25a, S25b });
+    ok(`${W} 25 [ONE_PLAY_1013] 장면이 끝나면 다음 줄(${rest.next || '없음'})부터 이어서 · 그동안 알약 «멈춤» · 누르면 멈추고 «이 순간 전체 듣기 · 음악과 함께»`, rest.j > -1 && !!rest.next && S25a.ended && !S25a.run && S25a.lp.on && S25a.lp.k === 'entry' && !S25a.lp.own && !/^entry-[A-F]$/.test(S25a.lp.slug) && S25a.pill === '멈춤' && S25a.pressed === 'true' && S25b.lp === 0 && S25b.pill === '이 순간 전체 듣기 · 음악과 함께' && S25b.pressed === 'false', { rest, S25a, S25b });
     }   // [MATJEOL_SPLIT_1013] 이어 듣기 갈래 끝
     // 26 — ★[ONE_PLAY_1013 · LS_MAKE_ALL] 빌더가 이 순간 줄을 만드는 동안 알약은 «만드는 중»(차오름 · 눌러도 틀지 않는다) · 다 되면 제 이름으로
     const pill26 = () => pg.evaluate(() => { const b = document.querySelector('.em-scene [data-fk="emscene"]'), s = EntryMusic._t.scene(); return { t: b && b.textContent.replace(/\s+/g, ' ').trim(), dis: !!(b && b.disabled), busy: b && b.getAttribute('aria-busy'), fill: !!(b && b.classList.contains('wfill')), run: s.run, pend: s.pend, lp: LP.q.length }; });

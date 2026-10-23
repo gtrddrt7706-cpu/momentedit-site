@@ -1469,15 +1469,13 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-hbtn[data-mp] svg{width:15px;height:15px;padding:7.5px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}   /* [PLAY_PAIR] 원 30 그대로 · ▶ 약 7 × 9 · ■ 약 8 · 쏠림은 ICO_PLAY 그림 안(약 1px) — 고르지 않은 여백(11 · 9)은 큰 ▶ 에선 과하다 */
 .mk-hbtn[data-mp].on svg{padding:7.5px}
 .mk-hbtn[data-mp][disabled]{opacity:.45} .mk-hbtn[data-mp].ld[disabled]{opacity:1;cursor:default} .mk-hbtn[data-mp].off{opacity:.45;cursor:default} @media (hover:hover){ .mk-hbtn[data-mp].off:hover{background:var(--card);filter:none} }   /* [AI_PLAY_READY] 이 순간 전체 듣기도 같은 흐림(읽는 분 목소리가 없을 때) */   /* [WAIT_FILL] 만드는 동안은 흐리게 끄지 않고 차오름으로 */
-/* ★★[PLAY_ICON_FIXED_1023 2026-10-23 사장님 «플레이 버튼과 멈춤 버튼 모양 부분 고정하고 텍스트만 바뀌게»] 넓은 듣기 알약(순간마다 «이 순간 전체 듣기» · 입장 «음악과 함께» · «곡 파일 올리기»)의
-   둥근 ▶ · ■ 를 알약 왼쪽 안쪽에 못 박는다(안쪽 10px · 알약 끝 곡선과 같은 중심). 글은 동그라미 오른쪽 남은 칸 가운데에서만 바뀐다(«이 순간 전체 듣기 · …» → «멈추기» → «이어 듣기»).
-   종전엔 동그라미와 글을 한 덩어리로 가운데 놓아 글 길이만큼 동그라미가 좌우로 움직였다. ★동그라미를 글과 함께 가운데로 되돌리지 말 것 — 2026-10-23 사용자 지시 · scripts/audit/scene-words.mjs */
-.mk-sech-r .mk-hbtn:not(.em-bigbtn),.mk-hbtn[data-mp]{position:relative;justify-content:center;padding-left:50px;padding-right:20px;text-align:center}
-.mk-sech-r .mk-hbtn:not(.em-bigbtn)>svg:first-child,.mk-hbtn[data-mp]>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}
-.mk-tune-go{position:relative;padding-left:50px;padding-right:20px;text-align:center}   /* [PLAY_ICON_FIXED_1023] 목소리 다듬기 창 «예시 들어 보기 ↔ 멈추기 ↔ 이 글로 들어 보기»도 같은 모양(동그라미 30 · 높이 52) */
-.mk-tune-go>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}
-.mk-vu-play{position:relative;padding-left:44px;padding-right:20px;text-align:center}   /* [PLAY_ICON_FIXED_1023] 두 분 목소리 창 «들어 보기 ↔ 멈추기»(채운 주 단추 · 높이 48) — ▶ · ■ 는 알약 끝 곡선 가운데(왼쪽 18px)에 고정 */
-.mk-vu-play>svg:first-child{position:absolute;left:18px;top:50%;margin:0;transform:translateY(-50%)}
+/* ★★[PLAY_MID_1023 2026-10-23 사장님 «이거 다시 취소 · 가운데 쪽으로 다시 하고 이어 듣기 · 멈춤 이걸로 바꾸자»] 넓은 듣기 알약은 종전처럼 동그라미 + 글 한 덩어리를 가운데에 둔다.
+   트는 동안 글은 «멈춤»(종전 «멈추기» · 모든 듣기 알약 · 목소리 창 단추 같은 말) · 멈춘 뒤 «이어 듣기». 둘이 오갈 때 동그라미가 흔들리지 않게
+   글 칸 폭을 보이지 않는 «이어 듣기»(두 분 목소리 창은 «들어 보기»)에 맞춘다(em-lab-tg · data-w) — 글이 바뀌어도 동그라미 자리 그대로.
+   ★왼쪽 고정(옛 [PLAY_ICON_FIXED_1023] · 동그라미를 알약 왼쪽 안쪽에 못 박기) 되살리지 말 것 — 2026-10-23 사용자 지시로 취소 · scripts/audit/scene-words.mjs */
+.em-lab-tg{display:inline-grid;justify-items:start}
+.em-lab-tg>span,.em-lab-tg::after{grid-area:1/1}
+.em-lab-tg::after{content:attr(data-w);visibility:hidden}
 .mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}   /* [FLOW_THREAD] 줄 사이는 li 아래 여백 — 흐름선이 줄 사이에서 끊기지 않게 */
 .mk-flow li{position:relative;padding-bottom:20px;font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
 .mk-flow>li:last-child{padding-bottom:0}
@@ -1486,7 +1484,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
    종전엔 행동 줄이 12.5px 옅은 글(QUIET_LINES)이라 위 멘트의 각주처럼 읽혔고, 세 갈래가 세 모양 · 세 들여쓰기(47 · 42 · 42+아이콘)였다.
    글 · 차례 · 소리는 그대로 — 모양만. 행동 줄을 옅게 · 작게 되돌리지 말 것 */
 .mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px;background:rgba(184,154,117,.55)}   /* [FLOW_THREAD] 선 = 장식(--gold 55%) · ▶ 원 테와 같은 금빛 */
-.mk-flow>li:first-child::before{top:15px}.mk-flow>li:last-child::before{bottom:auto;height:13px}.mk-flow>li.n:last-child::before{height:15px}.mk-flow>li:only-child::before{display:none}   /* 첫 마디에서 시작 · 마지막 마디에서 멈춘다(▶ 원 가운데 15 · 점 가운데 13) · ★[PLAY_OPTIC 2026-10-07] ▶ 가 글자 잉크 가운데로 4px 올라가 19 → 15 */
+.mk-flow>li:first-child::before{top:15px}.mk-flow>li.q:first-child::before,.mk-flow>li.t:first-child::before{top:13px}.mk-flow>li:last-child::before{bottom:auto;height:13px}.mk-flow>li.n:last-child::before{height:15px}.mk-flow>li:only-child::before{display:none}   /* 첫 마디에서 시작 · 마지막 마디에서 멈춘다(▶ 원 가운데 15 · 점 가운데 13) · ★[PLAY_OPTIC 2026-10-07] ▶ 가 글자 잉크 가운데로 4px 올라가 19 → 15 */   /* ★[BGM_R1_1023] 첫 줄이 점 줄(흐름 맨 앞 음악 줄)이면 선도 점 가운데(13)에서 — 종전엔 첫 줄이 늘 ▶ 줄이라 15 하나였다 */
 .mk-flow li.n .mk-pl{position:relative;z-index:1}   /* ▶ 원이 선 위에 앉는다 */
 .mk-flow li.n .mk-pl{width:44px;margin-left:-5px} .mk-flow li.n .mk-pl::before{inset:5px}   /* ★[FLOW_NODE_ROUND 2026-10-07] 흐름 ▶ 는 선 위 «마디»(▶ ● ○ 세 모양 · FLOW_THREAD)라 원 34 로 둔다 · 바탕 · 테 · 트는 동안 먹색은 줄 카드 알약(PLAY_PILL)과 한 집안. 가로 가운데 17 = 흐름선 · 글 47 = 행동 · 차례 줄과 같은 세로선. ★알약(58)으로 넓히면 선이 가운데를 비껴가고 글 줄이 갈린다 */
 .mk-flow li.q::after,.mk-flow li.t::after{content:'';position:absolute;left:13px;top:8.5px;width:9px;height:9px;border-radius:50%;box-sizing:border-box;z-index:1}
@@ -1494,6 +1492,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--seal)}   /* ○ 직접 말하는 차례 — ★[FLOW_PEOPLE_SEAL 2026-10-07 사장님 «어떤 건 진사고 어떤 건 그냥 이거 · 구분 기준이 뭐야 · 최선이야?»] 기준 = 진사는 «사람이 하는 순서»(● 말 없이 하는 행동 · ○ 그 자리에서 하는 말) · 옅은 금빛 ▶ 는 저희가 준비한 안내 목소리. 모양은 말이 있나 없나 · 색은 사람이 하나를 말한다 · ○ 만 금빛으로 되돌리지 말 것(오후에 ● 만 진사여서 기준이 갈렸다) */
 .mk-flow li.t.now::after{border-color:var(--seal)}   /* [TALK_BRIDGE] 지금 차례면 마디도 진사 */
 .mk-flow li.q .qa{font-weight:500}
+.mk-flow li.q[data-bgm] .qa{font-weight:400;color:var(--sub)}   /* ★[BGM_R2_1023] 음악 흐름 줄 = «배경 안내» — 점 · 크기는 행동 줄과 같고 글만 한 단계 조용히(굵기 400 · --sub) · «할 일»(행동 줄 500 · --accent)과 한눈에 갈린다 · 새 색 · 아이콘 없음 */
 .mk-qt{margin-left:8px;font-size:11px;font-weight:400;letter-spacing:.02em;color:var(--light);white-space:nowrap;vertical-align:1px}   /* [FLOW_THREAD] «말 없이» · «미리 듣기에서는 넘겨요» = 줄 끝 작은 표(나레이션 · 당일 직접 표와 같은 크기) */
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start;font-size:16px;line-height:1.75;color:var(--accent)}   /* ★[FLOW_LINE_TYPE 2026-10-02 사장님 «재생 버튼 메시지 글꼴과 스타일을 하객 맞이 카드랑 통일»] 나레이션 글 = 줄 카드 글(.mk-vtx 16 · 1.75 · accent) */
 .mk-ltx1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}   /* [VP_FLOW_CLAMP] 두 분 목소리 줄 — 전문은 아래 줄 카드에 */
@@ -2099,13 +2098,12 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .ls-mu .mu-ownl .mu-a{font-variant-numeric:tabular-nums}
 .ls-mu .mu-upft{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:2px 8px -6px 0;font-size:12.5px;color:var(--light)}   /* 링크는 빌더 .pk-link 그대로(12.5px · [RIT_TYPE5] 다섯 단계) */
 /* ★★[BGM_INFO_1023 2026-10-23 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «최선인지 한 번 더 검토해 보고 제안대로 구현»] 순간 «음악» 줄(assets/bgm-form.js)
-   틀은 입장 음악 줄 · 맞절 한 줄과 같다 — 이름표 칸(.gl «음악») + 한 줄(14px) · 축사 · 편지만 칩 둘(빌더 칩 줄 그대로 · .op-chip · _cgEven 칸 맞춤) + 아래 한 줄(12.5px · 고른 것에 따라 바뀐다).
+   ★★[BGM_R1_1023 2026-10-23 BGM 섹션 라운드 1] «고르기»에는 축사 · 편지 칩 줄만(이름표 «축사 음악 · 편지 음악» · 빌더 칩 줄 그대로 · .op-chip · _cgEven 칸 맞춤) + 아래 한 줄(12.5px · 고른 것에 따라 바뀐다).
+   고를 것이 없는 음악 안내는 «흐름»의 채운 점 줄(li.q[data-bgm] · 입장 «음악에 맞춰 걸어 들어와요»와 같은 점 · 크기 · [BGM_R2_1023] 글만 굵기 400 · --sub).
+   ★고르기 칸의 글 한 줄(.bgm-line · 이름표 «음악» + 글) 금지 — 2026-10-23 사용자 지시로 흐름으로 옮김 [BGM_R1_1023] ·
    ★접는 카드(.bgm-sum · 꺾쇠) · 곡 카드(.bgm-card · 곡 파일 올리기) 금지 — 2026-10-23 사장님 지시로 삭제 [BGM_INFO_1023] · 왼쪽 굵은 선 · 칠한 안내 상자 없음([NO_SIDE_STRIPE]) */
-.ls-bgm .bgm-w{min-width:0;display:flex;flex-direction:column;gap:8px}
-.ls-bgm .bgm-line{margin:0;padding:12px 0;font-size:14px;line-height:20px;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* 이름표(14px · 위 12px)와 같은 줄에 선다 */
 .ls-bgm .bgm-note{flex:0 0 100%;margin:2px 0 4px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* 칩 아래 한 줄 — 칩 격자(cg-even · cg-grid)는 단추 아닌 자식을 한 줄 전체로 편다 */
-.mk-bgm .bgm-rest{color:var(--sub)}   /* ④ «… 스튜디오가 준비해요» */
-@media (max-width:460px){ .ls-bgm .bgm-line{padding:2px 0} }   /* 폰은 이름표가 위 — 글은 이름표 바로 아래(위 칩 줄과 같은 간격) */
+.mk-bgm .bgm-rest .mk-vn{color:var(--sub)}   /* ④ «… 스튜디오가 준비해요» */
 /* ★★[REC_SONG_1012 2026-10-12 사장님 «추천대로»(추천 곡 · 드라이브 · 로그인한 두 분만) · «왜 추천 노래 부분이 없어?»] 4단계-나 추천 곡 카드 — 시험실 v50(lab.css .lab-mu) 그대로 · 빌더 칸(.ls-mu)으로
    칩 둘 «두 분이 고른 곡 · 추천 곡»은 빌더 칩 줄 그대로(.op-chip · cg-vq 폰 반반 두 칸) · 카드 = 와이드 사진(폰 1.85:1 · 넓은 카드 2.39:1 · 작은 폰 1.5:1) 위 제목 · 가사 · ‹ ▶ › · ✓ · 점
    사진 위 글 · 단추는 사진 색 위라 크림 글자(#FBF6EE) · 가사 영문 금빛(#EBD08A · [LY_STYLE_REF]) — 크림 바탕 쪽 글은 :root 토큰만 · 작은 글은 빌더 다섯 단계([RIT_TYPE5] · 시험실 13px → 12.5px) */
@@ -2265,7 +2263,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023x"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023d"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023b"></script><script src="/assets/bgm-form.js?v=1023b"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023x"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023d"></script><script src="/assets/bgm-form.js?v=1023c"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -5060,8 +5058,8 @@ function _lineBlankDrop(ks){ var n=0; (ks||['g0','g1','g2','g3','entry','pv']).f
 /* ★[BLUR_TAP 2026-10-03 VT_KEEP_SWITCH 깨 보기에서 찾음] 글칸(읽을 글 · 식전 영상 소개글)에서 나오며 바로 다시 그리면, 그 «나오게 한 누르기»가
    사라진 단추 위에서 끝나 삼켜진다 — 글을 적고 «스튜디오 나레이션» 칩을 바로 누르면 첫 누르기가 아무 일도 안 했다(마우스 · 실측).
    누르는 중에 나온 것이면 그 누르기가 끝난 뒤(click 다음)로 미루고, 키보드(Tab)로 나온 것이면 종전대로 바로 그린다. 끝내 click 이 없으면 0.7초 뒤 그린다. */
-var _taPtrAt=0; document.addEventListener('pointerdown',function(){ _taPtrAt=Date.now(); },true);
-window._taChange=function(key){ var rd=function(){ render(); if(key&&_exIs(key)) _exAudio([key]); };   /* [EX_BACK → EX_PRESS_MAKE 2026-10-08] 줄 글칸을 나올 때 글이 예시면 하던 다른 글 만들기만 뒤일로 — 소리는 붙이지 않는다(글자마다 걸면 쓰는 중에 다시 그려진다) */ if(Date.now()-_taPtrAt>1000){ rd(); return; } var done=false, go=function(){ if(done) return; done=true; document.removeEventListener('click',go,true); clearTimeout(tm); setTimeout(rd,0); }, tm=setTimeout(go,700); document.addEventListener('click',go,true); };
+var _taPtrAt=0; document.addEventListener('pointerdown',function(){ _taPtrAt=Date.now(); },true); var _taTabAt=0; document.addEventListener('keydown',function(e){ if(e.key==='Tab') _taTabAt=Date.now(); },true);   /* [TA_TAB_KEEP] */
+window._taChange=function(key){ var rd=function(){ render(); if(key&&_exIs(key)) _exAudio([key]); };   /* [EX_BACK → EX_PRESS_MAKE 2026-10-08] 줄 글칸을 나올 때 글이 예시면 하던 다른 글 만들기만 뒤일로 — 소리는 붙이지 않는다(글자마다 걸면 쓰는 중에 다시 그려진다) */ if(Date.now()-_taTabAt<1000){ setTimeout(rd,0); return; }   /* ★[TA_TAB_KEEP 2026-10-23] Tab 으로 칸을 떠날 때는 다시 그리기를 다음 틈에 — 바로 그리면 Tab 이 옮겨 간 자리를 잃고 다음 글자가 앞 칸에 들어갔다(그린 뒤 포커스는 옮겨 간 자리 data-fk 로) · 손가락 · 마우스는 아래 click 기다리기 · 그 밖은 종전대로 바로 */ if(Date.now()-_taPtrAt>1000){ rd(); return; } var done=false, go=function(){ if(done) return; done=true; document.removeEventListener('click',go,true); clearTimeout(tm); setTimeout(rd,0); }, tm=setTimeout(go,700); document.addEventListener('click',go,true); };
 window.mkVtText=function(key,v){ S.vtext=S.vtext||{}; v=String(v||'').slice(0,300); if(S.exOld) delete S.exOld[_vtKey(key)];   /* [EX_OLD_IS_EX] 손을 댔으면 두 분 글 */ if(key==='g3') S.g3Open=1;   /* [G3_OPEN] 새 판으로 적은 글 — 다시 불러와도 앞 두 문장을 또 붙이지 않게 */ if(v.trim()&&v.trim()!==_vtDef(key).trim()) S.vtext[_vtKey(key)]=v; else delete S.vtext[_vtKey(key)]; if(S.vkeep&&S.vkeep[key]) delete S.vkeep[key];   /* [KEEP_LINE] 글을 고치면 확정은 풀린다(새 글은 새로 만들어야 한다) */
   _persist(); _aiPillSync(key);   /* [AI_PILL] 글자를 고치면 단추가 스르륵 */
   if(key==='g0'||key==='g3'){ var _r=document.getElementById('mkG3Rem'); if(_r) _r.hidden=_g3HasNotice(); } };   /* [G3_OPEN] 안내 음성 알림 한 줄은 칸을 고치는 동안 바로 */
@@ -5103,7 +5101,7 @@ function _slTurnUi(key,i){ var R=_slRaw(key), l=_slTurnLv(R[i]), id=key+':'+i, o
   if(!open) return h+'</div>';
   h+='<div class="mk-dots mk-tdots" role="radiogroup" aria-label="다음 줄까지 쉼" onkeydown="mkSlTurnKey(event,\''+key+'\','+i+')">'
     +'<div class="mk-dots-t">'+TURN_L.map(function(nm,q){ var on=q===l; return '<button type="button" class="mk-dot'+(on?' on':'')+(q===TURN_DEF?' mid':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" aria-label="'+esc('다음 줄까지 '+nm)+'" data-fk="mksltd:'+id+':'+q+'" onclick="mkSlTurnSet(\''+key+'\','+i+','+q+')"></button>'; }).join('')+'</div></div>';
-  return h+(made&&_slRawGet(key)?'<button type="button" class="pk-link mk-tplay'+(pl?' on':'')+'" data-fk="mksltp:'+id+'" aria-pressed="'+pl+'"'+(ld?' disabled aria-busy="true"':'')+' onclick="mkSlTurnPlay(\''+key+'\','+i+')">'+(pl?ICO_STOP:ICO_PLAY)+'<span>'+(ld?'잇는 중…':pl?'멈추기':'이 자리 들어 보기')+'</span></button>'
+  return h+(made&&_slRawGet(key)?'<button type="button" class="pk-link mk-tplay'+(pl?' on':'')+'" data-fk="mksltp:'+id+'" aria-pressed="'+pl+'"'+(ld?' disabled aria-busy="true"':'')+' onclick="mkSlTurnPlay(\''+key+'\','+i+')">'+(pl?ICO_STOP:ICO_PLAY)+'<span>'+(ld?'잇는 중…':pl?'멈춤':'이 자리 들어 보기')+'</span></button>'
     :'<p class="mk-note mk-tnote">위 «목소리 만들기»를 누르면 이 자리를 들어 볼 수 있어요</p>')+'</div>'; }   /* [TURN_NO_AUTOMAKE] */
 window.mkSlTurnOpen=function(key,i){ var id=key+':'+i; MK.turnOpen=MK.turnOpen===id?null:id; if(MK.audKey&&/^turn:/.test(MK.audKey)) _stopMk(); _fxNext='[data-fk="mksltn:'+id+'"]'; render(); };
 window.mkSlTurnSet=function(key,i,q){ var L=_slCopy(key); if(!L[i]||!(q>=0&&q<=4)) return; if(_slTurnLv(L[i])!==q){ if(q===TURN_DEF) delete L[i].p; else L[i].p=q; _slPut(key,L); }
@@ -5959,7 +5957,7 @@ function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), w
         :(function(){ var R=_vuReq(x[0],o), bz=!!VU.req[R.hk], on=!bz&&MK.audKey==='vu:'+R.hk&&!!MK.aud;   /* [VU_LATE_MUTE] «준비 중»은 누른 그 글(열쇠)에만 · [VU_STOP] 트는 동안 ■ 멈추기 */
           if(!o.src&&!VU.url[R.hk]&&_vuLim()) return '<p class="mk-note mk-vu-wait" data-fk="mkuselim" role="status">'+VU_LIM_T+'</p>';   /* [VU_LIMIT_INFO] 예산은 실패가 아니라 상태 한 줄(코드 없음 · 다시 묻지 않는다) */
           if(!(o.src||_ptOn())) return '<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" disabled aria-disabled="true">'+ICO_PLAY+' 이 글은 아직 들어 볼 수 없어요</button>';
-          var w=_wfx('vu:'+R.hk,bz,(VU.req[R.hk]||{}).d,(VU.req[R.hk]||{}).at); return '<button type="button" class="mk-dlg-go mk-vu-play'+(on?' on':'')+w.c+'"'+w.s+' data-fk="mkuseplay" aria-pressed="'+on+'" onclick="mkUsePlay()"'+(bz?' disabled aria-busy="true"':'')+'>'+(on?ICO_STOP:ICO_PLAY)+' '+(bz?'준비 중…':on?'멈추기':'들어 보기')+'</button>'; })()); })()
+          var w=_wfx('vu:'+R.hk,bz,(VU.req[R.hk]||{}).d,(VU.req[R.hk]||{}).at); return '<button type="button" class="mk-dlg-go mk-vu-play'+(on?' on':'')+w.c+'"'+w.s+' data-fk="mkuseplay" aria-pressed="'+on+'" onclick="mkUsePlay()"'+(bz?' disabled aria-busy="true"':'')+'>'+(on?ICO_STOP:ICO_PLAY)+' '+(bz?'준비 중…':'<span class="em-lab-tg" data-w="들어 보기"><span>'+(on?'멈춤':'들어 보기')+'</span></span>')+'</button>'   /* [PLAY_MID_1023] «들어 보기 ↔ 멈춤» 동그라미 자리 그대로 */; })()); })()
     +'<div class="mk-vu-nav"><button type="button" class="pk-link" data-fk="mkuseprev" onclick="mkUseGo(-1)"'+(i?'':' disabled')+'>‹ 이전</button><span class="mk-vu-n" aria-live="polite">'+(i+1)+' / '+n+'</span>'
     +'<button type="button" class="rowbtn" data-fk="mkusenext" onclick="mkUseGo(1)">'+(i<n-1?'다음 ›':'닫기')+'</button></div>'; }
 /* ★[VU_VIDEO_KEEP 2026-10-06 사장님 «다음 넘길 때마다 영상이 처음부터 다시 · 하객 입장부터 시작 1분 전까지는 같은 영상이니 재생하던 그대로»]
@@ -6136,7 +6134,7 @@ function _tuneDiff(){ var T=VC.tune, r=T&&VC.sraw[T.who]; return !!(r&&r.text!==
 window.mkTunePlay=function(){ _tuneUnlock();   // [TUNE_PLAY_TRUE]
  if(MK.audKey==='tune'&&MK.aud&&!String(S.vtuneText==null?VC_SAMPLE:S.vtuneText).trim()){ _stopMk(); render(); return; }   /* [SIM_R2] */ if(MK.audKey==='tune'&&MK.aud&&!_tuneDiff()){ _stopMk(); render(); return; } _vcSamplePlay(true); };   // 고친 글이면 듣는 중이어도 새 글로
 function _tuneGoLab(){ var T=VC.tune; if(!T) return ''; var r=VC.sraw[T.who], pl=MK.audKey==='tune'&&!!MK.aud;
-  return T.loading?(r?'만드는 중…':'예시를 불러오는 중…'):_tuneDiff()?'이 글로 들어 보기':pl?'멈추기':'예시 들어 보기'; }
+  return T.loading?(r?'만드는 중…':'예시를 불러오는 중…'):_tuneDiff()?'이 글로 들어 보기':pl?'멈춤':'예시 들어 보기'; }   /* [PLAY_MID_1023] «멈춤» */
 function _tuneGoOn(){ return MK.audKey==='tune'&&!!MK.aud&&!_tuneDiff(); }
 function _tuneGoPaint(){ var b=document.querySelector('[data-fk="mktuneplay"]'); if(!b||!VC.tune) return; var on=_tuneGoOn(); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+'<span>'+esc(_tuneGoLab())+'</span>'; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.disabled=_tuneGoDis(); var rs=document.getElementById('mkTuneRs'); if(rs) rs.hidden=!_tuneRawDiff(); }   /* [SIM_R2] 글을 비워도 «처음 예시로»가 남고 · 듣는 중이면 멈출 수 있다 */
 function _tuneRawDiff(){ return S.vtuneText!=null&&String(S.vtuneText).trim()!==VC_SAMPLE; }
@@ -6916,17 +6914,23 @@ function _mkFlowTail(k){ if(!ENG||k!=='guest'||!_upLive()||_vpCur(k)==='nar') re
 function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r">'+btn+'</div>'+_lsNote(k):'';   /* [AI_PLAY_READY · LS_MAKE_ALL] 단추 바로 아래 한 줄 */
   if(!ENG) return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+_engBox()+'</section>';   // [WAIT_BOX] · [ENG_ONCE]
   var st=_lSteps(ENG,[k]), exN=st.filter(function(x){ return x.own&&!x.couple; }).length;
+  /* ★★[BGM_R1_1023 2026-10-23 BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만»] 고를 것이 없는 음악 안내는 흐름의 채운 점 줄 하나(assets/bgm-form.js flowRow · 원천 bgm-slots.js) —
+     자리(bq.at = 엔진 줄 번호 «이 줄 앞에») · 화면만 그린다(엔진 줄이 아니라 «이 순간 전체 듣기 · n줄»의 n · 듣기 · 이어 듣기 차례에 끼지 않는다 · data-ml 번호도 그대로) ·
+     줄 카드 판(one)에서 흐름이 비어도 음악 줄은 남는다(bqOnly) */
+  var bq=null; try{ if(window.BgmForm&&BgmForm.flowRow) bq=BgmForm.flowRow(k,st); }catch(e){} var bqDone=false;
+  var bqOnly=function(){ return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'<ol class="mk-flow">'+bq.html+'</ol></section>'; };
   /* ★★[VP_ONE_LIST 2026-09-28 사장님 «흐름 목록과 줄 카드를 하나로 합치기»] 문이 열린 판에서 두 분 목소리 칸(줄 카드)이 보이면 — 두 분 목소리 줄은 흐름에 다시 적지 않는다.
      듣기(▶)는 줄 카드 머리로 옮겼다(_mkVoice). 나레이션 줄만 흐름에 남고, 남는 것이 없으면 흐름 칸을 통째로 걷는다 */
   var one=_upLive()&&(k==='guest'||k==='entry'||k==='prevideo')&&_vpCur(k)!=='nar';   /* [PV_INTRO] 식전 영상 소개도 줄 카드로 */
-  if(one){ var st2=st.filter(function(x){ return !x.own&&!x.quiet&&!x.skip&&!(k==='prevideo'&&_vpCur(k)==='ai'); });   /* [PV_FILL] AI 판 식전 영상은 카드 하나 — 소개글을 비워 둔 때의 나레이션 한 줄은 카드 안내가 말한다(같은 자리를 두 곳에 그리지 않는다) */ if(!st2.length) return btn?'<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'</section>':''; exN=0; }   /* [R2-03] 줄 카드 판에서는 말 없는 줄(«여기서 두 분의 영상이 흘러요» · «음악에 맞춰…»)을 흐름에 먼저 그리지 않는다 — 카드 뒤 «이어서 …»가 실제 차례로 말한다 */
+  if(one){ var st2=st.filter(function(x){ return !x.own&&!x.quiet&&!x.skip&&!(k==='prevideo'&&_vpCur(k)==='ai'); });   /* [PV_FILL] AI 판 식전 영상은 카드 하나 — 소개글을 비워 둔 때의 나레이션 한 줄은 카드 안내가 말한다(같은 자리를 두 곳에 그리지 않는다) */ if(!st2.length) return bq?bqOnly():btn?'<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'</section>':''; exN=0; }   /* [R2-03] 줄 카드 판에서는 말 없는 줄(«여기서 두 분의 영상이 흘러요» · «음악에 맞춰…»)을 흐름에 먼저 그리지 않는다 — 카드 뒤 «이어서 …»가 실제 차례로 말한다 */
   /* ★[GUEST_TAIL_1015 라운드 4] 두 분 목소리 판 하객 맞이 — 줄 카드 넷(입장 직후 · 10분 · 5분 · 1분 전) 뒤에 나가는 나레이션 줄(개식 선언 137 · 사진 부탁 · 화면 참석 환영)은
      흐름 칸이 아니라 카드 뒤 꼬리(_mkFlowTail)에 실제 차례대로 — 종전엔 «예식 시작»이 카드 넷 위에 서서 차례가 거꾸로였다(④ 요약 «… · 1분 전 · 예식 시작은 나레이션»과도 달랐다) */
   var tailFrom=(one&&k==='guest')?_mkTailFrom(st):-1;
-  if(tailFrom>-1&&!st.some(function(x,i){ return i<tailFrom&&!x.own&&!x.quiet&&!x.skip; })) return btn?'<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'</section>':'';
+  if(tailFrom>-1&&!st.some(function(x,i){ return i<tailFrom&&!x.own&&!x.quiet&&!x.skip; })) return bq?bqOnly():btn?'<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'</section>':'';
   /* [MK_MIN] 하객 맞이 — 줄마다 붙던 «두 분이 녹음하실 글(예시)»를 머리 아래 한 번으로 · [VOICE_KIND] 두 분 목소리 줄은 줄 머리 표가 «두 분 목소리 · 미리 준비»를 말한다 */
   var h='<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+(exN?'<p class="mk-note">'+(_upLive()?((k==='guest'||k==='entry')&&_vpCur(k)==='ai'?'두 분 목소리 줄은 «두 분 목소리 만들기»에서 목소리를 만들면 채워져요':'두 분 목소리 줄은 아래 «두 분 목소리 준비»에서 한 줄씩 준비해요'):exN>1?'두 분이 녹음하실 글(예시)이에요':'두 분 목소리 줄의 글은 녹음하실 글(예시)이에요')+'</p>':'')+'<ol class="mk-flow">';   // [VP_FLOW_CLAMP] 문이 열리면 글 전문은 아래 줄 카드가 보인다 — 흐름에선 첫 줄만
-  st.forEach(function(x,i){ if(one&&(x.own||x.quiet||x.skip)) return; if(tailFrom>-1&&i>=tailFrom) return;   // [VP_ONE_LIST] · [R2-03] · [GUEST_TAIL_1015]
+  st.forEach(function(x,i){ if(bq&&!bqDone&&i>=bq.at){ h+=bq.html; bqDone=true; }   /* [BGM_R1_1023] 음악 줄 — 이 줄 앞에 */
+    if(one&&(x.own||x.quiet||x.skip)) return; if(tailFrom>-1&&i>=tailFrom) return;   // [VP_ONE_LIST] · [R2-03] · [GUEST_TAIL_1015]
     if(x.own) x={lab:String(x.lab||'').replace(/^(두 분이 녹음하실 글\(예시\)|두 분 목소리)( · )?/,''),txt:x.txt,pending:x.pending,own:true,up:x.up,couple:x.couple};
     if(x.quiet){ h+=_qRow(x.txt); return; }
     if(x.talk){ var sets=_lRefSets(k), whos=sets.length?sets[0].map(function(p){ return p.who; }):['두 분'], hs=R.partsOf(k,S)[1]||0, each=whos.length?Math.round(hs/whos.length):0;
@@ -6939,6 +6943,7 @@ function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r
     if(x.skip){ h+=_qRow(String(x.txt||'').replace(/ · 약 \d+분(?= · |$)/,'')); return; }   /* ★[MK_FORM_ONE] 흐름 줄 «· 약 n분»(마음의 순간 영상 길이) 금지 — 2026-10-03 사용자 지시로 삭제 · 고른 길이는 바로 위 칩이 말한다 · ④ 대본(6701)은 그대로 */
     h+=_mkNarLi(k,x,i);
   });
+  if(bq&&!bqDone) h+=bq.html;   /* [BGM_R1_1023] 자리가 맨 뒤(줄이 모자라면) */
   /* ★«1분 전 안내는 식전 영상이 끝난 뒤에 흘러요 · 다음 쪽에서» 줄 금지 — 2026-10-05 사장님 결정으로 1분 전이 영상 앞이 됐다 [ONEMIN_FIRST] */
   return h+'</ol></section>'; }
 /* ★[REF_NO_KYEOL 2026-09-27 사장님 «참고 예시 숫자까지만 · 뒤에 유머 이런 단어들 삭제»] 배지는 «참고 예시 N» 까지 — 결(담백 · 장면 하나 · 다정 · 유머+진심)은 화면에 안 쓴다(표에는 남는다)
@@ -7037,14 +7042,14 @@ function _mlPaint(){ var _s0=LP.q[LP.i];
 /* ★[UI_ONE 2026-10-04 사장님 «형태가 설정에 따라 어쩔 수 없이 다른 것 말고는 연속성 있게 같은 인터페이스»] «이 순간 들어 보기»도 트는 동안 ■ 멈추기 — 다시 누르면 멈춘다 */
 function _mpOn(k){ return !!(LP.q.length&&LP.range&&!LP.one&&LP.range.ks.length===1&&LP.range.ks[0]===k&&!LP.paused); }
 function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k]||(MK.lsMake||{})[k], on=!busy&&_mpOn(k), ck=(MK.lsMake||{})[k]||((MK.lsPend||{})[k]?((MK.lsPendAt||{})[k]||{}):MK.lsBusy===k?(MK.lsBusyAt||{}):{}), w=_wfx('mp:'+k,!!busy,ck.d,ck.at), off=!busy&&!on&&!!_playOffAll(k);   /* [WAIT_FILL] «만드는 중»을 흐리게 끄지 않고 차오름으로 · [LS_MAKE_ALL] 한꺼번에 만드는 동안도 · [AI_PLAY_READY] 읽는 분 목소리가 없으면 흐리게 */
-  return '<button type="button" class="mk-hbtn'+(on?' on':'')+(off?' off':'')+w.c+'"'+w.s+' data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(off?' aria-disabled="true"':'')+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?ICO_STOP:ICO_PLAY)+' '+(busy?'만드는 중':on?'멈추기':_mpLab(k))+'</button>'; }
+  return '<button type="button" class="mk-hbtn'+(on?' on':'')+(off?' off':'')+w.c+'"'+w.s+' data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(off?' aria-disabled="true"':'')+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?ICO_STOP:ICO_PLAY)+' '+(busy?'만드는 중':on?'멈춤':_mpLab(k))+'</button>'; }
 /* ★[MP_ALL_WORD 2026-10-05 사장님 «이 순간 들어 보기 → 전체 들어 보기 식으로 전체 한 번에 재생된다는 느낌» → 시안 A(문구만)] 줄 ▶ 와 같은 ▶ 라 «한 줄 듣기»와 갈리지 않았다 —
    글로 «전체 · n줄 이어서»를 말한다. n = 화면에 ▶ 가 붙은 줄(나레이션 줄 · 두 분 목소리 줄 · 말하는 자리 · 영상 자리는 뺀다) · 엔진 전이면 줄 수 없이 */
 /* [GUEST_ALL_G3 2026-10-05] 식전 영상 뒤에 있던 «시작 1분 전»을 하객 맞이 듣기 끝에 «식전 영상이 흐른 뒤» 쉼과 함께 붙이던 꼬리 —
    ★[ONEMIN_FIRST 2026-10-05 사장님] 1분 전이 영상 앞(하객 맞이 순간)이 되어 엔진 차례 그대로 넷이 나온다. 꼬리는 늘 빈 것 · «식전 영상이 흐른 뒤» 쉼 되살리지 말 것 */
 function _lGuestTail(){ return []; }
 function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length+(k==='guest'?_lGuestTail().length?1:0:0); }catch(e){} return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }
-function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈추기':_mpLab(k)); }); }   // [MP_ALL_WORD]
+function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈춤':_mpLab(k)); }); }   /* [PLAY_MID_1023] «멈춤» */   // [MP_ALL_WORD]
 window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; if(st.own&&st.up&&_playOff(st.up)){ mkPlayOff(st.up); return; } MK.playOff=null; _offToastOff();   /* [AI_PLAY_READY] 줄 카드 ▶(아직 소리 파일이 없는 줄)도 같은 입구 */
   LP.lineKey=k+':'+i; LP.lineSt=st; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
   var q=all.filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }), j=q.indexOf(st); if(j<0){ q=[st]; j=0; }

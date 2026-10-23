@@ -15211,6 +15211,13 @@ chk '"name": "FLOW_GAPS_1023"' docs/plans/식순연구/흐름쉼_1023.json 1
 if command -v node >/dev/null 2>&1; then
   _fg=$(node scripts/audit/flow-gaps.mjs 2>&1); if [ $? = 0 ]; then echo "$_fg" | tail -1; else echo 'FAIL flow-gaps: 흐름 쉼 표가 조립기 대장에 안 들어갔다(문장 사이가 1.25 로 돌아갔다) — node scripts/audit/flow-gaps.mjs'; fail=1; fi   # ok 줄에 «글이 바뀐 n곳»이 보인다(그 자리는 1.25 로 돌아가 있다 · 음성 섹션이 다시 읽는다)
 fi
+# ★★[PAIR_NAME_FIRST_1023 2026-10-23 음성 섹션 «28 · 47 소리가 서로 바뀐 채 라이브에»] 조립기가 문장 수가 같은 두 묶음을 상대 파트로 짝짓지 않는다
+#   이름(sent-lib --stage 가 적은 자리)으로 증명된 짝 먼저 · 이름이 반대면 안 맺음 · 짧은 묶음(≤3문장)은 폴더 번호가 맞을 때만 · 재현은 ffmpeg 있는 자리에서만(CI 는 코드만)
+chk 'PAIR_NAME_FIRST_1023' scripts/assemble-narration.mjs 2
+chk 'PAIR_NAME_FIRST_1023' scripts/audit/pair-name-first.mjs 2
+if command -v node >/dev/null 2>&1; then
+  _pn=$(node scripts/audit/pair-name-first.mjs 2>&1); if [ $? = 0 ]; then echo "$_pn" | tail -1; else echo 'FAIL pair-name-first: 조립기가 문장 수가 같은 묶음을 다른 파트 소리와 짝지을 수 있다 — node scripts/audit/pair-name-first.mjs'; fail=1; fi
+fi
 # ★★[KEEPGAP_CARRY_1023 2026-10-23 음성 섹션] 입장 구호 자리는 전부 keepGap(안쪽 쉼 지킴) · sent-lib 의 자리 옮기기(--rebind) · 빌려 오기(--borrow)가 그 표시를 함께 옮긴다
 #   0c999ce 에서 09_entry-E 구호 자리가 #7 → #6 으로 옮겨질 때 표시가 빠져 구호 안 쉼이 깎였다(3.35 → 2.2초) · 어느 검사도 몰랐다
 chk 'KEEPGAP_CARRY_1023' scripts/sent-lib.mjs 3
@@ -19180,10 +19187,16 @@ chk 'SCENE_WORDS_1023' scripts/audit/scene-words.mjs 3
 chk '<span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span>' assets/entry-music.js 1
 nochk 'var SCENE_WAIT=' assets/entry-music.js                                         # ★옛 장면 문장(«본식 5분 전부터 문 앞에서 기다려요» · 줄어드는 말 목록) — 2026-10-23 사용자 지시로 삭제
 nochk 'function fitWalk' assets/entry-music.js                                          # 옛 두 줄 맞추기
-# ── 2026-10-23 [PLAY_ICON_FIXED_1023] 사장님 «플레이 버튼과 멈춤 버튼 모양 부분 고정하고 텍스트만 바뀌게» — 넓은 듣기 알약의 둥근 ▶ · ■ 를 왼쪽 안쪽에 못 박고 글만 바뀐다(모든 순간 «이 순간 전체 듣기» · 입장 «음악과 함께» · «곡 파일 올리기»)
-chk 'PLAY_ICON_FIXED_1023' order-preview.html 3
-chk 'PLAY_ICON_FIXED_1023' scripts/audit/scene-words.mjs 5
-chk '>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}' order-preview.html 1   # 동그라미 왼쪽 안쪽 고정(글자와 함께 가운데로 되돌리지 말 것)
+# ── 2026-10-23 [PLAY_MID_1023] 사장님 «이거 다시 취소 · 가운데 쪽으로 다시 하고 이어 듣기 · 멈춤 이걸로 바꾸자» — 듣기 알약은 동그라미 + 글 가운데 · 트는 동안 «멈춤» · «멈춤 ↔ 이어 듣기» 글 칸 폭 고정(em-lab-tg)
+#   ★옛 [PLAY_ICON_FIXED_1023](동그라미를 알약 왼쪽 안쪽에 못 박기) 되살리지 말 것 — 2026-10-23 사용자 지시로 취소
+chk 'PLAY_MID_1023' order-preview.html 4
+chk 'PLAY_MID_1023' assets/entry-music.js 1
+chk 'PLAY_MID_1023' scripts/audit/scene-words.mjs 4
+chk '.em-lab-tg::after{content:attr(data-w);visibility:hidden}' order-preview.html 1
+nochk '>svg:first-child{position:absolute;left:10px' order-preview.html                 # 옛 왼쪽 고정 [PLAY_ICON_FIXED_1023]
+nochk "on?'멈추기'" order-preview.html                                                     # 보이는 글은 «멈춤»(aria-label 의 « 멈추기»는 그대로)
+nochk "on?'멈추기':ps?'이어 듣기'" assets/entry-music.js                                  # 장면 알약 보이는 글(크게 보기 aria-label 은 그대로)
+nochk "pl?'멈추기'" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: 장면 줄 낱말 셋 자리 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 [TAP_NO_RING] 사장님 «엑스표 주변 색 들어가 있는 거 개선» — 창이 열릴 때 스크립트 초점(× · 돌아가는 칸 · 첫 단추)에 아이폰이 금색 고리를 그렸다 → 손가락 · 마우스면 html.tap-mode 로 고리 없음 · 키보드로 옮겨 다니면 고리
 chk 'TAP_NO_RING' order-preview.html 2
@@ -19212,10 +19225,11 @@ chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed
 chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 아래 오르골 · 피아노가 아주 작게 흘러요' }," assets/bgm-slots.js 1
 chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-slots.js 1
 chk "one: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1
-chk "one: '말 아래 잔잔한 피아노가 아주 작게 깔려요'," assets/bgm-slots.js 1
-chk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1
-chk "one: '테이블 인사 · 사진 동안 재즈가 흐르고, 마지막 곡으로 닫아요'," assets/bgm-slots.js 1
-chk "cont: '앞 순서 곡이 그대로 이어져요'" assets/bgm-slots.js 1
+chk "one: '목소리 뒤로 피아노가 아주 작게 흘러요'," assets/bgm-slots.js 1        # [BGM_R1_1023] «말 아래» → «목소리 뒤로» · [BGM_R2_1023] «잔잔한» 뺌(폰 한 줄)
+chk "one: '인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1        # [BGM_R2_1023]
+chk "one: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요'," assets/bgm-slots.js 1
+chk "one: '«위하여!»와 함께 신나는 곡이 울려 퍼져요'," assets/bgm-slots.js 1
+chk "cont: '{at}부터 피아노가 조용히 이어져요'" assets/bgm-slots.js 1        # [BGM_R2_1023]
 chk "duckRead: -20," assets/ritual-cue.js 1
 chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true," assets/ritual-cue.js 1
 chk "var bed = bgmBed(S, 'S6'), dk = bed ? PARAM.duckRead : PARAM.duckOff;" assets/ritual-cue.js 1
@@ -19240,6 +19254,34 @@ chk "<script src=\"/assets/bgm-form.js?v=" order-preview.html 1
 chk 'BgmForm.rowHtml(k)' order-preview.html 1
 chk '_muRow+_bgRow' order-preview.html 1
 chk 'h+=BgmForm.sumHtml()' order-preview.html 1
+# ── 2026-10-23 [BGM_R1_1023] BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만» — 고를 것이 없는 음악 안내는 흐름의 채운 점 줄 하나(li.q[data-bgm] · 자리 = 음악이 시작되는 때 · n · 듣기 차례에 안 낀다) ·
+#   «고르기» 음악 줄은 입장 · 축사 · 편지만(이름표 «… 음악») · ④ 입장 곡 안 골랐으면 «고르지 않으시면 스튜디오가 준비해요» + «이동하기» · ★고르기 칸 글 한 줄(.bgm-line · 이름표 «음악») 되살리지 말 것
+chk 'BGM_R1_1023' assets/bgm-slots.js 4
+chk 'BGM_R1_1023' assets/bgm-form.js 3
+chk 'BGM_R1_1023' order-preview.html 4
+chk 'BGM_R1_1023' scripts/audit/bgm-form.mjs 5
+chk 'function flowAt(at, st)' assets/bgm-slots.js 1
+chk 'function flowRow(k,st)' assets/bgm-form.js 1
+chk "var bq=null; try{ if(window.BgmForm&&BgmForm.flowRow) bq=BgmForm.flowRow(k,st); }catch(e){}" order-preview.html 1
+chk "if(bq&&!bqDone&&i>=bq.at){ h+=bq.html; bqDone=true; }" order-preview.html 1
+chk "입장 곡 · 고르지 않으시면 스튜디오가 준비해요" assets/bgm-form.js 1
+nochk 'class="bgm-line"' assets/bgm-form.js                                                              # ★고르기 칸 글 한 줄 — 흐름으로 옮김
+nochk '.ls-bgm .bgm-line{' order-preview.html
+nochk '말 아래 잔잔한 피아노' assets/bgm-slots.js
+nochk '신나는 곡이 터져요' assets/bgm-slots.js
+nochk '마지막 곡으로 닫아요' assets/bgm-slots.js
+# ── 2026-10-23 [BGM_R2_1023] BGM 섹션 라운드 2 «다듬기 셋» — 흐름 음악 줄은 행동 줄보다 한 단계 조용히(점 · 크기 같고 글만 400 · --sub) ·
+#   «맨 앞»은 모든 칸 한 규칙(쪽의 첫 줄이 넘어가는 이음말이면 그 바로 뒤 · 아니면 맨 앞 — 화촉 · 감사 인사 · 축가 뒤 부모님께 인사) · 문구 셋 짧게(폰 한 줄)
+#   ★음악 줄을 이음말 앞(쪽 맨 위)에 다시 두지 말 것
+chk 'BGM_R2_1023' assets/bgm-slots.js 5
+chk 'BGM_R2_1023' order-preview.html 2
+chk 'BGM_R2_1023' scripts/audit/bgm-form.mjs 6
+chk ".mk-flow li.q\[data-bgm\] .qa{font-weight:400;color:var(--sub)}" order-preview.html 1
+chk "function head(st) { return (st && st\[0\] && /^bridge-/.test(String(st\[0\].slug || ''))) ? 1 : 0; }" assets/bgm-slots.js 1
+chk "return h;   /\* top(옛 bridge 도 같다) \*/" assets/bgm-slots.js 1
+nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
+nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
+nochk "picks: \[\], at: 'bridge'," assets/bgm-slots.js                                                    # 맨 앞(top)이 이음말 규칙을 품는다 · 갈래를 둘로 다시 나누지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-form.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" = 1 ]; then echo 'FAIL bgm-form: 순간 «음악» 칸(한 줄 안내 · 축사 · 편지 칩 둘 · 엔진 −90 ↔ −20 · 요약 · 옛 값 버리기)이 깨졌습니다 — node scripts/audit/bgm-form.mjs'; fail=1; elif [ "$_bgf" = 0 ]; then echo 'ok bgm-form: 순간 음악 칸'; else echo 'skip bgm-form: 브라우저가 없어 화면은 재지 못함(원천 · 엔진은 쟀다)'; fi; fi
 # ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
 #   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
@@ -19672,3 +19714,10 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev
     *) echo 'ok dress-refs: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi   # 서버 스위트(dress-pick.test.js)는 위 [UNIT_SUITES_RUN] 목록이 돌린다
+# ★[TA_TAB_KEEP · OPEN_TEXT_ENGINE 2026-10-23 · 대본 섹션 «main 에서도 빨간 검사 고쳐 주세요»] 키보드 Tab 으로 줄 글칸을 떠나면 포커스가 옮겨 간 자리에 남는다 · 낡은 검사 넷을 지금 화면에 맞춤
+chk "if(Date.now()-_taTabAt<1000){ setTimeout(rd,0); return; }" order-preview.html 1   # [TA_TAB_KEEP] Tab 으로 떠날 때는 다시 그리기를 다음 틈에
+chk "if(e.key==='Tab') _taTabAt=Date.now();" order-preview.html 1   # [TA_TAB_KEEP]
+chk 'TA_TAB_KEEP' scripts/audit/voice-setup.mjs 3   # Tab 동작 검사 · 사람처럼 누르고 채우기 · 줄 하나는 맞절 쪽
+chk 'OPEN_TEXT_ENGINE' scripts/audit/listen-page.mjs 1   # 개식 줄은 엔진 글로 찾는다(EX_CHIP_DEF_1019 뒤 예시 글)
+chk 'REC_BY_PAUSE_1023' docs/handoff/녹음/README.md 1   # 녹음은 음성 쉼 섹션이 받는다
+chk '| 검토 150-2 7) | 그대로 · 닫음(10/23 대본 섹션) |' docs/handoff/insta-find.md 1   # PHOTO_THANKS 우선 · 대기 닫음

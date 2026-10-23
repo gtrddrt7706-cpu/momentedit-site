@@ -344,9 +344,25 @@ const partIds = (P) => { const o = []; for (const c of clipsOf(P)) for (const s 
 const provedByName = (files, P) => { const a = nameIds(files); if (!a) return false; const b = partIds(P); return a.length === b.length && a.every((x, i) => x === b[i]); };
 const oneCand = new Map();
 for (const x of pairs) oneCand.set(x.g, (oneCand.get(x.g) || 0) + 1);
+/* ★★[PAIR_NAME_FIRST_1023 2026-10-23 음성 섹션 «28 · 47 소리가 서로 바뀐 채 라이브에 나가고 있어요»]
+   12클립을 한 번에 붙일 때 문장 수가 같은 두 묶음(1_안내 의 47 · 3_진행_후반 의 28 · 각 2문장)이 서로 상대 파트로 짝지어졌다.
+   문장이 2개면 길이 상관은 늘 ±1 이라(ONE_CANDIDATE 주석) 근거가 못 되는데, 짝짓기가 이름보다 r 을 먼저 믿었다.
+   조립기는 «폴더 이름은 1번인데 내용은 3번입니다(내용을 따릅니다)»라고 알렸지만 멈추지 않았고, 나는 그 줄을 읽고도 넘겼다.
+   ① 이름(sent-lib --stage 가 적은 자리)으로 증명된 짝을 먼저 정한다
+   ② 이름이 있는데 증명이 안 되는 짝은 맺지 않는다 — 이름이 반대를 말하면 r 이 이기지 못한다
+   ③ 이름이 없는 묶음(타입캐스트 원본)은 문장이 PAIR_SMALL_N 개 이하이고 후보가 둘 이상이면 폴더 번호가 맞을 때만 맺는다
+   못 맺은 묶음은 아래 «못 정한 묶음»으로 멈춘다 · 검사 scripts/audit/pair-name-first.mjs(merge-guard · 28 · 47 을 함께 깔아 --dry 로 잰다) */
+const PAIR_SMALL_N = 3;
+for (const g of groups) {
+  const hit = pairs.find((x) => x.g === g && !usedP.has(x.P.file) && provedByName(g.files, x.P));
+  if (hit) { g.P = hit.P; g.r = hit.r; g.byName = true; usedP.add(hit.P.file); }
+}
 for (const x of pairs) {
   if (x.g.P || usedP.has(x.P.file)) continue;
-  if (x.r < 0.85 && oneCand.get(x.g) !== 1 && !provedByName(x.g.files, x.P)) continue;   // [STAGE_ORDER_BY_NAME]
+  if (nameIds(x.g.files)) continue;   // ② [PAIR_NAME_FIRST_1023] 이름이 있는데 이 파트와 안 맞는다
+  const many = oneCand.get(x.g) !== 1;
+  if (many && x.g.files.length <= PAIR_SMALL_N && x.g.hint !== x.P.n) continue;   // ③ 짧은 묶음은 상관이 근거가 못 된다
+  if (x.r < 0.85 && many) continue;   // [STAGE_ORDER_BY_NAME] 이름으로 증명된 짝은 위 ① 에서 이미 맺었다
   x.g.P = x.P; x.g.r = x.r; usedP.add(x.P.file);
 }
 
@@ -358,7 +374,7 @@ for (const g of groups) {
   //   "이름은 2026인데" 라고 하면 아무 잘못 없는 폴더에 경고를 붙이는 셈이다.
   const claims = !isNaN(g.hint) && g.hint >= 1 && g.hint <= parts.length;
   const mis = (claims && g.hint !== g.P.n) ? ` · 폴더 이름은 ${g.hint}번인데 내용은 ${g.P.n}번입니다(내용을 따릅니다)` : '';
-  console.log(`  ${g.name.padEnd(26)} ${String(g.files.length).padStart(3)}개 → ${g.P.file}  r=${Number.isFinite(g.r) ? g.r.toFixed(3) : '못 잼(문장 ' + g.files.length + '개)'}${mis}`);
+  console.log(`  ${g.name.padEnd(26)} ${String(g.files.length).padStart(3)}개 → ${g.P.file}  r=${Number.isFinite(g.r) ? g.r.toFixed(3) : '못 잼(문장 ' + g.files.length + '개)'}${g.byName ? ' · 이름으로 증명' : ''}${mis}`);
 }
 if (orphan.length) {
   console.error(`\n✗ 어느 파트인지 못 정한 묶음이 ${orphan.length}개 있습니다.`);
