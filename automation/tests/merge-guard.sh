@@ -15208,6 +15208,13 @@ chk '"name": "FLOW_GAPS_1023"' docs/plans/식순연구/흐름쉼_1023.json 1
 if command -v node >/dev/null 2>&1; then
   _fg=$(node scripts/audit/flow-gaps.mjs 2>&1); if [ $? = 0 ]; then echo "$_fg" | tail -1; else echo 'FAIL flow-gaps: 흐름 쉼 표가 조립기 대장에 안 들어갔다(문장 사이가 1.25 로 돌아갔다) — node scripts/audit/flow-gaps.mjs'; fail=1; fi   # ok 줄에 «글이 바뀐 n곳»이 보인다(그 자리는 1.25 로 돌아가 있다 · 음성 섹션이 다시 읽는다)
 fi
+# ★★[PAIR_NAME_FIRST_1023 2026-10-23 음성 섹션 «28 · 47 소리가 서로 바뀐 채 라이브에»] 조립기가 문장 수가 같은 두 묶음을 상대 파트로 짝짓지 않는다
+#   이름(sent-lib --stage 가 적은 자리)으로 증명된 짝 먼저 · 이름이 반대면 안 맺음 · 짧은 묶음(≤3문장)은 폴더 번호가 맞을 때만 · 재현은 ffmpeg 있는 자리에서만(CI 는 코드만)
+chk 'PAIR_NAME_FIRST_1023' scripts/assemble-narration.mjs 2
+chk 'PAIR_NAME_FIRST_1023' scripts/audit/pair-name-first.mjs 2
+if command -v node >/dev/null 2>&1; then
+  _pn=$(node scripts/audit/pair-name-first.mjs 2>&1); if [ $? = 0 ]; then echo "$_pn" | tail -1; else echo 'FAIL pair-name-first: 조립기가 문장 수가 같은 묶음을 다른 파트 소리와 짝지을 수 있다 — node scripts/audit/pair-name-first.mjs'; fail=1; fi
+fi
 # ★★[KEEPGAP_CARRY_1023 2026-10-23 음성 섹션] 입장 구호 자리는 전부 keepGap(안쪽 쉼 지킴) · sent-lib 의 자리 옮기기(--rebind) · 빌려 오기(--borrow)가 그 표시를 함께 옮긴다
 #   0c999ce 에서 09_entry-E 구호 자리가 #7 → #6 으로 옮겨질 때 표시가 빠져 구호 안 쉼이 깎였다(3.35 → 2.2초) · 어느 검사도 몰랐다
 chk 'KEEPGAP_CARRY_1023' scripts/sent-lib.mjs 3
