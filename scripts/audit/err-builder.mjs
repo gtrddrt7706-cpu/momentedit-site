@@ -219,22 +219,22 @@ async function open(w) {
   ok('③ AI 줄 75초 → 그 줄 아래 U5 한 번(«응답이 없어요» 알림 · «만든 소리를 저장하지 못했어요» 겹침 없음)', f3d.le === '확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)' && !/응답이 없어요|저장하지 못했어요/.test(f3d.toasts) && f3d.sent === 3 /* [UP_AGAIN] 처음 + 두 번 더 */, JSON.stringify(f3d));
 
   /* ⑥ F6 ▶ 파일 받기 */
-  await pg.evaluate(() => { S.up = S.up || {}; S.up.g2 = { n: '녹음', id: 'f-g2-404', src: 'rec', at: '' }; delete RF_URL.g2; delete RF_URL['g2#']; delete RF_LOAD['f-g2-404']; delete RF_ERR['f-g2-404']; if (MK.lineErr) delete MK.lineErr.g2;
-    window.__mock['momentedit:ritualFileGet'] = () => ({ ok: false, error: '파일을 찾을 수 없어요.', ecode: 'L0' }); render(); mkUpPlay('g2'); });
+  await pg.evaluate(() => { S.up = S.up || {}; S.up.g3 = { n: '녹음', id: 'f-g3-404', src: 'rec', at: '' }; delete RF_URL.g3; delete RF_URL['g3#']; delete RF_LOAD['f-g3-404']; delete RF_ERR['f-g3-404']; if (MK.lineErr) delete MK.lineErr.g3;
+    window.__mock['momentedit:ritualFileGet'] = () => ({ ok: false, error: '파일을 찾을 수 없어요.', ecode: 'L0' }); render(); mkUpPlay('g3'); });
   await wait(500);
-  const f6 = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g2 || '', load: !!RF_LOAD['f-g2-404'], shown: [...document.querySelectorAll('.mk-pg .mk-exw[role="alert"]')].some((p) => p.textContent === (MK.lineErr || {}).g2) }));
+  const f6 = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g3 || '', load: !!RF_LOAD['f-g3-404'], shown: [...document.querySelectorAll('.mk-pg .mk-exw[role="alert"]')].some((p) => p.textContent === (MK.lineErr || {}).g3) }));
   ok('⑥ ▶ 파일 받기 실패(못 찾음 · 서버 글 + 0 은 글이 곧 까닭 ERR_ZERO_TEXT) → 그 줄 아래 까닭 · «불러오는 중»에 머물지 않음', f6.le === '파일을 찾을 수 없어요' && !f6.load && f6.shown, JSON.stringify(f6));
-  await pg.evaluate(() => { window.__mock['momentedit:ritualFileGet'] = () => ({ ok: false, error: '불러오지 못했어요. 연결을 확인해 주세요.' }); mkUpPlay('g2'); });
+  await pg.evaluate(() => { window.__mock['momentedit:ritualFileGet'] = () => ({ ok: false, error: '불러오지 못했어요. 연결을 확인해 주세요.' }); mkUpPlay('g3'); });
   await wait(500);
-  const f6b = await pg.evaluate(() => (MK.lineErr || {}).g2 || '');
+  const f6b = await pg.evaluate(() => (MK.lineErr || {}).g3 || '');
   ok('⑥ ▶ 다시 누르면 다시 묻는다 · 옛 중계 글 → L6', f6b === '연결이 끊겼어요 · 다시 눌러 주세요 (코드 L6)', f6b);
   await pg.evaluate(() => { S.up.g3 = { n: '녹음', id: 'local:1', src: 'rec', local: 1 }; delete RF_URL.g3; if (MK.lineErr) delete MK.lineErr.g3; mkUpPlay('g3'); });
   await wait(400);
   const f6c = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g3 || '', load: !!RF_LOAD['local:1'] }));
   ok('⑥ 이 기기에 없는 녹음(local:) → «이 기기에 없는 녹음이에요» · 영영 «불러오는 중» 아님', f6c.le === '이 기기에 없는 녹음이에요 · 다시 녹음해 주세요' && !f6c.load, JSON.stringify(f6c));
-  await pg.evaluate(() => { S.up.g2 = { n: '녹음', id: 'f-g2-bad', src: 'rec', at: '' }; RF_URL.g2 = URL.createObjectURL(new Blob(['garbage not audio'], { type: 'audio/wav' })); RF_URL['g2#'] = 'f-g2-bad'; if (MK.lineErr) delete MK.lineErr.g2; mkUpPlay('g2'); });
+  await pg.evaluate(() => { S.up.g3 = { n: '녹음', id: 'f-g3-bad', src: 'rec', at: '' }; RF_URL.g3 = URL.createObjectURL(new Blob(['garbage not audio'], { type: 'audio/wav' })); RF_URL['g3#'] = 'f-g3-bad'; if (MK.lineErr) delete MK.lineErr.g3; mkUpPlay('g3'); });
   await wait(2200);
-  const f11p = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g2 || '', aud: !!MK.aud, key: MK.audKey || '' }));
+  const f11p = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g3 || '', aud: !!MK.aud, key: MK.audKey || '' }));
   ok('⑥ ▶ 를 못 틀면(파일 오류 · 이 기기가 못 엶) ■ 를 ▶ 로 · 그 줄 아래 M6(막힘 M7 아님)', f11p.le === '소리를 열지 못했어요 · 다시 눌러 주세요 (코드 M6)' && !f11p.aud && !f11p.key, JSON.stringify(f11p));
 
   /* ⑦ F7 지우기 */
@@ -320,8 +320,8 @@ async function open(w) {
   const r17 = await pg.evaluate(() => [_micWhy({ name: 'InvalidStateError' }, 'g0'), _micWhy({ name: 'InvalidStateError' }, 'vc:groom:1'), _micWhy({ name: 'NotReadableError' }, 'vc:groom:1')]);
   ok('⑪ 까닭을 모르는 마이크 오류는 M0(«다른 앱이 마이크를 써요» M3 아님) · 다른 앱은 그대로 M3 [MIC_M0]', /\(코드 M0\)$/.test(r17[0]) && r17[1] === '마이크를 열지 못했어요 · 다시 눌러 주세요 (코드 M0)' && r17[2] === '다른 앱이 마이크를 써요 · 그 앱을 닫아 주세요 (코드 M3)', JSON.stringify(r17));
   const r18 = await pg.evaluate(async () => { const s0 = window._mkSendWav0; let n = 0; window._mkSendWav0 = function () { n++; throw new Error('read'); };
-    __shrink({ 8000: 30 }); if (MK.lineErr) delete MK.lineErr.g2; MK_UP.g2 = 1; const again = _upAgain('g2', { blob: new Blob(), url: '', src: 'rec', nm: '녹음', meta: null, n: 0 }, { ok: false, ecode: 'U6' });
-    await new Promise((r) => setTimeout(r, 300)); __unshrink(); window._mkSendWav0 = s0; const o = { again, n, le: (MK.lineErr || {}).g2 || '', up: !!MK_UP.g2 }; if (MK.lineErr) delete MK.lineErr.g2; return o; });
+    __shrink({ 8000: 30 }); if (MK.lineErr) delete MK.lineErr.g3; MK_UP.g3 = 1; const again = _upAgain('g3', { blob: new Blob(), url: '', src: 'rec', nm: '녹음', meta: null, n: 0 }, { ok: false, ecode: 'U6' });
+    await new Promise((r) => setTimeout(r, 300)); __unshrink(); window._mkSendWav0 = s0; const o = { again, n, le: (MK.lineErr || {}).g3 || '', up: !!MK_UP.g3 }; if (MK.lineErr) delete MK.lineErr.g3; return o; });
   ok('⑪ 다시 보내기 직전에 던지면(기기 쪽) 연결(U6)이 아니라 첫 보내기와 같은 U0 · «보내는 중»에 멈추지 않음 [UP_AGAIN_THROW]', r18.again && r18.n === 1 && r18.le === '올리지 못했어요 · 다시 눌러 주세요 (코드 U0)' && !r18.up, JSON.stringify(r18));
   const r5 = await pg.evaluate(() => { if (MK.lineErr) delete MK.lineErr.g0; __trapToast(); const a = new Audio(); MK.aud = a; MK.audKey = 'turn:g0:1'; _playFail(a, new DOMException('blocked', 'NotAllowedError'));
     const o = { le: (MK.lineErr || {}).g0 || '', toasts: (window.__toasts || []).join(' | '), aud: !!MK.aud }; __untrapToast(); if (MK.lineErr) delete MK.lineErr.g0; render(); return o; });
@@ -342,7 +342,7 @@ async function open(w) {
     VC.tune = { who: 'groom', tempo: '1', pause: 350, err: '' }; delete VC.sraw.groom; const r = await _vcSampleLoad('groom', '시험으로 읽어 볼 글입니다.'); const o = { r, err: VC.tune.err, made, closed };
     window.AudioContext = AC0; window.webkitAudioContext = AC0; VC.tune = null; render(); return o; });
   ok('⑪ 맞추기 예시 소리를 이 기기가 못 풂 → «소리를 열지 못했어요 · 다시 눌러 주세요 (코드 M6)» · 해독이 실패해도 오디오 문맥을 닫는다 [SAMPLE_M6 · SAMPLE_CTX_CLOSE]', r10.r === null && r10.err === '소리를 열지 못했어요 · 다시 눌러 주세요 (코드 M6)' && r10.made === 1 && r10.closed === 1, JSON.stringify(r10));
-  const r12 = await pg.evaluate(async () => { const mk0 = window._vcMake, lw0 = window._vcLineWho, wa0 = window._vcWarmAll, vn0 = window._vtNeed; S.guestVoice = 'couple'; S.vself = {}; S.up = S.up || {}; ['g0', 'g1', 'g2', 'g3'].forEach((k) => { S.up[k] = 0; }); MK.lineErr = {};
+  const r12 = await pg.evaluate(async () => { const mk0 = window._vcMake, lw0 = window._vcLineWho, wa0 = window._vcWarmAll, vn0 = window._vtNeed; S.guestVoice = 'couple'; S.vself = {}; S.up = S.up || {}; ['g0', 'g1', 'g3'].forEach((k) => { S.up[k] = 0; }); MK.lineErr = {};
     window._vcLineWho = () => 'both'; window._vcWarmAll = () => {}; window._vtNeed = () => false; let n = 0; window._vcMake = (k) => { n++; if (n === 1) { S.up[k] = { src: 'ai', n: 'AI', id: 'local:1' }; return Promise.resolve(); }   /* [FILL_GOT 2026-10-08] 만들기 성공 = 그 줄에 소리가 붙은 것(_vcFillGot 이 붙었는지 본다) — 흉내도 붙여야 «채웠어요»로 센다 */ MK.lineErr[k] = n === 2 ? '저희 쪽 계정 문제예요 · 문의해 주세요 (코드 V2)' : n === 3 ? '아직 만든 AI 목소리가 없어요' : '저희 쪽 계정 문제예요 · 문의해 주세요 (코드 V2)'; return Promise.reject(0); };
     VC.read = { who: 'groom', take: {}, phrase: '', step: 2, ph: 'done', err: '' }; _vcAutoFill('groom'); await new Promise((r) => setTimeout(r, 300));
     const p = document.querySelector('#mkRecDlg .mk-dlg-c1.mk-two'); const o = { t: p ? __N(p.textContent) : '', role: p ? p.getAttribute('role') : '', codes: ((VC.fill || {}).codes || []).join(','), n: (VC.fill || {}).n, ok: (VC.fill || {}).ok, nw: !!(p && p.querySelector('.ec-nw')) };

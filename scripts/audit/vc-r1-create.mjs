@@ -120,7 +120,7 @@ async function boot(o = {}) {
   X.shot = async (nm) => { if (!SHOTS) return; await pg.screenshot({ path: path.join(SHOTS, nm.replace(/[^\w가-힣-]+/g, '_') + '.png') }); };
   X.card = () => X.ev(() => [...document.querySelectorAll('.mk-vpc')].map((li) => li.innerText.replace(/\s+/g, ' ').trim()));
   X.dlg = () => X.ev(() => { const d = document.getElementById('mkRecDlg'); return d ? d.innerText.replace(/\s+/g, ' ').trim() : null; });
-  X.up = () => X.ev(() => Object.fromEntries(['g0', 'g1', 'g2', 'g3', 'entry', 'pv'].map((k) => { const v = (S.up || {})[k]; return [k, v && v.src === 'ai' ? v.id || 'local' : '-']; })));
+  X.up = () => X.ev(() => Object.fromEntries(['g0', 'g1', 'g3', 'entry', 'pv'].map((k) => { const v = (S.up || {})[k]; return [k, v && v.src === 'ai' ? v.id || 'local' : '-']; })));
   /* 동의 → 글 1 · 글 2(녹음 소리만 넣는다) → «이 녹음으로 목소리 만들기» */
   X.consent = async (W, viaCard = true) => { if (viaCard) await X.click(`[data-fk="${viaCard === 're' ? 'mkvcre' : 'mkvcok'}:${W}"]`); else { await X.ev((W) => mkVcConsent(W), W); await adv(pg, 300); }
     await X.click('#vcSelf'); await X.click('#vcAgree'); return X.until((W) => !!(VC.read && VC.read.who === W && VC.read.phrase), 90000, 500, W); };
@@ -186,12 +186,12 @@ await scene(2, '다시 녹음 뒤 창을 닫거나 새로 열어도 줄이 새 �
     return { before, after, changed: Object.keys(after).filter((k) => after[k] !== before[k]), note, note2, voice: sv.st.groom.voiceId, need: await X.ev(() => S.vsetNeed || null) };
   };
   const a = await redo('busy');
-  ok('#2 다시 녹음 · 만드는 중 ✕ → 저절로 뜬 맞추기 창 «새 목소리로» → 쓰기 → g2 · 입장 · 식전 영상이 새 목소리로 · 확정한 g0 은 그대로 [VC_RENEW_KEEP]',
-    u1.g0 !== '-' && a.changed.sort().join() === 'entry,g2,pv' && /새 목소리로/.test(a.note) && !(a.need || {}).groom, a);
+  ok('#2 다시 녹음 · 만드는 중 ✕ → 저절로 뜬 맞추기 창 «새 목소리로» → 쓰기 → 입장 · 식전 영상이 새 목소리로(5분 전 줄은 걷었다) · 확정한 g0 은 그대로 [VC_RENEW_KEEP]',
+    u1.g0 !== '-' && a.changed.sort().join() === 'entry,pv' && /새 목소리로/.test(a.note) && !(a.need || {}).groom, a);
   const b = await redo('tunex');
-  ok('#11 다시 녹음 → 맞추기 창 ✕ → 카드 «빠르기 · 쉼 맞추기» → 쓰기 → 같은 세 줄이 새 목소리로 · 창 글도 «새 목소리로»', b.changed.sort().join() === 'entry,g2,pv' && /새 목소리로/.test(b.note2), b);
+  ok('#11 다시 녹음 → 맞추기 창 ✕ → 카드 «빠르기 · 쉼 맞추기» → 쓰기 → 같은 세 줄이 새 목소리로 · 창 글도 «새 목소리로»', b.changed.sort().join() === 'entry,pv' && /새 목소리로/.test(b.note2), b);
   const c = await redo('reload');
-  ok('#11 다시 녹음 → 맞추기 창이 뜬 채 새로고침 → 카드 → 쓰기 → 같은 세 줄이 새 목소리로', c.changed.sort().join() === 'entry,g2,pv' && /새 목소리로/.test(c.note2), c);
+  ok('#11 다시 녹음 → 맞추기 창이 뜬 채 새로고침 → 카드 → 쓰기 → 같은 세 줄이 새 목소리로', c.changed.sort().join() === 'entry,pv' && /새 목소리로/.test(c.note2), c);
 });
 
 /* ③ [VC_TUNE_NO_COVER] 신랑 만드는 중 ✕ → 신부 글 1 녹음 중 / 줄 녹음 중 → 신랑 만들기가 끝나도 맞추기 창 · 예시 소리 없음 · 녹음은 그대로 · 카드에 «빠르기 · 쉼 맞추기» */
@@ -265,8 +265,8 @@ await scene(6, '만드는 중 새로고침', async (set) => {
   await X.until(() => VC.tune && !VC.tune.loading, 120000);
   await X.click('[data-fk="mkvcuse"]'); await X.adv(1500); await X.fillDone(); await X.adv(3000);
   const u = await X.up(), sv = await X.sv();
-  ok('#6 옛 서버 · 만드는 중 새로고침 — 카드 «만드는 중…» → 만들어지면 «빠르기 · 쉼 맞추기» → 쓰기 → 신랑 줄(g0 · g2 · 입장 · 식전 영상)이 찬다 · 만들기 한 번 [VC_JOB_MARK]',
-    /신랑 아직 만들지 않았어요 만드는 중…/.test(c0[0]) && /빠르기 · 쉼 맞추기/.test(c1[0]) && !!need && ['g0', 'g2', 'entry', 'pv'].every((k) => u[k] !== '-') && sv.n.enroll === 1, { c0: c0[0], c1: c1[0], need, u, n: sv.n });
+  ok('#6 옛 서버 · 만드는 중 새로고침 — 카드 «만드는 중…» → 만들어지면 «빠르기 · 쉼 맞추기» → 쓰기 → 신랑 줄(g0 · 입장 · 식전 영상)이 찬다 · 만들기 한 번 [VC_JOB_MARK]',
+    /신랑 아직 만들지 않았어요 만드는 중…/.test(c0[0]) && /빠르기 · 쉼 맞추기/.test(c1[0]) && !!need && ['g0', 'entry', 'pv'].every((k) => u[k] !== '-') && sv.n.enroll === 1, { c0: c0[0], c1: c1[0], need, u, n: sv.n });
   await X.ctx.close();
   X = set(await boot({ jobs: true, lat: { enroll: 20000 } }));
   await X.make('groom'); await X.adv(800); await X.click('[data-fk="mkdlgx"]');

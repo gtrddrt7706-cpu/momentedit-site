@@ -109,7 +109,7 @@ async function enroll(o) { const { pg, f } = o;
   await f.evaluate(() => { const R = VC.read, sr = 16000, mk = (s) => { const x = new Float32Array(sr * s); for (let i = 0; i < x.length; i++) x[i] = Math.sin(i / 9) * 0.2; return { wav: _recWav(x, sr), dur: s }; }; R.take[1] = mk(15); R.take[2] = mk(15); R.step = 2; mkVcEnroll(); });
   return (await until(pg, f, () => VC.tune && !VC.tune.loading && !!VC.sraw.groom, 90000)) >= 0; }
 const settled = () => !(VC.fill && VC.fill.doing) && !Object.keys(MK_UP).length && !Object.keys(VC_MKP).length && !Object.keys(VT_BAKING).length;
-const UPS = (f) => f.evaluate(() => ['g0', 'g2', 'entry', 'pv'].map((k) => { const v = (S.up || {})[k]; return k + ':' + (v && typeof v === 'object' && v.src === 'ai' ? 'ai/' + _tNorm(v.tempo) : '-'); }).join(' '));
+const UPS = (f) => f.evaluate(() => ['g0', 'entry', 'pv'].map((k) => { const v = (S.up || {})[k]; return k + ':' + (v && typeof v === 'object' && v.src === 'ai' ? 'ai/' + _tNorm(v.tempo) : '-'); }).join(' '));
 const shot = async (o, nm) => { if (SHOTS) await o.pg.screenshot({ path: path.join(SHOTS, nm + '.png') }); };
 
 const SCENES = {
@@ -147,7 +147,7 @@ const SCENES = {
     await cardTune(o); await stopTune(o); await tap(o.f, '[data-fk="mktune:t:5"]'); await adv(o.pg, 500); await stopTune(o); await tap(o.f, '[data-fk="mkvcuse"]'); await adv(o.pg, 500);
     const st = await until(o.pg, o.f, settled, 200000); await adv(o.pg, 1500);
     const ups = await UPS(o.f), fill = await o.f.evaluate(() => VC.fill);
-    ok('15 [FILL_GOT] 줄을 채우는 중 카드에서 빠르기를 «빠르게»로 바꿔 써도 만들던 줄까지 새 빠르기로 찬다 · «채웠어요» 수 = 실제로 붙은 줄', mid.doing && mid.mk.length && st >= 0 && ups === 'g0:ai/1.3 g2:ai/1.3 entry:ai/1.3 pv:ai/1.3' && fill && fill.ok === 4 && fill.n === 4 && !o.errs.length, JSON.stringify({ mid, st, ups, fill, errs: o.errs.slice(0, 2) }));
+    ok('15 [FILL_GOT] 줄을 채우는 중 카드에서 빠르기를 «빠르게»로 바꿔 써도 만들던 줄까지 새 빠르기로 찬다 · «채웠어요» 수 = 실제로 붙은 줄', mid.doing && mid.mk.length && st >= 0 && ups === 'g0:ai/1.3 entry:ai/1.3 pv:ai/1.3' && fill && fill.ok === 3 && fill.n === 3   /* [GUEST_5MIN_OFF_1023] 5분 전 줄(g2)은 걷었다 */ && !o.errs.length, JSON.stringify({ mid, st, ups, fill, errs: o.errs.slice(0, 2) }));
     await o.ctx.close(); },
 
   /* 16 [REBAKE_FAIL_NEED] */
@@ -175,11 +175,11 @@ const SCENES = {
   async T16_확정은들리는소리() { const o = await open({});
     if (!(await enroll(o))) { ok('16 [KEEP_HEARD] 목소리 만들기까지 가지 못했다', false); await o.ctx.close(); return; }
     await stopTune(o); await tap(o.f, '[data-fk="mkvcuse"]'); await until(o.pg, o.f, settled, 200000); await adv(o.pg, 1000);
-    await o.f.evaluate(() => { mkDlgClose(); MK.lineErr = MK.lineErr || {}; MK.lineErr.g2 = '요청이 몰렸어요 · 잠시 뒤 다시 눌러 주세요 (코드 V1)'; mkGo('guest'); }); await adv(o.pg, 1500);
-    await tap(o.f, '.mk-aip[data-key="g2"]'); await adv(o.pg, 500);
-    const k2 = await o.f.evaluate(() => ({ kept: !!(S.vkeep || {}).g2, err: (MK.lineErr || {}).g2 || '' }));
+    await o.f.evaluate(() => { mkDlgClose(); MK.lineErr = MK.lineErr || {}; MK.lineErr.pv = '요청이 몰렸어요 · 잠시 뒤 다시 눌러 주세요 (코드 V1)'; mkGo('prevideo');   /* [GUEST_5MIN_OFF_1023] 신랑이 읽는 다른 AI 줄 = 식전 영상 소개(종전 5분 전 g2) */ }); await adv(o.pg, 1500);
+    await tap(o.f, '.mk-aip[data-key="pv"]'); await adv(o.pg, 500);
+    const k2 = await o.f.evaluate(() => ({ kept: !!(S.vkeep || {}).pv, err: (MK.lineErr || {}).pv || '' }));
     /* 빠르기만 다른 줄(다시 굽기를 기다리는 줄) — 재생 속도로 흉내 내 들리는 상태에서 «확정하기» */
-    await o.f.evaluate(() => { S.vset.groom = { tempo: '1.3', pause: S.vset.groom.pause }; _persist(); render(); }); await adv(o.pg, 300);
+    await o.f.evaluate(() => { S.vset.groom = { tempo: '1.3', pause: S.vset.groom.pause }; _persist(); mkGo('guest'); render(); }); await adv(o.pg, 300);   // [GUEST_5MIN_OFF_1023] 위에서 식전 영상 쪽으로 갔다 — 하객 맞이로 돌아온다
     const a = await o.f.evaluate(() => ({ mode: _aiMode('g0'), rate: Math.round(_upRate('g0') * 100) / 100, t: _tNorm(S.up.g0.tempo) }));
     await tap(o.f, '.mk-aip[data-key="g0"]'); await adv(o.pg, 300);
     const mid = await o.f.evaluate(() => ({ mode: _aiMode('g0'), kept: !!(S.vkeep || {}).g0 }));

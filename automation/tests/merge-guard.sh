@@ -20071,3 +20071,10 @@ chk '  rehApply();   // ' console.html 1   # [REHEARSAL] 시작할 때 프로필
 chk 'BGM_CONSOLE2_1023' docs/handoff/BGM_REHEARSAL_1023.md 1
 chk 'REHEARSAL' scripts/audit/bgm-reh.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-reh.mjs >/dev/null 2>&1; _brh=$?; [ "$_brh" = 1 ] && { echo 'FAIL bgm-reh: 콘솔 리허설 값(저장 · 적용 · 미리 듣기 기본값) 또는 «문 열기 시작» 표시가 어긋났습니다 — node scripts/audit/bgm-reh.mjs'; fail=1; }; :; fi
+# ── 2026-10-23 [GUEST_5MIN_OFF_1023 검토 159-1] 하객 맞이 5분 전 «목소리» 칸 걷음(03 · 117 · 121 · 125 RETIRED · 두 분 줄 셋 · 5분 시점엔 사진 올리기 안내만) — 되살리지 말 것 · 검사 open-course «GUEST_5MIN_OFF_1023»
+chk 'GUEST_5MIN_OFF_1023' assets/ritual-cue.js 4
+chk "'guest-3-5min': 1, 'guest-ex2-3-5min': 1, 'guest-ex3-3-5min': 1, 'guest-ex4-3-5min': 1" assets/ritual-cue.js 1
+chk "var GUEST_KEYS=\['g0','g1','g3'\];" order-preview.html 1
+nochk "\['g2','시작 5분 전','guest'\]" order-preview.html
+nochk "'g0','g1','g2','g3'" console.html
+nochk "'g0','g1','g2','g3'" admin.html

@@ -79,14 +79,14 @@ for (const w of [390, 1280]) {
   ok(`${w} [R7-01] 깨 보기 — R6-01 판 취소는 사람이 어긋나고(신부 칸 · 신랑 소리) _whoStale 이 그것을 잡아 미완료로 센다`, wb.g1 === 'bride' && wb.g1by === 'groom' && wb.st[0] === true && wb.st[1] === true && wb.done === false, JSON.stringify(wb));
   /* [R8-07] 파일이 없는 줄에서 읽는 사람만 바꾸고 «취소» — 바꾼 것이 원래대로 돌아와야 한다(하객 맞이 g2 · 식전 영상 pv) */
   await pg.evaluate(() => { window._editCancel = window.__ecOrig; S.on.prevideo = 1; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', prevideo: 'ai' }; S.pvText = '저희가 함께 걸어온 시간을 짧게 담았어요.';
-    S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'b' }; delete S.guestOne; S.pvWho = 'b'; S.up = {}; opSync(); goDone(); });
+    S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'g' }; delete S.guestOne; S.pvWho = 'b'; S.up = {}; opSync(); goDone(); });
   await pg.waitForTimeout(300);
   await pg.click('[data-fk="sum:guest"]'); await pg.waitForTimeout(500);
-  await pg.evaluate(() => { mkGuestWho(2, 'b'); mkPvWho('g'); });
-  const mid7 = await pg.evaluate(() => ({ g2: RitualOpen.guestReader(S, 2), pv: S.pvWho }));
+  await pg.evaluate(() => { mkGuestWho(3, 'b'); mkPvWho('g'); });
+  const mid7 = await pg.evaluate(() => ({ g2: RitualOpen.guestReader(S, 3), pv: S.pvWho }));
   await pg.click('#prev'); await pg.waitForTimeout(500);
-  const r7 = await pg.evaluate(() => ({ k: STEPS[idx].k, g2: RitualOpen.guestReader(S, 2), g1: RitualOpen.guestReader(S, 1), pv: S.pvWho || 'g' }));
-  ok(`${w} [R8-07 WHO_IF_FILE] 파일 없는 줄의 읽는 사람 바꾸기는 «취소»로 원래대로(g2 신랑 · pv 신부)`, mid7.g2 === 'b' && mid7.pv === 'g' && r7.k === 'done' && r7.g2 === 'g' && r7.g1 === 'b' && r7.pv === 'b', JSON.stringify({ mid7, r7 }));
+  const r7 = await pg.evaluate(() => ({ k: STEPS[idx].k, g2: RitualOpen.guestReader(S, 3), g1: RitualOpen.guestReader(S, 1), pv: S.pvWho || 'g' }));
+  ok(`${w} [R8-07 WHO_IF_FILE] 파일 없는 줄의 읽는 사람 바꾸기는 «취소»로 원래대로(1분 전 줄 신랑 · pv 신부)`, mid7.g2 === 'b' && mid7.pv === 'g' && r7.k === 'done' && r7.g2 === 'g' && r7.g1 === 'b' && r7.pv === 'b', JSON.stringify({ mid7, r7 }));
   /* [R8-01] 저장 회신을 기다리는 동안(_autoWait)에는 «취소»가 막힌다 — 늦은 회신이 버려져 서버 합치기가 취소한 글을 되살리던 틈 */
   await pg.evaluate(() => { S.welcomeText = ''; goDone(); });
   await pg.waitForTimeout(300);

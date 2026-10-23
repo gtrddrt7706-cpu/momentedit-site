@@ -22,7 +22,7 @@ try {
     await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700);
     await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'nar' }; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { groom: { ready: true }, bride: { ready: true } }; for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
-    await pg.evaluate(() => { S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.up = S.up || {}; ['g0', 'g1', 'g2', 'g3', 'entry', 'pv'].forEach((k) => { S.up[k] = { src: 'ai', by: 'groom', name: 'x.mp3' }; }); S.vkeep = {}; });
+    await pg.evaluate(() => { S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.up = S.up || {}; ['g0', 'g1', 'g3', 'entry', 'pv'].forEach((k) => { S.up[k] = { src: 'ai', by: 'groom', name: 'x.mp3' }; }); S.vkeep = {}; });
     await wait(300); await pg.evaluate(() => mkGo('guest')); await wait(600);
     const a = await pg.evaluate(() => ({ inline: !!document.querySelector('.mk-keepl'), link: !!document.querySelector('.mk-pick [data-fk="mkkeept:guest"]') }));
     /* ★[TIP_FLY 2026-10-07] 첫 순간에 펼쳐 두던 네 줄은 걷었다 — 처음 칩을 누를 때 한 번 창으로 보여 주고 «확정 안내»로 접혀 들어간다(tip-fly 검사) */
