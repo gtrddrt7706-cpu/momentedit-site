@@ -4990,7 +4990,7 @@ function _linkOk(v){ return /^https?:\/\/[^\s\/?#]+\.[^\s\/?#]+\S*$/i.test(Strin
    ★올리기가 어려운 분을 위한 길은 접어 둔다(카톡 · 메일 + «보냈어요» 한 칸) — 펼쳐 두면 다시 지저분해진다. */
 /* ★[ASSET_V 2026-10-04 사장님 폰에서 고친 것이 안 보였다(옛 «1분 읽기 시작» · 옛 녹음 막대)] 마이페이지를 열어 둔 채 다시 들어오면 휴대폰이 옛 파일을 그대로 썼다.
    식순 화면은 마이페이지가 매번 새 주소로 연다(?t=) · 여기서 부르는 파일은 이 표시를 붙인다 — assets/*.js 를 고치면 이 값과 위 <script ?v=> 를 함께 올린다
-   ★[ASSET_V_GUARD 2026-10-23] 올리지 않고 ritual-open.js 를 바꿨더니(#1331) 열어 둔 화면이 옛 판으로 남아 축사 · 축가 칸이 비고 영상이 멈춰 보였다 — scripts/audit/asset-v.mjs 가 «파일을 바꾼 커밋 ≤ 값을 올린 커밋»을 잰다 */
+   ★[ASSET_V_GUARD 2026-10-23] 올리지 않고 ritual-open.js 를 바꿨더니(#1331) 열어 둔 화면이 옛 판으로 남아 축사 · 축가 칸이 비고 영상이 멈춰 보였다 — scripts/audit/asset-v.mjs 가 «이번 변경이 파일을 바꿨으면 값도 바꿨는가»를 잰다 */
 var MK_UP={};
 function _mkUpLab(q){ return String(q.what).replace(/ · (?:AI 두 분 목소리|두 분 목소리 녹음)$/,''); }   /* [R1-28] */
 function _mkUpState(key){ var v=(S.up||{})[key];
