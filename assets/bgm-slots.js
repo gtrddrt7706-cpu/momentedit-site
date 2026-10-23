@@ -80,9 +80,11 @@
         clap: [{ no: 57, line: '큰 박수로 축하해 주시면…', up: '짧게 올린다', down: '111 «네, 고맙습니다.»와 덕담 여는 말(23) 앞에서 다시 낮춘다' }] } },
     /* [BGM_INFO_1023] 축사 · 편지는 엔진이 무음(duckOff)이다 — 기본은 «음악 없이» · «음악과 함께»를 고른 칸만 엔진 · 장면 글 · 미리 듣기 · 당일 콘솔이 낭독 아래 −20 으로 따라간다 */
     { id: 'S5', ks: ['free'], picks: ['none', 'bed'], short: '축사',   /* 이름표 «축사 음악»(short + ' 음악' · BGM_R1_1023) */
+      flow: 'speech',   /* ★[BGM_R5_1023] 흐름 음악 줄 — 말씀(○ 줄) 바로 앞 · 큐 열쇠 narr-free-in-speech */
       lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' },   /* [BGM_R4_1023] «아래 · 깔려요»는 만드는 쪽 말 · 곡은 아직 안 정했다 · unset = 아직 안 누름(입장 «고르지 않으시면 …»과 같은 말투) */
       ref: { role: '배경', sec: 240, level: LEVEL.read } },
     { id: 'S6', ks: ['letter'], picks: ['none', 'bed'], short: '편지',
+      flow: 'letter',   /* ★[BGM_R5_1023] 흐름 음악 줄 — 낭독(○ 줄) 바로 앞 · 큐 열쇠 letter-* */
       lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' },   /* [BGM_R4_1023] 악기 둘을 약속하는 글로 읽혔다 */
       ref: { role: '배경', sec: 330, level: LEVEL.read } },
     /* [BGM_INFO_1023] 대본 판정 «뭉클한 여는 말에도 밝고 따뜻한 곡» · 자료(슬픈 곡이면 더 운다) — 고르기 없이 한 줄 */
@@ -104,6 +106,8 @@
   ];
 
   /* 음악 칸이 없는 순간 · 이어지는 순간 — 흐름 줄 하나(BGM_R1_1023) · cont 의 {at} = 그 칸의 첫 담긴 순간 이름(chooser · 빌더 nameOf) */
+  /* ★[BGM_R5_1023] 축사 · 편지 «흐름» 음악 줄 — 말하는 ○ 줄 바로 앞 · 음악 없이(안 누름 포함) / 음악과 함께 · 엔진: 축사 말씀 −90 / −20 · 편지 낭독 −90 / −20 */
+  var TALK = { none: '말씀하시는 동안은 음악이 멈추고 목소리만 들려요', bed: '말씀하시는 동안 연주곡이 아주 작게 흘러요' };
   var LINE = {
     prevideo: '영상에 입힌 소리로 흘러요',
     matjeol: '입장 곡이 이어져요',
@@ -158,7 +162,8 @@
   function head(st) { return (st && st[0] && /^bridge-/.test(String(st[0].slug || ''))) ? 1 : 0; }
   /* ★[BGM_R3_1023] 자리를 찾는 열쇠 = 줄이 나온 큐(빌더 _lSteps 의 of · 엔진 slug) — 글자(«목례» · «위하여»)로 찾지 않는다
      bow = 끝 선언 큐(narr-close-bow)에서 나온 말 없는 줄 바로 뒤 · cheers = 잔 드는 축배 큐(toast-…)에서 나온 «위하여» 차례 줄 바로 뒤 · video = 영상 상영 줄(skip) 바로 앞 */
-  var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 } };
+  var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 },
+    speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 } };   /* [BGM_R5_1023] 말하는 ○ 줄(차례 줄) 바로 앞 */
   function flowFind(at, st) {
     st = st || []; var i, h = head(st), m = AT_OF[at];
     if (!m) return { i: h, hit: true };   /* top(옛 bridge 도 같다) */
@@ -178,5 +183,5 @@
     return ks[0] || null;
   }
 
-  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, flowAt: flowAt, flowFind: flowFind, chooser: chooser };
+  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, TALK: TALK, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, flowAt: flowAt, flowFind: flowFind, chooser: chooser };
 });

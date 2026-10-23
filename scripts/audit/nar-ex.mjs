@@ -29,7 +29,8 @@ function run(mut) {
   const clips = O.narExClips(), FILES = C.FILES;
   // ① 번호
   const first = FILES.indexOf('narr-candle-bow-others');
-  T(`① 예시 소리 ${clips.length}줄이 모두 FILES 에 · 147(narr-candle-bow-others) 뒤에 붙었다`, clips.length >= 40 && clips.every((x) => FILES.indexOf(x.slug) > first && first === 146), clips.filter((x) => FILES.indexOf(x.slug) <= first).map((x) => x.slug).join(' '));
+  const BASE_SWAP = { 'narr-candle-in-mothers-ex2': 91, 'narr-entry-bow-ex2': 132 };
+  T(`① 예시 소리 ${clips.length}줄이 모두 FILES 에 · 147(narr-candle-bow-others) 뒤에 붙었다`, clips.length >= 40 && clips.every((x) => FILES.indexOf(x.slug) > first || BASE_SWAP[x.slug] === FILES.indexOf(x.slug) + 1) && first === 146, clips.filter((x) => FILES.indexOf(x.slug) <= first && BASE_SWAP[x.slug] !== FILES.indexOf(x.slug) + 1).map((x) => x.slug).join(' '));   /* ★[BASE_SWAP_1023 검토 156] 기본과 자리를 맞바꾼 예시 2 둘은 옛 기본 번호(91 · 132)를 글과 함께 쓴다 */
   const LIVE_EX = (f) => /-ex\d$/.test(f) && !/^guest-ex|^narr-prevideo-in-ex/.test(f) && !(C.RETIRED && C.RETIRED[f]);   // ★[R11_SRC_1018 라운드 11] 쉬는 소리(RETIRED · 번호 보존 · 기본 글과 같은 글이 된 예시)는 원천에 글이 없어도 된다
   T('① FILES 의 «-exN» 예시 소리(하객 맞이 · 식전 영상 소개 · 쉬는 소리 밖)는 모두 원천(NAR_EX)에 글이 있다', FILES.filter(LIVE_EX).every((f) => clips.some((x) => x.slug === f)), FILES.filter((f) => LIVE_EX(f) && !clips.some((x) => x.slug === f)).join(' '));
   T('① 쉬는 예시 소리는 원천(NAR_EX)에서도 안 나간다 [R11_SRC_1018]', FILES.filter((f) => /-ex\d$/.test(f) && C.RETIRED && C.RETIRED[f]).every((f) => !clips.some((x) => x.slug === f)), FILES.filter((f) => /-ex\d$/.test(f) && C.RETIRED && C.RETIRED[f] && clips.some((x) => x.slug === f)).join(' '));

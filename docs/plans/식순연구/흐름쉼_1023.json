@@ -523,7 +523,7 @@
   },
   {
    "file": "narr-candle-in-mothers",
-   "key": "91_narr-candle-in-mothers",
+   "key": "91_narr-candle-in-mothers-ex2",
    "i": 0,
    "text": "우리는 늘 엄마가 당연히 그 자리에 있는 존재라고 생각하지만, 사실 그 자리는 누군가의 수많은 포기와 사랑으로 지켜진 자리입니다.",
    "next": "그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다.",
@@ -533,7 +533,7 @@
   },
   {
    "file": "narr-candle-in-mothers",
-   "key": "91_narr-candle-in-mothers",
+   "key": "91_narr-candle-in-mothers-ex2",
    "i": 1,
    "text": "그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다.",
    "next": "아름다운 양가 어머님께서 화촉을 밝혀 주시겠습니다.",
@@ -543,7 +543,7 @@
   },
   {
    "file": "narr-candle-in-mothers",
-   "key": "91_narr-candle-in-mothers",
+   "key": "91_narr-candle-in-mothers-ex2",
    "i": 2,
    "text": "아름다운 양가 어머님께서 화촉을 밝혀 주시겠습니다.",
    "next": "단상 위로 올라와 주십시오.",
@@ -553,7 +553,7 @@
   },
   {
    "file": "narr-candle-in-mothers",
-   "key": "91_narr-candle-in-mothers",
+   "key": "91_narr-candle-in-mothers-ex2",
    "i": 3,
    "text": "단상 위로 올라와 주십시오.",
    "next": "두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.",
@@ -643,7 +643,7 @@
   },
   {
    "file": "narr-entry-bow",
-   "key": "132_narr-entry-bow",
+   "key": "132_narr-entry-bow-ex2",
    "i": 0,
    "text": "다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.",
    "next": "지금부터 서로의 눈을 지그시 바라봐 주세요.",
@@ -963,7 +963,7 @@
   },
   {
    "file": "narr-candle-in-mothers-ex2",
-   "key": "151_narr-candle-in-mothers-ex2",
+   "key": "151_narr-candle-in-mothers",
    "i": 0,
    "text": "이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다.",
    "next": "단상 위로 올라와 주십시오.",
@@ -973,7 +973,7 @@
   },
   {
    "file": "narr-candle-in-mothers-ex2",
-   "key": "151_narr-candle-in-mothers-ex2",
+   "key": "151_narr-candle-in-mothers",
    "i": 1,
    "text": "단상 위로 올라와 주십시오.",
    "next": "두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.",
@@ -1143,7 +1143,7 @@
   },
   {
    "file": "narr-entry-bow-ex2",
-   "key": "160_narr-entry-bow-ex2",
+   "key": "160_narr-entry-bow",
    "i": 0,
    "text": "다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.",
    "next": "맞절은 부부로서의 첫 예를 올리는 인사인데요.",
@@ -1153,7 +1153,7 @@
   },
   {
    "file": "narr-entry-bow-ex2",
-   "key": "160_narr-entry-bow-ex2",
+   "key": "160_narr-entry-bow",
    "i": 1,
    "text": "맞절은 부부로서의 첫 예를 올리는 인사인데요.",
    "next": "그럼 서로의 눈을 바라보며 맞절하겠습니다.",
@@ -1163,7 +1163,7 @@
   },
   {
    "file": "narr-entry-bow-ex2",
-   "key": "160_narr-entry-bow-ex2",
+   "key": "160_narr-entry-bow",
    "i": 2,
    "text": "그럼 서로의 눈을 바라보며 맞절하겠습니다.",
    "next": "서로를 존중하는 마음으로, 신랑 신부 맞절!",
@@ -1568,8 +1568,9 @@
    "text": "다시 한 번 더 프러포즈한다는 마음을 담아 반지를 끼워 주시기 바랍니다.",
    "next": "이어서 신부도 신랑의 왼손 약지에 반지를 끼워 주도록 하겠습니다.",
    "after_now": 1.25,
-   "after_new": 1.5,
-   "kind": "A"
+   "after_new": 8.0,
+   "kind": "A",
+   "why": "★[RING_TWO_HOLD_1023 검토 157 E2] 신랑이 반지를 끼우는 시간 8초(대본 섹션 · 값은 음성 쉼 섹션이 다시 정할 수 있다)"
   },
   {
    "file": "narr-ring-in-ex4",
@@ -1588,8 +1589,9 @@
    "text": "신랑이 먼저 신부에게 반지를 끼워 주도록 하겠습니다.",
    "next": "이번에는 신부가 사랑의 마음을 담아 신랑에게 반지를 끼워 주도록 하겠습니다.",
    "after_now": 1.25,
-   "after_new": 1.5,
-   "kind": "A"
+   "after_new": 8.0,
+   "kind": "A",
+   "why": "★[RING_TWO_HOLD_1023 검토 157 E2] 신랑이 반지를 끼우는 시간 8초(대본 섹션 · 값은 음성 쉼 섹션이 다시 정할 수 있다)"
   },
   {
    "file": "narr-ring-out-ex2",

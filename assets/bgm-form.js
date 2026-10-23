@@ -40,15 +40,21 @@
 
   /* ── ② 순간 쪽 «흐름» 음악 줄 [BGM_R1_1023] — 고를 것이 없는 안내 한 줄 · 채운 점 줄(li.q[data-bgm] · 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴) ·
      st = 빌더 엔진 줄(_lSteps) · at = «이 번호 줄 앞에»(0 맨 앞 · st.length 맨 뒤) · ▶ 가 없어 줄 수 · 듣기 차례에 끼지 않는다 ── */
-  function flowRow(k,st){ var v=B.viewOf(k,opt()); if(!v||v.kind!=='flow') return null;
+  function flowRow(k,st){ var v=B.viewOf(k,opt());
+    if(v&&v.kind==='pick'&&v.s.flow){ var fp=B.flowFind(v.s.flow,st||[]);   /* ★[BGM_R5_1023] 축사 · 편지 — 말하는 ○ 줄 바로 앞 한 줄(칩을 바꾸면 redraw 가 이 줄 글도 바꾼다) */
+      return { at:fp.i, hit:fp.hit, by:v.s.flow, html:'<li class="q" data-bgm="'+e(v.s.id)+'"><span class="qa">'+e(talkLine(v.s))+'</span></li>' }; }
+    if(!v||v.kind!=='flow') return null;
     var f=B.flowFind?B.flowFind(v.at,st||[]):{ i:B.flowAt(v.at,st||[]), hit:true };   /* [BGM_R3_1023] hit = 큐 열쇠로 자리를 찾았나(못 찾으면 맨 앞 · 검사가 빨강) */
     return { at:f.i, hit:f.hit, by:v.at, html:'<li class="q" data-bgm="'+e(v.s?v.s.id:k)+'"><span class="qa">'+e(v.t)+'</span></li>' }; }   /* 행동 줄과 같은 class(q) — 음악 줄 표시는 data-bgm 하나(흐름선 · 점 · 글 검사가 같은 줄로 잰다) */
+
+  function talkLine(s){ return (B.TALK&&B.TALK[B.get(St(),s.id).m==='bed'?'bed':'none'])||''; }   /* [BGM_R5_1023] 안 누름 = 음악 없이 */
 
   /* 이 칸만 다시 — 빌더 render() 는 흐르던 소리를 끈다 · 줄 하나만 바꾸고 칩 칸 맞춤(_cgEven)은 쪽 전체로(입장 음악 MU_REDRAW_EVEN_1019 와 같다) */
   function redraw(id,fx){ var row=D.querySelector('.ls-bgm[data-slot="'+id+'"]');
     if(!row){ try{ if(typeof render==='function') render(); }catch(x){} return; }
     var t=D.createElement('div'); t.innerHTML=rowHtml(row.getAttribute('data-k')); var nw=t.firstChild; if(!nw) return; row.parentNode.replaceChild(nw,row);
     try{ if(typeof _cgEven==='function') _cgEven(); }catch(x){}
+    var fq=D.querySelector('.mk-flow > li[data-bgm="'+id+'"] .qa'), s5=B.slot(id); if(fq&&s5&&s5.flow) fq.textContent=talkLine(s5);   /* [BGM_R5_1023] 흐름 음악 줄도 같이 */
     if(fx){ var f=D.querySelector(fx); if(f) try{ f.focus({preventScroll:true}); }catch(x){} } }
 
   /* 누름 — 축사 · 편지 칩만 · 'bed' 만 적는다(«음악 없이» = 지운다) */
@@ -70,8 +76,12 @@
     B.SLOTS.forEach(function(s){ if(s.picks.indexOf('bed')<0) return; var at=B.chooser(s,o); if(!at) return; var v=B.viewOf(at,o); if(!v||v.kind!=='pick') return;
       out.push({ id:s.id, t:s.short+' · '+B.label(s,B.get(St(),s.id).m) }); });
     return out; }
+  /* ★[BGM_R5_1023] 곡이 없을 때 칩 상태로 — «두 분이 고른 곡»만 눌렀으면 «곡 파일을 올려 주시면 맞춰 드려요» · «추천 곡»만 눌렀으면 «추천 곡 중에서 골라 주세요» · 안 눌렀으면 «고르지 않으시면 …»
+     칩 상태는 EntryMusic.src()(이 탭 · 저장 꼴 그대로) · 남은 할 일 셈에는 안 넣는다 */
+  function entryWant(){ var src=null; try{ src=window.EntryMusic&&EntryMusic.src?EntryMusic.src():null; }catch(x){}
+    return src==='up'?'입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요':src==='rec'?'입장 곡 · 추천 곡 중에서 골라 주세요':'입장 곡 · 고르지 않으시면 스튜디오가 준비해요'; }
   function sumHtml(){ var pk=pickRows();
-    var en=entryNow(), one=en?'입장 곡 · '+en:'입장 곡 · 고르지 않으시면 스튜디오가 준비해요';
+    var en=entryNow(), one=en?'입장 곡 · '+en:entryWant();
     return '<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-vlist">'
       +'<li class="mk-vr bgm-sl"><span class="mk-vt"><span class="mk-vn">'+e(one)+'</span></span>'+(en?'':'<button type="button" class="rowbtn mk-vb" data-fk="bgmgo:entry" onclick="mkGo(\'entry\')">이동하기</button>')+'</li>'
       +pk.map(function(r){ return '<li class="mk-vr bgm-pk" data-slot="'+r.id+'"><span class="mk-vt"><span class="mk-vn">'+e(r.t)+'</span></span></li>'; }).join('')
