@@ -186,7 +186,8 @@ function sendSignupEmail_(to, names, code, token, product, detail) { /* [B19_LOC
         '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#6E6557;line-height:1.85;word-break:keep-all">부모님께 그대로 보여드릴 수 있도록<br>예식의 의미와 격식을<br>어른의 눈높이로 담았습니다.</div>' +
         '<div style="margin-top:16px"><a href="https://momentedit.kr/parents.html" style="display:inline-block;padding:10px 26px;background:#3A2D22;color:#F5F1E9;font-family:\'Noto Serif KR\',serif;font-size:12px;letter-spacing:0.08em;text-decoration:none;border-radius:3px">안내문 열어보기</a></div>' +
       '</div>') +
-    smallP('문의가 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 연락 주세요.');
+    /* [MAIL_LINK_INK] 글자 링크 = #7A5F37(흰 메일 바탕 대비) · #B89A75 는 선 색 — 상담 메일과 같은 한 벌 */
+    smallP('문의가 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#7A5F37;font-weight:500">카카오톡</a>으로 연락 주세요.');
 
   GmailApp.sendEmail(to, '[Moment Edit] 신청이 접수되었습니다 · 개인코드 ' + code, '',
     { htmlBody: emailShell('신청이 접수되었습니다', inner), name: SYS.FROM_NAME });
