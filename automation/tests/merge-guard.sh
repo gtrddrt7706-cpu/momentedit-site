@@ -19993,3 +19993,11 @@ nochk "up: 'S8 이 힘 있게 시작한다'" assets/bgm-slots.js   # [BGM_CONSOL
 nochk "no: 131, line" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] 대본 157 로 «큰 박수로 맞이해 주십시오»가 빠졌다
 chk 'BGM_CONSOLE1_1023' scripts/audit/bgm-form.mjs 1
 chk 'TABLE:START' docs/handoff/BGM_CONSOLE_1023.md 1
+# ★[PV_PHOTO_OFF_1023 검토 158] 식전 영상 «사진으로 저희가 영상을 만들어요» 대목 뺌(PV_LINK_ONE «무조건 영상»)
+chk 'PV_PHOTO_OFF_1023' scripts/audit/open-course.mjs 2
+nochk '영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요' assets/ritual-open.js 0
+nochk '영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요' assets/ritual-story.js 0
+nochk '영상이 없으면 사진을 올린 링크' order-preview.html 0
+nochk '영상이 없으면 보내 주신 사진으로' order-preview.html 0
+nochk '영상이 없으면 사진으로 저희가' api/_ritual-kb.js 0
+nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
