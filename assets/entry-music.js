@@ -266,13 +266,20 @@
   function num(x){ x=+x; return isFinite(x)?x:null; }
   function imgOk(v){ return /^\/assets\/[A-Za-z0-9_\/.-]+\.(webp|jpe?g|png)$/.test(String(v||''))&&String(v).indexOf('..')<0?String(v):''; }
   function posOk(v){ return /^\d{1,3}(\.\d+)?% \d{1,3}(\.\d+)?%$/.test(String(v||''))?String(v):'50% 50%'; }
+  /* ★★[ENTRY_OPEN_1023 2026-10-23 사장님 «웰컴투더쇼 볼륨 커지는 부분이 멘트와 안 맞는다» → 0.5초 단계 시안 «뒤로 2초» · «문 열림을 그래프에 세로선으로»(17:38 «추천대로»)]
+     곡 목록(드라이브 songs.json)은 서버가 내용 지문(REC_PUT_HASH)으로 고정해 서버 재배포 없이 고칠 수 없다 — 바뀐 곡 값만 여기서 덮는다(목록보다 이 표가 이긴다).
+     songs.json 을 다시 만들 때 이 값을 그 파일로 옮기고 이 표에서 지운다. 다른 곡의 hook · 멘트–노래 싱크는 그대로.
+     open = hooks 와 같은 차례의 «문이 열려 두 분이 출발하는» 곡 시각 — 그래프 «open» 세로선은 장면 시각 th + (open − 실제 문 열림 자리 H) · 없는 곡 · 올린 곡은 th */
+  var REC_FIX={ r6:{ hook:50.18, hook0:50.18, hooks:[50.18,112.0], open:[54.96,116.77] } };   /* Welcome to the Show — 52.18 → 50.18 · 114 → 112.0 · «쇼» 54.96 / 116.77 */
+  function recFix(o){ var f=o&&REC_FIX[o.k]; if(f) Object.keys(f).forEach(function(k){ o[k]=Array.isArray(f[k])?f[k].slice():f[k]; }); return o; }
   function recClean(s){ if(!s||!RK.test(String(s.k||''))) return null; var h=num(s.hook), h0=num(s.hook0); if(!(h>0)) return null;
     var str=function(v){ return typeof v==='string'?v.slice(0,200):''; }, nums=function(a){ return Array.isArray(a)?a.map(num).filter(function(v){ return v!=null; }):[]; };
     var ly=Array.isArray(s.ly)?s.ly.filter(function(L){ return Array.isArray(L)&&num(L[0])!=null; }).slice(0,200).map(function(L){ var o=[num(L[0]),str(L[1]),str(L[2])]; if(num(L[3])!=null) o.push(num(L[3])); return o; }):[];
-    return {k:String(s.k),t:str(s.t)||str(s.name),a:str(s.a),name:str(s.name),img:imgOk(s.img),pos:posOk(s.pos),hook:h,hook0:(h0!=null&&h0>0)?h0:h,len:num(s.len)||0,file:str(s.file),ly:ly,lyEn:str(s.lyEn),lyKo:str(s.lyKo),
+    return recFix({k:String(s.k),t:str(s.t)||str(s.name),a:str(s.a),name:str(s.name),img:imgOk(s.img),pos:posOk(s.pos),hook:h,hook0:(h0!=null&&h0>0)?h0:h,len:num(s.len)||0,file:str(s.file),ly:ly,lyEn:str(s.lyEn),lyKo:str(s.lyKo),
       lyAt:s.lyAt==null?null:Array.isArray(s.lyAt)?nums(s.lyAt):num(s.lyAt)!=null?[num(s.lyAt)]:null,lyT:nums(s.lyT),lyOff:num(s.lyOff)||0,
       hooks:nums(s.hooks).filter(function(v){ return v>0; }).slice(0,6),
-      pf:/^[A-Za-z0-9_-]{1,24}\.mp3$/.test(String(s.pf||''))?String(s.pf):'',p0:num(s.p0),p1:num(s.p1),g:num(s.g)>0?num(s.g):null}; }   /* [REC_CLIP_1013] 짧은 판(pf) · 그 판의 처음 · 끝(원곡 초) · 원곡으로 잰 크기 */   /* [BGM_FIRST_1013] 같은 소절이 다시 나오는 자리(문 열림 후보 · 첫째가 hook0) */
+      open:Array.isArray(s.open)?nums(s.open).slice(0,6):num(s.open)!=null?[num(s.open)]:[],   /* [ENTRY_OPEN_1023] 곡마다 문 열림(출발) 시각 · hooks 와 같은 차례 */
+      pf:/^[A-Za-z0-9_-]{1,24}\.mp3$/.test(String(s.pf||''))?String(s.pf):'',p0:num(s.p0),p1:num(s.p1),g:num(s.g)>0?num(s.g):null}); }   /* [REC_CLIP_1013] 짧은 판(pf) · 그 판의 처음 · 끝(원곡 초) · 원곡으로 잰 크기 */   /* [BGM_FIRST_1013] 같은 소절이 다시 나오는 자리(문 열림 후보 · 첫째가 hook0) */
   function recMeta(k){ var L=REC.ls||[]; for(var i=0;i<L.length;i++) if(L[i].k===k) return L[i]; return null; }
   function recTitle(k){ var m=recMeta(k); return m?(m.t||m.name):''; }
   function recH(m){ return Math.round((m.hook0||m.hook)*100)/100; }   /* 크게 올라오는 자리 = 문이 열리는 순간(hook0) */
@@ -556,9 +563,12 @@
      대기 = 처음(왼쪽 끝) · 입장 = 문이 열려 음악이 크게 오르는 자리(그 시점에서 시작) · 도착 = 끝(오른쪽 끝). 겹치면 입장이 이긴다(placeWords).
      ★두 줄짜리 장면 문장(«본식 5분 전부터 문 앞에서 기다려요» · «문이 열리고 걸어 들어와요») 되살리지 말 것 — 2026-10-23 사용자 지시로 삭제
      (그래프를 읽어 주는 aria-label 은 문장 그대로 · scripts/audit/scene-words.mjs) */
+  /* ★★[ENTRY_OPEN_1023 2026-10-23 사장님 «밑에 글씨들은 전부 삭제» · «문 열림을 그래프에 세로선으로» · «대문자 OPEN 은 식당 같다 → 소문자로 느낌 있게» · «선 옆 번짐 효과 삭제»]
+     위 «대기 · 입장 · 도착» 장면 줄은 걷었다(줄 자리도 비운다) — 그래프 안 «open» 세로선 하나가 문 열림(두 분 출발)을 말한다(openAt · openMark).
+     선 1px · #8A724C · 0.85 · 그래프 위 2px 에서 목소리 줄까지 · 글자 «open» 소문자 Cormorant Garamond 기울임 500 18/22 · #6B5639 · 선 머리 바로 위 가운데 · 양 끝이면 칸 안으로 · 그림자 · 번짐 · 점 없음 ·
+     재생 중에도 색 · 자리 그대로(채움만 진행). ★장면 줄(대기 · 입장 · 도착) · 대문자 OPEN · 선 옆 번짐을 되살리지 말 것 — 2026-10-23 사용자 지시로 삭제 */
   function graphHtml(nar){ var al=nar?'소리 흐름 · 본식 5분 전부터 두 분이 문 앞에서 기다리는 동안 작게 흐르는 음악 위로 입장 멘트가 흐르고, «입장!»이 끝나면 음악이 크게 올라오며 문이 열리고 두 분이 걸어 들어와 도착해요':'소리 흐름 · 본식 5분 전부터 두 분이 문 앞에서 기다리는 동안 작게 흐르는 음악 위로 두 분 목소리로 인사가 흐르고, 마지막 말이 끝나면 음악이 크게 올라오며 문이 열리고 두 분이 걸어 들어와 도착해요';
-    return '<div class="em-graph" role="img" aria-label="'+e(al)+'" onclick="emAct(\'graph\',event)"><div class="lg-names" aria-hidden="true"><span>음악</span><span>목소리</span></div><div class="lg-plot"><canvas aria-hidden="true"></canvas><span class="lg-wait" hidden>곡을 불러오는 중이에요</span></div>'
-      +'<div class="lg-scene wait" aria-hidden="true"><span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span></div></div>'; }   /* [SCENE_WORDS_1023] */
+    return '<div class="em-graph" role="img" aria-label="'+e(al)+'" onclick="emAct(\'graph\',event)"><div class="lg-names" aria-hidden="true"><span>음악</span><span>목소리</span></div><div class="lg-plot"><canvas aria-hidden="true"></canvas><span class="lg-open" aria-hidden="true" hidden><i class="lgo-l"></i><em class="lgo-t">open</em></span><span class="lg-wait" hidden>곡을 불러오는 중이에요</span></div></div>'; }   /* [ENTRY_OPEN_1023] 장면 줄 대신 open 세로선 */
   /* ★★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개 · 디자인적으로 별로» → 시안 «a»] 알약 하나 «이 순간 전체 듣기 · 음악과 함께» —
      누르면 빌더 «이 순간 전체 듣기» 입구(lsPlay · 목소리 확인 · 안 만든 줄 만들기 [LS_MAKE_ALL])를 지나 장면(음악 → 멘트 → 문 열림)을 틀고, 장면이 끝나면 그 순간 다음 줄까지 이어서(lsRest).
      곡을 골라 장면이 서면 빌더의 «이 순간 전체 듣기 · n줄 이어서» 알약은 그리지 않는다(order-preview) · 곡이 없으면 그 알약 하나(종전). ★두 알약을 다시 위아래로 두지 말 것 — 2026-10-13 사용자 지시 */
@@ -626,15 +636,15 @@
       c.globalAlpha=on?1:0.28; c.fillStyle=cA; c.beginPath(); for(var k2=0;k2<runs.length;k2++){ var xr=runs[k2][0], w=Math.max(4,runs[k2][1]-xr-2); if(c.roundRect) c.roundRect(xr,dy,w,dh,dh/2); else c.rect(xr,dy,w,dh); } c.fill(); c.restore(); }
     c.globalAlpha=1; c.fillStyle=cB; c.fillRect(0,base,W,1);   /* 음량 바닥선 하나 */
     pass(Math.max(0,px),W,false); if(px>0) pass(0,px,true); }
-  /* [SCENE_ROW · SCENE_WORDS_1023] 장면 줄 — 낱말 셋을 시간 자리에 · 지금 지나는 칸의 낱말만 진하게.
-     입장 = 문 열림 시점(그래프에서 음악이 크게 오르는 자리)에서 시작 · 도착 · 대기와 겹치면 그쪽을 숨긴다(입장이 이긴다 · 8px 띄움) */
-  function placeWords(sc,f){ var pw=sc.clientWidth||0; if(!pw) return; var key=f.toFixed(4)+'|'+pw; if(sc.__wk===key) return;
-    var a=sc.querySelector('.lgs-greet'), b=sc.querySelector('.lgs-walk'), c=sc.querySelector('.lgs-end'); if(!a||!b||!c) return; sc.__wk=key;
-    a.hidden=false; c.hidden=false; var wa=a.offsetWidth, wb=b.offsetWidth, wc=c.offsetWidth, G=8, xb=Math.max(0,Math.min(pw-wb,Math.round(clamp(f,0,1)*pw)));
-    b.style.left=xb+'px'; if(xb<wa+G) a.hidden=true; if(xb+wb+G>pw-wc) c.hidden=true; }
-  function sceneRow(g,PL,V0,x){ var sc=g.querySelector('.lg-scene'); if(!sc) return; var T=Math.max(1,PL.tend), th=clamp(PL.th,0,T); placeWords(sc,th/T);
-    var at=x==null||x>=T-0.05?'':x<th?'greet':'walk'; if((sc.getAttribute('data-at')||'')!==at){ if(at) sc.setAttribute('data-at',at); else sc.removeAttribute('data-at'); }
-    if(sc.classList.contains('wait')) sc.classList.remove('wait'); }
+  /* [ENTRY_OPEN_1023] 문 열림(출발) 장면 시각 — 추천 곡 목록에 open 이 있으면 th + (open − 실제 문 열림 자리 H · 엔진 pickHook 가 고른 그 자리) · 없으면 th(멘트 끝 + 숨) */
+  function openAt(PL,m0){ var th=PL.th; try{ var mu=St().mu, m=m0||((mu&&mu.src==='rec')?recMeta(mu.k):null);   /* m0 = 점검용(목록 한 곡) */ if(m&&m.open&&m.open.length){ var hs=(m.hooks&&m.hooks.length)?m.hooks:[m.hook0||m.hook];
+      for(var i=0;i<hs.length&&i<m.open.length;i++) if(Math.abs(hs[i]-PL.H)<0.05&&m.open[i]>PL.H) return th+(m.open[i]-PL.H); } }catch(x){} return th; }
+  /* 세로선 · 글자 자리 — 선은 그 시각의 x · 글자는 선 머리 위 가운데(양 끝이면 칸 안으로 밀기 · 잘림 없음) · 같은 자리면 다시 재지 않는다 */
+  function openMark(g,PL){ var o=g.querySelector('.lg-open'); if(!o) return; if(!PL){ if(!o.hidden) o.hidden=true; return; }
+    var pw=o.parentNode.clientWidth||0, T=Math.max(1,PL.tend), t=clamp(openAt(PL),0,T), x=Math.round(t/T*pw*2)/2; if(o.hidden) o.hidden=false;
+    var key=x+'|'+pw; if(o.__k===key) return; o.__k=key;
+    var l=o.querySelector('.lgo-l'), tx=o.querySelector('.lgo-t'); if(l) l.style.left=Math.min(pw-1,x)+'px';
+    if(tx){ var w=tx.offsetWidth||0; tx.style.left=Math.round(clamp(x-w/2,0,Math.max(0,pw-w)))+'px'; } }
   /* ★[SCENE_WAIT_FILL 2026-10-13 사장님 «목소리 밑에 간격이 너무 넓은데 개선»] 곡을 받는 동안(«곡을 불러오는 중이에요») 장면 줄을 숨겨 둬 목소리 아래가 텅 비어 보였다 —
      목소리만으로 장면을 짜(곡이 넉넉하다고 보고: 음악 10초 먼저 · 문 열린 뒤 64초 [ENTRY_BGM_1019] · 종전 4초 · 24초) 목소리 조각 · 장면 줄을 먼저 그린다. 곡이 오면 음악 곡선만 더해진다(보통은 자리가 그대로).
      ★받는 동안 장면 줄을 다시 숨기지 말 것 — 2026-10-13 사용자 지시 */
@@ -643,15 +653,14 @@
   function scenePlan(){ var R=RUN||((PAUSE||ENDED)?LASTRUN:null); if(R) return {V0:R.V0,PL:R.PL}; var st=vNow(), V0=st&&st.src&&VR[st.key], u=scFor(scSong(),V0); return V0&&u&&u.Sg?{V0:V0,PL:plan(V0,u.Sg,hookNow(u),u)}:null; }
   function paintGraph(x){ try{ var gs=D.querySelectorAll(BIG?'#emFull .em-graph':'.em-scene .em-graph'); if(!gs.length) return; var P2=scenePlan();   /* 크게 보기가 열려 있으면 뒤(잠긴 쪽) 그래프는 그리지 않는다 — 닫을 때 scPaint 가 다시 그린다 */
       if(x==null&&P2) x=RUN?tau(RUN):PAUSE?PAUSE.x:ENDED?P2.PL.tend:null;
-      for(var i=0;i<gs.length;i++){ var g=gs[i], cv=g.querySelector('canvas'), sc=g.querySelector('.lg-scene'); if(!cv) continue;
+      for(var i=0;i<gs.length;i++){ var g=gs[i], cv=g.querySelector('canvas'); if(!cv) continue;
         var lw=g.querySelector('.lg-wait'); if(lw){ var wv=!P2&&recWaiting(); if(lw.hidden===wv) lw.hidden=!wv; }   /* [REC_CLIP_1013] 고른 곡을 받는 동안 빈 칸 대신 한 줄(카드와 같은 말) */
-        if(!P2){ var VP=voicePlan(); if(VP){ var nv=Math.max(40,Math.min(240,Math.floor((cv.clientWidth||300)/3))); drawGraph(cv,voiceData(VP.PL,VP.V0,nv),null); sceneRow(g,VP.PL,VP.V0,null); sc&&sc.classList.add('wait'); continue; }   /* [SCENE_WAIT_FILL] 곡을 받는 동안 — 목소리 조각 · 장면 줄은 먼저 */
-          var c0=cv.getContext('2d'); c0.clearRect(0,0,cv.width,cv.height); if(sc){ sc.classList.add('wait'); placeWords(sc,0.5); } continue; }   /* [SCENE_HOLD] 목소리도 아직이면 장면 줄만(입장은 가운데) */
-        var n=Math.max(40,Math.min(240,Math.floor((cv.clientWidth||300)/3))); drawGraph(cv,graphData(P2.PL,P2.V0,n),x); sceneRow(g,P2.PL,P2.V0,x); } }catch(x2){} }   /* [PAINT_GUARD] 그래프는 꾸밈 — 실패해도 소리는 멈추지 않는다 · 크게 보기 안 그래프도 같은 자리로 */
+        if(!P2){ var VP=voicePlan(); if(VP){ var nv=Math.max(40,Math.min(240,Math.floor((cv.clientWidth||300)/3))); drawGraph(cv,voiceData(VP.PL,VP.V0,nv),null); openMark(g,VP.PL); continue; }   /* [SCENE_WAIT_FILL] 곡을 받는 동안 — 목소리 조각 · open 선은 먼저(문 열림 자리는 목소리로 정해진다) */
+          var c0=cv.getContext('2d'); c0.clearRect(0,0,cv.width,cv.height); openMark(g,null); continue; }   /* 목소리도 아직이면 빈 칸(open 선 없음) */
+        var n=Math.max(40,Math.min(240,Math.floor((cv.clientWidth||300)/3))); drawGraph(cv,graphData(P2.PL,P2.V0,n),x); openMark(g,P2.PL); } }catch(x2){} }   /* [PAINT_GUARD] 그래프는 꾸밈 — 실패해도 소리는 멈추지 않는다 · 크게 보기 안 그래프도 같은 자리로 */
   /* [GRAPH_TAP · SCENE_TAP] 그래프는 손을 뗄 때(click) — 누른 자리부터 · 장면 말을 누르면 그 장면 머리부터(기다림 = 처음 · 문이 열리고 = 마지막 말 첫머리) · 크게 보기 안 그래프는 그 안에서 */
   function graphTap(ev){ var st=vNow(); if(!st||!st.src){ offPress(); return; } var P2=scenePlan(); if(!P2) return; var g=(ev&&ev.target&&ev.target.closest&&ev.target.closest('.em-graph'))||D.querySelector('.em-graph'), cv=g&&g.querySelector('canvas'); if(!cv) return;
-    var sp=ev&&ev.target&&ev.target.closest?ev.target.closest('.lg-scene>span'):null, PL=P2.PL;
-    if(sp){ scPlay(sp.classList.contains('lgs-greet')?0:Math.max(0,PL.tv+(PL.lastS||0)),!BIG); return; }   /* [ONE_PLAY_1013] 그 자리 그래프에서 틀어도 장면 뒤 줄까지(크게 보기 안은 장면만) */
+    var PL=P2.PL;   /* [ENTRY_OPEN_1023] 장면 줄(누르면 장면 머리부터)은 걷었다 — 그래프의 누른 자리부터 */
     var rr=cv.getBoundingClientRect(); if(!ev||ev.clientX<rr.left) return; scPlay(clamp((ev.clientX-rr.left)/Math.max(1,rr.width),0,1)*PL.tend,!BIG); }
 
   /* ── ★★[ENTRY_BIG_1012] 2단계-나 크게 보기 — 시험실 openBig · paintBig(고객 화면)를 빌더 크게 보기 틀(.ls-full · .lf-in · .lf-seg · .lf-ctl)로 ──
@@ -761,9 +770,9 @@
     fitPill(); paintGraph(); }   /* 빌더가 다시 그리면 그래프 캔버스가 새것이다 — 지금 자리로 다시 그린다(트는 중이면 다음 틀이 이어 그린다) */
 
   EM.rowHtml=rowHtml; EM.sceneHtml=sceneHtml; EM.guideBody=guideBody; EM.after=after; EM.whole=whole; EM.paint=paintPill;   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기» 입구 · 빌더 재생 상태가 바뀔 때(_lPaint) 알약만 다시 */ EM.hush=function(){ if(hush()) redraw(); scHalt(); };   /* 빌더가 제 소리를 틀 때(_stopMk) — 이 칸 ▶ 만 되돌리고 장면은 그 자리에 멈춘다(쪽 전체를 다시 그리지 않는다) */
-  EM._t={placeWords:placeWords,lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
+  EM._t={openAt:openAt,openMark:openMark,recClean:recClean,REC_FIX:REC_FIX,lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
     pv:function(){ return PREV?{key:PREV.key,x0:PREV.x0,d:PREV.d,H:PREV.H}:null; },car:function(){ return {pre:CAR_PRE,len:CAR_LEN}; },   /* [PREV_12_60_1013] 점검용 — 지금 미리 듣기가 원곡 몇 초부터 몇 초 동안인가 */
-    scene:function(){ var P2=scenePlan(); return {run:!!RUN,pend:PEND,pause:PAUSE?PAUSE.x:null,ended:ENDED,x:RUN?tau(RUN):null,plan:P2?{tv:P2.PL.tv,tm:P2.PL.tm,off:P2.PL.off,th:P2.PL.th,tend:P2.PL.tend,V:P2.PL.V,n:P2.PL.n,tdip:P2.PL.tdip,H:P2.PL.H}:null,pieces:P2?P2.V0.pieces.length:0,
+    scene:function(){ var P2=scenePlan(); return {run:!!RUN,pend:PEND,pause:PAUSE?PAUSE.x:null,ended:ENDED,x:RUN?tau(RUN):null,plan:P2?{open:openAt(P2.PL),tv:P2.PL.tv,tm:P2.PL.tm,off:P2.PL.off,th:P2.PL.th,tend:P2.PL.tend,V:P2.PL.V,n:P2.PL.n,tdip:P2.PL.tdip,H:P2.PL.H}:null,pieces:P2?P2.V0.pieces.length:0,
       cut:P2&&P2.V0.cut?{at:P2.V0.cut.at,add:P2.V0.cut.add,was:P2.V0.cut.was}:null,vsn:RUN?RUN.vsn:null}; },   /* [ENTRY_CALL_PAUSE_1013] 점검용 — 끊은 자리 · 늘린 초 · 지금 걸린 목소리 마디 수 */
     envDb:function(x){ var P2=scenePlan(); return P2?envDb(P2.PL,x):null; },
     rel:function(){ var P2=scenePlan(); return P2?P2.PL.rel.map(function(r){ return Math.round((P2.PL.tv+r)*1000)/1000; }):null; },big:function(){ return BIG; },

@@ -1,8 +1,11 @@
 #!/usr/bin/env node
-/* ★[SCENE_WORDS_1023 · PLAY_MID_1023 2026-10-23 사장님]
-   A [SCENE_WORDS_1023] «본식 5분 전부터 문 앞에서 기다려요 · 문이 열리고 걸어 들어와요 · 도착 — 이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»
-     입장 «음악과 함께» 그래프 아래 장면 줄 = 낱말 셋 «대기 · 입장 · 도착» 한 줄(11px) — 대기 = 왼쪽 끝 · 입장 = 문 열림 시점(th / tend) · 도착 = 오른쪽 끝 · 서로 겹치지 않는다 ·
-     옛 장면 문장이 화면에 없다(그래프를 읽어 주는 aria-label 은 문장 그대로) · 누르고 멈추고 이어 들어도 낱말 자리는 그대로.
+/* ★[ENTRY_OPEN_1023 · PLAY_MID_1023 2026-10-23 사장님]
+   A [ENTRY_OPEN_1023] «밑에 글씨들은 전부 삭제» · «문 열림을 그래프에 세로선으로» · «대문자 OPEN 은 식당 같다 → 소문자로» · «선 옆 번짐 효과 삭제» · Welcome «뒤로 2초»
+     (종전 [SCENE_WORDS_1023] 장면 줄 «대기 · 입장 · 도착»은 걷었다 — 줄 자리도 없다)
+     입장 «음악과 함께» 그래프 안 «open» 세로선 — 선 1px · #8A724C · 0.85 · 그림자 · 번짐 없음 · 그래프 위 2px 에서 목소리 줄까지(칸 높이 − 10px) ·
+     글자 «open» Cormorant Garamond 기울임 500 18/22 · #6B5639 · 선 머리 위 4 ~ 6px · 곡선(그래프 칸) 위 · 카드 안 · 칸 안(양 끝이면 밀기) ·
+     자리 = 장면 시각 open / tend(올린 곡 · open 없는 곡 = th) · 누르고 멈추고 이어 들어도 그대로 · 옛 장면 문장 · 장면 줄 없음(aria-label 은 문장 그대로) ·
+     Welcome(r6) 목록 값 덮기 — 52.18 → 50.18 · hooks [50.18, 112.0] · 엔진 plan: 짧은 멘트 H 50.18 · open = th + 4.78 · 긴 멘트 H 112.0 · open = th + 4.77 · 다른 곡(r1)은 목록 그대로 · open = th
    B [PLAY_MID_1023] «이거 다시 취소 · 가운데 쪽으로 다시 하고 이어 듣기 · 멈춤 이걸로 바꾸자»(옛 [PLAY_ICON_FIXED_1023] 왼쪽 고정은 취소)
      듣기 알약은 동그라미 + 글 한 덩어리가 가운데(1px 안) · 동그라미를 왼쪽에 못 박지 않는다(position static) · 트는 동안 «멈춤».
      입장 알약 «이 순간 전체 듣기 · 음악과 함께» → «멈춤» → «이어 듣기» — «멈춤 ↔ 이어 듣기»는 동그라미 자리 그대로(글 칸 폭 = «이어 듣기»).
@@ -27,11 +30,15 @@ function testSong() { const sr = 22050, n = sr * 150, b = Buffer.alloc(44 + n * 
   const f = path.join(os.tmpdir(), 'scene-words-test-song.wav'); fs.writeFileSync(f, b); return f; }
 const SONG = testSong();
 const clickNext = async (p) => { if (await p.isVisible('#next')) await p.click('#next'); else await p.click('.pk-go'); };
-/* 장면 줄 · 알약을 잰다 */
-const words = (pg) => pg.evaluate(() => { const sc = document.querySelector('.em-scene .lg-scene'), plot = document.querySelector('.em-scene .lg-plot'), s = EntryMusic._t.scene(), P = s.plan || {};
-  if (!sc) return null; const r0 = sc.getBoundingClientRect(), sp = [...sc.children].map((e) => { const r = e.getBoundingClientRect(); return { c: e.className, t: e.textContent, vis: !e.hidden && r.width > 0, l: +(r.left - r0.left).toFixed(1), r: +(r.right - r0.left).toFixed(1), top: +(r.top - r0.top).toFixed(1), h: +r.height.toFixed(1), fs: getComputedStyle(e).fontSize }; });
-  const all = document.querySelector('.em-scene').textContent, lbl = (document.querySelector('.em-scene .em-graph') || { getAttribute: () => '' }).getAttribute('aria-label') || '';
-  return { sp, w: +r0.width.toFixed(1), h: +r0.height.toFixed(1), pw: plot ? +plot.getBoundingClientRect().width.toFixed(1) : null, f: P.tend ? P.th / P.tend : null, old: /기다려요|걸어 들어와요|5분 전부터/.test(all), lbl, at: sc.getAttribute('data-at') || '' }; });
+/* open 선 · 알약을 잰다 */
+const openLook = (pg) => pg.evaluate(() => { const g = document.querySelector('.em-scene .em-graph'), plot = g && g.querySelector('.lg-plot'), o = plot && plot.querySelector('.lg-open'), l = o && o.querySelector('.lgo-l'), t = o && o.querySelector('.lgo-t'), s = EntryMusic._t.scene(), P = s.plan || {};
+  if (!g || !plot) return null; const R = (e) => { const r = e.getBoundingClientRect(); return { l: +r.left.toFixed(1), r: +r.right.toFixed(1), t: +r.top.toFixed(1), b: +r.bottom.toFixed(1), w: +r.width.toFixed(1), h: +r.height.toFixed(1) }; };
+  const cs = t ? getComputedStyle(t) : null, ls = l ? getComputedStyle(l) : null, all = document.querySelector('.em-scene').textContent, lbl = g.getAttribute('aria-label') || '';
+  return { pr: R(plot), gr: R(g), lr: l ? R(l) : null, tr: t ? R(t) : null, hidden: !o || o.hidden, txt: t ? t.textContent : '', scene: !!document.querySelector('.lg-scene, .lgs-walk'),
+    font: cs ? [cs.fontFamily.split(',')[0].replace(/["']/g, ''), cs.fontStyle, cs.fontWeight, cs.fontSize, cs.lineHeight, cs.color].join('|') : '', ls: cs ? cs.letterSpacing : '',
+    line: ls ? [ls.width, ls.backgroundColor, ls.opacity, ls.boxShadow, ls.filter].join('|') : '', open: P.open, th: P.th, tend: P.tend, old: /기다려요|걸어 들어와요|5분 전부터|대기입장도착/.test(all), lbl }; });
+const openOk = (A) => { if (!A || A.hidden || !A.lr || !A.tr) return false; const want = A.pr.l + Math.min(A.pr.w - 1, Math.round(Math.max(0, Math.min(A.tend, A.open)) / A.tend * A.pr.w * 2) / 2), gap = A.lr.t - A.tr.b;
+  return Math.abs(A.lr.l - want) <= 1 && Math.abs(A.lr.t - (A.pr.t + 2)) <= 0.6 && Math.abs(A.lr.h - (A.pr.h - 10)) <= 0.6 && gap >= 4 && gap <= 6 && A.tr.b <= A.pr.t && A.tr.t >= A.gr.t && A.tr.l >= A.pr.l - 0.5 && A.tr.r <= A.pr.r + 0.5; };
 const pill = (pg, sel) => pg.evaluate((sel) => { const b = document.querySelector(sel); if (!b) return null; const v = b.querySelector('svg'), r = b.getBoundingClientRect(), q = v ? v.getBoundingClientRect() : null, rg = document.createRange(); rg.selectNodeContents(b); const g = rg.getBoundingClientRect(), cs = getComputedStyle(b);
   return { t: b.textContent.replace(/\s+/g, ' ').trim(), bw: +r.width.toFixed(1), bh: +r.height.toFixed(1), sx: q ? +(q.left - r.left).toFixed(1) : null, sy: q ? +(q.top - r.top).toFixed(1) : null, sw: q ? +q.width.toFixed(1) : null, pos: v ? getComputedStyle(v).position : '',
     dx: +((g.left + g.right) / 2 - (r.left + parseFloat(cs.paddingLeft) + r.right - parseFloat(cs.paddingRight)) / 2).toFixed(1) }; }, sel);   /* dx = 동그라미 + 글 덩어리 가운데 − 알약 안쪽 가운데 */
@@ -65,40 +72,44 @@ try {
     await pg.waitForFunction(() => { const u = EntryMusic._t.ups(); return u && u.Sg && !u.busy; }, null, { timeout: 60000 }).catch(() => {});
     await pg.waitForFunction(() => EntryMusic._t.scene().plan && document.querySelector('.em-scene .em-graph'), null, { timeout: 20000 }).catch(() => {}); await pg.waitForTimeout(500);
     await pg.evaluate(() => { const e = document.querySelector('.em-scene'); if (e) e.scrollIntoView({ block: 'center' }); }); await pg.waitForTimeout(300);
-    /* A 장면 줄 */
-    const A0 = await words(pg);
-    const vis = A0 ? A0.sp.filter((x) => x.vis) : [], gS = A0 && A0.sp.find((x) => /lgs-greet/.test(x.c)), wS = A0 && A0.sp.find((x) => /lgs-walk/.test(x.c)), eS = A0 && A0.sp.find((x) => /lgs-end/.test(x.c));
-    const want = A0 && A0.f != null ? Math.max(0, Math.min(A0.w - (wS ? wS.r - wS.l : 0), Math.round(A0.f * A0.w))) : null;
-    const noOverlap = vis.every((x, i) => i === 0 || x.l >= vis[i - 1].r + 7.5);
-    ok(`${W} A1 [SCENE_WORDS_1023] 장면 줄 = «대기 · 입장 · 도착» 한 줄 11px(높이 ${A0 && A0.h}) · 옛 장면 문장 없음 · 그래프 aria-label 은 문장 그대로`,
-      !!A0 && A0.sp.map((x) => x.t).join('|') === '대기|입장|도착' && A0.sp.every((x) => x.fs === '11px') && A0.h <= 17 && vis.every((x) => x.top === vis[0].top && x.h <= 17) && !A0.old && /«입장!»이 끝나면|마지막 말이 끝나면/.test(A0.lbl), A0);
-    ok(`${W} A2 낱말 자리 — 대기 왼쪽 끝 · 입장 = 문 열림 시점(th/tend ${A0 && A0.f != null ? A0.f.toFixed(3) : '?'} → ${want}px · 지금 ${wS && wS.l}px) · 도착 오른쪽 끝 · 겹침 없음 · 줄 폭 = 그래프 폭`,
-      !!A0 && !!wS && wS.vis && Math.abs(wS.l - want) <= 1 && (!gS.vis || gS.l === 0) && (!eS.vis || Math.abs(eS.r - A0.w) <= 0.6) && gS.vis && eS.vis && noOverlap && Math.abs(A0.w - A0.pw) <= 0.6, { A0, want });
+    /* A open 선 */
+    const A0 = await openLook(pg);
+    ok(`${W} A1 [ENTRY_OPEN_1023] 장면 줄(대기 · 입장 · 도착) 없음 · 옛 장면 문장 없음 · 그래프 aria-label 은 문장 그대로 · «open» 소문자 Cormorant Garamond 기울임 500 18/22 #6B5639 · 선 1px #8A724C 0.85 그림자 · 번짐 없음`,
+      !!A0 && !A0.scene && !A0.old && /«입장!»이 끝나면|마지막 말이 끝나면/.test(A0.lbl) && A0.txt === 'open' && A0.font === 'Cormorant Garamond|italic|500|18px|22px|rgb(107, 86, 57)' && /^(normal|0px)$/.test(A0.ls)
+      && A0.line === '1px|rgb(138, 114, 76)|0.85|none|none', A0);
+    ok(`${W} A2 open 자리 — 올린 곡은 th(${A0 && A0.th != null ? A0.th.toFixed(2) : '?'} = open ${A0 && A0.open != null ? A0.open.toFixed(2) : '?'}) · 선 x = open/tend · 그래프 위 2px 에서 칸 높이 − 10px · 글자는 선 머리 위 4 ~ 6px · 곡선 위 · 카드 안 · 칸 안`,
+      !!A0 && Math.abs(A0.open - A0.th) < 0.005 && openOk(A0), A0);
     if (SHOT) await pg.locator('.em-scene').screenshot({ path: path.join(SHOT, `scene-${W}-0.png`) }).catch(() => {});
     /* B-1 입장 장면 알약 — 누르고 · 멈추고 · 이어 듣기 */
     const P0 = await pill(pg, '.em-scene [data-fk="emscene"]');
     await pg.click('.em-scene [data-fk="emscene"]'); await pg.waitForFunction(() => EntryMusic._t.scene().run, null, { timeout: 15000 }).catch(() => {}); await pg.waitForTimeout(1200);
-    const P1 = await pill(pg, '.em-scene [data-fk="emscene"]'), A1 = await words(pg);
+    const P1 = await pill(pg, '.em-scene [data-fk="emscene"]'), A1 = await openLook(pg);
     if (SHOT) await pg.locator('.em-scene').screenshot({ path: path.join(SHOT, `scene-${W}-1.png`) }).catch(() => {});
     await pg.click('.em-scene [data-fk="emscene"]'); await pg.waitForTimeout(400);
-    const P2 = await pill(pg, '.em-scene [data-fk="emscene"]'), A2 = await words(pg);
+    const P2 = await pill(pg, '.em-scene [data-fk="emscene"]'), A2 = await openLook(pg);
     if (SHOT) await pg.locator('.em-scene').screenshot({ path: path.join(SHOT, `scene-${W}-2.png`) }).catch(() => {});
     const ps = [P0, P1, P2];
     ok(`${W} B1 [PLAY_MID_1023] 입장 알약 «${P0 && P0.t}» → «${P1 && P1.t}» → «${P2 && P2.t}» — 셋 다 가운데(${ps.map((x) => x && x.dx).join(' · ')}) · «멈춤 ↔ 이어 듣기» 동그라미 자리 그대로(${P1 && P1.sx} · ${P2 && P2.sx}) · 알약 크기 그대로 · 첫 판 한 줄(높이 ${P0 && P0.bh})`,
       ps.every(Boolean) && P0.t === '이 순간 전체 듣기 · 음악과 함께' && P1.t === '멈춤' && P2.t === '이어 듣기' && ps.every((x) => Math.abs(x.dx) <= 1 && x.pos === 'static') && Math.abs(P1.sx - P2.sx) < 0.6 && Math.abs(P1.sy - P2.sy) < 0.6 && same(ps, 'bw') && same(ps, 'bh') && P0.bh <= 53, { ps });
-    ok(`${W} A3 누르고 멈춰도 낱말 자리 그대로 · 듣는 동안 지금 칸 낱말만 진하게(data-at ${A1 && A1.at})`,
-      !!A1 && !!A2 && JSON.stringify(A1.sp.map((x) => [x.l, x.vis])) === JSON.stringify(A0.sp.map((x) => [x.l, x.vis])) && JSON.stringify(A2.sp.map((x) => [x.l, x.vis])) === JSON.stringify(A0.sp.map((x) => [x.l, x.vis])) && A1.at === 'greet', { A1, A2 });
+    ok(`${W} A3 누르고 멈춰도 open 선 · 글자 자리 · 색 그대로(채움만 진행)`,
+      !!A1 && !!A2 && [A1, A2].every((x) => JSON.stringify([x.lr, x.tr, x.font, x.line]) === JSON.stringify([A0.lr, A0.tr, A0.font, A0.line])), { A1, A2 });
     ok(`${W} 가로 넘침 없음 · 페이지 오류 없음`, await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1) && errs.length === 0, { errs });
     await ctx.close();
   }
-  /* A4 겹침 처리(입장이 이긴다) — 문 열림이 맨 앞 · 맨 끝이면 대기 · 도착을 숨기고 입장은 줄 안 */
+  /* A4 [ENTRY_OPEN_1023] 양 끝 — open 이 맨 앞 · 맨 끝이어도 글자는 칸 안(잘림 없음) · 선은 칸 안 · A5 Welcome 숫자(엔진 plan) */
   { const ctx = await br.newContext({ viewport: { width: 390, height: 900 } }); const pg = await ctx.newPage();
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(500);
-    const R = await pg.evaluate(() => { const g = document.createElement('div'); g.className = 'em-graph'; g.style.width = '300px'; g.innerHTML = '<div class="lg-plot"></div><div class="lg-scene"><span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span></div>'; document.body.appendChild(g);
-      const sc = g.querySelector('.lg-scene'), out = {}; for (const f of [0, 0.02, 0.5, 0.97, 1]) { EntryMusic._t.placeWords(sc, f); const r0 = sc.getBoundingClientRect(); out[f] = [...sc.children].map((e) => e.hidden ? '-' : Math.round(e.getBoundingClientRect().left - r0.left) + ':' + Math.round(e.getBoundingClientRect().right - r0.left)).join(' '); } g.remove(); return out; }).catch((e) => ({ err: e.message }));
-    const parse = (s) => (s || '').split(' ').map((x) => x === '-' ? null : x.split(':').map(Number));
-    const okf = (s, hideG, hideE) => { const [g, w, e] = parse(s); return !!w && w[0] >= 0 && w[1] <= 300 && (hideG ? g === null : !!g) && (hideE ? e === null : !!e); };
-    ok('A4 겹치면 입장이 이긴다 — 0 · 0.02 → 대기 숨김 · 0.5 → 셋 다 · 0.97 · 1 → 도착 숨김 · 입장은 늘 줄 안', !R.err && okf(R[0], true, false) && okf(R[0.02], true, false) && okf(R[0.5], false, false) && okf(R[0.97], false, true) && okf(R[1], false, true), R);
+    const R = await pg.evaluate(() => { const g = document.createElement('div'); g.className = 'em-graph'; g.style.width = '300px'; g.innerHTML = '<div class="lg-names"></div><div class="lg-plot"><canvas></canvas><span class="lg-open" hidden><i class="lgo-l"></i><em class="lgo-t">open</em></span></div>'; document.body.appendChild(g);
+      const plot = g.querySelector('.lg-plot'), out = {}; for (const f of [0, 0.5, 1]) { EntryMusic._t.openMark(g, { th: f * 100, tend: 100, H: 0 }); const p = plot.getBoundingClientRect(), l = g.querySelector('.lgo-l').getBoundingClientRect(), t = g.querySelector('.lgo-t').getBoundingClientRect();
+        out[f] = { l: +(l.left - p.left).toFixed(1), tl: +(t.left - p.left).toFixed(1), tr: +(t.right - p.left).toFixed(1), pw: +p.width.toFixed(1) }; } g.remove(); return out; }).catch((e) => ({ err: e.message }));
+    ok('A4 [ENTRY_OPEN_1023] 양 끝 — open 이 맨 앞(0) · 가운데 · 맨 끝이어도 글자는 칸 안(잘림 없음) · 선은 칸 안', !R.err && [0, 0.5, 1].every((f) => R[f].tl >= -0.5 && R[f].tr <= R[f].pw + 0.5 && R[f].l >= 0 && R[f].l <= R[f].pw - 1) && R[0].tl === 0 && Math.abs(R[1].tr - R[1].pw) <= 0.5, R);
+    const W5 = await pg.evaluate(() => { const ES = window.EntryScene, T = EntryMusic._t;
+      const r6 = T.recClean({ k: 'r6', t: 'Welcome to the Show', hook: 52.18, hook0: 52.18, hooks: [52.18, 114], len: 217.07 }), r1 = T.recClean({ k: 'r1', t: 'Popcorn', hook: 38.05, hook0: 38.1, hooks: [38.1, 87.14], len: 181.32 });
+      const V = (sec) => ({ pieces: [{ d: sec / 2 }, { d: sec / 2 }], gaps: [0] }), pl = (m, sec) => ES.plan(V(sec), { dur: m.len, gain: 1 }, m.hook0, { hooks: m.hooks });
+      const a = pl(r6, 17), b = pl(r6, 45), c = pl(r1, 17);
+      return { r6: [r6.hook, r6.hook0, r6.hooks, r6.open], r1: [r1.hook, r1.hook0, r1.hooks, r1.open], aH: a.H, aD: +(T.openAt(a, r6) - a.th).toFixed(2), bH: b.H, bD: +(T.openAt(b, r6) - b.th).toFixed(2), cH: c.H, cD: +(T.openAt(c, r1) - c.th).toFixed(2) }; }).catch((e) => ({ err: e.message }));
+    ok(`A5 [ENTRY_OPEN_1023] Welcome(r6) — 목록 52.18 · 114 → 50.18 · [50.18, 112] · 짧은 멘트 H ${W5.aH} · open = th + ${W5.aD} · 긴 멘트 H ${W5.bH} · open = th + ${W5.bD} · 다른 곡(r1) 목록 그대로 · H ${W5.cH} · open = th`,
+      !W5.err && JSON.stringify(W5.r6) === '[50.18,50.18,[50.18,112],[54.96,116.77]]' && JSON.stringify(W5.r1) === '[38.05,38.1,[38.1,87.14],[]]' && W5.aH === 50.18 && W5.aD === 4.78 && W5.bH === 112 && W5.bD === 4.77 && W5.cH === 38.1 && W5.cD === 0, W5);
     /* B3 [PLAY_MID_1023] 목소리 창 단추 둘 — 다듬기 «예시 들어 보기 ↔ 멈춤»(가운데) · 두 분 목소리 «들어 보기 ↔ 멈춤»(가운데 · 동그라미 그대로). 창 폭(320)에 실제 CSS 와 화면 코드와 같은 꼴로 세워 잰다 */
     const B3 = await pg.evaluate(() => { const box = document.createElement('div'); box.style.cssText = 'width:320px;position:relative'; document.body.appendChild(box); const out = {};
       const mk = { 'mk-tune-go': (t) => '<span>' + t + '</span>', 'mk-dlg-go mk-vu-play': (t) => ' <span class="em-lab-tg" data-w="들어 보기"><span>' + t + '</span></span>' };
