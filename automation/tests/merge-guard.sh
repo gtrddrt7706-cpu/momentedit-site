@@ -7992,7 +7992,7 @@ chk '양가 어머님 맞절! 양가 어머님 하객분들께 인사!' assets/r
 # ★[VOW_OUT_GAP_1016] 서약 맺는 말(자료 «두 사람의 서약이었습니다») 뒤 박수가 잦아들 4.5초 · [CHORUS_MUTED_1016] 소리를 끈 배역 합창은 글 · 소리 대조에서 뺀다
 chk 'VOW_OUT_GAP_1016' assets/ritual-cue.js 2
 chk 'CHORUS_MUTED_1016' scripts/check-text-audio.mjs 1
-chk "tributePair: '부부가 되어 처음 드리는 인사는, 부모님께 올리겠습니다.'," assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 선언 바로 뒤 부모님께 인사 여는 줄 = 자료 G1 60 그대로(3라운드에서 찾음)
+chk "tributePair: '이제 정식으로 하나가 된 두 사람이 양가 부모님께 감사의 인사를 드리는 시간을 갖겠습니다.'," assets/ritual-open.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 선언 바로 뒤 부모님께 인사 여는 줄 = 자료 G1 60 그대로(3라운드에서 찾음)
 chk 'SOURCE_WORDS_1013' docs/plans/식순연구/3단계_원고_1013.md 1   # 자료 글은 구호 · 정형구 · 뼈대만 그대로 · 문장은 우리 말로
 chk 'SOURCE_BEST_1015' docs/plans/식순연구/3단계_원고_1013.md 1   # ★10/15 사장님 — 고정 멘트 없음 · 자료집 베스트 멘트를 그대로 또는 단어만 바꿔서(위 10/13 기준을 바꿈)
 chk 'SOURCE_BEST_1015' CLAUDE.md 1
@@ -14947,7 +14947,7 @@ chk '하나가 된 특별한 순간을 위해 준비한 축가' assets/ritual-op
 chk '조금만 기다리셨다가 새로 시작하는 부부에게' assets/ritual-open.js 1
 chk 'narr-table-in-ex3' assets/ritual-cue.js 1
 chk 'END2_T2_1018' assets/ritual-cue.js 1
-chk '오늘의 시작을 함께해 주신 모든 분들께 감사드리며' assets/ritual-cue.js 1   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 47 = 자료 T2 원문 되돌림(옛 핀 «끝까지 함께해 주신 분들께» · END_ONCE_1018)   # ★[REVIEW26_1023 검토 150] 옛 핀 «오늘의 시작을 함께 해주신 모든 분들께 감사드리며»
+chk '끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.' assets/ritual-cue.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김 · ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 47 = 자료 T2 원문 되돌림(옛 핀 «끝까지 함께해 주신 분들께» · END_ONCE_1018)   # ★[REVIEW26_1023 검토 150] 옛 핀 «오늘의 시작을 함께 해주신 모든 분들께 감사드리며»
 nochk '첫날이 시작되었습니다. 남은 하루' assets/ritual-cue.js
 nochk '신랑 신부 두 사람이 평생 사랑하겠다는' assets/ritual-open.js
 nochk '크게 외치겠습니다. 신랑 신부가 선창하면' assets/ritual-open.js
@@ -14982,9 +14982,9 @@ chk 'R11_SRC_1018' assets/ritual-open.js 6
 chk 'R11_SRC_1018' assets/ritual-cue.js 2
 chk 'R11_SRC_1018' order-preview.html 3
 chk "'narr-ring-out-ex4': 1, 'narr-table-in-ex2': 1," assets/ritual-cue.js 1   # [B11_OFF_1018] 줄 끝에 247 이 더해졌다(쉬는 소리 셋)
-chk '이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.' assets/ritual-data.js 1
-chk '이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.' order-preview.html 1
-chk '이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.' assets/ritual-open.js 1
+chk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-data.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김
+chk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' order-preview.html 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김
+chk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김
 chk '다음은 정식으로 부부가 된 우리 신랑 신부의 빛나는 앞날을 축복하기 위한 덕담의 순서가 있겠습니다.' assets/ritual-open.js 1
 chk '귀한 덕담의 말씀을 부탁드리며 큰 박수로 맞아 주시기 바랍니다.' assets/ritual-open.js 1
 nochk '두 분, 다시 앞으로 와 주세요' assets/ritual-data.js
@@ -19357,7 +19357,7 @@ chk 'TOAST_40_OPEN_1013' assets/ritual-open.js 1
 chk 'TOAST_40_OPEN_1013' scripts/audit/open-course.mjs 4
 chk 'TOAST_40_OPEN_1013' scripts/audit/listen-page.mjs 1
 chk "T.toast = 'toast';" assets/ritual-cue.js 1                                          # 새 코스 축배 = 40 축배 판 글
-chk "toast: { slug: 'toast-toast', screen: '신랑 신부 앞날에 영원한 사랑과 행복을 위하여 다 같이 축배를 드는 시간입니다." assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «toast: { slug: 'toast-toast', scre…» · 옛 주석 ★[NAR_B2_1014] 원고 3판(닫는 인사 «마지막 박수» 뒤라 «마지막으로» 걷음)
+chk "toast: { slug: 'toast-toast', screen: '자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다." assets/ritual-open.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «toast: { slug: 'toast-toast', scre…» · 옛 주석 ★[NAR_B2_1014] 원고 3판(닫는 인사 «마지막 박수» 뒤라 «마지막으로» 걷음)
 nochk "toast: { slug: 'toast-both-b'" assets/ritual-open.js                              # ★76(케이크 판 글)을 축배 대표 줄로 되돌리지 말 것
 chk 'NO_REHEARSAL_1013' assets/ritual-data.js 1
 chk 'NO_REHEARSAL_1013' order-preview.html 1
@@ -19883,3 +19883,11 @@ chk 'welcome:{nar:"자리해 주신 하객들을 향한 신랑 신부의 감사 
 chk 'vow:{nar:"다음은 혼인 서약의 순서가 있겠습니다.' assets/ritual-data.js 1
 chk "names: \['담백하게', '격식 있게', '엄숙하게', '뭉클하게'\]" assets/ritual-open.js 1
 chk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.'"' && !last) after = 3.0" scripts/build-typecast-import.mjs 1
+
+# ★[REVIEW30_1023 검토 154] 본식 후반 · 폐식 자료 글(142 WW21 · 39 · 184 이상윤 · 186 · 187 OO · 219 WW3 · 47 U1 + DD · 40 S 원본)
+chk 'REVIEW30_1023' assets/ritual-open.js 2
+chk "'이상으로 신랑 신부의 결혼식을 모두 마치겠습니다. 바쁘신 가운데" assets/ritual-open.js 1
+chk "'이것으로 신랑 신부의 결혼식을 모두 마치겠습니다. 이전에도" assets/ritual-open.js 1
+chk '일가 친척, 친지, 친구, 직장 동료분들께서는 촬영을' assets/ritual-open.js 1
+chk 'nar:"자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다.' assets/ritual-data.js 1
+chk "nar:\"자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여" order-preview.html 1

@@ -2262,7 +2262,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023z3"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023f"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023f"></script><script src="/assets/bgm-form.js?v=1023f"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023z4"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023f"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023f"></script><script src="/assets/bgm-form.js?v=1023f"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -2390,7 +2390,7 @@ var RINGWARM={
 };
 var TRIBUTE={
  nar:"신랑 신부는 천천히 부모님 앞으로 이동하겠습니다.",   /* [VOICE_2ND_ONE] 원천 ritual-data.js 의 사본 — 근거는 그쪽 주석 */
- end:"신랑 신부의 감사한 마음이 부모님께 잘 전달되었기를 바랍니다. 이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.",   // [ECHO_TRIBUTE_DECLARE 2026-09-21] 원천과 같게 · [R11_SRC_1018] 둘째 문장 = 자료 PP 19
+ end:"신랑 신부의 감사한 마음이 부모님께 잘 전달되었기를 바랍니다. 이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.",   // [ECHO_TRIBUTE_DECLARE 2026-09-21] 원천과 같게 · [R11_SRC_1018] 둘째 문장 = 자료 PP 19
  modes:{
   flower:{d:'꽃 헌정',how:'꽃을 전하고 포옹해요 · 키워 주신 다른 분께도 좋아요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹'},
   bow:{d:'큰절',how:'큰절을 올리고 일어나 포옹해요 · 깊은 목례로 바꿔도 돼요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로(큰절은 앉으신 채로 받으심) → 나레이션 흐르는 동안 → 두 분이 다가가 큰절(또는 깊은 목례) · 일어나 포옹'},
@@ -2410,7 +2410,7 @@ var TOAST={
  /* ★[TOAST_SCENE 2026-08-09] 원천 assets/ritual-data.js 의 TOAST 사본 — 글자까지 같아야 한다.
     한 덩어리 문안을 '가르치고 → 부르고 → 받는' 장면으로 다시 썼다(경위는 원천 주석에).
     ★둘 다는 문안이 둘이다(nar/nar2) — 나이프를 걷고 잔을 쥐여 드리는 사이가 옛 판엔 무음이었다. */
- toast:{d:'축배',nar:"신랑 신부 앞날에 영원한 사랑과 행복을 위하여 다 같이 축배를 드는 시간입니다. 신랑 신부가 선창하면 '위하여'라고 해 주세요.",cue:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'},   // [TOAST_COUPLE 2026-09-26]
+ toast:{d:'축배',nar:"자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다. 신랑 신부가 선창하면 '위하여'라고 해 주세요.",cue:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'},   // [TOAST_COUPLE 2026-09-26]
  cake:{d:'케이크 커팅',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡고 천천히 잘라 주세요.",cue:'두 분 케이크 앞으로 → 나이프 함께 잡기 → 카운트에 맞춰 커팅 → 하객 박수 → 정면 포즈 · 서로 보는 포즈',out:'cakeOut'},
  both:{d:'둘 다',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡고 천천히 잘라 주세요.",nar2:"마지막으로, 두 사람에게 잔이 가는 동안 다 같이 잔을 들어 주세요. 두 분이 위하여, 하시면 함께 위하여, 하고 답해 주세요.",cue:'편지 낭독 중 하객 잔 미리 채움 → 커팅 · 포즈 → 디렉터가 나이프 회수하고 두 분께 잔 전달',cue2:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'}
 };
@@ -3101,7 +3101,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1023z3';   // [ASSET_V] 위 주석
+  var ASSET_V='1023z4';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
