@@ -18,7 +18,7 @@ let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}
 function run(mut) {
   for (const k of Object.keys(require.cache)) if (k.startsWith(ROOT)) delete require.cache[k];
   const O = require(path.join(ROOT, 'assets/ritual-open.js'));
-  if (mut === 'text') { const L = O.NAR_EX.ring.lines['narr-ring-in']; L[0] = L[0].replace('다음은', '오늘 우리는 정말 행복한 날입니다. 다음은'); }
+  if (mut === 'text') { const L = O.NAR_EX.ring.lines['narr-ring-in']; L[0] = '오늘 우리는 정말 행복한 날입니다. ' + L[0]; }   // [REVIEW29_1023] 글 첫머리에 붙인다(169 가 «먼저 신랑님께서 …»로 바뀌어 «다음은»이 없다 · 바꿀 낱말에 기대지 않는다)
   if (mut === 'cue') O.narExCue = () => '';
   const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
   if (mut === 'files') C.FILES.splice(C.FILES.indexOf('narr-table-in-ex3'), 1);   // [R11_SRC_1018] 190(narr-table-in-ex2)은 쉬는 소리라 203 을 뺀다

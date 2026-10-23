@@ -446,14 +446,25 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 /* 완료 카드 접기 */
 .consult-card.cc-done{padding:0;text-align:left}
 /* [DRESS_CARD] 시착 준비 카드의 작은 사진 두 칸(Nº 01 · Nº 02) — 고른 칸 = 짙은 금빛 1px([SEL_ONE]) · 빈 칸 = 점선(고르기 화면 아래 막대와 같은 꼴) */
-.dr-ths{display:flex;justify-content:center;gap:14px;margin:14px 0 2px}
-.dr-th{display:flex;flex-direction:column;align-items:center;width:72px}
-.dr-th-pv{display:flex;align-items:center;justify-content:center;width:60px;height:80px;border-radius:6px;overflow:hidden;background:var(--bg2);box-shadow:0 0 0 1px var(--gold-deep)}
+/* ★[DRESS_CARD_PHOTOS 2026-10-23 코워크 디자인 라운드 1 · 1] 카드 드레스 칸 = 3:4 · 96px 안팎 · 사이 8px(카드 안 폭 304px 에 세 칸 · 좁은 폰은 줄어든다) · 칸을 누르면 그 드레스 자세히 ·
+   이름은 두 줄까지(종전 72px 한 줄 칸은 일곱 자 넘으면 잘렸다) · 0벌 세 칸(.dr-ths-see)은 아직 고른 것이 아니라 금빛 테가 없다 */
+.dr-ths{display:flex;justify-content:center;align-items:flex-start;gap:8px;margin:16px 0 4px}
+.dr-th{display:flex;flex-direction:column;align-items:center;flex:0 1 96px;min-width:0;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:center;-webkit-tap-highlight-color:transparent}
+button.dr-th{cursor:pointer}
+.dr-th:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
+.dr-th-pv{position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:3/4;border-radius:6px;overflow:hidden;background:var(--bg2);box-shadow:0 0 0 1px var(--gold-deep);transition:transform .12s ease}
+/* ★[DRESS_CARD_NUM 2026-10-23 코워크 디자인 라운드 2 · 6] 고른 사진에 Nº 01 · Nº 02 — 고르기 화면 목록 · 완료 화면과 같은 테두리 알약(칠 없음 · 흰 바탕 · 짙은 금빛 1px · lining-nums) */
+.dr-th-badge{position:absolute;top:6px;left:6px;padding:1px 8px;border-radius:999px;background:var(--card-white);color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold-deep);font-family:var(--serif);font-size:11px;letter-spacing:.04em;line-height:1.6;font-variant-numeric:lining-nums;pointer-events:none}
+/* ★[DRESS_PRESS 2026-10-23 코워크 디자인 라운드 2 · 5] 누르는 동안 반응 — 마이페이지 공통 눌림([MPD_G8] · .gal-it 사진 칸과 같은 값) */
+button.dr-th:active .dr-th-pv{transform:scale(.98)}
+/* ★[DRESS_CARD_WIDE 2026-10-23 코워크 디자인 라운드 2 · 3] PC 에서는 칸을 키운다 — 칸 폭 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px(1280 에서 안쪽 556px 에 96px 세 칸은 작았다) · 폰은 그대로 96px */
+@media (min-width:600px){ .dr-th{flex:0 1 140px} }
+.dr-ths-see .dr-th-pv{box-shadow:none}
 .dr-th-pv picture,.dr-th-pv img{display:block;width:100%;height:100%}
 .dr-th-pv picture img{object-fit:cover}
 .dr-th-pv .dr-th-line{object-fit:contain}
 .dr-th-empty{box-shadow:none;border:1px dashed var(--border);background:var(--bg);font-family:var(--serif);font-size:11px;letter-spacing:.04em;color:var(--light);font-variant-numeric:lining-nums}   /* [DRESS_NUM_LINING] Cormorant 기본 숫자는 «Nº o1»처럼 내려앉는다 */
-.dr-th-n{margin-top:6px;font-family:var(--serif-ko);font-size:11px;color:var(--sub);line-height:1.5;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dr-th-n{margin-top:6px;width:100%;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.5;word-break:keep-all;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
 .consult-card .dr-dues{display:table;max-width:100%;margin:10px auto 0}   /* [DRESS_DUE_DATE] 가운데 카드 안 점 줄 — 묶음이 글 폭만큼 가운데에 서고 줄 머리(점)는 왼쪽으로 맞춘다(둘이면 점이 한 세로줄) */
 .consult-card .dr-dues .mp-dotln.dr-due{margin:0}
 .consult-card .dr-dues .mp-dotln.dr-due + .mp-dotln.dr-due{margin-top:4px}
@@ -2687,15 +2698,26 @@ function openDressPicker(dr, opt){
   var old=$('mp_drViewer'); if(old&&old.parentNode) return;
   var ov=document.createElement('div'); ov.id='mp_drViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','드레스 미리 보기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  var fr=document.createElement('iframe'); fr.id='mp_drFrame'; fr.src='/dress.html?pick=1&embed=1&t='+Date.now(); fr.title='드레스 미리 보기';   // [DRESS_CARD_SEE] 카드 · 고르기 화면 머리와 같은 이름
+  var fr=document.createElement('iframe'); fr.id='mp_drFrame'; fr.src='/dress.html?pick=1&embed=1'+(opt.open?'&open='+encodeURIComponent(opt.open):'')+'&t='+Date.now(); fr.title='드레스 미리 보기';   // [DRESS_CARD_SEE] 카드 · 고르기 화면 머리와 같은 이름 · [DRESS_SEE_TAP] 카드 칸을 누르면 그 드레스 자세히로(&open=)
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(fr); document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock(); _layerInertOn(ov);
   var saved=false, closed=false, st={dirty:false, failed:false, busy:false}, asking=false, exitWait=false, failCode='';
   function post(m){ try{ fr.contentWindow.postMessage(m, location.origin); }catch(e){} }
-  function done(){ if(closed) return; closed=true; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); if(saved && !opt.demo) _mpRefresh(); }
-  function rearm(){ if(!closed && !bkAlive(_bkId)) _bkId=bkOpen(function(){ askExit(true); }); }   // 뒤로가기로 들어온 나가기를 취소했으면 그 층은 이미 쓰였다 — 다시 걸어 둔다([WIZ_EXIT_ONE] _wizRearm 과 같다)
+  function done(){ if(closed) return; closed=true; clearTimeout(backT); backT=0; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _layerInertOff(ov); _mpUnlock(); if(saved && !opt.demo) _mpRefresh(); }
+  function rearm(){ if(!closed && !bkAlive(_bkId)) _bkId=bkOpen(onBack); }   // 뒤로가기로 들어온 나가기를 취소했으면 그 층은 이미 쓰였다 — 다시 걸어 둔다([WIZ_EXIT_ONE] _wizRearm 과 같다)
+  /* ★[DRESS_BACK_STEP 2026-10-23 코워크 디자인 라운드 2 · 1] 휴대폰 뒤로가기(안드로이드 뒤로 · 아이폰 밀어서 뒤로) = 겹화면 안에서 한 걸음 먼저 —
+     자세히 → 목록 · 물음 n → n−1 → 목록. 물러설 곳이 없을 때(목록 · 완료 화면)만 종전대로 나가기 판단(저장하지 않은 변경이 있으면 판).
+     층은 popstate 로 이미 쓰였다 — 바로 다시 걸어(연달아 눌러도 마이페이지를 떠나지 않게) 겹화면에 묻는다(momentedit:dressBack → dressBackDone{stepped}).
+     겹화면이 답하지 않으면(아직 안 떴다 · 600ms) 나가기 판단으로. 다시 건 층은 살아 있으니 나가기 판단은 askExit(false) — 닫히면 done 이 그 층을 거둔다 */
+  var backT=0;
+  function onBack(){
+    if(closed) return;
+    _bkId=bkOpen(onBack);
+    clearTimeout(backT); backT=setTimeout(function(){ backT=0; askExit(false); }, 600);
+    post({type:'momentedit:dressBack'});
+  }
   /* ★★[DRESS_EXIT_ASK 2026-10-23 코워크 검토 4] 나가기 = 마이페이지 입력 화면과 같은 규칙 · 같은 판([WIZ_EXIT_ONE] _wizExit).
        종전엔 머리 «나가기»가 닫기 신호만 보내 두 벌 골라 놓고 나가면 말없이 사라졌다(스튜디오는 전날 준비를 못 한다).
        · 고른 것 · 남길 말이 저장본과 같으면 바로 닫는다 · 다르면 «저장하지 않은 변경이 있어요»(저장하고 나가기 · 그냥 나가기 · 닫으면 그대로)
@@ -2728,6 +2750,7 @@ function openDressPicker(dr, opt){
     if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:!(dr&&dr.open===false), ymd:(dr&&dr.ymd)||''}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // [DRESS_DUE_DATE] ymd = 상담일 — 완료 화면이 마감 날을 숫자로
     if(m.type==='momentedit:dressState'){ st.dirty=!!m.dirty; st.failed=!!m.failed; st.busy=!!m.busy; if(exitWait && !st.busy){ exitWait=false; askExit(false); } return; }   // [DRESS_EXIT_ASK]
     if(m.type==='momentedit:dressExit'){ askExit(false); return; }
+    if(m.type==='momentedit:dressBackDone'){ if(!backT) return; clearTimeout(backT); backT=0; if(!m.stepped) askExit(false); return; }   // [DRESS_BACK_STEP] 한 걸음 물러섰으면 그대로 · 아니면 나가기 판단
     if(m.type==='momentedit:dressClose'){ done(); return; }
     if(m.type!=='momentedit:dressSave' || !m.data) return;
     var x=m.data, toExit=!!m.exit, ack=function(ok, line, r){ if(!ok) failCode=_wizFailCode(r); post(Object.assign({type:ok?'momentedit:dressSaved':'momentedit:dressSaveFail', msg:line||''}, ok?{}:_relayErr(r))); };
@@ -2748,7 +2771,7 @@ function openDressPicker(dr, opt){
       }, function(){ ack(false, _errLine(e,'S',DRESS_SAVE_BASE), e); });
     });
   }
-  document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); var _bkId=bkOpen(function(){ askExit(true); });   // [DRESS_EXIT_ASK] 뒤로가기도 같은 규칙 — 저장 안 한 변경이 있으면 묻는다
+  document.addEventListener('keydown',onKey); window.addEventListener('message',onMsg); var _bkId=bkOpen(onBack);   // [DRESS_EXIT_ASK] 뒤로가기도 같은 규칙 — 저장 안 한 변경이 있으면 묻는다 · [DRESS_BACK_STEP] 먼저 겹화면 안에서 한 걸음
 }
 
 // '계약서 보기'(.js-view-contract) 클릭 위임 — 카드가 매 렌더마다 다시 그려져도 동작.
@@ -4865,6 +4888,10 @@ function renderConsult(c, product, d){
      같은 화면의 내 내역 환불 견적과도 다른 약속이 둘 생겼다. → 서명 뒤엔 셋(시간 변경·예약 취소·취소 패널)을 그리지 않고 한 줄로 안내한다.
      ★서명 전(서명 대기)은 종전 그대로다. ★서버(handleCancelReservation)는 아직 계약 상태를 보지 않는다 — 화면만 막았다(GAS 가드는 별도 작업). */
   var locked = isSnap && !!(d && d.contract && d.contract.signed);
+  /* ★[DRESS_CARD_ON 2026-10-23 코워크 디자인 라운드 1 · 8 · 9] 드레스 카드가 이 상담 카드 바로 아래 보일 때만 — 진행 흐름의 «드레스 시착은 상담 당일 함께 진행돼요.»를 빼고
+     (바로 아래 카드 · NEXT 와 같은 말이 세 번이었다) · 확정 카드 «방문 전 안내»에 «챙겨 오실 것» 한 줄(완료 화면에서 한 번 보고 다시 볼 곳이 없었다).
+     스위치 꺼짐 · 자체 준비 · 스냅이면 판정이 false — 종전 그대로(꺼짐 화면 차이 0) */
+  var dressOn = !isSnap && !!d && _dressCardOn(d);
   /* [CONSULT_DEPOSIT 2026-09-26 마이페이지 점검 pre-4 · 사장님 결정 ⑲] 예약금 한 줄 — 금액과 입금 확인 여부.
      상담 전 화면엔 예약금이 「예약금·일정 확인 후…」 한마디뿐이라, 이체했는지 헷갈리는 고객이 확인할 곳이 없었다.
      서버(buildConsultState)가 deposit:{amount, confirmed} 를 내려 줄 때만 그린다 — 옛 서버면 줄이 없다(금액을 숫자로 메우지 않는다 [MPD_G1]).
@@ -4908,7 +4935,7 @@ function renderConsult(c, product, d){
   var PLACE_SUB = '<span class="vg-sub">3호선 원당역에서 버스 <span style="white-space:nowrap">약 15분 · 전용 주차 가능</span> <span class="ln-bal">정확한 위치는 <span style="white-space:nowrap">'+L+' 전에</span> 안내드려요</span></span>';
   // MPD_D1 신청접수 시점 신뢰 블록 — 진행 흐름·장소가 승인완료 전엔 0이던 것(§7-1-①). 확정 카드 vg 카피 재사용 · 승인되면 기존 '방문 전 안내'가 대체
   var TRUST_MINI = '<div class="visit-guide vg-center"><div class="vg-title">진행 흐름</div>'   /* [VG_CENTER_RHYTHM] 버튼과의 28px 는 CSS 가 맡는다 — 인라인 14px 를 되살리지 말 것 */
-    + (isSnap?'':'<div class="vg-row"><span class="vg-k">상담 · 시착</span><span class="vg-v">드레스 시착은 상담 당일 함께 진행돼요.</span></div>')
+    + (isSnap||dressOn?'':'<div class="vg-row"><span class="vg-k">상담 · 시착</span><span class="vg-v">드레스 시착은 상담 당일 함께 진행돼요.</span></div>')   // [DRESS_CARD_ON] 드레스 카드가 보이면 뺀다(같은 말 세 번)
     /* [SNAP_TRUST_FLOW 2026-09-26 마이페이지 점검 snap-8] 스냅은 상담 없이 촬영일을 바로 잡는다 — 「상담 후 보내드리는」이 확정 카드의
        「촬영 전에 마이페이지로 계약서를 보내드려요」와 엇갈렸다. 계약금 입금은 넣지 않는다(스냅 계약서 제6조 ① 전자서명으로 성립). */
     + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v"><span class="ln-bal">'+(isSnap ? '정식 계약은 <b>촬영 전</b> 마이페이지로 보내드리는 <b style="white-space:nowrap">본 계약서 서명</b>으로 확정돼요.' : '정식 계약은 상담 후 보내드리는 <b style="white-space:nowrap">본 계약서 서명</b>으로 확정돼요.')+'</span></span></div>'   // [LN_BAL] 「…보내드리는 본 / 계약서」로 갈리던 것
@@ -4932,6 +4959,8 @@ function renderConsult(c, product, d){
          + DEP_LINE_OK   // [CONSULT_DEPOSIT] 확정 뒤엔 대개 «입금 확인됐어요» · 칸이 비면 금액만 [DEP_OK_AMOUNT]
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오'+PLACE_SUB+'</span></div>'   // [PLACE_NO_DOT]
+         /* [DRESS_CARD_ON] 챙겨 오실 것 — 낱말은 고르기 완료 화면 «준비해 오시면 좋아요»와 같다 · 두 덩어리는 줄을 나눈다(가운뎃점이 줄 머리에 서지 않게 [PLACE_NO_DOT]) */
+         + (dressOn ? '<div class="vg-row"><span class="vg-k">챙겨 오실 것</span><span class="vg-v"><span class="ln-bal">누드톤 심리스 속옷과 실리콘 브라</span><span class="ln-bal">예식 날 신을 굽 높이의 신발</span></span></div>' : '')
          + '</div>'
          + '<details class="cc-more"><summary>'+(isSnap?'촬영':'예식')+'까지 함께 챙길 것들</summary>'
          + '<div class="visit-guide" style="margin-top:8px">'
@@ -5020,48 +5049,72 @@ function _fitRefundV(f, lit){
    단추 격은 스냅 기획 카드와 같다 — 외곽(cc-btn-ghost) · 글 단추(cc-btn-ghost trk-act trk-act-min). 새 단추 모양을 만들지 않는다([BTN_TIER]).
    box · demo 는 ?preview_card=dress 가 쓴다(로그인 없이 상태를 차례로 보여 주는 길 · 저장 없음). */
 var DRESS_STAGES=['신청접수','상담확정'];   // [DRESS_APPLY_OPEN] 카드가 보이는 단계 — 서버(consultation-booking DRESS_PICK.stages)와 같은 목록(scripts/audit/dress-refs.mjs 가 대조)
+/* ★[DRESS_CARD_ON 2026-10-23 코워크 디자인 라운드 1 · 8 · 9] «드레스 카드가 보이나» 판정 한 곳 — 카드(renderDress)와 상담 카드(renderConsult · 진행 흐름 시착 줄 · 방문 전 안내 «챙겨 오실 것»)가 같이 쓴다.
+   스위치(DRESS_REFS.live) · 시그니처 · 단계 신청접수 ~ 상담확정 · 상담 예약이 있고 취소가 아님 · 의상이 «자체 준비»가 아님 · 서버가 consult.dress 칸을 준다 · 마감 뒤 고른 것이 없으면 카드도 없다 */
+function _dressIds(dr){
+  var R=window.DRESS_REFS, sv=dr&&dr.saved;
+  return ((sv&&Array.isArray(sv.picks))?sv.picks:[]).filter(function(id){ return !!(R&&R.dress(id)); }).slice(0, R?R.pick:2);
+}
+function _dressCardOn(d){
+  var R=window.DRESS_REFS, c=d&&d.consult, dr=c&&c.dress;
+  if(!R || !dr) return false;
+  if(!R.live || d.isException || d.product==='웨딩스냅' || DRESS_STAGES.indexOf(d.stage)<0) return false;   // [DRESS_APPLY_OPEN] 신청접수 ~ 상담확정
+  if(!c.status || c.status==='취소') return false;
+  if(/^\s*자체 준비/.test(String(dr.attire||''))) return false;
+  if(dr.open===false && !_dressIds(dr).length) return false;   // 마감 뒤 고른 게 없으면 숨김
+  return true;
+}
 function renderDress(d, boxArg, demo){
   var box=boxArg||$('mp_dress'); if(!box) return;
   var hide=function(){ box.style.display='none'; box.innerHTML=''; };
   var R=window.DRESS_REFS, c=d&&d.consult, dr=c&&c.dress;
   if(!R || !dr){ hide(); return; }
-  if(!demo){
-    if(!R.live || d.isException || d.product==='웨딩스냅' || DRESS_STAGES.indexOf(d.stage)<0){ hide(); return; }   // [DRESS_APPLY_OPEN] 신청접수 ~ 상담확정
-    if(!c.status || c.status==='취소'){ hide(); return; }
-    if(/^\s*자체 준비/.test(String(dr.attire||''))){ hide(); return; }
-  }
-  var sv=dr.saved, ids=((sv&&Array.isArray(sv.picks))?sv.picks:[]).filter(function(id){ return !!R.dress(id); }).slice(0, R.pick);
+  if(!demo && !_dressCardOn(d)){ hide(); return; }   // [DRESS_CARD_ON] 판정은 상담 카드와 같은 한 곳
+  var ids=_dressIds(dr);
   var closed=(dr.open===false);
   if(closed && !ids.length){ hide(); return; }
+  /* ★[DRESS_CARD_PHOTOS 2026-10-23 코워크 디자인 라운드 1 · 1] 카드에 드레스가 보이게 — 종전엔 제목 · 글 · 단추뿐이라 «드레스를 볼 수 있다»가 안내문처럼 스쳐 갔다.
+     0벌 = 원천 앞 세 벌(3:4 · 칸 96px 안팎 · 사이 8px · 좁은 폰은 줄어든다) · 1 · 2벌 · 마감 뒤 = 고른 드레스를 같은 크기로(이름은 두 줄까지 — 종전 72px 칸에서 일곱 자 넘으면 잘렸다).
+     칸을 누르면 고르기 화면이 그 드레스 «자세히»로 바로 열린다([DRESS_SEE_TAP] &open=) · 마감 뒤는 보기만([DRESS_SEE_CLOSED]) */
+  var pv=function(x){ return x.img ? '<picture><source type="image/webp" srcset="'+escapeHtml(R.img(x))+'"><img src="'+escapeHtml(R.img(x,'jpg'))+'" alt="" loading="lazy" decoding="async"></picture>'
+                                   : '<img class="dr-th-line" src="'+escapeHtml(R.svg(x))+'" alt="" width="150" height="200" decoding="async">'; };
   var th=function(i){
     var x=ids[i]?R.dress(ids[i]):null, n='Nº 0'+(i+1);
     if(!x) return '<span class="dr-th"><span class="dr-th-pv dr-th-empty" role="img" aria-label="'+n+' 비어 있어요">'+n+'</span><span class="dr-th-n">&nbsp;</span></span>';
-    var pv=x.img ? '<picture><source type="image/webp" srcset="'+escapeHtml(R.img(x))+'"><img src="'+escapeHtml(R.img(x,'jpg'))+'" alt="" loading="lazy" decoding="async"></picture>'
-                 : '<img class="dr-th-line" src="'+escapeHtml(R.svg(x))+'" alt="" width="150" height="200" decoding="async">';
-    return '<span class="dr-th"><span class="dr-th-pv" role="img" aria-label="'+escapeHtml(n+' '+x.name)+'">'+pv+'</span><span class="dr-th-n">'+escapeHtml(x.name)+'</span></span>';
+    return '<button type="button" class="dr-th" data-dress-see="'+escapeHtml(x.id)+'" aria-label="'+escapeHtml(n+' '+x.name+' 자세히 보기')+'"><span class="dr-th-pv">'+pv(x)+'<span class="dr-th-badge" aria-hidden="true">'+n+'</span></span><span class="dr-th-n">'+escapeHtml(x.name)+'</span></button>';   // [DRESS_CARD_NUM] 고른 사진에 Nº
   };
+  var see=function(x){ return '<button type="button" class="dr-th" data-dress-see="'+escapeHtml(x.id)+'" aria-label="'+escapeHtml(x.name+' 자세히 보기')+'"><span class="dr-th-pv">'+pv(x)+'</span></button>'; };
   /* ★[DRESS_CLOSED_KEEP 2026-10-23 코워크 검토 1] 마감 뒤에도 «준비해 둘게요»를 먼저 — 고른 것이 준비되는지 확인이 사라지면 안 된다(두 줄).
      ★[DRESS_DUE_DATE 2026-10-23 코워크 검토 1] 0 · 1 · 2벌에는 마감 날을 숫자로 점 한 줄([NOTE_DOT] · 상담일 −2일 · 요일은 계산). 상담일을 못 읽으면 줄을 두지 않는다.
      문장 끝 마침표는 카드 안에서 맞춘다(1 · 2벌 문장에도). */
   /* ★[DRESS_CARD_WORDS 2026-10-23 코워크 검토 4] 0 · 1 · 2벌 단추는 같은 자리 · 같은 모양(외곽 단추 한 벌) — 종전 2벌 «바꾸기»만 글 단추라 자리가 달랐다.
-     ★[DRESS_CARD_SEE 2026-10-23 코워크 설계 명세 2] 제목 «시착 준비» → «드레스 미리 보기»(할 일보다 «볼 수 있다»가 먼저 읽히게 · 작은 제목 Dress 그대로) ·
-     0벌 = «상담 날 입어 보실 드레스를 미리 둘러보세요.» / «두 벌을 골라 두시면 전날 준비해 둘게요.»(문장마다 한 줄 · 마감 뒤 두 줄과 같은 꼴) + 점 줄(마감 날 · 안 골라도 된다 [DRESS_NO_PICK_OK]) + «드레스 둘러보기» ·
+     ★[DRESS_CARD_SEE 2026-10-23 코워크 설계 명세 2] 제목 «시착 준비» → «드레스 미리 보기»(할 일보다 «볼 수 있다»가 먼저 읽히게 · 작은 제목 Dress 그대로) · 단추 «드레스 둘러보기».
+     ★[DRESS_CARD_ONE_LINE 2026-10-23 코워크 디자인 라운드 1 · 1] 0벌 글은 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.»(사진이 «둘러보세요»를 대신한다) + 날짜가 있으면 마감 점 줄.
+       ★[DRESS_NO_PICK_OK] «고르지 않으셔도 상담 날 함께 골라요.»는 카드에서 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번).
+       ★[DRESS_NO_PICK_CARD 2026-10-23 코워크 디자인 라운드 3 · 3] 다시 카드로 — «안 고르셔도 상담 날 함께 골라요.»는 카드 0벌 점 줄 둘째(마감 줄 아래 · 날짜가 없으면 이 한 줄만) ·
+         고르기 화면 띠 아래에서는 뺐다(카드가 «할 일»처럼 읽혀 고르지 않아도 된다는 말이 카드에 있어야 했다 · 스냅 카드 각주와 같은 길 · 같은 말 한 번).
      1벌 «한 벌 더 고르실 수 있어요.» · 2벌 «바꾸기» · 마감 뒤는 종전 그대로. 상담 날짜가 아직 없으면(due '') 0벌은 마감 줄을 빼고 · 1 · 2벌은 «상담 날짜가 정해지면 …»([DRESS_NO_DATE]) */
   var n=ids.length, subs, btn='', notes=[], due=(typeof R.untilText==='function')?R.untilText(dr.ymd):'';
-  var noDate='상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.';
+  var dueLine=(typeof R.dueLine==='function')?R.dueLine(dr.ymd):(due?('바꾸기는 '+due+'까지 할 수 있어요.'):'상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.');   // [DRESS_DUE_SAME] 고르기 완료 화면과 같은 말(R.dueLine 한 곳)
+  var cnt=R.list().length;   // [DRESS_CARD_COUNT] 몇 벌 중에서 고르는지
   var obtn=function(t){ return '<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">'+t+'</button>'; };
   if(closed){ subs=[(n===1?'상담 전날 이 드레스를 준비해 둘게요.':'상담 전날 이 두 벌을 준비해 둘게요.'), '상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요.']; }
-  else if(n===0){ subs=['상담 날 입어 보실 드레스를 미리 둘러보세요.', '두 벌을 골라 두시면 전날 준비해 둘게요.']; notes=[due?(due+'까지 고르실 수 있어요.'):'', '고르지 않으셔도 상담 날 함께 골라요.']; btn=obtn('드레스 둘러보기'); }
-  else if(n===1){ subs=['한 벌 더 고르실 수 있어요.']; notes=[due?('바꾸기는 '+due+'까지 할 수 있어요.'):noDate]; btn=obtn('이어서 고르기'); }
-  else { subs=['상담 전날 이 두 벌을 준비해 둘게요.']; notes=[due?('바꾸기는 '+due+'까지 할 수 있어요.'):noDate]; btn=obtn('바꾸기'); }
+  else if(n===0){ subs=['두 벌을 골라 두시면 상담 전날 준비해 둘게요.']; notes=[due?(due+'까지 고르실 수 있어요.'):'', '안 고르셔도 상담 날 함께 골라요.']; btn=obtn(cnt?('드레스 '+cnt+'벌 둘러보기'):'드레스 둘러보기'); }   // ★[DRESS_CARD_COUNT 2026-10-23 코워크 디자인 라운드 2 · 2] 단추에 벌 수(원천 R.list() 개수)
+  else if(n===1){ subs=['한 벌 더 고르실 수 있어요.']; notes=[dueLine]; btn=obtn('이어서 고르기'); }
+  else { subs=['상담 전날 이 두 벌을 준비해 둘게요.']; notes=[dueLine]; btn=obtn('바꾸기'); }
+  var row = n ? '<div class="dr-ths">'+th(0)+th(1)+'</div>'
+              : (R.list().length ? '<div class="dr-ths dr-ths-see">'+R.list().slice(0,3).map(see).join('')+'</div>' : '');
   box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Dress</div><div class="cc-title">드레스 미리 보기</div>'
-    + (n ? '<div class="dr-ths">'+th(0)+th(1)+'</div>' : '')
+    + row
     + subs.map(function(t,i){ return '<div class="cc-sub"'+(i?' style="margin-top:2px"':'')+'>'+escapeHtml(t)+'</div>'; }).join('')
     + (notes.filter(Boolean).length ? '<div class="dr-dues">'+notes.filter(Boolean).map(function(t){ return '<div class="mp-dotln dr-due">'+escapeHtml(t)+'</div>'; }).join('')+'</div>' : '')
     + btn+'</div>';
   box.style.display='block';
   var b=box.querySelector('[data-dress-open]');
   if(b) b.addEventListener('click', function(){ openDressPicker(dr, demo ? { demo:true } : null); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-dress-see]'), function(t){   // [DRESS_SEE_TAP] 칸 = 그 드레스 자세히로
+    t.addEventListener('click', function(){ openDressPicker(dr, { demo:!!demo, open:t.getAttribute('data-dress-see') }); });
+  });
 }
 function renderFitting(f, d){
   var box = $('mp_fitting');

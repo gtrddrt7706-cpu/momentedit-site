@@ -8082,7 +8082,7 @@ chk 'PV_RESCUE_1014' assets/ritual-story.js 1
 chk 'OPEN_BLOCK_1014 · OPEN_GAP_1014 · PV_RESCUE_1014' scripts/audit/open-course.mjs 2
 chk 'OPEN_SUM_1014' order-preview.html 1              # ④ 하객 맞이 요약도 «예식 시작»까지(두 분 목소리 판이면 «예식 시작은 나레이션»)
 chk 'MATJEOL_ONE_1014' assets/ritual-data.js 1        # 맞절 첫 문장 «이어서, 맞절이 있겠습니다.» — 1.25초 앞 받는 말(144)의 «두 사람이»를 되풀이하지 않는다
-chk 'entryBow:"다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «entryBow:"이어서, 맞절이 있겠습니다.…»
+chk 'entryBow:"이어서 신랑 신부의 맞절을 진행하도록 하겠습니다.' assets/ritual-data.js 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «entryBow:"이어서, 맞절이 있겠습니다.…»
 nochk '이어서, 두 사람의 맞절이' assets/ritual-data.js
 chk 'BRIDGE_NO_ECHO_1014' order-preview.html 1        # 미리 듣기 이음말은 여는 말이 말하지 않은 «누가 · 어떻게»만 — narr-words --engine 이 여는 말과 이어 W13 으로 잰다
 chk 'BRIDGE_NO_ECHO_1014' scripts/audit/narr-words.mjs 3
@@ -8147,8 +8147,8 @@ chk '두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.' ass
 chk "candleOutFormal: '두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 가정의 마음이 하나의 불꽃이 되었습니다.…» · 옛 주석 140(격식 날) · T1 «따뜻한» 뺌
 chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 되어' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «오늘의 주인공을, 앞으로 모시겠습니다.…» · 옛 주석 입장 B · G2 4 선창 4
 chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 되어' order-preview.html 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «오늘의 주인공을, 앞으로 모시겠습니다.…»
-chk '지금부터 서로의 눈을 지그시 바라봐 주세요.' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
-chk "s.text === '지금부터 서로의 눈을 지그시 바라봐 주세요.'" scripts/build-typecast-import.mjs 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «s.text === '두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 뒤 3초 쉼 열쇠 — 글과 함께 바뀌어야 한다(옛 열쇠면 쉼이 조용히 사라진다)
+chk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.' assets/ritual-data.js 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
+chk "s.text === '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.'" scripts/build-typecast-import.mjs 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «s.text === '두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 뒤 3초 쉼 열쇠 — 글과 함께 바뀌어야 한다(옛 열쇠면 쉼이 조용히 사라진다)
 chk ' thanksIn:"다음은 감사문 낭독이 있겠습니다. 천천히 하셔도 괜찮습니다."' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « thanksIn:"감사문 낭독이 있겠습니다.…» · 옛 주석 감사문 여는 말 · 서약과 같은 틀
 chk ' song:"오늘 같은 날 이 순서는 정말 빠질 수 없는 순서죠? 우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다."' assets/ritual-data.js 1   # ★[SONG_DEF_NN_1023 검토 151-1 2)] 자료 NN 원문(옛 예시 3) · 옛 핀 « song:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다."» · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « song:"축가가 있겠습니다.…» · 옛 주석 축가 여는 말 · 덕담 맺는 말 «…들었습니다» 뒤 «들어 보시겠습니다» 되풀이도 풂
 chk '남은 하루 행복하게 보내세요.' assets/ritual-cue.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «남은 하루도, 행복하게 보내시기 바랍니다.…» · 옛 주석 마지막 인사 47 · DD ⑦
@@ -9776,7 +9776,7 @@ fi
 chk 'CINE_SCOPE' order-preview.html 6
 chk 'CINE_SCOPE' scripts/audit/cine-scope.mjs 2
 chk 'CINE_SCOPE' .claude/skills/momentedit-design/SKILL.md 1
-chk 'var _VFY={entry:15,close:45};' order-preview.html 1
+chk 'var _VFY={entry:15,close:45,welcome:12};' order-preview.html 1
 nochk '.pv-media{position:relative;aspect-ratio:16/9' order-preview.html
 nochk '.mk-vu-img{aspect-ratio:16/9' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/cine-scope.mjs >/dev/null 2>&1; _cs=$?
@@ -10761,7 +10761,7 @@ chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
 #   09·82·11·22·24 에서 「오늘」이 다섯 연속이었다. 앞 근거는 «기본 코스만» 재고 쓴 값이었다.
 #   ★「이 자리」도 빼는 이유: 기본 코스에서 바로 앞 52 가 「같은 자리에」, 가족코스에서 24 가 「이 자리에」다.
 #     입장 직후라 아직 아무도 말하지 않은 때여서 「첫마디」가 꾸밈 없이 스스로 선다.
-chk '이어서 하객 여러분께 감사의 인사가 있겠습니다.' assets/ritual-data.js 2   # [NEXT_THREE_1019 검토 134] «다음은» → «이어서,»   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다.…» · 옛 주석 ★[NAR_B2_1014] 녹음된 «첫인사를»은 3단계 녹음이 바꾼다 → 글 먼저(녹음 대기 · THANKS_GREET_1013 이름과 같게)   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «'이어서, 신랑 신부의 감사 인사가 있겠습니다.'…») · 자료 T2
+chk '자리해 주신 하객들을 향한 신랑 신부의 감사 인사가 있겠습니다.' assets/ritual-data.js 2   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · [NEXT_THREE_1019 검토 134] «다음은» → «이어서,»   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «신랑 신부가 하객 여러분께, 감사 인사를 직접 드리겠습니다.…» · 옛 주석 ★[NAR_B2_1014] 녹음된 «첫인사를»은 3단계 녹음이 바꾼다 → 글 먼저(녹음 대기 · THANKS_GREET_1013 이름과 같게)   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «'이어서, 신랑 신부의 감사 인사가 있겠습니다.'…») · 자료 T2
 # ★11 은 오늘 하루에만 «이 자리 첫마디는» → «첫마디는» → 지금 문면으로 **두 번** 바뀌었다.
 #   표에 없던 것을 전수 대조가 잡았다. 잠금을 손으로 따라가면 이런 자리가 남는다.
 nochk '이 자리 첫마디는' assets/ritual-data.js
@@ -14552,7 +14552,7 @@ chk 'RIT_KO_SERIF_FIRST' order-preview.html 1       # 21 한글 문단은 Noto S
 nochk 'font-family:var(--serif)' order-preview.html 0
 chk 'RIT_WRAP' order-preview.html 5                 # 22 NBSP 묶음 · text-wrap:pretty
 chk 'RIT_TYPE5' order-preview.html 2                # 23 글자 크기 다섯 단계
-nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 0
+nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 1   # 예외 한 곳 [ENTRY_OPEN_1023] 그래프 open 글자 18/22 (사장님 확정 · .lgo-t)
 chk 'RIT_PILL_SANS' order-preview.html 1            # 24 알약 고딕 · 꺼진 «저장됨» 3:1 이상
 nochk '\.ob-save:disabled{opacity:\.5' order-preview.html 0
 chk 'RIT_NAME_TWO' order-preview.html 4             # 25 이름은 «식순»(마이페이지 행) · «우리 예식 짓기»(화면 안) 둘
@@ -14998,7 +14998,7 @@ nochk '반지로 마음을 전하겠습니다' order-preview.html
 nochk '두 사람 손에 같은 것이 하나씩 생겼습니다' order-preview.html
 nochk '두 사람 손에 같은 것이 하나씩 생겼습니다' assets/ritual-data.js
 nochk '이어서, 두 사람의 앞날을 축복하는 부모님의 덕담을 듣겠습니다' assets/ritual-open.js
-chk 'nar:"다음은 혼인 서약 순서입니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 천천히 하셔도 괜찮습니다. 신랑 혼인서약 낭독.' assets/ritual-data.js 1   # [R11_SRC_1018] 서약 여는 말 첫 문장 = T2 · 꼬리는 그대로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «nar:"다음은 혼인 서약 순서입니다. 두 분, 한 걸음씩 다가서 주세요…»)
+chk 'nar:"다음은 혼인 서약의 순서가 있겠습니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 두 사람의 사랑의 서약 함께 듣도록 하겠습니다. 신랑 혼인서약 낭독.' assets/ritual-data.js 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · [R11_SRC_1018] 서약 여는 말 첫 문장 = T2 · 꼬리는 그대로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «nar:"다음은 혼인 서약 순서입니다. 두 분, 한 걸음씩 다가서 주세요…»)
 nochk '다음은 혼인 서약이 있겠습니다.' assets/ritual-data.js
 nochk '다음은 혼인 서약이 있겠습니다.' order-preview.html
 if command -v node >/dev/null 2>&1; then
@@ -16982,7 +16982,7 @@ chk 'CUE_LAST' console.html 1
 chk 'TXALT_OFF' order-preview.html 1
 nochk '미리 적기 어려우면 «' order-preview.html
 chk "'narr-vow-in-b'" assets/ritual-cue.js 2
-chk 'narB:"다음은 혼인 서약 순서입니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 천천히 하셔도 괜찮습니다. 신부 혼인서약 낭독."' assets/ritual-data.js 1   # ★[R11_SRC_1018 라운드 11] 첫 문장 = 자료 T2(옛 «… 서약이 있겠습니다» G1 29)   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «narB:"혼인 서약이 있겠습니다. 두 분, 한 걸음씩 다가서…»   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «narB:"다음은 혼인 서약 순서입니다. 두 분, 한 걸음씩 다가서 주세…»)
+chk 'narB:"다음은 혼인 서약의 순서가 있겠습니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 두 사람의 사랑의 서약 함께 듣도록 하겠습니다. 신부 혼인서약 낭독."' assets/ritual-data.js 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[R11_SRC_1018 라운드 11] 첫 문장 = 자료 T2(옛 «… 서약이 있겠습니다» G1 29)   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «narB:"혼인 서약이 있겠습니다. 두 분, 한 걸음씩 다가서…»   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «narB:"다음은 혼인 서약 순서입니다. 두 분, 한 걸음씩 다가서 주세…»)
 chk "vowFirst: \['g', 'b'\]" scripts/check-text-audio.mjs 1   # [VOW_FIRST] 신부부터 판도 글 ↔ 소리 대조에 넣는다
 chk "'G3-3b', '혼인 서약 시작 · 신부부터', 'narr-vow-in-b'" scripts/build-dubbing-script.mjs 1
 chk "'vowFirst'" assets/ritual-preview-link.js 1
@@ -18886,7 +18886,7 @@ chk "'<div class=\"mk-sech mk-sech-r em-play\">'+pillHtml(st,PL)+bigBtnHtml(st)+
 chk 'function openBig' assets/entry-music.js 1
 chk 'function closeBig' assets/entry-music.js 1
 chk 'if(BIG) paintCap(x);' assets/entry-music.js 1                   # 자막 · 단계 막대가 소리를 따라간다
-chk '#emFull .lg-scene{display:none}' order-preview.html 1           # 크게 보기는 자막이 장면을 말한다(장면 줄 숨김)
+nochk '.lg-scene{' order-preview.html                                   # [ENTRY_OPEN_1023] 장면 줄은 걷었다(크게 보기도 · 종전 #emFull 숨김 줄째로)
 # ── 2026-10-13 [VK_ROW_MID] 크게 보기 머리 줄의 표 둘(«나레이션» + «입장 음악 · 곡») · 표 + 덧말을 한 줄 가운데로 — 아이콘 든 표가 3~4px 떠 있었다 · entry-music 점검 20 이 잰다(1px 안)
 chk '.lf-vk .vk,.lf-vk .vk-note{vertical-align:middle}' order-preview.html 1
 chk 'VK_ROW_MID' scripts/audit/entry-music.mjs 2
@@ -19184,10 +19184,24 @@ chk "(sp.tm?'':'<br><span class=\"pk-pad\" aria-hidden=\"true\">'+NBS+'</span>')
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-steady.mjs >/dev/null 2>&1; _fls=$?; if [ "$_fls" = 1 ]; then echo 'FAIL flow-steady: 예시를 바꾸면 «감동 흐름» 판 높이 · «다음» 단추 자리가 흔들립니다 — node scripts/audit/flow-steady.mjs'; fail=1; elif [ "$_fls" = 0 ]; then echo 'ok flow-steady: 감동 흐름 판 높이 그대로'; else echo 'skip flow-steady: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 [SCENE_WORDS_1023] 사장님 «본식 5분 전부터 문 앞에서 기다려요 · 문이 열리고 걸어 들어와요 · 도착 — 이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»
 #   입장 «음악과 함께» 그래프 아래 장면 줄 = 낱말 셋 «대기 · 입장 · 도착» 한 줄 11px · 입장 = 문 열림 시점 · 겹치면 입장이 이긴다(placeWords) · ★두 줄 장면 문장 되살리지 말 것
-chk 'SCENE_WORDS_1023' assets/entry-music.js 4
-chk 'SCENE_WORDS_1023' order-preview.html 1
-chk 'SCENE_WORDS_1023' scripts/audit/scene-words.mjs 3
-chk '<span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span>' assets/entry-music.js 1
+chk 'SCENE_WORDS_1023' assets/entry-music.js 1                                        # 장면 줄 기록(아래 ENTRY_OPEN_1023 이 걷었다)
+nochk 'lgs-greet' assets/entry-music.js                                                 # ★[ENTRY_OPEN_1023] 장면 줄 «대기 · 입장 · 도착» — 2026-10-23 사용자 지시로 삭제(«밑에 글씨들은 전부 삭제»)
+nochk 'function placeWords' assets/entry-music.js
+# ── 2026-10-23 [ENTRY_OPEN_1023] 사장님 «문 열림을 그래프에 세로선으로» · «소문자로 느낌 있게» · «선 옆 번짐 효과 삭제» · «밑에 글씨들은 전부 삭제» · Welcome «뒤로 2초»(17:38 «추천대로»)
+#   그래프 안 «open» 세로선(1px #8A724C 0.85 · 위 2px ~ 목소리 줄) + 글자 «open»(Cormorant Garamond 기울임 500 18/22 #6B5639) · 자리 = th + (곡 open − H) · 없으면 th ·
+#   Welcome(r6) 목록 값 덮기(REC_FIX · 서버 지문 고정이라) 52.18 → 50.18 · hooks [50.18, 112.0] · open [54.96, 116.77] · ★장면 줄 · 대문자 OPEN · 선 옆 번짐 되살리지 말 것
+chk 'ENTRY_OPEN_1023' assets/entry-music.js 5
+chk 'ENTRY_OPEN_1023' order-preview.html 2
+chk 'ENTRY_OPEN_1023' scripts/audit/scene-words.mjs 5
+chk 'ENTRY_OPEN_1023' scripts/audit/entry-music.mjs 2
+chk 'ENTRY_OPEN_1023' scripts/audit/rec-song-ui.mjs 3
+chk "var REC_FIX={ r6:{ hook:50.18, hook0:50.18, hooks:\[50.18,112.0\], open:\[54.96,116.77\] } };" assets/entry-music.js 1
+chk 'function openAt(PL,m0)' assets/entry-music.js 1
+chk 'function openMark(g,PL)' assets/entry-music.js 1
+chk '<span class="lg-open" aria-hidden="true" hidden><i class="lgo-l"></i><em class="lgo-t">open</em></span>' assets/entry-music.js 1
+chk ".em-graph .lg-open .lgo-l{position:absolute;top:0;bottom:0;left:0;width:1px;background:#8A724C;opacity:.85}" order-preview.html 1
+chk "font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:18px;line-height:22px;letter-spacing:0;color:#6B5639" order-preview.html 1
+nochk '>OPEN<' assets/entry-music.js                                                       # ★대문자 OPEN(«식당 같다»)
 nochk 'var SCENE_WAIT=' assets/entry-music.js                                         # ★옛 장면 문장(«본식 5분 전부터 문 앞에서 기다려요» · 줄어드는 말 목록) — 2026-10-23 사용자 지시로 삭제
 nochk 'function fitWalk' assets/entry-music.js                                          # 옛 두 줄 맞추기
 # ── 2026-10-23 [PLAY_MID_1023] 사장님 «이거 다시 취소 · 가운데 쪽으로 다시 하고 이어 듣기 · 멈춤 이걸로 바꾸자» — 듣기 알약은 동그라미 + 글 가운데 · 트는 동안 «멈춤» · «멈춤 ↔ 이어 듣기» 글 칸 폭 고정(em-lab-tg)
@@ -19200,7 +19214,7 @@ nochk '>svg:first-child{position:absolute;left:10px' order-preview.html         
 nochk "on?'멈추기'" order-preview.html                                                     # 보이는 글은 «멈춤»(aria-label 의 « 멈추기»는 그대로)
 nochk "on?'멈추기':ps?'이어 듣기'" assets/entry-music.js                                  # 장면 알약 보이는 글(크게 보기 aria-label 은 그대로)
 nochk "pl?'멈추기'" order-preview.html
-if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: 장면 줄 낱말 셋 자리 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: open 세로선 · Welcome 숫자 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 [TAP_NO_RING] 사장님 «엑스표 주변 색 들어가 있는 거 개선» — 창이 열릴 때 스크립트 초점(× · 돌아가는 칸 · 첫 단추)에 아이폰이 금색 고리를 그렸다 → 손가락 · 마우스면 html.tap-mode 로 고리 없음 · 키보드로 옮겨 다니면 고리
 chk 'TAP_NO_RING' order-preview.html 2
 chk 'TAP_NO_RING' scripts/audit/tap-no-ring.mjs 1
@@ -19662,7 +19676,7 @@ chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호
 # ★[DRESS_DETAIL_FIT · 코워크 검토 2 · 10/23] 자세히 첫 화면에서 고르기 단추가 아래 막대에 가리지 않는다 — 단추는 이름 · 한 줄 바로 아래 · 사진 넘김은 사진 위 · 짧은 화면 사진 칸 상한
 #   숫자(390×844 · 390×740 · 1280×900 × 고르기 · 고른 줄 · 다 찼어요)는 dress-fit.mjs 가 브라우저로 잰다 — PR 잡(브라우저 없음)에서는 «재지 못했다»로 넘어가고 야간 · 로컬에서 실제로 잰다
 chk 'DRESS_DETAIL_FIT' dress.html 6
-chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
+chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 3
 nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
 # ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 25가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
 chk 'DRESS_LIVE_READY' assets/dress-refs.js 1                             # 켤 때 할 일 ㄹ — 실물 4벌 이상 · 모두 사진 · ex 는 사진 있는 장만(dress-refs.mjs ④ 가 막는다)
@@ -19671,17 +19685,18 @@ chk 'DRESS_SLIDES' dress.html 2
 chk 'DRESS_EXIT_ASK' dress.html 4                                         # 머리 «저장 · 나가기» · 바뀐 게 있나 알림 · 나가기를 부모에게 묻는다
 chk 'DRESS_EXIT_ASK' mypage.html 3                                        # 판 = 마이페이지 입력 화면의 그 판 · 머리 나가기 · 뒤로가기 · Esc 가 한 곳(askExit)
 chk "mpConfirm({ title:st.failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요'," mypage.html 1
-chk "var _bkId=bkOpen(function(){ askExit(true); });" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다
+chk "var _bkId=bkOpen(onBack);" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다 · ★[DRESS_BACK_STEP 라운드 2] 먼저 겹화면 안에서 한 걸음(물러설 곳이 없을 때 askExit)
 chk "postMessage({ type: 'momentedit:dressExit' }, location.origin)" dress.html 1   # 머리 «나가기»는 부모에게 묻는다(바로 닫는 dressClose 는 판의 «그냥 나가기» · 저장이 닿은 뒤만)
 chk 'DRESS_CLEAR' automation/consultation/consultation-booking.gs 2     # 0벌 저장 = 비우기(다 뺀 뒤 «저장하고 나가기»가 거짓말을 하지 않게)
-chk 'DRESS_FIT_FEE' dress.html 1                                          # 고르기 막대 «안 입은 드레스는 시착비가 들지 않아요» — 근거 숫자는 홈 가격표 · 신청서 · 시착 동의서와 대조(dress-refs.mjs ⑪)
+chk 'DRESS_BAR_PLAIN' dress.html 3                                       # ★[코워크 디자인 라운드 1 · 2 · 3] 막대 = 흰 단색 + 위 1px 선(흐림 걷음) · 막대 위 시착비 줄은 막대 밖(띠 아래 점 줄 둘 [DRESS_BAND_DOTS]) — 금액 안내는 상담 카드 · 시착 동의서 몫
 nochk 'class="fit-p"' dress.html 0                                          # [DRESS_PUBLIC_OFF] 공개 시착 칸은 공개 화면과 함께 걷었다
-chk '<p class="pk-bar-note">안 입은 드레스는 시착비가 들지 않아요.</p>' dress.html 1
+nochk 'pk-bar-note' dress.html 0
+nochk 'linear-gradient' dress.html 0                                          # [DRESS_BAR_PLAIN] 흐림에 걸린 글이 취소선처럼 보였다 — 되살리지 말 것
 chk 'DRESS_NO_INTRO' dress.html 3                                         # 인트로 걷음 — 카드가 같은 말을 이미 했다 · 명세 2: 열면 드레스 목록부터([DRESS_LIST_FIRST])
 nochk 'function introHTML' dress.html 0
 nochk '몇 가지 답하고 보기' dress.html 0
 chk 'DRESS_SOLO_NOSAVE' dress.html 3                                      # 단독(?pick=1)은 저장이 없다 — «저장» · «남기기» 숨김 · 저장한 척 «저장됨» 없음(머리 아래 «저장되지 않아요» 한 줄과 어긋났다)
-chk 'html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}' dress.html 1   # 마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴(저장할 수 없으면 «저장» 알약을 두지 않는다)
+chk 'html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}' dress.html 1   # 단독 · 마감 뒤 보기만([DRESS_SEE_CLOSED])이면 머리 «저장»을 숨긴다(저장할 수 없으면 알약을 두지 않는다)
 nochk '저장하지 않는다(모양만 같게)' dress.html 0
 chk 'DRESS_SOLO_NOSAVE' scripts/audit/dress-fit.mjs 2
 chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(목록 띠 아래 · 카드 0벌 · 물음 화면에는 없다)
@@ -19689,7 +19704,7 @@ chk 'DRESS_NO_PICK_OK' mypage.html 1
 chk 'DRESS_SKIP_Q' dress.html 3                                           # 물음마다 «질문 없이 바로 보기»
 chk 'DRESS_PICK_TIER' dress.html 4                                        # 진한 단추가 한 화면에 둘 서지 않게 · 막대 0벌 «드레스를 골라 주세요»(한 줄)
 nochk '두 벌을 골라 주세요' dress.html 0
-chk 'DRESS_MEMO_DONE' dress.html 4                                        # 남길 말은 완료 화면(+ «남기기») · 그림 140 · Nº 표시
+chk 'DRESS_MEMO_DONE' dress.html 3                                        # 남길 말은 완료 화면 · 그림 140 · Nº 표시 — 작은 «남기기» 알약은 라운드 1 에서 걷었다([DRESS_MEMO_ONEBTN])
 nochk 'sec-wide' dress.html 0
 # [DRESS_PHOTO_FIRST] [DRESS_ONE_WIDTH] [DRESS_CLOSE_IN] [DRESS_NEXT_ONE] 은 공개 화면 몫 — 명세 2(사장님 «마이페이지만»)로 공개 화면과 함께 걷었다(아래 [DRESS_PUBLIC_OFF])
 chk 'DRESS_LINE_ONE' assets/dress-refs.js 1                               # 라인 설명 한 문장 · 함께 볼 점은 슬립 · 컬럼 둘
@@ -19741,6 +19756,90 @@ chk "stages: \['신청접수', '상담확정'\]" automation/consultation/consult
 chk 'DRESS_NO_DATE' automation/consultation/consultation-booking.gs 3     # 날짜가 정해진 때만 마감(신청접수 · 변경제안 = 열림)
 chk 'DRESS_CONFIRM_ZERO' automation/consultation/consultation-booking.gs 2   # 확정 메일 드레스 줄은 아직 안 고른 분에게만
 chk 'DRESS_SIGNUP_MAIL' automation/platform/40_signup.gs 2               # 고객이 받는 접수 메일(sendSignupEmail_)에 한 줄 + 마이페이지 링크
+# ── ★★[코워크 디자인 라운드 1 · 2026-10-23 사장님 «디자이너 시선으로 개선점 찾아봐 · 라운드별로 · 고객 입장에서»] 드레스 미리 보기 ──
+#   ①카드에 드레스 칸(0벌 = 원천 앞 세 벌 · 1 · 2벌 · 마감 뒤 = 고른 드레스 · 96px 안팎 · 3:4 · 이름 두 줄) · 칸 = 그 드레스 자세히 · 마감 뒤는 보기만
+#   ②③막대 흰 단색 + 위 1px 선 · 시착비 줄은 띠 아래 점 줄 둘로 ④띠 글(«어울리는» 걷음) · 소제목 걷기 ⑤한 그리드 · «답과 맞아요» ⑥«아직 몰라요» 걷기 · «노출 · 소매»
+#   ⑦완료 화면 «남기기» 알약 걷고 단추 하나(«남기고 돌아가기») ⑧⑨상담 카드 — 드레스 카드가 보일 때만 진행 흐름 시착 줄 빼기 · 방문 전 안내 «챙겨 오실 것»
+#   모양 · 깨 보기는 scripts/audit/dress-refs.mjs ⑬ · 흐름은 dress-fit.mjs(브라우저)
+chk 'DRESS_CARD_PHOTOS' mypage.html 2                                      # 카드 칸 = 96px 안팎 · 3:4 · 사이 8px · 이름 두 줄 · 누르면 그 드레스 자세히
+chk 'R.list().slice(0,3).map(see)' mypage.html 1                           # 0벌 = 원천 앞 세 벌
+chk 'DRESS_CARD_ONE_LINE' mypage.html 1                                    # 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄
+nochk "'고르지 않으셔도 상담 날 함께 골라요.'" mypage.html 0                     # 카드에서는 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번)
+chk 'DRESS_SEE_TAP' mypage.html 2                                          # 카드 칸 → openDressPicker(… open:id) → dress.html &open=
+chk 'DRESS_SEE_TAP' dress.html 3
+chk 'DRESS_SEE_CLOSED' dress.html 4                                        # 마감 뒤 칸을 눌러 들어오면 보기만(막대 · 고르기 · 빼기 · 머리 저장 · 점 줄 없음)
+chk 'DRESS_CARD_ON' mypage.html 4                                          # 카드 판정 한 곳(_dressCardOn) — 카드 · 상담 카드 두 자리가 같이 쓴다
+chk "var dressOn = !isSnap && !!d && _dressCardOn(d);" mypage.html 1
+chk "(isSnap||dressOn?'':'<div class=\"vg-row\"><span class=\"vg-k\">상담 · 시착</span>" mypage.html 1   # 진행 흐름 시착 줄은 드레스 카드가 보일 때만 뺀다(꺼짐 · 자체 준비 · 스냅은 그대로)
+chk '<span class="vg-k">챙겨 오실 것</span>' mypage.html 1                    # 확정 카드 방문 전 안내 — 드레스 카드가 보일 때만
+chk 'DRESS_BAND_DOTS' dress.html 3                                         # 띠 바로 아래 점 줄 둘(«골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.» · «안 고르셔도 상담 날 함께 골라요.»)
+chk 'DRESS_BAND_WORDS' dress.html 1                                        # 띠 글 «원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요»
+nochk '어울리는 드레스를 앞에' dress.html 0                                        # «어울리는»은 몸을 평가하는 말로 읽혔다
+chk 'DRESS_ONE_GRID' dress.html 3                                          # 소제목 «드레스» · 두 덩어리 · 구분선 걷기 — 한 그리드에 맞는 칸 앞 · «답과 맞아요»
+chk 'DRESS_ONE_GRID' assets/dress-refs.js 1
+nochk '답에 맞는 드레스</h2>' dress.html 0
+nochk 'class="pk-gh"' dress.html 0
+chk 'DRESS_Q_TRIM' assets/dress-refs.js 2                                  # «아직 몰라요» 걷기 · 셋째 걸음 «노출 · 소매»(옛 저장본 unsure 는 서버 · cleanAns 가 그대로 받는다)
+nochk "'unsure', '아직 몰라요'" assets/dress-refs.js 0
+nochk "step: '편한 쪽'" assets/dress-refs.js 0
+chk "step: '노출 · 소매'" assets/dress-refs.js 1
+chk 'DRESS_MEMO_ONEBTN' dress.html 3                                       # 완료 화면 단추 하나 — 글을 고치면 «남기고 돌아가기»(저장 + 돌아가기 · 실패 한 줄은 단추 아래)
+nochk 'id="pkLeave"' dress.html 0                                              # 작은 «남기기» 알약 되살리기 금지(나가기 판이 한 번 더 떴다)
+# ★[DRESS_BAR_FIT 라운드 1 · 2 «390 · 1280 목록 · 자세히에서 막대에 반쯤 걸린 글 0»] 첫 화면에서 막대 선이 글줄을 가르지 않게 — 사진 폭(자세히) · 그리드 위 여백(목록)을 몇 px 맞춘다.
+#   크기마다 줄 자리가 달라 CSS 한 값으로는 못 맞춘다(10/23 실측: 390×844 목록 · 375 · 360 · 414 폭 자세히). 여섯 크기 실측은 dress-fit.mjs · 깨 보기는 dress-refs --selftest
+chk 'DRESS_BAR_FIT' dress.html 6
+chk 'DRESS_BAR_FIT' scripts/audit/dress-fit.mjs 5
+chk 'DRESS_BAR_FIT' scripts/audit/dress-refs.mjs 13
+chk 'try { fitBar(); } catch (e) {}' dress.html 1                              # 그릴 때마다 첫 화면 맞춤(못 재면 CSS 기본값 그대로)
+chk 'const BAR_SIZES = \[\[360, 780\], \[375, 812\], \[390, 844\], \[390, 740\], \[414, 896\], \[1280, 900\]\];' scripts/audit/dress-fit.mjs 1   # 여섯 크기에서 잰다(한두 크기만 보면 놓친다)
+chk '.pk-picked{display:flex;align-items:center;gap:8px;min-height:calc(30px + 14px \* 1.3);' dress.html 1   # 고른 줄 = 고르기 단추 높이(위아래 15px + 14px × 1.3) — 고르기 · 빼기로 아래 글이 움직이지 않는다
+chk '100dvh - 402px' dress.html 1                                               # [DRESS_BAR_PLAIN] 막대가 28px 낮아진 만큼 사진을 키웠다(430 → 402)
+nochk '100dvh - 430px' dress.html 0
+chk 'DRESS_BAND_KEEP' dress.html 1                                         # 답한 띠 — 답 하나는 한 덩어리(«노출이 / 적은 드레스»처럼 꺾이지 않는다)
+# ── ★★[코워크 디자인 라운드 2 · 2026-10-23 사장님 «고객입장에서 디테일한 개선점들도 같이 고려해보고»] 드레스 미리 보기 디테일 ──
+# 실제 동작은 dress-fit.mjs(뒤로가기 · 이웃 넘기기 · 브라우저) · 모양 · 깨 보기는 dress-refs.mjs(⑭ · --selftest)
+chk 'DRESS_BACK_STEP' dress.html 4                                         # 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음(자세히 → 목록 · 물음 n → n−1 → 목록) · 목록으로 돌아가는 길 하나(backToList)
+chk 'DRESS_BACK_STEP' mypage.html 3                                        # 마이페이지 — 층을 바로 다시 걸고 겹화면에 묻는다(momentedit:dressBack) · 물러설 곳이 없을 때만 나가기 판단
+chk 'DRESS_BACK_STEP' scripts/audit/dress-fit.mjs 8                        # 뒤로가기 검사(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단 · 고른 뒤 → 판)
+chk 'DRESS_BACK_STEP' scripts/audit/dress-refs.mjs 6
+chk "if (S.view === 'q') { if (S.q > 0) go('q', { q: S.q - 1 }); else go('list'); return true; }" dress.html 1   # 물음은 한 걸음씩(바로 목록으로 건너뛰지 않는다)
+chk 'momentedit:dressBackDone' dress.html 1
+chk "if(m.type==='momentedit:dressBackDone')" mypage.html 1
+nochk 'bkOpen(function(){ askExit(true); })' mypage.html 0                   # 뒤로가기가 겹화면을 통째로 닫으려 하던 옛 동작 — 되살리지 말 것
+chk 'DRESS_NEXT_PREV' dress.html 3                                         # 자세히 맨 아래 «‹ 이전 드레스 · 다음 드레스 ›» — 목록 순서 · 끝에서는 그쪽 단추 없음 · 글 단추 44px
+chk 'DRESS_NEXT_PREV' scripts/audit/dress-fit.mjs 2
+chk '+ detailHTML(d, ctl) + nbHTML(d);' dress.html 1
+chk 'DRESS_PRESS' dress.html 1                                             # 누르는 동안 반응(드레스 칸 · Nº 칸 · 물음 칸) — 마이페이지 공통 눌림 [MPD_G8] 과 같은 값
+chk 'DRESS_PRESS' mypage.html 1                                            # 카드 칸 누름
+chk 'button.dr-th:active .dr-th-pv{transform:scale(.98)}' mypage.html 1
+chk 'DRESS_CARD_NUM' mypage.html 2                                         # 카드 고른 사진에 Nº 01 · Nº 02(테두리 알약 · 칠 없음 · lining-nums)
+chk 'dr-th-badge' mypage.html 2
+chk 'DRESS_CARD_WIDE' mypage.html 1                                        # PC 칸 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px · 폰은 96px 그대로
+chk '@media (min-width:600px){ .dr-th{flex:0 1 140px} }' mypage.html 1
+chk 'DRESS_FIT_BELOW' dress.html 1                                         # «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않게)
+chk 'DRESS_CARD_COUNT' mypage.html 2                                       # 카드 단추 «드레스 n벌 둘러보기»(R.list() 개수)
+chk 'DRESS_DUE_SAME' assets/dress-refs.js 1                                # 바꾸기 마감 한 줄 = 한 곳(R.dueLine) — 카드(1 · 2벌)와 고르기 완료 화면이 같은 말
+chk 'DRESS_DUE_SAME' dress.html 2
+chk 'DRESS_DUE_SAME' mypage.html 1
+chk 'R.dueLine = function (ymd) {' assets/dress-refs.js 1
+nochk '상담 이틀 전' dress.html 0                                             # 완료 화면이 카드와 다른 말(«상담 이틀 전»)을 쓰던 옛 줄 — 날짜가 없으면 «상담 날짜가 정해지면 …»
+# ── ★★[코워크 디자인 라운드 3 · 2026-10-23 사장님 «고객입장에서 디테일한 개선점들도» · 외부 검토를 걸러 합친 것] 드레스 미리 보기 ──
+# 동작은 dress-fit.mjs(작은 사진 → 자세히 · Nº 02와 바꾸기 · 답 바꾸기 뒤 두 벌) · 모양 · 깨 보기는 dress-refs.mjs(⑮ · --selftest)
+chk 'DRESS_SLOT_SEE' dress.html 3                                          # 막대 작은 사진 = 그 드레스 자세히(«Nº 01 이름 자세히 보기») — 누르면 빼기 · × 는 걷었다
+chk 'DRESS_SLOT_SEE' scripts/audit/dress-fit.mjs 2
+nochk 'data-act="unslot"' dress.html 0                                      # 작은 사진 «누르면 빼기» 되살리기 금지(다시 보려고 누른 고객이 말없이 잃었다)
+nochk 'pk-slot-x' dress.html 0
+chk 'DRESS_FULL_SWAP' dress.html 3                                         # 두 벌 찬 뒤 다른 드레스 = «두 벌을 다 골랐어요.» + «Nº 01과 바꾸기 · Nº 02와 바꾸기»(순서 번호 그대로)
+chk 'DRESS_FULL_SWAP' scripts/audit/dress-fit.mjs 5
+chk 'data-swap="1">Nº 02와 바꾸기</button>' dress.html 1
+nochk '다 찼어요. 하나를 빼고 골라 주세요' dress.html 0                       # 막다른 길(뺄 드레스로 가서 빼고 다시 오는 세 걸음) 되살리기 금지
+chk 'DRESS_NO_PICK_CARD' mypage.html 1                                     # «안 고르셔도 상담 날 함께 골라요.»는 카드 0벌 점 줄 둘째 — 고르기 화면 띠 아래에서는 뺐다(같은 말 한 번)
+chk 'DRESS_NO_PICK_CARD' dress.html 1
+chk "'까지 고르실 수 있어요.'):'', '안 고르셔도 상담 날 함께 골라요.'];" mypage.html 1   # 대괄호를 앞에 두지 않는다 — BRE 에서 [ 는 글자 묶음이라 로캘에 따라 0건이 된다(CI 실측)
+chk 'DRESS_SKIP_WORDS' dress.html 1                                        # 물음 글 단추 «드레스 바로 보기 ›»(둘째 · 셋째 물음은 이미 답한 것이 있다)
+nochk '질문 없이 바로 보기 <span' dress.html 0
+chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «둘 다 골라도 되고, 안 골라도 돼요.»
+chk "sub: '둘 다 골라도 되고, 안 골라도 돼요.'" assets/dress-refs.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
@@ -19787,3 +19886,12 @@ nochk "unote='아직 고르지 않았어요" order-preview.html   # [UNPICK_WORD
 chk 'try{ requestAnimationFrame(_refClipFit); }catch(e){}' order-preview.html 1
 chk 'UX1_1023' scripts/audit/ux1-1023.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/ux1-1023.mjs >/dev/null 2>&1; _ux1=$?; [ "$_ux1" = 1 ] && { echo 'FAIL ux1-1023: 안 고른 한 줄(화촉 · 편지) 또는 긴 참고 예시 접기가 어긋났습니다 — node scripts/audit/ux1-1023.mjs'; fail=1; }; :; fi
+# ★[REVIEW29_1023 검토 153] 본식 전반 자료 글(132 EE A-2 · 11 polarisians · 13 · 127 고은천 · 226 innpirit · 169 이용진 · 230 엄숙하게) · 덕담 박수 겹침 이음새(SEAM_BLESS_1023)
+chk 'REVIEW29_1023' scripts/audit/open-course.mjs 3
+chk 'SEAM_BLESS_1023' scripts/audit/open-course.mjs 2
+chk "var SEAM_KEYS=\['speech','song','bless'\];" order-preview.html 1
+chk 'entryBow:"이어서 신랑 신부의 맞절을 진행하도록 하겠습니다.' assets/ritual-data.js 1
+chk 'welcome:{nar:"자리해 주신 하객들을 향한 신랑 신부의 감사 인사가 있겠습니다."' assets/ritual-data.js 1
+chk 'vow:{nar:"다음은 혼인 서약의 순서가 있겠습니다.' assets/ritual-data.js 1
+chk "names: \['담백하게', '격식 있게', '엄숙하게', '뭉클하게'\]" assets/ritual-open.js 1
+chk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.'"' && !last) after = 3.0" scripts/build-typecast-import.mjs 1
