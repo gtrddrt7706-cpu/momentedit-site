@@ -40,6 +40,7 @@
        ★[BGM_CONSOLE2_1023 PRE_DUCK] leadMs — 음악을 내려야 하는 큐는 음성보다 0.4초 먼저 내린다(이어지는 큐는 사이 끝 0.4초 전에 · GO 로 여는 큐는 GO 순간 내리고 음성은 0.4초 뒤) */
     toastLevel: 0,         // [BGM_CONSOLE2_1023 TOAST_GO] 축배 «위하여!» 뒤 GO 로 오르는 크기(리허설 칸이 덮는다 · 시작값 0)
     toastUpMs: 600,        // 그 오름 시간
+    entry: { doorLeadSec: 3.0 },   // ★[BGM_CONSOLE2_1023 DOOR_LEAD] 문 여는 시간(리허설 시작값) — 콘솔 진행 막대에 «입장!» 발화 끝(하이라이트 · 출발) − 이만큼 자리에 «문 열기 시작» 표시만(새 GO · 소리 없음)
     duck: DUCK_ENV,
     fadeDownMs: DUCK_ENV.downMs,   // 더킹 페이드 다운 0.3~0.5초 — 콘솔이 이 이름으로 읽는다
     fadeUpMs: DUCK_ENV.upMs,       // 더킹 복귀 0.8~1.5초
