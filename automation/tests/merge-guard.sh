@@ -14787,6 +14787,7 @@ chk 'TOAST_MEDIUM_1023' order-preview.html 1   # 축배 칸 높이 10%(_VFY 주�
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
+chk 'HEAD_FOLLOWS_ACTION' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ④ 주인공 고개는 동작을 따라간다(위하여 = 하객 · 건배 = 서로 · 끝 = 하객)
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
