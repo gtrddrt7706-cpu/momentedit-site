@@ -36,7 +36,7 @@
     var s=v.s, g=B.get(St(),s.id), pr=g.set?g.m:(TOUCH[s.id]||'');
     return h+'<span class="cg-c">'+s.picks.map(function(p,i){ var on=pr===p;
         return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!pr&&i===0))?0:-1)+'" data-fk="bgm:'+s.id+':'+p+'" onclick="bgmAct(\'pick\',\''+s.id+'\',\''+p+'\')">'+chipT(B.label(s,p))+'</button>'; }).join('')
-      +'<span class="bgm-note">'+e(B.lineOf(s,g.m))+'</span></span></div>'; }
+      +'<span class="bgm-note">'+e(pr?B.lineOf(s,g.m):(B.lineOf(s,'unset')||B.lineOf(s,g.m)))+'</span></span></div>'; }   /* [BGM_R4_1023] 아직 안 눌렀으면 «고르지 않으시면 …»(기본을 말한다 · 칩은 안 눌린 모양 그대로) */
 
   /* ── ② 순간 쪽 «흐름» 음악 줄 [BGM_R1_1023] — 고를 것이 없는 안내 한 줄 · 채운 점 줄(li.q[data-bgm] · 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴) ·
      st = 빌더 엔진 줄(_lSteps) · at = «이 번호 줄 앞에»(0 맨 앞 · st.length 맨 뒤) · ▶ 가 없어 줄 수 · 듣기 차례에 끼지 않는다 ── */
@@ -61,20 +61,21 @@
 
   /* ── ④ 한눈에 보기 «음악» 묶음 — 두 줄 ──
      첫 줄 = 입장 곡(두 분이 고르거나 올렸으면 곡 이름 · 아니면 «고르지 않으시면 스튜디오가 준비해요» + «이동하기»(입장 쪽 · 미완료 셈에는 안 넣는다 [BGM_R1_1023])) ·
-     둘째 줄 = «음악과 함께»를 고른 칸만 이름을 붙이고 «나머지는 스튜디오가 준비해요» · 아무것도 안 바꿨으면 «나머지 음악은 스튜디오가 준비해요» */
+     그다음 담긴 축사 · 편지마다 «축사 · 음악 없이 / 음악과 함께» · 끝 줄 «그 밖의 음악은 스튜디오가 준비해요» [BGM_R4_1023] */
   function entryNow(){ var mu=St().mu||{}, t=String(mu.t||mu.name||'');
     if(mu.src==='up'||mu.src==='rec') return t?'‹'+t+'›':(mu.src==='up'?'두 분이 고른 곡':'추천 곡');
     return ''; }   /* 입장 곡을 안 골랐으면 당일 콘솔이 배경음으로 연다(console muPill «입장 음악 없음 · 배경음으로») */
-  function bedNames(){ var o=opt(), out=[];
+  /* ★[BGM_R4_1023] 담긴 축사 · 편지마다 지금 상태 한 줄(«축사 · 음악 없이» · «축사 · 음악과 함께») — 종전 «축사는 음악과 함께 · 나머지는 …»는 편지가 무음인지 스튜디오가 정하는지 말하지 않았다 */
+  function pickRows(){ var o=opt(), out=[];
     B.SLOTS.forEach(function(s){ if(s.picks.indexOf('bed')<0) return; var at=B.chooser(s,o); if(!at) return; var v=B.viewOf(at,o); if(!v||v.kind!=='pick') return;
-      if(B.get(St(),s.id).m==='bed') out.push(s.short); });
+      out.push({ id:s.id, t:s.short+' · '+B.label(s,B.get(St(),s.id).m) }); });
     return out; }
-  function sumHtml(){ var bn=bedNames();
-    var two=bn.length?bn.join(' · ')+'는 음악과 함께 · 나머지는 스튜디오가 준비해요':'나머지 음악은 스튜디오가 준비해요';
+  function sumHtml(){ var pk=pickRows();
     var en=entryNow(), one=en?'입장 곡 · '+en:'입장 곡 · 고르지 않으시면 스튜디오가 준비해요';
     return '<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-vlist">'
       +'<li class="mk-vr bgm-sl"><span class="mk-vt"><span class="mk-vn">'+e(one)+'</span></span>'+(en?'':'<button type="button" class="rowbtn mk-vb" data-fk="bgmgo:entry" onclick="mkGo(\'entry\')">이동하기</button>')+'</li>'
-      +'<li class="mk-vr bgm-rest"><span class="mk-vt"><span class="mk-vn">'+e(two)+'</span></span></li></ul></section>'; }   /* [BGM_R1_1023] 다른 묶음(부탁 · 보낼 것)과 같은 줄 꼴 · 이동하기는 안 골랐을 때만 */
+      +pk.map(function(r){ return '<li class="mk-vr bgm-pk" data-slot="'+r.id+'"><span class="mk-vt"><span class="mk-vn">'+e(r.t)+'</span></span></li>'; }).join('')
+      +'<li class="mk-vr bgm-rest"><span class="mk-vt"><span class="mk-vn">그 밖의 음악은 스튜디오가 준비해요</span></span></li></ul></section>'; }   /* [BGM_R1_1023] 다른 묶음(부탁 · 보낼 것)과 같은 줄 꼴 · 이동하기는 안 골랐을 때만 · [BGM_R4_1023] 축사 · 편지 줄은 버튼 없음 · 둘 다 없는 날은 끝 줄만 */   /* [BGM_R1_1023] 다른 묶음(부탁 · 보낼 것)과 같은 줄 꼴 · 이동하기는 안 골랐을 때만 */
 
   window.bgmAct=act;
   window.BgmForm={ rowHtml:rowHtml, flowRow:flowRow, sumHtml:sumHtml, _t:{ touch:TOUCH } };   /* _t = 점검용 */
