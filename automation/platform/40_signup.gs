@@ -154,17 +154,17 @@ function sendSignupEmail_(to, names, code, token, product, detail) { /* [B19_LOC
   // 개인코드 카드 (마스터키 — 크게, 복사하기 쉽게)
   var codeCard =
     '<div style="background:#F7F5F1;padding:22px 20px;border:1px solid #E6E1D8;border-radius:8px;margin:22px 0;text-align:center">' +
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:10px">Your Personal Code</div>' +
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#7A5F37;text-transform:uppercase;margin-bottom:10px">Your Personal Code</div>' +
       '<div style="font-family:\'Roboto Mono\',monospace,\'Noto Serif KR\',serif;font-size:30px;font-weight:600;letter-spacing:.18em;color:#3A2D22">' + esc(code) + '</div>' +
       '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;color:#A39C8E;margin-top:8px">로그인·조회에 쓰는 나만의 코드입니다</div>' +
     '</div>';
 
   var inner =
-    centerP(esc(names) + ' 님,<br>' + (isSnap ? '웨딩스냅' : '방문 상담') + ' 신청이 <span style="color:#B89A75;font-weight:500">접수</span>되었습니다.') +
+    centerP(esc(names) + ' 님,<br>' + (isSnap ? '웨딩스냅' : '방문 상담') + ' 신청이 <span style="color:#7A5F37;font-weight:500">접수</span>되었습니다.') +
     summaryBlock +
     codeCard +
     '<div style="margin:16px auto 0;max-width:300px;padding:10px 0;border-top:1px solid rgba(184,154,117,0.4);border-bottom:1px solid rgba(184,154,117,0.4);text-align:center;font-family:\'Noto Serif KR\',serif;font-size:12px;font-weight:400;color:#8A7A5E;letter-spacing:0.02em">아직 예약이 확정된 것은 아닙니다</div>' +
-    centerP('아래 버튼으로 <b style="color:#B89A75;font-weight:600">마이페이지</b>에 들어가<br>진행 상황을 확인하실 수 있습니다.') +
+    centerP('아래 버튼으로 <b style="color:#7A5F37;font-weight:600">마이페이지</b>에 들어가<br>진행 상황을 확인하실 수 있습니다.') +
     emailBtn(mypage, 'My Page') +
     smallP('이 링크는 자동으로 로그인됩니다.<br>다른 기기에서는 개인코드와 비밀번호로 로그인해 주세요.') +
     // 버튼이 안 열릴 때 대비 — 주소 직접 노출
@@ -181,12 +181,14 @@ function sendSignupEmail_(to, names, code, token, product, detail) { /* [B19_LOC
     // ★PARENTS_MINIMAL(2026-07-25 사용자 지시 "군더더기없이"): 본문 2문장→1문장 중앙 정렬, 하단 코칭 각주 3문장(운 떼기·재촉 금지·동반 상담) 삭제 — 복원 금지. 상세 설명은 parents.html 본문이 담당.
     (isSnap ? '' :
       '<div style="margin:26px auto 0;max-width:440px;padding:22px 22px 24px;background:#F7F5F1;border:1px solid #E6E1D8;border-radius:8px;text-align:center">' +
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:8px">For Parents</div>' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#7A5F37;text-transform:uppercase;margin-bottom:8px">For Parents</div>' +
         '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;color:#3A2D22;margin-bottom:8px">어른께 드리는 안내</div>' +
         '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#6E6557;line-height:1.85;word-break:keep-all">부모님께 그대로 보여드릴 수 있도록<br>예식의 의미와 격식을<br>어른의 눈높이로 담았습니다.</div>' +
         '<div style="margin-top:16px"><a href="https://momentedit.kr/parents.html" style="display:inline-block;padding:10px 26px;background:#3A2D22;color:#F5F1E9;font-family:\'Noto Serif KR\',serif;font-size:12px;letter-spacing:0.08em;text-decoration:none;border-radius:3px">안내문 열어보기</a></div>' +
       '</div>') +
-    smallP('문의가 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#B89A75;font-weight:500">카카오톡</a>으로 연락 주세요.');
+    /* [MAIL_LINK_INK] 글자 링크 = #7A5F37(흰 메일 바탕 대비) · #B89A75 는 선 색 — 상담 메일과 같은 한 벌 */
+    /* [MAIL_TEXT_INK 2026-10-23] 머리 이름표(Your Personal Code · For Parents) · 강조 글(접수 · 마이페이지)도 #7A5F37 — 금빛 #B89A75 는 선에만 */
+    smallP('문의가 필요하시면 <a href="' + safeAttr(CONFIG.KAKAO_URL) + '" style="color:#7A5F37;font-weight:500">카카오톡</a>으로 연락 주세요.');
 
   GmailApp.sendEmail(to, '[Moment Edit] 신청이 접수되었습니다 · 개인코드 ' + code, '',
     { htmlBody: emailShell('신청이 접수되었습니다', inner), name: SYS.FROM_NAME });

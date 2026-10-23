@@ -416,6 +416,14 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .trow:active{background:var(--paper)}
 .trow .ttime{font-family:var(--mono);font-size:12.5px;color:var(--seal);flex:none}
 .trow .tnm{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* [DRESS_ADMIN_ROWS] 상담 줄 아래 «고른 두 벌» — 작은 사진 · 이름 · 같은 날 겹침(오늘 상담 · 상담확정 줄 공통) */
+.trow.has-dress,.pcust.has-dress{flex-wrap:wrap;row-gap:6px}
+.dmini{flex:1 0 100%;display:flex;align-items:center;gap:6px;min-width:0;padding-left:2px}
+.dmini .dm-pv{flex:none;width:22px;height:29px;border-radius:3px;overflow:hidden;background:var(--paper);box-shadow:0 0 0 1px var(--border)}
+.dmini .dm-pv img{display:block;width:100%;height:100%;object-fit:cover}
+.dmini .dm-pv img.dm-line{object-fit:contain}
+.dmini .dm-tx{font-family:var(--serif-ko);font-size:11.5px;color:var(--sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dmini .dm-dup{flex:none;font-family:var(--serif-ko);font-size:11px;color:var(--red);border:1px solid var(--red);border-radius:999px;padding:0 7px;line-height:1.6}
 .tbox{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .recent{display:flex;flex-wrap:wrap;gap:6px;margin:8px 2px 0}
 .recent .rc-l{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);align-self:center;margin-right:2px}
@@ -559,7 +567,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
      async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLBY(선언문 원천)를 참조할 수 있다. -->
 <script src="/assets/ritual-data.js"></script><script src="/assets/ritual-preview-link.js"></script><!-- [CONSOLE_INJECT_1019] 당일 콘솔 주소의 식사 · 사진 · 하객 안내 유무 -->
 <script src="/assets/rec-process.js"></script><!-- [RF_STUDIO_UP] 스튜디오 대신 올리기 — 두 분 화면과 같은 다듬기(한 원천) -->
-<script src="/assets/snap-refs.js"></script><script src="/assets/err-codes.js"></script><!-- [ERR_CODES] 고객 화면 «(코드 S6)»의 뜻 — 검색창 «코드 찾기» · 고객 상세 «최근 실패» --><!-- [SNAP_REFS] 스냅 기획 장면 이름·준비물 원천(부부 화면·브리프와 같은 파일) -->
+<script src="/assets/snap-refs.js"></script><script src="/assets/dress-refs.js"></script><!-- [DRESS_ADMIN_ROWS] 시착 드레스 이름 · 사진 원천(고객 화면과 같은 파일) --><script src="/assets/err-codes.js"></script><!-- [ERR_CODES] 고객 화면 «(코드 S6)»의 뜻 — 검색창 «코드 찾기» · 고객 상세 «최근 실패» --><!-- [SNAP_REFS] 스냅 기획 장면 이름·준비물 원천(부부 화면·브리프와 같은 파일) -->
 <script>
 // ★DECL_ADMIN_MIRROR — 선언 «읽는 분» 행은 두 분이 적은 글을 그대로 보인다([DECLARE_ANYONE] · 종전엔 DECLWHO 갈래 이름을 읽었다).
 //   과거 사고(2026-07-26): #318이 'ask'를 네 번째 주체로 추가했는데 여기 하드코딩 맵이 안 따라와,
@@ -2161,6 +2169,18 @@ function _waitDays(w){
    ★없는 날은 칸 자체를 그리지 않는다 — 대부분의 날이 «없음»이라 빈 상자를 매번 띄우면 그게 소음이 된다.
      («비었나 고장났나»는 [HOME_SECTION_ISOLATE] 가 실패한 자리에 한 줄을 남겨 가른다)
    ★옛 GAS 응답엔 todayConsults 가 없다 — 그때도 조용히 숨을 뿐 깨지지 않는다(재배포 갭 안전). */
+/* [DRESS_ADMIN_ROWS] 고른 두 벌 한 줄 — 서버 dress{picks, pickNames, dup} + 원천(DRESS_REFS)의 사진 · 이름. 원천에 없는 id 는 저장된 이름으로 */
+function dressMini(x){
+  if(!x || !x.picks || !x.picks.length) return '';
+  var R=window.DRESS_REFS, th='', nm=[];
+  x.picks.forEach(function(id,i){
+    var d=R&&R.dress?R.dress(id):null, name=(d&&d.name)||(x.pickNames&&x.pickNames[i])||id;
+    nm.push(name+' ('+id+')');
+    var src=d?(d.img?R.img(d,'jpg'):R.svg(d)):'';
+    th+='<span class="dm-pv">'+(src?'<img'+(d&&!d.img?' class="dm-line"':'')+' src="'+esc(src)+'" alt="" loading="lazy">':'')+'</span>';
+  });
+  return '<span class="dmini" title="시착 준비">'+th+'<span class="dm-tx">'+esc(nm.join(' · '))+'</span>'+(x.dup&&x.dup.length?'<span class="dm-dup">같은 날 겹침</span>':'')+'</span>';
+}
 function renderToday(d){
   var el=$('todayWrap'); if(!el) return;
   var list=((d&&d.todayConsults)||[]).slice();
@@ -2171,7 +2191,7 @@ function renderToday(d){
   el.style.display='';
   el.innerHTML='<div class="sect-h"><span class="tt">오늘 상담</span><span class="ct">'+list.length+'</span></div>'
     +'<div class="tbox">'+list.map(function(c){
-      return '<div class="trow" data-code="'+esc(c.code||'')+'"><span class="ttime">'+esc(c.time||'시간 미정')+'</span><span class="tnm">'+esc(c.names||'')+'</span></div>';
+      return '<div class="trow'+(c.dress?' has-dress':'')+'" data-code="'+esc(c.code||'')+'"><span class="ttime">'+esc(c.time||'시간 미정')+'</span><span class="tnm">'+esc(c.names||'')+'</span>'+dressMini(c.dress)+'</div>';
     }).join('')+'</div>';
   el.querySelectorAll('.trow').forEach(function(r){
     r.addEventListener('click', function(){ var c=r.getAttribute('data-code'); if(c) openDetail(c,'home'); });
@@ -2488,10 +2508,10 @@ function pipeSection(groups, product){
     if(!g.count) return '<div class="pgroup"><div class="pghead dim"><span class="pgname" style="'+stageStyle(g.stage)+'">'+esc(g.stage)+'</span><span class="pgn">0</span></div></div>';
     var key=product+':'+g.stage, isOpen=open.indexOf(key)!==-1;
     var cust=g.customers.map(function(c){
-      return '<div class="pcust" data-code="'+esc(c.code)+'"><span class="cn">'+esc(c.names)+'</span>'+
+      return '<div class="pcust'+(c.dress?' has-dress':'')+'" data-code="'+esc(c.code)+'"><span class="cn">'+esc(c.names)+'</span>'+
         '<span class="cs">'+esc(c.sub||'')+'</span>'+
         (c.dday!=null?'<span class="cd">'+esc(ddayLabel(c.dday,isSnap))+'</span>':'')+
-        (c.flag?'<span class="bolt"></span>':'')+'</div>';
+        (c.flag?'<span class="bolt"></span>':'')+dressMini(c.dress)+'</div>';
     }).join('');
     return '<div class="pgroup'+(isOpen?' open':'')+'" data-key="'+esc(key)+'">'+
       '<div class="pghead"><span class="pgname" style="'+stageStyle(g.stage)+'">'+esc(g.stage)+'</span><span class="pgn">'+g.count+'</span>'+(g.hasUrgent?'<span class="pgdot">🔴</span>':'')+'<span class="pgcar">›</span></div>'+
@@ -2694,7 +2714,7 @@ function shortHist(l){ // [YYYY-MM-DD HH:mm] who: action → [M/D HH:mm] who: ac
   return String(l||'').replace(/^\[(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}:\d{2})\]/, function(_,y,mo,da,hm){ var yr=(+y!==new Date().getFullYear())?(y+'/'):''; return '['+yr+(+mo)+'/'+(+da)+' '+hm+']'; });
 }
 function fieldGroups(fields){
-  var G=[['예식 정보',['예식일자','요일','시간대','하객','디지털참석','의상']],['분위기·요청',['분위기·스냅','중요하게여김','망설이는점','준비상황']],['경로·메모·일정',['경로','참고링크','자유메모','그외가능시간대','기타희망시간']]];
+  var G=[['예식 정보',['예식일자','요일','시간대','하객','디지털참석','의상','시착 준비']],['분위기·요청',['분위기·스냅','중요하게여김','망설이는점','준비상황']],['경로·메모·일정',['경로','참고링크','자유메모','그외가능시간대','기타희망시간']]];
   var map={}; fields.forEach(function(f){ map[f.label]=f; });
   var html='';
   G.forEach(function(grp){

@@ -156,14 +156,15 @@ function _sessionMsg(reason) { _gsr_();
 
 // ============================ 인증 메일 ============================
 function sendFindCodeEmail_(to, names, code) {
+  /* [MAIL_TEXT_INK 2026-10-23] 머리 이름표 · 강조 글(개인코드 · 재설정)은 #7A5F37(흰 바탕 5.97:1) — 금빛 #B89A75 는 선 색(2.65:1) */
   var mypage = P.MYPAGE_URL;
   var codeCard =
     '<div style="background:#F7F5F1;padding:22px 20px;border:1px solid #E6E1D8;border-radius:8px;margin:22px 0;text-align:center">' +
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:10px">Your Personal Code</div>' +
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#7A5F37;text-transform:uppercase;margin-bottom:10px">Your Personal Code</div>' +
       '<div style="font-family:\'Roboto Mono\',monospace,\'Noto Serif KR\',serif;font-size:30px;font-weight:600;letter-spacing:.18em;color:#3A2D22">' + esc(code) + '</div>' +
     '</div>';
   var inner =
-    centerP(esc(names) + ' 님,<br>요청하신 <b style="color:#B89A75;font-weight:600">개인코드</b>를 안내드립니다.') +
+    centerP(esc(names) + ' 님,<br>요청하신 <b style="color:#7A5F37;font-weight:600">개인코드</b>를 안내드립니다.') +
     codeCard +
     emailBtnOutline(mypage, '마이페이지 열기') +
     smallP('본인이 요청하지 않으셨다면 이 메일을 무시하셔도 됩니다.');
@@ -209,7 +210,7 @@ function sendFindCodeKakao_(phone, names, code) {
 
 function sendResetPwEmail_(to, names, link) {
   var inner =
-    centerP(esc(names) + ' 님,<br>비밀번호 <b style="color:#B89A75;font-weight:600">재설정</b> 링크를 보내드립니다.') +
+    centerP(esc(names) + ' 님,<br>비밀번호 <b style="color:#7A5F37;font-weight:600">재설정</b> 링크를 보내드립니다.') +
     emailBtn(link, '비밀번호 재설정') +
     smallP('이 링크는 <b>1시간</b> 동안만 유효합니다. 본인이 요청하지 않으셨다면 무시하셔도 됩니다(비밀번호는 그대로 유지됩니다).') +
     '<div style="margin:22px auto 0;max-width:440px;text-align:center">' +
