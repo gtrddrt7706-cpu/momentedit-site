@@ -27,7 +27,7 @@ try {
     const a = await pg.evaluate(() => { const rg = [...document.querySelectorAll('[role=radiogroup]')].filter((r) => /무엇을 읽나요/.test(r.getAttribute('aria-label')));
       return { n: rg.length, chips: rg[0] ? [...rg[0].querySelectorAll('[role=radio]')].map((x) => x.textContent.trim()) : [], pressed: rg[0] ? rg[0].querySelectorAll('[aria-checked=true]').length : -1,
         note: (document.querySelector('.mk-vpask1') || {}).textContent || '', head: (document.getElementById('mkHead') || {}).textContent || '' }; });
-    ok(`${w} ① «무엇을 읽나요» 칩 둘(서약 · 감사문) · 처음엔 안 눌림 · 안 고른 한 줄 «서약 · 한 줄씩 번갈아 · 신랑부터»`, a.n === 1 && a.chips.join() === '서약,감사문' && a.pressed === 0 && /고르지 않으면 서약 · 한 줄씩 번갈아 · 신랑부터 진행돼요/.test(a.note) && /혼인 서약/.test(a.head), JSON.stringify(a));
+    ok(`${w} ① «무엇을 읽나요» 칩 둘(서약 · 감사문) · 처음엔 안 눌림 · 안 고른 한 줄 «서약 · 한 줄씩 번갈아 · 신랑부터»`, a.n === 1 && a.chips.join() === '서약,감사문' && a.pressed === 0 && /고르지 않으시면 서약 · 한 줄씩 번갈아 · 신랑부터 진행돼요/.test(a.note) && /혼인 서약/.test(a.head), JSON.stringify(a));
     await shot(pg, '.mk-one', `vow-${w}`);
     await pg.click('[data-fk="lsc:vowKind:thanks"]'); await wait(600);
     const b = await pg.evaluate(() => { const both = [...document.querySelectorAll('.mk-vwboth .mk-vwfix')].map((r) => r.textContent);
