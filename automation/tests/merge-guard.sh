@@ -19848,6 +19848,10 @@ chk "  _dstWire(box, d, demo);   // .DRESS_STICKER." mypage.html 1
 chk '.dst-sw.is-sw{animation:dstSwing 3s ease-in-out 1}' mypage.html 1      # 흔들림은 한 번(끝없이 흔들지 않는다)
 chk "matchMedia('(hover: hover) and (pointer: fine)').matches) st.addEventListener('mouseenter'" mypage.html 1   # 터치 기기는 마우스 흔들림 없음
 chk 'DRESS_STICKER' scripts/audit/dress-refs.mjs 10
+chk 'DRESS_STICKER_ART' mypage.html 2                                   # 그림 = 코워크 유화 스티커(112 · 128 · 176 × webp · png) · 흰 테두리는 그림에 · 축 49% 2%
+chk 'transform-origin:49% 2%' mypage.html 1
+chk 'DRESS_STICKER_ART' scripts/audit/dress-refs.mjs 2                    # 파일 여섯 벌 · 30KB 이하 · 176 webp sha256 앞 16자
+nochk 'dst-ph' mypage.html 0                                             # 임시 선 그림은 걷었다
 chk 'DRESS_STICKER' scripts/audit/dress-fit.mjs 1
 chk 'DRESS_CARD_ONE_LINE' mypage.html 1                                    # 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄
 nochk "'고르지 않으셔도 상담 날 함께 골라요.'" mypage.html 0                     # 카드에서는 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번)
