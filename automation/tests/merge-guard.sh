@@ -19309,6 +19309,20 @@ chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" a
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
 nochk "picks: \[\], at: 'bridge'," assets/bgm-slots.js                                                    # 맨 앞(top)이 이음말 규칙을 품는다 · 갈래를 둘로 다시 나누지 말 것
+# ── 2026-10-23 [BGM_R5_1023] BGM 라운드 5 «미리보기 검토 셋» — ① 요약 입장 줄: 칩만 누르고 곡이 없으면 «곡 파일을 올려 주시면 맞춰 드려요» · «추천 곡 중에서 골라 주세요»
+#   (칩 상태 = EntryMusic.src() · 이 탭에서만 · 저장 꼴 그대로) ② 축사 · 편지 «흐름»에 말하는 ○ 줄 바로 앞 음악 줄(큐 열쇠 narr-free-in-speech · letter-* · 칩을 바꾸면 같이)
+#   ③ 입장 곡 올리기 안내 «… 그 순간 두 분이 걸어 나오게 맞춰요» · ★«마지막 말에 맞춰요»를 되살리지 말 것(누구의 무슨 말인지 모호)
+chk 'BGM_R5_1023' assets/bgm-slots.js 4
+chk 'BGM_R5_1023' assets/bgm-form.js 4
+chk 'BGM_R5_1023' assets/entry-music.js 1
+chk 'BGM_R5_1023' scripts/audit/bgm-form.mjs 10
+chk "var TALK = { none: '말씀하시는 동안은 음악이 멈추고 목소리만 들려요', bed: '말씀하시는 동안 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
+chk "speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 }" assets/bgm-slots.js 1
+chk "입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요" assets/bgm-form.js 1
+chk "입장 곡 · 추천 곡 중에서 골라 주세요" assets/bgm-form.js 1
+chk "EM.src=function(){ return srcNow(); };" assets/entry-music.js 1
+chk "곡 파일을 올리면 크게 올라오는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요" assets/entry-music.js 1
+nochk "크게 올라오는 자리를 찾아 마지막 말에 맞춰요" assets/entry-music.js
 # ── 2026-10-23 [BGM_R4_1023] BGM 라운드 4 «글 · 요약» — 한눈에 보기 «음악»은 담긴 축사 · 편지마다 «… · 음악 없이 / 음악과 함께» 한 줄 + «그 밖의 음악은 스튜디오가 준비해요» ·
 #   칩 아래 한 줄은 안 누름이면 «고르지 않으시면 …» · S2 · S4 · S5 · S6 · S8 · S9 글 바꿈(엔진 · 저장 꼴 · 입장 음악 그대로)
 #   ★«축사는 음악과 함께 · 나머지는 …» 한 줄 요약 · «아래 · 깔려요 · 오르골» · ««인사!»와 함께»를 되살리지 말 것
@@ -19335,7 +19349,7 @@ chk 'BGM_R3_1023' assets/ritual-story.js 3
 chk 'BGM_R3_1023' scripts/build-course-story.mjs 1
 chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
-chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 } };" assets/bgm-slots.js 1
+chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
 chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
 chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1

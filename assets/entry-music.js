@@ -203,7 +203,7 @@
   function card(){ var u=UPS, c0=upCur(), busy=u&&u.busy?'<p class="mu-upbusy" role="status">‹'+e(u.name)+'› '+(u.dl?'불러오는 중이에요':'살펴보는 중이에요')+'</p>':'', mu=upRec(), on=upOn();   /* [REC_SONG_1012] on = 올린 곡이 고른 곡 · 아니면(추천 곡을 고름) 곡 줄만 · 누르면 다시 이 곡 */
     if(!c0&&u&&u.dl) return '<div class="mu-up mu-card">'+busy+'</div>';   /* [ENTRY_SONG_UP] 스튜디오에 보낸 곡을 받는 동안 — «곡 파일 올리기»를 같이 두면 다시 올려야 하나 헷갈린다 */
     if(!c0){ var kept=(mu&&on&&!busy&&RESTORE===2)?'<p class="mu-cs on">‹'+e(mu.t||mu.name)+'› · '+fmtMS(mu.typed!=null?mu.typed:mu.hook||0)+'에 맞춰 두었어요</p>':'';   /* 이 기기에 파일이 없을 때(다른 기기 · 지운 저장소) — 고른 것은 남아 있다 */
-      return '<div class="mu-up mu-card">'+(busy||kept+sgLine()+'<p class="mu-cs">곡 파일을 올리면 크게 올라오는 자리를 찾아 마지막 말에 맞춰요</p>')
+      return '<div class="mu-up mu-card">'+(busy||kept+sgLine()+'<p class="mu-cs">곡 파일을 올리면 크게 올라오는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요</p>')
         +'<div class="mk-sech mk-sech-r mu-upgo"><button type="button" class="mk-hbtn" data-fk="muupopen" onclick="emAct(\'upopen\',this)">'+ICO_PLUS+' 곡 파일 올리기</button></div>'+upHint()+'</div>'; }
     var m=c0.meta, sub=(m.a?m.a+' · ':'')+fmtMS(c0.Sg.dur), pl=!!(PREV&&PREV.key==='up'), h='<div class="mu-up mu-card on">'+busy;
     h+='<ul class="mu-list mu-mine" role="radiogroup" aria-label="내 곡"><li class="mu-row'+(on?' on':'')+'"><button type="button" class="mk-pl mu-pl'+(pl?' on':'')+'" data-fk="muprev" aria-pressed="'+pl+'" aria-label="'+e(m.t)+' 음악만 '+(pl?'멈추기':'듣기')+'" onclick="emAct(\'prev\',this)">'+(pl?ico('stop'):ico('play'))+'</button>'
@@ -780,5 +780,6 @@
     rec:function(){ return {lst:REC.lst,lerr:REC.lerr,n:REC.ls?REC.ls.length:0,i:CAR_I,src:srcNow(),open:MU_OPEN,prev:PREV&&PREV.k||null,want:PWANT,buf:Object.keys(REC.buf),clip:Object.keys(REC.buf).filter(function(k){ return !!(REC.buf[k]&&REC.buf[k].clip); }),lit:!!(PREV&&PREV.lit),lyI:PREV&&PREV.k?PREV.lyI:null,x:PREV&&PREV.k&&AC?PREV.x0+Math.max(0,AC.currentTime-PREV.t0):null}; },   /* 점검용 · [REC_SONG_1012] · [PRE_ROLL_1013] 소리가 걸리기 전 0.3초는 시작 자리 그대로(장면 tau 와 같게) */
     upNeed:function(){ var n=upNeed(); return n===undefined?'wait':n; },upRecOf:upRecOf,   /* [UP_REC_V_1019] 점검용 */
     lyAt:function(k,x){ var m=recMeta(k); if(!m) return null; var L=lyLines(m), i=lyAt(L,x); return {i:i,first:lyStart(L,Math.max(0,(m.hook0||m.hook)-CAR_PRE)-(m.lyOff||0)),n:L.length}; }};   /* first = 카드 ▶ 로 들을 때 처음 뜨는 줄 [LY_FROM_START_1013] */
+  EM.src=function(){ return srcNow(); };   /* ★[BGM_R5_1023] 지금 칩(«두 분이 고른 곡» up · «추천 곡» rec · 안 누름 null) — ④ 한눈에 보기 입장 줄이 읽는다 · 칩만 누른 상태는 이 탭에서만(저장 꼴 그대로) */
   window.EntryMusic=EM;
 })();
