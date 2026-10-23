@@ -239,6 +239,15 @@ const GAP = {
   tail: 0.45,     // 클립 뒤 무음   (원 1.0 → 1차 0.9  → 2차 0.45)
   inner: 0.45,    // ★[PACE_D] 문장 «안» 쉼 상한(쉼표 · 문단 wav 안쪽) — 조립기 SENT_CAP 이 읽는다 · 문장 사이(sent)와 따로
 };
+/* ★★[FLOW_GAPS_1023 2026-10-23 사장님 «편지를 잘 맞추고, 다른 것도 이 기준으로 흐름 쉼을 전부 맞추자» · «적절하게 개선해 줘 전부»]
+   문장 사이 쉼을 한 값(GAP.sent)으로 두니 이어지는 말도 끊겨 들렸다. 음성 섹션이 경계 331곳을 하나씩 읽고 넷으로 나눈 표로 덮는다 —
+   이어짐 0.80 · 넘어감 1.15 · 기다림(행동 요청 · 구호 앞 · 선언 앞)과 특수(0.6 · 3 · 4초)는 위 계산 그대로.
+   열쇠 = 클립 + 그 문장 글 + 다음 문장 글 — 글이 바뀐 자리 · 위 규칙이 따로 정한 자리(GAP.sent 가 아닌 값)는 덮지 않는다.
+   표 = docs/plans/식순연구/흐름쉼_1023.json · 검사 scripts/audit/flow-gaps.mjs(merge-guard) · 소리를 다시 받을 필요는 없다(조립기가 무음을 넣는다). */
+const FLOW_GAP_SRC = 'docs/plans/식순연구/흐름쉼_1023.json';
+const FLOW_GAP = new Map(JSON.parse(fs.readFileSync(path.join(root, FLOW_GAP_SRC), 'utf8')).changes
+  .map((x) => [`${x.key}|${x.text}|${x.next}`, x.after_new]));
+const flowHit = new Set();
 // ★자잘한 예외 여백도 한 곳에만 적는다 — 아래 본문과 맨 끝 안내 표가 같은 값을 읽는다.
 //   두 군데 적어 두면 표만 낡은 숫자를 지키는 날이 온다.
 const FINE = {
@@ -521,6 +530,11 @@ for (const P of PARTS) {
       // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }
 
+      // ★[FLOW_GAPS_1023] 흐름 쉼 표 — 기본값(GAP.sent)인 자리만 덮는다
+      if (!last && after === GAP.sent) {
+        const fk = `${c.no}_${c.file}|${s.text}|${sents[k + 1].text}`;
+        if (FLOW_GAP.has(fk)) { after = FLOW_GAP.get(fk); flowHit.add(fk); }
+      }
       // [ENTRY_ALT] 문장별 화자는 겹친 역할일 때만 적는다 — 한 사람짜리 클립에 같은 값을 되풀이하지 않는다
       rec.sents.push(s.who ? { i: k, text: s.text, role: s.who, before, after } : { i: k, text: s.text, before, after });
       // ★[VOW_CHORUS] 합성 클립은 manifest 에는 남기고 붙여넣기 본문에서만 뺀다.
@@ -724,6 +738,10 @@ for (const [role, name] of Object.entries(VOICE)) {
   console.log(`  0_보이스확인.txt    ${probe.length}줄 — 붙여넣어 여덟 자리가 다 잡히는지만 보세요(다운로드 금지 · 크레딧 0)`);
 }
 
+// [FLOW_GAPS_1023] 표에서 못 쓴 자리(글이 바뀌었거나 위 규칙이 따로 정한 자리)는 이름으로 알린다 — 조용히 빠지지 않게
+{ const miss = [...FLOW_GAP.keys()].filter((k) => !flowHit.has(k));
+  console.log(`  흐름 쉼 [FLOW_GAPS_1023] ${flowHit.size}/${FLOW_GAP.size}곳 덮음` + (miss.length ? ` · 못 쓴 ${miss.length}곳(글이 바뀌었거나 따로 정한 자리 · 계산값 그대로)` : ''));
+  for (const k of miss.slice(0, 5)) console.log(`     · ${k.split('|').slice(0, 2).join(' · ')}`); }
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
 
 // ── 절차서
@@ -856,6 +874,7 @@ R.push('| 자리 | 초 | 근거 |');
 R.push('|---|---|---|');
 R.push(`| 클립 앞 | ${GAP.head} | 실청 축소 2차 (원 0.4 → 0.35 → ${GAP.head}) |`);
 R.push(`| 문장 사이 | ${GAP.sent} | 실청 축소 2차 (원 1.8 → 0.9 → ${GAP.sent}) · ★타입캐스트가 넣어 준 앞뒤 무음은 조립기가 깎아 내고, 클립 안쪽 쉼도 이 값을 상한으로 줄입니다(SENT_CAP) |`);
+R.push(`| 문장 사이(흐름 쉼 표) | 이어짐 0.8 · 넘어감 1.15 | ★[FLOW_GAPS_1023] 표(\`${FLOW_GAP_SRC}\`)에 적힌 ${flowHit.size}곳만 · 기다림 · 특수 자리는 위 값 그대로 |`);
 R.push(`| 클립 뒤 | ${GAP.tail} | 실청 축소 2차 (원 1.0 → 0.9 → ${GAP.tail}) |`);
 R.push('| `…위하여!`로 끝나는 클립 뒤 | 4.5 | 축배 뒤 환호가 터진 자리의 낙차 (G9-toast·G9-both 둘 다) · ★잔을 들었다 내리는 동작 대기라 축소 대상이 아닙니다 |');
 R.push('| 폐식(`narr-close`) 뒤 | 2.5 | 사진 안내 · 여운 · ★사람이 일어서기 시작하는 시간이라 축소 대상이 아닙니다 |');
