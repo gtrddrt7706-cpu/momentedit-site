@@ -103,11 +103,13 @@ async function makePage(pg) {
   const thumb = await pg.evaluate(() => { const b = document.querySelector('.mk-vid .lv'), i = b && b.querySelector('.lv-still'), v = b && b.querySelector('video'); return !!(i && v && i.getAttribute('src') === v.getAttribute('poster') && i.compareDocumentPosition(v) & Node.DOCUMENT_POSITION_FOLLOWING); });
   await pg.waitForTimeout(2700);
   const s2 = await vstate(pg, '.mk-vid video'), l2 = await boxLuma(pg, '.mk-vid .lv');
+  const endSrc = await pg.evaluate(() => { const i = document.querySelector('.mk-vid .lv-still'); return i ? i.getAttribute('src') : ''; });   /* ★[VID_REST_END 2026-10-23] 끝나면 끝 장면 사진(-end.webp) */
   await pg.evaluate(() => { window.__lvb = document.querySelector('.mk-vid .lv'); window.__lvi = window.__lvb && window.__lvb.querySelector('.lv-still'); render(); });
   await pg.waitForTimeout(250);
   const same = await pg.evaluate(() => document.querySelector('.mk-vid .lv') === window.__lvb && document.querySelector('.mk-vid .lv-still') === window.__lvi);
   const l3 = await boxLuma(pg, '.mk-vid .lv');
-  return { s1, l1, thumb, s2, l2, same, l3 };
+  const endKeep = await pg.evaluate(() => { const i = document.querySelector('.mk-vid .lv-still'); return i ? i.getAttribute('src') : ''; });
+  return { s1, l1, thumb, s2, l2, same, l3, endSrc, endKeep };
 }
 
 for (const w of [390, 1280]) {
@@ -116,6 +118,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ② 장면 칸 = 썸네일 사진(영상 poster 와 같은 그림) 위에 영상`, m.thumb);
   ok(`${w} ② 도는 동안 영상이 보인다(흉내 검정 ${j(m.l1)})`, !!(m.s1 && m.s1.played && m.s1.on && !m.s1.rest) && darkLike(m.l1), j({ s: m.s1, l: m.l1 }));
   ok(`${w} ② 끝나면 썸네일(${j(m.l2)})`, !!(m.s2 && m.s2.ended && m.s2.rest) && thumbLike(m.l2), j({ s: m.s2, l: m.l2 }));
+  ok(`${w} ② 끝나면 밑의 사진 = 끝 장면(declare-end.webp) · 다시 그려도 그대로 [VID_REST_END]`, /\/declare-end\.webp$/.test(m.endSrc) && m.endKeep === m.endSrc, j({ endSrc: m.endSrc, endKeep: m.endKeep }));
   ok(`${w} ② 다시 그려도 같은 칸 · 같은 사진 요소 · 썸네일 그대로(${j(m.l3)})`, m.same && thumbLike(m.l3), j({ same: m.same, l: m.l3 }));
 
   /* ④ 크게 보기 — 잠깐 멈춤 → 썸네일 · 이어서 → 영상 */

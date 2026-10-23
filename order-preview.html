@@ -4575,7 +4575,14 @@ function _lAnyVid(){ return !!(RitualOpen.VIDEO_READY&&RitualOpen.VIDEO_READY.le
    장면 영상 넷(② 하나씩 만들기 · 크게 보기 · ① 창 · 목소리 창)이 함께 쓰는 한 곳 — 돌면 영상을 보이고(.on), 멈추거나 끝나면 영상을 걷어(.rest) 밑의 썸네일 사진이 보이게 한다.
    멈춘 영상의 그림은 기기가 재생기를 쉬게 하며 놓아 검게 칠할 때가 있다(그래픽카드로 푸는 PC · 폰 · 탭을 가렸다 돌아옴) — 쉬는 동안의 그림을 영상 요소에 맡기지 않는다.
    영상 이벤트는 위로 번지지 않아 문서에서 붙잡는다(capture) · 새로 그린 칸 · 옮겨 끼운 칸 모두 따로 달 것이 없다. */
-function _vidRest(e){ var v=e.target; if(!v||v.tagName!=='VIDEO'||!v.closest||!v.closest('.lv,.pv-media,.mk-vu-img')) return; var on=e.type==='playing'; v.classList.toggle('on',on); v.classList.toggle('rest',!on); }
+function _vidRest(e){ var v=e.target; if(!v||v.tagName!=='VIDEO'||!v.closest||!v.closest('.lv,.pv-media,.mk-vu-img')) return; var on=e.type==='playing'; v.classList.toggle('on',on); v.classList.toggle('rest',!on); _vidRestEnd(v,e.type); }
+/* ★[VID_REST_END 2026-10-23 사장님 «홈페이지에 구현» · 유화판 17편] 끝나면 밑의 사진을 끝 장면(data-rest = <이름>-end.webp)으로 바꾼다 — 마지막 프레임과 같은 그림이라 영상이 걷혀도 이어진다.
+   종전엔 첫 장면으로 돌아가 입장(걸어 들어온 두 분이 다시 문 앞) · 닫는 인사(모였던 하객이 다시 자리)가 되감기처럼 보였다. 다시 돌면 첫 장면으로 되돌려 둔다(중간에 멈추면 종전처럼 첫 장면).
+   끝 장면은 돌기 시작할 때 미리 받아 둔다(끝나는 순간 사진이 비지 않게). data-rest 가 없는 칸(옛 판)은 종전 그대로. */
+function _vidRestEnd(v,t){ var b=v.parentNode, st=b&&b.querySelector('.lv-still,.pv-still'), r=st&&st.getAttribute('data-rest'); if(!r) return;
+  if(t==='ended'){ if(st.getAttribute('src')!==r){ st.setAttribute('data-first',st.getAttribute('src')); st.setAttribute('src',r); } return; }
+  if(t==='playing'){ var f=st.getAttribute('data-first'); if(f&&st.getAttribute('src')===r&&v.currentTime<0.5){ st.setAttribute('src',f); st.removeAttribute('data-first'); } if(!st.__restWarm){ st.__restWarm=1; try{ var im=new Image(); im.decoding='async'; im.src=r; }catch(e){} } } }
+function _vrA(v){ return v&&v.rest?' data-rest="'+esc(v.rest)+'"':''; }   /* [VID_REST_END] 밑의 사진에 끝 장면 주소 */
 try{ ['playing','pause','ended'].forEach(function(t){ document.addEventListener(t,_vidRest,true); }); }catch(e){}
 /* [VID_REST_THUMB] 같은 영상이면 돌던 칸(썸네일 사진 + 영상)을 통째로 옮겨 끼운다 — 다시 그릴 때마다 사진을 새로 그리다 한 번 비지 않게(② _mkVidAfter · 크게 보기 LF_VID_KEEP · 목소리 창 _vuKeep) */
 function _vidKeep(old,v){ var ob=old.parentNode, nb=v.parentNode, box='.lv,.mk-vu-img'; if(!nb) return; if(ob&&ob!==nb&&ob.matches&&ob.matches(box)&&nb.matches(box)&&ob.className===nb.className&&nb.parentNode) nb.parentNode.replaceChild(ob,nb); else nb.replaceChild(old,v); }
@@ -4611,10 +4618,10 @@ function _lVid(k,opt){
        종전 ② 영상은 틀 곳이 한 군데도 없었다(preload none · loop · aria-hidden · 누를 곳 없음) — 16편 모두 첫 장면 사진으로만 보였다. 크게 보기(연습)는 종전대로 소리 없이 반복. */
   /* ★[VID_AUTO_ONLY 2026-10-03 사장님] ② 장면의 누르는 기능(tabindex · 누르면 재생 · 멈춤 이름 · onclick · onkeydown) 금지 — 2026-10-03 사용자 지시로 삭제 · 쪽에 들어올 때 한 번만 돈다(_mkVidAfter) */
   /* [VID_REST_THUMB] 영상 밑에 썸네일 사진을 깐다 — 영상이 멈추거나 끝나면(_vidRest) 영상은 걷히고 이 사진이 그대로 남는다 */
-  if(v&&opt.tap) return '<div class="lv"'+_vfy(v)+'><img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" data-vk="'+esc(k)+'" aria-hidden="true"></video></div>';
+  if(v&&opt.tap) return '<div class="lv"'+_vfy(v)+'><img class="lv-still" src="'+esc(v.poster)+'"'+_vrA(v)+' alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" data-vk="'+esc(k)+'" aria-hidden="true"></video></div>';
   /* ★[LVID_ONCE 2026-10-03 사장님 «여기 영상도 1회 재생될 수 있게 해 줘»] loop 없음 — ② 도 크게 보기도 한 번 돌고 마지막 장면에서 멈춘다(① 창 PV_VID_ONCE 와 같은 말).
      크게 보기는 순간마다 새 영상이 걸리고(LF_VID_KEEP · 같은 순간 안에서는 이어서), 나레이션이 길어도 끝 장면에 머문다 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로 — 반복 금지(사장님 «반복이 아니라 멈추게»). */
-  if(v) return '<div class="lv"'+_vfy(v)+'><img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video></div>';   /* [VID_REST_THUMB] */
+  if(v) return '<div class="lv"'+_vfy(v)+'><img class="lv-still" src="'+esc(v.poster)+'"'+_vrA(v)+' alt=""><video muted playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video></div>';   /* [VID_REST_THUMB] */
   if(opt.mini) return '<div class="lv mini" aria-hidden="true"><span class="lv-dot"></span></div>';
   var c=(opt.art!==false)?clip(k==='_close'?'':k):'';
   if(c) return '<div class="lv art">'+c+'</div>';
@@ -5933,7 +5940,7 @@ function _vcUseSrc(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.src
    «주인공의 목소리»를 알려 주는 창이라 남의 목소리는 혼란만 준다. 만들기 전엔 들어 보기 대신 한 줄 · 만든 뒤엔 어떤 칩이든 두 분 목소리(만든 소리 → 그 자리 AI 읽기) */
 function _vuReady(key){ var w=_vcLineWho(key), st=VC.st||{}; return w==='both'?!!((st.groom||{}).ready&&(st.bride||{}).ready):!!((st[w==='bride'?'bride':'groom']||{}).ready); }   // [VU_OWN_VOICE] 이 자리를 읽는 분 목소리가 있나
 function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), who=w==='both'?'두 분':w==='bride'?'신부':'신랑', v=RitualOpen.firstVideo(x[2],S), src=_vcUseSrc(x[0]);
-  return '<div class="mk-vu-img"'+_vfy(v)+'>'+(v?(v.mp4&&!_rm()?'<img class="lv-still" src="'+esc(v.poster)+'" alt=""><video muted playsinline autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_ONCE 2026-10-06 사장님 «영상 반복 재생 아니고 한 번 재생하고 끝»] loop 없음 — 한 번 돌고 마지막 장면(동작이 끝난 모습)에서 멈춘다(LVID_ONCE · PV_VID_ONCE 와 같은 말 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로) · 되풀이로 되돌리지 말 것 */ /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
+  return '<div class="mk-vu-img"'+_vfy(v)+'>'+(v?(v.mp4&&!_rm()?'<img class="lv-still" src="'+esc(v.poster)+'"'+_vrA(v)+' alt=""><video muted playsinline autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_ONCE 2026-10-06 사장님 «영상 반복 재생 아니고 한 번 재생하고 끝»] loop 없음 — 한 번 돌고 마지막 장면(동작이 끝난 모습)에서 멈춘다(LVID_ONCE · PV_VID_ONCE 와 같은 말 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로) · 되풀이로 되돌리지 말 것 */ /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
     +'<p class="mk-vu-when">'+esc(VC_USE_WHEN[x[0]]||'')+' · '+who+' 목소리</p>'
     /* ★★[VU_EX_LISTEN 2026-10-06 사장님 «식전 영상 소개는 왜 들어 보기가 없어 · 다음 누를 때마다 위아래 간격 · 한 사이즈로 고정 · 예시는 만들어서 넣어 놓자 · 여기 역할은 임시로 들어 볼 수 있게만»]
        ① 예시가 있는 자리(식전 영상 소개 넷 · 입장 인사 넷)는 글 아래 «두 분 글 · 예시 1~4» 칩 — 고르면 그 글을 보여 주고 «들어 보기»가 그 글을 읽는다(두 분 글은 바꾸지 않는다 · 들어 보기 전용)
@@ -8589,9 +8596,9 @@ function _pvDraw(){
   var tg=el.querySelector('#pvTag'), tag=always?'늘 있어요':'';   /* ★[SPEECH_TILE_1012] 축사는 다른 순간과 같다 — «준비한 게 있을 때만» 걷음 */   /* [R1-33] 무엇이 있을 때인지 */ tg.textContent=tag; tg.hidden=!tag;
   if(PV.drawn!==k){ PV.drawn=k;
     var m=el.querySelector('#pvM'), _fy=_vfyN(v); if(_fy==null) m.style.removeProperty('--fy'); else m.style.setProperty('--fy',_fy+'%');   /* [CINE_SCOPE] 장면마다 자르는 높이 */
-    m.innerHTML=v?('<img class="pv-still" src="'+esc(v.small||v.poster)+'" alt="" decoding="async"><video class="pv-v" muted playsinline preload="auto" src="'+esc(v.mp4)+'"></video>'):_pkArt(k,!_rm());   /* [PV_STILL_FIRST] 칸이 받아 둔 첫 장면부터 · 영상은 돌기 시작하면 위로 */   /* ★[AI_LABEL_OFF 2026-10-03 사장님] 그림 위 «AI로 만든 장면이에요 · 사람과 옷은 실제와 달라요» 금지 — 2026-10-03 사용자 지시로 삭제 */
+    m.innerHTML=v?('<img class="pv-still" src="'+esc(v.small||v.poster)+'"'+_vrA(v)+' alt="" decoding="async"><video class="pv-v" muted playsinline preload="auto" src="'+esc(v.mp4)+'"></video>'):_pkArt(k,!_rm());   /* [PV_STILL_FIRST] 칸이 받아 둔 첫 장면부터 · 영상은 돌기 시작하면 위로 */   /* ★[AI_LABEL_OFF 2026-10-03 사장님] 그림 위 «AI로 만든 장면이에요 · 사람과 옷은 실제와 달라요» 금지 — 2026-10-03 사용자 지시로 삭제 */
     var vd=m.querySelector('video');
-    if(vd){ var sv=m.querySelector('.pv-still'); if(v.small&&v.poster&&v.small!==v.poster){ var big=new Image(); big.src=v.poster; (big.decode?big.decode():new Promise(function(r,j){ big.onload=r; big.onerror=j; })).then(function(){ if(sv&&sv.isConnected) sv.src=v.poster; },function(){}); }   /* [PV_STILL_FIRST] 큰 표지가 오면 또렷한 것으로 바꿔 끼운다(같은 장면이라 티가 안 난다) */
+    if(vd){ var sv=m.querySelector('.pv-still'); if(v.small&&v.poster&&v.small!==v.poster){ var big=new Image(); big.src=v.poster; (big.decode?big.decode():new Promise(function(r,j){ big.onload=r; big.onerror=j; })).then(function(){ if(sv&&sv.isConnected&&!sv.hasAttribute('data-first')) sv.src=v.poster; },function(){});   /* [VID_REST_END] 이미 끝 장면이면 두지 않는다 */ }   /* [PV_STILL_FIRST] 큰 표지가 오면 또렷한 것으로 바꿔 끼운다(같은 장면이라 티가 안 난다) */
       /* [PV_STILL_FIRST] 첫 장면 위로 영상이 겹친다 · 움직임 줄이기 · 데이터 절약이면 돌지 않으니 첫 장면 사진이 그대로 남는다 · [VID_REST_THUMB] 켜고 끄기는 _vidRest 한 곳(돌면 .on · 멈추거나 끝나면 사진으로) */
     }
     if(vd) vd.setAttribute('aria-hidden','true');   /* ★① 창 영상 누르기 · Enter 로 멈춤/다시(tv · tabindex · «누르면 멈춤 · 다시» 이름) 금지 — 2026-10-03 사용자 지시로 삭제 [VID_AUTO_ONLY] · 창을 열 때와 «다시 듣기»(그 순간을 소리와 함께 다시)에만 돈다(_pvPlay) */

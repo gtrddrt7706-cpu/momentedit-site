@@ -24,6 +24,8 @@
 #   ★이름은 사장님 촬영표 17편 그대로(guest · prevideo · candle · entry · entry-look · welcome · bless · vow · ring ·
 #     declare · tribute · free · letter · cake · toast-pour · toast · close) + table(테이블 인사 · 2026-10-09 사장님 «table 넣어» · [TABLE_VIDEO_1009]) + song(축가 · 2026-10-11 · [SONG_BACK_1011] · 대본 18편 · 파일은 아직) = 19편. 절 영상(entry-bow · tribute-bow)은 만들지 않는다([BOW_VIDEO_OFF]).
 #   ★다 구운 뒤 assets/ritual-open.js 의 VIDEO_READY 에 이름을 더해야 화면에 나온다.
+#   ★★[VIDEO_SET_1023 2026-10-23] 유화판 17편(speech 이름 더함 · 축사 칸)은 마감이 끝난 파일로 들어왔다 — 이 스크립트로 다시 굽지 않는다(smooth-dups 가 매끄러운 24fps 판에 잔상).
+#     새로 구우면 끝 장면 <이름>-end.webp 도 함께 만든다 [VID_REST_END] · 위 THUMB_PICK 초는 옛 v8 판 기록(유화판 칸 그림은 모두 첫 장면).
 #   ★어두운 촛불 장면(candle · guest · prevideo)은 폰 밝기를 최대로 하고 계단 무늬(밴딩)가 보이는지 본다 —
 #     보이면 그 편만 CRF 를 낮춰(예: 21) 다시 굽는다.
 set -e
@@ -46,6 +48,7 @@ ffmpeg -nostdin -y -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=1280:720" -c:v lib
 if [ "${KEEP_CARD:-}" = 1 ] && [ -f "$OUT/$NAME-640.webp" ]; then echo "칸 그림은 그대로(KEEP_CARD=1)"
 elif [ -n "$TAT" ]; then ffmpeg -nostdin -y -ss "$TAT" -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=640:-2" -c:v libwebp -quality 78 "$OUT/$NAME-640.webp"   # [THUMB_PICK]
 else ffmpeg -nostdin -y -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=640:-2" -c:v libwebp -quality 78 "$OUT/$NAME-640.webp"; fi   # [POSTER_SMALL]
-ls -la "$OUT/$NAME.mp4" "$OUT/$NAME.webp" "$OUT/$NAME-640.webp"
+ffmpeg -nostdin -y -sseof -0.2 -i "$OUT/$NAME.mp4" -update 1 -vf "scale=1280:720" -c:v libwebp -quality 80 -f image2 "$OUT/$NAME-end.webp"   # [VID_REST_END] 끝 장면(영상이 끝나면 머무는 사진)
+ls -la "$OUT/$NAME.mp4" "$OUT/$NAME.webp" "$OUT/$NAME-640.webp" "$OUT/$NAME-end.webp"
 if ffmpeg -nostdin -hide_banner -i "$OUT/$NAME.mp4" 2>&1 | grep -q 'Audio:'; then echo "소리 트랙이 남았다 — 실패"; exit 1; fi
 echo "소리 트랙 없음 · 새 판 움직임 시작 $(node "$HERE/../audit/video-start.mjs" --onset "$OUT/$NAME.mp4")초 · 끝"
