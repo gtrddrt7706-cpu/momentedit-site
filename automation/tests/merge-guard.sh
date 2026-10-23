@@ -14798,6 +14798,8 @@ chk 'HEAD_FOLLOWS_ACTION' docs/plans/식순연구/순간영상_장면대본_0927
 chk 'COURSE_LIGHT_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑤ 빛은 두 막(앞 = 오후 햇살 · 뒤 = 저녁 촛불 · 예외 맞절)
 chk 'LOOK_FIRST_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑥ 그림 판정 첫 줄 = 예쁜가(기준 그림과 마감 후 나란히) · 숫자는 그다음
 chk 'STYLE_MATJEOL_1023' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑦ 정답 느낌 = 맞절(맑은 공기 · 작은 촛불 · 초크 파랑 · 읽히는 하객) · 편집 위에 편집 금지
+chk 'BG_VARY_1024' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑧ 배경은 순간마다 다르게(같은 방 반복 = 스튜디오 시그니처로 오해) · 맞추는 것은 그림체 · 빛 · 색 온도
+chk 'TABLE_REAL_1024' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ⑨ 테이블 = 실제 차림(흰 보 · 아이보리 기둥 초 · 시폰 · 접시 · 메뉴 카드) · 붉은 꽃 덩어리 없음
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
