@@ -38,7 +38,7 @@ try {
     ok(`${w} ② 감사문 → 이름 «감사문» · 머리 설명 · 참고 예시 넷 · 맨 아래 «두 분 함께» = THANKSBOTH · 줄 칸 이름 «감사문»`, b.kind === 'thanks' && /감사문/.test(b.head) && !/혼인 서약/.test(b.head) && /감사문을 직접 읽어요/.test(b.one)
       && b.refs === 4 && JSON.stringify(b.both) === JSON.stringify(D.THANKSBOTH) && /번갈아 읽을 감사문/.test(b.lab), JSON.stringify(b));
     ok(`${w} ② 흐름 «하객께 감사문» · «마지막 한 문장은 두 분이 함께» · 엔진 여는 말 133 하나(맺는 말 없음) · 안 고른 한 줄에 «서약» 없음`, b.steps.some((t) => /하객께 감사문을 읽어요/.test(t)) && b.steps.some((t) => t === '마지막 한 문장은 두 분이 함께 읽어요')
-      && !b.steps.some((t) => /돌아서서/.test(t)) && b.files.join() === '133_narr-thanks-in' && !/서약/.test(b.note), JSON.stringify(b.steps) + ' ' + b.files.join() + ' ' + b.note);
+      && !b.steps.some((t) => /돌아서서/.test(t)) && b.files.filter((f) => !/_bridge-/.test(f)).join() === '133_narr-thanks-in' && b.files.every((f) => !/_bridge-/.test(f) || f === '244_bridge-b8-face-guests') && !/서약/.test(b.note)   /* ★[REVIEW26_1023 검토 150-2] 맞절 → 감사문 사이 B8(244 «하객 여러분을 향해 서시겠습니다»)은 들어온다 · 이음말 밖의 엔진 줄은 133 하나 */, JSON.stringify(b.steps) + ' ' + b.files.join() + ' ' + b.note);
     await shot(pg, '.mk-one', `thanks-${w}`);
     await pg.click('[data-fk^="mkrc:vow:0"]').catch(() => {}); await wait(500);
     const c = await pg.evaluate(() => { let link = ''; try { link = RitualPreviewLink.pick(S).vowKind; } catch (e) { link = 'ERR ' + e.message; }
@@ -52,7 +52,7 @@ try {
     const d = await pg.evaluate(() => ({ kind: S.vowKind, g: String((S.tx || {})['vow.g'] || ''), head: (document.getElementById('mkHead') || {}).textContent || '',
       both: [...document.querySelectorAll('.mk-vwboth .mk-vwfix')].map((r) => r.textContent), files: ENG.RitualCue.build(S, { mode: 'preview' }).cues.filter((x) => x.k === 'vow').map((x) => x.file) }));
     ok(`${w} ④ 서약으로 돌아가면 적은 글 그대로 · 이름 «혼인 서약» · VOWBOTH · 여는 말 13 · 맺는 말 14`, d.kind === 'vow' && d.g === kept && kept.length > 0 && /혼인 서약/.test(d.head)
-      && JSON.stringify(d.both) === JSON.stringify(D.VOWBOTH) && d.files.join() === '13_narr-vow-in,14_narr-vow-out', JSON.stringify(d));
+      && JSON.stringify(d.both) === JSON.stringify(D.VOWBOTH) && d.files.filter((f) => !/_bridge-/.test(f)).join() === '13_narr-vow-in,14_narr-vow-out', JSON.stringify(d));   /* ★[REVIEW26_1023 검토 150-1 5)] 서약이 마지막 순간이면 닫는 인사 앞 B8(244)이 붙는다(CLOSE_SEAM) · 이음말 밖은 13 · 14 */
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
   }

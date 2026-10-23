@@ -14903,7 +14903,7 @@ nochk '신랑 신부 두 사람이 평생 사랑하겠다는' assets/ritual-open
 nochk '크게 외치겠습니다. 신랑 신부가 선창하면' assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then
   _sw=$(node -e "const O=require('./assets/ritual-open.js'); process.stdout.write(O.narExList({on:{song:1}},'song').length+','+O.narExList({on:{song:1,declare:1}},'song').length)" 2>&1)
-  if [ "$_sw" = "4,5" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 · 3 · 4 · 5 는 늘 [NARR_R9_1018 · R10_SRC_1018 · REVIEW23_1018]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 3 · 4 · 5 가 사라졌다($_sw · 기대 4,5 · REVIEW23_1018 로 예시 5 «따뜻하게»가 늘었다) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
+  if [ "$_sw" = "3,4" ]; then echo 'ok 축가 멘트 예시 2 는 성혼 선언이 있는 날만 · 4 · 5 는 늘 · 3 은 예시 1 이 됐다 [NARR_R9_1018 · R10_SRC_1018 · REVIEW23_1018 · SONG_DEF_NN_1023]'; else echo "FAIL 축가 멘트 예시 2 가 선언 없는 날에도 나오거나 4 · 5 가 사라졌다($_sw · 기대 3,4 · REVIEW23_1018 로 예시 5 «따뜻하게»가 늘었다 · ★SONG_DEF_NN_1023 검토 151-1 2) 옛 예시 3(NN)이 예시 1 이 돼 그 자리는 비웠다 · 옛 기대 4,5) — «두 사람이 하나가 된» 은 읽는 분의 선언을 받는 말이다(DECLARE_BY_PERSON) [NARR_R9_1018]"; fail=1; fi
 fi
 # ★★[R10_SRC_1018 2026-10-18 자료 루프 라운드 10] 라운드 9 가 박수 자리 · 서술어 겹침(SOURCE_FIRST 로 걷힌 자)을 까닭으로 뺀 자료 글을 되살리고 · 실전 대본이 있는 자리의 기본 글을 자료 글로
 #   사진 안내 26 첫 문장 = RR 39 · 덕담 받는 말 기본 = U1 · 예시 3 = OO · 축가 여는 말 예시 2 끝 «여러분 큰 박수 부탁드립니다.»(OO) · 예시 3 = NN · 4 = U1 · 소리 204 ~ 206
