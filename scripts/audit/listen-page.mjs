@@ -32,7 +32,8 @@ const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '.
 //   + 2([GG3_LETTER_1018] 편지(서로에게) 7번 · 신랑 · 신부 · 10/18)
 //   + 2(10/18 이후 · 표 157) − 23([SRC_ALL_1023 검토 146-G] 실제 글을 못 찾은 줄 · 10/23) = 134
 //   − 3([SRC_ALL_1023 검토 147-1] 13 · 805 · 814 — 앞 글을 가리키거나 두 사람 목소리라 한 사람 칸과 안 맞는 줄 · 10/23) = 131
-const REF_ROWS = 131;
+//   − 1([REVIEW27_1023 검토 151-3] 506 서로의 부모님께 신부 한마디 — 원문 «아들» 줄 · 505 신랑 한쪽만 남는다 · 10/23) = 130
+const REF_ROWS = 130;
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0, cant = 0;
