@@ -95,7 +95,7 @@ BGM 섹션 요청(10/23 · 대본 152 ~ 157 다시 녹음 32클립 main 08f495c 
 | S9 toast | 60~90 | 없음 | 0분 23초 · GO 2 · 남음 37초 | 없음 | 없음 |
 | S10 table | 1800 | 없음 | 9분 09초 · GO 0 · 남음 1251초 | 없음 | 없음 |
 | S8 뒤 단체 사진(narr-close) | 칸 없음 | 8분 10초 · GO 1 | 8분 10초 · GO 1 | 8분 10초 · GO 1 | 8분 10초 · GO 1 |
-| 칸 없음(식전 영상 · 축가 · 예식 뒤) | | 17분 56초 · prevideo · song · _photo · _final · _goodbye | 13분 45초 · prevideo · _photo · _final · _goodbye | 17분 59초 · prevideo · song · _photo · _final · _goodbye | 25분 48초 · prevideo · _photo · _final · _goodbye |
+| 칸 없음(식전 영상 · 축가 · 예식 뒤) | | 17분 52초 · prevideo · song · _photo · _final · _goodbye | 13분 45초 · prevideo · _photo · _final · _goodbye | 17분 55초 · prevideo · song · _photo · _final · _goodbye | 25분 48초 · prevideo · _photo · _final · _goodbye |
 
 ### 예시 칩에 따라 바뀌는 클립(같은 칸 · 길이가 다르다)
 
@@ -171,7 +171,7 @@ BGM 섹션 요청(10/23 · 대본 152 ~ 157 다시 녹음 32클립 main 08f495c 
 | 21 | declare | bridge-b9-declare-seat-end | 255 | 4.0 |  |  | -8 | chain | 2초 | S4 |
 | 22 | free | narr-free-in-speech | 174 | 4.1 | 186 | -90 | -8 | chain | 2초 | S5 |
 | 23 | free | bridge-b10-speech-clap | 246 | 3.1 | 8 박수 | -8 | -8 | manual |  | S5 |
-| 24 | song | narr-song | 19 | 9.8 | 230 | -90 | -8 | manual |  · 내림 1.5초 | - |
+| 24 | song | narr-song | 19 | 5.7 | 230 | -90 | -8 | manual |  · 내림 1.5초 | - |
 | 25 | song | narr-song-end-friend | 250 | 3.5 | 8 박수 | -8 | -8 | manual |  | - |
 | 26 | tribute | bridge-b12-tribute-calm | 248 | 5.5 |  |  | -8 | manual |  · 내림 1.5초 | S7 |
 | 27 | tribute | narr-tribute-name | 141 | 8.3 |  |  | -16 | chain | 2초 | S7 |
@@ -253,7 +253,7 @@ BGM 섹션 요청(10/23 · 대본 152 ~ 157 다시 녹음 32클립 main 08f495c 
 | 20 | declare | bridge-b3-clap-thanks | 111 | 2.4 |  |  | -8 | manual |  · 내림 1.5초 | S4 |
 | 21 | bless | narr-bless-mid | 172 | 7.3 | 100 | -16 | -16 | chain | 2초 | S4 |
 | 22 | bless | narr-bless-end | 232 | 2.9 | 8 박수 | -8 | -16 | manual |  | S4 |
-| 23 | song | narr-song | 19 | 9.8 | 230 | -90 | -8 | manual |  · 내림 1.5초 | - |
+| 23 | song | narr-song | 19 | 5.7 | 230 | -90 | -8 | manual |  · 내림 1.5초 | - |
 | 24 | song | narr-song-end-friend | 250 | 3.5 | 8 박수 | -8 | -8 | manual |  | - |
 | 25 | tribute | bridge-b12-tribute-calm | 248 | 5.5 |  |  | -8 | manual |  · 내림 1.5초 | S7 |
 | 26 | tribute | narr-tribute-name | 141 | 8.3 |  |  | -16 | chain | 2초 | S7 |
