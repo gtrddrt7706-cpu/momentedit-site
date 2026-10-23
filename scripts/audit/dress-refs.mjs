@@ -201,7 +201,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const io = (id) => MP.indexOf('id="' + id + '"');
   t(io('mp_consult') > -1 && io('mp_consult') < io('mp_dress') && io('mp_dress') < io('mp_fitting'), '⑧ 카드 자리 = 상담 → 시착 준비 → 시착 동의');
   t(/!R\.live \|\| d\.isException \|\| d\.product==='웨딩스냅' \|\| DRESS_STAGES\.indexOf\(d\.stage\)<0/.test(cardOn) && /if\(!c\.status \|\| c\.status==='취소'\) return false;/.test(cardOn) && !/c\.status==='승인완료' \|\| c\.status==='확정'/.test(cardOn) && /자체 준비/.test(cardOn) && /if\(!demo && !_dressCardOn\(d\)\)\{ hide\(\); return; \}/.test(card), '⑧ [DRESS_APPLY_OPEN · DRESS_CARD_ON] 카드 판정(한 곳) = 스위치 · 시그니처 · 신청접수 ~ 상담확정 · 상담 예약이 취소 아님 · 자체 준비 아님(확정 전에도 보인다)');
-  t(/if\(closed && !ids\.length\)\{ hide\(\); return; \}/.test(card) && /상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요\./.test(card), '⑧ 마감 뒤 = 고른 게 있으면 바꾸기 없이 · 없으면 숨김');
+  t(!/closed|dr\.open===false/.test(decom(card)) && !/dr\.open===false/.test(decom(cardOn)), '⑧ [DRESS_NO_DEADLINE] 마감으로 숨기거나 «마감 뒤» 보기만으로 가지 않는다(0 · 1 · 2벌만)');
   t(/var obtn=function\(t\)\{ return '<button type="button" class="cc-btn-ghost" data-dress-open style="margin-top:14px">'\+t\+'<\/button>'; \};/.test(card) && /btn=obtn\(cnt\?\('드레스 '\+cnt\+'벌 둘러보기'\):'드레스 둘러보기'\)/.test(card) && /btn=obtn\('이어서 고르기'\)/.test(card) && /btn=obtn\('바꾸기'\)/.test(card) && !/trk-act-min|두 벌 고르기/.test(card), '⑧ [DRESS_CARD_WORDS · DRESS_CARD_SEE · DRESS_CARD_COUNT] 0 · 1 · 2벌 단추 = 같은 자리 · 같은 외곽 단추(드레스 n벌 둘러보기 · 이어서 고르기 · 바꾸기)');
   t(/'\/dress\.html\?pick=1&embed=1'\+\(opt\.open\?'&open='\+encodeURIComponent\(opt\.open\):''\)\+'&t='\+Date\.now\(\)/.test(pick) && /ev\.source!==fr\.contentWindow \|\| ev\.origin!==location\.origin/.test(pick), '⑧ 겹화면 = dress.html?pick=1&embed=1(카드 칸이면 &open=그 드레스 [DRESS_SEE_TAP]) · 같은 출처 · 그 창에서 온 말만');
   t(/get\('preview_card'\)!=='dress'/.test(MP) && /Dress Card Preview · 실제 저장 아님/.test(MP), '⑧ ?preview_card=dress — 로그인 없이 상태를 차례로(저장 없음)');
@@ -212,7 +212,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/#pkBar\{position:sticky;bottom:0;z-index:5\}/.test(PAGE) && !/\.wz-bar\{position:sticky/.test(PAGE), '⑨ [DRESS_BAR_STICK] 붙는 것은 #pkBar(카드의 직계) — 막대에 sticky 를 걸면 붙을 자리가 없다');
   const badge = (/\.dr-badge\{[^}]*\}/.exec(PAGE) || [''])[0];
   t(!!badge && !/var\(--seal\)/.test(badge) && /box-shadow:inset 0 0 0 1px var\(--gold-deep\)/.test(badge), '⑨ [DRESS_BADGE_NOFILL] «Nº» 배지 = 흰 바탕 · 먹빛 글 · 금빛 테 한 겹(진사 칠 없음)');
-  t(/if\(closed\)\{ subs=\[\(n===1\?'상담 전날 이 드레스를 준비해 둘게요\.':'상담 전날 이 두 벌을 준비해 둘게요\.'\), '상담 날 다른 드레스로 바꿔 입어 보실 수도 있어요\.'\]; \}/.test(card), '⑨ [DRESS_CLOSED_KEEP] 마감 뒤 카드 = «준비해 둘게요» + «바꿔 입어 보실 수도» 두 줄');
+  t(/else if\(n===1\)\{ subs=\['상담 날 이 드레스를 먼저 보여 드릴게요\.'\]; btn=obtn\('이어서 고르기'\); \}/.test(card) && /else \{ subs=\['상담 날 이 두 벌을 먼저 보여 드릴게요\.'\]; btn=obtn\('바꾸기'\); \}/.test(card), '⑨ [DRESS_NO_DEADLINE] 1 · 2벌 카드 = «상담 날 이 …을 먼저 보여 드릴게요.»');
   t(/\(has \? '' : ' pk-skip'\)/.test(PAGE) && /\.wz-bar \.cc-btn\.pk-skip,\.wz-bar \.cc-btn\.pk-skip:hover\{background:var\(--card-white\)/.test(PAGE), '⑨ [DRESS_SKIP_SOFT] 답이 없을 때 «건너뛰기»는 옅은 단추');
   for (const [nm, f] of [['dress.html', PAGE], ['mypage', MP]]) t(f.indexOf('.wz-steps li.nav .wz-stepb{margin-bottom:calc(6px + 1.5em - 44px)}') > -1, `⑨ [WZ_STEPS_STILL] ${nm} — 지나온 걸음 단추가 진행 표시 높이를 키우지 않는다`);
   const d2 = R.dresses.find((d) => d.line === 'column') || R.dresses[0];
@@ -222,8 +222,8 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/var sum = R\.sumCell\(d\);/.test(PAGE) && /esc\(R\.sumDetail\(d\)\)/.test(PAGE) && !/sumPick|sumPublic/.test(PAGE), '⑨ [DRESS_SUM_ONE] 공개 · 고르기가 같은 한 줄을 쓴다(옛 «넥라인 · 소재 · 라인» 없음)');
   const DUE = [['2026-10-25', '10월 23일(금)'], ['2026-03-01', '2월 27일(금)'], ['2027-01-01', '12월 30일(수)'], ['2026-11-02', '10월 31일(토)'], ['', ''], ['2026/10/25', '']];   // 기대값은 python datetime 으로 셈(눈대중 아님 · [DATE_DOW])
   t(typeof R.untilText === 'function' && DUE.every(([y, w]) => R.untilText(y) === w), '⑨ [DRESS_DUE_DATE] 마감 날 글 = 상담일 −2일 · 요일 계산(달 · 해 넘김 포함) · 못 읽으면 빈 글');
-  t(/due=\(typeof R\.untilText==='function'\)\?R\.untilText\(dr\.ymd\):''/.test(card) && /'<div class="mp-dotln dr-due">'/.test(card) && /바꾸기는 '\+due\+'까지 할 수 있어요\./.test(card), '⑨ [DRESS_DUE_DATE] 카드 0 · 1 · 2벌 = 점 한 줄 «바꾸기는 …까지»(상담일을 못 읽으면 줄 없음)');
-  t(/ymd:\(dr&&dr\.ymd\)\|\|''/.test(pick) && /if \(m && m\.ymd\) S\.ymd = String\(m\.ymd\);/.test(PAGE) && /'<p class="dotln">' \+ esc\(R\.dueLine\(S\.ymd\)\) \+ '<\/p><\/div>'/.test(PAGE) && !/S\.due|상담 이틀 전/.test(decom(PAGE)), '⑨ [DRESS_DUE_DATE · DRESS_DUE_SAME] 완료 화면도 날짜로 · 카드와 같은 말(R.dueLine 한 곳 · 날짜가 없으면 «상담 날짜가 정해지면 …»)');
+  t(card.indexOf("notes=['시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.']") > -1 && /'<div class="mp-dotln dr-due">'/.test(card) && !/dueLine|untilText|까지 고르실 수|까지 할 수 있어요|전날/.test(decom(card)), '⑨ [DRESS_NO_DEADLINE] 카드 점 줄 = «시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.» 하나 · 마감 날짜 줄 · «전날» 없음');
+  t(/open:true, ymd:\(dr&&dr\.ymd\)\|\|''/.test(pick) && !/R\.dueLine\(|상담 이틀 전|전날/.test(decom(PAGE)) && /\(one \? '상담 날 이 드레스를 먼저 보여 드릴게요\.' : '상담 날 이 두 벌을 먼저 보여 드릴게요\.'\)/.test(PAGE), '⑨ [DRESS_NO_DEADLINE] 완료 화면 = «상담 날 이 …을 먼저 보여 드릴게요.» · 마감 줄 없음 · 마이페이지는 늘 open:true 로 넘긴다');
   t(typeof R.dueLine === 'function' && R.dueLine('2026-11-07') === '바꾸기는 11월 5일(목)까지 할 수 있어요.' && R.dueLine('') === '상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.', '⑭ [DRESS_DUE_SAME] R.dueLine — 날짜 있음 «바꾸기는 11월 5일(목)까지 할 수 있어요.» · 없음 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.»');
   t(/placeholder="신경 쓰이는 점이나 궁금한 점을 적어 주세요"/.test(PAGE), '⑨ 남길 말 칸 자리 표시 글');
   const slip = rd('assets/dress-refs/lines/slip.svg') || '';
@@ -269,7 +269,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(!/function introHTML|몇 가지 답하고 보기|바로 둘러보기/.test(JS) && /var S = \{ view: 'list', q: 0,/.test(JS), '⑪ [DRESS_NO_INTRO · DRESS_LIST_FIRST] 인트로 없음 — 열면 드레스 목록부터(명세 2)');
   t(/<p class="pk-solo" id="pkSolo" hidden>이 화면에서 고른 것은 저장되지 않아요<\/p>/.test(PAGE) && /if \(!EMBED\) \$\('pkSolo'\)\.hidden = false;/.test(JS), '⑪ [DRESS_NO_INTRO] 단독(?pick=1)일 때만 머리 아래 «이 화면에서 고른 것은 저장되지 않아요»');
   t(/'<button type="button" class="pk-txt pk-skipq" data-act="browse">드레스 바로 보기 <span aria-hidden="true">&rsaquo;<\/span><\/button>'/.test(fnOf('qHTML')) && !/질문 없이 바로 보기/.test(decom(fnOf('qHTML'))), '⑪ [DRESS_SKIP_Q · DRESS_SKIP_WORDS] 물음마다 «드레스 바로 보기 ›»(둘째 · 셋째 물음은 이미 답한 것이 있어 «질문 없이»가 아니다)');
-  t(/\(S\.ro \? '' : '<div class="pk-band-dots"><p class="dotln">골라 두셔도 입어 볼지는 상담 날 정하시면 돼요\.<\/p><\/div>'\)/.test(fnOf('bandHTML')) && !/안 고르셔도|고르지 않으셔도/.test(decom(JS)) && !/고르셔도/.test(decom(fnOf('qHTML'))) && !/고르지 않으셔도/.test(decom(card)) && (decom(card).match(/안 고르셔도 상담 날 함께 골라요\./g) || []).length === 1, '⑬ [DRESS_BAND_DOTS · DRESS_NO_PICK_CARD] 띠 바로 아래 점 줄 하나(«골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.») · «안 고르셔도 상담 날 함께 골라요.»는 카드 0벌에만(같은 말 한 번)');
+  t(fnOf('bandHTML').indexOf("<div class=\"pk-band-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>") > -1 && !/안 고르셔도|고르지 않으셔도/.test(decom(JS) + decom(card)) && !/고르셔도/.test(decom(fnOf('qHTML'))), '⑬ [DRESS_BAND_DOTS · DRESS_NO_DEADLINE] 띠 바로 아래 점 줄 하나(«시착(기본 2벌)은 …») · «안 고르셔도 …» 줄은 걷었다');
   t(/\(S\.q > 0 \? '<button type="button" class="cc-btn-ghost" data-go="-1">이전<\/button>' : ''\)/.test(fnOf('barHTML')), '⑪ [DRESS_NO_INTRO] 첫 물음 막대에는 «이전»이 없다(갈 곳이 없다 · 스냅 기획 첫 걸음과 같다)');
   // [DRESS_PICK_TIER] 진한 단추가 한 화면에 둘 서지 않게
   const dph = fnOf('detailPickHTML');
@@ -283,7 +283,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(IDXX.indexOf('<li>드레스 시착 <span class="li-meta">상담 당일 · 기본 2벌</span></li>') > -1 && IDXX.indexOf('<li>추가 시착 <span class="li-price">₩50,000<span class="li-meta">/벌 · 3벌째부터</span></span></li>') > -1, '⑪ [DRESS_FIT_FEE] 홈 가격표 = 상담 당일 · 기본 2벌 · ₩50,000/벌 · 3벌째부터 — 시착 동의서와 같은 숫자');
   t(INQX.indexOf('시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.') > -1, '⑪ [DRESS_FIT_FEE] 신청서 Nº 03 = 기본 2벌 · 최대 100,000원 · 차감 — 시착 동의서와 같은 숫자');
   t(!/pk-bar-note|시착비/.test(decom(PAGE)), '⑬ [DRESS_BAR_PLAIN] 고르기 화면에 시착비 줄이 없다 — 막대 위 «안 입은 드레스는 시착비가 들지 않아요.»를 걷었다(금액 안내는 상담 카드 «예식까지 함께 챙길 것들» · 시착 동의서 몫)');
-  t(/<p class="dotln">입어 볼지는 상담 날 정하셔도 돼요\.<\/p>/.test(fnOf('doneHTML')), '⑪ [DRESS_FIT_FEE] «입어 볼지는 상담 날 정하셔도 돼요»는 완료 화면');
+  t(fnOf('doneHTML').indexOf('<p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p>') > -1 && !/입어 볼지는 상담 날/.test(decom(JS) + decom(card)), '⑪ [DRESS_NO_DEADLINE] 완료 화면 점 줄도 «시착(기본 2벌)은 …» 같은 말(카드 · 띠 · 완료 한 문장)');
   // [DRESS_MEMO_DONE] 남길 말 = 완료 화면 · «남기기»
   t(/id="pkMemo"/.test(fnOf('doneHTML')) && !/pkMemo/.test(fnOf('listHTML')) && !/pkLeave|data-act="leave"/.test(PAGE) && /<button type="button" class="cc-btn" id="pkHome" data-act="home">마이페이지로 돌아가기<\/button><p class="pk-done-err" id="pkDoneErr" role="alert"><\/p>/.test(fnOf('doneHTML')) && /디렉터에게 남길 말 <span>\(선택\)<\/span>/.test(fnOf('doneHTML')), '⑬ [DRESS_MEMO_DONE · DRESS_MEMO_ONEBTN] 남길 말은 완료 화면 · 작은 «남기기» 알약 없음 · 아래 단추 하나(실패 한 줄은 단추 아래) · 목록에는 없다');
   t(/hb\.textContent = sending \? '남기는 중…' : \(md \? '남기고 돌아가기' : '마이페이지로 돌아가기'\);/.test(fnOf('paintHead')) && /var md = EMBED && S\.memo\.trim\(\) !== baseMemo\(\)/.test(fnOf('paintHead')) && /if \(act === 'home'\) \{ if \(EMBED && S\.memo\.trim\(\) !== baseMemo\(\)\) save\('home'\); else if \(EMBED\) exit\(\); else location\.href = '\/mypage\.html'; return; \}/.test(JS) && /exit: mode === 'exit' \|\| mode === 'home'/.test(fnOf('save')), '⑬ [DRESS_MEMO_ONEBTN] 글을 고치면 «남기고 돌아가기»(저장이 닿으면 닫는다) · 아니면 «마이페이지로 돌아가기» · 단독은 늘 «마이페이지로 돌아가기»');
@@ -347,11 +347,11 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const echo = R.dresses.map((d) => [d.id, run(d.mood, (R.line(d.line) || {}).lead)]).filter((x) => x[1].length >= 5);
   t(!echo.length, '⑫ [DRESS_MOOD_OWN] 드레스 분위기 글이 그 라인 설명을 되풀이하지 않는다(5글자 넘게 겹침 0)' + (echo.length ? ' · ' + echo.map((x) => x[0] + ' «' + x[1] + '»').join(', ') : ''));
   //   [DRESS_CARD_SEE] 카드 · 고르기 화면 머리 · 겹화면 이름 = «드레스 미리 보기» · 0벌 말
-  t(/<div class="cc-title">드레스 미리 보기<\/div>/.test(card) && !/<div class="cc-title">시착 준비<\/div>/.test(card) && /else if\(n===0\)\{ subs=\['두 벌을 골라 두시면 상담 전날 준비해 둘게요\.'\]; notes=\[due\?\(due\+'까지 고르실 수 있어요\.'\):'', '안 고르셔도 상담 날 함께 골라요\.'\]; btn=obtn\(cnt\?\('드레스 '\+cnt\+'벌 둘러보기'\):'드레스 둘러보기'\); \}/.test(card), '⑬ [DRESS_CARD_SEE · DRESS_CARD_ONE_LINE · DRESS_NO_PICK_CARD] 카드 제목 «드레스 미리 보기» · 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄');
+  t(/<div class="cc-title">드레스 미리 보기<\/div>/.test(card) && !/<div class="cc-title">시착 준비<\/div>/.test(card) && /if\(n===0\)\{ subs=\['상담 전에 드레스를 미리 둘러보세요\.', '마음에 드는 드레스를 골라 두시면 상담 날 먼저 보여 드릴게요\.'\]; btn=obtn\(cnt\?\('드레스 '\+cnt\+'벌 둘러보기'\):'드레스 둘러보기'\); \}/.test(card), '⑬ [DRESS_CARD_SEE · DRESS_NO_DEADLINE] 카드 제목 «드레스 미리 보기» · 0벌 글 «상담 전에 드레스를 미리 둘러보세요.» + «마음에 드는 드레스를 골라 두시면 상담 날 먼저 보여 드릴게요.»');
   t(/<span class="pk-head-n">드레스 미리 보기<\/span>/.test(PAGE) && /fr\.title='드레스 미리 보기';/.test(pick) && /ov\.setAttribute\('aria-label','드레스 미리 보기'\);/.test(pick), '⑫ [DRESS_CARD_SEE] 고르기 화면 머리 · 겹화면 이름도 «드레스 미리 보기»([COURSE_WIDE] 같은 말)');
   //   [DRESS_NO_DATE] 상담 날짜가 없으면 마감 줄 대신 — 0벌은 줄을 빼고 · 1 · 2벌은 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.»
-  t(/var dueLine=\(typeof R\.dueLine==='function'\)\?R\.dueLine\(dr\.ymd\)/.test(card) && (card.match(/notes=\[dueLine\]/g) || []).length === 2 && /notes=\[due\?\(due\+'까지 고르실 수 있어요\.'\):'', '안 고르셔도 상담 날 함께 골라요\.'\];/.test(card) && /notes\.filter\(Boolean\)/.test(card), '⑫ [DRESS_NO_DATE] 날짜 없음 = 0벌은 마감 줄 없이 · 1 · 2벌은 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.»');
-  t(/function _dressYmd_\(cr\)/.test(gas || '') && /if \(ymd === ''\) return true;/.test(gas || '') && /open: _dressOpen_\(y\)/.test(gas || '') && /if \(!_dressOpen_\(_dressYmd_\(r\)\)\) return \{ ok: false, error: '바꾸기 마감이 지났어요' \};/.test(gas || ''), '⑫ [DRESS_NO_DATE] 서버 = 날짜가 정해진 때만 마감(신청접수 · 변경제안 = 열림) — 동작은 dress-pick.test.js 가 잰다');
+  t(!/var dueLine|notes=\[dueLine\]/.test(card) && /notes\.filter\(Boolean\)/.test(card), '⑫ [DRESS_NO_DEADLINE] 날짜가 있어도 없어도 카드 글이 같다(마감 줄 없음)');
+  t(/function _dressYmd_\(cr\)/.test(gas || '') && /function _dressOpen_\(ymd\) \{[^}]*\[DRESS_NO_DEADLINE[^}]*return true;\s*\}/.test(gas || '') && /open: _dressOpen_\(y\)/.test(gas || '') && !/바꾸기 마감이 지났어요/.test(decom(gas || '')), '⑫ [DRESS_NO_DEADLINE] 서버 = 늘 열림 · 저장을 날짜로 거절하지 않는다 — 동작은 dress-pick.test.js 가 잰다');
   //   [DRESS_SIGNUP_MAIL] [DRESS_CONFIRM_ZERO] 메일
   t(/상담 날 입어 보실 드레스도 <a href="' \+ safeAttr\(mypage\) \+ '" style="color:#7A5F37;font-weight:500">마이페이지<\/a>에서 미리 둘러보실 수 있습니다\./.test(SU) && /_dRow && _dressMailOk_\(_dRow\)/.test(SU) && /dressLine \+   \/\/ \[DRESS_SIGNUP_MAIL\]/.test(SU), '⑫ [DRESS_SIGNUP_MAIL] 신청 접수 메일 한 줄 + 마이페이지 링크(판정은 확정 메일과 같은 _dressMailOk_)');
   t(/_dressMailOk_\(row\) && !_dressPicked_\(row\)/.test(gas || ''), '⑫ [DRESS_CONFIRM_ZERO] 확정 메일의 드레스 줄은 아직 한 벌도 안 고른 분에게만');
@@ -363,7 +363,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/flex:0 1 96px/.test(thCss) && /aspect-ratio:3\/4/.test(thPv) && /gap:8px/.test(ths) && /-webkit-line-clamp:2/.test(thN) && !/white-space:nowrap|text-overflow:ellipsis/.test(thN), '⑬ [DRESS_CARD_PHOTOS] 카드 칸 = 96px 안팎 · 3:4 · 사이 8px · 이름 두 줄까지(한 줄 말줄임 없음)');
   t(/if \(OPEN && R\.dress\(OPEN\)\) \{ S\.view = 'detail'; S\.cur = OPEN; \}/.test(JS) && /if \(S\.view !== 'detail'\) S\.view = 'list';/.test(fnOf('applyFill')), '⑬ [DRESS_SEE_TAP] 고르기 화면이 &open=<id> 로 그 드레스 자세히부터 연다(채움이 와도 자세히에 머문다)');
   //   [DRESS_SEE_CLOSED] 바꾸기 마감 뒤 칸을 눌러 들어오면 보기만 — 막대 · 고르기 · 빼기 · 머리 저장 · 점 줄 없음
-  t(/var ro = !!\(m && m\.open === false\)/.test(fnOf('applyFill')) && /if \(\(S\.view === 'list' \|\| S\.view === 'detail'\) && !S\.ro\)/.test(fnOf('barHTML')) && /if \(S\.ro\) ctl = k >= 0 \? '<div class="pk-picked"><span class="dr-badge">Nº 0' \+ \(k \+ 1\) \+ '<\/span><span>고른 드레스예요<\/span><\/div>' : '';/.test(fnOf('detailPickHTML')), '⑬ [DRESS_SEE_CLOSED] 마감 뒤(open:false) = 보기만 — 막대 없음 · 고르기 · 빼기 없음 · 고른 줄만');
+  t(/var ro = false, roNew = ro !== S\.ro;/.test(fnOf('applyFill')) && /if \(\(S\.view === 'list' \|\| S\.view === 'detail'\) && !S\.ro\)/.test(fnOf('barHTML')), '⑬ [DRESS_NO_DEADLINE] 보기만(pk-ro)으로 가지 않는다 — 부모가 open:false 를 보내도 고르기 · 막대가 그대로');
   //   [DRESS_ONE_GRID] 한 그리드 · 맞는 칸 앞 · «답과 맞아요»(gold-text · 칠 없음) · 두 덩어리 · 구분선 · 소제목 «드레스» 없음
   t(/return h \+ gridHTML\(rk\.match\.concat\(rk\.rest\), rk\.asked \? rk\.match : null\);/.test(fnOf('listHTML')) && !/답에 맞는 드레스|다른 드레스|class="pk-gh"/.test(decom(JS)) && /<span class="dr-fit" aria-hidden="true">답과 맞아요<\/span>/.test(fnOf('cellHTML')) && /\.dr-fit\{display:block;font-family:var\(--serif-ko\);font-size:12px;color:var\(--gold-text\);/.test(PAGE), '⑬ [DRESS_ONE_GRID] 답한 뒤에도 한 그리드(맞는 칸 앞 · 이름 아래 «답과 맞아요» · gold-text 12px · 칠 없음) · 두 덩어리 · 소제목 없음');
   //   [DRESS_CARD_ON] 상담 카드 — 드레스 카드가 보일 때만 진행 흐름 시착 줄을 빼고 · 확정 카드 방문 전 안내에 «챙겨 오실 것»
@@ -426,7 +426,7 @@ if (process.argv.includes('--selftest')) {
     ['단독에서 «저장»이 다시 보인다', SRC, GAS, PAGE0.replace('html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}', '')],
     ['단독이 다시 저장한 척(«저장됨»)', SRC, GAS, PAGE0.replace("if (mode === 'done') go('done'); else if (mode === 'exit' || mode === 'home') exitNow();", "S.saved = true; if (mode === 'done') go('done'); else if (mode === 'exit' || mode === 'home') exitNow();")],
     // ★[DRESS_DECIDED_1023 코워크 회신 4 보충] 사이트 · 계약서 근거로 닫은 셋을 되돌리면 빨강
-    ['대여 줄에 금액을 씀', SRC, GAS, PAGE0.replace('<p class="dotln">골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.</p>', '<p class="dotln">골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.</p><p class="dotln">대여 드레스는 2벌부터 1벌당 100,000원이 더해집니다.</p>')],
+    ['대여 줄에 금액을 씀', SRC, GAS, PAGE0.replace('<p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>\')', '<p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p><p class="dotln">대여 드레스는 2벌부터 1벌당 100,000원이 더해집니다.</p></div>\')')],
     ['미니 설명에 다시 다이닝', SRC.replace("note: '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.'", "note: '무릎 근처 길이로, 식사 자리에도 잘 어울립니다.'"), GAS],
     ['fitNote 를 지어 씀', SRC.replace("fitNote: '',", "fitNote: '핀으로 품을 맞춥니다',"), GAS],
     ['미디에 다시 «경쾌»(이웃 줄 겹침)', SRC.replace("note: '종아리 길이로, 구두까지 보여 산뜻합니다.'", "note: '종아리 길이로, 구두까지 보여 경쾌합니다.'"), GAS],
@@ -446,11 +446,14 @@ if (process.argv.includes('--selftest')) {
     ['카드가 다시 상담확정에서만(서버와 어긋남)', SRC, GAS, PAGE0, MP0.replace("var DRESS_STAGES=['신청접수','상담확정'];", "var DRESS_STAGES=['상담확정'];")],
     ['카드가 다시 확정된 상담에서만', SRC, GAS, PAGE0, MP0.replace("if(!c.status || c.status==='취소') return false;", "if(!(c.status==='승인완료' || c.status==='확정')) return false;")],
     ['카드 제목이 다시 «시착 준비»', SRC, GAS, PAGE0, MP0.replace('<div class="cc-title">드레스 미리 보기</div>', '<div class="cc-title">시착 준비</div>')],
-    ['날짜 없을 때 1 · 2벌 줄이 빠짐', SRC, GAS, PAGE0, MP0.replace("notes=[dueLine]; btn=obtn('이어서 고르기');", "notes=[due?('바꾸기는 '+due+'까지 할 수 있어요.'):'']; btn=obtn('이어서 고르기');")],
+    ['1벌 카드에 마감 줄이 다시', SRC, GAS, PAGE0, MP0.replace("subs=['상담 날 이 드레스를 먼저 보여 드릴게요.']; btn=obtn('이어서 고르기');", "subs=['상담 날 이 드레스를 먼저 보여 드릴게요.']; notes=[R.dueLine(dr.ymd)]; btn=obtn('이어서 고르기');")],
     ['미리 보기 첫 상태(일정 선택 전)를 지움', SRC, GAS, PAGE0, MP0.replace("var states=[['일정 선택 전 · 0벌', pre], ['0벌', mk([])]", "var states=[['0벌', mk([])]")],
     ['신청서 켜질 문장이 옛 문장', SRC, GAS, PAGE0, MP0, { INQ: INQ.replace('신청하시면 마이페이지에서 상담 날 입어 보실 드레스를 미리 둘러보실 수 있습니다.', '상담이 확정되면 마이페이지에서 입어 보실 두 벌을 미리 고르실 수 있습니다.') }],
     ['서버가 다시 상담확정에서만', SRC, (GAS || '').replace("stages: ['신청접수', '상담확정']", "stages: ['상담확정']")],
-    ['서버가 날짜 없음을 닫힘으로', SRC, (GAS || '').replace("  if (ymd === '') return true;\n", '')],
+    ['서버가 다시 마감으로 닫는다', SRC, (GAS || '').replace(/(function _dressOpen_\(ymd\) \{[\s\S]*?)return true;/, (m, a) => a + 'var y = _ymdOf(ymd); if (!y) return false; return _dayDiff(y, _kstYmd(new Date())) >= DRESS_PICK.untilDays;')],
+    ['서버가 저장을 날짜로 다시 거절', SRC, (GAS || '').replace(/    \/\* ★\[DRESS_NO_DEADLINE 2026-10-23 사장님\] 날짜로 거절하지 않는다[^\n]*\n/, "    if (!_dressOpen_(_dressYmd_(r))) return { ok: false, error: '바꾸기 마감이 지났어요' };\n")],
+    ['마이페이지가 open:false 를 다시 넘김', SRC, GAS, PAGE0, MP0.replace('open:true, ymd:', 'open:!(dr&&dr.open===false), ymd:')],
+    ['카드에 «전날 준비» 말이 다시', SRC, GAS, PAGE0, MP0.replace("subs=['상담 날 이 두 벌을 먼저 보여 드릴게요.']", "subs=['상담 전날 이 두 벌을 준비해 둘게요.']")],
     ['확정 메일이 다시 고른 분에게도', SRC, (GAS || '').replace('_dressMailOk_(row) && !_dressPicked_(row)', '_dressMailOk_(row)')],
     ['접수 메일 드레스 줄을 지움', SRC, GAS, PAGE0, MP0, { SU: SU0.replace("    dressLine +   // [DRESS_SIGNUP_MAIL]", '    // [DRESS_SIGNUP_MAIL]') }],
     // ★★[코워크 디자인 라운드 1 · 10/23] 고친 것을 되돌리면 빨강
@@ -458,9 +461,9 @@ if (process.argv.includes('--selftest')) {
     ['카드 칸을 다시 72px 한 줄 이름으로', SRC, GAS, PAGE0, MP0.replace('flex:0 1 96px;', 'width:72px;').replace('-webkit-box-orient:vertical;-webkit-line-clamp:2}', 'white-space:nowrap;text-overflow:ellipsis}')],
     ['카드 칸을 눌러도 목록부터(open 을 안 넘김)', SRC, GAS, PAGE0, MP0.replace("openDressPicker(dr, { demo:!!demo, open:t.getAttribute('data-dress-see') });", "openDressPicker(dr, demo ? { demo:true } : null);")],
     ['고르기 화면이 &open= 을 무시', SRC, GAS, PAGE0.replace("if (OPEN && R.dress(OPEN)) { S.view = 'detail'; S.cur = OPEN; }", '')],
-    ['카드 0벌에 «고르지 않으셔도» 줄이 다시', SRC, GAS, PAGE0, MP0.replace("notes=[due?(due+'까지 고르실 수 있어요.'):'', '안 고르셔도 상담 날 함께 골라요.']; btn=obtn(cnt?", "notes=[due?(due+'까지 고르실 수 있어요.'):'', '고르지 않으셔도 상담 날 함께 골라요.']; btn=obtn(cnt?")],
+    ['카드에 «고르지 않으셔도» 줄이 다시', SRC, GAS, PAGE0, MP0.replace("notes=['시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.'];", "notes=['시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.', '고르지 않으셔도 상담 날 함께 골라요.'];")],
     ['막대에 흐림(그라데이션)이 다시', SRC, GAS, PAGE0.replace('background:var(--card-white);border-top:1px solid var(--hairline)}', 'background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white) 15px)}')],
-    ['띠 아래 점 줄 둘을 지움', SRC, GAS, PAGE0.replace("(S.ro ? '' : '<div class=\"pk-band-dots\"><p class=\"dotln\">골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.</p></div>')", "''")],
+    ['띠 아래 점 줄을 지움', SRC, GAS, PAGE0.replace("(S.ro ? '' : '<div class=\"pk-band-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>')", "''")],
     ['띠 글이 다시 «어울리는»', SRC, GAS, PAGE0.replace('원하시는 길이와 핏을 고르시면 그\\u00a0드레스부터 보여 드려요', '몇 가지만 답하시면 어울리는 드레스를 앞에 놓아 드려요')],
     ['답한 뒤 다시 두 덩어리', SRC, GAS, PAGE0.replace("return h + gridHTML(rk.match.concat(rk.rest), rk.asked ? rk.match : null);", "h += '<h2 class=\"pk-gh\">답에 맞는 드레스</h2>' + gridHTML(rk.match) + '<h2 class=\"pk-gh\">다른 드레스</h2>' + gridHTML(rk.rest); return h;")],
     ['«답과 맞아요»를 지움', SRC, GAS, PAGE0.replace("(fit ? '<span class=\"dr-fit\" aria-hidden=\"true\">답과 맞아요</span>' : '')", "''")],
@@ -493,14 +496,14 @@ if (process.argv.includes('--selftest')) {
     ['PC 칸이 다시 96px', SRC, GAS, PAGE0, MP0.replace('@media (min-width:600px){ .dr-th{flex:0 1 140px} }', '')],
     ['«답과 맞아요»가 다시 이름 바로 아래', SRC, GAS, PAGE0.replace("      + '<span class=\"dr-sum\">' + esc(sum) + '</span>'\n      + (fit ? '<span class=\"dr-fit\" aria-hidden=\"true\">답과 맞아요</span>' : '') + '</span></div>';", "      + (fit ? '<span class=\"dr-fit\" aria-hidden=\"true\">답과 맞아요</span>' : '')\n      + '<span class=\"dr-sum\">' + esc(sum) + '</span></span></div>';")],
     ['카드 단추에 벌 수가 없다', SRC, GAS, PAGE0, MP0.replace("btn=obtn(cnt?('드레스 '+cnt+'벌 둘러보기'):'드레스 둘러보기');", "btn=obtn('드레스 둘러보기');")],
-    ['완료 화면 마감 줄이 카드와 다른 말', SRC, GAS, PAGE0.replace("'<p class=\"dotln\">' + esc(R.dueLine(S.ymd)) + '</p></div>'", "'<p class=\"dotln\">바꾸기는 ' + esc(R.untilText(S.ymd) || '상담 이틀 전') + '까지 할 수 있어요.</p></div>'")],
+    ['완료 화면에 마감 줄이 다시', SRC, GAS, PAGE0.replace("'<div class=\"pk-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>'", "'<div class=\"pk-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p><p class=\"dotln\">' + esc(R.dueLine(S.ymd)) + '</p></div>'")],
     ['마감 한 줄 원천이 다른 말', SRC.replace("'상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.'", "'상담 이틀 전까지 바꾸실 수 있어요.'"), GAS],
     // ★[코워크 디자인 라운드 3 · 10/23] 고친 것을 되돌리면 빨강
     ['막대 작은 사진이 다시 «누르면 빼기»', SRC, GAS, PAGE0.replace('data-act="slot" data-i="', 'data-act="unslot" data-i="')],
     ['막대 작은 사진에 × 가 다시', SRC, GAS, PAGE0.replace(`' 자세히 보기') + '">' + photo(d) + '</button>';`, `' 자세히 보기') + '">' + photo(d) + '<span class="pk-slot-x" aria-hidden="true">&times;</span></button>';`)],
     ['두 벌 찬 뒤 다시 막다른 길', SRC, GAS, PAGE0.replace('<div class="pk-swap"><p class="pk-swap-t" tabindex="-1">두 벌을 다 골랐어요.</p>', '<div class="pk-swap"><p class="pk-swap-t" tabindex="-1">Nº 01 · Nº 02 가 다 찼어요. 하나를 빼고 골라 주세요.</p>')],
-    ['띠 아래에 «안 고르셔도» 줄이 다시', SRC, GAS, PAGE0.replace('<p class="dotln">골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.</p></div>', '<p class="dotln">골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.</p><p class="dotln">안 고르셔도 상담 날 함께 골라요.</p></div>')],
-    ['카드 0벌에서 «안 고르셔도» 줄을 지움', SRC, GAS, PAGE0, MP0.replace(", '안 고르셔도 상담 날 함께 골라요.']; btn=obtn(cnt?", "]; btn=obtn(cnt?")],
+    ['띠 아래에 «안 고르셔도» 줄이 다시', SRC, GAS, PAGE0.replace('<p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>\')', '<p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p><p class="dotln">안 고르셔도 상담 날 함께 골라요.</p></div>\')')],
+    ['카드 점 줄(시착 …)을 지움', SRC, GAS, PAGE0, MP0.replace("notes=['시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.'];", 'notes=[];')],
     ['물음 글 단추가 다시 «질문 없이 바로 보기»', SRC, GAS, PAGE0.replace('data-act="browse">드레스 바로 보기 <span', 'data-act="browse">질문 없이 바로 보기 <span')],
     ['셋째 물음 보조 글이 옛 글', SRC.replace("sub: '둘 다 골라도 되고, 안 골라도 돼요.'", "sub: '여러 개 · 고르지 않으셔도 돼요'"), GAS]
   ];

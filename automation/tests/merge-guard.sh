@@ -19718,8 +19718,11 @@ chk 'WZ_STEPS_STILL' mypage.html 1                                        # [COU
 chk 'DRESS_SUM_ONE' assets/dress-refs.js 1                                # 칸 한 줄 = 라인 · 길이 · 소재(넥라인은 자세히)
 chk 'DRESS_SUM_ONE' dress.html 2
 chk 'DRESS_DUE_DATE' assets/dress-refs.js 1                               # 마감 날 «10월 23일(금)» — 상담일 −2일 · 요일 계산
-chk 'DRESS_DUE_DATE' mypage.html 4
-chk 'DRESS_DUE_DATE' dress.html 2
+chk 'DRESS_NO_DEADLINE' mypage.html 5                                     # ★[DRESS_NO_DEADLINE 2026-10-23 사장님 «마감 없이 늘 고르기 · 참고용»] 카드 · 판정 · open:true · 미리보기(마감 날짜 줄 · 마감 뒤 상태 없음)
+chk 'DRESS_NO_DEADLINE' dress.html 4
+chk 'DRESS_NO_DEADLINE' automation/consultation/consultation-booking.gs 4
+nochk "바꾸기 마감이 지났어요'" automation/consultation/consultation-booking.gs 0     # 저장을 날짜로 거절하지 않는다
+nochk '이 두 벌로 준비해 주세요' dress.html 0
 chk 'DRESS_CLOSED_KEEP' mypage.html 1                                     # 마감 뒤에도 «준비해 둘게요» 먼저
 chk 'MAIL_LINK_INK' automation/consultation/consultation-booking.gs 1     # 메일 글자 링크 #7A5F37 — #B89A75 는 선 색
 chk 'MAIL_LINK_INK' automation/platform/95_notify.gs 1
@@ -19835,7 +19838,7 @@ chk 'DRESS_CARD_ON' mypage.html 4                                          # 카
 chk "var dressOn = !isSnap && !!d && _dressCardOn(d);" mypage.html 1
 chk "(isSnap||dressOn?'':'<div class=\"vg-row\"><span class=\"vg-k\">상담 · 시착</span>" mypage.html 1   # 진행 흐름 시착 줄은 드레스 카드가 보일 때만 뺀다(꺼짐 · 자체 준비 · 스냅은 그대로)
 chk '<span class="vg-k">챙겨 오실 것</span>' mypage.html 1                    # 확정 카드 방문 전 안내 — 드레스 카드가 보일 때만
-chk 'DRESS_BAND_DOTS' dress.html 3                                         # 띠 바로 아래 점 줄 둘(«골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.» · «안 고르셔도 상담 날 함께 골라요.»)
+chk 'DRESS_BAND_DOTS' dress.html 3                                         # 띠 바로 아래 점 줄 하나(«시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.» · DRESS_NO_DEADLINE)
 chk 'DRESS_BAND_WORDS' dress.html 1                                        # 띠 글 «원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요»
 nochk '어울리는 드레스를 앞에' dress.html 0                                        # «어울리는»은 몸을 평가하는 말로 읽혔다
 chk 'DRESS_ONE_GRID' dress.html 3                                          # 소제목 «드레스» · 두 덩어리 · 구분선 걷기 — 한 그리드에 맞는 칸 앞 · «답과 맞아요»
@@ -19882,8 +19885,8 @@ chk '@media (min-width:600px){ .dr-th{flex:0 1 140px} }' mypage.html 1
 chk 'DRESS_FIT_BELOW' dress.html 1                                         # «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않게)
 chk 'DRESS_CARD_COUNT' mypage.html 2                                       # 카드 단추 «드레스 n벌 둘러보기»(R.list() 개수)
 chk 'DRESS_DUE_SAME' assets/dress-refs.js 1                                # 바꾸기 마감 한 줄 = 한 곳(R.dueLine) — 카드(1 · 2벌)와 고르기 완료 화면이 같은 말
-chk 'DRESS_DUE_SAME' dress.html 2
-chk 'DRESS_DUE_SAME' mypage.html 1
+nochk 'esc(R.dueLine(S.ymd))' dress.html 0                                   # [DRESS_NO_DEADLINE] 완료 화면 마감 줄을 걷었다
+nochk 'var dueLine=' mypage.html 0
 chk 'R.dueLine = function (ymd) {' assets/dress-refs.js 1
 nochk '상담 이틀 전' dress.html 0                                             # 완료 화면이 카드와 다른 말(«상담 이틀 전»)을 쓰던 옛 줄 — 날짜가 없으면 «상담 날짜가 정해지면 …»
 # ── ★★[코워크 디자인 라운드 3 · 2026-10-23 사장님 «고객입장에서 디테일한 개선점들도» · 외부 검토를 걸러 합친 것] 드레스 미리 보기 ──
@@ -19896,9 +19899,10 @@ chk 'DRESS_FULL_SWAP' dress.html 3                                         # 두
 chk 'DRESS_FULL_SWAP' scripts/audit/dress-fit.mjs 5
 chk 'data-swap="1">Nº 02와 바꾸기</button>' dress.html 1
 nochk '다 찼어요. 하나를 빼고 골라 주세요' dress.html 0                       # 막다른 길(뺄 드레스로 가서 빼고 다시 오는 세 걸음) 되살리기 금지
-chk 'DRESS_NO_PICK_CARD' mypage.html 1                                     # «안 고르셔도 상담 날 함께 골라요.»는 카드 0벌 점 줄 둘째 — 고르기 화면 띠 아래에서는 뺐다(같은 말 한 번)
+nochk "'안 고르셔도 상담 날 함께 골라요.'" mypage.html 0                     # [DRESS_NO_DEADLINE] «시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.» 한 줄로 대신
 chk 'DRESS_NO_PICK_CARD' dress.html 1
-chk "'까지 고르실 수 있어요.'):'', '안 고르셔도 상담 날 함께 골라요.'];" mypage.html 1   # 대괄호를 앞에 두지 않는다 — BRE 에서 [ 는 글자 묶음이라 로캘에 따라 0건이 된다(CI 실측)
+chk "'시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.'];" mypage.html 1   # 대괄호를 앞에 두지 않는다 — BRE 에서 [ 는 글자 묶음이라 로캘에 따라 0건이 된다(CI 실측)
+chk "subs=\['상담 전에 드레스를 미리 둘러보세요.', '마음에 드는 드레스를 골라 두시면 상담 날 먼저 보여 드릴게요.'\]" mypage.html 1
 chk 'DRESS_SKIP_WORDS' dress.html 1                                        # 물음 글 단추 «드레스 바로 보기 ›»(둘째 · 셋째 물음은 이미 답한 것이 있다)
 nochk '질문 없이 바로 보기 <span' dress.html 0
 chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «둘 다 골라도 되고, 안 골라도 돼요.»
