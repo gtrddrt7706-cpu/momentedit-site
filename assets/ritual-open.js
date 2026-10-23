@@ -1148,7 +1148,7 @@
        ★[REVIEW23_1018 인스타 섹션 검토 9] 5 «따뜻하게» = TT 51(사회자 릴스 · 두 분이 함께 부른 날의 여는 말) 화면 자막 그대로 — 끝 «두 사람의 축가 출발합니다»의 «두 사람의»는 친구가 부르는 날 틀린 말이라 뺐다(④ · SONG_OPEN_ANYONE_1013) ·
        줄바꿈 이어 붙이고 쉼표 · 물음표만 더했다 · «설레입니다 → 설렙니다» 맞춤법만 · 두 분은 본식 내내 앞에 서 있다(«여기 서 있는 두 사람» · 부르실 분도 앞에 선다 · ritual-story 축가 장면) */
     /* ★★[SONG_DEF_NN_1023 검토 151-1 2)] 예시 1(지금 글 · D.NARR.song)이 옛 예시 3(자료 NN «유쾌하게»)이 됐다 — 예시 1 이름 «유쾌하게» · 예시 3 자리는 비운다(이름 '' · 그 자리를 고른 초안은 같은 글인 예시 1 로 흐른다 · 소리 204 는 RETIRED · 번호 보존) */
-    song: { lab: '축가 멘트', names: ['유쾌하게', '다정하게', '', '격식 있게', '따뜻하게'],
+    song: { lab: '축가 멘트', names: ['담백하게', '다정하게', '', '격식 있게', '따뜻하게'],   /* ★[SONG_OPEN_PLAIN_1023 코워크 10/23] 기본(19)은 «정말 빠질 수 없는 순서죠?»를 빼 담백 → 이름 «유쾌하게» → «담백하게» · MOOD 담백 0(기본) · 밝게 4 */
       when: [function (S) { return onOf(S, 'declare'); }],
       lines: { 'narr-song': [
         '이어서 두 사람이 하나가 된 특별한 순간을 위해 준비한 축가가 있겠습니다. 여러분 큰 박수 부탁드립니다.',
@@ -1297,11 +1297,11 @@
   var MOOD_KEYS = ['keep', 'plain', 'formal', 'warm', 'moving', 'bright'];
   var MOOD_NAME = { keep: '지금 그대로', plain: '담백하게', formal: '격식 있게', warm: '다정하게', moving: '뭉클하게', bright: '밝고 힘차게' };
   var MOOD = {
-    plain: { entry: 'A', guestEx: 0, pvEx: 0, narEx: { open: 2, candle: { mothers: 0, fathers: 1, parents: 1, others: 0 }, matjeol: 4, welcome: 0, vow: 0, thanks: 0, ring: 0, declare: 0, bless: 0, speech: 0, song: 3 /* [SONG_DEF_NN_1023] 예시 1 이 «유쾌하게»가 돼 담백은 4 «축하공연이 있겠습니다» */, letter: 0, letterParent: 0, tribute: 1, close: 0, toast: 2, table: 0 } },
+    plain: { entry: 'A', guestEx: 0, pvEx: 0, narEx: { open: 2, candle: { mothers: 0, fathers: 1, parents: 1, others: 0 }, matjeol: 4, welcome: 0, vow: 0, thanks: 0, ring: 0, declare: 0, bless: 0, speech: 0, song: 0 /* [SONG_DEF_NN_1023] 예시 1 이 «유쾌하게»가 돼 담백은 4 «축하공연이 있겠습니다» */, letter: 0, letterParent: 0, tribute: 1, close: 0, toast: 2, table: 0 } },
     formal: { entry: 'C', guestEx: 3, pvEx: 0, narEx: { open: 1, candle: { mothers: 2, fathers: 0, parents: 0, others: 1 }, matjeol: 0, welcome: 3, vow: 1, thanks: 2, ring: 1, declare: 1, bless: 1, speech: 1, song: 3, letter: 0, letterParent: 3, tribute: 4, close: 3, toast: 1, table: 2 } },
     warm: { entry: 'E', guestEx: 1, pvEx: 0, narEx: { open: 3, candle: { mothers: 2, fathers: 3, parents: 3, others: 3 }, matjeol: 3, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 0, bless: 3, speech: 1, song: 1, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 0, table: 3 } },
     moving: { entry: 'D', guestEx: 1, pvEx: 0, narEx: { open: 4, candle: { mothers: 1, fathers: 3, parents: 3, others: 2 }, matjeol: 2, welcome: 0, vow: 3, thanks: 1, ring: 3, declare: 2, bless: 3, speech: 1, song: 4 /* [SONG_DEF_NN_1023] 뭉클은 5 «따뜻하게» */, letter: 3, letterParent: 2, tribute: 0, close: 1, toast: 2, table: 4 } },
-    bright: { entry: 'B', guestEx: 2, pvEx: 0, narEx: { open: 0, candle: { mothers: 0, fathers: 1, parents: 1, others: 0 }, matjeol: 0, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 3, bless: 2, speech: 3, song: 0 /* [SONG_DEF_NN_1023] 밝고 힘차게 = 예시 1(옛 3 · 같은 글) */, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 3, table: 3 } }
+    bright: { entry: 'B', guestEx: 2, pvEx: 0, narEx: { open: 0, candle: { mothers: 0, fathers: 1, parents: 1, others: 0 }, matjeol: 0, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 3, bless: 2, speech: 3, song: 4 /* [SONG_DEF_NN_1023] 밝고 힘차게 = 예시 1(옛 3 · 같은 글) */, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 3, table: 3 } }
   };
   /* [MOOD_1018 검토 73] 분위기를 고른 날 두 분 몫 «참고 예시» 맨 위에 둘 결(RITUAL_REF kyeol) */
   /* ★[REVIEW22_1018 인스타 섹션 검토 130-1] 다정 · 뭉클의 축사 여는 말 175(«두 사람을 위해 준비된») → 174(«축하의 메시지를 전하는») ·
