@@ -14784,6 +14784,7 @@ chk 'RING_TITLE_CLEAR_1023' assets/ritual-open.js 1   # 반지 판 = 손을 위�
 chk 'LETTER_TITLE_1023' assets/ritual-open.js 1   # 편지 판 = 편지지가 제목에 가리지 않게 제목을 3초에 걷는다(10/23 GPT 더블체크)
 chk 'TOAST_MEDIUM_1023' assets/ritual-open.js 1   # 축배 판 = 허리 위 중간 크기 · 하객 열 명 안팎 · 모두 두 분 쪽(10/23 사장님 «정원 30명» · «뒤 사람들은 주인공을 바라봐야지»)
 chk 'TOAST_MEDIUM_1023' order-preview.html 1   # 축배 칸 높이 10%(_VFY 주석 · 위 설명)
+chk 'CLOSE_HAND_FIX_1023' assets/ritual-open.js 1   # 닫는 인사 185 ~ 193장 맞잡은 손 아래 여분 손을 다시 그림(10/23 GPT 독립 검수 · 내 확대 확인)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
