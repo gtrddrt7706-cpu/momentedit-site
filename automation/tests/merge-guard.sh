@@ -19339,7 +19339,7 @@ chk 'BGM_R3_1023' assets/ritual-story.js 3
 chk 'BGM_R3_1023' scripts/build-course-story.mjs 1
 chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
-chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 } };" assets/bgm-slots.js 1
+chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
 chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
 chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
