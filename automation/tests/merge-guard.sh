@@ -19163,6 +19163,12 @@ chk 'UP_REC_V_REMEASURE' scripts/audit/up-rec-v.mjs 1
 chk 'const expRec = (need) => \[30, 50, 80\].find((t) => typeof need === .number. && t >= need) || 30;' scripts/audit/up-rec-v.mjs 1
 chk 'const expAt = (H, V) => { const pre = H - V - SP.breath;' scripts/audit/up-rec-v.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/up-rec-v.mjs >/dev/null 2>&1; _urv=$?; if [ "$_urv" = 1 ]; then echo 'FAIL up-rec-v: 올린 곡 «추천» 자리(멘트 길이 · 첫 자리 · 표시만 다시 · 직접 적은 자리 그대로)가 깨졌습니다 — node scripts/audit/up-rec-v.mjs'; fail=1; elif [ "$_urv" = 0 ]; then echo 'ok up-rec-v: 올린 곡 추천 자리'; else echo 'skip up-rec-v: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-23 [FLOW_SIDE_STEADY] 사장님 «기록과 가족 그래프 창이 위아래 넓이가 넓어지고 줄어들고 하는데 똑같이 맞춰줘 · 움직임 없이 그래프 바꿔도»
+#   PC 오른쪽 설명이 테이블 인사가 있으면 세 줄 · 없으면 두 줄이라 판이 20px 씩 오갔다 → 없는 판은 보이지 않는 한 줄로 세 줄 자리 · flow-steady 가 390 · 1024 · 1280 으로 잰다(되돌리면 빨강 2)
+chk 'FLOW_SIDE_STEADY' order-preview.html 1
+chk 'FLOW_SIDE_STEADY' scripts/audit/flow-steady.mjs 1
+chk "(sp.tm?'':'<br><span class=\"pk-pad\" aria-hidden=\"true\">'+NBS+'</span>')" order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-steady.mjs >/dev/null 2>&1; _fls=$?; if [ "$_fls" = 1 ]; then echo 'FAIL flow-steady: 예시를 바꾸면 «감동 흐름» 판 높이 · «다음» 단추 자리가 흔들립니다 — node scripts/audit/flow-steady.mjs'; fail=1; elif [ "$_fls" = 0 ]; then echo 'ok flow-steady: 감동 흐름 판 높이 그대로'; else echo 'skip flow-steady: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 순간마다 «음악» 칸 [BGM_FORM_1023] → 다시 짜기 [BGM_INFO_1023] — 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «입장곡은 지금 세팅처럼 직접 할 수 있게» · «최선인지 한 번 더 검토해 보고 제안대로 구현» · BGM 섹션 안
 #   대부분 한 줄 안내(맞절 «입장 곡이 이어져요» 꼴) · 축사 · 편지만 칩 둘(«음악 없이» 기본 · «음악과 함께») → 엔진 duckRead −20(축사 사람 구간 · 편지 첫 큐 · 사람 구간 · 마무리 · 정적 없이 4초) · 편지 장면 글 판 · 미리 듣기 주소는 bed 만
 #   ★음악 칸 «우리가 고른 곡»(올리기 · 곡 카드 · 이 기기 보관 me-bgm-song · «보낼 것» 음악 줄 · 할 일) · 접는 카드 · 부모님께 인사 칩 · «마지막 곡만 고르기» 금지 — 되살리지 말 것 ·
