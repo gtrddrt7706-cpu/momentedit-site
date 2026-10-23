@@ -19825,7 +19825,7 @@ chk "var DRESS_STAGES=\['신청접수','상담확정'\];" mypage.html 1
 nochk "c.status==='승인완료' || c.status==='확정'){ hide(); return; }" mypage.html 0
 chk 'DRESS_NO_DATE' mypage.html 2                                         # 상담 날짜가 없으면 마감 없음 · 1 · 2벌은 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.»
 chk 'DRESS_CARD_SEE' mypage.html 2                                        # 카드 제목 «드레스 미리 보기» · 0벌 말 · 단추 «드레스 둘러보기»
-chk '<div class="cc-title">드레스 미리 보기</div>' mypage.html 1
+nochk '<div class="cc-title">드레스 미리 보기</div>' mypage.html 0                # [DRESS_STICKER] 따로 카드 제목은 걷었다 — 이름은 스티커 글 · 겹화면 머리
 chk 'DRESS_NOTE_APPLY' inquiry.html 1                                     # 신청서 켜질 첫 문장 «신청하시면 마이페이지에서 상담 날 입어 보실 드레스를 미리 둘러보실 수 있습니다»
 chk 'DRESS_APPLY_OPEN' automation/consultation/consultation-booking.gs 3  # 서버 = 신청접수 ~ 상담확정 · 취소면 거절
 chk "stages: \['신청접수', '상담확정'\]" automation/consultation/consultation-booking.gs 1
