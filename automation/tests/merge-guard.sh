@@ -10178,6 +10178,8 @@ chk 'BOW_VIDEO_OFF' assets/ritual-open.js 1           # 절 영상 만들지 않
 chk 'BOW_VIDEO_OFF' order-preview.html 2
 nochk "'entry-bow'" order-preview.html
 nochk "'tribute-bow'" assets/ritual-open.js
+chk 'pk-scnote">이해를 돕는 연출 장면이에요</p>' order-preview.html 1   # [SCENE_NOTE_1023] 칸 아래 한 줄(사장님 «요약해서 · 조금 달라요 빼고») · «AI» 낱말 없음
+chk 'SCENE_NOTE_1023' order-preview.html 3
 chk 'VIDEO_ENCODE' scripts/video/encode-moment.sh 1   # 장면 영상 굽는 규격(H.264 High · 720p · 2~3Mbps · 소리 없음 · faststart)
 chk 'TOAST_FILE_ONE' order-preview.html 1              # ② 잔 들기 장면 = toast.mp4 — 규격 17편과 한 이름(9/27 · 17편이 다 오면 케이크 영상이 나오던 것)
 chk 'TOAST_FILE_ONE' scripts/audit/listen-page.mjs 3   # 10-1 잔 들기 = toast · 10-2 화면이 찾는 이름 ⊂ 17편(실브라우저)
@@ -14775,6 +14777,7 @@ chk 'VID_MOVE_NOW' scripts/audit/video-start.mjs 3
 #   깨 보기(--selftest): 다른 장면 섞음 · 튄 자리 섞음은 잡고 · 6% 줌은 안 잡는다(옛 시험은 선언 영상의 줌을 잡았다).
 chk 'VID_CUT_MOTION' scripts/audit/video-start.mjs 2
 chk 'if (blendBeatsMotion(sm, i, a, b, al)) out.push(i)' scripts/audit/video-start.mjs 1
+chk 'VID_CADENCE_1023' scripts/audit/video-start.mjs 3   # ⑥ 사람이 2 · 3장마다 끊겨 움직이지 않는다 · 유화판 24fps(10/23 사장님 «성혼선언 영상 끊기는 거 같은데 · 다른 영상들도 확인해 봐»)
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
@@ -19275,10 +19278,32 @@ chk 'BGM_R2_1023' order-preview.html 2
 chk 'BGM_R2_1023' scripts/audit/bgm-form.mjs 6
 chk ".mk-flow li.q\[data-bgm\] .qa{font-weight:400;color:var(--sub)}" order-preview.html 1
 chk "function head(st) { return (st && st\[0\] && /^bridge-/.test(String(st\[0\].slug || ''))) ? 1 : 0; }" assets/bgm-slots.js 1
-chk "return h;   /\* top(옛 bridge 도 같다) \*/" assets/bgm-slots.js 1
+chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" assets/bgm-slots.js 1        # [BGM_R3_1023] flowAt → flowFind(맨 앞은 늘 찾음)
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
 nochk "picks: \[\], at: 'bridge'," assets/bgm-slots.js                                                    # 맨 앞(top)이 이음말 규칙을 품는다 · 갈래를 둘로 다시 나누지 말 것
+# ── 2026-10-23 [BGM_R3_1023] BGM 섹션 라운드 3 «다른 섹션 작업에 깨지지 않게» — 식전 영상 흐름 음악 줄 → 링크 칸 아래 한 줄 ·
+#   닫는 인사 · 축배 자리는 글자 대신 줄의 큐 열쇠(of)로(못 찾으면 bgm-form 9 가 코스 · 조합 전부에서 빨강) · 편지 «음악과 함께» 장면은 기본 글에서 한 대목만 바꿔 만든다(못 찾으면 build-course-story 빨강)
+#   ★식전 영상 흐름 음악 줄 · 글자로 자리 찾기 · 편지 음악 판 장면 글 통째 적기를 되살리지 말 것
+chk 'BGM_R3_1023' assets/bgm-slots.js 3
+chk 'BGM_R3_1023' assets/bgm-form.js 1
+chk 'BGM_R3_1023' order-preview.html 5
+chk 'BGM_R3_1023' assets/ritual-story.js 3
+chk 'BGM_R3_1023' scripts/build-course-story.mjs 1
+chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
+chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
+chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 } };" assets/bgm-slots.js 1
+chk 'function flowFind(at, st)' assets/bgm-slots.js 1
+chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
+chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
+chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
+chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
+chk "scene: _letterScene.indexOf(LETTER_BED_SWAP.from) > -1 ? _letterScene.replace(LETTER_BED_SWAP.from, LETTER_BED_SWAP.to) : ''," assets/ritual-story.js 1
+chk 'ST.LETTER_BED_SWAP' scripts/build-course-story.mjs 1
+nochk "if (k === 'prevideo') return { kind: 'flow'" assets/bgm-slots.js                                     # ★식전 영상 흐름 음악 줄 — 다음 줄과 같은 말 두 번
+nochk '/목례/.test(' assets/bgm-slots.js                                                                      # ★자리를 글자로 찾지 않는다(대본이 글을 고치면 조용히 물러난다)
+nochk '/위하여/.test(' assets/bgm-slots.js
+nochk "scene: '두 분이 준비하신 편지를 직접 읽으세요. 이 자리에는 안내 음성이 없어요." assets/ritual-story.js      # ★편지 음악 판 장면 글을 따로 적지 않는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-form.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" = 1 ]; then echo 'FAIL bgm-form: 순간 «음악» 칸(한 줄 안내 · 축사 · 편지 칩 둘 · 엔진 −90 ↔ −20 · 요약 · 옛 값 버리기)이 깨졌습니다 — node scripts/audit/bgm-form.mjs'; fail=1; elif [ "$_bgf" = 0 ]; then echo 'ok bgm-form: 순간 음악 칸'; else echo 'skip bgm-form: 브라우저가 없어 화면은 재지 못함(원천 · 엔진은 쟀다)'; fi; fi
 # ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
 #   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
@@ -19474,7 +19499,7 @@ nochk "\['speech', '친구 · 가족의 축사'\]" assets/ritual-open.js
 # ── 라운드 2 G3 · 원고 9장 ③ ⑧(10/14 «전부 추천대로») [R2_VOW_MUSIC_1014 · R2_BLESS_TALK_1014 · R2_DECL_NAMES_1014 · THANKS_DUP_TOAST_1014 · BLESS_STORY_NOTE_1014]
 chk 'R2_VOW_MUSIC_1014' assets/ritual-story.js 1
 chk '이 자리에는 안내 음성이 없어요.' assets/ritual-story.js 4      # 서약 · 감사문 넷 판 — 엔진은 음악을 끄지 않고 낮춘다
-nochk '이 자리에는 음악도 안내 음성도 없어요' assets/ritual-story.js 1   # 남는 하나 = 편지(duckOff · 참)
+nochk '이 자리에는 음악도 안내 음성도 없어요' assets/ritual-story.js 2   # 남는 하나 = 편지(duckOff · 참) · [BGM_R3_1023] 둘째 = 편지 «음악과 함께» 판이 바꿀 대목(LETTER_BED_SWAP.from · 같은 편지)
 chk 'R2_BLESS_TALK_1014' assets/ritual-open.js 1
 chk 'R2_DECL_NAMES_1014' order-preview.html 1
 chk "누가 읽든 같은 글): '+_declNar()" order-preview.html 1

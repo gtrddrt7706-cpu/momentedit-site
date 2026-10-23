@@ -18,6 +18,9 @@
      ④ 입장 곡을 안 골랐으면 «입장 곡 · 고르지 않으시면 스튜디오가 준비해요» + «이동하기»(입장 쪽 · 미완료 셈 그대로) · 골랐으면 곡 이름(이동하기 없음)
    ★★[BGM_R2_1023 2026-10-23 BGM 섹션 라운드 2 «다듬기 셋»] 흐름 음악 줄은 «행동» 줄보다 한 단계 조용하다 — 점 · 글자 크기 · 들여쓰기는 입장 «음악에 맞춰 걸어 들어와요»와 같고 글만 굵기 400 · var(--sub)(행동 줄 500 · --accent) ·
      «맨 앞»은 모든 칸 한 규칙(쪽의 첫 줄이 넘어가는 이음말이면 그 바로 뒤 · 아니면 맨 앞 — 화촉 · 감사 인사 · 축가 바로 뒤 부모님께 인사) · 문구 셋 짧게(폰 390 에서 한 줄)
+   ★★[BGM_R3_1023 2026-10-23 BGM 섹션 라운드 3 «다른 섹션 작업에 깨지지 않게»] 식전 영상은 흐름 음악 줄이 없다(다음 줄과 같은 말) — 링크 칸 아래 한 줄(12.5px · --sub)이 맡는다 ·
+     닫는 인사 · 축배 자리는 글자가 아니라 줄의 큐 열쇠(of)로 찾는다(글을 바꿔도 자리 그대로 · 열쇠가 바뀌면 hit:false) · 9 = 코스(예시 넷 + 전부) × 조합 전부에서 «못 찾아 맨 앞으로 물러남» 0 ·
+     첫 줄이 이음말(화면 이름 «다음 순서로 넘어가며» · 대본 이름 «이음말 · …»)인데 열쇠(bridge-)가 어긋나면 빨강 · 편지 «음악과 함께» 장면은 기본 글에서 한 대목만 바꾼 글(못 찾으면 빨강)
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 · BF_MOD = 돌연변이 확인용(그 판의 bgm-form.js 로 잰다) · RC_MOD = 그 판의 ritual-cue.js · BS_MOD = 그 판의 bgm-slots.js · OP_MOD = 그 판의 order-preview.html · SHOT = 그림 폴더 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -28,13 +31,14 @@ const G = (t) => String(t).replace(/[«»]/g, '');   /* 화면은 «» 를 글�
 
 /* 명세 표 — 순간마다 흐름 줄 하나 · 자리 [BGM_R1_1023] */
 const CONT = '감사 인사부터 피아노가 조용히 이어져요';   /* [BGM_R2_1023] */
-const ONE = { guest: '하객이 앉는 동안 잔잔한 연주가 흘러요', prevideo: '영상에 입힌 소리로 흘러요', candle: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요', matjeol: '입장 곡이 이어져요',
+const ONE = { guest: '하객이 앉는 동안 잔잔한 연주가 흘러요', candle: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요', matjeol: '입장 곡이 이어져요',
   welcome: '목소리 뒤로 피아노가 아주 작게 흘러요', vow: CONT, ring: CONT, declare: CONT, bless: CONT,
   tribute: '인사드리는 동안 밝고 따뜻한 곡이 흘러요', _close: '«인사!»와 함께 힘 있는 곡이 시작돼요', toast: '«위하여!»와 함께 신나는 곡이 울려 퍼져요', table: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요' };
-const AT = { guest: 'top', prevideo: 'video', candle: 'top', matjeol: 'top', welcome: 'top', vow: 'top', ring: 'top', declare: 'top', bless: 'top', tribute: 'top', _close: 'bow', toast: 'cheers', table: 'top' };
+const AT = { guest: 'top', candle: 'top', matjeol: 'top', welcome: 'top', vow: 'top', ring: 'top', declare: 'top', bless: 'top', tribute: 'top', _close: 'bow', toast: 'cheers', table: 'top' };
 /* [BGM_R2_1023] 기본 식순(전부 담음)에서 첫 줄이 넘어가는 이음말인 쪽 — 화촉(263 화촉 순서 알림) · 감사 인사(맞절에서 «하객 쪽으로») */
 const HEADB = { candle: 1, welcome: 1 };
 const NAME = { welcome: '감사 인사', vow: '혼인 서약', ring: '반지 교환', declare: '성혼 선언', bless: '덕담' };
+const PVSND = '보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요';   /* [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄 */
 const NOTE = { S5: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 아래 밝은 연주곡이 아주 작게 깔려요' }, S6: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 아래 오르골 · 피아노가 아주 작게 흘러요' } };
 
 /* 0 원천 · 엔진 · 미리 듣기 주소 — 브라우저 없이 */
@@ -49,14 +53,24 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
     badL.length === 0 && !/어머님|개식/.test(ONE.candle) && !/식사/.test(ONE.table) && !B.SLOTS.some((s) => /말 아래|터져요|곡으로 닫아요|잔잔한 피아노가 아주|부모님께 인사드리는/.test(s.one || '')) && !/흐르던 피아노가 아주 작게/.test(B.LINE.cont), badL.map((k) => [k, V(k)]));
   /* 자리 — 엔진 줄 차례로 «이 줄 앞에» 번호 */
   const S0 = (a) => a.map((x) => Object.assign({ slug: '', txt: '' }, x));
+  ok('0 [BGM_R3_1023] 식전 영상은 흐름 음악 줄이 없다(다음 줄 «여기서 두 분의 영상이 흘러요»와 같은 말) · 옛 «영상» 축사는 그대로', V('prevideo') === null && V('free', { freeKind: 'video' }).kind === 'flow', V('prevideo'));
   const FA = typeof B.flowAt !== 'function' ? { none: 'flowAt 없음' } : { video: B.flowAt('video', S0([{ slug: 'narr-prevideo-in' }, { skip: true, txt: '여기서 두 분의 영상이 흘러요' }, { slug: 'narr-prevideo-out' }])), video0: B.flowAt('video', S0([{ slug: 'a' }, { slug: 'b' }])),
     bridge: B.flowAt('bridge', S0([{ slug: 'bridge-b14-candle-name' }, { slug: 'narr-candle-in' }])), bridge0: B.flowAt('bridge', S0([{ slug: 'narr-candle-in' }])),
-    bow: B.flowAt('bow', S0([{ slug: 'narr-close-bow' }, { quiet: true, txt: '두 분이 하객께 목례 · 박수' }, { slug: 'b13' }])),
-    cheers: B.flowAt('cheers', S0([{ slug: 'toast-toast', txt: '… 위하여 …' }, { talk: true, txt: '여기서 두 분이 «위하여!»를 외치면' }, { slug: 'narr-toast-out' }])), top: B.flowAt('top', S0([{}, {}])),
+    bow: B.flowAt('bow', S0([{ slug: 'narr-close-bow' }, { quiet: true, txt: '두 분이 하객께 목례 · 박수', of: 'narr-close-bow' }, { slug: 'b13' }])),
+    cheers: B.flowAt('cheers', S0([{ slug: 'toast-toast', txt: '… 위하여 …' }, { talk: true, txt: '여기서 두 분이 «위하여!»를 외치면', of: 'toast-toast' }, { slug: 'narr-toast-out' }])), top: B.flowAt('top', S0([{}, {}])),
     /* [BGM_R2_1023] 맨 앞 = 첫 줄이 이음말이면 그 뒤 — 모든 칸 한 규칙(감사 인사 «하객 쪽으로» · 축가 뒤 부모님께 인사 «경건하게» · 못 찾은 자리도) */
     topB8: B.flowAt('top', S0([{ slug: 'bridge-b8-face-guests' }, { slug: 'narr-welcome-in' }])), topB12: B.flowAt('top', S0([{ slug: 'bridge-b12-tribute-calm' }, { slug: 'narr-tribute-name' }])),
     topMid: B.flowAt('top', S0([{ slug: 'narr-vow-in' }, { slug: 'bridge-b8-face-guests' }])), videoB: B.flowAt('video', S0([{ slug: 'bridge-b14-candle-name' }, { slug: 'a' }])),
     bowB: B.flowAt('bow', S0([{ slug: 'bridge-b9-declare-seat-end' }, { slug: 'narr-close-bow' }])), cheersB: B.flowAt('cheers', S0([{ slug: 'bridge-b13-toast-stay' }, { slug: 'x' }])) };
+  /* [BGM_R3_1023] 글자가 아니라 큐 열쇠(of) — 글을 바꿔도 자리 그대로 · 열쇠가 다르면 «못 찾음»(hit:false · 맨 앞) */
+  const FF = typeof B.flowFind !== 'function' ? { none: 'flowFind 없음' } : {
+    bowTxt: B.flowFind('bow', S0([{ slug: 'narr-close-bow' }, { quiet: true, txt: '두 분이 하객께 인사하고 박수를 받아요', of: 'narr-close-bow' }, { slug: 'b13' }])),
+    bowKey: B.flowFind('bow', S0([{ slug: 'narr-close-x' }, { quiet: true, txt: '두 분이 하객께 목례 · 박수', of: 'narr-close-x' }, { slug: 'b13' }])),
+    cheersTxt: B.flowFind('cheers', S0([{ slug: 'toast-toast' }, { talk: true, txt: '여기서 두 분이 잔을 들어요', of: 'toast-toast' }, { slug: 'narr-toast-out' }])),
+    cheersKey: B.flowFind('cheers', S0([{ slug: 'x' }, { talk: true, txt: '여기서 두 분이 «위하여!»를 외치면', of: 'x' }, { slug: 'y', txt: '위하여' }])),
+    top: B.flowFind('top', S0([{ slug: 'bridge-b8-face-guests' }, {}])) };
+  ok('0 [BGM_R3_1023] 자리는 큐 열쇠로 — 목례 · 위하여 줄 글을 바꿔도 같은 자리(hit) · 열쇠가 다르면 글이 같아도 «못 찾음»(hit:false · 맨 앞) · 맨 앞은 늘 찾음',
+    !FF.none && FF.bowTxt.hit && FF.bowTxt.i === 2 && !FF.bowKey.hit && FF.bowKey.i === 0 && FF.cheersTxt.hit && FF.cheersTxt.i === 2 && !FF.cheersKey.hit && FF.top.hit && FF.top.i === 1, FF);
   ok('0 [BGM_R1_1023 · BGM_R2_1023] 자리 — 영상 줄 바로 앞 · 목례 줄 뒤 · «위하여!» 차례 뒤 · 맨 앞 = 첫 줄이 넘어가는 이음말이면 그 바로 뒤(화촉 · 감사 인사 · 부모님께 인사 · 못 찾은 자리 모두) · 아니면 맨 앞 · 가운데 이음말은 상관없다',
     FA.video === 1 && FA.video0 === 0 && FA.bridge === 1 && FA.bridge0 === 0 && FA.bow === 2 && FA.cheers === 2 && FA.top === 0
     && FA.topB8 === 1 && FA.topB12 === 1 && FA.topMid === 0 && FA.videoB === 1 && FA.bowB === 1 && FA.cheersB === 1 && B.SLOTS.every((s) => !s.at || s.at !== 'bridge'), FA);
@@ -161,13 +175,15 @@ try {
     /* [BGM_R2_1023] 음악 줄 모양 = 입장 행동 줄(500 · --accent)에서 글만 400 · --sub(#5A554C) — 크기 · 들여쓰기 · 점은 같다 */
     const SUB = 'rgb(90, 85, 76)', ref = REFQ.look.split('|'), quiet = ref.length === 6 ? [ref[0], '400', SUB, ref[3], ref[4], ref[5]].join('|') : '';
     const lookOk = (L) => !!quiet && ref[1] === '500' && ref[2] === 'rgb(58, 45, 34)' && L.flook === quiet;
-    const posOk = (k, L) => AT[k] === 'top' ? (HEADB[k] ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? /목례/.test(L.prev) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : false;
-    for (const k of ['entry', ...Object.keys(ONE), 'song', 'free', 'letter']) { await go(pg, k); const L = await look(pg); seen[k] = L;
+    /* [BGM_R3_1023] 목례 · 위하여 자리는 글자가 아니라 줄 모양(행동 · 차례 줄 뒤 · 나레이션 앞)으로 — 큐 열쇠가 맞는지는 9(코스 · 조합 전부)가 잰다 · 대본이 글만 고쳐도 거짓 빨강이 안 난다 */
+    const posOk = (k, L) => AT[k] === 'top' ? (HEADB[k] ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? (/\bq\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : false;
+    for (const k of ['entry', 'prevideo', ...Object.keys(ONE), 'song', 'free', 'letter']) { await go(pg, k); const L = await look(pg); seen[k] = L;
       if (['candle', 'welcome', 'vow', 'free', 'letter', '_close', 'toast', 'tribute'].includes(k)) await shot(pg, W, 'bgm-' + k.replace('_', ''));
       let good = !L.hz && !L.old && L.fq <= 1 && !L.gls.includes('음악');
       if (ONE[k]) good = good && !L.row && L.fq === 1 && L.ftxt === G(ONE[k]) && L.fbtn === 0 && /\bq\b/.test(L.fcls) && posOk(k, L) && lookOk(L) && (W > 1000 || L.flines === 1 || !['welcome', 'vow', 'ring', 'declare', 'bless', 'tribute'].includes(k)) && (L.pillN == null || L.pillN === L.nN);   /* [BGM_R2_1023] 문구 셋은 폰에서 한 줄 */
       else if (k === 'entry') good = good && !L.row && L.mu && L.fq === 0 && L.gls.includes('입장 음악');   /* 입장 음악 줄은 그대로 */
       else if (k === 'song') good = good && !L.row && L.fq === 0;
+      else if (k === 'prevideo') good = good && !L.row && L.fq === 0;   /* [BGM_R3_1023] 흐름 음악 줄 없음 — 아래 9 에서 링크 칸 한 줄을 잰다 */
       else good = good && L.row && L.last && L.fq === 0 && L.gl === (k === 'free' ? '축사 음악' : '편지 음악') && L.chips.join() === '음악 없이,음악과 함께' && L.note === NOTE[k === 'free' ? 'S5' : 'S6'].none && L.noteFs === '12.5px' && L.glX === L.glX0 && L.glFs === '14px';
       if (!good) bad.push([k, L]); }
     ok(`${W} 1 [BGM_R1_1023 · BGM_R2_1023] «고르기»에는 입장 · 축사 · 편지 음악만(이름표 «입장 음악 · 축사 음악 · 편지 음악» · 칩 둘 · 아래 한 줄 12.5px) · 나머지 순간은 «흐름»의 채운 점 줄 하나(명세 글 · 자리 — 화촉 · 감사 인사는 첫 이음말 바로 뒤 · 입장 행동 줄과 같은 점 · 크기에 글만 400 · --sub · 폰 한 줄 · 단추 없음) · «이 순간 전체 듣기 · n줄» = 나레이션 줄 수 · 축가 없음 · 가로 넘침 없음`, bad.length === 0, bad.map(([k, L]) => [k, { row: L.row, gls: L.gls, fq: L.fq, ftxt: L.ftxt, fi: L.fi, prev: L.prev, next: L.next, prevCls: L.prevCls, nextCls: L.nextCls, flook: L.flook, quiet, flines: L.flines, pillN: L.pillN, nN: L.nN, gl: L.gl, chips: L.chips, note: L.note, hz: L.hz }]));
@@ -175,6 +191,14 @@ try {
     await pg.evaluate(() => { delete S.on.letter; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'tribute'); const t12 = await look(pg);
     const t12s = await pg.evaluate(() => { try { return String((_lSteps(ENG, ['tribute'])[0] || {}).slug || ''); } catch (e) { return 'ERR'; } });
     await pg.evaluate(() => { S.on.letter = 1; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); });
+    /* 9 [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄 — 12.5px · --sub · 칸 바로 아래 · 흐름 음악 줄 없음 */
+    await go(pg, 'prevideo'); const P9 = await pg.evaluate(() => { const i = document.querySelector('input[aria-label="식전 영상 링크"]'), li = i && i.closest('li'), n = li && li.querySelector('.mk-pvsnd'), cs = n ? getComputedStyle(n) : null;
+      const ir = i ? i.getBoundingClientRect() : null, nr = n ? n.getBoundingClientRect() : null;
+      return { has: !!i, txt: n ? n.textContent.replace(/[\s\u00a0]+/g, ' ').trim() : '', fs: cs ? cs.fontSize : '', col: cs ? cs.color : '', below: !!(ir && nr && nr.top >= ir.bottom - 1 && nr.top - ir.bottom < 40), n: document.querySelectorAll('.mk-pvsnd').length,
+        bgm: document.querySelectorAll('.mk-flow > li[data-bgm]').length, hz: document.documentElement.scrollWidth > innerWidth + 1 }; });
+    await shot(pg, W, 'bgm-prevideo-link', '.mk-send1');
+    ok(`${W} 9 [BGM_R3_1023] 식전 영상 — 흐름 음악 줄 없음 · «식전 영상 링크» 칸 바로 아래 «${PVSND}»(12.5px · --sub) 한 줄`,
+      P9.has && P9.txt === PVSND && P9.fs === '12.5px' && P9.col === 'rgb(90, 85, 76)' && P9.below && P9.n === 1 && P9.bgm === 0 && !P9.hz, P9);
     ok(`${W} 1 [BGM_R2_1023] 편지를 빼 축가 바로 뒤가 부모님께 인사면 첫 줄 «경건하게» 이음말(${t12s}) 바로 뒤에 음악 줄`, t12s === 'bridge-b12-tribute-calm' && t12.fi === 1 && /넘어가며/.test(t12.prev) && t12.ftxt === G(ONE.tribute), { t12s, fi: t12.fi, prev: t12.prev, ftxt: t12.ftxt });
     ok(`${W} 1 손대지 않으면 S.bgm 이 없다`, seen.table.bgm === 'null', seen.table.bgm);
     /* 2 칩 */
@@ -234,6 +258,37 @@ try {
     await pg.goto(pg.url(), { waitUntil: 'load' }); await pg.waitForTimeout(2000); const L = await look(pg);
     ok('8 at 이 같은 초안(at=letter)으로 ?mk=letter 를 다시 열어도 편지 쪽(하나씩 만들기) · 음악 줄(S6)', at0 === 'letter' && /편지/.test(L.head) && L.slot === 'S6' && errs.length === 0, { at0, L, errs });
     await ctx.close(); }
+  /* 9 [BGM_R3_1023] 코스 · 조합 전부 — 음악 줄이 큐 열쇠로 자리를 찾았나(못 찾아 맨 앞으로 물러난 곳 0) · 첫 줄이 이음말이면 그 뒤 · 이음말 열쇠가 어긋나지 않았나 */
+  { const { ctx, pg, errs } = await openPage(390); await walk(pg);
+    const C9 = await pg.evaluate(() => { const R = RitualOpen, S0 = JSON.parse(JSON.stringify(S)), out = { n: 0, by: {}, miss: [], head: [], key: [], courses: 0 };
+      const base = [{ nm: '전부', on: R.PICKABLE.slice(), set: {} }].concat((R.EXAMPLES || []).map((x) => ({ nm: x.nm, on: x.on, set: x.set || {} })));
+      const vars = [{}, { vowKind: 'thanks' }, { candleWho: 'fathers' }, { candleWho: 'others' }, { _off: ['welcome'] }, { _off: ['letter'] }, { _off: ['welcome', 'letter'] }, { _off: ['candle'] }, { _off: ['toast'] }, { _off: ['table'] }, { _off: ['tribute'] },
+        { guestVoice: 'couple' }, { entryVoice: 'couple' }, { _chip: ['tribute', 'none'] }, { _chip: ['letter', 'parent'] }, { _chip: ['toast', 'toast'] }, { _chip: ['toast', 'cake'] }, { _chip: ['free', 'video'] }, { _on: ['song'], _off: ['letter'] }];
+      Object.keys(R.NAR_EX || {}).forEach((k) => { const n = ((R.NAR_EX[k] || {}).lines || []).length; for (let i = 1; i <= n; i++) vars.push({ _ex: [k, i] }); });
+      const ks = ['guest', 'candle', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'tribute', '_close', 'toast', 'table', 'prevideo'];
+      try { base.forEach((b) => { out.courses++; vars.forEach((v) => {
+        const T = JSON.parse(JSON.stringify(S0)); T.course = 'open'; T.on = {}; b.on.forEach((k) => { T.on[k] = 1; }); Object.keys(b.set).forEach((k) => { T[k] = JSON.parse(JSON.stringify(b.set[k])); });
+        Object.keys(v).forEach((k) => { if (k[0] !== '_') T[k] = v[k]; }); (v._off || []).forEach((k) => { delete T.on[k]; }); (v._on || []).forEach((k) => { T.on[k] = 1; });
+        if (v._chip) { try { R.setChip(T, v._chip[0], v._chip[1]); } catch (e) {} } if (v._ex) { T.narEx = Object.assign({}, T.narEx || {}); T.narEx[v._ex[0]] = v._ex[1]; }
+        S = T; const tag = b.nm + ' ' + JSON.stringify(v);
+        ks.forEach((k) => { if (k !== '_close' && k !== 'guest' && k !== 'matjeol' && !R.onOf(S, k)) return; let st = []; try { st = _lSteps(ENG, [k]); } catch (e) { return; }
+          const f = BgmForm.flowRow(k, st); if (!f) return; out.n++; out.by[f.by] = (out.by[f.by] || 0) + 1;
+          if (!f.hit) out.miss.push(tag + ' · ' + k + ' (' + f.by + ')');
+          const s0 = st[0] || {}, isBr = /^bridge-/.test(String(s0.slug || '')), looksBr = s0.lab === '다음 순서로 넘어가며' || /^이음말/.test(String(s0.slab || ''));
+          if (isBr !== looksBr) out.key.push(tag + ' · ' + k + ' · ' + (s0.slug || '') + ' / ' + (s0.lab || ''));
+          if (f.by === 'top' && f.at !== (isBr ? 1 : 0)) out.head.push(tag + ' · ' + k + ' at ' + f.at); }); }); }); }
+      finally { S = S0; }
+      out.miss = out.miss.slice(0, 12); out.head = out.head.slice(0, 12); out.key = out.key.slice(0, 12); return out; });
+    ok(`9 [BGM_R3_1023] 코스 ${C9.courses} × 조합 전부(흐름 음악 줄 ${C9.n}곳 · ${JSON.stringify(C9.by)}) — 큐 열쇠로 자리를 못 찾아 맨 앞으로 물러난 곳 0 · 닫는 인사(목례) · 축배(위하여)를 한 번 이상 잼`,
+      C9.n > 100 && C9.miss.length === 0 && (C9.by.bow || 0) > 0 && (C9.by.cheers || 0) > 0, C9.miss);
+    ok(`9 [BGM_R3_1023] 코스 · 조합 전부 — 첫 줄이 이음말이면 음악 줄은 그 바로 뒤 · 이음말 열쇠(bridge-)와 화면 · 대본 이름(«다음 순서로 넘어가며» · «이음말 · …»)이 어긋난 곳 0`,
+      C9.head.length === 0 && C9.key.length === 0, { head: C9.head, key: C9.key });
+    ok('9 쪽 오류 없음', errs.length === 0, errs);
+    await ctx.close(); }
+  /* 10 [BGM_R3_1023] 편지 «음악과 함께» 장면 = 기본 편지 장면에서 한 대목만 바꾼 글(대본이 기본 글을 고쳐 대목이 사라지면 빨강 · build-course-story 도 같은 것을 잰다) */
+  { const sw = ST.LETTER_BED_SWAP, b0 = ST.LIVE['두 분이 직접 편지 낭독'], b1 = ST.LIVE['두 분이 직접 편지 낭독 (음악이 아주 작게)'];
+    ok('10 [BGM_R3_1023] 편지 «음악과 함께» 장면 — 기본 장면 글에 바꿀 대목이 있다 · 음악 판 = 그 대목만 바꾼 글',
+      !!(sw && b0 && b1) && String(b0.scene || '').indexOf(sw.from) > -1 && b1.scene === b0.scene.replace(sw.from, sw.to) && b1.scene.endsWith(sw.to), { sw, b0: b0 && b0.scene, b1: b1 && b1.scene }); }
 } finally { await br.close(); srv.close(); }
 console.log(fail ? `bgm-form: FAIL ${fail}` : 'bgm-form: ok');
 process.exit(fail ? 1 : 0);

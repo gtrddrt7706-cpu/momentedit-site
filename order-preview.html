@@ -921,6 +921,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-acts{display:grid;gap:20px}
 .pk-act-h{font-size:14px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
 .pk-act-d{font-size:12.5px;color:var(--light);margin:0 0 8px;line-height:1.45}
+.pk-scnote{font-size:12.5px;color:var(--light);margin:10px 0 0;line-height:1.5}   /* [SCENE_NOTE_1023] 칸 아래 한 줄 · 작게 */
 .pk-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .pk-tile{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .pk-tile.on,.pk-tile.fix{border-color:var(--gold);background:var(--tile-on)}
@@ -1039,6 +1040,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-fp>.pk-side{grid-column:2;grid-row:1 / span 2}
   .pk-fp>.op-note{grid-column:1;grid-row:2;margin-top:0;align-self:start}   /* [NOTE_UNDER] PC 는 그림 아래 */
   .pk-acts{gap:18px;margin-bottom:48px}
+  .pk-scnote{padding-left:168px;margin:-38px 0 48px}   /* [SCENE_NOTE_1023] PC 는 칸 줄과 왼쪽을 맞춘다(이름 칸 150 + 사이 18) · 칸 아래 48 여백 안으로 올린다 */
   .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
   .pk-act-h{font-size:14px;color:var(--accent)}
   .pk-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
@@ -1309,6 +1311,7 @@ body.lsfull{overflow:hidden}
 .mk-send1 .mk-vt{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;flex:1 1 auto;min-width:0}   /* [PV_LINK_ONE] 이름 왼쪽 · 기한 오른쪽 한 줄 */
 .mk-send1 .mk-vlist{border-top:0;margin-top:0}.mk-send1 .mk-vr{border-bottom:0;padding-bottom:2px}.mk-send1 .mk-vx{border-bottom:0;padding-top:8px}.mk-send1 .mk-vn{font-weight:600}
 .mk-vx .upchk{margin-bottom:4px}
+.mk-vx .mk-pvsnd{margin:8px 0 0}   /* [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄(12.5px · --sub = mk-note) */
 /* ★«고른 순서» 펼침 목록(.mk-ilist · .mk-irow · 꺾쇠 · 펼친 칸 .mk-idet · 고를 것 · «이 순간 만들러 가기 ›») 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW 2026-10-03 사장님 «이 순간 만들러 가기 › 이건 삭제 · 고를 것도 삭제»]
    ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 후 다음으로 · 뺀 이벤트는 옅은 투명으로 · 미니멀하면서 깔끔하고 군더더기 없이»]
    ② 첫 쪽 = 예식 흐름. 식전 · 본식 두 묶음 · 한 줄 = 번호 · 이름(★) · 목소리 한 낱말 · 약 몇 분 · «빼기». 선은 줄 사이 머리카락 선뿐 · 상자 · 카드 없음.
@@ -2261,7 +2264,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023w"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023d"></script><script src="/assets/bgm-form.js?v=1023c"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023y"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023e"></script><script src="/assets/bgm-form.js?v=1023e"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3100,7 +3103,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1023w';   // [ASSET_V] 위 주석
+  var ASSET_V='1023y';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4509,10 +4512,10 @@ function _lSteps0(g,ks){
         lab=_lWhen(lab);   /* [STAGE_LINES] 화면 이름만 «언제 나오나»로 · 대본(slab)은 원래 이름 */
         out.push({k:k,lab:lab,slab:slab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',file:c.file,ms:Math.max(2400,Math.round(String(c.text||'').length*160))});
         /* [G5 TOAST_TALK_GLASS] 케이크 · 축배의 «위하여» 줄은 잔 드는 큐 뒤 — 종전엔 줄의 첫 사람 순간(케이크 커팅)에 붙어 붓기 앞에 나왔다 */
-        if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+tt,talk:true,ms:3000}); } }
+        if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''}); } }   /* [BGM_R3_1023] of = 잔 드는 큐 */
       }
       /* [G5] 말 없는 사람 순간도 옅은 줄로(소리 없음 · 재생 목록에는 안 들어간다) */
-      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말 없이 흐르는 자리',txt:qt,quiet:true,ms:0}); } }   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
+      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말 없이 흐르는 자리',txt:qt,quiet:true,ms:0,of:c.slug||''}); } }   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
       if(c.live){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요 · 미리 듣기에서는 넘겨요',skip:true,ms:1600}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
@@ -4521,7 +4524,7 @@ function _lSteps0(g,ks){
           else if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
             var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='etc'?'두 분이 준비한 순서가 이어져요':'준비한 선물을 건네요';
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000}); }
-          else { var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+t,talk:true,ms:3000});
+          else { var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''});   /* [BGM_R3_1023] */
             if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말 없이 흐르는 자리',txt:cs.some(function(x){ return x.slug==='tribute-hug'; })?'두 분이 부모님께 인사해요':'두 분이 부모님께 인사하고 안아 드려요',quiet:true,ms:0});   /* [TRIB_HUG_LINE_1018 검토 131-4] 포옹을 청하는 줄(256)이 있는 날은 인사만 — 포옹은 그 줄 뒤 */   /* ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤(_lQuiet)   /* [HUG_WORDS_1013] 말을 전한 뒤 인사 · 포옹 */
             if(k==='vow') out.push({k:k,lab:'말 없이 흐르는 자리',txt:_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요':'마지막 한 문장은 두 분이 하객 쪽으로 돌아서서 함께 읽어요',quiet:true,ms:0}); } }   /* [STAGE_LINES] _vowHowHint 와 같은 사실 · 할 말 카드 아래에만 있어 흐름에선 안 보였다 */
         }
@@ -4993,6 +4996,7 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
       if(cat==='send'&&q.k==='prevideo'){
         h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_pvOkTg(this.value);_mkStripRepaint()" onblur="growHint(this.value,true)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">'
           +'<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>'
+          +'<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>'   /* ★[BGM_R3_1023] 식전 영상 음악 안내는 흐름이 아니라 두 분이 할 일이 있는 이 칸 아래 한 줄(영상 소리가 없으면 그 3분이 조용하다) · 링크 칸은 영상 · 사진 한 칸이라(PV_LINK_ONE) 판을 가르지 않는다 */
           +'</li>'; }   /* [R1-14] 자리표시 글은 390 칸에 들어가게 짧게 · [R1-44] 붙이는 즉시 «링크 받았어요»(_pvOkTg) · ★★[PREVIDEO_FREE 2026-10-02 사장님 «식전 영상 규정을 제한하지 말 것 · 자유대로 · 붙여넣기 하나로» → «링크 칸 하나만»] 길이 · 장수 규정 · 카톡 · 메일 · 25MB 안내를 걷었다 · 되살리지 말 것 */
     });
     h+='</ul></section>'; });
@@ -8362,6 +8366,7 @@ function renderPick(){
   h+='<div class="pk-sh" id="pkActsH"><h3 class="pk-h">순간 더하고 빼기</h3><span class="pk-aux">칸을 누르면 미리 보고 들어요 · ＋로 담아요</span></div>';   /* ★범례(✓ 고른 순간 · ⊙ 늘 있는 순간) 금지 — 2026-10-06 사용자 지시로 삭제 [FIX_LEG_OFF] · 표만으로 읽힌다 */
   h+='<div class="pk-acts">'+R.SECTIONS.map(function(a,i){ return '<section class="pk-act" aria-labelledby="pkA'+i+'"><div class="pk-act-l"><h4 class="pk-act-h" id="pkA'+i+'">'+esc(a.n)+'</h4><p class="pk-act-d">'+esc(a.d)+'</p></div><div class="pk-tiles">'+a.ks.filter(_pkShow).map(_pkTile).join('')+'</div></section>'; }).join('')+'</div>';   /* [CAKE_OFF_1013] 새로 담지 않는 칸은 담겨 있을 때만 */
   /* ★① 칸 아래 «칸의 그림 자리에는 AI로 만든 장면 영상의 첫 장면이 들어가요» 한 줄 금지 — 2026-10-03 사용자 지시로 삭제 [AI_LABEL_OFF] */
+  h+='<p class="pk-scnote">이해를 돕는 연출 장면이에요</p>';   /* ★[SCENE_NOTE_1023 2026-10-23 사장님 «실제랑 다르다고 작게 적어 놓는 게 좋을까 · 제안줄래» → «요약해서 · 조금 달라요 이런 거 빼고»] 장면 그림 · 영상이 처음 보이는 칸 아래 한 번만 · «AI» 낱말 없음(AI_LABEL_OFF 와 다른 줄 — 기대치를 맞추는 «연출» 한 마디) · 칸마다 · 그림 위에 붙이지 않는다 */
   h+='</div>';
   return h;
 }
