@@ -2,7 +2,7 @@
 /* ★★[REC_SONG_1012 2026-10-12 사장님 «추천대로»(추천 곡 1번 · 드라이브에 두고 로그인한 두 분에게만) · «왜 추천 노래 부분이 없어?»] 4단계-나 — 빌더 ② 입장 «추천 곡» 카드
    진짜 식순 화면을 «마이페이지 안»(order-preview.html?embed=1)으로 띄우고, 부모 창(가짜 마이페이지)이 GAS 대신 곡 목록 · 곡(합성음)을 준다(mypage.html 중계와 같은 모양).
    A 기기(390 · 1280)
-   1 칩 둘 · 처음엔 안 눌린 모양 · «추천 곡» → 목록을 한 번 묻는다 · 받는 동안 카드 자리 «추천 곡을 불러오는 중이에요» → 카드(곡 수만큼 · 첫 카드 · 제목 · 가수 · 분위기 · 사진은 사이트 그림) · ‹ 꺼짐 · ✓ 안 눌림
+   1 칩 둘 · 처음엔 안 눌린 모양 · «추천 곡» → 목록을 한 번 묻는다 · 받는 동안 카드 자리 «스튜디오가 고른 곡을 불러오는 중이에요» → 카드(곡 수만큼 · 첫 카드 · 제목 · 가수 · 분위기 · 사진은 사이트 그림) · ‹ 꺼짐 · ✓ 안 눌림
    2 › → 다음 카드 · 점 · 알림 줄 · ← → 도 같다
    3 ▶ → 그 곡을 한 번 묻는다 · 받는 동안 ■(aria-busy) + 그 카드 가운데 «곡을 불러오는 중이에요» → 소리 · 소리 막대([NOW_EQ]) · 문이 열리는 자리 12초 앞부터 1분([PREV_12_60_1013] · 종전 6초 앞부터 1분 20초)
    4 가사([LY_SYNC · LY_ON_CUE · LY_FROM_START_1013]) — 들기 시작할 때 이미 불리고 있던 줄은 안 뜬다 · 그다음 줄부터 불릴 때 바로(문 열림 전이어도) · 문이 열리는 줄 · 사진이 밝아진다(lit)
@@ -14,8 +14,8 @@
    8 저장 → 초안(orderDraft)에 S.mu 가 실려 간다(당일 콘솔이 보는 그것 · src rec · k · hook)
    9 이 기기에 둔 곡 — 다시 들으면 다시 묻지 않는다(새로 연 쪽에서도)
    10 올린 곡 ↔ 추천 곡 — 올린 곡을 고른 채 추천 곡을 고르면 올린 곡 기록은 S.muUp 으로(서버 파일 그대로) · «두 분이 고른 곡» 칩 → 곡 줄만(안 고른 모양) → 누르면 다시 그 곡(fid 그대로)
-   11 못 받으면 — 목록 «추천 곡을 불러오지 못했어요 · 다시 불러오기 (코드 L6)» → 다시 불러오기 → 카드 · 곡 «곡을 불러오지 못했어요 · 인터넷을 확인해 주세요 (코드 L6)» · ▶ 로 돌아옴
-   12 마이페이지 밖(embed 아님) — «추천 곡은 마이페이지에서 들어 볼 수 있어요» · 아무것도 묻지 않는다
+   11 못 받으면 — 목록 «스튜디오가 고른 곡을 불러오지 못했어요 · 다시 불러오기 (코드 L6)» → 다시 불러오기 → 카드 · 곡 «곡을 불러오지 못했어요 · 인터넷을 확인해 주세요 (코드 L6)» · ▶ 로 돌아옴
+   12 마이페이지 밖(embed 아님) — «스튜디오가 고른 곡은 마이페이지에서 들어 볼 수 있어요» · 아무것도 묻지 않는다
    13 쪽 오류 없음 · 가로 넘침 없음
    ★[REC_CLIP_1013 2026-10-13 사장님 «기다림 완전 짧게 · 없으면 더 좋고»] 미리 받기 · 짧은 판
    1 · 3 은 이제 — ② 입장 쪽을 열면 칩을 누르기 전에 목록과 첫 카드 곡을 받아 둔다 · «추천 곡»을 누르면 목록을 다시 묻지 않는다 · ▶ 는 바로 소리
@@ -66,7 +66,7 @@ window.addEventListener('message',function(ev){ var d=ev.data||{}; if(ev.origin!
   if(d.type==='momentedit:ritualFile'){ var x=d.data; setTimeout(function(){ var id='FILE'+(++H.n)+'abcdefghij'; H.files[id]={key:x.key,name:x.name,mime:x.mime,data:String(x.data).replace(/^data:[^,]*,/,'')};
       back({type:'momentedit:ritualFileDone',key:x.key,tk:x.tk,ok:true,id:id,name:x.name,at:'2026-10-12 10:00'}); }, H.delay); return; }
   if(d.type==='momentedit:ritualFileGet'){ var g=d.data;
-    if(g.key==='rec'){ if(g.id==='list'){ setTimeout(function(){ if(H.failList>0){ H.failList--; back({type:'momentedit:ritualFileData',key:'rec',id:'list',ok:false,error:'추천 곡을 불러오지 못했어요 (코드 L6)',ecode:'L6'}); return; }
+    if(g.key==='rec'){ if(g.id==='list'){ setTimeout(function(){ if(H.failList>0){ H.failList--; back({type:'momentedit:ritualFileData',key:'rec',id:'list',ok:false,error:'스튜디오가 고른 곡을 불러오지 못했어요 (코드 L6)',ecode:'L6'}); return; }
           back({type:'momentedit:ritualFileData',key:'rec',id:'list',ok:true,songs:H.list}); }, H.listDelay); return; }
       setTimeout(function(){ if(H.failId[g.id]>0||H.failSong>0||!H.songs[g.id]){ if(H.failId[g.id]>0) H.failId[g.id]--; else if(H.failSong>0) H.failSong--; back({type:'momentedit:ritualFileData',key:'rec',id:g.id,ok:false,error:'곡을 불러오지 못했어요 (코드 L6)',ecode:'L6'}); return; }
         back({type:'momentedit:ritualFileData',key:'rec',id:g.id,ok:true,mime:'audio/wav',data:H.songs[g.id]}); }, H.delay); return; }
@@ -147,7 +147,7 @@ try {
     await f.click('[data-fk="musrc:rec"]'); await f.waitForTimeout(400); const V1a = await view(f), L1a = await HL(pg); await shot(f, W, '1-wait');
     await f.waitForFunction(() => !!document.querySelector('.ls-mu .mu-car:not(.mu-car0) .mu-slide'), null, { timeout: 20000 }).catch(() => {}); await f.waitForTimeout(400);
     const V1 = await view(f), L1 = await HL(pg); await shot(f, W, '1-card'); await vshot(pg, f, W, '1-card');
-    ok(`${W} 1a 칩 둘 처음엔 안 눌린 모양 · 칩을 누르기 전에 목록을 한 번 받아 둔다([REC_CLIP_1013] · 짧은 판이 없는 옛 목록이면 곡은 받지 않는다) · «추천 곡» → 눌린 모양 · 다시 묻지 않는다 · 아직 받는 중이면 카드 자리 «추천 곡을 불러오는 중이에요»`, V0.chips === 'false,false' && recReqs(L0, 'list') === 1 && L0.every((x) => !/:rec:r\d/.test(x)) && V1a.chips === 'false,true' && V1a.wait === '추천 곡을 불러오는 중이에요' && recReqs(L1a, 'list') === 1, { V0: V0.chips, L0, V1a: { chips: V1a.chips, wait: V1a.wait }, L1a });
+    ok(`${W} 1a 칩 둘 처음엔 안 눌린 모양 · 칩을 누르기 전에 목록을 한 번 받아 둔다([REC_CLIP_1013] · 짧은 판이 없는 옛 목록이면 곡은 받지 않는다) · «추천 곡» → 눌린 모양 · 다시 묻지 않는다 · 아직 받는 중이면 카드 자리 «스튜디오가 고른 곡을 불러오는 중이에요»`, V0.chips === 'false,false' && recReqs(L0, 'list') === 1 && L0.every((x) => !/:rec:r\d/.test(x)) && V1a.chips === 'false,true' && V1a.wait === '스튜디오가 고른 곡을 불러오는 중이에요' && recReqs(L1a, 'list') === 1, { V0: V0.chips, L0, V1a: { chips: V1a.chips, wait: V1a.wait }, L1a });
     ok(`${W} 1b 카드 — 곡 수만큼(이상한 키는 빠진다) · 첫 카드 · 제목 · «가수 · 분위기» · 사진은 사이트 그림 · ‹ 꺼짐 › 켜짐 · ✓ 안 눌림 · ▶ «… 들어 보기» · 목록은 한 번만`,
       V1.n === 3 && V1.keys === 'r1,r3,r9' && V1.cur === 'r1' && V1.tt === 'Test Song One' && V1.ta === '시험 가수 · 경쾌하게' && V1.img === '/assets/home/snap.webp' && V1.arl === 'true' && V1.arr === 'false' && V1.pk && V1.pk.p === 'false' && !V1.pk.on && V1.tpp && V1.tpp.p === 'false' && V1.tpp.l === 'Test Song One 들어 보기' && V1.dots === 'on,-,-' && recReqs(L1, 'list') === 1 && !V1.over,
       { n: V1.n, keys: V1.keys, cur: V1.cur, tt: V1.tt, ta: V1.ta, img: V1.img, arl: V1.arl, arr: V1.arr, pk: V1.pk, tpp: V1.tpp, dots: V1.dots, list: recReqs(L1, 'list'), over: V1.over });
@@ -252,7 +252,7 @@ try {
     const V11b = await view(o3.f);
     await o3.f.click('.ls-mu [data-fk="mucarplay"]'); await o3.f.waitForFunction(() => (window.__toasts || []).some((t) => /코드 L6/.test(t)), null, { timeout: 15000 }).catch(() => {}); await o3.f.waitForTimeout(700);   // 받는 중 줄은 0.4초에 걸쳐 흐려진 뒤 비운다
     const V11c = await view(o3.f);
-    ok(`${W} 11a 목록을 못 받으면 «추천 곡을 불러오지 못했어요 · 다시 불러오기 (코드 L6)» → 다시 불러오기 → 카드`, V11a.err === '추천 곡을 불러오지 못했어요 · 다시 불러오기 (코드 L6)' && V11b.n === 3, { err: V11a.err, n: V11b.n });
+    ok(`${W} 11a 목록을 못 받으면 «스튜디오가 고른 곡을 불러오지 못했어요 · 다시 불러오기 (코드 L6)» → 다시 불러오기 → 카드`, V11a.err === '스튜디오가 고른 곡을 불러오지 못했어요 · 다시 불러오기 (코드 L6)' && V11b.n === 3, { err: V11a.err, n: V11b.n });
     ok(`${W} 11b 곡을 못 받으면 «곡을 불러오지 못했어요 · 인터넷을 확인해 주세요 (코드 L6)» · ▶ 로 돌아옴`, V11c.toasts.includes('곡을 불러오지 못했어요 · 인터넷을 확인해 주세요 (코드 L6)') && V11c.tpp.p === 'false' && !V11c.rec.want && !V11c.rec.prev && V11c.ly === '', { toasts: V11c.toasts, tpp: V11c.tpp, rec: V11c.rec, ly: V11c.ly });
     ok(`${W} 13d 쪽 오류 없음(못 받음)`, o3.errs.length === 0, o3.errs);
     await ctx3.close();
@@ -260,7 +260,7 @@ try {
     const ctx4 = await br.newContext({ viewport: { width: W, height: 900 } });
     const o4 = await open(ctx4, null, false); await toEntry(o4.f);
     await o4.f.click('[data-fk="musrc:rec"]'); await o4.f.waitForTimeout(400); const V12 = await view(o4.f);
-    ok(`${W} 12 마이페이지 밖 — «추천 곡은 마이페이지에서 들어 볼 수 있어요» · 카드 없음 · 쪽 오류 없음`, V12.err === '추천 곡은 마이페이지에서 들어 볼 수 있어요' && V12.n === 0 && V12.rec.lst === 'fail' && o4.errs.length === 0, { err: V12.err, n: V12.n, rec: V12.rec, errs: o4.errs });
+    ok(`${W} 12 마이페이지 밖 — «스튜디오가 고른 곡은 마이페이지에서 들어 볼 수 있어요» · 카드 없음 · 쪽 오류 없음`, V12.err === '스튜디오가 고른 곡은 마이페이지에서 들어 볼 수 있어요' && V12.n === 0 && V12.rec.lst === 'fail' && o4.errs.length === 0, { err: V12.err, n: V12.n, rec: V12.rec, errs: o4.errs });
     await ctx4.close();
     // 14 [REC_CLIP_1013] 미리 받기 — 칩 전 · 칩 후 · 받는 중 ▶
     const ctx5 = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 });

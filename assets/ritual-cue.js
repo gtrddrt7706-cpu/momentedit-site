@@ -126,7 +126,7 @@
        96 declare-clap-a    : 박수 판 · 증인 청하기  · 97 declare-clap-b : 박수 뒤 선언(박수를 전제하지 않는다)
        98 toast-pour-mix    : 두 와인을 한 잔에 · 99 toast-pour-family : 양가 여는 말(사연 한 줄 없음 · 사장님 9/25) */
     'guest-4-1min-pre', 'narr-prevideo-in',
-    'narr-candle-in-mothers', 'narr-candle-in-parents', 'narr-candle-in-fathers', 'narr-candle-in-others', 'narr-candle-out',
+    'narr-candle-in-mothers-ex2', 'narr-candle-in-parents', 'narr-candle-in-fathers', 'narr-candle-in-others', 'narr-candle-out',   /* ★[BASE_SWAP_1023 검토 156] 91 = 이제 «뭉클하게» 칩(-ex2) · 기본 «담백하게»는 151 — 소리 번호는 글을 따라 그대로(아래 151 자리와 이름만 맞바꿈) */
     'declare-clap-a', 'declare-clap-b', 'toast-pour-mix', 'toast-pour-family',
     /* ★★[NAR_0925 2026-09-25 코워크 회신 둘째 판] 새 줄 8개 — 번호 100~107. **맨 끝에 붙였다**(위 경고 그대로).
        100~103 narr-free-in-video/stage/gift/speech : 준비한 순서 여는 말 판별 넷(FREE_WHAT · 축사는 이 판 하나 · SPEECH_IN_FREE)
@@ -161,7 +161,7 @@
     'narr-table-in',
     /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 132 — 입장 끝 맞절 한 줄. **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-data.js NARR.entryBow · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
-    'narr-entry-bow',
+    'narr-entry-bow-ex2',   /* ★[BASE_SWAP_1023 검토 156] 132 = 이제 «잔잔하게» 칩(-ex2 · 153 의 EE A-2 글) · 기본 «격식 있게»는 160 */
     /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말. **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-data.js NARR.thanksIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
     'narr-thanks-in',
@@ -178,10 +178,10 @@
     'narr-candle-bow-fathers', 'narr-candle-bow-others',
     /* ★★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 · 4개 정도 · 자료집에서»] 148 ~ 190 — 나레이션 멘트 예시 2 ~ 4(43줄).
        **맨 끝에 붙였다**(위 경고 그대로 · 번호는 한 번 붙으면 바꾸지 않는다). 원천 문안 assets/ritual-open.js NAR_EX · 녹음 전엔 글로(진행 · 우성) */
-    'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers-ex2',
+    'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers',   /* [BASE_SWAP_1023] 151 = 화촉 어머님 기본(담백하게) */
     'narr-candle-in-mothers-ex3', 'narr-candle-in-mothers-ex4', 'narr-candle-in-fathers-ex2', 'narr-candle-in-fathers-ex3',
     'narr-candle-in-parents-ex2', 'narr-candle-in-parents-ex3', 'narr-candle-in-parents-ex4', 'narr-candle-in-others-ex3',
-    'narr-entry-bow-ex2', 'narr-entry-bow-ex3', 'narr-entry-bow-ex4', 'narr-vow-in-ex2',
+    'narr-entry-bow', 'narr-entry-bow-ex3', 'narr-entry-bow-ex4', 'narr-vow-in-ex2',   /* [BASE_SWAP_1023] 160 = 맞절 기본(격식 있게) */
     'narr-vow-in-ex3', 'narr-vow-in-ex4', 'narr-vow-in-b-ex2', 'narr-vow-in-b-ex3',
     'narr-vow-in-b-ex4', 'narr-ring-in-ex2', 'narr-ring-in-ex3', 'narr-declare-family-out-ex2',
     'narr-bless-mid-ex2', 'narr-bless-mid-ex3', 'narr-free-in-speech-ex2', 'narr-free-in-speech-ex3',
@@ -373,6 +373,11 @@
   function norm(S) {
     var s = {}, k;
     for (k in (S || {})) if (Object.prototype.hasOwnProperty.call(S, k)) s[k] = S[k];
+    /* ★[BASE_SWAP_1023 검토 156] 맞절 · 화촉(어머님) 기본 ↔ 예시 2 — 옛 초안(entryScene 이 있고 exv 2 가 없는 S)의 «1»은 지금 기본이라 지운다 · 그 뒤 exv 2(아래 기본값을 채워도 다시 옮기지 않게) ·
+       엔진이 읽을 값은 ritual-open narExOf 의 exSwapped 와 같다 */
+    if (s.narEx && s.entryScene != null && +s.exv !== 2 && O.exSwapped) { var _nx = {}; for (k in s.narEx) _nx[k] = s.narEx[k];
+      if (O.exSwapped(s, 'matjeol') && +_nx.matjeol === 1) delete _nx.matjeol; if (O.exSwapped(s, 'candle') && +_nx.candle === 1) delete _nx.candle; s.narEx = _nx; }
+    s.exv = 2;
     /* ★★[COURSE_LOST_LOUD 2026-09-25 코워크 Q1③ 채택] 모르는 코스는 «큰 소리로» 실패한다.
        종전엔 여기서 조용히 «약속»(damback)으로 떨어졌다 — 화면은 멀쩡한데 고객이 고른 것과 다른 예식이 흐른다
        ([COURSE_HIDDEN] 이 막으려던 바로 그 사고). 콘솔이 멈추면 당일이 더 위험하니 폴백은 남기고,
@@ -750,7 +755,7 @@
         k: 'prevideo', blockN: '식전 영상', slug: pslug, name: '식전 영상 소개',
         text: EXTRA[pslug], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
         fire: (D.COURSES[S.course] && D.COURSES[S.course].open) ? 'chain' : 'clock', atMin: 0,   // [CEREMONY_AT_VIDEO 2026-10-05] 불을 낮추고 예식 시작 시각에 · 옛 [PREVIDEO_AT_4](본식 시작 4분 전) 걷음 · ★[OPEN_DECL_1014] 새 코스는 개식 선언(시각에)에 이어 사슬
-        note: '영상 링크는 D-3 까지 받는다(영상이 없으면 링크로 받은 사진으로 저희가 영상 · 첫 장에 이름 · 날짜 · 길이 · 장수 규정 없음 [PREVIDEO_FREE]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
+        note: '영상 링크는 D-3 까지 받는다(길이 규정 없음 [PREVIDEO_FREE] · 사진으로 만드는 길은 없다 [PV_PHOTO_OFF_1023]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         /* ★[PV_RESCUE_1014 라운드 3] 같은 영상 상영인 준비한 순서(영상)처럼 [재생 안 됨](105 · FREE_RESCUE)을 든다 — 식전 영상만 실패 처리가 없었다(자료 T1 · V 3-5 돌발 «음향 · 영상 트러블») */
         rescue: { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */,
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff,
@@ -1776,7 +1781,7 @@
        ① 같은 첫 낱말로 열거나(다음은 · 다음으로 · 이제 · 자 그럼 이제 · 먼저 · 이어서 · 이번에는 · 그럼) ② 둘 다 박수를 청하면(사이 줄이 «박수, 고맙습니다.»여도 같다)
        뒤 순간을 그 순간의 다음 예시로 넘긴다(첫 낱말만 갈아 끼우지 않고 예시를 고른다 · 검토 66 (나) · 21_연결멘트 G1 원칙 4 · G2 1-4 · CLAP_FEW 취지).
        넘기는 차례는 순간마다(표에 없는 순간은 0 1 2 3) · 화면 변화는 없다(순간 칩이 넘긴 예시로 눌린다) */
-  var MOOD_SHIFT = { matjeol: [1, 0, 3, 2], welcome: [0, 3, 1, 2], vow: [0, 1, 2, 3], thanks: [1, 0, 2], ring: [0, 1, 3, 2], declare: [0, 1, 2, 3], bless: [0, 1, 2, 3],
+  var MOOD_SHIFT = { matjeol: [0, 1, 3, 2],   /* [BASE_SWAP_1023] 0 ↔ 1 */ welcome: [0, 3, 1, 2], vow: [0, 1, 2, 3], thanks: [1, 0, 2], ring: [0, 1, 3, 2], declare: [0, 1, 2, 3], bless: [0, 1, 2, 3],
     speech: [0, 3, 1, 2], song: [0, 1, 3, 4, 2], tribute: [1, 0, 3, 2], table: [0, 3, 2, 4] };
   function _fw(t) { var m = String(t || '').match(BRIDGE_OPEN); return m ? m[1] : ''; }
   function moodClash(T, only) {   /* [CLOSE_SEAM_1018] only = 그 예시 키의 이음새만 본다(seamFit) */

@@ -43,7 +43,7 @@ if (direct) {
   /* 스스로 깨 보기 — 표 값 하나를 1.25 로 되돌린 대장은 빨강 · 글을 바꾼 자리는 «글 바뀜»으로만 센다 */
   let dead = 0;
   const probe = JSON.parse(JSON.stringify(mani));
-  const x0 = table.changes[0];
+  const x0 = table.changes.find((x) => stale.indexOf(x) < 0) || table.changes[0];   // [REVIEW31_1023] 표 첫 자리의 글이 바뀌면(01 · 157-1) 깨 보기가 죽은 자리를 잡았다 — 대장과 맞는 첫 자리로
   const c0 = probe.clips.find((c) => `${c.no}_${c.file}` === x0.key);
   if (c0) {
     c0.sents[x0.i].after = 1.25;
