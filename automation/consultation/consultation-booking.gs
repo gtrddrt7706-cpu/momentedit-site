@@ -1464,8 +1464,9 @@ function sendConfirmEmail_(to, names, dateKey, time, isChange, token, row) {
      같은 링크 한 벌(마이페이지 · 카카오톡 · 지도에서 보기)을 상담 메일 · 취소 화면 · 가입 메일 · 대체 메일 모두 맞췄다. 강조 글 · 머리 이름표의 금빛은 따로 정한다
      ★[MAIL_TEXT_INK 2026-10-23 사장님 «진행» · 코워크 회신 3] 그 «따로»를 정했다 — 강조 글(예약이 확정 · 접수 · 다른 시간을 제안 · 대면 상담) · 머리 이름표(Confirmed …) · 항목 이름도 #7A5F37.
      금빛 #B89A75 는 선 · 테두리에만 쓴다. 메일만이다 — GAS 화면(취소 화면 · 신청 · 일정 · 변경)의 금빛 글자는 따로 본다 */
+  /* ★[DRESS_NO_DEADLINE 2026-10-23 사장님 «참고용»] «두 벌을 미리 고르실 수» → «미리 둘러보실 수» — 고른 것만 입어 보는 것이 아니다 */
   /* ★[DRESS_CONFIRM_ZERO 2026-10-23 코워크 설계 명세 2] 아직 한 벌도 안 고른 분에게만 — 신청 직후부터 고를 수 있어 이미 고른 분에게는 같은 말을 또 하지 않는다 */
-  try { if (row && _dressMailOk_(row) && !_dressPicked_(row)) dressLine = smallP('상담 날 입어 보실 드레스 두 벌을 <a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 미리 고르실 수 있습니다.'); } catch (eD) { dressLine = ''; }
+  try { if (row && _dressMailOk_(row) && !_dressPicked_(row)) dressLine = smallP('상담 전에 드레스를 <a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 미리 둘러보실 수 있습니다.'); } catch (eD) { dressLine = ''; }
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#7A5F37;font-weight:600">예약이 확정</b>되었습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
@@ -2429,7 +2430,8 @@ function _sessionToConsult(token) { _gsr_();
 /* ★★[DRESS_PICK 2026-10-23 코워크 설계 명세 «시착 준비» 8장] 상담 날 «입어 볼 두 벌» — 마이페이지 «시착 준비» 카드(고르기 화면 dress.html?pick=1)가 저장한다.
    칸: 상담예약 시트 맨 뒤 «시착준비» = JSON {picks:[id], names:[표시용 이름], ans:{len, fit, pref[]}, memo, at}.
        열이 없으면 저장할 때 잠금 안에서 맨 뒤에 한 번 붙인다(HEADERS 끝과 같은 자리 · 가운데에 끼우지 않는다).
-   마감: 상담일 −2일 23:59(한국 시각) — 지나면 «바꾸기 마감이 지났어요»로 거절한다(assets/dress-refs.js changeUntilDays 와 같은 값 · 검사가 대조).
+   마감: ★[DRESS_NO_DEADLINE 2026-10-23 사장님 «마감 없이 늘 고르기 · 참고용»] 없다 — 상담 전 미리 보는 참고용이고 현장에서 다시 본다(고른 것만 입어 보는 것이 아니다).
+     종전 «상담일 −2일 23:59 · 지나면 거절»은 걷었다(되살리지 말 것). untilDays 는 원천(dress-refs.js changeUntilDays)과 같은 값으로만 남긴다 · 쓰지 않는다.
    ★★[DRESS_APPLY_OPEN 2026-10-23 코워크 설계 명세 2 · 사장님 «대면 상담 신청 후 웨딩 드레스 볼 수 있게»] 받는 때를 «상담확정»에서 «신청접수 ~ 상담확정»(stages)으로 넓혔다 —
      상담 예약이 취소면 거절 · 노쇼 · 취소 단계는 stages 밖이라 거절. ★[DRESS_NO_DATE] 상담 날짜가 아직 없으면(신청접수 · 변경제안) 마감 검사 없이 받는다(_dressYmd_ · _dressOpen_).
    ★기준은 id 다 — names 는 그날 화면이 보여 준 이름의 사본(목록에서 이름이 바뀌어도 그날 고른 이름이 남는다 · 표시에만 쓴다).
@@ -2452,11 +2454,10 @@ function _dressYmd_(cr) {   // ★[DRESS_NO_DATE 2026-10-23 명세 2] 상담 날
   if (st !== ST.PICKED && LOCKED_STATES.indexOf(st) === -1) return '';
   return _ymdOf(cr.get('선택날짜')) || null;   // 날짜가 있어야 하는데 못 읽으면 null — 마감을 셀 수 없으니 닫힘으로 본다(모르면 바꾸지 않는다)
 }
-function _dressOpen_(ymd) {   // [DRESS_PICK] 바꾸기 열림 = 상담일 − 오늘(한국 날짜) ≥ 2 → 상담일 −2일 23:59 까지 · ★[DRESS_NO_DATE] 날짜 없음('') = 열림(마감 없음) · 못 읽은 날짜(null) = 닫힘
-  if (ymd === '') return true;
-  var y = _ymdOf(ymd); if (!y) return false;
-  var dl = _dayDiff(y, _kstYmd(new Date()));
-  return dl != null && dl >= DRESS_PICK.untilDays;
+function _dressOpen_(ymd) {   // [DRESS_PICK] 바꾸기 열림
+  /* ★[DRESS_NO_DEADLINE 2026-10-23 사장님 «마감 없이 늘 고르기 · 참고용»] 늘 열림 — 상담일이 지나도 · 날짜를 못 읽어도.
+     종전(상담일 −2일 23:59 까지 · 지나면 카드가 숨거나 보기만)을 되살리지 말 것 */
+  return true;
 }
 function _dressState_(cr) {   // [DRESS_PICK] 마이페이지 카드 판정용(buildConsultState) — 의상 · 상담일(정해진 때만) · 마감 · 저장값. ★읽기만 — getMyState(GMS_MEMO) 길이라 쓰지 않는다
   if (!cr) return null;
@@ -2491,7 +2492,7 @@ function _dressMailOk_(row) {   // [DRESS_PICK] 메일(신청 접수 · 확정)�
   return !!cust && String(cust.get('상품타입') || '').trim() !== P.PRODUCT_SNAP;
 }
 function handleSaveDressPick(body) { _gsr_();
-  /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 시그니처 · 단계 신청접수 ~ 상담확정 · 상담일 −2일까지(날짜가 없으면 마감 없음) · 0~2벌 · 남길 말 200자 · 한 사람 한 시간 30번
+  /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 시그니처 · 단계 신청접수 ~ 상담확정 · 마감 없음([DRESS_NO_DEADLINE]) · 0~2벌 · 남길 말 200자 · 한 사람 한 시간 30번
      ★[DRESS_APPLY_OPEN 2026-10-23 코워크 설계 명세 2] 상담 확정 전(신청접수 · 시간선택완료 · 변경제안)에도 받는다 · 상담 예약이 취소면 거절 · 노쇼 · 취소 단계는 stages 밖이라 거절
      ★[DRESS_CLEAR 2026-10-23 코워크 검토 4] 0벌 = 비우기 — 저장해 둔 두 벌을 다 뺀 뒤 «저장»(나가기 판의 «저장하고 나가기»)이 거짓말을 하지 않게.
        확정 · 단계 · 마감 확인은 저장과 같다(마감 뒤에는 비우지도 못한다) · 칸이 아직 없으면 비울 것도 없다(칸을 새로 붙이지 않는다) */
@@ -2522,7 +2523,7 @@ function handleSaveDressPick(body) { _gsr_();
     var r = row(sheet, colOf, a.consult.num);
     if (String(r.get('상태') || '').trim() === ST.CANCELLED) return { ok: false, error: '지금은 바꿀 수 없어요' };   // [DRESS_APPLY_OPEN] 취소된 상담 예약
     if (String(a.cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP || DRESS_PICK.stages.indexOf(String(a.cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '지금은 바꿀 수 없어요' };
-    if (!_dressOpen_(_dressYmd_(r))) return { ok: false, error: '바꾸기 마감이 지났어요' };   // [DRESS_NO_DATE] 날짜가 없으면 열림
+    /* ★[DRESS_NO_DEADLINE 2026-10-23 사장님] 날짜로 거절하지 않는다(종전 «바꾸기 마감이 지났어요» 줄을 걷었다) — 단계 · 시그니처 · 취소 · 시간당 횟수는 그대로 */
     if (!picks.length) {   // [DRESS_CLEAR] 비우기
       if (colOf[DRESS_PICK.col]) writeCell(sheet, colOf, r.num, DRESS_PICK.col, '');
       return { ok: true, at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'), saved: null };
