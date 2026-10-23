@@ -13,6 +13,36 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
+| 1_진희.txt | 진희 | 14 | 7 |
+| 2_진한.txt | 진한 | 3 | 2 |
+| 3_예슬.txt | 예슬 | 3 | 2 |
+| 4_우성.txt | 우성 | 2 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
+
+```
+# 진희 — 14줄 · 7클립
+node scripts/assemble-narration.mjs --in <진희_받은폴더> \
+  --clip =01_guest-1-arrival,=02_guest-2-10min,=264_narr-photo-upload,=116_guest-ex2-2-10min,=119_guest-ex3-1-arrival,=122_guest-ex3-4-1min,=124_guest-ex4-2-10min
+```
+
+```
+# 진한 — 3줄 · 2클립
+node scripts/assemble-narration.mjs --in <진한_받은폴더> \
+  --clip =01_guest-1,=22_entry-E
+```
+★22_entry-E 은 두 사람이 한 클립에 섞여 있습니다. 진한 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+
+```
+# 예슬 — 3줄 · 2클립
+node scripts/assemble-narration.mjs --in <예슬_받은폴더> \
+  --clip =02_guest-2,=22_entry-E
+```
+★22_entry-E 은 두 사람이 한 클립에 섞여 있습니다. 예슬 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+
+```
+# 우성 — 2줄 · 1클립
+node scripts/assemble-narration.mjs --in <우성_받은폴더> \
+  --clip =130_narr-prevideo-in-ex4
+```
 
