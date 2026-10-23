@@ -8395,7 +8395,7 @@ function _pkPanel(){
     +(flat?'<p class="pk-fp-flat">순간을 더 담으면 흐름이 그려져요</p>':'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>')
     +'</div>'   /* [FLOW_MIN] PC 준비 줄 걷음 */   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
     +'<div class="pk-side">'
-    +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+(sp.tm?esc(_nb('테이블 인사 '+sp.table))+'<br>':'')+esc(photo)+'<br>'+(sp.tm?'셋을':'본식과')+' 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [TABLE_APART] 테이블 인사는 따로 한 줄 · 셋을 더해 40 */   /* [D4] PC 두 줄 */
+    +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+(sp.tm?esc(_nb('테이블 인사 '+sp.table))+'<br>':'')+esc(photo)+'<br>'+(sp.tm?'셋을':'본식과')+' 합쳐 늘 '+R.DAYMIN+'분'+(sp.tm?'':'<br><span class="pk-pad" aria-hidden="true">'+NBS+'</span>')+'</p>'   /* [TABLE_APART] 테이블 인사는 따로 한 줄 · 셋을 더해 40 */   /* ★[FLOW_SIDE_STEADY 2026-10-23 사장님 «기록과 가족 그래프 창이 위아래 넓이가 넓어지고 줄어들고 하는데 똑같이 맞춰줘 · 움직임 없이»] 테이블 인사가 없는 판은 보이지 않는 한 줄로 세 줄 자리를 잡는다 — 예시를 바꿔도 판 높이 · «다음» 단추 자리가 그대로(PC 만 · 폰은 한 줄 요약 .pk-tm) · scripts/audit/flow-steady.mjs */   /* [D4] PC 두 줄 */
     +((!pl||flat)?'<p class="pk-peak">'+_pkPeakHtml()+'</p>':'')   /* [FLOW_MIN] 곡선 위 «★ 이름»과 흐름 줄의 ★이 이미 말한다 — 문장은 정점이 없거나(담아 보라는 안내) 곡선이 없을 때만 */
     /* ★순서 줄(«식전 영상 → 화촉 › 입장 › … › 닫는 인사») 금지 — 2026-10-07 사용자 지시로 삭제 [FLOW_NO_ORDER] «어차피 다음 페이지에서 알 수 있으니» · 순서는 ② 예식 흐름이 말한다 */
     +'<p class="pk-tm mo">'+(sp.tm?'본식 · 테이블'+NBS+'인사 · 단체'+NBS+'사진':'본식과 단체'+NBS+'사진')+' · 늘 '+R.DAYMIN+'분</p>'   /* [TABLE_APART] */   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
