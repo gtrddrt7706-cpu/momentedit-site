@@ -36,7 +36,7 @@ const ONE = { guest: '하객이 앉는 동안 잔잔한 연주가 흘러요', ca
   tribute: '인사드리는 동안 밝고 따뜻한 곡이 흘러요', _close: '박수와 함께 힘 있는 곡이 시작돼요', toast: '«위하여!»에 맞춰 신나는 곡이 시작돼요', table: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요' };
 const AT = { guest: 'top', candle: 'top', matjeol: 'top', welcome: 'top', vow: 'top', ring: 'top', declare: 'top', bless: 'top', tribute: 'top', _close: 'bow', toast: 'cheers', table: 'top' };
 /* [BGM_R2_1023] 기본 식순(전부 담음)에서 첫 줄이 넘어가는 이음말인 쪽 — 화촉(263 화촉 순서 알림) · 감사 인사(맞절에서 «하객 쪽으로») */
-const HEADB = { candle: 1, welcome: 1 };
+const HEADB = { candle: 1, welcome: 1 };   /* ★[BGM_AUDIT_CANDLE_1023] 이 순간들은 «첫 줄이 이음말일 때가 있는» 쪽 — 기대는 고정값이 아니라 그 쪽 첫 줄(음악 줄 빼고)을 보고 정한다(R3 규칙 그대로) · 화촉은 고른 여는 말이 «촛불 · 화촉»을 먼저 말하면 B14 이음말이 없다(B14_SKIP_CANDLE_1023) */
 const NAME = { welcome: '감사 인사', vow: '혼인 서약', ring: '반지 교환', declare: '성혼 선언', bless: '덕담' };
 const PVSND = '보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요';   /* [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄 */
 const NOTE = { S5: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' },
@@ -151,6 +151,7 @@ const look = (pg) => pg.evaluate(() => { const row = document.querySelector('.ls
       const cs = qa ? getComputedStyle(qa) : null, lcs = q0 ? getComputedStyle(q0) : null, pill = document.querySelector('.mk-hbtn[data-mp]'), m = pill ? /· (\d+)줄/.exec(pill.textContent) : null;
       return { fq: bq.length, ftxt: q0 ? t(q0) : '', fslot: q0 ? q0.getAttribute('data-bgm') : '', fi: qi, fcls: q0 ? q0.className : '',
         prev: qi > 0 ? t(lis[qi - 1]) : '', prevCls: qi > 0 ? lis[qi - 1].className : '', next: qi > -1 && qi < lis.length - 1 ? t(lis[qi + 1]) : '', nextCls: qi > -1 && qi < lis.length - 1 ? lis[qi + 1].className : '',
+        first: (() => { const f = lis.find((x) => !x.hasAttribute('data-bgm')); return f ? t(f) : ''; })(),   /* [BGM_AUDIT_CANDLE_1023] 그 쪽 첫 줄(음악 줄 빼고) */
         fbtn: q0 ? q0.querySelectorAll('button,[data-ml],svg').length : 0, flook: cs ? [cs.fontSize, cs.fontWeight, cs.color, lcs.paddingLeft, lcs.fontSize, getComputedStyle(q0, '::after').backgroundColor].join('|') : '',
         flines: qa ? Math.round(qa.getBoundingClientRect().height / parseFloat(getComputedStyle(qa).lineHeight)) : 0,
         nN: document.querySelectorAll('.mk-flow > li.n').length, pillN: m ? +m[1] : null }; })() }; });
@@ -181,7 +182,7 @@ try {
     const SUB = 'rgb(90, 85, 76)', ref = REFQ.look.split('|'), quiet = ref.length === 6 ? [ref[0], '400', SUB, ref[3], ref[4], ref[5]].join('|') : '';
     const lookOk = (L) => !!quiet && ref[1] === '500' && ref[2] === 'rgb(58, 45, 34)' && L.flook === quiet;
     /* [BGM_R3_1023] 목례 · 위하여 자리는 글자가 아니라 줄 모양(행동 · 차례 줄 뒤 · 나레이션 앞)으로 — 큐 열쇠가 맞는지는 9(코스 · 조합 전부)가 잰다 · 대본이 글만 고쳐도 거짓 빨강이 안 난다 */
-    const posOk = (k, L) => AT[k] === 'top' ? (HEADB[k] ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? (/\bq\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : false;
+    const posOk = (k, L) => AT[k] === 'top' ? ((HEADB[k] && /넘어가며/.test(L.first)) ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? (/\bq\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : false;
     for (const k of ['entry', 'prevideo', ...Object.keys(ONE), 'song', 'free', 'letter']) { await go(pg, k); const L = await look(pg); seen[k] = L;
       if (['candle', 'welcome', 'vow', 'free', 'letter', '_close', 'toast', 'tribute'].includes(k)) await shot(pg, W, 'bgm-' + k.replace('_', ''));
       let good = !L.hz && !L.old && L.fq <= 1 && !L.gls.includes('음악');
@@ -192,6 +193,17 @@ try {
       else good = good && L.row && L.last && L.fq === 1 && L.ftxt === TALK.none && L.fslot === (k === 'free' ? 'S5' : 'S6') && /\bt\b/.test(L.nextCls) && /\bn\b/.test(L.prevCls) && L.fbtn === 0 && lookOk(L) && L.flines <= 2 && (L.pillN == null || L.pillN === L.nN) /* [BGM_R5_1023] 말하는 ○ 줄 바로 앞 · 명세 글이 길어 폰은 두 줄까지 */ && L.gl === (k === 'free' ? '축사 음악' : '편지 음악') && L.chips.join() === '음악 없이,음악과 함께' && L.note === NOTE[k === 'free' ? 'S5' : 'S6'].unset && L.noteFs === '12.5px' && L.glX === L.glX0 && L.glFs === '14px';
       if (!good) bad.push([k, L]); }
     ok(`${W} 1 [BGM_R1_1023 · BGM_R2_1023] «고르기»에는 입장 · 축사 · 편지 음악만(이름표 «입장 음악 · 축사 음악 · 편지 음악» · 칩 둘 · 아래 한 줄 12.5px) · 나머지 순간은 «흐름»의 채운 점 줄 하나(명세 글 · 자리 — 화촉 · 감사 인사는 첫 이음말 바로 뒤 · 입장 행동 줄과 같은 점 · 크기에 글만 400 · --sub · 폰 한 줄 · 단추 없음) · «이 순간 전체 듣기 · n줄» = 나레이션 줄 수 · 축가 없음 · 가로 넘침 없음`, bad.length === 0, bad.map(([k, L]) => [k, { row: L.row, gls: L.gls, fq: L.fq, ftxt: L.ftxt, fi: L.fi, prev: L.prev, next: L.next, prevCls: L.prevCls, nextCls: L.nextCls, flook: L.flook, quiet, flines: L.flines, pillN: L.pillN, nN: L.nN, gl: L.gl, chips: L.chips, note: L.note, hz: L.hz }]));
+    /* ★[BGM_AUDIT_CANDLE_1023] 화촉 — 이음말(B14)이 서는 판과 안 서는 판을 둘 다 잰다. 여는 말 예시를 차례로 넣어 첫 줄이 이음말인 판 · 아닌 판을 하나씩 찾는다 */
+    const cdl = await pg.evaluate(() => { const R = RitualOpen, n0 = (S.narEx || {}).candle, out = { br: null, nb: null }, L = (R.narExList && R.narExList(S, 'candle')) || [];
+      for (let i = 0; i < Math.max(L.length, 1); i++) { S.narEx = Object.assign({}, S.narEx || {}); S.narEx.candle = i; try { buildSteps(); } catch (e) {} let st = []; try { st = _lSteps(ENG, ['candle']); } catch (e) {}
+        const b = /^bridge-/.test(String((st[0] || {}).slug || '')); if (b && out.br == null) out.br = i; if (!b && out.nb == null) out.nb = i; }
+      S.narEx.candle = n0; if (n0 === undefined) delete S.narEx.candle; try { buildSteps(); } catch (e) {} _persist(); return out; });
+    const CDL = {};
+    for (const [tag, i] of [['br', cdl.br], ['nb', cdl.nb]]) { if (i == null) continue; await pg.evaluate((i) => { S.narEx = Object.assign({}, S.narEx || {}); S.narEx.candle = i; try { buildSteps(); } catch (e) {} _persist(); }, i); await go(pg, 'welcome'); await go(pg, 'candle'); CDL[tag] = await look(pg); }
+    await pg.evaluate(() => { if (S.narEx) delete S.narEx.candle; try { buildSteps(); } catch (e) {} _persist(); });
+    ok(`${W} 1 [BGM_AUDIT_CANDLE_1023] 화촉 음악 줄 — 첫 줄이 이음말이면 그 바로 뒤(fi 1) · 아니면 맨 앞(fi 0) · 두 판 다 잼(예시 ${cdl.br} · ${cdl.nb})`,
+      cdl.br != null && cdl.nb != null && CDL.br && CDL.br.fi === 1 && /넘어가며/.test(CDL.br.prev) && /넘어가며/.test(CDL.br.first) && CDL.nb && CDL.nb.fi === 0 && !/넘어가며/.test(CDL.nb.first) && CDL.br.ftxt === G(ONE.candle) && CDL.nb.ftxt === G(ONE.candle),
+      { cdl, br: CDL.br && [CDL.br.fi, CDL.br.first, CDL.br.prev], nb: CDL.nb && [CDL.nb.fi, CDL.nb.first, CDL.nb.next] });
     /* [BGM_R2_1023] 축가 바로 뒤 부모님께 인사(편지를 빼면) — 첫 줄이 «경건하게» 이음말 → 음악 줄은 그 바로 뒤 */
     await pg.evaluate(() => { delete S.on.letter; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'tribute'); const t12 = await look(pg);
     const t12s = await pg.evaluate(() => { try { return String((_lSteps(ENG, ['tribute'])[0] || {}).slug || ''); } catch (e) { return 'ERR'; } });
