@@ -485,9 +485,14 @@
 
   /* ★[BGM_INFO_1023 2026-10-23 BGM 섹션 · 사장님 «최선인지 한 번 더 검토해 보고 제안대로 구현»] 두 분이 편지에 «음악과 함께»를 고른 날 — 엔진(ritual-cue)이 live.t 를 이 판으로 낸다(VOW_HOW 와 같은 꼴) ·
      «음악도 안내 음성도 없어요»는 틀린 말이 되니 장면 글만 바꾸고 누가 · 팁 · 안심 · 콘솔 지문은 같은 편지 판 그대로 */
+  /* ★★[BGM_R3_1023 2026-10-23 BGM 섹션 라운드 3 «다른 섹션 작업에 깨지지 않게»] 장면 글은 기본 편지 장면에서 «한 대목만» 바꿔 만든다 — 따로 적어 두면
+       대본 섹션이 기본 장면 글을 고친 날 이 판만 옛 글로 남는다. 대목을 못 찾으면(기본 글이 바뀐 날) 글을 비우고 build-course-story 가 빨강으로 알린다.
+       ★이 판의 장면 글을 다시 통째로 따로 적지 말 것 — 2026-10-23 사용자 지시 [BGM_R3_1023] */
+  var LETTER_BED_SWAP = { from: '이 자리에는 음악도 안내 음성도 없어요. 두 분의 목소리만 남아요.', to: '이 자리에는 안내 음성이 없어요. 음악이 아주 작게 흐르고 두 분의 목소리가 주인공이에요.' };
+  var _letterScene = String(LIVE['두 분이 직접 편지 낭독'].scene || '');
   LIVE['두 분이 직접 편지 낭독 (음악이 아주 작게)'] = {
     who: LIVE['두 분이 직접 편지 낭독'].who,
-    scene: '두 분이 준비하신 편지를 직접 읽으세요. 이 자리에는 안내 음성이 없어요. 음악이 아주 작게 흐르고 두 분의 목소리가 주인공이에요.',
+    scene: _letterScene.indexOf(LETTER_BED_SWAP.from) > -1 ? _letterScene.replace(LETTER_BED_SWAP.from, LETTER_BED_SWAP.to) : '',
     tip: LIVE['두 분이 직접 편지 낭독'].tip,
     safe: LIVE['두 분이 직접 편지 낭독'].safe,
     fbSrc: LIVE['두 분이 직접 편지 낭독'].fbSrc
@@ -711,5 +716,5 @@
   return { V: 1, ALIAS: ALIAS, BLOCK: BLOCK, LIVE: LIVE, CAST: CAST, CAST_AT: CAST_AT, CAST_DIR: CAST_DIR,
            liveOf: liveOf, blockOf: blockOf, aliasOf: aliasOf, castOf: castOf, castOne: castOne,
            castIds: castIds, castMainOf: castMainOf, castLiveOf: castLiveOf, castLivePlayOf: castLivePlayOf, CAST_MUTE: CAST_MUTE, castBadgeOf: castBadgeOf,
-           CAST_SAY: CAST_SAY, CAST_REC: CAST_REC, CAST_PAIR: CAST_PAIR, version: 'story-v1' };
+           CAST_SAY: CAST_SAY, CAST_REC: CAST_REC, CAST_PAIR: CAST_PAIR, LETTER_BED_SWAP: LETTER_BED_SWAP, version: 'story-v1' };   // [BGM_R3_1023] 바꾸는 대목(build-course-story 가 대조)
 });

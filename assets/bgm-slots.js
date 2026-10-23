@@ -39,6 +39,10 @@
      ★[BGM_R2_1023] «맨 앞»은 모든 칸 한 규칙 — 쪽의 첫 줄이 «다음 순서로 넘어가며» 이음말(bridge-…)이면 그 바로 뒤, 아니면 맨 앞(head).
        화촉(263 화촉 순서 알림) · 감사 인사(맞절에서 넘어오는 «하객 쪽으로») · 축가 바로 뒤 부모님께 인사(«경건하게»)가 이음말로 시작한다.
      흐름 음악 줄의 글은 «행동» 줄보다 한 단계 조용하다(굵기 400 · var(--sub) · 점 · 크기는 같다 · order-preview CSS) — «배경 안내»와 «할 일»이 한눈에 갈린다.
+     ★★[BGM_R3_1023 2026-10-23 BGM 섹션 라운드 3 «다른 섹션 작업에 깨지지 않게»]
+       식전 영상은 흐름 음악 줄이 없다 — 바로 다음 줄 «여기서 두 분의 영상이 흘러요»와 같은 말을 두 번 했다. 영상 소리 안내는 «식전 영상 링크» 칸 아래 한 줄(order-preview _mkPrep).
+       닫는 인사 · 축배 자리는 글자(«목례» · «위하여»)가 아니라 줄이 나온 큐의 열쇠(빌더 _lSteps 줄의 of = 큐 slug)로 찾는다 — 대본이 줄 글을 고쳐도 자리가 그대로다.
+       못 찾으면 맨 앞(head)으로 물러나되 flowFind 가 hit:false 로 알리고 bgm-form 검사가 코스 · 조합 전부에서 빨강으로 잡는다.
      «고르기»에 남는 음악 칸은 입장 · 축사 · 편지뿐 · 이름표 «입장 음악 · 축사 음악 · 편지 음악».
      ★고를 것이 없는 음악 한 줄을 «고르기» 칸(이름표 «음악» + 글)에 다시 두지 말 것 — 2026-10-23 사용자 지시로 옮김 [BGM_R1_1023] */
   var PICK = { none: '음악 없이', bed: '음악과 함께' };
@@ -133,7 +137,7 @@
      {kind:'pick', s} 축사 · 편지 칩 둘(«고르기») · {kind:'entry'} 입장 음악 칸(«고르기») · {kind:'flow', t, at, s?} 흐름 줄 하나 · null 없음 [BGM_R1_1023] */
   function viewOf(k, o) {
     o = o || {};
-    if (k === 'prevideo') return { kind: 'flow', t: LINE.prevideo, at: 'video' };
+    if (k === 'prevideo') return null;   /* ★[BGM_R3_1023] 식전 영상 흐름 음악 줄 없음 — 다음 줄 «여기서 두 분의 영상이 흘러요»와 같은 말 두 번 · 안내는 링크 칸 아래 한 줄 · 되살리지 말 것 */
     if (k === 'free' && o.freeKind === 'video') return { kind: 'flow', t: LINE.prevideo, at: 'video' };   /* 옛 초안 «영상» 갈래(FREE_KIND video) */
     if (k === 'free' && o.freeKind && o.freeKind !== 'speech') return null;                  /* 옛 초안 선물 · 기타 — 엔진도 그대로 무음 */
     if (k === 'matjeol') return { kind: 'flow', t: LINE.matjeol, at: 'top' };
@@ -152,14 +156,19 @@
      ★[BGM_R2_1023] head = 쪽의 첫 줄이 이음말이면 1(그 바로 뒤) · 아니면 0 — top 과 못 찾은 자리(영상 · 목례 · 위하여 줄이 없을 때)가 다 이것을 쓴다.
        ★음악 줄을 이음말 앞(쪽의 맨 위)에 다시 두지 말 것 — 2026-10-23 사용자 지시 [BGM_R2_1023] */
   function head(st) { return (st && st[0] && /^bridge-/.test(String(st[0].slug || ''))) ? 1 : 0; }
-  function flowAt(at, st) {
-    st = st || []; var i, h = head(st);
-    if (at === 'video') { for (i = 0; i < st.length; i++) if (st[i] && st[i].skip) return i; return h; }
-    if (at === 'bow') { for (i = 0; i < st.length; i++) if (st[i] && st[i].quiet && /목례/.test(String(st[i].txt || ''))) return i + 1; return h; }
-    if (at === 'cheers') { for (i = 0; i < st.length; i++) if (st[i] && st[i].talk && /위하여/.test(String(st[i].txt || ''))) return i + 1;
-      for (i = st.length - 1; i >= 0; i--) if (st[i] && /위하여/.test(String(st[i].txt || ''))) return i + 1; return h; }
-    return h;   /* top(옛 bridge 도 같다) */
+  /* ★[BGM_R3_1023] 자리를 찾는 열쇠 = 줄이 나온 큐(빌더 _lSteps 의 of · 엔진 slug) — 글자(«목례» · «위하여»)로 찾지 않는다
+     bow = 끝 선언 큐(narr-close-bow)에서 나온 말 없는 줄 바로 뒤 · cheers = 잔 드는 축배 큐(toast-…)에서 나온 «위하여» 차례 줄 바로 뒤 · video = 영상 상영 줄(skip) 바로 앞 */
+  var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 } };
+  function flowFind(at, st) {
+    st = st || []; var i, h = head(st), m = AT_OF[at];
+    if (!m) return { i: h, hit: true };   /* top(옛 bridge 도 같다) */
+    for (i = 0; i < st.length; i++) { var x = st[i]; if (!x) continue;
+      if (m.quiet && !x.quiet) continue; if (m.talk && !x.talk) continue; if (m.skip && !x.skip) continue;
+      if (m.of && !m.of.test(String(x.of || ''))) continue;
+      return { i: i + m.after, hit: true }; }
+    return { i: h, hit: false };   /* 못 찾음 — 맨 앞으로 물러난다 · bgm-form 이 빨강으로 알린다 */
   }
+  function flowAt(at, st) { return flowFind(at, st).i; }
   /* 칸의 첫 순간 = 이 칸의 순간 중 «담긴» 첫 순간(본식 차례) — 감사 인사를 담지 않은 식순이면 다음 담긴 순간이 안내 한 줄을 받는다 */
   function chooser(s, o) {
     o = o || {};
@@ -169,5 +178,5 @@
     return ks[0] || null;
   }
 
-  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, flowAt: flowAt, chooser: chooser };
+  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, flowAt: flowAt, flowFind: flowFind, chooser: chooser };
 });
