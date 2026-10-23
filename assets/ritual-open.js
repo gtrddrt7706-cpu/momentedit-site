@@ -262,13 +262,14 @@
          ★멘트 글은 그대로다 — 사장님 «멘트는 대대적으로 한번 개선 작업을 할 거야 따로»(3단계) · 그때 이 짝도 함께 다시 본다. */
     { k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }   /* ★[REVIEW26_1023 검토 150-2 2)] 축사 «격식 있게»(174) — 선언 여는 말 136 «오늘의 성혼선언은 … 부탁드린 분께서» 1분 뒤 103 «오늘의 축사는요, … 부탁드린 분께서»(같은 틀)를 피한다 */,   // [EX_STD_1012] · [EX_ENTRY_FEEL_1012] 입장 담백하게(빌더 기본값과 같다 · 옛 격식 있게)
     { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객과 가까이' /* [TABLE_GREET_1008 사장님 «기록에 넣고 소개를 바꾼다»] 옛 «단체 사진을 넉넉히» — 테이블 인사 9분이 들어 단체 사진 15~20 → [EX_STD_1012] 반지 · 케이크가 빠져 18~22 */, on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }   /* ★[REVIEW26_1023 검토 150-2 6)] 닫는 멘트 «격식 있게»(187 · «마지막까지» 없음) — 기록은 닫는 인사 뒤에 축배 · 테이블 인사가 이어진다 */,
-    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, bless: 1 } } }   /* ★[REVIEW26_1023 검토 150-2 3)] 덕담 «격식 있게»(232 · 박수 청 없음) — 덕담 맺는 말 24 박수 청 → 축가 → 250 박수 청이 잇달았다 */,   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «격식 있게»(148 · U1 · «격식 있고 뭉클하게»와 맞다)   // [EX_STD_1012] + 축가 · − 반지 · 케이크
-    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, candle: { mothers: 1 }, matjeol: 4 } } }   /* ★[REVIEW26_1023 검토 150-1 1)] 간결 화촉 = 151 «담백하게»(단상 · 점화 안내로 끝남) — 137-3 의 «잔잔하게»는 B7 «이제»를 피하려던 것인데 ENTRY_READY_1019 로 까닭이 없어졌다 · «먼저» 두 번(149 · 152)도 풀린다 */   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «담백하게»(149) · 화촉 «잔잔하게»(152 · 어머님일 때만) · 맞절 «담백하게»(252) — 개식 137 «박수와 함성» · 입장 C «큰 박수와 함성» 5분 안 둘을 풀었다 · 화촉 «담백하게»(«이제 …»)는 B7 «이제 …»와 85초라 «잔잔하게»   // [EX_ENTRY_FEEL_1012] 입장 격식 있게(옛 담백하게 23초) · [EX_STD_1012] + 화촉 · 부모님께 인사(말 없이) · − 반지 · 케이크(본식 8~12 그대로)
+    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }   /* ★[BASE_SWAP_1023 검토 156] 가족은 뭉클이 결이라 화촉 «뭉클하게»(91 · 지금까지 나가던 글)를 따로 고른다 */   /* ★[REVIEW26_1023 검토 150-2 3)] 덕담 «격식 있게»(232 · 박수 청 없음) — 덕담 맺는 말 24 박수 청 → 축가 → 250 박수 청이 잇달았다 */,   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «격식 있게»(148 · U1 · «격식 있고 뭉클하게»와 맞다)   // [EX_STD_1012] + 축가 · − 반지 · 케이크
+    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }   /* ★[BASE_SWAP_1023 검토 156] 화촉 «담백하게»는 이제 기본(옛 mothers: 1) */   /* ★[REVIEW26_1023 검토 150-1 1)] 간결 화촉 = 151 «담백하게»(단상 · 점화 안내로 끝남) — 137-3 의 «잔잔하게»는 B7 «이제»를 피하려던 것인데 ENTRY_READY_1019 로 까닭이 없어졌다 · «먼저» 두 번(149 · 152)도 풀린다 */   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «담백하게»(149) · 화촉 «잔잔하게»(152 · 어머님일 때만) · 맞절 «담백하게»(252) — 개식 137 «박수와 함성» · 입장 C «큰 박수와 함성» 5분 안 둘을 풀었다 · 화촉 «담백하게»(«이제 …»)는 B7 «이제 …»와 85초라 «잔잔하게»   // [EX_ENTRY_FEEL_1012] 입장 격식 있게(옛 담백하게 23초) · [EX_STD_1012] + 화촉 · 부모님께 인사(말 없이) · − 반지 · 케이크(본식 8~12 그대로)
   ];
   function exampleOf(k) { for (var i = 0; i < EXAMPLES.length; i++) if (EXAMPLES[i].k === k) return EXAMPLES[i]; return null; }
   // 예시를 S 에 입힌다 — 순간은 통째로 바꾸고, 판은 기본 위에 예시 값을 얹는다
   function applyExample(S, k) {
     var ex = exampleOf(k); if (!ex) return S;
+    S.exv = 2;   // [BASE_SWAP_1023] 예시가 넣는 칩 번호는 새 차례
     S.on = {}; ex.on.forEach(function (x) { S.on[x] = 1; });
     S.entry = ex.set.entry || DEF.entry;
     /* [DECLARE_BY_PERSON · DECLARE_ANYONE] 예시는 읽을 분을 정하지 않는다(두 분이 적는다) · 적어 둔 분은 그대로 둔다 */
@@ -310,9 +311,9 @@
      ★«입장 첫 장면 · 함께 불 밝히기 +15초»는 첫 장면 키가 아직 없어 넣지 않았다(구현 보고). */
   var TIME = {
     prevideo: [9, 0, 180, 0],   // ★[SOURCE_FIRST_1016] 여는 말 90 = 자료 G2 121 대안 2(29음절 5.8초 · +2)
-    candle: [58, 0, 60, 38],   // ★[SOURCE_FIRST_1016 · CANDLE_CALL_SRC_1016] 대본 25 → 58초(어머님 판 여는 말 FF 1-2 140음절 33초 + 맺는 말 4.2 + 인사 구호 11.7 + 구호 뒤 4초 둘 + 사슬 1.25) · 말 없는 시간 70 → 60(맞절 · 인사가 구호 사이 쉼으로 들어가 자리로 돌아가는 15초만 남는다)   // [PARENTS_ENTRY_OFF 2026-10-12] 판 없이 하나(입장 +20초 걷음) · [CANDLE_BOW_1012] 불을 밝힌 뒤 인사 몇 초는 여유 38초 안 · ★[CANDLE_CALL_1014] 대본 12.5 → 25초(여는 말 앞 문장 +6.3 · 인사 안내 줄 4.7 + 사슬 1.25)
+    candle: [43, 0, 60, 38],   // ★[BASE_SWAP_1023 검토 156] 기본 여는 말이 짧아졌다 — 옛 어머님 판 FF 1-2 33초 → 기본 셋 중 가장 긴 아버님 판(76음절 15.2 + 문장 사이 2.5 = 17.7) · 58 − 33 + 17.7 = 42.7 → 43 ·   // ★[SOURCE_FIRST_1016 · CANDLE_CALL_SRC_1016] 대본 25 → 58초(어머님 판 여는 말 FF 1-2 140음절 33초 + 맺는 말 4.2 + 인사 구호 11.7 + 구호 뒤 4초 둘 + 사슬 1.25) · 말 없는 시간 70 → 60(맞절 · 인사가 구호 사이 쉼으로 들어가 자리로 돌아가는 15초만 남는다)   // [PARENTS_ENTRY_OFF 2026-10-12] 판 없이 하나(입장 +20초 걷음) · [CANDLE_BOW_1012] 불을 밝힌 뒤 인사 몇 초는 여유 38초 안 · ★[CANDLE_CALL_1014] 대본 12.5 → 25초(여는 말 앞 문장 +6.3 · 인사 안내 줄 4.7 + 사슬 1.25)
     entry: { A: [23.5, 0, 25, 42], B: [51, 0, 25, 42], C: [30, 0, 25, 42], D: [39, 0, 25, 42], E: [44, 0, 25, 42], F: [22, 0, 25, 42] },   // ★[SOURCE_FIRST_1016] 입장 멘트 = 자료 CC2 그대로로 다시 쟀다(음절 ÷ 300/분 + 문장 사이 1.25 + 받는 말 4.8 + 사슬 1.25)   // ★[ENTRY_ARRIVE_1014] 입장 받는 말 3.25 + 사슬 1.25 = +4.5초(판마다)   // ★[ENTRY_TIME_1014] 원고 3단계 글로 다시 쟀다(음절 ÷ 300/분 + 문장 사이 1.25 + 구호 앞 쉼) — A 23 → 14(76 → 47음절) · C 16 → 12(10/14 엔진 · 39음절) · 나머지는 그대로
-    matjeol: [37, 0, 12, 0],   // ★[REVIEW29_1023 검토 153] 여는 말 = EE A-2(145음절 29초 + 문장 사이 1.25 × 3 + 구호 앞 0.6 + 둘째 문장 뒤 쉼 3 = 36.4 → 37) ·   // [MATJEOL_SPLIT_1013] 맞절 몫(아래 BOW 와 같은 값 · 종전엔 입장 몫에 더했다) · ★[MATJEOL_4_1014] 여는 말 3 → 15초(4판 ② 네 문장 48음절 + 마주 보기 3초 · 원고 0-4 «본식 +12초»)
+    matjeol: [22, 0, 12, 0],   // ★[BASE_SWAP_1023 검토 156] 기본 = «격식 있게»(87음절 17.4 + 문장 사이 1.25 × 3 = 21.2 → 22 · 마주 보기 쉼 없음) · 153 의 37(EE A-2)은 예시 2 몫 ·   // ★[REVIEW29_1023 검토 153] 여는 말 = EE A-2(145음절 29초 + 문장 사이 1.25 × 3 + 구호 앞 0.6 + 둘째 문장 뒤 쉼 3 = 36.4 → 37) ·   // [MATJEOL_SPLIT_1013] 맞절 몫(아래 BOW 와 같은 값 · 종전엔 입장 몫에 더했다) · ★[MATJEOL_4_1014] 여는 말 3 → 15초(4판 ② 네 문장 48음절 + 마주 보기 3초 · 원고 0-4 «본식 +12초»)
     welcome: [5, 40, 8, 0],   // ★[REVIEW29_1023 검토 153] 여는 말 = polarisians 7쪽(26음절 5.2초) ·   // ★[SOURCE_FIRST_1016] 여는 말 = 정형구 18음절 · 말하는 시간 = 자료 Z 3 «약 40초 분량»(번갈아 감사 인사)
     bless: [17, 153, 8, 20],
     vow: [24, 100, 8, 10],   // ★[REVIEW29_1023 검토 153] 여는 말 = 고은천 첫 · 셋째 문장 + 호명(62음절 · 옛 50 보다 +2.4초) ·   // [SOURCE_FIRST_1016] 여는 말 «다음은 …» · «천천히 하셔도 괜찮습니다»(T 33) +2.6 · 맺는 말 «두 사람의 서약이었습니다»(G3 P23) −1.6
@@ -900,7 +901,7 @@
     prevideoIn: '두 사람의 이야기를 함께 만나보시겠습니다.',   /* ★[SOURCE_FIRST_1016] 자료 WW28 감둥 실사용 그대로 · [REVIEW13_1018 검토 119 · 113] 종전 G2 121 대안 2 «본식에 앞서, …»는 개식 선언(«…시작하겠습니다!») 바로 뒤라 어긋났다 */   // ★[NAR_1006 2026-10-07 코워크 회신 · 사장님 확인] 종전 «두 분이 준비한 영상을 함께 보시겠습니다.» — «준비한»이 바로 앞 1분 전 고지(«미리 준비한 안내 음성»)와 겹쳤다 · 90 다시 녹음(진희)
     candleIn: {
       /* [REVIEW28_1023 검토 152] 91 셋째 문장 = WW5(f_olry 실사용) «양가 어머님께서 화촉에 불을 밝히실 때, …» 한 문장 그대로 — 옛 «아름다운 양가 어머님께서 화촉을 밝혀 주시겠습니다»는 II 원문 앞 절을 잘라 낸 글 */
-      mothers: '우리는 늘 엄마가 당연히 그 자리에 있는 존재라고 생각하지만, 사실 그 자리는 누군가의 수많은 포기와 사랑으로 지켜진 자리입니다. 그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다. 양가 어머님께서 화촉에 불을 밝히실 때, 내빈 여러분들도 같은 마음으로 행복을 빌어 주시면 대단히 감사하겠습니다. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.',   /* ★[SOURCE_FIRST_1016] 자료 FF 1-2 첫 두 문장 · T 68 */
+      mothers: '이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.',   /* ★[SOURCE_FIRST_1016] 자료 FF 1-2 첫 두 문장 · T 68 */
       parents: '두 사람에게 삶의 첫 기둥이신 분들이, 오늘은 먼저 앞에 서십니다. 양가 부모님께서, 두 사람이 걸어갈 길을 밝혀 주시겠습니다. 단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.',   /* ★[SOURCE_FIRST_1016] 자료 T 51 · T 68 */
       fathers: '두 사람에게 삶의 첫 기둥이 되어주신 양가 아버님께서 앞날을 환하게 밝히는 촛불을 밝혀주실 예정입니다. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.',   // ★명세 7장에 없는 판 — 4장 표의 «아버님 두 분»을 위해 같은 틀로 썼다(말맛은 사장님)
       others: '먼저 두 분께서 양가를 대표해서 화촉의 불을 밝히시겠습니다. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.'
@@ -996,10 +997,10 @@
     /* 화촉 여는 말(91 ~ 94) — 서는 분마다 · 2 = G 원본(애봉네 대본) «화촉점화» · 3 = U1 원본 «화촉점화» 첫 문장 · 4 = 어머님 FF 1-1(«멈춘 시계» · 혼주 입장 구호는 지금 부르는 말로 ③) · 네 분 G 원본 «양가 부모님 입장».
        끝 «단상 위로 올라와 주십시오. 준비된 초에 함께 불을 붙여 주십시오.»는 지금 글 그대로(나와서 할 일). 예시 1 의 결이 서는 분마다 달라 이름도 판마다 · 빈 이름('')은 그 판에 없는 예시 */
     candle: { lab: '화촉 멘트',
-      names: function (S) { var w = candleWhoOf(S); return w === 'mothers' ? ['뭉클하게', '담백하게', '잔잔하게', '다정하게'] : w === 'others' ? ['담백하게', '격식 있게', '잔잔하게', '다정하게'] : w === 'fathers' ? ['격식 있게', '담백하게', '잔잔하게', '감사하게'] : ['격식 있게', '담백하게', '잔잔하게', '뭉클하게']; },
+      names: function (S) { var w = candleWhoOf(S); return w === 'mothers' ? ['담백하게', '뭉클하게', '잔잔하게', '애틋하게'] : w === 'others' ? ['담백하게', '격식 있게', '잔잔하게', '다정하게'] : w === 'fathers' ? ['격식 있게', '담백하게', '잔잔하게', '감사하게'] : ['격식 있게', '담백하게', '잔잔하게', '뭉클하게']; },
       lines: {
         'narr-candle-in-mothers': [
-          '이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.',
+          '우리는 늘 엄마가 당연히 그 자리에 있는 존재라고 생각하지만, 사실 그 자리는 누군가의 수많은 포기와 사랑으로 지켜진 자리입니다. 그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다. 양가 어머님께서 화촉에 불을 밝히실 때, 내빈 여러분들도 같은 마음으로 행복을 빌어 주시면 대단히 감사하겠습니다. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.',   /* ★[BASE_SWAP_1023 검토 156] 예시 2 = 옛 기본 «뭉클하게»(91 · FF 1-2 · 37초) · 기본은 «담백하게»(151 · G 원본 · 사장님 «‹이런 역할이다›가 보이게 짧게») */
           '먼저 신랑, 신부의 앞날에 사랑과 행복의 빛을 밝히는 축복의 촛불을 점화하도록 하겠습니다. 촛불 점화를 도와주실 양가 어머님을 앞으로 모셔볼 텐데요. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.',
           "하객 여러분, 어릴 땐 엄마가 좋다며 엄마 뒤만 졸졸 쫓아다니던 우리 어린아이들이 지금은 전화 한 통도 참 쉽지 않습니다. 세월은 빠르게 흘러 어느덧 결혼할 나이가 되었지만, 아직도 '차 조심해라' 말씀하시는 우리 어머님들의 시간은 아직도 두 사람의 어린 시절에 멈춰 있는 듯합니다. 오늘 그 고장 난 시계가 다시 움직이길, 그리고 두 분을 위해 흐르길 바라며, 하객분들의 따뜻한 박수와 함께 모시겠습니다. 단상 위로 올라와 주십시오. 두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다."
         ],
@@ -1027,9 +1028,9 @@
     /* 맞절(132) — 2 = 자료 EE A-1(박은지 · 격식형 짧은 범용 · 원문 그대로) · 3 = S 원본(게으른닭 대본) «신랑 신부 맞절» · 4 = EE A-3(세나운서 · 회상 요청형 · 원문 그대로) */
     /* ★[REVIEW7_1018 인스타 섹션 검토 76] 5 «담백하게» = 자료 Y2(유튜브 한석준 «결혼식 사회(한석준ver)» 맞절) 그대로(띄어쓰기만) — 입장 도착 뒤 나란히 선 두 분을 마주 보게 하는 말이 글 안에 있다 */
     /* ★[REVIEW24_1019 검토 132 덧 2] 6 «설레게» = 자료 EE B-1 원문 그대로 */
-    matjeol: { lab: '맞절 멘트', names: ['잔잔하게', '격식 있게', '뭉클하게', '다정하게', '담백하게', '설레게'],
+    matjeol: { lab: '맞절 멘트', names: ['격식 있게', '잔잔하게', '뭉클하게', '다정하게', '담백하게', '설레게'],
       lines: { 'narr-entry-bow': [
-        '다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다. 맞절은 부부로서의 첫 예를 올리는 인사인데요. 그럼 서로의 눈을 바라보며 맞절하겠습니다. 서로를 존중하는 마음으로, 신랑 신부 맞절!',
+        '이어서 신랑 신부의 맞절을 진행하도록 하겠습니다. 잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다. 맞절은 단순한 인사가 아닌, 기쁠 때나 어려울 때나 서로의 곁을 지키며 살아가겠다는 약속이며 서로를 평생의 동반자로 존중하겠다는 깊은 다짐의 표현입니다. 서로에게 예를 갖춰 그 마음을 담아 인사하겠습니다. 신랑 신부, 인사!',   /* ★[BASE_SWAP_1023 검토 156] 예시 2 = 153 의 EE A-2(«잔잔하게» · 29초 + 쉼 · 132) · 기본은 «격식 있게»(160 · 예고 → 맞절 뜻 → 구호) */
         '바로 이어서 두 사람이 부부가 되는 예를 갖추는 순서로 신랑, 신부의 맞절 순서가 있겠습니다. 지금부터 서로의 눈을 바라봐 주시기 바랍니다. 긴 시간 동안 내 곁에 있어 준 나의 사랑하는 사람이 바로 앞에 서 있습니다. 깊게 사랑하고 존경하는 나의 연인이 이제는 나의 평생 반려자가 되는 순간입니다. 이 깊은 마음을 눈과 미소에 담아 예를 갖추어 맞절하겠습니다. 신랑 신부, 맞절!',
         '지금부터 서로의 눈을 지그시 바라봐 주세요. 그리고 처음 만났던 날, 함께 웃으면서 행복했던 지난 시간들을 회상해 주시기 바랍니다. 이제 우리 두 사람은 지난 아름다운 시간을 지나 부부라는 이름으로 새로운 여정을 시작하려 합니다. 인생에서 만날 그 어떤 순간일지라도 늘 감사하고 아껴 주며 사랑할 것을 다짐하며 서로에게 인사하겠습니다. 신랑 신부, 맞절!',
         '신랑 신부 서로 마주 보고 서 주십시오. 신랑 신부, 맞절!',
@@ -1259,7 +1260,11 @@
   /* names 는 배열 또는 함수(S) — 화촉처럼 서는 분마다 지금 글(예시 1)의 결이 달라 이름이 판마다 다를 때 · 빈 이름('')은 그 판에 없는 예시 */
   function narExNames(S, k) { var e = NAR_EX[k]; return !e ? [] : (typeof e.names === 'function' ? e.names(S || {}) : e.names); }
   function narExOk(S, k, n) { var e = NAR_EX[k], nm = narExNames(S, k); if (!e || !(n >= 1) || n >= nm.length || !nm[n]) return false; var w = e.when && e.when[n - 1]; return !w || !!w(S || {}); }
-  function narExOf(S, k) { var v = Math.floor(+((S && S.narEx) || {})[k] || 0); return narExOk(S, k, v) ? v : 0; }
+  /* ★[BASE_SWAP_1023 검토 156] 맞절 · 화촉(어머님) 기본과 예시 2 의 자리를 맞바꿨다 — exv 2 가 없는 옛 초안에서 고른 «1»(옛 예시 2 = 지금 기본)은 0 으로 읽는다.
+     빌더는 불러올 때(_applySaved) 같은 옮기기를 하고 exv 2 를 적는다 · 고르지 않은 옛 초안은 새 기본을 따른다(사장님 뜻) */
+  /* 옛 초안 = 식순 화면이 저장한 S(늘 entryScene 을 싣는다) 중 exv 2 가 없는 것 — 엔진 · 검사가 손으로 만든 S(entryScene 없음)와 미리듣기 주소는 새 차례로 읽는다 */
+  function exSwapped(S, k) { return !!(S && S.entryScene != null && +S.exv !== 2 && (k === 'matjeol' || (k === 'candle' && candleWhoOf(S) === 'mothers'))); }
+  function narExOf(S, k) { var v = Math.floor(+((S && S.narEx) || {})[k] || 0); if (v === 1 && exSwapped(S, k)) v = 0; return narExOk(S, k, v) ? v : 0; }
   function narExList(S, k) { return narExNames(S, k).map(function (nm, i) { return [i, nm]; }).filter(function (x) { return x[0] === 0 || narExOk(S, k, x[0]); }); }
   /* 같은 글은 한 소리 — 그 글이 처음 나온 자리의 번호(편지 맺는 말: 예시 2 · 3 이 같은 글 → 둘 다 -ex2) */
   /* ★[EX_SLUG_MOVED_1018 검토 75] 쉬는 소리 번호(RETIRED · 번호 보존)를 다시 쓰지 않는다 — 그 자리에 새 글이 오면 새 이름으로(FILES 맨 끝) */
@@ -1291,11 +1296,11 @@
   var MOOD_KEYS = ['keep', 'plain', 'formal', 'warm', 'moving', 'bright'];
   var MOOD_NAME = { keep: '지금 그대로', plain: '담백하게', formal: '격식 있게', warm: '다정하게', moving: '뭉클하게', bright: '밝고 힘차게' };
   var MOOD = {
-    plain: { entry: 'A', guestEx: 0, pvEx: 0, narEx: { open: 2, candle: { mothers: 1, fathers: 1, parents: 1, others: 0 }, matjeol: 4, welcome: 0, vow: 0, thanks: 0, ring: 0, declare: 0, bless: 0, speech: 0, song: 3 /* [SONG_DEF_NN_1023] 예시 1 이 «유쾌하게»가 돼 담백은 4 «축하공연이 있겠습니다» */, letter: 0, letterParent: 0, tribute: 1, close: 0, toast: 2, table: 0 } },
-    formal: { entry: 'C', guestEx: 3, pvEx: 0, narEx: { open: 1, candle: { mothers: 2, fathers: 0, parents: 0, others: 1 }, matjeol: 1, welcome: 3, vow: 1, thanks: 2, ring: 1, declare: 1, bless: 1, speech: 1, song: 3, letter: 0, letterParent: 3, tribute: 4, close: 3, toast: 1, table: 2 } },
-    warm: { entry: 'E', guestEx: 1, pvEx: 0, narEx: { open: 3, candle: { mothers: 3, fathers: 3, parents: 3, others: 3 }, matjeol: 3, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 0, bless: 3, speech: 1, song: 1, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 0, table: 3 } },
-    moving: { entry: 'D', guestEx: 1, pvEx: 0, narEx: { open: 4, candle: { mothers: 0, fathers: 3, parents: 3, others: 2 }, matjeol: 2, welcome: 0, vow: 3, thanks: 1, ring: 3, declare: 3, bless: 3, speech: 1, song: 4 /* [SONG_DEF_NN_1023] 뭉클은 5 «따뜻하게» */, letter: 3, letterParent: 2, tribute: 0, close: 1, toast: 2, table: 4 } },
-    bright: { entry: 'B', guestEx: 2, pvEx: 0, narEx: { open: 0, candle: { mothers: 1, fathers: 1, parents: 1, others: 0 }, matjeol: 1, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 2, bless: 2, speech: 3, song: 0 /* [SONG_DEF_NN_1023] 밝고 힘차게 = 예시 1(옛 3 · 같은 글) */, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 3, table: 3 } }
+    plain: { entry: 'A', guestEx: 0, pvEx: 0, narEx: { open: 2, candle: { mothers: 0, fathers: 1, parents: 1, others: 0 }, matjeol: 4, welcome: 0, vow: 0, thanks: 0, ring: 0, declare: 0, bless: 0, speech: 0, song: 3 /* [SONG_DEF_NN_1023] 예시 1 이 «유쾌하게»가 돼 담백은 4 «축하공연이 있겠습니다» */, letter: 0, letterParent: 0, tribute: 1, close: 0, toast: 2, table: 0 } },
+    formal: { entry: 'C', guestEx: 3, pvEx: 0, narEx: { open: 1, candle: { mothers: 2, fathers: 0, parents: 0, others: 1 }, matjeol: 0, welcome: 3, vow: 1, thanks: 2, ring: 1, declare: 1, bless: 1, speech: 1, song: 3, letter: 0, letterParent: 3, tribute: 4, close: 3, toast: 1, table: 2 } },
+    warm: { entry: 'E', guestEx: 1, pvEx: 0, narEx: { open: 3, candle: { mothers: 2, fathers: 3, parents: 3, others: 3 }, matjeol: 3, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 0, bless: 3, speech: 1, song: 1, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 0, table: 3 } },
+    moving: { entry: 'D', guestEx: 1, pvEx: 0, narEx: { open: 4, candle: { mothers: 1, fathers: 3, parents: 3, others: 2 }, matjeol: 2, welcome: 0, vow: 3, thanks: 1, ring: 3, declare: 3, bless: 3, speech: 1, song: 4 /* [SONG_DEF_NN_1023] 뭉클은 5 «따뜻하게» */, letter: 3, letterParent: 2, tribute: 0, close: 1, toast: 2, table: 4 } },
+    bright: { entry: 'B', guestEx: 2, pvEx: 0, narEx: { open: 0, candle: { mothers: 0, fathers: 1, parents: 1, others: 0 }, matjeol: 0, welcome: 1, vow: 2, thanks: 1, ring: 2, declare: 2, bless: 2, speech: 3, song: 0 /* [SONG_DEF_NN_1023] 밝고 힘차게 = 예시 1(옛 3 · 같은 글) */, letter: 1, letterParent: 1, tribute: 3, close: 1, toast: 3, table: 3 } }
   };
   /* [MOOD_1018 검토 73] 분위기를 고른 날 두 분 몫 «참고 예시» 맨 위에 둘 결(RITUAL_REF kyeol) */
   /* ★[REVIEW22_1018 인스타 섹션 검토 130-1] 다정 · 뭉클의 축사 여는 말 175(«두 사람을 위해 준비된») → 174(«축하의 메시지를 전하는») ·
@@ -1317,7 +1322,7 @@
   function moodApply(S, key, opt) { opt = opt || {};
     if (key === 'keep') { S.mood = 'keep'; return S; }
     var m = MOOD[key]; if (!m) return S;
-    S.mood = key;
+    S.mood = key; S.exv = 2;   // [BASE_SWAP_1023]
     if (!opt.noEntry) S.entry = m.entry;
     if (m.guestEx) S.guestEx = m.guestEx; else delete S.guestEx;
     if (m.pvEx) S.pvEx = m.pvEx; else delete S.pvEx;
@@ -1479,7 +1484,7 @@
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
-    CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
+    CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,

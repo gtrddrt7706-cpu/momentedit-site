@@ -522,11 +522,11 @@ for (const P of PARTS) {
       else if ((c.file === 'end-1a-farewell' || c.file === 'end-1c-thanks-nomeal') && s.text === '두 사람이, 다시 한번 감사 인사를 드립니다.' && !last) after = 3.0;
       /* ★[MATJEOL_HOLD_1014 2026-10-14 원고 4판 ② · 사장님 아침 확인 1 «추천대로»] 맞절(132) «두 분, 서로 마주 봐 주세요.» 뒤 3초 — 두 분이 마주 보고 눈을 맞추는 정적(자료 EE 1).
          곧바로 뜻 줄이 이어지면 마주 보는 순간이 말에 묻힌다 · THANKS_BOW 와 같은 방법(조립기가 무음을 넣는다 · 다시 받을 필요 없음) */
-      else if (c.file === 'narr-entry-bow' && s.text === '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.' && !last) after = 3.0;   // ★[REVIEW29_1023 검토 153] 글이 EE A-2 로 바뀌어 쉼 열쇠도 둘째 문장으로(2 ~ 3초 · 값은 음성 쉼 섹션이 정한다)   // ★[SOURCE_FIRST_1016] 글이 자료 EE A-3 그대로로 바뀌어 쉼 열쇠도 함께
+      else if (c.file === 'narr-entry-bow-ex2' && s.text === '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.' && !last) after = 3.0;   // ★[REVIEW29_1023 검토 153] 글이 EE A-2 로 바뀌어 쉼 열쇠도 둘째 문장으로(2 ~ 3초 · 값은 음성 쉼 섹션이 정한다)   // ★[SOURCE_FIRST_1016] 글이 자료 EE A-3 그대로로 바뀌어 쉼 열쇠도 함께
       /* ★★[CANDLE_CALL_HOLD_1016] 화촉 인사 구호(138 · 139 · 146 · 147) — «…맞절!» · «…하객분들께 인사!» 뒤 4초(맞절 · 인사하는 시간 · 자료 A «맞절 3초씩» + 돌아서기). 실전 사회자는 구호 뒤 동작을 기다린다 · 조립기가 무음을 넣는다 */
       else if (/^narr-candle-bow/.test(c.file) && /(맞절|하객분들께 인사)!$/.test(s.text) && !last) after = 4.0;   // ★[SOURCE_BEST_1015 라운드 5] 글이 «서로의 눈을 바라봐»로 바뀌어 쉼 열쇠도 함께(옛 열쇠면 3초 쉼이 조용히 사라진다)
       /* ★[CALL_HOLD_1014] «신랑 신부, 맞절!» 앞은 «입장!»과 같은 0.6초(PACE_D · 원고 2-3 «입장 구호와 같은 꼴») — 뜻 줄 뒤 곧바로 선창 */
-      else if (c.file === 'narr-entry-bow' && sents[k + 1] && sents[k + 1].text === '신랑 신부, 인사!') after = 0.6;   // [REVIEW29_1023] 구호 «인사!»(EE A-2)
+      else if (c.file === 'narr-entry-bow-ex2' && sents[k + 1] && sents[k + 1].text === '신랑 신부, 인사!')   /* [BASE_SWAP_1023] EE A-2 는 이제 예시 2(132 · -ex2) */ after = 0.6;   // [REVIEW29_1023] 구호 «인사!»(EE A-2)
       // 문단 경계는 한 박 더 쉰다
       // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }

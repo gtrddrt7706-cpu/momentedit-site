@@ -163,6 +163,11 @@ SKIP = {
 for _no, _sl, *_r in rows:
     if _no.isdigit() and 148 <= int(_no) <= 242 and re.search(r'-ex[2345]$', _sl):   # [REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223 예시도 · [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 축가 여는 말 예시 5(-ex5)도 · [REVIEW1_1018 인스타 섹션 검토] 207 · 208 도 같은 까닭(자료 그대로) · [R10_SRC_1018 라운드 10] 204 ~ 206 도 · [NARR_R9_1018 라운드 9] 201 ~ 203 도 같은 까닭(자료 그대로) · [NARR_LOOP_1018 첫 판] 197 ~ 200 도 같은 까닭(자료 그대로) · [T3_OK_1017] 191 ~ 196 자료 T3 예시(원작자 허락)도 같은 까닭
         SKIP.setdefault((_no, _sl), '2026-10-17 신설 — 나레이션 멘트 예시 [EX_MANY_1017] · 자료 그대로(SOURCE_FIRST_1016 · 출처 자료그대로_1016.json) · 사장님 «자료집에서 좋은 멘트 붙여서 · 4개 정도». 판정 회차 뒤에 태어났다')
+# ★[BASE_SWAP_1023 검토 156] 화촉 어머님 · 맞절 기본 ↔ 예시 2 — 소리 번호는 글을 따라 그대로라 (번호, 이름) 짝만 바뀌었다 · 판정은 글을 따라 옮긴다
+for (_a, _b) in ((('91','narr-candle-in-mothers'), ('91','narr-candle-in-mothers-ex2')), (('132','narr-entry-bow'), ('132','narr-entry-bow-ex2'))):
+    if _a in SKIP: SKIP.setdefault(_b, SKIP[_a] + ' · [BASE_SWAP_1023] 이제 예시 2 이름(번호 그대로)')
+SKIP.setdefault(('151','narr-candle-in-mothers'), '2026-10-17 신설 — 화촉 어머님 예시 2 «담백하게» [EX_MANY_1017] · G 원본 그대로 · [BASE_SWAP_1023 검토 156] 10/23 부터 기본(번호 151 그대로)')
+SKIP.setdefault(('160','narr-entry-bow'), '2026-10-17 신설 — 맞절 예시 2 «격식 있게» [EX_MANY_1017] · 자료 그대로 · [BASE_SWAP_1023 검토 156] 10/23 부터 기본(번호 160 그대로)')
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}
 

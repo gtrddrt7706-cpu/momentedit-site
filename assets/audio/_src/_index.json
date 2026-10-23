@@ -863,22 +863,22 @@
    "voice": "우성",
    "when": "2026-10-22"
   },
-  "132_narr-entry-bow#0": {
+  "132_narr-entry-bow-ex2#0": {
    "text": "다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.",
    "voice": "우성",
    "when": "2026-10-22"
   },
-  "132_narr-entry-bow#1": {
+  "132_narr-entry-bow-ex2#1": {
    "text": "지금부터 서로의 눈을 지그시 바라봐 주세요.",
    "voice": "우성",
    "when": "2026-10-17"
   },
-  "132_narr-entry-bow#2": {
+  "132_narr-entry-bow-ex2#2": {
    "text": "맞절은 단순한 인사가 아닌, 기쁠 때나 어려울 때나 서로의 곁을 지키며 살아가겠다는 약속이며 서로를 평생의 동반자로 존중하겠다는 깊은 다짐의 표현입니다.",
    "voice": "우성",
    "when": "2026-10-23"
   },
-  "132_narr-entry-bow#3": {
+  "132_narr-entry-bow-ex2#3": {
    "text": "신랑 신부, 맞절!",
    "voice": "우성",
    "when": "2026-10-18"
@@ -1223,17 +1223,17 @@
    "voice": "우성",
    "when": "2026-10-22"
   },
-  "151_narr-candle-in-mothers-ex2#0": {
+  "151_narr-candle-in-mothers#0": {
    "text": "이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝히겠습니다.",
    "voice": "우성",
    "when": "2026-10-22"
   },
-  "151_narr-candle-in-mothers-ex2#1": {
+  "151_narr-candle-in-mothers#1": {
    "text": "단상 위로 올라와 주십시오.",
    "voice": "우성",
    "when": "2026-10-22"
   },
-  "151_narr-candle-in-mothers-ex2#2": {
+  "151_narr-candle-in-mothers#2": {
    "text": "두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.",
    "voice": "우성",
    "when": "2026-10-22"
@@ -1252,13 +1252,13 @@
    "text": "단상 위로 올라와 주십시오.",
    "voice": "우성",
    "when": "2026-10-22",
-   "from": "151_narr-candle-in-mothers-ex2#1"
+   "from": "151_narr-candle-in-mothers#1"
   },
   "152_narr-candle-in-mothers-ex3#3": {
    "text": "두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.",
    "voice": "우성",
    "when": "2026-10-22",
-   "from": "151_narr-candle-in-mothers-ex2#2"
+   "from": "151_narr-candle-in-mothers#2"
   },
   "153_narr-candle-in-mothers-ex4#0": {
    "text": "하객 여러분, 어릴 땐 엄마가 좋다며 엄마 뒤만 졸졸 쫓아다니던 우리 어린아이들이 지금은 전화 한 통도 참 쉽지 않습니다.",
@@ -1450,22 +1450,22 @@
    "voice": "규민",
    "when": "2026-09-13"
   },
-  "160_narr-entry-bow-ex2#0": {
+  "160_narr-entry-bow#0": {
    "text": "다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.",
    "voice": "우성",
    "when": "2026-10-22"
   },
-  "160_narr-entry-bow-ex2#1": {
+  "160_narr-entry-bow#1": {
    "text": "맞절은 부부로서의 첫 예를 올리는 인사인데요.",
    "voice": "우성",
    "when": "2026-10-19"
   },
-  "160_narr-entry-bow-ex2#2": {
+  "160_narr-entry-bow#2": {
    "text": "그럼 서로의 눈을 바라보며 맞절하겠습니다.",
    "voice": "우성",
    "when": "2026-10-18"
   },
-  "160_narr-entry-bow-ex2#3": {
+  "160_narr-entry-bow#3": {
    "text": "서로를 존중하는 마음으로, 신랑 신부 맞절!",
    "voice": "우성",
    "when": "2026-10-19"
@@ -3244,27 +3244,27 @@
    "voice": "우성",
    "when": "2026-10-19"
   },
-  "91_narr-candle-in-mothers#0": {
+  "91_narr-candle-in-mothers-ex2#0": {
    "text": "우리는 늘 엄마가 당연히 그 자리에 있는 존재라고 생각하지만, 사실 그 자리는 누군가의 수많은 포기와 사랑으로 지켜진 자리입니다.",
    "voice": "우성",
    "when": "2026-10-23"
   },
-  "91_narr-candle-in-mothers#1": {
+  "91_narr-candle-in-mothers-ex2#1": {
    "text": "그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다.",
    "voice": "우성",
    "when": "2026-10-23"
   },
-  "91_narr-candle-in-mothers#2": {
+  "91_narr-candle-in-mothers-ex2#2": {
    "text": "아름다운 양가 어머님께서 화촉을 밝혀 주시겠습니다.",
    "voice": "우성",
    "when": "2026-10-22"
   },
-  "91_narr-candle-in-mothers#3": {
+  "91_narr-candle-in-mothers-ex2#3": {
    "text": "단상 위로 올라와 주십시오.",
    "voice": "우성",
    "when": "2026-10-23"
   },
-  "91_narr-candle-in-mothers#4": {
+  "91_narr-candle-in-mothers-ex2#4": {
    "text": "두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.",
    "voice": "우성",
    "when": "2026-10-23"
