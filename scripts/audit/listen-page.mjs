@@ -572,7 +572,7 @@ else {
    종전 ② 잔 들기 줄이 'toast-raise'(그런 파일 없음)를 찾아, 17편이 다 들어오면 «케이크와 축배»는 케이크 영상 · «축배만 + 붓기»는 붓기 영상이 나왔다(실측).
    영상이 한 편도 없는 지금은 안 보이는 결함이라, 파일이 들어오기 전에 여기서 막는다. ffmpeg 없이 잰다(src 만 본다). */
 {
-  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편(파일은 아직 · 이름 규격만)
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song', 'speech'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편 · ★[VIDEO_SET_1023] 10/23 speech(축사 칸) 더해 20편
   const { ctx, pg } = await open(390, { videos: NAMES });
   const r = await pg.evaluate((NAMES) => {
     const R = RitualOpen, name = (h) => ((h.match(/moments\/([^"]+)\.mp4"/) || [])[1] || '(없음)'), out = { raise: {}, bad: [] };
@@ -587,13 +587,13 @@ else {
     return out;
   }, NAMES);
   ok('10-1 ② 잔 들기 줄 = toast.mp4 — 케이크와 축배 · 축배만(두 와인 · 양가 · 붓지 않음) [TOAST_FILE_ONE]', Object.values(r.raise).every((n) => n === 'toast'), JSON.stringify(r.raise));
-  ok('10-2 화면이 찾는 영상 이름은 모두 규격 19편 안 [TOAST_FILE_ONE]', r.bad.length === 0, r.bad.join(' | '));
+  ok('10-2 화면이 찾는 영상 이름은 모두 규격 20편 안 [TOAST_FILE_ONE · VIDEO_SET_1023]', r.bad.length === 0, r.bad.join(' | '));
   await ctx.close();
 }
 
 /* ★[MK_VID_CHIP 2026-09-27] ② 케이크 · 축배 쪽 영상은 고른 판대로 — «케이크만» cake · «축배만 + 붓지 않음» toast · «케이크와 축배» cake(첫 장면) */
 {
-  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편(파일은 아직 · 이름 규격만)
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song', 'speech'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편 · ★[VIDEO_SET_1023] 10/23 speech(축사 칸) 더해 20편
   const { ctx, pg, errs } = await open(390, { videos: NAMES });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};
@@ -671,12 +671,14 @@ else {
   const disk = fs.existsSync(DIR) ? fs.readdirSync(DIR) : [];
   const { ctx, pg, errs } = await open(390);
   const ready = await pg.evaluate(() => RitualOpen.VIDEO_READY.slice());
-  const lack = ready.filter((n) => !['.mp4', '.webp', '-640.webp'].every((x) => disk.includes(n + x)));
-  const stray = disk.filter((f) => !ready.some((n) => f === n + '.mp4' || f === n + '.webp' || f === n + '-640.webp'));
-  ok(`V-1 목록 ${ready.length}편 = 디스크 — 이름마다 mp4 · webp · 640.webp 셋 · 목록 밖 파일 0 [VIDEO_IN_1003]`, ready.length === 17 && lack.length === 0 && stray.length === 0 && disk.length === ready.length * 3, JSON.stringify({ lack, stray }));
+  /* ★[VIDEO_SET_1023 2026-10-23] 유화판 17편 + 옛 cake · free = 19개 이름 · 이름마다 넷(끝 장면 -end.webp 더해짐 [VID_REST_END]) */
+  const SUF = ['.mp4', '.webp', '-640.webp', '-end.webp'];
+  const lack = ready.filter((n) => !SUF.every((x) => disk.includes(n + x)));
+  const stray = disk.filter((f) => !ready.some((n) => SUF.some((x) => f === n + x)));
+  ok(`V-1 목록 ${ready.length}편 = 디스크 — 이름마다 mp4 · webp · 640.webp · end.webp 넷 · 목록 밖 파일 0 [VIDEO_IN_1003 · VIDEO_SET_1023]`, ready.length === 19 && ['speech', 'song'].every((n) => ready.includes(n)) && lack.length === 0 && stray.length === 0 && disk.length === ready.length * SUF.length, JSON.stringify({ lack, stray }));
   const keys = await pg.evaluate(() => { const R = RitualOpen, o = {}; R.ORDER.concat(['_close']).forEach((k) => { o[k] = R.videoKeys(k, S).filter((n) => !R.videoOf(n)); }); return o; });
   const asked = await pg.evaluate(() => { const R = RitualOpen, a = {}; R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => { a[n] = 1; })); R.videoKeys('free', { on: { free: 1 }, freeWhat: 'video' }).forEach((n) => { a[n] = 1; }); return Object.keys(a); });   // ★[SPEECH_TILE_1012] free.mp4 는 옛 초안의 «영상» 판만 찾는다(새 칸은 축사 · 장면 글)
-  ok('V-2 들어온 17편은 모두 화면이 찾는 이름(안 쓰는 파일 0) [TABLE_VIDEO_1009]', ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
+  ok(`V-2 들어온 ${ready.length}편은 모두 화면이 찾는 이름(안 쓰는 파일 0 · 축사 칸 = speech [VIDEO_SET_1023]) [TABLE_VIDEO_1009]`, ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(900);
   const tl = await pg.evaluate(async () => { const im = [...document.querySelectorAll('.pk-tile img')]; await Promise.all(im.map((i) => (i.decode ? i.decode().catch(() => 0) : 0)));
     return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote'), aiTxt: /AI로 만든|(^|\s)AI(\s|$)/.test([...document.querySelectorAll('.pk-tile .pk-media')].map((m) => m.textContent).join(' ')) }; });
@@ -689,14 +691,15 @@ else {
   ok('V-4 ② 반지 쪽 = ring.mp4 · 첫 장면 ring.webp · 그림 위 «AI로 만든 장면» 이름표 없음 [AI_LABEL_OFF]', /moments\/ring\.mp4$/.test(mk.src) && /moments\/ring\.webp$/.test(mk.poster) && !mk.ai, JSON.stringify(mk));
   /* ★[THUMB_PICK 2026-10-03] ① 칸 그림만 고른 장면(candle 마지막 · entry 6.0초 · toast 2.0초 사장님 · tribute 2.8초(10/14 자른 판 · TRIB_HUG_CROP_1014) · prevideo 6.0초 사장님) — 나머지는 첫 장면.
      창 · 영상 첫 장면(.webp)과 64×36 회색으로 견준다. 실측: 고른 넷 3.6~18.8 · 나머지 0.3~0.4(같은 장면의 압축 차) — 넷째 값 없이 다시 구우면 여기서 빨강 */
-  const PICK = ['candle', 'entry', 'toast', 'tribute', 'prevideo'];
+  /* ★[VIDEO_SET_1023 2026-10-23] 유화판 17편은 칸 그림 = 첫 장면(고른 장면 없음) · 위 다섯 편 고르기는 옛 v8 판 기록 — 이제 모든 편이 «첫 장면과 같다»를 잰다 */
+  const PICK = [];
   const dif = await pg.evaluate(async (ready) => {
     const load = (u) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = u; });
     const gray = (img) => { const c = document.createElement('canvas'); c.width = 64; c.height = 36; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 64, 36); const d = x.getImageData(0, 0, 64, 36).data, g = []; for (let i = 0; i < d.length; i += 4) g.push(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]); return g; };
     const o = {}; for (const n of ready) { try { const a = gray(await load('/assets/video/moments/' + n + '-640.webp')), b = gray(await load('/assets/video/moments/' + n + '.webp')); o[n] = +(a.reduce((s, v, i) => s + Math.abs(v - b[i]), 0) / a.length).toFixed(1); } catch (e) { o[n] = -1; } }
     return o; }, ready);
   const badPick = Object.keys(dif).filter((n) => (PICK.includes(n) ? !(dif[n] > 2) : !(dif[n] >= 0 && dif[n] < 1.5)));
-  ok('V-5 ① 칸 그림 고르기 — candle · entry · toast · tribute · prevideo 는 첫 장면과 다른 장면 · 나머지는 첫 장면 [THUMB_PICK]', badPick.length === 0 && PICK.every((n) => n in dif), JSON.stringify(dif));
+  ok('V-5 ① 칸 그림 = 모든 편 첫 장면(유화판 · 고른 장면 없음) [THUMB_PICK · VIDEO_SET_1023]', badPick.length === 0 && ready.every((n) => n in dif), JSON.stringify(dif));
   ok('V pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }

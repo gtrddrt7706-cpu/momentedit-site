@@ -1389,8 +1389,8 @@
     candle: '두 손이 긴 초에 불을 옮겨요', entry: '문이 열리고 두 분이 함께 걸어 들어와요', matjeol: '마주 선 두 분이 천천히 고개를 숙여요' /* [MATJEOL_SPLIT_1013] */,
     welcome: '두 분이 마이크 하나로 차례로 인사해요', bless: '자리에서 마이크를 든 부모님 · 듣는 두 분의 뒷모습',
     vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
-    song: '노래하는 사람 · 귀 기울이는 얼굴들',   /* ★[SONG_ANYONE_WORDS_1013] 두 분이 직접 부르는 날도 참(SONG_SELF_1011) */   // [SONG_BACK_1011] 장면 영상이 아직 없다 — 영상이 오면 VIDEO_READY 에 이름만 더한다
-    tribute: '두 분이 부모님께 인사하고 안아 드려요', free: '말하는 분을 보며 웃는 두 분' /* [SPEECH_TILE_1012] 축사 · 옛 «영상» 판은 영상(free.mp4)이 이 글 대신 나온다 */, letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
+    song: '노래하는 사람 · 귀 기울이는 얼굴들',   /* ★[SONG_ANYONE_WORDS_1013] 두 분이 직접 부르는 날도 참(SONG_SELF_1011) */   // [SONG_BACK_1011] ★[VIDEO_SET_1023] 이제 영상(song.mp4)이 있어 영상이 없을 때만 쓴다 · (옛 줄) 장면 영상이 아직 없다 — 영상이 오면 VIDEO_READY 에 이름만 더한다
+    tribute: '두 분이 부모님께 인사하고 안아 드려요', free: '말하는 분을 보며 웃는 두 분' /* [SPEECH_TILE_1012] 축사 · 옛 «영상» 판은 영상(free.mp4)이 이 글 대신 나온다 · ★[VIDEO_SET_1023] 축사도 이제 영상(speech.mp4) */, letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
     cake: '두 손이 함께 나이프로 케이크를 잘라요', toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요',
     table: '두 분이 테이블 사이를 걸어요 · 하객들이 자리에서 맞아요'   // [TABLE_GREET_1008] 장면 글 · ★[TABLE_VIDEO_1009 2026-10-09] 이제 영상(table.mp4)이 있어 다른 순간처럼 영상이 없을 때만 쓴다
   };
@@ -1410,8 +1410,11 @@
        나머지  첫 장면        (끝 장면은 주인공이 빠진다 · 덕담 뒷모습 · 편지 손 · 닫는 인사 발)
        ★초는 v8 받은 원본 기준(10/9 · 종전 v2 표의 6.0 · 2.0 · 6.0 은 옛 판) · 고른 다섯 편의 칸 그림은 그 원본에서 뽑아 둔 그대로다(tribute 만 10/14 자른 판에서 다시).
      ★[VID_MOVE_NOW 2026-10-09 사장님 «열자마자 움직일 수 있게»] 영상은 앞의 멈춘 구간(편마다 0.10~3.10초)을 잘라 가볍게(CRF 24 · 합 65.0MB → 21.2MB) 다시 구웠다 — 첫 장면(poster)은 자른 판의 첫 장면.
-       다시 구울 때: 고른 다섯 편은 KEEP_CARD=1 sh scripts/video/encode-moment.sh 받은파일.mp4 <이름> · 나머지는 KEEP_CARD 없이(칸 그림 = 새 첫 장면) · 칸 그림을 새로 고르면 넷째 값(자른 뒤 기준 초) */
-  var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close', 'table'];   // [TABLE_VIDEO_1009] 2026-10-09 사장님 «table 넣어» — 테이블 인사 영상(v8 묶음 · 10초)
+       다시 구울 때: 고른 다섯 편은 KEEP_CARD=1 sh scripts/video/encode-moment.sh 받은파일.mp4 <이름> · 나머지는 KEEP_CARD 없이(칸 그림 = 새 첫 장면) · 칸 그림을 새로 고르면 넷째 값(자른 뒤 기준 초)
+     ★★[VIDEO_SET_1023 2026-10-23 사장님 «마지막 검수 거치고 문제없으면 홈페이지에 구현»] 유화판 17편으로 바꿨다(guest · prevideo · candle · entry · entry-look · welcome · vow · ring · declare · bless · speech · song · letter · tribute · close · toast · table).
+       이 판은 마감(유화 결 · 끊김 보정 · 제목 두 줄 · 앞 자르기)이 끝난 파일이다 — encode-moment.sh 로 다시 굽지 않는다(smooth-dups 가 매끄러운 24fps 판에 잔상을 만든다).
+       칸 그림(-640)은 모두 첫 장면 · 위 THUMB_PICK 표(KEEP_CARD)는 옛 v8 판 기록이다. 편마다 <이름>-end.webp(끝 장면) 하나가 더 있다 [VID_REST_END]. cake · free 는 옛 판 그대로(끝 장면만 새로 뽑았다). */
+  var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close', 'table', 'speech', 'song'];   // [TABLE_VIDEO_1009] 2026-10-09 사장님 «table 넣어» — 테이블 인사 영상(v8 묶음 · 10초) · ★[VIDEO_SET_1023 2026-10-23 사장님 «홈페이지에 구현»] 유화판 17편 — 축사(speech) · 축가(song) 장면 영상이 더해졌다(cake · free 는 옛 판 그대로)
   function videoKeys(k, S) {
     if (k === 'cake') return ['cake'];   // [CAKE_TOAST_SPLIT] 두 순간 · 두 영상
     if (k === 'toast') return ['toast'];
@@ -1422,12 +1425,12 @@
     if (k === 'tribute') return ['tribute'];
     if (k === '_close') return ['close'];
     if (k === 'table') return ['table'];   // ★[TABLE_VIDEO_1009 2026-10-09 사장님 «table 넣어»] 테이블 인사도 영상 — 10/8 «영상 없음(장면 글 한 줄)»을 뒤집었다
-    if (k === 'free') return FREE_KIND[chipOf('free', S)] === 'video' ? ['free'] : [];   // ★[SPEECH_TILE_1012] 축사에는 장면 영상이 없다(축가처럼 장면 글) · 옛 «영상» 판만 free.mp4
+    if (k === 'free') { var fk = FREE_KIND[chipOf('free', S)]; return fk === 'video' ? ['free'] : fk === 'speech' ? ['speech'] : []; }   // ★[VIDEO_SET_1023] 축사 갈래는 축사 장면 영상(speech.mp4) · 옛 «영상» 판만 free.mp4 · 선물 · 기타는 장면 글 — [SPEECH_TILE_1012] «축사에는 장면 영상이 없다»(10/12)는 영상이 생겨 뒤집었다
     if (AFTER_CLOSE[k]) return [];   // [TABLE_GREET_1008] 닫는 인사 뒤 순간 중 영상이 없는 것은 장면 글(SCENE) 한 줄 · table 은 바로 위에서 영상
     return [k];
   }
   /* [POSTER_SMALL 2026-09-26 코워크 최종판 3-5] small = 칸용 첫 장면(640px · encode-moment.sh 가 함께 굽는다) — 칸은 영상을 돌리지 않는다 */
-  function videoOf(name) { return VIDEO_READY.indexOf(name) < 0 ? null : { mp4: VIDEO_DIR + name + '.mp4', poster: VIDEO_DIR + name + '.webp', small: VIDEO_DIR + name + '-640.webp' }; }
+  function videoOf(name) { return VIDEO_READY.indexOf(name) < 0 ? null : { mp4: VIDEO_DIR + name + '.mp4', poster: VIDEO_DIR + name + '.webp', small: VIDEO_DIR + name + '-640.webp', rest: VIDEO_DIR + name + '-end.webp' }; }   /* ★[VID_REST_END 2026-10-23] rest = 끝 장면 사진 — 영상이 끝나면 첫 장면이 아니라 끝 장면에 머문다(입장 · 닫는 인사가 되감기처럼 보이지 않게 · order-preview _vidRest) */
   function firstVideo(k, S) { var ks = videoKeys(k, S); for (var i = 0; i < ks.length; i++) { if (videoOf(ks[i])) return videoOf(ks[i]); } return null; }
   function secTxt(x) { return x < 55 ? ('약 ' + Math.max(10, Math.round(x / 10) * 10) + '초') : ('약 ' + Math.round(x / 60) + '분'); }
   /* [THANKS_IN_VOW] 순간 설명 한 줄 — 서약 카드에서 감사문을 고르면 감사문 설명(CARDS.vow.oneT) · 그 밖은 CARDS[k].one */

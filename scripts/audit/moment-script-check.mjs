@@ -21,7 +21,7 @@ const src = fs.readFileSync(DOC, 'utf8');
 const parts = src.split(/\n(?=### \d+\. )/).slice(1).map((s) => s.split(/\n---\n|\n## /)[0]);
 const want = new Set(); ['guest', 'prevideo'].concat(O.ORDER || []).concat(['_close']).forEach((k) => {
   (O.videoKeys(k, { toast: 'both', course: 'open' }) || []).forEach((v) => want.add(v)); });
-(O.videoKeys('free', { on: { free: 1 }, freeWhat: 'video' }) || []).forEach((v) => want.add(v));   // ★[SPEECH_TILE_1012] 새 축사 칸은 장면 영상이 없다 — free.mp4 는 옛 초안의 «영상» 판만 부른다
+(O.videoKeys('free', { on: { free: 1 }, freeWhat: 'video' }) || []).forEach((v) => want.add(v));   // ★[SPEECH_TILE_1012] free.mp4 는 옛 초안의 «영상» 판만 부른다 · ★[VIDEO_SET_1023] 새 축사 칸은 speech.mp4(위 ORDER 의 free 가 부른다)
 const got = [];
 parts.forEach((p) => {
   const h = p.match(/^### \d+\. ([a-z-]+) · (.+?) · (\d+)초/);

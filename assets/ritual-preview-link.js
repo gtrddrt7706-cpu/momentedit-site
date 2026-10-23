@@ -74,6 +74,9 @@
     'songBy',                                  // ★[SONG_BY_1018] 축가 부르는 분 'friend'|'self' — 맺는 말 소리가 갈린다(210 · 250)
     'letter',                                  // 편지 낭독 대상
     'bless', 'blessProxy',                     // 부모님 덕담 · 나레이션 대독
+    /* ★[BGM_INFO_1023 2026-10-23] 축사 · 편지 «음악과 함께» — 엔진이 낭독 아래 음악 크기(−20)를 가른다. 값은 { S5:{m:'bed'}, S6:{m:'bed'} } 판 이름뿐이다.
+       ★옛 초안의 S.bgm 에는 «우리가 고른 곡» 기록(곡 이름 own.n)이 남아 있을 수 있다 — pick 이 'bed' 만 골라 싣는다(곡 이름은 주소에 절대 안 나간다). */
+    'bgm',                                     // 음악 칸(축사 · 편지 «음악과 함께»만)
     'digital',                                 // 디지털 참석(배웅 장면이 갈린다) — ★INJECT · 식순 S 에는 없다
     /* ★[PHOTO_ASK 2026-08-16] 하객 사진 부탁 멘트 두 자리의 스위치 — ★INJECT · 식순 S 에는 없다.
        값은 **유무 boolean 뿐이다.** URL 은 절대 싣지 않는다 — 미리듣기 주소는 하객이 볼 수도 있는
@@ -99,12 +102,20 @@
       늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
   var INJECT = ['digital', 'photoShare', 'meal', 'guide', 'photoN', 'photoWishN'];   // [GUIDE_ON_1019] guide 도 밖에서   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
 
+  /* [BGM_INFO_1023] 음악 칸 — 축사(S5) · 편지(S6)의 'bed' 만 남긴다(assets/bgm-slots.js clean 과 같은 규칙 · 이 파일은 그 파일 없이도 돈다) */
+  function bgmOf(b) {
+    var o = {}, n = 0;
+    ['S5', 'S6'].forEach(function (id) { if (b && b[id] && b[id].m === 'bed') { o[id] = { m: 'bed' }; n++; } });
+    return n ? o : null;
+  }
+
   // 고를 것만 골라 담는다. undefined·null 은 넣지 않는다 — 미리듣기 쪽 기본값이 그대로 서게(병합 주입).
   function pick(S) {
     var o = {};
     if (!S) return o;
     for (var i = 0; i < KEYS.length; i++) {
       var k = KEYS[i];
+      if (k === 'bgm') { var bg = bgmOf(S.bgm); if (bg) o.bgm = bg; continue; }   /* [BGM_INFO_1023] 'bed' 만 · 옛 곡 이름 · 다른 값은 버린다 */
       if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : (k === 'vowFirst') ? (S[k] === 'b' ? 'b' : 'g') : (k === 'vowKind') ? (S[k] === 'thanks' ? 'thanks' : 'vow') : S[k];   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
     }
     return o;
