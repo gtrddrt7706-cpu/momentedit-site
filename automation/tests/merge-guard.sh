@@ -19177,10 +19177,16 @@ chk 'SCENE_WORDS_1023' scripts/audit/scene-words.mjs 3
 chk '<span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span>' assets/entry-music.js 1
 nochk 'var SCENE_WAIT=' assets/entry-music.js                                         # ★옛 장면 문장(«본식 5분 전부터 문 앞에서 기다려요» · 줄어드는 말 목록) — 2026-10-23 사용자 지시로 삭제
 nochk 'function fitWalk' assets/entry-music.js                                          # 옛 두 줄 맞추기
-# ── 2026-10-23 [PLAY_ICON_FIXED_1023] 사장님 «플레이 버튼과 멈춤 버튼 모양 부분 고정하고 텍스트만 바뀌게» — 넓은 듣기 알약의 둥근 ▶ · ■ 를 왼쪽 안쪽에 못 박고 글만 바뀐다(모든 순간 «이 순간 전체 듣기» · 입장 «음악과 함께» · «곡 파일 올리기»)
-chk 'PLAY_ICON_FIXED_1023' order-preview.html 3
-chk 'PLAY_ICON_FIXED_1023' scripts/audit/scene-words.mjs 5
-chk '>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}' order-preview.html 1   # 동그라미 왼쪽 안쪽 고정(글자와 함께 가운데로 되돌리지 말 것)
+# ── 2026-10-23 [PLAY_MID_1023] 사장님 «이거 다시 취소 · 가운데 쪽으로 다시 하고 이어 듣기 · 멈춤 이걸로 바꾸자» — 듣기 알약은 동그라미 + 글 가운데 · 트는 동안 «멈춤» · «멈춤 ↔ 이어 듣기» 글 칸 폭 고정(em-lab-tg)
+#   ★옛 [PLAY_ICON_FIXED_1023](동그라미를 알약 왼쪽 안쪽에 못 박기) 되살리지 말 것 — 2026-10-23 사용자 지시로 취소
+chk 'PLAY_MID_1023' order-preview.html 4
+chk 'PLAY_MID_1023' assets/entry-music.js 1
+chk 'PLAY_MID_1023' scripts/audit/scene-words.mjs 4
+chk '.em-lab-tg::after{content:attr(data-w);visibility:hidden}' order-preview.html 1
+nochk '>svg:first-child{position:absolute;left:10px' order-preview.html                 # 옛 왼쪽 고정 [PLAY_ICON_FIXED_1023]
+nochk "on?'멈추기'" order-preview.html                                                     # 보이는 글은 «멈춤»(aria-label 의 « 멈추기»는 그대로)
+nochk "on?'멈추기':ps?'이어 듣기'" assets/entry-music.js                                  # 장면 알약 보이는 글(크게 보기 aria-label 은 그대로)
+nochk "pl?'멈추기'" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: 장면 줄 낱말 셋 자리 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 [TAP_NO_RING] 사장님 «엑스표 주변 색 들어가 있는 거 개선» — 창이 열릴 때 스크립트 초점(× · 돌아가는 칸 · 첫 단추)에 아이폰이 금색 고리를 그렸다 → 손가락 · 마우스면 html.tap-mode 로 고리 없음 · 키보드로 옮겨 다니면 고리
 chk 'TAP_NO_RING' order-preview.html 2
