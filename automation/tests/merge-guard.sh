@@ -10178,6 +10178,8 @@ chk 'BOW_VIDEO_OFF' assets/ritual-open.js 1           # 절 영상 만들지 않
 chk 'BOW_VIDEO_OFF' order-preview.html 2
 nochk "'entry-bow'" order-preview.html
 nochk "'tribute-bow'" assets/ritual-open.js
+chk 'pk-scnote">이해를 돕는 연출 장면이에요</p>' order-preview.html 1   # [SCENE_NOTE_1023] 칸 아래 한 줄(사장님 «요약해서 · 조금 달라요 빼고») · «AI» 낱말 없음
+chk 'SCENE_NOTE_1023' order-preview.html 3
 chk 'VIDEO_ENCODE' scripts/video/encode-moment.sh 1   # 장면 영상 굽는 규격(H.264 High · 720p · 2~3Mbps · 소리 없음 · faststart)
 chk 'TOAST_FILE_ONE' order-preview.html 1              # ② 잔 들기 장면 = toast.mp4 — 규격 17편과 한 이름(9/27 · 17편이 다 오면 케이크 영상이 나오던 것)
 chk 'TOAST_FILE_ONE' scripts/audit/listen-page.mjs 3   # 10-1 잔 들기 = toast · 10-2 화면이 찾는 이름 ⊂ 17편(실브라우저)
@@ -14775,6 +14777,7 @@ chk 'VID_MOVE_NOW' scripts/audit/video-start.mjs 3
 #   깨 보기(--selftest): 다른 장면 섞음 · 튄 자리 섞음은 잡고 · 6% 줌은 안 잡는다(옛 시험은 선언 영상의 줌을 잡았다).
 chk 'VID_CUT_MOTION' scripts/audit/video-start.mjs 2
 chk 'if (blendBeatsMotion(sm, i, a, b, al)) out.push(i)' scripts/audit/video-start.mjs 1
+chk 'VID_CADENCE_1023' scripts/audit/video-start.mjs 3   # ⑥ 사람이 2 · 3장마다 끊겨 움직이지 않는다 · 유화판 24fps(10/23 사장님 «성혼선언 영상 끊기는 거 같은데 · 다른 영상들도 확인해 봐»)
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
