@@ -19755,3 +19755,4 @@ chk '묵묵히 가지를 뻗어주신 우리들의 아버지입니다.' assets/r
 chk "이제 두 분께서는 자리에 착석해 주시기 바랍니다.'" assets/ritual-open.js 1   # 한 줄에 셋   # 138 · 146 · 147 = U1 79
 nochk '불을 밝혀 주신 두 분은, 이제 자리로 돌아가 예식을 지켜봐 주십시오.' assets/ritual-open.js   # G2 AI 글 걷음
 chk '곧바로 순서를 시작하겠습니다. 자리에 착석해 주시길 바랍니다. 원활한 진행을 위해 주머니 속' order-preview.html 1   # 두 분 유쾌 g3 = 122 글
+chk 'PASTE_ORDER_VOICE_1023' scripts/check-paste-format.mjs 1   # [REVIEW28_1023] 같은 글 · 다른 화자 = 다른 녹음(못 잰 줄)
