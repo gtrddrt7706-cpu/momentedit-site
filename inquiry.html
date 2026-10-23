@@ -696,7 +696,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
           </label>
         </div>
         <div class="compact-row-note">
-          <span class="accent">Note</span>대여 의상은 프리 사이즈(44~88 내외)로, 상담에서 직접 보고 확인하실 수 있습니다. 시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.
+          <span class="accent">Note</span><span data-dress-text="대여 의상은 프리 사이즈(44~88 내외)입니다. 상담이 확정되면 마이페이지에서 입어 보실 두 벌을 미리 고르실 수 있습니다. 시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.">대여 의상은 프리 사이즈(44~88 내외)로, 상담에서 직접 보고 확인하실 수 있습니다. 시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.</span>
         </div>
       </div>
 
@@ -1973,6 +1973,7 @@ window.ME_ADV_PAGE = {
 <script src="/assets/advisor-widget.js"></script>
 <script src="/assets/email-assist.js" defer></script>
 <script src="/assets/sequence-modal.js" defer></script>
+<script src="/assets/dress-refs.js" defer></script><!-- [DRESS_LIVE] 시착 준비 스위치 — 켜졌을 때만 Nº 03 Note 첫 문장이 바뀐다 -->
 
 <script>
 /* [INQ_NAV_HIDE] 네비가 position:fixed에 background:none인데 스크롤 숨김 로직이 없어,
@@ -2089,5 +2090,11 @@ nav .nav-links a, .nav-links a, .f-links a {
   paint();
 })();
 </script>
+<script>/* [DRESS_LIVE] 시착 준비 스위치(assets/dress-refs.js live)가 켜졌을 때만 바뀌는 자리 — data-dress-on 은 보이고 data-dress-off 는 숨는다 · data-dress-text 는 글을 통째로 바꾼다.
+   꺼진 동안(지금)은 아무것도 바꾸지 않는다(화면 차이 0). dress-refs.js 는 defer 라 DOMContentLoaded 앞에 이미 읽혀 있다
+   [DRESS_NOTE_ONE] Nº 03 Note 는 글 한 덩어리로 둔다 — 줄(.compact-row-note)이 flex 라 span 과 맨 글이 따로 칸이 되고, 한 문장만 span 으로 갈라도 글자 자리가 1px 안쪽으로 달라진다(1280 실측) */
+document.addEventListener('DOMContentLoaded',function(){try{if(!(window.DRESS_REFS&&window.DRESS_REFS.live))return;
+document.querySelectorAll('[data-dress-on]').forEach(function(el){el.hidden=false;});document.querySelectorAll('[data-dress-off]').forEach(function(el){el.hidden=true;});
+document.querySelectorAll('[data-dress-text]').forEach(function(el){el.textContent=el.getAttribute('data-dress-text');});}catch(e){}});</script>
 </body>
 </html>

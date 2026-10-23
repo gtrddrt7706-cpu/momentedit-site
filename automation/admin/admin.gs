@@ -462,11 +462,19 @@ function morningBriefData_() {
   /* [TODAY_CONSULT] 예약 시트를 다시 훑지 않는다 — adminHome 이 같은 순회에서 이미 모았다.
      종전엔 같은 계산이 두 곳에 있어, 한쪽만 고치면 화면과 메일이 다른 말을 하게 되는 자리였다. */
   var todays = (d.todayConsults || []).map(function (c) { return (c.time + ' ' + c.names).trim(); });
+  /* [DRESS_ADMIN_ROWS] 내일 상담 · 준비할 드레스 — «전날 준비»가 실제로 닿는 길(건별 관리자 메일 SEND_ADMIN_MAIL 은 꺼져 있다) */
+  var _tmr = _kstYmd(new Date(Date.now() + 86400000));
+  var tomorrowDress = (d.dressUpcoming || []).filter(function (x) { return x.ymd === _tmr; })
+    .sort(function (a, b) { return a.time < b.time ? -1 : (a.time > b.time ? 1 : 0); })
+    .map(function (x) {
+      var ps = x.picks.map(function (id, i) { return (x.pickNames[i] ? x.pickNames[i] + ' ' : '') + '(' + id + ')'; }).join(' · ');
+      return (x.time + ' ' + x.names).trim() + ' · ' + ps + (x.dup && x.dup.length ? ' · 같은 날 겹침 ' + x.dup.join(', ') : '') + (x.memo ? '\n  남긴 말: ' + String(x.memo).replace(/\s+/g, ' ') : '');
+    });
   var q = d.queue.urgent.concat(d.queue.normal);
   var byKind = {};
   q.forEach(function (it) { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
   var kindLine = Object.keys(byKind).map(function (k) { return k + ' ' + byKind[k]; }).join(' · ');
-  return { todays: todays, total: d.counts.total, urgent: d.counts.urgent, kindLine: kindLine,
+  return { todays: todays, tomorrowDress: tomorrowDress, total: d.counts.total, urgent: d.counts.urgent, kindLine: kindLine,
     urgentNames: d.queue.urgent.slice(0, 6).map(function (it) { return it.names + '·' + it.kind; }) };
 }
 
@@ -597,6 +605,7 @@ function adminHome() {
      이미 메모리에 올린 bookRows 를 한 번 더 도는 대신 같은 순회에서 모은다 — 시트 읽기는 늘지 않는다.
      ★morningBriefData 가 따로 훑던 같은 계산을 여기로 합쳤다. 화면과 아침 메일이 한 원천을 본다. */
   var todayConsults = [];
+  var dressRows = [];   // [DRESS_ADMIN_ROWS] 확정된 상담 중 오늘 이후 · 시착 준비를 고른 행 — 관리자 줄(작은 사진 · 이름 · 같은 날 겹침)과 아침 보고(내일)가 같이 쓴다
   bookRows.forEach(function (rv) {
     var code = String(bget(rv, '개인코드') || '').trim().toUpperCase(); if (code) bookMap[code] = rv;
     var _tcSt = String(bget(rv, '상태') || '').trim();   // [TODAY_CONSULT]
@@ -604,8 +613,18 @@ function adminHome() {
       todayConsults.push({ time: String(bget(rv, '선택시간') || '').trim(),
         names: _names(bget(rv, '성함(신랑)'), bget(rv, '성함(신부)')), code: code });
     }
+    if ((_tcSt === ST.APPROVED || _tcSt === ST.CONFIRMED) && code && typeof _dressParse_ === 'function') {
+      var _dv = _dressParse_(bget(rv, '시착준비')), _dy = _ymdOf(bget(rv, '선택날짜'));
+      if (_dv && _dv.picks.length && _dy && _dy >= today) dressRows.push({ code: code, ymd: _dy, time: String(bget(rv, '선택시간') || '').trim(),
+        names: _names(bget(rv, '성함(신랑)'), bget(rv, '성함(신부)')), picks: _dv.picks, pickNames: _dv.names, memo: _dv.memo, at: _dv.at, dup: [] });
+    }
   });
   todayConsults.sort(function (a, b) { return a.time < b.time ? -1 : (a.time > b.time ? 1 : 0); });   // [TODAY_CONSULT] 시간순
+  /* [DRESS_ADMIN_ROWS] 같은 날 같은 드레스를 고른 상담이 둘 이상이면 그 id 를 dup 에 — 화면이 «같은 날 겹침»으로 표시한다(명세 8장) */
+  var _dDay = {}, dressBy = {};
+  dressRows.forEach(function (x) { x.picks.forEach(function (id) { var k = x.ymd + '|' + id; _dDay[k] = (_dDay[k] || 0) + 1; }); });
+  dressRows.forEach(function (x) { x.dup = x.picks.filter(function (id) { return _dDay[x.ymd + '|' + id] > 1; }); dressBy[x.code] = x; });
+  todayConsults.forEach(function (t) { if (dressBy[t.code]) t.dress = dressBy[t.code]; });
   var custStageMap = {};
 
   var urgent = [], normal = [], queueCodes = {}, resultsList = [];
@@ -1079,6 +1098,7 @@ function adminHome() {
       sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, cdday: (consultYmd ? _dayDiff(consultYmd, today) : null), 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 중도금: (isSnap ? '' : String(cget(rv, '중도금상태') || '').trim()), 잔금: 잔금, 원본: 원본, invStatus: invStatus, tracks: (draft.tracks || {}), 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),   // SUBSTATUS_TRACKS — 트랙 전체 전달(청첩장 단독 판정 탈피) · STALE_ROLLBACK_WIDE — 중도금·잔금도
       dday: (wedYmd ? _dayDiff(wedYmd, today) : null),
       cdday: (consultYmd ? _dayDiff(consultYmd, today) : null),   // 대면상담까지 D-day(상담확정·촬영확정 그룹 표시·정렬용). +면 예정·0 오늘·-면 지남
+      dress: (stage === '상담확정' && dressBy[code]) ? dressBy[code] : null,   // [DRESS_ADMIN_ROWS] 상담확정 줄에 고른 두 벌
       _created: createdYmd
     });
   });
@@ -1149,6 +1169,7 @@ function adminHome() {
   return {
     ok: true, name: name, today: today,
     todayConsults: todayConsults,   // [TODAY_CONSULT] 오늘 상담 — 화면(관리자 홈)과 아침 메일이 함께 쓴다
+    dressUpcoming: dressRows,       // [DRESS_ADMIN_ROWS] 확정 상담 중 시착 준비를 고른 것(오늘 이후) — 아침 보고 «내일 상담 · 준비할 드레스»
     queue: { urgent: urgent, normal: normal },
     counts: { total: urgent.length + normal.length, urgent: urgent.length },
     results: resultsList,
@@ -1345,6 +1366,9 @@ function _consultDetail(cr) { _gsr_();
     var v = String(cr.get(h) || '').trim();
     return { label: h, value: v || '—', isLink: (h === '참고링크' && /^https?:\/\//i.test(v)) };
   });
+  /* [DRESS_ADMIN_ROWS] 시착 준비 — 고른 두 벌 · id · 남긴 말(고른 적 없으면 줄을 만들지 않는다) */
+  var _dl = (typeof _dressBriefLine_ === 'function') ? _dressBriefLine_(cr.get('시착준비')) : '';
+  if (_dl) fields.push({ label: '시착 준비', value: _dl, isLink: false });
   return {
     status: String(cr.get('상태') || '').trim(),
     date: cr.get('선택날짜') ? prettyDate(cr.get('선택날짜')) : '',

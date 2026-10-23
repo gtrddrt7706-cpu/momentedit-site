@@ -1146,8 +1146,9 @@ function _nfCustomerEmailFallback_(to, name, event, text) {
     if (typeof smallP === 'function') {
       // 카톡으로 닿지 않아 보내는 메일 → 다시 카톡으로 안내하면 모순(카톡 없는 고객은 막힘).
       //   항상 닿는 채널(마이페이지·메일 회신)로만 문의를 유도한다.
+      // [MAIL_LINK_INK] 글자 링크 = #7A5F37(흰 메일 바탕 대비) · #B89A75 는 선 색 — 상담 메일과 같은 한 벌
       inner += smallP('카카오톡으로 닿지 않아 이메일로 보내드려요. 문의는 '
-        + '<a href="https://momentedit.kr/mypage.html" style="color:#B89A75;font-weight:500">마이페이지</a>'
+        + '<a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>'
         + '에서 또는 이 메일에 회신해 주시면 됩니다.');
     }
     var html = (typeof emailShell === 'function') ? emailShell(meta.head, inner) : inner;
@@ -1277,7 +1278,7 @@ var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 a
   V: ['voiceClone'],
   U: ['ritualFile', 'snapRefUpload'],
   D: ['ritualFileDel', 'ritualFilePurgeMine', 'snapWithdraw'],
-  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation'],
+  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation', 'saveDressPick'],   // 시착 준비 저장(아래 _errArea 의 DRESS_ERR_AREA)
   L: ['login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery'],
   P: ['paymentSignal', 'midSignal', 'balanceSignal', 'extraRetouchSignal', 'cardConfirm', 'cardPayConfig', 'saveCashReceipt', 'saveRefundAccount'],
   C: ['weddingAvailability', 'changeWeddingHold', 'cancelWeddingHold', 'quoteWeddingChange', 'requestWeddingChange', 'cancelWeddingChange', 'requestContract', 'requestContractResend', 'signFittingConsent', 'signContract'],
@@ -1287,6 +1288,7 @@ var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 a
   R: ['submitResultSelection', 'requestExtraRetouch', 'confirmRetouch', 'requestRevision', 'submitSurvey']
 };
 function _errArea(a) { _gsr_();   // [ERR_CODE_GAS]
+  /* [DRESS_ERR_AREA 2026-10-23] 시착 준비 저장(saveDressPick)도 S — 위 표가 옛 판이면 그 실패가 X 로 떨어진다 */
   a = String(a == null ? '' : a);
   for (var k in ERR_AREA) if (ERR_AREA[k].indexOf(a) > -1) return k;
   return 'X';

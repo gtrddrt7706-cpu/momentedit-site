@@ -444,6 +444,8 @@ function aiMorningReport(preview) { _gsr_();
   var rows = [];
   if (brief) {
     rows.push(['오늘 상담', brief.todays && brief.todays.length ? (brief.todays.length + '건 · ' + brief.todays.join(' / ')) : '없음', false]);
+    /* [DRESS_MORNING_ROW 2026-10-23] 내일 상담 · 준비할 드레스 — 고른 분이 있을 때만 줄을 만든다(같은 날 겹침 · 남긴 말 함께) */
+    if (brief.tomorrowDress && brief.tomorrowDress.length) rows.push(['내일 상담 · 준비할 드레스 (' + brief.tomorrowDress.length + '건)', brief.tomorrowDress.join('\n'), false]);
     var todo = (brief.total || 0) + '건' + (brief.urgent ? (' · 급함 ' + brief.urgent) : '') + (brief.kindLine ? (' · ' + brief.kindLine) : '');
     rows.push(['처리할 일', todo + (brief.urgentNames && brief.urgentNames.length ? ('\n' + brief.urgentNames.join(' / ')) : ''), (brief.urgent || 0) > 0]);
   }
@@ -482,10 +484,11 @@ function aiMorningReport(preview) { _gsr_();
 
   /* [MORNING_ESC 2026-10-09 라운드 6] 줄 값은 모두 글로 받아 escape 한 뒤 줄바꿈만 <br> — 고객 이름 · 질문이 메일 HTML 로 들어가지 않게 */
   var _mrEsc = function (v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
+  /* [MAIL_TEXT_INK 2026-10-23] 항목 이름 = #7A5F37(흰 바탕 5.97:1) · 경고만 붉게 — 금빛 #B89A75 는 선 색이라 글자에 쓰지 않는다 */
   var rowHtml = rows.map(function (r) {
     var warn = r[2];
     return '<div style="padding:13px 2px;border-bottom:1px solid #ECE8E1">'
-      + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#B89A75') + ';margin-bottom:4px;word-break:keep-all">' + _mrEsc(r[0]) + '</div>'
+      + '<div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.03em;color:' + (warn ? '#B5462E' : '#7A5F37') + ';margin-bottom:4px;word-break:keep-all">' + _mrEsc(r[0]) + '</div>'
       + '<div style="font-family:\'Noto Serif KR\',serif;font-size:14px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere;color:' + (warn ? '#9A3A24' : '#3A2D22') + '">' + _mrEsc(r[1]).replace(/\n/g, '<br>') + '</div>'
       + '</div>';
   }).join('');

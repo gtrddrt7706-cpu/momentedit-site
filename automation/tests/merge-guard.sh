@@ -7094,7 +7094,7 @@ chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
 #   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
 #   ★스위트를 추가하면 이 목록에도 넣을 것.
 if command -v node >/dev/null 2>&1; then
-  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend; do
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend dress-pick; do
     node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
       || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
   done
@@ -9587,7 +9587,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/
 #       설치만 30~60초라 이 잡의 성격(빠른 마커 검사)이 바뀐다. 무거운 실렌더는 야간의 몫이다.
 if command -v node >/dev/null 2>&1; then node scripts/audit/footer-parity.mjs >/dev/null 2>&1; _fp=$?
   case "$_fp" in
-    0) echo 'ok footer-parity: 네 면 푸터가 한 벌 (문구·링크 주소·링크 표기·대비 AA·넘침 0)' ;;
+    0) echo 'ok footer-parity: 다섯 면 푸터가 한 벌 (index · inquiry · privacy · parents · dress — 문구·링크 주소·링크 표기·대비 AA·넘침 0)' ;;
     1) echo 'FAIL footer-parity: 네 면 푸터가 한 벌이 아닙니다 — node scripts/audit/footer-parity.mjs'; fail=1 ;;
     *) echo 'ok footer-parity: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
@@ -13147,7 +13147,7 @@ nochk "var wd=(d.production && d.production.base) ? String(d.production.base.wed
 chk 'var wtKo=wt?wedTimeKo(wt)' mypage.html 1
 nochk "wtKo=(_wh<12?('오전 '+_wh)" mypage.html 0
 chk 'SNAP_TODO_FIRST' mypage.html 1
-chk "_csTodoAt = .('mp_snap'), _csHome = .('mp_fitting')" mypage.html 1
+chk "_csTodoAt = .('mp_snap'), _csHome = .('mp_dress') || .('mp_fitting')" mypage.html 1   # [DRESS_CARD 2026-10-23] 상담 카드의 제자리 = 시착 준비 카드 앞(그 카드가 상담과 시착 동의 사이에 들어왔다 · 없으면 종전대로 시착 동의 앞)
 chk '_csBox.parentNode.insertBefore(_csBox, _csAt)' mypage.html 1
 chk "_csB.status==='완료신호' || (_csB.dday!=null && _csB.dday<=_payDays(d).bal+6)" mypage.html 1
 # [STAGE_NAME_PREP · HEAD_DATE_SIGNED] 2026-09-26 검토 보강 — ①예약금 충당 카드(계약완료 · 납부액 0)의 «제작 단계가 열려요»도 「예식 준비」로(진행 라벨·NOW 와 한 이름) ②머리 날짜 줄은 서명한 계약서만 읽는다(사장님 결정 ⑦) — 합칠 때 B1 [SNAP_DDAY_CHIP] 의 두 번째 읽기(if(!m && 스냅 && contract.fill){ wd=…})가 붙으면 서명 전 날짜와 취소·노쇼 스냅 고객 D-day 가 되살아난다(실렌더 확인) · 그 줄과 B1 가드 파일의 같은 줄 chk 를 함께 뺄 것
@@ -19137,41 +19137,48 @@ chk 'UP_REC_V_REMEASURE' scripts/audit/up-rec-v.mjs 1
 chk 'const expRec = (need) => \[30, 50, 80\].find((t) => typeof need === .number. && t >= need) || 30;' scripts/audit/up-rec-v.mjs 1
 chk 'const expAt = (H, V) => { const pre = H - V - SP.breath;' scripts/audit/up-rec-v.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/up-rec-v.mjs >/dev/null 2>&1; _urv=$?; if [ "$_urv" = 1 ]; then echo 'FAIL up-rec-v: 올린 곡 «추천» 자리(멘트 길이 · 첫 자리 · 표시만 다시 · 직접 적은 자리 그대로)가 깨졌습니다 — node scripts/audit/up-rec-v.mjs'; fail=1; elif [ "$_urv" = 0 ]; then echo 'ok up-rec-v: 올린 곡 추천 자리'; else echo 'skip up-rec-v: 브라우저가 없어 재지 못함'; fi; fi
-# ── 2026-10-23 순간마다 «음악» 칸 — 폼만 · 곡은 나중 [BGM_FORM_1023] — 사장님 «식순부분에 알맞게 디자이너 관점으로 적절하게 bgm 도 구현» · «우선 폼형태부분만» · BGM 섹션 명세 v2(대본 섹션 확인 main 5d95417)
-#   원천 assets/bgm-slots.js(칸 10 · 덮는 순간 · 화면 한 줄 · 고르기 · 참고 값 — 엔진에는 아직 안 넣는다) · 화면 assets/bgm-form.js(고르기 칸 맨 아래 «음악» 줄 · 접힌 한 줄 · 칩 · 우리가 고른 곡)
-#   ★v2 문구 — 화촉 «화촉을 밝히는 걸음에 맞춘 …»(«어머님» · «개식 안내부터 이어져요» 금지) · 테이블 인사 «테이블 인사 · 사진 동안 …»(«식사» 금지) · 부모님께 인사 기본 = 밝고 따뜻한 곡
-#   손대지 않은 칸은 S.bgm 에 적지 않는다(비어 있으면 studio) · S3(입장 · 맞절)는 입장 음악(entry-music.js) 그대로 · bgm-form 이 잰다(옛 판 · 돌연변이는 빨강)
-chk 'BGM_FORM_1023' assets/bgm-slots.js 6
-chk 'BGM_FORM_1023' assets/bgm-form.js 1
-chk 'BGM_FORM_1023' order-preview.html 6
-chk 'BGM_FORM_1023' assets/entry-music.js 1
-chk 'BGM_FORM_1023' scripts/audit/bgm-form.mjs 1
+# ── 2026-10-23 순간마다 «음악» 칸 [BGM_FORM_1023] → 다시 짜기 [BGM_INFO_1023] — 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «입장곡은 지금 세팅처럼 직접 할 수 있게» · «최선인지 한 번 더 검토해 보고 제안대로 구현» · BGM 섹션 안
+#   대부분 한 줄 안내(맞절 «입장 곡이 이어져요» 꼴) · 축사 · 편지만 칩 둘(«음악 없이» 기본 · «음악과 함께») → 엔진 duckRead −20(축사 사람 구간 · 편지 첫 큐 · 사람 구간 · 마무리 · 정적 없이 4초) · 편지 장면 글 판 · 미리 듣기 주소는 bed 만
+#   ★음악 칸 «우리가 고른 곡»(올리기 · 곡 카드 · 이 기기 보관 me-bgm-song · «보낼 것» 음악 줄 · 할 일) · 접는 카드 · 부모님께 인사 칩 · «마지막 곡만 고르기» 금지 — 되살리지 말 것 ·
+#   기본(음악 없이) 초안은 엔진 값이 한 글자도 안 바뀐다(bgm-form 0번 · 옛 값 own · studio · none · warm 도) · S3(입장 · 맞절)는 입장 음악(entry-music.js) 그대로
+chk 'BGM_INFO_1023' assets/bgm-slots.js 6
+chk 'BGM_INFO_1023' assets/bgm-form.js 2
+chk 'BGM_INFO_1023' order-preview.html 6
+chk 'BGM_INFO_1023' assets/ritual-cue.js 4
+chk 'BGM_INFO_1023' assets/ritual-story.js 1
+chk 'BGM_INFO_1023' assets/ritual-preview-link.js 3
+chk 'BGM_INFO_1023' scripts/audit/bgm-form.mjs 1
+chk 'BGM_INFO_1023' scripts/build-course-story.mjs 1
 chk 'BGM_JUMP' order-preview.html 1
 chk 'BGM_JUMP_SAME' order-preview.html 1                                                                   # 초안의 마지막 순간이 주소와 같아도 «하나씩 만들기»를 연다(bgm-form 8번)
 chk 'BGM_JUMP_SAME' scripts/audit/bgm-form.mjs 1
 chk "if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen');" order-preview.html 1
-chk "one: '화촉을 밝히는 걸음에 맞춰 흘러요'," assets/bgm-slots.js 1
-chk "one: '테이블 인사 · 사진 동안 흐르고, 마지막 곡으로 하루를 닫아요'," assets/bgm-slots.js 1
-#   ★검토 1(10-23) [BGM_LINES_TRUE] 한 줄 = 무엇을 골라도 참인 역할 · 곡 성격은 둘째 줄(sub · 스튜디오 곡일 때) · «음악 없이»면 한 줄도 바뀐다(noneOne) · 펴 있으면 곡 이름은 카드만
-#   [BGM_SUM_CHANGED] ④ «음악» = 두 분이 바꾼 칸만 + «나머지 n곳은 스튜디오가 골라 둘게요» · 하나도 안 바꿨으면 «음악은 모두 스튜디오가 골라 둘게요» 한 줄
-chk 'BGM_LINES_TRUE' assets/bgm-slots.js 2
-chk 'BGM_LINES_TRUE' assets/bgm-form.js 1
-chk 'BGM_SUM_CHANGED' assets/bgm-form.js 1
-chk "noneOne: '편지는 음악 없이 목소리만 들려요'," assets/bgm-slots.js 1
-chk "noneOne: '축사는 음악 없이 목소리만 들려요'," assets/bgm-slots.js 1
-chk "warm: '감동적인 곡으로 스튜디오가 골라 둘게요'" assets/bgm-slots.js 1
-chk 'function lines(s, g, open) {' assets/bgm-slots.js 1
-chk 'return B.lines(s,g,!!OPEN\[s.id\]);' assets/bgm-form.js 1
-chk '음악은 모두 스튜디오가 골라 둘게요' assets/bgm-form.js 1
-# ── 2026-10-23 [BGM_NEED_LIST] BGM 섹션 검토 2 — 하객 맞이(S1) 올리기 전 한 줄 «25~30분 재생목록이면 좋아요» · «재생목록 곡이면»은 어색하다(bgm-form 5번이 아홉 칸을 대조)
-chk 'BGM_NEED_LIST' assets/bgm-form.js 1
-chk 'BGM_NEED_LIST' scripts/audit/bgm-form.mjs 1
-chk "(/재생목록$/.test(s.need.txt)?'이면':' 곡이면')+' 좋아요'" assets/bgm-form.js 1
-nochk "return s.need?s.need.txt+' 곡이면 좋아요'" assets/bgm-form.js                                  # ★«25~30분 재생목록 곡이면 좋아요»로 읽히던 옛 줄 — 되살리지 말 것
-nochk "one: '편지 아래 오르골" assets/bgm-slots.js
-nochk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'" assets/bgm-slots.js
-nochk "one: '말 아래 아주 작게 깔리는 잔잔한 피아노예요'" assets/bgm-slots.js
-chk "picks: \['studio', 'warm', 'own'\]," assets/bgm-slots.js 1
+chk "picks: \['none', 'bed'\], short: '축사'," assets/bgm-slots.js 1
+chk "picks: \['none', 'bed'\], short: '편지'," assets/bgm-slots.js 1
+chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 아래 밝은 연주곡이 아주 작게 깔려요' }," assets/bgm-slots.js 1
+chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 아래 오르골 · 피아노가 아주 작게 흘러요' }," assets/bgm-slots.js 1
+chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-slots.js 1
+chk "one: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1
+chk "one: '말 아래 잔잔한 피아노가 아주 작게 깔려요'," assets/bgm-slots.js 1
+chk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1
+chk "one: '테이블 인사 · 사진 동안 재즈가 흐르고, 마지막 곡으로 닫아요'," assets/bgm-slots.js 1
+chk "cont: '앞 순서 곡이 그대로 이어져요'" assets/bgm-slots.js 1
+chk "duckRead: -20," assets/ritual-cue.js 1
+chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true," assets/ritual-cue.js 1
+chk "var bed = bgmBed(S, 'S6'), dk = bed ? PARAM.duckRead : PARAM.duckOff;" assets/ritual-cue.js 1
+chk "LIVE\['두 분이 직접 편지 낭독 (음악이 아주 작게)'\] = {" assets/ritual-story.js 1
+chk "if (k === 'bgm') { var bg = bgmOf(S.bgm); if (bg) o.bgm = bg; continue; }" assets/ritual-preview-link.js 1    # 옛 곡 이름(own.n)이 미리 듣기 주소로 안 나간다
+chk "if(window.BgmSlots){ var _bg=BgmSlots.clean(S.bgm);" order-preview.html 1                           # 불러올 때 옛 값을 버린다
+chk "indexedDB.deleteDatabase('me-bgm-song')" assets/bgm-form.js 1
+nochk "indexedDB.open('me-bgm-song'" assets/bgm-form.js                                                    # ★음악 칸 «우리가 고른 곡» 이 기기 보관 — 되살리지 말 것
+nochk 'data-fk="bgmup:' assets/bgm-form.js
+nochk 'class="bgm-sum"' assets/bgm-form.js
+nochk 't=t.concat(BgmForm.tasks(k))' order-preview.html
+nochk 'BgmForm.sends()' order-preview.html
+nochk "own: '우리가 고른 곡'" assets/bgm-slots.js
+nochk "warm: '감동적인 곡'" assets/bgm-slots.js
+nochk "lab: { own: '마지막 곡만 고르기' }" assets/bgm-slots.js
+nochk 'EM.fileTags=upTags' assets/entry-music.js
 nochk '어머님 걸음에 맞춘' assets/bgm-slots.js
 nochk '개식 안내부터 이어져요' assets/bgm-slots.js
 nochk '식사 · 테이블 인사 동안' assets/bgm-slots.js
@@ -19179,11 +19186,8 @@ chk "<script src=\"/assets/bgm-slots.js?v=" order-preview.html 1
 chk "<script src=\"/assets/bgm-form.js?v=" order-preview.html 1
 chk 'BgmForm.rowHtml(k)' order-preview.html 1
 chk '_muRow+_bgRow' order-preview.html 1
-chk 't=t.concat(BgmForm.tasks(k))' order-preview.html 1
-chk 'BgmForm.sends()' order-preview.html 1
 chk 'h+=BgmForm.sumHtml()' order-preview.html 1
-chk 'EM.fileTags=upTags; EM.fileName=upName;' assets/entry-music.js 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-form.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" = 1 ]; then echo 'FAIL bgm-form: 순간 «음악» 칸(자리 · 이어지는 순간 · 접힌 한 줄 · 칩 · 우리가 고른 곡 · 요약 · 바로 열기)이 깨졌습니다 — node scripts/audit/bgm-form.mjs'; fail=1; elif [ "$_bgf" = 0 ]; then echo 'ok bgm-form: 순간 음악 칸'; else echo 'skip bgm-form: 브라우저가 없어 화면은 재지 못함(원천은 쟀다)'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-form.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" = 1 ]; then echo 'FAIL bgm-form: 순간 «음악» 칸(한 줄 안내 · 축사 · 편지 칩 둘 · 엔진 −90 ↔ −20 · 요약 · 옛 값 버리기)이 깨졌습니다 — node scripts/audit/bgm-form.mjs'; fail=1; elif [ "$_bgf" = 0 ]; then echo 'ok bgm-form: 순간 음악 칸'; else echo 'skip bgm-form: 브라우저가 없어 화면은 재지 못함(원천 · 엔진은 쟀다)'; fi; fi
 # ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
 #   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
 #   여는 순간: 식전 영상 «끝나면 입장»(화촉을 담으면 영상 뒤가 화촉) · 화촉 «예식의 시작을 알려요»(시작은 1분 전 안내 · 개식이 알린다) 걷기
@@ -19410,3 +19414,147 @@ chk '아들아, 며늘아. 축하한다. 그리고 사랑한다!' assets/ritual-
 nochk '쉽게 상처받는 서준이를 위해' assets/ritual-ref.js   # [검토 147-1] 708 그 신랑 성격 단정
 nochk '군대로 치면 일병입니다' assets/ritual-ref.js   # [검토 147-1] 721 캡션 세 문장
 nochk '귀한 주말,' assets/ritual-ref.js   # [검토 147-2] 902 평일 예식이면 틀림
+
+# ── ★★[DRESS_REFS · DRESS_PAGE · DRESS_CARD · DRESS_PICK · DRESS_LIVE · DRESS_SAMPLE · DRESS_RANK 2026-10-23 코워크 설계 명세 «시착 준비»] ──
+#   상담이 확정된 분이 마이페이지에서 «입어 볼 두 벌»을 골라 두면 스튜디오가 상담 전날 준비한다(명세 docs/handoff/설계명세_시착준비_1023.md).
+#   ①원천은 assets/dress-refs.js 하나 — 공개 dress.html · 고르기 ?pick=1 · 마이페이지 카드 · 관리자가 같은 파일을 읽는다
+#   ②스위치(live)가 꺼진 동안 홈 · 신청서 · 마이페이지는 화면 차이 0(자리는 hidden · 카드는 숨김) — 켜는 것은 사장님이 사진을 넣은 뒤
+#   ③표본 6벌(sample:true)은 운영 주소에서 0벌 · ④줄 세우기 = 명세 6장(답 조합 100가지 대조) · ⑤dress.html 은 GAS 를 부르지 않는다
+#   ⑥서버: 상담예약 맨 뒤 «시착준비» · 상담일 −2일 23:59 마감(«바꾸기 마감이 지났어요») · 아침 보고 «내일 상담 · 준비할 드레스»
+#   모양 · 규칙 · 짝은 scripts/audit/dress-refs.mjs(--selftest 로 깨 보고 믿었다) · 서버 동작은 automation/tests/dress-pick.test.js
+chk '\[DRESS_LIVE\]' assets/dress-refs.js 2
+chk 'live: false,             // \[DRESS_LIVE\]' assets/dress-refs.js 1     # 스위치는 이번 범위에서 켜지 않는다 — 켤 때 이 줄을 «live: true»로 · 표본 지우기 · noindex 걷기 · sitemap(dress-refs.mjs 가 짝을 본다)
+chk 'DRESS_SAMPLE' assets/dress-refs.js 2
+chk 'return !(prod && d.sample);' assets/dress-refs.js 1                   # 운영 주소에서 표본을 빼는 한 줄
+chk 'DRESS_RANK' assets/dress-refs.js 1
+chk '<meta name="robots" content="noindex">' dress.html 1                   # 스위치가 꺼진 동안은 검색에 싣지 않는다
+chk 'DRESS_NO_GAS' dress.html 1
+nochk 'script.google' dress.html 0
+nochk 'preview-guard.js' dress.html 0                                        # GAS 를 안 부르는 쪽 — 미리보기 띠(«서버 연결을 막아 두었어요»)를 싣지 않는다
+chk 'momentedit:dressSave' dress.html 1
+chk 'momentedit:dressSave' mypage.html 1
+chk 'id="mp_dress"' mypage.html 1
+chk 'DRESS_CARD' mypage.html 6
+chk 'DRESS_PICK' mypage.html 1
+chk "_csHome = \$('mp_dress') || \$('mp_fitting')" mypage.html 1           # [SNAP_TODO_FIRST] 상담 카드의 제자리 = 시착 준비 카드 앞(종전대로 두면 매번 시착 준비 뒤로 옮겨 놓는다)
+chk "saveDressPick:'S'" mypage.html 1
+chk '<script src="/assets/dress-refs.js"></script>' mypage.html 1
+chk '<script src="/assets/dress-refs.js"></script>' admin.html 1
+chk 'DRESS_ADMIN_ROWS' admin.html 2
+chk '<script src="/assets/dress-refs.js" defer></script>' index.html 1
+chk '<div data-dress-on hidden' index.html 1
+chk 'data-dress-text="대여 의상은 프리 사이즈' inquiry.html 1               # ★[DRESS_NOTE_ONE 2026-10-23 코워크 검토 4] 켜질 문장은 글 통째로(data-dress-text) — 꺼짐은 종전 글 한 덩어리
+nochk '<span data-dress-off>' inquiry.html 0                                  # Note 줄(flex)에서 글을 span 으로 쪼개면 스위치가 꺼져 있어도 두 단으로 갈라진다(운영 신청서가 깨진다)
+chk 'DRESS_NOTE_ONE' inquiry.html 1
+chk '<script src="/assets/dress-refs.js" defer>' inquiry.html 1
+chk 'DRESS_PICK' automation/consultation/consultation-booking.gs 8
+chk "case 'saveDressPick':" automation/consultation/consultation-booking.gs 1
+chk "'시착준비'" automation/consultation/consultation-booking.gs 1          # HEADERS 끝 — 운영 시트는 저장할 때 맨 뒤에 붙는다
+chk 'DRESS_STATE_MP' automation/platform/60_mypage.gs 1
+chk 'DRESS_ERR_AREA' automation/platform/95_notify.gs 1
+chk "'saveDressPick'\]" automation/platform/95_notify.gs 1
+chk 'DRESS_ADMIN_ROWS' automation/admin/admin.gs 4
+chk 'DRESS_MORNING_ROW' automation/platform/96_ai_cost.gs 1
+chk 'DRESS_REFS' scripts/audit/dress-refs.mjs 1
+chk "'dress'\]" scripts/audit/footer-parity.mjs 1                             # 의상과 소품도 같은 푸터 한 벌
+# ★[코워크 검토 1 · 10/23] 막대 붙이기 · «Nº» 배지 칠 걷기 · 마감 뒤 두 줄 · 건너뛰기 옅게 · 진행 표시 높이 · 칸 한 줄 · 마감 날짜 · 메일 글자 링크(값은 dress-refs.mjs ⑨ 가 잰다)
+chk '#pkBar{position:sticky;bottom:0;z-index:5}' dress.html 1           # [DRESS_BAR_STICK] 붙는 것은 #pkBar — 막대(.wz-bar)에 걸면 부모 높이가 막대와 같아 붙을 자리가 없다
+nochk '\.wz-bar{position:sticky' dress.html 0
+chk 'DRESS_BAR_STICK' dress.html 1
+chk 'DRESS_BADGE_NOFILL' dress.html 1                                     # «Nº» = 흰 바탕 · 먹빛 글 · 금빛 테 한 겹(진사 칠 걷음 · [SEL_ONE])
+chk 'DRESS_SKIP_SOFT' dress.html 2                                        # 답이 없을 때 «건너뛰기»는 옅은 단추
+chk 'WZ_STEPS_STILL' dress.html 1                                         # 지나온 걸음 단추가 진행 표시 높이를 키우지 않는다(제목이 걸음마다 같은 자리)
+chk 'WZ_STEPS_STILL' mypage.html 1                                        # [COURSE_WIDE] 마이페이지 진행 표시(청첩장 · 애프터 웨딩 · 기록)도 같은 값
+chk 'DRESS_SUM_ONE' assets/dress-refs.js 1                                # 칸 한 줄 = 라인 · 길이 · 소재(넥라인은 자세히)
+chk 'DRESS_SUM_ONE' dress.html 2
+chk 'DRESS_DUE_DATE' assets/dress-refs.js 1                               # 마감 날 «10월 23일(금)» — 상담일 −2일 · 요일 계산
+chk 'DRESS_DUE_DATE' mypage.html 4
+chk 'DRESS_DUE_DATE' dress.html 2
+chk 'DRESS_CLOSED_KEEP' mypage.html 1                                     # 마감 뒤에도 «준비해 둘게요» 먼저
+chk 'MAIL_LINK_INK' automation/consultation/consultation-booking.gs 1     # 메일 글자 링크 #7A5F37 — #B89A75 는 선 색
+chk 'MAIL_LINK_INK' automation/platform/95_notify.gs 1
+chk 'MAIL_LINK_INK' automation/platform/40_signup.gs 1
+# ★[MAIL_TEXT_INK 2026-10-23 사장님 «진행» · 코워크 회신 3] 메일의 강조 글 · 머리 이름표 · 항목 이름도 #7A5F37 — 금빛 #B89A75 는 선 · 테두리에만
+#   메일만이다 — GAS 화면(취소 화면 셋 · 신청 · 일정 · 변경)의 금빛 글자는 따로 본다. 그래서 consultation-booking 은 취소 화면 글자 셋 + 입력칸 테두리 하나 = 4 까지만
+chk 'MAIL_TEXT_INK' automation/consultation/consultation-booking.gs 1
+chk 'MAIL_TEXT_INK' automation/platform/40_signup.gs 1
+chk 'MAIL_TEXT_INK' automation/platform/50_auth-handlers.gs 1
+chk 'MAIL_TEXT_INK' automation/platform/96_ai_cost.gs 1
+nochk 'color:#B89A75' automation/consultation/consultation-booking.gs 4
+nochk 'color:#B89A75' automation/platform/40_signup.gs 0
+nochk 'color:#B89A75' automation/platform/50_auth-handlers.gs 0
+nochk "'#B89A75'" automation/platform/96_ai_cost.gs 0
+chk 'WZ_STEPS_STILL' .claude/skills/momentedit-design/SKILL.md 1        # 디자인 권위 문서에도 — 새 입력 화면이 같은 자리에서 다시 흔들리지 않게
+chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호 알약도 진사로 칠하지 않는다
+# ★[DRESS_DETAIL_FIT · 코워크 검토 2 · 10/23] 자세히 첫 화면에서 고르기 단추가 아래 막대에 가리지 않는다 — 단추는 이름 · 한 줄 바로 아래 · 사진 넘김은 사진 위 · 짧은 화면 사진 칸 상한
+#   숫자(390×844 · 390×740 · 1280×900 × 고르기 · 고른 줄 · 다 찼어요)는 dress-fit.mjs 가 브라우저로 잰다 — PR 잡(브라우저 없음)에서는 «재지 못했다»로 넘어가고 야간 · 로컬에서 실제로 잰다
+chk 'DRESS_DETAIL_FIT' dress.html 6
+chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
+nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
+# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 25가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
+chk 'DRESS_LIVE_READY' assets/dress-refs.js 1                             # 켤 때 할 일 ㄹ — 실물 4벌 이상 · 모두 사진 · ex 는 사진 있는 장만(dress-refs.mjs ④ 가 막는다)
+chk 'DRESS_SLIDES' assets/dress-refs.js 1                                 # 자세히 = 사진 있는 장만 · 한 장이면 ‹ › · n / 5 없음
+chk 'DRESS_SLIDES' dress.html 2
+chk 'DRESS_EXIT_ASK' dress.html 4                                         # 머리 «저장 · 나가기» · 바뀐 게 있나 알림 · 나가기를 부모에게 묻는다
+chk 'DRESS_EXIT_ASK' mypage.html 3                                        # 판 = 마이페이지 입력 화면의 그 판 · 머리 나가기 · 뒤로가기 · Esc 가 한 곳(askExit)
+chk "mpConfirm({ title:st.failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요'," mypage.html 1
+chk "var _bkId=bkOpen(function(){ askExit(true); });" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다
+chk "postMessage({ type: 'momentedit:dressExit' }, location.origin)" dress.html 1   # 머리 «나가기»는 부모에게 묻는다(바로 닫는 dressClose 는 판의 «그냥 나가기» · 저장이 닿은 뒤만)
+chk 'DRESS_CLEAR' automation/consultation/consultation-booking.gs 2     # 0벌 저장 = 비우기(다 뺀 뒤 «저장하고 나가기»가 거짓말을 하지 않게)
+chk 'DRESS_FIT_FEE' dress.html 3                                          # 공개 시착비 칸 — 숫자는 홈 가격표 · 신청서 · 시착 동의서와 대조(dress-refs.mjs ⑪)
+chk '<p class="fit-p">시착은 상담 당일 기본 2벌이며, 3벌째부터 1벌당 50,000원입니다.</p>' dress.html 1
+chk '<p class="pk-bar-note">안 입은 드레스는 시착비가 들지 않아요.</p>' dress.html 1
+chk 'DRESS_NO_INTRO' dress.html 3                                         # 인트로 걷음 — 열면 첫 물음부터(카드가 같은 말을 이미 했다)
+nochk 'function introHTML' dress.html 0
+nochk '몇 가지 답하고 보기' dress.html 0
+chk 'DRESS_SOLO_NOSAVE' dress.html 3                                      # 단독(?pick=1)은 저장이 없다 — «저장» · «남기기» 숨김 · 저장한 척 «저장됨» 없음(머리 아래 «저장되지 않아요» 한 줄과 어긋났다)
+chk 'html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}' dress.html 1   # 마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴(저장할 수 없으면 «저장» 알약을 두지 않는다)
+nochk '저장하지 않는다(모양만 같게)' dress.html 0
+chk 'DRESS_SOLO_NOSAVE' scripts/audit/dress-fit.mjs 2
+chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(첫 물음 · 카드 0벌)
+chk 'DRESS_NO_PICK_OK' mypage.html 1
+chk 'DRESS_SKIP_Q' dress.html 3                                           # 물음마다 «질문 없이 바로 보기»
+chk 'DRESS_PICK_TIER' dress.html 4                                        # 진한 단추가 한 화면에 둘 서지 않게 · 막대 0벌 «드레스를 골라 주세요»(한 줄)
+nochk '두 벌을 골라 주세요' dress.html 0
+chk 'DRESS_MEMO_DONE' dress.html 4                                        # 남길 말은 완료 화면(+ «남기기») · 그림 140 · Nº 표시
+chk 'DRESS_PHOTO_FIRST' dress.html 2                                      # 사진 먼저(홈 Styling 사진) → 드레스 → 라인 → 길이 → 시착 → 신랑 → 단추
+chk 'DRESS_ONE_WIDTH' dress.html 2                                        # 섹션 이름 · 그리드 · 사진이 같은 왼쪽 끝(종전 1280 에서 348 · 148 로 갈렸다)
+nochk 'sec-wide' dress.html 0
+chk 'DRESS_CLOSE_IN' dress.html 1                                         # 자세히 «닫기»는 내용 칸 안 오른쪽 위
+chk 'DRESS_NEXT_ONE' dress.html 4                                         # 글 아래 «다음 드레스 ›» — 마지막이면 처음
+chk 'DRESS_LINE_ONE' assets/dress-refs.js 1                               # 라인 설명 한 문장 · 함께 볼 점은 슬립 · 컬럼 둘
+chk 'DRESS_Q_WORDS' assets/dress-refs.js 1                                # 길이 답 «미디(종아리) · 미니(무릎 근처)» · 셋째 물음 «이런 드레스가 편하신가요?» · 핏 답 그림
+chk 'DRESS_LEN_WORDS' assets/dress-refs.js 1
+nochk '두 번째 착장' assets/dress-refs.js 0                                 # 옛 미니 설명 낱말 — 회신 4 보충으로 «두 번째 의상»(DRESS_KNEE_SECOND)
+nochk '두 번째 착장' dress.html 0
+# ★[DRESS_DECIDED_1023 코워크 회신 4 보충 · 사장님 «너가 홈페이지 뒤져서 찾아봐»] 결정 대기 셋을 사이트 · 계약서 근거로 닫았다 — 값 대조는 dress-refs.mjs ⑪
+chk 'DRESS_DECIDED_1023' scripts/audit/dress-refs.mjs 2
+chk '<p class="dotln">대여 드레스는 1벌이 기본으로 포함되며, 2벌부터는 추가 비용이 있습니다.</p>' dress.html 1   # [DRESS_RENT_ONE] 신청서 «1벌 기본 포함 · 2벌부터 추가금 발생»과 같은 뜻 · 금액 없음
+chk 'DRESS_RENT_ONE' dress.html 1
+chk "note: '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.'" assets/dress-refs.js 1   # [DRESS_KNEE_SECOND] 140분 Farewell 환복 뒤 다이닝 — 대여 드레스로 식당에 가지 않는다
+chk 'DRESS_KNEE_SECOND' assets/dress-refs.js 1
+nochk '식사 자리' assets/dress-refs.js 0
+nochk '식사 자리' dress.html 0
+chk "fitNote: ''," assets/dress-refs.js 1                                  # [DRESS_FITNOTE_EMPTY] 맞추는 방법은 어디에도 없다 — 지어 쓰지 않는다
+chk 'DRESS_FITNOTE_EMPTY' assets/dress-refs.js 1
+chk "note: '종아리 길이로, 구두까지 보여 산뜻합니다.'" assets/dress-refs.js 1   # [DRESS_CALF_FRESH] 코워크 회신 5 — 이웃한 미니 «가볍고 경쾌해»와 같은 낱말을 겹치지 않게
+chk 'DRESS_CALF_FRESH' assets/dress-refs.js 1
+chk 'DRESS_CARD_WORDS' mypage.html 1                                      # 카드 0 · 1 · 2벌 단추 = 같은 자리 · 같은 외곽 단추(두 벌 고르기 · 이어서 고르기 · 바꾸기)
+nochk 'trk-act-min" data-dress-open' mypage.html 0
+chk 'DRESS_NUM_LINING' dress.html 1                                       # Nº 칸 · 배지 · 카드 번호 = lining-nums(«Nº o1»로 읽히지 않게)
+chk 'DRESS_NUM_LINING' mypage.html 1
+chk 'DRESS_HOME_BELOW' index.html 3                                       # 홈 «드레스 둘러보기»는 사진 아래 · 켜지면 사진도 같은 곳 · 단추 글 가운데
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
+  case "$_dfit" in
+    0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
+    1) echo 'FAIL dress-fit: 자세히 첫 화면에서 고르기 단추가 막대에 가립니다 — node scripts/audit/dress-fit.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-fit: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev/null 2>&1; _drs=$?
+  case "$_drs" in
+    0) echo 'ok dress-refs: 원천 모양 · 줄 세우기(명세 6장) · 표본 운영 0벌 · 스위치 · GAS 0 · 서버 짝 · 금지어 · 마이페이지 카드' ;;
+    1) echo 'FAIL dress-refs: 시착 준비 값이 곳곳에서 어긋났습니다 — node scripts/audit/dress-refs.mjs'; fail=1 ;;
+    *) echo 'ok dress-refs: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi   # 서버 스위트(dress-pick.test.js)는 위 [UNIT_SUITES_RUN] 목록이 돌린다
