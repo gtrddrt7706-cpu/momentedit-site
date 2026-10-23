@@ -249,6 +249,57 @@ try {
     if (cut.length) no(`${tag} 첫 화면 막대 선에 걸린 글줄이 있다 — ${cut.join(' · ')} [DRESS_BAR_FIT]`);
   }
   rows.push(`막대 선 검사 화면 ${cutViews}장`);
+  /* ★★[DRESS_STICKER 2026-10-24 코워크 설계 명세] 상담 카드 스티커 — 7폭(360 · 390 · 430 · 768 · 820 · 1024 · 1280) × (확정 0벌 · 확정 2벌 · 일정 선택 전)
+     «방문 전 안내»(일정 선택 전은 «진행 흐름») 제목 · «상담 장소» 줄을 비롯해 카드 안 글과 겹침 0 · 누름 칸 44px 이상 · 가로 넘침 0 ·
+     그린 뒤 자리 흔들림 0(글꼴 · 그림이 늦게 와도) · 크기 56 · 64 · 76 · 88 · 폰(768 미만)은 폰 자리(구분선 1/4 걸침) · 알약은 2벌에만(폰은 스티커 칸 안) ·
+     따로 카드(#mp_dress)는 비어 있다. 실제 마이페이지 칸(#mp_consult)에 renderConsult 로 그려 잰다(로그인 없이 · 같은 폭) */
+  {
+    const ST_W = [360, 390, 430, 768, 820, 1024, 1280];
+    const LIST = ['신청접수', '상담확정', '시착', '상담완료'];
+    const mkSt = (kind) => { const pre = kind === 'pre';
+      return { product: '시그니처', code: 'ME-T', stage: pre ? '신청접수' : '상담확정', stageList: LIST, isException: false,
+        consult: pre ? { status: '신청접수', scheduleUrl: 'x', dress: { attire: '대여 희망 · 2벌', open: true, ymd: '', saved: null } }
+          : { status: '승인완료', date: '2026년 11월 3일 (화)', time: '14:00', canChange: true, canCancel: true, deposit: { amount: 100000, confirmed: true },
+              dress: { attire: '대여 희망 · 2벌', open: true, ymd: '2026-11-03', saved: kind === 'two' ? { picks: ['S01', 'S02'], names: [], ans: { len: 'ankle', fit: 'body', pref: ['low'] }, memo: '' } : null } } }; };
+    const stRows = [];
+    for (const kind of ['zero', 'two', 'pre']) for (const W of ST_W) {
+      const tag = `스티커 ${kind} ${W}`;
+      const ps = await eng.newPage({ port: PORT, viewport: { width: W, height: 900 } });
+      await ps.page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load', timeout: 30000 });
+      const at = (m) => ps.page.evaluate(() => { const st = document.querySelector('#mp_consult .dst'); if (!st) return null;
+        const card = st.closest('.consult-card'), vg = st.parentNode, C0 = card.getBoundingClientRect(), sb = st.getBoundingClientRect(), box = st.querySelector('.dst-box').getBoundingClientRect();
+        const hits = []; const rg = document.createRange(); const w = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
+        for (let t = w.nextNode(); t; t = w.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; rg.selectNodeContents(t);
+          for (const r of rg.getClientRects()) if (r.width >= 1 && r.right > sb.left && r.left < sb.right && r.bottom > sb.top && r.top < sb.bottom) hits.push(t.nodeValue.trim().slice(0, 12)); }
+        const pill = st.querySelector('.dst-pill'), pr = pill && pill.getBoundingClientRect(), lb = st.querySelector('.dst-lb').getBoundingClientRect();
+        return { mode: vg.classList.contains('vg-st-pc') ? 'pc' : vg.classList.contains('vg-st-ph') ? 'ph' : '?', pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
+          w: sb.width, h: sb.height, box: Math.round(box.width), hits, ow: document.documentElement.scrollWidth - innerWidth, lbH: lb.height,
+          overDiv: Math.round(vg.getBoundingClientRect().top - box.top), pill: pill ? pill.textContent : '', pillIn: pill ? (pr.left >= box.left - 0.5 && pr.right <= box.right + 0.5 && pr.top >= box.top - 0.5) : true,
+          dressCard: (document.getElementById('mp_dress') || {}).innerHTML || '' }; });
+      await ps.page.evaluate((d) => { const v = document.getElementById('mp_consult'); for (let e = v; e && e !== document.body; e = e.parentElement) if (getComputedStyle(e).display === 'none') e.style.display = 'block';
+        renderConsult(d.consult, d.product, d); renderDress(d); }, mkSt(kind));
+      const m0 = await at(); await ps.page.waitForTimeout(900); const m = await at();
+      if (!m) { no(`${tag} 스티커가 없다 [DRESS_STICKER]`); await ps.page.close(); continue; }
+      const want = W < 375 ? 56 : W < 768 ? 64 : W < 1024 ? 76 : 88;
+      const bad = [];
+      if (m.hits.length) bad.push(`글과 겹침 ${m.hits.join('|')}`);
+      if (m.w < 44 || m.h < 44) bad.push(`누름 칸 ${m.w}×${m.h}`);
+      if (m.ow > 0) bad.push(`가로 넘침 ${m.ow}`);
+      if (m0.pos !== m.pos || m0.cardH !== m.cardH) bad.push(`자리 흔들림 ${m0.pos}→${m.pos} · 카드 ${m0.cardH}→${m.cardH}`);
+      if (m.box !== want) bad.push(`크기 ${m.box}(기대 ${want})`);
+      if (m.lbH > 16) bad.push(`글이 한 줄이 아니다(${m.lbH}px)`);
+      if (W < 768 && m.mode !== 'ph') bad.push(`폰인데 자리 ${m.mode}`);
+      if (m.mode === 'ph' && Math.abs(m.overDiv - m.box / 4) > 2) bad.push(`구분선 걸침 ${m.overDiv}px`);
+      if ((kind === 'two') !== (m.pill === '2벌')) bad.push(`알약 «${m.pill}»`);
+      if (W < 768 && !m.pillIn) bad.push('알약이 스티커 칸 밖');
+      if (m.dressCard) bad.push('따로 카드가 다시 그려졌다');
+      if (ps.errors.length) bad.push(`페이지 오류 ${ps.errors[0]}`);
+      stRows.push(`${W}/${kind}=${m.mode}`);
+      if (bad.length) no(`${tag} — ${bad.join(' · ')} [DRESS_STICKER]`);
+      await ps.page.close();
+    }
+    rows.push(`스티커 자리 ${stRows.join(' ')}`);
+  }
   // ★[DRESS_BACK_STEP 코워크 디자인 라운드 2 · 1] 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음(390×844 · 마이페이지 겹화면)
   {
     const pb = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });

@@ -19838,7 +19838,15 @@ chk 'DRESS_SIGNUP_MAIL' automation/platform/40_signup.gs 2               # 고�
 chk 'DRESS_CARD_PHOTOS' mypage.html 2                                      # 카드 칸 = 96px 안팎 · 3:4 · 사이 8px · 이름 두 줄 · 누르면 그 드레스 자세히
 nochk 'R.list().slice(0,3).map(see)' mypage.html 0                         # [DRESS_CARD_MIN] 카드 0벌 표본 세 칸은 걷었다
 chk 'DRESS_CARD_MIN' mypage.html 1
-chk 'data-dress-open style="margin-top:14px">드레스 보러 가기</button>' mypage.html 1
+nochk 'data-dress-open' mypage.html 0                                     # ★[DRESS_STICKER 2026-10-24] 따로 카드 «드레스 보러 가기»는 걷었다 — 단추는 상담 카드 안내 블록의 스티커 하나
+chk 'DRESS_STICKER' mypage.html 10                                       # 스티커 = 그림 · 자리(겹침으로) · 크기 · «n벌» 알약 · 흔들림(고리 축 · 3초 한 번) · 미리 보기도 상담 카드로
+chk '<button type="button" class="dst" data-dst aria-label="드레스 미리 보기">' mypage.html 1
+chk "var DST = dressOn ? _dstHtml(c.dress) : '';" mypage.html 1              # 판정은 [DRESS_CARD_ON] 그대로(_dressCardOn 한 곳)
+chk "  _dstWire(box, d, demo);   // .DRESS_STICKER." mypage.html 1
+chk '.dst-sw.is-sw{animation:dstSwing 3s ease-in-out 1}' mypage.html 1      # 흔들림은 한 번(끝없이 흔들지 않는다)
+chk "matchMedia('(hover: hover) and (pointer: fine)').matches) st.addEventListener('mouseenter'" mypage.html 1   # 터치 기기는 마우스 흔들림 없음
+chk 'DRESS_STICKER' scripts/audit/dress-refs.mjs 10
+chk 'DRESS_STICKER' scripts/audit/dress-fit.mjs 1
 chk 'DRESS_CARD_ONE_LINE' mypage.html 1                                    # 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄
 nochk "'고르지 않으셔도 상담 날 함께 골라요.'" mypage.html 0                     # 카드에서는 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번)
 chk 'DRESS_SEE_TAP' mypage.html 2                                          # 카드 칸 → openDressPicker(… open:id) → dress.html &open=
@@ -19887,11 +19895,11 @@ chk 'DRESS_NEXT_PREV' scripts/audit/dress-fit.mjs 2
 chk '+ detailHTML(d, ctl) + nbHTML(d);' dress.html 1
 chk 'DRESS_PRESS' dress.html 1                                             # 누르는 동안 반응(드레스 칸 · Nº 칸 · 물음 칸) — 마이페이지 공통 눌림 [MPD_G8] 과 같은 값
 chk 'DRESS_PRESS' mypage.html 1                                            # 카드 칸 누름
-chk 'button.dr-th:active .dr-th-pv{transform:scale(.98)}' mypage.html 1
-chk 'DRESS_CARD_NUM' mypage.html 2                                         # 카드 고른 사진에 Nº 01 · Nº 02(테두리 알약 · 칠 없음 · lining-nums)
-chk 'dr-th-badge' mypage.html 2
+chk '.dst:active .dst-in{transform:scale(.97)}' mypage.html 1               # [DRESS_STICKER] 스티커 누름 .97 · 120ms(카드 칸 .98 은 카드와 함께 걷었다)
+chk 'DRESS_CARD_NUM' mypage.html 1                                         # 카드 고른 사진에 Nº 01 · Nº 02(테두리 알약 · 칠 없음 · lining-nums)
+nochk 'dr-th-badge' mypage.html 0                                       # [DRESS_STICKER] 카드 Nº 알약은 카드와 함께 걷었다 · 스티커는 «n벌» 알약(.dst-pill)
 chk 'DRESS_CARD_WIDE' mypage.html 1                                        # PC 칸 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px · 폰은 96px 그대로
-chk '@media (min-width:600px){ .dr-th{flex:0 1 140px} }' mypage.html 1
+chk '@media (min-width:1024px){ .dst{--dst-s:88px} }' mypage.html 1       # [DRESS_STICKER] 크기 56 · 64 · 76 · 88px(카드 140px 칸은 걷었다)
 chk 'DRESS_FIT_BELOW' dress.html 1                                         # «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않게)
 nochk '벌 둘러보기' mypage.html 0                                          # [DRESS_CARD_MIN] 단추 글은 늘 «드레스 보러 가기»
 chk 'DRESS_DUE_SAME' assets/dress-refs.js 1                                # 바꾸기 마감 한 줄 = 한 곳(R.dueLine) — 카드(1 · 2벌)와 고르기 완료 화면이 같은 말

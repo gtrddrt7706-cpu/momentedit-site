@@ -187,11 +187,12 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const BAN = ['추천', '맞춤', '담기', '하트', '커버', '콤플렉스', '피하세요', '체형', '골격', '—'];
   const strs = []; (function walk(o) { if (typeof o === 'string') strs.push(o); else if (Array.isArray(o)) o.forEach(walk); else if (o && typeof o === 'object') Object.keys(o).forEach((k) => walk(o[k])); })(JSON.parse(JSON.stringify(R)));
   const decom = (s) => s.replace(/<!--[\s\S]*?-->/g, ' ').replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:'"\\])\/\/[^\n]*/g, '$1');
-  const card = (MP.match(/function renderDress\(d, boxArg, demo\)\{[\s\S]*?\n\}\n/) || [''])[0];
+  const card = (MP.match(/function renderDress\(d, boxArg\)\{[\s\S]*?\n\}\n/) || [''])[0];   // ★[DRESS_STICKER] 걷은 카드 — 늘 비운다
+  const stk = (MP.match(/var DRESS_STICKER='[^']*';\n[\s\S]*?\nfunction renderDress\(d, boxArg\)\{/) || [''])[0];   // ★[DRESS_STICKER] 스티커 단추(그림 · 자리 · 흔들림)
   const cardOn = (MP.match(/function _dressCardOn\(d\)\{[\s\S]*?\n\}\n/) || [''])[0];   // [DRESS_CARD_ON] 카드 판정 한 곳(상담 카드도 쓴다)
   const pick = (MP.match(/function openDressPicker\(dr, opt\)\{[\s\S]*?\n\}\n/) || [''])[0];
-  t(!!card && !!pick && !!cardOn, '⑦ 마이페이지 카드 · 카드 판정 · 겹화면 코드를 찾았다');
-  const hay = [['원천', strs.join('\n')], ['dress.html', decom(PAGE)], ['마이페이지 카드', decom(card + pick)]];
+  t(!!card && !!pick && !!cardOn && !!stk, '⑦ 마이페이지 걷은 카드 · 스티커 · 카드 판정 · 겹화면 코드를 찾았다');
+  const hay = [['원천', strs.join('\n')], ['dress.html', decom(PAGE)], ['마이페이지 스티커', decom(card + stk + pick)]];
   const hits = [];
   for (const [nm, h] of hay) for (const w of BAN) if (h.indexOf(w) > -1) hits.push(nm + ' «' + w + '»');
   t(!hits.length, '⑦ 고객 문구 금지어 0건' + (hits.length ? ' · ' + hits.join(', ') : ''));
@@ -200,11 +201,12 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   for (const [nm, f] of [['mypage', MP], ['admin', AD]]) t(/<script src="\/assets\/dress-refs\.js"><\/script>/.test(f), `⑧ ${nm} 가 같은 원천을 읽는다`);
   const io = (id) => MP.indexOf('id="' + id + '"');
   t(io('mp_consult') > -1 && io('mp_consult') < io('mp_dress') && io('mp_dress') < io('mp_fitting'), '⑧ 카드 자리 = 상담 → 시착 준비 → 시착 동의');
-  t(/!R\.live \|\| d\.isException \|\| d\.product==='웨딩스냅' \|\| DRESS_STAGES\.indexOf\(d\.stage\)<0/.test(cardOn) && /if\(!c\.status \|\| c\.status==='취소'\) return false;/.test(cardOn) && !/c\.status==='승인완료' \|\| c\.status==='확정'/.test(cardOn) && /자체 준비/.test(cardOn) && /if\(!demo && !_dressCardOn\(d\)\)\{ hide\(\); return; \}/.test(card), '⑧ [DRESS_APPLY_OPEN · DRESS_CARD_ON] 카드 판정(한 곳) = 스위치 · 시그니처 · 신청접수 ~ 상담확정 · 상담 예약이 취소 아님 · 자체 준비 아님(확정 전에도 보인다)');
+  t(/!R\.live \|\| d\.isException \|\| d\.product==='웨딩스냅' \|\| DRESS_STAGES\.indexOf\(d\.stage\)<0/.test(cardOn) && /if\(!c\.status \|\| c\.status==='취소'\) return false;/.test(cardOn) && !/c\.status==='승인완료' \|\| c\.status==='확정'/.test(cardOn) && /자체 준비/.test(cardOn) && /  var dressOn = !isSnap && !!d && _dressCardOn\(d\);\n  var DST = dressOn \? _dstHtml\(c\.dress\) : '';/.test(MP), '⑧ [DRESS_APPLY_OPEN · DRESS_CARD_ON] 카드 판정(한 곳) = 스위치 · 시그니처 · 신청접수 ~ 상담확정 · 상담 예약이 취소 아님 · 자체 준비 아님(확정 전에도 보인다)');
   t(!/closed|dr\.open===false/.test(decom(card)) && !/dr\.open===false/.test(decom(cardOn)), '⑧ [DRESS_NO_DEADLINE] 마감으로 숨기거나 «마감 뒤» 보기만으로 가지 않는다(0 · 1 · 2벌만)');
-  t(card.indexOf("var btn='<button type=\"button\" class=\"cc-btn-ghost\" data-dress-open style=\"margin-top:14px\">드레스 보러 가기</button>';") > -1 && (card.match(/data-dress-open/g) || []).length === 2 && !/obtn\(|이어서 고르기|벌 둘러보기|'바꾸기'/.test(decom(card)), '⑧ [DRESS_CARD_MIN] 0 · 1 · 2벌 단추 = 외곽 단추 하나 «드레스 보러 가기»(글은 늘 같다)');
+  t(/  box\.style\.display='none'; box\.innerHTML='';\n/.test(card) && !/data-dress-open|data-dress-see|dr-ths|cc-btn-ghost|드레스 보러 가기/.test(decom(card)) && !/data-dress-open|data-dress-see|드레스 보러 가기/.test(decom(MP)), '⑧ [DRESS_STICKER] 따로 카드는 걷었다 — renderDress 는 늘 비운다 · «드레스 보러 가기» 단추 · 카드 사진 칸이 마이페이지에 없다');
+  t(stk.indexOf('<button type="button" class="dst" data-dst aria-label="드레스 미리 보기">') > -1 && /<span class="dst-lb" aria-hidden="true">드레스 미리 보기<\/span>/.test(stk) && /openDressPicker\(dr, \{ demo:!!demo, key:String\(\(d&&d\.code\)\|\|''\) \}\)/.test(stk) && (decom(MP).match(/class="dst" data-dst/g) || []).length === 1, '⑧ [DRESS_STICKER] 단추 = 스티커 하나(aria-label «드레스 미리 보기» · 그림 아래 같은 글) · 누르면 겹화면(질문 먼저)이 바로');
   t(/'\/dress\.html\?pick=1&embed=1'\+\(opt\.open\?'&open='\+encodeURIComponent\(opt\.open\):''\)\+'&t='\+Date\.now\(\)/.test(pick) && /ev\.source!==fr\.contentWindow \|\| ev\.origin!==location\.origin/.test(pick), '⑧ 겹화면 = dress.html?pick=1&embed=1(카드 칸이면 &open=그 드레스 [DRESS_SEE_TAP]) · 같은 출처 · 그 창에서 온 말만');
-  t(/get\('preview_card'\)!=='dress'/.test(MP) && /Dress Card Preview · 실제 저장 아님/.test(MP), '⑧ ?preview_card=dress — 로그인 없이 상태를 차례로(저장 없음)');
+  t(/get\('preview_card'\)!=='dress'/.test(MP) && /Dress Sticker Preview · 실제 저장 아님/.test(MP) && /renderConsult\(s\[1\]\.consult, s\[1\]\.product, s\[1\], \$\('mp_pvDress'\+i\), true\)/.test(MP), '⑧ ?preview_card=dress — 로그인 없이 상태를 차례로(저장 없음)');
   t(/var states=\[\['일정 선택 전 · 0벌', pre\], \['0벌', mk\(\[\]\)\]/.test(MP) && /var pre=\{ stage:'신청접수', product:'시그니처', consult:\{ status:'신청접수', dress:\{ attire:'대여 희망 · 2벌', ymd:'', open:true, saved:null \} \} \};/.test(MP), '⑧ [DRESS_APPLY_OPEN] 미리 보기 맨 앞 = «일정 선택 전 · 0벌»(신청접수 · 날짜 없음 · 열림)');
   t(/if\(opt\.demo\)\{ setTimeout\(win, 400\); return; \}/.test(pick) && /var win=function\(\)\{ saved=true; failCode=''; if\(toExit\)\{ done\(\); return; \} ack\(true\); \};/.test(pick), '⑧ 미리 보기에서는 저장을 부르지 않는다(성공과 같은 길 · 나가기면 닫는다)');
 
@@ -212,7 +214,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/#pkBar\{position:sticky;bottom:0;z-index:5\}/.test(PAGE) && !/\.wz-bar\{position:sticky/.test(PAGE), '⑨ [DRESS_BAR_STICK] 붙는 것은 #pkBar(카드의 직계) — 막대에 sticky 를 걸면 붙을 자리가 없다');
   const badge = (/\.dr-badge\{[^}]*\}/.exec(PAGE) || [''])[0];
   t(!!badge && !/var\(--seal\)/.test(badge) && /box-shadow:inset 0 0 0 1px var\(--gold-deep\)/.test(badge), '⑨ [DRESS_BADGE_NOFILL] «Nº» 배지 = 흰 바탕 · 먹빛 글 · 금빛 테 한 겹(진사 칠 없음)');
-  t(/var row = n \? '<div class="dr-ths">'\+th\(0\)\+th\(1\)\+'<\/div>' : '';/.test(card) && !/cc-sub|subs=|mp-dotln/.test(decom(card)), '⑨ [DRESS_CARD_MIN] 고른 드레스가 있으면 Nº 01 · Nº 02 사진 두 칸만 · 글 줄 없음(0벌은 사진도 없다)');
+  t(/\+ \(n\?'<span class="dst-pill" aria-hidden="true">'\+n\+'벌<\/span>':''\)/.test(stk) && !/cc-sub|mp-dotln|cc-title/.test(decom(stk)), '⑨ [DRESS_STICKER] 고른 드레스가 있으면 스티커 오른쪽 위 «n벌» 알약만 · 0벌은 알약도 없다 · 글 줄 없음');
   t(/\(has \? '' : ' cc-btn-wait'\) \+ '" data-go="1"' \+ \(has \? '' : ' aria-disabled="true"'\)/.test(PAGE) && !/건너뛰기|pk-skip'/.test(decom((PAGE.match(/function barHTML\(\)\{[\s\S]*?\n  \}\n/) || [''])[0])) && /if \(!\(Array\.isArray\(v\) \? v\.length > 0 : !!v\)\) return;/.test(PAGE), '⑨ [DRESS_Q_FIRST] 답하기 전엔 주 단추가 옅고 눌리지 않는다 · «건너뛰기» 없음');
   for (const [nm, f] of [['dress.html', PAGE], ['mypage', MP]]) t(f.indexOf('.wz-steps li.nav .wz-stepb{margin-bottom:calc(6px + 1.5em - 44px)}') > -1, `⑨ [WZ_STEPS_STILL] ${nm} — 지나온 걸음 단추가 진행 표시 높이를 키우지 않는다`);
   const d2 = R.dresses.find((d) => d.line === 'column') || R.dresses[0];
@@ -306,7 +308,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/var sl = R\.slides\(d\), n = sl\.length[,;]/.test(fnOf('detailHTML')) && /\(n > 1 \? '<button type="button" class="dv-arr dv-prev"/.test(fnOf('detailHTML')), '⑪ [DRESS_SLIDES] 한 장이면 ‹ › 와 «n / 5»를 두지 않는다');
   /* [DRESS_PHOTO_FIRST] [DRESS_ONE_WIDTH] [DRESS_CLOSE_IN] [DRESS_NEXT_ONE] 은 공개 화면 몫이라 공개 화면과 함께 걷었다 — ⑫ [DRESS_PUBLIC_OFF] 가 «없다»를 본다 */
   // [DRESS_NUM_LINING] 숫자 모양
-  t(/\.dr-badge\{[^}]*font-variant-numeric:lining-nums/.test(PAGE) && /\.pk-slot\{[^}]*font-variant-numeric:lining-nums/.test(PAGE) && /\.dr-th-empty\{[^}]*font-variant-numeric:lining-nums/.test(MP), '⑪ [DRESS_NUM_LINING] Nº 칸 · 배지 · 카드 번호 = lining-nums(«Nº o1»로 읽히지 않게)');
+  t(/\.dr-badge\{[^}]*font-variant-numeric:lining-nums/.test(PAGE) && /\.pk-slot\{[^}]*font-variant-numeric:lining-nums/.test(PAGE) && /\.dst-pill\{[^}]*font-variant-numeric:lining-nums/.test(MP), '⑪ [DRESS_NUM_LINING] Nº 칸 · 배지 · 스티커 알약 = lining-nums(«Nº o1»로 읽히지 않게)');
   /* [DRESS_HOME_BELOW] 홈 «드레스 둘러보기»는 명세 2(사장님 «마이페이지만»)로 걷었다 — ④ 가 «홈에 드레스 자리 없음»을 본다 */
   // ★[DRESS_DECIDED_1023 코워크 회신 4 보충 · 사장님 «너가 홈페이지 뒤져서 찾아봐»] 결정 대기 셋(맞추는 방식 · 대여 포함 · 두 번째 의상)을 사이트 · 계약서 근거로 닫았다
   //   [DRESS_RENT_ONE] 대여 = 1벌 기본 포함 · 2벌부터 추가 비용 — 신청서 «대여 희망 벌 수»와 같은 뜻 · 금액은 쓰지 않는다(2벌째 금액은 어디에도 없다)
@@ -347,7 +349,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const echo = R.dresses.map((d) => [d.id, run(d.mood, (R.line(d.line) || {}).lead)]).filter((x) => x[1].length >= 5);
   t(!echo.length, '⑫ [DRESS_MOOD_OWN] 드레스 분위기 글이 그 라인 설명을 되풀이하지 않는다(5글자 넘게 겹침 0)' + (echo.length ? ' · ' + echo.map((x) => x[0] + ' «' + x[1] + '»').join(', ') : ''));
   //   [DRESS_CARD_SEE] 카드 · 고르기 화면 머리 · 겹화면 이름 = «드레스 미리 보기» · 0벌 말
-  t(/<div class="cc-title">드레스 미리 보기<\/div>/.test(card) && !/<div class="cc-title">시착 준비<\/div>/.test(card) && /<div class="cc-eyebrow en-22">Dress<\/div>/.test(card), '⑬ [DRESS_CARD_SEE · DRESS_CARD_MIN] 카드 = 작은 제목 Dress · 제목 «드레스 미리 보기» · 단추 하나');
+  t(!/<div class="cc-title">드레스 미리 보기<\/div>|<div class="cc-eyebrow en-22">Dress<\/div>/.test(decom(MP)) && !/<div class="cc-title">시착 준비<\/div>/.test(decom(MP)), '⑬ [DRESS_STICKER · DRESS_CARD_SEE] 이름 «드레스 미리 보기»는 스티커 글 · 겹화면 머리에만 — 따로 카드 제목(Dress)은 없다');
   t(/<span class="pk-head-n">드레스 미리 보기<\/span>/.test(PAGE) && /fr\.title='드레스 미리 보기';/.test(pick) && /ov\.setAttribute\('aria-label','드레스 미리 보기'\);/.test(pick), '⑫ [DRESS_CARD_SEE] 고르기 화면 머리 · 겹화면 이름도 «드레스 미리 보기»([COURSE_WIDE] 같은 말)');
   //   [DRESS_NO_DATE] 상담 날짜가 없으면 마감 줄 대신 — 0벌은 줄을 빼고 · 1 · 2벌은 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.»
   t(!/var dueLine|notes=/.test(card), '⑫ [DRESS_NO_DEADLINE · DRESS_CARD_MIN] 카드에 마감 줄 · 점 줄 없음');
@@ -358,18 +360,19 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
 
   // ⑬ 코워크 디자인 라운드 1(10/23)
   //   [DRESS_CARD_PHOTOS] 카드 0벌 = 원천 앞 세 벌 칸 · 1 · 2벌 · 마감 뒤 = 고른 드레스 칸(같은 크기 · 누를 수 있다 · 이름 두 줄) · [DRESS_SEE_TAP] 칸 = 그 드레스 자세히
-  t(!/R\.list\(\)\.slice\(0,3\)\.map\(see\)|var see=/.test(decom(card)) && /data-dress-see="'\+escapeHtml\(x\.id\)\+'"/.test(card) && /openDressPicker\(dr, \{ demo:!!demo, open:t\.getAttribute\('data-dress-see'\), key:/.test(card), '⑬ [DRESS_CARD_MIN · DRESS_SEE_TAP] 카드 0벌에 표본 세 칸 없음 · 고른 칸을 누르면 그 드레스 자세히(겹화면 &open=)');
-  const thCss = (/\.dr-th\{[^}]*\}/.exec(MP) || [''])[0], thPv = (/\.dr-th-pv\{[^}]*\}/.exec(MP) || [''])[0], thN = (/\.dr-th-n\{[^}]*\}/.exec(MP) || [''])[0], ths = (/\.dr-ths\{[^}]*\}/.exec(MP) || [''])[0];
-  t(/flex:0 1 96px/.test(thCss) && /aspect-ratio:3\/4/.test(thPv) && /gap:8px/.test(ths) && /-webkit-line-clamp:2/.test(thN) && !/white-space:nowrap|text-overflow:ellipsis/.test(thN), '⑬ [DRESS_CARD_PHOTOS] 카드 칸 = 96px 안팎 · 3:4 · 사이 8px · 이름 두 줄까지(한 줄 말줄임 없음)');
+  t(!/data-dress-see|R\.list\(\)\.slice\(0,3\)\.map\(see\)/.test(decom(MP)), '⑬ [DRESS_STICKER · DRESS_SEE_TAP] 카드 사진 칸(누르면 그 드레스 자세히)은 카드와 함께 걷었다 — 고른 드레스는 겹화면에서');
+  // [DRESS_CARD_PHOTOS] 카드 사진 칸 CSS — 카드와 함께 걷었다
+  t(!/\.dr-ths?\{|\.dr-th-pv\{|\.dr-th-badge\{|\.dr-th-n\{/.test(decom(MP)), '⑬ [DRESS_CARD_PHOTOS · DRESS_STICKER] 걷은 카드의 사진 칸 CSS 가 남아 있지 않다');
   t(/if \(OPEN && R\.dress\(OPEN\)\) \{ S\.view = 'detail'; S\.cur = OPEN; \}/.test(JS) && /if \(S\.view !== 'detail'\) \{ S\.view = S\.answered \? 'list' : 'q'; S\.q = 0; \}/.test(fnOf('applyFill')) && /if \(!S\.answered\) \{ go\('q', \{ q: 0 \}\); return; \}/.test(fnOf('backToList')), '⑬ [DRESS_SEE_TAP · DRESS_Q_FIRST] &open=<id> 면 자세히부터(채움이 와도 머문다) · 답한 적이 있으면 결과 · 없으면 물음 1 · 자세히에서 돌아갈 때 답이 없으면 물음 1');
   //   [DRESS_SEE_CLOSED] 바꾸기 마감 뒤 칸을 눌러 들어오면 보기만 — 막대 · 고르기 · 빼기 · 머리 저장 · 점 줄 없음
   t(/var ro = false, roNew = ro !== S\.ro;/.test(fnOf('applyFill')) && /if \(\(S\.view === 'list' \|\| S\.view === 'detail'\) && !S\.ro\)/.test(fnOf('barHTML')), '⑬ [DRESS_NO_DEADLINE] 보기만(pk-ro)으로 가지 않는다 — 부모가 open:false 를 보내도 고르기 · 막대가 그대로');
   //   [DRESS_ONE_GRID] 한 그리드 · 맞는 칸 앞 · «답과 맞아요»(gold-text · 칠 없음) · 두 덩어리 · 구분선 · 소제목 «드레스» 없음
   t(/'<h3 class="pk-sub-h">답에 맞는 드레스<\/h3>'/.test(fnOf('listHTML')) && /'<h3 class="pk-sub-h">다른 드레스<\/h3>' \+ gridHTML\(sp\.rest\)/.test(fnOf('listHTML')) && /<button type="button" class="cc-btn-ghost pk-more" data-act="more">다른 드레스도 보기<\/button>/.test(fnOf('listHTML')) && /답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요\./.test(fnOf('listHTML')) && /var open = S\.more \|\| rest\.some\(function\(d\)\{ return S\.picks\.indexOf\(d\.id\) >= 0; \}\);/.test(fnOf('splitList')) && /front = rest\.slice\(0, 3\)/.test(fnOf('splitList')) && /gridHTML\(sp\.front\)/.test(fnOf('listHTML')) && !/추천|맞춤/.test(decom(JS)), '⑬ [DRESS_RESULT_SPLIT] 결과 = «답에 맞는 드레스»(맞는 칸만 · 없으면 가까운 3벌 + 한 줄) → «다른 드레스도 보기» → 나머지(«다른 드레스») · 고른 드레스가 나머지에 있으면 처음부터 펼침 · «추천 · 맞춤» 없음');
   //   [DRESS_CARD_ON] 상담 카드 — 드레스 카드가 보일 때만 진행 흐름 시착 줄을 빼고 · 확정 카드 방문 전 안내에 «챙겨 오실 것»
-  const cons = (MP.match(/function renderConsult\(c, product, d\)\{[\s\S]*?\n\}\n/) || [''])[0];
+  const cons = (MP.match(/function renderConsult\(c, product, d, boxArg, demo\)\{[\s\S]*?\n\}\n/) || [''])[0];
   t(/var dressOn = !isSnap && !!d && _dressCardOn\(d\);/.test(cons) && /\(isSnap\|\|dressOn\?'':'<div class="vg-row"><span class="vg-k">상담 · 시착<\/span><span class="vg-v">드레스 시착은 상담 당일 함께 진행돼요\.<\/span><\/div>'\)/.test(cons) && /\(dressOn \? '<div class="vg-row"><span class="vg-k">챙겨 오실 것<\/span><span class="vg-v"><span class="ln-bal">누드톤 심리스 속옷과 실리콘 브라<\/span><span class="ln-bal">예식 날 신을 굽 높이의 신발<\/span><\/span><\/div>' : ''\)/.test(cons), '⑬ [DRESS_CARD_ON] 상담 카드 — 드레스 카드가 보일 때만 진행 흐름 시착 줄 빼기 · 방문 전 안내 «챙겨 오실 것»(꺼짐 · 자체 준비 · 스냅은 그대로)');
   t(cons.indexOf("'<div class=\"vg-row\"><span class=\"vg-k\">챙겨 오실 것") > cons.indexOf('<div class="vg-title">방문 전 안내</div>') && cons.indexOf('<div class="vg-title">방문 전 안내</div>') > -1, '⑬ [DRESS_CARD_ON] «챙겨 오실 것»은 확정 카드 «방문 전 안내» 안');
+  t(/'<div class="visit-guide'\+\(DST\?' vg-st':''\)\+'"><div class="vg-title">방문 전 안내<\/div>'\+DST/.test(cons) && /'<div class="visit-guide vg-center'\+\(DST\?' vg-st':''\)\+'"><div class="vg-title">진행 흐름<\/div>'\+DST/.test(cons) && /\n  _dstWire\(box, d, demo\);/.test(cons), '⑬ [DRESS_STICKER] 스티커 자리 = 상담 카드 안내 블록(확정 «방문 전 안내» · 확정 전 «진행 흐름») · 판정은 [DRESS_CARD_ON] 그대로');
   t(/<li>누드톤 심리스 속옷과 실리콘 브라<\/li><li>예식 날 신을 굽 높이의 신발<\/li>/.test(fnOf('doneHTML')), '⑬ [DRESS_CARD_ON] 챙겨 오실 것 낱말 = 고르기 완료 화면 «준비해 오시면 좋아요»와 같다');
   /* ★[DRESS_BAR_FIT 라운드 1 · 2 «막대에 반쯤 걸린 글 0»] 첫 화면 맞춤 — 크기마다 줄 자리가 달라 CSS 한 값으로는 못 맞춘다(실측은 dress-fit.mjs) */
   const fitB = fnOf('fitBar'), fitK = fnOf('fitKey'), rnd = fnOf('render');
@@ -390,12 +393,16 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const nbh = fnOf('nbHTML');
   t(/function orderIds\(\)\{ var sp = splitList\(\); return sp\.front\.concat\(sp\.open \? sp\.rest : \[\]\)\.map/.test(JS) && /i > 0 \? R\.dress\(ids\[i - 1\]\) : null/.test(nbh) && /i < ids\.length - 1 \? R\.dress\(ids\[i \+ 1\]\) : null/.test(nbh) && /&lsaquo;<\/span>&nbsp;이전 드레스<\/button>/.test(nbh) && /다음 드레스&nbsp;<span aria-hidden="true">&rsaquo;/.test(nbh) && /class="pk-txt pk-nb-p"/.test(nbh) && /\+ detailHTML\(d, ctl\) \+ nbHTML\(d\);/.test(fnOf('detailPickHTML')) && /if \(nb\) \{ S\.touched = true; go\('detail', \{ cur: nb \}\); return; \}/.test(JS), '⑭ [DRESS_NEXT_PREV · DRESS_RESULT_SPLIT] 자세히 맨 아래 «‹ 이전 드레스 · 다음 드레스 ›» — 화면에 보이는 순서(접혀 있으면 «답에 맞는 드레스»까지) · 끝에서는 그쪽 단추 없음');
   t(/\.pk-nb\{display:flex;align-items:center;/.test(PAGE) && /\.pk-nb-n\{margin-left:auto;margin-right:-12px\}/.test(PAGE) && /\.pk-nb-p\{margin-left:-12px\}/.test(PAGE) && /\.pk-txt\{display:inline-flex;align-items:center;justify-content:center;min-height:44px;/.test(PAGE), '⑭ [DRESS_NEXT_PREV] 한쪽만 남아도 제자리 · 누르는 칸 44px');
-  t(/\.dr-pv:active,\.pk-slot\.on:active\{transform:scale\(\.98\)\}/.test(PAGE) && /\.pk-opt:active\{transform:scale\(\.98\);background:var\(--bg2\)\}/.test(PAGE) && /button\.dr-th:active \.dr-th-pv\{transform:scale\(\.98\)\}/.test(MP) && /\.trk-chip:active,\.wed-slot:active,\.dn-segbtn:active,\.dn-fpill:active,\.srv-opts button:active\{transform:scale\(\.98\);background:var\(--bg2\)\}/.test(MP), '⑭ [DRESS_PRESS] 누르는 동안 반응 — 드레스 칸 · Nº 칸 · 카드 칸은 살짝 작게 · 물음 칸은 작게 + 옅은 바탕(마이페이지 공통 눌림 [MPD_G8] 과 같은 값)');
-  t(/<span class="dr-th-badge" aria-hidden="true">'\+n\+'<\/span><\/span><span class="dr-th-n">/.test(card) && /\.dr-th-badge\{position:absolute;[^}]*background:var\(--card-white\);color:var\(--accent\);box-shadow:inset 0 0 0 1px var\(--gold-deep\);[^}]*font-variant-numeric:lining-nums/.test(MP) && /position:relative/.test(thPv), '⑭ [DRESS_CARD_NUM] 카드 고른 사진에 Nº — 고르기 화면 목록 · 완료 화면과 같은 테두리 알약(칠 없음 · lining-nums)');
-  t(/@media \(min-width:600px\)\{ \.dr-th\{flex:0 1 140px\} \}/.test(MP) && /flex:0 1 96px/.test(thCss), '⑭ [DRESS_CARD_WIDE] PC 칸 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px · 폰은 96px 그대로');
+  t(/\.dr-pv:active,\.pk-slot\.on:active\{transform:scale\(\.98\)\}/.test(PAGE) && /\.pk-opt:active\{transform:scale\(\.98\);background:var\(--bg2\)\}/.test(PAGE) && /\.dst:active \.dst-in\{transform:scale\(\.97\)\}/.test(MP) && /\.dst-in\{[^}]*transition:transform \.12s/.test(MP) && /\.trk-chip:active,\.wed-slot:active,\.dn-segbtn:active,\.dn-fpill:active,\.srv-opts button:active\{transform:scale\(\.98\);background:var\(--bg2\)\}/.test(MP), '⑭ [DRESS_PRESS] 누르는 동안 반응 — 드레스 칸 · Nº 칸은 살짝 작게(.98) · 스티커는 .97 · 120ms · 물음 칸은 작게 + 옅은 바탕(마이페이지 공통 눌림 [MPD_G8] 과 같은 값)');
+  t(/\.dst-pill\{position:absolute;top:0;right:0;padding:0 6px;border-radius:999px;background:var\(--card-white\);color:var\(--accent\);box-shadow:inset 0 0 0 1px var\(--gold-deep\);[^}]*font-variant-numeric:lining-nums;white-space:nowrap/.test(MP) && /@media \(min-width:768px\)\{ \.dst-pill\{transform:translate\(33%,-33%\)\} \}/.test(MP) && /\.dst-box\{position:relative/.test(MP), '⑭ [DRESS_STICKER · SEL_ONE] «n벌» 알약 = 흰 바탕 · 짙은 금빛 1px · 칠 없음 · lining-nums · 폰은 스티커 칸 안 · 768px 부터 1/3 밖으로');
+  t(/\.dst\{--dst-s:56px;[^}]*min-width:44px;min-height:44px/.test(MP) && /@media \(min-width:375px\)\{ \.dst\{--dst-s:64px\} \}/.test(MP) && /@media \(min-width:768px\)\{ \.dst\{--dst-s:76px\} \}/.test(MP) && /@media \(min-width:1024px\)\{ \.dst\{--dst-s:88px\} \}/.test(MP) && /width="176" height="176"/.test(stk), '⑭ [DRESS_STICKER] 크기 = 56 · 64(375+) · 76(768+) · 88px(1024+) · 누름 칸 44px 이상 · 그림 크기 고정(자리 흔들림 없음)');
   const cellF = fnOf('cellHTML');
   t(cellF.indexOf("'<span class=\"dr-sum\">'") > -1 && cellF.indexOf("'<span class=\"dr-fit\" aria-hidden=\"true\">답과 맞아요</span>'") > cellF.indexOf("'<span class=\"dr-sum\">'"), '⑭ [DRESS_FIT_BELOW] «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않고 한 줄 칸끼리 높이가 맞다)');
-  t(!/var cnt=|벌 둘러보기/.test(decom(card)) && /드레스 보러 가기/.test(card), '⑭ [DRESS_CARD_MIN] 단추 글은 늘 «드레스 보러 가기»(벌 수 단추는 걷었다)');
+  t(/\.dst-lb\{display:block;margin-top:5px;font-family:var\(--serif-ko\);font-size:11px;font-weight:400;letter-spacing:\.08em;line-height:1\.3;color:var\(--gold-deep\);white-space:nowrap\}/.test(MP) && /\.vg-title\{font-family:var\(--serif-ko\);font-size:12px;font-weight:400;letter-spacing:\.08em;[^}]*color:var\(--gold-deep\)/.test(MP), '⑭ [DRESS_STICKER] 글 «드레스 미리 보기» = 제목(.vg-title 12px)과 같은 글꼴 · 금빛 · 자간에 한 단계 작게(11px) · 한 줄 · 기울이지 않는다');
+  // [DRESS_STICKER] 흔들림 · 그림자 · 자리
+  t(/@keyframes dstSwing\{0%\{transform:rotate\(-6deg\)\}13%\{transform:rotate\(-2deg\)\}29%\{transform:rotate\(-10deg\)\}45%\{transform:rotate\(-4deg\)\}61%\{transform:rotate\(-8deg\)\}76%\{transform:rotate\(-5\.2deg\)\}89%\{transform:rotate\(-6\.8deg\)\}100%\{transform:rotate\(-6deg\)\}\}/.test(MP) && /\.dst-sw\.is-sw\{animation:dstSwing 3s ease-in-out 1\}/.test(MP) && /@media \(prefers-reduced-motion:reduce\)\{ \.dst-sw\.is-sw\{animation:none\}/.test(MP) && /\.dst-sw\{[^}]*transform:rotate\(-6deg\);transform-origin:50% 6%;filter:drop-shadow\(0 1px 1px rgba\(58,45,34,\.12\)\) drop-shadow\(0 4px 5px rgba\(58,45,34,\.06\)\)\}/.test(MP), '⑯ [DRESS_STICKER] 흔들림 = 고리 축 · −6° 에서 ±4° → ±2° → ±0.8° · 3초 한 번 · 동작 줄이기는 없음 · 그림자는 흔들리는 그림에(번짐 없는 두 겹)');
+  t(/if\(!_dstSwungOnce && window\.IntersectionObserver\)/.test(stk) && /e\.intersectionRatio>=0\.6 && !_dstSwungOnce\)\{ _dstSwungOnce=true; io\.disconnect\(\); _dstSwing\(st\); \}/.test(stk) && /matchMedia\('\(hover: hover\) and \(pointer: fine\)'\)\.matches\) st\.addEventListener\('mouseenter'/.test(stk) && /if\(_dstScrolling\)\{ setTimeout\(go, 260\); return; \}/.test(stk) && /matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches\) return;/.test(stk), '⑯ [DRESS_STICKER] 흔드는 때 = 카드가 보일 때 한 번(한 화면에 한 번) · 스크롤이 멈춘 뒤 · PC 마우스 올림 한 번 더(터치 기기는 폭과 상관없이 없음) · 동작 줄이기는 없음');
+  t(/if\(!center && row && cw>=768\)\{/.test(stk) && /if\(!_dstHits\(card, st\)\) return;/.test(stk) && /st\.style\.top=\(-Math\.round\(S\/4\)-vg\.clientTop\)\+'px';/.test(stk) && /vg\.style\.paddingRight=\(col\+16\)\+'px';/.test(stk) && !/dst-gap/.test(decom(MP)), '⑯ [DRESS_STICKER] 자리는 겹침으로 — 768px 이상은 PC 자리(블록 오른쪽 비움 · «상담 장소» 첫 줄 높이)를 먼저 대 보고 글과 겹치면 폰 자리(제목 줄 끝 · 구분선 1/4 걸침 · 첫 줄은 스티커 아래)');
   // ⑮ 코워크 디자인 라운드 3(10/23 · 외부 검토를 거른 것 + 코워크) — 동작은 dress-fit.mjs 가 잰다(작은 사진 → 자세히 · 바꾸기 · 답 바꾸기 뒤 두 벌)
   const slotF = fnOf('slotHTML');
   t(/data-act="slot" data-i="' \+ i \+ '" aria-label="' \+ esc\(n \+ ' ' \+ d\.name \+ ' 자세히 보기'\) \+ '">' \+ photo\(d\) \+ '<\/button>'/.test(slotF) && !/unslot|pk-slot-x|&times;/.test(decom(JS)) && !/\.pk-slot-x\{/.test(PAGE) && /if \(act === 'slot'\) \{ var sid = S\.picks\[\+t\.getAttribute\('data-i'\)\]; if \(!sid\) return; S\.touched = true; if \(S\.view === 'list'\) S\.listY = window\.pageYOffset \|\| 0; go\('detail', \{ cur: sid \}\); return; \}/.test(JS), '⑮ [DRESS_SLOT_SEE] 막대 작은 사진 = 그 드레스 자세히(«Nº 01 이름 자세히 보기») · × 와 «누르면 빼기» 없음');
@@ -431,11 +438,21 @@ if (process.argv.includes('--selftest')) {
     ['물음 아래 «드레스 바로 보기»가 다시', SRC, GAS, PAGE0.replace("      ;   // ★[DRESS_Q_FIRST] 물음 아래", "      + '<button type=\"button\" class=\"pk-txt pk-skipq\" data-act=\"browse\">드레스 바로 보기</button>';   // ★[DRESS_Q_FIRST] 물음 아래")],
     ['«건너뛰기»가 다시', SRC, GAS, PAGE0.replace("var fw = S.q < 2 ? '다음' : '드레스 보기';", "var fw = has ? (S.q < 2 ? '다음' : '드레스 보기') : '건너뛰기';")],
     ['답 없이도 다음으로 간다', SRC, GAS, PAGE0.replace("    if (!(Array.isArray(v) ? v.length > 0 : !!v)) return;", "")],
-    ['카드에 글 줄이 다시', SRC, GAS, PAGE0, MP0.replace("  var row = n ? ", "  var subs=['상담 전에 드레스를 미리 둘러보세요.'];\n  var row = n ? ")],
-    ['카드 0벌에 표본 세 칸이 다시', SRC, GAS, PAGE0, MP0.replace("var row = n ? '<div class=\"dr-ths\">'+th(0)+th(1)+'</div>' : '';", "var see=function(x){ return x.id; };\n  var row = n ? '<div class=\"dr-ths\">'+th(0)+th(1)+'</div>' : '<div class=\"dr-ths\">'+R.list().slice(0,3).map(see).join('')+'</div>';")],
-    ['카드 칸을 눌러도 목록부터(open 을 안 넘김)', SRC, GAS, PAGE0, MP0.replace("openDressPicker(dr, { demo:!!demo, open:t.getAttribute('data-dress-see'), key:", "openDressPicker(dr, { demo:!!demo, key:")],
-    ['카드 단추 글이 다시 벌 수', SRC, GAS, PAGE0, MP0.replace('data-dress-open style="margin-top:14px">드레스 보러 가기</button>', 'data-dress-open style="margin-top:14px">드레스 6벌 둘러보기</button>')],
-    ['카드에 «시착» 점 줄이 다시', SRC, GAS, PAGE0, MP0.replace("    + btn+'</div>';", "    + '<div class=\"mp-dotln dr-due\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</div>' + btn+'</div>';")],
+    // ★[DRESS_STICKER 2026-10-24] 걷은 카드 · 스티커를 되돌리면 빨강
+    ['따로 카드가 다시 «드레스 보러 가기»', SRC, GAS, PAGE0, MP0.replace("  box.style.display='none'; box.innerHTML='';\n", "  box.innerHTML='<div class=\"consult-card\"><button type=\"button\" class=\"cc-btn-ghost\" data-dress-open>드레스 보러 가기</button></div>'; box.style.display='block';\n")],
+    ['카드 제목이 다시 «드레스 미리 보기»', SRC, GAS, PAGE0, MP0.replace("  box.style.display='none'; box.innerHTML='';\n", "  box.innerHTML='<div class=\"consult-card\"><div class=\"cc-eyebrow en-22\">Dress</div><div class=\"cc-title\">드레스 미리 보기</div></div>';\n")],
+    ['카드 사진 칸이 다시(누르면 자세히)', SRC, GAS, PAGE0, MP0.replace("  box.style.display='none'; box.innerHTML='';\n", "  box.innerHTML='<button class=\"dr-th\" data-dress-see=\"S01\"></button>';\n")],
+    ['스티커 글을 지움', SRC, GAS, PAGE0, MP0.replace('<span class="dst-lb" aria-hidden="true">드레스 미리 보기</span>', '')],
+    ['스티커 알약이 0벌에도', SRC, GAS, PAGE0, MP0.replace("+ (n?'<span class=\"dst-pill\" aria-hidden=\"true\">'+n+'벌</span>':'')", "+ '<span class=\"dst-pill\" aria-hidden=\"true\">'+n+'벌</span>'")],
+    ['스티커가 방문 전 안내 밖으로', SRC, GAS, PAGE0, MP0.replace("<div class=\"vg-title\">방문 전 안내</div>'+DST", "<div class=\"vg-title\">방문 전 안내</div>'")],
+    ['알약을 진사로 칠함', SRC, GAS, PAGE0, MP0.replace('.dst-pill{position:absolute;top:0;right:0;padding:0 6px;border-radius:999px;background:var(--card-white);color:var(--accent)', '.dst-pill{position:absolute;top:0;right:0;padding:0 6px;border-radius:999px;background:var(--seal);color:#fff')],
+    ['폰 스티커 크기 72px', SRC, GAS, PAGE0, MP0.replace('@media (min-width:375px){ .dst{--dst-s:64px} }', '@media (min-width:375px){ .dst{--dst-s:72px} }')],
+    ['흔들림이 끝나지 않는다', SRC, GAS, PAGE0, MP0.replace('.dst-sw.is-sw{animation:dstSwing 3s ease-in-out 1}', '.dst-sw.is-sw{animation:dstSwing 3s ease-in-out infinite}')],
+    ['동작 줄이기에도 흔든다', SRC, GAS, PAGE0, MP0.replace("  try{ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch(e){}\n", '')],
+    ['터치 기기도 마우스 흔들림', SRC, GAS, PAGE0, MP0.replace("if(matchMedia('(hover: hover) and (pointer: fine)').matches) st.addEventListener", "if(true) st.addEventListener")],
+    ['그림자를 단추 상자에(움직이지 않음)', SRC, GAS, PAGE0, MP0.replace(';filter:drop-shadow(0 1px 1px rgba(58,45,34,.12)) drop-shadow(0 4px 5px rgba(58,45,34,.06))}', '}')],
+    ['폭으로만 자리를 정함(겹침을 안 봄)', SRC, GAS, PAGE0, MP0.replace('    if(!_dstHits(card, st)) return;\n', '    return;\n')],
+    ['누름 칸이 44px 아래', SRC, GAS, PAGE0, MP0.replace('min-width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:8px', 'margin:0;padding:0;border:0;border-radius:8px')],
     ['결과 맨 아래 점 줄을 지움', SRC, GAS, PAGE0.replace("return h + '<div class=\"pk-end-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>';", "return h;")],
     ['띠가 다시 «답하기»', SRC, GAS, PAGE0.replace('data-act="ask">답 바꾸기 <span', 'data-act="ask">답하기 <span')],
     ['결과가 다시 한 그리드', SRC, GAS, PAGE0.replace("h += gridHTML(sp.front);", "h += gridHTML(sp.front.concat(sp.rest)); sp.rest = [];")],
@@ -463,7 +480,6 @@ if (process.argv.includes('--selftest')) {
     ['표본 분위기 글이 라인 설명을 되풀이', SRC.replace("mood: '장식 없이 매끈한 크레이프 결'", "mood: '장식 없이 곧게 떨어지는 단정한 선'"), GAS],
     ['카드가 다시 상담확정에서만(서버와 어긋남)', SRC, GAS, PAGE0, MP0.replace("var DRESS_STAGES=['신청접수','상담확정'];", "var DRESS_STAGES=['상담확정'];")],
     ['카드가 다시 확정된 상담에서만', SRC, GAS, PAGE0, MP0.replace("if(!c.status || c.status==='취소') return false;", "if(!(c.status==='승인완료' || c.status==='확정')) return false;")],
-    ['카드 제목이 다시 «시착 준비»', SRC, GAS, PAGE0, MP0.replace('<div class="cc-title">드레스 미리 보기</div>', '<div class="cc-title">시착 준비</div>')],
     ['미리 보기 첫 상태(일정 선택 전)를 지움', SRC, GAS, PAGE0, MP0.replace("var states=[['일정 선택 전 · 0벌', pre], ['0벌', mk([])]", "var states=[['0벌', mk([])]")],
     ['신청서 켜질 문장이 옛 문장', SRC, GAS, PAGE0, MP0, { INQ: INQ.replace('신청하시면 마이페이지에서 상담 날 입어 보실 드레스를 미리 둘러보실 수 있습니다.', '상담이 확정되면 마이페이지에서 입어 보실 두 벌을 미리 고르실 수 있습니다.') }],
     ['서버가 다시 상담확정에서만', SRC, (GAS || '').replace("stages: ['신청접수', '상담확정']", "stages: ['상담확정']")],
@@ -473,7 +489,6 @@ if (process.argv.includes('--selftest')) {
     ['확정 메일이 다시 고른 분에게도', SRC, (GAS || '').replace('_dressMailOk_(row) && !_dressPicked_(row)', '_dressMailOk_(row)')],
     ['접수 메일 드레스 줄을 지움', SRC, GAS, PAGE0, MP0, { SU: SU0.replace("    dressLine +   // [DRESS_SIGNUP_MAIL]", '    // [DRESS_SIGNUP_MAIL]') }],
     // ★★[코워크 디자인 라운드 1 · 10/23] 고친 것을 되돌리면 빨강
-    ['카드 칸을 다시 72px 한 줄 이름으로', SRC, GAS, PAGE0, MP0.replace('flex:0 1 96px;', 'width:72px;').replace('-webkit-box-orient:vertical;-webkit-line-clamp:2}', 'white-space:nowrap;text-overflow:ellipsis}')],
     ['고르기 화면이 &open= 을 무시', SRC, GAS, PAGE0.replace("if (OPEN && R.dress(OPEN)) { S.view = 'detail'; S.cur = OPEN; }", '')],
     ['막대에 흐림(그라데이션)이 다시', SRC, GAS, PAGE0.replace('background:var(--card-white);border-top:1px solid var(--hairline)}', 'background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white) 15px)}')],
     ['«답과 맞아요»를 지움', SRC, GAS, PAGE0.replace("(fit ? '<span class=\"dr-fit\" aria-hidden=\"true\">답과 맞아요</span>' : '')", "''")],
@@ -500,8 +515,6 @@ if (process.argv.includes('--selftest')) {
     ['목록 자리를 기억하지 않는다', SRC, GAS, PAGE0.replace("if (op) { S.touched = true; S.listY = window.pageYOffset || 0; go('detail', { cur: op }); return; }", "if (op) { S.touched = true; go('detail', { cur: op }); return; }")],
     ['이웃 드레스 줄을 지움', SRC, GAS, PAGE0.replace('+ detailHTML(d, ctl) + nbHTML(d);', '+ detailHTML(d, ctl);')],
     ['누름 반응을 지움', SRC, GAS, PAGE0.replace('.dr-pv:active,.pk-slot.on:active{transform:scale(.98)}', '')],
-    ['카드 고른 사진에 Nº 가 없다', SRC, GAS, PAGE0, MP0.replace("<span class=\"dr-th-badge\" aria-hidden=\"true\">'+n+'</span>", '')],
-    ['PC 칸이 다시 96px', SRC, GAS, PAGE0, MP0.replace('@media (min-width:600px){ .dr-th{flex:0 1 140px} }', '')],
     ['«답과 맞아요»가 다시 이름 바로 아래', SRC, GAS, PAGE0.replace("      + '<span class=\"dr-sum\">' + esc(sum) + '</span>'\n      + (fit ? '<span class=\"dr-fit\" aria-hidden=\"true\">답과 맞아요</span>' : '') + '</span></div>';", "      + (fit ? '<span class=\"dr-fit\" aria-hidden=\"true\">답과 맞아요</span>' : '')\n      + '<span class=\"dr-sum\">' + esc(sum) + '</span></span></div>';")],
     ['완료 화면에 마감 줄이 다시', SRC, GAS, PAGE0.replace("'<div class=\"pk-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>'", "'<div class=\"pk-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p><p class=\"dotln\">' + esc(R.dueLine(S.ymd)) + '</p></div>'")],
     ['마감 한 줄 원천이 다른 말', SRC.replace("'상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.'", "'상담 이틀 전까지 바꾸실 수 있어요.'"), GAS],
