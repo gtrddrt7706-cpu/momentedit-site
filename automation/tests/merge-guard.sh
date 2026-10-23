@@ -19903,5 +19903,5 @@ chk "return w === 'mothers' ? \['담백하게', '뭉클하게', '잔잔하게', 
 chk "matjeol: { lab: '맞절 멘트', names: \['격식 있게', '잔잔하게'," assets/ritual-open.js 1
 chk "if(+_sv.S.exv!==2){" order-preview.html 1
 chk "var S={course:'open',exv:2," order-preview.html 1
-chk "'exv'," assets/ritual-preview-link.js 1
+nochk "'exv'," assets/ritual-preview-link.js 0   # [BASE_SWAP_1023] 미리듣기 주소는 entryScene 을 싣지 않아 늘 새 차례로 읽는다 — exv 를 실으면 죽은 키(STORY_COVER)
 chk "function exSwapped(S, k) { return !!(S && S.entryScene != null && +S.exv !== 2" assets/ritual-open.js 1
