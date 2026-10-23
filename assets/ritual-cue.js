@@ -24,6 +24,7 @@
 })(typeof self !== 'undefined' ? self : this, function (D, O) {
 
   // ── 튜닝 상수 (큐시트·런북 §11-C 이관 · 숫자를 코드 본문에 흩지 않는다)
+  var DUCK_ENV = { downMs: 400, holdMs: 0, upMs: 1200 };   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천
   var PARAM = {
     spm: 300,              // 낭독 속도(음절/분) — build-dubbing-script.mjs와 같은 값이어야 한다
     gapMs: 2000,           // 클립 간 침묵 1.5~2.5초의 가운데
@@ -31,8 +32,13 @@
     duckMusic: -8,         // 음악이 주인공(입장·축배) — 큐시트 -6~-10dB
     duckOff: -90,          // 사실상 무음
     duckRead: -20,         // 낭독 아래 — 축사 · 편지에서 두 분이 «음악과 함께»를 고른 날만(S.bgm.S5 · S6 = 'bed') · 아니면 지금처럼 duckOff [BGM_INFO_1023]
-    fadeDownMs: 400,       // 더킹 페이드 다운 0.3~0.5초
-    fadeUpMs: 1200,        // 더킹 복귀 0.8~1.5초
+                           // ★[BGM_CONSOLE1_1023] −20 은 «리허설 시작값» — 현장 PA 에서 귀로 다시 정한다(콘솔에는 아직 바꾸는 칸이 없다 · docs/handoff/BGM_CONSOLE_1023.md 제안)
+    /* ★[BGM_CONSOLE1_1023] 낮춤 모양(엔벌로프) — 콘솔 duckTo 가 쓰는 값에 이름만 붙였다(동작 변화 0).
+       downMs = 클립이 시작할 때 내리는 시간 · upMs = 클립 · 사람 구간이 끝나고 올리는 시간 · holdMs = 다음 큐가 이 안에 이어지면 올리지 않고 버티는 시간 —
+       지금 콘솔은 버티지 않는다(0 · 이어 나가는 큐 사이 1 ~ 2초에도 −8 로 올랐다 다시 내린다). 버티기를 켜는 것은 동작이 바뀌어 제안만(BGM_CONSOLE_1023.md) */
+    duck: DUCK_ENV,
+    fadeDownMs: DUCK_ENV.downMs,   // 더킹 페이드 다운 0.3~0.5초 — 콘솔이 이 이름으로 읽는다
+    fadeUpMs: DUCK_ENV.upMs,       // 더킹 복귀 0.8~1.5초
     /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 반지 박수가 빠져 «음악 8초 내림 + 정적 3초»가 빈 시간이 됐다 →
        내림 4초 · 정적 2.5초(연구 B11: 3~5초에 걸쳐 끄고 2~3초 정적 · 알리지 않은 정적은 2.5초까지).
        applauseMs 는 이제 «콘솔이 기다리는 시간»이 아니라 사람 순간(박수)의 est 와 미리 듣기 길이다 — 끝은 디렉터 GO. */
