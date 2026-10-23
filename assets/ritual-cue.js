@@ -24,7 +24,7 @@
 })(typeof self !== 'undefined' ? self : this, function (D, O) {
 
   // ── 튜닝 상수 (큐시트·런북 §11-C 이관 · 숫자를 코드 본문에 흩지 않는다)
-  var DUCK_ENV = { downMs: 400, holdMs: 0, upMs: 1200 };   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천
+  var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 400 };   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천 · [BGM_CONSOLE2_1023] holdMs = 이음 보호(다음 이음 큐의 음성이 이 안에 시작하면 −8 로 올리지 않는다) · leadMs = 음성보다 먼저 내리는 시간
   var PARAM = {
     spm: 300,              // 낭독 속도(음절/분) — build-dubbing-script.mjs와 같은 값이어야 한다
     gapMs: 2000,           // 클립 간 침묵 1.5~2.5초의 가운데
@@ -35,7 +35,11 @@
                            // ★[BGM_CONSOLE1_1023] −20 은 «리허설 시작값» — 현장 PA 에서 귀로 다시 정한다(콘솔에는 아직 바꾸는 칸이 없다 · docs/handoff/BGM_CONSOLE_1023.md 제안)
     /* ★[BGM_CONSOLE1_1023] 낮춤 모양(엔벌로프) — 콘솔 duckTo 가 쓰는 값에 이름만 붙였다(동작 변화 0).
        downMs = 클립이 시작할 때 내리는 시간 · upMs = 클립 · 사람 구간이 끝나고 올리는 시간 · holdMs = 다음 큐가 이 안에 이어지면 올리지 않고 버티는 시간 —
-       지금 콘솔은 버티지 않는다(0 · 이어 나가는 큐 사이 1 ~ 2초에도 −8 로 올랐다 다시 내린다). 버티기를 켜는 것은 동작이 바뀌어 제안만(BGM_CONSOLE_1023.md) */
+       ★[BGM_CONSOLE2_1023 HOLD_LINK] 라운드 2 에서 켰다(사장님 결정 · BGM 섹션 명세) — ⓐ 이음 보호: 사람 구간이 없는 클립이 끝나고 다음 큐가 chain 이며 음성이 holdMs(3.5초) 안에 시작하면 그 크기에서 버틴다
+         (입장 장면 시작 · 축배 큐는 그 연출이 제어해 빼고) · ⓑ 사람 구간 유지: live 가 있는 큐는 GO 까지 live 크기 그대로(낭독 −20 · 무음 −90 을 풀지 않는다).
+       ★[BGM_CONSOLE2_1023 PRE_DUCK] leadMs — 음악을 내려야 하는 큐는 음성보다 0.4초 먼저 내린다(이어지는 큐는 사이 끝 0.4초 전에 · GO 로 여는 큐는 GO 순간 내리고 음성은 0.4초 뒤) */
+    toastLevel: 0,         // [BGM_CONSOLE2_1023 TOAST_GO] 축배 «위하여!» 뒤 GO 로 오르는 크기(리허설 칸이 덮는다 · 시작값 0)
+    toastUpMs: 600,        // 그 오름 시간
     duck: DUCK_ENV,
     fadeDownMs: DUCK_ENV.downMs,   // 더킹 페이드 다운 0.3~0.5초 — 콘솔이 이 이름으로 읽는다
     fadeUpMs: DUCK_ENV.upMs,       // 더킹 복귀 0.8~1.5초
@@ -1143,7 +1147,7 @@
       })] : []).concat([cue({
         k: 'toast', blockN: '축배', slug: 'toast-' + S.toast, name: '축배', text: t.nar,   // [CAKE_OLD_OFF_1017] 옛 코스 판도 케이크가 없다 — 블록 · 큐 이름 «축배»
         duck: PARAM.duckMusic, pick: t.d, note: t.note,
-        live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing, fallback: t.fallback || '' }   // [TOAST_COUPLE] 막힐 때 한 줄
+        live: { t: t.cue, est: t.est, duck: PARAM.duckMusic, cheer: { level: PARAM.toastLevel, upMs: PARAM.toastUpMs }, self: true, doing: t.doing, fallback: t.fallback || '' }   // [TOAST_COUPLE] 막힐 때 한 줄   /* ★★[BGM_CONSOLE2_1023 TOAST_GO] «위하여» 동안 음악은 낮게 그대로(대기) — 두 분 · 하객의 «위하여!»가 끝나면 디렉터 GO 로 0.6초에 축배 크기(toastLevel)로 오른다(콘솔 · 미리 듣기는 종전처럼 바로) */
       })]);
       /* ★★[TOAST_WINE 2026-09-25 사장님 결정 · 와인은 축배 안으로] 축배가 있는 판에만 «붓기»를 얹는다.
          둘 다 → 케이크 뒤 · 선창 앞 / 축배만 → 선창 앞. 케이크만은 잔이 없어 안 붙는다.
@@ -1166,7 +1170,7 @@
       if (t.nar2) seq.push(cue({
         k: 'toast', blockN: '축배', slug: pourB ? 'toast-both-pour-b' : 'toast-both-b', name: '축배 · 잔을 들고 선창',
         text: pourB ? EXTRA['toast-both-pour-b'] : t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가고 «잔 됨» 신호가 오면', note: t.note2,
-        live: { t: t.cue2, est: t.est2, duck: 0, self: true, doing: 'say', fallback: t.fallback2 || '' }
+        live: { t: t.cue2, est: t.est2, duck: PARAM.duckMusic, cheer: { level: PARAM.toastLevel, upMs: PARAM.toastUpMs }, self: true, doing: 'say', fallback: t.fallback2 || '' }   // [BGM_CONSOLE2_1023 TOAST_GO]
       }));
       seq.push(cue({
         k: 'toast', blockN: '축배',
