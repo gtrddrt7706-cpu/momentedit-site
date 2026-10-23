@@ -9587,7 +9587,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/
 #       설치만 30~60초라 이 잡의 성격(빠른 마커 검사)이 바뀐다. 무거운 실렌더는 야간의 몫이다.
 if command -v node >/dev/null 2>&1; then node scripts/audit/footer-parity.mjs >/dev/null 2>&1; _fp=$?
   case "$_fp" in
-    0) echo 'ok footer-parity: 다섯 면 푸터가 한 벌 (index · inquiry · privacy · parents · dress — 문구·링크 주소·링크 표기·대비 AA·넘침 0)' ;;
+    0) echo 'ok footer-parity: 네 면 푸터가 한 벌 (index · inquiry · privacy · parents — 문구·링크 주소·링크 표기·대비 AA·넘침 0 · 의상과 소품 공개 화면은 명세 2 로 걷었다)' ;;
     1) echo 'FAIL footer-parity: 네 면 푸터가 한 벌이 아닙니다 — node scripts/audit/footer-parity.mjs'; fail=1 ;;
     *) echo 'ok footer-parity: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
@@ -19453,32 +19453,33 @@ chk '=144_narr-entry-arrive,=149_narr-open-ex3,=153_narr-candle-in-mothers-ex4,=
 chk 'FREE_IN_RR_1023 검토 151-1 3)' scripts/audit/open-course.mjs 1   # 동작 검사 — 영상 · 선물은 58 · 재생 안 됨은 소리 없이 · B5 없음
 # ── ★★[DRESS_REFS · DRESS_PAGE · DRESS_CARD · DRESS_PICK · DRESS_LIVE · DRESS_SAMPLE · DRESS_RANK 2026-10-23 코워크 설계 명세 «시착 준비»] ──
 #   상담이 확정된 분이 마이페이지에서 «입어 볼 두 벌»을 골라 두면 스튜디오가 상담 전날 준비한다(명세 docs/handoff/설계명세_시착준비_1023.md).
-#   ①원천은 assets/dress-refs.js 하나 — 공개 dress.html · 고르기 ?pick=1 · 마이페이지 카드 · 관리자가 같은 파일을 읽는다
-#   ②스위치(live)가 꺼진 동안 홈 · 신청서 · 마이페이지는 화면 차이 0(자리는 hidden · 카드는 숨김) — 켜는 것은 사장님이 사진을 넣은 뒤
+#   ①원천은 assets/dress-refs.js 하나 — 고르기 dress.html?pick=1 · 마이페이지 카드 · 관리자가 같은 파일을 읽는다(공개 화면 · 홈 단추는 명세 2 로 걷었다 [DRESS_PUBLIC_OFF])
+#   ②스위치(live)가 꺼진 동안 신청서 · 마이페이지는 화면 차이 0(자리는 hidden · 카드는 숨김) — 켜는 것은 사장님이 사진을 넣은 뒤
 #   ③표본 6벌(sample:true)은 운영 주소에서 0벌 · ④줄 세우기 = 명세 6장(답 조합 100가지 대조) · ⑤dress.html 은 GAS 를 부르지 않는다
 #   ⑥서버: 상담예약 맨 뒤 «시착준비» · 상담일 −2일 23:59 마감(«바꾸기 마감이 지났어요») · 아침 보고 «내일 상담 · 준비할 드레스»
 #   모양 · 규칙 · 짝은 scripts/audit/dress-refs.mjs(--selftest 로 깨 보고 믿었다) · 서버 동작은 automation/tests/dress-pick.test.js
 chk '\[DRESS_LIVE\]' assets/dress-refs.js 2
-chk 'live: false,             // \[DRESS_LIVE\]' assets/dress-refs.js 1     # 스위치는 이번 범위에서 켜지 않는다 — 켤 때 이 줄을 «live: true»로 · 표본 지우기 · noindex 걷기 · sitemap(dress-refs.mjs 가 짝을 본다)
+chk 'live: false,             // \[DRESS_LIVE\]' assets/dress-refs.js 1     # 스위치는 이번 범위에서 켜지 않는다 — 켤 때 이 줄을 «live: true»로 · 표본 지우기 · 실물 4벌 사진(dress-refs.mjs 가 본다 · noindex 는 늘 둔다)
 chk 'DRESS_SAMPLE' assets/dress-refs.js 2
 chk 'return !(prod && d.sample);' assets/dress-refs.js 1                   # 운영 주소에서 표본을 빼는 한 줄
 chk 'DRESS_RANK' assets/dress-refs.js 1
-chk '<meta name="robots" content="noindex">' dress.html 1                   # 스위치가 꺼진 동안은 검색에 싣지 않는다
+chk '<meta name="robots" content="noindex">' dress.html 1                   # [DRESS_PUBLIC_OFF] 검색에 싣지 않는다 — 스위치와 상관없이 늘(마이페이지 겹화면 전용)
 chk 'DRESS_NO_GAS' dress.html 1
 nochk 'script.google' dress.html 0
 nochk 'preview-guard.js' dress.html 0                                        # GAS 를 안 부르는 쪽 — 미리보기 띠(«서버 연결을 막아 두었어요»)를 싣지 않는다
 chk 'momentedit:dressSave' dress.html 1
 chk 'momentedit:dressSave' mypage.html 1
 chk 'id="mp_dress"' mypage.html 1
-chk 'DRESS_CARD' mypage.html 6
+chk 'DRESS_CARD' mypage.html 6                                            # (DRESS_CARD_WORDS · DRESS_CARD_SEE 도 센다)
 chk 'DRESS_PICK' mypage.html 1
 chk "_csHome = \$('mp_dress') || \$('mp_fitting')" mypage.html 1           # [SNAP_TODO_FIRST] 상담 카드의 제자리 = 시착 준비 카드 앞(종전대로 두면 매번 시착 준비 뒤로 옮겨 놓는다)
 chk "saveDressPick:'S'" mypage.html 1
 chk '<script src="/assets/dress-refs.js"></script>' mypage.html 1
 chk '<script src="/assets/dress-refs.js"></script>' admin.html 1
 chk 'DRESS_ADMIN_ROWS' admin.html 2
-chk '<script src="/assets/dress-refs.js" defer></script>' index.html 1
-chk '<div data-dress-on hidden' index.html 1
+nochk 'dress-refs.js' index.html 0                                          # ★[DRESS_PUBLIC_OFF 2026-10-23 사장님 «마이페이지만»] 홈은 #1323 이전과 같다 — 되살리기 금지
+nochk 'data-dress-' index.html 0
+nochk 'href="dress.html"' index.html 0
 chk 'data-dress-text="대여 의상은 프리 사이즈' inquiry.html 1               # ★[DRESS_NOTE_ONE 2026-10-23 코워크 검토 4] 켜질 문장은 글 통째로(data-dress-text) — 꺼짐은 종전 글 한 덩어리
 nochk '<span data-dress-off>' inquiry.html 0                                  # Note 줄(flex)에서 글을 span 으로 쪼개면 스위치가 꺼져 있어도 두 단으로 갈라진다(운영 신청서가 깨진다)
 chk 'DRESS_NOTE_ONE' inquiry.html 1
@@ -19492,7 +19493,7 @@ chk "'saveDressPick'\]" automation/platform/95_notify.gs 1
 chk 'DRESS_ADMIN_ROWS' automation/admin/admin.gs 4
 chk 'DRESS_MORNING_ROW' automation/platform/96_ai_cost.gs 1
 chk 'DRESS_REFS' scripts/audit/dress-refs.mjs 1
-chk "'dress'\]" scripts/audit/footer-parity.mjs 1                             # 의상과 소품도 같은 푸터 한 벌
+nochk "'parents', 'dress'" scripts/audit/footer-parity.mjs 0                   # [DRESS_PUBLIC_OFF] 의상과 소품 공개 화면(푸터)을 걷었다 — 대조는 네 면
 # ★[코워크 검토 1 · 10/23] 막대 붙이기 · «Nº» 배지 칠 걷기 · 마감 뒤 두 줄 · 건너뛰기 옅게 · 진행 표시 높이 · 칸 한 줄 · 마감 날짜 · 메일 글자 링크(값은 dress-refs.mjs ⑨ 가 잰다)
 chk '#pkBar{position:sticky;bottom:0;z-index:5}' dress.html 1           # [DRESS_BAR_STICK] 붙는 것은 #pkBar — 막대(.wz-bar)에 걸면 부모 높이가 막대와 같아 붙을 자리가 없다
 nochk '\.wz-bar{position:sticky' dress.html 0
@@ -19537,27 +19538,24 @@ chk "mpConfirm({ title:st.failed?'저장이 아직 안 됐어요':'저장하지 
 chk "var _bkId=bkOpen(function(){ askExit(true); });" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다
 chk "postMessage({ type: 'momentedit:dressExit' }, location.origin)" dress.html 1   # 머리 «나가기»는 부모에게 묻는다(바로 닫는 dressClose 는 판의 «그냥 나가기» · 저장이 닿은 뒤만)
 chk 'DRESS_CLEAR' automation/consultation/consultation-booking.gs 2     # 0벌 저장 = 비우기(다 뺀 뒤 «저장하고 나가기»가 거짓말을 하지 않게)
-chk 'DRESS_FIT_FEE' dress.html 3                                          # 공개 시착비 칸 — 숫자는 홈 가격표 · 신청서 · 시착 동의서와 대조(dress-refs.mjs ⑪)
-chk '<p class="fit-p">시착은 상담 당일 기본 2벌이며, 3벌째부터 1벌당 50,000원입니다.</p>' dress.html 1
+chk 'DRESS_FIT_FEE' dress.html 1                                          # 고르기 막대 «안 입은 드레스는 시착비가 들지 않아요» — 근거 숫자는 홈 가격표 · 신청서 · 시착 동의서와 대조(dress-refs.mjs ⑪)
+nochk 'class="fit-p"' dress.html 0                                          # [DRESS_PUBLIC_OFF] 공개 시착 칸은 공개 화면과 함께 걷었다
 chk '<p class="pk-bar-note">안 입은 드레스는 시착비가 들지 않아요.</p>' dress.html 1
-chk 'DRESS_NO_INTRO' dress.html 3                                         # 인트로 걷음 — 열면 첫 물음부터(카드가 같은 말을 이미 했다)
+chk 'DRESS_NO_INTRO' dress.html 3                                         # 인트로 걷음 — 카드가 같은 말을 이미 했다 · 명세 2: 열면 드레스 목록부터([DRESS_LIST_FIRST])
 nochk 'function introHTML' dress.html 0
 nochk '몇 가지 답하고 보기' dress.html 0
 chk 'DRESS_SOLO_NOSAVE' dress.html 3                                      # 단독(?pick=1)은 저장이 없다 — «저장» · «남기기» 숨김 · 저장한 척 «저장됨» 없음(머리 아래 «저장되지 않아요» 한 줄과 어긋났다)
 chk 'html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}' dress.html 1   # 마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴(저장할 수 없으면 «저장» 알약을 두지 않는다)
 nochk '저장하지 않는다(모양만 같게)' dress.html 0
 chk 'DRESS_SOLO_NOSAVE' scripts/audit/dress-fit.mjs 2
-chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(첫 물음 · 카드 0벌)
+chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(목록 띠 아래 · 카드 0벌 · 물음 화면에는 없다)
 chk 'DRESS_NO_PICK_OK' mypage.html 1
 chk 'DRESS_SKIP_Q' dress.html 3                                           # 물음마다 «질문 없이 바로 보기»
 chk 'DRESS_PICK_TIER' dress.html 4                                        # 진한 단추가 한 화면에 둘 서지 않게 · 막대 0벌 «드레스를 골라 주세요»(한 줄)
 nochk '두 벌을 골라 주세요' dress.html 0
 chk 'DRESS_MEMO_DONE' dress.html 4                                        # 남길 말은 완료 화면(+ «남기기») · 그림 140 · Nº 표시
-chk 'DRESS_PHOTO_FIRST' dress.html 2                                      # 사진 먼저(홈 Styling 사진) → 드레스 → 라인 → 길이 → 시착 → 신랑 → 단추
-chk 'DRESS_ONE_WIDTH' dress.html 2                                        # 섹션 이름 · 그리드 · 사진이 같은 왼쪽 끝(종전 1280 에서 348 · 148 로 갈렸다)
 nochk 'sec-wide' dress.html 0
-chk 'DRESS_CLOSE_IN' dress.html 1                                         # 자세히 «닫기»는 내용 칸 안 오른쪽 위
-chk 'DRESS_NEXT_ONE' dress.html 4                                         # 글 아래 «다음 드레스 ›» — 마지막이면 처음
+# [DRESS_PHOTO_FIRST] [DRESS_ONE_WIDTH] [DRESS_CLOSE_IN] [DRESS_NEXT_ONE] 은 공개 화면 몫 — 명세 2(사장님 «마이페이지만»)로 공개 화면과 함께 걷었다(아래 [DRESS_PUBLIC_OFF])
 chk 'DRESS_LINE_ONE' assets/dress-refs.js 1                               # 라인 설명 한 문장 · 함께 볼 점은 슬립 · 컬럼 둘
 chk 'DRESS_Q_WORDS' assets/dress-refs.js 1                                # 길이 답 «미디(종아리) · 미니(무릎 근처)» · 셋째 물음 «이런 드레스가 편하신가요?» · 핏 답 그림
 chk 'DRESS_LEN_WORDS' assets/dress-refs.js 1
@@ -19565,8 +19563,7 @@ nochk '두 번째 착장' assets/dress-refs.js 0                                
 nochk '두 번째 착장' dress.html 0
 # ★[DRESS_DECIDED_1023 코워크 회신 4 보충 · 사장님 «너가 홈페이지 뒤져서 찾아봐»] 결정 대기 셋을 사이트 · 계약서 근거로 닫았다 — 값 대조는 dress-refs.mjs ⑪
 chk 'DRESS_DECIDED_1023' scripts/audit/dress-refs.mjs 2
-chk '<p class="dotln">대여 드레스는 1벌이 기본으로 포함되며, 2벌부터는 추가 비용이 있습니다.</p>' dress.html 1   # [DRESS_RENT_ONE] 신청서 «1벌 기본 포함 · 2벌부터 추가금 발생»과 같은 뜻 · 금액 없음
-chk 'DRESS_RENT_ONE' dress.html 1
+nochk '대여 드레스는 1벌이 기본으로 포함되며' dress.html 0              # [DRESS_RENT_ONE] 대여 줄은 공개 시착 칸과 함께 걷었다(명세 2) — 금액은 어디에도 쓰지 않는다(dress-refs.mjs ⑪)
 chk "note: '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.'" assets/dress-refs.js 1   # [DRESS_KNEE_SECOND] 140분 Farewell 환복 뒤 다이닝 — 대여 드레스로 식당에 가지 않는다
 chk 'DRESS_KNEE_SECOND' assets/dress-refs.js 1
 nochk '식사 자리' assets/dress-refs.js 0
@@ -19575,11 +19572,39 @@ chk "fitNote: ''," assets/dress-refs.js 1                                  # [DR
 chk 'DRESS_FITNOTE_EMPTY' assets/dress-refs.js 1
 chk "note: '종아리 길이로, 구두까지 보여 산뜻합니다.'" assets/dress-refs.js 1   # [DRESS_CALF_FRESH] 코워크 회신 5 — 이웃한 미니 «가볍고 경쾌해»와 같은 낱말을 겹치지 않게
 chk 'DRESS_CALF_FRESH' assets/dress-refs.js 1
-chk 'DRESS_CARD_WORDS' mypage.html 1                                      # 카드 0 · 1 · 2벌 단추 = 같은 자리 · 같은 외곽 단추(두 벌 고르기 · 이어서 고르기 · 바꾸기)
+chk 'DRESS_CARD_WORDS' mypage.html 1                                      # 카드 0 · 1 · 2벌 단추 = 같은 자리 · 같은 외곽 단추(드레스 둘러보기 · 이어서 고르기 · 바꾸기 · 명세 2)
 nochk 'trk-act-min" data-dress-open' mypage.html 0
 chk 'DRESS_NUM_LINING' dress.html 1                                       # Nº 칸 · 배지 · 카드 번호 = lining-nums(«Nº o1»로 읽히지 않게)
 chk 'DRESS_NUM_LINING' mypage.html 1
-chk 'DRESS_HOME_BELOW' index.html 3                                       # 홈 «드레스 둘러보기»는 사진 아래 · 켜지면 사진도 같은 곳 · 단추 글 가운데
+nochk 'DRESS_HOME_BELOW' index.html 0                                       # 홈 «드레스 둘러보기»는 명세 2(사장님 «마이페이지만»)로 걷었다 — 홈은 #1323 이전과 같다
+# ── ★★[명세 2 · 10/23 · 사장님 «마이페이지만» · «대면 상담 신청 후 웨딩 드레스 볼 수 있게»] 신청 직후 마이페이지 · 공개 쪽 걷기 ──
+#   docs/handoff/설계명세2_시착준비_신청직후_1023.md · 값 · 순서 · 문구는 dress-refs.mjs ⑫(깨 보기 45가지) · 서버는 dress-pick.test.js · 숫자는 dress-fit.mjs
+chk 'DRESS_PUBLIC_OFF' dress.html 4                                       # 공개 «의상과 소품» 화면 되살리기 금지 · ?pick=1 이 아니면 마이페이지로 · noindex 늘
+chk '<script>if(!/\[?&\]pick=1' dress.html 1                              # 머리에서 바로 — ?pick=1 이 아니면
+chk "location.replace('/mypage.html');</script>" dress.html 1                  # 마이페이지로 넘긴다(그리기 전 · 뒤로가기에 남지 않게 replace · 줄 전체는 dress-refs.mjs ⑫ 가 본다)
+nochk 'id="pubView"' dress.html 0
+nochk 'function renderPublic' dress.html 0
+nochk '<footer' dress.html 0
+chk 'DRESS_PUBLIC_OFF' assets/dress-refs.js 2                              # 켤 때 할 일에서 noindex · sitemap 두 줄을 뺐다
+nochk 'noindex 줄을 지운다' assets/dress-refs.js 0
+nochk 'dress.html' sitemap.xml 0
+chk 'DRESS_LIST_FIRST' dress.html 6                                       # 열면 드레스 목록 · 맨 위 띠(«답하기 ›» · «답 바꾸기 ›») · 진행 표시는 물음 셋에서만
+chk "var S = { view: 'list', q: 0," dress.html 1
+chk 'DRESS_LINE_IN_DETAIL' dress.html 3                                   # 자세히 = 그 드레스 라인의 한 줄 설명 · 함께 볼 점(고르기 단추 아래 — [DRESS_DETAIL_FIT])
+chk 'DRESS_LINE_IN_DETAIL' assets/dress-refs.js 1
+chk 'DRESS_MOOD_OWN' assets/dress-refs.js 1                               # 분위기 글이 라인 설명을 되풀이하지 않는다(5글자 넘게 겹침 0 · dress-refs.mjs ⑫)
+chk 'DRESS_APPLY_OPEN' mypage.html 4                                      # 카드 = 신청접수 ~ 상담확정 · 상담 예약 취소 아님 · 미리 보기 맨 앞 «일정 선택 전 · 0벌»
+chk "var DRESS_STAGES=\['신청접수','상담확정'\];" mypage.html 1
+nochk "c.status==='승인완료' || c.status==='확정'){ hide(); return; }" mypage.html 0
+chk 'DRESS_NO_DATE' mypage.html 2                                         # 상담 날짜가 없으면 마감 없음 · 1 · 2벌은 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.»
+chk 'DRESS_CARD_SEE' mypage.html 2                                        # 카드 제목 «드레스 미리 보기» · 0벌 말 · 단추 «드레스 둘러보기»
+chk '<div class="cc-title">드레스 미리 보기</div>' mypage.html 1
+chk 'DRESS_NOTE_APPLY' inquiry.html 1                                     # 신청서 켜질 첫 문장 «신청하시면 마이페이지에서 상담 날 입어 보실 드레스를 미리 둘러보실 수 있습니다»
+chk 'DRESS_APPLY_OPEN' automation/consultation/consultation-booking.gs 3  # 서버 = 신청접수 ~ 상담확정 · 취소면 거절
+chk "stages: \['신청접수', '상담확정'\]" automation/consultation/consultation-booking.gs 1
+chk 'DRESS_NO_DATE' automation/consultation/consultation-booking.gs 3     # 날짜가 정해진 때만 마감(신청접수 · 변경제안 = 열림)
+chk 'DRESS_CONFIRM_ZERO' automation/consultation/consultation-booking.gs 2   # 확정 메일 드레스 줄은 아직 안 고른 분에게만
+chk 'DRESS_SIGNUP_MAIL' automation/platform/40_signup.gs 2               # 고객이 받는 접수 메일(sendSignupEmail_)에 한 줄 + 마이페이지 링크
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;

@@ -1464,7 +1464,8 @@ function sendConfirmEmail_(to, names, dateKey, time, isChange, token, row) {
      같은 링크 한 벌(마이페이지 · 카카오톡 · 지도에서 보기)을 상담 메일 · 취소 화면 · 가입 메일 · 대체 메일 모두 맞췄다. 강조 글 · 머리 이름표의 금빛은 따로 정한다
      ★[MAIL_TEXT_INK 2026-10-23 사장님 «진행» · 코워크 회신 3] 그 «따로»를 정했다 — 강조 글(예약이 확정 · 접수 · 다른 시간을 제안 · 대면 상담) · 머리 이름표(Confirmed …) · 항목 이름도 #7A5F37.
      금빛 #B89A75 는 선 · 테두리에만 쓴다. 메일만이다 — GAS 화면(취소 화면 · 신청 · 일정 · 변경)의 금빛 글자는 따로 본다 */
-  try { if (row && _dressMailOk_(row)) dressLine = smallP('상담 날 입어 보실 드레스 두 벌을 <a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 미리 고르실 수 있습니다.'); } catch (eD) { dressLine = ''; }
+  /* ★[DRESS_CONFIRM_ZERO 2026-10-23 코워크 설계 명세 2] 아직 한 벌도 안 고른 분에게만 — 신청 직후부터 고를 수 있어 이미 고른 분에게는 같은 말을 또 하지 않는다 */
+  try { if (row && _dressMailOk_(row) && !_dressPicked_(row)) dressLine = smallP('상담 날 입어 보실 드레스 두 벌을 <a href="https://momentedit.kr/mypage.html" style="color:#7A5F37;font-weight:500">마이페이지</a>에서 미리 고르실 수 있습니다.'); } catch (eD) { dressLine = ''; }
   var inner =
     centerP(esc(names) + ' 님,<br>대면 상담 <b style="color:#7A5F37;font-weight:600">예약이 확정</b>되었습니다.') +
     dateCard('Confirmed', prettyDate(dateKey), esc(time)) +
@@ -2429,9 +2430,11 @@ function _sessionToConsult(token) { _gsr_();
    칸: 상담예약 시트 맨 뒤 «시착준비» = JSON {picks:[id], names:[표시용 이름], ans:{len, fit, pref[]}, memo, at}.
        열이 없으면 저장할 때 잠금 안에서 맨 뒤에 한 번 붙인다(HEADERS 끝과 같은 자리 · 가운데에 끼우지 않는다).
    마감: 상담일 −2일 23:59(한국 시각) — 지나면 «바꾸기 마감이 지났어요»로 거절한다(assets/dress-refs.js changeUntilDays 와 같은 값 · 검사가 대조).
+   ★★[DRESS_APPLY_OPEN 2026-10-23 코워크 설계 명세 2 · 사장님 «대면 상담 신청 후 웨딩 드레스 볼 수 있게»] 받는 때를 «상담확정»에서 «신청접수 ~ 상담확정»(stages)으로 넓혔다 —
+     상담 예약이 취소면 거절 · 노쇼 · 취소 단계는 stages 밖이라 거절. ★[DRESS_NO_DATE] 상담 날짜가 아직 없으면(신청접수 · 변경제안) 마감 검사 없이 받는다(_dressYmd_ · _dressOpen_).
    ★기준은 id 다 — names 는 그날 화면이 보여 준 이름의 사본(목록에서 이름이 바뀌어도 그날 고른 이름이 남는다 · 표시에만 쓴다).
    ★체형 · 키 · 몸무게는 받지도 담지도 않는다(ans 는 길이 · 핏 · 편한 쪽 세 칸만). */
-var DRESS_PICK = { col: '시착준비', untilDays: 2, max: 2, memoMax: 200, nameMax: 40, capHour: 30 };
+var DRESS_PICK = { col: '시착준비', untilDays: 2, max: 2, memoMax: 200, nameMax: 40, capHour: 30, stages: ['신청접수', '상담확정'] };   // stages = 마이페이지 DRESS_STAGES(검사가 대조)
 var DRESS_ANS = { len: ['ankle', 'calf', 'knee', 'unsure'], fit: ['body', 'waist', 'loose', 'unsure'], pref: ['low', 'arms'] };
 function _dressParse_(raw) {   // [DRESS_PICK] 저장값 읽기 — 비었거나 깨졌으면 null(읽기만)
   var s = String(raw == null ? '' : raw).trim(); if (!s) return null;
@@ -2443,14 +2446,26 @@ function _dressParse_(raw) {   // [DRESS_PICK] 저장값 읽기 — 비었거나
   return { picks: picks, names: names, ans: { len: DRESS_ANS.len.indexOf(String(a.len)) >= 0 ? String(a.len) : '', fit: DRESS_ANS.fit.indexOf(String(a.fit)) >= 0 ? String(a.fit) : '', pref: (Array.isArray(a.pref) ? a.pref : []).map(String).filter(function (p) { return DRESS_ANS.pref.indexOf(p) >= 0; }) },
     memo: String(o.memo == null ? '' : o.memo).slice(0, DRESS_PICK.memoMax), at: String(o.at || '') };
 }
-function _dressOpen_(dateKey) {   // [DRESS_PICK] 바꾸기 열림 = 상담일 − 오늘(한국 날짜) ≥ 2 → 상담일 −2일 23:59 까지
-  var ymd = _ymdOf(dateKey); if (!ymd) return false;
-  var dl = _dayDiff(ymd, _kstYmd(new Date()));
+function _dressYmd_(cr) {   // ★[DRESS_NO_DATE 2026-10-23 명세 2] 상담 날짜가 «정해진» 때만 날짜 — 시간선택완료 · 승인완료 · 확정 = '선택날짜' · 신청접수(일정 선택 전) · 변경제안(새 시간 수락 전) · 취소 = ''(날짜 없음)
+  if (!cr) return '';
+  var st = String(cr.get('상태') || '').trim();
+  if (st !== ST.PICKED && LOCKED_STATES.indexOf(st) === -1) return '';
+  return _ymdOf(cr.get('선택날짜')) || null;   // 날짜가 있어야 하는데 못 읽으면 null — 마감을 셀 수 없으니 닫힘으로 본다(모르면 바꾸지 않는다)
+}
+function _dressOpen_(ymd) {   // [DRESS_PICK] 바꾸기 열림 = 상담일 − 오늘(한국 날짜) ≥ 2 → 상담일 −2일 23:59 까지 · ★[DRESS_NO_DATE] 날짜 없음('') = 열림(마감 없음) · 못 읽은 날짜(null) = 닫힘
+  if (ymd === '') return true;
+  var y = _ymdOf(ymd); if (!y) return false;
+  var dl = _dayDiff(y, _kstYmd(new Date()));
   return dl != null && dl >= DRESS_PICK.untilDays;
 }
-function _dressState_(cr) {   // [DRESS_PICK] 마이페이지 카드 판정용(buildConsultState) — 의상 · 상담일 · 마감 · 저장값. ★읽기만 — getMyState(GMS_MEMO) 길이라 쓰지 않는다
+function _dressState_(cr) {   // [DRESS_PICK] 마이페이지 카드 판정용(buildConsultState) — 의상 · 상담일(정해진 때만) · 마감 · 저장값. ★읽기만 — getMyState(GMS_MEMO) 길이라 쓰지 않는다
   if (!cr) return null;
-  return { attire: String(cr.get('의상') || '').trim(), ymd: _ymdOf(cr.get('선택날짜')) || '', open: _dressOpen_(cr.get('선택날짜')), saved: _dressParse_(cr.get(DRESS_PICK.col)) };
+  var y = _dressYmd_(cr);   // [DRESS_NO_DATE] '' = 날짜 없음(열림) · null = 못 읽음(닫힘)
+  return { attire: String(cr.get('의상') || '').trim(), ymd: y || '', open: _dressOpen_(y), saved: _dressParse_(cr.get(DRESS_PICK.col)) };
+}
+function _dressPicked_(row) {   // ★[DRESS_CONFIRM_ZERO 2026-10-23 명세 2] 이미 한 벌이라도 골라 두었나 — 확정 메일의 시착 준비 한 줄은 아직 안 고른 분에게만
+  var v = null; try { v = _dressParse_(row.get(DRESS_PICK.col)); } catch (e) { v = null; }
+  return !!(v && v.picks.length);
 }
 function _dressBriefLine_(raw) {   // [DRESS_PICK] 스튜디오가 읽는 한 줄 — «이름 (id) · 이름 (id) · 남긴 말: …»(없으면 '')
   var v = _dressParse_(raw); if (!v || !v.picks.length) return '';
@@ -2468,7 +2483,7 @@ function _dressLive_() {   // [DRESS_PICK] 기능 스위치 — 사이트 원천
   try { if (c) c.put('DRESS_LIVE', on ? '1' : '0', on ? 3600 : 600); } catch (e) {}
   return on;
 }
-function _dressMailOk_(row) {   // [DRESS_PICK] 확정 메일에 시착 준비 한 줄을 실을까 — 의상이 «자체 준비»가 아님 · 스위치 · 시그니처
+function _dressMailOk_(row) {   // [DRESS_PICK] 메일(신청 접수 · 확정)에 드레스 한 줄을 실을까 — 의상이 «자체 준비»가 아님 · 스위치 · 시그니처
   if (/^\s*자체 준비/.test(String(row.get('의상') || ''))) return false;
   var code = String(row.get('개인코드') || '').trim(); if (!code) return false;
   if (!_dressLive_()) return false;   // 스위치 먼저(대개 기억된 값) — 꺼진 동안은 고객 시트를 더 읽지 않는다
@@ -2476,7 +2491,8 @@ function _dressMailOk_(row) {   // [DRESS_PICK] 확정 메일에 시착 준비 �
   return !!cust && String(cust.get('상품타입') || '').trim() !== P.PRODUCT_SNAP;
 }
 function handleSaveDressPick(body) { _gsr_();
-  /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 확정된 상담만 · 시그니처 · 단계 상담확정 · 상담일 −2일까지 · 0~2벌 · 남길 말 200자 · 한 사람 한 시간 30번
+  /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 시그니처 · 단계 신청접수 ~ 상담확정 · 상담일 −2일까지(날짜가 없으면 마감 없음) · 0~2벌 · 남길 말 200자 · 한 사람 한 시간 30번
+     ★[DRESS_APPLY_OPEN 2026-10-23 코워크 설계 명세 2] 상담 확정 전(신청접수 · 시간선택완료 · 변경제안)에도 받는다 · 상담 예약이 취소면 거절 · 노쇼 · 취소 단계는 stages 밖이라 거절
      ★[DRESS_CLEAR 2026-10-23 코워크 검토 4] 0벌 = 비우기 — 저장해 둔 두 벌을 다 뺀 뒤 «저장»(나가기 판의 «저장하고 나가기»)이 거짓말을 하지 않게.
        확정 · 단계 · 마감 확인은 저장과 같다(마감 뒤에는 비우지도 못한다) · 칸이 아직 없으면 비울 것도 없다(칸을 새로 붙이지 않는다) */
   body = body || {};
@@ -2504,9 +2520,9 @@ function handleSaveDressPick(body) { _gsr_();
   try {
     var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
     var r = row(sheet, colOf, a.consult.num);
-    if (LOCKED_STATES.indexOf(String(r.get('상태') || '').trim()) === -1) return { ok: false, error: '상담이 확정된 뒤에 고르실 수 있어요' };
-    if (String(a.cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP || String(a.cust.get('현재단계') || '').trim() !== '상담확정') return { ok: false, error: '지금은 바꿀 수 없어요' };
-    if (!_dressOpen_(r.get('선택날짜'))) return { ok: false, error: '바꾸기 마감이 지났어요' };
+    if (String(r.get('상태') || '').trim() === ST.CANCELLED) return { ok: false, error: '지금은 바꿀 수 없어요' };   // [DRESS_APPLY_OPEN] 취소된 상담 예약
+    if (String(a.cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP || DRESS_PICK.stages.indexOf(String(a.cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '지금은 바꿀 수 없어요' };
+    if (!_dressOpen_(_dressYmd_(r))) return { ok: false, error: '바꾸기 마감이 지났어요' };   // [DRESS_NO_DATE] 날짜가 없으면 열림
     if (!picks.length) {   // [DRESS_CLEAR] 비우기
       if (colOf[DRESS_PICK.col]) writeCell(sheet, colOf, r.num, DRESS_PICK.col, '');
       return { ok: true, at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'), saved: null };

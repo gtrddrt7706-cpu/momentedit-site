@@ -12,6 +12,9 @@
  *     ★[DRESS_SLIDES 코워크 검토 4] 넘겨 보는 사진은 사진이 있는 장만 — 표본(사진 없음)은 한 장이라 ‹ › · n / 5 가 없어야 하고,
  *       사진을 넣은 사본(이 검사가 시험 사진을 꽂는다)에서는 ‹ › 가 사진 칸 안에 있어야 한다(사진 아래 줄로 돌아가면 단추가 다시 내려간다).
  *     ★[DRESS_SOLO_NOSAVE] 그다음 막대 단추로 완료 화면에 가서, 단독(저장 없음)이면 머리 «저장» · «남기기»가 안 보이고 «저장됨 · 남겼어요»라 말하지 않는지 본다.
+ *     ★[DRESS_LIST_FIRST 명세 2] 열면 드레스 목록부터 — 맨 위 띠(«답하기 ›» · 누르는 칸 44px) · 진행 표시 없음 · 띠 아래 «고르지 않으셔도» 한 줄을 보고,
+ *       «답하기 ›» → 물음 셋(진행 표시 셋 · «고르지 않으셔도» 줄 없음) → 목록(띠 «발목까지 · 몸 선을 따라 · 노출이 적은 드레스 · 답 바꾸기 ›» · 답에 맞는 / 다른)을 따라간다.
+ *     ★[DRESS_PUBLIC_OFF 명세 2] /dress.html(?pick=1 없이)은 마이페이지로 넘어간다(한 크기에서).
  *     375×667(작은 폰)은 «참고»로만 찍는다 — 코워크 기준 밖이라 빨강으로 세지 않는다.
  *
  *   종료: 0 통과 · 1 가린다 · 2 재지 못했다(브라우저 없음 — 화면 결함이 아니다)
@@ -75,7 +78,26 @@ try {
     PHOTOS = false;
     const { page, errors } = await eng.newPage({ port: PORT, viewport: { width: W, height: H } });
     await page.goto(`http://localhost:${PORT}/dress.html?pick=1`, { waitUntil: 'networkidle', timeout: 30000 });
-    await page.click('[data-act="browse"]');   // [DRESS_SKIP_Q] 질문 없이 바로 보기
+    // ★[DRESS_LIST_FIRST] 열면 목록 — 띠 · 진행 표시 없음 · 띠 아래 한 줄 → «답하기 ›» → 물음 셋 → 목록(답한 띠)
+    const flow = (s0) => page.evaluate((s0) => {
+      const q = (x) => document.querySelector(x), b = q('.pk-band [data-act="ask"]');
+      return { s0, cells: document.querySelectorAll('.pk-main [data-open]').length, steps: document.querySelectorAll('.pk-main .wz-steps li').length,
+        band: q('.pk-band-t') ? q('.pk-band-t').textContent : '', btn: b ? b.textContent.trim() : '', btnH: b ? Math.round(b.getBoundingClientRect().height) : 0,
+        dot: !!q('.pk-band-dot'), anyDot: /고르지 않으셔도/.test((q('.pk-main') || {}).textContent || ''), gh: [...document.querySelectorAll('.pk-gh')].map((e) => e.textContent).join('|'),
+        over: document.documentElement.scrollWidth > window.innerWidth };
+    }, s0);
+    const f0 = await flow('열기');
+    if (gate && (f0.cells < 3 || f0.steps !== 0 || f0.band !== '몇 가지만 답하시면 어울리는 드레스를 앞에 놓아 드려요' || f0.btn !== '답하기 ›' || f0.btnH < 44 || !f0.dot || f0.gh !== '드레스' || f0.over)) no(`${tag} 열면 목록 · 띠 «답하기 ›» · 진행 표시 없음이 아니다 ${JSON.stringify(f0)} [DRESS_LIST_FIRST]`);
+    await page.click('.pk-band [data-act="ask"]');
+    const f1 = await flow('첫 물음');
+    if (gate && (f1.steps !== 3 || f1.anyDot || f1.band)) no(`${tag} «답하기 ›» 뒤 첫 물음 — 진행 표시 셋 · «고르지 않으셔도» 없음이 아니다 ${JSON.stringify(f1)} [DRESS_LIST_FIRST]`);
+    await page.click('.pk-opt[data-a="ankle"]'); await page.click('.wz-bar [data-go="1"]');
+    await page.click('.pk-opt[data-a="body"]'); await page.click('.wz-bar [data-go="1"]');
+    await page.click('.pk-opt[data-a="low"]'); await page.click('.wz-bar [data-go="1"]');
+    const f2 = await flow('답한 뒤');
+    if (gate && (f2.steps !== 0 || f2.band !== '발목까지 · 몸 선을 따라 · 노출이 적은 드레스' || f2.btn !== '답 바꾸기 ›' || f2.btnH < 44 || !f2.dot || !/^답에 맞는 드레스/.test(f2.gh) || f2.over)) no(`${tag} 답한 뒤 목록 — 띠 «발목까지 · 몸 선을 따라 · 노출이 적은 드레스 · 답 바꾸기 ›» · 답에 맞는 드레스가 아니다 ${JSON.stringify(f2)} [DRESS_LIST_FIRST]`);
+    rows.push(`${tag} 목록부터: 열기 띠 «${f0.btn}» ${f0.btnH}px · 진행 ${f0.steps} → 물음 진행 ${f1.steps} → 답한 뒤 «${f2.band}» «${f2.btn}» · ${f2.gh}${gate ? '' : ' (참고)'}`);
+    await page.click('.pk-band [data-act="ask"]'); await page.click('.pk-skipq');   // 답은 그대로 두고 목록으로(아래 네 상태는 표본 순서와 상관없이 처음 세 칸을 쓴다)
     const ids = await page.$$eval('.pk-main [data-open]', (els) => els.map((e) => e.getAttribute('data-open')));
     if (ids.length < 3) { no(`${tag} 드레스 칸이 셋보다 적다(${ids.length}) — 표본이 안 그려졌다`); await page.close(); continue; }
     const open = async (id) => { await page.evaluate(() => { const b = document.querySelector('.pk-main [data-act="list"]'); if (b) b.click(); }); await page.click(`.pk-main [data-open="${id}"]`); };
@@ -112,8 +134,7 @@ try {
     // ── 사진을 넣은 사본 — 넘김은 사진 칸 안
     PHOTOS = true;
     const p2 = await eng.newPage({ port: PORT, viewport: { width: W, height: H } });
-    await p2.page.goto(`http://localhost:${PORT}/dress.html?pick=1`, { waitUntil: 'networkidle', timeout: 30000 });
-    await p2.page.click('[data-act="browse"]');
+    await p2.page.goto(`http://localhost:${PORT}/dress.html?pick=1`, { waitUntil: 'networkidle', timeout: 30000 });   // [DRESS_LIST_FIRST] 열면 목록
     await p2.page.click(`.pk-main [data-open="${ids[0]}"]`);
     const e = await shot(p2.page, '.pk-ctl [data-act="pick"]');
     PHOTOS = false;
@@ -124,10 +145,18 @@ try {
     if (gate && p2.errors.length) no(`${tag} (사진 사본) 페이지 오류 ${p2.errors.length} · ${p2.errors[0]}`);
     await p2.page.close();
   }
+  // ★[DRESS_PUBLIC_OFF 명세 2] ?pick=1 없이 열면 마이페이지로 넘어간다(그리기 전에 · replace)
+  const p3 = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
+  await p3.page.goto(`http://localhost:${PORT}/dress.html`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+  await p3.page.waitForTimeout(800);
+  const landed = p3.page.url();
+  rows.push(`/dress.html → ${landed.replace(/^https?:\/\/[^/]+/, '')}`);
+  if (!/\/mypage\.html(\?|#|$)/.test(landed)) no(`/dress.html(공개 화면 주소)이 마이페이지로 넘어가지 않는다 — ${landed} [DRESS_PUBLIC_OFF]`);
+  await p3.page.close();
 } finally {
   await eng.close();
   srv.close();
 }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-fit — 실패 ${bad}건 [DRESS_DETAIL_FIT]`); process.exit(1); }
-console.log(`━━ dress-fit — 통과 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 [DRESS_DETAIL_FIT]`);
+console.log(`━━ dress-fit — 통과 · 열면 목록(띠 · 물음 셋 · 답한 띠) · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT]`);
