@@ -19951,3 +19951,11 @@ chk '5년에 한 번 정도만 하면 좋겠다.' assets/ritual-ref.js 1
 chk '서로가 서로에게 기적임을 마음에 새기시고' assets/ritual-ref.js 1
 chk 'placeholder="예: 저희를 축하해 주시기 위해 이 자리에 참석해 주신 내빈 여러분께 먼저 감사 인사 올립니다."' order-preview.html 1
 chk 'var TUNE_MAX=160;' order-preview.html 1
+# ★[PV_PHOTO_OFF_1023 검토 158] 식전 영상 «사진으로 저희가 영상을 만들어요» 대목 뺌(PV_LINK_ONE «무조건 영상»)
+chk 'PV_PHOTO_OFF_1023' scripts/audit/open-course.mjs 2
+nochk '영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요' assets/ritual-open.js 0
+nochk '영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요' assets/ritual-story.js 0
+nochk '영상이 없으면 사진을 올린 링크' order-preview.html 0
+nochk '영상이 없으면 보내 주신 사진으로' order-preview.html 0
+nochk '영상이 없으면 사진으로 저희가' api/_ritual-kb.js 0
+nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
