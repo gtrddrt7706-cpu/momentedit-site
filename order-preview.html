@@ -2265,7 +2265,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023z2"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023f"></script><script src="/assets/bgm-form.js?v=1023f"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023z3"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023f"></script><script src="/assets/bgm-form.js?v=1023f"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3104,7 +3104,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1023z2';   // [ASSET_V] 위 주석
+  var ASSET_V='1023z3';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -8387,7 +8387,7 @@ function _closeFit(){ var R=RitualOpen; if(!R||!R.narExOf||!(ENG&&ENG.RitualCue&
   if(to!==from) S.closeAuto={from:from,to:to}; else delete S.closeAuto; }
 /* ★[SEAM_KEEP_1018 인스타 섹션 검토 131-5] 분위기를 안 고른 날도 축사 · 축가 여는 말 이음새를 같은 판정(엔진 seamFit)으로 — 선언 박수 → «박수, 고맙습니다» → «선언해 주신 분께서는, …» → 다시 박수를 청하던 자리(130-4 와 같은 꼴).
    두 분이 그 칩을 누른 날은 그대로(seamHand · 분위기를 고르면 풀린다) · 넘긴 값(seamAuto)은 판이 바뀌어 겹침이 없어지면 되돌린다 — _closeFit 과 같은 규칙 */
-var SEAM_KEYS=['speech','song'];
+var SEAM_KEYS=['speech','song','bless'];   /* ★[SEAM_BLESS_1023 검토 153] 선언 박수 → 덕담 여는 말 박수(173) · 덕담 받는 말 박수(24 · 206) → 다음 여는 말 박수 — 박수 겹침도 같은 판정으로 */
 function _seamFitKeep(){ var R=RitualOpen; if(!R||!R.narExOf||!(ENG&&ENG.RitualCue&&ENG.RitualCue.seamFit)) return;
   SEAM_KEYS.forEach(function(k){ if((S.seamHand||{})[k]||!R.NAR_EX[k]) return;
     var cur=R.narExOf(S,k), a=(S.seamAuto||{})[k]; if(a&&a.to!==cur) a=null;
@@ -9041,14 +9041,14 @@ function renderStep(k){
     h+='<div class="proc-s"><span class="pn">1</span>나레이션이 인사의 문을 열어줘요</div>';
     h+='<div class="proc-s"><span class="pn">2</span>두 분이 하객분들께 직접 짧게 인사해요 · 30초~1분</div>';
     h+='<div class="proc-s"><span class="pn">3</span>인사가 끝나면 다음 순서로 이어 가요</div></div>';   /* ★[WELCOME_KB_1014 라운드 3] 맺는 나레이션(12)은 9/20 큐에서 걷었다(WELCOME_OUT_DROP) — 옛 코스 화면도 «마무리해요»라고 약속하지 않는다 */
-    h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("이어서 하객 여러분께 감사의 인사가 있겠습니다.",null)+playBtn('welcome');
+    h+='<div class="dlabel">두 분이 마이크 앞에 서기 직전, 이 나레이션이 흘러요</div>'+narBox("자리해 주신 하객들을 향한 신랑 신부의 감사 인사가 있겠습니다.",null)+playBtn('welcome');
     h+='<div class="self"><span class="who">두 분이 직접</span>한두 문장·목례면 충분해요.</div>';
     /* ★[WELCOME_KB_1014] «인사 뒤 이어지는 나레이션» 접이 금지 — 2026-09-20 큐에서 걷은 줄(WELCOME_OUT_DROP)을 옛 코스 화면이 아직 보였다 */
     h+=writeCard('welcome',false);   // 1차 입력 — 이 순간에서 바로 적기(마지막 글 적어두기에서 다시 확인) · WRITE_2CHECK
   }
   else if(k==='vow'){
     h+=clip('vow');
-    h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','다음은 혼인 서약 순서입니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 천천히 하셔도 괜찮습니다. 신랑 혼인서약 낭독.','두 사람의 진심과 사랑이 가득 담긴 서약이었습니다.',{who:'신랑신부 직접 낭독',t:''},null);
+    h+=oc('vow','ok','직접 낭독','두 분이 직접 읽어요','다음은 혼인 서약의 순서가 있겠습니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 두 사람의 사랑의 서약 함께 듣도록 하겠습니다. 신랑 혼인서약 낭독.','두 사람의 진심과 사랑이 가득 담긴 서약이었습니다.',{who:'신랑신부 직접 낭독',t:''},null);
     // ★[VOW_CHORUS] 말로만 "마지막은 함께"라고 하면 고객이 뭘 준비해야 할지 모른다 — 문장을 그대로 보여 준다.
     //   화면이 소리를 설명하지 못하면, 폴백이 조용했던 때와 같은 사고다.
     h+='<div class="self"><span class="who">마지막 한 문장 · 하객분들을 보고 함께</span>'+esc(VOWBOTH_T)+'</div>';
@@ -9413,10 +9413,10 @@ var BLOCK={
     return {n:'신랑·신부 입장',nar:eCouple?ENTRY[S.entry].self:ENTRY[S.entry].nar,self:eCouple?'두 분 목소리로 인사':null,cue:eCouple?'두 분 목소리 인사가 흐름 → 나레이션 "입장!" 큐·입장곡 → 손잡고 함께 입장':'나레이션 안내 후 "입장!" 소리 → 두 분이 손잡고 함께 걸어 들어오기'};
   },
   welcome:function(){
-    return {n:'감사 인사',nar:"이어서 하객 여러분께 감사의 인사가 있겠습니다.",self:'두 분이 직접 인사' /* [WELCOME_KB_1014] 맺는 줄 없음(WELCOME_OUT_DROP) · ★[WELCOME_CUE_OLD_1015 라운드 4] 큐 줄도 맺는 줄을 약속하지 않는다(옛 코스 화면 «인사가 끝나면 다음 순서로 이어 가요»와 같은 말) */,cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 다음 순서로 이어 가요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
+    return {n:'감사 인사',nar:"자리해 주신 하객들을 향한 신랑 신부의 감사 인사가 있겠습니다.",self:'두 분이 직접 인사' /* [WELCOME_KB_1014] 맺는 줄 없음(WELCOME_OUT_DROP) · ★[WELCOME_CUE_OLD_1015 라운드 4] 큐 줄도 맺는 줄을 약속하지 않는다(옛 코스 화면 «인사가 끝나면 다음 순서로 이어 가요»와 같은 말) */,cue:'나레이션 도입 끝 → 디렉터가 핸드마이크 전달 → 두 분 인사 → 마이크 반납 → 다음 순서로 이어 가요 · 말이 막히면 디렉터가 미리 받아 둔 인사말 카드를 건네요(읽어도 괜찮아요)'};
   },
   vow:function(){
-    return {n:'혼인 서약',nar:(_vowFirst()==='b'?"다음은 혼인 서약 순서입니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 천천히 하셔도 괜찮습니다. 신부 혼인서약 낭독.":"다음은 혼인 서약 순서입니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 천천히 하셔도 괜찮습니다. 신랑 혼인서약 낭독."),self:(_vowHow()==='each'?(_vowFirst()==='b'?'신부 먼저, 신랑 다음으로 낭독 · 마지막 한 문장은 함께':'신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께'):'두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께'),   /* [VOW_FIRST] ritual-data NARR.vow.narB 사본 */both:VOWBOTH_T,end:"두 사람의 진심과 사랑이 가득 담긴 서약이었습니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장 직전 하객 쪽으로 나란히 돌아서서 함께 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};
+    return {n:'혼인 서약',nar:(_vowFirst()==='b'?"다음은 혼인 서약의 순서가 있겠습니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 두 사람의 사랑의 서약 함께 듣도록 하겠습니다. 신부 혼인서약 낭독.":"다음은 혼인 서약의 순서가 있겠습니다. 신랑 신부는 서로 마주 보고 서주시기 바랍니다. 두 사람의 사랑의 서약 함께 듣도록 하겠습니다. 신랑 혼인서약 낭독."),self:(_vowHow()==='each'?(_vowFirst()==='b'?'신부 먼저, 신랑 다음으로 낭독 · 마지막 한 문장은 함께':'신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께'):'두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께'),   /* [VOW_FIRST] ritual-data NARR.vow.narB 사본 */both:VOWBOTH_T,end:"두 사람의 진심과 사랑이 가득 담긴 서약이었습니다.",cue:'나레이션 도입 끝 → 서로를 보고 서약문을 한 줄씩 번갈아 낭독 → 마지막 한 문장 직전 하객 쪽으로 나란히 돌아서서 함께 낭독 · 울컥해서 잇기 어려우면 디렉터가 서약문을 배우자에게 건네 대신 이어 읽기 · 합창이 어긋나면 신부가 반 박자 먼저 → 낭독 끝나고 2초 두었다가 다음 안내'};
   },
   ringwarm:function(){
     return {n:'링 워밍',nar:RINGWARM[S.ringwarm].nar,self:(S.ringwarm==='all'?'하객 전체':'양가 가족')+'가 주머니를 손에서 손으로',cue:'나레이션 안내 → 반지 주머니가 손에서 손으로 → 마지막 분이 디렉터에게 → 디렉터가 반지를 꺼내 단상 옆 트레이에 준비 → 반지 교환 나레이션과 함께 두 분께 전달 · 반지가 도는 동안은 하객 손·표정 클로즈업 구간(두 분은 반지를 따라가는 시선으로 · 정면 대기 금지)'};
