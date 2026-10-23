@@ -42,7 +42,7 @@ const PVSND = '보내 주신 영상은 영상 소리 그대로 틀어요 · 배�
 const NOTE = { S5: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' },
   S6: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' } };   /* [BGM_R4_1023] unset = 아직 안 누름 */
 const REST = '그 밖의 음악은 스튜디오가 준비해요', EN0 = '입장 곡 · 고르지 않으시면 스튜디오가 준비해요 [이동하기]';
-const ENUP = '입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요 [이동하기]', ENREC = '입장 곡 · 추천 곡 중에서 골라 주세요 [이동하기]';   /* [BGM_R5_1023] 칩만 누르고 곡이 없을 때 */
+const ENUP = '입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요 [이동하기]', ENREC = '입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요 [이동하기]';   /* [BGM_R5_1023] 칩만 누르고 곡이 없을 때 */
 const TALK = { none: '말씀하시는 동안은 음악이 멈추고 목소리만 들려요', bed: '말씀하시는 동안 연주곡이 아주 작게 흘러요' };   /* [BGM_R5_1023] 축사 · 편지 흐름 음악 줄 */   /* [BGM_R4_1023] 요약 */
 
 /* 0 원천 · 엔진 · 미리 듣기 주소 — 브라우저 없이 */
@@ -277,7 +277,7 @@ try {
     const zGo2 = await pg.evaluate(() => /입장/.test((document.querySelector('#mkHead') || {}).textContent || '') && !!document.querySelector('.ls-mu'));
     await pg.evaluate(() => { S.mu = { src: 'rec', k: 'r1', t: '시험 곡', hook: 30 }; _persist(); }); await go(pg, '_sum'); const zs = await sumLook(pg);
     await pg.evaluate(() => { delete S.mu; _persist(); });
-    ok(`${W} 4 [BGM_R5_1023] 요약 입장 줄 — «두 분이 고른 곡»만 누름 «${ENUP}» · «추천 곡»만 누름 «${ENREC}» · 곡이 있으면 곡 이름 · 이동하기는 입장 쪽 · 칩만 누른 것은 저장하지 않는다 · 남은 할 일 수 그대로`,
+    ok(`${W} 4 [BGM_R5_1023] 요약 입장 줄 — «두 분이 고른 곡»만 누름 «${ENUP}» · «스튜디오가 고른 곡»만 누름 «${ENREC}» · 곡이 있으면 곡 이름 · 이동하기는 입장 쪽 · 칩만 누른 것은 저장하지 않는다 · 남은 할 일 수 그대로`,
       cUp === 'up' && cRec === 'rec' && zu.rows[0] === ENUP && zr.rows[0] === ENREC && zs.rows[0] === '입장 곡 · ‹시험 곡›' && zGo2 && sv1 === '{"mu":null,"muUp":null}' && zu.todoN === z0.todoN && zr.todoN === z0.todoN && !zu.hz, { cUp, cRec, zu: zu.rows, zr: zr.rows, zs: zs.rows, sv1, zGo2, todo: [zu.todoN, zr.todoN, z0.todoN] });
     if (errs.length) ok(`${W} 쪽 오류 없음`, false, errs); else ok(`${W} 쪽 오류 없음`, true);
     await ctx.close();

@@ -69,17 +69,17 @@
      첫 줄 = 입장 곡(두 분이 고르거나 올렸으면 곡 이름 · 아니면 «고르지 않으시면 스튜디오가 준비해요» + «이동하기»(입장 쪽 · 미완료 셈에는 안 넣는다 [BGM_R1_1023])) ·
      그다음 담긴 축사 · 편지마다 «축사 · 음악 없이 / 음악과 함께» · 끝 줄 «그 밖의 음악은 스튜디오가 준비해요» [BGM_R4_1023] */
   function entryNow(){ var mu=St().mu||{}, t=String(mu.t||mu.name||'');
-    if(mu.src==='up'||mu.src==='rec') return t?'‹'+t+'›':(mu.src==='up'?'두 분이 고른 곡':'추천 곡');
+    if(mu.src==='up'||mu.src==='rec') return t?'‹'+t+'›':(mu.src==='up'?'두 분이 고른 곡':'스튜디오가 고른 곡')   /* [STUDIO_PICK_1023] */;
     return ''; }   /* 입장 곡을 안 골랐으면 당일 콘솔이 배경음으로 연다(console muPill «입장 음악 없음 · 배경음으로») */
   /* ★[BGM_R4_1023] 담긴 축사 · 편지마다 지금 상태 한 줄(«축사 · 음악 없이» · «축사 · 음악과 함께») — 종전 «축사는 음악과 함께 · 나머지는 …»는 편지가 무음인지 스튜디오가 정하는지 말하지 않았다 */
   function pickRows(){ var o=opt(), out=[];
     B.SLOTS.forEach(function(s){ if(s.picks.indexOf('bed')<0) return; var at=B.chooser(s,o); if(!at) return; var v=B.viewOf(at,o); if(!v||v.kind!=='pick') return;
       out.push({ id:s.id, t:s.short+' · '+B.label(s,B.get(St(),s.id).m) }); });
     return out; }
-  /* ★[BGM_R5_1023] 곡이 없을 때 칩 상태로 — «두 분이 고른 곡»만 눌렀으면 «곡 파일을 올려 주시면 맞춰 드려요» · «추천 곡»만 눌렀으면 «추천 곡 중에서 골라 주세요» · 안 눌렀으면 «고르지 않으시면 …»
+  /* ★[BGM_R5_1023] 곡이 없을 때 칩 상태로 — «두 분이 고른 곡»만 눌렀으면 «곡 파일을 올려 주시면 맞춰 드려요» · «스튜디오가 고른 곡»만 눌렀으면 «스튜디오가 고른 곡 중에서 골라 주세요»(STUDIO_PICK_1023) · 안 눌렀으면 «고르지 않으시면 …»
      칩 상태는 EntryMusic.src()(이 탭 · 저장 꼴 그대로) · 남은 할 일 셈에는 안 넣는다 */
   function entryWant(){ var src=null; try{ src=window.EntryMusic&&EntryMusic.src?EntryMusic.src():null; }catch(x){}
-    return src==='up'?'입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요':src==='rec'?'입장 곡 · 추천 곡 중에서 골라 주세요':'입장 곡 · 고르지 않으시면 스튜디오가 준비해요'; }
+    return src==='up'?'입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요':src==='rec'?'입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요':'입장 곡 · 고르지 않으시면 스튜디오가 준비해요'; }
   function sumHtml(){ var pk=pickRows();
     var en=entryNow(), one=en?'입장 곡 · '+en:entryWant();
     return '<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-vlist">'

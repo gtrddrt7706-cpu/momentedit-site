@@ -2267,7 +2267,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023r157"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023g"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023g"></script><script src="/assets/bgm-form.js?v=1023g"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023ca3"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023g"></script><script src="/assets/bgm-form.js?v=1023ca"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3106,7 +3106,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1023r157';   // [ASSET_V] 위 주석
+  var ASSET_V='1023ca3';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -3634,7 +3634,7 @@ function render(){
                  저장됐다는 사실은 바로 위 배너가 이미 말한다(renderDone). 독립 열람은 나갈 부모가 없어 종전 문구 유지. */
   var _lastN=(idx===STEPS.length-1)
     ? (_saving?'<span class="bdot" aria-hidden="true"></span>저장 중…'
-      :_doneSaved?(EMBED?'마이페이지로 나가기':'저장됨 · 예식 14일 전까지 고쳐요')   /* [P12] 고객 화면 마감 말은 «예식 N일 전» 꼴로 */
+      :_doneSaved?(EMBED?'마이페이지로 나가기':'마이페이지로 가기')   /* ★[DONE_BTN_ACT_1023 코워크 묶음 A-1] 큰 단추는 할 행동만 — 기한은 위 한 줄(EDIT_WINDOW «순서는 14일 · 글은 7일»)이 말하고 «저장됐어요»는 단추 위 배너가 말한다 · 종전 단추 글(«저장됨 · 예식 14일 …»)은 글 마감도 14일로 읽혔다 · 되살리지 말 것 */
       :_saveErr?'다시 저장하기':'이대로 저장하기')
     : '다음';
   var _nxHtml=editReturn?'요약으로 돌아가기':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(st.k==='pick'&&isOpen())?'다음 · 하나씩 만들기':(st.k==='listen'&&isOpen())?esc(_mkNextLab()):(st.k==='listen')?'다음 · 준비하기':(st.k==='practice')?'다음 · 완성':(idx===STEPS.length-2)?'완성 보기':_lastN;   // [FLOW_MAKE] ② 는 다음 순간 이름까지
@@ -3753,10 +3753,11 @@ function _paintCta(k){
   if(!show){ if(c) c.remove(); _ctaKey=''; return; }
   if(!c){ c=document.createElement('div'); c.id='opCta'; c.className='op-cta'; nav.insertBefore(c,nav.firstChild); }
   var R=RitualOpen, n=R.picked(S).length, sp=R.span(S), nt=_noteFull(_noteShut), key=n?(sp.body+'|'+sp.table+'|'+sp.photo):'';
+  if(!n){ if(c) c.remove(); _ctaKey=''; try{ _pkUndoPos(); }catch(e){} return; }   /* ★[EMPTY_ONE_LINE_1023 코워크 묶음 A-3] 빈 판은 흐름 판 한 줄(«입장 · 맞절 · 닫는 인사로 시작해요…»)만 — 막대가 같은 뜻을 두 번 말하지 않는다 */
   /* [BAR_DOT_EVEN 2026-09-26 직접 보며 점검] 두 시간은 flex 칸이라 «·» 앞은 column-gap 6px · 뒤는 NBSP 3px 로 점이 한쪽으로 쏠려 보였다(390 실측) —
      뒤를 반각 공백(U+2002 · 12px 글에서 6px)으로 맞춘다. 줄은 nowrap 이라 갈리지 않는다 */
   var h=n?('<span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span>'+(sp.tm?' <span class="nw">·\u2002테이블<span class="cta-lg">'+NBS+'인사</span> <b><span class="cta-lg">약'+NBS+'</span>'+sp.tm+'분</b></span>':'')+' <span class="nw">·\u2002단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b></span>')   /* [TABLE_APART] 테이블 인사는 본식 · 단체 사진과 따로 */
-         :'<span class="cta-e">입장 · 맞절 · 닫는 인사만으로도 다음으로 갈 수 있어요</span>';   /* [R1-33] 본문 빈 판 문장(«위 예시로 시작하거나…»)을 막대가 되풀이하지 않는다 */
+         :'';   /* [EMPTY_ONE_LINE_1023] 빈 판은 위에서 막대를 걷는다 · 종전 막대 글(«입장 · 맞절 · 닫는 인사만으로도 …»)은 흐름 판 글과 따로 놀았다 */
   /* ★[RIT_BAR_ONELINE 2026-09-27 4부 3] 알림 글은 흐름 판에만 — 막대에는 «살펴볼 것 N ›» 한 마디(누르면 판의 알림으로).
      알림 첫 문장을 막대에 실으면 막대가 두세 줄(154px)로 커졌다. 막대 높이는 늘 한 줄. */
   if(n&&nt) h+='<button type="button" class="cta-al" data-fk="opnal" onclick="opToNote()">살펴볼 것 '+_noteCount()+' ›</button>';
@@ -3846,7 +3847,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 옷을 갈아입어요']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
@@ -8011,7 +8012,7 @@ function _lPaint(){
   else {
     el.style.display='flex';
     var _pv=LP.q[LP.i-1], _nx=LP.q[LP.i+1], _hasP=!!(_pv&&_pv.k===st.k), _hasN=!!(_nx&&_nx.k===st.k), _n=0, _at=0; LP.q.forEach(function(x,j){ if(x.k===st.k){ _n++; if(j<=LP.i) _at++; } });   // [LINE_STEP]
-    el.innerHTML='<button type="button" class="lm-t" data-fk="lmt" aria-label="크게 보기 · '+esc(_lName(st.k))+'" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+(_n>1?' <span class="lm-n">'+_at+' / '+_n+'</span>':'')+'</b><small>'+(LP.baking===st?(st.up&&_upStale(st.up)?'바뀐 글로 만드는 중… ':'새 빠르기 · 쉼으로 만드는 중… '):'')+esc((function(){ var _sb=st.talk||st.skip||st.own?st.txt:st.lab; return _sb===_lName(st.k)?(st.txt||''):_sb; })())+(st.pending&&!LS.allPend?' · '+esc(_pendT(st,1)):'')+'</small></button>'
+    el.innerHTML='<button type="button" class="lm-t" data-fk="lmt" aria-label="크게 보기 · '+esc(_lName(st.k))+'" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+(_n>1?' <span class="lm-n">'+_at+' / '+_n+'</span>':'')+'</b><small>'+(LP.baking===st?(st.up&&_upStale(st.up)?'바뀐 글로 만드는 중… ':'새 빠르기 · 쉼으로 만드는 중… '):'')+esc((function(){ var _sb=st.talk||st.skip||st.own?st.txt:st.lab; return _sb===_lName(st.k)?(st.txt||''):_sb; })())+(st.pending&&!LS.allPend?' · '+esc(st.talk2?'직접 읽기':_pendT(st,1)):'')+'</small></button>'   /* ★[TALK_DIRECT_TAG_1023 코워크 묶음 A-2] 두 분(또는 부모님)이 직접 말하는 차례는 «아직 녹음 전»이 아니라 «직접 읽기» — 녹음해서 내야 하는 줄로 읽혔다 · 나레이션 줄은 그대로 */
       +'<button type="button" class="lm-g" data-fk="lmg" onclick="lsOpenBig()">크게 보기</button>'   /* ★[RIT_BIG_BTN 2026-09-27 4부 11] 크게 보기로 가는 단추가 안 보였다(제목 줄이 단추인 줄 몰랐다) — 글 단추 */
       +'<button type="button" class="lm-b lm-mv" data-fk="lmprevk"'+(LP.range&&LP.range.ks.length>1?'':' disabled aria-disabled="true"')+' onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>'   /* [CTL_FIVE] 늘 다섯 칸 */   /* ★[UI_ONE 2026-10-04 사장님 «작은 플레이어 · 크게 보기 같은 단추 묶음»] 앞 순간 · 앞 줄 · 잠시 멈춤 · 다음 줄 · 다음 순간 */
       +'<button type="button" class="lm-b lm-l" data-fk="lmprev"'+(_hasP?'':' disabled aria-disabled="true"')+' onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>'
@@ -8436,7 +8437,7 @@ function _pkPeakHtml(){
 function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
   if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
-    +'<p class="pk-fp-empty">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p></div>'
+    +'<p class="pk-fp-empty">입장 · 맞절 · 닫는 인사로 시작해요. 예시를 고르거나 원하는 순간을 더해 주세요.</p></div>'
     +'<div class="pk-side"><button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button></div></section>';   /* ★[QA_PC_EMPTY_GO 2026-10-04 점검] PC 는 아래 막대(#nav)를 숨기는데 빈 판엔 이 단추도 없어 갈 길이 없었다 — 휴대폰 막대와 같은 길 */   /* [R1-33] «늘 있어요»는 칸마다 표(.pk-fix)가 이미 말한다 */
   var _sg=R.flowSegs(S), flat=(n<2)||_sg.every(function(x){ return x.lv===_sg[0].lv; });   // [RIT_CURVE_LABEL]
   var photo=_nb('단체 사진 '+sp.photo), pl=R.peakLine(S);   /* [FLOW_MIN] 준비할 것 줄(prepLine · PREP_WHERE)은 이 판에서 걷었다 · ③ 한눈에 보기가 맡는다 */   /* [R4-07] 개수 줄 · 안내 줄을 나눈다 */   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
@@ -8518,7 +8519,7 @@ function _pkSlim(){
   var nt=_noteFull(_noteShut);   // [SHORT_TOAST]
   el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b>'+(sp.tm?' ·'+NBS+'테이블'+NBS+'인사 <b>'+esc(_nb(sp.table))+'</b>':'')+' ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+_pkName(esc(R.CARDS[pk].n),1):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
       +(nt?'<button type="button" class="al" onclick="opToNote()">'+esc(R.firstSentences(nt.msg,1))+' ›</button>':'')+'</span>')
-    :'<span class="t">입장 · 맞절 · 닫는 인사만으로도 다음으로 갈 수 있어요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 하나씩 만들기</button>';   /* [R1-33] */
+    :'<span class="t"></span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 하나씩 만들기</button>';   /* [R1-33] · [EMPTY_ONE_LINE_1023] 빈 판 글은 흐름 판 한 줄만(PC 얇은 띠도) */
   _pkSlimCheck();
 }
 function _pkSlimCheck(){
@@ -10158,6 +10159,7 @@ document.getElementById('next').addEventListener('click',function(){ if(_saving)
       return; } }
   if(idx<STEPS.length-1){idx++;render();}
   else if(_doneSaved&&EMBED){ if(window._obExit) window._obExit(); }   // [ORD_SAVE_STATE] 이미 저장된 뒤엔 이 버튼이 곧 나가기다(아래 라벨과 짝)
+  else if(_doneSaved){ location.href='/mypage.html'; }   // [DONE_BTN_ACT_1023] 단독 미리보기 — 저장된 뒤엔 «마이페이지로 가기»(배너 «다른 기기에서도 이어 보시려면 마이페이지에 로그인해…»와 같은 길)
   else{ var _vm2=isOpen()?_vpMustFirst():''; if(_vm2){ _vpMustShow(_vm2); return; } doSave(); } });   // [VP_MUST] ④ «이대로 저장하기»도
 /* [ORD_SAVE_STATE 2026-08-03] 저장 상태를 '낙관'이 아니라 '사실'로 표시한다.
    사용자 제보(2026-08-03 · 스크린샷): 네이티브 알림엔 "저장에 실패했어요"가 떠 있는데
