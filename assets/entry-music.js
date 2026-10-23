@@ -11,7 +11,7 @@
      목소리가 아직 없으면(AI 를 안 만들었다) 알약은 흐리고 누르면 빌더 알림(mkPlayOff · AI_PLAY_READY) — 없는 소리를 그래프로 그리지 않는다.
    시험실 결정은 그대로 옮겼다: [MY_SONG] 분석 · 후보 · 추천 규칙 · [HOOK_TYPE] 직접 적기 · [UP_TIDY] 한 줄 · [UP_LINKS_ONE] 링크 한 줄 ·
    [OWN_PILL_SAME] 적는 칸 = ▶ 알약 · [UP_GUIDE] 안내 창 · [GUIDE_OK] «알겠어요» · [UP_ACCEPT] 확장자만 · [TOAST_MIN] 알림 20자 안 ·
-   [SOUND_GRAPH · GRAPH_LEVEL] 그래프 · [SCENE_ROW · SCENE_WAIT5] 장면 줄 · [GRAPH_NO_SEAL_LINE] 진사 세로선 없음 · [PLAYER_ORDER] 알림 → 그래프 → 알약 · [LATE_MUSIC] 늦게 들어오는 판 */
+   [SOUND_GRAPH · GRAPH_LEVEL] 그래프 · [SCENE_ROW · SCENE_WORDS_1023] 장면 줄(낱말 셋) · [GRAPH_NO_SEAL_LINE] 진사 세로선 없음 · [PLAYER_ORDER] 알림 → 그래프 → 알약 · [LATE_MUSIC] 늦게 들어오는 판 */
 (function(){
   'use strict';
   if(window.EntryMusic) return;
@@ -551,10 +551,14 @@
   /* 목소리가 없을 때 누르면 — 빌더 줄 ▶ 와 같은 알림(AI_PLAY_READY · OFF_TOAST «목소리를 먼저 만들어 주세요» · «만들러 가기») */
   function offPress(){ try{ if(typeof _playOff==='function'&&_playOff('entry')&&typeof mkPlayOff==='function'){ mkPlayOff('entry'); return; } }catch(x){} try{ if(typeof _rfUrl==='function') _rfUrl('entry',true); }catch(x){} toast(typeof AI_OFF_PREP==='string'?AI_OFF_PREP:'준비 중이에요'); }
   /* 화면 — 알림(늦게 들어오는 판) → 그래프(흰 카드) → 긴 알약([PLAYER_ORDER]) */
-  var SCENE_WAIT=['본식 5분 전부터 문 앞에서 기다려요','본식 5분 전부터 기다려요','5분 전부터 기다려요','기다려요','대기',''], SCENE_WALK=['문이 열리고 걸어 들어와요','걸어 들어와요','입장',''];   /* [SCENE_WAIT5 · WAIT_GROUP] 시험실 그대로 */
+  /* ★★[SCENE_WORDS_1023 2026-10-23 사장님 «본식 5분 전부터 문 앞에서 기다려요 · 문이 열리고 걸어 들어와요 · 도착 — 이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»]
+     장면 줄 = 세 낱말 «대기 · 입장 · 도착»(옛 문장이 칸이 좁을 때 줄어들던 가장 짧은 말 그대로) — 그래프의 그 시점 아래 한 줄 11px(왼쪽 «음악 · 목소리» 이름과 같은 결):
+     대기 = 처음(왼쪽 끝) · 입장 = 문이 열려 음악이 크게 오르는 자리(그 시점에서 시작) · 도착 = 끝(오른쪽 끝). 겹치면 입장이 이긴다(placeWords).
+     ★두 줄짜리 장면 문장(«본식 5분 전부터 문 앞에서 기다려요» · «문이 열리고 걸어 들어와요») 되살리지 말 것 — 2026-10-23 사용자 지시로 삭제
+     (그래프를 읽어 주는 aria-label 은 문장 그대로 · scripts/audit/scene-words.mjs) */
   function graphHtml(nar){ var al=nar?'소리 흐름 · 본식 5분 전부터 두 분이 문 앞에서 기다리는 동안 작게 흐르는 음악 위로 입장 멘트가 흐르고, «입장!»이 끝나면 음악이 크게 올라오며 문이 열리고 두 분이 걸어 들어와 도착해요':'소리 흐름 · 본식 5분 전부터 두 분이 문 앞에서 기다리는 동안 작게 흐르는 음악 위로 두 분 목소리로 인사가 흐르고, 마지막 말이 끝나면 음악이 크게 올라오며 문이 열리고 두 분이 걸어 들어와 도착해요';
     return '<div class="em-graph" role="img" aria-label="'+e(al)+'" onclick="emAct(\'graph\',event)"><div class="lg-names" aria-hidden="true"><span>음악</span><span>목소리</span></div><div class="lg-plot"><canvas aria-hidden="true"></canvas><span class="lg-wait" hidden>곡을 불러오는 중이에요</span></div>'
-      +'<div class="lg-scene wait" aria-hidden="true"><span class="lgs-greet">'+SCENE_WAIT[0]+'</span><span class="lgs-walk"><b>'+SCENE_WALK[0]+'</b><em>도착</em></span></div></div>'; }
+      +'<div class="lg-scene wait" aria-hidden="true"><span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span></div></div>'; }   /* [SCENE_WORDS_1023] */
   /* ★★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개 · 디자인적으로 별로» → 시안 «a»] 알약 하나 «이 순간 전체 듣기 · 음악과 함께» —
      누르면 빌더 «이 순간 전체 듣기» 입구(lsPlay · 목소리 확인 · 안 만든 줄 만들기 [LS_MAKE_ALL])를 지나 장면(음악 → 멘트 → 문 열림)을 틀고, 장면이 끝나면 그 순간 다음 줄까지 이어서(lsRest).
      곡을 골라 장면이 서면 빌더의 «이 순간 전체 듣기 · n줄 이어서» 알약은 그리지 않는다(order-preview) · 곡이 없으면 그 알약 하나(종전). ★두 알약을 다시 위아래로 두지 말 것 — 2026-10-13 사용자 지시 */
@@ -622,13 +626,13 @@
       c.globalAlpha=on?1:0.28; c.fillStyle=cA; c.beginPath(); for(var k2=0;k2<runs.length;k2++){ var xr=runs[k2][0], w=Math.max(4,runs[k2][1]-xr-2); if(c.roundRect) c.roundRect(xr,dy,w,dh,dh/2); else c.rect(xr,dy,w,dh); } c.fill(); c.restore(); }
     c.globalAlpha=1; c.fillStyle=cB; c.fillRect(0,base,W,1);   /* 음량 바닥선 하나 */
     pass(Math.max(0,px),W,false); if(px>0) pass(0,px,true); }
-  /* [SCENE_ROW · SCENE_FIT] 장면 줄 — 칸 너비 = 시간 · 지금 지나는 칸만 진하게 · 칸이 좁으면 두 줄 안에 드는 가장 긴 말로(낱말을 쪼개지 않는다) */
-  function txtLines(el){ var r=D.createRange(); r.selectNodeContents(el); var rs=r.getClientRects(), tops=[]; for(var i=0;i<rs.length;i++){ var t=Math.round(rs[i].top); if(tops.indexOf(t)<0) tops.push(t); } return tops.length; }
-  function fitTxt(el,c){ if(!el) return; for(var i=0;i<c.length;i++){ if(el.textContent!==c[i]) el.textContent=c[i]; if(el.scrollWidth<=el.clientWidth+0.5&&txtLines(el)<=2) return; } }
-  function fitWalk(w){ if(!w) return; var b=w.querySelector('b'), em=w.querySelector('em'), c=SCENE_WALK; if(!b||!em) return;
-    for(var i=0;i<c.length;i++) for(var k=0;k<2;k++){ em.hidden=k===1; if(b.textContent!==c[i]) b.textContent=c[i]; if(b.scrollWidth<=b.clientWidth+0.5&&w.scrollWidth<=w.clientWidth+0.5&&txtLines(b)<=2) return; } }
-  function sceneRow(g,PL,V0,x){ var sc=g.querySelector('.lg-scene'); if(!sc) return; var T=Math.max(1,PL.tend), th=clamp(PL.th,0,T), cols='minmax(0,'+th.toFixed(2)+'fr) minmax(0,'+(T-th).toFixed(2)+'fr)', pw=(g.querySelector('.lg-plot')||{}).clientWidth||0;
-    if(sc.__cols!==cols||sc.__pw!==pw){ sc.__cols=cols; sc.__pw=pw; sc.style.gridTemplateColumns=cols; sc.classList.remove('wait'); fitTxt(sc.querySelector('.lgs-greet'),SCENE_WAIT); fitWalk(sc.querySelector('.lgs-walk')); }
+  /* [SCENE_ROW · SCENE_WORDS_1023] 장면 줄 — 낱말 셋을 시간 자리에 · 지금 지나는 칸의 낱말만 진하게.
+     입장 = 문 열림 시점(그래프에서 음악이 크게 오르는 자리)에서 시작 · 도착 · 대기와 겹치면 그쪽을 숨긴다(입장이 이긴다 · 8px 띄움) */
+  function placeWords(sc,f){ var pw=sc.clientWidth||0; if(!pw) return; var key=f.toFixed(4)+'|'+pw; if(sc.__wk===key) return;
+    var a=sc.querySelector('.lgs-greet'), b=sc.querySelector('.lgs-walk'), c=sc.querySelector('.lgs-end'); if(!a||!b||!c) return; sc.__wk=key;
+    a.hidden=false; c.hidden=false; var wa=a.offsetWidth, wb=b.offsetWidth, wc=c.offsetWidth, G=8, xb=Math.max(0,Math.min(pw-wb,Math.round(clamp(f,0,1)*pw)));
+    b.style.left=xb+'px'; if(xb<wa+G) a.hidden=true; if(xb+wb+G>pw-wc) c.hidden=true; }
+  function sceneRow(g,PL,V0,x){ var sc=g.querySelector('.lg-scene'); if(!sc) return; var T=Math.max(1,PL.tend), th=clamp(PL.th,0,T); placeWords(sc,th/T);
     var at=x==null||x>=T-0.05?'':x<th?'greet':'walk'; if((sc.getAttribute('data-at')||'')!==at){ if(at) sc.setAttribute('data-at',at); else sc.removeAttribute('data-at'); }
     if(sc.classList.contains('wait')) sc.classList.remove('wait'); }
   /* ★[SCENE_WAIT_FILL 2026-10-13 사장님 «목소리 밑에 간격이 너무 넓은데 개선»] 곡을 받는 동안(«곡을 불러오는 중이에요») 장면 줄을 숨겨 둬 목소리 아래가 텅 비어 보였다 —
@@ -642,7 +646,7 @@
       for(var i=0;i<gs.length;i++){ var g=gs[i], cv=g.querySelector('canvas'), sc=g.querySelector('.lg-scene'); if(!cv) continue;
         var lw=g.querySelector('.lg-wait'); if(lw){ var wv=!P2&&recWaiting(); if(lw.hidden===wv) lw.hidden=!wv; }   /* [REC_CLIP_1013] 고른 곡을 받는 동안 빈 칸 대신 한 줄(카드와 같은 말) */
         if(!P2){ var VP=voicePlan(); if(VP){ var nv=Math.max(40,Math.min(240,Math.floor((cv.clientWidth||300)/3))); drawGraph(cv,voiceData(VP.PL,VP.V0,nv),null); sceneRow(g,VP.PL,VP.V0,null); sc&&sc.classList.add('wait'); continue; }   /* [SCENE_WAIT_FILL] 곡을 받는 동안 — 목소리 조각 · 장면 줄은 먼저 */
-          var c0=cv.getContext('2d'); c0.clearRect(0,0,cv.width,cv.height); if(sc){ sc.classList.add('wait'); var pw0=(g.querySelector('.lg-plot')||{}).clientWidth||0; if(sc.__wpw!==pw0){ sc.__wpw=pw0; sc.__cols=null; sc.style.gridTemplateColumns=''; fitTxt(sc.querySelector('.lgs-greet'),SCENE_WAIT); fitWalk(sc.querySelector('.lgs-walk')); } } continue; }   /* [SCENE_HOLD] 목소리도 아직이면 장면 줄만(반반) */
+          var c0=cv.getContext('2d'); c0.clearRect(0,0,cv.width,cv.height); if(sc){ sc.classList.add('wait'); placeWords(sc,0.5); } continue; }   /* [SCENE_HOLD] 목소리도 아직이면 장면 줄만(입장은 가운데) */
         var n=Math.max(40,Math.min(240,Math.floor((cv.clientWidth||300)/3))); drawGraph(cv,graphData(P2.PL,P2.V0,n),x); sceneRow(g,P2.PL,P2.V0,x); } }catch(x2){} }   /* [PAINT_GUARD] 그래프는 꾸밈 — 실패해도 소리는 멈추지 않는다 · 크게 보기 안 그래프도 같은 자리로 */
   /* [GRAPH_TAP · SCENE_TAP] 그래프는 손을 뗄 때(click) — 누른 자리부터 · 장면 말을 누르면 그 장면 머리부터(기다림 = 처음 · 문이 열리고 = 마지막 말 첫머리) · 크게 보기 안 그래프는 그 안에서 */
   function graphTap(ev){ var st=vNow(); if(!st||!st.src){ offPress(); return; } var P2=scenePlan(); if(!P2) return; var g=(ev&&ev.target&&ev.target.closest&&ev.target.closest('.em-graph'))||D.querySelector('.em-graph'), cv=g&&g.querySelector('canvas'); if(!cv) return;
@@ -757,7 +761,7 @@
     fitPill(); paintGraph(); }   /* 빌더가 다시 그리면 그래프 캔버스가 새것이다 — 지금 자리로 다시 그린다(트는 중이면 다음 틀이 이어 그린다) */
 
   EM.rowHtml=rowHtml; EM.sceneHtml=sceneHtml; EM.guideBody=guideBody; EM.after=after; EM.whole=whole; EM.paint=paintPill;   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기» 입구 · 빌더 재생 상태가 바뀔 때(_lPaint) 알약만 다시 */ EM.hush=function(){ if(hush()) redraw(); scHalt(); };   /* 빌더가 제 소리를 틀 때(_stopMk) — 이 칸 ▶ 만 되돌리고 장면은 그 자리에 멈춘다(쪽 전체를 다시 그리지 않는다) */
-  EM._t={lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
+  EM._t={placeWords:placeWords,lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
     pv:function(){ return PREV?{key:PREV.key,x0:PREV.x0,d:PREV.d,H:PREV.H}:null; },car:function(){ return {pre:CAR_PRE,len:CAR_LEN}; },   /* [PREV_12_60_1013] 점검용 — 지금 미리 듣기가 원곡 몇 초부터 몇 초 동안인가 */
     scene:function(){ var P2=scenePlan(); return {run:!!RUN,pend:PEND,pause:PAUSE?PAUSE.x:null,ended:ENDED,x:RUN?tau(RUN):null,plan:P2?{tv:P2.PL.tv,tm:P2.PL.tm,off:P2.PL.off,th:P2.PL.th,tend:P2.PL.tend,V:P2.PL.V,n:P2.PL.n,tdip:P2.PL.tdip,H:P2.PL.H}:null,pieces:P2?P2.V0.pieces.length:0,
       cut:P2&&P2.V0.cut?{at:P2.V0.cut.at,add:P2.V0.cut.add,was:P2.V0.cut.was}:null,vsn:RUN?RUN.vsn:null}; },   /* [ENTRY_CALL_PAUSE_1013] 점검용 — 끊은 자리 · 늘린 초 · 지금 걸린 목소리 마디 수 */

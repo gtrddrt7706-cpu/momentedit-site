@@ -19169,6 +19169,19 @@ chk 'FLOW_SIDE_STEADY' order-preview.html 1
 chk 'FLOW_SIDE_STEADY' scripts/audit/flow-steady.mjs 1
 chk "(sp.tm?'':'<br><span class=\"pk-pad\" aria-hidden=\"true\">'+NBS+'</span>')" order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-steady.mjs >/dev/null 2>&1; _fls=$?; if [ "$_fls" = 1 ]; then echo 'FAIL flow-steady: 예시를 바꾸면 «감동 흐름» 판 높이 · «다음» 단추 자리가 흔들립니다 — node scripts/audit/flow-steady.mjs'; fail=1; elif [ "$_fls" = 0 ]; then echo 'ok flow-steady: 감동 흐름 판 높이 그대로'; else echo 'skip flow-steady: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-23 [SCENE_WORDS_1023] 사장님 «본식 5분 전부터 문 앞에서 기다려요 · 문이 열리고 걸어 들어와요 · 도착 — 이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»
+#   입장 «음악과 함께» 그래프 아래 장면 줄 = 낱말 셋 «대기 · 입장 · 도착» 한 줄 11px · 입장 = 문 열림 시점 · 겹치면 입장이 이긴다(placeWords) · ★두 줄 장면 문장 되살리지 말 것
+chk 'SCENE_WORDS_1023' assets/entry-music.js 4
+chk 'SCENE_WORDS_1023' order-preview.html 1
+chk 'SCENE_WORDS_1023' scripts/audit/scene-words.mjs 3
+chk '<span class="lgs-greet">대기</span><span class="lgs-walk">입장</span><span class="lgs-end">도착</span>' assets/entry-music.js 1
+nochk 'var SCENE_WAIT=' assets/entry-music.js                                         # ★옛 장면 문장(«본식 5분 전부터 문 앞에서 기다려요» · 줄어드는 말 목록) — 2026-10-23 사용자 지시로 삭제
+nochk 'function fitWalk' assets/entry-music.js                                          # 옛 두 줄 맞추기
+# ── 2026-10-23 [PLAY_ICON_FIXED_1023] 사장님 «플레이 버튼과 멈춤 버튼 모양 부분 고정하고 텍스트만 바뀌게» — 넓은 듣기 알약의 둥근 ▶ · ■ 를 왼쪽 안쪽에 못 박고 글만 바뀐다(모든 순간 «이 순간 전체 듣기» · 입장 «음악과 함께» · «곡 파일 올리기»)
+chk 'PLAY_ICON_FIXED_1023' order-preview.html 3
+chk 'PLAY_ICON_FIXED_1023' scripts/audit/scene-words.mjs 5
+chk '>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}' order-preview.html 1   # 동그라미 왼쪽 안쪽 고정(글자와 함께 가운데로 되돌리지 말 것)
+if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: 장면 줄 낱말 셋 자리 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 순간마다 «음악» 칸 [BGM_FORM_1023] → 다시 짜기 [BGM_INFO_1023] — 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «입장곡은 지금 세팅처럼 직접 할 수 있게» · «최선인지 한 번 더 검토해 보고 제안대로 구현» · BGM 섹션 안
 #   대부분 한 줄 안내(맞절 «입장 곡이 이어져요» 꼴) · 축사 · 편지만 칩 둘(«음악 없이» 기본 · «음악과 함께») → 엔진 duckRead −20(축사 사람 구간 · 편지 첫 큐 · 사람 구간 · 마무리 · 정적 없이 4초) · 편지 장면 글 판 · 미리 듣기 주소는 bed 만
 #   ★음악 칸 «우리가 고른 곡»(올리기 · 곡 카드 · 이 기기 보관 me-bgm-song · «보낼 것» 음악 줄 · 할 일) · 접는 카드 · 부모님께 인사 칩 · «마지막 곡만 고르기» 금지 — 되살리지 말 것 ·

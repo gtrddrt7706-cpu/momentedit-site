@@ -1467,6 +1467,15 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-hbtn[data-mp] svg{width:15px;height:15px;padding:7.5px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}   /* [PLAY_PAIR] 원 30 그대로 · ▶ 약 7 × 9 · ■ 약 8 · 쏠림은 ICO_PLAY 그림 안(약 1px) — 고르지 않은 여백(11 · 9)은 큰 ▶ 에선 과하다 */
 .mk-hbtn[data-mp].on svg{padding:7.5px}
 .mk-hbtn[data-mp][disabled]{opacity:.45} .mk-hbtn[data-mp].ld[disabled]{opacity:1;cursor:default} .mk-hbtn[data-mp].off{opacity:.45;cursor:default} @media (hover:hover){ .mk-hbtn[data-mp].off:hover{background:var(--card);filter:none} }   /* [AI_PLAY_READY] 이 순간 전체 듣기도 같은 흐림(읽는 분 목소리가 없을 때) */   /* [WAIT_FILL] 만드는 동안은 흐리게 끄지 않고 차오름으로 */
+/* ★★[PLAY_ICON_FIXED_1023 2026-10-23 사장님 «플레이 버튼과 멈춤 버튼 모양 부분 고정하고 텍스트만 바뀌게»] 넓은 듣기 알약(순간마다 «이 순간 전체 듣기» · 입장 «음악과 함께» · «곡 파일 올리기»)의
+   둥근 ▶ · ■ 를 알약 왼쪽 안쪽에 못 박는다(안쪽 10px · 알약 끝 곡선과 같은 중심). 글은 동그라미 오른쪽 남은 칸 가운데에서만 바뀐다(«이 순간 전체 듣기 · …» → «멈추기» → «이어 듣기»).
+   종전엔 동그라미와 글을 한 덩어리로 가운데 놓아 글 길이만큼 동그라미가 좌우로 움직였다. ★동그라미를 글과 함께 가운데로 되돌리지 말 것 — 2026-10-23 사용자 지시 · scripts/audit/scene-words.mjs */
+.mk-sech-r .mk-hbtn:not(.em-bigbtn),.mk-hbtn[data-mp]{position:relative;justify-content:center;padding-left:50px;padding-right:20px;text-align:center}
+.mk-sech-r .mk-hbtn:not(.em-bigbtn)>svg:first-child,.mk-hbtn[data-mp]>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}
+.mk-tune-go{position:relative;padding-left:50px;padding-right:20px;text-align:center}   /* [PLAY_ICON_FIXED_1023] 목소리 다듬기 창 «예시 들어 보기 ↔ 멈추기 ↔ 이 글로 들어 보기»도 같은 모양(동그라미 30 · 높이 52) */
+.mk-tune-go>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}
+.mk-vu-play{position:relative;padding-left:44px;padding-right:20px;text-align:center}   /* [PLAY_ICON_FIXED_1023] 두 분 목소리 창 «들어 보기 ↔ 멈추기»(채운 주 단추 · 높이 48) — ▶ · ■ 는 알약 끝 곡선 가운데(왼쪽 18px)에 고정 */
+.mk-vu-play>svg:first-child{position:absolute;left:18px;top:50%;margin:0;transform:translateY(-50%)}
 .mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}   /* [FLOW_THREAD] 줄 사이는 li 아래 여백 — 흐름선이 줄 사이에서 끊기지 않게 */
 .mk-flow li{position:relative;padding-bottom:20px;font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
 .mk-flow>li:last-child{padding-bottom:0}
@@ -2193,17 +2202,15 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .em-graph .lg-plot canvas{display:block;width:100%;height:100%}
 .em-graph .lg-wait{position:absolute;inset:0 0 46% 0;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--light);letter-spacing:.01em;pointer-events:none}   /* [SCENE_WAIT_FILL] 음악 칸(위 54%) 가운데 — 아래 목소리 조각은 먼저 그려진다 */
 .em-graph .lg-wait[hidden]{display:none}   /* ★[REC_CLIP_1013 2026-10-13 사장님 «추천대로»(2번)] 고른 곡을 받는 동안 빈 그래프 대신 카드와 같은 말 한 줄 */
-.em-graph .lg-scene{grid-column:2;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;min-width:0;font-size:12.5px;line-height:17px;color:var(--sub);word-break:keep-all;letter-spacing:.01em}
-.em-graph .lg-scene.wait{color:var(--light)}   /* [SCENE_HOLD · SCENE_WAIT_FILL 2026-10-13] 받는 동안에도 자리를 지키고 글은 옅게 보인다(종전 visibility:hidden 이라 목소리 아래가 텅 비었다 · 사장님 «간격이 너무 넓은데») — 숨기지 말 것 */
-.em-graph .lg-scene>span{min-width:0;padding-top:8px;text-wrap:balance;overflow-wrap:normal}   /* [SCENE_FIT_WORD] 낱말을 쪼개지 않는다 — 넘치면 짧은 말로(entry-music.js fitTxt) */
-.em-graph .lgs-greet{padding-right:8px}
-.em-graph .lgs-walk{display:flex;align-items:flex-end;gap:8px}
-.em-graph .lgs-walk b{font-weight:400;min-width:0;flex:0 1 auto}
-.em-graph .lgs-walk em{flex:none;margin-left:auto;font-style:normal;white-space:nowrap}
-.em-graph .lgs-walk em[hidden]{display:none}
+.em-graph .lg-scene{grid-column:2;position:relative;height:16px;margin-top:8px;min-width:0;font-size:11px;line-height:16px;color:var(--light);letter-spacing:.02em;white-space:nowrap}   /* ★[SCENE_WORDS_1023 2026-10-23 사장님 «이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»] 두 줄 장면 문장 → 세 낱말 한 줄(대기 · 입장 · 도착) · 왼쪽 «음악 · 목소리» 이름과 같은 11px · 옅은 먹색 · 자리는 entry-music.js placeWords */
+.em-graph .lg-scene.wait>span{color:var(--light)}   /* [SCENE_HOLD · SCENE_WAIT_FILL 2026-10-13] 받는 동안에도 자리를 지키고 글은 옅게 보인다(종전 visibility:hidden 이라 목소리 아래가 텅 비었다 · 사장님 «간격이 너무 넓은데») — 숨기지 말 것 */
+.em-graph .lg-scene>span{position:absolute;top:0}
+.em-graph .lg-scene>span[hidden]{display:none}
+.em-graph .lgs-greet{left:0}
+.em-graph .lgs-walk{left:50%}
+.em-graph .lgs-end{right:0}
 .em-graph .lg-scene[data-at=greet] .lgs-greet,.em-graph .lg-scene[data-at=walk] .lgs-walk{color:var(--accent)}
-.em-graph .lg-scene[data-at=greet] .lgs-walk,.em-graph .lg-scene[data-at=walk] .lgs-greet{color:var(--light)}
-@media (hover:hover){ .em-graph .lg-scene>span:hover{color:var(--accent)} }   /* [SCENE_TAP] 누르면 그 장면 머리부터 */
+@media (hover:hover){ .em-graph .lg-scene>span:not(.lgs-end):hover{color:var(--accent)} }   /* [SCENE_TAP] 누르면 그 장면 머리부터(대기 = 처음 · 입장 = 문 열림) */
 .em-scene .em-play .mk-hbtn{white-space:nowrap}
 .em-scene .em-play .mk-hbtn.em-wrap{white-space:normal}
 .em-scene .em-play .mk-sec-t{margin-left:6px;font-weight:400;color:var(--sub)}
@@ -2245,7 +2252,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023w"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023c"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023b"></script><script src="/assets/bgm-form.js?v=1023b"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023w"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023d"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023b"></script><script src="/assets/bgm-form.js?v=1023b"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
