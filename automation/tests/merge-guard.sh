@@ -9776,7 +9776,7 @@ fi
 chk 'CINE_SCOPE' order-preview.html 6
 chk 'CINE_SCOPE' scripts/audit/cine-scope.mjs 2
 chk 'CINE_SCOPE' .claude/skills/momentedit-design/SKILL.md 1
-chk 'var _VFY={entry:15,close:45};' order-preview.html 1
+chk 'var _VFY={entry:15,close:45,welcome:12};' order-preview.html 1
 nochk '.pv-media{position:relative;aspect-ratio:16/9' order-preview.html
 nochk '.mk-vu-img{aspect-ratio:16/9' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/cine-scope.mjs >/dev/null 2>&1; _cs=$?

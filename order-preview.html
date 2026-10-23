@@ -843,7 +843,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 /* ★★[CINE_SCOPE 2026-10-11 사장님 «여기 영상 비율 너무 큰 거 같은데 와이드로 · 디자인 스킬 사용해서 느낌 있는 비율» → «짤려도 되니깐 시네마 느낌 나게 비율을 감각 있게 바꿔 봐»]
    장면 영상 = 영화관 비율 2.39 : 1(시네마스코프) — 16 : 9 그림의 위아래를 자른다. ② 하나씩 만들기 · ① 창 · 목소리 창 · ③ 연습 장면 · 크게 보기가 같은 비율.
    작은 칸(① 고르기 .pk-media) · 목록 썸네일(.pr-th · .lv.mini 64px)은 16 : 9 그대로 — 칸이 납작해지면 그림이 안 보인다.
-   자르는 높이 = --fy(기본 35% · 머리 위는 조금 · 바닥을 더 자른다). 사람이 화면 위까지 차는 입장은 15% · 발이 아래에 걸리는 닫는 인사는 45%(_VFY) —
+   자르는 높이 = --fy(기본 35% · 머리 위는 조금 · 바닥을 더 자른다). 사람이 화면 위까지 차는 입장은 15% · 감사 인사는 12%(신랑 머리 · 10/23) · 발이 아래에 걸리는 닫는 인사는 45%(_VFY) —
    17편을 처음 · 가운데 · 끝 장면으로 잘라 보고 정했다. 검사 scripts/audit/cine-scope.mjs */
 .lv video,.lv .lv-still,.pv-media video,.pv-media .pv-still,.mk-vu-img img,.mk-vu-img video,.pr-hm img{object-position:50% var(--fy,35%)}   /* [CINE_SCOPE] */
 /* ★★[VID_REST_THUMB 2026-10-09 사장님 «시간 지나면 영상 부분 검은색으로 되는 거 같은데 개선해 줘 · 썸네일 화면 계속 남아 있게»]
@@ -4602,7 +4602,7 @@ function _mkVidAfter(el,old){
   if(!calm) _lVidOnce(v);
 }
 /* [CINE_SCOPE] 장면마다 자르는 높이(--fy · %) — 없으면 CSS 기본 35%. 이름 = 영상 파일 이름(entry · close …) */
-var _VFY={entry:15,close:45};
+var _VFY={entry:15,close:45,welcome:12};   /* [WELCOME_FY_1023] 감사 인사는 신랑 머리가 위 끝에 걸려 12% */
 function _vfyN(v){ var m=v&&/([\w-]+)\.webp(?:\?|$)/.exec(v.poster||''),   /* [VIDEO_V] 주소 끝 ?v= 를 지나 이름을 읽는다 */ y=m?_VFY[m[1]]:null; return y==null?null:y; }
 function _vfy(v){ var y=_vfyN(v); return y==null?'':' style="--fy:'+y+'%"'; }
 function _lVid(k,opt){
