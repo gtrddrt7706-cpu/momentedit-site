@@ -19452,7 +19452,7 @@ chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호
 chk 'DRESS_DETAIL_FIT' dress.html 6
 chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
 nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
-# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 19가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
+# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 24가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
 chk 'DRESS_LIVE_READY' assets/dress-refs.js 1                             # 켤 때 할 일 ㄹ — 실물 4벌 이상 · 모두 사진 · ex 는 사진 있는 장만(dress-refs.mjs ④ 가 막는다)
 chk 'DRESS_SLIDES' assets/dress-refs.js 1                                 # 자세히 = 사진 있는 장만 · 한 장이면 ‹ › · n / 5 없음
 chk 'DRESS_SLIDES' dress.html 2
@@ -19486,8 +19486,18 @@ chk 'DRESS_NEXT_ONE' dress.html 4                                         # 글 
 chk 'DRESS_LINE_ONE' assets/dress-refs.js 1                               # 라인 설명 한 문장 · 함께 볼 점은 슬립 · 컬럼 둘
 chk 'DRESS_Q_WORDS' assets/dress-refs.js 1                                # 길이 답 «미디(종아리) · 미니(무릎 근처)» · 셋째 물음 «이런 드레스가 편하신가요?» · 핏 답 그림
 chk 'DRESS_LEN_WORDS' assets/dress-refs.js 1
-nochk '두 번째 착장' assets/dress-refs.js 0                                 # 사장님 결정 대기(갈아입기 운영) — 화면에 쓰지 않는다
+nochk '두 번째 착장' assets/dress-refs.js 0                                 # 옛 미니 설명 낱말 — 회신 4 보충으로 «두 번째 의상»(DRESS_KNEE_SECOND)
 nochk '두 번째 착장' dress.html 0
+# ★[DRESS_DECIDED_1023 코워크 회신 4 보충 · 사장님 «너가 홈페이지 뒤져서 찾아봐»] 결정 대기 셋을 사이트 · 계약서 근거로 닫았다 — 값 대조는 dress-refs.mjs ⑪
+chk 'DRESS_DECIDED_1023' scripts/audit/dress-refs.mjs 2
+chk '<p class="dotln">대여 드레스는 1벌이 기본으로 포함되며, 2벌부터는 추가 비용이 있습니다.</p>' dress.html 1   # [DRESS_RENT_ONE] 신청서 «1벌 기본 포함 · 2벌부터 추가금 발생»과 같은 뜻 · 금액 없음
+chk 'DRESS_RENT_ONE' dress.html 1
+chk "note: '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.'" assets/dress-refs.js 1   # [DRESS_KNEE_SECOND] 140분 Farewell 환복 뒤 다이닝 — 대여 드레스로 식당에 가지 않는다
+chk 'DRESS_KNEE_SECOND' assets/dress-refs.js 1
+nochk '식사 자리' assets/dress-refs.js 0
+nochk '식사 자리' dress.html 0
+chk "fitNote: ''," assets/dress-refs.js 1                                  # [DRESS_FITNOTE_EMPTY] 맞추는 방법은 어디에도 없다 — 지어 쓰지 않는다
+chk 'DRESS_FITNOTE_EMPTY' assets/dress-refs.js 1
 chk 'DRESS_CARD_WORDS' mypage.html 1                                      # 카드 0 · 1 · 2벌 단추 = 같은 자리 · 같은 외곽 단추(두 벌 고르기 · 이어서 고르기 · 바꾸기)
 nochk 'trk-act-min" data-dress-open' mypage.html 0
 chk 'DRESS_NUM_LINING' dress.html 1                                       # Nº 칸 · 배지 · 카드 번호 = lining-nums(«Nº o1»로 읽히지 않게)

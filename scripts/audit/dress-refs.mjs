@@ -245,7 +245,9 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const J70 = rd('automation/platform/70_journey.gs') || '';
   const FEE = ['시착은 상담 당일 기본 2벌이며, 3벌째부터 1벌당 50,000원입니다.', '상담이 확정되면 마이페이지에서 입어 보실 두 벌을 미리 고르실 수 있고, 상담 전날 준비해 둡니다. 고르지 않으셔도 상담 날 함께 고릅니다.', '본 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌당 50,000원 · 최대 100,000원) 예약금에서 차감되고 나머지는 환불됩니다.'];
   t(FEE.every((x) => PAGE.indexOf('<p class="fit-p">' + x + '</p>') > -1), '⑪ [DRESS_FIT_FEE] 공개 시착 칸 세 문장(기본 2벌 · 3벌째부터 · 차감)');
-  t(/<p class="dotln">준비해 오시면 좋습니다 · 누드톤 심리스 속옷과 실리콘 브라, 예식 날 신을 굽 높이의 신발<\/p>/.test(PAGE) && /<p class="dotln">직접 준비하신 드레스로도 진행하실 수 있습니다\.<\/p>/.test(PAGE), '⑪ [DRESS_FIT_FEE] 점 줄 둘(준비해 오시면 좋습니다 · 직접 준비하신 드레스)');
+  const DOTS = ['준비해 오시면 좋습니다 · 누드톤 심리스 속옷과 실리콘 브라, 예식 날 신을 굽 높이의 신발', '대여 드레스는 1벌이 기본으로 포함되며, 2벌부터는 추가 비용이 있습니다.', '직접 준비하신 드레스로도 진행하실 수 있습니다.'];
+  const fitDots = ((PAGE.match(/<div class="fit-dots">([\s\S]*?)<\/div>/) || ['', ''])[1].match(/<p class="dotln">[^<]*<\/p>/g) || []).map((x) => x.replace(/<[^>]+>/g, ''));
+  t(JSON.stringify(fitDots) === JSON.stringify(DOTS), '⑪ [DRESS_FIT_FEE · DRESS_RENT_ONE] 시착 칸 점 줄 셋 — 준비해 오시면 좋습니다 · 대여 1벌 기본 포함 · 직접 준비하신 드레스(이 차례)' + (JSON.stringify(fitDots) === JSON.stringify(DOTS) ? '' : ' · 지금 ' + JSON.stringify(fitDots)));
   t(J70.indexOf("'드레스 시착은 2벌까지 포함됩니다. (3벌째부터 1벌당 50,000원)'") > -1 && J70.indexOf('실제 진행한 벌수만큼(1벌당 50,000원 · 최대 100,000원) 예약금이 시착 비용으로 공제되고 나머지는 전액 환불됩니다') > -1, '⑪ [DRESS_FIT_FEE] 시착 동의서(70_journey FITTING_CONSENT) = 2벌 포함 · 3벌째부터 1벌당 50,000원 · 최대 100,000원 — 공개 칸과 같은 숫자');
   t(IDXX.indexOf('<li>드레스 시착 <span class="li-meta">상담 당일 · 기본 2벌</span></li>') > -1 && IDXX.indexOf('<li>추가 시착 <span class="li-price">₩50,000<span class="li-meta">/벌 · 3벌째부터</span></span></li>') > -1, '⑪ [DRESS_FIT_FEE] 홈 가격표 = 상담 당일 · 기본 2벌 · ₩50,000/벌 · 3벌째부터 — 공개 칸과 같은 숫자');
   t(INQX.indexOf('시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.') > -1, '⑪ [DRESS_FIT_FEE] 신청서 Nº 03 = 기본 2벌 · 최대 100,000원 · 차감 — 공개 칸과 같은 숫자');
@@ -283,9 +285,20 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const iPh = IDXX.indexOf('data-dress-photo style="height:380px'), iLk = IDXX.indexOf('<div data-dress-on hidden style="margin:24px 0 0"><a href="dress.html" class="journal-guide-link" style="margin-left:0;margin-right:0">');
   t(iPh > -1 && iLk > iPh && iLk - iPh < 700, '⑪ [DRESS_HOME_BELOW] 홈 «드레스 둘러보기»는 사진 바로 아래');
   t(/document\.querySelectorAll\('\[data-dress-photo\]'\)\.forEach\(function\(el\)\{var a=document\.createElement\('a'\);a\.href='dress\.html';a\.tabIndex=-1;a\.setAttribute\('aria-hidden','true'\);/.test(IDXX) && /\.journal-guide-link \{\n  display: inline-block;\n  text-align: center;/.test(IDXX), '⑪ [DRESS_HOME_BELOW] 켜지면 사진도 같은 곳으로(키보드 · 화면 읽기는 단추 하나) · 단추 글 가운데');
-  // [DRESS_PENDING_HIDE] 사장님 결정 대기(맞추는 방식 · 대여 포함 · 두 번째 착장)는 화면에 쓰지 않는다
-  const pend = ['두 번째 착장', '갈아입', '대여료', '추가금'].filter((w) => strs.join('\n').indexOf(w) > -1 || decom(PAGE).indexOf(w) > -1);
-  t(!pend.length && R.fitNote === '', '⑪ [DRESS_PENDING_HIDE] 결정 대기 글(맞추는 방식 · 대여 포함 · 두 번째 착장)은 화면에 없다' + (pend.length ? ' · ' + pend.join(', ') : ''));
+  // ★[DRESS_DECIDED_1023 코워크 회신 4 보충 · 사장님 «너가 홈페이지 뒤져서 찾아봐»] 결정 대기 셋(맞추는 방식 · 대여 포함 · 두 번째 의상)을 사이트 · 계약서 근거로 닫았다
+  //   [DRESS_RENT_ONE] 대여 = 1벌 기본 포함 · 2벌부터 추가 비용 — 신청서 «대여 희망 벌 수»와 같은 뜻 · 금액은 쓰지 않는다(2벌째 금액은 어디에도 없다)
+  const rentDots = (decom(PAGE).match(/<p class="dotln">[^<]*대여[^<]*<\/p>/g) || []).map((x) => x.replace(/<[^>]+>/g, ''));
+  t(INQX.indexOf('<span class="conditional-sub">1벌 기본 포함 · 2벌부터 추가금 발생</span>') > -1 && rentDots.length === 1 && rentDots[0] === DOTS[1], '⑪ [DRESS_RENT_ONE] 공개 시착 칸 «대여 드레스는 1벌이 기본으로 포함되며, 2벌부터는 추가 비용이 있습니다.» = 신청서 «1벌 기본 포함 · 2벌부터 추가금 발생»과 같은 뜻');
+  t(!rentDots.some((x) => /[0-9][0-9,]*\s*원|₩/.test(x)), '⑪ [DRESS_RENT_ONE] 대여 줄에 금액이 없다(2벌째 금액은 시그니처 쪽 어디에도 없다)' + (rentDots.length ? ' · ' + rentDots.join(' / ') : ''));
+  //   [DRESS_KNEE_SECOND] 미니 = «두 번째 의상»은 쓰되 다이닝 자리는 쓰지 않는다(140분 Farewell 환복 뒤 다이닝 · 대여 드레스로 식당에 가지 않는다)
+  const knee = R.lengthOf('knee');
+  t(!!knee && knee.note === '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.', '⑪ [DRESS_KNEE_SECOND] 미니 설명 «무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.»' + (knee ? '' : ' · knee 없음'));
+  const meal = [strs.join('\n'), decom(PAGE)].some((x) => x.indexOf('식사') > -1);
+  t(!meal, '⑪ [DRESS_KNEE_SECOND] 드레스 글에 «식사»가 없다 — 대여 드레스는 다이닝 자리에 입고 가지 않는다');
+  //   [DRESS_FITNOTE_EMPTY] 맞추는 방법은 어디에도 없다 — 지어 쓰지 않고 빈 값 · 머리 본문이 그 몫
+  t(R.fitNote === '' && PAGE.indexOf('대여 드레스는 프리 사이즈(44~88 내외)이며, 상담 날 예식 공간에서 직접 입어 보실 수 있습니다.') > -1, '⑪ [DRESS_FITNOTE_EMPTY] fitNote 빈 값(줄 없음) · 머리 본문 «상담 날 예식 공간에서 직접 입어 보실 수 있습니다»');
+  const banned = ['두 번째 착장', '갈아입', '대여료', '추가금'].filter((w) => strs.join('\n').indexOf(w) > -1 || decom(PAGE).indexOf(w) > -1);
+  t(!banned.length, '⑪ [DRESS_DECIDED_1023] 쓰지 않는 낱말 없음(옛 «두 번째 착장» · 갈아입기 · 대여료 · «추가금» — 공개 글은 «추가 비용»)' + (banned.length ? ' · ' + banned.join(', ') : ''));
   return { bad, okn };
 }
 
@@ -307,7 +320,13 @@ if (process.argv.includes('--selftest')) {
     ['시착비 숫자가 시착 동의서와 다르다', SRC, GAS, PAGE0.replace('3벌째부터 1벌당 50,000원입니다.', '3벌째부터 1벌당 70,000원입니다.')],
     ['사진 없는 장도 다시 넘긴다', SRC.replace('.filter(function (e) { return e && e.img; })', '.filter(function (e) { return !!e; })'), GAS],
     ['단독에서 «저장»이 다시 보인다', SRC, GAS, PAGE0.replace('html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}', '')],
-    ['단독이 다시 저장한 척(«저장됨»)', SRC, GAS, PAGE0.replace("if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();", "S.saved = true; if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();")]
+    ['단독이 다시 저장한 척(«저장됨»)', SRC, GAS, PAGE0.replace("if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();", "S.saved = true; if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();")],
+    // ★[DRESS_DECIDED_1023 코워크 회신 4 보충] 사이트 · 계약서 근거로 닫은 셋을 되돌리면 빨강
+    ['대여 한 줄을 지움', SRC, GAS, PAGE0.replace('<p class="dotln">대여 드레스는 1벌이 기본으로 포함되며, 2벌부터는 추가 비용이 있습니다.</p>', '')],
+    ['대여 한 줄에 금액을 씀', SRC, GAS, PAGE0.replace('2벌부터는 추가 비용이 있습니다.</p>', '2벌부터는 1벌당 100,000원이 더해집니다.</p>')],
+    ['신청서 대여 문장이 바뀜(공개 칸과 어긋남)', SRC, GAS, PAGE0, MP0, { INQ: INQ.replace('1벌 기본 포함 · 2벌부터 추가금 발생', '2벌 기본 포함 · 3벌부터 추가금 발생') }],
+    ['미니 설명에 다시 다이닝', SRC.replace("note: '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.'", "note: '무릎 근처 길이로, 식사 자리에도 잘 어울립니다.'"), GAS],
+    ['fitNote 를 지어 씀', SRC.replace("fitNote: '',", "fitNote: '핀으로 품을 맞춥니다',"), GAS]
   ];
   /* ★[DRESS_LIVE_READY] 켜기 조건 — 다 갖춘 켠 사본(실물 4벌 · 모두 사진 · ex 도 사진 · noindex 없음 · sitemap)이 먼저 초록이어야 한다(대조).
      거기서 한 가지씩 깬다 — 표본만 · 사진 없음 · 4벌 미만 · ex 에 사진 없는 장. 사진 자리는 있는 파일(홈 Styling 사진)을 가리킨다 */
