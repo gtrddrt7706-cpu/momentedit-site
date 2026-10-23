@@ -843,7 +843,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 /* ★★[CINE_SCOPE 2026-10-11 사장님 «여기 영상 비율 너무 큰 거 같은데 와이드로 · 디자인 스킬 사용해서 느낌 있는 비율» → «짤려도 되니깐 시네마 느낌 나게 비율을 감각 있게 바꿔 봐»]
    장면 영상 = 영화관 비율 2.39 : 1(시네마스코프) — 16 : 9 그림의 위아래를 자른다. ② 하나씩 만들기 · ① 창 · 목소리 창 · ③ 연습 장면 · 크게 보기가 같은 비율.
    작은 칸(① 고르기 .pk-media) · 목록 썸네일(.pr-th · .lv.mini 64px)은 16 : 9 그대로 — 칸이 납작해지면 그림이 안 보인다.
-   자르는 높이 = --fy(기본 35% · 머리 위는 조금 · 바닥을 더 자른다). 사람이 화면 위까지 차는 입장은 15% · 발이 아래에 걸리는 닫는 인사는 45%(_VFY) —
+   자르는 높이 = --fy(기본 35% · 머리 위는 조금 · 바닥을 더 자른다). 사람이 화면 위까지 차는 입장은 15% · 감사 인사는 12%(신랑 머리 · 10/23) · 발이 아래에 걸리는 닫는 인사는 45%(_VFY) —
    17편을 처음 · 가운데 · 끝 장면으로 잘라 보고 정했다. 검사 scripts/audit/cine-scope.mjs */
 .lv video,.lv .lv-still,.pv-media video,.pv-media .pv-still,.mk-vu-img img,.mk-vu-img video,.pr-hm img{object-position:50% var(--fy,35%)}   /* [CINE_SCOPE] */
 /* ★★[VID_REST_THUMB 2026-10-09 사장님 «시간 지나면 영상 부분 검은색으로 되는 거 같은데 개선해 줘 · 썸네일 화면 계속 남아 있게»]
@@ -2197,22 +2197,20 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .em-scene{border-top:0;padding-top:0}
 .em-scene .mk-sech-r{margin-bottom:0}
 .em-scene .mk-recws.em-late{margin:-2px 0 12px}
-.em-graph{display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:6px;margin:0 0 10px;padding:14px 16px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;touch-action:manipulation}
+.em-graph{display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:6px;margin:0 0 10px;padding:32px 16px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;touch-action:manipulation}
 .em-graph .lg-names{display:grid;grid-template-rows:54% 46%;align-items:center;font-size:11px;line-height:1.3;color:var(--light);letter-spacing:.02em}
 .em-graph .lg-names span:last-child{padding-top:6px}
 .em-graph .lg-plot{position:relative;height:84px;min-width:0}
 .em-graph .lg-plot canvas{display:block;width:100%;height:100%}
 .em-graph .lg-wait{position:absolute;inset:0 0 46% 0;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--light);letter-spacing:.01em;pointer-events:none}   /* [SCENE_WAIT_FILL] 음악 칸(위 54%) 가운데 — 아래 목소리 조각은 먼저 그려진다 */
-.em-graph .lg-wait[hidden]{display:none}   /* ★[REC_CLIP_1013 2026-10-13 사장님 «추천대로»(2번)] 고른 곡을 받는 동안 빈 그래프 대신 카드와 같은 말 한 줄 */
-.em-graph .lg-scene{grid-column:2;position:relative;height:16px;margin-top:8px;min-width:0;font-size:11px;line-height:16px;color:var(--light);letter-spacing:.02em;white-space:nowrap}   /* ★[SCENE_WORDS_1023 2026-10-23 사장님 «이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»] 두 줄 장면 문장 → 세 낱말 한 줄(대기 · 입장 · 도착) · 왼쪽 «음악 · 목소리» 이름과 같은 11px · 옅은 먹색 · 자리는 entry-music.js placeWords */
-.em-graph .lg-scene.wait>span{color:var(--light)}   /* [SCENE_HOLD · SCENE_WAIT_FILL 2026-10-13] 받는 동안에도 자리를 지키고 글은 옅게 보인다(종전 visibility:hidden 이라 목소리 아래가 텅 비었다 · 사장님 «간격이 너무 넓은데») — 숨기지 말 것 */
-.em-graph .lg-scene>span{position:absolute;top:0}
-.em-graph .lg-scene>span[hidden]{display:none}
-.em-graph .lgs-greet{left:0}
-.em-graph .lgs-walk{left:50%}
-.em-graph .lgs-end{right:0}
-.em-graph .lg-scene[data-at=greet] .lgs-greet,.em-graph .lg-scene[data-at=walk] .lgs-walk{color:var(--accent)}
-@media (hover:hover){ .em-graph .lg-scene>span:not(.lgs-end):hover{color:var(--accent)} }   /* [SCENE_TAP] 누르면 그 장면 머리부터(대기 = 처음 · 입장 = 문 열림) */
+.em-graph .lg-wait[hidden]{display:none}
+/* ★★[ENTRY_OPEN_1023 2026-10-23 사장님 «문 열림을 그래프에 세로선으로» · «소문자로 느낌 있게» · «선 옆 번짐 효과 삭제» · «밑에 글씨들은 전부 삭제»] 장면 줄(대기 · 입장 · 도착) 대신 open 세로선 —
+   선 1px · #8A724C · 0.85 · 그래프 위 2px 에서 목소리 줄까지 · 글자 «open» Cormorant Garamond 기울임 500 18/22 · #6B5639 · 선 머리 위 5px · 그래프 위 여백 32px(글자가 곡선과 안 겹친다) ·
+   그림자 · 번짐 · 점 없음 · 재생 중에도 그대로. ★장면 줄 · 대문자 OPEN · 번짐을 되살리지 말 것 */
+.em-graph .lg-open{position:absolute;left:0;right:0;top:2px;height:calc(100% - 10px);pointer-events:none}   /* [ENTRY_OPEN_1023] 장면 줄 대신 open 세로선 하나 · 받는 동안 목소리 아래 칸은 [SCENE_WAIT_FILL] lg-wait 그대로 */
+.em-graph .lg-open[hidden]{display:none}
+.em-graph .lg-open .lgo-l{position:absolute;top:0;bottom:0;left:0;width:1px;background:#8A724C;opacity:.85}
+.em-graph .lg-open .lgo-t{position:absolute;bottom:calc(100% + 5px);left:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:18px;line-height:22px;letter-spacing:0;color:#6B5639;white-space:nowrap}   /* ★[REC_CLIP_1013 2026-10-13 사장님 «추천대로»(2번)] 고른 곡을 받는 동안 빈 그래프 대신 카드와 같은 말 한 줄 */
 .em-scene .em-play .mk-hbtn{white-space:nowrap}
 .em-scene .em-play .mk-hbtn.em-wrap{white-space:normal}
 .em-scene .em-play .mk-sec-t{margin-left:6px;font-weight:400;color:var(--sub)}
@@ -2225,9 +2223,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .em-scene .em-play .em-scp{flex:1 1 auto;min-width:0;margin:0}
 .em-scene .em-play .em-bigbtn{flex:0 0 52px;width:52px;min-width:52px;min-height:52px;padding:0;justify-content:center;margin:0}
 .em-scene .em-play .em-bigbtn svg{width:18px;height:18px;padding:0;border-radius:0;background:none;color:var(--gold-deeper)}
-#emFull .lg-scene{display:none}   /* 크게 보기는 자막이 지금 장면을 말한다 */
 #emFull .lf-body{flex:1 1 auto}   /* 그래프가 단추 줄 바로 위로 내려앉게(아래 빈 칸 대신 자막 아래가 빈다) */
-#emFull .lf-body>.em-graph{margin:auto 0 8px;padding:12px 10px 10px}
+#emFull .lf-body>.em-graph{margin:auto 0 8px;padding:32px 10px 10px}   /* [ENTRY_OPEN_1023] open 글자 자리 */
 #emFull .em-graph .lg-plot{height:64px}
 #emFull .em-cap{min-height:5.55em}   /* [LF_STEADY] 자막이 짧아도 세 줄 자리 — 아래가 흔들리지 않게 */
 @media (max-height:600px){ #emFull .lf-body>.em-graph{display:none} }
@@ -2265,7 +2262,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1023z3"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023e"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023f"></script><script src="/assets/bgm-form.js?v=1023f"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1023z5"></script><script src="/assets/rec-process.js?v=1023v"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023f"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1023f"></script><script src="/assets/bgm-form.js?v=1023f"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -2393,7 +2390,7 @@ var RINGWARM={
 };
 var TRIBUTE={
  nar:"신랑 신부는 천천히 부모님 앞으로 이동하겠습니다.",   /* [VOICE_2ND_ONE] 원천 ritual-data.js 의 사본 — 근거는 그쪽 주석 */
- end:"신랑 신부의 감사한 마음이 부모님께 잘 전달되었기를 바랍니다. 이제 신랑 신부는 다시 한번 천천히 뒤로 돌아 이번에는 가운데로 자리를 옮기도록 하겠습니다.",   // [ECHO_TRIBUTE_DECLARE 2026-09-21] 원천과 같게 · [R11_SRC_1018] 둘째 문장 = 자료 PP 19
+ end:"신랑 신부의 감사한 마음이 부모님께 잘 전달되었기를 바랍니다. 이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.",   // [ECHO_TRIBUTE_DECLARE 2026-09-21] 원천과 같게 · [R11_SRC_1018] 둘째 문장 = 자료 PP 19
  modes:{
   flower:{d:'꽃 헌정',how:'꽃을 전하고 포옹해요 · 키워 주신 다른 분께도 좋아요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹'},
   bow:{d:'큰절',how:'큰절을 올리고 일어나 포옹해요 · 깊은 목례로 바꿔도 돼요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로(큰절은 앉으신 채로 받으심) → 나레이션 흐르는 동안 → 두 분이 다가가 큰절(또는 깊은 목례) · 일어나 포옹'},
@@ -2413,7 +2410,7 @@ var TOAST={
  /* ★[TOAST_SCENE 2026-08-09] 원천 assets/ritual-data.js 의 TOAST 사본 — 글자까지 같아야 한다.
     한 덩어리 문안을 '가르치고 → 부르고 → 받는' 장면으로 다시 썼다(경위는 원천 주석에).
     ★둘 다는 문안이 둘이다(nar/nar2) — 나이프를 걷고 잔을 쥐여 드리는 사이가 옛 판엔 무음이었다. */
- toast:{d:'축배',nar:"신랑 신부 앞날에 영원한 사랑과 행복을 위하여 다 같이 축배를 드는 시간입니다. 신랑 신부가 선창하면 '위하여'라고 해 주세요.",cue:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'},   // [TOAST_COUPLE 2026-09-26]
+ toast:{d:'축배',nar:"자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다. 신랑 신부가 선창하면 '위하여'라고 해 주세요.",cue:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'},   // [TOAST_COUPLE 2026-09-26]
  cake:{d:'케이크 커팅',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡고 천천히 잘라 주세요.",cue:'두 분 케이크 앞으로 → 나이프 함께 잡기 → 카운트에 맞춰 커팅 → 하객 박수 → 정면 포즈 · 서로 보는 포즈',out:'cakeOut'},
  both:{d:'둘 다',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡고 천천히 잘라 주세요.",nar2:"마지막으로, 두 사람에게 잔이 가는 동안 다 같이 잔을 들어 주세요. 두 분이 위하여, 하시면 함께 위하여, 하고 답해 주세요.",cue:'편지 낭독 중 하객 잔 미리 채움 → 커팅 · 포즈 → 디렉터가 나이프 회수하고 두 분께 잔 전달',cue2:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'}
 };
@@ -3104,7 +3101,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1023z3';   // [ASSET_V] 위 주석
+  var ASSET_V='1023z5';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4606,7 +4603,7 @@ function _mkVidAfter(el,old){
   if(!calm) _lVidOnce(v);
 }
 /* [CINE_SCOPE] 장면마다 자르는 높이(--fy · %) — 없으면 CSS 기본 35%. 이름 = 영상 파일 이름(entry · close …) */
-var _VFY={entry:15,close:45};
+var _VFY={entry:15,close:45,welcome:12};   /* [WELCOME_FY_1023] 감사 인사는 신랑 머리가 위 끝에 걸려 12% */
 function _vfyN(v){ var m=v&&/([\w-]+)\.webp(?:\?|$)/.exec(v.poster||''),   /* [VIDEO_V] 주소 끝 ?v= 를 지나 이름을 읽는다 */ y=m?_VFY[m[1]]:null; return y==null?null:y; }
 function _vfy(v){ var y=_vfyN(v); return y==null?'':' style="--fy:'+y+'%"'; }
 function _lVid(k,opt){
