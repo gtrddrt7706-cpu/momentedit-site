@@ -3,8 +3,10 @@
    명세 전문: docs/handoff/설계명세_시착준비_1023.md
 
    ① [DRESS_LIVE] live 가 기능 스위치다. false 인 동안 운영 화면(홈 · 신청서 · 마이페이지)에는 새로 보이는 것이 하나도 없다.
-      켜는 것은 사장님이 드레스 사진을 넣은 뒤다 — 켤 때 할 일(검사 dress-refs.mjs 가 live:true 일 때 셋 다 본다):
+      켜는 것은 사장님이 드레스 사진을 넣은 뒤다 — 켤 때 할 일(검사 dress-refs.mjs 가 live:true 일 때 넷 다 본다):
         ㄱ. 아래 표본(sample:true)을 지우고 실물을 넣는다   ㄴ. dress.html 의 noindex 줄을 지운다   ㄷ. sitemap.xml 에 /dress.html 을 넣는다
+        ㄹ. ★[DRESS_LIVE_READY 2026-10-23 코워크 검토 4] 실물 4벌 이상 · 모두 사진(img) · 넘겨 보는 사진(ex)은 사진이 있는 장만 둔다.
+            사진 없이 켜면 공개 칸이 라인 그림만 남는다(같은 라인끼리 같은 그림 · 미니 · 미디도 바닥 길이로 그려진다) · 0벌이면 공개 그리드가 통째로 빈다.
    ② [DRESS_PHOTO] 사진이 오면 assets/dress-refs/ 에 d01.webp · d01.jpg … 를 넣고 그 드레스의 img:'d01' 만 채우면 된다(코드 수정 없음).
       img 가 비어 있으면 그 라인의 그림(assets/dress-refs/lines/*.svg) + 이름 칸으로 보인다.
       ex = 누르면 넘겨 보는 사진(앞 · 뒤 · 디테일 · 캔들존 · 화이트존). 사진이 오기 전에는 t 가 그림 아래 이름표로 보인다 · 오면 img 만 더한다.
@@ -24,43 +26,48 @@
     fitNote: '',             // 프리 사이즈 맞추는 방식 한 줄 · 사장님 결정 전엔 빈 값 = 줄 숨김
     PROD_HOSTS: ['momentedit.kr', 'www.momentedit.kr'],   // shared/preview-guard.js 와 같아야 한다(검사가 대조)
 
-    /* 라인(실루엣) 다섯 — fit 은 고르기 화면 «어떤 핏이 편하세요?» 답과 잇는 값(body 몸 선을 따라 · waist 허리만 잡고 아래는 여유 · loose 전체적으로 여유) */
+    /* 라인(실루엣) 다섯 — fit 은 고르기 화면 «어떤 핏이 편하세요?» 답과 잇는 값(body 몸 선을 따라 · waist 허리만 잡고 아래는 여유 · loose 전체적으로 여유)
+       ★[DRESS_LINE_ONE 2026-10-23 코워크 검토 4] lead = 한 문장 · note = 행동이 필요한 «함께 볼 점»만(슬립 · 컬럼 둘 · 나머지는 빈 글 = 줄 없음) */
     lines: [
       { key: 'slip', en: 'Slip', ko: '슬립', fit: 'body', svg: '/assets/dress-refs/lines/slip.svg',
-        lead: '얇은 새틴이 몸을 따라 흐르는 라인입니다. 움직일 때 결이 살아나 가까이 담는 사진에 잘 어울립니다.',
-        note: '몸의 선이 그대로 드러나 누드톤 심리스 속옷을 함께 준비하시면 좋습니다.' },
+        lead: '얇은 새틴이 몸을 따라 흐르는 라인입니다.',
+        note: '누드톤 심리스 속옷을 함께 준비하시면 좋습니다.' },
       { key: 'column', en: 'Column', ko: '컬럼', fit: 'body', svg: '/assets/dress-refs/lines/column.svg',
-        lead: '위에서 아래로 곧게 떨어지는 라인입니다. 장식 없이 정돈된 인상이라 화이트존의 여백과 잘 어울립니다.',
+        lead: '위에서 아래로 곧게 떨어지는 단정한 라인입니다.',
         note: '앉고 걷는 품을 시착 때 함께 확인해 보세요.' },
       { key: 'aline', en: 'Light A-line', ko: '라이트 A라인', fit: 'waist', svg: '/assets/dress-refs/lines/aline.svg',
-        lead: '허리에서 아래로 가볍게 퍼지는 라인입니다. 부피가 작아 가까운 거리에서도 움직임이 편합니다.',
-        note: '허리 위치에 따라 인상이 달라져 두 벌을 견주어 보시기 좋습니다.' },
+        lead: '허리에서 아래로 가볍게 퍼지는 라인입니다.',
+        note: '' },
       { key: 'empire', en: 'Empire', ko: '엠파이어', fit: 'loose', svg: '/assets/dress-refs/lines/empire.svg',
-        lead: '가슴 바로 아래에서 허리선이 잡히고 아래로 자연스럽게 떨어지는 라인입니다.',
-        note: '허리를 조이지 않아 오래 입어도 편합니다.' },
+        lead: '가슴 아래에서 허리선이 잡혀 조이지 않는 편안한 라인입니다.',
+        note: '' },
       { key: 'twopiece', en: 'Two-piece', ko: '투피스', fit: 'waist', svg: '/assets/dress-refs/lines/twopiece.svg',
-        lead: '상의와 치마가 나뉜 구성입니다.',
-        note: '위아래를 따로 맞출 수 있고, 볼레로나 재킷을 더하기 좋습니다.' }
+        lead: '상의와 치마가 나뉘어 볼레로나 재킷을 더하기 좋은 구성입니다.',
+        note: '' }
     ],
 
-    /* 길이 셋 — ko 는 공개 페이지 · 드레스 한 줄의 이름, q 는 고르기 화면 물음의 답 글 */
+    /* 길이 셋 — ko 는 공개 페이지 · 드레스 한 줄의 이름, q 는 고르기 화면 물음의 답 글
+       ★[DRESS_LEN_WORDS 2026-10-23 코워크 검토 4] 답 글은 칸 한 줄의 «미디 · 미니»와 이어지게(«미디(종아리)» · «미니(무릎 근처)»).
+       ★갈아입기(두 번째 옷) 운영은 사장님 결정 대기라 화면에 쓰지 않는다(종전 미니 설명에서 걷었다 · 검사가 그 낱말을 막는다) */
     lengths: [
       { key: 'ankle', ko: '발목', q: '발목까지', note: '걸을 때 신발 끝이 살짝 보이는 길이입니다.' },
-      { key: 'calf', ko: '미디', q: '종아리', note: '종아리 길이로, 구두까지 보여 경쾌합니다.' },
-      { key: 'knee', ko: '미니', q: '무릎 근처', note: '무릎 근처 길이로, 식사 자리나 두 번째 착장에 잘 어울립니다.' }
+      { key: 'calf', ko: '미디', q: '미디(종아리)', note: '종아리 길이로, 구두까지 보여 경쾌합니다.' },
+      { key: 'knee', ko: '미니', q: '미니(무릎 근처)', note: '무릎 근처 길이로, 가볍게 움직이기 좋습니다.' }
     ],
 
-    /* 고르기 화면의 물음 셋(한 화면에 하나 · 모두 «건너뛰기» 가능) — 'unsure'(아직 몰라요) · 건너뛰기는 그 조건을 보지 않는다 */
+    /* 고르기 화면의 물음 셋(한 화면에 하나 · 모두 «건너뛰기» 가능) — 'unsure'(아직 몰라요) · 건너뛰기는 그 조건을 보지 않는다
+       ★[DRESS_Q_WORDS 2026-10-23 코워크 검토 4] 길이 답 = 칸 한 줄의 낱말 · 셋째 물음 = «이런 드레스가 편하신가요?»(답도 «~드레스»)
+       figs = 핏 답 왼쪽의 작은 라인 그림(몸 선을 따라 = 슬립 · 허리만 잡고 아래는 여유 = 라이트 A라인 · 전체적으로 여유 = 엠파이어 · 아직 몰라요 = 빈 자리) */
     questions: [
       { key: 'len', step: '길이', q: '원하는 길이가 있으세요?',
-        opts: [['ankle', '발목까지'], ['calf', '종아리'], ['knee', '무릎 근처'], ['unsure', '아직 몰라요']] },
-      { key: 'fit', step: '핏', q: '어떤 핏이 편하세요?',
+        opts: [['ankle', '발목까지'], ['calf', '미디(종아리)'], ['knee', '미니(무릎 근처)'], ['unsure', '아직 몰라요']] },
+      { key: 'fit', step: '핏', q: '어떤 핏이 편하세요?', figs: { body: 'slip', waist: 'aline', loose: 'empire' },
         opts: [['body', '몸 선을 따라'], ['waist', '허리만 잡고 아래는 여유'], ['loose', '전체적으로 여유'], ['unsure', '아직 몰라요']] },
-      { key: 'pref', step: '편한 쪽', q: '이런 쪽이 편하신가요?', sub: '여러 개 · 고르지 않으셔도 돼요', multi: true,
-        opts: [['low', '노출은 적게'], ['arms', '팔을 덮는 쪽']] }
+      { key: 'pref', step: '편한 쪽', q: '이런 드레스가 편하신가요?', sub: '여러 개 · 고르지 않으셔도 돼요', multi: true,
+        opts: [['low', '노출이 적은 드레스'], ['arms', '소매나 볼레로가 있는 드레스']] }
     ],
 
-    /* 드레스 — expo: 'deep'(깊은 V넥 · 로우백) / 'soft' · sleeve: 'none' / 'sleeve' / 'bolero'(sleeve · bolero 는 팔을 덮는 쪽)
+    /* 드레스 — expo: 'deep'(깊은 V넥 · 로우백) / 'soft' · sleeve: 'none' / 'sleeve' / 'bolero'(sleeve · bolero 는 «소매나 볼레로가 있는 드레스»)
        ★[DRESS_SAMPLE] 아래 여섯은 검토용 표본이다(sample:true) — 운영 주소에서는 그려지지 않는다 · 실물이 오면 지운다. */
     dresses: [
       { id: 'S01', name: '표본 01', line: 'slip', length: 'ankle', neck: '카울넥', fabric: '새틴', expo: 'deep', sleeve: 'none',
@@ -76,7 +83,7 @@
         mood: '가슴 아래로 편안하게 떨어지는 미디 길이', pair: '레이스 볼레로', img: '',
         ex: [{ t: '앞' }, { t: '뒤' }, { t: '디테일' }, { t: '캔들존' }, { t: '화이트존' }], sample: true },
       { id: 'S05', name: '표본 05', line: 'twopiece', length: 'knee', neck: '라운드넥', fabric: '크레이프', expo: 'soft', sleeve: 'none',
-        mood: '식사 자리까지 이어 입기 좋은 짧은 길이', pair: '짧은 베일 · 리본 헤어핀', img: '',
+        mood: '무릎 근처에서 가볍게 끝나는 짧은 치마', pair: '짧은 베일 · 리본 헤어핀', img: '',
         ex: [{ t: '앞' }, { t: '뒤' }, { t: '디테일' }, { t: '캔들존' }, { t: '화이트존' }], sample: true },
       { id: 'S06', name: '표본 06', line: 'slip', length: 'calf', neck: 'V넥 · 로우백', fabric: '새틴', expo: 'deep', sleeve: 'none',
         mood: '등선이 드러나는 로우백 미디', pair: '긴 베일 · 볼레로', img: '',
@@ -108,6 +115,12 @@
   R.img = function (d, ext) { return (d && d.img) ? ('/assets/dress-refs/' + d.img + '.' + (ext || 'webp')) : ''; };
   R.exImg = function (e, ext) { return (e && e.img) ? ('/assets/dress-refs/' + e.img + '.' + (ext || 'webp')) : ''; };
   R.svg = function (d) { var l = R.line(d && d.line); return l ? l.svg : ''; };
+  /* ★[DRESS_SLIDES 2026-10-23 코워크 검토 4] 자세히에서 넘겨 보는 사진 = 사진(img)이 있는 장만 · 하나도 없으면 대표 사진 한 장(없으면 라인 그림) —
+     종전엔 사진이 오기 전 이름표(앞 · 뒤 · 디테일 …)만 있는 빈 장 다섯을 넘겼다 */
+  R.slides = function (d) {
+    var s = (d && Array.isArray(d.ex) ? d.ex : []).filter(function (e) { return e && e.img; }).map(function (e) { return { img: e.img, t: e.t || '' }; });
+    return s.length ? s : [{ img: (d && d.img) || '', t: '' }];
+  };
   /* ★[DRESS_SUM_ONE 2026-10-23 코워크 검토 1 · 명세 5장 «넥라인 · 소재 · 라인»을 바꿈] 칸 한 줄은 공개 · 고르기 모두 «라인 · 길이 · 소재» —
      첫 물음이 길이라 왜 아래로 갔는지 칸에서 보여야 한다. 넥라인은 자세히에만(라인 · 길이 · 소재 · 넥라인). */
   R.sumCell = function (d) {
@@ -120,7 +133,7 @@
 
   /* ★[DRESS_RANK] 줄 세우기(명세 6장) — 답 ans = { len, fit, pref[] }
      - 길이 답 = dress.length 일 때 맞음 · 핏 답 = 그 라인의 fit 일 때 맞음
-     - «노출은 적게»(low)를 골랐으면 expo:'deep' 은 아래로 · «팔을 덮는 쪽»(arms)을 골랐으면 sleeve:'none' 은 아래로
+     - «노출이 적은 드레스»(low)를 골랐으면 expo:'deep' 은 아래로 · «소매나 볼레로가 있는 드레스»(arms)를 골랐으면 sleeve:'none' 은 아래로
      - 답한 조건을 모두 맞고 아래로 갈 까닭이 없으면 «답에 맞는 드레스»(원천 순서 그대로)
      - 나머지는 아래로 갈 까닭이 적은 순 → 맞은 수가 많은 순 → 원천 순서
      - 'unsure'(아직 몰라요) · 빈 값(건너뛰기)은 그 조건을 보지 않는다 · 답이 하나도 없으면 나누지 않는다(asked:false)

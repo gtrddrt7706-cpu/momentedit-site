@@ -2474,7 +2474,9 @@ function _dressMailOk_(row) {   // [DRESS_PICK] 확정 메일에 시착 준비 �
   return !!cust && String(cust.get('상품타입') || '').trim() !== P.PRODUCT_SNAP;
 }
 function handleSaveDressPick(body) { _gsr_();
-  /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 확정된 상담만 · 시그니처 · 단계 상담확정 · 상담일 −2일까지 · 1~2벌 · 남길 말 200자 · 한 사람 한 시간 30번 */
+  /* [DRESS_PICK] 시착 준비 저장 — 세션 → 상담 행 · 확정된 상담만 · 시그니처 · 단계 상담확정 · 상담일 −2일까지 · 0~2벌 · 남길 말 200자 · 한 사람 한 시간 30번
+     ★[DRESS_CLEAR 2026-10-23 코워크 검토 4] 0벌 = 비우기 — 저장해 둔 두 벌을 다 뺀 뒤 «저장»(나가기 판의 «저장하고 나가기»)이 거짓말을 하지 않게.
+       확정 · 단계 · 마감 확인은 저장과 같다(마감 뒤에는 비우지도 못한다) · 칸이 아직 없으면 비울 것도 없다(칸을 새로 붙이지 않는다) */
   body = body || {};
   var a = _sessionToConsult(String(body.token || '').trim());
   if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
@@ -2484,7 +2486,6 @@ function handleSaveDressPick(body) { _gsr_();
     x = String(x == null ? '' : x).trim();
     if (/^[A-Za-z0-9_-]{1,16}$/.test(x) && !seen[x] && picks.length < DRESS_PICK.max) { seen[x] = 1; picks.push(x); }
   });
-  if (!picks.length) return { ok: false, error: '드레스를 한 벌 이상 골라 주세요' };
   var names = picks.map(function (_, i) { var n = Array.isArray(body.names) ? body.names[i] : ''; return String(n == null ? '' : n).replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, DRESS_PICK.nameMax); });
   var A = (body.ans && typeof body.ans === 'object' && !Array.isArray(body.ans)) ? body.ans : {};
   var ans = { len: DRESS_ANS.len.indexOf(String(A.len)) >= 0 ? String(A.len) : '', fit: DRESS_ANS.fit.indexOf(String(A.fit)) >= 0 ? String(A.fit) : '',
@@ -2504,6 +2505,10 @@ function handleSaveDressPick(body) { _gsr_();
     if (LOCKED_STATES.indexOf(String(r.get('상태') || '').trim()) === -1) return { ok: false, error: '상담이 확정된 뒤에 고르실 수 있어요' };
     if (String(a.cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP || String(a.cust.get('현재단계') || '').trim() !== '상담확정') return { ok: false, error: '지금은 바꿀 수 없어요' };
     if (!_dressOpen_(r.get('선택날짜'))) return { ok: false, error: '바꾸기 마감이 지났어요' };
+    if (!picks.length) {   // [DRESS_CLEAR] 비우기
+      if (colOf[DRESS_PICK.col]) writeCell(sheet, colOf, r.num, DRESS_PICK.col, '');
+      return { ok: true, at: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'), saved: null };
+    }
     if (!colOf[DRESS_PICK.col]) { sheet.getRange(SYS.HEADER_ROW, sheet.getLastColumn() + 1).setValue(DRESS_PICK.col); colOf = buildHeaderIndex(sheet); }   // 맨 뒤에 한 번(잠금 안)
     if (!colOf[DRESS_PICK.col]) return { ok: false, error: '고른 드레스를 저장하지 못했어요', _why: 'no column' };   // writeCell 은 칸이 없으면 조용히 건너뛴다 — «됐다»고 말하지 않게
     var at = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');

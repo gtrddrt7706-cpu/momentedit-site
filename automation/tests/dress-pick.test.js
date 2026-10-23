@@ -1,6 +1,6 @@
 /**
  * Moment Edit · «시착 준비» 서버 검증 [DRESS_PICK 2026-10-23 코워크 설계 명세 8장] — 실서버 코드(gas-lint 샌드박스)로 구동.
- *   저장 길(세션 · 확정된 상담만 · 시그니처 · 상담확정 · 상담일 −2일 23:59 마감 · 1~2벌 · 남길 말 200자 · 한 시간 30번) ·
+ *   저장 길(세션 · 확정된 상담만 · 시그니처 · 상담확정 · 상담일 −2일 23:59 마감 · 0~2벌(0 = 비우기 [DRESS_CLEAR]) · 남길 말 200자 · 한 시간 30번) ·
  *   칸이 없으면 맨 뒤에 한 번 붙이기 · 읽기(_dressState_ · 깨진 값은 null) · 스튜디오 한 줄 · 확정 메일 한 줄(스위치 · 시그니처 · 의상) ·
  *   아침 보고 «내일 상담 · 준비할 드레스»(같은 날 겹침 · 남긴 말).
  * 실행: node automation/tests/dress-pick.test.js
@@ -72,8 +72,18 @@ ok(v.picks.join() === 'S01,S02', '2-1 같은 id · 이상한 id 는 빼고 두 �
 ok(v.names[0] === '표본01' && v.names[1] === '표본 02', '2-2 이름의 꺾쇠 · 제어 문자는 걷는다', v.names);
 ok(v.ans.len === '' && v.ans.fit === 'waist' && v.ans.pref.join() === 'low,arms', '2-3 답은 정한 값만(모르는 값은 빈칸 · 겹친 값은 하나)', v.ans);
 ok(v.memo.length === 200, '2-4 남길 말 200자', v.memo.length);
+// [DRESS_CLEAR] 0벌 = 비우기(저장해 둔 두 벌을 다 뺀 뒤의 «저장») — 칸을 비우고 saved:null · 칸이 없으면 새로 붙이지 않는다
 r = save({ picks: [] });
-ok(r.ok === false && r.error === '드레스를 한 벌 이상 골라 주세요', '2-5 0벌은 거절', r);
+ok(r.ok === true && r.saved === null && cell() === '', '2-5 0벌 = 비우기(저장된 두 벌을 지운다)', r);
+ok(sb._dressParse_(cell()) === null, '2-5b 비운 뒤 읽으면 저장본 없음(null)', cell());
+fresh();
+r = save({ picks: [] });
+ok(r.ok === true && SH.H.indexOf('시착준비') < 0, '2-5c 한 번도 저장하지 않았으면 칸을 붙이지 않는다', SH.H.slice(-1));
+fresh({ days: 1 });
+SH.H.push('시착준비'); SH.R[2][SH.H.length - 1] = JSON.stringify({ picks: ['S01'], names: ['표본 01'], ans: {}, memo: '', at: 'x' });
+r = save({ picks: [] });
+ok(r.ok === false && r.error === '바꾸기 마감이 지났어요' && JSON.parse(cell()).picks.join() === 'S01', '2-5d 마감 뒤에는 비우지도 못한다', r);
+fresh();
 r = save({ token: 'nope' });
 ok(r.ok === false && r.reason === 'invalid', '2-6 로그인이 풀렸으면 reason 을 넘긴다(화면이 로그인으로)', r);
 

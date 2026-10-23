@@ -19406,7 +19406,9 @@ chk '<script src="/assets/dress-refs.js"></script>' admin.html 1
 chk 'DRESS_ADMIN_ROWS' admin.html 2
 chk '<script src="/assets/dress-refs.js" defer></script>' index.html 1
 chk '<div data-dress-on hidden' index.html 1
-chk '<span data-dress-on hidden>' inquiry.html 1
+chk 'data-dress-text="대여 의상은 프리 사이즈' inquiry.html 1               # ★[DRESS_NOTE_ONE 2026-10-23 코워크 검토 4] 켜질 문장은 글 통째로(data-dress-text) — 꺼짐은 종전 글 한 덩어리
+nochk '<span data-dress-off>' inquiry.html 0                                  # Note 줄(flex)에서 글을 span 으로 쪼개면 스위치가 꺼져 있어도 두 단으로 갈라진다(운영 신청서가 깨진다)
+chk 'DRESS_NOTE_ONE' inquiry.html 1
 chk '<script src="/assets/dress-refs.js" defer>' inquiry.html 1
 chk 'DRESS_PICK' automation/consultation/consultation-booking.gs 8
 chk "case 'saveDressPick':" automation/consultation/consultation-booking.gs 1
@@ -19442,9 +19444,46 @@ chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호
 chk 'DRESS_DETAIL_FIT' dress.html 6
 chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
 nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
+# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 17가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
+chk 'DRESS_LIVE_READY' assets/dress-refs.js 1                             # 켤 때 할 일 ㄹ — 실물 4벌 이상 · 모두 사진 · ex 는 사진 있는 장만(dress-refs.mjs ④ 가 막는다)
+chk 'DRESS_SLIDES' assets/dress-refs.js 1                                 # 자세히 = 사진 있는 장만 · 한 장이면 ‹ › · n / 5 없음
+chk 'DRESS_SLIDES' dress.html 2
+chk 'DRESS_EXIT_ASK' dress.html 4                                         # 머리 «저장 · 나가기» · 바뀐 게 있나 알림 · 나가기를 부모에게 묻는다
+chk 'DRESS_EXIT_ASK' mypage.html 3                                        # 판 = 마이페이지 입력 화면의 그 판 · 머리 나가기 · 뒤로가기 · Esc 가 한 곳(askExit)
+chk "mpConfirm({ title:st.failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요'," mypage.html 1
+chk "var _bkId=bkOpen(function(){ askExit(true); });" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다
+chk "postMessage({ type: 'momentedit:dressExit' }, location.origin)" dress.html 1   # 머리 «나가기»는 부모에게 묻는다(바로 닫는 dressClose 는 판의 «그냥 나가기» · 저장이 닿은 뒤만)
+chk 'DRESS_CLEAR' automation/consultation/consultation-booking.gs 2     # 0벌 저장 = 비우기(다 뺀 뒤 «저장하고 나가기»가 거짓말을 하지 않게)
+chk 'DRESS_FIT_FEE' dress.html 3                                          # 공개 시착비 칸 — 숫자는 홈 가격표 · 신청서 · 시착 동의서와 대조(dress-refs.mjs ⑪)
+chk '<p class="fit-p">시착은 상담 당일 기본 2벌이며, 3벌째부터 1벌당 50,000원입니다.</p>' dress.html 1
+chk '<p class="pk-bar-note">안 입은 드레스는 시착비가 들지 않아요.</p>' dress.html 1
+chk 'DRESS_NO_INTRO' dress.html 3                                         # 인트로 걷음 — 열면 첫 물음부터(카드가 같은 말을 이미 했다)
+nochk 'function introHTML' dress.html 0
+nochk '몇 가지 답하고 보기' dress.html 0
+chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(첫 물음 · 카드 0벌)
+chk 'DRESS_NO_PICK_OK' mypage.html 1
+chk 'DRESS_SKIP_Q' dress.html 3                                           # 물음마다 «질문 없이 바로 보기»
+chk 'DRESS_PICK_TIER' dress.html 4                                        # 진한 단추가 한 화면에 둘 서지 않게 · 막대 0벌 «드레스를 골라 주세요»(한 줄)
+nochk '두 벌을 골라 주세요' dress.html 0
+chk 'DRESS_MEMO_DONE' dress.html 4                                        # 남길 말은 완료 화면(+ «남기기») · 그림 140 · Nº 표시
+chk 'DRESS_PHOTO_FIRST' dress.html 2                                      # 사진 먼저(홈 Styling 사진) → 드레스 → 라인 → 길이 → 시착 → 신랑 → 단추
+chk 'DRESS_ONE_WIDTH' dress.html 2                                        # 섹션 이름 · 그리드 · 사진이 같은 왼쪽 끝(종전 1280 에서 348 · 148 로 갈렸다)
+nochk 'sec-wide' dress.html 0
+chk 'DRESS_CLOSE_IN' dress.html 1                                         # 자세히 «닫기»는 내용 칸 안 오른쪽 위
+chk 'DRESS_NEXT_ONE' dress.html 4                                         # 글 아래 «다음 드레스 ›» — 마지막이면 처음
+chk 'DRESS_LINE_ONE' assets/dress-refs.js 1                               # 라인 설명 한 문장 · 함께 볼 점은 슬립 · 컬럼 둘
+chk 'DRESS_Q_WORDS' assets/dress-refs.js 1                                # 길이 답 «미디(종아리) · 미니(무릎 근처)» · 셋째 물음 «이런 드레스가 편하신가요?» · 핏 답 그림
+chk 'DRESS_LEN_WORDS' assets/dress-refs.js 1
+nochk '두 번째 착장' assets/dress-refs.js 0                                 # 사장님 결정 대기(갈아입기 운영) — 화면에 쓰지 않는다
+nochk '두 번째 착장' dress.html 0
+chk 'DRESS_CARD_WORDS' mypage.html 1                                      # 카드 0 · 1 · 2벌 단추 = 같은 자리 · 같은 외곽 단추(두 벌 고르기 · 이어서 고르기 · 바꾸기)
+nochk 'trk-act-min" data-dress-open' mypage.html 0
+chk 'DRESS_NUM_LINING' dress.html 1                                       # Nº 칸 · 배지 · 카드 번호 = lining-nums(«Nº o1»로 읽히지 않게)
+chk 'DRESS_NUM_LINING' mypage.html 1
+chk 'DRESS_HOME_BELOW' index.html 3                                       # 홈 «드레스 둘러보기»는 사진 아래 · 켜지면 사진도 같은 곳 · 단추 글 가운데
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
-    0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 세 상태 모두 고르기 단추가 막대 위' ;;
+    0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만' ;;
     1) echo 'FAIL dress-fit: 자세히 첫 화면에서 고르기 단추가 막대에 가립니다 — node scripts/audit/dress-fit.mjs --print'; fail=1 ;;
     *) echo 'ok dress-fit: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
