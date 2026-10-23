@@ -234,7 +234,7 @@ const SCENES = {
     /* 마지막 그물 — 빈 글 만들기는 어느 길로 와도 서버에 가지 않는다(_vc · 줄 아래 빨간 글 없음) */
     const L0 = await pg.evaluate(() => __SV.log.length); const n0 = await pg.evaluate(() => (__SV.n.make || 0)); const g = await f.evaluate(() => _vc('make', { key: 'g1', text: '  ', lines: [['groom', ''], ['bride', ' ']] }).then((d) => ({ ok: d.ok, empty: !!d.empty, err: d.error || '' }))); await adv(pg, 1000);
     const n1 = await pg.evaluate((L0) => (__SV.n.make || 0) - __SV.log.slice(L0).filter((x) => x.op === 'make' && !/^g[12]$/.test(x.key || '')).length, L0);   // 뒤에서 미리 만드는 다른 줄([FILL_EMPTY] · 다른 분 목소리 데우기)은 빼고 이 두 줄만
-    const g2 = await f.evaluate(() => { mkSlText('g2', 0, ''); return _vcMake('g2', {}).then(() => 'made', () => 'no').then((x) => ({ x, err: (MK.lineErr || {}).g2 || '', up: MK_UP.g2 || '' })); }); await adv(pg, 500);
+    const g2 = await f.evaluate(() => { mkSlText('g1', 0, ''); return _vcMake('g1', {}).then(() => 'made', () => 'no').then((x) => ({ x, err: (MK.lineErr || {}).g1 || '', up: MK_UP.g1 || '' })); }); await adv(pg, 500);
     ok('#27 [LINE_BLANK] 빈 글 만들기 요청은 업체 · 서버에 보내지 않는다(마지막 그물 · 거절 글 · 그 줄 빨간 글 없음)', g.empty && !g.ok && !g.err && n1 === n0 && g2.x === 'no' && !g2.err && !g2.up, JSON.stringify({ g, n0, n1, g2 }));
     /* g1 — 만든 뒤 비우고 그 자리에서 ▶ · 읽는 분 바꾸기 */
     await f.evaluate(() => { mkGo('guest'); mkAiGo('g1'); }); await done(r, 'g1'); await adv(pg, 1500);

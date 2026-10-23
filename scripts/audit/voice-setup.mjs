@@ -156,14 +156,14 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ` 적다가 스튜디오 → 다시 AI — 하객 맞이 · 식전 영상 소개글 · 입장 멘트 글이 그대로 · 기본 글로 안 바뀜 · 저장된 키가 줄지 않음 · 스튜디오인 동안에도 지워지지 않음 [VT_KEEP_SWITCH]`, Object.values(vk).every((x) => x && x.switched && x.same && x.notDefault && x.keysKept && x.midKept), JSON.stringify(vk));
   /* [VT_KEEP_SWITCH] 창(«나레이션 자세히» → 스튜디오 나레이션 → 다시 AI · 세 자리를 한꺼번에)으로 바꿔도 같다 */
   await pg.evaluate(() => { mkGo('guest'); render(); }); await pg.waitForTimeout(400);
-  await pg.click('[data-fk="mksl:g2:0"]'); await pg.keyboard.press('End'); await pg.keyboard.type(' 창으로 바꿔도');
-  const t2 = await pg.$eval('[data-fk="mksl:g2:0"]', (e) => e.value);
+  await pg.click('[data-fk="mksl:g3:0"]'); await pg.keyboard.press('End'); await pg.keyboard.type(' 창으로 바꿔도');
+  const t2 = await pg.$eval('[data-fk="mksl:g3:0"]', (e) => e.value);
   await pg.evaluate(() => document.activeElement && document.activeElement.blur()); await pg.waitForTimeout(300);   /* 창 단추는 화면 위쪽 — 칸에서 먼저 나온다(칸에서 나오면 다시 그려진다) */
   await pg.evaluate(() => mkVsOpen()); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:nar"]'); await pg.waitForTimeout(400);
-  const midW = await pg.evaluate(() => ({ v: S.guestVoice, g2: (S.vtext || {}).g2 || '' }));
+  const midW = await pg.evaluate(() => ({ v: S.guestVoice, g2: (S.vtext || {}).g3 || '' }));
   await pg.evaluate(() => mkVsOpen()); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:ai"]'); await pg.waitForTimeout(500);
-  const backW = await pg.$eval('[data-fk="mksl:g2:0"]', (e) => e.value).catch(() => '(칸 없음)');
-  ok(W + ' 창으로 스튜디오 → 다시 AI 해도 하객 맞이 g2 글이 그대로 [VT_KEEP_SWITCH]', midW.v === 'nar' && midW.g2 === t2 && backW === t2, JSON.stringify({ midW, backW: backW.slice(-12), t2: t2.slice(-12) }));
+  const backW = await pg.$eval('[data-fk="mksl:g3:0"]', (e) => e.value).catch(() => '(칸 없음)');
+  ok(W + ' 창으로 스튜디오 → 다시 AI 해도 하객 맞이 1분 전 글이 그대로 [VT_KEEP_SWITCH]', midW.v === 'nar' && midW.g2 === t2 && backW === t2, JSON.stringify({ midW, backW: backW.slice(-12), t2: t2.slice(-12) }));
   /* ★[LINE_NO_SEC 2026-10-03 사장님] 줄 카드 머리의 «약 n초»는 없다(AI · 직접 녹음 판 모두) — 덧말(«식전 영상이 끝난 뒤에 흘러요» · «두 분이 한 문장씩 번갈아»)은 홀로 · 빈 덧말 줄 없음 · 소개글을 적어도 머리에 초가 안 생긴다 */
   const ls = {};
   for (const [k, v] of [['guest', 'ai'], ['prevideo', 'ai'], ['entry', 'ai'], ['guest', 'couple'], ['entry', 'couple']]) {

@@ -205,7 +205,8 @@ const PARTS = [
      없는 순서를 조용히 건너뛰면 기다리던 하객이 「축사는?」 하고 남는다. */
 /* ★★[STEPMOM_RETIRE 2026-09-26 사장님 · 코워크 회신8 덧5] R-tribute-reply(시어머님 헌정 답)도 뺀다 — 녹음하지 않고 폐지.
    새 코스엔 나오는 곳이 0(open 54조합), 옛 코스 지문에서도 «신랑 어머님 한 마디»를 뺐다(ritual-data TRIBUTE). 문안은 원천에 남긴다(되살릴 근거). */
-const CAST_HOLD = (id) => /^R-declare-/.test(id) || /^R-toast$/.test(id) || /^R-tribute-reply$/.test(id);
+/* ★[GUEST_5MIN_OFF_1023 검토 159-1] R-guest-3(5분 전 두 분 견본 · 03_guest-3)도 뺀다 — 엔진이 5분 전 자리를 틀지 않는다 · 문안 · 파일은 그대로(번호 보존) */
+const CAST_HOLD = (id) => /^R-declare-/.test(id) || /^R-toast$/.test(id) || /^R-tribute-reply$/.test(id) || /^R-guest-3$/.test(id);
 
 // ── 여백 규칙 (초) · 대본 「공통 녹음 규격」과 각 그룹 note에서 그대로 옮겼다
 // ★★[GAP_SHRUNK 2026-08-03] 여백 축소 — 사용자 실청: "문장이 바뀌는 곳에서 턴이 너무 길어"

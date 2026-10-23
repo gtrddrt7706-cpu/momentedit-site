@@ -27,28 +27,28 @@ try {
         return new Promise((ok) => setTimeout(() => ok({ ok: true, parts, left: 5 }), 800)); }
       if (op === 'status') return Promise.resolve({ ok: true, groom: { ready: true }, bride: { ready: true } }); return Promise.resolve({ ok: true }); };
     window._vcProc = (d, t) => Promise.resolve({ wav: new Blob(['w:' + t], { type: 'audio/wav' }) });
-    S.up = {}; ['g0', 'g1', 'g2', 'g3'].forEach((k) => { S.up[k] = { src: 'ai', by: _vcLineWho(k), name: 'x', tx: _txSig(_recNeed(k)), tempo: _tKey(k), pause: _pKey(k), wq: _slWhoSig(k) }; });
+    S.up = {}; ['g0', 'g1', 'g3'].forEach((k) => { S.up[k] = { src: 'ai', by: _vcLineWho(k), name: 'x', tx: _txSig(_recNeed(k)), tempo: _tKey(k), pause: _pKey(k), wq: _slWhoSig(k) }; });
     mkGo('guest'); });
   await wait(500);
   /* ⓪ [EX_PRESS_MAKE] 예시를 고르기만 해서는 업체에 묻지 않는다 */
   await pg.evaluate(() => { window.__mk.length = 0; });
   await pg.evaluate(() => mkGuestEx(2)); await wait(1500);
-  const z = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; return { up: ks.map((k) => MK_UP[k] || ''), mode: ks.map((k) => _aiMode(k)), mk: window.__mk.slice() }; });
+  const z = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g3']; return { up: ks.map((k) => MK_UP[k] || ''), mode: ks.map((k) => _aiMode(k)), mk: window.__mk.slice() }; });
   ok(`${w} ⓪ 예시를 고르기만 하면 글만 — 업체에 묻는 것 0 · 네 줄 «목소리 만들기»(«준비 중» 아님) [EX_PRESS_MAKE]`, z.up.every((x) => !x) && z.mode.every((m) => m === 'need') && !z.mk.length, JSON.stringify(z));
   /* ① 직접 누른 일의 경합 — 3번에서 «목소리 만들기» → 4번 → 3번: 하던 일을 기억해 끝까지 */
-  await pg.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => mkAiGo(k)); }); await wait(150);
-  const mid = await pg.evaluate(() => ['g0', 'g1', 'g2', 'g3'].map((k) => MK_UP[k]).join(','));
+  await pg.evaluate(() => { ['g0', 'g1', 'g3'].forEach((k) => mkAiGo(k)); }); await wait(150);
+  const mid = await pg.evaluate(() => ['g0', 'g1', 'g3'].map((k) => MK_UP[k]).join(','));
   await pg.evaluate(() => mkGuestEx(3)); await wait(150);
   await pg.evaluate(() => mkGuestEx(2)); await wait(3500);
-  const a = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; return { cur: _guestExCur(), match: ks.map((k) => (S.up[k] || {}).tx === _txSig(_recNeed(k))), up: ks.map((k) => MK_UP[k] || ''), mode: ks.map((k) => _aiMode(k)), stale: ks.map((k) => _upStale(k)), mk: window.__mk.slice() }; });
+  const a = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g3']; return { cur: _guestExCur(), match: ks.map((k) => (S.up[k] || {}).tx === _txSig(_recNeed(k))), up: ks.map((k) => MK_UP[k] || ''), mode: ks.map((k) => _aiMode(k)), stale: ks.map((k) => _upStale(k)), mk: window.__mk.slice() }; });
   ok(`${w} ① 3번 «목소리 만들기» → 4번 → 3번 — 네 줄 모두 3번 글 소리 · 만드는 중 없음 · 머리 «확정하기» [EX_RACE]`, /make/.test(mid) && a.cur === 2 && a.match.every(Boolean) && a.up.every((x) => !x) && a.mode.every((m) => m === 'keep') && !a.stale.some(Boolean), JSON.stringify({ mid, ...a, mk: a.mk.length }));
   ok(`${w} ③ 같은 글은 한 번만 만든다(3번 4줄 = 4번 이하)`, a.mk.filter((x) => !/^bg:/.test(x)).length <= 4, JSON.stringify(a.mk));
   /* ② [EX_PRESS_MAKE] 다 만든 3번 · 4번이 이 탭 기억에 있어도 3번으로 돌아오면 «목소리 만들기» — 바로 붙이지 않는다 */
   await pg.evaluate(() => mkGuestEx(3)); await wait(200);
-  await pg.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => mkAiGo(k)); }); await wait(3500);
-  const b4 = await pg.evaluate(() => ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k)));
+  await pg.evaluate(() => { ['g0', 'g1', 'g3'].forEach((k) => mkAiGo(k)); }); await wait(3500);
+  const b4 = await pg.evaluate(() => ['g0', 'g1', 'g3'].map((k) => _aiMode(k)));
   await pg.evaluate(() => { window.__mk.length = 0; mkGuestEx(2); }); await wait(1500);
-  const b = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; return { cur: _guestExCur(), mem: ks.every((k) => !!_exCached(k)), mode: ks.map((k) => _aiMode(k)), up: ks.map((k) => MK_UP[k] || ''), mk: window.__mk.slice() }; });
+  const b = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g3']; return { cur: _guestExCur(), mem: ks.every((k) => !!_exCached(k)), mode: ks.map((k) => _aiMode(k)), up: ks.map((k) => MK_UP[k] || ''), mk: window.__mk.slice() }; });
   ok(`${w} ② 다 만든 예시가 이 탭 기억에 있어도 돌아오면 «목소리 만들기» · 바로 붙이지 않는다 · 업체에 묻지 않는다 [EX_PRESS_MAKE]`, b4.every((m) => m === 'keep') && b.cur === 2 && b.mem && b.mode.every((m) => m === 'need') && b.up.every((x) => !x) && !b.mk.length, JSON.stringify({ b4, ...b }));
   /* ④ 입장 인사 — 멘트를 바꾸면 «목소리 만들기» · 미리 섞지 않는다 */
   const c = await pg.evaluate(async () => { window.__mk.length = 0; S.entry = 'A'; S.up.entry = { src: 'ai', by: ['groom', 'bride'], name: 'x' }; const sn = _vcSnap('entry', {}); Object.assign(S.up.entry, { tx: _txSig(sn.t), tempo: sn.tempo, pause: sn.pause, wq: sn.wq, tq: sn.tq, pf: LINE_EVEN_V });

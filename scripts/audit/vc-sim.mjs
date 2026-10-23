@@ -166,7 +166,7 @@ async function run(sc) {
     delT = await f.evaluate((tst) => ({ toast: tst, ready: !!(VC.st && VC.st.groom && VC.st.groom.ready), err: (VC.delErr || {}).groom || '', card: !!document.querySelector('.mk-vderr'), ai: Object.keys(S.up || {}).filter((k) => S.up[k] && S.up[k].src === 'ai').length }), tst); log.push('지우기 ' + Math.round(t / 1000) + '초'); await shot('지우기');
     if (sc.delFail) ok(`${sc.name} — 서버가 못 지웠으면 목소리 · AI 줄 그대로 · 까닭과 코드가 카드 안에 남는다 [DEL_AFTER_OK]`, delT.ready && delT.ai > 0 && /코드 V\d/.test(delT.err) && delT.card, JSON.stringify(delT));
     else ok(`${sc.name} — 서버가 지웠으면 «지웠어요» · 카드도 «아직 만들지 않았어요»`, delT.toast === '지웠어요' && !delT.ready, JSON.stringify(delT)); await ctx.close(); return; }
-  const end = await f.evaluate(() => ({ up: ['g0', 'g1', 'g2', 'g3', 'entry', 'pv'].map((k) => { const v = (S.up || {})[k]; return k + ':' + (v && v.src === 'ai' ? (v.local ? 'local' : 'ai') : '-'); }), fill: VC.fill, ready: !!(VC.st && VC.st.groom && VC.st.groom.ready) }));
+  const end = await f.evaluate(() => ({ up: ['g0', 'g1', 'g3', 'entry', 'pv'].map((k) => { const v = (S.up || {})[k]; return k + ':' + (v && v.src === 'ai' ? (v.local ? 'local' : 'ai') : '-'); }), fill: VC.fill, ready: !!(VC.st && VC.st.groom && VC.st.groom.ready) }));
   const red = await seen(f); const sv = await pg.evaluate(() => ({ calls: __SV.log.filter((x) => !x.done).map((x) => x.op + (x.f ? '!' + x.f : '')).join(' '), tries: (__SV.st.groom.tries || 0) + '/' + (__SV.st.bride.tries || 0), files: __SV.files }));
   await shot('끝');
   const lines = end.up.filter((x) => /:ai$/.test(x)).length;

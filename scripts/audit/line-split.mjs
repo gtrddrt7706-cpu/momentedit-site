@@ -59,7 +59,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   /* 하객 맞이 · 식전 영상 소개도 같은 편집기 */
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(800);
   const g0 = await pg.evaluate(() => ({ eds: [0, 1, 2, 3].filter((i) => document.querySelector('[data-fk="mksl:g' + i + ':0"]')).length, head: document.querySelectorAll('.mk-whog:not(.mk-slwg)').length, old: document.querySelectorAll('.mk-vtta').length }));
-  ok(W + ' 하객 맞이 넷 — 같은 줄 편집기 · 머리 신랑|신부 고르기 · 한 칸 글상자 없음', g0.eds === 4 && g0.head === 0 && g0.old === 0, JSON.stringify(g0));
+  ok(W + ' 하객 맞이 셋(5분 전 걷음 · GUEST_5MIN_OFF_1023) — 같은 줄 편집기 · 머리 신랑|신부 고르기 · 한 칸 글상자 없음', g0.eds === 3 && g0.head === 0 && g0.old === 0, JSON.stringify(g0));
   if (SHOT) await pg.screenshot({ path: `${SHOT}/ls-guest-${W}.png`, fullPage: true });
   await pg.evaluate(() => _vcMake('g1', {}).catch(() => {})); await pg.waitForTimeout(900);
   const before = await pg.evaluate(() => ({ stale: _upStale('g1'), wq: (S.up.g1 || {}).wq }));

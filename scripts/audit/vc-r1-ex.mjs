@@ -90,7 +90,7 @@ async function open(o) {
     if (o.mode === 'nar') { S.guestVoice = S.entryVoice = S.pvVoice = 'nar'; S.vfill = {}; }
     else { S.guestVoice = S.entryVoice = S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.pvText = PV_EX[0][1];
       VC.st = { ok: true, groom: { ready: true }, bride: { ready: true } };   // 열쇠 계산용 · 아래에서 비운다(서버에서 받는다)
-      ['g0', 'g1', 'g2', 'g3', 'pv', 'entry'].forEach((k) => { const sn = _vcSnap(k, {}), w = _vcLineWho(k);
+      ['g0', 'g1', 'g3', 'pv', 'entry'].forEach((k) => { const sn = _vcSnap(k, {}), w = _vcLineWho(k);
         S.up[k] = { n: 'AI', id: 'f-' + k + '-0', at: '', src: 'ai', by: sn.mx ? ['groom', 'bride'] : w, tempo: sn.tempo, pause: sn.pause, tx: _txSig(sn.t), wq: sn.wq, tq: sn.tq, pf: sn.mx ? LINE_EVEN_V : undefined };
         out.push({ text: sn.t, tempo: sn.tempo, pause: sn.pause, one: sn.mx ? '' : w, lines: sn.lines }); });
       VC.st = null; }
@@ -101,7 +101,7 @@ async function open(o) {
   await f.evaluate(() => { _vcStatus(null, true); }); await adv(pg, 2500);
   return { ctx, pg, f, errs };
 }
-const G = ['g0', 'g1', 'g2', 'g3'];
+const G = ['g0', 'g1', 'g3'];   // [GUEST_5MIN_OFF_1023] 5분 전 줄(g2)은 걷었다
 const MODES = (f, ks) => f.evaluate((ks) => ks.map((k) => _aiMode(k)), ks);
 const FRESH = (f, ks) => f.evaluate((ks) => ks.every((k) => { const u = (S.up || {})[k]; return !!(u && typeof u === 'object' && u.src === 'ai' && u.tx === _txSig(_recNeed(k))); }), ks);
 const chip = async (f, sel) => { await f.evaluate((sel) => { const b = document.querySelector(sel); if (b) b.scrollIntoView({ block: 'center' }); }, sel); await f.click(sel); };
@@ -160,7 +160,7 @@ const SC = {
     await f.evaluate(() => { S.up.g1 = 0; _persist(); mkGo('guest'); });   // 지우기 단추와 같은 모양(_mkUpDrop · S.up[k]=0) await adv(pg, 600);
     const n0 = await pg.evaluate(() => __SV.mk.length);
     await chip(f, '[data-fk="mkex:guest:2"]'); await adv(pg, 60000);
-    const r = await f.evaluate(() => ({ g1: (S.up || {}).g1 || null, m: ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k)) })), n1 = await pg.evaluate(() => __SV.mk.length);
+    const r = await f.evaluate(() => ({ g1: (S.up || {}).g1 || null, m: ['g0', 'g1', 'g3'].map((k) => _aiMode(k)) })), n1 = await pg.evaluate(() => __SV.mk.length);
     ok('34 deleted — 고객이 지운 빈 줄은 칩을 눌러도 빈 줄 그대로 · 나머지 셋도 «목소리 만들기»(만들지 않는다) [EX_PRESS_MAKE]', !r.g1 && r.m.every((m) => m === 'need') && n1 === n0 && !errs.length, JSON.stringify({ r, n0, n1 }));
     await ctx.close(); },
   /* 35 — [EX_PRESS_MAKE 2026-10-08] 새 탭 · 쪽에 들어와도 · 예시를 눌러도 업체에 묻지 않는다(미리 만들기 · 먼저 만들기를 걷었다 — 종전 EX_ONE_ASK «데우기와 겹쳐 묻지 않기»는 데우기가 없어져 쓸 데가 없다) */
@@ -178,14 +178,14 @@ const SC = {
       await ctx.close(); } },
   /* 36 — «준비 중» 알약 탭 */
   async tap() { const { ctx, pg, f, errs } = await open({ mode: 'ai', fresh: true });
-    await f.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => { const o = '옛날 글 ' + k, n = String(_exNOf(k)), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}), gi = k.slice(1); E[gi] = [].concat(E[gi] || [], [o]); S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(o) }); }); _persist(); mkGo('guest'); }); await adv(pg, 500);   // [EX_PRESS_MAKE] «준비 중»은 이제 배포로 예시 글이 바뀐 줄(소리는 옛 글)을 맞출 때만 — 그 모양으로 연다 · [EX_STALE_DEPLOY] 배포 흉내(같은 예시의 옛 글 목록에 더한다 · 아무 글이나 «옛 글»로 치지 않는다)
+    await f.evaluate(() => { ['g0', 'g1', 'g3'].forEach((k) => { const o = '옛날 글 ' + k, n = String(_exNOf(k)), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}), gi = k.slice(1); E[gi] = [].concat(E[gi] || [], [o]); S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(o) }); }); _persist(); mkGo('guest'); }); await adv(pg, 500);   // [EX_PRESS_MAKE] «준비 중»은 이제 배포로 예시 글이 바뀐 줄(소리는 옛 글)을 맞출 때만 — 그 모양으로 연다 · [EX_STALE_DEPLOY] 배포 흉내(같은 예시의 옛 글 목록에 더한다 · 아무 글이나 «옛 글»로 치지 않는다)
     await f.evaluate(() => { const b = document.querySelector('.mk-aip[data-key="g0"]'); b.scrollIntoView({ block: 'center' }); }); await adv(pg, 200);
     const pre = await f.evaluate(() => ({ m: _aiMode('g0'), dis: (document.querySelector('.mk-aip[data-key="g0"]') || {}).getAttribute('aria-disabled') }));
     const n0 = await pg.evaluate(() => __SV.mk.filter((m) => m.key === 'g0' && !m.bg).length);
     const bb = await (await f.$('.mk-aip[data-key="g0"]')).boundingBox(); await pg.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); await adv(pg, 300);
     await pg.mouse.click(bb.x + bb.width / 2, bb.y + bb.height / 2); await adv(pg, 300);
     const post = await f.evaluate(() => ({ m: _aiMode('g0'), up: MK_UP.g0 || '' }));
-    const t = await until(pg, f, () => ['g0', 'g1', 'g2', 'g3'].every((k) => _aiMode(k) === 'keep' && !MK_UP[k]), 120000);
+    const t = await until(pg, f, () => ['g0', 'g1', 'g3'].every((k) => _aiMode(k) === 'keep' && !MK_UP[k]), 120000);
     const fg = await pg.evaluate(() => __SV.mk.filter((m) => m.key === 'g0' && !m.bg).length) - n0;
     ok('36 tap — «준비 중»(aria-disabled) 알약을 좌표로 탭 · 클릭해도 «만드는 중»이 되지 않고 · 앞에서 따로 묻지 않는다 · 끝은 «확정하기» [PREP_NO_TAP]', pre.m === 'prep' && pre.dis === 'true' && post.m === 'prep' && post.up !== 'make' && fg === 0 && t >= 0 && !errs.length, JSON.stringify({ pre, post, fg, t }));
     await ctx.close(); },
@@ -209,7 +209,7 @@ const SC = {
   /* 39 — 옛 예시 글 고객 */
   async old() { const { ctx, pg, f, errs } = await open({ mode: 'ai' });
     await f.evaluate(() => { VC.st = VC.st || { ok: true, groom: { ready: true }, bride: { ready: true } }; S.gExC = 1; delete S.vtext; delete S.exOld; delete S.vlines; S.pvText = PV_OLD['1'][0];
-      ['g0', 'g1', 'g2', 'g3', 'pv'].forEach((k, gi) => { const t = k === 'pv' ? S.pvText : [].concat(EX_OLD_1006['1'][String(gi)])[0]; S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(t) }); });
+      ['g0', 'g1', 'g3', 'pv'].forEach((k) => { const gi = k === 'pv' ? 0 : +k.slice(1);   /* [GUEST_5MIN_OFF_1023] */ const t = k === 'pv' ? S.pvText : [].concat(EX_OLD_1006['1'][String(gi)])[0]; S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(t) }); });
       _exKeep1006(); _persist(); mkGo('prevideo'); }); await adv(pg, 1000);
     const pv = await f.evaluate(() => [...document.querySelectorAll('[data-fk^="mkex:pv:"]')].map((b) => b.getAttribute('aria-checked') || b.getAttribute('aria-pressed')).join(','));
     await f.evaluate(() => mkGo('_voice')); await adv(pg, 2000); const rows = await f.evaluate(() => _vcUseRows().map((x) => x[0])); const vu = {};
@@ -222,13 +222,13 @@ const SC = {
   /* 40 — «준비 중» 차오름 시계 · ★[PLAY_NO_DUP 2026-10-08 사장님 «만드는 중 누르면 플레이 버튼도 같이 로딩 표시 · 개선»] 차오름은 머리 알약 한 곳 — ▶ 는 흐리게 잠기고 차오르지 않는다 */
   async fillbar() { const { ctx, pg, f, errs } = await open({ mode: 'ai', fresh: true, lat: { make: 8000, ritualFile: 1500 } });
     await f.evaluate(() => mkGo('guest')); await adv(pg, 800);
-    const RD = () => ['g0', 'g1', 'g2', 'g3'].map((k) => { const b = document.querySelector('[data-fk="mkvpl:' + k + '"]'), p = document.querySelector('.mk-aip[data-key="' + k + '"]'), s = (p && p.getAttribute('style')) || '', m = /--d:([\d.]+)s;--dl:(-[\d.]+)s/.exec(s), j = VC_ALTF[k];
+    const RD = () => ['g0', 'g1', 'g3'].map((k) => { const b = document.querySelector('[data-fk="mkvpl:' + k + '"]'), p = document.querySelector('.mk-aip[data-key="' + k + '"]'), s = (p && p.getAttribute('style')) || '', m = /--d:([\d.]+)s;--dl:(-[\d.]+)s/.exec(s), j = VC_ALTF[k];
       return { k, mode: _aiMode(k), d: m ? +m[1] : null, dl: m ? +m[2] : null, jd: j && j.d ? +j.d.toFixed(1) : null, aria: p ? p.getAttribute('aria-label') : '', bfill: !!(b && /wfill/.test(b.className)), block: !!(b && (b.disabled || b.getAttribute('aria-disabled') === 'true')), up: !!MK_UP[k] }; });
-    await f.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => { const o = '옛날 글 ' + k + Date.now(), n = String(_exNOf(k)), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}), gi = k.slice(1); E[gi] = [].concat(E[gi] || [], [o]); S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(o) }); }); _persist(); _exFirstStale(); }); await adv(pg, 250); const a = await f.evaluate(RD);   // [EX_PRESS_MAKE] «준비 중» = 배포로 예시 글이 바뀐 줄 맞추기(_exFirstStale)뿐 · ★[EX_STALE_DEPLOY] 소리가 같은 예시의 옛 글(옛 글 목록에 있는 글)일 때만 — 배포 흉내로 옛 글을 목록에 더한다
+    await f.evaluate(() => { ['g0', 'g1', 'g3'].forEach((k) => { const o = '옛날 글 ' + k + Date.now(), n = String(_exNOf(k)), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}), gi = k.slice(1); E[gi] = [].concat(E[gi] || [], [o]); S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(o) }); }); _persist(); _exFirstStale(); }); await adv(pg, 250); const a = await f.evaluate(RD);   // [EX_PRESS_MAKE] «준비 중» = 배포로 예시 글이 바뀐 줄 맞추기(_exFirstStale)뿐 · ★[EX_STALE_DEPLOY] 소리가 같은 예시의 옛 글(옛 글 목록에 있는 글)일 때만 — 배포 흉내로 옛 글을 목록에 더한다
     const brk = []; let seenUp = 0;
     for (let i = 0; i < 160; i++) { await pg.clock.runFor(250); await wait(3); const c = await f.evaluate(RD); c.forEach((x) => { if (x.bfill && brk.length < 4) brk.push(x.k + ':' + x.mode); }); if (c.some((x) => x.mode === 'keep' && x.up && x.block && !x.bfill)) seenUp++; if (c.every((x) => x.mode === 'keep' && !x.up)) break; }
     const cont = !brk.length;
-    await adv(pg, 25000, 1000); await f.evaluate(() => { for (const k in VC_ALT) delete VC_ALT[k]; ['g0', 'g1', 'g2', 'g3'].forEach((k) => { const o = '옛날 글 ' + k + Date.now(), n = String(_exNOf(k)), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}), gi = k.slice(1); E[gi] = [].concat(E[gi] || [], [o]); S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(o) }); }); _persist(); _exFirstStale(); }); await adv(pg, 250); const b = await f.evaluate(RD);   // 기억에 든 지금 글 소리는 비운다(있으면 맞추기가 조용히 붙여 «준비 중»이 없다 · 그것도 맞다)
+    await adv(pg, 25000, 1000); await f.evaluate(() => { for (const k in VC_ALT) delete VC_ALT[k]; ['g0', 'g1', 'g3'].forEach((k) => { const o = '옛날 글 ' + k + Date.now(), n = String(_exNOf(k)), E = (EX_OLD_1006[n] = EX_OLD_1006[n] || {}), gi = k.slice(1); E[gi] = [].concat(E[gi] || [], [o]); S.up[k] = Object.assign({}, S.up[k], { tx: _txSig(o) }); }); _persist(); _exFirstStale(); }); await adv(pg, 250); const b = await f.evaluate(RD);   // 기억에 든 지금 글 소리는 비운다(있으면 맞추기가 조용히 붙여 «준비 중»이 없다 · 그것도 맞다)
     const pa = a.filter((x) => x.mode === 'prep'), pb = b.filter((x) => x.mode === 'prep');
     const own = (x) => x.d != null && Math.abs(x.d - x.jd) < 0.11 && x.d > 3.05 && x.dl > -3 && x.dl <= 0 && /준비 중/.test(x.aria) && !x.bfill && x.block;   // 알약 시계 = 그 일의 어림 · 누른 때부터(지난 올리기 20초 넘게 전 아님) · ▶ 는 잠기고 차오르지 않는다
     ok('40 fillbar — «준비 중» 알약 = 그 일의 시계(길이 = 어림 · 누른 때부터 · «올리기 3초» 아님) · 이름 «준비 중» · ▶ 는 흐리게 잠김(차오름 없음) [PREP_FILL · PLAY_NO_DUP]', pa.length >= 3 && pa.every(own), JSON.stringify(a));
@@ -245,12 +245,12 @@ const SC = {
     for (const W of [320, 360, 390, 1280]) { const { ctx, pg, f, errs } = await open({ mode: 'ai', busy: true, w: W, font: true, dpr: 2 });
       await f.evaluate(() => mkGo('guest')); await adv(pg, 800);
       /* [STALE_QUIET 2026-10-09] 옆글로 남은 것은 «○○ 목소리가 생겼어요»(WHO_MISS) 하나 — 예시 칩(«예시를 바꿨어요»)은 [PRESET_QUIET] 로 옆글이 없다. 한 분 목소리로 만든 뒤 다른 분 목소리가 생긴 모양으로 연다 */
-      await f.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => { const v = S.up[k]; if (v) v.by = _vcSnap(k, {}).mx ? ['groom'] : []; }); _persist(); render(); }); await adv(pg, 1500);
+      await f.evaluate(() => { ['g0', 'g1', 'g3'].forEach((k) => { const v = S.up[k]; if (v) v.by = _vcSnap(k, {}).mx ? ['groom'] : []; }); _persist(); render(); }); await adv(pg, 1500);
       await f.evaluate(() => document.fonts.ready.then(() => 0)).catch(() => {}); for (let i = 0; i < 10; i++) { await wait(100); await pg.clock.runFor(50); }
       const m = await f.evaluate(MEAS), fam = await f.evaluate(() => [...document.fonts].some((x) => x.status === 'loaded' && /Noto Sans KR/.test(x.family)));
       if (SHOTS) { await f.evaluate(() => { const e = document.querySelector('.mk-vst-side'); if (e) e.closest('li').scrollIntoView({ block: 'center' }); }); await pg.clock.runFor(50); await pg.screenshot({ path: path.join(SHOTS, 'side-' + W + '.png') }); }
       out[W] = { m, fam, errs: errs.length }; await ctx.close(); }
-    const all = (W, fn) => out[W].m.length >= 4 && out[W].m.every(fn) && !out[W].errs;
+    const all = (W, fn) => out[W].m.length >= 3 && /* [GUEST_5MIN_OFF_1023] 줄 셋 */ out[W].m.every(fn) && !out[W].errs;
     console.log('     글꼴: ' + (Object.values(out).every((x) => x.fam) ? 'Noto Sans KR(진짜)' : '대체 글꼴 — 진짜 글꼴을 못 받았다(폭 ±6px)'));
     ok('41 side — 폰(320 · 360 · 390) 세 낱말 옆글 «○○ 목소리가 생겼어요»는 단추 아래 한 줄(세 줄로 서지 않는다 · 제목과 안 겹침 · 머리 넘침 0) [SIDE_WHO_LOW · SIDE_TWO_LINE]', [320, 360, 390].every((W) => all(W, (x) => x.lines === 1 && x.below && !x.mid && x.over <= 0)), JSON.stringify({ 320: out[320].m, 360: out[360].m, 390: out[390].m }));
     ok('41 side — 1280 은 단추 옆 한 줄', all(1280, (x) => x.lines === 1 && x.gap > 0 && !x.below), JSON.stringify({ 1280: out[1280].m })); },

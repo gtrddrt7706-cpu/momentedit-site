@@ -21,10 +21,10 @@ try {
     await wait(500); await pg.evaluate(() => mkGo('_voice')); await wait(700);
     const a = await pg.evaluate(() => { const v = document.querySelector('.mk-vuse'), c = document.querySelector('.mk-vpcs, .mk-vpc'); return { one: /주인공의 목소리/.test((document.querySelector('.mk-vuse-1') || {}).textContent || ''), first: !!(v && c && (v.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING)), names: [...document.querySelectorAll('.mk-vfb')].filter((b) => b.offsetParent).map((b) => b.textContent.replace(/\s/g, ' ')), lines: new Set([...document.querySelectorAll('.mk-vfb')].filter((b) => b.offsetParent).map((b) => Math.round(b.getBoundingClientRect().top))).size, old: document.querySelectorAll('.mk-vuse-r').length, state: /만듦|확정됨|아직/.test((document.querySelector('.mk-vflow') || {}).textContent || '') }; });
     ok(`${w} ① 맨 위 이해 한 줄 «주인공의 목소리» · 목소리 카드보다 먼저`, a.one && a.first, JSON.stringify(a));
-    ok(`${w} ② 나오는 곳 = AI 로 정한 자리 이름만(식전 영상 소개는 나레이션이라 빠짐) · 상태 없음 · 옛 목록 없음 ⑥`, a.names.join('|') === (w < 561 ? '하객 맞이 안내|입장 인사' : '하객 입장 때|시작 10분 전|시작 5분 전|시작 1분 전|입장 인사') && a.lines === 1 && !a.state && a.old === 0,   /* [VFLOW_ONE_LINE 2026-10-07] 폰은 하객 맞이 넷을 한 이름으로 · 한 줄 */ JSON.stringify(a));
+    ok(`${w} ② 나오는 곳 = AI 로 정한 자리 이름만(식전 영상 소개는 나레이션이라 빠짐) · 상태 없음 · 옛 목록 없음 ⑥`, a.names.join('|') === (w < 561 ? '하객 맞이 안내|입장 인사' : '하객 입장 때|시작 10분 전|시작 1분 전|입장 인사') && a.lines === 1 && !a.state && a.old === 0,   /* [VFLOW_ONE_LINE 2026-10-07] 폰은 하객 맞이 넷을 한 이름으로 · 한 줄 */ JSON.stringify(a));
     if (w < 561) await pg.evaluate(() => mkUseOpen(1)); else await pg.click('[data-fk="mkvuse:g1"]'); await wait(300);   /* [VFLOW_ONE_LINE] 폰엔 «시작 10분 전» 단추가 없다(묶음 → 창의 ‹ 이전 · 다음 ›) */
     const b = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { dlg: !!(d && d.querySelector('[role=dialog][aria-modal=true]')), t: (document.getElementById('mkDlgT') || {}).textContent, img: !!(d && d.querySelector('.mk-vu-img img, .mk-vu-img video'))   /* [VU_VIDEO_PLAY 2026-10-06] 영상도 같은 틀 */, when: (d && d.querySelector('.mk-vu-when') || {}).textContent || '', q: ((d && d.querySelector('.mk-vu-q')) || {}).textContent || '', n: (d && d.querySelector('.mk-vu-n') || {}).textContent, edit: !!(d && d.querySelector('[data-fk^="mkai"],[data-fk^="mkkeep"],textarea')) }; });
-    ok(`${w} ③ 누르면 작은 창 — 장면 · «예식 시작 10분 전 · 신부 목소리» · 듣는 문장 · 2 / 5 · 고치기 단추 없음`, b.dlg && b.t === '시작 10분 전' && b.img && /예식 시작 10분 전 · (신랑|신부|두 분) 목소리/.test(b.when) && b.q.length > 10 && b.n === '2 / 5' && !b.edit, JSON.stringify(b));
+    ok(`${w} ③ 누르면 작은 창 — 장면 · «예식 시작 10분 전 · 신부 목소리» · 듣는 문장 · 2 / 4 · 고치기 단추 없음`, b.dlg && b.t === '시작 10분 전' && b.img && /예식 시작 10분 전 · (신랑|신부|두 분) 목소리/.test(b.when) && b.q.length > 10 && b.n === '2 / 4' && !b.edit, JSON.stringify(b));
     await pg.evaluate(() => { const v = document.querySelector('.mk-vu-img video'); if (v) v.__keep = 1; });
     await pg.keyboard.press('ArrowRight'); await wait(200);
     const c = await pg.evaluate(() => (document.getElementById('mkDlgT') || {}).textContent);
@@ -32,8 +32,8 @@ try {
     ok(`${w} ⑤-1 다음으로 넘겨도 같은 영상은 재생하던 그대로 [VU_VIDEO_KEEP]`, await pg.evaluate(() => { const v = document.querySelector('.mk-vu-img video'); return !!v && v.__keep === 1; }));
     /* ★[VU_PV_EX 2026-10-06 사장님 «식전 영상 소개는 대사가 없네»] 소개글이 비면 예시 1 · «예시 글» 한 줄 */
     ok(`${w} ⑤-2 식전 영상 소개 · 소개글이 없으면 예시 1 글 · «예시 글이에요» [VU_PV_EX]`, await pg.evaluate(() => { const t = S.pvText; S.pvText = ''; const h = _vcUseBody([['pv', '식전 영상 소개', 'prevideo']], 0); S.pvText = t; return h.indexOf(PV_EX[0][1]) > -1 && /예시 글이에요/.test(h); }));
-    ok(`${w} ⑤ 오른쪽 화살표 = 다음(시작 5분 전)`, c === '시작 5분 전', c);
-    for (let i = 0; i < 2; i++) { await pg.click('[data-fk="mkusenext"]'); await wait(200); }
+    ok(`${w} ⑤ 오른쪽 화살표 = 다음(시작 1분 전 · 5분 전 줄은 걷었다 GUEST_5MIN_OFF_1023)`, c === '시작 1분 전', c);
+    for (let i = 0; i < 1; i++) { await pg.click('[data-fk="mkusenext"]'); await wait(200); }
     const d = await pg.evaluate(() => ({ t: (document.getElementById('mkDlgT') || {}).textContent, next: (document.querySelector('[data-fk="mkusenext"]') || {}).textContent }));
     ok(`${w} ④ 마지막 장(입장 인사)은 «닫기»`, d.t === '입장 인사' && d.next === '닫기', JSON.stringify(d));
     await pg.click('[data-fk="mkusenext"]'); await wait(300);

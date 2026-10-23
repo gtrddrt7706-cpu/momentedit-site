@@ -38,8 +38,8 @@ async function open(o) {
     for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); break; } }, o);
   return { pg, errs };
 }
-const brideKeys = (pg) => pg.evaluate(() => ['g0', 'g1', 'g2', 'g3'].filter((k) => _vcLineWho(k) === 'bride'));
-const groomKeys = (pg) => pg.evaluate(() => ['g0', 'g1', 'g2', 'g3'].filter((k) => _vcLineWho(k) === 'groom'));
+const brideKeys = (pg) => pg.evaluate(() => ['g0', 'g1', 'g3'].filter((k) => _vcLineWho(k) === 'bride'));
+const groomKeys = (pg) => pg.evaluate(() => ['g0', 'g1', 'g3'].filter((k) => _vcLineWho(k) === 'groom'));
 const line = (pg, k) => pg.evaluate((k) => { const u = (S.up || {})[k]; return { by: u && typeof u === 'object' ? String(u.by) : '', src: (u && u.src) || '', err: ((MK.lineErr || {})[k]) || '', up: !!MK_UP[k], alt: Object.keys((VC_ALT[k] || {})).join(',') }; }, k);
 try {
   /* A — 부탁한 분(신부)이 서버에서 지워져 신랑 목소리로 온 답 */
