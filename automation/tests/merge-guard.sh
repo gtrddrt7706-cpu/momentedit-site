@@ -19311,7 +19311,7 @@ nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
 nochk "picks: \[\], at: 'bridge'," assets/bgm-slots.js                                                    # 맨 앞(top)이 이음말 규칙을 품는다 · 갈래를 둘로 다시 나누지 말 것
 # ── 2026-10-23 [BGM_AUDIT_CANDLE_1023] bgm-form 검사 — 화촉 · 감사 인사 음악 줄 자리 기대는 고정값이 아니라 그 쪽 첫 줄(이음말이면 fi 1 · 아니면 fi 0) · 화촉 B14 가 서는 판 · 안 서는 판 둘 다 잰다
 chk 'BGM_AUDIT_CANDLE_1023' scripts/audit/bgm-form.mjs 4
-chk '/넘어가며/.test(L.first)' scripts/audit/bgm-form.mjs 2
+chk '/넘어가며/.test(L.first)' scripts/audit/bgm-form.mjs 1
 # ── 2026-10-23 [BGM_R5_1023] BGM 라운드 5 «미리보기 검토 셋» — ① 요약 입장 줄: 칩만 누르고 곡이 없으면 «곡 파일을 올려 주시면 맞춰 드려요» · «추천 곡 중에서 골라 주세요»
 #   (칩 상태 = EntryMusic.src() · 이 탭에서만 · 저장 꼴 그대로) ② 축사 · 편지 «흐름»에 말하는 ○ 줄 바로 앞 음악 줄(큐 열쇠 narr-free-in-speech · letter-* · 칩을 바꾸면 같이)
 #   ③ 입장 곡 올리기 안내 «… 그 순간 두 분이 걸어 나오게 맞춰요» · ★«마지막 말에 맞춰요»를 되살리지 말 것(누구의 무슨 말인지 모호)
