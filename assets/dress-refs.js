@@ -29,7 +29,7 @@
     live: true,              // [DRESS_LIVE] 기능 스위치 — ★2026-10-23 사장님 «지금뜨게해» · 모든 고객에게 켬(표본 6벌로 · 아래 SAMPLES_ON_PROD)
     SAMPLES_ON_PROD: true,   // [DRESS_SAMPLE_PROD 2026-10-23 사장님 «지금뜨게해» · «모든 고객에게 지금»] 운영 주소에서도 표본 6벌을 그린다 — 실물 사진이 오면 표본을 지우고 이 줄을 false 로(한 곳)
     pick: 2,                 // 시착 기본 2벌 = 고르는 칸 Nº 01 · Nº 02
-    changeUntilDays: 2,      // 바꾸기 마감 = 상담일 −2일 23:59(한국 시각) · 서버(consultation-booking.gs DRESS_PICK)도 같은 값
+    changeUntilDays: 2,      // ★[DRESS_NO_DEADLINE 2026-10-23 사장님 «마감 없이 늘 고르기 · 참고용»] 쓰지 않는다(마감이 없다) — 서버 DRESS_PICK.untilDays 와 같은 값으로만 남긴다 · R.dueLine 도 화면에서 쓰지 않는다
     fitNote: '',             // 프리 사이즈 맞추는 방식 한 줄 · ★[DRESS_FITNOTE_EMPTY 2026-10-23 코워크 회신 4 보충] 빈 값 그대로(줄 없음) — 맞추는 방법이 사이트 · 계약서 어디에도 없다 · 공개 화면을 걷어 지금은 그리는 곳도 없다([DRESS_PUBLIC_OFF])
     PROD_HOSTS: ['momentedit.kr', 'www.momentedit.kr'],   // shared/preview-guard.js 와 같아야 한다(검사가 대조)
 
