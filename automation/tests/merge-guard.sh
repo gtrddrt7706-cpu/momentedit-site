@@ -14792,6 +14792,8 @@ chk 'TOAST_MEDIUM_1023' order-preview.html 1   # 축배 칸 높이 10%(_VFY 주�
 chk 'CLOSE_HAND_FIX_1023' assets/ritual-open.js 1   # 닫는 인사 185 ~ 193장 맞잡은 손 아래 여분 손을 다시 그림(10/23 GPT 독립 검수 · 내 확대 확인)
 chk 'MATJEOL_V1_1023' assets/ritual-open.js 1   # 맞절 = 처음 만든 판(사장님 «이 구조가 더 괜찮다») · 손 내밀기 · 흔들기 앞을 잘라 숙이는 데서 시작
 chk 'SIGCOLOR_VIDEO_1024' assets/ritual-open.js 1   # 편지 · 부모님께 인사 · 덕담 · 축사 · 축배 = 원색 판(파랑 + 에메랄드) · 카메라 고정 · 뒤 하객 렌즈 시선은 앞 장 되풀이로 고침(10/24 사장님 «처음 레퍼런스 틀» · «뒤에 사람들은 주인공을 바라봐야지»)
+chk 'SIGCOLOR_VOW_1024' assets/ritual-open.js 1   # 서약 = 원색 판 · 하객 넷 신부 카드 쪽 · 렌즈 0(10/24)
+chk 'VOW_FY_1024' order-preview.html 1   # 서약 칸 높이 60%(카드 둘 + 하객 테이블)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임

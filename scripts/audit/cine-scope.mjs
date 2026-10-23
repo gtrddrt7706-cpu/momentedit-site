@@ -17,7 +17,7 @@ const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '.
 const SCOPE = ['.lv', '.pv-media', '.mk-vu-img', '.pr-hm'];
 const KEEP = ['.lv.mini', '.pk-media', '.pr-th'];
 const FOCUS = ['.lv video', '.lv .lv-still', '.pv-media video', '.pv-media .pv-still', '.mk-vu-img img', '.mk-vu-img video', '.pr-hm img'];
-const WANT = { entry: 15, close: 45, welcome: 12, toast: 10 };   // [WELCOME_FY_1023] 감사 인사 = 신랑 머리가 위 끝에 걸려 12% · [TOAST_MEDIUM_1023] 축배 = 들어 올린 잔 10%
+const WANT = { entry: 15, close: 45, welcome: 12, toast: 10, vow: 60 };   // [WELCOME_FY_1023] 감사 인사 = 신랑 머리가 위 끝에 걸려 12% · [TOAST_MEDIUM_1023] 축배 = 들어 올린 잔 10% · [VOW_FY_1024] 서약 = 카드 둘과 하객 테이블이 함께 60%
 
 function rules(html) {
   const out = []; const st = /<style[^>]*>([\s\S]*?)<\/style>/g; let m;
@@ -78,13 +78,14 @@ if (direct) {
     ['썸네일까지 2.39 로', (h) => h.replace(/\.lv\.mini\{width:64px;border-radius:6px;aspect-ratio:16\/9\}/, '.lv.mini{width:64px;border-radius:6px}')],
     ['높이 규칙 빼기', (h) => h.replace(/object-position:50% var\(--fy,35%\)/, 'object-position:50% 50%')],
     ['목소리 창 높이 빼기', (h) => h.replace(`return '<div class="mk-vu-img"'+_vfy(v)+'>'`, `return '<div class="mk-vu-img">'`)],
-    ['입장 높이 바꾸기', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10};', 'var _VFY={entry:35,close:45,welcome:12,toast:10};')],
-    ['감사 인사 높이 빼기', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10};', 'var _VFY={entry:15,close:45,toast:10};')],
-    ['축배 높이 빼기', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10};', 'var _VFY={entry:15,close:45,welcome:12};')],
-    ['없는 영상 이름', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10};', 'var _VFY={entry:15,close:45,welcome:12,toast:10,closing:40};')],
+    ['입장 높이 바꾸기', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};', 'var _VFY={entry:35,close:45,welcome:12,toast:10,vow:60};')],
+    ['감사 인사 높이 빼기', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};', 'var _VFY={entry:15,close:45,toast:10,vow:60};')],
+    ['축배 높이 빼기', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};', 'var _VFY={entry:15,close:45,welcome:12,vow:60};')],
+    ['서약 높이 빼기', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};', 'var _VFY={entry:15,close:45,welcome:12,toast:10};')],
+    ['없는 영상 이름', (h) => h.replace('var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};', 'var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60,closing:40};')],
   ];
   for (const [nm, f] of muts) { const m = f(html); if (m === html) { dead++; console.log(`FAIL 깨 보기 «${nm}» — 바꿀 자리를 못 찾았다(검사가 낡았다)`); continue; } if (!check(m, ro).length) { dead++; console.log(`FAIL 깨 보기 «${nm}» — 빨강이 안 됐다`); } }
   const fail = bad.length + dead;
-  console.log(fail ? `✗ CINE_SCOPE 실패 ${fail}건` : `ok cine-scope — 장면 영상 2.39 : 1 (네 자리) · 칸 · 썸네일 16 : 9 · 장면마다 높이(입장 15 · 감사 인사 12 · 축배 10 · 닫는 인사 45) · 깨 보기 ${muts.length}개 빨강`);
+  console.log(fail ? `✗ CINE_SCOPE 실패 ${fail}건` : `ok cine-scope — 장면 영상 2.39 : 1 (네 자리) · 칸 · 썸네일 16 : 9 · 장면마다 높이(입장 15 · 감사 인사 12 · 축배 10 · 서약 60 · 닫는 인사 45) · 깨 보기 ${muts.length}개 빨강`);
   process.exit(fail ? 1 : 0);
 }
