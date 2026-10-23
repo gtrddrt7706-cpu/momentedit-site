@@ -224,7 +224,7 @@
   function rowHtml(){ fileInput(); var o=owner(); if(RO!==o){ if(RO!==null){ hush(); UPS=null; RESTORE=0; } RO=o; } if(SO!==St()){ SO=St(); SRC=null; MU_OPEN=false; CAR_I=null; } if(UPS&&UPS.Sg&&!upRec()){ hush(); UPS=null; }   /* [REC_SONG_1012] 초안이 바뀌면(계정 · 처음부터 다시 · 되돌리기) 칩도 고른 곡 쪽으로 */
     var src=srcNow(); if(src) SRC=src; if(src==='up'||upOn()) restore(); setTimeout(recWarm,0);   /* [REC_CLIP_1013] ② 입장 쪽이면 칩을 누르기 전에도 목록 · 첫 곡을 미리 받아 둔다(종전 «칩을 볼 때만») */   /* 고른 곡에서 짐작한 칩도 이 쪽에서는 그대로(곡을 빼도 그 칩 카드가 남는다) */   /* [REC_SONG_1012] 올린 곡은 그 칩을 볼 때(또는 고른 곡일 때) 되살리고 · 추천 곡 목록은 그 칩을 볼 때(또는 고른 곡일 때) 받는다 */
     return '<div class="ls-cg cg-vp cg-hl cg-vq ls-mu" role="group" aria-label="입장 음악"><span class="gl" aria-hidden="true">입장 음악</span>'
-      +'<span class="cg-c mu-src" role="radiogroup" aria-label="입장 음악 고르는 곳">'+srcChip('두 분이 고른 곡','up',src)+srcChip('추천 곡','rec',src)   /* ★★[REC_SONG_1012 · MU_SRC] 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래 */
+      +'<span class="cg-c mu-src" role="radiogroup" aria-label="입장 음악 고르는 곳">'+srcChip('두 분이 고른 곡','up',src)+srcChip('스튜디오가 고른 곡','rec',src)   /* ★★[REC_SONG_1012 · MU_SRC] 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래 */
       +(src==='up'?'<span class="cg-links"><button type="button" class="pk-link mu-gl" data-fk="muguide" onclick="emAct(\'guide\',this)">올리기 안내 보기</button></span>':'')+'</span>'   /* «올리기 안내 보기»는 «두 분이 고른 곡»일 때만 */
       +'<div class="mu-box">'+boxHtml()+'</div></div>'; }
   /* 새로고침 · 다시 열기 — 이 기기에 둔 파일로 다시 풀고 고른 자리를 되살린다(조용히 · 알림 없음) */
@@ -375,7 +375,7 @@
   var ICO_FOLD_CK='<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--seal,#6B2A24)"/><path d="M7 12.4l3.2 3.1L17 8.8" fill="none" stroke="#FBF6EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   function carIdx(){ var L=REC.ls||[]; if(CAR_I==null){ CAR_I=0; var mu=St().mu; if(recOn()) for(var i=0;i<L.length;i++) if(L[i].k===mu.k) CAR_I=i; } return CAR_I=clamp(CAR_I,0,Math.max(0,L.length-1)); }   /* 처음엔 고른 곡 카드 · 안 골랐으면 첫 카드 */
   function carSig(){ var s=(REC.ls||[]).map(function(m){ return [m.k,m.img,m.pos,m.t,m.a,m.name].join('|'); }).join('/'), h=5381; for(var i=0;i<s.length;i++) h=((h*33)^s.charCodeAt(i))>>>0; return (REC.ls||[]).length+'-'+h.toString(36); }
-  function carHtml(){ var L=REC.ls, n=L.length, h='<div class="mu-car" role="region" aria-roledescription="carousel" aria-label="추천 곡" data-sig="'+carSig()+'"><div class="mu-vp"><div class="mu-track">';
+  function carHtml(){ var L=REC.ls, n=L.length, h='<div class="mu-car" role="region" aria-roledescription="carousel" aria-label="스튜디오가 고른 곡" data-sig="'+carSig()+'"><div class="mu-vp"><div class="mu-track">';
     L.forEach(function(m,i){ var sub=[m.a,m.name].filter(Boolean).join(' · '), tt=m.t||m.name;
       h+='<div class="mu-slide" role="group" aria-roledescription="slide" aria-label="'+(i+1)+' / '+n+'" data-k="'+e(m.k)+'"><div class="mu-scr">'
         +'<div class="mu-ph">'+(m.img?'<img src="'+e(m.img)+'" alt="" draggable="false" decoding="async" style="object-position:'+e(m.pos)+'">':'')+'</div>'
@@ -390,12 +390,12 @@
       +'<span class="mu-fph" aria-hidden="true">'+(img?'<img src="'+e(img)+'" alt="" draggable="false" decoding="async" style="object-position:'+e(pos)+'">':'')+'<i class="mu-fck">'+ICO_FOLD_CK+'</i></span>'
       +'<span class="mu-ftx"><span class="mu-ftt'+(/[가-힣]/.test(tt)?' ko':'')+'">'+e(tt)+'</span><span class="mu-fta">'+e(sub)+'</span></span>'
       +'<span class="mu-fgo" aria-hidden="true">바꾸기'+ICO_CHEV+'</span></button>'; }
-  function recHtml(){ if(!emb()) return '<div class="mu-card mu-rec0"><p class="mu-cs">추천 곡은 마이페이지에서 들어 볼 수 있어요</p></div>';   /* 목록 · 곡은 로그인한 두 분에게만(마이페이지 안) */
+  function recHtml(){ if(!emb()) return '<div class="mu-card mu-rec0"><p class="mu-cs">스튜디오가 고른 곡은 마이페이지에서 들어 볼 수 있어요</p></div>';   /* 목록 · 곡은 로그인한 두 분에게만(마이페이지 안) */
     if(recOn()&&!MU_OPEN) return foldHtml(St().mu);   /* [MU_FOLD] 고른 뒤엔 접힌 한 줄 — 목록을 받기 전에도 그린다(초안에 이름 · 사진이 있다) */
     if(REC.lst==='ok'&&REC.ls.length) return '<div class="mu-carw">'+carHtml()+'</div>';
     if(REC.lst==='fail'||REC.lst==='ok'){ var none=REC.lst==='ok'||REC.lerr==='L3';
-      return '<div class="mu-card mu-rec0"><p class="mk-exw mu-sv" role="alert">'+(none?'추천 곡을 아직 준비하지 못했어요':'추천 곡을 불러오지 못했어요')+' · <span class="mu-nw"><button type="button" class="pk-link" data-fk="mureclist" onclick="emAct(\'reclist\',this)">다시 불러오기</button> (코드 '+e(none?'L3':(REC.lerr||'L4'))+')</span></p></div>'; }
-    return '<div class="mu-carw"><div class="mu-car mu-car0" aria-busy="true"><div class="mu-vp"><div class="mu-ph"></div><p class="mu-ly"><span class="mu-lines cur"><span class="mu-wt" role="status">추천 곡을 불러오는 중이에요</span></span></p></div></div></div>'; }   /* 받는 동안 카드 자리 그대로(아래 칸이 밀리지 않게) */
+      return '<div class="mu-card mu-rec0"><p class="mk-exw mu-sv" role="alert">'+(none?'스튜디오가 고른 곡을 아직 준비하지 못했어요':'스튜디오가 고른 곡을 불러오지 못했어요')+' · <span class="mu-nw"><button type="button" class="pk-link" data-fk="mureclist" onclick="emAct(\'reclist\',this)">다시 불러오기</button> (코드 '+e(none?'L3':(REC.lerr||'L4'))+')</span></p></div>'; }
+    return '<div class="mu-carw"><div class="mu-car mu-car0" aria-busy="true"><div class="mu-vp"><div class="mu-ph"></div><p class="mu-ly"><span class="mu-lines cur"><span class="mu-wt" role="status">스튜디오가 고른 곡을 불러오는 중이에요</span></span></p></div></div></div>'; }   /* 받는 동안 카드 자리 그대로(아래 칸이 밀리지 않게) */
   /* [MUS_CAROUSEL] 다시 그려도 같은 카드 묶음을 다시 꽂는다 — 사진을 다시 받거나 넘기던 자리 · 움직임이 끊기지 않게(시험실 carPut) */
   function carKeep(oc){ var nc=D.querySelector('.ls-mu .mu-car:not(.mu-car0)');
     if(oc&&nc&&oc!==nc&&!oc.classList.contains('mu-car0')&&oc.getAttribute('data-sig')===nc.getAttribute('data-sig')){ var ae=D.activeElement, fk=(ae&&nc.contains(ae))?ae.getAttribute('data-fk'):null; nc.parentNode.replaceChild(oc,nc); if(fk){ var n=oc.querySelector('[data-fk="'+fk+'"]'); if(n) try{ n.focus({preventScroll:true}); }catch(x){} } }
@@ -780,5 +780,6 @@
     rec:function(){ return {lst:REC.lst,lerr:REC.lerr,n:REC.ls?REC.ls.length:0,i:CAR_I,src:srcNow(),open:MU_OPEN,prev:PREV&&PREV.k||null,want:PWANT,buf:Object.keys(REC.buf),clip:Object.keys(REC.buf).filter(function(k){ return !!(REC.buf[k]&&REC.buf[k].clip); }),lit:!!(PREV&&PREV.lit),lyI:PREV&&PREV.k?PREV.lyI:null,x:PREV&&PREV.k&&AC?PREV.x0+Math.max(0,AC.currentTime-PREV.t0):null}; },   /* 점검용 · [REC_SONG_1012] · [PRE_ROLL_1013] 소리가 걸리기 전 0.3초는 시작 자리 그대로(장면 tau 와 같게) */
     upNeed:function(){ var n=upNeed(); return n===undefined?'wait':n; },upRecOf:upRecOf,   /* [UP_REC_V_1019] 점검용 */
     lyAt:function(k,x){ var m=recMeta(k); if(!m) return null; var L=lyLines(m), i=lyAt(L,x); return {i:i,first:lyStart(L,Math.max(0,(m.hook0||m.hook)-CAR_PRE)-(m.lyOff||0)),n:L.length}; }};   /* first = 카드 ▶ 로 들을 때 처음 뜨는 줄 [LY_FROM_START_1013] */
+  /* ★[STUDIO_PICK_1023 코워크 묶음 A-4] 고객 화면 칩 · 카드 글 «추천 곡» → «스튜디오가 고른 곡»(«두 분이 고른 곡»과 짝) · 내부 키 rec · 콘솔 · 관리 화면 · 주석은 그대로 */
   window.EntryMusic=EM;
 })();
