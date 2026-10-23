@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-/* ★[SCENE_WORDS_1023 · PLAY_ICON_FIXED_1023 2026-10-23 사장님]
+/* ★[SCENE_WORDS_1023 · PLAY_MID_1023 2026-10-23 사장님]
    A [SCENE_WORDS_1023] «본식 5분 전부터 문 앞에서 기다려요 · 문이 열리고 걸어 들어와요 · 도착 — 이 글자 빼던가 요약해서 단어로 적절한 위치에 · 디자이너 시선으로»
      입장 «음악과 함께» 그래프 아래 장면 줄 = 낱말 셋 «대기 · 입장 · 도착» 한 줄(11px) — 대기 = 왼쪽 끝 · 입장 = 문 열림 시점(th / tend) · 도착 = 오른쪽 끝 · 서로 겹치지 않는다 ·
      옛 장면 문장이 화면에 없다(그래프를 읽어 주는 aria-label 은 문장 그대로) · 누르고 멈추고 이어 들어도 낱말 자리는 그대로.
-   B [PLAY_ICON_FIXED_1023] «플레이 버튼과 멈춤 버튼 모양 부분 고정하고 텍스트만 바뀌게»
-     입장 장면 알약: «이 순간 전체 듣기 · 음악과 함께» → «멈추기» → «이어 듣기»로 바뀌어도 둥근 ▶ · ■ 자리 · 알약 크기가 그대로(0.5px 안) · 동그라미는 알약 끝 곡선과 같은 중심(왼쪽 안쪽 = 위아래 안쪽).
-     다른 순간 «이 순간 전체 듣기 · n줄 이어서» 알약도 글을 «멈추기» · «만드는 중»으로 바꿔 놓고 재면 동그라미가 그대로.
-     목소리 창 단추 둘(다듬기 창 «예시 들어 보기 ↔ 멈추기» 동그라미 알약 · 두 분 목소리 창 «들어 보기 ↔ 멈추기» 채운 알약)도 같다(B3).
+   B [PLAY_MID_1023] «이거 다시 취소 · 가운데 쪽으로 다시 하고 이어 듣기 · 멈춤 이걸로 바꾸자»(옛 [PLAY_ICON_FIXED_1023] 왼쪽 고정은 취소)
+     듣기 알약은 동그라미 + 글 한 덩어리가 가운데(1px 안) · 동그라미를 왼쪽에 못 박지 않는다(position static) · 트는 동안 «멈춤».
+     입장 알약 «이 순간 전체 듣기 · 음악과 함께» → «멈춤» → «이어 듣기» — «멈춤 ↔ 이어 듣기»는 동그라미 자리 그대로(글 칸 폭 = «이어 듣기»).
+     다른 순간 «이 순간 전체 듣기 · n줄 이어서» 알약 · 목소리 창 단추(다듬기 «예시 들어 보기» · 두 분 목소리 «들어 보기 ↔ 멈춤» 동그라미 그대로)도 가운데(B2 · B3).
    390 · 1280. 종료 코드 0 통과 · 1 실패 · 2 재지 못함. SW_OP · SW_MOD = 돌연변이 확인용 — 그 판의 order-preview · entry-music.js 로 잰다 */
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -32,8 +32,9 @@ const words = (pg) => pg.evaluate(() => { const sc = document.querySelector('.em
   if (!sc) return null; const r0 = sc.getBoundingClientRect(), sp = [...sc.children].map((e) => { const r = e.getBoundingClientRect(); return { c: e.className, t: e.textContent, vis: !e.hidden && r.width > 0, l: +(r.left - r0.left).toFixed(1), r: +(r.right - r0.left).toFixed(1), top: +(r.top - r0.top).toFixed(1), h: +r.height.toFixed(1), fs: getComputedStyle(e).fontSize }; });
   const all = document.querySelector('.em-scene').textContent, lbl = (document.querySelector('.em-scene .em-graph') || { getAttribute: () => '' }).getAttribute('aria-label') || '';
   return { sp, w: +r0.width.toFixed(1), h: +r0.height.toFixed(1), pw: plot ? +plot.getBoundingClientRect().width.toFixed(1) : null, f: P.tend ? P.th / P.tend : null, old: /기다려요|걸어 들어와요|5분 전부터/.test(all), lbl, at: sc.getAttribute('data-at') || '' }; });
-const pill = (pg, sel) => pg.evaluate((sel) => { const b = document.querySelector(sel); if (!b) return null; const v = b.querySelector('svg'), r = b.getBoundingClientRect(), q = v ? v.getBoundingClientRect() : null;
-  return { t: b.textContent.replace(/\s+/g, ' ').trim(), bw: +r.width.toFixed(1), bh: +r.height.toFixed(1), sx: q ? +(q.left - r.left).toFixed(1) : null, sy: q ? +(q.top - r.top).toFixed(1) : null, sw: q ? +q.width.toFixed(1) : null, sh: q ? +q.height.toFixed(1) : null }; }, sel);
+const pill = (pg, sel) => pg.evaluate((sel) => { const b = document.querySelector(sel); if (!b) return null; const v = b.querySelector('svg'), r = b.getBoundingClientRect(), q = v ? v.getBoundingClientRect() : null, rg = document.createRange(); rg.selectNodeContents(b); const g = rg.getBoundingClientRect(), cs = getComputedStyle(b);
+  return { t: b.textContent.replace(/\s+/g, ' ').trim(), bw: +r.width.toFixed(1), bh: +r.height.toFixed(1), sx: q ? +(q.left - r.left).toFixed(1) : null, sy: q ? +(q.top - r.top).toFixed(1) : null, sw: q ? +q.width.toFixed(1) : null, pos: v ? getComputedStyle(v).position : '',
+    dx: +((g.left + g.right) / 2 - (r.left + parseFloat(cs.paddingLeft) + r.right - parseFloat(cs.paddingRight)) / 2).toFixed(1) }; }, sel);   /* dx = 동그라미 + 글 덩어리 가운데 − 알약 안쪽 가운데 */
 const same = (a, f) => a.every((x) => x && a[0] && Math.abs(x[f] - a[0][f]) < 0.6);
 try {
   for (const W of [390, 1280]) {
@@ -46,12 +47,12 @@ try {
     const mpK = await pg.evaluate(() => { for (const k of ['guest', 'vow', 'thanks', 'ring', 'bless', 'candle', 'entry']) { try { mkGo(k); } catch (e) { continue; } const b = [...document.querySelectorAll('.mk-hbtn[data-mp]')].find((x) => x.offsetParent && x.querySelector('svg')); if (b) return k; } return ''; });
     await pg.waitForTimeout(500);
     const mpS = [];
-    if (mpK) for (const lab of [null, '멈추기', '만드는 중', '이 순간 전체 듣기']) {
-      if (lab) await pg.evaluate((lab) => { const b = [...document.querySelectorAll('.mk-hbtn[data-mp]')].find((x) => x.offsetParent); const v = b.querySelector('svg'); b.innerHTML = ''; b.appendChild(v); b.appendChild(document.createTextNode(' ' + lab)); }, lab);
+    if (mpK) for (const lab of [null, '멈춤', '만드는 중', '이 순간 전체 듣기']) {
+      if (lab) await pg.evaluate((lab) => { const b = [...document.querySelectorAll('.mk-hbtn[data-mp]')].find((x) => x.offsetParent); const v = b.querySelector('svg'); b.innerHTML = ''; b.appendChild(v); b.appendChild(document.createTextNode(' ' + lab)); }, lab);   /* _mpBtn · _mpPaint 와 같은 꼴(▶ · ■ + 글) */
       mpS.push(await pill(pg, '.mk-hbtn[data-mp]:not([hidden])'));
     }
-    ok(`${W} B2 [PLAY_ICON_FIXED_1023] «${mpK || '?'}» 순간 «이 순간 전체 듣기» 알약 — 글을 «멈추기» · «만드는 중»으로 바꿔도 동그라미 자리 · 알약 크기 그대로 · 동그라미는 알약 끝과 같은 중심`,
-      !!mpK && mpS.length === 4 && mpS.every(Boolean) && same(mpS, 'sx') && same(mpS, 'sy') && same(mpS, 'bw') && same(mpS, 'bh') && Math.abs(mpS[0].sx - mpS[0].sy) < 1.2 && mpS[0].sw === 30, { mpK, mpS });
+    ok(`${W} B2 [PLAY_MID_1023] «${mpK || '?'}» 순간 «이 순간 전체 듣기» 알약 — 글이 «멈춤» · «만드는 중»이어도 동그라미 + 글이 가운데(${mpS.map((x) => x && x.dx).join(' · ')}) · 동그라미 왼쪽 고정 없음 · 알약 크기 그대로`,
+      !!mpK && mpS.length === 4 && mpS.every(Boolean) && mpS.every((x) => Math.abs(x.dx) <= 1 && x.pos === 'static') && same(mpS, 'bw') && same(mpS, 'bh') && mpS[0].sw === 30, { mpK, mpS });
     if (SHOT) await pg.locator('.mk-hbtn[data-mp]:not([hidden])').first().screenshot({ path: path.join(SHOT, `mp-pill-${W}.png`) }).catch(() => {});
     /* 입장 장면 세우기(entry-music.mjs 와 같은 길) */
     await pg.evaluate(() => { try { render(); } catch (e) {} mkGo('entry'); }); await pg.waitForTimeout(800);
@@ -83,8 +84,8 @@ try {
     const P2 = await pill(pg, '.em-scene [data-fk="emscene"]'), A2 = await words(pg);
     if (SHOT) await pg.locator('.em-scene').screenshot({ path: path.join(SHOT, `scene-${W}-2.png`) }).catch(() => {});
     const ps = [P0, P1, P2];
-    ok(`${W} B1 [PLAY_ICON_FIXED_1023] 입장 알약 «${P0 && P0.t}» → «${P1 && P1.t}» → «${P2 && P2.t}» — 동그라미 자리(${P0 && P0.sx}, ${P0 && P0.sy}) · 알약 크기 그대로 · 첫 판 한 줄(높이 ${P0 && P0.bh})`,
-      ps.every(Boolean) && P0.t === '이 순간 전체 듣기 · 음악과 함께' && P1.t === '멈추기' && P2.t === '이어 듣기' && same(ps, 'sx') && same(ps, 'sy') && same(ps, 'bw') && same(ps, 'bh') && P0.bh <= 53 && Math.abs(P0.sx - P0.sy) < 1.2, { ps });
+    ok(`${W} B1 [PLAY_MID_1023] 입장 알약 «${P0 && P0.t}» → «${P1 && P1.t}» → «${P2 && P2.t}» — 셋 다 가운데(${ps.map((x) => x && x.dx).join(' · ')}) · «멈춤 ↔ 이어 듣기» 동그라미 자리 그대로(${P1 && P1.sx} · ${P2 && P2.sx}) · 알약 크기 그대로 · 첫 판 한 줄(높이 ${P0 && P0.bh})`,
+      ps.every(Boolean) && P0.t === '이 순간 전체 듣기 · 음악과 함께' && P1.t === '멈춤' && P2.t === '이어 듣기' && ps.every((x) => Math.abs(x.dx) <= 1 && x.pos === 'static') && Math.abs(P1.sx - P2.sx) < 0.6 && Math.abs(P1.sy - P2.sy) < 0.6 && same(ps, 'bw') && same(ps, 'bh') && P0.bh <= 53, { ps });
     ok(`${W} A3 누르고 멈춰도 낱말 자리 그대로 · 듣는 동안 지금 칸 낱말만 진하게(data-at ${A1 && A1.at})`,
       !!A1 && !!A2 && JSON.stringify(A1.sp.map((x) => [x.l, x.vis])) === JSON.stringify(A0.sp.map((x) => [x.l, x.vis])) && JSON.stringify(A2.sp.map((x) => [x.l, x.vis])) === JSON.stringify(A0.sp.map((x) => [x.l, x.vis])) && A1.at === 'greet', { A1, A2 });
     ok(`${W} 가로 넘침 없음 · 페이지 오류 없음`, await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1) && errs.length === 0, { errs });
@@ -98,15 +99,15 @@ try {
     const parse = (s) => (s || '').split(' ').map((x) => x === '-' ? null : x.split(':').map(Number));
     const okf = (s, hideG, hideE) => { const [g, w, e] = parse(s); return !!w && w[0] >= 0 && w[1] <= 300 && (hideG ? g === null : !!g) && (hideE ? e === null : !!e); };
     ok('A4 겹치면 입장이 이긴다 — 0 · 0.02 → 대기 숨김 · 0.5 → 셋 다 · 0.97 · 1 → 도착 숨김 · 입장은 늘 줄 안', !R.err && okf(R[0], true, false) && okf(R[0.02], true, false) && okf(R[0.5], false, false) && okf(R[0.97], false, true) && okf(R[1], false, true), R);
-    /* B3 [PLAY_ICON_FIXED_1023] 목소리 창 단추 둘(같은 동작) — 다듬기 창 동그라미 알약 · 두 분 목소리 창 채운 알약. 창 폭(320)에 실제 CSS 로 세워 글만 바꿔 잰다 */
+    /* B3 [PLAY_MID_1023] 목소리 창 단추 둘 — 다듬기 «예시 들어 보기 ↔ 멈춤»(가운데) · 두 분 목소리 «들어 보기 ↔ 멈춤»(가운데 · 동그라미 그대로). 창 폭(320)에 실제 CSS 와 화면 코드와 같은 꼴로 세워 잰다 */
     const B3 = await pg.evaluate(() => { const box = document.createElement('div'); box.style.cssText = 'width:320px;position:relative'; document.body.appendChild(box); const out = {};
-      for (const [cls, labs] of [['mk-tune-go', ['예시 들어 보기', '멈추기', '이 글로 들어 보기', '만드는 중…']], ['mk-dlg-go mk-vu-play', ['들어 보기', '멈추기', '준비 중…']]]) {
-        out[cls] = labs.map((t) => { box.innerHTML = '<button type="button" class="' + cls + '">' + (t === '멈추기' ? ICO_STOP : ICO_PLAY) + (cls === 'mk-tune-go' ? '<span>' + t + '</span>' : ' ' + t) + '</button>'; const b = box.firstChild, v = b.querySelector('svg'), r = b.getBoundingClientRect(), q = v.getBoundingClientRect();
-          return { t, cx: +((q.left + q.right) / 2 - r.left).toFixed(1), cy: +((q.top + q.bottom) / 2 - r.top).toFixed(1), bw: +r.width.toFixed(1), bh: +r.height.toFixed(1) }; }); }
+      const mk = { 'mk-tune-go': (t) => '<span>' + t + '</span>', 'mk-dlg-go mk-vu-play': (t) => ' <span class="em-lab-tg" data-w="들어 보기"><span>' + t + '</span></span>' };
+      for (const [cls, labs] of [['mk-tune-go', ['예시 들어 보기', '멈춤']], ['mk-dlg-go mk-vu-play', ['들어 보기', '멈춤']]]) {
+        out[cls] = labs.map((t) => { box.innerHTML = '<button type="button" class="' + cls + '">' + (t === '멈춤' ? ICO_STOP : ICO_PLAY) + mk[cls](t) + '</button>'; const b = box.firstChild, v = b.querySelector('svg'), r = b.getBoundingClientRect(), q = v.getBoundingClientRect(), rg = document.createRange(); rg.selectNodeContents(b); const g = rg.getBoundingClientRect(), cs = getComputedStyle(b);
+          return { t, sx: +(q.left - r.left).toFixed(1), dx: +((g.left + g.right) / 2 - (r.left + parseFloat(cs.paddingLeft) + r.right - parseFloat(cs.paddingRight)) / 2).toFixed(1), pos: getComputedStyle(v).position, bh: +r.height.toFixed(1) }; }); }
       box.remove(); return out; }).catch((e) => ({ err: e.message }));
-    const eq = (a, f) => Array.isArray(a) && a.every((x) => Math.abs(x[f] - a[0][f]) < 0.6);
-    ok('B3 [PLAY_ICON_FIXED_1023] 목소리 창 «예시 들어 보기 ↔ 멈추기» · «들어 보기 ↔ 멈추기» — 글이 바뀌어도 ▶ · ■ 가운데 자리 · 단추 크기 그대로 · 알약 끝 곡선 가운데',
-      !B3.err && ['mk-tune-go', 'mk-dlg-go mk-vu-play'].every((k) => eq(B3[k], 'cx') && eq(B3[k], 'cy') && eq(B3[k], 'bw') && eq(B3[k], 'bh') && Math.abs(B3[k][0].cx - B3[k][0].bh / 2) < 1.2), B3);
+    ok('B3 [PLAY_MID_1023] 목소리 창 «예시 들어 보기 ↔ 멈춤» · «들어 보기 ↔ 멈춤» — 동그라미 + 글 가운데 · 왼쪽 고정 없음 · 두 분 목소리 단추는 동그라미 자리 그대로',
+      !B3.err && ['mk-tune-go', 'mk-dlg-go mk-vu-play'].every((k) => B3[k].every((x) => Math.abs(x.dx) <= 1 && x.pos === 'static')) && Math.abs(B3['mk-dlg-go mk-vu-play'][0].sx - B3['mk-dlg-go mk-vu-play'][1].sx) < 0.6, B3);
     await ctx.close(); }
 } finally { await br.close(); srv.close(); }
 console.log(fail ? `scene-words: FAIL ${fail}` : 'scene-words: ok');
