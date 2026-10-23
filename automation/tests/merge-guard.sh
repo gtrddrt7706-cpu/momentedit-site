@@ -14784,6 +14784,7 @@ chk 'RING_TITLE_CLEAR_1023' assets/ritual-open.js 1   # 반지 판 = 손을 위�
 chk 'LETTER_TITLE_1023' assets/ritual-open.js 1   # 편지 판 = 편지지가 제목에 가리지 않게 제목을 3초에 걷는다(10/23 GPT 더블체크)
 chk 'TOAST_MEDIUM_1023' assets/ritual-open.js 1   # 축배 판 = 허리 위 중간 크기 · 하객 열 명 안팎 · 모두 두 분 쪽(10/23 사장님 «정원 30명» · «뒤 사람들은 주인공을 바라봐야지»)
 chk 'TOAST_MEDIUM_1023' order-preview.html 1   # 축배 칸 높이 10%(_VFY 주석 · 위 설명)
+chk 'CLOSE_HAND_FIX_1023' assets/ritual-open.js 1   # 닫는 인사 185 ~ 193장 맞잡은 손 아래 여분 손을 다시 그림(10/23 GPT 독립 검수 · 내 확대 확인)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
@@ -20042,3 +20043,20 @@ nochk '>말투 바꾸기<' order-preview.html 0
 chk 'ADAPT_OK_1023 사장님 2026-10-23' assets/ritual-data.js 1   # ★[ADAPT_OK_1023] 자료 없는 자리는 실제 멘트를 낱말 몇 개만 고쳐 쓴다(원문 먼저 · 고친 비율 30% 아래 · AI 글 바탕 금지) · 결정 주석 · 검사 open-course «ADAPT_OK_1023»
 chk '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다.' assets/ritual-cue.js 1   # ★[REVIEW33_1023 검토 159-2] 264 = sypo0202 ADAPT
 chk '내빈 여러분께서는 스크린을 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.' assets/ritual-open.js 1   # ★[REVIEW33_1023 검토 159-2] 130 = sypo0202
+# ★★[BGM_SEG8_1023 2026-10-23 사장님 결정 «8구간» · BGM 섹션 라운드 2 PR 2 · BGM_PICKS_1023 사장님 21:40 «나머지 이 노래들 우선 고를 수 있게»]
+#   콘솔이 구간마다 곡을 바꾼다(재생기 둘 · 3초 크로스페이드 · 파일 없는 구간은 앞 곡이 잇는다 · 영상 · 축가 뒤 돌아옴) · 추천 곡 assets/bgm-picks.js(콘솔만) ·
+#   구간 칸 = 추천 곡 고르기 + 파일 넣기 + 곡 추가(이 기기 보관) · 입장 곡이 짧으면 «곡 길이 모자람» + 곡 끝 3초 전 피아노가 이어받기 [ENTRY_SHORT] · 엔진 큐에 있는 자리만 받기 [RF_IN_ENGINE]
+#   깨 보고 믿음: 콘솔에서 바꾸기 · 파일 판정 · 부모님께 인사 구간 · 저장 · 짧은 곡 이어받기를 하나씩 되돌리면(BS_CON) bgm-seg8 의 그 칸이 빨강
+chk 'BGM_SEG8_1023' console.html 10
+chk 'BGM_PICKS_1023' assets/bgm-picks.js 1
+chk 'BGM_PICKS_1023' console.html 2
+chk '<script src="/assets/bgm-picks.js"></script>' console.html 1
+nochk 'bgm-picks' order-preview.html   # [BGM_PICKS_1023] 고객 화면은 싣지 않는다(고객은 입장 곡만 고른다)
+nochk 'bgm-picks' mypage.html
+chk "  if (k === 'tribute') return 'M5';" console.html 1
+chk 'RF_IN_ENGINE' console.html 1
+chk 'BGM_SEG8_1023' assets/bgm-slots.js 3
+chk "ref: { role: '메인', sec: 300, level: LEVEL.main } }," assets/bgm-slots.js 1
+chk 'BGM_SEG8_1023' scripts/audit/bgm-seg8.mjs 1
+chk 'ENTRY_SHORT' scripts/audit/entry-scene-day.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-seg8.mjs >/dev/null 2>&1; _bs8=$?; [ "$_bs8" = 1 ] && { echo 'FAIL bgm-seg8: 콘솔 구간 음악(목록 · 저장 · 크로스페이드 · 빈 구간 이음 · 영상 · 축가 뒤 · 짧은 입장 곡)이 어긋났습니다 — node scripts/audit/bgm-seg8.mjs'; fail=1; }; :; fi
