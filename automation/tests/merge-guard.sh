@@ -19222,10 +19222,11 @@ chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed
 chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 아래 오르골 · 피아노가 아주 작게 흘러요' }," assets/bgm-slots.js 1
 chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-slots.js 1
 chk "one: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1
-chk "one: '말 아래 잔잔한 피아노가 아주 작게 깔려요'," assets/bgm-slots.js 1
+chk "one: '목소리 뒤로 잔잔한 피아노가 아주 작게 흘러요'," assets/bgm-slots.js 1        # [BGM_R1_1023] «말 아래» → «목소리 뒤로»
 chk "one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1
-chk "one: '테이블 인사 · 사진 동안 재즈가 흐르고, 마지막 곡으로 닫아요'," assets/bgm-slots.js 1
-chk "cont: '앞 순서 곡이 그대로 이어져요'" assets/bgm-slots.js 1
+chk "one: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요'," assets/bgm-slots.js 1
+chk "one: '«위하여!»와 함께 신나는 곡이 울려 퍼져요'," assets/bgm-slots.js 1
+chk "cont: '{at}부터 흐르던 피아노가 아주 작게 이어져요'" assets/bgm-slots.js 1
 chk "duckRead: -20," assets/ritual-cue.js 1
 chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true," assets/ritual-cue.js 1
 chk "var bed = bgmBed(S, 'S6'), dk = bed ? PARAM.duckRead : PARAM.duckOff;" assets/ritual-cue.js 1
@@ -19250,6 +19251,22 @@ chk "<script src=\"/assets/bgm-form.js?v=" order-preview.html 1
 chk 'BgmForm.rowHtml(k)' order-preview.html 1
 chk '_muRow+_bgRow' order-preview.html 1
 chk 'h+=BgmForm.sumHtml()' order-preview.html 1
+# ── 2026-10-23 [BGM_R1_1023] BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만» — 고를 것이 없는 음악 안내는 흐름의 채운 점 줄 하나(li.q[data-bgm] · 자리 = 음악이 시작되는 때 · n · 듣기 차례에 안 낀다) ·
+#   «고르기» 음악 줄은 입장 · 축사 · 편지만(이름표 «… 음악») · ④ 입장 곡 안 골랐으면 «고르지 않으시면 스튜디오가 준비해요» + «이동하기» · ★고르기 칸 글 한 줄(.bgm-line · 이름표 «음악») 되살리지 말 것
+chk 'BGM_R1_1023' assets/bgm-slots.js 4
+chk 'BGM_R1_1023' assets/bgm-form.js 3
+chk 'BGM_R1_1023' order-preview.html 4
+chk 'BGM_R1_1023' scripts/audit/bgm-form.mjs 5
+chk 'function flowAt(at, st)' assets/bgm-slots.js 1
+chk 'function flowRow(k,st)' assets/bgm-form.js 1
+chk "var bq=null; try{ if(window.BgmForm&&BgmForm.flowRow) bq=BgmForm.flowRow(k,st); }catch(e){}" order-preview.html 1
+chk "if(bq&&!bqDone&&i>=bq.at){ h+=bq.html; bqDone=true; }" order-preview.html 1
+chk "입장 곡 · 고르지 않으시면 스튜디오가 준비해요" assets/bgm-form.js 1
+nochk 'class="bgm-line"' assets/bgm-form.js                                                              # ★고르기 칸 글 한 줄 — 흐름으로 옮김
+nochk '.ls-bgm .bgm-line{' order-preview.html
+nochk '말 아래 잔잔한 피아노' assets/bgm-slots.js
+nochk '신나는 곡이 터져요' assets/bgm-slots.js
+nochk '마지막 곡으로 닫아요' assets/bgm-slots.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-form.mjs >/dev/null 2>&1; _bgf=$?; if [ "$_bgf" = 1 ]; then echo 'FAIL bgm-form: 순간 «음악» 칸(한 줄 안내 · 축사 · 편지 칩 둘 · 엔진 −90 ↔ −20 · 요약 · 옛 값 버리기)이 깨졌습니다 — node scripts/audit/bgm-form.mjs'; fail=1; elif [ "$_bgf" = 0 ]; then echo 'ok bgm-form: 순간 음악 칸'; else echo 'skip bgm-form: 브라우저가 없어 화면은 재지 못함(원천 · 엔진은 쟀다)'; fi; fi
 # ── 2026-10-13 밤 멘트 한 줄씩 검토(자료 A ~ HH) — 여는 · 닫는 순간 글만 [OPEN_WORDS_1013 · CLOSE_WORDS_1013 · TOAST_40_OPEN_1013 · NO_REHEARSAL_1013 · GUESTS_OPEN_BUILDER · BALL_BOW_TIP_1013]
 #   사장님 «관련 자료들까지 전부 보냈으니 스텝바이스텝으로 멘트 한 줄 한 줄 전부 확인해서 … 반영까지 해»
