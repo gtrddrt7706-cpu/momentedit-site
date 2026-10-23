@@ -1395,6 +1395,9 @@
     table: '두 분이 테이블 사이를 걸어요 · 하객들이 자리에서 맞아요'   // [TABLE_GREET_1008] 장면 글 · ★[TABLE_VIDEO_1009 2026-10-09] 이제 영상(table.mp4)이 있어 다른 순간처럼 영상이 없을 때만 쓴다
   };
   var VIDEO_DIR = '/assets/video/moments/';
+  /* ★[VIDEO_V 2026-10-23 사장님 «영상이 안 움직이는데 · 직접 확인해봐 · 개선까지»] 장면 영상 파일(mp4 · webp · 640 · end)은 같은 이름으로 바꿔 넣는다 — 주소 끝에 판 표시를 붙여
+     열어 둔 탭 · 휴대폰이 옛 파일(옛 영상 · 옛 끝 장면)을 섞어 쓰지 않게 한다. moments 폴더 파일을 바꾸면 이 값을 함께 올린다(scripts/audit/asset-v.mjs 가 잰다). */
+  var VIDEO_V = '?v=1023a';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
      첫 장면 webp 두 벌(받은 표지 jpg = 첫 장면 · 1280 q80 · 640 q78 · encode-moment.sh 와 같은 값). 촬영표 17편 중 toast-pour 는 만들지 않았다(붓기 장면 없음 · 화면도 안 찾는다).
      _close 는 close · entry 는 entry → entry-look 차례(videoKeys). 이름을 빼면 그 순간은 글 한 줄(SCENE)로 돌아간다
@@ -1430,7 +1433,7 @@
     return [k];
   }
   /* [POSTER_SMALL 2026-09-26 코워크 최종판 3-5] small = 칸용 첫 장면(640px · encode-moment.sh 가 함께 굽는다) — 칸은 영상을 돌리지 않는다 */
-  function videoOf(name) { return VIDEO_READY.indexOf(name) < 0 ? null : { mp4: VIDEO_DIR + name + '.mp4', poster: VIDEO_DIR + name + '.webp', small: VIDEO_DIR + name + '-640.webp', rest: VIDEO_DIR + name + '-end.webp' }; }   /* ★[VID_REST_END 2026-10-23] rest = 끝 장면 사진 — 영상이 끝나면 첫 장면이 아니라 끝 장면에 머문다(입장 · 닫는 인사가 되감기처럼 보이지 않게 · order-preview _vidRest) */
+  function videoOf(name) { return VIDEO_READY.indexOf(name) < 0 ? null : { mp4: VIDEO_DIR + name + '.mp4' + VIDEO_V, poster: VIDEO_DIR + name + '.webp' + VIDEO_V, small: VIDEO_DIR + name + '-640.webp' + VIDEO_V, rest: VIDEO_DIR + name + '-end.webp' + VIDEO_V }; }   /* ★[VID_REST_END 2026-10-23] rest = 끝 장면 사진 — 영상이 끝나면 첫 장면이 아니라 끝 장면에 머문다(입장 · 닫는 인사가 되감기처럼 보이지 않게 · order-preview _vidRest) */
   function firstVideo(k, S) { var ks = videoKeys(k, S); for (var i = 0; i < ks.length; i++) { if (videoOf(ks[i])) return videoOf(ks[i]); } return null; }
   function secTxt(x) { return x < 55 ? ('약 ' + Math.max(10, Math.round(x / 10) * 10) + '초') : ('약 ' + Math.round(x / 60) + '분'); }
   /* [THANKS_IN_VOW] 순간 설명 한 줄 — 서약 카드에서 감사문을 고르면 감사문 설명(CARDS.vow.oneT) · 그 밖은 CARDS[k].one */

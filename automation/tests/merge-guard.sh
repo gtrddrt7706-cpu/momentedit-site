@@ -10028,6 +10028,25 @@ chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안�
 chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
 chk 'ASSET_V' order-preview.html 3   # 옛 파일을 쓰지 않게 ?v= · ?t=
 chk 'ASSET_V' mypage.html 1
+# ★★[ASSET_V_GUARD 2026-10-23 사장님 «영상이 안 움직이는데 · 직접 확인해봐 · 개선까지»] 파일을 바꾸면 판 표시(<script ?v=> · ASSET_V · VIDEO_V)를 같은 커밋에서 올린다.
+#   #1331 이 ritual-open.js 와 영상을 바꾸고 안 올려, 그 전에 연 화면은 축사 · 축가 칸이 비고 영상이 멈춰 보였다. asset-v.mjs 가 «이번 변경이 파일을 바꿨으면 값도 바꿨는가»를 잰다(가지는 main 과 갈라진 곳부터 · main 은 앞 커밋부터).
+chk 'ASSET_V_GUARD' scripts/audit/asset-v.mjs 1
+chk 'ASSET_V_GUARD' order-preview.html 1
+chk 'VIDEO_V' assets/ritual-open.js 2
+chk "+ '.mp4' + VIDEO_V" assets/ritual-open.js 1
+chk '주소 끝 ?v= 를 지나 이름을 읽는다' order-preview.html 1   # _vfyN 이 ?v= 를 지나 이름을 읽는다(입장 15 · 닫는 인사 45 · cine-scope 가 실제 주소로 잰다)
+if command -v node >/dev/null 2>&1; then node scripts/audit/asset-v.mjs >/dev/null 2>&1; _av=$?
+  case "$_av" in
+    0) echo 'ok asset-v: 바꾼 파일마다 판 표시를 올렸다 [ASSET_V_GUARD]' ;;
+    1) echo 'FAIL asset-v: 파일을 바꾸고 판 표시(?v= · ASSET_V · VIDEO_V)를 안 올렸다 — node scripts/audit/asset-v.mjs'; fail=1 ;;
+    *) echo 'ok asset-v: 재지 못했습니다(얕은 이력) — 결함이 아닙니다' ;;
+  esac
+  node scripts/audit/asset-v.mjs --selftest >/dev/null 2>&1; _avs=$?
+  case "$_avs" in
+    1) echo 'FAIL asset-v selftest: 옛 값을 못 잡는다(검사가 죽었다) — node scripts/audit/asset-v.mjs --selftest'; fail=1 ;;
+    *) echo 'ok asset-v selftest' ;;
+  esac
+fi
 chk 'DLG_TITLE_ONE' order-preview.html 1
 chk 'VC_LEFT_WORD' order-preview.html 1
 chk 'ONE_OK_OFF' order-preview.html 1
@@ -19137,6 +19156,12 @@ chk 'UP_REC_V_REMEASURE' scripts/audit/up-rec-v.mjs 1
 chk 'const expRec = (need) => \[30, 50, 80\].find((t) => typeof need === .number. && t >= need) || 30;' scripts/audit/up-rec-v.mjs 1
 chk 'const expAt = (H, V) => { const pre = H - V - SP.breath;' scripts/audit/up-rec-v.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/up-rec-v.mjs >/dev/null 2>&1; _urv=$?; if [ "$_urv" = 1 ]; then echo 'FAIL up-rec-v: 올린 곡 «추천» 자리(멘트 길이 · 첫 자리 · 표시만 다시 · 직접 적은 자리 그대로)가 깨졌습니다 — node scripts/audit/up-rec-v.mjs'; fail=1; elif [ "$_urv" = 0 ]; then echo 'ok up-rec-v: 올린 곡 추천 자리'; else echo 'skip up-rec-v: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-23 [FLOW_SIDE_STEADY] 사장님 «기록과 가족 그래프 창이 위아래 넓이가 넓어지고 줄어들고 하는데 똑같이 맞춰줘 · 움직임 없이 그래프 바꿔도»
+#   PC 오른쪽 설명이 테이블 인사가 있으면 세 줄 · 없으면 두 줄이라 판이 20px 씩 오갔다 → 없는 판은 보이지 않는 한 줄로 세 줄 자리 · flow-steady 가 390 · 1024 · 1280 으로 잰다(되돌리면 빨강 2)
+chk 'FLOW_SIDE_STEADY' order-preview.html 1
+chk 'FLOW_SIDE_STEADY' scripts/audit/flow-steady.mjs 1
+chk "(sp.tm?'':'<br><span class=\"pk-pad\" aria-hidden=\"true\">'+NBS+'</span>')" order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-steady.mjs >/dev/null 2>&1; _fls=$?; if [ "$_fls" = 1 ]; then echo 'FAIL flow-steady: 예시를 바꾸면 «감동 흐름» 판 높이 · «다음» 단추 자리가 흔들립니다 — node scripts/audit/flow-steady.mjs'; fail=1; elif [ "$_fls" = 0 ]; then echo 'ok flow-steady: 감동 흐름 판 높이 그대로'; else echo 'skip flow-steady: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 순간마다 «음악» 칸 [BGM_FORM_1023] → 다시 짜기 [BGM_INFO_1023] — 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «입장곡은 지금 세팅처럼 직접 할 수 있게» · «최선인지 한 번 더 검토해 보고 제안대로 구현» · BGM 섹션 안
 #   대부분 한 줄 안내(맞절 «입장 곡이 이어져요» 꼴) · 축사 · 편지만 칩 둘(«음악 없이» 기본 · «음악과 함께») → 엔진 duckRead −20(축사 사람 구간 · 편지 첫 큐 · 사람 구간 · 마무리 · 정적 없이 4초) · 편지 장면 글 판 · 미리 듣기 주소는 bed 만
 #   ★음악 칸 «우리가 고른 곡»(올리기 · 곡 카드 · 이 기기 보관 me-bgm-song · «보낼 것» 음악 줄 · 할 일) · 접는 카드 · 부모님께 인사 칩 · «마지막 곡만 고르기» 금지 — 되살리지 말 것 ·
