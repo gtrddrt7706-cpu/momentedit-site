@@ -13,13 +13,6 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_진희.txt | 진희 | 5 | 3 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
-
-```
-# 진희 — 5줄 · 3클립
-node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =85_narr-photo-send,=120_guest-ex3-2-10min,=122_guest-ex3-4-1min
-```
 
