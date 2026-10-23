@@ -19668,7 +19668,9 @@ chk 'FREE_IN_RR_1023 검토 151-1 3)' scripts/audit/open-course.mjs 1   # 동작
 #   ⑥서버: 상담예약 맨 뒤 «시착준비» · 상담일 −2일 23:59 마감(«바꾸기 마감이 지났어요») · 아침 보고 «내일 상담 · 준비할 드레스»
 #   모양 · 규칙 · 짝은 scripts/audit/dress-refs.mjs(--selftest 로 깨 보고 믿었다) · 서버 동작은 automation/tests/dress-pick.test.js
 chk '\[DRESS_LIVE\]' assets/dress-refs.js 2
-chk 'live: false,             // \[DRESS_LIVE\]' assets/dress-refs.js 1     # 스위치는 이번 범위에서 켜지 않는다 — 켤 때 이 줄을 «live: true»로 · 표본 지우기 · 실물 4벌 사진(dress-refs.mjs 가 본다 · noindex 는 늘 둔다)
+chk 'live: true,              // \[DRESS_LIVE\]' assets/dress-refs.js 1     # ★[DRESS_SAMPLE_PROD 2026-10-23 사장님 «지금뜨게해» · «모든 고객에게 지금»] 스위치를 켰다 — 표본 6벌로(아래 표식 · 켜기 조건은 표식이 참인 동안 보류 · dress-refs.mjs 가 본다)
+chk 'SAMPLES_ON_PROD: true,   // \[DRESS_SAMPLE_PROD 2026-10-23' assets/dress-refs.js 1     # 실물 사진이 오면 표본을 지우고 이 줄을 false 로 — 그때 이 chk 도 같은 커밋에서 바꾼다
+chk 'var prod = R.isProd() && R.SAMPLES_ON_PROD !== true;' assets/dress-refs.js 1
 chk 'DRESS_SAMPLE' assets/dress-refs.js 2
 chk 'return !(prod && d.sample);' assets/dress-refs.js 1                   # 운영 주소에서 표본을 빼는 한 줄
 chk 'DRESS_RANK' assets/dress-refs.js 1
