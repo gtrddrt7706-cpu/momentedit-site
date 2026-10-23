@@ -19963,3 +19963,15 @@ chk '5년에 한 번 정도만 하면 좋겠다.' assets/ritual-ref.js 1
 chk '서로가 서로에게 기적임을 마음에 새기시고' assets/ritual-ref.js 1
 chk 'placeholder="예: 저희를 축하해 주시기 위해 이 자리에 참석해 주신 내빈 여러분께 먼저 감사 인사 올립니다."' order-preview.html 1
 chk 'var TUNE_MAX=160;' order-preview.html 1
+# ★[BGM_CONSOLE1_1023 2026-10-23 BGM 섹션 «당일 콘솔 라운드 1»] 재기 표 docs/handoff/BGM_CONSOLE_1023.md(node scripts/build-bgm-console-table.cjs · 녹음이 바뀌면 다시 돌린다 · 게이트엔 안 건다)
+#   ref 메모 둘(S8 «목례 · 박수 뒤 힘 있게 시작» · S10 131 박수 줄 걷음) · 낮춤 모양 이름(PARAM.duck = fadeDownMs · fadeUpMs 의 한 원천 · holdMs 0 = 지금 버티지 않음) · duckRead «리허설 시작값»
+#   깨 보고 믿음: bgm-slots.js 를 옛 판으로 되돌리면 bgm-form 0번이 빨강
+chk 'BGM_CONSOLE1_1023' assets/bgm-slots.js 2
+chk 'BGM_CONSOLE1_1023' assets/ritual-cue.js 3
+chk "var DUCK_ENV = { downMs: 400, holdMs: 0, upMs: 1200 };" assets/ritual-cue.js 1
+chk '    duck: DUCK_ENV,' assets/ritual-cue.js 1
+chk "up: '목례 · 박수 뒤 힘 있게 시작'" assets/bgm-slots.js 1
+nochk "up: 'S8 이 힘 있게 시작한다'" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] «인사!» 순간처럼 읽혔다
+nochk "no: 131, line" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] 대본 157 로 «큰 박수로 맞이해 주십시오»가 빠졌다
+chk 'BGM_CONSOLE1_1023' scripts/audit/bgm-form.mjs 1
+chk 'TABLE:START' docs/handoff/BGM_CONSOLE_1023.md 1
