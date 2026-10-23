@@ -19802,7 +19802,7 @@ chk 'data-swap="1">Nº 02와 바꾸기</button>' dress.html 1
 nochk '다 찼어요. 하나를 빼고 골라 주세요' dress.html 0                       # 막다른 길(뺄 드레스로 가서 빼고 다시 오는 세 걸음) 되살리기 금지
 chk 'DRESS_NO_PICK_CARD' mypage.html 1                                     # «안 고르셔도 상담 날 함께 골라요.»는 카드 0벌 점 줄 둘째 — 고르기 화면 띠 아래에서는 뺐다(같은 말 한 번)
 chk 'DRESS_NO_PICK_CARD' dress.html 1
-chk "notes=[due?(due+'까지 고르실 수 있어요.'):'', '안 고르셔도 상담 날 함께 골라요.'];" mypage.html 1
+chk "'까지 고르실 수 있어요.'):'', '안 고르셔도 상담 날 함께 골라요.'];" mypage.html 1   # 대괄호를 앞에 두지 않는다 — BRE 에서 [ 는 글자 묶음이라 로캘에 따라 0건이 된다(CI 실측)
 chk 'DRESS_SKIP_WORDS' dress.html 1                                        # 물음 글 단추 «드레스 바로 보기 ›»(둘째 · 셋째 물음은 이미 답한 것이 있다)
 nochk '질문 없이 바로 보기 <span' dress.html 0
 chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «둘 다 골라도 되고, 안 골라도 돼요.»
