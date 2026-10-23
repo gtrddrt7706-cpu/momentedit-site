@@ -14781,6 +14781,7 @@ chk 'VID_CUT_MOTION' scripts/audit/video-start.mjs 2
 chk 'if (blendBeatsMotion(sm, i, a, b, al)) out.push(i)' scripts/audit/video-start.mjs 1
 chk 'VID_CADENCE_1023' scripts/audit/video-start.mjs 3   # ⑥ 사람이 2 · 3장마다 끊겨 움직이지 않는다 · 유화판 24fps(10/23 사장님 «성혼선언 영상 끊기는 거 같은데 · 다른 영상들도 확인해 봐»)
 chk 'RING_TITLE_CLEAR_1023' assets/ritual-open.js 1   # 반지 판 = 손을 위로 다시 잡아 반지가 제목 글자에 가리지 않는다(10/23 사장님 «반지 영상 처음부터 끝까지 검토»)
+chk 'LETTER_TITLE_1023' assets/ritual-open.js 1   # 편지 판 = 편지지가 제목에 가리지 않게 제목을 3초에 걷는다(10/23 GPT 더블체크)
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;

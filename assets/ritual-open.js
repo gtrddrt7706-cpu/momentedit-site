@@ -1405,7 +1405,7 @@
   var VIDEO_DIR = '/assets/video/moments/';
   /* ★[VIDEO_V 2026-10-23 사장님 «영상이 안 움직이는데 · 직접 확인해봐 · 개선까지»] 장면 영상 파일(mp4 · webp · 640 · end)은 같은 이름으로 바꿔 넣는다 — 주소 끝에 판 표시를 붙여
      열어 둔 탭 · 휴대폰이 옛 파일(옛 영상 · 옛 끝 장면)을 섞어 쓰지 않게 한다. moments 폴더 파일을 바꾸면 이 값을 함께 올린다(scripts/audit/asset-v.mjs 가 잰다). */
-  var VIDEO_V = '?v=1023e';
+  var VIDEO_V = '?v=1023f';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
      첫 장면 webp 두 벌(받은 표지 jpg = 첫 장면 · 1280 q80 · 640 q78 · encode-moment.sh 와 같은 값). 촬영표 17편 중 toast-pour 는 만들지 않았다(붓기 장면 없음 · 화면도 안 찾는다).
      _close 는 close · entry 는 entry → entry-look 차례(videoKeys). 이름을 빼면 그 순간은 글 한 줄(SCENE)로 돌아간다
@@ -1430,7 +1430,8 @@
      ★[RING_SLIDE_1023 · CANDLE_LIGHT_1023 2026-10-23 사장님 «반지를 끼워 줘야 하는 거 아니야»] 반지 = 약지 끝에서 밑동까지 끼워 주는 장면(끝 장면 = 약지 밑동) ·
        화촉 = 꺼진 두 초에 불을 옮겨 붙이는 장면(옛 판은 첫 장면부터 불이 켜져 있었다).
      ★[RING_TITLE_CLEAR_1023 2026-10-23 사장님 «반지 영상 좀 더 디테일하게 검토해 봐 · 처음부터 끝까지»] 반지 판은 손을 화면 위쪽으로 올려 다시 잡았다 — 옛 판은 반지가 약지 끝에서 미끄러지는 0 ~ 4초가
-       제목 두 줄(가운데 아래) 바로 밑이라 글자에 가려 보이지 않았다. 제목 자리는 17편 모두 같게 두고 그림을 옮겼다. */
+       제목 두 줄(가운데 아래) 바로 밑이라 글자에 가려 보이지 않았다. 제목 자리는 17편 모두 같게 두고 그림을 옮겼다.
+     ★[LETTER_TITLE_1023] 편지 판은 3.8초부터 편지지가 제목 자리로 내려온다 — 제목만 3초에 걷기 시작한다(다른 편은 5초 · 자리는 같다). */
   var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close', 'table', 'speech', 'song'];   // [TABLE_VIDEO_1009] 2026-10-09 사장님 «table 넣어» — 테이블 인사 영상(v8 묶음 · 10초) · ★[VIDEO_SET_1023 2026-10-23 사장님 «홈페이지에 구현»] 유화판 17편 — 축사(speech) · 축가(song) 장면 영상이 더해졌다(cake · free 는 옛 판 그대로)
   function videoKeys(k, S) {
     if (k === 'cake') return ['cake'];   // [CAKE_TOAST_SPLIT] 두 순간 · 두 영상
