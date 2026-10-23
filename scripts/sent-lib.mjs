@@ -32,6 +32,10 @@
  *       그 문장이 있는 «모든» 자리의 소리를 새것으로 바꾼다. --keep-gap 이면 조립 때 안쪽 쉼을 안 깎는다([ENTRY_GAP_KEEP]).
  *   node scripts/sent-lib.mjs --prune [--write]
  *       문안에서 빠져 «주인이 없어진» 자리를 창고에서도 뺀다. 기본은 미리보기.
+ *   node scripts/sent-lib.mjs --borrow <받을 자리>=<빌려 줄 자리>[,…] [--write]
+ *       같은 성우 · 같은 글자의 «받은 그대로» 소리를 다른 클립 자리로 빌려 온다([SENT_BORROW] · 기본은 미리보기).
+ *   node scripts/sent-lib.mjs --retext [--write]
+ *       글이 띄어쓰기 · 문장부호만 바뀐 자리의 대장 글을 지금 글로 맞춘다(소리는 그대로 · [SENT_RETEXT] · 기본은 미리보기).
  *   node scripts/sent-lib.mjs --stage <나갈폴더> [--clip =12_bless-father,…]
  *       창고에서 꺼내 조립기가 먹는 모양(번호순 낱개)으로 깔아 준다. 그 뒤 assemble-narration 을 부른다.
  */
@@ -601,7 +605,54 @@ function pick() {
   if (pend.length) console.log(`   ★성우 미정 ${pend.length}줄`);
 }
 
-if (has('--pick')) pick();
+/* ── 같은 성우 · 같은 글자 소리 빌려 오기  [SENT_BORROW] ─────
+   ★[REVIEW26_1023 검토 150-4] 클립 글에 «다른 클립에 이미 받은 문장»을 그대로 붙였을 때(예: 화촉 예시 셋의 꼬리 «단상 위로 올라와 주십시오. …») —
+     그 문장만 사장님께 다시 받지 않고, 같은 성우가 같은 글자로 받은 소리를 그 자리에 옮겨 담는다.
+   ★--patch 와 다르다 — --patch 는 그 문장이 든 «모든» 자리를 한 소리로 덮는다(다른 클립의 받은 소리가 바뀐다). 여기는 고른 자리만.
+   ★거절하는 것: 글자가 한 자라도 다르다 · 성우가 다르다 · 받을 자리에 이미 맞는 소리가 있다 · 빌려 줄 소리가 창고에 없다.
+   쓰기: node scripts/sent-lib.mjs --borrow 152_narr-candle-in-mothers-ex3#2=151_narr-candle-in-mothers-ex2#1 [--write] */
+function borrow() {
+  const WRITE = has('--write');
+  const pairs = String(arg('--borrow')).split(',').map((x) => x.trim()).filter(Boolean);
+  const j = loadIdx(); const bad = []; let n = 0;
+  for (const pr of pairs) {
+    const [to, from] = pr.split('=');
+    const t = bySlot.get(to), e = j.slots[from];
+    if (!t) { bad.push(`${to} — 대장에 없는 자리`); continue; }
+    if (!e || !fs.existsSync(fileOf(from))) { bad.push(`${from} — 창고에 빌려 줄 소리가 없다`); continue; }
+    if (e.text !== t.text) { bad.push(`${to} ← ${from} — 글자가 다르다(「${t.text}」 ≠ 「${e.text}」)`); continue; }
+    const wantV = VOICE[t.role] || null;
+    if (wantV && e.voice && e.voice !== wantV) { bad.push(`${to} ← ${from} — 성우가 다르다(${wantV} ≠ ${e.voice})`); continue; }
+    const have = j.slots[to];
+    if (have && have.text === t.text && fs.existsSync(fileOf(to))) { bad.push(`${to} — 이미 맞는 소리가 있다`); continue; }
+    console.log(`   ${to}  ←  ${from}  「${t.text}」(${e.voice || '?'})`);
+    if (WRITE) { fs.mkdirSync(path.dirname(fileOf(to)), { recursive: true }); fs.copyFileSync(fileOf(from), fileOf(to)); j.slots[to] = { text: t.text, voice: e.voice, when: e.when, from }; }
+    n++;
+  }
+  if (bad.length) { console.log(`✗ [SENT_BORROW] 빌려 오지 못한 자리 ${bad.length}개 — 아무것도 쓰지 않았다:`); for (const b of bad) console.log('   ' + b); process.exit(1); }
+  if (WRITE) { saveIdx(j); console.log(`[SENT_BORROW] ${n}자리에 빌려 왔다 — 그 클립을 --stage 로 다시 붙이세요`); }
+  else console.log(`[SENT_BORROW] (미리보기) ${n}자리 · --write 를 붙여야 씁니다`);
+}
+
+/* ── 표기만 바뀐 자리 대장 맞추기  [SENT_RETEXT] ───────────
+   ★[REVIEW26_1023 검토 150-2 11)] 글자(한글 · 영문 · 숫자)는 같고 띄어쓰기 · 문장부호(«신랑·신부» → «신랑 신부» · «해주신» → «해 주신»)만 바뀐 문장은
+     받은 소리가 그대로 맞다 — 다시 받지 않고 창고 대장의 글만 지금 글로 고친다. 글자가 하나라도 다르면 건드리지 않는다(낡은 자리 그대로). */
+function retext() {
+  const WRITE = has('--write'); const j = loadIdx(); const nz = (t) => String(t || '').replace(/[^0-9A-Za-z가-힣]+/g, ''); let n = 0;
+  for (const sl of slots) {
+    const e = j.slots[sl.id];
+    if (!e || e.text === sl.text || !fs.existsSync(fileOf(sl.id))) continue;
+    if (nz(e.text) !== nz(sl.text)) continue;
+    console.log(`   ${sl.id}  「${e.text}」 → 「${sl.text}」`); n++;
+    if (WRITE) e.text = sl.text;
+  }
+  if (WRITE && n) saveIdx(j);
+  console.log(`[SENT_RETEXT] ${WRITE ? '' : '(미리보기) '}표기만 바뀐 자리 ${n}개${WRITE ? ' — 대장 글을 고쳤다 · 그 클립을 --stage 로 다시 붙이세요' : ' · --write 를 붙여야 씁니다'}`);
+}
+
+if (has('--retext')) retext();
+else if (has('--borrow')) borrow();
+else if (has('--pick')) pick();
 else if (has('--rebind')) rebind();
 else if (has('--todo')) todo();
 else if (has('--import')) importFrom(arg('--import'));

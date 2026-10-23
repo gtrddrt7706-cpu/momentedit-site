@@ -263,8 +263,28 @@ ok('[WINE_POUR_OFF] 옛 초안의 «두 와인» 값이 와도 붓기 없음 · 
    ★[CAKE_OLD_OFF_1017 2026-10-17 사장님 «옛식순케이크빼»] 케이크 몫(42)도 이제 안 나간다 · 옛 코스 «둘 다»도 축배(40)만(종전 76 그대로) */
 ok('[TOAST_40_OPEN_1013 · CAKE_OLD_OFF_1017] 옛 초안(케이크 + 축배) → 축배는 40 · 56 · 76 · 42 없음 · 닫는 인사 뒤 · 옛 코스 «둘 다»도 40 · 케이크 줄 없음', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'none' });
   const o = C.build({ course: 'festive', toast: 'both', extra: { toast: 1 } }, { mode: 'console' }).cues.map((x) => x.slug);
-  return s.indexOf('toast-toast') > -1 && s.indexOf('narr-toast-out') > s.indexOf('toast-toast') && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0
+  const st = slugs({ course: 'open', on: { toast: 1, table: 1 }, toast: 'both', wine: 'none' });   /* ★[REVIEW26_1023 검토 150-1 4)] 56 은 테이블 인사가 있는 날만 */
+  return s.indexOf('toast-toast') > -1 && s.indexOf('narr-toast-out') < 0 && st.indexOf('narr-toast-out') > st.indexOf('toast-toast') && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0
     && s.indexOf('toast-both') < 0 && s.indexOf('narr-close-bow') < s.indexOf('toast-toast') && o.indexOf('toast-toast') > -1 && o.indexOf('toast-both-b') < 0 && o.indexOf('toast-both') < 0 && !o.some((x) => /cake/.test(x)); })());
+/* ★★[REVIEW26_1023 검토 150] 하객 귀로 다시 듣기 — 간결 화촉 · 감사문 칩 · 닫는 멘트 220 · 56 · 마지막 순간 뒤 B8 · B9 255 · B12 · 예시 칩 · 알림 · 5분 전 */
+ok('[REVIEW26_1023 검토 150] 간결 화촉 151 · 정석 축사 174 · 가족 덕담 232 · 기록 닫는 187 · 감사 인사 담은 날 감사문 칩 2 없음 · 220 없음 · 5분 전 한 문장', (() => {
+  const ex = (k, base) => { const S = O.applyExample({ course: 'open' }, k); S.course = 'open'; return O.narExCue(S, base); };   // 큐는 기본 이름 · 고른 예시는 narExCue 가 바꿔 끼운다
+  const b = ex('brief', 'narr-candle-in-mothers'), st = ex('standard', 'narr-free-in-speech'), fa = ex('family', 'narr-bless-end'), re = ex('record', 'narr-close-bow');
+  const thx = (w) => O.narExOk({ course: 'open', on: { vow: 1, welcome: w ? 1 : 0 }, vowKind: 'thanks' }, 'thanks', 1);
+  const g = C.build({ course: 'open', on: {} }, { mode: 'console' }).cues.find((c) => c.slug === 'guest-3-5min') || {};
+  return b === 'narr-candle-in-mothers-ex2' && st === 'narr-free-in-speech-ex2' && fa === 'narr-bless-end-ex2' && re === 'narr-close-bow-ex4'
+    && thx(false) && !thx(true) && O.NAR_EX.close.lines['narr-close'][1] === null && C.RETIRED['narr-close-ex3'] && g.text === '시작 오 분 전입니다.'; })());
+ok('[REVIEW26_1023 검토 150] 마지막 순간이 서약 · 반지 · 편지(서로에게)면 B8 → 108 디렉터 GO · 감사문이면 B8 없음 · B9 는 늘 255 · 인사 «밝게»면 B12 없음', (() => {
+  const end = (S) => { const cs = C.build(Object.assign({ course: 'open' }, S), { mode: 'console' }).cues, i = cs.findIndex((c) => c.slug === 'narr-close-bow'); return [cs[i - 1] && cs[i - 1].slug, cs[i] && cs[i].fire]; };
+  const v = end({ on: { vow: 1 } }), r = end({ on: { ring: 1 } }), l = end({ on: { letter: 1 }, letter: 'each' }), t = end({ on: { vow: 1 }, vowKind: 'thanks' });
+  const d = C.build({ course: 'open', on: { declare: 1, tribute: 1 } }, { mode: 'console' }).cues.map((c) => c.slug);
+  const sg = (n) => C.build({ course: 'open', on: { song: 1, tribute: 1, declare: 1 }, narEx: { tribute: n } }, { mode: 'console' }).cues.map((c) => c.slug).indexOf('bridge-b12-tribute-calm');
+  return v[0] === 'bridge-b8-face-guests' && v[1] === 'manual' && r[0] === 'bridge-b8-face-guests' && l[0] === 'bridge-b8-face-guests' && t[0] !== 'bridge-b8-face-guests'
+    && d.indexOf('bridge-b9-declare-seat') < 0 && d.indexOf('bridge-b9-declare-seat-end') > -1 && sg(0) > -1 && sg(5) < 0; })());
+ok('[REVIEW26_1023 검토 150-1 7)] 감사문 + 감사 인사를 담은 날만 알림(빼는 단추 · 닫기)', (() => {
+  const a = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' }), b = O.noticeList({ course: 'open', on: { vow: 1 }, vowKind: 'thanks' }), c = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 } });
+  const n = O.noticeFull({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' });
+  return a.some((m) => /감사 인사는 빼도 돼요/.test(m)) && !b.some((m) => /감사 인사는 빼도/.test(m)) && !c.some((m) => /감사 인사는 빼도/.test(m)) && !!n && n.key === 'thanks2' && n.close && n.acts.length === 1; })());
 ok('[THANKS_SHOT_1013] 감사문을 고른 날 남는 장면은 감사문 장면 · 서약은 그대로', O.shotOf('vow', { vowKind: 'thanks' }) === '하객을 바라보며 읽는 두 분' && O.shotOf('vow', {}) === O.CARDS.vow.shot);
 ok('[TOAST_40_OPEN_1013] ① 대표 줄도 40 · 화면 글은 엔진 글과 같다(따옴표만 다르다)', (() => { const sm = O.sampleOf('toast', {}); const t = (C.build(O.sampleS({}), { mode: 'console' }).cues.find((c) => c.slug === 'toast-toast') || {}).text || '';
   return sm.slug === 'toast-toast' && t.length > 0 && sm.screen.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '') === t.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '')   /* [SOURCE_FIRST_1016] 엔진 글은 자료 AA 따옴표 «'위하여'» · 화면은 «위하여» */; })());
