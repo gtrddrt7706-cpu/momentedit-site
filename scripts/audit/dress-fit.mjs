@@ -17,6 +17,9 @@
  *     ★[코워크 디자인 라운드 1] 띠 글 «원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요»([DRESS_BAND_WORDS]) · 점 줄 둘([DRESS_BAND_DOTS]) · 보이는 소제목 없음 ·
  *       답한 뒤에도 한 그리드(맞는 칸 앞 · «답과 맞아요» [DRESS_ONE_GRID]) · 물음에 «아직 몰라요» 없음([DRESS_Q_TRIM]) · 단독 완료 화면 단추는 글을 써도 «마이페이지로 돌아가기»([DRESS_MEMO_ONEBTN])
  *     ★[DRESS_PUBLIC_OFF 명세 2] /dress.html(?pick=1 없이)은 마이페이지로 넘어간다(한 크기에서).
+ *     ★[DRESS_BACK_STEP 코워크 디자인 라운드 2 · 1] 휴대폰 뒤로가기(history.back) = 겹화면 안에서 한 걸음 — 390×844 마이페이지 겹화면에서
+ *       자세히 → 목록(읽던 자리 · 그 칸 초점) · 물음 3 → 2 → 1 → 목록 · 목록(바뀐 것 없음) → 닫힘(마이페이지에 남는다) · 고른 뒤 목록 → «저장하지 않은 변경이 있어요» 판.
+ *       ★[DRESS_NEXT_PREV] 덤으로 자세히 맨 아래 «‹ 이전 드레스 · 다음 드레스 ›»(첫 드레스는 다음만 · 누르면 다음 드레스 · 44px).
  *     375×667(작은 폰)은 «참고»로만 찍는다 — 코워크 기준 밖이라 빨강으로 세지 않는다.
  *     ★[DRESS_BAR_FIT 코워크 디자인 라운드 1 · 2 «390 · 1280 목록 · 자세히에서 막대에 반쯤 걸린 글 0»] 첫 화면(스크롤 0)의 글줄이 막대 위 끝을 가르지 않는다 —
  *       여섯 크기(360×780 · 375×812 · 390×844 · 390×740 · 414×896 · 1280×900) × (목록 + 표본 여섯 자세히)를 마이페이지 겹화면(고객이 실제 보는 길 · 목록에서 칸을 눌러 들어간다)에서,
@@ -205,6 +208,51 @@ try {
     if (cut.length) no(`${tag} 첫 화면 막대 선에 걸린 글줄이 있다 — ${cut.join(' · ')} [DRESS_BAR_FIT]`);
   }
   rows.push(`막대 선 검사 화면 ${cutViews}장`);
+  // ★[DRESS_BACK_STEP 코워크 디자인 라운드 2 · 1] 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음(390×844 · 마이페이지 겹화면)
+  {
+    const pb = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
+    const P = pb.page;
+    await P.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load', timeout: 30000 });
+    const open = async (demo) => { await P.evaluate(([dr, demo]) => openDressPicker(dr, demo ? { demo: true } : {}), [DR, demo]); const fr = await (await P.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame(); await fr.waitForSelector('.pk-band', { timeout: 15000 }); await P.waitForTimeout(250); return fr; };
+    const look = (fr) => fr.evaluate(() => ({ list: !!document.querySelector('.pk-main .pk-band'), detail: (document.querySelector('.dv-nm') || {}).textContent || '', q: (document.getElementById('pkQ') || {}).textContent || '', y: Math.round(window.pageYOffset), focus: document.activeElement ? (document.activeElement.getAttribute('data-open') || '') : '' })).catch(() => ({ gone: true }));   // 겹화면이 닫혔으면(옛 동작 · 뒤로가기 = 통째 닫기) gone
+    const back = async (ms = 500) => { await P.evaluate(() => history.back()); await P.waitForTimeout(ms); };
+    const rows2 = [];
+    const QS = await P.evaluate(() => window.DRESS_REFS.questions.map((q) => q.q));
+    try {
+    let fr = await open(false);
+    await fr.evaluate(() => window.scrollTo(0, 300)); await P.waitForTimeout(120);
+    const y0 = await fr.evaluate(() => Math.round(window.pageYOffset));
+    const id3 = await fr.evaluate(() => { const c = document.querySelectorAll('.pk-main [data-open]')[2]; c.click(); return c.getAttribute('data-open'); }); await P.waitForTimeout(250);
+    const a = await look(fr); await back(); const b2 = await look(fr);
+    rows2.push(`자세히 «${a.detail}» → 뒤로 = ${b2.list ? '목록' : '?'} · 자리 ${y0} → ${b2.y} · 초점 ${b2.focus}`);
+    if (!a.detail || !b2.list || b2.y !== y0 || b2.focus !== id3) { no(`뒤로가기 — 자세히 → 목록(읽던 자리 ${y0} · 그 칸 초점)이 아니다 ${b2.gone ? '— 겹화면이 통째로 닫혔다' : JSON.stringify(b2)} [DRESS_BACK_STEP]`); throw new Error('stop'); }
+    await fr.click('.pk-band [data-act="ask"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.wz-bar [data-go="1"]'); await P.waitForTimeout(120);
+    const q3 = await look(fr); await back(); const q2 = await look(fr); await back(); const q1 = await look(fr); await back(); const ql = await look(fr);
+    rows2.push(`물음 «${q3.q}» → «${q2.q}» → «${q1.q}» → ${ql.list ? '목록' : '?'}`);
+    if (q3.q !== QS[2] || q2.q !== QS[1] || q1.q !== QS[0] || !ql.list) { no(`뒤로가기 — 물음 3 → 2 → 1 → 목록이 아니다 ${JSON.stringify([q3.q || q3, q2.q || q2, q1.q || q1, ql.list || ql])} [DRESS_BACK_STEP]`); throw new Error('stop'); }
+    await back(900);
+    const gone = !(await P.$('#mp_drFrame')), path1 = await P.evaluate(() => location.pathname);
+    rows2.push(`목록(바뀐 것 없음) → 뒤로 = 겹화면 ${gone ? '닫힘' : '그대로'} · ${path1}`);
+    if (!gone || !/\/mypage\.html$/.test(path1)) no(`뒤로가기 — 목록에서(바뀐 것 없음) 겹화면이 닫히지 않았거나 마이페이지를 떠났다 [DRESS_BACK_STEP]`);
+    fr = await open(true);
+    const f1 = await fr.evaluate(() => document.querySelector('.pk-main [data-open]').getAttribute('data-open'));
+    await fr.click(`.pk-main [data-open="${f1}"]`); await P.waitForTimeout(150);
+    const nb1 = await fr.evaluate(() => { const g = (s) => { const e = document.querySelector(s); return e ? { t: e.textContent.replace(/ /g, ' '), h: Math.round(e.getBoundingClientRect().height) } : null; }; return { prev: g('.pk-nb-p'), next: g('.pk-nb-n') }; });
+    await fr.click('.pk-nb-n'); await P.waitForTimeout(150);
+    const n2 = await look(fr);
+    const want2 = await P.evaluate((id) => { const R = window.DRESS_REFS, rk = R.rank({ len: '', fit: '', pref: [] }, R.list()), ids = rk.match.concat(rk.rest).map((x) => x.id); return R.dress(ids[ids.indexOf(id) + 1]).name; }, f1);
+    rows2.push(`첫 드레스 이웃 줄 ${JSON.stringify(nb1)} → 다음 = «${n2.detail}»`);
+    if (nb1.prev || !nb1.next || nb1.next.t !== '다음 드레스 ›' || nb1.next.h < 44 || n2.detail !== want2) no(`이웃 넘기기 — 첫 드레스는 «다음 드레스 ›»만(44px) · 누르면 목록 다음 드레스가 아니다 ${JSON.stringify(nb1)} «${n2.detail}» [DRESS_NEXT_PREV]`);
+    await fr.click('.pk-ctl [data-act="pick"]'); await fr.click('.pk-main [data-act="list"]'); await P.waitForTimeout(150);
+    await back(700);
+    const dlg = await P.evaluate(() => { const m = document.getElementById('mpModal'); return m && m.classList.contains('open') ? m.innerText.replace(/\s+/g, ' ').slice(0, 30) : ''; });
+    rows2.push(`고른 뒤 목록 → 뒤로 = 판 «${dlg}»`);
+    if (!/저장하지 않은 변경이 있어요/.test(dlg) || !(await P.$('#mp_drFrame'))) no(`뒤로가기 — 고른 뒤 목록에서 «저장하지 않은 변경이 있어요» 판이 아니다(${dlg}) [DRESS_BACK_STEP]`);
+    } catch (e) { if (e.message !== 'stop') no(`뒤로가기 검사가 끝까지 돌지 못했다 — ${String(e.message).split('\n')[0]} [DRESS_BACK_STEP]`); }
+    if (pb.errors.length) no(`뒤로가기 검사 페이지 오류 ${pb.errors.length} · ${pb.errors[0]}`);
+    rows.push('390×844 뒤로가기: ' + rows2.join(' · '));
+    await P.close();
+  }
   // ★[DRESS_PUBLIC_OFF 명세 2] ?pick=1 없이 열면 마이페이지로 넘어간다(그리기 전에 · replace)
   const p3 = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
   await p3.page.goto(`http://localhost:${PORT}/dress.html`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
@@ -219,4 +267,4 @@ try {
 }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-fit — 실패 ${bad}건 [DRESS_DETAIL_FIT]`); process.exit(1); }
-console.log(`━━ dress-fit — 통과 · 열면 목록(띠 · 점 줄 둘 · 물음 셋 · 답한 뒤 한 그리드) · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT]`);
+console.log(`━━ dress-fit — 통과 · 열면 목록(띠 · 점 줄 둘 · 물음 셋 · 답한 뒤 한 그리드) · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 뒤로가기 한 걸음(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단) · 이웃 넘기기 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT · DRESS_BACK_STEP]`);

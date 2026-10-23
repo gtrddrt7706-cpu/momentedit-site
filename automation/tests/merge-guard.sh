@@ -19591,7 +19591,7 @@ chk 'DRESS_SLIDES' dress.html 2
 chk 'DRESS_EXIT_ASK' dress.html 4                                         # 머리 «저장 · 나가기» · 바뀐 게 있나 알림 · 나가기를 부모에게 묻는다
 chk 'DRESS_EXIT_ASK' mypage.html 3                                        # 판 = 마이페이지 입력 화면의 그 판 · 머리 나가기 · 뒤로가기 · Esc 가 한 곳(askExit)
 chk "mpConfirm({ title:st.failed?'저장이 아직 안 됐어요':'저장하지 않은 변경이 있어요'," mypage.html 1
-chk "var _bkId=bkOpen(function(){ askExit(true); });" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다
+chk "var _bkId=bkOpen(onBack);" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다 · ★[DRESS_BACK_STEP 라운드 2] 먼저 겹화면 안에서 한 걸음(물러설 곳이 없을 때 askExit)
 chk "postMessage({ type: 'momentedit:dressExit' }, location.origin)" dress.html 1   # 머리 «나가기»는 부모에게 묻는다(바로 닫는 dressClose 는 판의 «그냥 나가기» · 저장이 닿은 뒤만)
 chk 'DRESS_CLEAR' automation/consultation/consultation-booking.gs 2     # 0벌 저장 = 비우기(다 뺀 뒤 «저장하고 나가기»가 거짓말을 하지 않게)
 chk 'DRESS_BAR_PLAIN' dress.html 3                                       # ★[코워크 디자인 라운드 1 · 2 · 3] 막대 = 흰 단색 + 위 1px 선(흐림 걷음) · 막대 위 시착비 줄은 막대 밖(띠 아래 점 줄 둘 [DRESS_BAND_DOTS]) — 금액 안내는 상담 카드 · 시착 동의서 몫
@@ -19702,6 +19702,33 @@ chk '.pk-picked{display:flex;align-items:center;gap:8px;min-height:calc(30px + 1
 chk '100dvh - 402px' dress.html 1                                               # [DRESS_BAR_PLAIN] 막대가 28px 낮아진 만큼 사진을 키웠다(430 → 402)
 nochk '100dvh - 430px' dress.html 0
 chk 'DRESS_BAND_KEEP' dress.html 1                                         # 답한 띠 — 답 하나는 한 덩어리(«노출이 / 적은 드레스»처럼 꺾이지 않는다)
+# ── ★★[코워크 디자인 라운드 2 · 2026-10-23 사장님 «고객입장에서 디테일한 개선점들도 같이 고려해보고»] 드레스 미리 보기 디테일 ──
+# 실제 동작은 dress-fit.mjs(뒤로가기 · 이웃 넘기기 · 브라우저) · 모양 · 깨 보기는 dress-refs.mjs(⑭ · --selftest)
+chk 'DRESS_BACK_STEP' dress.html 4                                         # 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음(자세히 → 목록 · 물음 n → n−1 → 목록) · 목록으로 돌아가는 길 하나(backToList)
+chk 'DRESS_BACK_STEP' mypage.html 3                                        # 마이페이지 — 층을 바로 다시 걸고 겹화면에 묻는다(momentedit:dressBack) · 물러설 곳이 없을 때만 나가기 판단
+chk 'DRESS_BACK_STEP' scripts/audit/dress-fit.mjs 8                        # 뒤로가기 검사(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단 · 고른 뒤 → 판)
+chk 'DRESS_BACK_STEP' scripts/audit/dress-refs.mjs 6
+chk "if (S.view === 'q') { if (S.q > 0) go('q', { q: S.q - 1 }); else go('list'); return true; }" dress.html 1   # 물음은 한 걸음씩(바로 목록으로 건너뛰지 않는다)
+chk 'momentedit:dressBackDone' dress.html 1
+chk "if(m.type==='momentedit:dressBackDone')" mypage.html 1
+nochk 'bkOpen(function(){ askExit(true); })' mypage.html 0                   # 뒤로가기가 겹화면을 통째로 닫으려 하던 옛 동작 — 되살리지 말 것
+chk 'DRESS_NEXT_PREV' dress.html 3                                         # 자세히 맨 아래 «‹ 이전 드레스 · 다음 드레스 ›» — 목록 순서 · 끝에서는 그쪽 단추 없음 · 글 단추 44px
+chk 'DRESS_NEXT_PREV' scripts/audit/dress-fit.mjs 2
+chk '+ detailHTML(d, ctl) + nbHTML(d);' dress.html 1
+chk 'DRESS_PRESS' dress.html 1                                             # 누르는 동안 반응(드레스 칸 · Nº 칸 · 물음 칸) — 마이페이지 공통 눌림 [MPD_G8] 과 같은 값
+chk 'DRESS_PRESS' mypage.html 1                                            # 카드 칸 누름
+chk 'button.dr-th:active .dr-th-pv{transform:scale(.98)}' mypage.html 1
+chk 'DRESS_CARD_NUM' mypage.html 2                                         # 카드 고른 사진에 Nº 01 · Nº 02(테두리 알약 · 칠 없음 · lining-nums)
+chk 'dr-th-badge' mypage.html 2
+chk 'DRESS_CARD_WIDE' mypage.html 1                                        # PC 칸 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px · 폰은 96px 그대로
+chk '@media (min-width:600px){ .dr-th{flex:0 1 140px} }' mypage.html 1
+chk 'DRESS_FIT_BELOW' dress.html 1                                         # «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않게)
+chk 'DRESS_CARD_COUNT' mypage.html 2                                       # 카드 단추 «드레스 n벌 둘러보기»(R.list() 개수)
+chk 'DRESS_DUE_SAME' assets/dress-refs.js 1                                # 바꾸기 마감 한 줄 = 한 곳(R.dueLine) — 카드(1 · 2벌)와 고르기 완료 화면이 같은 말
+chk 'DRESS_DUE_SAME' dress.html 2
+chk 'DRESS_DUE_SAME' mypage.html 1
+chk 'R.dueLine = function (ymd) {' assets/dress-refs.js 1
+nochk '상담 이틀 전' dress.html 0                                             # 완료 화면이 카드와 다른 말(«상담 이틀 전»)을 쓰던 옛 줄 — 날짜가 없으면 «상담 날짜가 정해지면 …»
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;

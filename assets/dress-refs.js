@@ -193,6 +193,12 @@
     var t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3] - R.changeUntilDays));
     return (t.getUTCMonth() + 1) + '월 ' + t.getUTCDate() + '일(' + '일월화수목금토'.charAt(t.getUTCDay()) + ')';
   };
+  /* ★[DRESS_DUE_SAME 2026-10-23 코워크 디자인 라운드 2 · 8] 바꾸기 마감 한 줄 — 마이페이지 카드(1 · 2벌)와 고르기 완료 화면이 같은 말(한 곳).
+     상담 날짜를 모르면 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.» */
+  R.dueLine = function (ymd) {
+    var u = R.untilText(ymd);
+    return u ? '바꾸기는 ' + u + '까지 할 수 있어요.' : '상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.';
+  };
 
   w.DRESS_REFS = R;
 })(typeof window !== 'undefined' ? window : globalThis);
