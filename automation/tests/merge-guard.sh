@@ -18964,7 +18964,7 @@ chk 'REC_SONG_1012' order-preview.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-ui.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-music.mjs 1
 chk 'MU_SRC 2026-10-12 입장 음악 4-나' scripts/audit/ghi-polish.mjs 1   # G4 입장 쪽 묶음 = 입장 멘트 + 입장 음악(+ AI) · 음악 칩 줄을 세는 기준(10/13 게이트에서 드러난 낡은 기대값을 고침)
-chk "srcChip('두 분이 고른 곡','up',src)+srcChip('추천 곡','rec',src)" assets/entry-music.js 1   # 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래
+chk "srcChip('두 분이 고른 곡','up',src)+srcChip('스튜디오가 고른 곡','rec',src)" assets/entry-music.js 1   # [STUDIO_PICK_1023] «추천 곡» → «스튜디오가 고른 곡»   # 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래
 chk "post('momentedit:ritualFileGet',{key:'rec',id:'list'})" assets/entry-music.js 1              # 목록은 서버(드라이브)에서만
 chk "post('momentedit:ritualFileGet',{key:'rec',id:k})" assets/entry-music.js 1                   # 곡도 서버에서만 — 공개 주소 없음
 chk "if(mu&&mu.src==='up') s.muUp=mu;" assets/entry-music.js 1                                     # 추천 곡을 고르면 올린 곡 기록(서버 파일)은 비켜 둔다 — 지우지 않는다
@@ -19299,6 +19299,24 @@ chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" a
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
 nochk "picks: \[\], at: 'bridge'," assets/bgm-slots.js                                                    # 맨 앞(top)이 이음말 규칙을 품는다 · 갈래를 둘로 다시 나누지 말 것
+# ── 2026-10-23 코워크 묶음 A «식순 만들기 고객 혼란 다섯» (외부 검토 → 코워크 소스 · 390 확인 → 사장님 «추천대로 개선»)
+#   1 완성 단추는 할 행동만(기한은 위 EDIT_WINDOW 한 줄) 2 두 분 · 부모님이 직접 말하는 차례 꼬리표 «직접 읽기» 3 빈 판 글 한 줄 · 막대 같은 뜻 뺌
+#   4 «추천 곡» → «스튜디오가 고른 곡»(고객 화면만) 5 «개식 멘트» → «예식 시작 안내» · «환복» → «옷을 갈아입어요»(식순 화면)
+chk 'DONE_BTN_ACT_1023' order-preview.html 2
+chk 'TALK_DIRECT_TAG_1023' order-preview.html 1
+chk 'EMPTY_ONE_LINE_1023' order-preview.html 3
+chk 'STUDIO_PICK_1023' assets/entry-music.js 1
+chk 'EASY_WORDS_1023' assets/ritual-open.js 1
+chk 'EASY_WORDS_1023' assets/ritual-story.js 1
+chk "esc(st.talk2?'직접 읽기':_pendT(st,1))" order-preview.html 1
+chk '입장 · 맞절 · 닫는 인사로 시작해요. 예시를 고르거나 원하는 순간을 더해 주세요.' order-preview.html 1
+nochk '저장됨 · 예식 14일 전까지 고쳐요' order-preview.html
+nochk '만으로도 다음으로 갈 수 있어요' order-preview.html
+nochk '아직 담은 순간이 없어요' order-preview.html
+nochk "srcChip('추천 곡'" assets/entry-music.js
+nochk "lab: '개식 멘트'" assets/ritual-open.js
+nochk '두 분은 편하게 환복해요' assets/ritual-story.js
+nochk '남은 사진을 마치고 환복' order-preview.html
 # ── 2026-10-23 [BGM_R4_1023] BGM 라운드 4 «글 · 요약» — 한눈에 보기 «음악»은 담긴 축사 · 편지마다 «… · 음악 없이 / 음악과 함께» 한 줄 + «그 밖의 음악은 스튜디오가 준비해요» ·
 #   칩 아래 한 줄은 안 누름이면 «고르지 않으시면 …» · S2 · S4 · S5 · S6 · S8 · S9 글 바꿈(엔진 · 저장 꼴 · 입장 음악 그대로)
 #   ★«축사는 음악과 함께 · 나머지는 …» 한 줄 요약 · «아래 · 깔려요 · 오르골» · ««인사!»와 함께»를 되살리지 말 것
