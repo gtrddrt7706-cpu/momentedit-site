@@ -60,7 +60,7 @@ for (const PW of [1280, 768]) {
         return { g: ((c.parentElement.querySelector('.gl') || {}).textContent || '').slice(0, 8), n: bs.length, grid: c.classList.contains('cg-grid'), even: c.classList.contains('cg-even'), nl: Object.keys(lines).length, lone: Object.values(lines).some((v) => v === 1),
           same: Math.max(...ws) - Math.min(...ws) <= 1, cells: Math.round((ws[0] + 6) / unit), onGrid: rs.every((q) => { const o = (q.left - cr.left) / unit; return Math.abs(o - Math.round(o)) * unit <= 1.5; }), fitW: Math.abs(ws[0] - (Math.round((ws[0] + 6) / unit) * unit - 6)) <= 1.5,
           lkSame: lr ? Math.abs(lr.top - rs[0].top) < rs[0].height && Math.abs(lr.right - cr.right) <= 2 : null }; }).filter(Boolean); }, k);
-    const bad = r.filter((x) => PW >= 1000 ? (!x.grid || x.nl !== 1 || !x.same || !x.onGrid || !x.fitW || (x.n >= 4 ? x.cells !== 1 : x.cells < 2) || x.lkSame === false) : (!x.even || x.lone || !x.same));
+    const bad = r.filter((x) => PW >= 1000 ? (!x.grid || x.nl !== 1 || !x.same || !x.onGrid || !x.fitW || (x.n >= 4 ? x.cells !== 1 : x.cells < 2) || x.lkSame === false) : (x.grid ? (!x.same || !x.onGrid || !x.fitW) : (!x.even || x.lone || !x.same)));   // [TONE_FOLD_1023] 말투 칩이 접힌 쪽은 768 에서도 6칸 격자에 선다(_cgEven 이 쪽 전체로 고른다) — 격자면 같은 폭 · 칸 선만 본다
     ok(PW >= 1000 ? `${PW} ${k} — PC 칩 줄 6칸 격자(한 줄 · 같은 크기 · 칸 선 맞춤 · 고를 것 두 칸 · 멘트 한 칸 · 링크 같은 줄 끝) [CHIP_GRID_PC_1019]` : `${PW} ${k} — 좁은 태블릿 칩 줄 같은 폭 칸(혼자 남는 칩 없음) [CHIP_GRID_PC_1019]`, r.length > 0 && !bad.length, JSON.stringify(bad.length ? bad : r).slice(0, 600));
   }
   if (PW >= 1000) {   /* ★[LINK_ONE_LINE_1019 · MU_REDRAW_EVEN_1019 2026-10-19 사장님 «버튼 옆에 · 2줄은 이상 · 문구를 줄여 한 줄로» · «추천 곡 누르면 버튼이 작아지는 현상»] AI 를 고른 판(링크가 둘)도 잰다 — 위 쪽마다 검사는 스튜디오 나레이션 판(링크 하나)만 봤다 */

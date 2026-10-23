@@ -19993,7 +19993,7 @@ chk 'TONE_FOLD_1023' order-preview.html 4
 chk 'function _toneRow(' order-preview.html 1
 chk '지금 보이는 안내로 진행해요. 들어 보고 바꿀 수 있어요.' order-preview.html 1
 chk 'TONE_FOLD_1023' scripts/audit/tone-fold.mjs 1
-for _tf in chip-toast ex-one ghi-polish pv-fill up-rec-v vp-ask-first listen-page; do chk 'TONE_FOLD_1023' scripts/audit/$_tf.mjs 1; done
+for _tf in chip-toast chip-full ex-one ghi-polish pv-fill up-rec-v vp-ask-first listen-page; do chk 'TONE_FOLD_1023' scripts/audit/$_tf.mjs 1; done
 if command -v node >/dev/null 2>&1; then node scripts/audit/tone-fold.mjs >/dev/null 2>&1; _tfd=$?; if [ "$_tfd" = 1 ]; then echo 'FAIL tone-fold: 말투 줄 접기(첫 문장 · 듣기 · 말투 바꾸기 · 펼침 · 첫 순간 한 줄)가 어긋났습니다 — node scripts/audit/tone-fold.mjs'; fail=1; else echo "ok tone-fold ($_tfd)"; fi; fi
 # ★[PV_PHOTO_OFF_1023 검토 158] 식전 영상 «사진으로 저희가 영상을 만들어요» 대목 뺌(PV_LINK_ONE «무조건 영상»)
 chk 'PV_PHOTO_OFF_1023' scripts/audit/open-course.mjs 2
