@@ -4,6 +4,7 @@
 //   ④입장 줄을 고쳐 둔 뒤 다른 예시를 누르면 묻고(«예시로 바꿀까요?») · 바꾸면 그 예시 글로
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const toneAll = (p) => p.evaluate(() => { try { TONE_OPEN = new Proxy({}, { get: () => 1, set: () => true }); if (typeof render === 'function') render(); } catch (e) {} });   // [TONE_FOLD_1023] 말투 줄은 접혀 있다 · 칩을 재는 검사는 모두 펼친 채로
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
@@ -19,7 +20,7 @@ try {
   for (const w of [390, 1280]) {
     const pg = await br.newPage({ viewport: { width: w, height: 900 }, hasTouch: w < 1000 }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
     await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
-    await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700);
+    await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700); await toneAll(pg);
     await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.entry = 'A'; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { groom: { ready: true }, bride: { ready: true } }; for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
     await until(pg, () => typeof ENG !== 'undefined' && !!ENG); await pg.evaluate(() => mkGo('entry')); await until(pg, () => !!document.querySelector('[data-fk^="mkex:entry:"]'));
     const a = await pg.evaluate(() => ({ cards: document.querySelectorAll('[data-fk^="mkex:entry:"]').length, b1: (document.querySelector('[data-fk="mkex:entry:0"] .cg-t') || {}).textContent, chips: document.querySelectorAll('[data-fk^="lsc:entry:"]').length, tag: !!document.querySelector('.mk-extag'), h: [...document.querySelectorAll('.mk-pick [role=radiogroup][aria-label="참고 예시"] .gl')].map((x) => x.textContent), cls: !!document.querySelector('.mk-rc,.mk-exs') }));   /* [EX_ROW 2026-10-06] 카드 → 위쪽 칩 줄 · 버튼 글 = 느낌 이름 */

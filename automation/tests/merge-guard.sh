@@ -19981,3 +19981,12 @@ chk '5년에 한 번 정도만 하면 좋겠다.' assets/ritual-ref.js 1
 chk '서로가 서로에게 기적임을 마음에 새기시고' assets/ritual-ref.js 1
 chk 'placeholder="예: 저희를 축하해 주시기 위해 이 자리에 참석해 주신 내빈 여러분께 먼저 감사 인사 올립니다."' order-preview.html 1
 chk 'var TUNE_MAX=160;' order-preview.html 1
+# ── 2026-10-23 [TONE_FOLD_1023] 코워크 명세 묶음 B «먼저 듣고, 바꾸고 싶은 것만» — 말투 줄(안내 멘트 · 예식 시작 안내 · 소개 멘트 · 입장 멘트 · ○○ 멘트)은
+#    지금 고른 말투 이름 + 대본 첫 문장 · «듣기» · «말투 바꾸기» 한 줄로 접힌다 · 누른 줄만 칩을 편다(눌린 칩 = EX_CHIP_ON 그대로) · 첫 순간 화면에만 한 줄 안내
+#    칩을 재는 다른 검사는 toneAll 로 모두 펼친 채 잰다 · 펼치는 길을 지우면 tone-fold 가 빨강
+chk 'TONE_FOLD_1023' order-preview.html 4
+chk 'function _toneRow(' order-preview.html 1
+chk '지금 보이는 안내로 진행해요. 들어 보고 바꿀 수 있어요.' order-preview.html 1
+chk 'TONE_FOLD_1023' scripts/audit/tone-fold.mjs 1
+for _tf in chip-toast ex-one ghi-polish pv-fill up-rec-v vp-ask-first listen-page; do chk 'TONE_FOLD_1023' scripts/audit/$_tf.mjs 1; done
+if command -v node >/dev/null 2>&1; then node scripts/audit/tone-fold.mjs >/dev/null 2>&1; _tfd=$?; if [ "$_tfd" = 1 ]; then echo 'FAIL tone-fold: 말투 줄 접기(첫 문장 · 듣기 · 말투 바꾸기 · 펼침 · 첫 순간 한 줄)가 어긋났습니다 — node scripts/audit/tone-fold.mjs'; fail=1; else echo "ok tone-fold ($_tfd)"; fi; fi

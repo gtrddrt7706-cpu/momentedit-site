@@ -24,6 +24,7 @@ import path from 'node:path';
 import http from 'node:http';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+const toneAll = (p) => p.evaluate(() => { try { TONE_OPEN = new Proxy({}, { get: () => 1, set: () => true }); if (typeof render === 'function') render(); } catch (e) {} });   // [TONE_FOLD_1023] 말투 줄은 접혀 있다 · 칩을 재는 검사는 모두 펼친 채로
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 // [REF_ROWS_ONE 2026-10-12] 참고 예시 표 줄 수는 한 곳 — 9-9 와 13 이 따로 적어 13 만 144 에 남았다(THANKS_IN_VOW 뒤로 빨강).
@@ -66,7 +67,7 @@ async function open(w, opt) {
   /* [VID_PLAY_ALL] 헤드리스는 H.264 를 못 푼다 — 영상 play() 를 «불렸는가»로 잰다(소리 play 는 그대로) */
   if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') { const sr = this.getAttribute('src') || this.src || ''; if (sr && !/^data:/.test(sr)) (window.__aplays = window.__aplays || []).push(sr.split('/').pop()); return o.apply(this, arguments); } if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('?')[0].split('/').pop(),   /* [VIDEO_V] 주소 끝 ?v= 는 빼고 이름만 */ id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
   if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
-  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600); await toneAll(pg);
   if (opt.videos) await pg.evaluate(() => { RitualOpen.VIDEO_READY.length = 0; (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });   /* [VIDEO_IN_1003] 바꾼다 · 더하지 않는다 */
   return { ctx, pg, errs, ext };
 }
@@ -336,7 +337,7 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   /* ★[DECLARE_BY_PERSON 2026-10-12 사장님] «하객 박수로 답하기»(clap)는 걷었다 — 예시는 읽을 분을 박지 않는다. 고른 분이 새로고침 뒤에도 그대로인지 본다 */
   const exWho = await pg.evaluate(() => { const w = S.declareWho; S.declareWho = '신부 아버님'; _persist(); return w; });   /* [DECLARE_ANYONE] 칩이 아니라 칸에 적은 글 */
-  await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800);
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800); await toneAll(pg);
   ok('1-2 ‹기록› 예시는 읽을 분을 박지 않는다 · 적은 «신부 아버님»이 새로고침 뒤에도 그대로 [DECLARE_BY_PERSON · DECLARE_ANYONE]', exWho === '' && await pg.evaluate(() => S.declareWho === '신부 아버님'), exWho);
   const saved = await pg.evaluate(() => { let n = 0, nm = ''; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) { n++; nm = this.download; } }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return { n, nm, first: scriptText().split('\n')[0] }; });
   ok('1-1 «파일로 저장»이 내려받기를 건다 · 파일 이름 · 첫 줄 [SAVE_TXT_LIVE]', saved.n === 1 && saved.nm === '우리예식대본.txt' && /^우리 예식 대본 · /.test(saved.first), JSON.stringify(saved));
@@ -344,7 +345,7 @@ for (const w of [390, 1280]) {
   // 1-3 임베드(?embed=1)에서 크게 보기 중 Esc — 크게 보기만 닫히고 빌더는 남는다
   const c2 = await br.newContext({ viewport: { width: 390, height: 900 } }); const p2 = await c2.newPage();
   await p2.route('**/*', (rt) => { const u = rt.request().url(); return u.startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }); });
-  await p2.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await p2.waitForTimeout(800);
+  await p2.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await p2.waitForTimeout(800); await toneAll(p2);
   await p2.evaluate(() => { window.__exits = 0; const o = window._obExit; window._obExit = function () { window.__exits++; }; });
   await clickNext(p2); await p2.waitForTimeout(400); await clickNext(p2); await p2.waitForTimeout(500);
   await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await clickNext(p2); await p2.waitForTimeout(1300);
@@ -443,7 +444,7 @@ for (const w of [390, 1280]) {
   ok('A1 뒤로 2 → ① 고르기', await pg.evaluate(() => STEPS[idx].k === 'pick'));
   await pg.goBack(); await pg.waitForTimeout(500);
   ok('A1 뒤로 3 → 안내(사이트를 떠나지 않는다)', await pg.evaluate(() => location.pathname.endsWith('/order-preview.html') && /intro/.test(STEPS[idx].k)));
-  await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(700);
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(700); await toneAll(pg);
   ok('A1 새로고침 뒤 고른 것이 남는다', (await pg.evaluate(() => RitualOpen.picked(S).join(','))) === picked0, picked0);
   ok('A1 워크스루 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
@@ -517,7 +518,7 @@ else {
   const ctx = await br.newContext({ viewport: { width: 390, height: 900 } }); const pg = await ctx.newPage(); const errs = [];
   pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
-  await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await pg.waitForTimeout(800);
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await pg.waitForTimeout(800); await toneAll(pg);
   await pg.evaluate(() => { window.__sent = []; const o = window.postMessage.bind(window); window.postMessage = function (m, t) { if (m && m.type === 'momentedit:ritualFile') { window.__sent.push(m.data); return; } return o(m, t); }; });
   await clickNext(pg); await pg.waitForTimeout(400); await clickNext(pg); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
@@ -562,7 +563,7 @@ else {
   // 그냥 연 미리보기(임베드 아님)는 올리지 않고 카톡 · 메일 길을 말한다
   const c2 = await br.newContext({ viewport: { width: 390, height: 900 } }); const p2 = await c2.newPage();
   await p2.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
-  await p2.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await p2.waitForTimeout(700);
+  await p2.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await p2.waitForTimeout(700); await toneAll(p2);
   await clickNext(p2); await p2.waitForTimeout(400); await clickNext(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await clickNext(p2); await p2.waitForTimeout(1200);
   await p2.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await p2.waitForTimeout(300);
   const [fc3] = await Promise.all([p2.waitForEvent('filechooser'), p2.click('[data-fk="mkup:g0"]')]); await fc3.setFiles({ name: 'a.wav', mimeType: 'audio/wav', buffer: wav });   // [REC_TRIM] 못 여는 파일은 이제 안 보낸다 — 풀리는 파일로
@@ -960,7 +961,7 @@ for (const [w, emb] of [[390, false], [390, true], [1280, true]]) {
   const ctx = await br.newContext({ viewport: { width: w, height: 900 }, hasTouch: w < 1000 }); const pg = await ctx.newPage(); const errs = [];
   pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); return rt.fulfill({ status: 200, body: '' }); });
-  await pg.goto(`http://127.0.0.1:${port}/order-preview.html${emb ? '?embed=1' : ''}`, { waitUntil: 'load' }); await pg.waitForTimeout(700);
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html${emb ? '?embed=1' : ''}`, { waitUntil: 'load' }); await pg.waitForTimeout(700); await toneAll(pg);
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const row = await pg.evaluate(() => { const sl = document.getElementById('obExitSlot'), vis = [...sl.querySelectorAll(':scope > *, :scope > #obMoreWrap > .ob-more')].filter((e) => e.offsetParent && !e.closest('.ob-menu') && e.id !== 'obMoreWrap'), r = sl.getBoundingClientRect(), b = document.getElementById('obMore');
     return { ids: vis.map((e) => e.id || e.className), tops: [...new Set(vis.map((e) => Math.round(e.getBoundingClientRect().top)))].length, right: Math.round(r.right), vw: innerWidth, left: Math.round(Math.min(...vis.map((e) => e.getBoundingClientRect().left))), tap: Math.round(b.getBoundingClientRect().height), hp: b.getAttribute('aria-haspopup'), ex: b.getAttribute('aria-expanded'), menuHidden: document.getElementById('obMenu').hidden, guideVis: !!document.getElementById('obGuide').offsetParent }; });

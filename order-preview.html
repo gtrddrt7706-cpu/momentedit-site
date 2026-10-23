@@ -814,6 +814,15 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .ls-back{min-height:44px;padding:0 4px;border:0;background:none;font:inherit;font-size:12.5px;color:var(--gold-deeper);cursor:pointer;margin:0;text-decoration:underline;text-underline-offset:3px}   /* [R1-22] ④ «② 한눈에 보기로 이동하기» — 눌리는 글로 보이게 */
 .ls-peak{font-size:12.5px;color:var(--sub);margin:4px 0 8px;word-break:keep-all}
 .ls-why{font-size:12.5px;color:var(--ink2);margin:0 0 10px}
+.cg-tone .tn-line,.ls-cg .tn-line{flex:0 0 100%;grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px;min-width:0;margin-top:2px}   /* [TONE_FOLD_1023] 접힌 말투 줄 · 펼쳐도 같은 꼴(글 한 줄 → 아래 단추) · 칩 칸 전체 폭 */
+.tn-q{flex:0 0 100%;min-width:0;font-size:14px;line-height:1.6;color:var(--text);word-break:keep-all;text-wrap:pretty}
+.tn-q b{font-weight:600;color:var(--accent)}
+.tn-acts{display:flex;align-items:center;gap:4px;flex:none}
+.tn-hear{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border:1px solid var(--border);border-radius:999px;background:var(--bg);color:var(--accent);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.tn-pl{width:0;height:0;border-style:solid;border-width:5px 0 5px 8px;border-color:transparent transparent transparent currentColor}
+.tn-ch{min-height:44px}
+.tn-first{margin:0 0 2px}
+.ls-cg.cg-tone .gl{padding-top:2px}   /* [TONE_FOLD_1023] 접힌 줄은 칩이 없어 이름표를 글 첫 줄에 맞춘다(PC 두 열) */
 .ls-gnote{flex:0 0 100%;font-size:12.5px;line-height:1.5;color:var(--sub);margin:2px 0 4px;word-break:keep-all;text-wrap:pretty}   /* [UNPICK_WORDS_1023] 음악 줄(.bgm-note)과 같은 크기 · 색 · 여백(RIT_TYPE5 12.5) */
 /* ★[CHIP_CHANGED → CHIP_TOAST] 칩 줄 아래 한 줄(.ls-chg) · 바뀐 줄 옅은 금 바탕(.chg · 깜빡임) 금지 — 2026-10-08 사용자 지시로 삭제(«전부 삭제하고 첫 번째 사진처럼 안내 문구») · 알림은 떠 있는 안내 하나(_lsToast) */   /* [R3-06] 안내가 아래 묶음 머리말처럼 읽히지 않게 위 묶음에 붙인다 */
 #_toast{width:max-content}   /* ★[TOAST_ONE_LINE 2026-10-08] 아래 알림(window.toast · 복사 · 오류 등)이 화면 반쪽 폭에 갇혀(left:50% 의 shrink-to-fit · 390 에서 약 195px) 짧은 글도 두 줄로 꺾였다 — 글 폭만큼 · 넘치면 종전 max-width 88% 에서 꺾인다 */
@@ -7415,9 +7424,34 @@ function _lExp(k,on){
 /* [DETAIL_0925 C6] 칩 = radiogroup · radio(aria-checked) · 묶음 이름이 그룹 이름 */
 /* ★[G4] 입장 줄 하나에 멘트 6 · 목소리 2 · 첫 모습 2 · 맺는 말 6 이 한꺼번에 떴다(처음 온 고객에게 가장 무거운 줄) —
    more 묶음은 «더 고르기» 단추 뒤에 둔다. 이미 기본이 아닌 값을 골라 뒀으면 열어 둔다(고른 것이 숨지 않게). */
+/* ★★[TONE_FOLD_1023 2026-10-23 코워크 묶음 B · 외부 검토 «말투 단추 열 개를 먼저 판단하게 한다» → 사장님 «추천대로 개선»] 말투 고르기 = «먼저 듣고, 바꾸고 싶은 것만».
+   스튜디오 나레이션 멘트 줄(안내 · 예식 시작 안내 · 소개 · 입장 · 순간마다 «○○ 멘트»)은 접힌 한 줄 — 지금 말투 이름 + 대본 첫 문장 · ▶ 듣기(흐름의 그 줄 ▶ 과 같은 소리) · «말투 바꾸기».
+   «말투 바꾸기»를 누른 줄만 종전 칩 줄을 펼친다(다른 줄은 접힌 채 · 이 탭 기억). 고르면 첫 문장 · 대본이 바뀐다. 고른 값 · 저장 꼴 · 칩 모양 · 눌린 표시(EX_CHIP_ON)는 그대로 ·
+   «고르지 않으시면 …» 한 줄(UX1_1023)은 접힌 줄에도 그대로. 두 분이 고쳐 쓰는 «참고 예시» 줄 · 크게 보기의 칩은 접지 않는다 */
+var TONE_OPEN={};
+function _toneRowOk(g){ return /^(exGuestNar|exPvNar|narEx:)/.test(g.key)||(g.key==='entry'&&g.exOn); }
+function _toneLine(k,g){ var st=[]; try{ st=_lSteps(ENG,[k]); }catch(e){} var R=RitualOpen, m;
+  if(/^narEx:/.test(g.key)){ var e=R.NAR_EX&&R.NAR_EX[g.key.slice(6)], ks=Object.keys((e&&e.lines)||{}); m=function(sl){ return ks.some(function(x){ return sl.indexOf(x)===0; }); }; }
+  else if(g.key==='exGuestNar') m=function(sl){ return /^guest-/.test(sl); };
+  else if(g.key==='exPvNar') m=function(sl){ return /^narr-prevideo-in/.test(sl); };
+  else m=function(sl){ return /^entry-/.test(sl); };
+  for(var i=0;i<st.length;i++){ var x=st[i]; if(!x||x.quiet||x.talk||x.skip||x.own||x.talk2) continue; if(m(String(x.slug||''))) return {i:i,txt:String(x.txt||'')}; }
+  return null; }
+function _toneFirst(t){ t=String(t||'').replace(/\s+/g,' ').trim(); var m=t.match(/^.*?[.!?](?=\s|$)/); return m?m[0]:t; }
+function _toneRow(k,g,opt){ if(!(opt&&opt.vsLink)||!_toneRowOk(g)) return '';
+  var open=!!TONE_OPEN[g.key], ln=_toneLine(k,g), nm=((g.list.filter(function(c){ return c[0]===g.cur; })[0])||[])[1]||'', id=esc(g.key);
+  var line='<span class="tn-line"><span class="tn-q">'+(nm?'<b>'+esc(nm)+'</b> · ':'')+(ln?esc(_toneFirst(ln.txt)):'')+'</span><span class="tn-acts">'
+    +(ln?'<button type="button" class="tn-hear" data-fk="tnhear:'+id+'" aria-label="'+esc(g.l)+' 듣기" onclick="mkToneHear(\''+k+'\','+ln.i+')"><span class="tn-pl" aria-hidden="true"></span>듣기</button>':'')
+    +'<button type="button" class="pk-link tn-ch" data-fk="tnch:'+id+'" aria-expanded="'+open+'" onclick="mkTone(\''+id+'\')">'+(open?'접기':'말투 바꾸기')+'</button></span></span>';
+  if(open) return _lChipRow(g,opt).replace(/<\/span><\/div>$/,line+'</span></div>');   /* 펼친 줄 = 종전 칩 줄 + 아래 같은 한 줄(«접기») */
+  return '<div class="ls-cg cg-tone" data-tone="'+id+'"><span class="gl">'+esc(g.l)+'</span><span class="cg-c">'+line+(g.unote?'<span class="ls-gnote">'+esc(g.unote)+'</span>':g.tip?'<span class="ls-gnote">'+esc(g.tip)+'</span>':'')+'</span></div>'; }
+window.mkTone=function(key){ TONE_OPEN[key]=!TONE_OPEN[key]; _fxNext='[data-fk="tnch:'+key+'"]'; render(); };
+window.mkToneHear=function(k,i){ var b=document.querySelector('.mk-flow [data-ml="'+k+':'+i+'"]'); if(b) b.click(); };   /* 흐름의 그 줄 ▶ 과 같은 소리 · 같은 멈춤 */
 function _lGroupsHtml(k,gs,opt){
   var main=gs.filter(function(g){ return !g.more; }), more=gs.filter(function(g){ return g.more; });
-  var h=main.map(function(g){ return _lChipRow(g,opt); }).join('');   /* [VS_LINK_IN_ROW] 순간 쪽만 opt.vsLink */
+  var _tn0=(opt&&opt.vsLink&&main.some(_toneRowOk)&&(function(){ try{ return _mkPages().filter(function(x){ return x.charAt(0)!=='_'; })[0]===k; }catch(e){ return false; }   /* 첫 «순간» 쪽(모아 보기 · 목소리 만들기 쪽 말고) */ })())?'<p class="ls-gnote tn-first">지금 보이는 안내로 진행해요. 들어 보고 바꿀 수 있어요.</p>':'';   /* [TONE_FOLD_1023] 첫 순간 화면에만 한 줄 */
+  var _tnAt=-1; main.forEach(function(g,gi){ if(_tnAt<0&&opt&&opt.vsLink&&_toneRowOk(g)) _tnAt=gi; });
+  var h=main.map(function(g,gi){ return (gi===_tnAt?_tn0:'')+(_toneRow(k,g,opt)||_lChipRow(g,opt)); }).join('');   /* [VS_LINK_IN_ROW] 순간 쪽만 opt.vsLink */
   if(more.length){
     var openM=!!(LS.more&&LS.more[k])||more.some(function(g){ return g.cur!==g.list[0][0]; });
     h+=openM?more.map(_lChipRow).join('')

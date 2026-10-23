@@ -5,6 +5,7 @@
 //   ④녹음 · 파일 올린 줄 아래 «들어 보기 · 지우기» 단추 줄 없음 · 지우기는 상태 줄 끝
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const toneAll = (p) => p.evaluate(() => { try { TONE_OPEN = new Proxy({}, { get: () => 1, set: () => true }); if (typeof render === 'function') render(); } catch (e) {} });   // [TONE_FOLD_1023] 말투 줄은 접혀 있다 · 칩을 재는 검사는 모두 펼친 채로
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
@@ -18,7 +19,7 @@ try {
   for (const w of [390, 1280]) {
     const pg = await br.newPage({ viewport: { width: w, height: 900 } }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
     await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
-    await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700);
+    await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700); await toneAll(pg);
     await pg.evaluate(() => { courseStarted = true; S.on.prevideo = 1; S.pvText = ''; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { ok: true, groom: { ready: true }, bride: {} }; buildSteps(); for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); break; } mkGo('prevideo'); });
     await wait(400);
     await pg.evaluate(() => { _lSet('pvVoice', 'ai'); buildSteps(); render(); }); await wait(400);

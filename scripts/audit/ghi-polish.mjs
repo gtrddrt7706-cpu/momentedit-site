@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
 import { createRequire } from 'node:module';
+const toneAll = (p) => p.evaluate(() => { try { TONE_OPEN = new Proxy({}, { get: () => 1, set: () => true }); if (typeof render === 'function') render(); } catch (e) {} });   // [TONE_FOLD_1023] 말투 줄은 접혀 있다 · 칩을 재는 검사는 모두 펼친 채로
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
@@ -35,7 +36,7 @@ async function open(w) {
   const pg = await ctx.newPage(); const errs = [];
   pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
-  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600); await toneAll(pg);
   for (let i = 0; i < 5; i++) { if ((await pg.evaluate(() => STEPS[idx] && STEPS[idx].k)) === 'pick') break; await pg.click('#next'); await pg.waitForTimeout(450); }
   return { ctx, pg, errs };
 }

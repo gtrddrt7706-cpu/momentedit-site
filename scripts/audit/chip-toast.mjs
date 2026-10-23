@@ -14,6 +14,7 @@
    CT_OP=<order-preview.html 경로>(그 판으로 잰다 — 돌연변이 확인용)  VERBOSE=1
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const toneAll = (p) => p.evaluate(() => { try { TONE_OPEN = new Proxy({}, { get: () => 1, set: () => true }); if (typeof render === 'function') render(); } catch (e) {} });   // [TONE_FOLD_1023] 말투 줄은 접혀 있다 · 칩을 재는 검사는 모두 펼친 채로
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const OP = process.env.CT_OP || '';
@@ -33,7 +34,7 @@ async function open(W) {
   const ctx = await br.newContext({ viewport: { width: W, height: W < 1000 ? 844 : 900 }, deviceScaleFactor: 1 });
   const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => rt.request().url().startsWith(BASE) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
-  await pg.goto(BASE + '/order-preview.html', { waitUntil: 'load' }); await wait(600);
+  await pg.goto(BASE + '/order-preview.html', { waitUntil: 'load' }); await wait(600); await toneAll(pg);
   return { ctx, pg, errs };
 }
 async function toMake(pg) {

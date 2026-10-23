@@ -11,6 +11,7 @@
    7 규칙 단위(upRecOf) — 다 이르면 지금 규칙 그대로(회귀 없음) · 목소리 없음(null)이면 옛 규칙과 같다 · 걷는 동안 이어지는 후보가 없으면 뒤가 가장 긴 것
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 · EM_MOD = 돌연변이 확인용(그 판의 entry-music.js 로 잰다) · SHOT = 그림 폴더 */
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const toneAll = (p) => p.evaluate(() => { try { TONE_OPEN = new Proxy({}, { get: () => 1, set: () => true }); if (typeof render === 'function') render(); } catch (e) {} });   // [TONE_FOLD_1023] 말투 줄은 접혀 있다 · 칩을 재는 검사는 모두 펼친 채로
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const MOD = process.env.EM_MOD || '', SHOT = process.env.SHOT || '';   // SHOT=폴더 — 자리 줄 · 장면을 그림으로 남긴다(눈으로 보기)
@@ -36,7 +37,7 @@ async function openPage(W, delayB) {
   pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', async (rt) => { const u = rt.request().url(); if (!u.startsWith('http://127.0.0.1:' + port)) return rt.fulfill({ status: 200, body: '' });
     if (delayB && /\/06_entry-B\.mp3/.test(u)) { await new Promise((r) => setTimeout(r, delayB)); } return rt.continue(); });
-  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(700);
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(700); await toneAll(pg);
   await clickNext(pg); await pg.waitForTimeout(400); await clickNext(pg); await pg.waitForTimeout(500); await clickNext(pg); await pg.waitForTimeout(1500);
   await pg.evaluate(() => mkGo('entry')); await pg.waitForTimeout(800);
   return { ctx, pg, errs };
