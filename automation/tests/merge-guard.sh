@@ -19698,7 +19698,7 @@ chk 'DRESS_BAR_FIT' scripts/audit/dress-fit.mjs 5
 chk 'DRESS_BAR_FIT' scripts/audit/dress-refs.mjs 13
 chk 'try { fitBar(); } catch (e) {}' dress.html 1                              # 그릴 때마다 첫 화면 맞춤(못 재면 CSS 기본값 그대로)
 chk 'const BAR_SIZES = \[\[360, 780\], \[375, 812\], \[390, 844\], \[390, 740\], \[414, 896\], \[1280, 900\]\];' scripts/audit/dress-fit.mjs 1   # 여섯 크기에서 잰다(한두 크기만 보면 놓친다)
-chk '.pk-picked{display:flex;align-items:center;gap:8px;min-height:48px;' dress.html 1   # 고른 줄 = 고르기 단추 높이 — 고르기 · 빼기로 아래 글이 움직이지 않는다
+chk '.pk-picked{display:flex;align-items:center;gap:8px;min-height:calc(30px + 14px \* 1.3);' dress.html 1   # 고른 줄 = 고르기 단추 높이(위아래 15px + 14px × 1.3) — 고르기 · 빼기로 아래 글이 움직이지 않는다
 chk '100dvh - 402px' dress.html 1                                               # [DRESS_BAR_PLAIN] 막대가 28px 낮아진 만큼 사진을 키웠다(430 → 402)
 nochk '100dvh - 430px' dress.html 0
 chk 'DRESS_BAND_KEEP' dress.html 1                                         # 답한 띠 — 답 하나는 한 덩어리(«노출이 / 적은 드레스»처럼 꺾이지 않는다)

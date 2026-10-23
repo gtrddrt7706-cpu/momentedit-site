@@ -196,7 +196,7 @@ html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}   /* ★[DRESS_SOLO_NOSAV
 
 .pk-back{margin:-6px 0 6px -12px}
 .pk-ctl{margin-top:12px}   /* [DRESS_DETAIL_FIT] 이름 · 한 줄 바로 아래(분위기 · 어울리는 소품은 그 아래) */
-.pk-picked{display:flex;align-items:center;gap:8px;min-height:48px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);line-height:1.6}   /* 명세 «고른 드레스예요 · 빼기» 한 줄 · ★[DRESS_BAR_FIT] 높이 48px = 고르기 단추(.cc-btn) — 고르기 · 빼기를 눌러도 아래 라인 설명이 움직이지 않는다(첫 화면 맞춤이 그대로 맞는다) */
+.pk-picked{display:flex;align-items:center;gap:8px;min-height:calc(30px + 14px * 1.3);font-family:var(--serif-ko);font-size:14px;color:var(--accent);line-height:1.6}   /* 명세 «고른 드레스예요 · 빼기» 한 줄 · ★[DRESS_BAR_FIT] 높이 = 고르기 단추(.cc-btn 위아래 15px + 14px × 1.3) — 고르기 · 빼기를 눌러도 아래 라인 설명이 움직이지 않는다(첫 화면 맞춤이 그대로 맞는다) */
 .pk-picked:focus{outline:none}
 .pk-picked .dr-badge{position:static}
 .pk-picked .pk-txt{margin:0 -12px 0 auto}
@@ -518,7 +518,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     FIT[key] = best = best || 0;   // 맞출 수 없으면 그대로
     put(best);
   }
-  function refit(){ FIT = {}; if (S.view === 'list' || S.view === 'detail') fitBar(); }
+  function refit(){ if ((window.pageYOffset || 0) > 1) return; FIT = {}; if (S.view === 'list' || S.view === 'detail') fitBar(); }   // 읽던 중이면 정한 값을 그대로 둔다(다시 그릴 때 같은 값 · 고르기로 사진이 튀지 않게)
   var lastKey = '';
   function render(focusHead){
     var m = $('pkMain'), v = S.view, key = v + ':' + S.q + ':' + S.cur, moved = key !== lastKey;

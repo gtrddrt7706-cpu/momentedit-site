@@ -366,10 +366,10 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/try \{ fitBar\(\); \} catch \(e\) \{\}/.test(rnd) && rnd.indexOf('fitBar()') > rnd.indexOf('window.scrollTo(0, 0)') && rnd.indexOf('window.scrollTo(0, 0)') > -1, '⑬ [DRESS_BAR_FIT] 그릴 때마다 첫 화면 맞춤(맨 위로 올린 뒤)');
   t(/var box = dt \? m\.querySelector\('\.dv-view'\) : v === 'list' \? m\.querySelector\('\.pk-grid'\) : null;/.test(fitB) && /iv\.push\(\[r\.top - T \+ 0\.5, r\.bottom - T \+ 6\]\)/.test(fitB), '⑬ [DRESS_BAR_FIT] 자세히 = 사진 폭 · 목록 = 그리드 위 여백 · 보이는 줄은 막대 선 위 6px 여유 · 숨는 줄은 선 아래로 다');
   t(/hi = Math\.min\(40, \(base - 150\) \* 4 \/ 3\); lo = Math\.max\(-40, -\(Math\.min\(360, cw\) - base\) \* 4 \/ 3\);/.test(fitB) && /if \(c\) lo = Math\.max\(lo, c\.getBoundingClientRect\(\)\.bottom - T \+ 8\);/.test(fitB) && /hi = Math\.min\(12, base - 8\); lo = -12;/.test(fitB), '⑬ [DRESS_BAR_FIT] 옮기는 한도 — 고르기 단추는 막대 위 8px 이상 · 사진 150 ~ 360px · 그리드 위 여백 8px 이상 · ±12px');
-  t(/if \(!had && \(window\.pageYOffset \|\| 0\) > 1\) return;/.test(fitB), '⑬ [DRESS_BAR_FIT] 첫 화면(스크롤 0)에서만 잰다 — 읽던 자리를 흔들지 않는다');
+  t(/if \(!had && \(window\.pageYOffset \|\| 0\) > 1\) return;/.test(fitB) && /function refit\(\)\{ if \(\(window\.pageYOffset \|\| 0\) > 1\) return; FIT = \{\};/.test(JS), '⑬ [DRESS_BAR_FIT] 첫 화면(스크롤 0)에서만 잰다 — 읽던 자리를 흔들지 않는다(글꼴이 늦게 떠도 읽던 중이면 정한 값 그대로)');
   t(/S\.cur \+ '\|' \+ \(S\.ro \? 1 : 0\);/.test(fitK) && !/S\.picks/.test(fitK) && /window\.innerWidth \+ 'x' \+ window\.innerHeight/.test(fitK), '⑬ [DRESS_BAR_FIT] 같은 드레스 · 같은 크기는 한 번 정한 값 그대로 — 고른 수는 열쇠에 없다(고르기 · 빼기로 사진이 움직이지 않게)');
   t(/^\s*FIT = \{\};/m.test(fnOf('applyFill')) && /window\.addEventListener\('resize'/.test(JS) && /document\.fonts\.addEventListener\('loadingdone'/.test(JS), '⑬ [DRESS_BAR_FIT] 저장본이 오면 · 화면 크기 · 글꼴이 바뀌면 다시 잰다');
-  t(/\.pk-picked\{display:flex;align-items:center;gap:8px;min-height:48px;/.test(PAGE), '⑬ [DRESS_BAR_FIT] 고른 줄 높이 48px = 고르기 단추 — 고르기 · 빼기를 눌러도 아래 글이 움직이지 않는다');
+  t(/\.pk-picked\{display:flex;align-items:center;gap:8px;min-height:calc\(30px \+ 14px \* 1\.3\);/.test(PAGE) && /\.cc-btn\{display:block;width:100%;text-align:center;padding:15px 18px;[^}]*font-size:14px;[^}]*line-height:1\.3;/.test(PAGE), '⑬ [DRESS_BAR_FIT] 고른 줄 높이 = 고르기 단추(위아래 15px + 14px × 1.3) — 고르기 · 빼기를 눌러도 아래 글이 움직이지 않는다');
   return { bad, okn };
 }
 
@@ -444,7 +444,8 @@ if (process.argv.includes('--selftest')) {
     ['보이는 줄 여유를 없앰(선에 닿는 줄)', SRC, GAS, PAGE0.replace('r.bottom - T + 6]', 'r.bottom - T + 0]')],
     ['저장본이 와도 다시 재지 않음', SRC, GAS, PAGE0.replace('    FIT = {};   // [DRESS_BAR_FIT] 저장본이 오면', '    // [DRESS_BAR_FIT] 저장본이 오면')],
     ['읽던 자리에서도 다시 잰다(스크롤 중 흔들림)', SRC, GAS, PAGE0.replace('if (!had && (window.pageYOffset || 0) > 1) return;', '')],
-    ['고른 줄이 다시 44px(고르면 아래 글이 4px 움직인다)', SRC, GAS, PAGE0.replace('.pk-picked{display:flex;align-items:center;gap:8px;min-height:48px;', '.pk-picked{display:flex;align-items:center;gap:8px;min-height:44px;')],
+    ['글꼴이 늦게 뜨면 읽던 중에도 값을 지운다', SRC, GAS, PAGE0.replace('function refit(){ if ((window.pageYOffset || 0) > 1) return; FIT = {};', 'function refit(){ FIT = {};')],
+    ['고른 줄이 다시 44px(고르면 아래 글이 4px 움직인다)', SRC, GAS, PAGE0.replace('.pk-picked{display:flex;align-items:center;gap:8px;min-height:calc(30px + 14px * 1.3);', '.pk-picked{display:flex;align-items:center;gap:8px;min-height:44px;')],
     ['사진 기준이 다시 430(막대가 낮아진 만큼 안 키움)', SRC, GAS, PAGE0.split('402px) * 0.75').join('430px) * 0.75')],
     ['답한 띠가 답 중간에서 꺾인다', SRC, GAS, PAGE0.replace("var said = ansWords().split(' · ').map(function(p){ return p.replace(/ /g, '\\u00a0'); }).join(' · ');", 'var said = ansWords();')]
   ];
