@@ -293,6 +293,9 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   //   [DRESS_KNEE_SECOND] 미니 = «두 번째 의상»은 쓰되 다이닝 자리는 쓰지 않는다(140분 Farewell 환복 뒤 다이닝 · 대여 드레스로 식당에 가지 않는다)
   const knee = R.lengthOf('knee');
   t(!!knee && knee.note === '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.', '⑪ [DRESS_KNEE_SECOND] 미니 설명 «무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.»' + (knee ? '' : ' · knee 없음'));
+  //   [DRESS_CALF_FRESH 코워크 회신 5] 미디 «산뜻합니다» — 길이 설명의 «경쾌»는 미니 한 번만(이웃 줄에 같은 낱말 두 번 없음)
+  const calf = R.lengthOf('calf');
+  t(!!calf && calf.note === '종아리 길이로, 구두까지 보여 산뜻합니다.' && R.lengths.filter((g) => String(g.note || '').indexOf('경쾌') > -1).length === 1, '⑪ [DRESS_CALF_FRESH] 미디 «종아리 길이로, 구두까지 보여 산뜻합니다.» · 길이 설명의 «경쾌»는 미니 한 번만');
   const meal = [strs.join('\n'), decom(PAGE)].some((x) => x.indexOf('식사') > -1);
   t(!meal, '⑪ [DRESS_KNEE_SECOND] 드레스 글에 «식사»가 없다 — 대여 드레스는 다이닝 자리에 입고 가지 않는다');
   //   [DRESS_FITNOTE_EMPTY] 맞추는 방법은 어디에도 없다 — 지어 쓰지 않고 빈 값 · 머리 본문이 그 몫
@@ -326,7 +329,8 @@ if (process.argv.includes('--selftest')) {
     ['대여 한 줄에 금액을 씀', SRC, GAS, PAGE0.replace('2벌부터는 추가 비용이 있습니다.</p>', '2벌부터는 1벌당 100,000원이 더해집니다.</p>')],
     ['신청서 대여 문장이 바뀜(공개 칸과 어긋남)', SRC, GAS, PAGE0, MP0, { INQ: INQ.replace('1벌 기본 포함 · 2벌부터 추가금 발생', '2벌 기본 포함 · 3벌부터 추가금 발생') }],
     ['미니 설명에 다시 다이닝', SRC.replace("note: '무릎 근처 길이로, 가볍고 경쾌해 두 번째 의상으로도 잘 어울립니다.'", "note: '무릎 근처 길이로, 식사 자리에도 잘 어울립니다.'"), GAS],
-    ['fitNote 를 지어 씀', SRC.replace("fitNote: '',", "fitNote: '핀으로 품을 맞춥니다',"), GAS]
+    ['fitNote 를 지어 씀', SRC.replace("fitNote: '',", "fitNote: '핀으로 품을 맞춥니다',"), GAS],
+    ['미디에 다시 «경쾌»(이웃 줄 겹침)', SRC.replace("note: '종아리 길이로, 구두까지 보여 산뜻합니다.'", "note: '종아리 길이로, 구두까지 보여 경쾌합니다.'"), GAS]
   ];
   /* ★[DRESS_LIVE_READY] 켜기 조건 — 다 갖춘 켠 사본(실물 4벌 · 모두 사진 · ex 도 사진 · noindex 없음 · sitemap)이 먼저 초록이어야 한다(대조).
      거기서 한 가지씩 깬다 — 표본만 · 사진 없음 · 4벌 미만 · ex 에 사진 없는 장. 사진 자리는 있는 파일(홈 Styling 사진)을 가리킨다 */

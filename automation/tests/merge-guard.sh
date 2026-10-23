@@ -19452,7 +19452,7 @@ chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호
 chk 'DRESS_DETAIL_FIT' dress.html 6
 chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
 nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
-# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 24가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
+# ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 25가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
 chk 'DRESS_LIVE_READY' assets/dress-refs.js 1                             # 켤 때 할 일 ㄹ — 실물 4벌 이상 · 모두 사진 · ex 는 사진 있는 장만(dress-refs.mjs ④ 가 막는다)
 chk 'DRESS_SLIDES' assets/dress-refs.js 1                                 # 자세히 = 사진 있는 장만 · 한 장이면 ‹ › · n / 5 없음
 chk 'DRESS_SLIDES' dress.html 2
@@ -19498,6 +19498,8 @@ nochk '식사 자리' assets/dress-refs.js 0
 nochk '식사 자리' dress.html 0
 chk "fitNote: ''," assets/dress-refs.js 1                                  # [DRESS_FITNOTE_EMPTY] 맞추는 방법은 어디에도 없다 — 지어 쓰지 않는다
 chk 'DRESS_FITNOTE_EMPTY' assets/dress-refs.js 1
+chk "note: '종아리 길이로, 구두까지 보여 산뜻합니다.'" assets/dress-refs.js 1   # [DRESS_CALF_FRESH] 코워크 회신 5 — 이웃한 미니 «가볍고 경쾌해»와 같은 낱말을 겹치지 않게
+chk 'DRESS_CALF_FRESH' assets/dress-refs.js 1
 chk 'DRESS_CARD_WORDS' mypage.html 1                                      # 카드 0 · 1 · 2벌 단추 = 같은 자리 · 같은 외곽 단추(두 벌 고르기 · 이어서 고르기 · 바꾸기)
 nochk 'trk-act-min" data-dress-open' mypage.html 0
 chk 'DRESS_NUM_LINING' dress.html 1                                       # Nº 칸 · 배지 · 카드 번호 = lining-nums(«Nº o1»로 읽히지 않게)
