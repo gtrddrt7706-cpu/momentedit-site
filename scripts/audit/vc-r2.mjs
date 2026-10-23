@@ -75,7 +75,7 @@ try {
     await new Promise((r) => setTimeout(r, 600)); _vcAutoFill(['groom', 'bride'], false, { keep: true }); const FB = VC.fill;   // A 는 1.0초에 끝나고 B 는 1.6초에 끝난다
     await new Promise((r) => setTimeout(r, 600)); const mid = { aDoing: FA.doing, bDoing: FB.doing, bOk: FB.ok, bN: FB.n };   // 1.2초 — A 만 끝난 때
     await new Promise((r) => setTimeout(r, 700)); return { nA, same: FA === FB, mid, end: { aOk: FA.ok, aN: FA.n, bOk: FB.ok, bN: FB.n, bDoing: FB.doing } }; });
-  ok('9 겹친 채우기가 서로의 개수 · 끝을 건드리지 않는다(«3줄 가운데 5줄» 없음) [FILL_OWN]', k.nA === 4 && !k.same && k.mid.aDoing === false && k.mid.bDoing === true && k.mid.bOk <= k.mid.bN && k.end.bOk <= k.end.bN && k.end.aOk <= k.end.aN && k.end.bDoing === false, JSON.stringify(k));
+  ok('9 겹친 채우기가 서로의 개수 · 끝을 건드리지 않는다(«3줄 가운데 5줄» 없음) [FILL_OWN]', k.nA === 3 /* [GUEST_5MIN_OFF_1023] 하객 맞이 셋 */ && !k.same && k.mid.aDoing === false && k.mid.bDoing === true && k.mid.bOk <= k.mid.bN && k.end.bOk <= k.end.bN && k.end.aOk <= k.end.aN && k.end.bDoing === false, JSON.stringify(k));
   ok('pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));
   await pg.close();
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
