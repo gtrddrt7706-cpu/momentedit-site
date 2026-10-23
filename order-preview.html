@@ -7415,6 +7415,7 @@ function _lExp(k,on){
 /* [DETAIL_0925 C6] 칩 = radiogroup · radio(aria-checked) · 묶음 이름이 그룹 이름 */
 /* ★[G4] 입장 줄 하나에 멘트 6 · 목소리 2 · 첫 모습 2 · 맺는 말 6 이 한꺼번에 떴다(처음 온 고객에게 가장 무거운 줄) —
    more 묶음은 «더 고르기» 단추 뒤에 둔다. 이미 기본이 아닌 값을 골라 뒀으면 열어 둔다(고른 것이 숨지 않게). */
+/* ★★[TONE_OPEN_KEEP 2026-10-23 사장님 «접기 하지마 저건 버튼이랑 밑에 순서 일부러 시간순서대로 펼쳐놓은거야»] 순간 화면의 말투 칩 줄(안내 멘트 · 예식 시작 안내 · 소개 멘트 · 입장 멘트 · ○○ 멘트)은 펼쳐 둔다 — 단추와 그 아래 대본 줄이 예식 시간 순서대로 놓인 것이 의도다. «첫 문장 + 듣기 + 말투 바꾸기» 한 줄로 접는 안(PR #1374 · TONE_FOLD)은 코워크 확인 뒤 사장님이 물렸다 · 접기 · 숨김 · «말투 바꾸기» 단추를 되살리지 말 것(merge-guard nochk) */
 function _lGroupsHtml(k,gs,opt){
   var main=gs.filter(function(g){ return !g.more; }), more=gs.filter(function(g){ return g.more; });
   var h=main.map(function(g){ return _lChipRow(g,opt); }).join('');   /* [VS_LINK_IN_ROW] 순간 쪽만 opt.vsLink */
