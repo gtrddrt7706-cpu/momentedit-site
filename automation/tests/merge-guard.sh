@@ -19182,6 +19182,11 @@ chk 'PLAY_ICON_FIXED_1023' order-preview.html 3
 chk 'PLAY_ICON_FIXED_1023' scripts/audit/scene-words.mjs 5
 chk '>svg:first-child{position:absolute;left:10px;top:50%;margin:0;transform:translateY(-50%)}' order-preview.html 1   # 동그라미 왼쪽 안쪽 고정(글자와 함께 가운데로 되돌리지 말 것)
 if command -v node >/dev/null 2>&1; then node scripts/audit/scene-words.mjs >/dev/null 2>&1; _swd=$?; if [ "$_swd" = 1 ]; then echo 'FAIL scene-words: 장면 줄 낱말 셋 자리 · 듣기 알약 동그라미 자리가 어긋납니다 — node scripts/audit/scene-words.mjs'; fail=1; elif [ "$_swd" = 0 ]; then echo 'ok scene-words: 대기 · 입장 · 도착 자리 · 듣기 알약 동그라미 고정'; else echo 'skip scene-words: 브라우저가 없어 재지 못함'; fi; fi
+# ── 2026-10-23 [TAP_NO_RING] 사장님 «엑스표 주변 색 들어가 있는 거 개선» — 창이 열릴 때 스크립트 초점(× · 돌아가는 칸 · 첫 단추)에 아이폰이 금색 고리를 그렸다 → 손가락 · 마우스면 html.tap-mode 로 고리 없음 · 키보드로 옮겨 다니면 고리
+chk 'TAP_NO_RING' order-preview.html 2
+chk 'TAP_NO_RING' scripts/audit/tap-no-ring.mjs 1
+chk 'html.tap-mode :focus-visible{outline:none!important}' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tap-no-ring.mjs >/dev/null 2>&1; _tnr=$?; if [ "$_tnr" = 1 ]; then echo 'FAIL tap-no-ring: 손가락으로 쓸 때 창 × · 칸 둘레에 초점 고리가 그려집니다 — node scripts/audit/tap-no-ring.mjs'; fail=1; elif [ "$_tnr" = 0 ]; then echo 'ok tap-no-ring: 손가락이면 고리 없음 · 키보드면 고리'; else echo 'skip tap-no-ring: 브라우저가 없어 재지 못함'; fi; fi
 # ── 2026-10-23 순간마다 «음악» 칸 [BGM_FORM_1023] → 다시 짜기 [BGM_INFO_1023] — 사장님 «BGM 까지는 ‹우리가 고른 곡›으로 안 해도 될 것 같아» · «입장곡은 지금 세팅처럼 직접 할 수 있게» · «최선인지 한 번 더 검토해 보고 제안대로 구현» · BGM 섹션 안
 #   대부분 한 줄 안내(맞절 «입장 곡이 이어져요» 꼴) · 축사 · 편지만 칩 둘(«음악 없이» 기본 · «음악과 함께») → 엔진 duckRead −20(축사 사람 구간 · 편지 첫 큐 · 사람 구간 · 마무리 · 정적 없이 4초) · 편지 장면 글 판 · 미리 듣기 주소는 bed 만
 #   ★음악 칸 «우리가 고른 곡»(올리기 · 곡 카드 · 이 기기 보관 me-bgm-song · «보낼 것» 음악 줄 · 할 일) · 접는 카드 · 부모님께 인사 칩 · «마지막 곡만 고르기» 금지 — 되살리지 말 것 ·

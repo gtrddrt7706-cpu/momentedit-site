@@ -2229,7 +2229,18 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 #emFull .em-graph .lg-plot{height:64px}
 #emFull .em-cap{min-height:5.55em}   /* [LF_STEADY] 자막이 짧아도 세 줄 자리 — 아래가 흔들리지 않게 */
 @media (max-height:600px){ #emFull .lf-body>.em-graph{display:none} }
+/* ★★[TAP_NO_RING 2026-10-23 사장님 «엑스표 주변 색 들어가 있는 거 개선»(순간 미리 보기 창 · 반지 교환)] 창이 열릴 때 스크립트가 × 로 초점을 옮기면
+   아이폰은 그것을 키보드 초점으로 보고 금색 고리(:focus-visible)를 그렸다 — 손가락으로 쓰는 분 화면에는 고리가 뜻이 없다(무엇을 고른 것처럼 보인다).
+   손가락 · 마우스로 누르면 html.tap-mode · 키보드로 옮겨 다니면(Tab · 화살표 · Home · End) 풀린다 — 고리는 키보드 쓰는 분께만.
+   같은 일이 있던 곳 전부가 함께 고쳐진다: 미리 보기 창 × · 닫은 뒤 돌아가는 칸 · 작은 창 첫 단추 · 크게 보기 ▶ (초점은 그대로 옮긴다 · 그리는 고리만 없다).
+   [ASK_FOCUS_BOX](판 자체로 초점)와 같은 뜻 · scripts/audit/tap-no-ring.mjs */
+html.tap-mode :focus-visible{outline:none!important}
+html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
+@supports selector(:has(*)){ html.tap-mode .pk-tile:has(.pk-open:focus-visible){outline:none!important} }
 </style>
+<script>/* [TAP_NO_RING] 손가락 · 마우스 = 고리 없음 · 키보드로 옮겨 다니면 고리 */(function(){ var H=document.documentElement, on=function(){ if(!H.classList.contains('tap-mode')) H.classList.add('tap-mode'); };
+  document.addEventListener('pointerdown',on,true); document.addEventListener('touchstart',on,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(/^(Tab|ArrowUp|ArrowDown|ArrowLeft|ArrowRight|Home|End)$/.test(e.key||'')) H.classList.remove('tap-mode'); },true); })();</script>
 </head>
 <body>
 <div class="wrap">
