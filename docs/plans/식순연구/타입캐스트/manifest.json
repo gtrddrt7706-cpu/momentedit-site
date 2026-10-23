@@ -147,9 +147,9 @@
         "출력 폴더가 다릅니다 — assemble-narration.mjs가 assets/audio/cast/ 로 떨굽니다."
       ],
       "dir": "assets/audio/cast",
-      "clips": 21,
-      "sents": 123,
-      "chars": 3735
+      "clips": 20,
+      "sents": 122,
+      "chars": 3718
     }
   ],
   "clips": [
@@ -6566,25 +6566,6 @@
         {
           "i": 1,
           "text": "오늘 하루는 자연스러운 사진으로 남게 되니, 곁에서 마음껏 담아 주시길 바랍니다.",
-          "before": 0,
-          "after": 0
-        }
-      ]
-    },
-    {
-      "no": "03",
-      "id": "R-guest-3",
-      "label": "식전 안내 · 오 분 전",
-      "file": "guest-3",
-      "role": "신랑",
-      "part": "5_배역.txt",
-      "dir": "assets/audio/cast",
-      "head": 0.4,
-      "tail": 0.45,
-      "sents": [
-        {
-          "i": 0,
-          "text": "시작 오 분 전입니다.",
           "before": 0,
           "after": 0
         }

@@ -552,7 +552,7 @@
   var CAST = {
     '01_guest-1':       { role: '신랑', rec: true },
     '02_guest-2':       { role: '신부', rec: true },
-    '03_guest-3':       { role: '신랑', rec: true },
+    /* ★[GUEST_5MIN_OFF_1023 검토 159-1] 03_guest-3(5분 전 두 분 견본)은 걷었다 — 엔진이 5분 전 자리를 틀지 않는다 · 파일 · 배역 대본은 그대로(번호 보존) */
     '04_guest-4':       { role: '신부', rec: true },
     // ★[TEXT_AUDIO 2026-08-04] 입장은 화면 6종과 1:1이다. 05_entry 한 클립 공유는 폐기.
     //   번호가 18부터인 건 나레이션에 이미 05_entry-A ~ 10_entry-F 가 있어서다(폴더만 다른 동명 금지).
@@ -639,7 +639,6 @@
     // ③own — 두 분 목소리 옵션을 켰을 때만 (끄면 안내 음성이라 예시가 필요 없다)
     'own:guest-1-arrival': ['01_guest-1'],
     'own:guest-2-10min':   ['02_guest-2'],
-    'own:guest-3-5min':    ['03_guest-3'],
     'own:guest-4-1min':    ['04_guest-4'],
     // ★[TEXT_AUDIO 2026-08-04] 전에는 'own:entry' 한 줄이 cue.k 로 잡혀 6종이 한 클립을 공유했다.
     //   화면은 여섯 가지 다른 글을 보여 주는데 소리는 하나였다 — 고르는 일이 소리를 바꾸지 못했다.
