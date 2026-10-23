@@ -464,6 +464,12 @@ ok('[SPEECH_EX_GUIDE_1023] 축사 참고 예시 전부 술집 · 술자리 · �
   const rows = w.RITUAL_REF.rows.filter((r) => /^free:speech/.test(r.key)), bad = rows.filter((r) => /술집|술자리|술을|기억을 잃|몰래|저금통|세뱃돈|전 연인|전여친|전남친/.test(r.text));
   return rows.length >= 15 && !bad.length && /술자리 이야기는 빼 주세요/.test(fs.readFileSync(P('assets/ritual-open.js'), 'utf8')); })());
 ok('[SONG_OPEN_PLAIN_1023] 축가 여는 말 기본 = «우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.»(«빠질 수 없는 순서» 없음) · 식순 화면 사본 같은 글 · 칩 «담백하게»', D.NARR.song === '우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.' && !/빠질 수 없는/.test(fs.readFileSync(P('order-preview.html'), 'utf8')) && O.NAR_EX.song.names[0] === '담백하게');
+/* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] 식전 영상은 영상만 받는다 — «사진으로 저희가 영상을 만들어요» 길을 말하는 글이 없다 */
+ok('[PV_PHOTO_OFF_1023 검토 158] 식전 영상 글(카드 · 흐름 설명 · 식순 화면 · AI 상담 지식 · 콘솔 메모)에 «사진으로 저희가 · 사진을 올린 링크 · 영상으로 만들어» 0건', (() => {
+  const bad = /사진으로 저희가|사진으로 영상|사진을 올린|영상으로 만들어/;
+  const ST = require(P('assets/ritual-story.js')), how = ((ST.blockOf && ST.blockOf('식전 영상')) || {}).how || '';
+  const files = ['assets/ritual-open.js', 'assets/ritual-story.js', 'assets/ritual-cue.js', 'api/_ritual-kb.js', 'order-preview.html'].map((f) => fs.readFileSync(P(f), 'utf8').split('\n').filter((l) => bad.test(l) && !/PV_PHOTO_OFF_1023|^\s*(\/\/|\/\*|\*)/.test(l)).length);
+  return !bad.test(O.CARDS.prevideo.one) && !bad.test(how) && files.every((n) => n === 0); })());
 /* ── 8. 실브라우저(--live) ── */
 if (process.argv.includes('--live')) {
   let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
@@ -481,7 +487,7 @@ if (process.argv.includes('--live')) {
     const g = () => pg.evaluate(() => ({ band: ((document.getElementById('opCta') || {}).textContent || '').replace(/\u00a0/g, ' '), empty: (document.querySelector('.pk-fp-empty') || {}).textContent || '', note: (document.querySelector('.op-note .op-note-t') || {}).textContent || '', ow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       moves: document.querySelectorAll('.mvb').length, locks: document.querySelectorAll('.pk-fixmk').length   /* [FIX_MARK_O] */, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
     let s = await g();
-    ok(`${w} 빈 채 — 아래 막대 «입장 · 맞절 · 닫는 인사만으로도 …»([R1-33] · MATJEOL_SPLIT_1013) · 흐름 판 빈 글(숫자 비움)`, /입장 · 맞절 · 닫는 인사만으로도 다음으로/.test(s.band) && /아직 담은 순간이 없어요/.test(s.empty), s.band + ' | ' + s.empty);
+    ok(`${w} 빈 채 — [EMPTY_ONE_LINE_1023] 아래 막대 없음 · 흐름 판 한 줄 «입장 · 맞절 · 닫는 인사로 시작해요. 예시를 고르거나 원하는 순간을 더해 주세요.»`, (!s.band && s.empty === '입장 · 맞절 · 닫는 인사로 시작해요. 예시를 고르거나 원하는 순간을 더해 주세요.' && !/만으로도 다음으로/.test(s.text)), s.band + ' | ' + s.empty);
     ok(`${w} 빈 채 알림 없음 · 늘 있어요 셋(입장 · 맞절 · 닫는 인사 · 식전 영상은 담는 칸 [PREVIDEO_PICK] · [MATJEOL_SPLIT_1013]) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 3 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
     ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '추가 비용'].some((x) => s.text.indexOf(x) > -1));   // [SONG_BACK_1011] «축가»는 이제 순간 이름
     await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); s = await g();

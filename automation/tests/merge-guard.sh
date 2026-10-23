@@ -18974,7 +18974,7 @@ chk 'REC_SONG_1012' order-preview.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-ui.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-music.mjs 1
 chk 'MU_SRC 2026-10-12 입장 음악 4-나' scripts/audit/ghi-polish.mjs 1   # G4 입장 쪽 묶음 = 입장 멘트 + 입장 음악(+ AI) · 음악 칩 줄을 세는 기준(10/13 게이트에서 드러난 낡은 기대값을 고침)
-chk "srcChip('두 분이 고른 곡','up',src)+srcChip('추천 곡','rec',src)" assets/entry-music.js 1   # 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래
+chk "srcChip('두 분이 고른 곡','up',src)+srcChip('스튜디오가 고른 곡','rec',src)" assets/entry-music.js 1   # [STUDIO_PICK_1023] «추천 곡» → «스튜디오가 고른 곡»   # 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래
 chk "post('momentedit:ritualFileGet',{key:'rec',id:'list'})" assets/entry-music.js 1              # 목록은 서버(드라이브)에서만
 chk "post('momentedit:ritualFileGet',{key:'rec',id:k})" assets/entry-music.js 1                   # 곡도 서버에서만 — 공개 주소 없음
 chk "if(mu&&mu.src==='up') s.muUp=mu;" assets/entry-music.js 1                                     # 추천 곡을 고르면 올린 곡 기록(서버 파일)은 비켜 둔다 — 지우지 않는다
@@ -19309,6 +19309,27 @@ chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" a
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
 nochk "picks: \[\], at: 'bridge'," assets/bgm-slots.js                                                    # 맨 앞(top)이 이음말 규칙을 품는다 · 갈래를 둘로 다시 나누지 말 것
+# ── 2026-10-23 코워크 묶음 A «식순 만들기 고객 혼란 다섯» (외부 검토 → 코워크 소스 · 390 확인 → 사장님 «추천대로 개선»)
+#   1 완성 단추는 할 행동만(기한은 위 EDIT_WINDOW 한 줄) 2 두 분 · 부모님이 직접 말하는 차례 꼬리표 «직접 읽기» 3 빈 판 글 한 줄 · 막대 같은 뜻 뺌
+#   4 «추천 곡» → «스튜디오가 고른 곡»(고객 화면만) 5 «개식 멘트» → «예식 시작 안내» · «환복» → «옷을 갈아입어요»(식순 화면)
+chk 'DONE_BTN_ACT_1023' order-preview.html 2
+chk 'TALK_DIRECT_TAG_1023' order-preview.html 1
+chk 'EMPTY_ONE_LINE_1023' order-preview.html 3
+chk 'STUDIO_PICK_1023' assets/entry-music.js 1
+chk 'EASY_WORDS_1023' assets/ritual-open.js 1
+chk 'EASY_WORDS_1023' assets/ritual-story.js 1
+chk "esc(st.talk2?'직접 읽기':_pendT(st,1))" order-preview.html 1
+chk '입장 · 맞절 · 닫는 인사로 시작해요. 예시를 고르거나 원하는 순간을 더해 주세요.' order-preview.html 1
+nochk '저장됨 · 예식 14일 전까지 고쳐요' order-preview.html
+nochk '만으로도 다음으로 갈 수 있어요' order-preview.html
+nochk '아직 담은 순간이 없어요' order-preview.html
+nochk "srcChip('추천 곡'" assets/entry-music.js
+nochk "lab: '개식 멘트'" assets/ritual-open.js
+nochk '두 분은 편하게 환복해요' assets/ritual-story.js
+nochk '남은 사진을 마치고 환복' order-preview.html
+# ── 2026-10-23 [BGM_AUDIT_CANDLE_1023] bgm-form 검사 — 화촉 · 감사 인사 음악 줄 자리 기대는 고정값이 아니라 그 쪽 첫 줄(이음말이면 fi 1 · 아니면 fi 0) · 화촉 B14 가 서는 판 · 안 서는 판 둘 다 잰다
+chk 'BGM_AUDIT_CANDLE_1023' scripts/audit/bgm-form.mjs 4
+chk '/넘어가며/.test(L.first)' scripts/audit/bgm-form.mjs 1
 # ── 2026-10-23 [BGM_R5_1023] BGM 라운드 5 «미리보기 검토 셋» — ① 요약 입장 줄: 칩만 누르고 곡이 없으면 «곡 파일을 올려 주시면 맞춰 드려요» · «추천 곡 중에서 골라 주세요»
 #   (칩 상태 = EntryMusic.src() · 이 탭에서만 · 저장 꼴 그대로) ② 축사 · 편지 «흐름»에 말하는 ○ 줄 바로 앞 음악 줄(큐 열쇠 narr-free-in-speech · letter-* · 칩을 바꾸면 같이)
 #   ③ 입장 곡 올리기 안내 «… 그 순간 두 분이 걸어 나오게 맞춰요» · ★«마지막 말에 맞춰요»를 되살리지 말 것(누구의 무슨 말인지 모호)
@@ -19319,7 +19340,7 @@ chk 'BGM_R5_1023' scripts/audit/bgm-form.mjs 10
 chk "var TALK = { none: '말씀하시는 동안은 음악이 멈추고 목소리만 들려요', bed: '말씀하시는 동안 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
 chk "speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 }" assets/bgm-slots.js 1
 chk "입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요" assets/bgm-form.js 1
-chk "입장 곡 · 추천 곡 중에서 골라 주세요" assets/bgm-form.js 1
+chk "입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요" assets/bgm-form.js 1   # [STUDIO_PICK_1023] 칩 이름과 같은 말
 chk "EM.src=function(){ return srcNow(); };" assets/entry-music.js 1
 chk "곡 파일을 올리면 크게 올라오는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요" assets/entry-music.js 1
 nochk "크게 올라오는 자리를 찾아 마지막 말에 맞춰요" assets/entry-music.js
@@ -19898,6 +19919,18 @@ chk "이제 두 분께서는 자리에 착석해 주시기 바랍니다.'" asset
 nochk '불을 밝혀 주신 두 분은, 이제 자리로 돌아가 예식을 지켜봐 주십시오.' assets/ritual-open.js   # G2 AI 글 걷음
 chk '곧바로 순서를 시작하겠습니다. 자리에 착석해 주시길 바랍니다. 원활한 진행을 위해 주머니 속' order-preview.html 1   # 두 분 유쾌 g3 = 122 글
 chk 'PASTE_ORDER_VOICE_1023' scripts/check-paste-format.mjs 1   # [REVIEW28_1023] 같은 글 · 다른 화자 = 다른 녹음(못 잰 줄)
+# ★[UX1_1023 2026-10-23 사장님 «음악을 제외한 나머지 추천대로 진행 · 너가 판단해서»(BGM 섹션 전달 · GPT 식순 빌더 검토 다섯)] 화촉 «서는 분» · 편지 «받는 분» 안 고른 한 줄 [UNPICK_LINE]
+#   · 보기만 하는 긴 참고 예시는 첫 네 줄 남짓 + «예시 전체 보기» · 같은 단추로 접기 [REF_FOLD] — 나머지 셋은 사장님 결정(EX_CHIP_ON · REF_START_OFF · PV_LINK_ONE · LEAVE_POP)이라 그대로
+#   깨 보고 믿음: main 에 ux1-1023 을 돌리면 8건 빨강 · _refClipFit 을 빼면 1280 성혼 선언(네 줄 안)에 단추가 남아 1건 빨강
+chk 'UNPICK_LINE' order-preview.html 1
+chk 'REF_FOLD' order-preview.html 4
+chk "_gc.unote='고르지 않으시면 양가 어머님께서 밝혀요'" order-preview.html 1
+chk "_gl.unote='고르지 않으시면 서로에게 읽어요'" order-preview.html 1
+chk 'UNPICK_WORDS_1023' order-preview.html 2
+nochk "unote='아직 고르지 않았어요" order-preview.html   # [UNPICK_WORDS_1023] 안 고른 한 줄은 «고르지 않으시면 …» 한 꼴
+chk 'try{ requestAnimationFrame(_refClipFit); }catch(e){}' order-preview.html 1
+chk 'UX1_1023' scripts/audit/ux1-1023.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ux1-1023.mjs >/dev/null 2>&1; _ux1=$?; [ "$_ux1" = 1 ] && { echo 'FAIL ux1-1023: 안 고른 한 줄(화촉 · 편지) 또는 긴 참고 예시 접기가 어긋났습니다 — node scripts/audit/ux1-1023.mjs'; fail=1; }; :; fi
 # ★[REVIEW29_1023 검토 153] 본식 전반 자료 글(132 EE A-2 · 11 polarisians · 13 · 127 고은천 · 226 innpirit · 169 이용진 · 230 엄숙하게) · 덕담 박수 겹침 이음새(SEAM_BLESS_1023)
 chk 'REVIEW29_1023' scripts/audit/open-course.mjs 3
 chk 'SEAM_BLESS_1023' scripts/audit/open-course.mjs 2
@@ -19956,3 +19989,11 @@ chk '5년에 한 번 정도만 하면 좋겠다.' assets/ritual-ref.js 1
 chk '서로가 서로에게 기적임을 마음에 새기시고' assets/ritual-ref.js 1
 chk 'placeholder="예: 저희를 축하해 주시기 위해 이 자리에 참석해 주신 내빈 여러분께 먼저 감사 인사 올립니다."' order-preview.html 1
 chk 'var TUNE_MAX=160;' order-preview.html 1
+# ★[PV_PHOTO_OFF_1023 검토 158] 식전 영상 «사진으로 저희가 영상을 만들어요» 대목 뺌(PV_LINK_ONE «무조건 영상»)
+chk 'PV_PHOTO_OFF_1023' scripts/audit/open-course.mjs 2
+nochk '영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요' assets/ritual-open.js 0
+nochk '영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요' assets/ritual-story.js 0
+nochk '영상이 없으면 사진을 올린 링크' order-preview.html 0
+nochk '영상이 없으면 보내 주신 사진으로' order-preview.html 0
+nochk '영상이 없으면 사진으로 저희가' api/_ritual-kb.js 0
+nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
