@@ -10028,6 +10028,25 @@ chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안�
 chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
 chk 'ASSET_V' order-preview.html 3   # 옛 파일을 쓰지 않게 ?v= · ?t=
 chk 'ASSET_V' mypage.html 1
+# ★★[ASSET_V_GUARD 2026-10-23 사장님 «영상이 안 움직이는데 · 직접 확인해봐 · 개선까지»] 파일을 바꾸면 판 표시(<script ?v=> · ASSET_V · VIDEO_V)를 같은 커밋에서 올린다.
+#   #1331 이 ritual-open.js 와 영상을 바꾸고 안 올려, 그 전에 연 화면은 축사 · 축가 칸이 비고 영상이 멈춰 보였다. asset-v.mjs 가 «파일 바꾼 커밋 ≤ 값 넣은 커밋»을 잰다.
+chk 'ASSET_V_GUARD' scripts/audit/asset-v.mjs 1
+chk 'ASSET_V_GUARD' order-preview.html 1
+chk 'VIDEO_V' assets/ritual-open.js 2
+chk "+ '.mp4' + VIDEO_V" assets/ritual-open.js 1
+chk '주소 끝 ?v= 를 지나 이름을 읽는다' order-preview.html 1   # _vfyN 이 ?v= 를 지나 이름을 읽는다(입장 15 · 닫는 인사 45 · cine-scope 가 실제 주소로 잰다)
+if command -v node >/dev/null 2>&1; then node scripts/audit/asset-v.mjs >/dev/null 2>&1; _av=$?
+  case "$_av" in
+    0) echo 'ok asset-v: 바꾼 파일마다 판 표시를 올렸다 [ASSET_V_GUARD]' ;;
+    1) echo 'FAIL asset-v: 파일을 바꾸고 판 표시(?v= · ASSET_V · VIDEO_V)를 안 올렸다 — node scripts/audit/asset-v.mjs'; fail=1 ;;
+    *) echo 'ok asset-v: 재지 못했습니다(얕은 이력) — 결함이 아닙니다' ;;
+  esac
+  node scripts/audit/asset-v.mjs --selftest >/dev/null 2>&1; _avs=$?
+  case "$_avs" in
+    1) echo 'FAIL asset-v selftest: 옛 값을 못 잡는다(검사가 죽었다) — node scripts/audit/asset-v.mjs --selftest'; fail=1 ;;
+    *) echo 'ok asset-v selftest' ;;
+  esac
+fi
 chk 'DLG_TITLE_ONE' order-preview.html 1
 chk 'VC_LEFT_WORD' order-preview.html 1
 chk 'ONE_OK_OFF' order-preview.html 1

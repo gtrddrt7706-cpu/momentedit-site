@@ -574,7 +574,7 @@ else {
   const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song', 'speech'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편 · ★[VIDEO_SET_1023] 10/23 speech(축사 칸) 더해 20편
   const { ctx, pg } = await open(390, { videos: NAMES });
   const r = await pg.evaluate((NAMES) => {
-    const R = RitualOpen, name = (h) => ((h.match(/moments\/([^"]+)\.mp4"/) || [])[1] || '(없음)'), out = { raise: {}, bad: [] };
+    const R = RitualOpen, name = (h) => ((h.match(/moments\/([^"?]+)\.mp4(?:\?[^"]*)?"/) || [])[1] || '(없음)'), out = { raise: {}, bad: [] };
     const miss = (tag, n) => { if (NAMES.indexOf(n) < 0) out.bad.push(tag + '→' + n); };
     for (const [t, w] of [['both', 'mix'], ['toast', 'mix'], ['toast', 'family'], ['toast', 'none']]) {
       S.toast = t; S.wine = w;
@@ -595,7 +595,7 @@ else {
   const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close', 'table', 'song', 'speech'];   // [TABLE_VIDEO_1009] 10/9 table 더해 18편 · [SONG_BACK_1011] 10/11 song 더해 19편 · ★[VIDEO_SET_1023] 10/23 speech(축사 칸) 더해 20편
   const { ctx, pg, errs } = await open(390, { videos: NAMES });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
-  const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};
+  const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/?]+)\.mp4(?:\?|$)/) || [])[1] : '(없음)'; }; const out = {};
     for (const [t, pg2] of [['cake', 'cake'], ['toast', 'toast'], ['both', 'cake'], ['both2', 'toast']]) { if (t === 'cake') { S.on.cake = 1; delete S.on.toast; } else if (t === 'toast') { delete S.on.cake; S.on.toast = 1; } else { S.on.cake = 1; S.on.toast = 1; } opSync(); mkGo(pg2); render(); out[t] = nm(); }   // [CAKE_TOAST_SPLIT] 쪽마다 제 영상
     return out; });
   ok('11-1 ② 축배 쪽 영상 = toast · 케이크를 담아 둔 옛 초안도 케이크 쪽이 없다(축배 쪽은 toast) [MK_VID_CHIP · CAKE_OLD_OFF_1017]', v.cake === '(없음)' && v.toast === 'toast' && v.both === '(없음)' && v.both2 === 'toast', JSON.stringify(v));
@@ -680,14 +680,14 @@ else {
   ok(`V-2 들어온 ${ready.length}편은 모두 화면이 찾는 이름(안 쓰는 파일 0 · 축사 칸 = speech [VIDEO_SET_1023]) [TABLE_VIDEO_1009]`, ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(900);
   const tl = await pg.evaluate(async () => { const im = [...document.querySelectorAll('.pk-tile img')]; await Promise.all(im.map((i) => (i.decode ? i.decode().catch(() => 0) : 0)));
-    return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote'), aiTxt: /AI로 만든|(^|\s)AI(\s|$)/.test([...document.querySelectorAll('.pk-tile .pk-media')].map((m) => m.textContent).join(' ')) }; });
+    return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp(?:\?v=\w+)?$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote'), aiTxt: /AI로 만든|(^|\s)AI(\s|$)/.test([...document.querySelectorAll('.pk-tile .pk-media')].map((m) => m.textContent).join(' ')) }; });
   /* [AI_LABEL_OFF 2026-10-03 사장님 «ai 그 문구도 지워»] 종전 «칸마다 AI · 한 줄 안내» → «AI 0 · 한 줄 없음» */
   ok('V-3 ① 칸 그림 = 실제 640 판이 뜬다(빈 그림 0) · 칸 구석 «AI» 0 · 칸에 영상 0 · «AI로 만든» 한 줄 없음 [AI_LABEL_OFF]', tl.n >= 8 && tl.ok === tl.n && tl.ai === 0 && tl.vids === 0 && !tl.note && !tl.aiTxt, JSON.stringify(tl));
   await pg.evaluate(() => opTgl('ring')); await pg.waitForTimeout(300);   /* [EX_STD_1012 2026-10-12] 가족 예시에 반지가 없어졌다 — 반지 쪽 영상은 고객처럼 + 로 담고 잰다 */
   await clickNext(pg); await pg.waitForTimeout(1200); await pg.evaluate(() => { mkGo('ring'); render(); }); await pg.waitForTimeout(500);
   const mk = await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'), b = document.querySelector('.mk-vid'); return { src: v ? v.getAttribute('src') : '', poster: v ? v.getAttribute('poster') : '', ai: b ? (/AI로 만든 장면/.test(b.textContent) || !!b.querySelector('.lv-ai')) : false }; });
   /* [AI_LABEL_OFF 2026-10-03 사장님] 종전 «이름표가 있다» → «없다» */
-  ok('V-4 ② 반지 쪽 = ring.mp4 · 첫 장면 ring.webp · 그림 위 «AI로 만든 장면» 이름표 없음 [AI_LABEL_OFF]', /moments\/ring\.mp4$/.test(mk.src) && /moments\/ring\.webp$/.test(mk.poster) && !mk.ai, JSON.stringify(mk));
+  ok('V-4 ② 반지 쪽 = ring.mp4 · 첫 장면 ring.webp · 그림 위 «AI로 만든 장면» 이름표 없음 [AI_LABEL_OFF]', /moments\/ring\.mp4(?:\?v=\w+)?$/.test(mk.src) && /moments\/ring\.webp(?:\?v=\w+)?$/.test(mk.poster) && !mk.ai, JSON.stringify(mk));
   /* ★[THUMB_PICK 2026-10-03] ① 칸 그림만 고른 장면(candle 마지막 · entry 6.0초 · toast 2.0초 사장님 · tribute 2.8초(10/14 자른 판 · TRIB_HUG_CROP_1014) · prevideo 6.0초 사장님) — 나머지는 첫 장면.
      창 · 영상 첫 장면(.webp)과 64×36 회색으로 견준다. 실측: 고른 넷 3.6~18.8 · 나머지 0.3~0.4(같은 장면의 압축 차) — 넷째 값 없이 다시 구우면 여기서 빨강 */
   /* ★[VIDEO_SET_1023 2026-10-23] 유화판 17편은 칸 그림 = 첫 장면(고른 장면 없음) · 위 다섯 편 고르기는 옛 v8 판 기록 — 이제 모든 편이 «첫 장면과 같다»를 잰다 */

@@ -10,6 +10,8 @@
    을 본다. ★스스로 깨 본다 — 16/9 로 되돌린 판 · 높이를 빼먹은 판을 넣으면 빨강이어야 한다. */
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const SCOPE = ['.lv', '.pv-media', '.mk-vu-img', '.pr-hm'];
@@ -54,6 +56,8 @@ export function check(html, ro) {
     if (f) {
       const D = '/assets/video/moments/';
       const cases = [[{ poster: D + 'entry.webp' }, 15], [{ poster: D + 'close.webp' }, 45], [{ poster: D + 'entry-look.webp' }, null], [{ poster: D + 'guest.webp' }, null], [null, null], [{}, null]];
+      /* ★[VIDEO_V 2026-10-23] 실제 영상 주소(videoOf · 끝에 ?v= 판 표시)로도 잰다 — 가짜 주소만 넣으면 ?v= 를 못 읽어 입장 · 닫는 인사 높이가 빠지는 것을 못 본다 */
+      try { const RO = require(path.join(ROOT, 'assets/ritual-open.js')); cases.push([RO.videoOf('entry'), 15], [RO.videoOf('close'), 45], [RO.videoOf('table'), null]); if (!/\?v=/.test(RO.videoOf('entry').poster)) bad.push('videoOf 주소에 판 표시(?v=)가 없다 [VIDEO_V]'); } catch (e) { bad.push('ritual-open.js 를 못 읽었다 · ' + e.message); }
       for (const [v, y] of cases) { const got = f(v); if (got !== y) bad.push(`_vfyN(${JSON.stringify(v)}) = ${got} (${y} 이어야)`); }
     }
   }
