@@ -3234,7 +3234,7 @@
     {
       "no": "148",
       "id": "X-narr-open-ex2",
-      "label": "개식 멘트 예시 2 · 격식 있게",
+      "label": "예식 시작 안내 예시 2 · 격식 있게",
       "file": "narr-open-ex2",
       "role": "진행",
       "part": "7_예시_멘트.txt",
@@ -3265,7 +3265,7 @@
     {
       "no": "149",
       "id": "X-narr-open-ex3",
-      "label": "개식 멘트 예시 3 · 담백하게",
+      "label": "예식 시작 안내 예시 3 · 담백하게",
       "file": "narr-open-ex3",
       "role": "진행",
       "part": "7_예시_멘트.txt",
@@ -3302,7 +3302,7 @@
     {
       "no": "150",
       "id": "X-narr-open-ex4",
-      "label": "개식 멘트 예시 4 · 다정하게",
+      "label": "예식 시작 안내 예시 4 · 다정하게",
       "file": "narr-open-ex4",
       "role": "진행",
       "part": "7_예시_멘트.txt",
@@ -3339,7 +3339,7 @@
     {
       "no": "251",
       "id": "X-narr-open-ex5",
-      "label": "개식 멘트 예시 5 · 뭉클하게",
+      "label": "예식 시작 안내 예시 5 · 뭉클하게",
       "file": "narr-open-ex5",
       "role": "진행",
       "part": "7_예시_멘트.txt",
@@ -3376,7 +3376,7 @@
     {
       "no": "257",
       "id": "X-narr-open-ex6",
-      "label": "개식 멘트 예시 6 · 차분하게",
+      "label": "예식 시작 안내 예시 6 · 차분하게",
       "file": "narr-open-ex6",
       "role": "진행",
       "part": "7_예시_멘트.txt",

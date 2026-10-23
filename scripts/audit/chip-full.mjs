@@ -72,7 +72,7 @@ for (const PW of [1280, 768]) {
       return { n: ls.length, ls, one: ls.every((q) => Math.abs(q.top) <= 2 && Math.abs(q.b) <= 2), rowH: Math.round(cr.height), chipH: Math.round(bs[0].height), endR: Math.abs(c.querySelector(':scope>.cg-links').getBoundingClientRect().right - cr.right) <= 2, kt: ls.some((q) => q.t === '확정 안내') }; });
     ok(`${PW} entry · AI 고른 판 — «확정 안내 · 나레이션 자세히» 둘이 칩과 같은 줄 · 한 줄 · 오른쪽 끝(제 줄 · 두 줄로 내려가지 않는다) [LINK_ONE_LINE_1019]`, !!lk && lk.n === 2 && lk.kt && lk.one && lk.rowH === lk.chipH && lk.endR, JSON.stringify(lk));
     const mu = await p2.evaluate(() => { const c0 = document.querySelector('.ls-mu .cg-c.mu-src'); if (!c0) return null; const w = (c) => [...c.querySelectorAll(':scope>button')].map((b) => Math.round(b.getBoundingClientRect().width)).join('/');
-      const before = w(c0), b = [...c0.querySelectorAll(':scope>button')].find((x) => x.textContent.trim() === '추천 곡'); if (!b) return { before }; b.click(); const c1 = document.querySelector('.ls-mu .cg-c.mu-src'); return { before, at0: w(c1), replaced: c1 !== c0, grid: c1.classList.contains('cg-grid') }; });
+      const before = w(c0), b = [...c0.querySelectorAll(':scope>button')].find((x) => x.textContent.trim() === '스튜디오가 고른 곡'); if (!b) return { before }; b.click(); const c1 = document.querySelector('.ls-mu .cg-c.mu-src'); return { before, at0: w(c1), replaced: c1 !== c0, grid: c1.classList.contains('cg-grid') }; });
     ok(`${PW} entry · «추천 곡»을 누른 그 순간에도 칩 크기 그대로(줄을 새로 끼우면 그 자리에서 칸 맞춤) [MU_REDRAW_EVEN_1019]`, !!mu && !!mu.at0 && mu.before === mu.at0 && mu.grid, JSON.stringify(mu));
   }
   ok(`${PW} 화면 오류 없음`, !e2.length, e2.slice(0, 2).join(' | ')); await p2.close();

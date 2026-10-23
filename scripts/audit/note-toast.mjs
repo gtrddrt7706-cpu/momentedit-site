@@ -15,7 +15,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch(); } catch (e) { console.log('못 쟀다 — 브라우저 없음'); srv.close(); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
-const KEEP = [/^아직 (고르지|적지) 않았어요 · /, /^신랑분은 원하시면 큰절을 올리셔도 돼요$/];   // 누르기 전에 읽혀야 하는 줄 · «적지»는 성혼 선언 «읽어 주실 분» 칸(DECLARE_ANYONE · 칩이 아니라 적는 칸)
+const KEEP = [/^아직 (고르지|적지) 않았어요 · /, /^고르지 않으시면 /,   /* [UNPICK_WORDS_1023] 안 고른 한 줄 */ /^신랑분은 원하시면 큰절을 올리셔도 돼요$/];   // 누르기 전에 읽혀야 하는 줄 · «적지»는 성혼 선언 «읽어 주실 분» 칸(DECLARE_ANYONE · 칩이 아니라 적는 칸)
 for (const W of [390, 1280]) {
   const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' })));
