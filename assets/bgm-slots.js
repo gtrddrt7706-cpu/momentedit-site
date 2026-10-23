@@ -35,7 +35,10 @@
   /* ★★[BGM_R1_1023 2026-10-23 사장님 «최선인지 디자이너 시선으로 개선 검토해 봐 · 라운드별로» → BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만»]
      고를 것이 없는 음악 안내(one · LINE)는 «고르기» 칸이 아니라 «흐름»(이 순간 전체 듣기 아래 줄)의 채운 점 줄 하나다 — 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴(li.q · 새 아이콘 · 색 · ♪ 없음).
      ▶ 가 없는 줄이라 «이 순간 전체 듣기 · n줄»의 n · 듣기 · 이어 듣기 순서에 끼지 않는다(화면만 그린다 · 엔진 줄이 아니다).
-     자리(at) = 음악이 시작되는 때 — top 맨 앞 · video 영상 상영 줄 바로 앞(없으면 맨 앞) · bridge 첫 줄(넘어가는 이음말 263)이면 그 바로 뒤 · bow «목례» 줄 바로 뒤 · cheers «위하여!» 줄 바로 뒤.
+     자리(at) = 음악이 시작되는 때 — top 맨 앞 · video 영상 상영 줄 바로 앞(없으면 맨 앞) · bow «목례» 줄 바로 뒤 · cheers «위하여!» 줄 바로 뒤.
+     ★[BGM_R2_1023] «맨 앞»은 모든 칸 한 규칙 — 쪽의 첫 줄이 «다음 순서로 넘어가며» 이음말(bridge-…)이면 그 바로 뒤, 아니면 맨 앞(head).
+       화촉(263 화촉 순서 알림) · 감사 인사(맞절에서 넘어오는 «하객 쪽으로») · 축가 바로 뒤 부모님께 인사(«경건하게»)가 이음말로 시작한다.
+     흐름 음악 줄의 글은 «행동» 줄보다 한 단계 조용하다(굵기 400 · var(--sub) · 점 · 크기는 같다 · order-preview CSS) — «배경 안내»와 «할 일»이 한눈에 갈린다.
      «고르기»에 남는 음악 칸은 입장 · 축사 · 편지뿐 · 이름표 «입장 음악 · 축사 음악 · 편지 음악».
      ★고를 것이 없는 음악 한 줄을 «고르기» 칸(이름표 «음악» + 글)에 다시 두지 말 것 — 2026-10-23 사용자 지시로 옮김 [BGM_R1_1023] */
   var PICK = { none: '음악 없이', bed: '음악과 함께' };
@@ -54,7 +57,7 @@
       ref: { role: '배경', sec: [1500, 1800], level: LEVEL.main,
         note: '개식 인사(137)는 S1 이 잦아든 뒤 조용하게, 또는 아주 작게' } },
     /* [BGM_FORM_1023 v2] 화촉을 밝히는 분은 어머님 · 아버님 · 대표 두 분 중 하나라 «어머님»이라 쓰지 않는다 · 개식 안내에서 잇는다는 말은 뺐다(S2 는 화촉 이음말 263 부터) */
-    { id: 'S2', ks: ['candle'], picks: [], at: 'bridge',
+    { id: 'S2', ks: ['candle'], picks: [], at: 'top',
       one: '화촉을 밝히는 걸음에 맞춰 밝고 우아한 곡이 흘러요',
       ref: { role: '메인', sec: 240, level: LEVEL.main,
         from: '화촉 이음말(263)부터 · 식전 영상이 없는 날은 개식 끝 박수 뒤부터' } },
@@ -64,7 +67,7 @@
       ref: { role: '메인', sec: null, level: LEVEL.main, note: '입장 음악(assets/entry-music.js · S.mu) 그대로 · 맞절까지 이어진다' } },
     /* [BGM_FORM_1023 v2] 한 곡으로 잇는다 · 크기 단계는 둘(나레이션 아래 «작게» · 사람이 직접 말하는 자리 «아주 작게 · 거의 들리지 않게») */
     { id: 'S4', ks: ['welcome', 'vow', 'ring', 'declare', 'bless'], picks: [], at: 'top',
-      one: '목소리 뒤로 잔잔한 피아노가 아주 작게 흘러요',   /* [BGM_R1_1023] «말 아래»는 고객에게 낯선 말 */
+      one: '목소리 뒤로 피아노가 아주 작게 흘러요',   /* [BGM_R1_1023] «말 아래»는 고객에게 낯선 말 · [BGM_R2_1023] 폰에서 «아주 / 작게»로 갈리지 않게 «잔잔한»을 뺐다 */
       ref: { role: '배경', sec: 420, level: LEVEL.speech,
         levels: [
           { at: '나레이션 아래', lv: '작게' },
@@ -80,7 +83,7 @@
       ref: { role: '배경', sec: 330, level: LEVEL.read } },
     /* [BGM_INFO_1023] 대본 판정 «뭉클한 여는 말에도 밝고 따뜻한 곡» · 자료(슬픈 곡이면 더 운다) — 고르기 없이 한 줄 */
     { id: 'S7', ks: ['tribute'], picks: [], at: 'top',
-      one: '부모님께 인사드리는 동안 밝고 따뜻한 곡이 흘러요',
+      one: '인사드리는 동안 밝고 따뜻한 곡이 흘러요',   /* [BGM_R2_1023] 순간 이름(부모님께 인사)을 되풀이하지 않는다 · 폰 한 줄 */
       ref: { role: '메인', sec: 240, level: LEVEL.main } },
     { id: 'S8', ks: ['_close'], picks: [], at: 'bow',
       one: '«인사!»와 함께 힘 있는 곡이 시작돼요',
@@ -100,7 +103,7 @@
   var LINE = {
     prevideo: '영상에 입힌 소리로 흘러요',
     matjeol: '입장 곡이 이어져요',
-    cont: '{at}부터 흐르던 피아노가 아주 작게 이어져요'   /* S4 의 서약 · 반지 · 선언 · 덕담 — 감사 인사부터 흐르던 곡(감사 인사를 뺀 식순이면 «혼인 서약부터…») */
+    cont: '{at}부터 피아노가 조용히 이어져요'   /* [BGM_R2_1023] 짧게(폰 한 줄) · S4 의 서약 · 반지 · 선언 · 덕담 — 감사 인사부터 흐르던 곡(감사 인사를 뺀 식순이면 «혼인 서약부터…») */
   };
 
   var BY = {}, OF = {};
@@ -145,15 +148,17 @@
     return { kind: 'flow', t: s.one, at: s.at || 'top', s: s };
   }
   /* 흐름 줄을 놓을 자리 — 엔진 줄(빌더 _lSteps) 차례에서 «이 줄 앞에»의 번호(0 = 맨 앞 · st.length = 맨 뒤)
-     x.skip = 영상 상영 줄 · x.talk = 차례 줄 · x.quiet = 행동 줄 · x.slug 'bridge-…' = 넘어가는 이음말 */
+     x.skip = 영상 상영 줄 · x.talk = 차례 줄 · x.quiet = 행동 줄 · x.slug 'bridge-…' = 넘어가는 이음말
+     ★[BGM_R2_1023] head = 쪽의 첫 줄이 이음말이면 1(그 바로 뒤) · 아니면 0 — top 과 못 찾은 자리(영상 · 목례 · 위하여 줄이 없을 때)가 다 이것을 쓴다.
+       ★음악 줄을 이음말 앞(쪽의 맨 위)에 다시 두지 말 것 — 2026-10-23 사용자 지시 [BGM_R2_1023] */
+  function head(st) { return (st && st[0] && /^bridge-/.test(String(st[0].slug || ''))) ? 1 : 0; }
   function flowAt(at, st) {
-    st = st || []; var i;
-    if (at === 'video') { for (i = 0; i < st.length; i++) if (st[i] && st[i].skip) return i; return 0; }
-    if (at === 'bridge') return (st[0] && /^bridge-/.test(String(st[0].slug || ''))) ? 1 : 0;
-    if (at === 'bow') { for (i = 0; i < st.length; i++) if (st[i] && st[i].quiet && /목례/.test(String(st[i].txt || ''))) return i + 1; return 0; }
+    st = st || []; var i, h = head(st);
+    if (at === 'video') { for (i = 0; i < st.length; i++) if (st[i] && st[i].skip) return i; return h; }
+    if (at === 'bow') { for (i = 0; i < st.length; i++) if (st[i] && st[i].quiet && /목례/.test(String(st[i].txt || ''))) return i + 1; return h; }
     if (at === 'cheers') { for (i = 0; i < st.length; i++) if (st[i] && st[i].talk && /위하여/.test(String(st[i].txt || ''))) return i + 1;
-      for (i = st.length - 1; i >= 0; i--) if (st[i] && /위하여/.test(String(st[i].txt || ''))) return i + 1; return 0; }
-    return 0;
+      for (i = st.length - 1; i >= 0; i--) if (st[i] && /위하여/.test(String(st[i].txt || ''))) return i + 1; return h; }
+    return h;   /* top(옛 bridge 도 같다) */
   }
   /* 칸의 첫 순간 = 이 칸의 순간 중 «담긴» 첫 순간(본식 차례) — 감사 인사를 담지 않은 식순이면 다음 담긴 순간이 안내 한 줄을 받는다 */
   function chooser(s, o) {
