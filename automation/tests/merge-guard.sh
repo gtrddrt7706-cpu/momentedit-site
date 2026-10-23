@@ -8150,7 +8150,7 @@ chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 �
 chk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.' assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
 chk "s.text === '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.'" scripts/build-typecast-import.mjs 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «s.text === '두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 뒤 3초 쉼 열쇠 — 글과 함께 바뀌어야 한다(옛 열쇠면 쉼이 조용히 사라진다)
 chk ' thanksIn:"다음은 감사문 낭독이 있겠습니다. 천천히 하셔도 괜찮습니다."' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « thanksIn:"감사문 낭독이 있겠습니다.…» · 옛 주석 감사문 여는 말 · 서약과 같은 틀
-chk ' song:"오늘 같은 날 이 순서는 정말 빠질 수 없는 순서죠? 우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다."' assets/ritual-data.js 1   # ★[SONG_DEF_NN_1023 검토 151-1 2)] 자료 NN 원문(옛 예시 3) · 옛 핀 « song:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다."» · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « song:"축가가 있겠습니다.…» · 옛 주석 축가 여는 말 · 덕담 맺는 말 «…들었습니다» 뒤 «들어 보시겠습니다» 되풀이도 풂
+chk ' song:"우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다."' assets/ritual-data.js 1   # ★[SONG_OPEN_PLAIN_1023 코워크 10/23] 첫 문장 뺌 · 칩 «담백하게» · ★[SONG_DEF_NN_1023 검토 151-1 2)] 자료 NN 원문(옛 예시 3) · 옛 핀 « song:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다."» · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « song:"축가가 있겠습니다.…» · 옛 주석 축가 여는 말 · 덕담 맺는 말 «…들었습니다» 뒤 «들어 보시겠습니다» 되풀이도 풂
 chk '남은 하루 행복하게 보내세요.' assets/ritual-cue.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «남은 하루도, 행복하게 보내시기 바랍니다.…» · 옛 주석 마지막 인사 47 · DD ⑦
 chk '모두의 행복을 위하여!' assets/ritual-ref.js 1                                  # 축배 담백 신부 · AA 6-3 #2 그대로
 chk '여러분이 보내주신 축복을 마음 깊이 간직하며' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «한 분 한 분 모두, 지금의 저희를 있게 해 주신 분들입니다.…» · 옛 주석 감사 인사 담백 신부 · Z 1 · S 1부 13
@@ -15360,7 +15360,7 @@ chk 'songEnd:"우리 두 사람을 위해 다시 한 번 큰 박수 부탁드리
 chk "slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend', name: '축가 마무리', text: S.songBy === 'self' ? D.NARR.songEnd : D.NARR.songEndFriend" assets/ritual-cue.js 1   # [SONG_BY_1018] 부르는 분으로 갈림 · 옛 핀 = 210 하나
 chk "'하객 박수 · 노래해 주신 분과 두 사람께'" assets/ritual-story.js 1
 nochk '노래를 잘 하는 건 아니에요' assets/ritual-data.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 녹음은 노래를 듣고 평하지 않는다(④ 현장 단정)
-chk "names: \['유쾌하게', '다정하게', '', '격식 있게', '따뜻하게'\]" assets/ritual-open.js 1   # [SONG_DEF_NN_1023] 예시 1 = 옛 예시 3(NN «유쾌하게») · 3 자리는 비움 · 옛 핀 «names: ['담백하게', '다정하게', '유쾌하게', …]»
+chk "names: \['담백하게', '다정하게', '', '격식 있게', '따뜻하게'\]" assets/ritual-open.js 1   # ★[SONG_OPEN_PLAIN_1023 코워크 10/23] 첫 문장 뺌 · 칩 «담백하게» · [SONG_DEF_NN_1023] 예시 1 = 옛 예시 3(NN «유쾌하게») · 3 자리는 비움 · 옛 핀 «names: ['담백하게', '다정하게', '유쾌하게', …]»
 chk '자 그럼, 축가 출발합니다.' assets/ritual-open.js 1
 nochk '두 사람의 축가 출발합니다' assets/ritual-open.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 친구 · 가족이 부르는 날 틀린 말(SONG_OPEN_ANYONE_1013)
 chk 'SONG_TILE_SELF_1018' assets/ritual-open.js 1
@@ -19938,3 +19938,11 @@ chk "'바쁘신 와중에도 두 사람의 결혼식을 빛내 주시기 위해"
 nochk '신랑 신부의 입장이 있겠습니다. 오늘은 특별히' assets/ritual-data.js 0
 nochk '신랑 신부의 입장이 있겠습니다. 오늘은 특별히' order-preview.html 0
 nochk '그리고 난 기억을 잃었어. 눈 떠 보니까 집이더라.' assets/ritual-ref.js 0
+# ★[SPEECH_EX_GUIDE_1023 · SONG_OPEN_PLAIN_1023 코워크 10/23] 축사 예시가 축사 안내를 어기지 않는다 · 축가 여는 말이 필수처럼 들리지 않는다
+chk 'SPEECH_EX_GUIDE_1023' scripts/audit/open-course.mjs 2
+chk 'SONG_OPEN_PLAIN_1023' scripts/audit/open-course.mjs 2
+chk 'SONG_OPEN_PLAIN_1023' assets/ritual-data.js 1
+nochk '술집에서 만났지' assets/ritual-ref.js 0
+nochk '두 가지만 고백할게' assets/ritual-ref.js 0
+nochk '정말 빠질 수 없는 순서' assets/ritual-data.js 0
+nochk '정말 빠질 수 없는 순서' order-preview.html 0

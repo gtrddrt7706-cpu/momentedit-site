@@ -51,8 +51,8 @@
       ],
       "dir": "assets/audio/narration",
       "clips": 44,
-      "sents": 104,
-      "chars": 3498
+      "sents": 103,
+      "chars": 3464
     },
     {
       "file": "3_진행_후반.txt",
@@ -1307,12 +1307,6 @@
       "sents": [
         {
           "i": 0,
-          "text": "오늘 같은 날 이 순서는 정말 빠질 수 없는 순서죠?",
-          "before": 0,
-          "after": 1.25
-        },
-        {
-          "i": 1,
           "text": "우리 두 사람 결혼생활의 앞날을 축복하는 축가의 순서가 있겠습니다.",
           "before": 0,
           "after": 0
