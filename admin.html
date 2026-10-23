@@ -1243,12 +1243,12 @@ function _splitSent(t){ return String(t||'').split(/\.\s+/).filter(function(x){r
 function _declareCardDoc(d){
   var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||{};
   var nm=_printNames(d);
-  var src=''; try{ if(typeof DECLBY!=='undefined'&&DECLBY.nar) src=DECLBY.nar; }catch(e){}   // ★원천에서 읽는다 · 복붙 금지 · [DECLARE_ANYONE] 누가 읽든 같은 글
+  var src='', _dn=+(((rd&&rd.S)||{}).declRef)||1; try{ if(typeof DECLBY!=='undefined'&&DECLBY.nar) src=(_dn>1&&DECLBY.alt&&DECLBY.alt[_dn-2])||DECLBY.nar; }catch(e){}   /* ★★[DECL_REF_PRINT 2026-10-23 검토 151-1 1)] 두 분이 ② 참고 예시에서 고른 선언문(S.declRef = 표 번호 2 · 3 · 없으면 1) */   // ★원천에서 읽는다 · 복붙 금지 · [DECLARE_ANYONE] 누가 읽든 같은 글
   /* [DECLARE_BY_PERSON] 카드 글 = 두 분 화면에 보인 선언문 그대로(원천 DECLBY.nar) — 이름이 있으면 «신랑 신부는,» 자리에만 이름을 넣는다.
-     조사가 이름에 붙지 않는 꼴(«신랑 ○○○, 신부 ○○○ 두 사람은,»)이라 받침 판정이 필요 없다 · 두음(류/유)은 정규화하지 않는다(고객이 적은 표기가 진실원).
+     조사가 이름에 붙지 않는 꼴(10/23 부터 «신랑 ○○○ 군과 신부 ○○○ 양은» · DECL_REF_PRINT · 옛 «신랑 ○○○, 신부 ○○○ 두 사람은,»)이라 받침 판정이 필요 없다 · 두음(류/유)은 정규화하지 않는다(고객이 적은 표기가 진실원).
      ★종전 가족 카드의 «이제 두 사람은 부부입니다 · 큰 박수를 보내 주시기 바랍니다»는 걷었다 — 화면 글과 달랐고, 박수는 나레이션 맺는 말이 청한다(두 번 청하지 않는다).
      줄은 쉼표 · 마침표마다(숨 쉴 자리) · 마지막 문장(선언)은 굵게 크게. 한 칸만 채워진 이름은 무이름이 낫다(«신부 ,»가 인쇄되지 않게) */
-  var t=(nm.ok&&/^신랑 신부는,/.test(src))?src.replace(/^신랑 신부는,/,'신랑 '+nm.groom+', 신부 '+nm.bride+' 두 사람은,'):src;
+  var t=(nm.ok&&/^(이제 )?신랑 신부는 /.test(src))?src.replace(/^(이제 )?신랑 신부는 /,'$1신랑 '+nm.groom+' 군과 신부 '+nm.bride+' 양은 '):src;   /* [DECL_REF_PRINT] 원문 514 꼴(«신랑 ○○○ 군과 신부 ○○○ 양은») · 군 · 양이 이름 뒤라 받침 판정이 필요 없다 */
   var ss=String(t).replace(/([,.])\s+/g,'$1\n').split('\n').filter(function(x){ return x.trim(); });
   var lines=ss.map(function(x,i){ return (i===ss.length-1?'@':'')+esc(x.trim()); });
   if(lines.length>1) lines.splice(lines.length-1,0,'');

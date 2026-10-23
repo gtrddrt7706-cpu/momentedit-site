@@ -1723,15 +1723,15 @@ $('#bSpk').onclick = function(){
 // «재생 안 됨»(FREE_RESCUE) — 영상 · 음원 순서가 안 나올 때. ★[WAIT_CLIP_OFF_1016] 옛 «대기 클립»(감정이 지나가기를 기다리는 안내 · 49)은 9/6 폐지(WAIT_BRIDGE_RETIRED) — 여기서 틀지 않는다.
 $('#bWait').onclick = function(){
   /* ★[FREE_RESCUE 2026-09-25 코워크 4-4] 준비한 순서(영상 · 음원)가 흐르는 동안에는 이 단추가 «재생 안 됨»이다.
-     누르면 «이 순서는 사진 시간에 함께 보겠습니다» 한 줄을 틀고, 맺는 말(박수 부탁)은 건너뛴다 —
+     누르면 맺는 말(박수 부탁)은 건너뛴다(★10/23 부터 녹음 한 줄은 틀지 않는다 · 디렉터가 «사진 시간에 함께 보겠습니다»를 말로 · FREE_FAIL_VOICE_OFF_1023) —
      안 나온 순서에 박수를 청하면 어색하다. 다음 순간은 [다음]으로 곧장 간다. */
   var rc = (phase === 'live' && R && R.cues[cur] && R.cues[cur].rescue) ? R.cues[cur] : null;
   if (rc) {
-    playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.text);
+    if (rc.rescue.slug) playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.text);   /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 디렉터가 말로 알린다 · 소리가 있을 때만 튼다 */
     var rn = rc.blockN || rc.name; if (RESCUED.indexOf(rn) < 0) RESCUED.push(rn);   // [RESCUE_REPLAY_1016] 사진 시간에 디렉터 칸에 한 줄(식전 영상 · 준비한 순서)
     if (R.cues[cur + 1] && R.cues[cur + 1].k === rc.k) cur = cur + 1;
     phase = 'done'; render();
-    toast('사진 시간으로 미뤘습니다 · 준비되면 [다음]');
+    toast(rc.rescue.slug ? '사진 시간으로 미뤘습니다 · 준비되면 [다음]' : '사진 시간으로 미뤘습니다 · 하객께 한 줄로 알리고 [다음]');
     return;
   }
   /* ★[WAIT_CLIP_OFF_1016] 대기 클립(49) 갈래는 걷었다 — 9/6 WAIT_BRIDGE_RETIRED · 멈춘 자리는 디렉터가 사람 말로 · 단추는 영상 · 음원 순서 밖에선 흐리다 */
