@@ -13,7 +13,10 @@
       img 가 비어 있으면 그 라인의 그림(assets/dress-refs/lines/*.svg) + 이름 칸으로 보인다.
       ex = 누르면 넘겨 보는 사진(앞 · 뒤 · 디테일 · 캔들존 · 화이트존). 사진이 오기 전에는 t 가 그림 아래 이름표로 보인다 · 오면 img 만 더한다.
    ③ [DRESS_SAMPLE] 지금은 실물 목록이 없어 검토용 표본 6벌을 sample:true 로 넣었다. 이름은 «표본 01» 식 — 실물처럼 짓지 않는다.
-      ★표본은 운영 주소(momentedit.kr)에서 절대 그려지지 않는다 — R.list() 가 뺀다(판정은 shared/preview-guard.js 의 PROD_HOSTS 와 같다 · 검사가 대조).
+      ★표본은 운영 주소(momentedit.kr)에서 그려지지 않는다 — R.list() 가 뺀다(판정은 shared/preview-guard.js 의 PROD_HOSTS 와 같다 · 검사가 대조).
+      ★[DRESS_SAMPLE_PROD 2026-10-23 사장님 «지금뜨게해» · 선택지 «모든 고객에게 지금»] 예외 한 곳 — SAMPLES_ON_PROD:true 인 동안은 운영 주소에서도 표본을 그린다.
+        고객이 표본을 고르면 그 id(S01 ~ S06)와 «표본 NN»이 스튜디오로 간다(사장님이 알고 고른 결과). 실물이 들어오면 표본을 지우고 SAMPLES_ON_PROD 를 false 로 —
+        그때부터 켜기 조건(실물 4벌 · 모두 사진)을 검사가 다시 본다. 이 표식 없이 live 만 켜면 검사가 빨강이다.
       실물이 들어오면 표본은 지운다.
    ④ [DRESS_RANK] 줄 세우는 규칙(명세 6장)은 R.rank 한 곳이다 — 고르기 화면과 검사(scripts/audit/dress-refs.mjs)가 같은 함수를 쓴다.
       화면에 점수를 보이지 않는다. 체형 · 키 · 몸무게는 묻지도 담지도 않는다(프리 사이즈).
@@ -23,7 +26,8 @@
 (function (w) {
   var R = {
     v: 1,
-    live: false,             // [DRESS_LIVE] 기능 스위치 — 켜는 것은 이번 범위가 아니다
+    live: true,              // [DRESS_LIVE] 기능 스위치 — ★2026-10-23 사장님 «지금뜨게해» · 모든 고객에게 켬(표본 6벌로 · 아래 SAMPLES_ON_PROD)
+    SAMPLES_ON_PROD: true,   // [DRESS_SAMPLE_PROD 2026-10-23 사장님 «지금뜨게해» · «모든 고객에게 지금»] 운영 주소에서도 표본 6벌을 그린다 — 실물 사진이 오면 표본을 지우고 이 줄을 false 로(한 곳)
     pick: 2,                 // 시착 기본 2벌 = 고르는 칸 Nº 01 · Nº 02
     changeUntilDays: 2,      // 바꾸기 마감 = 상담일 −2일 23:59(한국 시각) · 서버(consultation-booking.gs DRESS_PICK)도 같은 값
     fitNote: '',             // 프리 사이즈 맞추는 방식 한 줄 · ★[DRESS_FITNOTE_EMPTY 2026-10-23 코워크 회신 4 보충] 빈 값 그대로(줄 없음) — 맞추는 방법이 사이트 · 계약서 어디에도 없다 · 공개 화면을 걷어 지금은 그리는 곳도 없다([DRESS_PUBLIC_OFF])
@@ -108,9 +112,9 @@
       return R.PROD_HOSTS.indexOf(h) >= 0;
     } catch (e) { return true; }   // 모르면 운영으로 본다 — 표본이 새지 않는 쪽
   };
-  /* 그려도 되는 드레스 — 운영 주소에서는 표본을 뺀다 */
+  /* 그려도 되는 드레스 — 운영 주소에서는 표본을 뺀다(★[DRESS_SAMPLE_PROD] SAMPLES_ON_PROD 가 참인 동안만 예외) */
   R.list = function () {
-    var prod = R.isProd();
+    var prod = R.isProd() && R.SAMPLES_ON_PROD !== true;
     return R.dresses.filter(function (d) { return !(prod && d.sample); });
   };
   R.dress = function (id) {
