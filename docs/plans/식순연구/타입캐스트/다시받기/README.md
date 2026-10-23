@@ -13,20 +13,20 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 58 | 20 |
-| 2_진희.txt | 진희 | 13 | 6 |
+| 1_우성.txt | 우성 | 64 | 22 |
+| 2_진희.txt | 진희 | 17 | 8 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 58줄 · 20클립
+# 우성 — 64줄 · 22클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =11_narr-welcome-in,=13_narr-vow-in,=127_narr-vow-in-b,=128_narr-prevideo-in-ex2,=138_narr-candle-bow,=146_narr-candle-bow-fathers,=147_narr-candle-bow-others,=39_tribute-out,=142_narr-tribute-pair,=40_toast-toast,=149_narr-open-ex3,=91_narr-candle-in-mothers-ex2,=191_narr-candle-in-fathers-ex4,=132_narr-entry-bow-ex2,=226_narr-vow-out-ex3,=169_narr-ring-in-ex2,=184_tribute-out-ex4,=186_narr-close-bow-ex3,=187_narr-close-bow-ex4,=219_narr-close-ex2
+  --clip =11_narr-welcome-in,=13_narr-vow-in,=127_narr-vow-in-b,=128_narr-prevideo-in-ex2,=138_narr-candle-bow,=146_narr-candle-bow-fathers,=147_narr-candle-bow-others,=39_tribute-out,=142_narr-tribute-pair,=40_toast-toast,=149_narr-open-ex3,=257_narr-open-ex6,=91_narr-candle-in-mothers-ex2,=191_narr-candle-in-fathers-ex4,=213_narr-candle-out-ex4,=132_narr-entry-bow-ex2,=226_narr-vow-out-ex3,=169_narr-ring-in-ex2,=184_tribute-out-ex4,=186_narr-close-bow-ex3,=187_narr-close-bow-ex4,=219_narr-close-ex2
 ```
 
 ```
-# 진희 — 13줄 · 6클립
+# 진희 — 17줄 · 8클립
 node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =04_guest-4-1min,=47_end-2-goodbye,=89_guest-4-1min-pre,=118_guest-ex2-4-1min,=122_guest-ex3-4-1min,=126_guest-ex4-4-1min
+  --clip =01_guest-1-arrival,=02_guest-2-10min,=04_guest-4-1min,=47_end-2-goodbye,=89_guest-4-1min-pre,=118_guest-ex2-4-1min,=122_guest-ex3-4-1min,=126_guest-ex4-4-1min
 ```
 
