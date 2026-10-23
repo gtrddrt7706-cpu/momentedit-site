@@ -20022,3 +20022,8 @@ nochk '영상이 없으면 사진을 올린 링크' order-preview.html 0
 nochk '영상이 없으면 보내 주신 사진으로' order-preview.html 0
 nochk '영상이 없으면 사진으로 저희가' api/_ritual-kb.js 0
 nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
+# ── 2026-10-23 [TONE_OPEN_KEEP] 사장님 «접기 하지마 · 버튼이랑 밑에 순서 일부러 시간순서대로 펼쳐놓은거야» — 순간 화면 말투 칩 줄은 펼쳐 둔다(PR #1374 TONE_FOLD 닫음)
+chk 'TONE_OPEN_KEEP' order-preview.html 1
+nochk 'function _toneRow(' order-preview.html 0
+nochk 'TONE_FOLD_1023' order-preview.html 0
+nochk '>말투 바꾸기<' order-preview.html 0
