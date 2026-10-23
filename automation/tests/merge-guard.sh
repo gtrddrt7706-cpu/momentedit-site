@@ -20061,7 +20061,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-seg8.mjs >/dev/n
 chk 'REHEARSAL' console.html 4
 chk 'DOOR_LEAD' console.html 4
 chk "entry: { doorLeadSec: 3.0 }," assets/ritual-cue.js 1
-chk '  rehApply();   // [REHEARSAL]' console.html 1
+chk '  rehApply();   // ' console.html 1   # [REHEARSAL] 시작할 때 프로필 값을 엔진에 얹는 줄(대괄호는 grep 에서 글자 고르기라 빼고 찾는다)
 chk 'BGM_CONSOLE2_1023' docs/handoff/BGM_REHEARSAL_1023.md 1
 chk 'REHEARSAL' scripts/audit/bgm-reh.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-reh.mjs >/dev/null 2>&1; _brh=$?; [ "$_brh" = 1 ] && { echo 'FAIL bgm-reh: 콘솔 리허설 값(저장 · 적용 · 미리 듣기 기본값) 또는 «문 열기 시작» 표시가 어긋났습니다 — node scripts/audit/bgm-reh.mjs'; fail=1; }; :; fi
