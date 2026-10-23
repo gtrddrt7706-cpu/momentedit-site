@@ -4373,6 +4373,9 @@ function _lGroups(k){
   if(!_lInDef){ var d=_lDefCurs(k), t=S.touched||{}; g.forEach(function(x){ x.picked=!!x.exOn||(x.q&&!x.up)||!!t[x.key]||d[x.key]===undefined||x.cur!==d[x.key]; });   /* [EX_CHIP_ON] exOn = 멘트 글이 곧 보이는 묶음 */   /* [VOW_FIRST] up = 소리와 무관해도(q) 처음엔 안 눌린 모양 */
     /* ★[VOW_UNPICK 2026-10-06 사장님 원칙 «미리 골라 둔 것처럼 보이지 않게 · 안 고르면 한 줄로 정직하게»] 서약 두 묶음 중 안 고른 것이 있으면 아래 묶음에 한 줄 */
     if(k==='song'){ var _gs=g.filter(function(x){ return x.key==='songBy'; })[0]; if(_gs&&_gs.picked===false) _gs.unote='아직 고르지 않았어요 · 고르지 않으면 노래해 주신 분께 박수를 청해요'; }   /* [SONG_BY_1018 · VOW_UNPICK 꼴] */
+    /* [UX1_1023 UNPICK_LINE] 화촉 «서는 분» · 편지 «받는 분»도 안 고르면 한 줄(VOW_UNPICK 꼴 · 기본을 정직하게) */
+    if(k==='candle'){ var _gc=g.filter(function(x){ return x.key==='candleWho'; })[0]; if(_gc&&_gc.picked===false) _gc.unote='아직 고르지 않았어요 · 고르지 않으면 양가 어머님께서 밝혀요'; }
+    if(k==='letter'){ var _gl=g.filter(function(x){ return x.key==='letter'; })[0]; if(_gl&&_gl.picked===false) _gl.unote='아직 고르지 않았어요 · 고르지 않으면 서로에게 읽어요'; }
     if(k==='vow'){ var _gk=g.filter(function(x){ return x.key==='vowKind'; })[0], _gh=g.filter(function(x){ return x.key==='vowHow'; })[0], _gf=g.filter(function(x){ return x.key==='vowFirst'; })[0];
       if(_gh&&_gf){ var _k=!!(_gk&&_gk.picked===false), _a=_gh.picked===false, _b=_gf.picked===false, _u=[];   /* [THANKS_IN_VOW] 무엇을 읽나요도 같은 한 줄에 */
         if(_k) _u.push('서약'); if(_a) _u.push('한 줄씩 번갈아'); if(_b) _u.push('신랑부터');
