@@ -428,6 +428,11 @@ ok('새 코스에선 ↑↓ 가 막힌다', /if\(isOpen\(\)\) return;   \/\/ \[O
 const K = fs.readFileSync(P('assets/ritual-preview-link.js'), 'utf8');
 ok('미리듣기 주소가 on · wine · tributeSay · candleWho · freeWhat · freeLen 을 싣는다', ['on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen'].every((k) => K.indexOf(`'${k}'`) > -1));
 
+/* ★[REVIEW28_1023 검토 152] 엔진 고침 — 화촉 맺는 말은 늘 95(입장 C 갈래 걷음) · 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 말하면 B14 없음 · 기록형 코스(문 열림 없음)의 입장 E 는 F */
+ok('[CANDLE_OUT_ONE_1023 · REVIEW28_1023 검토 152] 입장 C 날도 화촉 맺는 말 = narr-candle-out(140 RETIRED)', (() => { const s = C.build({ course: 'open', on: { candle: 1 }, entry: 'C' }, { mode: 'console' }).cues.map((c) => c.slug); return s.indexOf('narr-candle-out') > -1 && s.indexOf('narr-candle-out-formal') < 0 && !!C.RETIRED['narr-candle-out-formal']; })());
+ok('[B14_SKIP_CANDLE_1023 · REVIEW28_1023 검토 152] 아버님 화촉(93 «… 앞날을 환하게 밝히는 촛불을 …»)엔 B14 없음 · 어머님(91)엔 있음', (() => { const b = (w) => C.build({ course: 'open', on: { candle: 1, prevideo: 1 }, candleWho: w }, { mode: 'console' }).cues.some((c) => c.slug === 'bridge-b14-candle-name'); return !b('fathers') && b('mothers'); })());
+ok('[ENTRY_E_NODOOR_1023 · REVIEW28_1023 검토 152] 기록형 코스 입장 E → F(«문 뒤에서 함께 입장» 없음) · 새 코스 E 는 그대로', (() => { const e = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'entry').map((c) => c.slug)[0]; return e({ course: 'record', entry: 'E' }) === 'entry-F' && e({ course: 'open', on: {}, entry: 'E' }) === 'entry-E'; })());
+
 /* ── 8. 실브라우저(--live) ── */
 if (process.argv.includes('--live')) {
   let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
