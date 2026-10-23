@@ -15156,6 +15156,14 @@ if command -v node >/dev/null 2>&1; then
   if [ "$_cls" = 0 ]; then echo 'ok close-seam [CLOSE_SEAM_1018]'; else echo 'FAIL close-seam: 마지막 순간 → 닫는 인사 이음말 · 닫는 멘트 넘기기가 어긋났습니다 — node scripts/audit/close-seam.mjs'; fail=1; fi
   if node scripts/audit/close-seam.mjs --fast --selftest >/dev/null 2>&1; then echo 'ok close-seam --selftest(이음새를 끄면 빨강)'; else echo 'FAIL close-seam --selftest: 깨 보기를 못 잡는다 — node scripts/audit/close-seam.mjs --selftest'; fail=1; fi
 fi
+# ★★[FLOW_GAPS_1023 2026-10-23 사장님 «편지를 잘 맞추고, 다른 것도 이 기준으로 흐름 쉼을 전부 맞추자»] 문장 사이 «흐름 쉼» 표(v2 · 이어짐 1.00 · 넘어감 1.35 · 기다림 1.50)가 조립기 대장에 들어가 있는가
+#   표 = docs/plans/식순연구/흐름쉼_1023.json(음성 섹션이 경계 331곳을 읽고 나눔) · 생성기가 기본값 1.25 자리만 덮는다 · 1.25 로 돌아가면 빨강
+chk 'FLOW_GAPS_1023' scripts/build-typecast-import.mjs 3
+chk 'FLOW_GAPS_1023' scripts/audit/flow-gaps.mjs 2
+chk '"name": "FLOW_GAPS_1023"' docs/plans/식순연구/흐름쉼_1023.json 1
+if command -v node >/dev/null 2>&1; then
+  if node scripts/audit/flow-gaps.mjs >/dev/null 2>&1; then echo 'ok flow-gaps [FLOW_GAPS_1023]'; else echo 'FAIL flow-gaps: 흐름 쉼 표가 조립기 대장에 안 들어갔다(문장 사이가 1.25 로 돌아갔다) — node scripts/audit/flow-gaps.mjs'; fail=1; fi
+fi
 # ★[REVIEW8_1018 · PHOTO_END_LINE_1018 2026-10-18 인스타 섹션 검토 8판 79 ~ 85 · 사장님 «지금 폼 그대로 업그레이드» · 결정 대기함 [110] «추천대로»] 예시 글 다듬기 일곱 곳 · 45 · 110 첫 문장
 chk 'REVIEW8_1018' assets/ritual-open.js 1
 chk 'PHOTO_END_LINE_1018' assets/ritual-cue.js 1
