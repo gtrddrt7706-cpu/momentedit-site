@@ -20055,3 +20055,12 @@ chk "ref: { role: '메인', sec: 300, level: LEVEL.main } }," assets/bgm-slots.j
 chk 'BGM_SEG8_1023' scripts/audit/bgm-seg8.mjs 1
 chk 'ENTRY_SHORT' scripts/audit/entry-scene-day.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-seg8.mjs >/dev/null 2>&1; _bs8=$?; [ "$_bs8" = 1 ] && { echo 'FAIL bgm-seg8: 콘솔 구간 음악(목록 · 저장 · 크로스페이드 · 빈 구간 이음 · 영상 · 축가 뒤 · 짧은 입장 곡)이 어긋났습니다 — node scripts/audit/bgm-seg8.mjs'; fail=1; }; :; fi
+# ★★[BGM_CONSOLE2_1023 REHEARSAL · DOOR_LEAD 2026-10-23 BGM 섹션 라운드 2 PR 3] 콘솔 «리허설» 칸(다섯 값 · 장소 · 출력 이름 프로필 · 이 기기) · 진행 막대 «문 열기 시작»(«입장!» 끝 − doorLeadSec 3초 · 새 GO 없음)
+#   점검표 docs/handoff/BGM_REHEARSAL_1023.md · 깨 보고 믿음: 프로필 적용 · 문 표시를 하나씩 되돌리면(BR_CON) bgm-reh 의 그 칸이 빨강
+chk 'REHEARSAL' console.html 4
+chk 'DOOR_LEAD' console.html 4
+chk "entry: { doorLeadSec: 3.0 }," assets/ritual-cue.js 1
+chk '  rehApply();   // [REHEARSAL]' console.html 1
+chk 'BGM_CONSOLE2_1023' docs/handoff/BGM_REHEARSAL_1023.md 1
+chk 'REHEARSAL' scripts/audit/bgm-reh.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-reh.mjs >/dev/null 2>&1; _brh=$?; [ "$_brh" = 1 ] && { echo 'FAIL bgm-reh: 콘솔 리허설 값(저장 · 적용 · 미리 듣기 기본값) 또는 «문 열기 시작» 표시가 어긋났습니다 — node scripts/audit/bgm-reh.mjs'; fail=1; }; :; fi
