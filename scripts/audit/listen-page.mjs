@@ -64,7 +64,7 @@ async function open(w, opt) {
   await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); if (!/fonts\.g(oogleapis|static)\.com/.test(u)) ext.push(u.slice(0, 80)); return rt.fulfill({ status: 200, body: '' }); });
   if (opt.videos) await pg.addInitScript((vs) => { window.__LISTEN_TEST_VIDEOS = vs; }, opt.videos);
   /* [VID_PLAY_ALL] 헤드리스는 H.264 를 못 푼다 — 영상 play() 를 «불렸는가»로 잰다(소리 play 는 그대로) */
-  if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') { const sr = this.getAttribute('src') || this.src || ''; if (sr && !/^data:/.test(sr)) (window.__aplays = window.__aplays || []).push(sr.split('/').pop()); return o.apply(this, arguments); } if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('/').pop(), id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
+  if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') { const sr = this.getAttribute('src') || this.src || ''; if (sr && !/^data:/.test(sr)) (window.__aplays = window.__aplays || []).push(sr.split('/').pop()); return o.apply(this, arguments); } if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('?')[0].split('/').pop(),   /* [VIDEO_V] 주소 끝 ?v= 는 빼고 이름만 */ id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
   if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
   if (opt.videos) await pg.evaluate(() => { RitualOpen.VIDEO_READY.length = 0; (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });   /* [VIDEO_IN_1003] 바꾼다 · 더하지 않는다 */
@@ -455,7 +455,7 @@ else {
     /* [TILE_PICK · POSTER_SMALL 2026-09-26 코워크 최종판 3-5] 칸에서는 영상이 저절로 돌지 않는다 — 첫 장면 작은 판(640)만 · «AI» 는 그 칸에만 */
     const tl = await pg.evaluate(() => ({ vids: document.querySelectorAll('.pk-tile video').length, imgs: [...document.querySelectorAll('.pk-tile img')].map((i) => i.getAttribute('src')), ai: document.querySelectorAll('.pk-tile .pk-ai').length }));
     /* [AI_LABEL_OFF 2026-10-03 사장님 «ai 그 문구도 지워»] 종전 «AI 둘» → «AI 0» */
-    ok(`① 칸에는 영상 없음 · 첫 장면 작은 판 둘 · 칸 구석 «AI» 없음 (reduce=${reduce}) [AI_LABEL_OFF]`, tl.vids === 0 && tl.imgs.length === 2 && tl.imgs.every((u) => /-640\.webp$/.test(u)) && tl.ai === 0, JSON.stringify(tl));
+    ok(`① 칸에는 영상 없음 · 첫 장면 작은 판 둘 · 칸 구석 «AI» 없음 (reduce=${reduce}) [AI_LABEL_OFF]`, tl.vids === 0 && tl.imgs.length === 2 && tl.imgs.every((u) => /-640\.webp(?:\?v=\w+)?$/.test(u)) && tl.ai === 0, JSON.stringify(tl));
     await pg.click('[data-fk="pto:candle"]'); await pg.waitForTimeout(1200);
     const st = await pg.evaluate(() => { const v = document.querySelector('#pvM video'); return v ? { playing: !v.paused, muted: v.muted, ai: !!document.querySelector('#pvM .pv-ai') } : null; });
     /* [AI_LABEL_OFF 2026-10-03 사장님 «굳이 없어도 될 거 같아 · 그림이니까»] 종전 «긴 AI 이름표가 있다» → 이제 «없다»(창 그림 위 글 금지) */
@@ -714,7 +714,7 @@ else {
     const R = RitualOpen, wait = (ms) => new Promise((z) => setTimeout(z, ms)), out = { sheet: [], again: [], full: [], keep: [], make: [], makeKey: [], makeSound: [], label: [], line: [] };
     const ks = Object.keys(R.CARDS).filter((k) => R.firstVideo(k, S) && !(R.RETIRED || {})[k]);   /* ★[CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 어디서도 열리지 않는다 */
     for (const k of ks) {
-      const want = R.firstVideo(k, S).mp4.split('/').pop();
+      const want = R.firstVideo(k, S).mp4.split('?')[0].split('/').pop();   // [VIDEO_V]
       window.__vplays = []; opPv(k); await wait(350);
       if (!window.__vplays.some((p) => p.w === 'sheet' && p.f === want)) out.sheet.push(k);
       if (!_pvLine(k) && k !== 'cake') out.line.push(k);   /* 대표 줄이 있어야 하는 순간(케이크만 대표 줄이 없다) */
@@ -943,7 +943,7 @@ for (const w of [390, 1280]) {
   const more = {};
   for (const k of ['vow', 'welcome', 'ring']) {
     await pg.evaluate((k) => { mkGo(k); }, k); await pg.waitForTimeout(500);
-    const f = await pg.evaluate(() => (document.querySelector('.mk-vid video') || {}).getAttribute ? document.querySelector('.mk-vid video').getAttribute('src').split('/').pop() : '');
+    const f = await pg.evaluate(() => (document.querySelector('.mk-vid video') || {}).getAttribute ? document.querySelector('.mk-vid video').getAttribute('src').split('?')[0].split('/').pop() : '');   // [VIDEO_V]
     const a0 = await n(f); const u = { play: await clickAll('[data-fk="mkplay"],[data-fk="mkvnowplay"]') }; await pg.evaluate(() => lsStop());
     const tas = await pg.$$('.mk-pg textarea'); u.ta = 0; for (const t of tas) { if (await t.isVisible()) { await t.type('가나'); u.ta++; await pg.waitForTimeout(200); } }
     u.line = await clickAll('.mk-pl'); await pg.evaluate(() => lsStop());
