@@ -19576,7 +19576,7 @@ chk 'DRESS_BADGE_NOFILL' .claude/skills/momentedit-design/SKILL.md 1    # 번호
 # ★[DRESS_DETAIL_FIT · 코워크 검토 2 · 10/23] 자세히 첫 화면에서 고르기 단추가 아래 막대에 가리지 않는다 — 단추는 이름 · 한 줄 바로 아래 · 사진 넘김은 사진 위 · 짧은 화면 사진 칸 상한
 #   숫자(390×844 · 390×740 · 1280×900 × 고르기 · 고른 줄 · 다 찼어요)는 dress-fit.mjs 가 브라우저로 잰다 — PR 잡(브라우저 없음)에서는 «재지 못했다»로 넘어가고 야간 · 로컬에서 실제로 잰다
 chk 'DRESS_DETAIL_FIT' dress.html 6
-chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 2
+chk 'DRESS_DETAIL_FIT' scripts/audit/dress-fit.mjs 3
 nochk 'class="dv-nav"' dress.html 0                                           # 사진 아래 넘김 줄로 돌아가면 단추가 다시 막대 뒤로 내려간다
 # ★★[코워크 검토 4 · 10/23 · 배포 전 전면 재검토] 값 · 순서 · 문구는 dress-refs.mjs ⑪(깨 보기 25가지 · 켜기 조건은 «다 갖춘 켠 사본»이 초록인지 먼저) · 숫자는 dress-fit.mjs
 chk 'DRESS_LIVE_READY' assets/dress-refs.js 1                             # 켤 때 할 일 ㄹ — 실물 4벌 이상 · 모두 사진 · ex 는 사진 있는 장만(dress-refs.mjs ④ 가 막는다)
@@ -19588,14 +19588,15 @@ chk "mpConfirm({ title:st.failed?'저장이 아직 안 됐어요':'저장하지 
 chk "var _bkId=bkOpen(function(){ askExit(true); });" mypage.html 1   # 뒤로가기도 같은 규칙 — 종전 bkOpen(done) 은 고른 것을 말없이 버렸다
 chk "postMessage({ type: 'momentedit:dressExit' }, location.origin)" dress.html 1   # 머리 «나가기»는 부모에게 묻는다(바로 닫는 dressClose 는 판의 «그냥 나가기» · 저장이 닿은 뒤만)
 chk 'DRESS_CLEAR' automation/consultation/consultation-booking.gs 2     # 0벌 저장 = 비우기(다 뺀 뒤 «저장하고 나가기»가 거짓말을 하지 않게)
-chk 'DRESS_FIT_FEE' dress.html 1                                          # 고르기 막대 «안 입은 드레스는 시착비가 들지 않아요» — 근거 숫자는 홈 가격표 · 신청서 · 시착 동의서와 대조(dress-refs.mjs ⑪)
+chk 'DRESS_BAR_PLAIN' dress.html 3                                       # ★[코워크 디자인 라운드 1 · 2 · 3] 막대 = 흰 단색 + 위 1px 선(흐림 걷음) · 막대 위 시착비 줄은 막대 밖(띠 아래 점 줄 둘 [DRESS_BAND_DOTS]) — 금액 안내는 상담 카드 · 시착 동의서 몫
 nochk 'class="fit-p"' dress.html 0                                          # [DRESS_PUBLIC_OFF] 공개 시착 칸은 공개 화면과 함께 걷었다
-chk '<p class="pk-bar-note">안 입은 드레스는 시착비가 들지 않아요.</p>' dress.html 1
+nochk 'pk-bar-note' dress.html 0
+nochk 'linear-gradient' dress.html 0                                          # [DRESS_BAR_PLAIN] 흐림에 걸린 글이 취소선처럼 보였다 — 되살리지 말 것
 chk 'DRESS_NO_INTRO' dress.html 3                                         # 인트로 걷음 — 카드가 같은 말을 이미 했다 · 명세 2: 열면 드레스 목록부터([DRESS_LIST_FIRST])
 nochk 'function introHTML' dress.html 0
 nochk '몇 가지 답하고 보기' dress.html 0
 chk 'DRESS_SOLO_NOSAVE' dress.html 3                                      # 단독(?pick=1)은 저장이 없다 — «저장» · «남기기» 숨김 · 저장한 척 «저장됨» 없음(머리 아래 «저장되지 않아요» 한 줄과 어긋났다)
-chk 'html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}' dress.html 1   # 마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴(저장할 수 없으면 «저장» 알약을 두지 않는다)
+chk 'html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}' dress.html 1   # 단독 · 마감 뒤 보기만([DRESS_SEE_CLOSED])이면 머리 «저장»을 숨긴다(저장할 수 없으면 알약을 두지 않는다)
 nochk '저장하지 않는다(모양만 같게)' dress.html 0
 chk 'DRESS_SOLO_NOSAVE' scripts/audit/dress-fit.mjs 2
 chk 'DRESS_NO_PICK_OK' dress.html 1                                       # 안 고르면 어떻게 되는지 한 줄(목록 띠 아래 · 카드 0벌 · 물음 화면에는 없다)
@@ -19603,7 +19604,7 @@ chk 'DRESS_NO_PICK_OK' mypage.html 1
 chk 'DRESS_SKIP_Q' dress.html 3                                           # 물음마다 «질문 없이 바로 보기»
 chk 'DRESS_PICK_TIER' dress.html 4                                        # 진한 단추가 한 화면에 둘 서지 않게 · 막대 0벌 «드레스를 골라 주세요»(한 줄)
 nochk '두 벌을 골라 주세요' dress.html 0
-chk 'DRESS_MEMO_DONE' dress.html 4                                        # 남길 말은 완료 화면(+ «남기기») · 그림 140 · Nº 표시
+chk 'DRESS_MEMO_DONE' dress.html 3                                        # 남길 말은 완료 화면 · 그림 140 · Nº 표시 — 작은 «남기기» 알약은 라운드 1 에서 걷었다([DRESS_MEMO_ONEBTN])
 nochk 'sec-wide' dress.html 0
 # [DRESS_PHOTO_FIRST] [DRESS_ONE_WIDTH] [DRESS_CLOSE_IN] [DRESS_NEXT_ONE] 은 공개 화면 몫 — 명세 2(사장님 «마이페이지만»)로 공개 화면과 함께 걷었다(아래 [DRESS_PUBLIC_OFF])
 chk 'DRESS_LINE_ONE' assets/dress-refs.js 1                               # 라인 설명 한 문장 · 함께 볼 점은 슬립 · 컬럼 둘
@@ -19655,6 +19656,46 @@ chk "stages: \['신청접수', '상담확정'\]" automation/consultation/consult
 chk 'DRESS_NO_DATE' automation/consultation/consultation-booking.gs 3     # 날짜가 정해진 때만 마감(신청접수 · 변경제안 = 열림)
 chk 'DRESS_CONFIRM_ZERO' automation/consultation/consultation-booking.gs 2   # 확정 메일 드레스 줄은 아직 안 고른 분에게만
 chk 'DRESS_SIGNUP_MAIL' automation/platform/40_signup.gs 2               # 고객이 받는 접수 메일(sendSignupEmail_)에 한 줄 + 마이페이지 링크
+# ── ★★[코워크 디자인 라운드 1 · 2026-10-23 사장님 «디자이너 시선으로 개선점 찾아봐 · 라운드별로 · 고객 입장에서»] 드레스 미리 보기 ──
+#   ①카드에 드레스 칸(0벌 = 원천 앞 세 벌 · 1 · 2벌 · 마감 뒤 = 고른 드레스 · 96px 안팎 · 3:4 · 이름 두 줄) · 칸 = 그 드레스 자세히 · 마감 뒤는 보기만
+#   ②③막대 흰 단색 + 위 1px 선 · 시착비 줄은 띠 아래 점 줄 둘로 ④띠 글(«어울리는» 걷음) · 소제목 걷기 ⑤한 그리드 · «답과 맞아요» ⑥«아직 몰라요» 걷기 · «노출 · 소매»
+#   ⑦완료 화면 «남기기» 알약 걷고 단추 하나(«남기고 돌아가기») ⑧⑨상담 카드 — 드레스 카드가 보일 때만 진행 흐름 시착 줄 빼기 · 방문 전 안내 «챙겨 오실 것»
+#   모양 · 깨 보기는 scripts/audit/dress-refs.mjs ⑬ · 흐름은 dress-fit.mjs(브라우저)
+chk 'DRESS_CARD_PHOTOS' mypage.html 2                                      # 카드 칸 = 96px 안팎 · 3:4 · 사이 8px · 이름 두 줄 · 누르면 그 드레스 자세히
+chk 'R.list().slice(0,3).map(see)' mypage.html 1                           # 0벌 = 원천 앞 세 벌
+chk 'DRESS_CARD_ONE_LINE' mypage.html 1                                    # 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄
+nochk "'고르지 않으셔도 상담 날 함께 골라요.'" mypage.html 0                     # 카드에서는 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번)
+chk 'DRESS_SEE_TAP' mypage.html 2                                          # 카드 칸 → openDressPicker(… open:id) → dress.html &open=
+chk 'DRESS_SEE_TAP' dress.html 3
+chk 'DRESS_SEE_CLOSED' dress.html 4                                        # 마감 뒤 칸을 눌러 들어오면 보기만(막대 · 고르기 · 빼기 · 머리 저장 · 점 줄 없음)
+chk 'DRESS_CARD_ON' mypage.html 4                                          # 카드 판정 한 곳(_dressCardOn) — 카드 · 상담 카드 두 자리가 같이 쓴다
+chk "var dressOn = !isSnap && !!d && _dressCardOn(d);" mypage.html 1
+chk "(isSnap||dressOn?'':'<div class=\"vg-row\"><span class=\"vg-k\">상담 · 시착</span>" mypage.html 1   # 진행 흐름 시착 줄은 드레스 카드가 보일 때만 뺀다(꺼짐 · 자체 준비 · 스냅은 그대로)
+chk '<span class="vg-k">챙겨 오실 것</span>' mypage.html 1                    # 확정 카드 방문 전 안내 — 드레스 카드가 보일 때만
+chk 'DRESS_BAND_DOTS' dress.html 3                                         # 띠 바로 아래 점 줄 둘(«골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.» · «안 고르셔도 상담 날 함께 골라요.»)
+chk 'DRESS_BAND_WORDS' dress.html 1                                        # 띠 글 «원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요»
+nochk '어울리는 드레스를 앞에' dress.html 0                                        # «어울리는»은 몸을 평가하는 말로 읽혔다
+chk 'DRESS_ONE_GRID' dress.html 3                                          # 소제목 «드레스» · 두 덩어리 · 구분선 걷기 — 한 그리드에 맞는 칸 앞 · «답과 맞아요»
+chk 'DRESS_ONE_GRID' assets/dress-refs.js 1
+nochk '답에 맞는 드레스</h2>' dress.html 0
+nochk 'class="pk-gh"' dress.html 0
+chk 'DRESS_Q_TRIM' assets/dress-refs.js 2                                  # «아직 몰라요» 걷기 · 셋째 걸음 «노출 · 소매»(옛 저장본 unsure 는 서버 · cleanAns 가 그대로 받는다)
+nochk "'unsure', '아직 몰라요'" assets/dress-refs.js 0
+nochk "step: '편한 쪽'" assets/dress-refs.js 0
+chk "step: '노출 · 소매'" assets/dress-refs.js 1
+chk 'DRESS_MEMO_ONEBTN' dress.html 3                                       # 완료 화면 단추 하나 — 글을 고치면 «남기고 돌아가기»(저장 + 돌아가기 · 실패 한 줄은 단추 아래)
+nochk 'id="pkLeave"' dress.html 0                                              # 작은 «남기기» 알약 되살리기 금지(나가기 판이 한 번 더 떴다)
+# ★[DRESS_BAR_FIT 라운드 1 · 2 «390 · 1280 목록 · 자세히에서 막대에 반쯤 걸린 글 0»] 첫 화면에서 막대 선이 글줄을 가르지 않게 — 사진 폭(자세히) · 그리드 위 여백(목록)을 몇 px 맞춘다.
+#   크기마다 줄 자리가 달라 CSS 한 값으로는 못 맞춘다(10/23 실측: 390×844 목록 · 375 · 360 · 414 폭 자세히). 여섯 크기 실측은 dress-fit.mjs · 깨 보기는 dress-refs --selftest
+chk 'DRESS_BAR_FIT' dress.html 6
+chk 'DRESS_BAR_FIT' scripts/audit/dress-fit.mjs 5
+chk 'DRESS_BAR_FIT' scripts/audit/dress-refs.mjs 13
+chk 'try { fitBar(); } catch (e) {}' dress.html 1                              # 그릴 때마다 첫 화면 맞춤(못 재면 CSS 기본값 그대로)
+chk 'const BAR_SIZES = \[\[360, 780\], \[375, 812\], \[390, 844\], \[390, 740\], \[414, 896\], \[1280, 900\]\];' scripts/audit/dress-fit.mjs 1   # 여섯 크기에서 잰다(한두 크기만 보면 놓친다)
+chk '.pk-picked{display:flex;align-items:center;gap:8px;min-height:48px;' dress.html 1   # 고른 줄 = 고르기 단추 높이 — 고르기 · 빼기로 아래 글이 움직이지 않는다
+chk '100dvh - 402px' dress.html 1                                               # [DRESS_BAR_PLAIN] 막대가 28px 낮아진 만큼 사진을 키웠다(430 → 402)
+nochk '100dvh - 430px' dress.html 0
+chk 'DRESS_BAND_KEEP' dress.html 1                                         # 답한 띠 — 답 하나는 한 덩어리(«노출이 / 적은 드레스»처럼 꺾이지 않는다)
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;

@@ -72,6 +72,7 @@ img{max-width:100%}
 .dr-cap{display:block;margin-top:10px}
 .dr-nm{display:block;font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);line-height:1.5}
 .dr-sum{display:block;font-size:12px;color:var(--light);line-height:1.6;margin-top:2px}
+.dr-fit{display:block;font-family:var(--serif-ko);font-size:12px;color:var(--gold-text);line-height:1.6;margin-top:2px}   /* ★[DRESS_ONE_GRID 2026-10-23 코워크 디자인 라운드 1 · 5] 답과 맞는 칸 = 이름 아래 작은 글 «답과 맞아요»(칠 없음) */
 
 /* 자세히 — 같은 카드 안의 한 걸음(«‹ 목록»으로 돌아간다) */
 .dv{display:block}
@@ -118,7 +119,8 @@ body.pick{background:var(--bg)}
 .wiz-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
 .wiz-save:disabled{color:var(--light);cursor:default}
 .wiz-save:disabled:hover{color:var(--light);border-color:var(--border);background:var(--card-white)}
-html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}   /* ★[DRESS_SOLO_NOSAVE 2026-10-23] 단독(?pick=1)은 저장이 없다 — 머리 «저장» · 완료 «남기기»를 숨긴다(마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴 [SNAP_PRECONSENT_EXIT]) · 저장한 척 «저장됨»이 머리 아래 «이 화면에서 고른 것은 저장되지 않아요»와 어긋났다 */
+html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}   /* ★[DRESS_SOLO_NOSAVE 2026-10-23] 단독(?pick=1)은 저장이 없다 — 머리 «저장»을 숨긴다(마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴 [SNAP_PRECONSENT_EXIT]) · 저장한 척 «저장됨»이 머리 아래 «이 화면에서 고른 것은 저장되지 않아요»와 어긋났다.
+   ★[DRESS_SEE_CLOSED 2026-10-23 코워크 디자인 라운드 1 · 1] 바꾸기 마감 뒤 카드 사진을 눌러 들어오면 보기만(pk-ro) — 고를 수 없으니 «저장»도 없다 */
 .pk-solo{margin:-4px 0 14px;font-size:12px;color:var(--light);line-height:1.7}   /* 단독(?pick=1)일 때만 — 마이페이지 겹화면에는 없다 */
 .pk-main{flex:1 0 auto;padding-bottom:24px}
 .pk-main:focus{outline:none}
@@ -158,7 +160,7 @@ html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}   /* ★[DRESS_SOLO_N
 .pk-opt[aria-pressed="true"] .pk-mk{border-color:var(--gold-deep)}
 .pk-opt[aria-pressed="true"] .pk-mk::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--gold-deep)}
 .pk-opts.multi .pk-opt[aria-pressed="true"] .pk-mk::after{border-radius:2px}
-.pk-ofig{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:40px;margin:-6px 0}   /* [DRESS_Q_WORDS] 핏 답 왼쪽 라인 그림 · «아직 몰라요»는 빈 자리(글 시작을 맞춘다) */
+.pk-ofig{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:40px;margin:-6px 0}   /* [DRESS_Q_WORDS] 핏 답 왼쪽 라인 그림(답 셋 모두 그림이 있다 · [DRESS_Q_TRIM] «아직 몰라요»를 뺐다) */
 .pk-ofig img{display:block;width:100%;height:100%}
 .pk-skipq{gap:4px;margin:10px 0 0 -12px}   /* ★[DRESS_SKIP_Q 2026-10-23 코워크 검토 4] 물음마다 «질문 없이 바로 보기» — 목록으로 바로 */
 
@@ -167,44 +169,54 @@ html.pk-alone #pkSave,html.pk-alone #pkLeave{display:none}   /* ★[DRESS_SOLO_N
 .pk-band{display:flex;align-items:center;gap:8px;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
 .pk-band-t{flex:1 1 auto;min-width:0;font-size:13px;color:var(--sub);line-height:1.6;padding:9px 0;text-wrap:pretty}
 .pk-band .pk-txt{flex:0 0 auto;gap:4px;margin-right:-12px;white-space:nowrap}
-.pk-band-dot{margin-top:12px}   /* «고르지 않으셔도 상담 날 함께 골라요.»는 띠 아래 점 한 줄 — 물음 화면에는 두지 않는다 */
-.pk-band-dot + .pk-gh{margin-top:20px}
+/* ★[DRESS_BAND_DOTS 2026-10-23 코워크 디자인 라운드 1 · 3] 띠 바로 아래 점 줄 둘 — 막대에서 뺀 한 줄의 자리(물음 화면에는 두지 않는다 · 시착비 금액은 상담 카드 · 시착 동의서가 맡는다) */
+.pk-band-dots{margin-top:12px}
+.pk-band-dots .dotln{margin-top:4px}
+.pk-band-dots .dotln:first-child{margin-top:0}
+.pk-band-dots + .pk-near{margin-top:14px}
 
-.pk-gh{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);line-height:1.6;margin:4px 0 0}
-.pk-gh + .pk-near{margin-top:4px}
+/* ★[DRESS_ONE_GRID 2026-10-23 코워크 디자인 라운드 1 · 4 · 5] 소제목 «드레스» · «답에 맞는 드레스 / 다른 드레스» 두 덩어리와 구분선을 걷었다 — 한 그리드에 답과 맞는 칸을 앞에(칸에 «답과 맞아요») */
 .pk-near{font-size:13px;color:var(--light);line-height:1.7}
-.pk-grid{margin-top:12px}
+.pk-grid{margin-top:20px}
+.pk-near + .pk-grid{margin-top:12px}
 @media(min-width:560px){.pk-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.pk-grid + .pk-gh{margin-top:32px;padding-top:20px;border-top:1px solid var(--hairline)}
 .pk-memo-l{display:block;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.6}
 .pk-memo-l span{color:var(--light);font-size:12px}
 .pk-memo{display:block;width:100%;margin-top:8px;border:1px solid var(--border);border-radius:8px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;line-height:1.6;color:var(--accent);background:#fff;resize:vertical;min-height:84px}
 .pk-memo:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
 .pk-memo::placeholder{font-size:14px;color:var(--label-soft);font-weight:300;opacity:1}   /* 마이페이지 입력칸 안내 글과 같다(14px · 옅은 라벨색) */
 .pk-memo-c{font-family:var(--sans);font-size:11px;color:var(--light);font-variant-numeric:tabular-nums lining-nums}
-/* ★[DRESS_MEMO_DONE 2026-10-23 코워크 검토 4] 남길 말은 완료 화면에 — 작은 «남기기»(같은 두 벌을 한 번 더 저장) · 모양은 위 알약(.wiz-exit)과 같다 */
+/* ★[DRESS_MEMO_DONE 2026-10-23 코워크 검토 4] 남길 말은 완료 화면에.
+   ★[DRESS_MEMO_ONEBTN 2026-10-23 코워크 디자인 라운드 1 · 7] 작은 «남기기» 알약을 걷었다 — 글을 쓰고 «마이페이지로 돌아가기»를 누르면 나가기 판이 한 번 더 떴다.
+     글을 고치면 아래 단추가 «남기고 돌아가기»로 바뀌어 저장 + 돌아가기를 한 번에(실패하면 단추 아래 한 줄 · 화면에 남는다) */
 .pk-memo-box{margin:28px auto 0;max-width:360px;text-align:left}
 .pk-memo-act{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:8px}
+.pk-done-err{margin:8px 0 0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all}
+.pk-done-err:empty{display:none}
 
 .pk-back{margin:-6px 0 6px -12px}
 .pk-ctl{margin-top:12px}   /* [DRESS_DETAIL_FIT] 이름 · 한 줄 바로 아래(분위기 · 어울리는 소품은 그 아래) */
-.pk-picked{display:flex;align-items:center;gap:8px;min-height:44px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);line-height:1.6}   /* 명세 «고른 드레스예요 · 빼기» 한 줄 */
+.pk-picked{display:flex;align-items:center;gap:8px;min-height:48px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);line-height:1.6}   /* 명세 «고른 드레스예요 · 빼기» 한 줄 · ★[DRESS_BAR_FIT] 높이 48px = 고르기 단추(.cc-btn) — 고르기 · 빼기를 눌러도 아래 라인 설명이 움직이지 않는다(첫 화면 맞춤이 그대로 맞는다) */
 .pk-picked:focus{outline:none}
 .pk-picked .dr-badge{position:static}
 .pk-picked .pk-txt{margin:0 -12px 0 auto}
 .pk-full{font-size:13px;color:var(--sub);line-height:1.7;text-wrap:balance;padding:12px 0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
 .pk-full:focus{outline:none}
 /* [DRESS_DETAIL_FIT] 짧은 화면에서는 사진 칸을 화면 높이에 맞춰 줄인다(3:4 그대로 · 가운데) — 자세히 첫 화면에서 고르기 단추가 막대 위에 서게.
-   430px = 머리 · 목록 줄 · 이름 · 한 줄 · 단추 · 막대가 쓰는 높이(390×844 에서 사진 413px · 1280×900 에서 469px · 390×740 에서 310px) */
-.pk-main .dv-view{max-width:360px;max-width:min(360px,max(150px,calc((100vh - 430px) * 0.75)));max-width:min(360px,max(150px,calc((100dvh - 430px) * 0.75)))}
+   402px = 머리 · 목록 줄 · 이름 · 한 줄 · 단추 · 막대가 쓰는 높이(390×844 에서 사진 칸 폭 316px 에 닿는다 · 1280×900 에서 360px 에 닿는다 · 390×740 에서 338px)
+   ★[DRESS_BAR_PLAIN 2026-10-23 코워크 디자인 라운드 1 · 2] 430 → 402 — 막대가 28px 낮아진 만큼 사진을 키웠다(«막대가 낮아져 사진 자리가 넓어진다»).
+     단추 ~ 막대 사이는 막대를 낮추기 전과 같은 51px 안팎 · 그 사이에 걸리는 글줄은 첫 화면 맞춤([DRESS_BAR_FIT])이 몇 px 로 비킨다 */
+.pk-main .dv-view{max-width:360px;max-width:min(360px,max(150px,calc((100vh - 402px) * 0.75)));max-width:min(360px,max(150px,calc((100dvh - 402px) * 0.75)))}
 .pk-main .dv-tx{max-width:360px;margin:0 auto}
 
-/* 아래 막대 [WZ_BAR] — 화면 아래에 붙는다 · 위 15px 는 흐려지며 끝난다 · 오류 한 줄은 막대 안
+/* 아래 막대 [WZ_BAR] — 화면 아래에 붙는다 · 오류 한 줄은 막대 안
+   ★[DRESS_BAR_PLAIN 2026-10-23 코워크 디자인 라운드 1 · 2] 바탕 = 흰 단색 + 위 1px 가는 선 — 위 15px 흐림(그라데이션)을 걷었다.
+     흐림 구간에 걸린 글(자세히 «앉고 걷는 품을…» · 목록 칸 한 줄)이 반쯤 덮여 취소선처럼 보였다. 막대 위 시착비 한 줄도 막대 밖(목록 띠 아래 점 줄 [DRESS_BAND_DOTS])으로 옮겨 막대가 낮아졌다
    ★★[DRESS_BAR_STICK 2026-10-23 코워크 검토 1] 붙는 것은 #pkBar(카드의 직계)다 — 막대(.wz-bar)에 sticky 를 걸면 부모 #pkBar 의 높이가 막대와 같아
    붙을 자리가 없었다(목록 · 자세히에서 Nº 칸 · 보내기 단추 · 차감 안내 줄이 맨 끝까지 내려야 보였다). 카드 아래 여백이 0 이라 [WZ_BAR_EDGE] 보정은 없다. */
 #pkBar{position:sticky;bottom:0;z-index:5}
 html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 초점 간 칸이 막대 뒤로 숨을 수 있다 — 스크롤이 막대 높이(390 에서 137px)만큼 비켜 세운다 */
-.wz-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white) 15px)}
+.wz-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));background:var(--card-white);border-top:1px solid var(--hairline)}
 .wz-bar .cc-btn{flex:1 1 0;min-width:0;width:auto}
 /* ★[DRESS_SKIP_SOFT 2026-10-23 코워크 검토 1] 답이 없을 때 앞 단추 «건너뛰기»는 옅은 단추(외곽 격) — 칠한 단추는 답한 뒤 «다음»에만. 자리 · 크기는 같다 */
 .wz-bar .cc-btn.pk-skip,.wz-bar .cc-btn.pk-skip:hover{background:var(--card-white);color:var(--sub);box-shadow:inset 0 0 0 1px var(--border)}
@@ -212,7 +224,6 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
 .wz-bar .cc-btn-ghost{flex:0 0 auto;width:auto;min-width:82px;background:var(--bg2);border-color:var(--bg2);color:var(--sub)}
 .wz-err{flex:1 0 100%;margin:0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all}
 .wz-err:empty{display:none}
-.pk-bar-note{flex:1 0 100%;font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.6;text-align:center;word-break:keep-all;text-wrap:balance}
 .pk-slots{display:flex;gap:8px;flex:0 0 auto}
 .pk-bar .cc-btn{padding-left:12px;padding-right:12px}   /* [DRESS_PICK_TIER] 막대 단추 글이 375 · 360 에서도 한 줄 — 첫 벌을 고르는 순간 막대 높이가 바뀌지 않게(375 에서 6px 커졌다) */
 .pk-slot{position:relative;display:inline-flex;align-items:center;justify-content:center;width:46px;height:61px;padding:0;border:1px dashed var(--border);border-radius:6px;background:var(--bg);font-family:var(--serif);font-size:11px;letter-spacing:0.04em;color:var(--light);overflow:hidden;-webkit-tap-highlight-color:transparent;font-variant-numeric:lining-nums}   /* [DRESS_NUM_LINING] Cormorant 기본 숫자는 «o1»처럼 내려앉는다 */
@@ -259,14 +270,16 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
    단독 ?pick=1 은 같은 화면을 띄우되 아무것도 저장하지 않는다(검토용). 줄 세우기는 DRESS_REFS.rank 한 곳([DRESS_RANK]).
    ★[DRESS_EXIT_ASK 2026-10-23 코워크 검토 4] 나가기 판단(저장하지 않은 변경)은 마이페이지 입력 화면과 같은 규칙 · 같은 판 — 판은 부모 창(mpConfirm)이 띄운다.
      이 쪽은 «바뀐 게 있나 · 저장 중 · 실패»만 알린다(momentedit:dressState) · 머리 «나가기»는 부모에게 묻는다(momentedit:dressExit).
-   ★★[DRESS_LIST_FIRST 2026-10-23 코워크 설계 명세 2 · 3장] 열면 드레스 목록부터 — 물음 셋은 목록 맨 위 띠의 «답하기 ›»로 들어가 끝나면 목록(답에 맞는 / 다른)으로 돌아온다.
-     진행 표시는 물음 걸음에서만(길이 · 핏 · 편한 쪽) · 목록 · 자세히 · 완료에는 없다. */
+   ★★[DRESS_LIST_FIRST 2026-10-23 코워크 설계 명세 2 · 3장] 열면 드레스 목록부터 — 물음 셋은 목록 맨 위 띠의 «답하기 ›»로 들어가 끝나면 목록(한 그리드 · 답과 맞는 칸이 앞 [DRESS_ONE_GRID])으로 돌아온다.
+     진행 표시는 물음 걸음에서만(길이 · 핏 · 노출 · 소매) · 목록 · 자세히 · 완료에는 없다.
+   ★[DRESS_SEE_TAP 2026-10-23 코워크 디자인 라운드 1 · 1] 마이페이지 카드의 드레스 칸을 누르면 &open=<id> — 그 드레스 «자세히»로 바로 연다(«‹ 목록»은 그대로) */
 (function(){
   'use strict';
   var R = window.DRESS_REFS;
   var Q = new URLSearchParams(location.search);
   var PICK = Q.get('pick') === '1';
   var EMBED = PICK && Q.get('embed') === '1' && window.parent && window.parent !== window;
+  var OPEN = String(Q.get('open') || '');   // [DRESS_SEE_TAP] 카드에서 누른 드레스(없거나 모르는 id 면 목록부터)
   var $ = function(id){ return document.getElementById(id); };
   var RM = false; try { RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
@@ -286,12 +299,14 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     if (d && pic && pic.parentNode) { var tmp = document.createElement('span'); tmp.innerHTML = lineFig(d); pic.parentNode.replaceChild(tmp.firstChild, pic); }
   }, true);
 
-  function cellHTML(d){
+  function cellHTML(d, fit){
     var k = S.picks.indexOf(d.id), on = k >= 0;
     var sum = R.sumCell(d);   // [DRESS_SUM_ONE] 칸 한 줄(라인 · 길이 · 소재)
-    return '<div class="dr-cell' + (on ? ' on' : '') + '"><button type="button" class="dr-pv" data-open="' + esc(d.id) + '" aria-label="' + esc(d.name + ' 자세히 보기' + (on ? ' · 고른 드레스 Nº 0' + (k + 1) : '')) + '">' + photo(d)
+    return '<div class="dr-cell' + (on ? ' on' : '') + '"><button type="button" class="dr-pv" data-open="' + esc(d.id) + '" aria-label="' + esc(d.name + ' 자세히 보기' + (fit ? ' · 답과 맞아요' : '') + (on ? ' · 고른 드레스 Nº 0' + (k + 1) : '')) + '">' + photo(d)
       + (on ? '<span class="dr-badge" aria-hidden="true">Nº 0' + (k + 1) + '</span>' : '') + '</button>'
-      + '<span class="dr-cap"><span class="dr-nm">' + esc(d.name) + '</span><span class="dr-sum">' + esc(sum) + '</span></span></div>';
+      + '<span class="dr-cap"><span class="dr-nm">' + esc(d.name) + '</span>'
+      + (fit ? '<span class="dr-fit" aria-hidden="true">답과 맞아요</span>' : '')   // [DRESS_ONE_GRID] 이름 아래 작은 글(칠 없음)
+      + '<span class="dr-sum">' + esc(sum) + '</span></span></div>';
   }
 
   /* 자세히 — ★[DRESS_SLIDES 2026-10-23 코워크 검토 4] 넘겨 보는 사진은 사진(img)이 있는 장만(R.slides) · 한 장이면 ‹ › 와 «n / 5»를 두지 않는다.
@@ -327,11 +342,12 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   }
 
   /* ════════════ 고르기 «드레스 미리 보기» ════════════ */
-  var STEPS = ['길이', '핏', '편한 쪽'];   // [DRESS_LIST_FIRST] 진행 표시는 물음 셋 — 목록은 걸음이 아니라 첫 화면이다
+  var STEPS = R.questions.map(function(q){ return q.step; });   // [DRESS_LIST_FIRST] 진행 표시는 물음 셋 — 목록은 걸음이 아니라 첫 화면이다 · [DRESS_Q_TRIM] 이름은 원천 한 곳(길이 · 핏 · 노출 · 소매)
   var S = { view: 'list', q: 0, ans: { len: '', fit: '', pref: [] }, seen: [false, false, false], picks: [null, null], memo: '', cur: '', busy: false, mode: '', err: '', touched: false, wait: 0, due: '',
-    base: '[[],""]', saved: false, failed: false, left: false };
+    base: '[[],""]', saved: false, failed: false, ro: false };
+  if (OPEN && R.dress(OPEN)) { S.view = 'detail'; S.cur = OPEN; }   // [DRESS_SEE_TAP] 카드에서 누른 드레스 자세히로 바로
   function count(){ return S.picks.filter(Boolean).length; }
-  /* [DRESS_EXIT_ASK] «바뀐 게 있나» = 고른 두 벌(순서 그대로) · 남길 말이 저장본과 다르다. 답(길이 · 핏 · 편한 쪽)은 줄 세우기 도움이라 세지 않는다 */
+  /* [DRESS_EXIT_ASK] «바뀐 게 있나» = 고른 두 벌(순서 그대로) · 남길 말이 저장본과 다르다. 답(길이 · 핏 · 노출 · 소매)은 줄 세우기 도움이라 세지 않는다 */
   function keyOf(ids, memo){ return JSON.stringify([ids, String(memo || '').trim()]); }
   function dirty(){ return keyOf(S.picks.filter(Boolean), S.memo) !== S.base; }
   function baseMemo(){ try { return JSON.parse(S.base)[1] || ''; } catch (e) { return ''; } }
@@ -344,14 +360,15 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       else if (dirty()) { b.textContent = '저장'; b.className = 'wiz-exit wiz-save on'; }
       else { b.textContent = S.saved ? '저장됨' : '저장'; b.className = 'wiz-exit wiz-save'; b.disabled = true; }
     }
-    var lv = $('pkLeave');   // [DRESS_MEMO_DONE] 완료 화면 «남기기» — 남길 말이 저장본과 다를 때만 누른다
-    if (lv) {
-      var md = S.memo.trim() !== baseMemo();
-      lv.removeAttribute('aria-busy'); lv.disabled = false;
-      if (S.busy && S.mode === 'leave') { lv.textContent = '남기는 중…'; lv.className = 'wiz-exit wiz-save'; lv.disabled = true; lv.setAttribute('aria-busy', 'true'); }
-      else if (md) { lv.textContent = '남기기'; lv.className = 'wiz-exit wiz-save on'; lv.disabled = !!S.busy; }
-      else { lv.textContent = S.left ? '남겼어요' : '남기기'; lv.className = 'wiz-exit wiz-save'; lv.disabled = true; }
+    /* [DRESS_MEMO_ONEBTN] 완료 화면 아래 단추 하나 — 남길 말이 저장본과 다르면 «남기고 돌아가기»(저장 + 돌아가기) · 같으면 «마이페이지로 돌아가기».
+       단독(저장 없음)은 늘 «마이페이지로 돌아가기»([DRESS_SOLO_NOSAVE] — 남기지 않는데 «남기고»라 하지 않는다) */
+    var hb = $('pkHome');
+    if (hb) {
+      var md = EMBED && S.memo.trim() !== baseMemo(), sending = S.busy && S.mode === 'home';
+      hb.textContent = sending ? '남기는 중…' : (md ? '남기고 돌아가기' : '마이페이지로 돌아가기');
+      hb.disabled = sending; if (sending) hb.setAttribute('aria-busy', 'true'); else hb.removeAttribute('aria-busy');
     }
+    var de = $('pkDoneErr'); if (de) de.textContent = S.view === 'done' ? S.err : '';   // 실패 한 줄은 단추 바로 아래(완료 화면에는 막대가 없다)
   }
   function syncState(){
     paintHead();
@@ -375,38 +392,40 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       + '<div class="pk-opts' + (multi ? ' multi' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
       + '<button type="button" class="pk-txt pk-skipq" data-act="browse">질문 없이 바로 보기 <span aria-hidden="true">&rsaquo;</span></button>';   // [DRESS_SKIP_Q] · [DRESS_LIST_FIRST] 안 고르면 한 줄은 목록 띠 아래에만(물음 화면에는 두지 않는다)
   }
-  /* [DRESS_LIST_FIRST] 고른 답의 글을 잇는다 — «발목까지 · 몸 선을 따라 · 노출이 적은 드레스»(물음 순서 · 답 순서 · «아직 몰라요» · 건너뛰기는 빼고) */
+  /* [DRESS_LIST_FIRST] 고른 답의 글을 잇는다 — «발목까지 · 몸 선을 따라 · 노출이 적은 드레스»(물음 순서 · 답 순서 · 건너뛰기는 빼고) */
   function ansWords(){
     var out = [];
     R.questions.forEach(function(q){
       var v = S.ans[q.key];
-      q.opts.forEach(function(o){ if (o[0] !== 'unsure' && (Array.isArray(v) ? v.indexOf(o[0]) >= 0 : v === o[0])) out.push(o[1]); });
+      q.opts.forEach(function(o){ if (Array.isArray(v) ? v.indexOf(o[0]) >= 0 : v === o[0]) out.push(o[1]); });   // 옛 저장본의 'unsure'는 답 글에 없어 저절로 빠진다
     });
     return out.join(' · ');
   }
+  /* ★[DRESS_BAND_WORDS 2026-10-23 코워크 디자인 라운드 1 · 4] 띠 글 «원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요» — 종전 «어울리는»은 몸을 평가하는 말로 읽혔다 */
   function bandHTML(){
-    var said = ansWords();
-    return '<div class="pk-band"><p class="pk-band-t">' + esc(said || '몇 가지만 답하시면 어울리는 드레스를 앞에 놓아 드려요') + '</p>'
+    var said = ansWords().split(' · ').map(function(p){ return p.replace(/ /g, '\u00a0'); }).join(' · ');   // ★[DRESS_BAND_KEEP 2026-10-23 라운드 1] 답 하나는 한 덩어리 — 390 에서 «노출이 / 적은 드레스»처럼 답 중간에서 꺾이지 않고 « · » 자리에서만 줄이 바뀐다
+    return '<div class="pk-band"><p class="pk-band-t">' + esc(said || '원하시는 길이와 핏을 고르시면 그\u00a0드레스부터 보여 드려요') + '</p>'   // «그 드레스부터»는 붙여 둔다 — 390 에서 «…고르시면 그 / 드레스부터»로 끊겼다
       + '<button type="button" class="pk-txt" data-act="ask">' + (said ? '답 바꾸기' : '답하기') + ' <span aria-hidden="true">&rsaquo;</span></button></div>'
-      + '<p class="dotln pk-band-dot">고르지 않으셔도 상담 날 함께 골라요.</p>';   // ★[DRESS_NO_PICK_OK 2026-10-23 코워크 검토 4] 안 고르면 어떻게 되는지 한 줄([BOSS_WAY_1006] 1) — 명세 2: 목록 띠 아래 한 번
+      /* ★[DRESS_NO_PICK_OK 2026-10-23 코워크 검토 4] 안 고르면 어떻게 되는지 한 줄([BOSS_WAY_1006] 1) — 고르기 화면 띠 아래에만(라운드 1: 카드에서는 뺐다 · 같은 말 한 번).
+         ★[DRESS_BAND_DOTS 라운드 1 · 3] 막대에서 뺀 한 줄의 새 자리 — 입어 볼지는 상담 날 · 안 고르셔도 된다 · 마감 뒤 보기만이면 둘 다 두지 않는다([DRESS_SEE_CLOSED]) */
+      + (S.ro ? '' : '<div class="pk-band-dots"><p class="dotln">골라 두셔도 입어 볼지는 상담 날 정하시면 돼요.</p><p class="dotln">안 고르셔도 상담 날 함께 골라요.</p></div>');
   }
-  function gridHTML(list){ return '<div class="dr-grid pk-grid">' + list.map(function(d){ return cellHTML(d); }).join('') + '</div>'; }
+  function gridHTML(list, fits){ return '<div class="dr-grid pk-grid">' + list.map(function(d){ return cellHTML(d, !!(fits && fits.indexOf(d) >= 0)); }).join('') + '</div>'; }
+  /* ★[DRESS_ONE_GRID 2026-10-23 코워크 디자인 라운드 1 · 4 · 5] 소제목 «드레스»를 걷어 첫 사진을 한 줄 위로 · 답한 뒤에도 한 그리드(맞는 칸 앞 · «답과 맞아요») —
+     종전 «답에 맞는 드레스 / 다른 드레스» 두 덩어리는 맞는 것이 1벌이면 오른쪽 반이 비고 구분선 아래 다섯 벌이 떨어진 후보처럼 보였다.
+     목록의 제목은 화면에 안 보이게 남긴다(읽어 주는 프로그램 · 화면을 바꿀 때 초점이 갈 자리) */
   function listHTML(){
     var all = R.list();
     if (!all.length) return '<p class="pk-near" data-head tabindex="-1">드레스 사진을 준비하고 있어요.</p>';
-    var rk = R.rank(S.ans, all), h = bandHTML();
-    if (!rk.asked) h += '<h2 class="pk-gh" data-head tabindex="-1">드레스</h2>' + gridHTML(rk.rest);
-    else if (rk.near) h += '<h2 class="pk-gh" data-head tabindex="-1">드레스</h2><p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 순서로 놓았어요.</p>' + gridHTML(rk.rest);
-    else {
-      h += '<h2 class="pk-gh" data-head tabindex="-1">답에 맞는 드레스</h2>' + gridHTML(rk.match);
-      if (rk.rest.length) h += '<h2 class="pk-gh">다른 드레스</h2>' + gridHTML(rk.rest);
-    }
-    return h;   // [DRESS_MEMO_DONE] 남길 말은 완료 화면 · [DRESS_LIST_FIRST] «답 바꾸기»는 맨 위 띠로 옮겼다
+    var rk = R.rank(S.ans, all), h = '<h2 class="sr" data-head tabindex="-1">드레스 목록</h2>' + bandHTML();
+    if (rk.asked && rk.near) h += '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 순서로 놓았어요.</p>';
+    return h + gridHTML(rk.match.concat(rk.rest), rk.asked ? rk.match : null);   // [DRESS_MEMO_DONE] 남길 말은 완료 화면 · [DRESS_LIST_FIRST] «답 바꾸기»는 맨 위 띠
   }
   function detailPickHTML(){
     var d = R.dress(S.cur); if (!d) return listHTML();
     var k = S.picks.indexOf(d.id), ctl;
-    if (k >= 0) ctl = '<div class="pk-picked"><span class="dr-badge">Nº 0' + (k + 1) + '</span><span>고른 드레스예요</span><button type="button" class="pk-txt" data-act="unpick">빼기</button></div>';   // 명세 «고른 드레스예요 · 빼기» 한 줄
+    if (S.ro) ctl = k >= 0 ? '<div class="pk-picked"><span class="dr-badge">Nº 0' + (k + 1) + '</span><span>고른 드레스예요</span></div>' : '';   // [DRESS_SEE_CLOSED] 마감 뒤 보기만 — 고르기 · 빼기 단추 없음
+    else if (k >= 0) ctl = '<div class="pk-picked"><span class="dr-badge">Nº 0' + (k + 1) + '</span><span>고른 드레스예요</span><button type="button" class="pk-txt" data-act="unpick">빼기</button></div>';   // 명세 «고른 드레스예요 · 빼기» 한 줄
     else if (count() >= R.pick) ctl = '<p class="pk-full">Nº 01 · Nº 02 가 다 찼어요. 하나를 빼고 골라 주세요.</p>';
     /* ★[DRESS_PICK_TIER 2026-10-23 코워크 검토 4] 진한 단추가 한 화면에 둘 서지 않게 — 한 벌도 안 골랐을 때만 칠한 단추(막대 단추는 아직 옅다) ·
        한 벌 고른 뒤에는 막대의 «이 한 벌로 준비해 주세요»가 칠한 단추라 여기는 외곽 «Nº 02로 고르기» */
@@ -428,8 +447,8 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       + '<div class="pk-bring"><p class="pk-bring-h">준비해 오시면 좋아요</p><ul><li>누드톤 심리스 속옷과 실리콘 브라</li><li>예식 날 신을 굽 높이의 신발</li></ul></div>'
       + '<div class="pk-memo-box"><label class="pk-memo-l" for="pkMemo">디렉터에게 남길 말 <span>(선택)</span></label>'
       + '<textarea class="pk-memo" id="pkMemo" maxlength="200" rows="3" placeholder="신경 쓰이는 점이나 궁금한 점을 적어 주세요">' + esc(S.memo) + '</textarea>'
-      + '<div class="pk-memo-act"><span class="pk-memo-c" id="pkMemoC" aria-hidden="true">' + S.memo.length + ' / 200</span><button type="button" class="wiz-exit wiz-save" id="pkLeave" data-act="leave" disabled>남기기</button></div></div>'
-      + '<div class="pk-acts"><button type="button" class="cc-btn" data-act="home">마이페이지로 돌아가기</button></div></div>';
+      + '<div class="pk-memo-act"><span class="pk-memo-c" id="pkMemoC" aria-hidden="true">' + S.memo.length + ' / 200</span></div></div>'   // [DRESS_MEMO_ONEBTN] 작은 «남기기» 알약은 걷었다
+      + '<div class="pk-acts"><button type="button" class="cc-btn" id="pkHome" data-act="home">마이페이지로 돌아가기</button><p class="pk-done-err" id="pkDoneErr" role="alert"></p></div></div>';   // 글을 고치면 «남기고 돌아가기»(paintHead)
   }
   function slotHTML(i){
     var id = S.picks[i], d = id ? R.dress(id) : null, n = 'Nº 0' + (i + 1);
@@ -443,12 +462,13 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       return '<div class="wz-bar">' + (S.q > 0 ? '<button type="button" class="cc-btn-ghost" data-go="-1">이전</button>' : '')   // [DRESS_NO_INTRO] 첫 물음 앞에는 갈 곳이 없다(스냅 기획 첫 걸음과 같다)
         + '<button type="button" class="cc-btn' + (has ? '' : ' pk-skip') + '" data-go="1">' + fw + '</button></div>';   // [DRESS_SKIP_SOFT] 답이 없으면 옅은 단추
     }
-    if (S.view === 'list' || S.view === 'detail') {
+    if ((S.view === 'list' || S.view === 'detail') && !S.ro) {   // [DRESS_SEE_CLOSED] 마감 뒤 보기만이면 막대가 없다(고를 수 없다)
       /* [DRESS_PICK_TIER] 0벌 = «두 벌»이라 하지 않는다(한 벌도 된다). 명세 글 «입어 볼 드레스를 골라 주세요»는 390 에서 두 줄이 됐다(단추 208px · 글 185px + 안쪽 여백 36) —
          첫 벌을 고르는 순간 막대 높이가 바뀌어서([BOSS_WAY_1006] 4 «누를 때 화면이 흔들리지 않게») 한 줄에 드는 «드레스를 골라 주세요»로 줄였다(360 에서도 한 줄) */
       var c = count(), lab = S.busy ? '보내고 있어요' : (c === 0 ? '드레스를 골라 주세요' : (c === 1 ? '이 한 벌로 준비해 주세요' : '이 두 벌로 준비해 주세요'));
       var dis = c === 0 || S.busy;
-      return '<div class="wz-bar pk-bar"><p class="pk-bar-note">안 입은 드레스는 시착비가 들지 않아요.</p>'   // [DRESS_FIT_FEE] 무엇이 차감되는지 한 줄
+      /* ★[DRESS_BAR_PLAIN 라운드 1 · 2 · 3] 막대 위 «안 입은 드레스는 시착비가 들지 않아요.» 줄을 막대 밖으로 — 띠 아래 점 줄 둘([DRESS_BAND_DOTS]) · 금액 안내는 상담 카드 · 시착 동의서 몫 */
+      return '<div class="wz-bar pk-bar">'
         + '<div class="pk-slots">' + slotHTML(0) + slotHTML(1) + '</div>'
         + '<button type="button" class="cc-btn' + (dis ? ' cc-btn-wait' : '') + '" data-act="save"' + (dis ? ' aria-disabled="true"' : '') + (S.busy ? ' aria-busy="true"' : '') + '>' + lab + '</button>'
         + '<p class="wz-err" role="alert">' + esc(S.err) + '</p></div>';
@@ -456,6 +476,49 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     return '';
   }
   function renderBar(){ $('pkBar').innerHTML = barHTML(); }
+  /* ★[DRESS_BAR_FIT 2026-10-23 코워크 디자인 라운드 1 · 2 «390 · 1280 목록 · 자세히에서 막대에 반쯤 걸린 글 0»] 첫 화면(스크롤 0)에서 아래 막대 선이 글줄을 가르지 않게 —
+     자세히는 사진 폭을, 목록은 그리드 위 여백을 몇 px 만 줄이거나 늘린다(가장 적게 움직이는 쪽 · 고르기 단추는 막대 위 8px 이상 · 사진 150 ~ 360px · 여백 8px 이상).
+     화면 높이 · 폭마다 줄 자리가 달라 CSS 한 값으로는 못 맞춘다(실측: 390×844 · 393×852 · 375×812 · 360×780 목록, 375 · 360 · 384 · 414 폭 자세히에서 걸렸다).
+     같은 화면(같은 드레스 · 같은 답 · 같은 크기)은 한 번 정한 값을 그대로 쓴다 — 고르기 · 빼기를 눌러도 사진이 움직이지 않게. 글꼴이 늦게 뜨거나 부모가 저장본을 보내면 다시 잰다. */
+  var FIT = {};
+  function fitKey(){
+    var t = S.view === 'list' ? ansWords() + '|' + (S.ro ? 1 : 0) : S.cur + '|' + (S.ro ? 1 : 0);   // 고른 수는 넣지 않는다 — 고르기 · 빼기로 사진이 움직이지 않게(고른 줄 높이 = 단추 높이)
+    return S.view + '|' + t + '|' + window.innerWidth + 'x' + window.innerHeight;
+  }
+  function fitBar(){
+    var v = S.view, m = $('pkMain'), bar = document.querySelector('#pkBar .wz-bar'), dt = v === 'detail';
+    var box = dt ? m.querySelector('.dv-view') : v === 'list' ? m.querySelector('.pk-grid') : null;
+    if (!box || !bar) return;
+    var key = fitKey(), had = Object.prototype.hasOwnProperty.call(FIT, key);
+    if (!had && (window.pageYOffset || 0) > 1) return;   // 첫 화면에서만 잰다(읽던 자리를 흔들지 않는다)
+    if (dt) box.style.maxWidth = ''; else box.style.marginTop = '';
+    var base = dt ? box.getBoundingClientRect().width : (parseFloat(getComputedStyle(box).marginTop) || 0);
+    var put = function(x){ if (!x) return; if (dt) box.style.maxWidth = (base - x * 0.75) + 'px'; else box.style.marginTop = (base - x) + 'px'; };
+    if (had) { put(FIT[key]); return; }
+    var T = bar.getBoundingClientRect().top, iv = [], lo, hi;
+    var w = document.createTreeWalker(dt ? (m.querySelector('.dv-tx') || m) : box, NodeFilter.SHOW_TEXT), tn;
+    while ((tn = w.nextNode())) {
+      if (!/\S/.test(tn.nodeValue)) continue;
+      var rg = document.createRange(); rg.selectNodeContents(tn);
+      var rs = rg.getClientRects();
+      for (var i = 0; i < rs.length; i++) { var r = rs[i]; if (r.height > 4 && r.top < T + 80 && r.bottom > T - 80) iv.push([r.top - T + 0.5, r.bottom - T + 6]); }   // 이 사이로 s 만큼 옮기면 글줄이 막대 선에 걸린다(보이는 줄은 선 위 6px 여유 · 숨는 줄은 선 아래로 다)
+    }
+    if (dt) {
+      var cw = box.parentElement ? box.parentElement.clientWidth : base, c = m.querySelector('.pk-ctl');
+      hi = Math.min(40, (base - 150) * 4 / 3); lo = Math.max(-40, -(Math.min(360, cw) - base) * 4 / 3);
+      if (c) lo = Math.max(lo, c.getBoundingClientRect().bottom - T + 8);
+    } else { hi = Math.min(12, base - 8); lo = -12; }
+    var cand = [0], best = null;
+    for (var j = 0; j < iv.length; j++) cand.push(iv[j][0] - 1, iv[j][1] + 1);
+    for (var k = 0; k < cand.length; k++) {
+      var x = cand[k], ok = x >= lo && x <= hi;
+      for (var n = 0; ok && n < iv.length; n++) if (x > iv[n][0] && x < iv[n][1]) ok = false;
+      if (ok && (best === null || Math.abs(x) < Math.abs(best) - 0.01 || (Math.abs(Math.abs(x) - Math.abs(best)) <= 0.01 && x < best))) best = x;
+    }
+    FIT[key] = best = best || 0;   // 맞출 수 없으면 그대로
+    put(best);
+  }
+  function refit(){ FIT = {}; if (S.view === 'list' || S.view === 'detail') fitBar(); }
   var lastKey = '';
   function render(focusHead){
     var m = $('pkMain'), v = S.view, key = v + ':' + S.q + ':' + S.cur, moved = key !== lastKey;
@@ -465,6 +528,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     if (v === 'detail') wireStrip(m);
     if (focusHead !== false) { var h = m.querySelector('[data-head],.dv-nm'); try { (h || m).focus({ preventScroll: true }); } catch (e) {} }
     if (moved) { try { window.scrollTo(0, 0); } catch (e) {} }
+    try { fitBar(); } catch (e) {}   // [DRESS_BAR_FIT] 첫 화면 막대 선에 글줄이 걸리지 않게(못 재면 CSS 기본값 그대로)
     syncState();
   }
   function go(view, extra){ S.view = view; if (extra) for (var k in extra) S[k] = extra[k]; S.err = ''; render(); }
@@ -492,23 +556,23 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     var c = $('pkMain').querySelector('.pk-ctl .pk-picked,.pk-ctl .pk-full,.pk-ctl button');
     if (c) { try { if (c.tagName !== 'BUTTON') c.setAttribute('tabindex', '-1'); c.focus({ preventScroll: true }); } catch (e) {} }
   }
-  /* 저장 — mode: 'done' 막대 단추(완료 화면으로) · 'stay' 머리 «저장»(그 자리) · 'leave' 완료 화면 «남기기» · 'exit' 나가기 판의 «저장하고 나가기»(부모가 닫는다)
+  /* 저장 — mode: 'done' 막대 단추(완료 화면으로) · 'stay' 머리 «저장»(그 자리) · 'home' 완료 화면 «남기고 돌아가기»([DRESS_MEMO_ONEBTN] 저장이 닿으면 부모가 닫는다) · 'exit' 나가기 판의 «저장하고 나가기»(부모가 닫는다)
      ★[DRESS_CLEAR 2026-10-23] 저장해 둔 두 벌을 다 뺐으면 빈 채로 저장한다(= 비우기 · 서버가 받는다) — 그래야 «나가기» 판의 «저장하고 나가기»가 거짓말을 안 한다 */
   function save(mode){
     if (S.busy) return;
     var ids = S.picks.filter(Boolean);
     if (mode === 'done' && !ids.length) return;
     if (!EMBED) {   // [DRESS_SOLO_NOSAVE] 단독 = 검토용 · 저장하지 않는다 — 막대 단추는 완료 화면으로 넘기기만 한다(저장한 척 «저장됨 · 남겼어요»를 띄우지 않는다)
-      if (mode === 'done') go('done'); else if (mode === 'exit') exitNow();
+      if (mode === 'done') go('done'); else if (mode === 'exit' || mode === 'home') exitNow();
       return;
     }
-    if (!ids.length && !dirty()) { if (mode === 'exit') exitNow(); return; }   // 보낼 것도 비울 것도 없다
+    if (!ids.length && !dirty()) { if (mode === 'exit' || mode === 'home') exitNow(); return; }   // 보낼 것도 비울 것도 없다
     var names = ids.map(function(id){ var d = R.dress(id); return d ? d.name : ''; });
     var data = { picks: ids, names: names, ans: R.cleanAns(S.ans), memo: S.memo.trim().slice(0, 200) };
     var k = keyOf(ids, data.memo);
     S.err = ''; S.mode = mode;
     S.busy = true; S.sentKey = k; renderBar(); syncState();
-    try { window.parent.postMessage({ type: 'momentedit:dressSave', data: data, exit: mode === 'exit' }, location.origin); }
+    try { window.parent.postMessage({ type: 'momentedit:dressSave', data: data, exit: mode === 'exit' || mode === 'home' }, location.origin); }   // [DRESS_MEMO_ONEBTN] «남기고 돌아가기»도 닿으면 닫는다
     catch (e) { S.busy = false; S.failed = true; S.err = '저장하지 못했어요 · 다시 눌러 주세요 (코드 S0)'; renderBar(); syncState(); return; }
     clearTimeout(S.wait);
     S.wait = setTimeout(function(){ if (S.busy) { S.busy = false; S.failed = true; S.err = '응답이 늦어요 · 잠시 뒤 다시 눌러 주세요 (코드 S5)'; renderBar(); syncState(); } }, 45000);   // 부모가 끝내 답이 없을 때만(부모는 12초 안팎에 성공 · 실패를 돌려준다)
@@ -516,7 +580,6 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   function saved(){
     clearTimeout(S.wait);
     var mode = S.mode; S.busy = false; S.failed = false; S.mode = ''; S.saved = true; S.base = S.sentKey || S.base;
-    if (mode === 'leave') S.left = true;
     if (mode === 'done') { go('done'); return; }
     renderBar(); syncState();
   }
@@ -532,6 +595,11 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   function applyFill(m){
     var sv = m && m.saved;
     if (m && m.ymd) S.due = R.untilText(m.ymd);   // [DRESS_DUE_DATE] 완료 화면 «바꾸기는 10월 23일(금)까지»
+    /* ★[DRESS_SEE_CLOSED 2026-10-23 코워크 디자인 라운드 1 · 1] 바꾸기 마감 뒤(부모가 open:false)에 카드 사진을 눌러 들어오면 보기만 —
+       막대 · 고르기 · 빼기 · 머리 «저장» · 띠 아래 점 줄이 없다(서버도 마감 뒤 저장을 거절한다 · 고를 수 있는 척하지 않는다) */
+    FIT = {};   // [DRESS_BAR_FIT] 저장본이 오면 첫 화면을 다시 잰다(고른 줄 · 답 · 보기만이 바뀐다)
+    var ro = !!(m && m.open === false), roNew = ro !== S.ro;
+    if (roNew) { S.ro = ro; document.documentElement.classList.toggle('pk-ro', ro); }
     var ok = (sv && Array.isArray(sv.picks)) ? sv.picks.filter(function(id){ return !!R.dress(id); }).slice(0, R.pick) : [];
     S.base = keyOf(ok, sv ? String(sv.memo || '').slice(0, 200) : '');   // [DRESS_EXIT_ASK] 기준선 = 서버에 있는 것(이 화면에 보이는 것만)
     if (!S.touched) {
@@ -539,15 +607,17 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       S.ans = R.cleanAns(sv && sv.ans);
       S.seen = [!!S.ans.len, !!S.ans.fit, S.ans.pref.length > 0];
       S.memo = sv ? String(sv.memo || '').slice(0, 200) : '';
-      if (ok.length || ansWords()) { S.view = 'list'; render(); return; }   // [DRESS_LIST_FIRST] 저장해 둔 두 벌 · 답이 있으면 목록에 바로 비춘다(띠 · Nº)
+      /* [DRESS_LIST_FIRST] 저장해 둔 두 벌 · 답이 있으면 목록에 바로 비춘다(띠 · Nº) · [DRESS_SEE_TAP] 카드에서 누른 드레스 자세히면 그 자리에서 다시 그린다(고른 줄 · Nº) */
+      if (ok.length || ansWords() || roNew) { if (S.view !== 'detail') S.view = 'list'; render(); return; }
     }
+    if (roNew) { render(false); return; }
     syncState();
   }
 
   function bindPick(){
     document.body.classList.add('pick'); document.documentElement.classList.add('pk-on');
     if (!EMBED) $('pkSolo').hidden = false;   // [DRESS_NO_INTRO] 단독일 때만 머리 아래 한 줄
-    if (!EMBED) document.documentElement.classList.add('pk-alone');   // [DRESS_SOLO_NOSAVE] 저장할 수 없으면 «저장» · «남기기»를 두지 않는다
+    if (!EMBED) document.documentElement.classList.add('pk-alone');   // [DRESS_SOLO_NOSAVE] 저장할 수 없으면 «저장»을 두지 않는다(완료 화면 단추도 «남기고»라 하지 않는다 [DRESS_MEMO_ONEBTN])
     $('pkExit').addEventListener('click', exit);
     $('pkSave').addEventListener('click', function(){ save('stay'); });
     $('pickView').addEventListener('click', function(e){
@@ -564,13 +634,16 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       if (act === 'unpick') { unpick(S.cur); render(false); focusCtl(); return; }
       if (act === 'unslot') { unpick(S.picks[+t.getAttribute('data-i')]); render(false); return; }
       if (act === 'save') { save('done'); return; }
-      if (act === 'leave') { save('leave'); return; }
-      if (act === 'home') { if (EMBED) exit(); else location.href = '/mypage.html'; return; }
+      /* [DRESS_MEMO_ONEBTN] 완료 화면 단추 하나 — 남길 말을 고쳤으면 저장하고 돌아가기(닿으면 부모가 닫는다 · 실패면 단추 아래 한 줄) · 아니면 그냥 돌아가기 */
+      if (act === 'home') { if (EMBED && S.memo.trim() !== baseMemo()) save('home'); else if (EMBED) exit(); else location.href = '/mypage.html'; return; }
     });
     $('pickView').addEventListener('input', function(e){
-      if (e.target && e.target.id === 'pkMemo') { S.memo = String(e.target.value || '').slice(0, 200); var c = $('pkMemoC'); if (c) c.textContent = S.memo.length + ' / 200'; syncState(); }
+      if (e.target && e.target.id === 'pkMemo') { S.memo = String(e.target.value || '').slice(0, 200); var c = $('pkMemoC'); if (c) c.textContent = S.memo.length + ' / 200'; syncState(); }   // syncState → paintHead 가 아래 단추 글을 바꾼다(다시 그리지 않아 쓰던 칸의 초점이 그대로)
     });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && S.view === 'detail') { e.preventDefault(); go('list'); } });
+    /* [DRESS_BAR_FIT] 화면 크기 · 글꼴이 바뀌면 첫 화면을 다시 잰다(스크롤 0 일 때만 옮긴다) */
+    var fitT = 0; window.addEventListener('resize', function(){ clearTimeout(fitT); fitT = setTimeout(function(){ try { if (S.view === 'list' || S.view === 'detail') fitBar(); } catch (e) {} }, 150); });
+    try { if (document.fonts) { document.fonts.addEventListener('loadingdone', function(){ try { refit(); } catch (e) {} }); if (document.fonts.ready) document.fonts.ready.then(function(){ try { refit(); } catch (e) {} }); } } catch (e) {}
     if (EMBED) {
       window.addEventListener('message', function(ev){
         if (ev.origin !== location.origin || ev.source !== window.parent || !ev.data) return;
