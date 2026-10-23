@@ -20007,7 +20007,7 @@ chk 'var TUNE_MAX=160;' order-preview.html 1
 #   깨 보고 믿음: bgm-slots.js 를 옛 판으로 되돌리면 bgm-form 0번이 빨강
 chk 'BGM_CONSOLE1_1023' assets/bgm-slots.js 2
 chk 'BGM_CONSOLE1_1023' assets/ritual-cue.js 3
-chk "var DUCK_ENV = { downMs: 400, holdMs: 0, upMs: 1200 };" assets/ritual-cue.js 1
+chk "var DUCK_ENV = { downMs: 400, holdMs: " assets/ritual-cue.js 1   # [BGM_CONSOLE1_1023] 낮춤 모양 한 원천 · 값은 라운드 2 에서 holdMs 3500 · leadMs 400(아래 BGM_CONSOLE2_1023 줄이 값을 잰다)
 chk '    duck: DUCK_ENV,' assets/ritual-cue.js 1
 chk "up: '목례 · 박수 뒤 힘 있게 시작'" assets/bgm-slots.js 1
 nochk "up: 'S8 이 힘 있게 시작한다'" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] «인사!» 순간처럼 읽혔다
