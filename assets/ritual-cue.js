@@ -494,6 +494,7 @@
        글에 자료 대응이 없어 쉰다(파일 · 문안 · 번호 그대로 · 녹음 목록 · 들어 보기에서 빠진다) · 되살리지 말 것 */
     /* ★[REVIEW26_1023 검토 150-1 3) · 150-2 1)] 단체 사진 안내 예시 3(220 · 닫는 멘트 «잔잔하게»의 짝) · B9 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»(245 · 화촉 구호와 같은 말) — 쉰다(번호 · 파일 그대로) · B9 자리는 늘 255 · 되살리지 말 것 */
     'narr-close-ex3': 1, 'bridge-b9-declare-seat': 1,
+    'narr-candle-out-formal': 1,   /* [CANDLE_OUT_ONE_1023 검토 152] 140 — 95 와 같은 글 · 입장 C 갈래 걷음 · 번호 보존 */
     /* ★★[REVIEW27_1023 검토 151-1 2) ~ 4)] 원문이 아닌 글 다섯을 쉰다(파일 · 문안 · 번호 그대로 · 되살리지 말 것) — 축가 예시 3(204 · 예시 1 = D.NARR.song 이 같은 글이 됐다 · SONG_DEF_NN_1023) ·
        준비한 순서 영상 · 선물 여는 말(100 · 102 · 여는 말은 58 하나 · FREE_IN_RR_1023) · B5 «영상은 여기까지입니다»(113 · B5_OFF_1023) · 재생 안 됨 한 줄(105 · FREE_FAIL_VOICE_OFF_1023) */
     'narr-song-ex3': 1, 'narr-free-in-video': 1, 'narr-free-in-gift': 1, 'bridge-b5-video-out': 1, 'narr-free-fail': 1,
@@ -776,8 +777,8 @@
           ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move' }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나온다(따로 걸어 들어오는 입장 없음)
           : { t: '서는 두 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move' })
       }), cue({
-        k: 'candle', blockN: '화촉', slug: (S.entry === 'C' ? 'narr-candle-out-formal' : 'narr-candle-out'), name: '화촉 마무리',   // ★[CANDLE_TONE_1014] 입장 «격식 있게»면 맺는 말 대안(140)
-        text: EXTRA[S.entry === 'C' ? 'narr-candle-out-formal' : 'narr-candle-out'], duck: PARAM.duckMusic,
+        k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',   /* ★[CANDLE_OUT_ONE_1023 검토 152 엔진 1)] 입장 C 갈래(140 · 95 와 같은 글)를 걷었다 — 늘 95 · 고른 화촉 맺는 말 칩이 그대로 나간다 · 140 은 RETIRED */   // ★[CANDLE_TONE_1014] 입장 «격식 있게»면 맺는 말 대안(140)
+        text: EXTRA['narr-candle-out'], duck: PARAM.duckMusic,
         hint: '불을 다 밝히면'   // ★[CANDLE_CALL_1014] 10/10 지적 7 «때를 불을 다 밝히면으로 당김» — 옛 «두 분이 자리에 앉으시면»
       }), cue({
         k: 'candle', blockN: '화촉', slug: BOWSL[who] || 'narr-candle-bow', name: '인사 안내',   /* ★[CANDLE_CALL_SRC_1016] 서는 분마다 구호가 달라 판마다 한 줄(어머님 138 · 네 분 139 · 아버님 146 · 다른 두 분 147) */
@@ -789,7 +790,7 @@
     },
 
     entry: function (S) {
-      var e = D.ENTRY[S.entry], own = S.entryVoice === 'couple';
+      var e = D.ENTRY[(S.course === 'record' && S.entry === 'E') ? 'F' : S.entry], own = S.entryVoice === 'couple';   /* ★[ENTRY_E_NODOOR_1023 검토 152 엔진 4)] 기록형 코스(문 열림 없음)엔 «문 뒤에서 함께 입장»(E)이 틀린 말 — F 로 · 칩도 숨긴다 */
       /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시] 새 코스 입장은 도착 큐(«두 사람이 나란히 있습니다 · 잠시, 서로를 바라봐 주세요» ·
          바라보기 / 맞절 사람 순간)를 싣지 않는다 — 문 앞 멘트 한 줄로 걸어 들어오고, 다음 순간(첫인사)이 디렉터 GO 로 연다.
          옛 코스는 저장해 둔 소리가 그대로여야 해서 종전대로 둘(도착 큐 포함)이다. 되살리지 말 것.
@@ -797,7 +798,7 @@
          ★[MATJEOL_SPLIT_1013 2026-10-13] 그 132 는 이제 입장 끝이 아니라 바로 다음 순간(matjeol)이 싣는다. */
       var openC = !!(D.COURSES[S.course] && D.COURSES[S.course].open);
       var entryCues = [cue({
-        k: 'entry', blockN: '신랑·신부 입장', slug: 'entry-' + S.entry, name: '신랑·신부 입장',
+        k: 'entry', blockN: '신랑·신부 입장', slug: 'entry-' + ((S.course === 'record' && S.entry === 'E') ? 'F' : S.entry), name: '신랑·신부 입장',
         text: own ? e.self : e.nar, own: own, duck: -12,
         fire: 'manual', hint: '신부 준비 완료 · 문 앞 대기 확인 후',
         pick: '입장 멘트 ' + e.d + (own ? ' · 두 분 목소리' : ''),
@@ -1399,7 +1400,7 @@
              하객은 무슨 순서가 시작되는지 모른 채 긴 헌사를 들었다 · 순서 이름을 한 번(자료 G1 52 · G3 43 «명시적 식순명을 고지» · T2 40~56 · NN 54~70 · WW6 · WW11) ·
              서는 분과 상관없이 한 소리(누가 서는지는 바로 뒤 여는 말이 말한다) · 영상이 없는 날(개식 → 화촉)도 같은 자리 ·
              고른 화촉 멘트가 순서를 알리며 열면(«이제 …» · «먼저 …» · «그럼 먼저, …») BRIDGE_SKIP_1018 대로 안 끼운다 */
-        if (bn.k === 'candle' && bc.k !== 'candle' && !BRIDGE_OPEN.test(_nxT)) _more.push('bridge-b14-candle-name');
+        if (bn.k === 'candle' && bc.k !== 'candle' && !BRIDGE_OPEN.test(_nxT) && !/촛불|화촉/.test(String(_nxT).split(/[.!?]/)[0])) _more.push('bridge-b14-candle-name');   /* ★[B14_SKIP_CANDLE_1023 검토 152 엔진 2)] 고른 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 이미 말하면 B14 를 끼우지 않는다(5초 안 «촛불» 두 번 · «밝히» 세 번) */
         _bl.push(bc);
         if (slugB) _bl.push(cue({ k: bc.k, blockN: bc.blockN, slug: slugB, name: '이음말 · ' + ({ 'bridge-b3-clap-thanks': '박수 뒤', 'bridge-b4-breath': '숨 고르기', 'bridge-b5-video-out': '영상 끝', 'bridge-b6-lighter': '가벼운 순서로' })[slugB],
           text: EXTRA[slugB], duck: PARAM.duckMusic, note: '이음말 · 다음 순간이 무엇이든 맞는 한 줄(BRIDGE_LINK)' }));
