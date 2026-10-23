@@ -19327,6 +19327,12 @@ nochk "srcChip('추천 곡'" assets/entry-music.js
 nochk "lab: '개식 멘트'" assets/ritual-open.js
 nochk '두 분은 편하게 환복해요' assets/ritual-story.js
 nochk '남은 사진을 마치고 환복' order-preview.html
+# ── 2026-10-23 [EASY_CHANGE_1023] 코워크 · 사장님 «바꾸기» — 홈(FAQ · 진행 설명 · 140분 안내 창) · 문의 화면의 «환복» → «옷 갈아입기» 결 · AI 상담 글 · 계약서 · 콘솔 · 관리 화면은 그대로
+chk 'EASY_CHANGE_1023' assets/sequence-modal.js 1
+nochk '편하게 환복' index.html
+nochk '편하게 환복' assets/sequence-modal.js
+nochk '마무리·환복' assets/sequence-modal.js
+nochk '마무리·환복' inquiry.html
 # ── 2026-10-23 [BGM_AUDIT_CANDLE_1023] bgm-form 검사 — 화촉 · 감사 인사 음악 줄 자리 기대는 고정값이 아니라 그 쪽 첫 줄(이음말이면 fi 1 · 아니면 fi 0) · 화촉 B14 가 서는 판 · 안 서는 판 둘 다 잰다
 chk 'BGM_AUDIT_CANDLE_1023' scripts/audit/bgm-form.mjs 4
 chk '/넘어가며/.test(L.first)' scripts/audit/bgm-form.mjs 1
