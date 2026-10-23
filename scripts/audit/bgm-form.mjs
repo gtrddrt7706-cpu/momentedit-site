@@ -41,7 +41,9 @@ const NAME = { welcome: '감사 인사', vow: '혼인 서약', ring: '반지 교
 const PVSND = '보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요';   /* [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄 */
 const NOTE = { S5: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' },
   S6: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' } };   /* [BGM_R4_1023] unset = 아직 안 누름 */
-const REST = '그 밖의 음악은 스튜디오가 준비해요', EN0 = '입장 곡 · 고르지 않으시면 스튜디오가 준비해요 [이동하기]';   /* [BGM_R4_1023] 요약 */
+const REST = '그 밖의 음악은 스튜디오가 준비해요', EN0 = '입장 곡 · 고르지 않으시면 스튜디오가 준비해요 [이동하기]';
+const ENUP = '입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요 [이동하기]', ENREC = '입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요 [이동하기]';   /* [BGM_R5_1023] 칩만 누르고 곡이 없을 때 */
+const TALK = { none: '말씀하시는 동안은 음악이 멈추고 목소리만 들려요', bed: '말씀하시는 동안 연주곡이 아주 작게 흘러요' };   /* [BGM_R5_1023] 축사 · 편지 흐름 음악 줄 */   /* [BGM_R4_1023] 요약 */
 
 /* 0 원천 · 엔진 · 미리 듣기 주소 — 브라우저 없이 */
 const B = require(BSM || path.join(ROOT, 'assets/bgm-slots.js'));
@@ -187,7 +189,7 @@ try {
       else if (k === 'entry') good = good && !L.row && L.mu && L.fq === 0 && L.gls.includes('입장 음악');   /* 입장 음악 줄은 그대로 */
       else if (k === 'song') good = good && !L.row && L.fq === 0;
       else if (k === 'prevideo') good = good && !L.row && L.fq === 0;   /* [BGM_R3_1023] 흐름 음악 줄 없음 — 아래 9 에서 링크 칸 한 줄을 잰다 */
-      else good = good && L.row && L.last && L.fq === 0 && L.gl === (k === 'free' ? '축사 음악' : '편지 음악') && L.chips.join() === '음악 없이,음악과 함께' && L.note === NOTE[k === 'free' ? 'S5' : 'S6'].unset && L.noteFs === '12.5px' && L.glX === L.glX0 && L.glFs === '14px';
+      else good = good && L.row && L.last && L.fq === 1 && L.ftxt === TALK.none && L.fslot === (k === 'free' ? 'S5' : 'S6') && /\bt\b/.test(L.nextCls) && /\bn\b/.test(L.prevCls) && L.fbtn === 0 && lookOk(L) && L.flines <= 2 && (L.pillN == null || L.pillN === L.nN) /* [BGM_R5_1023] 말하는 ○ 줄 바로 앞 · 명세 글이 길어 폰은 두 줄까지 */ && L.gl === (k === 'free' ? '축사 음악' : '편지 음악') && L.chips.join() === '음악 없이,음악과 함께' && L.note === NOTE[k === 'free' ? 'S5' : 'S6'].unset && L.noteFs === '12.5px' && L.glX === L.glX0 && L.glFs === '14px';
       if (!good) bad.push([k, L]); }
     ok(`${W} 1 [BGM_R1_1023 · BGM_R2_1023] «고르기»에는 입장 · 축사 · 편지 음악만(이름표 «입장 음악 · 축사 음악 · 편지 음악» · 칩 둘 · 아래 한 줄 12.5px) · 나머지 순간은 «흐름»의 채운 점 줄 하나(명세 글 · 자리 — 화촉 · 감사 인사는 첫 이음말 바로 뒤 · 입장 행동 줄과 같은 점 · 크기에 글만 400 · --sub · 폰 한 줄 · 단추 없음) · «이 순간 전체 듣기 · n줄» = 나레이션 줄 수 · 축가 없음 · 가로 넘침 없음`, bad.length === 0, bad.map(([k, L]) => [k, { row: L.row, gls: L.gls, fq: L.fq, ftxt: L.ftxt, fi: L.fi, prev: L.prev, next: L.next, prevCls: L.prevCls, nextCls: L.nextCls, flook: L.flook, quiet, flines: L.flines, pillN: L.pillN, nN: L.nN, gl: L.gl, chips: L.chips, note: L.note, hz: L.hz }]));
     /* [BGM_R2_1023] 축가 바로 뒤 부모님께 인사(편지를 빼면) — 첫 줄이 «경건하게» 이음말 → 음악 줄은 그 바로 뒤 */
@@ -211,12 +213,16 @@ try {
     ok(`${W} 2 [BGM_R4_1023] 축사 한 줄 세 상태 — 안 누름 «${NOTE.S5.unset}»(칩 안 눌린 모양) → «음악과 함께» «${NOTE.S5.bed}» · S.bgm.S5 bed · 엔진 −90 → −20 → «음악 없이» «${NOTE.S5.none}» · 지운다 · 엔진 −90 · 칸 높이 그대로`,
       f0.chips.join() === '음악 없이,음악과 함께' && f0.note === NOTE.S5.unset && e0.free === -90 && f1.chips.join() === '음악 없이,음악과 함께*' && f1.note === NOTE.S5.bed && f1.bgm === '{"S5":{"m":"bed"}}' && e1.free === -20
       && f2.chips.join() === '음악 없이*,음악과 함께' && f2.note === NOTE.S5.none && f2.bgm === 'null' && e2.free === -90 && Math.abs(f0.rowH - f1.rowH) < 0.6 && Math.abs(f1.rowH - f2.rowH) < 0.6, { f0, f1, f2, e0, e1, e2 });
+    ok(`${W} 2 [BGM_R5_1023] 축사 흐름 음악 줄 — 말씀(○) 바로 앞 · 안 누름 «${TALK.none}» → «음악과 함께» «${TALK.bed}» → «음악 없이» 다시 «${TALK.none}» · 한 줄 · 자리 그대로`,
+      f0.fq === 1 && f0.ftxt === TALK.none && f1.fq === 1 && f1.ftxt === TALK.bed && f2.fq === 1 && f2.ftxt === TALK.none && f0.fi === f1.fi && f1.fi === f2.fi && /\bt\b/.test(f1.nextCls), { f0: [f0.ftxt, f0.fi, f0.next], f1: [f1.ftxt, f1.fi, f1.next], f2: [f2.ftxt, f2.fi] });
     await go(pg, 'letter'); const l0 = await look(pg);
     await pg.click('[data-fk="bgm:S6:bed"]'); await pg.waitForTimeout(300); const l1 = await look(pg), m1 = await eng(pg); await shot(pg, W, 'bgm-letter-bed');
     await pg.click('[data-fk="bgm:S6:none"]'); await pg.waitForTimeout(300); const l2 = await look(pg); await pg.click('[data-fk="bgm:S6:bed"]'); await pg.waitForTimeout(300);
     ok(`${W} 2 [BGM_R4_1023] 편지 한 줄 세 상태 — 안 누름 «${NOTE.S6.unset}» · «음악과 함께» «${NOTE.S6.bed}» · S.bgm.S6 bed · 엔진 사람 구간 · 마무리 −20 · 장면 판 · «음악 없이» «${NOTE.S6.none}» · 칸 높이 그대로`,
       l0.note === NOTE.S6.unset && l2.note === NOTE.S6.none && l2.chips.join() === '음악 없이*,음악과 함께' && l1.chips.join() === '음악 없이,음악과 함께*' && l1.note === NOTE.S6.bed && l1.bgm === '{"S6":{"m":"bed"}}' && m1.l0 === -20 && m1.le === -20 && m1.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && m1.free === -90
       && Math.abs(l0.rowH - l1.rowH) < 0.6 && !l1.hz, { l0, l1, m1 });
+    ok(`${W} 2 [BGM_R5_1023] 편지 흐름 음악 줄 — 낭독(○) 바로 앞 · 안 누름 · 음악 없이 «${TALK.none}» · 음악과 함께 «${TALK.bed}»`,
+      l0.fq === 1 && l0.ftxt === TALK.none && l1.ftxt === TALK.bed && l2.ftxt === TALK.none && /\bt\b/.test(l1.nextCls) && /차례/.test(l1.next) && l0.fi === l1.fi, { l0: [l0.ftxt, l0.fi, l0.next], l1: [l1.ftxt, l1.next], l2: l2.ftxt });
     /* 4 요약 */
     await pg.evaluate(() => { delete S.bgm; delete S.mu; _persist(); }); await go(pg, 'free'); await go(pg, '_sum'); const z0 = await sumLook(pg); await shot(pg, W, 'bgm-sum-none', '.mk-sum .mk-bgm');
     await pg.evaluate(() => { S.bgm = { S5: { m: 'bed' }, S6: { m: 'bed' } }; _persist(); }); await go(pg, 'free'); await go(pg, '_sum'); const z1 = await sumLook(pg); await shot(pg, W, 'bgm-sum-bed', '.mk-sum .mk-bgm');
@@ -232,6 +238,10 @@ try {
       J(z0) === EN0 + ' / 축사 · 음악 없이 / 편지 · 음악 없이 / ' + REST && J(z1) === EN0 + ' / 축사 · 음악과 함께 / 편지 · 음악과 함께 / ' + REST
       && J(z3) === EN0 + ' / 축사 · 음악과 함께 / 편지 · 음악 없이 / ' + REST && J(z2) === '입장 곡 · ‹시험 곡› / 축사 · 음악 없이 / 편지 · 음악과 함께 / ' + REST
       && J(z4) === EN0 + ' / 편지 · 음악 없이 / ' + REST && J(z5) === EN0 + ' / ' + REST && [z0, z1, z4].every((z) => z.keep) && z0.vlist && z2.vlist && z0.todoN != null && z0.todoN === z2.todoN && !z1.sends.some((x) => /음악/.test(x)) && z1.order.indexOf('음악') === z1.order.indexOf('보낼 것') + 1 && !z1.hz && zGo, { z0, z1, z2, zGo });
+    /* [BGM_R5_1023] 축사 · 감사 인사가 빠진 날에도 편지 흐름 음악 줄은 낭독 바로 앞 */
+    await pg.evaluate(() => { delete S.on.free; delete S.on.welcome; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'letter'); const lx = await look(pg);
+    await pg.evaluate(() => { S.on.free = 1; S.on.welcome = 1; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); });
+    ok(`${W} 3 [BGM_R5_1023] 축사 · 감사 인사가 빠진 날 — 편지 흐름 음악 줄 «${TALK.none}» 그대로 낭독 바로 앞`, lx.fq === 1 && lx.ftxt === TALK.none && /\bt\b/.test(lx.nextCls), [lx.fq, lx.ftxt, lx.next]);
     /* 3 감사 인사 빼기 */
     await pg.evaluate(() => { delete S.on.welcome; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'vow'); const v3 = await look(pg); await go(pg, 'ring'); const r3 = await look(pg);
     await pg.evaluate(() => { S.on.welcome = 1; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); });
@@ -241,6 +251,21 @@ try {
     await pg.evaluate(() => { S.freeWhat = 'speech'; delete S.bgm; _persist(); });
     ok(`${W} 6 옛 «영상» 축사 — 흐름 줄 «영상에 입힌 소리로 흘러요» · 고르기 음악 줄 · 칩 없음 · 요약에 안 센다 · 엔진 무음 그대로`,
       v6.ftxt === '영상에 입힌 소리로 흘러요' && !v6.row && v6.chips.length === 0 && s6.rows.join(' / ') === EN0 + ' / 편지 · 음악 없이 / ' + REST && e6.free === -90, { v6, s6, e6 });
+    /* [BGM_R5_1023] 입장 칩만 누르고 곡이 없을 때 — 요약 첫 줄이 그 칩을 따라간다(이 탭에서만 · 저장 꼴 그대로) · 칩 상태가 탭에 남아 위 4 · 6 을 흔들지 않게 맨 끝 */
+    await pg.evaluate(() => { S.freeWhat = 'speech'; _persist(); });
+    await pg.evaluate(() => { delete S.bgm; delete S.mu; delete S.muUp; _persist(); }); await go(pg, 'entry');
+    await pg.evaluate(() => { const b = document.querySelector('[data-fk="musrc:up"]'); if (b) b.click(); }); await pg.waitForTimeout(400);
+    await pg.evaluate(() => { const x = document.querySelector('.mu-guide [data-fk], .mu-gd-ok, [data-fk="muguide:ok"]'); if (x) x.click(); try { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); } catch (e) {} }); await pg.waitForTimeout(300);
+    const cUp = await pg.evaluate(() => window.EntryMusic && EntryMusic.src ? EntryMusic.src() : 'none'); await go(pg, '_sum'); const zu = await sumLook(pg); await shot(pg, W, 'bgm-sum-chipup', '.mk-sum .mk-bgm');
+    const sv1 = await pg.evaluate(() => JSON.stringify({ mu: S.mu || null, muUp: S.muUp || null }));
+    await go(pg, 'entry'); await pg.evaluate(() => { const b = document.querySelector('[data-fk="musrc:rec"]'); if (b) b.click(); }); await pg.waitForTimeout(400);
+    const cRec = await pg.evaluate(() => window.EntryMusic && EntryMusic.src ? EntryMusic.src() : 'none'); await go(pg, '_sum'); const zr = await sumLook(pg); await shot(pg, W, 'bgm-sum-chiprec', '.mk-sum .mk-bgm');
+    await pg.click('[data-fk="bgmgo:entry"]', { timeout: 3000 }).catch(() => {}); await pg.waitForTimeout(500);
+    const zGo2 = await pg.evaluate(() => /입장/.test((document.querySelector('#mkHead') || {}).textContent || '') && !!document.querySelector('.ls-mu'));
+    await pg.evaluate(() => { S.mu = { src: 'rec', k: 'r1', t: '시험 곡', hook: 30 }; _persist(); }); await go(pg, '_sum'); const zs = await sumLook(pg);
+    await pg.evaluate(() => { delete S.mu; _persist(); });
+    ok(`${W} 4 [BGM_R5_1023] 요약 입장 줄 — «두 분이 고른 곡»만 누름 «${ENUP}» · «스튜디오가 고른 곡»만 누름 «${ENREC}» · 곡이 있으면 곡 이름 · 이동하기는 입장 쪽 · 칩만 누른 것은 저장하지 않는다 · 남은 할 일 수 그대로`,
+      cUp === 'up' && cRec === 'rec' && zu.rows[0] === ENUP && zr.rows[0] === ENREC && zs.rows[0] === '입장 곡 · ‹시험 곡›' && zGo2 && sv1 === '{"mu":null,"muUp":null}' && zu.todoN === z0.todoN && zr.todoN === z0.todoN && !zu.hz, { cUp, cRec, zu: zu.rows, zr: zr.rows, zs: zs.rows, sv1, zGo2, todo: [zu.todoN, zr.todoN, z0.todoN] });
     if (errs.length) ok(`${W} 쪽 오류 없음`, false, errs); else ok(`${W} 쪽 오류 없음`, true);
     await ctx.close();
   }
@@ -275,7 +300,7 @@ try {
       const vars = [{}, { vowKind: 'thanks' }, { candleWho: 'fathers' }, { candleWho: 'others' }, { _off: ['welcome'] }, { _off: ['letter'] }, { _off: ['welcome', 'letter'] }, { _off: ['candle'] }, { _off: ['toast'] }, { _off: ['table'] }, { _off: ['tribute'] },
         { guestVoice: 'couple' }, { entryVoice: 'couple' }, { _chip: ['tribute', 'none'] }, { _chip: ['letter', 'parent'] }, { _chip: ['toast', 'toast'] }, { _chip: ['toast', 'cake'] }, { _chip: ['free', 'video'] }, { _on: ['song'], _off: ['letter'] }];
       Object.keys(R.NAR_EX || {}).forEach((k) => { const n = ((R.NAR_EX[k] || {}).lines || []).length; for (let i = 1; i <= n; i++) vars.push({ _ex: [k, i] }); });
-      const ks = ['guest', 'candle', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'tribute', '_close', 'toast', 'table', 'prevideo'];
+      const ks = ['guest', 'candle', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'tribute', '_close', 'toast', 'table', 'prevideo'];
       try { base.forEach((b) => { out.courses++; vars.forEach((v) => {
         const T = JSON.parse(JSON.stringify(S0)); T.course = 'open'; T.on = {}; b.on.forEach((k) => { T.on[k] = 1; }); Object.keys(b.set).forEach((k) => { T[k] = JSON.parse(JSON.stringify(b.set[k])); });
         Object.keys(v).forEach((k) => { if (k[0] !== '_') T[k] = v[k]; }); (v._off || []).forEach((k) => { delete T.on[k]; }); (v._on || []).forEach((k) => { T.on[k] = 1; });
@@ -290,7 +315,7 @@ try {
       finally { S = S0; }
       out.miss = out.miss.slice(0, 12); out.head = out.head.slice(0, 12); out.key = out.key.slice(0, 12); return out; });
     ok(`9 [BGM_R3_1023] 코스 ${C9.courses} × 조합 전부(흐름 음악 줄 ${C9.n}곳 · ${JSON.stringify(C9.by)}) — 큐 열쇠로 자리를 못 찾아 맨 앞으로 물러난 곳 0 · 닫는 인사(목례) · 축배(위하여)를 한 번 이상 잼`,
-      C9.n > 100 && C9.miss.length === 0 && (C9.by.bow || 0) > 0 && (C9.by.cheers || 0) > 0, C9.miss);
+      C9.n > 100 && C9.miss.length === 0 && (C9.by.bow || 0) > 0 && (C9.by.cheers || 0) > 0 && (C9.by.speech || 0) > 0 && (C9.by.letter || 0) > 0 /* [BGM_R5_1023] 축사 · 편지 말하는 ○ 줄 */, C9.miss);
     ok(`9 [BGM_R3_1023] 코스 · 조합 전부 — 첫 줄이 이음말이면 음악 줄은 그 바로 뒤 · 이음말 열쇠(bridge-)와 화면 · 대본 이름(«다음 순서로 넘어가며» · «이음말 · …»)이 어긋난 곳 0`,
       C9.head.length === 0 && C9.key.length === 0, { head: C9.head, key: C9.key });
     ok('9 쪽 오류 없음', errs.length === 0, errs);

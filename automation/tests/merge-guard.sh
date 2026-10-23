@@ -14781,6 +14781,7 @@ chk 'VID_CUT_MOTION' scripts/audit/video-start.mjs 2
 chk 'if (blendBeatsMotion(sm, i, a, b, al)) out.push(i)' scripts/audit/video-start.mjs 1
 chk 'VID_CADENCE_1023' scripts/audit/video-start.mjs 3   # ⑥ 사람이 2 · 3장마다 끊겨 움직이지 않는다 · 유화판 24fps(10/23 사장님 «성혼선언 영상 끊기는 거 같은데 · 다른 영상들도 확인해 봐»)
 chk 'RING_TITLE_CLEAR_1023' assets/ritual-open.js 1   # 반지 판 = 손을 위로 다시 잡아 반지가 제목 글자에 가리지 않는다(10/23 사장님 «반지 영상 처음부터 끝까지 검토»)
+chk 'LETTER_TITLE_1023' assets/ritual-open.js 1   # 편지 판 = 편지지가 제목에 가리지 않게 제목을 3초에 걷는다(10/23 GPT 더블체크)
 if command -v node >/dev/null 2>&1; then node scripts/audit/video-start.mjs --selftest >/dev/null 2>&1; _vt=$?
   case "$_vt" in
     0) echo 'ok video-start selftest: 섞인 유령은 잡고 줌은 안 잡는다 [VID_CUT_MOTION]' ;;
@@ -15213,6 +15214,15 @@ chk 'FLOW_GAPS_1023' scripts/audit/flow-gaps.mjs 2
 chk '"name": "FLOW_GAPS_1023"' docs/plans/식순연구/흐름쉼_1023.json 1
 if command -v node >/dev/null 2>&1; then
   _fg=$(node scripts/audit/flow-gaps.mjs 2>&1); if [ $? = 0 ]; then echo "$_fg" | tail -1; else echo 'FAIL flow-gaps: 흐름 쉼 표가 조립기 대장에 안 들어갔다(문장 사이가 1.25 로 돌아갔다) — node scripts/audit/flow-gaps.mjs'; fail=1; fi   # ok 줄에 «글이 바뀐 n곳»이 보인다(그 자리는 1.25 로 돌아가 있다 · 음성 섹션이 다시 읽는다)
+fi
+# ★[EX_NAME_TODO_1023 · DAY40_TABLE_1023 2026-10-23 GPT 식순 미리보기 검토 ① ② · 음성 섹션 전달] 예시 속 이름이 남은 글칸은 미완료 · 처음 안내 본식 줄 «테이블 인사 포함»
+chk 'EX_NAME_TODO_1023' order-preview.html 4
+chk 'EX_NAME_TODO_1023' scripts/audit/ex-name-todo.mjs 2
+chk 'DAY40_TABLE_1023' order-preview.html 1
+chk "'담은 순간에 따라 · 테이블 인사 포함',true" order-preview.html 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/ex-name-todo.mjs >/dev/null 2>&1; _ent=$?
+  if [ "$_ent" = 0 ]; then echo 'ok ex-name-todo [EX_NAME_TODO_1023]'; elif [ "$_ent" = 2 ]; then echo 'skip ex-name-todo: 브라우저가 없어 재지 못함'; else echo 'FAIL ex-name-todo: 예시 속 이름이 남은 칸이 «다 됐어요»로 센다 — node scripts/audit/ex-name-todo.mjs'; fail=1; fi
 fi
 # ★★[PAIR_NAME_FIRST_1023 2026-10-23 음성 섹션 «28 · 47 소리가 서로 바뀐 채 라이브에»] 조립기가 문장 수가 같은 두 묶음을 상대 파트로 짝짓지 않는다
 #   이름(sent-lib --stage 가 적은 자리)으로 증명된 짝 먼저 · 이름이 반대면 안 맺음 · 짧은 묶음(≤3문장)은 폴더 번호가 맞을 때만 · 재현은 ffmpeg 있는 자리에서만(CI 는 코드만)
@@ -19317,6 +19327,20 @@ nochk "srcChip('추천 곡'" assets/entry-music.js
 nochk "lab: '개식 멘트'" assets/ritual-open.js
 nochk '두 분은 편하게 환복해요' assets/ritual-story.js
 nochk '남은 사진을 마치고 환복' order-preview.html
+# ── 2026-10-23 [BGM_R5_1023] BGM 라운드 5 «미리보기 검토 셋» — ① 요약 입장 줄: 칩만 누르고 곡이 없으면 «곡 파일을 올려 주시면 맞춰 드려요» · «추천 곡 중에서 골라 주세요»
+#   (칩 상태 = EntryMusic.src() · 이 탭에서만 · 저장 꼴 그대로) ② 축사 · 편지 «흐름»에 말하는 ○ 줄 바로 앞 음악 줄(큐 열쇠 narr-free-in-speech · letter-* · 칩을 바꾸면 같이)
+#   ③ 입장 곡 올리기 안내 «… 그 순간 두 분이 걸어 나오게 맞춰요» · ★«마지막 말에 맞춰요»를 되살리지 말 것(누구의 무슨 말인지 모호)
+chk 'BGM_R5_1023' assets/bgm-slots.js 4
+chk 'BGM_R5_1023' assets/bgm-form.js 4
+chk 'BGM_R5_1023' assets/entry-music.js 1
+chk 'BGM_R5_1023' scripts/audit/bgm-form.mjs 10
+chk "var TALK = { none: '말씀하시는 동안은 음악이 멈추고 목소리만 들려요', bed: '말씀하시는 동안 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
+chk "speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 }" assets/bgm-slots.js 1
+chk "입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요" assets/bgm-form.js 1
+chk "입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요" assets/bgm-form.js 1   # [STUDIO_PICK_1023] 칩 이름과 같은 말
+chk "EM.src=function(){ return srcNow(); };" assets/entry-music.js 1
+chk "곡 파일을 올리면 크게 올라오는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요" assets/entry-music.js 1
+nochk "크게 올라오는 자리를 찾아 마지막 말에 맞춰요" assets/entry-music.js
 # ── 2026-10-23 [BGM_R4_1023] BGM 라운드 4 «글 · 요약» — 한눈에 보기 «음악»은 담긴 축사 · 편지마다 «… · 음악 없이 / 음악과 함께» 한 줄 + «그 밖의 음악은 스튜디오가 준비해요» ·
 #   칩 아래 한 줄은 안 누름이면 «고르지 않으시면 …» · S2 · S4 · S5 · S6 · S8 · S9 글 바꿈(엔진 · 저장 꼴 · 입장 음악 그대로)
 #   ★«축사는 음악과 함께 · 나머지는 …» 한 줄 요약 · «아래 · 깔려요 · 오르골» · ««인사!»와 함께»를 되살리지 말 것
@@ -19343,7 +19367,7 @@ chk 'BGM_R3_1023' assets/ritual-story.js 3
 chk 'BGM_R3_1023' scripts/build-course-story.mjs 1
 chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
-chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 } };" assets/bgm-slots.js 1
+chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
 chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
 chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
