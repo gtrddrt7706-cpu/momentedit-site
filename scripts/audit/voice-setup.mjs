@@ -80,9 +80,15 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const rem2 = await pg.evaluate(() => ({ hidden: document.getElementById('mkG3Rem').hidden, need: _recNeed('g3') }));
   ok(W + ' «안내 음성»을 되살리면 권함 한 줄이 바로 사라진다(다시 그리지 않아도) [G3_OPEN]', rem2.hidden && /안내 음성/.test(rem2.need), JSON.stringify(rem2));
   /* ★[SRC_ALL_1023 검토 144-1] 입장 직후(g0)의 알림을 지우면 권함 한 줄이 g0 아래 바로 뜨고, 1분 전에 «안내 음성»이 있으면 숨는다 */
-  await pg.fill('[data-fk="mksl:g3:0"]', '조금 뒤에 뵙겠습니다.'); await pg.fill('[data-fk="mksl:g0:0"]', '반갑습니다.'); await pg.waitForTimeout(150);
+  /* ★[TA_TAB_KEEP 2026-10-23 · 대본 섹션 «빨간 검사 고쳐 주세요»] 두 칸을 잇달아 고칠 때는 사람처럼 다음 칸을 눌러서 옮긴다 — 누르지 않고 바로 채우면(프로그램 포커스)
+     앞 칸의 «나올 때 다시 그리기»가 다음 칸을 바꿔 끼워 글이 옛 칸에 들어간다(사람 손 · Tab 으로는 안 생긴다 · 아래 Tab 검사) */
+  await pg.fill('[data-fk="mksl:g3:0"]', '조금 뒤에 뵙겠습니다.'); await pg.click('[data-fk="mksl:g0:0"]'); await pg.waitForTimeout(900); await pg.fill('[data-fk="mksl:g0:0"]', '반갑습니다.'); await pg.waitForTimeout(150);
   const rem3 = await pg.evaluate(() => { const r = document.getElementById('mkG3Rem'); return { shown: !!r && !r.hidden, under0: !!(r && r.closest('li') && r.closest('li').querySelector('[data-fk="mksl:g0:0"]')) }; });
   ok(W + ' 입장 직후 알림을 지우면 권함 한 줄이 그 줄 아래 뜬다 [SRC_ALL_1023]', rem3.shown && rem3.under0, JSON.stringify(rem3));
+  /* ★[TA_TAB_KEEP 2026-10-23] 키보드 — 줄 글칸을 고치고 Tab 으로 떠나면 포커스는 옮겨 간 자리에 남고, 다음 글자가 앞 칸에 들어가지 않는다(종전엔 앞 칸으로 되돌아갔다) */
+  await pg.click('[data-fk="mksl:g0:0"]'); await pg.waitForTimeout(900); await pg.keyboard.press('End'); await pg.keyboard.type(' 가'); await pg.keyboard.press('Tab'); await pg.waitForTimeout(300); await pg.keyboard.type('나'); await pg.waitForTimeout(300);
+  const tb = await pg.evaluate(() => ({ ae: (document.activeElement && document.activeElement.getAttribute('data-fk')) || '', g0: (document.querySelector('[data-fk="mksl:g0:0"]') || {}).value || '' }));
+  ok(W + ' 키보드 Tab 으로 줄 글칸을 떠나면 포커스가 옮겨 간 자리에 남고 다음 글자가 앞 칸에 안 들어간다 [TA_TAB_KEEP]', !/^mksl:g0:/.test(tb.ae) && / 가$/.test(tb.g0) && !/나$/.test(tb.g0), JSON.stringify(tb));
   await pg.evaluate(() => mkVtReset('g0')); await pg.waitForTimeout(200);
   await pg.fill('[data-fk="mksl:g3:0"]', '조금 뒤에 뵙겠습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(200);
   /* ★[AI_PLAY_READY 2026-10-08 사장님 «우측 버튼이 목소리 만들기면 좌측 플레이 버튼 비활성화 · 누르면 밑에 안내»] 종전 [TEXT_PLAY_MAKE](고친 줄의 ▶ = 먼저 만들고 튼다)는 걷었다 — ▶ 는 흐림 · 누르면 한 줄 · 만들기는 머리 알약 한 곳 */
@@ -121,11 +127,12 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => { S.tipSeen = { keep: 1, nar: 1 }; });   /* [TIP_FLY 2026-10-07] 처음 누를 때 뜨는 안내는 tip-fly 검사가 본다 · 여기선 본 고객으로 */ await pg.click('[data-fk="lsc:guestVoice:nar"]'); await pg.waitForTimeout(400);
   ok(W + ' 두 번째 칩도 창이 안 뜬다', await pg.evaluate(() => !document.getElementById('mkRecDlg') && S.guestVoice === 'nar'));
   /* ★[PLAY_ONE] 들을 줄이 하나뿐이면 «이 순간 들어 보기» 없음 · 여럿이면 있음 */
-  await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = false; S.on.welcome = 1; mkGo('welcome'); }); await pg.waitForTimeout(500);
+  /* ★[TA_TAB_KEEP 2026-10-23 · 대본 섹션] 감사 인사 쪽은 맞절 뒤 이음말 B8(«하객 여러분을 향해 서시겠습니다» · BRIDGE_MORE_1018)이 붙어 줄이 둘이 됐다 — 줄 하나뿐인 맞절 쪽으로 본다 */
+  await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = false; S.on.welcome = 1; mkGo('matjeol'); }); await pg.waitForTimeout(500);
   const p1 = await pg.evaluate(() => !!document.querySelector('.mk-pg [data-fk="mkplay"]'));
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);
   const p2 = await pg.evaluate(() => !!document.querySelector('.mk-pg [data-fk="mkplay"]'));
-  ok(W + ' 줄 하나(첫인사)엔 «이 순간 들어 보기» 없음 · 여럿(하객 맞이)엔 있음 [PLAY_ONE]', !p1 && p2, JSON.stringify({ p1, p2 }));
+  ok(W + ' 줄 하나(맞절)엔 «이 순간 들어 보기» 없음 · 여럿(하객 맞이)엔 있음 [PLAY_ONE]', !p1 && p2, JSON.stringify({ p1, p2 }));
   /* ★★[VT_KEEP_SWITCH 2026-10-03 사장님 «AI 두 분 목소리로 글을 적다가 스튜디오 나레이션으로 바꿨다가 다시 AI 로 오면 적은 글이 그대로»]
      하객 맞이 g1 · 식전 영상 소개글 · 입장 멘트 — 적고(칸에서 나가지 않은 채) 바로 스튜디오 → 다시 AI. 글이 한 글자도 같고 · 기본 글로 바뀌지 않고 · S.vtext 키가 줄지 않는다 */
   await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; S.vsChip = 1; S.on.prevideo = 1; opSync(); });
