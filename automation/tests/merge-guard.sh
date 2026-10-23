@@ -19675,3 +19675,10 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev
     *) echo 'ok dress-refs: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi   # 서버 스위트(dress-pick.test.js)는 위 [UNIT_SUITES_RUN] 목록이 돌린다
+# ★[TA_TAB_KEEP · OPEN_TEXT_ENGINE 2026-10-23 · 대본 섹션 «main 에서도 빨간 검사 고쳐 주세요»] 키보드 Tab 으로 줄 글칸을 떠나면 포커스가 옮겨 간 자리에 남는다 · 낡은 검사 넷을 지금 화면에 맞춤
+chk "if(Date.now()-_taTabAt<1000){ setTimeout(rd,0); return; }" order-preview.html 1   # [TA_TAB_KEEP] Tab 으로 떠날 때는 다시 그리기를 다음 틈에
+chk "if(e.key==='Tab') _taTabAt=Date.now();" order-preview.html 1   # [TA_TAB_KEEP]
+chk 'TA_TAB_KEEP' scripts/audit/voice-setup.mjs 3   # Tab 동작 검사 · 사람처럼 누르고 채우기 · 줄 하나는 맞절 쪽
+chk 'OPEN_TEXT_ENGINE' scripts/audit/listen-page.mjs 1   # 개식 줄은 엔진 글로 찾는다(EX_CHIP_DEF_1019 뒤 예시 글)
+chk 'REC_BY_PAUSE_1023' docs/handoff/녹음/README.md 1   # 녹음은 음성 쉼 섹션이 받는다
+chk '| 검토 150-2 7) | 그대로 · 닫음(10/23 대본 섹션) |' docs/handoff/insta-find.md 1   # PHOTO_THANKS 우선 · 대기 닫음
