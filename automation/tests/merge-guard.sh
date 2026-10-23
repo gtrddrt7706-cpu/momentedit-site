@@ -15206,7 +15206,14 @@ chk 'FLOW_GAPS_1023' scripts/build-typecast-import.mjs 3
 chk 'FLOW_GAPS_1023' scripts/audit/flow-gaps.mjs 2
 chk '"name": "FLOW_GAPS_1023"' docs/plans/식순연구/흐름쉼_1023.json 1
 if command -v node >/dev/null 2>&1; then
-  if node scripts/audit/flow-gaps.mjs >/dev/null 2>&1; then echo 'ok flow-gaps [FLOW_GAPS_1023]'; else echo 'FAIL flow-gaps: 흐름 쉼 표가 조립기 대장에 안 들어갔다(문장 사이가 1.25 로 돌아갔다) — node scripts/audit/flow-gaps.mjs'; fail=1; fi
+  _fg=$(node scripts/audit/flow-gaps.mjs 2>&1); if [ $? = 0 ]; then echo "$_fg" | tail -1; else echo 'FAIL flow-gaps: 흐름 쉼 표가 조립기 대장에 안 들어갔다(문장 사이가 1.25 로 돌아갔다) — node scripts/audit/flow-gaps.mjs'; fail=1; fi   # ok 줄에 «글이 바뀐 n곳»이 보인다(그 자리는 1.25 로 돌아가 있다 · 음성 섹션이 다시 읽는다)
+fi
+# ★★[KEEPGAP_CARRY_1023 2026-10-23 음성 섹션] 입장 구호 자리는 전부 keepGap(안쪽 쉼 지킴) · sent-lib 의 자리 옮기기(--rebind) · 빌려 오기(--borrow)가 그 표시를 함께 옮긴다
+#   0c999ce 에서 09_entry-E 구호 자리가 #7 → #6 으로 옮겨질 때 표시가 빠져 구호 안 쉼이 깎였다(3.35 → 2.2초) · 어느 검사도 몰랐다
+chk 'KEEPGAP_CARRY_1023' scripts/sent-lib.mjs 3
+chk 'KEEPGAP_CARRY_1023' scripts/audit/keepgap-carry.mjs 2
+if command -v node >/dev/null 2>&1; then
+  if node scripts/audit/keepgap-carry.mjs >/dev/null 2>&1; then echo 'ok keepgap-carry [KEEPGAP_CARRY_1023]'; else echo 'FAIL keepgap-carry: 입장 구호 자리에 keepGap 이 빠졌거나 sent-lib 가 표시를 안 옮긴다 — node scripts/audit/keepgap-carry.mjs'; fail=1; fi
 fi
 # ★[REVIEW8_1018 · PHOTO_END_LINE_1018 2026-10-18 인스타 섹션 검토 8판 79 ~ 85 · 사장님 «지금 폼 그대로 업그레이드» · 결정 대기함 [110] «추천대로»] 예시 글 다듬기 일곱 곳 · 45 · 110 첫 문장
 chk 'REVIEW8_1018' assets/ritual-open.js 1
