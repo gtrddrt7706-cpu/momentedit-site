@@ -15089,7 +15089,7 @@ chk '적은 글을 한 번 봐 주세요' order-preview.html 1
 chk '서로 아끼고 존중할 것을 굳게 약속하였습니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «굳게 다짐하였습니다» · 514-2 = RR 8 원문
 chk '지금의 저희가 있기까지' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «지금의 제가» · 605 = 감사문_부모님께 «1» 원문
 nochk '앞으로의 시간은 부디 두 분을 위해 흐르길 바랍니다' assets/ritual-ref.js   # ★[REVIEW27_1023 검토 151-3] 501 끝 문장은 원문(어머님 입장 멘트)의 사회자 말이라 뺐다 · 옛 핀 «chk '흐르길 바랍니다.' ritual-ref.js 1»
-chk '서준아, 고맙다. 이제 드디어 모두가 인정하는 우리 가족이 되는구나!' assets/ritual-ref.js 1
+chk '알고 있겠지만 엄마가 다시 말할게. 사랑한다, 사랑한다, 사랑한다.' assets/ritual-ref.js 1   # ★[REVIEW32_1023 검토 155] 자료 글로 옮김
 nochk '존중하기로 하였습니다' assets/ritual-ref.js
 nochk '흐르길 바라며.' assets/ritual-ref.js
 chk '| 검토 114 |' docs/handoff/insta-find.md 1
@@ -19451,7 +19451,7 @@ chk 'THANKS_SHOT_1013' scripts/audit/open-course.mjs 1
 #   선언문 = 이름을 넣은 한 벌(«과/와»는 이름 바꾸기 _exMine 이 못 고쳐 쉼표) · 말로 인사 = 짧은 둘(9 · 10) + 1분 둘(1 · 4) · 축배 ⑥ 신부 = 본식이 끝난 자리에 맞게
 chk 'EX_LINE_REVIEW_1013' order-preview.html 1
 chk 'EX_LINE_REVIEW_1013' scripts/audit/listen-page.mjs 1
-chk "'tribute:long':\[9,10,1,5]" order-preview.html 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «[9,10,1,4]» · 4(815 · 816) 뺌 → 5(격식)
+chk "'tribute:long':\[2,10,1,5]" order-preview.html 1   # ★[REVIEW32_1023 검토 155] 자료 글로 옮김 · ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «[9,10,1,4]» · 4(815 · 816) 뺌 → 5(격식)
 chk '신랑 이서준 군과 신부 정하윤 양은' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «신랑 이서준, 신부 정하윤 두 사람은,…» · 옛 주석 [LINE_R1_1014] 관리자 낭독 카드(인쇄본)와 같은 꼴 · «정하윤은»은 이름 받침에 따라 «은 · 는»이 갈려 이름 바꾸기가 못 고친다
 chk '함께 걸었던 등산길에서 당신은 늘 한 발 앞서' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «부엌 물소리가 길어지는 이유를 알아채는 데…»
 chk '서로 다른 삶을 살다가 우연한 인연으로 만나' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «하윤 씨 댁에 처음 인사드리러 간 날…»
@@ -19601,7 +19601,7 @@ chk 'SENT_RETEXT' scripts/sent-lib.mjs 2   # 띄어쓰기 · 문장부호만 바
 nochk "candle: { mothers: 2 }" assets/ritual-open.js   # 간결 화촉 «잔잔하게»(152)를 기본으로 되살리지 말 것(151)
 nochk '그리고 엄마아빠도 어린이날 챙겨주세요' assets/ritual-ref.js   # [검토 150-3 3)] 711 끝 문장(원문은 신부 말을 받는 말)
 nochk '이제 많이 떠들었으니' assets/ritual-ref.js   # [검토 150-3 1)] 622 1분 판 첫 문장
-chk '사랑하는 아들과 며느리야, 내 말을 덕담으로 귀담아 들어라!' assets/ritual-ref.js 1   # [검토 150-3 4)] 810 실제 신랑 아버지 덕담
+chk '결혼은 또 다른 인생의 시작이라고 생각됩니다.' assets/ritual-ref.js 1   # ★[REVIEW32_1023 검토 155] 자료 글로 옮김 · [검토 150-3 4)] 810 실제 신랑 아버지 덕담
 # ★[REVIEW27_1023 검토 151 · 10/23] 원문 글자 대조 재점검 — 선언 카드 = 고른 참고 예시 · 축가 기본 NN · 준비한 순서 여는 말 RR 109 · B5 · 재생 안 됨 한 줄 쉼 · 153 · 188 · 144 · 149 · 213 원문 · 참고 예시 표 · 자료그대로 정리
 if command -v node >/dev/null 2>&1; then node scripts/audit/decl-ref-print.mjs >/dev/null 2>&1; _drp=$?; [ "$_drp" = 1 ] && { echo 'FAIL decl-ref-print: 성혼 선언 낭독 카드가 두 분이 고른 참고 예시와 다르다 [DECL_REF_PRINT]'; fail=1; }; [ "$_drp" = 0 ] && echo 'ok decl-ref-print [DECL_REF_PRINT]'; fi
 chk 'DECL_REF_PRINT' admin.html 2   # 고른 예시 읽기 · 이름 꼴
@@ -19950,3 +19950,13 @@ chk "'바쁘신 와중에도 두 사람의 결혼식을 빛내 주시기 위해"
 nochk '신랑 신부의 입장이 있겠습니다. 오늘은 특별히' assets/ritual-data.js 0
 nochk '신랑 신부의 입장이 있겠습니다. 오늘은 특별히' order-preview.html 0
 nochk '그리고 난 기억을 잃었어. 눈 떠 보니까 집이더라.' assets/ritual-ref.js 0
+# ★[REVIEW32_1023 검토 155] 참고 예시 14줄 자료 글 · 감사 인사 칸 예 · 1분쯤씩 인사 2 · TUNE_MAX 160
+chk 'REVIEW32_1023' order-preview.html 1
+chk '나는 오늘 평생 내 편이 되어 줄 사람으로 당신을 선택했습니다.' assets/ritual-ref.js 1
+chk '남편은 늘 남의 편이라서 남편이라고 합니다.' assets/ritual-ref.js 1
+chk '마음 나눌 때가 되니 떠나는구나.' assets/ritual-ref.js 1
+chk '제 인생에 있어서 아직까지 이렇게 중요하고 의미 있는 날은 없었습니다.' assets/ritual-ref.js 1
+chk '5년에 한 번 정도만 하면 좋겠다.' assets/ritual-ref.js 1
+chk '서로가 서로에게 기적임을 마음에 새기시고' assets/ritual-ref.js 1
+chk 'placeholder="예: 저희를 축하해 주시기 위해 이 자리에 참석해 주신 내빈 여러분께 먼저 감사 인사 올립니다."' order-preview.html 1
+chk 'var TUNE_MAX=160;' order-preview.html 1
