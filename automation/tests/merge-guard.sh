@@ -15213,6 +15213,15 @@ chk '"name": "FLOW_GAPS_1023"' docs/plans/식순연구/흐름쉼_1023.json 1
 if command -v node >/dev/null 2>&1; then
   _fg=$(node scripts/audit/flow-gaps.mjs 2>&1); if [ $? = 0 ]; then echo "$_fg" | tail -1; else echo 'FAIL flow-gaps: 흐름 쉼 표가 조립기 대장에 안 들어갔다(문장 사이가 1.25 로 돌아갔다) — node scripts/audit/flow-gaps.mjs'; fail=1; fi   # ok 줄에 «글이 바뀐 n곳»이 보인다(그 자리는 1.25 로 돌아가 있다 · 음성 섹션이 다시 읽는다)
 fi
+# ★[EX_NAME_TODO_1023 · DAY40_TABLE_1023 2026-10-23 GPT 식순 미리보기 검토 ① ② · 음성 섹션 전달] 예시 속 이름이 남은 글칸은 미완료 · 처음 안내 본식 줄 «테이블 인사 포함»
+chk 'EX_NAME_TODO_1023' order-preview.html 4
+chk 'EX_NAME_TODO_1023' scripts/audit/ex-name-todo.mjs 2
+chk 'DAY40_TABLE_1023' order-preview.html 1
+chk "'담은 순간에 따라 · 테이블 인사 포함',true" order-preview.html 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/ex-name-todo.mjs >/dev/null 2>&1; _ent=$?
+  if [ "$_ent" = 0 ]; then echo 'ok ex-name-todo [EX_NAME_TODO_1023]'; elif [ "$_ent" = 2 ]; then echo 'skip ex-name-todo: 브라우저가 없어 재지 못함'; else echo 'FAIL ex-name-todo: 예시 속 이름이 남은 칸이 «다 됐어요»로 센다 — node scripts/audit/ex-name-todo.mjs'; fail=1; fi
+fi
 # ★★[PAIR_NAME_FIRST_1023 2026-10-23 음성 섹션 «28 · 47 소리가 서로 바뀐 채 라이브에»] 조립기가 문장 수가 같은 두 묶음을 상대 파트로 짝짓지 않는다
 #   이름(sent-lib --stage 가 적은 자리)으로 증명된 짝 먼저 · 이름이 반대면 안 맺음 · 짧은 묶음(≤3문장)은 폴더 번호가 맞을 때만 · 재현은 ffmpeg 있는 자리에서만(CI 는 코드만)
 chk 'PAIR_NAME_FIRST_1023' scripts/assemble-narration.mjs 2

@@ -3843,12 +3843,13 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 앞절「앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요」 삭제 · 복원 금지.
      위 표가 이미 하루 다섯 마디를 순서대로 보여 주고 있어, 같은 말을 글로 한 번 더 한 것이었다. */
+  /* ★[DAY40_TABLE_1023 GPT 검토 ② · 음성 섹션 전달] 하나씩 만들기 막대는 «본식 · 테이블 인사 · 단체 사진»을 셋으로 나눠 40분(TABLE_APART)인데, 이 안내는 «본식과 단체 사진 = 40»이라 테이블 인사가 빠진 듯 읽혔다 — 위 본식 줄에 «테이블 인사 포함»(RANGE 7~25 는 테이블 인사까지 든 값 · 계약서 · 홈과 같은 숫자는 그대로) */
   h+='<div class="dmnote">본식과 단체 사진을 더하면 <b>'+RitualOpen.DAYMIN+'분</b>이에요. 본식이 짧은 만큼 단체 사진이 길어지고, <b>하루 140분은 그대로</b>예요.</div></div>';
   return h;
 }
@@ -4713,7 +4714,7 @@ function _mkItemDone(q){ var c=_mkChk(), _sp=_askScript(q);
 /* 할 일 — 세는 것만(챙길 것 · 부모님께 인사 칸은 세지 않는다) */
 function _mkTasks(k){ var t=[], c=_mkChk();
   _mkKinds(k).forEach(function(kind){ if(_txOpt(kind)) return;   // [TOAST_SAY] 축배 한마디도 선택 칸 — 셈에 안 든다 · [TX_OPT] 판별 한 곳
-    TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], txt=String((S.tx||{})[id]||'').trim(); t.push({id:id,kind:'tx',who:w[1],nm:kind==='vow'?_vowNm():TX_KIND[kind].nm,done:_txSite(kind,c,id)?_txSiteDone(kind,c,id):!!txt}); }); });   /* [CUE_FORM] 현장이면 글이 있어도 끝 신호를 본다(글칸은 접혀 있다) */   // [CUE_SIG] 현장이면 끝 신호까지 적어야 다 됨
+    TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], txt=String((S.tx||{})[id]||'').trim(), _site=_txSite(kind,c,id), _exn=!_site&&!!txt&&_exNamesIn(txt).length>0; t.push({id:id,kind:'tx',who:w[1],nm:kind==='vow'?_vowNm():TX_KIND[kind].nm,done:_site?_txSiteDone(kind,c,id):(!!txt&&!_exn),exn:_exn}); }); });   /* ★[EX_NAME_TODO_1023 GPT 검토 ① · 음성 섹션 전달] 예시 속 이름(EX_NAMES)이 남은 칸은 «다 됐어요»가 아니다 — 경고는 뜨는데 순간 목록은 ✓ 였다 · 미완료(막지 않는다 · INCOMPLETE_SOFT) · 한눈에 보기 «두 분이 할 말»과 넘길 때 묻는 판도 «예시 속 이름이 남아 있어요»로 말한다 · 검사 scripts/audit/ex-name-todo.mjs */   /* [CUE_FORM] 현장이면 글이 있어도 끝 신호를 본다(글칸은 접혀 있다) */   // [CUE_SIG] 현장이면 끝 신호까지 적어야 다 됨
   _mkItems(k).forEach(function(q){ if(q.cat==='bring') return; t.push({id:q.id,kind:q.cat,who:q.who==='parents'?'부모님':'',nm:q.what,done:_mkItemDone(q),q:q}); });
   /* ★음악 칸 «우리가 고른 곡» 할 일(파일 없음 = 미완료 한 줄) 금지 — 2026-10-23 사장님 지시로 삭제 [BGM_INFO_1023] · 음악 칸은 이제 보낼 것이 없다 */
   return t; }
@@ -4792,12 +4793,15 @@ document.addEventListener('keydown',function(e){ if(e.key!=='Escape'||!MK.navOpe
   e.preventDefault(); e.stopPropagation(); mkFold(false); var b=nav.querySelector('.mk-fbtn'); if(b) try{ b.focus({preventScroll:true}); }catch(x){} },true);   /* [NAV_FOLD] 빌더의 Esc(저장 후 나가기)보다 먼저 — 펼친 줄 안에서만 */
 function _mkStripKeep(){ try{ var s=document.querySelector('#mkStrip .mk-sc'), c=s&&s.querySelector('.mk-it.cur'); if(c){ var l=c.offsetLeft-(s.clientWidth-c.offsetWidth)/2; s.scrollLeft=Math.max(0,l); } }catch(e){} }
 /* 넘길 때 한 줄(막지 않음 · INCOMPLETE_SOFT) */
+/* [EX_NAME_TODO_1023] 한 순간의 «두 분이 할 말» 미완료를 한 줄로 — 빈 칸은 «신랑 · 신부 칸이 비어 있어요» · 이름이 남은 칸은 «신랑 칸에 예시 속 이름이 남아 있어요» */
+function _txTodoWord(ts){ var em=[], nm=[]; ts.forEach(function(x){ if(x.kind!=='tx') return; var l=x.exn?nm:em; if(l.indexOf(x.who)<0) l.push(x.who); });
+  var o=[]; if(em.length) o.push(em.join(' · ')+' 칸이 비어 있어요'); if(nm.length) o.push(nm.join(' · ')+' 칸에 예시 속 이름이 남아 있어요'); return o.join(' · '); }
 function _mkLeaveMsg(k){ if(!k||k==='_sum'||k==='_voice'||_mkOff(k)) return '';
   var ts=_mkTasks(k).filter(function(x){ return !x.done; }); if(!ts.length) return '';
   var no=_mkNo(k), head=(no&&no!=='식전'?no+' ':'')+_mkName(k)+' · ';
   /* [R1-16] 첫 하나만 말하지 않는다 — 비어 있는 칸은 신랑 · 신부를 모아서, 그 밖 할 일은 이름으로(«식전 영상 링크»가 남아 있어요) */
-  var tw=[]; ts.forEach(function(x){ if(x.kind==='tx'&&tw.indexOf(x.who)<0) tw.push(x.who); });
-  if(tw.length) return head+tw.join(' · ')+' 칸이 비어 있어요. 미완료로 둘게요.';
+  var tw=_txTodoWord(ts);   // [EX_NAME_TODO_1023]
+  if(tw) return head+tw+'. 미완료로 둘게요.';
   /* [R3-05] 그 밖 할 일도 첫 하나(ts[0])만 말하지 않는다 — AI 판 식전 영상은 «식전 영상 링크» · «AI 두 분 목소리» 둘이 남아도 링크만 말했다 */
   var nms=[]; ts.forEach(function(x){ if(x.kind==='tx') return; var _sp=String(x.nm).split(' · '), n=(x.q&&x.q.up)?(function(){ var c=ts.filter(function(y){ return y.q&&y.q.up; }).length; return _vpCur(k)==='ai'?'AI 목소리 '+c+'줄':'두 분 목소리 녹음 '+c+'줄'; })()   /* [SIM_R2] «AI 목소리 2줄»이 남아 있어요 — 새로 만들 줄 · 다시 만들 줄 둘 다 맞는 말 */:_sp[0]   /* [SIM_R1] 어느 줄인지 · 몇 줄인지 */.replace(/\s*\([^)]*\)\s*$/,'');
     if(!(x.q&&x.q.up)&&n===_mkName(k)) n=x.kind==='ask'?n+' 부탁':(_sp[1]||n).replace(/\s*\([^)]*\)\s*$/,'');   /* [R4-11] 첫 토막이 순간 이름뿐이면(«화촉 · 양가 어머님께서…») 무엇이 남았는지 안 보였다 → «화촉 부탁» */
@@ -7202,10 +7206,10 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
      이제 한 항목은 한 번만 — 미완료 수는 머리 한 줄에 · «두 분이 할 말»만 따로 모으고 · 부탁 · 보낼 것은 줄마다 ✓ 또는 «가기» · 녹음은 순간마다 한 줄(몇 개 중 몇 개). 되살리지 말 것 */
   h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(sp.tm?' · 테이블 인사 '+esc(_nb(sp.table)):'')+(todo.length?' · <b class="mk-todo-n">남은 할 일 '+_mkTodoN()+'가지</b>':'')+'</p>';   /* ★[QA_TODO_UNIT 2026-10-04 점검] 진행 줄은 «미완료 순간 2»(순간 수) · 여기는 할 일 수 — 단위 없이 «미완료 6»이라 둘이 어긋나 보였다 */
   var txTodo=todo.filter(function(x){ return x.t.kind==='tx'; }), txK=[], txW={};
-  txTodo.forEach(function(x){ if(!txW[x.k]){ txW[x.k]=[]; txK.push(x.k); } txW[x.k].push(x.t.who); });   // 순간마다 한 줄(신랑 · 신부 두 줄로 나누지 않는다)
+  txTodo.forEach(function(x){ if(!txW[x.k]){ txW[x.k]=[]; txK.push(x.k); } txW[x.k].push(x.t); });   // [EX_NAME_TODO_1023] 칸째 모아 _txTodoWord 로 한 줄   // 순간마다 한 줄(신랑 · 신부 두 줄로 나누지 않는다)
   if(txK.length){ h+='<section class="mk-sec"><h4>두 분이 할 말</h4><ul class="mk-vlist">';
     txK.forEach(function(k){ var no=_mkNo(k);
-      h+='<li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc((no&&no!=='식전'?no+' ':'')+_mkName(k))+'</span><span class="mk-vs">'+esc(txW[k].join(' · ')+' 칸이 비어 있어요')+'</span></span><button type="button" class="rowbtn mk-vb" onclick="mkGo(\''+k+'\')">이동하기</button></li>'; });
+      h+='<li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc((no&&no!=='식전'?no+' ':'')+_mkName(k))+'</span><span class="mk-vs">'+esc(_txTodoWord(txW[k]))+'</span></span><button type="button" class="rowbtn mk-vb" onclick="mkGo(\''+k+'\')">이동하기</button></li>'; });
     h+='</ul></section>'; }
   var site=[]; ps.forEach(function(k){ if(k==='_sum'||k==='_voice'||k==='_intro'||_mkOff(k)) return; _mkKinds(k).forEach(function(kind){ TX_WHO.forEach(function(w){ var id=kind+'.'+w[0]; if(_txSite(kind,c,id)) site.push((_mkNo(k)&&_mkNo(k)!=='식전'?_mkNo(k)+' ':'')+_mkName(k)+' · '+w[1]+(kind==='letter'?' · 따로 써서 가져와요':'')+(_cueGet(id)?' · 끝 신호 «'+_cueGet(id)+'»':' · 끝 신호를 적어 주세요'));   /* [CUE_SIG] */ }); }); _mkItems(k).forEach(function(q){ if(c[q.id]==='site') site.push((_mkNo(k)?_mkNo(k)+' ':'')+_mkName(k)+' · 부모님이 현장에서'); }); });
   if(site.length) h+='<section class="mk-sec"><h4>현장에서 하기로 한 것 '+site.length+'</h4><ul class="mk-list">'+site.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ul></section>';
