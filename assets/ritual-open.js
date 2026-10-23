@@ -1397,7 +1397,7 @@
   var VIDEO_DIR = '/assets/video/moments/';
   /* ★[VIDEO_V 2026-10-23 사장님 «영상이 안 움직이는데 · 직접 확인해봐 · 개선까지»] 장면 영상 파일(mp4 · webp · 640 · end)은 같은 이름으로 바꿔 넣는다 — 주소 끝에 판 표시를 붙여
      열어 둔 탭 · 휴대폰이 옛 파일(옛 영상 · 옛 끝 장면)을 섞어 쓰지 않게 한다. moments 폴더 파일을 바꾸면 이 값을 함께 올린다(scripts/audit/asset-v.mjs 가 잰다). */
-  var VIDEO_V = '?v=1023c';
+  var VIDEO_V = '?v=1023d';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
      첫 장면 webp 두 벌(받은 표지 jpg = 첫 장면 · 1280 q80 · 640 q78 · encode-moment.sh 와 같은 값). 촬영표 17편 중 toast-pour 는 만들지 않았다(붓기 장면 없음 · 화면도 안 찾는다).
      _close 는 close · entry 는 entry → entry-look 차례(videoKeys). 이름을 빼면 그 순간은 글 한 줄(SCENE)로 돌아간다
@@ -1426,9 +1426,13 @@
     if (k === 'cake') return ['cake'];   // [CAKE_TOAST_SPLIT] 두 순간 · 두 영상
     if (k === 'toast') return ['toast'];
     /* ★[BOW_VIDEO_OFF 2026-09-26 코워크 회신5 4-7 · 연구 F02] 절 영상(entry-bow · tribute-bow)은 만들지 않는다 — AI 가 절 모양을 자주 틀린다.
-       맞절을 고른 분도 바라보기 영상 · 신랑 큰절도 인사 영상이 나온다(19편 → 17편). 되살리지 말 것. */
+       신랑 큰절도 인사 영상이 나온다(19편 → 17편). entry-bow · tribute-bow 이름은 되살리지 말 것.
+       ★★[BALL_BOW_VIDEO_1023 2026-10-23 사장님 «맞절 부분은 브리저튼 맞절로 영상 넣어 줘 · 저기서 사진 남겨야 하니까» · «빈자리 없게» · «하객은 고개를 정면으로»] 맞절 순간만 예외 —
+       entry-look 파일 자리에 «무도회 맞절» 영상을 넣었다(신랑: 왼손 뒷짐 · 오른손을 가슴에 얹으며 허리를 숙임 / 신부: 드레스 끝을 잡고 무릎을 굽힘 · 끝 3초는 사진 포즈 ·
+       배경 = 두 에메랄드 기둥 사이 금빛 커튼 · 빈 의자 없이 하객이 모두 두 분을 본다). ritual-story 맞절 팁(BALL_BOW_TIP_1013 · 자료 EE 3)과 같은 동작이다.
+       파일 이름(entry-look)은 그대로 둔다 — 순간 · 칸 · 검사가 이 이름을 본다. 큰절(tribute-bow)은 여전히 만들지 않는다. */
     if (k === 'entry') return ['entry'];   // [MATJEOL_SPLIT_1013] 바라보기 영상(entry-look)은 맞절 순간으로 옮겼다 — 같은 영상이 두 순간에서 되풀이되지 않게
-    if (k === 'matjeol') return ['entry-look'];   // [MATJEOL_SPLIT_1013 · BOW_VIDEO_OFF] 맞절 영상은 만들지 않는다 — 마주 보는 바라보기 영상
+    if (k === 'matjeol') return ['entry-look'];   // [MATJEOL_SPLIT_1013 · BALL_BOW_VIDEO_1023] 맞절 순간 = 무도회 맞절 영상(파일 이름은 entry-look 그대로)
     if (k === 'tribute') return ['tribute'];
     if (k === '_close') return ['close'];
     if (k === 'table') return ['table'];   // ★[TABLE_VIDEO_1009 2026-10-09 사장님 «table 넣어»] 테이블 인사도 영상 — 10/8 «영상 없음(장면 글 한 줄)»을 뒤집었다

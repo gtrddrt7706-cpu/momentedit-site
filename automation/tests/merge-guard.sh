@@ -10178,6 +10178,8 @@ chk 'BOW_VIDEO_OFF' assets/ritual-open.js 1           # 절 영상 만들지 않
 chk 'BOW_VIDEO_OFF' order-preview.html 2
 nochk "'entry-bow'" order-preview.html
 nochk "'tribute-bow'" assets/ritual-open.js
+chk 'BALL_BOW_VIDEO_1023' assets/ritual-open.js 2   # 맞절 순간 = 무도회 맞절 영상(entry-look 파일 · 10/23 사장님 «브리저튼 맞절로 영상») · 큰절 영상은 여전히 없음
+chk 'BALL_BOW_VIDEO_1023' order-preview.html 1
 chk 'pk-scnote">이해를 돕는 연출 장면이에요</p>' order-preview.html 1   # [SCENE_NOTE_1023] 칸 아래 한 줄(사장님 «요약해서 · 조금 달라요 빼고») · «AI» 낱말 없음
 chk 'SCENE_NOTE_1023' order-preview.html 3
 chk 'VIDEO_ENCODE' scripts/video/encode-moment.sh 1   # 장면 영상 굽는 규격(H.264 High · 720p · 2~3Mbps · 소리 없음 · faststart)
