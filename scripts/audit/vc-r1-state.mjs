@@ -41,7 +41,7 @@ async function open(cfg) {
   await wait(150); return { pg, errs };
 }
 const AI = (by) => ({ src: 'ai', by, id: 'local:' + Math.random().toString(36).slice(2), name: 'a.mp3', at: '방금' });
-const upOf = (pg) => pg.evaluate(() => { const o = {}; ['g0', 'g1', 'g2', 'g3', 'entry', 'pv'].forEach((k) => { const v = (S.up || {})[k]; o[k] = v && typeof v === 'object' ? v.src + '/' + (v.by || '') : 0; }); return o; });
+const upOf = (pg) => pg.evaluate(() => { const o = {}; ['g0', 'g1', 'g3', 'entry', 'pv'].forEach((k) => { const v = (S.up || {})[k]; o[k] = v && typeof v === 'object' ? v.src + '/' + (v.by || '') : 0; }); return o; });
 const card = (pg, w) => pg.evaluate((w) => { const b = document.querySelector('[data-fk="mkvcdel:' + w + '"]') || document.querySelector('[data-fk="mkvcok:' + w + '"]'); const li = b && b.closest('li'); return li ? li.innerText.replace(/\s+/g, ' ') : ''; }, w);
 async function del(pg, w) { await pg.evaluate(() => mkGo('_voice')); await wait(200); await pg.click('[data-fk="mkvcdel:' + w + '"]'); await wait(150); await pg.click('.ord-ask .oa-yes'); await wait(700); }
 try {
@@ -71,7 +71,7 @@ try {
     await pg.evaluate(() => { lsChip('guestVoice', 'ai'); lsChip('entryVoice', 'ai'); }); await wait(4500);
     const u = await upOf(pg), mk = await pg.evaluate(() => window.__SV.makes.slice());
     ok('③ 칩 전에는 빈 줄을 만들지 않는다(나레이션 순간)', m0 === 0, { m0 });
-    ok('③ 칩 «AI 두 분 목소리» → 하객 맞이 넷 · 입장 줄이 AI 로 채워진다 [FILL_EMPTY]', ['g0', 'g1', 'g2', 'g3', 'entry'].every((k) => /^ai\//.test(String(u[k]))), { u, mk });
+    ok('③ 칩 «AI 두 분 목소리» → 하객 맞이 넷 · 입장 줄이 AI 로 채워진다 [FILL_EMPTY]', ['g0', 'g1', 'g3', 'entry'].every((k) => /^ai\//.test(String(u[k]))), { u, mk });
     ok('③ pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* ④ 채우는 중 나가기는 묻는다 · 다시 연 초안은 이어서 채운다 */
   if (on(4)) { const { pg, errs } = await open({ S: { guestVoice: 'couple', entryVoice: 'couple', vfill: { guest: 'ai', entry: 'ai' }, vset: { groom: { tempo: '1', pause: 150 }, bride: { tempo: '1', pause: 150 } } } });
@@ -83,7 +83,7 @@ try {
     const r = await open({ S: { guestVoice: 'couple', entryVoice: 'couple', vfill: { guest: 'ai', entry: 'ai' }, vset: { groom: { tempo: '1', pause: 150 }, bride: { tempo: '1', pause: 150 } } } });
     await r.pg.evaluate((g) => { S.up = { g0: g }; }, AI('groom')); await r.pg.evaluate(() => mkGo('_voice')); await wait(5000);
     const u = await upOf(r.pg);
-    ok('④ 다시 연 초안 — 남은 빈 줄(g1~g3 · entry)을 저절로 이어서 채운다 · 이미 찬 g0 은 그대로 [FILL_EMPTY]', ['g1', 'g2', 'g3', 'entry'].every((k) => /^ai\//.test(String(u[k]))) && u.g0 === 'ai/groom', u);
+    ok('④ 다시 연 초안 — 남은 빈 줄(g1 · g3 · entry)을 저절로 이어서 채운다 · 이미 찬 g0 은 그대로 [FILL_EMPTY]', ['g1', 'g3', 'entry'].every((k) => /^ai\//.test(String(u[k]))) && u.g0 === 'ai/groom', u);
     ok('④ pageerror 0', !errs.length && !r.errs.length, errs.concat(r.errs).slice(0, 2).join(' | ')); await r.pg.close(); }
   /* ⑤ 못 받음 상자 문구 */
   if (on(5)) { const { pg, errs } = await open({ stDown: true, S: { vset: {}, vsetNeed: {}, up: {} } });

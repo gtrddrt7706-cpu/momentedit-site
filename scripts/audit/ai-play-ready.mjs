@@ -132,7 +132,7 @@ const idle = () => !Object.keys(MK_UP).length && !(VC.fill && VC.fill.doing) && 
 const fillAll = async (pg, f) => { await toVoice(pg, f);
   for (const w of ['groom', 'bride']) { await f.evaluate((w) => _vcAutoFill(w), w); if (await until(pg, f, idle, 300000) < 0) return -1; }   // 한 분씩 — 채우는 중(FILL_GOT 다시 만들기)에 글을 고치면 그 줄을 지금 글로 다시 만든다
   await adv(pg, 3000);
-  return until(pg, f, () => ['g0', 'g1', 'g2', 'g3'].every((k) => { const v = (S.up || {})[k]; return v && v.src === 'ai' && v.id && !/^local/.test(v.id); }) && !Object.keys(MK_UP).length && !(VC.fill && VC.fill.doing), 60000); };
+  return until(pg, f, () => ['g0', 'g1', 'g3'].every((k) => { const v = (S.up || {})[k]; return v && v.src === 'ai' && v.id && !/^local/.test(v.id); }) && !Object.keys(MK_UP).length && !(VC.fill && VC.fill.doing), 60000); };
 const MARK = ' 시험 문장 하나.';   // 고친 글 표식 — 사이트 예시 글에 없는 말(뒤에서 데우는 예시 요청과 갈린다)
 const edit = (f, ks) => f.evaluate((a) => { mkGo('guest'); a.ks.forEach((k) => { mkSlText(k, 0, _slLines(k)[0][1] + a.m); }); render(); }, { ks, m: MARK });
 
@@ -140,7 +140,7 @@ const SC = [
   /* ── 1 ── 목소리가 하나도 없다 — 줄 ▶ · 이 순간 전체 듣기 흐림 · 누르면 그 아래 한 줄 · 소리 · 요청 없음 · 배역 예시 녹음 없음 */
   { no: 1, pre: { groom: false, bride: false }, async run({ pg, f }) {
     await toVoice(pg, f); await toGuest(pg, f);
-    const c = {}; for (const k of ['g0', 'g1', 'g2', 'g3']) c[k] = await CARD(f, k);
+    const c = {}; for (const k of ['g0', 'g1', 'g3']) c[k] = await CARD(f, k);
     ok('1 목소리 없음 — 하객 맞이 넷 ▶ 흐림(aria-disabled · 누를 수는 있음) · 차오름 없음 [AI_PLAY_READY]', Object.values(c).every((x) => x.has && x.off && x.ad === 'true' && !x.dis && !x.fill), JSON.stringify(c));
     const p0 = await plays(f), m0 = await ops(pg, 'make'), q0 = await ops(pg, 'practice');
     for (const k of ['g0', 'g1']) await tap(f, '[data-fk="mkvpl:' + k + '"]');
@@ -157,8 +157,8 @@ const SC = [
     const cast = await f.evaluate(() => { const g = _lSteps(ENG, ['guest']).filter((x) => x.own).map((x) => x.src || ''), S0 = JSON.stringify(S.vfill); S.vfill = { entry: 'ai', prevideo: 'ai' }; const sl = _lSteps(ENG, ['guest']).filter((x) => x.own), self = sl.map((x) => x.src || ''), selfTxt = sl.map((x) => x.txt || ''); S.vfill = JSON.parse(S0); return { g, self, selfTxt, mode: _vpCur('guest') }; });
     /* [SOURCE_FIRST_1016] 하객 맞이 넷이 자료(G4) 글로 바뀌어 배역 예시 녹음은 다시 받는 중일 수 있다 — 소리가 비었으면 그 글이 «다시받기» 목록(문장마다)에 다 있어야 한다(받으면 다시 소리로) */
     const REDUB = (() => { try { return fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'), 'utf8').split('\n').map((l) => l.replace(/^[^:]+:\s*/, '').trim()).filter(Boolean); } catch (e) { return []; } })();
-    const castWait = cast.self.every((s) => !s) && cast.selfTxt.length === 4 && cast.selfTxt.every((t) => t.split(/(?<=[.!?])\s+/).every((x) => REDUB.includes(x.trim())));
-    ok('1 AI 판 하객 맞이 줄에는 배역 예시 녹음(cast)을 싣지 않는다 · 직접 녹음 판은 그대로(읽는 법 참고 · 다시 받는 중이면 다시받기 목록에) [AI_NO_CAST]', cast.mode === 'ai' && cast.g.length === 4 && cast.g.every((s) => !/\/cast\//.test(s)) && (cast.self.some((s) => /\/cast\/0[2-4]_guest/.test(s)) || castWait), JSON.stringify(cast));
+    const castWait = cast.self.every((s) => !s) && cast.selfTxt.length === 3 && cast.selfTxt.every((t) => t.split(/(?<=[.!?])\s+/).every((x) => REDUB.includes(x.trim())));
+    ok('1 AI 판 하객 맞이 줄에는 배역 예시 녹음(cast)을 싣지 않는다 · 직접 녹음 판은 그대로(읽는 법 참고 · 다시 받는 중이면 다시받기 목록에) [AI_NO_CAST]', cast.mode === 'ai' && cast.g.length === 3 && /* [GUEST_5MIN_OFF_1023] 줄 셋 */  cast.g.every((s) => !/\/cast\//.test(s)) && (cast.self.some((s) => /\/cast\/0[2-4]_guest/.test(s)) || castWait), JSON.stringify(cast));
     const rt = await realTap(pg, f, '#lsToast [data-fk="mkploffgo:mp:guest"]'); await adv(pg, 800);
     ok('1 알림 안 «만들러 가기»를 손가락으로 누르면(그 자리에 닿는 것이 단추) → 두 분 목소리 만들기 쪽 · 알림은 닫힘 [OFF_TOAST_TAP]', rt === 'ok' && await f.evaluate(() => _mkRO().at === '_voice' && document.getElementById('lsToast').hidden), rt);
     /* 입장 인사 · 영상 앞 소개도 같은 꼴(COURSE_WIDE) */
@@ -201,24 +201,24 @@ const SC = [
   /* ── 3 ── 두 분 목소리 · 글을 고친 두 줄 — 줄 ▶ 는 흐림(«오른쪽 목소리 만들기…») · 머리 알약을 누르면 «만드는 중»은 알약만 차오른다 */
   { no: 3, async run({ pg, f }) {
     if (await fillAll(pg, f) < 0) { ok('3 상태 만들기 — 하객 맞이 넷 AI 로 채우기', false); return; }
-    await edit(f, ['g2', 'g3']); await adv(pg, 800);
-    const g2 = await CARD(f, 'g2'); await tap(f, '[data-fk="mkvpl:g2"]'); await adv(pg, 600); const g2b = await CARD(f, 'g2');
-    const n2 = await mkOps(pg, MARK.trim()), g2m = await f.evaluate(() => ({ mk: !!MK_UP.g2, m: _aiMode('g2') }));
+    await edit(f, ['g1', 'g3']); await adv(pg, 800);
+    const g2 = await CARD(f, 'g1'); await tap(f, '[data-fk="mkvpl:g1"]'); await adv(pg, 600); const g2b = await CARD(f, 'g1');
+    const n2 = await mkOps(pg, MARK.trim()), g2m = await f.evaluate(() => ({ mk: !!MK_UP.g1, m: _aiMode('g1') }));
     ok('3 고친 줄(머리 «목소리 만들기») ▶ = 흐림 · 누르면 «목소리를 먼저 만들어 주세요» · 만들지 않는다 [AI_PLAY_READY · TOAST_MIN]', g2.off && /목소리 만들기/.test(g2.pill) && /^목소리를 먼저 만들어 주세요$/.test(g2b.hint) && !g2b.go && !n2 && !g2m.mk && g2m.m === 'need', JSON.stringify({ g2, g2b, n2, g2m }));
-    await tap(f, '.mk-aip[data-key="g2"]'); await adv(pg, 1500); const g2c = await CARD(f, 'g2');
-    await SHOT(pg, f, '3-만드는중', '[data-fk="mkvpl:g2"]');
+    await tap(f, '.mk-aip[data-key="g1"]'); await adv(pg, 1500); const g2c = await CARD(f, 'g1');
+    await SHOT(pg, f, '3-만드는중', '[data-fk="mkvpl:g1"]');
     ok('3 머리 알약 «만드는 중» — 알약만 차오르고 ▶ 는 흐리게 잠김(차오름 없음) · «목소리 만들기를 누르면…» 알림은 누르는 순간 걷힘 [PLAY_NO_DUP · OFF_TOAST]', /만드는 중/.test(g2c.pill) && /\bmake\b/.test(g2c.pillCls) && g2c.dis && !g2c.fill && !g2c.hint, JSON.stringify(g2c));
-    await until(pg, f, () => _aiMode('g2') === 'keep', 60000); const g2d = await CARD(f, 'g2');
+    await until(pg, f, () => _aiMode('g1') === 'keep', 60000); const g2d = await CARD(f, 'g1');
     ok('3 다 되면 ▶ 가 풀린다', !g2d.off && !g2d.dis, JSON.stringify(g2d));
   } },
   /* ── 4 ── 두 분 목소리 · 고친 줄 둘 — 이 순간 전체 듣기를 누르면 한꺼번에 만들고 다 되면 처음부터 이어서 */
   { no: 4, async run({ pg, f }) {
     if (await fillAll(pg, f) < 0) { ok('4 상태 만들기 — 하객 맞이 넷 AI 로 채우기', false); return; }
-    await edit(f, ['g2', 'g3']); await adv(pg, 800);
+    await edit(f, ['g1', 'g3']); await adv(pg, 800);
     const l0 = await ALL(f, 'guest'), m0 = await ops(pg, 'make'), p0 = await plays(f);
     ok('4 고친 줄이 있어도 이 순간 전체 듣기는 누를 수 있다(만들 수 있는 줄) [LS_MAKE_ALL]', l0.has && !l0.off && !l0.dis, JSON.stringify(l0));
     await tap(f, '.mk-hbtn[data-mp="guest"]'); await adv(pg, 800);
-    const l1 = await ALL(f, 'guest'), c2 = await CARD(f, 'g2'), c3 = await CARD(f, 'g3');
+    const l1 = await ALL(f, 'guest'), c2 = await CARD(f, 'g1'), c3 = await CARD(f, 'g3');
     await SHOT(pg, f, '4-한꺼번에', '.mk-hbtn[data-mp="guest"]');
     ok('4 누르면 고친 두 줄이 함께 «만드는 중» · 단추 «만드는 중»(차오름) · 단추 아래 줄 없이 아래 알림 «다 만들면 이어서 들려 드려요» [LS_MAKE_ALL · LS_WAIT_TOAST]',
       /만드는 중/.test(l1.txt) && l1.dis && l1.fill && l1.hint === '다 만들면 이어서 들려 드려요' && l1.lines === 0 && /만드는 중/.test(c2.pill) && /만드는 중/.test(c3.pill) && !c2.fill && !c3.fill && (await mkOps(pg, MARK.trim())) === 2, JSON.stringify({ l1, c2, c3, n: await mkOps(pg, MARK.trim()) }));
@@ -230,7 +230,7 @@ const SC = [
   /* ── 5 ── 한꺼번에 만들다 한 줄이 실패 — 틀지 않고 «만들지 못한 줄이 있어요 · 그 줄 아래를 봐 주세요» · 그 줄 아래 코드 · 다시 누르면 다시 */
   { no: 5, async run({ pg, f }) {
     if (await fillAll(pg, f) < 0) { ok('5 상태 만들기 — 하객 맞이 넷 AI 로 채우기', false); return; }
-    await edit(f, ['g2']); await f.evaluate(() => { mkSlText('g3', 0, _slLines('g3')[0][1] + ' 꼭 와 주세요.'); render(); }); await adv(pg, 800);
+    await edit(f, ['g1']); await f.evaluate(() => { mkSlText('g3', 0, _slLines('g3')[0][1] + ' 꼭 와 주세요.'); render(); }); await adv(pg, 800);
     await pg.evaluate(() => { __SV.faults.push({ op: 'make', nth: '*', kind: 'json', lat: 3000, text: '꼭 와 주세요', body: { ok: false, ecode: 'V0', error: '이 글로는 목소리를 만들지 못했어요 (코드 V0)' } }); });   // 몰림(V1)은 중계가 한 번 더 묻는다 — 늘 거절하는 답으로
     const p0 = await plays(f);
     await tap(f, '.mk-hbtn[data-mp="guest"]'); await until(pg, f, () => !(MK.lsMake || {}).guest, 120000); await adv(pg, 500);

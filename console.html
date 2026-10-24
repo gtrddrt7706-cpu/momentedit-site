@@ -593,7 +593,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       <button class="chip" id="tClear" aria-pressed="false">비우기</button>
     </div>
     <p class="note">
-      넣으면 <b>10분 전 · 5분 전 · 1분 전</b> 하객 안내가 그 시각에 저절로 나갑니다.<br>
+      넣으면 <b>10분 전 · 1분 전</b> 하객 안내(하객 안내가 열린 날은 5분 전 사진 올리기 안내도)가 그 시각에 저절로 나갑니다.<!-- [GUEST_5MIN_OFF_1023] --><br>
       비워 두면 그 세 개도 손으로 눌러 내보냅니다.
     </p>
   </div>
@@ -838,7 +838,7 @@ Object.keys(OPT).forEach(function(id){
 
 function rfSlugOf(key){ return key === 'entry' ? ('entry-' + (S.entry || 'A')) : RF_SLUG[key]; }   // [PV_INTRO] pv → narr-prevideo-in
 function rfKindLab(k){ var v = (S.up || {})[k]; return v && v.src === 'ai' ? 'AI 목소리' : '두 분 녹음'; }   // [RF_KIND_0928]
-function rfKeys(){ var ks = []; if (S.guestVoice === 'couple') ks = ks.concat(['g0','g1','g2','g3']); if (S.entryVoice === 'couple') ks.push('entry'); if (S.pvVoice === 'couple') ks.push('pv'); /* ★[BGM_CONSOLE2_1023 RF_IN_ENGINE] 엔진 큐에 있는 자리만 받는다 — 대본에서 하객 맞이 «5분 전»(03 · 검토 159)이 빠지면 g2 를 받지 않는다(줄 · 요청이 남지 않게) · 엔진을 못 만들면 종전 그대로 */
+function rfKeys(){ var ks = []; if (S.guestVoice === 'couple') ks = ks.concat(['g0','g1','g3']);   /* [GUEST_5MIN_OFF_1023] 5분 전 줄(g2)은 걷었다 */ if (S.entryVoice === 'couple') ks.push('entry'); if (S.pvVoice === 'couple') ks.push('pv'); /* ★[BGM_CONSOLE2_1023 RF_IN_ENGINE] 엔진 큐에 있는 자리만 받는다 — 대본에서 하객 맞이 «5분 전»(03 · 검토 159)이 빠지면 g2 를 받지 않는다(줄 · 요청이 남지 않게) · 엔진을 못 만들면 종전 그대로 */
   try { var _sl = {}; (RitualCue.build(S, { mode: MODE }).cues || []).forEach(function(c){ _sl[c.slug] = 1; }); ks = ks.filter(function(k){ return k === 'entry' || !RF_SLUG[k] || _sl[RF_SLUG[k]] || (k === 'g3' && _sl['guest-4-1min-pre']); }); } catch (e) {}
   return ks; }   // [PV_INTRO] 식전 영상 소개 — 파일이 없으면 스튜디오 나레이션 그대로
 function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(), mu = esdWant(); if (!sec || !box) return; sec.hidden = !ks.length && !mu; if (!ks.length && !mu) return;   // [ENTRY_SCENE_DAY] 입장 음악만 있어도 칸을 연다

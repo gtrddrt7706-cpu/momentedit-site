@@ -81,7 +81,7 @@ for (const [W, mob] of [[390, true], [1280, false]]) {
   const ga = await pg.evaluate(() => new Promise((res) => { const lab = _mpLab('guest'); _lStart(['guest'], false); setTimeout(() => { const q = LP.q.map((x) => x.bridge ? 'B:' + x.txt : (x.up || x.slug || x.k)); lsStop(); const pq = _lSteps(ENG, ['prevideo']).map((x) => x.up || x.k); res({ lab, q, pv: RitualOpen.onOf(S, 'prevideo'), pq }); }, 400); }));
   /* [GUEST_ALL_G3 → ONEMIN_FIRST 2026-10-05] 1분 전이 영상 앞이 되어 엔진 차례 그대로 넷 — 식전 영상 자리 쉼(B:) 없음 · 식전 영상 쪽엔 1분 전 없음 */
   /* ★[OPEN_ROW_1014] 새 코스는 1분 전 뒤에 개식 선언(137 · 나레이션 · 예식 시작 시각)이 늘 온다 — 카드 넷 + 개식 «5줄» · 끝 셋 = 5분 전 · 1분 전 · 개식 */
-  ok(W + ' 하객 맞이 «전체 듣기»는 카드 넷 다 — … 5분 전 → 1분 전(영상 자리 쉼 없음) → 개식 선언 · «5줄 이어서» · 식전 영상 쪽엔 1분 전 없음 [ONEMIN_FIRST]', ga.pv && /5줄 이어서/.test(ga.lab) && ga.q.slice(-3).join('|') === 'g2|g3|narr-open' && !ga.q.some((x) => /^B:/.test(x)) && ga.pq.indexOf('g3') < 0, JSON.stringify(ga));
+  ok(W + ' 하객 맞이 «전체 듣기»는 카드 넷 다 — … 10분 전 → 1분 전(5분 전 칸 없음 · 영상 자리 쉼 없음) → 개식 선언 · «4줄 이어서» · 식전 영상 쪽엔 1분 전 없음 [ONEMIN_FIRST]', ga.pv && /4줄 이어서/.test(ga.lab) && ga.q.slice(-3).join('|') === 'g1|g3|narr-open' && !ga.q.some((x) => /^B:/.test(x)) && ga.pq.indexOf('g3') < 0, JSON.stringify(ga));
   ok(W + ' 가로 넘침 없음', await pg.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
   ok(W + ' pageerror 0', errs.length === 0, errs.join(' | ').slice(0, 300));
   await ctx.close();

@@ -208,7 +208,7 @@ for (const w of [390, 1280]) {
   /* ── 말 빠르기 · 문장 사이 쉼 = 사람별 [VOICE_TUNE 2026-10-04 사장님] (종전 순간 쪽 [TEMPO_STEP] 줄은 걷었다) ── */
   { const { ctx, pg, errs, nx } = await open(w, { ai: true, st: { ok: true, on: true, groom: { consent: true, ready: true, left: 2 }, bride: {}, per: {} } });
     await nx(); await pg.waitForTimeout(900);
-    await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; S.up = S.up || {}; ['g0', 'g2'].forEach((q) => { S.up[q] = { src: 'ai', id: 'local:' + q, tempo: '1', pause: 350, tx: _txSig(_recNeed(q)), by: 'groom' }; }); S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'b' }; mkGo('guest'); }); await pg.waitForTimeout(500);
+    await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; S.up = S.up || {}; ['g0', 'g3'].forEach((q) => { S.up[q] = { src: 'ai', id: 'local:' + q, tempo: '1', pause: 350, tx: _txSig(_recNeed(q)), by: 'groom' }; }); S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'g' }; mkGo('guest');   /* [GUEST_5MIN_OFF_1023] 5분 전 줄(g2)은 걷었다 */ }); await pg.waitForTimeout(500);
     await pg.waitForTimeout(1600); await pg.waitForFunction(() => !!VC.fillChk && !(VC.fill && VC.fill.doing), null, { timeout: 20000 }).catch(() => {});   /* [FILL_EMPTY 2026-10-06] 상태를 처음 받고 1.8초 뒤 빈 AI 줄(입장 · 영상 소개)을 저절로 채운다(설계) — 그 요청이 아래 «점 누르기» · «이 목소리로 쓰기» 창에 섞여 «누를 때 만듦»으로 세던 것(2026-10-09 A~Z 점검 1라운드 · main 에서도 빨강) · 채우기가 끝난 뒤에 잰다 */
     ok(`${w} [VOICE_TUNE] 순간 쪽에 «말 빠르기 · 문장 사이 쉼» 줄이 없다`, await pg.evaluate(() => !document.querySelector('.mk-pg .mk-tp') && !document.querySelector('[data-fk="mkvtone"]')));
     await pg.evaluate(() => mkVcTune('groom')); await pg.waitForTimeout(500);
@@ -226,7 +226,7 @@ for (const w of [390, 1280]) {
     await pg.click('[data-fk="mktune:t:4"]'); await pg.waitForTimeout(200);
     await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(500);
     const aft = await pg.evaluate(() => ({ vs: S.vset.groom, mk: window.__calls.filter((c) => c.op === 'make' && !c.bg) /* [EX_PREBAKE] */, rate: _upRate('g0'), tk: _tKey('g0') }));
-    ok(`${w} [VOICE_TUNE] [이 목소리로 쓰기] → 신랑 값(1.2 · 1200 · [TUNE_RECENTER]) · 신랑이 읽는 AI 줄마다 한 번 retempo 1.2 · 창 닫힘`, aft.vs.tempo === '1.2' && aft.vs.pause === 1200 && aft.tk === '1.2' && aft.mk.length >= 1 && aft.mk.every((c) => String(c.tempo) === '1.2' && (c.key === 'g0' || c.key === 'g2')) && await pg.evaluate(() => !VC.tune), JSON.stringify(aft));
+    ok(`${w} [VOICE_TUNE] [이 목소리로 쓰기] → 신랑 값(1.2 · 1200 · [TUNE_RECENTER]) · 신랑이 읽는 AI 줄마다 한 번 retempo 1.2 · 창 닫힘`, aft.vs.tempo === '1.2' && aft.vs.pause === 1200 && aft.tk === '1.2' && aft.mk.length >= 1 && aft.mk.every((c) => String(c.tempo) === '1.2' && (c.key === 'g0' || c.key === 'g3')) && await pg.evaluate(() => !VC.tune), JSON.stringify(aft));
     const bt = await pg.evaluate(() => { S.vtempo = { guest: '0.9' }; return { g1: _tKey('g1'), g0: _tKey('g0') }; });
     ok(`${w} [VOICE_TUNE] 신부 값이 없으면 옛 순간 값(0.9) · 신랑 줄은 신랑 값(1.2)`, bt.g1 === '0.9' && bt.g0 === '1.2', JSON.stringify(bt));
     ok(`${w} 화면 오류 0(사람별 빠르기)`, !errs.length, errs.join(' | '));

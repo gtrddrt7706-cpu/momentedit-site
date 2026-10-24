@@ -9781,7 +9781,7 @@ fi
 chk 'CINE_SCOPE' order-preview.html 6
 chk 'CINE_SCOPE' scripts/audit/cine-scope.mjs 2
 chk 'CINE_SCOPE' .claude/skills/momentedit-design/SKILL.md 1
-chk 'var _VFY={entry:15,close:45,welcome:12,toast:10};' order-preview.html 1
+chk 'var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};' order-preview.html 1
 nochk '.pv-media{position:relative;aspect-ratio:16/9' order-preview.html
 nochk '.mk-vu-img{aspect-ratio:16/9' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/cine-scope.mjs >/dev/null 2>&1; _cs=$?
@@ -14791,6 +14791,9 @@ chk 'TOAST_MEDIUM_1023' assets/ritual-open.js 1   # 축배 판 = 허리 위 중�
 chk 'TOAST_MEDIUM_1023' order-preview.html 1   # 축배 칸 높이 10%(_VFY 주석 · 위 설명)
 chk 'CLOSE_HAND_FIX_1023' assets/ritual-open.js 1   # 닫는 인사 185 ~ 193장 맞잡은 손 아래 여분 손을 다시 그림(10/23 GPT 독립 검수 · 내 확대 확인)
 chk 'MATJEOL_V1_1023' assets/ritual-open.js 1   # 맞절 = 처음 만든 판(사장님 «이 구조가 더 괜찮다») · 손 내밀기 · 흔들기 앞을 잘라 숙이는 데서 시작
+chk 'SIGCOLOR_VIDEO_1024' assets/ritual-open.js 1   # 편지 · 부모님께 인사 · 덕담 · 축사 · 축배 = 원색 판(파랑 + 에메랄드) · 카메라 고정 · 뒤 하객 렌즈 시선은 앞 장 되풀이로 고침(10/24 사장님 «처음 레퍼런스 틀» · «뒤에 사람들은 주인공을 바라봐야지»)
+chk 'SIGCOLOR_VOW_1024' assets/ritual-open.js 1   # 서약 = 원색 판 · 하객 넷 신부 카드 쪽 · 렌즈 0(10/24)
+chk 'VOW_FY_1024' order-preview.html 1   # 서약 칸 높이 60%(카드 둘 + 하객 테이블)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
@@ -17223,7 +17226,7 @@ chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언�
 chk 'keepWhen(rec._언제' scripts/sample-cut.mjs 1   # [WHEN_KEEP_MARKS] sample-cut 도 표식을 남긴다(10/10 두 번째로 지워졌다)
 chk 'PACE_D' scripts/build-typecast-import.mjs 2   # 문장 사이 1.25 · «입장!» 앞 0.6 (사장님 견본 D)
 chk 'man.gap?.inner' scripts/assemble-narration.mjs 1   # [PACE_D] 쉼표 쉼 상한은 문장 사이와 따로 — 되돌리면 «입장!» 안 쉼이 늘어난다
-chk "'십 분 뒤 본식을 시작하겠습니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분의 카메라도 마음껏 셔터를 눌러 주시길 바랍니다.'," assets/ritual-open.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏…»)
+chk "'십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.'," assets/ritual-open.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏…»)
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js
 #   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
@@ -20105,3 +20108,18 @@ chk '  rehApply();   // ' console.html 1   # [REHEARSAL] 시작할 때 프로필
 chk 'BGM_CONSOLE2_1023' docs/handoff/BGM_REHEARSAL_1023.md 1
 chk 'REHEARSAL' scripts/audit/bgm-reh.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-reh.mjs >/dev/null 2>&1; _brh=$?; [ "$_brh" = 1 ] && { echo 'FAIL bgm-reh: 콘솔 리허설 값(저장 · 적용 · 미리 듣기 기본값) 또는 «문 열기 시작» 표시가 어긋났습니다 — node scripts/audit/bgm-reh.mjs'; fail=1; }; :; fi
+# ── 2026-10-23 [GUEST_5MIN_OFF_1023 검토 159-1] 하객 맞이 5분 전 «목소리» 칸 걷음(03 · 117 · 121 · 125 RETIRED · 두 분 줄 셋 · 5분 시점엔 사진 올리기 안내만) — 되살리지 말 것 · 검사 open-course «GUEST_5MIN_OFF_1023»
+chk 'GUEST_5MIN_OFF_1023' assets/ritual-cue.js 4
+chk "'guest-3-5min': 1, 'guest-ex2-3-5min': 1, 'guest-ex3-3-5min': 1, 'guest-ex4-3-5min': 1" assets/ritual-cue.js 1
+chk "var GUEST_KEYS=\['g0','g1','g3'\];" order-preview.html 1
+nochk "\['g2','시작 5분 전','guest'\]" order-preview.html
+nochk "'g0','g1','g2','g3'" console.html
+nochk "'g0','g1','g2','g3'" admin.html
+# ── 2026-10-24 [YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024 검토 160 고침판] 사장님 «자료에 있다고 무조건 붙이지 말고 좋은 글인지 검토 · 유쾌는 너무 올드해» — 옛 사회자 말투 · 청첩장 상투구는 고르지 않는다 · 검사 open-course «YUKWAE_MODERN_1024»
+chk 'YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024 사장님 2026-10-24' assets/ritual-open.js 1
+chk '십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.' assets/ritual-open.js 1
+chk '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.' assets/ritual-open.js 1
+chk '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요.' assets/ritual-cue.js 1
+nochk '간혹 식 중에 전화벨이 울리기도 하는데' assets/ritual-open.js
+nochk '너무나도 좋을 것 같습니다' assets/ritual-cue.js
+nochk '자, 이제 식이 십 분 정도밖에 남지 않았는데요' assets/ritual-open.js

@@ -48,7 +48,7 @@ for (const w of [360, 1280]) {
   ok(`${w} 안내 목소리 — 처음엔 안 눌린 모양 · 누르면 눌린 모양만(소리 없음) · «고르기» · «흐름» 제목 없음 · AI 가 꺼지면 고를 것이 나레이션 하나라 칸이 없다 [CHIP_UNPICKED · MK_NO_HEADS · VP_NO_DIRECT · VP_CHIP_SILENT]`, cu.before === 'false' && cu.tab === 0 && cu.after === 'true' && cu.q === 0 && !cu.heads.length && cu.off, JSON.stringify(cu));
   await pg.evaluate(() => { S.guestVoice = 'couple'; S.up = {}; opSync(); mkGo('guest'); render(); }); await pg.waitForTimeout(500);
   const t0 = await pg.evaluate(() => ({ prep: document.querySelectorAll('.mk-flow .vk-prep').length, no: document.querySelectorAll('.mk-flow .vk-prep .vk-st.no').length, narr: document.querySelectorAll('.mk-flow .vk-narr').length, rec: document.querySelectorAll('[data-fk^="mkrec:"]').length, file: document.querySelectorAll('[data-fk^="mkup:"]').length, play: document.querySelectorAll('.mk-vcards [data-fk^="mkvpl:"]').length, flow: document.querySelectorAll('.mk-flow').length }));   /* ★[MK_FORM_ONE 2026-10-03] 흐름 칸은 «이 순간 들어 보기» 머리만 남는다 — 목록(.mk-flow)이 없는지로 본다 */   /* ★[VP_ONE_LIST] 흐름 목록은 줄 카드와 하나로 — 두 분 목소리 줄은 카드에만(▶ 는 카드 머리 · 식전 영상 쪽 4번 줄은 ▶ 없음) */
-  ok(`${w} 하객 맞이 — 두 분 목소리 줄에 흐름 목록 없이 줄 카드 하나로(▶ · [녹음] · [파일]) [VP_ONE_LIST] [VOICE_KIND · REC_UPLOAD]`, t0.prep === 0 && t0.flow === 0 && t0.play === 4 /* [R8-09] 시작 1분 전 카드에도 ▶ */ && t0.rec === 4 && t0.file === 4, JSON.stringify(t0));
+  ok(`${w} 하객 맞이 — 두 분 목소리 줄에 흐름 목록 없이 줄 카드 하나로(▶ · [녹음] · [파일]) [VP_ONE_LIST] [VOICE_KIND · REC_UPLOAD]`, t0.prep === 0 && t0.flow === 0 && t0.play === 3 /* [GUEST_5MIN_OFF_1023] */ /* [R8-09] 시작 1분 전 카드에도 ▶ */ && t0.rec === 3 && t0.file === 3, JSON.stringify(t0));
   /* ★[REC_DLG] [녹음] → 작은 창(읽을 글 · 누가 · 마이크 허용 안내 · [녹음 시작]) → [녹음 시작] 뒤에야 마이크 · 3 · 2 · 1 */
   await pg.click('[data-fk="mkrec:g0"]'); await pg.waitForTimeout(300);
   const c0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { ph: MK_REC && MK_REC.ph, dlg: !!d, role: d && d.querySelector('[role=dialog][aria-modal=true]') ? 1 : 0, txt: d ? (d.querySelector('.mk-rect') || {}).textContent || '' : '', mic: d ? /«?허용»?을 눌러 주세요/.test(d.textContent) : false   /* [GUIL_OFF 2026-10-05] «» 는 글꼴로 바뀌어 화면 글자에서 빠진다 */, go: !!(d && d.querySelector('[data-fk="mkrecgo"]')), focus: document.activeElement && document.activeElement.getAttribute('data-fk'), inline: document.querySelectorAll('.mk-vcards .mk-recp').length, inert: !!document.querySelector('.wrap[inert]') }; });
@@ -86,7 +86,7 @@ for (const w of [360, 1280]) {
   await pg.click('[data-fk="mkdlgx"]'); await pg.waitForTimeout(250); await pg.click('.ord-ask .oa-yes'); await pg.waitForTimeout(600);
   const sl = await pg.evaluate(() => { const y0 = scrollY; scrollBy(0, 300); const moved = scrollY !== y0; scrollTo(0, y0); return { dlg: !!document.getElementById('mkRecDlg'), bo: getComputedStyle(document.body).overflow, ho: getComputedStyle(document.documentElement).overflow, moved }; });
   ok(`${w} × → «그만두기»로 닫은 뒤 스크롤이 풀린다 [DLG_SCROLL_LOCK]`, !sl.dlg && sl.bo !== 'hidden' && sl.ho !== 'hidden' && sl.moved, JSON.stringify(sl));
-  const [fc2] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g2"]')]); await fc2.setFiles(long);
+  const [fc2] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g3"]')]); await fc2.setFiles(long);
   await pg.waitForFunction(() => MK_REC && (MK_REC.ph === 'err' || MK_REC.ph === 'review'), null, { timeout: 20000 }).catch(() => {});
   const f2 = await pg.evaluate(() => ({ ph: MK_REC && MK_REC.ph, msg: MK_REC && MK_REC.msg }));
   ok(`${w} 60초 넘는 파일 — 올리지 않고 한 줄로 알린다`, f2.ph === 'err' && /60초/.test(f2.msg || ''), JSON.stringify(f2));
@@ -184,7 +184,7 @@ for (const w of [360, 1280]) {
   await pg.route('**/*', (rt) => { const u = rt.request().url();
     if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
     if (/script\.google\.com/.test(u)) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {} calls.push(b.fn + ':' + (b.args || []).join(','));
-      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, files: [{ key: 'g2', id: 'F-st2', name: '시작 5분 전 · 스튜디오 · 카톡.wav' }, { key: 'g0', id: 'F-g0', name: '하객 입장 때 · 녹음.wav' }, { key: 'g1', id: 'F-g1', name: '시작 10분 전 · 녹음.wav' }] }) });   // [RF_STUDIO_UP] 스튜디오가 대신 올린 g2 · ★[RF_CON_NOOLD 2026-10-08] 빈 줄의 대체 파일은 스튜디오 파일(이름 « · 스튜디오 · » 또는 sup)뿐이라 이름을 함께 싣는다(진짜 adminRitualFiles 도 싣는다)
+      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, files: [{ key: 'g3', id: 'F-st2', name: '시작 1분 전 · 스튜디오 · 카톡.wav' }, { key: 'g0', id: 'F-g0', name: '하객 입장 때 · 녹음.wav' }, { key: 'g1', id: 'F-g1', name: '시작 10분 전 · 녹음.wav' }] }) });   // [RF_STUDIO_UP] 스튜디오가 대신 올린 g2 · ★[RF_CON_NOOLD 2026-10-08] 빈 줄의 대체 파일은 스튜디오 파일(이름 « · 스튜디오 · » 또는 sup)뿐이라 이름을 함께 싣는다(진짜 adminRitualFiles 도 싣는다)
       const ok = b.fn === 'adminRitualFileGet' && b.args && (b.args[1] === 'F-g0' || b.args[1] === 'F-st2');
       return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(ok ? { ok: true, id: b.args[1], mime: 'audio/wav', data: wav } : { ok: false, error: '없음' }) }); }
     return rt.fulfill({ status: 200, body: '' }); });
@@ -193,7 +193,7 @@ for (const w of [360, 1280]) {
   const q = Buffer.from(JSON.stringify(S0)).toString('base64');
   await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(q)}&rf=ME0001`); await pg.waitForTimeout(1500);
   const r = await pg.evaluate(() => ({ st: window.__rfState().st, clip: window.__rfState().clip, sec: !document.getElementById('rfSec').hidden, t: document.getElementById('rfChk').textContent }));
-  ok('콘솔 — rf=코드 + 관리자 토큰 → 시작 전에 받아 둠(g0 ✓) · 스튜디오가 대신 올린 줄(g2)도 받아 둠 · 못 받은 줄(g1) · 파일 없는 줄(g3)은 «나레이션으로» [REC_ADMIN · RF_STUDIO_UP]', /"g0":"ok"/.test(r.st) && /"g1":"fail"/.test(r.st) && r.clip === 'blob:' && r.sec && /하객 입장 때✓ 두 분 녹음 · 받아 둠/.test(r.t) && /시작 10분 전받지 못함 · 나레이션으로 나감/.test(r.t) && /시작 5분 전✓ 두 분 녹음 · 받아 둠/.test(r.t) && /시작 1분 전파일 없음/.test(r.t) && calls.filter((c) => !/^adminRitualFiles:/.test(c)).every((c) => /^adminRitualFileGet:ME0001,F-(g[01]|st2)$/.test(c)) && /"g2":"ok"/.test(r.st), JSON.stringify({ r, calls }));
+  ok('콘솔 — rf=코드 + 관리자 토큰 → 시작 전에 받아 둠(g0 ✓) · 스튜디오가 대신 올린 줄(g3)도 받아 둠 · 못 받은 줄(g1)은 «나레이션으로» · 5분 전 줄 없음(GUEST_5MIN_OFF_1023) [REC_ADMIN · RF_STUDIO_UP]', /"g0":"ok"/.test(r.st) && /"g1":"fail"/.test(r.st) && r.clip === 'blob:' && r.sec && /하객 입장 때✓ 두 분 녹음 · 받아 둠/.test(r.t) && /시작 10분 전받지 못함 · 나레이션으로 나감/.test(r.t) && /시작 1분 전✓ 두 분 녹음 · 받아 둠/.test(r.t) && !/시작 5분 전/.test(r.t) && calls.filter((c) => !/^adminRitualFiles:/.test(c)).every((c) => /^adminRitualFileGet:ME0001,F-(g[01]|st2)$/.test(c)) && /"g3":"ok"/.test(r.st), JSON.stringify({ r, calls }));
   ok('콘솔 pageerror 0', !errs.length, errs.join(' | '));
   await ctx.close();
 }

@@ -154,15 +154,15 @@ else {
   await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
     if (/script\.google\.com/.test(u)) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {}
       const H = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
-      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: H, body: J({ ok: true, sup: { g2: { id: 'F-st2' } }, files: [
-        { key: 'g0', id: 'F-old-ai', name: '하객 입장 때 · AI 옛 테이크.wav' }, { key: 'g1', id: 'F-g1', name: '시작 10분 전 · 녹음.wav' }, { key: 'g2', id: 'F-st2', name: '시작 5분 전 · 스튜디오 · 카톡.wav' }, { key: 'g3', id: 'F-old3', name: '시작 1분 전 · 다시 보내기 사본.wav' }] }) });
+      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: H, body: J({ ok: true, sup: { g3: { id: 'F-st2' } }, files: [
+        { key: 'g0', id: 'F-old-ai', name: '하객 입장 때 · AI 옛 테이크.wav' }, { key: 'g1', id: 'F-g1', name: '시작 10분 전 · 녹음.wav' }, { key: 'g2', id: 'F-old2', name: '시작 5분 전 · 옛 줄.wav' }, { key: 'g3', id: 'F-st2', name: '시작 1분 전 · 스튜디오 · 카톡.wav' }] }) });
       gets.push((b.args || [])[1]); return rt.fulfill({ status: 200, headers: H, body: J({ ok: true, id: (b.args || [])[1], mime: 'audio/wav', data: wav }) }); }
     return rt.fulfill({ status: 200, body: '' }); });
   await pg.goto(`http://127.0.0.1:${port}/console.html`); await pg.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); });
   const S0 = { course: 'family', guestVoice: 'couple', entryVoice: 'nar', up: { g0: 0, g1: { id: 'F-g1', n: '녹음', src: 'rec' } } };   // g0 = 두 분이 지운 줄 · g2 = 스튜디오가 대신 올린 줄 · g3 = 아무것도 안 고른 줄
   await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(J(S0)).toString('base64'))}&rf=ME0001`); await pg.waitForTimeout(1500);
   const r = await pg.evaluate(() => ({ st: JSON.stringify(window.__rfState ? window.__rfState().st : null), t: (document.getElementById('rfChk') || {}).textContent || '' }));
-  ok('75 [RF_CON_NOOLD] 콘솔 — 지운 줄(g0) · 고르지 않은 줄(g3)의 옛 파일은 안 받고 «나레이션» · 두 분 파일(g1) · 스튜디오 파일(g2)은 받아 둔다', !gets.includes('F-old-ai') && !gets.includes('F-old3') && gets.includes('F-g1') && gets.includes('F-st2') && /하객 입장 때파일 없음 · 나레이션으로 나감/.test(r.t) && /시작 1분 전파일 없음/.test(r.t) && /시작 5분 전✓/.test(r.t), J({ gets, t: r.t }));
+  ok('75 [RF_CON_NOOLD] 콘솔 — 지운 줄(g0) · 걷은 5분 전 줄(g2)의 옛 파일은 안 받고 «나레이션» · 두 분 파일(g1) · 스튜디오 파일(g3)은 받아 둔다 [GUEST_5MIN_OFF_1023]', !gets.includes('F-old-ai') && !gets.includes('F-old2') && gets.includes('F-g1') && gets.includes('F-st2') && /하객 입장 때파일 없음 · 나레이션으로 나감/.test(r.t) && !/시작 5분 전/.test(r.t) && /시작 1분 전✓/.test(r.t), J({ gets, t: r.t }));
   ok('75 콘솔 pageerror 0', !errs.length, errs.join(' | '));
   await br.close(); srv.close();
 }

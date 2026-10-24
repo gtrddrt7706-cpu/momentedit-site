@@ -120,8 +120,9 @@ else ok(`FILES ${N_FILES}개 · 중복 없음`);
      종전 «가족이 낭독» 흐름(21 체인 → 57 수동)과 같은 발사 방식이다 — 누름이 새로 생긴 게 아니라 사람 순간 뒤의 누름이다 */
 const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '57', '27', '20', '56', '26', '44', '110', '60', '65', '47'];
 //                  guest-1 entry-A entry-out vow-in vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
-const A3_CLOCK = ['02', '03', '04'];
-//                 guest-2-10min · guest-3-5min · guest-4-1min
+/* ★★[GUEST_5MIN_OFF_1023 검토 159-1] 25큐 → 24큐 · 시각고정 3 → 2 — 03(5분 전 «목소리» 칸)을 걷었다(실제 대본은 10분 전 → 1분 전 2단) · 5분 시점엔 하객 안내가 열린 날만 사진 올리기 안내(시각) */
+const A3_CLOCK = ['02', '04'];
+//                 guest-2-10min · guest-4-1min
 /* ★[WELCOME_OUT_DROP] 13(vow-in)이 체인에서 «수동»으로 올라갔다 — 12 가 빠진 자리를 이어받았다.
    ★[TOAST_NONE] 87(narr-toast-none)이 체인으로 들어왔다 — 편지 뒤에 이어 붙어 축배를 연다.
      사람이 누를 자리가 아니다. 편지가 끝나면 바로 「오늘은 축사를 따로 두지 않았습니다」가 흐르고
@@ -133,7 +134,7 @@ const A3_CHAIN = ['15', '136', '87', '40', '108'];   // [DECLARE_BY_PERSON] 30 �
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 25) no(`§3-A: 25큐가 아니다 (${r.cues.length})`);   // [DECLARE_BY_PERSON] 24 → 25
+  if (r.cues.length !== 24) no(`§3-A: 24큐가 아니다 (${r.cues.length})`);   // [DECLARE_BY_PERSON] 24 → 25 · [GUEST_5MIN_OFF_1023] 25 → 24
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);

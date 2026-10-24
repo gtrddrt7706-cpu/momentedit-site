@@ -158,8 +158,8 @@ const SC = [
   } },
   /* ── #62 ── */
   { no: 62, lat: { ritualFile: 100000 }, async run({ pg, f }) {
-    await blob(f, 'g2', '녹음'); await until(pg, f, () => !MK_UP.g2, 400000, 1000);
-    const r = await f.evaluate(() => (MK.lineErr || {}).g2 || ''), n = await pg.evaluate(() => __SV.log.filter((x) => x.op === 'ritualFile').length);
+    await blob(f, 'g3', '녹음'); await until(pg, f, () => !MK_UP.g3, 400000, 1000);
+    const r = await f.evaluate(() => (MK.lineErr || {}).g3 || ''), n = await pg.evaluate(() => __SV.log.filter((x) => x.op === 'ritualFile').length);
     ok('#62 세 번 다 60초를 넘긴 올리기 = «확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)» — «다시 눌러 주세요»가 아니다 [EC_ONE_WORD]', r === '확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)' && n === 3, JSON.stringify({ r, n }));
   } },
   /* ── #32 · #66 · #73 ── */
@@ -180,20 +180,20 @@ const SC = [
   } },
   /* ── #64 ── */
   { no: 64, faults: [{ op: 'ritualFile', nth: 1, kind: 'offline' }, { op: 'ritualFile', nth: 2, kind: 'offline' }, { op: 'ritualFile', nth: 3, kind: 'offline' }], async run({ pg, f }) {
-    await blob(f, 'g2', '녹음'); await adv(pg, 40000);
-    const a = await f.evaluate(() => ({ err: (MK.lineErr || {}).g2 || '', btn: !!document.querySelector('[data-fk="mkupretry:g2"]') }));
+    await blob(f, 'g3', '녹음'); await adv(pg, 40000);
+    const a = await f.evaluate(() => ({ err: (MK.lineErr || {}).g3 || '', btn: !!document.querySelector('[data-fk="mkupretry:g3"]') }));
     await shot(pg, '64-다시보내기');
-    await f.evaluate(() => document.querySelector('[data-fk="mkupretry:g2"]').click()); await adv(pg, 8000);
-    const b = await f.evaluate(() => ({ id: ((S.up || {}).g2 || {}).id || '', err: (MK.lineErr || {}).g2 || '', btn: !!document.querySelector('[data-fk="mkupretry:g2"]') }));
-    ok('#64 창을 닫은 뒤 끝내 못 보낸 녹음 → 그 줄 아래 «다시 보내기» · 누르면 다시 녹음 없이 올라간다 [UP_FAIL_KEEP]', /코드 U6/.test(a.err) && a.btn && /^Fg2x/.test(b.id) && !b.err && !b.btn, JSON.stringify({ a, b }));
+    await f.evaluate(() => document.querySelector('[data-fk="mkupretry:g3"]').click()); await adv(pg, 8000);
+    const b = await f.evaluate(() => ({ id: ((S.up || {}).g3 || {}).id || '', err: (MK.lineErr || {}).g3 || '', btn: !!document.querySelector('[data-fk="mkupretry:g3"]') }));
+    ok('#64 창을 닫은 뒤 끝내 못 보낸 녹음 → 그 줄 아래 «다시 보내기» · 누르면 다시 녹음 없이 올라간다 [UP_FAIL_KEEP]', /코드 U6/.test(a.err) && a.btn && /^Fg3x/.test(b.id) && !b.err && !b.btn, JSON.stringify({ a, b }));
   } },
   /* ── #65 ── */
   { no: 65, async run({ pg, f }) {
-    const sel = '[data-fk="mkup:g2"]'; const has = await f.evaluate((s) => !!document.querySelector(s), sel);
+    const sel = '[data-fk="mkup:g3"]'; const has = await f.evaluate((s) => !!document.querySelector(s), sel);
     if (has) { await f.evaluate((s) => document.querySelector(s).scrollIntoView({ block: 'center' }), sel); const w = pg.waitForEvent('filechooser', { timeout: 4000 }); await f.click(sel); const fc = await w; await fc.setFiles({ name: 'pic.png', mimeType: 'image/png', buffer: Buffer.from([137, 80, 78, 71]) }); }
-    else await f.evaluate(() => { _upFail('g2', '녹음 파일(소리)만 보낼 수 있어요 · 휴대폰 음성 메모 파일을 골라 주세요'); });
+    else await f.evaluate(() => { _upFail('g3', '녹음 파일(소리)만 보낼 수 있어요 · 휴대폰 음성 메모 파일을 골라 주세요'); });
     await adv(pg, 800);
-    const r = await f.evaluate(() => ({ line: (MK.lineErr || {}).g2 || '', toast: MK.toast || '' }));
+    const r = await f.evaluate(() => ({ line: (MK.lineErr || {}).g3 || '', toast: MK.toast || '' }));
     ok('#65 소리 아닌 파일을 고르면 그 줄 아래(맨 위 알림 아님) [UP_PICK_LINE]', has && /소리\)만 보낼 수 있어요/.test(r.line) && !r.toast, JSON.stringify({ has, r }));
   } },
   /* ── #67 ── */
