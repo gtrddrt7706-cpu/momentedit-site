@@ -28,7 +28,7 @@ try {
     S = JSON.parse(S0); S.vowHow = 'alt'; S.vowFirst = 'g'; S.tx = { 'vow.g': '신랑 하나. 신랑 둘.', 'vow.b': '신부 하나.' }; out.scriptAlt = scriptTextOpen();
     S = JSON.parse(S0); out.trib = _lSteps(ENG, ['tribute']).map((x) => x.txt);
     /* 131-5 분위기 «지금 그대로» · 예시 넷 × 축사 · 선언 — 박수 청 → 고맙습니다 → 자리 → 박수 청 */
-    const CL = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|맞아)/; out.clap = []; out.clapN = 0;
+    const CL = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/; out.clap = []; out.clapN = 0;
     (R.EXAMPLES || []).forEach((ex) => { [0, 1, 2, 3].forEach((sp) => {
       S = JSON.parse(S0); R.applyExample(S, ex.k); S.mood = 'keep'; S.on.declare = 1; S.on.free = 1; S.freeWhat = 'speech'; S.narEx = Object.assign({}, S.narEx || {}); if (sp) S.narEx.speech = sp; else delete S.narEx.speech; delete S.seamHand; delete S.seamAuto;
       _persist(); out.clapN++; let cs = []; try { cs = ENG.RitualCue.build(S, { mode: 'console' }).cues; } catch (e) { return; }

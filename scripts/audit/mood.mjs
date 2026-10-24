@@ -32,7 +32,7 @@ function run(mut) {
   T('① 분위기 표 — 다섯 분위기 × 순간 ' + O.narExKeys().length + ' · 칩 이름이 있는 번호 · 화촉은 서는 분마다', !badT.length, badT.slice(0, 6).join(' · '));
   // ②③
   const extras = [[], ['ring'], ['toast'], ['table'], ['bless'], ['free']], moods = O.MOOD_KEYS;
-  const BO = /^(다음은|다음으로|자 그럼 이제|이제|먼저|이어서|이번에는|그럼)(\s|,|$)/, CL = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|맞아)/;
+  const BO = /^(다음은|다음으로|자 그럼 이제|이제|먼저|이어서|이번에는|그럼)(\s|,|$)/, CL = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/;
   let n = 0, nm = 0; const bad = {}; const add = (k, ex) => { bad[k] = bad[k] || { n: 0, ex }; bad[k].n++; };
   for (const ex of O.EXAMPLES) for (const mood of moods) for (const who of whos) for (const songBy of ['friend', 'self']) for (const vk of ['vow', 'thanks']) for (const letter of ['none', 'each', 'parent']) for (const a2 of extras) {
     const S = { course: 'open' }; O.applyExample(S, ex.k); S.candleWho = who; S.songBy = songBy; S.vowKind = vk;

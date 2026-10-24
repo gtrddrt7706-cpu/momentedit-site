@@ -22,7 +22,7 @@ function load(off) {
   }
   return { O: ctx.RitualOpen, C: ctx.RitualCue };
 }
-const CLAP = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|맞아)/;
+const CLAP = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/;
 function sweep({ O, C }) {
   const P = O.PICKABLE.filter((k) => O.picked({ course: 'open', on: { [k]: 1 } }).length);
   const base = O.applyExample({ course: 'open' }, 'standard');
