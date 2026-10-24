@@ -507,7 +507,7 @@ ok('[YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024] 유쾌 120 · 122 · 85 = 요즘
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
   const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '';
   const old = /주시길 바랍니다|간혹 .*하는데|너무나도 좋을 것 같습니다|사랑의 이름으로|확인해 봐 주십시오/;
-  return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.'
+  return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 마음껏 셔터를 눌러 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.'
     && /'narr-photo-send': '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요\.'/.test(X) && /'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다\.'/.test(X)
     && /\['유쾌하게',\["바쁜 주말 귀한 시간 내주셔서 감사합니다\. 오늘 모든 안내는 저희가 미리 준비한 목소리로 진행됩니다\.",\s*"십 분 뒤 저희의 결혼식이 시작됩니다\./.test(B)
     && ![N[0], N[1], N[3]].some((x) => old.test(x)) && /^각자의 길을 걸어온 저희가/.test(D.ENTRY.A.self) && t('717_toast-groom') === '멋지게 잘 살겠습니다!' /* [NO_FORCED_JOKE_1024] 163 의 717 바꾸기는 걷었다 */; })());
@@ -541,6 +541,17 @@ ok('[MODERN_WORDS_1024 검토 164] 녹음 목록에 낡은 낱말 0(91 빼고) �
 ok('[IG_CLOSE_1024] 186 = 릴스 글 · 구호 «신랑 신부, 하객 여러분께 인사!» · 출처 장부에 릴스', (() => {
   const L = O.NAR_EX.close.lines['narr-close-bow'], J = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.filter((x) => /IG_CLOSE_1024/.test(x.src));
   return L[1].indexOf('살면서 이렇게 뜨거운 응원과 축하를 받는 일이 또 얼마나 있을까요? ') === 0 && L.every((x) => /신랑 신부, 하객 여러분께 인사!$/.test(x)) && J.length === 3 && !/이전에도 그랬듯이/.test(L.join()); })());
+/* ★★[MUST_FIX_165_1024 검토 165 · 사장님 «추천대로 개선»] GPT 694줄 전수 검토 → 꼭 고칠 것 27줄 */
+ok('[MUST_FIX_165_1024 검토 165] 17 · 151 · 154 · 120 · 107 · 189 · 165 · 168 · 153 · 두 분 유쾌 g1 · 참고 예시 15칸 · 안내 «숨 돌릴 틈» · «미리 준비한»', (() => {
+  const N = O.NAR, E = O.NAR_EX, w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
+  const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '', B3 = fs.readFileSync(P('order-preview.html'), 'utf8'), OP = fs.readFileSync(P('assets/ritual-open.js'), 'utf8');
+  return /각자의 와인을 한 잔에 부어 주시면 됩니다\.$/.test(D.NARR.valleyWine) && /축복의 불을 밝혀 주시겠습니다\./.test(N.candleIn.mothers) && /축복의 불을 밝혀 주시겠습니다\./.test(E.candle.lines['narr-candle-in-fathers'][0])
+    && N.guestEx[1][1].indexOf('오늘은 자연스러운 모습을 사진으로 남기니, ') > 0 && N.toastBothPour.indexOf('신랑 신부의 영원한 사랑과 행복을') === 0 && /축배를 들겠습니다\./.test(E.toast.lines['toast-toast'][1])
+    && E.vow.lines['narr-vow-in'][2].indexOf('사랑하는 가족, 소중한 친구,') === 0 && E.vow.lines['narr-vow-in-b'][2] === E.vow.lines['narr-vow-in'][2] && /오늘 그 멈춰 있던 시간이 다시 흐르길/.test(E.candle.lines['narr-candle-in-mothers'][2])
+    && /"십 분 뒤 저희의 결혼식이 시작됩니다\. 오늘은 자연스러운 모습을 사진으로 남기니/.test(B3)
+    && /앞으로도 오래 웃으며 만나자\./.test(t('622_speech-close-friend')) && !/며늘아/.test(t('609_bless-father')) && /^언제나 아내의 편이 되는 남편이 되겠습니다\./.test(t('903_vow-groom')) && /^서로의 시간을 존중하는 아내가 되겠습니다\./.test(t('904_vow-bride'))
+    && !/아무 일은 서울로/.test(t('707_letter-each-groom')) && /사랑하는 사람을 어떻게 대해야 하는지/.test(t('502_letter-each-bride')) && /"609_bless-father": \[[^\]]*며늘아/.test(B3)
+    && !/사이가 풀려요/.test(OP) && (OP.match(/중간에 숨 돌릴 틈이 생겨요/g) || []).length >= 6 && /미리 준비한 두 분 목소리가 흘러요/.test(OP); })());
 /* ── 8. 실브라우저(--live) ── */
 if (process.argv.includes('--live')) {
   let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }

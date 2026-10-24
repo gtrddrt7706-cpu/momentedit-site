@@ -7937,7 +7937,7 @@ nochk "'bless', 'song', 'tribute', 'free', 'letter'" assets/ritual-open.js 0   #
 nochk "'bless','song','tribute','free','letter'" assets/ritual-data.js 0
 nochk '부모님께 인사 뒤에 한 분이 하십니다' index.html 0                     # 홈 FAQ · 축사 자리(덕담 뒤 · 축가 앞)
 nochk '부모님께 인사 뒤에 한 분이 하십니다' api/_kb.js 0
-chk "heavyMid: '앉아서 듣는 순간이 셋 이어져요. 축가를 담으면 사이가 풀려요.'," assets/ritual-open.js 1
+chk "heavyMid: '앉아서 듣는 순간이 셋 이어져요. 축가를 담으면 중간에 숨 돌릴 틈이 생겨요.'," assets/ritual-open.js 1   # [MUST_FIX_165_1024] 새 글
 chk 'TRIBUTE_BRIDE_FIRST' assets/ritual-cue.js 1                         # 양가 차례 — 디렉터 메모만(신부 부모님께 먼저 · 자료 G · P · Q)
 chk 'TRIBUTE_BRIDE_FIRST' scripts/audit/open-course.mjs 1
 chk 'BLESS_ORDER_1012' assets/ritual-cue.js 1                            # 덕담 양가 차례 — 디렉터 메모만(양가 모두면 신랑 측 먼저 · 자료 O · D «덕담자 순서 확인»)
@@ -15290,7 +15290,7 @@ chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O
 chk "&& !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1
 chk 'TOAST_PUTDOWN_1018' assets/ritual-cue.js 1
 chk "→ 음악 → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'" assets/ritual-story.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «chk "'하객이 잔을 내려놓음 · 두 분도 잔을 건넴'"»
-chk '기원하며 축복의 불을 밝히겠습니다' assets/ritual-open.js 2   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 151 · 154 = 자료 G 원문 되돌림(옛 핀 «밝혀 주시겠습니다» 3 · 남은 하나는 쉬는 parents 판)
+chk '기원하며 축복의 불을 밝혀 주시겠습니다' assets/ritual-open.js 2   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 151 · 154 = 자료 G 원문 되돌림(옛 핀 «밝혀 주시겠습니다» 3 · 남은 하나는 쉬는 parents 판)
 # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 옛 nochk «밝히겠습니다» 걷음(위 줄이 지킨다)
 chk 'MOOD_FIT_1018' assets/ritual-cue.js 2
 chk 'var MOOD_SHIFT = { matjeol: \[0, 1, 3, 2\]' assets/ritual-cue.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2
@@ -17227,7 +17227,7 @@ chk 'WHEN_KEEP_MARKS' scripts/assemble-narration.mjs 1   # 녹음 기록 «_언�
 chk 'keepWhen(rec._언제' scripts/sample-cut.mjs 1   # [WHEN_KEEP_MARKS] sample-cut 도 표식을 남긴다(10/10 두 번째로 지워졌다)
 chk 'PACE_D' scripts/build-typecast-import.mjs 2   # 문장 사이 1.25 · «입장!» 앞 0.6 (사장님 견본 D)
 chk 'man.gap?.inner' scripts/assemble-narration.mjs 1   # [PACE_D] 쉼표 쉼 상한은 문장 사이와 따로 — 되돌리면 «입장!» 안 쉼이 늘어난다
-chk "'십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.'," assets/ritual-open.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏…»)
+chk "'십 분 뒤 예식이 시작됩니다. 오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 마음껏 셔터를 눌러 주세요.'," assets/ritual-open.js 1   # [GUEST_TRIM_1019] 셋째 문장을 걷어 받은 녹음 글로   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «십 분 뒤에 예식이 시작됩니다. 오늘의 순간은 자연스러운 사진…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] 유쾌 10분 전 G4 표 2   # [GUEST_FLESH_1019]   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘 하루는 자연스러운 사진으로 남으니, 여러분도 마음껏…»)
 nochk '기다려 볼게요' assets/ritual-open.js
 nochk '지금 마저 나눠 주세요' assets/ritual-open.js
 #   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
@@ -19635,7 +19635,7 @@ nochk '할리우드 여배우' assets/ritual-ref.js   # [검토 147-1] 13 덕담
 nochk '저희 부부가 거짓 주인공' assets/ritual-ref.js   # [검토 147-1] 805 두 사람 목소리 편지
 nochk '사위가 아니라 아들이 될 것' assets/ritual-ref.js   # [검토 147-1] 814 두 사람 목소리
 nochk '며느리의 아버지가 되었다' assets/ritual-ref.js   # [검토 147-1] 609 끝 수필 서술
-chk '아들아, 며늘아. 축하한다. 그리고 사랑한다!' assets/ritual-ref.js 1   # [검토 147-1] 609 원문에서 «축복합니다» 바로 뒤 실제로 한 말
+chk '아들아, 하윤아. 축하한다. 그리고 사랑한다!' assets/ritual-ref.js 1   # [MUST_FIX_165_1024] 새 글   # [검토 147-1] 609 원문에서 «축복합니다» 바로 뒤 실제로 한 말
 nochk '쉽게 상처받는 서준이를 위해' assets/ritual-ref.js   # [검토 147-1] 708 그 신랑 성격 단정
 nochk '군대로 치면 일병입니다' assets/ritual-ref.js   # [검토 147-1] 721 캡션 세 문장
 nochk '귀한 주말,' assets/ritual-ref.js   # [검토 147-2] 902 평일 예식이면 틀림
@@ -20124,7 +20124,7 @@ nochk '정말 빠질 수 없는 순서' order-preview.html 0
 # ★[REVIEW32_1023 검토 155] 참고 예시 14줄 자료 글 · 감사 인사 칸 예 · 1분쯤씩 인사 2 · TUNE_MAX 160
 chk 'REVIEW32_1023' order-preview.html 1
 chk '나는 오늘 평생 내 편이 되어 줄 사람으로 당신을 선택했습니다.' assets/ritual-ref.js 1
-chk '남편은 늘 남의 편이라서 남편이라고 합니다.' assets/ritual-ref.js 1
+chk '언제나 아내의 편이 되는 남편이 되겠습니다.' assets/ritual-ref.js 1   # [MUST_FIX_165_1024] 새 글
 chk '마음 나눌 때가 되니 떠나는구나.' assets/ritual-ref.js 1
 chk '제 인생에 있어서 아직까지 이렇게 중요하고 의미 있는 날은 없었습니다.' assets/ritual-ref.js 1
 chk '5년에 한 번 정도만 하면 좋겠다.' assets/ritual-ref.js 1
@@ -20206,7 +20206,7 @@ nochk "'g0','g1','g2','g3'" console.html
 nochk "'g0','g1','g2','g3'" admin.html
 # ── 2026-10-24 [YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024 검토 160 고침판] 사장님 «자료에 있다고 무조건 붙이지 말고 좋은 글인지 검토 · 유쾌는 너무 올드해» — 옛 사회자 말투 · 청첩장 상투구는 고르지 않는다 · 검사 open-course «YUKWAE_MODERN_1024»
 chk 'YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024 사장님 2026-10-24' assets/ritual-open.js 1
-chk '십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.' assets/ritual-open.js 1
+chk '십 분 뒤 예식이 시작됩니다. 오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 마음껏 셔터를 눌러 주세요.' assets/ritual-open.js 1
 chk '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.' assets/ritual-open.js 1
 chk '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요.' assets/ritual-cue.js 1
 nochk '간혹 식 중에 전화벨이 울리기도 하는데' assets/ritual-open.js
@@ -20238,3 +20238,13 @@ nochk '이어질 예정이오니' assets/ritual-cue.js
 nochk '앞으로 모셔볼 텐데요' assets/ritual-open.js
 chk 'IG_CLOSE_1024 사장님 릴스' assets/ritual-open.js 1
 nochk '이전에도 그랬듯이 앞으로 두 사람의 삶은' assets/ritual-open.js 1   # 옛 글은 주석(_OLD) 한 곳
+# ── 2026-10-24 [MUST_FIX_165_1024 검토 165] GPT 694줄 전수 검토 → 사장님 확정 «꼭 고칠 것» 27줄(나레이션 9 · 두 분 예시 1 · 참고 예시 15 · 안내 글 2) — 검사 open-course «MUST_FIX_165_1024»
+chk 'MUST_FIX_165_1024' assets/ritual-open.js 1
+chk '각자의 와인을 한 잔에 부어 주시면' assets/ritual-data.js 1
+chk '오늘 그 멈춰 있던 시간이 다시 흐르길' assets/ritual-open.js 1
+chk '중간에 숨 돌릴 틈이 생겨요' assets/ritual-open.js 5   # 줄 수(805 한 줄에 둘)
+nochk '사이가 풀려요' assets/ritual-open.js
+nochk '축의금 많이 내거라' assets/ritual-ref.js
+nochk '고장 난 시계' assets/ritual-open.js
+nochk '남의 편이라서' assets/ritual-ref.js
+nochk '안에만 들어오라고' assets/ritual-ref.js
