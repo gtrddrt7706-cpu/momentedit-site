@@ -2176,7 +2176,7 @@ function dressMini(x){
   x.picks.forEach(function(id,i){
     var d=R&&R.dress?R.dress(id):null, name=(d&&d.name)||(x.pickNames&&x.pickNames[i])||id;
     nm.push(name+' ('+id+')');
-    var src=d?(d.img?R.img(d,'jpg'):R.svg(d)):'';
+    var src=d?(d.img?R.img(d,'webp'):R.svg(d)):'';   // [DRESS_SAMPLE_V2] 사진은 webp 하나
     th+='<span class="dm-pv">'+(src?'<img'+(d&&!d.img?' class="dm-line"':'')+' src="'+esc(src)+'" alt="" loading="lazy">':'')+'</span>';
   });
   return '<span class="dmini" title="시착 준비">'+th+'<span class="dm-tx">'+esc(nm.join(' · '))+'</span>'+(x.dup&&x.dup.length?'<span class="dm-dup">같은 날 겹침</span>':'')+'</span>';
