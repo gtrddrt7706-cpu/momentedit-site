@@ -33,7 +33,7 @@
     fitNote: '',             // 프리 사이즈 맞추는 방식 한 줄 · ★[DRESS_FITNOTE_EMPTY 2026-10-23 코워크 회신 4 보충] 빈 값 그대로(줄 없음) — 맞추는 방법이 사이트 · 계약서 어디에도 없다 · 공개 화면을 걷어 지금은 그리는 곳도 없다([DRESS_PUBLIC_OFF])
     PROD_HOSTS: ['momentedit.kr', 'www.momentedit.kr'],   // shared/preview-guard.js 와 같아야 한다(검사가 대조)
 
-    /* 라인(실루엣) 다섯 — fit 은 고르기 화면 «어떤 핏이 편하세요?» 답과 잇는 값(body 몸 선을 따라 · waist 허리만 잡고 아래는 여유 · loose 전체적으로 여유)
+    /* 라인(실루엣) 다섯 — fit 은 고르기 화면 «어떤 라인이 좋으세요?» 답과 잇는 값(body 몸 선을 따라 · waist 허리만 잡고 아래는 여유 · loose 전체적으로 여유)
        ★[DRESS_LINE_ONE 2026-10-23 코워크 검토 4] lead = 한 문장 · note = 행동이 필요한 «함께 볼 점»만(슬립 · 컬럼 둘 · 나머지는 빈 글 = 줄 없음)
        ★[DRESS_LINE_IN_DETAIL 2026-10-23 코워크 설계 명세 2] 공개 화면의 라인 안내는 고르기 화면 «자세히»로 옮겼다 — 그 드레스 라인의 lead + note(있는 라인만) */
     lines: [
@@ -73,7 +73,8 @@
     questions: [
       { key: 'len', step: '길이', q: '원하는 길이가 있으세요?',
         opts: [['ankle', '발목까지'], ['calf', '미디(종아리)'], ['knee', '미니(무릎 근처)']] },
-      { key: 'fit', step: '핏', q: '어떤 핏이 편하세요?', figs: { body: 'slip', waist: 'aline', loose: 'empire' },
+      { key: 'fit', step: '핏', q: '어떤 라인이 좋으세요?',   // ★[DRESS_Q2_LINE 1024 코워크] 아직 입어 보지 않은 옷의 편안함을 묻지 않는다 — 종전 «어떤 핏이 편하세요?»
+        figs: { body: 'slip', waist: 'aline', loose: 'empire' },
         opts: [['body', '몸 선을 따라'], ['waist', '허리만 잡고 아래는 여유'], ['loose', '전체적으로 여유']] },
       /* ★[DRESS_Q_FIRST 2026-10-24 사장님 «드레스 질문을 먼저 의무적으로 묻고»] 셋째 물음도 답해야 다음 — 보기 끝 «특별히 없어요»(none · 다른 보기와 함께 고르지 않는다)로 답하기 쉽게 · 보조 글 «둘 다 골라도 돼요.» */
       { key: 'pref', step: '노출 · 소매', q: '이런 드레스가 편하신가요?', sub: '둘 다 골라도 돼요.', multi: true, none: 'none',   // ★[DRESS_Q3_SUB 2026-10-23 코워크 디자인 라운드 3 · 5] 끊긴 메모처럼 읽히던 «여러 개 · 고르지 않으셔도 돼요»

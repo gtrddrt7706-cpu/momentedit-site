@@ -465,13 +465,13 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dr-pop{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:0;background:rgba(32,28,24,.26);opacity:0;transition:opacity .22s cubic-bezier(.22,1,.36,1)}
 .dr-pop.on{opacity:1}
 .dr-pop.out{opacity:0;transition:opacity .16s cubic-bezier(.4,0,1,1)}
-.dr-pop-card{display:flex;flex-direction:column;width:100%;height:420px;max-height:min(88vh,760px);max-height:min(88dvh,760px);background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-bottom:0;border-radius:12px 12px 0 0;box-shadow:0 16px 48px rgba(28,27,25,.14);overflow:hidden;transform:translateY(16px);transition:transform .22s cubic-bezier(.22,1,.36,1)}
+.dr-pop-card{display:flex;flex-direction:column;width:100%;height:90vh;height:90dvh;max-height:none;background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-bottom:0;border-radius:12px 12px 0 0;box-shadow:0 16px 48px rgba(28,27,25,.14);overflow:hidden;transform:translateY(16px);transition:transform .22s cubic-bezier(.22,1,.36,1)}
 .dr-pop.on .dr-pop-card{transform:none}
 .dr-pop.out .dr-pop-card{transform:translateY(12px);transition:transform .16s cubic-bezier(.4,0,1,1)}
 @media (min-width:768px){
   .dr-pop{align-items:center;padding:24px;transition:opacity .18s cubic-bezier(.22,1,.36,1)}
   .dr-pop.out{transition:opacity .12s cubic-bezier(.4,0,1,1)}
-  .dr-pop-card{max-width:600px;max-height:min(84vh,720px);max-height:min(84dvh,720px);border-bottom:1px solid var(--border,#DDD8D1);border-radius:8px;transform:translateY(6px);transition:transform .18s cubic-bezier(.22,1,.36,1)}
+  .dr-pop-card{max-width:600px;height:min(720px,calc(100vh - 48px));height:min(720px,calc(100dvh - 48px));max-height:none;border-bottom:1px solid var(--border,#DDD8D1);border-radius:8px;transform:translateY(6px);transition:transform .18s cubic-bezier(.22,1,.36,1)}
   .dr-pop.out .dr-pop-card{transform:none}
 }
 @media (prefers-reduced-motion:reduce){ .dr-pop,.dr-pop.out,.dr-pop-card,.dr-pop.out .dr-pop-card{transition:none} .dr-pop-card,.dr-pop.out .dr-pop-card{transform:none} }
@@ -2763,7 +2763,7 @@ function openDressPicker(dr, opt){
   card.appendChild(fr); ov.appendChild(card); document.body.appendChild(ov);
   ov.addEventListener('click', function(e){ if(e.target===ov) askExit(false); });   // [DRESS_POPUP] 바깥 어두운 곳 = 닫기(저장 안 한 변경이 있으면 판)
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ ov.classList.add('on'); }); });   // [POPUP_FIT_1024] 들어올 때 = 막 옅게 + 창이 아래에서(폰 16px · 넓은 화면 6px)
-  var popMax=function(){ var W=document.documentElement.clientWidth, H=window.innerHeight; return W<768 ? Math.min(H*.88, 760) : Math.min(H*.84, 720); };
+  var popMax=function(){ var W=document.documentElement.clientWidth, H=window.innerHeight; return W<768 ? H*.9 : Math.min(720, H-48); };   // ★[POPUP_FIXED_1024] 창 높이는 처음부터 끝까지 하나(폰 화면 90% · 768+ min(720, 화면 − 48)) — CSS 와 같은 값
   _mpLock(); _layerInertOn(ov);
   var saved=false, closed=false, st={dirty:false, failed:false, busy:false}, asking=false, exitWait=false, failCode='';
   function post(m){ try{ fr.contentWindow.postMessage(m, location.origin); }catch(e){} }
@@ -2817,7 +2817,7 @@ function openDressPicker(dr, opt){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var m=ev.data||{};
     if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:true, ymd:(dr&&dr.ymd)||'', key:opt.key||'', popMax:popMax()}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // ★[DRESS_NO_DEADLINE 2026-10-23 사장님] 늘 열림(open:true) — 마감 뒤 «보기만»으로 보내지 않는다 · ymd 는 넘기지만 완료 화면이 마감 날을 쓰지 않는다
-    if(m.type==='momentedit:dressHeight'){ var h=+m.h; if(h>0) card.style.height=Math.ceil(h+2)+'px'; return; }   // [POPUP_FIT_1024] 창 높이 = 내용(+ 테 2px) · 최대치는 CSS 가 자른다
+    if(m.type==='momentedit:dressHeight') return;   // ★[POPUP_FIXED_1024 사장님 «창이 막 움직이면 정신없으니깐 · 하단 기준으로»] 창 높이는 내용을 따라가지 않는다(걸음마다 위 끝 · 막대가 뛰었다) — 되살리지 말 것
     if(m.type==='momentedit:dressState'){ st.dirty=!!m.dirty; st.failed=!!m.failed; st.busy=!!m.busy; if(exitWait && !st.busy){ exitWait=false; askExit(false); } return; }   // [DRESS_EXIT_ASK]
     if(m.type==='momentedit:dressExit'){ askExit(false); return; }
     if(m.type==='momentedit:dressBackDone'){ if(!backT) return; clearTimeout(backT); backT=0; if(!m.stepped) askExit(false); return; }   // [DRESS_BACK_STEP] 한 걸음 물러섰으면 그대로 · 아니면 나가기 판단
@@ -5143,13 +5143,12 @@ function _dressCardOn(d){
 var DRESS_STICKER='/assets/dress/sticker-';
 var DST_DECO=[['dst-rb','ribbon']];   // ★[STICKER_LESS_1024] 곁 스티커 켜는 목록 한 곳 — [클래스, 파일 이름] · 지금은 진사 리본 하나(사장님 «A 샴페인 선 + 진사 리본만»)
 function _dstHtml(dr){
-  var n=_dressIds(dr).length, P=DRESS_STICKER;
+  var P=DRESS_STICKER;   // ★[DRESS_GUIDE_ONLY 1024] 고르기가 없어 «n벌» 배지도 없다(되살리지 말 것)
   /* ★[STICKER_DECO_1024] 받침을 구운 한 장(215×240) + 곁 스티커 셋 · 크기는 CSS 가 고정(그림이 늦게 와도 자리가 안 흔들린다) */
   var img='<img src="'+P+'backed-240.webp" alt="" width="215" height="240" decoding="async">';
   var dc=DST_DECO.map(function(q){ return '<img class="dst-dc '+q[0]+'" src="'+P+q[1]+'-48.webp" alt="" aria-hidden="true" decoding="async">'; }).join('');
   /* [STICKER_FINISH_1024] 층 = 누름(.dst-in) › 칸(.dst-box) › 회전(.dst-sw) › 그림(.dst-art · 그림자만) · «n벌»은 흔들리지 않는 층 · 안내는 궤도(.dst-tip) › 수평(.dst-tipt) */
   return '<button type="button" class="dst" data-dst aria-label="드레스 보기"><span class="dst-in"><span class="dst-box"><span class="dst-sw"><span class="dst-art">'+img+'</span>'+dc+'<span class="dst-hit" aria-hidden="true"></span></span></span>'
-    + (n?'<span class="dst-pill" aria-hidden="true">'+n+'벌</span>':'')
     + '<span class="dst-tip" aria-hidden="true"><span class="dst-tipt">드레스 보기</span></span></span></button>';   // [STICKER_NO_LABEL] 상시 글 없음 · [STICKER_TIP_ON_DRESS] 안내는 누름 층 안 · 흔들림은 궤도로
 }
 /* 스티커 둘레의 걸림돌(글 · 단추 · 입력칸 · 작은 표시 · 그림) — 카드 안팎 모두 · 스티커 · 화면에 붙은 레일([RAIL_LOCKED] · 고정 요소)은 뺀다.
@@ -5263,8 +5262,8 @@ function _dstTipPlace(st, M){
      겹치면 글을 밀지 않고 스티커 자리를 바꾼다. 크기를 줄여서 맞추지 않는다(보이는 드레스 56px 아래 금지 · 크기는 코워크 값 그대로) */
 /* ★★[STICKER_PHONE_HEAD 사장님 1024 «이쪽(날짜 · 예약금 줄 오른쪽 빈자리)에 내려서 · 크기도 좀 키우고 · PC 말고» → 코워크 실측안 «이대로»]
    폰(<768) = 머리 네 줄(CONSULTATION · 제목 · 날짜 · 예약금) 오른쪽 빈자리 · 카드 오른쪽 끝에 걸쳐도 된다(화면 끝 10px 안).
-   크기 S = 아래를 지키는 가장 큰 값(상한 104 · 보이는 드레스 56px 이상) → 같은 크기면 가장 아래 → 그다음 가장 오른쪽 — 값이 아니라 계산.
-   지킬 것 = 보이는 윤곽(받침 · 리본 · 흔들림 −6° ~ 0° 포함) ↔ 글자 8px · 구분선 위 12px · 카드 위에서 8px 아래 · 그림 상자 ↔ 글자 겹침 0 · «n벌» · 안내(세로 64%)도 글자와 떨어진다.
+   크기 S = 아래를 지키는 가장 큰 값(상한 104 · 하한 72 [STICKER_PHONE_MIN72]) → 같은 크기면 가장 아래 → 그다음 가장 오른쪽 — 값이 아니라 계산.
+   지킬 것 = 보이는 윤곽(받침 · 리본) ↔ 글자 멈춘 자리 8px · 흔들림 최대 각도 4px · 구분선 위 12px · 카드 위에서 8px 아래 · 그림 상자 ↔ 글자 겹침 0 · «n벌» · 안내(세로 64%)도 글자와 떨어진다.
    찾지 못하면(아주 좁은 카드) 아래 종전 자리 찾기로 */
 function _dstPhoneSpot(card, st, obs, W){
   var pl=st.querySelector('.dst-pill'), tp=st.querySelector('.dst-tip'), boxEl=st.querySelector('.dst-box'), M=10;
@@ -5278,10 +5277,10 @@ function _dstPhoneSpot(card, st, obs, W){
   /* 단 = [안내 ↔ 글자 간격, «n벌» 자리들] — 먼저 8px · 고리 옆 −6 → 2, 없을 때만 «n벌» 자리를 넓히고 그다음 안내 간격 4 */
   var LV=[[8,[-6,2]],[8,[-6,2,-10,6,10]],[4,[-6,2,-10,6,10]],[1,[-6,2,-10,6,10]]];
   for(var li=0; li<LV.length; li++){ var tg=LV[li][0], PTS=LV[li][1];
-  for(var S=104; S>=58; S-=2){
+  for(var S=104; S>=72; S-=2){   // ★[STICKER_PHONE_MIN72 코워크 1024] 폰 하한 72(전 크기 · 사장님 «크기도 좀 키우고»)
     st.style.setProperty('--dst-s', S+'px'); st.style.top='0px'; st.style.right='0px'; if(pl) pl.style.right='';
     _dstTipPlace(st, M);
-    var b=_dstR(st, boxEl), v=_dstVis(st), bands=v.rest.concat(v.env), ub={left:b.left, top:b.top, right:b.right, bottom:b.bottom};
+    var b=_dstR(st, boxEl), v=_dstVis(st), ub={left:b.left, top:b.top, right:b.right, bottom:b.bottom};
     Array.prototype.forEach.call(st.querySelectorAll('.dst-art img, .dst-dc'), function(e){ if(!e.offsetWidth) return; var l=b.left+e.offsetLeft, t=b.top+e.offsetTop; ub={left:Math.min(ub.left,l), top:Math.min(ub.top,t), right:Math.max(ub.right,l+e.offsetWidth), bottom:Math.max(ub.bottom,t+e.offsetHeight)}; });
     var tr=tp&&tp.offsetWidth?_dstR(st, tp):null;
     var tMax=Math.floor((dTop-12)-v.bottom), tMin=Math.ceil((cr.top+8)-v.top);   // 움직일 거리(세로) — 구분선 위 12 · 카드 위 8
@@ -5293,7 +5292,7 @@ function _dstPhoneSpot(card, st, obs, W){
         for(var dx=xMax; dx>=xMin; dx--){
           if(v.left+dx<M) break;
           if(pr && pr.right+dx>W-M+.5) continue;
-          if(near(bands.map(function(q){ return mv(q,dx,dy); }), 8)) continue;
+          if(near(v.rest.map(function(q){ return mv(q,dx,dy); }), 8) || near(v.env.map(function(q){ return mv(q,dx,dy); }), 4)) continue;   // [STICKER_PHONE_MIN72] 멈춘 자리 8px · 흔들림 최대 각도 4px
           if(near([mv(ub,dx,dy)], 1)) continue;
           if(pr && near([mv(pr,dx,dy)], 3)) continue;
           if(tr){ var tq=mv(tr,dx,dy), sh=tq.left<M?M-tq.left:(tq.right>W-M?(W-M)-tq.right:0); if(near([mv(tq,sh,0)], tg)) continue; }   // 안내는 화면 끝에서 옆으로 밀린 자리로 잰다(_dstTipPlace 와 같다)
