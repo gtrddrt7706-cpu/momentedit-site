@@ -89,7 +89,7 @@ try {
       const b = await fr.evaluate(() => { const bar = document.querySelector('#pkBar .wz-bar'), r = bar ? bar.getBoundingClientRect() : null;
         return { bar: r ? { t: r.top, h: Math.round(r.height) } : null, pick: !!document.querySelector('[data-act="pick"],[data-act="unpick"],[data-act="save"],.pk-slots,.pk-swap,.dr-badge,.pk-picked'),
           guide: [...document.querySelectorAll('.pk-end-dots .dotln')].map((e) => e.textContent).join('|'), sub: [...document.querySelectorAll('.pk-sub-h')].map((e) => e.textContent).join('|'),
-          steps: [...document.querySelectorAll('.wz-steps li')].map((e) => e.textContent.trim()), intro: (document.querySelector('.pk-intro') || {}).textContent || '', q: (document.getElementById('pkQ') || {}).textContent || '' }; });
+          steps: [...document.querySelectorAll('.wz-steps li')].map((e) => e.textContent.trim()), intro: (document.querySelector('.pk-intro:not(.pk-ghost)') || {}).textContent || '', qTop: document.getElementById('pkQ') ? Math.round(document.getElementById('pkQ').getBoundingClientRect().top + (window.pageYOffset || 0)) : null, stTop: document.querySelector('.wz-steps') ? Math.round(document.querySelector('.wz-steps').getBoundingClientRect().top + (window.pageYOffset || 0)) : null, q: (document.getElementById('pkQ') || {}).textContent || '' }; });
       steps.push({ nm, t: g.t, h: g.h, bt: b.bar ? Math.round(g.ft + b.bar.t) : null, bh: b.bar ? b.bar.h : null, ...b });
     };
     await geo('물음1');
@@ -130,6 +130,7 @@ try {
     if (!steps.filter((x) => /결과|자세히/.test(x.nm)).every((x) => x.guide === GL || x.guide.endsWith('|' + GL))) no(`${tag} 결과 · 자세히 맨 아래 안내 한 줄이 아니다 [DRESS_GUIDE_ONLY]`);
     if (steps[0].steps.join(' ') !== '1/3 · 길이 2/3 · 라인 3/3 · 노출·소매') no(`${tag} 단계 숫자 «1/3 · 길이» 꼴이 아니다 ${steps[0].steps.join(' ')} [DRESS_STEP_NUM]`);
     if (steps[0].intro !== '상담 전, 마음에 드는 스타일을 살펴보세요.') no(`${tag} 첫 물음 목적 한 줄이 아니다 [DRESS_INTRO_LINE]`);
+    { const qs = steps.filter((x) => x.qTop !== null && x.bt !== null); if (new Set(qs.map((x) => x.stTop)).size !== 1) no(`${tag} 물음마다 단계선 자리가 다르다 ${qs.map((x) => x.nm + ':' + x.stTop).join(' ')} [DRESS_Q_STEADY]`); }   // 제목 높이는 물음 글 줄 수에 따라 다를 수 있어 단계선(제목 바로 위)으로 잰다
     if (steps[2].q !== '어떤 라인이 마음에 드세요?') no(`${tag} 물음 2 가 «어떤 라인이 마음에 드세요?»가 아니다 [DRESS_Q2_LINE]`);
     if (!/^답에 어울리는 드레스 · \d+벌/.test(steps[4].sub)) no(`${tag} 결과 소제목에 벌 수가 없다 ${steps[4].sub} [DRESS_FIT_COUNT]`);
     const hy = await fr.evaluate(() => { window.scrollTo(0, 0); return 0; });

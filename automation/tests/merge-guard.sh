@@ -20064,6 +20064,13 @@ chk 'DRESS_RESULT_COMPACT' dress.html 2
 chk 'DRESS_RESULT_COMPACT' scripts/audit/dress-fit.mjs 3
 chk 'class="dr-cell" data-open=' dress.html 1
 chk '--photo-bg:#B19E8C;' dress.html 1                                     # [DRESS_GREIGE] 사진 칸 바탕 = 그레이지 사진 배경(받는 동안 깜빡임 없음)
+chk "DRESS_FAB_STAGES=.'시착','상담완료','계약완료','입금완료','제작중'];" mypage.html 1   # [DRESS_FAB_1024] 오른쪽 줄 «드레스 · 소품 · 부케» = 상담 뒤 ~ 예식 당일(상담 전은 스티커 하나 · 겹침은 dress-refs ⑯ 가 잰다)
+chk 'stack.insertBefore(ex, chat)' mypage.html 1                             # [DRESS_FAB_1024] «상담 도우미» 바로 위 · 다른 단추 자리 · 순서 그대로
+chk 'R.accList = function () { return R.ACC_ON ?' assets/dress-refs.js 1      # [DRESS_ACC_1024] 함께 보는 소품 = ACC_ON · 칸 on 한 곳
+chk '    h += accHTML();' dress.html 1                                        # [DRESS_ACC_1024] «다른 드레스도 살펴보기» 아래 · «방문 전 준비» 위
+chk "var INTRO_P = AFTER ? '<p class=\"pk-intro\">세 가지 물음에 답하고, 드레스를 살펴보세요." dress.html 1   # [DRESS_AFTER_WORDS] 상담 뒤로 열면 «상담 전 · 상담 날» 대신 «방문 때»(스티커는 그대로)
+chk '.pk-intro.pk-ghost{visibility:hidden}' dress.html 1                   # [DRESS_Q_STEADY] 물음 2 · 3 도 목적 줄 자리를 지킨다(단계선이 뛰지 않게 · dress-fit 이 잰다)
+chk 'data-act="drtop">드레스 다시 보기' dress.html 1                        # [DRESS_ACC_TOP] 소품 뒤 드레스로 돌아가는 길
 nochk "name: '스타일 예시 0[1-6] · [^']*+" assets/dress-refs.js 0
 chk "img: 'd0[1-6]-front'" assets/dress-refs.js 6
 nochk "name: '표본 " assets/dress-refs.js 0
