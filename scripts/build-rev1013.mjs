@@ -122,7 +122,7 @@ if (process.argv[2] === '--check') {
     const cells = line.split('|').slice(1, -1).map((c) => c.trim()); if (!cols) { cols = cells; continue; }
     if (cells.every((c) => /^:?-+:?$/.test(c))) continue; const ti = cols.indexOf('3단계 글'); if (ti < 0) continue;
     const t = cells[ti]; if (!t || t === '—' || /^\(/.test(t)) continue;
-    for (const s of (t.match(/[^.!?]+[.!?]/g) || []).map((x) => x.trim())) { n++; const k = norm(s); if (one.has(k)) a++; else if (inClip.has(k)) b++; else if (wait.has(k)) { w++; waits.push(`${cells[0].slice(0, 30)} «${s}» · ${wait.get(k)}`); } else none.push(`${cells[0].slice(0, 30)} «${s}»`); }
+    for (const s of t.split(/(?<=[.!?])(?!['"’”])/).map((x) => x.trim()).filter((x) => /[.!?]$/.test(x))) {   /* ★[MODERN_WORDS_1024 검토 164] «'위하여!'로» — 따옴표 앞 느낌표는 문장 끝이 아니다 */ n++; const k = norm(s); if (one.has(k)) a++; else if (inClip.has(k)) b++; else if (wait.has(k)) { w++; waits.push(`${cells[0].slice(0, 30)} «${s}» · ${wait.get(k)}`); } else none.push(`${cells[0].slice(0, 30)} «${s}»`); }
   }
   console.log(`원고 문장 ${n} · 낱개 소리 ${a} · 옛 줄째 클립 안에만 ${b} · 녹음 대기 ${w} · 소리 없음 ${none.length}`);
   waits.forEach((x) => console.log('… 녹음 대기 — ' + x));   // [NARR_AUDIO_WAIT]
