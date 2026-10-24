@@ -498,7 +498,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    ★[STICKER_LESS_1024 사장님 «조금 과한 느낌 · 덜어내는 디자인» → «A 샴페인 선 + 진사 리본만»] 곁 스티커는 리본 하나 — 켜는 목록은 DST_DECO 한 곳(꽃 · 진주는 걷었다 · 되살리지 말 것) */
 .dst-art img{position:absolute;left:3.41%;top:-1.42%;width:93.18%;height:103.69%;display:block}
 .dst-dc{position:absolute;display:block;pointer-events:none}
-.dst-rb{left:50%;top:11.5%;width:11px;height:6.88px;margin:-3.44px 0 0 -5.5px}
+.dst-rb{left:50%;top:11.5%;width:calc(var(--dst-s) * .15);height:calc(var(--dst-s) * .09375);margin:calc(var(--dst-s) * -.046875) 0 0 calc(var(--dst-s) * -.075)}   /* [STICKER_PHONE_HEAD] 폰 리본 폭 = S × 0.15 */
 @media (min-width:768px){ .dst-rb{width:16px;height:10px;margin:-5px 0 0 -8px} }
 /* ★[STICKER_HIT_SHAPE] 누르는 자리 = 드레스 윤곽(그림의 투명한 모서리는 누름이 아니다) — 스티커가 커져 그림 칸 모서리가 제목 끝 글자 위에 걸친다.
    단추는 누름을 받지 않고(pointer-events:none) 윤곽 모양 층(.dst-hit) · 글만 받아 단추로 올린다 · 키보드 초점 · 테는 그대로 */
@@ -5261,6 +5261,51 @@ function _dstTipPlace(st, M){
    ★★[STICKER_NO_REFLOW 사장님 1024 «스티커 들어갈 때 글씨는 항상 그대로 둬» · «글씨를 민다거나 이렇게는 하지 말라고»]
      스티커는 위에 «얹는» 것 — 어느 폭에서도 카드 글의 자리 · 폭 · 줄바꿈을 바꾸지 않는다(여백 · 패딩을 더하지 않는다 · 머리 위 여백도 늘리지 않는다).
      겹치면 글을 밀지 않고 스티커 자리를 바꾼다. 크기를 줄여서 맞추지 않는다(보이는 드레스 56px 아래 금지 · 크기는 코워크 값 그대로) */
+/* ★★[STICKER_PHONE_HEAD 사장님 1024 «이쪽(날짜 · 예약금 줄 오른쪽 빈자리)에 내려서 · 크기도 좀 키우고 · PC 말고» → 코워크 실측안 «이대로»]
+   폰(<768) = 머리 네 줄(CONSULTATION · 제목 · 날짜 · 예약금) 오른쪽 빈자리 · 카드 오른쪽 끝에 걸쳐도 된다(화면 끝 10px 안).
+   크기 S = 아래를 지키는 가장 큰 값(상한 104 · 보이는 드레스 56px 이상) → 같은 크기면 가장 아래 → 그다음 가장 오른쪽 — 값이 아니라 계산.
+   지킬 것 = 보이는 윤곽(받침 · 리본 · 흔들림 −6° ~ 0° 포함) ↔ 글자 8px · 구분선 위 12px · 카드 위에서 8px 아래 · 그림 상자 ↔ 글자 겹침 0 · «n벌» · 안내(세로 64%)도 글자와 떨어진다.
+   찾지 못하면(아주 좁은 카드) 아래 종전 자리 찾기로 */
+function _dstPhoneSpot(card, st, obs, W){
+  var pl=st.querySelector('.dst-pill'), tp=st.querySelector('.dst-tip'), boxEl=st.querySelector('.dst-box'), M=10;
+  var cr=card.getBoundingClientRect();
+  var div=card.querySelector(':scope > .visit-guide, :scope > .cc-actions, :scope > .cc-btn, :scope > .cc-btn-ghost, :scope > .cc-input');
+  var dTop=div?div.getBoundingClientRect().top:cr.bottom;
+  var txt=obs.filter(function(o){ return o.k==='t' && o.top<dTop+8 && o.bottom>cr.top-8; });
+  var gap=function(a,r){ var dx=Math.max(r.left-a.right, a.left-r.right), dy=Math.max(r.top-a.bottom, a.top-r.bottom); if(dx<0 && dy<0) return -1; return Math.hypot(Math.max(dx,0), Math.max(dy,0)); };
+  var mv=function(q,x,y){ return {left:q.left+x, right:q.right+x, top:q.top+y, bottom:q.bottom+y}; };
+  var near=function(rs, g){ for(var i=0;i<rs.length;i++) for(var j=0;j<txt.length;j++) if(gap(rs[i], txt[j])<g) return true; return false; };
+  /* 단 = [안내 ↔ 글자 간격, «n벌» 자리들] — 먼저 8px · 고리 옆 −6 → 2, 없을 때만 «n벌» 자리를 넓히고 그다음 안내 간격 4 */
+  var LV=[[8,[-6,2]],[8,[-6,2,-10,6,10]],[4,[-6,2,-10,6,10]],[1,[-6,2,-10,6,10]]];
+  for(var li=0; li<LV.length; li++){ var tg=LV[li][0], PTS=LV[li][1];
+  for(var S=104; S>=58; S-=2){
+    st.style.setProperty('--dst-s', S+'px'); st.style.top='0px'; st.style.right='0px'; if(pl) pl.style.right='';
+    _dstTipPlace(st, M);
+    var b=_dstR(st, boxEl), v=_dstVis(st), bands=v.rest.concat(v.env), ub={left:b.left, top:b.top, right:b.right, bottom:b.bottom};
+    Array.prototype.forEach.call(st.querySelectorAll('.dst-art img, .dst-dc'), function(e){ if(!e.offsetWidth) return; var l=b.left+e.offsetLeft, t=b.top+e.offsetTop; ub={left:Math.min(ub.left,l), top:Math.min(ub.top,t), right:Math.max(ub.right,l+e.offsetWidth), bottom:Math.max(ub.bottom,t+e.offsetHeight)}; });
+    var tr=tp&&tp.offsetWidth?_dstR(st, tp):null;
+    var tMax=Math.floor((dTop-12)-v.bottom), tMin=Math.ceil((cr.top+8)-v.top);   // 움직일 거리(세로) — 구분선 위 12 · 카드 위 8
+    var xMax=Math.floor((W-M)-v.right), xMin=xMax-90;   // 움직일 거리(가로) — 화면 끝 10px 에서 왼쪽으로
+    if(tMax<tMin) continue;
+    for(var pi=0; pi<PTS.length; pi++){
+      var pr=null; if(pl){ pl.style.top=PTS[pi]+'px'; pr=_dstR(st, pl); var dk=false; v.env.forEach(function(q){ if(q.deco && gap(q, pr)<2) dk=true; }); if(dk) continue; }
+      for(var dy=tMax; dy>=tMin; dy--){
+        for(var dx=xMax; dx>=xMin; dx--){
+          if(v.left+dx<M) break;
+          if(pr && pr.right+dx>W-M+.5) continue;
+          if(near(bands.map(function(q){ return mv(q,dx,dy); }), 8)) continue;
+          if(near([mv(ub,dx,dy)], 1)) continue;
+          if(pr && near([mv(pr,dx,dy)], 3)) continue;
+          if(tr){ var tq=mv(tr,dx,dy), sh=tq.left<M?M-tq.left:(tq.right>W-M?(W-M)-tq.right:0); if(near([mv(tq,sh,0)], tg)) continue; }   // 안내는 화면 끝에서 옆으로 밀린 자리로 잰다(_dstTipPlace 와 같다)
+          return { top: b.top+dy-cr.top, right: cr.right-(b.right+dx), pt: PTS[pi], S: S, tg: tg };
+        }
+      }
+    }
+  }
+  }
+  st.style.removeProperty('--dst-s'); st.style.top=''; st.style.right=''; if(pl) pl.style.top='';
+  return null;
+}
 function _dstLayout(card){
   var st=card&&card.querySelector(':scope > .dst'); if(!st || !card.isConnected) return;
   var pl=st.querySelector('.dst-pill');
@@ -5272,6 +5317,7 @@ function _dstLayout(card){
   var place=function(top, right, pt, sz){ if(sz) st.style.setProperty('--dst-s', sz+'px'); else st.style.removeProperty('--dst-s'); st.style.top=Math.round(top-bw)+'px'; st.style.right=Math.round(right-bw)+'px'; if(pl){ pl.style.top=pt+'px'; pl.style.right=''; var po=_dstR(st, pl).right-(W-M); if(po>0) pl.style.right=Math.ceil(po)+'px'; } _dstTipPlace(st, M); };   // «n벌»이 화면 끝 안쪽선을 넘으면 그만큼만 왼쪽으로
   var fits=function(bc, tg, dg, pg){ var v=_dstVis(st), q=st.getBoundingClientRect(), p=pl?_dstR(st, pl):q;
     return v.left>=M && v.right<=W-M+.5 && (pg<0 || p.right<=W-M+.5) && q.left>=0 && q.right<=W && !_dstHits(st, obs, bc, tg, dg, pg); };
+  if(PH){ var ps0=_dstPhoneSpot(card, st, obs, W); if(ps0){ M=10; place(ps0.top, ps0.right, ps0.pt, ps0.S); st.setAttribute('data-at', 'head'); st.setAttribute('data-gap', ps0.tg===8?'8':'t'+ps0.tg); return; } }   // [STICKER_PHONE_HEAD]
   var tries=[];   // [위, 오른쪽, 자리 이름, 오른쪽 방식, «n벌» 위, 크기]
   if(PH){   // 360(오른쪽 −2 · 위 −28) ~ 430(4 · −14) 을 이어 쓴 자리 → 위아래 1px 씩 · 오른쪽은 화면 끝 16px 까지(max) · «n벌»은 고리 옆(−6) → 조금 아래(2)
     var k=Math.max(0, Math.min(1, (W-360)/70)), r0=-2+6*k, t0=-28+14*k;

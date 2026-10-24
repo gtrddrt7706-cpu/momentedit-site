@@ -289,13 +289,13 @@ try {
         renderConsult(d.consult, d.product, d); renderDress(d); }, mkSt(kind));
       const m0 = await at(); await ps.page.waitForTimeout(900); const m = await at();
       if (!m) { no(`${tag} 스티커가 없다 [DRESS_STICKER]`); await ps.page.close(); continue; }
-      const want = W < 400 ? 72 : W < 420 ? 76 : W < 768 ? 80 : 112;   // [STICKER_DECO_1024] 폭마다 고정 · 768+ 112(확정 전 카드는 «일정 선택» 단추 때문에 96)
+      const want = W < 768 ? -1 : 112;   // [STICKER_PHONE_HEAD] 폰은 계산(58 ~ 104)   // [STICKER_DECO_1024] 폭마다 고정 · 768+ 112(확정 전 카드는 «일정 선택» 단추 때문에 96)
       const bad = [];
       if (m.hits.length) bad.push(`글과 겹침 ${m.hits.join('|')}`);
       if (m.w < 44 || m.h < 44) bad.push(`누름 칸 ${m.w}×${m.h}`);
       if (m.ow > 0) bad.push(`가로 넘침 ${m.ow}`);
       if (m0.pos !== m.pos || m0.cardH !== m.cardH) bad.push(`자리 흔들림 ${m0.pos}→${m.pos} · 카드 ${m0.cardH}→${m.cardH}`);
-      if (m.box !== want && !(W >= 768 && m.box === 96)) bad.push(`크기 ${m.box}(이 폭은 ${want})`);
+      if (W < 768 ? (m.box < 58 || m.box > 104) : (m.box !== want && m.box !== 96)) bad.push(`크기 ${m.box}(이 폭은 ${want})`);
       if (m.reflow) bad.push('스티커 때문에 카드 글 자리 · 폭 · 줄바꿈이 바뀌었다 [STICKER_NO_REFLOW]');
       if ((W < 768) !== m.pm) bad.push(`폰 표시(dst-pm)가 폭과 다르다 (${m.pm ? '폰' : '넓은 화면'})`);
       if (m.boxHit && m.boxHit.length) { if (m.cardW >= 300 && W < 768) bad.push(`그림 상자(투명 부분 포함)가 글 사각형에 걸침 — ${m.boxHit.join('|')} [STICKER_BOX_CLEAR]`); else rows.push(`스티커 ${kind} ${W} 그림 상자가 글 사각형에 걸침(좁은 검사 카드 ${m.cardW}px · 윤곽 기준) — ${m.boxHit.join('|')} [STICKER_BOX_CLEAR]`); }
@@ -304,14 +304,15 @@ try {
       if (!m.inCard) bad.push('스티커가 상담 카드 머리에 있지 않다 [DRESS_STICKER_HEAD]');
       if (m.mode === 'none' || m.mode === '?') bad.push(`맞는 자리를 못 찾았다(${m.mode})`);
       if (m.cardW >= 500 && W >= 768 && m.mode !== 'in') bad.push(`768+ 넓은 카드는 카드 안이어야 한다(${m.mode} · 카드 ${m.cardW}px)`);
-      if (W < 768 && m.mode !== 'edge') bad.push(`폰은 모서리 걸침이어야 한다(${m.mode})`);
+      if (W < 768 && m.mode !== 'head' && m.mode !== 'edge') bad.push(`폰은 머리 오른쪽 빈자리(head) · 없으면 모서리(edge)여야 한다(${m.mode})`);
+      if (W < 768 && m.mode === 'edge') rows.push(`스티커 ${kind} ${W} 머리 오른쪽 빈자리에 안 들어가 모서리 자리 [STICKER_PHONE_HEAD] · 코워크 확인`);
       if (m.lbTxt !== '드레스 보기' || m.aria !== '드레스 보기') bad.push(`안내 · 단추 이름이 «드레스 보기»가 아니다(${m.lbTxt} · ${m.aria}) [STICKER_TIP]`);
       if (m.oldLb) bad.push('상시 글(.dst-lb)이 되살아났다 [STICKER_NO_LABEL]');
       if (m.vis && m.vis.gap !== '8') rows.push(`스티커 ${kind} ${W} 간격 ${m.vis.gap} — 글자 8px · 진행 점 4px 로는 자리가 없어 한 단 줄였다 [STICKER_GAP_LADDER] · 코워크 확인`);
       if (!m.inView) bad.push('스티커 · 글이 화면 밖');
       if ((kind === 'two') !== (m.pill === '2벌')) bad.push(`알약 «${m.pill}»`);
       if (!m.pillIn) bad.push('«n벌»이 고리 오른쪽 옆(칸 위 −6 ~ +2 · 오른쪽 끝 맞춤 · 24×18)이 아니다');   // [DRESS_STICKER_HEAD] 자리는 겹침으로 — 안쪽 모서리(in) · 모서리 걸침(edge) · 글은 그대로
-      { const v = m.vis, M = W < 768 ? 16 : W < 1024 ? 24 : 32;   // ★[STICKER_VIS_EDGE] 기운 드레스(흔들림 포함) · 그림자 · 글이 화면 끝 16 · 24 · 32px 안 · 보이는 드레스 56 이상 · 진행 점과 겹침 0
+      { const v = m.vis, M = W < 768 ? (m.mode === 'head' ? 10 : 16) : W < 1024 ? 24 : 32;   // [STICKER_PHONE_HEAD] 폰 머리 자리는 화면 끝 10px   // ★[STICKER_VIS_EDGE] 기운 드레스(흔들림 포함) · 그림자 · 글이 화면 끝 16 · 24 · 32px 안 · 보이는 드레스 56 이상 · 진행 점과 겹침 0
         if (!v) bad.push('보이는 드레스를 잴 수 없다(_dstVis 없음)');
         else { if (v.r > W - M + 0.5 || v.l < M) bad.push(`기운 드레스 · 그림자가 화면 끝 ${M}px 밖(${Math.round(v.l)}~${Math.round(v.r)} / ${W})`);
           if (v.lbR > W - M + .5 || v.lbL < M - .5) bad.push(`안내가 화면 끝 ${M}px 밖(${Math.round(v.lbL)}~${Math.round(v.lbR)}) [STICKER_TIP]`);

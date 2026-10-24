@@ -19903,6 +19903,9 @@ nochk 'dst-fl' mypage.html 0
 nochk 'flower-48' mypage.html 0
 chk 'STICKER_TIP_ON_DRESS' mypage.html 3
 chk 'STICKER_TIP_ON_DRESS' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_PHONE_HEAD' mypage.html 3                                    # ★폰 = 머리 네 줄 오른쪽 빈자리 · 크기는 계산(사장님 1024 «이쪽에 내려서 · 크기도 좀 키우고 · PC 말고»)
+chk 'STICKER_PHONE_HEAD' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_PHONE_HEAD' scripts/audit/dress-fit.mjs 2
 chk 'const ST_W = \[360, 375, 390, 430, 767, 768, 820, 1024, 1280\]' scripts/audit/dress-fit.mjs 1   # 폭 9개(360 · 375 · 767 · 768 포함) — 줄면 빨강
 chk 'STICKER_RELAYOUT' mypage.html 1                                       # 글꼴 · 줄바꿈이 늦게 바뀌면 다시 잰다 · 흔들림은 다시 시작하지 않는다
 chk 'STICKER_RELAYOUT' scripts/audit/dress-refs.mjs 1
