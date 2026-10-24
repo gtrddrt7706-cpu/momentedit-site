@@ -20123,7 +20123,7 @@ chk '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주�
 nochk '간혹 식 중에 전화벨이 울리기도 하는데' assets/ritual-open.js
 nochk '너무나도 좋을 것 같습니다' assets/ritual-cue.js
 nochk '자, 이제 식이 십 분 정도밖에 남지 않았는데요' assets/ritual-open.js
-# ── 2026-10-24 [REF_GUIDED_1024 검토 163] 실제 자료가 없는 자리 = 베스트 실제 대사의 낱말을 빌려 다듬은 글 · 출처 줄은 «빌린 대사» — 231 · 198 · 196 · 259 · 207 · 축배 예시 717 · 718 · 918 · 검사 open-course «REF_GUIDED_1024»
+# ── 2026-10-24 [REF_GUIDED_1024 검토 163] 실제 자료가 없는 자리 = 베스트 실제 대사의 낱말을 빌려 다듬은 글 · 출처 줄은 «빌린 대사» — 231 · 198 · 196 · 259 · 207 · 축배 예시 918 · 검사 open-course «REF_GUIDED_1024»
 chk 'REF_GUIDED_1024 검토 163' assets/ritual-data.js 1
 chk 'REF_GUIDED_1024 검토 163' assets/ritual-open.js 5
 chk '다음은 성혼 선언입니다. 선언을 맡아 주실 분께 박수와 환호 부탁드립니다!' assets/ritual-open.js 1
@@ -20132,3 +20132,7 @@ chk '다음은 축사입니다. 큰 박수로 맞아 주세요!' assets/ritual-o
 chk '이제 부모님께 인사드릴 시간입니다. 눈물보다 웃음으로 인사드리겠습니다.' assets/ritual-open.js 1
 nochk "'다음은 신랑 신부가 부탁드린 분께서 성혼을 선포해 주실 텐데요" assets/ritual-open.js
 nochk "'어느덧 부모님께 인사 드리는 순간이 왔습니다" assets/ritual-open.js
+# ── 2026-10-24 [NO_FORCED_JOKE_1024 사장님 «억지로 웃기려고 하지 마»] 억지로 웃기려는 글 금지 · 유머 칩도 웃음은 하객이 만드는 것 · 예시 글은 진심 한 줄로 — 163 의 717 · 718 바꾸기 걷음
+chk 'NO_FORCED_JOKE_1024 사장님' assets/ritual-data.js 1
+nochk '빨래는 제가 개겠습니다' assets/ritual-ref.js
+nochk '빨래는 제가 개겠습니다' docs/plans/식순연구/참고예시_글예시_말하는자리_늘린판_0927.tsv
