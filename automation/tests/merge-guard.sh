@@ -20042,6 +20042,19 @@ nochk '이런 드레스가 편하신가요' assets/dress-refs.js 0
 nochk '특별히 없어요' assets/dress-refs.js 0
 nochk '다른 드레스도 보기<' dress.html 0
 chk 'class="pk-intro">상담 전, 마음에 드는 스타일을 살펴보세요.' dress.html 1
+chk 'DRESS_SAMPLE_V2' dress.html 3                                         # ★스타일 예시 사진 18장 · «스타일 예시 이미지» 표시(사장님 결정 · 실물이 오면 바꾼다)
+chk 'DRESS_SAMPLE_V2' assets/dress-refs.js 2
+chk 'DRESS_SAMPLE_V2' admin.html 1                                          # 관리 화면도 webp(없는 jpg 를 부르지 않는다)
+chk 'DRESS_SAMPLE_V2' scripts/audit/dress-refs.mjs 5
+chk 'DRESS_SAMPLE_V2' scripts/audit/dress-fit.mjs 3
+chk 'DRESS_TIPS_1024' dress.html 3                                         # 물음별 살펴볼 점 · 방문 전 준비
+chk 'DRESS_TIPS_1024' assets/dress-refs.js 1
+chk 'DRESS_TIPS_1024' scripts/audit/dress-refs.mjs 2
+chk 'DRESS_TIPS_1024' scripts/audit/dress-fit.mjs 2
+chk 'class="dr-ex" aria-hidden="true">스타일 예시 이미지' dress.html 1
+chk "img: 'd0[1-6]-front'" assets/dress-refs.js 6
+nochk "name: '표본 " assets/dress-refs.js 0
+nochk "R.img(d,'jpg')" admin.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
