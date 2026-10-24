@@ -254,7 +254,7 @@ try {
      그린 뒤 자리 흔들림 0(글꼴 · 그림이 늦게 와도) · 크기 56 · 64 · 76 · 88 · 폰(768 미만)은 폰 자리(구분선 1/4 걸침) · 알약은 2벌에만(폰은 스티커 칸 안) ·
      따로 카드(#mp_dress)는 비어 있다. 실제 마이페이지 칸(#mp_consult)에 renderConsult 로 그려 잰다(로그인 없이 · 같은 폭) */
   {
-    const ST_W = [360, 390, 430, 768, 820, 1024, 1280];
+    const ST_W = [360, 375, 390, 430, 767, 768, 820, 1024, 1280];   // [STICKER_ONE_WORD] 코워크 7폭 + 375 · 767(폰 끝) — 되돌아가면 빨강
     const LIST = ['신청접수', '상담확정', '시착', '상담완료'];
     const mkSt = (kind) => { const pre = kind === 'pre';
       return { product: '시그니처', code: 'ME-T', stage: pre ? '신청접수' : '상담확정', stageList: LIST, isException: false,
@@ -281,7 +281,7 @@ try {
         const v = (typeof _dstVis === 'function') ? _dstVis(st) : null, cr = card.getBoundingClientRect();   // ★[STICKER_VIS_EDGE] 기운 드레스 · 그림자 · 알약 · 진행 점
         const dots = [...document.querySelectorAll('span,i,div,li')].filter((e) => { const r = e.getBoundingClientRect(); return !e.children.length && r.width > 3 && r.width < 16 && r.height > 3 && r.height < 16 && r.bottom <= cr.top && v && r.right > v.left && r.left < v.right; }).map((e) => e.getBoundingClientRect().bottom);
         const vis = v ? { l: v.left, r: v.right, t: v.top, dress: v.dress, lbL: lbR.left, lbR: lbR.right, lbAt: st.querySelector('.dst-lb').getAttribute('data-at'), dotB: dots.length ? Math.max(...dots) : -1e9 } : null;
-        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, boxHit, lbTxt: [...st.querySelectorAll('.dst-lbt > span')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.textContent).join(''), lbPill: (() => { const pl = st.querySelector('.dst-pill'); if (!pl) return false; const a = pl.getBoundingClientRect(); return a.right > lbR.left - 3 && a.left < lbR.right + 3 && a.bottom > lbR.top - 3 && a.top < lbR.bottom + 3; })(), inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
+        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, boxHit, lbTxt: st.querySelector('.dst-lbt').textContent, lbGap: (() => { const rg2 = document.createRange(); rg2.selectNodeContents(st.querySelector('.dst-lbt')); const g = [...rg2.getClientRects()].filter((q) => q.width >= 1); if (!g.length) return null; const a = { left: Math.min(...g.map((q) => q.left)), top: Math.min(...g.map((q) => q.top)), right: Math.max(...g.map((q) => q.right)), bottom: Math.max(...g.map((q) => q.bottom)) }; const os = []; const w4 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); for (let t = w4.nextNode(); t; t = w4.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t) || !t.parentElement || !t.parentElement.offsetWidth) continue; let fx = false; for (let e = t.parentElement; e && e !== document.body; e = e.parentElement) { const ps2 = getComputedStyle(e).position; if (ps2 === 'fixed' || ps2 === 'sticky') { fx = true; break; } } if (fx) continue; const r4 = document.createRange(); r4.selectNodeContents(t); for (const q of r4.getClientRects()) if (q.width >= 1) os.push(q); } for (const e of document.querySelectorAll('span,i,div,li')) { const r = e.getBoundingClientRect(); if (!e.children.length && r.width > 3 && r.width < 16 && r.height > 3 && r.height < 16) os.push(r); } let d = 1e9; for (const q of os) { const dx = Math.max(0, q.left - a.right, a.left - q.right), dy = Math.max(0, q.top - a.bottom, a.top - q.bottom); d = Math.min(d, (dx || dy) ? Math.hypot(dx, dy) : -1); } return Math.round(d * 10) / 10; })(), lbPill: (() => { const pl = st.querySelector('.dst-pill'); if (!pl) return false; const a = pl.getBoundingClientRect(); return a.right > lbR.left - 3 && a.left < lbR.right + 3 && a.bottom > lbR.top - 3 && a.top < lbR.bottom + 3; })(), inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
           w: sb.width, h: sb.height, box: Math.round(box.width), hits, ow: document.documentElement.scrollWidth - innerWidth, lbH: lb.height,
           overDiv: Math.round(vg.getBoundingClientRect().top - box.top), pill: pill ? pill.textContent : '', pillIn: pill ? (Math.abs(pr.right - box.right) <= 0.5 && pr.top >= box.top - 6.5 && pr.top <= box.top + 2.5 && pr.height <= 18.5 && pr.width >= 23.5) : true,
           dressCard: (document.getElementById('mp_dress') || {}).innerHTML || '', vis }; });
@@ -305,8 +305,8 @@ try {
       if (m.mode === 'none' || m.mode === '?') bad.push(`맞는 자리를 못 찾았다(${m.mode})`);
       if (m.cardW >= 500 && W >= 768 && m.mode !== 'in') bad.push(`768+ 넓은 카드는 카드 안이어야 한다(${m.mode} · 카드 ${m.cardW}px)`);
       if (W < 768 && m.mode !== 'edge') bad.push(`폰은 모서리 걸침이어야 한다(${m.mode})`);
-      if (W < 768 && m.lbTxt !== '드레스 보기') bad.push(`폰 글이 «드레스 보기»가 아니다(${m.lbTxt}) [STICKER_LABEL_TOP]`);
-      if (W >= 768 && m.lbTxt !== '드레스 미리 보기') bad.push(`넓은 화면 글이 «드레스 미리 보기»가 아니다(${m.lbTxt})`);
+      if (m.lbTxt !== '드레스 보기') bad.push(`글이 «드레스 보기»가 아니다(${m.lbTxt}) [STICKER_ONE_WORD]`);
+      if (m.lbGap === null || m.lbGap < 8) bad.push(`글자 ↔ 가장 가까운 글 · 진행 점 ${m.lbGap}px(8 아래) [STICKER_ONE_WORD]`);
       if (m.lbPill) bad.push('글과 «n벌»이 붙었다 [STICKER_LABEL_TOP]');
       if (!m.inView) bad.push('스티커 · 글이 화면 밖');
       if ((kind === 'two') !== (m.pill === '2벌')) bad.push(`알약 «${m.pill}»`);

@@ -19846,7 +19846,7 @@ nochk 'R.list().slice(0,3).map(see)' mypage.html 0                         # [DR
 chk 'DRESS_CARD_MIN' mypage.html 1
 nochk 'data-dress-open' mypage.html 0                                     # ★[DRESS_STICKER 2026-10-24] 따로 카드 «드레스 보러 가기»는 걷었다 — 단추는 상담 카드 안내 블록의 스티커 하나
 chk 'DRESS_STICKER' mypage.html 10                                       # 스티커 = 그림 · 자리(겹침으로) · 크기 · «n벌» 알약 · 흔들림(고리 축 · 3초 한 번) · 미리 보기도 상담 카드로
-chk '<button type="button" class="dst" data-dst aria-label="드레스 미리 보기">' mypage.html 1
+chk '<button type="button" class="dst" data-dst aria-label="드레스 보기">' mypage.html 1
 chk "var DST = dressOn ? _dstHtml(c.dress) : '';" mypage.html 1              # 판정은 [DRESS_CARD_ON] 그대로(_dressCardOn 한 곳)
 chk "  _dstWire(box, d, demo);   // .DRESS_STICKER." mypage.html 1
 chk '.dst.is-sw .dst-sw{animation:dstSwing 2.8s ease-in-out 1}' mypage.html 1    # 흔들림은 처음 한 번(끝없이 · 다시 흔들지 않는다) [STICKER_FINISH_1024]
@@ -19886,7 +19886,16 @@ chk 'STICKER_LABEL_HANG' scripts/audit/dress-fit.mjs 1
 chk 'STICKER_FINISH_1024' mypage.html 3                                    # 크기 · 기울기 · 흔들림 · 반응 · «n벌» · 글 자리(코워크 마감 지시) · 크기를 줄여 맞추지 않는다
 chk 'STICKER_LABEL_TOP' mypage.html 3                                      # 폰 «드레스 보기» = 고리 위 가운데(사장님 1024)
 chk 'STICKER_LABEL_TOP' scripts/audit/dress-refs.mjs 1
-chk 'STICKER_LABEL_TOP' scripts/audit/dress-fit.mjs 2
+chk 'STICKER_LABEL_TOP' scripts/audit/dress-fit.mjs 1
+chk 'STICKER_ONE_WORD' mypage.html 3                                       # 글은 폭과 상관없이 «드레스 보기» · 글자 ↔ 둘레 8px (코워크 1024 · GPT 부분 수용)
+chk 'STICKER_ONE_WORD' scripts/audit/dress-refs.mjs 2
+chk 'STICKER_ONE_WORD' scripts/audit/dress-fit.mjs 3
+nochk 'dst-lbw' mypage.html 0                                              # 768+ «드레스 미리 보기» 글이 되살아나면 빨강
+chk 'const ST_W = \[360, 375, 390, 430, 767, 768, 820, 1024, 1280\]' scripts/audit/dress-fit.mjs 1   # 폭 9개(360 · 375 · 767 · 768 포함) — 줄면 빨강
+chk 'STICKER_RELAYOUT' mypage.html 1                                       # 글꼴 · 줄바꿈이 늦게 바뀌면 다시 잰다 · 흔들림은 다시 시작하지 않는다
+chk 'STICKER_RELAYOUT' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_LAYOUT_STILL' mypage.html 1                                   # 흔들리는 중에도 transform 빼고 잰다
+chk 'STICKER_LAYOUT_STILL' scripts/audit/dress-refs.mjs 1
 chk 'STICKER_HEAD_CENTER' mypage.html 1                                    # 768+ 묶음 = 머리 글 옆 빈자리 가운데(사장님 1024 «너무 우측 구석»)
 chk 'STICKER_HEAD_CENTER' scripts/audit/dress-refs.mjs 1
 chk 'STICKER_BOX_CLEAR' mypage.html 1                                      # 그림 상자(투명 부분 포함) ↔ 글 사각형 겹침 0 (코워크 1024)
