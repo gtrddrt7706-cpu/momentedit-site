@@ -18970,7 +18970,7 @@ chk "if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id
 chk "if (/^rec:/.test(String(id || ''))) { try { return _recGet_(" automation/platform/80_production.gs 1
 chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;" automation/platform/80_production.gs 1
 chk 'REC_SONG_1012' mypage.html 1
-chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'))?180000:60000)" mypage.html 1
+chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)" mypage.html 1   # [BGM_PREVIEW_1024] key bed 도 180초
 chk 'songs:Array.isArray(r.songs)?r.songs:undefined' mypage.html 1
 chk 'REC_SONG_1012' console.html 2
 chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
@@ -19403,8 +19403,8 @@ chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
 chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
-chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
-chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
+chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
+chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
 chk "scene: _letterScene.indexOf(LETTER_BED_SWAP.from) > -1 ? _letterScene.replace(LETTER_BED_SWAP.from, LETTER_BED_SWAP.to) : ''," assets/ritual-story.js 1
 chk 'ST.LETTER_BED_SWAP' scripts/build-course-story.mjs 1
@@ -20222,7 +20222,7 @@ chk 'BGM_SEG8_1023' console.html 10
 chk 'BGM_PICKS_1023' assets/bgm-picks.js 1
 chk 'BGM_PICKS_1023' console.html 2
 chk '<script src="/assets/bgm-picks.js"></script>' console.html 1
-nochk 'bgm-picks' order-preview.html   # [BGM_PICKS_1023] 고객 화면은 싣지 않는다(고객은 입장 곡만 고른다)
+# [BGM_PICKS_1023] 의 «order-preview 는 bgm-picks 를 싣지 않는다»는 사장님 10/24 [BGM_PREVIEW_1024] 로 바뀌었다(구간 곡을 고객이 고른다 · 곡 파일 주소는 없다 · bgm-seg8 ⑤ 가 잰다)
 nochk 'bgm-picks' mypage.html
 chk "  if (k === 'tribute') return 'M5';" console.html 1
 chk 'RF_IN_ENGINE' console.html 1
