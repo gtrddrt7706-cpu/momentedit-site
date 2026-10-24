@@ -13,13 +13,6 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 10 | 5 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
-
-```
-# 우성 — 10줄 · 5클립
-node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =231_narr-declare-in-friend-ex4,=198_narr-declare-family-out-ex4,=196_narr-free-in-speech-ex4,=259_narr-tribute-name-ex6,=207_toast-toast-ex4
-```
 
