@@ -124,7 +124,14 @@ html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}   /* ★[DRESS_SOLO_NOSAV
 /* ★[DRESS_POPUP 2026-10-24] 마이페이지 팝업 창 안(&pop=1) — 바깥 테 · 둥근 모서리 · 그림자는 부모 창(.dr-pop-card) · 머리는 창 위에 붙어 있다(창 안에서만 스크롤) */
 html.pk-pop body.pick{background:var(--card-white)}
 html.pk-pop .pk-wrap{padding:0}
-html.pk-pop .pk-card{max-width:none;min-height:100vh;min-height:100dvh;border:0;border-radius:0;padding:0 16px}
+html.pk-pop .pk-card{max-width:none;min-height:0;border:0;border-radius:0;padding:0 16px}   /* ★[POPUP_FIT_1024] 창 높이 = 내용 높이(부모가 최대치로 자른다) — 카드는 늘이지 않는다 · 넘치면 창 안 스크롤 · 머리(sticky top) · 막대(sticky bottom)는 붙는다 */
+html.pk-pop #pkSave{display:none}   /* [POPUP_FIT_1024] 머리 = 제목 + ✕ · 저장은 아래 막대 주 단추 하나(«이 한 벌로 · 이 두 벌로 골라 두기») */
+html.pk-pop .pk-main .dv-view{max-width:min(360px,max(150px,calc((var(--pk-vh,100vh) - 402px) * 0.75)))}   /* 사진 크기는 창의 최대 높이로 잰다 — 창 높이(=내용)로 재면 서로 물고 늘어난다 */
+html.pk-pop .pk-main.pk-fade{animation:pkFade .12s ease-out}
+@keyframes pkFade{from{opacity:0}to{opacity:1}}
+html.pk-pop .pk-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}   /* 여러 벌 = 2열 · 사이 12 / 16 */
+html.pk-pop .pk-grid > :only-child{grid-column:1 / -1;justify-self:center;width:100%;max-width:200px}   /* 한 벌 = 가운데 · 최대 폭 200 */
+html.pk-pop .wz-bar,html.pk-pop .wz-bar.pk-bar{gap:12px}   /* Nº 칸과 주 단추 사이 12 */
 html.pk-pop .pk-head{position:sticky;top:0;z-index:6;margin:0 -16px 12px;padding:6px 8px 6px 16px;background:var(--card-white);transition:box-shadow .12s var(--ease,ease)}
 html.pk-pop.pk-scrolled .pk-head{box-shadow:0 1px 0 var(--hairline)}   /* 머리 아래 선은 글이 머리 밑으로 지나갈 때만 — 띠 · 진행 표시의 윗선과 두 줄로 겹치지 않게 */
 html.pk-pop .pk-head-n{font-size:13px}
@@ -163,9 +170,9 @@ html.pk-pop .pk-head-n{font-size:13px}
 .pk-q{font-family:var(--serif-ko);font-size:18px;font-weight:500;color:var(--accent);line-height:1.55;outline:none}
 .pk-qsub{font-size:13px;color:var(--light);line-height:1.7;margin-top:4px}
 .pk-opts{display:flex;flex-direction:column;gap:8px;margin-top:18px}
-.pk-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:12px 16px;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:14px;font-weight:400;color:var(--sub);text-align:left;cursor:pointer;transition:border-color .2s var(--ease),background .2s var(--ease),color .2s var(--ease),transform .12s ease;-webkit-tap-highlight-color:transparent}
+.pk-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:14px;font-weight:400;color:var(--sub);text-align:left;cursor:pointer;transition:border-color .2s var(--ease),background .2s var(--ease),color .2s var(--ease),transform .12s ease;-webkit-tap-highlight-color:transparent}
 .pk-opt:hover{border-color:var(--gold)}
-.pk-opt[aria-pressed="true"]{border-color:var(--gold-deep);background:var(--gold-bg);color:var(--accent)}   /* [SEL_ONE] 카드 고름 = 짙은 금빛 테 + 옅은 금빛 바탕 */
+.pk-opt[aria-pressed="true"]{border-color:var(--gold-deep);background:var(--gold-bg);color:var(--text)}   /* [SEL_ONE] 카드 고름 = 짙은 금빛 테 + 옅은 금빛 바탕 */
 .pk-opt:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
 .pk-mk{flex:0 0 auto;width:18px;height:18px;border:1px solid var(--border);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff}
 .pk-opts.multi .pk-mk{border-radius:4px}
@@ -282,7 +289,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
 .pk-dots .dotln{margin-top:4px}
 .pk-done .pk-acts{margin-top:24px}
 
-@media (prefers-reduced-motion: reduce){ *{transition:none!important;scroll-behavior:auto!important} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;scroll-behavior:auto!important} html.pk-pop .pk-main.pk-fade{animation:none} }
 </style>
 <script src="/assets/dress-refs.js"></script>
 </head>
@@ -315,6 +322,11 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
      머리 = 왼쪽 «드레스 미리 보기» · 오른쪽 «저장» + 닫기 ✕ — «나가기» 알약과 ✕ 는 같은 역할이라 ✕ 하나로([BOSS_WAY_1006] 같은 역할 같은 모양 · 마이페이지 창 닫기 [X_ONE] 와 같은 꼴) */
   var POP = EMBED && Q.get('pop') === '1';
   if (POP) { window.addEventListener('scroll', function(){ document.documentElement.classList.toggle('pk-scrolled', window.pageYOffset > 2); }, { passive: true }); }
+  /* ★[POPUP_FIT_1024] 창 높이 = 이 카드의 내용 높이 — 바뀔 때마다 부모에 알린다(부모가 폰 min(88dvh, 760) · 넓은 화면 min(84dvh, 720)으로 자른다 · 높이 애니메이션 없음) */
+  var _popH = 0, _popT = 0;
+  function popH(){ _popT = 0; var c = document.querySelector('.pk-card'); if (!c) return; var h = Math.ceil(c.getBoundingClientRect().height); if (h === _popH) return; _popH = h; try { window.parent.postMessage({ type: 'momentedit:dressHeight', h: h }, location.origin); } catch (e) {} }
+  function popHSoon(){ if (!_popT) _popT = requestAnimationFrame(popH); }
+  if (POP) { try { if (window.ResizeObserver) new ResizeObserver(popHSoon).observe(document.querySelector('.pk-card')); } catch (e) {} }
   if (POP) { document.documentElement.classList.add('pk-pop'); var px = document.getElementById('pkExit'); if (px) { px.className = 'pk-x'; px.textContent = '\u2715'; px.setAttribute('aria-label', '닫기'); } }
   var OPEN = String(Q.get('open') || '');   // [DRESS_SEE_TAP] 카드에서 누른 드레스(없거나 모르는 id 면 목록부터)
   var $ = function(id){ return document.getElementById(id); };
@@ -562,12 +574,13 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     var put = function(x){ if (!x) return; if (dt) box.style.maxWidth = (base - x * 0.75) + 'px'; else box.style.marginTop = (base - x) + 'px'; };
     if (had) { put(FIT[key]); return; }
     var T = bar.getBoundingClientRect().top, iv = [], lo, hi;
-    var w = document.createTreeWalker(dt ? (m.querySelector('.dv-tx') || m) : box, NodeFilter.SHOW_TEXT), tn;
+    var g0 = dt ? -1e9 : box.getBoundingClientRect().top;   // ★[BAR_FIT_BELOW 1024] 목록은 그리드부터 아래 모든 줄(맨 아래 점 줄 포함) — 그리드 여백을 옮기면 같이 움직인다 · 위쪽 띠 · 소제목은 안 움직이니 빼고 센다
+    var w = document.createTreeWalker(dt ? (m.querySelector('.dv-tx') || m) : m, NodeFilter.SHOW_TEXT), tn;
     while ((tn = w.nextNode())) {
       if (!/\S/.test(tn.nodeValue)) continue;
       var rg = document.createRange(); rg.selectNodeContents(tn);
       var rs = rg.getClientRects();
-      for (var i = 0; i < rs.length; i++) { var r = rs[i]; if (r.height > 4 && r.top < T + 80 && r.bottom > T - 80) iv.push([r.top - T + 0.5, r.bottom - T + 6]); }   // 이 사이로 s 만큼 옮기면 글줄이 막대 선에 걸린다(보이는 줄은 선 위 6px 여유 · 숨는 줄은 선 아래로 다)
+      for (var i = 0; i < rs.length; i++) { var r = rs[i]; if (r.height > 4 && r.top >= g0 - 0.5 && r.top < T + 80 && r.bottom > T - 80) iv.push([r.top - T + 0.5, r.bottom - T + 6]); }   // 이 사이로 s 만큼 옮기면 글줄이 막대 선에 걸린다(보이는 줄은 선 위 6px 여유 · 숨는 줄은 선 아래로 다)
     }
     if (dt) {
       var cw = box.parentElement ? box.parentElement.clientWidth : base, c = m.querySelector('.pk-ctl');
@@ -593,7 +606,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     renderBar();
     if (v === 'detail') wireStrip(m);
     if (focusHead !== false) { var h = m.querySelector('[data-head],.dv-nm'); try { (h || m).focus({ preventScroll: true }); } catch (e) {} }
-    if (moved) { try { window.scrollTo(0, 0); } catch (e) {} }
+    if (moved) { try { window.scrollTo(0, 0); } catch (e) {} if (POP) { m.classList.remove('pk-fade'); void m.offsetWidth; m.classList.add('pk-fade'); } }   // [POPUP_FIT_1024] 단계를 넘길 때 본문만 120ms 옅게 들어온다
     try { fitBar(); } catch (e) {}   // [DRESS_BAR_FIT] 첫 화면 막대 선에 글줄이 걸리지 않게(못 재면 CSS 기본값 그대로)
     syncState();
   }
@@ -688,6 +701,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   }
   function applyFill(m){
     var sv = m && m.saved;
+    if (POP && m && m.popMax) document.documentElement.style.setProperty('--pk-vh', Math.round(m.popMax) + 'px');   // [POPUP_FIT_1024] 창의 최대 높이
     if (m && m.ymd) S.ymd = String(m.ymd);   // [DRESS_DUE_DATE · DRESS_DUE_SAME] 완료 화면 «바꾸기는 10월 23일(금)까지 할 수 있어요.»(R.dueLine)
     /* ★[DRESS_SEE_CLOSED 2026-10-23 코워크 디자인 라운드 1 · 1] 바꾸기 마감 뒤(부모가 open:false)에 카드 사진을 눌러 들어오면 보기만 —
        막대 · 고르기 · 빼기 · 머리 «저장» · 띠 아래 점 줄이 없다(서버도 마감 뒤 저장을 거절한다 · 고를 수 있는 척하지 않는다) */
@@ -742,7 +756,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && S.view === 'detail') { e.preventDefault(); backToList(); } });
     /* [DRESS_BAR_FIT] 화면 크기 · 글꼴이 바뀌면 첫 화면을 다시 잰다(스크롤 0 일 때만 옮긴다) */
-    var fitT = 0; window.addEventListener('resize', function(){ clearTimeout(fitT); fitT = setTimeout(function(){ try { if (S.view === 'list' || S.view === 'detail') fitBar(); } catch (e) {} }, 150); });
+    var fitT = 0; window.addEventListener('resize', function(){ clearTimeout(fitT); fitT = setTimeout(function(){ try { if (S.view === 'list' || S.view === 'detail') fitBar(); } catch (e) {} }, POP ? 0 : 150); });   // [POPUP_FIT_1024] 창 안에서는 높이가 바뀔 때만 크기가 바뀐다 — 바로 다시 맞춘다
     try { if (document.fonts) { document.fonts.addEventListener('loadingdone', function(){ try { refit(); } catch (e) {} }); if (document.fonts.ready) document.fonts.ready.then(function(){ try { refit(); } catch (e) {} }); } } catch (e) {}
     if (EMBED) {
       window.addEventListener('message', function(ev){
