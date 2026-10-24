@@ -271,8 +271,11 @@ try {
         const hits = []; const rg = document.createRange(); const w = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
         for (let t = w.nextNode(); t; t = w.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; rg.selectNodeContents(t);
           for (const r of rg.getClientRects()) if (r.width >= 1 && r.right > sb.left && r.left < sb.right && r.bottom > sb.top && r.top < sb.bottom) hits.push(t.nodeValue.trim().slice(0, 12)); }
+        const txt = () => { const o = []; const w2 = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); for (let t = w2.nextNode(); t; t = w2.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; const r2 = document.createRange(); r2.selectNodeContents(t); for (const q of r2.getClientRects()) o.push([q.left, q.top, q.width, q.height].map((v) => Math.round(v * 10) / 10).join(',')); } return o.join('|') + '#' + card.getBoundingClientRect().height; };
+        const withSt = txt(); st.style.display = 'none'; const noSt = txt(); st.style.display = '';   // ★[STICKER_NO_REFLOW] 스티커가 있을 때와 없을 때 카드 글 상자가 같아야 한다
         const pill = st.querySelector('.dst-pill'), pr = pill && pill.getBoundingClientRect(), lb = st.querySelector('.dst-lb').getBoundingClientRect();
-        return { mode: vg.classList.contains('vg-st-pc') ? 'pc' : vg.classList.contains('vg-st-ph') ? 'ph' : '?', pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
+        const lbR = st.querySelector('.dst-lb').getBoundingClientRect();
+        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: box.left >= 4 && box.right <= innerWidth - 4 && lbR.left >= 4 && lbR.right <= innerWidth - 4, inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
           w: sb.width, h: sb.height, box: Math.round(box.width), hits, ow: document.documentElement.scrollWidth - innerWidth, lbH: lb.height,
           overDiv: Math.round(vg.getBoundingClientRect().top - box.top), pill: pill ? pill.textContent : '', pillIn: pill ? (pr.left >= box.left - 0.5 && pr.right <= box.right + 0.5 && pr.top >= box.top - 0.5) : true,
           dressCard: (document.getElementById('mp_dress') || {}).innerHTML || '' }; });
@@ -286,12 +289,16 @@ try {
       if (m.w < 44 || m.h < 44) bad.push(`누름 칸 ${m.w}×${m.h}`);
       if (m.ow > 0) bad.push(`가로 넘침 ${m.ow}`);
       if (m0.pos !== m.pos || m0.cardH !== m.cardH) bad.push(`자리 흔들림 ${m0.pos}→${m.pos} · 카드 ${m0.cardH}→${m.cardH}`);
-      if (m.box !== want) bad.push(`크기 ${m.box}(기대 ${want})`);
-      if (m.lbH > 16) bad.push(`글이 한 줄이 아니다(${m.lbH}px)`);
-      if (W < 768 && m.mode !== 'ph') bad.push(`폰인데 자리 ${m.mode}`);
-      if (m.mode === 'ph' && Math.abs(m.overDiv - m.box / 4) > 2) bad.push(`구분선 걸침 ${m.overDiv}px`);
+      if (m.box > want || m.box < 56) bad.push(`크기 ${m.box}(최대 ${want} · 최소 56)`);
+      if (m.reflow) bad.push('스티커 때문에 카드 글 자리 · 폭 · 줄바꿈이 바뀌었다 [STICKER_NO_REFLOW]');
+      if ((W < 768) !== m.pm) bad.push(`글 모양 — 폰은 스티커 위 알약 · 넓으면 아래 줄 (${m.pm ? '알약' : '아래 줄'}) [STICKER_PILL_PHONE]`);
+      if (m.lbH > 22) bad.push(`글이 한 줄이 아니다(${m.lbH}px · 알약은 위아래 1px)`);
+      if (!m.inCard) bad.push('스티커가 상담 카드 머리에 있지 않다 [DRESS_STICKER_HEAD]');
+      if (m.mode === 'none' || m.mode === '?') bad.push(`맞는 자리를 못 찾았다(${m.mode})`);
+      if (m.cardW >= 500 && kind !== 'pre' && m.mode !== 'in') bad.push(`넓은 확정 카드는 안쪽 모서리여야 한다(${m.mode} · 카드 ${m.cardW}px)`);
+      if (!m.inView) bad.push('스티커 · 글이 화면 밖');
       if ((kind === 'two') !== (m.pill === '2벌')) bad.push(`알약 «${m.pill}»`);
-      if (W < 768 && !m.pillIn) bad.push('알약이 스티커 칸 밖');
+      if (W < 768 && !m.pillIn) bad.push('알약이 스티커 칸 밖');   // [DRESS_STICKER_HEAD] 자리는 겹침으로 — 안쪽 모서리(in) · 걸침(edge) · 아주 좁으면 머리 줄 오른쪽 비움(squeeze)
       if (m.dressCard) bad.push('따로 카드가 다시 그려졌다');
       if (ps.errors.length) bad.push(`페이지 오류 ${ps.errors[0]}`);
       stRows.push(`${W}/${kind}=${m.mode}`);

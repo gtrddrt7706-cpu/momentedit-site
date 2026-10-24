@@ -19849,13 +19849,30 @@ chk 'DRESS_STICKER' mypage.html 10                                       # 스�
 chk '<button type="button" class="dst" data-dst aria-label="드레스 미리 보기">' mypage.html 1
 chk "var DST = dressOn ? _dstHtml(c.dress) : '';" mypage.html 1              # 판정은 [DRESS_CARD_ON] 그대로(_dressCardOn 한 곳)
 chk "  _dstWire(box, d, demo);   // .DRESS_STICKER." mypage.html 1
-chk '.dst-sw.is-sw{animation:dstSwing 3s ease-in-out 1}' mypage.html 1      # 흔들림은 한 번(끝없이 흔들지 않는다)
+chk '.dst.is-sw .dst-sw{animation:dstSwing 3s ease-in-out 1}' mypage.html 1      # 흔들림은 한 번(끝없이 흔들지 않는다)
 chk "matchMedia('(hover: hover) and (pointer: fine)').matches) st.addEventListener('mouseenter'" mypage.html 1   # 터치 기기는 마우스 흔들림 없음
 chk 'DRESS_STICKER' scripts/audit/dress-refs.mjs 10
 chk 'DRESS_STICKER_ART' mypage.html 2                                   # 그림 = 코워크 유화 스티커(112 · 128 · 176 × webp · png) · 흰 테두리는 그림에 · 축 49% 2%
 chk 'transform-origin:49% 2%' mypage.html 1
 chk 'DRESS_STICKER_ART' scripts/audit/dress-refs.mjs 2                    # 파일 여섯 벌 · 30KB 이하 · 176 webp sha256 앞 16자
 nochk 'dst-ph' mypage.html 0                                             # 임시 선 그림은 걷었다
+# ── 2026-10-24 [DRESS_STICKER_HEAD] 사장님 «저기에 위치시키고»(상담 카드 오른쪽 위)
+#   스티커 = 상담 카드 머리 오른쪽 위(안쪽 모서리 → 모서리 걸침 · 겹침으로) · 모양 · 깨 보기는 dress-refs.mjs ⑬ ⑯ · 7폭 × 3상태 겹침은 dress-fit.mjs(브라우저)
+chk 'DRESS_STICKER_HEAD' mypage.html 4
+nochk 'vg-st' mypage.html 0                                              # 안내 블록 비움(.vg-st)은 걷었다 — 스티커는 카드 머리
+chk "  box.innerHTML = '<div class=\"consult-card'+(DST?' cc-st':'')+'\">'+DST+'<div class=\"cc-eyebrow en-22\">'" mypage.html 1
+chk 'DRESS_STICKER_HEAD' scripts/audit/dress-refs.mjs 2
+chk 'DRESS_STICKER_HEAD' scripts/audit/dress-fit.mjs 2
+# ── 2026-10-24 [STICKER_NO_REFLOW 사장님 1024 «스티커 들어갈 때 글씨는 항상 그대로 둬» · «글씨를 민다거나 이렇게는 하지 말라고»] 스티커는 얹기만 —
+#   어느 폭에서도 카드 글의 자리 · 폭 · 줄바꿈 그대로(여백 · 패딩을 더하지 않는다) · 보이는 드레스 56px 아래 금지 · 폰은 글을 스티커 위 흰 알약으로([STICKER_PILL_PHONE])
+#   운영에 나간 «방문 전 안내» 오른쪽 비움(.vg-st)이 글 · 구분선을 왼쪽으로 몰았다 → 걷었다(nochk 'vg-st'). 7폭 «스티커 있을 때 = 없을 때» 비교는 dress-fit.mjs
+chk 'STICKER_NO_REFLOW' mypage.html 1
+chk 'STICKER_PILL_PHONE' mypage.html 2
+chk 'STICKER_NO_REFLOW' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_PILL_PHONE' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_NO_REFLOW' scripts/audit/dress-fit.mjs 2
+chk 'STICKER_PILL_PHONE' scripts/audit/dress-fit.mjs 1
+chk 'var S=Math.max(56, Math.round(S0\*k));' mypage.html 1                # 보이는 드레스 56px 아래로 줄이지 않는다
 chk 'DRESS_STICKER' scripts/audit/dress-fit.mjs 1
 chk 'DRESS_CARD_ONE_LINE' mypage.html 1                                    # 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄
 nochk "'고르지 않으셔도 상담 날 함께 골라요.'" mypage.html 0                     # 카드에서는 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번)
