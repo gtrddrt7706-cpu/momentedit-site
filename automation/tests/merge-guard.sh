@@ -9781,7 +9781,7 @@ fi
 chk 'CINE_SCOPE' order-preview.html 6
 chk 'CINE_SCOPE' scripts/audit/cine-scope.mjs 2
 chk 'CINE_SCOPE' .claude/skills/momentedit-design/SKILL.md 1
-chk 'var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};' order-preview.html 1
+chk 'var _VFY={entry:15,close:45,welcome:12,toast:10,vow:10,bless:20,tribute:20};' order-preview.html 1
 nochk '.pv-media{position:relative;aspect-ratio:16/9' order-preview.html
 nochk '.mk-vu-img{aspect-ratio:16/9' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/cine-scope.mjs >/dev/null 2>&1; _cs=$?
@@ -14795,6 +14795,7 @@ chk 'SIGCOLOR_VIDEO_1024' assets/ritual-open.js 1   # 편지 · 부모님께 인
 chk 'SIGCOLOR_VOW_1024' assets/ritual-open.js 1   # 서약 = 원색 판 · 하객 넷 신부 카드 쪽 · 렌즈 0(10/24)
 chk 'VOW_FY_1024' order-preview.html 1   # 서약 칸 높이 60%(카드 둘 + 하객 테이블)
 chk 'NO_END_FREEZE_1024' assets/ritual-open.js 1   # 장면 영상 8초 안팎 · 끝까지 움직임 · 끝 정지 0.3초 안(10/24 사장님 «6초부터 멈춰 있어»)
+chk 'FINAL17_1025' assets/ritual-open.js 1   # 17편 최종판(전판 + 한국인 하객 · 얼굴 뭉갬 · 서약 앵글 전환 · 테이블 인사 박수 없음)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
