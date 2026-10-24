@@ -104,7 +104,7 @@ window.RITUAL_REF={"v":"0927","rows":[{"key":"welcome","n":1,"kyeol":"담백","w
 {"key":"toast:toast|both","n":3,"kyeol":"유머+진심","who":"신부","id":"718_toast-bride","text":"여기 계신 모든 분을 위하여!"},
 {"key":"toast:toast|both","n":4,"kyeol":"격식","who":"신랑","id":"817_toast-groom","text":"앞으로 행복하게 잘 살며 여러분과 함께하겠습니다."},
 {"key":"toast:toast|both","n":4,"kyeol":"격식","who":"신부","id":"818_toast-bride","text":"저희의 영원한 사랑을 위하여!"},
-{"key":"toast:toast|both","n":5,"kyeol":"장면 하나","who":"신부","id":"918_toast-bride","text":"사랑 넘치는 오늘을 위하여!"},
+{"key":"toast:toast|both","n":5,"kyeol":"장면 하나","who":"신부","id":"918_toast-bride","text":"함께 잔을 든 오늘을 위하여!"},
 {"key":"toast:toast|both","n":6,"kyeol":"솔직하게","who":"신부","id":"1018_toast-bride","text":"우리의 행복을 위하여!"},
 {"key":"free:speech:1|2|3","n":1,"kyeol":"장면 하나","who":"신부 오빠","id":"510_speech-open-brother","text":"네, 안녕하십니까. 저는 오늘 결혼하는 신부 정하윤의 단 하나뿐인 친오빠 정민재입니다. 우선 귀중한 발걸음 해 주신 모든 분들께 진심으로 감사하다는 말씀을 드립니다. 사랑하는 내 동생 하윤아. 집에서 텔레비전 보면서 치킨 뜯을 때와는 조금 다른 얼굴이지만, 정말 아름답구나 오늘.","piece":"open"},
 {"key":"free:speech:2|3","n":1,"kyeol":"장면 하나","who":"신부 오빠","id":"511_speech-story1-brother","text":"그리고 내가 제일 좋아하는 우리 이 서방, 오늘 결혼하게 된 걸 진심으로 축하한다. 처음 너희의 연애 소식을 들은 건 내가 군대에 있을 때였어. 싸지방을 갔는데 친구들한테 페이스북 메시지가 많이 와 있는 거야. 정하윤이 남자친구가 생겼다고, 비상 상황이니까 빨리 뛰쳐나오라고. 시간이 갈수록 이 친구를 알면 알수록, 옆에서 내 동생을 지켜 줬으면 좋겠다는 그런 생각이 들더라고.","piece":"story1"},

@@ -7747,7 +7747,7 @@ chk "has: (id) => /^X-/.test(id) }" scripts/build-typecast-import.mjs 1
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
 #   T3 성혼 선언 문장(«정식으로 부부가 되셨습니다»)은 DECLARE_BY_PERSON(나레이션은 선언하지 않는다)과 부딪혀 쓰지 않았다 · T4 원문은 여전히 쓰지 않는다
-chk 'T3_OK_1017' assets/ritual-open.js 7
+chk 'T3_OK_1017' assets/ritual-open.js 6   # ★[REF_GUIDED_1024 검토 163] 축사 4(196)가 빌린 대사로 바뀌어 7 → 6
 chk 'T3_OK_1017' assets/ritual-cue.js 1
 chk 'T3_OK_1017' CLAUDE.md 1
 chk "'narr-candle-in-fathers-ex4', 'narr-candle-in-others-ex2', 'narr-ring-in-ex4', 'narr-bless-mid-ex4', 'narr-bless-end-ex4', 'narr-free-in-speech-ex4'" assets/ritual-cue.js 1   # FILES 191 ~ 196
@@ -14958,7 +14958,7 @@ chk '오늘의 주인공을 여러분께 소개합니다' order-preview.html 1
 nochk '사랑일지도 모른다고 걸음을 멈춰' assets/ritual-data.js
 nochk '사랑일지도 모른다고 걸음을 멈춰' order-preview.html
 # ★[NARR_LOOP_1018 첫 판] 선언 맺는 말 예시 3 · 4(T2 · U1) · 편지 예시 4(OO) · 소리 197 ~ 200 · RR 39 «부부가 되었습니다»는 수행문이라 쓰지 않는다(DECLARE_BY_PERSON)
-chk '온 세상에 선포하였습니다' assets/ritual-open.js 1
+nochk '온 세상에 선포하였습니다' assets/ritual-open.js   # ★[REF_GUIDED_1024 검토 163] 198 은 빌린 대사(요즘웨딩)로 바뀌었다 · 옛 U1 글
 chk '다짐보다 더 깊은 사랑으로' assets/ritual-open.js 1
 chk 'narr-letter-end-ex4' assets/ritual-cue.js 1
 nochk '두 사람은 이제 부부가 되었습니다' assets/ritual-open.js
@@ -15034,7 +15034,7 @@ fi
 chk 'REVIEW1_1018' assets/ritual-open.js 2
 chk 'REVIEW1_1018' assets/ritual-cue.js 1
 chk "'toast-toast-ex4', 'narr-welcome-in-ex2'" assets/ritual-cue.js 1
-chk "여러분! 신랑 신부가 선창으로 외치면 우리 하객 여러분들께서는 다 함께 '위하여!'라고 외쳐 주시고 건배를 들어 주시면 감사하겠습니다!" assets/ritual-open.js 1   # [REVIEW8_1018] 건배를 들어 → 잔을 들어   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «잔을 들어 주시면 감사하겠습니다!…») · 자료 SS 원문
+chk "이제 모두 잔을 들어 주세요! 신랑 신부가 선창하면 다 함께 '위하여!'라고 힘차게 외쳐 주세요!" assets/ritual-open.js 1   # ★[REF_GUIDED_1024 검토 163] 207 새 글 · 옛 핀 «여러분! 신랑 신부가 선창으로 외치면 …»   # [REVIEW8_1018] 건배를 들어 → 잔을 들어   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «잔을 들어 주시면 감사하겠습니다!…») · 자료 SS 원문
 nochk '두 사람의 행복한 결혼생활을 위하여' assets/ritual-open.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 선창 문구는 두 분이 고르는 축배 한마디 — 나레이션이 정하지 않는다(④)
 chk "names: \['다정하게', '격식 있게', '잔잔하게', '힘차게'\]" assets/ritual-open.js 1
 chk '이제 우리 신랑 신부 두 분은요 이 자리를 가득 채워 주신 내빈 여러분들께 감사 인사를 올리겠습니다.' assets/ritual-open.js 1
@@ -20123,3 +20123,16 @@ chk '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주�
 nochk '간혹 식 중에 전화벨이 울리기도 하는데' assets/ritual-open.js
 nochk '너무나도 좋을 것 같습니다' assets/ritual-cue.js
 nochk '자, 이제 식이 십 분 정도밖에 남지 않았는데요' assets/ritual-open.js
+# ── 2026-10-24 [REF_GUIDED_1024 검토 163] 실제 자료가 없는 자리 = 베스트 실제 대사의 낱말을 빌려 다듬은 글 · 출처 줄은 «빌린 대사» — 231 · 198 · 196 · 259 · 207 · 축배 예시 918 · 검사 open-course «REF_GUIDED_1024»
+chk 'REF_GUIDED_1024 검토 163' assets/ritual-data.js 1
+chk 'REF_GUIDED_1024 검토 163' assets/ritual-open.js 5
+chk '다음은 성혼 선언입니다. 선언을 맡아 주실 분께 박수와 환호 부탁드립니다!' assets/ritual-open.js 1
+chk '두 사람의 약속이 확인되었습니다. 부부로서 첫 발걸음을 내딛는 두 사람에게 힘찬 박수 부탁드립니다!' assets/ritual-open.js 1
+chk '다음은 축사입니다. 큰 박수로 맞아 주세요!' assets/ritual-open.js 1
+chk '이제 부모님께 인사드릴 시간입니다. 눈물보다 웃음으로 인사드리겠습니다.' assets/ritual-open.js 1
+nochk "'다음은 신랑 신부가 부탁드린 분께서 성혼을 선포해 주실 텐데요" assets/ritual-open.js
+nochk "'어느덧 부모님께 인사 드리는 순간이 왔습니다" assets/ritual-open.js
+# ── 2026-10-24 [NO_FORCED_JOKE_1024 사장님 «억지로 웃기려고 하지 마»] 억지로 웃기려는 글 금지 · 유머 칩도 웃음은 하객이 만드는 것 · 예시 글은 진심 한 줄로 — 163 의 717 · 718 바꾸기 걷음
+chk 'NO_FORCED_JOKE_1024 사장님' assets/ritual-data.js 1
+nochk '빨래는 제가 개겠습니다' assets/ritual-ref.js
+nochk '빨래는 제가 개겠습니다' docs/plans/식순연구/참고예시_글예시_말하는자리_늘린판_0927.tsv

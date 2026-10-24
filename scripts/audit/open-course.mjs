@@ -510,7 +510,21 @@ ok('[YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024] 유쾌 120 · 122 · 85 = 요즘
   return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘 촬영은 자연스러운 사진으로 남으니, 여러분도 마음껏 셔터를 눌러 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.'
     && /'narr-photo-send': '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요\.'/.test(X) && /'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다\.'/.test(X)
     && /\['유쾌하게',\["바쁜 주말 귀한 시간 내주셔서 감사합니다\. 오늘 모든 안내는 저희가 미리 준비한 목소리로 진행됩니다\.",\s*"십 분 뒤 저희의 결혼식이 시작됩니다\./.test(B)
-    && ![N[0], N[1], N[3]].some((x) => old.test(x)) && /^각자의 길을 걸어온 저희가/.test(D.ENTRY.A.self) && t('717_toast-groom') === '멋지게 잘 살겠습니다!'; })());
+    && ![N[0], N[1], N[3]].some((x) => old.test(x)) && /^각자의 길을 걸어온 저희가/.test(D.ENTRY.A.self) && t('717_toast-groom') === '멋지게 잘 살겠습니다!' /* [NO_FORCED_JOKE_1024] 163 의 717 바꾸기는 걷었다 */; })());
+/* ★★[REF_GUIDED_1024 검토 163] 실제 자료가 없는 자리 = 베스트 실제 대사의 낱말을 빌려 다듬은 글 · 출처 줄은 «빌린 대사» */
+ok('[REF_GUIDED_1024 검토 163] 231 · 198 · 196 · 259 · 207 · 축배 예시 918 = 새 글 · 출처 «빌린 대사» · 717 · 718 은 지금 글 그대로(NO_FORCED_JOKE_1024) · 옛 918 은 REF_OLD 에', (() => {
+  const E = O.NAR_EX, w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
+  const r = (id) => w.RITUAL_REF.rows.filter((x) => x.id === id)[0] || {};
+  const J = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.filter((x) => /REF_GUIDED_1024/.test(x.src));
+  const T = fs.readFileSync(P('docs/plans/식순연구/참고예시_글예시_말하는자리_늘린판_0927.tsv'), 'utf8').split('\n').filter((l) => /\t(918_toast-bride)\t/.test(l));
+  return E.declare.lines['narr-declare-in-friend'][2] === '다음은 성혼 선언입니다. 선언을 맡아 주실 분께 박수와 환호 부탁드립니다!'
+    && E.declare.lines['narr-declare-family-out'][2] === '두 사람의 약속이 확인되었습니다. 부부로서 첫 발걸음을 내딛는 두 사람에게 힘찬 박수 부탁드립니다!'
+    && E.speech.lines['narr-free-in-speech'][2] === '다음은 축사입니다. 큰 박수로 맞아 주세요!'
+    && E.tribute.lines['narr-tribute-name'][4] === '이제 부모님께 인사드릴 시간입니다. 눈물보다 웃음으로 인사드리겠습니다.'
+    && E.toast.lines['toast-toast'][2] === "이제 모두 잔을 들어 주세요! 신랑 신부가 선창하면 다 함께 '위하여!'라고 힘차게 외쳐 주세요!"
+    && r('717_toast-groom').text === '멋지게 잘 살겠습니다!' && r('718_toast-bride').text === '여기 계신 모든 분을 위하여!' /* [NO_FORCED_JOKE_1024] */ && r('918_toast-bride').text === '함께 잔을 든 오늘을 위하여!' && r('1018_toast-bride').text === '우리의 행복을 위하여!'
+    && T.length === 1 && T.every((l) => /REF_GUIDED_1024 · 빌린 대사/.test(l)) && J.length >= 11 && J.every((x) => /^빌린 대사/.test(x.src))
+    && !/"718_toast-bride":/.test(B) && !/빨래는 제가 개겠습니다|웃음 가득한 우리 집을/.test(fs.readFileSync(P('assets/ritual-ref.js'), 'utf8')) && /"918_toast-bride": \["사랑 넘치는 오늘을 위하여!"\]/.test(B); })());
 /* ── 8. 실브라우저(--live) ── */
 if (process.argv.includes('--live')) {
   let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
