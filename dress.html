@@ -121,6 +121,18 @@ body.pick{background:var(--bg)}
 .wiz-save:disabled:hover{color:var(--light);border-color:var(--border);background:var(--card-white)}
 html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}   /* ★[DRESS_SOLO_NOSAVE 2026-10-23] 단독(?pick=1)은 저장이 없다 — 머리 «저장»을 숨긴다(마이페이지 스냅 동의 전 · 읽기 전용과 같은 꼴 [SNAP_PRECONSENT_EXIT]) · 저장한 척 «저장됨»이 머리 아래 «이 화면에서 고른 것은 저장되지 않아요»와 어긋났다.
    ★[DRESS_SEE_CLOSED 2026-10-23 코워크 디자인 라운드 1 · 1] 바꾸기 마감 뒤 카드 사진을 눌러 들어오면 보기만(pk-ro) — 고를 수 없으니 «저장»도 없다 */
+/* ★[DRESS_POPUP 2026-10-24] 마이페이지 팝업 창 안(&pop=1) — 바깥 테 · 둥근 모서리 · 그림자는 부모 창(.dr-pop-card) · 머리는 창 위에 붙어 있다(창 안에서만 스크롤) */
+html.pk-pop body.pick{background:var(--card-white)}
+html.pk-pop .pk-wrap{padding:0}
+html.pk-pop .pk-card{max-width:none;min-height:100vh;min-height:100dvh;border:0;border-radius:0;padding:0 16px}
+html.pk-pop .pk-head{position:sticky;top:0;z-index:6;margin:0 -16px 12px;padding:6px 8px 6px 16px;background:var(--card-white);transition:box-shadow .12s var(--ease,ease)}
+html.pk-pop.pk-scrolled .pk-head{box-shadow:0 1px 0 var(--hairline)}   /* 머리 아래 선은 글이 머리 밑으로 지나갈 때만 — 띠 · 진행 표시의 윗선과 두 줄로 겹치지 않게 */
+html.pk-pop .pk-head-n{font-size:13px}
+@media (min-width:480px){ html.pk-pop .pk-card{padding:0 20px} html.pk-pop .pk-head{margin:0 -20px 14px;padding:6px 10px 6px 20px} }
+.pk-x{width:44px;height:44px;margin:0;border:0;background:transparent;color:var(--light);font-size:17px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:none;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.pk-x:active{color:var(--accent)}
+@media (hover:hover){.pk-x:hover{color:var(--accent)}}
+.pk-x:focus-visible{outline:2px solid var(--gold-deep);outline-offset:-4px}
 .pk-solo{margin:-4px 0 14px;font-size:12px;color:var(--light);line-height:1.7}   /* 단독(?pick=1)일 때만 — 마이페이지 겹화면에는 없다 */
 .pk-main{flex:1 0 auto;padding-bottom:24px}
 .pk-main:focus{outline:none}
@@ -299,6 +311,11 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   var Q = new URLSearchParams(location.search);
   var PICK = Q.get('pick') === '1';
   var EMBED = PICK && Q.get('embed') === '1' && window.parent && window.parent !== window;
+  /* ★★[DRESS_POPUP 2026-10-24 사장님 «전체화면이 아니고 팝업으로»] 마이페이지 가운데 창 안(&pop=1) — 창 테 · 둥근 모서리는 부모 창이 맡는다.
+     머리 = 왼쪽 «드레스 미리 보기» · 오른쪽 «저장» + 닫기 ✕ — «나가기» 알약과 ✕ 는 같은 역할이라 ✕ 하나로([BOSS_WAY_1006] 같은 역할 같은 모양 · 마이페이지 창 닫기 [X_ONE] 와 같은 꼴) */
+  var POP = EMBED && Q.get('pop') === '1';
+  if (POP) { window.addEventListener('scroll', function(){ document.documentElement.classList.toggle('pk-scrolled', window.pageYOffset > 2); }, { passive: true }); }
+  if (POP) { document.documentElement.classList.add('pk-pop'); var px = document.getElementById('pkExit'); if (px) { px.className = 'pk-x'; px.textContent = '\u2715'; px.setAttribute('aria-label', '닫기'); } }
   var OPEN = String(Q.get('open') || '');   // [DRESS_SEE_TAP] 카드에서 누른 드레스(없거나 모르는 id 면 목록부터)
   var $ = function(id){ return document.getElementById(id); };
   var RM = false; try { RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}

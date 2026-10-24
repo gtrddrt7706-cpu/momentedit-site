@@ -458,6 +458,14 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    먼저 카드 안쪽 모서리(안 여백 선 안 · 제목 · 날짜 · 단추와 겹치지 않으면 · PC · 태블릿)를 대 보고, 겹치면 «붙인 스티커»처럼 카드 모서리에 걸친다
    (위 · 오른쪽으로 스티커의 1/4 · 겹치면 더 모서리로 · 그래도 겹치면 크기를 줄인다 · 화면 밖 · 윗 카드에 닿지 않게). 확정 전(«진행 흐름») 카드도 같은 규칙 */
 .consult-card.cc-st{position:relative}
+/* ★[DRESS_POPUP 2026-10-24] 드레스 고르기 팝업 창 — 막 · 창 = #mpModal · .mp-modal-card 와 같은 값(흐림 없음) · 창 안에서만 스크롤 ·
+   폭 = 폰 화면 − 좌우 12px · 태블릿(768~1024) 600 · PC 520 · 높이 = 폰 88% · 태블릿 · PC 85% */
+.dr-pop{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(40,32,24,0.30);transition:opacity .22s var(--ease,ease)}
+.dr-pop-card{display:flex;flex-direction:column;width:100%;max-width:520px;height:88vh;height:88dvh;background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-radius:12px;box-shadow:0 14px 44px rgba(40,28,16,0.20);overflow:hidden;animation:mpPop .22s var(--ease,ease)}
+@media (min-width:768px){ .dr-pop-card{max-width:600px;height:85vh;height:85dvh} }
+@media (min-width:1025px){ .dr-pop-card{max-width:520px} }
+@media (prefers-reduced-motion:reduce){ .dr-pop-card{animation:none} .dr-pop{transition:none} }
+.dr-pop-card iframe{display:block;flex:1 1 auto;width:100%;min-height:0;border:0;background:var(--card-white)}
 .dst{--dst-s:56px;position:absolute;top:0;right:0;z-index:1;display:block;min-width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:8px;background:none;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
 @media (min-width:375px){ .dst{--dst-s:64px} }
 @media (min-width:768px){ .dst{--dst-s:76px} }
@@ -470,8 +478,11 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dst-sw{display:flex;justify-content:center;width:100%;height:100%;transform:rotate(-6deg);transform-origin:49% 2%;filter:drop-shadow(0 1px 1px rgba(58,45,34,.12)) drop-shadow(0 4px 5px rgba(58,45,34,.06))}
 .dst-sw picture,.dst-sw img{display:block;width:100%;height:100%;object-fit:contain}
 .dst.is-sw .dst-sw{animation:dstSwing 3s ease-in-out 1}
+/* ★[DRESS_STICKER_SWAY 2026-10-24 사장님 «문구도 적절하게 같이 흔들리게»] 글도 같은 고리에 매달린 이름표처럼 — 70ms 늦게 · 각도 0.6배 · 쉴 때는 0°(기울지 않음) · 끝나면 정확히 수평 */
+.dst.is-sw .dst-lb{animation:dstSwingLb 3s ease-in-out 70ms 1 both}
+@keyframes dstSwingLb{0%{transform:rotate(0deg)}13%{transform:rotate(2.4deg)}29%{transform:rotate(-2.4deg)}45%{transform:rotate(1.2deg)}61%{transform:rotate(-1.2deg)}76%{transform:rotate(.48deg)}89%{transform:rotate(-.48deg)}100%{transform:rotate(0deg)}}
 @keyframes dstSwing{0%{transform:rotate(-6deg)}13%{transform:rotate(-2deg)}29%{transform:rotate(-10deg)}45%{transform:rotate(-4deg)}61%{transform:rotate(-8deg)}76%{transform:rotate(-5.2deg)}89%{transform:rotate(-6.8deg)}100%{transform:rotate(-6deg)}}
-@media (prefers-reduced-motion:reduce){ .dst.is-sw .dst-sw{animation:none} .dst-in{transition:none} }
+@media (prefers-reduced-motion:reduce){ .dst.is-sw .dst-sw,.dst.is-sw .dst-lb{animation:none} .dst-in{transition:none} }
 .dst-pill{position:absolute;top:0;right:0;padding:0 6px;border-radius:999px;background:var(--card-white);color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold-deep);font-family:var(--serif);font-size:11px;letter-spacing:.04em;line-height:1.6;font-variant-numeric:lining-nums;white-space:nowrap;pointer-events:none}   /* [SEL_ONE] [DRESS_NUM_LINING] 칠 없음 · 흰 바탕 · 짙은 금빛 1px · 폰은 스티커 칸 안 */
 @media (min-width:768px){ .dst-pill{transform:translate(33%,-33%)} }   /* PC · 태블릿 = 알약 1/3 이 스티커 밖으로 */
 .dst-lb{display:block;position:relative;margin-top:5px;font-family:var(--serif-ko);font-size:11px;font-weight:400;letter-spacing:.08em;line-height:1.3;color:var(--gold-deep);white-space:nowrap;transform-origin:calc(50% + var(--dst-lbx,0px)) calc(-.98 * var(--dst-s) - 5px)}   /* 축 = 스티커 고리(글 위 스티커 높이 + 5px) */
@@ -2704,11 +2715,16 @@ var DRESS_SAVE_BASE='고른 드레스를 보내지 못했어요 · 다시 눌러
 function openDressPicker(dr, opt){
   opt=opt||{};
   var old=$('mp_drViewer'); if(old&&old.parentNode) return;
-  var ov=document.createElement('div'); ov.id='mp_drViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','드레스 미리 보기');
-  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
-  var fr=document.createElement('iframe'); fr.id='mp_drFrame'; fr.src='/dress.html?pick=1&embed=1'+(opt.open?'&open='+encodeURIComponent(opt.open):'')+'&t='+Date.now(); fr.title='드레스 미리 보기';   // [DRESS_CARD_SEE] 카드 · 고르기 화면 머리와 같은 이름 · [DRESS_SEE_TAP] 카드 칸을 누르면 그 드레스 자세히로(&open=)
-  fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
-  ov.appendChild(fr); document.body.appendChild(ov);
+  /* ★★[DRESS_POPUP 2026-10-24 사장님 «드레스 클릭하면 전체화면이 아니고 팝업으로 나오게 창을 만들자»] 전체 화면 겹화면 → 뒤 마이페이지가 어둡게 비치는 가운데 창.
+     막 · 창 바탕 · 테 · 둥근 모서리 · 그림자 · 떠오름은 마이페이지 판(#mpModal · .mp-modal-card)과 같은 값 — 단 흐림(blur)은 두지 않는다(새 흐림 면 금지).
+     창 머리(이름 · «저장» · 닫기 ✕)는 창 안 고르기 화면(&pop=1)이 그린다. 닫기 = ✕ · 바깥 어두운 곳 · Esc · 뒤로가기 — 모두 askExit 한 곳([DRESS_EXIT_ASK]) */
+  var ov=document.createElement('div'); ov.id='mp_drViewer'; ov.className='dr-pop';
+  ov.style.opacity='0';
+  var card=document.createElement('div'); card.className='dr-pop-card'; card.setAttribute('role','dialog'); card.setAttribute('aria-modal','true'); card.setAttribute('aria-label','드레스 미리 보기');
+  var fr=document.createElement('iframe'); fr.id='mp_drFrame'; fr.src='/dress.html?pick=1&embed=1&pop=1'+(opt.open?'&open='+encodeURIComponent(opt.open):'')+'&t='+Date.now(); fr.title='드레스 미리 보기';   // [DRESS_CARD_SEE] 카드 · 고르기 화면 머리와 같은 이름 · [DRESS_SEE_TAP] 카드 칸을 누르면 그 드레스 자세히로(&open=)
+  fr.style.cssText='opacity:0;transition:opacity .25s ease';
+  card.appendChild(fr); ov.appendChild(card); document.body.appendChild(ov);
+  ov.addEventListener('click', function(e){ if(e.target===ov) askExit(false); });   // [DRESS_POPUP] 바깥 어두운 곳 = 닫기(저장 안 한 변경이 있으면 판)
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock(); _layerInertOn(ov);
   var saved=false, closed=false, st={dirty:false, failed:false, busy:false}, asking=false, exitWait=false, failCode='';
@@ -5155,13 +5171,13 @@ window.addEventListener('scroll', function(){ _dstScrolling=true; clearTimeout(_
 function _dstSwing(st){
   if(!st || st.classList.contains('is-sw')) return;
   try{ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch(e){}
-  (function go(){ if(!st.isConnected) return; if(_dstScrolling){ setTimeout(go, 260); return; } st.classList.add('is-sw'); })();   // 스크롤 중엔 흔들지 않는다 — 멈춘 뒤에
+  (function go(){ if(!st.isConnected) return; if(_dstScrolling){ setTimeout(go, 260); return; } st.classList.add('is-sw'); })();   // 스크롤 중엔 흔들지 않는다 — 멈춘 뒤에 · 스티커와 글이 한 덩어리로 [DRESS_STICKER_SWAY]
 }
 function _dstWire(box, d, demo){
   var st=box&&box.querySelector('.dst'); if(!st) return;
   var dr=d&&d.consult&&d.consult.dress, card=st.parentNode;
-  st.addEventListener('click', function(){ openDressPicker(dr, { demo:!!demo, key:String((d&&d.code)||'') }); });   // [DRESS_Q_FIRST] 겹화면(질문 먼저)이 바로 열린다 · key = 개인코드(이 기기에 남긴 답)
-  var swEl=st.querySelector('.dst-sw'); if(swEl) swEl.addEventListener('animationend', function(){ st.classList.remove('is-sw'); });
+  st.addEventListener('click', function(){ openDressPicker(dr, { demo:!!demo, key:String((d&&d.code)||'') }); });   // [DRESS_Q_FIRST] 팝업 창(질문 먼저)이 바로 열린다 · key = 개인코드(이 기기에 남긴 답)
+  var lbEl=st.querySelector('.dst-lb'); if(lbEl) lbEl.addEventListener('animationend', function(){ st.classList.remove('is-sw'); });   // 글이 70ms 늦게 끝난다 — 끝난 뒤 한 번에 걷는다
   var lay=function(){ _dstLayout(card); };
   lay();
   var im=st.querySelector('img'); if(im && !im.complete) im.addEventListener('load', lay);

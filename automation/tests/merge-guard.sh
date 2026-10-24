@@ -19856,12 +19856,21 @@ chk 'DRESS_STICKER_ART' mypage.html 2                                   # 그림
 chk 'transform-origin:49% 2%' mypage.html 1
 chk 'DRESS_STICKER_ART' scripts/audit/dress-refs.mjs 2                    # 파일 여섯 벌 · 30KB 이하 · 176 webp sha256 앞 16자
 nochk 'dst-ph' mypage.html 0                                             # 임시 선 그림은 걷었다
-# ── 2026-10-24 [DRESS_STICKER_HEAD] 사장님 «저기에 위치시키고»(상담 카드 오른쪽 위)
-#   스티커 = 상담 카드 머리 오른쪽 위(안쪽 모서리 → 모서리 걸침 · 겹침으로) · 모양 · 깨 보기는 dress-refs.mjs ⑬ ⑯ · 7폭 × 3상태 겹침은 dress-fit.mjs(브라우저)
+# ── 2026-10-24 [DRESS_STICKER_HEAD · DRESS_POPUP · DRESS_STICKER_SWAY] 사장님 «저기에 위치시키고 드레스 클릭하면 전체화면이 아니고 팝업으로» · «문구도 같이 흔들리게»
+#   스티커 = 상담 카드 머리 오른쪽 위(안쪽 모서리 → 모서리 걸침 · 겹침으로 · 글은 그대로 [STICKER_NO_REFLOW]) · 고르기 = 가운데 팝업 창(#mpModal 판 값 · 흐림 없음) · 글도 같은 고리에 매달려 흔들림
+#   모양 · 깨 보기는 dress-refs.mjs ⑬ ⑯ · 7폭 × 3상태 겹침 · 팝업 안 흐름은 dress-fit.mjs(브라우저)
 chk 'DRESS_STICKER_HEAD' mypage.html 4
+chk 'DRESS_POPUP' mypage.html 3
+chk 'DRESS_STICKER_SWAY' mypage.html 2
+chk 'DRESS_POPUP' dress.html 2
 nochk 'vg-st' mypage.html 0                                              # 안내 블록 비움(.vg-st)은 걷었다 — 스티커는 카드 머리
 chk "  box.innerHTML = '<div class=\"consult-card'+(DST?' cc-st':'')+'\">'+DST+'<div class=\"cc-eyebrow en-22\">'" mypage.html 1
+chk ".dst.is-sw .dst-lb{animation:dstSwingLb 3s ease-in-out 70ms 1 both}" mypage.html 1
+chk "fr.src='/dress.html?pick=1&embed=1&pop=1'" mypage.html 1
+nochk '.dr-pop{[^}]*backdrop-filter' mypage.html 0                       # 새 흐림 면 금지 — 막은 #mpModal 색만
+chk "var POP = EMBED && Q.get('pop') === '1';" dress.html 1
 chk 'DRESS_STICKER_HEAD' scripts/audit/dress-refs.mjs 2
+chk 'DRESS_POPUP' scripts/audit/dress-refs.mjs 2
 chk 'DRESS_STICKER_HEAD' scripts/audit/dress-fit.mjs 2
 # ── 2026-10-24 [STICKER_NO_REFLOW 사장님 1024 «스티커 들어갈 때 글씨는 항상 그대로 둬» · «글씨를 민다거나 이렇게는 하지 말라고»] 스티커는 얹기만 —
 #   어느 폭에서도 카드 글의 자리 · 폭 · 줄바꿈 그대로(여백 · 패딩을 더하지 않는다) · 보이는 드레스 56px 아래 금지 · 폰은 글을 스티커 위 흰 알약으로([STICKER_PILL_PHONE])
