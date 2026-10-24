@@ -5153,6 +5153,18 @@ function _dstHtml(dr){
 }
 /* 스티커 둘레의 걸림돌(글 · 단추 · 입력칸 · 작은 표시 · 그림) — 카드 안팎 모두 · 스티커 · 화면에 붙은 레일([RAIL_LOCKED] · 고정 요소)은 뺀다.
    자리를 대 볼 때마다 다시 재지 않도록 한 번 모아 둔다(스티커는 절대 위치라 대 보아도 둘레가 움직이지 않는다) · k = 글(t) · 누르는 것(i) · 표시(d) */
+/* ★[STICKER_PHONE_INK 1024 코워크 «글자와 6px»] 글자 = 보이는 획(잉크) — 글줄 상자(글꼴 위아래 여유)가 아니라 실제 획의 위 · 아래로 잰다.
+   글줄 상자 위에서 획 위 · 아래까지 거리 [위, 아래] — 캔버스로 같은 글꼴 · 같은 글을 재서 얻는다(못 재면 null · 그때는 글줄 상자 그대로) */
+var _dstInkMemo={};
+function _dstInk(txt, el){
+  try{ var cs=getComputedStyle(el), f=cs.fontStyle+' '+cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily, k=f+'|'+txt;
+    if(_dstInkMemo[k]) return _dstInkMemo[k];
+    var c=_dstInk.c||(_dstInk.c=document.createElement('canvas').getContext('2d')); c.font=f;
+    var m=c.measureText(txt); if(!m || m.fontBoundingBoxAscent==null || m.actualBoundingBoxAscent==null) return null;
+    var r=[Math.max(0, m.fontBoundingBoxAscent-m.actualBoundingBoxAscent), m.fontBoundingBoxAscent+m.actualBoundingBoxDescent];
+    _dstInkMemo[k]=r; return r;
+  }catch(e){ return null; }
+}
 function _dstObstacles(card, st){
   var cr=card.getBoundingClientRect(), W=document.documentElement.clientWidth;
   var X0=cr.right-280, Y0=cr.top-140, Y1=cr.top+240, out=[], rg=document.createRange();
@@ -5165,7 +5177,8 @@ function _dstObstacles(card, st){
     var pe=t.parentElement; if(!pe || st.contains(pe)) continue;
     var pr=pe.getBoundingClientRect(); if(!inZone(pr)) continue;
     if(fixedIn(pe)) continue;
-    rg.selectNodeContents(t); var rs=rg.getClientRects(); for(var i=0;i<rs.length;i++) if(inZone(rs[i])) add(rs[i],'t');
+    rg.selectNodeContents(t); var rs=rg.getClientRects(), ink=_dstInk(t.nodeValue, pe);
+    for(var i=0;i<rs.length;i++) if(inZone(rs[i])){ add(rs[i],'t'); if(ink){ var o=out[out.length-1]; o.it=rs[i].top+ink[0]; o.ib=rs[i].top+ink[1]; } }
   }
   Array.prototype.forEach.call(document.body.querySelectorAll('a,button,input,select,textarea,img,svg,.cc-btn,.cc-btn-ghost,span,i'), function(e){
     if(st.contains(e) || e===card || e.contains(card) || !e.offsetWidth) return;
@@ -5262,29 +5275,32 @@ function _dstTipPlace(st, M){
      겹치면 글을 밀지 않고 스티커 자리를 바꾼다. 크기를 줄여서 맞추지 않는다(보이는 드레스 56px 아래 금지 · 크기는 코워크 값 그대로) */
 /* ★★[STICKER_PHONE_HEAD 사장님 1024 «이쪽(날짜 · 예약금 줄 오른쪽 빈자리)에 내려서 · 크기도 좀 키우고 · PC 말고» → 코워크 실측안 «이대로»]
    폰(<768) = 머리 네 줄(CONSULTATION · 제목 · 날짜 · 예약금) 오른쪽 빈자리 · 카드 오른쪽 끝에 걸쳐도 된다(화면 끝 10px 안).
-   크기 S = 아래를 지키는 가장 큰 값(상한 104 · 하한 72 [STICKER_PHONE_MIN72]) → 같은 크기면 가장 아래 → 그다음 가장 오른쪽 — 값이 아니라 계산.
-   지킬 것 = 보이는 윤곽(받침 · 리본) ↔ 글자 멈춘 자리 8px · 흔들림 최대 각도 4px · 구분선 위 12px · 카드 위에서 8px 아래 · 그림 상자 ↔ 글자 겹침 0 · «n벌» · 안내(세로 64%)도 글자와 떨어진다.
+   크기 S = 아래를 지키는 가장 큰 값 → 같은 크기면 가장 아래 → 그다음 가장 오른쪽 — 값이 아니라 계산.
+   ★★[STICKER_PHONE_BIG 사장님 1024 «스티커가 좀 작은데? 1.3배~1.6배 키워도» → 코워크 조건] 상한 112 · 하한 72 ·
+   보이는 윤곽(받침 · 리본) ↔ 글자 멈춘 자리 6px · 흔들림 최대 각도 3px · 구분선 위 10px · 화면 끝 6px 안(카드 오른쪽 끝은 넘어도 된다) ·
+   옷걸이 고리는 카드 윗선 위로 20px 까지 · 안내(세로 64%)도 글자와 떨어진다.
+   그림 상자(투명 부분)는 글자에 겹쳐도 된다 — 누름은 윤곽 층(.dst-hit)만 받고 투명 부분은 아래 글로 지나간다.
    찾지 못하면(아주 좁은 카드) 아래 종전 자리 찾기로 */
 function _dstPhoneSpot(card, st, obs, W){
-  var pl=st.querySelector('.dst-pill'), tp=st.querySelector('.dst-tip'), boxEl=st.querySelector('.dst-box'), M=10;
+  var pl=st.querySelector('.dst-pill'), tp=st.querySelector('.dst-tip'), boxEl=st.querySelector('.dst-box'), M=6;   // [STICKER_PHONE_BIG] 화면 끝 6px
   var cr=card.getBoundingClientRect();
   var div=card.querySelector(':scope > .visit-guide, :scope > .cc-actions, :scope > .cc-btn, :scope > .cc-btn-ghost, :scope > .cc-input');
   var dTop=div?div.getBoundingClientRect().top:cr.bottom;
-  var txt=obs.filter(function(o){ return o.k==='t' && o.top<dTop+8 && o.bottom>cr.top-8; });
+  var txt=obs.filter(function(o){ return o.k==='t' && o.top<dTop+8 && o.bottom>cr.top-32; }).map(function(o){ return o.it==null?o:{left:o.left, right:o.right, top:o.it, bottom:o.ib, k:'t'}; });   // 카드 위로 20px 올라가니 위 카드 글도 본다 · [STICKER_PHONE_INK] 글자 = 획
   var gap=function(a,r){ var dx=Math.max(r.left-a.right, a.left-r.right), dy=Math.max(r.top-a.bottom, a.top-r.bottom); if(dx<0 && dy<0) return -1; return Math.hypot(Math.max(dx,0), Math.max(dy,0)); };
   var mv=function(q,x,y){ return {left:q.left+x, right:q.right+x, top:q.top+y, bottom:q.bottom+y}; };
   var near=function(rs, g){ for(var i=0;i<rs.length;i++) for(var j=0;j<txt.length;j++) if(gap(rs[i], txt[j])<g) return true; return false; };
-  /* 단 = [안내 ↔ 글자 간격, «n벌» 자리들] — 먼저 8px · 고리 옆 −6 → 2, 없을 때만 «n벌» 자리를 넓히고 그다음 안내 간격 4 */
-  var LV=[[8,[-6,2]],[8,[-6,2,-10,6,10]],[4,[-6,2,-10,6,10]],[1,[-6,2,-10,6,10]]];
+  /* ★[STICKER_PHONE_BIG] 크기가 먼저다 — 크기마다 안내(처음 한 번 1.8초) ↔ 글자 간격을 6 → 4 → 1 → 겹쳐도(바탕이 가린다 · data-gap t-) 차례로 본다 ·
+     «n벌»은 [DRESS_GUIDE_ONLY] 로 걷혀 자리 하나만 본다 */
+  var LV=[[6,[-6]],[4,[-6]],[1,[-6]],[-1,[-6]]];
+  for(var S=112; S>=72; S-=2){   // ★[STICKER_PHONE_BIG] 상한 112 · [STICKER_PHONE_MIN72] 하한 72
   for(var li=0; li<LV.length; li++){ var tg=LV[li][0], PTS=LV[li][1];
-  for(var S=104; S>=72; S-=2){   // ★[STICKER_PHONE_MIN72 코워크 1024] 폰 하한 72(전 크기 · 사장님 «크기도 좀 키우고»)
     st.style.setProperty('--dst-s', S+'px'); st.style.top='0px'; st.style.right='0px'; if(pl) pl.style.right='';
     _dstTipPlace(st, M);
-    var b=_dstR(st, boxEl), v=_dstVis(st), ub={left:b.left, top:b.top, right:b.right, bottom:b.bottom};
-    Array.prototype.forEach.call(st.querySelectorAll('.dst-art img, .dst-dc'), function(e){ if(!e.offsetWidth) return; var l=b.left+e.offsetLeft, t=b.top+e.offsetTop; ub={left:Math.min(ub.left,l), top:Math.min(ub.top,t), right:Math.max(ub.right,l+e.offsetWidth), bottom:Math.max(ub.bottom,t+e.offsetHeight)}; });
+    var b=_dstR(st, boxEl), v=_dstVis(st);
     var tr=tp&&tp.offsetWidth?_dstR(st, tp):null;
-    var tMax=Math.floor((dTop-12)-v.bottom), tMin=Math.ceil((cr.top+8)-v.top);   // 움직일 거리(세로) — 구분선 위 12 · 카드 위 8
-    var xMax=Math.floor((W-M)-v.right), xMin=xMax-90;   // 움직일 거리(가로) — 화면 끝 10px 에서 왼쪽으로
+    var tMax=Math.floor((dTop-10)-v.bottom), tMin=Math.ceil((cr.top-20)-v.top);   // 움직일 거리(세로) — [STICKER_PHONE_BIG] 구분선 위 10 · 고리는 카드 윗선 위 20 까지
+    var xMax=Math.floor((W-M)-v.right), xMin=xMax-120;   // 움직일 거리(가로) — 화면 끝 6px 에서 왼쪽으로
     if(tMax<tMin) continue;
     for(var pi=0; pi<PTS.length; pi++){
       var pr=null; if(pl){ pl.style.top=PTS[pi]+'px'; pr=_dstR(st, pl); var dk=false; v.env.forEach(function(q){ if(q.deco && gap(q, pr)<2) dk=true; }); if(dk) continue; }
@@ -5292,10 +5308,9 @@ function _dstPhoneSpot(card, st, obs, W){
         for(var dx=xMax; dx>=xMin; dx--){
           if(v.left+dx<M) break;
           if(pr && pr.right+dx>W-M+.5) continue;
-          if(near(v.rest.map(function(q){ return mv(q,dx,dy); }), 8) || near(v.env.map(function(q){ return mv(q,dx,dy); }), 4)) continue;   // [STICKER_PHONE_MIN72] 멈춘 자리 8px · 흔들림 최대 각도 4px
-          if(near([mv(ub,dx,dy)], 1)) continue;
+          if(near(v.rest.map(function(q){ return mv(q,dx,dy); }), 6) || near(v.env.map(function(q){ return mv(q,dx,dy); }), 3)) continue;   // [STICKER_PHONE_BIG] 멈춘 자리 6px · 흔들림 최대 각도 3px
           if(pr && near([mv(pr,dx,dy)], 3)) continue;
-          if(tr){ var tq=mv(tr,dx,dy), sh=tq.left<M?M-tq.left:(tq.right>W-M?(W-M)-tq.right:0); if(near([mv(tq,sh,0)], tg)) continue; }   // 안내는 화면 끝에서 옆으로 밀린 자리로 잰다(_dstTipPlace 와 같다)
+          if(tr && tg>=0){ var tq=mv(tr,dx,dy), sh=tq.left<M?M-tq.left:(tq.right>W-M?(W-M)-tq.right:0); if(near([mv(tq,sh,0)], tg)) continue; }   // 안내는 화면 끝에서 옆으로 밀린 자리로 잰다(_dstTipPlace 와 같다)
           return { top: b.top+dy-cr.top, right: cr.right-(b.right+dx), pt: PTS[pi], S: S, tg: tg };
         }
       }
@@ -5316,7 +5331,7 @@ function _dstLayout(card){
   var place=function(top, right, pt, sz){ if(sz) st.style.setProperty('--dst-s', sz+'px'); else st.style.removeProperty('--dst-s'); st.style.top=Math.round(top-bw)+'px'; st.style.right=Math.round(right-bw)+'px'; if(pl){ pl.style.top=pt+'px'; pl.style.right=''; var po=_dstR(st, pl).right-(W-M); if(po>0) pl.style.right=Math.ceil(po)+'px'; } _dstTipPlace(st, M); };   // «n벌»이 화면 끝 안쪽선을 넘으면 그만큼만 왼쪽으로
   var fits=function(bc, tg, dg, pg){ var v=_dstVis(st), q=st.getBoundingClientRect(), p=pl?_dstR(st, pl):q;
     return v.left>=M && v.right<=W-M+.5 && (pg<0 || p.right<=W-M+.5) && q.left>=0 && q.right<=W && !_dstHits(st, obs, bc, tg, dg, pg); };
-  if(PH){ var ps0=_dstPhoneSpot(card, st, obs, W); if(ps0){ M=10; place(ps0.top, ps0.right, ps0.pt, ps0.S); st.setAttribute('data-at', 'head'); st.setAttribute('data-gap', ps0.tg===8?'8':'t'+ps0.tg); return; } }   // [STICKER_PHONE_HEAD]
+  if(PH){ var ps0=_dstPhoneSpot(card, st, obs, W); if(ps0){ M=6; place(ps0.top, ps0.right, ps0.pt, ps0.S); st.setAttribute('data-at', 'head'); st.setAttribute('data-gap', ps0.tg===6?'6':(ps0.tg<0?'t-':'t'+ps0.tg)); return; } }   // [STICKER_PHONE_HEAD]
   var tries=[];   // [위, 오른쪽, 자리 이름, 오른쪽 방식, «n벌» 위, 크기]
   if(PH){   // 360(오른쪽 −2 · 위 −28) ~ 430(4 · −14) 을 이어 쓴 자리 → 위아래 1px 씩 · 오른쪽은 화면 끝 16px 까지(max) · «n벌»은 고리 옆(−6) → 조금 아래(2)
     var k=Math.max(0, Math.min(1, (W-360)/70)), r0=-2+6*k, t0=-28+14*k;

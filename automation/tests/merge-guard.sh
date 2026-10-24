@@ -19920,7 +19920,13 @@ chk 'DRESS_GUIDE_ONLY' scripts/audit/dress-fit.mjs 3
 chk 'DRESS_GUIDE_ONLY' mypage.html 1
 chk 'POPUP_FIXED_1024' mypage.html 2                                      # 창 높이 하나로 고정 · 내용 따라가지 않음
 chk 'POPUP_FIXED_1024' dress.html 1
-chk 'STICKER_PHONE_MIN72' mypage.html 3                                   # 폰 하한 72 · 멈춤 8 · 흔들림 4
+chk 'STICKER_PHONE_MIN72' mypage.html 1                                   # 폰 하한 72
+chk 'STICKER_PHONE_BIG' mypage.html 6                                     # ★폰 크게(사장님 1024 «1.3배~1.6배 키워도») · 상한 112 · 획 ↔ 윤곽 멈춤 6 · 흔들림 3 · 구분선 10 · 고리 카드 위 20 · 화면 끝 6
+chk 'STICKER_PHONE_BIG' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_PHONE_BIG' scripts/audit/dress-fit.mjs 6                    # 폭마다 크기 바닥(360 80 · 375 88 · 390 94 · 430 108 · 767 112) — 줄면 빨강
+chk 'STICKER_PHONE_INK' mypage.html 2                                     # 글자 = 획(잉크) — 글줄 상자로 돌아가면 크기가 준다
+chk 'STICKER_PHONE_INK' scripts/audit/dress-refs.mjs 1
+chk 'for(var S=112; S>=72; S-=2){' mypage.html 1
 chk 'const ST_W = \[360, 375, 390, 430, 767, 768, 820, 1024, 1280\]' scripts/audit/dress-fit.mjs 1   # 폭 9개(360 · 375 · 767 · 768 포함) — 줄면 빨강
 chk 'STICKER_RELAYOUT' mypage.html 1                                       # 글꼴 · 줄바꿈이 늦게 바뀌면 다시 잰다 · 흔들림은 다시 시작하지 않는다
 chk 'STICKER_RELAYOUT' scripts/audit/dress-refs.mjs 1
@@ -19965,7 +19971,7 @@ nochk 'id="pkLeave"' dress.html 0                                              #
 #   크기마다 줄 자리가 달라 CSS 한 값으로는 못 맞춘다(10/23 실측: 390×844 목록 · 375 · 360 · 414 폭 자세히). 여섯 크기 실측은 dress-fit.mjs · 깨 보기는 dress-refs --selftest
 chk 'DRESS_BAR_FIT' dress.html 6
 chk 'DRESS_BAR_FIT' scripts/audit/dress-fit.mjs 3
-chk 'DRESS_BAR_FIT' scripts/audit/dress-refs.mjs 13
+chk 'DRESS_BAR_FIT' scripts/audit/dress-refs.mjs 12
 chk 'try { fitBar(); } catch (e) {}' dress.html 1                              # 그릴 때마다 첫 화면 맞춤(못 재면 CSS 기본값 그대로)
 chk 'const BAR_SIZES = \[\[360, 780\], \[375, 812\], \[390, 844\], \[390, 740\], \[414, 896\], \[1280, 900\]\];' scripts/audit/dress-fit.mjs 1   # 여섯 크기에서 잰다(한두 크기만 보면 놓친다)
 chk '.pk-picked{display:flex;align-items:center;gap:8px;min-height:calc(30px + 14px \* 1.3);' dress.html 1   # 고른 줄 = 고르기 단추 높이(위아래 15px + 14px × 1.3) — 고르기 · 빼기로 아래 글이 움직이지 않는다
