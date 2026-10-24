@@ -97,20 +97,25 @@ try {
         dot: document.querySelectorAll('.pk-band-dots .dotln').length, anyDot: /고르셔도|고르지 않으셔도/.test((q('.pk-main') || {}).textContent || ''), gh: [...document.querySelectorAll('.pk-main h2')].filter((e) => e.offsetWidth > 1).map((e) => e.textContent).join('|'),
         grids: document.querySelectorAll('.pk-main .pk-grid').length, fit: [...document.querySelectorAll('.pk-main .dr-cell')].map((c) => (c.querySelector('.dr-fit') ? 1 : 0)).join(''),
         opts: [...document.querySelectorAll('.pk-opt')].map((e) => e.textContent.trim()).join('|'), steps2: [...document.querySelectorAll('.pk-main .wz-steps li')].map((e) => e.textContent).join('|'),
+        subs: [...document.querySelectorAll('.pk-main .pk-sub-h')].map((e) => e.textContent).join('|'), more: !!q('.pk-main [data-act="more"]'), end: document.querySelectorAll('.pk-main .pk-end-dots .dotln').length,
+        browse: !!q('[data-act="browse"]') || /건너뛰기|바로 보기/.test(document.body.innerText), nextDis: (q('.wz-bar [data-go="1"]') || { getAttribute: () => '' }).getAttribute('aria-disabled') || '',
         over: document.documentElement.scrollWidth > window.innerWidth };
     }, s0);
-    const f0 = await flow('열기');
-    if (gate && (f0.cells < 3 || f0.steps !== 0 || f0.band !== '원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요' || f0.btn !== '답하기 ›' || f0.btnH < 44 || f0.dot !== 1 || f0.gh !== '' || f0.grids !== 1 || /1/.test(f0.fit) || f0.over)) no(`${tag} 열면 목록 · 띠 «답하기 ›» · 점 줄 둘 · 보이는 소제목 없음 · 한 그리드 · 진행 표시 없음이 아니다 ${JSON.stringify(f0)} [DRESS_LIST_FIRST · DRESS_BAND_WORDS · DRESS_BAND_DOTS]`);
-    await page.click('.pk-band [data-act="ask"]');
-    const f1 = await flow('첫 물음');
-    if (gate && (f1.steps !== 3 || f1.anyDot || f1.band || /아직 몰라요/.test(f1.opts) || f1.steps2 !== '길이|핏|노출 · 소매')) no(`${tag} «답하기 ›» 뒤 첫 물음 — 진행 표시 셋(길이 · 핏 · 노출 · 소매) · 점 줄 없음 · «아직 몰라요» 없음이 아니다 ${JSON.stringify(f1)} [DRESS_LIST_FIRST · DRESS_Q_TRIM]`);
+    /* ★[DRESS_Q_FIRST 2026-10-24 사장님] 열면 물음 1 — 목록 · 띠 없음 · «건너뛰기» · «드레스 바로 보기» 없음 · 답하기 전 «다음»은 옅고 눌러도 안 넘어간다 */
+    const f0 = await flow('열기'), f1 = f0;
+    if (gate && (f0.cells !== 0 || f0.band || f0.steps !== 3 || f0.anyDot || /아직 몰라요/.test(f0.opts) || f0.steps2 !== '길이|핏|노출 · 소매' || f0.browse || f0.nextDis !== 'true' || f0.over)) no(`${tag} 열면 물음 1 — 진행 표시 셋 · 목록 없음 · 건너뛰기 · 바로 보기 없음 · 다음 옅음이 아니다 ${JSON.stringify(f0)} [DRESS_Q_FIRST]`);
+    await page.click('.wz-bar [data-go="1"]', { force: true }); await page.waitForTimeout(80);
+    if (gate && (await flow('안 답하고 다음')).steps2 !== '길이|핏|노출 · 소매') no(`${tag} 답하기 전 «다음»이 넘어갔다 [DRESS_Q_FIRST]`);
+    if (gate && !(await page.evaluate(() => !!document.querySelector('.pk-opt[data-a="ankle"]') && document.getElementById('pkQ').textContent === window.DRESS_REFS.questions[0].q))) no(`${tag} 답하기 전 «다음»을 눌렀는데 첫 물음이 아니다 [DRESS_Q_FIRST]`);
     await page.click('.pk-opt[data-a="ankle"]'); await page.click('.wz-bar [data-go="1"]');
     await page.click('.pk-opt[data-a="body"]'); await page.click('.wz-bar [data-go="1"]');
     await page.click('.pk-opt[data-a="low"]'); await page.click('.wz-bar [data-go="1"]');
     const f2 = await flow('답한 뒤');
-    if (gate && (f2.steps !== 0 || f2.band !== '발목까지 · 몸 선을 따라 · 노출이 적은 드레스' || f2.btn !== '답 바꾸기 ›' || f2.btnH < 44 || f2.dot !== 1 || f2.gh !== '' || f2.grids !== 1 || !/^1+0*$/.test(f2.fit) || !/1/.test(f2.fit) || f2.over)) no(`${tag} 답한 뒤 목록 — 띠 «발목까지 · 몸 선을 따라 · 노출이 적은 드레스 · 답 바꾸기 ›» · 한 그리드 · 맞는 칸이 앞(«답과 맞아요»)이 아니다 ${JSON.stringify(f2)} [DRESS_LIST_FIRST · DRESS_ONE_GRID]`);
-    rows.push(`${tag} 목록부터: 열기 띠 «${f0.btn}» ${f0.btnH}px · 점 줄 ${f0.dot} · 진행 ${f0.steps} → 물음 «${f1.steps2}» → 답한 뒤 «${f2.band}» «${f2.btn}» · 그리드 ${f2.grids} · 맞는 칸 ${f2.fit}${gate ? '' : ' (참고)'}`);
-    await page.click('.pk-band [data-act="ask"]'); await page.click('.pk-skipq');   // 답은 그대로 두고 목록으로(아래 네 상태는 표본 순서와 상관없이 처음 세 칸을 쓴다)
+    if (gate && (f2.steps !== 0 || f2.band !== '발목까지 · 몸 선을 따라 · 노출이 적은 드레스' || f2.btn !== '답 바꾸기 ›' || f2.btnH < 44 || f2.subs !== '답에 맞는 드레스' || !f2.more || f2.end !== 1 || f2.grids !== 1 || /1/.test(f2.fit) || f2.cells < 1 || f2.over)) no(`${tag} 답한 뒤 결과 — 띠 «… · 답 바꾸기 ›» · «답에 맞는 드레스» 맞는 칸만 · «다른 드레스도 보기» · 맨 아래 점 줄 하나가 아니다 ${JSON.stringify(f2)} [DRESS_RESULT_SPLIT]`);
+    await page.click('.pk-main [data-act="more"]'); await page.waitForTimeout(80);
+    const f3 = await flow('펼친 뒤');
+    if (gate && (f3.subs !== '답에 맞는 드레스|다른 드레스' || f3.more || f3.grids !== 2 || f3.cells !== 6 || f3.over)) no(`${tag} «다른 드레스도 보기» 뒤 — «다른 드레스» 아래로 나머지 전부 · 단추 사라짐이 아니다 ${JSON.stringify(f3)} [DRESS_RESULT_SPLIT]`);
+    rows.push(`${tag} 물음 먼저: 열기 진행 «${f0.steps2}» · 다음 옅음 ${f0.nextDis} → 결과 «${f2.band}» «${f2.btn}» · «${f2.subs}» ${f2.cells}칸 · 더 보기 ${f2.more} → 펼침 «${f3.subs}» ${f3.cells}칸${gate ? '' : ' (참고)'}`);
     const ids = await page.$$eval('.pk-main [data-open]', (els) => els.map((e) => e.getAttribute('data-open')));
     if (ids.length < 3) { no(`${tag} 드레스 칸이 셋보다 적다(${ids.length}) — 표본이 안 그려졌다`); await page.close(); continue; }
     const open = async (id) => { await page.evaluate(() => { const b = document.querySelector('.pk-main [data-act="list"]'); if (b) b.click(); }); await page.click(`.pk-main [data-open="${id}"]`); };
@@ -147,7 +152,7 @@ try {
     const s2 = await slots(), see0 = await page.evaluate(() => (document.querySelector('.dv-nm') || {}).textContent || '');
     rows.push(`${tag} 막대 작은 사진 Nº 01 누름 → 자세히 «${see0}» · 막대 ${s2.filter((x) => /자세히 보기/.test(x)).length}벌`);
     if (gate && (see0 !== n0 || JSON.stringify(s2) !== JSON.stringify(s1) || /빼기|&times;|×/.test(s2.join('')))) no(`${tag} 막대 작은 사진을 누르면 그 드레스 자세히(고른 수 그대로)가 아니다 «${see0}» ${JSON.stringify(s2)} [DRESS_SLOT_SEE]`);
-    await page.click('.pk-main [data-act="list"]'); await page.click('.pk-band [data-act="ask"]'); await page.click('.pk-opt[data-a="calf"]'); await page.click('.pk-skipq'); await page.waitForTimeout(120);
+    await page.click('.pk-main [data-act="list"]'); await page.click('.pk-band [data-act="ask"]'); await page.click('.pk-opt[data-a="calf"]'); await page.click('.wz-bar [data-go="1"]'); await page.click('.wz-bar [data-go="1"]'); await page.click('.wz-bar [data-go="1"]'); await page.waitForTimeout(120);   // [DRESS_Q_FIRST] 답 바꾸기 = 물음 1부터 · 고른 답은 켜져 있다
     const s3 = await slots(), band3 = await page.evaluate(() => (document.querySelector('.pk-band-t') || {}).textContent || '');
     rows.push(`${tag} 답 바꾸기(«${band3.replace(/ /g, ' ')}») 뒤 막대 ${JSON.stringify(s3)}`);
     if (gate && JSON.stringify(s3) !== JSON.stringify(s1)) no(`${tag} 답을 바꾼 뒤 고른 두 벌이 그대로가 아니다 ${JSON.stringify(s3)} [DRESS_FULL_SWAP]`);
@@ -166,8 +171,8 @@ try {
     // ── 사진을 넣은 사본 — 넘김은 사진 칸 안
     PHOTOS = true;
     const p2 = await eng.newPage({ port: PORT, viewport: { width: W, height: H } });
-    await p2.page.goto(`http://localhost:${PORT}/dress.html?pick=1`, { waitUntil: 'networkidle', timeout: 30000 });   // [DRESS_LIST_FIRST] 열면 목록
-    await p2.page.click(`.pk-main [data-open="${ids[0]}"]`);
+    await p2.page.goto(`http://localhost:${PORT}/dress.html?pick=1&open=${ids[0]}`, { waitUntil: 'networkidle', timeout: 30000 });   // [DRESS_Q_FIRST] 열면 물음이라 자세히로 바로(&open=)
+    await p2.page.waitForSelector('.dv-nm', { timeout: 15000 });
     const e = await shot(p2.page, '.pk-ctl [data-act="pick"]');
     PHOTOS = false;
     if (e) rows.push(`${tag} 사진 3장 사본: 아래 끝 ${e.ctlBottom} · 막대 위 끝 ${e.barTop} · 장 ${e.slides} · 넘김 사진 안 ${e.navIn ? '예' : '아니오'}${gate ? '' : ' (참고)'}`);
@@ -191,6 +196,8 @@ try {
     return out;
   });
   const DR = { attire: '대여 희망 · 2벌', open: true, ymd: '', saved: null };
+  const DRA = { attire: '대여 희망 · 2벌', open: true, ymd: '', saved: { picks: [], names: [], ans: { len: 'ankle', fit: 'body', pref: ['none'] }, memo: '', at: '' } };   // [DRESS_Q_FIRST] 답한 적 있음 → 결과로 바로
+  const expand = async (fr) => { await fr.evaluate(() => { const b = document.querySelector('.pk-main [data-act="more"]'); if (b) b.click(); }); };
   let cutViews = 0;
   for (const [W, H] of BAR_SIZES) {
     const tag = `${W}×${H}`, cut = [];
@@ -199,10 +206,12 @@ try {
     const ids6 = await pe.page.evaluate(() => (window.DRESS_REFS && window.DRESS_REFS.list ? window.DRESS_REFS.list().map((d) => d.id) : []));
     if (ids6.length < 3) { no(`${tag} 겹화면 — 마이페이지에서 드레스 목록을 못 읽었다(${ids6.length})`); await pe.page.close(); continue; }
     // 카드에서 연 목록 → 칸을 눌러 자세히 → «목록»으로 돌아오기(고객 손가락 순서 · 화면 안 이동도 맞추는지 본다)
-    await pe.page.evaluate((dr) => openDressPicker(dr, {}), DR);
+    await pe.page.evaluate((dr) => openDressPicker(dr, {}), DRA);
     const fr = await (await pe.page.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame();
     await fr.waitForSelector('.pk-band', { timeout: 15000 });
     await pe.page.waitForTimeout(250);
+    const cut0 = await cutLines(fr); cutViews++; if (cut0 && cut0.length) cut.push(`겹화면 결과(접힘) ${JSON.stringify(cut0)}`);
+    await expand(fr); await pe.page.waitForTimeout(80);
     for (const id of ['', ...ids6]) {
       if (id) { await fr.click(`.pk-main [data-open="${id}"]`); await fr.waitForSelector('.dv-nm', { timeout: 15000 }); await pe.page.waitForTimeout(120); }
       const c = await cutLines(fr); cutViews++;
@@ -212,11 +221,23 @@ try {
     }
     if (pe.errors.length) no(`${tag} 겹화면 페이지 오류 ${pe.errors.length} · ${pe.errors[0]}`);
     await pe.page.close();
+    /* [DRESS_RESULT_SPLIT] 답에 맞는 것이 없는 결과(가까운 3벌 · 한 줄 · 한 벌 고름 · 접힘)와 맞는 것 하나(접힘)도 첫 화면을 잰다 */
+    for (const [nm, ans, picks] of [['맞는 것 0', { len: 'knee', fit: 'loose', pref: ['arms'] }, ['S01']], ['맞는 것 1', { len: 'ankle', fit: 'body', pref: ['low'] }, []]]) {
+      const pn = await eng.newPage({ port: PORT, viewport: { width: W, height: H } });
+      await pn.page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load', timeout: 30000 });
+      await pn.page.evaluate(([dr]) => openDressPicker(dr, {}), [{ attire: '대여 희망 · 2벌', open: true, ymd: '', saved: { picks, names: [], ans, memo: '', at: '' } }]);
+      const fn = await (await pn.page.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame();
+      await fn.waitForSelector('.pk-band', { timeout: 15000 }); await pn.page.waitForTimeout(250);
+      const cn = await cutLines(fn); cutViews++;
+      if (cn === null) no(`${tag} 겹화면 결과(${nm}) — 막대를 못 찾았다`); else if (cn.length) cut.push(`겹화면 결과(${nm}) ${JSON.stringify(cn)}`);
+      if (pn.errors.length) no(`${tag} 겹화면(${nm}) 페이지 오류 ${pn.errors.length} · ${pn.errors[0]}`);
+      await pn.page.close();
+    }
     if ((W === 390 && H === 844) || W === 1280) {
       const ps = await eng.newPage({ port: PORT, viewport: { width: W, height: H } });
-      for (const id of ['', ...ids6]) {
-        await ps.page.goto(`http://localhost:${PORT}/dress.html?pick=1${id ? '&open=' + id : ''}`, { waitUntil: 'load', timeout: 30000 });
-        await ps.page.waitForSelector(id ? '.dv-nm' : '.pk-band', { timeout: 15000 });
+      for (const id of ids6) {   // [DRESS_Q_FIRST] 단독은 답이 없어 물음부터 — 자세히(&open=)만 잰다(결과는 겹화면에서 잰다)
+        await ps.page.goto(`http://localhost:${PORT}/dress.html?pick=1&open=${id}`, { waitUntil: 'load', timeout: 30000 });
+        await ps.page.waitForSelector('.dv-nm', { timeout: 15000 });
         await ps.page.waitForTimeout(150);
         const c = await cutLines(ps.page); cutViews++;
         if (c && c.length) cut.push(`단독 ${id || '목록'} ${JSON.stringify(c)}`);
@@ -228,46 +249,102 @@ try {
     if (cut.length) no(`${tag} 첫 화면 막대 선에 걸린 글줄이 있다 — ${cut.join(' · ')} [DRESS_BAR_FIT]`);
   }
   rows.push(`막대 선 검사 화면 ${cutViews}장`);
+  /* ★★[DRESS_STICKER 2026-10-24 코워크 설계 명세] 상담 카드 스티커 — 7폭(360 · 390 · 430 · 768 · 820 · 1024 · 1280) × (확정 0벌 · 확정 2벌 · 일정 선택 전)
+     «방문 전 안내»(일정 선택 전은 «진행 흐름») 제목 · «상담 장소» 줄을 비롯해 카드 안 글과 겹침 0 · 누름 칸 44px 이상 · 가로 넘침 0 ·
+     그린 뒤 자리 흔들림 0(글꼴 · 그림이 늦게 와도) · 크기 56 · 64 · 76 · 88 · 폰(768 미만)은 폰 자리(구분선 1/4 걸침) · 알약은 2벌에만(폰은 스티커 칸 안) ·
+     따로 카드(#mp_dress)는 비어 있다. 실제 마이페이지 칸(#mp_consult)에 renderConsult 로 그려 잰다(로그인 없이 · 같은 폭) */
+  {
+    const ST_W = [360, 390, 430, 768, 820, 1024, 1280];
+    const LIST = ['신청접수', '상담확정', '시착', '상담완료'];
+    const mkSt = (kind) => { const pre = kind === 'pre';
+      return { product: '시그니처', code: 'ME-T', stage: pre ? '신청접수' : '상담확정', stageList: LIST, isException: false,
+        consult: pre ? { status: '신청접수', scheduleUrl: 'x', dress: { attire: '대여 희망 · 2벌', open: true, ymd: '', saved: null } }
+          : { status: '승인완료', date: '2026년 11월 3일 (화)', time: '14:00', canChange: true, canCancel: true, deposit: { amount: 100000, confirmed: true },
+              dress: { attire: '대여 희망 · 2벌', open: true, ymd: '2026-11-03', saved: kind === 'two' ? { picks: ['S01', 'S02'], names: [], ans: { len: 'ankle', fit: 'body', pref: ['low'] }, memo: '' } : null } } }; };
+    const stRows = [];
+    for (const kind of ['zero', 'two', 'pre']) for (const W of ST_W) {
+      const tag = `스티커 ${kind} ${W}`;
+      const ps = await eng.newPage({ port: PORT, viewport: { width: W, height: 900 } });
+      await ps.page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load', timeout: 30000 });
+      const at = (m) => ps.page.evaluate(() => { const st = document.querySelector('#mp_consult .dst'); if (!st) return null;
+        const card = st.closest('.consult-card'), vg = st.parentNode, C0 = card.getBoundingClientRect(), sb = st.getBoundingClientRect(), box = st.querySelector('.dst-box').getBoundingClientRect();
+        const hits = []; const rg = document.createRange(); const w = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
+        for (let t = w.nextNode(); t; t = w.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; rg.selectNodeContents(t);
+          for (const r of rg.getClientRects()) if (r.width >= 1 && r.right > sb.left && r.left < sb.right && r.bottom > sb.top && r.top < sb.bottom) hits.push(t.nodeValue.trim().slice(0, 12)); }
+        const pill = st.querySelector('.dst-pill'), pr = pill && pill.getBoundingClientRect(), lb = st.querySelector('.dst-lb').getBoundingClientRect();
+        return { mode: vg.classList.contains('vg-st-pc') ? 'pc' : vg.classList.contains('vg-st-ph') ? 'ph' : '?', pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
+          w: sb.width, h: sb.height, box: Math.round(box.width), hits, ow: document.documentElement.scrollWidth - innerWidth, lbH: lb.height,
+          overDiv: Math.round(vg.getBoundingClientRect().top - box.top), pill: pill ? pill.textContent : '', pillIn: pill ? (pr.left >= box.left - 0.5 && pr.right <= box.right + 0.5 && pr.top >= box.top - 0.5) : true,
+          dressCard: (document.getElementById('mp_dress') || {}).innerHTML || '' }; });
+      await ps.page.evaluate((d) => { const v = document.getElementById('mp_consult'); for (let e = v; e && e !== document.body; e = e.parentElement) if (getComputedStyle(e).display === 'none') e.style.display = 'block';
+        renderConsult(d.consult, d.product, d); renderDress(d); }, mkSt(kind));
+      const m0 = await at(); await ps.page.waitForTimeout(900); const m = await at();
+      if (!m) { no(`${tag} 스티커가 없다 [DRESS_STICKER]`); await ps.page.close(); continue; }
+      const want = W < 375 ? 56 : W < 768 ? 64 : W < 1024 ? 76 : 88;
+      const bad = [];
+      if (m.hits.length) bad.push(`글과 겹침 ${m.hits.join('|')}`);
+      if (m.w < 44 || m.h < 44) bad.push(`누름 칸 ${m.w}×${m.h}`);
+      if (m.ow > 0) bad.push(`가로 넘침 ${m.ow}`);
+      if (m0.pos !== m.pos || m0.cardH !== m.cardH) bad.push(`자리 흔들림 ${m0.pos}→${m.pos} · 카드 ${m0.cardH}→${m.cardH}`);
+      if (m.box !== want) bad.push(`크기 ${m.box}(기대 ${want})`);
+      if (m.lbH > 16) bad.push(`글이 한 줄이 아니다(${m.lbH}px)`);
+      if (W < 768 && m.mode !== 'ph') bad.push(`폰인데 자리 ${m.mode}`);
+      if (m.mode === 'ph' && Math.abs(m.overDiv - m.box / 4) > 2) bad.push(`구분선 걸침 ${m.overDiv}px`);
+      if ((kind === 'two') !== (m.pill === '2벌')) bad.push(`알약 «${m.pill}»`);
+      if (W < 768 && !m.pillIn) bad.push('알약이 스티커 칸 밖');
+      if (m.dressCard) bad.push('따로 카드가 다시 그려졌다');
+      if (ps.errors.length) bad.push(`페이지 오류 ${ps.errors[0]}`);
+      stRows.push(`${W}/${kind}=${m.mode}`);
+      if (bad.length) no(`${tag} — ${bad.join(' · ')} [DRESS_STICKER]`);
+      await ps.page.close();
+    }
+    rows.push(`스티커 자리 ${stRows.join(' ')}`);
+  }
   // ★[DRESS_BACK_STEP 코워크 디자인 라운드 2 · 1] 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음(390×844 · 마이페이지 겹화면)
   {
     const pb = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
     const P = pb.page;
     await P.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load', timeout: 30000 });
-    const open = async (demo) => { await P.evaluate(([dr, demo]) => openDressPicker(dr, demo ? { demo: true } : {}), [DR, demo]); const fr = await (await P.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame(); await fr.waitForSelector('.pk-band', { timeout: 15000 }); await P.waitForTimeout(250); return fr; };
+    const open = async (demo, dr) => { await P.evaluate(([dr, demo]) => openDressPicker(dr, demo ? { demo: true } : {}), [dr || DR, demo]); const fr = await (await P.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame(); await fr.waitForSelector('.pk-band, .pk-q', { timeout: 15000 }); await P.waitForTimeout(250); return fr; };
     const look = (fr) => fr.evaluate(() => ({ list: !!document.querySelector('.pk-main .pk-band'), detail: (document.querySelector('.dv-nm') || {}).textContent || '', q: (document.getElementById('pkQ') || {}).textContent || '', y: Math.round(window.pageYOffset), focus: document.activeElement ? (document.activeElement.getAttribute('data-open') || '') : '' })).catch(() => ({ gone: true }));   // 겹화면이 닫혔으면(옛 동작 · 뒤로가기 = 통째 닫기) gone
     const back = async (ms = 500) => { await P.evaluate(() => history.back()); await P.waitForTimeout(ms); };
     const rows2 = [];
     const QS = await P.evaluate(() => window.DRESS_REFS.questions.map((q) => q.q));
     try {
     let fr = await open(false);
+    /* [DRESS_Q_FIRST] 열면 물음 1 — 셋을 답해 결과로 · 펼쳐서 읽던 자리를 만든다 */
+    const q0 = await look(fr);
+    if (q0.q !== QS[0]) { no(`뒤로가기 — 처음 연 겹화면이 물음 1 이 아니다 ${JSON.stringify(q0)} [DRESS_Q_FIRST]`); throw new Error('stop'); }
+    await fr.click('.pk-opt[data-a="ankle"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="low"]'); await fr.click('.wz-bar [data-go="1"]'); await P.waitForTimeout(150);
+    await expand(fr); await P.waitForTimeout(80);
     await fr.evaluate(() => window.scrollTo(0, 300)); await P.waitForTimeout(120);
     const y0 = await fr.evaluate(() => Math.round(window.pageYOffset));
     const id3 = await fr.evaluate(() => { const c = document.querySelectorAll('.pk-main [data-open]')[2]; c.click(); return c.getAttribute('data-open'); }); await P.waitForTimeout(250);
     const a = await look(fr); await back(); const b2 = await look(fr);
     rows2.push(`자세히 «${a.detail}» → 뒤로 = ${b2.list ? '목록' : '?'} · 자리 ${y0} → ${b2.y} · 초점 ${b2.focus}`);
     if (!a.detail || !b2.list || b2.y !== y0 || b2.focus !== id3) { no(`뒤로가기 — 자세히 → 목록(읽던 자리 ${y0} · 그 칸 초점)이 아니다 ${b2.gone ? '— 겹화면이 통째로 닫혔다' : JSON.stringify(b2)} [DRESS_BACK_STEP]`); throw new Error('stop'); }
-    await fr.click('.pk-band [data-act="ask"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.wz-bar [data-go="1"]'); await P.waitForTimeout(120);
-    const q3 = await look(fr); await back(); const q2 = await look(fr); await back(); const q1 = await look(fr); await back(); const ql = await look(fr);
-    rows2.push(`물음 «${q3.q}» → «${q2.q}» → «${q1.q}» → ${ql.list ? '목록' : '?'}`);
-    if (q3.q !== QS[2] || q2.q !== QS[1] || q1.q !== QS[0] || !ql.list) { no(`뒤로가기 — 물음 3 → 2 → 1 → 목록이 아니다 ${JSON.stringify([q3.q || q3, q2.q || q2, q1.q || q1, ql.list || ql])} [DRESS_BACK_STEP]`); throw new Error('stop'); }
+    /* ★[DRESS_Q_FIRST] 결과 → 물음 3 → 2 → 1 → 닫기 판단 */
+    await back(); const q3 = await look(fr); await back(); const q2 = await look(fr); await back(); const q1 = await look(fr);
+    rows2.push(`결과 → 뒤로 = 물음 «${q3.q}» → «${q2.q}» → «${q1.q}»`);
+    if (q3.q !== QS[2] || q2.q !== QS[1] || q1.q !== QS[0]) { no(`뒤로가기 — 결과 → 물음 3 → 2 → 1 이 아니다 ${JSON.stringify([q3.q || q3, q2.q || q2, q1.q || q1])} [DRESS_BACK_STEP · DRESS_Q_FIRST]`); throw new Error('stop'); }
     await back(900);
     const gone = !(await P.$('#mp_drFrame')), path1 = await P.evaluate(() => location.pathname);
-    rows2.push(`목록(바뀐 것 없음) → 뒤로 = 겹화면 ${gone ? '닫힘' : '그대로'} · ${path1}`);
-    if (!gone || !/\/mypage\.html$/.test(path1)) no(`뒤로가기 — 목록에서(바뀐 것 없음) 겹화면이 닫히지 않았거나 마이페이지를 떠났다 [DRESS_BACK_STEP]`);
-    fr = await open(true);
+    rows2.push(`물음 1(바뀐 것 없음) → 뒤로 = 겹화면 ${gone ? '닫힘' : '그대로'} · ${path1}`);
+    if (!gone || !/\/mypage\.html$/.test(path1)) no(`뒤로가기 — 물음 1 에서(바뀐 것 없음) 겹화면이 닫히지 않았거나 마이페이지를 떠났다 [DRESS_BACK_STEP]`);
+    fr = await open(true, DRA);
     const f1 = await fr.evaluate(() => document.querySelector('.pk-main [data-open]').getAttribute('data-open'));
     await fr.click(`.pk-main [data-open="${f1}"]`); await P.waitForTimeout(150);
     const nb1 = await fr.evaluate(() => { const g = (s) => { const e = document.querySelector(s); return e ? { t: e.textContent.replace(/ /g, ' '), h: Math.round(e.getBoundingClientRect().height) } : null; }; return { prev: g('.pk-nb-p'), next: g('.pk-nb-n') }; });
     await fr.click('.pk-nb-n'); await P.waitForTimeout(150);
     const n2 = await look(fr);
-    const want2 = await P.evaluate((id) => { const R = window.DRESS_REFS, rk = R.rank({ len: '', fit: '', pref: [] }, R.list()), ids = rk.match.concat(rk.rest).map((x) => x.id); return R.dress(ids[ids.indexOf(id) + 1]).name; }, f1);
+    const want2 = await P.evaluate((id) => { const R = window.DRESS_REFS, rk = R.rank({ len: 'ankle', fit: 'body', pref: ['none'] }, R.list()), ids = rk.match.concat(rk.rest).map((x) => x.id); return R.dress(ids[ids.indexOf(id) + 1]).name; }, f1);   // [DRESS_RESULT_SPLIT] 화면 순서(맞는 칸이 둘 이상이라 첫 칸의 다음은 같다)
     rows2.push(`첫 드레스 이웃 줄 ${JSON.stringify(nb1)} → 다음 = «${n2.detail}»`);
     if (nb1.prev || !nb1.next || nb1.next.t !== '다음 드레스 ›' || nb1.next.h < 44 || n2.detail !== want2) no(`이웃 넘기기 — 첫 드레스는 «다음 드레스 ›»만(44px) · 누르면 목록 다음 드레스가 아니다 ${JSON.stringify(nb1)} «${n2.detail}» [DRESS_NEXT_PREV]`);
     await fr.click('.pk-ctl [data-act="pick"]'); await fr.click('.pk-main [data-act="list"]'); await P.waitForTimeout(150);
-    await back(700);
+    await back(); await back(); await back(); await back(700);   // [DRESS_Q_FIRST] 결과 → 물음 3 → 2 → 1 → 판
     const dlg = await P.evaluate(() => { const m = document.getElementById('mpModal'); return m && m.classList.contains('open') ? m.innerText.replace(/\s+/g, ' ').slice(0, 30) : ''; });
-    rows2.push(`고른 뒤 목록 → 뒤로 = 판 «${dlg}»`);
-    if (!/저장하지 않은 변경이 있어요/.test(dlg) || !(await P.$('#mp_drFrame'))) no(`뒤로가기 — 고른 뒤 목록에서 «저장하지 않은 변경이 있어요» 판이 아니다(${dlg}) [DRESS_BACK_STEP]`);
+    rows2.push(`고른 뒤 결과 → 물음 3 · 2 · 1 → 뒤로 = 판 «${dlg}»`);
+    if (!/저장하지 않은 변경이 있어요/.test(dlg) || !(await P.$('#mp_drFrame'))) no(`뒤로가기 — 고른 뒤 물음 1 에서 «저장하지 않은 변경이 있어요» 판이 아니다(${dlg}) [DRESS_BACK_STEP]`);
     } catch (e) { if (e.message !== 'stop') no(`뒤로가기 검사가 끝까지 돌지 못했다 — ${String(e.message).split('\n')[0]} [DRESS_BACK_STEP]`); }
     if (pb.errors.length) no(`뒤로가기 검사 페이지 오류 ${pb.errors.length} · ${pb.errors[0]}`);
     rows.push('390×844 뒤로가기: ' + rows2.join(' · '));
@@ -287,4 +364,4 @@ try {
 }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-fit — 실패 ${bad}건 [DRESS_DETAIL_FIT]`); process.exit(1); }
-console.log(`━━ dress-fit — 통과 · 열면 목록(띠 · 점 줄 하나 · 물음 셋 · 답한 뒤 한 그리드) · 두 벌 찬 뒤 바꾸기 · 막대 작은 사진 = 자세히 · 답 바꾸기 뒤 두 벌 그대로 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 뒤로가기 한 걸음(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단) · 이웃 넘기기 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT · DRESS_BACK_STEP]`);
+console.log(`━━ dress-fit — 통과 · 열면 물음 1(답해야 다음 · 건너뛰기 없음) · 결과 «답에 맞는 드레스» → «다른 드레스도 보기» → 펼침 · 두 벌 찬 뒤 바꾸기 · 막대 작은 사진 = 자세히 · 답 바꾸기 뒤 두 벌 그대로 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 뒤로가기 한 걸음(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단) · 이웃 넘기기 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT · DRESS_BACK_STEP]`);

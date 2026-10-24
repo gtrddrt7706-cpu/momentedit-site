@@ -2437,8 +2437,9 @@ function _sessionToConsult(token) { _gsr_();
    ★기준은 id 다 — names 는 그날 화면이 보여 준 이름의 사본(목록에서 이름이 바뀌어도 그날 고른 이름이 남는다 · 표시에만 쓴다).
    ★체형 · 키 · 몸무게는 받지도 담지도 않는다(ans 는 길이 · 핏 · 편한 쪽 세 칸만). */
 var DRESS_PICK = { col: '시착준비', untilDays: 2, max: 2, memoMax: 200, nameMax: 40, capHour: 30, stages: ['신청접수', '상담확정'] };   // stages = 마이페이지 DRESS_STAGES(검사가 대조)
-var DRESS_ANS = { len: ['ankle', 'calf', 'knee', 'unsure'], fit: ['body', 'waist', 'loose', 'unsure'], pref: ['low', 'arms'] };
+var DRESS_ANS = { len: ['ankle', 'calf', 'knee', 'unsure'], fit: ['body', 'waist', 'loose', 'unsure'], pref: ['low', 'arms', 'none'] };   // ★[DRESS_PREF_NONE 2026-10-24 사장님 «질문 먼저 의무»] none = «특별히 없어요»(셋째 물음 · 혼자만) — 버리면 다음에 열 때 다시 묻는다
 function _dressParse_(raw) {   // [DRESS_PICK] 저장값 읽기 — 비었거나 깨졌으면 null(읽기만)
+  /* [DRESS_PREF_NONE] 셋째 답 none(«특별히 없어요»)도 읽는다 — DRESS_ANS.pref */
   var s = String(raw == null ? '' : raw).trim(); if (!s) return null;
   var o = null; try { o = JSON.parse(s); } catch (e) { return null; }
   if (!o || typeof o !== 'object' || !Array.isArray(o.picks)) return null;

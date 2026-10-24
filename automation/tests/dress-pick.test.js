@@ -127,6 +127,9 @@ ok(r.ok === true && JSON.parse(cell()).picks.join() === 'S01,S02', '4-2 [DRESS_N
 fresh({ days: -23 });
 r = save();
 ok(r.ok === true && JSON.parse(cell()).picks.join() === 'S01,S02', '4-2b [DRESS_NO_DEADLINE] 상담일이 지났어도(상담확정 · 23일 전 날짜) 저장된다 — 사장님 시험 계정(9/30)과 같은 꼴', r);
+fresh({});
+r = save({ ans: { len: 'ankle', fit: 'body', pref: ['none'] } });
+ok(r.ok === true && JSON.parse(cell()).ans.pref.join() === 'none', '4-2c [DRESS_PREF_NONE] 셋째 답 «특별히 없어요»(none)를 버리지 않고 저장한다', r);
 ok(sb.DRESS_PICK.untilDays === 2, '4-3 서버 마감 2일 = 화면(dress-refs changeUntilDays) 값');
 
 // 5) 한 사람이 천 번 누르면 — 한 시간 30번

@@ -162,7 +162,6 @@ html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}   /* ★[DRESS_SOLO_NOSAV
 .pk-opts.multi .pk-opt[aria-pressed="true"] .pk-mk::after{border-radius:2px}
 .pk-ofig{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:40px;margin:-6px 0}   /* [DRESS_Q_WORDS] 핏 답 왼쪽 라인 그림(답 셋 모두 그림이 있다 · [DRESS_Q_TRIM] «아직 몰라요»를 뺐다) */
 .pk-ofig img{display:block;width:100%;height:100%}
-.pk-skipq{gap:4px;margin:10px 0 0 -12px}   /* ★[DRESS_SKIP_Q 2026-10-23 코워크 검토 4] 물음마다 «질문 없이 바로 보기» — 목록으로 바로 */
 
 /* ★[DRESS_LIST_FIRST 2026-10-23 코워크 설계 명세 2 · 3장] 목록 맨 위 한 줄 띠 — 답이 없으면 «몇 가지만 답하시면 …» + «답하기 ›» · 답했으면 고른 답 + «답 바꾸기 ›».
    칠한 상자 없이 위아래 가는 줄만([NO_SIDE_STRIPE] · 아래 «다 찼어요» 줄 .pk-full 과 같은 꼴) · 글이 길면 접히고 단추는 오른쪽 그 자리 */
@@ -180,6 +179,15 @@ html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}   /* ★[DRESS_SOLO_NOSAV
 .pk-near{font-size:13px;color:var(--light);line-height:1.7}
 .pk-grid{margin-top:20px}
 .pk-near + .pk-grid{margin-top:12px}
+/* ★[DRESS_RESULT_SPLIT 2026-10-24 사장님] 결과 두 덩어리 — 소제목(작게 · 먹색 600) · «다른 드레스도 보기»(외곽 단추 · 그리드 아래 가운데) · 맨 아래 점 줄 하나 */
+.pk-sub-h{margin:20px 0 0;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--text);letter-spacing:.01em}
+.pk-sub-h:focus{outline:none}
+.pk-sub-h + .pk-grid{margin-top:12px}
+.pk-near{margin-top:16px}
+.pk-grid + .pk-sub-h{margin-top:32px;padding-top:20px;border-top:1px solid var(--hairline)}
+.pk-more{display:block;width:100%;max-width:320px;margin:28px auto 0}
+.pk-end-dots{display:flex;justify-content:center;margin:28px 0 8px}
+.pk-end-dots .dotln{margin:0;text-wrap:balance}
 @media(min-width:560px){.pk-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .pk-memo-l{display:block;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.6}
 .pk-memo-l span{color:var(--light);font-size:12px}
@@ -355,8 +363,11 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
 
   /* ════════════ 고르기 «드레스 미리 보기» ════════════ */
   var STEPS = R.questions.map(function(q){ return q.step; });   // [DRESS_LIST_FIRST] 진행 표시는 물음 셋 — 목록은 걸음이 아니라 첫 화면이다 · [DRESS_Q_TRIM] 이름은 원천 한 곳(길이 · 핏 · 노출 · 소매)
-  var S = { view: 'list', q: 0, ans: { len: '', fit: '', pref: [] }, seen: [false, false, false], picks: [null, null], memo: '', cur: '', busy: false, mode: '', err: '', touched: false, wait: 0, ymd: '', listY: 0,
-    base: '[[],""]', saved: false, failed: false, ro: false };
+  /* ★★[DRESS_Q_FIRST 2026-10-24 사장님 «드레스 질문을 먼저 의무적으로 묻고 추천하는 드레스 · 그 외 다른 드레스 보러 가기 누르면 전체»] 처음 열면 물음 1부터 —
+     물음 셋을 다 답해야 결과(답에 맞는 드레스 → «다른 드레스도 보기»)로 간다. 답 없는 목록 상태는 없다(건너뛰기 · «드레스 바로 보기» · «답하기» 걷음 · 되살리지 말 것).
+     답한 적이 있으면(저장본 · 이 기기에 남긴 답) 결과로 바로 연다 */
+  var S = { view: 'q', q: 0, ans: { len: '', fit: '', pref: [] }, seen: [false, false, false], picks: [null, null], memo: '', cur: '', busy: false, mode: '', err: '', touched: false, wait: 0, ymd: '', listY: 0,
+    base: '[[],""]', saved: false, failed: false, ro: false, answered: false, more: false, akey: '' };
   if (OPEN && R.dress(OPEN)) { S.view = 'detail'; S.cur = OPEN; }   // [DRESS_SEE_TAP] 카드에서 누른 드레스 자세히로 바로
   function count(){ return S.picks.filter(Boolean).length; }
   /* [DRESS_EXIT_ASK] «바뀐 게 있나» = 고른 두 벌(순서 그대로) · 남길 말이 저장본과 다르다. 답(길이 · 핏 · 노출 · 소매)은 줄 세우기 도움이라 세지 않는다 */
@@ -402,7 +413,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     }).join('');
     return stepsHTML(i) + '<h2 class="pk-q" id="pkQ" data-head tabindex="-1">' + esc(q.q) + '</h2>' + (q.sub ? '<p class="pk-qsub">' + esc(q.sub) + '</p>' : '')
       + '<div class="pk-opts' + (multi ? ' multi' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
-      + '<button type="button" class="pk-txt pk-skipq" data-act="browse">드레스 바로 보기 <span aria-hidden="true">&rsaquo;</span></button>';   // ★[DRESS_SKIP_WORDS 2026-10-23 코워크 디자인 라운드 3 · 4] «질문 없이» → «드레스 바로 보기»(둘째 · 셋째 물음은 이미 답한 것이 있다 · 답은 그대로 두고 목록으로)   // [DRESS_SKIP_Q] · [DRESS_LIST_FIRST] 안 고르면 한 줄은 목록 띠 아래에만(물음 화면에는 두지 않는다)
+      ;   // ★[DRESS_Q_FIRST] 물음 아래 «드레스 바로 보기 ›»는 걷었다 — 답해야 결과로 간다
   }
   /* [DRESS_LIST_FIRST] 고른 답의 글을 잇는다 — «발목까지 · 몸 선을 따라 · 노출이 적은 드레스»(물음 순서 · 답 순서 · 건너뛰기는 빼고) */
   function ansWords(){
@@ -416,22 +427,34 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   /* ★[DRESS_BAND_WORDS 2026-10-23 코워크 디자인 라운드 1 · 4] 띠 글 «원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요» — 종전 «어울리는»은 몸을 평가하는 말로 읽혔다 */
   function bandHTML(){
     var said = ansWords().split(' · ').map(function(p){ return p.replace(/ /g, '\u00a0'); }).join(' · ');   // ★[DRESS_BAND_KEEP 2026-10-23 라운드 1] 답 하나는 한 덩어리 — 390 에서 «노출이 / 적은 드레스»처럼 답 중간에서 꺾이지 않고 « · » 자리에서만 줄이 바뀐다
-    return '<div class="pk-band"><p class="pk-band-t">' + esc(said || '원하시는 길이와 핏을 고르시면 그\u00a0드레스부터 보여 드려요') + '</p>'   // «그 드레스부터»는 붙여 둔다 — 390 에서 «…고르시면 그 / 드레스부터»로 끊겼다
-      + '<button type="button" class="pk-txt" data-act="ask">' + (said ? '답 바꾸기' : '답하기') + ' <span aria-hidden="true">&rsaquo;</span></button></div>'
-      /* ★[DRESS_NO_PICK_OK 2026-10-23 코워크 검토 4] 안 고르면 어떻게 되는지 한 줄([BOSS_WAY_1006] 1) — 고르기 화면 띠 아래에만(라운드 1: 카드에서는 뺐다 · 같은 말 한 번).
-         ★[DRESS_BAND_DOTS 라운드 1 · 3] 막대에서 뺀 한 줄의 새 자리 — 입어 볼지는 상담 날 · 안 고르셔도 된다 · 마감 뒤 보기만이면 둘 다 두지 않는다([DRESS_SEE_CLOSED]) */
-      + (S.ro ? '' : '<div class="pk-band-dots"><p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>');   // ★[DRESS_NO_DEADLINE 2026-10-23 사장님 «참고용»] 카드 · 완료 화면과 같은 한 줄   // ★[DRESS_NO_PICK_CARD 2026-10-23 코워크 디자인 라운드 3 · 3] «안 고르셔도 상담 날 함께 골라요.»는 마이페이지 카드 0벌 점 줄로 옮겼다(같은 말 한 번)
+    /* ★[DRESS_Q_FIRST] 결과 맨 위 띠 = 고른 답 글 + «답 바꾸기 ›»(물음 1부터 · 고른 답 · 고른 드레스 그대로) — 답 없는 띠(«답하기 ›»)는 없다 */
+    return '<div class="pk-band"><p class="pk-band-t">' + esc(said) + '</p>'
+      + '<button type="button" class="pk-txt" data-act="ask">답 바꾸기 <span aria-hidden="true">&rsaquo;</span></button></div>';
   }
   function gridHTML(list, fits){ return '<div class="dr-grid pk-grid">' + list.map(function(d){ return cellHTML(d, !!(fits && fits.indexOf(d) >= 0)); }).join('') + '</div>'; }
   /* ★[DRESS_ONE_GRID 2026-10-23 코워크 디자인 라운드 1 · 4 · 5] 소제목 «드레스»를 걷어 첫 사진을 한 줄 위로 · 답한 뒤에도 한 그리드(맞는 칸 앞 · «답과 맞아요») —
      종전 «답에 맞는 드레스 / 다른 드레스» 두 덩어리는 맞는 것이 1벌이면 오른쪽 반이 비고 구분선 아래 다섯 벌이 떨어진 후보처럼 보였다.
      목록의 제목은 화면에 안 보이게 남긴다(읽어 주는 프로그램 · 화면을 바꿀 때 초점이 갈 자리) */
+  /* ★★[DRESS_RESULT_SPLIT 2026-10-24 사장님 «추천하는 드레스 · 그 외 다른 드레스 보러 가기 누르면 전체»] 결과 = 소제목 «답에 맞는 드레스» + 맞는 칸만(R.rank match · 칸의 «답과 맞아요»는 소제목이 대신한다) →
+     외곽 단추 «다른 드레스도 보기» → 누르면 같은 그리드 아래로 나머지 전부(소제목 «다른 드레스») · 단추는 사라진다.
+     맞는 것이 없으면 «답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요.» + 가까운 앞 3벌. 고른 드레스가 나머지 쪽에 있으면 처음부터 펼쳐 둔다(고른 것이 숨지 않게).
+     맨 아래 점 줄 하나 «시착(기본 2벌)은 …»([DRESS_NO_DEADLINE]). 화면에 «추천 · 맞춤»은 쓰지 않는다([DRESS_WORDS]) */
+  function splitList(){
+    var rk = R.rank(S.ans, R.list()), front = rk.match.slice(), rest = rk.rest.slice(), near = !front.length;
+    if (near) { front = rest.slice(0, 3); rest = rest.slice(3); }
+    var open = S.more || rest.some(function(d){ return S.picks.indexOf(d.id) >= 0; });
+    return { front: front, rest: rest, near: near, open: open };
+  }
   function listHTML(){
     var all = R.list();
     if (!all.length) return '<p class="pk-near" data-head tabindex="-1">드레스 사진을 준비하고 있어요.</p>';
-    var rk = R.rank(S.ans, all), h = '<h2 class="sr" data-head tabindex="-1">드레스 목록</h2>' + bandHTML();
-    if (rk.asked && rk.near) h += '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 순서로 놓았어요.</p>';
-    return h + gridHTML(rk.match.concat(rk.rest), rk.asked ? rk.match : null);   // [DRESS_MEMO_DONE] 남길 말은 완료 화면 · [DRESS_LIST_FIRST] «답 바꾸기»는 맨 위 띠
+    var sp = splitList();
+    var h = '<h2 class="sr" data-head tabindex="-1">드레스 목록</h2>' + bandHTML();
+    h += sp.near ? '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요.</p>' : '<h3 class="pk-sub-h">답에 맞는 드레스</h3>';
+    h += gridHTML(sp.front);
+    if (sp.rest.length) h += sp.open ? '<h3 class="pk-sub-h">다른 드레스</h3>' + gridHTML(sp.rest)
+                                     : '<button type="button" class="cc-btn-ghost pk-more" data-act="more">다른 드레스도 보기</button>';
+    return h + '<div class="pk-end-dots"><p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>';   // [DRESS_NO_DEADLINE] 카드에서 옮긴 한 줄 · [DRESS_MEMO_DONE] 남길 말은 완료 화면
   }
   function detailPickHTML(){
     var d = R.dress(S.cur); if (!d) return listHTML();
@@ -449,7 +472,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   }
   /* ★[DRESS_NEXT_PREV 2026-10-23 코워크 디자인 라운드 2 · 4] 자세히 맨 아래 한 줄 «‹ 이전 드레스 · 다음 드레스 ›» — 지금 목록 순서(답이 있으면 맞는 칸이 앞 · listHTML 과 한 순서) ·
      끝에서는 그쪽 단추를 두지 않는다(남은 쪽은 제자리) · 사진 넘김(‹ ›)과 헷갈리지 않게 글 단추 · 누르는 칸 44px */
-  function orderIds(){ var rk = R.rank(S.ans, R.list()); return rk.match.concat(rk.rest).map(function(x){ return x.id; }); }
+  function orderIds(){ var sp = splitList(); return sp.front.concat(sp.open ? sp.rest : []).map(function(x){ return x.id; }); }   // ★[DRESS_RESULT_SPLIT] 이전/다음 = 화면에 보이는 순서(접혀 있으면 «답에 맞는 드레스»까지)
   function nbHTML(d){
     var ids = orderIds(), i = ids.indexOf(d.id); if (i < 0 || ids.length < 2) return '';
     var pv = i > 0 ? R.dress(ids[i - 1]) : null, nx = i < ids.length - 1 ? R.dress(ids[i + 1]) : null;
@@ -484,9 +507,9 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   function barHTML(){
     if (S.view === 'q') {
       var q = R.questions[S.q], v = S.ans[q.key], has = Array.isArray(v) ? v.length > 0 : !!v;
-      var fw = has ? (S.q < 2 ? '다음' : '드레스 보기') : '건너뛰기';
+      var fw = S.q < 2 ? '다음' : '드레스 보기';   // ★[DRESS_Q_FIRST] «건너뛰기»는 없다 — 답하기 전엔 옅게(눌리지 않음) · 답하면 칠한 단추
       return '<div class="wz-bar">' + (S.q > 0 ? '<button type="button" class="cc-btn-ghost" data-go="-1">이전</button>' : '')   // [DRESS_NO_INTRO] 첫 물음 앞에는 갈 곳이 없다(스냅 기획 첫 걸음과 같다)
-        + '<button type="button" class="cc-btn' + (has ? '' : ' pk-skip') + '" data-go="1">' + fw + '</button></div>';   // [DRESS_SKIP_SOFT] 답이 없으면 옅은 단추
+        + '<button type="button" class="cc-btn' + (has ? '' : ' cc-btn-wait') + '" data-go="1"' + (has ? '' : ' aria-disabled="true"') + '>' + fw + '</button></div>';
     }
     if ((S.view === 'list' || S.view === 'detail') && !S.ro) {   // [DRESS_SEE_CLOSED] 마감 뒤 보기만이면 막대가 없다(고를 수 없다)
       /* [DRESS_PICK_TIER] 0벌 = «두 벌»이라 하지 않는다(한 벌도 된다). 명세 글 «입어 볼 드레스를 골라 주세요»는 390 에서 두 줄이 됐다(단추 208px · 글 185px + 안쪽 여백 36) —
@@ -533,7 +556,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       var cw = box.parentElement ? box.parentElement.clientWidth : base, c = m.querySelector('.pk-ctl');
       hi = Math.min(40, (base - 150) * 4 / 3); lo = Math.max(-40, -(Math.min(360, cw) - base) * 4 / 3);
       if (c) lo = Math.max(lo, c.getBoundingClientRect().bottom - T + 8);
-    } else { hi = Math.min(12, base - 8); lo = -12; }
+    } else { hi = Math.min(12, base - 8); lo = -24; }   // ★[DRESS_RESULT_SPLIT 2026-10-24] 결과 첫 그리드는 위 여백이 12px 라(소제목 · 가까운 드레스 한 줄 아래) 올릴 틈이 적다 — 내리는 쪽을 24px 까지(맞는 것 0 · 390 에서 요약 줄이 막대 선에 걸렸다)
     var cand = [0], best = null;
     for (var j = 0; j < iv.length; j++) cand.push(iv[j][0] - 1, iv[j][1] + 1);
     for (var k = 0; k < cand.length; k++) {
@@ -561,6 +584,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   /* ★[DRESS_BACK_STEP 2026-10-23 코워크 디자인 라운드 2 · 1] 목록으로 돌아가는 길은 하나 — «‹ 목록» · 휴대폰 뒤로가기 · Esc.
      목록은 떠날 때의 자리로(S.listY · 칸을 눌러 자세히로 갈 때 적는다) · 보던 드레스 칸에 초점(이웃 드레스로 넘겨 왔으면 그 칸이 보이게) */
   function backToList(){
+    if (!S.answered) { go('q', { q: 0 }); return; }   // ★[DRESS_Q_FIRST] 답 없는 목록은 없다 — 카드 사진으로 자세히에 왔고 아직 답이 없으면 물음 1로
     var back = S.cur, y = S.listY || 0;
     go('list');
     try { window.scrollTo(0, y); } catch (e) {}
@@ -568,15 +592,20 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     if (c) { try { c.focus({ preventScroll: false }); } catch (er) {} }
   }
   /* 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음 — 자세히 → 목록 · 물음 n → n−1 → 목록. 목록 · 완료 화면이면 false(부모가 종전대로 나가기 판단) */
-  function stepBack(){
+  function stepBack(){   // ★[DRESS_Q_FIRST] 결과 → 물음 3 → 2 → 1 → 닫기 판단(부모)
     if (S.view === 'detail') { backToList(); return true; }
-    if (S.view === 'q') { if (S.q > 0) go('q', { q: S.q - 1 }); else go('list'); return true; }
+    if (S.view === 'list') { go('q', { q: R.questions.length - 1 }); return true; }
+    if (S.view === 'q') { if (S.q > 0) { go('q', { q: S.q - 1 }); return true; } return false; }
     return false;
   }
   function answer(a){
     var q = R.questions[S.q];
-    if (q.multi) { var arr = S.ans.pref.slice(), i = arr.indexOf(a); if (i >= 0) arr.splice(i, 1); else arr.push(a); S.ans.pref = arr; }
-    else S.ans[q.key] = (S.ans[q.key] === a) ? '' : a;   // 같은 답을 다시 누르면 비운다(건너뛰기와 같다)
+    if (q.multi) {   // ★[DRESS_Q_FIRST] «특별히 없어요»(q.none)는 혼자만 — 고르면 다른 보기가 꺼지고, 다른 보기를 고르면 그것이 꺼진다
+      var arr = S.ans.pref.slice(), i = arr.indexOf(a);
+      if (i >= 0) arr.splice(i, 1); else { if (a === q.none) arr = []; else if (q.none && arr.indexOf(q.none) >= 0) arr.splice(arr.indexOf(q.none), 1); arr.push(a); }
+      S.ans.pref = arr;
+    }
+    else S.ans[q.key] = a;   // ★[DRESS_Q_FIRST] 답해야 하는 물음 — 같은 답을 다시 눌러도 비우지 않는다(종전엔 비웠다 · 건너뛰기가 없어졌다)
     var box = $('pkMain').querySelectorAll('.pk-opt');
     for (var j = 0; j < box.length; j++) { var b = box[j], v = b.getAttribute('data-a'), on = q.multi ? S.ans.pref.indexOf(v) >= 0 : S.ans[q.key] === v; b.setAttribute('aria-pressed', on ? 'true' : 'false'); }
     renderBar();
@@ -584,9 +613,16 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   function stepGo(dir){
     S.touched = true;
     if (dir < 0) { if (S.q > 0) go('q', { q: S.q - 1 }); return; }
+    var q = R.questions[S.q], v = S.ans[q.key];
+    if (!(Array.isArray(v) ? v.length > 0 : !!v)) return;   // ★[DRESS_Q_FIRST] 답하기 전엔 다음으로 가지 않는다(단추도 옅다)
     S.seen[S.q] = true;
-    if (S.q < 2) go('q', { q: S.q + 1 }); else go('list');   // [DRESS_LIST_FIRST] 셋째 물음 뒤는 목록(답에 맞는 / 다른)
+    if (S.q < 2) { go('q', { q: S.q + 1 }); return; }
+    S.answered = R.answered(S.ans); S.more = false; keepAns();   // 셋째 물음 뒤 = 결과(답에 맞는 드레스 → 다른 드레스도 보기)
+    go('list');
   }
+  /* ★[DRESS_Q_FIRST] 답은 줄 세우기 도움이라 서버에는 두 벌과 함께만 간다(0벌 저장 = 비우기) — 고르지 않고 나가도 다시 묻지 않게 이 기기에 남긴다(마이페이지가 넘긴 개인코드별 · 못 쓰면 그만) */
+  function keepAns(){ if (!S.akey) return; try { localStorage.setItem(S.akey, JSON.stringify(S.ans)); } catch (e) {} }
+  function localAns(){ if (!S.akey) return null; try { return JSON.parse(localStorage.getItem(S.akey) || 'null'); } catch (e) { return null; } }
   function pick(id){
     if (S.picks.indexOf(id) >= 0) return;
     var i = S.picks.indexOf(null); if (i < 0) return;
@@ -643,13 +679,17 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     if (roNew) { S.ro = ro; document.documentElement.classList.toggle('pk-ro', ro); }
     var ok = (sv && Array.isArray(sv.picks)) ? sv.picks.filter(function(id){ return !!R.dress(id); }).slice(0, R.pick) : [];
     S.base = keyOf(ok, sv ? String(sv.memo || '').slice(0, 200) : '');   // [DRESS_EXIT_ASK] 기준선 = 서버에 있는 것(이 화면에 보이는 것만)
+    if (m && m.key) S.akey = 'me_dress_ans:' + String(m.key).slice(0, 40);   // [DRESS_Q_FIRST] 이 기기에 남긴 답(개인코드별)
     if (!S.touched) {
       S.picks = [ok[0] || null, ok[1] || null];
-      S.ans = R.cleanAns(sv && sv.ans);
-      S.seen = [!!S.ans.len, !!S.ans.fit, S.ans.pref.length > 0];
+      /* ★[DRESS_Q_FIRST] 답 = 저장본(두 벌과 함께 간 답) → 없으면 이 기기에 남긴 답. 다 답했으면 결과로 바로 · 아니면 물음 1부터(답한 칸은 켜 둔다) */
+      var la = localAns(), fromSv = !!(sv && R.answered(sv.ans, true));
+      S.ans = R.cleanAns(fromSv ? sv.ans : (la || (sv && sv.ans)));
+      S.answered = fromSv || R.answered(la);
+      S.seen = [!!S.ans.len, !!S.ans.fit, S.ans.pref.length > 0 || S.answered];
       S.memo = sv ? String(sv.memo || '').slice(0, 200) : '';
-      /* [DRESS_LIST_FIRST] 저장해 둔 두 벌 · 답이 있으면 목록에 바로 비춘다(띠 · Nº) · [DRESS_SEE_TAP] 카드에서 누른 드레스 자세히면 그 자리에서 다시 그린다(고른 줄 · Nº) */
-      if (ok.length || ansWords() || roNew) { if (S.view !== 'detail') S.view = 'list'; render(); return; }
+      if (S.view !== 'detail') { S.view = S.answered ? 'list' : 'q'; S.q = 0; }   // [DRESS_SEE_TAP] 카드에서 누른 드레스 자세히면 그 자리에서 다시 그린다(고른 줄 · Nº)
+      render(); return;
     }
     if (roNew) { render(false); return; }
     syncState();
@@ -669,8 +709,8 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       if (st != null) { S.touched = true; go('q', { q: +st }); return; }
       if (op) { S.touched = true; S.listY = window.pageYOffset || 0; go('detail', { cur: op }); return; }   // [DRESS_BACK_STEP] 돌아올 목록 자리
       if (nb) { S.touched = true; go('detail', { cur: nb }); return; }   // [DRESS_NEXT_PREV] 이웃 드레스(목록 자리는 그대로)
-      if (act === 'ask') { S.touched = true; go('q', { q: 0 }); return; }   // [DRESS_LIST_FIRST] 띠의 «답하기 › · 답 바꾸기 ›» — 첫 물음부터(고른 답은 그대로 켜져 있다)
-      if (act === 'browse') { S.touched = true; go('list'); return; }   // [DRESS_SKIP_Q] 질문 없이 바로 보기
+      if (act === 'ask') { S.touched = true; go('q', { q: 0 }); return; }   // ★[DRESS_Q_FIRST] 띠의 «답 바꾸기 ›» · [DRESS_LIST_FIRST] 띠의 «답하기 › · 답 바꾸기 ›» — 첫 물음부터(고른 답은 그대로 켜져 있다)
+      if (act === 'more') { S.touched = true; S.more = true; var y0 = window.pageYOffset || 0; render(false); try { window.scrollTo(0, y0); } catch (e) {} var f = $('pkMain').querySelectorAll('.pk-sub-h'); if (f.length) { f[f.length - 1].setAttribute('tabindex', '-1'); try { f[f.length - 1].focus({ preventScroll: true }); } catch (e) {} } return; }   // ★[DRESS_RESULT_SPLIT] 다른 드레스도 보기 — 그 자리에서 아래로 펼친다(스크롤 그대로)
       if (act === 'list') { backToList(); return; }   // [DRESS_BACK_STEP] 목록으로 돌아가는 길 하나
       if (act === 'pick') { pick(S.cur); return; }
       if (act === 'unpick') { unpick(S.cur); render(false); focusCtl(); return; }
