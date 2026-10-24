@@ -19884,6 +19884,11 @@ chk 'STICKER_LABEL_HANG' scripts/audit/dress-refs.mjs 1
 chk 'STICKER_NO_REFLOW' scripts/audit/dress-fit.mjs 2
 chk 'STICKER_LABEL_HANG' scripts/audit/dress-fit.mjs 1
 chk 'STICKER_FINISH_1024' mypage.html 3                                    # 크기 · 기울기 · 흔들림 · 반응 · «n벌» · 글 자리(코워크 마감 지시) · 크기를 줄여 맞추지 않는다
+chk 'STICKER_LABEL_TOP' mypage.html 3                                      # 폰 «드레스 보기» = 고리 위 가운데(사장님 1024)
+chk 'STICKER_LABEL_TOP' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_LABEL_TOP' scripts/audit/dress-fit.mjs 2
+chk 'STICKER_HEAD_CENTER' mypage.html 1                                    # 768+ 묶음 = 머리 글 옆 빈자리 가운데(사장님 1024 «너무 우측 구석»)
+chk 'STICKER_HEAD_CENTER' scripts/audit/dress-refs.mjs 1
 chk 'STICKER_BOX_CLEAR' mypage.html 1                                      # 그림 상자(투명 부분 포함) ↔ 글 사각형 겹침 0 (코워크 1024)
 chk 'STICKER_BOX_CLEAR' scripts/audit/dress-fit.mjs 1
 chk 'STICKER_HIT_SHAPE' mypage.html 1                                      # 누르는 자리 = 드레스 윤곽(그림 칸 모서리는 누름이 아니다)

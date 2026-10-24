@@ -281,7 +281,7 @@ try {
         const v = (typeof _dstVis === 'function') ? _dstVis(st) : null, cr = card.getBoundingClientRect();   // ★[STICKER_VIS_EDGE] 기운 드레스 · 그림자 · 알약 · 진행 점
         const dots = [...document.querySelectorAll('span,i,div,li')].filter((e) => { const r = e.getBoundingClientRect(); return !e.children.length && r.width > 3 && r.width < 16 && r.height > 3 && r.height < 16 && r.bottom <= cr.top && v && r.right > v.left && r.left < v.right; }).map((e) => e.getBoundingClientRect().bottom);
         const vis = v ? { l: v.left, r: v.right, t: v.top, dress: v.dress, lbL: lbR.left, lbR: lbR.right, lbAt: st.querySelector('.dst-lb').getAttribute('data-at'), dotB: dots.length ? Math.max(...dots) : -1e9 } : null;
-        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, boxHit, inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
+        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, boxHit, lbTxt: [...st.querySelectorAll('.dst-lbt > span')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.textContent).join(''), lbPill: (() => { const pl = st.querySelector('.dst-pill'); if (!pl) return false; const a = pl.getBoundingClientRect(); return a.right > lbR.left - 3 && a.left < lbR.right + 3 && a.bottom > lbR.top - 3 && a.top < lbR.bottom + 3; })(), inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
           w: sb.width, h: sb.height, box: Math.round(box.width), hits, ow: document.documentElement.scrollWidth - innerWidth, lbH: lb.height,
           overDiv: Math.round(vg.getBoundingClientRect().top - box.top), pill: pill ? pill.textContent : '', pillIn: pill ? (Math.abs(pr.right - box.right) <= 0.5 && pr.top >= box.top - 6.5 && pr.top <= box.top + 2.5 && pr.height <= 18.5 && pr.width >= 23.5) : true,
           dressCard: (document.getElementById('mp_dress') || {}).innerHTML || '', vis }; });
@@ -305,6 +305,9 @@ try {
       if (m.mode === 'none' || m.mode === '?') bad.push(`맞는 자리를 못 찾았다(${m.mode})`);
       if (m.cardW >= 500 && W >= 768 && m.mode !== 'in') bad.push(`768+ 넓은 카드는 카드 안이어야 한다(${m.mode} · 카드 ${m.cardW}px)`);
       if (W < 768 && m.mode !== 'edge') bad.push(`폰은 모서리 걸침이어야 한다(${m.mode})`);
+      if (W < 768 && m.lbTxt !== '드레스 보기') bad.push(`폰 글이 «드레스 보기»가 아니다(${m.lbTxt}) [STICKER_LABEL_TOP]`);
+      if (W >= 768 && m.lbTxt !== '드레스 미리 보기') bad.push(`넓은 화면 글이 «드레스 미리 보기»가 아니다(${m.lbTxt})`);
+      if (m.lbPill) bad.push('글과 «n벌»이 붙었다 [STICKER_LABEL_TOP]');
       if (!m.inView) bad.push('스티커 · 글이 화면 밖');
       if ((kind === 'two') !== (m.pill === '2벌')) bad.push(`알약 «${m.pill}»`);
       if (!m.pillIn) bad.push('«n벌»이 고리 오른쪽 옆(칸 위 −6 ~ +2 · 오른쪽 끝 맞춤 · 24×18)이 아니다');   // [DRESS_STICKER_HEAD] 자리는 겹침으로 — 안쪽 모서리(in) · 모서리 걸침(edge) · 글은 그대로
