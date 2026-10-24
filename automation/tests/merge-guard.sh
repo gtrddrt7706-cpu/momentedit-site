@@ -19881,7 +19881,10 @@ chk 'STICKER_NO_REFLOW' scripts/audit/dress-refs.mjs 1
 chk 'STICKER_PILL_PHONE' scripts/audit/dress-refs.mjs 1
 chk 'STICKER_NO_REFLOW' scripts/audit/dress-fit.mjs 2
 chk 'STICKER_PILL_PHONE' scripts/audit/dress-fit.mjs 1
-chk 'var S=Math.max(56, Math.round(S0\*k));' mypage.html 1                # 보이는 드레스 56px 아래로 줄이지 않는다
+chk 'var S=Math.max(MINS, Math.round(S0\*k));' mypage.html 1              # 보이는 드레스 56px(그림 칸 58) 아래로 줄이지 않는다
+chk 'STICKER_VIS_EDGE' mypage.html 3                                       # 폰 = 기운 드레스 · 그림자 · 알약이 화면 끝 12px 안
+chk 'STICKER_VIS_EDGE' scripts/audit/dress-refs.mjs 1
+chk 'STICKER_VIS_EDGE' scripts/audit/dress-fit.mjs 1
 chk 'DRESS_STICKER' scripts/audit/dress-fit.mjs 1
 chk 'DRESS_CARD_ONE_LINE' mypage.html 1                                    # 0벌 글 한 줄 «두 벌을 골라 두시면 상담 전날 준비해 둘게요.» + 날짜가 있을 때만 마감 점 줄
 nochk "'고르지 않으셔도 상담 날 함께 골라요.'" mypage.html 0                     # 카드에서는 뺐다 — 고르기 화면 띠 아래에만(같은 말 한 번)

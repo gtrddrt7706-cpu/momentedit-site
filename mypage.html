@@ -466,7 +466,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 @media (min-width:1025px){ .dr-pop-card{max-width:520px} }
 @media (prefers-reduced-motion:reduce){ .dr-pop-card{animation:none} .dr-pop{transition:none} }
 .dr-pop-card iframe{display:block;flex:1 1 auto;width:100%;min-height:0;border:0;background:var(--card-white)}
-.dst{--dst-s:56px;position:absolute;top:0;right:0;z-index:1;display:block;min-width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:8px;background:none;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
+.dst{--dst-s:58px;position:absolute;top:0;right:0;z-index:1;display:block;min-width:44px;min-height:44px;margin:0;padding:0;border:0;border-radius:8px;background:none;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
 @media (min-width:375px){ .dst{--dst-s:64px} }
 @media (min-width:768px){ .dst{--dst-s:76px} }
 @media (min-width:1024px){ .dst{--dst-s:88px} }
@@ -486,7 +486,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dst-pill{position:absolute;top:0;right:0;padding:0 6px;border-radius:999px;background:var(--card-white);color:var(--accent);box-shadow:inset 0 0 0 1px var(--gold-deep);font-family:var(--serif);font-size:11px;letter-spacing:.04em;line-height:1.6;font-variant-numeric:lining-nums;white-space:nowrap;pointer-events:none}   /* [SEL_ONE] [DRESS_NUM_LINING] 칠 없음 · 흰 바탕 · 짙은 금빛 1px · 폰은 스티커 칸 안 */
 @media (min-width:768px){ .dst-pill{transform:translate(33%,-33%)} }   /* PC · 태블릿 = 알약 1/3 이 스티커 밖으로 */
 .dst-lb{display:block;position:relative;margin-top:5px;font-family:var(--serif-ko);font-size:11px;font-weight:400;letter-spacing:.08em;line-height:1.3;color:var(--gold-deep);white-space:nowrap;transform-origin:calc(50% + var(--dst-lbx,0px)) calc(-.98 * var(--dst-s) - 5px)}   /* 축 = 스티커 고리(글 위 스티커 높이 + 5px) */
-.dst.dst-pm .dst-lb{position:absolute;left:0;bottom:4px;width:max-content;margin:0;padding:1px 7px;border-radius:999px;background:var(--card-white);box-shadow:inset 0 0 0 1px var(--gold-deep);font-size:11px;letter-spacing:.04em;line-height:1.5;transform-origin:calc(50% + var(--dst-lbx,0px)) calc(100% + 4px - .98 * var(--dst-s))}   /* ★[STICKER_PILL_PHONE] 폰 = 스티커 밑단에 얹은 흰 알약(흰 바탕 · 금빛 글 · 금빛 테 한 겹 · 11px · 한 줄) */
+.dst.dst-pm .dst-lb{position:absolute;left:0;top:calc(var(--dst-s) * var(--dst-pt,.78));width:max-content;margin:0;padding:1px 7px;border-radius:999px;background:var(--card-white);box-shadow:inset 0 0 0 1px var(--gold-deep);font-size:11px;letter-spacing:.04em;line-height:1.5;transform-origin:calc(50% + var(--dst-lbx,0px)) calc(var(--dst-s) * (.02 - var(--dst-pt,.78)))}   /* ★[STICKER_PILL_PHONE] 폰 = 스티커 밑단에 얹은 흰 알약(흰 바탕 · 금빛 글 · 금빛 테 한 겹 · 11px · 한 줄) */
 .cc-done-row{display:flex;align-items:center;gap:8px;padding:14px 18px;cursor:pointer}
 .cc-done-check{color:var(--gold-deep);font-weight:600}
 .cc-done-label{flex:1;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
@@ -5126,13 +5126,21 @@ function _dstObstacles(card, st){
   });
   return out;
 }
-function _dstHits(card, st, obs){
-  var g=8, bx=st.querySelector('.dst-box'), lb=st.querySelector('.dst-lb'), mine=[(bx||st).getBoundingClientRect()], sr=st.getBoundingClientRect();
+function _dstHits(card, st, obs, g0){
+  var g=g0||8, bx=st.querySelector('.dst-box'), lb=st.querySelector('.dst-lb'), mine=[(bx||st).getBoundingClientRect()], sr=st.getBoundingClientRect();
   mine.push(sr);   // 누르는 칸 전체(스티커 옆 빈 칸 포함)도 글 위에 서지 않게 — 제목을 누르다 창이 열리지 않도록 · 둘레 여유는 그림 · 글에만 8px, 누르는 칸은 2px   // 글과 8px 는 떨어진다 — 2px 로 재면 «드레스 미리 보기»가 제목 끝에 붙어 한 줄처럼 읽혔다(390 실측)
   if(lb) mine.push(lb.getBoundingClientRect());   // 글은 화면 안으로 당겨질 수 있어 단추 상자 밖에 설 수 있다 — 따로 잰다
   obs=obs||_dstObstacles(card, st);
   for(var j=0;j<mine.length;j++){ var b=mine[j], gg=(b===sr)?2:g; for(var i=0;i<obs.length;i++){ var r=obs[i]; if(r.right>b.left-gg && r.left<b.right+gg && r.bottom>b.top-gg && r.top<b.bottom+gg) return true; } }
   return false;
+}
+/* ★[STICKER_VIS_EDGE 코워크 1024 «화면 밖으로 나간다 · 드레스가 통째로 보여야»] 보이는 드레스(그림의 투명 여백을 뺀 옷걸이 고리 ~ 밑단)가 흔들림 −10° ~ −2° 에서 닿는 가장 바깥 + 그림자.
+   그림 칸(.dst-box)은 기울기 전 상자라 −6° 기울면 밑단이 오른쪽으로 6px · 흔들면 10px 더 나간다 — 화면 끝 12px 은 이 값으로 잰다 */
+function _dstVis(st){
+  var b=(st.querySelector('.dst-box')||st).getBoundingClientRect(), S=b.width, ox=b.left+.49*S, oy=b.top+.02*S, L=1e9, R=-1e9, T=1e9, B=-1e9;
+  [-10,-6,-2].forEach(function(d){ var a=d*Math.PI/180, c=Math.cos(a), sn=Math.sin(a);
+    [[.0625,.011],[.932,.011],[.0625,.977],[.932,.977]].forEach(function(q){ var dx=(q[0]-.49)*S, dy=(q[1]-.02)*S, x=ox+dx*c-dy*sn, y=oy+dx*sn+dy*c; if(x<L)L=x; if(x>R)R=x; if(y<T)T=y; if(y>B)B=y; }); });
+  return { left:L-3, right:R+3, top:T, bottom:B+6, dress:(.977-.011)*S };   // 그림자 = drop-shadow(0 4px 5px) 의 보이는 번짐
 }
 /* ★[DRESS_STICKER_HEAD] 자리 — 카드 안쪽 오른쪽 위 모서리 → 모서리 걸침(위 · 오른쪽 1/4 → 1/3 · 오른쪽만) 순으로 대 보고 처음 맞는 자리.
    맞는다 = 스티커와 글 둘레 8px 안에 글 · 단추 · 진행 점 같은 걸림돌 0(카드 안팎) · 누르는 칸도 화면 안 · 폰은 오른쪽 12px 남김.
@@ -5144,26 +5152,33 @@ function _dstHits(card, st, obs){
 function _dstLayout(card){
   var st=card&&card.querySelector(':scope > .dst'); if(!st || !card.isConnected) return;
   var lb=st.querySelector('.dst-lb');
-  st.style.top=''; st.style.right=''; st.style.removeProperty('--dst-s'); st.style.removeProperty('--dst-lbx'); if(lb){ lb.style.left=''; }
+  st.style.top=''; st.style.right=''; st.style.removeProperty('--dst-s'); st.style.removeProperty('--dst-lbx'); st.style.removeProperty('--dst-pt'); if(lb){ lb.style.left=''; }
   st.removeAttribute('data-at');
   if(!card.offsetWidth) return;   // 숨은 카드
   var W=document.documentElement.clientWidth, PH=W<768;
   st.classList.toggle('dst-pm', PH);   // 폰 = 글을 스티커 위 알약으로
   var cs=getComputedStyle(card), pt=parseFloat(cs.paddingTop)||0, pr=parseFloat(cs.paddingRight)||0, bw=card.clientTop||0;
   var S0=(st.querySelector('.dst-box')||st).offsetHeight, RM=PH?12:4, obs=_dstObstacles(card, st);
-  var put=function(S, top, right){ st.style.setProperty('--dst-s', S+'px'); var col=st.offsetWidth; st.style.top=Math.round(top)+'px'; st.style.right=Math.round(right-(col-S)/2)+'px';
-    if(lb){ var c0=PH?(S-lb.offsetWidth)/2:0; lb.style.left=c0?Math.round(c0)+'px':''; var lr=lb.getBoundingClientRect(), dx=Math.max(0, lr.right-(W-RM)) - Math.max(0, RM-lr.left); if(dx||c0) lb.style.left=Math.round(c0-dx)+'px'; st.style.setProperty('--dst-lbx', (-dx)+'px'); } };   // 알약은 스티커 가운데(스티커보다 넓어도) · 화면 밖이면 그만큼 안으로
+  var put=function(S, top, right, pq){ st.style.setProperty('--dst-s', S+'px'); if(pq) st.style.setProperty('--dst-pt', pq); var col=st.offsetWidth; st.style.top=Math.round(top)+'px'; st.style.right=Math.round(right-(col-S)/2)+'px';
+    if(lb){ var c0=PH?(S-lb.offsetWidth)/2:0; lb.style.left=c0?Math.round(c0)+'px':''; var LM=PH?RM+2:RM, lr=lb.getBoundingClientRect(), dx=Math.max(0, lr.right-(W-LM)) - Math.max(0, LM-lr.left); if(dx||c0) lb.style.left=Math.round(c0-dx)+'px'; st.style.setProperty('--dst-lbx', (-dx)+'px'); } };   // 알약은 스티커 가운데(스티커보다 넓어도) · 화면 밖이면 그만큼 안으로
   var fits=function(){ var r=(st.querySelector('.dst-box')||st).getBoundingClientRect(), q=st.getBoundingClientRect(); return r.left>=4 && r.right<=W-RM && q.left>=0 && q.right<=W && !_dstHits(card, st, obs); };   // 누르는 칸도 화면 안(가로 넘침 0)
-  var tries=[], scales=PH?[1]:[1, .875, .75];
+  var fitsPh=function(){ var v=_dstVis(st), q=st.getBoundingClientRect(), l=lb?lb.getBoundingClientRect():q; return v.left>=RM && v.right<=W-RM+.5 && l.left>=RM && l.right<=W-RM && q.left>=0 && q.right<=W && !_dstHits(card, st, obs, 4); };   // [STICKER_VIS_EDGE] 폰 = 보이는 드레스 · 그림자 · 알약 모두 화면 끝 12px 안 · 둘레 4px
+  var tries=[], scales=PH?[]:[1, .875, .75], MINS=58;   // 보이는 드레스 56px = 그림 칸 58px(투명 여백 3%)
+  if(PH){   // [STICKER_VIS_EDGE] 폰 = 카드 오른쪽 위 모서리에 위 1/3 쯤만 카드 밖 · 오른쪽은 화면 끝 12px 까지 · 알약은 밑단 아래(밑단을 가리는 건 1/4 이하)
+    var SP=Math.max(MINS, S0);
+    [.33, .3, .25, .2, .15].forEach(function(fv){ [.8, .78, .75].forEach(function(pq){ tries.push([SP, -fv*SP-bw, null, 'edge', pq]); }); });
+  }
   scales.forEach(function(k){
-    var S=Math.max(56, Math.round(S0*k));   // 보이는 드레스 56px 아래 금지
+    var S=Math.max(MINS, Math.round(S0*k));   // 보이는 드레스 56px 아래 금지
     tries.push([S, pt, pr, 'in']);                                                        // 안쪽 모서리
     [.25, .33].forEach(function(fv){ [.33, .25, .15, .08, 0].forEach(function(fh){ tries.push([S, -fv*S-bw, -fh*S-bw, 'edge']); }); });   // 위 · 오른쪽 걸침(1/4 → 1/3)
     [0, .25, .5, 1].forEach(function(fd){ [.33, .25, .15, .08].forEach(function(fh){ tries.push([S, fd*pt, -fh*S-bw, 'edge']); }); });     // 오른쪽만 걸침(위 칸 · 진행 점과 붙을 때)
   });
   var ok=null;
-  for(var i=0;i<tries.length && !ok;i++){ put(tries[i][0], tries[i][1], tries[i][2]); if(fits()) ok=tries[i]; }
-  if(!ok){ ok=[0,0,0,'none']; put(tries[1][0], tries[1][1], tries[1][2]); }   // 글은 그대로 · 멈춘다(검사가 빨강으로 알린다)
+  for(var i=0;i<tries.length && !ok;i++){ var T=tries[i];
+    if(T[2]===null){ put(T[0], T[1], 0, T[4]); var r0=Math.ceil(_dstVis(st).right-(W-RM)); put(T[0], T[1], r0, T[4]); if(fitsPh()) ok=T; }   // 화면 끝 12px 에 맞춰 가장 오른쪽
+    else { put(T[0], T[1], T[2], T[4]); if(fits()) ok=T; } }
+  if(!ok){ ok=[0,0,0,'none']; var T0=tries[0]; put(T0[0], T0[1], T0[2]===null?0:T0[2], T0[4]); }   // 글은 그대로 · 멈춘다(검사가 빨강으로 알린다)
   st.setAttribute('data-at', ok[3]);
 }
 var _dstScrolling=false, _dstScrollT=0, _dstSwungOnce=false;
