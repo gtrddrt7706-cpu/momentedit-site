@@ -120,7 +120,7 @@
         tryOn: ['걸을 때 보폭', '앉았을 때 무릎 아래 여유', '팔을 들 때 스트랩리스가 내려가지 않는지'],
         onsite: ['탈부착 케이프', '긴 베일'],
         ex: [{ t: '앞', img: 'd01-front' }, { t: '뒤', img: 'd01-back' }, { t: '디테일', img: 'd01-detail' }], sample: true },
-      { id: 'S02', name: '스타일 예시 02 · 크레이프 A라인 + 케이프', line: 'aline', length: 'ankle', neck: '보트넥', fabric: '크레이프 · 오간자 케이프', expo: 'soft', sleeve: 'bolero',
+      { id: 'S02', name: '스타일 예시 02 · 크레이프 A라인 · 케이프', line: 'aline', length: 'ankle', neck: '보트넥', fabric: '크레이프 · 오간자 케이프', expo: 'soft', sleeve: 'bolero',
         mood: '등 뒤로 떨어지는 오간자 케이프', pair: '케이프 길이 · 짧은 베일', img: 'd02-front',
         intro: '무광 크레이프 A라인에 얇은 오간자 케이프를 더한 단정한 드레스',
         design: '허리를 잡고 아래로 여유 있게 퍼지는 A라인 · 보트넥 · 등 뒤로 떨어지는 탈부착 케이프',
@@ -128,7 +128,7 @@
         tryOn: ['허리선이 몸의 어디에 오는지 옆모습', '케이프를 붙인 모습과 뗀 모습'],
         onsite: ['케이프 길이', '짧은 베일'],
         ex: [{ t: '앞', img: 'd02-front' }, { t: '뒤', img: 'd02-back' }, { t: '디테일', img: 'd02-detail' }], sample: true },
-      { id: 'S03', name: '스타일 예시 03 · 새틴 슬립 + 백 리본', line: 'slip', length: 'ankle', neck: 'V넥(얇은 끈)', fabric: '새틴', expo: 'deep', sleeve: 'none',
+      { id: 'S03', name: '스타일 예시 03 · 새틴 슬립 · 백 리본', line: 'slip', length: 'ankle', neck: 'V넥(얇은 끈)', fabric: '새틴', expo: 'deep', sleeve: 'none',
         mood: '등이 트인 뒤판과 큰 새틴 리본', pair: '얇은 볼레로 · 긴 베일', img: 'd03-front',
         intro: '바이어스 새틴이 몸을 따라 흐르고, 등에 리본 하나로 포인트를 준 슬립',
         design: '몸을 따라 흐르는 슬림 라인 · 얇은 끈 V넥 · 등이 트인 뒤판과 큰 새틴 리본',
@@ -144,7 +144,7 @@
         tryOn: ['밑단이 다리 어디에서 끝나는지', '신발이 보이므로 슈즈와 함께', '소매를 붙인 모습과 뗀 모습'],
         onsite: ['슈즈', '짧은 베일', '헤어 리본'],
         ex: [{ t: '앞', img: 'd04-front' }, { t: '뒤', img: 'd04-back' }, { t: '디테일', img: 'd04-detail' }], sample: true },
-      { id: 'S05', name: '스타일 예시 05 · 미니 + 오버스커트', line: 'aline', length: 'knee', neck: '라운드넥', fabric: '크레이프 · 오간자', expo: 'soft', sleeve: 'none',
+      { id: 'S05', name: '스타일 예시 05 · 미니 · 오버스커트', line: 'aline', length: 'knee', neck: '라운드넥', fabric: '크레이프 · 오간자', expo: 'soft', sleeve: 'none',
         mood: '크레이프 미니에 두르는 롱 오버스커트', pair: '베일 · 굽 높이가 다른 슈즈 두 켤레', img: 'd05-front',
         intro: '깔끔한 크레이프 미니에 탈부착 롱 오버스커트를 두른 두 가지 모습',
         design: '무릎 위 미니 · 허리에 두르는 오간자 오버스커트(짧은 트레인)',
@@ -189,6 +189,8 @@
   R.svg = function (d) { var l = R.line(d && d.line); return l ? l.svg : ''; };
   /* ★[DRESS_TIPS_1024 코워크 · 조사 7절] 결과 «내가 고른 스타일» 아래 고른 답마다 한 줄(최대 3줄 · 추천 · 맞춤 · 약속 말 · 몸 단정 없음) · «방문 전 준비» 네 줄 */
   R.PREP = ['누드톤 심리스 속옷과 끈 없는 브라', '당일과 비슷한 굽의 신발', '마음에 드는 이미지 두세 장', '입어 볼 때 앉기 · 팔 들기 · 걷기 한 번씩'];
+  /* ★[DRESS_NAME_SPLIT 1024 코워크 GPT 2차] 이름 = 작은 보조 줄 «스타일 예시 0n» + 제목(«크레이프 A라인 · 케이프») — 실물 이름은 제목 하나 */
+  R.nameParts = function (d) { var n = String((d && d.name) || ''), m = /^(스타일 예시 \d{2}) · (.+)$/.exec(n); return m ? { kick: m[1], title: m[2] } : { kick: '', title: n }; };
   R.SLEEVE_KO = { none: '없음', sleeve: '소매 있음', bolero: '볼레로' };   // [DRESS_DETAIL_FIELDS] 자세히 «디자인»의 소매 칸
   R.figSrc = function (v) { if (!v) return ''; if (String(v).charAt(0) === '/') return String(v); var l = R.line(v); return l ? l.svg : ''; };   // [DRESS_FORM_1024] 보기 그림 = 경로 또는 라인 key
   /* ★[DRESS_SLIDES 2026-10-23 코워크 검토 4] 자세히에서 넘겨 보는 사진 = 사진(img)이 있는 장만 · 하나도 없으면 대표 사진 한 장(없으면 라인 그림) —

@@ -19998,7 +19998,7 @@ chk 'DRESS_CARD_NUM' mypage.html 1                                         # 카
 nochk 'dr-th-badge' mypage.html 0                                       # [DRESS_STICKER] 카드 Nº 알약은 카드와 함께 걷었다 · 스티커는 «n벌» 알약(.dst-pill)
 chk 'DRESS_CARD_WIDE' mypage.html 1                                        # PC 칸 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px · 폰은 96px 그대로
 chk '@media (min-width:768px){ .dst{--dst-s:112px} }' mypage.html 1       # [STICKER_DECO_1024] 크기 72 · 76 · 80 · 768+ 112px
-chk 'DRESS_FIT_BELOW' dress.html 1                                         # «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않게)
+nochk 'class="dr-fit"' dress.html 0                                   # [DRESS_FIT_BELOW] 은퇴 — «답과 맞아요»는 소제목 «답에 어울리는 드레스»가 대신한다(코워크 GPT 2차 · 칸 = 한 단추 [DRESS_CELL_TAP])
 nochk '벌 둘러보기' mypage.html 0                                          # [DRESS_CARD_MIN] 단추 글은 늘 «드레스 보러 가기»
 chk 'DRESS_DUE_SAME' assets/dress-refs.js 1                                # 바꾸기 마감 한 줄 = 한 곳(R.dueLine) — 카드(1 · 2벌)와 고르기 완료 화면이 같은 말
 nochk 'esc(R.dueLine(S.ymd))' dress.html 0                                   # [DRESS_NO_DEADLINE] 완료 화면 마감 줄을 걷었다
@@ -20051,7 +20051,18 @@ chk 'DRESS_TIPS_1024' dress.html 3                                         # 물
 chk 'DRESS_TIPS_1024' assets/dress-refs.js 1
 chk 'DRESS_TIPS_1024' scripts/audit/dress-refs.mjs 2
 chk 'DRESS_TIPS_1024' scripts/audit/dress-fit.mjs 2
-chk 'class="dr-ex" aria-hidden="true">스타일 예시 이미지' dress.html 1
+chk '<span class="dr-ex">스타일 예시 이미지' dress.html 1                  # [DRESS_PHOTO_CLEAN] 사진 밖 아래 한 줄
+nochk 'class="dr-ex" aria-hidden' dress.html 0
+nochk 'class="dv-cap"' dress.html 0
+chk 'DRESS_CELL_TAP' dress.html 2                                          # ★칸 전체 = 한 단추 · «자세히 보기 ›»(코워크 GPT 2차)
+chk 'DRESS_NAME_SPLIT' dress.html 2
+chk 'DRESS_NAME_SPLIT' assets/dress-refs.js 1
+chk 'DRESS_PHOTO_CLEAN' dress.html 4
+chk 'DRESS_TIPS_FOLD' dress.html 3
+chk 'DRESS_RESULT_COMPACT' dress.html 2
+chk 'DRESS_RESULT_COMPACT' scripts/audit/dress-fit.mjs 3
+chk 'class="dr-cell" data-open=' dress.html 1
+nochk "name: '스타일 예시 0[1-6] · [^']*+" assets/dress-refs.js 0
 chk "img: 'd0[1-6]-front'" assets/dress-refs.js 6
 nochk "name: '표본 " assets/dress-refs.js 0
 nochk "R.img(d,'jpg')" admin.html 0

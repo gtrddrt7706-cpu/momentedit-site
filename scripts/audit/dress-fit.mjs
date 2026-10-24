@@ -103,12 +103,19 @@ try {
     await fr.click('.wz-bar [data-go="1"]'); await geo('물음2');
     await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('물음3');
     await fr.click('.pk-opt[data-a="low"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('결과');
+    { const g = await P.evaluate(() => { const c = document.querySelector('.dr-pop-card').getBoundingClientRect(), f = document.getElementById('mp_drFrame').getBoundingClientRect(); return { ct: c.top, ft: f.top }; });   // ★[DRESS_RESULT_COMPACT] 요약 판 64~72 · 폰 첫 사진 = 창 위 끝에서 250 안 · 살펴볼 점 기본 접힘
+      const k = await fr.evaluate(() => ({ mh: Math.round(document.querySelector('.pk-mine').getBoundingClientRect().height), pt: document.querySelector('.pk-grid .dr-pv').getBoundingClientRect().top, folded: !!(document.getElementById('pkTips') && document.getElementById('pkTips').hidden), btn: !!document.querySelector('.pk-grid button.dr-cell[data-open] .dr-go') }));
+      if (k.mh < 64 || k.mh > 72) no(`${tag} «내가 고른 스타일» 높이 ${k.mh} — 64~72 [DRESS_RESULT_COMPACT]`);
+      if (W < 560 && g.ft + k.pt - g.ct > 250) no(`${tag} 첫 사진이 창 위 끝에서 ${Math.round(g.ft + k.pt - g.ct)}px — 250 안 [DRESS_RESULT_COMPACT]`);
+      if (!k.folded) no(`${tag} 살펴볼 점이 처음부터 펼쳐져 있다 [DRESS_TIPS_FOLD]`);
+      if (!k.btn) no(`${tag} 칸 전체 단추 · «자세히 보기 ›»가 없다 [DRESS_CELL_TAP]`);
+      rows.push(`${tag} 요약 ${k.mh} · 첫 사진 ${Math.round(g.ft + k.pt - g.ct)}`); }
     { const r = await fr.evaluate(() => ({ tips: document.querySelectorAll('.pk-mine ~ .pk-tips li, .pk-tips li').length, prep: document.querySelectorAll('.pk-end-dots.pk-prep .pk-prep-h ~ .dotln').length - 2, one: document.querySelectorAll('.pk-end-dots').length }));   // ★[DRESS_TIPS_1024]
       if (r.tips !== 3) no(`${tag} 결과 살펴볼 점 ${r.tips}줄 — 고른 답 셋이면 세 줄 [DRESS_TIPS_1024]`);
       if (r.prep !== 4 || r.one !== 1) no(`${tag} 방문 전 준비 ${r.prep}줄 · 덩어리 ${r.one} — 안내 두 줄과 한 덩어리 네 줄 [DRESS_TIPS_1024 · DRESS_FORM_FIX3]`); }
     await expand(fr); await P.waitForTimeout(500); await geo('다른 드레스');
     await fr.evaluate(() => document.querySelector('.pk-main [data-open]').click()); await geo('자세히');
-    { await P.waitForTimeout(400); const r = await fr.evaluate(async () => { const im = document.querySelector('.dv-sl img'); if (im && !im.complete) await new Promise((ok) => { im.onload = im.onerror = ok; setTimeout(ok, 3000); }); const ex = document.querySelector('.dv-sl .dr-ex'); return { w: im ? im.naturalWidth : 0, ex: ex ? ex.textContent : '', exV: ex ? ex.getBoundingClientRect().width > 0 : false, n: document.querySelectorAll('.dv-sl').length }; });   // ★[DRESS_SAMPLE_V2] 사진 · 표시
+    { await P.waitForTimeout(400); const r = await fr.evaluate(async () => { const im = document.querySelector('.dv-sl img'); if (im && !im.complete) await new Promise((ok) => { im.onload = im.onerror = ok; setTimeout(ok, 3000); }); const ex = document.querySelector('.dv-meta .dr-ex'); return { w: im ? im.naturalWidth : 0, ex: ex ? ex.textContent : '', exV: ex ? ex.getBoundingClientRect().width > 0 : false, n: document.querySelectorAll('.dv-sl').length }; });   // ★[DRESS_SAMPLE_V2] 사진 · 표시
       if (r.w !== 600) no(`${tag} 자세히 사진이 안 그려졌다(폭 ${r.w}) [DRESS_SAMPLE_V2]`);
       if (r.ex !== '스타일 예시 이미지' || !r.exV) no(`${tag} 자세히 사진에 «스타일 예시 이미지» 표시가 없다 [DRESS_SAMPLE_V2]`);
       if (r.n !== 3) no(`${tag} 넘겨 보는 사진 ${r.n}장 — 앞 · 뒤 · 디테일 셋 [DRESS_SAMPLE_V2]`); }
