@@ -468,7 +468,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const bq = (R.acc.find((a) => a.id === 'bouquet') || {}).note || '', sh = (R.acc.find((a) => a.id === 'shoes') || {}).note || '';
   t(/저희가 준비해요/.test(bq) && /별도 비용/.test(bq) && !/\d/.test(bq) && sh === '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요' && R.ACC_LEAD === '드레스 · 면사포 · 주얼리 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.', '⑰ [DRESS_ACC_1024 · ACC_SHOES_STUDIO] 부케 글(저희가 준비 · 생화 별도 · 금액 없음) · 슈즈는 스튜디오가 준비(사장님 1024) · 소제목 한 줄에 슈즈');
   const acc = (/function accHTML\(\)\{([\s\S]*?)\n  \}/.exec(PAGE) || [])[1] || '';
-  t(!!acc && !/<button|data-act|data-open|onclick/.test(acc) && /스타일 예시 이미지/.test(acc) && /class="pk-accp"/.test(PAGE) && /\.pk-accp\{display:block;aspect-ratio:1\/1;/.test(PAGE) && /@media \(min-width:560px\)\{ \.pk-accg\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\} \}/.test(PAGE), '⑰ [DRESS_ACC_1024] 소품 칸 = 누름 · 고르기 없음 · «스타일 예시 이미지» · 사진 1:1 · 560+ 3열');
+  t(!!acc && /id="pkAccH" tabindex="-1">함께 보는 소품 · 부케<\/h3>/.test(acc) && !/<button|data-act|data-open|onclick/.test(acc) && /스타일 예시 이미지/.test(acc) && /class="pk-accp"/.test(PAGE) && /\.pk-accp\{display:block;aspect-ratio:1\/1;/.test(PAGE) && /@media \(min-width:560px\)\{ \.pk-accg\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\} \}/.test(PAGE), '⑰ [DRESS_ACC_1024] 소품 소제목 «함께 보는 소품 · 부케» · 칸 = 누름 · 고르기 없음 · «스타일 예시 이미지» · 사진 1:1 · 560+ 3열');
   t(/'<div class=\"pk-subrow\"><h3 class=\"pk-sub-h\">답에 어울리는 드레스 · ' \+ sp\.front\.length \+ '벌<\/h3>' \+ accJumpHTML\(\) \+ '<\/div>/.test(PAGE) && /data-act="more">다른 드레스도 살펴보기<\/button>';\n    h \+= accHTML\(\);/.test(PAGE) && /if \(act === 'acc'\)/.test(PAGE) && /소품 · 부케 보기 <span aria-hidden="true">&rsaquo;<\/span>/.test(PAGE), '⑰ [DRESS_ACC_1024] 자리 = 요약 판 아래 이동 줄 · «다른 드레스도 살펴보기» 아래 · «방문 전 준비» 위');
   return { bad, okn };
 }
@@ -640,6 +640,7 @@ if (process.argv.includes('--selftest')) {
     ['부케 글에 금액', SRC.replace("생화를 원하시면 별도 비용이에요", "생화는 15만 원부터예요"), GAS, PAGE0],
     ['소품 칸이 고르기 단추로', SRC, GAS, PAGE0.replace("return '<div class=\"pk-acci\">", "return '<div class=\"pk-acci\" data-act=\"pick\">")],
     ['소품 덩어리가 결과에서 빠짐', SRC, GAS, PAGE0.replace("    h += accHTML();", "")],
+    ['소품 소제목에서 «부케»가 빠짐', SRC, GAS, PAGE0.replace('함께 보는 소품 · 부케</h3>', '함께 보는 소품</h3>')],
     ['소품 칸 이름 바뀜', SRC.replace("name: '긴 면사포'", "name: '롱 베일'"), GAS, PAGE0],
     ['단계 숫자를 지움', SRC, GAS, PAGE0.replace("var nm = (i + 1) + '/' + STEPS.length + ' · ' + String(n).replace(/ · /g, '·');", "var nm = n;")],
   ];

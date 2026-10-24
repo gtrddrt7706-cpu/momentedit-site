@@ -626,7 +626,7 @@ span.dr-pv{cursor:inherit}
        누름 없음(사진 크게 보기 방식이 없다) · 고르기 없음([DRESS_GUIDE_ONLY]) · 목록은 DRESS_REFS.accList 한 곳(ACC_ON · 칸마다 on) */
   function accHTML(){
     var a = R.accList ? R.accList() : []; if (!a.length) return '';
-    return '<section class="pk-acc" id="pkAcc" aria-labelledby="pkAccH"><h3 class="pk-sub-h" id="pkAccH" tabindex="-1">함께 보는 소품</h3>'
+    return '<section class="pk-acc" id="pkAcc" aria-labelledby="pkAccH"><h3 class="pk-sub-h" id="pkAccH" tabindex="-1">함께 보는 소품 · 부케</h3>'
       + (R.ACC_LEAD ? '<p class="pk-sub-s">' + esc(R.ACC_LEAD) + '</p>' : '')
       + '<div class="pk-accg">' + a.map(function(x){
         return '<div class="pk-acci"><span class="pk-accp"><img src="/assets/dress-refs/' + esc(x.img) + '.webp" alt="" width="480" height="480" loading="lazy" decoding="async"></span>'
