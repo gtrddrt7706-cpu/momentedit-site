@@ -445,7 +445,8 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/R\.SLEEVE_KO = \{ none: '없음', sleeve: '소매 있음', bolero: '볼레로' \}/.test(SRC) && /DRESS_DETAIL_FIELDS/.test(SRC) && /\.filter\(function\(r\)\{ return r\[1\]; \}\)/.test(PAGE) && /if \(!onsite\.length && d\.pair\)/.test(PAGE) && /\.slice\(0, 2\)/.test(PAGE), '⑮ [DRESS_DETAIL_FIELDS] 자세히 칸(한 줄 소개 · 허리선 · 입어 보며 확인해요 · 현장에서 함께 볼 것 · 함께 살펴볼 드레스 1~2벌)은 비면 줄째 없다 · 소매는 sleeve 값에서');
   /* ★[DRESS_TIPS_1024 · DRESS_SAMPLE_V2] 물음별 살펴볼 점 · 방문 전 준비 · «스타일 예시 이미지» 표시 */
   t(R.questions.every((q) => q.opts.every((o) => q.tips && typeof q.tips[o[0]] === 'string' && q.tips[o[0]].length > 10)) && /out = out\.slice\(0, 3\);/.test(PAGE) && /\+ tipsHTML\(\)/.test(PAGE) && !R.questions.some((q) => Object.values(q.tips || {}).some((x) => /추천|맞춤|체형|커버|피하세요|어울려요/.test(x))), '⑮ [DRESS_TIPS_1024] 결과 «내가 고른 스타일» 아래 고른 답마다 살펴볼 점 한 줄(보기 아홉 모두 · 최대 3줄 · 추천 · 맞춤 · 몸 단정 없음)');
-  t(Array.isArray(R.PREP) && R.PREP.length === 4 && /<p class="pk-prep-h">방문 전 준비<\/p>/.test(PAGE) && PAGE.indexOf("'<div class=\"pk-prep\">") < PAGE.indexOf('return h + GUIDE_END;'), '⑮ [DRESS_TIPS_1024] 결과 맨 아래 안내 줄 위 «방문 전 준비» 네 줄');
+  t(Array.isArray(R.PREP) && R.PREP.length === 4 && /<p class="pk-prep-h">방문 전 준비<\/p>/.test(PAGE) && /return h \+ GUIDE_END\.replace\('<div class="pk-end-dots">', '<div class="pk-end-dots pk-prep">' \+ prep\);/.test(PAGE) && /'<p class="dotln">' \+ esc\(x\) \+ '<\/p>'/.test(PAGE), '⑮ [DRESS_TIPS_1024 · DRESS_FORM_FIX3] «방문 전 준비» 네 줄 = 맨 아래 안내 두 줄과 같은 점 줄 한 덩어리(소제목만 작게)');
+  t(/@media \(hover:hover\)\{\.pk-opt:hover\{border-color:var\(--gold\)\}\}/.test(PAGE) && !/\n\.pk-opt:hover\{/.test(PAGE) && /\.pk-opts\.figs\.figs3\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\}/.test(PAGE) && !/has-fig:last-child:nth-child\(odd\)/.test(PAGE), '⑮ [DRESS_FORM_FIX3] PC 그림 보기 셋 = 3열 한 줄 · 폰은 손을 뗀 뒤 금빛 테가 남지 않는다(hover 는 마우스만)');
   t(/<span class="dr-ex" aria-hidden="true">스타일 예시 이미지<\/span>/.test(PAGE) && /\(d && d\.sample \?/.test(PAGE) && /\.dr-ex\{position:absolute;right:6px;bottom:6px;[^}]*background:var\(--card-white\);[^}]*font-size:11px/.test(PAGE), '⑮ [DRESS_SAMPLE_V2] 스타일 예시 사진에 «스타일 예시 이미지»(11px · 흰 바탕 · 오른쪽 아래 · 실물이 오면 sample 이 빠져 사라진다)');
   t(qOf('pref').sub === '해당하는 것을 모두 골라 주세요.', '⑮ [DRESS_Q3_SUB · DRESS_Q_FIRST · DRESS_FORM_1024] 셋째 물음 보조 글 «해당하는 것을 모두 골라 주세요.»');
   return { bad, okn };
@@ -557,6 +558,8 @@ if (process.argv.includes('--selftest')) {
     ['«스타일 예시 이미지» 표시를 뺌', SRC, GAS, PAGE0.replace('<span class="dr-ex" aria-hidden="true">스타일 예시 이미지</span>', '')],
     ['살펴볼 점에 «체형»', SRC.replace('흔히 무난하다고 이야기하는 라인이에요.', '흔히 많은 체형에 무난하다고 이야기해요.'), GAS],
     ['방문 전 준비가 세 줄', SRC.replace(", '입어 볼 때 앉기 · 팔 들기 · 걷기 한 번씩'];", "];"), GAS],
+    ['폰에서 hover 테가 다시 남는다', SRC, GAS, PAGE0.replace('@media (hover:hover){.pk-opt:hover{border-color:var(--gold)}}', '.pk-opt:hover{border-color:var(--gold)}')],
+    ['PC 보기 셋이 다시 2열', SRC, GAS, PAGE0.replace('.pk-opts.figs.figs3{grid-template-columns:repeat(3,minmax(0,1fr))}', '.pk-opts.figs.figs3{}')],
     ['폼 보기 칸이 다시 눌러 작아진다', SRC, GAS, PAGE0.replace('.pk-opt:active{transform:none;background:var(--bg)}', '.pk-opt:active{transform:scale(.98);background:var(--bg)}')],
     ['막대 주 단추가 다시 갈색', SRC, GAS, PAGE0.replace('{background:var(--seal);color:#fff}', '{background:#4E3F31;color:#fff}')],
     ['표본 분위기 글이 라인 설명을 되풀이', SRC.replace("mood: '등 뒤로 떨어지는 오간자 케이프'", "mood: '허리에서 아래로 가볍게 퍼지는 실루엣'"), GAS],

@@ -177,7 +177,7 @@ html.pk-pop .pk-head-n{font-size:13px}
 .pk-qsub{font-size:13px;color:var(--light);line-height:1.7;margin-top:4px}
 .pk-opts{display:flex;flex-direction:column;gap:8px;margin-top:18px}
 .pk-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:14px;font-weight:400;color:var(--sub);text-align:left;cursor:pointer;transition:border-color .2s var(--ease),background .2s var(--ease),color .2s var(--ease),transform .12s ease;-webkit-tap-highlight-color:transparent}
-.pk-opt:hover{border-color:var(--gold)}
+@media (hover:hover){.pk-opt:hover{border-color:var(--gold)}}   /* ★[DRESS_FORM_FIX3 코워크 1024 · 2] 폰은 손가락을 뗀 뒤에도 :hover 가 남아 고르기 전부터 금빛 테로 보였다 — 마우스가 있을 때만 · 키보드 초점은 :focus-visible
 .pk-opt[aria-pressed="true"]{border-color:var(--gold-deep);background:var(--gold-bg);color:var(--text)}   /* [SEL_ONE] 카드 고름 = 짙은 금빛 테 + 옅은 금빛 바탕 */
 .pk-opt:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
 .pk-mk{flex:0 0 auto;width:18px;height:18px;border:1px solid var(--border);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff}
@@ -324,7 +324,8 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   .pk-opts.figs .pk-opt.has-fig .pk-mk{position:absolute;top:12px;left:12px}
   .pk-opts.figs .pk-opt.has-fig .pk-ofig{width:48px;height:64px}
   .pk-opts.figs .pk-opt.no-fig{grid-column:1 / -1}
-  .pk-opts.figs .pk-opt.has-fig:last-child:nth-child(odd){grid-column:1 / -1;justify-self:center;width:calc(50% - 6px)}   /* 보기 셋 = 둘 + 가운데 하나(한 칸이 왼쪽에 홀로 남지 않게) */
+  .pk-opts.figs.figs3{grid-template-columns:repeat(3,minmax(0,1fr))}   /* ★[DRESS_FORM_FIX3 코워크 1024 · 1] 그림 보기 셋(길이 · 라인) = 3열 한 줄 · 물음 3 은 그림 둘 + «특별한 선호는 없어요» 가로 한 줄 그대로 */
+  .pk-opts.figs.figs3 .pk-opt.has-fig{padding-left:10px;padding-right:10px}   /* 보기 셋 = 둘 + 가운데 하나(한 칸이 왼쪽에 홀로 남지 않게) */
 }
 /* 막대 — 폰 72 + 안전 여백 · PC 80 · 단추 높이 48 · «이전» 폰 80 · PC 100 · 진사는 주 단추(«다음 · 드레스 보기»)만 · 답 전엔 옅게 그대로 */
 .wz-bar .cc-btn,.wz-bar .cc-btn-ghost{height:48px;padding-top:0;padding-bottom:0;display:flex;align-items:center;justify-content:center;border-radius:8px}
@@ -375,9 +376,8 @@ html.pk-pop .pk-head{margin:0 -20px 12px;padding:6px 8px 6px 20px}
 .pk-tips li{position:relative;padding-left:13px;font-size:13px;color:var(--text);line-height:1.7;word-break:keep-all}
 .pk-tips li + li{margin-top:4px}
 .pk-tips li::before{content:'';position:absolute;left:0;top:calc(.85em - 2.5px);width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
-.pk-prep{margin:28px 0 0;padding-top:16px;border-top:1px solid var(--hairline)}
-.pk-prep-h{font-size:13px;font-weight:500;color:var(--gold-text);letter-spacing:0.04em;line-height:1.6;margin-bottom:6px}
-.pk-prep .dv-ul li{font-size:13px}
+.pk-prep-h{font-size:12px;font-weight:500;color:var(--gold-text);letter-spacing:0.04em;line-height:1.6;margin-bottom:2px}
+.pk-end-dots .pk-prep-h + .dotln{margin-top:0}
 .dv-reld{margin-top:-8px;font-size:13px;color:var(--light);line-height:1.6}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;scroll-behavior:auto!important} html.pk-pop .pk-main.pk-fade{animation:none} }
 </style>
@@ -552,7 +552,7 @@ html.pk-pop .pk-head{margin:0 -20px 12px;padding:6px 8px 6px 20px}
     }).join('');
     return (i === 0 ? '<p class="pk-intro">상담 전, 마음에 드는 스타일을 살펴보세요.</p>' : '')   // ★[DRESS_INTRO_LINE · DRESS_FORM_1024 코워크] 무엇을 하는 화면인지 한 줄(추천 · 맞춤 말 없음)
       + stepsHTML(i) + '<h2 class="pk-q" id="pkQ" data-head tabindex="-1">' + esc(q.q) + '</h2>' + (q.sub ? '<p class="pk-qsub">' + esc(q.sub) + '</p>' : '')
-      + '<div class="pk-opts' + (multi ? ' multi' : '') + (figs ? ' figs' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
+      + '<div class="pk-opts' + (multi ? ' multi' : '') + (figs ? ' figs' : '') + (figs && q.opts.every(function(o){ return !!R.figSrc(figs[o[0]]); }) && q.opts.length === 3 ? ' figs3' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
       ;   // ★[DRESS_Q_FIRST] 물음 아래 «드레스 바로 보기 ›»는 걷었다 — 답해야 결과로 간다
   }
   /* [DRESS_LIST_FIRST] 고른 답의 글을 잇는다 — «발목까지 · 몸 선을 따라 · 노출이 적은 드레스»(물음 순서 · 답 순서 · 건너뛰기는 빼고) */
@@ -606,7 +606,9 @@ html.pk-pop .pk-head{margin:0 -20px 12px;padding:6px 8px 6px 20px}
     h += gridHTML(sp.front);
     if (sp.rest.length) h += sp.open ? '<h3 class="pk-sub-h">다른 드레스</h3>' + gridHTML(sp.rest)
                                      : '<button type="button" class="cc-btn-ghost pk-more" data-act="more">다른 드레스도 살펴보기</button>';
-    h += (R.PREP && R.PREP.length ? '<div class="pk-prep"><p class="pk-prep-h">방문 전 준비</p><ul class="dv-ul">' + R.PREP.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>' : '');   // ★[DRESS_TIPS_1024] 맨 아래 안내 줄 위
+    /* ★[DRESS_FORM_FIX3 코워크 1024 · 3] «방문 전 준비» 넷과 맨 아래 안내 두 줄 = 같은 점 줄 한 덩어리(소제목만 작게) */
+    var prep = (R.PREP && R.PREP.length) ? '<p class="pk-prep-h">방문 전 준비</p>' + R.PREP.map(function(x){ return '<p class="dotln">' + esc(x) + '</p>'; }).join('') : '';
+    if (prep) return h + GUIDE_END.replace('<div class="pk-end-dots">', '<div class="pk-end-dots pk-prep">' + prep);   // ★[DRESS_TIPS_1024] 맨 아래 안내 줄 위
     return h + GUIDE_END;   // [DRESS_NO_DEADLINE] 카드에서 옮긴 한 줄 · [DRESS_MEMO_DONE] 남길 말은 완료 화면
   }
   function detailPickHTML(){

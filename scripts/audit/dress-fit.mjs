@@ -103,9 +103,9 @@ try {
     await fr.click('.wz-bar [data-go="1"]'); await geo('물음2');
     await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('물음3');
     await fr.click('.pk-opt[data-a="low"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('결과');
-    { const r = await fr.evaluate(() => ({ tips: document.querySelectorAll('.pk-mine ~ .pk-tips li, .pk-tips li').length, prep: document.querySelectorAll('.pk-prep li').length }));   // ★[DRESS_TIPS_1024]
+    { const r = await fr.evaluate(() => ({ tips: document.querySelectorAll('.pk-mine ~ .pk-tips li, .pk-tips li').length, prep: document.querySelectorAll('.pk-end-dots.pk-prep .pk-prep-h ~ .dotln').length - 2, one: document.querySelectorAll('.pk-end-dots').length }));   // ★[DRESS_TIPS_1024]
       if (r.tips !== 3) no(`${tag} 결과 살펴볼 점 ${r.tips}줄 — 고른 답 셋이면 세 줄 [DRESS_TIPS_1024]`);
-      if (r.prep !== 4) no(`${tag} 방문 전 준비 ${r.prep}줄 — 네 줄 [DRESS_TIPS_1024]`); }
+      if (r.prep !== 4 || r.one !== 1) no(`${tag} 방문 전 준비 ${r.prep}줄 · 덩어리 ${r.one} — 안내 두 줄과 한 덩어리 네 줄 [DRESS_TIPS_1024 · DRESS_FORM_FIX3]`); }
     await expand(fr); await P.waitForTimeout(500); await geo('다른 드레스');
     await fr.evaluate(() => document.querySelector('.pk-main [data-open]').click()); await geo('자세히');
     { await P.waitForTimeout(400); const r = await fr.evaluate(async () => { const im = document.querySelector('.dv-sl img'); if (im && !im.complete) await new Promise((ok) => { im.onload = im.onerror = ok; setTimeout(ok, 3000); }); const ex = document.querySelector('.dv-sl .dr-ex'); return { w: im ? im.naturalWidth : 0, ex: ex ? ex.textContent : '', exV: ex ? ex.getBoundingClientRect().width > 0 : false, n: document.querySelectorAll('.dv-sl').length }; });   // ★[DRESS_SAMPLE_V2] 사진 · 표시
@@ -120,7 +120,7 @@ try {
     if (steps.some((x) => x.pick)) no(`${tag} 고르기 · 저장 · Nº 가 보인다 [DRESS_GUIDE_ONLY]`);
     { const BH = W < 560 ? 72 : 80; if (q.some((x) => Math.abs(x.bh - BH) > 0.5)) no(`${tag} 막대 높이 ${q.map((x) => x.bh).join(' ')} — ${BH} 이 아니다 [DRESS_FORM_1024]`); }
     const GL = '마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.|상담 날 이 화면을 보여 주셔도 좋아요.';
-    if (!steps.filter((x) => /결과|자세히/.test(x.nm)).every((x) => x.guide === GL)) no(`${tag} 결과 · 자세히 맨 아래 안내 한 줄이 아니다 [DRESS_GUIDE_ONLY]`);
+    if (!steps.filter((x) => /결과|자세히/.test(x.nm)).every((x) => x.guide === GL || x.guide.endsWith('|' + GL))) no(`${tag} 결과 · 자세히 맨 아래 안내 한 줄이 아니다 [DRESS_GUIDE_ONLY]`);
     if (steps[0].steps.join(' ') !== '1/3 · 길이 2/3 · 라인 3/3 · 노출·소매') no(`${tag} 단계 숫자 «1/3 · 길이» 꼴이 아니다 ${steps[0].steps.join(' ')} [DRESS_STEP_NUM]`);
     if (steps[0].intro !== '상담 전, 마음에 드는 스타일을 살펴보세요.') no(`${tag} 첫 물음 목적 한 줄이 아니다 [DRESS_INTRO_LINE]`);
     if (steps[2].q !== '어떤 라인이 마음에 드세요?') no(`${tag} 물음 2 가 «어떤 라인이 마음에 드세요?»가 아니다 [DRESS_Q2_LINE]`);

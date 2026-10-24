@@ -20055,6 +20055,9 @@ chk 'class="dr-ex" aria-hidden="true">스타일 예시 이미지' dress.html 1
 chk "img: 'd0[1-6]-front'" assets/dress-refs.js 6
 nochk "name: '표본 " assets/dress-refs.js 0
 nochk "R.img(d,'jpg')" admin.html 0
+chk 'DRESS_FORM_FIX3' dress.html 3                                         # PC 그림 보기 셋 3열 · 폰 hover 테 없음 · 방문 전 준비 + 안내 두 줄 한 덩어리(코워크 0bd5416 실측)
+chk 'DRESS_FORM_FIX3' scripts/audit/dress-refs.mjs 2
+chk '@media (hover:hover){.pk-opt:hover{border-color:var(--gold)}}' dress.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
