@@ -20062,6 +20062,7 @@ chk 'DRESS_TIPS_FOLD' dress.html 3
 chk 'DRESS_RESULT_COMPACT' dress.html 2
 chk 'DRESS_RESULT_COMPACT' scripts/audit/dress-fit.mjs 3
 chk 'class="dr-cell" data-open=' dress.html 1
+chk '--photo-bg:#B19E8C;' dress.html 1                                     # [DRESS_GREIGE] 사진 칸 바탕 = 그레이지 사진 배경(받는 동안 깜빡임 없음)
 nochk "name: '스타일 예시 0[1-6] · [^']*+" assets/dress-refs.js 0
 chk "img: 'd0[1-6]-front'" assets/dress-refs.js 6
 nochk "name: '표본 " assets/dress-refs.js 0

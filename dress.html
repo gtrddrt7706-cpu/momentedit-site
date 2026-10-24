@@ -41,6 +41,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   --text:#1C1B19;--sub:#5A554C;--light:#6E6959;--label-soft:#6F695D;
   --gold:#B89A75;--gold-text:#7A5F37;--gold-deep:#7A5F37;--gold-bg:#FAF6EF;
   --accent:#3A2D22;--seal:#6B2A24;
+  --photo-bg:#B19E8C;   /* ★[DRESS_GREIGE 1024 사장님 «B 그레이지 무봉»] 사진 칸 바탕(받는 동안) = 사진 배경 그레이지 실측값(브라우저에서 18장 바탕 평균 #AC9887 ~ 위쪽 #B3A08F · 코워크 안 #CFC6BA 는 실제 파일보다 밝아 뜰 때 한 번 어두워졌다) — 아이보리였으면 깜빡였다 */
   --border:#DDD8D1;--hairline:rgba(28,27,25,0.14);--card-white:#FFFFFF;
   --serif:'Cormorant Garamond',Georgia,serif;
   --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
@@ -61,7 +62,7 @@ img{max-width:100%}
 /* 드레스 칸 — 사진 3:4 · 이름 · 한 줄. 사진이 비면 그 라인의 그림이 사진 자리에 선다(이름은 아래 한 번만) */
 .dr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 14px;margin:18px 0 0}
 .dr-cell{position:relative;min-width:0}
-.dr-pv{position:relative;display:block;width:100%;aspect-ratio:3/4;margin:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:var(--bg2);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dr-pv{position:relative;display:block;width:100%;aspect-ratio:3/4;margin:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:var(--photo-bg,#B19E8C);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .dr-pv picture,.dr-pv picture img{display:block;width:100%;height:100%}
 .dr-pv picture img{object-fit:cover}
 .dr-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
@@ -78,7 +79,7 @@ img{max-width:100%}
 .dv{display:block}
 .dv-view{position:relative;max-width:400px;margin:0 auto;width:100%}
 .dv-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;list-style:none;border-radius:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
-.dv-sl{position:relative;flex:0 0 100%;aspect-ratio:3/4;scroll-snap-align:start;background:var(--bg2)}
+.dv-sl{position:relative;flex:0 0 100%;aspect-ratio:3/4;scroll-snap-align:start;background:var(--photo-bg,#B19E8C)}
 .dv-sl picture,.dv-sl picture img{display:block;width:100%;height:100%}
 .dv-sl picture img{object-fit:cover}
 .dv-sl .dr-ph img{object-fit:contain}
