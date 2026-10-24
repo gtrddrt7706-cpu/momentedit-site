@@ -19850,7 +19850,7 @@ chk '<button type="button" class="dst" data-dst aria-label="드레스 미리 보
 chk "var DST = dressOn ? _dstHtml(c.dress) : '';" mypage.html 1              # 판정은 [DRESS_CARD_ON] 그대로(_dressCardOn 한 곳)
 chk "  _dstWire(box, d, demo);   // .DRESS_STICKER." mypage.html 1
 chk '.dst.is-sw .dst-sw{animation:dstSwing 2.8s ease-in-out 1}' mypage.html 1    # 흔들림은 처음 한 번(끝없이 · 다시 흔들지 않는다) [STICKER_FINISH_1024]
-chk "matchMedia('(hover: hover) and (pointer: fine)').matches) st.addEventListener('mouseenter'" mypage.html 1   # 터치 기기는 마우스 흔들림 없음
+nochk "st.addEventListener('mouseenter'" mypage.html 0    # [STICKER_FINISH_1024] 마우스 올림 흔들림은 걷었다(흔들림은 처음 한 번 · 올림 = 위로 1px · 그림자) — 코워크 마감 지시
 chk 'DRESS_STICKER' scripts/audit/dress-refs.mjs 10
 chk 'DRESS_STICKER_ART' mypage.html 2                                   # 그림 = 코워크 유화 스티커(112 · 128 · 176 × webp · png) · 흰 테두리는 그림에 · 축 49% 2%
 chk 'transform-origin:49% 2%' mypage.html 1
