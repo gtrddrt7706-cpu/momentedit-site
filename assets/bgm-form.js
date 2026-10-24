@@ -30,13 +30,16 @@
     return {onOf:onOf, seq:sq, freeKind:fk, nameOf:function(k){ try{ return R?R.nameOf(k,St()):k; }catch(x){ return k; } }}; }
 
   /* ── ② 순간 쪽 «고르기» 칸 음악 줄 — 축사 · 편지만(이름표 «축사 음악 · 편지 음악» [BGM_R1_1023]) ── */
-  function rowHtml(k){ var v=B.viewOf(k,opt()); if(!v||v.kind!=='pick') return '';
+  /* ★[BGM_PREVIEW_1024] 구간 곡 줄(assets/bgm-bed.js · 이 순간이 첫 담긴 순간인 구간) + 축사 · 편지 칩 줄(«음악과 함께» 아래 곡 고르기) */
+  function rowHtml(k){ var bd=''; try{ if(window.BgmBed) bd=BgmBed.rowHtml(k); }catch(x){} return bd+pickRow(k); }
+  function pickRow(k){ var v=B.viewOf(k,opt()); if(!v||v.kind!=='pick') return '';
     var gl=(v.s.short||'')+' 음악';
     var h='<div class="ls-cg ls-bgm" role="radiogroup" aria-label="'+e(gl)+'" data-k="'+e(k)+'" data-slot="'+v.s.id+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span>';
     var s=v.s, g=B.get(St(),s.id), pr=g.set?g.m:(TOUCH[s.id]||'');
     return h+'<span class="cg-c">'+s.picks.map(function(p,i){ var on=pr===p;
         return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!pr&&i===0))?0:-1)+'" data-fk="bgm:'+s.id+':'+p+'" onclick="bgmAct(\'pick\',\''+s.id+'\',\''+p+'\')">'+chipT(B.label(s,p))+'</button>'; }).join('')
-      +'<span class="bgm-note">'+e(pr?B.lineOf(s,g.m):(B.lineOf(s,'unset')||B.lineOf(s,g.m)))+'</span></span></div>'; }   /* [BGM_R4_1023] 아직 안 눌렀으면 «고르지 않으시면 …»(기본을 말한다 · 칩은 안 눌린 모양 그대로) */
+      +'<span class="bgm-note">'+e(pr?B.lineOf(s,g.m):(B.lineOf(s,'unset')||B.lineOf(s,g.m)))+'</span>'+subOf(s.id,k)+'</span></div>'; }
+  function subOf(id,k){ try{ return window.BgmBed?BgmBed.subHtml(id,k):''; }catch(x){ return ''; } }   /* [BGM_PREVIEW_1024] «음악과 함께»면 그 아래 곡 고르기 — 칩 칸(.cg-c) 안 · 칩과 같은 열(PC 이름표 120px 오른쪽) */   /* [BGM_R4_1023] 아직 안 눌렀으면 «고르지 않으시면 …»(기본을 말한다 · 칩은 안 눌린 모양 그대로) */
 
   /* ── ② 순간 쪽 «흐름» 음악 줄 [BGM_R1_1023] — 고를 것이 없는 안내 한 줄 · 채운 점 줄(li.q[data-bgm] · 입장 «음악에 맞춰 걸어 들어와요»와 같은 꼴) ·
      st = 빌더 엔진 줄(_lSteps) · at = «이 번호 줄 앞에»(0 맨 앞 · st.length 맨 뒤) · ▶ 가 없어 줄 수 · 듣기 차례에 끼지 않는다 ── */
@@ -52,7 +55,7 @@
   /* 이 칸만 다시 — 빌더 render() 는 흐르던 소리를 끈다 · 줄 하나만 바꾸고 칩 칸 맞춤(_cgEven)은 쪽 전체로(입장 음악 MU_REDRAW_EVEN_1019 와 같다) */
   function redraw(id,fx){ var row=D.querySelector('.ls-bgm[data-slot="'+id+'"]');
     if(!row){ try{ if(typeof render==='function') render(); }catch(x){} return; }
-    var t=D.createElement('div'); t.innerHTML=rowHtml(row.getAttribute('data-k')); var nw=t.firstChild; if(!nw) return; row.parentNode.replaceChild(nw,row);
+    var t=D.createElement('div'); t.innerHTML=pickRow(row.getAttribute('data-k')); var nw=t.firstChild; if(!nw) return; row.parentNode.replaceChild(nw,row);   /* [BGM_PREVIEW_1024] 칩 줄만(구간 곡 줄은 그대로) */
     try{ if(typeof _cgEven==='function') _cgEven(); }catch(x){}
     var fq=D.querySelector('.mk-flow > li[data-bgm="'+id+'"] .qa'), s5=B.slot(id); if(fq&&s5&&s5.flow) fq.textContent=talkLine(s5);   /* [BGM_R5_1023] 흐름 음악 줄도 같이 */
     if(fx){ var f=D.querySelector(fx); if(f) try{ f.focus({preventScroll:true}); }catch(x){} } }
@@ -61,8 +64,8 @@
   function act(kind,id,v){ var s=B.slot(id); if(kind!=='pick'||!s||s.picks.indexOf(v)<0) return;
     var S=St(), g=B.get(S,id), pr=g.set?g.m:(TOUCH[id]||''); if(pr===v) return;   /* 이미 고른 칩은 그대로(CHIP_NO_REPLAY 와 같다) */
     TOUCH[id]=v;
-    if(v==='bed'){ S.bgm=B.clean(S.bgm)||{}; S.bgm[id]={m:'bed'}; }
-    else { var c=B.clean(S.bgm); if(c) delete c[id]; S.bgm=B.clean(c); if(!S.bgm) delete S.bgm; }
+    if(v==='bed'){ S.bgm=B.clean(S.bgm)||{}; S.bgm[id]={m:'bed'}; try{ if(window.BgmBed) BgmBed.hush(); }catch(x){} }
+    else { var c=B.clean(S.bgm); if(c) delete c[id]; S.bgm=B.clean(c); if(!S.bgm) delete S.bgm; try{ if(window.BgmBed) BgmBed.hush(); }catch(x){} }   /* [BGM_PREVIEW_1024] 곡 카드 소리가 흐르던 줄이 사라지면 멈춘다 */
     save(); redraw(id,'[data-fk="bgm:'+id+':'+v+'"]'); }
 
   /* ── ④ 한눈에 보기 «음악» 묶음 — 두 줄 ──
@@ -74,17 +77,25 @@
   /* ★[BGM_R4_1023] 담긴 축사 · 편지마다 지금 상태 한 줄(«축사 · 음악 없이» · «축사 · 음악과 함께») — 종전 «축사는 음악과 함께 · 나머지는 …»는 편지가 무음인지 스튜디오가 정하는지 말하지 않았다 */
   function pickRows(){ var o=opt(), out=[];
     B.SLOTS.forEach(function(s){ if(s.picks.indexOf('bed')<0) return; var at=B.chooser(s,o); if(!at) return; var v=B.viewOf(at,o); if(!v||v.kind!=='pick') return;
-      out.push({ id:s.id, t:s.short+' · '+B.label(s,B.get(St(),s.id).m) }); });
+      var m=B.get(St(),s.id).m, sg=s.id==='S5'?'M4S5':'M4S6', so=''; try{ if(m==='bed'&&window.BgmBed) so=BgmBed.sumOf(sg); }catch(x){}
+      out.push({ id:s.id, at:at, t:s.short+' · '+B.label(s,m)+(so?' · '+so:'') }); });   /* [BGM_PREVIEW_1024] «음악과 함께»면 곡도(«‹혜화동›» · «고르지 않으시면 ‹혜화동›») */
     return out; }
   /* ★[BGM_R5_1023] 곡이 없을 때 칩 상태로 — «두 분이 고른 곡»만 눌렀으면 «곡 파일을 올려 주시면 맞춰 드려요» · «스튜디오가 고른 곡»만 눌렀으면 «스튜디오가 고른 곡 중에서 골라 주세요»(STUDIO_PICK_1023) · 안 눌렀으면 «고르지 않으시면 …»
      칩 상태는 EntryMusic.src()(이 탭 · 저장 꼴 그대로) · 남은 할 일 셈에는 안 넣는다 */
   function entryWant(){ var src=null; try{ src=window.EntryMusic&&EntryMusic.src?EntryMusic.src():null; }catch(x){}
     return src==='up'?'입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요':src==='rec'?'입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요':'입장 곡 · 고르지 않으시면 스튜디오가 준비해요'; }
-  function sumHtml(){ var pk=pickRows();
+  /* ★[BGM_PREVIEW_1024] 구간 곡 줄(«화촉 · ‹Potter Waltz›» · «화촉 · 고르지 않으시면 ‹Potter Waltz›») — 예식 차례대로 입장 곡 · 축사 · 편지 줄 사이에 */
+  var SEG_BEFORE_ENTRY={ M1:1, M2:1 }, SEG_AFTER_PICK={ M5:1, M6:1, M7:1, M8:1 };
+  function segRows(){ try{ return window.BgmBed?BgmBed.sumRows():[]; }catch(x){ return []; } }
+  function segLi(r){ return '<li class="mk-vr bgm-seg" data-seg="'+r.id+'"><span class="mk-vt"><span class="mk-vn">'+e(r.t)+'</span></span></li>'; }
+  function sumHtml(){ var pk=pickRows(), sr=segRows();
     var en=entryNow(), one=en?'입장 곡 · '+en:entryWant();
     return '<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-vlist">'
+      +sr.filter(function(r){ return SEG_BEFORE_ENTRY[r.id]; }).map(segLi).join('')
       +'<li class="mk-vr bgm-sl"><span class="mk-vt"><span class="mk-vn">'+e(one)+'</span></span>'+(en?'':'<button type="button" class="rowbtn mk-vb" data-fk="bgmgo:entry" onclick="mkGo(\'entry\')">이동하기</button>')+'</li>'
+      +sr.filter(function(r){ return !SEG_BEFORE_ENTRY[r.id]&&!SEG_AFTER_PICK[r.id]; }).map(segLi).join('')
       +pk.map(function(r){ return '<li class="mk-vr bgm-pk" data-slot="'+r.id+'"><span class="mk-vt"><span class="mk-vn">'+e(r.t)+'</span></span></li>'; }).join('')
+      +sr.filter(function(r){ return SEG_AFTER_PICK[r.id]; }).map(segLi).join('')
       +'<li class="mk-vr bgm-rest"><span class="mk-vt"><span class="mk-vn">그 밖의 음악은 스튜디오가 준비해요</span></span></li></ul></section>'; }   /* [BGM_R1_1023] 다른 묶음(부탁 · 보낼 것)과 같은 줄 꼴 · 이동하기는 안 골랐을 때만 · [BGM_R4_1023] 축사 · 편지 줄은 버튼 없음 · 둘 다 없는 날은 끝 줄만 */   /* [BGM_R1_1023] 다른 묶음(부탁 · 보낼 것)과 같은 줄 꼴 · 이동하기는 안 골랐을 때만 */
 
   window.bgmAct=act;

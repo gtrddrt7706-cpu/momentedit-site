@@ -142,7 +142,7 @@ const look = (pg) => pg.evaluate(() => { const row = document.querySelector('.ls
   const t = (x) => x ? x.textContent.replace(/[\s ]+/g, ' ').trim() : '';
   return { row: !!row, slot: row && row.getAttribute('data-slot'), last: !!(row && vars && vars.lastElementChild === row), mu: !!document.querySelector('.ls-mu'),
     txt: row ? t(row.querySelector('.bgm-line')) : '', note: row ? t(row.querySelector('.bgm-note')) : '', btns: row ? row.querySelectorAll('button:not(.op-chip)').length : 0, old: !!document.querySelector('.bgm-sum,.bgm-card,.bgm-cv,[data-fk^="bgmup:"],[data-fk^="bgmopen:"]'),
-    chips: row ? [...row.querySelectorAll('.op-chip')].map((b) => b.textContent.trim() + (b.getAttribute('aria-checked') === 'true' ? '*' : '')) : [], rowH: row ? Math.round(row.getBoundingClientRect().height * 10) / 10 : 0,
+    chips: row ? [...row.querySelectorAll('.op-chip')].map((b) => b.textContent.trim() + (b.getAttribute('aria-checked') === 'true' ? '*' : '')) : [], rowH: row ? Math.round(((row.querySelector('.bgm-note') ? row.querySelector('.bgm-note').getBoundingClientRect().bottom : row.getBoundingClientRect().bottom) - row.getBoundingClientRect().top) * 10) / 10 : 0,   /* [BGM_PREVIEW_1024] 칩 · 아래 한 줄까지 — «음악과 함께» 아래 곡 고르기가 펼쳐지는 것은 명세(bgm-preview 가 잰다) */
     noteFs: row && row.querySelector('.bgm-note') ? getComputedStyle(row.querySelector('.bgm-note')).fontSize : '',
     glX: gl ? Math.round(gl.getBoundingClientRect().left) : null, glX0: gl0 ? Math.round(gl0.getBoundingClientRect().left) : null, glFs: gl ? getComputedStyle(gl).fontSize : '',
     bgm: JSON.stringify(S.bgm === undefined ? null : S.bgm), hz: document.documentElement.scrollWidth > innerWidth + 1, head: (document.querySelector('#mkHead') || { textContent: '' }).textContent,
@@ -167,7 +167,7 @@ async function shot(pg, W, name, sel) { if (!SHOT) return; fs.mkdirSync(SHOT, { 
   if (box) await pg.screenshot({ path: path.join(SHOT, `${name}-${W}.png`), clip: box, fullPage: true }); await showFixed(pg); }
 const sumLook = (pg) => pg.evaluate(() => { const secs = [...document.querySelectorAll('.mk-sum .mk-sec')], send = secs.find((s) => /^보낼 것/.test((s.querySelector('h4') || {}).textContent || '')), mus = document.querySelector('.mk-sum .mk-bgm');
   const t = (x) => x.textContent.replace(/[\s ]+/g, ' ').trim();
-  return { sends: send ? [...send.querySelectorAll('.mk-vn')].map(t) : [], rows: mus ? [...mus.querySelectorAll('li')].map((li) => t(li.querySelector('.mk-vn') || li) + (li.querySelector('button') ? ' [' + t(li.querySelector('button')) + ']' : '')) : [], hz: document.documentElement.scrollWidth > innerWidth + 1,
+  return { sends: send ? [...send.querySelectorAll('.mk-vn')].map(t) : [], rows: mus ? [...mus.querySelectorAll('li:not(.bgm-seg)')].map((li) => t(li.querySelector('.mk-vn') || li).replace(li.classList.contains('bgm-pk') ? / · (고르지 않으시면 )?‹[^›]*›$/ : /$^/, '') + (li.querySelector('button') ? ' [' + t(li.querySelector('button')) + ']' : '')) : [],   /* [BGM_PREVIEW_1024] 구간 곡 줄(bgm-seg) · 축사 · 편지 곡 이름은 bgm-preview 가 잰다 */ hz: document.documentElement.scrollWidth > innerWidth + 1,
     todoN: (() => { try { return _mkTodoN(); } catch (e) { return null; } })(), vlist: !!(mus && mus.querySelector('ul.mk-vlist')),
     keep: !!mus && [...mus.querySelectorAll('.mk-vn')].every((x) => getComputedStyle(x).wordBreak === 'keep-all'),   /* [BGM_R4_1023] */
     order: secs.map((s) => (s.querySelector('h4') || {}).textContent || '') }; });

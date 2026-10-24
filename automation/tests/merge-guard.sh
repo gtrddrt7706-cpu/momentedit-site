@@ -20291,3 +20291,21 @@ nochk '축의금 많이 내거라' assets/ritual-ref.js
 nochk '고장 난 시계' assets/ritual-open.js
 nochk '남의 편이라서' assets/ritual-ref.js
 nochk '안에만 들어오라고' assets/ritual-ref.js
+# ── 2026-10-24 [BGM_PREVIEW_1024] 사장님 «고객이 진행하면서 나레이션과 함께 들어볼 수 있게» · «고객이 고름» — 구간 음악 고르기 · 곡 카드 ▶(그 곡 + 첫 나레이션) · 이 순간 전체 듣기 아래로 깔기
+#    목록 assets/bgm-picks.js(곡 번호 f · cust 구간) · 화면 assets/bgm-bed.js · 저장 S.bgm[구간].k · 소리는 마이페이지 → GAS key 'bed' → 드라이브 ME_구간곡 · 당일 콘솔은 고객이 고른 곡이 구간 기본
+chk 'BGM_PREVIEW_1024' assets/bgm-bed.js 1
+chk 'BGM_PREVIEW_1024' assets/bgm-picks.js 3
+chk 'BGM_PREVIEW_1024' assets/bgm-slots.js 2
+chk 'BGM_PREVIEW_1024' assets/bgm-form.js 4
+chk 'BGM_PREVIEW_1024' order-preview.html 14
+chk 'BGM_PREVIEW_1024' console.html 3
+chk 'BGM_PREVIEW_1024' mypage.html 1
+chk 'BGM_PREVIEW_1024' automation/platform/80_production.gs 2
+chk 'BGM_PREVIEW_1024' scripts/audit/bgm-preview.mjs 1
+chk "d.data.key==='bed'" mypage.html 1
+chk "var BED_ROOT_FOLDER = 'ME_구간곡'" automation/platform/80_production.gs 1
+chk '<script src="/assets/bgm-picks.js?v=' order-preview.html 1
+chk '<script src="/assets/bgm-bed.js?v=' order-preview.html 1
+chk "f: 'M2_1', t: 'Potter Waltz'" assets/bgm-picks.js 1
+chk "function _bedOn(){" order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-preview.mjs >/dev/null 2>&1; _bpv=$?; if [ "$_bpv" = 1 ]; then echo 'FAIL bgm-preview: 구간 음악(고르기 줄 · 곡 카드 ▶ · 이 순간 전체 듣기 음악 크기 · 축사 · 편지 · 공개 미리보기 · 콘솔 기본)이 어긋났습니다 — node scripts/audit/bgm-preview.mjs'; fail=1; else echo "ok bgm-preview ($_bpv)"; fi; fi

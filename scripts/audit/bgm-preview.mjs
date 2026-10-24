@@ -1,0 +1,164 @@
+#!/usr/bin/env node
+/* ★★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 진행하면서 나레이션과 함께 들어볼 수 있게» · «고객이 고름»] 구간 음악 고르기 · 미리 듣기
+   진짜 식순 화면을 «마이페이지 안»(order-preview.html?embed=1)으로 띄우고, 부모 창(가짜 마이페이지)이 GAS 대신 구간 곡 목록 · 곡(합성음)을 준다(mypage.html 중계와 같은 모양 · key 'bed').
+   나레이션 파일은 짧은 소리로 바꿔 빨리 돈다(크기 · 차례만 잰다).
+   A 마이페이지 안(390 · 1280)
+   1 화촉 쪽 «화촉 음악» 줄 — 곡 4 · 처음엔 안 눌린 모양 · 아래 한 줄 «고르지 않으시면 ‹1순위›로 준비해요» · 목록이 오면 드라이브에 없는 곡 ▶ 는 흐림(off)
+   2 감사 인사 쪽에 «감사 인사 음악» · 혼인 서약 쪽에는 그 줄이 다시 없다(같은 구간)
+   3 곡을 고르면 S.bgm.M2 = { k } · 눌린 모양 · 아래 한 줄 «‹곡›으로 준비해요» · 저장 꼴(BgmSlots.clean)이 그 번호를 지킨다
+   4 곡 카드 ▶ — 그 곡을 한 번 묻는다(key bed) · 그 곡을 깔고 첫 나레이션 줄을 튼다 · 음악 크기 = 그 줄의 엔진 크기 · ■ 로 멈춘다 · 다른 소리를 틀면 멈춘다(소리 하나)
+   5 이 순간 전체 듣기 · 음악과 함께 — 고른 곡이 깔린다 · 줄마다 크기 = 엔진 값(말 줄 dk · 사람 구간 ldk) · 축배 «위하여» 차례가 끝나면 축배 크기(0)
+   6 축사 · 편지 — «음악 없이»면 말씀 · 낭독 동안 −90 · «음악과 함께»면 그 아래 곡 고르기가 펼쳐지고 그 곡으로 −20
+   7 드라이브에 곡이 없는 구간(테이블 인사) — 나레이션만 · 단추 이름 그대로 · 오류 없음
+   8 한눈에 보기 «음악» — «화촉 · ‹고른 곡›» · «감사 인사 · 고르지 않으시면 ‹1순위›» · «축사 · 음악과 함께 · ‹곡›»
+   9 당일 콘솔 — 이 기기에서 안 골랐으면 고객이 고른 곡이 그 구간 기본(«두 분이 고른 곡» 표시)
+   B 마이페이지 밖(공개 미리보기 · 390) — 곡 이름 · 한 줄만 · ▶ 없음 · «마이페이지에서 들어 볼 수 있어요» · 곡 줄이 없는 쪽은 듣기 아래 «음악은 마이페이지에서 함께 들어 볼 수 있어요» · 단추에 «음악과 함께» 없음
+   C 쪽 오류 없음 · 가로 넘침 없음
+   BP_OP=<order-preview.html 경로>(그 판으로 잰다 — 돌연변이 확인용 · 옛 판은 빨강)  SHOT=폴더(그림)  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
+import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const OP = process.env.BP_OP || '', SHOT = process.env.SHOT || '';
+let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
+if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
+let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 600)}`); if (!c) fail++; };
+const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
+function wav(sec, f, sr = 16000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
+  for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
+const SHORT = wav(0.6, 330);   /* 나레이션 대신 — 0.6초 */
+/* 드라이브에 있는 곡(시험) — M2_3 · M2_4 · M8_* 은 없다 */
+const HAVE = ['M1_1', 'M2_1', 'M2_2', 'M4_1', 'M4_2', 'M4S5_1', 'M4S6_1', 'M5_1', 'M6_1', 'M7_1'];
+const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(20, 180 + i * 20).toString('base64'); });
+const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
+<script>
+window.H={log:[],draft:null,saved:null,delay:40,have:${JSON.stringify(HAVE)},songs:${JSON.stringify(SONG)}};
+var fr=document.getElementById('fr');
+function back(m){ fr.contentWindow.postMessage(m, location.origin); }
+window.go=function(){ fr.src='/order-preview.html?embed=1'; };
+window.addEventListener('message',function(ev){ var d=ev.data||{}; if(ev.origin!==location.origin||ev.source!==fr.contentWindow) return;
+  if(/^momentedit:ritualFile/.test(d.type||'')) H.log.push(d.type+':'+(d.data&&d.data.key)+':'+(d.data&&d.data.id||''));
+  if(d.type==='momentedit:orderReady'){ back({type:'momentedit:orderFill',draft:H.draft,done:false,cust:{name:'시험',code:'TEST01'}}); return; }
+  if(d.type==='momentedit:orderDraft'){ H.saved=JSON.parse(JSON.stringify(d.data&&d.data.S||null)); back({type:'momentedit:orderDraftSaved'}); return; }
+  if(d.type==='momentedit:ritualFileGet'){ var g=d.data;
+    if(g.key==='bed'){ setTimeout(function(){ if(g.id==='list'){ back({type:'momentedit:ritualFileData',key:'bed',id:'list',ok:true,songs:H.have.map(function(f){ return {f:f}; })}); return; }
+        if(!H.songs[g.id]){ back({type:'momentedit:ritualFileData',key:'bed',id:g.id,ok:false,error:'곡 파일을 찾을 수 없어요. (코드 L3)',ecode:'L3'}); return; }
+        back({type:'momentedit:ritualFileData',key:'bed',id:g.id,ok:true,mime:'audio/wav',data:H.songs[g.id]}); }, H.delay); return; }
+    back({type:'momentedit:ritualFileData',key:g.key,id:g.id,ok:false,error:'파일을 불러오지 못했어요 (코드 L6)',ecode:'L6'}); return; }
+});
+</script>`;
+const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]);
+  if (u === '/__harness.html') { r.writeHead(200, { 'Content-Type': 'text/html' }); r.end(HARNESS); return; }
+  if (/^\/assets\/audio\/narration\/.+\.mp3$/.test(u)) { r.writeHead(200, { 'Content-Type': 'audio/wav' }); r.end(SHORT); return; }
+  const p = (OP && u === '/order-preview.html') ? OP : path.join(ROOT, u);
+  fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
+await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
+let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); srv.close(); process.exit(2); }
+const wait = (f, ms) => f.waitForTimeout(ms);
+const ALL = ['candle', 'welcome', 'vow', 'ring', 'declare', 'free', 'letter', 'tribute', 'toast', 'table'];
+async function open(W, embed) {
+  const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+  let f;
+  if (embed) { await pg.goto(`http://127.0.0.1:${port}/__harness.html`, { waitUntil: 'load' }); await pg.evaluate(() => go());
+    await pg.waitForFunction(() => { const x = document.getElementById('fr'); return x.contentWindow && x.contentWindow.document.readyState === 'complete' && x.contentWindow.render; }, null, { timeout: 30000 }); await pg.waitForTimeout(900);
+    f = pg.frames().find((x) => /order-preview\.html/.test(x.url())); }
+  else { await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(700); f = pg.mainFrame(); }
+  const nx = async () => { if (await f.isVisible('#next')) await f.click('#next'); else if (await f.isVisible('.pk-go')) await f.click('.pk-go'); await wait(f, 450); };
+  await nx(); await nx();
+  await f.evaluate((ks) => { ks.forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'nar'; S.vsAsked = 1; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, ALL);
+  await nx(); await wait(f, 800);
+  return { ctx, pg, f, errs };
+}
+const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 600); };
+const row = (f, sg) => f.evaluate((sg) => { const r = document.querySelector('.ls-bed[data-seg="' + sg + '"],.bed-sub[data-seg="' + sg + '"]'); if (!r) return null;
+  return { gl: ((r.querySelector('.gl') || {}).textContent || '').trim(), n: r.querySelectorAll('.mu-row').length, on: [...r.querySelectorAll('.mu-pick[aria-checked="true"]')].map((b) => b.getAttribute('data-fk')),
+    pl: r.querySelectorAll('.mu-pl').length, off: [...r.querySelectorAll('.mu-pl.off')].map((b) => b.getAttribute('data-fk')), note: ((r.querySelector('.bed-note') || {}).textContent || '').trim(),
+    plH: Math.round(((r.querySelector('.mu-pl') || { getBoundingClientRect: () => ({ height: 0 }) }).getBoundingClientRect().height)), pkH: Math.round(r.querySelector('.mu-pick').getBoundingClientRect().height) }; }, sg);
+const lab = (f, k) => f.evaluate((k) => { const b = document.querySelector('.mk-hbtn[data-mp="' + k + '"]'); return b ? b.textContent.trim() : ''; }, k);
+const LOG = (pg) => pg.evaluate(() => H.log.slice());
+/* 이 순간 전체 듣기 — 줄마다 (그 줄 · 음악 곡 · 바란 크기)를 모은다 */
+async function listen(f, k, ms) {
+  await f.evaluate((k) => { window.__bl = []; lsPlay(k); const t = setInterval(() => { try { const st = LP.q[LP.i], B = BgmBed._t.BED; if (!st) return; window.__bl.push({ i: LP.i, k: st.k, slug: st.slug || '', talk: !!(st.talk || st.talk2 || st.skip || st.bridge), cheer: !!st.cheer, dk: st.dk, ldk: st.ldk, f: B.cur.f, want: B.cur.want, who: B.who, src: !!B.cur.src }); } catch (e) {} }, 120); window.__blT = t; }, k);
+  await wait(f, ms); return f.evaluate(() => { clearInterval(window.__blT); try { lsStop(); } catch (e) {} return window.__bl.slice(); }); }
+const shot = async (f, W, n, sel) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { recursive: true }); await f.locator(sel).first().screenshot({ path: path.join(SHOT, `bed-${W}-${n}.png`) }); } catch {} };
+try {
+  for (const W of [390, 1280]) {
+    const { ctx, pg, f, errs } = await open(W, true);
+    /* 1 화촉 */
+    await go(f, 'candle'); await wait(f, 400);
+    let r = await row(f, 'M2');
+    ok(`${W} 1 화촉 «화촉 음악» 줄 · 곡 4 · 안 눌린 모양 · «고르지 않으시면 ‹Potter Waltz›로 준비해요»`, r && r.gl === '화촉 음악' && r.n === 4 && r.on.length === 0 && r.note === '고르지 않으시면 ‹Potter Waltz›로 준비해요', r);
+    ok(`${W} 1 드라이브에 없는 곡 ▶ 는 흐림(M2_3 · M2_4) · ▶ 44px 이상 · 줄 60px`, r && r.off.join() === 'bedp:M2_3,bedp:M2_4' && r.plH >= 44 && r.pkH >= 60, r);
+    await shot(f, W, 'candle', '.ls-bed[data-seg="M2"]');
+    /* 2 감사 인사 · 혼인 서약 */
+    await go(f, 'welcome'); const rw = await row(f, 'M4'); await go(f, 'vow'); const rv = await row(f, 'M4');
+    ok(`${W} 2 감사 인사 쪽에 «감사 인사 음악» · 혼인 서약 쪽엔 다시 없음`, rw && rw.gl === '감사 인사 음악' && !rv, { rw, rv });
+    /* 3 고르기 */
+    await go(f, 'candle'); await f.click('[data-fk="bed:M2_2"]'); await wait(f, 300);
+    r = await row(f, 'M2'); const bg = await f.evaluate(() => ({ s: JSON.parse(JSON.stringify(S.bgm || null)), c: BgmSlots.clean(S.bgm) }));
+    ok(`${W} 3 고르면 S.bgm.M2.k = M2_2 · 눌린 모양 · «‹꽃날›로 준비해요» · 저장 꼴이 지킨다`, r && r.on.join() === 'bed:M2_2' && r.note === '‹꽃날›로 준비해요' && bg.s && bg.s.M2 && bg.s.M2.k === 'M2_2' && bg.c && bg.c.M2 && bg.c.M2.k === 'M2_2', { r, bg });
+    /* 4 곡 카드 ▶ */
+    await f.evaluate(() => { H0 = 0; }).catch(() => {});
+    await f.click('[data-fk="bedp:M2_1"]'); await wait(f, 2600);
+    const c4 = await f.evaluate(() => { const B = BgmBed._t, ln = _lSteps(ENG, ['candle']).filter((x) => !x.quiet && !x.talk && !x.skip && x.src)[0]; return { who: B.BED.who, f: B.BED.cur.f, want: B.BED.cur.want, na: B.CARD.na ? String(B.CARD.na.src || '') : '', line: ln ? ln.src : '', dk: ln ? B.lvOf(ln) : null, pressed: document.querySelector('[data-fk="bedp:M2_1"]').getAttribute('aria-pressed') }; });
+    const lg4 = await LOG(pg);
+    ok(`${W} 4 곡 카드 ▶ — key bed 로 그 곡을 묻고 · 그 곡을 깔고 첫 나레이션 · 크기 = 그 줄 엔진 크기 · ■`, lg4.includes('momentedit:ritualFileGet:bed:M2_1') && lg4.includes('momentedit:ritualFileGet:bed:list') && c4.who === 'card' && c4.f === 'M2_1' && c4.na.indexOf(c4.line.split('/').pop()) > -1 && c4.want === c4.dk && c4.pressed === 'true', { c4, lg4 });
+    await f.click('[data-fk="bedp:M2_1"]'); await wait(f, 400);
+    const c4b = await f.evaluate(() => ({ who: BgmBed._t.BED.who, src: !!BgmBed._t.BED.cur.src, pressed: document.querySelector('[data-fk="bedp:M2_1"]').getAttribute('aria-pressed') }));
+    ok(`${W} 4 ■ 로 멈춘다`, !c4b.src && c4b.pressed === 'false', c4b);
+    await f.click('[data-fk="bedp:M2_1"]'); await wait(f, 600); await f.evaluate(() => { try { _stopMk(); } catch (e) {} }); await wait(f, 300);
+    ok(`${W} 4 다른 소리를 틀면(_stopMk) 곡 카드 소리는 멈춘다`, await f.evaluate(() => !BgmBed._t.BED.cur.src && BgmBed._t.CARD.f === ''));
+    /* 5 화촉 · 축배 이 순간 전체 듣기 */
+    const l5 = await lab(f, 'candle');
+    const b5 = await listen(f, 'candle', 9000);
+    const v5 = b5.filter((x) => x.src && x.f), bad5 = v5.filter((x) => x.f !== 'M2_2' || (x.talk ? x.want !== (x.ldk != null ? x.ldk : -8) : (x.dk != null && Math.abs(x.want - x.dk) > 0.01 && !x.cheer)));
+    ok(`${W} 5 화촉 «이 순간 전체 듣기 · 음악과 함께» · 고른 곡(M2_2)이 깔리고 줄마다 엔진 크기`, l5 === '이 순간 전체 듣기 · 음악과 함께' && v5.length > 3 && !bad5.length, { l5, n: v5.length, bad5: bad5.slice(0, 4), seq: [...new Set(b5.map((x) => x.slug + ':' + x.want))].slice(0, 12) });
+    await go(f, 'toast'); const b6 = await listen(f, 'toast', 12000);
+    const ch = b6.findIndex((x) => x.cheer), afterCheer = ch > -1 ? b6.slice(ch).find((x) => !x.cheer && x.src) : null;
+    ok(`${W} 5 축배 — «위하여» 차례가 끝나면 축배 크기(0)로 · 곡 M7_1`, ch > -1 && b6.some((x) => x.f === 'M7_1') && b6.slice(ch).some((x) => x.want === 0), { ch, afterCheer, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.want))].slice(0, 14) });
+    /* 6 축사 · 편지 */
+    await go(f, 'free'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x) => x.talk && x.src);
+    ok(`${W} 6 축사 «음악 없이» — 말씀 동안 −90 · 곡 M4`, t7.length && t7.every((x) => x.want === -90 && x.f === 'M4_1'), t7.slice(0, 3));
+    await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 400); const rs = await row(f, 'M4S5');
+    await shot(f, W, 'free', '.ls-bgm[data-slot="S5"]');
+    ok(`${W} 6 축사 «음악과 함께» → 그 아래 곡 고르기(3) · «고르지 않으시면 ‹혜화동›으로 준비해요»`, rs && rs.n === 3 && rs.note === '고르지 않으시면 ‹혜화동›으로 준비해요', rs);
+    const b8 = await listen(f, 'free', 9000); const t8 = b8.filter((x) => x.talk && x.src), n8 = b8.filter((x) => !x.talk && x.src);
+    ok(`${W} 6 축사 «음악과 함께» — 곡 M4S5_1 · 말씀 동안 −20`, t8.length && t8.every((x) => x.want === -20 && x.f === 'M4S5_1') && n8.every((x) => x.f === 'M4S5_1'), { t8: t8.slice(0, 2), n8: n8.slice(0, 2) });
+    await go(f, 'letter'); await f.click('[data-fk="bgm:S6:bed"]'); await wait(f, 300); await f.click('[data-fk="bed:M4S6_1"]'); await wait(f, 300);
+    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src);
+    ok(`${W} 6 편지 «음악과 함께» + 곡 고름 — S.bgm.S6 = { m:bed, k } · 낭독 동안 −20 · 곡 M4S6_1`, t9.length && t9.every((x) => x.want === -20 && x.f === 'M4S6_1') && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed' && S.bgm.S6.k === 'M4S6_1')), t9.slice(0, 2));
+    /* 7 곡 없는 구간 */
+    await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 4000);
+    ok(`${W} 7 테이블 인사(드라이브에 곡 없음) — 나레이션만 · 단추 이름 그대로 · 오류 없음`, !/음악과 함께/.test(l10) && b10.every((x) => !x.src) && !errs.length, { l10, src: b10.filter((x) => x.src).length, errs });
+    /* 8 한눈에 보기 */
+    const sum = await f.evaluate(() => { const d = document.createElement('div'); d.innerHTML = BgmForm.sumHtml(); return [...d.querySelectorAll('.mk-vn')].map((x) => x.textContent.trim()); });
+    ok(`${W} 8 한눈에 보기 — 화촉 · 고른 곡 · 감사 인사 · 고르지 않으시면 · 축사 · 편지 곡 · 차례(하객 맞이 → 화촉 → 입장 …)`, sum.includes('화촉 · ‹꽃날›') && sum.includes('감사 인사 · 고르지 않으시면 ‹Innocent in Sonatine›') && sum.includes('축사 · 음악과 함께 · 고르지 않으시면 ‹혜화동›') && sum.includes('편지 · 음악과 함께 · ‹未来へ›') && sum.indexOf('화촉 · ‹꽃날›') < sum.findIndex((t) => /^입장 곡/.test(t)), sum);
+    ok(`${W} C 오류 없음 · 가로 넘침 없음`, !errs.length && !(await f.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
+    /* 9 당일 콘솔 */
+    if (W === 390) {
+      const Sx = await f.evaluate(() => JSON.parse(JSON.stringify(S)));
+      const cp = await ctx.newPage(); await cp.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+      const b64 = Buffer.from(JSON.stringify(Sx), 'utf8').toString('base64');
+      await cp.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(b64)}`, { waitUntil: 'load' }); await cp.waitForTimeout(800);
+      const cs = await cp.evaluate(() => { const L = (id) => BgmPicks.list(id), sel = window.__segSel; if (!sel) return { none: 1 }; const b = document.querySelector('[data-seg="M2"]');
+        return { m2: sel('M2'), want: L('M2')[1].id, s6: sel('M4S6'), want6: L('M4S6')[0].id, m1: sel('M1')[0], want1: L('M1')[0].id, tag: b ? b.textContent.indexOf('두 분이 고른 곡') > -1 : null }; });
+      ok('9 당일 콘솔 — 고객이 고른 곡이 구간 기본(화촉 꽃날 · 편지 未来へ) · 안 고른 구간은 1순위 · «두 분이 고른 곡» 표시', cs.m2 === cs.want && cs.s6 === cs.want6 && cs.m1 === cs.want1 && cs.tag !== false, cs);
+      await cp.close();
+    }
+    await ctx.close();
+  }
+  /* B 공개 미리보기 */
+  { const { ctx, pg, f, errs } = await open(390, false);
+    await go(f, 'candle'); const r = await row(f, 'M2'); const l = await lab(f, 'candle');
+    ok('B 공개 — «화촉 음악» 곡 이름 · 한 줄만 · ▶ 없음 · «마이페이지에서 들어 볼 수 있어요» · 단추에 «음악과 함께» 없음', r && r.n === 4 && r.pl === 0 && /마이페이지에서 들어 볼 수 있어요$/.test(r.note) && !/음악과 함께/.test(l), { r, l });
+    await go(f, 'vow'); const pub = await f.evaluate(() => ((document.querySelector('.bed-pub') || {}).textContent || '').trim());
+    ok('B 공개 — 곡 줄이 없는 쪽(혼인 서약)은 듣기 아래 «음악은 마이페이지에서 함께 들어 볼 수 있어요»', pub === '음악은 마이페이지에서 함께 들어 볼 수 있어요', pub);
+    await go(f, 'candle'); const pub2 = await f.evaluate(() => !!document.querySelector('.bed-pub'));
+    ok('B 공개 — 곡 줄이 있는 쪽(화촉)은 그 한 줄을 다시 두지 않는다', !pub2);
+    ok('B 공개 — 오류 없음 · 가로 넘침 없음', !errs.length && !(await f.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
+    await shot(f, 390, 'public', '.ls-bed[data-seg="M2"]');
+    await ctx.close(); }
+} catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
+await br.close(); srv.close();
+console.log(fail ? `BGM PREVIEW FAIL ${fail}` : 'BGM PREVIEW OK');
+process.exit(fail ? 1 : 0);

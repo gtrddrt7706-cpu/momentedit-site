@@ -1011,8 +1011,10 @@ function segDef(id){ return BP ? BP.seg(id) : null; }
 function segSongs(id){ return (BP ? BP.list(id) : []).concat((SEGST.add[id] || []).map(function(x){ return { id: x.id, t: x.t, a: x.a || '', v: '', why: '', start: null, rank: 0, own: 1 }; })); }
 /* 고른 곡 — 한 곡 칸은 아이디 하나 · 목록 칸(M1 · M8)은 차례 배열 · 아직 안 골랐으면 추천 1순위(목록 칸은 추천 전부) */
 function segSel(id){ var d = segDef(id), L = segSongs(id), v = SEGST.sel[id], have = function(x){ return L.some(function(s){ return s.id === x; }); };
-  if (d && d.multi) { if (Array.isArray(v)) return v.filter(have); return L.filter(function(s){ return !s.own; }).map(function(s){ return s.id; }); }
-  if (typeof v === 'string' && have(v)) return v; return L[0] ? L[0].id : null; }
+  /* ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 이 기기에서 아직 안 골랐으면 고객이 식순 화면에서 고른 곡(S.bgm · 곡 번호 f)이 기본 — 목록 칸(M1 · M8)은 그 곡을 맨 앞에 */
+  var ck = (BP && BP.custK) ? BP.custK(S, id) : '', cs = ck ? L.filter(function(s){ return s.f === ck; })[0] : null;
+  if (d && d.multi) { if (Array.isArray(v)) return v.filter(have); var all = L.filter(function(s){ return !s.own; }).map(function(s){ return s.id; }); return cs ? [cs.id].concat(all.filter(function(x){ return x !== cs.id; })) : all; }
+  if (typeof v === 'string' && have(v)) return v; if (cs) return cs.id; return L[0] ? L[0].id : null; }
 /* 소리 낼 수 있는 곡(파일이 있는 것)만 — 없으면 null(앞 곡이 이어진다) */
 function segPlan(id){ var s = segSel(id), L = (Array.isArray(s) ? s : (s ? [s] : [])).filter(function(x){ return !!SEGF[x]; }); return L.length ? L : null; }
 function segStartOf(sid){ var v = SEGST.start[sid]; if (v != null && v !== '' && isFinite(+v)) return +v; var p = null; if (BP) BP.SEGS.some(function(s){ var q = BP.list(s.id).filter(function(x){ return x.id === sid; })[0]; if (q) { p = q; return true; } return false; }); return p && p.start != null ? p.start : null; }
@@ -1078,7 +1080,7 @@ function segCheer(){ if (BED.seg !== 'M7' || !BED.id) return; var at = segStartO
 function segRow(id, s, d){ var sel = segSel(id), on = Array.isArray(sel) ? sel.indexOf(s.id) > -1 : sel === s.id, m = SEGST.meta[s.id], has = !!SEGF[s.id];
   var st = esc(segStOf(s.id));
   return '<div class="sg-song"><button class="chip" type="button" aria-pressed="' + on + '" data-seg-pick="' + id + '" data-id="' + esc(s.id) + '">' + esc(s.t) + '</button>'
-    + '<span class="sg-meta">' + esc([s.a, s.v].filter(Boolean).join(' · ')) + (s.rank === 1 ? ' · 추천 1순위' : '') + (s.own ? ' · 직접 더한 곡' : '') + '</span>'
+    + '<span class="sg-meta">' + esc([s.a, s.v].filter(Boolean).join(' · ')) + (s.rank === 1 ? ' · 추천 1순위' : '') + (s.own ? ' · 직접 더한 곡' : '') + ((BP && BP.custK && s.f && BP.custK(S, id) === s.f) ? ' · 두 분이 고른 곡' : '') + '</span>'   /* [BGM_PREVIEW_1024] */
     + (s.why ? '<span class="sg-why">' + esc(s.why) + '</span>' : '')
     + '<label class="filebtn sm' + (has ? ' has' : '') + '">' + (has ? '파일 바꾸기' : '파일 넣기') + '<input type="file" accept="audio/*" data-seg-file="' + esc(s.id) + '"></label>'
     + (id === 'M7' ? '<input type="text" inputmode="decimal" class="sg-at" data-seg-start="' + esc(s.id) + '" placeholder="강조 시작(초)" value="' + esc(SEGST.start[s.id] != null ? String(SEGST.start[s.id]) : '') + '">' : '')
@@ -2151,7 +2153,8 @@ window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.w
 window.__bgmSt = function(){ var c = cur >= 0 ? cueAt(cur) : null, m = $('#mBtn'); return { cur: cur, slug: c ? c.slug : null, phase: phase, want: duckWant, now: duckNow, cheerAt: cheerAt, main: m ? m.textContent : '' }; };
 window.__bgmR = function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, fire: c.fire, duck: c.duck, live: !!c.live }; }); };
 window.__seg = { st: function(){ var g = function(k){ return BED.xg[k] ? Math.round(BED.xg[k].gain.value * 1000) / 1000 : null; }; return { seg: BED.seg, id: BED.id, on: BED.on, mode: BED.mode, short: !!ESD.short, src: BED.el.map(function(e){ return String(e.getAttribute('src') || ''); }), paused: BED.el.map(function(e){ return e.paused; }), xg: [g(0), g(1)], files: Object.keys(SEGF).length, sel: SEGST.sel }; } };   // [BGM_SEG8_1023] 점검용 · 읽기 전용
-window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); } };   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)
+window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); } };
+window.__segSel = function(id){ return segSel(id); };   // [BGM_PREVIEW_1024] 점검용 · 읽기 전용 — bgm-preview 가 본다(고객이 고른 곡이 구간 기본인가)   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)
 /* [RESCUE_REPLAY_1016] 점검용 · 읽기 전용 — rescue-replay 가 본다(미룬 순서 · 디렉터 칸 · «재생 안 됨» 단추) */
 window.__rr = { cues: function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, rescue: !!c.rescue, live: !!c.live }; }); },
   st: function(){ var h = $('#nHint'), b = $('#bWait'); return { phase: phase, cur: cur, rescued: RESCUED.slice(), hint: h ? h.textContent : '', hintOn: h ? !h.hidden : false, bw: b ? b.disabled : null, bwText: b ? b.textContent : '' }; } };

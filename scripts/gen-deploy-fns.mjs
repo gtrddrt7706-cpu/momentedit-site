@@ -139,6 +139,7 @@ const PROPS = {
   KAKAO_REST_KEY: ['state'], KAKAO_TEMPLATES: ['state'],  /* 설정 함수가 넣어 두는 값 */
   REC_PUT_FID: ['state'],   /* [REC_PUT_1013] 서버가 추천 곡 파일을 받아 넣는 폴더(ME_추천곡) id — 처음 받을 때 찾거나 만든다 */
   REC_FID: ['state'],   /* [REC_SONG_1012] 입장 «추천 곡» 드라이브 폴더(ME_추천곡 · songs.json 이 든 것) id — 서버가 처음 찾을 때 적고, 폴더가 사라지면 다시 찾는다 */
+  BED_FID: ['state'],   /* [BGM_PREVIEW_1024] 구간 음악 드라이브 폴더(ME_구간곡) id — 서버가 처음 찾을 때 적는다 · 사장님이 그 폴더에 곡 파일을 올린다 */
   RF_: ['state'], RFOK_: ['state'], RFGONE_: ['state'],   /* [RITUAL_FILE · REC_ADMIN · REC_PURGE] 두 분 목소리 — 코드별 드라이브 폴더 · 스튜디오 확인 ✓ · 30일 지운 날(코드가 뒤에 붙는 접두사) */
 
   /* switch */

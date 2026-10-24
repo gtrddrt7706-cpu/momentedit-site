@@ -5,7 +5,7 @@
    ② 고르면 저장된다(다시 열어도 그대로) · «곡 추가»로 더한 곡은 «직접 더한 곡»에 · 넣은 파일은 이 기기에 남는다(다시 열어도 ✓)
    ③ 시작 = 하객 맞이 곡 · 화촉 첫 큐에서 화촉 곡으로 3초 크로스페이드(두 재생기가 겹친다 → 앞 곡은 멈춘다) · 파일 없는 구간(감사 인사)은 앞 곡이 그대로 잇는다
    ④ 축가(자체 음원 · −90) 뒤 부모님께 인사 큐에서 그 구간 곡으로 돌아오고 크기도 그 큐 값
-   ⑤ 고객 화면(order-preview)은 bgm-picks 를 싣지 않는다 · 쪽 오류 0
+   ⑤ 고객 화면(order-preview)은 bgm-picks 를 싣되 곡 파일 주소는 없다 [BGM_PREVIEW_1024] · 쪽 오류 0
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 · BS_CON = 돌연변이 확인용(그 판의 console.html) */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import os from 'node:os'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -91,7 +91,9 @@ try {
   await pg.close();
   /* ⑤ 고객 화면 */
   const op = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8'), mp = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
-  ok('⑤ 고객 화면(order-preview · mypage)은 bgm-picks 를 싣지 않는다', !/bgm-picks/.test(op) && !/bgm-picks/.test(mp));
+  /* ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 고객 화면(order-preview)도 bgm-picks 를 싣는다 — 곡 이름 · 정보 · 번호만 · 곡 파일 주소는 없다(파일은 드라이브 ME_구간곡 · 마이페이지 중계) */
+  const bpSrc = fs.readFileSync(path.join(ROOT, 'assets/bgm-picks.js'), 'utf8');
+  ok('⑤ 고객 화면(order-preview)은 bgm-picks 를 싣되 곡 파일 주소는 없다(mp3 · http · drive 없음) · mypage 는 싣지 않는다', /bgm-picks\.js/.test(op) && !/bgm-picks/.test(mp) && !/https?:|\.mp3|\.m4a|drive\.google|blob:/i.test(bpSrc.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '')));
   /* ⑥ 입장 곡이 짧을 때 — 하이라이트 뒤 180초가 안 되면 «곡 길이 모자람 · 맞절은 피아노로» · 곡 끝 3초 전에 피아노(M4)가 겹쳐 이어받는다 [ENTRY_SHORT] */
   { const FID = 'SHORTSONG0123456789ab', SONG = wav(40, 300, 0).toString('base64');
     const S1 = Object.assign({}, S0, { entry: 'A', entryVoice: 'nar', mu: { src: 'up', name: 'short', t: '짧은 곡', a: '', dur: 40, hook: 30, typed: null, sid: 'x2', fid: FID } });

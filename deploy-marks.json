@@ -2904,6 +2904,12 @@
    "fn": "_dressParse_",
    "mark": "DRESS_PREF_NONE",
    "why": "셋째 물음 «특별히 없어요»(none) 답을 저장 · 읽기에서 버리지 않는다. 이 판이 없으면 답한 분도 다음에 열 때 물음부터 다시 나온다(카드 단추가 결과로 바로 열리지 않는다)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileGet",
+   "mark": "BGM_PREVIEW_1024",
+   "why": "구간 음악 미리 듣기(사장님 «고객이 진행하면서 나레이션과 함께 들어볼 수 있게» 10/24) — key bed 로 드라이브 «ME_구간곡» 폴더의 곡 번호 목록 · 곡 앞부분을 로그인한 두 분에게 건넨다. 이 판이 안 올라가 있으면 식순 화면 구간 음악 ▶ 가 «준비 중»으로 남고 미리 듣기는 나레이션만 나온다"
   }
  ],
  "fns": {
@@ -3142,6 +3148,10 @@
    "_recManifest_",
    "_recSongFile_",
    "_recGet_",
+   "_bedFolder_",
+   "_bedFiles_",
+   "_bedClip_",
+   "_bedGet_",
    "_recPutFolder_",
    "_recPutHas_",
    "_recPut_",
@@ -3812,6 +3822,7 @@
    "RF_ROOT_FOLDER",
    "RF_KEYS",
    "REC_ROOT_FOLDER",
+   "BED_ROOT_FOLDER",
    "REC_PUT_HASH",
    "VC_BASE",
    "VC_DOWN",
@@ -4016,7 +4027,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-24 00:25 · 047b2736",
+ "_생성": "2026-10-24 21:16 · 506a8535",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4088,6 +4099,12 @@
    "key": "AI_WIDGET_SECRET",
    "kind": "guard",
    "a": "AI 위젯이 고객 정보를 서명 없이 받는다(베르셀 같은 이름과 같은 값)",
+   "b": ""
+  },
+  {
+   "key": "BED_FID",
+   "kind": "state",
+   "a": "",
    "b": ""
   },
   {
@@ -4548,5 +4565,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "67f00bf6756d"
+ "_표식서명": "e9fa30312b95"
 }
