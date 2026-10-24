@@ -13,20 +13,6 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 21 | 7 |
-| 2_진희.txt | 진희 | 2 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
-
-```
-# 우성 — 21줄 · 7클립
-node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =151_narr-candle-in-mothers,=107_toast-both-pour-b,=153_narr-candle-in-mothers-ex4,=154_narr-candle-in-fathers-ex2,=165_narr-vow-in-ex4,=168_narr-vow-in-b-ex4,=189_toast-toast-ex3
-```
-
-```
-# 진희 — 2줄 · 1클립
-node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =120_guest-ex3-2-10min
-```
 
