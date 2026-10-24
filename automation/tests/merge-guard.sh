@@ -19861,12 +19861,12 @@ nochk 'dst-ph' mypage.html 0                                             # 임�
 #   모양 · 깨 보기는 dress-refs.mjs ⑬ ⑯ · 7폭 × 3상태 겹침 · 팝업 안 흐름은 dress-fit.mjs(브라우저)
 chk 'DRESS_STICKER_HEAD' mypage.html 4
 chk 'DRESS_POPUP' mypage.html 3
-chk 'DRESS_STICKER_SWAY' mypage.html 2
+chk 'DRESS_STICKER_SWAY' mypage.html 1
 chk 'DRESS_POPUP' dress.html 2
 nochk 'vg-st' mypage.html 0                                              # 안내 블록 비움(.vg-st)은 걷었다 — 스티커는 카드 머리
 chk "  box.innerHTML = '<div class=\"consult-card'+(DST?' cc-st':'')+'\">'+DST+'<div class=\"cc-eyebrow en-22\">'" mypage.html 1
-chk ".dst.is-sw .dst-lb{animation:dstOrbit 2.8s ease-in-out 1}" mypage.html 1
-chk ".dst.is-sw .dst-lbt{animation:dstLevel 2.8s ease-in-out 1}" mypage.html 1      # 글은 같은 궤도 + 반대 각도 = 글줄 수평
+nochk 'dstOrbit' mypage.html 0                                             # [STICKER_NO_LABEL] 상시 글 · 글 궤도는 걷었다(코워크 최종안 1024) — 되살리면 빨강
+nochk 'dst-lbt' mypage.html 0
 chk "fr.src='/dress.html?pick=1&embed=1&pop=1'" mypage.html 1
 nochk '.dr-pop{[^}]*backdrop-filter' mypage.html 0                       # 새 흐림 면 금지 — 막은 #mpModal 색만
 chk "var POP = EMBED && Q.get('pop') === '1';" dress.html 1
@@ -19877,20 +19877,27 @@ chk 'DRESS_STICKER_HEAD' scripts/audit/dress-fit.mjs 2
 #   어느 폭에서도 카드 글의 자리 · 폭 · 줄바꿈 그대로(여백 · 패딩을 더하지 않는다) · 보이는 드레스 56px 아래 금지 · 폰은 글을 스티커 위 흰 알약으로([STICKER_PILL_PHONE])
 #   운영에 나간 «방문 전 안내» 오른쪽 비움(.vg-st)이 글 · 구분선을 왼쪽으로 몰았다 → 걷었다(nochk 'vg-st'). 7폭 «스티커 있을 때 = 없을 때» 비교는 dress-fit.mjs
 chk 'STICKER_NO_REFLOW' mypage.html 1
-chk 'STICKER_LABEL_HANG' mypage.html 1                                    # 폰 글 = 옷걸이 왼쪽 위 · 흰 알약([STICKER_PILL_PHONE])은 걷었다 — 2026-10-24 코워크 마감 지시
 nochk '.dst.dst-pm .dst-lb{[^}]*border-radius:999px' mypage.html 0
 chk 'STICKER_NO_REFLOW' scripts/audit/dress-refs.mjs 1
-chk 'STICKER_LABEL_HANG' scripts/audit/dress-refs.mjs 1
 chk 'STICKER_NO_REFLOW' scripts/audit/dress-fit.mjs 2
-chk 'STICKER_LABEL_HANG' scripts/audit/dress-fit.mjs 1
 chk 'STICKER_FINISH_1024' mypage.html 3                                    # 크기 · 기울기 · 흔들림 · 반응 · «n벌» · 글 자리(코워크 마감 지시) · 크기를 줄여 맞추지 않는다
-chk 'STICKER_LABEL_TOP' mypage.html 3                                      # 폰 «드레스 보기» = 고리 위 가운데(사장님 1024)
-chk 'STICKER_LABEL_TOP' scripts/audit/dress-refs.mjs 1
-chk 'STICKER_LABEL_TOP' scripts/audit/dress-fit.mjs 1
-chk 'STICKER_ONE_WORD' mypage.html 3                                       # 글은 폭과 상관없이 «드레스 보기» · 글자 ↔ 둘레 8px (코워크 1024 · GPT 부분 수용)
-chk 'STICKER_ONE_WORD' scripts/audit/dress-refs.mjs 2
-chk 'STICKER_ONE_WORD' scripts/audit/dress-fit.mjs 3
 nochk 'dst-lbw' mypage.html 0                                              # 768+ «드레스 미리 보기» 글이 되살아나면 빨강
+nochk 'dst-lb' mypage.html 0                                               # ★[STICKER_NO_LABEL] 상시 글 «드레스 보기» 되살리면 빨강(사장님 1024 «자막 없애고»)
+nochk '_dstLabel' mypage.html 0
+chk 'STICKER_NO_LABEL' mypage.html 5
+chk 'STICKER_NO_LABEL' scripts/audit/dress-refs.mjs 3
+chk 'STICKER_TIP' mypage.html 4                                            # 안내 = 고리 위 6px · PC 마우스 올림 250ms · 키보드 초점 · Escape
+chk 'STICKER_TIP' scripts/audit/dress-refs.mjs 3
+chk 'STICKER_TIP' scripts/audit/dress-fit.mjs 4
+chk 'STICKER_TIP_ONCE' mypage.html 2                                       # 처음 한 번 안내 = 기기당 한 번 1.8초 · 누르면 다시 안 나옴
+chk 'STICKER_TIP_ONCE' scripts/audit/dress-refs.mjs 1
+chk "if(_dstTipSeen()) return; _dstTipMark();" mypage.html 1              # 안내는 한 번만 — 빼면 매번 뜬다
+chk "var DST_TIP_KEY='me_dst_tip';" mypage.html 1
+chk 'STICKER_DECO_1024' mypage.html 14                                    # 받침 그림 · 곁 스티커 셋 · 768+ 112(코워크 최종안 1024)
+chk 'STICKER_DECO_1024' scripts/audit/dress-refs.mjs 6
+chk 'STICKER_GAP_LADDER' mypage.html 2                                    # 글자 8 · 점 4 가 먼저 · 자리가 없을 때만 한 단씩(data-gap)
+chk 'STICKER_GAP_LADDER' scripts/audit/dress-refs.mjs 1
+nochk 'sticker-176' mypage.html 0                                          # 옛 그림(112 · 128 · 176)은 걷었다
 chk 'const ST_W = \[360, 375, 390, 430, 767, 768, 820, 1024, 1280\]' scripts/audit/dress-fit.mjs 1   # 폭 9개(360 · 375 · 767 · 768 포함) — 줄면 빨강
 chk 'STICKER_RELAYOUT' mypage.html 1                                       # 글꼴 · 줄바꿈이 늦게 바뀌면 다시 잰다 · 흔들림은 다시 시작하지 않는다
 chk 'STICKER_RELAYOUT' scripts/audit/dress-refs.mjs 1
@@ -19961,7 +19968,7 @@ chk '.dst:active .dst-in{transform:translateY(1px) scale(.98);transition-duratio
 chk 'DRESS_CARD_NUM' mypage.html 1                                         # 카드 고른 사진에 Nº 01 · Nº 02(테두리 알약 · 칠 없음 · lining-nums)
 nochk 'dr-th-badge' mypage.html 0                                       # [DRESS_STICKER] 카드 Nº 알약은 카드와 함께 걷었다 · 스티커는 «n벌» 알약(.dst-pill)
 chk 'DRESS_CARD_WIDE' mypage.html 1                                        # PC 칸 = (안쪽 폭 − 사이 둘) ÷ 3 · 최대 140px · 폰은 96px 그대로
-chk '@media (min-width:1280px){ .dst{--dst-s:96px} }' mypage.html 1       # [STICKER_FINISH_1024] 크기 72 · 76 · 80 · 84 · 88 · 92 · 96px
+chk '@media (min-width:768px){ .dst{--dst-s:112px} }' mypage.html 1       # [STICKER_DECO_1024] 크기 72 · 76 · 80 · 768+ 112px
 chk 'DRESS_FIT_BELOW' dress.html 1                                         # «답과 맞아요»는 요약 줄 아래(이름 · 요약이 끊기지 않게)
 nochk '벌 둘러보기' mypage.html 0                                          # [DRESS_CARD_MIN] 단추 글은 늘 «드레스 보러 가기»
 chk 'DRESS_DUE_SAME' assets/dress-refs.js 1                                # 바꾸기 마감 한 줄 = 한 곳(R.dueLine) — 카드(1 · 2벌)와 고르기 완료 화면이 같은 말

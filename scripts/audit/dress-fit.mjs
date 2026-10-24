@@ -254,7 +254,7 @@ try {
      그린 뒤 자리 흔들림 0(글꼴 · 그림이 늦게 와도) · 크기 56 · 64 · 76 · 88 · 폰(768 미만)은 폰 자리(구분선 1/4 걸침) · 알약은 2벌에만(폰은 스티커 칸 안) ·
      따로 카드(#mp_dress)는 비어 있다. 실제 마이페이지 칸(#mp_consult)에 renderConsult 로 그려 잰다(로그인 없이 · 같은 폭) */
   {
-    const ST_W = [360, 375, 390, 430, 767, 768, 820, 1024, 1280];   // [STICKER_ONE_WORD] 코워크 7폭 + 375 · 767(폰 끝) — 되돌아가면 빨강
+    const ST_W = [360, 375, 390, 430, 767, 768, 820, 1024, 1280];   // [STICKER_TIP] 코워크 7폭 + 375 · 767(폰 끝) — 되돌아가면 빨강
     const LIST = ['신청접수', '상담확정', '시착', '상담완료'];
     const mkSt = (kind) => { const pre = kind === 'pre';
       return { product: '시그니처', code: 'ME-T', stage: pre ? '신청접수' : '상담확정', stageList: LIST, isException: false,
@@ -269,19 +269,19 @@ try {
       const at = (m) => ps.page.evaluate(() => { const st = document.querySelector('#mp_consult .dst'); if (!st) return null;
         const card = st.closest('.consult-card'), vg = st.parentNode, C0 = card.getBoundingClientRect(), sb = st.getBoundingClientRect(), box = st.querySelector('.dst-box').getBoundingClientRect();
         const hits = []; const rg = document.createRange(); const w = document.createTreeWalker(card, NodeFilter.SHOW_TEXT);
-        const shape = (typeof _dstVis === 'function') ? _dstVis(st).rest.concat([st.querySelector('.dst-lb').getBoundingClientRect()]) : [sb];   // ★[STICKER_HIT_SHAPE] 드레스 윤곽(쉼 −3°) · 글 — 그림 칸의 투명한 모서리는 보지 않는다(누름도 받지 않는다)
+        const shape = (typeof _dstVis === 'function') ? _dstVis(st).rest : [sb];   // ★[STICKER_HIT_SHAPE] 드레스 윤곽(쉼 −3°) · 글 — 그림 칸의 투명한 모서리는 보지 않는다(누름도 받지 않는다)
         for (let t = w.nextNode(); t; t = w.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; rg.selectNodeContents(t);
           for (const r of rg.getClientRects()) if (r.width >= 1 && shape.some((b) => r.right > b.left && r.left < b.right && r.bottom > b.top && r.top < b.bottom)) hits.push(t.nodeValue.trim().slice(0, 12)); }
         const boxHit = (() => { const b = st.querySelector('.dst-box').getBoundingClientRect(), o = []; const w3 = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); for (let t = w3.nextNode(); t; t = w3.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; const r3 = document.createRange(); r3.selectNodeContents(t); for (const q of r3.getClientRects()) if (q.width >= 1 && q.right > b.left && q.left < b.right && q.bottom > b.top && q.top < b.bottom) o.push(t.nodeValue.trim().slice(0, 10)); } return o; })();   // [STICKER_BOX_CLEAR] 그림 상자(투명 부분 포함) ↔ 글 사각형
         const tapTop = (() => { const b = st.querySelector('.dst-box').getBoundingClientRect(), e = document.elementFromPoint(b.left + 2, b.top + b.height - 2); return e ? (st.contains(e) ? 'dst' : (e.className || e.tagName)) : ''; })();   // 그림 칸 왼쪽 아래 모서리(투명) = 단추가 아니다
         const txt = () => { const o = []; const w2 = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); for (let t = w2.nextNode(); t; t = w2.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; const r2 = document.createRange(); r2.selectNodeContents(t); for (const q of r2.getClientRects()) o.push([q.left, q.top, q.width, q.height].map((v) => Math.round(v * 10) / 10).join(',')); } return o.join('|') + '#' + card.getBoundingClientRect().height; };
         const withSt = txt(); st.style.display = 'none'; const noSt = txt(); st.style.display = '';   // ★[STICKER_NO_REFLOW] 스티커가 있을 때와 없을 때 카드 글 상자가 같아야 한다
-        const pill = st.querySelector('.dst-pill'), pr = pill && pill.getBoundingClientRect(), lb = st.querySelector('.dst-lb').getBoundingClientRect();
-        const lbR = st.querySelector('.dst-lb').getBoundingClientRect();
+        const pill = st.querySelector('.dst-pill'), pr = pill && pill.getBoundingClientRect(), lb = st.querySelector('.dst-tip').getBoundingClientRect();
+        const lbR = st.querySelector('.dst-tip').getBoundingClientRect();   // [STICKER_TIP] 안내(보이지 않을 때도 자리는 잡혀 있다)
         const v = (typeof _dstVis === 'function') ? _dstVis(st) : null, cr = card.getBoundingClientRect();   // ★[STICKER_VIS_EDGE] 기운 드레스 · 그림자 · 알약 · 진행 점
         const dots = [...document.querySelectorAll('span,i,div,li')].filter((e) => { const r = e.getBoundingClientRect(); return !e.children.length && r.width > 3 && r.width < 16 && r.height > 3 && r.height < 16 && r.bottom <= cr.top && v && r.right > v.left && r.left < v.right; }).map((e) => e.getBoundingClientRect().bottom);
-        const vis = v ? { l: v.left, r: v.right, t: v.top, dress: v.dress, lbL: lbR.left, lbR: lbR.right, lbAt: st.querySelector('.dst-lb').getAttribute('data-at'), dotB: dots.length ? Math.max(...dots) : -1e9 } : null;
-        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, boxHit, lbTxt: st.querySelector('.dst-lbt').textContent, lbGap: (() => { const rg2 = document.createRange(); rg2.selectNodeContents(st.querySelector('.dst-lbt')); const g = [...rg2.getClientRects()].filter((q) => q.width >= 1); if (!g.length) return null; const a = { left: Math.min(...g.map((q) => q.left)), top: Math.min(...g.map((q) => q.top)), right: Math.max(...g.map((q) => q.right)), bottom: Math.max(...g.map((q) => q.bottom)) }; const os = []; const w4 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); for (let t = w4.nextNode(); t; t = w4.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t) || !t.parentElement || !t.parentElement.offsetWidth) continue; let fx = false; for (let e = t.parentElement; e && e !== document.body; e = e.parentElement) { const ps2 = getComputedStyle(e).position; if (ps2 === 'fixed' || ps2 === 'sticky') { fx = true; break; } } if (fx) continue; const r4 = document.createRange(); r4.selectNodeContents(t); for (const q of r4.getClientRects()) if (q.width >= 1) os.push(q); } for (const e of document.querySelectorAll('span,i,div,li')) { const r = e.getBoundingClientRect(); if (!e.children.length && r.width > 3 && r.width < 16 && r.height > 3 && r.height < 16) os.push(r); } let d = 1e9; for (const q of os) { const dx = Math.max(0, q.left - a.right, a.left - q.right), dy = Math.max(0, q.top - a.bottom, a.top - q.bottom); d = Math.min(d, (dx || dy) ? Math.hypot(dx, dy) : -1); } return Math.round(d * 10) / 10; })(), lbPill: (() => { const pl = st.querySelector('.dst-pill'); if (!pl) return false; const a = pl.getBoundingClientRect(); return a.right > lbR.left - 3 && a.left < lbR.right + 3 && a.bottom > lbR.top - 3 && a.top < lbR.bottom + 3; })(), inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
+        const vis = v ? { l: v.left, r: v.right, t: v.top, dress: v.dress, lbL: lbR.left, lbR: lbR.right, gap: st.getAttribute('data-gap'), dotB: dots.length ? Math.max(...dots) : -1e9 } : null;
+        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, boxHit, lbTxt: st.querySelector('.dst-tip').textContent, aria: st.getAttribute('aria-label'), oldLb: !!st.querySelector('.dst-lb'), inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
           w: sb.width, h: sb.height, box: Math.round(box.width), hits, ow: document.documentElement.scrollWidth - innerWidth, lbH: lb.height,
           overDiv: Math.round(vg.getBoundingClientRect().top - box.top), pill: pill ? pill.textContent : '', pillIn: pill ? (Math.abs(pr.right - box.right) <= 0.5 && pr.top >= box.top - 6.5 && pr.top <= box.top + 2.5 && pr.height <= 18.5 && pr.width >= 23.5) : true,
           dressCard: (document.getElementById('mp_dress') || {}).innerHTML || '', vis }; });
@@ -289,32 +289,32 @@ try {
         renderConsult(d.consult, d.product, d); renderDress(d); }, mkSt(kind));
       const m0 = await at(); await ps.page.waitForTimeout(900); const m = await at();
       if (!m) { no(`${tag} 스티커가 없다 [DRESS_STICKER]`); await ps.page.close(); continue; }
-      const want = W < 400 ? 72 : W < 420 ? 76 : W < 768 ? 80 : W < 820 ? 84 : W < 1024 ? 88 : W < 1280 ? 92 : 96;   // [STICKER_FINISH_1024] 폭마다 고정
+      const want = W < 400 ? 72 : W < 420 ? 76 : W < 768 ? 80 : 112;   // [STICKER_DECO_1024] 폭마다 고정 · 768+ 112(확정 전 카드는 «일정 선택» 단추 때문에 96)
       const bad = [];
       if (m.hits.length) bad.push(`글과 겹침 ${m.hits.join('|')}`);
       if (m.w < 44 || m.h < 44) bad.push(`누름 칸 ${m.w}×${m.h}`);
       if (m.ow > 0) bad.push(`가로 넘침 ${m.ow}`);
       if (m0.pos !== m.pos || m0.cardH !== m.cardH) bad.push(`자리 흔들림 ${m0.pos}→${m.pos} · 카드 ${m0.cardH}→${m.cardH}`);
-      if (m.box !== want) bad.push(`크기 ${m.box}(이 폭은 ${want})`);
+      if (m.box !== want && !(W >= 768 && m.box === 96)) bad.push(`크기 ${m.box}(이 폭은 ${want})`);
       if (m.reflow) bad.push('스티커 때문에 카드 글 자리 · 폭 · 줄바꿈이 바뀌었다 [STICKER_NO_REFLOW]');
-      if ((W < 768) !== m.pm) bad.push(`글 모양 — 폰은 옷걸이 왼쪽 위 11.5px · 넓으면 그림 아래 12px (${m.pm ? '폰' : '넓은 화면'}) [STICKER_LABEL_HANG]`);
+      if ((W < 768) !== m.pm) bad.push(`폰 표시(dst-pm)가 폭과 다르다 (${m.pm ? '폰' : '넓은 화면'})`);
       if (m.boxHit && m.boxHit.length) { if (m.cardW >= 300 && W < 768) bad.push(`그림 상자(투명 부분 포함)가 글 사각형에 걸침 — ${m.boxHit.join('|')} [STICKER_BOX_CLEAR]`); else rows.push(`스티커 ${kind} ${W} 그림 상자가 글 사각형에 걸침(좁은 검사 카드 ${m.cardW}px · 윤곽 기준) — ${m.boxHit.join('|')} [STICKER_BOX_CLEAR]`); }
       if (m.tapTop === 'dst') bad.push('그림 칸의 투명한 모서리가 누름을 받는다 [STICKER_HIT_SHAPE]');
-      if (m.lbH > 22) bad.push(`글이 한 줄이 아니다(${m.lbH}px · 알약은 위아래 1px)`);
+      if (m.lbH > 34) bad.push(`안내가 한 줄이 아니다(${m.lbH}px)`);
       if (!m.inCard) bad.push('스티커가 상담 카드 머리에 있지 않다 [DRESS_STICKER_HEAD]');
       if (m.mode === 'none' || m.mode === '?') bad.push(`맞는 자리를 못 찾았다(${m.mode})`);
       if (m.cardW >= 500 && W >= 768 && m.mode !== 'in') bad.push(`768+ 넓은 카드는 카드 안이어야 한다(${m.mode} · 카드 ${m.cardW}px)`);
       if (W < 768 && m.mode !== 'edge') bad.push(`폰은 모서리 걸침이어야 한다(${m.mode})`);
-      if (m.lbTxt !== '드레스 보기') bad.push(`글이 «드레스 보기»가 아니다(${m.lbTxt}) [STICKER_ONE_WORD]`);
-      if (m.lbGap === null || m.lbGap < 8) bad.push(`글자 ↔ 가장 가까운 글 · 진행 점 ${m.lbGap}px(8 아래) [STICKER_ONE_WORD]`);
-      if (m.lbPill) bad.push('글과 «n벌»이 붙었다 [STICKER_LABEL_TOP]');
+      if (m.lbTxt !== '드레스 보기' || m.aria !== '드레스 보기') bad.push(`안내 · 단추 이름이 «드레스 보기»가 아니다(${m.lbTxt} · ${m.aria}) [STICKER_TIP]`);
+      if (m.oldLb) bad.push('상시 글(.dst-lb)이 되살아났다 [STICKER_NO_LABEL]');
+      if (m.vis && m.vis.gap !== '8') rows.push(`스티커 ${kind} ${W} 간격 ${m.vis.gap} — 글자 8px · 진행 점 4px 로는 자리가 없어 한 단 줄였다 [STICKER_GAP_LADDER] · 코워크 확인`);
       if (!m.inView) bad.push('스티커 · 글이 화면 밖');
       if ((kind === 'two') !== (m.pill === '2벌')) bad.push(`알약 «${m.pill}»`);
       if (!m.pillIn) bad.push('«n벌»이 고리 오른쪽 옆(칸 위 −6 ~ +2 · 오른쪽 끝 맞춤 · 24×18)이 아니다');   // [DRESS_STICKER_HEAD] 자리는 겹침으로 — 안쪽 모서리(in) · 모서리 걸침(edge) · 글은 그대로
       { const v = m.vis, M = W < 768 ? 16 : W < 1024 ? 24 : 32;   // ★[STICKER_VIS_EDGE] 기운 드레스(흔들림 포함) · 그림자 · 글이 화면 끝 16 · 24 · 32px 안 · 보이는 드레스 56 이상 · 진행 점과 겹침 0
         if (!v) bad.push('보이는 드레스를 잴 수 없다(_dstVis 없음)');
         else { if (v.r > W - M + 0.5 || v.l < M) bad.push(`기운 드레스 · 그림자가 화면 끝 ${M}px 밖(${Math.round(v.l)}~${Math.round(v.r)} / ${W})`);
-          if (v.lbR > W - M || v.lbL < M) bad.push(`글이 화면 끝 ${M}px 밖(${Math.round(v.lbL)}~${Math.round(v.lbR)})`);
+          if (v.lbR > W - M + .5 || v.lbL < M - .5) bad.push(`안내가 화면 끝 ${M}px 밖(${Math.round(v.lbL)}~${Math.round(v.lbR)}) [STICKER_TIP]`);
           if (v.dress < 56 - 0.01) bad.push(`보이는 드레스 ${v.dress.toFixed(1)}px(56 아래)`);
           if (v.t < v.dotB) bad.push(`진행 점과 겹친다(드레스 위 ${Math.round(v.t)} · 점 아래 ${Math.round(v.dotB)})`); } }
       if (m.dressCard) bad.push('따로 카드가 다시 그려졌다');
