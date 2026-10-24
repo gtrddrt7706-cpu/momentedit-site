@@ -272,6 +272,7 @@ try {
         const shape = (typeof _dstVis === 'function') ? _dstVis(st).rest.concat([st.querySelector('.dst-lb').getBoundingClientRect()]) : [sb];   // ★[STICKER_HIT_SHAPE] 드레스 윤곽(쉼 −3°) · 글 — 그림 칸의 투명한 모서리는 보지 않는다(누름도 받지 않는다)
         for (let t = w.nextNode(); t; t = w.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; rg.selectNodeContents(t);
           for (const r of rg.getClientRects()) if (r.width >= 1 && shape.some((b) => r.right > b.left && r.left < b.right && r.bottom > b.top && r.top < b.bottom)) hits.push(t.nodeValue.trim().slice(0, 12)); }
+        const boxHit = (() => { const b = st.querySelector('.dst-box').getBoundingClientRect(), o = []; const w3 = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); for (let t = w3.nextNode(); t; t = w3.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; const r3 = document.createRange(); r3.selectNodeContents(t); for (const q of r3.getClientRects()) if (q.width >= 1 && q.right > b.left && q.left < b.right && q.bottom > b.top && q.top < b.bottom) o.push(t.nodeValue.trim().slice(0, 10)); } return o; })();   // [STICKER_BOX_CLEAR] 그림 상자(투명 부분 포함) ↔ 글 사각형
         const tapTop = (() => { const b = st.querySelector('.dst-box').getBoundingClientRect(), e = document.elementFromPoint(b.left + 2, b.top + b.height - 2); return e ? (st.contains(e) ? 'dst' : (e.className || e.tagName)) : ''; })();   // 그림 칸 왼쪽 아래 모서리(투명) = 단추가 아니다
         const txt = () => { const o = []; const w2 = document.createTreeWalker(card, NodeFilter.SHOW_TEXT); for (let t = w2.nextNode(); t; t = w2.nextNode()) { if (!/\S/.test(t.nodeValue) || st.contains(t)) continue; const r2 = document.createRange(); r2.selectNodeContents(t); for (const q of r2.getClientRects()) o.push([q.left, q.top, q.width, q.height].map((v) => Math.round(v * 10) / 10).join(',')); } return o.join('|') + '#' + card.getBoundingClientRect().height; };
         const withSt = txt(); st.style.display = 'none'; const noSt = txt(); st.style.display = '';   // ★[STICKER_NO_REFLOW] 스티커가 있을 때와 없을 때 카드 글 상자가 같아야 한다
@@ -280,7 +281,7 @@ try {
         const v = (typeof _dstVis === 'function') ? _dstVis(st) : null, cr = card.getBoundingClientRect();   // ★[STICKER_VIS_EDGE] 기운 드레스 · 그림자 · 알약 · 진행 점
         const dots = [...document.querySelectorAll('span,i,div,li')].filter((e) => { const r = e.getBoundingClientRect(); return !e.children.length && r.width > 3 && r.width < 16 && r.height > 3 && r.height < 16 && r.bottom <= cr.top && v && r.right > v.left && r.left < v.right; }).map((e) => e.getBoundingClientRect().bottom);
         const vis = v ? { l: v.left, r: v.right, t: v.top, dress: v.dress, lbL: lbR.left, lbR: lbR.right, lbAt: st.querySelector('.dst-lb').getAttribute('data-at'), dotB: dots.length ? Math.max(...dots) : -1e9 } : null;
-        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
+        return { reflow: withSt !== noSt, pm: st.classList.contains('dst-pm'), cardW: Math.round(C0.width), mode: st.getAttribute('data-at') || '?', inView: lbR.left >= 4 && lbR.right <= innerWidth - 4, tapTop, boxHit, inCard: st.parentNode === card, pos: [sb.left - C0.left, sb.top - C0.top, sb.width, sb.height].map(Math.round).join(','), cardH: Math.round(C0.height),
           w: sb.width, h: sb.height, box: Math.round(box.width), hits, ow: document.documentElement.scrollWidth - innerWidth, lbH: lb.height,
           overDiv: Math.round(vg.getBoundingClientRect().top - box.top), pill: pill ? pill.textContent : '', pillIn: pill ? (Math.abs(pr.right - box.right) <= 0.5 && pr.top >= box.top - 6.5 && pr.top <= box.top + 2.5 && pr.height <= 18.5 && pr.width >= 23.5) : true,
           dressCard: (document.getElementById('mp_dress') || {}).innerHTML || '', vis }; });
@@ -288,7 +289,7 @@ try {
         renderConsult(d.consult, d.product, d); renderDress(d); }, mkSt(kind));
       const m0 = await at(); await ps.page.waitForTimeout(900); const m = await at();
       if (!m) { no(`${tag} 스티커가 없다 [DRESS_STICKER]`); await ps.page.close(); continue; }
-      const want = W < 375 ? 72 : W < 414 ? 76 : W < 768 ? 80 : W < 820 ? 84 : W < 1024 ? 88 : W < 1280 ? 92 : 96;   // [STICKER_FINISH_1024] 폭마다 고정
+      const want = W < 400 ? 72 : W < 420 ? 76 : W < 768 ? 80 : W < 820 ? 84 : W < 1024 ? 88 : W < 1280 ? 92 : 96;   // [STICKER_FINISH_1024] 폭마다 고정
       const bad = [];
       if (m.hits.length) bad.push(`글과 겹침 ${m.hits.join('|')}`);
       if (m.w < 44 || m.h < 44) bad.push(`누름 칸 ${m.w}×${m.h}`);
@@ -297,6 +298,7 @@ try {
       if (m.box !== want) bad.push(`크기 ${m.box}(이 폭은 ${want})`);
       if (m.reflow) bad.push('스티커 때문에 카드 글 자리 · 폭 · 줄바꿈이 바뀌었다 [STICKER_NO_REFLOW]');
       if ((W < 768) !== m.pm) bad.push(`글 모양 — 폰은 옷걸이 왼쪽 위 11.5px · 넓으면 그림 아래 12px (${m.pm ? '폰' : '넓은 화면'}) [STICKER_LABEL_HANG]`);
+      if (m.boxHit && m.boxHit.length) { if (m.cardW >= 300 && W < 768) bad.push(`그림 상자(투명 부분 포함)가 글 사각형에 걸침 — ${m.boxHit.join('|')} [STICKER_BOX_CLEAR]`); else rows.push(`스티커 ${kind} ${W} 그림 상자가 글 사각형에 걸침(좁은 검사 카드 ${m.cardW}px · 윤곽 기준) — ${m.boxHit.join('|')} [STICKER_BOX_CLEAR]`); }
       if (m.tapTop === 'dst') bad.push('그림 칸의 투명한 모서리가 누름을 받는다 [STICKER_HIT_SHAPE]');
       if (m.lbH > 22) bad.push(`글이 한 줄이 아니다(${m.lbH}px · 알약은 위아래 1px)`);
       if (!m.inCard) bad.push('스티커가 상담 카드 머리에 있지 않다 [DRESS_STICKER_HEAD]');

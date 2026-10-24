@@ -477,12 +477,12 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 @media (prefers-reduced-motion:reduce){ .dr-pop,.dr-pop.out,.dr-pop-card,.dr-pop.out .dr-pop-card{transition:none} .dr-pop-card,.dr-pop.out .dr-pop-card{transform:none} }
 .dr-pop-card iframe{display:block;flex:1 1 auto;width:100%;height:100%;min-height:0;border:0;background:var(--card-white)}
 /* ★★[STICKER_FINISH_1024 코워크 마감 지시 · 사장님 «gpt 한테 제안받아봐 · 디자이너 시선으로»] 크기 · 기울기 · 흔들림 · 반응 · «n벌» · 글 자리를 한 벌로.
-   크기(그림 칸) 360 72 · 375+ 76 · 414+ 80 · 768+ 84 · 820+ 88 · 1024+ 92 · 1280+ 96 — 보이는 드레스 = 칸의 96.6%(투명 여백 뺀 고리 ~ 밑단).
+   크기(그림 칸) 360 72 · 400+ 76(390 은 76 이면 그림 상자 모서리가 제목 끝에 걸려 72 · [STICKER_BOX_CLEAR]) · 420+ 80 · 768+ 84 · 820+ 88 · 1024+ 92 · 1280+ 96 — 보이는 드레스 = 칸의 96.6%(투명 여백 뺀 고리 ~ 밑단).
    층 = 누름(.dst-in · 위아래 · 작게) / 회전(.dst-sw · 쉼 −3° · 흔들림) / 그림(.dst-art · 그림자만) — 서로 transform 이 부딪히지 않게 나눴다.
    글(.dst-lb)은 그림자 · 필터 없이 같은 고리 궤도로 돌되 안쪽(.dst-lbt)이 반대로 돌아 글줄은 늘 수평([DRESS_STICKER_SWAY]) */
 .dst{--dst-s:72px;position:absolute;top:0;right:0;z-index:3;display:block;width:var(--dst-s);height:var(--dst-s);min-width:44px;min-height:44px;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
-@media (min-width:375px){ .dst{--dst-s:76px} }
-@media (min-width:414px){ .dst{--dst-s:80px} }
+@media (min-width:400px){ .dst{--dst-s:76px} }
+@media (min-width:420px){ .dst{--dst-s:80px} }
 @media (min-width:768px){ .dst{--dst-s:84px} }
 @media (min-width:820px){ .dst{--dst-s:88px} }
 @media (min-width:1024px){ .dst{--dst-s:92px} }
@@ -5131,7 +5131,7 @@ function _dressCardOn(d){
 var DRESS_STICKER='/assets/dress/sticker-';
 function _dstHtml(dr){
   var n=_dressIds(dr).length, P=DRESS_STICKER, set=function(ext){ return P+'112.'+ext+' 112w, '+P+'128.'+ext+' 128w, '+P+'176.'+ext+' 176w'; },
-      SZ='(min-width:1280px) 96px, (min-width:1024px) 92px, (min-width:820px) 88px, (min-width:768px) 84px, (min-width:414px) 80px, (min-width:375px) 76px, 72px';
+      SZ='(min-width:1280px) 96px, (min-width:1024px) 92px, (min-width:820px) 88px, (min-width:768px) 84px, (min-width:420px) 80px, (min-width:400px) 76px, 72px';
   var img='<picture><source type="image/webp" srcset="'+set('webp')+'" sizes="'+SZ+'"><img src="'+P+'176.png" srcset="'+set('png')+'" sizes="'+SZ+'" alt="" width="176" height="176" loading="lazy" decoding="async"></picture>';
   /* [STICKER_FINISH_1024] 층 = 누름(.dst-in) › 칸(.dst-box) › 회전(.dst-sw) › 그림(.dst-art · 그림자만) · «n벌»은 흔들리지 않는 층 · 글은 궤도(.dst-lb) › 수평(.dst-lbt) */
   return '<button type="button" class="dst" data-dst aria-label="드레스 미리 보기"><span class="dst-in"><span class="dst-box"><span class="dst-sw"><span class="dst-art">'+img+'</span><span class="dst-hit" aria-hidden="true"></span></span></span>'
@@ -5182,7 +5182,7 @@ function _dstVis(st){
   return { left:L-3, right:R+3, top:T, bottom:B+5, dress:.966*S, env:env, rest:rest };   // 그림자 = 마우스 올림 때 drop-shadow(0 3px 4px) 의 보이는 번짐까지
 }
 /* 겹침 — 드레스(쉼 둘레 4px · 흔들림 둘레 2px) · 글(2px) · «n벌»(3px)이 걸림돌에 닿는가 · 누르는 칸은 다른 단추 · 링크 위에 서지 않게 */
-function _dstHits(st, obs){
+function _dstHits(st, obs, boxClear){
   var v=_dstVis(st), lb=st.querySelector('.dst-lb'), pl=st.querySelector('.dst-pill'), box=(st.querySelector('.dst-box')||st).getBoundingClientRect();
   var lr=lb&&lb.getBoundingClientRect(), pr=pl&&pl.getBoundingClientRect();
   var hit=function(a,r,g){ return r.right>a.left-g && r.left<a.right+g && r.bottom>a.top-g && r.top<a.bottom+g; };
@@ -5192,6 +5192,7 @@ function _dstHits(st, obs){
     for(j=0;j<v.env.length;j++) if(hit(v.env[j],o,2)) return true;
     if(lr && hit(lr,o,2)) return true;
     if(pr && hit(pr,o,3)) return true;
+    if(boxClear && o.k==='t' && hit(box,o,1)) return true;   // ★[STICKER_BOX_CLEAR 코워크 1024] 그림 상자(투명 부분 포함)도 글 사각형과 겹침 0 — 먼저 이것까지 지키는 자리를 찾고, 없을 때만 윤곽으로(누르는 자리는 이미 윤곽)
   }
   return false;
 }
@@ -5224,8 +5225,8 @@ function _dstLayout(card){
   st.classList.toggle('dst-pm', PH);
   var obs=_dstObstacles(card, st);
   var place=function(top, right, under, pt){ st.style.top=Math.round(top-bw)+'px'; st.style.right=Math.round(right-bw)+'px'; if(pl) pl.style.top=pt+'px'; _dstLabel(card, st, under===true?'under':(under||'hang')); };
-  var fits=function(){ var v=_dstVis(st), q=st.getBoundingClientRect(), l=lb?lb.getBoundingClientRect():q, p=pl?pl.getBoundingClientRect():q;
-    return v.left>=M && v.right<=W-M+.5 && l.left>=M && l.right<=W-M && p.right<=W-M && q.left>=0 && q.right<=W && !_dstHits(st, obs); };
+  var fits=function(bc){ var v=_dstVis(st), q=st.getBoundingClientRect(), l=lb?lb.getBoundingClientRect():q, p=pl?pl.getBoundingClientRect():q;
+    return v.left>=M && v.right<=W-M+.5 && l.left>=M && l.right<=W-M && p.right<=W-M && q.left>=0 && q.right<=W && !_dstHits(st, obs, bc); };
   var tries=[];
   if(PH){   // 코워크 값 360(오른쪽 −2 · 위 −14) ~ 430(4 · −8) 을 이어 쓴 자리 → 위아래 1px 씩 · 오른쪽은 화면 끝 16px 까지(max) · «n벌»은 고리 옆(−6) → 조금 아래(2)
     var k=Math.max(0, Math.min(1, (W-360)/70)), r0=-2+6*k, t0=-14+6*k;
@@ -5236,10 +5237,12 @@ function _dstLayout(card){
     ['under','side'].forEach(function(lm){ [.25,.33,.15].forEach(function(fv){ [.25,.15,.08,0].forEach(function(fh){ tries.push([-fv*Sw, -fh*Sw, lm, 'edge', 'spec', -6]); }); }); });
   }
   var ok=null;
+  [true, false].forEach(function(bc){   // [STICKER_BOX_CLEAR] 1차 = 그림 상자까지 글과 0 · 2차 = 윤곽만
   for(var i=0;i<tries.length && !ok;i++){ var T=tries[i], r=T[1];
     place(T[0], r, T[2], T[5]);
-    if(PH){ var ex=_dstVis(st).right-(W-M); if(ex>0 || T[4]==='max'){ r=T[4]==='max'?Math.ceil(r+ex):Math.ceil(r+ex); place(T[0], r, T[2], T[5]); } }   // 화면 끝 16px — 넘친 만큼 안으로 · max 는 16px 까지 바깥으로
-    if(fits()) ok=T; }
+    if(PH){ var ex=_dstVis(st).right-(W-M); if(ex>0 || T[4]==='max'){ r=Math.ceil(r+ex); place(T[0], r, T[2], T[5]); } }   // 화면 끝 16px — 넘친 만큼 안으로 · max 는 16px 까지 바깥으로
+    if(fits(bc)) ok=T; }
+  });
   if(!ok){ ok=[0,0,0,'none']; place(tries[0][0], tries[0][1], tries[0][2], tries[0][5]); }   // 글은 그대로 · 멈춘다(검사가 빨강으로 알린다)
   st.setAttribute('data-at', ok[3]);
 }
