@@ -93,6 +93,12 @@ try {
       steps.push({ nm, t: g.t, h: g.h, bt: b.bar ? Math.round(g.ft + b.bar.t) : null, bh: b.bar ? b.bar.h : null, ...b });
     };
     await geo('물음1');
+    { const g = await fr.evaluate(() => { const o = [...document.querySelectorAll('.pk-opt')].map((e) => ({ h: Math.round(e.getBoundingClientRect().height), fs: getComputedStyle(e).fontSize })); const qq = getComputedStyle(document.querySelector('.pk-q')).fontSize; return { o, qq, w: innerWidth }; });   // ★[DRESS_FORM_1024] 폼 크기
+      const pc = g.w >= 560, hs = g.o.map((x) => x.h);
+      if (g.qq !== (pc ? '24px' : '22px')) no(`${tag} 물음 제목 ${g.qq} — ${pc ? 24 : 22}px 이 아니다 [DRESS_FORM_1024]`);
+      if (g.o.some((x) => x.fs !== '16px')) no(`${tag} 보기 글 ${g.o.map((x) => x.fs).join(' ')} — 16px 이 아니다 [DRESS_FORM_1024]`);
+      if (pc ? hs.some((h) => h < 128 || h > 136) : hs.some((h) => h !== 76)) no(`${tag} 그림 있는 보기 칸 높이 ${hs.join(' ')} — ${pc ? '128~136' : '76'} 이 아니다 [DRESS_FORM_1024]`);
+      rows.push(`${tag} 물음1 보기 칸 ${hs.join('/')} · 제목 ${g.qq}`); }
     await fr.click('.pk-opt[data-a="ankle"]'); await geo('물음1 답');
     await fr.click('.wz-bar [data-go="1"]'); await geo('물음2');
     await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('물음3');
@@ -105,12 +111,13 @@ try {
     if (new Set(all.map((x) => x.t + '/' + x.h)).size !== 1) no(`${tag} 창 위 끝 · 높이가 걸음마다 다르다 ${all.map((x) => x.t + '/' + x.h).join(' ')} [POPUP_FIXED_1024]`);
     if (q.length !== 4 || new Set(q.map((x) => x.bt + '/' + x.bh)).size !== 1) no(`${tag} 물음 단계 막대 위 끝 · 높이가 같지 않다(또는 물음 밖에 막대) ${steps.map((x) => x.nm + ':' + (x.bt ?? '-')).join(' ')} [POPUP_FIXED_1024]`);
     if (steps.some((x) => x.pick)) no(`${tag} 고르기 · 저장 · Nº 가 보인다 [DRESS_GUIDE_ONLY]`);
-    const GL = '마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.';
+    { const BH = W < 560 ? 72 : 80; if (q.some((x) => Math.abs(x.bh - BH) > 0.5)) no(`${tag} 막대 높이 ${q.map((x) => x.bh).join(' ')} — ${BH} 이 아니다 [DRESS_FORM_1024]`); }
+    const GL = '마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.|상담 날 이 화면을 보여 주셔도 좋아요.';
     if (!steps.filter((x) => /결과|자세히/.test(x.nm)).every((x) => x.guide === GL)) no(`${tag} 결과 · 자세히 맨 아래 안내 한 줄이 아니다 [DRESS_GUIDE_ONLY]`);
-    if (steps[0].steps.join(' ') !== '1/3 · 길이 2/3 · 핏 3/3 · 노출·소매') no(`${tag} 단계 숫자 «1/3 · 길이» 꼴이 아니다 ${steps[0].steps.join(' ')} [DRESS_STEP_NUM]`);
-    if (!/^물음 셋에 답하면 어울리는 드레스부터 보여 드려요\. 상담 전에 둘러보고/.test(steps[0].intro)) no(`${tag} 첫 물음 목적 한 줄이 아니다 [DRESS_INTRO_LINE]`);
-    if (steps[2].q !== '어떤 라인이 좋으세요?') no(`${tag} 물음 2 가 «어떤 라인이 좋으세요?»가 아니다 [DRESS_Q2_LINE]`);
-    if (!/^답에 맞는 드레스 · \d+벌/.test(steps[4].sub)) no(`${tag} 결과 소제목에 벌 수가 없다 ${steps[4].sub} [DRESS_FIT_COUNT]`);
+    if (steps[0].steps.join(' ') !== '1/3 · 길이 2/3 · 라인 3/3 · 노출·소매') no(`${tag} 단계 숫자 «1/3 · 길이» 꼴이 아니다 ${steps[0].steps.join(' ')} [DRESS_STEP_NUM]`);
+    if (steps[0].intro !== '상담 전, 마음에 드는 스타일을 살펴보세요.') no(`${tag} 첫 물음 목적 한 줄이 아니다 [DRESS_INTRO_LINE]`);
+    if (steps[2].q !== '어떤 라인이 마음에 드세요?') no(`${tag} 물음 2 가 «어떤 라인이 마음에 드세요?»가 아니다 [DRESS_Q2_LINE]`);
+    if (!/^답에 어울리는 드레스 · \d+벌/.test(steps[4].sub)) no(`${tag} 결과 소제목에 벌 수가 없다 ${steps[4].sub} [DRESS_FIT_COUNT]`);
     const hy = await fr.evaluate(() => { window.scrollTo(0, 0); return 0; });
     await P.evaluate(() => { const x = document.getElementById('mp_drFrame').contentDocument.getElementById('pkExit'); if (x) x.click(); }); await P.waitForTimeout(600);
     const dlg = await P.evaluate(() => { const m = document.getElementById('mpModal'); return m && m.classList.contains('open'); });
@@ -208,8 +215,8 @@ try {
     const pb = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
     const P = pb.page;
     await P.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load', timeout: 30000 });
-    const open = async (demo, dr) => { await P.evaluate(([dr, demo]) => openDressPicker(dr, demo ? { demo: true } : {}), [dr || DR, demo]); const fr = await (await P.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame(); await fr.waitForSelector('.pk-band, .pk-q', { timeout: 15000 }); await P.waitForTimeout(250); return fr; };
-    const look = (fr) => fr.evaluate(() => ({ list: !!document.querySelector('.pk-main .pk-band'), detail: (document.querySelector('.dv-nm') || {}).textContent || '', q: (document.getElementById('pkQ') || {}).textContent || '', y: Math.round(window.pageYOffset), focus: document.activeElement ? (document.activeElement.getAttribute('data-open') || '') : '' })).catch(() => ({ gone: true }));   // 겹화면이 닫혔으면(옛 동작 · 뒤로가기 = 통째 닫기) gone
+    const open = async (demo, dr) => { await P.evaluate(([dr, demo]) => openDressPicker(dr, demo ? { demo: true } : {}), [dr || DR, demo]); const fr = await (await P.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame(); await fr.waitForSelector('.pk-mine, .pk-q', { timeout: 15000 }); await P.waitForTimeout(250); return fr; };
+    const look = (fr) => fr.evaluate(() => ({ list: !!document.querySelector('.pk-main .pk-mine'), detail: (document.querySelector('.dv-nm') || {}).textContent || '', q: (document.getElementById('pkQ') || {}).textContent || '', y: Math.round(window.pageYOffset), focus: document.activeElement ? (document.activeElement.getAttribute('data-open') || '') : '' })).catch(() => ({ gone: true }));   // 겹화면이 닫혔으면(옛 동작 · 뒤로가기 = 통째 닫기) gone
     const back = async (ms = 500) => { await P.evaluate(() => history.back()); await P.waitForTimeout(ms); };
     const rows2 = [];
     const QS = await P.evaluate(() => window.DRESS_REFS.questions.map((q) => q.q));
@@ -267,4 +274,4 @@ try {
 }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-fit — 실패 ${bad}건 [DRESS_DETAIL_FIT]`); process.exit(1); }
-console.log(`━━ dress-fit — 통과 · [DRESS_GUIDE_ONLY] 고르기 없음 · 창 · 물음 막대 고정 · 열면 물음 1(답해야 다음 · 건너뛰기 없음) · 결과 «답에 맞는 드레스 · n벌» → «다른 드레스도 보기» → 펼침 · 막대 작은 사진 = 자세히 · 답 바꾸기 뒤 두 벌 그대로 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 뒤로가기 한 걸음(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단) · 이웃 넘기기 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT · DRESS_BACK_STEP]`);
+console.log(`━━ dress-fit — 통과 · [DRESS_GUIDE_ONLY] 고르기 없음 · 창 · 물음 막대 고정 · 열면 물음 1(답해야 다음 · 건너뛰기 없음) · 결과 «내가 고른 스타일» → «답에 어울리는 드레스 · n벌» → «다른 드레스도 살펴보기» → 펼침 · 막대 작은 사진 = 자세히 · 답 바꾸기 뒤 두 벌 그대로 · 세 크기 × 네 상태 모두 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음 · 여섯 크기 첫 화면 막대 선에 걸린 글줄 0 · 뒤로가기 한 걸음(자세히 → 목록 · 물음 3 → 2 → 1 → 목록 · 목록 → 나가기 판단) · 이웃 넘기기 · 공개 주소는 마이페이지로 [DRESS_DETAIL_FIT · DRESS_BAR_FIT · DRESS_BACK_STEP]`);

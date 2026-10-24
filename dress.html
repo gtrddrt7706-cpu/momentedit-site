@@ -297,6 +297,75 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
 .pk-dots .dotln{margin-top:4px}
 .pk-done .pk-acts{margin-top:24px}
 
+/* ★★[DRESS_FORM_1024 코워크 «상담 전 둘러보기» 완성도 · 사장님 «폼 디자인도 신경 써서»] 물음 · 막대 · 결과 · 자세히 값 — 아래가 위의 옛 값을 덮는다.
+   폰 = 창 폭 560 미만 · PC = 560 이상(마이페이지 PC 창 600 안). 보기 글은 폰 · PC 16(코워크 폰 15 는 글자 단계 [TYPO_SCALE7] 밖이라 16).
+   확대 · 반짝임 · 고르면 저절로 넘어가기 없음 · 고르면 테 1px → 1.5px(바깥 크기는 그대로 · 안쪽 그림자 0.5px) */
+.wz-steps{font-size:12px;color:var(--gold-text)}
+.wz-steps li.on{color:var(--gold-text);font-weight:600}
+.wz-steps li.done{color:var(--gold-text)}
+.pk-intro{font-size:14px;color:var(--sub);margin-bottom:14px}
+.pk-q{font-size:22px;font-weight:500;line-height:1.45;color:var(--accent)}
+.pk-qsub{font-size:13px;color:var(--sub);margin-top:6px}
+.pk-opts{gap:10px;margin-top:20px}
+.pk-opt{min-height:52px;padding:12px 16px;border:1px solid var(--border);border-radius:8px;background:var(--card-white);font-size:16px;line-height:1.5;color:var(--sub);transition:border-color .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease),color .2s var(--ease)}
+.pk-opt.has-fig{min-height:76px}
+.pk-opt[aria-pressed="true"]{border-color:var(--gold-deep);box-shadow:inset 0 0 0 .5px var(--gold-deep);background:var(--bg);color:var(--text)}
+.pk-opt:active{transform:none;background:var(--bg)}
+.pk-opt:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.pk-ot{min-width:0}
+.pk-ofig{width:40px;height:50px;margin:0}   /* 칸 76 = 그림 50 + 위아래 12 + 테 1 */
+.pk-ofig img{object-fit:contain}
+@media (min-width:560px){
+  .wz-steps{font-size:13px}
+  .pk-q{font-size:24px}
+  .pk-opts{gap:12px}
+  .pk-opts.figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pk-opts.figs .pk-opt.has-fig{position:relative;flex-direction:column;justify-content:center;gap:8px;min-height:132px;padding:14px 12px;text-align:center}
+  .pk-opts.figs .pk-opt.has-fig .pk-mk{position:absolute;top:12px;left:12px}
+  .pk-opts.figs .pk-opt.has-fig .pk-ofig{width:48px;height:64px}
+  .pk-opts.figs .pk-opt.no-fig{grid-column:1 / -1}
+  .pk-opts.figs .pk-opt.has-fig:last-child:nth-child(odd){grid-column:1 / -1;justify-self:center;width:calc(50% - 6px)}   /* 보기 셋 = 둘 + 가운데 하나(한 칸이 왼쪽에 홀로 남지 않게) */
+}
+/* 막대 — 폰 72 + 안전 여백 · PC 80 · 단추 높이 48 · «이전» 폰 80 · PC 100 · 진사는 주 단추(«다음 · 드레스 보기»)만 · 답 전엔 옅게 그대로 */
+.wz-bar .cc-btn,.wz-bar .cc-btn-ghost{height:48px;padding-top:0;padding-bottom:0;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.wz-bar .cc-btn-ghost{flex:0 0 80px;min-width:80px}
+.wz-bar .cc-btn:not(.cc-btn-wait),.wz-bar .cc-btn:not(.cc-btn-wait):hover{background:var(--seal);color:#fff}
+html.pk-pop .wz-bar{padding:11px 0 calc(12px + env(safe-area-inset-bottom,0px))}
+html.pk-pop .pk-barrow{min-height:48px}
+html.pk-pop .wz-bar .wz-err,html.pk-pop .wz-bar .wz-err:empty{display:none}
+html.pk-pop .pk-card{padding:0 20px}
+html.pk-pop .pk-head{margin:0 -20px 12px;padding:6px 8px 6px 20px}
+@media (min-width:560px){
+  .wz-bar .cc-btn-ghost{flex-basis:100px;min-width:100px}
+  html.pk-pop .wz-bar{padding:15px 0 calc(16px + env(safe-area-inset-bottom,0px))}
+  html.pk-pop .pk-card{padding:0 28px}
+  html.pk-pop .pk-head{margin:0 -28px 14px;padding:6px 10px 6px 28px}
+}
+/* 결과 — «내가 고른 스타일» 판 → 한 줄 → 소제목 + 작은 줄 → 그리드 → «다른 드레스도 살펴보기» → 맨 아래 두 줄 [DRESS_RESULT_MINE] */
+.pk-mine{display:flex;align-items:flex-start;gap:8px;padding:14px 16px;border-radius:10px;background:var(--gold-bg)}
+.pk-mine-t{flex:1 1 auto;min-width:0}
+.pk-mine-h{font-size:12px;color:var(--gold-text);letter-spacing:0.04em;line-height:1.6}
+.pk-mine-l{list-style:none;margin-top:4px}
+.pk-mine-l li{font-size:14px;color:var(--text);line-height:1.6}
+.pk-mine .pk-txt{flex:0 0 auto;margin:-11px -8px -11px 0;white-space:nowrap}
+.pk-mine-n{margin-top:12px;text-wrap:balance}
+.pk-sub-s{margin-top:2px;font-size:12px;color:var(--light);line-height:1.6}
+.pk-sub-s + .pk-grid{margin-top:12px}
+.pk-end-dots{display:table;margin:28px auto 8px}
+.pk-end-dots .dotln + .dotln{margin-top:4px}
+/* 자세히 — 한 줄 소개 · 디자인 · 소재 · 분위기 · 입어 보며 확인해요 · 현장에서 함께 볼 것 · 함께 살펴볼 드레스 [DRESS_DETAIL_FIELDS] */
+.dv-sec{margin-top:20px;padding-top:16px;border-top:1px solid var(--hairline)}
+.dv-sec .dv-k{font-weight:500;margin-bottom:8px}
+.dv-dl{display:grid;grid-template-columns:auto 1fr;column-gap:16px;row-gap:4px}
+.dv-dl div{display:contents}
+.dv-dl dt{font-size:13px;color:var(--light);line-height:1.7}
+.dv-dl dd{font-size:14px;color:var(--text);line-height:1.7}
+.dv-p{font-size:14px;color:var(--sub);line-height:1.85}
+.dv-ul,.dv-rel{list-style:none}
+.dv-ul li{position:relative;padding-left:13px;font-size:14px;color:var(--sub);line-height:1.85}
+.dv-ul li::before{content:'';position:absolute;left:0;top:calc(.925em - 2.5px);width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
+.dv-relb{margin-left:-12px;font-size:14px;color:var(--accent)}
+.dv-reld{margin-top:-8px;font-size:13px;color:var(--light);line-height:1.6}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;scroll-behavior:auto!important} html.pk-pop .pk-main.pk-fade{animation:none} }
 </style>
 <script src="/assets/dress-refs.js"></script>
@@ -376,13 +445,29 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     return '<div class="dv"><div class="dv-view"><ul class="dv-strip" id="dvStrip"' + (n > 1 ? ' tabindex="0"' : '') + ' aria-label="' + esc(d.name) + ' 사진">' + li + '</ul>'
       + (n > 1 ? '<button type="button" class="dv-arr dv-prev" data-dv="-1" aria-label="앞 사진" disabled>&lsaquo;</button><button type="button" class="dv-arr dv-next" data-dv="1" aria-label="다음 사진">&rsaquo;</button><span class="dv-cnt" id="dvCnt" aria-live="polite">1 / ' + n + '</span>' : '')   // [DRESS_DETAIL_FIT] 넘김은 사진 위에
       + '</div><div class="dv-tx"><h2 class="dv-nm" id="dvName" tabindex="-1">' + esc(d.name) + '</h2>'
-      + '<p class="dv-sum">' + esc(R.sumDetail(d)) + '</p>'   // [DRESS_SUM_ONE] 자세히 = 라인 · 길이 · 소재 · 넥라인
-      + (ctl ? '<div class="pk-ctl">' + ctl + '</div>' : '')   // [DRESS_DETAIL_FIT] 고르기 단추는 이름 · 요약 줄 바로 아래 — 라인 설명 · 분위기 · 어울리는 소품은 그 아래
-      + (ln && ln.lead ? '<p class="dv-lead">' + esc(ln.lead) + '</p>' : '')   // [DRESS_LINE_IN_DETAIL] 라인 한 줄 설명 — 요약 줄과 단추 사이에 두면 단추가 막대 뒤로 숨는다(390×844 · 390×740 · 1280×900 에서 최대 47px · 함께 볼 점이 있는 슬립 · 컬럼)
-      + (ln && ln.note ? '<p class="dotln">' + esc(ln.note) + '</p>' : '')     // 함께 볼 점(슬립 · 컬럼만 · [NOTE_DOT])
-      + (d.mood ? '<p class="dv-mood">' + esc(d.mood) + '</p>' : '')
-      + (d.pair ? '<p class="dv-pair"><span class="dv-k">어울리는 소품</span>' + esc(d.pair) + '</p>' : '')
+      + (ctl ? '<div class="pk-ctl">' + ctl + '</div>' : '')
+      + detailBody(d, ln)   // ★★[DRESS_DETAIL_FIELDS 1024 코워크] 한 줄 소개 → 디자인 → 소재 · 분위기 → 입어 보며 확인해요 → 현장에서 함께 볼 것 → 함께 살펴볼 드레스(빈 칸은 줄째 없음)
       + '</div></div>';
+  }
+  /* ★★[DRESS_DETAIL_FIELDS 1024 코워크 «자세히 — 사장님이 채울 칸»] 비어 있으면 그 줄을 아예 그리지 않는다 · [DRESS_SUM_ONE] 이름 아래 요약 줄은 «디자인»과 같은 말이라 걷었다(한 번만) ·
+     [DRESS_LINE_IN_DETAIL] 한 줄 소개가 비면 그 라인의 lead · 함께 볼 점(note)은 그 아래 */
+  function detailBody(d, ln){
+    var g = R.lengthOf(d.length), sl = R.SLEEVE_KO[d.sleeve] || '';
+    var dz = [['라인', ln ? ln.ko : ''], ['허리선', d.waist || ''], ['기장', g ? (g.q || g.ko) : ''], ['네크라인', d.neck || ''], ['소매', sl]].filter(function(r){ return r[1]; });
+    var fm = [d.fabric || '', d.mood || ''].filter(Boolean).join(' · ');
+    var lst = function(a){ return (Array.isArray(a) ? a : []).map(function(x){ return String(x || '').trim(); }).filter(Boolean); };
+    var tryOn = lst(d.tryOn), onsite = lst(d.onsite); if (!onsite.length && d.pair) onsite = String(d.pair).split(' · ').map(function(x){ return x.trim(); }).filter(Boolean);
+    var rel = (Array.isArray(d.related) ? d.related : []).map(function(r){ var x = r && R.dress(r.id); return x && x.id !== d.id ? { d: x, diff: String(r.diff || '') } : null; }).filter(Boolean).slice(0, 2);
+    var intro = String(d.intro || (ln && ln.lead) || '');
+    var sec = function(h, body){ return '<section class="dv-sec"><h3 class="dv-k">' + h + '</h3>' + body + '</section>'; };
+    var ul = function(a){ return '<ul class="dv-ul">' + a.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'; };
+    return (intro ? '<p class="dv-lead">' + esc(intro) + '</p>' : '')
+      + (ln && ln.note ? '<p class="dotln">' + esc(ln.note) + '</p>' : '')   // 함께 볼 점(슬립 · 컬럼만 · [NOTE_DOT])
+      + (dz.length ? sec('디자인', '<dl class="dv-dl">' + dz.map(function(r){ return '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>') : '')
+      + (fm ? sec('소재 · 분위기', '<p class="dv-p">' + esc(fm) + '</p>') : '')
+      + (tryOn.length ? sec('입어 보며 확인해요', ul(tryOn)) : '')
+      + (onsite.length ? sec('현장에서 함께 볼 것', ul(onsite)) : '')
+      + (rel.length ? sec('함께 살펴볼 드레스', '<ul class="dv-rel">' + rel.map(function(r){ return '<li><button type="button" class="pk-txt dv-relb" data-nb="' + esc(r.d.id) + '">' + esc(r.d.name) + ' <span aria-hidden="true">&rsaquo;</span></button>' + (r.diff ? '<p class="dv-reld">' + esc(r.diff) + '</p>' : '') + '</li>'; }).join('') + '</ul>') : '');
   }
   function wireStrip(root){
     var st = root.querySelector('#dvStrip'); if (!st) return;
@@ -445,13 +530,13 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   function qHTML(i){
     var q = R.questions[i], multi = !!q.multi, val = S.ans[q.key], figs = q.figs || null;
     var opts = q.opts.map(function(o){
-      var on = multi ? (val.indexOf(o[0]) >= 0) : (val === o[0]), fig = '';
-      if (figs) { var ln = figs[o[0]] ? R.line(figs[o[0]]) : null; fig = '<span class="pk-ofig" aria-hidden="true">' + (ln ? '<img src="' + esc(ln.svg) + '" alt="" width="150" height="200" decoding="async">' : '') + '</span>'; }   // [DRESS_Q_WORDS] 핏 답 왼쪽 라인 그림
-      return '<button type="button" class="pk-opt" data-a="' + esc(o[0]) + '" aria-pressed="' + (on ? 'true' : 'false') + '"><span class="pk-mk" aria-hidden="true"></span>' + fig + '<span>' + esc(o[1]) + '</span></button>';
+      var on = multi ? (val.indexOf(o[0]) >= 0) : (val === o[0]), src = figs ? R.figSrc(figs[o[0]]) : '';
+      var fig = src ? '<span class="pk-ofig" aria-hidden="true"><img src="' + esc(src) + '" alt="" width="150" height="200" decoding="async"></span>' : '';   // ★[DRESS_FORM_1024] 보기 그림(길이 · 라인 · 노출 · 소매 · 같은 크기 · 같은 시점) — 그림 없는 보기는 낮은 칸
+      return '<button type="button" class="pk-opt' + (src ? ' has-fig' : ' no-fig') + '" data-a="' + esc(o[0]) + '" aria-pressed="' + (on ? 'true' : 'false') + '"><span class="pk-mk" aria-hidden="true"></span>' + fig + '<span class="pk-ot">' + esc(o[1]) + '</span></button>';
     }).join('');
-    return (i === 0 ? '<p class="pk-intro">물음 셋에 답하면 어울리는 드레스부터 보여 드려요. 상담 전에 둘러보고 마음에 드는 드레스를 떠올려 오세요.</p>' : '')   // ★[DRESS_INTRO_LINE 1024 코워크] 무엇을 하는 화면인지 한 줄(추천 · 맞춤 말 없음)
+    return (i === 0 ? '<p class="pk-intro">상담 전, 마음에 드는 스타일을 살펴보세요.</p>' : '')   // ★[DRESS_INTRO_LINE · DRESS_FORM_1024 코워크] 무엇을 하는 화면인지 한 줄(추천 · 맞춤 말 없음)
       + stepsHTML(i) + '<h2 class="pk-q" id="pkQ" data-head tabindex="-1">' + esc(q.q) + '</h2>' + (q.sub ? '<p class="pk-qsub">' + esc(q.sub) + '</p>' : '')
-      + '<div class="pk-opts' + (multi ? ' multi' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
+      + '<div class="pk-opts' + (multi ? ' multi' : '') + (figs ? ' figs' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
       ;   // ★[DRESS_Q_FIRST] 물음 아래 «드레스 바로 보기 ›»는 걷었다 — 답해야 결과로 간다
   }
   /* [DRESS_LIST_FIRST] 고른 답의 글을 잇는다 — «발목까지 · 몸 선을 따라 · 노출이 적은 드레스»(물음 순서 · 답 순서 · 건너뛰기는 빼고) */
@@ -465,10 +550,12 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
   }
   /* ★[DRESS_BAND_WORDS 2026-10-23 코워크 디자인 라운드 1 · 4] 띠 글 «원하시는 길이와 핏을 고르시면 그 드레스부터 보여 드려요» — 종전 «어울리는»은 몸을 평가하는 말로 읽혔다 */
   function bandHTML(){
-    var said = ansWords().split(' · ').map(function(p){ return p.replace(/ /g, '\u00a0'); }).join(' · ');   // ★[DRESS_BAND_KEEP 2026-10-23 라운드 1] 답 하나는 한 덩어리 — 390 에서 «노출이 / 적은 드레스»처럼 답 중간에서 꺾이지 않고 « · » 자리에서만 줄이 바뀐다
-    /* ★[DRESS_Q_FIRST] 결과 맨 위 띠 = 고른 답 글 + «답 바꾸기 ›»(물음 1부터 · 고른 답 · 고른 드레스 그대로) — 답 없는 띠(«답하기 ›»)는 없다 */
-    return '<div class="pk-band"><p class="pk-band-t">' + esc(said) + '</p>'
-      + '<button type="button" class="pk-txt" data-act="ask">답 바꾸기 <span aria-hidden="true">&rsaquo;</span></button></div>';
+    /* ★[DRESS_Q_FIRST] 결과 맨 위 = 고른 답 + «답 바꾸기 ›»(물음 1부터 · 고른 답 그대로) — 답 없는 띠(«답하기 ›»)는 없다 */
+    /* ★★[DRESS_RESULT_MINE 1024 코워크] 결과 맨 위 = «내가 고른 스타일» 작은 판(바탕 #FAF6EF · 모서리 10) — 물음마다 한 줄 + 오른쪽 «답 바꾸기 ›» */
+    var rows = R.questions.map(function(q){ var v = S.ans[q.key], w = []; q.opts.forEach(function(o){ if (Array.isArray(v) ? v.indexOf(o[0]) >= 0 : v === o[0]) w.push(o[1]); }); return w.length ? '<li>' + w.map(function(x){ return esc(x).replace(/ /g, '&nbsp;'); }).join(' · ') + '</li>' : ''; }).join('');   // [DRESS_BAND_KEEP] 답 하나는 한 덩어리 · « · » 자리에서만 줄이 바뀐다
+    return '<div class="pk-mine"><div class="pk-mine-t"><p class="pk-mine-h">내가 고른 스타일</p><ul class="pk-mine-l">' + rows + '</ul></div>'
+      + '<button type="button" class="pk-txt" data-act="ask">답 바꾸기 <span aria-hidden="true">&rsaquo;</span></button></div>'
+      + '<p class="dotln pk-mine-n">상담 날에는 직접 입어 보며 라인과 편안함을 함께 살펴봐요.</p>';
   }
   function gridHTML(list, fits){ return '<div class="dr-grid pk-grid">' + list.map(function(d){ return cellHTML(d, !!(fits && fits.indexOf(d) >= 0)); }).join('') + '</div>'; }
   /* ★[DRESS_ONE_GRID 2026-10-23 코워크 디자인 라운드 1 · 4 · 5] 소제목 «드레스»를 걷어 첫 사진을 한 줄 위로 · 답한 뒤에도 한 그리드(맞는 칸 앞 · «답과 맞아요») —
@@ -485,16 +572,16 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     return { front: front, rest: rest, near: near, open: open };
   }
   /* ★[DRESS_GUIDE_ONLY] 결과 · 자세히 맨 아래 한 줄 — 추천 · 맞춤 · 확정 말 없음 */
-  var GUIDE_END = '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p></div>';
+  var GUIDE_END = '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class="dotln">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';   // [DRESS_FORM_1024] 한 줄 더
   function listHTML(){
     var all = R.list();
     if (!all.length) return '<p class="pk-near" data-head tabindex="-1">드레스 사진을 준비하고 있어요.</p>';
     var sp = splitList();
     var h = '<h2 class="sr" data-head tabindex="-1">드레스 목록</h2>' + bandHTML();
-    h += sp.near ? '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요.</p>' : '<h3 class="pk-sub-h">답에 맞는 드레스 · ' + sp.front.length + '벌</h3>';   // ★[DRESS_FIT_COUNT 1024 코워크] 소제목에 벌 수
+    h += sp.near ? '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요.</p>' : '<h3 class="pk-sub-h">답에 어울리는 드레스 · ' + sp.front.length + '벌</h3><p class="pk-sub-s">고른 조건을 기준으로 먼저 보여 드려요.</p>';   // [DRESS_FORM_1024] 소제목 · 작은 줄   // ★[DRESS_FIT_COUNT 1024 코워크] 소제목에 벌 수
     h += gridHTML(sp.front);
     if (sp.rest.length) h += sp.open ? '<h3 class="pk-sub-h">다른 드레스</h3>' + gridHTML(sp.rest)
-                                     : '<button type="button" class="cc-btn-ghost pk-more" data-act="more">다른 드레스도 보기</button>';
+                                     : '<button type="button" class="cc-btn-ghost pk-more" data-act="more">다른 드레스도 살펴보기</button>';
     return h + GUIDE_END;   // [DRESS_NO_DEADLINE] 카드에서 옮긴 한 줄 · [DRESS_MEMO_DONE] 남길 말은 완료 화면
   }
   function detailPickHTML(){
@@ -541,7 +628,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       var q = R.questions[S.q], v = S.ans[q.key], has = Array.isArray(v) ? v.length > 0 : !!v;
       var fw = S.q < 2 ? '다음' : '드레스 보기';   // ★[DRESS_Q_FIRST] «건너뛰기»는 없다 — 답하기 전엔 옅게(눌리지 않음) · 답하면 칠한 단추
       return '<div class="wz-bar"><div class="pk-barrow">' + (S.q > 0 ? '<button type="button" class="cc-btn-ghost" data-go="-1">이전</button>' : '')   // [DRESS_NO_INTRO] 첫 물음 앞에는 갈 곳이 없다(스냅 기획 첫 걸음과 같다)
-        + '<button type="button" class="cc-btn' + (has ? '' : ' cc-btn-wait') + '" data-go="1"' + (has ? '' : ' aria-disabled="true"') + '>' + fw + '</button></div>' + (POP ? '<p class="wz-err" aria-hidden="true"></p>' : '') + '</div>';
+        + '<button type="button" class="cc-btn' + (has ? '' : ' cc-btn-wait') + '" data-go="1"' + (has ? '' : ' aria-disabled="true"') + '>' + fw + '</button></div>' + '</div>';   // [DRESS_FORM_1024] 막대 높이 72 · 80 고정 — 비워 두던 오류 줄은 걷었다(물음 화면에 오류가 없다)
     }
     /* [DRESS_GUIDE_ONLY] 막대는 물음 단계에만 — 결과 · 자세히 · 완료에는 없다(Nº 빈칸 · 고르기 막대 단추 · 0벌 안내 줄 · 완료 단추는 걷었다 · 되살리지 말 것) */
     return '';
@@ -612,7 +699,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
     go('list');
     try { window.scrollTo(0, y); } catch (e) {}
     var c = $('pkMain').querySelector('[data-open="' + back + '"]');
-    if (c) { try { c.focus({ preventScroll: false }); } catch (er) {} }
+    if (c) { try { c.focus({ preventScroll: back === S.listFrom }); } catch (er) {} }   // [DRESS_BACK_STEP] 누르고 들어간 그 칸이면 읽던 자리 그대로 · 이웃 드레스로 넘겨 왔으면 그 칸이 보이게
   }
   /* 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음 — 자세히 → 목록 · 물음 n → n−1 → 목록. 목록 · 완료 화면이면 false(부모가 종전대로 나가기 판단) */
   function stepBack(){   // ★[DRESS_Q_FIRST] 결과 → 물음 3 → 2 → 1 → 닫기 판단(부모)
@@ -731,7 +818,7 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
       if (t.classList.contains('pk-opt')) { S.touched = true; answer(t.getAttribute('data-a')); return; }
       if (gox) { stepGo(+gox); return; }
       if (st != null) { S.touched = true; go('q', { q: +st }); return; }
-      if (op) { S.touched = true; S.listY = window.pageYOffset || 0; go('detail', { cur: op }); return; }   // [DRESS_BACK_STEP] 돌아올 목록 자리
+      if (op) { S.touched = true; S.listY = window.pageYOffset || 0; S.listFrom = op; go('detail', { cur: op }); return; }   // [DRESS_BACK_STEP] 돌아올 목록 자리
       if (nb) { S.touched = true; go('detail', { cur: nb }); return; }   // [DRESS_NEXT_PREV] 이웃 드레스(목록 자리는 그대로)
       if (act === 'ask') { S.touched = true; go('q', { q: 0 }); return; }   // ★[DRESS_Q_FIRST] 띠의 «답 바꾸기 ›» · [DRESS_LIST_FIRST] 띠의 «답하기 › · 답 바꾸기 ›» — 첫 물음부터(고른 답은 그대로 켜져 있다)
       if (act === 'more') { S.touched = true; S.more = true; var y0 = window.pageYOffset || 0; render(false); try { window.scrollTo(0, y0); } catch (e) {} var f = $('pkMain').querySelectorAll('.pk-sub-h'); if (f.length) { var hx = f[f.length - 1]; hx.setAttribute('tabindex', '-1'); try { hx.focus({ preventScroll: true }); } catch (e) {}

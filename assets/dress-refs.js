@@ -66,21 +66,32 @@
     ],
 
     /* 고르기 화면의 물음 셋(한 화면에 하나 · 모두 «건너뛰기» 가능) — 건너뛰기는 그 조건을 보지 않는다
-       ★[DRESS_Q_WORDS 2026-10-23 코워크 검토 4] 길이 답 = 칸 한 줄의 낱말 · 셋째 물음 = «이런 드레스가 편하신가요?»(답도 «~드레스»)
+       ★[DRESS_Q_WORDS 2026-10-23 코워크 검토 4] 길이 답 = 칸 한 줄의 낱말 · 셋째 물음은 «노출 · 소매»를 묻는다(★[DRESS_FORM_1024] 지금 글은 아래 questions)
        ★[DRESS_Q_TRIM 2026-10-23 코워크 디자인 라운드 1 · 6] «아직 몰라요» 답을 뺐다 — «건너뛰기» · «질문 없이 바로 보기»와 같은 일이라 빠져나가는 길이 셋이었다.
          셋째 걸음 이름 «편한 쪽» → «노출 · 소매»(무엇을 묻는지 걸음 이름에서 보이게). 옛 저장본의 'unsure'는 cleanAns · 서버(DRESS_ANS)가 그대로 받아 조건을 보지 않는다
        figs = 핏 답 왼쪽의 작은 라인 그림(몸 선을 따라 = 슬립 · 허리만 잡고 아래는 여유 = 라이트 A라인 · 전체적으로 여유 = 엠파이어) */
     questions: [
-      { key: 'len', step: '길이', q: '원하는 길이가 있으세요?',
-        opts: [['ankle', '발목까지'], ['calf', '미디(종아리)'], ['knee', '미니(무릎 근처)']] },
-      { key: 'fit', step: '핏', q: '어떤 라인이 좋으세요?',   // ★[DRESS_Q2_LINE 1024 코워크] 아직 입어 보지 않은 옷의 편안함을 묻지 않는다 — 종전 «어떤 핏이 편하세요?»
+      /* ★★[DRESS_FORM_1024 코워크 «상담 전 둘러보기» 완성도 · 사장님 «처음에 질문 몇 가지로 시작 · 폼 디자인도 신경 써서»] 물음 글 · 보기 글 · 그림(같은 크기 · 같은 시점)
+         보기 수 · 필수 · 하나만 / 여럿은 그대로 · figs = 보기 그림(경로 또는 라인 key) · 그림이 없는 보기(특별한 선호는 없어요)는 낮은 칸 */
+      { key: 'len', step: '길이', q: '어느 정도 길이가 마음에 드세요?',
+        figs: { ankle: '/assets/dress-refs/q/len-ankle.svg', calf: '/assets/dress-refs/q/len-calf.svg', knee: '/assets/dress-refs/q/len-knee.svg' },
+        opts: [['ankle', '발목까지'], ['calf', '종아리 정도'], ['knee', '무릎 근처']] },
+      { key: 'fit', step: '라인', q: '어떤 라인이 마음에 드세요?',   // ★[DRESS_Q2_LINE 1024 코워크] 아직 입어 보지 않은 옷의 편안함을 묻지 않는다 — 종전 «어떤 핏이 편하세요?» · 걸음 이름 핏 → 라인
         figs: { body: 'slip', waist: 'aline', loose: 'empire' },
-        opts: [['body', '몸 선을 따라'], ['waist', '허리만 잡고 아래는 여유'], ['loose', '전체적으로 여유']] },
-      /* ★[DRESS_Q_FIRST 2026-10-24 사장님 «드레스 질문을 먼저 의무적으로 묻고»] 셋째 물음도 답해야 다음 — 보기 끝 «특별히 없어요»(none · 다른 보기와 함께 고르지 않는다)로 답하기 쉽게 · 보조 글 «둘 다 골라도 돼요.» */
-      { key: 'pref', step: '노출 · 소매', q: '이런 드레스가 편하신가요?', sub: '둘 다 골라도 돼요.', multi: true, none: 'none',   // ★[DRESS_Q3_SUB 2026-10-23 코워크 디자인 라운드 3 · 5] 끊긴 메모처럼 읽히던 «여러 개 · 고르지 않으셔도 돼요»
-        opts: [['low', '노출이 적은 드레스'], ['arms', '소매나 볼레로가 있는 드레스'], ['none', '특별히 없어요']] }
+        opts: [['body', '몸선을 따라 슬림하게'], ['waist', '허리는 잡고 아래는 여유 있게'], ['loose', '전체적으로 여유 있게']] },
+      /* ★[DRESS_Q_FIRST 2026-10-24 사장님 «드레스 질문을 먼저 의무적으로 묻고»] 셋째 물음도 답해야 다음 — «특별한 선호는 없어요»(none)와 나머지는 서로 해제 */
+      { key: 'pref', step: '노출 · 소매', q: '노출과 소매는 어느 쪽이 좋으세요?', sub: '해당하는 것을 모두 골라 주세요.', multi: true, none: 'none',   // ★[DRESS_Q3_SUB] 여럿 고름 안내 한 줄
+        figs: { low: '/assets/dress-refs/q/pref-low.svg', arms: '/assets/dress-refs/q/pref-arms.svg' },
+        opts: [['low', '노출이 적은 스타일'], ['arms', '소매나 볼레로가 있는 스타일'], ['none', '특별한 선호는 없어요']] }
     ],
 
+    /* ★★[DRESS_DETAIL_FIELDS 1024 코워크 «자세히 — 사장님이 채울 칸»] 드레스마다 더 적을 수 있는 칸(비어 있으면 그 줄은 화면에 아예 없다):
+         intro   한 줄 소개(없으면 그 라인의 lead)
+         waist   허리선(예: '자연 허리선') · 소매는 sleeve 값에서(none 없음 · sleeve 소매 있음 · bolero 볼레로) · 기장 · 네크라인 · 라인은 있는 칸에서
+         tryOn   «입어 보며 확인해요» 줄들(예: ['팔을 들었을 때 여유', '앉았을 때 허리 품', '구두를 신은 실제 기장'])
+         onsite  «현장에서 함께 볼 것» 줄들(볼레로 · 소품 · 조절 · 없으면 pair 를 « · »로 나눠 쓴다)
+         related «함께 살펴볼 드레스» 1~2벌 — [{ id: 'S02', diff: '같은 기장 · 장식 없이 곧은 라인' }] (목록에 없는 id 는 건너뛴다)
+       지금 표본 여섯은 있는 값만(라인 · 기장 · 네크라인 · 소매 · 소재 · 분위기 · 소품) — 사장님이 실물을 넣을 때 채운다 */
     /* 드레스 — expo: 'deep'(깊은 V넥 · 로우백) / 'soft' · sleeve: 'none' / 'sleeve' / 'bolero'(sleeve · bolero 는 «소매나 볼레로가 있는 드레스»)
        ★[DRESS_SAMPLE] 아래 여섯은 검토용 표본이다(sample:true) — 운영 주소에서는 그려지지 않는다 · 실물이 오면 지운다. */
     dresses: [
@@ -129,6 +140,8 @@
   R.img = function (d, ext) { return (d && d.img) ? ('/assets/dress-refs/' + d.img + '.' + (ext || 'webp')) : ''; };
   R.exImg = function (e, ext) { return (e && e.img) ? ('/assets/dress-refs/' + e.img + '.' + (ext || 'webp')) : ''; };
   R.svg = function (d) { var l = R.line(d && d.line); return l ? l.svg : ''; };
+  R.SLEEVE_KO = { none: '없음', sleeve: '소매 있음', bolero: '볼레로' };   // [DRESS_DETAIL_FIELDS] 자세히 «디자인»의 소매 칸
+  R.figSrc = function (v) { if (!v) return ''; if (String(v).charAt(0) === '/') return String(v); var l = R.line(v); return l ? l.svg : ''; };   // [DRESS_FORM_1024] 보기 그림 = 경로 또는 라인 key
   /* ★[DRESS_SLIDES 2026-10-23 코워크 검토 4] 자세히에서 넘겨 보는 사진 = 사진(img)이 있는 장만 · 하나도 없으면 대표 사진 한 장(없으면 라인 그림) —
      종전엔 사진이 오기 전 이름표(앞 · 뒤 · 디테일 …)만 있는 빈 장 다섯을 넘겼다 */
   R.slides = function (d) {
@@ -154,7 +167,7 @@
      돌려주는 것: { asked, match:[드레스], rest:[드레스], near } — near = 답했는데 맞는 것이 0벌(«가까운 순서로 놓았어요») */
   R.FITS = ['body', 'waist', 'loose'];
   R.PREFS = ['low', 'arms'];
-  R.PREF_NONE = 'none';   // ★[DRESS_Q_FIRST] «특별히 없어요» — 줄 세우기는 보지 않는다 · 다른 보기와 함께 두지 않는다(함께 오면 none 을 뺀다)
+  R.PREF_NONE = 'none';   // ★[DRESS_Q_FIRST] «특별한 선호는 없어요» — 줄 세우기는 보지 않는다 · 다른 보기와 함께 두지 않는다(함께 오면 none 을 뺀다)
   R.cleanAns = function (a) {
     a = a || {};
     var len = R.lengthOf(a.len) ? a.len : (a.len === 'unsure' ? 'unsure' : '');
@@ -164,7 +177,7 @@
     if (pref.length > 1 && pref.indexOf(R.PREF_NONE) >= 0) pref.splice(pref.indexOf(R.PREF_NONE), 1);
     return { len: len, fit: fit, pref: pref };
   };
-  /* ★[DRESS_Q_FIRST 2026-10-24 사장님] 물음 셋을 다 답했나 — 길이 · 핏(«아직 몰라요»였던 옛 'unsure'는 답이 아니다) · 셋째 하나 이상(특별히 없어요 포함).
+  /* ★[DRESS_Q_FIRST 2026-10-24 사장님] 물음 셋을 다 답했나 — 길이 · 핏(«아직 몰라요»였던 옛 'unsure'는 답이 아니다) · 셋째 하나 이상(특별한 선호는 없어요 포함).
      loose = 저장본에서 왔고 셋째가 비었으면 답한 것으로 본다(옛 서버가 none 을 버린 판 · 옛 저장본) */
   R.answered = function (a, loose) {
     a = R.cleanAns(a);

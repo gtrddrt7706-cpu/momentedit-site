@@ -20017,16 +20017,31 @@ nochk 'data-swap="1">Nº 02와 바꾸기</button>' dress.html 0   # [DRESS_GUIDE
 nochk '다 찼어요. 하나를 빼고 골라 주세요' dress.html 0                       # 막다른 길(뺄 드레스로 가서 빼고 다시 오는 세 걸음) 되살리기 금지
 nochk "'안 고르셔도 상담 날 함께 골라요.'" mypage.html 0                     # [DRESS_NO_DEADLINE] «시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.» 한 줄로 대신
 chk 'DRESS_RESULT_SPLIT' dress.html 3
-chk '<h3 class="pk-sub-h">답에 맞는 드레스 · ' dress.html 1   # [DRESS_FIT_COUNT] 벌 수
-chk 'data-act="more">다른 드레스도 보기</button>' dress.html 1
+chk '<h3 class="pk-sub-h">답에 어울리는 드레스 · ' dress.html 1   # [DRESS_FIT_COUNT] 벌 수 · [DRESS_FORM_1024] «어울리는»
+chk 'data-act="more">다른 드레스도 살펴보기</button>' dress.html 1
 chk '마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.' dress.html 1   # [DRESS_GUIDE_ONLY] 결과 · 자세히 맨 아래 한 줄
 nochk "subs=\['상담 전에 드레스를" mypage.html 0
 nochk 'pk-skipq' dress.html 0
 nochk '질문 없이 바로 보기 <span' dress.html 0
-chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «둘 다 골라도 돼요.»(DRESS_Q_FIRST · 하나 이상 골라야 다음)
-chk "sub: '둘 다 골라도 돼요.'" assets/dress-refs.js 1
-chk "\['none', '특별히 없어요'\]" assets/dress-refs.js 1
+chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «해당하는 것을 모두 골라 주세요.»(DRESS_Q_FIRST · 하나 이상 골라야 다음)
+chk "sub: '해당하는 것을 모두 골라 주세요.'" assets/dress-refs.js 1
+chk "\['none', '특별한 선호는 없어요'\]" assets/dress-refs.js 1
 chk "pref: \['low', 'arms', 'none'\]" automation/consultation/consultation-booking.gs 1   # [DRESS_PREF_NONE] 서버도 «특별히 없어요»를 받는다
+chk 'DRESS_FORM_1024' dress.html 3                                         # ★폼 디자인(물음 22 · 24 · 보기 16 · 칸 76 · 52 · PC 2열 132 · 막대 72 · 80 · 진사 주 단추) — 코워크 «상담 전 둘러보기» 완성도
+chk 'DRESS_FORM_1024' assets/dress-refs.js 1
+chk 'DRESS_FORM_1024' scripts/audit/dress-refs.mjs 1
+chk 'DRESS_FORM_1024' scripts/audit/dress-fit.mjs 3
+chk 'DRESS_RESULT_MINE' dress.html 1                                       # 결과 맨 위 «내가 고른 스타일» 판
+chk 'DRESS_DETAIL_FIELDS' dress.html 2                                     # 자세히 칸(비면 줄째 없음)
+chk 'DRESS_DETAIL_FIELDS' assets/dress-refs.js 2
+chk "q: '어느 정도 길이가 마음에 드세요?'" assets/dress-refs.js 1
+chk "q: '어떤 라인이 마음에 드세요?'" assets/dress-refs.js 1
+chk "q: '노출과 소매는 어느 쪽이 좋으세요?'" assets/dress-refs.js 1
+chk "step: '라인'" assets/dress-refs.js 1
+nochk '이런 드레스가 편하신가요' assets/dress-refs.js 0
+nochk '특별히 없어요' assets/dress-refs.js 0
+nochk '다른 드레스도 보기<' dress.html 0
+chk 'class="pk-intro">상담 전, 마음에 드는 스타일을 살펴보세요.' dress.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
   case "$_dfit" in
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
