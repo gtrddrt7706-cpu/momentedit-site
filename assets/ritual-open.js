@@ -1408,7 +1408,7 @@
   var VIDEO_DIR = '/assets/video/moments/';
   /* ★[VIDEO_V 2026-10-23 사장님 «영상이 안 움직이는데 · 직접 확인해봐 · 개선까지»] 장면 영상 파일(mp4 · webp · 640 · end)은 같은 이름으로 바꿔 넣는다 — 주소 끝에 판 표시를 붙여
      열어 둔 탭 · 휴대폰이 옛 파일(옛 영상 · 옛 끝 장면)을 섞어 쓰지 않게 한다. moments 폴더 파일을 바꾸면 이 값을 함께 올린다(scripts/audit/asset-v.mjs 가 잰다). */
-  var VIDEO_V = '?v=1025a';
+  var VIDEO_V = '?v=1025b';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
      첫 장면 webp 두 벌(받은 표지 jpg = 첫 장면 · 1280 q80 · 640 q78 · encode-moment.sh 와 같은 값). 촬영표 17편 중 toast-pour 는 만들지 않았다(붓기 장면 없음 · 화면도 안 찾는다).
      _close 는 close · entry 는 entry → entry-look 차례(videoKeys). 이름을 빼면 그 순간은 글 한 줄(SCENE)로 돌아간다
