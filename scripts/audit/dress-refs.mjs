@@ -226,7 +226,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/sum = R\.sumCell\(d\);/.test(PAGE) && !/dv-sum">'/.test(PAGE) && !/sumPick|sumPublic/.test(PAGE), '⑨ [DRESS_SUM_ONE · DRESS_DETAIL_FIELDS] 칸 한 줄 = 라인 · 길이 · 소재 · 자세히는 «디자인» 칸이 대신한다(이름 아래 요약 줄을 두 번 말하지 않는다)');
   const DUE = [['2026-10-25', '10월 23일(금)'], ['2026-03-01', '2월 27일(금)'], ['2027-01-01', '12월 30일(수)'], ['2026-11-02', '10월 31일(토)'], ['', ''], ['2026/10/25', '']];   // 기대값은 python datetime 으로 셈(눈대중 아님 · [DATE_DOW])
   t(typeof R.untilText === 'function' && DUE.every(([y, w]) => R.untilText(y) === w), '⑨ [DRESS_DUE_DATE] 마감 날 글 = 상담일 −2일 · 요일 계산(달 · 해 넘김 포함) · 못 읽으면 빈 글');
-  t(!/dueLine|untilText|까지 고르실 수|까지 할 수 있어요|전날|시착\(기본 2벌\)/.test(decom(card)) && PAGE.indexOf("var GUIDE_END = '<div class=\"pk-end-dots\"><p class=\"dotln\">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class=\"dotln\">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';") > -1 && /return h \+ GUIDE_END;/.test(PAGE) && /\+ nbHTML\(d\) \+ GUIDE_END;/.test(PAGE), '⑨ [DRESS_GUIDE_ONLY · DRESS_FORM_1024] 결과 · 자세히 맨 아래 두 줄 «마음에 드는 드레스를 떠올려 오시면 … 시착은 현장에서 정해요.» · «상담 날 이 화면을 보여 주셔도 좋아요.» · 마감 날짜 줄 · «전날» 없음');
+  t(!/dueLine|untilText|까지 고르실 수|까지 할 수 있어요|전날|시착\(기본 2벌\)/.test(decom(card)) && PAGE.indexOf("    : '<div class=\"pk-end-dots\"><p class=\"dotln\">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class=\"dotln\">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';") > -1 && /return h \+ GUIDE_END;/.test(PAGE) && /\+ nbHTML\(d\) \+ GUIDE_END;/.test(PAGE), '⑨ [DRESS_GUIDE_ONLY · DRESS_FORM_1024] 결과 · 자세히 맨 아래 두 줄 «마음에 드는 드레스를 떠올려 오시면 … 시착은 현장에서 정해요.» · «상담 날 이 화면을 보여 주셔도 좋아요.» · 마감 날짜 줄 · «전날» 없음');
   t(/open:true, ymd:\(dr&&dr\.ymd\)\|\|''/.test(pick) && !/R\.dueLine\(|상담 이틀 전|전날/.test(decom(PAGE)) && /\(one \? '상담 날 이 드레스를 먼저 보여 드릴게요\.' : '상담 날 이 두 벌을 먼저 보여 드릴게요\.'\)/.test(PAGE), '⑨ [DRESS_NO_DEADLINE] 완료 화면 = «상담 날 이 …을 먼저 보여 드릴게요.» · 마감 줄 없음 · 마이페이지는 늘 open:true 로 넘긴다');
   t(typeof R.dueLine === 'function' && R.dueLine('2026-11-07') === '바꾸기는 11월 5일(목)까지 할 수 있어요.' && R.dueLine('') === '상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.', '⑭ [DRESS_DUE_SAME] R.dueLine — 날짜 있음 «바꾸기는 11월 5일(목)까지 할 수 있어요.» · 없음 «상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.»');
   t(/placeholder="신경 쓰이는 점이나 궁금한 점을 적어 주세요"/.test(PAGE), '⑨ 남길 말 칸 자리 표시 글');
@@ -468,8 +468,13 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const bq = (R.acc.find((a) => a.id === 'bouquet') || {}).note || '', sh = (R.acc.find((a) => a.id === 'shoes') || {}).note || '';
   t(/저희가 준비해요/.test(bq) && /별도 비용/.test(bq) && !/\d/.test(bq) && sh === '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요' && R.ACC_LEAD === '드레스 · 면사포 · 주얼리 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.', '⑰ [DRESS_ACC_1024 · ACC_SHOES_STUDIO] 부케 글(저희가 준비 · 생화 별도 · 금액 없음) · 슈즈는 스튜디오가 준비(사장님 1024) · 소제목 한 줄에 슈즈');
   const acc = (/function accHTML\(\)\{([\s\S]*?)\n  \}/.exec(PAGE) || [])[1] || '';
-  t(!!acc && /id="pkAccH" tabindex="-1">함께 보는 소품 · 부케<\/h3>/.test(acc) && !/<button|data-act|data-open|onclick/.test(acc) && /스타일 예시 이미지/.test(acc) && /class="pk-accp"/.test(PAGE) && /\.pk-accp\{display:block;aspect-ratio:1\/1;/.test(PAGE) && /@media \(min-width:560px\)\{ \.pk-accg\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\} \}/.test(PAGE), '⑰ [DRESS_ACC_1024] 소품 소제목 «함께 보는 소품 · 부케» · 칸 = 누름 · 고르기 없음 · «스타일 예시 이미지» · 사진 1:1 · 560+ 3열');
+  t(!!acc && /id="pkAccH" tabindex="-1">함께 보는 소품 · 부케<\/h3>/.test(acc) && !/data-open|onclick|data-act="(pick|unpick|save|slot)"/.test(acc) && (acc.match(/<button/g) || []).length === 1 && /data-act="drtop"/.test(acc) && /스타일 예시 이미지/.test(acc) && /class="pk-accp"/.test(PAGE) && /\.pk-accp\{display:block;aspect-ratio:1\/1;/.test(PAGE) && /@media \(min-width:560px\)\{ \.pk-accg\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\} \}/.test(PAGE), '⑰ [DRESS_ACC_1024] 소품 소제목 «함께 보는 소품 · 부케» · 칸 = 누름 · 고르기 없음 · «스타일 예시 이미지» · 사진 1:1 · 560+ 3열');
   t(/'<div class=\"pk-subrow\"><h3 class=\"pk-sub-h\">답에 어울리는 드레스 · ' \+ sp\.front\.length \+ '벌<\/h3>' \+ accJumpHTML\(\) \+ '<\/div>/.test(PAGE) && /data-act="more">다른 드레스도 살펴보기<\/button>';\n    h \+= accHTML\(\);/.test(PAGE) && /if \(act === 'acc'\)/.test(PAGE) && /소품 · 부케 보기 <span aria-hidden="true">&rsaquo;<\/span>/.test(PAGE), '⑰ [DRESS_ACC_1024] 자리 = 요약 판 아래 이동 줄 · «다른 드레스도 살펴보기» 아래 · «방문 전 준비» 위');
+  /* ★[DRESS_AFTER_WORDS · DRESS_Q_STEADY · DRESS_ACC_TOP · 1024 코워크 GPT 라운드] */
+  t(/var INTRO_P = AFTER \? '<p class="pk-intro">세 가지 물음에 답하고, 드레스를 살펴보세요\.<\/p>' : /.test(PAGE) && /var GUIDE_END = AFTER \? '<div class="pk-end-dots"><p class="dotln">마음에 드는 스타일은 방문 때 함께 비교해요\.<\/p><p class="dotln">방문 때 이 화면을 보여 주셔도 좋아요\.<\/p><\/div>'/.test(PAGE), '⑱ [DRESS_AFTER_WORDS] 상담 뒤로 열면 «상담 전 · 상담 날» 말 대신 «방문 때»(스티커는 그대로)');
+  t(/INTRO_P\.replace\('class="pk-intro"', 'class="pk-intro pk-ghost" aria-hidden="true"'\)/.test(PAGE) && /\.pk-intro\.pk-ghost\{visibility:hidden\}/.test(PAGE), '⑱ [DRESS_Q_STEADY] 물음 2 · 3 도 목적 줄 자리를 지킨다(보이지 않게 · 읽지 않게)');
+  t(/data-act="drtop">드레스 다시 보기/.test(PAGE) && /if \(act === 'drtop'\)/.test(PAGE) && /\.pk-drtop\{margin:24px 0 0 -12px;font-size:14px\}/.test(PAGE) && /\.pk-accn\{display:block;margin-top:2px;font-size:13px;/.test(PAGE) && /&lsaquo; 드레스 목록<\/button>/.test(PAGE), '⑱ [DRESS_ACC_TOP · DRESS_ACC_NOTE13] 소품 뒤 «드레스 다시 보기 ↑» · 칸 아래 글 13 · «‹ 드레스 목록»');
+  t(R.PREP.indexOf('따로 신으실 신발이 있다면 가져와 주세요') >= 0 && !R.PREP.some((x) => /굽의 신발/.test(x)), '⑱ [ACC_SHOES_STUDIO] 방문 전 준비 — 슈즈는 스튜디오 준비라 신발 지참을 의무처럼 쓰지 않는다');
   return { bad, okn };
 }
 
@@ -641,6 +646,10 @@ if (process.argv.includes('--selftest')) {
     ['소품 칸이 고르기 단추로', SRC, GAS, PAGE0.replace("return '<div class=\"pk-acci\">", "return '<div class=\"pk-acci\" data-act=\"pick\">")],
     ['소품 덩어리가 결과에서 빠짐', SRC, GAS, PAGE0.replace("    h += accHTML();", "")],
     ['소품 소제목에서 «부케»가 빠짐', SRC, GAS, PAGE0.replace('함께 보는 소품 · 부케</h3>', '함께 보는 소품</h3>')],
+    ['상담 뒤 맨 아래 안내가 다시 «상담 날»', SRC, GAS, PAGE0.replace('마음에 드는 스타일은 방문 때 함께 비교해요.', '상담 날 바로 비교해 볼 수 있어요.')],
+    ['물음 2 · 3 목적 줄 자리를 걷음', SRC, GAS, PAGE0.replace(".pk-intro.pk-ghost{visibility:hidden}", ".pk-intro.pk-ghost{display:none}")],
+    ['방문 전 준비에 다시 «굽의 신발»', SRC.replace("'따로 신으실 신발이 있다면 가져와 주세요'", "'당일과 비슷한 굽의 신발'"), GAS, PAGE0],
+    ['«드레스 다시 보기» 빠짐', SRC, GAS, PAGE0.replace('data-act="drtop">드레스 다시 보기', 'data-act="drtop">')],
     ['소품 칸 이름 바뀜', SRC.replace("name: '긴 면사포'", "name: '롱 베일'"), GAS, PAGE0],
     ['단계 숫자를 지움', SRC, GAS, PAGE0.replace("var nm = (i + 1) + '/' + STEPS.length + ' · ' + String(n).replace(/ · /g, '·');", "var nm = n;")],
   ];
