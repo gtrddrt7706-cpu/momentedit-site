@@ -466,7 +466,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(R.acc.every((a) => fs.existsSync(path.join(ROOT, 'assets/dress-refs/' + a.img + '.webp'))), '⑰ [DRESS_ACC_1024] 소품 사진 파일이 다 있다(acc-*.webp)');
   t(/R\.accList = function \(\) \{ return R\.ACC_ON \? R\.acc\.filter\(function \(a\) \{ return a && a\.on && a\.img; \}\) : \[\]; \};/.test(src), '⑰ [DRESS_ACC_1024] 보이는 소품 = ACC_ON · 칸 on · 사진 있는 것만(한 곳)');
   const bq = (R.acc.find((a) => a.id === 'bouquet') || {}).note || '', sh = (R.acc.find((a) => a.id === 'shoes') || {}).note || '';
-  t(/저희가 준비해요/.test(bq) && /별도 비용/.test(bq) && !/\d/.test(bq) && !/(저희|스튜디오|준비해|챙겨|가져)/.test(sh), '⑰ [DRESS_ACC_1024] 부케 글(저희가 준비 · 생화 별도 · 금액 없음) · 슈즈 글은 누가 준비하는지 말하지 않는다');
+  t(/저희가 준비해요/.test(bq) && /별도 비용/.test(bq) && !/\d/.test(bq) && sh === '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요' && R.ACC_LEAD === '드레스 · 면사포 · 주얼리 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.', '⑰ [DRESS_ACC_1024 · ACC_SHOES_STUDIO] 부케 글(저희가 준비 · 생화 별도 · 금액 없음) · 슈즈는 스튜디오가 준비(사장님 1024) · 소제목 한 줄에 슈즈');
   const acc = (/function accHTML\(\)\{([\s\S]*?)\n  \}/.exec(PAGE) || [])[1] || '';
   t(!!acc && !/<button|data-act|data-open|onclick/.test(acc) && /스타일 예시 이미지/.test(acc) && /class="pk-accp"/.test(PAGE) && /\.pk-accp\{display:block;aspect-ratio:1\/1;/.test(PAGE) && /@media \(min-width:560px\)\{ \.pk-accg\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\} \}/.test(PAGE), '⑰ [DRESS_ACC_1024] 소품 칸 = 누름 · 고르기 없음 · «스타일 예시 이미지» · 사진 1:1 · 560+ 3열');
   t(/'<div class=\"pk-subrow\"><h3 class=\"pk-sub-h\">답에 어울리는 드레스 · ' \+ sp\.front\.length \+ '벌<\/h3>' \+ accJumpHTML\(\) \+ '<\/div>/.test(PAGE) && /data-act="more">다른 드레스도 살펴보기<\/button>';\n    h \+= accHTML\(\);/.test(PAGE) && /if \(act === 'acc'\)/.test(PAGE) && /소품 · 부케 보기 <span aria-hidden="true">&rsaquo;<\/span>/.test(PAGE), '⑰ [DRESS_ACC_1024] 자리 = 요약 판 아래 이동 줄 · «다른 드레스도 살펴보기» 아래 · «방문 전 준비» 위');
@@ -635,7 +635,8 @@ if (process.argv.includes('--selftest')) {
     ['아이콘이 줄 맨 위로', SRC, GAS, PAGE0, MP0.replace("stack.insertBefore(ex, chat); else", "stack.insertBefore(ex, stack.firstChild); else")],
     ['아이콘으로 열어도 창 이름 그대로', SRC, GAS, PAGE0, MP0.replace("(opt.after?'&ctx=after':'')", "''")],
     ['소품 스위치를 안 봄', SRC.replace('return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : [];', 'return R.acc.slice();'), GAS, PAGE0],
-    ['슈즈 글이 누가 준비하는지 말함', SRC.replace("'드레스 길이에 맞춰 굽 높이를 함께 정해요'", "'슈즈는 저희가 준비해요'"), GAS, PAGE0],
+    ['슈즈 글에서 «스튜디오에서 준비»가 빠짐', SRC.replace("'슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요'", "'드레스 길이에 맞춰 굽 높이를 함께 정해요'"), GAS, PAGE0],
+    ['소제목 한 줄에서 슈즈가 빠짐', SRC.replace('주얼리 · 슈즈와 웨딩 소품', '주얼리와 웨딩 소품'), GAS, PAGE0],
     ['부케 글에 금액', SRC.replace("생화를 원하시면 별도 비용이에요", "생화는 15만 원부터예요"), GAS, PAGE0],
     ['소품 칸이 고르기 단추로', SRC, GAS, PAGE0.replace("return '<div class=\"pk-acci\">", "return '<div class=\"pk-acci\" data-act=\"pick\">")],
     ['소품 덩어리가 결과에서 빠짐', SRC, GAS, PAGE0.replace("    h += accHTML();", "")],

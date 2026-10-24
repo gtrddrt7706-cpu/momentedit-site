@@ -631,7 +631,7 @@ span.dr-pv{cursor:inherit}
       + '<div class="pk-accg">' + a.map(function(x){
         return '<div class="pk-acci"><span class="pk-accp"><img src="/assets/dress-refs/' + esc(x.img) + '.webp" alt="" width="480" height="480" loading="lazy" decoding="async"></span>'
           + '<span class="dr-kick pk-accx">스타일 예시 이미지</span><span class="dr-nm">' + esc(x.name) + '</span>'
-          + (x.note ? '<span class="pk-accn">' + esc(x.note) + '</span>' : '') + '</div>';
+          + (x.note ? '<span class="pk-accn">' + esc(x.note).replace(/ · /g, '&nbsp;· ') + '</span>' : '')   /* [ACC_DOT_KEEP] « · »가 줄 머리로 넘어가지 않게 앞 낱말에 붙인다 */ + '</div>';
       }).join('') + '</div></section>';
   }
   function accJumpHTML(){ return (R.accList && R.accList().length) ? '<button type="button" class="pk-txt pk-accj" data-act="acc">소품 · 부케 보기 <span aria-hidden="true">&rsaquo;</span></button>' : ''; }   // [DRESS_ACC_1024] «내가 고른 스타일» 판 아래 이동 줄
