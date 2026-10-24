@@ -19865,8 +19865,8 @@ chk 'DRESS_STICKER_SWAY' mypage.html 1
 chk 'DRESS_POPUP' dress.html 2
 nochk 'vg-st' mypage.html 0                                              # 안내 블록 비움(.vg-st)은 걷었다 — 스티커는 카드 머리
 chk "  box.innerHTML = '<div class=\"consult-card'+(DST?' cc-st':'')+'\">'+DST+'<div class=\"cc-eyebrow en-22\">'" mypage.html 1
-nochk 'dstOrbit' mypage.html 0                                             # [STICKER_NO_LABEL] 상시 글 · 글 궤도는 걷었다(코워크 최종안 1024) — 되살리면 빨강
-nochk 'dst-lbt' mypage.html 0
+chk '.dst.is-sw .dst-tipt{animation:dstLevel 2.8s ease-in-out 1}' mypage.html 1   # [STICKER_TIP_ON_DRESS] 드레스 위 안내 = 같은 궤도 + 반대 각도(글줄 수평)
+nochk 'dst-lbt' mypage.html 0                                              # [STICKER_NO_LABEL] 상시 글은 걷었다 — 되살리면 빨강
 chk "fr.src='/dress.html?pick=1&embed=1&pop=1'" mypage.html 1
 nochk '.dr-pop{[^}]*backdrop-filter' mypage.html 0                       # 새 흐림 면 금지 — 막은 #mpModal 색만
 chk "var POP = EMBED && Q.get('pop') === '1';" dress.html 1
@@ -19898,6 +19898,11 @@ chk 'STICKER_DECO_1024' scripts/audit/dress-refs.mjs 6
 chk 'STICKER_GAP_LADDER' mypage.html 2                                    # 글자 8 · 점 4 가 먼저 · 자리가 없을 때만 한 단씩(data-gap)
 chk 'STICKER_GAP_LADDER' scripts/audit/dress-refs.mjs 1
 nochk 'sticker-176' mypage.html 0                                          # 옛 그림(112 · 128 · 176)은 걷었다
+chk "var DST_DECO=\[\['dst-rb','ribbon'\]\];" mypage.html 1                  # ★[STICKER_LESS_1024] 곁 스티커 = 진사 리본 하나(사장님 «A 샴페인 선 + 진사 리본만») — 꽃 · 진주 되살리면 빨강
+nochk 'dst-fl' mypage.html 0
+nochk 'flower-48' mypage.html 0
+chk 'STICKER_TIP_ON_DRESS' mypage.html 3
+chk 'STICKER_TIP_ON_DRESS' scripts/audit/dress-refs.mjs 1
 chk 'const ST_W = \[360, 375, 390, 430, 767, 768, 820, 1024, 1280\]' scripts/audit/dress-fit.mjs 1   # 폭 9개(360 · 375 · 767 · 768 포함) — 줄면 빨강
 chk 'STICKER_RELAYOUT' mypage.html 1                                       # 글꼴 · 줄바꿈이 늦게 바뀌면 다시 잰다 · 흔들림은 다시 시작하지 않는다
 chk 'STICKER_RELAYOUT' scripts/audit/dress-refs.mjs 1
