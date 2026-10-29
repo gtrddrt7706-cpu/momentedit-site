@@ -20085,6 +20085,19 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/
     *) echo 'ok dress-fit: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
 fi
+# ★[DRESS_MORE_TARGET · DRESS_ESC_CLOSE · DRESS_QSUB_SLOT 2026-10-29 사장님 · GPT 운영 점검] 드레스 창 운영 오류 셋 — «다른 드레스» 이동 대상 · 물음/결과 Esc 닫힘 · 세 물음 첫 보기 자리
+#   모양 · 깨 보기는 dress-refs.mjs ⑲ · 실제로 눌러 재는 것은 dress-ops.mjs(네 크기 × 상담 전 · 뒤 · 브라우저 없으면 «재지 못했다»)
+chk "var hx = \$('pkMoreH'); if (hx)" dress.html 1                           # [DRESS_MORE_TARGET] 마지막 소제목이 아니라 «다른 드레스» 소제목으로
+chk "if (EMBED) { e.preventDefault(); exit(); }" dress.html 1                 # [DRESS_ESC_CLOSE] 물음 · 결과 Esc = 창 닫기
+chk '.pk-qghost{visibility:hidden}' dress.html 1                              # [DRESS_QSUB_SLOT] 세 물음 제목 · 보조문 한 칸에 겹침
+chk 'DRESS_QSUB_SLOT' scripts/audit/dress-ops.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-ops.mjs >/dev/null 2>&1; _dops=$?
+  case "$_dops" in
+    0) echo 'ok dress-ops: «다른 드레스» 소제목으로 이동 · 물음/결과 Esc 닫힘(초점 복귀) · 세 물음 첫 보기 1px 안 — 네 크기 × 상담 전 · 뒤' ;;
+    1) echo 'FAIL dress-ops: 드레스 창 운영 오류가 되살아났습니다 — node scripts/audit/dress-ops.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-ops: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev/null 2>&1; _drs=$?
   case "$_drs" in
     0) echo 'ok dress-refs: 원천 모양 · 줄 세우기(명세 6장) · 표본 운영 0벌 · 스위치 · GAS 0 · 서버 짝 · 금지어 · 마이페이지 카드' ;;
