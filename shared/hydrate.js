@@ -87,8 +87,11 @@
     return { bank: bankLabel(bank), account: account, raw: account.replace(/\D/g, '') };
   }
   // 혼주 문자열 "박철수 · 이미경" → {father:'박철수', mother:'이미경'}
-  function splitParents(s) {
+  /* ★[PARENT_ONE_NAME_1030 검토 170 F5] 혼주 성함을 한 분만 적었으면 계좌를 적은 분에게 이름을 준다 — 종전엔 늘 아버지로 보아(어머니 성함만 적고 어머니 계좌만 넣은 날)
+       어머니 계좌의 표시 이름이 비었다 · 두 분 다 적으면 종전대로 앞 = 아버지 · 뒤 = 어머니(마이페이지 계좌 칸이 그 이름을 «예금주»로 보여 준다) · live.html · mypage.html 이 같은 규칙 */
+  function splitParents(s, fCell, mCell) {
     var p = String(s || '').split(/[·,/]|\s및\s/).map(function (x) { return x.trim(); }).filter(Boolean);
+    if (p.length === 1 && String(mCell || '').trim() && !String(fCell || '').trim()) return { father: '', mother: p[0] };
     return { father: p[0] || '', mother: p[1] || '' };
   }
   // 본인 계좌: 신 시트(한 칸 "은행 번호") + 구 시트(은행 분리) 모두 호환
@@ -381,7 +384,7 @@
     };
 
     // 부모 계좌: envelopeShowParents 토글 + 빈 칸 자동 숨김. 예금주는 혼주 이름에서.
-    var gPar = splitParents(c.groomParents), bPar = splitParents(c.brideParents);
+    var gPar = splitParents(c.groomParents, c.groomFatherAccount, c.groomMotherAccount), bPar = splitParents(c.brideParents, c.brideFatherAccount, c.brideMotherAccount);   // [PARENT_ONE_NAME_1030]
     // 지도 미설정(사업장 계약 전 등) → 빈 iframe 대신 안내 placeholder (#5)
     /* [VENUE_MAP_DEMO] 표본(?e=test-couple)에서는 안내 문구 대신 지도 도식을 세운다
        (2026-08-01 사용자 지시 "예시 부분이니깐 지도도 임시로").

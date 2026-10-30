@@ -32,7 +32,7 @@ async function open(w) {
   await pg.route('**/*', (rt) => (rt.request().url().startsWith(BASE) ? rt.continue() : rt.fulfill({ status: 200, body: '' })));
   await pg.goto(`${BASE}/order-preview.html?embed=1`, { waitUntil: 'load' }); await wait(700);
   await pg.evaluate(() => { window.__msgs = []; window.addEventListener('message', (e) => { if (e.data && e.data.type) window.__msgs.push(e.data); });
-    if (COURSES.open) S.course = 'open'; else S.course = Object.keys(COURSES)[0]; courseStarted = true; _restored = true; _who = 'ME0001'; CUST = { code: 'ME0001' };
+    if (COURSES.open) S.course = 'open'; else S.course = Object.keys(COURSES)[0]; courseStarted = true; _restored = true; _who = 'ME0001'; _ACCT = 'ME0001'; CUST = { code: 'ME0001' };   /* [ACCT_KEYS] */
     buildSteps(); for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'pick') { idx = i; break; } render(); _autoLast = _autoKey(); _persist(); });
   await wait(300); return { pg, errs };
 }
@@ -57,7 +57,7 @@ try {
     await pg.evaluate((at) => { S.tx = Object.assign({}, S.tx, { 'vow.g': '완성 글' }); idx = at; render(); window.__msgs = []; doSave(); }, at); await wait(500);
     const sent = await pg.evaluate(() => (window.__msgs.find((m) => m.type === 'momentedit:orderSave') || {}).data || null);
     await post(pg, { type: 'momentedit:orderSaved', pull: null }); await wait(500);
-    const c = await pg.evaluate(() => { const v = JSON.parse(localStorage.getItem('me_order') || 'null') || {}; return { ds: _doneSaved, clean: _autoKey() === _autoLast, dirty: v.dirty, sv: v.sv }; });
+    const c = await pg.evaluate(() => { const v = JSON.parse(localStorage.getItem(_ordKey()) || 'null') || {}; return { ds: _doneSaved, clean: _autoKey() === _autoLast, dirty: v.dirty, sv: v.sv }; });
     ok('3 완성 저장이 되면 그 판이 기준선 — 이 기기 판 dirty:false · sv:true [DONE_CLEAN]', !!sent && c.ds && c.clean && c.dirty === false && c.sv === true, JSON.stringify(c));
     await pg.evaluate(() => { const t = document.getElementById('_toast'); if (t) t.textContent = ''; });
     await post(pg, { type: 'momentedit:orderFill', cust: { code: 'ME0001' }, draft: { S: sent && sent.S }, done: true }); await wait(900);

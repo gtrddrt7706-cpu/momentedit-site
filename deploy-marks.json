@@ -184,6 +184,16 @@
    "file": "consultation-booking",
    "fn": "_depositCardOf",
    "why": "카드로 받은 상담 예약금 조회(환불 경로 분기)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcOrphanSweep_",
+   "why": "주인 없는 업체 목소리 매일 정리(VC_ORPHAN)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcRdOldTrash_",
+   "why": "다시 만들 때 못 지운 옛 읽은 녹음 지우기(VC_RD_OLD)"
   }
  ],
  "marks": [
@@ -2910,6 +2920,132 @@
    "fn": "_dressParse_",
    "mark": "DRESS_PREF_NONE",
    "why": "셋째 물음 «특별히 없어요»(none) 답을 저장 · 읽기에서 버리지 않는다. 이 판이 없으면 답한 분도 다음에 열 때 물음부터 다시 나온다(카드 단추가 결과로 바로 열리지 않는다)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileGet",
+   "mark": "BGM_PREVIEW_1024",
+   "why": "구간 음악 미리 듣기(사장님 «고객이 진행하면서 나레이션과 함께 들어볼 수 있게» 10/24) — key bed 로 드라이브 «ME_구간곡» 폴더의 곡 번호 목록 · 곡 앞부분을 로그인한 두 분에게 건넨다. 이 판이 안 올라가 있으면 식순 화면 구간 음악 ▶ 가 «준비 중»으로 남고 미리 듣기는 나레이션만 나온다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_bedGet_",
+   "mark": "BGM_FIX_1030",
+   "why": "구간 곡 번호가 곡마다 하나(B01 · 드라이브 «ME_구간곡» 파일 이름 B05_곡이름.mp3) — 옛 구간 번호(M2_1)는 안 받는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_HOLD",
+   "why": "AI 줄 만들기 · 연습 읽기는 업체에 묻기 전에 잠근 채 남은 글자를 미리 센다 — 옛것이면 한도 근처 동시 두 건이 둘 다 지나간다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcSave",
+   "mark": "VC_SAVE_BUSY",
+   "why": "두 분 목소리 상태는 잠금을 못 잡으면 쓰지 않고 V1 — 옛것이면 잠금 없이 써서 다른 분 확인 문장을 덮는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcEnrollAfter",
+   "mark": "VC_SAVE_FIRST",
+   "why": "다시 만들기는 새 목소리를 저장한 뒤에 앞 목소리를 지운다 — 옛것이면 저장이 막힐 때 지워진 목소리가 준비됨으로 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcDelMark",
+   "mark": "VC_READ_DEL",
+   "why": "한 분 목소리를 지우면 그 분이 읽은 녹음도 휴지통 · 업체가 지울 때까지 retry 유지 — 옛것이면 읽은 녹음이 예식 다음 날까지 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcPurgeNow",
+   "mark": "VC_PURGE_TRUE",
+   "why": "목소리 정리는 모두 지운 뒤에만 지운 날을 적는다 — 옛것이면 실패해도 «지웠어요»"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFilePurgeMine",
+   "mark": "VC_PURGE_TRUE",
+   "why": "목소리 파일 모두 지우기 — AI 정리가 예외면 D4 · 아직 남았으면 pend — 옛것이면 예외를 삼키고 지운 날을 적는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcJobStart",
+   "mark": "VC_JOB_BUSY",
+   "why": "목소리 만들기 작업표 잠금을 못 잡으면 시작하지 않는다(V1) — 옛것이면 두 탭이 업체 목소리를 둘 만든다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcM3",
+   "mark": "VC_CNT_ZERO",
+   "why": "세는 칸은 처음 생길 때도 0 에서 더한다 — 옛것이면 같은 때 처음 센 두 요청이 하나로 덮인다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_voicePub",
+   "mark": "VC_PURGE_TRUE",
+   "why": "마이페이지 aiGone 은 모두 지운 뒤에만 · aiPend 로 지우는 중을 알린다"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeVoiceClones",
+   "mark": "VC_ORPHAN",
+   "why": "매일 지우기가 주인 없는 업체 목소리(<코드>-g · -b 이름인데 어느 상태에도 없음)를 하루 지켜본 뒤 지운다 — 옛것이면 만들기 중 끊긴 목소리가 업체에 영영 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcOrphanSweep_",
+   "mark": "VC_ORPHAN",
+   "why": "주인 없는 목소리 찾기 · 지우기 본체(처음 본 날은 적기만)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcReadTrash",
+   "mark": "VC_RD_OLD",
+   "why": "읽은 녹음을 지울 때 앞서 못 지운 옛 읽은 녹음(rdOld)도 함께 — 옛것이면 지우기 대기 중 다시 만든 분의 옛 녹음이 상태에서 사라져 드라이브에 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_WED_OVER",
+   "why": "예식 다음 날부터 · 취소 · 노쇼 · 미계약이면 새 목소리 동의 · 확인 문장 · 만들기를 받지 않고 상태에 over 를 싣는다 — 옛것이면 지운 뒤에도 새 목소리가 생기고 «예식 다음 날 지웠어요»와 어긋난다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_DEC_1030_1",
+   "why": "나눠 읽는 줄(입장 인사 등)에 목소리 없는 분 문장이 있으면 다른 분 목소리로 만들지 않고 V0 «신부 목소리가 아직 없어요»로 거절 — 옛것이면 당일 신부 문장이 신랑 목소리로 나갈 수 있다(10/08 WHO_MISS 를 뒤집음)"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeVoiceClones",
+   "mark": "VC_DEC_1030_4",
+   "why": "예식일 없는 예식은 마지막 활동 + 90일 · 고객 행이 정말 없는 예식은 바로 지운다(행 읽기 실패면 아무것도 안 함) — 옛것이면 그런 예식의 목소리 · 녹음이 영영 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcModelOff_",
+   "mark": "VC_DEC_1030_7",
+   "why": "예식 7일 전 줄 소리가 다 저장되면 업체 쪽 목소리 모델만 지운다(소리 파일은 그대로) — 옛것이면 업체 칸이 예식 다음 날까지 찬다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcCharLog",
+   "mark": "VC_DEC_1030_6",
+   "why": "이번 달 계정 글자가 70% 넘으면 관리자 메일 한 달 한 통 · 예식당 예산 3만 자(VC_LIM) — 옛것이면 예산이 20만 자 · 알림 없음"
+  },
+  {
+   "file": "80_production",
+   "fn": "vcStudioCheckDue_",
+   "mark": "VC_DEC_1030_5",
+   "why": "예식 3일 전까지 스튜디오 ✓ 없는 두 분 AI 줄 목록(아침 보고가 읽는다)"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "VC_DEC_1030_5",
+   "why": "아침 보고에 «스튜디오 확인 안 한 두 분 목소리» 빨간 줄 — 옛것이면 D-3 에도 아무도 모른다"
   }
  ],
  "fns": {
@@ -3148,6 +3284,10 @@
    "_recManifest_",
    "_recSongFile_",
    "_recGet_",
+   "_bedFolder_",
+   "_bedFiles_",
+   "_bedClip_",
+   "_bedGet_",
    "_recPutFolder_",
    "_recPutHas_",
    "_recPut_",
@@ -3168,6 +3308,7 @@
    "_vcPut",
    "_vcM3",
    "_vcSave",
+   "_vcHold",
    "_vcFetch",
    "_vcErr",
    "_vcGate",
@@ -3175,6 +3316,8 @@
    "vcLastErrors",
    "_vcAlert",
    "_vcCharLog",
+   "_vcMonthCap_",
+   "_vcMonthWarn_",
    "_vcTts",
    "_vcAiFolder",
    "_vcHash",
@@ -3187,14 +3330,28 @@
    "_vcNewPhrase",
    "_vcDelVoice",
    "_vcDelMark",
+   "_vcReadTrash",
+   "_vcRdOldTrash_",
+   "_vcPendOf",
+   "_vcPracticeTrash",
    "_vcJobPub",
    "_vcJobStart",
    "_vcEnrollAfter",
    "handleVoiceClone",
    "_vcChunks",
+   "_vcWedOver_",
    "_vcPub",
    "_vcPurge",
    "_vcPurgeNow",
+   "_vcOrphanSweep_",
+   "_vcTs_",
+   "_vcLastAct_",
+   "_vcCodeSet_",
+   "_vcAiTrashAll_",
+   "_vcVoiceKeys_",
+   "_vcModelOffDue_",
+   "_vcModelOff_",
+   "vcStudioCheckDue_",
    "purgeVoiceClones",
    "previewVoiceClones",
    "_vcSlots",
@@ -3818,6 +3975,7 @@
    "RF_ROOT_FOLDER",
    "RF_KEYS",
    "REC_ROOT_FOLDER",
+   "BED_ROOT_FOLDER",
    "REC_PUT_HASH",
    "VC_BASE",
    "VC_DOWN",
@@ -4022,7 +4180,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-30 11:14 · b09e044a",
+ "_생성": "2026-10-30 22:09 · 2b144126",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4094,6 +4252,12 @@
    "key": "AI_WIDGET_SECRET",
    "kind": "guard",
    "a": "AI 위젯이 고객 정보를 서명 없이 받는다(베르셀 같은 이름과 같은 값)",
+   "b": ""
+  },
+  {
+   "key": "BED_FID",
+   "kind": "state",
+   "a": "",
    "b": ""
   },
   {
@@ -4469,7 +4633,25 @@
    "b": ""
   },
   {
+   "key": "VCWARN70_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "VC_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "VC_MONTH_CHARS",
+   "kind": "tuning",
+   "a": "AI 목소리 이번 달 계정 글자 기준(기본 200000 · 70% 넘으면 관리자 메일 · VC_DEC_1030_6)",
+   "b": ""
+  },
+  {
+   "key": "VC_ORPHAN_SEEN",
    "kind": "state",
    "a": "",
    "b": ""
@@ -4554,5 +4736,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "2474769d7865"
+ "_표식서명": "588e5da4aebd"
 }

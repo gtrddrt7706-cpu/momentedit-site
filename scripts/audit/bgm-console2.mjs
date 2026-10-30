@@ -20,7 +20,7 @@ const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.spl
   fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); srv.close(); process.exit(2); }
-const SOF = (ex, more) => { const S = O.applyExample({ course: 'open' }, ex); S.course = 'open'; return Object.assign(S, more || {}); };
+const SOF = (ex, more) => { const pl = /\+declare$/.test(ex); ex = ex.replace(/\+declare$/, ''); const S = O.applyExample({ course: 'open' }, ex); S.course = 'open'; if (pl) S.on = Object.assign({}, S.on, { declare: 1 });   /* [COURSE_ONE_PROMISE_1030] 기록이 선언을 안 담아 선언 → 부모님께 인사 짝을 담아서 잰다 */ return Object.assign(S, more || {}); };
 async function open(S0) {
   const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.addInitScript(() => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; });
@@ -53,11 +53,11 @@ try {
     ok('① 첫 GO — 순서는 그대로(축배 사람 구간) · 0.6초에 toastLevel(0) 로 오른다', B.cur === ti && B.phase === 'live' && B.want === 0 && up.length === 1 && up[0].ms === 600, { B, up });
     await pg.waitForTimeout(1700); await pg.evaluate(() => window.__bgmGo.tap()); await pg.waitForTimeout(400);
     const C = await st(pg);
-    ok('① 다음 GO — 마무리(56) 로 넘어간다', C.cur === ti + 1 && C.slug === 'narr-toast-out', C);
+    ok('① 다음 GO — [END_FLOW_1030] 닫는 인사(187) 로 넘어간다(56 은 안 튼다 · 잔 내려놓기는 축배 사람 구간 안)', C.cur === ti + 1 && C.slug === 'narr-close-bow', C);
     ok('⑤ 쪽 오류 0(축배)', !errs.length, errs.slice(0, 2)); await ctx.close(); }
 
   /* ② 짧은 이음 네 자리 */
-  for (const [ex, a, b, gap] of [['standard', 'narr-entry-arrive', 'narr-entry-bow', 1.25], ['standard', 'narr-tribute-name', 'tribute-in', 1], ['record', 'narr-tribute-pair', 'tribute-in', 1], ['brief', 'narr-open', 'narr-prevideo-in', 3]]) {
+  for (const [ex, a, b, gap] of [['standard', 'narr-entry-arrive', 'narr-entry-bow', 1.25], ['standard', 'narr-tribute-name', 'tribute-in', 1], ['record+declare', 'narr-tribute-pair', 'tribute-in', 1], ['brief', 'narr-open', 'narr-prevideo-in', 3]]) {
     const { ctx, pg, errs } = await open(SOF(ex)); const ia = await idx(pg, a), ib = await idx(pg, b, ia);
     await pg.evaluate((i) => window.__bgmGo.fire(i), ia);
     const got = await waitSt(pg, () => window.__bgmSt().cur > 0 && window.__bgmSt().slug !== null, 1000);

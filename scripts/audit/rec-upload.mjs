@@ -140,6 +140,7 @@ for (const w of [360, 1280]) {
   /* 글 1 은 실제 마이크(가짜 장치)로 녹음 → [이걸로 쓰기]가 그 글 자리에 둔다 · 글 2 는 25초 소리를 넣어 둔다 */
   await pg.click('[data-fk="mkvcrec:1"]'); await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'rec', null, { timeout: 8000 }).catch(() => {});
   await pg.waitForTimeout(1500); await pg.click('[data-fk="mkrecstop"]'); await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 15000 }).catch(() => {});
+  await pg.waitForTimeout(700);   /* [REVIEW_TAP_GUARD] 들어 보기 화면이 뜬 뒤 0.6초 안의 누름은 받지 않는다 · [VC_TAKE_LIVE 2026-10-30] 이 장면은 그 호출이 주석에 묻혀 main 에서도 빨갰다 */
   await pg.click('[data-fk="mkrecuse"]'); await pg.waitForTimeout(400);
   const c3 = await pg.evaluate(() => !!(VC.read && VC.read.take[1]));
   const c3b = await pg.evaluate(() => ({ step: (document.querySelector('#mkRecDlg [aria-current=step]') || {}).textContent, t: (document.getElementById('mkRecDlg') || {}).textContent || '' }));

@@ -33,7 +33,7 @@ function pairs(useOld) { const C = {}; EX.forEach((k) => { C[k] = curve(k, useOl
 for (const [a, b, d] of pairs(false)) ok(`${a} · ${b} 곡선 차이 ${d.toFixed(3)} (기준 ${MIN})`, d >= MIN);
 /* ② 정점은 그대로 */
 for (const k of EX) { const S = O.applyExample({}, k), sg = O.flowSegs(S), p = O.peakOf(S), fp = (O.flowPeak(sg) || {}).k;
-  ok(`${k} 정점 = ${p} (곡선 점도 같은 순간)`, !!p && p === fp && (p === 'declare' || p === 'letter'), `peakOf ${p} · flowPeak ${fp}`); }
+  ok(`${k} 정점 = ${p} (곡선 점도 같은 순간)`, !!p && p === fp && (p === 'declare' || p === 'letter' || (p === 'vow' && !O.onOf(O.applyExample({}, k), 'declare')))   /* [COURSE_ONE_PROMISE_1030] 선언 없이 서약만인 날은 서약이 정점 */, `peakOf ${p} · flowPeak ${fp}`); }
 const S0 = O.sampleS({}), all = O.flowSegs(S0);
 const five = all.filter((s) => s.lv === 5).map((s) => s.k);
 ok('세기 5 는 선언 · 편지뿐', five.every((k) => k === 'declare' || k === 'letter') && five.length >= 1, five.join(','));
@@ -43,8 +43,11 @@ for (const f of ['speech', 'video', 'etc', 'gift']) { const S = O.sampleS({}); S
 const bad = all.filter((s) => s.lv !== 5 && (s.lv < 3 || s.lv > 4.8));
 ok('정점 밖 세기 3 ~ 4.8', !bad.length, bad.map((s) => s.k + ':' + s.lv).join(','));
 /* 스스로 깨 보기 — 옛 세 단계면 잡힌다 */
-const old = pairs(true).find(([a, b]) => a === 'standard' && b === 'family');
-ok(`깨 보기 — 옛 세 단계면 정석 · 가족 차이 ${old[2].toFixed(3)} < ${MIN} 로 잡힌다`, old[2] < MIN);
+/* ★[COURSE_ONE_PROMISE_1030 검토 169] 코스마다 서약 · 선언이 갈려 옛 세 단계로도 정석 · 가족이 달라졌다 — 깨 보기는 «같은 세기 순간 하나만 바꾼 두 판»(정석의 축가 → 덕담 · 옛 세기 둘 다 4)으로 잰다 */
+const curveS = (S, useOld) => { const sg = O.flowSegs(S); if (useOld) sg.forEach((x) => { x.lv = O.level(x.k, S); }); const total = sg.reduce((a, x) => a + x.d, 0) || 1, env = O.flowEnv(sg, total), n = 80, out = []; for (let i = 0; i < n; i++) out.push(env[Math.min(env.length - 1, Math.round(i / (n - 1) * (env.length - 1)))]); return out; };
+const SA = O.applyExample({}, 'standard'), SB = O.applyExample({}, 'standard'); delete SB.on.song; SB.on.bless = 1;
+const oldD = mad(curveS(SA, true), curveS(SB, true)), newD = mad(curveS(SA, false), curveS(SB, false));
+ok(`깨 보기 — 옛 세 단계면 축가 ↔ 덕담만 바꾼 두 판이 ${oldD.toFixed(3)} < ${MIN} 로 같아 보인다(지금 세기 ${newD.toFixed(3)})`, oldD < MIN);
 
 console.log(fail ? `✗ FLOW_DIST 실패 ${fail}건` : 'ok flow-distinct — 예시 넷 곡선이 서로 다른 모양 · 정점 그대로(선언 · 편지) · 준비한 순서 4 이상 · 깨 보기');
 process.exit(fail ? 1 : 0);

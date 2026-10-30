@@ -2451,6 +2451,8 @@ function openContractView(){
    kind = 'slow'(기다리다 멈춤 · 서버는 끝냈을 수 있다) · 'net'(연결) · 'bad'(서버 답이 깨짐) · ''(서버가 답했다) */
 function _relayErr(r){ var o={ ecode:'', sess:false, kind:'' }; try{ if(r&&typeof r==='object'){ o.ecode=String(r.ecode||'').split(' ')[0] || (r.ok===false?_errCode(r,'S').split(' ')[0]:''); o.sess=!!(r.sess||_errSess(r)); o.kind=String(r.kind||''); } }catch(e){} return o; }
 function _relayFail(x, L, base){ var line=_errLine(x, L, base); return { ok:false, error:line, msg:line, ecode:_errCode(x, L).split(' ')[0], sess:_errSess(x), kind:_errKind(x) }; }
+/* ★[READ_UNLOAD 2026-10-30 GPT 2차 점검 12] 식순 화면에서 1분 읽기 녹음을 하나라도 읽은 뒤(만들기 전) 마이페이지를 새로 고치거나 떠나면 한 번 묻는다 — 녹음은 그 화면 기억에만 있다(따로 보관하지 않는다) */
+window.addEventListener('beforeunload',function(e){ try{ var f=document.getElementById('mp_obFrame'), w=f&&f.contentWindow; if(!(w&&typeof w._vcReadDirty==='function'&&w._vcReadDirty())) return; e.preventDefault(); e.returnValue=''; return ''; }catch(x){} });
 // 식순 만들기 — 계약서와 동일한 iframe 오버레이(/order-preview.html?embed=1) · postMessage로 서버 초안 주입, 저장 수신 → saveProductionTrack(ritual)
 function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice' = ③ 연습하기로 바로
   /* ★[OB_OPEN_ONCE 2026-10-09 A~Z 점검 2라운드 A2-21] 이미 떠 있으면 그 창을 그대로 쓴다(미리 듣기 창 openRitualPreview 와 같은 판단) — 종전엔 앞 창을 정리 없이 떼고 새 창을 열어
@@ -2484,7 +2486,10 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var d=ev.data||{};
     if(d.type==='momentedit:orderReady'){
-      _frameReady=true;
+      _frameReady=true;   /* ★[FRAME_READY_BACK 2026-10-30 GPT 13차 점검(고객) 13-01] 식순 화면이 떴다 — 뒤로가기 · Esc 가 빌더의 나가기 판을 거친다(종전 12차에서 이 줄이 빠져 늘 false · 저장 안 한 고침을 묻지 않고 닫았다) · 옛 창이어도 화면은 떠 있다(아래 판정보다 먼저) */
+      /* ★[TAB_GUARD_FILL 2026-10-30 GPT 12차 점검(고객) 12-02] 옛 창은 식순 화면에 계정을 넘기지 않는다 —
+           종전엔 늦게 처리된 orderReady 가 지금 캐시의 다른 계정 코드를 실어 보내, 옛 식순 화면이 «주인이 다르다»며 지금 계정의 me_order 를 지웠다 */
+      if(typeof _tabStale=='function' && _tabStale()){ _tabStaleShow(); return; }
       var rd=_rdOv||((p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null);   // [ORDER_RELOAD] 새로고침이면 열 때 받은 옛 초안 대신 방금 그 판
       // [V2_DRAFT_NOTICE 2026-07-25] 구버전(v2 이하) 초안 감지 — 침묵 폐기 대신 1회 안내 후 종전 동작(새로 시작 · 회의 R-6)
       //   [ORDER_OWNER] 안내 플래그도 계정별 키 — 같은 기기에서 계정이 바뀌면 그 계정은 안내를 다시 받아야 한다(앞 계정이 봤다고 건너뛰면 조용한 초안 폐기가 됨).
@@ -2497,7 +2502,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       if(/^\d{4}-\d{2}-\d{2}$/.test(_wd)) _ddn=_kstDdayOf(_wd);   // [KST_TODAY 2026-09-26 · 2라운드 R1] 빌더 AI 에 넘기는 D-day 도 머리와 같은 한국 날짜(기기 날짜로 세면 해외 기기에서 하루 어긋났다)
       var _ci=(p&&p.contractInfo)||{};   // 연락처는 contractInfo에 있음(p.phone은 존재하지 않음) — 인계 카드 회신 채널(기획 v3 §1-2)
       var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||'', aiToken:(p&&p.aiToken)||''};   // [AI_WIDGET_HMAC] GAS 서명 토큰 릴레이(미발급이면 빈값)
-      try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } if(!_cu.aiToken){ _cu.aiToken=_ld.aiToken||''; } } }catch(e2){}
+      try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.t===getToken()&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } if(!_cu.aiToken){ _cu.aiToken=_ld.aiToken||''; } } }catch(e2){}   // [TAB_GUARD_FILL] 이 토큰의 상태 캐시만(다른 계정 코드를 싣지 않는다)
       // [PREVIEW_DIGITAL] 디지털 참석 여부 동봉 — 빌더 안 「미리 들어보기」가 배웅 장면을 맞게 고르려면 이 한 칸이 필요하다.
       //   빌더는 청첩장 트랙을 전혀 못 본다(오직 식순 S 만 쥔다). 새 규약을 만들지 않고 이미 있는 orderFill 에 한 칸만 더한다.
       //   ★빌더는 이 값을 S 에 넣지 않는다 — 넣으면 _embedSave() 가 서버 초안에 굳혀 청첩장이 바뀌어도 안 따라온다.
@@ -2509,7 +2514,8 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _vo=(p&&p.voice)||((p&&p.production&&p.production.voice))||null;   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · AI 스위치(켜짐 여부만)
       /* ★[TABLE_GREET_1008 2026-10-08 사장님] 테이블 인사 시간 = 테이블 수 × 1분 30초 — 좌석 배치도의 테이블 수(없으면 확정 인원 ÷ 5 · SEAT_PER5) 한 숫자만 실어 준다 */
       var _tbl=0; try{ var _sd=(p&&p.seatDraft)||{}; _tbl=(_sd.tables&&_sd.tables.length)||0; if(!_tbl){ var _hc=+(((p&&p.finalDraft)||{}).headcount)||0; if(_hc>0) _tbl=Math.ceil(_hc/5); } }catch(e6){}
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, guide:_gOn, voice:_vo, tables:_tbl, at:(opt&&opt.at)||''}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
+      var _acct=''; try{ _acct=String(_mpAcct()||''); }catch(e8){} if(!_acctOk(_acct) || (p&&p.code&&String(p.code)!==_acct)) _acct='';   /* ★[ACCT_KEYS 2026-10-30] 이 창이 그린 계정(로그인 상태) — 식순 화면은 이 코드를 받기 전에는 이 기기 초안을 읽지도 쓰지도 않는다(me_order_<코드>) · 모르면 '' (서버 판만) */
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', acct:_acct, draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, guide:_gOn, voice:_vo, tables:_tbl, at:(opt&&opt.at)||''}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -2518,11 +2524,13 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
        서버로 보내지는 않는다(저장은 사람 손이 정한다 · ORD_AUTOSAVE) */
     /* ★[RELOAD_UNWIND 2026-10-09 A~Z 점검 2라운드 A2-5] 새 문서는 «바꿔» 읽는다(location.replace · 기록 칸이 늘지 않는다) — 빌더가 먼저 제 칸을 되감고 남은 깊이(d)를 알려 준다.
        종전엔 src 를 바꿔 한 칸이 더 생기고 새 문서가 깊이 0 을 알려, 닫은 뒤 다음 층 하나를 닫는 데 뒤로가기 6번이 들었다 */
-    if(d.type==='momentedit:orderReload'){ if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; _dBase=Math.max(0,d.d|0); _depth=_dBase; var _ru='/order-preview.html?embed=1&t='+Date.now();
+    if(d.type==='momentedit:orderReload'){ if(typeof _tabStale=='function' && _tabStale()){ _tabStaleShow(); return; }   /* ★[ACCT_KEYS 2026-10-30 GPT 13차 점검(고객) 13-06] 옛 창은 식순 화면을 새로 열지 않는다(새 문서가 다른 계정 초안을 먼저 읽지 않게 · 식순 화면도 계정을 받기 전엔 읽지 않는다) */
+      if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; _dBase=Math.max(0,d.d|0); _depth=_dBase; var _ru='/order-preview.html?embed=1&t='+Date.now();
       try{ fr.contentWindow.location.replace(_ru); }catch(e){ try{ fr.src=_ru; _dBase++; _depth=_dBase; }catch(e2){} } return; }
     if(d.type==='momentedit:orderDepth'){ _depth=_dBase+Math.max(0,d.d|0); return; }   // [HIST_DEPTH] · [RELOAD_UNWIND] 남은 옛 칸 + 새 문서 칸
     if(d.type==='momentedit:orderExitHold'){ clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[HOLD_RESTACK 2026-10-09 A~Z 점검 2라운드 A2-6] 잡으면 바로 층을 다시 쌓는다 — 종전엔 «머물기»를 고른 뒤에야 쌓아, 판이 뜬 사이 뒤로가기를 한 번 더 누르면 마이페이지를 떠났다(이제 그 뒤로가기는 판을 닫는다 · 빌더 BACK_DISMISS) */   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
+    if(d.type==='momentedit:orderRelogin'){ var _rc=/^[A-Z]8$/.test(String(d.ecode||''))?String(d.ecode):'S8'; _errGoLogin({ok:false, ecode:_rc}, _rc.charAt(0)); return; }   /* ★[RELOGIN_BTN 2026-10-30 GPT 5차 점검(고객) 5-01 · VC_FIX5_1030] 식순 화면의 «로그인하기» — 겹화면을 닫고 로그인 화면으로(그 줄을 로그인 칸에 · 저장 실패 «로그인하기»와 같은 길) */
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
       // 저장 실패 시 오버레이는 그대로 두고 빌더의 나가기 버튼 잠금(_obExiting)을 풀어 재시도 가능하게 — 안 풀면 버튼 영구 잠김
       /* [ORD_SAVE_STATE 2026-08-03] 실패는 빌더 안에서 말하게 한다 — 여기서 alert 을 띄우지 않는다.
@@ -2577,18 +2585,24 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
        지우기도 같은 길. 결과는 빌더로(ritualFileData / ritualFileDelDone) */
     /* ★[VOICE_CLONE 2026-09-27] AI 두 분 목소리 · 연습 읽기 — 빌더가 op(consent · enroll · make · delete · status · practice)를 보내면 로그인 토큰을 붙여 GAS 로 · 결과는 rid 로 돌려준다(스위치가 꺼져 있으면 GAS 가 거절) */
     if(d.type==='momentedit:voiceClone' && d.data && d.data.op){
-      var _vcBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:voiceCloneDone', rid:d.data.rid, rk:1}, o), location.origin); }catch(e){} };   // ★[RF_AIBACK_DROP 2026-10-09] rk:1 = 이 중계는 줄 파일 지우기의 keep · t 를 서버로 넘긴다(빌더가 «되돌리기» 때 버린 AI 테이크를 지워도 되나를 가른다 · 옛 중계는 없다)
+      /* ★[TAB_GUARD_VC 2026-10-30 GPT 12차 점검(고객) 12-01] 이 중계는 _post 를 거치지 않는다 — 옛 창이면 보내지 않고 · 보낼 때의 토큰 · 차례에 답을 묶어 그 사이 바뀌면(다시 묻기 포함) 답을 버린다.
+           종전엔 다른 계정이 로그인한 뒤 옛 목소리 창의 «지우기»가 지금 계정 토큰을 붙여 나갔고 · 그 답이 옛 식순 화면에 닿았다 */
+      var _vcTie=(typeof _tabTie=='function')?_tabTie():null, _vcSd=function(){ return (typeof _tabSd=='function')?_tabSd():{ok:false, reason:'tab_stale', ecode:'L8'}; };
+      var _vcBack=function(o){ if(_vcTie && _vcTie()) o=_vcSd(); try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:voiceCloneDone', rid:d.data.rid, rk:1}, o), location.origin); }catch(e){} };   // [TAB_GUARD_VC] 늦은 답도   // ★[RF_AIBACK_DROP 2026-10-09] rk:1 = 이 중계는 줄 파일 지우기의 keep · t 를 서버로 넘긴다(빌더가 «되돌리기» 때 버린 AI 테이크를 지워도 되나를 가른다 · 옛 중계는 없다)
+      if(_vcTie && _vcTie()){ _vcBack({}); return; }   // [TAB_GUARD_VC] 옛 창 — 보내지 않는다(지금 계정 토큰을 옛 창 요청에 붙이지 않는다)
+      var _vcTok=getToken();   // [TAB_GUARD_VC] 보낼 때의 토큰 하나로(다시 묻기도 이것)
       var _vcAc=(typeof AbortController!=='undefined')?new AbortController():null, _vcT=_vcAc?setTimeout(function(){ try{ _vcAc.abort(); }catch(e){} },90000):null;
       var _vcT0=Date.now();   // [VC_NET_SEC] 몇 초 만에 끊겼나
-      fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({}, d.data, {action:'voiceClone', token:getToken()})),signal:_vcAc?_vcAc.signal:undefined})
+      fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({}, d.data, {action:'voiceClone', token:_vcTok})),signal:_vcAc?_vcAc.signal:undefined})
         .then(function(r){ return r.json(); }).then(function(r){ if(_vcT) clearTimeout(_vcT); _vcBack(r||{ok:false}); })
         .catch(function(e){ if(_vcT) clearTimeout(_vcT); var _to=!!(e&&e.name==='AbortError'), _bad=!_to&&!!(e&&e.name==='SyntaxError');
           var _fin=function(net){ _vcBack({ok:false,down:true,timeout:_to,net:_to?0:net,sec:Math.round((Date.now()-_vcT0)/1000),error:_to?'오래 걸려 멈췄어요 · 다시 눌러 주세요 (코드 V5)':net==='bad'?'서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 V7)':net==='srv'?'서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V9)':'연결이 끊겼어요 · 다시 눌러 주세요 (코드 V6)'}); };
           if(_to||_bad){ _fin(_bad?'bad':0); return; }
+          if(_vcTie && _vcTie()){ _vcBack({}); return; }   // [TAB_GUARD_VC] 다시 묻기 전에도 — 그 사이 바뀌었으면 묻지 않는다
           /* ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?» (맞추기 창 «연결이 끊겼어요 (코드 V6)»)] 브라우저는 «인터넷이 끊김»과 «서버가 처리하다 죽어 오류 페이지(CORS 없음)를 줌»을 같은 오류로 준다.
              끊긴 직후 가벼운 상태 확인(status) 한 번 — 서버가 답하면 연결은 멀쩡하고 그 요청만 서버에서 멈춘 것(V9 · GAS 실행 기록에 남는다 · ★[ERR_CODES] 종전 V8 — 8 은 사이트 전체에서 «로그인 풀림»이라 9 로 옮겼다) · 답이 없으면 진짜 연결 끊김(V6) */
           var _pc=(typeof AbortController!=='undefined')?new AbortController():null, _pt=_pc?setTimeout(function(){ try{ _pc.abort(); }catch(x){} },12000):null;
-          fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'voiceClone',op:'status',token:getToken()}),signal:_pc?_pc.signal:undefined})
+          fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'voiceClone',op:'status',token:_vcTok}),signal:_pc?_pc.signal:undefined})
             .then(function(r){ return r.json(); }).then(function(){ if(_pt) clearTimeout(_pt); _fin('srv'); }, function(){ if(_pt) clearTimeout(_pt);
               /* ★[VC_GAS_DOWN 2026-10-08 목소리 1라운드 82] 상태 확인도 실패하면 GAS 전체가 멈춘 것일 수도 있다(인터넷은 멀쩡) — 종전엔 늘 V6(«고객 인터넷») 이었다.
                  이 사이트(같은 출처)에 가볍게 한 번 — 받히면 서버 쪽(V9) · 안 받히거나 기기가 오프라인이면 진짜 연결 끊김(V6) */
@@ -2601,8 +2615,8 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _isDel=d.type==='momentedit:ritualFileDel', _gBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:_isDel?'momentedit:ritualFileDelDone':'momentedit:ritualFileData', key:d.data.key, id:d.data.id}, o), location.origin); }catch(e){} };
       /* ★[ERR_CODE_MYPAGE F7] 지우기와 받기가 같은 실패 글(«불러오지 못했어요…»)을 나눠 썼다 — 지우기는 D(지우기) · 받기는 L(불러오기)로 */
       var _gL=_isDel?'D':'L', _gBase=_isDel?'지우지 못했어요 · 다시 눌러 주세요':'파일을 불러오지 못했어요 · 다시 눌러 주세요';
-      _post({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id, all:(_isDel&&d.data.all)?1:0, t:(_isDel&&+d.data.t>0)?+d.data.t:0, keep:(_isDel&&Array.isArray(d.data.keep))?d.data.keep.slice(0,8).map(String):[]}, (!_isDel&&(d.data.key==='mu'||d.data.key==='rec'))?180000:60000)   /* ★[RF_DEL_TQ · RF_DEL_KEEP 2026-10-09 A~Z 점검 2라운드 E2-3 · E2-4] 누른 때(t) · 되돌리기로 쓸 녹음(keep)도 서버로(옛 서버는 무시) */   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»는 그 자리 두 분 파일을 모두(서버가 읽는다 · 옛 서버는 무시하고 그 파일만) */
-        .then(function(r){ _gBack(r&&r.ok?{ok:true,mime:r.mime,data:r.data,songs:Array.isArray(r.songs)?r.songs:undefined}:_relayFail(r,_gL,_gBase)); }, function(e){ _gBack(_relayFail(e,_gL,_gBase)); });   /* ★[REC_SONG_1012 2026-10-12] key 'rec' = 입장 추천 곡 — id 'list' 면 곡 목록(songs)을 · 곡 키면 소리(data)를 빌더로 · 곡은 커서 180초 */
+      _post({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id, all:(_isDel&&d.data.all)?1:0, t:(_isDel&&+d.data.t>0)?+d.data.t:0, keep:(_isDel&&Array.isArray(d.data.keep))?d.data.keep.slice(0,8).map(String):[]}, (!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)   /* ★[RF_DEL_TQ · RF_DEL_KEEP 2026-10-09 A~Z 점검 2라운드 E2-3 · E2-4] 누른 때(t) · 되돌리기로 쓸 녹음(keep)도 서버로(옛 서버는 무시) */   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»는 그 자리 두 분 파일을 모두(서버가 읽는다 · 옛 서버는 무시하고 그 파일만) */
+        .then(function(r){ _gBack(r&&r.ok?{ok:true,mime:r.mime,data:r.data,songs:Array.isArray(r.songs)?r.songs:undefined}:_relayFail(r,_gL,_gBase)); }, function(e){ _gBack(_relayFail(e,_gL,_gBase)); });   /* ★[REC_SONG_1012 2026-10-12] key 'rec' = 입장 추천 곡 — id 'list' 면 곡 목록(songs)을 · 곡 키면 소리(data)를 빌더로 · 곡은 커서 180초 */   /* ★[BGM_PREVIEW_1024 2026-10-24] key 'bed' = 구간 깔림 곡 — 같은 길(id 'list' = 있는 곡 번호 · 곡 번호 = 그 곡 앞부분) */
       return;
     }
     if(d.type==='momentedit:orderDraft' && d.data && d.data.S){
@@ -3135,16 +3149,175 @@ function show(viewId){
 }
 function _mpHoldScroll(){ try{ window._mpKeepScroll=(document.body.style.position==='fixed')?_mpLockY:(window.pageYOffset||0); }catch(e){ window._mpKeepScroll=null; } }   // MPD_E2 저장-나가기 직전 위치 캡처(배경 잠금 중엔 잠금 기준값)
 function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
-function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
+function setToken(t){ if(!_tabEpBump()){ _tabEpFail(); return false; }   // [EPOCH_VERIFY] 차례를 먼저 올리고 다시 읽어 확인한다 — 못 남기면 로그인을 마치지 않는다(다른 창이 «바뀐 것 없음»으로 읽지 않게)
+  var ok=false; try{ localStorage.setItem(TOKEN_KEY,t); ok=(localStorage.getItem(TOKEN_KEY)===String(t)); }catch(e){} _tabBind(); if(!ok){ _tabEpFail(); return false; } return true; }   // [TAB_GUARD] 이 창이 스스로 로그인했다 — 이 창의 기준을 새로 잡는다 · [EPOCH_VERIFY] 로그인 표시를 못 남겼으면 옛 계정으로 이어 가지 않는다
+/* ★[TAB_GUARD 2026-10-30 GPT 11차 점검(고객) 11-03 · 11-04 · 11-05] 같은 기기의 다른 창(탭)이 로그인 · 로그아웃 · 다른 계정 로그인 · 맡긴 초안 되돌리기를 하면 이 창은 «옛 창»이다.
+     종전엔 옛 창이 이 기기 초안(me_order · 스냅 임시본)을 그대로 다시 쓰고(11-03 되돌린 최신본을 옛 글로 덮음) · 옛 판으로 다시 맡기고(11-04) ·
+     로그인 풀림 정리로 지금 계정(다른 창이 들어온 계정)의 토큰 · 초안을 지웠고 · 그 계정 토큰을 붙여 옛 계정 메모를 보냈다(11-05 · 개인정보).
+     이제 창마다 처음 본 토큰과 되돌리기 표시(me_relogin_rst)를 기억해 두고, 다른 창이 바꾸면 이 창의 이 기기 쓰기 · 지우기 · 서버 보내기를 멈춘다 —
+     위에 한 줄 «다른 창에서 바뀌었어요 (코드 L8)» · 단추 «다시 열기» 하나(새로 연다). 보내는 중이던 답 · 떠 있던 확인 창도 그 사이 바뀌었으면 버린다(아무것도 지우지 않는다).
+     이 창이 스스로 로그인 · 로그아웃한 것은 기준을 새로 잡는다(setToken · clearToken). 로그인 전 창은 쓸 것이 없어 보지 않는다.
+     식순 화면(iframe)은 부모의 _tabStale 로 같은 판정을 쓴다(order-preview _tabGone) · 검사 scripts/audit/tab-guard.mjs */
+/* ★[AUTH_EPOCH 2026-10-30 GPT 12차 점검(고객) 12-06] 토큰만 견주면 다른 창이 가 → 나 → 가(알림 링크)로 돌아와 처음 토큰과 같아졌을 때 · storage 이벤트가 늦게 오면 옛 창이 «바뀐 것 없음»으로 읽었다.
+     이제 로그인 · 로그아웃 · 다른 계정 로그인 · 맡긴 초안 되돌리기마다 이 기기의 차례 표식(me_auth_ep)을 올리고, 창마다 처음 본 차례를 기억한다 — 차례가 다르면 토큰이 같아도 옛 창.
+     보내기(_post · 목소리 중계)도 보낼 때의 차례에 답을 묶는다. 옛 되돌리기 표시(me_relogin_rst)는 이 차례로 합쳤다 */
+/* ★[EPOCH_VERIFY 2026-10-30 GPT 13차 점검(고객) 13-07] 차례 표식(me_auth_ep)은 쓴 뒤 다시 읽어 확인한다 — 종전엔 쓰기 실패(저장 공간 가득)를 삼키고 로그인을 이어 가,
+     가 → 나 → 가로 돌아온 뒤 옛 창이 처음과 같은 토큰 · 차례를 보고 «바뀐 것 없음»으로 읽었다. 이제 못 남기면 이 창을 옛 창으로 세우고 한 줄 «창 상태를 남기지 못했어요 (코드 L4)» ·
+     로그인(setToken)은 차례를 남기기 전에는 마치지 않는다 · 되돌리기(_reloginRestore)도 차례를 먼저 남긴 뒤에만 */
+var TAB_EP_KEY='me_auth_ep', TAB_LINE='다른 창에서 바뀌었어요 (코드 L8)', TAB_EP_LINE='창 상태를 남기지 못했어요 (코드 L4)', _TAB={tok:'', ep:'', stale:false, why:''};
+function _tabEpBump(){ try{ var n=parseInt(localStorage.getItem(TAB_EP_KEY)||'0',10)||0, v=(n+1)+'.'+Math.random().toString(36).slice(2,8); localStorage.setItem(TAB_EP_KEY, v); return localStorage.getItem(TAB_EP_KEY)===v; }catch(e){ return false; } }   // [AUTH_EPOCH] 차례 하나 올림(두 창이 같이 올려도 겹치지 않게 뒤에 덧붙임) · [EPOCH_VERIFY] 다시 읽어 같을 때만 true
+function _tabEpFail(){ _TAB.stale=true; _TAB.why='ep'; try{ var b=document.getElementById('mp_tabBar'); if(b&&b.firstChild) _errSet(b.firstChild, TAB_EP_LINE); }catch(e){} _tabStaleShow(); }   // [EPOCH_VERIFY] 보호가 된 척 이어 가지 않는다 — 이 창을 멈추고 한 줄
+function _tabStaleMark(){ _TAB.stale=true; _tabStaleShow(); }   // [SAME_ACCT_T] 같은 계정 다른 창이 더 나중에 고쳤다 — 이 창(식순 화면 · 스냅)은 옛 판을 덮지 않고 «다시 열기»로
+function _tabBind(){ try{ _TAB.tok=localStorage.getItem(TOKEN_KEY)||''; _TAB.ep=localStorage.getItem(TAB_EP_KEY)||''; }catch(e){ _TAB.tok=''; _TAB.ep=''; } _TAB.stale=false; _TAB.why=''; }   // [TAB_GUARD] 이 창의 기준(토큰 · [AUTH_EPOCH] 차례)
+function _tabStale(){ if(_TAB.stale) return true; if(!_TAB.tok) return false;   // [TAB_GUARD] 한 번 옛 창이면 새로 열 때까지 옛 창
+  var tok='', ep=''; try{ tok=localStorage.getItem(TOKEN_KEY)||''; ep=localStorage.getItem(TAB_EP_KEY)||''; }catch(e){ return false; }
+  if(tok!==_TAB.tok || ep!==_TAB.ep) _TAB.stale=true; return _TAB.stale; }   // [AUTH_EPOCH] 토큰이 같아도 차례가 다르면 옛 창
+function _tabTie(){ var t0=_TAB.tok, e0=_TAB.ep; return function(){ if(_TAB.tok===t0 && _TAB.ep===e0 && !_tabStale()) return false; if(_tabStale()) _tabStaleShow(); return true; }; }   // [AUTH_EPOCH] 보낼 때의 토큰 · 차례에 묶는다 — 그 사이 바뀌었으면(이 창 스스로여도) 답을 버린다
+function _tabSd(){ return {ok:false, reason:'tab_stale', ecode:'L8', error:TAB_LINE}; }   // [TAB_GUARD] 옛 창 · 바뀐 답
+function _tabStaleShow(){ try{ _flowBusy(false); }catch(e){}   // [TAB_GUARD] 한 줄 · 단추 하나 · 다른 막대 · 겹화면 · 확인 창 위
+  try{ if(document.getElementById('mp_tabBar')) return;
+    var bar=document.createElement('div'); bar.id='mp_tabBar'; bar.setAttribute('role','alert');
+    bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483000;background:rgba(58,45,34,.97);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center';
+    try{ bar.style.paddingTop='calc(11px + env(safe-area-inset-top,0px))'; }catch(e){}
+    var tx=document.createElement('span'); _errSet(tx, _TAB.why==='ep'?TAB_EP_LINE:TAB_LINE);
+    var btn=document.createElement('button'); btn.type='button'; btn.textContent='다시 열기';
+    btn.style.cssText='border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:5px 13px;min-height:32px;font-family:inherit;font-size:12px;cursor:pointer';
+    btn.addEventListener('click', function(){ if(!btn._go){ var r=-1; try{ r=_tabKeepUnkept(); }catch(e){ r=-1; }   // [STALE_KEEP_INPUT] 새로 열기 전에 아직 못 남긴 입력을 그 계정 맡김에
+        if(r<0){ _errSet(tx, RELOGIN_FAIL); btn.textContent='그대로 다시 열기'; btn._go=1; return; } }   // ★[KEEP_FAIL_STOP 2026-10-30 GPT 13차 점검(고객) 13-04] 못 맡겼거나(-1) 이 창 계정을 모르면 새로 열지 않는다 — «초안을 보관하지 못했어요 (코드 S4)» · 그래도 열려면 «그대로 다시 열기»(S4 «그대로 로그인하기»와 같은 꼴)
+      try{ location.reload(); }catch(e){} });
+    bar.appendChild(tx); bar.appendChild(btn); document.body.appendChild(bar); }catch(e){} }
+function _tabDrop(x){ var st=_tabStale(); if(!st && !(x && x.reason==='tab_stale')) return false; try{ _flowBusy(false); }catch(e){} if(st) _tabStaleShow(); return true; }   // [TAB_GUARD] 옛 창 · 그 사이 바뀐 답이면 아무것도 지우지 않고 멈춘다
+function _tabWatch(){ try{ var re=function(){ if(_tabStale()) _tabStaleShow(); };   // [TAB_GUARD] 다른 창이 바꾸면 바로 · 잠들었던 창은 돌아올 때
+  window.addEventListener('storage', function(ev){ if(!ev || ev.key===TOKEN_KEY || ev.key===TAB_EP_KEY || ev.key===null) re(); });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') re(); });
+  window.addEventListener('focus', re); window.addEventListener('pageshow', re); }catch(e){} }
+_tabBind(); _tabWatch();
 /* ★[LOGOUT_SWEEP 2026-08-30] 로그아웃이 토큰·상태캐시만 지워, 식순 초안(me_order)·결과물 펼침(me_deliv_*) 등이
    그대로 남았다. 웨딩은 한 기기를 부부가 함께 쓰는 일이 잦아, 다음 사람 화면에 앞사람 서약문·편지가 잠깐 비칠 수 있다.
    ★me_guide_*(하객 안내 캐시)는 건드리지 않는다 — guide.html 소유이고 예식별 토큰으로 이미 격리돼 있다. */
-function clearToken(){ _DR_AFTER_MEM=null; try{   // [DRESS_MEM_RESET 1030] 드레스 창 기억(탭 · 자리)도 로그아웃 · 세션 끝에 비운다
-  localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
-  var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
-    if(k && /^me_(order|deliv_|prod_ping|order_v2note_|snapLocal_)/.test(k)) _kill.push(k); }   // [SNAP_AGREE_LAST] 동의 전 스냅 임시본(고른 장면 · 글)도 — 다음 사람 화면에 앞사람 메모가 비치지 않게
+function clearToken(keep){ if(typeof _tabStale=='function' && _tabStale()){ try{ _tabStaleShow(); }catch(e){} return false; }   // [TAB_GUARD] 옛 창은 지금 계정(다른 창)의 토큰 · 초안을 지우지 않는다
+  var _c=_reloginCode(), _kp=0; if(keep){ _kp=_reloginStash(); if(_kp<0) return null; }   // [ACCT_KEYS] 나가는 계정 = 이 창이 그린 계정 · 이 토큰의 상태 캐시   // [RELOGIN_STASH_FIRST] 맡김을 먼저 쓰고 다시 읽어 확인한 뒤에야 지운다 · 못 맡겼으면 아무것도 지우지 않고 null
+  _DR_AFTER_MEM=null;   // [DRESS_MEM_RESET 1030] 드레스 창 기억(탭 · 자리)도 로그아웃 · 세션 끝에 비운다(옛 창 · 맡김 실패로 멈춘 때는 그대로)
+  try{
+  localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY); if(typeof _tabBind=='function'){ var _epOk=_tabEpBump(); _tabBind(); if(!_epOk) _tabEpFail(); }   // [TAB_GUARD] 이 창이 스스로 나갔다 — 기준을 새로 · [AUTH_EPOCH] 차례 올림 · [EPOCH_VERIFY] 못 남겼으면 이 창을 멈춘다(토큰은 이미 지웠다 · 다른 창은 토큰으로 안다)
+  var _kill=['me_prod_ping']; if(_c){ _kill.push(_ordK(_c), 'me_snapLocal_'+_c, 'me_order_v2note_'+_c, 'me_deliv_'+_c); if(!keep) _kill.push(_keepK(_c)); }   // [ACCT_KEYS] 나가는 계정의 칸만 지운다(다른 계정 칸은 그 계정 화면만 읽는다) · [SNAP_AGREE_LAST] 동의 전 스냅 임시본도 · [RELOGIN_KEEP] 스스로 로그아웃하면 그 계정 맡김도 · [RELOGIN_SNAP_KEEP] 계정을 모르는 로그인 풀림이면 계정 칸은 두고 간다
   _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
-}catch(e){} _mpAcctSweep(); }
+  _acctOldSweep();   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김
+}catch(e){} _mpAcctSweep(); return _kp>0; }
+/* ★[RELOGIN_KEEP 2026-10-30 GPT 6차 점검(고객) 6-01 · VC_FIX6_1030] 로그인이 풀려 로그인 화면으로 갈 때(keep) 저장 못 한 이 기기 초안을 계정 코드에 묶어 따로 맡겨 둔다 —
+     종전엔 식순 화면이 «고르신 내용은 이 기기에 그대로 있어요» 뒤 «로그인하기»를 내밀었는데 clearToken 이 바로 그 초안(me_order)을 지워 다시 로그인하면 옛 저장본이었다.
+     맡기는 것: 저장 안 한 고침이 있는 식순 초안(dirty · 그 계정 것) · 보내기 전 스냅 임시본(me_snapLocal_<코드>).
+     같은 코드로 로그인하면 되돌려 놓는다(_reloginRestore · 이미 이 기기에 그 초안이 있으면 그대로) — 식순 화면은 종전 [LOCAL_AHEAD] 대로 서버 판이 그 고침의 바탕 그대로일 때만 이 기기 판을 연다(그사이 다른 기기에서 저장했으면 저장한 판).
+     다른 계정으로 로그인 · 7일이 지남 · 스스로 로그아웃하면 지운다 — 다른 계정 화면에는 보이지 않는다 */
+var RELOGIN_KEY='me_relogin_keep', RELOGIN_TTL=7*864e5, RELOGIN_FAIL='초안을 보관하지 못했어요 (코드 S4)';
+/* ★[RELOGIN_STASH_FIRST · RELOGIN_ACCT_CACHE · RELOGIN_OWNER 2026-10-30 GPT 7차 점검(고객) 7-01 · 7-02 · 7-03]
+     ① 맡김(me_relogin_keep)을 먼저 쓰고 다시 읽어 같은지 확인한 뒤에야 원본을 지운다 — 종전엔 원본을 지운 뒤 맡김을 써서, 이 기기 저장 공간이 가득 차 쓰기가 실패하면(QuotaExceededError)
+        둘 다 사라졌는데도 «다시 로그인한 뒤 이어서 저장해 주세요»라고 했다. 못 맡기면 화면 · 초안 · 로그인 표시를 그대로 두고 «초안을 보관하지 못했어요 (코드 S4)»
+     ② 알림 링크로 들어온 길은 마이페이지를 그리기 전이라 지금 계정(_mpAcct)이 비어 있다 — 이 기기 토큰에 맞는 상태 캐시의 개인코드로도 찾는다(스냅 임시본만 있어도 맡긴다)
+     ③ 되돌릴 때 이 기기의 식순 초안(me_order)이 다른 주인(다른 계정 · 공개 미리보기 who '')이면 막지 않고 이 계정 것으로 덮는다(남의 초안을 이 계정에 싣지 않는다 · 식순 화면 ORDER_OWNER 도 어차피 버린다) ·
+        같은 계정 초안이 이미 있으면 고친 때를 견준다([RELOGIN_NEWER] 아래) · 다 써 넣은 것을 확인한 뒤에야 맡김을 지운다 */
+/* ★[RELOGIN_NEWER · RELOGIN_S4_GO 2026-10-30 GPT 8차 점검(고객) 8-01 · 8-02]
+     ① 8-01 같은 계정 초안이 이미 있으면 종전엔 무엇이 더 새것인지 보지 않고 그것을 두고 맡김을 지웠다 — 다른 탭에 열려 있던 더 오래된 같은 계정 초안이 방금 맡긴 고침을 이겼다.
+        이제 고친 때(t · 식순 화면 _persist 가 «저장 안 한 고침이 생긴 때»를 적는다)를 견준다 — 이 기기 초안이 저장 안 한 고침이고 맡긴 것보다 나중에 고친 것일 때만 그것을 둔다.
+        이 기기 초안에 고친 때가 없거나 · 저장 안 한 고침이 아니면 맡긴 것(이 탭이 떠날 때의 마지막 판)을 되돌린다 · 서버 판과는 종전 [LOCAL_AHEAD] 가 견준다
+        맡김은 되돌렸거나 · 이 기기 초안이 더 나중임을 확인했을 때만 지운다
+     ② 8-02 식순 화면 «로그인하기» → 맡김 실패(S4) 판에 «확인»만 있어 로그인으로 갈 길이 없었다 — «그대로 로그인하기»를 하나 더 둔다.
+        로그인 표시 · 상태 캐시만 지우고 이 기기 초안(me_order · 주인 who 그대로)과 스냅 임시본은 둔다 → 같은 계정이면 식순 화면이 [LOCAL_AHEAD] 대로 잇고,
+        다른 계정이면 로그인하자마자 남의 초안을 걷는다(_orderOwnerSweep · 식순 화면 ORDER_OWNER 도 버린다) — ★[ACCT_KEYS] 뒤로는 계정 칸이 달라 걷지 않는다 */
+/* ★[RELOGIN_SNAP_KEEP 2026-10-30 GPT 9차 점검(고객) 9-01] 식순 초안 없이 스냅 임시본(me_snapLocal_<코드>)만 있는 기기 — S4 «그대로 로그인하기»가 로그인 표시 · 상태 캐시를 지운 뒤
+     만료된 알림 링크로 다시 들어오면 계정을 찾지 못해(_reloginPack null) clearToken(true) 가 코드별 임시본을 다 지웠다 → 같은 계정으로 로그인해도 «이어서 고르기»가 사라졌다.
+     이제 계정을 모르는 로그인 풀림에서는 코드별 임시본을 두고 간다(코드 이름이라 다른 계정 화면에서는 읽히지 않는다 · _snapLocalKey).
+     지우는 때: 스스로 로그아웃(clearToken()) · 다른 계정으로 로그인한 것을 서버 상태로 확인했을 때(_orderOwnerSweep) — ★[ACCT_KEYS] 뒤로는 스스로 로그아웃 · 30일(_acctOldSweep)뿐 */
+/* ★[RELOGIN_SNAP_NEWER 2026-10-30 GPT 10차 점검(고객) 10-01] 스냅 임시본도 고친 때를 견준다 — [RELOGIN_SNAP_KEEP] 뒤로 계정을 모르는 로그인 풀림에서 임시본이 남아,
+     같은 계정의 옛 탭이 앱을 내릴 때(visibilitychange) 옛 임시본을 다시 쓰면 되돌릴 때 «이미 있으면 이 계정 것»으로 그것을 두고 맡긴 최신본을 지웠다(옛 메모가 이겼다).
+     이제 임시본에 고친 때(t · _snapLocalPut 이 글이 바뀔 때만 적는다 · 다시 쓰기 · 앱 내림 · 걸음 넘김은 그대로)를 싣고 되돌릴 때 견준다 —
+     이 기기 임시본이 고친 때가 있고 맡긴 것(고친 때 · 없으면 맡긴 때)보다 나중일 때만 그것을 둔다 · 고친 때가 없으면 맡긴 것 · 맡김은 되돌렸거나 이 기기 것이 더 나중임을 확인했을 때만 지운다 */
+function _reloginCode(){ var c=_reloginAcct(); return _acctOk(c)?c:''; }   // [RELOGIN_SNAP_KEEP] 맡길 계정(지금 계정 · 이 토큰의 상태 캐시) — 못 찾으면 '' · [ACCT_KEYS] 초안 주인 표시로 짐작하지 않는다(계정 칸이 곧 주인)
+function _reloginAcct(){ var c=''; try{ c=_mpAcct(); }catch(e){} if(c) return String(c); try{ var d=readCachedState(); if(d&&d.code) return String(d.code); }catch(e){} return ''; }   // [RELOGIN_ACCT_CACHE]
+function _reloginStash(){ try{   // [RELOGIN_STASH_FIRST] 1 맡김 · 0 맡길 것 없음 · -1 못 맡김
+  var p=_reloginPack(); if(!p) return 0; var K=_keepK(p.code); if(!K) return -1; var s=JSON.stringify(p);   // [ACCT_KEYS] 맡김도 계정 칸(me_relogin_keep_<코드>)
+  if(localStorage.getItem(K)!==s){ localStorage.setItem(K, s); if(localStorage.getItem(K)!==s) return -1; }
+  return 1;
+}catch(e){ return -1; } }
+function _reloginPack(){ try{
+  var code=_reloginCode(); if(!code) return null; var ok=_ordK(code), K=_keepK(code), keys={}, n=0;   // 지금 계정(없으면 이 토큰의 상태 캐시) · [ACCT_KEYS] 그 계정 칸만 읽는다
+  var ro=localStorage.getItem(ok), r=null; try{ r=JSON.parse(ro||'null'); }catch(e){}
+  if(r && r.dirty){ keys[ok]=ro; n++; }
+  var sk='me_snapLocal_'+code, sv=localStorage.getItem(sk); if(sv){ keys[sk]=sv; n++; }
+  var o=null; try{ o=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){}
+  var same=!!(o && o.code===code && o.keys && Date.now()-(+o.t||0)<RELOGIN_TTL);
+  if(!n && !same) return (o&&o.code===code)?o:null;   // 맡길 것이 없으면 앞서 맡긴 같은 계정 것을 그대로
+  if(same) [ok, sk].forEach(function(k){ var ov=o.keys[k]; if(ov==null) return; ov=String(ov);   // [RELOGIN_MERGE] 앞서 맡긴 같은 계정 꾸러미와 종류마다 합친다
+    if(k in keys){ if(!_reloginKeyNewer(keys[k], ov, o.t)) keys[k]=_reloginStampT(ov, o.t); return; }   // 고친 때(t)가 더 나중인 쪽 · 이 기기 것이 더 나중임을 확인했을 때만 바꾼다
+    var dev=(k===ok)?!!r:(sv!=null); if(!dev){ keys[k]=_reloginStampT(ov, o.t); n++; } });   // 이번 꾸러미에 없고 이 기기에도 없는 종류(되돌리다 못 쓴 것)는 앞서 맡긴 것 그대로 · 이 기기에 저장한 판이 있으면 그것이 기준
+  if(!n) return null;   // [RELOGIN_MERGE] 이 기기에 저장한 판만 남았다 — 맡길 것 없음
+  return {code:code, t:Date.now(), keys:keys};
+}catch(e){ return null; } }
+function _reloginKeyNewer(nv, ov, ot){ var a=null, b=null; try{ a=JSON.parse(nv)||{}; }catch(e){ a={}; } try{ b=JSON.parse(ov)||{}; }catch(e){ b={}; }   // [RELOGIN_MERGE] 새로 맡길 것이 앞서 맡긴 것보다 나중에 고쳤나
+  var at=+a.t||0, bt=+b.t||+ot||0; return !!(at && at>bt); }
+function _reloginStampT(v, t){ try{ var j=JSON.parse(v); if(j && typeof j==='object' && !j.t && t){ j.t=+t; return JSON.stringify(j); } }catch(e){} return v; }   // [RELOGIN_MERGE] 옮겨 담을 때 고친 때가 없으면 앞서 맡긴 때를 싣는다(새 꾸러미 때로 새것이 되지 않게)
+function _reloginLine(line, kept){ var w=ERR_W[8]+' · '+ERR_DO[8]; return (kept&&String(line).indexOf(w)===0)?'로그인이 풀렸어요 · 다시 로그인한 뒤 이어서 저장해 주세요'+String(line).slice(w.length):line; }   // [RELOGIN_KEEP] 맡겨 둔 것이 있을 때만 · 우리 기본 글만 바꿔 말한다(서버가 준 글은 그대로)
+function _reloginRestore(code){ try{
+  if(typeof _tabStale=='function' && _tabStale()) return false;   // [TAB_GUARD]
+  var c=String(code||''), K=_keepK(c); if(!K) return false;   // [ACCT_KEYS] 이 계정 맡김만 본다 — 다른 계정 맡김은 그 계정이 로그인할 때(7일 · _acctOldSweep)
+  var o=JSON.parse(localStorage.getItem(K)||'null'); if(!o) return false;
+  if(o.code!==c || !(Date.now()-(+o.t||0)<RELOGIN_TTL) || !o.keys){ localStorage.removeItem(K); return false; }   // 7일 지남 · 깨진 꾸러미 — 지운다
+  var ok=_ordK(c), sk='me_snapLocal_'+c, put=[];
+  Object.keys(o.keys).forEach(function(k){ if(k!==ok && k!==sk) return; var v=String(o.keys[k]), cur=localStorage.getItem(k);
+    if(cur!=null){ var cj=null; try{ cj=JSON.parse(cur)||{}; }catch(e){ cj={}; }
+      if(k===sk){ if(_reloginSnapNewer(cj, v, o.t)) return; }   // [RELOGIN_SNAP_NEWER] 스냅 임시본도 더 나중에 고친 쪽 · 이 기기 임시본이 더 나중임을 확인했을 때만 그것을 둔다
+      else if(_reloginCurNewer(cj, v, o.t)) return; }   // [RELOGIN_NEWER] 같은 계정 칸이면 더 나중에 고친 쪽 · [RELOGIN_OWNER] 남의 초안은 이 칸에 없다(ACCT_KEYS)
+    put.push([k, v]); });
+  if(put.length && typeof _tabEpBump=='function' && !_tabEpBump()){ _tabEpFail(); return false; }   // [EPOCH_VERIFY] 되돌리기 전에 차례를 남긴다(다른 창이 옛 창이 된 뒤에 쓴다) · 못 남기면 되돌리지 않는다(맡김은 다음 로그인에)
+  var n=0, all=true; put.forEach(function(x){ try{ localStorage.setItem(x[0], x[1]); }catch(e){} if(localStorage.getItem(x[0])===x[1]) n++; else all=false; });
+  if(all) localStorage.removeItem(K);   // [RELOGIN_OWNER] 다 되돌린 것을 확인한 뒤에야 맡김을 지운다(못 썼으면 다음 로그인에 다시)
+  if(put.length && typeof _tabBind=='function') _tabBind();   // [TAB_GUARD] 되돌렸다 — 다른 창(옛 창)은 [AUTH_EPOCH] 차례로 옛 창이 된다 · 이 창은 기준을 새로
+  return n>0;
+}catch(e){ return false; } }
+function _reloginCurNewer(cj, v, ot){ var kj=null; try{ kj=JSON.parse(v)||{}; }catch(e){ kj={}; }   // [RELOGIN_NEWER] 이 기기 초안이 저장 안 한 고침이고 · 맡긴 것보다 나중에 고쳤나
+  var ct=+cj.t||0, kt=+kj.t||+ot||0; return !!(cj.dirty && ct && ct>kt); }   // 고친 때가 없으면(옛 판) 맡긴 것 · 맡긴 것에 없으면 맡긴 때
+function _reloginSnapNewer(cj, v, ot){ var kj=null; try{ kj=JSON.parse(v)||{}; }catch(e){ kj={}; }   // [RELOGIN_SNAP_NEWER] 이 기기 스냅 임시본이 맡긴 것보다 나중에 고쳤나
+  var ct=+cj.t||0, kt=+kj.t||+ot||0; return !!(ct && ct>kt); }   // 고친 때가 없으면(옛 판 · 다시 쓰기만 한 옛 탭) 맡긴 것 · 맡긴 것에 없으면 맡긴 때
+function _reloginFailShow(line){ try{ _flowBusy(false); }catch(e){}   // [RELOGIN_STASH_FIRST] 지금 화면 그대로 · 한 줄
+  try{ mpConfirm({ bodyHtml:_errHtml(RELOGIN_FAIL), yes:'그대로 로그인하기', no:'확인', dismissNull:true }).then(function(go){ if(go===true) _reloginGoAnyway(line); }); }catch(e){} }   // [RELOGIN_S4_GO] 로그인으로 갈 길 하나
+function _reloginGoAnyway(line){ if(typeof _tabDrop=='function' && _tabDrop()) return; var _c=_reloginCode(); try{   // [TAB_GUARD]   // [RELOGIN_S4_GO] 로그인 표시 · 상태 캐시 · 다른 기억만 지우고 이 기기 초안(me_order_<코드> · 스냅 임시본)은 둔다(맡기지 못했으니 원본이 곧 그 초안)
+  localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
+  ['me_prod_ping'].concat(_c?['me_order_v2note_'+_c, 'me_deliv_'+_c]:[]).forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });   // [ACCT_KEYS] 그 계정의 다른 기억만
+}catch(e){} try{ _mpAcctSweep(); }catch(e){} if(typeof _tabBind=='function'){ var _epOk=_tabEpBump(); _tabBind(); if(!_epOk) _tabEpFail(); }   // [TAB_GUARD] · [AUTH_EPOCH] · [EPOCH_VERIFY]
+  _reloginShowLogin(String(line||(ERR_W[8]+' · '+ERR_DO[8]))); }
+/* ★★[ACCT_KEYS 2026-10-30 GPT 13차 점검(고객) 13-02 · 13-06 · 12-02 계열 · Claude 구조 결정] 이 기기 초안은 계정마다 다른 칸이다 —
+     식순 초안 me_order_<코드>(공개 미리보기는 me_order_pub) · 맡김 me_relogin_keep_<코드> · 스냅 임시본 me_snapLocal_<코드>.
+     종전엔 계정끼리 한 칸(me_order + who · me_relogin_keep)을 나눠 써서, 다른 계정으로 로그인하는 창 · 늦은 로그인 답 · 늦은 식순 채우기가
+     «주인이 다르다»며 남의 초안을 지우거나(13-02 · 12-02) 새로 연 식순 화면이 계정을 받기 전에 남의 초안을 먼저 읽었다(13-06). 고칠 때마다 다음 경합이 나왔다.
+     이제 창은 제 계정(로그인 상태 · 이 창이 그린 계정) 칸만 읽고 쓴다 — 남의 칸은 읽을 일도 지울 일도 없다.
+     ★로그인할 때 «주인이 다른 초안 걷기»(_orderOwnerSweep)는 걷었다 — 되살리지 말 것(지우면 다른 창 계정 초안이 사라진다 · merge-guard nochk).
+     지우는 때: 스스로 로그아웃(그 계정 칸만) · 30일 넘게 손대지 않은 칸(_acctOldSweep · 맡김은 7일).
+     옛 공용 칸은 열 때 한 번 옮긴다(_acctKeysMigrate · 쓰고 다시 읽어 확인한 뒤에야 지운다) — 주인 있는 판은 그 계정 칸 · 주인 없는 판은 공개 칸이 비었을 때만(아니면 버린다) */
+function _acctOk(c){ return /^[A-Z0-9][A-Z0-9-]{2,19}$/.test(String(c||'')); }   // [ACCT_KEYS] 개인코드 꼴(대문자 · 숫자) — 공개 칸(pub) · 안내 표시(v2note_)와 겹치지 않는다
+function _ordK(c){ return _acctOk(c)?'me_order_'+String(c):''; }   // [ACCT_KEYS] 식순 초안 칸
+function _keepK(c){ return _acctOk(c)?RELOGIN_KEY+'_'+String(c):''; }   // [ACCT_KEYS] 맡김 칸
+function _recE(r){ r=r||{}; return Math.max(+r.t||0, +r.e||0); }   // [SAME_ACCT_T] 그 기록이 마지막으로 고쳐진 때
+function _acctKeysMigrate(){ try{   // [ACCT_KEYS] 옛 공용 칸 → 계정 칸(한 번 · 쓰고 · 다시 읽어 확인한 뒤에야 지운다)
+  var ro=localStorage.getItem('me_order');
+  if(ro!=null){ var r=null; try{ r=JSON.parse(ro); }catch(e){} var w=String((r&&r.who)||''), tk=w?_ordK(w):'me_order_pub', done=true;
+    if(tk){ var cur=localStorage.getItem(tk), cj=null; try{ cj=JSON.parse(cur||'null'); }catch(e){}
+      if(cur==null || (w && r && r.dirty && _recE(r)>_recE(cj))){ localStorage.setItem(tk, ro); done=(localStorage.getItem(tk)===ro); } }   // 칸이 비었거나 · 계정 칸보다 더 나중에 고친 저장 안 한 판이면 옮긴다 · 공개 칸이 이미 있으면 주인 없는 옛 판은 버린다
+    if(done) localStorage.removeItem('me_order'); }
+  var rk=localStorage.getItem(RELOGIN_KEY);
+  if(rk!=null){ var o=null; try{ o=JSON.parse(rk); }catch(e){} var c=String((o&&o.code)||''), K=_keepK(c), done2=true;
+    if(K && o && o.keys && Date.now()-(+o.t||0)<RELOGIN_TTL){ var ks={}; Object.keys(o.keys).forEach(function(k){ ks[k==='me_order'?_ordK(c):k]=o.keys[k]; });
+      var nv=JSON.stringify({code:c, t:o.t, keys:ks}), c2=null; try{ c2=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){}
+      if(!(c2 && (+c2.t||0)>=(+o.t||0))){ localStorage.setItem(K, nv); done2=(localStorage.getItem(K)===nv); } }   // 계정 맡김이 이미 더 나중이면 그것 · 7일 지남 · 계정 모름은 버린다
+    if(done2) localStorage.removeItem(RELOGIN_KEY); }
+}catch(e){} }
+var ACCT_OLD_MS=30*864e5;
+function _acctOldSweep(){ try{ var now=Date.now(), kill=[];   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김(공용 기기에 오래 남지 않게) · 고친 때가 없는 옛 기록은 두고 본다
+  for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i), m=k && /^(me_order_|me_snapLocal_|me_relogin_keep_)(.+)$/.exec(k); if(!m || !(_acctOk(m[2]) || k==='me_order_pub')) continue;
+    var j=null; try{ j=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ continue; } if(!j || typeof j!=='object') continue;
+    if(m[1]==='me_relogin_keep_'){ if(!(now-(+j.t||0)<RELOGIN_TTL)) kill.push(k); continue; }
+    var at=Math.max(+j.w||0, _recE(j)); if(at && now-at>ACCT_OLD_MS) kill.push(k); }
+  kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} }); }catch(e){} }
+_acctKeysMigrate(); _acctOldSweep();   // [ACCT_KEYS] 열 때 한 번 — 옛 공용 칸 옮기기 · 오래된 칸 걷기 · [RELOGIN_KEEP] 7일 지난 맡김은 열 때 지운다
 /* ★[C2_ACCT_SWEEP 2026-10-09 고객 여정 A~Z 점검 2라운드] 계정이 끝나는 자리(로그아웃 · 로그인 풀림 — 다 clearToken 을 지난다)에서는 저장소([LOGOUT_SWEEP])만이 아니라
      이 탭의 화면 기억도 걷는다 — 같은 기기에서 다음 사람이 로그인하면 앞사람 것이 보이거나 다음 질문에 실려 갔다.
      ① 계약서 재발송 «요청함» 표시([C2_RESEND_ACCT]) ② AI 상담 대화(MEAdvisor.reset — 화면 · 다음 질문에 싣는 대화 · 오가던 답)
@@ -3193,7 +3366,7 @@ var ERR_ACT={login:'L',autologin:'L',verify:'L',getMyState:'L',findCode:'L',rese
   submitResultSelection:'R',requestExtraRetouch:'R',confirmRetouch:'R',requestRevision:'R',submitSurvey:'R',
   saveProductionBase:'S',saveProductionTrack:'S',saveInvitationDraft:'S',saveInvitationPreview:'S',publishInvitation:'S',saveDressPick:'S',
   snapRefUpload:'U',ritualFile:'U',ritualFileDel:'D',ritualFilePurgeMine:'D',snapWithdraw:'D',voiceClone:'V'};   // 서버 95_notify ERR_AREA 와 같은 글자 — 브라우저에서 난 실패도 같은 글자로
-var ERR_SESS={expired:1,invalid:1,no_token:1};
+var ERR_SESS={expired:1,invalid:1,no_token:1,tab_stale:1};   // [TAB_GUARD] tab_stale = 옛 창 · 그 사이 바뀐 답(_post) — _errGoLogin 이 _tabDrop 으로 멈춘다
 var ERR_BUSY_OLD=/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 옛 서버의 잠금 대기 문구(서버 ERR_BUSY_RE 와 같다)
 function _errIsRej(x){ return !!x && typeof x==='object' && (x instanceof Error || !!x.meKind || (typeof x.name==='string' && typeof x.message==='string' && !('ok' in x))); }   // 서버 답이 아니라 «던져진 것»인가
 function _errKind(x){ if(!_errIsRej(x)) return ''; if(x.meKind) return x.meKind; if(x.__meTimeout||x.name==='AbortError'||x.name==='TimeoutError') return 'slow'; if(x.name==='SyntaxError') return 'bad'; return ''; }   // slow 5 · net 6 · bad 7 · '' 모름 0(화면 코드 오류 등)
@@ -3234,8 +3407,13 @@ function _errNorm(r, L, base){   // 서버 답을 화면에 바로 쓸 수 있�
 }
 /* 로그인이 풀렸다 — 로그인 화면으로(그 줄을 로그인 칸에). 편집 겹화면이 떠 있으면 새로 열어 겹화면 밑에 로그인 화면이 깔리지 않게 한다 */
 function _errGoLogin(x, L){
-  var line=_errLine(x, L);
-  clearToken();
+  if(typeof _tabDrop=='function' && _tabDrop(x)) return;   // [TAB_GUARD] 옛 창의 «로그인하기» — 다른 창이 들어온 계정의 토큰 · 초안을 지우지 않는다
+  var line=_errLine(x, L), _kp=clearToken(true);
+  if(_kp===null){ _reloginFailShow(line); return; }   // [RELOGIN_STASH_FIRST] 못 맡겼으면 지금 화면 · 초안 그대로 · [RELOGIN_S4_GO] 그래도 로그인으로 갈 수 있게
+  line=_reloginLine(line, _kp);   // [RELOGIN_KEEP] 저장 못 한 초안을 맡겨 두었다
+  _reloginShowLogin(line);
+}
+function _reloginShowLogin(line){   // 로그인 화면으로(그 줄을 로그인 칸에) · 편집 겹화면이 떠 있으면 새로 열어 겹화면 밑에 깔리지 않게
   try{ if(_wizCurId() || _mpFsOpen()){ sessionStorage.setItem('me_login_note', line); location.reload(); return; } }catch(e){}
   try{ closeLedModal(); }catch(e){} try{ _flowBusy(false); }catch(e){}
   show('loginView'); softLoginNote(line);
@@ -3292,6 +3470,7 @@ function _saveFailBody(r){ return (r&&typeof r==='object'&&r.error) ? String(r.e
 function _saveToggleLine(r){ return '저장이 안 됐어요 · 다시 눌러 주세요 (코드 '+_errCode(r&&typeof r==='object'?r:null,'S')+')'; }
 /* 로그인이 풀린 저장 — «다시 저장»을 몇 번 눌러도 안 된다. 로그인으로 보낸다(고친 내용이 남지 않는다는 것도 숨기지 않는다) */
 function _saveSessAsk(r){
+  if(typeof _tabDrop=='function' && _tabDrop(r)) return Promise.resolve(null);   // [TAB_GUARD]
   return mpConfirm({ title:'로그인이 풀렸어요', bodyHtml:_errHtml('다시 로그인해 주세요 · 고친 내용은 저장되지 않았어요 (코드 '+_errCode(r,'S')+')'), yes:'로그인하기', no:'그대로 두기', dismissNull:true })
     .then(function(v){ if(v===true) _errGoLogin(r,'S'); return v; });
 }
@@ -3326,6 +3505,9 @@ function api(payload, ms){   // MPD_E3 12초 타임아웃 — GAS 콜드스타�
 }
 /* [ERR_CODE_MYPAGE] GAS 로 보내기 한 벌 — api(12초) · 파일 올리기(60초) · 빌더 중계가 같은 길을 지나 실패 종류가 늘 붙는다 */
 function _post(payload, ms){
+  var _tg=(typeof _TAB!=='undefined' && typeof _tabStale=='function')?_TAB:null, _sd=function(){ return {ok:false, reason:'tab_stale', ecode:'L8', error:TAB_LINE}; };   // [TAB_GUARD] 이 창이 보낼 때의 토큰에 답을 묶는다
+  if(_tg && _tabStale()){ _tabStaleShow(); return Promise.resolve(_sd()); }   // 옛 창 — 보내지 않는다(다른 창 계정의 토큰을 옛 계정 글에 붙이지 않는다)
+  var _gone=(_tg && typeof _tabTie=='function')?_tabTie():function(){ return false; };   // 그 사이 다른 창이 바꿨거나 이 창이 나갔다 — 답을 버린다 · [AUTH_EPOCH] 토큰 · 차례 둘 다
   var ac=(typeof AbortController!=='undefined')?new AbortController():null, st=0, body=false;
   var tm=ac?setTimeout(function(){ try{ ac.__meTimeout=1; ac.abort(); }catch(e){} }, ms||12000):null;
   return fetch(EXEC_URL, {
@@ -3334,7 +3516,8 @@ function _post(payload, ms){
     body:JSON.stringify(payload),
     signal:ac?ac.signal:undefined
   }).then(function(r){ st=r.status; body=true; return r.json(); })
-    .then(function(d){ if(tm) clearTimeout(tm); return d; }, function(e){ if(tm) clearTimeout(tm);   /* [LOAD_WHY] r.json() 실패(오류 HTML)도 같은 자리로 모은다 */
+    .then(function(d){ if(tm) clearTimeout(tm); return _gone()?_sd():d; }, function(e){ if(tm) clearTimeout(tm);   /* [LOAD_WHY] r.json() 실패(오류 HTML)도 같은 자리로 모은다 */   /* [TAB_GUARD] 바뀐 답은 버린다 */
+      if(_gone()) return _sd();
       if(!e || typeof e!=='object') e=new Error(String(e));
       try{ var to=!!(ac&&ac.__meTimeout); if(to) e.__meTimeout=1;
         e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');   // 답을 받기 전 = 연결 · 받은 뒤 JSON 이 아님 = 깨진 답
@@ -3394,8 +3577,8 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
 function _autoLogin(urlToken){
   show('loading');
   api({action:'autologin', token:urlToken}).then(function(d){
-    if (d && d.ok) { setToken(d.token || urlToken); cleanUrl(); loadMyState(); return; }
-    if (_errSess(d)) { clearToken(); cleanUrl(); show('loginView'); softLoginNote(_errLine(d,'L')); return; }   // 만료 · 무효 링크 — 로그인으로
+    if (d && d.ok) { if(!setToken(d.token || urlToken)){ cleanUrl(); show('loginView'); return; } cleanUrl(); loadMyState(); return; }   // [EPOCH_VERIFY] 창 상태를 못 남겼으면 로그인을 마치지 않는다(위 한 줄 L4)
+    if (_errSess(d)) { if(typeof _tabDrop=='function' && _tabDrop(d)) return; var _kp3=clearToken(true); cleanUrl(); show('loginView'); softLoginNote(_kp3===null?RELOGIN_FAIL:_reloginLine(_errLine(d,'L'), _kp3)); return; }   // [RELOGIN_STASH_FIRST] 못 맡겼으면 지우지 않고 그 한 줄   // [RELOGIN_KEEP]   // 만료 · 무효 링크 — 로그인으로
     _loadSlowRetry(d, function(){ _autoLogin(urlToken); });
   }, function(e){ _loadSlowRetry(e, function(){ _autoLogin(urlToken); }); });
 }
@@ -3421,7 +3604,7 @@ $('loginForm').addEventListener('submit', function(e){
   if (!code || !pw){ showErr('li_err','개인코드(또는 이메일)와 비밀번호를 입력해 주세요.'); return; }
   var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
   api({action:'login', code:code, pw:pw}).then(function(d){
-    if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
+    if (d && d.ok && d.token){ if(setToken(d.token)) loadMyState(); }   // [EPOCH_VERIFY]
     else { showErr('li_err', _errLine(d, 'L', '로그인이 안 됐어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] F3 서버 까닭 + 코드
   }).catch(function(e){ showErr('li_err', _errLine(e, 'L')); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25) · [ERR_CODE_MYPAGE] F3 «연결이 잠시 불안정해요» 하나로 묶이던 끊김 L6 · 늦음 L5 · 깨진 답 L7 을 가른다
   .then(function(){ btn.disabled=false; btn.textContent='로그인'; });
@@ -3456,12 +3639,13 @@ function loadMyState(opts){
   _stateGet(_tok).then(function(d){
     clearTimeout(_slowT);   // [STATE_PATIENT]
     if(getToken()!==_tok){ _fin(); return; }   /* [STATE_SEQ] 늦게 온 남의 화면 — 캐시에도 남기지 않는다 */
-    if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); var _lb=document.getElementById('mp_loadBar'); if(_lb&&_lb.parentNode) _lb.parentNode.removeChild(_lb); }   // [ERR_CODE_MYPAGE] 다시 불러왔으면 «최신 내용을 불러오지 못했어요» 막대를 걷는다
+    if (d && d.ok){ _reloginRestore(d.code); cacheState(d); renderMyPage(d); show('mypageView'); var _lb=document.getElementById('mp_loadBar'); if(_lb&&_lb.parentNode) _lb.parentNode.removeChild(_lb); }   // [ERR_CODE_MYPAGE] 다시 불러왔으면 «최신 내용을 불러오지 못했어요» 막대를 걷는다
     /* ★★[ERR_CODE_MYPAGE F1 2026-10-07] 로그아웃은 서버가 «로그인이 풀렸다»(reason)고 할 때만.
        종전엔 까닭 없는 실패(서버 예외 · 새 배포 누락 · 시트 시간 초과)에도 clearToken() 을 불러 — 고객이 로그아웃되고
        보내지 않은 이 기기의 초안(me_order · me_snapLocal_*)까지 지워졌다(LOGOUT_SWEEP 이 로그아웃 때 쓸어 담는다).
        그 밖의 실패는 토큰 · 초안을 그대로 두고 원인 한 줄 + 코드 + «다시 불러오기»(_loadFail). */
-    else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }
+    else if (_errSess(d) && typeof _tabDrop=='function' && _tabDrop(d)){}   // [TAB_GUARD] 옛 창 · 그 사이 바뀐 답 — 지금 계정(다른 창)의 토큰 · 초안을 지우지 않는다(아래 _fin 은 그대로)
+    else if (_errSess(d)){ var _kp4=clearToken(true); show('loginView'); softLoginNote(_kp4===null?RELOGIN_FAIL:_reloginLine(_errLine(d,'L'), _kp4)); }   // [RELOGIN_STASH_FIRST]   // [RELOGIN_KEEP] 로그인 풀림 — 저장 못 한 초안은 맡겨 둔다
     else { _loadFail(d, opts); }
     _fin();
   }).catch(function(e){ clearTimeout(_slowT); if(getToken()!==_tok){ _fin(); return; } _loadFail(e, opts); _fin(); });   /* [LOAD_WHY] 실패 이유를 그대로 넘겨 화면이 «느림»과 «그 밖»을 갈라 말하게 */   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
@@ -7888,12 +8072,21 @@ function _rfKeepList(rd){ var up=(rd&&rd.S&&rd.S.up)||{}; return Object.keys(up)
      파일마다 폼 하나(POST · 토큰은 본문에만 · 주소에 싣지 않는다).
    ★AI 목소리를 만들었고 «지움» 기록이 있을 때만 한 줄 더: «AI 목소리와 읽은 녹음은 예식 다음 날 지웠어요.»
    ★[지금 지우기] = «목소리 파일 모두 지우기»(ritualFilePurgeMine) — 서버가 지운 날(voice.gone)을 돌려주면 이 줄이 사라진다 */
-function _rfKeepNote(rd, base, voice){ voice=voice||{}; var L=_rfKeepList(rd); if(voice.gone||!L.length) return ''; var dl=null; try{ dl=_kstDdayOf(base&&base.weddingDate); }catch(e){} var kd=+voice.keepDays||30; if(dl==null||dl>-7||dl<-kd) return '';
-  var m=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return ''; var d=new Date(+m[1],+m[2]-1,+m[3]+kd), tok=escapeHtml(getToken()||'');
-  var li=L.map(function(it){ var nm='두 분 목소리 '+(RF_KEEP_LAB[it.key]||it.key); return '<form method="post" action="/api/voice-file" style="display:inline"><input type="hidden" name="token" value="'+tok+'"><input type="hidden" name="id" value="'+escapeHtml(it.id)+'"><input type="hidden" name="name" value="'+escapeHtml(nm)+'"><button type="submit" class="cc-btn-ghost" data-fk="rfkeep:'+escapeHtml(it.key)+'">'+escapeHtml(RF_KEEP_LAB[it.key]||it.key)+' 내려받기</button></form>'; }).join(' ');
+function _rfKeepNote(rd, base, voice){ voice=voice||{}; var L=_rfKeepList(rd);
+  /* ★[VC_PEND_STAY 2026-10-30 GPT 4차 점검 4-05 · VC_FIX4_1030] 파일을 지웠거나(gone) 내려받기 칸이 아닐 때도 AI 목소리가 아직 지우는 중(aiPend)이면 그 한 줄은 남긴다 — 종전엔 «모두 지우기» 뒤 다시 열면 안내가 통째로 사라져 다 지운 것처럼 보였다 */
+  var pendP=(voice.aiPend&&!voice.aiGone)?'<p class="rf-keep" role="status" style="margin:10px 0 4px;font-size:14px;color:var(--sub);line-height:1.7">AI 목소리와 읽은 녹음은 지우는 중이에요 · 매일 다시 지워요.</p>':'';
+  if(voice.gone||!L.length) return pendP; var dl=null; try{ dl=_kstDdayOf(base&&base.weddingDate); }catch(e){} var kd=+voice.keepDays||30; if(dl==null||dl>-7||dl<-kd) return pendP;
+  var m=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return ''; var d=new Date(+m[1],+m[2]-1,+m[3]+kd);
+  var li=L.map(function(it){ var nm='두 분 목소리 '+(RF_KEEP_LAB[it.key]||it.key); return '<form method="post" action="/api/voice-file" style="display:inline" onsubmit="return rfKeepGo(this)"><input type="hidden" name="token" value=""><input type="hidden" name="id" value="'+escapeHtml(it.id)+'"><input type="hidden" name="name" value="'+escapeHtml(nm)+'"><button type="submit" class="cc-btn-ghost" data-fk="rfkeep:'+escapeHtml(it.key)+'">'+escapeHtml(RF_KEEP_LAB[it.key]||it.key)+' 내려받기</button></form>'; }).join(' ');
   return '<div class="rf-keep" style="margin:10px 0 4px;font-size:14px;color:var(--sub);line-height:1.7"><p style="margin:0 0 6px">두 분 목소리 파일은 '+(dl<=-kd?'곧':(d.getMonth()+1)+'월 '+d.getDate()+'일에')+' 지워져요. 간직하려면 내려받으세요.</p>'
-    +(voice.aiGone?'<p style="margin:0 0 6px">AI 목소리와 읽은 녹음은 예식 다음 날 지웠어요.</p>':'')
+    +(voice.aiGone?'<p style="margin:0 0 6px">AI 목소리와 읽은 녹음은 예식 다음 날 지웠어요.</p>':voice.aiPend?'<p style="margin:0 0 6px">AI 목소리와 읽은 녹음은 지우는 중이에요 · 매일 다시 지워요.</p>':'')   /* ★[VC_PURGE_TRUE 2026-10-30 GPT 2차 점검 4] «지웠어요»는 서버가 모두 지운 뒤에만(aiGone) · 아직 남았으면 aiPend · [VC_DEL_DAILY] «곧 끝나요» 대신 근거(매일 지우기가 다시 묻는다) */
     +'<div style="display:flex;flex-wrap:wrap;gap:6px">'+li+'<button type="button" class="cc-btn-ghost" data-fk="rfpurge" onclick="rfPurgeMine(this)">지금 지우기</button></div></div>'; }
+/* ★[DL_GUARD 2026-10-30 GPT 13차 점검(고객) 13-05] 내려받기 폼은 _post 를 거치지 않는다 — 종전엔 그릴 때 토큰을 숨은 칸에 박아 두어, 공용 기기에서 다른 계정이 로그인한 뒤에도
+     옛 창의 «내려받기»가 앞 계정 토큰으로 그 목소리 파일을 받아 갔다. 이제 칸은 비워 두고 누르는 그때 옛 창 · 차례를 보고([TAB_GUARD] · [AUTH_EPOCH]) 지금 이 창의 살아 있는 토큰만 싣는다 ·
+     보낸 뒤에는 칸을 다시 비운다(화면에 토큰이 남지 않게) */
+window.rfKeepGo=function(f){ try{ if(typeof _tabStale=='function' && _tabStale()){ _tabStaleShow(); return false; }
+  var t=getToken(); if(!t){ _errGoLogin({ok:false, reason:'no_token'}, 'L'); return false; }
+  f.elements.token.value=t; setTimeout(function(){ try{ f.elements.token.value=''; }catch(e){} }, 1000); return true; }catch(e){ return false; } };
 window.rfPurgeMine=function(btn){ mpConfirm({ title:'두 분 목소리 파일을 모두 지울까요?', body:'지우면 되돌릴 수 없어요.', yes:'모두 지우기' }).then(function(go){ if(!go) return; _rfPurgeGo(btn); }); };   // [VOICE_KEEP] 브라우저 confirm 대신 마이페이지 창
 /* ★[ERR_CODE_MYPAGE 2026-10-07] «모두 지우기» — 종전엔 시간 한도가 없었고(답이 안 오면 «지우는 중…»에 멈춤) 실패 알림은 1.6초 토스트라 읽기도 전에 사라졌다.
    이제 60초 한도 · 실패는 단추 아래 한 줄로 남긴다(원인 + D 코드). 서버가 «다 지우지 못했어요 (코드 D4)»를 돌려주면 «지웠어요»라고 하지 않는다.
@@ -7901,14 +8094,15 @@ window.rfPurgeMine=function(btn){ mpConfirm({ title:'두 분 목소리 파일을
 function _rfPurgeGo(btn){ btn.disabled=true; btn.textContent='지우는 중…';
   var box=btn.closest('.rf-keep'), say=function(t){ if(!box) { if(t) _errToast(t); return; } var n=box.querySelector('.rf-keep-err'); if(!n){ n=document.createElement('p'); n.className='rf-keep-err'; n.setAttribute('role','alert'); n.style.cssText='margin:6px 0 0;font-size:13px;color:var(--seal)'; box.appendChild(n); } _errSet(n, t||''); };   // [ERR_CODE_NOWRAP]
   say('');
-  var gone=function(g){ var p=window._lastProd||{}; p.voice=Object.assign({},p.voice,{gone:g}); var el=btn.closest('.rf-keep'); if(el) el.outerHTML='<p class="rf-keep" role="status" style="font-size:14px;color:var(--sub)">두 분 목소리 파일을 모두 지웠어요.</p>'; };
+  /* ★[VC_PURGE_TRUE 2026-10-30 GPT 2차 점검 3] 서버가 AI 목소리를 아직 다 지웠다고 답하지 않았으면(pend) «모두 지웠어요» 대신 «지우는 중이에요» — 서버가 매일 다시 지운다 */
+  var gone=function(g,pend){ var p=window._lastProd||{}; p.voice=Object.assign({},p.voice,{gone:g,aiPend:!!pend||!!(p.voice&&p.voice.aiPend)}); var el=btn.closest('.rf-keep'); if(el) el.outerHTML='<p class="rf-keep" role="status" style="font-size:14px;color:var(--sub)">'+(pend?'두 분 목소리 파일을 지웠어요. AI 목소리는 지우는 중이에요 · 매일 다시 지워요.':'두 분 목소리 파일을 모두 지웠어요.')+'</p>'; };
   _post({action:'ritualFilePurgeMine',token:getToken()}, 60000).then(function(r){
-    if(r&&r.ok){ gone(r.gone); return; }
+    if(r&&r.ok){ gone(r.gone,r.pend); return; }
     btn.disabled=false; btn.textContent='지금 지우기';
     if(_errSess(r)){ _errGoLogin(r,'D'); return; }
     say(_errLine(r,'D','지우지 못했어요 · 다시 눌러 주세요')); },
   function(e){
-    if(_errKind(e)==='slow'){ _wrSlow({ L:'D', done:function(st){ var v=(st.production&&st.production.voice)||st.voice||{}; return !!v.gone; }, fail:function(line){ btn.disabled=false; btn.textContent='지금 지우기'; say(line); } }, function(st){ var v=(st&&((st.production&&st.production.voice)||st.voice))||{}; gone(v.gone); }); return; }
+    if(_errKind(e)==='slow'){ _wrSlow({ L:'D', done:function(st){ var v=(st.production&&st.production.voice)||st.voice||{}; return !!v.gone; }, fail:function(line){ btn.disabled=false; btn.textContent='지금 지우기'; say(line); } }, function(st){ var v=(st&&((st.production&&st.production.voice)||st.voice))||{}; gone(v.gone,v.aiPend); }); return; }
     btn.disabled=false; btn.textContent='지금 지우기'; say(_errLine(e,'D','지우지 못했어요 · 다시 눌러 주세요')); }); }
 function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};
@@ -8579,12 +8773,12 @@ function invStepMethod(box){
   /* [INV_NAME_ARIA] 2026-09-26 통합 점검 L6 · 칸 옆 «신랑» · «신부»는 이어진 이름표가 아니어서(한 이름표에 칸이 둘) 낭독기는 네 칸을 «한글» · «영문 이름»으로만 읽었다 —
      누구 칸인지 모른다. 칸마다 이름(aria-label)을 단다 · placeholder 는 예시 그대로(2/4 [INV_FIELD_LABEL] 과 같은 방식) */
   var names='<div class="pf" style="margin-top:4px"><label class="pf-l">신랑</label>'
-    +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" aria-label="신랑 한글 이름" placeholder="한글" value="'+nv('groomKo')+'">'
+    +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" aria-label="신랑 청첩장에 표시할 이름" placeholder="표시할 이름" value="'+nv('groomKo')+'">'
     +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" aria-label="신랑 영문 이름" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'
     +'<div class="pf"><label class="pf-l">신부</label>'
-    +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" aria-label="신부 한글 이름" placeholder="한글" value="'+nv('brideKo')+'">'
+    +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" aria-label="신부 청첩장에 표시할 이름" placeholder="표시할 이름" value="'+nv('brideKo')+'">'
     +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" aria-label="신부 영문 이름" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
-    +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun).</div>'   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
+    +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun). 영문 이름은 링크 주소에 쓰여요 · 꼭 영문으로 적어 주세요.</div>'   /* ★[NARROW_170_1030 검토 170] F6 로마자 이름이 왜 꼭 있어야 하는지 칸 옆에서 말한다 */   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn" role="group" aria-label="모바일 참석 QR도 받으실래요?"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'" aria-pressed="'+(d.selfQR===true)+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'" aria-pressed="'+(d.selfQR===false)+'">아니요</button></span></div>' : '';   // [INV_YN_PRESSED]
   box.innerHTML='<div class="consult-card inv-wrap">'
@@ -8617,7 +8811,7 @@ function invStepMethod(box){
     var mm=INVFLOW.draft.method;
     if(!mm){ _invErr('초대 방식을 골라 주세요.'); return; }
     if(mm!=='none'){
-      if(!d.groomKo||!d.brideKo){ _invErr('신랑·신부 이름(한글)을 입력해 주세요.'); return; }
+      if(!d.groomKo||!d.brideKo){ _invErr('청첩장에 표시할 신랑·신부 이름을 적어 주세요.')   /* ★[NARROW_170_1030 검토 170] N7 검사 조건은 그대로 */; return; }
       var _miss=_invEnMiss(d);   // [INV_EN_GATE] 빈 칸 + '알파벳이 하나도 없는 칸'(한글 입력)을 함께 막는다
       if(_miss.length){ _invEnAsk(_miss, _miss[0]==='신랑'?'mp_gEn':'mp_bEn'); return; }
     }
@@ -8667,19 +8861,22 @@ function invStepParents(box){
   function bankCur(bk,no){ bk=String(bk||''); return (String(no||'').trim() || (bk && bk!==BANKS[0])) ? bk : ''; }
   // [INV_FIELD_LABEL 2026-09-26 고객 점검 inv-5] 칸마다 누구 것인지 이름을 단다 — 값이 차면 「국민 / 110-315-175994」만 남아 신랑·신부 계좌를 칸만 보고 가릴 수 없었다
   //   [INV_BANK_PICK 검토] 부모님 은행 칸 104 → 124px(신랑·신부 칸과 같은 폭) — 561px 이상에서 칸이 나란히 설 때 「은행 선택」이 「은행 선ㅌ」로 잘렸다(1280 실측 · 화살표 몫)
-  function paRow(label,bankId,numId,key){ var s=paSplit(d[key]); return '<div class="pf-l">'+label+' 계좌</div><div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 124px;',label+' 계좌 은행',true)+'<input class="cc-input" id="'+numId+'" aria-label="'+label+' 계좌번호" placeholder="예: 110-315-175994" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
+  /* ★[PARENT_ONE_NAME_1030 검토 170 F5] 계좌마다 예금주로 보일 이름을 칸 이름 옆에 — 청첩장(shared/hydrate.js splitParents · live.html)과 같은 규칙: 두 분이면 앞 = 아버지 · 뒤 = 어머니 · 한 분만 적고 그분 계좌만 넣으면 그 계좌 */
+  function _paHolder(key){ var g=/^groom/.test(key), nm=String((g?d.groomParents:d.brideParents)||'').split(/[·,/]|\s및\s/).map(function(x){ return x.trim(); }).filter(Boolean), fa=String(d[g?'groomFatherAccount':'brideFatherAccount']||'').trim(), ma=String(d[g?'groomMotherAccount':'brideMotherAccount']||'').trim(), mom=/Mother/.test(key);
+    if(nm.length===1&&ma&&!fa) return mom?nm[0]:''; return mom?(nm[1]||''):(nm[0]||''); }
+  function paRow(label,bankId,numId,key){ var s=paSplit(d[key]), _h=_paHolder(key); return '<div class="pf-l">'+label+' 계좌'+(_h?' <span class="pf-h">· 예금주 '+escapeHtml(_h)+'</span>':'')+'</div><div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 124px;',label+' 계좌 은행',true)+'<input class="cc-input" id="'+numId+'" aria-label="'+label+' 계좌번호" placeholder="예: 110-315-175994" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
   var gtCur=d.groomChildTitle||(is04&&!d._titleTouched?OMIT:'장남'), btCur=d.brideChildTitle||(is04&&!d._titleTouched?OMIT:'차녀');
   var gbCur=bankCur(d.groomBank,d.groomAccount), bbCur=bankCur(d.brideBank,d.brideAccount);
   var pF = d.greetingShowParents==='Y' ? '<div class="inv-fields">'
     +'<div class="pf-l">신랑 측 혼주</div><div class="inv-row"><input class="cc-input" id="iv_gp" aria-label="신랑 측 혼주 성함" placeholder="예: 이재환 최미경" value="'+escapeHtml(d.groomParents||'')+'">'+selOnly('iv_gct',GT,gtCur,'flex:0 0 124px;','신랑 호칭')+'</div>'+etcRow('iv_gct',gtCur,GT,'신랑 호칭 직접 입력 (예: 장손)')
     +'<div class="pf-l">신부 측 혼주</div><div class="inv-row"><input class="cc-input" id="iv_bp" aria-label="신부 측 혼주 성함" placeholder="예: 김영호 이정숙" value="'+escapeHtml(d.brideParents||'')+'">'+selOnly('iv_bct',BT,btCur,'flex:0 0 124px;','신부 호칭')+'</div>'+etcRow('iv_bct',btCur,BT,'신부 호칭 직접 입력')
-    +'<div class="cc-note">'+(is04?'버밀리언(04)은 \'이름만\' 표기가 기본이에요. 호칭을 넣으려면 골라 주세요.<br>':'')+(is05?'보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.<br>':'')+'두 분 성함 사이 가운뎃점(·)은 띄어쓰기로 입력하면 자동으로 들어가요. 예금주·표기는 입력하신 이름에서 자동으로 만들어져요.</div></div>' : '';   // MPD_E10 note 적층 압축 — 안내 3개를 한 문단으로(§8-1-④)
+    +'<div class="cc-note">'+(is04?'버밀리언(04)은 \'이름만\' 표기가 기본이에요. 호칭을 넣으려면 골라 주세요.<br>':'')+(is05?'보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.<br>':'')+'성함 표기 없이도 만들 수 있어요 · 한 분만 적으셔도 돼요. 여러 분이면 띄어 쓰면 가운뎃점(·)이 자동으로 들어가고, 예금주 · 표기는 입력하신 이름에서 만들어져요.</div></div>'   /* ★[NARROW_170_1030 검토 170] N6 */ : '';   // MPD_E10 note 적층 압축 — 안내 3개를 한 문단으로(§8-1-④)
   var paF = d.envelopeShowParents==='Y' ? '<div class="inv-fields">'
     + paRow('신랑 아버지','iv_gfb','iv_gfa','groomFatherAccount')
     + paRow('신랑 어머니','iv_gmb','iv_gma','groomMotherAccount')
     + paRow('신부 아버지','iv_bfb','iv_bfa','brideFatherAccount')
     + paRow('신부 어머니','iv_bmb','iv_bma','brideMotherAccount')
-    + '<div class="cc-note">은행을 고르고 계좌번호를 적어 주세요. 빈 칸은 청첩장에 안 나와요.</div></div>' : '';
+    + '<div class="cc-note">은행을 고르고 계좌번호를 적어 주세요. 빈 칸은 청첩장에 안 나와요. 예금주 이름은 위 혼주 성함에서 가져와요(한 분만 적으셔도 그분 계좌에 맞춰 들어가요).</div></div>' : '';   /* [PARENT_ONE_NAME_1030] */
   var _accWhere = (function(){ var m=d.method, o='';
     var offOn=(m==='offline'||m==='both'), onOn=(m==='online'||m==='both');
     function chk(key,checked,label){ return '<label class="inv-chk"><input type="checkbox" data-acc="'+key+'" '+(checked?'checked':'')+'> '+label+'</label>'; }
@@ -8696,7 +8893,7 @@ function invStepParents(box){
     + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장</span>'+wizActs()+'</div>'+_invSteps(d,1)   // [WZ_STEPS]
-    +'<div class="inv-q">혼주(부모님) · 마음 전하실 곳</div><div class="inv-sub"><span class="ln-bal">계좌를 비워 두면 마음 전하실 곳 없이 나가요.</span><span class="ln-bal">나머지는 선택이에요.</span></div>'   // [INV2_SUB_LINES 2026-10-09] 두 문장을 « · »로 이으니 360 · 390 에서 «…나가요 · / 나머지는…»(줄 끝 점) — 문장마다 한 줄(.ln-bal)
+    +'<div class="inv-q">혼주 성함 · 마음 전하실 곳</div>'   /* ★[NARROW_170_1030 검토 170] N6 «혼주(부모님)» → 성함 칸 · 한 분만 · 없이도(아래 안내) */+'<div class="inv-sub"><span class="ln-bal">계좌를 비워 두면 마음 전하실 곳 없이 나가요.</span><span class="ln-bal">나머지는 선택이에요.</span></div>'   // [INV2_SUB_LINES 2026-10-09] 두 문장을 « · »로 이으니 360 · 390 에서 «…나가요 · / 나머지는…»(줄 끝 점) — 문장마다 한 줄(.ln-bal)
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
     + '<div class="inv-gate"><div class="inv-gate-q">마음 전하실 곳 (계좌)</div></div>' + aF
@@ -9705,11 +9902,11 @@ var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌�
        스피커가 필요하고, 나머지는 이미 앞에 있는 사람들이라 디렉터가 부르면 된다.
        **되살리지 말 것** — `gather` 필드와 「자리에서」 배지 둘 다. */
 var PHOTO_PRESETS=[
-  { n:'양가 가족 전체', d:'부모님 + 형제·자매까지 모여서' },
+  { n:'양가 가족 전체', d:'참석하신 가족 구성에 맞춰 모두 모여서' },   /* ★[NARROW_170_1030 검토 170] N5 «부모님 + 형제·자매»는 가족 구성을 좁혔다 */
   { n:'양가 부모님과',  d:'양가 어른만 남고 · 가장 많이 남기시는 컷이에요' },
-  { n:'신랑 측 가족',   d:'신랑 쪽 부모님·형제자매' },
-  { n:'신부 측 가족',   d:'신부 쪽 부모님·형제자매' },
-  { n:'형제·자매만',    d:'부모님 없이 또래끼리' },
+  { n:'신랑 측 가족',   d:'신랑 쪽 · 참석하신 가족 구성에 맞춰' },
+  { n:'신부 측 가족',   d:'신부 쪽 · 참석하신 가족 구성에 맞춰' },
+  { n:'형제·자매와 함께', d:'참석하신 가족 구성에 맞춰 담아요' },   /* ★[NARROW_170_1030 검토 170] N5 옛 이름 «형제·자매만»(저장된 초안은 PHOTO_RENAME 이 새 이름으로 읽는다 · 옛 구도 호명 녹음은 퇴역 그대로) */
   { n:'조부모님과',     d:'조부모님은 앉으신 채로 · 두 분이 곁으로 가서 담아요' },
   /* ★[PHOTO_FAMILY_ONLY 2026-09-26 사장님 G3] «친구들과» · «직장·지인과» 는 뺐다 — «단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게».
      친구는 아래 «친구들과 자유롭게» 한 칸(PHOTO_FRIEND)으로 간다. 되살리지 말 것.
@@ -9717,6 +9914,7 @@ var PHOTO_PRESETS=[
   { n:'아이들과',       d:'오래 못 기다리니 앞 순서를 권해요' }
 ];
 var PHOTO_FRIEND_EX=['대기실처럼 편하게 모여서','친구들 폰으로도 몇 장','다 같이 셀카 한 장','부케 받는 친구와 한 장'];   // [PHOTO_FRIEND_EX] 친구들과 자유롭게 · 누르면 담기는 예시
+var PHOTO_RENAME={'형제·자매만':'형제·자매와 함께'};   /* ★[NARROW_170_1030 N5] 옛 구도 이름 → 새 이름(저장된 초안을 열 때 읽기만 바꾼다) */
 var PHOTO_NAMES=PHOTO_PRESETS.map(function(x){ return x.n; });   // 이름만 · 저장값은 종전대로 문자열이다
 function photoMeta(n){ for(var i=0;i<PHOTO_PRESETS.length;i++) if(PHOTO_PRESETS[i].n===n) return PHOTO_PRESETS[i]; return null; }
 /* ★[PHOTO_MIN] 예상 시간 — 5차 리서치 실측. 20명 이상 한 컷 6~10분(25명은 하단값 6분) ·
@@ -10021,7 +10219,7 @@ function startPhotoFlow(gi, rd, dig, fok, meal){   // rd = 식순 초안(읽기 
      ★둘 다 있으면 photoWish 가 이긴다(이미 새 화면에서 고쳐 쓴 것이므로 옛 값으로 되돌리지 않는다). */
   var _sv=(((gi||{}).photoWish)||[]), _wish=_sv.length?wishClean(_sv):_wishFromFx(((gi||{}).photoFx)||[]);
   var _pc0=((gi||{}).photoCaller)||{};   // [PHOTO_CALLER]
-  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, friend:String(((gi||{}).photoFriend)||''), friendOk:!!fok, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null), dig:!!dig, meal:(meal==='yes'||meal==='no')?meal:'' };   // [PHOTO_DAY_STEPS] meal — 감사 인사 뒤 «식사 자리로 · 귀가 인사 · 모름»   // [PHOTO_FRIEND] friendOk = 서버가 photoFriend 를 안다(옛 서버는 버린다 · SNAP_V2_GATE 와 같은 까닭)
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).map(function(n){ return PHOTO_RENAME[n]||n; }),   /* [NARROW_170_1030 N5] */ wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, friend:String(((gi||{}).photoFriend)||''), friendOk:!!fok, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null), dig:!!dig, meal:(meal==='yes'||meal==='no')?meal:'' };   // [PHOTO_DAY_STEPS] meal — 감사 인사 뒤 «식사 자리로 · 귀가 인사 · 모름»   // [PHOTO_FRIEND] friendOk = 서버가 photoFriend 를 안다(옛 서버는 버린다 · SNAP_V2_GATE 와 같은 까닭)
   // 식순·스냅과 동일한 전체화면 오버레이(진행바·다른 카드를 덮어 집중도 향상 · marker: PROD_OVERLAY 2026-07-19 사용자 지시). 별도 fixed div라 renderProduction과 독립(pull-refresh 무관)
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','가족 · 친구 스냅');   // [PHOTO_MODAL_A11Y] aria-modal + 뒤 페이지 inert(_photoInert)
@@ -10071,7 +10269,7 @@ function renderPhoto(box){
          ③ narr-photo-split 가족 구도(«작가님이 순서대로 불러 드립니다»)  ④ narr-online-in 온라인 인사(디지털 참석 날만)  ⑤ narr-photo-out 남는 시간 자유 사진.
        ★셈 · 상한 · 저장 모양([PHOTO_CAP_40] · photo/photoWish/photoCaller/photoFriend)은 그대로 — 자리만 옮겼다. 흐름 줄(알약)을 되살리지 말 것. */
   var _scn=photoSceneList(PHOTOFLOW.rd);   // [PHOTO_SCENE] 요청 칸(1번)의 접힘 글이 먼저 읽는다 — 절 자체는 번호 줄 뒤에 그린다
-  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요.</div>';   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요. 시작할 때 안내 음성이 «촬영 차례가 아닌 분들은 자리에서 편히 쉬셔도 좋습니다»라고 알려요'+(PHOTOFLOW.meal==='yes'?' · 식사는 예약 시간에 두 분과 함께 시작해요':(PHOTOFLOW.meal==='no'?' · 촬영을 마치신 분들은 편히 돌아가셔요':''))+'.</div>';   /* ★[END_FLOW_1030 검토 167] 감사 인사는 닫는 인사가 맡는다 · 사진 전 안내(266 · 265)와 같은 말 */   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   /* ★[PHOTO_RECONFIRM 2026-09-27] 예식 확인서를 이미 확정했으면 한 줄 — 여기서 고쳐 저장하면 확정이 풀린다(guideinfo 도 확정 스냅샷에 든다 · 80_production _prodConfirmVoid).
        말은 확인서 판의 «고치시면 확정이 풀려요» · 행의 «다시 확정»과 같게. 풀린 뒤(confirmStale)는 확인서 자리가 스스로 말하니 여기선 안 띄운다. */
   var _pdc=null; try{ _pdc=((window._mpStateD||{}).production)||null; }catch(e){}
@@ -10080,6 +10278,8 @@ function renderPhoto(box){
   var _stN=0; function _stepHd(t, sub, kind, extra){ _stN++; return '<li class="ph-st'+(kind?(' '+kind):'')+'"><div class="ph-st-hd"><span class="ph-st-no" aria-hidden="true">'+_stN+'</span><span class="ph-st-t">'+t+(extra||'')+'</span></div>'+(sub?('<div class="ph-st-s">'+sub+'</div>'):''); }
   var _dig=!!PHOTOFLOW.dig, _ml=PHOTOFLOW.meal;
   h+='<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">';
+  /* ★[END_FLOW_1030 검토 167 2026-10-30 사장님] 닫는 인사(감사 인사) → 온라인 인사(디지털 참석 날) → 사진 전 안내 → 전체 사진 · 가족 구도 · 자유 사진 — 온라인 인사가 사진 앞으로 왔다 */
+  if(_dig) h+=_stepHd('온라인 인사', '', 'show', '<span class="ph-st-m">약 2분</span>')+'<div class="cc-note ph-st-note">닫는 인사 뒤, 멀리서 보고 계신 분들께 두 분이 카메라를 보고 인사를 전해요.</div></li>';
   h+=_stepHd('모두 함께 · 전체 하객 한 장', '늘 첫 컷이에요 · 따로 고르실 것은 없어요');   // ★[PHOTO_STEP1_TRIM 2026-09-27 사장님 «전부 반영»] 옛 «오신 분들 모두»는 제목(모두 함께)·카드(모두 앞으로)와 세 번 겹쳤다 — 대신 «고정»이 무슨 뜻인지를 말한다   // ★[PHOTO_SHOOT_ORDER] 1번 = 엔진 end-0-photo(전체 하객 → 두 분이 적은 요청) · 요청 칸이 이 차례 안에 온다
   h+='<div class="ph-list"><div class="ph-item locked"><span class="ph-nm">전체 하객<span class="ph-sub">두 분이 가운데 · 모두 앞으로 모여요</span>'+_phExLnk('전체 하객')+'</span><span class="ph-fix">고정</span></div></div>';   // [PHOTO_FIX_TEXT] «고정»은 테두리 없는 글 · [PHOTO_EX_VIEW] 예시(g00)
   /* ★★★[PHOTO_WISH] 「꼭 담고 싶은 사진」 — 고르는 카드 열 장을 없애고 **적는 칸**으로 바꿨다.
@@ -10134,11 +10334,7 @@ function renderPhoto(box){
   h+='<details class="cc-more" style="margin-top:8px"><summary>어떻게 적으면 되나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">아래를 눌러 가져다 쓰고 고치시면 돼요.'+(_scn?' 안 적으셔도 <b>예식 순서에서 남는 사진</b>은 그대로 담겨요.':'')+'<br><br>참고 링크는 <b>핀터레스트·인스타 게시물</b>처럼 오래 열리는 주소로 주세요(스토리·카카오톡은 만료돼요). <b>구도와 분위기만 참고</b>해요.</div><div class="ph-chips" style="margin-top:8px">'
     +PHOTO_WISH_EX.map(function(c){ var _t=c.n+' · '+c.c, _on=wish.some(function(w){ return String((w&&w.what)||'').indexOf(_t)>-1; }); return '<span class="ph-chip ph-ex'+(_on?' on':'')+'" data-wex="'+escapeHtml(_t)+'"'+(_on?' aria-disabled="true"':'')+'><span class="ph-ck" aria-hidden="true">✓</span>'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // [PHOTO_CHIP_KIND] 붙인 뒤 ✓ · 다시 눌러도 두 번 붙지 않는다 · [PHOTO_DIR_WORD] 접힘 안 «위 장면은 그대로 담겨요»는 식순이 정해진 때만(_scn · 식순이 없으면 «위 장면»이 없다)   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리) · [PH_DOT_SPLIT] « · »로 잇던 두 곳을 마침표로(320~414 모두 «· 안 적으셔도»가 줄 머리였다)
   h+='</li>';
-  /* [PHOTO_DAY_STEPS] 2번 · 감사 인사 — 보기만. 나레이션(end-1a-farewell · 식사 없는 날 end-1c-thanks-nomeal)이 하는 말만 옮긴다(더 약속하지 않는다).
-       [GUESTS_OPEN] 남는 분 = 가족 + 두 분과 사진을 더 남기고 싶은 분(친구 · 지인) · 식사 자리는 식당을 고른 날만(meal) · 모르면 중립 */
-  h+=_stepHd('감사 인사 · 남아 주실 분 안내', '', 'show', '<span class="ph-st-m">약 1분</span>')
-    +'<div class="cc-note ph-st-note">두 분이 함께 하객분들께 감사 인사를 드려요. 이어서 나레이션이 가족분들과, 두 분과 사진을 더 남기고 싶은 분들께 잠시 남아 달라고 안내해요. '
-    +(_ml==='yes'?'먼저 가실 분들은 이때 식사 자리로 옮겨요.':(_ml==='no'?'먼저 가실 분들은 이때 인사를 받고 돌아가요.':'먼저 가실 분들은 이때 자리를 옮겨요.'))+'</div></li>';   /* ★[PHOTO_THANKS_WORD 2026-09-27 고객 점검] 옛 «하객 모두께 함께» · «사진을 더 함께 남기고 싶은 분»(누구와?) · «옮기셔요» — 나레이션 원문 «두 사람과 따로 사진을 남기고 싶으신 분들도»에 맞춰 «두 분과»를 넣었다 */
+  /* ★[END_FLOW_1030 검토 167] 옛 2번 «감사 인사 · 남아 주실 분 안내»는 걷었다 — 감사 인사는 닫는 인사가 맡고, 남는 분 안내는 사진 전 안내(265 · 266)가 사진 앞에서 한다(맨 위 한 줄). 되살리지 말 것 */
   h+=_stepHd('가족 구도', '고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요');   // [PHOTO_FREE] 부르고 세우는 것은 사진작가 · 나레이션 «가족사진은 작가님이 순서대로 불러 드립니다»와 같은 말
   h+=(sel.length?('<div class="ph-ordlab">찍는 순서'+(sel.length>1?' · ↑↓로 바꿀 수 있어요':'')+'</div><div class="ph-list">'):'<div class="cc-note ph-none" style="text-align:left;margin:8px 0 2px">아직 고른 구도가 없어요 · 아래에서 더해 주세요.</div>');
   sel.forEach(function(n,i){
@@ -10198,7 +10394,6 @@ function renderPhoto(box){
   h+='<input id="mp_pcBride" class="cc-input" data-pc="bride" maxlength="40" autocomplete="off" placeholder="예: 외삼촌 이○○" value="'+escapeHtml(_pc.bride||'')+'" style="margin:0">';
   h+='</li>';
   /* [PHOTO_DAY_STEPS] 온라인 인사 — 디지털 참석 날만(엔진 S.digital · narr-online-in «화면으로 보고 계신 분들께 인사를 올리겠습니다» · [SRC_ALL_1023 검토 144-4] 자료 RR · II) · 보기만 */
-  if(_dig) h+=_stepHd('온라인 인사', '', 'show', '<span class="ph-st-m">약 2분</span>')+'<div class="cc-note ph-st-note">멀리서 보고 계신 분들께 두 분이 카메라를 보고 인사를 전해요.</div></li>';
   /* ★[PHOTO_FRIEND 2026-09-26 사장님 G1·G2] «친구들과 자유롭게» — 가족 구도를 다 찍은 뒤 친구들과는 편하게(폰으로도 · 사진작가에게 부탁).
      사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
      → 고르는 칸 없이 **대략 적는 칸 하나만.** 시간은 따로 떼지 않는다(진행표의 «시간이 남으면 … 자유 사진» 자리) — 그래서 «몇 분»을 약속하지 않는다.
@@ -10633,10 +10828,11 @@ function startSnapFlow(sd, p, needAgree, opt){
      needAgree = 서버에 동의 기록이 없다. 그동안은 서버에 **아무것도 보내지 않는다**(걸음 저장 · 사진 올리기 둘 다) —
      고른 것은 이 기기에만 잠시 두고(_snapLocal*), 마지막 걸음에서 체크하고 저장할 때 사진부터 한꺼번에 보낸다(_snapCommit).
      동의 전에 모으지 않는다는 원칙([SNAP_CONSENT])은 그대로다 — 서버는 여전히 동의 없는 새 기획 · 사진을 거절한다. */
-  var loc=_snapLocalGet();
-  if(loc && _snapFilledD(_snapNewD(sd))){ _snapLocalDel(); loc=null; }   // 서버에 이미 저장된 기획이 있으면 이 기기의 옛 임시본은 버린다(서버가 더 새것)
-  if(opt.ro) loc=null;
-  SNAPFLOW={ active:true, d:_snapNewD(loc||sd), step:Math.max(0, Math.min(SNAP_STEPS.length-1, +opt.step||0)), p:p||null, needAgree:!!needAgree&&!opt.ro, ro:!!opt.ro, restored:!!loc, pick:_snapPickCap(p) };   // [SNAP_PICK_ALL] pick = 이 화면의 고르기 상한   // [SNAP_PRECONSENT_EXIT] restored — 1걸음 위 «불러왔어요» 한 줄
+  var rec=_snapLocalRec(), loc=(rec&&rec.zones)?rec:null;   // [TOMBSTONE_READ] 비운 표시도 읽는다(고친 때만 이어받는다)
+  if(loc && _snapFilledD(_snapNewD(sd))){ _snapLocalDel(); loc=null; rec=null; }   // 서버에 이미 저장된 기획이 있으면 이 기기의 옛 임시본은 버린다(서버가 더 새것)
+  if(opt.ro){ loc=null; rec=null; }
+  SNAPFLOW={ active:true, d:_snapNewD(loc||sd), step:Math.max(0, Math.min(SNAP_STEPS.length-1, +opt.step||0)), p:p||null, needAgree:!!needAgree&&!opt.ro, ro:!!opt.ro, restored:!!loc, t:(loc&&+loc.t)||0, _lj:null, pick:_snapPickCap(p) };   // [RELOGIN_SNAP_NEWER] t = 되살린 임시본의 고친 때 그대로(새로 고치기 전까지)   // [SNAP_PICK_ALL] pick = 이 화면의 고르기 상한   // [SNAP_PRECONSENT_EXIT] restored — 1걸음 위 «불러왔어요» 한 줄
+  if(!loc && rec && rec.empty && !_snapFilledD(SNAPFLOW.d)) SNAPFLOW.t=+rec.t||0;   // [TOMBSTONE_READ] 비운 표시의 고친 때를 이어받는다 — 다시 쓰면 지우지 않고 표시를 남긴다
   // 식순 빌더처럼 전체 화면 오버레이로 — 진행바·다른 카드를 덮어 집중도를 높인다(2026-07-19 사용자 지시 · marker: SNAP_PREP_OVERLAY). iframe 아님(같은 페이지 JS라 div 오버레이).
   var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','스냅 기획');   // [SNAP_MODAL_A11Y] 겹화면 = 모달 · 뒤 페이지는 아래에서 inert
@@ -10648,6 +10844,7 @@ function startSnapFlow(sd, p, needAgree, opt){
   /* [WZ_PIN 2026-10-09] 위쪽 정렬은 그대로 · 카드가 화면 높이를 채워 아래 막대는 걸음마다 화면 맨 아래(아래 틀 여백 24 를 먹는다 · [WZ_BAR_EDGE] 와 같은 값) */
   var inner=document.createElement('div'); inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto -24px;width:100%;flex:1 0 auto;display:flex;flex-direction:column';
   body.appendChild(inner); ov.appendChild(body);
+  ov.addEventListener('input', _snapEditMark); ov.addEventListener('change', _snapEditMark);   // [EDIT_T_AT_INPUT] 글을 적거나 고른 그때
   var _tsR=0; body.addEventListener('scroll', function(){ if(_tsR) return; _tsR=requestAnimationFrame(function(){ _tsR=0; _snapToastSpot(); }); }, {passive:true});   // [SNAP_MODAL_A11Y] 막대는 붙는 자리(sticky)라 스크롤마다 윗변이 옮겨 다닌다
   /* ★[WZ_BAR 2026-09-26 사장님 «위에 나가기 · 아래 하단 통일»] 아래 고정 띠(저장 · 나가기)를 뺐다 — 손잡이는 다른 입력 화면처럼 카드 맨 위 오른쪽(renderSnapFlow),
      아래에는 식순과 같은 «이전 · 다음» 막대(.wz-bar)만. 띠를 되살리면 아래에 막대가 둘 선다. */
@@ -10895,7 +11092,7 @@ function renderSnapFlow(){
   var inner=$('mp_snapInner'); if(!inner||!SNAPFLOW.active) return;   // 오버레이 한 곳에만 그린다(같은 id 가 두 벌 생겨 글이 엉뚱한 칸에서 읽히지 않게)
   var R=window.SNAP_REFS;
   if(!R){ inner.innerHTML='<div class="consult-card"><div class="cc-note">'+_errHtml(SNAP_REFS_MISS)+'</div></div>'; return; }   // [SNAP_REFS_MISS] 카드와 같은 말
-  _snapCollect();
+  _snapCollect(); _snapEditMark();   // [EDIT_T_AT_INPUT] 장면 · 링크를 고르고 뺀 그때(다시 그리기만 하면 그대로)
   var D=SNAPFLOW.d, st=Math.max(0, Math.min(SNAP_STEPS.length-1, SNAPFLOW.step||0)), due=_snapDue(SNAPFLOW.p);
   var ro=!!SNAPFLOW.ro;
   if(ro) st=SNAP_STEPS.length-1;   // [SNAP_CARD_AFTER] 읽기 전용은 ⑤ 요약만
@@ -11036,13 +11233,54 @@ function _snapAgreeGate(){
 /* ★[SNAP_AGREE_LAST] 동의 전 임시본 — 이 기기(localStorage)에만. 서버로 가지 않는다.
    담는 것: 고른 장면 · 링크 · 글(사진은 크고 이 기기에서만 보여 담지 않는다). 지우는 때: 서버 저장 성공 · «그냥 나가기» · «스냅 기획 지우기» · 로그아웃(LOGOUT_SWEEP). */
 function _snapLocalKey(){ var c=''; try{ c=String((window._mpStateD&&window._mpStateD.code)||''); }catch(e){} return c?('me_snapLocal_'+c):''; }
-function _snapLocalGet(){ var k=_snapLocalKey(); if(!k) return null; try{ var o=JSON.parse(localStorage.getItem(k)||'null'); return (o&&o.v===2&&o.zones)?o:null; }catch(e){ return null; } }
-function _snapLocalDel(){ var k=_snapLocalKey(); if(!k) return; try{ localStorage.removeItem(k); }catch(e){} }
+function _snapLocalGet(){ var o=_snapLocalRec(); return (o&&o.zones)?o:null; }   // 카드에 보일 임시본(고른 것 · 적은 것) — 비운 표시는 아니다
+/* ★[TOMBSTONE_READ 2026-10-30 GPT 12차 점검(고객) 12-05] «카드에 보일까»(_snapLocalGet)와 «편집을 열 때 읽을 기록»(_snapLocalRec)을 나눈다 —
+     종전엔 편집을 다시 열 때도 _snapLocalGet 을 써 비운 표시({empty:true, t})를 못 읽고 고친 때를 잃어, 첫 쓰기가 그 표시를 지웠다(맡겨 둔 옛 메모가 다시 로그인하면 되살아났다).
+     이제 편집은 비운 표시의 고친 때를 이어받고 · 열기만 해서는 지우지 않는다 */
+function _snapLocalRec(){ var k=_snapLocalKey(); if(!k) return null; try{ var o=JSON.parse(localStorage.getItem(k)||'null'); return (o&&o.v===2&&(o.zones||o.empty))?o:null; }catch(e){ return null; } }   // [TOMBSTONE_READ]
+function _snapLocalDel(){ if(typeof _tabStale=='function' && _tabStale()) return; var k=_snapLocalKey(); if(!k) return; try{ localStorage.removeItem(k); }catch(e){} }   // [TAB_GUARD] 옛 창은 지우지 않는다
+/* ★[EDIT_T_AT_INPUT 2026-10-30 GPT 11차 점검(고객) 11-01] 고친 때(t)는 손으로 고르거나 적은 그때 적는다 — 종전엔 이 기기에 쓸 때(앱 내림 · 다시 그리기) 글이 바뀌었으면 그때를 적어,
+     같은 계정 두 창에서 창1 먼저 입력 → 창2 나중 입력 · 맡김 → 창1을 나중에 내리면 창1의 늦은 쓰기가 새 때를 받아 창2의 나중 고침을 이겼다.
+     이제 겹화면의 input · change 와 다시 그리기(고르기 · 링크 · 걸음)에서만 견주어 적고, 이 기기에 쓰는 것(_snapLocalPut)은 고친 때를 바꾸지 않는다.
+     식순 초안은 종전대로 고칠 때마다 바로 쓴다(_persist · 늦어도 0.5초) — 같은 탈이 없다 */
+function _snapEditMark(){ if(!SNAPFLOW.active || !SNAPFLOW.d) return; _snapCollect();   // [EDIT_T_AT_INPUT]
+  try{ var j=JSON.stringify(_snapOut(SNAPFLOW.d));
+    if(SNAPFLOW._lj==null) SNAPFLOW._lj=j; else if(SNAPFLOW._lj!==j){ SNAPFLOW._lj=j; SNAPFLOW.t=Date.now(); _snapLocalPut(); } }catch(e){} }   // [RELOGIN_SNAP_NEWER] 고친 때 — 연 뒤 처음은 기준만 잡고 · 글이 바뀔 때만 새로 적는다 · [STALE_KEEP_INPUT] 그때 글도 이 기기에(옛 창이 되기 전에)
+/* ★[EMPTY_TOMBSTONE 2026-10-30 GPT 11차 점검(고객) 11-02] 고른 것 · 적은 것을 다 비우면 기록을 지우지 않고 작은 표시 {v:2, empty:true, t}를 남긴다 —
+     종전엔 지워서 «더 나중에 비웠다»는 증거가 사라졌고, 다시 로그인하면 맡겨 둔 옛 메모가 비운 칸에 되살아났다([RELOGIN_SNAP_NEWER] 가 이 표시의 t 로 견준다).
+     표시는 zones 가 없어 _snapLocalGet 이 읽지 않는다 — 카드는 «스냅 기획하기» 그대로 · 한 번도 고치지 않았으면(t 없음) 종전대로 지운다 */
 function _snapLocalPut(){
+  if(typeof _tabStale=='function' && _tabStale()) return;   // [TAB_GUARD] 옛 창은 이 기기 임시본을 다시 쓰지 않는다(11-03)
   if(!SNAPFLOW.active || !SNAPFLOW.needAgree || !SNAPFLOW.d) return;
   var k=_snapLocalKey(); if(!k) return; _snapCollect();
-  try{ var o=_snapOut(SNAPFLOW.d); if(_snapFilledD(o)) localStorage.setItem(k, JSON.stringify(o)); else localStorage.removeItem(k); }catch(e){}
+  try{ var o=_snapOut(SNAPFLOW.d);
+    if(SNAPFLOW._lj==null) SNAPFLOW._lj=JSON.stringify(o);   // [EDIT_T_AT_INPUT] 기준만 — 쓰기(다시 쓰기 · 앱 내림 · 걸음 넘김)는 고친 때를 바꾸지 않는다
+    var _cur=null; try{ _cur=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){} var _ct=+((_cur||{}).t)||0;
+    if(_ct && _ct>(+SNAPFLOW.t||0)){ _tabStaleMark(); return; }   /* ★[SAME_ACCT_T 2026-10-30 GPT 13차 점검(고객) 13-03] 같은 계정 다른 창이 이 창보다 나중에 고쳐 남겼다 — 다시 쓰기 · 앱 내림이 그 최신본을 옛 글로 덮지 않는다 · 이 창은 «다른 창에서 바뀌었어요 (코드 L8)» → «다시 열기»로 최신본을 연다(이 창이 그 뒤에 고치면 그 고친 때가 더 나중이라 쓴다) */
+    var _w=Date.now();   // [ACCT_KEYS] 쓴 때(30일 걷기)
+    if(SNAPFLOW.t) o.t=SNAPFLOW.t; o.w=_w;
+    if(_snapFilledD(o)) localStorage.setItem(k, JSON.stringify(o));
+    else if(SNAPFLOW.t) localStorage.setItem(k, JSON.stringify({v:2, empty:true, t:SNAPFLOW.t, w:_w}));   // [EMPTY_TOMBSTONE] 비운 때를 남긴다
+    else localStorage.removeItem(k); }catch(e){}
 }
+/* ★[STALE_KEEP_INPUT 2026-10-30 GPT 12차 점검(고객) 12-04] 같은 계정 두 창이 다 보이는 채 — 종전엔 입력이 고친 때(t)와 화면 기억만 바꾸고(앱을 내릴 때에야 썼다),
+     다른 창 로그인으로 옛 창이 되면 이 기기 쓰기가 막혀 «다시 열기»가 그 입력을 버렸다(옛 메모만 남았다).
+     이제 ① 입력한 그때 글도 이 기기에 쓴다(_snapEditMark → _snapLocalPut · 옛 창이 되기 전까지)
+     ② 옛 창의 «다시 열기»는 새로 열기 전에, 지금 계정(이 기기 토큰의 상태 캐시)이 이 창 계정과 같을 때만 아직 못 남긴 입력을 그 계정 맡김(me_relogin_keep)에 고친 때로 합쳐 둔다([RELOGIN_MERGE] 와 같은 견줌) —
+        새로 연 창이 상태를 불러오면 [RELOGIN_SNAP_NEWER] 로 이 기기 임시본과 견주어 되돌린다. 다른 계정이면 맡기지 않는다(남의 계정에 싣지 않는다) */
+function _tabKeepUnkept(){ try{   // [STALE_KEEP_INPUT] 1 맡김 · 0 맡길 것 없음 · -1 못 맡김(이 창 계정을 모름 포함)
+  if(typeof SNAPFLOW==='undefined' || !SNAPFLOW || !SNAPFLOW.active || !SNAPFLOW.needAgree || !SNAPFLOW.d || !SNAPFLOW.t) return 0;   // 고친 것이 없으면 맡길 것 없음
+  var mine=''; try{ mine=_mpAcct(); }catch(e){} var K=_keepK(mine); if(!K) return -1;   // [KEEP_FAIL_STOP] 맡길 것이 있는데 이 창 계정을 모른다 — «맡길 것 없음»이 아니라 못 맡김(새로 열면 그 입력이 사라진다)
+  try{ _snapCollect(); }catch(e){}   // [ACCT_KEYS] 지금 이 기기 계정이 달라도 이 창 계정 맡김(me_relogin_keep_<코드>)에 — 그 계정이 다시 로그인할 때만 읽힌다(남의 계정에 싣지 않는다)
+  var o=_snapOut(SNAPFLOW.d); o.t=SNAPFLOW.t; var v=JSON.stringify(_snapFilledD(o)?o:{v:2, empty:true, t:SNAPFLOW.t}), sk='me_snapLocal_'+mine;
+  var dv=null; try{ dv=JSON.parse(localStorage.getItem(sk)||'null'); }catch(e){} if(dv && (+dv.t||0)>=SNAPFLOW.t) return 0;   // 이 기기 것이 같거나 더 나중에 고친 것 — 맡길 것 없음
+  var k=null; try{ k=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){}
+  var live=!!(k && k.code===mine && k.keys && Date.now()-(+k.t||0)<RELOGIN_TTL);
+  var keys={}; if(live) Object.keys(k.keys).forEach(function(x){ keys[x]=_reloginStampT(String(k.keys[x]), k.t); });   // 앞서 맡긴 다른 종류는 그대로(고친 때가 없으면 앞서 맡긴 때를 싣는다)
+  if(keys[sk]!=null && !_reloginKeyNewer(v, keys[sk], k.t)) return 0;   // 앞서 맡긴 것이 더 나중
+  keys[sk]=v; var s=JSON.stringify({code:mine, t:Date.now(), keys:keys}); localStorage.setItem(K, s);
+  return localStorage.getItem(K)===s?1:-1;
+}catch(e){ return -1; } }
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') _snapLocalPut(); });   // 앱을 내리거나 탭을 닫을 때 — 글을 치던 중이어도 남게
 window.addEventListener('pagehide', function(){ _snapLocalPut(); });
 function _snapCollect(){   // [WIZ_EXIT_ONE] 화면의 글상자 → SNAPFLOW.d. 저장·나가기·변경검사가 같은 값을 본다
@@ -12813,7 +13051,7 @@ function copyThen(t, ok){
    ★묻는 곳은 둘 다 한 목록이다 — 편집 흐름(_wizCurId · WIZ_ORDER)과 전체화면 겹화면(_mpFsOpen · [MP_FS_OVERLAYS] · 식순 빌더 · 계약서 · 시착서 · 미리듣기 · 스냅 · 가족·친구 스냅).
      여기에 id 를 따로 나열하지 않는다. 흐름을 닫은 뒤의 로그아웃(보통 화면 · 키보드 포함)은 종전 그대로다. */
 /* [LOGOUT_CLEAR_FIELDS 2026-10-09] 로그아웃은 로그인 칸(개인코드 · 비밀번호)도 비운다 — 한 기기를 둘이 쓰면 다음 사람 화면에 앞사람 코드 · 비밀번호가 채워진 채 남았다([LOGOUT_SWEEP] 와 같은 까닭) */
-function _mpLogoutNow(){ clearToken(); ['li_code','li_pw'].forEach(function(id){ var e=$(id); if(e) e.value=''; }); show('loginView'); }
+function _mpLogoutNow(){ if(typeof _tabDrop=='function' && _tabDrop()) return; clearToken(); ['li_code','li_pw'].forEach(function(id){ var e=$(id); if(e) e.value=''; }); show('loginView'); }
 $('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen() || _ovlOpen()) return; _mpLogoutNow(); });   // [LOGOUT_FS_GUARD] · [C2_LAYER_INERT] 주소 찾기 · 처리방침 창이 떠 있어도 받지 않는다(창이 로그인 화면 위에 남고 잠금 · 뒤로가기 층이 남았다)
 try{ _softHint($('fg_email'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.'); }catch(e){}   // MPD4_H3 이메일 형식 검사 신설(비차단)
 
@@ -12864,9 +13102,10 @@ $('resetForm').addEventListener('submit', function(e){
   var btn=$('rs_btn'); btn.disabled=true; btn.textContent='변경 중…';
   api({action:'doResetPw', code:qp('code'), exp:qp('exp'), sig:qp('sig'), pw:pw, pw2:pw2}).then(function(d){
     if (d && d.ok){
-      if (d.token) setToken(d.token);
+      var _st=d.token?setToken(d.token):false;   // [EPOCH_VERIFY]
       cleanUrl();
-      if (d.token) loadMyState();
+      if (_st) loadMyState();
+      else if (d.token) show('loginView');
       else { show('loginView'); softLoginNote('비밀번호가 바뀌어 보안을 위해 로그아웃됐어요. 새 비밀번호로 다시 로그인해 주세요.'); }
     } else { showErr('rs_err', _errLine(d,'L','재설정이 안 됐어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] 서버 까닭 + 코드
   }).catch(function(e){ showErr('rs_err', _errLine(e,'L','',{5:'새 비밀번호로 로그인해 보세요'})); })   // [ERR_CODE_MYPAGE] 시간 초과는 «모름» — 바뀌었을 수 있으니 새 비밀번호로 먼저 해 보게

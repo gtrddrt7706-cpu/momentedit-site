@@ -142,7 +142,7 @@ const look = (pg) => pg.evaluate(() => { const row = document.querySelector('.ls
   const t = (x) => x ? x.textContent.replace(/[\s ]+/g, ' ').trim() : '';
   return { row: !!row, slot: row && row.getAttribute('data-slot'), last: !!(row && vars && vars.lastElementChild === row), mu: !!document.querySelector('.ls-mu'),
     txt: row ? t(row.querySelector('.bgm-line')) : '', note: row ? t(row.querySelector('.bgm-note')) : '', btns: row ? row.querySelectorAll('button:not(.op-chip)').length : 0, old: !!document.querySelector('.bgm-sum,.bgm-card,.bgm-cv,[data-fk^="bgmup:"],[data-fk^="bgmopen:"]'),
-    chips: row ? [...row.querySelectorAll('.op-chip')].map((b) => b.textContent.trim() + (b.getAttribute('aria-checked') === 'true' ? '*' : '')) : [], rowH: row ? Math.round(row.getBoundingClientRect().height * 10) / 10 : 0,
+    chips: row ? [...row.querySelectorAll('.op-chip')].map((b) => b.textContent.trim() + (b.getAttribute('aria-checked') === 'true' ? '*' : '')) : [], rowH: row ? Math.round(((row.querySelector('.bgm-note') ? row.querySelector('.bgm-note').getBoundingClientRect().bottom : row.getBoundingClientRect().bottom) - row.getBoundingClientRect().top) * 10) / 10 : 0,   /* [BGM_PREVIEW_1024] 칩 · 아래 한 줄까지 — «음악과 함께» 아래 곡 고르기가 펼쳐지는 것은 명세(bgm-preview 가 잰다) */
     noteFs: row && row.querySelector('.bgm-note') ? getComputedStyle(row.querySelector('.bgm-note')).fontSize : '',
     glX: gl ? Math.round(gl.getBoundingClientRect().left) : null, glX0: gl0 ? Math.round(gl0.getBoundingClientRect().left) : null, glFs: gl ? getComputedStyle(gl).fontSize : '',
     bgm: JSON.stringify(S.bgm === undefined ? null : S.bgm), hz: document.documentElement.scrollWidth > innerWidth + 1, head: (document.querySelector('#mkHead') || { textContent: '' }).textContent,
@@ -167,7 +167,7 @@ async function shot(pg, W, name, sel) { if (!SHOT) return; fs.mkdirSync(SHOT, { 
   if (box) await pg.screenshot({ path: path.join(SHOT, `${name}-${W}.png`), clip: box, fullPage: true }); await showFixed(pg); }
 const sumLook = (pg) => pg.evaluate(() => { const secs = [...document.querySelectorAll('.mk-sum .mk-sec')], send = secs.find((s) => /^보낼 것/.test((s.querySelector('h4') || {}).textContent || '')), mus = document.querySelector('.mk-sum .mk-bgm');
   const t = (x) => x.textContent.replace(/[\s ]+/g, ' ').trim();
-  return { sends: send ? [...send.querySelectorAll('.mk-vn')].map(t) : [], rows: mus ? [...mus.querySelectorAll('li')].map((li) => t(li.querySelector('.mk-vn') || li) + (li.querySelector('button') ? ' [' + t(li.querySelector('button')) + ']' : '')) : [], hz: document.documentElement.scrollWidth > innerWidth + 1,
+  return { sends: send ? [...send.querySelectorAll('.mk-vn')].map(t) : [], rows: mus ? [...mus.querySelectorAll('li:not(.bgm-seg)')].map((li) => t(li.querySelector('.mk-vn') || li).replace(li.classList.contains('bgm-pk') ? / · (고르지 않으시면 )?‹[^›]*›$/ : /$^/, '') + (li.querySelector('button') ? ' [' + t(li.querySelector('button')) + ']' : '')) : [],   /* [BGM_PREVIEW_1024] 구간 곡 줄(bgm-seg) · 축사 · 편지 곡 이름은 bgm-preview 가 잰다 */ hz: document.documentElement.scrollWidth > innerWidth + 1,
     todoN: (() => { try { return _mkTodoN(); } catch (e) { return null; } })(), vlist: !!(mus && mus.querySelector('ul.mk-vlist')),
     keep: !!mus && [...mus.querySelectorAll('.mk-vn')].every((x) => getComputedStyle(x).wordBreak === 'keep-all'),   /* [BGM_R4_1023] */
     order: secs.map((s) => (s.querySelector('h4') || {}).textContent || '') }; });
@@ -183,7 +183,7 @@ try {
     const SUB = 'rgb(90, 85, 76)', ref = REFQ.look.split('|'), quiet = ref.length === 6 ? [ref[0], '400', SUB, ref[3], ref[4], ref[5]].join('|') : '';
     const lookOk = (L) => !!quiet && ref[1] === '500' && ref[2] === 'rgb(58, 45, 34)' && L.flook === quiet;
     /* [BGM_R3_1023] 목례 · 위하여 자리는 글자가 아니라 줄 모양(행동 · 차례 줄 뒤 · 나레이션 앞)으로 — 큐 열쇠가 맞는지는 9(코스 · 조합 전부)가 잰다 · 대본이 글만 고쳐도 거짓 빨강이 안 난다 */
-    const posOk = (k, L) => AT[k] === 'top' ? ((HEADB[k] && /넘어가며/.test(L.first)) ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? (/\bq\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : false;
+    const posOk = (k, L) => AT[k] === 'top' ? ((HEADB[k] && /넘어가며/.test(L.first)) ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? (/\bq\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && (/\bn\b/.test(L.nextCls) || (!L.next && !L.nextCls)))   /* ★[END_FLOW_1030] 축배가 닫는 인사 앞으로 와 56 을 안 튼다 — 위하여 음악 줄이 축배 쪽 마지막 줄일 수 있다 */ : false;
     for (const k of ['entry', 'prevideo', ...Object.keys(ONE), 'song', 'free', 'letter']) { await go(pg, k); const L = await look(pg); seen[k] = L;
       if (['candle', 'welcome', 'vow', 'free', 'letter', '_close', 'toast', 'tribute'].includes(k)) await shot(pg, W, 'bgm-' + k.replace('_', ''));
       let good = !L.hz && !L.old && L.fq <= 1 && !L.gls.includes('음악');
@@ -285,11 +285,11 @@ try {
   /* 5 옛 초안 — 저장된 옛 값 · 이 기기 보관함 */
   { const { ctx, pg, errs } = await openPage(390); await walk(pg);
     await pg.evaluate(() => new Promise((ok) => { const q = indexedDB.open('me-bgm-song', 1); q.onupgradeneeded = () => q.result.createObjectStore('f'); q.onsuccess = () => { q.result.close(); ok(); }; q.onerror = () => ok(); }));
-    await pg.evaluate(() => { const d = JSON.parse(localStorage.getItem('me_order')); d.S.bgm = { S1: { m: 'own', own: { n: '옛곡이름', a: '옛가수', d: 200 } }, S5: { m: 'bed' }, S6: { m: 'studio' }, S7: { m: 'warm' }, S10: { m: 'own' } }; localStorage.setItem('me_order', JSON.stringify(d)); });
+    await pg.evaluate(() => { const d = JSON.parse(localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'))); d.S.bgm = { S1: { m: 'own', own: { n: '옛곡이름', a: '옛가수', d: 200 } }, S5: { m: 'bed' }, S6: { m: 'studio' }, S7: { m: 'warm' }, S10: { m: 'own' } }; localStorage.setItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'), JSON.stringify(d)); });
     const pg2 = (await openPage(390, '', ctx)).pg; await pg2.waitForTimeout(1200);
     const dbs = await pg2.evaluate(() => (indexedDB.databases ? indexedDB.databases().then((l) => l.map((x) => x.name)) : Promise.resolve(['?'])));
     await go(pg2, 'free'); const o1 = await look(pg2); await go(pg2, 'guest'); const o2 = await look(pg2); await go(pg2, '_sum'); const o3 = await sumLook(pg2);
-    const body = await pg2.evaluate(() => document.body.innerText + JSON.stringify(S.bgm || null) + localStorage.getItem('me_order'));
+    const body = await pg2.evaluate(() => document.body.innerText + JSON.stringify(S.bgm || null) + localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order')));
     ok('5 옛 초안 — 불러올 때 «음악과 함께»만 남는다(S.bgm = {S5:bed}) · 축사 칩 눌린 모양 · 옛 곡 이름 · 가수가 화면 · 저장 어디에도 없다 · 요약 «축사 · 음악과 함께» · 이 기기 보관함(me-bgm-song) 지움',
       o1.bgm === '{"S5":{"m":"bed"}}' && o1.chips.join() === '음악 없이,음악과 함께*' && o2.ftxt === ONE.guest && !/옛곡이름|옛가수/.test(body) && o3.rows[1] === '축사 · 음악과 함께' && dbs.indexOf('me-bgm-song') < 0,
       { o1, o2, o3, dbs, hit: /옛곡이름/.test(body) });
@@ -302,7 +302,7 @@ try {
     ok('8 ?mk=table — 빠져 있던 테이블 인사를 담고 그 쪽 · 흐름 음악 줄(S10)', /테이블/.test(L.head) && L.fslot === 'S10' && L.ftxt === ONE.table, L); await ctx.close(); }
   /* [BGM_JUMP_SAME 2026-10-23 실사이트 확인] 초안의 마지막 순간(S.mk.at)이 주소와 같아도 «고르기»에 머물지 않고 그 순간 쪽이 열린다 */
   { const { ctx, pg, errs } = await openPage(390, '?mk=letter'); await pg.waitForTimeout(1200);
-    const at0 = await pg.evaluate(() => { try { _persist(); return JSON.parse(localStorage.getItem('me_order')).S.mk.at; } catch (e) { return null; } });
+    const at0 = await pg.evaluate(() => { try { _persist(); return JSON.parse(localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'))).S.mk.at; } catch (e) { return null; } });
     await pg.goto(pg.url(), { waitUntil: 'load' }); await pg.waitForTimeout(2000); const L = await look(pg);
     ok('8 at 이 같은 초안(at=letter)으로 ?mk=letter 를 다시 열어도 편지 쪽(하나씩 만들기) · 음악 줄(S6)', at0 === 'letter' && /편지/.test(L.head) && L.slot === 'S6' && errs.length === 0, { at0, L, errs });
     await ctx.close(); }

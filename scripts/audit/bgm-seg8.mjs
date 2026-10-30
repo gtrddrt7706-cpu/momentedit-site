@@ -5,7 +5,7 @@
    ② 고르면 저장된다(다시 열어도 그대로) · «곡 추가»로 더한 곡은 «직접 더한 곡»에 · 넣은 파일은 이 기기에 남는다(다시 열어도 ✓)
    ③ 시작 = 하객 맞이 곡 · 화촉 첫 큐에서 화촉 곡으로 3초 크로스페이드(두 재생기가 겹친다 → 앞 곡은 멈춘다) · 파일 없는 구간(감사 인사)은 앞 곡이 그대로 잇는다
    ④ 축가(자체 음원 · −90) 뒤 부모님께 인사 큐에서 그 구간 곡으로 돌아오고 크기도 그 큐 값
-   ⑤ 고객 화면(order-preview)은 bgm-picks 를 싣지 않는다 · 쪽 오류 0
+   ⑤ 고객 화면(order-preview)은 bgm-picks 를 싣되 곡 파일 주소는 없다 [BGM_PREVIEW_1024] · 쪽 오류 0
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 · BS_CON = 돌연변이 확인용(그 판의 console.html) */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import os from 'node:os'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -44,7 +44,7 @@ try {
   const ids = await pg.evaluate(() => window.BgmPicks.SEGS.filter((s) => !s.entry).map((s) => s.id));
   const rows = {}; for (const id of ids) rows[id] = await row(pg, id);
   const P = await pg.evaluate(() => { const o = {}; window.BgmPicks.SEGS.forEach((s) => { o[s.id] = window.BgmPicks.list(s.id).length; }); return o; });
-  const bad = ids.filter((id) => !rows[id] || rows[id].songs.length !== P[id] || !rows[id].songs[0].on || !/추천 1순위/.test(rows[id].songs[0].meta) || !rows[id].songs.every((x) => x.st === '곡 파일 필요'));
+  const bad = ids.filter((id) => !rows[id] || rows[id].songs.length !== P[id] || (P[id] > 0 && (!rows[id].songs[0].on || !/추천 1순위/.test(rows[id].songs[0].meta))) || !rows[id].songs.every((x) => x.st === '곡 파일 필요'));   /* [BGM_FIX_1030] 사진 칸(M6P)은 곡을 비웠다 — 닫는 인사 곡이 잇는다 */
   ok(`① 구간 ${ids.length}칸 — 추천 목록이 다 보이고 1순위가 «추천 1순위»로 골라져 있고 파일이 없으면 «곡 파일 필요»`, ids.length >= 11 && !bad.length, { bad, M2: rows.M2 });
   const multiOn = rows.M1.songs.every((x) => x.on) && rows.M8.songs.every((x) => x.on) && rows.M2.songs.filter((x) => x.on).length === 1;
   ok('① 목록 칸(하객 맞이 · 테이블 인사)은 추천 곡 전부 · 한 곡 칸은 하나', multiOn, { M1: rows.M1.songs.map((x) => x.on), M2: rows.M2.songs.map((x) => x.on) });
@@ -91,7 +91,9 @@ try {
   await pg.close();
   /* ⑤ 고객 화면 */
   const op = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8'), mp = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
-  ok('⑤ 고객 화면(order-preview · mypage)은 bgm-picks 를 싣지 않는다', !/bgm-picks/.test(op) && !/bgm-picks/.test(mp));
+  /* ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 고객 화면(order-preview)도 bgm-picks 를 싣는다 — 곡 이름 · 정보 · 번호만 · 곡 파일 주소는 없다(파일은 드라이브 ME_구간곡 · 마이페이지 중계) */
+  const bpSrc = fs.readFileSync(path.join(ROOT, 'assets/bgm-picks.js'), 'utf8');
+  ok('⑤ 고객 화면(order-preview)은 bgm-picks 를 싣되 곡 파일 주소는 없다(mp3 · http · drive 없음) · mypage 는 싣지 않는다', /bgm-picks\.js/.test(op) && !/bgm-picks/.test(mp) && !/https?:|\.mp3|\.m4a|drive\.google|blob:/i.test(bpSrc.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '')));
   /* ⑥ 입장 곡이 짧을 때 — 하이라이트 뒤 180초가 안 되면 «곡 길이 모자람 · 맞절은 피아노로» · 곡 끝 3초 전에 피아노(M4)가 겹쳐 이어받는다 [ENTRY_SHORT] */
   { const FID = 'SHORTSONG0123456789ab', SONG = wav(40, 300, 0).toString('base64');
     const S1 = Object.assign({}, S0, { entry: 'A', entryVoice: 'nar', mu: { src: 'up', name: 'short', t: '짧은 곡', a: '', dur: 40, hook: 30, typed: null, sid: 'x2', fid: FID } });
@@ -107,7 +109,7 @@ try {
     await p2.setInputFiles('.sg[data-seg="M4"] .sg-song:nth-of-type(1) [data-seg-file]', F.m2); await p2.waitForTimeout(800);
     await p2.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
     const lab = await p2.evaluate(() => (document.getElementById('rfMu') || {}).textContent || '');
-    ok('⑥ 입장 곡이 짧으면(하이라이트 뒤 10초) 입장 칸에 «곡 길이 모자람 · 맞절은 피아노로»', /곡 길이 모자람 · 맞절은 피아노로$/.test(lab), lab);
+    ok('⑥ 입장 곡이 짧으면(하이라이트 뒤 10초) 입장 칸에 «곡 길이 모자람 · 곡이 끝나면 피아노가 이어요»(맞절은 입장 곡 그대로 · BGM_FIX_1030)', /곡 길이 모자람 · 곡이 끝나면 피아노가 이어요$/.test(lab), lab);
     await p2.click('#go'); await p2.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
     const I = await p2.evaluate(() => window.__esd.idx()); const t0 = Date.now(); await p2.evaluate((i) => window.__bgmGo.fire(i), I.e); await p2.waitForTimeout(400);
     const pl = (await p2.evaluate(() => window.__esd.s())).pl || {}, endIn = (pl.tm || 0) + (40 - (pl.off || 0));

@@ -25,6 +25,6 @@ const co = rd('console.html');
 ok('③ 콘솔 칩 — 식사 자리 · 하객 안내 · 사진 올리기', /rMeal:\s*\['meal'/.test(co) && /rGuide:\s*\['guide'/.test(co) && /id="rMeal"/.test(co) && /id="rGuide"/.test(co));
 const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
 const sl = (o) => C.build(Object.assign({ course: 'open', on: {} }, o), { mode: 'console' }).cues.map((c) => c.slug);
-ok('③ 엔진 — 식사 날 45 · 없는 날 110 · 하객 안내 날 264 · 85', sl({ meal: 1 }).indexOf('end-1a-farewell') > -1 && sl({}).indexOf('end-1c-thanks-nomeal') > -1 && sl({ guide: 1 }).indexOf('narr-photo-upload') > -1 && sl({ guide: 1 }).indexOf('narr-photo-send') > -1 && sl({}).indexOf('narr-photo-send') < 0);
+ok('③ 엔진 — [END_FLOW_1030] 사진 전 안내: 식사 + 하객 안내 날 266 · 식사만 26 · 없는 날 265 · 감사 인사 45 · 110 은 새 코스에서 안 튼다 · 하객 안내 날 264 · 85', sl({ meal: 1, guide: 1 }).indexOf('narr-photo-pre-meal') > -1 && sl({ meal: 1 }).indexOf('narr-close') > -1 && sl({}).indexOf('narr-photo-pre') > -1 && sl({ meal: 1 }).concat(sl({})).every((x) => x !== 'end-1a-farewell' && x !== 'end-1c-thanks-nomeal') && sl({ guide: 1 }).indexOf('narr-photo-upload') > -1 && sl({ guide: 1 }).indexOf('narr-photo-send') > -1 && sl({}).indexOf('narr-photo-send') < 0);
 console.log(bad ? '\nCONSOLE INJECT FAIL ' + bad : '\nCONSOLE INJECT OK');
 process.exit(bad ? 1 : 0);

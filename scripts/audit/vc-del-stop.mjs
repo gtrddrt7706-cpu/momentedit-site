@@ -2,7 +2,7 @@
 /* ★★[VC_DEL_STOP 2026-10-09 점검 E-4 · E-3 · E-8] «지우기»가 이긴다 · 한 분 줄은 그 분 목소리로만 · 줄 파일 «지우기»는 뒤에 올린 것을 두지 않는다 — 원문(80_production.gs) 조각을 vm 으로 돌려 잰다.
    E-4 [VC_DEL_STOP]   다시 녹음(목소리 만드는 중)에 «지우기»(다른 탭 · 기기)가 오면 새 목소리를 업체에서 지우고 저장하지 않는다(업체가 답하기 전 · 저장 직전 둘 다) ·
                        다른 분 지우기 · 지운 뒤 새로 만들기는 막지 않는다 · 잠금 실패에도 · 업체 지우기 실패는 retry
-   E-3 [VC_ONE_OWN]    한 분이 읽는 줄(one)은 그 분 목소리가 없으면 다른 분 목소리로 만들지 않고 거절(V0) · 나눠 읽는 줄(lines)은 종전대로(WHO_MISS)
+   E-3 [VC_ONE_OWN]    한 분이 읽는 줄(one)은 그 분 목소리가 없으면 다른 분 목소리로 만들지 않고 거절(V0) · 나눠 읽는 줄(lines)도 같다(★2026-10-30 사장님 «추천대로»로 바뀜 [VC_DEC_1030_1] · 종전 WHO_MISS)
    E-8 [RF_DEL_ALL_T0] 줄 파일 «지우기»(all)는 지운 파일보다 뒤에 만든 파일 · 스튜디오 파일은 두고 옛 사본만 쓴다 · 지운 파일을 못 찾으면 쓸지 않는다
    ★업체가 1~2분 걸리는 만들기는 «답하기 전»(handleVoiceClone)과 «답한 뒤»(_vcEnrollAfter)를 나눠, 그 사이에 다른 요청을 진짜 순서로 끼운다(vc-enroll-sim 과 같은 틀).
    종료 코드 0 = 통과 · 1 = 실패 */
@@ -14,7 +14,7 @@ const CB = fs.readFileSync(path.join(ROOT, 'automation/consultation/consultation
 const grabIn = (src, name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const lineIn = (src, re) => (src.match(re) || [''])[0];
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcSlots', '_vcPurgeNow', 'handleRitualFilePurgeMine'];   // [R7_SERVER] 목소리 파일 모두 지우기(잠금 실패 D1)
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcWedOver_', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcHold', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcSlots', '_vcPurgeNow', 'handleRitualFilePurgeMine'];   // [R7_SERVER] 목소리 파일 모두 지우기(잠금 실패 D1)
 const NFN = ['_errArea', '_errId', '_errStamp'];
 const miss = FN.filter((f) => !grabIn(GS, f)).concat(NFN.filter((f) => !grabIn(NT, f)));
 if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -92,7 +92,8 @@ const allReads = (W) => Object.values(W.files).filter((f) => /^읽은 녹음/.te
   // 앞 목소리(uc_1)를 업체에서 지우는 그 순간 다른 탭의 «지우기»가 들어온다
   W.hook.onDel = () => { d = W.call({ token: 'T', op: 'delete', who: 'groom' }); };
   const ra = a.commit();
-  ok('E-4 ③ 저장 직전 지우기 → 저장 안 함 · 업체 0 · 새 읽은 녹음 휴지통 · 작업표 cancel', d && d.ok && !ra.ok && ra.ecode === 'V0' && !W.st().groom.voiceId && W.alive.size === 0 && liveReads(W) === 0 && W.st().groom.job.kind === 'cancel', JSON.stringify({ d, ra, st: W.st(), alive: [...W.alive], reads: liveReads(W) })); }
+  /* ★[VC_SAVE_FIRST 2026-10-30] 앞 목소리는 새 목소리를 «저장한 뒤»에 지운다 — 그 순간 온 지우기는 방금 저장된 새 목소리를 지운다(만들기 답은 ok · 결과는 같다: 목소리 없음 · 업체 0 · 읽은 녹음 0) */
+  ok('E-4 ③ 앞 목소리 지우는 사이 지우기 → 새 목소리도 지워진다 · 업체 0 · 읽은 녹음 0 [VC_SAVE_FIRST]', d && d.ok && ra.ok && !W.st().groom.voiceId && W.alive.size === 0 && liveReads(W) === 0 && !(W.st().retry || []).length, JSON.stringify({ d, ra, st: W.st(), alive: [...W.alive], reads: liveReads(W) })); }
 // ④ 지우기 없이 다시 녹음 — 종전대로 새 목소리 · 앞 목소리는 업체에서 지움(돌연변이 아님 확인)
 { const W = world({}); prep(W, 'groom'); W.call({ token: 'T', op: 'enroll', who: 'groom', jid: 'A0', sec: 50, data: 'data:audio/wav;base64,AAAA' }); W.call({ token: 'T', op: 'phrase', who: 'groom' });
   const ra = ENR(W, 'groom', 'A1').commit();
@@ -182,8 +183,13 @@ const t1 = W.calls.filter((k) => /text-to-speech/.test(k)).length;
 ok('E-3 ① 신부 줄(one: bride) · 신부 목소리 없음 → 신랑 목소리로 만들지 않고 거절(V0 · 이름 · 업체 안 부름)', !r1.ok && r1.ecode === 'V0' && /님 AI 목소리를 아직 만들지 않았어요$/.test(r1.error || '') && t1 === t0, JSON.stringify(r1) + ' tts ' + t0 + '→' + t1);
 const r2 = W.call({ token: 'T', op: 'make', key: 'g0', text: '신랑이 읽는 줄이에요', one: 'groom', tempo: '1', pause: 150 });
 ok('E-3 ② 신랑 줄(one: groom) · 신랑 목소리 있음 → 만든다', r2.ok && r2.parts && r2.parts.length === 1 && r2.parts[0].who === 'groom', JSON.stringify(r2).slice(0, 200));
+const t2 = W.calls.filter((k) => /text-to-speech/.test(k)).length;
 const r3 = W.call({ token: 'T', op: 'make', key: 'entry', text: '가 나', one: '', lines: [['groom', '신랑 문장'], ['bride', '신부 문장']], tempo: '1', pause: 150 });
-ok('E-3 ③ 나눠 읽는 줄(lines) · 신부 목소리 없음 → 종전대로 있는 목소리로 만든다(WHO_MISS)', r3.ok && r3.parts && r3.parts.length === 2, JSON.stringify(r3).slice(0, 200));
+const t3 = W.calls.filter((k) => /text-to-speech/.test(k)).length;
+/* ★2026-10-30 사장님 «추천대로»로 바뀜 [VC_DEC_1030_1] — 종전(WHO_MISS)은 신부 문장도 신랑 목소리로 만들었다 */
+ok('E-3 ③ [VC_DEC_1030_1] 나눠 읽는 줄(lines) · 신부 목소리 없음 → 신부 문장을 신랑 목소리로 만들지 않고 줄 전체 거절(V0 · «신부 목소리가 아직 없어요» · 업체 안 부름)', !r3.ok && r3.ecode === 'V0' && r3.novoice === 'bride' && r3.error === '신부 목소리가 아직 없어요' && t3 === t2, JSON.stringify(r3).slice(0, 200) + ' tts ' + t2 + '→' + t3);
+const r3b = W.call({ token: 'T', op: 'make', key: 'entry', text: '가', one: '', lines: [['groom', '신랑 문장만']], tempo: '1', pause: 150 });
+ok('E-3 ③-2 [VC_DEC_1030_1] 나눠 읽는 줄이라도 목소리가 있는 분 문장뿐이면 만든다', r3b.ok && r3b.parts && r3b.parts.length === 1 && r3b.parts[0].who === 'groom', JSON.stringify(r3b).slice(0, 200));
 const r4 = W.call({ token: 'T', op: 'make', key: 'g2', text: '두 분이 읽는 줄', tempo: '1', pause: 150 });
 ok('E-3 ④ 읽는 분 지정 없음(one 없음) → 있는 목소리로 만든다(종전 그대로)', r4.ok, JSON.stringify(r4).slice(0, 200));
 }

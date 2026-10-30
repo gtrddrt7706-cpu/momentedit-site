@@ -79,7 +79,7 @@ for (const mode of MODES) {
   if (!r.old) {
     ok(`${mode} 1 summary.flow = ② 줄(하객 맞이 안내 뺌) · count = ④ «담은 순간» ${r.mom}`, JSON.stringify(r.flow) === JSON.stringify(r.two) && r.count === r.mom && r.mom > 0, { flow: r.flow, two: r.two, count: r.count, mom: r.mom });
     const toastAt = r.flow.indexOf('축배'), closeAt = r.flow.indexOf('닫는 인사');
-    if (toastAt > -1) ok(`${mode} 1 축배는 닫는 인사 뒤 · 이름 «축배» [TOAST_LAST_1013]`, closeAt > -1 && toastAt > closeAt, r.flow);
+    if (toastAt > -1) ok(`${mode} 1 축배는 닫는 인사 바로 앞(테이블 인사 뒤) · 이름 «축배» [END_FLOW_1030 · 옛 TOAST_LAST_1013]`, closeAt > -1 && toastAt === closeAt - 1, r.flow);
   } else {
     ok(`${mode} 3 옛 코스 복원 — 축배 칸이 «축배»(둘 다 → 축배 · 케이크만 → 축배 칸을 뺀다) [CAKE_OLD_OFF_1017]`, r.toast === 'toast' && (mode === 'OLDBOTH' ? r.flow.indexOf('축배') > -1 : r.flow.indexOf('축배') < 0), { course: r.course, toast: r.toast, flow: r.flow });
   }

@@ -76,7 +76,7 @@ async function open(w, h, opt) {
   const ctx = await br.newContext({ viewport: { width: w, height: h || 900 } }); const pg = await ctx.newPage(); const errs = [];
   pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => rt.request().url().startsWith(B) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
-  if (opt.draft) await pg.addInitScript((d) => { try { if (!sessionStorage.getItem('__seeded')) { localStorage.setItem('me_order', JSON.stringify(d)); sessionStorage.setItem('__seeded', '1'); } } catch (e) {} }, opt.draft);
+  if (opt.draft) await pg.addInitScript((d) => { try { if (!sessionStorage.getItem('__seeded')) { localStorage.setItem('me_order_pub', JSON.stringify(d));   /* [PREVIEW_KEY_SPLIT] 그냥 연 미리보기 칸 */ sessionStorage.setItem('__seeded', '1'); } } catch (e) {} }, opt.draft);
   await pg.goto(B + '/blank.html'); await pg.goto(B + '/order-preview.html', { waitUntil: 'load' }); await pg.waitForTimeout(700);
   return { ctx, pg, errs };
 }
@@ -86,7 +86,7 @@ async function toListen(pg) { await next(pg); await pg.waitForTimeout(350); awai
 
 /* P1-2 · 첫 화면이 replaceState 만 한 경우(초안에서 ② 로 바로 열림) «← 고르기로»가 빌더를 떠났다 */
 let draft = null;
-await safe('P1-2 초안 만들기', async () => { const { ctx, pg } = await open(390); await toListen(pg); draft = await pg.evaluate(() => JSON.parse(localStorage.getItem('me_order'))); await ctx.close(); });
+await safe('P1-2 초안 만들기', async () => { const { ctx, pg } = await open(390); await toListen(pg); draft = await pg.evaluate(() => JSON.parse(localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order')))); await ctx.close(); });
 await safe('P1-2', async () => {
   const { ctx, pg } = await open(390, 900, { draft });
   const k0 = await step(pg);
@@ -132,10 +132,10 @@ await safe('P1-2 다시 만들기', async () => {
 /* P1-3 · ② 담기 · ① 알림 단추가 옛 갈래 키와 저장까지 */
 await safe('P1-3', async () => {
   const { ctx, pg } = await open(390); await toListen(pg);
-  const r = await pg.evaluate(() => { delete S.on.bless; delete S.on.ring; opSync(); const b0 = S.bless; lsAdd('bless'); lsAdd('ring');
-    const saved = JSON.parse(localStorage.getItem('me_order')).S; return { b0, bless: S.bless, ring: S.ring, sb: saved.bless, sr: saved.ring, flow: _ordPayload(false).summary.flow }; });
+  const r = await pg.evaluate(() => { delete S.on.bless; delete S.on.ring; ['free', 'letter', 'song', 'table'].forEach((k) => { delete S.on[k]; }); opSync(); const b0 = S.bless; lsAdd('bless'); lsAdd('ring');   /* [BODY_CAP_1030 검토 167] 본식 상한 — 담을 자리를 먼저 비운다(꽉 찬 판에서는 담기가 막히는 것이 맞다) */
+    const saved = JSON.parse(localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'))).S; return { b0, bless: S.bless, ring: S.ring, sb: saved.bless, sr: saved.ring, flow: _ordPayload(false).summary.flow }; });
   ok('P1-3 ② «담기» → S.bless · S.ring = on · 저장본도 on · 요약 흐름에 덕담 · 반지 [OP_SYNC_ALL]', r.b0 === 'off' && r.bless === 'on' && r.ring === 'on' && r.sb === 'on' && r.sr === 'on' && r.flow.some((n) => /덕담/.test(n)) && r.flow.some((n) => /반지/.test(n)), JSON.stringify(r));
-  const a = await pg.evaluate(() => { opStepNav('pick'); S.on = { bless: 1, vow: 1, tribute: 1, toast: 1 }; opSync(); const n = RitualOpen.noticeFull(S); const i = n.acts.findIndex((x) => x[2] === 'ring'); opNoteAct(i); return { ring: S.ring, sr: JSON.parse(localStorage.getItem('me_order')).S.ring }; });
+  const a = await pg.evaluate(() => { opStepNav('pick'); S.on = { bless: 1, vow: 1, tribute: 1, toast: 1 }; opSync(); const n = RitualOpen.noticeFull(S); const i = n.acts.findIndex((x) => x[2] === 'ring'); opNoteAct(i); return { ring: S.ring, sr: JSON.parse(localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'))).S.ring }; });
   ok('P1-3 ① 알림 단추 «반지 교환 담기» → S.ring = on · 저장본도', a.ring === 'on' && a.sr === 'on', JSON.stringify(a));
   await ctx.close();
 });
@@ -175,7 +175,7 @@ await safe('P1-8', async () => {
 /* P2-3 · 작은 플레이어 아래 여유 */
 await safe('P2-3', async () => {
   const { ctx, pg } = await open(390); await toListen(pg);
-  await pg.evaluate(() => { mkGo('vow'); lsPlay('vow'); }); await pg.waitForTimeout(800);   // 쪽 재생(«처음부터»는 크게 보기로 열려 작은 플레이어가 없다) · [FLOW_MAKE] ② 서약 쪽 맨 아래 = 두 분이 할 말 · 준비할 것
+  await pg.evaluate(() => { mkGo('declare'); lsPlay('declare'); }); await pg.waitForTimeout(800);   /* [COURSE_ONE_PROMISE_1030] 가족 코스는 서약 대신 선언 · 같은 ② 순간 쪽 재생 */   // 쪽 재생(«처음부터»는 크게 보기로 열려 작은 플레이어가 없다)
   const r = await pg.evaluate(() => { const m = document.getElementById('lsMini'); window.scrollTo(0, document.body.scrollHeight); const ls = document.querySelectorAll('.mk-pg .mk-sec'); const last = ls[ls.length - 1]; const lb = last ? last.getBoundingClientRect() : null, mb = m.getBoundingClientRect();
     return { mini: getComputedStyle(m).display, cls: document.documentElement.classList.contains('lsmini'), pad: parseInt(document.documentElement.style.scrollPaddingBottom) || 0, clear: lb ? lb.bottom <= mb.top + 1 : null }; });
   /* ★[MINI_OFF_ROWS 2026-10-04 사장님 «재생바 말이야»] ② 순간 쪽은 어떻게 들어도 아래 재생 바를 띄우지 않는다 — 지금 줄 ▶ 가 ⏹ · 아래 여유(lsmini)도 없다 */

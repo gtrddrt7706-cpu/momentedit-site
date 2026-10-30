@@ -22,7 +22,7 @@ const NT = fs.readFileSync(path.join(ROOT, 'automation/platform/95_notify.gs'), 
 const grabIn = (src, name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const lineIn = (src, re) => (src.match(re) || [''])[0];
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcPub', '_vcSlots'];
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcWedOver_', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcHold', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcPub', '_vcSlots'];
 const NFN = ['_errArea', '_errId', '_errStamp'];
 const miss = FN.filter((f) => !grabIn(GS, f)).concat(NFN.filter((f) => !grabIn(NT, f)));
 if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -86,7 +86,8 @@ function serverOnly() { const out = [];
   { const W = world({ lockFail: (n, calls) => !calls.some((k) => /instant-clone/.test(k)) && n > 2 });   // 동의 · 문장 뒤 잠금은 모두 실패(작업표 못 씀 → 겹침 거절 없음)
     W.call({ token: 'T', op: 'consent', who: 'groom', agree: true }); W.call({ token: 'T', op: 'phrase', who: 'groom' });
     const a = W.begin({ token: 'T', op: 'enroll', who: 'groom', jid: 'A', sec: 50, data: 'data:audio/wav;base64,AAAA' }), b = W.begin({ token: 'T', op: 'enroll', who: 'groom', jid: 'B', sec: 50, data: 'data:audio/wav;base64,AAAA' });
-    const ra = a.commit(), rb = b.commit(); out.push(['겹친 두 만들기(잠금 실패) — 먼저 끝난 목소리도 지운다 · 새는 목소리 0 [VC_ENROLL_PREV]', ra.ok && rb.ok && W.leak() === 0 && W.clones() === 2, JSON.stringify({ ra: ra.ok, rb: rb.ok, leak: W.leak(), alive: [...W.alive], st: W.st().groom && W.st().groom.voiceId })]); }
+    /* ★[VC_JOB_BUSY 2026-10-30] 작업표 잠금을 못 잡으면 시작하지 않는다(V1) — 종전엔 둘 다 업체에 물어 목소리가 둘 생겼다(VC_ENROLL_PREV 가 뒤에서 하나를 지웠다) */
+    const ra = a.commit(), rb = b.commit(); out.push(['겹친 두 만들기(잠금 실패) — 시작하지 않는다(V1) · 업체 복제 0 · 새는 목소리 0 [VC_JOB_BUSY]', !ra.ok && !rb.ok && /V1/.test(ra.error) && /V1/.test(rb.error) && W.leak() === 0 && W.clones() === 0, JSON.stringify({ ra, rb, leak: W.leak(), alive: [...W.alive] })]); }
   { const W = world({});
     W.call({ token: 'T', op: 'consent', who: 'groom', agree: true }); W.call({ token: 'T', op: 'phrase', who: 'groom' });
     const a = W.begin({ token: 'T', op: 'enroll', who: 'groom', jid: 'A', sec: 50, data: 'data:audio/wav;base64,AAAA' }); const rb = W.call({ token: 'T', op: 'enroll', who: 'groom', jid: 'B', sec: 50, data: 'data:audio/wav;base64,AAAA' });
@@ -155,8 +156,8 @@ const SC = [
   { id: 'tc-500', ms: [5000], clone: [500, {}], want: 'err', msg: /V4/ },
   { id: 'gas-html', ms: [5000], html: [true], want: 'ok' },
   { id: 'gas-html-early', ms: [3000], noRun: [true], want: 'err', msg: /V7/, by: 70000, enrolls: 2 },   // 서버가 일하지 않고 오류 화면(할당량 · 권한) → 작업표 없음 = 닿지 않음 → 한 번 더 조용히 → 또면 그때 V7
-  { id: 'lock-fail-start', ms: [10000], lockFail: (n, calls) => !calls.some((k) => /instant-clone/.test(k)) && n > 2, want: 'ok' },
-  { id: 'lock-fail-save', ms: [10000], lockFail: (n, calls) => calls.some((k) => /instant-clone/.test(k)), want: 'ok' },
+  { id: 'lock-fail-start', ms: [10000], lockFail: (n, calls) => !calls.some((k) => /instant-clone/.test(k)) && n > 2, want: 'err', msg: /V1/ },   // [VC_JOB_BUSY 2026-10-30] 작업표 잠금을 못 잡으면 시작하지 않는다
+  { id: 'lock-fail-save', ms: [10000], lockFail: (n, calls) => calls.some((k) => /instant-clone/.test(k)), want: 'err', msg: /V1/ },   // [VC_SAVE_FIRST 2026-10-30] 저장 잠금을 못 잡으면 새 목소리를 지우고 V1(앞 목소리 그대로)
   { id: 'session', ms: [3000], tok: 'X', want: 'err', msg: /로그인/ },
   { id: 'offline', offline: true, want: 'err', msg: /V6/, by: 150000 },
   { id: 'old-offline', old: true, offline: true, want: 'err', msg: /V6/, by: 150000 },
@@ -225,7 +226,7 @@ async function run(sc) {
     await fr.click('[data-fk="lsc:guestVoice:ai"]'); await sleep(300);
     await fr.evaluate(() => { const d = document.getElementById('mkRecDlg'); if (d) mkDlgClose(); mkGo('_voice'); });
     await fr.waitForSelector('[data-fk="mkvcok:groom"]', { timeout: 15000 }); return fr; };
-  const open = async (pg) => { pg.on('pageerror', (e) => out.errs.push(e.message)); await pg.goto(BASE + '/__sim/parent.html'); await pg.evaluate(() => { try { localStorage.removeItem('me_order'); } catch (e) {} }); await pg.reload(); return frameOf(pg); };
+  const open = async (pg) => { pg.on('pageerror', (e) => out.errs.push(e.message)); await pg.goto(BASE + '/__sim/parent.html'); await pg.evaluate(() => { try { localStorage.removeItem('me_order_ME0001'); } catch (e) {} }); await pg.reload(); return frameOf(pg); };
   /* 동의 → 글 1 · 글 2 → «이 녹음으로 목소리 만들기» 단추까지 */
   const startEnroll = async (fr, who) => { who = who || 'groom'; await fr.click('[data-fk="mkvcok:' + who + '"],[data-fk="mkvcre:' + who + '"]'); await fr.waitForSelector('#vcSelf', { timeout: 5000 }); await fr.click('#vcSelf'); await fr.click('#vcAgree');
     await fr.waitForFunction(() => VC.read && VC.read.step === 1 && VC.read.phrase, null, { timeout: 15000 });
@@ -251,7 +252,7 @@ async function run(sc) {
     if ((s.err && !s.enr) || (sc.close && s.toast && !s.enr)) { if (!seenErr) errAt = now; seenErr = true; if (!firstErr) firstErr = s.err || s.toast; }
     if (sc.retry && !retried && ((sc.retry === 'err' && s.err) || (typeof sc.retry === 'number' && now >= sc.retry))) { retried = true; const b = await f.$('[data-fk="mkvcmake"]'); if (b) { await b.click().catch(() => {}); out.timeline.push('retry'); } else out.timeline.push('retry: 단추 없음'); }
     if (sc.reopenAt && !reopened && now >= sc.reopenAt) { await f.click('[data-fk="mkvcok:groom"]').catch(() => {}); await sleep(200); reopened = await look(f); out.timeline.push('reopen ' + reopened.ph + (reopened.panel ? ' +동의창' : '') + ' «' + reopened.dlg.slice(0, 40) + '»'); }
-    if (sc.reloadAt && !reloaded && now >= sc.reloadAt) { reloaded = true; await pg.evaluate(() => { try { localStorage.removeItem('me_order'); } catch (e) {} document.getElementById('fr').src = '/order-preview.html?embed=1&t=' + Date.now(); }); await sleep(300); f = await frameOf(pg); await sleep(500); const c = await look(f); out.timeline.push('reload · 카드 «' + c.card.slice(0, 40) + '»'); out.reloadCard = c.card;
+    if (sc.reloadAt && !reloaded && now >= sc.reloadAt) { reloaded = true; await pg.evaluate(() => { try { localStorage.removeItem('me_order_ME0001'); } catch (e) {} document.getElementById('fr').src = '/order-preview.html?embed=1&t=' + Date.now(); }); await sleep(300); f = await frameOf(pg); await sleep(500); const c = await look(f); out.timeline.push('reload · 카드 «' + c.card.slice(0, 40) + '»'); out.reloadCard = c.card;
       if (/만드는 중/.test(c.card)) { await f.click('[data-fk="mkvcok:groom"]').catch(() => {}); await sleep(200); const r2 = await look(f); out.reloadOpen = r2; out.timeline.push('reload · 카드 누름 → ' + r2.ph + (r2.panel ? ' +동의창' : '')); } }
     if (sc.tab2At && !tab2Done && now >= sc.tab2At) { tab2Done = true;
       if (sc.tab2 === 'ready') { await t2.click('[data-fk="mkvcmake"]'); out.timeline.push('tab2 만들기'); }

@@ -48,7 +48,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
 // [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114 · B3 박수 뒤 · B4 숨 고르기 · B5 영상 끝 · B6 편지 → 케이크) → 114. ★맨 끝에 붙였다.
 // [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126) → 126. ★맨 끝에 붙였다.
-const N_FILES = 264;   // ★[CANDLE_NAME_1019 · PHOTO_UP_1019] 263 화촉 앞 이음말 · 264 사진 올리기 안내   // ★[PHOTO_FREE_OPEN_1019] 262 자유 사진 여는 말   // ★[REVIEW24_1019 검토 132 덧 2] 257 ~ 261 개식 · 맞절 · 부모님께 인사 6 · 감사문 4 · 식전 영상 받는 말   // ★[REC_NEXT_APPLIED_1018] 255 B9 닫는 판 · 256 포옹 청하기     // ★[REVIEW7_1018 인스타 섹션 검토 7판] 251 ~ 254 새 예시 넷   // ★[REVIEW5_1018 인스타 섹션 검토 5판] 224 ~ 244 예시 21   // ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223 화촉 맺는 말 · 감사 인사 · 반지 맺는 말 · 선언 여는 말 · 단체 사진 안내 · 테이블 예시(사장님 «최소 4개»)   // ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210 축가 여는 말 예시 5 · 축가 맺는 말(SONG_END_1018)   // ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208 축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2   // ★[R10_SRC_1018 라운드 10] 204 ~ 206 축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3   // ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   // ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 여는 말 · 맺는 말 예시 4   // ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   // ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43 · 맨 끝에 붙였다)   // ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분)   // ★[TRIB_CALL_SAY_1014 라운드 3] 145 말로 인사 날 구호   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] 137~144 개식 선언 · 화촉 인사 안내 둘 · 화촉 맺는 말(격식) · 부모님께 인사 이름 줄 · 짝 줄 · 구호 · 입장 받는 말   // [DECLARE_BY_PERSON 2026-10-12] 134~136 narr-declare-in-gdad · bdad · friend (성혼 선언 여는 말 · 읽는 분마다)   // [THANKS_IN_VOW 2026-10-11] 133 narr-thanks-in (감사문 여는 말)   // [MATJEOL_1011 2026-10-11] 132 narr-entry-bow (입장 끝 맞절)   // [TABLE_GREET_1008 2026-10-08] 131 narr-table-in (테이블 인사 여는 말)   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
+const N_FILES = 266;   // ★[END_FLOW_1030 검토 167] 265 · 266 사진 전 안내   // ★[CANDLE_NAME_1019 · PHOTO_UP_1019] 263 화촉 앞 이음말 · 264 사진 올리기 안내   // ★[PHOTO_FREE_OPEN_1019] 262 자유 사진 여는 말   // ★[REVIEW24_1019 검토 132 덧 2] 257 ~ 261 개식 · 맞절 · 부모님께 인사 6 · 감사문 4 · 식전 영상 받는 말   // ★[REC_NEXT_APPLIED_1018] 255 B9 닫는 판 · 256 포옹 청하기     // ★[REVIEW7_1018 인스타 섹션 검토 7판] 251 ~ 254 새 예시 넷   // ★[REVIEW5_1018 인스타 섹션 검토 5판] 224 ~ 244 예시 21   // ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223 화촉 맺는 말 · 감사 인사 · 반지 맺는 말 · 선언 여는 말 · 단체 사진 안내 · 테이블 예시(사장님 «최소 4개»)   // ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210 축가 여는 말 예시 5 · 축가 맺는 말(SONG_END_1018)   // ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208 축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2   // ★[R10_SRC_1018 라운드 10] 204 ~ 206 축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3   // ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   // ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 여는 말 · 맺는 말 예시 4   // ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   // ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43 · 맨 끝에 붙였다)   // ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분)   // ★[TRIB_CALL_SAY_1014 라운드 3] 145 말로 인사 날 구호   // ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014 2026-10-14] 137~144 개식 선언 · 화촉 인사 안내 둘 · 화촉 맺는 말(격식) · 부모님께 인사 이름 줄 · 짝 줄 · 구호 · 입장 받는 말   // [DECLARE_BY_PERSON 2026-10-12] 134~136 narr-declare-in-gdad · bdad · friend (성혼 선언 여는 말 · 읽는 분마다)   // [THANKS_IN_VOW 2026-10-11] 133 narr-thanks-in (감사문 여는 말)   // [MATJEOL_1011 2026-10-11] 132 narr-entry-bow (입장 끝 맞절)   // [TABLE_GREET_1008 2026-10-08] 131 narr-table-in (테이블 인사 여는 말)   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
 //   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
@@ -192,7 +192,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
                       if (!c.name || !c.fire || typeof c.est !== 'number') {
                         fieldBad++; if (!firstErr) firstErr = `필드 누락 ${c.slug || c.name} ${JSON.stringify(S)}`;
                       }
-                      if (!c.slug && c.k !== 'declare') {
+                      if (!c.slug && c.k !== 'declare' && !c.act) {   // [END_FLOW_1030] 소리 없는 동작 큐(가족 구도)도 예외
                         fieldBad++; if (!firstErr) firstErr = `슬러그 없음 ${c.name} ${JSON.stringify(S)}`;
                       }
                       // ★LIVE_DOING — 사람이 직접 채우는 자리는 '무엇을 하는지'를 반드시 밝힌다.
@@ -343,12 +343,13 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     const S = O.applyExample({ course: 'open' }, ex.k); S.course = 'open'; S.digital = dg;
     if (pn !== undefined) S.photoN = pn; if (pw !== undefined) S.photoWishN = pw;
     const r = C.build(C.norm(S)); const cues = Array.isArray(r) ? r : (r.cues || []);
-    const from = cues.findIndex((c) => c.slug === 'narr-close');
+    const bow = cues.findIndex((c) => c.slug === 'narr-close-bow'), from = cues.findIndex((c, i) => i > bow && /^narr-photo-pre/.test(c.slug || ''));   // ★[END_FLOW_1030] 창 = 닫는 인사 뒤(온라인 인사 · 사진 전 안내 포함)부터 마무리까지
     const to = cues.findIndex((c, i) => i > from && c.blockN === '마무리');   // [PHOTO_THANKS 2026-09-26] 옛 «배웅»
     const tag = `${ex.k}/온라인=${dg ? 1 : 0}/구도=${pn === undefined ? '?' : pn}/요청=${pw === undefined ? '?' : pw}`;
-    if (from < 0 || to < 0) { bad.push(`${tag} 창을 못 잡았다(narr-close ${from} · 마무리 ${to}) — 슬러그 · 블록 이름이 바뀌었다`); continue; }
-    const win = cues.slice(from + 1, to);
-    const sum = ((cues[from].live && cues[from].live.est) || 0) + win.reduce((a, c) => a + (c.est || 0) + ((c.live && c.live.est) || 0), 0);
+    if (from < 0 || to < 0) { bad.push(`${tag} 창을 못 잡았다(사진 전 안내 ${from} · 마무리 ${to}) — 슬러그 · 블록 이름이 바뀌었다`); continue; }
+    const win = cues.slice(from + 1, to), pre = cues.slice(bow + 1, from), pp = cues[from];
+    const ppX = Math.max(0, Math.round((pp.est || 0) * (1 - String(D.NARR.close || '').length / Math.max(1, String(pp.text || '').length))));   // 사진 전 안내가 26 보다 긴 몫(26 의 말은 닫는 인사 시간 안)
+    const sum = ((pp.live && pp.live.est) || 0) + ppX + pre.concat(win).reduce((a, c) => a + (c.est || 0) + ((c.live && c.live.est) || 0), 0);
     const want = (SUM - Math.round(O.bodySec(S)[1] / 60)) * 60;
     const out = cues.find((c) => c.slug === 'narr-photo-free') || cues.find((c) => c.slug === 'narr-photo-out');   // [PHOTO_FREE_OPEN_1019] 자유 사진(사람 순간)은 262 가 맡는다
     const goFree = out && out.live && out.live.goFree;
@@ -378,10 +379,10 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
     if (DAYM !== SUM) bad.push(`PHOTO_DAY ${DAYM} ≠ DAY 합 ${SUM}`);
     const goal = (S) => { const r = C.build(C.norm(S)); const cs = Array.isArray(r) ? r : r.cues; const by = {}; cs.forEach((c) => { by[c.slug] = c; });
-      const g = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
-      const th = by['end-1a-farewell'] || by['end-1c-thanks-nomeal'], fam = (th && th.live && th.live.famGoal) || 0;
+      const pc = by['narr-photo-pre'] || by['narr-photo-pre-meal'] || by['narr-close'], g = (pc && pc.live && pc.live.est) || 0;   // [END_FLOW_1030] 사진 전 안내가 전체 하객 목표를 든다
+      const th = by['end-1a-farewell'] || by['end-1c-thanks-nomeal'] || cs.filter((c) => c.act)[0], fam = (th && th.live && th.live.famGoal) || 0;   // [END_FLOW_1030] 새 코스는 소리 없는 가족 구도 큐
       const t = (k, pre) => by[k] ? (pre || 0) + by[k].est + by[k].live.est : 0;
-      return { all: by['end-0-photo'] ? t('end-0-photo', g) : g /* [SRC_ALL_1023 검토 144-4] 새 코스는 44 없이 26 의 사람 구간이 전체 하객 목표를 든다 */, thx: (t('end-1a-farewell') || t('end-1c-thanks-nomeal')) - fam, per: by['narr-photo-split'] ? t('narr-photo-split') : fam /* [SPLIT_OFF_OPEN_1023 검토 148-1] 새 코스는 60 없이 감사 인사 줄이 가족 구도 목표(famGoal)를 든다 */, onl: t('narr-online-in'), free: (by['narr-photo-free'] || by['narr-photo-out']).live.goFree }; };
+      return { all: by['end-0-photo'] ? t('end-0-photo', g) : g /* [SRC_ALL_1023 검토 144-4] 새 코스는 44 없이 26 의 사람 구간이 전체 하객 목표를 든다 */, thx: (th ? (th.est || 0) + ((th.live && th.live.est) || 0) : 0) - fam, per: by['narr-photo-split'] ? t('narr-photo-split') : fam /* [SPLIT_OFF_OPEN_1023 검토 148-1] 새 코스는 60 없이 감사 인사 줄이 가족 구도 목표(famGoal)를 든다 */, onl: t('narr-online-in'), free: (by['narr-photo-free'] || by['narr-photo-out']).live.goFree }; };
     const base = O.applyExample({ course: 'open' }, 'brief'); base.course = 'open';
     for (const w of [0, 1, 2]) { const q = goal(Object.assign({}, base, { photoWishN: w, photoN: 1 })); if (q.all !== (ALL + w) * 60) bad.push(`요청 ${w}: 엔진 전체 하객 ${q.all}초 ≠ 마이페이지 (${ALL} + ${w})분`); }
     for (const n of [1, 2, 3]) { const q = goal(Object.assign({}, base, { photoWishN: 0, photoN: n })); if (q.per !== PER * 60 * n) bad.push(`구도 ${n}: 엔진 ${q.per}초 ≠ 마이페이지 ${PER}분 × ${n}`); }
@@ -420,9 +421,9 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
       /* [EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결»] 예시를 다시 짰다(반지 · 케이크 · 편지 빠짐 · 정석 · 가족에 축가) — 구현 뒤 게이트 값 ·
          옛 기록 15~20 · 1/3 · 1/2 · 약속 20~26 · 3/5 · 3/5 · 가족 17~23 · 2/4 · 1/4(가족은 반지 · 케이크 대신 축가라 요청 2 가 한 컷 준다) */
       /* [TOAST_LAST_1013 2026-10-13] 축배가 «기록» 한 곳으로 가서 정석 · 가족 · 간결의 본식이 42 ~ 82초 줄고 단체 사진이 는다(구현 뒤 게이트 값) — 옛 정석 17~22 · 2/4 · 1/3 · 가족 17~23 · 2/4 · 1/3 · 간결 28~32 */
-      ['정석', O.applyExample({}, 'standard'), '17~22', '2/4', '2/3'] /* ★[BASE_SWAP_1023 검토 156] 기본 −30초로 요청 2 가 한 컷 더 · 옛 1/3 */   /* ★[SOURCE_FIRST_1016] 자료 멘트 그대로로 본식이 약 1분 늘어(화촉 어머님 판 FF 1-2 · 구호 뒤 쉼 · 맞절 EE 46 · 감사 인사 40초(Z 3) · 부모님께 인사 이름 줄 FF 2-1) 단체 사진이 1분 준다(구현 뒤 게이트 값) — 옛 18~23 · 3/4 · 2/4 */ /* [EX_ENTRY_FEEL_1012 2026-10-12] 입장 담백하게(23초)로 옛 21~26 · [SPEECH_TILE_1012] 축사 3분이 들어 옛 21~25 · 3/5 · 3/4(가족과 같은 구도 수) */,
-      ['기록', O.applyExample({}, 'record'), '17~21', '2/4', '2/3'] /* [BASE_SWAP_1023] 옛 2/3 · 1/3 */   /* [SOURCE_FIRST_1016] 옛 18~22 · 3/4 · 2/3 */ /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 → [EX_STD_1012] 18~22 → [EX_ENTRY_FEEL_1012] 입장 힘차게(12초)로 19~22 → ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −22.5 = +6.5초로 18~22(구현 뒤 게이트 값) */,
-      ['가족', O.applyExample({}, 'family'), '17~22', '2/4', '2/3'] /* ★[REVIEW31_1023 검토 157] 입장 E −3.9초로 요청 2 가 한 컷 더 · 156 판 1/3 */ /* ★[BASE_SWAP_1023 검토 156] 화촉 · 맞절 기본이 짧아져 · 153 판 16~22 */   /* ★[REVIEW29_1023 검토 153] 맞절 · 감사 인사 · 서약 여는 말 자료 글로 +9초(구현 뒤 게이트 값) · 옛 17~22 */   /* [SOURCE_FIRST_1016] 옛 18~23 · 2/4 · 2/4 */ /* ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −18 = +11초로 요청 0 이 3/4 → 2/4(경계 · 구현 뒤 게이트 값) */, ['간결', O.applyExample({}, 'brief'), '29~32', '5/5', '5/5']   /* [SOURCE_FIRST_1016] 옛 30~33 */,
+      ['정석', O.applyExample({}, 'standard'), '18~23', '3/4', '2/3'] /* [COURSE_ONE_PROMISE_1030 검토 169] 서약 · 선언 하나만 — 구현 뒤 게이트 값 */ /* ★[BASE_SWAP_1023 검토 156] 기본 −30초로 요청 2 가 한 컷 더 · 옛 1/3 */   /* ★[SOURCE_FIRST_1016] 자료 멘트 그대로로 본식이 약 1분 늘어(화촉 어머님 판 FF 1-2 · 구호 뒤 쉼 · 맞절 EE 46 · 감사 인사 40초(Z 3) · 부모님께 인사 이름 줄 FF 2-1) 단체 사진이 1분 준다(구현 뒤 게이트 값) — 옛 18~23 · 3/4 · 2/4 */ /* [EX_ENTRY_FEEL_1012 2026-10-12] 입장 담백하게(23초)로 옛 21~26 · [SPEECH_TILE_1012] 축사 3분이 들어 옛 21~25 · 3/5 · 3/4(가족과 같은 구도 수) */,
+      ['기록', O.applyExample({}, 'record'), '18~22', '3/4', '2/3'] /* [COURSE_ONE_PROMISE_1030 검토 169] 서약 · 선언 하나만 — 구현 뒤 게이트 값 */ /* [BASE_SWAP_1023] 옛 2/3 · 1/3 */   /* [SOURCE_FIRST_1016] 옛 18~22 · 3/4 · 2/3 */ /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 → [EX_STD_1012] 18~22 → [EX_ENTRY_FEEL_1012] 입장 힘차게(12초)로 19~22 → ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −22.5 = +6.5초로 18~22(구현 뒤 게이트 값) */,
+      ['가족', O.applyExample({}, 'family'), '20~24', '3/5', '2/4'] /* [COURSE_ONE_PROMISE_1030 검토 169] 서약 · 선언 하나만 — 구현 뒤 게이트 값 */ /* ★[REVIEW31_1023 검토 157] 입장 E −3.9초로 요청 2 가 한 컷 더 · 156 판 1/3 */ /* ★[BASE_SWAP_1023 검토 156] 화촉 · 맞절 기본이 짧아져 · 153 판 16~22 */   /* ★[REVIEW29_1023 검토 153] 맞절 · 감사 인사 · 서약 여는 말 자료 글로 +9초(구현 뒤 게이트 값) · 옛 17~22 */   /* [SOURCE_FIRST_1016] 옛 18~23 · 2/4 · 2/4 */ /* ★[B2_TIME_1014] 맞절 4판 +12 · 화촉 +12.5 · 입장 받는 말 +4.5 · 인사 −18 = +11초로 요청 0 이 3/4 → 2/4(경계 · 구현 뒤 게이트 값) */, ['간결', O.applyExample({}, 'brief'), '30~33', '5/5', '5/5'] /* [COURSE_ONE_PROMISE_1030 검토 169] 서약 · 선언 하나만 — 구현 뒤 게이트 값 */   /* [SOURCE_FIRST_1016] 옛 30~33 */,
       ['가장 긴 조합', longest, '11~17', '0/2', '0/2'] /* [BASE_SWAP_1023] 옛 10~17 · 0/2 · 0/1 */   /* ★[CAKE_OLD_OFF_1017] 케이크 칸(옛 초안)이 빠져 본식이 짧아졌다(구현 뒤 게이트 값) · 옛 8~16 · 0/2 · 0/1 · [SOURCE_FIRST_1016] 옛 10~17 · 0/2 · 0/2 */];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
@@ -432,7 +433,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     /* 문장 세 갈래 — k = max · k < max · k = 0 · k = max = 0(짧은 사진 시간을 일부러 만든다) */
     const L = (sec, w) => F.line(F.cap({ summary: { sec } }, false, w));
     const lines = [[O.bodySec(O.applyExample({}, 'brief')), 0, '가족 구도는 5컷이 알맞아요.'],   // [PHOTO_THANKS] k = max 갈래는 간결로(기록은 4/5 가 됐다)
-      [O.bodySec(O.applyExample({}, 'family')), 0, '가족 구도는 2컷이 알맞고, 제시간에 진행되면 4컷까지 돼요.'],   // [TOAST_LAST_1013] 옛 2컷 → 3컷 · ★[B2_TIME_1014] 다시 2컷(경계)
+      [O.bodySec(O.applyExample({}, 'family')), 0, '가족 구도는 3컷이 알맞고, 제시간에 진행되면 5컷까지 돼요.'] /* [COURSE_ONE_PROMISE_1030 검토 169] 서약 · 선언 하나만 — 구현 뒤 게이트 값 */,   // [TOAST_LAST_1013] 옛 2컷 → 3컷 · ★[B2_TIME_1014] 다시 2컷(경계)
       [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 가족 구도 2컷까지 돼요.'],
       [[30 * 60, 35 * 60], 0, '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.']];
     lines.forEach(([sec, w, want]) => { const g = L(sec, w); if (g !== want) bad.push(`문장: «${g}» ≠ «${want}»`); if (/구도 0개|구도 0컷/.test(g)) bad.push(`«구도 0개»가 나왔다: ${g}`); });   // [PHOTO_UNIT_ONE 2026-09-27] «구도 N개» → «가족 구도 N컷»

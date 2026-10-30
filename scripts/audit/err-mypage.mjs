@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★★[ERR_CODE_MYPAGE 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
    마이페이지 실패 문구가 «원인 한 줄 + (코드 X#)»로 나오는지, 고친 결함이 다시 살아나지 않는지 가짜 GAS 로 잰다.
-   ① 까닭 없는 getMyState 실패는 로그아웃하지 않는다(토큰 · 이 기기 초안 me_order · me_snapLocal_* 그대로) · 저장본이 있으면 화면 + 위 막대(코드)
+   ① 까닭 없는 getMyState 실패는 로그아웃하지 않는다(토큰 · 이 기기 초안 me_order_<코드> · me_snapLocal_* 그대로) · 저장본이 있으면 화면 + 위 막대(코드)
       reason='expired' 일 때만 로그인 화면 + «(코드 L8)» [F1]
    ② 보내기 한 벌(_post · api)이 실패 종류를 가른다 — 끊김 6 · JSON 아님 7 · 기다리다 멈춤 5(종전 표시 __meTimeout 도 그대로) · 첫 로드 · 로그인 칸도 그 코드 [A1 · F2 · F3]
    ③ 서버 답 — 이미 코드가 붙은 글은 그대로(두 번 안 붙인다) · ecode 만 오면 붙인다 · 옛 서버(잠금 대기 → 1 · 예외 → 9) · 영문 기술어는 싣지 않는다
@@ -87,9 +87,9 @@ const closeModal = (pg) => pg.evaluate(() => { const b = document.querySelector(
 /* ① F1 — 까닭 없는 실패는 로그아웃하지 않는다 */
 await sec('①', async () => {
   GAS = { getMyState: { json: { ok: false, error: '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.' } } };
-  const { ctx, pg, errs } = await open(360, "try{ if(!sessionStorage.getItem('__seed')){ sessionStorage.setItem('__seed','1'); localStorage.setItem('me_token','TOK'); localStorage.setItem('me_order', JSON.stringify({v:2,S:{a:1},who:'ME-SHOT'})); localStorage.setItem('me_snapLocal_ME-SHOT', JSON.stringify({v:2,zones:{}})); } }catch(e){}");
+  const { ctx, pg, errs } = await open(360, "try{ if(!sessionStorage.getItem('__seed')){ sessionStorage.setItem('__seed','1'); localStorage.setItem('me_token','TOK'); localStorage.setItem('me_order_ME-SHOT', JSON.stringify({v:2,S:{a:1},who:'ME-SHOT'})); localStorage.setItem('me_snapLocal_ME-SHOT', JSON.stringify({v:2,zones:{}})); } }catch(e){}");
   await pg.goto(`${BASE}/mypage.html`); await pg.waitForTimeout(1500);
-  const a = await pg.evaluate(() => ({ tok: localStorage.getItem('me_token'), order: !!localStorage.getItem('me_order'), snap: !!localStorage.getItem('me_snapLocal_ME-SHOT'), login: document.getElementById('loginView').classList.contains('show'), retry: !!document.getElementById('mp_retryLoad'), retryTxt: (document.getElementById('mp_retryLoad') || {}).textContent || '', text: (document.getElementById('loading') || {}).innerText || '' }));
+  const a = await pg.evaluate(() => ({ tok: localStorage.getItem('me_token'), order: !!localStorage.getItem('me_order_ME-SHOT'), snap: !!localStorage.getItem('me_snapLocal_ME-SHOT'), login: document.getElementById('loginView').classList.contains('show'), retry: !!document.getElementById('mp_retryLoad'), retryTxt: (document.getElementById('mp_retryLoad') || {}).textContent || '', text: (document.getElementById('loading') || {}).innerText || '' }));
   ok('① 까닭 없는 getMyState 실패 → 토큰 · me_order · me_snapLocal_* 그대로 · 로그인 화면 아님 [F1]', a.tok === 'TOK' && a.order && a.snap && !a.login, JSON.stringify(a));
   ok('① 첫 로드 → «다시 불러오기» 화면 · 서버 글 + (코드 L9 · 코드 앞 마침표 없이 [ERR_CODE_DOT]) · 코드를 알려 달라는 한 줄', a.retry && a.retryTxt === '다시 불러오기' && /요청을 처리하지 못했어요\. 잠시 후 다시 시도해 주세요 \(코드 L9\)/.test(a.text) && !/주세요\. \(코드/.test(a.text) && /이 코드를 카카오톡으로/.test(a.text), JSON.stringify(a));
   /* 360 한 줄 — 끊김(L6)일 때의 원인 줄(서버 글 L9 는 서버 문장이라 길다) */

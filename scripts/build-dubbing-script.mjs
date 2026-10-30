@@ -274,6 +274,8 @@ const G = [
     ['G13-5', '모이는 신호', 'narr-final-call', D.NARR.finalCall],
     ['G13-6', '마지막 닫는 말', 'narr-photo-out', D.NARR.photoOut],
     ['G13-7', '자유 사진 여는 말(65 뒤 · PHOTO_FREE_OPEN_1019 검토 133-3)', 'narr-photo-free', D.NARR.photoFree],
+    ['G13-8', '사진 전 안내 · 식사 없음(닫는 인사 뒤 · END_FLOW_1030 검토 167)', 'narr-photo-pre', RC.EXTRA['narr-photo-pre']],
+    ['G13-9', '사진 전 안내 · 식사 있음(애프터 웨딩 식사 · 하객 안내가 있는 날 · END_FLOW_1030 검토 167)', 'narr-photo-pre-meal', RC.EXTRA['narr-photo-pre-meal']],
   ], note: 'G13-4와 G13-5는 **한 클립으로 합치지 말 것** — 예고와 신호는 시간이 벌어져 있어야 사람이 모인다.\nG13-3은 디지털 참석이 있는 날만 나간다.' },
 
   { n: 14, t: '촬영 안내 · 골라 트는 판', tone: '짧고 분명하게 · 하객에게 배역을 시키지 않는다', items:

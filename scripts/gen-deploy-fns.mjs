@@ -139,6 +139,7 @@ const PROPS = {
   KAKAO_REST_KEY: ['state'], KAKAO_TEMPLATES: ['state'],  /* 설정 함수가 넣어 두는 값 */
   REC_PUT_FID: ['state'],   /* [REC_PUT_1013] 서버가 추천 곡 파일을 받아 넣는 폴더(ME_추천곡) id — 처음 받을 때 찾거나 만든다 */
   REC_FID: ['state'],   /* [REC_SONG_1012] 입장 «추천 곡» 드라이브 폴더(ME_추천곡 · songs.json 이 든 것) id — 서버가 처음 찾을 때 적고, 폴더가 사라지면 다시 찾는다 */
+  BED_FID: ['state'],   /* [BGM_PREVIEW_1024] 구간 음악 드라이브 폴더(ME_구간곡) id — 서버가 처음 찾을 때 적는다 · 사장님이 그 폴더에 곡 파일을 올린다 */
   RF_: ['state'], RFOK_: ['state'], RFGONE_: ['state'],   /* [RITUAL_FILE · REC_ADMIN · REC_PURGE] 두 분 목소리 — 코드별 드라이브 폴더 · 스튜디오 확인 ✓ · 30일 지운 날(코드가 뒤에 붙는 접두사) */
 
   /* switch */
@@ -194,6 +195,8 @@ const PROPS = {
   CTRESEND_: ['state'],   /* [CT_RESEND_ONCE 2026-10-09] 만료 계약서 «재발송 요청» 시각(코드가 뒤에 붙는 접두사 · 24시간 안 다시 누름은 알림 한 번) */
   RFQ_: ['state'], RFM_: ['state'],   /* [RF_MAIL_THROTTLE 2026-10-04] 직접 올린 파일 알림 줄 · 마지막 메일 시각(코드별) */
   VC_: ['state'],   /* [VOICE_CLONE] 코드별 동의 · voice_id · 한도 셈(코드가 뒤에 붙는 접두사) */
+  VC_MONTH_CHARS: ['tuning', 'AI 목소리 이번 달 계정 글자 기준(기본 200000 · 70% 넘으면 관리자 메일 · VC_DEC_1030_6)'], VCWARN70_: ['state'],   /* [VC_DEC_1030_6] 70% 메일을 보낸 달(뒤에 yyyy-MM) */
+  VC_ORPHAN_SEEN: ['state'],   /* [VC_ORPHAN 2026-10-30] 주인 없는 업체 목소리를 처음 본 날(voice_id → 날) · 다음 날에도 주인이 없으면 지운다 */
   LT_ERRMAIL: ['state'], ERRALERT_: ['state'], NSERR_: ['state'],   /* [ERR_CODE_GAS 2026-10-07] 편지 오류 메일 하루 한 통 · 고객 화면 오류 코드별 메일 하루 한 통(코드가 뒤에) · «⚠️오류» 알림 제목별 하루 한 통(해시가 뒤에) */
 };
 

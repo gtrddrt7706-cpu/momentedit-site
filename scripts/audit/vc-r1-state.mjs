@@ -55,14 +55,14 @@ try {
     ok(`① ${kind} 카드 «목소리 생성» 그대로 + 까닭(코드 ${kind.toUpperCase()})이 카드 안에 남는다(다시 그려도)`, /목소리 생성/.test(c1) && new RegExp('코드 ' + kind.toUpperCase()).test(c1), c1);
     if (kind === 'v9') { await pg.evaluate(() => { window.__SV.del = 'ok'; }); await pg.click('[data-fk="mkvcdel:groom"]'); await wait(150); await pg.click('.ord-ask .oa-yes'); await wait(800);
       const u2 = await upOf(pg), c2 = await card(pg, 'groom');
-      ok('① 다시 눌러 성공하면 그때 신랑 줄만 비운다(g0 · 입장의 신랑 소리 · g1 신부 그대로) · 까닭 걷힘 · 카드 «아직 만들지 않았어요»', u2.g0 === 0 && !/groom/.test(String(u2.entry)) && u2.g1 === 'ai/bride' && !/코드 V9/.test(c2) && /아직 만들지 않았어요/.test(c2), { u2, c2 }); }
+      ok('① 다시 눌러 성공하면 그때 신랑 줄만 비운다(g0 · 입장의 신랑 소리 · g1 신부 그대로) · 까닭 걷힘 · 카드 «지웠어요»(VC_DEL_SAY 10/30 · 종전 «아직 만들지 않았어요»)', u2.g0 === 0 && !/groom/.test(String(u2.entry)) && u2.g1 === 'ai/bride' && !/코드 V9/.test(c2) && /지웠어요/.test(c2) && !/목소리 생성/.test(c2), { u2, c2 }); }
     ok(`① ${kind} pageerror 0`, !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* ② 지운 직후 상태를 못 받아도 «목소리 생성»으로 되돌아가지 않는다 */
   if (on(2)) { const { pg, errs } = await open({});
     await pg.evaluate(() => mkGo('_voice')); await wait(300); await pg.evaluate(() => { const _d = window._vc0; window._vc0 = (op, a) => { const p = _d(op, a); if (op === 'delete') window.__SV.stDown = true; return p; }; });
     await pg.click('[data-fk="mkvcdel:groom"]'); await wait(150); await pg.click('.ord-ask .oa-yes'); await wait(1200); await pg.evaluate(() => render()); await wait(100);
     const c = await card(pg, 'groom'), st = await pg.evaluate(() => ({ err: !!VC.stErr, g: !!(VC.st && VC.st.groom && VC.st.groom.ready) }));
-    ok('② 지운 뒤 status 가 계속 실패해도 신랑 카드 «목소리 생성» 0 · «아직 만들지 않았어요» [VC_ST_MINE]', st.err && !st.g && !/목소리 생성/.test(c) && /아직 만들지 않았어요/.test(c), { c, st });
+    ok('② 지운 뒤 status 가 계속 실패해도 신랑 카드 «목소리 생성» 0 · «지웠어요» [VC_ST_MINE · VC_DEL_SAY 10/30]', st.err && !st.g && !/목소리 생성/.test(c) && /지웠어요/.test(c), { c, st });
     ok('② pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* ③ 목소리 먼저 → 칩 «AI 두 분 목소리» → 빈 줄을 채운다 */
   if (on(3)) { const { pg, errs } = await open({ S: { guestVoice: 'nar', entryVoice: 'nar', pvVoice: 'nar', vfill: {}, vset: { groom: { tempo: '1', pause: 150 }, bride: { tempo: '1', pause: 150 } } } });

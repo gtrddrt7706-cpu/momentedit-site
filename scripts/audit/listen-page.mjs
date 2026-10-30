@@ -65,7 +65,7 @@ async function open(w, opt) {
   if (opt.videos) await pg.addInitScript((vs) => { window.__LISTEN_TEST_VIDEOS = vs; }, opt.videos);
   /* [VID_PLAY_ALL] 헤드리스는 H.264 를 못 푼다 — 영상 play() 를 «불렸는가»로 잰다(소리 play 는 그대로) */
   if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') { const sr = this.getAttribute('src') || this.src || ''; if (sr && !/^data:/.test(sr)) (window.__aplays = window.__aplays || []).push(sr.split('/').pop()); return o.apply(this, arguments); } if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('?')[0].split('/').pop(),   /* [VIDEO_V] 주소 끝 ?v= 는 빼고 이름만 */ id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
-  if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
+  if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order_pub', JSON.stringify(d));   /* [PREVIEW_KEY_SPLIT] 그냥 연 미리보기 칸 */ } catch (e) {} }, opt.draft);
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
   if (opt.videos) await pg.evaluate(() => { RitualOpen.VIDEO_READY.length = 0; (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });   /* [VIDEO_IN_1003] 바꾼다 · 더하지 않는다 */
   return { ctx, pg, errs, ext };
@@ -388,7 +388,8 @@ for (const w of [390, 1280]) {
   const c0 = await pg.evaluate(() => { const f = document.querySelector('.mk-pg [role=radio][tabindex="0"]'); return f ? f.getAttribute('data-fk') : ''; });
   await pg.focus('.mk-pg [role=radio][tabindex="0"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);   // [CHIP_UNPICKED] 탭 자리 = 고른 칩(안 골랐으면 첫 칩) · ★[LP_WAIT_FIX 2026-09-28] 기다림이 주석 안에 들어가 있어 결과를 바로 읽었다(main 에서도 빨강이던 한 건)
   ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => { const a = document.activeElement, fk = (a && a.getAttribute('data-fk')) || ''; return !!c && fk !== c && a.getAttribute('role') === 'radio' && a.getAttribute('aria-checked') === 'true' && fk.slice(fk.lastIndexOf(':') + 1) === (S.candleWho || ''); }, c0));
-  ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radio]')].filter((r) => r.closest('[role=radiogroup]')).every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
+  ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radiogroup]')].every((g) => { const rs = [...g.querySelectorAll('[role=radio]')].filter((r) => r.closest('[role=radiogroup]') === g), on = rs.some((r) => r.getAttribute('aria-checked') === 'true');
+    return rs.every((r, i) => r.tabIndex === ((on ? r.getAttribute('aria-checked') === 'true' : i === 0) ? 0 : -1)); })));   /* [CHIP_UNPICKED] 안 고른 묶음은 첫 칩이 탭 자리 · [BGM_PREVIEW_1024] 구간 곡 목록도 처음엔 안 고른 묶음 */
   await pg.evaluate(() => mkGo('welcome')); await pg.waitForTimeout(400);   /* [EX_STD_1012 2026-10-12] 기록 예시에 반지가 없어졌다 — 예시 안의 첫인사로 뺐다 넣는다 */
   await pg.evaluate(() => mkDrop('welcome')); await pg.waitForTimeout(400);   /* [MK_NO_DROP_LINK] 단추가 없어 옛 초안 길로 */
   ok('3장 빼기 뒤 포커스 = «다시 넣기» [DROP_DIM]', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'mkundrop'));
