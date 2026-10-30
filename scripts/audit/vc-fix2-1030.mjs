@@ -14,7 +14,7 @@
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import vm from 'node:vm';
 const SRC0 = fs.readFileSync(new URL('../../automation/platform/80_production.gs', import.meta.url), 'utf8');
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcHold', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots', 'handleRitualFilePurgeMine'];
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcWedOver_', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcHold', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcCodeSet_', '_vcTs_', '_vcLastAct_', '_vcAiTrashAll_', '_vcVoiceKeys_', '_vcModelOffDue_', '_vcModelOff_', '_vcMonthCap_', '_vcMonthWarn_', '_vcSlots', 'handleRitualFilePurgeMine'];
 const grabIn = (src, name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const lineIn = (src, re) => (src.match(re) || [''])[0];
@@ -91,14 +91,14 @@ const SC = {
     const a = M({ practice: 80 }, {}, { practice: 80 }), c = M({ make: { total: 1, chars: 80, per: { g0: 1 } } }, {}, { make: { total: 1, chars: 80, per: { g0: 1 } } });
     const t = M({ groom: { job: { at: 5 } } }, { groom: {} }, { groom: { job: { at: 7 } } });   // 세는 칸이 아닌 숫자(시각)는 종전대로 바뀐 쪽
     return { pass: a.practice === 160 && c.make.total === 2 && c.make.chars === 160 && c.make.per.g0 === 2 && t.groom.job.at === 7, d: JSON.stringify({ a, c: c.make, t }) }; },
-  hold(src) { const W = world(src); W.enroll('groom'); const s0 = W.st(); s0.practice = 199950; W.props.VC_ME0001 = JSON.stringify(s0);
+  hold(src) { const W = world(src); W.enroll('groom'); const s0 = W.st(); s0.practice = 29950;   /* [VC_DEC_1030_6] 예식당 3만 자 */ W.props.VC_ME0001 = JSON.stringify(s0);
     let r2 = null; W.ctl.onFetchAll = () => { r2 = W.call({ op: 'make', key: 'g1', text: '두 번째 줄 글이에요 · 사십 자쯤 되도록 길게 써 둔 글입니다 하나', one: 'groom' }); };
     const r1 = W.call({ op: 'make', key: 'g0', text: '첫 번째 줄 글이에요 · 사십 자쯤 되도록 길게 써 둔 글입니다 하나', one: 'groom' });
     const spent = (s) => (s.practice || 0) + ((s.make && s.make.chars) || 0), sp1 = spent(W.st());
     /* 못 만든 글자는 돌려준다 — 업체 실패(500) 뒤 쓴 글자가 그대로 */
     const s1 = W.st(); s1.practice = 1000; W.props.VC_ME0001 = JSON.stringify(s1); const before = spent(W.st()); W.ctl.ttsCode = 500;
     const r3 = W.call({ op: 'make', key: 'g2', text: '실패할 새 글', one: 'groom' }); W.ctl.ttsCode = 0; const after = spent(W.st());
-    return { pass: r1.ok && r2 && !r2.ok && r2.limit && sp1 <= 200000 && !r3.ok && after === before, d: JSON.stringify({ r1: r1.ok, r2, sp1, r3: r3.ok, before, after }) }; },
+    return { pass: r1.ok && r2 && !r2.ok && r2.limit && sp1 <= 30000 && !r3.ok && after === before, d: JSON.stringify({ r1: r1.ok, r2, sp1, r3: r3.ok, before, after }) }; },
 };
 /* 되돌림 — 고친 줄을 옛 꼴로(장면 하나에 하나) */
 const BREAK = {

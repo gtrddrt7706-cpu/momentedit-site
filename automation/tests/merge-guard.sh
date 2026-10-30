@@ -15521,7 +15521,8 @@ chk 'enroll: 20,' automation/platform/80_production.gs 1
 nochk '번까지예요 · 직접 녹음' automation/platform/80_production.gs
 nochk "번 남음</button>" order-preview.html
 chk 'VC_NO_COUNT' order-preview.html 1
-chk 'budget: 200000' automation/platform/80_production.gs 1
+chk 'budget: 30000,' automation/platform/80_production.gs 1   # ★2026-10-30 사장님 «추천대로»로 바뀜 — 예식당 20만 → 3만 자 [VC_DEC_1030_6]
+nochk 'budget: 200000' automation/platform/80_production.gs
 nochk 'VC_LIM.perKey' automation/platform/80_production.gs
 nochk 'VC_LIM.practiceChars' automation/platform/80_production.gs
 nochk 'st.make.total >= VC_LIM' automation/platform/80_production.gs
@@ -15574,7 +15575,7 @@ chk 'function _ptRole(who)' order-preview.html 1
 chk "'ai','AI 두 분 목소리'\]" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션 · [R3-07] 칩 이름은 선택 이름(«만들기» 뺌 · 동작은 섹션 제목이 맡는다)
 chk 'var VC_TXT=' order-preview.html 1
 chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
-chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
+chk '언제 지우나요 · AI 목소리는 예식 7일 전 안내 소리가 다 만들어지면, 늦어도 예식 다음 날 지워요. 읽은 녹음은 예식 다음 날' order-preview.html 1   # ★2026-10-30 사장님 «추천대로»로 바뀜 — 7일 전 모델 지우기 [VC_DEC_1030_7] (옛 줄 '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날')
 chk 'function _vcAutoFill(w,renew' order-preview.html 1
 chk 'function _vcLineTools(key,lab,part)' order-preview.html 1
 chk 'function _vcReadyFor(key)' order-preview.html 1
@@ -17459,7 +17460,7 @@ chk '아래에서 디렉터와 이어서 상담하실 수 있어요' index.html 
 #   F1 까닭 없는 getMyState 실패에 로그아웃 · 초안 삭제하던 결함 · F5 저장 실패 판 · F6 거짓 «다른 기기에서 먼저 저장됐어요» · F7 빌더 중계 까닭 · F10 다이닝 AI 영문 기술어 · F11 카드 승인 확인
 #   err-mypage.mjs 가 가짜 GAS 로 잰다 — F1 을 되돌리거나 _post 의 종류 표시를 지우면 빨강(돌연변이 확인)
 chk 'ERR_CODE_MYPAGE' mypage.html 110
-chk "else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }" mypage.html 1
+chk "else if (_errSess(d)){ var _kp4=clearToken(true); show('loginView'); softLoginNote(_kp4===null?RELOGIN_FAIL:_reloginLine(_errLine(d,'L'), _kp4)); }" mypage.html 1   # [RELOGIN_KEEP] 로그인 풀림만 로그인으로(초안은 맡긴다)
 nochk "else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }" mypage.html
 chk 'function _post(payload, ms){' mypage.html 1
 chk "e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');" mypage.html 1
@@ -17577,7 +17578,7 @@ chk "return stop(nv, rfId); }   // \[VC_DEL_STOP\] ②" automation/platform/80_p
 chk 'if (stopped(_vcSt(code))) return stop(nv,' automation/platform/80_production.gs 1
 chk 'dm = _vcDelMark(code, ws);' automation/platform/80_production.gs 1
 chk "var dm = _vcDelMark(code, \['groom', 'bride'\])" automation/platform/80_production.gs 1
-chk 'VC_ONE_OWN' automation/platform/80_production.gs 1
+chk 'VC_ONE_OWN' automation/platform/80_production.gs 1   # ★2026-10-30 사장님 «추천대로»로 바뀜 — 나눠 읽는 줄(lines)도 없는 분 문장은 만들지 않는다(옛 WHO_MISS 몫 · VC_DEC_1030_1)
 chk "if (one && WHO\[one\] && !lines && !(st\[one\] && st\[one\].voiceId)) return" automation/platform/80_production.gs 1
 chk 'RF_DEL_ALL_T0' automation/platform/80_production.gs 1
 chk 'g.getDateCreated().getTime() > ta) continue;' automation/platform/80_production.gs 1
@@ -18434,7 +18435,7 @@ chk 'VC_WHO_FIRST' automation/platform/80_production.gs 3
 chk "WHO = Object.create(null); WHO.groom = '신랑'; WHO.bride = '신부';" automation/platform/80_production.gs 1
 chk "if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };" automation/platform/80_production.gs 1
 chk "if (w !== 'groom' && w !== 'bride') return; var p = cur\[w\];" automation/platform/80_production.gs 1
-chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code, st)' automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] st = retry 를 보고 deleting
+chk 'var pg = _vcPub(st.groom, code, st), pb = _vcPub(st.bride, code, st);' automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] st = retry 를 보고 deleting · [VC_WED_OVER] 상태 줄이 pg · pb 로 나뉨(over 면 남은 수 0)
 chk 'RF_DEL_KEEP' automation/platform/80_production.gs 3
 chk 'RF_DEL_TQ' automation/platform/80_production.gs 1
 chk 'var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;' automation/platform/80_production.gs 1
@@ -18484,7 +18485,7 @@ chk 'COPY_AMT_BACK' mypage.html 1
 chk 't.innerHTML=t._amtHtml;' mypage.html 1
 # [LOGOUT_CLEAR_FIELDS] C-4 로그아웃은 로그인 칸도 비운다(두 로그아웃 단추 모두)
 chk 'LOGOUT_CLEAR_FIELDS' mypage.html 2
-chk "function _mpLogoutNow(){ clearToken(); \['li_code','li_pw'\]" mypage.html 1
+chk "function _mpLogoutNow(){ if(typeof _tabDrop=='function' && _tabDrop()) return; clearToken(); \['li_code','li_pw'\]" mypage.html 1   # [TAB_GUARD 2026-10-30] 옛 창의 로그아웃은 다른 창 계정의 토큰을 지우지 않는다(앞에 한 줄 · 뒤는 종전 그대로)
 chk '_mpLogoutNow();' mypage.html 2
 # [FINDCODE_KAKAO] C-5 코드 찾기 안내 = 카카오톡 또는 메일함
 chk '카카오톡 또는 메일함을 확인해 주세요.' mypage.html 1
@@ -18780,7 +18781,7 @@ chk "_rsJ.code === _mpAcct() && _rsJ.dl === _rsDl" mypage.html 1
 nochk "|| window.__ctResendJust || '';" mypage.html 0
 # [C2_ACCT_SWEEP] [C2_ADV_RESET] [C2_LOADBAR_SWEEP] C2-3 · C2-4 계정이 끝나는 자리(clearToken)에서 화면 기억도 걷는다 — AI 상담 대화 · 실패 막대 · 다른 탭 저장 막대
 chk 'C2_ACCT_SWEEP' mypage.html 2
-chk '}catch(e){} _mpAcctSweep(); }' mypage.html 1
+chk '}catch(e){} _mpAcctSweep(); return _kp>0; }' mypage.html 1   # [RELOGIN_KEEP] 맡겼나를 돌려준다 · [RELOGIN_STASH_FIRST] 못 맡겼으면 그 앞에서 null
 chk "window.MEAdvisor.reset();" mypage.html 1
 chk 'C2_ADV_RESET' assets/advisor-widget.js 8
 chk 'reset: reset,' assets/advisor-widget.js 1
@@ -20103,6 +20104,48 @@ chk 'DRESS_QSUB_SLOT' scripts/audit/dress-ops.mjs 2
 chk 'DRESS_OPS_VIEWPORT' scripts/audit/dress-ops.mjs 2                    # [DRESS_OPS_VIEWPORT] 창 크기가 요청값과 같은지 먼저(Puppeteer 대체 길도 크기를 맞춘다)
 chk 'DRESS_OPS_REAL' scripts/audit/dress-ops.mjs 1                        # [DRESS_OPS_REAL] 진입 = 실제 스티커 · 아이콘(로그인 마이페이지 · 가짜 서버 답)
 chk 'DRESS_ESC_Q123' scripts/audit/dress-ops.mjs 1                        # [DRESS_ESC_Q123] 물음 1 · 2 · 3 답을 고른 뒤 Esc = 닫힘 · 연 단추로 초점
+# ★★[DRESS_TABS_1030 사장님 «추천대로» · 코워크 · GPT 2라운드] 오른쪽 아이콘(상담 뒤)으로 연 창 = 물음 없이 두 탭 «드레스 / 소품·부케» · 소품 크게 보기 [DRESS_ACC_BIG] · 기억(마이페이지 메모리)
+#   모양 · 깨 보기는 dress-refs.mjs ⑳ · 눌러 재는 것은 dress-tabs.mjs(네 크기 · 상담 전 = 물음 필수 / 상담 뒤 = 물음 없음 × 답 없음 · 일부 · 완료 · 탭 · 복귀 · 기억 · 말풍선)
+chk "if (AFTER) { S.view = 'tabs'; S.tab = 'dress';" dress.html 1             # [DRESS_TABS_1030] 상담 뒤 = 처음부터 탭
+chk "if (AFTER && (v0q())) S.view = 'tabs';" dress.html 1                      # [DRESS_TABS_1030] 어떤 길로 와도 물음 · 결과로 가지 않는다
+chk 'role="tablist"' dress.html 1
+chk 'data-act="acclist">&lsaquo; 소품·부케 목록' dress.html 1                  # [DRESS_ACC_BIG]
+chk 'var _DR_AFTER_MEM=null;' mypage.html 1                                    # [DRESS_TABS_1030] 기억은 페이지 메모리
+chk 'DRESS_TABS_1030' scripts/audit/dress-tabs.mjs 3
+chk 'DRESS_ACC_BIG' scripts/audit/dress-tabs.mjs 2
+# [DRESS_TABS_1030 보탬 · 코워크 GPT 최종 1 · 2 · 7 · 8 · 9] 첫 렌더 깜빡임 0 · 탭 접근성 · 상담 뒤 아래 안내 없음 · 크게 보기 사진 · 말풍선 실제로 보인 뒤 기록 · Esc
+chk "var GUIDE_END = AFTER ? ''" dress.html 1                                     # [DRESS_AFTER_NOEND]
+nochk 'prepEnd(' dress.html                                                       # [DRESS_AFTER_NOEND] 상담 뒤 «방문 전 준비»를 붙이던 길
+chk 'outline:2px solid var(--gold-text);outline-offset:-5px' dress.html 1         # [DRESS_TAB_RING]
+chk '.pk-accv .pk-accp img{object-fit:contain}' dress.html 1                      # [DRESS_ACC_FIT]
+chk '  _DR_AFTER_MEM=null;   // \[DRESS_MEM_RESET 1030\]' mypage.html 1                    # [DRESS_MEM_RESET]
+chk 'function _dressTipBlocked(btn)' mypage.html 1                               # [DRESS_TIP_SEEN]
+chk '#mp_dressFab.nm-off .me-fab-nm' mypage.html 1                                # [DRESS_TIP_ESC]
+chk 'DRESS_AFTER_NOFLASH' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_TAB_A11Y' scripts/audit/dress-tabs.mjs 4
+chk 'DRESS_AFTER_NOEND' scripts/audit/dress-tabs.mjs 2
+chk 'DRESS_TAB_RING' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_ACC_FIT' scripts/audit/dress-tabs.mjs 1
+# [DRESS_TABS_1030 GPT 라운드 권장 5] 같은 탭 다시 고름 · 닫기 직후 기억 · 소품 행 맞춤 · 고객 바뀜 · 이름표 위로
+chk "if (t === S.tab && how !== 'head')" dress.html 1                              # [DRESS_TAB_SAME]
+chk 'if (AFTER) window.__drMemNow = memNow;' dress.html 1                          # [DRESS_MEM_CLOSE]
+chk '_mw.__drMemNow && _mw.__drMemNow(); if(_mm) memSet(_mm);' mypage.html 1        # [DRESS_MEM_CLOSE] 닫기 공통 경로
+chk 'button.pk-acci{align-self:start;' dress.html 1                                # [DRESS_ACC_ALIGN]
+chk 'var cd=ex._d;' mypage.html 1                                                  # [DRESS_FAB_LATEST]
+chk '  ex._d=d;' mypage.html 1                                                     # [DRESS_FAB_LATEST]
+chk '#mp_dressFab .me-fab-nm::after' mypage.html 1                                 # [DRESS_NM_HOVER]
+chk 'DRESS_TAB_SAME' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_MEM_CLOSE' scripts/audit/dress-tabs.mjs 2
+chk 'DRESS_ACC_ALIGN' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_FAB_LATEST' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_NM_HOVER' scripts/audit/dress-tabs.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-tabs.mjs >/dev/null 2>&1; _dtab=$?
+  case "$_dtab" in
+    0) echo 'ok dress-tabs: 상담 전 = 물음 필수 · 상담 뒤 = 물음 없이 두 탭 · 탭 · 복귀 · 기억 · 말풍선 — 네 크기' ;;
+    1) echo 'FAIL dress-tabs: 드레스 창 탭 · 물음 갈래가 틀렸습니다 — node scripts/audit/dress-tabs.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-tabs: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-ops.mjs >/dev/null 2>&1; _dops=$?
   case "$_dops" in
     0) echo 'ok dress-ops: «다른 드레스» 소제목으로 이동 · 물음/결과 Esc 닫힘(초점 복귀) · 세 물음 첫 보기 1px 안 — 네 크기 × 상담 전 · 뒤' ;;
@@ -20476,6 +20519,30 @@ nochk "'지우는 중이에요 · 곧 끝나요'" order-preview.html   # [VC_DEL
 nochk "AI 목소리는 지우는 중이에요 · 곧 끝나요" mypage.html   # [VC_DEL_DAILY]
 nochk "시작을 한 번 더 누르면 지금 소리로 <button" console.html   # [CON_FRESH_SAY]
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix4-1030.mjs >/dev/null 2>&1; _vf4=$?; if [ "$_vf4" = 1 ]; then echo 'FAIL vc-fix4-1030: AI 목소리 4차 점검(지우는 중 말 · 옛 읽은 녹음 · 멈춘 녹음 알림 · 1분 읽기 잃기 확인 · 콘솔 다시 불러오기 · 입장 장면) 판정이 어긋났습니다 — node scripts/audit/vc-fix4-1030.mjs'; fail=1; else echo "ok vc-fix4-1030 ($_vf4)"; fi; fi
+# ★[VC_FIX5_1030 2026-10-30 GPT 5차 점검(다섯 사람 걷기 · 당일 진행)] 두 분 AI 목소리 — 로그인 풀림엔 «로그인하기» · 오래된 상태 다시 묻기 · 이전 것 지우는 중 한 줄 · 예식 뒤 새 목소리 막기 · 콘솔 다시 불러오기 잠금 · 옛 요청 버리기 · 로컬 성우 장면 · 건너뛸 때 앞 말소리 멈춤 · 멈춘 소리 진행 세우기 · 새로고침 확인
+chk 'VC_FIX5_1030' scripts/audit/vc-fix5-1030.mjs 1
+chk 'RELOGIN_BTN' order-preview.html 10
+chk 'RELOGIN_BTN' mypage.html 1
+chk 'VC_ST_FRESH' order-preview.html 4
+chk 'VC_OLD_DEL' order-preview.html 2
+chk 'VC_WED_OVER' order-preview.html 2
+chk 'VC_WED_OVER' automation/platform/80_production.gs 3
+chk 'CON_FRESH_LIST' console.html 2
+chk 'RF_GEN_DROP' console.html 1
+chk 'ESD_NAR_KIND' console.html 1
+chk 'FIRE_STOP_PREV' console.html 1
+chk 'CON_STALL' console.html 5
+chk 'CON_RELOAD_GUARD' console.html 6
+nochk "var isNar = url === PARAM.clipDir + c.file + '.mp3'" console.html   # [ESD_NAR_KIND] 주소 모양으로 나레이션을 가르지 않는다
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix5-1030.mjs >/dev/null 2>&1; _vf5=$?; if [ "$_vf5" = 1 ]; then echo 'FAIL vc-fix5-1030: AI 목소리 5차 점검(로그인하기 · 상태 다시 묻기 · 이전 것 지우는 중 · 예식 뒤 막기 · 콘솔 다시 불러오기 · 앞 말소리 멈춤 · 멈춘 소리 · 새로고침) 판정이 어긋났습니다 — node scripts/audit/vc-fix5-1030.mjs'; fail=1; else echo "ok vc-fix5-1030 ($_vf5)"; fi; fi
+# ★[VC_FIX6_1030 2026-10-30 GPT 6차 점검] 5차 회귀 넷 — 로그인하기 뒤 저장 못 한 초안 맡기기 · 콘솔 옛 목록 답 버리기 · 앞 순서 늦은 재생 결과 버리기 · 멈춤 중 시각 큐 기다리기
+chk 'VC_FIX6_1030' scripts/audit/vc-fix6-1030.mjs 1
+chk 'RELOGIN_KEEP' mypage.html 6
+chk 'RF_LIST_GEN' console.html 2
+chk 'PLAY_GEN' console.html 6
+chk 'STALL_HOLD_CLOCK' console.html 2
+nochk "^  clearToken();$" mypage.html   # [RELOGIN_KEEP] 로그인 풀림(_errGoLogin)이 저장 못 한 초안을 맡기지 않고 그냥 지우던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix6-1030.mjs >/dev/null 2>&1; _vf6=$?; if [ "$_vf6" != 0 ]; then echo 'FAIL vc-fix6-1030: AI 목소리 6차 점검(로그인하기 뒤 초안 · 옛 목록 답 · 늦은 재생 결과 · 멈춤 중 시각 큐) 판정이 어긋났습니다 — node scripts/audit/vc-fix6-1030.mjs'; fail=1; else echo "ok vc-fix6-1030 ($_vf6)"; fi; fi
 
 # ── 2026-10-30 [RETAKE_168_1030 검토 168 사장님] 나레이션 다시 받기 묶음(글만 · 녹음은 따로) — 무음 부탁 · 안내 음성 · 증인이십니다 · 안녕하세요 · 입장 A · E · 맞절 252 · 감사 인사 228 · 229 · «천천히» 넷 걷기 · 반지 170 · 축가 209 · «맞절!» → «맞절.»(구호 검사도 «맞절.»을 구호로 본다)
 chk '신랑 신부, 서로 마주 보고 서 주십시오. 평생을 함께할 동반자로서, 서로를 아끼고 존중하는 마음을 담아 인사하겠습니다. 신랑 신부, 맞절.' assets/ritual-open.js 1
@@ -20509,6 +20576,82 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/narrow-170.mjs >/dev
 # ── 2026-10-30 [COMBO_171_1030 검토 171] 순간 조합 · 진행 틈 — C01 인사 받는 분이 바뀌면 한 줄 + 인사 칸 · 인쇄 카드 · 콘솔 받는 분 · C02 선언한 분 ≠ 덕담하실 분이면 255 뒤 GO · C03 축가 맺는 말 «마지막 음 · 잔향» · C04 덕담 «말씀하실 분» 인원 · 원고 시간 · C05 연습 목록 «당일 노래» · N2 콘솔 «두 분이 노래할 자리로»
 chk 'function _crossWatch(c0)' order-preview.html 1
 chk "hint: '마지막 음 · 잔향이 끝나면'" assets/ritual-cue.js 1
+# ★[RELOGIN_KEEP_1030 2026-10-30 GPT 7차 점검(고객) 7-01 · 7-02 · 7-03] 로그인 풀림 때 맡기는 초안 — 맡김을 먼저 쓰고 확인한 뒤 지움(못 맡기면 S4 · 지우지 않음) · 알림 링크 길은 상태 캐시 코드로 · 되돌릴 때 다른 주인 초안에 막히지 않음
+chk 'RELOGIN_STASH_FIRST' mypage.html 5
+chk 'RELOGIN_ACCT_CACHE' mypage.html 2
+chk 'RELOGIN_OWNER' mypage.html 3
+chk 'RELOGIN_KEEP_1030' scripts/audit/relogin-keep.mjs 1
+nochk "var _kp=keep?_reloginPack():null;" mypage.html   # [RELOGIN_STASH_FIRST] 원본을 지운 뒤에야 맡김을 쓰던 옛 줄
+nochk "/^me_(order|snapLocal_)/.test(k) || localStorage.getItem(k)) return;" mypage.html   # [RELOGIN_OWNER] 주인을 안 보고 건너뛰던 옛 줄
+# ★[RELOGIN_NEWER · RELOGIN_S4_GO 2026-10-30 GPT 8차 점검(고객) 8-01 · 8-02] 같은 계정 초안은 고친 때를 견준다(식순 화면이 고친 때를 적는다) · S4 판에 «그대로 로그인하기»(초안은 두고 로그인으로) · 다른 계정 로그인이면 남의 초안을 걷는다
+chk 'RELOGIN_NEWER' mypage.html 4
+chk 'RELOGIN_NEWER' order-preview.html 3
+chk 'RELOGIN_S4_GO' mypage.html 4   # [ACCT_KEYS 2026-10-30] 로그인 때 남의 초안 걷기(_orderOwnerSweep)를 걷어 하나 줄었다
+chk "if(_ek!==_editK){ if(rec.dirty) _editT=Date.now();" order-preview.html 1   # [RELOGIN_NEWER] 고친 때는 판이 바뀔 때만 · [SAME_ACCT_T] 바꾼 때(_editE)도 같은 자리
+chk "if (d && d.ok){ _reloginRestore(d.code); cacheState(d);" mypage.html 1   # [ACCT_KEYS] 상태를 받으면 이 계정 맡김만 되돌린다(남의 초안 걷기 없음)
+nochk "      if(cw===c) return; }" mypage.html   # [RELOGIN_NEWER] 같은 계정이면 견주지 않고 그 초안을 두고 맡김을 지우던 옛 줄
+nochk "try{ mpAlert({ bodyHtml:_errHtml(RELOGIN_FAIL) }); }" mypage.html   # [RELOGIN_S4_GO] «확인»만 있어 로그인으로 갈 길이 없던 옛 S4 판
+# ★[RELOGIN_SNAP_KEEP 2026-10-30 GPT 9차 점검(고객) 9-01] 계정을 모르는 로그인 풀림(S4 «그대로 로그인하기» 뒤 만료 알림 링크)에서는 코드별 스냅 임시본을 두고 간다 · 스스로 로그아웃 · 다른 계정 로그인 확인 때만 지운다
+chk 'RELOGIN_SNAP_KEEP' mypage.html 4
+chk 'RELOGIN_SNAP_KEEP' scripts/audit/relogin-keep.mjs 2
+chk "var _kill=\['me_prod_ping'\]; if(_c){ _kill.push(_ordK(_c), 'me_snapLocal_'+_c," mypage.html 1   # [RELOGIN_SNAP_KEEP] · [ACCT_KEYS] 나가는 계정 칸만 지운다 · 계정을 모르면 계정 칸은 두고 간다
+nochk "snapLocal_)/.test(k)) _kill.push(k);" mypage.html   # [RELOGIN_SNAP_KEEP] 계정을 몰라도 코드별 임시본을 다 지우던 옛 줄
+# ★[RELOGIN_SNAP_NEWER 2026-10-30 GPT 10차 점검(고객) 10-01] 스냅 임시본도 고친 때(t · 글이 바뀔 때만)를 싣고 되돌릴 때 견준다 — 같은 계정 옛 탭이 다시 쓴 옛 임시본이 맡긴 최신본을 이기지 않게 · 맡김은 되돌렸거나 이 기기 것이 더 나중임을 확인했을 때만 지운다 · 검사 relogin-keep ⑦(아래 줄이 돌린다)
+chk 'RELOGIN_SNAP_NEWER' mypage.html 5
+chk 'RELOGIN_SNAP_NEWER' scripts/audit/relogin-keep.mjs 3
+nochk "if(cur!=null){ if(k!=='me_order') return;" mypage.html   # [RELOGIN_SNAP_NEWER] 스냅 임시본이 이미 있으면 견주지 않고 그것을 두고 맡김을 지우던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/relogin-keep.mjs >/dev/null 2>&1; _rlk=$?; if [ "$_rlk" != 0 ]; then echo 'FAIL relogin-keep: 로그인 풀림 때 맡기는 초안(먼저 맡기기 · 알림 링크 길 · 다른 주인 초안) 판정이 어긋났습니다 — node scripts/audit/relogin-keep.mjs'; fail=1; else echo "ok relogin-keep ($_rlk)"; fi; fi
+# ★[TAB_GUARD_1030 2026-10-30 GPT 11차 점검(고객) 11-01 ~ 11-05] 같은 기기 다른 창이 로그인 · 로그아웃 · 다른 계정 로그인 · 맡긴 초안 되돌리기를 하면 이 창은 옛 창 — 이 기기 초안 쓰기 · 지우기 · 서버 보내기 · 로그인 풀림 정리를 멈추고 한 줄 «다른 창에서 바뀌었어요 (코드 L8)» · «다시 열기» · 식순 화면은 부모 판정(_tabGone)
+#   [RELOGIN_MERGE] 다시 맡길 때 앞서 맡긴 것과 종류마다 고친 때로 합친다 · [EDIT_T_AT_INPUT] 스냅 고친 때는 입력한 그때(쓰기 때 아님) · [EMPTY_TOMBSTONE] 다 비우면 {empty:true,t} 를 남겨 옛 메모가 되살아나지 않게 · 검사 tab-guard(두 창 · 한 저장소 · storage 이벤트)
+chk 'TAB_GUARD' mypage.html 18
+chk 'TAB_GUARD' order-preview.html 3
+chk 'RELOGIN_MERGE' mypage.html 4
+chk 'EDIT_T_AT_INPUT' mypage.html 5
+chk 'EMPTY_TOMBSTONE' mypage.html 2
+chk 'TAB_GUARD_1030' scripts/audit/tab-guard.mjs 1
+chk "function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;" order-preview.html 1
+nochk "if(!n){ var o=null;" mypage.html   # [RELOGIN_MERGE] 앞서 맡긴 것과 합치지 않고 바꾸던 옛 줄
+nochk "if(_snapFilledD(o)) localStorage.setItem(k, JSON.stringify(o)); else localStorage.removeItem(k);" mypage.html   # [EMPTY_TOMBSTONE] 비우면 기록째 지우던 옛 줄
+# ★[TAB_GUARD2_1030 2026-10-30 GPT 12차 점검(고객) 12-01 ~ 12-06] [TAB_GUARD_VC] 목소리 중계도 옛 창 · 그 사이 바뀐 답(다시 묻기 포함)을 막는다 · [TAB_GUARD_FILL] 옛 창의 orderReady · 식순 화면의 늦은 orderFill 정리를 막고 주인이 다를 때 지우는 것도 공통 판정 ·
+#   [PREVIEW_KEY_SPLIT] 그냥 연 공개 미리보기는 me_order_pub · [STALE_KEEP_INPUT] 입력한 그때 글도 이 기기에 · 옛 창 «다시 열기»는 같은 계정 맡김에 · [TOMBSTONE_READ] 편집은 비운 표시의 고친 때를 이어받는다 · [AUTH_EPOCH] 로그인 · 로그아웃 · 되돌리기마다 차례(me_auth_ep)
+chk 'TAB_GUARD2_1030' scripts/audit/tab-guard.mjs 1
+chk 'TAB_GUARD_VC' mypage.html 4
+chk 'TAB_GUARD_FILL' mypage.html 1
+chk 'TAB_GUARD_FILL' order-preview.html 1   # [ACCT_KEYS] 주인이 다를 때 지우기(ORDER_OWNER) 자리를 걷어 하나 줄었다
+chk 'PREVIEW_KEY_SPLIT' order-preview.html 4
+chk 'STALE_KEEP_INPUT' mypage.html 4
+chk 'TOMBSTONE_READ' mypage.html 4
+chk 'AUTH_EPOCH' mypage.html 8
+chk "if(tok!==_TAB.tok || ep!==_TAB.ep) _TAB.stale=true;" mypage.html 1
+chk "else { localStorage.setItem(_k, JSON.stringify(rec)); _persistBad=false; }" order-preview.html 1   # [PREVIEW_KEY_SPLIT] · [ACCT_KEYS] 계정 칸(또는 공개 칸)에만 · [SAME_ACCT_T] 더 나중 기록이 없을 때만
+nochk "TAB_RST_KEY" mypage.html   # [AUTH_EPOCH] 되돌리기 표시(me_relogin_rst)는 차례로 합쳤다
+nochk "localStorage.setItem('me_order', JSON.stringify(rec));" order-preview.html   # [PREVIEW_KEY_SPLIT] 공개 미리보기가 고객 칸에 쓰던 옛 줄
+nochk "var loc=_snapLocalGet();" mypage.html   # [TOMBSTONE_READ] 편집을 열 때 비운 표시를 못 읽던 옛 줄
+nochk "token:getToken()})),signal:_vcAc" mypage.html   # [TAB_GUARD_VC] 중계가 보낼 때마다 지금 토큰을 다시 읽던 옛 줄
+# ★[TAB_GUARD3_1030 2026-10-30 GPT 13차 점검(고객) 13-01 ~ 13-07] [ACCT_KEYS] 이 기기 초안 · 맡김은 계정 칸(me_order_<코드> · me_relogin_keep_<코드>) — 다른 계정 초안을 읽거나 지울 길이 없다 · 식순 화면은 계정을 받기 전엔 읽지 않는다 · 옛 공용 칸은 열 때 옮긴다
+#   [FRAME_READY_BACK] orderReady 가 _frameReady 를 켠다 · [SAME_ACCT_T] 같은 계정 다른 창이 더 나중이면 덮지 않고 옛 창 · [KEEP_FAIL_STOP] 못 맡기면 새로 열지 않는다(S4) · [DL_GUARD] 내려받기 폼도 옛 창 판정 · 토큰은 누를 때 · [EPOCH_VERIFY] 차례를 다시 읽어 확인(L4)
+chk 'TAB_GUARD3_1030' scripts/audit/tab-guard.mjs 1
+chk 'ACCT_KEYS' mypage.html 12
+chk 'ACCT_KEYS' order-preview.html 8
+chk 'FRAME_READY_BACK' mypage.html 1
+chk "if(d.type==='momentedit:orderReady'){" mypage.html 1
+chk "      _frameReady=true;   /\* ★\[FRAME_READY_BACK" mypage.html 1
+chk 'SAME_ACCT_T' mypage.html 2
+chk 'SAME_ACCT_T' order-preview.html 4
+chk 'KEEP_FAIL_STOP' mypage.html 2
+chk 'DL_GUARD' mypage.html 1
+chk 'onsubmit="return rfKeepGo(this)"><input type="hidden" name="token" value="">' mypage.html 1
+chk 'EPOCH_VERIFY' mypage.html 6
+chk "TAB_EP_LINE='창 상태를 남기지 못했어요 (코드 L4)'" mypage.html 1
+chk 'EPOCH_VERIFY' assets/err-codes.js 1
+nochk "function _orderOwnerSweep(" mypage.html   # [ACCT_KEYS] 로그인 때 «주인이 다른 초안 걷기» — 다른 창 계정 초안을 지웠다(12-02 · 13-02) · 되살리지 말 것
+nochk "localStorage.getItem('me_order')||'null'" mypage.html   # [ACCT_KEYS] 공용 칸을 읽던 옛 줄(옮기기 _acctKeysMigrate 만 그 칸을 본다)
+nochk "localStorage.getItem('me_order')||'null'" order-preview.html   # [ACCT_KEYS] 식순 화면이 공용 칸을 읽던 옛 줄
+nochk "localStorage.removeItem('me_order'); }catch(e){}   // \[TAB_GUARD_FILL\]" order-preview.html   # [ACCT_KEYS] 주인이 다르면 지우던 옛 줄
+nochk "tok=escapeHtml(getToken()||'')" mypage.html   # [DL_GUARD] 내려받기 폼에 그릴 때 토큰을 박던 옛 줄
+nochk "btn.addEventListener('click', function(){ try{ _tabKeepUnkept(); }catch(e){} try{ location.reload(); }catch(e){} });" mypage.html   # [KEEP_FAIL_STOP] 못 맡겨도 새로 열던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/tab-guard.mjs >/dev/null 2>&1; _tgd=$?; if [ "$_tgd" != 0 ]; then echo 'FAIL tab-guard: 옛 창(다른 창이 로그인 · 로그아웃 · 되돌리기 · 차례)의 쓰기 · 지우기 · 보내기(목소리 중계 포함) 멈춤 · 맡김 합치기 · 스냅 고친 때 · 비운 표시 · 공개 미리보기 칸 판정이 어긋났습니다 — node scripts/audit/tab-guard.mjs'; fail=1; else echo "ok tab-guard ($_tgd)"; fi; fi
+
 chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
@@ -20522,4 +20665,31 @@ chk "if (k === 'tribute' && hugOff(S)) return '부부가 되어 처음 부모님
 chk 'TRIB_NO_HUG_1030' api/_ritual-kb.js 1
 chk 'TRIB_NO_HUG_1030' admin.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/trib-no-hug.mjs >/dev/null 2>&1; _tnh=$?; [ "$_tnh" = 1 ] && { echo 'FAIL trib-no-hug: 부모님께 인사 «인사만»(포옹 줄 256 건너뛰기 · 카드 글 · 길이)이 되돌아갔습니다 — node scripts/audit/trib-no-hug.mjs'; fail=1; }; :; fi
+# ★[VC_DECISIONS_1030 2026-10-30 사장님 «추천대로» · AI 두 분 목소리 «대표 결정» 아홉] 나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 예식일 없음 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글
+chk 'VC_DEC_1030_1' automation/platform/80_production.gs 2
+chk 'VC_DEC_1030_1' order-preview.html 3
+chk "if (_nvw) return { ok: false, ecode: 'V0', novoice: _nvw, error: WHO\[_nvw\] + ' 목소리가 아직 없어요' }; }" automation/platform/80_production.gs 1
+chk 'VC_DEC_1030_2' order-preview.html 3
+chk "what:'무엇을 보내나요 · 녹음과 AI가 읽을 안내 글을 타입캐스트에 보내요'," order-preview.html 1
+chk "VC_CONSENT_V='1030';" order-preview.html 1
+nochk "곧 읽으실 녹음을 음성 업체(타입캐스트)에 보내 목소리를 만들어요" order-preview.html   # [VC_DEC_1030_2] 안내 글 전송이 빠진 옛 동의 글
+chk 'href="/privacy.html#voice-clone"' order-preview.html 1
+chk 'VC_DEC_1030_3' order-preview.html 1
+chk '만들지 않은 줄은 당일 스튜디오 나레이션으로 나와요' order-preview.html 1
+chk 'VC_DEC_1030_4' automation/platform/80_production.gs 6
+chk 'if (!rdOk) return;' automation/platform/80_production.gs 1
+chk 'VC_DEC_1030_5' automation/platform/80_production.gs 1
+chk 'VC_DEC_1030_5' automation/platform/96_ai_cost.gs 1
+chk 'VC_DEC_1030_5' console.html 3
+chk 'VC_DEC_1030_6' automation/platform/80_production.gs 4
+chk 'VC_DEC_1030_7' automation/platform/80_production.gs 5
+chk 'VC_DEC_1030_7' order-preview.html 5
+chk 'VC_DEC_1030_7' privacy.html 2
+chk "var VC_MODEL_OFF_W='목소리 모델은 지웠어요 · 다시 만들려면 다시 녹음해요';" order-preview.html 1
+chk 'VC_DEC_1030_8' console.html 5
+chk "indexedDB.open('me_couple_audio', 1)" console.html 1
+chk 'VC_DEC_1030_9' console.html 4
+chk "tx.textContent = ownTxtFor(c) || c.text || '';" console.html 1
+chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

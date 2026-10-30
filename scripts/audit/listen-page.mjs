@@ -65,7 +65,7 @@ async function open(w, opt) {
   if (opt.videos) await pg.addInitScript((vs) => { window.__LISTEN_TEST_VIDEOS = vs; }, opt.videos);
   /* [VID_PLAY_ALL] 헤드리스는 H.264 를 못 푼다 — 영상 play() 를 «불렸는가»로 잰다(소리 play 는 그대로) */
   if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') { const sr = this.getAttribute('src') || this.src || ''; if (sr && !/^data:/.test(sr)) (window.__aplays = window.__aplays || []).push(sr.split('/').pop()); return o.apply(this, arguments); } if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('?')[0].split('/').pop(),   /* [VIDEO_V] 주소 끝 ?v= 는 빼고 이름만 */ id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
-  if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
+  if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order_pub', JSON.stringify(d));   /* [PREVIEW_KEY_SPLIT] 그냥 연 미리보기 칸 */ } catch (e) {} }, opt.draft);
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
   if (opt.videos) await pg.evaluate(() => { RitualOpen.VIDEO_READY.length = 0; (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });   /* [VIDEO_IN_1003] 바꾼다 · 더하지 않는다 */
   return { ctx, pg, errs, ext };
