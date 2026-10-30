@@ -18484,7 +18484,7 @@ chk 'COPY_AMT_BACK' mypage.html 1
 chk 't.innerHTML=t._amtHtml;' mypage.html 1
 # [LOGOUT_CLEAR_FIELDS] C-4 로그아웃은 로그인 칸도 비운다(두 로그아웃 단추 모두)
 chk 'LOGOUT_CLEAR_FIELDS' mypage.html 2
-chk "function _mpLogoutNow(){ clearToken(); \['li_code','li_pw'\]" mypage.html 1
+chk "function _mpLogoutNow(){ if(typeof _tabDrop=='function' && _tabDrop()) return; clearToken(); \['li_code','li_pw'\]" mypage.html 1   # [TAB_GUARD 2026-10-30] 옛 창의 로그아웃은 다른 창 계정의 토큰을 지우지 않는다(앞에 한 줄 · 뒤는 종전 그대로)
 chk '_mpLogoutNow();' mypage.html 2
 # [FINDCODE_KAKAO] C-5 코드 찾기 안내 = 카카오톡 또는 메일함
 chk '카카오톡 또는 메일함을 확인해 주세요.' mypage.html 1
@@ -20558,6 +20558,18 @@ chk 'RELOGIN_SNAP_NEWER' mypage.html 5
 chk 'RELOGIN_SNAP_NEWER' scripts/audit/relogin-keep.mjs 3
 nochk "if(cur!=null){ if(k!=='me_order') return;" mypage.html   # [RELOGIN_SNAP_NEWER] 스냅 임시본이 이미 있으면 견주지 않고 그것을 두고 맡김을 지우던 옛 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/relogin-keep.mjs >/dev/null 2>&1; _rlk=$?; if [ "$_rlk" != 0 ]; then echo 'FAIL relogin-keep: 로그인 풀림 때 맡기는 초안(먼저 맡기기 · 알림 링크 길 · 다른 주인 초안) 판정이 어긋났습니다 — node scripts/audit/relogin-keep.mjs'; fail=1; else echo "ok relogin-keep ($_rlk)"; fi; fi
+# ★[TAB_GUARD_1030 2026-10-30 GPT 11차 점검(고객) 11-01 ~ 11-05] 같은 기기 다른 창이 로그인 · 로그아웃 · 다른 계정 로그인 · 맡긴 초안 되돌리기를 하면 이 창은 옛 창 — 이 기기 초안 쓰기 · 지우기 · 서버 보내기 · 로그인 풀림 정리를 멈추고 한 줄 «다른 창에서 바뀌었어요 (코드 L8)» · «다시 열기» · 식순 화면은 부모 판정(_tabGone)
+#   [RELOGIN_MERGE] 다시 맡길 때 앞서 맡긴 것과 종류마다 고친 때로 합친다 · [EDIT_T_AT_INPUT] 스냅 고친 때는 입력한 그때(쓰기 때 아님) · [EMPTY_TOMBSTONE] 다 비우면 {empty:true,t} 를 남겨 옛 메모가 되살아나지 않게 · 검사 tab-guard(두 창 · 한 저장소 · storage 이벤트)
+chk 'TAB_GUARD' mypage.html 18
+chk 'TAB_GUARD' order-preview.html 3
+chk 'RELOGIN_MERGE' mypage.html 4
+chk 'EDIT_T_AT_INPUT' mypage.html 5
+chk 'EMPTY_TOMBSTONE' mypage.html 2
+chk 'TAB_GUARD_1030' scripts/audit/tab-guard.mjs 1
+chk "function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;" order-preview.html 1
+nochk "if(!n){ var o=null;" mypage.html   # [RELOGIN_MERGE] 앞서 맡긴 것과 합치지 않고 바꾸던 옛 줄
+nochk "if(_snapFilledD(o)) localStorage.setItem(k, JSON.stringify(o)); else localStorage.removeItem(k);" mypage.html   # [EMPTY_TOMBSTONE] 비우면 기록째 지우던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/tab-guard.mjs >/dev/null 2>&1; _tgd=$?; if [ "$_tgd" != 0 ]; then echo 'FAIL tab-guard: 옛 창(다른 창이 로그인 · 로그아웃 · 되돌리기)의 쓰기 · 지우기 · 보내기 멈춤 · 맡김 합치기 · 스냅 고친 때 · 비운 표시 판정이 어긋났습니다 — node scripts/audit/tab-guard.mjs'; fail=1; else echo "ok tab-guard ($_tgd)"; fi; fi
 
 chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1

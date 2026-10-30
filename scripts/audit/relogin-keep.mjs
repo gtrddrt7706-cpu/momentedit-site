@@ -201,8 +201,8 @@ const r7 = (src) => ({
   ok('⑦ 10-01 맡긴 임시본에 고친 때가 없으면 맡긴 때로 견준다', !r.err && r.kNoT.memo === NEWM && r.kNoT2.memo === OLDM && r.kNoT2.keep === null, r);
   const bk = brk(MP, [["if(k!=='me_order'){ if(_reloginSnapNewer(cj, v, o.t)) return; }", "if(k!=='me_order'){ return; }"]]); let rb = null; try { rb = bk ? r7(bk) : null; } catch (x) { rb = { err: String(x).slice(0, 200) }; }
   ok('깨 보기 ⑦ — 옛 꼴(이미 있으면 견주지 않고 그것을 두고 맡김을 지움)이면 빨강', !!rb && !rb.err && rb.old.memo === OLDM && rb.old.keep === null, rb); }
-{ /* _snapLocalPut — 글이 바뀔 때만 고친 때를 새로 적는다 */
-  const pt = (src) => { const fn = grabIn(src, '_snapLocalPut'), so = grabIn(src, '_snapOut'), sf = grabIn(src, '_snapFilledD'), sn = grabIn(src, '_snapNewD'), sz = grabIn(src, '_snapZoneNew');
+{ /* _snapLocalPut — 글이 바뀔 때만 고친 때를 새로 적는다 · [EDIT_T_AT_INPUT 11-01] 적는 것은 손으로 고친 그때(_snapEditMark) · 이 기기에 쓰기는 때를 바꾸지 않는다 */
+  const pt = (src) => { const fn = grabIn(src, '_snapLocalPut') + '\n' + grabIn(src, '_snapEditMark'), so = grabIn(src, '_snapOut'), sf = grabIn(src, '_snapFilledD'), sn = grabIn(src, '_snapNewD'), sz = grabIn(src, '_snapZoneNew');
     const st = lineIn(src, /SNAPFLOW=\{ active:true,[^\n]*/);
     if (!fn || !so || !sf || !sn || !sz || !st) return { err: '원문 조각을 못 떼었다' };
     let now = 1000; const ls = mkStore({}); const sb = { localStorage: ls, JSON, Object, Math, String, Date: { now: () => now }, _snapLocalKey: () => 'me_snapLocal_AB12CD', _snapCollect: () => {}, _snapPickCap: () => 0, opt: {}, p: null, needAgree: true, SNAPFLOW: null, window: {} };
@@ -210,13 +210,13 @@ const r7 = (src) => ({
     const rd = () => { const v = ls.getItem('me_snapLocal_AB12CD'); return v ? JSON.parse(v).t : null; };
     sb.SNAP_STEPS = [1, 2, 3, 4, 5];
     sb._start(JSON.parse(SN(OLDM, 1500)), {}); sb._snapLocalPut(); const a = rd(); now = 2000; sb._snapLocalPut(); const b = rd();   // 되살린 임시본 · 다시 쓰기만
-    sb.SNAPFLOW.d.zones.candle.note = NEWM; now = 3000; sb._snapLocalPut(); const c = rd(); now = 4000; sb._snapLocalPut(); const d = rd();   // 고침 · 다시 쓰기
+    sb.SNAPFLOW.d.zones.candle.note = NEWM; now = 3000; if (typeof sb._snapEditMark === 'function') sb._snapEditMark(); now = 3500; sb._snapLocalPut(); const c = rd(); now = 4000; sb._snapLocalPut(); const d = rd();   // 고침(입력 3000) · 쓰기(3500) · 다시 쓰기
     sb._start(null, JSON.parse(SN(OLDM))); now = 5000; sb._snapLocalPut(); const e = ls.getItem('me_snapLocal_AB12CD') && rd();   // 서버 판에서 열고 고치지 않음
     return { a, b, c, d, e }; };
   let r; try { r = pt(MP); } catch (x) { r = { err: String(x && x.stack || x).slice(0, 300) }; }
   ok('⑦ 10-01 [RELOGIN_SNAP_NEWER] 스냅 임시본은 글이 바뀔 때만 고친 때를 적는다 · 되살린 임시본은 그 때 그대로 · 다시 쓰기 · 앱 내림 · 걸음 넘김은 그대로 · 고치지 않은 판엔 없다',
     !r.err && r.a === 1500 && r.b === 1500 && r.c === 3000 && r.d === 3000 && (r.e === undefined || r.e === null), r);
-  const bk = brk(MP, [['else if(SNAPFLOW._lj!==j){ SNAPFLOW._lj=j; SNAPFLOW.t=Date.now(); }', 'SNAPFLOW.t=Date.now();']]); let rb = null; try { rb = bk ? pt(bk) : null; } catch (x) { rb = { err: String(x).slice(0, 200) }; }
+  const bk = brk(MP, [['if(SNAPFLOW._lj==null) SNAPFLOW._lj=JSON.stringify(o);', 'SNAPFLOW.t=Date.now();']]); let rb = null; try { rb = bk ? pt(bk) : null; } catch (x) { rb = { err: String(x).slice(0, 200) }; }
   ok('깨 보기 ⑦ — 쓸 때마다 새 때를 적으면 빨강', !!rb && !rb.err && rb.b === 2000, rb); }
 
 /* 다른 계정 · 7일 지남은 종전대로 지운다 */
