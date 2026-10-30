@@ -1328,11 +1328,12 @@ function _recGet_(code, id, admin) {
   return { ok: true, key: 'rec', id: id, mime: b.getContentType() || 'audio/mpeg', data: Utilities.base64Encode(by) };
 }
 /* ★★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 진행하면서 나레이션과 함께 들어볼 수 있게 해야 할 거 아니야» · «우리가 리스트를 만들면 그 안에서 고객이 선택» · «고객이 고름»] 구간 음악 미리 듣기
-   곡 파일은 사이트 저장소가 아니라 드라이브 «ME_구간곡» 폴더 — 사장님이 그 폴더에 MP3 를 올린다. 파일 이름은 곡 번호로 시작한다(예: M2_1_PotterWaltz.mp3 · 번호 = assets/bgm-picks.js 의 f).
+   곡 파일은 사이트 저장소가 아니라 드라이브 «ME_구간곡» 폴더 — 사장님이 그 폴더에 MP3 를 올린다. 파일 이름은 곡 번호로 시작한다(예: B05_인생의회전목마.mp3 · 번호 = assets/bgm-picks.js 의 f).
+   ★[BGM_FIX_1030 2026-10-30] 번호 = 곡마다 하나(B01 ~ B27 · 새 곡 B28 …) — 한 파일이 여러 구간에서 쓰인다 · 옛 구간 번호(M2_1_…) 파일은 목록에 안 든다
    · id 'list' = 폴더에 있는 곡 번호들(10분 캐시 BED_LS · 파일을 올린 뒤 10분 안에는 옛 목록일 수 있다)
    · 곡 번호 = 그 곡의 앞부분(BED_CLIP_MB) — 앞의 ID3 태그(앨범 사진)는 건너뛴다 · 미리 듣기용 짧은 판을 따로 만들지 않는다 · MP3 가 아니면 곡 전체(20MB 까지)
    · 로그인한 두 분만(handleRitualFileGet) · 한 예식 한 시간 BED_HOUR_MAX(80)번까지(넘으면 L1) · 당일 콘솔은 종전대로 그 기기에 넣은 파일(이 길을 쓰지 않는다) */
-var BED_ROOT_FOLDER = 'ME_구간곡', BED_HOUR_MAX = 80, BED_CLIP_MB = 2.5, BED_K_RE = /^(M[0-9A-Z]{1,4}_\d{1,2})(?=[_ .\-(]|$)/i;
+var BED_ROOT_FOLDER = 'ME_구간곡', BED_HOUR_MAX = 80, BED_CLIP_MB = 2.5, BED_K_RE = /^(B\d{2,3})(?=[_ .\-(]|$)/i;
 function _bedFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('BED_FID');
   if (fid) { try { var f0 = DriveApp.getFolderById(fid); if (!f0.isTrashed()) return f0; } catch (e) {} }
@@ -1341,13 +1342,14 @@ function _bedFolder_() {
   return null;
 }
 function _bedFiles_() {   // 곡 번호(대문자) → 파일 id · 같은 번호가 둘이면 나중에 고친 것
-  var ck = null; try { ck = CacheService.getScriptCache(); var c = ck.get('BED_LS'); if (c) return JSON.parse(c); } catch (e) {}
+  // [BGM_FIX_1030] 번호 = B01 꼴(BED_K_RE) · 캐시 이름을 바꿔 옛 번호 목록(10분)이 남지 않게
+  var ck = null; try { ck = CacheService.getScriptCache(); var c = ck.get('BED_LS2'); if (c) return JSON.parse(c); } catch (e) {}
   var fo = _bedFolder_(), out = {}, at = {};
   if (fo) { var it = fo.getFiles();
     while (it.hasNext()) { var f = it.next(); try { if (f.isTrashed()) continue; var nm = String(f.getName() || ''), m = BED_K_RE.exec(nm); if (!m) continue;
       if (!/^audio\//.test(String(f.getMimeType() || '')) && !/\.(mp3|m4a|aac|wav|ogg)$/i.test(nm)) continue;
       var k = m[1].toUpperCase(), t = f.getLastUpdated().getTime(); if (!out[k] || t > at[k]) { out[k] = f.getId(); at[k] = t; } } catch (e) {} } }
-  try { var js = JSON.stringify(out); if (ck && js.length < 95000) ck.put('BED_LS', js, 600); } catch (e) {}
+  try { var js = JSON.stringify(out); if (ck && js.length < 95000) ck.put('BED_LS2', js, 600); } catch (e) {}
   return out;
 }
 function _bedClip_(by) {   // 앞 ID3v2 태그를 건너뛰고 앞부분만(MP3 는 프레임 단위라 잘라도 앞부분은 그대로 들린다)
@@ -1360,10 +1362,10 @@ function _bedGet_(code, id) {
   id = String(id || '').trim();
   var L = _bedFiles_();
   if (id === 'list') return { ok: true, key: 'bed', id: 'list', songs: Object.keys(L).map(function (k) { return { f: k }; }) };
-  var k = id.toUpperCase(); if (!/^M[0-9A-Z]{1,4}_\d{1,2}$/.test(k)) return { ok: false, error: '곡을 찾을 수 없어요.' };
+  var k = id.toUpperCase(); if (!/^B\d{2,3}$/.test(k)) return { ok: false, error: '곡을 찾을 수 없어요.' };   // [BGM_FIX_1030] 곡 번호 = B01 꼴(곡마다 하나)
   try { var ck = CacheService.getScriptCache(), qk = 'BEDQ_' + code, n = +(ck.get(qk) || 0); if (n >= BED_HOUR_MAX) return { ok: false, ecode: 'L1', error: '잠시 뒤 다시 눌러 주세요.' }; ck.put(qk, String(n + 1), 3600); } catch (e) {}
   var f = null; if (L[k]) { try { f = DriveApp.getFileById(L[k]); if (f.isTrashed()) f = null; } catch (e) { f = null; } }
-  if (!f) { try { CacheService.getScriptCache().remove('BED_LS'); } catch (e) {} return { ok: false, ecode: 'L3', error: '곡 파일을 찾을 수 없어요.' }; }
+  if (!f) { try { CacheService.getScriptCache().remove('BED_LS2'); } catch (e) {} return { ok: false, ecode: 'L3', error: '곡 파일을 찾을 수 없어요.' }; }
   var b = f.getBlob(), by = b.getBytes(), mp3 = /mpeg|mp3/i.test(String(b.getContentType() || '')) || /\.mp3$/i.test(String(f.getName() || ''));
   if (mp3) by = _bedClip_(by); else if (by.length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
   return { ok: true, key: 'bed', id: k, mime: mp3 ? 'audio/mpeg' : (b.getContentType() || 'audio/mpeg'), data: Utilities.base64Encode(by) };

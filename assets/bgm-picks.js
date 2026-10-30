@@ -1,20 +1,22 @@
 // 모먼트에딧 · 당일 콘솔 «구간 음악» 추천 곡 목록  [BGM_PICKS_1023 2026-10-23]
 //
-// ★곡 더하는 법(세 줄)
-//   1. 아래 PICKS 에서 그 구간(M1 · M2 …) 배열을 찾는다.
-//   2. 한 줄 더한다: { f: 'M2_5', t: '곡', a: '아티스트', v: '판(연주 · 편집)', start: null, why: '한 줄' },   ← 위가 1순위
-//      f = 곡 번호(구간_번호 · 그 구간에서 아직 안 쓴 다음 번호) — 한 번 정하면 바꾸지 않는다(차례를 바꿔도 그대로).
-//      드라이브 «ME_구간곡» 폴더의 파일 이름이 이 번호로 시작해야 고객 미리 듣기가 그 곡을 찾는다(예: M2_5_곡이름.mp3) [BGM_PREVIEW_1024]
-//   3. 저장하면 끝 — 콘솔 «구간 음악» 칸에 바로 보인다(콘솔에서 «곡 추가»로 그 기기에만 더할 수도 있다).
+// ★곡 더하는 법 [BGM_FIX_1030 2026-10-30 · 곡 번호 = 곡마다 하나]
+//   1. 아래 SONGS 맨 끝에 한 줄 더한다: B28: { t: '곡', a: '연주자', v: '판(앨범)', why: '한 줄(분위기만)' },   보컬이면 vocal: true
+//      번호 = 다음 빈 번호(B28 · B29 …) — 한 번 정하면 바꾸지 않는다(구간 차례를 바꿔도 그대로).
+//   2. PICKS 의 그 구간 배열에 번호를 넣는다(위가 1순위 · 보컬 곡은 1순위에 두지 않는다 — bgm-preview 검사가 잡는다).
+//      같은 곡을 여러 구간에 넣어도 번호 · 파일은 하나다.
+//   3. 드라이브 «ME_구간곡» 폴더에 그 번호로 시작하는 파일 하나(예: B28_곡이름.mp3) — 고객 미리 듣기가 그 번호로 찾는다 [BGM_PREVIEW_1024]
+//      콘솔은 그 기기에 «파일 넣기»로 한 번 넣으면 그 곡이 든 모든 구간에서 쓴다(곡 아이디 = 번호).
+//   ★곡 크기는 파일에서 맞춘다(−23 LUFS · 피크 −2 dBTP 이하 · BGM 섹션이 맞춰 드린다) — 엔진은 곡마다 보정하지 않는다(PARAM.musicTrim 하나).
 //
 // ★사장님 지시(2026-10-23 21:40) «입장곡은 지금 셋팅되어 있으니깐 나머지 이 노래들 우선 고를 수 있게 넣어줘» · «나중에 곡 더 추가할 거야»
 //   → BGM 섹션 콘솔 라운드 2 덧붙임.
 // ★★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 진행하면서 나레이션과 함께 들어볼 수 있게» · «우리가 리스트를 만들면 그 안에서 고객이 ‹이 시간에는 이 노래가 좋겠어› 선택할 수 있게» · 질문 답 «고객이 고름»]
 //   이제 식순 화면(order-preview)도 이 파일을 싣는다 — 고객이 구간(cust)마다 이 목록 안에서 곡을 듣고 고른다(목록은 스튜디오가 정한다 · 올리기 · 직접 곡은 입장만).
-//   고른 곡 = S.bgm[구간] = { k: 곡 번호 f } · 축사 · 편지는 S.bgm.S5 · S6 = { m: 'bed', k } · 당일 콘솔은 그 곡을 구간 기본으로 쓴다(이 기기에서 고른 것이 있으면 그것이 먼저).
+//   고른 곡 = S.bgm[구간] = { k: 곡 번호 f('B05' 꼴 · 옛 'M2_1' 꼴은 «고르지 않음»으로 읽는다 [BGM_FIX_1030]) } · 축사 · 편지는 S.bgm.S5 · S6 = { m: 'bed', k } · 당일 콘솔은 그 곡을 구간 기본으로 쓴다(이 기기에서 고른 것이 있으면 그것이 먼저).
 //   ★곡 파일 주소는 싣지 않는다 — 곡 이름 · 정보 · 번호만(파일은 드라이브 «ME_구간곡» · 로그인한 두 분에게만 서버가 앞부분을 건넨다).
 // ★음원 파일은 저장소에 두지 않는다(곡 이름 · 정보만 · 저장소가 공개라서다). 파일은 콘솔에서 그 기기에 넣는다.
-// start = 시작 · 강조 위치(초) — 모르면 null(축배 M7 은 리허설에서 정한다)
+// start = 시작 · 강조 위치(초) — 모르면 null(축배 M7 은 리허설에서 정한다 · 콘솔 «강조 시작» 칸)
 //
 // 구간(SEGS) = 사장님 결정 «8구간»(BGM 섹션 라운드 2) — 엔진 순간(k) → 콘솔 곡
 //   sub = 그 구간 안의 하위 칸(그 순간만 바꿨다가 끝나면 구간 곡으로 돌아간다) · multi = 여러 곡을 이어 트는 목록(반복) · last = 목록 끝 «마지막 곡» 한 칸
@@ -28,62 +30,50 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
+  /* ★★[BGM_FIX_1030 2026-10-30 BGM 섹션 · GPT(Ultra) 두 라운드 합의 · 사장님 «최선인지 판단해서 반영해 봐»] 곡 표 — 이 표가 최종(10/23 목록 31곡은 버렸다)
+     f = 곡 번호(곡마다 하나 · 같은 번호 = 같은 파일) · vocal = 가사가 있는 곡(고객 화면 «노래» · 깔릴 때 PARAM.vocalExtra 만큼 더 낮게) */
+  var SONGS = {
+    B01: { t: '바다가 보이는 마을 (A Town With An Ocean View)', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '산뜻한 재즈 피아노' },
+    B02: { t: 'Day and Age', a: 'Julian Lage', v: "World's Fair", why: '맑은 기타 한 대' },
+    B03: { t: 'August 10', a: 'Khruangbin', v: 'Con Todo El Mundo', why: '느긋하고 따뜻하게' },
+    B04: { t: 'While You Were Sleeping', a: 'Laufey', v: 'Bewitched', why: '나른하고 포근하게', vocal: true },
+    B05: { t: '인생의 회전목마', a: '久石譲', v: "Piano Stories Best '88–'08 (Piano Solo Ver.)", why: '익숙하고 우아한 왈츠' },
+    B06: { t: 'Photograph (Instrumental)', a: 'Cody Fry', v: 'Photograph', why: '현악이 감싸듯 따뜻하게' },
+    B07: { t: 'Summer', a: '久石譲', v: 'ENCORE', why: '밝고 경쾌하게' },
+    B08: { t: 'Nocturne (Interlude)', a: 'Laufey', v: 'Bewitched', why: '고요하고 깊게' },
+    B09: { t: 'Innocent in Sonatine', a: '조영민', v: '우리들의 블루스 OST', why: '말 아래 조용히' },
+    B10: { t: 'Song for Sienna', a: 'Brian Crain', v: 'Piano and Light', why: '잔잔한 피아노' },
+    B11: { t: "One Summer's Day", a: '久石譲', v: 'ENCORE', why: '그리운 마음으로' },
+    B12: { t: 'Under the Willow', a: 'Brian Crain', v: 'Piano and Light', why: '부드럽고 담백하게' },
+    B13: { t: 'Moon River (Instrumental)', a: 'Tommy Emmanuel', v: 'The Guitar Mastery of Tommy Emmanuel', why: '익숙한 선율을 기타로' },
+    B14: { t: 'Softness and Light', a: 'Brian Crain', v: 'Piano and Light', why: '빛처럼 고요하게' },
+    B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet', why: '감싸 안듯 다정하게' },
+    B16: { t: 'The Rose', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '서정적인 재즈 피아노' },
+    B17: { t: 'Summer Montage / Madeline', a: 'Justin Hurwitz', v: 'La La Land OST', why: '박수와 함께 힘 있게' },
+    B18: { t: 'I Hear a Symphony (Instrumental)', a: 'Cody Fry', v: '싱글', why: '화사하게 차오르게' },
+    B19: { t: 'Italian Summer', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet', why: '여름처럼 환하게' },
+    B20: { t: 'Popcorn', a: '도경수', v: '성장', why: '톡톡 튀는 설렘', vocal: true },
+    B21: { t: "Herman's Habit", a: 'Justin Hurwitz', v: 'La La Land OST', why: '신나는 빅밴드 재즈' },
+    B22: { t: 'This Will Be (An Everlasting Love)', a: 'Natalie Cole', v: 'Inseparable', why: '누구나 아는 흥', vocal: true },
+    B23: { t: '둘의 대화', a: '윤석철트리오', v: 'SONGBOOK', why: '대화를 덮지 않는 재즈' },
+    B24: { t: 'Take Me Home, Country Roads', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '편안한 재즈 피아노' },
+    B25: { t: 'Nothing', a: 'Bruno Major', v: 'To Let a Good Thing Die', why: '나지막하고 다정하게', vocal: true },
+    B26: { t: 'Bluebird', a: 'Alexis Ffrench', v: 'Evolution', why: '하루를 닫는 피아노' },
+    B27: { t: 'At the Ivy Gate', a: 'Brian Crain', v: 'Piano and Light', why: '차분하게 마무리' }
+  };
+  /* 구간 → 곡 번호(위가 1순위 · 2026-10-30 표 그대로) */
   var PICKS = {
-    M1: [   // 하객 맞이 — 잔잔한 연주 · 30분 이상 목록
-      { f: 'M1_1', t: 'La Vie en Rose', a: 'Louis Armstrong', v: '원곡 · 재즈 피아노 연주', start: null, why: '들어서는 순간 따뜻하게' },
-      { f: 'M1_2', t: "Isn't She Lovely", a: 'Ben Paterson', v: '재즈 피아노', start: null, why: '밝지만 말소리를 덮지 않는다' },
-      { f: 'M1_3', t: 'Clair de Lune', a: 'Debussy', v: '피아노', start: null, why: '고요하게 자리에 앉는 동안' },
-      { f: 'M1_4', t: 'Gymnopédie No. 1', a: 'Satie', v: '피아노', start: null, why: '느리고 담백하게' }
-    ],
-    M2: [   // 화촉 — 밝고 우아한 곡 · 2분 10초 이상
-      { f: 'M2_1', t: 'Potter Waltz', a: 'Patrick Doyle', v: '해리포터와 불의 잔 OST · 오케스트라', start: null, why: '왈츠 걸음 · 밝고 우아하게' },
-      { f: 'M2_2', t: '꽃날', a: '황진이 OST', v: '반복 편집본', start: null, why: '단아하게 · 어머님 걸음' },
-      { f: 'M2_3', t: '봄바람', a: '버스커버스커', v: '연주 · 피아노 3중주', start: null, why: '가볍고 화사하게' },
-      { f: 'M2_4', t: 'Someday My Prince Will Come', a: '백설공주 OST', v: '재즈 피아노', start: null, why: '동화처럼 따뜻하게' }
-    ],
-    M4: [   // 감사 인사 ~ 덕담 — 피아노 아주 작게 · 6분 이상 반복 편집본
-      { f: 'M4_1', t: 'Innocent in Sonatine', a: '우리들의 블루스 OST', v: '피아노', start: null, why: '말 아래 조용히 깔린다' },
-      { f: 'M4_2', t: '인생의 회전목마', a: '久石譲', v: '하울의 움직이는 성 OST · 피아노', start: null, why: '익숙하고 부드럽게' },
-      { f: 'M4_3', t: '매일 그대와 (Piano)', a: '달콤한꿈', v: '피아노', start: null, why: '서약 · 선언 아래 담백하게' },
-      { f: 'M4_4', t: 'When She Loved Me', a: 'Disney String Quartet', v: '토이스토리2 OST · 현악', start: null, why: '현악으로 잔잔하게' }
-    ],
-    M4S5: [   // M4 안 · 축사 «음악과 함께» — 잔잔한 연주곡 · 4분 이상
-      { f: 'M4S5_1', t: '혜화동', a: '응답하라 1988 OST', v: '기타 연주', start: null, why: '오랜 친구의 말 아래' },
-      { f: 'M4S5_2', t: '언제나 몇 번이라도', a: '센과 치히로의 행방불명 OST', v: '오르골 · 피아노', start: null, why: '작게 반짝이게' },
-      { f: 'M4S5_3', t: 'Moon River', a: 'Henry Mancini', v: '연주', start: null, why: '익숙하고 따뜻하게' }
-    ],
-    M4S6: [   // M4 안 · 편지 «음악과 함께» — 잔잔한 연주곡 · 5분 30초 이상
-      { f: 'M4S6_1', t: '未来へ', a: 'Kiroro', v: '오르골', start: null, why: '편지 목소리를 덮지 않게' },
-      { f: 'M4S6_2', t: 'The Rose', a: 'Bette Midler', v: '원곡 · 오르골 / 피아노', start: null, why: '서정적으로' },
-      { f: 'M4S6_3', t: '너를 만나 (Piano Ver.)', a: '폴킴', v: '피아노', start: null, why: '두 분의 이야기 아래' }
-    ],
-    M5: [   // 부모님께 인사 — 밝고 따뜻한 곡 · 5분 이상
-      { f: 'M5_1', t: 'I Love Penny Sue', a: 'Daniel May', v: '피아노', start: null, why: '밝고 따뜻하게(슬프지 않게)' },
-      { f: 'M5_2', t: 'Butterfly Waltz', a: 'Brian Crain', v: '피아노', start: null, why: '부드럽게 감싸 안듯' },
-      { f: 'M5_3', t: '사랑의 인사', a: 'Elgar', v: '현악 · 피아노', start: null, why: '단정하고 다정하게' }
-    ],
-    M6: [   // 닫는 인사 — 박수와 함께 힘 있는 곡 · 신호 1 ~ 2분
-      { f: 'M6_1', t: 'Another Day of Sun', a: '라라랜드 OST', v: '원곡(전주부터)', start: null, why: '박수와 함께 힘 있게' },
-      { f: 'M6_2', t: '팡파레', a: '다비치', v: '원곡', start: null, why: '축하의 문을 열듯' }
-    ],
-    M6P: [   // M6 안 · 단체 사진 동안 — 약 10분
-      { f: 'M6P_1', t: 'Epilogue', a: '라라랜드 OST', v: '연주', start: null, why: '사진 찍는 동안 이어지게' }
-    ],
-    M7: [   // 축배 — 신나는 곡 · 1 ~ 1.5분 · start = 강조 시작 위치(리허설에서 정함)
-      { f: 'M7_1', t: 'Sugar', a: 'Maroon 5', v: '첫 후렴부터', start: null, why: '«위하여!» 뒤 바로 신나게' },
-      { f: 'M7_2', t: 'September', a: 'Earth, Wind & Fire', v: '원곡', start: null, why: '누구나 아는 흥' },
-      { f: 'M7_3', t: 'In the Mood', a: 'Glenn Miller Orchestra', v: '원곡', start: null, why: '경쾌한 스윙' }
-    ],
-    M8: [   // 테이블 인사 — 재즈 · 30분 목록
-      { f: 'M8_1', t: 'Fly Me to the Moon', a: 'Frank Sinatra', v: '원곡 · 재즈 연주', start: null, why: '테이블 사이를 걷는 동안' },
-      { f: 'M8_2', t: 'Married Life', a: 'Michael Giacchino', v: '업 OST', start: null, why: '두 분의 시작처럼' },
-      { f: 'M8_3', t: '둘의 대화', a: '윤석철 트리오', v: '재즈 트리오', start: null, why: '대화를 덮지 않는 재즈' },
-      { f: 'M8_4', t: 'How Sweet It Is (To Be Loved by You)', a: 'James Taylor', v: '원곡', start: null, why: '가볍고 다정하게' }
-    ],
-    M8L: [   // M8 끝 · 마지막 곡 한 칸
-      { f: 'M8L_1', t: '우리들의 사랑', a: '유재하', v: '원곡', start: null, why: '하루를 닫는 마지막 곡' },
-      { f: 'M8L_2', t: 'All of Me', a: 'John Legend', v: '원곡', start: null, why: '대안' }
-    ]
+    M1: ['B01', 'B02', 'B03', 'B04'],     // 하객 맞이 — 30분 이상 목록(반복)
+    M2: ['B05', 'B06', 'B07', 'B08'],     // 화촉
+    M4: ['B09', 'B10', 'B11', 'B12'],     // 감사 인사 ~ 덕담
+    M4S5: ['B13', 'B14', 'B02', 'B08'],   // 축사 «음악과 함께»
+    M4S6: ['B10', 'B12', 'B14', 'B13'],   // 편지 «음악과 함께»
+    M5: ['B15', 'B06', 'B16', 'B11'],     // 부모님께 인사
+    M6: ['B17', 'B18', 'B19', 'B20'],     // 닫는 인사 → 사진(한 곡이 사진까지 잇는다)
+    M6P: [],                              // 사진 칸은 비운다 — 닫는 인사 곡이 이어진다(콘솔에서 «곡 추가»로 그 기기에만 넣을 수는 있다)
+    M7: ['B21', 'B18', 'B07', 'B22'],     // 축배 · start = 강조 위치(콘솔 «강조 시작»)
+    M8: ['B23', 'B03', 'B24', 'B25'],     // 테이블 인사 — 30분 목록
+    M8L: ['B26', 'B19', 'B27', 'B25']     // 마지막 곡
   };
 
   /* 구간 — 콘솔 «구간 음악» 칸의 차례 · ks = 이 구간 곡이 흐르는 엔진 순간
@@ -104,15 +94,17 @@
     { id: 'M8L', nm: '마지막 곡', parent: 'M8', last: true, need: '마무리 인사(47)와 함께 시작' }
   ];
   var BY = {}; SEGS.forEach(function (s) { BY[s.id] = s; });
-  /* 곡 아이디 — 구간 · 차례(목록이 늘어도 앞 곡의 아이디가 바뀌지 않게 이름으로 만든다) */
-  function idOf(seg, p) { return seg + ':' + String(p.t || '').toLowerCase().replace(/\s+/g, ' ').trim() + '|' + String(p.a || '').toLowerCase().trim(); }
-  function list(seg) { return (PICKS[seg] || []).map(function (p, i) { return { id: idOf(seg, p), f: p.f || '', t: p.t, a: p.a, v: p.v || '', start: p.start == null ? null : +p.start, why: p.why || '', rank: i + 1 }; }); }
-  /* [BGM_PREVIEW_1024] 곡 번호(f) — 'M2_1' 꼴 · 구간 아이디 + '_' + 번호 */
-  var F_RE = /^(M[0-9A-Z]{1,4})_(\d{1,2})$/;
-  function byF(f) { var m = F_RE.exec(String(f || '')); if (!m) return null; return list(m[1]).filter(function (p) { return p.f === f; })[0] || null; }
-  /* 고객이 고른 곡 번호 — 구간(M1 …)은 S.bgm[구간].k · 축사 · 편지 하위 칸(M4S5 · M4S6)은 S.bgm.S5 · S6 의 k(«음악과 함께»일 때만) · 목록에 없으면 '' */
+  /* 곡 아이디 — [BGM_FIX_1030] 곡 번호 그대로(같은 곡은 어느 구간에서나 같은 아이디 · 콘솔이 그 기기에 넣은 파일을 구간마다 다시 넣지 않는다) ·
+     번호가 없는 곡(콘솔 «곡 추가»는 own: 아이디를 따로 쓴다)만 옛 꼴(구간 · 곡 · 연주자) */
+  function idOf(seg, p) { if (p && p.f) return p.f; return seg + ':' + String(p.t || '').toLowerCase().replace(/\s+/g, ' ').trim() + '|' + String(p.a || '').toLowerCase().trim(); }
+  function song(f) { var s = SONGS[f]; if (!s) return null; return { id: f, f: f, t: s.t, a: s.a, v: s.v || '', start: s.start == null ? null : +s.start, why: s.why || '', vocal: !!s.vocal }; }
+  function list(seg) { return (PICKS[seg] || []).map(function (f, i) { var o = song(f); if (!o) return null; o.rank = i + 1; return o; }).filter(Boolean); }
+  /* [BGM_FIX_1030] 곡 번호(f) — 'B05' 꼴(곡마다 하나) · 옛 구간 번호('M2_1')는 이 꼴이 아니라 «고르지 않음»으로 읽힌다 */
+  var F_RE = /^B\d{2,3}$/;
+  function byF(f) { f = String(f || '').toUpperCase(); return F_RE.test(f) ? song(f) : null; }
+  /* 고객이 고른 곡 번호 — 구간(M1 …)은 S.bgm[구간].k · 축사 · 편지 하위 칸(M4S5 · M4S6)은 S.bgm.S5 · S6 의 k(«음악과 함께»일 때만) · 그 구간 목록에 없으면 ''(1순위로 준비) */
   function custK(S, seg) { var d = BY[seg]; if (!d || !S || !S.bgm) return ''; var v = S.bgm[d.slot || seg];
     if (!v || typeof v !== 'object') return ''; if (d.slot && v.m !== 'bed') return ''; var k = String(v.k || '');
-    return list(seg).some(function (p) { return p.f === k; }) ? k : ''; }
-  return { PICKS: PICKS, SEGS: SEGS, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, F_RE: F_RE };
+    return (PICKS[seg] || []).indexOf(k) > -1 ? k : ''; }
+  return { SONGS: SONGS, PICKS: PICKS, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, F_RE: F_RE };
 });

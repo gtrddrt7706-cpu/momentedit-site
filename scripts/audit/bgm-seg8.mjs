@@ -44,7 +44,7 @@ try {
   const ids = await pg.evaluate(() => window.BgmPicks.SEGS.filter((s) => !s.entry).map((s) => s.id));
   const rows = {}; for (const id of ids) rows[id] = await row(pg, id);
   const P = await pg.evaluate(() => { const o = {}; window.BgmPicks.SEGS.forEach((s) => { o[s.id] = window.BgmPicks.list(s.id).length; }); return o; });
-  const bad = ids.filter((id) => !rows[id] || rows[id].songs.length !== P[id] || !rows[id].songs[0].on || !/추천 1순위/.test(rows[id].songs[0].meta) || !rows[id].songs.every((x) => x.st === '곡 파일 필요'));
+  const bad = ids.filter((id) => !rows[id] || rows[id].songs.length !== P[id] || (P[id] > 0 && (!rows[id].songs[0].on || !/추천 1순위/.test(rows[id].songs[0].meta))) || !rows[id].songs.every((x) => x.st === '곡 파일 필요'));   /* [BGM_FIX_1030] 사진 칸(M6P)은 곡을 비웠다 — 닫는 인사 곡이 잇는다 */
   ok(`① 구간 ${ids.length}칸 — 추천 목록이 다 보이고 1순위가 «추천 1순위»로 골라져 있고 파일이 없으면 «곡 파일 필요»`, ids.length >= 11 && !bad.length, { bad, M2: rows.M2 });
   const multiOn = rows.M1.songs.every((x) => x.on) && rows.M8.songs.every((x) => x.on) && rows.M2.songs.filter((x) => x.on).length === 1;
   ok('① 목록 칸(하객 맞이 · 테이블 인사)은 추천 곡 전부 · 한 곡 칸은 하나', multiOn, { M1: rows.M1.songs.map((x) => x.on), M2: rows.M2.songs.map((x) => x.on) });
@@ -109,7 +109,7 @@ try {
     await p2.setInputFiles('.sg[data-seg="M4"] .sg-song:nth-of-type(1) [data-seg-file]', F.m2); await p2.waitForTimeout(800);
     await p2.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
     const lab = await p2.evaluate(() => (document.getElementById('rfMu') || {}).textContent || '');
-    ok('⑥ 입장 곡이 짧으면(하이라이트 뒤 10초) 입장 칸에 «곡 길이 모자람 · 맞절은 피아노로»', /곡 길이 모자람 · 맞절은 피아노로$/.test(lab), lab);
+    ok('⑥ 입장 곡이 짧으면(하이라이트 뒤 10초) 입장 칸에 «곡 길이 모자람 · 곡이 끝나면 피아노가 이어요»(맞절은 입장 곡 그대로 · BGM_FIX_1030)', /곡 길이 모자람 · 곡이 끝나면 피아노가 이어요$/.test(lab), lab);
     await p2.click('#go'); await p2.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
     const I = await p2.evaluate(() => window.__esd.idx()); const t0 = Date.now(); await p2.evaluate((i) => window.__bgmGo.fire(i), I.e); await p2.waitForTimeout(400);
     const pl = (await p2.evaluate(() => window.__esd.s())).pl || {}, endIn = (pl.tm || 0) + (40 - (pl.off || 0));

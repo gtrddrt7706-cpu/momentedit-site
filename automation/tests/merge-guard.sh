@@ -19586,9 +19586,11 @@ chk 'BLESS_PER_SPEAKER' console.html 9
 chk 'BLESS_PER_SPEAKER' assets/ritual-story.js 1
 chk 'perSpeaker: !S.blessProxy' assets/ritual-cue.js 1
 chk 'function swellArm(c)' console.html 1
-chk "duckTo(c.live.swellTo, c.live.swellMs)" console.html 1       # 음악 신호 — 파라미터만 있고 콘솔이 안 틀던 자리(런북 §8 2단)
+nochk "duckTo(c.live.swellTo, c.live.swellMs)" console.html   # ★[BGM_FIX_1030] 덕담 2:30 은 음악을 올리지 않는다(GPT 합의 · 울음 · 침묵 · 시간 때문에 올리지 않는다) — 콘솔 알림 한 줄만
+chk "LONGNOTE = cur; toast('한 분 말씀 '" console.html 1   # [BGM_FIX_1030] 그 알림
 chk 'id="bSpk"' console.html 1
-chk '한 분 말씀이 2분 30초쯤 되면' assets/ritual-story.js 1
+nochk '배경 음악이 아주 조금 부풀어' assets/ritual-story.js   # [BGM_FIX_1030] 없는 일을 약속하지 않는다 — 고객 안심 글에서 «음악 부풀기» 걷음
+chk '한 분 말씀이 3분이 넘으면 저희가 한 문장으로 따뜻하게 받아 마무리해 드려요' assets/ritual-story.js 1
 chk 'BLESS_PER_SPEAKER' scripts/audit/bless-per-speaker.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bless-per-speaker.mjs >/dev/null 2>&1; _bps=$?; if [ "$_bps" = 1 ]; then echo 'FAIL bless-per-speaker: 덕담 한 분마다 시간 신호([다음 분] · 음악 신호 · 맺는 말 고르기 · 대독 · 고객 미리 듣기)가 깨졌습니다 — node scripts/audit/bless-per-speaker.mjs'; fail=1; elif [ "$_bps" = 0 ]; then echo 'ok bless-per-speaker: 덕담 한 분마다 시간 신호'; else echo 'skip bless-per-speaker: 브라우저가 없어 재지 못함'; fi; fi
 chk 'TRIB_HUG_CROP_1014' assets/ritual-open.js 1
@@ -20224,7 +20226,7 @@ nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
 #   깨 보고 믿음: 콘솔에서 넷을 하나씩 되돌리면(BC_CON) bgm-console2 의 그 칸이 빨강
 chk 'BGM_CONSOLE2_1023' console.html 8
 chk 'BGM_CONSOLE2_1023' assets/ritual-cue.js 3
-chk "var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 400 };" assets/ritual-cue.js 1
+chk "var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 800 };" assets/ritual-cue.js 1   # [BGM_FIX_1030] 미리 낮추기 0.4 → 0.8초(GPT③ R1-3)
 chk "cheer: { level: PARAM.toastLevel, upMs: PARAM.toastUpMs }" assets/ritual-cue.js 2
 nochk "live: { t: t.cue, est: t.est, duck: 0, self: true" assets/ritual-cue.js   # [TOAST_GO] «위하여» 사람 구간이 클립 끝에 0 dB 로 오르던 자리
 nochk "live: { t: t.cue2, est: t.est2, duck: 0, self: true" assets/ritual-cue.js
@@ -20331,6 +20333,34 @@ chk "d.data.key==='bed'" mypage.html 1
 chk "var BED_ROOT_FOLDER = 'ME_구간곡'" automation/platform/80_production.gs 1
 chk '<script src="/assets/bgm-picks.js?v=' order-preview.html 1
 chk '<script src="/assets/bgm-bed.js?v=' order-preview.html 1
-chk "f: 'M2_1', t: 'Potter Waltz'" assets/bgm-picks.js 1
+nochk "f: 'M2_1'" assets/bgm-picks.js   # [BGM_FIX_1030] 곡 번호는 곡마다 하나(B01 …) — 옛 구간 번호 목록을 되살리지 않는다
 chk "function _bedOn(){" order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-preview.mjs >/dev/null 2>&1; _bpv=$?; if [ "$_bpv" = 1 ]; then echo 'FAIL bgm-preview: 구간 음악(고르기 줄 · 곡 카드 ▶ · 이 순간 전체 듣기 음악 크기 · 축사 · 편지 · 공개 미리보기 · 콘솔 기본)이 어긋났습니다 — node scripts/audit/bgm-preview.mjs'; fail=1; else echo "ok bgm-preview ($_bpv)"; fi; fi
+# ── 2026-10-30 [BGM_FIX_1030] BGM 섹션 · GPT(Ultra) 두 라운드 합의 · 사장님 «최선인지 판단해서 반영해 봐» — 구간 곡 새 목록(B01 ~ B27 · 곡마다 한 번호 · 한 파일) · 소리 다듬기
+#    맞절 = 입장 곡 · M4 사람 구간 −20 · 반지 → 선언 정적 2.5초(기본 사이 없음) · 선언 −90 · 박수 −8 1.5초 · 미리 낮추기 0.8 / 1.5초(음성 대기 = 내림) · 뒤처리 음악 · 마지막 큐 뒤 −8 없음 ·
+#    M6 = 목례 · 박수부터 · M7 = «위하여» 뒤 GO · 보컬 곡 −6(vocalExtra) · 음악 전체 musicTrim · R1-1 칩 기억 초기화 · R1-7 요약 «스튜디오로 보내지 못했어요»
+chk 'BGM_FIX_1030' assets/bgm-picks.js 3
+chk 'BGM_FIX_1030' assets/bgm-slots.js 2
+chk 'BGM_FIX_1030' assets/bgm-bed.js 4
+chk 'BGM_FIX_1030' assets/bgm-form.js 3
+chk 'BGM_FIX_1030' assets/ritual-cue.js 8
+chk 'BGM_FIX_1030' assets/ritual-story.js 1
+chk 'BGM_FIX_1030' console.html 12
+chk 'BGM_FIX_1030' order-preview.html 2
+chk 'BGM_FIX_1030' automation/platform/80_production.gs 3
+chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
+chk "B21: { t: \"Herman's Habit\"" assets/bgm-picks.js 1
+chk "var F_RE = /^B" assets/bgm-picks.js 1
+chk "BED_K_RE = /^(B" automation/platform/80_production.gs 1
+nochk "BED_K_RE = /^(M\[" automation/platform/80_production.gs
+chk "cues\[j + 1\].gapNone = true;" assets/ritual-cue.js 1
+chk "nx.gapNone ? 0 :" console.html 1
+chk "function postMusic(c)" console.html 1
+chk "if (k === 'entry' || k === 'matjeol') return '';" console.html 1
+nochk "(ESD.short && !esdMain(c)) ? 'M4'" console.html
+chk "vocalExtra: -6," assets/ritual-cue.js 1
+chk "musicTrim: -3.1," assets/ritual-cue.js 1
+chk "function tReset()" assets/bgm-form.js 1
+chk "function entryUnsent()" assets/bgm-form.js 1
+chk '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요' assets/bgm-bed.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-fix.mjs >/dev/null 2>&1; _bfx=$?; if [ "$_bfx" = 1 ]; then echo 'FAIL bgm-fix: 구간 곡 새 목록 · 한 번호 한 파일 · 보컬 1순위 아님 · 반지 → 선언 정적 2.5초 · 선언 −90 · M4 사람 구간 −20 · 미리 낮추기 0.8 / 1.5초 · 마지막 큐 뒤 −8 없음 · M6 / M7 바뀌는 때 · 보컬 −22 · 음악 전체 크기 [BGM_FIX_1030]'; fail=1; else echo "ok bgm-fix (exit $_bfx)"; fi; fi

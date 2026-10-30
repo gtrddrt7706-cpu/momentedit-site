@@ -130,9 +130,11 @@
   }
   /* 저장 꼴 — { S5:{m:'bed'}, S6:{m:'bed'} } 만 남긴다(옛 «우리가 고른 곡» 기록 · 곡 이름은 버린다) · 남는 것이 없으면 undefined
      ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 구간 곡 번호(k · assets/bgm-picks.js 의 f)도 남긴다 — 구간(M1 · M2 · M4 · M5 · M6 · M7 · M8)은 { k } ·
-       축사 · 편지는 «음악과 함께»일 때만 { m:'bed', k } · 번호는 그 구간의 꼴('M2_3' 처럼 구간 + '_' + 숫자)만 · 곡 이름 · 파일은 담지 않는다 */
+       축사 · 편지는 «음악과 함께»일 때만 { m:'bed', k } · 번호는 곡 번호 꼴('B05' · [BGM_FIX_1030])만 · 곡 이름 · 파일은 담지 않는다 */
   var SEG_K = { M1: 1, M2: 1, M4: 1, M5: 1, M6: 1, M7: 1, M8: 1 }, SUB_SEG = { S5: 'M4S5', S6: 'M4S6' };
-  function kOk(seg, k) { k = String(k || ''); return k.length < 12 && k.indexOf(seg + '_') === 0 && /^\d{1,2}$/.test(k.slice(seg.length + 1)); }
+  /* ★[BGM_FIX_1030 2026-10-30] 번호 = 곡마다 하나('B05' 꼴 · assets/bgm-picks.js SONGS) — 한 곡이 여러 구간에 든다 · 옛 구간 번호('M2_1')는 버린다(그 구간은 «고르지 않음» · 1순위로 준비 · 오류 없이) ·
+     그 구간 목록에 있는지는 BgmPicks.custK 가 본다(여기는 꼴만 · 이 파일은 bgm-picks 없이도 돈다) */
+  function kOk(seg, k) { return /^B\d{2,3}$/.test(String(k || '')); }
   function clean(bgm) {
     var o = {}, n = 0;
     SLOTS.forEach(function (s) { if (s.picks.indexOf('bed') > -1 && bgm && bgm[s.id] && bgm[s.id].m === 'bed') { o[s.id] = { m: 'bed' }; if (kOk(SUB_SEG[s.id], bgm[s.id].k)) o[s.id].k = String(bgm[s.id].k); n++; } });

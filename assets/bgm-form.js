@@ -15,6 +15,10 @@
   if(!B) return;
   /* «음악 없이»는 기본과 같아 적지 않는다 — 이 탭에서 누른 칩은 여기서만 눌린 모양으로 둔다(다시 열면 안 눌린 모양 · 아래 한 줄이 상태를 말한다) */
   var TOUCH={};
+  /* ★[BGM_FIX_1030 GPT③ R1-1] 초안이 통째로 바뀌면(처음부터 다시 · 다른 계정 초안 · ④ «취소») 이 탭에서 누른 칩 기억도 비운다 —
+     남겨 두면 저장에 없는 «음악과 함께»가 눌린 모양으로 보인다(아래 한 줄 · 엔진은 «음악 없이»인데) */
+  var TS=null;
+  function tReset(){ var s=window.S||null; if(s===TS) return; TS=s; Object.keys(TOUCH).forEach(function(k){ delete TOUCH[k]; }); }
   /* 옛 «우리가 고른 곡» 이 기기 보관함을 비운다(곡 파일이 남지 않게) — 없으면 아무 일도 없다 */
   try{ if(window.indexedDB) indexedDB.deleteDatabase('me-bgm-song'); }catch(x){}
 
@@ -35,7 +39,7 @@
   function pickRow(k){ var v=B.viewOf(k,opt()); if(!v||v.kind!=='pick') return '';
     var gl=(v.s.short||'')+' 음악';
     var h='<div class="ls-cg ls-bgm" role="radiogroup" aria-label="'+e(gl)+'" data-k="'+e(k)+'" data-slot="'+v.s.id+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span>';
-    var s=v.s, g=B.get(St(),s.id), pr=g.set?g.m:(TOUCH[s.id]||'');
+    tReset(); var s=v.s, g=B.get(St(),s.id), pr=g.set?g.m:(TOUCH[s.id]||'');
     return h+'<span class="cg-c">'+s.picks.map(function(p,i){ var on=pr===p;
         return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!pr&&i===0))?0:-1)+'" data-fk="bgm:'+s.id+':'+p+'" onclick="bgmAct(\'pick\',\''+s.id+'\',\''+p+'\')">'+chipT(B.label(s,p))+'</button>'; }).join('')
       +'<span class="bgm-note">'+e(pr?B.lineOf(s,g.m):(B.lineOf(s,'unset')||B.lineOf(s,g.m)))+'</span>'+subOf(s.id,k)+'</span></div>'; }
@@ -62,7 +66,7 @@
 
   /* 누름 — 축사 · 편지 칩만 · 'bed' 만 적는다(«음악 없이» = 지운다) */
   function act(kind,id,v){ var s=B.slot(id); if(kind!=='pick'||!s||s.picks.indexOf(v)<0) return;
-    var S=St(), g=B.get(S,id), pr=g.set?g.m:(TOUCH[id]||''); if(pr===v) return;   /* 이미 고른 칩은 그대로(CHIP_NO_REPLAY 와 같다) */
+    tReset(); var S=St(), g=B.get(S,id), pr=g.set?g.m:(TOUCH[id]||''); if(pr===v) return;   /* 이미 고른 칩은 그대로(CHIP_NO_REPLAY 와 같다) */
     TOUCH[id]=v;
     if(v==='bed'){ S.bgm=B.clean(S.bgm)||{}; S.bgm[id]={m:'bed'}; try{ if(window.BgmBed) BgmBed.hush(); }catch(x){} }
     else { var c=B.clean(S.bgm); if(c) delete c[id]; S.bgm=B.clean(c); if(!S.bgm) delete S.bgm; try{ if(window.BgmBed) BgmBed.hush(); }catch(x){} }   /* [BGM_PREVIEW_1024] 곡 카드 소리가 흐르던 줄이 사라지면 멈춘다 */
@@ -71,6 +75,10 @@
   /* ── ④ 한눈에 보기 «음악» 묶음 — 두 줄 ──
      첫 줄 = 입장 곡(두 분이 고르거나 올렸으면 곡 이름 · 아니면 «고르지 않으시면 스튜디오가 준비해요» + «이동하기»(입장 쪽 · 미완료 셈에는 안 넣는다 [BGM_R1_1023])) ·
      그다음 담긴 축사 · 편지마다 «축사 · 음악 없이 / 음악과 함께» · 끝 줄 «그 밖의 음악은 스튜디오가 준비해요» [BGM_R4_1023] */
+  /* ★[BGM_FIX_1030 GPT③ R1-7] 두 분이 올린 입장 곡을 스튜디오로 못 보냈으면(마이페이지 안 · 보내는 중이 아님 · 서버 파일 없음) 요약 입장 줄도 그 사실 + «이동하기» —
+     곡 이름만 보이면 «다 됐다»로 읽힌다(입장 칸에는 «스튜디오로 보내지 못했어요 · 다시 보내기»가 있다 · 이 줄은 그리로 데려간다) */
+  function entryUnsent(){ var mu=St().mu||{}; if(mu.src!=='up'||mu.fid) return false; var sv=null; try{ sv=window.EntryMusic&&EntryMusic._t&&EntryMusic._t.sv?EntryMusic._t.sv():null; }catch(x){}
+    return !!(sv&&sv.emb&&sv.st!=='up'&&(sv.st==='fail'||sv.st==='big'||!!(mu.sid||mu.t||mu.name))); }
   function entryNow(){ var mu=St().mu||{}, t=String(mu.t||mu.name||'');
     if(mu.src==='up'||mu.src==='rec') return t?'‹'+t+'›':(mu.src==='up'?'두 분이 고른 곡':'스튜디오가 고른 곡')   /* [STUDIO_PICK_1023] */;
     return ''; }   /* 입장 곡을 안 골랐으면 당일 콘솔이 배경음으로 연다(console muPill «입장 음악 없음 · 배경음으로») */
@@ -89,7 +97,7 @@
   function segRows(){ try{ return window.BgmBed?BgmBed.sumRows():[]; }catch(x){ return []; } }
   function segLi(r){ return '<li class="mk-vr bgm-seg" data-seg="'+r.id+'"><span class="mk-vt"><span class="mk-vn">'+e(r.t)+'</span></span></li>'; }
   function sumHtml(){ var pk=pickRows(), sr=segRows();
-    var en=entryNow(), one=en?'입장 곡 · '+en:entryWant();
+    var un=entryUnsent(), en=un?'':entryNow(), one=un?'입장 곡 · 스튜디오로 보내지 못했어요':en?'입장 곡 · '+en:entryWant();   /* [BGM_FIX_1030 R1-7] */
     return '<section class="mk-sec mk-bgm"><h4>음악</h4><ul class="mk-vlist">'
       +sr.filter(function(r){ return SEG_BEFORE_ENTRY[r.id]; }).map(segLi).join('')
       +'<li class="mk-vr bgm-sl"><span class="mk-vt"><span class="mk-vn">'+e(one)+'</span></span>'+(en?'':'<button type="button" class="rowbtn mk-vb" data-fk="bgmgo:entry" onclick="mkGo(\'entry\')">이동하기</button>')+'</li>'
