@@ -1155,13 +1155,13 @@ function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&c
       if(vid||sid) curF[k]=byId[vid||sid]; });
     d.files.forEach(function(f){ if(!(f.key&&curF[f.key]===f)) old.push(f); });
     Object.keys(curF).forEach(function(k){ if(ks.indexOf(k)<0) ks.push(k); });   // 고른 식순이 바뀌어도 올라온 파일은 보인다
-    var nEmpty=0, h=ks.map(function(k){ var f=curF[k], v=up[k], ok=d.okMap&&d.okMap[k];
+    var nEmpty=0, h=ks.map(function(k){ var f=curF[k], v=up[k], ok0=d.okMap&&d.okMap[k], ok=ok0&&f&&ok0.id&&ok0.id===f.id?ok0:null;   /* ★[RFOK_FILE 2026-10-30 GPT 14차 점검(고객) 14-08] ✓ 는 들은 파일에 묶는다 — 다시 만든 파일(id 가 다름)은 «확인»으로(다시 들어야 한다) */
       var upB=' <button type="button" '+BT+' data-fk="admrfup:'+k+'" onclick="admRfUp(\''+k+'\',this)">파일 올리기</button>';   // [RF_STUDIO_UP] 카톡 · 메일로 받은 파일을 대신 올린다
       if(!f){ nEmpty++; return '<div class="kv"><span class="k">'+esc(LAB[k]||k)+'</span><span class="v" style="color:var(--sub)">비어 있음 · 나레이션으로 나감 '+admRfAsk(k)+upB+'</span></div>'; }
       var kind=/ · 스튜디오 · /.test(f.name)&&!(v&&v.id===f.id)?'스튜디오가 올린 파일':v&&v.src==='ai'?'AI 목소리':v&&v.src==='rec'?'두 분 녹음':'올린 파일';
       return '<div class="kv"><span class="k">'+esc(LAB[k]||f.label||k)+'</span><span class="v"><b>'+kind+'</b> · '+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+(f.late?' · <b style="color:var(--red)">D-7 뒤 바뀜</b>':'')
         +' <button type="button" '+BT+' onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button>'
-        +' <button type="button" '+BT+' onclick="admRfOk(\''+esc(k)+'\','+(ok?'false':'true')+')">'+(ok?'확인 ✓ · '+esc(ok.at||''):'확인')+'</button>'+upB+'</span></div>'; }).join('');
+        +' <button type="button" '+BT+' onclick="admRfOk(\''+esc(k)+'\','+(ok?'false':'true')+',\''+esc(f.id)+'\')">'+(ok?'확인 ✓ · '+esc(ok.at||''):ok0?'파일이 바뀌었어요 · 다시 확인':'확인')+'</button>'+upB+'</span></div>'; }).join('');
     if(!ks.length) h='<div class="kv"><span class="k">파일</span><span class="v">두 분 목소리를 고른 자리가 없어요</span></div>';
     h='<p class="note" style="margin:4px 0 6px;color:var(--sub);font-size:12px">확인할 것 · 목소리가 그 사람인지 · 하객 맞이 4번 줄에 안내 음성 알림 말이 남아 있는지 · D-5 쯤 한 번'+(nEmpty?' · 빈 줄 '+nEmpty+'개':'')+'</p>'+h;
     if(old.length) h+='<details style="margin-top:6px"><summary style="font-size:12px;color:var(--sub)">옛 파일 '+old.length+'개</summary>'+old.map(function(f){ return '<div class="kv"><span class="k">'+esc(f.label||'자리 모름')+'</span><span class="v">'+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+' <button type="button" '+BT+' onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button></span></div>'; }).join('')+'</details>';
@@ -1212,8 +1212,8 @@ function admRfPlay(id,btn){ var code=curDetail&&curDetail.code; if(!code) return
     var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); _admPlay(new Blob([u],{type:d.mime||'audio/wav'})); })   // [ADM_PLAY_FAIL]
     .catch(function(e){ btn.disabled=false; btn.textContent='들어 보기'; toastErr('파일을 받지 못했어요 · '+_why(e)); }); }
 /* ★[ADM_RF_OK_FAIL 2026-10-07 ERR_CODE_ADMIN] «확인 ✓» — 서버가 거절해도 목록만 다시 읽어 ✓ 가 안 생긴 채 말이 없었다(#17 · 실측) · catch 도 없었다 */
-function admRfOk(key,on){ var code=curDetail&&curDetail.code; if(!code) return;
-  gas('adminRitualFileOk', code, key, on).then(function(r){ if(!(r&&r.ok)) toastErr('확인 표시를 남기지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'})); admRfLoad(); })
+function admRfOk(key,on,fid){ var code=curDetail&&curDetail.code; if(!code) return;
+  gas('adminRitualFileOk', code, key, on, fid||'').then(function(r){ if(!(r&&r.ok)) toastErr('확인 표시를 남기지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'})); admRfLoad(); })
     .catch(function(e){ toastErr('확인 표시를 남기지 못했어요 · '+_why(e,{write:true})); }); }
 /* ★[AI_NOTICE_0928 9-1] 식순지 뒷면 한 줄 틀 — «[자리]의 [누구] 목소리[도 / 가운데 일부는], [누구]의 목소리로 만든 AI 음성입니다.»
    자리: AI 줄이 있는 자리만(하객 맞이 안내 · 입장 인사) · 누구: 그 줄을 읽는 사람이 둘이면 «두 사람», 한 분이면 «신랑» / «신부» ·
@@ -3127,7 +3127,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
          행을 남겨 둔 이유는 하나뿐 — 폐지 전에 저장된 초안이 이 값을 쥐고 있으면 관리자가 알아야 한다.
          row() 는 값이 없으면 아무것도 안 그리므로 새 고객에게는 빈 줄도 안 생긴다. */
       +row('링 워밍', ({family:'가족만',all:'하객 전체',skip:'뺌'})[s3d.ringwarm]||'')   /* [LEGACY_LABEL] 폐지 전 초안만 값을 갖는다 */
-      +row('부모님 헌정', s3d.course==='open'?((s3d.on&&s3d.on.tribute)?'인사 · 포옹(꽃 없음)':''):(({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||''))   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스 값 flower 는 옛 초안 호환 이름 — «꽃»으로 읽혀 꽃을 준비하지 않게 · 옛 코스는 그대로 */
+      +row('부모님 헌정', s3d.course==='open'?((s3d.on&&s3d.on.tribute)?(s3d.tribHug==='off'?'인사만(포옹 없음 · 꽃 없음)':'인사 · 포옹(꽃 없음)'):''   /* [TRIB_NO_HUG_1030 검토 172] */):(({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||''))   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] 새 코스 값 flower 는 옛 초안 호환 이름 — «꽃»으로 읽혀 꽃을 준비하지 않게 · 옛 코스는 그대로 */
       +(s3d.course==='open'?row('축배', (s3d.on&&s3d.on.toast)?'두 분 선창 «위하여»':''):row('축배', ({toast:'축배',cake:'뺌(옛 «케이크만» 판 · 10/17 케이크 폐지)','2':'축배(케이크 10/17 폐지)',both:'축배(케이크 10/17 폐지)'})[s3d.toast]||''))   /* ★[FLOW_FROM_TWO_1017 · CAKE_OFF_1013] 새 코스는 «축배» 행(담았을 때만) — 종전엔 S.toast(축배를 안 담아도 «축배»)를 읽어 담지 않은 날도 «축배·케이크 · 축배»가 떴다 · 옛 코스 행은 그대로 */
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
       /* [R4-02] 두 분이 «원고 없이 부모님이 현장에서 바로»를 골랐으면(덕담 부탁 칸 mkc 'p:bless:N' = 'site') 숨은 원고를 보이지 않는다 — 카드를 만들 원고가 아니다 */

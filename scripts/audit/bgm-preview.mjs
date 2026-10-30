@@ -20,7 +20,7 @@
    D3 보컬 곡 — 곡 이름 옆 «노래»(보컬 넷만) · 고르면 아래 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요» · 깔리면 나레이션 −6 더(−22)
    D4 [GPT③ R1-1] 초안이 통째로 바뀌면 이 탭에서 누른 축사 칩 기억도 비운다(저장에 없는 «음악과 함께»가 눌린 모양으로 남지 않는다)
    D5 [GPT③ R1-7] 두 분이 올린 입장 곡을 스튜디오로 못 보냈으면 ④ 음악 첫 줄 «입장 곡 · 스튜디오로 보내지 못했어요» + «이동하기»
-   D6 축배 — «위하여» 전 축배 나레이션은 닫는 인사 곡(M6) · 뒤에 축배 곡(M7 · B28)
+   D6 축배 — «위하여» 전 축배 나레이션은 닫는 인사 곡(M6) · 뒤에 축배 곡(M7 · B28) · ★[CHEER_TAIL_1030] «위하여»가 순간의 마지막 줄이어도(END_FLOW_1030) 꼬리 4초에 축배 곡
    E [덧붙임 4] 1 연주자는 한국 고객이 읽는 이름(久石譲 → 히사이시 조) 2 곡 이름에 «(Instrumental)» 꼬리 없음 3 곡 이름이 한 줄(390 · 하객 맞이 «바다가 보이는 마을»)
      4 아는 영화 · 드라마 곡은 아랫줄 맨 앞에 출처(«하울의 움직이는 성 · 히사이시 조 · …») 5 여러 곡을 이어 트는 구간(하객 맞이 · 테이블 인사)은 «‹곡›부터 이어서 틀어요»
    BP_OP=<order-preview.html 경로>(그 판으로 잰다 — 돌연변이 확인용 · 옛 판은 빨강)  SHOT=폴더(그림)  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -87,7 +87,7 @@ const lab = (f, k) => f.evaluate((k) => { const b = document.querySelector('.mk-
 const LOG = (pg) => pg.evaluate(() => H.log.slice());
 /* 이 순간 전체 듣기 — 줄마다 (그 줄 · 음악 곡 · 바란 크기)를 모은다 */
 async function listen(f, k, ms) {
-  await f.evaluate((k) => { window.__bl = []; lsPlay(k); const t = setInterval(() => { try { const st = LP.q[LP.i], B = BgmBed._t.BED; if (!st) return; window.__bl.push({ i: LP.i, k: st.k, slug: st.slug || '', talk: !!(st.talk || st.talk2 || st.skip || st.bridge), cheer: !!st.cheer, dk: st.dk, ldk: st.ldk, f: B.cur.f, want: B.cur.want, who: B.who, src: !!B.cur.src }); } catch (e) {} }, 120); window.__blT = t; }, k);
+  await f.evaluate((k) => { window.__bl = []; lsPlay(k); const t = setInterval(() => { try { const st = LP.q[LP.i] || (LP.q.length ? { k: '_tail', slug: '_tail' } : null), B = BgmBed._t.BED; if (!st) return;   /* [CHEER_TAIL_1030] 마지막 줄 뒤 꼬리(축배 곡 4초)도 잰다 */ window.__bl.push({ i: LP.i, k: st.k, slug: st.slug || '', talk: !!(st.talk || st.talk2 || st.skip || st.bridge), cheer: !!st.cheer, dk: st.dk, ldk: st.ldk, f: B.cur.f, want: B.cur.want, who: B.who, src: !!B.cur.src }); } catch (e) {} }, 120); window.__blT = t; }, k);
   await wait(f, ms); return f.evaluate(() => { clearInterval(window.__blT); try { lsStop(); } catch (e) {} return window.__bl.slice(); }); }
 const shot = async (f, W, n, sel) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { recursive: true }); await f.locator(sel).first().screenshot({ path: path.join(SHOT, `bed-${W}-${n}.png`) }); } catch {} };
 const RO = (f, t) => f.evaluate((t) => (typeof _josaRo === 'function' ? _josaRo(t) : '로'), t);
@@ -155,9 +155,9 @@ try {
       ok(`${W} D3 보컬 곡(B04) 아래 나레이션은 엔진 크기 − 6(−16 → −22)`, n3.length > 0 && n3.every((x) => Math.abs(x.want - (x.dk - 6)) < 0.01), { n: n3.length, s: n3.slice(0, 3) });
     }
     /* D6 · 5 축배 */
-    await go(f, 'toast'); const b6 = await listen(f, 'toast', 12000);
+    await go(f, 'toast'); const b6 = await listen(f, 'toast', 16000);
     const ch = b6.findIndex((x) => x.cheer), pre = b6.slice(0, ch > -1 ? ch : 0).filter((x) => x.src), post = ch > -1 ? b6.slice(ch).filter((x) => x.src && !x.cheer) : [];
-    ok(`${W} D6 축배 — «위하여» 전은 닫는 인사 곡(B17) · 뒤는 축배 곡(B28) · 축배 크기(0)`, ch > -1 && pre.length > 0 && pre.every((x) => x.f === 'B17') && post.some((x) => x.f === 'B28' && x.want === 0), { ch, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.f + ':' + x.want))].slice(0, 14) });
+    ok(`${W} D6 축배 — «위하여» 전은 닫는 인사 곡(B17) · 뒤는 축배 곡(B28) · 축배 크기(0)`, ch > -1 && pre.length > 0 && pre.every((x) => x.f === 'B17') && post.some((x) => x.f === 'B28' && x.want === 0), { ch, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.f + ':' + x.want))].slice(0, 20) });
     /* 6 축사 · 편지 */
     await go(f, 'free'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x) => x.talk && x.src);
     ok(`${W} 6 축사 «음악 없이» — 말씀 동안 −90 · 곡 B09(감사 인사 1순위)`, t7.length && t7.every((x) => x.want === -90 && x.f === 'B09'), t7.slice(0, 3));

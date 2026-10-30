@@ -420,6 +420,32 @@ span.dr-pv{cursor:inherit}
 .pk-subrow .pk-sub-h{margin-top:0}
 .pk-subrow .pk-accj{flex:0 0 auto;margin:-12px -12px -12px auto;font-size:12px;white-space:nowrap}
 .pk-near + .pk-accj,.pk-accj + .pk-near{margin-top:4px}
+/* ★★[DRESS_TABS_1030 사장님 «추천대로» · 코워크 · GPT 2라운드] 오른쪽 아이콘(상담 뒤)으로 연 창 = 머리 아래 두 탭 «드레스 / 소품·부케» — 물음 · 답 요약 · 순위 없음.
+   탭: 높이 44 이상 · 같은 너비 · 14/22 · 고른 탭 = 금빛 글 + 2px 밑줄 · 구분선 1px · 머리와 함께 고정 · 진사 없음 */
+.pk-tabs{display:flex;border-bottom:1px solid var(--border);margin:0 0 16px}
+.pk-tabs[hidden]{display:none}
+.pk-tab{flex:1 1 0;min-width:0;min-height:44px;margin:0 0 -1px;padding:11px 8px 9px;border:0;border-bottom:2px solid transparent;border-radius:0;background:none;font-family:var(--serif-ko);font-size:14px;line-height:22px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pk-tab[aria-selected="true"]{color:var(--gold-text);border-bottom-color:var(--gold-text)}
+.pk-tab:focus-visible{outline:2px solid var(--gold-text);outline-offset:-5px}   /* [DRESS_TAB_RING] 초점 테는 선택 밑줄과 따로(밑줄 위로 3px 띄운다) */
+html.pk-pop.pk-tabson .pk-head{margin-bottom:0}
+html.pk-pop.pk-tabson.pk-scrolled .pk-head{box-shadow:none}
+html.pk-pop.pk-tabson .pk-tabs{position:sticky;top:var(--pk-hh,56px);z-index:6;background:var(--card-white);margin:0 -20px 16px;padding:0 20px}
+@media (min-width:560px){ html.pk-pop.pk-tabson .pk-tabs{margin:0 -28px 16px;padding:0 28px} }
+.pk-tabgrid{gap:24px 12px;margin-top:0}
+@media (min-width:560px){ .pk-tabgrid{gap:24px 16px} }
+.pk-panel .dr-nm{line-height:22px}
+.pk-panel .pk-acc{margin-top:0;padding-top:0;border-top:0}
+.pk-toacc{margin:24px 0 0 -12px;font-size:14px}
+button.pk-acci{align-self:start;display:block;width:100%;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:6px}
+button.pk-acci:focus-visible{outline:2px solid var(--gold-deep);outline-offset:4px}
+button.pk-acci .pk-accp{transition:transform .12s ease}
+button.pk-acci:active .pk-accp{transform:scale(.98)}
+/* [DRESS_ACC_BIG] 소품 크게 보기 — 같은 창 안 본문만 바꾼다 · 사진 → 이름 → 제공 안내 · 사진 한 장(넘김 없음) */
+.pk-accv .pk-accp{border-radius:6px;width:100%;max-width:420px;margin:0 auto}   /* [DRESS_ACC_FIT] 크게 보기 사진 = 최대 420 · 본문 폭 이하 · 긴 면사포 끝이 잘리지 않게 contain */
+.pk-accv .pk-accp img{object-fit:contain}
+html .pk-main .pk-accv .dv-view,html.pk-pop .pk-main .pk-accv .dv-view{max-width:420px}   /* [DRESS_ACC_FIT] 드레스 사진 폭(300 · 높이로 잰 값)이 아니라 소품 기준 420 · 이름 · 안내도 같은 폭(왼쪽 줄 맞춤) */
+html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420px}
+.pk-accv .dv-p{margin-top:8px}
 .dv-reld{margin-top:-8px;font-size:13px;color:var(--light);line-height:1.6}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;scroll-behavior:auto!important} html.pk-pop .pk-main.pk-fade{animation:none} }
 </style>
@@ -430,6 +456,7 @@ span.dr-pv{cursor:inherit}
 <div id="pickView" class="pk-wrap">
   <div class="pk-card">
     <div class="pk-head"><span class="pk-head-n">드레스 미리 보기</span><span class="wiz-acts"><button type="button" class="wiz-exit wiz-save" id="pkSave" disabled>저장</button><button type="button" class="wiz-exit" id="pkExit">나가기</button></span></div>
+    <div class="pk-tabs" id="pkTabs" role="tablist" aria-label="드레스 · 소품 · 부케 보기" hidden><button type="button" role="tab" class="pk-tab" id="pkTabD" data-tab="dress" aria-controls="pkPanD" aria-selected="true">드레스</button><button type="button" role="tab" class="pk-tab" id="pkTabA" data-tab="acc" aria-controls="pkPanA" aria-selected="false" tabindex="-1">소품·부케</button></div>
     <p class="pk-solo" id="pkSolo" hidden>이 화면에서 고른 것은 저장되지 않아요</p>
     <div class="pk-main" id="pkMain" tabindex="-1"></div>
     <div id="pkBar"></div>
@@ -552,6 +579,9 @@ span.dr-pv{cursor:inherit}
   var S = { view: 'q', q: 0, ans: { len: '', fit: '', pref: [] }, seen: [false, false, false], picks: [null, null], memo: '', cur: '', busy: false, mode: '', err: '', touched: false, wait: 0, ymd: '', listY: 0,
     tipsOpen: false, base: '[[],""]', saved: false, failed: false, ro: false, answered: false, more: false, akey: '' };
   if (OPEN && R.dress(OPEN)) { S.view = 'detail'; S.cur = OPEN; }   // [DRESS_SEE_TAP] 카드에서 누른 드레스 자세히로 바로
+  /* ★★[DRESS_TABS_1030] 상담 뒤(아이콘 · ctx=after) = 처음부터 탭 화면 — 물음(q) · 결과(list)로 가는 길이 없다(늦게 온 데이터 · 뒤로가기 · Esc 포함 · 되살리지 말 것).
+     S.ty = 탭마다 스크롤 자리 · 마이페이지(부모) 메모리에 남겨 같은 페이지에서 다시 열면 마지막 탭 + 그 자리(새로고침 · 다른 고객이면 드레스 탭부터 · 서버 저장 없음) */
+  if (AFTER) { S.view = 'tabs'; S.tab = 'dress'; S.ty = { dress: 0, acc: 0 }; S.accCur = ''; S.cur = ''; }
   function count(){ return S.picks.filter(Boolean).length; }
   /* [DRESS_EXIT_ASK] «바뀐 게 있나» = 고른 두 벌(순서 그대로) · 남길 말이 저장본과 다르다. 답(길이 · 핏 · 노출 · 소매)은 줄 세우기 도움이라 세지 않는다 */
   function keyOf(ids, memo){ return JSON.stringify([ids, String(memo || '').trim()]); }
@@ -638,15 +668,15 @@ span.dr-pv{cursor:inherit}
   }
   /* ★★[DRESS_ACC_1024 코워크 · 사장님 «함께 볼 소품 추가해»] 결과 «함께 보는 소품» — 소제목 · 한 줄 · 여섯 칸(폰 2열 · 560+ 3열 · 사진 1:1) · 칸 = 사진 → «스타일 예시 이미지»(드레스 칸 보조 줄과 같은 꼴) → 이름 → 작은 글(있는 칸만).
        누름 없음(사진 크게 보기 방식이 없다) · 고르기 없음([DRESS_GUIDE_ONLY]) · 목록은 DRESS_REFS.accList 한 곳(ACC_ON · 칸마다 on) */
-  function accHTML(){
-    var a = R.accList ? R.accList() : []; if (!a.length) return '';
+  function accHTML(tab){
+    var a = R.accList ? R.accList() : []; if (!a.length) return '';   // ★[DRESS_TABS_1030] tab = 소품·부케 탭 — 칸을 누르면 크게 보기(data-acc) · «드레스 다시 보기»는 없다(탭이 대신)
     return '<section class="pk-acc" id="pkAcc" aria-labelledby="pkAccH"><h3 class="pk-sub-h" id="pkAccH" tabindex="-1">함께 보는 소품 · 부케</h3>'
       + (R.ACC_LEAD ? '<p class="pk-sub-s">' + esc(R.ACC_LEAD) + '</p>' : '')
       + '<div class="pk-accg">' + a.map(function(x){
-        return '<div class="pk-acci"><span class="pk-accp"><img src="/assets/dress-refs/' + esc(x.img) + '.webp" alt="" width="480" height="480" loading="lazy" decoding="async"></span>'
+        return (tab ? '<button type="button" class="pk-acci" data-acc="' + esc(x.id) + '" aria-label="' + esc(x.name + ' 크게 보기') + '">' : '<div class="pk-acci">') + '<span class="pk-accp"><img src="/assets/dress-refs/' + esc(x.img) + '.webp" alt="" width="480" height="480" loading="lazy" decoding="async"></span>'
           + '<span class="dr-kick pk-accx">스타일 예시 이미지</span><span class="dr-nm">' + esc(x.name) + '</span>'
-          + (x.note ? '<span class="pk-accn">' + esc(x.note).replace(/ · /g, '&nbsp;· ') + '</span>' : '')   /* [ACC_DOT_KEEP] « · »가 줄 머리로 넘어가지 않게 앞 낱말에 붙인다 */ + '</div>';
-      }).join('') + '</div><button type="button" class="pk-txt pk-drtop" data-act="drtop">드레스 다시 보기 <span aria-hidden="true">&uarr;</span></button></section>';   // ★[DRESS_ACC_TOP 1024 코워크] 소품을 다 본 뒤 드레스로 돌아가는 길
+          + (x.note ? '<span class="pk-accn">' + esc(x.note).replace(/ · /g, '&nbsp;· ') + '</span>' : '')   /* [ACC_DOT_KEEP] « · »가 줄 머리로 넘어가지 않게 앞 낱말에 붙인다 */ + (tab ? '</button>' : '</div>');
+      }).join('') + '</div>' + (tab ? '' : '<button type="button" class="pk-txt pk-drtop" data-act="drtop">드레스 다시 보기 <span aria-hidden="true">&uarr;</span></button>') + '</section>';   // ★[DRESS_ACC_TOP 1024 코워크] 소품을 다 본 뒤 드레스로 돌아가는 길
   }
   function accJumpHTML(){ return (R.accList && R.accList().length) ? '<button type="button" class="pk-txt pk-accj" data-act="acc">소품 · 부케 보기 <span aria-hidden="true">&rsaquo;</span></button>' : ''; }   // [DRESS_ACC_1024] «내가 고른 스타일» 판 아래 이동 줄
   function gridHTML(list){ return '<div class="dr-grid pk-grid">' + list.map(function(d){ return cellHTML(d); }).join('') + '</div>'; }
@@ -664,8 +694,28 @@ span.dr-pv{cursor:inherit}
     return { front: front, rest: rest, near: near, open: open };
   }
   /* ★[DRESS_GUIDE_ONLY] 결과 · 자세히 맨 아래 한 줄 — 추천 · 맞춤 · 확정 말 없음 */
-  var GUIDE_END = AFTER ? '<div class="pk-end-dots"><p class="dotln">마음에 드는 스타일은 방문 때 함께 비교해요.</p><p class="dotln">방문 때 이 화면을 보여 주셔도 좋아요.</p></div>'   // ★[DRESS_AFTER_WORDS] 상담 뒤
+  /* ★[DRESS_AFTER_NOEND 1030 코워크 GPT 최종 7] 상담 뒤(아이콘) 목록 · 자세히에는 «방문 전 준비» 넷도 맨 아래 «방문 때 …» 안내도 붙이지 않는다(대체 문구도 없다) — 상담 전(스티커)은 그대로 */
+  var GUIDE_END = AFTER ? ''
     : '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class="dotln">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';   // [DRESS_FORM_1024] 한 줄 더
+  /* ★[DRESS_TABS_1030] 드레스 탭 = 스타일 예시 여섯 벌 · 늘 같은 순서(S01 → S06 · 답과 상관없이) · 자세히의 이전/다음도 이 순서 */
+  function afterList(){ return R.list().slice().sort(function(a, b){ return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; }); }
+  function accOn(){ return !!(R.accList && R.accList().length); }
+  function tabsHTML(){
+    var ds = afterList();
+    return '<section class="pk-panel" role="tabpanel" id="pkPanD" aria-labelledby="pkTabD"' + (S.tab === 'acc' && accOn() ? ' hidden' : '') + '><h2 class="sr" id="pkPanDH" tabindex="-1">드레스</h2>'
+      + (ds.length ? '<div class="dr-grid pk-grid pk-tabgrid">' + ds.map(cellHTML).join('') + '</div>' : '<p class="pk-near">드레스 사진을 준비하고 있어요.</p>')
+      + (accOn() ? '<button type="button" class="pk-txt pk-toacc" data-act="toacc">소품 · 부케도 보기 <span aria-hidden="true">&rsaquo;</span></button>' : '')
+      + '</section>'
+      + (accOn() ? '<section class="pk-panel" role="tabpanel" id="pkPanA" aria-labelledby="pkTabA"' + (S.tab === 'acc' ? '' : ' hidden') + '>' + accHTML(true) + '</section>' : '');
+  }
+  function accItem(id){ var a = R.accList ? R.accList() : []; for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; }
+  function accDetailHTML(){   // ★[DRESS_ACC_BIG] 소품 크게 보기 — 사진 → 이름 → 제공 안내(칸 글이 없으면 소품 한 줄) · «스타일 예시 이미지» 그대로
+    var x = accItem(S.accCur); if (!x) return tabsHTML();
+    return '<button type="button" class="pk-txt pk-back" data-act="acclist">&lsaquo; 소품·부케 목록</button>'
+      + '<div class="dv pk-accv"><div class="dv-view"><span class="pk-accp"><img src="/assets/dress-refs/' + esc(x.img) + '.webp" alt="" width="480" height="480" decoding="async"></span>'
+      + '<p class="dv-meta"><span class="dr-ex">스타일 예시 이미지</span></p></div>'
+      + '<div class="dv-tx"><h2 class="dv-nm" id="dvName" tabindex="-1">' + esc(x.name) + '</h2><p class="dv-p">' + esc(x.note || R.ACC_LEAD || '') + '</p></div></div>';
+  }
   function listHTML(){
     var all = R.list();
     if (!all.length) return '<p class="pk-near" data-head tabindex="-1">드레스 사진을 준비하고 있어요.</p>';
@@ -689,7 +739,7 @@ span.dr-pv{cursor:inherit}
   }
   /* ★[DRESS_NEXT_PREV 2026-10-23 코워크 디자인 라운드 2 · 4] 자세히 맨 아래 한 줄 «‹ 이전 드레스 · 다음 드레스 ›» — 지금 목록 순서(답이 있으면 맞는 칸이 앞 · listHTML 과 한 순서) ·
      끝에서는 그쪽 단추를 두지 않는다(남은 쪽은 제자리) · 사진 넘김(‹ ›)과 헷갈리지 않게 글 단추 · 누르는 칸 44px */
-  function orderIds(){ var sp = splitList(); return sp.front.concat(sp.open ? sp.rest : []).map(function(x){ return x.id; }); }   // ★[DRESS_RESULT_SPLIT] 이전/다음 = 화면에 보이는 순서(접혀 있으면 «답에 맞는 드레스»까지)
+  function orderIds(){ if (AFTER) return afterList().map(function(x){ return x.id; }); var sp = splitList(); return sp.front.concat(sp.open ? sp.rest : []).map(function(x){ return x.id; }); }   // ★[DRESS_RESULT_SPLIT] 이전/다음 = 화면에 보이는 순서(접혀 있으면 «답에 맞는 드레스»까지)
   function nbHTML(d){
     var ids = orderIds(), i = ids.indexOf(d.id); if (i < 0 || ids.length < 2) return '';
     var pv = i > 0 ? R.dress(ids[i - 1]) : null, nx = i < ids.length - 1 ? R.dress(ids[i + 1]) : null;
@@ -776,14 +826,58 @@ span.dr-pv{cursor:inherit}
     put(best);
   }
   function refit(){ if ((window.pageYOffset || 0) > 1) return; FIT = {}; if (S.view === 'list' || S.view === 'detail') fitBar(); }   // 읽던 중이면 정한 값을 그대로 둔다(다시 그릴 때 같은 값 · 고르기로 사진이 튀지 않게)
+  function v0q(){ return S.view === 'q' || S.view === 'list' || S.view === 'done'; }
+  /* [DRESS_TABS_1030] 탭 줄 — 탭 화면에서만(자세히 · 크게 보기에서는 «‹ … 목록»이 대신) · 머리 높이만큼 아래에 고정 */
+  function paintTabs(){
+    var tl = $('pkTabs'); if (!tl) return;
+    var on = AFTER && S.view === 'tabs' && accOn();
+    tl.hidden = !on; document.documentElement.classList.toggle('pk-tabson', on);
+    if (!on) return;
+    var hd = document.querySelector('.pk-head'); if (hd) document.documentElement.style.setProperty('--pk-hh', hd.offsetHeight + 'px');
+    [['pkTabD', 'dress'], ['pkTabA', 'acc']].forEach(function(p){ var b = $(p[0]), sel = S.tab === p[1]; b.setAttribute('aria-selected', sel ? 'true' : 'false'); b.tabIndex = sel ? 0 : -1; });
+  }
+  /* how: 'tab' 탭에 초점 · 'head' 그 탭 첫 제목에 초점(맨 위부터) */
+  function switchTab(t, how){
+    if (!AFTER || S.view !== 'tabs' || !accOn()) return;
+    S.touched = true;
+    if (t === S.tab && how !== 'head') { var cur = $(t === 'acc' ? 'pkTabA' : 'pkTabD'); if (cur) { try { cur.focus({ preventScroll: true }); } catch (e) {} } return; }   // [DRESS_TAB_SAME] 고른 탭을 다시 고르면(누름 · Home/End) 자리 그대로 — 맨 위는 «소품 · 부케도 보기 ›»뿐
+    if (t !== S.tab) { S.ty[S.tab] = window.pageYOffset || 0; S.tab = t; }
+    var pd = $('pkPanD'), pa = $('pkPanA'); if (pd) pd.hidden = t !== 'dress'; if (pa) pa.hidden = t !== 'acc';
+    paintTabs();
+    if (how === 'head') S.ty[t] = 0;
+    try { window.scrollTo(0, S.ty[t] || 0); } catch (e) {}
+    var f = how === 'head' ? $(t === 'acc' ? 'pkAccH' : 'pkPanDH') : $(t === 'acc' ? 'pkTabA' : 'pkTabD');
+    if (f) { try { f.focus({ preventScroll: true }); } catch (e) {} }
+    memPost();
+  }
+  /* [DRESS_TABS_1030] 기억 — 마이페이지(부모) 메모리에만(서버 · 기기 저장 없음) · 자세히를 보다 닫으면 그 목록 */
+  function memNow(){
+    var ty = { dress: S.ty.dress || 0, acc: S.ty.acc || 0 };
+    if (S.view === 'tabs') ty[S.tab] = window.pageYOffset || 0;
+    return { tab: S.view === 'accd' ? 'acc' : S.view === 'detail' ? 'dress' : S.tab, ty: ty };
+  }
+  if (AFTER) window.__drMemNow = memNow;   // ★[DRESS_MEM_CLOSE] 부모가 창을 닫는 그 순간 지금 자리를 바로 읽는다(✕ · Esc · 뒤로 · 바깥 — 250ms 늦은 알림을 기다리지 않는다)
+  function memPost(){
+    if (!AFTER || !EMBED) return;
+    var mm = memNow();
+    try { window.parent.postMessage({ type: 'momentedit:dressMem', tab: mm.tab, ty: mm.ty }, location.origin); } catch (e) {}
+  }
+  function backToAcc(){   // [DRESS_ACC_BIG] 크게 보기 → 소품·부케 목록 — 보던 칸 · 그 자리 · 초점
+    var back = S.accCur; S.tab = 'acc'; go('tabs');
+    try { window.scrollTo(0, S.ty.acc || 0); } catch (e) {}
+    var c = $('pkMain').querySelector('[data-acc="' + back + '"]'); if (c) { try { c.focus({ preventScroll: true }); } catch (er) {} }
+    memPost();
+  }
   var lastKey = '';
   function render(focusHead){
-    var m = $('pkMain'), v = S.view, key = v + ':' + S.q + ':' + S.cur, moved = key !== lastKey;
+    if (AFTER && (v0q())) S.view = 'tabs';   // ★[DRESS_TABS_1030] 상담 뒤에는 물음 · 결과가 없다 — 어떤 길로 와도 탭 화면
+    var m = $('pkMain'), v = S.view, key = v + ':' + S.q + ':' + S.cur + ':' + (S.tab || '') + ':' + (S.accCur || ''), moved = key !== lastKey;
     lastKey = key;
-    m.innerHTML = v === 'q' ? qHTML(S.q) : v === 'list' ? listHTML() : v === 'detail' ? detailPickHTML() : doneHTML();
+    m.innerHTML = v === 'q' ? qHTML(S.q) : v === 'tabs' ? tabsHTML() : v === 'accd' ? accDetailHTML() : v === 'list' ? listHTML() : v === 'detail' ? detailPickHTML() : doneHTML();
+    paintTabs();
     renderBar();
     if (v === 'detail') wireStrip(m);
-    if (focusHead !== false) { var h = m.querySelector('[data-head],.dv-nm'); try { (h || m).focus({ preventScroll: true }); } catch (e) {} }
+    if (focusHead !== false) { var h = v === 'tabs' ? (accOn() ? $(S.tab === 'acc' ? 'pkTabA' : 'pkTabD') : $('pkPanDH')) : m.querySelector('[data-head],.dv-nm'); try { (h || m).focus({ preventScroll: true }); } catch (e) {} }
     if (moved) { try { window.scrollTo(0, 0); } catch (e) {} if (POP) { m.classList.remove('pk-fade'); void m.offsetWidth; m.classList.add('pk-fade'); } }   // [POPUP_FIT_1024] 단계를 넘길 때 본문만 120ms 옅게 들어온다
     try { fitBar(); } catch (e) {}   // [DRESS_BAR_FIT] 첫 화면 막대 선에 글줄이 걸리지 않게(못 재면 CSS 기본값 그대로)
     syncState();
@@ -792,6 +886,12 @@ span.dr-pv{cursor:inherit}
   /* ★[DRESS_BACK_STEP 2026-10-23 코워크 디자인 라운드 2 · 1] 목록으로 돌아가는 길은 하나 — «‹ 목록» · 휴대폰 뒤로가기 · Esc.
      목록은 떠날 때의 자리로(S.listY · 칸을 눌러 자세히로 갈 때 적는다) · 보던 드레스 칸에 초점(이웃 드레스로 넘겨 왔으면 그 칸이 보이게) */
   function backToList(){
+    if (AFTER) {   // [DRESS_TABS_1030] 자세히 → 드레스 탭(보던 칸 · 그 자리 · 초점) — 물음으로 가지 않는다
+      var bk = S.cur; S.tab = 'dress'; go('tabs');
+      try { window.scrollTo(0, S.ty.dress || 0); } catch (e) {}
+      var cc = $('pkMain').querySelector('[data-open="' + bk + '"]'); if (cc) { try { cc.focus({ preventScroll: bk === S.listFrom }); } catch (er) {} }
+      memPost(); return;
+    }
     if (!S.answered) { go('q', { q: 0 }); return; }   // ★[DRESS_Q_FIRST] 답 없는 목록은 없다 — 카드 사진으로 자세히에 왔고 아직 답이 없으면 물음 1로
     var back = S.cur, y = S.listY || 0;
     go('list');
@@ -802,6 +902,8 @@ span.dr-pv{cursor:inherit}
   /* 휴대폰 뒤로가기 = 겹화면 안에서 한 걸음 — 자세히 → 목록 · 물음 n → n−1 → 목록. 목록 · 완료 화면이면 false(부모가 종전대로 나가기 판단) */
   function stepBack(){   // ★[DRESS_Q_FIRST] 결과 → 물음 3 → 2 → 1 → 닫기 판단(부모)
     if (S.view === 'detail') { backToList(); return true; }
+    if (S.view === 'accd') { backToAcc(); return true; }   // [DRESS_TABS_1030] 크게 보기 → 소품·부케 목록
+    if (AFTER) return false;   // [DRESS_TABS_1030] 탭 화면에서 뒤로 = 창 닫기(물음으로 가지 않는다)
     if (S.view === 'list') { go('q', { q: R.questions.length - 1 }); return true; }
     if (S.view === 'q') { if (S.q > 0) { go('q', { q: S.q - 1 }); return true; } return false; }
     return false;
@@ -889,6 +991,15 @@ span.dr-pv{cursor:inherit}
     var ok = (sv && Array.isArray(sv.picks)) ? sv.picks.filter(function(id){ return !!R.dress(id); }).slice(0, R.pick) : [];
     S.base = keyOf(ok, sv ? String(sv.memo || '').slice(0, 200) : '');   // [DRESS_EXIT_ASK] 기준선 = 서버에 있는 것(이 화면에 보이는 것만)
     if (m && m.key) S.akey = 'me_dress_ans:' + String(m.key).slice(0, 40);   // [DRESS_Q_FIRST] 이 기기에 남긴 답(개인코드별)
+    if (AFTER) {   // ★[DRESS_TABS_1030] 상담 뒤 — 이 기기의 답(없음 · 일부 · 완료)과 상관없이 탭 화면 · 늦게 온 데이터가 화면을 바꾸지 않는다(이미 누른 뒤면 그대로)
+      if (!S.touched) {
+        var mm = m && m.mem;
+        if (mm && (mm.tab === 'acc' || mm.tab === 'dress')) { S.tab = (mm.tab === 'acc' && accOn()) ? 'acc' : 'dress'; S.ty = { dress: Math.max(0, +(mm.ty && mm.ty.dress) || 0), acc: Math.max(0, +(mm.ty && mm.ty.acc) || 0) }; }
+        S.view = 'tabs'; render();
+        try { window.scrollTo(0, S.ty[S.tab] || 0); } catch (e) {}
+      } else syncState();
+      return;
+    }
     if (!S.touched) {
       S.picks = [ok[0] || null, ok[1] || null];
       /* ★[DRESS_Q_FIRST] 답 = 저장본(두 벌과 함께 간 답) → 없으면 이 기기에 남긴 답. 다 답했으면 결과로 바로 · 아니면 물음 1부터(답한 칸은 켜 둔다) */
@@ -913,6 +1024,12 @@ span.dr-pv{cursor:inherit}
     $('pickView').addEventListener('click', function(e){
       var t = e.target.closest ? e.target.closest('button') : null; if (!t) return;
       var act = t.getAttribute('data-act'), gox = t.getAttribute('data-go'), op = t.getAttribute('data-open'), st = t.getAttribute('data-step'), nb = t.getAttribute('data-nb'), sw = t.getAttribute('data-swap');
+      var tbx = t.getAttribute('data-tab'), acx = t.getAttribute('data-acc');
+      if (tbx) { switchTab(tbx, 'tab'); return; }   // [DRESS_TABS_1030]
+      if (acx) { S.touched = true; S.ty.acc = window.pageYOffset || 0; go('accd', { accCur: acx }); memPost(); return; }   // [DRESS_ACC_BIG] 보던 자리를 적고 크게 보기
+      if (act === 'toacc') { switchTab('acc', 'head'); return; }   // [DRESS_TABS_1030] 드레스 탭 끝 «소품 · 부케도 보기 ›» — 소품 탭 + 첫 제목에 초점
+      if (act === 'acclist') { backToAcc(); return; }
+      if (AFTER && op) { S.touched = true; S.ty.dress = window.pageYOffset || 0; S.listFrom = op; go('detail', { cur: op }); memPost(); return; }   // [DRESS_TABS_1030] 드레스 탭 자리를 적고 자세히
       if (t.classList.contains('pk-opt')) { S.touched = true; answer(t.getAttribute('data-a')); return; }
       if (gox) { stepGo(+gox); return; }
       if (st != null) { S.touched = true; go('q', { q: +st }); return; }
@@ -948,7 +1065,10 @@ span.dr-pv{cursor:inherit}
       if (e.target && e.target.id === 'pkMemo') { S.memo = String(e.target.value || '').slice(0, 200); var c = $('pkMemoC'); if (c) c.textContent = S.memo.length + ' / 200'; syncState(); }   // syncState → paintHead 가 아래 단추 글을 바꾼다(다시 그리지 않아 쓰던 칸의 초점이 그대로)
     });
     /* ★[DRESS_ESC_CLOSE 1029] Esc — 자세히는 목록으로(종전 그대로) · 물음 · 결과는 창 닫기(부모의 닫기 한 곳 askExit · 닫히면 초점은 연 단추로) */
-    document.addEventListener('keydown', function(e){ if (e.key !== 'Escape') return; if (S.view === 'detail') { e.preventDefault(); backToList(); return; } if (EMBED) { e.preventDefault(); exit(); } });
+    document.addEventListener('keydown', function(e){ if (e.key !== 'Escape') return; if (S.view === 'detail') { e.preventDefault(); backToList(); return; } if (S.view === 'accd') { e.preventDefault(); backToAcc(); return; } if (EMBED) { e.preventDefault(); exit(); } });   // [DRESS_TABS_1030] 크게 보기 → 소품 목록 · 탭 화면 → 창 닫기
+    /* [DRESS_TABS_1030] 탭 — 좌우 방향키 · Home · End 로 옮긴다(옮기면 바로 그 패널 · 주소 · 방문 기록은 그대로) */
+    var tl = $('pkTabs'); if (tl) tl.addEventListener('keydown', function(e){ var k = e.key; if (k !== 'ArrowLeft' && k !== 'ArrowRight' && k !== 'Home' && k !== 'End') return; e.preventDefault(); var t = k === 'Home' ? 'dress' : k === 'End' ? 'acc' : (S.tab === 'dress' ? 'acc' : 'dress'); switchTab(t, 'tab'); });
+    if (AFTER) { var mT = 0; window.addEventListener('scroll', function(){ if (S.view !== 'tabs' || mT) return; mT = setTimeout(function(){ mT = 0; memPost(); }, 250); }, { passive: true }); }   // 탭 자리를 부모 메모리에
     /* [DRESS_BAR_FIT] 화면 크기 · 글꼴이 바뀌면 첫 화면을 다시 잰다(스크롤 0 일 때만 옮긴다) */
     var fitT = 0; window.addEventListener('resize', function(){ clearTimeout(fitT); fitT = setTimeout(function(){ try { if (S.view === 'list' || S.view === 'detail') fitBar(); } catch (e) {} }, POP ? 0 : 150); });   // [POPUP_FIT_1024] 창 안에서는 높이가 바뀔 때만 크기가 바뀐다 — 바로 다시 맞춘다
     try { if (document.fonts) { document.fonts.addEventListener('loadingdone', function(){ try { refit(); } catch (e) {} }); if (document.fonts.ready) document.fonts.ready.then(function(){ try { refit(); } catch (e) {} }); } } catch (e) {}

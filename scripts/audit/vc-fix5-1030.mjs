@@ -67,7 +67,7 @@ const svOver = (src) => { const a = sv(src, { wed: '2026-10-20', today: '2026-10
 const CS = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
 { /* ⑥ CON_FRESH_LIST · ⑦ RF_GEN_DROP */
   const iife = (src) => { const i = src.indexOf("(function(){ var go = $('#go'), run = go.onclick;"); if (i < 0) return ''; const j = src.indexOf('})();', i); return src.slice(i, j + 5); };
-  const mk = (src) => { const code = ['rfWhy', 'rfPrefetch', 'rfFreshApply', 'rfBusyNow'].map((f) => grabIn(src, f)).join('\n') + '\nvar RF_WHY = {}, RF_SKIP = "", RF_GEN = {};\n' + iife(src);
+  const mk = (src) => { const code = ['rfWhy', 'rfPrefetch', 'rfFreshApply', 'rfBusyNow'].map((f) => grabIn(src, f)).join('\n') + '\nvar RF_WHY = {}, RF_SKIP = "", RF_GEN = {}, RF_CUR = {}, RF_CACHED = {}, RF_FROM = {}, RF_PUTFAIL = {};\n' + iife(src);
     const pend = {}; let ran = 0; class B { constructor(a) { this.s = String.fromCharCode.apply(null, Array.from(a[0])); } }
     const go = { onclick: () => { ran++; }, dataset: {}, textContent: '시작' };
     const sb = { $: () => go, QS: { get: () => 'AB12CD' }, localStorage: { getItem: () => 'tok' }, GUEST: false, S: { up: { g0: { id: 'A' } } }, rfPaint: () => {}, rfKeys: () => ['g0'], rfSlugOf: () => 'guest-1-arrival', esdWant: () => false, esdPrepVoice: () => {}, render: () => {}, toast: () => {}, rfFresh: () => Promise.resolve(null),
@@ -87,7 +87,7 @@ const CS = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
     if (!W.pend.A) return { miss: Object.keys(W.pend) }; W.pend.A(); for (let i = 0; i < 6; i++) await flush();
     return { clip: W.sb.CLIPS['guest-1-arrival'] || '', st: W.sb.RF_ST.g0 || '', own: !!W.sb.RF_OWN['guest-1-arrival'] }; };
   r = await sc7(CS); ok('⑦ [RF_GEN_DROP] 새 저장본에서 그 자리 파일이 없어지면 늦게 온 옛 소리(A)가 «받아 둠»으로 살아나지 않는다', r.clip !== 'blob:A' && r.st !== 'ok' && !r.own, r);
-  b = brk(CS, [[' delete RF_WHY[k]; RF_GEN[k] = (RF_GEN[k] || 0) + 1; });', ' delete RF_WHY[k]; });']]); r = b ? await sc7(b) : null;
+  b = brk(CS, [[' delete RF_PUTFAIL[k]; RF_GEN[k] = (RF_GEN[k] || 0) + 1; });', ' delete RF_PUTFAIL[k]; });']]); r = b ? await sc7(b) : null;
   ok('깨 보기 ⑦ — 옛 꼴이면 빨강', !!r && r.clip === 'blob:A', r); }
 { /* ⑧ ESD_NAR_KIND */
   const run8 = async (src, own) => { const code = ['srcOf', 'esdPrepVoice'].map((f) => grabIn(src, f)).join('\n'); const c = { slug: 'entry-A', no: '30', file: '30_entry-A', text: '두 분 글 한 문장.', own: 1, k: 'entry' }; let got = null;

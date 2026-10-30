@@ -25,7 +25,7 @@ const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.s
 const flush = async () => { for (let i = 0; i < 6; i++) await new Promise((r) => setTimeout(r, 0)); };
 const MP = fs.readFileSync(process.env.TG_MP || path.join(ROOT, 'mypage.html'), 'utf8');
 const OP = fs.readFileSync(process.env.TG_OP || path.join(ROOT, 'order-preview.html'), 'utf8');
-const FNS = ['getToken', 'setToken', '_tabEpBump', '_tabEpFail', '_tabStaleMark', '_acctOk', '_ordK', '_keepK', '_recE', '_acctKeysMigrate', '_acctOldSweep', '_tabTie', '_tabSd', '_tabKeepUnkept', '_snapLocalRec', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
+const FNS = ['getToken', 'setToken', '_tabEpBump', '_tabEpFail', '_tabStaleMark', '_acctOk', '_ordK', '_keepK', '_recE', '_acctKeysMigrate', '_migPick', '_migStampW', '_acctOldSweep', '_tabEpNow', '_tabTie', '_tabSd', '_tabKeepUnkept', '_snapLocalRec', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
   '_reloginKeyNewer', '_reloginStampT', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin',
   '_errGoLogin', '_saveSessAsk', '_mpLogoutNow', '_post', 'readCachedState', '_snapLocalKey', '_snapLocalGet', '_snapLocalDel', '_snapLocalPut', '_snapEditMark', '_snapOut', '_snapFilledD', '_snapNewD', '_snapZoneNew'];
 const MUST = ['clearToken', '_reloginPack', '_reloginRestore', '_errGoLogin', '_post', '_snapLocalPut', '_snapOut', '_mpLogoutNow'];
@@ -50,7 +50,7 @@ function mkDoc(W) { const els = new Map();
     addEventListener(t, f) { (W.L['doc:' + t] = W.L['doc:' + t] || []).push(f); } }; }
 /* 창 하나 — o.acct 이 창이 그린 계정 · o.quota 이 창의 쓰기 실패 */
 function win(S, src, o) { o = o || {};
-  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var TAB_EP_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
+  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var TAB_EP_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var _MIG_DONE=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
     + '\nfunction __start(loc, sd){ ' + lineIn(src, /SNAPFLOW=\{ active:true,[^\n]*/) + '\n}'
     + '\nfunction __start2(sd, p, needAgree, opt){ opt=opt||{};\n' + lineIn(grabIn(src, 'startSnapFlow'), /  var (?:rec=_snapLocalRec\(\), )?loc=[^\n]*\n[\s\S]*?SNAPFLOW=\{ active:true,[^\n]*\n(?:  if\(!loc && rec[^\n]*\n)?/) + '\n}'   // [TOMBSTONE_READ] 편집을 여는 줄들(startSnapFlow 원문)
     + '\nfunction __vcRelay(d){ ' + RELAY(src) + '\n}'   // [TAB_GUARD_VC] 목소리 중계(원문)
@@ -283,7 +283,7 @@ const s8 = async (src, op) => {
   const rs = lineIn(op, /if\(!EMBED\)\{ _ordMigrate\(\); try\{ _ordRestore\(\); \}catch\(e\)\{\} \}/);
   const restore = (init, emb) => { const S2 = shared(init); const got = []; const sb = { localStorage: S2.view({ L: {} }), JSON, Object, String, Math, EMBED: !!emb, _ACCT: '', window: { location: { search: emb ? '?embed=1' : '' } }, _srvBase: '', _autoLast: 'x', _editT: 0, _editK: null, _editE: 0,
       _applySaved: (v) => { got.push(v && v.S && v.S.tx && v.S.tx['vow.g']); return !!v; }, _autoKey: () => '' };
-    vm.createContext(sb); vm.runInContext(grabIn(op, '_ordKey') + '\n' + grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigrate') + '\n' + grabIn(op, '_ordRestore') + '\n' + rs, sb); return { got: got.join() || null, legacy: S2.get('me_order'), owned: S2.get(OK_A) }; };
+    vm.createContext(sb); vm.runInContext(grabIn(op, '_ordKey') + '\n' + grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigPick') + '\n' + grabIn(op, '_ordMigrate') + '\n' + grabIn(op, '_ordRestore') + '\n' + rs, sb); return { got: got.join() || null, legacy: S2.get('me_order'), owned: S2.get(OK_A) }; };
   const lg = restore({ me_order: DR('예전 미리보기 판', '', 0, false) }), ow = restore({ me_order: DR('고객 판', A, 0) }), bo = restore({ me_order: DR('예전 미리보기 판', '', 0, false), me_order_pub: DR('공개 칸 판', '', 0, false) }), em = restore({ [OK_A]: DR('고객 판', A, 0), me_order: DR('예전', A, 0) }, true);
   return { cust: cust.S && cust.S.tx['vow.g'], custWho: cust.who, pub: pub && pub.S && pub.S.tx['vow.g'], rsOk: !!rs,
     legacy: lg.got, legacyGone: lg.legacy === null, owned: ow.got, ownedMoved: !!ow.owned, both: bo.got, bothGone: bo.legacy === null, emb: em.got, embLegacy: em.legacy };
@@ -445,7 +445,7 @@ const s18 = async (src, op) => {
   const keep = mig({ me_relogin_keep: JSON.stringify({ code: A, t: clock.now - 100, keys: { me_order: DR('맡긴 서약', A, clock.now - 100), me_snapLocal_AAAAAA: SN('맡긴 메모', clock.now - 100) } }) });
   const keepOld = mig({ me_relogin_keep: JSON.stringify({ code: A, t: clock.now - 8 * 864e5, keys: { me_order: DR('오래된', A, 1) } }) });
   /* 식순 화면(그냥 연 미리보기)도 같은 규칙 */
-  const opm = (init) => { const S = shared(init); const sb = { localStorage: S.view({ L: {} }), JSON, Object, String, Math }; vm.createContext(sb); vm.runInContext(grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigrate'), sb); sb._ordMigrate(); return Object.fromEntries(S.m); };
+  const opm = (init) => { const S = shared(init); const sb = { localStorage: S.view({ L: {} }), JSON, Object, String, Math, Date: FakeDate }; vm.createContext(sb); vm.runInContext(grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigPick') + '\n' + grabIn(op, '_ordMigrate'), sb); sb._ordMigrate(); return Object.fromEntries(S.m); };
   const op1 = opm({ me_order: DR('가의 옛 칸 서약', A, clock.now - 50) }), op2 = opm({ me_order: DR('주인 없는 판', '', 0, false), me_order_pub: DR('공개 칸 판', '', 0, false) });
   /* 30일 · 7일 걷기 */
   const old = (n) => clock.now - n * 864e5;

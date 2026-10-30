@@ -20104,6 +20104,48 @@ chk 'DRESS_QSUB_SLOT' scripts/audit/dress-ops.mjs 2
 chk 'DRESS_OPS_VIEWPORT' scripts/audit/dress-ops.mjs 2                    # [DRESS_OPS_VIEWPORT] 창 크기가 요청값과 같은지 먼저(Puppeteer 대체 길도 크기를 맞춘다)
 chk 'DRESS_OPS_REAL' scripts/audit/dress-ops.mjs 1                        # [DRESS_OPS_REAL] 진입 = 실제 스티커 · 아이콘(로그인 마이페이지 · 가짜 서버 답)
 chk 'DRESS_ESC_Q123' scripts/audit/dress-ops.mjs 1                        # [DRESS_ESC_Q123] 물음 1 · 2 · 3 답을 고른 뒤 Esc = 닫힘 · 연 단추로 초점
+# ★★[DRESS_TABS_1030 사장님 «추천대로» · 코워크 · GPT 2라운드] 오른쪽 아이콘(상담 뒤)으로 연 창 = 물음 없이 두 탭 «드레스 / 소품·부케» · 소품 크게 보기 [DRESS_ACC_BIG] · 기억(마이페이지 메모리)
+#   모양 · 깨 보기는 dress-refs.mjs ⑳ · 눌러 재는 것은 dress-tabs.mjs(네 크기 · 상담 전 = 물음 필수 / 상담 뒤 = 물음 없음 × 답 없음 · 일부 · 완료 · 탭 · 복귀 · 기억 · 말풍선)
+chk "if (AFTER) { S.view = 'tabs'; S.tab = 'dress';" dress.html 1             # [DRESS_TABS_1030] 상담 뒤 = 처음부터 탭
+chk "if (AFTER && (v0q())) S.view = 'tabs';" dress.html 1                      # [DRESS_TABS_1030] 어떤 길로 와도 물음 · 결과로 가지 않는다
+chk 'role="tablist"' dress.html 1
+chk 'data-act="acclist">&lsaquo; 소품·부케 목록' dress.html 1                  # [DRESS_ACC_BIG]
+chk 'var _DR_AFTER_MEM=null;' mypage.html 1                                    # [DRESS_TABS_1030] 기억은 페이지 메모리
+chk 'DRESS_TABS_1030' scripts/audit/dress-tabs.mjs 3
+chk 'DRESS_ACC_BIG' scripts/audit/dress-tabs.mjs 2
+# [DRESS_TABS_1030 보탬 · 코워크 GPT 최종 1 · 2 · 7 · 8 · 9] 첫 렌더 깜빡임 0 · 탭 접근성 · 상담 뒤 아래 안내 없음 · 크게 보기 사진 · 말풍선 실제로 보인 뒤 기록 · Esc
+chk "var GUIDE_END = AFTER ? ''" dress.html 1                                     # [DRESS_AFTER_NOEND]
+nochk 'prepEnd(' dress.html                                                       # [DRESS_AFTER_NOEND] 상담 뒤 «방문 전 준비»를 붙이던 길
+chk 'outline:2px solid var(--gold-text);outline-offset:-5px' dress.html 1         # [DRESS_TAB_RING]
+chk '.pk-accv .pk-accp img{object-fit:contain}' dress.html 1                      # [DRESS_ACC_FIT]
+chk '  _DR_AFTER_MEM=null;   // \[DRESS_MEM_RESET 1030\]' mypage.html 1                    # [DRESS_MEM_RESET]
+chk 'function _dressTipBlocked(btn)' mypage.html 1                               # [DRESS_TIP_SEEN]
+chk '#mp_dressFab.nm-off .me-fab-nm' mypage.html 1                                # [DRESS_TIP_ESC]
+chk 'DRESS_AFTER_NOFLASH' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_TAB_A11Y' scripts/audit/dress-tabs.mjs 4
+chk 'DRESS_AFTER_NOEND' scripts/audit/dress-tabs.mjs 2
+chk 'DRESS_TAB_RING' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_ACC_FIT' scripts/audit/dress-tabs.mjs 1
+# [DRESS_TABS_1030 GPT 라운드 권장 5] 같은 탭 다시 고름 · 닫기 직후 기억 · 소품 행 맞춤 · 고객 바뀜 · 이름표 위로
+chk "if (t === S.tab && how !== 'head')" dress.html 1                              # [DRESS_TAB_SAME]
+chk 'if (AFTER) window.__drMemNow = memNow;' dress.html 1                          # [DRESS_MEM_CLOSE]
+chk '_mw.__drMemNow && _mw.__drMemNow(); if(_mm) memSet(_mm);' mypage.html 1        # [DRESS_MEM_CLOSE] 닫기 공통 경로
+chk 'button.pk-acci{align-self:start;' dress.html 1                                # [DRESS_ACC_ALIGN]
+chk 'var cd=ex._d;' mypage.html 1                                                  # [DRESS_FAB_LATEST]
+chk '  ex._d=d;' mypage.html 1                                                     # [DRESS_FAB_LATEST]
+chk '#mp_dressFab .me-fab-nm::after' mypage.html 1                                 # [DRESS_NM_HOVER]
+chk 'DRESS_TAB_SAME' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_MEM_CLOSE' scripts/audit/dress-tabs.mjs 2
+chk 'DRESS_ACC_ALIGN' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_FAB_LATEST' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_NM_HOVER' scripts/audit/dress-tabs.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-tabs.mjs >/dev/null 2>&1; _dtab=$?
+  case "$_dtab" in
+    0) echo 'ok dress-tabs: 상담 전 = 물음 필수 · 상담 뒤 = 물음 없이 두 탭 · 탭 · 복귀 · 기억 · 말풍선 — 네 크기' ;;
+    1) echo 'FAIL dress-tabs: 드레스 창 탭 · 물음 갈래가 틀렸습니다 — node scripts/audit/dress-tabs.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-tabs: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-ops.mjs >/dev/null 2>&1; _dops=$?
   case "$_dops" in
     0) echo 'ok dress-ops: «다른 드레스» 소제목으로 이동 · 물음/결과 Esc 닫힘(초점 복귀) · 세 물음 첫 보기 1px 안 — 네 크기 × 상담 전 · 뒤' ;;
@@ -20356,6 +20398,14 @@ chk 'BGM_FIX_1030' console.html 12
 chk 'BGM_FIX_1030' order-preview.html 2
 chk 'BGM_FIX_1030' automation/platform/80_production.gs 3
 chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
+# ★[CHEER_TAIL_1030 2026-10-30 BGM 섹션] «위하여»가 미리 듣기의 마지막 줄이어도 축배 곡(M7)으로 넘어가 4초 들려준 뒤 끝낸다 —
+#   END_FLOW_1030 이 잔 내려놓기를 «위하여» 칸에 합쳐 축배 순간이 «위하여»에서 끝나자 축배 곡이 한 번도 안 나왔다(bgm-preview D6 빨강).
+#   소리는 브라우저가 있어야 재므로 CI 의 bgm-sound 칸([BGM_SOUND_CI])이 bgm-preview · bgm-seg8 · bgm-console2 를 실제로 돌린다.
+chk 'CHEER_TAIL_1030' order-preview.html 1
+chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
+chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
+chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
+
 chk "B21: { t: \"Herman's Habit\"" assets/bgm-picks.js 1
 chk "var F_RE = /^B" assets/bgm-picks.js 1
 chk "BED_K_RE = /^(B" automation/platform/80_production.gs 1
@@ -20614,6 +20664,15 @@ chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/combo-171.mjs >/dev/null 2>&1; _c171=$?; [ "$_c171" = 1 ] && { echo 'FAIL combo-171: 순간 조합 · 진행 틈(인사 받는 분 · 255 · 축가 힌트 · 덕담 시간 · 연습 목록)이 되돌아갔습니다 — node scripts/audit/combo-171.mjs'; fail=1; }; :; fi
+# ── 2026-10-30 [TRIB_NO_HUG_1030 검토 172] 부모님께 인사 «인사와 포옹 / 인사만» — 인사만이면 256 · 포옹 동작 대기 · 동작 안내를 건너뛰고 맺는 말로(콘솔 · 미리 듣기 · 연습 · 대본 · 길이 · 카드 글 같은 값) · 기본 = 인사와 포옹 · 녹음 다시 받을 문장 0
+chk "function hugOff(S) { return !!(S && S.course === 'open' && S.tribHug === 'off' && onOf(S, 'tribute')); }" assets/ritual-open.js 1
+chk "hint = '인사가 끝나면';" assets/ritual-cue.js 1
+chk "L('tribHug','포옹'," order-preview.html 1
+chk "_gt.unote='고르지 않으시면 인사와 포옹으로 해요'" order-preview.html 1
+chk "if (k === 'tribute' && hugOff(S)) return '부부가 되어 처음 부모님께 고마움을 전해요.';" assets/ritual-open.js 1
+chk 'TRIB_NO_HUG_1030' api/_ritual-kb.js 1
+chk 'TRIB_NO_HUG_1030' admin.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/trib-no-hug.mjs >/dev/null 2>&1; _tnh=$?; [ "$_tnh" = 1 ] && { echo 'FAIL trib-no-hug: 부모님께 인사 «인사만»(포옹 줄 256 건너뛰기 · 카드 글 · 길이)이 되돌아갔습니다 — node scripts/audit/trib-no-hug.mjs'; fail=1; }; :; fi
 # ★[VC_DECISIONS_1030 2026-10-30 사장님 «추천대로» · AI 두 분 목소리 «대표 결정» 아홉] 나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 예식일 없음 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글
 chk 'VC_DEC_1030_1' automation/platform/80_production.gs 2
 chk 'VC_DEC_1030_1' order-preview.html 3
@@ -20647,4 +20706,23 @@ chk "var _ppre = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-photo-pre-m
 chk 'function mealFullOf(dd, placeholders)' assets/ritual-preview-link.js 1
 chk 'c.goLeadMs || 0' console.html 1
 chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
+# ★[VC_FIX14_1030 2026-10-30 GPT 14차 점검(고객 14-01 ~ 14-09 · 당일 14-01 ~ 14-04)] 옛 공용 칸 이관 소실 셋 · 로그인 전 늦은 답 · 모델만 지운 분 지우기 · 연습 소리 90일 · 기기 보관 파일 id · 스튜디오 확인 파일 id · 글 카드 차례 · 보관본 찾는 동안 시작 잠금 · 스튜디오 파일 끊긴 채 다시 열기
+chk 'VC_FIX14_1030' scripts/audit/vc-fix14-1030.mjs 1
+chk 'MIG_KEEP' mypage.html 8
+chk 'MIG_KEEP' order-preview.html 3
+chk 'PRELOGIN_EPOCH' mypage.html 3
+chk 'MODEL_OFF_DEL' order-preview.html 2
+chk 'MODEL_OFF_DEL' automation/platform/80_production.gs 1
+chk 'PRACTICE_PURGE' automation/platform/80_production.gs 2
+chk 'RF_CACHE_ID' console.html 8
+chk 'RFOK_FILE' console.html 1
+chk 'RFOK_FILE' admin.html 1
+chk 'RFOK_FILE' automation/platform/80_production.gs 4
+chk 'OWN_TXT_GEN' console.html 4
+chk 'RF_LOOK_WAIT' console.html 5
+chk 'RF_SUP_OFF' console.html 4
+nochk "if(!(c2 && (+c2.t||0)>=(+o.t||0))){ localStorage.setItem(K, nv);" mypage.html   # [MIG_KEEP] 꾸러미 시각만 견주던 옛 맡김 이관(종류마다 합친다)
+nochk "tx.oncomplete = function(){ RF_CACHED[k] = 1; rfPaint(); };" console.html   # [RF_CACHE_ID] 자리마다 1 이던 옛 보관 표시(파일 id 에 묶는다)
+nochk "function rfUnchecked(k){ return !GUEST && RF_OKSET && rfKindLab(k) === 'AI 목소리' && !RF_OKMAP[k]; }" console.html   # [RFOK_FILE] 자리 이름에만 묶이던 옛 확인
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix14-1030.mjs >/dev/null 2>&1; _vf14=$?; if [ "$_vf14" != 0 ]; then echo 'FAIL vc-fix14-1030: AI 목소리 14차 점검(옛 칸 이관 · 로그인 전 답 · 지우기 · 연습 소리 · 기기 보관 · 스튜디오 확인 · 글 카드 · 시작 잠금) 판정이 어긋났습니다 — node scripts/audit/vc-fix14-1030.mjs'; fail=1; else echo "ok vc-fix14-1030 ($_vf14)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

@@ -48,7 +48,7 @@ const STATE = (after) => JSON.stringify({ ok: true, name: '김희준 · 이미�
   consult: after ? { status: '상담완료', date: '2026년 10월 20일 (화)', time: '14:00', dress: { attire: '대여 희망 · 2벌', open: true, ymd: '2026-10-20', saved: null } } : { status: '신청접수', scheduleUrl: 'x', dress: { attire: '대여 희망 · 2벌', open: true, ymd: '', saved: null } } });
 const ENTRY = (after) => after ? '#mp_dressFab' : '#mp_consult .dst';
 try {
-  for (const [W, H] of SIZES) for (const after of [false, true]) {
+  for (const [W, H] of SIZES) for (const after of [false]) {   // ★[DRESS_TABS_1030] 상담 뒤(아이콘) 창에는 물음 · 결과가 없다 — 그쪽은 dress-tabs.mjs 가 잰다
     const tag = `${W}×${H} ${after ? '상담 뒤' : '상담 전'}`, nm = `${W}-${after ? 'after' : 'pre'}`;
     const { page: P, errors } = await eng.newPage({ port: PORT, viewport: { width: W, height: H }, gasBody: STATE(after) });
     /* ★[DRESS_OPS_VIEWPORT] Puppeteer 대체 길은 newPage 가 크기를 안 받는다 — 여기서 직접 맞추고, 실제 창 크기가 요청값과 같은지 재고 시작한다(다르면 «그 크기를 잰 것»이 아니다) */
