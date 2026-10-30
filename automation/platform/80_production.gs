@@ -1917,6 +1917,27 @@ function _vcPurgeNow(code) { _gsr_(); var dm = _vcDelMark(code, ['groom', 'bride
   var pf = _vcPracticeTrash(code), pend = _vcPendOf(st) || pf > 0;
   if (pend) st.purgePend = st.purgePend || at; else { st.purged = at; delete st.purgePend; }
   var sv = _vcSave(code, b0, st); return { n: n, pend: pend || sv === 'busy' }; }
+/* ★[VC_ORPHAN 2026-10-30 클로드 검토 1 · VC_FIX3_1030] 주인 없는 업체 목소리 — 만들기가 업체에 닿은 뒤 GAS 가 끊기면(한 번 실행 6분 · 업체 답을 못 받음 · 저장 전 멈춤)
+   업체에는 목소리가 생겼는데 어느 상태(VC_<코드>)에도 없어 아무도 지우지 않았다(동의 글 «예식 다음 날 지워요» 약속 밖).
+   매일 지우기가 업체 목록을 받아, 우리가 만든 이름 꼴(<코드>-g · <코드>-b)인데 어느 상태 · 다시 지울 목록에도 없는 것을 찾는다.
+   ★처음 본 날은 적어 두기만 하고(VC_ORPHAN_SEEN) 다음 날에도 주인이 없으면 지운다 — 지금 만드는 중이라 아직 저장 전인 목소리를 지우지 않게.
+   ★이름 칸을 못 읽으면(업체 목록 모양이 다르면) 아무것도 지우지 않는다 · 사장님이 업체 화면에서 만든 다른 이름 목소리는 건드리지 않는다 */
+function _vcOrphanSweep_(today) {
+  var out = { del: 0, seen: 0, fail: 0 }, cfg = _vcCfg_(); if (!cfg.key) return out;   // [VC_ORPHAN]
+  var l = _vcFetch(cfg, 'get', '/v1/custom-voices'); if (l.code !== 200) return out;
+  var a = []; try { a = JSON.parse(l.r.getContentText() || '[]'); } catch (e) { return out; } if (!Array.isArray(a)) return out;
+  var props = PropertiesService.getScriptProperties(), all = props.getProperties(), known = Object.create(null), seen = {}, next = {};
+  Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var st; try { st = JSON.parse(all[k] || '{}') || {}; } catch (e) { return; }
+    ['groom', 'bride'].forEach(function (w) { var p = st[w] || {}; if (p.voiceId) known[p.voiceId] = 1; if (p.delId) known[p.delId] = 1; });
+    (st.retry || []).forEach(function (v) { known[v] = 1; }); });
+  try { seen = JSON.parse(props.getProperty('VC_ORPHAN_SEEN') || '{}') || {}; } catch (e) {}
+  a.forEach(function (v) { var id = String((v && v.voice_id) || ''), nm = String((v && (v.name || v.voice_name)) || '');
+    if (!id || known[id] || !/^[A-Z0-9]{4,12}-[gb]$/.test(nm)) return;
+    if (seen[id] && seen[id] < today) { var tmp = {}; _vcDelVoice(cfg, tmp, id); if (tmp.retry && tmp.retry.length) { next[id] = seen[id]; out.fail++; } else out.del++; }
+    else { next[id] = seen[id] || today; out.seen++; } });
+  props.setProperty('VC_ORPHAN_SEEN', JSON.stringify(next));
+  if (out.fail) _vcAlert('orphan', '주인 없는 AI 목소리 ' + out.fail + '개를 업체에서 지우지 못했어요 · 업체 화면에서 확인해 주세요');
+  return out; }
 /* ★[VOICE_CLONE_0928 8-6] 매일(aiDaily · 96_ai_cost) — 예식 다음 날이 된 예식 · 취소 · 노쇼는 지운다 · 업체 지우기 실패분 다시 · 칸이 45 넘으면 관리자 메일.
    dry=true 면 대상만 로그(previewVoiceClones) */
 function purgeVoiceClones(dry) { _gsr_();
@@ -1937,6 +1958,7 @@ function purgeVoiceClones(dry) { _gsr_();
     var gone = stage === '취소' || stage === '노쇼' || stage === '미계약';
     if (!gone && !(wy && today > wy)) return;   // 예식 다음 날부터
     var _pn = dry ? 0 : _vcPurgeNow(code); done.push(code + '(' + (gone ? stage : wy) + ')' + (_pn === -1 ? ' · 잠금 실패 · 다음에 다시' : (_pn && _pn.pend) ? ' · 다 못 지움 · 다음에 다시' : '')); });   // [VC_PURGE_TRUE]   // [VC_DEL_LOCKED] 잠금을 못 잡으면 아무것도 안 바꾸고 다음 날 다시(목소리가 남아 있어 live 로 다시 잡힌다)
+  if (!dry) { try { var os = _vcOrphanSweep_(today); if (os.del || os.seen || os.fail) done.push('주인 없는 목소리 ' + os.del + ' 지움 · ' + os.seen + ' 지켜봄' + (os.fail ? ' · ' + os.fail + ' 못 지움' : '')); } catch (e) {} }   // [VC_ORPHAN] 칸 세기 전에
   if (!dry) { try { CacheService.getScriptCache().remove('VC_SLOTS'); var sl = _vcSlots(); if (sl && sl.used != null && sl.used > VC_LIM.slotWarn) _vcAlert('slots', 'AI 목소리 칸이 ' + sl.used + ' / ' + (sl.total == null ? 50 : sl.total) + ' 이에요 · 정리하거나 요금제를 확인해 주세요'); } catch (e) {} }   // [VC_SLOTS] 칸 45 넘으면 관리자 메일
   Logger.log('purgeVoiceClones' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
   return done; }

@@ -20369,3 +20369,20 @@ chk 'READ_UNLOAD' order-preview.html 2
 chk 'READ_UNLOAD' mypage.html 1
 chk 'CON_FRESH' console.html 4
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix2-1030.mjs >/dev/null 2>&1 || { echo 'FAIL vc-fix2-1030: AI 목소리 지우기 · 저장 · 잠금 · 글자 예산 판정이 어긋났습니다 — node scripts/audit/vc-fix2-1030.mjs'; fail=1; }; fi
+# ★[VC_FIX3_1030 2026-10-30 GPT 3차 점검 · 클로드 검토] 두 분 AI 목소리 — 1분 읽기 다음 걸음 · 녹음 끊김 · 마이크 허용 대기 · 카드 말(다 씀 · 지움 · 다시 읽어야 하는 실패) · ② 보고 듣기 칸 · 콘솔 두 분 소리 먼저 · 나레이션 대신 · 주인 없는 업체 목소리
+chk 'VC_FIX3_1030' scripts/audit/vc-fix3-1030.mjs 1
+chk 'VC_TAKE_LIVE' order-preview.html 1
+chk 'REC_CUT' order-preview.html 5
+chk 'MIC_WAIT' order-preview.html 3
+chk 'VC_REDO_HONEST' order-preview.html 1
+chk 'VC_DEL_SAY' order-preview.html 1
+chk 'VC_EFAIL_REDO' order-preview.html 2
+chk 'VC_READ_ALONE' order-preview.html 1
+chk 'VC_ENR_WAKE' order-preview.html 3
+chk 'G_IDX_SLUG' order-preview.html 5
+chk 'PV_IN_ONLY' order-preview.html 2
+chk 'CON_OWN_FIRST' console.html 5
+chk 'CON_OWN_FALL' console.html 1
+chk 'VC_ORPHAN' automation/platform/80_production.gs 2
+nochk "// \[REVIEW_TAP_GUARD\] if(/^vc:/.test(r.key)){ _vcTake(); return; }" order-preview.html   # [VC_TAKE_LIVE] 다음 걸음 호출을 주석 안에 다시 묻지 않는다
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix3-1030.mjs >/dev/null 2>&1; _vf3=$?; if [ "$_vf3" = 1 ]; then echo 'FAIL vc-fix3-1030: AI 목소리 3차 점검(1분 읽기 다음 걸음 · 녹음 끊김 · 카드 말 · 보고 듣기 칸 · 콘솔 두 분 소리 · 주인 없는 목소리) 판정이 어긋났습니다 — node scripts/audit/vc-fix3-1030.mjs'; fail=1; else echo "ok vc-fix3-1030 ($_vf3)"; fi; fi
