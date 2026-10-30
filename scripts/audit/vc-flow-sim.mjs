@@ -128,6 +128,9 @@ w.props.VC_ME0001 = JSON.stringify(Object.assign(w.st(), { practice: 199990 }));
 const ttsBefore = w.calls.filter((c) => /text-to-speech/.test(c)).length;
 const r5 = w.call({ op: 'make', key: 'g1', text: '열한 글자를 넘는 새 글이에요', one: 'groom' });
 ok('[VC_BUDGET] 예식당 20만 자를 넘으면 «이번 예식의 AI 만들기를 다 썼어요 …» · TTS 를 부르지 않음', !r5.ok && r5.limit && /이번 예식의 AI 만들기를 다 썼어요\. 지금 것을 쓰시거나 직접 녹음해 주세요/.test(r5.error) && w.calls.filter((c) => /text-to-speech/.test(c)).length === ttsBefore, JSON.stringify(r5));
+/* ★[VC_CACHE_FIRST 2026-10-30] 한도 근처라도 이미 만든 소리(같은 글 · 목소리 · 빠르기 · 쉼)는 돌려준다 — 남은 글자는 새로 만들 줄만 센다 */
+{ const rc = w.call({ op: 'make', key: 'g1', text: '글 11', one: 'groom' });
+  ok('[VC_CACHE_FIRST] 한도 근처 · 저장본 있는 줄은 «다 썼어요» 대신 그 소리 · TTS 를 부르지 않음', rc.ok && rc.parts && rc.parts.length === 1 && !!rc.parts[0].data && w.calls.filter((c) => /text-to-speech/.test(c)).length === ttsBefore, JSON.stringify(rc)); }
 w.props.VC_ME0001 = JSON.stringify(Object.assign(w.st(), { practice: 0 }));   // 예산을 되돌리고 다음 시험(422)
 w.sb.UrlFetchApp.fetch = (url) => ({ getResponseCode: () => 422, getContentText: () => '{}', getBlob: () => ({ getBytes: () => [] }) });
 r = w.call({ op: 'make', key: 'g2', text: '★☆', one: 'groom' });
@@ -151,6 +154,8 @@ ok('[VC_BUDGET] 연습 2만 자는 걷었다 — 2만 자를 넘어도 읽음', 
 w.props.VC_ME0001 = JSON.stringify({ practice: 100000, make: { total: 9, per: {}, chars: 99500 } });
 r = w.call({ op: 'practice', role: 'groom', text: '다'.repeat(1200) });
 ok('[VC_BUDGET] 연습 + 줄 만들기 합이 20만 자를 넘으면 «이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요»', !r.ok && r.error === '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요', JSON.stringify(r));
+{ const n0 = w.calls.length; r = w.call({ op: 'practice', role: 'bride', text: '가'.repeat(1500) });   // 6 앞머리에서 만든 연습 소리
+  ok('[VC_CACHE_FIRST] 연습도 한도 근처에서 저장본은 돌려준다(TTS 안 부름)', r.ok && !!r.data && w.calls.length === n0, JSON.stringify(r)); }
 
 // 7 · 예식 다음 날 지우기
 w = world({ wed: '2026-10-10', api: Object.fromEntries([CLONE('uc_z'), ['DELETE /v1/custom-voices/{id}', [204, '']]]) });
