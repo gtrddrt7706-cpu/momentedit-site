@@ -49,7 +49,7 @@ const TITLES = { B01: '바다가 보이는 마을', B05: '인생의 회전목마
 /* ── B 엔진 ── */
 const O = require(path.join(ROOT, 'assets/ritual-open.js'));
 const RC = CUE ? (() => { const D = require(path.join(ROOT, 'assets/ritual-data.js')); const m = { exports: {} }; new Function('module', 'exports', 'require', fs.readFileSync(CUE, 'utf8'))(m, m.exports, (x) => require(x.startsWith('./') ? path.join(ROOT, 'assets', x) : x)); return m.exports; })() : require(path.join(ROOT, 'assets/ritual-cue.js'));
-const SOF = (ex, more) => { const S = O.applyExample({ course: 'open' }, ex); S.course = 'open'; S.on = Object.assign({}, S.on, { ring: 1, bless: 1 }); S.ring = 'on'; S.bless = 'on'; return Object.assign(S, more || {}); };
+const SOF = (ex, more) => { const S = O.applyExample({ course: 'open' }, ex); S.course = 'open'; S.on = Object.assign({}, S.on, { ring: 1, bless: 1, declare: 1 });   /* [COURSE_ONE_PROMISE_1030] 코스가 선언을 안 담아도 반지 → 선언 이음을 잰다 */ S.ring = 'on'; S.bless = 'on'; return Object.assign(S, more || {}); };
 { const PA = RC.PARAM;
   ok('B1 엔진 값 — 미리 낮추기 0.8초 · vocalExtra −6 · musicTrim −3.1 · 덕담 swellTo 없음', PA.duck.leadMs === 800 && PA.vocalExtra === -6 && PA.musicTrim === -3.1 && PA.bless.swellTo === undefined, { lead: PA.duck.leadMs, v: PA.vocalExtra, t: PA.musicTrim, b: PA.bless });
   const r = RC.build(SOF('standard'), { mode: 'console' }), C = (sl) => r.cues.find((c) => c.slug === sl), i = r.cues.findIndex((c) => c.slug === 'narr-ring-out');

@@ -33,16 +33,18 @@ try {
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(900);
     const r = await pg.evaluate(async () => { const R = RitualOpen, out = {};
       const add = (k) => { document.querySelectorAll('.ord-ask').forEach((e) => e.remove()); const b = JSON.stringify(S.on); opTgl(k); const d = document.querySelector('.ord-ask'); const t = d ? d.textContent : ''; const y = document.querySelector('.ord-ask button'); if (y) y.click(); return { k, added: JSON.stringify(S.on) !== b, t }; };
-      R.applyExample(S, 'family'); opSync(); out.fam = R.PICKABLE.filter((k) => !R.onOf(S, k) && !(R.RETIRED || {})[k]).map(add);
+      var _lk = R.EXAMPLES.map(function (e) { var t = R.applyExample(JSON.parse(JSON.stringify(S)), e.k); return [e.k, R.bodySec(t)[1]]; }).sort(function (a, b) { return b[1] - a[1]; })[0][0]; out.lk = _lk;   /* [COURSE_ONE_PROMISE_1030] 가장 긴 예시는 잰다(코스 표가 바뀌면 바뀐다) */
+      R.applyExample(S, _lk); opSync(); out.fam = R.PICKABLE.filter((k) => !R.onOf(S, k) && !(R.RETIRED || {})[k]).map(add);
       R.applyExample(S, 'brief'); opSync(); out.br = add('ring');
-      R.applyExample(S, 'family'); opSync(); out.len = (() => { const b = S.freeLen; if (!R.onOf(S, 'free')) { delete S.on.letter; delete S.on.song; S.on.free = 1; S.freeLen = '1'; opSync(); } const h0 = R.bodySec(S)[1]; document.querySelectorAll('.ord-ask').forEach((e) => e.remove()); lsFreeLen(10); const d = document.querySelector('.ord-ask'); const y = document.querySelector('.ord-ask button'); if (y) y.click(); return { blocked: !!d, freeLen: S.freeLen, ok: R.bodySec(S)[1] <= Math.max(h0, R.capSec(S)) + 0.5 }; })();
+      R.applyExample(S, _lk); opSync(); out.len = (() => { const b = S.freeLen; if (!R.onOf(S, 'free')) { delete S.on.letter; delete S.on.song; S.on.free = 1; S.freeLen = '1'; opSync(); } const h0 = R.bodySec(S)[1]; document.querySelectorAll('.ord-ask').forEach((e) => e.remove()); lsFreeLen(10); const d = document.querySelector('.ord-ask'); const y = document.querySelector('.ord-ask button'); if (y) y.click(); return { blocked: !!d, freeLen: S.freeLen, ok: R.bodySec(S)[1] <= Math.max(h0, R.capSec(S)) + 0.5 }; })();
+      R.applyExample(S, _lk); opSync();   /* 꽉 찬 예시(남은 시간 0)로 줄을 잰다 */
       try { opGoStep('pick'); } catch (e) {} await new Promise((x) => setTimeout(x, 300));
       out.line = [...document.querySelectorAll('.pk-left')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.textContent);
       R.applyExample(S, 'family'); S.on.ring = 1; S.on.free = 1; opSync(); render(); await new Promise((x) => setTimeout(x, 200));
       out.over = [...document.querySelectorAll('.pk-left')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.textContent);
       return out; });
     const msg = '이 순간을 담으려면 다른 순간을 하나 빼 주세요사진 시간을 지키기 위해서예요.';
-    ok(W + ' 가장 긴 예시(가족)에서 담기 ' + r.fam.length + '개 — 모두 막히고 창 «이 순간을 담으려면 … 사진 시간을 지키기 위해서예요.»', r.fam.length > 0 && r.fam.every((x) => !x.added && x.t.indexOf(msg) === 0), JSON.stringify(r.fam.filter((x) => x.added || x.t.indexOf(msg) !== 0)));
+    ok(W + ' 가장 긴 예시(' + r.lk + ')에서 담기 ' + r.fam.length + '개 — 모두 막히고 창 «이 순간을 담으려면 … 사진 시간을 지키기 위해서예요.»', r.fam.length > 0 && r.fam.every((x) => !x.added && x.t.indexOf(msg) === 0), JSON.stringify(r.fam.filter((x) => x.added || x.t.indexOf(msg) !== 0)));
     ok(W + ' 간결 예시에서는 담기가 된다', r.br.added && !r.br.t, JSON.stringify(r.br));
     ok(W + ' 길이 칩(축사 길이)도 상한 밖으로 못 늘린다', r.len.ok, JSON.stringify(r.len));
     ok(W + ' 담는 쪽 한 줄 «남은 본식 시간 약 n분»이 하나 보인다', r.line.length === 1 && /^남은 본식 시간 약.\d+분$|^본식 시간이 다 찼어요$/.test(r.line[0]), JSON.stringify(r.line));

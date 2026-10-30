@@ -19,7 +19,7 @@ try {
     S = JSON.parse(S0); R.applyExample(S, 'family'); S.on.letter = 1; R.setChip(S, 'letter', 'parent'); R.setChip(S, 'tribute', 'long'); buildSteps();
     S.tx = Object.assign({}, S.tx || {}, { 'letter.g': '신랑 편지.', 'letter.b': '신부 편지.', 'tribute.g': '신랑 인사.', 'tribute.b': '신부 인사.' });
     LS.ref = { letter: 3, tribute: 3 }; out.b1l = q('letter'); out.b1t = q('tribute');
-    S = JSON.parse(S0); R.applyExample(S, 'family'); S.on.free = 1; S.freeWhat = 'speech'; buildSteps(); S.tx = Object.assign({}, S.tx || {}, { 'bless.p': '덕담 원고.', 'free.p': '축사 원고.' }); out.b2 = q('bless').concat(q('free'));
+    S = JSON.parse(S0); R.applyExample(S, 'family'); S.on.free = 1; S.on.vow = 1; S.freeWhat = 'speech'; buildSteps();   /* [COURSE_ONE_PROMISE_1030] 가족 코스에 서약이 없어 B3 는 담아서 잰다 */ S.tx = Object.assign({}, S.tx || {}, { 'bless.p': '덕담 원고.', 'free.p': '축사 원고.' }); out.b2 = q('bless').concat(q('free'));
     S.tx['vow.g'] = '신랑 서약.'; S.tx['vow.b'] = '신부 서약.'; S.mkc = Object.assign({}, S.mkc || {}, { 'vow.g': 1 }); S.vowHow = 'each'; out.b3 = q('vow'); const t3 = scriptTextOpen(); out.b3s = !/신랑 서약\./.test(t3) && /신부 서약\./.test(t3);
     S = JSON.parse(S0); R.applyExample(S, 'family'); R.setChip(S, 'tribute', 'none'); buildSteps(); S.tributeText = '옛 인사 글ZZ'; out.b4 = !/ZZ/.test(scriptTextOpen());
     S = JSON.parse(S0); R.applyExample(S, 'standard'); S.vow = 'ok'; S.vowHow = 'alt'; buildSteps(); LS.ref = { vow: 2 }; out.b7 = q('vow');

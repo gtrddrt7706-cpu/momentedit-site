@@ -277,6 +277,15 @@ if (arg === '--stage2') {   // [EX_STD_1012] 2단계(예시 코스)가 닫혔나
   if (open.length || vb.length) { console.log('FAIL [EX_STD_1012] 2단계가 덜 닫혔다 — ' + open.concat(vb).join(' · ')); process.exit(1); }
   console.log('ok   [EX_STD_1012] 2단계 닫힘 — «2단계» 줄 없음 · 예시 ' + O.EXAMPLES.map((e) => e.nm).join(' · ') + ' 모두 «왜»가 있다'); process.exit(0);
 }
+/* ★[ENGINE_CH8_1030 검토 169] 자료표는 그대로이고 예시 코스(엔진 EXAMPLES)만 바뀌었으면 8장만 다시 쓴다 — 8장은 엔진이 잰 숫자라 바꾸는 줄의 예전 결정(PRIOR_SEEN)과 상관이 없다.
+     8장 밖이 한 줄이라도 달라지면 빨강(자료표를 고쳤으면 --write 로) */
+if (arg === '--write-engine') {
+  const out = render(d), cur = fs.existsSync(MD) ? fs.readFileSync(MD, 'utf8') : '';
+  const cut = (t) => { const i = t.indexOf('\n## 8. '); if (i < 0) return [t, '']; const j = t.indexOf('\n## ', i + 5); return [t.slice(0, i) + (j < 0 ? '' : t.slice(j)), t.slice(i, j < 0 ? t.length : j)]; };
+  const [a0] = cut(out), [b0] = cut(cur);
+  if (a0 !== b0) { console.log('FAIL [ENGINE_CH8_1030] 8장 밖도 달라진다 — 자료표를 고쳤으면 node scripts/audit/source-basis.mjs --write'); process.exit(1); }
+  fs.writeFileSync(MD, out); console.log('ok   [ENGINE_CH8_1030] 8장(예시 코스 · 엔진 값)만 다시 썼다 → ' + MD); process.exit(0);
+}
 const pc = priorCheck(d, arg === '--write');
 const bad = validate(d).concat(pc.bad);
 if (bad.length) { bad.forEach((b) => console.log('FAIL [SOURCE_BASIS] ' + b)); process.exit(1); }
