@@ -4322,7 +4322,7 @@ function _lNorm(s){ return String(s||'').replace(/[^0-9A-Za-z가-힣]+/g,''); }
 function _lRecText(file){ var v=LREC&&file?LREC[file]:null; return v==null?null:(typeof v==='string'?v:String(v.text||'')); }
 function _lHasSound(file,text){ var r=_lRecText(file); return r!=null && _lNorm(r)!=='' && _lNorm(r)===_lNorm(text); }
 function _lName(k){ return k==='guest'?'하객 맞이 안내':(k==='vow'&&_vowKind()==='thanks')?'감사문':RitualOpen.nameOf(k,S); }   /* [THANKS_IN_VOW] 감사문을 고르면 ② 이후 이름이 «감사문» · 고르기(①) 칸은 그대로 «혼인 서약» */
-function _lRows(){ var R=RitualOpen, on=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }); return ['guest'].concat(on.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat(['_close']).concat(on.filter(function(k){ return !!R.AFTER_CLOSE[k]; })); }   /* [TABLE_GREET_1008] 닫는 인사 뒤 순간(테이블 인사)은 _close 다음에 */
+function _lRows(){ var R=RitualOpen, on=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }); return ['guest'].concat(on.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat((R.LATE_ORDER||[]).filter(function(k){ return on.indexOf(k)>-1; })).concat(['_close']); }   /* [TABLE_GREET_1008] · ★[END_FLOW_1030 검토 167] 테이블 인사 → 축배 → 닫는 인사(엔진 bodySeq 와 같은 차례) */
 /* ★★[FLOW_FROM_TWO_1017 2026-10-17 사장님 «케익이벤트는 완전히 뺀거지?»] 새 코스의 «순서 흐름»은 ② 줄과 같은 이름 · 같은 차례다 —
    저장 요약(summary.flow → 하객 식순지 · 마이페이지 사진 연결 · 관리자 «순서 흐름»)과 AI 상담 맥락(«구성»)이 이것 하나를 쓴다.
    종전엔 옛 표(fullBlocks · TUNE)의 이름이라 케이크가 없는 날도 식순지에 «축배 · 케이크»가 찍혔고, 맞절 · 반지 교환 · 테이블 인사가 빠지고, 축배가 닫는 인사 앞에 섰다.
@@ -4687,7 +4687,7 @@ function _mkRO(){ var m=S.mk||{}; return {at:m.at, seen:m.seen||{}, drop:m.drop|
 function _mkPages(){ var R=RitualOpen, m=_mkRO();
   /* ★[MK_INTRO 2026-09-27 사장님 «전 단계에서 고른 것들 한눈에 정리 한 번 하고 들어가자»] ② 첫 쪽 = ① 에서 고른 순서 모아 보기 */
   var _mk=R.ORDER.filter(function(k){ return k!=='guest' && (R.onOf(S,k)||m.drop[k]); });   /* [TABLE_GREET_1008] 닫는 인사 뒤 순간은 _close 다음 쪽 */
-  var ks=['_intro'].concat(_vsOk()?['_voice']:[]).concat(['guest']).concat(_mk.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat(['_close']).concat(_mk.filter(function(k){ return !!R.AFTER_CLOSE[k]; })).concat(['_sum']);   /* ★[VOICE_ONCE 2026-10-03 사장님] 예식 흐름 다음 = «두 분 목소리 만들기»(AI 를 쓸 수 있는 예식만) — 순간이 아니다(번호 · 진행 줄 · 미완료 셈에서 뺀다) */
+  var ks=['_intro'].concat(_vsOk()?['_voice']:[]).concat(['guest']).concat(_mk.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat((R.LATE_ORDER||[]).filter(function(k){ return _mk.indexOf(k)>-1; })).concat(['_close']).concat(['_sum']);   /* ★[END_FLOW_1030 검토 167] 테이블 인사 · 축배 쪽은 닫는 인사 쪽 앞 */   /* ★[VOICE_ONCE 2026-10-03 사장님] 예식 흐름 다음 = «두 분 목소리 만들기»(AI 를 쓸 수 있는 예식만) — 순간이 아니다(번호 · 진행 줄 · 미완료 셈에서 뺀다) */
   return ks; }
 function _mkIdx(){ var ps=_mkPages(), i=ps.indexOf(_mkRO().at); return i<0?0:i; }
 function _mkOff(k){ return !!(_mkRO().drop[k]) && !RitualOpen.onOf(S,k); }
@@ -7211,7 +7211,7 @@ window.mkFlowTgl=function(k){ var R=RitualOpen; if(R.ALWAYS[k]||k==='_close') re
 function _flowKeys(){ var R=RitualOpen, keep=MK.flowKeep||[]; return R.ORDER.filter(function(k){ return R.onOf(S,k)||keep.indexOf(k)>-1; }); }
 function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
   MK.flowKeep=_flowKeys();   /* [FLOW_KEEP_SHOWN 2026-10-03] 보인 줄은 모두 자리를 지킨다 — 종전엔 들어올 때 한 번만 찍어, 그 뒤 다시 담은 순간을 여기서 빼면 줄째 사라졌다 */
-  var ks=_flowKeys(), pre=ks.filter(function(k){ return R.PRE[k]; }), aft=ks.filter(function(k){ return !!(R.APART||R.AFTER_CLOSE)[k]; }), body=ks.filter(function(k){ return !R.PRE[k]&&!R.AFTER_CLOSE[k]; }).concat(['_close']).concat(ks.filter(function(k){ return R.AFTER_CLOSE[k]&&!(R.APART||R.AFTER_CLOSE)[k]; }));   /* [TOAST_LAST_1013] 축배 = 본식 묶음의 닫는 인사 다음 · 본식 뒤 묶음은 테이블 인사(APART) */   /* [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님] 본식과 따로 «본식 뒤» 묶음 */
+  var ks=_flowKeys(), pre=ks.filter(function(k){ return R.PRE[k]; }), aft=[], body=ks.filter(function(k){ return !R.PRE[k]&&!R.AFTER_CLOSE[k]; }).concat((R.LATE_ORDER||[]).filter(function(k){ return ks.indexOf(k)>-1; })).concat(['_close']);   /* ★[END_FLOW_1030 검토 167] 테이블 인사 → 축배 → 닫는 인사 — «본식 뒤» 묶음은 비운다(테이블 인사 시간은 여전히 본식과 따로 센다 · 위 막대 · 요약 줄) */   /* [TOAST_LAST_1013] 축배 = 본식 묶음의 닫는 인사 다음 · 본식 뒤 묶음은 테이블 인사(APART) */   /* [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님] 본식과 따로 «본식 뒤» 묶음 */
   var h='<section class="mk-pg mk-intro" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">예식 흐름</h3></div>';
   /* ★[TABLE_APART · FSUM_SEP] 넷이 한 줄에 안 들어가면(390) 낱말 사이(«단체 사진 / 약 15~20분»)가 아니라 덩이 사이에서만 갈린다 — «·»는 진짜 글자(읽기 · 검사 그대로)이고, 줄 머리에 온 «·»는 칸 밖으로 밀려 안 보인다(줄 끝 · 줄 머리 «·» 둘 다 없게 · CF_LINE_BREAK 와 같은 뜻) */
   var _fs=['본식 '+sp.body].concat(sp.tm?['테이블 인사 '+sp.table]:[]).concat(['단체 사진 '+sp.photo,'담은 순간 '+_opMoments()]);
@@ -8650,9 +8650,9 @@ var PV_DESC={
   tribute:'부부가 되어 처음 부모님께 고마움을 전하고, 품에 안기는 순간을 담아요.',   /* [LINE_R1_1014] 한 문장에 «부모님» 두 번 */
   letter:'부모님께, 또는 서로에게 쓴 편지를 읽어요. 읽는 목소리와 듣는 얼굴을 함께 담아요.',
   cake:'두 분이 나이프를 함께 잡고 케이크를 잘라요. 맞잡은 두 손을 가까이 담아요.',
-  toast:'두 분이 먼저 «위하여»를 외치면 하객이 잔을 들고 함께 답해요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',
+  toast:'두 분이 먼저 «위하여»를 외치면 하객은 자리에서 일어나 함께 잔을 들어요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',   /* ★[END_FLOW_1030 검토 167] */
   _close:'두 분이 하객께 인사를 드리고 본식을 마쳐요. 단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.',   /* [CLOSE_WORDS_1013] */
-  table:'본식을 마친 두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블로 다가가는 두 분과 자리에서 맞는 얼굴들을 담아요.',   /* [TABLE_GREET_1008] */
+  table:'두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블로 다가가는 두 분과 자리에서 맞는 얼굴들을 담아요. 테이블 인사 약 9분(6테이블 기준) · 그만큼 사진 시간이 줄어요.',   /* [TABLE_GREET_1008] · ★[END_FLOW_1030 검토 167] 축배 · 닫는 인사 앞 · 9분 = TABLE_SEC 90 × 6(open-course 가 잰다) */
   free:'친구나 형제자매가 두 분께 축하의 말을 전해요(3분 안팎). 말하는 분과 웃으며 듣는 두 분을 함께 담아요.'   /* ★[SPEECH_TILE_1012] 축사 · 옛 «준비한 순서»는 고른 칩마다 사진이 달라 원문 설명만 두었다 */
 };
 function _pvDraw(){

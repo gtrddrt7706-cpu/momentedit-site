@@ -62,7 +62,11 @@
        축배는 닫는 인사 뒤 · 테이블 인사 앞이다(자료 D · S · AA 다섯 릴스 모두 «1부를 닫은 뒤 2부의 축배 → 테이블 인사») · 우리는 2부가 없어 닫는 인사가 1부의 끝이다.
        ★차례만 닫는 인사 뒤다 — 시간 셈 · 화면의 «본식 n / N» · 흐름 곡선은 축배를 본식 안에 둔다(APART 는 테이블 인사 하나 · TABLE_APART 그대로).
        종전 «부모님께 인사 → 축배 → 닫는 인사»(9/27 CAKE_TOAST_SPLIT · 10/12 EX_STD_1012 뼈대)는 걷었다 — 되살리지 말 것. */
-  var AFTER_CLOSE = { toast: 1, table: 1 };   // [TABLE_GREET_1008] 닫는 인사 뒤에 서는 순간 · [TOAST_LAST_1013] + 축배(테이블 인사 앞)
+  /* ★★[END_FLOW_1030 검토 167 · 사장님 10/30 확정] 본식 끝 차례를 바꿨다 — 테이블 인사(담은 날) → 축배(담은 날 · 하객은 자기 자리에서) → 잔 내려놓기 → 닫는 인사 → 사진.
+       신부 대기실이 없어 하객이 앉아 있을 때 남은 일을 다 듣고, 전체 사진이 끝나면 각자 편하게 움직이게. 이름(AFTER_CLOSE)은 «본식 끝 쪽에 서는 순간»이라는 뜻으로 그대로 둔다(자리는 닫는 인사 «앞») ·
+       종전 «닫는 인사 → 축배 → 테이블 인사»(TOAST_LAST_1013)는 걷었다 — 되살리지 말 것 */
+  var LATE_ORDER = ['table', 'toast'];   // [END_FLOW_1030] 닫는 인사 바로 앞 차례
+  var AFTER_CLOSE = { toast: 1, table: 1 };   // [TABLE_GREET_1008] · [TOAST_LAST_1013] 본식 끝에 따로 서는 순간 — ★[END_FLOW_1030 검토 167] 이제 닫는 인사 «앞»(LATE_ORDER 차례 · 이름은 옛 것 그대로)
   var APART = { table: 1 };                   // [TABLE_APART · TOAST_LAST_1013] 본식과 따로 세는 순간(시간 · «본식 뒤» 묶음 · 옅은 곡선) — 축배는 닫는 인사 뒤여도 본식 안
   var TABLE_SEC = 90;               // [TABLE_GREET_1008] 테이블당 1분 30초(사장님 결정 · 고정)
   function tableN(S) { var n = +((S || {}).tableN); if (!(n >= 1)) n = 6; return Math.min(6, Math.max(1, Math.round(n))); }   /* ★[TABLE_MAX6 2026-10-08] 상한 = 좌석 배치도 상한(mypage SEAT_ADD_CAP · 6테이블 × 5석) — 종전 12 는 좌석이 허락하지 않는 수였다 */   // [TABLE_GREET_1008] 좌석 배치도 테이블 수 · 모르면 6(30명 ÷ 5 · SEAT_PER5)
@@ -116,9 +120,9 @@
     free: { n: '축사', sn: '축사',   /* ★[SPEECH_TILE_1012] 옛 이름 «준비한 순서»(영상 · 깜짝 선물 · 축사 · 기타) → 축사 칸 · 옛 초안의 다른 갈래는 chipLabel 이 이름을 댄다 */ one: '친구나 형제자매가 두 분께 축하의 말을 전해요(3분 안팎).', shot: '말하는 분을 보며 웃는 두 분', /* [FREE_WHAT] shot 은 shotOf 가 무엇을에 따라 고른다 */  who: '축사하실 분(친구 · 형제자매)', why: '축가 앞이에요. 축하 순서가 한자리에 이어지도록.' },   /* ★[HEART_ORDER_1012] 축사는 축가 앞(자료 13곳 중 12곳) · 축가를 안 담으면 WHY_ALONE */
     letter: { n: '편지 낭독', sn: '편지', one: '부모님께, 또는 서로에게 쓴 편지를 읽어요.', shot: '편지를 읽는 목소리와 듣는 얼굴', who: '두 분' },   // ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간을 줄일 때도 편지 카드는 남긴다(자료 기본 0/23 이어도) · 빼자는 제안을 다시 올리지 않는다
     cake: { n: '케이크 커팅', sn: '케이크', one: '두 분이 나이프를 함께 잡고 케이크를 잘라요.', shot: '함께 자르는 두 손', who: '두 분' },   // [CAKE_TOAST_SPLIT]
-    toast: { n: '축배', sn: '축배', one: '모두 잔을 들어 «위하여». 두 분이 먼저 외치고 하객이 함께 답해요. 축배 잔은 저희가 준비해요.', shot: '모두의 잔', who: '두 분 · 하객 모두', why: '닫는 인사 뒤예요. 잔을 드는 자리는 여기 하나예요.' },   // [CAKE_TOAST_SPLIT] · [WINE_POUR_OFF] · [CLOSE_WORDS_1013] 다른 why 처럼 «[자리]예요. [까닭]»(TOAST_LAST_1013 · 자료 AA 1 · D · S «1부를 닫은 뒤 축배»)
+    toast: { n: '축배', sn: '축배', one: '모두 잔을 들어 «위하여». 두 분이 먼저 외치면 하객은 자리에서 일어나 함께 잔을 들어요. 축배 잔은 저희가 준비해요.', shot: '모두의 잔', who: '두 분 · 하객 모두', why: '닫는 인사 바로 앞이에요. 잔을 드는 자리는 여기 하나예요.' },   /* ★[END_FLOW_1030 검토 167] 테이블 인사 → 축배 → 닫는 인사 · 하객은 자기 자리에서(일어서기는 자유 · 앞으로 모이지 않는다) */   // [CAKE_TOAST_SPLIT] · [WINE_POUR_OFF] · [CLOSE_WORDS_1013] 다른 why 처럼 «[자리]예요. [까닭]»(TOAST_LAST_1013 · 자료 AA 1 · D · S «1부를 닫은 뒤 축배»)
     _close: { n: '닫는 인사', sn: '닫는 인사', one: '두 분이 하객께 인사를 드리고 본식을 마쳐요. 단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.',   /* ★[CLOSE_WORDS_1013] «이어서 하객 모두와 한 장» 금지 — 축배 · 테이블 인사를 담은 날은 그 뒤가 사진이다(자료 DD ③ «촬영 순서 미리») */ shot: '두 분 뒤로 보이는 하객들 · 단체 사진', who: '두 분 · 하객 모두' },
-    table: { n: '테이블 인사', sn: '테이블 인사', one: '본식을 마친 두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블마다 1분 30초쯤 · 다 돌면 그대로 모두 모여 단체 사진으로 이어져요.', shot: '하객 테이블로 다가가는 두 분 · 자리에서 맞는 얼굴들', who: '두 분 · 하객 모두' }   // [TABLE_GREET_1008]
+    table: { n: '테이블 인사', sn: '테이블 인사', one: '두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블마다 1분 30초쯤 · 다 돌면 앞으로 돌아와 축배와 닫는 인사로 예식을 마무리해요. 테이블 인사 약 9분(6테이블 기준) · 그만큼 사진 시간이 줄어요.', shot: '하객 테이블로 다가가는 두 분 · 자리에서 맞는 얼굴들', who: '두 분 · 하객 모두' }   // [TABLE_GREET_1008]
   };
 
   /* ── 판 칩(카드 안 · 담은 뒤에만 보인다) ──
@@ -300,8 +304,8 @@
   }
   function seqOf(S) { return ORDER.filter(function (k) { return onOf(S, k); }); }       // guest 포함 · _close 제외
   /* [TABLE_GREET_1008] 본식 차례 = 담은 순간(식전 · 닫는 인사 뒤 것 제외) → 닫는 인사 → 닫는 인사 뒤 순간(테이블 인사) */
-  function bodyOrder() { return ORDER.filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(['_close']).concat(ORDER.filter(function (k) { return AFTER_CLOSE[k]; })); }
-  function bodySeq(S) { return seqOf(S).filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(['_close']).concat(seqOf(S).filter(function (k) { return AFTER_CLOSE[k]; })); }   // 본식만 + 닫는 인사 + 그 뒤 순간
+  function bodyOrder() { return ORDER.filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(LATE_ORDER).concat(['_close']); }   // [END_FLOW_1030] 테이블 인사 · 축배 → 닫는 인사
+  function bodySeq(S) { return seqOf(S).filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(LATE_ORDER.filter(function (k) { return onOf(S, k); })).concat(['_close']); }   // [END_FLOW_1030] 본식 + 테이블 인사 · 축배 + 닫는 인사
   function picked(S) { return PICKABLE.filter(function (k) { return !RETIRED[k] && S && S.on && S.on[k]; }); }   // [CAKE_OLD_OFF_1017]
 
   /* ── 시간 표(부록 A · 초) — [대본(성우), 사람 말, 말 없는 시간, 여유] ──
@@ -821,13 +825,7 @@
   function slotText(k, S) {
     if (k === 'prevideo') return '예식 시작 시각 · 맨 처음';   // [OPEN_WORDS_1013] 화촉을 담으면 «입장 바로 앞»이 아니다   // [CEREMONY_AT_VIDEO]   // [ONEMIN_FIRST 2026-10-05] 1분 전 공지 → 식전 영상 → 입장
     if (PRE[k]) return '하객이 앉는 동안 · 본식 앞';
-    if (AFTER_CLOSE[k]) {   // [TABLE_GREET_1008] · [TOAST_LAST_1013] 닫는 인사 뒤 순간끼리도 앞뒤를 말한다(축배 → 테이블 인사)
-      var ao = bodyOrder(), ai = ao.indexOf(k), ap = '_close', an = '';
-      for (var y = ai - 1; y >= 0 && ao[y] !== '_close'; y--) if (onOf(S, ao[y])) { ap = ao[y]; break; }
-      for (var z = ai + 1; z < ao.length; z++) if (onOf(S, ao[z])) { an = ao[z]; break; }
-      return onOf(S, k) ? (bodySeq(S).indexOf(k) + 1) + '번째 · ' + CARDS[ap].n + ' 다음' : '담으면 ' + CARDS[ap].n + ' 다음, ' + (an ? CARDS[an].n : '단체 사진') + ' 앞에 들어가요';
-    }
-    var order = bodyOrder().filter(function (x) { return !AFTER_CLOSE[x]; });
+    var order = bodyOrder();   // [END_FLOW_1030] 테이블 인사 · 축배도 같은 줄(닫는 인사 앞)
     var i = order.indexOf(k), p = null, n = null, x;
     for (x = i - 1; x >= 0; x--) if (onOf(S, order[x])) { p = order[x]; break; }
     for (x = i + 1; x < order.length; x++) if (onOf(S, order[x]) || order[x] === '_close') { n = order[x]; break; }
@@ -1510,7 +1508,7 @@
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
-    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
+    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,

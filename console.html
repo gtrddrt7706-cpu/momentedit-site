@@ -1396,6 +1396,7 @@ function playClip(c, done){
   //   안내 음성 대신 배역 예시가 그 자리를 대신한다(CAST_TWO_SLOTS의 main).
   var cm = (GUEST && STORY) ? STORY.castMainOf(c) : [];
   if (cm.length) return playCastList(cm, done, function(){ fallbackCard(c, '녹음 없음', done); });
+  if (c.act) return done();   // ★[END_FLOW_1030] 소리 없는 동작 큐(가족 구도) — 말 없이 바로 사람 구간으로(문안 카드를 띄우지 않는다)
   var url = srcOf(c);
   if (!url) return fallbackCard(c, '녹음 없음', done);
   if (!recOk(c)) return fallbackCard(c, '글 바뀜 · 재녹음 전', done);   // [TEXT_AUDIO_MATCH]
