@@ -37,7 +37,7 @@ try {
   let pg = await page(ctx, q(SOF('record')));
   if (!(await pg.evaluate(() => !!document.getElementById('rehBox') && !!window.__bgmGo))) { ok('콘솔에 «리허설» 칸이 있다', false, '없음 — 옛 판'); throw new Error('hook'); }
   const A = await vals(pg);
-  ok('① 리허설 다섯 값 = 엔진 기본(−16 · −8 · −20 · 0 · 0.6초) · 지금 프로필 «기본값(엔진)»', JSON.stringify(A.o) === JSON.stringify({ duckSpeech: '-16', duckMusic: '-8', duckRead: '-20', toastLevel: '0', toastUpMs: '0.6' }) && A.now === '기본값(엔진)', A);
+  ok('① 리허설 일곱 값 = 엔진 기본(−16 · −8 · −20 · 0 · 0.6초 · 노래 곡 −6 · 음악 전체 −3.1 [BGM_FIX_1030]) · 지금 프로필 «기본값(엔진)»', JSON.stringify(A.o) === JSON.stringify({ duckSpeech: '-16', duckMusic: '-8', duckRead: '-20', toastLevel: '0', toastUpMs: '0.6', vocalExtra: '-6', musicTrim: '-3.1' }) && A.now === '기본값(엔진)', A);
   await pg.fill('[data-reh="duckSpeech"]', '-18'); await pg.fill('[data-reh="toastLevel"]', '-3'); await pg.fill('[data-reh="toastUpMs"]', '0.9'); await pg.fill('#rehName', '스튜디오 PA'); await pg.click('#rehSave'); await pg.waitForTimeout(200); await pg.close();
   pg = await page(ctx, q(SOF('record')));
   const B = await vals(pg);
