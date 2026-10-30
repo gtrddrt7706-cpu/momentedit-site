@@ -20641,4 +20641,10 @@ chk 'VC_DEC_1030_9' console.html 4
 chk "tx.textContent = ownTxtFor(c) || c.text || '';" console.html 1
 chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
+# ── 2026-10-30 [PAUSE_PREF_1030 · PHOTO_PRE_PICK_1030 · PHOTO_PRE_GAP_1030] 사장님 검수본 쉼 · 사진 전 안내 판 고르기 · 온라인 인사 뒤 2초
+chk 'const FLOW_FORCE = new Map(' scripts/build-typecast-import.mjs 1
+chk "var _ppre = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-photo-pre-meal'" assets/ritual-cue.js 1
+chk 'function mealFullOf(dd, placeholders)' assets/ritual-preview-link.js 1
+chk 'c.goLeadMs || 0' console.html 1
+chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

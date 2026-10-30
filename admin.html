@@ -3107,7 +3107,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
       /* ★[CONSOLE_INJECT_1019 검토 138-0] 당일 콘솔도 마이페이지 미리듣기와 같은 네 값(유무만)을 싣는다 — 종전엔 사진 트랙 값만 실어 실제 예식 날
            식사 있는 날에도 감사 인사가 귀가 인사(110)로 나가고 사진 안내(84 · 85)가 한 번도 안 나갔다. 규칙은 RitualPreviewLink 한 곳(mealOf · DINE_PH · photoShareOf · digitalOf · guideOf) */
       try{ var _RPL=window.RitualPreviewLink, _cPr=(d&&d.mirror&&d.mirror.production)||{}, _cInv=(d&&d.mirror&&d.mirror.invitation)||null;
-        if(_RPL){ _cS.meal=!!_RPL.mealOf(dd,_RPL.DINE_PH); _cS.photoShare=!!_RPL.photoShareOf(gi); _cS.digital=!!_RPL.digitalOf(_cInv);
+        if(_RPL){ _cS.meal=!!_RPL.mealOf(dd,_RPL.DINE_PH); _cS.mealFull=!!_RPL.mealFullOf(dd,_RPL.DINE_PH); _cS.resv=!!_RPL.resvOf(dd,gi); /* [PHOTO_PRE_PICK_1030] 사진 전 안내 266 고르기 */ _cS.photoShare=!!_RPL.photoShareOf(gi); _cS.digital=!!_RPL.digitalOf(_cInv);
           var _cWd=String((d&&d.pin&&d.pin['예식일'])||'').slice(0,10), _cCl=false; if(/^\d{4}-\d{2}-\d{2}$/.test(_cWd)){ var _cEnd=new Date(_cWd+'T00:00:00+09:00').getTime()+31*864e5; _cCl=Date.now()>=_cEnd; }   /* 서버 _guideExpired 와 같은 경계(예식 +30일까지 열림) */
           _cS.guide=!!_RPL.guideOf(_cPr.guideToken,_cCl); } }catch(e2){}
       _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'&rf='+encodeURIComponent((curDetail&&curDetail.code)||'')+'">당일 콘솔</a>'; }catch(e){}   /* [REC_ADMIN] rf=코드 — 콘솔이 두 분 목소리 파일을 미리 받는다(관리자 토큰) */
