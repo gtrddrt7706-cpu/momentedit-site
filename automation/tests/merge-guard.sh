@@ -18414,7 +18414,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-cancel-say.mjs >/
 #   15984 chk 'jobs: 1, groom: _vcPub(st.groom, code)' → status 에 rfkeep 표가 끼었다(RF_DEL_KEEP)
 #   15987 chk 'if (j && !j.end && j.jid !== jid && …' → 취소된 표는 비킨다(VC_CANCEL_FREE)
 chk 'VC_RETRY_MERGE' automation/platform/80_production.gs 1
-chk "if (k0 === 'retry' && Array.isArray(m)) {" automation/platform/80_production.gs 1
+chk "if ((k0 === 'retry' || k0 === 'rdOld') && Array.isArray(m)) {" automation/platform/80_production.gs 1   # [VC_RD_OLD] retry 와 같은 «더하고 빼기»에 rdOld 도
 chk 'VC_JOB_OWN' automation/platform/80_production.gs 2
 chk "if (k0 === 'job' && isO(f) && isO(b) && String(f.jid || '') !== String(b.jid || '')) return f;" automation/platform/80_production.gs 1
 chk 'VC_PHRASE_OWN' automation/platform/80_production.gs 1
