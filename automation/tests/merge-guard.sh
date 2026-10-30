@@ -14797,6 +14797,9 @@ chk 'VOW_FY_1024' order-preview.html 1   # 서약 칸 높이 60%(카드 둘 + �
 chk 'NO_END_FREEZE_1024' assets/ritual-open.js 1   # 장면 영상 8초 안팎 · 끝까지 움직임 · 끝 정지 0.3초 안(10/24 사장님 «6초부터 멈춰 있어»)
 chk 'FINAL17_1025' assets/ritual-open.js 1   # 17편 최종판(전판 + 한국인 하객 · 얼굴 뭉갬 · 서약 앵글 전환 · 테이블 인사 박수 없음)
 chk 'PV_NAR_CHIP_1030' order-preview.html 1   # 식전 영상 스튜디오 소개 멘트 칩 넷이 모두 눌린다(PV_EX 둘로 세지 않는다)
+chk 'WEEKDAY_SAFE_1030' assets/ritual-open.js 1   # 하객 맞이 유쾌 첫 문장 «바쁜 주말» 걷음(평일 예식에 틀린 말) · 스튜디오 119 = 115 첫 문장 소리 빌림
+chk 'WEEKDAY_SAFE_1030' order-preview.html 2   # 두 분 목소리 유쾌 g0 같은 첫 문장 + 옛 글 EX_OLD_1006
+nochk '바쁜 주말 귀한 시간' assets/ritual-open.js   # 평일 예식에 틀린 말 — 되살리지 말 것(10/30)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
@@ -20338,3 +20341,19 @@ chk 'REVIEW_166_1030' order-preview.html 3
 nochk "lab:'말 없이 흐르는 자리'" order-preview.html
 nochk '비어 있는 칸이 있어요' order-preview.html
 chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요)' order-preview.html 1
+# ── 2026-10-30 [VC_FIX_1030] 두 분 AI 목소리 버그 넷(GPT 모의 재현 · FEATURE.voiceClone 꺼진 채 고침)
+#   ① [BAKE_FAIL_DROP] 저장 · 나가기 직전 굽기가 실패 · 40초를 넘겨도 «새 글 + 옛 글 소리»를 보내지 않는다(글 · 읽는 분이 바뀐 AI 줄은 소리를 내려놓아 당일 나레이션 · 화면은 «목소리 만들기»)
+#   ② [DONE_NOT_GONE] 없다고 확인된 소리(_rfGone · 마이페이지 안)는 파일 정보가 남아도 다 됨으로 세지 않는다
+#   ③ [DEL_LATE_UP] 올리는 사이 그 분 목소리를 지웠으면 늦게 온 «올라갔어요»를 붙이지 않는다(자동 저장 없음 · 올라간 파일은 지운다)
+#   ④ [VC_CACHE_FIRST] GAS 만들기 · 연습은 저장본을 찾은 뒤에 남은 글자를 본다(한도 근처에서도 이미 만든 소리는 돌려준다)
+chk 'function _vtStaleDrop' order-preview.html 1
+chk '_vtStaleDrop();   /\* \[BAKE_FAIL_DROP\] \*/' order-preview.html 3
+chk '&&!_upStale(q.up)&&!_rfLost(q.up);' order-preview.html 1
+chk 'function _rfLost' order-preview.html 1
+chk 'UP_DG\[key\]=_vcDelSnap();' order-preview.html 1
+chk 'if(d.ok&&_upVoiceGone(key,pend))' order-preview.html 1
+chk 'VC.delGen\[w\]=(VC.delGen\[w\]||0)+1;' order-preview.html 1
+chk 'VC_CACHE_FIRST' automation/platform/80_production.gs 2
+chk 'VC_CACHE_FIRST' scripts/audit/vc-flow-sim.mjs 3
+chk 'VC_FIX_1030' scripts/audit/vc-fix-1030.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix-1030.mjs >/dev/null 2>&1; _vfx=$?; if [ "$_vfx" = 1 ]; then echo 'FAIL vc-fix-1030: AI 목소리 저장 직전 · 없는 소리 · 지운 뒤 늦은 올리기 판정이 어긋났습니다 — node scripts/audit/vc-fix-1030.mjs'; fail=1; else echo "ok vc-fix-1030 ($_vfx)"; fi; fi

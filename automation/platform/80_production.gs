@@ -1754,6 +1754,8 @@ function handleVoiceClone(body) { _gsr_();
     var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || pal || cfg.def.f || cfg.def.m;
     if (!vid) { try { PropertiesService.getScriptProperties().setProperty('VCERR_' + code, JSON.stringify({ at: fmtKST(new Date()), op: 'practice', http: 0, msg: '읽을 목소리 없음 · 두 분 AI 목소리도 스튜디오 기본(TYPECAST_VOICE_M · F)도 비어 있어요' })); } catch (e) {} return down; }
     var tp = _vcTempo(body.tempo);   // [TEMPO_STEP] 0.7 ~ 1.3 · 0.1 걸음(종전 세 값만 받던 목록)
+    /* ★[VC_CACHE_FIRST 2026-10-30] 저장본(같은 글 · 목소리 · 빠르기 · 쉼)이 있으면 남은 글자를 보기 전에 돌려준다 — 종전엔 한도 근처에서 이미 만든 소리도 «다 썼어요»로 거절했다(글자를 새로 쓰지 않는 일) */
+    try { var pc0 = _vcCacheGet(code, '연습 소리', vid, t, tp, _vcPause(body.pause)); if (pc0.b64) return { ok: true, mime: 'audio/mpeg', data: pc0.b64, mine: !!own, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) }; } catch (e) {}
     if (_vcSpent(st) + t.length > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
     /* [PT_TUNE 2026-10-05 사장님 «빠르기랑 쉼 설정한 거 그대로 적용되는 거 맞아?»] 연습 읽기도 그분이 정한 쉼(remove_silence_ms)으로 — 종전엔 빠르기만 받고 쉼은 늘 150 */
     try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg, _vcPause(body.pause)); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; save(); }
@@ -1796,8 +1798,6 @@ function handleVoiceClone(body) { _gsr_();
        이제 문장 사이에서 600자 안 조각으로 나눠 함께 읽는다(화면은 받은 조각을 이어 붙인다 · _vcProc). 입장 인사처럼 줄을 나눠 보내는 것(lines)은 줄 하나가 600자를 넘으면 알린다 */
     if (lines && lines.some(function (l) { return String((l && l[1]) || '').trim().length > 600; })) return { ok: false, long: true, error: '한 줄 글이 길어요 · 600자 안으로 나눠 주세요' };
     var jobs = lines ? lines.map(function (l) { return { who: WHO[l && l[0]] ? l[0] : '', text: String((l && l[1]) || '').trim() }; }) : _vcChunks(text, 600).slice(0, 12).map(function (c) { return { who: who2.length === 1 ? who2[0] : '', text: c }; });
-    var need = jobs.reduce(function (a, j) { return a + j.text.length; }, 0);
-    if (_vcSpent(st) + need > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };   // [VC_BUDGET] 예식당 글자 예산 하나(줄 5번 · 예식 50번은 걷었다)
     var parts = [], fresh = false, newChars = 0, t0 = Date.now(), todo = [];
     /* ★★[VC_PAR 2026-10-05 사장님 «왜 못 만드는 거지 · 이런 에러가 자주 있으면 안 되는데»] vcLastErrors 실측 — 오늘 실패는 서버에 한 건도 없었다(업체 거절이 아니다).
        화면(마이페이지 90초 · 빌더 95초)이 먼저 포기한 것이다: 줄마다 업체에 «차례로» 물어 줄 수만큼 길어졌고, 서버는 그 뒤에도 끝까지 만들어 저장해
@@ -1808,6 +1808,9 @@ function handleVoiceClone(body) { _gsr_();
       if (!v2 || !jobs[i].text) continue;
       try { var c = _vcCacheGet(code, 'AI 소리', v2, jobs[i].text, tempo, pause); if (c.b64) parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); else { var slot = { who: jw, mime: 'audio/mpeg', data: '' }; parts.push(slot); todo.push({ slot: slot, v: v2, text: jobs[i].text, nm: c.nm, fo: c.fo }); } }
       catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
+    /* ★[VC_CACHE_FIRST 2026-10-30] 남은 글자는 저장본을 찾은 «뒤»에 새로 만들 줄(todo)만 센다 — 저장본만으로 되는 줄은 한도 근처에서도 그대로 돌려준다(글자를 새로 쓰지 않는다) */
+    var need = todo.reduce(function (a, j) { return a + String(j.text).length; }, 0);
+    if (todo.length && _vcSpent(st) + need > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };   // [VC_BUDGET] 예식당 글자 예산 하나(줄 5번 · 예식 50번은 걷었다)
     if (todo.length) {
       var reqs = todo.map(function (t) { return _vcTtsReq(cfg, t.v, t.text, tempo, pause); }), rs;
       try { rs = UrlFetchApp.fetchAll(reqs); } catch (e) { return _vcErr(code, 0, 'make', e.message); }
