@@ -1594,7 +1594,7 @@ function _vcM3(f, b, m, k0, cnt) { _gsr_();   // k0 = 이 칸의 이름(아래 �
   var isO = function (v) { return v && typeof v === 'object' && !Array.isArray(v); };
   /* ★[VC_RETRY_MERGE 2026-10-09 A~Z 점검 2라운드 E2-2] retry(업체 지우기 실패 목록)는 «더하고 빼기»로 합친다 — 지금 목록에 이 요청이 더한 것은 더하고 · 뺀 것만 뺀다.
      배열은 «바뀐 쪽이 통째로 이김»이라, 같은 때 다른 요청(지우기)이 넣은 실패분을 늦게 끝난 요청이 덮어 업체에 목소리가 남고 다시 지울 길이 없었다 */
-  if (k0 === 'retry' && Array.isArray(m)) { var fa = Array.isArray(f) ? f : [], ba = Array.isArray(b) ? b : [], ro = [];
+  if ((k0 === 'retry' || k0 === 'rdOld') && Array.isArray(m)) { /* [VC_RD_OLD] 옛 읽은 녹음 지울 목록도 같은 «더하고 빼기» */ var fa = Array.isArray(f) ? f : [], ba = Array.isArray(b) ? b : [], ro = [];
     fa.forEach(function (v) { if (ro.indexOf(v) < 0 && !(ba.indexOf(v) > -1 && m.indexOf(v) < 0)) ro.push(v); });
     m.forEach(function (v) { if (ro.indexOf(v) < 0 && ba.indexOf(v) < 0) ro.push(v); }); return ro; }
   /* ★[VC_JOB_OWN 2026-10-09 E2-6] 작업표는 그 만들기의 것 — 다른 만들기가 표를 새로 걸었으면(jid 가 바뀜) 앞 만들기의 끝 · 취소를 얹지 않는다(취소된 표 뒤 바로 새 만들기) */
@@ -1750,13 +1750,19 @@ function _vcDelMark(code, ws) { _gsr_();
 /* ★[VC_READ_DEL 2026-10-30 GPT 2차 점검 1 · 4] 읽은 녹음 휴지통 — 보냈거나 이미 없으면 true(기록 {gone}) · 드라이브가 실패하면 false(id 를 남기고 del 표시).
    종전엔 실패해도 id 를 지우고 «지웠다»를 적어, 매일 지우기의 다시 대상에서 빠지고 마이페이지가 «지웠어요»라고 했다 */
 function _vcReadTrash(p, at) { _gsr_();   // [VC_READ_DEL]
-  if (!p || !p.read || !p.read.id) return true;
+  var o = _vcRdOldTrash_(p);   // [VC_RD_OLD] 앞서 못 지운 옛 읽은 녹음도 함께
+  if (!p || !p.read || !p.read.id) return o;
   try { DriveApp.getFileById(p.read.id).setTrashed(true); }
   catch (e) { var m = String(e && e.message || e); if (!/not found|could not be found|No item|찾을 수 없/i.test(m)) { p.read.del = p.read.del || at; return false; } }
-  p.read = { gone: at }; return true; }
+  p.read = { gone: at }; return o; }
+/* ★[VC_RD_OLD 2026-10-30 GPT 4차 점검 4-02] 옛 읽은 녹음(rdOld) 휴지통 — 다 보냈거나 이미 없으면 true · 못 보낸 것만 남긴다 */
+function _vcRdOldTrash_(p) {
+  if (!p || !p.rdOld || !p.rdOld.length) return true; var keep = [];
+  p.rdOld.forEach(function (id) { try { DriveApp.getFileById(id).setTrashed(true); } catch (e) { var m = String(e && e.message || e); if (!/not found|could not be found|No item|찾을 수 없/i.test(m)) keep.push(id); } });
+  if (keep.length) p.rdOld = keep; else delete p.rdOld; return !keep.length; }
 /* ★[VC_PURGE_TRUE 2026-10-30 GPT 2차 점검 3 · 4] 아직 다 못 지운 것이 있나 — 업체 목소리(retry) · 읽은 녹음(del 표시). 연습 소리는 지울 때 센다(_vcPracticeTrash) */
 function _vcPendOf(st) { _gsr_(); st = st || {};   // [VC_PURGE_TRUE]
-  return !!((st.retry && st.retry.length) || ['groom', 'bride'].some(function (w) { return st[w] && st[w].read && st[w].read.id && st[w].read.del; })); }
+  return !!((st.retry && st.retry.length) || ['groom', 'bride'].some(function (w) { return st[w] && ((st[w].read && st[w].read.id && st[w].read.del) || (st[w].rdOld && st[w].rdOld.length)); })); }   // [VC_RD_OLD]
 function _vcPracticeTrash(code) { _gsr_(); var bad = 0;   // [VC_PURGE_TRUE] 연습 소리 휴지통 — 못 보낸 수(0 = 다 됨)
   try { var it = _vcAiFolder(code).getFiles(); while (it.hasNext()) { var f = it.next(); if (!/^연습 소리/.test(f.getName())) continue; try { if (!f.isTrashed()) f.setTrashed(true); } catch (e) { bad++; } } } catch (e) { bad++; }
   return bad; }
@@ -1818,6 +1824,9 @@ function _vcEnrollAfter(c, x, xe) { _gsr_(); var code = c.code, who = c.who, pp 
        종전엔 앞 목소리를 먼저 지우고 저장해, 저장이 실패하면 상태엔 지워진 옛 목소리가 «준비됨»으로 남고 새 목소리는 업체에 홀로 남았다.
        앞 목소리는 이 저장에 retry 로 함께 실어 둔다 — 지우기 답을 못 얹어도 매일 지우기가 다시 묻는다(404 = 끝) */
     olds.forEach(function (v) { st.retry = (st.retry || []).filter(function (x) { return x !== v; }); st.retry.push(v); });
+    /* ★[VC_RD_OLD 2026-10-30 GPT 4차 점검 4-02 · VC_FIX4_1030] 앞 읽은 녹음(지우기를 못 끝낸 것 포함)은 새 녹음이 자리를 차지하기 «전에» 지울 목록(rdOld)에 올려 함께 저장한다 —
+       종전엔 저장 뒤 한 번 휴지통에 보내 보고 실패하면 그 id 가 상태에서 사라져, 매일 지우기도 마이페이지 «지우는 중»도 그 녹음을 몰랐다 */
+    var rdAdd = !!(oldRd && rfId && oldRd !== rfId); if (rdAdd) pp.rdOld = (pp.rdOld || []).filter(function (x) { return x !== oldRd; }).concat([oldRd]);
     var okr = { ok: true, who: who, tries: pp.tries, renewed: !!(prev || now) }; mark(okr);
     var sv; try { sv = c.save(stopped); } catch (e) { sv = 'busy'; }
     if (sv === 'stop') { st.retry = (st.retry || []).filter(function (x) { return olds.indexOf(x) < 0; }); return stop(nv, rfId); }   // [VC_DEL_STOP] ② 저장하려는 사이 지우기가 왔다 — 쓰지 않고 지우기 쪽으로(앞 목소리는 그 지우기가 맡는다)
@@ -1825,11 +1834,12 @@ function _vcEnrollAfter(c, x, xe) { _gsr_(); var code = c.code, who = c.who, pp 
       var tmp = {}; _vcDelVoice(c.cfg, tmp, nv); if (tmp.retry && tmp.retry.length) _vcAlert('orphan', '저장하지 못한 새 목소리를 업체에서 지우지 못했어요 · ' + code + ' · ' + nv + ' · 업체 화면에서 지워 주세요');
       if (rfId) { try { DriveApp.getFileById(rfId).setTrashed(true); } catch (e) {} }
       pp.voiceId = b0.voiceId; pp.made = b0.made; if (rd0) pp.read = rd0; else delete pp.read; pp.phrase = ph0; st[who] = pp; st.retry = (st.retry || []).filter(function (x) { return olds.indexOf(x) < 0; });
+      if (rdAdd) { pp.rdOld = (pp.rdOld || []).filter(function (x) { return x !== oldRd; }); if (!pp.rdOld.length) delete pp.rdOld; }   // [VC_RD_OLD] 앞 녹음은 그대로 쓰는 녹음이다 — 지울 목록에서 뺀다
       try { endJob({ ok: false, kind: 'busy', ecode: 'V1', error: VC_DEL_BUSY }); } catch (e) {}   // 작업표도 닫아 본다(잠금이 풀렸으면) — 화면이 «만드는 중»을 오래 기다리지 않게
       return { ok: false, kind: 'busy', ecode: 'V1', error: VC_DEL_BUSY }; }
     olds.forEach(function (v) { _vcDelVoice(c.cfg, st, v); });   // ★새 목소리가 저장된 뒤에 앞 목소리를 지운다(칸 수 그대로) · 지워지면 retry 에서 빠진다
-    if (olds.length) { try { c.save(); } catch (e) {} }
-    if (oldRd && oldRd !== rfId) { try { DriveApp.getFileById(oldRd).setTrashed(true); } catch (e) {} }   // 앞 읽은 녹음도 저장된 뒤에
+    if (rdAdd) { _vcRdOldTrash_(pp); st[who] = pp; }   // [VC_RD_OLD] 앞 읽은 녹음도 저장된 뒤에 · 못 보내면 rdOld 에 남아 매일 다시
+    if (olds.length || rdAdd) { try { c.save(); } catch (e) {} }
     return okr;
   } catch (e) { try { endJob({ ok: false, kind: 'fail', ecode: 'V9', error: VC_DOWN }); } catch (e2) {} throw e; } }   // 예상 못 한 오류도 작업표는 닫는다 — 화면이 «아직 만드는 중»을 6분 동안 기다리지 않게
 function handleVoiceClone(body) { _gsr_();
@@ -1949,7 +1959,7 @@ function _vcChunks(t, n) { _gsr_(); t = String(t || '').trim(); if (!t) return [
   if (cur.trim()) out.push(cur.trim()); return out.filter(function (x) { return x; }); }
 function _vcPub(p, code, st) { _gsr_(); p = p || {}; var sk = !!code && _voiceStudio(code);   // [VC_NO_COUNT] 시험 예식은 남은 수가 줄지 않는다
   /* ★[VC_DEL_PEND 2026-10-30] deleting = 지운 목소리를 업체가 아직 지웠다고 답하지 않음(retry) · 읽은 녹음을 아직 못 보냄 — 카드 «지우는 중이에요 · 곧 끝나요» */
-  var dl = !!((p.delId && st && (st.retry || []).indexOf(p.delId) > -1) || (p.read && p.read.id && p.read.del));
+  var dl = !!((p.delId && st && (st.retry || []).indexOf(p.delId) > -1) || (p.read && p.read.id && p.read.del) || (p.rdOld && p.rdOld.length));   // [VC_RD_OLD]
   return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, left: sk ? VC_LIM.enroll : Math.max(0, VC_LIM.enroll - (p.tries || 0)), made: p.made || '', deleted: p.deleted || '', deleting: dl, job: _vcJobPub(p.job) }; }   // [VC_ENROLL_JOB]
 /* [VOICE_CLONE 5-5] 예식 뒤 30일 — purgeRitualFiles 가 코드마다 부른다(다음 날 지우기가 못 돈 것의 마지막 그물) */
 function _vcPurge(code) { _gsr_(); return _vcPurgeNow(code); }
@@ -1992,8 +2002,9 @@ function purgeVoiceClones(dry) { _gsr_();
   Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var code = k.slice(3), st; try { st = JSON.parse(all[k] || '{}') || {}; } catch (e) { return; }
     var cfg = _vcCfg_(code);
     var rdel = ['groom', 'bride'].filter(function (w) { return st[w] && st[w].read && st[w].read.id && st[w].read.del; });   // [VC_READ_DEL] 못 보낸 읽은 녹음 — 예식 날과 상관없이 다시
-    if (!dry && ((st.retry && st.retry.length) || rdel.length || st.purgePend)) { var b0 = JSON.parse(JSON.stringify(st)), at = fmtKST(new Date()); (st.retry || []).slice().forEach(function (v) { _vcDelVoice(cfg, st, v); });
-      rdel.forEach(function (w) { _vcReadTrash(st[w], at); });
+    var rold = ['groom', 'bride'].filter(function (w) { return st[w] && st[w].rdOld && st[w].rdOld.length; });   // [VC_RD_OLD] 다시 만들 때 못 지운 옛 읽은 녹음 — 지금 쓰는 녹음(read)은 건드리지 않는다
+    if (!dry && ((st.retry && st.retry.length) || rdel.length || rold.length || st.purgePend)) { var b0 = JSON.parse(JSON.stringify(st)), at = fmtKST(new Date()); (st.retry || []).slice().forEach(function (v) { _vcDelVoice(cfg, st, v); });
+      rdel.forEach(function (w) { _vcReadTrash(st[w], at); }); rold.forEach(function (w) { _vcRdOldTrash_(st[w]); });
       if (st.purgePend && !_vcPracticeTrash(code) && !_vcPendOf(st)) { st.purged = st.purgePend; delete st.purgePend; }   // [VC_PURGE_TRUE] 남은 것이 다 지워졌을 때 «지웠다»
       _vcSave(code, b0, st); st = _vcSt(code); }   // ★[VC_PURGE_MERGE 2026-10-08 목소리 1라운드 79] 시작 때 읽은 옛 상태로 덮지 않는다 — 그 사이 만든 목소리를 지웠다
     var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
