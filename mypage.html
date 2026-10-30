@@ -10045,7 +10045,7 @@ function renderPhoto(box){
          ③ narr-photo-split 가족 구도(«작가님이 순서대로 불러 드립니다»)  ④ narr-online-in 온라인 인사(디지털 참석 날만)  ⑤ narr-photo-out 남는 시간 자유 사진.
        ★셈 · 상한 · 저장 모양([PHOTO_CAP_40] · photo/photoWish/photoCaller/photoFriend)은 그대로 — 자리만 옮겼다. 흐름 줄(알약)을 되살리지 말 것. */
   var _scn=photoSceneList(PHOTOFLOW.rd);   // [PHOTO_SCENE] 요청 칸(1번)의 접힘 글이 먼저 읽는다 — 절 자체는 번호 줄 뒤에 그린다
-  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요.</div>';   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요. 시작할 때 안내 음성이 «촬영 차례가 아닌 분들은 자리에서 편히 쉬셔도 좋습니다»라고 알려요'+(PHOTOFLOW.meal==='yes'?' · 식사는 예약 시간에 두 분과 함께 시작해요':(PHOTOFLOW.meal==='no'?' · 촬영을 마치신 분들은 편히 돌아가셔요':''))+'.</div>';   /* ★[END_FLOW_1030 검토 167] 감사 인사는 닫는 인사가 맡는다 · 사진 전 안내(266 · 265)와 같은 말 */   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   /* ★[PHOTO_RECONFIRM 2026-09-27] 예식 확인서를 이미 확정했으면 한 줄 — 여기서 고쳐 저장하면 확정이 풀린다(guideinfo 도 확정 스냅샷에 든다 · 80_production _prodConfirmVoid).
        말은 확인서 판의 «고치시면 확정이 풀려요» · 행의 «다시 확정»과 같게. 풀린 뒤(confirmStale)는 확인서 자리가 스스로 말하니 여기선 안 띄운다. */
   var _pdc=null; try{ _pdc=((window._mpStateD||{}).production)||null; }catch(e){}
@@ -10054,6 +10054,8 @@ function renderPhoto(box){
   var _stN=0; function _stepHd(t, sub, kind, extra){ _stN++; return '<li class="ph-st'+(kind?(' '+kind):'')+'"><div class="ph-st-hd"><span class="ph-st-no" aria-hidden="true">'+_stN+'</span><span class="ph-st-t">'+t+(extra||'')+'</span></div>'+(sub?('<div class="ph-st-s">'+sub+'</div>'):''); }
   var _dig=!!PHOTOFLOW.dig, _ml=PHOTOFLOW.meal;
   h+='<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">';
+  /* ★[END_FLOW_1030 검토 167 2026-10-30 사장님] 닫는 인사(감사 인사) → 온라인 인사(디지털 참석 날) → 사진 전 안내 → 전체 사진 · 가족 구도 · 자유 사진 — 온라인 인사가 사진 앞으로 왔다 */
+  if(_dig) h+=_stepHd('온라인 인사', '', 'show', '<span class="ph-st-m">약 2분</span>')+'<div class="cc-note ph-st-note">닫는 인사 뒤, 멀리서 보고 계신 분들께 두 분이 카메라를 보고 인사를 전해요.</div></li>';
   h+=_stepHd('모두 함께 · 전체 하객 한 장', '늘 첫 컷이에요 · 따로 고르실 것은 없어요');   // ★[PHOTO_STEP1_TRIM 2026-09-27 사장님 «전부 반영»] 옛 «오신 분들 모두»는 제목(모두 함께)·카드(모두 앞으로)와 세 번 겹쳤다 — 대신 «고정»이 무슨 뜻인지를 말한다   // ★[PHOTO_SHOOT_ORDER] 1번 = 엔진 end-0-photo(전체 하객 → 두 분이 적은 요청) · 요청 칸이 이 차례 안에 온다
   h+='<div class="ph-list"><div class="ph-item locked"><span class="ph-nm">전체 하객<span class="ph-sub">두 분이 가운데 · 모두 앞으로 모여요</span>'+_phExLnk('전체 하객')+'</span><span class="ph-fix">고정</span></div></div>';   // [PHOTO_FIX_TEXT] «고정»은 테두리 없는 글 · [PHOTO_EX_VIEW] 예시(g00)
   /* ★★★[PHOTO_WISH] 「꼭 담고 싶은 사진」 — 고르는 카드 열 장을 없애고 **적는 칸**으로 바꿨다.
@@ -10108,11 +10110,7 @@ function renderPhoto(box){
   h+='<details class="cc-more" style="margin-top:8px"><summary>어떻게 적으면 되나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">아래를 눌러 가져다 쓰고 고치시면 돼요.'+(_scn?' 안 적으셔도 <b>예식 순서에서 남는 사진</b>은 그대로 담겨요.':'')+'<br><br>참고 링크는 <b>핀터레스트·인스타 게시물</b>처럼 오래 열리는 주소로 주세요(스토리·카카오톡은 만료돼요). <b>구도와 분위기만 참고</b>해요.</div><div class="ph-chips" style="margin-top:8px">'
     +PHOTO_WISH_EX.map(function(c){ var _t=c.n+' · '+c.c, _on=wish.some(function(w){ return String((w&&w.what)||'').indexOf(_t)>-1; }); return '<span class="ph-chip ph-ex'+(_on?' on':'')+'" data-wex="'+escapeHtml(_t)+'"'+(_on?' aria-disabled="true"':'')+'><span class="ph-ck" aria-hidden="true">✓</span>'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // [PHOTO_CHIP_KIND] 붙인 뒤 ✓ · 다시 눌러도 두 번 붙지 않는다 · [PHOTO_DIR_WORD] 접힘 안 «위 장면은 그대로 담겨요»는 식순이 정해진 때만(_scn · 식순이 없으면 «위 장면»이 없다)   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리) · [PH_DOT_SPLIT] « · »로 잇던 두 곳을 마침표로(320~414 모두 «· 안 적으셔도»가 줄 머리였다)
   h+='</li>';
-  /* [PHOTO_DAY_STEPS] 2번 · 감사 인사 — 보기만. 나레이션(end-1a-farewell · 식사 없는 날 end-1c-thanks-nomeal)이 하는 말만 옮긴다(더 약속하지 않는다).
-       [GUESTS_OPEN] 남는 분 = 가족 + 두 분과 사진을 더 남기고 싶은 분(친구 · 지인) · 식사 자리는 식당을 고른 날만(meal) · 모르면 중립 */
-  h+=_stepHd('감사 인사 · 남아 주실 분 안내', '', 'show', '<span class="ph-st-m">약 1분</span>')
-    +'<div class="cc-note ph-st-note">두 분이 함께 하객분들께 감사 인사를 드려요. 이어서 나레이션이 가족분들과, 두 분과 사진을 더 남기고 싶은 분들께 잠시 남아 달라고 안내해요. '
-    +(_ml==='yes'?'먼저 가실 분들은 이때 식사 자리로 옮겨요.':(_ml==='no'?'먼저 가실 분들은 이때 인사를 받고 돌아가요.':'먼저 가실 분들은 이때 자리를 옮겨요.'))+'</div></li>';   /* ★[PHOTO_THANKS_WORD 2026-09-27 고객 점검] 옛 «하객 모두께 함께» · «사진을 더 함께 남기고 싶은 분»(누구와?) · «옮기셔요» — 나레이션 원문 «두 사람과 따로 사진을 남기고 싶으신 분들도»에 맞춰 «두 분과»를 넣었다 */
+  /* ★[END_FLOW_1030 검토 167] 옛 2번 «감사 인사 · 남아 주실 분 안내»는 걷었다 — 감사 인사는 닫는 인사가 맡고, 남는 분 안내는 사진 전 안내(265 · 266)가 사진 앞에서 한다(맨 위 한 줄). 되살리지 말 것 */
   h+=_stepHd('가족 구도', '고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요');   // [PHOTO_FREE] 부르고 세우는 것은 사진작가 · 나레이션 «가족사진은 작가님이 순서대로 불러 드립니다»와 같은 말
   h+=(sel.length?('<div class="ph-ordlab">찍는 순서'+(sel.length>1?' · ↑↓로 바꿀 수 있어요':'')+'</div><div class="ph-list">'):'<div class="cc-note ph-none" style="text-align:left;margin:8px 0 2px">아직 고른 구도가 없어요 · 아래에서 더해 주세요.</div>');
   sel.forEach(function(n,i){
@@ -10172,7 +10170,6 @@ function renderPhoto(box){
   h+='<input id="mp_pcBride" class="cc-input" data-pc="bride" maxlength="40" autocomplete="off" placeholder="예: 외삼촌 이○○" value="'+escapeHtml(_pc.bride||'')+'" style="margin:0">';
   h+='</li>';
   /* [PHOTO_DAY_STEPS] 온라인 인사 — 디지털 참석 날만(엔진 S.digital · narr-online-in «화면으로 보고 계신 분들께 인사를 올리겠습니다» · [SRC_ALL_1023 검토 144-4] 자료 RR · II) · 보기만 */
-  if(_dig) h+=_stepHd('온라인 인사', '', 'show', '<span class="ph-st-m">약 2분</span>')+'<div class="cc-note ph-st-note">멀리서 보고 계신 분들께 두 분이 카메라를 보고 인사를 전해요.</div></li>';
   /* ★[PHOTO_FRIEND 2026-09-26 사장님 G1·G2] «친구들과 자유롭게» — 가족 구도를 다 찍은 뒤 친구들과는 편하게(폰으로도 · 사진작가에게 부탁).
      사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
      → 고르는 칸 없이 **대략 적는 칸 하나만.** 시간은 따로 떼지 않는다(진행표의 «시간이 남으면 … 자유 사진» 자리) — 그래서 «몇 분»을 약속하지 않는다.

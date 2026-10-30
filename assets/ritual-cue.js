@@ -518,6 +518,9 @@
        글에 자료 대응이 없어 쉰다(파일 · 문안 · 번호 그대로 · 녹음 목록 · 들어 보기에서 빠진다) · 되살리지 말 것 */
     /* ★[REVIEW26_1023 검토 150-1 3) · 150-2 1)] 단체 사진 안내 예시 3(220 · 닫는 멘트 «잔잔하게»의 짝) · B9 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»(245 · 화촉 구호와 같은 말) — 쉰다(번호 · 파일 그대로) · B9 자리는 늘 255 · 되살리지 말 것 */
     'narr-close-ex3': 1, 'bridge-b9-declare-seat': 1,
+    /* ★★[END_FLOW_1030 검토 167 2026-10-30 사장님 «소리만 뺀다»] 감사 인사 45 · 110 — 새 코스는 감사 인사를 닫는 인사가 맡아 자동 재생에서 뺐다(가족 구도 진행 · 시간 셈 _go 는 소리 없는 동작 큐가 그대로 든다) ·
+       옛 코스(옛 초안)는 종전대로 튼다 · 파일 · 문안 · 번호 그대로(녹음 목록 · 들어 보기에서만 빠진다) · 되살리지 말 것 */
+    'end-1a-farewell': 1, 'end-1c-thanks-nomeal': 1,
     'narr-candle-out-formal': 1,   /* [CANDLE_OUT_ONE_1023 검토 152] 140 — 95 와 같은 글 · 입장 C 갈래 걷음 · 번호 보존 */
     /* ★★[REVIEW27_1023 검토 151-1 2) ~ 4)] 원문이 아닌 글 다섯을 쉰다(파일 · 문안 · 번호 그대로 · 되살리지 말 것) — 축가 예시 3(204 · 예시 1 = D.NARR.song 이 같은 글이 됐다 · SONG_DEF_NN_1023) ·
        준비한 순서 영상 · 선물 여는 말(100 · 102 · 여는 말은 58 하나 · FREE_IN_RR_1023) · B5 «영상은 여기까지입니다»(113 · B5_OFF_1023) · 재생 안 됨 한 줄(105 · FREE_FAIL_VOICE_OFF_1023) */
@@ -1500,9 +1503,10 @@
     }));
     /* ★★[END_FLOW_1030 검토 167] 사진 전 안내(새 녹음 · 한 클립 두 판) — 식사 있음(애프터 웨딩 식사 · 하객 안내가 있는 날) · 식사 없음(그 밖 · 카페만 포함).
          새 코스에서 26(narr-close)을 대신한다 · 녹음 전에는 문안 카드로 지나간다 · 사람 구간(모임 + 전체 하객 · 꼭 담고 싶은 사진)은 26 이 하던 그대로 */
-    var _ppre = (S.meal && S.guide) ? 'narr-photo-pre-meal' : 'narr-photo-pre';
+    /* 식사는 있는데 하객 안내가 없는 날은 «모바일 청첩장의 하객 안내»도 «편히 귀가»도 틀린 말이라 26(옛 사진 안내 · 녹음 있음)으로 지난다 */
+    var _ppre = (S.meal && S.guide) ? 'narr-photo-pre-meal' : S.meal ? 'narr-close' : 'narr-photo-pre';
     if (_openC) cues.push(cue({
-      k: '_close', blockN: '폐식·단체촬영', slug: _ppre, name: (S.meal && S.guide) ? '사진 전 안내 · 식사 있음' : '사진 전 안내', text: EXTRA[_ppre],
+      k: '_close', blockN: '폐식·단체촬영', slug: _ppre, name: _ppre === 'narr-photo-pre-meal' ? '사진 전 안내 · 식사 있음' : '사진 전 안내', text: _ppre === 'narr-close' ? D.NARR.close : EXTRA[_ppre],
       duck: -12, note: '가장 느리게 · 하객이 앉아 있을 때 남은 일을 다 말한다(END_FLOW_1030)',
       live: { t: '하객이 앞으로 모임 · 두 분을 가운데로', est: 60, self: true, doing: 'move', duck: PARAM.duckMusic },
       post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }]
