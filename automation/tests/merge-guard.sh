@@ -17459,7 +17459,7 @@ chk '아래에서 디렉터와 이어서 상담하실 수 있어요' index.html 
 #   F1 까닭 없는 getMyState 실패에 로그아웃 · 초안 삭제하던 결함 · F5 저장 실패 판 · F6 거짓 «다른 기기에서 먼저 저장됐어요» · F7 빌더 중계 까닭 · F10 다이닝 AI 영문 기술어 · F11 카드 승인 확인
 #   err-mypage.mjs 가 가짜 GAS 로 잰다 — F1 을 되돌리거나 _post 의 종류 표시를 지우면 빨강(돌연변이 확인)
 chk 'ERR_CODE_MYPAGE' mypage.html 110
-chk "else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }" mypage.html 1
+chk "else if (_errSess(d)){ var _kp4=clearToken(true); show('loginView'); softLoginNote(_reloginLine(_errLine(d,'L'), _kp4)); }" mypage.html 1   # [RELOGIN_KEEP] 로그인 풀림만 로그인으로(초안은 맡긴다)
 nochk "else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }" mypage.html
 chk 'function _post(payload, ms){' mypage.html 1
 chk "e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');" mypage.html 1
@@ -18780,7 +18780,7 @@ chk "_rsJ.code === _mpAcct() && _rsJ.dl === _rsDl" mypage.html 1
 nochk "|| window.__ctResendJust || '';" mypage.html 0
 # [C2_ACCT_SWEEP] [C2_ADV_RESET] [C2_LOADBAR_SWEEP] C2-3 · C2-4 계정이 끝나는 자리(clearToken)에서 화면 기억도 걷는다 — AI 상담 대화 · 실패 막대 · 다른 탭 저장 막대
 chk 'C2_ACCT_SWEEP' mypage.html 2
-chk '}catch(e){} _mpAcctSweep(); }' mypage.html 1
+chk '}catch(e){} _mpAcctSweep(); return !!_kp; }' mypage.html 1   # [RELOGIN_KEEP] 맡겼나를 돌려준다
 chk "window.MEAdvisor.reset();" mypage.html 1
 chk 'C2_ADV_RESET' assets/advisor-widget.js 8
 chk 'reset: reset,' assets/advisor-widget.js 1
