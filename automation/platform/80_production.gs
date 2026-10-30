@@ -1897,7 +1897,7 @@ function handleVoiceClone(body) { _gsr_();
     var hp = _vcHold(code, t.length, 'practice'); if (hp === 'busy') return busy();
     if (hp === 'limit') return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
     /* [PT_TUNE 2026-10-05 사장님 «빠르기랑 쉼 설정한 거 그대로 적용되는 거 맞아?»] 연습 읽기도 그분이 정한 쉼(remove_silence_ms)으로 — 종전엔 빠르기만 받고 쉼은 늘 150 */
-    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg, _vcPause(body.pause)); if (pc.hit) _vcHold(code, -t.length, 'practice'); else _vcPracticeMs_(code);   // [PRACTICE_MS] 파일이 생긴 뒤의 때도(만드는 사이 정리가 지나갔으면 그 뒤로)
+    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg, _vcPause(body.pause)); if (pc.hit) _vcHold(code, -t.length, 'practice'); else { try { _vcPracticeMs_(code); } catch (eM) {} }   // [PRACTICE_MS] 파일이 생긴 뒤의 때도(만드는 사이 정리가 지나갔으면 그 뒤로) · 적기에 실패해도 읽은 소리는 그대로 돌려준다
       return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.budget - _vcSpent(_vcSt(code))) }; } catch (e) { _vcHold(code, -t.length, 'practice'); return _vcErr(code, e.http, 'practice', e.why || e.message); } }
   if (!cfg.clone || !cfg.key) return _vcGate(code, cfg, op, 'clone');   // ★[VC_GATE_WHY] 스위치 · 시험 예식 목록 · 키 가운데 무엇이 막았는지 남긴다
   if (!WHO[who] && op !== 'make') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };
