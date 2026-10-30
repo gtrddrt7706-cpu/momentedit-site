@@ -457,6 +457,8 @@ function aiMorningReport(preview) { _gsr_();
       if (mb) rows.push(['이번 달 사업현황', '계약 ' + mb.contracts + '건 · 실입금 ' + won(mb.revenue) + '원 · 전달 ' + mb.delivered + '건 (상담 예약금 제외)', false]);
     }
   } catch (e) {}
+  /* ★[VC_DEC_1030_5 2026-10-30 사장님 «추천대로»] 예식 3일 전까지 스튜디오가 들어 보고 ✓ 하지 않은 두 분 AI 목소리 줄 — 빨간 줄(80_production vcStudioCheckDue_ · 읽기만) */
+  try { if (typeof vcStudioCheckDue_ === 'function') { var _vsc = vcStudioCheckDue_() || []; if (_vsc.length) rows.push(['스튜디오 확인 안 한 두 분 목소리 (' + _vsc.length + '건)', _vsc.join('\n') + '\n관리 화면 «두 분 목소리»에서 들어 보고 ✓ 해 주세요', true]); } } catch (e) {}
   rows.push(['미처리 인계', ho.pending + '건' + (ho.overdue ? (' · 24시간 경과 ' + ho.overdue + '건') : ''), ho.overdue > 0]);
   if (night > 0) rows.push(['밤사이 새 인계', night + '건', true]);
   if (digest) rows.push(['최근 24시간 요약', digest, false]);

@@ -3010,6 +3010,42 @@
    "fn": "handleVoiceClone",
    "mark": "VC_WED_OVER",
    "why": "예식 다음 날부터 · 취소 · 노쇼 · 미계약이면 새 목소리 동의 · 확인 문장 · 만들기를 받지 않고 상태에 over 를 싣는다 — 옛것이면 지운 뒤에도 새 목소리가 생기고 «예식 다음 날 지웠어요»와 어긋난다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_DEC_1030_1",
+   "why": "나눠 읽는 줄(입장 인사 등)에 목소리 없는 분 문장이 있으면 다른 분 목소리로 만들지 않고 V0 «신부 목소리가 아직 없어요»로 거절 — 옛것이면 당일 신부 문장이 신랑 목소리로 나갈 수 있다(10/08 WHO_MISS 를 뒤집음)"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeVoiceClones",
+   "mark": "VC_DEC_1030_4",
+   "why": "예식일 없는 예식은 마지막 활동 + 90일 · 고객 행이 정말 없는 예식은 바로 지운다(행 읽기 실패면 아무것도 안 함) — 옛것이면 그런 예식의 목소리 · 녹음이 영영 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcModelOff_",
+   "mark": "VC_DEC_1030_7",
+   "why": "예식 7일 전 줄 소리가 다 저장되면 업체 쪽 목소리 모델만 지운다(소리 파일은 그대로) — 옛것이면 업체 칸이 예식 다음 날까지 찬다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcCharLog",
+   "mark": "VC_DEC_1030_6",
+   "why": "이번 달 계정 글자가 70% 넘으면 관리자 메일 한 달 한 통 · 예식당 예산 3만 자(VC_LIM) — 옛것이면 예산이 20만 자 · 알림 없음"
+  },
+  {
+   "file": "80_production",
+   "fn": "vcStudioCheckDue_",
+   "mark": "VC_DEC_1030_5",
+   "why": "예식 3일 전까지 스튜디오 ✓ 없는 두 분 AI 줄 목록(아침 보고가 읽는다)"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport",
+   "mark": "VC_DEC_1030_5",
+   "why": "아침 보고에 «스튜디오 확인 안 한 두 분 목소리» 빨간 줄 — 옛것이면 D-3 에도 아무도 모른다"
   }
  ],
  "fns": {
@@ -3280,6 +3316,8 @@
    "vcLastErrors",
    "_vcAlert",
    "_vcCharLog",
+   "_vcMonthCap_",
+   "_vcMonthWarn_",
    "_vcTts",
    "_vcAiFolder",
    "_vcHash",
@@ -3306,6 +3344,14 @@
    "_vcPurge",
    "_vcPurgeNow",
    "_vcOrphanSweep_",
+   "_vcTs_",
+   "_vcLastAct_",
+   "_vcCodeSet_",
+   "_vcAiTrashAll_",
+   "_vcVoiceKeys_",
+   "_vcModelOffDue_",
+   "_vcModelOff_",
+   "vcStudioCheckDue_",
    "purgeVoiceClones",
    "previewVoiceClones",
    "_vcSlots",
@@ -4134,7 +4180,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-30 15:04 · 6f80213a",
+ "_생성": "2026-10-30 22:09 · 2b144126",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4587,9 +4633,21 @@
    "b": ""
   },
   {
+   "key": "VCWARN70_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "VC_",
    "kind": "state",
    "a": "",
+   "b": ""
+  },
+  {
+   "key": "VC_MONTH_CHARS",
+   "kind": "tuning",
+   "a": "AI 목소리 이번 달 계정 글자 기준(기본 200000 · 70% 넘으면 관리자 메일 · VC_DEC_1030_6)",
    "b": ""
   },
   {
@@ -4678,5 +4736,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "271aeb8a9b52"
+ "_표식서명": "588e5da4aebd"
 }

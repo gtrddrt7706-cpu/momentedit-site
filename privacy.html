@@ -351,7 +351,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         </div>
         <div class="spec-row">
           <span class="spec-key">두 분 목소리</span>
-          <span class="spec-val">AI 목소리를 만들기 위해 읽은 녹음, 만든 AI 목소리(음성 모델), 연습 소리는 예식 <strong>다음 날</strong> 삭제(예식 취소·미진행 시 즉시), 직접 녹음·올린 음성 파일과 그 목소리로 만든 안내 소리는 예식 뒤 <strong>30일</strong>에 삭제 · 그 전에도 마이페이지에서 바로 지울 수 있음</span><!-- [VOICE_OPEN_1008] 서버 purgeVoiceClones(다음 날) · purgeRitualFiles(30일) 과 같은 값 -->
+          <span class="spec-val">만든 AI 목소리(음성 모델)는 예식 7일 전 안내 소리가 다 만들어지면 그때, 늦어도 예식 <strong>다음 날</strong> 삭제 · AI 목소리를 만들기 위해 읽은 녹음과 연습 소리는 예식 <strong>다음 날</strong> 삭제(예식 취소·미진행 시 즉시 · 예식일이 정해지지 않은 경우 마지막 이용 후 <strong>90일</strong>), 직접 녹음·올린 음성 파일과 그 목소리로 만든 안내 소리는 예식 뒤 <strong>30일</strong>에 삭제 · 그 전에도 마이페이지에서 바로 지울 수 있음</span><!-- [VOICE_OPEN_1008] 서버 purgeVoiceClones(다음 날) · purgeRitualFiles(30일) 과 같은 값 · [VC_DEC_1030_7] 7일 전 모델 지우기 · [VC_DEC_1030_4] 예식일 없음 90일 -->
         </div>
         <div class="spec-row">
           <span class="spec-key">즉시 파기</span>
@@ -419,7 +419,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         </div>
         <div class="spec-row">
           <span class="spec-key">AI 목소리 생성</span>
-          <span class="spec-val">네오사피엔스㈜ (타입캐스트 Typecast, 국내) · 두 분이 읽은 녹음으로 AI 목소리를 만들고 예식 안내 글을 그 목소리로 읽기 (읽은 녹음, 읽을 안내 글(두 분 성함이 들어갈 수 있음) · 연락처는 제공하지 않음 · 만든 AI 목소리는 예식 다음 날 업체에서도 삭제 · 2026년 10월 8일부터)</span>
+          <span class="spec-val">네오사피엔스㈜ (타입캐스트 Typecast, 국내) · 두 분이 읽은 녹음으로 AI 목소리를 만들고 예식 안내 글을 그 목소리로 읽기 (읽은 녹음, 읽을 안내 글(두 분 성함이 들어갈 수 있음) · 연락처는 제공하지 않음 · 만든 AI 목소리는 늦어도 예식 다음 날 업체에서도 삭제 · 2026년 10월 8일부터)<!-- [VC_DEC_1030_7] 7일 전 안내 소리가 다 만들어지면 그때 --></span>
         </div><!-- [VOICE_OPEN_1008] «부터» 날짜 = VOICE_UP.from -->
         <div class="spec-row">
           <span class="spec-key">촬영(스냅)</span>

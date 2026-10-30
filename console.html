@@ -145,6 +145,7 @@ body:not(.guest) .tm{min-height:26px;align-items:center}   /* [BLESS_PER_SPEAKER
 #rfChk .kv{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line,#DDD8D1);font-size:14px}
 #rfChk .kv .k{flex:0 0 7.5em;color:var(--dim,#6E6959)}
 #rfChk .kv .v.dim{color:var(--dim,#6E6959)}   /* [REC_ADMIN] 소리 파일 확인 */
+#rfChk .rfchk{font-size:12px;color:var(--gold-text)}   /* [VC_DEC_1030_5] «스튜디오 확인 안 함» 작은 표시 */
 #rfChk .kv .v{min-width:0;word-break:keep-all}   /* [ENTRY_SCENE_DAY] 좁은 화면에서 «지워졌|거나»처럼 낱말 가운데서 꺾이지 않게 — 이 칸 줄 전부(콘솔의 다른 안내 글 .gerr · .gwhy 와 같은 규칙) */
 .upc .lb{font-size:11px;color:var(--dim);flex:0 0 auto;width:38px}
 .upc .nm{flex:1;font-size:15px;font-weight:600;line-height:1.4;min-width:0}
@@ -851,7 +852,8 @@ function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(), mu 
   /* ★[CON_SEL_FRESH 2026-10-30 GPT 4차 점검(당일 3) · VC_FIX4_1030] 고객이 목소리 선택(두 분 · 나레이션)을 바꿨으면 파일만 다시 받아서는 맞지 않는다(줄 자체가 달라진다) — 콘솔을 다시 열라고만 말한다(다시 불러오기 단추 없음) */
   var _fa = RF_FRESH.ask, _fr = !_fa ? '' : _fa.sel ? '<div class="kv"><span class="k">두 분 소리</span><span class="v">목소리 선택이 바뀌었어요 · 관리 화면에서 당일 콘솔을 다시 열어 주세요 · 시작을 한 번 더 누르면 이 창 그대로</span></div>'
     : '<div class="kv"><span class="k">두 분 소리</span><span class="v">새로 저장된 소리가 있어요 · 다시 불러오면 새 소리로 · 시작을 한 번 더 누르면 이 창에 받아 둔 소리로 <button type="button" id="rfFresh">다시 불러오기</button></span></div>';
-  box.innerHTML = _fr + ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + ' · 받아 둠' : st === 'busy' ? '받는 중…'
+  var _all = ks.length && ks.every(function(k){ return RF_ST[k] === 'ok' && RF_CACHED[k]; });   // [VC_DEC_1030_8] 다 이 기기에 받아 둠
+  box.innerHTML = _fr + (_all ? '<div class="kv"><span class="k">두 분 소리</span><span class="v">모두 받아 둠 · 이 기기에 예식 다음 날까지</span></div>' : '') + ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + (RF_FROM[k] === 'cache' ? ' · 기기에 받아 둔 소리' : ' · 받아 둠') + (rfUnchecked(k) ? ' <span class="rfchk">· 스튜디오 확인 안 함</span>' : '') : st === 'busy' ? '받는 중…'   /* [VC_DEC_1030_5] · [VC_DEC_1030_8] */
       : st === 'fail' ? '받지 못함 · 나레이션으로 나감' + (RF_WHY[k] ? ' · ' + esc(RF_WHY[k]) : '')
       : RF_SKIP === 'norf' ? '받지 않음 · 나레이션으로 나감 · 관리 화면 «당일 콘솔» 단추로 열어야 받아요'
       : RF_SKIP === 'notok' ? '받지 않음 · 나레이션으로 나감 · 이 기기에 관리자 로그인이 없어요 (코드 L8)'
@@ -877,6 +879,38 @@ function rfWhy(d, e){
   return (t ? t.replace(/\s*\(코드[^)]*\)\s*$/, '') : '서버가 거절했어요') + ' (' + (c ? c[1] : '코드 L0') + ')';
 }
 var RF_WHY = {}, RF_SKIP = '', RF_GEN = {};   // [RF_GEN] 자리마다 요청 차례   // [ERR_CODE_PAGES] 줄마다 받지 못한 까닭 · 아예 받지 않은 까닭(norf rf 코드 없음 · notok 관리자 토큰 없음)
+/* ★[VC_DEC_1030_5 2026-10-30 사장님 «추천대로»] 스튜디오 확인 ✓(관리 화면 adminRitualFileOk · 목록 okMap) — 두 분 AI 목소리 줄 가운데 ✓ 가 없는 줄은 «스튜디오 확인 안 함» 작은 표시(목록을 못 받았으면 말하지 않는다 · 모르는 것) */
+var RF_OKMAP = {}, RF_OKSET = false, RF_WED = '';
+function rfOkSet(L){ RF_OKMAP = (L && L.okMap) || {}; RF_OKSET = true; RF_WED = String((L && L.wedding) || ''); }
+function rfUnchecked(k){ return !GUEST && RF_OKSET && rfKindLab(k) === 'AI 목소리' && !RF_OKMAP[k]; }
+/* ★★[VC_DEC_1030_8 2026-10-30 사장님 «추천대로»] 받아 둔 두 분 소리를 이 기기 IndexedDB 에 예식 다음 날까지만 둔다(me_bgm_files 옆 DB · 곡 목록 segAll 에 섞이지 않게 따로) —
+   탭이 죽거나 인터넷이 끊겨 다시 받지 못하면 같은 파일(id 가 같을 때만)을 기기에서 꺼내 쓴다 · 다 받아 두면 «모두 받아 둠» · 예식 다음 날부터는 열 때 지운다(rfOwnSweep).
+   예식일을 모르면 두지 않는다(언제 지울지 모르는 것은 남기지 않는다) · 두 분 글 · 이름은 두지 않는다(소리와 id · 지울 날뿐) */
+var RF_CACHED = {}, RF_FROM = {};
+function ownDb(){ return new Promise(function(ok, no){ try { var r = indexedDB.open('me_couple_audio', 1); r.onupgradeneeded = function(){ r.result.createObjectStore('a'); }; r.onsuccess = function(){ ok(r.result); }; r.onerror = function(){ no(r.error); }; } catch (e) { no(e); } }); }
+function ownKey(k){ return (QS.get('rf') || '') + '|' + k; }
+function ownToday(){ return new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10); }   // 한국 날짜
+function ownDead(r){ return !r || !/^\d{4}-\d{2}-\d{2}$/.test(String(r.exp || '')) || ownToday() > r.exp; }   // 예식 다음 날부터 지운다
+function rfOwnPut(k, id, mime, u){ var wed = RF_WED; if (!/^\d{4}-\d{2}-\d{2}$/.test(wed) || ownToday() > wed) return;
+  ownDb().then(function(db){ try { var tx = db.transaction('a', 'readwrite'); tx.objectStore('a').put({ id: String(id || ''), mime: mime || 'audio/wav', blob: new Blob([u], { type: mime || 'audio/wav' }), exp: wed, at: Date.now() }, ownKey(k)); tx.oncomplete = function(){ RF_CACHED[k] = 1; rfPaint(); }; } catch (e) {} }).catch(function(){}); }
+function rfOwnGet(k){ return ownDb().then(function(db){ return new Promise(function(ok){ try { var rq = db.transaction('a', 'readonly').objectStore('a').get(ownKey(k)); rq.onsuccess = function(){ ok(rq.result || null); }; rq.onerror = function(){ ok(null); }; } catch (e) { ok(null); } }); }).catch(function(){ return null; }); }
+function rfOwnFall(k, id, gen){ return rfOwnGet(k).then(function(r){ if (!r || !r.blob || ownDead(r) || !id || r.id !== id || (gen != null && RF_GEN[k] !== gen) || RF_ST[k] !== 'fail') return false;   // 같은 파일일 때만 · 그 사이 새 요청이 나갔으면 쓰지 않는다
+    var sl = rfSlugOf(k); if (!(sl in RF_ORIG)) RF_ORIG[sl] = CLIPS[sl]; CLIPS[sl] = URL.createObjectURL(r.blob); RF_OWN[sl] = 1; RF_ST[k] = 'ok'; RF_FROM[k] = 'cache'; RF_CACHED[k] = 1; delete RF_WHY[k];
+    rfPaint(); if (k === 'entry') { try { esdPrepVoice(); } catch (e) {} } try { render(); } catch (e) {} return true; }); }
+function rfOwnSweep(){ return ownDb().then(function(db){ return new Promise(function(ok){ var n = 0; try { var tx = db.transaction('a', 'readwrite'), rq = tx.objectStore('a').openCursor(); rq.onsuccess = function(){ var c = rq.result; if (!c) return; if (ownDead(c.value)) { c.delete(); n++; } c.continue(); }; tx.oncomplete = function(){ ok(n); }; tx.onerror = function(){ ok(n); }; } catch (e) { ok(n); } }); }).catch(function(){ return 0; }); }
+/* ★[VC_DEC_1030_9 2026-10-30 사장님 «추천대로»] 디렉터 판 글 카드 — 두 분 소리가 물린 줄(RF_OWN)은 두 분이 고친 글을 보인다(기본 글 대신).
+   글은 주소에 싣지 않는다(PREVIEW_KEYS 결정) — 관리자 토큰으로 adminDetail(관리 화면 · 시작 전 확인과 같은 길)을 물어 받는다 · 고객 미리 듣기(GUEST)는 묻지 않는다 */
+var OWN_TXT = {};
+function ownTxtOf(X, k){ X = X || {}; var vk = k === 'pv' ? 'pv' : k === 'entry' ? 'entry:' + (X.entry || 'A') : k, L = (X.vlines || {})[vk];
+  if (Array.isArray(L) && L.length && L.every(function(x){ return x && typeof x.t === 'string'; })) return L.map(function(x){ return String(x.t || '').trim(); }).filter(Boolean).join(' ');
+  if (/^(g\d|entry)$/.test(k)) { var c = (X.vtext || {})[vk]; if (c != null && String(c).trim()) return String(c).trim(); }
+  if (k === 'pv') return String(X.pvText || '').trim();
+  return ''; }
+function ownTxtSet(X){ var o = {}; ['g0', 'g1', 'g2', 'g3', 'entry', 'pv'].forEach(function(k){ var t = ownTxtOf(X, k); if (t) o[k === 'entry' ? 'entry-' + (S.entry || 'A') : RF_SLUG[k]] = t; }); OWN_TXT = o; try { render(); } catch (e) {} }
+function rfOwnTxtLoad(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {} if (GUEST || !code || !tok) return Promise.resolve(false);
+  return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: 'adminDetail', args: [code] }) })
+    .then(function(r){ return r.json(); }).then(function(d){ d = (d && d.result) || d; var rd = d && d.ok && d.mirror && d.mirror.production && d.mirror.production.ritualDraft; if (!rd || !rd.S) return false; ownTxtSet(rd.S); return true; }, function(){ return false; }); }
+function ownTxtFor(c){ return (!GUEST && c && RF_OWN[c.slug] && OWN_TXT[c.slug]) || ''; }
 function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
   var up = S.up || {}, lg = RF_FRESH.lgen = (RF_FRESH.lgen || 0) + 1; RF_SKIP = !code ? 'norf' : !tok ? 'notok' : ''; rfPaint(); if (!code || !tok) { RF_FRESH.list = false; return; }   /* ★[RF_LIST_GEN 2026-10-30 GPT 6차 점검(당일 1) · VC_FIX6_1030] 목록 요청에도 차례 — 마지막 요청의 답만 잠금을 풀고 쓴다(처음 열 때 보낸 옛 목록 답이 «다시 불러오기»의 새 목록보다 먼저 와 시작을 풀었다) */
   /* [ERR_CODE_PAGES] 요청 단계의 실패에만 __rfNet 표시 — 받은 뒤 이 기기에서 파일을 열다 난 실패(M6)와 가른다 */
@@ -888,6 +922,7 @@ function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = loca
   call('adminRitualFiles', [code]).then(function(L){ return { L: L }; }, function(e){ return { L: null, e: e }; }).then(function(x){ if (lg !== RF_FRESH.lgen) return; var L = x.L, newest = {}, have = {}; RF_FRESH.list = false;   // [RF_LIST_GEN] 옛 목록 답은 버린다 · [CON_FRESH_LIST] 목록이 왔다(못 받았어도) — 이제 줄마다 busy 가 기다림을 맡는다
     /* [ERR_CODE_PAGES] 목록을 못 받았으면 «파일 없음»이라 말하지 않는다 — 있는지 모르는 것이다. 두 분 초안에 id 가 없는 줄은 목록 실패 까닭으로 «받지 못함» */
     var listWhy = (L && L.ok) ? '' : '목록을 못 받았어요 · ' + rfWhy(L, x.e);
+    if (L && L.ok && typeof rfOkSet === 'function') rfOkSet(L);   // [VC_DEC_1030_5] 스튜디오 확인 ✓ · [VC_DEC_1030_8] 지울 날(예식일)
     /* ★[RF_CON_NOOLD 2026-10-08 목소리 1라운드 75 · 57] [RF_DEL_ALL] 빈 줄에 «그 자리의 가장 새 파일»을 채우던 길을 스튜디오가 대신 올린 파일로만 좁혔다 —
        종전엔 두 분이 지운 줄(«나레이션으로 바뀌어요»)에도 옛 AI 테이크 · 다시 보내기 사본이 «두 분 녹음 · 받아 둠»으로 나갔다.
        대체 파일 = 서버 기록(sup · RFSTUDIO) → 없으면(옛 서버) 이름에 « · 스튜디오 · »가 든 가장 새 파일. 그 밖의 옛 파일은 쓰지 않는다(나레이션) */
@@ -899,8 +934,8 @@ function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = loca
       call('adminRitualFileGet', [code, id]).then(function(d){ if (RF_GEN[k] !== gen) throw 1; if (!d || !d.ok || !d.data) { RF_WHY[k] = rfWhy(d); throw 0; }
         var bin = atob(d.data), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
         var _sl = rfSlugOf(k); if (!(_sl in RF_ORIG)) RF_ORIG[_sl] = CLIPS[_sl];   // [CON_FRESH] 다시 불러올 때 나레이션으로 되돌릴 자리
-        CLIPS[_sl] = URL.createObjectURL(new Blob([u], { type: d.mime || 'audio/wav' })); RF_OWN[_sl] = 1; RF_ST[k] = 'ok'; rfPaint(); if (k === 'entry') esdPrepVoice(); try { render(); } catch (e) {} })   // [ENTRY_SCENE_DAY] 입장 대사가 두 분 목소리로 바뀌면 장면 소리도 다시 잰다
-        .catch(function(e){ if (e === 1 || RF_GEN[k] !== gen) return; if (e !== 0) RF_WHY[k] = (e && e.__rfNet) ? rfWhy(null, e) : '받은 파일을 이 기기에서 열지 못했어요 (코드 M6)'; RF_ST[k] = 'fail'; rfPaint(); }); });   // [RF_GEN]
+        CLIPS[_sl] = URL.createObjectURL(new Blob([u], { type: d.mime || 'audio/wav' })); RF_OWN[_sl] = 1; RF_ST[k] = 'ok'; if (typeof rfOwnPut === 'function') rfOwnPut(k, id, d.mime, u); /* [VC_DEC_1030_8] 이 기기에도 둔다 */ rfPaint(); if (k === 'entry') esdPrepVoice(); try { render(); } catch (e) {} })   // [ENTRY_SCENE_DAY] 입장 대사가 두 분 목소리로 바뀌면 장면 소리도 다시 잰다
+        .catch(function(e){ if (e === 1 || RF_GEN[k] !== gen) return; if (e !== 0) RF_WHY[k] = (e && e.__rfNet) ? rfWhy(null, e) : '받은 파일을 이 기기에서 열지 못했어요 (코드 M6)'; RF_ST[k] = 'fail'; rfPaint(); if (e && e.__rfNet && typeof rfOwnFall === 'function') rfOwnFall(k, id, gen); }); });   // [RF_GEN] · [VC_DEC_1030_8] 연결이 끊겨 못 받았으면 이 기기에 받아 둔 같은 파일로
     /* ★[ENTRY_SCENE_DAY] 입장 음악 — 초안의 곡 id(S.mu.fid · 목록에 있으면) · 없으면(곡을 보낸 뒤 저장 전에 열었을 때) 같은 이름의 가장 새 곡(목록은 최신이 위) */
     if (esdWant() && ESD.st !== 'ok' && ESD.st !== 'busy') { var mu = S.mu, mid = mu.src === 'rec' ? 'rec:' + mu.k : (mu.fid && (!L || !L.ok || have[mu.fid])) ? mu.fid : '';   // [REC_SONG_1012] 추천 곡은 드라이브 ME_추천곡 폴더에서(adminRitualFileGet 'rec:<곡 키>')
       if (!mid && L && L.ok) ((L.files) || []).forEach(function(f){ if (!mid && f.key === 'mu' && (!mu.name || String(f.name || '').indexOf(mu.name) >= 0)) mid = f.id; });
@@ -957,7 +992,7 @@ function rfFresh(){ var code = QS.get('rf') || '', tok = ''; try { tok = localSt
     function(){ clearTimeout(tm); return null; }); }
 function rfFreshApply(){ var x = RF_FRESH.ask; if (!x) return; S.up = S.up || {};
   x.keys.forEach(function(k){ if (x.up[k]) S.up[k] = x.up[k]; else delete S.up[k]; var sl = rfSlugOf(k); if (sl in RF_ORIG) CLIPS[sl] = RF_ORIG[sl]; delete RF_OWN[sl]; delete RF_ST[k]; delete RF_WHY[k]; RF_GEN[k] = (RF_GEN[k] || 0) + 1; });   /* ★[RF_GEN_DROP 2026-10-30 GPT 5차 점검(당일 2) · VC_FIX5_1030] 바뀐 자리의 앞 요청을 여기서 버린다 — 새 저장본에 그 자리 파일이 없으면 새 요청이 안 나가 차례가 그대로였고, 늦게 온 옛 소리가 «받아 둠»으로 되살아났다 */
-  RF_FRESH.ask = null; RF_FRESH.wait = true; RF_FRESH.list = true; rfPrefetch(); try { toast('새 소리를 받는 중이에요'); } catch (e) {} }   // [CON_FRESH_WAIT] 받기가 끝날 때까지 시작을 잠근다
+  RF_FRESH.ask = null; RF_FRESH.wait = true; RF_FRESH.list = true; rfPrefetch(); if (typeof rfOwnTxtLoad === 'function') rfOwnTxtLoad(); try { toast('새 소리를 받는 중이에요'); } catch (e) {} }   // [VC_DEC_1030_9] 새로 저장된 글도   // [CON_FRESH_WAIT] 받기가 끝날 때까지 시작을 잠근다
 /* ★[CON_FRESH_WAIT 2026-10-30 GPT 4차 점검(당일 1) · VC_FIX4_1030] «다시 불러오기» 뒤 새 소리를 받는 동안 «시작»을 누르면 기다리게 한다 — 종전엔 바로 시작해 첫 안내가 성우로 나가고 뒤 줄부터 새 소리가 나왔다 · 받기는 한 줄 60초 한도라 늦어도 «받지 못함»으로 끝난다 */
 /* ★[CON_FRESH_LIST 2026-10-30 GPT 5차 점검(당일 1) · VC_FIX5_1030] «다시 불러오기»를 누른 순간부터 잠근다 — 종전엔 파일 목록(adminRitualFiles)을 묻는 동안은 줄이 아직 busy 가 아니라 «시작»이 지나갔고 첫 안내가 성우로 나갔다 · 목록 요청도 60초 한도라 늦어도 풀린다 */
 function rfBusyNow(){ return !!RF_FRESH.list || rfKeys().some(function(k){ return RF_ST[k] === 'busy'; }); }
@@ -1736,7 +1771,7 @@ function render(){
   /* ★가장 벅찬 순간 ★ 알약 · 다음 칸 ★ 금지 — 2026-10-08 사용자 지시로 삭제 [PEAK_PICK_OFF] 사장님 «그래프만 바뀌는 거면 의미가 없지 · 저 기능 빼 버려» */
   /* [VOICE_KIND] 큐마다 갈래 — 두 분 목소리 자리는 받아 둔 파일이 있으면 «두 분 녹음» · 없으면 «나레이션으로» · 뒤에 사람이 말하면 «당일 직접» */
   function vkPill(q){ if (GUEST || !q) return; var key = null; Object.keys(RF_SLUG).forEach(function(k){ if (RF_SLUG[k] === q.slug) key = k; }); if (q.slug === 'entry-' + (S.entry || 'A')) key = 'entry';
-    if (key && rfKeys().indexOf(key) > -1) pill('vk', RF_OWN[q.slug] ? rfKindLab(key) : '두 분 목소리 없음 · 나레이션으로');   // [CON_OWN_FIRST] 폴더의 성우 파일을 «AI 목소리»로 이름 붙이지 않는다   // [RF_KIND_0928] 두 분 녹음 · AI 목소리
+    if (key && rfKeys().indexOf(key) > -1) pill('vk', RF_OWN[q.slug] ? rfKindLab(key) + (rfUnchecked(key) ? ' · 스튜디오 확인 안 함' : '') : '두 분 목소리 없음 · 나레이션으로');   // [VC_DEC_1030_5]   // [CON_OWN_FIRST] 폴더의 성우 파일을 «AI 목소리»로 이름 붙이지 않는다   // [RF_KIND_0928] 두 분 녹음 · AI 목소리
     else if (q.live) pill('vk', (window.RitualOpen && RitualOpen.voiceLab) ? RitualOpen.voiceLab(q.k, S, { talk: true }) : '당일 직접');
     else pill('vk', '나레이션'); }   // [RF_KIND_0928] 큐마다 갈래 칩 — 나레이션 · 두 분 녹음 · AI 목소리 · 당일 직접
   /* [ENTRY_SCENE_DAY] 입장 음악 칩 — 갈래 칩 옆에 따로 하나(위 vkPill 사슬에 끼우지 않는다 · 끼우면 두 분 목소리 줄에 «나레이션»이 겹쳐 붙는다) · GO 전에 장면이 나갈지 본다 */
@@ -1850,7 +1885,7 @@ function render(){
       + (c.live.note ? c.live.note : '');
   } else {
     tx.className = 'txt';
-    tx.textContent = c.text || '';
+    tx.textContent = ownTxtFor(c) || c.text || '';   // [VC_DEC_1030_9] 디렉터 판 · 두 분 소리가 물린 줄은 두 분이 고친 글
   }
   var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
   /* ★[RESCUE_REPLAY_1016 라운드 6] «재생 안 됨»으로 미룬 순서가 있으면 사진 시간 첫 큐에서 한 줄 — 고객 화면 안심 «사진 시간에 다시 틀어 드려요»(식전 영상 · 준비한 순서)의 짝 */
@@ -2246,6 +2281,7 @@ document.addEventListener('keydown', function(e){
 paint();
 try { rehPaint(); } catch (e) {}   // [REHEARSAL]
 try { rfPrefetch(); } catch (e) {}   // [REC_ADMIN] 두 분 목소리 — 시작 전에 받아 둔다
+try { if (!GUEST) { rfOwnSweep(); rfOwnTxtLoad(); } } catch (e) {}   // [VC_DEC_1030_8] 예식 다음 날이 지난 받아 둔 소리 지우기 · [VC_DEC_1030_9] 두 분이 고친 글
 window.__rfState = function(){ return { st: JSON.stringify(RF_ST), clip: String(CLIPS['guest-1-arrival'] || '').slice(0, 5) }; };   // 읽기 전용 · 검사(rec-upload)가 본다
 /* [ENTRY_SCENE_DAY] 읽기 전용 + 점검용 GO(fire) — entry-scene-day 점검이 본다 */
 window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.why, sg: !!ESD.Sg, v0: !!ESD.V0, vp: ESD.V0 ? ESD.V0.pieces.length : null, run: !!r, ri: r ? r.i : null, cur: cur, phase: phase, duck: duckNow,
