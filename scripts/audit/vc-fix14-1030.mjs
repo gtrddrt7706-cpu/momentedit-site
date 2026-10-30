@@ -39,21 +39,21 @@ const txOf = (v) => { try { return JSON.parse(v).S.tx['vow.g']; } catch (e) { re
 function store(init, quota) { const m = new Map(Object.entries(init || {}));
   return { m, ls: { getItem: (k) => (m.has(k) ? m.get(k) : null), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; },
     setItem: (k, v) => { if (quota && quota(k)) { const e = new Error('quota'); e.name = 'QuotaExceededError'; throw e; } m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); } } }; }
-const MPF = ['_acctOk', '_ordK', '_keepK', '_recE', '_migStampW', '_migOwner', '_migDone', '_migOwnT', '_migOrd', '_migKeep', '_migOldSweep', '_acctKeysMigrate', '_acctOldSweep', '_reloginStampT', '_reloginKeyNewer'];   // ★[MIG_COPY_ONCE 2026-10-30 15차] 견주기(_migPick · _MIG_DONE)를 걷고 «한 번 · 베끼기»
+const MPF = ['_acctOk', '_ordK', '_keepK', '_recE', '_migStampW', '_migOwner', '_migDone', '_migOwnT', '_migOrd', '_migKeep', '_migOldSweep', '_acctKeysMigrate', '_acctOldSweep', '_reloginStampT', '_reloginKeyNewer', '_useK', '_useW', '_useSet', '_strSig', '_migOldW'];   // ★[MIG_COPY_ONCE 2026-10-30 15차] 견주기(_migPick · _MIG_DONE)를 걷고 «한 번 · 베끼기» · ★[OLD_DRAFT_OFFER 16차] 마지막 사용은 작은 칸(_useK)
 function mpBoot(init, quota) { const st = store(init, quota);
-  const code = MPF.map((f) => grabIn(MP, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/].map((re) => lineIn(MP, re)).join('\n') + '\n_acctKeysMigrate(); _acctOldSweep();';
+  const code = MPF.map((f) => grabIn(MP, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var MIG_X_K=[^\n]*/].map((re) => lineIn(MP, re)).join('\n') + '\n_acctKeysMigrate(); _acctOldSweep();';
   const sb = { localStorage: st.ls, JSON, Object, String, Math, Date: FakeDate, ERR_W: {}, ERR_DO: {} }; vm.createContext(sb); vm.runInContext(code, sb); return Object.fromEntries(st.m); }
 function opMig(init, quota) { const st = store(init, quota);
-  const sb = { localStorage: st.ls, JSON, Object, String, Math, Date: FakeDate }; vm.createContext(sb); vm.runInContext(grabIn(OP, '_recE') + '\n' + grabIn(OP, '_ordMigrate') + '\n_ordMigrate();', sb); return Object.fromEntries(st.m); }
+  const sb = { localStorage: st.ls, JSON, Object, String, Math, Date: FakeDate }; vm.createContext(sb); vm.runInContext(grabIn(OP, '_recE') + '\n' + grabIn(OP, '_ordMigrate') + '\n' + grabIn(OP, '_ordUse') + '\n_ordMigrate();', sb); return Object.fromEntries(st.m); }
 
 await sec('①', async () => {
   const r = mpBoot({ me_order: DR('31일 전 서약', A, NOW - 31 * DAY) });
-  const v = r['me_order_' + A], w = v ? +JSON.parse(v).w : 0;
-  ok('① 14-01 [MIG_KEEP] 31일 전에 고친 옛 공용 초안(w 없음)이 옮긴 부팅의 30일 걷기에 지워지지 않는다 · 옮긴 칸에 w = 지금', txOf(v) === '31일 전 서약' && w === NOW && !!r['me_mig_done_' + A], r);   // [MIG_COPY_ONCE] 옮긴 표시 · 옛 칸(31일 전 고침)은 30일 걷기가 지운다
+  const v = r['me_order_' + A], w = +r['me_order_w_' + A] || 0;   // ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 옮긴 때 = 작은 칸(me_order_w_<코드>) · 본문은 그대로 베낀다
+  ok('① 14-01 [MIG_KEEP] 31일 전에 고친 옛 공용 초안(w 없음)이 옮긴 부팅의 30일 걷기에 지워지지 않는다 · 옮긴 칸의 마지막 사용 = 지금', txOf(v) === '31일 전 서약' && w === NOW && !!r['me_mig_done_' + A], r);   // [MIG_COPY_ONCE] 옮긴 표시 · 옛 칸(31일 전 고침)은 30일 걷기가 지운다
   const r2 = mpBoot({ ['me_order_' + A]: DR('정말 오래된 칸', A, NOW - 40 * DAY, true, { w: NOW - 40 * DAY }) });
   ok('① 걷기는 그대로 — 마지막 사용(w)이 30일 넘은 계정 칸은 걷는다', !(('me_order_' + A) in r2), r2);
   /* 연 때 = 마지막 사용(w) — 식순 화면 _ordRestore · 마이페이지 _acctTouch */
-  ok('① 14-01 연 때 w 를 지금으로 — 식순 화면 _ordRestore · 마이페이지 renderMyPage(_acctTouch)', /_o\.w=Date\.now\(\); localStorage\.setItem\(k, JSON\.stringify\(_o\)\);/.test(grabIn(OP, '_ordRestore')) && /_acctTouch\(String\(\(d&&d\.code\)\|\|''\)\)/.test(grabIn(MP, 'renderMyPage'))); });
+  ok('① 14-01 연 때 마지막 사용을 지금으로 — 식순 화면 _ordRestore(작은 칸 _ordUse · 16-03) · 마이페이지 renderMyPage(_acctTouch)', /_ordUse\(k\);/.test(grabIn(OP, '_ordRestore')) && /_acctTouch\(String\(\(d&&d\.code\)\|\|''\)\)/.test(grabIn(MP, 'renderMyPage'))); });
 
 await sec('②', async () => {
   /* ★[MIG_COPY_ONCE 2026-10-30 GPT 15차 점검(고객) 15-02] 계정 칸이 있으면 고친 때와 상관없이 그대로 — 옛 판은 지우지 않고 예비본(무엇을 열지는 LOCAL_AHEAD) */
@@ -174,7 +174,7 @@ await sec('⑩', async () => {
   const i = CS.indexOf("(function(){ var go = $('#go'), run = go.onclick;"), iife = i < 0 ? '' : CS.slice(i, CS.indexOf('})();', i) + 5);
   let ran = 0, tst = ''; const go = { onclick: () => { ran++; }, dataset: {}, textContent: '시작' };
   const sb = { $: () => go, RF_FRESH: { done: true, wait: false }, RF_ST: { g0: 'look' }, rfKeys: () => ['g0'], GUEST: false, QS: { get: () => 'AB12CD' }, toast: (t) => { tst = t; }, rfPaint: () => {}, rfFresh: () => Promise.resolve(null), setTimeout, Promise };
-  vm.createContext(sb); vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait'].map((f) => grabIn(CS, f)).join('\n') + '\n' + lineIn(CS, /var RF_LOOK = [^\n]*/) + '\n' + iife, sb); go.onclick(); const r1 = ran; sb.RF_ST.g0 = 'ok'; go.onclick();   // [RF_LOOK_ALL] 다시 누르면 찾기가 끝났으니 바로 시작
+  vm.createContext(sb); vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait', 'rfPending', 'rfReadyWait'].map((f) => grabIn(CS, f)).join('\n') + '\n' + lineIn(CS, /var RF_LOOK = [^\n]*/) + '\n' + lineIn(CS, /var RF_READY = [^\n]*/) + '\n' + iife, sb); /* ★[RF_READY_ALL 2026-10-30 16차] 기다림은 한 덩어리 약속 */ go.onclick(); const r1 = ran; sb.RF_ST.g0 = 'ok'; go.onclick();   // [RF_LOOK_ALL] 다시 누르면 찾기가 끝났으니 바로 시작
   ok('⑩ «시작» — 처음 열 때도 기기 보관본을 찾는 동안은 기다린다(«기기에 받아 둔 소리 확인 중…») · 끝나면 시작', r1 === 0 && ran === 1 && /기기에 받아 둔 소리 확인 중/.test(tst), [r1, ran, tst]); });
 
 await sec('⑪', async () => {
@@ -218,7 +218,7 @@ else await sec('⑫', async () => {
       const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
       await pg.goto(BASE + '/mypage.html', { waitUntil: 'load' }); await pg.waitForTimeout(1500);
       const ls1 = await pg.evaluate(() => ({ old: localStorage.getItem('me_order'), acct: localStorage.getItem('me_order_ME-SHOT') }));
-      const w1 = ls1.acct ? +JSON.parse(ls1.acct).w : 0;
+      const w1 = await pg.evaluate(() => +localStorage.getItem('me_order_w_ME-SHOT') || 0);   // ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 작은 칸
       ok('⑫ 390 · ' + seed.n + ' — 옛 공용 me_order가 계정 칸으로 옮겨지고 걷히지 않는다(w 가 찍힘)', txOf(ls1.acct) === '사십일 전 옛 서약' && w1 > Date.now() - 600000, ls1);   // [MIG_COPY_ONCE] 옛 칸은 예비본(시각 없음 = 남는다 · 40일 전 고침 = 30일 걷기) — vc-fix15 ⑦ 이 잰다
       await pg.evaluate(() => openRitualBuilder({}, null)); let got = null;
       for (let i = 0; i < 40 && !got; i++) { await pg.waitForTimeout(250); const f = pg.frames().find((x) => /order-preview\.html/.test(x.url())); if (f) { try { got = await f.evaluate(() => (typeof S !== 'undefined' && S.tx && S.tx['vow.g']) || null); } catch (e) {} } }

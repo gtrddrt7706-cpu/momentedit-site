@@ -28,7 +28,8 @@ const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.s
 const flush = () => new Promise((r) => setTimeout(r, 0));
 const MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
 const FNS = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin', '_autoLogin', 'readCachedState',
-  '_acctOk', '_ordK', '_keepK', '_recE', '_acctOldSweep', '_migOwner', '_migDone', '_migOldDrop', '_migOldSweep', '_tabEpBump', '_tabEpFail', '_tabBind', '_tabStale', '_tabStaleShow'];
+  '_acctOk', '_ordK', '_keepK', '_recE', '_acctOldSweep', '_migOwner', '_migDone', '_migOldDrop', '_migOldSweep', '_tabEpBump', '_tabEpFail', '_tabBind', '_tabStale', '_tabStaleShow',
+  '_useK', '_useW', '_useSet', '_strSig', '_migOldW'];   // ★[OLD_DRAFT_OFFER 2026-10-30 16차] 마지막 사용 작은 칸 · 예비본 쓰인 때
 const OK = 'me_order_AB12CD', KK = 'me_relogin_keep_AB12CD', KQ = (k) => /^me_relogin_keep/.test(k);
 const FAIL_LINE = '초안을 보관하지 못했어요 (코드 S4)';
 /* quota = 이 이름에 쓰면 QuotaExceededError */
@@ -36,7 +37,7 @@ const mkStore = (init, quota) => { const m = new Map(Object.entries(init || {}))
   return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { if (quota && quota(k)) { const e = new Error('quota'); e.name = 'QuotaExceededError'; throw e; } m.set(k, String(v)); },
     removeItem: (k) => m.delete(k), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; } }; };
 function world(src, o) {
-  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var TAB_EP_KEY=[^\n]*/].map((re) => lineIn(src, re)).join('\n');
+  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var MIG_X_K=[^\n]*/, /var TAB_EP_KEY=[^\n]*/].map((re) => lineIn(src, re)).join('\n');
   const ls = mkStore(o.ls, o.quota), ss = mkStore(); const W = { alerts: [], btns: [], notes: [], shows: [], reloaded: 0 };
   const sb = { localStorage: ls, sessionStorage: ss, TOKEN_KEY: 'me_token', STATE_CACHE_KEY: 'me_state_v1', _mpAcctSweep: () => {}, _mpAcct: () => o.acct || '',
     getToken: () => ls.getItem('me_token') || '', _errLine: (x, L) => '로그인이 풀렸어요 · 다시 로그인해 주세요 (코드 ' + L + '8)', _errSess: () => true, _errHtml: (s) => String(s),
@@ -120,7 +121,7 @@ const t4 = (src, cur, keptOrder, ot) => { const ls = { [KK]: JSON.stringify({ co
   ok('깨 보기 ④ — 옛 꼴(같은 계정이면 견주지 않고 그것을 둠)이면 빨강', !!rb && !rb.err && rb.order === older && rb.keep === null, rb); }
 { /* 식순 화면 _persist — «실제로 고친 때»만 적는다 */
   const OP = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
-  const pt = (src) => { const fn = grabIn(src, '_persist') + '\n' + grabIn(src, '_ordKey') + '\n' + grabIn(src, '_recE') + '\n' + grabIn(src, '_ordNewer'), dl = lineIn(src, /var _editT=[^\n]*/), rs = grabIn(src, '_ordRestore');
+  const pt = (src) => { const fn = grabIn(src, '_persist') + '\n' + grabIn(src, '_ordKey') + '\n' + grabIn(src, '_recE') + '\n' + grabIn(src, '_ordNewer') + '\n' + grabIn(src, '_ordUse'), dl = lineIn(src, /var _editT=[^\n]*/), rs = grabIn(src, '_ordRestore');
     if (!fn || !dl || !rs) return { err: '원문 조각을 못 떼었다' };
     let now = 1000; const ls = mkStore({}); const sb = { localStorage: ls, JSON, Object, String, Math, Date: { now: () => now }, S: { a: 1 }, idx: 0, _seenK: {}, courseStarted: true, _doneSaved: false, _who: 'AB12CD', _srvBase: 'k0', _autoLast: 'srv',
       _autoKey: () => JSON.stringify(sb.S), _dirtyMark: () => {}, _closeFit: () => {}, _seamFitKeep: () => {}, _applySaved: (v) => { sb.S = v.S; return true; }, EMBED: true, _persistBad: false, _ACCT: 'AB12CD', _fillSeen: true, window: {} };

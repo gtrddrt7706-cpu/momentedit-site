@@ -5,11 +5,11 @@
    ② 고객 15-02 계정 칸(저장 안 한 고침 · 시각 없음)이 옛 공용 판(시각 있음)에 덮이지 않는다 · 옛 판은 예비본으로 남는다 · 식순 화면(공개 미리보기)도
    ③ 고객 15-03 계정 맡김의 시각 없는 옛 서약이 합친 꾸러미의 새 때를 빌려 이 기기에서 더 나중에 고친 서약을 덮지 않는다 · 한쪽이라도 시각이 없으면 계정 것
    ④ 고객 15-06 스스로 로그아웃하면 그 계정이 주인인 옛 공용 예비본도 지운다 · 계정마다 한 번만 옮긴다(옮긴 표시가 있으면 다시 들이지 않는다)
-   ⑤ [MIG_COPY_ONCE] 옛 예비본 지우기 — 서버 저장 성공(옮긴 표시가 있을 때만) · 30일 걷기(옮긴 표시 + 쓴 때 · 고친 때 · 옮긴 때)
+   ⑤ [MIG_COPY_ONCE] 옛 예비본 지우기 — ★16차부터 서버 저장 성공으로는 지우지 않는다 · 30일 걷기(예비본이 스스로 쓰인 때 · 없으면 옮긴 때)
    ⑥ 고객 15-04 [PRACTICE_MS] 정리 30초 뒤 새 연습 읽기 — 91일 뒤 정리에서 새 연습 소리도 지운다
    ⑦ 고객 15-05 · 당일 15-01 [RF_LOOK_ALL] 스튜디오 파일 표를 읽는 동안도 «확인 중» · 최신 확인 답 뒤에도 시작 직전에 다시 검사
    ⑧ 당일 15-02 [OWN_TXT_SURE] 글을 못 받았거나 스튜디오 파일이면 기본 글 대신 «이 소리의 글을 확인하지 못했어요»
-   ⑨ 브라우저 — 390 마이페이지에 옛 공용 me_order(t · w 없음)를 심으면 계정 칸으로 베끼고 · 식순 화면에서 열리고 · 다시 열어도 남고 · 옛 칸도 남는다 → 서버 저장 성공 뒤 옛 칸이 걷힌다
+   ⑨ 브라우저 — 390 마이페이지에 옛 공용 me_order(t · w 없음)를 심으면 계정 칸으로 베끼고 · 식순 화면에서 열리고 · 다시 열어도 남고 · 옛 칸도 남는다 → 서버 저장 성공 뒤에도 옛 칸은 예비본으로 남는다(16차 OLD_DRAFT_OFFER)
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -37,8 +37,8 @@ function store(init, quota) { const m = new Map(Object.entries(init || {}));
   return { m, ls: { getItem: (k) => (m.has(k) ? m.get(k) : null), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; },
     setItem: (k, v) => { if (quota && quota(k)) { const e = new Error('quota'); e.name = 'QuotaExceededError'; throw e; } m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); } } }; }
 const MPF = ['_acctOk', '_ordK', '_keepK', '_recE', '_migPick', '_migStampW', '_migOwner', '_migDone', '_migOwnT', '_migOrd', '_migKeep', '_migOldDrop', '_migOldSweep', '_acctKeysMigrate', '_acctOldSweep',
-  '_reloginStampT', '_reloginKeyNewer', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer'];
-const MPV = [/var RELOGIN_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var _MIG_DONE=[^\n]*/, /var MIG_DONE_K=[^\n]*/];
+  '_reloginStampT', '_reloginKeyNewer', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_useK', '_useW', '_useSet', '_strSig', '_migOldW'];   // ★[OLD_DRAFT_OFFER 2026-10-30 16차] 마지막 사용 작은 칸 · 예비본 쓰인 때
+const MPV = [/var RELOGIN_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var _MIG_DONE=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var MIG_X_K=[^\n]*/];
 function mpWin(st) { const sb = { localStorage: st.ls, JSON, Object, String, Math, Date: FakeDate, ERR_W: {}, ERR_DO: {} }; vm.createContext(sb);
   vm.runInContext(MPF.map((f) => grabIn(MP, f)).join('\n') + '\n' + MPV.map((re) => lineIn(MP, re)).join('\n'), sb); return sb; }
 function mpBoot(init, quota) { const st = store(init, quota); const sb = mpWin(st); vm.runInContext('_acctKeysMigrate(); _acctOldSweep();', sb); return { r: Object.fromEntries(st.m), st, sb }; }
@@ -48,7 +48,7 @@ function opMig(init) { const st = store(init); const sb = { localStorage: st.ls,
 await sec('①', async () => {
   /* 이전 판의 미리보기 · 마이페이지가 옮긴 계정 칸 — 쓴 때(w)가 없다 · 옛 공용 칸은 이미 없다 */
   const { r } = mpBoot({ [OK_A]: DR('31일 전 서약', A, NOW - 31 * DAY) });
-  const v = r[OK_A], w = v ? +JSON.parse(v).w : 0;
+  const v = r[OK_A], w = +r['me_order_w_' + A] || 0;   // ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 본문이 아니라 작은 칸에
   ok('① 15-01 [MIG_COPY_ONCE] 이미 옮겨진 계정 칸(w 없음 · 31일 전 고침)이 부팅의 30일 걷기에 지워지지 않는다 · 처음 본 지금을 w 로', txOf(v) === '31일 전 서약' && w === NOW, r);
   const { r: r2 } = mpBoot({ [OK_A]: DR('정말 오래된 칸', A, NOW - 40 * DAY, true, { w: NOW - 40 * DAY }) });
   ok('① 걷기는 그대로 — 마지막 사용(w)이 30일 넘은 계정 칸은 걷는다', !(OK_A in r2), r2); });
@@ -59,7 +59,7 @@ await sec('②', async () => {
   const o = opMig({ me_order: DR('옛 미리보기 판', '', NOW - 60000), me_order_pub: DR('공개 칸 다른 판', '', 0) });
   ok('② 15-02 식순 화면(공개 미리보기)도 공개 칸을 덮지 않는다 · 옛 칸 그대로', txOf(o.me_order_pub) === '공개 칸 다른 판' && txOf(o.me_order) === '옛 미리보기 판', o);
   const e = mpBoot({ me_order: DR('빈 계정 칸으로', A, 0) }).r;
-  ok('② 계정 칸이 비었으면 베낀다(w = 지금) · 옛 칸 그대로', txOf(e[OK_A]) === '빈 계정 칸으로' && +JSON.parse(e[OK_A]).w === NOW && txOf(e.me_order) === '빈 계정 칸으로', e); });
+  ok('② 계정 칸이 비었으면 베낀다(w = 지금) · 옛 칸 그대로', txOf(e[OK_A]) === '빈 계정 칸으로' && +e['me_order_w_' + A] === NOW && txOf(e.me_order) === '빈 계정 칸으로', e); });
 
 await sec('③', async () => {
   /* 계정 맡김 = 옛 서약(시각 없음 · 꾸러미 1000 전) · 옛 공용 맡김 = 새 스냅(10 전) · 이 기기 서약 = 500 전에 고친 저장 안 한 고침 */
@@ -87,13 +87,15 @@ await sec('④', async () => {
 await sec('⑤', async () => {
   const s1 = mpBoot({ me_order: DR('옛 공용 서약', A, 0), [OK_A]: DR('계정 칸', A, 0, false, { w: NOW }) }); if (typeof s1.sb._migOldDrop === 'function') s1.sb._migOldDrop(A, 'save');
   const s2 = store({ me_order: DR('옮기기 전 옛 서약', A, 0) }); const w2 = mpWin(s2); if (typeof w2._migOldDrop === 'function') w2._migOldDrop(A, 'save');
-  ok('⑤ [MIG_COPY_ONCE] 서버 저장 성공 — 옮긴 표시가 있으면 이 계정의 옛 예비본을 지운다 · 아직 옮기지 않았으면 두다 · 저장 성공 길(apiTrackSave 식순)이 부른다',
-    s1.st.ls.getItem('me_order') === null && txOf(s2.ls.getItem('me_order')) === '옮기기 전 옛 서약' && /_migOldDrop\(_reloginCode\(\), 'save'\)/.test(grabIn(MP, 'apiTrackSave')), [s1.st.ls.getItem('me_order'), s2.ls.getItem('me_order')]);
+  /* ★[OLD_DRAFT_OFFER 2026-10-30 GPT 16차 점검(고객) 16-02] 서버 저장 성공으로는 옛 예비본을 지우지 않는다(옛 꼴 초안이 더 나중 고침일 수 있다) — 15차의 «저장 성공 = 지우기»를 걷었다 */
+  ok('⑤ [OLD_DRAFT_OFFER] 서버 저장 성공 — 옮긴 표시가 있어도 이 계정의 옛 예비본을 지우지 않는다 · 저장 성공 길(apiTrackSave)이 지우기를 부르지 않는다',
+    txOf(s1.st.ls.getItem('me_order')) === '옛 공용 서약' && txOf(s2.ls.getItem('me_order')) === '옮기기 전 옛 서약' && !/_migOldDrop\(_reloginCode\(\), 'save'\)/.test(MP), [s1.st.ls.getItem('me_order'), s2.ls.getItem('me_order')]);
   const old = mpBoot({ me_order: DR('옛 공용 서약', A, 0), [FLAG_A]: String(NOW - 31 * DAY), [OK_A]: DR('계정 칸', A, 0, true, { w: NOW }) }).r;
   const fresh = mpBoot({ me_order: DR('옛 공용 서약', A, 0), [FLAG_A]: String(NOW - 2 * DAY), [OK_A]: DR('계정 칸', A, 0, true, { w: NOW }) }).r;
   const noFlag = store({ me_order: DR('옛 공용 서약', A, NOW - 60 * DAY) }); const wn = mpWin(noFlag); if (typeof wn._migOldSweep === 'function') wn._migOldSweep(NOW);
-  ok('⑤ 30일 걷기 — 옮긴 표시가 있고 30일 넘게 손대지 않은 옛 예비본만(쓴 때 · 고친 때가 없으면 옮긴 때) · 표시가 없으면 고친 때가 오래돼도 둔다',
-    !('me_order' in old) && txOf(fresh.me_order) === '옛 공용 서약' && txOf(noFlag.ls.getItem('me_order')) === '옛 공용 서약', [old, fresh]); });
+  /* ★[OLD_DRAFT_OFFER 2026-10-30 16차] 30일은 예비본이 스스로 마지막으로 쓰인 때부터 — 옮긴 표시와 상관없이(제 때가 없으면 옮긴 때 · 그것도 없으면 처음 본 때) */
+  ok('⑤ 30일 걷기 — 예비본이 스스로 마지막으로 쓰인 때(쓴 때 · 고친 때 · 없으면 옮긴 때)에서 30일 · 옮긴 표시가 없어도 제 때가 60일 전이면 걷는다',
+    !('me_order' in old) && txOf(fresh.me_order) === '옛 공용 서약' && noFlag.ls.getItem('me_order') === null, [old, fresh, noFlag.ls.getItem('me_order')]); });
 
 /* ───────── ⑥ 서버(80_production 조각) — vc-decisions-1030 의 세계를 그대로 빌린다 ───────── */
 const VD = fs.readFileSync(path.join(ROOT, 'scripts/audit/vc-decisions-1030.mjs'), 'utf8');
@@ -152,10 +154,10 @@ await sec('⑦', async () => {
   let ran = 0; const tsts = []; let freshOk = null; const go = { onclick: () => { ran++; }, dataset: {}, textContent: '시작' };
   const sb = { $: () => go, RF_FRESH: { done: false, wait: false }, RF_ST: {}, rfKeys: () => ['g0'], GUEST: false, QS: { get: () => 'AB12CD' }, toast: (t) => { tsts.push(t); }, rfPaint: () => {}, setTimeout, Promise,
     rfFresh: () => new Promise((r) => { freshOk = r; }) };
-  vm.createContext(sb); vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait'].map((f) => grabIn(CS, f)).join('\n') + '\n' + lineIn(CS, /var RF_LOOK = [^\n]*/) + '\n' + iife, sb);
+  vm.createContext(sb); vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait', 'rfPending', 'rfReadyWait'].map((f) => grabIn(CS, f)).join('\n') + '\n' + lineIn(CS, /var RF_LOOK = [^\n]*/) + '\n' + lineIn(CS, /var RF_READY = [^\n]*/) + '\n' + iife, sb);   /* ★[RF_READY_ALL 2026-10-30 16차] 기다림은 한 덩어리 약속(120ms 마다 다시 본다) */
   go.onclick(); await flush(); const rel = typeof sb.rfLookBegin === 'function' ? sb.rfLookBegin() : null; sb.RF_ST.g0 = 'look';   // 최신 확인을 기다리는 사이 찾기가 시작됐다
   freshOk(null); await flush(); const r1 = ran;
-  sb.RF_ST.g0 = 'ok'; if (rel) rel(); await flush(); await wait(20); await flush();
+  sb.RF_ST.g0 = 'ok'; if (rel) rel(); await flush(); await wait(300); await flush();
   ok('⑦ 당일 15-01 «시작» — 최신 확인 답 뒤에도 시작 직전에 다시 검사(찾는 중이면 «기기에 받아 둔 소리 확인 중…») · 찾기가 끝나면 그때 한 번 시작',
     r1 === 0 && ran === 1 && tsts.some((t) => /기기에 받아 둔 소리 확인 중/.test(t)), [r1, ran, tsts]); });
 
@@ -198,7 +200,7 @@ else await sec('⑨', async () => {
     const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
     await pg.goto(BASE + '/mypage.html', { waitUntil: 'load' }); await pg.waitForTimeout(1500);
     const LS = () => pg.evaluate(() => ({ old: localStorage.getItem('me_order'), acct: localStorage.getItem('me_order_ME-SHOT'), flag: localStorage.getItem('me_mig_done_ME-SHOT') }));
-    const ls1 = await LS(); const w1 = ls1.acct ? +JSON.parse(ls1.acct).w : 0;
+    const ls1 = await LS(); const w1 = await pg.evaluate(() => +localStorage.getItem('me_order_w_ME-SHOT') || 0);   // ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 작은 칸
     ok('⑨ 390 · 옛 공용 me_order(t · w 없음) — 계정 칸으로 베끼고(w 가 찍힘) · 옮긴 표시 · 옛 칸도 그대로', txOf(ls1.acct) === '사십일 전 옛 서약' && w1 > Date.now() - 600000 && !!ls1.flag && txOf(ls1.old) === '사십일 전 옛 서약', ls1);
     await pg.evaluate(() => openRitualBuilder({}, null)); let got = null;
     for (let i = 0; i < 40 && !got; i++) { await pg.waitForTimeout(250); const f = pg.frames().find((x) => /order-preview\.html/.test(x.url())); if (f) { try { got = await f.evaluate(() => (typeof S !== 'undefined' && S.tx && S.tx['vow.g']) || null); } catch (e) {} } }
@@ -209,7 +211,7 @@ else await sec('⑨', async () => {
     ok('⑨ 다시 열어도 계정 칸이 남고 · 옛 칸도 그대로(다시 들이지 않는다 · 표시 그대로)', txOf(ls2.acct) === '사십일 전 옛 서약' && txOf(ls2.old) === '사십일 전 옛 서약' && ls2.flag === ls1.flag, ls2);
     const sv = await pg.evaluate(() => apiTrackSave({ action: 'saveProductionTrack', token: getToken(), track: 'ritual', draft: { _v: 3, S: { course: 'open', tx: { 'vow.g': '사십일 전 옛 서약' } }, summary: {} }, done: false }).then((r) => !!(r && r.ok)));
     await pg.waitForTimeout(300); const ls3 = await LS();
-    ok('⑨ 서버 저장이 성공하면 옛 공용 칸을 걷는다 · 계정 칸은 그대로', sv === true && ls3.old === null && txOf(ls3.acct) === '사십일 전 옛 서약', [sv, ls3]);
+    ok('⑨ [OLD_DRAFT_OFFER 16-02] 서버 저장이 성공해도 옛 공용 칸(예비본)은 그대로 · 계정 칸도 그대로', sv === true && txOf(ls3.old) === '사십일 전 옛 서약' && txOf(ls3.acct) === '사십일 전 옛 서약', [sv, ls3]);
     ok('⑨ 페이지 오류 없음', !errs.length, errs.slice(0, 3));
     await ctx.close();
   } finally { await br.close(); srv.close(); } });

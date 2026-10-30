@@ -23,7 +23,7 @@ const MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
 const mkStore = (init) => { const m = new Map(Object.entries(init || {}));
   return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; } }; };
 function mp1(src, o) {
-  const code = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin', '_acctOk', '_ordK', '_keepK', '_recE', '_acctOldSweep'].map((f) => grabIn(src, f)).join('\n')   /* [ACCT_KEYS] 계정 칸 */ + '\n' + lineIn(src, /var RELOGIN_KEY=[^\n]*/) + '\n' + lineIn(src, /var ERR_W=[^\n]*/) + '\n' + lineIn(src, /var ERR_DO=[^\n]*/);
+  const code = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin', '_acctOk', '_ordK', '_keepK', '_recE', '_acctOldSweep', '_useK', '_useW', '_useSet'].map((f) => grabIn(src, f)).join('\n')   /* [ACCT_KEYS] 계정 칸 */ + '\n' + lineIn(src, /var RELOGIN_KEY=[^\n]*/) + '\n' + lineIn(src, /var ERR_W=[^\n]*/) + '\n' + lineIn(src, /var ERR_DO=[^\n]*/);
   const draft = JSON.stringify({ v: 2, S: { tx: { 'vow.g': '고친 서약' } }, who: 'AB12CD', dirty: true, base: 'k0' });
   const OK = 'me_order_AB12CD', KK = 'me_relogin_keep_AB12CD';   // [ACCT_KEYS]
   const ls = mkStore({ me_token: 't', me_state_v1: '{}', [OK]: draft, me_snapLocal_AB12CD: '{"n":1}' }), ss = mkStore();
