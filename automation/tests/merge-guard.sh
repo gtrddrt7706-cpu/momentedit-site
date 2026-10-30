@@ -20764,7 +20764,7 @@ chk 'CON_START_NOWAIT' scripts/audit/con-start-nowait.mjs 1
 chk 'RF_NOWAIT_EMPTY' console.html 2
 chk 'RF_WAIT_ONCE' console.html 6
 chk "RF_FRESH.list = need;" console.html 1
-chk "if (Date.now() - t0 > 130000) { RF_READY.p = null; RF_READY.late = true; if (typeof rfFreeze === 'function') rfFreeze(); ok('late'); return; }" console.html 1   # [RF_LATE_FREEZE] 한도에 닿으면 늦음 + 소리 묶음 굳히기
+chk "if (Date.now() - t0 > 130000) { RF_READY.w = null; RF_READY.p = null; RF_READY.late = true; if (typeof rfFreeze === 'function') rfFreeze(); ok('late'); return; }" console.html 1   # [RF_LATE_FREEZE] 한도에 닿으면 늦음 + 소리 묶음 굳히기 · [RF_WAIT_GEN] 그 기다림을 닫고
 nochk "if (!rfPending() || Date.now() - t0 > 130000) { RF_READY.p = null; ok(); return; }" console.html   # [RF_WAIT_ONCE] 한도에 닿으면 «다 받음»처럼 풀어 시작이 새 130초를 다시 걸던 줄
 nochk "if (!code || !tok) { RF_FRESH.list = false; return; } RF_FRESH.list = true;" console.html   # [RF_NOWAIT_EMPTY] 받을 것이 없어도 목록을 «받는 중»으로 잡던 줄(#1452)
 # ★[RF_AGAIN_RESET · RF_LATE_FREEZE · RF_SEL_REFETCH 2026-10-31 GPT 18차 점검(고객 18-01 · 당일 18-01 · 18-02)] 어느 «다시 받기»든 늦음을 걷고 새 차례 · 130초로 시작하면 소리 묶음을 굳힌다(늦은 답 버림) · 칩으로 받을 것이 바뀌면 need 를 다시 재 새 차례로 받는다 — con-start-nowait ⑤ ⑥ ⑦
@@ -20774,5 +20774,13 @@ chk 'RF_SEL_REFETCH' console.html 3
 chk "if (ESD.gen !== eg) throw 1;" console.html 2
 nochk "rfAgainRun(false);" console.html   # [RF_AGAIN_RESET] 일반 «다시 받기»가 늦음 표시를 걷지 않던 호출
 nochk "if (late) RF_READY.late = false; rfPrefetch(); }" console.html   # [RF_AGAIN_RESET] 늦음 단추일 때만 늦음을 걷던 줄
+# ★[RF_WAIT_GEN · RF_FREEZE_TRUE 2026-10-31 GPT 19차 점검(고객 19-01 · 당일 19-01)] 기다림(시계 + 약속)은 받기 차례 · 시작 예약에 묶는다(안내 · 새 받기 · 칩이면 옛 시계를 끝내고 새 받기는 새 130초) · 굳힐 때 물린 지금 파일은 «받아 둠» · 나레이션 줄은 두 분 파일 연결을 걷는다 — con-start-nowait ⑧ ⑨
+chk 'RF_WAIT_GEN' console.html 7
+chk 'RF_FREEZE_TRUE' console.html 4
+chk "if (RF_READY.w !== w) return; if ((RF_FRESH.lgen || 0) !== w.lg) { RF_READY.end('again'); return; }" console.html 1   # [RF_WAIT_GEN] 끝난 기다림 · 지난 차례의 시계는 굳히지 않는다
+chk "RF_READY.end('gone');" console.html 3   # [RF_WAIT_GEN] 시작 예약을 버리는 세 자리
+chk "if (RF_OWN\[sl\] && CLIPS\[sl\] && cu && cu.id && (cu.want == null || cu.want === cu.id)) { RF_ST\[k\] = 'ok';" console.html 1   # [RF_FREEZE_TRUE]
+nochk "if (RF_READY.p) return RF_READY.p; var t0 = Date.now();" console.html   # [RF_WAIT_GEN] 차례와 상관없이 옛 약속(옛 130초)을 돌려주던 줄
+nochk "if (Date.now() - t0 > 130000) { RF_READY.p = null; RF_READY.late = true;" console.html   # [RF_WAIT_GEN] 버린 예약의 시계도 굳히던 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/con-start-nowait.mjs >/dev/null 2>&1; _csn=$?; if [ "$_csn" != 0 ]; then echo 'FAIL con-start-nowait: 당일 콘솔 시작 기다림(받을 것 없는 예식 · 130초 한 번만) 판정이 어긋났습니다 — node scripts/audit/con-start-nowait.mjs'; fail=1; else echo "ok con-start-nowait ($_csn)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
