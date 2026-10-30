@@ -20492,6 +20492,14 @@ chk 'CON_STALL' console.html 5
 chk 'CON_RELOAD_GUARD' console.html 6
 nochk "var isNar = url === PARAM.clipDir + c.file + '.mp3'" console.html   # [ESD_NAR_KIND] 주소 모양으로 나레이션을 가르지 않는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix5-1030.mjs >/dev/null 2>&1; _vf5=$?; if [ "$_vf5" = 1 ]; then echo 'FAIL vc-fix5-1030: AI 목소리 5차 점검(로그인하기 · 상태 다시 묻기 · 이전 것 지우는 중 · 예식 뒤 막기 · 콘솔 다시 불러오기 · 앞 말소리 멈춤 · 멈춘 소리 · 새로고침) 판정이 어긋났습니다 — node scripts/audit/vc-fix5-1030.mjs'; fail=1; else echo "ok vc-fix5-1030 ($_vf5)"; fi; fi
+# ★[VC_FIX6_1030 2026-10-30 GPT 6차 점검] 5차 회귀 넷 — 로그인하기 뒤 저장 못 한 초안 맡기기 · 콘솔 옛 목록 답 버리기 · 앞 순서 늦은 재생 결과 버리기 · 멈춤 중 시각 큐 기다리기
+chk 'VC_FIX6_1030' scripts/audit/vc-fix6-1030.mjs 1
+chk 'RELOGIN_KEEP' mypage.html 6
+chk 'RF_LIST_GEN' console.html 2
+chk 'PLAY_GEN' console.html 6
+chk 'STALL_HOLD_CLOCK' console.html 2
+nochk "^  clearToken();$" mypage.html   # [RELOGIN_KEEP] 로그인 풀림(_errGoLogin)이 저장 못 한 초안을 맡기지 않고 그냥 지우던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix6-1030.mjs >/dev/null 2>&1; _vf6=$?; if [ "$_vf6" != 0 ]; then echo 'FAIL vc-fix6-1030: AI 목소리 6차 점검(로그인하기 뒤 초안 · 옛 목록 답 · 늦은 재생 결과 · 멈춤 중 시각 큐) 판정이 어긋났습니다 — node scripts/audit/vc-fix6-1030.mjs'; fail=1; else echo "ok vc-fix6-1030 ($_vf6)"; fi; fi
 
 # ── 2026-10-30 [RETAKE_168_1030 검토 168 사장님] 나레이션 다시 받기 묶음(글만 · 녹음은 따로) — 무음 부탁 · 안내 음성 · 증인이십니다 · 안녕하세요 · 입장 A · E · 맞절 252 · 감사 인사 228 · 229 · «천천히» 넷 걷기 · 반지 170 · 축가 209 · «맞절!» → «맞절.»(구호 검사도 «맞절.»을 구호로 본다)
 chk '신랑 신부, 서로 마주 보고 서 주십시오. 평생을 함께할 동반자로서, 서로를 아끼고 존중하는 마음을 담아 인사하겠습니다. 신랑 신부, 맞절.' assets/ritual-open.js 1
