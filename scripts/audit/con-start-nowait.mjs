@@ -4,7 +4,11 @@
    ① 17-01 [RF_NOWAIT_EMPTY] 받을 두 분 소리도 입장 곡도 없는 예식 + 파일 목록 답이 늦다 → «시작»이 목록을 기다리지 않는다(최신 확인 CON_FRESH 만 거쳐 바로)
    ② 받을 줄이 있으면 종전대로 목록 · 파일 받기를 기다린다(RF_READY_ALL 그대로)
    ③ 17-02 [RF_WAIT_ONCE] 받기가 130초 넘게 안 끝나면 기다림은 한 번만 끝난다 — 받은 것만으로 시작 · L5 한 줄 · 새 기다림을 다시 걸지 않는다 · 다시 눌러도 바로
-   ④ 다시 받기(rfAgainRun(true))는 늦음 표시를 걷고 다시 받는다 · 확인 칸에 같은 줄 + 단추 · 코드 표에 L5 뜻
+   ④ 다시 받기(rfAgainRun)는 늦음 표시를 걷고 다시 받는다 · 확인 칸에 같은 줄 + 단추 · 코드 표에 L5 뜻
+   ⑤ 18-01(고객) [RF_AGAIN_RESET] 130초 뒤 남은 요청이 실패로 끝나 일반 «다시 받기»만 남아도, 그 단추가 늦음 표시를 걷고 새 차례로 받는다 — 다음 «시작»은 다시 기다린다
+   ⑥ 18-01(당일) [RF_LATE_FREEZE] 130초로 시작한 뒤 늦게 온 파일 · 입장 곡 답이 소리를 바꾸지 않는다(못 받은 줄은 «받지 못함 · L5») · «다시 받기»를 누르면 그때 새 차례로 붙는다
+   ⑦ 18-02(당일) [RF_SEL_REFETCH] 나레이션으로 열고 하객 맞이 칩을 «두 분 목소리»로 바꾸면 need 를 다시 재고 새 차례로 받는다 — «시작»이 목록 · 파일을 기다린다
+   옛 판(#1453 · 375d6ad1)에서는 ⑤ ⑥ ⑦ 이 빨강이어야 한다
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
@@ -27,19 +31,34 @@ function world(o) {
   const C = clock(), W = { ran: 0, tsts: [], look: 0, sup: 0, calls: [], C };
   const go = { onclick: () => { W.ran++; }, dataset: {}, textContent: '시작' };
   /* 목록 답(adminRitualFiles)은 o.listMs 뒤 — o.listFail 이면 실패 */
-  const fetch = (u, opt) => { const b = JSON.parse(opt.body); W.calls.push(b.fn);
-    return new Promise((res, rej) => C.setTimeout(() => { if (b.fn === 'adminRitualFiles' && o.listFail) rej(new Error('net')); else res({ json: () => Promise.resolve({ result: b.fn === 'adminRitualFiles' ? { ok: true, files: [], sup: {} } : { ok: false } }) }); }, b.fn === 'adminRitualFiles' ? o.listMs : (o.fileMs || 10))); };
+  /* 파일 답(adminRitualFileGet) — o.fileQ[id] = [[ms, 성공?], …] 차례대로 · 없으면 o.fileMs 뒤 거절 */
+  const fetch = (u, opt) => { const b = JSON.parse(opt.body); W.calls.push(b.fn + (b.fn === 'adminRitualFileGet' ? ':' + b.args[1] : ''));
+    const fq = b.fn === 'adminRitualFileGet' && o.fileQ && o.fileQ[b.args[1]] && o.fileQ[b.args[1]].length ? o.fileQ[b.args[1]].shift() : null;
+    const ms = b.fn === 'adminRitualFiles' ? o.listMs : fq ? fq[0] : (o.fileMs || 10);
+    const body = b.fn === 'adminRitualFiles' ? { ok: true, files: o.files || [], sup: {} } : fq && fq[1] ? { ok: true, data: 'AAAA', mime: 'audio/wav' } : { ok: false };
+    return new Promise((res, rej) => C.setTimeout(() => { if (b.fn === 'adminRitualFiles' && o.listFail) rej(new Error('net')); else res({ json: () => Promise.resolve({ result: body }) }); }, ms)); };
   const sb = { $: () => go, RF_FRESH: { done: !!o.done, wait: false, ask: null }, RF_ST: o.st || {}, RF_WHY: {}, RF_GEN: {}, RF_SKIP: '', RF_EXEC: 'x', S: { up: o.up || {} },
-    rfKeys: () => o.keys.slice(), esdWant: () => !!o.mu, ESD: { st: '' }, GUEST: false, QS: { get: (k) => (k === 'rf' ? 'AB12CD' : null) },
+    rfKeys: () => (o.keysFn ? o.keysFn(sb.S) : o.keys.slice()), esdWant: () => !!o.mu, ESD: { st: '' }, ES: { prepSong: () => ({ x: 1 }) }, esdDecode: () => Promise.resolve({}), esdPrepVoice: () => {}, render: () => {},
+    RF_ORIG: {}, CLIPS: {}, RF_OWN: {}, RF_CUR: {}, MODE: 'console', paint: () => {}, GUEST: false, QS: { get: (k) => (k === 'rf' ? 'AB12CD' : null) },
     localStorage: { getItem: () => 'TOK' }, toast: (t) => { W.tsts.push(t); }, rfPaint: () => {}, rfWhy: () => '연결이 끊겼어요 (코드 L6)', rfOkSet: () => {}, rfOwnSupPut: () => {},
     rfOwnSupGet: () => { W.sup++; return new Promise((r) => C.setTimeout(() => r(null), 4000)); }, rfSlugOf: (k) => k, rfOwnFall: () => {},
     fetch, AbortController: undefined, setTimeout: C.setTimeout, clearTimeout: C.clearTimeout, Promise, JSON, Object, String, Array, Uint8Array, atob, URL, Blob,
     Date: { now: () => C.now() }, rfFresh: () => new Promise((r) => C.setTimeout(() => r(null), o.freshMs || 300)) };
   vm.createContext(sb);
-  vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait', 'rfPending', 'rfReadyWait', 'rfPrefetch'].map((f) => grabIn(CS, f)).join('\n') + '\n'
+  if (o.mu) sb.S.mu = { src: 'up', fid: 'MU', name: '곡' };
+  let n = 0; sb.URL = { createObjectURL: () => 'blob:' + (++n) };
+  vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait', 'rfPending', 'rfReadyWait', 'rfPrefetch', 'rfAgainRun', 'rfGenBump', 'rfFreeze', 'rfSelSig', 'rfSelRefetch'].map((f) => grabIn(CS, f)).join('\n') + '\n'
     + lineIn(CS, /var RF_LOOK = [^\n]*/) + '\n' + lineIn(CS, /var RF_READY = [^\n]*/) + '\n' + lineIn(CS, /var RF_LATE_SAY = [^\n]*/) + '\n' + iife, sb);
   const bl = sb.rfLookBegin; sb.rfLookBegin = function () { W.look++; return bl(); };
-  W.go = go; W.sb = sb; return W; }
+  W.go = go; W.sb = sb;
+  /* 칩 누르기 — 원문 칩 onclick 몸통 그대로(OPT · paint 는 가짜) */
+  const ci = CS.indexOf('b.onclick = function(){'), cj = CS.indexOf('host.appendChild(b);', ci);
+  vm.runInContext('function chipPress(OPT, id, b){ ' + CS.slice(ci, cj) + ' b.onclick(); }', sb);
+  W.chip = (key, v) => sb.chipPress({ X: [key, []] }, 'X', { dataset: { v: String(v) } });
+  /* 확인 칸의 일반 «다시 받기»(rfAgain) · 늦음 «다시 받기»(rfLate) — rfPaint 가 단추에 거는 호출 그대로 */
+  const pt = grabIn(CS, 'rfPaint'), btn = (id) => (pt.match(new RegExp("getElementById\\('" + id + "'\\); if \\(\\w+\\) \\w+\\.onclick = function\\(\\)\\{ ([^}]*?); \\}")) || [])[1];
+  W.press = (id) => { const ex = btn(id); if (!ex) throw new Error('단추 ' + id + ' 를 못 찾음'); vm.runInContext(ex, sb); };
+  return W; }
 
 await sec('①', async () => {
   /* 오늘 모든 예식 — 두 분 목소리 꺼짐 · 입장 곡도 없음 · 관리 화면은 rf 를 붙여 연다 · 목록 답이 늦다(50초) */
@@ -78,13 +97,49 @@ await sec('③', async () => {
 await sec('④', async () => {
   const W = world({ keys: ['g0'], up: { g0: { id: 'F1' } }, st: { g0: 'busy' }, listMs: 5, done: true });
   W.sb.RF_READY.late = true; let ran = false;
-  const ar = grabIn(CS, 'rfAgainRun');
-  if (ar) { vm.runInContext(ar, W.sb); W.sb.rfAgainRun(true); ran = true; }
-  ok('④ «다시 받기»(rfAgainRun(true)) — 늦음 표시를 걷고 받는 중이던 줄을 다시 받는다', ran && W.sb.RF_READY.late === false && W.calls.includes('adminRitualFiles'), { ran, late: W.sb.RF_READY.late, calls: W.calls });
+  W.press('rfLate'); ran = true;
+  ok('④ 늦음 «다시 받기»(rfLate) — 늦음 표시를 걷고 받는 중이던 줄을 다시 받는다', ran && W.sb.RF_READY.late === false && W.calls.includes('adminRitualFiles'), { ran, late: W.sb.RF_READY.late, calls: W.calls });
   const pt = grabIn(CS, 'rfPaint');
-  ok('④ 소리 파일 확인 칸 — 늦었고 아직 받는 중이면 같은 줄 + «다시 받기»(rfLate)', /RF_READY && RF_READY\.late && rfPending\(\)/.test(pt) && /RF_LATE_SAY/.test(pt) && /id="rfLate">다시 받기</.test(pt) && /rfAgainRun\(true\)/.test(pt));
+  ok('④ 소리 파일 확인 칸 — 늦었으면 같은 줄 + «다시 받기»(rfLate) 하나(일반 단추와 겹치지 않게)', /var _late = [^;]*RF_READY\.late;/.test(pt) && /if \(_late\) _fr \+=/.test(pt) && /RF_LATE_SAY/.test(pt) && /id="rfLate">다시 받기</.test(pt) && /\+ \(!_late && /.test(pt));
   const sb = { window: {} }; vm.createContext(sb); vm.runInContext(EC, sb); const x = sb.window.ME_ERR && sb.window.ME_ERR.explain('L5');
   ok('④ 코드 표 L5 — 기다리다 멈춤 · 콘솔 «소리 준비가 늦어요» 뜻(RF_WAIT_ONCE)', !!x && /기다리다 멈췄어요/.test(x.what) && /소리 준비가 늦어요/.test(x.fix), x); });
+
+await sec('⑤', async () => {
+  /* g0 은 바로 받고 g1 은 오래 걸리다(200초) 실패 · 130초에 받은 것만으로 시작 · 그 뒤 일반 «다시 받기» · 새 받기는 5초 */
+  const W = world({ keys: ['g0', 'g1'], files: [{ id: 'F0', key: 'g0', name: 'a' }, { id: 'F1', key: 'g1', name: 'b' }], up: { g0: { id: 'F0' }, g1: { id: 'F1' } }, listMs: 5, done: true, fileQ: { F0: [[10, true], [10, true]], F1: [[200000, false], [5000, true]] } });
+  W.sb.rfPrefetch(); await W.C.advance(0); W.go.onclick(); await W.C.advance(131000);
+  const a = W.ran; await W.C.advance(80000);
+  ok('⑤ 130초에 한 번 시작 · 남은 줄은 «받지 못함»으로 끝난다', a === 1 && W.sb.RF_ST.g1 === 'fail', { a, st: W.sb.RF_ST });
+  W.press('rfAgain');
+  ok('⑤ 18-01(고객) [RF_AGAIN_RESET] 일반 «다시 받기»도 늦음 표시를 걷는다', W.sb.RF_READY.late === false, { late: W.sb.RF_READY.late });
+  W.go.onclick(); await W.C.advance(1000); const b = W.ran;
+  await W.C.advance(10000);
+  ok('⑤ 다음 «시작»은 새 받기를 기다렸다가(1초에 아직) 다 받은 뒤 한 번', b === 1 && W.ran === 2 && W.sb.RF_OWN.g1 === 1, { b, ran: W.ran, own: W.sb.RF_OWN }); });
+
+await sec('⑥', async () => {
+  /* g0 은 바로 · g1 과 입장 곡은 150초 뒤에야 성공 답이 온다 */
+  const W = world({ keys: ['g0', 'g1'], mu: true, files: [{ id: 'MU', key: 'mu', name: '곡' }, { id: 'F0', key: 'g0', name: 'a' }, { id: 'F1', key: 'g1', name: 'b' }], up: { g0: { id: 'F0' }, g1: { id: 'F1' } }, listMs: 5, done: true,
+    fileQ: { F0: [[10, true], [10, true]], F1: [[150000, true], [3000, true]], MU: [[150000, true], [3000, true]] } });
+  W.sb.rfPrefetch(); await W.C.advance(0); W.go.onclick(); await W.C.advance(131000);
+  const a = W.ran, own0 = !!W.sb.RF_OWN.g1, st0 = W.sb.RF_ST.g1, why0 = W.sb.RF_WHY.g1;
+  await W.C.advance(30000);
+  ok('⑥ 130초에 받은 것만으로 시작 · 못 받은 줄은 그 자리에서 «받지 못함 · 응답이 늦어요 (코드 L5)»', a === 1 && !own0 && st0 === 'fail' && /코드 L5/.test(why0 || '') && W.sb.ESD.st === 'fail', { a, st0, why0, esd: W.sb.ESD.st });
+  ok('⑥ 18-01(당일) [RF_LATE_FREEZE] 늦게 온 성공 답(150초)이 소리를 바꾸지 않는다 — 두 분 소리 · 입장 곡이 진행 중에 붙지 않는다', !W.sb.RF_OWN.g1 && !W.sb.CLIPS.g1 && W.sb.RF_ST.g1 === 'fail' && W.sb.ESD.st === 'fail' && !W.sb.ESD.Sg, { own: W.sb.RF_OWN, clips: W.sb.CLIPS, st: W.sb.RF_ST, esd: W.sb.ESD.st });
+  W.press('rfLate'); await W.C.advance(5000);
+  ok('⑥ «다시 받기»를 누르면 그때 새 차례로 받아 붙는다(디렉터가 고른 길 하나)', W.sb.RF_OWN.g1 === 1 && W.sb.RF_ST.g1 === 'ok' && W.sb.ESD.st === 'ok' && W.sb.RF_READY.late === false, { own: W.sb.RF_OWN, st: W.sb.RF_ST, esd: W.sb.ESD.st }); });
+
+await sec('⑦', async () => {
+  /* 나레이션으로 열고(받을 것 없음) 목록 답은 20초 · 하객 맞이 칩을 «두 분 목소리»로 */
+  const W = world({ keysFn: (S) => (S.guestVoice === 'couple' ? ['g0'] : []), files: [{ id: 'F0', key: 'g0', name: 'a' }], up: { g0: { id: 'F0' } }, listMs: 20000, done: true, fileQ: { F0: [[3000, true], [3000, true]] } });
+  W.sb.S.guestVoice = 'nar'; W.sb.rfPrefetch(); await W.C.advance(0);
+  const l0 = !!W.sb.RF_FRESH.list;
+  W.chip('guestVoice', 'couple'); await W.C.advance(0);
+  ok('⑦ 18-02(당일) [RF_SEL_REFETCH] 칩을 «두 분 목소리»로 바꾸면 need 를 다시 재 목록을 «받는 중»으로', !l0 && W.sb.S.guestVoice === 'couple' && !!W.sb.RF_FRESH.list, { l0, list: W.sb.RF_FRESH.list });
+  W.go.onclick(); await W.C.advance(1000); const a = W.ran;
+  await W.C.advance(30000);
+  ok('⑦ «시작»은 목록 · 파일을 기다렸다가 두 분 소리가 붙은 뒤 한 번', a === 0 && W.ran === 1 && W.sb.RF_OWN.g0 === 1, { a, ran: W.ran, own: W.sb.RF_OWN });
+  W.chip('guestVoice', 'nar'); await W.C.advance(0);
+  ok('⑦ 다시 «나레이션»으로 바꾸면 두 분 소리를 걷어 나레이션으로 되돌린다', !W.sb.RF_OWN.g0 && !W.sb.RF_FRESH.list && !W.sb.rfPending(), { own: W.sb.RF_OWN, list: W.sb.RF_FRESH.list }); });
 
 console.log(fail ? `\n✗ CON_START_NOWAIT 실패 ${fail}건` : '\n✓ CON_START_NOWAIT — 시작 기다림 통과');
 process.exit(fail ? 1 : 0);
