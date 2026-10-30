@@ -3046,6 +3046,30 @@
    "fn": "aiMorningReport",
    "mark": "VC_DEC_1030_5",
    "why": "아침 보고에 «스튜디오 확인 안 한 두 분 목소리» 빨간 줄 — 옛것이면 D-3 에도 아무도 모른다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcDelMark",
+   "mark": "MODEL_OFF_DEL",
+   "why": "7일 전 모델만 지운 분이 «지우기»를 누르면 «지웠어요»로 — 옛것이면 카드가 «모델은 지웠어요»에 머문다"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeVoiceClones",
+   "mark": "PRACTICE_PURGE",
+   "why": "연습 소리만 남은 예식도 90일 · 예식 다음 날 지우기 판정까지 간다 — 옛것이면 연습 소리가 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "adminRitualFileOk",
+   "mark": "RFOK_FILE",
+   "why": "스튜디오 확인 ✓ 를 들은 파일 id 에 묶는다 — 옛것이면 다시 만든 파일도 «확인함»"
+  },
+  {
+   "file": "80_production",
+   "fn": "vcStudioCheckDue_",
+   "mark": "RFOK_FILE",
+   "why": "아침 보고의 «확인 안 함»을 파일 id 로 — 옛것이면 다시 만든 파일이 빠진다"
   }
  ],
  "fns": {
@@ -3298,6 +3322,8 @@
    "_rfStudioUps",
    "adminRitualFileUp",
    "adminRitualFileGet",
+   "_rfCurId_",
+   "_rfOkIs_",
    "adminRitualFileOk",
    "purgeRitualFiles",
    "previewRitualFiles",
@@ -3346,6 +3372,7 @@
    "_vcOrphanSweep_",
    "_vcTs_",
    "_vcLastAct_",
+   "_vcPracticeLeft_",
    "_vcCodeSet_",
    "_vcAiTrashAll_",
    "_vcVoiceKeys_",
@@ -4180,7 +4207,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-30 22:09 · 2b144126",
+ "_생성": "2026-10-31 00:16 · ab2830dc",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4736,5 +4763,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "588e5da4aebd"
+ "_표식서명": "a474d3acf49f"
 }

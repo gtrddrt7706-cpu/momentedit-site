@@ -53,7 +53,7 @@ function mp1(src, o) {
 const CS = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
 { /* ② RF_LIST_GEN */
   const iife = (src) => { const i = src.indexOf("(function(){ var go = $('#go'), run = go.onclick;"); if (i < 0) return ''; const j = src.indexOf('})();', i); return src.slice(i, j + 5); };
-  const mk = (src) => { const code = ['rfWhy', 'rfPrefetch', 'rfFreshApply', 'rfBusyNow'].map((f) => grabIn(src, f)).join('\n') + '\nvar RF_WHY = {}, RF_SKIP = "", RF_GEN = {};\n' + iife(src);
+  const mk = (src) => { const code = ['rfWhy', 'rfPrefetch', 'rfFreshApply', 'rfBusyNow'].map((f) => grabIn(src, f)).join('\n') + '\nvar RF_WHY = {}, RF_SKIP = "", RF_GEN = {}, RF_CUR = {}, RF_CACHED = {}, RF_FROM = {}, RF_PUTFAIL = {};\n' + iife(src);
     const pend = {}; let ran = 0, nList = 0; class B { constructor(a) { this.s = String.fromCharCode.apply(null, Array.from(a[0])); } }
     const go = { onclick: () => { ran++; }, dataset: {}, textContent: '시작' };
     const sb = { $: () => go, QS: { get: () => 'AB12CD' }, localStorage: { getItem: () => 'tok' }, GUEST: false, S: { up: { g0: { id: 'A' } } }, rfPaint: () => {}, rfKeys: () => ['g0'], rfSlugOf: () => 'guest-1-arrival', esdWant: () => false, esdPrepVoice: () => {}, render: () => {}, toast: () => {}, rfFresh: () => Promise.resolve(null),
@@ -69,7 +69,7 @@ const CS = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
     return { early, listLock, after: W.ran(), clip: W.sb.CLIPS['guest-1-arrival'] || '' }; };
   let r; try { r = await sc(CS); } catch (e) { r = { err: String(e).slice(0, 200) }; }
   ok('② [RF_LIST_GEN] 옛 목록 답이 먼저 와도 «시작»은 기다리고(잠금 그대로) · 새 목록 · 새 소리를 받은 뒤 새 소리(B)로 시작', !r.err && r.early === 0 && r.listLock && r.after === 1 && r.clip === 'blob:B', r);
-  const b = brk(CS, [['if (lg !== RF_FRESH.lgen) return; var L = x.L', 'var L = x.L']]); try { r = b ? await sc(b) : null; } catch (e) { r = { err: String(e) }; }
+  const b = brk(CS, [['if (lg !== RF_FRESH.lgen) return; var go = function(sm){ var L = x.L', 'var go = function(sm){ var L = x.L']]); try { r = b ? await sc(b) : null; } catch (e) { r = { err: String(e) }; }
   ok('깨 보기 ② — 옛 꼴이면 빨강', !!r && !r.err && r.early === 1, r); }
 { /* ③ PLAY_GEN */
   const run3 = async (src, how) => { const code = grabIn(src, 'playSrc') + '\n' + grabIn(src, 'playClip'); const T = []; let rej = null; const plays = [], toasts = [], cards = []; let doneN = 0;

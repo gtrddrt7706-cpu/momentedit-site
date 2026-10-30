@@ -20683,4 +20683,23 @@ chk 'VC_DEC_1030_9' console.html 4
 chk "tx.textContent = ownTxtFor(c) || c.text || '';" console.html 1
 chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
+# ★[VC_FIX14_1030 2026-10-30 GPT 14차 점검(고객 14-01 ~ 14-09 · 당일 14-01 ~ 14-04)] 옛 공용 칸 이관 소실 셋 · 로그인 전 늦은 답 · 모델만 지운 분 지우기 · 연습 소리 90일 · 기기 보관 파일 id · 스튜디오 확인 파일 id · 글 카드 차례 · 보관본 찾는 동안 시작 잠금 · 스튜디오 파일 끊긴 채 다시 열기
+chk 'VC_FIX14_1030' scripts/audit/vc-fix14-1030.mjs 1
+chk 'MIG_KEEP' mypage.html 8
+chk 'MIG_KEEP' order-preview.html 3
+chk 'PRELOGIN_EPOCH' mypage.html 3
+chk 'MODEL_OFF_DEL' order-preview.html 2
+chk 'MODEL_OFF_DEL' automation/platform/80_production.gs 1
+chk 'PRACTICE_PURGE' automation/platform/80_production.gs 2
+chk 'RF_CACHE_ID' console.html 8
+chk 'RFOK_FILE' console.html 1
+chk 'RFOK_FILE' admin.html 1
+chk 'RFOK_FILE' automation/platform/80_production.gs 4
+chk 'OWN_TXT_GEN' console.html 4
+chk 'RF_LOOK_WAIT' console.html 5
+chk 'RF_SUP_OFF' console.html 4
+nochk "if(!(c2 && (+c2.t||0)>=(+o.t||0))){ localStorage.setItem(K, nv);" mypage.html   # [MIG_KEEP] 꾸러미 시각만 견주던 옛 맡김 이관(종류마다 합친다)
+nochk "tx.oncomplete = function(){ RF_CACHED[k] = 1; rfPaint(); };" console.html   # [RF_CACHE_ID] 자리마다 1 이던 옛 보관 표시(파일 id 에 묶는다)
+nochk "function rfUnchecked(k){ return !GUEST && RF_OKSET && rfKindLab(k) === 'AI 목소리' && !RF_OKMAP[k]; }" console.html   # [RFOK_FILE] 자리 이름에만 묶이던 옛 확인
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix14-1030.mjs >/dev/null 2>&1; _vf14=$?; if [ "$_vf14" != 0 ]; then echo 'FAIL vc-fix14-1030: AI 목소리 14차 점검(옛 칸 이관 · 로그인 전 답 · 지우기 · 연습 소리 · 기기 보관 · 스튜디오 확인 · 글 카드 · 시작 잠금) 판정이 어긋났습니다 — node scripts/audit/vc-fix14-1030.mjs'; fail=1; else echo "ok vc-fix14-1030 ($_vf14)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
