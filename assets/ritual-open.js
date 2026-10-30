@@ -681,7 +681,7 @@
       case 'declare': { var dp = declBy(S);   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 적은 분께 부탁 · 안 적었으면 «정하기»가 할 일로 남는다(예시는 칸에만)
         return dp ? [['couple', '성혼 선언문 낭독 · ' + dp + '께 부탁드리기', 'ask', null, NOTE_ASK]] : [['couple', '성혼 선언문 읽어 주실 분 정하기', 'ask', null, NOTE_ASK]]; }
       /* [SONG_BACK_1011] 부르실 분께 부탁 · 반주(MR)는 두 분이 사흘 전까지 보낸다(준비한 순서 영상과 같은 마감) */
-      case 'song': return [['couple', '축가 부르실 분 정하기', 'ask', null, NOTE_ASK],   /* [SONG_ANYONE_WORDS_1013] «불러 주실 분께 부탁드리기»는 두 분이 직접 부르는 날 틀린 말 */ ['couple', '축가 반주(MR) 파일 · 곡 이름과 함께 · 3분 안팎 한 곡', 'send', 3]];   // ★[SONG_3MIN 2026-10-12] 자료 B «하이라이트만 3분 안쪽» · C 3:00 · L 3분 · 시간 표 210초(TIME.song)
+      case 'song': return (S && S.songBy === 'self' ? [] : [['couple', '축가 부르실 분 정하기', 'ask', null, NOTE_ASK]]).concat([   /* ★[REVIEW_166_1030 검토 166 B8] «두 분이 직접»이면 섭외 할 일은 없다(MR 준비는 그대로) */   /* [SONG_ANYONE_WORDS_1013] «불러 주실 분께 부탁드리기»는 두 분이 직접 부르는 날 틀린 말 */ ['couple', '축가 반주(MR) 파일 · 곡 이름과 함께 · 3분 안팎 한 곡', 'send', 3]]);   // ★[SONG_3MIN 2026-10-12] 자료 B «하이라이트만 3분 안쪽» · C 3:00 · L 3분 · 시간 표 210초(TIME.song)
       case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', crossTribute(S) ? '서로의 부모님께 드릴 말 · 한마디부터 1분쯤까지' : '부모님께 드릴 말 · 한마디부터 1분쯤까지'   /* [TRIB_ONE_SAY] */, 'write', null, NOTE_TRIB]];
         return tr.concat(goodsPrep('tribute', S)); }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
@@ -1197,6 +1197,8 @@
     /* ★[REVIEW24_1019 검토 132 덧 2] 6 «밝게» = 자료 PP 22(이성현 사회자) 앞 다섯 줄 — «딸을 보낸다 … 사위 …» 세 줄은 신부 측만 맞아 뺐다(①) · 화이팅 구호는 부모님 대답을 기다려 뺐다(④) · 걸어가는 말 · 구호 · 맺는 말은 예시 1 글 ·
        «다정하게»와 같은 조건(선언 바로 뒤 날 숨김 · 칩 수가 짝수로 4 / 6) */
     tribute: { lab: '인사 멘트', names: ['뭉클하게', '담백하게', '감사하게', '다정하게', '격식 있게', '밝게'],
+      /* ★[REVIEW_166_1030 검토 166 B12] 성혼 선언 바로 뒤면 이름 줄이 짝 줄(142)로 바뀐다 — 이름 줄밖에 없는 칩(«격식 있게»)은 기본과 같은 글 · 소리라 숨긴다 */
+      need: function (S, n) { var q = seqOf(S), i = q.indexOf('tribute'); if (!(i > 0 && q[i - 1] === 'declare')) return true; return ['tribute-in', 'tribute-call', 'tribute-call-say', 'tribute-out'].some(function (sl) { return !!(NAR_EX.tribute.lines[sl] || [])[n - 1]; }); },
       when: [null, null, function (S) { var q = seqOf(S), i = q.indexOf('tribute'); return !(i > 0 && q[i - 1] === 'declare'); }, null, function (S) { var q = seqOf(S), i = q.indexOf('tribute'); return !(i > 0 && q[i - 1] === 'declare'); }],
       lines: {
         'narr-tribute-name': [
@@ -1263,7 +1265,7 @@
   /* when[n − 1](S) = 그 예시가 «맞는 날» — 아닌 날은 칩에 없고 고른 값이 있어도 예시 1 로 흐른다(값은 지우지 않는다 · 다시 맞는 날이면 그대로) */
   /* names 는 배열 또는 함수(S) — 화촉처럼 서는 분마다 지금 글(예시 1)의 결이 달라 이름이 판마다 다를 때 · 빈 이름('')은 그 판에 없는 예시 */
   function narExNames(S, k) { var e = NAR_EX[k]; return !e ? [] : (typeof e.names === 'function' ? e.names(S || {}) : e.names); }
-  function narExOk(S, k, n) { var e = NAR_EX[k], nm = narExNames(S, k); if (!e || !(n >= 1) || n >= nm.length || !nm[n]) return false; var w = e.when && e.when[n - 1]; return !w || !!w(S || {}); }
+  function narExOk(S, k, n) { var e = NAR_EX[k], nm = narExNames(S, k); if (!e || !(n >= 1) || n >= nm.length || !nm[n]) return false; var w = e.when && e.when[n - 1]; return (!w || !!w(S || {})) && (!e.need || !!e.need(S || {}, n)); }   // ★[REVIEW_166_1030 검토 166 B12] need = 이 판에서 실제로 쓰는 줄이 그 칩에 있나
   /* ★[BASE_SWAP_1023 검토 156] 맞절 · 화촉(어머님) 기본과 예시 2 의 자리를 맞바꿨다 — exv 2 가 없는 옛 초안에서 고른 «1»(옛 예시 2 = 지금 기본)은 0 으로 읽는다.
      빌더는 불러올 때(_applySaved) 같은 옮기기를 하고 exv 2 를 적는다 · 고르지 않은 옛 초안은 새 기본을 따른다(사장님 뜻) */
   /* 옛 초안 = 식순 화면이 저장한 S(늘 entryScene 을 싣는다) 중 exv 2 가 없는 것 — 엔진 · 검사가 손으로 만든 S(entryScene 없음)와 미리듣기 주소는 새 차례로 읽는다 */
