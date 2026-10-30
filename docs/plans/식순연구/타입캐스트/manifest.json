@@ -34,7 +34,7 @@
       "dir": "assets/audio/narration",
       "clips": 29,
       "sents": 57,
-      "chars": 1837
+      "chars": 1836
     },
     {
       "file": "2_진행_전반.txt",
@@ -697,7 +697,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "바쁜 주말 귀한 시간 내주셔서 감사합니다.",
+          "text": "귀한 걸음 해 주신 여러분, 고맙습니다.",
           "before": 0,
           "after": 1.35
         },

@@ -14797,6 +14797,9 @@ chk 'VOW_FY_1024' order-preview.html 1   # 서약 칸 높이 60%(카드 둘 + �
 chk 'NO_END_FREEZE_1024' assets/ritual-open.js 1   # 장면 영상 8초 안팎 · 끝까지 움직임 · 끝 정지 0.3초 안(10/24 사장님 «6초부터 멈춰 있어»)
 chk 'FINAL17_1025' assets/ritual-open.js 1   # 17편 최종판(전판 + 한국인 하객 · 얼굴 뭉갬 · 서약 앵글 전환 · 테이블 인사 박수 없음)
 chk 'PV_NAR_CHIP_1030' order-preview.html 1   # 식전 영상 스튜디오 소개 멘트 칩 넷이 모두 눌린다(PV_EX 둘로 세지 않는다)
+chk 'WEEKDAY_SAFE_1030' assets/ritual-open.js 1   # 하객 맞이 유쾌 첫 문장 «바쁜 주말» 걷음(평일 예식에 틀린 말) · 스튜디오 119 = 115 첫 문장 소리 빌림
+chk 'WEEKDAY_SAFE_1030' order-preview.html 2   # 두 분 목소리 유쾌 g0 같은 첫 문장 + 옛 글 EX_OLD_1006
+nochk '바쁜 주말 귀한 시간' assets/ritual-open.js   # 평일 예식에 틀린 말 — 되살리지 말 것(10/30)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
