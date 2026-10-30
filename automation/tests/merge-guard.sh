@@ -20548,6 +20548,11 @@ chk "if(rec.dirty&&_ek!==_editK) _editT=Date.now();" order-preview.html 1
 chk "_orderOwnerSweep(d.code); _reloginRestore(d.code);" mypage.html 1
 nochk "      if(cw===c) return; }" mypage.html   # [RELOGIN_NEWER] 같은 계정이면 견주지 않고 그 초안을 두고 맡김을 지우던 옛 줄
 nochk "try{ mpAlert({ bodyHtml:_errHtml(RELOGIN_FAIL) }); }" mypage.html   # [RELOGIN_S4_GO] «확인»만 있어 로그인으로 갈 길이 없던 옛 S4 판
+# ★[RELOGIN_SNAP_KEEP 2026-10-30 GPT 9차 점검(고객) 9-01] 계정을 모르는 로그인 풀림(S4 «그대로 로그인하기» 뒤 만료 알림 링크)에서는 코드별 스냅 임시본을 두고 간다 · 스스로 로그아웃 · 다른 계정 로그인 확인 때만 지운다
+chk 'RELOGIN_SNAP_KEEP' mypage.html 4
+chk 'RELOGIN_SNAP_KEEP' scripts/audit/relogin-keep.mjs 2
+chk "&& !(_ksnap && /^me_snapLocal_/.test(k))) _kill.push(k);" mypage.html 1
+nochk "snapLocal_)/.test(k)) _kill.push(k);" mypage.html   # [RELOGIN_SNAP_KEEP] 계정을 몰라도 코드별 임시본을 다 지우던 옛 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/relogin-keep.mjs >/dev/null 2>&1; _rlk=$?; if [ "$_rlk" != 0 ]; then echo 'FAIL relogin-keep: 로그인 풀림 때 맡기는 초안(먼저 맡기기 · 알림 링크 길 · 다른 주인 초안) 판정이 어긋났습니다 — node scripts/audit/relogin-keep.mjs'; fail=1; else echo "ok relogin-keep ($_rlk)"; fi; fi
 
 chk "L('blessN','말씀하실 분'" order-preview.html 1

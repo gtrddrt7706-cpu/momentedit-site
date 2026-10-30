@@ -3134,11 +3134,11 @@ function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
 /* ★[LOGOUT_SWEEP 2026-08-30] 로그아웃이 토큰·상태캐시만 지워, 식순 초안(me_order)·결과물 펼침(me_deliv_*) 등이
    그대로 남았다. 웨딩은 한 기기를 부부가 함께 쓰는 일이 잦아, 다음 사람 화면에 앞사람 서약문·편지가 잠깐 비칠 수 있다.
    ★me_guide_*(하객 안내 캐시)는 건드리지 않는다 — guide.html 소유이고 예식별 토큰으로 이미 격리돼 있다. */
-function clearToken(keep){ var _kp=0; if(keep){ _kp=_reloginStash(); if(_kp<0) return null; }   // [RELOGIN_STASH_FIRST] 맡김을 먼저 쓰고 다시 읽어 확인한 뒤에야 지운다 · 못 맡겼으면 아무것도 지우지 않고 null
+function clearToken(keep){ var _kp=0, _ksnap=false; if(keep){ _kp=_reloginStash(); if(_kp<0) return null; _ksnap=!_reloginCode(); }   // [RELOGIN_SNAP_KEEP] 계정을 모르는 로그인 풀림이면 코드별 스냅 임시본은 두고 간다(아래)   // [RELOGIN_STASH_FIRST] 맡김을 먼저 쓰고 다시 읽어 확인한 뒤에야 지운다 · 못 맡겼으면 아무것도 지우지 않고 null
   try{
   localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
   var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
-    if(k && /^me_(order|deliv_|prod_ping|order_v2note_|snapLocal_)/.test(k)) _kill.push(k); }   // [SNAP_AGREE_LAST] 동의 전 스냅 임시본(고른 장면 · 글)도 — 다음 사람 화면에 앞사람 메모가 비치지 않게
+    if(k && /^me_(order|deliv_|prod_ping|order_v2note_|snapLocal_)/.test(k) && !(_ksnap && /^me_snapLocal_/.test(k))) _kill.push(k); }   // [SNAP_AGREE_LAST] 동의 전 스냅 임시본(고른 장면 · 글)도 — 다음 사람 화면에 앞사람 메모가 비치지 않게
   _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
   if(!keep) localStorage.removeItem(RELOGIN_KEY);   // [RELOGIN_KEEP] 스스로 로그아웃하면 맡겨 둔 초안도 지운다(로그인 풀림만 맡긴다)
 }catch(e){} _mpAcctSweep(); return _kp>0; }
@@ -3162,6 +3162,11 @@ var RELOGIN_KEY='me_relogin_keep', RELOGIN_TTL=7*864e5, RELOGIN_FAIL='초안을 
      ② 8-02 식순 화면 «로그인하기» → 맡김 실패(S4) 판에 «확인»만 있어 로그인으로 갈 길이 없었다 — «그대로 로그인하기»를 하나 더 둔다.
         로그인 표시 · 상태 캐시만 지우고 이 기기 초안(me_order · 주인 who 그대로)과 스냅 임시본은 둔다 → 같은 계정이면 식순 화면이 [LOCAL_AHEAD] 대로 잇고,
         다른 계정이면 로그인하자마자 남의 초안을 걷는다(_orderOwnerSweep · 식순 화면 ORDER_OWNER 도 버린다) */
+/* ★[RELOGIN_SNAP_KEEP 2026-10-30 GPT 9차 점검(고객) 9-01] 식순 초안 없이 스냅 임시본(me_snapLocal_<코드>)만 있는 기기 — S4 «그대로 로그인하기»가 로그인 표시 · 상태 캐시를 지운 뒤
+     만료된 알림 링크로 다시 들어오면 계정을 찾지 못해(_reloginPack null) clearToken(true) 가 코드별 임시본을 다 지웠다 → 같은 계정으로 로그인해도 «이어서 고르기»가 사라졌다.
+     이제 계정을 모르는 로그인 풀림에서는 코드별 임시본을 두고 간다(코드 이름이라 다른 계정 화면에서는 읽히지 않는다 · _snapLocalKey).
+     지우는 때: 스스로 로그아웃(clearToken()) · 다른 계정으로 로그인한 것을 서버 상태로 확인했을 때(_orderOwnerSweep) */
+function _reloginCode(){ var c=_reloginAcct(); if(c) return c; try{ var r=JSON.parse(localStorage.getItem('me_order')||'null'); return String((r&&r.who)||''); }catch(e){ return ''; } }   // [RELOGIN_SNAP_KEEP] 맡길 계정(지금 계정 · 이 토큰의 상태 캐시 · 초안 주인) — 못 찾으면 ''
 function _reloginAcct(){ var c=''; try{ c=_mpAcct(); }catch(e){} if(c) return String(c); try{ var d=readCachedState(); if(d&&d.code) return String(d.code); }catch(e){} return ''; }   // [RELOGIN_ACCT_CACHE]
 function _reloginStash(){ try{   // [RELOGIN_STASH_FIRST] 1 맡김 · 0 맡길 것 없음 · -1 못 맡김
   var p=_reloginPack(); if(!p) return 0; var s=JSON.stringify(p);
@@ -3170,7 +3175,7 @@ function _reloginStash(){ try{   // [RELOGIN_STASH_FIRST] 1 맡김 · 0 맡길 �
 }catch(e){ return -1; } }
 function _reloginPack(){ try{
   var ro=localStorage.getItem('me_order'), r=null; try{ r=JSON.parse(ro||'null'); }catch(e){}
-  var code=_reloginAcct()||String((r&&r.who)||''); if(!code) return null; var keys={}, n=0;   // 지금 계정(없으면 이 토큰의 상태 캐시 · 그것도 없으면 초안 주인)
+  var code=_reloginCode(); if(!code) return null; var keys={}, n=0;   // 지금 계정(없으면 이 토큰의 상태 캐시 · 그것도 없으면 초안 주인)
   if(r && r.dirty && String(r.who||'')===code){ keys['me_order']=ro; n++; }
   var sk='me_snapLocal_'+code, sv=localStorage.getItem(sk); if(sv){ keys[sk]=sv; n++; }
   if(!n){ var o=null; try{ o=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'null'); }catch(e){} return (o&&o.code===code)?o:null; }   // 맡길 것이 없으면 앞서 맡긴 같은 계정 것을 그대로
@@ -3202,7 +3207,9 @@ function _reloginGoAnyway(line){ try{   // [RELOGIN_S4_GO] 로그인 표시 · �
 }catch(e){} try{ _mpAcctSweep(); }catch(e){}
   _reloginShowLogin(String(line||(ERR_W[8]+' · '+ERR_DO[8]))); }
 function _orderOwnerSweep(code){ try{ var r=JSON.parse(localStorage.getItem('me_order')||'null'), w=String((r&&r.who)||'');   // [RELOGIN_S4_GO] 로그인한 계정과 다른 계정의 식순 초안은 걷는다(공개 미리보기 '' 는 식순 화면 ORDER_OWNER 가 본다)
-  if(code && w && w!==String(code)) localStorage.removeItem('me_order'); }catch(e){} }
+  if(code && w && w!==String(code)) localStorage.removeItem('me_order');
+  if(code){ var _sk=[], _mine='me_snapLocal_'+String(code); for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k && /^me_snapLocal_/.test(k) && k!==_mine) _sk.push(k); }   // [RELOGIN_SNAP_KEEP] 다른 계정으로 로그인했으면 남의 스냅 임시본도 걷는다(계정을 몰라 두고 간 것)
+    _sk.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} }); } }catch(e){} }
 try{ var _rk0=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'null'); if(_rk0 && !(Date.now()-(+_rk0.t||0)<RELOGIN_TTL)) localStorage.removeItem(RELOGIN_KEY); }catch(e){}   // [RELOGIN_KEEP] 7일 지난 것은 열 때 지운다
 /* ★[C2_ACCT_SWEEP 2026-10-09 고객 여정 A~Z 점검 2라운드] 계정이 끝나는 자리(로그아웃 · 로그인 풀림 — 다 clearToken 을 지난다)에서는 저장소([LOGOUT_SWEEP])만이 아니라
      이 탭의 화면 기억도 걷는다 — 같은 기기에서 다음 사람이 로그인하면 앞사람 것이 보이거나 다음 질문에 실려 갔다.
