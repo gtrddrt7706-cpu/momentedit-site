@@ -609,6 +609,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     <div id="rfChk"></div>
   </div>
 
+  <p class="note" id="conResume" hidden style="text-align:center;margin:0 0 10px"></p><!-- [CON_RELOAD_GUARD] -->
   <button class="go" id="go">시작</button>
   <p class="note" style="text-align:center;margin-top:14px">
     시작하면 화면이 꺼지지 않게 붙잡습니다. 소리는 첫 버튼을 누를 때 열립니다.
@@ -877,14 +878,14 @@ function rfWhy(d, e){
 }
 var RF_WHY = {}, RF_SKIP = '', RF_GEN = {};   // [RF_GEN] 자리마다 요청 차례   // [ERR_CODE_PAGES] 줄마다 받지 못한 까닭 · 아예 받지 않은 까닭(norf rf 코드 없음 · notok 관리자 토큰 없음)
 function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
-  var up = S.up || {}; RF_SKIP = !code ? 'norf' : !tok ? 'notok' : ''; rfPaint(); if (!code || !tok) return;
+  var up = S.up || {}; RF_SKIP = !code ? 'norf' : !tok ? 'notok' : ''; rfPaint(); if (!code || !tok) { RF_FRESH.list = false; return; }
   /* [ERR_CODE_PAGES] 요청 단계의 실패에만 __rfNet 표시 — 받은 뒤 이 기기에서 파일을 열다 난 실패(M6)와 가른다 */
   /* ★[RF_CON_TIMEOUT 2026-10-08 목소리 1라운드 84] 요청마다 60초 한도 — 종전엔 한도가 없어 «받는 중…»에 멈췄다(L5 갈래가 실제로는 안 쓰였다) */
   var call = function(fn, args){ var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null, tm = ac ? setTimeout(function(){ try { ac.abort(); } catch (x) {} }, 60000) : null;
     return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: fn, args: args }), signal: ac ? ac.signal : undefined }).then(function(r){ return r.json(); }).then(function(d){ if (tm) clearTimeout(tm); return (d && d.result) || d; }, function(e){ if (tm) clearTimeout(tm); try { if (e && typeof e === 'object') e.__rfNet = 1; } catch (x) {} throw e; }); };
   /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오가 대신 올린 파일은 두 분 초안(S.up)에 없다 — 관리 목록(adminRitualFiles · 최신이 위)에서
      자리마다 가장 새 파일을 찾아 채운다. 두 분이 올린 id 가 목록에 있으면 그것을 쓴다. 목록을 못 받으면 종전대로 S.up 만 */
-  call('adminRitualFiles', [code]).then(function(L){ return { L: L }; }, function(e){ return { L: null, e: e }; }).then(function(x){ var L = x.L, newest = {}, have = {};
+  call('adminRitualFiles', [code]).then(function(L){ return { L: L }; }, function(e){ return { L: null, e: e }; }).then(function(x){ var L = x.L, newest = {}, have = {}; RF_FRESH.list = false;   // [CON_FRESH_LIST] 목록이 왔다(못 받았어도) — 이제 줄마다 busy 가 기다림을 맡는다
     /* [ERR_CODE_PAGES] 목록을 못 받았으면 «파일 없음»이라 말하지 않는다 — 있는지 모르는 것이다. 두 분 초안에 id 가 없는 줄은 목록 실패 까닭으로 «받지 못함» */
     var listWhy = (L && L.ok) ? '' : '목록을 못 받았어요 · ' + rfWhy(L, x.e);
     /* ★[RF_CON_NOOLD 2026-10-08 목소리 1라운드 75 · 57] [RF_DEL_ALL] 빈 줄에 «그 자리의 가장 새 파일»을 채우던 길을 스튜디오가 대신 올린 파일로만 좁혔다 —
@@ -955,10 +956,11 @@ function rfFresh(){ var code = QS.get('rf') || '', tok = ''; try { tok = localSt
       return { keys: ch, up: up, sel: sel.length ? sel : null }; },
     function(){ clearTimeout(tm); return null; }); }
 function rfFreshApply(){ var x = RF_FRESH.ask; if (!x) return; S.up = S.up || {};
-  x.keys.forEach(function(k){ if (x.up[k]) S.up[k] = x.up[k]; else delete S.up[k]; var sl = rfSlugOf(k); if (sl in RF_ORIG) CLIPS[sl] = RF_ORIG[sl]; delete RF_OWN[sl]; delete RF_ST[k]; delete RF_WHY[k]; });
-  RF_FRESH.ask = null; RF_FRESH.wait = true; rfPrefetch(); try { toast('새 소리를 받는 중이에요'); } catch (e) {} }   // [CON_FRESH_WAIT] 받기가 끝날 때까지 시작을 잠근다
+  x.keys.forEach(function(k){ if (x.up[k]) S.up[k] = x.up[k]; else delete S.up[k]; var sl = rfSlugOf(k); if (sl in RF_ORIG) CLIPS[sl] = RF_ORIG[sl]; delete RF_OWN[sl]; delete RF_ST[k]; delete RF_WHY[k]; RF_GEN[k] = (RF_GEN[k] || 0) + 1; });   /* ★[RF_GEN_DROP 2026-10-30 GPT 5차 점검(당일 2) · VC_FIX5_1030] 바뀐 자리의 앞 요청을 여기서 버린다 — 새 저장본에 그 자리 파일이 없으면 새 요청이 안 나가 차례가 그대로였고, 늦게 온 옛 소리가 «받아 둠»으로 되살아났다 */
+  RF_FRESH.ask = null; RF_FRESH.wait = true; RF_FRESH.list = true; rfPrefetch(); try { toast('새 소리를 받는 중이에요'); } catch (e) {} }   // [CON_FRESH_WAIT] 받기가 끝날 때까지 시작을 잠근다
 /* ★[CON_FRESH_WAIT 2026-10-30 GPT 4차 점검(당일 1) · VC_FIX4_1030] «다시 불러오기» 뒤 새 소리를 받는 동안 «시작»을 누르면 기다리게 한다 — 종전엔 바로 시작해 첫 안내가 성우로 나가고 뒤 줄부터 새 소리가 나왔다 · 받기는 한 줄 60초 한도라 늦어도 «받지 못함»으로 끝난다 */
-function rfBusyNow(){ return rfKeys().some(function(k){ return RF_ST[k] === 'busy'; }); }
+/* ★[CON_FRESH_LIST 2026-10-30 GPT 5차 점검(당일 1) · VC_FIX5_1030] «다시 불러오기»를 누른 순간부터 잠근다 — 종전엔 파일 목록(adminRitualFiles)을 묻는 동안은 줄이 아직 busy 가 아니라 «시작»이 지나갔고 첫 안내가 성우로 나갔다 · 목록 요청도 60초 한도라 늦어도 풀린다 */
+function rfBusyNow(){ return !!RF_FRESH.list || rfKeys().some(function(k){ return RF_ST[k] === 'busy'; }); }
 var CLIPS = {};    // '16' → objectURL  ·  'narr-ring-out' → objectURL
 var BGMURL = '';
 /* ★PREVIEW_BED — 고객 미리듣기의 배경 음악.
@@ -1205,7 +1207,9 @@ function esdEntryCue(){ try { var src = R || RitualCue.build(S, { mode: MODE }),
 function esdPrepVoice(){ if (!esdWant()) return; var c = esdEntryCue(); if (!c) return; var url = srcOf(c); if (!url || (ESD.vurl === url && (ESD.V0 || ESD.vBusy))) return;
   /* 나레이션인가 · 몇 문장인가는 «실제로 나가는 소리»로 정한다 — 두 분 목소리 자리여도 파일을 못 받았으면 스튜디오 나레이션(ENTRY.nar)이 나간다
      (c.text · c.own 은 두 분 글이라 문장 수가 달라 «마지막 말 앞 한 번 더 낮추기»가 한 문장 일찍 온다) */
-  var isNar = url === PARAM.clipDir + c.file + '.mp3', ek = String(c.slug || '').replace(/^entry-/, ''),
+  /* ★[ESD_NAR_KIND 2026-10-30 GPT 5차 점검(당일 3) · VC_FIX5_1030] 나레이션인가는 주소 모양이 아니라 «두 분 소리가 물렸나»로 — 종전엔 서버 주소(clipDir)만 나레이션으로 봐서,
+     디렉터가 불러온 로컬 성우 파일(blob:)이면 두 분 글 문장 수로 잘라 «입장!» 앞 쉼이 빠지고 마지막 말 앞 낮춤 자리가 어긋났다(두 분 소리를 못 풀어 되돌린 때도 같다) */
+  var isNar = !(RF_OWN[c.slug] && url === CLIPS[c.slug]), ek = String(c.slug || '').replace(/^entry-/, ''),
       txt = (isNar && c.own && window.ENTRY && ENTRY[ek] && ENTRY[ek].nar) || c.text;
   ESD.vurl = url; ESD.V0 = null; var my = ESD.vBusy = fetch(url).then(function(r){ if (!r.ok) throw new Error('http'); return r.arrayBuffer(); }).then(esdDecode)
     .then(function(b){ if (ESD.vBusy !== my) return; ESD.V0 = ES.prepVoice(b, ES.sentN(txt), isNar); ESD.vBusy = null; try { render(); } catch (e) {} },
@@ -1237,7 +1241,7 @@ function esdTry(c, done){ if (!esdReady(c)) return false;
     duckTo(-90, 1200);   /* 배경음은 1.2초에 걸쳐 내린다(위 duckTo 가 run 을 보고 -90 으로) */
     runProg(PL.tv + PL.V, null);
     doorMark(PL.th - ((PARAM.entry && PARAM.entry.doorLeadSec) || 0), PL.tv + PL.V);   // [DOOR_LEAD]
-    later(function(){ if (!ESD.run || ESD.run === run) done(); }, Math.round((PL.tv + PL.V) * 1000) + 150);
+    later(function(){ if (ESD.run === run && a.state !== 'running') { conStall(); return; } if (!ESD.run || ESD.run === run) done(); }, Math.round((PL.tv + PL.V) * 1000) + 150);   // [CON_STALL] 소리 장치가 멈춰 있었으면(스피커 끊김 등) 입장 대사도 다 나간 것으로 치지 않는다
     return true;
   } catch (e) { esdStop(0.05); return false; } }   /* 무엇이든 실패하면 종전 방식(나레이션 + 배경음) */
 function esdDuck(db, ms){ var r = ESD.run; if (!r || cur === r.i) return; var a = r.a, now = a.currentTime;
@@ -1315,6 +1319,14 @@ function swellArm(c){
 function stopProg(){ if (progT) { clearInterval(progT); progT = null; } }
 function clearT(){ timers.forEach(clearTimeout); timers = []; stopProg(); }
 function later(fn, ms){ var t = setTimeout(fn, ms); timers.push(t); return t; }
+/* [CON_STALL] 멈춘 줄 — 자동 진행을 세우고(phase done · 다음 순서로 저절로 가지 않는다) 디렉터 칸에 할 일 한 줄. [뒤로] → 다시 누름이 그 줄을 처음부터 다시 낸다 */
+var STALL = -1;
+function conStall(){ STALL = cur; phase = 'done'; stopProg(); try { render(); } catch (e) {} toast('소리가 중간에 멈췄어요'); }
+/* ★[CON_RELOAD_GUARD 2026-10-30 GPT 5차 점검(당일 6) · VC_FIX5_1030] 예식 도중 새로고침 · 탭 닫기는 브라우저가 한 번 묻는다 · 진행하던 순서는 이 탭에 적어 두고 다시 열면 시작 단추 위에 한 줄 —
+   종전엔 확인 없이 처음 화면으로 돌아가 어느 순서까지 나갔는지 디렉터가 기억해서 찾아야 했다 · 고객 미리 듣기는 빼고 · 끝내기(나가기 · 마지막 순서)는 지운다 */
+function conMark(i){ if (GUEST) return; try { var c = R && R.cues[i]; if (c) sessionStorage.setItem('me_con_at', JSON.stringify({ q: location.search, i: i, n: String(c.name || ''), at: Date.now() })); } catch (e) {} }
+function conMarkOff(){ try { sessionStorage.removeItem('me_con_at'); } catch (e) {} }
+window.addEventListener('beforeunload', function(e){ try { if (GUEST || !R || cur < 0 || phase === 'end' || !$('#run').classList.contains('on')) return; e.preventDefault(); e.returnValue = ''; } catch (x) {} });
 function toast(m){
   var el = $('#toast'); el.textContent = m; el.classList.add('on');
   clearTimeout(el._t); el._t = setTimeout(function(){ el.classList.remove('on'); }, 2200);
@@ -1356,7 +1368,7 @@ function srcOf(c){
      처음엔 est(대본 음절 추정)로 걸 수밖에 없는데, 실제 파일이 그보다 길면 그 자리에서 잘린다.
      특히 배역 예시 클립은 est 자체가 없다(3초로 시작한다) — 다시 걸지 않으면 전부 3초에 끊긴다. */
 function playSrc(url, estSec, cb){
-  var dur = estSec || 3, done = false, tmr = null;
+  var dur = estSec || 3, done = false, tmr = null, tLast = -1;
   function settle(ok, why, err){
     if (done) return; done = true;
     if (tmr) clearTimeout(tmr);
@@ -1366,8 +1378,21 @@ function playSrc(url, estSec, cb){
   }
   function arm(){
     if (tmr) clearTimeout(tmr);
-    tmr = setTimeout(function(){ try { aNarr.pause(); } catch(e){} settle(true); }, Math.round(dur * 1000) + 900);
+    tmr = setTimeout(chk, Math.round(dur * 1000) + 900);
     timers.push(tmr);
+  }
+  /* ★[CON_STALL 2026-10-30 GPT 5차 점검(당일 5) · VC_FIX5_1030] 안전 타이머가 울렸는데 소리가 1초 넘게 남았으면 «다 나갔다»고 치지 않는다 —
+     흐르고 있으면(멈춤 아님 · 소리 장치 켜짐 · 지난번보다 진행) 남은 만큼 다시 기다리고, 멈췄으면(스피커 연결 끊김 · 소리 장치 멈춤 등) 자동 진행을 세운다(conStall).
+     종전엔 10초 소리를 2초에서 멈춰도 10.9초에 성공 처리해 못 들은 뒷말을 두고 다음 순서 · 사람 시간으로 넘어갔다 · 고객 미리 듣기는 종전 그대로 */
+  function chk(){
+    if (done) return;
+    var d = aNarr.duration, t = aNarr.currentTime || 0, left = (isFinite(d) && d > 0) ? d - t : 0;
+    if (!GUEST && MODE !== 'preview' && left > 1) {
+      var flowing = !aNarr.paused && !aNarr.ended && !(wired && AC && AC.state !== 'running');
+      if (flowing && t > tLast + 0.2) { tLast = t; tmr = setTimeout(chk, Math.round(left * 1000) + 900); timers.push(tmr); return; }
+      done = true; stopProg(); aNarr.onerror = aNarr.onloadedmetadata = aNarr.onended = null; try { aNarr.pause(); } catch (e) {} conStall(); return;
+    }
+    try { aNarr.pause(); } catch(e){} settle(true);
   }
   aNarr.onerror = function(){ settle(false, '파일 없음'); };
   aNarr.onloadedmetadata = function(){
@@ -1500,6 +1525,10 @@ function fire(i, opt){
   opt = opt || {};
   if (!R || i < 0 || i >= R.cues.length) return finish();
   clearT();
+  /* ★[FIRE_STOP_PREV 2026-10-30 GPT 5차 점검(당일 4) · VC_FIX5_1030] 새 순서를 내보내기 전에 앞 말소리를 멈추고 그 끝 처리(onended)를 떼어 낸다 —
+     종전엔 큐 목록에서 입장으로 건너뛰면 입장 장면(Web Audio)이 따로 돌아 앞 나레이션이 계속 나와 겹쳤고, 앞 소리가 끝나며 앞 순서의 뒤처리 · 사람 시간이 입장 화면을 바꿨다 */
+  try { aNarr.onended = aNarr.onerror = aNarr.onloadedmetadata = null; if (!aNarr.paused) aNarr.pause(); } catch (e) {}
+  STALL = -1; conMark(i);   // [CON_STALL] · [CON_RELOAD_GUARD]
   cur = i; fired[i] = true; GWHY = null;   // [GUEST_WHY] 새 순서 — 앞 판(다시 듣기 · 이전)의 까닭이 남지 않게
   var c = resolve(R.cues[i]);
   if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
@@ -1609,7 +1638,7 @@ function setPaused(on){
 }
 
 function finish(){
-  clearT(); phase = 'end'; esdStop(2);   // [ENTRY_SCENE_DAY]
+  clearT(); phase = 'end'; esdStop(2); conMarkOff();   // [ENTRY_SCENE_DAY] · [CON_RELOAD_GUARD]
   try { aNarr.pause(); } catch(e){}
   duckTo(PARAM.duckOff, 6000);
   later(function(){ try { aBgm.pause(); aBgm2.pause(); } catch(e){} BED.seg = ''; BED.mode = ''; }, 6200);   // [BGM_SEG8_1023] 두 재생기 다
@@ -1824,6 +1853,7 @@ function render(){
   var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
   /* ★[RESCUE_REPLAY_1016 라운드 6] «재생 안 됨»으로 미룬 순서가 있으면 사진 시간 첫 큐에서 한 줄 — 고객 화면 안심 «사진 시간에 다시 틀어 드려요»(식전 영상 · 준비한 순서)의 짝 */
   if (RESCUED.length && (c.slug === 'narr-close' || /^narr-photo-pre/.test(c.slug || '') || c.slug === 'end-0-photo'))   /* [END_FLOW_1030] */ htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
+  if (STALL === cur && phase === 'done') htxt = '소리가 중간에 멈췄어요 · 연결을 확인하고 [뒤로] 뒤 다시 누르면 이 줄을 처음부터 내보내요' + (htxt ? ' / ' + htxt : '');   // [CON_STALL]
   h.hidden = !htxt; h.textContent = htxt;
   sf.hidden = true; nb.hidden = true;
   $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
@@ -2176,6 +2206,8 @@ $('#go').onclick = function(){
       if (x && x.sel) { RF_FRESH.ask = x; rfPaint(); try { toast('목소리 선택이 바뀌었어요'); } catch (e) {} return; }   // [CON_SEL_FRESH]
       if (x && x.keys && x.keys.length) { RF_FRESH.ask = x; rfPaint(); try { toast('새로 저장된 소리가 있어요'); } catch (e) {} return; }
       run.apply(self, args); }); }; })();
+(function(){ if (GUEST) return; try { var m = JSON.parse(sessionStorage.getItem('me_con_at') || 'null'), el = $('#conResume'); if (!m || !el || m.q !== location.search || Date.now() - (+m.at || 0) > 43200000) return;   // [CON_RELOAD_GUARD] 같은 주소 · 12시간 안
+  el.textContent = '진행하던 순서 · ' + String(m.n || '').slice(0, 40) + ' · 시작 뒤 ≡ 큐 목록에서 이 순서를 누르세요'; el.hidden = false; } catch (e) {} })();
 
 $('#bExit').onclick = function(){
   try {
@@ -2184,7 +2216,7 @@ $('#bExit').onclick = function(){
       if (!confirm('진행을 끝낼까요?\n지금 ' + (cur + 1) + ' / ' + _tot + ' 번째 순서입니다.\n끝내면 처음부터 다시 시작해야 합니다.')) return;
     }
   } catch(e){}
-  clearT(); esdStop(0.3);   // [ENTRY_SCENE_DAY]
+  clearT(); esdStop(0.3); conMarkOff();   // [ENTRY_SCENE_DAY] · [CON_RELOAD_GUARD]
   try { aNarr.pause(); aBgm.pause(); aBgm2.pause(); } catch(e){} BED.seg = ''; BED.mode = '';   // [BGM_SEG8_1023]
   if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
   $('#run').classList.remove('on');

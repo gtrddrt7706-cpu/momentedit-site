@@ -139,11 +139,11 @@ async function open(w) {
   ok('② «지금 다시 불러오기» → 다시 받아 사람 카드(신랑 맞추기 · 신부 만들기) · 까닭은 걷힘', !f2b.fail && f2b.make === 1 && f2b.tune && !f2b.stErr && f2b.why === '', JSON.stringify(f2b));
   await pg.evaluate(() => { window.__mock['momentedit:voiceClone'] = (d) => (d.op === 'status' ? { ok: false, reason: 'expired', error: '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.' } : { ok: false, error: 'x' }); VC.st = null; VC.stErr = false; VC.stLast = null; render(); });
   await wait(700);
-  const f2c = await pg.evaluate(() => { const b = document.querySelector('.mk-vpage .mk-wait'); return { s: b ? __N((b.querySelector('.mk-wait-s') || {}).textContent) : '', role: b ? b.getAttribute('role') : '', bar: !!(b && b.querySelector('.mk-wait-bar')), re: !!document.querySelector('.mk-vpage [data-fk="mkvcretry"]') }; });
-  ok('② 로그인이 풀려 못 받음 → 칸에 V8 «로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요» · 움직이는 막대 없음(저절로 안 된다) · role=alert', f2c.s === '로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 V8)' && f2c.role === 'alert' && !f2c.bar && f2c.re, JSON.stringify(f2c));
+  const f2c = await pg.evaluate(() => { const b = document.querySelector('.mk-vpage .mk-wait'); return { s: b ? __N((b.querySelector('.mk-wait-s') || {}).textContent) : '', role: b ? b.getAttribute('role') : '', bar: !!(b && b.querySelector('.mk-wait-bar')), re: !!document.querySelector('.mk-vpage [data-fk="mkvcretry"]'), lg: !!document.querySelector('.mk-vpage [data-fk="mkrelogin"]') }; });
+  ok('② 로그인이 풀려 못 받음 → 칸에 V8 «로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요» · 움직이는 막대 없음(저절로 안 된다) · role=alert · 단추는 «로그인하기»(다시 불러와도 같다 · RELOGIN_BTN 10-30)', f2c.s === '로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 V8)' && f2c.role === 'alert' && !f2c.bar && !f2c.re && f2c.lg, JSON.stringify(f2c));
   await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; mkGo('guest'); });
   await wait(600);
-  const f2d = await pg.evaluate(() => { const s = document.querySelector('.mk-pg .mk-voice'); return { fail: !!(s && s.querySelector('.mk-vstf [data-fk="mkvcstre3"]')), none: !!(s && s.querySelector('[data-fk="mkvoicego"]')) }; });
+  const f2d = await pg.evaluate(() => { const s = document.querySelector('.mk-pg .mk-voice'); return { fail: !!(s && s.querySelector('.mk-vstf [data-fk^="mkvcstre3"]')),   /* [RELOGIN_BTN] V8 이면 «로그인하기»(mkvcstre3lg) */ none: !!(s && s.querySelector('[data-fk="mkvoicego"]')) }; });
   ok('② 순간 쪽(하객 맞이 · AI) — «아직 만들지 않았어요 · 만들기» 대신 까닭 + 다시 불러오기', f2d.fail && !f2d.none, JSON.stringify(f2d));
   await pg.evaluate((st) => { window.__mock['momentedit:voiceClone'] = (d) => (d.op === 'status' ? st : { ok: false, error: 'x' }); VC.st = null; VC.stErr = false; _vcStatus(); }, ST_OK);
   await wait(600);
@@ -259,7 +259,7 @@ async function open(w) {
     await pg.evaluate((r) => { courseStarted = true; _doneSaved = false; _autoWait = false; clearTimeout(_autoGT); window.__mock['momentedit:orderDraft'] = () => r; __shrink({ 16000: 150 }); _autoLast = ''; _autoDirty = true; _autoSend(); }, reply);
     await wait(700);
     const g = await pg.evaluate(() => { __unshrink(); const b = document.getElementById('obSave'), t = document.getElementById('_toast'); return { btn: b && b.textContent, title: b && b.title, toast: t ? t.textContent : '', role: t ? t.getAttribute('role') : '' }; });
-    f4.push(g); ok(`④ 머리 «저장» 실패 → «다시 저장» · 알림(role=alert) · title = «${want}»`, g.btn === '다시 저장' && g.title === want && g.toast === want && g.role === 'alert', JSON.stringify(g));
+    f4.push(g); ok(`④ 머리 «저장» 실패 → «다시 저장»(로그인 풀림은 «로그인하기» · RELOGIN_BTN) · 알림(role=alert) · title = «${want}»`, g.btn === (/코드 S8/.test(want) ? '로그인하기' : '다시 저장') && g.title === want && g.toast === want && g.role === 'alert', JSON.stringify(g));
   }
   await pg.evaluate(() => { _autoState = ''; _autoWhy = ''; _autoDirty = false; window.__mock['momentedit:orderSave'] = () => ({ ok: false, msg: '저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.' }); _saving = false; doSave(); });
   await wait(600);
