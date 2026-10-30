@@ -15505,7 +15505,7 @@ chk 'function admRfAsk(k)' admin.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-flow-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-flow: AI 목소리 순서 · 한도 · 지우기 판정이 어긋났습니다 — node scripts/audit/vc-flow-sim.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
 chk 'VOICE_CLONE_0928' automation/platform/80_production.gs 6
-chk '\[prev, now\]\.forEach(function (v, i, a) { if (v && v !== nv && a.indexOf(v) === i) _vcDelVoice(c.cfg, st, v); });' automation/platform/80_production.gs 1   # 새 목소리가 된 뒤에 앞 목소리 지우기 — [VC_ENROLL_PREV 2026-10-08] 저장 시점의 앞 목소리까지(종전 줄 'if (prev) _vcDelVoice(cfg, st, prev);' · 같은 결정을 넓혔다 · vc-flow-sim 이 순서를 잰다)
+chk 'var olds = \[prev, now\]\.filter(function (v, i, a) { return v && v !== nv && a.indexOf(v) === i; });' automation/platform/80_production.gs 1   # ★[VC_SAVE_FIRST 2026-10-30] 앞 목소리는 새 목소리를 «저장한 뒤»에 지운다(옛 줄 '[prev, now].forEach(… _vcDelVoice …)' 는 저장 전에 지웠다) · 새 목소리가 된 뒤에 앞 목소리 지우기 — [VC_ENROLL_PREV 2026-10-08] 저장 시점의 앞 목소리까지(종전 줄 'if (prev) _vcDelVoice(cfg, st, prev);' · 같은 결정을 넓혔다 · vc-flow-sim 이 순서를 잰다)
 chk "if (op === 'phrase')" automation/platform/80_production.gs 1
 chk 'function purgeVoiceClones(dry)' automation/platform/80_production.gs 1
 chk 'purgeVoiceClones' automation/platform/96_ai_cost.gs 1
@@ -17560,7 +17560,7 @@ chk 'mk-wait-bar mk-enr-bar' order-preview.html 1
 nochk "fail(d.error||'만들지 못했어요 · 잠시 뒤 \[다시 만들기\]를 눌러 주세요')" order-preview.html
 chk 'VC_ENROLL_JOB' automation/platform/80_production.gs 5
 # (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
-chk "deleted: p.deleted || '', job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1
+chk "deleted: p.deleted || '', deleting: dl, job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] deleting 을 더했다
 chk 'if (r.ok || hasJob) c.save(); return r; };' automation/platform/80_production.gs 1   # 성공은 작업표가 없어도 저장(시뮬레이션이 잡은 사라지는 목소리)
 # (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
 chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
@@ -17571,7 +17571,8 @@ chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
 #   E-8 «모두 지우기»도 지운 파일보다 뒤에 만든 것은 둔다 · C-9 생년월일 실제 날짜 · C-16 현금영수증 번호 여섯 곳 · C-20 재발송 요청 24시간 한 번
 #   D-1 옛 신청 화면 은퇴(신청은 inquiry.html) · D-3 시간 변경은 예약금을 다시 받지 않는다 · D-8 시간이 다 찬 날은 흐림 · D-19 숫자 뒤 «입니다»
 chk 'VC_DEL_STOP' automation/platform/80_production.gs 12
-chk "if (c.save(stopped) === 'stop') return stop(nv, rfId);" automation/platform/80_production.gs 1
+chk "var sv; try { sv = c.save(stopped); } catch (e) { sv = 'busy'; }" automation/platform/80_production.gs 1   # [VC_SAVE_FIRST 2026-10-30] 저장 결과(stop · busy)를 가른다 — 옛 줄 'if (c.save(stopped) === 'stop') return stop(nv, rfId);'
+chk "return stop(nv, rfId); }   // \[VC_DEL_STOP\] ②" automation/platform/80_production.gs 1
 chk 'if (stopped(_vcSt(code))) return stop(nv,' automation/platform/80_production.gs 1
 chk 'dm = _vcDelMark(code, ws);' automation/platform/80_production.gs 1
 chk "var dm = _vcDelMark(code, \['groom', 'bride'\])" automation/platform/80_production.gs 1
@@ -18417,9 +18418,10 @@ chk 'VC_JOB_OWN' automation/platform/80_production.gs 2
 chk "if (k0 === 'job' && isO(f) && isO(b) && String(f.jid || '') !== String(b.jid || '')) return f;" automation/platform/80_production.gs 1
 chk 'VC_PHRASE_OWN' automation/platform/80_production.gs 1
 chk "if (k0 === 'phrase' && m == null && isO(f) && isO(b) && String(f.t || '') !== String(b.t || '')) return f;" automation/platform/80_production.gs 1
-chk 'for (k in m) o\[k\] = _vcM3(f\[k\], b\[k\], m\[k\], k);' automation/platform/80_production.gs 1
+chk "for (k in m) o\[k\] = _vcM3(f\[k\], b\[k\], m\[k\], k, k0 === 'per');" automation/platform/80_production.gs 1   # [VC_CNT_ZERO 2026-10-30] 줄마다 센 수(per) 안의 칸도 세는 칸
 chk 'VC_DEL_LOCKED' automation/platform/80_production.gs 6
-chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return null; }' automation/platform/80_production.gs 2
+chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return null; }' automation/platform/80_production.gs 1   # _vcDelMark · [VC_JOB_BUSY 2026-10-30] _vcJobStart 는 아래 { lock: true }
+chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return { lock: true }; }' automation/platform/80_production.gs 1
 nochk 'got = true; try { lock.waitLock(10000); } catch (e) { got = false; }' automation/platform/80_production.gs
 chk "if (!dm) return { ok: false, ecode: 'D1', error: VC_DEL_BUSY };" automation/platform/80_production.gs 1
 chk "var dm = _vcDelMark(code, \['groom', 'bride'\]); if (!dm) return -1;" automation/platform/80_production.gs 1
@@ -18431,7 +18433,7 @@ chk 'VC_WHO_FIRST' automation/platform/80_production.gs 3
 chk "WHO = Object.create(null); WHO.groom = '신랑'; WHO.bride = '신부';" automation/platform/80_production.gs 1
 chk "if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };" automation/platform/80_production.gs 1
 chk "if (w !== 'groom' && w !== 'bride') return; var p = cur\[w\];" automation/platform/80_production.gs 1
-chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code, st)' automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] st = retry 를 보고 deleting
 chk 'RF_DEL_KEEP' automation/platform/80_production.gs 3
 chk 'RF_DEL_TQ' automation/platform/80_production.gs 1
 chk 'var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;' automation/platform/80_production.gs 1
@@ -20341,3 +20343,23 @@ chk 'VC_CACHE_FIRST' automation/platform/80_production.gs 2
 chk 'VC_CACHE_FIRST' scripts/audit/vc-flow-sim.mjs 3
 chk 'VC_FIX_1030' scripts/audit/vc-fix-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix-1030.mjs >/dev/null 2>&1; _vfx=$?; if [ "$_vfx" = 1 ]; then echo 'FAIL vc-fix-1030: AI 목소리 저장 직전 · 없는 소리 · 지운 뒤 늦은 올리기 판정이 어긋났습니다 — node scripts/audit/vc-fix-1030.mjs'; fail=1; else echo "ok vc-fix-1030 ($_vfx)"; fi; fi
+# ★[VC_FIX2_1030 2026-10-30 GPT 2차 점검] 두 분 AI 목소리 — 지우기 · 저장 · 잠금 · 글자 예산(서버 아홉 · 깨 보기 포함) · 무음 녹음 · 새로 고침 경고 · 당일 콘솔 최신 확인
+chk 'VC_FIX2_1030' scripts/audit/vc-fix2-1030.mjs 1
+chk 'VC_HOLD' automation/platform/80_production.gs 4
+chk 'VC_SAVE_BUSY' automation/platform/80_production.gs 3
+chk 'VC_SAVE_FIRST' automation/platform/80_production.gs 2
+chk 'VC_READ_DEL' automation/platform/80_production.gs 3
+chk 'VC_PURGE_TRUE' automation/platform/80_production.gs 4
+chk 'VC_JOB_BUSY' automation/platform/80_production.gs 2
+chk 'VC_CNT_ZERO' automation/platform/80_production.gs 2
+chk 'VC_DEL_PEND' automation/platform/80_production.gs 3
+nochk "catch (e) { var f0 = _vcSt(code); if (guard && guard(f0)) return 'stop'; _vcPut(code, _vcM3(f0, base, mine)); return; }" automation/platform/80_production.gs   # [VC_SAVE_BUSY] 잠금 없이 합쳐 쓰던 길을 되살리지 않는다
+chk 'VC_DEL_PEND' order-preview.html 2
+chk "MK.toast=d.pend?'지우는 중이에요 · 곧 끝나요':'지웠어요';" order-preview.html 1
+chk 'VC_PURGE_TRUE' mypage.html 2
+chk 'REC_SILENT' assets/rec-process.js 3
+chk 'REC_SILENT' order-preview.html 3
+chk 'READ_UNLOAD' order-preview.html 2
+chk 'READ_UNLOAD' mypage.html 1
+chk 'CON_FRESH' console.html 4
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix2-1030.mjs >/dev/null 2>&1 || { echo 'FAIL vc-fix2-1030: AI 목소리 지우기 · 저장 · 잠금 · 글자 예산 판정이 어긋났습니다 — node scripts/audit/vc-fix2-1030.mjs'; fail=1; }; fi

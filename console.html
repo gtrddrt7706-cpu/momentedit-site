@@ -845,7 +845,9 @@ function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(), mu 
   /* ★[RF_KIND_0928 코워크 0928 6-5] 줄마다 «두 분 녹음 · 받아 둠» · «AI 목소리 · 받아 둠» · «나레이션으로 나감» — 올린 파일도 두 분이 녹음한 것이라 «두 분 녹음» */
   /* ★[ERR_CODE_PAGES 2026-10-07] «받지 못함»에 까닭(RF_WHY · 코드 L#)을 붙이고, 아예 받지 않은 것(RF_SKIP)은 «파일 없음»과 가른다 —
      종전엔 rf 코드 없이 열었거나 이 기기에 관리자 로그인이 없을 때도 «파일 없음», 로그인 풀림 · 지워진 파일 · 드라이브 오류 · 연결 끊김이 모두 «받지 못함»이었다 */
-  box.innerHTML = ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + ' · 받아 둠' : st === 'busy' ? '받는 중…'
+  /* [CON_FRESH] 시작 전 확인에서 고객이 새로 저장한 소리를 찾았으면 맨 위에 한 줄 + [다시 불러오기] — 자동으로 바꾸지 않는다(디렉터가 고른다) */
+  var _fr = RF_FRESH.ask ? '<div class="kv"><span class="k">두 분 소리</span><span class="v">새로 저장된 소리가 있어요 · 시작을 한 번 더 누르면 지금 소리로 <button type="button" id="rfFresh">다시 불러오기</button></span></div>' : '';
+  box.innerHTML = _fr + ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + ' · 받아 둠' : st === 'busy' ? '받는 중…'
       : st === 'fail' ? '받지 못함 · 나레이션으로 나감' + (RF_WHY[k] ? ' · ' + esc(RF_WHY[k]) : '')
       : RF_SKIP === 'norf' ? '받지 않음 · 나레이션으로 나감 · 관리 화면 «당일 콘솔» 단추로 열어야 받아요'
       : RF_SKIP === 'notok' ? '받지 않음 · 나레이션으로 나감 · 이 기기에 관리자 로그인이 없어요 (코드 L8)'
@@ -853,6 +855,7 @@ function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(), mu 
     return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + ecWrap(t) + '</span></div>'; }).join('')
     + (mu ? '<div class="kv"><span class="k">입장 음악</span><span class="v' + (ESD.st === 'ok' ? '' : ' dim') + '" id="rfMu">' + ecWrap(esc(esdLab())) + '</span></div>' : '')   // [ENTRY_SCENE_DAY] 두 분이 고른 곡 · 하이라이트 자리
     + ((ks.some(function(k){ return RF_ST[k] === 'fail'; }) || (mu && ESD.st === 'fail')) ? '<div class="kv"><span class="k"></span><span class="v"><button type="button" id="rfAgain">다시 받기</button></span></div>' : '');   // [CODE_NOWRAP] 코드는 한 덩어리
+  var fb = document.getElementById('rfFresh'); if (fb) fb.onclick = rfFreshApply;   // [CON_FRESH]
   var ag = document.getElementById('rfAgain'); if (ag) ag.onclick = function(){ Object.keys(RF_ST).forEach(function(k){ if (RF_ST[k] === 'fail') { delete RF_ST[k]; delete RF_WHY[k]; } }); if (ESD.st === 'fail') { ESD.st = ''; ESD.why = ''; } rfPrefetch(); }; }   // [RF_CON_TIMEOUT] 못 받은 줄이 있으면 다시 받기
 /* ★[ERR_CODE_PAGES 2026-10-07] 받지 못한 까닭 — 직원이 읽는 짧은 말 + 코드(L = 불러오기 · 숫자 = 무슨 일 · assets/err-codes.js 와 같은 뜻).
    e = 요청 자체가 실패(시간 L5 · 연결 L6 · 서버 답이 깨짐 L7 · 미리보기 주소에서 막음 L3) · d = 서버(adminCall)가 거절한 답 */
@@ -891,7 +894,8 @@ function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = loca
       RF_ST[k] = 'busy'; rfPaint();
       call('adminRitualFileGet', [code, id]).then(function(d){ if (!d || !d.ok || !d.data) { RF_WHY[k] = rfWhy(d); throw 0; }
         var bin = atob(d.data), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
-        CLIPS[rfSlugOf(k)] = URL.createObjectURL(new Blob([u], { type: d.mime || 'audio/wav' })); RF_ST[k] = 'ok'; rfPaint(); if (k === 'entry') esdPrepVoice(); try { render(); } catch (e) {} })   // [ENTRY_SCENE_DAY] 입장 대사가 두 분 목소리로 바뀌면 장면 소리도 다시 잰다
+        var _sl = rfSlugOf(k); if (!(_sl in RF_ORIG)) RF_ORIG[_sl] = CLIPS[_sl];   // [CON_FRESH] 다시 불러올 때 나레이션으로 되돌릴 자리
+        CLIPS[_sl] = URL.createObjectURL(new Blob([u], { type: d.mime || 'audio/wav' })); RF_ST[k] = 'ok'; rfPaint(); if (k === 'entry') esdPrepVoice(); try { render(); } catch (e) {} })   // [ENTRY_SCENE_DAY] 입장 대사가 두 분 목소리로 바뀌면 장면 소리도 다시 잰다
         .catch(function(e){ if (e !== 0) RF_WHY[k] = (e && e.__rfNet) ? rfWhy(null, e) : '받은 파일을 이 기기에서 열지 못했어요 (코드 M6)'; RF_ST[k] = 'fail'; rfPaint(); }); });
     /* ★[ENTRY_SCENE_DAY] 입장 음악 — 초안의 곡 id(S.mu.fid · 목록에 있으면) · 없으면(곡을 보낸 뒤 저장 전에 열었을 때) 같은 이름의 가장 새 곡(목록은 최신이 위) */
     if (esdWant() && ESD.st !== 'ok' && ESD.st !== 'busy') { var mu = S.mu, mid = mu.src === 'rec' ? 'rec:' + mu.k : (mu.fid && (!L || !L.ok || have[mu.fid])) ? mu.fid : '';   // [REC_SONG_1012] 추천 곡은 드라이브 ME_추천곡 폴더에서(adminRitualFileGet 'rec:<곡 키>')
@@ -931,6 +935,23 @@ function summarize(){
    자리 ↔ 큐: g0 guest-1-arrival · g1 guest-2-10min · g2 guest-3-5min · g3 guest-4-1min · entry entry-<고른 판> (두 분 목소리를 고른 자리만) */
 var RF_SLUG = { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min', pv: 'narr-prevideo-in' }, RF_LAB = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', pv: '식전 영상 소개', entry: '입장 인사' }, RF_ST = {};
 var RF_EXEC = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
+/* ★★[CON_FRESH 2026-10-30 GPT 2차 점검 10] 콘솔을 미리 열어 소리 A 를 받아 둔 뒤 고객이 B 로 다시 만들어 저장하면, 열린 콘솔은 A 를 냈다(주소의 식순 · 받아 둔 파일 그대로).
+   이제 «시작»을 누를 때 한 번 최신 저장본(관리 화면과 같은 adminDetail)의 줄 파일 id 를 다시 묻는다 —
+   다르면 시작하지 않고 위 칸에 «새로 저장된 소리가 있어요 · [다시 불러오기]» 한 줄(시작을 한 번 더 누르면 지금 소리로) · 같거나 묻기가 실패하면(6초) 지금 것으로 바로 시작.
+   예식 도중에는 묻지도 바꾸지도 않는다(첫 시작 전 한 번) */
+var RF_ORIG = {}, RF_FRESH = { done: false, ask: null };
+function rfUpId(up, k){ var v = (up || {})[k]; return (v && typeof v === 'object' && v.id && !/^local:/.test(String(v.id))) ? String(v.id) : ''; }
+function rfFresh(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
+  if (!code || !tok || GUEST) return Promise.resolve(null);
+  var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null, tm = setTimeout(function(){ try { if (ac) ac.abort(); } catch (x) {} }, 6000);
+  return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: 'adminDetail', args: [code] }), signal: ac ? ac.signal : undefined })
+    .then(function(r){ return r.json(); }).then(function(d){ clearTimeout(tm); d = (d && d.result) || d;
+      var rd = d && d.ok && d.mirror && d.mirror.production && d.mirror.production.ritualDraft; if (!rd || !rd.S) return null;
+      var up = rd.S.up || {}, ch = rfKeys().filter(function(k){ return rfUpId(up, k) !== rfUpId(S.up, k); }); return { keys: ch, up: up }; },
+    function(){ clearTimeout(tm); return null; }); }
+function rfFreshApply(){ var x = RF_FRESH.ask; if (!x) return; S.up = S.up || {};
+  x.keys.forEach(function(k){ if (x.up[k]) S.up[k] = x.up[k]; else delete S.up[k]; var sl = rfSlugOf(k); if (sl in RF_ORIG) CLIPS[sl] = RF_ORIG[sl]; delete RF_ST[k]; delete RF_WHY[k]; });
+  RF_FRESH.ask = null; rfPrefetch(); try { toast('새 소리를 받는 중이에요'); } catch (e) {} }
 var CLIPS = {};    // '16' → objectURL  ·  'narr-ring-out' → objectURL
 var BGMURL = '';
 /* ★PREVIEW_BED — 고객 미리듣기의 배경 음악.
@@ -2107,6 +2128,15 @@ $('#go').onclick = function(){
      정작 진짜로 되돌릴 수 없는 이쪽에만 그 원칙이 안 걸려 있었다.
    ★길게누름까지 가지 않고 확인 한 단계로 둔다 — 예식 중에 손이 묶이면 그게 더 무섭다.
      시작 전(큐 0)에는 버릴 것이 없으므로 묻지 않는다. 급할 때 쓸데없이 막지 않기 위해서다. */
+/* [CON_FRESH] «시작» 전에 한 번 최신 저장본을 묻는다 — 위 rfFresh. 두 번째 누름은 묻지 않고 지금 것으로 */
+(function(){ var go = $('#go'), run = go.onclick;
+  go.onclick = function(){ var self = this, args = arguments;
+    if (RF_FRESH.done || GUEST || !QS.get('rf')) return run.apply(self, args);
+    if (go.dataset.fresh) return; go.dataset.fresh = '1'; var t0 = go.textContent; go.textContent = '최신 소리 확인 중…';
+    rfFresh().then(function(x){ delete go.dataset.fresh; go.textContent = t0; RF_FRESH.done = true;
+      if (x && x.keys && x.keys.length) { RF_FRESH.ask = x; rfPaint(); try { toast('새로 저장된 소리가 있어요'); } catch (e) {} return; }
+      run.apply(self, args); }); }; })();
+
 $('#bExit').onclick = function(){
   try {
     if (R && cur >= 0) {
