@@ -7876,7 +7876,7 @@ chk 'DECLARE_BY_PERSON' scripts/audit/declare-by-person.mjs 1
 nochk "declare: \[\['gdad', '신랑 아버님'\]" assets/ritual-open.js 0   # [DECLARE_ANYONE 2026-10-12] 읽는 분 칩은 걷었다(칸에 적는다)
 chk "'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'" assets/ritual-cue.js 1
 nochk "L('declare','누가 읽나요'" order-preview.html 0   # [DECLARE_ANYONE] 칩 줄 대신 칸 «읽어 주실 분»
-chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 3
+chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 2   # [REVIEW_166_1030 B11] 칩 아래 · 준비 칸 둘은 _declNoWho 한 곳으로
 chk '나레이션은 선언문을 읽지 않는다' api/_ritual-kb.js 1
 nochk "\['solemn', '나레이션 · 엄숙하게'\]" assets/ritual-open.js 0
 nochk "\['family', '가족이 낭독'\]" assets/ritual-open.js 0
@@ -20327,6 +20327,12 @@ chk 'REVIEW_166_1030' order-preview.html 3
 nochk "lab:'말 없이 흐르는 자리'" order-preview.html
 nochk '비어 있는 칸이 있어요' order-preview.html
 chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요)' order-preview.html 1
+# ── 2026-10-30 [REVIEW_166_1030 검토 166 B] 동작 — 한 사람 판 예시에도 두 분 글 · 받은 원고 · 현장에서면 글 보관 · 말없이면 인사 글 빼기 · 인용 줄 묶기 · 축가 직접 · 한눈에 보기 말 · 선언 안내 · 같은 소리 칩 숨김 · 칩 바꾸면 재생 멈춤 · 검사 review-166
+chk 'REVIEW_166_1030' scripts/audit/review-166.mjs 3
+chk 'function _sentJoinQ(L)' order-preview.html 1
+chk 'function _declNoWho()' order-preview.html 1
+chk "need: function (S, n) { var q = seqOf(S), i = q.indexOf('tribute');" assets/ritual-open.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/review-166.mjs >/dev/null 2>&1; _r166=$?; [ "$_r166" = 1 ] && { echo 'FAIL review-166: 검토 166 화면 동작이 되돌아갔습니다 — node scripts/audit/review-166.mjs'; fail=1; }; [ "$_r166" = 0 ] && echo 'ok review-166'; [ "$_r166" = 2 ] && echo 'skip review-166 (브라우저 없음)'; fi
 # ── 2026-10-30 [VC_FIX_1030] 두 분 AI 목소리 버그 넷(GPT 모의 재현 · FEATURE.voiceClone 꺼진 채 고침)
 #   ① [BAKE_FAIL_DROP] 저장 · 나가기 직전 굽기가 실패 · 40초를 넘겨도 «새 글 + 옛 글 소리»를 보내지 않는다(글 · 읽는 분이 바뀐 AI 줄은 소리를 내려놓아 당일 나레이션 · 화면은 «목소리 만들기»)
 #   ② [DONE_NOT_GONE] 없다고 확인된 소리(_rfGone · 마이페이지 안)는 파일 정보가 남아도 다 됨으로 세지 않는다
