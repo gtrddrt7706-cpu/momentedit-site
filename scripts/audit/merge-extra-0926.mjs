@@ -29,7 +29,7 @@ await safe('P2-5 알림 글과 단추가 같은 판정', () => {
   const back = O.noticeFull({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' });
   const fa = front.acts.map((a) => a[0]).join('|'), ba = back.acts.map((a) => a[0]).join('|');
   ok('P2-5 앞쪽 사슬(서약 · 덕담 · 인사) = «반지나 선언» 글 + 반지 · 선언 단추 [NOTE_ACT_MATCH]', /반지나 선언/.test(front.msg) && /반지 교환 담기/.test(fa) && !/말 없이/.test(fa), front.msg + ' / ' + fa);
-  ok('P2-5 뒤쪽 사슬 = «말 없이» 글 + 단추 «인사를 «말 없이»로»', /말 없이/.test(back.msg) && ba === '인사를 «말 없이»로', back.msg + ' / ' + ba);
+  ok('P2-5 뒤쪽 사슬 = «말 없이» 글 + 단추 «인사를 «말 없이»로»', /말없이/.test(back.msg) && ba === '인사를 «말없이»로', back.msg + ' / ' + ba);
 });
 await safe('P2-1 닫은 알림 뒤에 걸린 알림이 뜬다', () => {
   // 덕담 · 서약 · 인사 사슬 + 축사 10분 → 알림 ①(셋 이어짐) 과 ④(단체 사진 부족) 가 함께 걸린다 · [TRIB_ONE_SAY 2026-10-06] ②(말 두 번)는 걷었다 · ★[TOAST_LAST_1013] ③(끝이 조용)은 걷었다 — 둘째 알림을 ④ 로
