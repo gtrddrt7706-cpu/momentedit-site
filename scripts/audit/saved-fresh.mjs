@@ -22,12 +22,12 @@ async function open() {
   const pg = await br.newPage({ viewport: { width: 390, height: 900 } }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await wait(600);
-  await pg.evaluate(() => { if (!COURSES[S.course]) S.course = Object.keys(COURSES)[0]; courseStarted = true; _restored = true; _who = 'ME0001';
+  await pg.evaluate(() => { if (!COURSES[S.course]) S.course = Object.keys(COURSES)[0]; courseStarted = true; _restored = true; _who = 'ME0001'; _ACCT = 'ME0001';   /* [ACCT_KEYS] 마이페이지가 확인해 준 계정 칸 */
     S.gExC = 2; S.pvWho = 'b'; S.guestEx = 3; S.vjob = { groom: { jid: 'j-local', t: Date.now(), snap: {} } }; S.tipSeen = { keep: 1 }; _persist(); });
   return { pg, errs };
 }
 const fill = (pg, srvS) => pg.evaluate((srvS) => { window.postMessage({ type: 'momentedit:orderFill', cust: { code: 'ME0001' }, draft: { S: srvS }, done: false }, window.location.origin); }, srvS);
-const look = (pg) => pg.evaluate(() => ({ gExC: S.gExC, pvWho: S.pvWho, guestEx: S.guestEx, entry: S.entry, vjob: S.vjob && S.vjob.groom && S.vjob.groom.jid, tip: S.tipSeen && S.tipSeen.keep, saved: (() => { try { const v = JSON.parse(localStorage.getItem('me_order')); return { gExC: v.S.gExC, vjob: v.S.vjob && v.S.vjob.groom && v.S.vjob.groom.jid }; } catch (e) { return null; } })() }));
+const look = (pg) => pg.evaluate(() => ({ gExC: S.gExC, pvWho: S.pvWho, guestEx: S.guestEx, entry: S.entry, vjob: S.vjob && S.vjob.groom && S.vjob.groom.jid, tip: S.tipSeen && S.tipSeen.keep, saved: (() => { try { const v = JSON.parse(localStorage.getItem(_ordKey())); return { gExC: v.S.gExC, vjob: v.S.vjob && v.S.vjob.groom && v.S.vjob.groom.jid }; } catch (e) { return null; } })() }));
 try {
   /* 1 · 2 */
   { const { pg, errs } = await open();

@@ -20543,15 +20543,15 @@ nochk "/^me_(order|snapLocal_)/.test(k) || localStorage.getItem(k)) return;" myp
 # ★[RELOGIN_NEWER · RELOGIN_S4_GO 2026-10-30 GPT 8차 점검(고객) 8-01 · 8-02] 같은 계정 초안은 고친 때를 견준다(식순 화면이 고친 때를 적는다) · S4 판에 «그대로 로그인하기»(초안은 두고 로그인으로) · 다른 계정 로그인이면 남의 초안을 걷는다
 chk 'RELOGIN_NEWER' mypage.html 4
 chk 'RELOGIN_NEWER' order-preview.html 3
-chk 'RELOGIN_S4_GO' mypage.html 5
-chk "if(rec.dirty&&_ek!==_editK) _editT=Date.now();" order-preview.html 1
-chk "_orderOwnerSweep(d.code); _reloginRestore(d.code);" mypage.html 1
+chk 'RELOGIN_S4_GO' mypage.html 4   # [ACCT_KEYS 2026-10-30] 로그인 때 남의 초안 걷기(_orderOwnerSweep)를 걷어 하나 줄었다
+chk "if(_ek!==_editK){ if(rec.dirty) _editT=Date.now();" order-preview.html 1   # [RELOGIN_NEWER] 고친 때는 판이 바뀔 때만 · [SAME_ACCT_T] 바꾼 때(_editE)도 같은 자리
+chk "if (d && d.ok){ _reloginRestore(d.code); cacheState(d);" mypage.html 1   # [ACCT_KEYS] 상태를 받으면 이 계정 맡김만 되돌린다(남의 초안 걷기 없음)
 nochk "      if(cw===c) return; }" mypage.html   # [RELOGIN_NEWER] 같은 계정이면 견주지 않고 그 초안을 두고 맡김을 지우던 옛 줄
 nochk "try{ mpAlert({ bodyHtml:_errHtml(RELOGIN_FAIL) }); }" mypage.html   # [RELOGIN_S4_GO] «확인»만 있어 로그인으로 갈 길이 없던 옛 S4 판
 # ★[RELOGIN_SNAP_KEEP 2026-10-30 GPT 9차 점검(고객) 9-01] 계정을 모르는 로그인 풀림(S4 «그대로 로그인하기» 뒤 만료 알림 링크)에서는 코드별 스냅 임시본을 두고 간다 · 스스로 로그아웃 · 다른 계정 로그인 확인 때만 지운다
 chk 'RELOGIN_SNAP_KEEP' mypage.html 4
 chk 'RELOGIN_SNAP_KEEP' scripts/audit/relogin-keep.mjs 2
-chk "&& !(_ksnap && /^me_snapLocal_/.test(k))) _kill.push(k);" mypage.html 1
+chk "var _kill=\['me_prod_ping'\]; if(_c){ _kill.push(_ordK(_c), 'me_snapLocal_'+_c," mypage.html 1   # [RELOGIN_SNAP_KEEP] · [ACCT_KEYS] 나가는 계정 칸만 지운다 · 계정을 모르면 계정 칸은 두고 간다
 nochk "snapLocal_)/.test(k)) _kill.push(k);" mypage.html   # [RELOGIN_SNAP_KEEP] 계정을 몰라도 코드별 임시본을 다 지우던 옛 줄
 # ★[RELOGIN_SNAP_NEWER 2026-10-30 GPT 10차 점검(고객) 10-01] 스냅 임시본도 고친 때(t · 글이 바뀔 때만)를 싣고 되돌릴 때 견준다 — 같은 계정 옛 탭이 다시 쓴 옛 임시본이 맡긴 최신본을 이기지 않게 · 맡김은 되돌렸거나 이 기기 것이 더 나중임을 확인했을 때만 지운다 · 검사 relogin-keep ⑦(아래 줄이 돌린다)
 chk 'RELOGIN_SNAP_NEWER' mypage.html 5
@@ -20574,17 +20574,39 @@ nochk "if(_snapFilledD(o)) localStorage.setItem(k, JSON.stringify(o)); else loca
 chk 'TAB_GUARD2_1030' scripts/audit/tab-guard.mjs 1
 chk 'TAB_GUARD_VC' mypage.html 4
 chk 'TAB_GUARD_FILL' mypage.html 1
-chk 'TAB_GUARD_FILL' order-preview.html 2
+chk 'TAB_GUARD_FILL' order-preview.html 1   # [ACCT_KEYS] 주인이 다를 때 지우기(ORDER_OWNER) 자리를 걷어 하나 줄었다
 chk 'PREVIEW_KEY_SPLIT' order-preview.html 4
 chk 'STALE_KEEP_INPUT' mypage.html 4
 chk 'TOMBSTONE_READ' mypage.html 4
 chk 'AUTH_EPOCH' mypage.html 8
 chk "if(tok!==_TAB.tok || ep!==_TAB.ep) _TAB.stale=true;" mypage.html 1
-chk "localStorage.setItem(_ordKey(), JSON.stringify(rec));" order-preview.html 1
+chk "else { localStorage.setItem(_k, JSON.stringify(rec)); _persistBad=false; }" order-preview.html 1   # [PREVIEW_KEY_SPLIT] · [ACCT_KEYS] 계정 칸(또는 공개 칸)에만 · [SAME_ACCT_T] 더 나중 기록이 없을 때만
 nochk "TAB_RST_KEY" mypage.html   # [AUTH_EPOCH] 되돌리기 표시(me_relogin_rst)는 차례로 합쳤다
 nochk "localStorage.setItem('me_order', JSON.stringify(rec));" order-preview.html   # [PREVIEW_KEY_SPLIT] 공개 미리보기가 고객 칸에 쓰던 옛 줄
 nochk "var loc=_snapLocalGet();" mypage.html   # [TOMBSTONE_READ] 편집을 열 때 비운 표시를 못 읽던 옛 줄
 nochk "token:getToken()})),signal:_vcAc" mypage.html   # [TAB_GUARD_VC] 중계가 보낼 때마다 지금 토큰을 다시 읽던 옛 줄
+# ★[TAB_GUARD3_1030 2026-10-30 GPT 13차 점검(고객) 13-01 ~ 13-07] [ACCT_KEYS] 이 기기 초안 · 맡김은 계정 칸(me_order_<코드> · me_relogin_keep_<코드>) — 다른 계정 초안을 읽거나 지울 길이 없다 · 식순 화면은 계정을 받기 전엔 읽지 않는다 · 옛 공용 칸은 열 때 옮긴다
+#   [FRAME_READY_BACK] orderReady 가 _frameReady 를 켠다 · [SAME_ACCT_T] 같은 계정 다른 창이 더 나중이면 덮지 않고 옛 창 · [KEEP_FAIL_STOP] 못 맡기면 새로 열지 않는다(S4) · [DL_GUARD] 내려받기 폼도 옛 창 판정 · 토큰은 누를 때 · [EPOCH_VERIFY] 차례를 다시 읽어 확인(L4)
+chk 'TAB_GUARD3_1030' scripts/audit/tab-guard.mjs 1
+chk 'ACCT_KEYS' mypage.html 12
+chk 'ACCT_KEYS' order-preview.html 8
+chk 'FRAME_READY_BACK' mypage.html 1
+chk "if(d.type==='momentedit:orderReady'){" mypage.html 1
+chk "      _frameReady=true;   /\* ★\[FRAME_READY_BACK" mypage.html 1
+chk 'SAME_ACCT_T' mypage.html 2
+chk 'SAME_ACCT_T' order-preview.html 4
+chk 'KEEP_FAIL_STOP' mypage.html 2
+chk 'DL_GUARD' mypage.html 1
+chk 'onsubmit="return rfKeepGo(this)"><input type="hidden" name="token" value="">' mypage.html 1
+chk 'EPOCH_VERIFY' mypage.html 6
+chk "TAB_EP_LINE='창 상태를 남기지 못했어요 (코드 L4)'" mypage.html 1
+chk 'EPOCH_VERIFY' assets/err-codes.js 1
+nochk "function _orderOwnerSweep(" mypage.html   # [ACCT_KEYS] 로그인 때 «주인이 다른 초안 걷기» — 다른 창 계정 초안을 지웠다(12-02 · 13-02) · 되살리지 말 것
+nochk "localStorage.getItem('me_order')||'null'" mypage.html   # [ACCT_KEYS] 공용 칸을 읽던 옛 줄(옮기기 _acctKeysMigrate 만 그 칸을 본다)
+nochk "localStorage.getItem('me_order')||'null'" order-preview.html   # [ACCT_KEYS] 식순 화면이 공용 칸을 읽던 옛 줄
+nochk "localStorage.removeItem('me_order'); }catch(e){}   // \[TAB_GUARD_FILL\]" order-preview.html   # [ACCT_KEYS] 주인이 다르면 지우던 옛 줄
+nochk "tok=escapeHtml(getToken()||'')" mypage.html   # [DL_GUARD] 내려받기 폼에 그릴 때 토큰을 박던 옛 줄
+nochk "btn.addEventListener('click', function(){ try{ _tabKeepUnkept(); }catch(e){} try{ location.reload(); }catch(e){} });" mypage.html   # [KEEP_FAIL_STOP] 못 맡겨도 새로 열던 옛 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/tab-guard.mjs >/dev/null 2>&1; _tgd=$?; if [ "$_tgd" != 0 ]; then echo 'FAIL tab-guard: 옛 창(다른 창이 로그인 · 로그아웃 · 되돌리기 · 차례)의 쓰기 · 지우기 · 보내기(목소리 중계 포함) 멈춤 · 맡김 합치기 · 스냅 고친 때 · 비운 표시 · 공개 미리보기 칸 판정이 어긋났습니다 — node scripts/audit/tab-guard.mjs'; fail=1; else echo "ok tab-guard ($_tgd)"; fi; fi
 
 chk "L('blessN','말씀하실 분'" order-preview.html 1

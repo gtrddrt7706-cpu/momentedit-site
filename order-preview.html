@@ -10223,7 +10223,7 @@ window.resetAll=function(){
           yes:'지우고 시작', no:'취소', danger:true}).then(function(ok){
     if(!ok) return;
     if(_tabGone()) return;   // [TAB_GUARD] 옛 창은 이 기기 초안을 지우지 않는다(지금 계정 것일 수 있다)
-    try{ localStorage.removeItem(_ordKey()); sessionStorage.setItem('me_order_reset','1'); sessionStorage.setItem('me_order_gen', String(Date.now())); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
+    try{ var _rk=_ordKey(); if(_rk) localStorage.removeItem(_rk); sessionStorage.setItem('me_order_reset','1'); sessionStorage.setItem('me_order_gen', String(Date.now())); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
     /* [ORD_RESET_SRV] 임베드에서는 초안이 서버에 있다 — 로컬만 지우면 다시 들어올 때 서버본이 복원돼
        '완성' 화면으로 열린다(2026-08-03 사용자 제보 "확인을 눌렀다 나갔다 다시 들어가도 완료 쪽으로 열린다").
        세션 플래그는 그 한 번만 건너뛸 뿐 서버본을 지우지 않는다 — 부모(마이페이지)에게 비우라고 알린다. */
@@ -10352,14 +10352,31 @@ function _baseAfter(sS,p){ try{ var x=JSON.parse(JSON.stringify(sS||{})); if(p) 
 /* ★[PREVIEW_KEY_SPLIT 2026-10-30 GPT 12차 점검(고객) 12-03] 그냥 연 공개 미리보기(마이페이지 밖 · 부모 없음)는 고객 식순 초안(me_order)과 다른 칸(me_order_pub)에 남기고 · 되살리고 · 지운다 —
      종전엔 같은 칸을 써, 남겨 둔 미리보기 탭에서 진행하면 주인 없는 예시가 로그인 창이 되살린 저장 안 한 초안을 덮었다(공개 미리보기는 부모가 없어 옛 창 판정도 없다).
      예전 미리보기가 me_order 에 남긴 주인 없는 판은 공개 미리보기 칸이 비었을 때 한 번 읽어 잇는다(그 칸은 건드리지 않는다) */
-function _ordKey(){ var e=(typeof EMBED==='boolean')?EMBED:false; if(typeof EMBED!=='boolean'){ try{ e=/[?&]embed=1/.test(window.location.search); }catch(x){} } return e?'me_order':'me_order_pub'; }   // [PREVIEW_KEY_SPLIT] 마이페이지 안 = 고객 칸 · 그냥 연 미리보기 = 공개 칸
+/* ★★[ACCT_KEYS 2026-10-30 GPT 13차 점검(고객) 13-06 · Claude 구조 결정] 마이페이지 안 식순 화면의 이 기기 초안은 계정 칸(me_order_<코드>)이다 — 계정은 마이페이지가 orderFill 로 확인해 준 코드(_ACCT) 하나.
+     그 전에는 이 기기 초안을 읽지도 쓰지도 않는다(종전엔 열자마자 공용 칸 me_order 를 먼저 되살려, 옛 창이 새로 연 식순 화면이 다른 계정 초안을 읽었다) · 한 번 정한 계정은 바꾸지 않는다(다른 계정의 늦은 채우기는 버린다) */
+var _ACCT='';   // [ACCT_KEYS] 마이페이지가 확인해 준 계정(개인코드)
+function _ordKey(){ var e=(typeof EMBED==='boolean')?EMBED:false; if(typeof EMBED!=='boolean'){ try{ e=/[?&]embed=1/.test(window.location.search); }catch(x){} } if(!e) return 'me_order_pub'; var a=String(_ACCT||''); return /^[A-Z0-9][A-Z0-9-]{2,19}$/.test(a)?'me_order_'+a:''; }   // [PREVIEW_KEY_SPLIT] 마이페이지 안 = 그 계정 칸 · 그냥 연 미리보기 = 공개 칸 · [ACCT_KEYS] 계정을 받기 전엔 '' (읽지도 쓰지도 않는다)
+function _recE(r){ r=r||{}; return Math.max(+r.t||0, +r.e||0); }   // [SAME_ACCT_T] 그 기록이 마지막으로 고쳐진 때
+/* ★[SAME_ACCT_T 2026-10-30 GPT 13차 점검(고객) 13-03] 같은 계정으로 연 두 창 — 이 기기에 쓰기 전에 지금 기록을 읽어, 그 고친 때가 이 창이 마지막으로 고친 때보다 나중이면 덮지 않는다.
+     종전엔 먼저 연 창이 다시 그리기만 해도 옛 판으로 다른 창의 최신 초안을 덮었다. 마이페이지 안이면 이 창을 옛 창으로 세운다(«다른 창에서 바뀌었어요 (코드 L8)» → «다시 열기»가 최신본을 연다) ·
+     그냥 연 미리보기는 쓰지 않고 넘어간다. 이 창이 그 뒤에 고치면 그 고친 때가 더 나중이라 쓴다 */
+function _ordNewer(){ if(!EMBED) return; try{ var P=(window.parent&&window.parent!==window)?window.parent:null; if(P && typeof P._tabStaleMark==='function') P._tabStaleMark(); }catch(e){} }
+/* ★[ACCT_KEYS] 옛 공용 칸(me_order) → 계정 칸 · 공개 칸 — 그냥 연 미리보기에서도 한 번(마이페이지 _acctKeysMigrate 와 같은 규칙 · 쓰고 다시 읽어 확인한 뒤에야 지운다) */
+function _ordMigrate(){ try{ var ro=localStorage.getItem('me_order'); if(ro==null) return; var r=null; try{ r=JSON.parse(ro); }catch(e){} var w=String((r&&r.who)||''), tk=w?(/^[A-Z0-9][A-Z0-9-]{2,19}$/.test(w)?'me_order_'+w:''):'me_order_pub', done=true;
+  if(tk){ var cur=localStorage.getItem(tk), cj=null; try{ cj=JSON.parse(cur||'null'); }catch(e){}
+    if(cur==null || (w && r && r.dirty && _recE(r)>_recE(cj))){ localStorage.setItem(tk, ro); done=(localStorage.getItem(tk)===ro); } }
+  if(done) localStorage.removeItem('me_order'); }catch(e){} }
 function _tabGone(){ try{ var P=(window.parent&&window.parent!==window)?window.parent:null; return !!(P && typeof P._tabStale==='function' && P._tabStale()); }catch(e){ return false; } }
 function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;   // [TAB_GUARD]
+  var _k=_ordKey(); if(!_k){ if(EMBED && _fillSeen) _persistBad=true; return; }   // [ACCT_KEYS] 마이페이지가 계정을 확인해 주기 전에는 쓰지 않는다 · 계정 없이 채워졌으면 «이 기기에 남지 않아요»가 참이다
   try{ _closeFit(); }catch(e){} try{ _seamFitKeep(); }catch(e){}   /* [MOOD_1018] 판이 바뀌었으면 분위기 몫을 저장 전에 맞춘다 · [CLOSE_SEAM_1018] 닫는 멘트 이음새 */
   try{ var rec={v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who,base:_srvBase,dirty:!!(courseStarted&&_autoKey()!==_autoLast)}; if(over) for(var _o in over) rec[_o]=over[_o];
-    var _ek=_autoKey(); if(rec.dirty&&_ek!==_editK) _editT=Date.now(); _editK=_ek; if(rec.dirty&&_editT) rec.t=_editT;   /* [RELOGIN_NEWER] 저장 안 한 고침이 생긴 때(이 탭이 실제로 고친 때 · 다시 쓰기만 한 때가 아니다) — 마이페이지가 로그인 풀림 때 맡긴 초안과 견준다 */
-    localStorage.setItem(_ordKey(), JSON.stringify(rec)); _persistBad=false; }catch(e){ _persistBad=true; } _dirtyMark(); }   // [PREVIEW_KEY_SPLIT]
-var _editT=0, _editK=null;   // [RELOGIN_NEWER] 이 탭의 마지막 고친 때 · 그때의 판 지문
+    var _ek=_autoKey(); if(_ek!==_editK){ if(rec.dirty) _editT=Date.now(); if(rec.dirty||_editK!==null) _editE=Date.now(); } _editK=_ek; if(rec.dirty&&_editT) rec.t=_editT;   /* [RELOGIN_NEWER] 저장 안 한 고침이 생긴 때(이 탭이 실제로 고친 때 · 다시 쓰기만 한 때가 아니다) — 마이페이지가 로그인 풀림 때 맡긴 초안과 견준다 */
+    var _me=Math.max(_editE,_editT); if(_me) rec.e=_me; rec.w=Date.now();   // [SAME_ACCT_T] 이 창이 마지막으로 바꾼 때(저장한 판이어도) · [ACCT_KEYS] 쓴 때(30일 걷기)
+    var _cur=null; try{ _cur=JSON.parse(localStorage.getItem(_k)||'null'); }catch(x){} var _ce=_cur?_recE(_cur):0;
+    if(_ce && _ce>_me){ _ordNewer(); }   // [SAME_ACCT_T] 다른 창이 더 나중에 고쳤다 — 덮지 않는다
+    else { localStorage.setItem(_k, JSON.stringify(rec)); _persistBad=false; } }catch(e){ _persistBad=true; } _dirtyMark(); }   // [PREVIEW_KEY_SPLIT]
+var _editT=0, _editK=null, _editE=0;   // [RELOGIN_NEWER] 이 탭의 마지막 고친 때 · 그때의 판 지문 · [SAME_ACCT_T] 이 탭이 마지막으로 판을 바꾼 때(저장한 판 포함)
 /* ★[PERSIST_TRUE 2026-10-09 A~Z 점검 2라운드 A2-16] 이 기기에 남기지 못했으면(저장 공간 가득 · 막힘) 나가기 판이 «이 기기에는 남아 있어요»라고 약속하지 않는다 */
 var _persistBad=false;
 function _keepLine(){ return _persistBad?'저장하지 않으면 이 기기에도 남지 않아요':'저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요'; }
@@ -10501,10 +10518,12 @@ var EMBED=/[?&]embed=1/.test(window.location.search);
 if(!EMBED){ try{ RitualOpen.FEATURE.upLive=true; }catch(e){} }   // [VOICE_UP_FROM] 그냥 연 미리보기는 서버로 안 보낸다(이 기기에서만) — 새 칸을 보여 시험해 볼 수 있다 · 고객 예식(임베드)은 서버 문을 따른다   // (복원 정책이 임베드 여부를 알아야 해 여기서 판정)
 // ORDER_OWNER(2026-07-25 사용자 지시 "로그인 아이디가 바뀌었는데도 식순 데이터가 남아있는 건 문제"): 로컬 초안을 계정에 묶음 —
 //   ① 계정 소유(who) 초안은 독립 열람(비로그인 공개 페이지)에서 복원하지 않고 ② 임베드에선 orderFill의 로그인 계정과 대조해 다르면 즉시 폐기.
-try{ var _sv0=JSON.parse(localStorage.getItem(_ordKey())||'null');
-  if(!_sv0 && !EMBED){ var _lg=JSON.parse(localStorage.getItem('me_order')||'null'); if(_lg && !_lg.who) _sv0=_lg; }   // [PREVIEW_KEY_SPLIT] 예전 미리보기의 주인 없는 판은 한 번 읽어 잇는다(다음부터는 me_order_pub)
-  if(!(_sv0&&_sv0.who&&!EMBED)&&_applySaved(_sv0)){ _srvBase=_sv0.base||''; if(_sv0.dirty) _autoLast=''; _editT=+_sv0.t||0; _editK=_autoKey(); }   /* [RELOGIN_NEWER] 되살린 판은 그 판이 고쳐진 때를 그대로(다시 열었다고 새것이 되지 않는다) */   /* [LOCAL_AHEAD] 저장 안 한 고침이 있던 판은 다시 열어도 «저장»이 켜진 채(종전엔 복원 직후가 기준선이라 저장된 것처럼 보였다) */
-}catch(e){}
+/* [ACCT_KEYS] 이 기기 초안 되살리기 — 그냥 연 미리보기는 열 때 · 마이페이지 안은 orderFill 이 계정을 확인해 준 그때(그 전에는 읽지 않는다) */
+function _ordRestore(){ var k=_ordKey(); if(!k) return false; var _sv0=null; try{ _sv0=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ _sv0=null; }
+  if(_sv0 && _sv0.who && String(_sv0.who)!==(EMBED?String(_ACCT):'')) return false;   // [ORDER_OWNER] 칸과 다른 주인 표시면 읽지 않는다(지우지도 않는다) · 공개 칸에 주인 있는 판도
+  if(_applySaved(_sv0)){ _srvBase=_sv0.base||''; if(_sv0.dirty) _autoLast=''; _editT=+_sv0.t||0; _editE=Math.max(_editT, +_sv0.e||0); _editK=_autoKey(); return true; }   /* [RELOGIN_NEWER] 되살린 판은 그 판이 고쳐진 때를 그대로(다시 열었다고 새것이 되지 않는다) · [SAME_ACCT_T] 바꾼 때도 */   /* [LOCAL_AHEAD] 저장 안 한 고침이 있던 판은 다시 열어도 «저장»이 켜진 채(종전엔 복원 직후가 기준선이라 저장된 것처럼 보였다) */
+  return false; }
+if(!EMBED){ _ordMigrate(); try{ _ordRestore(); }catch(e){} }   // [PREVIEW_KEY_SPLIT] 예전 미리보기의 주인 없는 판은 _ordMigrate 가 공개 칸으로 옮긴다(공개 칸이 비었을 때만)
 render();
 engine();   // [ORD_REAL_AUDIO] 첫 탭이 곧바로 소리로 이어지게 미리 싣는다(iOS 사용자 제스처 유지)
 /* ★[BGM_JUMP 2026-10-23 BGM 섹션 «미리보기에서 로그인 없이 빌더 순간 화면을 바로 열 방법»] 그냥 연 화면(임베드 아님)에서만 — order-preview.html?mk=letter 처럼 순간 키를 주면
@@ -10725,6 +10744,8 @@ if(EMBED){
     if(ev.data.type==='momentedit:orderSaveFail'){ _saveDone(false, _ecLine('S',ev.data)); return; }   // [ORDER_SAVE_FAIL 2026-07-25] 회의 R-8 · [ERR_CODE_BUILDER] msg · error · ecode · kind · reason → 한 줄 + S 코드
     if(ev.data.type==='momentedit:orderFill'){
       if(_tabGone()) return;   /* ★[TAB_GUARD_FILL 2026-10-30 GPT 12차 점검(고객) 12-02] 옛 창이면 늦게 온 orderFill 로 아무것도 정리하지 않는다(지금 계정 초안을 «주인이 다르다»며 지우지 않게) */
+      var _fa=(typeof ev.data.acct==='string')?ev.data.acct:String((ev.data.cust&&ev.data.cust.code)||'');   // [ACCT_KEYS] 마이페이지가 확인해 준 계정 · 옛 마이페이지(acct 없음)는 신원 코드
+      if(_ACCT && _fa!==_ACCT) return;   // [ACCT_KEYS] 이미 정한 계정과 다른 채우기는 버린다(아무것도 읽거나 지우지 않는다)
       _fillSeen=true;   // [RELOAD_KEEP_AT]
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       if(typeof ev.data.digital==='boolean') CUSTDIG=ev.data.digital;   // [PREVIEW_DIGITAL] 구버전 mypage(미전송)면 false 유지 — 종전 동작 그대로
@@ -10734,14 +10755,9 @@ if(EMBED){
       if(typeof ev.data.guide==='boolean') CUSTGUIDE=ev.data.guide;   // [GUIDE_ON_1019]
       if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;
       try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, guide:CUSTGUIDE===true}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
-      // ORDER_OWNER: 계정 대조 — 복원된 초안이 현 로그인 계정 소유가 아니면(다른 계정·소유 미표기 옛 초안 포함) 즉시 폐기·초기화.
-      //   같은 기기 계정 전환 시 이전 계정의 서약문·편지가 보이거나 새 계정 서버로 저장되는 누출 차단. 이 계정의 진실은 아래 서버 초안(d).
-      if(CUST&&CUST.code&&_restored&&_who!==String(CUST.code)){
-        try{ var _ow=JSON.parse(localStorage.getItem('me_order')||'null'); if(!_tabGone() && String((_ow&&_ow.who)||'')===String(_who||'')) localStorage.removeItem('me_order'); }catch(e){}   // [TAB_GUARD_FILL] 공통 판정을 지나고 · 이 창이 되살린 그 주인의 판일 때만 지운다(그 사이 다른 창이 쓴 지금 계정 초안은 둔다)
-        try{ S=JSON.parse(_S0); }catch(e){}
-        courseStarted=false; _doneSaved=false; _restored=false; _seenK={}; idx=0; buildSteps(); render();
-      }
-      if(CUST&&CUST.code) _who=String(CUST.code);
+      // ORDER_OWNER → ★[ACCT_KEYS 2026-10-30] 이 기기 초안은 계정 칸이라 «주인이 다르면 지우기»가 필요 없다 — 마이페이지가 확인해 준 계정 칸만 이제 처음 읽는다(그 전엔 읽지 않았다).
+      //   종전엔 열자마자 공용 칸을 되살린 뒤 여기서 주인을 대조해 지웠고, 그 지우기가 다른 창 계정 초안을 지우는 경합(12-02)을 낳았다 — 지우기를 되살리지 말 것
+      if(!_ACCT && /^[A-Z0-9][A-Z0-9-]{2,19}$/.test(_fa)){ _ACCT=_fa; _who=_fa; try{ if(_ordRestore()){ _navKey=''; render(); } }catch(e){} }   // [ACCT_KEYS] 되살렸으면 그 판으로 그린다 — 첫 그리기처럼 그 걸음을 기록 칸에 바꿔 적는다(쌓지 않는다 · 종전 열 때 되살리기와 같은 뒤로가기)
       try{ if(sessionStorage.getItem('me_order_reset')){ sessionStorage.removeItem('me_order_reset'); return; } }catch(e){}   // '처음부터 다시' 직후 1회는 서버 초안 무시
       var d=ev.data.draft;
       if(ev.data.reload&&_restored){ render(); return; }   // [ORDER_RELOAD] 새로고침 — 이 기기에 남긴 판(_persist)이 곧 방금 보낸 판이다 · 자리 · 완료 표시도 그대로(서버 «완료»로 끝 화면에 튀지 않게)
@@ -10763,10 +10779,10 @@ if(EMBED){
            ★내용(S)은 그대로 서버 것을 쓴다 — 다른 기기에서 이어서 하는 경우가 있다.
              여기서 되돌리는 것은 **위치와 완료 표시**뿐이다. */
         var _localMid=false;
-        try{ var _lv=JSON.parse(localStorage.getItem('me_order')||'null'); _localMid=!!(_lv&&_lv.cs&&_lv.sv===false); }catch(e){}
+        try{ var _lv=JSON.parse(localStorage.getItem(_ordKey())||'null'); _localMid=!!(_lv&&_lv.cs&&_lv.sv===false); }catch(e){}   // [ACCT_KEYS] 이 계정 칸
         var _dn2=_dn && !(_localMid&&_restored);
         var _ap=_dn2?{v:2,S:d.S,idx:99,cs:true,sv:true}:{v:2,S:d.S,idx:_keep.idx,cs:true,sv:false,sk:_keep.sk};   /* ★[REOPEN_SAME_STEP 2026-10-09 A~Z 점검 1라운드 A-1] 판 번호(v:2)를 함께 — 없으면 _applySaved 가 «안내가 한 화면이던 옛 초안»(ORD_INTRO2)으로 읽어 자리를 한 칸 밀었다(①에서 나가면 ②로 · ③에서 나가면 ④ «이대로 저장하기»로 열려 덜 만든 식순을 완성 저장할 뻔했다 · 8/3 부터) · _keep.idx 는 이미 이 기기 판에서 맞춘 자리다 */
-        var _sk=_canonS(d.S), _lv2=null; try{ _lv2=JSON.parse(localStorage.getItem('me_order')||'null'); }catch(e){}
+        var _sk=_canonS(d.S), _lv2=null; try{ _lv2=JSON.parse(localStorage.getItem(_ordKey())||'null'); }catch(e){}   // [ACCT_KEYS] 이 계정 칸
         var _ahead=!!(_restored&&_lv2&&_lv2.dirty&&_lv2.who===_who&&!(_lv2.sv&&_dn)), _same=!!(_ahead&&_lv2.base&&_lv2.base===_sk);   /* [LOCAL_AHEAD] 이 기기에 저장 안 한 고침이 있고 · 서버 판이 그 고침의 바탕 그대로면 이 기기 판이 더 나중이다 */
         if(_same){ _srvBase=_sk; _autoLast=_autoKeyOf(d.S); _doneSaved=false; _doneKey=''; _persist(); render(); try{ toast('저장 전 고침을 이어서 열었어요'); }catch(e){} }   /* 머리 «저장»이 켜진 채 — 두 분이 저장하거나 나가기 판에서 고른다 */
         else if(_applySaved(_ap,true)){ _srvBase=_sk; _persist(); render(); if(_ahead){ try{ toast('저장한 판으로 열었어요'); }catch(e){} } }   /* [SAVED_FRESH] · [LOCAL_AHEAD] 그사이 다른 기기에서 저장했으면(또는 바탕을 모르면) 서버 판 — 이 기기 고침을 덮었다고 한 줄 */
