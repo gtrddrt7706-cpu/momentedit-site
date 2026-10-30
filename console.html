@@ -1067,7 +1067,7 @@ function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug 
   if (k === 'tribute') return 'M5';
   if (k === 'toast') return 'M7';
   if (k === 'table') return 'M8';
-  if (sl === 'narr-close') return (BED.seg === 'M8' || BED.seg === 'M8L') ? '' : (segPlan('M6P') ? 'M6P' : '');   /* 사진 — 테이블 인사 뒤면 M8 이 잇고 · 닫는 인사 뒤면 사진 칸 곡(없으면 M6 이 잇는다) */
+  if (sl === 'narr-close' || /^narr-photo-pre/.test(sl || '')) return (BED.seg === 'M8' || BED.seg === 'M8L') ? '' : (segPlan('M6P') ? 'M6P' : '');   /* ★[END_FLOW_1030] 사진 전 안내(265 · 266)도 사진 칸 곡 */   /* 사진 — 테이블 인사 뒤면 M8 이 잇고 · 닫는 인사 뒤면 사진 칸 곡(없으면 M6 이 잇는다) */
   if (k === '_close') return 'M6';
   if (k === '_goodbye') return segPlan('M8L') ? 'M8L' : '';   /* 마무리 인사(47)와 함께 마지막 곡 */
   return ''; }
@@ -1765,7 +1765,7 @@ function render(){
   }
   var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
   /* ★[RESCUE_REPLAY_1016 라운드 6] «재생 안 됨»으로 미룬 순서가 있으면 사진 시간 첫 큐에서 한 줄 — 고객 화면 안심 «사진 시간에 다시 틀어 드려요»(식전 영상 · 준비한 순서)의 짝 */
-  if (RESCUED.length && (c.slug === 'narr-close' || c.slug === 'end-0-photo')) htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
+  if (RESCUED.length && (c.slug === 'narr-close' || /^narr-photo-pre/.test(c.slug || '') || c.slug === 'end-0-photo'))   /* [END_FLOW_1030] */ htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
   h.hidden = !htxt; h.textContent = htxt;
   sf.hidden = true; nb.hidden = true;
   $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');

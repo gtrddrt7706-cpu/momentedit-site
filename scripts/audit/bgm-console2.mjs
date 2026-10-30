@@ -53,7 +53,7 @@ try {
     ok('① 첫 GO — 순서는 그대로(축배 사람 구간) · 0.6초에 toastLevel(0) 로 오른다', B.cur === ti && B.phase === 'live' && B.want === 0 && up.length === 1 && up[0].ms === 600, { B, up });
     await pg.waitForTimeout(1700); await pg.evaluate(() => window.__bgmGo.tap()); await pg.waitForTimeout(400);
     const C = await st(pg);
-    ok('① 다음 GO — 마무리(56) 로 넘어간다', C.cur === ti + 1 && C.slug === 'narr-toast-out', C);
+    ok('① 다음 GO — [END_FLOW_1030] 닫는 인사(187) 로 넘어간다(56 은 안 튼다 · 잔 내려놓기는 축배 사람 구간 안)', C.cur === ti + 1 && C.slug === 'narr-close-bow', C);
     ok('⑤ 쪽 오류 0(축배)', !errs.length, errs.slice(0, 2)); await ctx.close(); }
 
   /* ② 짧은 이음 네 자리 */

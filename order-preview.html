@@ -10661,7 +10661,7 @@ if(EMBED){
       if(typeof ev.data.tables==='number'&&ev.data.tables>0) CUSTTBL=ev.data.tables;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수(없으면 하객 수 ÷ 5) — 아래에서 S.tableN 에 싣는다(콘솔 · 시간표가 같은 값을 본다) */
       if(typeof ev.data.guide==='boolean') CUSTGUIDE=ev.data.guide;   // [GUIDE_ON_1019]
       if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;
-      try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, guide:!!CUSTGUIDE}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
+      try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, guide:CUSTGUIDE===true}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
       // ORDER_OWNER: 계정 대조 — 복원된 초안이 현 로그인 계정 소유가 아니면(다른 계정·소유 미표기 옛 초안 포함) 즉시 폐기·초기화.
       //   같은 기기 계정 전환 시 이전 계정의 서약문·편지가 보이거나 새 계정 서버로 저장되는 누출 차단. 이 계정의 진실은 아래 서버 초안(d).
       if(CUST&&CUST.code&&_restored&&_who!==String(CUST.code)){

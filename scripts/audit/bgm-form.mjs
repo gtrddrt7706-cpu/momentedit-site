@@ -183,7 +183,7 @@ try {
     const SUB = 'rgb(90, 85, 76)', ref = REFQ.look.split('|'), quiet = ref.length === 6 ? [ref[0], '400', SUB, ref[3], ref[4], ref[5]].join('|') : '';
     const lookOk = (L) => !!quiet && ref[1] === '500' && ref[2] === 'rgb(58, 45, 34)' && L.flook === quiet;
     /* [BGM_R3_1023] 목례 · 위하여 자리는 글자가 아니라 줄 모양(행동 · 차례 줄 뒤 · 나레이션 앞)으로 — 큐 열쇠가 맞는지는 9(코스 · 조합 전부)가 잰다 · 대본이 글만 고쳐도 거짓 빨강이 안 난다 */
-    const posOk = (k, L) => AT[k] === 'top' ? ((HEADB[k] && /넘어가며/.test(L.first)) ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? (/\bq\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : false;
+    const posOk = (k, L) => AT[k] === 'top' ? ((HEADB[k] && /넘어가며/.test(L.first)) ? (L.fi === 1 && /넘어가며/.test(L.prev)) : (L.fi === 0 && !/넘어가며/.test(L.next))) : AT[k] === 'video' ? /영상이 흘러요/.test(L.next) : AT[k] === 'bridge' ? (L.fi === 1 && /넘어가며/.test(L.prev)) : AT[k] === 'bow' ? (/\bq\b/.test(L.prevCls) && /\bn\b/.test(L.nextCls)) : AT[k] === 'cheers' ? (/\bt\b/.test(L.prevCls) && (/\bn\b/.test(L.nextCls) || (!L.next && !L.nextCls)))   /* ★[END_FLOW_1030] 축배가 닫는 인사 앞으로 와 56 을 안 튼다 — 위하여 음악 줄이 축배 쪽 마지막 줄일 수 있다 */ : false;
     for (const k of ['entry', 'prevideo', ...Object.keys(ONE), 'song', 'free', 'letter']) { await go(pg, k); const L = await look(pg); seen[k] = L;
       if (['candle', 'welcome', 'vow', 'free', 'letter', '_close', 'toast', 'tribute'].includes(k)) await shot(pg, W, 'bgm-' + k.replace('_', ''));
       let good = !L.hz && !L.old && L.fq <= 1 && !L.gls.includes('음악');

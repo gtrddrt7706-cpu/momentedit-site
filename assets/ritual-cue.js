@@ -1642,7 +1642,7 @@
         var goFree = Math.max(120, budget * 60 - goals);
         var gather = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
         function fit(c, goal, pre) { if (c && c.live) c.live.est = Math.max(10, Math.round(goal - (pre || 0) - (c.est || 0))); }
-        var _pc = by['narr-photo-pre'] || by['narr-photo-pre-meal'];   // [END_FLOW_1030]
+        var _pc = by['narr-photo-pre'] || by['narr-photo-pre-meal'] || (_photoOpen ? by['narr-close'] : null);   // [END_FLOW_1030] 식사만 있는 날은 26 이 사진 전 안내 자리
         if (_photoOpen) { if (_pc && _pc.live) _pc.live.est = Math.max(10, _go['end-0-photo']); }   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
         else fit(by['end-0-photo'], _go['end-0-photo'], gather);
         var _fam = _photoOpen ? cues.filter(function (c) { return c.act && c.k === '_photo'; })[0] : by[_thx];   // [END_FLOW_1030] 새 코스는 소리 없는 가족 구도 큐
