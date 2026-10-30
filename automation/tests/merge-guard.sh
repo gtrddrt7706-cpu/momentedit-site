@@ -9781,7 +9781,7 @@ fi
 chk 'CINE_SCOPE' order-preview.html 6
 chk 'CINE_SCOPE' scripts/audit/cine-scope.mjs 2
 chk 'CINE_SCOPE' .claude/skills/momentedit-design/SKILL.md 1
-chk 'var _VFY={entry:15,close:45,welcome:12,toast:10,vow:60};' order-preview.html 1
+chk 'var _VFY={entry:15,close:45,welcome:12,toast:10,vow:10,bless:20,tribute:20};' order-preview.html 1
 nochk '.pv-media{position:relative;aspect-ratio:16/9' order-preview.html
 nochk '.mk-vu-img{aspect-ratio:16/9' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/cine-scope.mjs >/dev/null 2>&1; _cs=$?
@@ -14795,6 +14795,8 @@ chk 'SIGCOLOR_VIDEO_1024' assets/ritual-open.js 1   # 편지 · 부모님께 인
 chk 'SIGCOLOR_VOW_1024' assets/ritual-open.js 1   # 서약 = 원색 판 · 하객 넷 신부 카드 쪽 · 렌즈 0(10/24)
 chk 'VOW_FY_1024' order-preview.html 1   # 서약 칸 높이 60%(카드 둘 + 하객 테이블)
 chk 'NO_END_FREEZE_1024' assets/ritual-open.js 1   # 장면 영상 8초 안팎 · 끝까지 움직임 · 끝 정지 0.3초 안(10/24 사장님 «6초부터 멈춰 있어»)
+chk 'FINAL17_1025' assets/ritual-open.js 1   # 17편 최종판(전판 + 한국인 하객 · 얼굴 뭉갬 · 서약 앵글 전환 · 테이블 인사 박수 없음)
+chk 'PV_NAR_CHIP_1030' order-preview.html 1   # 식전 영상 스튜디오 소개 멘트 칩 넷이 모두 눌린다(PV_EX 둘로 세지 않는다)
 chk 'GUESTS_30_LOOK' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # 장면 그림 · 영상 통과 조건 ① 정원 30명으로 보이게(한 화면 하객 수 상한)
 chk 'GAZE_TO_HERO' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ② 보이는 하객 얼굴은 모두 그 순간의 주인공 쪽
 chk 'CAM_DECISIVE' docs/plans/식순연구/순간영상_장면대본_0927.md 1   # ③ 카메라 = 멈춤 또는 5초 안에 끝나는 한 번의 움직임
@@ -20063,6 +20065,13 @@ chk 'DRESS_RESULT_COMPACT' dress.html 2
 chk 'DRESS_RESULT_COMPACT' scripts/audit/dress-fit.mjs 3
 chk 'class="dr-cell" data-open=' dress.html 1
 chk '--photo-bg:#B19E8C;' dress.html 1                                     # [DRESS_GREIGE] 사진 칸 바탕 = 그레이지 사진 배경(받는 동안 깜빡임 없음)
+chk "DRESS_FAB_STAGES=.'시착','상담완료','계약완료','입금완료','제작중'];" mypage.html 1   # [DRESS_FAB_1024] 오른쪽 줄 «드레스 · 소품 · 부케» = 상담 뒤 ~ 예식 당일(상담 전은 스티커 하나 · 겹침은 dress-refs ⑯ 가 잰다)
+chk 'stack.insertBefore(ex, chat)' mypage.html 1                             # [DRESS_FAB_1024] «상담 도우미» 바로 위 · 다른 단추 자리 · 순서 그대로
+chk 'R.accList = function () { return R.ACC_ON ?' assets/dress-refs.js 1      # [DRESS_ACC_1024] 함께 보는 소품 = ACC_ON · 칸 on 한 곳
+chk '    h += accHTML();' dress.html 1                                        # [DRESS_ACC_1024] «다른 드레스도 살펴보기» 아래 · «방문 전 준비» 위
+chk "var INTRO_P = AFTER ? '<p class=\"pk-intro\">세 가지 물음에 답하고, 드레스를 살펴보세요." dress.html 1   # [DRESS_AFTER_WORDS] 상담 뒤로 열면 «상담 전 · 상담 날» 대신 «방문 때»(스티커는 그대로)
+chk '.pk-intro.pk-ghost{visibility:hidden}' dress.html 1                   # [DRESS_Q_STEADY] 물음 2 · 3 도 목적 줄 자리를 지킨다(단계선이 뛰지 않게 · dress-fit 이 잰다)
+chk 'data-act="drtop">드레스 다시 보기' dress.html 1                        # [DRESS_ACC_TOP] 소품 뒤 드레스로 돌아가는 길
 nochk "name: '스타일 예시 0[1-6] · [^']*+" assets/dress-refs.js 0
 chk "img: 'd0[1-6]-front'" assets/dress-refs.js 6
 nochk "name: '표본 " assets/dress-refs.js 0
@@ -20075,6 +20084,22 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/
     0) echo 'ok dress-fit: 자세히 첫 화면 — 세 크기 × 네 상태 모두 고르기 단추가 막대 위 · 진한 단추 하나 · 넘김은 사진 있는 장만 · 단독 완료 화면에 저장 단추 없음' ;;
     1) echo 'FAIL dress-fit: 자세히 첫 화면에서 고르기 단추가 막대에 가립니다 — node scripts/audit/dress-fit.mjs --print'; fail=1 ;;
     *) echo 'ok dress-fit: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+# ★[DRESS_MORE_TARGET · DRESS_ESC_CLOSE · DRESS_QSUB_SLOT 2026-10-29 사장님 · GPT 운영 점검] 드레스 창 운영 오류 셋 — «다른 드레스» 이동 대상 · 물음/결과 Esc 닫힘 · 세 물음 첫 보기 자리
+#   모양 · 깨 보기는 dress-refs.mjs ⑲ · 실제로 눌러 재는 것은 dress-ops.mjs(네 크기 × 상담 전 · 뒤 · 브라우저 없으면 «재지 못했다»)
+chk "var hx = \$('pkMoreH'); if (hx)" dress.html 1                           # [DRESS_MORE_TARGET] 마지막 소제목이 아니라 «다른 드레스» 소제목으로
+chk "if (EMBED) { e.preventDefault(); exit(); }" dress.html 1                 # [DRESS_ESC_CLOSE] 물음 · 결과 Esc = 창 닫기
+chk '.pk-qghost{visibility:hidden}' dress.html 1                              # [DRESS_QSUB_SLOT] 세 물음 제목 · 보조문 한 칸에 겹침
+chk 'DRESS_QSUB_SLOT' scripts/audit/dress-ops.mjs 2
+chk 'DRESS_OPS_VIEWPORT' scripts/audit/dress-ops.mjs 2                    # [DRESS_OPS_VIEWPORT] 창 크기가 요청값과 같은지 먼저(Puppeteer 대체 길도 크기를 맞춘다)
+chk 'DRESS_OPS_REAL' scripts/audit/dress-ops.mjs 1                        # [DRESS_OPS_REAL] 진입 = 실제 스티커 · 아이콘(로그인 마이페이지 · 가짜 서버 답)
+chk 'DRESS_ESC_Q123' scripts/audit/dress-ops.mjs 1                        # [DRESS_ESC_Q123] 물음 1 · 2 · 3 답을 고른 뒤 Esc = 닫힘 · 연 단추로 초점
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-ops.mjs >/dev/null 2>&1; _dops=$?
+  case "$_dops" in
+    0) echo 'ok dress-ops: «다른 드레스» 소제목으로 이동 · 물음/결과 Esc 닫힘(초점 복귀) · 세 물음 첫 보기 1px 안 — 네 크기 × 상담 전 · 뒤' ;;
+    1) echo 'FAIL dress-ops: 드레스 창 운영 오류가 되살아났습니다 — node scripts/audit/dress-ops.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-ops: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
   esac
 fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-refs.mjs >/dev/null 2>&1; _drs=$?

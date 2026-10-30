@@ -306,7 +306,12 @@ html.pk-on{scroll-padding-bottom:150px}   /* [WZ_BAR_FOCUS] 막대가 붙으면 
 .wz-steps li.done{color:var(--gold-text)}
 .pk-intro{font-size:14px;color:var(--sub);margin-bottom:14px}
 .pk-q{font-size:22px;font-weight:500;line-height:1.45;color:var(--accent)}
-.pk-qsub{font-size:13px;color:var(--sub);margin-top:6px}
+.pk-qsub{font-size:13px;color:var(--sub);margin-top:6px;line-height:1.54;min-height:1.54em}   /* [DRESS_QSUB_SLOT] 세 물음 같은 칸(줄 20 · 글자를 키우면 같이 늘어난다) · 아래 8 + 보기 위 12 = 종전 20 */
+.pk-qbox{display:grid}
+.pk-qbox > *{grid-area:1/1}
+.pk-qghost{visibility:hidden}
+.pk-qsubs + .pk-opts{margin-top:12px}
+.pk-qsub{margin-bottom:8px}
 .pk-opts{gap:10px;margin-top:20px}
 .pk-opt{min-height:52px;padding:12px 16px;border:1px solid var(--border);border-radius:8px;background:var(--card-white);font-size:16px;line-height:1.5;color:var(--sub);transition:border-color .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease),color .2s var(--ease)}
 .pk-opt.has-fig{min-height:76px}
@@ -399,6 +404,21 @@ span.dr-pv{cursor:inherit}
 .pk-tips li::before{content:'';position:absolute;left:0;top:calc(.85em - 2.5px);width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
 .pk-prep-h{font-size:12px;font-weight:500;color:var(--gold-text);letter-spacing:0.04em;line-height:1.6;margin-bottom:2px}
 .pk-end-dots .pk-prep-h + .dotln{margin-top:0}
+/* ★[DRESS_ACC_1024] 함께 보는 소품 — 다른 드레스 덩어리와 같은 윗선 · 사진 1:1(바탕 그레이지 · 받는 동안) · 폰 2열 · 560+ 3열 */
+.pk-acc{margin-top:32px;padding-top:20px;border-top:1px solid var(--hairline)}
+.pk-acc .pk-sub-h{margin-top:0}
+.pk-accg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px;margin-top:12px}
+@media (min-width:560px){ .pk-accg{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.pk-accp{display:block;aspect-ratio:1/1;border-radius:6px;overflow:hidden;background:var(--photo-bg,#B19E8C)}
+.pk-accp img{display:block;width:100%;height:100%;object-fit:cover}
+.pk-accx{margin-top:8px}
+.pk-accn{display:block;margin-top:2px;font-size:13px;color:var(--light);line-height:1.6;word-break:keep-all}   /* [DRESS_ACC_NOTE13] 12 → 13 */
+.pk-drtop{margin:24px 0 0 -12px;font-size:14px}   /* [DRESS_ACC_TOP] 글 14 · 누르는 곳 44(.pk-txt) · 위 24 */
+.pk-intro.pk-ghost{visibility:hidden}   /* [DRESS_Q_STEADY] 자리만 지킨다(읽어 주지 않는다 · aria-hidden) */
+.pk-subrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:18px}
+.pk-subrow .pk-sub-h{margin-top:0}
+.pk-subrow .pk-accj{flex:0 0 auto;margin:-12px -12px -12px auto;font-size:12px;white-space:nowrap}
+.pk-near + .pk-accj,.pk-accj + .pk-near{margin-top:4px}
 .dv-reld{margin-top:-8px;font-size:13px;color:var(--light);line-height:1.6}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;scroll-behavior:auto!important} html.pk-pop .pk-main.pk-fade{animation:none} }
 </style>
@@ -432,6 +452,9 @@ span.dr-pv{cursor:inherit}
   /* ★★[DRESS_POPUP 2026-10-24 사장님 «전체화면이 아니고 팝업으로»] 마이페이지 가운데 창 안(&pop=1) — 창 테 · 둥근 모서리는 부모 창이 맡는다.
      머리 = 왼쪽 «드레스 미리 보기» · 오른쪽 «저장» + 닫기 ✕ — «나가기» 알약과 ✕ 는 같은 역할이라 ✕ 하나로([BOSS_WAY_1006] 같은 역할 같은 모양 · 마이페이지 창 닫기 [X_ONE] 와 같은 꼴) */
   var POP = EMBED && Q.get('pop') === '1';
+  /* ★[DRESS_FAB_TITLE 1024 코워크 · 사장님 «대면 상담 이후 수시로»] 오른쪽 아이콘 줄(상담 뒤)로 열면 창 이름 «드레스 · 소품 · 부케» · 상담 카드 스티커(상담 전)는 «드레스 미리 보기» 그대로 */
+  var AFTER = Q.get('ctx') === 'after';
+  if (AFTER) { var hn = document.querySelector('.pk-head-n'); if (hn) hn.textContent = '드레스 · 소품 · 부케'; document.title = '드레스 · 소품 · 부케 · 모먼트에디트'; }
   if (POP) { window.addEventListener('scroll', function(){ document.documentElement.classList.toggle('pk-scrolled', window.pageYOffset > 2); }, { passive: true }); }
   /* ★[POPUP_FIT_1024] 창 높이 = 이 카드의 내용 높이 — 바뀔 때마다 부모에 알린다(부모가 폰 min(88dvh, 760) · 넓은 화면 min(84dvh, 720)으로 자른다 · 높이 애니메이션 없음) */
   var _popH = 0, _popT = 0;
@@ -571,8 +594,14 @@ span.dr-pv{cursor:inherit}
       var fig = src ? '<span class="pk-ofig" aria-hidden="true"><img src="' + esc(src) + '" alt="" width="150" height="200" decoding="async"></span>' : '';   // ★[DRESS_FORM_1024] 보기 그림(길이 · 라인 · 노출 · 소매 · 같은 크기 · 같은 시점) — 그림 없는 보기는 낮은 칸
       return '<button type="button" class="pk-opt' + (src ? ' has-fig' : ' no-fig') + '" data-a="' + esc(o[0]) + '" aria-pressed="' + (on ? 'true' : 'false') + '"><span class="pk-mk" aria-hidden="true"></span>' + fig + '<span class="pk-ot">' + esc(o[1]) + '</span></button>';
     }).join('');
-    return (i === 0 ? '<p class="pk-intro">상담 전, 마음에 드는 스타일을 살펴보세요.</p>' : '')   // ★[DRESS_INTRO_LINE · DRESS_FORM_1024 코워크] 무엇을 하는 화면인지 한 줄(추천 · 맞춤 말 없음)
-      + stepsHTML(i) + '<h2 class="pk-q" id="pkQ" data-head tabindex="-1">' + esc(q.q) + '</h2>' + (q.sub ? '<p class="pk-qsub">' + esc(q.sub) + '</p>' : '')
+    /* ★[DRESS_AFTER_WORDS 1024 코워크 GPT 라운드] 상담 뒤(아이콘 · ctx=after)로 열면 «상담 전» 말을 쓰지 않는다 · 스티커(상담 전)는 그대로
+       ★[DRESS_Q_STEADY] 물음 2 · 3 도 같은 줄을 보이지 않게 둔다(같은 글 · 같은 높이) — q1 에만 있으면 단계선 · 제목이 약 32px 뛰었다(사장님 «창이 막 움직이면 정신없으니») */
+    var INTRO_P = AFTER ? '<p class="pk-intro">세 가지 물음에 답하고, 드레스를 살펴보세요.</p>' : '<p class="pk-intro">상담 전, 마음에 드는 스타일을 살펴보세요.</p>';
+    return (i === 0 ? INTRO_P : INTRO_P.replace('class="pk-intro"', 'class="pk-intro pk-ghost" aria-hidden="true"'))   // ★[DRESS_INTRO_LINE · DRESS_FORM_1024 코워크] 무엇을 하는 화면인지 한 줄(추천 · 맞춤 말 없음)
+      /* ★[DRESS_QSUB_SLOT 1029 사장님 · GPT 운영 점검] 세 물음의 제목 · 보조문을 한 칸에 겹쳐 두고 지금 것만 보인다 — 칸 높이 = 셋 중 가장 긴 것.
+           물음 3 에만 보조문이 있어 첫 보기가 약 28px 아래였고, 좁은 폭(360)에서는 제목 줄 수도 달라 32px 더 갈렸다. 폭 · 글자 확대에 상관없이 첫 보기 자리가 같다 */
+      + stepsHTML(i) + '<div class="pk-qbox">' + R.questions.map(function(x, k){ return k === i ? '<h2 class="pk-q" id="pkQ" data-head tabindex="-1">' + esc(q.q) + '</h2>' : '<p class="pk-q pk-qghost" aria-hidden="true">' + esc(x.q) + '</p>'; }).join('') + '</div>'
+      + '<div class="pk-qbox pk-qsubs">' + R.questions.map(function(x, k){ return k === i ? (q.sub ? '<p class="pk-qsub">' + esc(q.sub) + '</p>' : '<p class="pk-qsub pk-qsub-0" aria-hidden="true">&nbsp;</p>') : '<p class="pk-qsub pk-qghost" aria-hidden="true">' + (x.sub ? esc(x.sub) : '&nbsp;') + '</p>'; }).join('') + '</div>'
       + '<div class="pk-opts' + (multi ? ' multi' : '') + (figs ? ' figs' : '') + (figs && q.opts.every(function(o){ return !!R.figSrc(figs[o[0]]); }) && q.opts.length === 3 ? ' figs3' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
       ;   // ★[DRESS_Q_FIRST] 물음 아래 «드레스 바로 보기 ›»는 걷었다 — 답해야 결과로 간다
   }
@@ -606,6 +635,19 @@ span.dr-pv{cursor:inherit}
       + '<div class="pk-tipb" id="pkTips"' + (S.tipsOpen ? '' : ' hidden') + '><ul class="pk-tips">' + out.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
       + '<p class="dotln pk-mine-n">상담 날에는 직접 입어 보며 라인과 편안함을 함께 살펴봐요.</p></div></div>';
   }
+  /* ★★[DRESS_ACC_1024 코워크 · 사장님 «함께 볼 소품 추가해»] 결과 «함께 보는 소품» — 소제목 · 한 줄 · 여섯 칸(폰 2열 · 560+ 3열 · 사진 1:1) · 칸 = 사진 → «스타일 예시 이미지»(드레스 칸 보조 줄과 같은 꼴) → 이름 → 작은 글(있는 칸만).
+       누름 없음(사진 크게 보기 방식이 없다) · 고르기 없음([DRESS_GUIDE_ONLY]) · 목록은 DRESS_REFS.accList 한 곳(ACC_ON · 칸마다 on) */
+  function accHTML(){
+    var a = R.accList ? R.accList() : []; if (!a.length) return '';
+    return '<section class="pk-acc" id="pkAcc" aria-labelledby="pkAccH"><h3 class="pk-sub-h" id="pkAccH" tabindex="-1">함께 보는 소품 · 부케</h3>'
+      + (R.ACC_LEAD ? '<p class="pk-sub-s">' + esc(R.ACC_LEAD) + '</p>' : '')
+      + '<div class="pk-accg">' + a.map(function(x){
+        return '<div class="pk-acci"><span class="pk-accp"><img src="/assets/dress-refs/' + esc(x.img) + '.webp" alt="" width="480" height="480" loading="lazy" decoding="async"></span>'
+          + '<span class="dr-kick pk-accx">스타일 예시 이미지</span><span class="dr-nm">' + esc(x.name) + '</span>'
+          + (x.note ? '<span class="pk-accn">' + esc(x.note).replace(/ · /g, '&nbsp;· ') + '</span>' : '')   /* [ACC_DOT_KEEP] « · »가 줄 머리로 넘어가지 않게 앞 낱말에 붙인다 */ + '</div>';
+      }).join('') + '</div><button type="button" class="pk-txt pk-drtop" data-act="drtop">드레스 다시 보기 <span aria-hidden="true">&uarr;</span></button></section>';   // ★[DRESS_ACC_TOP 1024 코워크] 소품을 다 본 뒤 드레스로 돌아가는 길
+  }
+  function accJumpHTML(){ return (R.accList && R.accList().length) ? '<button type="button" class="pk-txt pk-accj" data-act="acc">소품 · 부케 보기 <span aria-hidden="true">&rsaquo;</span></button>' : ''; }   // [DRESS_ACC_1024] «내가 고른 스타일» 판 아래 이동 줄
   function gridHTML(list){ return '<div class="dr-grid pk-grid">' + list.map(function(d){ return cellHTML(d); }).join('') + '</div>'; }
   /* ★[DRESS_ONE_GRID 2026-10-23 코워크 디자인 라운드 1 · 4 · 5] 소제목 «드레스»를 걷어 첫 사진을 한 줄 위로 · 답한 뒤에도 한 그리드(맞는 칸 앞 · «답과 맞아요») —
      종전 «답에 맞는 드레스 / 다른 드레스» 두 덩어리는 맞는 것이 1벌이면 오른쪽 반이 비고 구분선 아래 다섯 벌이 떨어진 후보처럼 보였다.
@@ -621,16 +663,19 @@ span.dr-pv{cursor:inherit}
     return { front: front, rest: rest, near: near, open: open };
   }
   /* ★[DRESS_GUIDE_ONLY] 결과 · 자세히 맨 아래 한 줄 — 추천 · 맞춤 · 확정 말 없음 */
-  var GUIDE_END = '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class="dotln">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';   // [DRESS_FORM_1024] 한 줄 더
+  var GUIDE_END = AFTER ? '<div class="pk-end-dots"><p class="dotln">마음에 드는 스타일은 방문 때 함께 비교해요.</p><p class="dotln">방문 때 이 화면을 보여 주셔도 좋아요.</p></div>'   // ★[DRESS_AFTER_WORDS] 상담 뒤
+    : '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class="dotln">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';   // [DRESS_FORM_1024] 한 줄 더
   function listHTML(){
     var all = R.list();
     if (!all.length) return '<p class="pk-near" data-head tabindex="-1">드레스 사진을 준비하고 있어요.</p>';
     var sp = splitList();
     var h = '<h2 class="sr" data-head tabindex="-1">드레스 목록</h2>' + bandHTML();
-    h += sp.near ? '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요.</p>' : '<h3 class="pk-sub-h">답에 어울리는 드레스 · ' + sp.front.length + '벌</h3><p class="pk-sub-s">고른 조건을 기준으로 먼저 보여 드려요.</p>';   // [DRESS_FORM_1024] 소제목 · 작은 줄   // ★[DRESS_FIT_COUNT 1024 코워크] 소제목에 벌 수
+    /* ★[DRESS_ACC_1024] «소품 · 부케 보기 ›» = 요약 판 바로 아래 줄의 오른쪽 끝(소제목과 한 줄) — 따로 한 줄을 두면 첫 사진이 250 밖으로 밀린다([DRESS_RESULT_COMPACT]) */
+    h += sp.near ? accJumpHTML() + '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요.</p>' : '<div class="pk-subrow"><h3 class="pk-sub-h">답에 어울리는 드레스 · ' + sp.front.length + '벌</h3>' + accJumpHTML() + '</div><p class="pk-sub-s">고른 조건을 기준으로 먼저 보여 드려요.</p>';   // [DRESS_FORM_1024] 소제목 · 작은 줄   // ★[DRESS_FIT_COUNT 1024 코워크] 소제목에 벌 수
     h += gridHTML(sp.front) + tipsHTML();   // [DRESS_TIPS_FOLD] 맞는 드레스 사진 · 이름 바로 아래
-    if (sp.rest.length) h += sp.open ? '<h3 class="pk-sub-h">다른 드레스</h3>' + gridHTML(sp.rest)
+    if (sp.rest.length) h += sp.open ? '<h3 class="pk-sub-h" id="pkMoreH">다른 드레스</h3>' + gridHTML(sp.rest)
                                      : '<button type="button" class="cc-btn-ghost pk-more" data-act="more">다른 드레스도 살펴보기</button>';
+    h += accHTML();   // ★[DRESS_ACC_1024] «다른 드레스도 살펴보기» 아래 · «방문 전 준비» 위
     /* ★[DRESS_FORM_FIX3 코워크 1024 · 3] «방문 전 준비» 넷과 맨 아래 안내 두 줄 = 같은 점 줄 한 덩어리(소제목만 작게) */
     var prep = (R.PREP && R.PREP.length) ? '<p class="pk-prep-h">방문 전 준비</p>' + R.PREP.map(function(x){ return '<p class="dotln">' + esc(x) + '</p>'; }).join('') : '';
     if (prep) return h + GUIDE_END.replace('<div class="pk-end-dots">', '<div class="pk-end-dots pk-prep">' + prep);   // ★[DRESS_TIPS_1024] 맨 아래 안내 줄 위
@@ -639,7 +684,7 @@ span.dr-pv{cursor:inherit}
   function detailPickHTML(){
     var d = R.dress(S.cur); if (!d) return listHTML();
     var ctl = '';   // [DRESS_GUIDE_ONLY] 고르기 · 빼기 · 바꾸기 단추는 걷었다 — 되살리지 말 것
-    return '<button type="button" class="pk-txt pk-back" data-act="list">&lsaquo; 목록</button>' + detailHTML(d, ctl) + nbHTML(d) + GUIDE_END;   // [DRESS_DETAIL_FIT] 단추는 이름 · 요약 줄 바로 아래
+    return '<button type="button" class="pk-txt pk-back" data-act="list">&lsaquo; 드레스 목록</button>' + detailHTML(d, ctl) + nbHTML(d) + GUIDE_END;   // [DRESS_DETAIL_FIT] 단추는 이름 · 요약 줄 바로 아래
   }
   /* ★[DRESS_NEXT_PREV 2026-10-23 코워크 디자인 라운드 2 · 4] 자세히 맨 아래 한 줄 «‹ 이전 드레스 · 다음 드레스 ›» — 지금 목록 순서(답이 있으면 맞는 칸이 앞 · listHTML 과 한 순서) ·
      끝에서는 그쪽 단추를 두지 않는다(남은 쪽은 제자리) · 사진 넘김(‹ ›)과 헷갈리지 않게 글 단추 · 누르는 칸 44px */
@@ -873,11 +918,21 @@ span.dr-pv{cursor:inherit}
       if (op) { S.touched = true; S.listY = window.pageYOffset || 0; S.listFrom = op; go('detail', { cur: op }); return; }   // [DRESS_BACK_STEP] 돌아올 목록 자리
       if (nb) { S.touched = true; go('detail', { cur: nb }); return; }   // [DRESS_NEXT_PREV] 이웃 드레스(목록 자리는 그대로)
       if (act === 'ask') { S.touched = true; go('q', { q: 0 }); return; }   // ★[DRESS_Q_FIRST] 띠의 «답 바꾸기 ›» · [DRESS_LIST_FIRST] 띠의 «답하기 › · 답 바꾸기 ›» — 첫 물음부터(고른 답은 그대로 켜져 있다)
-      if (act === 'more') { S.touched = true; S.more = true; var y0 = window.pageYOffset || 0; render(false); try { window.scrollTo(0, y0); } catch (e) {} var f = $('pkMain').querySelectorAll('.pk-sub-h'); if (f.length) { var hx = f[f.length - 1]; hx.setAttribute('tabindex', '-1'); try { hx.focus({ preventScroll: true }); } catch (e) {}
+      if (act === 'more') { S.touched = true; S.more = true; var y0 = window.pageYOffset || 0; render(false); try { window.scrollTo(0, y0); } catch (e) {} var hx = $('pkMoreH'); if (hx) {   /* ★[DRESS_MORE_TARGET 1029 사장님 · GPT 운영 점검] 펼친 뒤 «다른 드레스» 소제목(고유 id)으로만 — 종전 «마지막 소제목»은 소품 덩어리가 생기며 «함께 보는 소품 · 부케»로 넘어갔다 */ hx.setAttribute('tabindex', '-1'); try { hx.focus({ preventScroll: true }); } catch (e) {}
         /* ★[DRESS_MORE_SCROLL 1024 코워크] «다른 드레스» 소제목이 머리 아래 보이는 자리로 부드럽게(동작 줄이기면 바로) */
         var hd = document.querySelector('.pk-head'), off = (POP && hd ? hd.getBoundingClientRect().height : 0) + 12, ty = hx.getBoundingClientRect().top + (window.pageYOffset || 0) - off, rm = false;
         try { rm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
         try { window.scrollTo({ top: Math.max(0, ty), behavior: rm ? 'auto' : 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, ty)); } } return; }   // ★[DRESS_RESULT_SPLIT] 다른 드레스도 보기 — 그 자리에서 아래로 펼친다(스크롤 그대로)
+      if (act === 'drtop') { var dh = $('pkMain').querySelector('.pk-subrow .pk-sub-h, .pk-near'); if (!dh) return;   // ★[DRESS_ACC_TOP] 결과 소제목으로(동작 줄이기면 바로) · 초점도 그 소제목
+        dh.setAttribute('tabindex', '-1'); var hd3 = document.querySelector('.pk-head'), off3 = (POP && hd3 ? hd3.getBoundingClientRect().height : 0) + 12, ty3 = dh.getBoundingClientRect().top + (window.pageYOffset || 0) - off3, rm3 = false;
+        try { rm3 = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+        try { window.scrollTo({ top: Math.max(0, ty3), behavior: rm3 ? 'auto' : 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, ty3)); }
+        try { dh.focus({ preventScroll: true }); } catch (e) {} return; }
+      if (act === 'acc') { var ah = $('pkAccH'); if (!ah) return;   // ★[DRESS_ACC_1024] «소품 · 부케 보기 ›» — 소제목이 머리 아래 보이는 자리로(동작 줄이기면 바로) · 초점도 그 소제목으로
+        var hd2 = document.querySelector('.pk-head'), off2 = (POP && hd2 ? hd2.getBoundingClientRect().height : 0) + 12, ty2 = ah.getBoundingClientRect().top + (window.pageYOffset || 0) - off2, rm2 = false;
+        try { rm2 = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+        try { window.scrollTo({ top: Math.max(0, ty2), behavior: rm2 ? 'auto' : 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, ty2)); }
+        try { ah.focus({ preventScroll: true }); } catch (e) {} return; }
       if (act === 'tips') { S.tipsOpen = !S.tipsOpen; var tb = $('pkTips'); if (tb) tb.hidden = !S.tipsOpen; t.setAttribute('aria-expanded', S.tipsOpen ? 'true' : 'false'); t.innerHTML = S.tipsOpen ? '살펴볼 점 접기' : '살펴볼 점 보기 <span aria-hidden="true">&rsaquo;</span>'; return; }   // [DRESS_TIPS_FOLD]
       if (act === 'list') { backToList(); return; }   // [DRESS_BACK_STEP] 목록으로 돌아가는 길 하나
       if (act === 'pick') { pick(S.cur); return; }
@@ -891,7 +946,8 @@ span.dr-pv{cursor:inherit}
     $('pickView').addEventListener('input', function(e){
       if (e.target && e.target.id === 'pkMemo') { S.memo = String(e.target.value || '').slice(0, 200); var c = $('pkMemoC'); if (c) c.textContent = S.memo.length + ' / 200'; syncState(); }   // syncState → paintHead 가 아래 단추 글을 바꾼다(다시 그리지 않아 쓰던 칸의 초점이 그대로)
     });
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && S.view === 'detail') { e.preventDefault(); backToList(); } });
+    /* ★[DRESS_ESC_CLOSE 1029] Esc — 자세히는 목록으로(종전 그대로) · 물음 · 결과는 창 닫기(부모의 닫기 한 곳 askExit · 닫히면 초점은 연 단추로) */
+    document.addEventListener('keydown', function(e){ if (e.key !== 'Escape') return; if (S.view === 'detail') { e.preventDefault(); backToList(); return; } if (EMBED) { e.preventDefault(); exit(); } });
     /* [DRESS_BAR_FIT] 화면 크기 · 글꼴이 바뀌면 첫 화면을 다시 잰다(스크롤 0 일 때만 옮긴다) */
     var fitT = 0; window.addEventListener('resize', function(){ clearTimeout(fitT); fitT = setTimeout(function(){ try { if (S.view === 'list' || S.view === 'detail') fitBar(); } catch (e) {} }, POP ? 0 : 150); });   // [POPUP_FIT_1024] 창 안에서는 높이가 바뀔 때만 크기가 바뀐다 — 바로 다시 맞춘다
     try { if (document.fonts) { document.fonts.addEventListener('loadingdone', function(){ try { refit(); } catch (e) {} }); if (document.fonts.ready) document.fonts.ready.then(function(){ try { refit(); } catch (e) {} }); } } catch (e) {}

@@ -188,7 +188,21 @@
   R.exImg = function (e, ext) { return (e && e.img) ? ('/assets/dress-refs/' + e.img + '.' + (ext || 'webp')) : ''; };
   R.svg = function (d) { var l = R.line(d && d.line); return l ? l.svg : ''; };
   /* ★[DRESS_TIPS_1024 코워크 · 조사 7절] 결과 «내가 고른 스타일» 아래 고른 답마다 한 줄(최대 3줄 · 추천 · 맞춤 · 약속 말 · 몸 단정 없음) · «방문 전 준비» 네 줄 */
-  R.PREP = ['누드톤 심리스 속옷과 끈 없는 브라', '당일과 비슷한 굽의 신발', '마음에 드는 이미지 두세 장', '입어 볼 때 앉기 · 팔 들기 · 걷기 한 번씩'];
+  R.PREP = ['누드톤 심리스 속옷과 끈 없는 브라', '따로 신으실 신발이 있다면 가져와 주세요', '마음에 드는 이미지 두세 장', '입어 볼 때 앉기 · 팔 들기 · 걷기 한 번씩'];
+  /* ★★[DRESS_ACC_1024 코워크 · 사장님 «함께 볼 소품 추가해» · «부케도 모형 부케 기본적으로 셋팅해 놓을 거니까 볼 수 있게»] 결과 «함께 보는 소품» 여섯 칸 — 이 목록 한 곳.
+       ACC_ON = 덩어리 전체 스위치(실물 사진 오기 전 끄자 하시면 false 한 줄) · 칸마다 on(사장님 답에 따라 한 칸만 끄기) · 사진 480×480 스타일 예시(acc-*.webp).
+       이름은 사이트 말 그대로(«면사포» · «기본 조화 부케»). ★[ACC_SHOES_STUDIO 1024 사장님 «슈즈는 우리가 준비»] 슈즈 글 · 소제목 한 줄에 «스튜디오에서 준비». 부케 글 = 식순 BOUQUET · GOODS_STUDIO 와 같은 뜻 · 플로리스트 금액 없음 */
+  R.ACC_ON = true;
+  R.acc = [
+    { id: 'veil-short', name: '짧은 면사포', img: 'acc-veil-short', on: true },
+    { id: 'veil-long', name: '긴 면사포', img: 'acc-veil-long', on: true },
+    { id: 'cape', name: '오간자 케이프', img: 'acc-cape', on: true },
+    { id: 'bolero', name: '레이스 볼레로', img: 'acc-bolero', on: true },
+    { id: 'shoes', name: '새틴 슈즈', img: 'acc-shoes', note: '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요', on: true },
+    { id: 'bouquet', name: '기본 조화 부케', img: 'acc-bouquet', note: '기본 조화 부케는 저희가 준비해요 · 생화를 원하시면 별도 비용이에요', on: true }
+  ];
+  R.ACC_LEAD = '드레스 · 면사포 · 주얼리 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';
+  R.accList = function () { return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : []; };
   /* ★[DRESS_NAME_SPLIT 1024 코워크 GPT 2차] 이름 = 작은 보조 줄 «스타일 예시 0n» + 제목(«크레이프 A라인 · 케이프») — 실물 이름은 제목 하나 */
   R.nameParts = function (d) { var n = String((d && d.name) || ''), m = /^(스타일 예시 \d{2}) · (.+)$/.exec(n); return m ? { kick: m[1], title: m[2] } : { kick: '', title: n }; };
   R.SLEEVE_KO = { none: '없음', sleeve: '소매 있음', bolero: '볼레로' };   // [DRESS_DETAIL_FIELDS] 자세히 «디자인»의 소매 칸
