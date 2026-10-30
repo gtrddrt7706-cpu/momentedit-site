@@ -13050,7 +13050,7 @@ nochk "welcome:'하객 맞이 인사말'" order-preview.html
 chk "_wo.push('감사 인사')" mypage.html 1   # [THANKS_GREET_1013]   # [H1] 마이페이지 식순 요약(새 코스 갈래) · 옛 코스 요약은 그대로
 chk 'H2_SEND_LUMP' order-preview.html 1   # [H2] 식전 영상 한 덩어리 · 축배 음료 줄은 그 뒤
 chk 'H3_CALLER_HELPER' assets/ritual-open.js 1
-chk '가족사진 때 친척분들을 불러 모아 주실 분' assets/ritual-open.js 1
+chk '가족사진 때 촬영하실 분들을 불러 모아 주실 분' assets/ritual-open.js 1   # [NARROW_170_1030 N3] 옛 «친척분들»
 chk 'I1_HEAD' order-preview.html 1
 chk 'I1_HEAD' mypage.html 1
 nochk "return '고른 순간 '" order-preview.html   # [I1] ④ 머리는 «담은 순간 N · 본식 · 단체 사진»
@@ -13387,7 +13387,7 @@ chk "('invitationUrls' in dr) ? (dr.invitationUrls||{})" mypage.html 1
 chk '<div class="pf-l">신랑 측 혼주</div>' mypage.html 1
 chk '<div class="pf-l">신랑 계좌</div>' mypage.html 1
 chk 'aria-label="신랑 계좌번호"' mypage.html 1
-chk "' 계좌</div><div class=\"inv-row\">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 124px;',label+' 계좌 은행',true)" mypage.html 1
+chk "'</div><div class=\"inv-row\">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 124px;',label+' 계좌 은행',true)" mypage.html 1   # [PARENT_ONE_NAME_1030] 칸 이름 옆 예금주
 nochk 'placeholder="신랑 계좌번호 (예:' mypage.html 0
 # [INV_PUB_LABEL] 4/4 버튼 이름은 경로별 한 함수에서(청첩장 없이 마치기 · 이대로 마치기 · QR 받기 · 고친 내용 반영하기 · 청첩장 만들기) · 이미 발행한 부부에겐 링크가 그대로인지(디자인·초대 방식·이름 대조)를 말한다
 chk 'function _invPubLabel(d)' mypage.html 1
@@ -14078,7 +14078,7 @@ chk "_kbChip(el, function(){ collectNames(); INVFLOW.draft.method=el.getAttribut
 chk '.inv-opt\[data-m\]:focus-visible{outline:2px solid var(--gold-deep)' mypage.html 1
 nochk "<label class=\"inv-opt'+(m===v?' sel':'')+'\" data-m=" mypage.html 0
 # [INV_NAME_ARIA] 청첩장 1/4 이름 칸 이름(낭독기) — 신랑/신부 · 한글/영문 · placeholder 는 예시 그대로
-chk 'aria-label="신랑 한글 이름"' mypage.html 1
+chk 'aria-label="신랑 청첩장에 표시할 이름"' mypage.html 1   # [NARROW_170_1030 N7]
 chk 'aria-label="신부 영문 이름"' mypage.html 1
 # [INV_YN_PRESSED] 청첩장 네/아니요(1/4 QR · 2/4 · 3/4 온라인 디자인) — 묶음 이름(role=group · aria-label) + 버튼 aria-pressed
 chk 'INV_YN_PRESSED' mypage.html 3
@@ -15394,7 +15394,7 @@ chk "names: \['담백하게', '다정하게', '', '격식 있게', '따뜻하게
 chk '그럼 마음을 담아 준비한 노래, 큰 박수로 맞아 주세요.' assets/ritual-open.js 1   # [RETAKE_168_1030]
 nochk '두 사람의 축가 출발합니다' assets/ritual-open.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 친구 · 가족이 부르는 날 틀린 말(SONG_OPEN_ANYONE_1013)
 chk 'SONG_TILE_SELF_1018' assets/ritual-open.js 1
-chk "song: '가족 · 친구나 두 분이 직접 불러요'" assets/ritual-open.js 1
+chk "song: '가까운 분이나 두 분이 직접 불러요'" assets/ritual-open.js 1   # [NARROW_170_1030 N1]
 nochk "song: '가족 · 친구가 두 분께 노래를 불러요'" assets/ritual-open.js
 chk 'FLOW_MIN_UNIQ_1018' order-preview.html 2
 chk 'if(m<=_pm) m=_pm+1' order-preview.html 1
@@ -15795,7 +15795,7 @@ chk 'R5-02' order-preview.html 1
 chk 'function _vsMk()' order-preview.html 1
 chk 'R5-04' order-preview.html 1
 chk 'R5-05' order-preview.html 1
-chk "'양가 한 분씩 · 사진 때'" assets/ritual-open.js 1
+chk "'사진 때 · 필요한 경우에만 · 한 분이 함께 맡아도 돼요'" assets/ritual-open.js 1   # [NARROW_170_1030 N3]
 # ★[REVIEW26_1019 2026-10-19 대본 섹션 검토 136] 262 «담아»(65 «남았습니다»와 겹침) · 부모님께 전할 글 «~할게요»
 chk 'PHOTO_DAMA_1019' assets/ritual-data.js 1
 chk '영상과 사진으로 남겨 두 사람에게 선물해 주세요.' assets/ritual-data.js 1   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 262 = 자료 DD 원문 «남겨» 되돌림(옛 핀 «담아»)
@@ -20479,4 +20479,13 @@ chk "candle: '양가 대표 두 분이 초에 불을 밝혀요'" assets/ritual-o
 chk "out.push(\['축사해 주실 분', '가까운 분 한두 분(부모님 말씀은 덕담에서)'\]);" assets/ritual-open.js 1
 chk 'ENGINE_CH8_1030' scripts/audit/source-basis.mjs 1
 nochk '약속과 선언에 집중' assets/ritual-open.js
+# ── 2026-10-30 [NARROW_170_1030 · PARENT_ONE_NAME_1030 검토 170] 좁게 읽히는 글 2차 + 실제 막힘 — F5 혼주 한 분 → 계좌 예금주(청첩장 · 모바일 참석 · 마이페이지 같은 규칙) · N2 축가 «두 분이 직접»이면 부탁할 사람 줄 없음 · N1 · N3 ~ N8 · F6 · 화촉 카드
+chk 'PARENT_ONE_NAME_1030' shared/hydrate.js 2
+chk 'PARENT_ONE_NAME_1030' live.html 1
+chk 'PARENT_ONE_NAME_1030' mypage.html 2
+chk "if (onOf(S, 'song') && S.songBy !== 'self') out.push(\['축가를 불러 주실 분'" assets/ritual-open.js 1
+nochk '부모님 없이 또래끼리' mypage.html
+nochk '그 일가친척과 친지를 모신' assets/ritual-ref.js
+nochk '일반적으로 10~30명' index.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/narrow-170.mjs >/dev/null 2>&1 || { echo 'FAIL narrow-170: 좁은 글 2차 · 혼주 계좌 예금주 · 축가 직접 판정이 되돌아갔습니다 — node scripts/audit/narrow-170.mjs'; fail=1; }; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
