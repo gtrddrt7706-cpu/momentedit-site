@@ -20767,5 +20767,13 @@ chk "RF_FRESH.list = need;" console.html 1
 chk "if (Date.now() - t0 > 130000) { RF_READY.p = null; RF_READY.late = true; ok('late'); return; }" console.html 1
 nochk "if (!rfPending() || Date.now() - t0 > 130000) { RF_READY.p = null; ok(); return; }" console.html   # [RF_WAIT_ONCE] 한도에 닿으면 «다 받음»처럼 풀어 시작이 새 130초를 다시 걸던 줄
 nochk "if (!code || !tok) { RF_FRESH.list = false; return; } RF_FRESH.list = true;" console.html   # [RF_NOWAIT_EMPTY] 받을 것이 없어도 목록을 «받는 중»으로 잡던 줄(#1452)
+# ★[RF_AGAIN_RESET · RF_LATE_FREEZE · RF_SEL_REFETCH 2026-10-31 GPT 18차 점검(고객 18-01 · 당일 18-01 · 18-02)] 어느 «다시 받기»든 늦음을 걷고 새 차례 · 130초로 시작하면 소리 묶음을 굳힌다(늦은 답 버림) · 칩으로 받을 것이 바뀌면 need 를 다시 재 새 차례로 받는다 — con-start-nowait ⑤ ⑥ ⑦
+chk 'RF_AGAIN_RESET' console.html 2
+chk 'RF_LATE_FREEZE' console.html 5
+chk 'RF_SEL_REFETCH' console.html 3
+chk "RF_READY.late = true; if (typeof rfFreeze === 'function') rfFreeze(); ok('late');" console.html 1
+chk "if (ESD.gen !== eg) throw 1;" console.html 2
+nochk "rfAgainRun(false);" console.html   # [RF_AGAIN_RESET] 일반 «다시 받기»가 늦음 표시를 걷지 않던 호출
+nochk "if (late) RF_READY.late = false; rfPrefetch(); }" console.html   # [RF_AGAIN_RESET] 늦음 단추일 때만 늦음을 걷던 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/con-start-nowait.mjs >/dev/null 2>&1; _csn=$?; if [ "$_csn" != 0 ]; then echo 'FAIL con-start-nowait: 당일 콘솔 시작 기다림(받을 것 없는 예식 · 130초 한 번만) 판정이 어긋났습니다 — node scripts/audit/con-start-nowait.mjs'; fail=1; else echo "ok con-start-nowait ($_csn)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
