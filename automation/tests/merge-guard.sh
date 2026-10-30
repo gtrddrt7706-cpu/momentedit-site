@@ -20656,6 +20656,15 @@ chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/combo-171.mjs >/dev/null 2>&1; _c171=$?; [ "$_c171" = 1 ] && { echo 'FAIL combo-171: 순간 조합 · 진행 틈(인사 받는 분 · 255 · 축가 힌트 · 덕담 시간 · 연습 목록)이 되돌아갔습니다 — node scripts/audit/combo-171.mjs'; fail=1; }; :; fi
+# ── 2026-10-30 [TRIB_NO_HUG_1030 검토 172] 부모님께 인사 «인사와 포옹 / 인사만» — 인사만이면 256 · 포옹 동작 대기 · 동작 안내를 건너뛰고 맺는 말로(콘솔 · 미리 듣기 · 연습 · 대본 · 길이 · 카드 글 같은 값) · 기본 = 인사와 포옹 · 녹음 다시 받을 문장 0
+chk "function hugOff(S) { return !!(S && S.course === 'open' && S.tribHug === 'off' && onOf(S, 'tribute')); }" assets/ritual-open.js 1
+chk "hint = '인사가 끝나면';" assets/ritual-cue.js 1
+chk "L('tribHug','포옹'," order-preview.html 1
+chk "_gt.unote='고르지 않으시면 인사와 포옹으로 해요'" order-preview.html 1
+chk "if (k === 'tribute' && hugOff(S)) return '부부가 되어 처음 부모님께 고마움을 전해요.';" assets/ritual-open.js 1
+chk 'TRIB_NO_HUG_1030' api/_ritual-kb.js 1
+chk 'TRIB_NO_HUG_1030' admin.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/trib-no-hug.mjs >/dev/null 2>&1; _tnh=$?; [ "$_tnh" = 1 ] && { echo 'FAIL trib-no-hug: 부모님께 인사 «인사만»(포옹 줄 256 건너뛰기 · 카드 글 · 길이)이 되돌아갔습니다 — node scripts/audit/trib-no-hug.mjs'; fail=1; }; :; fi
 # ★[VC_DECISIONS_1030 2026-10-30 사장님 «추천대로» · AI 두 분 목소리 «대표 결정» 아홉] 나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 예식일 없음 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글
 chk 'VC_DEC_1030_1' automation/platform/80_production.gs 2
 chk 'VC_DEC_1030_1' order-preview.html 3

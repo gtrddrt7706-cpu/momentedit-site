@@ -2274,7 +2274,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1030i"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1030bh"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1030j"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1030bh"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3114,7 +3114,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1030i';   // [ASSET_V] 위 주석
+  var ASSET_V='1030j';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4377,6 +4377,7 @@ function _lGroups(k){
      읽어 주실 분은 칸에 직접 적는다 — 예시(DECL_HINT)는 칸 안에만. ★읽는 분 칩(신랑 아버님 · 신부 아버님 · 친구 · 지인 · 10/12 첫 판) · «누가 · 말투»(나레이션 엄숙 · 따뜻 · 박수 · 가족) 금지 — 사용자 지시로 삭제 */
   if(k==='declare') g.push({key:'declareWho',l:'읽어 주실 분',list:[],cur:'',q:true,note:'',html:'<input class="tin fe-what" type="text" maxlength="'+R.DECL_MAX+'" data-fk="declwho" aria-label="성혼 선언문을 읽어 주실 분" placeholder="'+esc(R.DECL_HINT)+'" value="'+esc(_declWho())+'" data-was="'+esc(_declWho())+'" oninput="setv(\'declareWho\',this.value)" onchange="lsDeclWho(this)">'});
   if(k==='tribute'){ L('tribute','인사말',R.CHIPS.tribute,R.chipOf('tribute',S),false,''); g[g.length-1].tip='신랑분은 원하시면 큰절을 올리셔도 돼요';   /* [NOTE_TOAST] 팁은 누르기 전에 읽혀야 해서 칩 아래 그대로(tip) */   /* ★«인사 방식»(꽃과 포옹 · 신랑 큰절) 칩 금지 — 2026-10-06 사용자 지시로 삭제 [GROOM_BOW_TIP] · 늘 꽃과 포옹 · 큰절은 팁 한 줄 · [TRIB_ONE_SAY] «말의 길이» → «인사 말»(말로 인사 · 말 없이) */ _lGoods('tribute',L); }
+  if(k==='tribute'&&R.onOf(S,'tribute')){ L('tribHug','포옹',[['on','인사와 포옹'],['off','인사만']],S.tribHug==='off'?'off':'on',false); g[g.length-1].up=1; }   /* ★[TRIB_NO_HUG_1030 검토 172] 인사만 = 포옹 줄(256) · 포옹 동작을 건너뛴다(엔진 hugOff) · 처음엔 안 눌린 모양(up) · 안 고르면 인사와 포옹 */
   if(k==='free'){ if(R.FREE_KIND[R.chipOf('free',S)]!=='speech') L('free','무엇을',R.CHIPS.free,R.chipOf('free',S));   /* ★[SPEECH_TILE_1012] 무엇을 줄은 옛 초안에만 — 축사로 바꾸면 줄이 사라진다 */
     /* ★[FREE_ETC 2026-10-06 사장님 «기타 칸 · 직접 적을 수 있게 · 길이도 직접»] 기타면 무엇을 칸에 적는다
        ★[FREE_LEN10 2026-10-06 사장님 «3분 이상 할 수 있는 건데» → 10분까지] 길이는 모든 판에서 분을 직접 적는다(1~10 · 길이 칩 3 · 2 · 1 대신) · 계약서 v1.12 ①-2 */
@@ -4398,6 +4399,7 @@ function _lGroups(k){
        ★[UNPICK_WORDS_1023] 안 고른 한 줄은 «고르지 않으시면 …»(BGM 축사 · 편지 음악 줄 BGM_R4_1023 과 같은 말 · 같은 12.5px) — 한 화면에 «아직 고르지 않았어요 · 고르지 않으면»과 두 꼴이 겹쳐 보였다 */
     if(k==='candle'){ var _gc=g.filter(function(x){ return x.key==='candleWho'; })[0]; if(_gc&&_gc.picked===false) _gc.unote='고르지 않으시면 양가 어머님께서 밝혀요'; }
     if(k==='letter'){ var _gl=g.filter(function(x){ return x.key==='letter'; })[0]; if(_gl&&_gl.picked===false) _gl.unote='고르지 않으시면 서로에게 읽어요'; }
+    if(k==='tribute'){ var _gt=g.filter(function(x){ return x.key==='tribHug'; })[0]; if(_gt&&_gt.picked===false) _gt.unote='고르지 않으시면 인사와 포옹으로 해요'; }   /* [TRIB_NO_HUG_1030] UNPICK_LINE 꼴 */
     if(k==='vow'){ var _gk=g.filter(function(x){ return x.key==='vowKind'; })[0], _gh=g.filter(function(x){ return x.key==='vowHow'; })[0], _gf=g.filter(function(x){ return x.key==='vowFirst'; })[0];
       if(_gh&&_gf){ var _k=!!(_gk&&_gk.picked===false), _a=_gh.picked===false, _b=_gf.picked===false, _u=[];   /* [THANKS_IN_VOW] 무엇을 읽나요도 같은 한 줄에 */
         if(_k) _u.push('서약'); if(_a) _u.push('한 줄씩 번갈아'); if(_b) _u.push('신랑부터');
@@ -4435,6 +4437,7 @@ function _lSet0(key,v){
   else if(key==='vowHow') S.vowHow=(v==='each'?'each':'alt');   // [VOW_HOW] 모르는 값은 번갈아
   else if(key==='vowFirst') S.vowFirst=(v==='b'?'b':'g');   // [VOW_FIRST]
   else if(key==='blessN') S.blessN=Math.max(1,Math.min(4,+v||2));   // [COMBO_171_1030 C04]
+  else if(key==='tribHug') S.tribHug=(v==='off'?'off':'on');   // [TRIB_NO_HUG_1030] 모르는 값은 인사와 포옹
   else if(key==='songBy') S.songBy=(v==='self'?'self':'friend');   // [SONG_BY_1018] 모르는 값은 가족 · 친구
   else if(key==='free'){ var _fk0=R.FREE_KIND[R.chipOf('free',S)]; R.setChip(S,key,v); var _fk1=R.FREE_KIND[R.chipOf('free',S)];
     /* ★[FREE_MARK_RESET 2026-10-07 점검] 무엇을(영상 · 선물 · 축사 · 기타) 갈래가 바뀌면 그 자리 할 일 표시(p:free:N)를 비운다 — 갈래마다 칸 번호가 같아(p:free:0)
@@ -8711,6 +8714,7 @@ window.pvEngRetry=function(){ var k=PV.k; if(!k) return; ENG_ERR=''; var s=docum
 /* ★★[PV_ONE_SHOT 2026-10-05 사장님 «남는 사진 · 문이 열리는 순간 · 두 분의 첫 장면 과 두 분이 함께 걸어 들어와, 나란히 서는 첫 장면을 남겨요 — 같은 의미 · 고객 입장에서 하나로» · «다른 곳들도 하나씩 열어 보며 중복 없이»]
    ① 미리보기 창의 설명(c.one)과 «남는 사진»(c.shot)을 순간마다 한 문장으로 — 무엇을 하는지 + 무엇이 사진에 남는지. 시간 · 받는 것 · 준비하는 것 같은 사실은 한 글자도 빼지 않았다.
    원천(ritual-open CARDS.one · shot)은 그대로 둔다(엔진 · AI 상담 · 다른 화면이 쓴다) — 이 창 문장만 여기서 */
+var PV_DESC_NOHUG='부부가 되어 처음 부모님께 고마움을 전하고, 인사하는 순간을 담아요.';   /* ★[TRIB_NO_HUG_1030 검토 172] 부모님께 인사 «인사만» 판 */
 var PV_DESC={
   prevideo:'예식 시작 시각, 불을 낮추고 두 분이 준비한 영상이 흘러요. 영상을 보는 하객들의 얼굴을 사진으로 남겨요.',   /* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] */   /* [OPEN_WORDS_1013] 시작 시각에 흐른다(CEREMONY_AT_VIDEO) · «모두 앉은 뒤»는 약속 못 한다 · GUESTS_OPEN */
   candle:'두 집을 대표해 초에 불을 붙이고, 두 분이 걸어올 길을 먼저 밝혀요. 불이 옮겨붙는 순간과 불빛에 비친 얼굴을 담아요.',   /* [OPEN_WORDS_1013] */
@@ -8745,7 +8749,7 @@ function _pvDraw(){
     if(vd) vd.setAttribute('aria-hidden','true');   /* ★① 창 영상 누르기 · Enter 로 멈춤/다시(tv · tabindex · «누르면 멈춤 · 다시» 이름) 금지 — 2026-10-03 사용자 지시로 삭제 [VID_AUTO_ONLY] · 창을 열 때와 «다시 듣기»(그 순간을 소리와 함께 다시)에만 돈다(_pvPlay) */
   }
   var t=ln?ln.text:'';
-  el.querySelector('#pvQ').textContent=_n2(PV_DESC[k]||c.one); void t;   /* ★★[PV_DESC_TOP 2026-10-05 사장님 «멘트를 적기보단 이 코스를 간략하게 설명하는 문구가 좋겠다» → «추천대로»] 큰 자리 = 이 순간 설명 한 문장 · 멘트 인용(«…») 금지 — 사용자 지시로 삭제 · 멘트는 «다시 듣기»로 들린다 */
+  el.querySelector('#pvQ').textContent=_n2(((k==='tribute'&&R.hugOff&&R.hugOff(S))?PV_DESC_NOHUG:PV_DESC[k])||c.one);   /* [TRIB_NO_HUG_1030] 인사만이면 «품에 안기는 순간» 대신 */ void t;   /* ★★[PV_DESC_TOP 2026-10-05 사장님 «멘트를 적기보단 이 코스를 간략하게 설명하는 문구가 좋겠다» → «추천대로»] 큰 자리 = 이 순간 설명 한 문장 · 멘트 인용(«…») 금지 — 사용자 지시로 삭제 · 멘트는 «다시 듣기»로 들린다 */
   _pvSay((ln&&!ln.src)?_pendT(ln):'',!!(ln&&!ln.src&&(ln.pfail||LREC_ERR)));   // [ERR_CODE_BUILDER] 녹음 목록을 못 받았으면 «녹음 전»이 아니라 그 까닭
   var _po=el.querySelector('#pvOne'); _po.textContent=''; _po.hidden=true;   /* [PV_DESC_TOP] 설명은 위 큰 자리로 올렸다(같은 말을 두 번 하지 않게) · [PV_ONE_SHOT] */
   var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=''; ce.hidden=true;   /* ★«하나씩 만들기에서 골라요 · ○○ · ○○» 한 줄(미리보기 창) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_CHOOSE_OFF] «삭제 · 다른 곳들도 마찬가지 · 일괄» · 창이 하나라 모든 순간에서 함께 빠진다 · ch(CHOOSE_AT_LISTEN)는 남겨 둔다(② 묶음 이름 검사 [F2 · G3]) · [STEP_NONUM_OP] 의 번호 없는 이름 규칙은 다른 자리에 그대로 */ void ch;

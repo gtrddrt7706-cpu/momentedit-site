@@ -1285,7 +1285,9 @@
           hint: sayT ? '인사말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
         /* ★[TRIB_HUG_CALL_1018 검토 124] 구호 뒤 포옹을 소리로 청한다 — 그 전엔 콘솔만 «포옹이 끝나면»을 기다리고 아무도 포옹을 청하지 않아, 두 분은 서 있고 부모님은 앉아 계신 몇 초가 생겼다.
            디렉터 GO(인사를 마치고 두 분이 고개를 들면) · 다음 tribute-out 은 그대로 «포옹이 끝나면» */
-        out.splice(3, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-hug', name: '포옹 청하기', text: EXTRA['tribute-hug'], duck: -12, fire: 'manual',
+        /* ★★[TRIB_NO_HUG_1030 검토 172] «인사만»(S.tribHug 'off')이면 포옹 줄(256) · 그 동작 대기 · 동작 안내를 건너뛰고 구호 뒤 바로 맺는 말(39) — 맺는 말은 «인사가 끝나면» 디렉터 GO */
+        if (O.hugOff && O.hugOff(S)) out[out.length - 1].hint = '인사가 끝나면';
+        else out.splice(3, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-hug', name: '포옹 청하기', text: EXTRA['tribute-hug'], duck: -12, fire: 'manual',
           hint: '인사를 마치고 두 분이 고개를 들면', live: { t: '양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)', est: base - 35, self: true, doing: 'move' } }));
       }
       return out;
