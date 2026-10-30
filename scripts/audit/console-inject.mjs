@@ -25,6 +25,26 @@ const co = rd('console.html');
 ok('③ 콘솔 칩 — 식사 자리 · 하객 안내 · 사진 올리기', /rMeal:\s*\['meal'/.test(co) && /rGuide:\s*\['guide'/.test(co) && /id="rMeal"/.test(co) && /id="rGuide"/.test(co));
 const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
 const sl = (o) => C.build(Object.assign({ course: 'open', on: {} }, o), { mode: 'console' }).cues.map((c) => c.slug);
-ok('③ 엔진 — [END_FLOW_1030] 사진 전 안내: 식사 + 하객 안내 날 266 · 식사만 26 · 없는 날 265 · 감사 인사 45 · 110 은 새 코스에서 안 튼다 · 하객 안내 날 264 · 85', sl({ meal: 1, guide: 1 }).indexOf('narr-photo-pre-meal') > -1 && sl({ meal: 1 }).indexOf('narr-close') > -1 && sl({}).indexOf('narr-photo-pre') > -1 && sl({ meal: 1 }).concat(sl({})).every((x) => x !== 'end-1a-farewell' && x !== 'end-1c-thanks-nomeal') && sl({ guide: 1 }).indexOf('narr-photo-upload') > -1 && sl({ guide: 1 }).indexOf('narr-photo-send') > -1 && sl({}).indexOf('narr-photo-send') < 0);
+ok('③ 엔진 — [END_FLOW_1030] 사진 전 안내: 식사 자리 + 예약 시각 + 하객 안내 날 266 · 식사만 26 · 없는 날 265 · 감사 인사 45 · 110 은 새 코스에서 안 튼다 · 하객 안내 날 264 · 85', sl({ meal: 1, mealFull: 1, resv: 1, guide: 1 }).indexOf('narr-photo-pre-meal') > -1 && sl({ meal: 1 }).indexOf('narr-close') > -1 && sl({}).indexOf('narr-photo-pre') > -1 && sl({ meal: 1 }).concat(sl({})).every((x) => x !== 'end-1a-farewell' && x !== 'end-1c-thanks-nomeal') && sl({ guide: 1 }).indexOf('narr-photo-upload') > -1 && sl({ guide: 1 }).indexOf('narr-photo-send') > -1 && sl({}).indexOf('narr-photo-send') < 0);
+/* ★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30 14:22] 266 은 «식사는 안내된 예약 시간에»라고 말한다 — 식사 자리 · 예약 시각 · 하객 안내 셋 다일 때만 */
+const pp = (o) => sl(Object.assign({ meal: 1, mealFull: 1, resv: 1, guide: 1 }, o)).filter((x) => /^narr-photo-pre|^narr-close$/.test(x));
+ok('④ 엔진 — 셋 다 266 · 카페만 26 · 예약 시각 빔 26 · 하객 안내 없음 26 · 애프터 웨딩 안 고름 265', pp({})[0] === 'narr-photo-pre-meal' && pp({ mealFull: 0 })[0] === 'narr-close' && pp({ resv: 0 })[0] === 'narr-close' && pp({ guide: 0 })[0] === 'narr-close' && pp({ meal: 0, mealFull: 0, resv: 0 })[0] === 'narr-photo-pre', JSON.stringify([pp({}), pp({ mealFull: 0 }), pp({ resv: 0 }), pp({ guide: 0 })]));
+const fv = (m) => ({ venuePick: '어느 곳', _favs: [{ n: '어느 곳', m }] });
+ok('④ mealFullOf — 목록 «카페» · 지도 «음식점 > 카페» 는 식사 아님 · 식당은 식사 · 담은 곳에 없으면 모름(식사 아님) · 옛 식사 형태 «다과»는 식사 아님',
+  L.mealFullOf(fv('차12분 · 보통 · 카페'), L.DINE_PH) === false && L.mealFullOf(fv('음식점 > 카페 > 커피전문점 · 1.2km'), L.DINE_PH) === false && L.mealFullOf(fv('차5분 · 보통 · 한식·코스'), L.DINE_PH) === true
+  && L.mealFullOf({ venuePick: '어느 곳' }, L.DINE_PH) === false && L.mealFullOf(Object.assign(fv('한식'), { mealType: '다과' }), L.DINE_PH) === false && L.mealFullOf({ venuePick: '장소 미정', _favs: [{ n: '장소 미정', m: '한식' }] }, L.DINE_PH) === false);
+ok('④ mealFullOf — 마이페이지 목록(DINE_DB)의 카페는 전부 식사 아님 · 식당은 전부 식사(목록이 바뀌어도 맞는지)', (() => { const mm = mp.match(/var DINE_DB = \[([\s\S]*?)\n\];/); if (!mm) return false; const db = eval('[' + mm[1] + ']'); const PR = { low: '', mid: '', high: '' };
+  return db.length > 20 && db.every((r) => L.mealFullOf(fv('차' + r.d + '분 · ' + (PR[r.p] || '') + (r.f && r.f.length ? ' · ' + r.f.join('·') : '')), L.DINE_PH) === (r.th !== 'cafe')); })());
+ok('④ resvOf — 다이닝 예약 시각 우선 · 키 없을 때만 하객 안내 옛 저장분 · 빈 값 = 지움', L.resvOf({ reserveTime: '13:30' }, {}) === true && L.resvOf({}, { reserveTime: '13:30' }) === true && L.resvOf({ reserveTime: '' }, { reserveTime: '13:30' }) === false && L.resvOf({}, {}) === false);
+ok('④ mealFull · resv 가 KEYS · INJECT 에 있다', ['mealFull', 'resv'].every((k) => L.KEYS.indexOf(k) > -1 && L.INJECT.indexOf(k) > -1));
+const op = rd('order-preview.html'), ro = rd('assets/ritual-open.js');
+ok('④ 세 갈래가 같은 값을 넘긴다 — 콘솔(관리자) · 미리 듣기(마이페이지) · 연습하기(식순 화면) · 40분 셈(postSec)',
+  /_cS\.mealFull=!!_RPL\.mealFullOf\(dd,_RPL\.DINE_PH\)/.test(ad) && /_cS\.resv=!!_RPL\.resvOf\(dd,gi\)/.test(ad)
+  && /mealFull:RitualPreviewLink\.mealFullOf\(p&&p\.diningDraft, DN_PLACEHOLDER\), resv:RitualPreviewLink\.resvOf\(p&&p\.diningDraft, p&&p\.guideinfoDraft\)/.test(mp) && /meal:_meal, mealFull:_mealF, resv:_resv, guide:_gOn/.test(mp)
+  && (op.match(/mealFull:!!CUSTMEALF, ?resv:!!CUSTRESV/g) || []).length === 4 && /CUSTMEALF=ev\.data\.mealFull/.test(op)
+  && /_postOf\(S, 'mealFull'\) && _postOf\(S, 'resv'\) && _postOf\(S, 'guide'\)/.test(ro) && /rMealFull:\['mealFull'/.test(co) && /id="rResv"/.test(co));
+/* ★[PHOTO_PRE_GAP_1030] 콘솔 간격 — 디지털 참석 날 온라인 인사 끝 GO 뒤 2초 · 그 밖은 GO 에 바로 · 사진 전 안내 뒤 전체 사진은 GO */
+const cq = (o) => C.build(Object.assign({ course: 'open', on: {} }, o), { mode: 'console' }).cues, pre = (o) => cq(o).find((c) => /^narr-photo-pre/.test(c.slug || ''));
+ok('④ 콘솔 간격 — 사진 전 안내는 GO(손) · 디지털 날만 2초 쉼 · 다음(전체 사진 쪽)은 사람 구간 뒤 GO', (() => { const a = pre({}), b = pre({ digital: true }); return a && b && a.fire === 'manual' && b.fire === 'manual' && !a.goLeadMs && b.goLeadMs === 2000 && !!a.live && /Math\.max\(_need \? _dms : 0, c\.goLeadMs \|\| 0\)/.test(co); })());
 console.log(bad ? '\nCONSOLE INJECT FAIL ' + bad : '\nCONSOLE INJECT OK');
 process.exit(bad ? 1 : 0);

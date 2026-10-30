@@ -238,7 +238,7 @@
     'bridge-b14-candle-name',
     /* ★[PHOTO_UP_1019 검토 138-2] 264 — 우리 «사진 올리기» 안내(5분 전 뒤 · 하객 안내가 열린 날 · 바깥 링크 날은 84) · 녹음 전엔 글로 */
     'narr-photo-upload',
-    /* ★★[END_FLOW_1030 검토 167] 265 · 266 — 사진 전 안내(닫는 인사 뒤 · 하객이 앉아 있을 때 남은 일을 다 말한다) · 265 = 식사 없음 판(기본) · 266 = 식사 있음 판(애프터 웨딩 식사 · 하객 안내가 있는 날) · 녹음 전엔 글로 */
+    /* ★★[END_FLOW_1030 검토 167] 265 · 266 — 사진 전 안내(닫는 인사 뒤 · 하객이 앉아 있을 때 남은 일을 다 말한다) · 265 = 식사 없음 판(기본) · 266 = 식사 있음 판(식사 자리 + 예약 시각 + 하객 안내 · PHOTO_PRE_PICK_1030) · ★[PAUSE_PREF_1030] 10/30 녹음이 들어와 소리 클립이다(문안 카드 아님) */
     'narr-photo-pre', 'narr-photo-pre-meal'
   ];
   var SLUG = {};
@@ -683,7 +683,7 @@
       duck: (o.duck === undefined ? PARAM.duckSpeech : o.duck),
       live: o.live || null, post: o.post || [], hint: o.hint || '',
       k: o.k || '', blockN: o.blockN || '', pick: o.pick || '', own: !!o.own,
-      fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin), gapMs: o.gapMs || 0,   // ★[CHAIN_GAP_1014] 사슬로 이어 나갈 때 앞 줄과의 사이(밀리초 · 0 이면 PARAM.gapMs) — 원고 «1.25초 사슬» · «사이 1초»
+      fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin), gapMs: o.gapMs || 0, goLeadMs: o.goLeadMs || 0,   // [PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연(GO) 큐를 그만큼 쉬고 튼다   // ★[CHAIN_GAP_1014] 사슬로 이어 나갈 때 앞 줄과의 사이(밀리초 · 0 이면 PARAM.gapMs) — 원고 «1.25초 사슬» · «사이 1초»
       note: o.note || '', alt: null, act: !!o.act,   // [END_FLOW_1030] act = 소리 없는 동작 큐(말 없음 · 문안 카드 아님 · 사람 구간만)
       rescue: o.rescue ? { slug: o.rescue.slug || '', no: o.rescue.slug ? noOf(o.rescue.slug) : '', file: o.rescue.slug ? fileOf(o.rescue.slug) : '', name: o.rescue.name || '', text: o.rescue.text || '' } : null   // [FREE_RESCUE] 콘솔이 사람 구간 동안 «재생 안 됨»으로 쓴다
     };
@@ -1513,12 +1513,15 @@
       live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: 120, self: true, doing: 'say' }
     }));
     /* ★★[END_FLOW_1030 검토 167] 사진 전 안내(새 녹음 · 한 클립 두 판) — 식사 있음(애프터 웨딩 식사 · 하객 안내가 있는 날) · 식사 없음(그 밖 · 카페만 포함).
-         새 코스에서 26(narr-close)을 대신한다 · 녹음 전에는 문안 카드로 지나간다 · 사람 구간(모임 + 전체 하객 · 꼭 담고 싶은 사진)은 26 이 하던 그대로 */
+         새 코스에서 26(narr-close)을 대신한다 · [PAUSE_PREF_1030] 10/30 녹음으로 소리 클립 · 사람 구간(모임 + 전체 하객 · 꼭 담고 싶은 사진)은 26 이 하던 그대로 */
     /* 식사는 있는데 하객 안내가 없는 날은 «모바일 청첩장의 하객 안내»도 «편히 귀가»도 틀린 말이라 26(옛 사진 안내 · 녹음 있음)으로 지난다 */
-    var _ppre = (S.meal && S.guide) ? 'narr-photo-pre-meal' : S.meal ? 'narr-close' : 'narr-photo-pre';
+    /* ★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30 14:22] 266 은 «식사는 안내된 예약 시간에»라고 말한다 — 식사 자리(카페 · 다과만 아님 · mealFull) + 예약 시각(resv) + 하객 안내(guide) 셋 다일 때만.
+         다이닝은 있는데 하나라도 비면 26(중립) · 애프터 웨딩을 안 고른 날 265 · 값은 RitualPreviewLink(mealFullOf · resvOf) 한 곳 · 콘솔 · 미리 듣기 · 연습하기가 같은 값을 넘긴다(console-inject) */
+    var _ppre = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-photo-pre-meal' : S.meal ? 'narr-close' : 'narr-photo-pre';
     if (_openC) cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: _ppre, name: _ppre === 'narr-photo-pre-meal' ? '사진 전 안내 · 식사 있음' : '사진 전 안내', text: _ppre === 'narr-close' ? D.NARR.close : EXTRA[_ppre],
       duck: -12, note: '가장 느리게 · 하객이 앉아 있을 때 남은 일을 다 말한다(END_FLOW_1030)',
+      goLeadMs: (S.digital ? 2000 : 0),   /* ★[PHOTO_PRE_GAP_1030 대본 섹션 10/30 14:22] 디지털 참석 날 — 온라인 인사 끝(마이크 off · 디렉터 GO) 뒤 2초 쉬고 사진 전 안내 · 닫는 인사 박수 뒤는 GO 에 바로(덧 간격 없음) · 사진 전 안내 뒤 전체 사진은 작가님 · 디렉터 GO */
       live: { t: '하객이 앞으로 모임 · 두 분을 가운데로', est: 60, self: true, doing: 'move', duck: PARAM.duckMusic },
       post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }]
     }));
@@ -1653,7 +1656,7 @@
         var goFree = Math.max(120, budget * 60 - goals);
         var gather = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
         function fit(c, goal, pre) { if (c && c.live) c.live.est = Math.max(10, Math.round(goal - (pre || 0) - (c.est || 0))); }
-        var _pc = by['narr-photo-pre'] || by['narr-photo-pre-meal'] || (_photoOpen ? by['narr-close'] : null);   // [END_FLOW_1030] 식사만 있는 날은 26 이 사진 전 안내 자리
+        var _pc = by['narr-photo-pre'] || by['narr-photo-pre-meal'] || (_photoOpen ? by['narr-close'] : null);   // [END_FLOW_1030] 다이닝은 있는데 266 셋(식사 자리 · 예약 시각 · 하객 안내) 중 하나라도 빈 날은 26 이 사진 전 안내 자리 [PHOTO_PRE_PICK_1030]
         if (_photoOpen) { if (_pc && _pc.live) _pc.live.est = Math.max(10, _go['end-0-photo']); }   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
         else fit(by['end-0-photo'], _go['end-0-photo'], gather);
         var _fam = _photoOpen ? cues.filter(function (c) { return c.act && c.k === '_photo'; })[0] : by[_thx];   // [END_FLOW_1030] 새 코스는 소리 없는 가족 구도 큐

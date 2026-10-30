@@ -555,6 +555,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     <div class="row"><label>하객 맞이 목소리</label><span id="rGV"></span></div>
     <div class="row"><label>온라인 참석 안내</label><span id="rDigital"></span></div>
     <div class="row"><label>식사 자리</label><span id="rMeal"></span></div>
+    <div class="row"><label>식사 · 카페</label><span id="rMealFull"></span></div>
+    <div class="row"><label>식사 예약 시각</label><span id="rResv"></span></div>
     <div class="row"><label>하객 안내 · 사진 올리기</label><span id="rGuide"></span></div>
   </div>
 
@@ -795,6 +797,8 @@ var OPT = {
   rDigital:['digital',[[false,'없음'],[true,'있음']]],
   /* ★[CONSOLE_INJECT_1019 검토 138-0] 관리자 «당일 콘솔» 단추가 실어 오는 값 — 디렉터가 현장에서 바로잡을 수 있게 칩으로도 둔다 */
   rMeal:   ['meal',[[false,'없음'],[true,'있음']]],
+  rMealFull:['mealFull',[[false,'카페 · 모름'],[true,'식사']]],   // [PHOTO_PRE_PICK_1030] 사진 전 안내 266 은 식사 · 예약 시각 · 하객 안내 셋 다일 때
+  rResv:   ['resv',[[false,'없음'],[true,'있음']]],
   rGuide:  ['guide',[[false,'없음'],[true,'있음']]]
 };
 
@@ -1622,7 +1626,7 @@ function fire(i, opt){
      이어지는 큐는 사이 끝 0.4초 전에 이미 내려 두어(아래 preDuck) 여기서 기다리지 않는다 · 입장 장면은 제 시계(10초 앞 음악)가 맡아 빼고 · 고객 미리 듣기는 종전 그대로 */
   /* ★[BGM_FIX_1030 GPT③ R1-3] 미리 낮추기 = 보통 0.8초(leadMs) · 박수 뒤 큐는 1.5초(fadeMs) · 이미 그 크기 이하면 낮추지 않는다 · 음성은 실제 내림이 끝난 뒤에(대기 = 내림 시간) */
   var _need = (MODE !== 'preview' && !esdMain(c) && duckWant > c.duck + 0.5), _dms = c.fadeMs || (PARAM.duck && PARAM.duck.leadMs) || PARAM.fadeDownMs;
-  var _lead = _need ? _dms : 0;
+  var _lead = Math.max(_need ? _dms : 0, c.goLeadMs || 0);   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
   cheerAt = -1;   // [TOAST_GO] 축배 오름은 그 큐에서 한 번
   duckTo(c.duck, _need ? _dms : (c.fadeMs || PARAM.fadeDownMs));   // [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
 

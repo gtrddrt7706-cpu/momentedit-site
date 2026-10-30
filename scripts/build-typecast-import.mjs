@@ -250,6 +250,9 @@ const FLOW_GAP_T = JSON.parse(fs.readFileSync(path.join(root, FLOW_GAP_SRC), 'ut
 const FLOW_GAP = new Map(FLOW_GAP_T.changes
   .map((x) => [`${x.key}|${x.text}|${x.next}`, x.after_new]));
 const flowHit = new Set();
+/* ★[PAUSE_PREF_1030 2026-10-30 사장님 검수본 쉼 · «신랑 신부 입장 멘트 들어가는 곳 전부 신랑 직전 쉼을 조금 더 길게» · «인사하겠습니다. 신랑 이전에 쉼 시간 좀 더»]
+   표에 force:true 가 붙은 자리는 위 특수 값(입장 · 인사 구호 앞 0.6)보다 표가 먼저다. 특수 규칙은 그대로 두고(다른 클립의 같은 꼴을 지키려고) 표가 덮는다. */
+const FLOW_FORCE = new Map(FLOW_GAP_T.changes.filter((x) => x.force).map((x) => [`${x.key}|${x.text}|${x.next}`, x.after_new]));
 // ★자잘한 예외 여백도 한 곳에만 적는다 — 아래 본문과 맨 끝 안내 표가 같은 값을 읽는다.
 //   두 군데 적어 두면 표만 낡은 숫자를 지키는 날이 온다.
 const FINE = {
@@ -536,6 +539,11 @@ for (const P of PARTS) {
       // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }
 
+      // ★[PAUSE_PREF_1030] force 자리 — 특수 값보다 표가 먼저
+      if (!last) {
+        const fk = `${c.no}_${c.file}|${s.text}|${sents[k + 1].text}`;
+        if (FLOW_FORCE.has(fk)) { after = FLOW_FORCE.get(fk); flowHit.add(fk); }
+      }
       // ★[FLOW_GAPS_1023] 흐름 쉼 표 — 기본값(GAP.sent)인 자리만 덮는다
       if (!last && after === GAP.sent) {
         const fk = `${c.no}_${c.file}|${s.text}|${sents[k + 1].text}`;

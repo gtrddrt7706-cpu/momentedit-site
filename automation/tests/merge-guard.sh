@@ -5234,7 +5234,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함
+chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -20700,6 +20700,12 @@ chk 'VC_DEC_1030_9' console.html 4
 chk "tx.textContent = ownTxtFor(c) || c.text || '';" console.html 1
 chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
+# ── 2026-10-30 [PAUSE_PREF_1030 · PHOTO_PRE_PICK_1030 · PHOTO_PRE_GAP_1030] 사장님 검수본 쉼 · 사진 전 안내 판 고르기 · 온라인 인사 뒤 2초
+chk 'const FLOW_FORCE = new Map(' scripts/build-typecast-import.mjs 1
+chk "var _ppre = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-photo-pre-meal'" assets/ritual-cue.js 1
+chk 'function mealFullOf(dd, placeholders)' assets/ritual-preview-link.js 1
+chk 'c.goLeadMs || 0' console.html 1
+chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
 # ★[VC_FIX14_1030 2026-10-30 GPT 14차 점검(고객 14-01 ~ 14-09 · 당일 14-01 ~ 14-04)] 옛 공용 칸 이관 소실 셋 · 로그인 전 늦은 답 · 모델만 지운 분 지우기 · 연습 소리 90일 · 기기 보관 파일 id · 스튜디오 확인 파일 id · 글 카드 차례 · 보관본 찾는 동안 시작 잠금 · 스튜디오 파일 끊긴 채 다시 열기
 chk 'VC_FIX14_1030' scripts/audit/vc-fix14-1030.mjs 1
 chk 'MIG_KEEP' mypage.html 8

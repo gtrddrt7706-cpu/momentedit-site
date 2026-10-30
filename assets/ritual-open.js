@@ -417,7 +417,7 @@
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
   function _postOf(S, f) { return (S && typeof S[f] === 'boolean') ? S[f] : !!_POST[f]; }
-  function postSec(S) { var m = _postOf(S, 'meal'); return (m && _postOf(S, 'guide') ? POST_SEC.pre : m ? 0 : POST_SEC.preNoMeal) + (_postOf(S, 'digital') ? POST_SEC.online : 0); }   // 식사 있음 판(266)은 식사 + 하객 안내가 있는 날 · 식사만 있는 날은 26 그대로(0) — 엔진 _ppre 와 같은 조건
+  function postSec(S) { var m = _postOf(S, 'meal'); return (m && _postOf(S, 'mealFull') && _postOf(S, 'resv') && _postOf(S, 'guide') ? POST_SEC.pre : m ? 0 : POST_SEC.preNoMeal) + (_postOf(S, 'digital') ? POST_SEC.online : 0); }   // 식사 있음 판(266)은 식사 자리 + 예약 시각 + 하객 안내가 있는 날 · 그 밖 다이닝 날은 26 그대로(0) — 엔진 _ppre 와 같은 조건 [PHOTO_PRE_PICK_1030]
   /* 본식 상한 — 예시 넷 «천천히»(hi · 테이블 인사 포함) 가운데 가장 긴 값(손으로 적지 않고 잰다) · 단체 사진 SHORT_MIN 이 늘 남게 그 아래로 자른다(디지털 참석 날은 2분 낮아진다) */
   var _CAP_EX = null;
   function capEx() { if (_CAP_EX == null) _CAP_EX = Math.max.apply(null, EXAMPLES.map(function (e) { var t = applyExample({ course: 'open' }, e.k); t.course = 'open'; return bodySec(t)[1]; })); return _CAP_EX; }
