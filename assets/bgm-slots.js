@@ -15,6 +15,7 @@
 //   S3(입장 · 맞절)는 지금의 입장 음악(assets/entry-music.js · S.mu) 그대로다 — 이 파일은 그 칸을 바꾸지 않는다.
 //
 // 저장 — 초안 S.bgm = { S5:{m:'bed'}, S6:{m:'bed'} } 만(마이페이지 저장과 함께 서버로 · S.mu 와 같은 길) [BGM_INFO_1023]
+//   ★[BGM_PREVIEW_1024] 구간 곡 번호도 — { M2:{k:'M2_3'}, S5:{m:'bed',k:'M4S5_1'} … } (clean 이 꼴을 지킨다 · 곡 목록은 assets/bgm-picks.js)
 //   «음악 없이»는 기본과 같아서 적지 않는다. 옛 값(own · warm · none · studio)은 읽을 때 버린다(clean).
 //
 // 브라우저: <script src="/assets/bgm-slots.js"></script> → window.BgmSlots
@@ -127,10 +128,17 @@
     var on = !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed' && s.picks.indexOf('bed') > -1);
     return { m: on ? 'bed' : s.picks[0], set: on };
   }
-  /* 저장 꼴 — { S5:{m:'bed'}, S6:{m:'bed'} } 만 남긴다(옛 «우리가 고른 곡» 기록 · 곡 이름은 버린다) · 남는 것이 없으면 undefined */
+  /* 저장 꼴 — { S5:{m:'bed'}, S6:{m:'bed'} } 만 남긴다(옛 «우리가 고른 곡» 기록 · 곡 이름은 버린다) · 남는 것이 없으면 undefined
+     ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 구간 곡 번호(k · assets/bgm-picks.js 의 f)도 남긴다 — 구간(M1 · M2 · M4 · M5 · M6 · M7 · M8)은 { k } ·
+       축사 · 편지는 «음악과 함께»일 때만 { m:'bed', k } · 번호는 곡 번호 꼴('B05' · [BGM_FIX_1030])만 · 곡 이름 · 파일은 담지 않는다 */
+  var SEG_K = { M1: 1, M2: 1, M4: 1, M5: 1, M6: 1, M7: 1, M8: 1 }, SUB_SEG = { S5: 'M4S5', S6: 'M4S6' };
+  /* ★[BGM_FIX_1030 2026-10-30] 번호 = 곡마다 하나('B05' 꼴 · assets/bgm-picks.js SONGS) — 한 곡이 여러 구간에 든다 · 옛 구간 번호('M2_1')는 버린다(그 구간은 «고르지 않음» · 1순위로 준비 · 오류 없이) ·
+     그 구간 목록에 있는지는 BgmPicks.custK 가 본다(여기는 꼴만 · 이 파일은 bgm-picks 없이도 돈다) */
+  function kOk(seg, k) { return /^B\d{2,3}$/.test(String(k || '')); }
   function clean(bgm) {
     var o = {}, n = 0;
-    SLOTS.forEach(function (s) { if (s.picks.indexOf('bed') > -1 && bgm && bgm[s.id] && bgm[s.id].m === 'bed') { o[s.id] = { m: 'bed' }; n++; } });
+    SLOTS.forEach(function (s) { if (s.picks.indexOf('bed') > -1 && bgm && bgm[s.id] && bgm[s.id].m === 'bed') { o[s.id] = { m: 'bed' }; if (kOk(SUB_SEG[s.id], bgm[s.id].k)) o[s.id].k = String(bgm[s.id].k); n++; } });
+    Object.keys(SEG_K).forEach(function (id) { if (bgm && bgm[id] && kOk(id, bgm[id].k)) { o[id] = { k: String(bgm[id].k) }; n++; } });
     return n ? o : undefined;
   }
   /* 아래 한 줄 — 고른 것에 따라 */
