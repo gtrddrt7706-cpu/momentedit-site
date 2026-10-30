@@ -1431,8 +1431,8 @@
         var _more = [];
         /* ★[COMBO_171_1030 검토 171 C02] 다음이 덕담이어도 255 를 건너뛰는 것은 «선언한 분 = 덕담하실 분(부모님)»일 때만 — 읽어 주실 분 칸이 부모님(아버님 · 어머님 …)이면 그 자리에서 이어 말씀하시고,
              친구 · 지인 · 다른 분이면 255(자리로) 뒤 디렉터 GO 로 덕담을 연다(마이크가 부모님께 넘어간 뒤) · 기존 255 그대로 */
-        var _declPar = /아버|어머|부모|아빠|엄마/.test(String(S.declareWho || ''));
-        if (slugB === 'bridge-b3-clap-thanks' && (bn.k !== 'bless' || !_declPar)) { _more.push('bridge-b9-declare-seat-end'); if (bn.k === 'bless') { bn.fire = 'manual'; bn.hint = '선언하신 분이 자리로 돌아가고 마이크가 부모님께 넘어가면'; } }   // ★[REVIEW26_1023 검토 150-2 1)] 늘 255 «선언해 주신 분께서는 자리로 돌아가셔도 좋습니다.» — 245 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»는 화촉 구호(138 · 146 · 147)와 같은 말이었다
+        var _dw = String(S.declareWho || '').trim(), _declOther = !!_dw && !/아버|어머|부모|아빠|엄마/.test(_dw);   // 비어 있으면 종전대로(바로 덕담 · 아버님이 읽는 날이 흔하다)
+        if (slugB === 'bridge-b3-clap-thanks' && (bn.k !== 'bless' || _declOther)) { _more.push('bridge-b9-declare-seat-end'); if (bn.k === 'bless') { bn.fire = 'manual'; bn.hint = '선언하신 분이 자리로 돌아가고 마이크가 부모님께 넘어가면'; } }   // ★[REVIEW26_1023 검토 150-2 1)] 늘 255 «선언해 주신 분께서는 자리로 돌아가셔도 좋습니다.» — 245 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»는 화촉 구호(138 · 146 · 147)와 같은 말이었다
         if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');
         if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');   // ★[REVIEW26_1023 검토 150-2 4)] 인사 «밝게»(259 «… 눈물보다는 기쁨으로 …»)는 B12 «… 경건한 시간»과 부딪친다

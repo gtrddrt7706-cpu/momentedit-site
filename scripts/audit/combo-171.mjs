@@ -12,7 +12,7 @@ await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.addres
 const O = require(path.join(ROOT, 'assets/ritual-open.js')), C = require(path.join(ROOT, 'assets/ritual-cue.js'));
 const fam = (w) => { const S = O.applyExample({ course: 'open' }, 'family'); S.course = 'open'; S.declareWho = w; const cs = C.build(C.norm(S), { mode: 'console' }).cues; const i = cs.findIndex((c) => c.k === 'bless'); return { cs, i }; };
 { const a = fam('신랑 아버님'), b = fam('친구 김민수');
-  ok('C02 선언한 분 = 부모님이면 255 없이 덕담으로 이어 감', a.cs[a.i - 1].slug !== 'bridge-b9-declare-seat-end' && a.cs[a.i].fire !== 'manual');
+  { const z = fam(''); ok('C02 선언한 분 = 부모님이거나 안 적었으면 255 없이 덕담으로 이어 감(종전)', a.cs[a.i - 1].slug !== 'bridge-b9-declare-seat-end' && a.cs[a.i].fire !== 'manual' && z.cs[z.i - 1].slug !== 'bridge-b9-declare-seat-end'); }
   ok('C02 다른 분이 선언하면 255(자리로) 뒤 디렉터 GO 로 덕담', b.cs[b.i - 1].slug === 'bridge-b9-declare-seat-end' && b.cs[b.i].fire === 'manual' && /마이크가 부모님께 넘어가면/.test(b.cs[b.i].hint || '')); }
 { const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open'; const cs = C.build(C.norm(S), { mode: 'console' }).cues, e = cs.find((c) => /^narr-song-end/.test(c.slug || ''));
   ok('C03 축가 맺는 말 힌트 «마지막 음 · 잔향이 끝나면»(녹음이 박수를 이끈다)', !!e && e.hint === '마지막 음 · 잔향이 끝나면');

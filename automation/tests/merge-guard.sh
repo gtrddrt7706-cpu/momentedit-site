@@ -15290,7 +15290,7 @@ chk 'B11_OFF_1018' scripts/build-dubbing-script.mjs 1
 chk "    'bridge-b11-song-light': 1 };" assets/ritual-cue.js 1   # RETIRED — 녹음 전에 걷었다(번호 보존)
 nochk "_more.push('bridge-b11-song-light')" assets/ritual-cue.js
 nochk "\['N21-i', '이음말 · 엄숙한 순간 → 축가'" scripts/build-dubbing-script.mjs
-chk "if (slugB === 'bridge-b3-clap-thanks' && bn.k !== 'bless') _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «_more.push('bridge-b9-declare-seat');»
+chk "if (slugB === 'bridge-b3-clap-thanks' && (bn.k !== 'bless' || _declOther)) { _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # [COMBO_171_1030 C02] 다음이 덕담이어도 다른 분이 선언했으면 255
 chk "&& _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «&& !/\^이제/.test(_nxT) && _nxT.indexOf('하»
 chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «!BRIDGE_OPEN.test(_nxT)) _more.push('bri»
 chk "&& !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1
