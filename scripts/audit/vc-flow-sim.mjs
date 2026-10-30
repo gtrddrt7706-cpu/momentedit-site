@@ -10,7 +10,7 @@ const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs'
 const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcWedOver_', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcHold', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcWedOver_', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcHold', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcCodeSet_', '_vcTs_', '_vcLastAct_', '_vcAiTrashAll_', '_vcVoiceKeys_', '_vcModelOffDue_', '_vcModelOff_', '_vcMonthCap_', '_vcMonthWarn_', '_vcSlots'];
 const code = [line(/var RF_KEYS[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_DOWN[^\n]*/), line(/var VC_COLOR[^\n]*/)].concat(FN.map(grab)).join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const miss = FN.filter((f) => !grab(f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -124,10 +124,10 @@ ok('빠르기만 바꾸면 줄마다 센 수(per)에 안 셈 · 새로 만든 �
   ok('[TEMPO_STEP] 한 번 만든 빠르기는 다시 부르지 않는다(캐시 열쇠에 빠르기)', seen.length === n0, JSON.stringify(seen)); }
 for (let i = 0; i < 12; i++) r = w.call({ op: 'make', key: 'g1', text: '글 ' + i, one: 'groom' });
 ok('[VC_BUDGET] 한 줄을 열두 번 다시 만들어도 막히지 않음 · «N번 남음»(left)을 보내지 않음', r.ok && r.left === undefined && w.call({ op: 'status' }).per === undefined, JSON.stringify(r));
-w.props.VC_ME0001 = JSON.stringify(Object.assign(w.st(), { practice: 199990 }));
+w.props.VC_ME0001 = JSON.stringify(Object.assign(w.st(), { practice: 29990 }));   // [VC_DEC_1030_6] 예식당 3만 자
 const ttsBefore = w.calls.filter((c) => /text-to-speech/.test(c)).length;
 const r5 = w.call({ op: 'make', key: 'g1', text: '열한 글자를 넘는 새 글이에요', one: 'groom' });
-ok('[VC_BUDGET] 예식당 20만 자를 넘으면 «이번 예식의 AI 만들기를 다 썼어요 …» · TTS 를 부르지 않음', !r5.ok && r5.limit && /이번 예식의 AI 만들기를 다 썼어요\. 지금 것을 쓰시거나 직접 녹음해 주세요/.test(r5.error) && w.calls.filter((c) => /text-to-speech/.test(c)).length === ttsBefore, JSON.stringify(r5));
+ok('[VC_BUDGET] 예식당 3만 자(VC_DEC_1030_6 · 종전 20만)를 넘으면 «이번 예식의 AI 만들기를 다 썼어요 …» · TTS 를 부르지 않음', !r5.ok && r5.limit && /이번 예식의 AI 만들기를 다 썼어요\. 지금 것을 쓰시거나 직접 녹음해 주세요/.test(r5.error) && w.calls.filter((c) => /text-to-speech/.test(c)).length === ttsBefore, JSON.stringify(r5));
 /* ★[VC_CACHE_FIRST 2026-10-30] 한도 근처라도 이미 만든 소리(같은 글 · 목소리 · 빠르기 · 쉼)는 돌려준다 — 남은 글자는 새로 만들 줄만 센다 */
 { const rc = w.call({ op: 'make', key: 'g1', text: '글 11', one: 'groom' });
   ok('[VC_CACHE_FIRST] 한도 근처 · 저장본 있는 줄은 «다 썼어요» 대신 그 소리 · TTS 를 부르지 않음', rc.ok && rc.parts && rc.parts.length === 1 && !!rc.parts[0].data && w.calls.filter((c) => /text-to-speech/.test(c)).length === ttsBefore, JSON.stringify(rc)); }
@@ -151,9 +151,9 @@ ok('연습 읽기 — 목소리 없으면 기본 목소리(신부 → 여) · �
 w.props.VC_ME0001 = JSON.stringify({ practice: 19000 });
 r = w.call({ op: 'practice', role: 'groom', text: '나'.repeat(1200) });
 ok('[VC_BUDGET] 연습 2만 자는 걷었다 — 2만 자를 넘어도 읽음', r.ok, JSON.stringify(r));
-w.props.VC_ME0001 = JSON.stringify({ practice: 100000, make: { total: 9, per: {}, chars: 99500 } });
+w.props.VC_ME0001 = JSON.stringify({ practice: 15000, make: { total: 9, per: {}, chars: 14500 } });
 r = w.call({ op: 'practice', role: 'groom', text: '다'.repeat(1200) });
-ok('[VC_BUDGET] 연습 + 줄 만들기 합이 20만 자를 넘으면 «이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요»', !r.ok && r.error === '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요', JSON.stringify(r));
+ok('[VC_BUDGET] 연습 + 줄 만들기 합이 3만 자를 넘으면 «이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요»', !r.ok && r.error === '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요', JSON.stringify(r));
 { const n0 = w.calls.length; r = w.call({ op: 'practice', role: 'bride', text: '가'.repeat(1500) });   // 6 앞머리에서 만든 연습 소리
   ok('[VC_CACHE_FIRST] 연습도 한도 근처에서 저장본은 돌려준다(TTS 안 부름)', r.ok && !!r.data && w.calls.length === n0, JSON.stringify(r)); }
 

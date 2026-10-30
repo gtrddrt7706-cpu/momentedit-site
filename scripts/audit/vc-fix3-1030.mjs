@@ -22,7 +22,7 @@ let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}
 
 /* ───────── 서버 ───────── */
 const GS = fs.readFileSync(path.join(ROOT, 'automation/platform/80_production.gs'), 'utf8');
-const FN = ['_voiceStudio', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcAlert', '_vcAiFolder', '_vcDelVoice', '_vcDelMark', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcPurgeNow', '_vcSlots', '_vcOrphanSweep_', 'purgeVoiceClones'];
+const FN = ['_voiceStudio', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcAlert', '_vcAiFolder', '_vcDelVoice', '_vcDelMark', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcPurgeNow', '_vcSlots', '_vcOrphanSweep_', 'purgeVoiceClones', '_vcCodeSet_', '_vcTs_', '_vcLastAct_', '_vcAiTrashAll_', '_vcVoiceKeys_', '_vcModelOffDue_', '_vcModelOff_', '_vcMonthCap_', '_vcMonthWarn_'];
 const grabIn = (src, name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const lineIn = (src, re) => (src.match(re) || [''])[0];

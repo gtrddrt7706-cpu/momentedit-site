@@ -1441,6 +1441,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-one{margin:6px 0 14px;font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
 .mk-sec-t{white-space:nowrap;color:var(--gold-deeper)}
 .mk-note{margin:0 0 10px;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
+.mk-vnar{margin-top:12px}   /* [VC_DEC_1030_3] 카드 아래 한 줄 · 카드에 붙지 않게 */
 .mk-vid{margin:0 0 10px}
 .mk-listen{display:inline-flex;align-items:center;gap:6px;margin:0 0 6px}
 .mk-sec{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--border)}
@@ -5090,7 +5091,8 @@ function _vtShown(key){ var c=_vtEdit(key); return c||_vtDef(key); }   /* ★[G3
 function _txStale(key){ var v=(S.up||{})[key]; return !!(v&&typeof v==='object'&&v.src==='ai'&&v.tx&&v.tx!==_txSig(_recNeed(key))); }
 /* [R7-01 WHO_STALE] 만든 사람(S.up[key].by)과 지금 읽는 사람이 다르면 그 소리는 그 줄 것이 아니다 — 다른 기기에서 받은 값 등 어느 길로 어긋나도 «다시 만들어 주세요»로 드러낸다 */
 function _whoStale(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.src==='ai'&&v.wq!=null&&_slKeyOk(key)) return !!_slWhoSig(key)&&(v.wq!==_slWhoSig(key)||!!_whoMiss(key)||(typeof v.by==='string'&&_vcLineWho(key)!=='both'&&v.by!==_vcLineWho(key)));   /* ★[FILL_WHO_TRUE 2026-10-09 E-3] 한 분이 읽는 줄인데 다른 분 목소리 소리면(그 분 목소리가 없을 때 서버가 다른 분으로 만들어 온 옛 소리) «다시 만들어 주세요» — 종전엔 이 갈래가 차례(wq)만 봐서 «확정하기»로 남았다 */   /* [LINE_SPLIT] 줄마다 읽는 분 차례로 본다 · [WHO_MISS] 그 차례를 읽은 목소리도 · [LINE_BLANK] 줄이 다 비면 «읽는 분» 문제가 아니다(종전 «읽는 분이 바뀌었어요»가 거짓으로 떴다) */ return !!(v&&typeof v==='object'&&v.src==='ai'&&/^(g\d|pv)$/.test(key)&&typeof v.by==='string'&&v.by!==_vcLineWho(key)); }
-/* ★★[WHO_MISS 2026-10-08 목소리 1라운드 #12 · #22] 한 분 목소리만 있을 때 만든 나눠 읽는 줄(입장 인사 · 두 분이 나눠 읽는 하객 맞이 · 소개글) — 서버는 목소리가 없는 분의 줄도 있는 분 목소리로 만든다(80_production make «한 분만 만들었으면 그 목소리로»).
+/* ★★[WHO_MISS 2026-10-08 목소리 1라운드 #12 · #22] 한 분 목소리만 있을 때 만든 나눠 읽는 줄(입장 인사 · 두 분이 나눠 읽는 하객 맞이 · 소개글) — ~~서버는 목소리가 없는 분의 줄도 있는 분 목소리로 만든다(80_production make «한 분만 만들었으면 그 목소리로»)~~
+   ★2026-10-30 사장님 «추천대로»로 바뀜 [VC_DEC_1030_1] — 서버가 이제 그런 줄을 만들지 않고 «신부 목소리가 아직 없어요»(V0)로 거절한다. 아래 판정은 그 전에 만들어 둔 옛 소리를 «다시 만들어 주세요»로 드러내는 데만 남는다.
    종전엔 다른 분이 목소리를 만든 뒤에도 그 소리가 남았다(읽는 차례 wq 는 맞고 만든 목소리 by 는 한 분) — 머리는 «확정하기», 당일 한쪽 줄이 다른 분 목소리로 나갔다.
    이제 그 줄을 읽는 분 가운데 «지금 목소리가 있는데» 소리를 만든 목소리(by)에 없는 분이 있으면 stale — 그분이 «이 목소리로 쓰기»를 누르면 함께 다시 만들고(_vcAutoFill · _vcRebakeWho) · 예시 글이면 미리 섞어 둔 소리를 붙인다(_exLate).
    옛 판에 남은 것은 머리 «신부 목소리가 생겼어요 · 목소리 만들기»(읽는 분은 안 바뀌었다 · _whoLab). 목소리가 아직 없는 분은 세지 않는다(다시 만들어도 같은 소리) · 확정한 줄은 그대로(KEEP_LINE «다시 녹음해도 확정한 줄은 그 소리 그대로») */
@@ -5925,8 +5927,8 @@ var VC_TXT={
   self:function(){ return '다른 분이 대신 동의할 수 없어요'; },   /* ★[CONSENT_ONE_ASK 2026-10-08 목소리 1라운드 #9] 바로 위 굵은 줄(turn · 0927 설계 5-2)이 «직접 눌러 주세요»를 이미 말한다 — «○○ 님 본인이 직접 눌러 주세요.»를 두 번 말하던 것 금지(BOSS_WAY 3) */
   turn:function(w){ var t=w==='groom'?'신랑':'신부'; return t+' 차례예요 · '+t+_josa(t,'이','가')+' 직접 눌러 주세요'; },   /* ★[QA_JOSA 2026-10-04 점검] «신랑가» — 받침 따라 */
   where:'어디에 쓰나요 · 이 예식의 하객 맞이 안내 · 식전 영상 소개 · 입장 인사, 켜시면 연습 읽기에만 써요',   /* [CONSENT_PV 2026-10-03 사장님 «넣기»] 같은 목소리로 식전 영상 소개도 만든다(PV_INTRO) — 쓰는 곳과 동의 글이 같아야 한다 */
-  what:'무엇을 보내나요 · 곧 읽으실 녹음을 음성 업체(타입캐스트)에 보내 목소리를 만들어요',
-  when:'언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날, 만든 안내 소리는 예식 뒤 30일에 지워요. 그 전에도 바로 지울 수 있어요',
+  what:'무엇을 보내나요 · 녹음과 AI가 읽을 안내 글을 타입캐스트에 보내요',   /* ★[VC_DEC_1030_2 2026-10-30 사장님 «추천대로»] 사실대로 — 종전 글엔 안내 글(두 분 성함이 들어갈 수 있음)을 보내는 일이 빠져 있었다(처리방침 «AI 목소리 생성» 위탁 줄과 같은 말) */
+  when:'언제 지우나요 · AI 목소리는 예식 7일 전 안내 소리가 다 만들어지면, 늦어도 예식 다음 날 지워요. 읽은 녹음은 예식 다음 날, 만든 안내 소리는 예식 뒤 30일에 지워요. 그 전에도 바로 지울 수 있어요',   /* ★[VC_DEC_1030_7 2026-10-30 사장님 «추천대로»] 예식 7일 전 줄 소리가 다 저장되면 업체 쪽 목소리 모델을 지운다(80_production _vcModelOffDue_) */
   opt:'안 해도 돼요 · 스튜디오 나레이션으로 진행할 수 있어요',   // [R2-08]
   check:'제 목소리로 AI 목소리를 만드는 것에 동의해요',
   noFile:function(nm){ return '파일은 올릴 수 없어요. '+nm+' 님 목소리로만 만들기 위해서예요'; },
@@ -5935,7 +5937,7 @@ var VC_TXT={
   short:'조금 더 천천히, 끝까지 읽어 주세요',
   used:'다시 만들기를 다 썼어요. 지금 것을 쓰시거나, 지우면 스튜디오 나레이션으로 나와요',   // [R2-08]
   entryToo:'입장 인사도 같은 목소리로 만들었어요'
-}, VC_CONSENT_V='1003';   /* [CONSENT_PV] 동의 글이 바뀌었다(식전 영상 소개) — 어느 글에 동의했는지 서버 기록이 가른다 */
+}, VC_CONSENT_V='1030';   /* [VC_DEC_1030_2] 동의 글(무엇을 보내나요 · 언제 지우나요)이 바뀌었다 — 1003 → 1030 */   /* [CONSENT_PV] 동의 글이 바뀌었다(식전 영상 소개) — 어느 글에 동의했는지 서버 기록이 가른다 */
 function _vcDay(t){ var m=String(t||'').match(/^\d{4}-(\d{2})-(\d{2})/); return m?(+m[1])+'월 '+(+m[2])+'일':''; }
 /* ★★[VOICE_ONCE 2026-10-03 사장님 «목소리 만들기는 한 쪽에서 한 번에»] 순간 쪽(하객 맞이 · 식전 영상 · 입장)마다 되풀이되던 «AI 두 분 목소리 만들기» 칸(_vcSec · 사람 카드) 금지 — 2026-10-03 사용자 지시로 삭제.
    사람 카드는 ② 예식 흐름 다음 «두 분 목소리 만들기» 쪽 하나에만(_mkVoicePage → _vcPeople). 동의 · 확인 문장 · 1분 읽기 · 만들기는 종전 작은 창(REC_DLG · VC.panel/VC.read) 그대로다 — 갈래를 새로 만들지 않는다.
@@ -5964,13 +5966,13 @@ function _vcPeople(page){
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}; if(p.consent&&!p.ready&&p.left!==0&&!(VC.enr||{})[w]) try{ _vcPre(w,1); }catch(e){} });   // ★[PHRASE_KEEP 2026-10-09 A~Z 점검 2라운드 B2-8] 미리 받기는 서버의 30분 안 문장을 그대로(keep) — 다른 기기가 열기만 해도 읽는 분의 문장이 바뀌던 것   // [VC_ENROLL_ONE] 만드는 중인 분은 새 문장을 받지 않는다   // [PHRASE_EARLY] 1분 읽기가 남은 분 — 창을 열기 전에 확인 문장을 받아 둔다
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}, nm=_vcName(w), role=w==='groom'?'신랑':'신부', who=role+' '+(nm===role?'':nm);   // [VC_CARD_0928 8-5] 사람 카드
     var mk=(VC.enr||{})[w], ef=!mk&&(VC.efail||{})[w], efc=ef?(/^[A-Z]\d/.exec(_ecCodeOf(ef.err))||[''])[0]:'';   /* [VC_EFAIL_KEEP] 창을 닫은 뒤 실패 — «만들지 못했어요 (코드)» · [다시 만들기](읽은 녹음 그대로) */   /* ★[VC_ENROLL_ONE] 창을 닫아도 만들기는 이어진다 — 카드도 «만드는 중»(종전엔 «목소리 만들기» 단추가 그대로라 또 누르면 하나 더 만들었다) */
-    var stx=/* [VC_LEFT_WORD] */p.ready?'목소리 생성'+(_vcDay(p.made)?' · '+_vcDay(p.made):''):   /* [VC_SIM] 날짜를 못 읽으면 «목소리 생성 ·»처럼 점만 남던 것 */p.deleting?'지우는 중이에요 · 매일 다시 지워요':/* [VC_DEL_PEND] 업체가 아직 지웠다고 답하지 않음 */   /* ★[VC_DEL_DAILY 2026-10-30 GPT 4차 점검 4-01 · VC_FIX4_1030] «곧 끝나요»는 약속할 수 없는 말 — 못 지운 것은 매일 지우기(purgeVoiceClones)가 다시 묻는다 · 그 근거를 그대로 말한다 */(p.left===0&&!p.ready)?(VC.st.over?(p.deleted?('지웠어요'+(_vcDay(p.deleted)?' · '+_vcDay(p.deleted):'')):VC_OVER_W):'만들기를 다 썼어요 · 나레이션으로 나와요'):ef?'만들지 못했어요'+(efc?' (코드\u00a0'+efc+')':''):p.deleted?'지웠어요'+(_vcDay(p.deleted)?' · '+_vcDay(p.deleted):''):'아직 만들지 않았어요';   /* ★[VC_DEL_SAY 2026-10-30 GPT 3차 점검 12 · VC_FIX3_1030] 지운 목소리를 «아직 만들지 않았어요»(처음부터 없던 것)와 같은 말로 보이지 않는다 — 서버가 지운 때(deleted)를 준다 · 다시 만들면 «목소리 생성»으로 */   /* [VC_ENROLL_ONE] 만드는 중에도 상태 글은 그대로 — 단추 «만드는 중…»과 같은 말을 두 번 하지 않는다(6라운드 실측 · BOSS_WAY 3) */   /* ★[VPAGE_TIDY] «목소리 만들기가 남…» 상태 말 금지 — 바로 아래 [목소리 만들기] 단추와 같은 말을 두 번 · «남았어요»는 숙제처럼 읽혔다 */   // [VC_LIMIT_UI] · [VC_WORD_GEN]
+    var stx=/* [VC_LEFT_WORD] */p.ready?'목소리 생성'+(_vcDay(p.made)?' · '+_vcDay(p.made):''):   /* [VC_SIM] 날짜를 못 읽으면 «목소리 생성 ·»처럼 점만 남던 것 */p.deleting?'지우는 중이에요 · 매일 다시 지워요':/* [VC_DEL_PEND] 업체가 아직 지웠다고 답하지 않음 */   /* ★[VC_DEL_DAILY 2026-10-30 GPT 4차 점검 4-01 · VC_FIX4_1030] «곧 끝나요»는 약속할 수 없는 말 — 못 지운 것은 매일 지우기(purgeVoiceClones)가 다시 묻는다 · 그 근거를 그대로 말한다 */(p.left===0&&!p.ready)?(VC.st.over?(p.deleted?('지웠어요'+(_vcDay(p.deleted)?' · '+_vcDay(p.deleted):'')):VC_OVER_W):'만들기를 다 썼어요 · 나레이션으로 나와요'):ef?'만들지 못했어요'+(efc?' (코드\u00a0'+efc+')':''):p.modelOff?VC_MODEL_OFF_W:/* ★[VC_DEC_1030_7 2026-10-30 사장님 «추천대로»] 예식 7일 전 줄 소리가 다 저장돼 업체 쪽 모델을 지운 분 — 다시 만들려면 다시 녹음(서버 modelOff · 소리 파일은 그대로) */p.deleted?'지웠어요'+(_vcDay(p.deleted)?' · '+_vcDay(p.deleted):''):'아직 만들지 않았어요';   /* ★[VC_DEL_SAY 2026-10-30 GPT 3차 점검 12 · VC_FIX3_1030] 지운 목소리를 «아직 만들지 않았어요»(처음부터 없던 것)와 같은 말로 보이지 않는다 — 서버가 지운 때(deleted)를 준다 · 다시 만들면 «목소리 생성»으로 */   /* [VC_ENROLL_ONE] 만드는 중에도 상태 글은 그대로 — 단추 «만드는 중…»과 같은 말을 두 번 하지 않는다(6라운드 실측 · BOSS_WAY 3) */   /* ★[VPAGE_TIDY] «목소리 만들기가 남…» 상태 말 금지 — 바로 아래 [목소리 만들기] 단추와 같은 말을 두 번 · «남았어요»는 숙제처럼 읽혔다 */   // [VC_LIMIT_UI] · [VC_WORD_GEN]
     var go=function(){ return (page?'mkVoiceGo':'mkVcConsent')+'(\''+w+'\')'; };   /* [VOICE_ONCE] · [CONSENT_EVERY] 시작은 늘 동의부터 — «글 1 부터» 갈래가 없다 */
     var need=p.ready&&!!(S.vsetNeed||{})[w], o=(S.vset||{})[w]||{};
     h+='<li class="mk-vr mk-vpc'+(p.ready?' ok':'')+(need?' need':'')+'"><span class="mk-vt"><span class="mk-vn"><span class="mk-vrole">'+role+'</span>'+esc(nm===role?'':nm)+'</span>'
       +'<span class="mk-vs">'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span>'
       +(p.ready&&p.deleting?'<span class="mk-vhow">'+VC_OLD_DEL_W+'</span>':'')   /* ★[VC_OLD_DEL 2026-10-30 GPT 5차 점검(고객) 5-03 · VC_FIX5_1030] 새 목소리가 준비돼도 앞 목소리 · 읽은 녹음을 아직 지우는 중이면(deleting) 한 줄 — 종전엔 «목소리 생성»이 «지우는 중»을 가려 다 지운 것처럼 보였다 */
-      +(!p.ready&&p.left!==0&&!mk&&!ef?'<span class="mk-vhow">글 두 개를 소리 내어 읽어요 · 1분쯤</span>':'')   /* [VPAGE_TIDY] 안 만든 분 카드의 빈 가운데 — 단추를 누르면 무엇을 하는지 미리 */
+      +(!p.ready&&p.left!==0&&!mk&&!ef&&!p.modelOff?'<span class="mk-vhow">글 두 개를 소리 내어 읽어요 · 1분쯤</span>':'')   /* [VC_DEC_1030_7] 모델을 지운 분은 상태 줄이 «다시 녹음해요»를 말한다 */   /* [VPAGE_TIDY] 안 만든 분 카드의 빈 가운데 — 단추를 누르면 무엇을 하는지 미리 */
       +(need&&_vcOn()?'<span class="mk-vneed">예시를 들어 보고 말 빠르기 · 문장 사이 쉼을 정하면 끝나요</span>':'')
       /* ★[VC_CARD_A 2026-10-04 사장님 «여기 디자인 별론데 최선이야?» → 시안 A] 회색 상자 둘 금지(입력칸처럼 보였다) — 가는 선 위아래 · 가운데 세로선 두 칸.
          아랫줄 = 왼쪽 «▶ 들어 보고 맞추기»(제 크기) · 오른쪽 «다시 녹음 · 지우기» — 상자 안 상자를 걷고 높이를 줄였다 */
@@ -5980,20 +5982,21 @@ function _vcPeople(page){
         :p.left===0?''   // [VC_LIMIT_UI] 다 쓴 분은 누를 단추가 없다
         /* ★동의한 분은 «글 1»부터 여는 단추(mkvcread · 동의 걸음을 건너뜀) 금지 — 2026-10-07 사용자 지시로 삭제 [CONSENT_EVERY]
            (사장님 «폰은 동의가 나오는데 같은 아이디로 PC만 건너뛴다 · 지금도» — 화면이 연 순간의 동의 기록으로 갈래를 골라, 먼저 열어 둔 화면과 새로 연 화면이 갈렸다) */
-        :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'"'+(mk?' aria-busy="true"':'')+' onclick="'+go()+'"><span>'+(mk?'만드는 중…':ef?'다시 만들기':'목소리 만들기')+'</span></button>')+'</span>'   /* [VC_ENROLL_ONE] 같은 자리 · 같은 크기 — 누르면 «만드는 중» 창 */   /* [VB_WORD] */
+        :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'"'+(mk?' aria-busy="true"':'')+' onclick="'+go()+'"><span>'+(mk?'만드는 중…':ef?'다시 만들기':p.modelOff?'다시 녹음':'목소리 만들기')+'</span></button>')+'</span>'   /* [VC_ENROLL_ONE] 같은 자리 · 같은 크기 — 누르면 «만드는 중» 창 */   /* [VB_WORD] */
       +(p.ready?'<span class="mk-vsub">'+(p.left>0?'<button type="button" class="pk-link" data-fk="mkvcre:'+w+'"'+(mk?' aria-busy="true"':'')+' onclick="mkVcConsent(\''+w+'\')">'+(mk?'만드는 중…':ef?'다시 만들기':'다시 녹음')+'</button><span aria-hidden="true">·</span>':'')
         +'<button type="button" class="pk-link mk-vdel" data-fk="mkvcdel:'+w+'" aria-label="'+esc(who.trim()+' AI 목소리 '+((VC.delBusy||{})[w]?'지우는 중':'지우기'))+'"'+((VC.delBusy||{})[w]?' aria-disabled="true" aria-busy="true"':mk?' aria-disabled="true"':'')+' onclick="mkVcDel(\''+w+'\')">'+((VC.delBusy||{})[w]?'지우는 중…':'지우기')+'</button></span>':'')+'</span>'+(p.ready&&(VC.delErr||{})[w]?'<p class="mk-exw mk-vderr" role="alert">'+esc(VC.delErr[w])+'</p>':'')+'</li>';   /* [DEL_AFTER_OK] 지우기 실패 까닭 — 다시 누르거나 지워질 때까지 */   /* [VC_CARD_A] 아랫줄 닫기 */
   });   // [REC_DLG] 동의 · 1분 읽기는 작은 창에서
   return h+'</ul>'+(VC.note?'<p class="mk-note" role="status">'+VC.note+'</p>':''); }
 /* [VOICE_ONCE] 순간 쪽 — AI 를 골랐는데 아직 아무 목소리도 없으면 한 줄 + «만들기»(그 쪽으로) · 한 분이라도 있으면 줄이 그 목소리로 채워지니 말하지 않는다 */
 function _vcNone(){ var hd='<h4 id="mkVcH" class="sr-only">AI 두 분 목소리</h4>'; if(!_vcOn()) return hd; if(!VC.st){ if(VC.stErr) return hd+_vcStFail('mkvcstre3'); _vcStatus(); return hd; }   // [ERR_CODE_BUILDER] 못 받았는데 «아직 만들지 않았어요 · 만들기»라고 하지 않는다 · [VC_STATUS_RETRY] 마지막으로 받은 상태가 있으면 그것으로
-  if((VC.st.groom||{}).ready||(VC.st.bride||{}).ready||VC.st.over) return hd;   // [VC_WED_OVER] 예식이 끝났으면 «만들기»로 보내지 않는다
+  if((VC.st.groom||{}).ready||(VC.st.bride||{}).ready||VC.st.over||(VC.st.groom||{}).modelOff||(VC.st.bride||{}).modelOff) return hd;   // [VC_DEC_1030_7] 모델만 지운 판은 «아직 만들지 않았어요»가 아니다(줄 소리는 그대로)   // [VC_WED_OVER] 예식이 끝났으면 «만들기»로 보내지 않는다
   return hd+'<p class="mk-note mk-vnone" data-fk="mkvnone">두 분 목소리를 아직 만들지 않았어요 · <button type="button" class="pk-link" data-fk="mkvoicego" onclick="mkGo(\'_voice\')">만들기</button></p>'; }
 /* [VOICE_ONCE] «두 분 목소리 만들기» 쪽 — 머리 · 한 줄 설명 · 진행(«신랑 ✓ · 신부 남음») · 휴대폰 녹음 길잡이 · 사람 카드 · «나중에 할게요»
    막지 않는다 — 동의는 스스로 고르는 것이라 «다음»은 늘 눌린다. 두 분 다 만들었으면 조용한 «준비됐어요»(다시 만들기 · 지우기는 카드에) */
 /* ★★[VPAGE_PC 2026-10-05 사장님 «PC 버전인데 아래쪽이 비어 있어 이상 · 가로 2개 말고 세로로 2개» → «추천대로»]
    PC(넓은 화면)는 사람 카드를 위아래로 · 카드 안은 한 줄(이름 · 상태 | 빠르기 · 쉼 | 단추) — 폰은 종전 그대로(이미 세로).
    카드 아래 «이 목소리가 쓰이는 곳»: 이 예식에서 AI 로 정한 자리(하객 맞이 넷 · 입장 인사 · 식전 영상 소개)마다 읽는 분 · 상태(아직 · 만듦 · 확정됨) · 누르면 그 순간으로 */
+var VC_MODEL_OFF_W='목소리 모델은 지웠어요 · 다시 만들려면 다시 녹음해요';   /* [VC_DEC_1030_7] 사장님 «추천대로» 문구 그대로 */
 var VC_USE=[['g0','하객 입장 때','guest'],['g1','시작 10분 전','guest'],['g3','시작 1분 전','guest'],['pv','식전 영상 소개','prevideo'],['entry','입장 인사','entry']];   /* [VOICE_ORDER] 예식 차례 그대로 */
 /* ★★[VUSE_FLOW 2026-10-05 사장님 «이렇게(쓰이는 곳 목록 · 읽는 분 · 만듦) 하는 것보다 · 신랑 신부가 아직 등장 전 나오는 주인공 안내 목소리 · 기본 이해를 시키고 어디서 쓰이는지만 알려 주고 · 누르면 작은 창 · 이해를 돕는 용도로만 · 다음 넘기면 쭉 볼 수 있게»]
    «두 분 목소리 만들기» 맨 위(카드보다 먼저): 한 줄 이해 + 예식 시간 순서의 이름 흐름(상태 없음). 누르면 작은 창 — 장면 · 언제 · 하객이 듣는 문장 · 읽는 분 · 들어 보기(만든 소리 · 없으면 예시 목소리가 있을 때만).
@@ -6155,6 +6158,9 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus(); else _vcStFresh();  
   /* ★«신랑 남음 · 신부 남음» 진행 줄 금지 — 2026-10-04 사용자 지시로 삭제 [VPROG_OFF] · 각 카드 상태 줄(«목소리 생성 · 날짜» / «아직 만들지 않았어요»)이 같은 말을 한다 */
   if(!both&&!VC.stErr&&!st.over) h+='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';   /* 창(_vsPanel)과 같은 길잡이 · [ERR_CODE_BUILDER] 목소리 정보를 못 받았으면 녹음 길잡이 대신 까닭 + 다시 불러오기(_vcPeople) */
   h+=_vcPeople(true);   /* [VPAGE_PC] · [VUSE_FLOW] «쓰이는 곳»은 맨 위 이해 줄로 옮겼다 */
+  /* ★[VC_DEC_1030_3 2026-10-30 사장님 «추천대로»] 안 만들면 어떻게 되나 한 줄(BOSS_WAY 1 · 당일 콘솔은 두 분 소리가 없는 줄을 스튜디오 나레이션으로 낸다) — 이 쪽에 한 번만.
+     카드가 이미 «만들기를 다 썼어요 · 나레이션으로 나와요»라고 말하는 판 · 예식이 끝난 판에는 두지 않는다(같은 말 두 번 · 할 일 없음) */
+  if(!st.over&&!VC.stErr&&!['groom','bride'].some(function(w){ var p=st[w]||{}; return p.left===0&&!p.ready; })) h+='<p class="mk-note mk-vnar">만들지 않은 줄은 당일 스튜디오 나레이션으로 나와요</p>';
   if(!both) h+='<div class="mk-vlater"><button type="button" class="pk-link" data-fk="mkvlater" onclick="mkVoiceLater()">나중에 할게요</button></div>';
   return h+'</section>'; }
 /* [VOICE_ONCE] 이 쪽에서 «목소리 만들기 시작» — 종전 동의 창으로 바로(세 순간 고르기는 건드리지 않는다 · [VP_UNPICKED_ALL]) */
@@ -6167,6 +6173,7 @@ window.mkVoiceLater=function(){   /* ★«나중에 할게요»가 세 순간을
 function _vcConsentPanel(w){ var nm=_vcName(w), kv=function(x){ var i=x.indexOf(' · '); return '<li><b>'+esc(x.slice(0,i))+'</b>'+esc(x.slice(i+3))+'</li>'; };
   return '<p class="mk-dlg-lead">'+esc(VC_TXT.turn(w))+'</p><p class="mk-note">'+esc(VC_TXT.self(nm))+'</p>'
     +'<ul class="mk-dlg-kv">'+[VC_TXT.where,VC_TXT.what,VC_TXT.when,VC_TXT.opt].map(kv).join('')+'</ul>'
+    +'<p class="mk-note mk-vpriv"><a class="pk-link" href="/privacy.html#voice-clone" target="_blank" rel="noopener" data-fk="mkvcpriv">개인정보 처리방침 보기</a></p>'   /* [VC_DEC_1030_2] 처리방침의 «두 분 목소리» 줄로(새 창) */
     +'<label class="upchk mk-dlg-chk"><input type="checkbox" id="vcSelf" data-fk="vcself"'+(VC.agree?' checked':'')+' onchange="VC.agree=this.checked;render()"><span>'+esc(VC_TXT.check)+'</span></label>'
     +'<button type="button" class="mk-dlg-go" id="vcAgree" data-fk="mkvcagree"'+(VC.agree&&!(VC.agreeing||{})[w]?'':' disabled')+' onclick="mkVcAgree(\''+w+'\')">'+((VC.agreeing||{})[w]?'저장하는 중…':'동의하고 읽으러 가기')+'</button>'   /* [CONSENT_LIVE] 저장 중 표시는 그 분 창에만 */
     /* ★«위 칸에 체크하면 눌러져요» 줄 금지 — 2026-10-04 사용자 지시로 삭제 [AGREE_NOTE_OFF] */
@@ -6555,7 +6562,7 @@ function _vcMake0(key,o,job){ o=o||{}; if(o.fill){ var _uq=(S.up||{})[key]; if(_
     MK_UP[key]='make'; MK.aiAt=MK.aiAt||{}; MK.aiAt[key]=Date.now(); MK.aiDur=MK.aiDur||{}; MK.aiDur[key]=_waitEst(t).toFixed(1); if(MK.lineErr) delete MK.lineErr[key]; render(); }   // [VC_LINE_ERR] · [AI_PILL] 'make' = 만드는 중(올리는 동안은 _mkSendWav 가 다른 값으로 = 저장 중)
   var _gv=_vcGen(sn);   /* [FILL_WHO_TRUE] 묻는 때의 목소리 차례 */
   return _vc('make',{key:key,text:t,tempo:tempo,pause:pause,one:one,lines:lines,retempo:sn.retempo,bg:job.bg?1:undefined}).then(function(d){   /* [SIM_R2] «만드는 중»은 받은 소리를 다듬는 동안에도 */
-    if(!d.ok&&(d.novoice==='groom'||d.novoice==='bride')){ _vcGone(d.novoice); if(own()){ delete MK_UP[key]; _vcNoVoice(key); } throw 0; }   /* [VC_GONE] B2-6 서버 VC_ONE_OWN 거절 — 화면이 직접 말할 때(_vcNoVoice)와 같은 말 */
+    if(!d.ok&&(d.novoice==='groom'||d.novoice==='bride')){ _vcGone(d.novoice); if(own()){ delete MK_UP[key]; _vcNoVoice(key,d.novoice); } throw 0; }   /* [VC_DEC_1030_1] 나눠 읽는 줄은 서버가 짚은 분 */   /* [VC_GONE] B2-6 서버 VC_ONE_OWN 거절 — 화면이 직접 말할 때(_vcNoVoice)와 같은 말 */
     if(!d.ok){ if(own()){ delete MK_UP[key]; if(!d.empty){ MK.lineErr=MK.lineErr||{}; MK.lineErr[key]=d.error||'만들지 못했어요 · 잠시 뒤 다시 눌러 주세요 (코드 V0)'; } render(); } throw 0; }   /* [LINE_BLANK] 빈 글은 실패가 아니다(빨간 글 없음) */   /* [ERR_ZERO_TEXT] 화면이 만든 대체 글엔 V0 */   /* [VC_LINE_ERR] 까닭은 그 줄 아래에 · 뒤일의 실패는 지금 줄에 말하지 않는다 */
     VC.left=VC.left||{}; VC.left[key]=d.left;
     return _vcProc(d,t,pause,mx?{turns:sn.turns,texts:(lines||[]).map(function(l){ return l[1]; }),onRaw:function(r){ if(own()) VC_RAW[key]={sig:sn.rawSig,chs:r.chs,sr:r.sr,n:r.n}; }}:null).then(function(p2){ var by=d.parts.map(function(pt){ return pt.who; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
@@ -6648,7 +6655,8 @@ function _whoRetryRun(){ var R=VC.whoRetry||{}; VC.whoRetry={}; Object.keys(R).f
 function _whoPend(key,i,w,go,fx){ VC.whoPend=VC.whoPend||{}; var had=!!VC.whoPend[key], n=0; VC.whoPend[key]={i:i,w:w,go:go}; if(fx) _fxNext=fx; render(); if(had) return;
   (function wt(){ var p=(VC.whoPend||{})[key]; if(!p) return; if(MK_UP[key]){ if(++n>600){ delete VC.whoPend[key]; render(); return; } setTimeout(wt,300); return; } delete VC.whoPend[key]; p.go(); })(); }   // 3분이 지나도 안 끝나면(멈춘 일) 기다림을 걷고 칸을 원래대로
 function _whoPendOn(key,i,w0){ var p=((typeof VC!=='undefined'&&VC.whoPend)||{})[key]; return p&&p.i===i?p.w:w0; }   // 칸에 켜 보일 분 — 기다리는 누름이 있으면 그것(i = 줄 편집기의 줄 · null = 머리 신랑 | 신부)   // [ERR_CODE_BUILDER] 못 받은 까닭 코드를 그 줄에도(360px 한 줄)
-function _vcNoVoice(key){ MK.lineErr=MK.lineErr||{}; MK.lineErr[key]=_vcName(_vcLineWho(key))+' 님 AI 목소리를 아직 만들지 않았어요 · 이 줄은 스튜디오 나레이션으로 나와요'; render(); }   // [SIM_R1] 목소리 없는 분으로 바꾸면 빈 줄만 남고 까닭이 없었다
+function _vcNoVoice(key,w){ var lw=_vcLineWho(key), st=VC.st||VC.stLast||{}, miss=lw==='both'?(w==='groom'||w==='bride'?[w]:['groom','bride'].filter(function(x){ return !(st[x]||{}).ready; })):[];   /* ★[VC_DEC_1030_1 2026-10-30 사장님 «추천대로»] 나눠 읽는 줄(입장 인사 등)은 목소리가 없는 분을 짚는다 — 서버가 그 분 문장을 다른 분 목소리로 만들지 않고 «신부 목소리가 아직 없어요»(V0)로 거절한다 · 종전엔 _vcName('both') 가 늘 신부 이름이었다 */
+  MK.lineErr=MK.lineErr||{}; MK.lineErr[key]=miss.length?(miss.length>1?'두 분':miss[0]==='bride'?'신부':'신랑')+' 목소리가 아직 없어요 · 이 줄은 스튜디오 나레이션으로 나와요':_vcName(lw)+' 님 AI 목소리를 아직 만들지 않았어요 · 이 줄은 스튜디오 나레이션으로 나와요'; render(); }   // [SIM_R1] 목소리 없는 분으로 바꾸면 빈 줄만 남고 까닭이 없었다
 function _vcSwap(key){ if(MK.lineErr) delete MK.lineErr[key];   /* [SIM_R1] 바꾼 소리로 채우면 옛 실패 글을 걷는다 */
   _vcMake(key,{}).catch(function(){}); }   /* ★★[WHO_MAKE_NOW 2026-10-08 사장님 «추천대로»] 읽는 분(신랑 · 신부)을 바꾸면 늘 그 자리에서 만든다 — «만드는 중» → «확정하기» · 누를 때마다 똑같이(하던 다른 글 일은 _vcMake 가 뒤일로).
    ★기억(VC_ALT · VC_MIX)에 든 소리로 바로 붙이기 · 뒤에서 데우던 일 기다리기(ALT_READY ② · «바꾸는 중») 금지 — 2026-10-08 사장님 결정으로 삭제: 될 때도 안 될 때도 있어 «바로 / 만드는 중»이 섞였다. 같은 글 · 목소리는 서버가 들고 있어 다시 만들어도 돈이 들지 않는다 */

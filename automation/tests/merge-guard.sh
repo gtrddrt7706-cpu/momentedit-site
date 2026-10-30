@@ -15521,7 +15521,8 @@ chk 'enroll: 20,' automation/platform/80_production.gs 1
 nochk '번까지예요 · 직접 녹음' automation/platform/80_production.gs
 nochk "번 남음</button>" order-preview.html
 chk 'VC_NO_COUNT' order-preview.html 1
-chk 'budget: 200000' automation/platform/80_production.gs 1
+chk 'budget: 30000,' automation/platform/80_production.gs 1   # ★2026-10-30 사장님 «추천대로»로 바뀜 — 예식당 20만 → 3만 자 [VC_DEC_1030_6]
+nochk 'budget: 200000' automation/platform/80_production.gs
 nochk 'VC_LIM.perKey' automation/platform/80_production.gs
 nochk 'VC_LIM.practiceChars' automation/platform/80_production.gs
 nochk 'st.make.total >= VC_LIM' automation/platform/80_production.gs
@@ -15574,7 +15575,7 @@ chk 'function _ptRole(who)' order-preview.html 1
 chk "'ai','AI 두 분 목소리'\]" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션 · [R3-07] 칩 이름은 선택 이름(«만들기» 뺌 · 동작은 섹션 제목이 맡는다)
 chk 'var VC_TXT=' order-preview.html 1
 chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
-chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
+chk '언제 지우나요 · AI 목소리는 예식 7일 전 안내 소리가 다 만들어지면, 늦어도 예식 다음 날 지워요. 읽은 녹음은 예식 다음 날' order-preview.html 1   # ★2026-10-30 사장님 «추천대로»로 바뀜 — 7일 전 모델 지우기 [VC_DEC_1030_7] (옛 줄 '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날')
 chk 'function _vcAutoFill(w,renew' order-preview.html 1
 chk 'function _vcLineTools(key,lab,part)' order-preview.html 1
 chk 'function _vcReadyFor(key)' order-preview.html 1
@@ -17577,7 +17578,7 @@ chk "return stop(nv, rfId); }   // \[VC_DEL_STOP\] ②" automation/platform/80_p
 chk 'if (stopped(_vcSt(code))) return stop(nv,' automation/platform/80_production.gs 1
 chk 'dm = _vcDelMark(code, ws);' automation/platform/80_production.gs 1
 chk "var dm = _vcDelMark(code, \['groom', 'bride'\])" automation/platform/80_production.gs 1
-chk 'VC_ONE_OWN' automation/platform/80_production.gs 1
+chk 'VC_ONE_OWN' automation/platform/80_production.gs 1   # ★2026-10-30 사장님 «추천대로»로 바뀜 — 나눠 읽는 줄(lines)도 없는 분 문장은 만들지 않는다(옛 WHO_MISS 몫 · VC_DEC_1030_1)
 chk "if (one && WHO\[one\] && !lines && !(st\[one\] && st\[one\].voiceId)) return" automation/platform/80_production.gs 1
 chk 'RF_DEL_ALL_T0' automation/platform/80_production.gs 1
 chk 'g.getDateCreated().getTime() > ta) continue;' automation/platform/80_production.gs 1
@@ -20591,4 +20592,31 @@ chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/combo-171.mjs >/dev/null 2>&1; _c171=$?; [ "$_c171" = 1 ] && { echo 'FAIL combo-171: 순간 조합 · 진행 틈(인사 받는 분 · 255 · 축가 힌트 · 덕담 시간 · 연습 목록)이 되돌아갔습니다 — node scripts/audit/combo-171.mjs'; fail=1; }; :; fi
+# ★[VC_DECISIONS_1030 2026-10-30 사장님 «추천대로» · AI 두 분 목소리 «대표 결정» 아홉] 나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 예식일 없음 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글
+chk 'VC_DEC_1030_1' automation/platform/80_production.gs 2
+chk 'VC_DEC_1030_1' order-preview.html 3
+chk "if (_nvw) return { ok: false, ecode: 'V0', novoice: _nvw, error: WHO\[_nvw\] + ' 목소리가 아직 없어요' }; }" automation/platform/80_production.gs 1
+chk 'VC_DEC_1030_2' order-preview.html 3
+chk "what:'무엇을 보내나요 · 녹음과 AI가 읽을 안내 글을 타입캐스트에 보내요'," order-preview.html 1
+chk "VC_CONSENT_V='1030';" order-preview.html 1
+nochk "곧 읽으실 녹음을 음성 업체(타입캐스트)에 보내 목소리를 만들어요" order-preview.html   # [VC_DEC_1030_2] 안내 글 전송이 빠진 옛 동의 글
+chk 'href="/privacy.html#voice-clone"' order-preview.html 1
+chk 'VC_DEC_1030_3' order-preview.html 1
+chk '만들지 않은 줄은 당일 스튜디오 나레이션으로 나와요' order-preview.html 1
+chk 'VC_DEC_1030_4' automation/platform/80_production.gs 6
+chk 'if (!rdOk) return;' automation/platform/80_production.gs 1
+chk 'VC_DEC_1030_5' automation/platform/80_production.gs 1
+chk 'VC_DEC_1030_5' automation/platform/96_ai_cost.gs 1
+chk 'VC_DEC_1030_5' console.html 3
+chk 'VC_DEC_1030_6' automation/platform/80_production.gs 4
+chk 'VC_DEC_1030_7' automation/platform/80_production.gs 5
+chk 'VC_DEC_1030_7' order-preview.html 5
+chk 'VC_DEC_1030_7' privacy.html 2
+chk "var VC_MODEL_OFF_W='목소리 모델은 지웠어요 · 다시 만들려면 다시 녹음해요';" order-preview.html 1
+chk 'VC_DEC_1030_8' console.html 5
+chk "indexedDB.open('me_couple_audio', 1)" console.html 1
+chk 'VC_DEC_1030_9' console.html 4
+chk "tx.textContent = ownTxtFor(c) || c.text || '';" console.html 1
+chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

@@ -27,7 +27,7 @@ const flush = () => new Promise((r) => setTimeout(r, 0));
 
 /* ───────── 서버 ───────── */
 const GS = fs.readFileSync(path.join(ROOT, 'automation/platform/80_production.gs'), 'utf8');
-const FN = ['_voiceStudio', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcAlert', '_vcAiFolder', '_vcDelVoice', '_vcDelMark', '_vcRdOldTrash_', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcPurgeNow', '_vcSlots', '_vcOrphanSweep_', 'purgeVoiceClones', '_vcErr', '_vcWhy', '_vcJobPub', '_vcPub', '_vcEnrollAfter'];
+const FN = ['_voiceStudio', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcAlert', '_vcAiFolder', '_vcDelVoice', '_vcDelMark', '_vcRdOldTrash_', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcPurgeNow', '_vcSlots', '_vcOrphanSweep_', 'purgeVoiceClones', '_vcCodeSet_', '_vcTs_', '_vcLastAct_', '_vcAiTrashAll_', '_vcVoiceKeys_', '_vcModelOffDue_', '_vcModelOff_', '_vcMonthCap_', '_vcMonthWarn_', '_vcErr', '_vcWhy', '_vcJobPub', '_vcPub', '_vcEnrollAfter'];
 function world(src) {
   const code = [lineIn(src, /var RF_KEYS[^\n]*/), lineIn(src, /var VC_BASE[^\n]*/), lineIn(src, /var VC_DOWN[^\n]*/), lineIn(src, /var VC_COLOR[^\n]*/)].concat(FN.map((f) => grabIn(src, f))).join('\n');
   const st0 = { groom: { consent: true, voiceId: '', delId: 'v_old', deleted: '2026-10-20 09:00', read: { id: 'rd_old', del: '2026-10-20 09:00' }, tries: 1 }, retry: ['v_old'] };
