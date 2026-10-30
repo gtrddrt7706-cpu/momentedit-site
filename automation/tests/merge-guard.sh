@@ -8037,7 +8037,7 @@ chk 'OPEN_DECL_1014' assets/ritual-open.js 1
 chk 'OPEN_DECL_1014' api/_ritual-kb.js 1
 chk 'OPEN_DECL_1014' scripts/audit/open-course.mjs 2
 chk "open: '오늘 두 사람을 축복해 주시기 위하여 먼 걸음 해 주신 하객분들께 양가를 대표하여 감사의 말씀을 드립니다. 오늘 결혼식은 하객 여러분께서 예식의 증인이 되는 주례 없는 결혼식으로 진행됩니다. 지금부터 신랑과 신부의 예식을 여러분의 박수와 함성으로 시작하겠습니다!'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] [OPEN_WITNESS_1015] BB 93 단어 바꿈 · 화촉 «…계셨던 분들이»와 같은 꼴 풂   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «open: '바쁜 일정에도 자리를 빛내 주신 하객께 신랑 신부와 양가를 …») · 자료 OO · II   # ★[REVIEW26_1023 검토 150] 옛 핀 «먼 걸음 해주신 하객분들께»
-chk "c.slug!=='narr-open'" order-preview.html 2        # 두 분 목소리 판이어도 개식 선언은 나레이션(두 분 줄로 바꾸지 않는다)
+chk "_gi>-1&&S.guestVoice==='couple'" order-preview.html 2        # 두 분 목소리 판이어도 개식 선언은 나레이션(두 분 줄로 바꾸지 않는다) · ★[G_IDX_SLUG 2026-10-30] 이제 슬러그가 하객 맞이 칸(g0 · g1 · g3)일 때만 두 분 줄 — 개식(narr-open) · 사진 · 온라인 큐는 -1
 chk 'CANDLE_CALL_1014' assets/ritual-cue.js 2          # 화촉 — 불을 밝힘 → 맺는 말(불을 다 밝히면 GO) → 인사 안내(138 · 139 · 1.25초 사슬) → 인사 · 자리로
 chk 'CANDLE_CALL_1014' assets/ritual-story.js 1
 chk 'CANDLE_CALL_1014' scripts/audit/open-course.mjs 2
@@ -16583,7 +16583,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-tune.mjs >/dev
 # ── 목소리 1라운드 create 묶음 (2026-10-08)
 # ★★[VC_R1_CREATE 2026-10-08 목소리 1라운드 «만들기 · 다시 녹음» 묶음 — 사장님 «오류 · 모든 경우의 수 시뮬레이션 · 라운드별로 안정화»] 고친 것 열하나 — 되돌리면 vc-r1-create 장면이 빨강(돌연변이 확인)
 chk 'VC_EFAIL_KEEP' order-preview.html 4
-chk "if(VC.read!==R&&R.take\[1\]&&!R.limit" order-preview.html 1
+chk "if(VC.read!==R&&had&&!R.limit" order-preview.html 1   # ★[VC_EFAIL_REDO 2026-10-30] had = 녹음을 비우기 «전» 값(다시 읽어야 하는 실패도 카드에 남긴다)
 chk "VC.efail=VC.efail||{}; VC.efail\[w\]=R; }" order-preview.html 1   # [VC_EFAIL_KEEP] 닫은 뒤 실패 — 읽은 녹음을 남긴다
 chk 'VC_RENEW_KEEP' order-preview.html 3
 chk "S.vsetNeed\[w\]=d.renewed?'renew':1" order-preview.html 1   # [VC_RENEW_KEEP] «새 목소리»는 S 에
