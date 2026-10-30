@@ -27,6 +27,7 @@ function run(sc) {
   const dir = { getFiles: () => ({ hasNext: () => fi < files.length, next: () => files[fi++] }), createFile: (b) => { saved.push(b.name); return { getUrl: () => 'https://drive/x' }; } };
   const sb = {
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => (k in props ? props[k] : null), setProperty: (k, v) => { props[k] = v; } }) },
+    LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },   // [VC_CNT_ZERO 2026-10-30] 이번 달 글자(_vcCharLog)도 잠근 채 더한다
     CacheService: { getScriptCache: () => ({ get: (k) => cache[k] || null, put: (k, v) => { cache[k] = v; }, remove: (k) => { delete cache[k]; } }) },
     UrlFetchApp: { fetch: (url, o) => { const x = route(o.method, url); return x.r; } },
     DriveApp: { getFoldersByName: () => ({ hasNext: () => true, next: () => dir }), createFolder: () => dir },
