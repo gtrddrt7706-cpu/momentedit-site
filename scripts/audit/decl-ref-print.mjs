@@ -76,7 +76,7 @@ function judge(X) {
     vm.createContext(cx); vm.runInContext(card, cx);
     const txt = (declRef) => cx._declareCardDoc({ code: 'T', mirror: { production: { ritualDraft: { S: declRef ? { declRef } : {} } } } }).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     const nb = (s) => s.replace(/\s+/g, ' ');
-    if (txt(0).indexOf(nb('이제 신랑 김민준 군과 신부 이서연 양은 그 일가친척과')) < 0) bad.push('③ 낭독 카드(안 고름)가 예시 1 · 이름 꼴이 아니다');
+    if (txt(0).indexOf(nb('이제 신랑 김민준 군과 신부 이서연 양은 오늘 함께해 주신 모든 분을')) < 0) bad.push('③ 낭독 카드(안 고름)가 예시 1 · 이름 꼴이 아니다');
     if (txt(2).indexOf('신랑 김민준 군과 신부 이서연 양은 이 자리에 모신') < 0) bad.push('③ 낭독 카드가 고른 예시 2 를 따르지 않는다');
     if (txt(3).indexOf('두 사람의 아름다운 약속에') < 0) bad.push('③ 낭독 카드가 고른 예시 3 을 따르지 않는다');
   }
