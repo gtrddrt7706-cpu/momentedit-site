@@ -20395,3 +20395,11 @@ chk 'VC_CACHE_FIRST' automation/platform/80_production.gs 2
 chk 'VC_CACHE_FIRST' scripts/audit/vc-flow-sim.mjs 3
 chk 'VC_FIX_1030' scripts/audit/vc-fix-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix-1030.mjs >/dev/null 2>&1; _vfx=$?; if [ "$_vfx" = 1 ]; then echo 'FAIL vc-fix-1030: AI 목소리 저장 직전 · 없는 소리 · 지운 뒤 늦은 올리기 판정이 어긋났습니다 — node scripts/audit/vc-fix-1030.mjs'; fail=1; else echo "ok vc-fix-1030 ($_vfx)"; fi; fi
+# ── 2026-10-30 [BGM_FIX_1030 덧붙임 2 · 4] 축배 B28 · B29 1순위 보컬 허용(M7 만) · 화촉 B30 · 축사 B16 · B08 비움(다시 쓰지 않음) · 연주자 한글 이름 · «(Instrumental)» 꼬리 없음 · 출처 · 이어 트는 구간 «부터 이어서 틀어요»
+nochk "B08: {" assets/bgm-picks.js
+nochk '久石譲' assets/bgm-picks.js
+nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
+chk "M7: \['B28', 'B29', 'B21', 'B22'\]" assets/bgm-picks.js 1
+chk "M2: \['B05', 'B06', 'B07', 'B30'\]" assets/bgm-picks.js 1
+chk "'부터 이어서 틀어요'" assets/bgm-bed.js 1
+chk "\[p.src,p.a,p.why\]" assets/bgm-bed.js 1

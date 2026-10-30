@@ -159,13 +159,13 @@
 
   /* ── 화면 — 곡 목록 · 아래 한 줄 ── */
   function noteOf(sg){ var L=P.list(sg), k=picked(sg), s=k?P.byF(k):L[0]; if(!s) return '';
-    var t=(k?'':'고르지 않으시면 ')+'‹'+s.t+'›'+ro(s.t)+' 준비해요'; return emb()?t:t+' · 마이페이지에서 들어 볼 수 있어요'; }
+    var d=P.seg(sg), t=(k?'':'고르지 않으시면 ')+'‹'+s.t+'›'+((d&&d.multi)?'부터 이어서 틀어요':ro(s.t)+' 준비해요'); return emb()?t:t+' · 마이페이지에서 들어 볼 수 있어요'; }   /* [BGM_FIX_1030 덧붙임 4] 여러 곡을 이어 트는 구간(하객 맞이 · 테이블 인사)은 «‹곡›부터 이어서 틀어요» */
   function listHtml(sg,k){ var L=P.list(sg), cur=picked(sg), gl=labelOf(sg)+' 음악 곡', cs=cur?P.byF(cur):null;
     var h='<ul class="mu-list" role="radiogroup" aria-label="'+e(gl)+'">';
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
       h+='<li class="mu-row'+(on?' on':'')+'">'
         +(emb()?'<button type="button" class="mk-pl mu-pl'+(pl?' on':'')+(miss&&!pl?' off':'')+'" data-fk="bedp:'+sg+':'+p.f+'" aria-pressed="'+pl+'"'+(miss&&!pl?' aria-disabled="true"':'')+' aria-label="'+e(p.t)+(pl?' 멈추기':' · 이 순간 나레이션과 함께 듣기')+'" onclick="bedAct(\'prev\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')">'+(pl?ico('stop'):ico('play'))+'</button>':'')
-        +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+(p.vocal?'<span class="mu-voc"> 노래</span>':'')+'</span><span class="mu-a">'+e([p.a,p.why].filter(Boolean).join(' · '))+'</span></button></li>'; });
+        +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+(p.vocal?'<span class="mu-voc"> 노래</span>':'')+'</span><span class="mu-a">'+e([p.src,p.a,p.why].filter(Boolean).join(' · '))+'</span></button></li>'; });
     return h+'</ul><p class="bgm-note bed-note">'+e(noteOf(sg))+'</p>'+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':''); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h='';

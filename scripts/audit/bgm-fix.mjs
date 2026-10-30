@@ -23,19 +23,19 @@ let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}
 
 /* ── A 곡 표 ── */
 const P = require(path.join(ROOT, 'assets/bgm-picks.js')), B = require(path.join(ROOT, 'assets/bgm-slots.js'));
-const WANT = { M1: 'B01 B02 B03 B04', M2: 'B05 B06 B07 B08', M4: 'B09 B10 B11 B12', M4S5: 'B13 B14 B02 B08', M4S6: 'B10 B12 B14 B13', M5: 'B15 B06 B16 B11',
-  M6: 'B17 B18 B19 B20', M7: 'B21 B18 B07 B22', M8: 'B23 B03 B24 B25', M8L: 'B26 B19 B27 B25' };
-const VOCAL = ['B04', 'B20', 'B22', 'B25'];
-const TITLES = { B01: '바다가 보이는 마을 (A Town With An Ocean View)', B05: '인생의 회전목마', B09: 'Innocent in Sonatine', B13: 'Moon River (Instrumental)', B17: 'Summer Montage / Madeline', B21: "Herman's Habit", B23: '둘의 대화', B26: 'Bluebird', B27: 'At the Ivy Gate' };
+const WANT = { M1: 'B01 B02 B03 B04', M2: 'B05 B06 B07 B30', M4: 'B09 B10 B11 B12', M4S5: 'B13 B14 B02 B16', M4S6: 'B10 B12 B14 B13', M5: 'B15 B06 B16 B11',
+  M6: 'B17 B18 B19 B20', M7: 'B28 B29 B21 B22', M8: 'B23 B03 B24 B25', M8L: 'B26 B19 B27 B25' };
+const VOCAL = ['B04', 'B20', 'B22', 'B25', 'B28', 'B29'];
+const TITLES = { B01: '바다가 보이는 마을', B05: '인생의 회전목마', B09: 'Innocent in Sonatine', B13: 'Moon River', B28: 'Happy', B29: 'Best Day Of My Life', B30: '꽃바람 부는 길', B17: 'Summer Montage / Madeline', B21: "Herman's Habit", B23: '둘의 대화', B26: 'Bluebird', B27: 'At the Ivy Gate' };
 { const got = {}; Object.keys(WANT).forEach((s) => { got[s] = P.list(s).map((x) => x.f).join(' '); });
   ok('A1 곡 표 그대로 — 10구간 · 위가 1순위(2026-10-30 표)', Object.keys(WANT).every((s) => got[s] === WANT[s]), got);
   const ids = Object.keys(P.SONGS);
-  ok('A1 곡 27 · 번호 B01 ~ B27 · 다 어딘가에 쓰인다 · 곡 이름 표와 같다', ids.length === 27 && ids.every((f, i) => f === 'B' + String(i + 1).padStart(2, '0')) && ids.every((f) => Object.values(WANT).some((w) => w.split(' ').includes(f))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
+  ok('A1 곡 29 · 번호 B01 ~ B30 에서 B08 은 비움(다시 쓰지 않음) · 다 어딘가에 쓰인다 · 곡 이름 표와 같다', ids.length === 29 && !P.SONGS.B08 && ids.join() === Array.from({ length: 30 }, (_, i) => 'B' + String(i + 1).padStart(2, '0')).filter((f) => f !== 'B08').join() && ids.every((f) => Object.values(WANT).some((w) => w.split(' ').includes(f))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
   ok('A1 사진 칸(M6P)은 비웠다 — 닫는 인사 곡이 잇는다', P.list('M6P').length === 0);
   const v = ids.filter((f) => P.SONGS[f].vocal);
-  ok('A2 보컬 곡 = B04 · B20 · B22 · B25(vocal: true)', v.join() === VOCAL.join(), v);
-  const first = Object.keys(P.PICKS).filter((s) => P.list(s)[0] && P.list(s)[0].vocal);
-  ok('A2 보컬 곡은 어느 구간에서도 1순위가 아니다', !first.length, first);
+  ok('A2 보컬 곡 = B04 · B20 · B22 · B25 · B28 · B29(vocal: true)', v.join() === VOCAL.join(), v);
+  const first = Object.keys(P.PICKS).filter((s) => s !== 'M7' && P.list(s)[0] && P.list(s)[0].vocal);
+  ok('A2 보컬 곡은 1순위가 아니다(축배 M7 만 예외 — GO 뒤에 시작해 나레이션 위로 크게 나오지 않는다 · 덧붙임 2)', !first.length && P.list('M7')[0].f === 'B28', first);
   const a = P.list('M1').find((x) => x.f === 'B02'), b = P.list('M4S5').find((x) => x.f === 'B02');
   ok('A3 한 번호 = 한 파일 — B02 가 하객 맞이 · 축사에 같은 번호 · 같은 곡 아이디(콘솔 파일도 한 번)', a && b && a.id === 'B02' && b.id === 'B02' && a.t === b.t);
   ok('A4 옛 번호(M2_1)는 «고르지 않음» — custK 빈칸 · 저장 꼴이 버린다 · 새 번호는 지킨다', P.custK({ bgm: { M2: { k: 'M2_1' } } }, 'M2') === '' && B.clean({ M2: { k: 'M2_1' } }) === undefined
@@ -156,14 +156,14 @@ try {
   /* 7 · 8 닫는 인사 · 축배 · 보컬 · 한 파일 */
   { const S = SOF('record');
     const { ctx, pg, errs } = await open(S, { files: [[row('M1', 4), F.a], [row('M1', 2), F.d], [row('M5', 1), F.b], [row('M6', 1), F.c], [row('M7', 1), F.d]],
-      before: async (p) => { await p.fill('[data-seg-start="B21"]', '5'); await p.dispatchEvent('[data-seg-start="B21"]', 'change'); } });
+      before: async (p) => { await p.fill('[data-seg-start="B28"]', '5'); await p.dispatchEvent('[data-seg-start="B28"]', 'change'); } });
     const shared = await pg.evaluate(() => { const r = [...document.querySelectorAll('.sg[data-seg="M4S5"] .sg-song')].find((x) => /Day and Age/.test(x.textContent)); return r ? { st: r.querySelector('.sg-st').textContent, lab: r.querySelector('.filebtn').textContent } : null; });
     ok('C8 한 파일 — 하객 맞이 B02 에 넣은 파일이 축사 «음악과 함께» B02 칸에도 «있음»(곡 아이디 = 번호)', shared && /^✓/.test(shared.st) && shared.lab === '파일 바꾸기', shared);
     /* 하객 맞이 = B04(노래) · B02 — 첫 곡이 B02 면 B04 차례까지 가지 않는다 → 하객 맞이 칸에서 B04 하나만 고른다 */
     await ctx.close(); }
   { const S = SOF('record');
     const { ctx, pg, errs } = await open(S, { files: [[row('M1', 4), F.a], [row('M5', 1), F.b], [row('M6', 1), F.c], [row('M7', 1), F.d]],
-      before: async (p) => { await p.fill('[data-seg-start="B21"]', '5'); await p.dispatchEvent('[data-seg-start="B21"]', 'change'); } });
+      before: async (p) => { await p.fill('[data-seg-start="B28"]', '5'); await p.dispatchEvent('[data-seg-start="B28"]', 'change'); } });
     const s0 = await segSt(pg);
     const ig = await idx(pg, 'guest-1-arrival'); await pg.evaluate(() => { window.__L.length = 0; }); await pg.evaluate((i) => window.__bgmGo.fire(i), ig); await pg.waitForTimeout(500);
     const L8 = await L(pg), g8 = L8.find((x) => x.db === -16);
@@ -175,12 +175,12 @@ try {
     const ik = await idx(pg, 'narr-close-bow'); await pg.evaluate((i) => window.__bgmGo.fire(i), ik); await pg.waitForTimeout(500);
     const k1 = await segSt(pg); const lvk = await waitFn(pg, (j) => window.__bgmSt().cur === j && window.__bgmSt().phase === 'live', ik, 40000); await pg.waitForTimeout(300); const k2 = await segSt(pg);
     ok('C7 닫는 인사 — 나레이션 동안은 앞 곡(M5) · 목례 · 박수(사람 순간)부터 M6', k1.seg === 'M5' && lvk && k2.seg === 'M6', { k1: k1.seg, k2: k2.seg });
-    /* 7 축배 — 축배 나레이션 동안 M6 이 잇는다 · «위하여» 뒤 GO 에서 M7(B21) 강조 위치 5초부터 · 0.6초에 0 */
+    /* 7 축배 — 축배 나레이션 동안 M6 이 잇는다 · «위하여» 뒤 GO 에서 M7(B28) 강조 위치 5초부터 · 0.6초에 0 */
     const ix = await idx(pg, 'toast-toast'); await pg.evaluate((i) => window.__bgmGo.fire(i), ix); await pg.waitForTimeout(500); const x1 = await segSt(pg);
     const lvx = await waitFn(pg, (j) => window.__bgmSt().cur === j && window.__bgmSt().phase === 'live', ix, 40000); const x2 = await segSt(pg);
     await pg.evaluate(() => { window.__L.length = 0; }); await pg.evaluate(() => window.__bgmGo.tap()); await pg.waitForTimeout(200);
     const x3 = await segSt(pg), pos = await pg.evaluate(() => { const s = window.__seg.st(); return document.querySelectorAll('audio')[0] ? [...document.querySelectorAll('#aBgm,#aBgm2')].map((a) => a.currentTime) : null; }), L9 = await L(pg);
-    ok('C7 축배 — 나레이션 · «위하여» 동안은 M6 · GO 에서 M7(B21)', x1.seg === 'M6' && lvx && x2.seg === 'M6' && x3.seg === 'M7' && x3.id === 'B21', { x1: x1.seg, x2: x2.seg, x3: [x3.seg, x3.id] });
+    ok('C7 축배 — 나레이션 · «위하여» 동안은 M6 · GO 에서 M7(B28)', x1.seg === 'M6' && lvx && x2.seg === 'M6' && x3.seg === 'M7' && x3.id === 'B28', { x1: x1.seg, x2: x2.seg, x3: [x3.seg, x3.id] });
     ok('C7 축배 곡은 강조 위치(5초)부터 · 0.6초에 축배 크기(0)', pos && pos[x3.on] >= 4.9 && pos[x3.on] < 6.5 && L9.some((x) => x.db === 0 && x.ms === 600), { pos, on: x3.on, L9: L9.filter((x) => x.db !== undefined) });
     ok('C 쪽 오류 0(닫는 인사 · 축배 · 보컬)', !errs.length, errs.slice(0, 2)); await ctx.close(); }
 
