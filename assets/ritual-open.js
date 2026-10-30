@@ -207,6 +207,10 @@
      ★[TRIBUTE_CROSS 2026-09-25 코워크 4-6] 인사 «한마디씩» + 편지 «각자 부모님께»를 함께 담으면
        인사 한마디는 **서로의** 부모님께 드린다(신랑 → 장인 · 장모님, 신부 → 시부모님) — 편지와 겹치지 않는다.
      ★준비한 순서는 «영상 · 3분»처럼 둘을 한 이름으로. */
+  /* ★★[TRIB_NO_HUG_1030 검토 172 · 사장님 «전부 진행»(추천대로 10/30)] 부모님께 인사(말로 · 말없이 둘 다)의 «인사와 포옹 / 인사만» — 새 키 S.tribHug('off' = 인사만 · 그 밖은 지금 그대로 인사와 포옹).
+     인사만이면 포옹 청하는 줄(256)과 그 동작 대기 · 동작 안내를 건너뛰고 맺는 말로 · 콘솔 · 미리 듣기 · 연습 · 대본 · 길이 · 카드 글이 이 하나를 본다. 새 코스만(옛 코스는 지금 그대로) */
+  var HUG_SEC = { call: 4.2, act: 15, slack: 20 };   // call = 256 녹음 길이(4.18초 · ffprobe) · act + slack = 콘솔 포옹 큐의 사람 구간 35초(base − 35)
+  function hugOff(S) { return !!(S && S.course === 'open' && S.tribHug === 'off' && onOf(S, 'tribute')); }
   function crossTribute(S) { return onOf(S, 'tribute') && chipOf('tribute', S) === 'long' &&   /* [TRIB_ONE_SAY] 말로 인사 + 편지 «각자 부모님께» → 서로의 부모님께 */ onOf(S, 'letter') && chipOf('letter', S) === 'parent'; }
   function chipLabel(k, S) {
     if (k === 'tribute' && crossTribute(S)) return '서로의 부모님께 말로 인사';   // [TRIB_ONE_SAY]
@@ -362,7 +366,8 @@
         if (bn >= 1) talk = Math.round(76.5 * Math.min(4, bn));
         if (bt) talk = Math.max(talk, Math.round(bt / 5));
         return [t[0], talk, t[2], t[3]]; }
-      case 'tribute': return t[chipOf('tribute', S)];
+      case 'tribute': { var tt = t[chipOf('tribute', S)];   /* ★[TRIB_NO_HUG_1030 검토 172] «인사만»이면 포옹 몫(256 소리 · 포옹 동작 · 그 여유)을 뺀다 — 넉넉 합에서 빠지는 값(소리 + 15 + 20)이 콘솔에서 걷히는 포옹 큐(소리 + 35초)와 같다 */
+        return hugOff(S) ? [tt[0] - HUG_SEC.call, tt[1], tt[2] - HUG_SEC.act, tt[3] - HUG_SEC.slack] : tt; }
       case 'letter': return t[chipOf('letter', S)];
       case 'free': { var fl = +chipOf('freeLen', S);   // 축사 판: 여는 말 14 · 사람 말 60×분−20 · 걸음 12 · 여유 10(2분이면 대본 126 · 넉넉 161)
         return FREE_KIND[chipOf('free', S)] === 'speech' ? [14, 60 * fl - 20, 12, 10] : [t[0], t[1], 60 * fl + 8, t[3]]; }
@@ -1363,6 +1368,7 @@
   /* ── 남는 장면(«그날 남는 사진» · 코워크 1장 고침) — 준비한 순서는 무엇을에 따라 ── */
   var FREE_SHOT = { video: '함께 보며 웃는 하객들', etc: '두 분이 준비한 순간', gift: '선물을 건네받는 두 분', speech: '말하는 분을 보며 웃는 두 분' };   // [FREE_ETC]
   function shotOf(k, S) { if (k === 'vow' && S && S.vowKind === 'thanks') return '하객을 바라보며 읽는 두 분';   /* ★[THANKS_SHOT_1013] 감사문을 고른 날 «남는 장면»(마이페이지 summary.scenes)이 서약 장면(«서로를 보며 약속하는 옆얼굴»)이었다 — oneOf(oneT)와 같은 갈래 */
+    if (k === 'tribute' && hugOff(S)) return '부모님께 인사하는 두 분';   /* [TRIB_NO_HUG_1030] 인사만이면 «안기는 순간»이 없다 */
     return k === 'free' ? FREE_SHOT[FREE_KIND[chipOf('free', S)]] : (CARDS[k] || {}).shot; }
 
   /* ── 도와주실 분(코워크 5-6) — 두 분 준비 · 마이페이지 준비 칸. [누가, 언제] ──
@@ -1505,7 +1511,8 @@
   function firstVideo(k, S) { var ks = videoKeys(k, S); for (var i = 0; i < ks.length; i++) { if (videoOf(ks[i])) return videoOf(ks[i]); } return null; }
   function secTxt(x) { return x < 55 ? ('약 ' + Math.max(10, Math.round(x / 10) * 10) + '초') : ('약 ' + Math.round(x / 60) + '분'); }
   /* [THANKS_IN_VOW] 순간 설명 한 줄 — 서약 카드에서 감사문을 고르면 감사문 설명(CARDS.vow.oneT) · 그 밖은 CARDS[k].one */
-  function oneOf(k, S) { var c = CARDS[k]; if (!c) return ''; return (k === 'vow' && S && S.vowKind === 'thanks' && c.oneT) ? c.oneT : (c.one || ''); }
+  function oneOf(k, S) { var c = CARDS[k]; if (!c) return ''; if (k === 'tribute' && hugOff(S)) return '부부가 되어 처음 부모님께 고마움을 전해요.';   /* [TRIB_NO_HUG_1030] 인사만 */
+    return (k === 'vow' && S && S.vowKind === 'thanks' && c.oneT) ? c.oneT : (c.one || ''); }
   /* [SPEECH_TILE_1012] 칸 이름 — 축사 칸(free)에 옛 초안의 영상 · 선물 · 기타가 켜져 있으면 옛 이름 «준비한 순서»(새로 담으면 늘 축사 · 빌더 opTgl) */
   function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }
   function talkOf(k, S) {
@@ -1534,7 +1541,7 @@
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
-    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
+    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
