@@ -2042,7 +2042,7 @@ function _vcModelOffDue_(code, cust, st, today, wy) {
   return all && ai ? ws : null; }
 /* [VC_DEC_1030_7] 목소리 모델만 지우기 — 잠근 채 다시 읽어 voiceId 를 비우고(modelOff · delId) retry 에 먼저 올린 뒤, 잠금 밖에서 업체에 지운다(실패분은 retry 로 매일 다시 · 칸 세기는 그 뒤).
    읽은 녹음 · 안내 소리 파일은 그대로 · 만드는 중인 작업표에 «취소»를 적지 않는다(새 녹음으로 만드는 목소리는 그대로 둔다) */
-function _vcModelOff_(code, ws) {
+function _vcModelOff_(code, ws) {   // [VC_DEC_1030_7] 모델만 지운다(파일 · 읽은 녹음 그대로)
   var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return -1; }
   var ids = [], at = fmtKST(new Date());
   try { var cur = _vcSt(code); ws.forEach(function (w) { var p = cur[w]; if (!p || !p.voiceId) return; ids.push(p.voiceId); cur.retry = (cur.retry || []).filter(function (v) { return v !== p.voiceId; }); cur.retry.push(p.voiceId); p.delId = p.voiceId; p.voiceId = ''; p.modelOff = at; });
@@ -2052,7 +2052,7 @@ function _vcModelOff_(code, ws) {
   var pend = ids.some(function (v) { return (d1.retry || []).indexOf(v) > -1; }); _vcSave(code, db, d1); return { n: ids.length, pend: pend }; }
 /* ★[VC_DEC_1030_5 2026-10-30 사장님 «추천대로»] 하객 앞 품질 확인 — 예식 3일 전(D-3)부터 예식 날까지, 두 분 AI 목소리 줄 가운데 관리 화면 «확인 ✓»(adminRitualFileOk · RFOK_<코드>)가 없는 줄이 있으면
    아침 운영 보고(aiMorningReport · 96_ai_cost)에 빨간 줄로 싣는다 · 읽기만 한다(발송 · 변경 없음) · 당일 콘솔도 같은 줄에 «스튜디오 확인 안 함» */
-function vcStudioCheckDue_() {
+function vcStudioCheckDue_() {   // [VC_DEC_1030_5] 읽기만 · 아침 보고가 부른다
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), now = new Date(), today = Utilities.formatDate(now, 'Asia/Seoul', 'yyyy-MM-dd'), out = [];
   var d3 = new Date(now.getTime() + 3 * 864e5), lim = Utilities.formatDate(d3, 'Asia/Seoul', 'yyyy-MM-dd');
   Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var code = k.slice(3), cust = null;
