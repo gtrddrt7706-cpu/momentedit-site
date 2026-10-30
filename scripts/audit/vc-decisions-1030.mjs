@@ -185,6 +185,7 @@ const V = (who, o) => Object.assign({ consent: { at: kst(NOW - 40 * 864e5), v: '
   ok('깨 보기 ⑦ — 옛 꼴(예식 다음 날까지 둠)이면 빨강', !!ab && ab.g.voiceId === 'uc_groom' && !ab.dels.length, ab && ab.dels); }
 
 /* ───────── ⑧ 콘솔 IndexedDB ───────── */
+class FixDate extends Date { constructor(...a) { if (a.length) super(...a); else super(NOW); } static now() { return NOW; } }   /* [TEST_CLOCK_1030] */
 function fakeIDB() { const dbs = {};
   const later = (f) => setTimeout(f, 0);
   return { dbs, open(name) { const req = {}; later(() => { const fresh = !dbs[name]; if (fresh) dbs[name] = {}; const S0 = dbs[name];
@@ -198,7 +199,7 @@ function fakeIDB() { const dbs = {};
   const mk = (src, idb) => { const box = { innerHTML: '' }, sec = { hidden: false }, IDB = idb || fakeIDB();
     class B { constructor(a, o) { this.a = a; this.type = (o || {}).type; } }
     const sb = { indexedDB: IDB, Blob: B, URL: { createObjectURL: (b) => 'blob:' + (b.a ? 'own' : '?') }, QS: { get: () => 'AB12CD' }, GUEST: false, S: { up: { g0: { id: 'A', src: 'ai' } } }, CLIPS: { 'guest-1-arrival': '/n/01.mp3' }, RF_ORIG: {}, RF_OWN: {}, RF_ST: {}, RF_WHY: {}, RF_GEN: { g0: 3 }, RF_SKIP: '', RF_LAB: { g0: '하객 입장 때' }, RF_FRESH: {},
-      rfSlugOf: () => 'guest-1-arrival', rfKeys: () => ['g0'], esdWant: () => false, esdPrepVoice: () => {}, render: () => {}, esc: (s) => s, ecWrap: (s) => s, $: (q) => (q === '#rfSec' ? sec : box), document: { getElementById: () => null }, rfFreshApply: () => {}, rfPrefetch: () => {}, Date, setTimeout };
+      rfSlugOf: () => 'guest-1-arrival', rfKeys: () => ['g0'], esdWant: () => false, esdPrepVoice: () => {}, render: () => {}, esc: (s) => s, ecWrap: (s) => s, $: (q) => (q === '#rfSec' ? sec : box), document: { getElementById: () => null }, rfFreshApply: () => {}, rfPrefetch: () => {}, Date: FixDate, setTimeout };   /* ★[TEST_CLOCK_1030] 콘솔 ownToday 도 검사의 NOW(10/30 KST 낮)로 — 종전엔 실제 시계를 읽어 한국 자정(10/31)이 지나자 ⑧ 셋이 빨강이 됐다(main · CI) */
     vm.createContext(sb); vm.runInContext(FNS.map((f) => grabIn(src, f)).join('\n') + '\nvar RF_OKMAP = {}, RF_OKSET = false, RF_WED = "", RF_CACHED = {}, RF_FROM = {};', sb); return { sb, box, IDB }; };
   { const miss = FNS.filter((f) => !grabIn(CS, f)); if (miss.length) ok('⑧ 원문 조각을 못 떼었다 — ' + miss.join(', '), false); }
   const sc = async (src) => { const W = mk(src); const s = W.sb; const wed = ymd(NOW + 864e5 * 0); s.rfOkSet({ okMap: {}, wedding: wed }); s.RF_ST.g0 = 'ok'; s.rfOwnPut('g0', 'A', 'audio/wav', new Uint8Array([1, 2]));
