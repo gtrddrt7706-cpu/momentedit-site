@@ -3134,12 +3134,37 @@ function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
 /* ★[LOGOUT_SWEEP 2026-08-30] 로그아웃이 토큰·상태캐시만 지워, 식순 초안(me_order)·결과물 펼침(me_deliv_*) 등이
    그대로 남았다. 웨딩은 한 기기를 부부가 함께 쓰는 일이 잦아, 다음 사람 화면에 앞사람 서약문·편지가 잠깐 비칠 수 있다.
    ★me_guide_*(하객 안내 캐시)는 건드리지 않는다 — guide.html 소유이고 예식별 토큰으로 이미 격리돼 있다. */
-function clearToken(){ try{
+function clearToken(keep){ var _kp=keep?_reloginPack():null; try{
   localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
   var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
     if(k && /^me_(order|deliv_|prod_ping|order_v2note_|snapLocal_)/.test(k)) _kill.push(k); }   // [SNAP_AGREE_LAST] 동의 전 스냅 임시본(고른 장면 · 글)도 — 다음 사람 화면에 앞사람 메모가 비치지 않게
   _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
-}catch(e){} _mpAcctSweep(); }
+  if(!keep) localStorage.removeItem(RELOGIN_KEY);   // [RELOGIN_KEEP] 스스로 로그아웃하면 맡겨 둔 초안도 지운다(로그인 풀림만 맡긴다)
+  else if(_kp) localStorage.setItem(RELOGIN_KEY, JSON.stringify(_kp));
+}catch(e){} _mpAcctSweep(); return !!_kp; }
+/* ★[RELOGIN_KEEP 2026-10-30 GPT 6차 점검(고객) 6-01 · VC_FIX6_1030] 로그인이 풀려 로그인 화면으로 갈 때(keep) 저장 못 한 이 기기 초안을 계정 코드에 묶어 따로 맡겨 둔다 —
+     종전엔 식순 화면이 «고르신 내용은 이 기기에 그대로 있어요» 뒤 «로그인하기»를 내밀었는데 clearToken 이 바로 그 초안(me_order)을 지워 다시 로그인하면 옛 저장본이었다.
+     맡기는 것: 저장 안 한 고침이 있는 식순 초안(dirty · 그 계정 것) · 보내기 전 스냅 임시본(me_snapLocal_<코드>).
+     같은 코드로 로그인하면 되돌려 놓는다(_reloginRestore · 이미 이 기기에 그 초안이 있으면 그대로) — 식순 화면은 종전 [LOCAL_AHEAD] 대로 서버 판이 그 고침의 바탕 그대로일 때만 이 기기 판을 연다(그사이 다른 기기에서 저장했으면 저장한 판).
+     다른 계정으로 로그인 · 7일이 지남 · 스스로 로그아웃하면 지운다 — 다른 계정 화면에는 보이지 않는다 */
+var RELOGIN_KEY='me_relogin_keep', RELOGIN_TTL=7*864e5;
+function _reloginPack(){ try{
+  var ro=localStorage.getItem('me_order'), r=null; try{ r=JSON.parse(ro||'null'); }catch(e){}
+  var code=_mpAcct()||String((r&&r.who)||''); if(!code) return null; var keys={}, n=0;   // 지금 계정(없으면 초안 주인)
+  if(r && r.dirty && String(r.who||'')===code){ keys['me_order']=ro; n++; }
+  var sk='me_snapLocal_'+code, sv=localStorage.getItem(sk); if(sv){ keys[sk]=sv; n++; }
+  if(!n){ var o=null; try{ o=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'null'); }catch(e){} return (o&&o.code===code)?o:null; }   // 맡길 것이 없으면 앞서 맡긴 같은 계정 것을 그대로
+  return {code:code, t:Date.now(), keys:keys};
+}catch(e){ return null; } }
+function _reloginLine(line, kept){ var w=ERR_W[8]+' · '+ERR_DO[8]; return (kept&&String(line).indexOf(w)===0)?'로그인이 풀렸어요 · 다시 로그인한 뒤 이어서 저장해 주세요'+String(line).slice(w.length):line; }   // [RELOGIN_KEEP] 맡겨 둔 것이 있을 때만 · 우리 기본 글만 바꿔 말한다(서버가 준 글은 그대로)
+function _reloginRestore(code){ try{
+  var o=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'null'); if(!o) return false;
+  localStorage.removeItem(RELOGIN_KEY);
+  if(!code || o.code!==String(code) || !(Date.now()-(+o.t||0)<RELOGIN_TTL) || !o.keys) return false;
+  var n=0; Object.keys(o.keys).forEach(function(k){ if(!/^me_(order|snapLocal_)/.test(k) || localStorage.getItem(k)) return; localStorage.setItem(k, String(o.keys[k])); n++; });
+  return n>0;
+}catch(e){ return false; } }
+try{ var _rk0=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'null'); if(_rk0 && !(Date.now()-(+_rk0.t||0)<RELOGIN_TTL)) localStorage.removeItem(RELOGIN_KEY); }catch(e){}   // [RELOGIN_KEEP] 7일 지난 것은 열 때 지운다
 /* ★[C2_ACCT_SWEEP 2026-10-09 고객 여정 A~Z 점검 2라운드] 계정이 끝나는 자리(로그아웃 · 로그인 풀림 — 다 clearToken 을 지난다)에서는 저장소([LOGOUT_SWEEP])만이 아니라
      이 탭의 화면 기억도 걷는다 — 같은 기기에서 다음 사람이 로그인하면 앞사람 것이 보이거나 다음 질문에 실려 갔다.
      ① 계약서 재발송 «요청함» 표시([C2_RESEND_ACCT]) ② AI 상담 대화(MEAdvisor.reset — 화면 · 다음 질문에 싣는 대화 · 오가던 답)
@@ -3230,7 +3255,7 @@ function _errNorm(r, L, base){   // 서버 답을 화면에 바로 쓸 수 있�
 /* 로그인이 풀렸다 — 로그인 화면으로(그 줄을 로그인 칸에). 편집 겹화면이 떠 있으면 새로 열어 겹화면 밑에 로그인 화면이 깔리지 않게 한다 */
 function _errGoLogin(x, L){
   var line=_errLine(x, L);
-  clearToken();
+  line=_reloginLine(line, clearToken(true));   // [RELOGIN_KEEP] 저장 못 한 초안을 맡겨 두었다
   try{ if(_wizCurId() || _mpFsOpen()){ sessionStorage.setItem('me_login_note', line); location.reload(); return; } }catch(e){}
   try{ closeLedModal(); }catch(e){} try{ _flowBusy(false); }catch(e){}
   show('loginView'); softLoginNote(line);
@@ -3390,7 +3415,7 @@ function _autoLogin(urlToken){
   show('loading');
   api({action:'autologin', token:urlToken}).then(function(d){
     if (d && d.ok) { setToken(d.token || urlToken); cleanUrl(); loadMyState(); return; }
-    if (_errSess(d)) { clearToken(); cleanUrl(); show('loginView'); softLoginNote(_errLine(d,'L')); return; }   // 만료 · 무효 링크 — 로그인으로
+    if (_errSess(d)) { var _kp3=clearToken(true); cleanUrl(); show('loginView'); softLoginNote(_reloginLine(_errLine(d,'L'), _kp3)); return; }   // [RELOGIN_KEEP]   // 만료 · 무효 링크 — 로그인으로
     _loadSlowRetry(d, function(){ _autoLogin(urlToken); });
   }, function(e){ _loadSlowRetry(e, function(){ _autoLogin(urlToken); }); });
 }
@@ -3451,12 +3476,12 @@ function loadMyState(opts){
   _stateGet(_tok).then(function(d){
     clearTimeout(_slowT);   // [STATE_PATIENT]
     if(getToken()!==_tok){ _fin(); return; }   /* [STATE_SEQ] 늦게 온 남의 화면 — 캐시에도 남기지 않는다 */
-    if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); var _lb=document.getElementById('mp_loadBar'); if(_lb&&_lb.parentNode) _lb.parentNode.removeChild(_lb); }   // [ERR_CODE_MYPAGE] 다시 불러왔으면 «최신 내용을 불러오지 못했어요» 막대를 걷는다
+    if (d && d.ok){ _reloginRestore(d.code); cacheState(d); renderMyPage(d); show('mypageView'); var _lb=document.getElementById('mp_loadBar'); if(_lb&&_lb.parentNode) _lb.parentNode.removeChild(_lb); }   // [ERR_CODE_MYPAGE] 다시 불러왔으면 «최신 내용을 불러오지 못했어요» 막대를 걷는다
     /* ★★[ERR_CODE_MYPAGE F1 2026-10-07] 로그아웃은 서버가 «로그인이 풀렸다»(reason)고 할 때만.
        종전엔 까닭 없는 실패(서버 예외 · 새 배포 누락 · 시트 시간 초과)에도 clearToken() 을 불러 — 고객이 로그아웃되고
        보내지 않은 이 기기의 초안(me_order · me_snapLocal_*)까지 지워졌다(LOGOUT_SWEEP 이 로그아웃 때 쓸어 담는다).
        그 밖의 실패는 토큰 · 초안을 그대로 두고 원인 한 줄 + 코드 + «다시 불러오기»(_loadFail). */
-    else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }
+    else if (_errSess(d)){ var _kp4=clearToken(true); show('loginView'); softLoginNote(_reloginLine(_errLine(d,'L'), _kp4)); }   // [RELOGIN_KEEP] 로그인 풀림 — 저장 못 한 초안은 맡겨 둔다
     else { _loadFail(d, opts); }
     _fin();
   }).catch(function(e){ clearTimeout(_slowT); if(getToken()!==_tok){ _fin(); return; } _loadFail(e, opts); _fin(); });   /* [LOAD_WHY] 실패 이유를 그대로 넘겨 화면이 «느림»과 «그 밖»을 갈라 말하게 */   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)

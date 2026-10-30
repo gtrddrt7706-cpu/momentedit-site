@@ -17459,7 +17459,7 @@ chk '아래에서 디렉터와 이어서 상담하실 수 있어요' index.html 
 #   F1 까닭 없는 getMyState 실패에 로그아웃 · 초안 삭제하던 결함 · F5 저장 실패 판 · F6 거짓 «다른 기기에서 먼저 저장됐어요» · F7 빌더 중계 까닭 · F10 다이닝 AI 영문 기술어 · F11 카드 승인 확인
 #   err-mypage.mjs 가 가짜 GAS 로 잰다 — F1 을 되돌리거나 _post 의 종류 표시를 지우면 빨강(돌연변이 확인)
 chk 'ERR_CODE_MYPAGE' mypage.html 110
-chk "else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }" mypage.html 1
+chk "else if (_errSess(d)){ var _kp4=clearToken(true); show('loginView'); softLoginNote(_reloginLine(_errLine(d,'L'), _kp4)); }" mypage.html 1   # [RELOGIN_KEEP] 로그인 풀림만 로그인으로(초안은 맡긴다)
 nochk "else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }" mypage.html
 chk 'function _post(payload, ms){' mypage.html 1
 chk "e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');" mypage.html 1
@@ -18780,7 +18780,7 @@ chk "_rsJ.code === _mpAcct() && _rsJ.dl === _rsDl" mypage.html 1
 nochk "|| window.__ctResendJust || '';" mypage.html 0
 # [C2_ACCT_SWEEP] [C2_ADV_RESET] [C2_LOADBAR_SWEEP] C2-3 · C2-4 계정이 끝나는 자리(clearToken)에서 화면 기억도 걷는다 — AI 상담 대화 · 실패 막대 · 다른 탭 저장 막대
 chk 'C2_ACCT_SWEEP' mypage.html 2
-chk '}catch(e){} _mpAcctSweep(); }' mypage.html 1
+chk '}catch(e){} _mpAcctSweep(); return !!_kp; }' mypage.html 1   # [RELOGIN_KEEP] 맡겼나를 돌려준다
 chk "window.MEAdvisor.reset();" mypage.html 1
 chk 'C2_ADV_RESET' assets/advisor-widget.js 8
 chk 'reset: reset,' assets/advisor-widget.js 1
@@ -20492,6 +20492,14 @@ chk 'CON_STALL' console.html 5
 chk 'CON_RELOAD_GUARD' console.html 6
 nochk "var isNar = url === PARAM.clipDir + c.file + '.mp3'" console.html   # [ESD_NAR_KIND] 주소 모양으로 나레이션을 가르지 않는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix5-1030.mjs >/dev/null 2>&1; _vf5=$?; if [ "$_vf5" = 1 ]; then echo 'FAIL vc-fix5-1030: AI 목소리 5차 점검(로그인하기 · 상태 다시 묻기 · 이전 것 지우는 중 · 예식 뒤 막기 · 콘솔 다시 불러오기 · 앞 말소리 멈춤 · 멈춘 소리 · 새로고침) 판정이 어긋났습니다 — node scripts/audit/vc-fix5-1030.mjs'; fail=1; else echo "ok vc-fix5-1030 ($_vf5)"; fi; fi
+# ★[VC_FIX6_1030 2026-10-30 GPT 6차 점검] 5차 회귀 넷 — 로그인하기 뒤 저장 못 한 초안 맡기기 · 콘솔 옛 목록 답 버리기 · 앞 순서 늦은 재생 결과 버리기 · 멈춤 중 시각 큐 기다리기
+chk 'VC_FIX6_1030' scripts/audit/vc-fix6-1030.mjs 1
+chk 'RELOGIN_KEEP' mypage.html 6
+chk 'RF_LIST_GEN' console.html 2
+chk 'PLAY_GEN' console.html 6
+chk 'STALL_HOLD_CLOCK' console.html 2
+nochk "^  clearToken();$" mypage.html   # [RELOGIN_KEEP] 로그인 풀림(_errGoLogin)이 저장 못 한 초안을 맡기지 않고 그냥 지우던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix6-1030.mjs >/dev/null 2>&1; _vf6=$?; if [ "$_vf6" != 0 ]; then echo 'FAIL vc-fix6-1030: AI 목소리 6차 점검(로그인하기 뒤 초안 · 옛 목록 답 · 늦은 재생 결과 · 멈춤 중 시각 큐) 판정이 어긋났습니다 — node scripts/audit/vc-fix6-1030.mjs'; fail=1; else echo "ok vc-fix6-1030 ($_vf6)"; fi; fi
 
 # ── 2026-10-30 [RETAKE_168_1030 검토 168 사장님] 나레이션 다시 받기 묶음(글만 · 녹음은 따로) — 무음 부탁 · 안내 음성 · 증인이십니다 · 안녕하세요 · 입장 A · E · 맞절 252 · 감사 인사 228 · 229 · «천천히» 넷 걷기 · 반지 170 · 축가 209 · «맞절!» → «맞절.»(구호 검사도 «맞절.»을 구호로 본다)
 chk '신랑 신부, 서로 마주 보고 서 주십시오. 평생을 함께할 동반자로서, 서로를 아끼고 존중하는 마음을 담아 인사하겠습니다. 신랑 신부, 맞절.' assets/ritual-open.js 1
