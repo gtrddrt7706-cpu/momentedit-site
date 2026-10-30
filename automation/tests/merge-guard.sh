@@ -5234,7 +5234,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함
+chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
