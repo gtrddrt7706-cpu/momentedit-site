@@ -20451,4 +20451,7 @@ chk '나란히 내딛는 이 짧은 걸음은 두 사람의 인생에서 가장 
 chk 'RETAKE_168_1030' scripts/audit/guho-one-take.mjs 1
 nochk '신랑 신부, 맞절!' assets/ritual-open.js
 nochk '두 분, 천천히 읽어 주세요.' assets/ritual-open.js
+chk 'FLOW_KEY_FRESH_1030' scripts/audit/flow-gaps.mjs 1   # [검토 168 덧붙임 2] 글을 바꾸면 흐름 쉼 표 열쇠도 같은 PR 에서 · 낡으면 빨강
+chk 't:"신랑 신부, 휴대폰을 들어 주세요."}' assets/ritual-data.js 1
+chk 't:"신랑 신부, 하객 여러분께 손을 흔들어 주세요."}' assets/ritual-data.js 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

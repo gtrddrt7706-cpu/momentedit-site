@@ -1987,16 +1987,6 @@
    "kind": "K"
   },
   {
-   "file": "narr-thanks-in",
-   "key": "133_narr-thanks-in",
-   "i": 0,
-   "text": "다음은 감사문 낭독이 있겠습니다.",
-   "next": "천천히 하셔도 괜찮습니다.",
-   "after_now": 1.5,
-   "after_new": 1.5,
-   "kind": "A"
-  },
-  {
    "file": "narr-open",
    "key": "137_narr-open",
    "i": 0,
@@ -2051,7 +2041,7 @@
    "key": "149_narr-open-ex3",
    "i": 1,
    "text": "지금 이 자리는 두 사람이 사랑으로 다져온 시간을 한 결실로 이어주는 소중한 순간입니다.",
-   "next": "오늘 함께 하신 여러분도 이들의 다음 장을 함께 여는 증인이십니다.",
+   "next": "오늘 함께하신 여러분도 이들의 다음 장을 함께 여는 증인이십니다.",
    "after_now": 1,
    "after_new": 1.0,
    "kind": "C"
@@ -2060,7 +2050,7 @@
    "file": "narr-open-ex3",
    "key": "149_narr-open-ex3",
    "i": 2,
-   "text": "오늘 함께 하신 여러분도 이들의 다음 장을 함께 여는 증인이십니다.",
+   "text": "오늘 함께하신 여러분도 이들의 다음 장을 함께 여는 증인이십니다.",
    "next": "그럼 지금부터 신랑 신부의 결혼식을 시작하겠습니다.",
    "after_now": 1.5,
    "after_new": 1.5,
@@ -2408,16 +2398,6 @@
    "kind": "A"
   },
   {
-   "file": "narr-vow-in-ex2",
-   "key": "163_narr-vow-in-ex2",
-   "i": 2,
-   "text": "준비되었다면, 신랑과 신부는 낭독해 주십시오.",
-   "next": "천천히 하셔도 괜찮습니다.",
-   "after_now": 1,
-   "after_new": 1.0,
-   "kind": "C"
-  },
-  {
    "file": "narr-vow-in-ex3",
    "key": "164_narr-vow-in-ex3",
    "i": 0,
@@ -2478,16 +2458,6 @@
    "kind": "A"
   },
   {
-   "file": "narr-vow-in-b-ex2",
-   "key": "166_narr-vow-in-b-ex2",
-   "i": 2,
-   "text": "준비되었다면, 신랑과 신부는 낭독해 주십시오.",
-   "next": "천천히 하셔도 괜찮습니다.",
-   "after_now": 1,
-   "after_new": 1.0,
-   "kind": "C"
-  },
-  {
    "file": "narr-vow-in-b-ex3",
    "key": "167_narr-vow-in-b-ex3",
    "i": 0,
@@ -2536,16 +2506,6 @@
    "after_now": 8,
    "after_new": 8.0,
    "kind": "A"
-  },
-  {
-   "file": "narr-ring-in-ex3",
-   "key": "170_narr-ring-in-ex3",
-   "i": 0,
-   "text": "먼저 신랑이 신부의 왼손 약지에 반지를 끼워 주겠습니다.",
-   "next": "신랑님, 다시 한번 프러포즈한다는 마음을 담아 끼워 주세요.",
-   "after_now": 1,
-   "after_new": 1.0,
-   "kind": "C"
   },
   {
    "file": "narr-declare-family-out-ex2",
@@ -2966,7 +2926,7 @@
    "file": "narr-candle-in-others-ex4",
    "key": "224_narr-candle-in-others-ex4",
    "i": 0,
-   "text": "그럼 먼저, 두 사람의 앞날을 밝혀 줄 양가를 대표하는 두 분의 화촉점화 순서가 있겠습니다.",
+   "text": "그럼 먼저, 두 사람의 앞날을 밝혀 줄 양가를 대표하는 두 분의 화촉 점화 순서가 있겠습니다.",
    "next": "단상 위로 올라와 주십시오.",
    "after_now": 1,
    "after_new": 1.0,
@@ -3017,17 +2977,7 @@
    "key": "228_narr-thanks-in-ex2",
    "i": 1,
    "text": "오늘 이 자리에는 신랑 신부의 새로운 출발을 축복하기 위해 귀한 시간 내어 함께해 주신 소중한 분들이 계십니다.",
-   "next": "두 분, 천천히 읽어 주세요.",
-   "after_now": 1.5,
-   "after_new": 1.5,
-   "kind": "A"
-  },
-  {
-   "file": "narr-thanks-in-ex3",
-   "key": "229_narr-thanks-in-ex3",
-   "i": 0,
-   "text": "바쁜 일정 속에서도 두 사람의 결혼을 축하하기 위해 참석해 주신 하객 여러분께 신랑 신부가 감사 인사를 드리겠습니다.",
-   "next": "두 분, 천천히 읽어 주세요.",
+   "next": "이제 두 사람의 감사 인사를 듣겠습니다.",
    "after_now": 1.5,
    "after_new": 1.5,
    "kind": "A"
@@ -3119,7 +3069,7 @@
    "key": "252_narr-entry-bow-ex5",
    "i": 0,
    "text": "신랑 신부, 서로 마주 보고 서 주십시오.",
-   "next": "신랑 신부, 맞절.",
+   "next": "평생을 함께할 동반자로서, 서로를 아끼고 존중하는 마음을 담아 인사하겠습니다.",
    "after_now": 1.5,
    "after_new": 1.5,
    "kind": "A"
@@ -3203,16 +3153,6 @@
    "after_now": 1,
    "after_new": 1.0,
    "kind": "C"
-  },
-  {
-   "file": "narr-thanks-in-ex4",
-   "key": "260_narr-thanks-in-ex4",
-   "i": 1,
-   "text": "어린 시절부터 지금까지 여기 계신 한 분 한 분이 보내 주신 따뜻한 시선과 사랑이 있었기에, 두 사람이 서로를 만날 수 있었습니다.",
-   "next": "천천히 하셔도 괜찮습니다.",
-   "after_now": 1.5,
-   "after_new": 1.5,
-   "kind": "A"
   },
   {
    "file": "narr-prevideo-in-ex4",
