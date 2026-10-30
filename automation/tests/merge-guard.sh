@@ -17459,7 +17459,7 @@ chk '아래에서 디렉터와 이어서 상담하실 수 있어요' index.html 
 #   F1 까닭 없는 getMyState 실패에 로그아웃 · 초안 삭제하던 결함 · F5 저장 실패 판 · F6 거짓 «다른 기기에서 먼저 저장됐어요» · F7 빌더 중계 까닭 · F10 다이닝 AI 영문 기술어 · F11 카드 승인 확인
 #   err-mypage.mjs 가 가짜 GAS 로 잰다 — F1 을 되돌리거나 _post 의 종류 표시를 지우면 빨강(돌연변이 확인)
 chk 'ERR_CODE_MYPAGE' mypage.html 110
-chk "else if (_errSess(d)){ var _kp4=clearToken(true); show('loginView'); softLoginNote(_reloginLine(_errLine(d,'L'), _kp4)); }" mypage.html 1   # [RELOGIN_KEEP] 로그인 풀림만 로그인으로(초안은 맡긴다)
+chk "else if (_errSess(d)){ var _kp4=clearToken(true); show('loginView'); softLoginNote(_kp4===null?RELOGIN_FAIL:_reloginLine(_errLine(d,'L'), _kp4)); }" mypage.html 1   # [RELOGIN_KEEP] 로그인 풀림만 로그인으로(초안은 맡긴다)
 nochk "else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }" mypage.html
 chk 'function _post(payload, ms){' mypage.html 1
 chk "e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');" mypage.html 1
@@ -18780,7 +18780,7 @@ chk "_rsJ.code === _mpAcct() && _rsJ.dl === _rsDl" mypage.html 1
 nochk "|| window.__ctResendJust || '';" mypage.html 0
 # [C2_ACCT_SWEEP] [C2_ADV_RESET] [C2_LOADBAR_SWEEP] C2-3 · C2-4 계정이 끝나는 자리(clearToken)에서 화면 기억도 걷는다 — AI 상담 대화 · 실패 막대 · 다른 탭 저장 막대
 chk 'C2_ACCT_SWEEP' mypage.html 2
-chk '}catch(e){} _mpAcctSweep(); return !!_kp; }' mypage.html 1   # [RELOGIN_KEEP] 맡겼나를 돌려준다
+chk '}catch(e){} _mpAcctSweep(); return _kp>0; }' mypage.html 1   # [RELOGIN_KEEP] 맡겼나를 돌려준다 · [RELOGIN_STASH_FIRST] 못 맡겼으면 그 앞에서 null
 chk "window.MEAdvisor.reset();" mypage.html 1
 chk 'C2_ADV_RESET' assets/advisor-widget.js 8
 chk 'reset: reset,' assets/advisor-widget.js 1
@@ -20533,6 +20533,15 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/narrow-170.mjs >/dev
 # ── 2026-10-30 [COMBO_171_1030 검토 171] 순간 조합 · 진행 틈 — C01 인사 받는 분이 바뀌면 한 줄 + 인사 칸 · 인쇄 카드 · 콘솔 받는 분 · C02 선언한 분 ≠ 덕담하실 분이면 255 뒤 GO · C03 축가 맺는 말 «마지막 음 · 잔향» · C04 덕담 «말씀하실 분» 인원 · 원고 시간 · C05 연습 목록 «당일 노래» · N2 콘솔 «두 분이 노래할 자리로»
 chk 'function _crossWatch(c0)' order-preview.html 1
 chk "hint: '마지막 음 · 잔향이 끝나면'" assets/ritual-cue.js 1
+# ★[RELOGIN_KEEP_1030 2026-10-30 GPT 7차 점검(고객) 7-01 · 7-02 · 7-03] 로그인 풀림 때 맡기는 초안 — 맡김을 먼저 쓰고 확인한 뒤 지움(못 맡기면 S4 · 지우지 않음) · 알림 링크 길은 상태 캐시 코드로 · 되돌릴 때 다른 주인 초안에 막히지 않음
+chk 'RELOGIN_STASH_FIRST' mypage.html 5
+chk 'RELOGIN_ACCT_CACHE' mypage.html 2
+chk 'RELOGIN_OWNER' mypage.html 3
+chk 'RELOGIN_KEEP_1030' scripts/audit/relogin-keep.mjs 1
+nochk "var _kp=keep?_reloginPack():null;" mypage.html   # [RELOGIN_STASH_FIRST] 원본을 지운 뒤에야 맡김을 쓰던 옛 줄
+nochk "/^me_(order|snapLocal_)/.test(k) || localStorage.getItem(k)) return;" mypage.html   # [RELOGIN_OWNER] 주인을 안 보고 건너뛰던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/relogin-keep.mjs >/dev/null 2>&1; _rlk=$?; if [ "$_rlk" != 0 ]; then echo 'FAIL relogin-keep: 로그인 풀림 때 맡기는 초안(먼저 맡기기 · 알림 링크 길 · 다른 주인 초안) 판정이 어긋났습니다 — node scripts/audit/relogin-keep.mjs'; fail=1; else echo "ok relogin-keep ($_rlk)"; fi; fi
+
 chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js

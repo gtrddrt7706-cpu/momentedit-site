@@ -23,10 +23,10 @@ const MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
 const mkStore = (init) => { const m = new Map(Object.entries(init || {}));
   return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; } }; };
 function mp1(src, o) {
-  const code = ['clearToken', '_reloginPack', '_reloginLine', '_reloginRestore', '_errGoLogin'].map((f) => grabIn(src, f)).join('\n') + '\n' + lineIn(src, /var RELOGIN_KEY=[^\n]*/) + '\n' + lineIn(src, /var ERR_W=[^\n]*/) + '\n' + lineIn(src, /var ERR_DO=[^\n]*/);
+  const code = ['clearToken', '_reloginStash', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginFailShow', '_errGoLogin'].map((f) => grabIn(src, f)).join('\n') + '\n' + lineIn(src, /var RELOGIN_KEY=[^\n]*/) + '\n' + lineIn(src, /var ERR_W=[^\n]*/) + '\n' + lineIn(src, /var ERR_DO=[^\n]*/);
   const draft = JSON.stringify({ v: 2, S: { tx: { 'vow.g': '고친 서약' } }, who: 'AB12CD', dirty: true, base: 'k0' });
   const ls = mkStore({ me_token: 't', me_state_v1: '{}', me_order: draft, me_snapLocal_AB12CD: '{"n":1}' }), ss = mkStore();
-  let reloaded = 0; const sb = { localStorage: ls, sessionStorage: ss, TOKEN_KEY: 'me_token', STATE_CACHE_KEY: 'me_state_v1', _mpAcctSweep: () => {}, _mpAcct: () => o.acct || '',
+  let reloaded = 0; const sb = { localStorage: ls, sessionStorage: ss, TOKEN_KEY: 'me_token', STATE_CACHE_KEY: 'me_state_v1', _mpAcctSweep: () => {}, _mpAcct: () => o.acct || '', readCachedState: () => null, mpAlert: () => {}, _errHtml: (x) => String(x),   /* [RELOGIN_STASH_FIRST] 7차 */
     _errLine: () => '로그인이 풀렸어요 · 다시 로그인해 주세요 (코드 S8)', _wizCurId: () => 'order', _mpFsOpen: () => false, location: { reload: () => { reloaded++; } },
     closeLedModal: () => {}, _flowBusy: () => {}, show: () => {}, softLoginNote: () => {}, JSON, Date, Object, String };
   vm.createContext(sb); vm.runInContext(code, sb);
@@ -37,13 +37,13 @@ function mp1(src, o) {
   const back = sb._reloginRestore(o.login);
   return { after, back, order: ls.getItem('me_order'), snap: ls.getItem('me_snapLocal_AB12CD'), keep: ls.getItem('me_relogin_keep'), draft };
 }
-{ const miss = ['clearToken', '_reloginPack', '_reloginLine', '_reloginRestore', '_errGoLogin'].filter((f) => !grabIn(MP, f)); if (miss.length) ok('① 원문 조각을 못 떼었다 — ' + miss.join(', '), false); else {
+{ const miss = ['clearToken', '_reloginStash', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginFailShow', '_errGoLogin'].filter((f) => !grabIn(MP, f)); if (miss.length) ok('① 원문 조각을 못 떼었다 — ' + miss.join(', '), false); else {
   const t = (src) => { try { return { same: mp1(src, { acct: 'AB12CD', login: 'AB12CD' }), other: mp1(src, { acct: 'AB12CD', login: 'ZZ99ZZ' }), old: mp1(src, { acct: 'AB12CD', login: 'AB12CD', age: 8 * 864e5 }), out: mp1(src, { acct: 'AB12CD', login: 'AB12CD', logout: true }) }; } catch (e) { return { err: String(e && e.stack || e).slice(0, 300) }; } };
   const r = t(MP);
   const pass = !r.err && r.same.after.order === null && /다시 로그인한 뒤 이어서 저장해 주세요 \(코드 S8\)/.test(r.same.after.note || '') && r.same.back === true && r.same.order === r.same.draft && r.same.snap === '{"n":1}' && r.same.keep === null
     && r.other.back === false && r.other.order === null && r.other.keep === null && r.old.back === false && r.old.order === null && r.out.back === false && r.out.order === null && r.out.keep === null;
   ok('① [RELOGIN_KEEP] 로그인하기 → 초안을 계정에 묶어 맡김 · 같은 코드 로그인이면 되돌림(식순 · 스냅 임시본) · 다른 계정 · 7일 · 스스로 로그아웃이면 지움 · 로그인 칸 «이어서 저장»', pass, r.err || { same: [r.same.after, r.same.back, !!r.same.order], other: [r.other.back, r.other.keep], old: r.old.back, out: [r.out.back, r.out.keep] });
-  const b = brk(MP, [['  line=_reloginLine(line, clearToken(true));', '  clearToken();']]); const rb = b ? t(b) : null;
+  const b = brk(MP, [['var line=_errLine(x, L), _kp=clearToken(true);', 'var line=_errLine(x, L), _kp=clearToken();']]); const rb = b ? t(b) : null;
   ok('깨 보기 ① — 옛 꼴(clearToken 이 초안을 그냥 지움)이면 빨강', !!rb && !rb.err && rb.same.back === false && rb.same.order === null, rb && (rb.err || rb.same));
   ok('① [RELOGIN_KEEP] 로그인 성공(getMyState)에서 화면을 그리기 전에 같은 코드의 맡긴 초안을 되돌린다', /if \(d && d\.ok\)\{ _reloginRestore\(d\.code\); cacheState\(d\); renderMyPage\(d\);/.test(MP));
   ok('① [RELOGIN_KEEP] 상태 · 알림 링크의 로그인 풀림도 맡긴다(clearToken(true)) · 스스로 로그아웃은 맡기지 않는다', (MP.match(/clearToken\(true\)/g) || []).length >= 3 && /function _mpLogoutNow\(\)\{ clearToken\(\);/.test(MP)); } }
