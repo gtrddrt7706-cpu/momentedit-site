@@ -20316,3 +20316,19 @@ nochk '축의금 많이 내거라' assets/ritual-ref.js
 nochk '고장 난 시계' assets/ritual-open.js
 nochk '남의 편이라서' assets/ritual-ref.js
 nochk '안에만 들어오라고' assets/ritual-ref.js
+# ── 2026-10-30 [VC_FIX_1030] 두 분 AI 목소리 버그 넷(GPT 모의 재현 · FEATURE.voiceClone 꺼진 채 고침)
+#   ① [BAKE_FAIL_DROP] 저장 · 나가기 직전 굽기가 실패 · 40초를 넘겨도 «새 글 + 옛 글 소리»를 보내지 않는다(글 · 읽는 분이 바뀐 AI 줄은 소리를 내려놓아 당일 나레이션 · 화면은 «목소리 만들기»)
+#   ② [DONE_NOT_GONE] 없다고 확인된 소리(_rfGone · 마이페이지 안)는 파일 정보가 남아도 다 됨으로 세지 않는다
+#   ③ [DEL_LATE_UP] 올리는 사이 그 분 목소리를 지웠으면 늦게 온 «올라갔어요»를 붙이지 않는다(자동 저장 없음 · 올라간 파일은 지운다)
+#   ④ [VC_CACHE_FIRST] GAS 만들기 · 연습은 저장본을 찾은 뒤에 남은 글자를 본다(한도 근처에서도 이미 만든 소리는 돌려준다)
+chk 'function _vtStaleDrop' order-preview.html 1
+chk '_vtStaleDrop();   /\* \[BAKE_FAIL_DROP\] \*/' order-preview.html 3
+chk '&&!_upStale(q.up)&&!_rfLost(q.up);' order-preview.html 1
+chk 'function _rfLost' order-preview.html 1
+chk 'UP_DG\[key\]=_vcDelSnap();' order-preview.html 1
+chk 'if(d.ok&&_upVoiceGone(key,pend))' order-preview.html 1
+chk 'VC.delGen\[w\]=(VC.delGen\[w\]||0)+1;' order-preview.html 1
+chk 'VC_CACHE_FIRST' automation/platform/80_production.gs 2
+chk 'VC_CACHE_FIRST' scripts/audit/vc-flow-sim.mjs 3
+chk 'VC_FIX_1030' scripts/audit/vc-fix-1030.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix-1030.mjs >/dev/null 2>&1; _vfx=$?; if [ "$_vfx" = 1 ]; then echo 'FAIL vc-fix-1030: AI 목소리 저장 직전 · 없는 소리 · 지운 뒤 늦은 올리기 판정이 어긋났습니다 — node scripts/audit/vc-fix-1030.mjs'; fail=1; else echo "ok vc-fix-1030 ($_vfx)"; fi; fi
