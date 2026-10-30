@@ -7846,7 +7846,11 @@ function _lNext(){
   /* ★★[TURN_BREATH 2026-10-05 사장님 «다음 스텝으로 넘어가는 턴이 너무 빠르다 · 편지를 앞 멘트가 끝나자마자 바로 들어가니 어색»] 줄 사이에 숨을 둔다 —
      말하는 차례가 시작될 때 1.6초(화면은 먼저 «신랑 차례 · 할 일»로 바뀌어 준비할 틈) · 순간이 바뀔 때 1.2초 · 말하는 차례가 끝나 나레이션으로 돌아올 때 0.9초 · 같은 순간 안 줄끼리 0.35초.
      연습 · 듣기 모두(크게 보기 · 작은 플레이어) 같은 길 */
-  var _nx=LP.q[LP.i], _pv=LP.q[LP.i-1]; if(!_nx){ _lShow(); return; }
+  var _nx=LP.q[LP.i], _pv=LP.q[LP.i-1];
+  /* ★[CHEER_TAIL_1030 BGM 섹션 · D6] «위하여»가 듣기의 마지막 줄이어도 축배 곡(M7)으로 넘어가 잠시(4초) 들려준 뒤 끝낸다 —
+     END_FLOW_1030 이 잔 내려놓기를 «위하여» 칸에 합쳐 축배 순간이 «위하여»에서 끝나자, 다음 줄이 없어 lpGap 이 불리지 않았다(축배 곡이 한 번도 안 나옴) · 당일 콘솔은 «위하여» GO(segCheer)라 그대로 */
+  if(!_nx&&_pv&&_pv.cheer&&_bedOn()){ try{ BgmBed.lpGap(_pv,null,0); }catch(e){} var _mt=LP.tok; clearTimeout(LP.t); LP.t=setTimeout(function(){ if(_mt===LP.tok&&!LP.paused) _lShow(); },4000); return; }
+  if(!_nx){ _lShow(); return; }
   var _gap=_nx.talk2&&!(_pv&&_pv.talk2&&_pv.k===_nx.k)?1600:(_pv&&_pv.k!==_nx.k)?1200:(_pv&&_pv.talk2&&!_nx.talk2)?900:350;
   if(_bedOn()) try{ BgmBed.lpGap(_pv,_nx,_gap); }catch(e){}   /* [BGM_PREVIEW_1024] 다음 줄이 말이면 0.4초 앞서 내린다 · «위하여» 뒤 축배 크기로 */
   LP.cur=_nx.k; LP.tAt=0; try{ LP.el&&LP.el.pause(); }catch(e){} _lPaint(); var _me=LP.tok; clearTimeout(LP.t);
