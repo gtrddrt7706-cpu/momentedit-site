@@ -48,7 +48,7 @@ const ANS = { none: null, part: { len: 'ankle', fit: '', pref: [] }, full: { len
 async function page(W, H, after, opts = {}) {
   const { page: P, errors } = await eng.newPage({ port: PORT, viewport: { width: W, height: H }, gasBody: STATE(after) });
   if (eng.kind === 'puppeteer' && P.setViewport) await P.setViewport({ width: W, height: H });   // [DRESS_OPS_VIEWPORT] 와 같다
-  const init = "try{ localStorage.setItem('me_token','TOK'); " + (opts.tipSeen === false ? '' : "localStorage.setItem('me_drfabtip_v1','o'); localStorage.setItem('me_ledtip_v1','o'); ") + (opts.ans ? "localStorage.setItem('me_dress_ans:ME-TABS', " + JSON.stringify(JSON.stringify(opts.ans)) + '); ' : "localStorage.removeItem('me_dress_ans:ME-TABS'); ") + '}catch(e){}';
+  const init = "if(location.pathname==='/dress.html'){ window.__qObs=1; new MutationObserver(function(){ if(document.querySelector('.pk-q,.pk-opt,.pk-mine,.wz-steps')) window.__qFlash=1; }).observe(document,{subtree:true,childList:true}); } try{ localStorage.setItem('me_token','TOK'); " + (opts.tipSeen === false ? '' : "localStorage.setItem('me_drfabtip_v1','o'); localStorage.setItem('me_ledtip_v1','o'); ") + (opts.ans ? "localStorage.setItem('me_dress_ans:ME-TABS', " + JSON.stringify(JSON.stringify(opts.ans)) + '); ' : "localStorage.removeItem('me_dress_ans:ME-TABS'); ") + '}catch(e){}';
   await (P.addInitScript ? P.addInitScript(init) : P.evaluateOnNewDocument(init));
   await P.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load', timeout: 30000 });
   const vp = await P.evaluate(() => [innerWidth, innerHeight]);
@@ -79,6 +79,8 @@ try {
           if (wantQ ? !(v.q && v.steps) : !(v.mine && !v.q)) no(`${who} — ${wantQ ? '물음 1' : '결과(답 요약)'}이 아니다 ${JSON.stringify(v)} [DRESS_Q_FIRST]`);
           if (v.tabs) no(`${who} — 상담 전 창에 탭이 있다 [DRESS_TABS_1030]`);
         } else {
+          const fl = await fr.evaluate(() => [!!window.__qObs, !!window.__qFlash]);
+          if (!fl[0]) no(`${who} — 물음 깜빡임 감시가 창에 안 걸렸다(못 쟀다) [DRESS_AFTER_NOFLASH]`); else if (fl[1]) no(`${who} — 물음 · 결과가 잠깐이라도 그려졌다 [DRESS_AFTER_NOFLASH]`);
           if (v.q || v.mine || v.steps || !v.tabs || v.tab !== 'pkTabD' || !v.panD || v.panA) no(`${who} — 탭 화면(드레스)이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
           if (v.ids !== 'S01,S02,S03,S04,S05,S06') no(`${who} — 드레스 순서 ${v.ids} [DRESS_TABS_1030]`);
           /* 늦게 온 데이터 — 부모가 dressFill 을 다시 보내도 탭 그대로 */
@@ -95,6 +97,26 @@ try {
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/tab-dress-${W}.png` });
       const tb = await fr.evaluate(() => [...document.querySelectorAll('.pk-tab')].map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }));
       if (tb.length !== 2 || tb.some((x) => x[1] < 44) || Math.abs(tb[0][0] - tb[1][0]) > 1) no(`${tag} 탭 크기 ${JSON.stringify(tb)} — 높이 44 이상 · 같은 너비 [DRESS_TABS_1030]`);
+      /* [DRESS_TAB_A11Y] 활성 0 · 비활성 −1 · aria-controls ↔ 패널 aria-labelledby · 비활성 패널 hidden */
+      const ax = await fr.evaluate(() => [...document.querySelectorAll('.pk-tab')].map((b) => { const pn = document.getElementById(b.getAttribute('aria-controls')); return [b.id, b.getAttribute('aria-selected'), b.tabIndex, pn ? pn.getAttribute('aria-labelledby') : '', pn ? pn.hidden : null, pn ? pn.getAttribute('role') : ''].join(':'); }).join(' | '));
+      if (ax !== 'pkTabD:true:0:pkTabD:false:tabpanel | pkTabA:false:-1:pkTabA:true:tabpanel') no(`${tag} 탭 속성 ${ax} [DRESS_TAB_A11Y]`);
+      /* [DRESS_AFTER_NOEND] 상담 뒤 목록 — «방문 전 준비» · 맨 아래 안내 없음 · 스타일 예시 표시 · 소품 안내는 그대로 */
+      const ne = await fr.evaluate(() => ({ end: document.querySelectorAll('#pkMain .pk-end-dots, #pkMain .pk-prep-h').length, visit: /방문 때|방문 전 준비/.test(document.getElementById('pkMain').textContent), ex: document.querySelectorAll('#pkPanD .dr-kick, #pkPanD .dr-ex').length + '/' + document.querySelectorAll('#pkPanA .pk-accx').length, lead: !!document.querySelector('#pkPanA .pk-sub-s') }));
+      if (ne.end || ne.visit || /^0\//.test(ne.ex) || /\/0$/.test(ne.ex) || !ne.lead) no(`${tag} 상담 뒤 목록 아래 안내 ${JSON.stringify(ne)} [DRESS_AFTER_NOEND]`);
+      /* Tab = 활성 패널 첫 카드 · 초점 테 2px #7A5F37(밑줄과 따로) */
+      await fr.focus('#pkTabD'); await P.keyboard.press('ArrowRight'); await wait(200); await P.keyboard.press('ArrowLeft'); await wait(200);
+      const ring = await fr.evaluate(() => { const b = document.activeElement, c = getComputedStyle(b); return [b.id, c.outlineStyle, c.outlineWidth, c.outlineColor, c.outlineOffset].join(' '); });
+      if (ring !== 'pkTabD solid 2px rgb(122, 95, 55) -5px') no(`${tag} 탭 초점 테 ${ring} [DRESS_TAB_RING]`);
+      await P.keyboard.press('Tab'); await wait(150);
+      const tb1 = await fr.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-open'));
+      if (tb1 !== 'S01') no(`${tag} 드레스 탭에서 Tab → 첫 카드(S01)가 아니다 ${tb1} [DRESS_TAB_A11Y]`);
+      await fr.focus('#pkTabD'); await P.keyboard.press('ArrowRight'); await wait(200); await P.keyboard.press('ArrowRight'); await wait(200);
+      const wrap = await fr.evaluate(() => document.activeElement.id + ':' + document.activeElement.getAttribute('aria-selected'));
+      if (wrap !== 'pkTabD:true') no(`${tag} 방향키 → 끝에서 처음으로 돌아 바로 선택되지 않는다 ${wrap} [DRESS_TAB_A11Y]`);
+      await P.keyboard.press('ArrowLeft'); await wait(200); await P.keyboard.press('Tab'); await wait(150);
+      const tb2 = await fr.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-acc'));
+      if (!tb2) no(`${tag} 소품 탭에서 Tab → 첫 칸이 아니다 [DRESS_TAB_A11Y]`);
+      await fr.click('#pkTabD'); await wait(200); await fr.evaluate(() => window.scrollTo(0, 0)); await wait(150);
       const card0 = await P.evaluate(() => { const r = document.querySelector('.dr-pop-card').getBoundingClientRect(); return [Math.round(r.top), Math.round(r.height)].join('/'); });
       /* 고정 — 아래로 내려도 탭이 머리 바로 아래 */
       await fr.evaluate(() => window.scrollTo(0, 500)); await wait(250);
@@ -117,7 +139,8 @@ try {
       /* ⑤ 소품 크게 보기 → Esc */
       await fr.evaluate(() => window.scrollTo(0, 300)); await wait(200); const yA = await fr.evaluate(() => Math.round(pageYOffset));
       await fr.click('[data-acc="shoes"]'); await wait(400);
-      const big = await fr.evaluate(() => ({ nm: (document.getElementById('dvName') || {}).textContent, back: (document.querySelector('.pk-back') || {}).textContent, ex: !!document.querySelector('.pk-accv .dr-ex'), tabs: !document.getElementById('pkTabs').hidden }));
+      const big = await fr.evaluate(() => ({ nm: (document.getElementById('dvName') || {}).textContent, back: (document.querySelector('.pk-back') || {}).textContent, ex: !!document.querySelector('.pk-accv .dr-ex'), tabs: !document.getElementById('pkTabs').hidden, fit: (() => { const ph = document.querySelector('.pk-accv .pk-accp'), im = ph && ph.querySelector('img'), m = document.getElementById('pkMain'); return ph && im ? [getComputedStyle(im).objectFit, ph.getBoundingClientRect().width <= 420.5, ph.getBoundingClientRect().width <= m.clientWidth + 0.5].join(':') : ''; })() }));
+      if (big.fit !== 'contain:true:true') no(`${tag} 소품 크게 보기 사진 ${big.fit} — 최대 420 · 본문 폭 이하 · contain [DRESS_ACC_FIT]`);
       if (big.nm !== '새틴 슈즈' || !/소품·부케 목록/.test(big.back || '') || !big.ex || big.tabs) no(`${tag} 소품 크게 보기 ${JSON.stringify(big)} [DRESS_ACC_BIG]`);
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/acc-big-${W}.png` });
       await fr.focus('.pk-back'); await P.keyboard.press('Escape'); await wait(400);
@@ -125,7 +148,8 @@ try {
       /* 드레스 자세히 → Esc · 뒤로가기 */
       await fr.click('#pkTabD'); await wait(250); await fr.evaluate(() => window.scrollTo(0, 400)); await wait(200); const yD2 = await fr.evaluate(() => Math.round(pageYOffset));
       await fr.evaluate(() => document.querySelector('[data-open="S03"]').click()); await wait(400);
-      const nb = await fr.evaluate(() => ({ p: (document.querySelector('.pk-nb-p') || { getAttribute: () => '' }).getAttribute('data-nb'), n: (document.querySelector('.pk-nb-n') || { getAttribute: () => '' }).getAttribute('data-nb'), back: (document.querySelector('.pk-back') || {}).textContent, q: !!document.querySelector('.pk-q') }));
+      const nb = await fr.evaluate(() => ({ p: (document.querySelector('.pk-nb-p') || { getAttribute: () => '' }).getAttribute('data-nb'), n: (document.querySelector('.pk-nb-n') || { getAttribute: () => '' }).getAttribute('data-nb'), back: (document.querySelector('.pk-back') || {}).textContent, q: !!document.querySelector('.pk-q'), end: document.querySelectorAll('#pkMain .pk-end-dots').length }));
+      if (nb.end) no(`${tag} 상담 뒤 자세히에 맨 아래 안내가 있다 [DRESS_AFTER_NOEND]`);
       if (nb.p !== 'S02' || nb.n !== 'S04' || !/드레스 목록/.test(nb.back || '')) no(`${tag} 자세히 이전/다음 · «‹ 드레스 목록» ${JSON.stringify(nb)} [DRESS_TABS_1030]`);
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/detail-${W}.png` });
       await fr.focus('.pk-back'); await P.keyboard.press('Escape'); await wait(400);
@@ -167,4 +191,4 @@ try {
 } finally { await eng.close(); srv.close(); }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-tabs — 실패 ${bad}건 [DRESS_TABS_1030]`); process.exit(1); }
-console.log('━━ dress-tabs — 통과 · 네 크기 · 상담 전 = 물음 필수(답 없음 · 일부 → 물음 1 · 완료 → 결과) · 상담 뒤 = 물음 없이 두 탭(늦게 온 데이터 포함) · 탭 크기 · 고정 · 방향키 · 소품 크게 보기 · 복귀(자리 · 초점) · 닫힘 · 기억 · 말풍선 1회 [DRESS_TABS_1030]');
+console.log('━━ dress-tabs — 통과 · 네 크기 · 상담 전 = 물음 필수(답 없음 · 일부 → 물음 1 · 완료 → 결과) · 상담 뒤 = 첫 렌더부터 물음 없이 두 탭(늦게 온 데이터 포함) · 탭 크기 · 속성 · Tab · 초점 테 · 고정 · 방향키(끝 돌기) · 아래 안내 없음 · 소품 크게 보기 · 복귀(자리 · 초점) · 닫힘 · 기억 · 말풍선 1회 [DRESS_TABS_1030]');

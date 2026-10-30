@@ -426,7 +426,7 @@ span.dr-pv{cursor:inherit}
 .pk-tabs[hidden]{display:none}
 .pk-tab{flex:1 1 0;min-width:0;min-height:44px;margin:0 0 -1px;padding:11px 8px 9px;border:0;border-bottom:2px solid transparent;border-radius:0;background:none;font-family:var(--serif-ko);font-size:14px;line-height:22px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pk-tab[aria-selected="true"]{color:var(--gold-text);border-bottom-color:var(--gold-text)}
-.pk-tab:focus-visible{outline:2px solid var(--gold-deep);outline-offset:-2px}
+.pk-tab:focus-visible{outline:2px solid var(--gold-text);outline-offset:-5px}   /* [DRESS_TAB_RING] 초점 테는 선택 밑줄과 따로(밑줄 위로 3px 띄운다) */
 html.pk-pop.pk-tabson .pk-head{margin-bottom:0}
 html.pk-pop.pk-tabson.pk-scrolled .pk-head{box-shadow:none}
 html.pk-pop.pk-tabson .pk-tabs{position:sticky;top:var(--pk-hh,56px);z-index:6;background:var(--card-white);margin:0 -20px 16px;padding:0 20px}
@@ -441,7 +441,10 @@ button.pk-acci:focus-visible{outline:2px solid var(--gold-deep);outline-offset:4
 button.pk-acci .pk-accp{transition:transform .12s ease}
 button.pk-acci:active .pk-accp{transform:scale(.98)}
 /* [DRESS_ACC_BIG] 소품 크게 보기 — 같은 창 안 본문만 바꾼다 · 사진 → 이름 → 제공 안내 · 사진 한 장(넘김 없음) */
-.pk-accv .pk-accp{border-radius:6px}
+.pk-accv .pk-accp{border-radius:6px;width:100%;max-width:420px;margin:0 auto}   /* [DRESS_ACC_FIT] 크게 보기 사진 = 최대 420 · 본문 폭 이하 · 긴 면사포 끝이 잘리지 않게 contain */
+.pk-accv .pk-accp img{object-fit:contain}
+html .pk-main .pk-accv .dv-view,html.pk-pop .pk-main .pk-accv .dv-view{max-width:420px}   /* [DRESS_ACC_FIT] 드레스 사진 폭(300 · 높이로 잰 값)이 아니라 소품 기준 420 · 이름 · 안내도 같은 폭(왼쪽 줄 맞춤) */
+html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420px}
 .pk-accv .dv-p{margin-top:8px}
 .dv-reld{margin-top:-8px;font-size:13px;color:var(--light);line-height:1.6}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;scroll-behavior:auto!important} html.pk-pop .pk-main.pk-fade{animation:none} }
@@ -691,18 +694,18 @@ button.pk-acci:active .pk-accp{transform:scale(.98)}
     return { front: front, rest: rest, near: near, open: open };
   }
   /* ★[DRESS_GUIDE_ONLY] 결과 · 자세히 맨 아래 한 줄 — 추천 · 맞춤 · 확정 말 없음 */
-  var GUIDE_END = AFTER ? '<div class="pk-end-dots"><p class="dotln">마음에 드는 스타일은 방문 때 함께 비교해요.</p><p class="dotln">방문 때 이 화면을 보여 주셔도 좋아요.</p></div>'   // ★[DRESS_AFTER_WORDS] 상담 뒤
+  /* ★[DRESS_AFTER_NOEND 1030 코워크 GPT 최종 7] 상담 뒤(아이콘) 목록 · 자세히에는 «방문 전 준비» 넷도 맨 아래 «방문 때 …» 안내도 붙이지 않는다(대체 문구도 없다) — 상담 전(스티커)은 그대로 */
+  var GUIDE_END = AFTER ? ''
     : '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class="dotln">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';   // [DRESS_FORM_1024] 한 줄 더
   /* ★[DRESS_TABS_1030] 드레스 탭 = 스타일 예시 여섯 벌 · 늘 같은 순서(S01 → S06 · 답과 상관없이) · 자세히의 이전/다음도 이 순서 */
   function afterList(){ return R.list().slice().sort(function(a, b){ return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; }); }
   function accOn(){ return !!(R.accList && R.accList().length); }
-  function prepEnd(){ var prep = (R.PREP && R.PREP.length) ? '<p class="pk-prep-h">방문 전 준비</p>' + R.PREP.map(function(x){ return '<p class="dotln">' + esc(x) + '</p>'; }).join('') : ''; return prep ? GUIDE_END.replace('<div class="pk-end-dots">', '<div class="pk-end-dots pk-prep">' + prep) : GUIDE_END; }
   function tabsHTML(){
     var ds = afterList();
     return '<section class="pk-panel" role="tabpanel" id="pkPanD" aria-labelledby="pkTabD"' + (S.tab === 'acc' && accOn() ? ' hidden' : '') + '><h2 class="sr" id="pkPanDH" tabindex="-1">드레스</h2>'
       + (ds.length ? '<div class="dr-grid pk-grid pk-tabgrid">' + ds.map(cellHTML).join('') + '</div>' : '<p class="pk-near">드레스 사진을 준비하고 있어요.</p>')
       + (accOn() ? '<button type="button" class="pk-txt pk-toacc" data-act="toacc">소품 · 부케도 보기 <span aria-hidden="true">&rsaquo;</span></button>' : '')
-      + prepEnd() + '</section>'
+      + '</section>'
       + (accOn() ? '<section class="pk-panel" role="tabpanel" id="pkPanA" aria-labelledby="pkTabA"' + (S.tab === 'acc' ? '' : ' hidden') + '>' + accHTML(true) + '</section>' : '');
   }
   function accItem(id){ var a = R.accList ? R.accList() : []; for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; }

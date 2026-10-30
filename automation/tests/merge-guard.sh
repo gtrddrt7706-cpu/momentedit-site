@@ -20107,6 +20107,19 @@ chk 'data-act="acclist">&lsaquo; 소품·부케 목록' dress.html 1            
 chk 'var _DR_AFTER_MEM=null;' mypage.html 1                                    # [DRESS_TABS_1030] 기억은 페이지 메모리
 chk 'DRESS_TABS_1030' scripts/audit/dress-tabs.mjs 3
 chk 'DRESS_ACC_BIG' scripts/audit/dress-tabs.mjs 2
+# [DRESS_TABS_1030 보탬 · 코워크 GPT 최종 1 · 2 · 7 · 8 · 9] 첫 렌더 깜빡임 0 · 탭 접근성 · 상담 뒤 아래 안내 없음 · 크게 보기 사진 · 말풍선 실제로 보인 뒤 기록 · Esc
+chk "var GUIDE_END = AFTER ? ''" dress.html 1                                     # [DRESS_AFTER_NOEND]
+nochk 'prepEnd(' dress.html                                                       # [DRESS_AFTER_NOEND] 상담 뒤 «방문 전 준비»를 붙이던 길
+chk 'outline:2px solid var(--gold-text);outline-offset:-5px' dress.html 1         # [DRESS_TAB_RING]
+chk '.pk-accv .pk-accp img{object-fit:contain}' dress.html 1                      # [DRESS_ACC_FIT]
+chk 'function clearToken(){ _DR_AFTER_MEM=null;' mypage.html 1                    # [DRESS_MEM_RESET]
+chk 'function _dressTipBlocked(btn)' mypage.html 1                               # [DRESS_TIP_SEEN]
+chk '#mp_dressFab.nm-off .me-fab-nm' mypage.html 1                                # [DRESS_TIP_ESC]
+chk 'DRESS_AFTER_NOFLASH' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_TAB_A11Y' scripts/audit/dress-tabs.mjs 4
+chk 'DRESS_AFTER_NOEND' scripts/audit/dress-tabs.mjs 2
+chk 'DRESS_TAB_RING' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_ACC_FIT' scripts/audit/dress-tabs.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-tabs.mjs >/dev/null 2>&1; _dtab=$?
   case "$_dtab" in
     0) echo 'ok dress-tabs: 상담 전 = 물음 필수 · 상담 뒤 = 물음 없이 두 탭 · 탭 · 복귀 · 기억 · 말풍선 — 네 크기' ;;

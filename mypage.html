@@ -202,6 +202,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 #mp_dressFab .me-fab-nm{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:9px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s}   /* [DRESS_FAB_1024] 마우스 올림 · 키보드 초점에 이름만 */
 @media (hover:hover){ #mp_dressFab:hover .me-fab-nm{opacity:1;visibility:visible;transition:opacity .2s ease} }
 #mp_dressFab:focus-visible .me-fab-nm{opacity:1;visibility:visible;transition:opacity .2s ease}
+#mp_dressFab.nm-off .me-fab-nm{opacity:0!important;visibility:hidden!important;transition:none!important}   /* [DRESS_TIP_ESC] Esc = 이름표 닫기(올림 · 초점이 풀리면 다시 뜬다) */
 .me-fab-tip{position:absolute;right:calc(100% + 10px);top:4px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none}   /* MPD_G7 내 내역 FAB 1회 툴팁 */
 /* TOPFAB_STEADY(2026-07-25 사용자 지시): '맨 위로' FAB은 display 토글 대신 자리 상시 확보 + 페이드 등장 — 등장·퇴장 때 스택(세로 중앙 정렬) 높이가 변해 내역·챗 버튼이 흔들리던 것 방지. display:none 토글 복원 금지 */
 #mp_topFab{opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease,visibility 0s linear .4s;pointer-events:none}
@@ -3134,7 +3135,7 @@ function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
 /* ★[LOGOUT_SWEEP 2026-08-30] 로그아웃이 토큰·상태캐시만 지워, 식순 초안(me_order)·결과물 펼침(me_deliv_*) 등이
    그대로 남았다. 웨딩은 한 기기를 부부가 함께 쓰는 일이 잦아, 다음 사람 화면에 앞사람 서약문·편지가 잠깐 비칠 수 있다.
    ★me_guide_*(하객 안내 캐시)는 건드리지 않는다 — guide.html 소유이고 예식별 토큰으로 이미 격리돼 있다. */
-function clearToken(){ try{
+function clearToken(){ _DR_AFTER_MEM=null; try{   // [DRESS_MEM_RESET 1030] 드레스 창 기억(탭 · 자리)도 로그아웃 · 세션 끝에 비운다
   localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
   var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
     if(k && /^me_(order|deliv_|prod_ping|order_v2note_|snapLocal_)/.test(k)) _kill.push(k); }   // [SNAP_AGREE_LAST] 동의 전 스냅 임시본(고른 장면 · 글)도 — 다음 사람 화면에 앞사람 메모가 비치지 않게
@@ -4533,20 +4534,37 @@ function ensureDressFab(d){
     ex=document.createElement('button'); ex.type='button'; ex.id='mp_dressFab'; ex.className='me-fab'; ex.setAttribute('aria-label','드레스 · 소품 · 부케');
     /* [DRESS_FAB_ICO] 그림 폭 20(치마 밑단 2.7 ~ 21.3) · 선 1.6 — 말풍선(폭 18 + 선)과 눈으로 같은 무게(코워크 GPT 2차 · 1024) */
     ex.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.6 3.3a1.4 1.4 0 1 1 1.4 1.4v1.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 6 7.9 8.9l1.4 4.3L2.7 20.7c5.9 1.4 12.7 1.4 18.6 0L14.7 13.2l1.4-4.3L12 6ZM9.3 13.2h5.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="me-fab-nm" aria-hidden="true">드레스 · 소품 · 부케</span>';
+    ex.addEventListener('mouseleave', function(){ ex.classList.remove('nm-off'); }); ex.addEventListener('blur', function(){ ex.classList.remove('nm-off'); });
+    document.addEventListener('keydown', function(e){ if(e.key!=='Escape') return; var t=document.querySelector('.me-fab-tip2'); if(t&&t.parentNode) t.parentNode.removeChild(t); var b=document.getElementById('mp_dressFab'); if(b && (document.activeElement===b || (b.matches && b.matches(':hover')))) b.classList.add('nm-off'); });   // [DRESS_TIP_ESC]
     ex.addEventListener('click', function(){ openDressPicker((d&&d.consult&&d.consult.dress)||null, { after:true, key:String((d&&d.code)||'') }); });   // 답이 이 기기에 있으면 결과로 바로(스티커와 같은 열쇠 · 개인코드)
   }
   if(ex.parentNode!==stack || ex.nextSibling!==chat){ if(chat && chat.parentNode===stack) stack.insertBefore(ex, chat); else stack.insertBefore(ex, stack.firstChild); }   // «상담 도우미» 바로 위
   ex.style.display='flex';
   _dressFabTip(stack, ex);
 }
-function _dressFabTip(stack, btn){
+/* ★[DRESS_TIP_SEEN 1030 코워크 GPT 최종 9] 1회 말풍선 4.5초는 처음 자동 안내에만 · 다른 창이 열려 있거나 아이콘이 가려져 있으면 미룬다 · 실제로 보인 뒤에 «본 기록» · Esc 로 닫힌다 */
+function _dressTipBlocked(btn){
+  if(document.hidden) return true;
+  try{ if(_mpFsOpen() || _ovlOpen() || _wizCurId()) return true; }catch(e){}
+  var dl=document.querySelectorAll('[aria-modal="true"]'); for(var i=0;i<dl.length;i++){ var d=dl[i], cs=getComputedStyle(d), q=d.getBoundingClientRect();   // 화면 안에 실제로 떠 있는 창만(닫혀 화면 밖에 대기하는 상담 도우미 판은 아니다)
+    if(cs.display!=='none' && cs.visibility!=='hidden' && +cs.opacity>0.05 && d.getAttribute('aria-hidden')!=='true' && q.width && q.height && q.right>0 && q.left<innerWidth && q.bottom>0 && q.top<innerHeight) return true; }
+  var r=btn.getBoundingClientRect(); if(!r.width || !r.height) return true;
+  var el=document.elementFromPoint(r.left+r.width/2, r.top+r.height/2);
+  return !el || (el!==btn && !btn.contains(el));
+}
+var _DRTIP_WAIT=0;
+function _dressFabTip(stack, btn, n){
+  n=n||0;
+  if(!n && _DRTIP_WAIT) return;   // 이미 기다리는 중이면 한 줄만(상태를 새로 받을 때마다 겹치지 않게)
+  _DRTIP_WAIT=0;
   try{ if(localStorage.getItem('me_drfabtip_v1')==='o') return; }catch(e){ return; }
-  var other=stack.querySelector('.me-fab-tip');
-  if(other){ setTimeout(function(){ _dressFabTip(stack, btn); }, 600); return; }   // 다른 1회 안내(«내 내역»)가 떠 있으면 사라진 뒤에 — 차례대로
-  if(btn.style.display==='none' || !btn.offsetParent) return;
-  try{ localStorage.setItem('me_drfabtip_v1','o'); }catch(e){}
+  if(btn.style.display==='none' || n>600) return;   // 단추가 없거나 오래(약 7분) 가려져 있으면 다음 방문에
+  var again=function(){ _DRTIP_WAIT=1; setTimeout(function(){ _dressFabTip(stack, btn, n+1); }, 700); };
+  if(stack.querySelector('.me-fab-tip') || !btn.offsetParent || _dressTipBlocked(btn)) return again();   // 다른 1회 안내(«내 내역»)가 떠 있거나 가려져 있으면 차례를 기다린다
   var tip=document.createElement('div'); tip.className='me-fab-tip me-fab-tip2'; tip.innerHTML='드레스·소품·부케<br>여기서 언제든 다시 살펴보세요';
   tip.style.top=(btn.offsetTop+4)+'px'; stack.appendChild(tip);
+  var seen=function(){ if(tip.parentNode && tip.getClientRects().length){ try{ localStorage.setItem('me_drfabtip_v1','o'); }catch(e){} } };
+  if(window.requestAnimationFrame) requestAnimationFrame(seen); else seen();
   setTimeout(function(){ if(tip.parentNode) tip.parentNode.removeChild(tip); }, 4500);
 }
 // 청첩장 샘플 바로가기 FAB — 제작 단계(청첩장 작업 중)에만 우측 스택에 등장, 완료·단계 종료 시 사라짐.
