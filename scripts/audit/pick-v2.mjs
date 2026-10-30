@@ -67,6 +67,7 @@ for (const w of [390, 360]) {
     await pg.click('[data-fk="pto:ring"]'); await pg.waitForTimeout(500);
     await pg.keyboard.press('Escape'); await pg.waitForTimeout(500);
     ok('Esc 로 닫힌다(기록도 되감는다) · 초점이 누른 칸', await pg.evaluate(() => document.getElementById('pvSheet').hidden && !(history.state && history.state.pv) && document.activeElement.getAttribute('data-fk') === 'pto:ring'));
+    await pg.evaluate(() => { ['free', 'song', 'table', 'bless'].forEach((k) => { if (S.on) delete S.on[k]; }); opSync(); }); await pg.waitForTimeout(300);   /* [BODY_CAP_1030 검토 167] 꽉 찬 판이면 담기가 막히는 것이 맞다 — 담을 자리를 먼저 비운다 */
     await pg.click('[data-fk="pto:letter"]'); await pg.waitForTimeout(500);
     const before = await pg.evaluate(() => document.querySelector('[data-fk="opt:letter"]').getAttribute('aria-pressed'));
     await pg.click('#pvAct .pv-add'); await pg.waitForTimeout(400);

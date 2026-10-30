@@ -916,6 +916,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-peak{font-size:14px;line-height:1.6;color:var(--accent);margin:6px 0 0;word-break:keep-all}
 .pk-peak b{font-weight:600}
 .pk-tm{font-size:12.5px;line-height:1.6;color:var(--light);margin:8px 0 0;word-break:keep-all}
+.pk-left{font-size:12.5px;line-height:1.6;color:var(--accent);margin:4px 0 0;word-break:keep-all}   /* [BODY_CAP_1030] 남은 본식 시간 */
 .pk-pre{white-space:nowrap}
 .pk-fp>.op-note{margin-top:12px}   /* [NOTE_UNDER] */
 .pk-acts{display:grid;gap:20px}
@@ -2272,7 +2273,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1030bg"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bh"></script><script src="/assets/bgm-bed.js?v=1030bh"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1030e"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bh"></script><script src="/assets/bgm-bed.js?v=1030bh"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3112,7 +3113,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1030bg';   // [ASSET_V] 위 주석
+  var ASSET_V='1030e';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -3853,7 +3854,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 옷을 갈아입어요']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 옷을 갈아입어요']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
@@ -4163,8 +4164,11 @@ function _pkSayOf(k,on){ var R=RitualOpen, nm=R.nameOf(k,S), sp=R.span(S); retur
 function _mkForget(ks){ var m=S.mk; if(!m) return; (ks||Object.keys(m.drop||{})).forEach(function(k){ if(m.drop) delete m.drop[k]; if(m.dropMin) delete m.dropMin[k]; }); }
 /* ★[THANKS_DUP_BOTH_R7_1016 라운드 7] 겹침 알림(THANKS_DUP_TOAST_1014)은 감사문을 고를 때만 떴다 — 감사문을 먼저 고르고 감사 인사(또는 서약 카드)를 담는 순서에서도 같은 알림 */
 function _thanksDupToast(k){ if((k==='welcome'||k==='vow')&&S.vowKind==='thanks'&&RitualOpen.onOf(S,'welcome')&&RitualOpen.onOf(S,'vow')) _noteToast('감사 인사와 내용이 겹쳐요'); }
-window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return;   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
-window.opChip=function(k,v){ RitualOpen.setChip(S,k,v); opSync(); };
+/* ★★[BODY_CAP_1030 검토 167 2026-10-30 사장님] 본식 상한 — 담기 · 길이 칩이 본식(천천히)을 상한(예시 넷 가운데 가장 긴 값 · SHORT_MIN 아래로 자름) 밖으로 늘리면 막고 한 창으로 알린다.
+   사본(t)에 먼저 해 보고 재므로 S 는 그대로다 · 줄이는 것 · 이미 넘은 옛 초안을 그대로 두는 것은 막지 않는다(capOver) · scripts/audit/open-course.mjs · body-cap */
+function _capNo(mut){ var R=RitualOpen; if(!R||!R.capOver||!isOpen()) return false; var t; try{ t=JSON.parse(JSON.stringify(S)); t.on=t.on||{}; mut(t); }catch(e){ return false; } if(!R.capOver(S,t)) return false; try{ ordTell({title:R.CAP_MSG.title, body:R.CAP_MSG.body}); }catch(e){} return true; }
+window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; })) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
+window.opChip=function(k,v){ if(_capNo(function(t){ RitualOpen.setChip(t,k,v); })) return; RitualOpen.setChip(S,k,v); opSync(); };   /* [BODY_CAP_1030] */
 /* ★★[PICK_V2 3-1 · 3-2] 예시를 누르면 그 자리에서 바뀌고(화면은 옮기지 않는다) 6초 «‹가족› 예시로 바꿨어요 · 되돌리기» ·
    «빈 칸에서 직접 고를게요»도 같은 알림 줄. 되돌리기는 예시가 바꾸는 키만 되돌린다(applyExample 과 같은 목록). */
 var _PK_KEYS=['on','entry','declareWho','declare','tributeSay','letter','toast','wine','freeWhat','freeLen','pickFrom'];
@@ -4267,6 +4271,7 @@ window.opNoteWide=function(){ _noteWide=!_noteWide; render(); };
 window.opNoteShut=function(){ var n=_noteFull(_noteShut); if(n&&n.close) _noteShut[n.key]=1; _fxNext='#stepHead'; render(); };
 window.opNoteAct=function(i){
   var n=_noteFull(_noteShut), a=n&&n.acts[i]; if(!a) return;
+  if(a[1]==='on'&&_capNo(function(t){ t.on[a[2]]=1; })) return;   /* [BODY_CAP_1030] */
   if(a[1]==='on'){ if(!S.on) S.on={}; S.on[a[2]]=1; } else if(a[1]==='off'){ if(S.on) delete S.on[a[2]]; } else RitualOpen.setChip(S,a[1],a[2]);   // [REVIEW26_1023 검토 150-1 7)] «감사 인사 빼기»
   _fxNext='#stepHead';   // [A11Y_FOCUS] 알림이 풀리면 단추가 사라진다
   opSync();   // ★[OP_SYNC_ALL 코워크 추가 점검 P1-3] 담기는 늘 opSync 로 — 옛 갈래 키(ring · bless · growth)와 저장이 함께 간다
@@ -4327,7 +4332,7 @@ function _lNorm(s){ return String(s||'').replace(/[^0-9A-Za-z가-힣]+/g,''); }
 function _lRecText(file){ var v=LREC&&file?LREC[file]:null; return v==null?null:(typeof v==='string'?v:String(v.text||'')); }
 function _lHasSound(file,text){ var r=_lRecText(file); return r!=null && _lNorm(r)!=='' && _lNorm(r)===_lNorm(text); }
 function _lName(k){ return k==='guest'?'하객 맞이 안내':(k==='vow'&&_vowKind()==='thanks')?'감사문':RitualOpen.nameOf(k,S); }   /* [THANKS_IN_VOW] 감사문을 고르면 ② 이후 이름이 «감사문» · 고르기(①) 칸은 그대로 «혼인 서약» */
-function _lRows(){ var R=RitualOpen, on=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }); return ['guest'].concat(on.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat(['_close']).concat(on.filter(function(k){ return !!R.AFTER_CLOSE[k]; })); }   /* [TABLE_GREET_1008] 닫는 인사 뒤 순간(테이블 인사)은 _close 다음에 */
+function _lRows(){ var R=RitualOpen, on=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }); return ['guest'].concat(on.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat((R.LATE_ORDER||[]).filter(function(k){ return on.indexOf(k)>-1; })).concat(['_close']); }   /* [TABLE_GREET_1008] · ★[END_FLOW_1030 검토 167] 테이블 인사 → 축배 → 닫는 인사(엔진 bodySeq 와 같은 차례) */
 /* ★★[FLOW_FROM_TWO_1017 2026-10-17 사장님 «케익이벤트는 완전히 뺀거지?»] 새 코스의 «순서 흐름»은 ② 줄과 같은 이름 · 같은 차례다 —
    저장 요약(summary.flow → 하객 식순지 · 마이페이지 사진 연결 · 관리자 «순서 흐름»)과 AI 상담 맥락(«구성»)이 이것 하나를 쓴다.
    종전엔 옛 표(fullBlocks · TUNE)의 이름이라 케이크가 없는 날도 식순지에 «축배 · 케이크»가 찍혔고, 맞절 · 반지 교환 · 테이블 인사가 빠지고, 축배가 닫는 인사 앞에 섰다.
@@ -4408,7 +4413,7 @@ function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
 /* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
 function _lGoods(){}   /* ★«케이크 준비 · 꽃 준비» 칩(직접 준비 · 맡기기) 금지 — 2026-10-06 사용자 지시로 삭제 [GOODS_STUDIO] · 늘 저희가 준비 · 안내는 순간 설명 줄과 ③ «저희가 준비해요»가 한다 */   /* [R1-30] «당일 가져오기»는 아래 «당일 챙길 것» 묶음 제목이 이미 말한다 */
 function _lSet(key,v){
-  var R=RitualOpen;
+  var R=RitualOpen; if(_capNo(function(t){ R.setChip(t,key,v); })) return;   /* [BODY_CAP_1030] 길이 칩(축사 길이 · 인사 길이 …) */
   S.touched=S.touched||{}; S.touched[key]=1;   // [CHIP_UNPICKED]
   /* ★[VS_CHIP_ONCE 2026-10-02 사장님 «AI 나 나레이션 버튼을 누르면 자세히 보기 창이 자동으로 열리게 · 확인차 · 최초 1번만»] 순간 쪽 칩을 처음 누를 때 한 번 — 고른 것이 눌린 모양으로 창이 열린다(세 자리에 한꺼번에 할지 확인) */
   /* ★칩을 처음 누를 때 저절로 «나레이션 자세히» 창 열기 금지 — 2026-10-04 사용자 지시로 삭제 [VS_CHIP_OFF] (사장님 «이제는 처음 눌렀을 때 따로 안 나와도 될 것 같다» · 목소리 쪽 «두 분 목소리 만들기»가 그 일을 한다) · 창은 «나레이션 자세히»를 눌렀을 때만 */
@@ -4492,7 +4497,7 @@ function _gIdxOf(sl){ var m=/^guest-(?:ex\d+-)?([1-4])-/.exec(String(sl||'')); r
 function _lSteps0(g,ks){
   var r; try{ r=g.RitualCue.build(S,{mode:'preview'}); }catch(e){ return []; }
   var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[], rN=null;   /* rN = [VC_TO_NAR] 나레이션 판 큐(필요할 때 한 번) */
-  var _lateK=(function(){ var a=_lRows().filter(function(x){ return R.AFTER_CLOSE&&R.AFTER_CLOSE[x]; }); return a.length?a[a.length-1]:''; })();   /* ★[CLOSE_LAST_1013] 닫는 인사 뒤 순간(축배 · 테이블 인사)을 담은 날 — 26(사진 안내)은 엔진 차례대로 그 마지막 순간 끝 */
+  var _lateK='';   /* ★[END_FLOW_1030 검토 167] 테이블 인사 · 축배가 닫는 인사 앞으로 와서 사진 안내(26 · 사진 전 안내)는 늘 닫는 인사 쪽 끝 — 옛 «마지막 순간 끝에 26» 자리 옮김(CLOSE_LAST_1013)은 걷었다 */   /* ★[CLOSE_LAST_1013] 닫는 인사 뒤 순간(축배 · 테이블 인사)을 담은 날 — 26(사진 안내)은 엔진 차례대로 그 마지막 순간 끝 */
   ks.forEach(function(k){
     var talked=false, ownDone=false, quietDone=false;
     var cs=r.cues.filter(function(c){
@@ -4699,7 +4704,7 @@ function _mkRO(){ var m=S.mk||{}; return {at:m.at, seen:m.seen||{}, drop:m.drop|
 function _mkPages(){ var R=RitualOpen, m=_mkRO();
   /* ★[MK_INTRO 2026-09-27 사장님 «전 단계에서 고른 것들 한눈에 정리 한 번 하고 들어가자»] ② 첫 쪽 = ① 에서 고른 순서 모아 보기 */
   var _mk=R.ORDER.filter(function(k){ return k!=='guest' && (R.onOf(S,k)||m.drop[k]); });   /* [TABLE_GREET_1008] 닫는 인사 뒤 순간은 _close 다음 쪽 */
-  var ks=['_intro'].concat(_vsOk()?['_voice']:[]).concat(['guest']).concat(_mk.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat(['_close']).concat(_mk.filter(function(k){ return !!R.AFTER_CLOSE[k]; })).concat(['_sum']);   /* ★[VOICE_ONCE 2026-10-03 사장님] 예식 흐름 다음 = «두 분 목소리 만들기»(AI 를 쓸 수 있는 예식만) — 순간이 아니다(번호 · 진행 줄 · 미완료 셈에서 뺀다) */
+  var ks=['_intro'].concat(_vsOk()?['_voice']:[]).concat(['guest']).concat(_mk.filter(function(k){ return !R.AFTER_CLOSE[k]; })).concat((R.LATE_ORDER||[]).filter(function(k){ return _mk.indexOf(k)>-1; })).concat(['_close']).concat(['_sum']);   /* ★[END_FLOW_1030 검토 167] 테이블 인사 · 축배 쪽은 닫는 인사 쪽 앞 */   /* ★[VOICE_ONCE 2026-10-03 사장님] 예식 흐름 다음 = «두 분 목소리 만들기»(AI 를 쓸 수 있는 예식만) — 순간이 아니다(번호 · 진행 줄 · 미완료 셈에서 뺀다) */
   return ks; }
 function _mkIdx(){ var ps=_mkPages(), i=ps.indexOf(_mkRO().at); return i<0?0:i; }
 function _mkOff(k){ return !!(_mkRO().drop[k]) && !RitualOpen.onOf(S,k); }
@@ -7140,7 +7145,7 @@ window.mkDrop=function(k){ var R=RitualOpen, m=_mkState(), b0=R.bodySec(S), cros
   var cut=Math.max(0,Math.round((b0[0]-R.bodySec(S)[0])/60)); m.dropMin=m.dropMin||{}; m.dropMin[k]=cut;
   if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»'+_josaRo(R.chipLabel('tribute',S))+' 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }   /* [R2_TRIB_JOSA_1014] 판 이름이 «인사»로 끝나 «으로»가 틀렸다(_josaRo) */
   _fxNext='[data-fk="mkundrop"]'; _persist(); render(); };   // [A11Y_FOCUS] 뺀 뒤 포커스 = «다시 넣기»
-window.mkUndrop=function(k){ var R=RitualOpen, m=_mkState(), crossBefore=R.crossTribute(S); S.on[k]=1; delete m.drop[k]; opSync();
+window.mkUndrop=function(k){ if(_capNo(function(t){ t.on[k]=1; })) return;   /* [BODY_CAP_1030] */ var R=RitualOpen, m=_mkState(), crossBefore=R.crossTribute(S); S.on[k]=1; delete m.drop[k]; opSync();
   if(crossBefore!==R.crossTribute(S)&&String((S.tx||{})['tribute.g']||(S.tx||{})['tribute.b']||'').trim()){ var no=_mkNo('tribute'); MK.toast=(no?no+' ':'')+'부모님께 인사 · 판이 «'+R.chipLabel('tribute',S)+'»'+_josaRo(R.chipLabel('tribute',S))+' 바뀌었어요. 적은 글을 한 번 봐 주세요.'; }
   _fxNext='#mkHead'; _persist(); render(); };   // [A11Y_FOCUS] 다시 넣은 뒤 포커스 = 쪽 제목([MK_NO_DROP_LINK] 같은 자리의 «이 순간 빼기»가 없어졌다)
 function renderMake(){
@@ -7238,7 +7243,7 @@ window.mkFlowTgl=function(k){ var R=RitualOpen; if(R.ALWAYS[k]||k==='_close') re
 function _flowKeys(){ var R=RitualOpen, keep=MK.flowKeep||[]; return R.ORDER.filter(function(k){ return R.onOf(S,k)||keep.indexOf(k)>-1; }); }
 function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
   MK.flowKeep=_flowKeys();   /* [FLOW_KEEP_SHOWN 2026-10-03] 보인 줄은 모두 자리를 지킨다 — 종전엔 들어올 때 한 번만 찍어, 그 뒤 다시 담은 순간을 여기서 빼면 줄째 사라졌다 */
-  var ks=_flowKeys(), pre=ks.filter(function(k){ return R.PRE[k]; }), aft=ks.filter(function(k){ return !!(R.APART||R.AFTER_CLOSE)[k]; }), body=ks.filter(function(k){ return !R.PRE[k]&&!R.AFTER_CLOSE[k]; }).concat(['_close']).concat(ks.filter(function(k){ return R.AFTER_CLOSE[k]&&!(R.APART||R.AFTER_CLOSE)[k]; }));   /* [TOAST_LAST_1013] 축배 = 본식 묶음의 닫는 인사 다음 · 본식 뒤 묶음은 테이블 인사(APART) */   /* [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님] 본식과 따로 «본식 뒤» 묶음 */
+  var ks=_flowKeys(), pre=ks.filter(function(k){ return R.PRE[k]; }), aft=[], body=ks.filter(function(k){ return !R.PRE[k]&&!R.AFTER_CLOSE[k]; }).concat((R.LATE_ORDER||[]).filter(function(k){ return ks.indexOf(k)>-1; })).concat(['_close']);   /* ★[END_FLOW_1030 검토 167] 테이블 인사 → 축배 → 닫는 인사 — «본식 뒤» 묶음은 비운다(테이블 인사 시간은 여전히 본식과 따로 센다 · 위 막대 · 요약 줄) */   /* [TOAST_LAST_1013] 축배 = 본식 묶음의 닫는 인사 다음 · 본식 뒤 묶음은 테이블 인사(APART) */   /* [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님] 본식과 따로 «본식 뒤» 묶음 */
   var h='<section class="mk-pg mk-intro" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">예식 흐름</h3></div>';
   /* ★[TABLE_APART · FSUM_SEP] 넷이 한 줄에 안 들어가면(390) 낱말 사이(«단체 사진 / 약 15~20분»)가 아니라 덩이 사이에서만 갈린다 — «·»는 진짜 글자(읽기 · 검사 그대로)이고, 줄 머리에 온 «·»는 칸 밖으로 밀려 안 보인다(줄 끝 · 줄 머리 «·» 둘 다 없게 · CF_LINE_BREAK 와 같은 뜻) */
   var _fs=['본식 '+sp.body].concat(sp.tm?['테이블 인사 '+sp.table]:[]).concat(['단체 사진 '+sp.photo,'담은 순간 '+_opMoments()]);
@@ -7488,7 +7493,7 @@ window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
 function _chipT(t){ return '<span class="cg-t" data-t="'+esc(t)+'">'+esc(t)+'</span>'; }
 window.lsFreeEtc=function(){ buildSteps(); _persist(); render(); };   /* [FREE_ETC] 이름이 띠 · 흐름에 곧장 */
 window.lsDeclWho=function(el){ var was=el?(el.getAttribute('data-was')||''):''; S.declareWho=_declWho(); buildSteps(); _persist(); render(); if(S.declareWho&&S.declareWho!==was) _noteToast(NOTE_TOAST.decl); };   /* [DECLARE_ANYONE] 다듬은 글로 저장 · 흐름 «○○ 차례» · 할 일 «○○께 부탁»에 곧장 · 새로 적으면 아래 알림 «선언문은 저희가 인쇄해 드려요»(NOTE_TOAST · 종전엔 칩을 누를 때) */
-window.lsFreeLen=function(v){ var n=Math.round(+v); if(!(n>=1)) n=1; if(n>10) n=10; S.freeLen=String(n); S.touched=S.touched||{}; S.touched.freeLen=1; buildSteps(); _persist(); _fxNext='[data-fk="freelen"]'; render(); };
+window.lsFreeLen=function(v){ var n=Math.round(+v); if(!(n>=1)) n=1; if(n>10) n=10; if(_capNo(function(t){ t.freeLen=String(n); })){ try{ render(); }catch(e){} return; }   /* [BODY_CAP_1030] */ S.freeLen=String(n); S.touched=S.touched||{}; S.touched.freeLen=1; buildSteps(); _persist(); _fxNext='[data-fk="freelen"]'; render(); };
 function _lChipRow(g,opt){
   if(g.html) return '<div class="ls-cg fe-row"><span class="gl">'+esc(g.l)+'</span><span class="cg-c">'+g.html+(g.unote?'<span class="ls-gnote">'+esc(g.unote)+'</span>':'')+'</span></div>';   /* [FREE_ETC] 칩 대신 칸 · [DECLARE_ANYONE] 칸 아래 한 줄(비었을 때) */
   /* ★[RIT_CHIP_GRID 2026-09-27 4부 9] 라벨 칸 + 칩 칸 두 열 — 줄을 넘긴 칩이 첫 칩 시작선에 선다(종전 flex 한 줄은 넘친 칩이 라벨 밑으로 들어가 왼쪽 선이 들쭉날쭉) */
@@ -7605,6 +7610,7 @@ window.lsRemove=function(k){
 };
 window.lsUndo=function(){ var u=LS.undo; if(!u) return; _fxNext='[data-fk="lsm:'+u.k+'"]'; S.on[u.k]=1; LS.undo=null; LS.msg='«'+_lName(u.k)+'»'+_josa(_lName(u.k),'을','를')+' 다시 담았어요.'; LS.flash=u.k; opSync(); _lScrollTo(u.k); };   // [OP_SYNC_ALL]
 window.lsAdd=function(k){
+  if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; })) return;   /* [BODY_CAP_1030] */
   if(LP.cur===k) lsStop();
   _fxNext='[data-fk="lsm:'+k+'"]';   // [A11Y_FOCUS]
   S.on[k]=1; if(k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] */ LS.open=k; LS.flash=k; LS.undo=null;
@@ -8500,6 +8506,10 @@ function _pkPeakHtml(){
   if(pl.tail) return esc(pl.tail);   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */
   return '가장 벅찬 순간은 <b class="op-pk">'+esc(pl.n)+'</b>'+pl.be+'.';   /* [D3] */
 }
+/* ★[BODY_CAP_1030 검토 167] 담는 쪽 한 줄 — «남은 본식 시간 약 n분» · 이미 넘은 옛 초안은 알림만(막지 않는다 · 새로 담기만 막힌다) */
+function _capLine(cls){ var R=RitualOpen; if(!R||!R.capSec||!isOpen()) return ''; var hi=R.bodySec(S)[1], cap=R.capSec(S), n=R.capLeft(S);
+  var t=hi>cap+0.5?('본식이 약 '+Math.max(1,Math.ceil((hi-cap)/60))+'분 길어요 · 순간을 하나 빼 주세요'):n>0?('남은 본식 시간 약 '+n+'분'):'본식 시간이 다 찼어요';
+  return '<p class="pk-left '+cls+'" data-fk="capleft:'+cls+'">'+esc(t)+'</p>'; }
 function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
   if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
@@ -8515,10 +8525,10 @@ function _pkPanel(){
     +(flat?'<p class="pk-fp-flat">순간을 더 담으면 흐름이 그려져요</p>':'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>')
     +'</div>'   /* [FLOW_MIN] PC 준비 줄 걷음 */   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
     +'<div class="pk-side">'
-    +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+(sp.tm?esc(_nb('테이블 인사 '+sp.table))+'<br>':'')+esc(photo)+'<br>'+(sp.tm?'셋을':'본식과')+' 합쳐 늘 '+R.DAYMIN+'분'+(sp.tm?'':'<br><span class="pk-pad" aria-hidden="true">'+NBS+'</span>')+'</p>'   /* [TABLE_APART] 테이블 인사는 따로 한 줄 · 셋을 더해 40 */   /* ★[FLOW_SIDE_STEADY 2026-10-23 사장님 «기록과 가족 그래프 창이 위아래 넓이가 넓어지고 줄어들고 하는데 똑같이 맞춰줘 · 움직임 없이»] 테이블 인사가 없는 판은 보이지 않는 한 줄로 세 줄 자리를 잡는다 — 예시를 바꿔도 판 높이 · «다음» 단추 자리가 그대로(PC 만 · 폰은 한 줄 요약 .pk-tm) · scripts/audit/flow-steady.mjs */   /* [D4] PC 두 줄 */
+    +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+(sp.tm?esc(_nb('테이블 인사 '+sp.table))+'<br>':'')+esc(photo)+'<br>'+(sp.pm?'온라인 인사까지':(sp.tm?'셋을':'본식과'))+' 합쳐 늘 '+R.DAYMIN+'분'+(sp.tm?'':'<br><span class="pk-pad" aria-hidden="true">'+NBS+'</span>')+'</p>'+_capLine('pco')   /* [TABLE_APART] 테이블 인사는 따로 한 줄 · 셋을 더해 40 */   /* ★[FLOW_SIDE_STEADY 2026-10-23 사장님 «기록과 가족 그래프 창이 위아래 넓이가 넓어지고 줄어들고 하는데 똑같이 맞춰줘 · 움직임 없이»] 테이블 인사가 없는 판은 보이지 않는 한 줄로 세 줄 자리를 잡는다 — 예시를 바꿔도 판 높이 · «다음» 단추 자리가 그대로(PC 만 · 폰은 한 줄 요약 .pk-tm) · scripts/audit/flow-steady.mjs */   /* [D4] PC 두 줄 */
     +((!pl||flat)?'<p class="pk-peak">'+_pkPeakHtml()+'</p>':'')   /* [FLOW_MIN] 곡선 위 «★ 이름»과 흐름 줄의 ★이 이미 말한다 — 문장은 정점이 없거나(담아 보라는 안내) 곡선이 없을 때만 */
     /* ★순서 줄(«식전 영상 → 화촉 › 입장 › … › 닫는 인사») 금지 — 2026-10-07 사용자 지시로 삭제 [FLOW_NO_ORDER] «어차피 다음 페이지에서 알 수 있으니» · 순서는 ② 예식 흐름이 말한다 */
-    +'<p class="pk-tm mo">'+(sp.tm?'본식 · 테이블'+NBS+'인사 · 단체'+NBS+'사진':'본식과 단체'+NBS+'사진')+' · 늘 '+R.DAYMIN+'분</p>'   /* [TABLE_APART] */   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
+    +'<p class="pk-tm mo">'+(sp.tm?'본식 · 테이블'+NBS+'인사 · 단체'+NBS+'사진':'본식과 단체'+NBS+'사진')+' · 늘 '+R.DAYMIN+'분</p>'+_capLine('mo')   /* [TABLE_APART] */   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
     +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button>'
     +'</div>'+_noteHtml()+'</section>';   /* ★[NOTE_UNDER 2026-10-07 사장님 «추천대로»] 단추가 있는 알림은 판 맨 끝 — PC 는 왼쪽 그림 바로 아래(오른쪽만 길어져 그림 아래가 비던 것) · 폰은 판 맨 아래 */
 }
@@ -8684,9 +8694,9 @@ var PV_DESC={
   tribute:'부부가 되어 처음 부모님께 고마움을 전하고, 품에 안기는 순간을 담아요.',   /* [LINE_R1_1014] 한 문장에 «부모님» 두 번 */
   letter:'부모님께, 또는 서로에게 쓴 편지를 읽어요. 읽는 목소리와 듣는 얼굴을 함께 담아요.',
   cake:'두 분이 나이프를 함께 잡고 케이크를 잘라요. 맞잡은 두 손을 가까이 담아요.',
-  toast:'두 분이 먼저 «위하여»를 외치면 하객이 잔을 들고 함께 답해요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',
+  toast:'두 분이 먼저 «위하여»를 외치면 하객은 자리에서 일어나 함께 잔을 들어요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',   /* ★[END_FLOW_1030 검토 167] */
   _close:'두 분이 하객께 인사를 드리고 본식을 마쳐요. 단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.',   /* [CLOSE_WORDS_1013] */
-  table:'본식을 마친 두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블로 다가가는 두 분과 자리에서 맞는 얼굴들을 담아요.',   /* [TABLE_GREET_1008] */
+  table:'두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블로 다가가는 두 분과 자리에서 맞는 얼굴들을 담아요. 테이블 인사 약 9분(6테이블 기준) · 그만큼 사진 시간이 줄어요.',   /* [TABLE_GREET_1008] · ★[END_FLOW_1030 검토 167] 축배 · 닫는 인사 앞 · 9분 = TABLE_SEC 90 × 6(open-course 가 잰다) */
   free:'친구나 형제자매가 두 분께 축하의 말을 전해요(3분 안팎). 말하는 분과 웃으며 듣는 두 분을 함께 담아요.'   /* ★[SPEECH_TILE_1012] 축사 · 옛 «준비한 순서»는 고른 칩마다 사진이 달라 원문 설명만 두었다 */
 };
 function _pvDraw(){
@@ -10684,7 +10694,8 @@ if(EMBED){
       if(ev.data.voice&&typeof ev.data.voice==='object'){ var _F=RitualOpen.FEATURE; _F.upLive=!!ev.data.voice.up; _F.voiceClone=!!ev.data.voice.clone; _F.practiceTts=!!ev.data.voice.read; }   // ★[VOICE_UP_FROM 2026-09-28] 서버가 정한 날짜 문 · AI 스위치(off · studio · on 가운데 이 예식에 켜졌나) — 옛 마이페이지(미전송)면 닫힘 그대로
       if(typeof ev.data.tables==='number'&&ev.data.tables>0) CUSTTBL=ev.data.tables;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수(없으면 하객 수 ÷ 5) — 아래에서 S.tableN 에 싣는다(콘솔 · 시간표가 같은 값을 본다) */
       if(typeof ev.data.guide==='boolean') CUSTGUIDE=ev.data.guide;   // [GUIDE_ON_1019]
-      if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
+      if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;
+      try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, guide:CUSTGUIDE===true}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
       // ORDER_OWNER: 계정 대조 — 복원된 초안이 현 로그인 계정 소유가 아니면(다른 계정·소유 미표기 옛 초안 포함) 즉시 폐기·초기화.
       //   같은 기기 계정 전환 시 이전 계정의 서약문·편지가 보이거나 새 계정 서버로 저장되는 누출 차단. 이 계정의 진실은 아래 서버 초안(d).
       if(CUST&&CUST.code&&_restored&&_who!==String(CUST.code)){

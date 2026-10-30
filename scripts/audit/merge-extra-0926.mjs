@@ -132,7 +132,7 @@ await safe('P1-2 다시 만들기', async () => {
 /* P1-3 · ② 담기 · ① 알림 단추가 옛 갈래 키와 저장까지 */
 await safe('P1-3', async () => {
   const { ctx, pg } = await open(390); await toListen(pg);
-  const r = await pg.evaluate(() => { delete S.on.bless; delete S.on.ring; opSync(); const b0 = S.bless; lsAdd('bless'); lsAdd('ring');
+  const r = await pg.evaluate(() => { delete S.on.bless; delete S.on.ring; ['free', 'letter', 'song', 'table'].forEach((k) => { delete S.on[k]; }); opSync(); const b0 = S.bless; lsAdd('bless'); lsAdd('ring');   /* [BODY_CAP_1030 검토 167] 본식 상한 — 담을 자리를 먼저 비운다(꽉 찬 판에서는 담기가 막히는 것이 맞다) */
     const saved = JSON.parse(localStorage.getItem('me_order')).S; return { b0, bless: S.bless, ring: S.ring, sb: saved.bless, sr: saved.ring, flow: _ordPayload(false).summary.flow }; });
   ok('P1-3 ② «담기» → S.bless · S.ring = on · 저장본도 on · 요약 흐름에 덕담 · 반지 [OP_SYNC_ALL]', r.b0 === 'off' && r.bless === 'on' && r.ring === 'on' && r.sb === 'on' && r.sr === 'on' && r.flow.some((n) => /덕담/.test(n)) && r.flow.some((n) => /반지/.test(n)), JSON.stringify(r));
   const a = await pg.evaluate(() => { opStepNav('pick'); S.on = { bless: 1, vow: 1, tribute: 1, toast: 1 }; opSync(); const n = RitualOpen.noticeFull(S); const i = n.acts.findIndex((x) => x[2] === 'ring'); opNoteAct(i); return { ring: S.ring, sr: JSON.parse(localStorage.getItem('me_order')).S.ring }; });
