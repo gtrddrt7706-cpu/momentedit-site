@@ -15506,7 +15506,7 @@ chk 'function admRfAsk(k)' admin.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-flow-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-flow: AI 목소리 순서 · 한도 · 지우기 판정이 어긋났습니다 — node scripts/audit/vc-flow-sim.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
 chk 'VOICE_CLONE_0928' automation/platform/80_production.gs 6
-chk '\[prev, now\]\.forEach(function (v, i, a) { if (v && v !== nv && a.indexOf(v) === i) _vcDelVoice(c.cfg, st, v); });' automation/platform/80_production.gs 1   # 새 목소리가 된 뒤에 앞 목소리 지우기 — [VC_ENROLL_PREV 2026-10-08] 저장 시점의 앞 목소리까지(종전 줄 'if (prev) _vcDelVoice(cfg, st, prev);' · 같은 결정을 넓혔다 · vc-flow-sim 이 순서를 잰다)
+chk 'var olds = \[prev, now\]\.filter(function (v, i, a) { return v && v !== nv && a.indexOf(v) === i; });' automation/platform/80_production.gs 1   # ★[VC_SAVE_FIRST 2026-10-30] 앞 목소리는 새 목소리를 «저장한 뒤»에 지운다(옛 줄 '[prev, now].forEach(… _vcDelVoice …)' 는 저장 전에 지웠다) · 새 목소리가 된 뒤에 앞 목소리 지우기 — [VC_ENROLL_PREV 2026-10-08] 저장 시점의 앞 목소리까지(종전 줄 'if (prev) _vcDelVoice(cfg, st, prev);' · 같은 결정을 넓혔다 · vc-flow-sim 이 순서를 잰다)
 chk "if (op === 'phrase')" automation/platform/80_production.gs 1
 chk 'function purgeVoiceClones(dry)' automation/platform/80_production.gs 1
 chk 'purgeVoiceClones' automation/platform/96_ai_cost.gs 1
@@ -17561,7 +17561,7 @@ chk 'mk-wait-bar mk-enr-bar' order-preview.html 1
 nochk "fail(d.error||'만들지 못했어요 · 잠시 뒤 \[다시 만들기\]를 눌러 주세요')" order-preview.html
 chk 'VC_ENROLL_JOB' automation/platform/80_production.gs 5
 # (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
-chk "deleted: p.deleted || '', job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1
+chk "deleted: p.deleted || '', deleting: dl, job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] deleting 을 더했다
 chk 'if (r.ok || hasJob) c.save(); return r; };' automation/platform/80_production.gs 1   # 성공은 작업표가 없어도 저장(시뮬레이션이 잡은 사라지는 목소리)
 # (옛 줄 · 2026-10-09 A~Z 점검 2라운드 서버 고침으로 아래 [R7_SERVER] 묶음에서 새 꼴로 바꿈) chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
 chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
@@ -17572,7 +17572,8 @@ chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
 #   E-8 «모두 지우기»도 지운 파일보다 뒤에 만든 것은 둔다 · C-9 생년월일 실제 날짜 · C-16 현금영수증 번호 여섯 곳 · C-20 재발송 요청 24시간 한 번
 #   D-1 옛 신청 화면 은퇴(신청은 inquiry.html) · D-3 시간 변경은 예약금을 다시 받지 않는다 · D-8 시간이 다 찬 날은 흐림 · D-19 숫자 뒤 «입니다»
 chk 'VC_DEL_STOP' automation/platform/80_production.gs 12
-chk "if (c.save(stopped) === 'stop') return stop(nv, rfId);" automation/platform/80_production.gs 1
+chk "var sv; try { sv = c.save(stopped); } catch (e) { sv = 'busy'; }" automation/platform/80_production.gs 1   # [VC_SAVE_FIRST 2026-10-30] 저장 결과(stop · busy)를 가른다 — 옛 줄 'if (c.save(stopped) === 'stop') return stop(nv, rfId);'
+chk "return stop(nv, rfId); }   // \[VC_DEL_STOP\] ②" automation/platform/80_production.gs 1
 chk 'if (stopped(_vcSt(code))) return stop(nv,' automation/platform/80_production.gs 1
 chk 'dm = _vcDelMark(code, ws);' automation/platform/80_production.gs 1
 chk "var dm = _vcDelMark(code, \['groom', 'bride'\])" automation/platform/80_production.gs 1
@@ -18418,9 +18419,10 @@ chk 'VC_JOB_OWN' automation/platform/80_production.gs 2
 chk "if (k0 === 'job' && isO(f) && isO(b) && String(f.jid || '') !== String(b.jid || '')) return f;" automation/platform/80_production.gs 1
 chk 'VC_PHRASE_OWN' automation/platform/80_production.gs 1
 chk "if (k0 === 'phrase' && m == null && isO(f) && isO(b) && String(f.t || '') !== String(b.t || '')) return f;" automation/platform/80_production.gs 1
-chk 'for (k in m) o\[k\] = _vcM3(f\[k\], b\[k\], m\[k\], k);' automation/platform/80_production.gs 1
+chk "for (k in m) o\[k\] = _vcM3(f\[k\], b\[k\], m\[k\], k, k0 === 'per');" automation/platform/80_production.gs 1   # [VC_CNT_ZERO 2026-10-30] 줄마다 센 수(per) 안의 칸도 세는 칸
 chk 'VC_DEL_LOCKED' automation/platform/80_production.gs 6
-chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return null; }' automation/platform/80_production.gs 2
+chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return null; }' automation/platform/80_production.gs 1   # _vcDelMark · [VC_JOB_BUSY 2026-10-30] _vcJobStart 는 아래 { lock: true }
+chk 'var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return { lock: true }; }' automation/platform/80_production.gs 1
 nochk 'got = true; try { lock.waitLock(10000); } catch (e) { got = false; }' automation/platform/80_production.gs
 chk "if (!dm) return { ok: false, ecode: 'D1', error: VC_DEL_BUSY };" automation/platform/80_production.gs 1
 chk "var dm = _vcDelMark(code, \['groom', 'bride'\]); if (!dm) return -1;" automation/platform/80_production.gs 1
@@ -18432,7 +18434,7 @@ chk 'VC_WHO_FIRST' automation/platform/80_production.gs 3
 chk "WHO = Object.create(null); WHO.groom = '신랑'; WHO.bride = '신부';" automation/platform/80_production.gs 1
 chk "if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };" automation/platform/80_production.gs 1
 chk "if (w !== 'groom' && w !== 'bride') return; var p = cur\[w\];" automation/platform/80_production.gs 1
-chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code, st)' automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] st = retry 를 보고 deleting
 chk 'RF_DEL_KEEP' automation/platform/80_production.gs 3
 chk 'RF_DEL_TQ' automation/platform/80_production.gs 1
 chk 'var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;' automation/platform/80_production.gs 1
@@ -18976,7 +18978,7 @@ chk "if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id
 chk "if (/^rec:/.test(String(id || ''))) { try { return _recGet_(" automation/platform/80_production.gs 1
 chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;" automation/platform/80_production.gs 1
 chk 'REC_SONG_1012' mypage.html 1
-chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'))?180000:60000)" mypage.html 1
+chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)" mypage.html 1   # [BGM_PREVIEW_1024] key bed 도 180초
 chk 'songs:Array.isArray(r.songs)?r.songs:undefined' mypage.html 1
 chk 'REC_SONG_1012' console.html 2
 chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
@@ -19409,8 +19411,8 @@ chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
 chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
-chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
-chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''}" order-preview.html 1
+chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
+chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
 chk "scene: _letterScene.indexOf(LETTER_BED_SWAP.from) > -1 ? _letterScene.replace(LETTER_BED_SWAP.from, LETTER_BED_SWAP.to) : ''," assets/ritual-story.js 1
 chk 'ST.LETTER_BED_SWAP' scripts/build-course-story.mjs 1
@@ -19590,9 +19592,11 @@ chk 'BLESS_PER_SPEAKER' console.html 9
 chk 'BLESS_PER_SPEAKER' assets/ritual-story.js 1
 chk 'perSpeaker: !S.blessProxy' assets/ritual-cue.js 1
 chk 'function swellArm(c)' console.html 1
-chk "duckTo(c.live.swellTo, c.live.swellMs)" console.html 1       # 음악 신호 — 파라미터만 있고 콘솔이 안 틀던 자리(런북 §8 2단)
+nochk "duckTo(c.live.swellTo, c.live.swellMs)" console.html   # ★[BGM_FIX_1030] 덕담 2:30 은 음악을 올리지 않는다(GPT 합의 · 울음 · 침묵 · 시간 때문에 올리지 않는다) — 콘솔 알림 한 줄만
+chk "LONGNOTE = cur; toast('한 분 말씀 '" console.html 1   # [BGM_FIX_1030] 그 알림
 chk 'id="bSpk"' console.html 1
-chk '한 분 말씀이 2분 30초쯤 되면' assets/ritual-story.js 1
+nochk '배경 음악이 아주 조금 부풀어' assets/ritual-story.js   # [BGM_FIX_1030] 없는 일을 약속하지 않는다 — 고객 안심 글에서 «음악 부풀기» 걷음
+chk '한 분 말씀이 3분이 넘으면 저희가 한 문장으로 따뜻하게 받아 마무리해 드려요' assets/ritual-story.js 1
 chk 'BLESS_PER_SPEAKER' scripts/audit/bless-per-speaker.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bless-per-speaker.mjs >/dev/null 2>&1; _bps=$?; if [ "$_bps" = 1 ]; then echo 'FAIL bless-per-speaker: 덕담 한 분마다 시간 신호([다음 분] · 음악 신호 · 맺는 말 고르기 · 대독 · 고객 미리 듣기)가 깨졌습니다 — node scripts/audit/bless-per-speaker.mjs'; fail=1; elif [ "$_bps" = 0 ]; then echo 'ok bless-per-speaker: 덕담 한 분마다 시간 신호'; else echo 'skip bless-per-speaker: 브라우저가 없어 재지 못함'; fi; fi
 chk 'TRIB_HUG_CROP_1014' assets/ritual-open.js 1
@@ -20228,7 +20232,7 @@ nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
 #   깨 보고 믿음: 콘솔에서 넷을 하나씩 되돌리면(BC_CON) bgm-console2 의 그 칸이 빨강
 chk 'BGM_CONSOLE2_1023' console.html 8
 chk 'BGM_CONSOLE2_1023' assets/ritual-cue.js 3
-chk "var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 400 };" assets/ritual-cue.js 1
+chk "var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 800 };" assets/ritual-cue.js 1   # [BGM_FIX_1030] 미리 낮추기 0.4 → 0.8초(GPT③ R1-3)
 chk "cheer: { level: PARAM.toastLevel, upMs: PARAM.toastUpMs }" assets/ritual-cue.js 2
 nochk "live: { t: t.cue, est: t.est, duck: 0, self: true" assets/ritual-cue.js   # [TOAST_GO] «위하여» 사람 구간이 클립 끝에 0 dB 로 오르던 자리
 nochk "live: { t: t.cue2, est: t.est2, duck: 0, self: true" assets/ritual-cue.js
@@ -20251,7 +20255,7 @@ chk 'BGM_SEG8_1023' console.html 10
 chk 'BGM_PICKS_1023' assets/bgm-picks.js 1
 chk 'BGM_PICKS_1023' console.html 2
 chk '<script src="/assets/bgm-picks.js"></script>' console.html 1
-nochk 'bgm-picks' order-preview.html   # [BGM_PICKS_1023] 고객 화면은 싣지 않는다(고객은 입장 곡만 고른다)
+# [BGM_PICKS_1023] 의 «order-preview 는 bgm-picks 를 싣지 않는다»는 사장님 10/24 [BGM_PREVIEW_1024] 로 바뀌었다(구간 곡을 고객이 고른다 · 곡 파일 주소는 없다 · bgm-seg8 ⑤ 가 잰다)
 nochk 'bgm-picks' mypage.html
 chk "  if (k === 'tribute') return 'M5';" console.html 1
 chk 'RF_IN_ENGINE' console.html 1
@@ -20320,6 +20324,52 @@ nochk '축의금 많이 내거라' assets/ritual-ref.js
 nochk '고장 난 시계' assets/ritual-open.js
 nochk '남의 편이라서' assets/ritual-ref.js
 nochk '안에만 들어오라고' assets/ritual-ref.js
+# ── 2026-10-24 [BGM_PREVIEW_1024] 사장님 «고객이 진행하면서 나레이션과 함께 들어볼 수 있게» · «고객이 고름» — 구간 음악 고르기 · 곡 카드 ▶(그 곡 + 첫 나레이션) · 이 순간 전체 듣기 아래로 깔기
+#    목록 assets/bgm-picks.js(곡 번호 f · cust 구간) · 화면 assets/bgm-bed.js · 저장 S.bgm[구간].k · 소리는 마이페이지 → GAS key 'bed' → 드라이브 ME_구간곡 · 당일 콘솔은 고객이 고른 곡이 구간 기본
+chk 'BGM_PREVIEW_1024' assets/bgm-bed.js 1
+chk 'BGM_PREVIEW_1024' assets/bgm-picks.js 3
+chk 'BGM_PREVIEW_1024' assets/bgm-slots.js 2
+chk 'BGM_PREVIEW_1024' assets/bgm-form.js 4
+chk 'BGM_PREVIEW_1024' order-preview.html 14
+chk 'BGM_PREVIEW_1024' console.html 3
+chk 'BGM_PREVIEW_1024' mypage.html 1
+chk 'BGM_PREVIEW_1024' automation/platform/80_production.gs 2
+chk 'BGM_PREVIEW_1024' scripts/audit/bgm-preview.mjs 1
+chk "d.data.key==='bed'" mypage.html 1
+chk "var BED_ROOT_FOLDER = 'ME_구간곡'" automation/platform/80_production.gs 1
+chk '<script src="/assets/bgm-picks.js?v=' order-preview.html 1
+chk '<script src="/assets/bgm-bed.js?v=' order-preview.html 1
+nochk "f: 'M2_1'" assets/bgm-picks.js   # [BGM_FIX_1030] 곡 번호는 곡마다 하나(B01 …) — 옛 구간 번호 목록을 되살리지 않는다
+chk "function _bedOn(){" order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-preview.mjs >/dev/null 2>&1; _bpv=$?; if [ "$_bpv" = 1 ]; then echo 'FAIL bgm-preview: 구간 음악(고르기 줄 · 곡 카드 ▶ · 이 순간 전체 듣기 음악 크기 · 축사 · 편지 · 공개 미리보기 · 콘솔 기본)이 어긋났습니다 — node scripts/audit/bgm-preview.mjs'; fail=1; else echo "ok bgm-preview ($_bpv)"; fi; fi
+# ── 2026-10-30 [BGM_FIX_1030] BGM 섹션 · GPT(Ultra) 두 라운드 합의 · 사장님 «최선인지 판단해서 반영해 봐» — 구간 곡 새 목록(B01 ~ B27 · 곡마다 한 번호 · 한 파일) · 소리 다듬기
+#    맞절 = 입장 곡 · M4 사람 구간 −20 · 반지 → 선언 정적 2.5초(기본 사이 없음) · 선언 −90 · 박수 −8 1.5초 · 미리 낮추기 0.8 / 1.5초(음성 대기 = 내림) · 뒤처리 음악 · 마지막 큐 뒤 −8 없음 ·
+#    M6 = 목례 · 박수부터 · M7 = «위하여» 뒤 GO · 보컬 곡 −6(vocalExtra) · 음악 전체 musicTrim · R1-1 칩 기억 초기화 · R1-7 요약 «스튜디오로 보내지 못했어요»
+chk 'BGM_FIX_1030' assets/bgm-picks.js 3
+chk 'BGM_FIX_1030' assets/bgm-slots.js 2
+chk 'BGM_FIX_1030' assets/bgm-bed.js 4
+chk 'BGM_FIX_1030' assets/bgm-form.js 3
+chk 'BGM_FIX_1030' assets/ritual-cue.js 8
+chk 'BGM_FIX_1030' assets/ritual-story.js 1
+chk 'BGM_FIX_1030' console.html 12
+chk 'BGM_FIX_1030' order-preview.html 2
+chk 'BGM_FIX_1030' automation/platform/80_production.gs 3
+chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
+chk "B21: { t: \"Herman's Habit\"" assets/bgm-picks.js 1
+chk "var F_RE = /^B" assets/bgm-picks.js 1
+chk "BED_K_RE = /^(B" automation/platform/80_production.gs 1
+nochk "BED_K_RE = /^(M\[" automation/platform/80_production.gs
+chk "cues\[j + 1\].gapNone = true;" assets/ritual-cue.js 1
+chk "nx.gapNone ? 0 :" console.html 1
+chk "function postMusic(c)" console.html 1
+chk "if (k === 'entry' || k === 'matjeol') return '';" console.html 1
+nochk "(ESD.short && !esdMain(c)) ? 'M4'" console.html
+chk "vocalExtra: -6," assets/ritual-cue.js 1
+chk "musicTrim: -3.1," assets/ritual-cue.js 1
+chk "function tReset()" assets/bgm-form.js 1
+chk "function entryUnsent()" assets/bgm-form.js 1
+chk '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요' assets/bgm-bed.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-fix.mjs >/dev/null 2>&1; _bfx=$?; if [ "$_bfx" = 1 ]; then echo 'FAIL bgm-fix: 구간 곡 새 목록 · 한 번호 한 파일 · 보컬 1순위 아님 · 반지 → 선언 정적 2.5초 · 선언 −90 · M4 사람 구간 −20 · 미리 낮추기 0.8 / 1.5초 · 마지막 큐 뒤 −8 없음 · M6 / M7 바뀌는 때 · 보컬 −22 · 음악 전체 크기 [BGM_FIX_1030]'; fail=1; else echo "ok bgm-fix (exit $_bfx)"; fi; fi
 # ── 2026-10-30 [REVIEW_166_1030 검토 166] 프리뷰 실화면 전수 점검 — A 띄어쓰기 6(소리 그대로 · 녹음 기록 글도) · C 표기 · D 참고 예시 · B 동작 — 검사 open-course «REVIEW_166_1030»
 chk 'REVIEW_166_1030' assets/ritual-open.js 1
 chk 'REVIEW_166_1030' order-preview.html 3
@@ -20363,3 +20413,31 @@ nochk '먼저 식사 장소로 이동하셔도 좋습니다' assets/ritual-data.
 nochk '전체 사진 바로 뒤에는 두 분이 하객 모두께 함께 감사 인사를 드리고' assets/advisor-kb.js
 nochk '테이블을 도는 인사는 따로 없다' api/_kb.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/body-cap.mjs >/dev/null 2>&1; _rbc=$?; [ "$_rbc" = 1 ] && { echo 'FAIL body-cap: 본식 상한 · 예식 뒷부분 흐름이 되돌아갔습니다 — node scripts/audit/body-cap.mjs'; fail=1; }; [ "$_rbc" = 0 ] && echo 'ok body-cap'; [ "$_rbc" = 2 ] && echo 'skip body-cap (브라우저 없음)'; :; fi
+# ── 2026-10-30 [BGM_FIX_1030 덧붙임 2 · 4] 축배 B28 · B29 1순위 보컬 허용(M7 만) · 화촉 B30 · 축사 B16 · B08 비움(다시 쓰지 않음) · 연주자 한글 이름 · «(Instrumental)» 꼬리 없음 · 출처 · 이어 트는 구간 «부터 이어서 틀어요»
+nochk "B08: {" assets/bgm-picks.js
+nochk '久石譲' assets/bgm-picks.js
+nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
+chk "M7: \['B28', 'B29', 'B21', 'B22'\]" assets/bgm-picks.js 1
+chk "M2: \['B05', 'B06', 'B07', 'B30'\]" assets/bgm-picks.js 1
+chk "'부터 이어서 틀어요'" assets/bgm-bed.js 1
+chk "\[p.src,p.a,p.why\]" assets/bgm-bed.js 1
+# ★[VC_FIX2_1030 2026-10-30 GPT 2차 점검] 두 분 AI 목소리 — 지우기 · 저장 · 잠금 · 글자 예산(서버 아홉 · 깨 보기 포함) · 무음 녹음 · 새로 고침 경고 · 당일 콘솔 최신 확인
+chk 'VC_FIX2_1030' scripts/audit/vc-fix2-1030.mjs 1
+chk 'VC_HOLD' automation/platform/80_production.gs 4
+chk 'VC_SAVE_BUSY' automation/platform/80_production.gs 3
+chk 'VC_SAVE_FIRST' automation/platform/80_production.gs 2
+chk 'VC_READ_DEL' automation/platform/80_production.gs 3
+chk 'VC_PURGE_TRUE' automation/platform/80_production.gs 4
+chk 'VC_JOB_BUSY' automation/platform/80_production.gs 2
+chk 'VC_CNT_ZERO' automation/platform/80_production.gs 2
+chk 'VC_DEL_PEND' automation/platform/80_production.gs 3
+nochk "catch (e) { var f0 = _vcSt(code); if (guard && guard(f0)) return 'stop'; _vcPut(code, _vcM3(f0, base, mine)); return; }" automation/platform/80_production.gs   # [VC_SAVE_BUSY] 잠금 없이 합쳐 쓰던 길을 되살리지 않는다
+chk 'VC_DEL_PEND' order-preview.html 2
+chk "MK.toast=d.pend?'지우는 중이에요 · 곧 끝나요':'지웠어요';" order-preview.html 1
+chk 'VC_PURGE_TRUE' mypage.html 2
+chk 'REC_SILENT' assets/rec-process.js 3
+chk 'REC_SILENT' order-preview.html 3
+chk 'READ_UNLOAD' order-preview.html 2
+chk 'READ_UNLOAD' mypage.html 1
+chk 'CON_FRESH' console.html 4
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix2-1030.mjs >/dev/null 2>&1 || { echo 'FAIL vc-fix2-1030: AI 목소리 지우기 · 저장 · 잠금 · 글자 예산 판정이 어긋났습니다 — node scripts/audit/vc-fix2-1030.mjs'; fail=1; }; fi

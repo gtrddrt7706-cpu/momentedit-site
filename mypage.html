@@ -2449,6 +2449,8 @@ function openContractView(){
    kind = 'slow'(기다리다 멈춤 · 서버는 끝냈을 수 있다) · 'net'(연결) · 'bad'(서버 답이 깨짐) · ''(서버가 답했다) */
 function _relayErr(r){ var o={ ecode:'', sess:false, kind:'' }; try{ if(r&&typeof r==='object'){ o.ecode=String(r.ecode||'').split(' ')[0] || (r.ok===false?_errCode(r,'S').split(' ')[0]:''); o.sess=!!(r.sess||_errSess(r)); o.kind=String(r.kind||''); } }catch(e){} return o; }
 function _relayFail(x, L, base){ var line=_errLine(x, L, base); return { ok:false, error:line, msg:line, ecode:_errCode(x, L).split(' ')[0], sess:_errSess(x), kind:_errKind(x) }; }
+/* ★[READ_UNLOAD 2026-10-30 GPT 2차 점검 12] 식순 화면에서 1분 읽기 녹음을 하나라도 읽은 뒤(만들기 전) 마이페이지를 새로 고치거나 떠나면 한 번 묻는다 — 녹음은 그 화면 기억에만 있다(따로 보관하지 않는다) */
+window.addEventListener('beforeunload',function(e){ try{ var f=document.getElementById('mp_obFrame'), w=f&&f.contentWindow; if(!(w&&typeof w._vcReadDirty==='function'&&w._vcReadDirty())) return; e.preventDefault(); e.returnValue=''; return ''; }catch(x){} });
 // 식순 만들기 — 계약서와 동일한 iframe 오버레이(/order-preview.html?embed=1) · postMessage로 서버 초안 주입, 저장 수신 → saveProductionTrack(ritual)
 function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice' = ③ 연습하기로 바로
   /* ★[OB_OPEN_ONCE 2026-10-09 A~Z 점검 2라운드 A2-21] 이미 떠 있으면 그 창을 그대로 쓴다(미리 듣기 창 openRitualPreview 와 같은 판단) — 종전엔 앞 창을 정리 없이 떼고 새 창을 열어
@@ -2599,8 +2601,8 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _isDel=d.type==='momentedit:ritualFileDel', _gBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:_isDel?'momentedit:ritualFileDelDone':'momentedit:ritualFileData', key:d.data.key, id:d.data.id}, o), location.origin); }catch(e){} };
       /* ★[ERR_CODE_MYPAGE F7] 지우기와 받기가 같은 실패 글(«불러오지 못했어요…»)을 나눠 썼다 — 지우기는 D(지우기) · 받기는 L(불러오기)로 */
       var _gL=_isDel?'D':'L', _gBase=_isDel?'지우지 못했어요 · 다시 눌러 주세요':'파일을 불러오지 못했어요 · 다시 눌러 주세요';
-      _post({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id, all:(_isDel&&d.data.all)?1:0, t:(_isDel&&+d.data.t>0)?+d.data.t:0, keep:(_isDel&&Array.isArray(d.data.keep))?d.data.keep.slice(0,8).map(String):[]}, (!_isDel&&(d.data.key==='mu'||d.data.key==='rec'))?180000:60000)   /* ★[RF_DEL_TQ · RF_DEL_KEEP 2026-10-09 A~Z 점검 2라운드 E2-3 · E2-4] 누른 때(t) · 되돌리기로 쓸 녹음(keep)도 서버로(옛 서버는 무시) */   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»는 그 자리 두 분 파일을 모두(서버가 읽는다 · 옛 서버는 무시하고 그 파일만) */
-        .then(function(r){ _gBack(r&&r.ok?{ok:true,mime:r.mime,data:r.data,songs:Array.isArray(r.songs)?r.songs:undefined}:_relayFail(r,_gL,_gBase)); }, function(e){ _gBack(_relayFail(e,_gL,_gBase)); });   /* ★[REC_SONG_1012 2026-10-12] key 'rec' = 입장 추천 곡 — id 'list' 면 곡 목록(songs)을 · 곡 키면 소리(data)를 빌더로 · 곡은 커서 180초 */
+      _post({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id, all:(_isDel&&d.data.all)?1:0, t:(_isDel&&+d.data.t>0)?+d.data.t:0, keep:(_isDel&&Array.isArray(d.data.keep))?d.data.keep.slice(0,8).map(String):[]}, (!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)   /* ★[RF_DEL_TQ · RF_DEL_KEEP 2026-10-09 A~Z 점검 2라운드 E2-3 · E2-4] 누른 때(t) · 되돌리기로 쓸 녹음(keep)도 서버로(옛 서버는 무시) */   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»는 그 자리 두 분 파일을 모두(서버가 읽는다 · 옛 서버는 무시하고 그 파일만) */
+        .then(function(r){ _gBack(r&&r.ok?{ok:true,mime:r.mime,data:r.data,songs:Array.isArray(r.songs)?r.songs:undefined}:_relayFail(r,_gL,_gBase)); }, function(e){ _gBack(_relayFail(e,_gL,_gBase)); });   /* ★[REC_SONG_1012 2026-10-12] key 'rec' = 입장 추천 곡 — id 'list' 면 곡 목록(songs)을 · 곡 키면 소리(data)를 빌더로 · 곡은 커서 180초 */   /* ★[BGM_PREVIEW_1024 2026-10-24] key 'bed' = 구간 깔림 곡 — 같은 길(id 'list' = 있는 곡 번호 · 곡 번호 = 그 곡 앞부분) */
       return;
     }
     if(d.type==='momentedit:orderDraft' && d.data && d.data.S){
@@ -7866,7 +7868,7 @@ function _rfKeepNote(rd, base, voice){ voice=voice||{}; var L=_rfKeepList(rd); i
   var m=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return ''; var d=new Date(+m[1],+m[2]-1,+m[3]+kd), tok=escapeHtml(getToken()||'');
   var li=L.map(function(it){ var nm='두 분 목소리 '+(RF_KEEP_LAB[it.key]||it.key); return '<form method="post" action="/api/voice-file" style="display:inline"><input type="hidden" name="token" value="'+tok+'"><input type="hidden" name="id" value="'+escapeHtml(it.id)+'"><input type="hidden" name="name" value="'+escapeHtml(nm)+'"><button type="submit" class="cc-btn-ghost" data-fk="rfkeep:'+escapeHtml(it.key)+'">'+escapeHtml(RF_KEEP_LAB[it.key]||it.key)+' 내려받기</button></form>'; }).join(' ');
   return '<div class="rf-keep" style="margin:10px 0 4px;font-size:14px;color:var(--sub);line-height:1.7"><p style="margin:0 0 6px">두 분 목소리 파일은 '+(dl<=-kd?'곧':(d.getMonth()+1)+'월 '+d.getDate()+'일에')+' 지워져요. 간직하려면 내려받으세요.</p>'
-    +(voice.aiGone?'<p style="margin:0 0 6px">AI 목소리와 읽은 녹음은 예식 다음 날 지웠어요.</p>':'')
+    +(voice.aiGone?'<p style="margin:0 0 6px">AI 목소리와 읽은 녹음은 예식 다음 날 지웠어요.</p>':voice.aiPend?'<p style="margin:0 0 6px">AI 목소리와 읽은 녹음은 지우는 중이에요 · 곧 끝나요.</p>':'')   /* ★[VC_PURGE_TRUE 2026-10-30 GPT 2차 점검 4] «지웠어요»는 서버가 모두 지운 뒤에만(aiGone) · 아직 남았으면 aiPend */
     +'<div style="display:flex;flex-wrap:wrap;gap:6px">'+li+'<button type="button" class="cc-btn-ghost" data-fk="rfpurge" onclick="rfPurgeMine(this)">지금 지우기</button></div></div>'; }
 window.rfPurgeMine=function(btn){ mpConfirm({ title:'두 분 목소리 파일을 모두 지울까요?', body:'지우면 되돌릴 수 없어요.', yes:'모두 지우기' }).then(function(go){ if(!go) return; _rfPurgeGo(btn); }); };   // [VOICE_KEEP] 브라우저 confirm 대신 마이페이지 창
 /* ★[ERR_CODE_MYPAGE 2026-10-07] «모두 지우기» — 종전엔 시간 한도가 없었고(답이 안 오면 «지우는 중…»에 멈춤) 실패 알림은 1.6초 토스트라 읽기도 전에 사라졌다.
@@ -7875,14 +7877,15 @@ window.rfPurgeMine=function(btn){ mpConfirm({ title:'두 분 목소리 파일을
 function _rfPurgeGo(btn){ btn.disabled=true; btn.textContent='지우는 중…';
   var box=btn.closest('.rf-keep'), say=function(t){ if(!box) { if(t) _errToast(t); return; } var n=box.querySelector('.rf-keep-err'); if(!n){ n=document.createElement('p'); n.className='rf-keep-err'; n.setAttribute('role','alert'); n.style.cssText='margin:6px 0 0;font-size:13px;color:var(--seal)'; box.appendChild(n); } _errSet(n, t||''); };   // [ERR_CODE_NOWRAP]
   say('');
-  var gone=function(g){ var p=window._lastProd||{}; p.voice=Object.assign({},p.voice,{gone:g}); var el=btn.closest('.rf-keep'); if(el) el.outerHTML='<p class="rf-keep" role="status" style="font-size:14px;color:var(--sub)">두 분 목소리 파일을 모두 지웠어요.</p>'; };
+  /* ★[VC_PURGE_TRUE 2026-10-30 GPT 2차 점검 3] 서버가 AI 목소리를 아직 다 지웠다고 답하지 않았으면(pend) «모두 지웠어요» 대신 «지우는 중이에요» — 서버가 매일 다시 지운다 */
+  var gone=function(g,pend){ var p=window._lastProd||{}; p.voice=Object.assign({},p.voice,{gone:g,aiPend:!!pend||!!(p.voice&&p.voice.aiPend)}); var el=btn.closest('.rf-keep'); if(el) el.outerHTML='<p class="rf-keep" role="status" style="font-size:14px;color:var(--sub)">'+(pend?'두 분 목소리 파일을 지웠어요. AI 목소리는 지우는 중이에요 · 곧 끝나요.':'두 분 목소리 파일을 모두 지웠어요.')+'</p>'; };
   _post({action:'ritualFilePurgeMine',token:getToken()}, 60000).then(function(r){
-    if(r&&r.ok){ gone(r.gone); return; }
+    if(r&&r.ok){ gone(r.gone,r.pend); return; }
     btn.disabled=false; btn.textContent='지금 지우기';
     if(_errSess(r)){ _errGoLogin(r,'D'); return; }
     say(_errLine(r,'D','지우지 못했어요 · 다시 눌러 주세요')); },
   function(e){
-    if(_errKind(e)==='slow'){ _wrSlow({ L:'D', done:function(st){ var v=(st.production&&st.production.voice)||st.voice||{}; return !!v.gone; }, fail:function(line){ btn.disabled=false; btn.textContent='지금 지우기'; say(line); } }, function(st){ var v=(st&&((st.production&&st.production.voice)||st.voice))||{}; gone(v.gone); }); return; }
+    if(_errKind(e)==='slow'){ _wrSlow({ L:'D', done:function(st){ var v=(st.production&&st.production.voice)||st.voice||{}; return !!v.gone; }, fail:function(line){ btn.disabled=false; btn.textContent='지금 지우기'; say(line); } }, function(st){ var v=(st&&((st.production&&st.production.voice)||st.voice))||{}; gone(v.gone,v.aiPend); }); return; }
     btn.disabled=false; btn.textContent='지금 지우기'; say(_errLine(e,'D','지우지 못했어요 · 다시 눌러 주세요')); }); }
 function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* ★★[BLESS_PER_SPEAKER 2026-10-14 사장님 «추천대로»] 덕담 시간 신호 — «한 분 말씀»마다 잰다(당일 콘솔 console.html)
-   1 덕담 사람 구간(디렉터 화면)에 [다음 분]이 보인다 · 사람 구간 음악은 큐 값(-16)
-   2 음악 신호(런북 §8 2단) — swellAt 이 되면 배경 음악이 swellTo(-10)로 오른다 (여기서는 swellAt 을 0.6초로 줄여 잰다)
-   3 [다음 분] — 음악이 사람 구간 값으로 내려오고 · 시간(liveT0)을 새로 재고 · 신호를 다시 건다(다시 오른다)
+   1 덕담 사람 구간(디렉터 화면)에 [다음 분]이 보인다 · 사람 구간 음악은 낭독 아래(-20 · [BGM_FIX_1030] M4 사람 구간)
+   2 시간 알림 — swellAt 이 되면 콘솔에 알림 한 줄(«한 분 말씀 … · 음악은 그대로») · 음악은 -20 그대로(울음 · 침묵 · 시간 때문에 올리지 않는다 · 여기서는 swellAt 을 0.6초로 줄여 잰다)
+   3 [다음 분] — 음악 그대로(-20) · 시간(liveT0)을 새로 재고 · 알림을 걷었다가 다시 건다
    4 맺는 말 고르기 — 두 분이 2분씩(합 4분) 하셔도 [다음 분]을 눌렀으면 «길었을 때»가 아니다 · 마지막 분이 3분을 넘기면 «길었을 때»
    5 [다음 분]을 안 누르면 종전처럼 덕담 전체로 잰다(4분 → «길었을 때»)
    6 대독(나레이션이 읽는다) · 고객 미리 듣기(embed=1)에는 [다음 분]이 없다 · 쪽 오류 0
@@ -34,7 +34,7 @@ async function toLive(pg, i, swellAt) {
   for (let k = 0; k < 120; k++) { if (await pg.evaluate(() => window.__bps.st().phase === 'live')) return true; await pg.waitForTimeout(250); }
   return false;
 }
-const st = (pg) => pg.evaluate(() => Object.assign(window.__bps.st(), { spk: !document.getElementById('bSpk').hidden, h: document.querySelector('.tm').getBoundingClientRect().height }));
+const st = (pg) => pg.evaluate(() => Object.assign(window.__bps.st(), { spk: !document.getElementById('bSpk').hidden, h: document.querySelector('.tm').getBoundingClientRect().height, note: [...document.querySelectorAll('#nTag .pill')].some((x) => /한 분 말씀 .* · 음악은 그대로/.test(x.textContent)) }));
 
 { const { ctx, pg, errs } = await open(S_ON);
   const i = await idx(pg);
@@ -42,15 +42,15 @@ const st = (pg) => pg.evaluate(() => Object.assign(window.__bps.st(), { spk: !do
   const h0 = (await st(pg)).h;
   const live = await toLive(pg, i, 0.6);
   const a = await st(pg);
-  ok('1 덕담 사람 구간 — [다음 분]이 보인다 · 음악은 큐 값(-16) · 시간 줄 높이 그대로', live && a.spk && a.duck === -16 && Math.abs(a.h - h0) < 0.5, { live, a, h0 });
+  ok('1 덕담 사람 구간 — [다음 분]이 보인다 · 음악은 낭독 아래(-20) · 알림 아직 없음 · 시간 줄 높이 그대로', live && a.spk && a.duck === -20 && !a.note && Math.abs(a.h - h0) < 0.5, { live, a, h0 });
   await pg.waitForTimeout(900);
   const b = await st(pg);
-  ok('2 음악 신호 — swellAt 이 되면 배경 음악이 swellTo(-10)로', b.duck === -10, b);
+  ok('2 시간 알림 — swellAt 이 되면 콘솔 알림 한 줄 · 음악은 -20 그대로(올리지 않는다)', b.duck === -20 && b.note, b);
   await pg.click('#bSpk'); await pg.waitForTimeout(150);
   const c = await st(pg);
-  ok('3 [다음 분] — 음악이 사람 구간 값(-16)으로 · 시간을 새로(liveT0 이 바뀜)', c.duck === -16 && c.t0 > a.t0, { a: a.t0, c });
+  ok('3 [다음 분] — 음악 -20 그대로 · 알림을 걷고 · 시간을 새로(liveT0 이 바뀜)', c.duck === -20 && !c.note && c.t0 > a.t0, { a: a.t0, c });
   await pg.waitForTimeout(900);
-  ok('3 [다음 분] — 신호를 다시 건다(다시 -10)', (await st(pg)).duck === -10);
+  { const d = await st(pg); ok('3 [다음 분] — 알림을 다시 건다 · 음악은 그대로(-20)', d.duck === -20 && d.note, d); }
   /* 4 두 분이 2분씩 — 첫 분 2분 → [다음 분] → 둘째 분 2분 → 맺는 말은 보통 판 */
   await pg.evaluate(() => window.__bps.ago(120));
   await pg.click('#bSpk');

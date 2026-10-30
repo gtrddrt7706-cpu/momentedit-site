@@ -24,7 +24,7 @@
 })(typeof self !== 'undefined' ? self : this, function (D, O) {
 
   // ── 튜닝 상수 (큐시트·런북 §11-C 이관 · 숫자를 코드 본문에 흩지 않는다)
-  var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 400 };   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천 · [BGM_CONSOLE2_1023] holdMs = 이음 보호(다음 이음 큐의 음성이 이 안에 시작하면 −8 로 올리지 않는다) · leadMs = 음성보다 먼저 내리는 시간
+  var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 800 };   // ★[BGM_FIX_1030] leadMs 0.4 → 0.8초(GPT③ R1-3 · 음성은 실제 내림이 끝난 뒤에 · 박수 뒤 큐는 fadeMs 1.5초가 그 자리)   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천 · [BGM_CONSOLE2_1023] holdMs = 이음 보호(다음 이음 큐의 음성이 이 안에 시작하면 −8 로 올리지 않는다) · leadMs = 음성보다 먼저 내리는 시간
   var PARAM = {
     spm: 300,              // 낭독 속도(음절/분) — build-dubbing-script.mjs와 같은 값이어야 한다
     gapMs: 2000,           // 클립 간 침묵 1.5~2.5초의 가운데
@@ -38,6 +38,11 @@
        ★[BGM_CONSOLE2_1023 HOLD_LINK] 라운드 2 에서 켰다(사장님 결정 · BGM 섹션 명세) — ⓐ 이음 보호: 사람 구간이 없는 클립이 끝나고 다음 큐가 chain 이며 음성이 holdMs(3.5초) 안에 시작하면 그 크기에서 버틴다
          (입장 장면 시작 · 축배 큐는 그 연출이 제어해 빼고) · ⓑ 사람 구간 유지: live 가 있는 큐는 GO 까지 live 크기 그대로(낭독 −20 · 무음 −90 을 풀지 않는다).
        ★[BGM_CONSOLE2_1023 PRE_DUCK] leadMs — 음악을 내려야 하는 큐는 음성보다 0.4초 먼저 내린다(이어지는 큐는 사이 끝 0.4초 전에 · GO 로 여는 큐는 GO 순간 내리고 음성은 0.4초 뒤) */
+    /* ★★[BGM_FIX_1030 2026-10-30 BGM 섹션 · GPT(Ultra) 합의] 곡 크기는 파일에서 맞춘다(−23 LUFS · 피크 −2 dBTP) — 엔진은 곡마다 보정하지 않는다.
+       vocalExtra = 가사가 있는 곡(assets/bgm-picks.js vocal)이 깔린 동안 나레이션 · 사람 구간(−8 보다 낮은 크기)을 이만큼 더 낮춘다 · 큐 사이 −8 · 축배는 그대로
+       musicTrim  = 음악 전체 크기(콘솔 «음악 볼륨» 70% = −3.1 dB 의 한 원천 · 리허설 칸 · 식순 화면 미리 듣기도 같은 값) */
+    vocalExtra: -6,
+    musicTrim: -3.1,
     toastLevel: 0,         // [BGM_CONSOLE2_1023 TOAST_GO] 축배 «위하여!» 뒤 GO 로 오르는 크기(리허설 칸이 덮는다 · 시작값 0)
     toastUpMs: 600,        // 그 오름 시간
     entry: { doorLeadSec: 3.0 },   // ★[BGM_CONSOLE2_1023 DOOR_LEAD] 문 여는 시간(리허설 시작값) — 콘솔 진행 막대에 «입장!» 발화 끝(하이라이트 · 출발) − 이만큼 자리에 «문 열기 시작» 표시만(새 GO · 소리 없음)
@@ -51,7 +56,7 @@
     look: { lookSec: 6, bowSec: 8 },   // [LOOK_HOLD 코워크 회신5 4-1] 첫 모습 — 바라보기 6초 · 맞절 8초(연구 B11 알린 침묵 5~8초)
     bow: { closeSec: 12 },             // [CLOSE_BOW 코워크 회신5 4-2] 끝 선언 뒤 목례 · 박수 · 음악 바뀜
     letter: { postSilenceMs: 2000, musicUpMs: 4000 },
-    bless: { swellAt: 150, swellTo: -10, swellMs: 8000, longThreshold: 180 },   // 런북 §11-C
+    bless: { swellAt: 150, longThreshold: 180 },   // 런북 §11-C · ★[BGM_FIX_1030] swellAt = 콘솔에 알림 한 줄만(음악은 올리지 않는다 · 옛 swellTo −10 · swellMs 8초 걷음 — 되살리지 말 것)
     read: { waitClipAt: 5, partnerHandoffAt: 30 },                              // 런북 §11-C
     /* [GATHER_WAIT 2026-08-08] photo.afterCloseMs(30초 타이머) 삭제 — 폐식 뒤 사람이 모이는
        시간을 live 로 옮겼다. 타이머로 다음 큐를 자동으로 밀던 자리라, 남겨 두면 다음 사람이
@@ -898,7 +903,7 @@
         cue({
           k: 'welcome', blockN: '감사 인사', slug: 'narr-welcome-in', name: '감사 인사 시작', text: n.nar,   /* [THANKS_GREET_1013] 옛 이름 «환영·첫인사» */
           hint: '두 분이 중앙에서 하객 쪽으로 돌아서면 · 속으로 셋을 세고',
-          live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: 46, self: true, doing: 'say', fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴' }
+          live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: 46, self: true, doing: 'say', duck: PARAM.duckRead, fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴' }   // [BGM_FIX_1030] M4 사람이 말하는 자리 = 낭독 아래(−20 · GPT③ R1-6) · 순간 끝까지
         })
         /* ★★[WELCOME_OUT_DROP 2026-09-20] 「지금 들으신 것이 두 사람의 첫 인사였습니다」를 **큐째로 뺀다.**
            ★문안만 지우면 안 된다 — 큐가 남아 식장에서 «소리 없는 큐»가 된다([DROP_GUARD]).
@@ -928,7 +933,7 @@
         return [cue({
           k: 'vow', blockN: '감사문', slug: 'narr-thanks-in', name: '감사문 시작', text: D.NARR.thanksIn,
           live: {
-            t: tKey, est: 70, self: true, doing: 'say', peak: true,
+            t: tKey, est: 70, self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
             first: tB ? 'b' : 'g',
             tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 한 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 한 문장은 함께' : tKey),
             both: D.THANKSBOTH, hintNext: '마지막 한 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
@@ -950,7 +955,7 @@
             //   할지 모른다 — 화면이 소리를 설명하지 못하면 폴백이 조용했던 때와 같은 사고다.
             /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] S.vowHow — 'alt'(기본 · 번갈아) | 'each'(각자 차례로).
                모르는 값은 'alt'. 'each' 의 문자열도 ritual-story.js 의 LIVE · CAST_AT 키다(같은 커밋에서 함께). */
-            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',   /* [R2-04] «마지막 한 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true,
+            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',   /* [R2-04] «마지막 한 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
             /* [VOW_FIRST] t 는 장면 열쇠라 그대로 두고(ritual-story LIVE · CAST_AT) 보여 줄 글만 tv · first 로 — 신부부터 «각자 차례로»면 «신부 먼저, 신랑 다음으로» */
             first: S.vowFirst === 'b' ? 'b' : 'g',
             tv: S.vowHow === 'each' ? (S.vowFirst === 'b' ? '신부 먼저, 신랑 다음으로 낭독 · 마지막 한 문장은 함께' : '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께') : (S.vowFirst === 'b' ? '두 분이 한 줄씩 번갈아 낭독(신부부터) · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께'),
@@ -1016,14 +1021,14 @@
       var slug = 'narr-declare-in-friend';
       return [cue({
         k: 'declare', blockN: '성혼 선언', slug: slug, name: '성혼 선언 시작',
-        text: EXTRA[slug], pick: '읽는 분 · ' + (w || '아직 안 정함'),   // 화촉 «서는 분 · 양가 어머님»과 같은 꼴 — 대본 «나레이션(읽는 분 · 신랑 아버님)»이 «나레이션이 낭독»으로 읽히지 않게
+        text: EXTRA[slug], pick: '읽는 분 · ' + (w || '아직 안 정함'), duck: PARAM.duckOff,   /* ★[BGM_FIX_1030] 선언은 음악 없이 — 여는 말 · 낭독 · 맺는 말까지 −90(반지 뒤 정적을 잇는다) · 박수(GO 앞 사람 순간)와 함께 피아노가 1.5초에 −8 */   // 화촉 «서는 분 · 양가 어머님»과 같은 꼴 — 대본 «나레이션(읽는 분 · 신랑 아버님)»이 «나레이션이 낭독»으로 읽히지 않게
         note: '선언문은 나레이션이 대신 읽지 않는다 — 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림',
         live: { t: '선언하실 분이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', tv: who + O.josaOf(who, '이', '가') + ' 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', who: who,
-          est: 45, self: true, doing: 'say', fallback: '말이 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림 · 나레이션은 선언문을 대신 읽지 않음' }
+          est: 45, self: true, doing: 'say', duck: PARAM.duckOff, fallback: '말이 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림 · 나레이션은 선언문을 대신 읽지 않음' }
       }), cue({
         k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-out', name: '성혼 선언 마무리',
-        text: D.NARR.declareFamilyOut,
-        live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000)   // [CLAP_GO] «큰 박수로 축복해 주시면 감사하겠습니다» 뒤
+        text: D.NARR.declareFamilyOut, duck: PARAM.duckOff,
+        live: (function () { var a = applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000); a.upMs = PARAM.declare.toLetterMs; return a; })()   // [BGM_FIX_1030] 박수와 함께 −8 로 1.5초   // [CLAP_GO] «큰 박수로 축복해 주시면 감사하겠습니다» 뒤
       })];
     },
 
@@ -1305,15 +1310,15 @@
           pick: S.blessProxy ? '나레이션이 대독' : (famOpen ? '예식의 문을 여는 자리' : afterLetter ? '편지 뒤 자리' : ''),
           live: {
             t: S.blessProxy ? '나레이션이 미리 받은 말씀을 대독' : '부모님 말씀 (디렉터가 마이크 전달)',
-            est: 100, self: !S.blessProxy, doing: 'say',
-            swellAt: PARAM.bless.swellAt, swellTo: PARAM.bless.swellTo, swellMs: PARAM.bless.swellMs,
+            est: 100, self: !S.blessProxy, doing: 'say', duck: S.blessProxy ? PARAM.duckSpeech : PARAM.duckRead,   // [BGM_FIX_1030] 부모님이 말씀하시는 자리 −20(대독은 나레이션 아래 −16)
+            swellAt: PARAM.bless.swellAt,   /* ★[BGM_FIX_1030] 2:30 = 콘솔 알림 한 줄만 — 음악은 순간 끝까지 그 크기(울음 · 침묵 · 시간 때문에 올리지 않는다) · 옛 swellTo · swellMs(음악 부풀리기) 금지 */
             longThreshold: PARAM.bless.longThreshold,
             /* ★[BLESS_PER_SPEAKER 2026-10-14 사장님 «추천대로»] 음악 신호(2:30) · 길었을 때(3:00)는 «한 분 말씀»마다 잰다 — 카드 «한 분 1분쯤»대로
                네 분이 하시면 덕담 전체로는 넷째 분 중에 «길었을 때» 맺는 말로 바뀌었다. 콘솔이 다음 분께 마이크를 건넬 때 [다음 분]으로 시간을 새로 잰다.
                대독(나레이션이 읽는다)은 한 번에 흐르니 종전 그대로 */
             perSpeaker: !S.blessProxy,
-            fallback: S.blessProxy ? '2:30에 BGM이 자동으로 부풀어 신호 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다'
-              : '한 분 말씀이 2:30이면 BGM이 자동으로 부풀어 신호 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다 · 다음 분께 마이크를 건네면 [다음 분]'
+            fallback: S.blessProxy ? '3:00 넘으면 디렉터가 한 문장으로 받아 끊는다 · 음악은 그대로'
+              : '한 분 말씀이 2:30이면 콘솔에 알림 한 줄 · 음악은 그대로 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다 · 다음 분께 마이크를 건네면 [다음 분]'
           }
         }),
         cue({
@@ -1712,11 +1717,12 @@
       if (cues[vg].slug === 'narr-vow-out' && cues[vg + 1].fire === 'chain' && !cues[vg + 1].gapMs) cues[vg + 1].gapMs = 4500;
     }
 
-    // 반지 교환 마무리 → 성혼 선언 사이는 '음악 페이드 8초 + 침묵 3초'가 시간 고정이다(§3-A · 대본 153~159행).
+    // 반지 교환 마무리 → 성혼 선언 사이는 '음악 4초에 −90 + 정적 2.5초'가 시간 고정이다(§3-A · CLAP_FEW · [BGM_FIX_1030] 그 뒤 기본 사이 없음).
     // 선언이 실제로 이 예식에 있고 바로 뒤에 붙을 때만 얹는다.
     for (var j = 0; j < cues.length - 1; j++) {
       if (cues[j].slug === 'narr-ring-out' && cues[j + 1].k === 'declare' && cues[j + 1].fire === 'chain') {
         cues[j].post = [{ music: 'to', v: PARAM.duckOff, ms: PARAM.declare.preFadeMs }, { wait: PARAM.declare.silenceMs }];
+        cues[j + 1].gapNone = true;   /* ★[BGM_FIX_1030] 정적 2.5초 뒤 바로 선언 여는 말 — 기본 사이 2초를 더하지 않는다(종전 정적 4.5초) · 콘솔이 gapNone 을 본다 */
       }
     }
 

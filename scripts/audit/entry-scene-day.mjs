@@ -34,7 +34,7 @@ function wav(sec, hook) { const sr = 22050, n = sr * sec, b = Buffer.alloc(44 + 
   let s = 7; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647 - 0.5; };
   for (let i = 0; i < n; i++) { const t = i / sr, a = t >= hook ? 0.45 * ((t % 0.5) < 0.06 ? 1 : 0.35) : 0.05; const v = a * (Math.sin(2 * Math.PI * 220 * t) * 0.6 + Math.sin(2 * Math.PI * 330 * t) * 0.3 + rnd() * 0.2); b.writeInt16LE(Math.max(-32767, Math.min(32767, Math.round(v * 32767))), 44 + i * 2); }
   return b.toString('base64'); }
-const SHORT = ' · 곡 길이 모자람 · 맞절은 피아노로';   // [BGM_SEG8_1023 ENTRY_SHORT] 150초 곡 · 하이라이트 40초 → 뒤 110초
+const SHORT = ' · 곡 길이 모자람 · 곡이 끝나면 피아노가 이어요';   // [BGM_SEG8_1023 ENTRY_SHORT] 150초 곡 · 하이라이트 40초 → 뒤 110초
 const SONG = wav(150, 40), FID = 'SONGID0123456789abcd';
 const S_OK = { course: 'open', entry: 'A', entryVoice: 'nar', mu: { src: 'up', name: 'song-day', t: '시험 곡', a: '', dur: 150, hook: 40, typed: null, sid: 'x1', fid: FID } };
 async function open(S0, mode) {
