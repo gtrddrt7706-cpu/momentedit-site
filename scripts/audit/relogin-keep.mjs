@@ -13,6 +13,8 @@
          · 다른 계정으로 로그인하면 남의 초안을 걷는다(_orderOwnerSweep · 식순 화면 ORDER_OWNER)
    ⑥ 9-01 [RELOGIN_SNAP_KEEP] 식순 초안 없이 스냅 임시본만 있는 기기 — S4 «그대로 로그인하기» 뒤 만료된 알림 링크(계정을 모름)로 다시 들어와도 코드별 임시본을 지우지 않는다
          · 같은 계정 로그인이면 그대로(«이어서 고르기») · 다른 계정 로그인 확인 · 스스로 로그아웃이면 지운다
+   ⑦ 10-01 [RELOGIN_SNAP_NEWER] 맡긴 최신 스냅 임시본 vs 같은 계정 옛 탭이 앱을 내릴 때 다시 쓴 옛 임시본 — 고친 때를 견줘 나중 것 · 고친 때가 없는 이 기기 것은 진다
+         · _snapLocalPut 은 글이 바뀔 때만 고친 때를 새로 적는다(다시 쓰기 · 앱 내림 · 걸음 넘김은 그대로)
    깨 보기: 고친 줄을 옛 꼴로 되돌려 같은 장면이 빨개지는지 본다.
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
@@ -24,7 +26,7 @@ const lineIn = (src, re) => (src.match(re) || [''])[0];
 const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.split(a).length !== 2) return null; t = t.replace(a, b); } return t; };
 const flush = () => new Promise((r) => setTimeout(r, 0));
 const MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
-const FNS = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_orderOwnerSweep', '_errGoLogin', '_autoLogin', 'readCachedState'];
+const FNS = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_orderOwnerSweep', '_errGoLogin', '_autoLogin', 'readCachedState'];
 const FAIL_LINE = '초안을 보관하지 못했어요 (코드 S4)';
 /* quota = 이 이름에 쓰면 QuotaExceededError */
 const mkStore = (init, quota) => { const m = new Map(Object.entries(init || {}));
@@ -177,6 +179,45 @@ const t6 = async (src) => {
     !r.err && r.same.snap === SNAP && r.same.other === null && r.sw.snap === null && r.sw.own === '{"n":9}' && r.out.snap === null && r.out.other === null, r);
   const bk = brk(MP, [["&& !(_ksnap && /^me_snapLocal_/.test(k))", '']]); let rb = null; try { rb = bk ? await t6(bk) : null; } catch (x) { rb = { err: String(x).slice(0, 200) }; }
   ok('깨 보기 ⑥ — 옛 꼴(계정을 몰라도 코드별 임시본을 다 지움)이면 빨강', !!rb && !rb.err && rb.mid.snap === null, rb); }
+
+/* ⑦ 10-01 [RELOGIN_SNAP_NEWER] 스냅 임시본도 고친 때를 견준다 — 맡긴 최신 메모 vs 옛 탭이 다시 쓴 옛 메모 */
+const T7 = Date.now() - 5000;
+const SN = (memo, t) => { const o = { v: 2, zones: { candle: { picks: [], ups: [], links: [], note: memo }, white: { picks: [], ups: [], links: [], note: '' } }, note: '' }; if (t) o.t = t; return JSON.stringify(o); };
+const NEWM = '최신 메모: 아이와 함께 준비해 주세요', OLDM = '이전 메모: 두 사람만 준비해 주세요';
+const t7 = (src, cur, kept, ot) => { const ls = { me_relogin_keep: JSON.stringify({ code: 'AB12CD', t: ot || Date.now(), keys: { me_snapLocal_AB12CD: kept } }) }; if (cur != null) ls.me_snapLocal_AB12CD = cur;
+  const A = world(src, { ls }); const back = A.sb._reloginRestore('AB12CD'); const sv = A.ls.getItem('me_snapLocal_AB12CD');
+  return { back, memo: sv && JSON.parse(sv).zones.candle.note, keep: A.ls.getItem('me_relogin_keep') }; };
+const r7 = (src) => ({
+  old: t7(src, SN(OLDM, T7 - 60000), SN(NEWM, T7)),          // 옛 탭이 다시 쓴 옛 임시본(더 오래전에 고침)
+  noT: t7(src, SN(OLDM), SN(NEWM, T7)),                       // 고친 때가 없는 옛 판
+  newer: t7(src, SN(OLDM, T7 + 60000), SN(NEWM, T7)),         // 이 기기 것이 정말 나중에 고친 것
+  kNoT: t7(src, SN(OLDM, T7 + 1000), SN(NEWM), T7 + 5000),    // 맡긴 것에 고친 때가 없으면 맡긴 때로
+  kNoT2: t7(src, SN(OLDM, T7 + 9000), SN(NEWM), T7 + 5000) });
+{ let r; try { r = r7(MP); } catch (e) { r = { err: String(e && e.stack || e).slice(0, 300) }; }
+  ok('⑦ 10-01 [RELOGIN_SNAP_NEWER] 같은 계정 옛 탭이 앱을 내릴 때 다시 쓴 옛 스냅 임시본(«이전 메모»)이 있어도 맡긴 최신본(«최신 메모»)을 되돌린다 · 맡김은 그 뒤에 지운다',
+    !r.err && r.old.back === true && r.old.memo === NEWM && r.old.keep === null, r);
+  ok('⑦ 10-01 이 기기 임시본에 고친 때가 없으면 맡긴 것 · 이 기기 것이 더 나중에 고친 것이면 그것을 두고 맡김을 지운다(더 새것임을 확인)',
+    !r.err && r.noT.memo === NEWM && r.noT.keep === null && r.newer.memo === OLDM && r.newer.keep === null, r);
+  ok('⑦ 10-01 맡긴 임시본에 고친 때가 없으면 맡긴 때로 견준다', !r.err && r.kNoT.memo === NEWM && r.kNoT2.memo === OLDM && r.kNoT2.keep === null, r);
+  const bk = brk(MP, [["if(k!=='me_order'){ if(_reloginSnapNewer(cj, v, o.t)) return; }", "if(k!=='me_order'){ return; }"]]); let rb = null; try { rb = bk ? r7(bk) : null; } catch (x) { rb = { err: String(x).slice(0, 200) }; }
+  ok('깨 보기 ⑦ — 옛 꼴(이미 있으면 견주지 않고 그것을 두고 맡김을 지움)이면 빨강', !!rb && !rb.err && rb.old.memo === OLDM && rb.old.keep === null, rb); }
+{ /* _snapLocalPut — 글이 바뀔 때만 고친 때를 새로 적는다 */
+  const pt = (src) => { const fn = grabIn(src, '_snapLocalPut'), so = grabIn(src, '_snapOut'), sf = grabIn(src, '_snapFilledD'), sn = grabIn(src, '_snapNewD'), sz = grabIn(src, '_snapZoneNew');
+    const st = lineIn(src, /SNAPFLOW=\{ active:true,[^\n]*/);
+    if (!fn || !so || !sf || !sn || !sz || !st) return { err: '원문 조각을 못 떼었다' };
+    let now = 1000; const ls = mkStore({}); const sb = { localStorage: ls, JSON, Object, Math, String, Date: { now: () => now }, _snapLocalKey: () => 'me_snapLocal_AB12CD', _snapCollect: () => {}, _snapPickCap: () => 0, opt: {}, p: null, needAgree: true, SNAPFLOW: null, window: {} };
+    vm.createContext(sb); vm.runInContext(so + '\n' + sf + '\n' + sn + '\n' + sz + '\n' + fn + '\nfunction _start(loc, sd){ ' + st + '\n}', sb);
+    const rd = () => { const v = ls.getItem('me_snapLocal_AB12CD'); return v ? JSON.parse(v).t : null; };
+    sb.SNAP_STEPS = [1, 2, 3, 4, 5];
+    sb._start(JSON.parse(SN(OLDM, 1500)), {}); sb._snapLocalPut(); const a = rd(); now = 2000; sb._snapLocalPut(); const b = rd();   // 되살린 임시본 · 다시 쓰기만
+    sb.SNAPFLOW.d.zones.candle.note = NEWM; now = 3000; sb._snapLocalPut(); const c = rd(); now = 4000; sb._snapLocalPut(); const d = rd();   // 고침 · 다시 쓰기
+    sb._start(null, JSON.parse(SN(OLDM))); now = 5000; sb._snapLocalPut(); const e = ls.getItem('me_snapLocal_AB12CD') && rd();   // 서버 판에서 열고 고치지 않음
+    return { a, b, c, d, e }; };
+  let r; try { r = pt(MP); } catch (x) { r = { err: String(x && x.stack || x).slice(0, 300) }; }
+  ok('⑦ 10-01 [RELOGIN_SNAP_NEWER] 스냅 임시본은 글이 바뀔 때만 고친 때를 적는다 · 되살린 임시본은 그 때 그대로 · 다시 쓰기 · 앱 내림 · 걸음 넘김은 그대로 · 고치지 않은 판엔 없다',
+    !r.err && r.a === 1500 && r.b === 1500 && r.c === 3000 && r.d === 3000 && (r.e === undefined || r.e === null), r);
+  const bk = brk(MP, [['else if(SNAPFLOW._lj!==j){ SNAPFLOW._lj=j; SNAPFLOW.t=Date.now(); }', 'SNAPFLOW.t=Date.now();']]); let rb = null; try { rb = bk ? pt(bk) : null; } catch (x) { rb = { err: String(x).slice(0, 200) }; }
+  ok('깨 보기 ⑦ — 쓸 때마다 새 때를 적으면 빨강', !!rb && !rb.err && rb.b === 2000, rb); }
 
 /* 다른 계정 · 7일 지남은 종전대로 지운다 */
 { const A = world(MP, { ls: { me_relogin_keep: KEEP } }); const b1 = A.sb._reloginRestore('ZZ99ZZ'); const k1 = A.ls.getItem('me_relogin_keep'), o1 = A.ls.getItem('me_order');
