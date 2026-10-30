@@ -20759,4 +20759,13 @@ nochk "x\[1\].w=now; localStorage.setItem(x\[0\], JSON.stringify(x\[1\]));" mypa
 nochk "_o.w=Date.now(); localStorage.setItem(k, JSON.stringify(_o));" order-preview.html   # [OLD_DRAFT_OFFER] 16-03 식순 화면이 열 때 초안 본문을 다시 쓰던 줄
 nochk "if (typeof m === 'number' && (typeof b === 'number' || (isCnt && b == null))" automation/platform/80_production.gs   # [MS_SET] 16-04 숫자면 다 더하던 합치기(시각 칸까지)
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix16-1030.mjs >/dev/null 2>&1; _vf16=$?; if [ "$_vf16" != 0 ]; then echo 'FAIL vc-fix16-1030: AI 목소리 16차 점검(옛 예비본 되찾기 · 지우지 않기 · 마지막 사용 칸 · 시각 칸 합치기 · 시작 잠금) 판정이 어긋났습니다 — node scripts/audit/vc-fix16-1030.mjs'; fail=1; else echo "ok vc-fix16-1030 ($_vf16)"; fi; fi
+# ★[CON_START_NOWAIT 2026-10-31 GPT 17차 점검(당일 17-01 · 17-02)] 받을 것이 없는 예식은 «시작»이 파일 목록을 기다리지 않는다 · 130초 기다림은 한 번만 끝나고 받은 것만으로 시작(L5 한 줄 · 다시 받기)
+chk 'CON_START_NOWAIT' scripts/audit/con-start-nowait.mjs 1
+chk 'RF_NOWAIT_EMPTY' console.html 2
+chk 'RF_WAIT_ONCE' console.html 6
+chk "RF_FRESH.list = need;" console.html 1
+chk "if (Date.now() - t0 > 130000) { RF_READY.p = null; RF_READY.late = true; ok('late'); return; }" console.html 1
+nochk "if (!rfPending() || Date.now() - t0 > 130000) { RF_READY.p = null; ok(); return; }" console.html   # [RF_WAIT_ONCE] 한도에 닿으면 «다 받음»처럼 풀어 시작이 새 130초를 다시 걸던 줄
+nochk "if (!code || !tok) { RF_FRESH.list = false; return; } RF_FRESH.list = true;" console.html   # [RF_NOWAIT_EMPTY] 받을 것이 없어도 목록을 «받는 중»으로 잡던 줄(#1452)
+if command -v node >/dev/null 2>&1; then node scripts/audit/con-start-nowait.mjs >/dev/null 2>&1; _csn=$?; if [ "$_csn" != 0 ]; then echo 'FAIL con-start-nowait: 당일 콘솔 시작 기다림(받을 것 없는 예식 · 130초 한 번만) 판정이 어긋났습니다 — node scripts/audit/con-start-nowait.mjs'; fail=1; else echo "ok con-start-nowait ($_csn)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
