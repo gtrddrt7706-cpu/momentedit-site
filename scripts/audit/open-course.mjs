@@ -458,7 +458,7 @@ ok('[REVIEW31_1023 검토 157] 01 · 02 · 09 · 131 · 213 · 257 글 · 선언
     && / 오늘 하루의 자연스러운 모습을, 곁에서 마음껏 사진으로/.test(D.GUEST[1][1]) /* [MODERN_WORDS_1024 검토 164] */ && D.ENTRY.E.nar.indexOf('신랑 신부의 입장이 있겠습니다.') < 0
     && D.NARR.tableIn.indexOf('테이블에 도착했을 때') < 0 && O.NAR_EX.candle.lines['narr-candle-out'][2] === '촛불이 밝혀졌습니다.' && /^바쁘신 와중에도 .*시작하겠습니다\.$/.test(O.NAR_EX.open.lines['narr-open'][4])
     && O.NAR_EX.declare.names.join() === '담백하게,격식 있게,엄숙하게,힘차게' && O.MOOD.bright.narEx.declare === 3 && O.MOOD.moving.narEx.declare === 2
-    && hold('169') === '8,0' && /,8,0$/.test(hold('170')) /* [MODERN_WORDS_1024 검토 164] 170 은 세 문장 · 둘째 동작 앞 8초는 그대로 */ && hold('193') === '1,8,0' && !!clash && O.narExOf(S, 'song') !== 1 && !C.moodClash(S, 'song') && /var SEAM_KEYS=\[[^\]]*'song'/.test(fs.readFileSync(P('order-preview.html'), 'utf8')); })());
+    && hold('169') === '8,0' && hold('170') === '8,0' /* [RETAKE_168_1030 검토 168] 170 은 두 문장(신랑 → «이번에는 신부도») · 둘째 동작 앞 8초는 그대로 */ && hold('193') === '1,8,0' && !!clash && O.narExOf(S, 'song') !== 1 && !C.moodClash(S, 'song') && /var SEAM_KEYS=\[[^\]]*'song'/.test(fs.readFileSync(P('order-preview.html'), 'utf8')); })());
 /* ★[SPEECH_EX_GUIDE_1023 · SONG_OPEN_PLAIN_1023 코워크 10/23 · 외부 검토] 고객은 안내보다 예시를 따라 쓴다 — 축사 예시에 안내가 빼라는 이야기(술자리 · 전 연인 · 몰래 쓴 돈)가 없다 · 축가 여는 말이 필수처럼 들리지 않는다 */
 ok('[SPEECH_EX_GUIDE_1023] 축사 참고 예시 전부 술집 · 술자리 · 기억을 잃 · 몰래 · 저금통 · 세뱃돈 · 전 연인 0건 · 안내는 «술자리 이야기는 빼 주세요» 그대로', (() => {
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
