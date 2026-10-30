@@ -20533,6 +20533,15 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/narrow-170.mjs >/dev
 # ── 2026-10-30 [COMBO_171_1030 검토 171] 순간 조합 · 진행 틈 — C01 인사 받는 분이 바뀌면 한 줄 + 인사 칸 · 인쇄 카드 · 콘솔 받는 분 · C02 선언한 분 ≠ 덕담하실 분이면 255 뒤 GO · C03 축가 맺는 말 «마지막 음 · 잔향» · C04 덕담 «말씀하실 분» 인원 · 원고 시간 · C05 연습 목록 «당일 노래» · N2 콘솔 «두 분이 노래할 자리로»
 chk 'function _crossWatch(c0)' order-preview.html 1
 chk "hint: '마지막 음 · 잔향이 끝나면'" assets/ritual-cue.js 1
+# ★[RELOGIN_KEEP_1030 2026-10-30 GPT 7차 점검(고객) 7-01 · 7-02 · 7-03] 로그인 풀림 때 맡기는 초안 — 맡김을 먼저 쓰고 확인한 뒤 지움(못 맡기면 S4 · 지우지 않음) · 알림 링크 길은 상태 캐시 코드로 · 되돌릴 때 다른 주인 초안에 막히지 않음
+chk 'RELOGIN_STASH_FIRST' mypage.html 5
+chk 'RELOGIN_ACCT_CACHE' mypage.html 2
+chk 'RELOGIN_OWNER' mypage.html 3
+chk 'RELOGIN_KEEP_1030' scripts/audit/relogin-keep.mjs 1
+nochk "var _kp=keep?_reloginPack():null;" mypage.html   # [RELOGIN_STASH_FIRST] 원본을 지운 뒤에야 맡김을 쓰던 옛 줄
+nochk "/^me_(order|snapLocal_)/.test(k) || localStorage.getItem(k)) return;" mypage.html   # [RELOGIN_OWNER] 주인을 안 보고 건너뛰던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/relogin-keep.mjs >/dev/null 2>&1; _rlk=$?; if [ "$_rlk" != 0 ]; then echo 'FAIL relogin-keep: 로그인 풀림 때 맡기는 초안(먼저 맡기기 · 알림 링크 길 · 다른 주인 초안) 판정이 어긋났습니다 — node scripts/audit/relogin-keep.mjs'; fail=1; else echo "ok relogin-keep ($_rlk)"; fi; fi
+
 chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
