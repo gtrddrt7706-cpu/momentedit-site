@@ -10223,7 +10223,7 @@ window.resetAll=function(){
           yes:'지우고 시작', no:'취소', danger:true}).then(function(ok){
     if(!ok) return;
     if(_tabGone()) return;   // [TAB_GUARD] 옛 창은 이 기기 초안을 지우지 않는다(지금 계정 것일 수 있다)
-    try{ localStorage.removeItem('me_order'); sessionStorage.setItem('me_order_reset','1'); sessionStorage.setItem('me_order_gen', String(Date.now())); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
+    try{ localStorage.removeItem(_ordKey()); sessionStorage.setItem('me_order_reset','1'); sessionStorage.setItem('me_order_gen', String(Date.now())); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
     /* [ORD_RESET_SRV] 임베드에서는 초안이 서버에 있다 — 로컬만 지우면 다시 들어올 때 서버본이 복원돼
        '완성' 화면으로 열린다(2026-08-03 사용자 제보 "확인을 눌렀다 나갔다 다시 들어가도 완료 쪽으로 열린다").
        세션 플래그는 그 한 번만 건너뛸 뿐 서버본을 지우지 않는다 — 부모(마이페이지)에게 비우라고 알린다. */
@@ -10349,12 +10349,16 @@ function _latestApply(m){ m=m||{}; var dS=m.draft&&m.draft.S, keep=idx, sk=Objec
 function _baseAfter(sS,p){ try{ var x=JSON.parse(JSON.stringify(sS||{})); if(p) ['tx','mkc','up'].forEach(function(g){ var pg=p[g]; if(!pg||typeof pg!=='object') return; Object.keys(pg).forEach(function(k){ if(!x[g]||typeof x[g]!=='object') x[g]={}; if(pg[k]===undefined) delete x[g][k]; else x[g][k]=pg[k]; }); }); return _canonS(x); }catch(e){ return ''; } }
 /* ★[TAB_GUARD 2026-10-30 GPT 11차 점검(고객) 11-03] 마이페이지가 «옛 창»이면(다른 창이 로그인 · 로그아웃 · 맡긴 초안 되돌리기 · 부모 _tabStale) 이 기기 초안을 쓰지도 지우지도 않는다 —
      종전엔 옛 창의 식순 화면이 다시 그리거나 고칠 때 옛 판으로 me_order 를 덮어, 다른 창이 막 되돌린 최신 초안이 사라졌다. 저장도 부모가 멈춘다(_post) */
+/* ★[PREVIEW_KEY_SPLIT 2026-10-30 GPT 12차 점검(고객) 12-03] 그냥 연 공개 미리보기(마이페이지 밖 · 부모 없음)는 고객 식순 초안(me_order)과 다른 칸(me_order_pub)에 남기고 · 되살리고 · 지운다 —
+     종전엔 같은 칸을 써, 남겨 둔 미리보기 탭에서 진행하면 주인 없는 예시가 로그인 창이 되살린 저장 안 한 초안을 덮었다(공개 미리보기는 부모가 없어 옛 창 판정도 없다).
+     예전 미리보기가 me_order 에 남긴 주인 없는 판은 공개 미리보기 칸이 비었을 때 한 번 읽어 잇는다(그 칸은 건드리지 않는다) */
+function _ordKey(){ var e=(typeof EMBED==='boolean')?EMBED:false; if(typeof EMBED!=='boolean'){ try{ e=/[?&]embed=1/.test(window.location.search); }catch(x){} } return e?'me_order':'me_order_pub'; }   // [PREVIEW_KEY_SPLIT] 마이페이지 안 = 고객 칸 · 그냥 연 미리보기 = 공개 칸
 function _tabGone(){ try{ var P=(window.parent&&window.parent!==window)?window.parent:null; return !!(P && typeof P._tabStale==='function' && P._tabStale()); }catch(e){ return false; } }
 function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;   // [TAB_GUARD]
   try{ _closeFit(); }catch(e){} try{ _seamFitKeep(); }catch(e){}   /* [MOOD_1018] 판이 바뀌었으면 분위기 몫을 저장 전에 맞춘다 · [CLOSE_SEAM_1018] 닫는 멘트 이음새 */
   try{ var rec={v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who,base:_srvBase,dirty:!!(courseStarted&&_autoKey()!==_autoLast)}; if(over) for(var _o in over) rec[_o]=over[_o];
     var _ek=_autoKey(); if(rec.dirty&&_ek!==_editK) _editT=Date.now(); _editK=_ek; if(rec.dirty&&_editT) rec.t=_editT;   /* [RELOGIN_NEWER] 저장 안 한 고침이 생긴 때(이 탭이 실제로 고친 때 · 다시 쓰기만 한 때가 아니다) — 마이페이지가 로그인 풀림 때 맡긴 초안과 견준다 */
-    localStorage.setItem('me_order', JSON.stringify(rec)); _persistBad=false; }catch(e){ _persistBad=true; } _dirtyMark(); }
+    localStorage.setItem(_ordKey(), JSON.stringify(rec)); _persistBad=false; }catch(e){ _persistBad=true; } _dirtyMark(); }   // [PREVIEW_KEY_SPLIT]
 var _editT=0, _editK=null;   // [RELOGIN_NEWER] 이 탭의 마지막 고친 때 · 그때의 판 지문
 /* ★[PERSIST_TRUE 2026-10-09 A~Z 점검 2라운드 A2-16] 이 기기에 남기지 못했으면(저장 공간 가득 · 막힘) 나가기 판이 «이 기기에는 남아 있어요»라고 약속하지 않는다 */
 var _persistBad=false;
@@ -10497,7 +10501,8 @@ var EMBED=/[?&]embed=1/.test(window.location.search);
 if(!EMBED){ try{ RitualOpen.FEATURE.upLive=true; }catch(e){} }   // [VOICE_UP_FROM] 그냥 연 미리보기는 서버로 안 보낸다(이 기기에서만) — 새 칸을 보여 시험해 볼 수 있다 · 고객 예식(임베드)은 서버 문을 따른다   // (복원 정책이 임베드 여부를 알아야 해 여기서 판정)
 // ORDER_OWNER(2026-07-25 사용자 지시 "로그인 아이디가 바뀌었는데도 식순 데이터가 남아있는 건 문제"): 로컬 초안을 계정에 묶음 —
 //   ① 계정 소유(who) 초안은 독립 열람(비로그인 공개 페이지)에서 복원하지 않고 ② 임베드에선 orderFill의 로그인 계정과 대조해 다르면 즉시 폐기.
-try{ var _sv0=JSON.parse(localStorage.getItem('me_order')||'null');
+try{ var _sv0=JSON.parse(localStorage.getItem(_ordKey())||'null');
+  if(!_sv0 && !EMBED){ var _lg=JSON.parse(localStorage.getItem('me_order')||'null'); if(_lg && !_lg.who) _sv0=_lg; }   // [PREVIEW_KEY_SPLIT] 예전 미리보기의 주인 없는 판은 한 번 읽어 잇는다(다음부터는 me_order_pub)
   if(!(_sv0&&_sv0.who&&!EMBED)&&_applySaved(_sv0)){ _srvBase=_sv0.base||''; if(_sv0.dirty) _autoLast=''; _editT=+_sv0.t||0; _editK=_autoKey(); }   /* [RELOGIN_NEWER] 되살린 판은 그 판이 고쳐진 때를 그대로(다시 열었다고 새것이 되지 않는다) */   /* [LOCAL_AHEAD] 저장 안 한 고침이 있던 판은 다시 열어도 «저장»이 켜진 채(종전엔 복원 직후가 기준선이라 저장된 것처럼 보였다) */
 }catch(e){}
 render();
@@ -10719,6 +10724,7 @@ if(EMBED){
     if(ev.data.type==='momentedit:orderSaved'){ _srvBase=_sentS?_baseAfter(_sentS,ev.data.pull):(_pullHas(ev.data.pull)?'':_sentKey);   /* [LOCAL_AHEAD] · [BASE_AFTER_PULL] */ _txPullApply(ev.data.pull); if(editReturn&&_editSnap){ _editSnap=JSON.stringify(S); _editSavedMid=true; } _saveDone(true); return; }   /* [R7-07 EDIT_SNAP_SAVED] */
     if(ev.data.type==='momentedit:orderSaveFail'){ _saveDone(false, _ecLine('S',ev.data)); return; }   // [ORDER_SAVE_FAIL 2026-07-25] 회의 R-8 · [ERR_CODE_BUILDER] msg · error · ecode · kind · reason → 한 줄 + S 코드
     if(ev.data.type==='momentedit:orderFill'){
+      if(_tabGone()) return;   /* ★[TAB_GUARD_FILL 2026-10-30 GPT 12차 점검(고객) 12-02] 옛 창이면 늦게 온 orderFill 로 아무것도 정리하지 않는다(지금 계정 초안을 «주인이 다르다»며 지우지 않게) */
       _fillSeen=true;   // [RELOAD_KEEP_AT]
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       if(typeof ev.data.digital==='boolean') CUSTDIG=ev.data.digital;   // [PREVIEW_DIGITAL] 구버전 mypage(미전송)면 false 유지 — 종전 동작 그대로
@@ -10731,7 +10737,7 @@ if(EMBED){
       // ORDER_OWNER: 계정 대조 — 복원된 초안이 현 로그인 계정 소유가 아니면(다른 계정·소유 미표기 옛 초안 포함) 즉시 폐기·초기화.
       //   같은 기기 계정 전환 시 이전 계정의 서약문·편지가 보이거나 새 계정 서버로 저장되는 누출 차단. 이 계정의 진실은 아래 서버 초안(d).
       if(CUST&&CUST.code&&_restored&&_who!==String(CUST.code)){
-        try{ localStorage.removeItem('me_order'); }catch(e){}
+        try{ var _ow=JSON.parse(localStorage.getItem('me_order')||'null'); if(!_tabGone() && String((_ow&&_ow.who)||'')===String(_who||'')) localStorage.removeItem('me_order'); }catch(e){}   // [TAB_GUARD_FILL] 공통 판정을 지나고 · 이 창이 되살린 그 주인의 판일 때만 지운다(그 사이 다른 창이 쓴 지금 계정 초안은 둔다)
         try{ S=JSON.parse(_S0); }catch(e){}
         courseStarted=false; _doneSaved=false; _restored=false; _seenK={}; idx=0; buildSteps(); render();
       }

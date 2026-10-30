@@ -117,7 +117,7 @@ const t4 = (src, cur, keptOrder, ot) => { const ls = { me_relogin_keep: JSON.str
   ok('깨 보기 ④ — 옛 꼴(같은 계정이면 견주지 않고 그것을 둠)이면 빨강', !!rb && !rb.err && rb.order === older && rb.keep === null, rb); }
 { /* 식순 화면 _persist — «실제로 고친 때»만 적는다 */
   const OP = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
-  const pt = (src) => { const fn = grabIn(src, '_persist'), dl = lineIn(src, /var _editT=[^\n]*/), rs = lineIn(src, /if\(!\(_sv0&&_sv0\.who&&!EMBED\)&&_applySaved\(_sv0\)\)[^\n]*/);
+  const pt = (src) => { const fn = grabIn(src, '_persist') + '\n' + grabIn(src, '_ordKey'), dl = lineIn(src, /var _editT=[^\n]*/), rs = lineIn(src, /if\(!\(_sv0&&_sv0\.who&&!EMBED\)&&_applySaved\(_sv0\)\)[^\n]*/);
     if (!fn || !dl || !rs) return { err: '원문 조각을 못 떼었다' };
     let now = 1000; const ls = mkStore({}); const sb = { localStorage: ls, JSON, Object, Date: { now: () => now }, S: { a: 1 }, idx: 0, _seenK: {}, courseStarted: true, _doneSaved: false, _who: 'AB12CD', _srvBase: 'k0', _autoLast: 'srv',
       _autoKey: () => JSON.stringify(sb.S), _dirtyMark: () => {}, _closeFit: () => {}, _seamFitKeep: () => {}, _applySaved: (v) => { sb.S = v.S; return true; }, EMBED: true, _persistBad: false };
@@ -153,7 +153,7 @@ const t5 = async (src, pick, wiz) => { const ls = Object.assign(BASE(), { me_del
   const pub = JSON.stringify({ v: 2, S: {}, who: '' });
   let r; try { r = { other: sw(MP, DRAFT, 'ZZ99ZZ'), same: sw(MP, DRAFT, 'AB12CD'), pub: sw(MP, pub, 'ZZ99ZZ') }; } catch (x) { r = { err: String(x).slice(0, 200) }; }
   const OP = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
-  const opOwner = /if\(CUST&&CUST\.code&&_restored&&_who!==String\(CUST\.code\)\)\{\s*try\{ localStorage\.removeItem\('me_order'\); \}/.test(OP);
+  const opOwner = /if\(CUST&&CUST\.code&&_restored&&_who!==String\(CUST\.code\)\)\{\s*try\{ var _ow=JSON\.parse\(localStorage\.getItem\('me_order'\)\|\|'null'\); if\(!_tabGone\(\) && String\(\(_ow&&_ow\.who\)\|\|''\)===String\(_who\|\|''\)\) localStorage\.removeItem\('me_order'\); \}/.test(OP);   // [TAB_GUARD_FILL] 공통 판정 · 되살린 그 주인 판일 때만
   ok('⑤ 8-02 다른 계정으로 로그인하면 남의 식순 초안을 걷는다(같은 계정 · 공개 미리보기는 그대로) · 상태를 받자마자 · 식순 화면 ORDER_OWNER 도 그대로',
     !r.err && r.other === null && r.same === DRAFT && r.pub === pub && /_orderOwnerSweep\(d\.code\); _reloginRestore\(d\.code\);/.test(MP) && opOwner, { r, opOwner }); }
 
