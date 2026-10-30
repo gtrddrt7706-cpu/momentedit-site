@@ -833,7 +833,8 @@ button.pk-acci:active .pk-accp{transform:scale(.98)}
     var hd = document.querySelector('.pk-head'); if (hd) document.documentElement.style.setProperty('--pk-hh', hd.offsetHeight + 'px');
     [['pkTabD', 'dress'], ['pkTabA', 'acc']].forEach(function(p){ var b = $(p[0]), sel = S.tab === p[1]; b.setAttribute('aria-selected', sel ? 'true' : 'false'); b.tabIndex = sel ? 0 : -1; });
   }
-  function switchTab(t, how){   // how: 'tab' 탭에 초점 · 'head' 그 탭 첫 제목에 초점(맨 위부터)
+  /* how: 'tab' 탭에 초점 · 'head' 그 탭 첫 제목에 초점(맨 위부터) */
+  function switchTab(t, how){
     if (!AFTER || S.view !== 'tabs' || !accOn()) return;
     S.touched = true;
     if (t !== S.tab) { S.ty[S.tab] = window.pageYOffset || 0; S.tab = t; }
