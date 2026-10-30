@@ -14,7 +14,7 @@ const CB = fs.readFileSync(path.join(ROOT, 'automation/consultation/consultation
 const grabIn = (src, name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const lineIn = (src, re) => (src.match(re) || [''])[0];
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcSlots', '_vcPurgeNow', 'handleRitualFilePurgeMine'];   // [R7_SERVER] 목소리 파일 모두 지우기(잠금 실패 D1)
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcHold', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcSlots', '_vcPurgeNow', 'handleRitualFilePurgeMine'];   // [R7_SERVER] 목소리 파일 모두 지우기(잠금 실패 D1)
 const NFN = ['_errArea', '_errId', '_errStamp'];
 const miss = FN.filter((f) => !grabIn(GS, f)).concat(NFN.filter((f) => !grabIn(NT, f)));
 if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -92,7 +92,8 @@ const allReads = (W) => Object.values(W.files).filter((f) => /^읽은 녹음/.te
   // 앞 목소리(uc_1)를 업체에서 지우는 그 순간 다른 탭의 «지우기»가 들어온다
   W.hook.onDel = () => { d = W.call({ token: 'T', op: 'delete', who: 'groom' }); };
   const ra = a.commit();
-  ok('E-4 ③ 저장 직전 지우기 → 저장 안 함 · 업체 0 · 새 읽은 녹음 휴지통 · 작업표 cancel', d && d.ok && !ra.ok && ra.ecode === 'V0' && !W.st().groom.voiceId && W.alive.size === 0 && liveReads(W) === 0 && W.st().groom.job.kind === 'cancel', JSON.stringify({ d, ra, st: W.st(), alive: [...W.alive], reads: liveReads(W) })); }
+  /* ★[VC_SAVE_FIRST 2026-10-30] 앞 목소리는 새 목소리를 «저장한 뒤»에 지운다 — 그 순간 온 지우기는 방금 저장된 새 목소리를 지운다(만들기 답은 ok · 결과는 같다: 목소리 없음 · 업체 0 · 읽은 녹음 0) */
+  ok('E-4 ③ 앞 목소리 지우는 사이 지우기 → 새 목소리도 지워진다 · 업체 0 · 읽은 녹음 0 [VC_SAVE_FIRST]', d && d.ok && ra.ok && !W.st().groom.voiceId && W.alive.size === 0 && liveReads(W) === 0 && !(W.st().retry || []).length, JSON.stringify({ d, ra, st: W.st(), alive: [...W.alive], reads: liveReads(W) })); }
 // ④ 지우기 없이 다시 녹음 — 종전대로 새 목소리 · 앞 목소리는 업체에서 지움(돌연변이 아님 확인)
 { const W = world({}); prep(W, 'groom'); W.call({ token: 'T', op: 'enroll', who: 'groom', jid: 'A0', sec: 50, data: 'data:audio/wav;base64,AAAA' }); W.call({ token: 'T', op: 'phrase', who: 'groom' });
   const ra = ENR(W, 'groom', 'A1').commit();

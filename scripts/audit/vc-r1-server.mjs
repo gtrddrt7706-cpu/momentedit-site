@@ -5,7 +5,7 @@
 // 서버 장면은 80_production.gs 원본을 node vm 에 그대로 올리고 GAS 전역(드라이브 · 속성 · 잠금 · 캐시 · 업체)만 흉내 낸다.
 //   57 · 75 [RF_DEL_SLOT]   줄 지우기 → 그 자리의 더 옛 사본도 휴지통 · 스튜디오 파일과 뒤에 올린 것은 둔다
 //   76      [RF_PURGE_AI]   30일 지우기 → 하위 폴더 «AI» 까지 · 이미 지운 예식은 하위 폴더만 한 번
-//   78      [VC_SAVE_NOLOCK] 잠금을 못 잡아도 다른 분 확인 문장이 남는다
+//   78      [VC_SAVE_BUSY]  잠금을 못 잡으면 쓰지 않는다(busy) · 다른 분 확인 문장이 남는다(옛 VC_SAVE_NOLOCK)
 //   79      [VC_PURGE_MERGE] 매일 지우기(retry 정리) 사이에 만든 목소리가 남는다
 //   80      [VC_LONG_SPLIT] 600자 넘는 한 분 글 → 글자를 버리지 않고 나눠 읽는다
 //   83      [VC_MAKE_KEEP]  여러 줄 중 한 줄만 429 → 받은 줄은 저장 · 글자를 센다 · 다시 누르면 그 줄만
@@ -99,9 +99,10 @@ const st = (W, c) => JSON.parse(W.props['VC_' + c] || '{}');
   W.G.handleVoiceClone({ token: c, op: 'consent', who: 'groom', agree: true }); W.G.handleVoiceClone({ token: c, op: 'consent', who: 'bride', agree: true });
   const base = st(W, c), mine = JSON.parse(J(base)); mine.groom.phrase = { t: '신랑 문장', at: 'x' };
   W.G.handleVoiceClone({ token: c, op: 'phrase', who: 'bride' });   // 그 사이 신부 확인 문장이 저장됨
-  W.L.fail = true; W.G._vcSave(c, base, mine); W.L.fail = false;
+  W.L.fail = true; const sv = W.G._vcSave(c, base, mine); W.L.fail = false;
   const s = st(W, c);
-  ok('78 [VC_SAVE_NOLOCK] 잠금 실패 → 합쳐 쓴다 · 신부 확인 문장이 남고 신랑 문장도 들어간다', !!(s.bride && s.bride.phrase && s.bride.phrase.t) && s.groom.phrase && s.groom.phrase.t === '신랑 문장', J(s)); }
+  /* ★[VC_SAVE_BUSY 2026-10-30] 잠금 실패면 쓰지 않고 'busy'(부르는 쪽이 V1) — 잠금 없이 합쳐 쓰던 길(VC_SAVE_NOLOCK)은 잠근 채 쓰는 다른 요청과 엇갈렸다 */
+  ok('78 [VC_SAVE_BUSY] 잠금 실패 → 쓰지 않고 busy · 신부 확인 문장은 그대로 남는다', sv === 'busy' && !!(s.bride && s.bride.phrase && s.bride.phrase.t) && !(s.groom && s.groom.phrase), J({ sv, s })); }
 
 /* 79 — 매일 지우기 retry 정리 사이에 만든 목소리 */
 { const W = boot('2026-10-08T01:00:00Z'), c = 'DDD001';
