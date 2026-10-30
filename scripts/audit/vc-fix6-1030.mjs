@@ -46,7 +46,7 @@ function mp1(src, o) {
   const b = brk(MP, [['var line=_errLine(x, L), _kp=clearToken(true);', 'var line=_errLine(x, L), _kp=clearToken();']]); const rb = b ? t(b) : null;
   ok('깨 보기 ① — 옛 꼴(clearToken 이 초안을 그냥 지움)이면 빨강', !!rb && !rb.err && rb.same.back === false && rb.same.order === null, rb && (rb.err || rb.same));
   ok('① [RELOGIN_KEEP] 로그인 성공(getMyState)에서 화면을 그리기 전에 같은 코드의 맡긴 초안을 되돌린다', /if \(d && d\.ok\)\{ (?:_orderOwnerSweep\(d\.code\); )?_reloginRestore\(d\.code\); cacheState\(d\); renderMyPage\(d\);/.test(MP));
-  ok('① [RELOGIN_KEEP] 상태 · 알림 링크의 로그인 풀림도 맡긴다(clearToken(true)) · 스스로 로그아웃은 맡기지 않는다', (MP.match(/clearToken\(true\)/g) || []).length >= 3 && /function _mpLogoutNow\(\)\{ clearToken\(\);/.test(MP)); } }
+  ok('① [RELOGIN_KEEP] 상태 · 알림 링크의 로그인 풀림도 맡긴다(clearToken(true)) · 스스로 로그아웃은 맡기지 않는다', (MP.match(/clearToken\(true\)/g) || []).length >= 3 && /function _mpLogoutNow\(\)\{ (?:if\(typeof _tabDrop=='function' && _tabDrop\(\)\) return; )?clearToken\(\);/.test(MP)); } }
 
 /* ───────── 콘솔 ───────── */
 const CS = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
