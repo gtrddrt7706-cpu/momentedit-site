@@ -38,6 +38,9 @@ if (direct) {
   } catch (e) { console.log('FAIL 못 읽었다 — ' + e.message); process.exit(1); }
   const { bad, stale, hit } = scan(table, mani);
   for (const b of bad) console.log('FAIL ' + b);
+  /* ★[FLOW_KEY_FRESH_1030 검토 168 덧붙임] 글을 바꾸는 PR 은 이 표의 열쇠(text · next)도 같은 PR 에서 새 글로 바꾼다 — 낡은 열쇠는 그 자리 쉼을 조용히 1.25초로 떨어뜨린다(#1423 뒤 149 · 224 실제로 그랬다) ·
+       종전엔 «글이 바뀐 n곳»으로 알리기만 했다 → 이제 빨강. 문장이 빠져 «다음 문장»이 없어진 자리는 줄을 지운다 */
+  for (const x of stale) console.log(`FAIL 흐름 쉼 표 열쇠가 낡았다 — ${x.key}#${x.i} «${String(x.text).slice(0, 24)}…» → «${String(x.next).slice(0, 18)}…» · 지금 글로 열쇠를 바꾸거나(문장이 빠졌으면 줄을 지운다) ${TABLE}`);
   const hook = /FLOW_GAP_SRC\s*=\s*'docs\/plans\/식순연구\/흐름쉼_1023\.json'/.test(src) && /after === GAP\.sent/.test(src);
   if (!hook) console.log(`FAIL ${BUILDER} 에 흐름 쉼 표를 덮는 단계가 없다`);
   /* 스스로 깨 보기 — 표 값 하나를 1.25 로 되돌린 대장은 빨강 · 글을 바꾼 자리는 «글 바뀜»으로만 센다 */
@@ -53,7 +56,7 @@ if (direct) {
     if (r.bad.length || r.stale.length !== stale.length + 1) { dead++; console.log('FAIL 깨 보기 «글 바뀜» — 덮지 않는 자리로 세지 않았다'); }
   } else { dead++; console.log('FAIL 깨 보기 — 표 첫 자리가 대장에 없다'); }
   const n = table.changes.length;
-  if (bad.length || !hook || dead) { console.log(`✗ FLOW_GAPS_1023 실패 ${bad.length + (hook ? 0 : 1) + dead}건`); process.exit(1); }
+  if (bad.length || stale.length || !hook || dead) { console.log(`✗ FLOW_GAPS_1023 실패 ${bad.length + stale.length + (hook ? 0 : 1) + dead}건`); process.exit(1); }
   console.log(`ok flow-gaps — 흐름 쉼 표 ${hit}/${n}곳 대장에 들어감` + (stale.length ? ` · 글이 바뀐 ${stale.length}곳은 계산값 그대로(다시 읽을 자리)` : '') + ' · 깨 보기 2개 맞음');
   process.exit(0);
 }

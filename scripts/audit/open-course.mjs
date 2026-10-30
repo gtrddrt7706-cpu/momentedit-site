@@ -458,7 +458,7 @@ ok('[REVIEW31_1023 검토 157] 01 · 02 · 09 · 131 · 213 · 257 글 · 선언
     && / 오늘 하루의 자연스러운 모습을, 곁에서 마음껏 사진으로/.test(D.GUEST[1][1]) /* [MODERN_WORDS_1024 검토 164] */ && D.ENTRY.E.nar.indexOf('신랑 신부의 입장이 있겠습니다.') < 0
     && D.NARR.tableIn.indexOf('테이블에 도착했을 때') < 0 && O.NAR_EX.candle.lines['narr-candle-out'][2] === '촛불이 밝혀졌습니다.' && /^바쁘신 와중에도 .*시작하겠습니다\.$/.test(O.NAR_EX.open.lines['narr-open'][4])
     && O.NAR_EX.declare.names.join() === '담백하게,격식 있게,엄숙하게,힘차게' && O.MOOD.bright.narEx.declare === 3 && O.MOOD.moving.narEx.declare === 2
-    && hold('169') === '8,0' && /,8,0$/.test(hold('170')) /* [MODERN_WORDS_1024 검토 164] 170 은 세 문장 · 둘째 동작 앞 8초는 그대로 */ && hold('193') === '1,8,0' && !!clash && O.narExOf(S, 'song') !== 1 && !C.moodClash(S, 'song') && /var SEAM_KEYS=\[[^\]]*'song'/.test(fs.readFileSync(P('order-preview.html'), 'utf8')); })());
+    && hold('169') === '8,0' && hold('170') === '8,0' /* [RETAKE_168_1030 검토 168] 170 은 두 문장(신랑 → «이번에는 신부도») · 둘째 동작 앞 8초는 그대로 */ && hold('193') === '1,8,0' && !!clash && O.narExOf(S, 'song') !== 1 && !C.moodClash(S, 'song') && /var SEAM_KEYS=\[[^\]]*'song'/.test(fs.readFileSync(P('order-preview.html'), 'utf8')); })());
 /* ★[SPEECH_EX_GUIDE_1023 · SONG_OPEN_PLAIN_1023 코워크 10/23 · 외부 검토] 고객은 안내보다 예시를 따라 쓴다 — 축사 예시에 안내가 빼라는 이야기(술자리 · 전 연인 · 몰래 쓴 돈)가 없다 · 축가 여는 말이 필수처럼 들리지 않는다 */
 ok('[SPEECH_EX_GUIDE_1023] 축사 참고 예시 전부 술집 · 술자리 · 기억을 잃 · 몰래 · 저금통 · 세뱃돈 · 전 연인 0건 · 안내는 «술자리 이야기는 빼 주세요» 그대로', (() => {
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
@@ -478,14 +478,14 @@ ok('[REVIEW33_1023 검토 159-2] 01 · 02 · 116 · 119 · 122 · 124 · 130 · 
     && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가') && N.guestEx[0][0] !== D.GUEST[0][1]
     && D.GUEST[1][1].indexOf('잠시 후 신랑 신부의 결혼식이 진행될 예정입니다. ') === 0 && D.GUEST[1][2].indexOf('잠시 후 저희의 결혼식이 진행될 예정입니다. ') === 0
     && N.guestEx[0][1].indexOf('잠시 후 아름다운 두 사람의 시작을 함께하게 될 텐데요. ') === 0 && N.guestEx[1][0].indexOf('귀한 걸음 해 주신 여러분, 고맙습니다. ') === 0 /* [WEEKDAY_SAFE_1030] */
-    && N.guestEx[1][3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.'   /* [YUKWAE_MODERN_1024] 122 다시 */
+    && N.guestEx[1][3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.'   /* [YUKWAE_MODERN_1024] 122 다시 */
     && N.guestEx[2][1].indexOf('잠시 후 신랑 신부의 예식이 시작될 예정입니다. ') === 0 && N.pvEx[2] === '하객 여러분께서는 스크린에 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.'
     && /'narr-photo-upload': '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다\.'/.test(fs.readFileSync(P('assets/ritual-cue.js'), 'utf8')); })());
 ok('[REVIEW33_1023 검토 159-3 · 159-4] 두 분 예시(다정 g0 · 격식 g0 · 유쾌 g3 · 입장 E) · 축배 예시 다섯 = 새 글 · 옛 글은 _OLD 에', (() => {
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
   const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text;
   return /\['다정하게',\["저희 커플을 위해 시간 내 함께해 주셔서 정말 감사합니다\./.test(B) && /\['격식 있게',\["이렇게 좋은 날, 저희를 축복해 주시기 위해 어려운 걸음 소중한 걸음 해 주셨습니다\./.test(B)
-    && B.indexOf('"잠시 후 저희의 결혼식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요."]],') > -1 /* [YUKWAE_MODERN_1024] */ && D.ENTRY.E.self.indexOf('오늘은 저희에게 평생 아름답게 기억될 것 같습니다. ') === 0
+    && B.indexOf('"잠시 후 저희의 결혼식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다."]],') > -1 /* [YUKWAE_MODERN_1024] */ && D.ENTRY.E.self.indexOf('오늘은 저희에게 평생 아름답게 기억될 것 같습니다. ') === 0
     && t('509_toast-bride') === '모든 분들과 저희의 미래를 위하여!' && t('618_toast-bride') === '저희의 행복한 결혼생활을 위하여!' && t('818_toast-bride') === '저희의 영원한 사랑을 위하여!'
     && t('617_toast-groom').indexOf('오신 걸음걸음') === 0 && t('817_toast-groom') === '앞으로 행복하게 잘 살며 여러분과 함께하겠습니다.'
     && /"509_toast-bride": \[[^\]]*"모두의 행복을 위하여!"/.test(B) && B.indexOf('이제, 저희가 함께 걸음을 내딛습니다.') > B.indexOf('var ENTRY_OLD='); })());
@@ -507,7 +507,7 @@ ok('[YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024] 유쾌 120 · 122 · 85 = 요즘
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
   const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '';
   const old = /주시길 바랍니다|간혹 .*하는데|너무나도 좋을 것 같습니다|사랑의 이름으로|확인해 봐 주십시오/;
-  return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 마음껏 셔터를 눌러 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 핸드폰은 무음으로 부탁드려요.'
+  return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 마음껏 셔터를 눌러 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.'
     && /'narr-photo-send': '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요\.'/.test(X) && /'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다\.'/.test(X)
     && /\['유쾌하게',\["귀한 걸음 해 주신 여러분, 고맙습니다\. 오늘 모든 안내는 저희가 미리 준비한 목소리로 진행됩니다\.",\s*"십 분 뒤 저희의 결혼식이 시작됩니다\./.test(B)
     && ![N[0], N[1], N[3]].some((x) => old.test(x)) && /^각자의 길을 걸어온 저희가/.test(D.ENTRY.A.self) && t('717_toast-groom') === '멋지게 잘 살겠습니다!' /* [NO_FORCED_JOKE_1024] 163 의 717 바꾸기는 걷었다 */; })());
@@ -532,7 +532,7 @@ ok('[MODERN_WORDS_1024 검토 164] 녹음 목록에 낡은 낱말 0(91 빼고) �
   const bad = man.clips.filter((c) => c.file !== 'narr-candle-in-mothers-ex2').filter((c) => c.sents.some((x) => R.test(x.text)));
   const B2 = fs.readFileSync(P('order-preview.html'), 'utf8'), N = O.NAR_EX;
   return !bad.length && D.GUEST[0][1].indexOf('바쁘신 가운데 시간을 내어, ') === 0 && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가')
-    && D.GUEST[3][1] === '다시 한번 말씀드립니다. 잠시 후 예식이 시작됩니다. 자리에 앉아 주시고 휴대폰은 무음으로 바꿔 주세요.' && D.GUEST[3][2] === D.GUEST[3][1]
+    && D.GUEST[3][1] === '다시 한번 말씀드립니다. 잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.' && D.GUEST[3][2] === D.GUEST[3][1]
     && /신랑님, 혼인 서약을 읽어 주세요\.$/.test(D.NARR.vow.nar) && D.NARR.declareFamilyOut === '큰 박수로 두 사람을 축하해 주세요.'
     && N.open.lines['narr-open'][0].endsWith('신랑 신부의 결혼식을 시작하겠습니다.') && N.declare.lines['narr-declare-in-friend'][0].indexOf('다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다.') === 0
     && /'위하여!'로 답해 주세요\.$/.test(D.TOAST.both.nar2) && /주세요\|맞아\)/.test(fs.readFileSync(P('assets/ritual-cue.js'), 'utf8').match(/var CLAP_ASK = [^;]+;/)[0])

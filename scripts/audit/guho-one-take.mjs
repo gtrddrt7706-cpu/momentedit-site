@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[GUHO_ONE_TAKE_1018 2026-10-18 음성 섹션 · 디자인 섹션 합의 «같은 구호는 한 판»]
-   구호(«신랑 신부, 입장!» · «신랑 신부, 맞절!» · «신랑 신부, 하객 여러분께 인사!»)는 한 순간의 예시마다 같은 말이 들어 있다.
+   구호(«신랑 신부, 입장!» · «신랑 신부, 맞절.» · «신랑 신부, 하객 여러분께 인사!»)는 한 순간의 예시마다 같은 말이 들어 있다.
    예시끼리 들어 볼 때 달라지는 것은 글뿐이어야 해서, 같은 구호는 모든 자리가 «한 판»이다.
    ★왜 — 전체_1018 녹음은 클립째 받아 09_entry-E 의 입장 구호만 새 판(쉼표 쉼 0.35초)이 되고, 나머지 다섯(05 · 06 · 07 · 08 · 10)은
      쉼표 쉼 0.1초 안팎의 옛 판으로 남을 뻔했다. 맞절(132 ↔ 161 · 162 · 252) · 인사(108 ↔ 185 · 186 · 187)도 같았다.
@@ -15,8 +15,8 @@ import { fileURLToPath } from 'node:url';
 import { isWholeTake } from '../lib/whole-take.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const GUHO = ['신랑 신부, 입장!', '신랑 신부, 맞절!', '신랑 신부, 하객 여러분께 인사!'];
-const MIN_SLOTS = { '신랑 신부, 입장!': 6, '신랑 신부, 맞절!': 4, '신랑 신부, 하객 여러분께 인사!': 4 };   // 10/18 실측 · 줄면 «자리를 못 읽었다»를 의심한다
+const GUHO = ['신랑 신부, 입장!', '신랑 신부, 맞절.', '신랑 신부, 하객 여러분께 인사!'];
+const MIN_SLOTS = { '신랑 신부, 입장!': 6, '신랑 신부, 맞절.': 4, '신랑 신부, 하객 여러분께 인사!': 4 };   // 10/18 실측 · 줄면 «자리를 못 읽었다»를 의심한다
 const pad2 = (n) => String(n).padStart(2, '0');
 
 function retired() {
@@ -61,10 +61,13 @@ if (direct) {
   const fileOf = new Map(Object.values(by).flat().map((x) => [x.id, x.file]));
   const md5 = (id) => { const f = fileOf.get(id); return f && fs.existsSync(f) ? crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex') : null; };
   const textOf = (id) => (idx.slots[id] || {}).text;
+  /* ★[RETAKE_168_1030 검토 168] 구호 글을 바꾸고(«맞절!» → «맞절.») 아직 하나도 다시 받지 않았으면 «녹음 대기» — 한 판 검사는 받은 뒤에 건다.
+       하나라도 받았으면 종전대로 전부 본다(일부만 새 판이면 빨강) · 자리 수 기준(MIN_SLOTS)은 대기여도 그대로 잰다 */
+  for (const t of GUHO) { const L = by[t] || []; if (L.length >= (MIN_SLOTS[t] || 1) && L.every((x) => textOf(x.id) !== t)) { console.log(`대기 «${t}» ${L.length}곳 — 글을 바꿨고 아직 다시 받지 않았다(녹음 대기 · 받으면 한 판 검사)`); delete by[t]; } }
   const bad = judge(by, md5, textOf);
   for (const b of bad) console.log('FAIL ' + b);
   /* 스스로 깨 보기 — 한 자리 내용 바꿈 · 한 자리 비움 · 한 자리 낡음 */
-  const first = by[GUHO[0]][0] && by[GUHO[0]][0].id;
+  const _fl = Object.values(by).find((l) => l.length) || [], first = _fl[0] && _fl[0].id;
   const probes = [
     ['한 자리 내용이 다름', (id) => (id === first ? 'x' : md5(id)), textOf],
     ['한 자리 소리 없음', (id) => (id === first ? null : md5(id)), textOf],
@@ -73,6 +76,6 @@ if (direct) {
   let dead = 0;
   for (const [nm, h, t] of probes) { if (!first || !judge(by, h, t).length) { dead++; console.log(`FAIL 깨 보기 «${nm}» — 빨강이 안 됐다`); } }
   const n = Object.values(by).reduce((a, l) => a + l.length, 0);
-  console.log(bad.length || dead ? `✗ GUHO_ONE_TAKE 실패 ${bad.length + dead}건` : `ok guho-one-take — 구호 셋 · 나가는 자리 ${n}곳(입장 ${by[GUHO[0]].length} · 맞절 ${by[GUHO[1]].length} · 인사 ${by[GUHO[2]].length}) · 구호마다 한 판 · 깨 보기 ${probes.length}개 빨강`);
+  console.log(bad.length || dead ? `✗ GUHO_ONE_TAKE 실패 ${bad.length + dead}건` : `ok guho-one-take — 구호 셋 · 나가는 자리 ${n}곳(입장 ${(by[GUHO[0]] || []).length} · 맞절 ${(by[GUHO[1]] || []).length} · 인사 ${(by[GUHO[2]] || []).length}) · 구호마다 한 판 · 깨 보기 ${probes.length}개 빨강`);
   process.exit(bad.length || dead ? 1 : 0);
 }
