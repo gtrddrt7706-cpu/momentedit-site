@@ -7644,10 +7644,10 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
-chk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
+chk "on: \['prevideo', 'candle', 'welcome', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
+chk "on: \['prevideo', 'candle', 'vow', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
 # ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간 줄이기 제안에서 편지 카드는 남긴다 — 표식이 카드 줄에 붙어 있어 카드를 지우면 빨강
 chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
 chk "letter: { n: '편지 낭독', sn: '편지'," assets/ritual-open.js 1
@@ -7769,7 +7769,7 @@ nochk "welcome:{nm:'첫인사'" order-preview.html
 chk "b.n.indexOf('감사 인사')>-1||b.n.indexOf('첫인사')>-1" order-preview.html 1
 chk '감사 인사(옛 이름 첫인사' api/_ritual-kb.js 1
 # [TILE_FIT_1013] 축사 칸 설명이 360 폭에서 두 줄을 넘어 잘렸다(pick-v2 «360 칸 글 말줄임 0») — «두 분께»를 걷어 한 줄 줄임
-chk "free: '친구 · 형제자매가 축하의 말을 전해요'" assets/ritual-open.js 1
+chk "free: '가까운 분이 축하의 말을 전해요'" assets/ritual-open.js 1
 # ★★[EX_ENTRY_FEEL_1012 2026-10-12 사장님 «느낌에 맞춰 넷 다 (추천)»] 예시가 누르는 입장 멘트 칩 = 예시 느낌 — 정석 담백하게(빌더 기본값) · 기록 힘차게 · 가족 다정하게 · 간결 격식 있게
 #   (옛 정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초는 걷었다) · 멘트 글은 3단계(«멘트는 대대적으로 한번 개선 작업을 할 거야 따로»)에서 · 그때 이 짝도 다시 본다
 chk 'EX_ENTRY_FEEL_1012' assets/ritual-open.js 5
@@ -20471,4 +20471,12 @@ nochk '두 분, 천천히 읽어 주세요.' assets/ritual-open.js
 chk 'FLOW_KEY_FRESH_1030' scripts/audit/flow-gaps.mjs 1   # [검토 168 덧붙임 2] 글을 바꾸면 흐름 쉼 표 열쇠도 같은 PR 에서 · 낡으면 빨강
 chk 't:"신랑 신부, 휴대폰을 들어 주세요."}' assets/ritual-data.js 1
 chk 't:"신랑 신부, 하객 여러분께 손을 흔들어 주세요."}' assets/ritual-data.js 1
+# ── 2026-10-30 [COURSE_ONE_PROMISE_1030 검토 169 사장님 «둘을 같이 하는 건 아니다»] 추천 코스 = 서약 · 선언 하나만(정석 · 기록 · 간결 서약 · 가족 선언) · 서약만인 날은 서약이 정점 · 축사 «가까운 분» · 화촉 카드 «양가 대표 두 분» · 장부 8장은 엔진 값만 다시 쓴다(ENGINE_CH8_1030)
+chk 'COURSE_ONE_PROMISE_1030' assets/ritual-open.js 4
+chk "if (k === 'vow' && S && !onOf(S, 'declare')) return 5;" assets/ritual-open.js 1
+chk "feel: '짧고 단정하게 · 두 분의 약속에 집중'" assets/ritual-open.js 1
+chk "candle: '양가 대표 두 분이 초에 불을 밝혀요'" assets/ritual-open.js 1
+chk "out.push(\['축사해 주실 분', '가까운 분 한두 분(부모님 말씀은 덕담에서)'\]);" assets/ritual-open.js 1
+chk 'ENGINE_CH8_1030' scripts/audit/source-basis.mjs 1
+nochk '약속과 선언에 집중' assets/ritual-open.js
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
