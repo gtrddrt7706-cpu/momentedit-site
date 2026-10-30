@@ -46,7 +46,7 @@ for (const w of [390, 1280]) {
     const mid = await pg.evaluate(() => ({ up: (S.up || {}).g0, er: editReturn }));
     if (legacy) await pg.evaluate(() => { window._editCancel = function () { S = JSON.parse(_editSnap); }; });   // 깨 보기 — 종전 취소
     await pg.click('#prev'); await pg.waitForTimeout(500);
-    return Object.assign(mid, await pg.evaluate(() => ({ k: STEPS[idx].k, up: (S.up || {}).g0, at: (S.fAt || {})['up.g0'], txt: S.welcomeText, saved: localStorage.getItem('me_order') || '' })));
+    return Object.assign(mid, await pg.evaluate(() => ({ k: STEPS[idx].k, up: (S.up || {}).g0, at: (S.fAt || {})['up.g0'], txt: S.welcomeText, saved: localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order')) || ''   /* [PREVIEW_KEY_SPLIT] 그냥 연 미리보기는 me_order_pub */ })));
   };
   const r = await run(false);
   ok(`${w} ④ «변경» → 줄 지우기 → «취소» — ④ 로 돌아온다`, r.k === 'done' && r.er === true, JSON.stringify(r).slice(0, 200));

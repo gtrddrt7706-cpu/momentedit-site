@@ -285,11 +285,11 @@ try {
   /* 5 옛 초안 — 저장된 옛 값 · 이 기기 보관함 */
   { const { ctx, pg, errs } = await openPage(390); await walk(pg);
     await pg.evaluate(() => new Promise((ok) => { const q = indexedDB.open('me-bgm-song', 1); q.onupgradeneeded = () => q.result.createObjectStore('f'); q.onsuccess = () => { q.result.close(); ok(); }; q.onerror = () => ok(); }));
-    await pg.evaluate(() => { const d = JSON.parse(localStorage.getItem('me_order')); d.S.bgm = { S1: { m: 'own', own: { n: '옛곡이름', a: '옛가수', d: 200 } }, S5: { m: 'bed' }, S6: { m: 'studio' }, S7: { m: 'warm' }, S10: { m: 'own' } }; localStorage.setItem('me_order', JSON.stringify(d)); });
+    await pg.evaluate(() => { const d = JSON.parse(localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'))); d.S.bgm = { S1: { m: 'own', own: { n: '옛곡이름', a: '옛가수', d: 200 } }, S5: { m: 'bed' }, S6: { m: 'studio' }, S7: { m: 'warm' }, S10: { m: 'own' } }; localStorage.setItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'), JSON.stringify(d)); });
     const pg2 = (await openPage(390, '', ctx)).pg; await pg2.waitForTimeout(1200);
     const dbs = await pg2.evaluate(() => (indexedDB.databases ? indexedDB.databases().then((l) => l.map((x) => x.name)) : Promise.resolve(['?'])));
     await go(pg2, 'free'); const o1 = await look(pg2); await go(pg2, 'guest'); const o2 = await look(pg2); await go(pg2, '_sum'); const o3 = await sumLook(pg2);
-    const body = await pg2.evaluate(() => document.body.innerText + JSON.stringify(S.bgm || null) + localStorage.getItem('me_order'));
+    const body = await pg2.evaluate(() => document.body.innerText + JSON.stringify(S.bgm || null) + localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order')));
     ok('5 옛 초안 — 불러올 때 «음악과 함께»만 남는다(S.bgm = {S5:bed}) · 축사 칩 눌린 모양 · 옛 곡 이름 · 가수가 화면 · 저장 어디에도 없다 · 요약 «축사 · 음악과 함께» · 이 기기 보관함(me-bgm-song) 지움',
       o1.bgm === '{"S5":{"m":"bed"}}' && o1.chips.join() === '음악 없이,음악과 함께*' && o2.ftxt === ONE.guest && !/옛곡이름|옛가수/.test(body) && o3.rows[1] === '축사 · 음악과 함께' && dbs.indexOf('me-bgm-song') < 0,
       { o1, o2, o3, dbs, hit: /옛곡이름/.test(body) });
@@ -302,7 +302,7 @@ try {
     ok('8 ?mk=table — 빠져 있던 테이블 인사를 담고 그 쪽 · 흐름 음악 줄(S10)', /테이블/.test(L.head) && L.fslot === 'S10' && L.ftxt === ONE.table, L); await ctx.close(); }
   /* [BGM_JUMP_SAME 2026-10-23 실사이트 확인] 초안의 마지막 순간(S.mk.at)이 주소와 같아도 «고르기»에 머물지 않고 그 순간 쪽이 열린다 */
   { const { ctx, pg, errs } = await openPage(390, '?mk=letter'); await pg.waitForTimeout(1200);
-    const at0 = await pg.evaluate(() => { try { _persist(); return JSON.parse(localStorage.getItem('me_order')).S.mk.at; } catch (e) { return null; } });
+    const at0 = await pg.evaluate(() => { try { _persist(); return JSON.parse(localStorage.getItem((typeof _ordKey === 'function' ? _ordKey() : 'me_order'))).S.mk.at; } catch (e) { return null; } });
     await pg.goto(pg.url(), { waitUntil: 'load' }); await pg.waitForTimeout(2000); const L = await look(pg);
     ok('8 at 이 같은 초안(at=letter)으로 ?mk=letter 를 다시 열어도 편지 쪽(하나씩 만들기) · 음악 줄(S6)', at0 === 'letter' && /편지/.test(L.head) && L.slot === 'S6' && errs.length === 0, { at0, L, errs });
     await ctx.close(); }

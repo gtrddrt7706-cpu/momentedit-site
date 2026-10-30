@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /* ★[TAB_GUARD_1030 · TAB_GUARD · RELOGIN_MERGE · EDIT_T_AT_INPUT · EMPTY_TOMBSTONE 2026-10-30 GPT 11차 점검(고객) 11-01 ~ 11-05]
+   ★[TAB_GUARD2_1030 · TAB_GUARD_VC · TAB_GUARD_FILL · PREVIEW_KEY_SPLIT · STALE_KEEP_INPUT · TOMBSTONE_READ · AUTH_EPOCH 2026-10-30 GPT 12차 점검(고객) 12-01 ~ 12-06] ⑥ ~ ⑪ 아래
    같은 기기 두 창(탭)이 한 localStorage 를 나눠 쓸 때 옛 창이 지금 계정 · 최신 초안을 덮거나 지우지 않는지 잰다.
    창마다 mypage.html 함수 원문을 떼어 vm 하나씩에 싣고, 저장소는 하나를 나눠 쓴다 — 한 창이 쓰거나 지우면 다른 창에 storage 이벤트가 간다(브라우저와 같다).
    식순 화면(order-preview.html)은 _persist 원문을 떼어 부모 창(그 vm)의 _tabStale 을 보게 한다.
@@ -16,11 +17,13 @@ let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}
 const grabIn = (src, name) => { let i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const lineIn = (src, re) => (src.match(re) || [''])[0];
+const RELAY = (src) => { const s0 = "if(d.type==='momentedit:voiceClone' && d.data && d.data.op){"; const i = src.indexOf(s0); if (i < 0) return '';
+  let d = 0; for (let k = i + s0.length - 1; k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.split(a).length !== 2) return null; t = t.replace(a, b); } return t; };
 const flush = async () => { for (let i = 0; i < 6; i++) await new Promise((r) => setTimeout(r, 0)); };
 const MP = fs.readFileSync(process.env.TG_MP || path.join(ROOT, 'mypage.html'), 'utf8');
 const OP = fs.readFileSync(process.env.TG_OP || path.join(ROOT, 'order-preview.html'), 'utf8');
-const FNS = ['getToken', 'setToken', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
+const FNS = ['getToken', 'setToken', '_tabEpBump', '_tabTie', '_tabSd', '_tabKeepUnkept', '_snapLocalRec', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
   '_reloginKeyNewer', '_reloginStampT', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_orderOwnerSweep',
   '_errGoLogin', '_saveSessAsk', '_mpLogoutNow', '_post', 'readCachedState', '_snapLocalKey', '_snapLocalGet', '_snapLocalDel', '_snapLocalPut', '_snapEditMark', '_snapOut', '_snapFilledD', '_snapNewD', '_snapZoneNew'];
 const MUST = ['clearToken', '_reloginPack', '_reloginRestore', '_errGoLogin', '_post', '_snapLocalPut', '_snapOut', '_mpLogoutNow'];
@@ -31,7 +34,7 @@ const FakeDate = function () { return new Date(clock.now); }; FakeDate.now = () 
 
 /* 한 저장소를 나눠 쓰는 창들 */
 function shared(init) { const m = new Map(Object.entries(init || {})), wins = [];
-  const fire = (from, key, oldValue, newValue) => { for (const w of wins) if (w !== from) for (const f of (w.L.storage || [])) { try { f({ key, oldValue, newValue }); } catch (e) {} } };
+  const fire = (from, key, oldValue, newValue) => { for (const w of wins) if (w !== from) { if (w.mute) { w.held.push({ key, oldValue, newValue }); continue; } for (const f of (w.L.storage || [])) { try { f({ key, oldValue, newValue }); } catch (e) {} } } };   // mute = 이 창에는 이벤트가 늦게 온다(12-06)
   const view = (w, quota) => ({ getItem: (k) => (m.has(k) ? m.get(k) : null), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; },
     setItem: (k, v) => { if (quota && quota(k)) { const e = new Error('quota'); e.name = 'QuotaExceededError'; throw e; } const o = m.has(k) ? m.get(k) : null; m.set(k, String(v)); if (o !== String(v)) fire(w, k, o, String(v)); },
     removeItem: (k) => { if (!m.has(k)) return; const o = m.get(k); m.delete(k); fire(w, k, o, null); } });
@@ -43,17 +46,20 @@ function mkDoc(W) { const els = new Map();
     addEventListener(t, f) { (W.L['doc:' + t] = W.L['doc:' + t] || []).push(f); } }; }
 /* 창 하나 — o.acct 이 창이 그린 계정 · o.quota 이 창의 쓰기 실패 */
 function win(S, src, o) { o = o || {};
-  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
-    + '\nfunction __start(loc, sd){ ' + lineIn(src, /SNAPFLOW=\{ active:true,[^\n]*/) + '\n}\nif(typeof _tabBind=="function"){ _tabBind(); _tabWatch(); }';
-  const W = { L: {}, fetches: [], reloaded: 0, shows: [], notes: [], alerts: [], pend: [] };
+  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var TAB_EP_KEY=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
+    + '\nfunction __start(loc, sd){ ' + lineIn(src, /SNAPFLOW=\{ active:true,[^\n]*/) + '\n}'
+    + '\nfunction __start2(sd, p, needAgree, opt){ opt=opt||{};\n' + lineIn(grabIn(src, 'startSnapFlow'), /  var (?:rec=_snapLocalRec\(\), )?loc=[^\n]*\n[\s\S]*?SNAPFLOW=\{ active:true,[^\n]*\n(?:  if\(!loc && rec[^\n]*\n)?/) + '\n}'   // [TOMBSTONE_READ] 편집을 여는 줄들(startSnapFlow 원문)
+    + '\nfunction __vcRelay(d){ ' + RELAY(src) + '\n}'   // [TAB_GUARD_VC] 목소리 중계(원문)
+    + '\nif(typeof _tabBind=="function"){ _tabBind(); _tabWatch(); }';
+  const W = { L: {}, fetches: [], reloaded: 0, shows: [], notes: [], alerts: [], pend: [], rejs: [], posts: [], mute: false, held: [] };
   const wnd = { _mpStateD: o.acct ? { code: o.acct } : null, addEventListener(t, f) { (W.L[t] = W.L[t] || []).push(f); } };
   const sb = { localStorage: S.view(W, o.quota), sessionStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} }, window: wnd, document: mkDoc(W), TOKEN_KEY: 'me_token', STATE_CACHE_KEY: 'me_state_v1',
     EXEC_URL: 'x', JSON, Object, String, Math, Promise, Array, Error, Date: FakeDate, setTimeout, clearTimeout, console,
     _mpAcct: () => (wnd._mpStateD && wnd._mpStateD.code) || '', _mpAcctSweep: () => {}, _flowBusy: () => {}, _errSet: (el, t) => { if (el) el.textContent = String(t); return el; }, _errHtml: (t) => String(t),
     _errLine: (x, L) => (x && x.error) || ('로그인이 풀렸어요 · 다시 로그인해 주세요 (코드 ' + L + '8)'), _errCode: (x, L) => L + '8', _errSess: (x) => !!(x && ({ expired: 1, invalid: 1, no_token: 1, tab_stale: 1 })[x.reason]),
-    _wizCurId: () => '', _mpFsOpen: () => false, location: { reload: () => { W.reloaded++; } }, closeLedModal: () => {}, show: (v) => W.shows.push(v), softLoginNote: (t) => W.notes.push(t), cleanUrl: () => {},
+    _wizCurId: () => '', _mpFsOpen: () => false, location: { origin: 'x', reload: () => { W.reloaded++; } }, navigator: { onLine: true }, fr: { contentWindow: { postMessage: (m) => W.posts.push(m) } }, closeLedModal: () => {}, show: (v) => W.shows.push(v), softLoginNote: (t) => W.notes.push(t), cleanUrl: () => {},
     mpAlert: (m) => { W.alerts.push(m); }, mpConfirm: (m) => { W.alerts.push(m); return Promise.resolve(false); }, $: () => null,
-    fetch: (u, init) => { const body = JSON.parse(init.body); W.fetches.push(body); return new Promise((res) => { W.pend.push((d) => res({ status: 200, json: () => Promise.resolve(d) })); }); },
+    fetch: (u, init) => { const body = JSON.parse(init.body); W.fetches.push(body); return new Promise((res, rej) => { W.pend.push((d) => res({ status: 200, json: () => Promise.resolve(d) })); W.rejs.push((e) => rej(e)); }); },
     _snapCollect: () => {}, _snapPickCap: () => 4, SNAP_STEPS: [1, 2, 3, 4, 5], opt: {}, p: null, needAgree: true, SNAPFLOW: { active: false } };
   vm.createContext(sb); vm.runInContext(code, sb); S.wins.push(W); W.sb = sb; W.ls = sb.localStorage;
   W.bar = () => { const b = sb.document.getElementById('mp_tabBar'); return b ? { line: (b.kids[0] || {}).textContent, btn: (b.kids[1] || {}).textContent, el: b } : null; };
@@ -63,9 +69,9 @@ function win(S, src, o) { o = o || {};
   return W; }
 /* 식순 화면(iframe) — 부모 창의 _tabStale 을 본다 */
 function frame(S, src, parent, who, Sv) {
-  const fn = grabIn(src, '_persist'), tg = grabIn(src, '_tabGone'), dl = lineIn(src, /var _editT=[^\n]*/);
+  const fn = grabIn(src, '_persist') + '\n' + grabIn(src, '_ordKey'), tg = grabIn(src, '_tabGone'), dl = lineIn(src, /var _editT=[^\n]*/);
   const W = { L: {} }; const sb = { localStorage: S.view(W), JSON, Object, Date: FakeDate, S: Sv, idx: 0, _seenK: {}, courseStarted: true, _doneSaved: false, _who: who, _srvBase: 'k0', _autoLast: 'srv',
-    _autoKey: () => JSON.stringify(sb.S), _dirtyMark: () => {}, _closeFit: () => {}, _seamFitKeep: () => {}, _persistBad: false };
+    _autoKey: () => JSON.stringify(sb.S), _dirtyMark: () => {}, _closeFit: () => {}, _seamFitKeep: () => {}, _persistBad: false, EMBED: !!parent };
   sb.window = { parent: parent ? parent.sb : null }; if (!parent) sb.window.parent = sb.window;
   vm.createContext(sb); vm.runInContext(tg + '\n' + fn + '\n' + dl, sb); S.wins.push(W); return sb; }
 
@@ -129,11 +135,11 @@ const s2 = async (src, op) => {
 { const r = await run(s2, MP, OP);
   ok('② 11-03 [TAB_GUARD] 다른 창이 다시 로그인해 최신본을 되돌린 뒤 옛 창이 앱을 내리거나(스냅) · 식순 화면이 다시 써도(_persist) · 지워도 최신본 그대로',
     !r.err && r.back === true && r.afterOld.snap === '최신 메모' && r.afterOld.order === r.KD && !!r.bar, r.err || r);
-  ok('② 11-03 [TAB_GUARD] 새 토큰으로 열었어도 되돌리기 전에 연 창은 되돌리기 표시(me_relogin_rst)로 옛 창 — 덮지 않는다 · 지금 창의 식순 화면은 그대로 쓴다',
+  ok('② 11-03 [TAB_GUARD] 새 토큰으로 열었어도 되돌리기 전에 연 창은 [AUTH_EPOCH] 차례로 옛 창 — 덮지 않는다 · 지금 창의 식순 화면은 그대로 쓴다',
     !r.err && r.mid === '최신 메모' && r.midStale === true && !!r.nf && r.nf.tx['vow.g'] === '새 창에서 고친 서약', r.err || r); }
 { const bo = brk(OP, [['function _persist(over){ if(typeof _tabGone===\'function\' && _tabGone()) return;', 'function _persist(over){']]); const rb = bo ? await run(s2, MP, bo) : null;
   ok('깨 보기 ② — 식순 화면이 부모의 옛 창 판정을 안 보면 빨강', !!rb && !rb.err && rb.afterOld.order !== rb.KD, rb && (rb.err || rb.afterOld));
-  const bm = brk(MP, [['localStorage.setItem(TAB_RST_KEY, ', '(0, ']]); const rm = bm ? await run(s2, bm, OP) : null;
+  const bm = brk(MP, [["if(n>0 && typeof _tabBind=='function'){ _tabEpBump(); _tabBind(); }", "if(n>0 && typeof _tabBind=='function'){ _tabBind(); }"]]); const rm = bm ? await run(s2, bm, OP) : null;
   ok('깨 보기 ② — 되돌리기 표시를 안 남기면 빨강(그 사이 연 창이 덮는다)', !!rm && !rm.err && rm.mid !== '최신 메모', rm && (rm.err || rm.mid)); }
 
 /* ③ 11-04 — 옛 창의 다시 맡기기 · 맡길 때 합치기 */
@@ -200,10 +206,133 @@ const s5 = async (src) => {
 };
 { const r = await run(s5, MP);
   ok('⑤ 11-01 [EDIT_T_AT_INPUT] 먼저 입력하고 나중에 내린 창의 쓰기는 입력한 때(1000)를 싣는다 · 되돌리면 나중에 고친 창2의 메모', !r.err && r.t1 === T0 + 1000 && r.memo === '창2에서 나중에 쓴 메모' && r.keep === null, r); }
-{ const b = brk(MP, [['if(SNAPFLOW._lj==null) SNAPFLOW._lj=j; else if(SNAPFLOW._lj!==j){ SNAPFLOW._lj=j; SNAPFLOW.t=Date.now(); } }catch(e){} }', 'if(SNAPFLOW._lj==null) SNAPFLOW._lj=j; }catch(e){} }'],
+{ const b = brk(MP, [['if(SNAPFLOW._lj==null) SNAPFLOW._lj=j; else if(SNAPFLOW._lj!==j){ SNAPFLOW._lj=j; SNAPFLOW.t=Date.now(); _snapLocalPut(); } }catch(e){} }', 'if(SNAPFLOW._lj==null) SNAPFLOW._lj=j; }catch(e){} }'],
     ['if(SNAPFLOW._lj==null) SNAPFLOW._lj=JSON.stringify(o);', 'var j=JSON.stringify(o); if(SNAPFLOW._lj==null) SNAPFLOW._lj=j; else if(SNAPFLOW._lj!==j){ SNAPFLOW._lj=j; SNAPFLOW.t=Date.now(); }']]);
   const rb = b ? await run(s5, b) : null;
   ok('깨 보기 ⑤ — 쓸 때 고친 때를 적으면(옛 꼴) 빨강', !!rb && !rb.err && rb.memo === '창1에서 먼저 쓴 메모', rb); }
+
+/* ⑥ 12-01 [TAB_GUARD_VC] 목소리 중계(_post 를 거치지 않는다) — 옛 창 · 그 사이 바뀐 답 · 다시 묻기 */
+const s6 = async (src) => {
+  const S = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A) });
+  const WA = win(S, src, { acct: A }); const WB = win(S, src, {});
+  /* (가) 보내는 중에 다른 창이 나로 로그인 — 늦은 답 */
+  WA.sb.__vcRelay({ type: 'momentedit:voiceClone', data: { op: 'delete', rid: 'r1', who: 'groom' } });
+  const sent1 = WA.fetches.map((f) => f.token);
+  WB.sb.setToken('tb'); S.set('me_state_v1', CACHE('tb', B));
+  WA.pend[0] && WA.pend[0]({ ok: true, deleted: 1 }); await flush();
+  const late = WA.posts.find((m) => m.rid === 'r1') || null;
+  /* (나) 이미 옛 창 — 보내지 않는다 */
+  const n0 = WA.fetches.length; WA.sb.__vcRelay({ type: 'momentedit:voiceClone', data: { op: 'delete', rid: 'r2', who: 'groom' } }); await flush();
+  const stale = { n: WA.fetches.length - n0, toks: WA.fetches.slice(n0).map((f) => f.token), ans: WA.posts.find((m) => m.rid === 'r2') || null };
+  /* (다) 끊긴 뒤 다시 묻기 전에 바뀜 — 다시 묻지 않는다(지금 계정 토큰을 붙이지 않는다) */
+  const S2 = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A) }); const W2 = win(S2, src, { acct: A }); const W3 = win(S2, src, {});
+  W2.sb.__vcRelay({ type: 'momentedit:voiceClone', data: { op: 'make', rid: 'r3' } });
+  W3.sb.setToken('tb'); const e = new TypeError('Failed to fetch'); W2.rejs[0] && W2.rejs[0](e); await flush();
+  const retry = { toks: W2.fetches.map((f) => f.token), ans: W2.posts.find((m) => m.rid === 'r3') || null };
+  return { sent1, late, stale, retry, bar: !!WA.bar() };
+};
+{ const r = await run(s6, MP);
+  ok('⑥ 12-01 [TAB_GUARD_VC] 목소리 중계 — 보내는 중 다른 창이 다른 계정으로 로그인하면 늦게 온 성공 답을 옛 식순 화면에 넘기지 않는다(«다른 창에서 바뀌었어요 (코드 L8)»)',
+    !r.err && r.sent1.join() === 'ta' && !!r.late && r.late.ok === false && r.late.reason === 'tab_stale' && r.late.ecode === 'L8' && r.bar, r.err || r);
+  ok('⑥ 12-01 [TAB_GUARD_VC] 옛 창의 «지우기»는 보내지 않는다(지금 계정 토큰을 붙이지 않는다) · 끊긴 뒤 다시 묻기도 그 사이 바뀌었으면 보내지 않는다',
+    !r.err && r.stale.n === 0 && !!r.stale.ans && r.stale.ans.reason === 'tab_stale' && r.retry.toks.join() === 'ta' && !!r.retry.ans && r.retry.ans.reason === 'tab_stale', r.err || r); }
+{ const b = brk(MP, [['if(_vcTie && _vcTie()){ _vcBack({}); return; }   // [TAB_GUARD_VC] 옛 창', 'if(0){ _vcBack({}); return; }   // [TAB_GUARD_VC] 옛 창']]); const rb = b ? await run(s6, b) : null;
+  ok('깨 보기 ⑥ — 중계 들머리 판정을 빼면 빨강(옛 창이 지금 계정 토큰으로 지우기를 보낸다)', !!rb && !rb.err && rb.stale.n > 0 && rb.stale.toks.includes('tb'), rb && (rb.err || rb.stale)); }
+
+/* ⑦ 12-02 [TAB_GUARD_FILL] 늦은 orderReady / orderFill — 옛 식순 화면이 지금 계정 초안을 «주인이 다르다»며 지우지 않는다 */
+const FILL = (src) => { const s0 = "if(ev.data.type==='momentedit:orderFill'){"; const i = src.indexOf(s0); if (i < 0) return '';
+  let d = 0; for (let k = i + s0.length - 1; k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
+function fillFrame(S, src, parent, restoredWho) {
+  const sb = { localStorage: S.view({ L: {} }), sessionStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} }, JSON, Object, String, Date: FakeDate, S: { a: 1 }, _S0: '{"a":0}',
+    RitualOpen: { FEATURE: {}, setPost: () => {}, picked: () => [] }, buildSteps: () => {}, render: () => {}, CUST: null, CUSTDIG: false, CUSTPHOTO: false, CUSTTBL: 0, CUSTGUIDE: false, CUSTMEAL: false,
+    _restored: true, _who: restoredWho, _fillSeen: false, courseStarted: true, _doneSaved: false, _seenK: {}, idx: 0, PR_FROM_MP: false };
+  sb.window = { parent: parent ? parent.sb : null };
+  vm.createContext(sb); vm.runInContext(grabIn(src, '_tabGone') + '\nfunction __fill(ev){ ' + FILL(src) + '\n}', sb); return sb; }
+const s7 = async (src, op) => {
+  const S = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A), me_order: DR('가의 서약', A, clock.now - 9000) });
+  const WA = win(S, src, { acct: A }); const F = fillFrame(S, op, WA, A);   // 옛 창의 식순 화면이 가의 초안을 먼저 되살렸다
+  const WB = win(S, src, {}); WB.sb.setToken('tb'); S.set('me_state_v1', CACHE('tb', B)); WB.ls.setItem('me_order', DR('나의 서약', B, clock.now));
+  F.__fill({ data: { type: 'momentedit:orderFill', draft: null, done: false, cust: { code: B } } });   // 늦게 처리된 orderReady 가 지금 캐시의 나 코드를 실어 보냈다
+  const stale = JSON.parse(S.get('me_order') || '{}').who;
+  /* 옛 창 판정은 없지만 그 사이 다른 주인이 쓴 초안 — 되살린 주인의 판이 아니면 두고 · 되살린 판이면 종전대로 걷는다(ORDER_OWNER) */
+  const S2 = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A), me_order: DR('나의 서약', B, clock.now) }); const W2 = win(S2, src, { acct: A }); const F2 = fillFrame(S2, op, W2, '');
+  F2.__fill({ data: { type: 'momentedit:orderFill', draft: null, done: false, cust: { code: A } } }); const other = JSON.parse(S2.get('me_order') || '{}').who;
+  const S3 = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A), me_order: DR('예전 미리보기', '', clock.now) }); const W3 = win(S3, src, { acct: A }); const F3 = fillFrame(S3, op, W3, '');
+  F3.__fill({ data: { type: 'momentedit:orderFill', draft: null, done: false, cust: { code: A } } }); const own = S3.get('me_order');
+  return { stale, other, own };
+};
+{ const r = await run(s7, MP, OP);
+  ok('⑦ 12-02 [TAB_GUARD_FILL] 옛 창의 식순 화면은 늦게 온 orderFill(다른 계정 코드)로 지금 계정(나)의 식순 초안을 지우지 않는다', !r.err && r.stale === B, r.err || r);
+  ok('⑦ 12-02 [TAB_GUARD_FILL] 주인이 다를 때 지우는 것은 이 창이 되살린 그 주인의 판뿐(그 사이 다른 계정이 쓴 초안은 둔다) · 되살린 주인 없는 옛 판은 종전대로 걷는다(ORDER_OWNER)', !r.err && r.other === B && r.own === null, r.err || r);
+  const g = grabIn(MP, 'openOrderBuilder') || MP; const i = MP.indexOf("if(d.type==='momentedit:orderReady'){"), seg = i < 0 ? '' : MP.slice(i, i + 700);
+  ok('⑦ 12-02 [TAB_GUARD_FILL] 마이페이지 옛 창은 orderReady 에 orderFill(계정 코드)을 돌려주지 않는다 — 그 갈래 첫 줄이 옛 창 판정', /momentedit:orderReady'\)\{\s*\/\*[\s\S]*?\*\/\s*if\(typeof _tabStale=='function' && _tabStale\(\)\)\{ _tabStaleShow\(\); return; \}/.test(seg), seg.slice(0, 160)); }
+
+/* ⑧ 12-03 [PREVIEW_KEY_SPLIT] 그냥 연 공개 미리보기(부모 없음)는 고객 식순 칸(me_order)을 쓰지 않는다 */
+const s8 = async (src, op) => {
+  const S = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A), me_order: DR('되살린 저장 안 한 서약', A, clock.now - 1000) });
+  const PUB = frame(S, op, null, '', { tx: { 'vow.g': '미리보기 예시' } }); PUB._persist();
+  const cust = JSON.parse(S.get('me_order') || '{}'), pub = JSON.parse(S.get('me_order_pub') || 'null');
+  /* 첫 되살리기 — 공개 칸이 비었으면 예전 미리보기의 주인 없는 판을 한 번 잇는다 · 주인 있는 판은 읽지 않는다 */
+  const rs = lineIn(op, /try\{ var _sv0=JSON\.parse\(localStorage\.getItem\([^\n]*\n(?:[^\n]*\n)*?\}catch\(e\)\{\}/);
+  const restore = (init) => { const S2 = shared(init); const got = []; const sb = { localStorage: S2.view({ L: {} }), JSON, Object, String, EMBED: false, window: { location: { search: '' } }, _srvBase: '', _autoLast: 'x', _editT: 0, _editK: null,
+      _applySaved: (v) => { got.push(v && v.S && v.S.tx && v.S.tx['vow.g']); return !!v; }, _autoKey: () => '' };
+    vm.createContext(sb); vm.runInContext(grabIn(op, '_ordKey') + '\n' + rs, sb); return got.join() || null; };
+  return { cust: cust.S && cust.S.tx['vow.g'], custWho: cust.who, pub: pub && pub.S && pub.S.tx['vow.g'], rsOk: !!rs,
+    legacy: restore({ me_order: DR('예전 미리보기 판', '', 0, false) }), owned: restore({ me_order: DR('고객 판', A, 0) }), both: restore({ me_order: DR('예전 미리보기 판', '', 0, false), me_order_pub: DR('공개 칸 판', '', 0, false) }) };
+};
+{ const r = await run(s8, MP, OP);
+  ok('⑧ 12-03 [PREVIEW_KEY_SPLIT] 남겨 둔 공개 미리보기에서 진행해도 로그인 창이 되살린 저장 안 한 식순 초안(me_order)을 덮지 않는다 · 미리보기는 me_order_pub 에', !r.err && r.cust === '되살린 저장 안 한 서약' && r.custWho === A && r.pub === '미리보기 예시', r.err || r);
+  ok('⑧ 12-03 [PREVIEW_KEY_SPLIT] 공개 미리보기는 자기 칸을 되살리고 · 비었으면 예전 미리보기의 주인 없는 판을 한 번 잇는다 · 고객 판은 읽지 않는다 · 처음부터 다시(지우기)도 자기 칸',
+    !r.err && r.rsOk && r.legacy === '예전 미리보기 판' && r.owned === null && r.both === '공개 칸 판' && /localStorage\.removeItem\(_ordKey\(\)\); sessionStorage\.setItem\('me_order_reset','1'\)/.test(OP), r.err || r); }
+{ const b = brk(OP, [["return e?'me_order':'me_order_pub'; }", "return 'me_order'; }"]]); const rb = b ? await run(s8, MP, b) : null;
+  ok('깨 보기 ⑧ — 칸을 나누지 않으면 빨강(미리보기 예시가 고객 초안을 덮는다)', !!rb && !rb.err && rb.cust === '미리보기 예시', rb && (rb.err || rb.cust)); }
+
+/* ⑨ 12-04 [STALE_KEEP_INPUT] 같은 계정 두 창 — 입력은 그때 이 기기에 · 옛 창 «다시 열기»는 못 남긴 입력을 같은 계정 맡김에 */
+const s9 = async (src, otherAcct) => {
+  const S = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A) });
+  const W1 = win(S, src, { acct: A }); W1.open(null, {});
+  clock.now = T0 + 1000; W1.type('입력한 그때 메모'); const dev1 = memoOf(S.get('me_snapLocal_AAAAAA'));   // 앱을 내리지 않았다(두 창 다 보임)
+  const W2 = win(S, src, {}); W2.sb.setToken('ta2'); S.set('me_state_v1', CACHE('ta2', otherAcct || A)); W2.sb.window._mpStateD = { code: otherAcct || A };   // 다른 창이 로그인(같은 계정 · 또는 다른 계정)
+  clock.now = T0 + 2000; W1.type('옛 창이 된 뒤 쓴 메모');   // 옛 창 — 이 기기 쓰기는 막힌다
+  const dev2 = memoOf(S.get('me_snapLocal_AAAAAA')); const bar = W1.bar(); if (bar) bar.el.kids[1].click();
+  const keep = S.get('me_relogin_keep'); const W3 = win(S, src, { acct: A }); if (!otherAcct) W3.sb._reloginRestore(A); clock.now = T0;   // 새로 연 창이 상태를 불러온다
+  return { dev1, dev2, keep: keep && memoOf(JSON.parse(keep).keys.me_snapLocal_AAAAAA), after: memoOf(S.get('me_snapLocal_AAAAAA')), reloaded: W1.reloaded };
+};
+{ const r = await run(s9, MP); const ro = await run((src) => s9(src, B), MP);
+  ok('⑨ 12-04 [STALE_KEEP_INPUT] 앱을 내리지 않아도 입력한 그때 글이 이 기기에 남는다(옛 창이 되기 전까지)', !r.err && r.dev1 === '입력한 그때 메모' && r.dev2 === '입력한 그때 메모', r.err || r);
+  ok('⑨ 12-04 [STALE_KEEP_INPUT] 같은 계정이면 «다시 열기»가 옛 창이 된 뒤 쓴 입력을 맡겨 두고 새로 연다 → 다시 연 창에 그 메모 · 다른 계정이면 맡기지 않는다',
+    !r.err && r.keep === '옛 창이 된 뒤 쓴 메모' && r.after === '옛 창이 된 뒤 쓴 메모' && r.reloaded === 1 && !ro.err && ro.keep == null && ro.reloaded === 1, r.err || ro.err || { r, ro }); }
+
+/* ⑩ 12-05 [TOMBSTONE_READ] 비운 표시는 카드에는 안 보이지만 편집을 열 때는 그 고친 때를 이어받는다 — 열기만 해서는 지우지 않는다 */
+const s10 = async (src) => {
+  const KEEP = JSON.stringify({ code: A, t: T0 - 5000, keys: { me_snapLocal_AAAAAA: SN('이전 메모', T0 - 5000) } });   // 일부 되돌리기 실패로 남은 옛 맡김
+  const S = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A), me_snapLocal_AAAAAA: JSON.stringify({ v: 2, empty: true, t: T0 - 2000 }), me_relogin_keep: KEEP });
+  const W = win(S, src, { acct: A }); const card = W.sb._snapLocalGet();
+  W.sb.__start2({}, null, true, {}); W.sb._snapEditMark(); const t = W.sb.SNAPFLOW.t; W.hide();   // «스냅 기획하기»로 편집을 다시 열고 · 그냥 앱을 내림
+  const dev = S.get('me_snapLocal_AAAAAA'); W.sb._reloginRestore(A);
+  return { card, t, dev: dev && JSON.parse(dev), after: memoOf(S.get('me_snapLocal_AAAAAA')) };
+};
+{ const r = await run(s10, MP);
+  ok('⑩ 12-05 [TOMBSTONE_READ] 편집을 다시 열면 비운 표시의 고친 때를 이어받고 · 열고 내리기만 해서는 지우지 않는다 · 카드는 «스냅 기획하기» 그대로', !r.err && r.card === null && r.t === T0 - 2000 && !!r.dev && r.dev.empty === true && r.dev.t === T0 - 2000, r.err || r);
+  ok('⑩ 12-05 [TOMBSTONE_READ] 그 뒤 다시 로그인해도 지운 메모가 되살아나지 않는다', !r.err && r.after === '(비움)', r.err || r); }
+
+/* ⑪ 12-06 [AUTH_EPOCH] 가 → 나 → 가(알림 링크)로 같은 토큰에 돌아와도 · storage 이벤트가 늦어도 옛 창 */
+const s11 = async (src, op) => {
+  const S = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A), me_order: DR('최신 서약', A, clock.now - 100) });
+  const OLD = win(S, src, { acct: A }); const OF = frame(S, op, OLD, A, { tx: { 'vow.g': '옛 창의 옛 서약' } });
+  const inflight = OLD.sb._post({ action: 'saveProductionTrack', token: OLD.sb.getToken(), track: 'ritual' });   // 보내던 저장
+  OLD.mute = true;   // 이 창(뒤에 있는 탭)에는 이벤트가 늦게 온다
+  const W = win(S, src, {}); W.sb.setToken('tb'); W.sb.setToken('ta');   // 다른 창 — 나로 로그인했다가 · 가의 알림 링크(같은 토큰)로 돌아옴
+  OLD.pend[0] && OLD.pend[0]({ ok: true }); const late = await inflight;
+  const stale = OLD.sb._tabStale(); OF._persist();
+  const n0 = OLD.fetches.length; const sp = OLD.sb._post({ action: 'saveProductionTrack', token: OLD.sb.getToken(), track: 'ritual' }); if (OLD.fetches.length > n0) OLD.pend[OLD.pend.length - 1]({ ok: true }); const sent = await sp;
+  return { stale, late: late && (late.reason || (late.ok && 'ok')), order: JSON.parse(S.get('me_order') || '{}').S.tx['vow.g'], nSent: OLD.fetches.length - n0, sent: sent && sent.reason };
+};
+{ const r = await run(s11, MP, OP);
+  ok('⑪ 12-06 [AUTH_EPOCH] 다른 창이 가 → 나 → 가로 돌아와 토큰이 처음과 같아도 · 이벤트가 늦어도 옛 창 — 옛 식순이 최신 초안을 덮지 않고 저장도 보내지 않는다', !r.err && r.stale === true && r.order === '최신 서약' && r.nSent === 0 && r.sent === 'tab_stale', r.err || r);
+  ok('⑪ 12-06 [AUTH_EPOCH] 보내던 저장의 답도 그 사이 차례가 바뀌었으면 버린다', !r.err && r.late === 'tab_stale', r.err || r); }
+{ const b = brk(MP, [["if(tok!==_TAB.tok || ep!==_TAB.ep) _TAB.stale=true;", "if(tok!==_TAB.tok) _TAB.stale=true;"]]); const rb = b ? await run(s11, b, OP) : null;
+  ok('깨 보기 ⑪ — 차례를 안 보면 빨강(같은 토큰으로 돌아온 옛 창이 쓴다)', !!rb && !rb.err && rb.stale === false && rb.order !== '최신 서약', rb); }
 
 /* 걸림 · 줄 */
 ok('[TAB_GUARD] 보내기 한 벌(_post)이 옛 창 · 그 사이 바뀐 답을 막는다 · 로그인 풀림 길(알림 링크 · 상태 불러오기 · 저장 실패 판)이 먼저 _tabDrop 을 본다',

@@ -20569,7 +20569,23 @@ chk 'TAB_GUARD_1030' scripts/audit/tab-guard.mjs 1
 chk "function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;" order-preview.html 1
 nochk "if(!n){ var o=null;" mypage.html   # [RELOGIN_MERGE] 앞서 맡긴 것과 합치지 않고 바꾸던 옛 줄
 nochk "if(_snapFilledD(o)) localStorage.setItem(k, JSON.stringify(o)); else localStorage.removeItem(k);" mypage.html   # [EMPTY_TOMBSTONE] 비우면 기록째 지우던 옛 줄
-if command -v node >/dev/null 2>&1; then node scripts/audit/tab-guard.mjs >/dev/null 2>&1; _tgd=$?; if [ "$_tgd" != 0 ]; then echo 'FAIL tab-guard: 옛 창(다른 창이 로그인 · 로그아웃 · 되돌리기)의 쓰기 · 지우기 · 보내기 멈춤 · 맡김 합치기 · 스냅 고친 때 · 비운 표시 판정이 어긋났습니다 — node scripts/audit/tab-guard.mjs'; fail=1; else echo "ok tab-guard ($_tgd)"; fi; fi
+# ★[TAB_GUARD2_1030 2026-10-30 GPT 12차 점검(고객) 12-01 ~ 12-06] [TAB_GUARD_VC] 목소리 중계도 옛 창 · 그 사이 바뀐 답(다시 묻기 포함)을 막는다 · [TAB_GUARD_FILL] 옛 창의 orderReady · 식순 화면의 늦은 orderFill 정리를 막고 주인이 다를 때 지우는 것도 공통 판정 ·
+#   [PREVIEW_KEY_SPLIT] 그냥 연 공개 미리보기는 me_order_pub · [STALE_KEEP_INPUT] 입력한 그때 글도 이 기기에 · 옛 창 «다시 열기»는 같은 계정 맡김에 · [TOMBSTONE_READ] 편집은 비운 표시의 고친 때를 이어받는다 · [AUTH_EPOCH] 로그인 · 로그아웃 · 되돌리기마다 차례(me_auth_ep)
+chk 'TAB_GUARD2_1030' scripts/audit/tab-guard.mjs 1
+chk 'TAB_GUARD_VC' mypage.html 4
+chk 'TAB_GUARD_FILL' mypage.html 1
+chk 'TAB_GUARD_FILL' order-preview.html 2
+chk 'PREVIEW_KEY_SPLIT' order-preview.html 4
+chk 'STALE_KEEP_INPUT' mypage.html 4
+chk 'TOMBSTONE_READ' mypage.html 4
+chk 'AUTH_EPOCH' mypage.html 8
+chk "if(tok!==_TAB.tok || ep!==_TAB.ep) _TAB.stale=true;" mypage.html 1
+chk "localStorage.setItem(_ordKey(), JSON.stringify(rec));" order-preview.html 1
+nochk "TAB_RST_KEY" mypage.html   # [AUTH_EPOCH] 되돌리기 표시(me_relogin_rst)는 차례로 합쳤다
+nochk "localStorage.setItem('me_order', JSON.stringify(rec));" order-preview.html   # [PREVIEW_KEY_SPLIT] 공개 미리보기가 고객 칸에 쓰던 옛 줄
+nochk "var loc=_snapLocalGet();" mypage.html   # [TOMBSTONE_READ] 편집을 열 때 비운 표시를 못 읽던 옛 줄
+nochk "token:getToken()})),signal:_vcAc" mypage.html   # [TAB_GUARD_VC] 중계가 보낼 때마다 지금 토큰을 다시 읽던 옛 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/tab-guard.mjs >/dev/null 2>&1; _tgd=$?; if [ "$_tgd" != 0 ]; then echo 'FAIL tab-guard: 옛 창(다른 창이 로그인 · 로그아웃 · 되돌리기 · 차례)의 쓰기 · 지우기 · 보내기(목소리 중계 포함) 멈춤 · 맡김 합치기 · 스냅 고친 때 · 비운 표시 · 공개 미리보기 칸 판정이 어긋났습니다 — node scripts/audit/tab-guard.mjs'; fail=1; else echo "ok tab-guard ($_tgd)"; fi; fi
 
 chk "L('blessN','말씀하실 분'" order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
