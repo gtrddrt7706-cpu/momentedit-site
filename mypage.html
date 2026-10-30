@@ -2755,6 +2755,8 @@ function openFittingView(){
    주고받는 것: dressReady → dressFill{saved, open} · dressSave{data} → dressSaved / dressSaveFail{msg, ecode, sess, kind} · dressClose.
    opt.demo = ?preview_card=dress — 저장하지 않고 «저장됐다»만 돌려준다(라이브 무해). */
 var DRESS_SAVE_BASE='고른 드레스를 보내지 못했어요 · 다시 눌러 주세요';
+/* ★[DRESS_TABS_1030] 상담 뒤 창(아이콘)의 기억 — 마지막 탭 · 탭마다 스크롤 자리 · 개인코드. 이 페이지 메모리에만(서버 · 기기 저장 없음) — 새로고침 · 다른 고객이면 드레스 탭부터 */
+var _DR_AFTER_MEM=null;
 function openDressPicker(dr, opt){
   opt=opt||{};
   var old=$('mp_drViewer'); if(old&&old.parentNode) return;
@@ -2821,7 +2823,8 @@ function openDressPicker(dr, opt){
   function onMsg(ev){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var m=ev.data||{};
-    if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:true, ymd:(dr&&dr.ymd)||'', key:opt.key||'', popMax:popMax()}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // ★[DRESS_NO_DEADLINE 2026-10-23 사장님] 늘 열림(open:true) — 마감 뒤 «보기만»으로 보내지 않는다 · ymd 는 넘기지만 완료 화면이 마감 날을 쓰지 않는다
+    if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:true, ymd:(dr&&dr.ymd)||'', key:opt.key||'', popMax:popMax(), mem:(opt.after && _DR_AFTER_MEM && _DR_AFTER_MEM.key===String(opt.key||''))?_DR_AFTER_MEM:null}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // ★[DRESS_NO_DEADLINE 2026-10-23 사장님] 늘 열림(open:true) — 마감 뒤 «보기만»으로 보내지 않는다 · ymd 는 넘기지만 완료 화면이 마감 날을 쓰지 않는다
+    if(m.type==='momentedit:dressMem'){ if(opt.after){ var ty=m.ty||{}; _DR_AFTER_MEM={ key:String(opt.key||''), tab:m.tab==='acc'?'acc':'dress', ty:{ dress:Math.max(0,+ty.dress||0), acc:Math.max(0,+ty.acc||0) } }; } return; }   // [DRESS_TABS_1030] 창이 알린 탭 · 자리
     if(m.type==='momentedit:dressHeight') return;   // ★[POPUP_FIXED_1024 사장님 «창이 막 움직이면 정신없으니깐 · 하단 기준으로»] 창 높이는 내용을 따라가지 않는다(걸음마다 위 끝 · 막대가 뛰었다) — 되살리지 말 것
     if(m.type==='momentedit:dressState'){ st.dirty=!!m.dirty; st.failed=!!m.failed; st.busy=!!m.busy; if(exitWait && !st.busy){ exitWait=false; askExit(false); } return; }   // [DRESS_EXIT_ASK]
     if(m.type==='momentedit:dressExit'){ askExit(false); return; }

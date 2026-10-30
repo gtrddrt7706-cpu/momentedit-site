@@ -20095,6 +20095,22 @@ chk 'DRESS_QSUB_SLOT' scripts/audit/dress-ops.mjs 2
 chk 'DRESS_OPS_VIEWPORT' scripts/audit/dress-ops.mjs 2                    # [DRESS_OPS_VIEWPORT] 창 크기가 요청값과 같은지 먼저(Puppeteer 대체 길도 크기를 맞춘다)
 chk 'DRESS_OPS_REAL' scripts/audit/dress-ops.mjs 1                        # [DRESS_OPS_REAL] 진입 = 실제 스티커 · 아이콘(로그인 마이페이지 · 가짜 서버 답)
 chk 'DRESS_ESC_Q123' scripts/audit/dress-ops.mjs 1                        # [DRESS_ESC_Q123] 물음 1 · 2 · 3 답을 고른 뒤 Esc = 닫힘 · 연 단추로 초점
+# ★★[DRESS_TABS_1030 사장님 «추천대로» · 코워크 · GPT 2라운드] 오른쪽 아이콘(상담 뒤)으로 연 창 = 물음 없이 두 탭 «드레스 / 소품·부케» · 소품 크게 보기 [DRESS_ACC_BIG] · 기억(마이페이지 메모리)
+#   모양 · 깨 보기는 dress-refs.mjs ⑳ · 눌러 재는 것은 dress-tabs.mjs(네 크기 · 상담 전 = 물음 필수 / 상담 뒤 = 물음 없음 × 답 없음 · 일부 · 완료 · 탭 · 복귀 · 기억 · 말풍선)
+chk "if (AFTER) { S.view = 'tabs'; S.tab = 'dress';" dress.html 1             # [DRESS_TABS_1030] 상담 뒤 = 처음부터 탭
+chk "if (AFTER && (v0q())) S.view = 'tabs';" dress.html 1                      # [DRESS_TABS_1030] 어떤 길로 와도 물음 · 결과로 가지 않는다
+chk 'role="tablist"' dress.html 1
+chk 'data-act="acclist">&lsaquo; 소품·부케 목록' dress.html 1                  # [DRESS_ACC_BIG]
+chk 'var _DR_AFTER_MEM=null;' mypage.html 1                                    # [DRESS_TABS_1030] 기억은 페이지 메모리
+chk 'DRESS_TABS_1030' scripts/audit/dress-tabs.mjs 3
+chk 'DRESS_ACC_BIG' scripts/audit/dress-tabs.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-tabs.mjs >/dev/null 2>&1; _dtab=$?
+  case "$_dtab" in
+    0) echo 'ok dress-tabs: 상담 전 = 물음 필수 · 상담 뒤 = 물음 없이 두 탭 · 탭 · 복귀 · 기억 · 말풍선 — 네 크기' ;;
+    1) echo 'FAIL dress-tabs: 드레스 창 탭 · 물음 갈래가 틀렸습니다 — node scripts/audit/dress-tabs.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-tabs: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-ops.mjs >/dev/null 2>&1; _dops=$?
   case "$_dops" in
     0) echo 'ok dress-ops: «다른 드레스» 소제목으로 이동 · 물음/결과 Esc 닫힘(초점 복귀) · 세 물음 첫 보기 1px 안 — 네 크기 × 상담 전 · 뒤' ;;
