@@ -1633,7 +1633,7 @@ function _vcHold(code, n, kind) { _gsr_();   // [VC_HOLD]
   var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return 'busy'; }
   try { var cur = _vcSt(code);
     if (n > 0 && _vcSpent(cur) + n > VC_LIM.budget) return 'limit';
-    if (kind === 'practice') { cur.practice = Math.max(0, (cur.practice || 0) + n); if (n > 0) cur.practiceAt = fmtKST(new Date()); }   // [VC_DEC_1030_4] 마지막 활동(예식일 없는 예식의 90일 보관)
+    if (kind === 'practice') { cur.practice = Math.max(0, (cur.practice || 0) + n); if (n > 0) { cur.practiceAt = fmtKST(new Date()); cur.practiceMs = Date.now(); } }   // [VC_DEC_1030_4] 마지막 활동(예식일 없는 예식의 90일 보관) · [PRACTICE_MS] 천분의 1초까지(분 단위로는 정리와 같은 분의 새 연습이 «지웠다»에 묻혔다)
     else { cur.make = cur.make || { total: 0, per: {} }; cur.make.chars = Math.max(0, (cur.make.chars || 0) + n); }
     _vcPut(code, cur); return 'ok'; }
   finally { try { lock.releaseLock(); } catch (e) {} } }
@@ -1897,7 +1897,7 @@ function handleVoiceClone(body) { _gsr_();
     var hp = _vcHold(code, t.length, 'practice'); if (hp === 'busy') return busy();
     if (hp === 'limit') return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
     /* [PT_TUNE 2026-10-05 사장님 «빠르기랑 쉼 설정한 거 그대로 적용되는 거 맞아?»] 연습 읽기도 그분이 정한 쉼(remove_silence_ms)으로 — 종전엔 빠르기만 받고 쉼은 늘 150 */
-    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg, _vcPause(body.pause)); if (pc.hit) _vcHold(code, -t.length, 'practice');
+    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg, _vcPause(body.pause)); if (pc.hit) _vcHold(code, -t.length, 'practice'); else _vcPracticeMs_(code);   // [PRACTICE_MS] 파일이 생긴 뒤의 때도(만드는 사이 정리가 지나갔으면 그 뒤로)
       return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.budget - _vcSpent(_vcSt(code))) }; } catch (e) { _vcHold(code, -t.length, 'practice'); return _vcErr(code, e.http, 'practice', e.why || e.message); } }
   if (!cfg.clone || !cfg.key) return _vcGate(code, cfg, op, 'clone');   // ★[VC_GATE_WHY] 스위치 · 시험 예식 목록 · 키 가운데 무엇이 막았는지 남긴다
   if (!WHO[who] && op !== 'make') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };
@@ -1997,12 +1997,12 @@ function _vcPub(p, code, st) { _gsr_(); p = p || {}; var sk = !!code && _voiceSt
 function _vcPurge(code) { _gsr_(); return _vcPurgeNow(code); }
 /* ★[VOICE_CLONE_0928 8-6] 지금 지우기 — 업체 목소리(둘) · 읽은 녹음 · 연습 소리. 안내 소리(«AI 소리»)는 30일까지 둔다(예식 뒤 내려받기) */
 function _vcPurgeNow(code) { _gsr_(); var dm = _vcDelMark(code, ['groom', 'bride']); if (!dm) return -1;   // [VC_DEL_LOCKED] 잠금을 못 잡았다 — 아무것도 바꾸지 않았다(부르는 쪽이 다시 · 매일 지우기는 다음 날)
-  var st = _vcSt(code), cfg = _vcCfg_(code), n = dm.ids.length, b0 = JSON.parse(JSON.stringify(st)), at = fmtKST(new Date());   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다 · [VC_DEL_STOP] 목소리는 잠근 채 비우고 도는 만들기에 «취소»(목소리 파일 모두 지우기 · 예식 다음 날)
+  var st = _vcSt(code), cfg = _vcCfg_(code), n = dm.ids.length, b0 = JSON.parse(JSON.stringify(st)), at = fmtKST(new Date()), atMs = Date.now();   // [PRACTICE_MS] 정리를 시작한 때(천분의 1초)   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다 · [VC_DEL_STOP] 목소리는 잠근 채 비우고 도는 만들기에 «취소»(목소리 파일 모두 지우기 · 예식 다음 날)
   /* ★[VC_PURGE_TRUE 2026-10-30 GPT 2차 점검 3 · 4] 이번에 비운 목소리와 앞서 못 지운 것(retry)을 모두 업체에 묻는다 · 읽은 녹음은 _vcDelMark 가 잠근 채 보냈다(못 보내면 id · del 표시).
      «지웠다»(purged)는 모두 확인된 뒤에만 적는다 — 남은 것이 있으면 purgePend(매일 지우기가 다시 · 마이페이지 «지우는 중이에요») */
   (st.retry || []).slice().forEach(function (v) { _vcDelVoice(cfg, st, v); });
   var pf = _vcPracticeTrash(code), pend = _vcPendOf(st) || pf > 0;
-  if (pend) st.purgePend = st.purgePend || at; else { st.purged = at; delete st.purgePend; }
+  if (pend) { st.purgePend = st.purgePend || at; st.purgePendMs = st.purgePendMs || atMs; } else { st.purged = at; st.purgedMs = atMs; delete st.purgePend; delete st.purgePendMs; }   // [PRACTICE_MS]
   var sv = _vcSave(code, b0, st); return { n: n, pend: pend || sv === 'busy' }; }
 /* ★[VC_ORPHAN 2026-10-30 클로드 검토 1 · VC_FIX3_1030] 주인 없는 업체 목소리 — 만들기가 업체에 닿은 뒤 GAS 가 끊기면(한 번 실행 6분 · 업체 답을 못 받음 · 저장 전 멈춤)
    업체에는 목소리가 생겼는데 어느 상태(VC_<코드>)에도 없어 아무도 지우지 않았다(동의 글 «예식 다음 날 지워요» 약속 밖).
@@ -2031,7 +2031,14 @@ function _vcLastAct_(st) { st = st || {}; var a = [st.practiceAt, st.make && st.
   ['groom', 'bride'].forEach(function (w) { var p = st[w] || {}; a.push(p.consent && p.consent.at, p.made, p.deleted, p.modelOff, p.read && p.read.at, p.phrase && p.phrase.ms, p.job && p.job.at, p.job && p.job.end); });
   return a.reduce(function (m, v) { var t = _vcTs_(v); return t > m ? t : m; }, 0); }
 /* [PRACTICE_PURGE] 연습 소리가 남았을 수 있나 — 마지막 연습(practiceAt)이 마지막 «다 지웠다»(purged)보다 나중 · 옛 기록(practiceAt 없음)은 연습 글자를 쓴 적이 있고 지운 적이 없을 때 */
-function _vcPracticeLeft_(st) { st = st || {}; var pa = _vcTs_(st.practiceAt), pg = _vcTs_(st.purged); if (pa) return pa > pg; return !!((st.practice || 0) > 0 && !st.purged); }
+/* ★[PRACTICE_MS 2026-10-30 GPT 15차 점검(고객) 15-04] 분 단위 시각(practiceAt · purged)만 견주면 정리 직후 같은 분의 새 연습 소리가 «지웠다»로 읽혀 90일 뒤에도 남았다 —
+     연습(practiceMs · 잡을 때와 파일이 생긴 뒤) · 정리(purgedMs · 정리를 시작한 때)를 천분의 1초로 견준다 · 한쪽이라도 분 단위면 같은 분은 «남았다»(다시 지워도 해가 없다) */
+function _vcPracticeLeft_(st) { st = st || {}; var pm = +st.practiceMs || 0, gm = +st.purgedMs || 0, pa = pm || _vcTs_(st.practiceAt), pg = gm || _vcTs_(st.purged);   // [PRACTICE_MS]
+  if (!pa) return !!((st.practice || 0) > 0 && !st.purged);
+  if (pm && gm) return pm > gm;
+  return pa >= pg; }
+function _vcPracticeMs_(code) { var lock = LockService.getScriptLock(); try { lock.waitLock(5000); } catch (e) { return; }   // [PRACTICE_MS] 연습 소리 파일이 생긴 때 · 잠금을 못 잡으면 잡을 때 적은 값 그대로
+  try { var cur = _vcSt(code); cur.practiceMs = Date.now(); _vcPut(code, cur); } finally { try { lock.releaseLock(); } catch (e) {} } }
 /* [VC_DEC_1030_4] Customers 개인코드 칸 전체 — 칸이 없거나 · 한 줄도 없거나 · 읽다 실패하면 null(«행 없음»으로 읽지 않는다) */
 function _vcCodeSet_() {
   try { var sh = getCustomersSheet(), c = buildHeaderIndex(sh)['개인코드'], last = sh.getLastRow(), st0 = (typeof P !== 'undefined' && P.DATA_START_ROW) || 2;
@@ -2087,7 +2094,7 @@ function purgeVoiceClones(dry) { _gsr_();
     var rold = ['groom', 'bride'].filter(function (w) { return st[w] && st[w].rdOld && st[w].rdOld.length; });   // [VC_RD_OLD] 다시 만들 때 못 지운 옛 읽은 녹음 — 지금 쓰는 녹음(read)은 건드리지 않는다
     if (!dry && ((st.retry && st.retry.length) || rdel.length || rold.length || st.purgePend)) { var b0 = JSON.parse(JSON.stringify(st)), at = fmtKST(new Date()); (st.retry || []).slice().forEach(function (v) { _vcDelVoice(cfg, st, v); });
       rdel.forEach(function (w) { _vcReadTrash(st[w], at); }); rold.forEach(function (w) { _vcRdOldTrash_(st[w]); });
-      if (st.purgePend && !_vcPracticeTrash(code) && !_vcPendOf(st)) { st.purged = st.purgePend; delete st.purgePend; }   // [VC_PURGE_TRUE] 남은 것이 다 지워졌을 때 «지웠다»
+      if (st.purgePend && !_vcPracticeTrash(code) && !_vcPendOf(st)) { st.purged = st.purgePend; st.purgedMs = +st.purgePendMs || 0; delete st.purgePend; delete st.purgePendMs; }   // [PRACTICE_MS] 처음 정리를 시작한 때   // [VC_PURGE_TRUE] 남은 것이 다 지워졌을 때 «지웠다»
       _vcSave(code, b0, st); st = _vcSt(code); }   // ★[VC_PURGE_MERGE 2026-10-08 목소리 1라운드 79] 시작 때 읽은 옛 상태로 덮지 않는다 — 그 사이 만든 목소리를 지웠다
     var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
     /* ★[PRACTICE_PURGE 2026-10-30 GPT 14차 점검(고객) 14-06] 목소리 · 읽은 녹음이 없어도 연습 소리(두 분 글을 읽은 «연습 소리» 파일)가 남아 있으면 지우기 판정까지 간다 —

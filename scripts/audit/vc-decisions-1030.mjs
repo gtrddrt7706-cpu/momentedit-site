@@ -222,8 +222,8 @@ function fakeIDB() { const dbs = {};
 /* ───────── ⑨ 디렉터 글 카드 ───────── */
 { const FNS = ['ownTxtOf', 'ownTxtSet', 'ownTxtFor', 'rfOwnTxtLoad', 'rfKeyOfSlug', 'rfUpId'];
   const mk = (src, guest) => { const sent = []; const sb = { GUEST: !!guest, S: { entry: 'B' }, RF_SLUG: { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min', pv: 'narr-prevideo-in' }, RF_OWN: { 'guest-1-arrival': 1, 'entry-B': 1 }, RF_EXEC: 'https://script.example/exec', QS: { get: () => 'AB12CD' }, localStorage: { getItem: () => 'tok' }, render: () => {},
-      fetch: (u, o) => { sent.push([u, o.body]); return Promise.resolve({ json: () => ({ result: { ok: true, mirror: { production: { ritualDraft: { S: { entry: 'B', vtext: { g0: '두 분이 고친 하객 맞이 글', g1: '  ' }, vlines: { 'entry:B': [{ w: 'g', t: '신랑 줄' }, { w: 'b', t: '신부 줄' }] }, pvText: '소개글' } } } } } }) }); } };
-    vm.createContext(sb); vm.runInContext(FNS.map((f) => grabIn(src, f)).join('\n') + '\nvar OWN_TXT = {}, RF_CUR = {};\n' + lineIn(src, /var OWN_TXT_GEN[^\n]*/), sb); return { sb, sent }; };
+      fetch: (u, o) => { sent.push([u, o.body]); return Promise.resolve({ json: () => ({ result: { ok: true, mirror: { production: { ritualDraft: { S: { entry: 'B', up: { g0: { id: 'A1', src: 'ai' }, entry: { id: 'E1', src: 'ai' } }, vtext: { g0: '두 분이 고친 하객 맞이 글', g1: '  ' }, vlines: { 'entry:B': [{ w: 'g', t: '신랑 줄' }, { w: 'b', t: '신부 줄' }] }, pvText: '소개글' } } } } } }) }); } };
+    vm.createContext(sb); vm.runInContext(FNS.map((f) => grabIn(src, f)).join('\n') + '\nvar OWN_TXT = {}, RF_CUR = { g0: { id: "A1", up: true }, entry: { id: "E1", up: true } };\n' + lineIn(src, /var OWN_TXT_GEN[^\n]*/), sb); return { sb, sent }; };   // ★[OWN_TXT_SURE 2026-10-30 15차] 지금 물린 파일(RF_CUR)이 그 초안의 파일일 때만 글
   const W = mk(CS); const loaded = await W.sb.rfOwnTxtLoad(); const t = (slug) => W.sb.ownTxtFor({ slug });
   ok('⑨ [VC_DEC_1030_9] 디렉터 판 — 두 분 소리가 물린 줄은 두 분이 고친 글(하객 맞이 · 입장 인사 줄 이어서) · 소리가 안 물린 줄 · 안 고친 줄은 기본 글', loaded === true && t('guest-1-arrival') === '두 분이 고친 하객 맞이 글' && t('entry-B') === '신랑 줄 신부 줄' && t('narr-prevideo-in') === '' && t('guest-2-10min') === '', [t('guest-1-arrival'), t('entry-B'), t('narr-prevideo-in'), t('guest-2-10min')]);
   const sent = W.sent[0] || ['', '{}'], body = JSON.parse(sent[1]);
@@ -231,7 +231,7 @@ function fakeIDB() { const dbs = {};
   const G = mk(CS, true); const gl = await G.sb.rfOwnTxtLoad();
   ok('⑨ 고객 미리 듣기(GUEST)는 묻지도 보이지도 않는다', gl === false && !G.sent.length && G.sb.ownTxtFor({ slug: 'guest-1-arrival' }) === '');
   ok('⑨ 글 카드(디렉터 · 사람 구간이 아닐 때)가 ownTxtFor 를 먼저 본다', /tx\.className = 'txt';\n    tx\.textContent = ownTxtFor\(c\) \|\| c\.text \|\| '';/.test(CS));
-  const b = brk(CS, [["if (!cu) return OWN_TXT[c.slug] || '';", "if (!cu) return '';"]]); const Wb = b ? mk(b) : null; if (Wb) await Wb.sb.rfOwnTxtLoad();
+  const b = brk(CS, [["return same ? (OWN_TXT[c.slug] || '') : OWN_TXT_MISS; }", "return ''; }"]]); const Wb = b ? mk(b) : null; if (Wb) await Wb.sb.rfOwnTxtLoad();
   ok('깨 보기 ⑨ — 기본 글만 보이면 빨강', !!Wb && Wb.sb.ownTxtFor({ slug: 'guest-1-arrival' }) === ''); }
 
 console.log(fail ? `✗ VC_DECISIONS_1030 실패 ${fail}건` : '✓ VC_DECISIONS_1030 — 대표 결정 아홉 통과');

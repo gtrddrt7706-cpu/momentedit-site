@@ -10378,16 +10378,16 @@ function _recE(r){ r=r||{}; return Math.max(+r.t||0, +r.e||0); }   // [SAME_ACCT
      종전엔 먼저 연 창이 다시 그리기만 해도 옛 판으로 다른 창의 최신 초안을 덮었다. 마이페이지 안이면 이 창을 옛 창으로 세운다(«다른 창에서 바뀌었어요 (코드 L8)» → «다시 열기»가 최신본을 연다) ·
      그냥 연 미리보기는 쓰지 않고 넘어간다. 이 창이 그 뒤에 고치면 그 고친 때가 더 나중이라 쓴다 */
 function _ordNewer(){ if(!EMBED) return; try{ var P=(window.parent&&window.parent!==window)?window.parent:null; if(P && typeof P._tabStaleMark==='function') P._tabStaleMark(); }catch(e){} }
-/* ★[ACCT_KEYS] 옛 공용 칸(me_order) → 계정 칸 · 공개 칸 — 그냥 연 미리보기에서도 한 번(마이페이지 _acctKeysMigrate 와 같은 규칙 · 쓰고 다시 읽어 확인한 뒤에야 지운다) */
-/* ★[MIG_KEEP 2026-10-30 GPT 14차 점검(고객) 14-01 · 14-02] 마이페이지 _acctKeysMigrate 와 같은 규칙 — 고친 때가 없다는 이유로 옛 저장 안 한 초안을 버리지 않는다 ·
-     둘 다 저장 안 한 고침인데 견줄 때가 없으면 옛 칸 그대로 · 옮긴 칸에는 쓴 때(w)를 지금으로 · 쓰기 실패면 옛 칸 그대로 */
-function _ordMigPick(r, cj, cur){ if(cur==null) return 'move'; if(!(r && typeof r==='object' && r.dirty)) return 'drop';   // [MIG_KEEP]
-  var re=_recE(r), ce=_recE(cj); if(re && ce && ce>=re) return 'drop'; if(!(cj && cj.dirty)) return 'move'; if(re && re>ce) return 'move'; return 'keep'; }
-function _ordMigrate(){ try{ var ro=localStorage.getItem('me_order'); if(ro==null) return; var r=null; try{ r=JSON.parse(ro); }catch(e){} var w=String((r&&r.who)||''), tk=w?(/^[A-Z0-9][A-Z0-9-]{2,19}$/.test(w)?'me_order_'+w:''):'me_order_pub', done=true;
-  if(tk){ var cur=localStorage.getItem(tk), cj=null; try{ cj=JSON.parse(cur||'null'); }catch(e){} var pk=_ordMigPick(r, cj, cur);
-    if(pk==='move'){ var nv=ro; try{ var o=JSON.parse(ro); if(o && typeof o==='object'){ o.w=Date.now(); nv=JSON.stringify(o); } }catch(e){} try{ localStorage.setItem(tk, nv); }catch(e){} done=(localStorage.getItem(tk)===nv); }
-    else done=(pk==='drop'); }
-  if(done) localStorage.removeItem('me_order'); }catch(e){} }
+/* ★[ACCT_KEYS] 옛 공용 칸(me_order) → 공개 칸 — 그냥 연 미리보기에서도 한 번(마이페이지 _acctKeysMigrate 와 같은 규칙 · 15차부터 베끼기만 · 아래 [MIG_COPY_ONCE]) */
+/* ★[MIG_KEEP 2026-10-30 GPT 14차 점검(고객) 14-01 · 14-02] 옮긴 칸에는 쓴 때(w)를 지금으로 · 쓰기 실패면 다음에 다시 — ★10-30 15차에 [MIG_COPY_ONCE] 로 바꿨다(견주어 옮기고 지우기를 걷었다) */
+/* ★[MIG_COPY_ONCE 2026-10-30 GPT 15차 점검(고객) 15-02 · Claude 결정] 그냥 연 미리보기는 주인 없는 옛 판(who '')만 공개 칸(me_order_pub)으로 «한 번 · 베끼기» —
+     공개 칸이 비었을 때만 베끼고(있으면 그대로 · 15-02) · 옛 칸은 지우지 않는다(예비본 · 마이페이지 _migOldSweep 이 30일 뒤 지운다) · 한 번 한 뒤로는 다시 들이지 않는다(me_mig_done_pub).
+     주인 있는 옛 판은 이 화면이 읽을 일이 없다 — 마이페이지 _acctKeysMigrate 가 그 계정의 맡김과 함께 한 번에 옮긴다(여기서 표시를 먼저 남기면 맡김이 빠진다) */
+function _ordMigrate(){ try{ var ro=localStorage.getItem('me_order'); if(ro==null) return; var r=null; try{ r=JSON.parse(ro); }catch(e){} if(!r || typeof r!=='object' || String(r.who||'')) return;   // [MIG_COPY_ONCE] 주인 없는 판만
+  if(localStorage.getItem('me_mig_done_pub')!=null) return;   // 한 번만
+  var tk='me_order_pub', ok=true;
+  if(localStorage.getItem(tk)==null){ var nv=ro; try{ r.w=Date.now(); nv=JSON.stringify(r); }catch(e){} try{ localStorage.setItem(tk, nv); }catch(e){} ok=(localStorage.getItem(tk)===nv); }
+  if(ok){ try{ localStorage.setItem('me_mig_done_pub', String(Date.now())); }catch(e){} } }catch(e){} }
 function _tabGone(){ try{ var P=(window.parent&&window.parent!==window)?window.parent:null; return !!(P && typeof P._tabStale==='function' && P._tabStale()); }catch(e){ return false; } }
 function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;   // [TAB_GUARD]
   var _k=_ordKey(); if(!_k){ if(EMBED && _fillSeen) _persistBad=true; return; }   // [ACCT_KEYS] 마이페이지가 계정을 확인해 주기 전에는 쓰지 않는다 · 계정 없이 채워졌으면 «이 기기에 남지 않아요»가 참이다

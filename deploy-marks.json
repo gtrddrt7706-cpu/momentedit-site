@@ -3061,6 +3061,12 @@
   },
   {
    "file": "80_production",
+   "fn": "_vcPracticeLeft_",
+   "mark": "PRACTICE_MS",
+   "why": "연습 소리 남았나를 천분의 1초로 견준다(정리와 같은 분의 새 연습도) — 옛것이면 정리 직후 새 연습 소리가 90일 뒤에도 남는다"
+  },
+  {
+   "file": "80_production",
    "fn": "adminRitualFileOk",
    "mark": "RFOK_FILE",
    "why": "스튜디오 확인 ✓ 를 들은 파일 id 에 묶는다 — 옛것이면 다시 만든 파일도 «확인함»"
@@ -3373,6 +3379,7 @@
    "_vcTs_",
    "_vcLastAct_",
    "_vcPracticeLeft_",
+   "_vcPracticeMs_",
    "_vcCodeSet_",
    "_vcAiTrashAll_",
    "_vcVoiceKeys_",
@@ -4207,7 +4214,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-31 00:16 · ab2830dc",
+ "_생성": "2026-10-31 01:23 · fb1b9c98",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4763,5 +4770,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "a474d3acf49f"
+ "_표식서명": "8d76e422848d"
 }
