@@ -20404,6 +20404,8 @@ chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
 chk 'CHEER_TAIL_1030' order-preview.html 1
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
+# [TEST_CLOCK_1030] vc-decisions ⑧ 은 콘솔 시계를 검사의 NOW 로 고정한다 — 실제 시계를 읽으면 한국 자정이 지나 빨강이 된다
+chk 'TEST_CLOCK_1030' scripts/audit/vc-decisions-1030.mjs 2
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
 
 chk "B21: { t: \"Herman's Habit\"" assets/bgm-picks.js 1
