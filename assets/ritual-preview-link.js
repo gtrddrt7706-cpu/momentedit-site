@@ -89,7 +89,10 @@
     'meal',                                    // 모일 식당을 골랐나 — ★INJECT · 식순 S 에는 없다
     /* ★[GUIDE_ON_1019 검토 138-2] 하객 안내 링크가 열려 있나 — 우리 «사진 올리기» 안내(5분 전 뒤 · 단체 사진 뒤)의 스위치 — ★INJECT · 식순 S 에는 없다.
        값은 유무 boolean 뿐 — 열쇠(토큰)는 싣지 않는다(photoShare 와 같은 규칙) · 원천은 production.guideToken + 예식 +30일 안 */
-    'guide'
+    'guide',
+    /* ★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30] 사진 전 안내 266(«식사는 안내된 예약 시간에 …»)을 고르는 두 값 — ★INJECT · 식순 S 에는 없다 · 유무 boolean 뿐
+       mealFull = 모일 곳이 식사 자리(카페 · 다과만이 아님) · resv = 식사 예약 시각이 적혀 있다(다이닝 값 우선 · 키 없을 때만 하객 안내 옛 저장분) */
+    'mealFull', 'resv'
   ];
 
   /* ★INJECT = 엔진은 읽는데 식순 초안 S 에는 없는 키 [PREVIEW_DIGITAL]
@@ -100,7 +103,7 @@
      이 목록이 있어야 [PREVIEW_KEYS] 검사가 "엔진은 읽는데 아무도 값을 안 만드는 키"를 잡을 수 있다.
      (2026-08-02 실제 사고: digital 이 KEYS 에만 있고 값을 넣는 곳이 없어, 디지털 참석 예식도 미리듣기는
       늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
-  var INJECT = ['digital', 'photoShare', 'meal', 'guide', 'photoN', 'photoWishN'];   // [GUIDE_ON_1019] guide 도 밖에서   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
+  var INJECT = ['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'];   // [PHOTO_PRE_PICK_1030] mealFull · resv 도 밖에서   // [GUIDE_ON_1019] guide 도 밖에서   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
 
   /* [BGM_INFO_1023] 음악 칸 — 축사(S5) · 편지(S6)의 'bed' 만 남긴다(assets/bgm-slots.js clean 과 같은 규칙 · 이 파일은 그 파일 없이도 돈다) */
   function bgmOf(b) {
@@ -151,6 +154,26 @@
     return placeholders.indexOf(p) === -1;
   }
 
+  /* ★★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30 14:22] 사진 전 안내 판 고르기 — 266(식사 있음)은 «식사는 안내된 예약 시간에 두 사람과 함께»라고 말한다.
+       그래서 266 은 ① 모일 곳이 식사 자리 ② 예약 시각이 적혀 있다 ③ 하객 안내가 열려 있다 — 셋 다일 때만 · 다이닝은 있는데 하나라도 비면 26(중립) · 안 고른 날 265.
+     mealFullOf — 모일 곳(venuePick)을 «담은 곳»(_favs)에서 찾아 그 설명(m: 목록의 음식 종류 · 지도 분류)이 카페 · 디저트 · 베이커리 · 제과 · 다과면 «식사 아님».
+       목록(DINE_DB)의 카페는 모두 음식 종류 «카페» 하나 · 식당에는 «카페»가 없다(10/30 실측) · 지도 분류는 «음식점 > 카페 > …» 꼴.
+       ★담은 곳에서 못 찾으면(옛 저장분) «모른다» = 식사 아님으로 본다 — 266 의 «식사는 …» 말이 카페 날에 나가는 것보다 26(중립)이 안전하다.
+       옛 «식사 형태»(mealType)가 남아 있으면 그 값도 본다. */
+  var CAFE_RE = /카페|디저트|베이커리|제과|다과|티룸|커피/;
+  function mealFullOf(dd, placeholders) {
+    if (!mealOf(dd, placeholders)) return false;
+    if (CAFE_RE.test(String(dd.mealType || ''))) return false;
+    var p = String(dd.venuePick || '').trim(), f = Array.isArray(dd._favs) ? dd._favs : [];
+    for (var i = 0; i < f.length; i++) if (f[i] && String(f[i].n || '').trim() === p) return !CAFE_RE.test(String(f[i].m || ''));
+    return false;
+  }
+  /* resvOf — 식사 예약 시각이 있나(마이페이지 하객 안내 조립과 같은 규칙: 다이닝 값 우선 · 키가 없을 때만 하객 안내 옛 저장분 · 빈 값 = 지움) */
+  function resvOf(dd, gi) {
+    var t = (dd && dd.reserveTime != null) ? dd.reserveTime : (gi && gi.reserveTime);
+    return !!String(t || '').trim();
+  }
+
   /* ★[CONSOLE_INJECT_1019 검토 138-0] 모일 식당 자리표시(장소가 아닌 고르기 값) 단일 원천 — 마이페이지 DN_PLACEHOLDER · 관리자 «당일 콘솔»이 같은 목록을 쓴다(console-inject.mjs 가 대조) */
   var DINE_PH = ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'];
   /* [GUIDE_ON_1019] 하객 안내가 «열려 있나» — 열쇠가 있고 닫히지 않았다(닫힘 판정은 부르는 쪽 · 마이페이지 _guideLinkClosed · 관리자는 예식일 +30) */
@@ -189,5 +212,5 @@
     return url(rd.S, extra);
   }
 
-  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf, mealOf: mealOf, guideOf: guideOf, DINE_PH: DINE_PH };
+  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf, mealOf: mealOf, mealFullOf: mealFullOf, resvOf: resvOf, guideOf: guideOf, DINE_PH: DINE_PH };
 })(window);

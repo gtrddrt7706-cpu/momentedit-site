@@ -301,7 +301,7 @@ ok('영상 판만 «재생 안 됨»을 든다(소리 없이 · 105 쉼 · FREE_
 ok('[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014] 말로 인사 = 145 «그 마음을 담아, …» + 울컥할 때 안심(fallback) · 말 없이 = 143 · 사진 링크 날 85 는 전체 사진 → 85 → 감사 인사(사슬) · 링크 없으면 85 없이 감사 인사가 디렉터 GO', (() => {
   const tr = (say) => C.build({ course: 'open', on: { tribute: 1 }, tributeSay: say }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute');
   const a = tr('long'), b = tr('none'), ca = a.find((c) => /^tribute-call/.test(c.slug || '')) || {}, cb = b.find((c) => /^tribute-call/.test(c.slug || '')) || {};
-  const ph = (on) => { const r = C.build({ course: 'open', on: {}, guide: on, meal: 1 }, { mode: 'console' }).cues,   /* [PHOTO_UP_1019] 새 코스는 하객 안내가 열린 날 */ s = r.map((c) => c.slug); return { s, r }; };
+  const ph = (on) => { const r = C.build({ course: 'open', on: {}, guide: on, meal: 1, mealFull: 1, resv: 1 }, { mode: 'console' }).cues,   /* [PHOTO_UP_1019] 새 코스는 하객 안내가 열린 날 */ s = r.map((c) => c.slug); return { s, r }; };
   const p1 = ph(1), p0 = ph(0), i85 = p1.s.indexOf('narr-photo-send'), ith = p1.r.findIndex((c) => c.act);   /* [END_FLOW_1030] 감사 인사(45) 대신 소리 없는 가족 구도 큐 */
   return ca.slug === 'tribute-call-say' && /^그 마음을 담아 신랑 신부, 인사!$/.test(ca.text || '') && cb.slug === 'tribute-call' && cb.text === '신랑 신부, 인사!'   /* [SOURCE_FIRST_1016] 자료 GG 1 구호 그대로 */
     && !!(a[1] && a[1].live && a[1].live.fallback) && !(b[1] && b[1].live && b[1].live.fallback)

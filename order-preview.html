@@ -2274,7 +2274,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1030j"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1030bh"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1030pp"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1030bh"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3114,7 +3114,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1030j';   // [ASSET_V] 위 주석
+  var ASSET_V='1030pp';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -8238,7 +8238,7 @@ function _lFull(){
     var _esec=LP.ended.range&&LP.ended.range.sec;   // [QA_SEC]
     h+='<div class="lf-end">'+(_esec?('«'+esc(_esec)+'»'+_josa(_esec,'을','를')+' 끝까지 보셨어요'):LP.ended.all?('끝까지 보셨어요 · '+esc(R.spanText(S))):'이 순간을 다 보셨어요')
       +'<div class="lf-endb"><button type="button" class="rowbtn" data-fk="lfagain" onclick="lsAgain()">다시 보기</button>'
-      +((LP.noChips&&window.RitualPreviewLink&&RitualPreviewLink.url(S,{digital:!!CUSTDIG,photoShare:!!CUSTPHOTO,meal:!!CUSTMEAL,guide:!!CUSTGUIDE}))?'<button type="button" class="rowbtn" onclick="lsCloseBig(openRitualPreview)">음악까지 미리듣기</button>':'')
+      +((LP.noChips&&window.RitualPreviewLink&&RitualPreviewLink.url(S,{digital:!!CUSTDIG,photoShare:!!CUSTPHOTO,meal:!!CUSTMEAL,mealFull:!!CUSTMEALF,resv:!!CUSTRESV,guide:!!CUSTGUIDE}))?'<button type="button" class="rowbtn" onclick="lsCloseBig(openRitualPreview)">음악까지 미리듣기</button>':'')
       /* [BIG_END 2026-09-25 코워크 추가전달 2-10] ② 의 끝 화면은 [다시 보기] [다음 · 준비하기] 둘 — «목록으로»는 위 ⌄ 와 같고 큰 ↻ 는 다시 보기와 같았다 */
       +(LP.noChips?'<button type="button" class="rowbtn" data-fk="lfdone" onclick="lsCloseBig()">완성 화면으로</button>':((STEPS[idx]&&STEPS[idx].k==='practice')?'<button type="button" class="rowbtn" data-fk="lfnextstep" onclick="lsCloseBig();setTimeout(function(){ opGoStep(\'done\'); },30)">다음 · 완성</button>':'<button type="button" class="rowbtn" data-fk="lfnextstep" onclick="lsCloseBig();setTimeout(function(){ opGoStep(\'practice\'); },30)">다음 · 연습하기</button>'))   /* [FLOW_MAKE] 옛 «다음 · 준비하기»(write)는 걷었다 */+'</div></div>';
   }
@@ -9898,7 +9898,7 @@ function renderDone(){
   /* ★[LISTEN_PAGE 코워크 4-5] 새 코스의 ④ — «처음부터 끝까지 보기»가 ② 크게 보기와 같은 플레이어로 연다(고를 것 칩 없이).
      듣기 단추는 하나로 둔다([REHEARSE_MERGED]) — 음악까지 들리는 옛 미리듣기는 그 플레이어의 끝 화면에서 연다. */
   if(isOpen()) h+='<button class="rehearse-btn" onclick="lsPlayAll()">처음부터 끝까지 보기</button>';
-  else if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO, meal:!!CUSTMEAL, guide:!!CUSTGUIDE}))
+  else if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO, meal:!!CUSTMEAL, mealFull:!!CUSTMEALF, resv:!!CUSTRESV, guide:!!CUSTGUIDE}))
     h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리듣기</button>';
   /* ★★[REHEARSE_MERGED 2026-08-12 사용자 지시 "연습공간 없에고 미리듣기로 통합하자"]
      ★「연습 공간 열기」 단추 **폐지 — 되살리지 말 것.**
@@ -9988,7 +9988,7 @@ function renderDone(){
      (마이페이지 식순 행에도 같은 진입점이 있고, 거기는 서버 초안에서 조립한다 · mypage.html openRitualPreview) */
 function openRitualPreview(){
   var src='';
-  try{ src=(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO, meal:!!CUSTMEAL, guide:!!CUSTGUIDE}))||''; }catch(e){}   // [PREVIEW_DIGITAL] 배웅 장면이 여기서 갈린다
+  try{ src=(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO, meal:!!CUSTMEAL, mealFull:!!CUSTMEALF, resv:!!CUSTRESV, guide:!!CUSTGUIDE}))||''; }catch(e){}   // [PREVIEW_DIGITAL] 배웅 장면이 여기서 갈린다
   if(!src){ try{ toast('아직 들려드릴 순서가 없어요'); }catch(e){} return null; }
   try{ _stopAud(); }catch(e){}   // 빌더에서 듣던 견본 음성이 있으면 먼저 끊는다 — 두 소리가 겹치면 둘 다 안 들린다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
@@ -10571,6 +10571,7 @@ var CUSTDIG=false;
 var CUSTPHOTO=false;
 var CUSTTBL=0;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수 — mypage 가 orderFill 로 보낸다 · render 가 S.tableN 에 싣는다(초안과 함께 저장 → 콘솔 · 시간표가 같은 값) */
 var CUSTGUIDE=false;   // [GUIDE_ON_1019] 하객 안내가 열려 있나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 사진 올리기 안내가 안 나간다)
+var CUSTMEALF=false, CUSTRESV=false;   // [PHOTO_PRE_PICK_1030] 식사 자리 · 예약 시각 유무 — mypage orderFill(구버전이면 false · 26/265 로 지난다)
 var CUSTMEAL=false;   // [MEAL_GUIDE] 모일 식당을 골랐나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 멘트가 안 나간다)
 /* ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 저장할 때 **어디까지 걸어왔는지**를 함께 보낸다.
    ★무엇이 문제였나 — 코스를 고르는 순간 모든 순간이 기본값으로 채워진다. 그래서 3번째 단계에서
@@ -10778,7 +10779,8 @@ if(EMBED){
       if(typeof ev.data.tables==='number'&&ev.data.tables>0) CUSTTBL=ev.data.tables;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수(없으면 하객 수 ÷ 5) — 아래에서 S.tableN 에 싣는다(콘솔 · 시간표가 같은 값을 본다) */
       if(typeof ev.data.guide==='boolean') CUSTGUIDE=ev.data.guide;   // [GUIDE_ON_1019]
       if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;
-      try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, guide:CUSTGUIDE===true}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
+      if(typeof ev.data.mealFull==='boolean') CUSTMEALF=ev.data.mealFull; if(typeof ev.data.resv==='boolean') CUSTRESV=ev.data.resv;   // [PHOTO_PRE_PICK_1030]
+      try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, mealFull:!!CUSTMEALF, resv:!!CUSTRESV, guide:CUSTGUIDE===true}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
       // ORDER_OWNER → ★[ACCT_KEYS 2026-10-30] 이 기기 초안은 계정 칸이라 «주인이 다르면 지우기»가 필요 없다 — 마이페이지가 확인해 준 계정 칸만 이제 처음 읽는다(그 전엔 읽지 않았다).
       //   종전엔 열자마자 공용 칸을 되살린 뒤 여기서 주인을 대조해 지웠고, 그 지우기가 다른 창 계정 초안을 지우는 경합(12-02)을 낳았다 — 지우기를 되살리지 말 것
       if(!_ACCT && /^[A-Z0-9][A-Z0-9-]{2,19}$/.test(_fa)){ _ACCT=_fa; _who=_fa; try{ if(_ordRestore()){ _navKey=''; render(); } }catch(e){} }   // [ACCT_KEYS] 되살렸으면 그 판으로 그린다 — 첫 그리기처럼 그 걸음을 기록 칸에 바꿔 적는다(쌓지 않는다 · 종전 열 때 되살리기와 같은 뒤로가기)
