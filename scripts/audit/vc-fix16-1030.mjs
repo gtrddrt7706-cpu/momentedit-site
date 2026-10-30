@@ -153,7 +153,7 @@ await sec('⑦', async () => {
   W2.go.onclick(); await wait(300); const a = W2.ran; W2.sb.RF_FRESH.list = false; W2.sb.RF_ST.g0 = 'busy'; await wait(300); const b = W2.ran; W2.sb.RF_ST.g0 = 'ok'; await wait(400);
   ok('⑦ 목록 → 파일 받기로 이어지는 동안 내내 기다린다 · 끝나면 시작', a === 0 && b === 0 && W2.ran === 1, { a, b, ran: W2.ran });
   const pf = grabIn(CS, 'rfPrefetch');
-  ok('⑦ 처음 열 때(rfPrefetch)도 목록을 묻는 동안은 «받는 중»(RF_FRESH.list = true)', /if \(!code \|\| !tok\) \{ RF_FRESH\.list = false; return; \} RF_FRESH\.list = true;/.test(pf)); });
+  ok('⑦ 처음 열 때(rfPrefetch)도 목록을 묻는 동안은 «받는 중»(RF_FRESH.list = true · 받을 것이 있을 때 · [RF_NOWAIT_EMPTY] con-start-nowait.mjs)', /if \(!code \|\| !tok\) \{ RF_FRESH\.list = false; return; \} RF_FRESH\.list = (true|need);/.test(pf)); });
 
 await sec('⑧', async () => {
   /* 최신 확인 중에 시작을 다시 누름 → 기기 보관본 확인 대기 → 새 파일 B 안내가 먼저 → A 보관본 확인 끝 */

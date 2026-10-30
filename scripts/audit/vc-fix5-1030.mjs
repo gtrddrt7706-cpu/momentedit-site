@@ -80,7 +80,7 @@ const CS = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
     W.go.onclick(); const r2 = W.ran(); if (W.pend.B) W.pend.B(); for (let i = 0; i < 6; i++) await flush(); W.go.onclick();
     return { listing: r1, fetching: r2, after: W.ran(), clip: W.sb.CLIPS['guest-1-arrival'] }; };
   let r = await sc6(CS); ok('⑥ [CON_FRESH_LIST] 다시 불러온 뒤 목록을 묻는 동안 · 파일을 받는 동안 «시작»은 기다리고 다 받으면 시작', r.listing === 0 && r.fetching === 0 && r.after === 1 && r.clip === 'blob:B', r);
-  let b = brk(CS, [['RF_FRESH.wait = true; RF_FRESH.list = true; rfPrefetch();', 'RF_FRESH.wait = true; rfPrefetch();'], ['} RF_FRESH.list = true;   /* [RF_READY_ALL]', '}   /* [RF_READY_ALL]']]); r = b ? await sc6(b) : null;   // ★[RF_READY_ALL 2026-10-30 16차] rfPrefetch 도 목록을 묻는 동안 RF_FRESH.list 를 켠다 — 둘 다 되돌려야 옛 꼴
+  let b = brk(CS, [['RF_FRESH.wait = true; RF_FRESH.list = true; rfPrefetch();', 'RF_FRESH.wait = true; rfPrefetch();'], ['} RF_FRESH.list = need;   /* ★[RF_NOWAIT_EMPTY', '}   /* ★[RF_NOWAIT_EMPTY']]); r = b ? await sc6(b) : null;   // ★[RF_READY_ALL 2026-10-30 16차] rfPrefetch 도 목록을 묻는 동안 RF_FRESH.list 를 켠다(받을 것이 있을 때 · [RF_NOWAIT_EMPTY] 10-31) — 둘 다 되돌려야 옛 꼴
   ok('깨 보기 ⑥ — 옛 꼴이면 빨강', !!r && r.listing === 1, r);
   const sc7 = async (src) => { const W = mk(src); W.sb.rfPrefetch(); W.pend.list0(); for (let i = 0; i < 6; i++) await flush();
     W.sb.RF_FRESH.ask = { keys: ['g0'], up: {} }; W.sb.rfFreshApply(); if (W.pend.list1) W.pend.list1(); for (let i = 0; i < 6; i++) await flush();
