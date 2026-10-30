@@ -20433,7 +20433,7 @@ chk 'VC_CNT_ZERO' automation/platform/80_production.gs 2
 chk 'VC_DEL_PEND' automation/platform/80_production.gs 3
 nochk "catch (e) { var f0 = _vcSt(code); if (guard && guard(f0)) return 'stop'; _vcPut(code, _vcM3(f0, base, mine)); return; }" automation/platform/80_production.gs   # [VC_SAVE_BUSY] 잠금 없이 합쳐 쓰던 길을 되살리지 않는다
 chk 'VC_DEL_PEND' order-preview.html 2
-chk "MK.toast=d.pend?'지우는 중이에요 · 곧 끝나요':'지웠어요';" order-preview.html 1
+chk "MK.toast=d.pend?'지우는 중이에요 · 매일 다시 지워요':'지웠어요';" order-preview.html 1   # [VC_DEL_DAILY] «곧 끝나요» → 근거(매일 다시)
 chk 'VC_PURGE_TRUE' mypage.html 2
 chk 'REC_SILENT' assets/rec-process.js 3
 chk 'REC_SILENT' order-preview.html 3
@@ -20458,3 +20458,21 @@ chk 'CON_OWN_FALL' console.html 1
 chk 'VC_ORPHAN' automation/platform/80_production.gs 2
 nochk "// \[REVIEW_TAP_GUARD\] if(/^vc:/.test(r.key)){ _vcTake(); return; }" order-preview.html   # [VC_TAKE_LIVE] 다음 걸음 호출을 주석 안에 다시 묻지 않는다
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix3-1030.mjs >/dev/null 2>&1; _vf3=$?; if [ "$_vf3" = 1 ]; then echo 'FAIL vc-fix3-1030: AI 목소리 3차 점검(1분 읽기 다음 걸음 · 녹음 끊김 · 카드 말 · 보고 듣기 칸 · 콘솔 두 분 소리 · 주인 없는 목소리) 판정이 어긋났습니다 — node scripts/audit/vc-fix3-1030.mjs'; fail=1; else echo "ok vc-fix3-1030 ($_vf3)"; fi; fi
+# ★[VC_FIX4_1030 2026-10-30 GPT 4차 점검(다섯 사람 걷기 · 당일 진행)] 두 분 AI 목소리 — 지우는 중 말 · 옛 읽은 녹음 지울 목록 · 멈춘 녹음 알림 · 1분 읽기 잃기 확인 · 마이페이지 지우는 중 줄 · 콘솔 다시 불러오기(차례 · 기다림 · 선택 바뀜 · 말) · 입장 인사 대신 나레이션 장면
+chk 'VC_FIX4_1030' scripts/audit/vc-fix4-1030.mjs 1
+chk 'VC_DEL_DAILY' order-preview.html 2
+chk 'VC_DEL_DAILY' mypage.html 1
+chk 'VC_PEND_STAY' mypage.html 1
+chk 'REC_CUT_KEEP' order-preview.html 1
+chk 'READ_LOSE_SAME' order-preview.html 2
+chk 'VC_RD_OLD' automation/platform/80_production.gs 9
+chk 'RF_GEN' console.html 3
+chk 'CON_FRESH_WAIT' console.html 3
+chk 'CON_SEL_FRESH' console.html 3
+chk 'CON_FRESH_SAY' console.html 1
+chk 'ESD_OWN_FALL' console.html 1
+chk 'CON_FALL_SHORT' console.html 1
+nochk "'지우는 중이에요 · 곧 끝나요'" order-preview.html   # [VC_DEL_DAILY] 약속할 수 없는 «곧»을 되살리지 않는다
+nochk "AI 목소리는 지우는 중이에요 · 곧 끝나요" mypage.html   # [VC_DEL_DAILY]
+nochk "시작을 한 번 더 누르면 지금 소리로 <button" console.html   # [CON_FRESH_SAY]
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix4-1030.mjs >/dev/null 2>&1; _vf4=$?; if [ "$_vf4" = 1 ]; then echo 'FAIL vc-fix4-1030: AI 목소리 4차 점검(지우는 중 말 · 옛 읽은 녹음 · 멈춘 녹음 알림 · 1분 읽기 잃기 확인 · 콘솔 다시 불러오기 · 입장 장면) 판정이 어긋났습니다 — node scripts/audit/vc-fix4-1030.mjs'; fail=1; else echo "ok vc-fix4-1030 ($_vf4)"; fi; fi
