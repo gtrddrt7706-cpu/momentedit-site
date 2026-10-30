@@ -971,6 +971,11 @@ body.snp-open #mpToast{bottom:calc(var(--snp-toast-b,34px) + env(safe-area-inset
 .rit-prep h4{font-size:12px;font-weight:500;color:var(--text);margin:8px 0 4px}
 .rit-prep ul{margin:0;padding:0 0 0 16px;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all}
 .rit-prep .due{color:var(--label-soft);white-space:nowrap}
+.mig-offer{display:flex;align-items:center;flex-wrap:nowrap}   /* [OLD_DRAFT_OFFER] 식순 줄 아래 «예전 고침» 한 줄 — 390 에서 한 줄(좁으면 글만 줄바꿈 · 닫기가 홀로 떨어지지 않게) · 누를 곳은 44px(위아래는 음수 여백 · 닫기는 ::after 로 넓힌다) */
+.mig-offer>span{min-width:0}
+.mig-offer-go{flex:none;display:inline-flex;align-items:center;min-height:44px;margin:-14px 0;padding:0 4px;background:none;border:0;font:inherit;color:var(--gold-deep,#7A5F37);text-decoration:underline;text-underline-offset:3px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mig-offer-x{flex:none;position:relative;display:inline-flex;align-items:center;justify-content:center;width:28px;min-height:44px;margin:-14px -10px -14px auto;padding:0;background:none;border:0;font-size:11px;color:var(--label-soft);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mig-offer-x::after{content:'';position:absolute;top:0;bottom:0;left:-8px;right:-8px}
 .trk-sub{font-size:12px;color:var(--label-soft);text-align:left;padding:3px 2px 11px;margin-top:0;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all;text-wrap:balance}   /* [TRK_SUB_BALANCE] 2026-09-26 · 320px 에서 «확인해요»만 둘째 줄로 떨어지던 꼬리 줄(191/44px) → 두 줄을 고르게 */
 /* ★[TRK_END_LINE 2026-09-26 고객 점검 prod-9] 목록 끝에 선이 하나 더 남던 것 — 행 설명줄(.trk-sub)의 밑선은 «다음 행과의 칸막이»다.
    ①스냅 요약 카드는 행이 하나뿐이라 밑선이 카드 끝에 떠 있었다 → 뺀다.
@@ -3208,7 +3213,7 @@ function clearToken(keep){ if(typeof _tabStale=='function' && _tabStale()){ try{
   _DR_AFTER_MEM=null;   // [DRESS_MEM_RESET 1030] 드레스 창 기억(탭 · 자리)도 로그아웃 · 세션 끝에 비운다(옛 창 · 맡김 실패로 멈춘 때는 그대로)
   try{
   localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY); if(typeof _tabBind=='function'){ var _epOk=_tabEpBump(); _tabBind(); if(!_epOk) _tabEpFail(); }   // [TAB_GUARD] 이 창이 스스로 나갔다 — 기준을 새로 · [AUTH_EPOCH] 차례 올림 · [EPOCH_VERIFY] 못 남겼으면 이 창을 멈춘다(토큰은 이미 지웠다 · 다른 창은 토큰으로 안다)
-  var _kill=['me_prod_ping']; if(_c){ _kill.push(_ordK(_c), 'me_snapLocal_'+_c, 'me_order_v2note_'+_c, 'me_deliv_'+_c); if(!keep) _kill.push(_keepK(_c)); }   // [ACCT_KEYS] 나가는 계정의 칸만 지운다(다른 계정 칸은 그 계정 화면만 읽는다) · [SNAP_AGREE_LAST] 동의 전 스냅 임시본도 · [RELOGIN_KEEP] 스스로 로그아웃하면 그 계정 맡김도 · [RELOGIN_SNAP_KEEP] 계정을 모르는 로그인 풀림이면 계정 칸은 두고 간다
+  var _kill=['me_prod_ping']; if(_c){ _kill.push(_ordK(_c), 'me_snapLocal_'+_c, 'me_order_v2note_'+_c, 'me_deliv_'+_c, _useK(_ordK(_c)), _useK('me_snapLocal_'+_c)); if(!keep) _kill.push(_keepK(_c), _ordK(_c)+'_prev'); }   // [OLD_DRAFT_OFFER] 마지막 사용 칸 · 스스로 로그아웃이면 불러오기 전 칸(_prev)도   // [ACCT_KEYS] 나가는 계정의 칸만 지운다(다른 계정 칸은 그 계정 화면만 읽는다) · [SNAP_AGREE_LAST] 동의 전 스냅 임시본도 · [RELOGIN_KEEP] 스스로 로그아웃하면 그 계정 맡김도 · [RELOGIN_SNAP_KEEP] 계정을 모르는 로그인 풀림이면 계정 칸은 두고 간다
   _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
   if(_c && !keep) _migOldDrop(_c, 'out');   // [MIG_COPY_ONCE] 15-06 스스로 로그아웃 — 그 계정이 주인인 옛 공용 예비본(me_order · me_relogin_keep)도 · 로그인 풀림(keep)은 둔다
   _acctOldSweep();   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김
@@ -3316,15 +3321,59 @@ function _recE(r){ r=r||{}; return Math.max(+r.t||0, +r.e||0); }   // [SAME_ACCT
         계정 맡김의 시각 없는 항목은 제 꾸러미 때로 굳힌다(합친 꾸러미의 새 때를 빌리지 않는다 · 15-03)
      ⑤ 옛 예비본을 지우는 때 — 그 주인이 스스로 로그아웃(clearToken) · 그 주인이 서버에 식순을 저장(_migOldDrop) · 옮긴 표시가 있고 30일 넘게 손대지 않음(_migOldSweep)
      ★종전 «견주어 옮기고 옛 칸 지우기»(_migPick · _MIG_DONE)는 걷었다 — 되살리지 말 것(merge-guard nochk)
-     ★«이 기기에 예전 초안이 있어요 · 불러오기» 한 줄은 넣지 않았다(옛 판이 더 나중임을 믿을 수 있는 고친 때가 드물어 이득보다 갈래가 늘었다) */
+     ★«이 기기에 예전 초안이 있어요 · 불러오기» 한 줄은 넣지 않았다(옛 판이 더 나중임을 믿을 수 있는 고친 때가 드물어 이득보다 갈래가 늘었다) — ★10-30 16차에 아래 [OLD_DRAFT_OFFER] 로 넣었다(견주어 고르지 않고 되찾게 한다) */
+/* ★★[OLD_DRAFT_OFFER 2026-10-30 GPT 16차 점검(고객) 16-01 · 16-02 · 16-03 · Claude 결정] 어느 쪽이 더 나중인지 짐작하지 않는다 — 예비본을 남겨 두고 두 분이 되찾게 한다
+     ① 옛 공용 me_order · 옛 맡김(me_relogin_keep)은 예비본이다 — 지우는 때는 그 주인이 스스로 로그아웃할 때(clearToken)와, 예비본이 스스로 마지막으로 쓰인 때에서 30일 뒤(_migOldSweep)뿐
+        · 쓰인 때 = 그 기록의 쓴 때(w) · 고친 때(t · e) · 이 기기가 내용이 바뀐 것을 처음 본 때(me_mig_oldw) 가운데 가장 늦은 때 — 배포 전에 열어 둔 창은 계속 me_order 에 쓴다
+        · ★«서버에 식순을 저장하면 옛 예비본을 지운다»(_migOldDrop 'save')는 걷었다 — 옛 꼴 초안이 더 나중 고침일 수 있다(16-02) · 되살리지 말 것(merge-guard nochk)
+     ② 마이페이지를 열 때마다(식순 줄을 그릴 때마다) 이 계정의 예비본을 계정 칸과 내용(S)으로 견준다 —
+        다르고 · 저장 안 한 고침(dirty)이고 · 계정 칸보다 나중에 쓰였으면(어느 한쪽이라도 때가 없거나 · 계정 칸이 저장 안 한 고침이 아니면) 식순 줄 아래 한 줄
+        «이 기기에 저장 안 된 예전 고침이 있어요 · 불러오기» — 누르면 지금 계정 칸을 me_order_<코드>_prev 에 먼저 남기고 예비본을 계정 칸으로 베낀 뒤 식순 화면을 연다(무엇을 열지는 종전 [LOCAL_AHEAD])
+        · 닫기 = 그 예비본의 지문을 me_mig_x_<코드> 에 남긴다(같은 내용으로는 다시 묻지 않는다) · 옮기기가 비어 있던 계정 칸에 베낀 예비본도 같은 표시(계정 칸에 이미 있다)
+     ③ 16-01 옮긴 표시는 종전대로(계정 칸이 있거나 베꼈을 때) — 예비본이 남아 있으니 «베끼지 못한 원본»은 ② 로 되찾는다
+     ④ 16-03 계정 칸의 마지막 사용(w)은 초안 본문과 따로 작은 칸(me_order_w_<코드> · me_snapLocal_w_<코드> · _useK)에 적는다 — 읽어 둔 초안 전체를 다시 쓰지 않는다(그 사이 다른 창의 최신 입력을 덮었다) */
 var MIG_DONE_K='me_mig_done_';   // [MIG_COPY_ONCE]
+var MIG_X_K='me_mig_x_', MIG_OLDW_K='me_mig_oldw';   // [OLD_DRAFT_OFFER] 닫았거나 이미 베낀 예비본 지문 · 예비본이 바뀐 것을 본 때
+function _useK(k){ var m=/^(me_order_|me_snapLocal_)(.+)$/.exec(String(k||'')); return m?m[1]+'w_'+m[2]:''; }   // [OLD_DRAFT_OFFER] 16-03 마지막 사용 칸
+function _useW(k){ try{ return +localStorage.getItem(_useK(k))||0; }catch(e){ return 0; } }
+function _useSet(k, t){ var u=_useK(k); if(!u) return; try{ localStorage.setItem(u, String(t||Date.now())); }catch(e){} }
+function _strSig(s){ s=String(s==null?'':s); var h=5381; for(var i=0;i<s.length;i++) h=(((h<<5)+h)^s.charCodeAt(i))>>>0; return s.length.toString(36)+'.'+h.toString(36); }   // [OLD_DRAFT_OFFER] 예비본 지문
+function _sameS(a, b){ var st=function(v){ if(Array.isArray(v)) return '['+v.map(st).join(',')+']'; if(v&&typeof v==='object') return '{'+Object.keys(v).sort().map(function(k){ return JSON.stringify(k)+':'+st(v[k]); }).join(',')+'}'; return JSON.stringify(v===undefined?null:v); }; return st(a||{})===st(b||{}); }   // [OLD_DRAFT_OFFER] 내용으로 견준다(칸 순서는 보지 않는다)
+function _migOldW(k, raw, j, fl, now){ now=now||Date.now(); var all={}; try{ all=JSON.parse(localStorage.getItem(MIG_OLDW_K)||'{}')||{}; }catch(e){ all={}; } if(!all || typeof all!=='object') all={};   // [OLD_DRAFT_OFFER] 예비본이 스스로 마지막으로 쓰인 때
+  var s=_strSig(raw), cur=all[k], own=Math.max(+(j&&j.w)||0, _recE(j)), w;
+  if(cur && cur.s===s) w=+cur.w||0;
+  else { w=cur?now:(own||(+fl||0)||now); all[k]={s:s, w:w}; try{ localStorage.setItem(MIG_OLDW_K, JSON.stringify(all)); }catch(e){} }   // 처음 보면 제 때(없으면 옮긴 때 · 지금) · 내용이 바뀌었으면 지금 쓰였다
+  return Math.max(w, own); }
+function _migOffer(c){ try{ c=String(c||''); if(!_acctOk(c)) return null; if(typeof _tabStale=='function' && _tabStale()) return null;   // [OLD_DRAFT_OFFER] 되찾을 예비본이 있나 — {raw, sig} · 없으면 null
+  var ro=localStorage.getItem('me_order'); if(ro==null) return null; var j=null; try{ j=JSON.parse(ro); }catch(e){}
+  if(!j || typeof j!=='object' || String(j.who||'')!==c || !j.dirty || !j.S || typeof j.S!=='object') return null;   // 이 계정의 저장 안 한 고침만
+  var sig=_strSig(ro); if(localStorage.getItem(MIG_X_K+c)===sig) return null;   // 닫았거나 이미 베낀 그 내용
+  var a=null; try{ a=JSON.parse(localStorage.getItem(_ordK(c))||'null'); }catch(e){ a=null; }
+  if(a && typeof a==='object'){ if(_sameS(a.S, j.S)) return null;
+    var bt=Math.max(+j.w||0, _recE(j)), at=+a.w||0; if(a.dirty && bt && at && bt<=at) return null; }   // 계정 칸이 저장 안 한 고침이고 둘 다 때가 있으면 · 예비본이 더 나중일 때만
+  return {raw:ro, sig:sig}; }catch(e){ return null; } }
+function _migLoad(c){ c=String(c||''); var o=_migOffer(c); if(!o) return false; var ok=_ordK(c), now=Date.now();   // [OLD_DRAFT_OFFER] 불러오기 — 지금 계정 칸을 _prev 에 먼저 남긴 뒤 예비본을 계정 칸으로
+  try{ var cur=localStorage.getItem(ok);
+    if(cur!=null){ var pv=cur; try{ var pj=JSON.parse(cur); if(pj && typeof pj==='object'){ pj.w=now; pv=JSON.stringify(pj); } }catch(e){} localStorage.setItem(ok+'_prev', pv); if(localStorage.getItem(ok+'_prev')!==pv) return false; }   // 못 남겼으면 바꾸지 않는다
+    var nv=o.raw; try{ var nj=JSON.parse(o.raw); nj.w=now; nj.e=now; nv=JSON.stringify(nj); }catch(e){}   // [SAME_ACCT_T] 지금 바꿨다 — 열려 있던 다른 식순 창의 옛 판이 덮지 않는다
+    localStorage.setItem(ok, nv); if(localStorage.getItem(ok)!==nv) return false;
+    _useSet(ok, now); localStorage.setItem(MIG_X_K+c, o.sig); return true; }catch(e){ return false; } }
+function _migOfferX(c){ var o=_migOffer(c); if(!o) return; try{ localStorage.setItem(MIG_X_K+String(c), o.sig); }catch(e){} }   // [OLD_DRAFT_OFFER] 닫기
+function _migOfferSub(){ var c=''; try{ c=_reloginCode(); }catch(e){} if(!_migOffer(c)) return null;   // [OLD_DRAFT_OFFER] 식순 줄 아래 한 줄(없으면 null — 줄 아래가 비어 있다)
+  return '<span class="mig-offer"><span>이 기기에 저장 안 된 예전 고침이 있어요 · </span><button type="button" class="mig-offer-go" id="mp_migLoad">불러오기</button><button type="button" class="mig-offer-x" id="mp_migX" aria-label="닫기">✕</button></span>'; }
+function _migOfferWire(p, inv){ var go=$('mp_migLoad'), x=$('mp_migX');   // [OLD_DRAFT_OFFER] 불러오기 · 닫기
+  var gone=function(){ var b=go||x, sb=b&&b.closest&&b.closest('.trk-sub'); if(!sb) return; var rw=sb.previousElementSibling; if(rw && rw.classList.contains('has-sub')){ rw.classList.remove('has-sub'); rw.style.borderBottom=''; } if(sb.parentNode) sb.parentNode.removeChild(sb); };
+  if(go) go.addEventListener('click', function(){ if(typeof _tabDrop=='function' && _tabDrop()) return; var c=_reloginCode();   // [TAB_GUARD] 옛 창은 바꾸지 않는다
+    if(_migOffer(c) && !_migLoad(c)){ mpToast('예전 고침을 불러오지 못했어요 (코드 S4)'); return; }   // 저장 공간이 가득 · 예비본은 그대로
+    gone(); openRitualBuilder(p, inv); });
+  if(x) x.addEventListener('click', function(){ _migOfferX(_reloginCode()); gone(); }); }
 function _migOwner(who){ who=String(who||''); return who?(_acctOk(who)?who:''):'pub'; }   // [MIG_COPY_ONCE] 옛 식순 판의 주인 표시 — 주인 없는 판 = pub · 모를 꼴 = ''
 function _migDone(ow){ try{ return localStorage.getItem(MIG_DONE_K+ow)!=null; }catch(e){ return false; } }
-function _migStampW(ro){ try{ var o=JSON.parse(ro); if(o && typeof o==='object'){ o.w=Date.now(); return JSON.stringify(o); } }catch(e){} return ro; }   // [MIG_KEEP] 옮긴 때 = 마지막으로 쓴 때
 function _migOwnT(v){ try{ var j=JSON.parse(v); return (j && typeof j==='object')?(+j.t||0):0; }catch(e){ return 0; } }   // [MIG_COPY_ONCE] 그 항목 스스로의 고친 때(꾸러미 때가 아니다)
 function _migOrd(ro, ow){ var tk=ow==='pub'?'me_order_pub':_ordK(ow); if(!tk) return false;   // [MIG_COPY_ONCE] 계정 칸이 비었을 때만 베낀다
-  if(localStorage.getItem(tk)!=null) return true;   // 15-02 계정 칸 그대로(옛 것은 예비본)
-  var nv=_migStampW(ro); try{ localStorage.setItem(tk, nv); }catch(e){} return localStorage.getItem(tk)===nv; }   // 못 썼으면 표시를 남기지 않는다(다음에 다시)
+  if(localStorage.getItem(tk)!=null) return true;   // 15-02 계정 칸 그대로(옛 것은 예비본 · 내용이 다르면 [OLD_DRAFT_OFFER] 한 줄로 되찾는다)
+  try{ localStorage.setItem(tk, ro); }catch(e){} if(localStorage.getItem(tk)!==ro) return false;   // 못 썼으면 표시를 남기지 않는다(다음에 다시)
+  _useSet(tk); if(ow!=='pub'){ try{ localStorage.setItem(MIG_X_K+ow, _strSig(ro)); }catch(e){} } return true; }   // [MIG_KEEP] 옮긴 때 = 마지막 사용(따로 작은 칸 · [OLD_DRAFT_OFFER] 16-03) · 베낀 그 내용은 되찾을 것이 아니다
 function _migKeep(o, c){ var K=_keepK(c); if(!K) return false;   // [MIG_COPY_ONCE] 옛 맡김 → 계정 맡김(종류마다)
   if(!(o.keys && typeof o.keys==='object' && Date.now()-(+o.t||0)<RELOGIN_TTL)) return true;   // 7일 지난 맡김 · 깨진 꾸러미 — 들일 것 없음(옛 칸은 예비본 · 걷기가 지운다)
   var ok=_ordK(c), sk='me_snapLocal_'+c, ks={}, kr={};
@@ -3345,28 +3394,36 @@ function _acctKeysMigrate(){ try{   // [ACCT_KEYS] 옛 공용 칸 → 계정 칸
   if(kc && !_migDone(kc)){ var k2=_migKeep(o, kc); fin[kc]=(fin[kc]!==false) && k2; }   // 같은 계정이면 둘 다 된 뒤에야 표시
   Object.keys(fin).forEach(function(x){ if(fin[x]){ try{ localStorage.setItem(MIG_DONE_K+x, String(Date.now())); }catch(e){} } });
 }catch(e){} }
-/* [MIG_COPY_ONCE] 옛 예비본 지우기 — 그 주인 것만(do: 'out' 스스로 로그아웃 · 'save' 서버 저장 성공 · 옮긴 표시가 있을 때만) */
-function _migOldDrop(c, why){ c=String(c||''); if(!_acctOk(c)) return; if(why!=='out' && typeof _tabStale=='function' && _tabStale()) return;
-  if(why!=='out' && !_migDone(c)) return;   // 아직 옮기지 않은 예비본은 서버 저장으로 지우지 않는다
+/* [MIG_COPY_ONCE] 옛 예비본 지우기 — 그 주인 것만 · [OLD_DRAFT_OFFER] 스스로 로그아웃('out')뿐(서버 저장 성공으로는 지우지 않는다 · 16-02) */
+function _migOldDrop(c, why){ c=String(c||''); if(!_acctOk(c) || why!=='out') return;   // [OLD_DRAFT_OFFER]
+  try{ localStorage.removeItem(MIG_X_K+c); }catch(e){}
   try{ var r=JSON.parse(localStorage.getItem('me_order')||'{}'); if(r && String(r.who||'')===c) localStorage.removeItem('me_order'); }catch(e){}
   try{ var o=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'{}'); if(o && String(o.code||'')===c) localStorage.removeItem(RELOGIN_KEY); }catch(e){} }
-/* [MIG_COPY_ONCE] 30일 걷기 — 옮긴 표시가 있는 주인의 옛 예비본만 · 기준은 쓴 때(w) → 없으면 고친 때(t · e) → 없으면 옮긴 때(표시 값) */
-function _migOldSweep(now){ try{ now=now||Date.now();
+/* [MIG_COPY_ONCE] 30일 걷기 · [OLD_DRAFT_OFFER] 예비본이 스스로 마지막으로 쓰인 때(쓴 때 · 고친 때 · 바뀐 것을 본 때 · 처음 볼 때 제 때가 없으면 옮긴 때)에서 30일 — 옮긴 표시와 상관없이 */
+function _migOldSweep(now){ try{ now=now||Date.now(); var live={};
   [['me_order', function(j){ return _migOwner(j&&j.who); }], [RELOGIN_KEY, function(j){ return (j && _acctOk(j.code))?String(j.code):''; }]].forEach(function(p){
     var raw=localStorage.getItem(p[0]); if(raw==null) return; var j=null; try{ j=JSON.parse(raw); }catch(e){} if(!j || typeof j!=='object') return;
-    var ow=p[1](j), fl=ow?localStorage.getItem(MIG_DONE_K+ow):null; if(fl==null) return;
-    var at=(+j.w||0) || _recE(j) || (+fl||0); if(at && now-at>ACCT_OLD_MS) localStorage.removeItem(p[0]); }); }catch(e){} }
-/* [MIG_KEEP] 이 계정이 마이페이지를 연 때 = 이 기기 칸을 마지막으로 쓴 때(w) — 30일 걷기는 «마지막 사용» 기준(한 시간에 한 번만 다시 쓴다) */
+    var ow=p[1](j), fl=ow?localStorage.getItem(MIG_DONE_K+ow):null, at=_migOldW(p[0], raw, j, fl, now);
+    if(at && now-at>ACCT_OLD_MS) localStorage.removeItem(p[0]); else live[p[0]]=1; });
+  var all=null; try{ all=JSON.parse(localStorage.getItem(MIG_OLDW_K)||'null'); }catch(e){}   // 없어진 예비본의 «본 때»는 걷는다
+  if(all && typeof all==='object'){ var ch=false; Object.keys(all).forEach(function(k){ if(!live[k]){ delete all[k]; ch=true; } }); if(ch){ if(Object.keys(all).length) localStorage.setItem(MIG_OLDW_K, JSON.stringify(all)); else localStorage.removeItem(MIG_OLDW_K); } } }catch(e){} }
+/* [MIG_KEEP] 이 계정이 마이페이지를 연 때 = 이 기기 칸을 마지막으로 쓴 때(w) — 30일 걷기는 «마지막 사용» 기준(한 시간에 한 번만 다시 쓴다)
+   ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 초안 본문은 다시 쓰지 않고 작은 칸(_useK)에만 — 읽어 둔 초안을 다시 쓰면 그 사이 다른 창의 최신 입력을 덮었다 */
 function _acctTouch(c){ if(!_acctOk(c)) return; if(typeof _tabStale=='function' && _tabStale()) return; var now=Date.now();
-  [_ordK(c), 'me_snapLocal_'+c].forEach(function(k){ try{ var raw=localStorage.getItem(k); if(raw==null) return; var j=JSON.parse(raw); if(!j || typeof j!=='object' || now-(+j.w||0)<3600e3) return; j.w=now; localStorage.setItem(k, JSON.stringify(j)); }catch(e){} }); }
+  [_ordK(c), 'me_snapLocal_'+c].forEach(function(k){ try{ if(localStorage.getItem(k)==null || now-_useW(k)<3600e3) return; _useSet(k, now); }catch(e){} }); }
 var ACCT_OLD_MS=30*864e5;
-function _acctOldSweep(){ try{ var now=Date.now(), kill=[], stamp=[];   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김(공용 기기에 오래 남지 않게) · [MIG_COPY_ONCE] 쓴 때(w)가 없는 칸은 지금부터 센다
-  for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i), m=k && /^(me_order_|me_snapLocal_|me_relogin_keep_)(.+)$/.exec(k); if(!m || !(_acctOk(m[2]) || k==='me_order_pub')) continue;
-    var j=null; try{ j=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ continue; } if(!j || typeof j!=='object') continue;
-    if(m[1]==='me_relogin_keep_'){ if(!(now-(+j.t||0)<RELOGIN_TTL)) kill.push(k); continue; }
-    if(!(+j.w)){ stamp.push([k, j]); continue; }   // [MIG_COPY_ONCE] 15-01 쓴 때(w)가 없는 계정 칸(옛 판이 옮긴 칸)은 걷지 않는다 — 처음 본 지금을 w 로 적고 그때부터 센다
-    if(now-Math.max(+j.w, _recE(j))>ACCT_OLD_MS) kill.push(k); }
-  stamp.forEach(function(x){ try{ x[1].w=now; localStorage.setItem(x[0], JSON.stringify(x[1])); }catch(e){} });
+function _acctOldSweep(){ try{ var now=Date.now(), kill=[], stamp=[], ks=[];   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김(공용 기기에 오래 남지 않게) · [MIG_COPY_ONCE] 쓴 때(w)가 없는 칸은 지금부터 센다
+  for(var i=0;i<localStorage.length;i++) ks.push(localStorage.key(i));
+  ks.forEach(function(k){ var m=k && /^(me_order_|me_snapLocal_|me_relogin_keep_)(.+)$/.exec(k), j=null;
+    var pm=k && /^me_order_(.+)_prev$/.exec(k), um=k && /^(me_order_|me_snapLocal_)w_(.+)$/.exec(k);
+    if(pm && _acctOk(pm[1])){ try{ j=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){} var pw=(j && typeof j==='object')?Math.max(+j.w||0, _recE(j)):0; if(!pw || now-pw>ACCT_OLD_MS) kill.push(k); return; }   // [OLD_DRAFT_OFFER] 불러오기 전 계정 칸(_prev) — 남긴 때(w)에서 30일
+    if(um){ if(localStorage.getItem(um[1]+um[2])==null) kill.push(k); return; }   // [OLD_DRAFT_OFFER] 칸이 없어진 마지막 사용 표시
+    if(!m || !(_acctOk(m[2]) || k==='me_order_pub')) return;
+    try{ j=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return; } if(!j || typeof j!=='object') return;
+    if(m[1]==='me_relogin_keep_'){ if(!(now-(+j.t||0)<RELOGIN_TTL)) kill.push(k); return; }
+    var uw=_useW(k); if(!(+j.w) && !uw){ stamp.push(k); return; }   // [MIG_COPY_ONCE] 15-01 쓴 때(w)가 없는 계정 칸(옛 판이 옮긴 칸)은 걷지 않는다 — 처음 본 지금을 적고 그때부터 센다 · [OLD_DRAFT_OFFER] 16-03 본문이 아니라 작은 칸에
+    if(now-Math.max(+j.w||0, _recE(j), uw)>ACCT_OLD_MS){ kill.push(k); kill.push(_useK(k)); } });
+  stamp.forEach(function(k){ _useSet(k, now); });
   kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} }); _migOldSweep(now); }catch(e){} }   // [MIG_COPY_ONCE] 옛 예비본도
 _acctKeysMigrate(); _acctOldSweep();   // [ACCT_KEYS] 열 때 한 번 — 옛 공용 칸 옮기기 · 오래된 칸 걷기 · [RELOGIN_KEEP] 7일 지난 맡김은 열 때 지운다
 /* ★[C2_ACCT_SWEEP 2026-10-09 고객 여정 A~Z 점검 2라운드] 계정이 끝나는 자리(로그아웃 · 로그인 풀림 — 다 clearToken 을 지난다)에서는 저장소([LOGOUT_SWEEP])만이 아니라
@@ -7104,6 +7161,7 @@ function renderProduction(p, inv){
   box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null, p);
   box.style.display='block';
   wireProdConfirm(box, p);
+  try{ _migOfferWire(p, inv); }catch(e){}   // [OLD_DRAFT_OFFER]
   _seatFinHeal(p);   // [SEAT_FIN_HEAL] 파생 저장이 샌 흔적을 화면이 스스로 메운다(아래 함수 주석)
   // 확인 직후·재확인 필요 최초 1회 — 자동 펼침된 확인서 패널(리스트 맨 끝)로 스크롤: 재렌더가 맨 위로 가 배너가 폴드 아래 숨던 것 보정(백그라운드 갱신마다 튕기지 않게 1회성 · 2026-07-18 리뷰)
   try{
@@ -8280,7 +8338,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
           (_seatDone?'완료 · 수정':(((t.seat||'')==='진행중')?'이어하기':'시작하기')),
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre, pre2:_ritPre2}) },
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, _migOfferSub(), {pre:_ritPre, pre2:_ritPre2}) },   /* [OLD_DRAFT_OFFER] 되찾을 예전 고침이 있을 때만 줄 아래 한 줄(설명이 아니라 알림 · TRK_NO_SUB 의 예외) */
     { done: true, html: '' },   /* [PR_PREP_ONE] 준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다 */   // [PREP_LINK] 요약 줄은 끈 채 «준비할 것» 단추가 여는 목록   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
     { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
@@ -9688,7 +9746,7 @@ function apiTrackSave(payload){
   /* ★[ERR_CODE_MYPAGE A2] 저장 결과를 한 꼴로 — 실패는 늘 {ok:false, error:원인 한 줄 + 코드, ecode, sess(로그인 풀림), slow(결과 모름)}.
      종전엔 거절 · 끊김이 사슬마다 다르게 삼켜져(빈 catch · error:'') 위저드 판이 늘 «네트워크가 잠시 불안정한 것 같아요»였다.
      ★이제 이 함수는 던지지 않는다 — 부르는 쪽은 r.ok 하나만 보면 된다(.catch 는 화면 코드 예외만 받는다). */
-  if(_t==='ritual') p=p.then(function(r){ if(r && r.ok===true){ try{ _migOldDrop(_reloginCode(), 'save'); }catch(e){} } return r; });   // [MIG_COPY_ONCE] 식순을 서버에 저장했다 — 이 계정의 옛 공용 예비본은 이제 지운다(실패 · 던짐은 그대로 아래로)
+  /* ★[OLD_DRAFT_OFFER 2026-10-30 16-02] 식순을 서버에 저장해도 옛 공용 예비본은 지우지 않는다(옛 꼴 초안이 더 나중 고침일 수 있다) — 되살리지 말 것 */
   return p.then(function(r){ return _errNorm(r,'S',ERR_SAVE_BASE); }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });
 }
 /* ★[ERR_CODE_MYPAGE F6 2026-10-07] 거짓 «다른 기기에서 먼저 저장됐어요» — 우리 저장이 시간 초과(화면만 포기)됐는데 서버는 늦게 저장을 끝냈으면

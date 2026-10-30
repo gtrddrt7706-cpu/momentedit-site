@@ -109,7 +109,7 @@ const BREAK = {
   saveFirst: [["    var okr = { ok: true, who: who, tries: pp.tries, renewed: !!(prev || now) }; mark(okr);\n    var sv;", "    olds.forEach(function (v) { _vcDelVoice(c.cfg, st, v); });\n    var okr = { ok: true, who: who, tries: pp.tries, renewed: !!(prev || now) }; mark(okr);\n    var sv;"]],
   jobBusy: [['catch (e) { return { lock: true }; }', 'catch (e) { return null; }']],
   saveBusy: [["var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { return 'busy'; }\n  try { var f1", "var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { var f0 = _vcSt(code); if (guard && guard(f0)) return 'stop'; _vcPut(code, _vcM3(f0, base, mine)); return; }\n  try { var f1"]],
-  cntZero: [["(typeof b === 'number' || (isCnt && b == null))", "typeof b === 'number'"]],
+  cntZero: [["(typeof b === 'number' || b == null)", "typeof b === 'number'"]],   // ★[MS_SET 2026-10-30 16-04] 더하기는 세는 칸에만(isCnt 가 앞으로 나갔다)
   hold: [["var hm = todo.length ? _vcHold(code, need, 'make') : 'ok';", "var hm = (todo.length && _vcSpent(st) + need > VC_LIM.budget) ? 'limit' : 'ok';"]],
 };
 const NAME = { readDel: '① [VC_READ_DEL] 한 분 목소리 지우기 → 그 분 읽은 녹음도 휴지통 · 다른 분 녹음은 그대로',

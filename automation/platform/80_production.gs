@@ -1613,8 +1613,10 @@ function _vcM3(f, b, m, k0, cnt) { _gsr_();   // k0 = 이 칸의 이름(아래 �
     for (k in m) o[k] = _vcM3(f[k], b[k], m[k], k, k0 === 'per'); for (k in b) if (!(k in m)) delete o[k]; return o; }
   /* ★[VC_CNT_ZERO 2026-10-30 GPT 2차 점검 8] 세는 칸(연습 글자 · 만들기 글자 · 만든 수 · 줄마다 센 수 · 횟수)은 처음 생길 때도 0 에서 더한다 —
      종전엔 읽을 때 칸이 없었으면(b 없음) «바뀐 쪽이 이김»으로 떨어져, 같은 때 처음 센 두 요청이 80 + 80 을 80 으로 덮었다 */
+  /* ★[MS_SET 2026-10-30 GPT 16차 점검(고객) 16-04] 더하기는 세는 칸에만 — 시각(purgedMs · practiceMs · purgePendMs · phrase.ms 같은 천분의 1초)은 «바꾼 쪽이 정한 값»이다.
+       종전엔 숫자면 다 더해, 앞서 정리한 때가 있는 채 두 정리가 겹치면 정리1 + 정리2 − 앞 정리가 되어 «지운 때»가 한 시간쯤 뒤로 밀렸고 그 사이 만든 연습 소리가 «지우기 전»으로 읽혀 남았다 */
   var isCnt = cnt || { practice: 1, chars: 1, total: 1, tries: 1 }[k0] === 1;
-  if (typeof m === 'number' && (typeof b === 'number' || (isCnt && b == null)) && (typeof f === 'number' || (isCnt && f == null))) return (+f || 0) + (m - (+b || 0));
+  if (isCnt && typeof m === 'number' && (typeof b === 'number' || b == null) && (typeof f === 'number' || f == null)) return (+f || 0) + (m - (+b || 0));   // [MS_SET] 세는 칸만
   if (JSON.stringify(m) === JSON.stringify(b)) return f;
   return m; }
 function _vcSave(code, base, mine, guard) { _gsr_();   // [VC_STATE_MERGE]

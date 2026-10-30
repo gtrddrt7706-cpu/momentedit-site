@@ -20730,7 +20730,7 @@ chk 'VC_FIX15_1030' scripts/audit/vc-fix15-1030.mjs 1
 chk 'MIG_COPY_ONCE' mypage.html 14
 chk 'MIG_COPY_ONCE' order-preview.html 3
 chk "if(_c && !keep) _migOldDrop(_c, 'out');" mypage.html 1   # [MIG_COPY_ONCE] 15-06 스스로 로그아웃 — 그 계정의 옛 공용 예비본도
-chk "_migOldDrop(_reloginCode(), 'save')" mypage.html 1   # [MIG_COPY_ONCE] 서버 저장 성공 — 옮긴 계정의 옛 예비본을 지운다
+nochk "_migOldDrop(_reloginCode(), 'save')" mypage.html   # ★[OLD_DRAFT_OFFER 2026-10-30 16-02] 서버 저장 성공으로 옛 예비본을 지우던 줄(15차) — 옛 꼴 초안이 더 나중 고침일 수 있다 · 되살리지 말 것
 chk 'PRACTICE_MS' automation/platform/80_production.gs 6
 chk 'RF_LOOK_ALL' console.html 9
 chk 'OWN_TXT_SURE' console.html 2
@@ -20743,4 +20743,20 @@ nochk "if(done2) localStorage.removeItem(RELOGIN_KEY);" mypage.html   # [MIG_COP
 nochk "function _vcPracticeLeft_(st) { st = st || {}; var pa = _vcTs_(st.practiceAt), pg = _vcTs_(st.purged); if (pa) return pa > pg;" automation/platform/80_production.gs   # [PRACTICE_MS] 분 단위로만 견주던 옛 판정(15-04)
 nochk "if (!cu) return OWN_TXT[c.slug] || '';" console.html   # [OWN_TXT_SURE] 지금 파일을 모르는데 초안 글을 보이던 줄(당일 15-02)
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix15-1030.mjs >/dev/null 2>&1; _vf15=$?; if [ "$_vf15" != 0 ]; then echo 'FAIL vc-fix15-1030: AI 목소리 15차 점검(옛 칸 한 번 베끼기 · 쓴 때 없는 칸 · 맡김 합치기 · 로그아웃 정리 · 연습 소리 · 시작 잠금 · 글 카드) 판정이 어긋났습니다 — node scripts/audit/vc-fix15-1030.mjs'; fail=1; else echo "ok vc-fix15-1030 ($_vf15)"; fi; fi
+# ★[VC_FIX16_1030 2026-10-30 GPT 16차 점검(고객 16-01 ~ 16-05 · 당일 16-01 · 16-02)] 옛 공용 칸은 예비본 · «예전 고침» 한 줄로 되찾기(불러오기 · _prev · 닫기) · 마지막 사용은 작은 칸 · 시각 칸은 더하지 않는다 · 처음 시작도 파일 받기가 끝날 때까지
+chk 'VC_FIX16_1030' scripts/audit/vc-fix16-1030.mjs 1
+chk 'OLD_DRAFT_OFFER' mypage.html 20
+chk 'OLD_DRAFT_OFFER' order-preview.html 3
+chk 'function _migOffer(c)' mypage.html 1
+chk 'function _migLoad(c)' mypage.html 1
+chk "row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, _migOfferSub()," mypage.html 1
+chk "if(!_acctOk(c) || why!=='out') return;" mypage.html 1   # [OLD_DRAFT_OFFER] 옛 예비본은 스스로 로그아웃으로만 지운다(30일 걷기 빼고)
+chk 'MS_SET' automation/platform/80_production.gs 2
+chk 'RF_READY_ALL' console.html 6
+chk 'function rfReadyWait()' console.html 1
+nochk "j.w=now; localStorage.setItem(k, JSON.stringify(j));" mypage.html   # [OLD_DRAFT_OFFER] 16-03 마지막 사용을 적으려 초안 본문을 다시 쓰던 줄(_acctTouch)
+nochk "x\[1\].w=now; localStorage.setItem(x\[0\], JSON.stringify(x\[1\]));" mypage.html   # [OLD_DRAFT_OFFER] 16-03 걷기가 초안 본문을 다시 쓰던 줄
+nochk "_o.w=Date.now(); localStorage.setItem(k, JSON.stringify(_o));" order-preview.html   # [OLD_DRAFT_OFFER] 16-03 식순 화면이 열 때 초안 본문을 다시 쓰던 줄
+nochk "if (typeof m === 'number' && (typeof b === 'number' || (isCnt && b == null))" automation/platform/80_production.gs   # [MS_SET] 16-04 숫자면 다 더하던 합치기(시각 칸까지)
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix16-1030.mjs >/dev/null 2>&1; _vf16=$?; if [ "$_vf16" != 0 ]; then echo 'FAIL vc-fix16-1030: AI 목소리 16차 점검(옛 예비본 되찾기 · 지우지 않기 · 마지막 사용 칸 · 시각 칸 합치기 · 시작 잠금) 판정이 어긋났습니다 — node scripts/audit/vc-fix16-1030.mjs'; fail=1; else echo "ok vc-fix16-1030 ($_vf16)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

@@ -10386,8 +10386,9 @@ function _ordNewer(){ if(!EMBED) return; try{ var P=(window.parent&&window.paren
 function _ordMigrate(){ try{ var ro=localStorage.getItem('me_order'); if(ro==null) return; var r=null; try{ r=JSON.parse(ro); }catch(e){} if(!r || typeof r!=='object' || String(r.who||'')) return;   // [MIG_COPY_ONCE] 주인 없는 판만
   if(localStorage.getItem('me_mig_done_pub')!=null) return;   // 한 번만
   var tk='me_order_pub', ok=true;
-  if(localStorage.getItem(tk)==null){ var nv=ro; try{ r.w=Date.now(); nv=JSON.stringify(r); }catch(e){} try{ localStorage.setItem(tk, nv); }catch(e){} ok=(localStorage.getItem(tk)===nv); }
+  if(localStorage.getItem(tk)==null){ try{ localStorage.setItem(tk, ro); }catch(e){} ok=(localStorage.getItem(tk)===ro); if(ok) _ordUse(tk); }   /* ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 그대로 베끼고 · 마지막 사용(w)은 작은 칸에 */
   if(ok){ try{ localStorage.setItem('me_mig_done_pub', String(Date.now())); }catch(e){} } }catch(e){} }
+function _ordUse(k){ var m=/^me_order_(.+)$/.exec(String(k||'')); if(!m) return; try{ localStorage.setItem('me_order_w_'+m[1], String(Date.now())); }catch(e){} }   // [OLD_DRAFT_OFFER] 마이페이지 _useK 와 같은 칸
 function _tabGone(){ try{ var P=(window.parent&&window.parent!==window)?window.parent:null; return !!(P && typeof P._tabStale==='function' && P._tabStale()); }catch(e){ return false; } }
 function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;   // [TAB_GUARD]
   var _k=_ordKey(); if(!_k){ if(EMBED && _fillSeen) _persistBad=true; return; }   // [ACCT_KEYS] 마이페이지가 계정을 확인해 주기 전에는 쓰지 않는다 · 계정 없이 채워졌으면 «이 기기에 남지 않아요»가 참이다
@@ -10544,7 +10545,7 @@ if(!EMBED){ try{ RitualOpen.FEATURE.upLive=true; }catch(e){} }   // [VOICE_UP_FR
 function _ordRestore(){ var k=_ordKey(); if(!k) return false; var _sv0=null; try{ _sv0=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ _sv0=null; }
   if(_sv0 && _sv0.who && String(_sv0.who)!==(EMBED?String(_ACCT):'')) return false;   // [ORDER_OWNER] 칸과 다른 주인 표시면 읽지 않는다(지우지도 않는다) · 공개 칸에 주인 있는 판도
   if(_applySaved(_sv0)){ _srvBase=_sv0.base||''; if(_sv0.dirty) _autoLast=''; _editT=+_sv0.t||0; _editE=Math.max(_editT, +_sv0.e||0); _editK=_autoKey();
-    try{ var _raw=localStorage.getItem(k), _o=JSON.parse(_raw||'null'); if(_o && typeof _o==='object' && !(typeof _tabGone==='function' && _tabGone())){ _o.w=Date.now(); localStorage.setItem(k, JSON.stringify(_o)); } }catch(e){}   // [MIG_KEEP] 연 때 = 마지막 사용(w · 30일 걷기) — 고친 때(t · e)는 그대로
+    if(!(typeof _tabGone==='function' && _tabGone())) _ordUse(k);   // [MIG_KEEP] 연 때 = 마지막 사용(w · 30일 걷기) — 고친 때(t · e)는 그대로 · ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 초안 본문을 다시 쓰지 않고 작은 칸(me_order_w_<코드>)에만(읽어 둔 판을 다시 쓰면 그 사이 다른 창의 입력을 덮었다)
     return true; }   /* [RELOGIN_NEWER] 되살린 판은 그 판이 고쳐진 때를 그대로(다시 열었다고 새것이 되지 않는다) · [SAME_ACCT_T] 바꾼 때도 */   /* [LOCAL_AHEAD] 저장 안 한 고침이 있던 판은 다시 열어도 «저장»이 켜진 채(종전엔 복원 직후가 기준선이라 저장된 것처럼 보였다) */
   return false; }
 if(!EMBED){ _ordMigrate(); try{ _ordRestore(); }catch(e){} }   // [PREVIEW_KEY_SPLIT] 예전 미리보기의 주인 없는 판은 _ordMigrate 가 공개 칸으로 옮긴다(공개 칸이 비었을 때만)

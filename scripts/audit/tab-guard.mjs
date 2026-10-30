@@ -25,7 +25,7 @@ const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.s
 const flush = async () => { for (let i = 0; i < 6; i++) await new Promise((r) => setTimeout(r, 0)); };
 const MP = fs.readFileSync(process.env.TG_MP || path.join(ROOT, 'mypage.html'), 'utf8');
 const OP = fs.readFileSync(process.env.TG_OP || path.join(ROOT, 'order-preview.html'), 'utf8');
-const FNS = ['getToken', 'setToken', '_tabEpBump', '_tabEpFail', '_tabStaleMark', '_acctOk', '_ordK', '_keepK', '_recE', '_acctKeysMigrate', '_migStampW', '_migOwner', '_migDone', '_migOwnT', '_migOrd', '_migKeep', '_migOldDrop', '_migOldSweep', '_acctOldSweep', '_tabEpNow', '_tabTie', '_tabSd', '_tabKeepUnkept', '_snapLocalRec', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
+const FNS = ['getToken', 'setToken', '_tabEpBump', '_tabEpFail', '_tabStaleMark', '_acctOk', '_ordK', '_keepK', '_recE', '_acctKeysMigrate', '_migStampW', '_migOwner', '_migDone', '_migOwnT', '_migOrd', '_migKeep', '_migOldDrop', '_migOldSweep', '_acctOldSweep', '_useK', '_useW', '_useSet', '_strSig', '_migOldW', '_tabEpNow', '_tabTie', '_tabSd', '_tabKeepUnkept', '_snapLocalRec', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
   '_reloginKeyNewer', '_reloginStampT', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin',
   '_errGoLogin', '_saveSessAsk', '_mpLogoutNow', '_post', 'readCachedState', '_snapLocalKey', '_snapLocalGet', '_snapLocalDel', '_snapLocalPut', '_snapEditMark', '_snapOut', '_snapFilledD', '_snapNewD', '_snapZoneNew'];
 const MUST = ['clearToken', '_reloginPack', '_reloginRestore', '_errGoLogin', '_post', '_snapLocalPut', '_snapOut', '_mpLogoutNow'];
@@ -50,7 +50,7 @@ function mkDoc(W) { const els = new Map();
     addEventListener(t, f) { (W.L['doc:' + t] = W.L['doc:' + t] || []).push(f); } }; }
 /* 창 하나 — o.acct 이 창이 그린 계정 · o.quota 이 창의 쓰기 실패 */
 function win(S, src, o) { o = o || {};
-  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var TAB_EP_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
+  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var TAB_EP_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var MIG_X_K=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
     + '\nfunction __start(loc, sd){ ' + lineIn(src, /SNAPFLOW=\{ active:true,[^\n]*/) + '\n}'
     + '\nfunction __start2(sd, p, needAgree, opt){ opt=opt||{};\n' + lineIn(grabIn(src, 'startSnapFlow'), /  var (?:rec=_snapLocalRec\(\), )?loc=[^\n]*\n[\s\S]*?SNAPFLOW=\{ active:true,[^\n]*\n(?:  if\(!loc && rec[^\n]*\n)?/) + '\n}'   // [TOMBSTONE_READ] 편집을 여는 줄들(startSnapFlow 원문)
     + '\nfunction __vcRelay(d){ ' + RELAY(src) + '\n}'   // [TAB_GUARD_VC] 목소리 중계(원문)
@@ -255,7 +255,7 @@ function fillFrame(S, src, parent, restoredWho) {
     _srvBase: '', _autoLast: '', _editT: 0, _editK: null, _editE: 0, _autoKey: () => '', got,
     _applySaved: (v) => { got.push(v && v.S && v.S.tx && v.S.tx['vow.g']); return !!(v && v.S); } };
   sb.window = { parent: parent ? parent.sb : null, location: { search: '?embed=1' } };
-  vm.createContext(sb); vm.runInContext(grabIn(src, '_tabGone') + '\n' + grabIn(src, '_ordKey') + '\n' + grabIn(src, '_ordRestore') + '\n' + grabIn(src, '_recE') + '\nfunction __fill(ev){ ' + FILL(src) + '\n}', sb); return sb; }
+  vm.createContext(sb); vm.runInContext(grabIn(src, '_tabGone') + '\n' + grabIn(src, '_ordKey') + '\n' + grabIn(src, '_ordRestore') + '\n' + grabIn(src, '_ordUse') + '\n' + grabIn(src, '_recE') + '\nfunction __fill(ev){ ' + FILL(src) + '\n}', sb); return sb; }
 const s7 = async (src, op) => {
   const S = shared({ me_token: 'ta', me_state_v1: CACHE('ta', A), [OK_A]: DR('가의 서약', A, clock.now - 9000) });
   const WA = win(S, src, { acct: A }); const F = fillFrame(S, op, WA, A);   // 옛 창의 식순 화면이 가의 초안을 먼저 되살렸다
@@ -283,7 +283,7 @@ const s8 = async (src, op) => {
   const rs = lineIn(op, /if\(!EMBED\)\{ _ordMigrate\(\); try\{ _ordRestore\(\); \}catch\(e\)\{\} \}/);
   const restore = (init, emb) => { const S2 = shared(init); const got = []; const sb = { localStorage: S2.view({ L: {} }), JSON, Object, String, Math, EMBED: !!emb, _ACCT: '', window: { location: { search: emb ? '?embed=1' : '' } }, _srvBase: '', _autoLast: 'x', _editT: 0, _editK: null, _editE: 0,
       _applySaved: (v) => { got.push(v && v.S && v.S.tx && v.S.tx['vow.g']); return !!v; }, _autoKey: () => '' };
-    vm.createContext(sb); vm.runInContext(grabIn(op, '_ordKey') + '\n' + grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigPick') + '\n' + grabIn(op, '_ordMigrate') + '\n' + grabIn(op, '_ordRestore') + '\n' + rs, sb); return { got: got.join() || null, legacy: S2.get('me_order'), owned: S2.get(OK_A) }; };
+    vm.createContext(sb); vm.runInContext(grabIn(op, '_ordKey') + '\n' + grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigPick') + '\n' + grabIn(op, '_ordMigrate') + '\n' + grabIn(op, '_ordRestore') + '\n' + grabIn(op, '_ordUse') + '\n' + rs, sb); return { got: got.join() || null, legacy: S2.get('me_order'), owned: S2.get(OK_A) }; };
   const lg = restore({ me_order: DR('예전 미리보기 판', '', 0, false) }), ow = restore({ me_order: DR('고객 판', A, 0) }), bo = restore({ me_order: DR('예전 미리보기 판', '', 0, false), me_order_pub: DR('공개 칸 판', '', 0, false) }), em = restore({ [OK_A]: DR('고객 판', A, 0), me_order: DR('예전', A, 0) }, true);
   return { cust: cust.S && cust.S.tx['vow.g'], custWho: cust.who, pub: pub && pub.S && pub.S.tx['vow.g'], rsOk: !!rs,
     legacy: lg.got, legacyGone: lg.legacy === null, owned: ow.got, ownedMoved: !!ow.owned, both: bo.got, bothGone: bo.legacy === null, emb: em.got, embLegacy: em.legacy };
@@ -445,7 +445,7 @@ const s18 = async (src, op) => {
   const keep = mig({ me_relogin_keep: JSON.stringify({ code: A, t: clock.now - 100, keys: { me_order: DR('맡긴 서약', A, clock.now - 100), me_snapLocal_AAAAAA: SN('맡긴 메모', clock.now - 100) } }) });
   const keepOld = mig({ me_relogin_keep: JSON.stringify({ code: A, t: clock.now - 8 * 864e5, keys: { me_order: DR('오래된', A, 1) } }) });
   /* 식순 화면(그냥 연 미리보기)도 같은 규칙 */
-  const opm = (init) => { const S = shared(init); const sb = { localStorage: S.view({ L: {} }), JSON, Object, String, Math, Date: FakeDate }; vm.createContext(sb); vm.runInContext(grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigPick') + '\n' + grabIn(op, '_ordMigrate'), sb); sb._ordMigrate(); return Object.fromEntries(S.m); };
+  const opm = (init) => { const S = shared(init); const sb = { localStorage: S.view({ L: {} }), JSON, Object, String, Math, Date: FakeDate }; vm.createContext(sb); vm.runInContext(grabIn(op, '_recE') + '\n' + grabIn(op, '_ordMigPick') + '\n' + grabIn(op, '_ordMigrate') + '\n' + grabIn(op, '_ordUse'), sb); sb._ordMigrate(); return Object.fromEntries(S.m); };
   const op1 = opm({ me_order: DR('가의 옛 칸 서약', A, clock.now - 50) }), op2 = opm({ me_order: DR('주인 없는 판', '', 0, false), me_order_pub: DR('공개 칸 판', '', 0, false) });
   /* 30일 · 7일 걷기 */
   const old = (n) => clock.now - n * 864e5;
@@ -464,8 +464,8 @@ const s18 = async (src, op) => {
   ok('⑱ [ACCT_KEYS] · [MIG_COPY_ONCE] 옛 맡김(me_relogin_keep) → me_relogin_keep_가 · 안의 식순 칸 이름도 me_order_가 · 옛 맡김은 그대로 · 7일 지난 맡김은 들이지 않는다 · 식순 화면(미리보기)은 주인 없는 판만',
     !r.err && !!r.keep[KK_A] && tx(JSON.parse(r.keep[KK_A]).keys[OK_A]) === '맡긴 서약' && ('me_relogin_keep' in r.keep) && !(KK_A in r.keepOld)
     && !(OK_A in r.op1) && ('me_order' in r.op1) && tx(r.op2.me_order_pub) === '공개 칸 판' && ('me_order' in r.op2), r.err || r);
-  ok('⑱ [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김은 걷는다 · 최근 것 · 때가 없는 옛 기록(15-01 · w 를 지금으로) · 다른 기억(v2note)은 둔다',
-    !r.err && !(OK_A in r.sw) && (OK_B in r.sw) && !('me_snapLocal_AAAAAA' in r.sw) && (KK_B in r.sw) && !(KK_A in r.sw) && ('me_snapLocal_BBBBBB' in r.sw) && !!JSON.parse(r.sw.me_snapLocal_BBBBBB).w && ('me_order_v2note_AAAAAA' in r.sw), r.err || r.sw); }
+  ok('⑱ [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김은 걷는다 · 최근 것 · 때가 없는 옛 기록(15-01 · 16-03 작은 칸에 지금을) · 다른 기억(v2note)은 둔다',
+    !r.err && !(OK_A in r.sw) && (OK_B in r.sw) && !('me_snapLocal_AAAAAA' in r.sw) && (KK_B in r.sw) && !(KK_A in r.sw) && ('me_snapLocal_BBBBBB' in r.sw) && !!r.sw.me_snapLocal_w_BBBBBB && !JSON.parse(r.sw.me_snapLocal_BBBBBB).w && ('me_order_v2note_AAAAAA' in r.sw), r.err || r.sw); }   /* ★[OLD_DRAFT_OFFER 2026-10-30 16-03] 처음 본 때는 본문이 아니라 작은 칸(me_snapLocal_w_<코드>)에 */
 
 /* 걸림 · 줄 */
 ok('[TAB_GUARD] 보내기 한 벌(_post)이 옛 창 · 그 사이 바뀐 답을 막는다 · 로그인 풀림 길(알림 링크 · 상태 불러오기 · 저장 실패 판)이 먼저 _tabDrop 을 본다',
