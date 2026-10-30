@@ -357,6 +357,11 @@
       case 'vow': return S.vowKind === 'thanks' ? THANKS_TIME : t;   // [THANKS_IN_VOW]
       case 'ring': return seq[i + 1] === 'declare' ? t.toDeclare : t.other;
       case 'declare': return t;   // [DECLARE_BY_PERSON] 판 없이 하나
+      case 'bless': {   /* ★★[COMBO_171_1030 검토 171 C04] 덕담 시간 = 말씀하실 분 수 × 한 분 1분쯤(76.5초 · 옛 고정 153 = 두 분) · 받은 원고가 더 길면 원고(300자 ≈ 1분) — 안 고르면 종전 그대로(153) · 사람별 타이머는 콘솔 그대로 */
+        var bn = +((S && S.blessN) || 0), bt = String(((S && S.tx) || {})['bless.p'] || '').replace(/\s+/g, '').length, talk = t[1];
+        if (bn >= 1) talk = Math.round(76.5 * Math.min(4, bn));
+        if (bt) talk = Math.max(talk, Math.round(bt / 5));
+        return [t[0], talk, t[2], t[3]]; }
       case 'tribute': return t[chipOf('tribute', S)];
       case 'letter': return t[chipOf('letter', S)];
       case 'free': { var fl = +chipOf('freeLen', S);   // 축사 판: 여는 말 14 · 사람 말 60×분−20 · 걸음 12 · 여유 10(2분이면 대본 126 · 넉넉 161)

@@ -1056,13 +1056,13 @@
       if (D.COURSES[S.course] && D.COURSES[S.course].open) {
         return [cue({
           k: 'song', blockN: '축가', slug: 'narr-song', name: '축가 시작', text: D.NARR.song, duck: PARAM.duckMusic,
-          live: { t: '축가 한 곡 (부르실 분이 앞으로 · MR 은 디렉터가 튼다)', est: 230, duck: PARAM.duckOff, self: true, doing: 'sing',
+          live: { t: S.songBy === 'self' ? '축가 한 곡 (두 분이 노래할 자리로 · MR 은 디렉터가 튼다)' : '축가 한 곡 (부르실 분이 앞으로 · MR 은 디렉터가 튼다)', est: 230,   /* ★[COMBO_171_1030 N2 덧붙임] «두 분이 직접»이면 콘솔 지문도 두 분 */ duck: PARAM.duckOff, self: true, doing: 'sing',
             note: '부르실 분이 짧게 인사하거나 곡을 소개하면 끝날 때까지 기다렸다가, 준비됐다는 눈짓에 MR 을 튼다 · BGM 은 완전히 끈다 · MR 은 두 분이 예식 사흘 전까지 보낸 파일 · 악기 연주는 받지 않는다',   // ★[SONG_HELLO_WAIT_1015 라운드 4] 고객 이야기(SONG_HELLO_1014 «짧게 인사나 곡 소개를 하셔도 되고, 준비되시면 반주가 시작돼요»)의 약속을 디렉터 메모에도 — 서자마자 MR 을 틀면 인사가 전주에 묻힌다(자료 U1 · V 3-1 큐 · 연출 «자기소개 시간 주기» · M 11)
             fallback: '부르시는 분이 멈춰도 MR 은 그대로 둔다 · MR 이 안 나오면 다시 튼다 · 그래도 안 되면 부르실 분께 반주 없이 부를지 묻는다' }   // ★[SONG_CALM_1014 라운드 3]목이 메거나 가사를 놓쳐도 반주는 끊지 않는다(자료 T1)
         }), cue({
           /* ★[SONG_BY_1018 인스타 섹션 검토 6판 63] 부르는 분(S.songBy) — «두 분이 직접»(self)만 TT 52 «우리 두 사람을 위해 …» · 그 밖(가족 · 친구 · 안 고름)은 «노래해 주신 분께 …»(자료 WW2) */
           k: 'song', blockN: '축가', slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend', name: '축가 마무리', text: S.songBy === 'self' ? D.NARR.songEnd : D.NARR.songEndFriend, duck: PARAM.duckMusic,
-          hint: '노래가 끝나고 박수가 잦아들면',
+          hint: '마지막 음 · 잔향이 끝나면',   /* ★[COMBO_171_1030 검토 171 C03] 맺는 말이 «큰 박수 부탁드립니다»로 박수를 이끈다 — 박수가 잦아든 뒤 다시 청하지 않게 노래가 끝나는 순간에 */
           live: applause('하객 박수 · 노래해 주신 분과 두 사람께', PARAM.declare.applauseMs / 1000)   // ★[SONG_END_1018 · CLAP_GO] 자료 글이 박수를 청한다 — 다음 순간은 디렉터 GO(박수가 여는 말에 묻히지 않게)
         })];
       }
@@ -1275,6 +1275,7 @@
         var sayT = S.tributeSay !== 'none', at = ' · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로';
         var act = { t: '두 분이 부모님께 인사', est: 15, self: true, doing: 'move' };   // [TRIB_HUG_CALL_1018] 포옹은 다음 줄(256)이 청한다 · 합계 est 는 그대로(15 + 35 = base - 20)   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
         out[0].name = '부모님 앞으로'; out[0].fire = 'chain'; out[0].gapMs = 1000;   // [CHAIN_GAP_1014] 원고 «사이 1초»
+        if (sayT && O.crossTribute && O.crossTribute(S)) out[0].note = (out[0].note ? out[0].note + ' · ' : '') + '받는 분: 서로의 부모님(신랑 → 장인 · 장모님 · 신부 → 시부모님 · 편지를 각자 부모님께 써서)';   /* ★[COMBO_171_1030 검토 171 C01] 당일 콘솔에 받는 분 */
         out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
           : { t: '두 분이 부모님 앞으로 걸어감' + at, est: 20, self: true, doing: 'move', duck: out[0].duck };
         out.unshift(cue({ k: 'tribute', blockN: '부모님 헌정', slug: pairT ? 'narr-tribute-pair' : 'narr-tribute-name', name: '부모님께 인사 시작',
@@ -1428,7 +1429,10 @@
              발라드 날 틀린 말(G1 원칙 7) · 앞 박수 8초가 이미 넘어가는 몫 · 녹음 전이라 RETIRED(번호 보존) · 되살리지 말 것 */
         var _nxT = (O.narExCue && bn.slug && EXTRA[O.narExCue(S, bn.slug)]) || bn.text || '';
         var _more = [];
-        if (slugB === 'bridge-b3-clap-thanks' && bn.k !== 'bless') _more.push('bridge-b9-declare-seat-end');   // ★[REVIEW26_1023 검토 150-2 1)] 늘 255 «선언해 주신 분께서는 자리로 돌아가셔도 좋습니다.» — 245 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»는 화촉 구호(138 · 146 · 147)와 같은 말이었다
+        /* ★[COMBO_171_1030 검토 171 C02] 다음이 덕담이어도 255 를 건너뛰는 것은 «선언한 분 = 덕담하실 분(부모님)»일 때만 — 읽어 주실 분 칸이 부모님(아버님 · 어머님 …)이면 그 자리에서 이어 말씀하시고,
+             친구 · 지인 · 다른 분이면 255(자리로) 뒤 디렉터 GO 로 덕담을 연다(마이크가 부모님께 넘어간 뒤) · 기존 255 그대로 */
+        var _dw = String(S.declareWho || '').trim(), _declOther = !!_dw && !/아버|어머|부모|아빠|엄마/.test(_dw);   // 비어 있으면 종전대로(바로 덕담 · 아버님이 읽는 날이 흔하다)
+        if (slugB === 'bridge-b3-clap-thanks' && (bn.k !== 'bless' || _declOther)) { _more.push('bridge-b9-declare-seat-end'); if (bn.k === 'bless') { bn.fire = 'manual'; bn.hint = '선언하신 분이 자리로 돌아가고 마이크가 부모님께 넘어가면'; } }   // ★[REVIEW26_1023 검토 150-2 1)] 늘 255 «선언해 주신 분께서는 자리로 돌아가셔도 좋습니다.» — 245 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»는 화촉 구호(138 · 146 · 147)와 같은 말이었다
         if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');
         if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');   // ★[REVIEW26_1023 검토 150-2 4)] 인사 «밝게»(259 «… 눈물보다는 기쁨으로 …»)는 B12 «… 경건한 시간»과 부딪친다

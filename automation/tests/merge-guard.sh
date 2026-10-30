@@ -15290,7 +15290,7 @@ chk 'B11_OFF_1018' scripts/build-dubbing-script.mjs 1
 chk "    'bridge-b11-song-light': 1 };" assets/ritual-cue.js 1   # RETIRED — 녹음 전에 걷었다(번호 보존)
 nochk "_more.push('bridge-b11-song-light')" assets/ritual-cue.js
 nochk "\['N21-i', '이음말 · 엄숙한 순간 → 축가'" scripts/build-dubbing-script.mjs
-chk "if (slugB === 'bridge-b3-clap-thanks' && bn.k !== 'bless') _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «_more.push('bridge-b9-declare-seat');»
+chk "if (slugB === 'bridge-b3-clap-thanks' && (bn.k !== 'bless' || _declOther)) { _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # [COMBO_171_1030 C02] 다음이 덕담이어도 다른 분이 선언했으면 255
 chk "&& _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «&& !/\^이제/.test(_nxT) && _nxT.indexOf('하»
 chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «!BRIDGE_OPEN.test(_nxT)) _more.push('bri»
 chk "&& !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1
@@ -20506,4 +20506,11 @@ nochk '부모님 없이 또래끼리' mypage.html
 nochk '그 일가친척과 친지를 모신' assets/ritual-ref.js
 nochk '일반적으로 10~30명' index.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/narrow-170.mjs >/dev/null 2>&1 || { echo 'FAIL narrow-170: 좁은 글 2차 · 혼주 계좌 예금주 · 축가 직접 판정이 되돌아갔습니다 — node scripts/audit/narrow-170.mjs'; fail=1; }; fi
+# ── 2026-10-30 [COMBO_171_1030 검토 171] 순간 조합 · 진행 틈 — C01 인사 받는 분이 바뀌면 한 줄 + 인사 칸 · 인쇄 카드 · 콘솔 받는 분 · C02 선언한 분 ≠ 덕담하실 분이면 255 뒤 GO · C03 축가 맺는 말 «마지막 음 · 잔향» · C04 덕담 «말씀하실 분» 인원 · 원고 시간 · C05 연습 목록 «당일 노래» · N2 콘솔 «두 분이 노래할 자리로»
+chk 'function _crossWatch(c0)' order-preview.html 1
+chk "hint: '마지막 음 · 잔향이 끝나면'" assets/ritual-cue.js 1
+chk "L('blessN','말씀하실 분'" order-preview.html 1
+chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
+nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/combo-171.mjs >/dev/null 2>&1; _c171=$?; [ "$_c171" = 1 ] && { echo 'FAIL combo-171: 순간 조합 · 진행 틈(인사 받는 분 · 255 · 축가 힌트 · 덕담 시간 · 연습 목록)이 되돌아갔습니다 — node scripts/audit/combo-171.mjs'; fail=1; }; :; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
