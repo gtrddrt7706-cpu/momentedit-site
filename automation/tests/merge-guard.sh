@@ -18434,7 +18434,7 @@ chk 'VC_WHO_FIRST' automation/platform/80_production.gs 3
 chk "WHO = Object.create(null); WHO.groom = '신랑'; WHO.bride = '신부';" automation/platform/80_production.gs 1
 chk "if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };" automation/platform/80_production.gs 1
 chk "if (w !== 'groom' && w !== 'bride') return; var p = cur\[w\];" automation/platform/80_production.gs 1
-chk 'jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code, st)' automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] st = retry 를 보고 deleting
+chk 'var pg = _vcPub(st.groom, code, st), pb = _vcPub(st.bride, code, st);' automation/platform/80_production.gs 1   # [VC_DEL_PEND 2026-10-30] st = retry 를 보고 deleting · [VC_WED_OVER] 상태 줄이 pg · pb 로 나뉨(over 면 남은 수 0)
 chk 'RF_DEL_KEEP' automation/platform/80_production.gs 3
 chk 'RF_DEL_TQ' automation/platform/80_production.gs 1
 chk 'var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;' automation/platform/80_production.gs 1
