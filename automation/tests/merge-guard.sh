@@ -20398,6 +20398,14 @@ chk 'BGM_FIX_1030' console.html 12
 chk 'BGM_FIX_1030' order-preview.html 2
 chk 'BGM_FIX_1030' automation/platform/80_production.gs 3
 chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
+# ★[CHEER_TAIL_1030 2026-10-30 BGM 섹션] «위하여»가 미리 듣기의 마지막 줄이어도 축배 곡(M7)으로 넘어가 4초 들려준 뒤 끝낸다 —
+#   END_FLOW_1030 이 잔 내려놓기를 «위하여» 칸에 합쳐 축배 순간이 «위하여»에서 끝나자 축배 곡이 한 번도 안 나왔다(bgm-preview D6 빨강).
+#   소리는 브라우저가 있어야 재므로 CI 의 bgm-sound 칸([BGM_SOUND_CI])이 bgm-preview · bgm-seg8 · bgm-console2 를 실제로 돌린다.
+chk 'CHEER_TAIL_1030' order-preview.html 1
+chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
+chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
+chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
+
 chk "B21: { t: \"Herman's Habit\"" assets/bgm-picks.js 1
 chk "var F_RE = /^B" assets/bgm-picks.js 1
 chk "BED_K_RE = /^(B" automation/platform/80_production.gs 1

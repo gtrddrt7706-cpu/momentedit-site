@@ -110,7 +110,7 @@ try {
     await p2.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
     const lab = await p2.evaluate(() => (document.getElementById('rfMu') || {}).textContent || '');
     ok('⑥ 입장 곡이 짧으면(하이라이트 뒤 10초) 입장 칸에 «곡 길이 모자람 · 곡이 끝나면 피아노가 이어요»(맞절은 입장 곡 그대로 · BGM_FIX_1030)', /곡 길이 모자람 · 곡이 끝나면 피아노가 이어요$/.test(lab), lab);
-    await p2.click('#go'); await p2.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
+    await p2.click('#go'); await p2.waitForFunction(() => window.__esd.s().v0 && window.__bgmSt().cur >= 0, null, { timeout: 30000 }).catch(() => {});   /* ★[CON_FRESH 뒤] «시작»은 최신 소리를 한 번 물은 뒤에 시작한다 — 실제로 시작(cur ≥ 0)될 때까지 기다린다 */
     const I = await p2.evaluate(() => window.__esd.idx()); const t0 = Date.now(); await p2.evaluate((i) => window.__bgmGo.fire(i), I.e); await p2.waitForTimeout(400);
     const pl = (await p2.evaluate(() => window.__esd.s())).pl || {}, endIn = (pl.tm || 0) + (40 - (pl.off || 0));
     await p2.waitForFunction(() => !window.__esd.s().run, null, { timeout: 70000 }).catch(() => {}); const t1 = (Date.now() - t0) / 1000;
