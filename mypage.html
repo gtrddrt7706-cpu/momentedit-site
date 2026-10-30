@@ -3153,7 +3153,15 @@ var RELOGIN_KEY='me_relogin_keep', RELOGIN_TTL=7*864e5, RELOGIN_FAIL='초안을 
         둘 다 사라졌는데도 «다시 로그인한 뒤 이어서 저장해 주세요»라고 했다. 못 맡기면 화면 · 초안 · 로그인 표시를 그대로 두고 «초안을 보관하지 못했어요 (코드 S4)»
      ② 알림 링크로 들어온 길은 마이페이지를 그리기 전이라 지금 계정(_mpAcct)이 비어 있다 — 이 기기 토큰에 맞는 상태 캐시의 개인코드로도 찾는다(스냅 임시본만 있어도 맡긴다)
      ③ 되돌릴 때 이 기기의 식순 초안(me_order)이 다른 주인(다른 계정 · 공개 미리보기 who '')이면 막지 않고 이 계정 것으로 덮는다(남의 초안을 이 계정에 싣지 않는다 · 식순 화면 ORDER_OWNER 도 어차피 버린다) ·
-        같은 계정 초안이 이미 있으면 그것(더 새것) · 다 써 넣은 것을 확인한 뒤에야 맡김을 지운다 */
+        같은 계정 초안이 이미 있으면 고친 때를 견준다([RELOGIN_NEWER] 아래) · 다 써 넣은 것을 확인한 뒤에야 맡김을 지운다 */
+/* ★[RELOGIN_NEWER · RELOGIN_S4_GO 2026-10-30 GPT 8차 점검(고객) 8-01 · 8-02]
+     ① 8-01 같은 계정 초안이 이미 있으면 종전엔 무엇이 더 새것인지 보지 않고 그것을 두고 맡김을 지웠다 — 다른 탭에 열려 있던 더 오래된 같은 계정 초안이 방금 맡긴 고침을 이겼다.
+        이제 고친 때(t · 식순 화면 _persist 가 «저장 안 한 고침이 생긴 때»를 적는다)를 견준다 — 이 기기 초안이 저장 안 한 고침이고 맡긴 것보다 나중에 고친 것일 때만 그것을 둔다.
+        이 기기 초안에 고친 때가 없거나 · 저장 안 한 고침이 아니면 맡긴 것(이 탭이 떠날 때의 마지막 판)을 되돌린다 · 서버 판과는 종전 [LOCAL_AHEAD] 가 견준다
+        맡김은 되돌렸거나 · 이 기기 초안이 더 나중임을 확인했을 때만 지운다
+     ② 8-02 식순 화면 «로그인하기» → 맡김 실패(S4) 판에 «확인»만 있어 로그인으로 갈 길이 없었다 — «그대로 로그인하기»를 하나 더 둔다.
+        로그인 표시 · 상태 캐시만 지우고 이 기기 초안(me_order · 주인 who 그대로)과 스냅 임시본은 둔다 → 같은 계정이면 식순 화면이 [LOCAL_AHEAD] 대로 잇고,
+        다른 계정이면 로그인하자마자 남의 초안을 걷는다(_orderOwnerSweep · 식순 화면 ORDER_OWNER 도 버린다) */
 function _reloginAcct(){ var c=''; try{ c=_mpAcct(); }catch(e){} if(c) return String(c); try{ var d=readCachedState(); if(d&&d.code) return String(d.code); }catch(e){} return ''; }   // [RELOGIN_ACCT_CACHE]
 function _reloginStash(){ try{   // [RELOGIN_STASH_FIRST] 1 맡김 · 0 맡길 것 없음 · -1 못 맡김
   var p=_reloginPack(); if(!p) return 0; var s=JSON.stringify(p);
@@ -3175,14 +3183,26 @@ function _reloginRestore(code){ try{
   var c=String(code), n=0, all=true;
   Object.keys(o.keys).forEach(function(k){ if(k!=='me_order' && k!=='me_snapLocal_'+c) return; var v=String(o.keys[k]), cur=localStorage.getItem(k);
     if(cur!=null){ if(k!=='me_order') return;   // 스냅 임시본은 코드별 이름 — 이미 있으면 이 계정 것
-      var cw=null; try{ cw=String((JSON.parse(cur)||{}).who||''); }catch(e){}
-      if(cw===c) return; }   // [RELOGIN_OWNER] 이 계정 초안이 이미 있으면 그것 · 다른 주인(다른 계정 · 공개 미리보기 '')이면 이 계정 것으로 덮는다
+      var cj=null; try{ cj=JSON.parse(cur)||{}; }catch(e){ cj={}; }
+      if(String(cj.who||'')===c && _reloginCurNewer(cj, v, o.t)) return; }   // [RELOGIN_OWNER] 다른 주인(다른 계정 · 공개 미리보기 '')이면 이 계정 것으로 덮는다 · [RELOGIN_NEWER] 같은 계정이면 더 나중에 고친 쪽
     try{ localStorage.setItem(k, v); }catch(e){}
     if(localStorage.getItem(k)===v) n++; else all=false; });
   if(all) localStorage.removeItem(RELOGIN_KEY);   // [RELOGIN_OWNER] 다 되돌린 것을 확인한 뒤에야 맡김을 지운다(못 썼으면 다음 로그인에 다시)
   return n>0;
 }catch(e){ return false; } }
-function _reloginFailShow(){ try{ _flowBusy(false); }catch(e){} try{ mpAlert({ bodyHtml:_errHtml(RELOGIN_FAIL) }); }catch(e){} }   // [RELOGIN_STASH_FIRST] 지금 화면 그대로 · 한 줄
+function _reloginCurNewer(cj, v, ot){ var kj=null; try{ kj=JSON.parse(v)||{}; }catch(e){ kj={}; }   // [RELOGIN_NEWER] 이 기기 초안이 저장 안 한 고침이고 · 맡긴 것보다 나중에 고쳤나
+  var ct=+cj.t||0, kt=+kj.t||+ot||0; return !!(cj.dirty && ct && ct>kt); }   // 고친 때가 없으면(옛 판) 맡긴 것 · 맡긴 것에 없으면 맡긴 때
+function _reloginFailShow(line){ try{ _flowBusy(false); }catch(e){}   // [RELOGIN_STASH_FIRST] 지금 화면 그대로 · 한 줄
+  try{ mpConfirm({ bodyHtml:_errHtml(RELOGIN_FAIL), yes:'그대로 로그인하기', no:'확인', dismissNull:true }).then(function(go){ if(go===true) _reloginGoAnyway(line); }); }catch(e){} }   // [RELOGIN_S4_GO] 로그인으로 갈 길 하나
+function _reloginGoAnyway(line){ try{   // [RELOGIN_S4_GO] 로그인 표시 · 상태 캐시 · 다른 기억만 지우고 이 기기 초안(me_order · 스냅 임시본)은 둔다(맡기지 못했으니 원본이 곧 그 초안)
+  localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
+  var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+    if(k && k!=='me_order' && !/^me_snapLocal_/.test(k) && /^me_(order|deliv_|prod_ping|order_v2note_)/.test(k)) _kill.push(k); }
+  _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+}catch(e){} try{ _mpAcctSweep(); }catch(e){}
+  _reloginShowLogin(String(line||(ERR_W[8]+' · '+ERR_DO[8]))); }
+function _orderOwnerSweep(code){ try{ var r=JSON.parse(localStorage.getItem('me_order')||'null'), w=String((r&&r.who)||'');   // [RELOGIN_S4_GO] 로그인한 계정과 다른 계정의 식순 초안은 걷는다(공개 미리보기 '' 는 식순 화면 ORDER_OWNER 가 본다)
+  if(code && w && w!==String(code)) localStorage.removeItem('me_order'); }catch(e){} }
 try{ var _rk0=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'null'); if(_rk0 && !(Date.now()-(+_rk0.t||0)<RELOGIN_TTL)) localStorage.removeItem(RELOGIN_KEY); }catch(e){}   // [RELOGIN_KEEP] 7일 지난 것은 열 때 지운다
 /* ★[C2_ACCT_SWEEP 2026-10-09 고객 여정 A~Z 점검 2라운드] 계정이 끝나는 자리(로그아웃 · 로그인 풀림 — 다 clearToken 을 지난다)에서는 저장소([LOGOUT_SWEEP])만이 아니라
      이 탭의 화면 기억도 걷는다 — 같은 기기에서 다음 사람이 로그인하면 앞사람 것이 보이거나 다음 질문에 실려 갔다.
@@ -3274,8 +3294,11 @@ function _errNorm(r, L, base){   // 서버 답을 화면에 바로 쓸 수 있�
 /* 로그인이 풀렸다 — 로그인 화면으로(그 줄을 로그인 칸에). 편집 겹화면이 떠 있으면 새로 열어 겹화면 밑에 로그인 화면이 깔리지 않게 한다 */
 function _errGoLogin(x, L){
   var line=_errLine(x, L), _kp=clearToken(true);
-  if(_kp===null){ _reloginFailShow(); return; }   // [RELOGIN_STASH_FIRST] 못 맡겼으면 지금 화면 · 초안 그대로
+  if(_kp===null){ _reloginFailShow(line); return; }   // [RELOGIN_STASH_FIRST] 못 맡겼으면 지금 화면 · 초안 그대로 · [RELOGIN_S4_GO] 그래도 로그인으로 갈 수 있게
   line=_reloginLine(line, _kp);   // [RELOGIN_KEEP] 저장 못 한 초안을 맡겨 두었다
+  _reloginShowLogin(line);
+}
+function _reloginShowLogin(line){   // 로그인 화면으로(그 줄을 로그인 칸에) · 편집 겹화면이 떠 있으면 새로 열어 겹화면 밑에 깔리지 않게
   try{ if(_wizCurId() || _mpFsOpen()){ sessionStorage.setItem('me_login_note', line); location.reload(); return; } }catch(e){}
   try{ closeLedModal(); }catch(e){} try{ _flowBusy(false); }catch(e){}
   show('loginView'); softLoginNote(line);
@@ -3496,7 +3519,7 @@ function loadMyState(opts){
   _stateGet(_tok).then(function(d){
     clearTimeout(_slowT);   // [STATE_PATIENT]
     if(getToken()!==_tok){ _fin(); return; }   /* [STATE_SEQ] 늦게 온 남의 화면 — 캐시에도 남기지 않는다 */
-    if (d && d.ok){ _reloginRestore(d.code); cacheState(d); renderMyPage(d); show('mypageView'); var _lb=document.getElementById('mp_loadBar'); if(_lb&&_lb.parentNode) _lb.parentNode.removeChild(_lb); }   // [ERR_CODE_MYPAGE] 다시 불러왔으면 «최신 내용을 불러오지 못했어요» 막대를 걷는다
+    if (d && d.ok){ _orderOwnerSweep(d.code); _reloginRestore(d.code); cacheState(d); renderMyPage(d); show('mypageView'); var _lb=document.getElementById('mp_loadBar'); if(_lb&&_lb.parentNode) _lb.parentNode.removeChild(_lb); }   // [ERR_CODE_MYPAGE] 다시 불러왔으면 «최신 내용을 불러오지 못했어요» 막대를 걷는다
     /* ★★[ERR_CODE_MYPAGE F1 2026-10-07] 로그아웃은 서버가 «로그인이 풀렸다»(reason)고 할 때만.
        종전엔 까닭 없는 실패(서버 예외 · 새 배포 누락 · 시트 시간 초과)에도 clearToken() 을 불러 — 고객이 로그아웃되고
        보내지 않은 이 기기의 초안(me_order · me_snapLocal_*)까지 지워졌다(LOGOUT_SWEEP 이 로그아웃 때 쓸어 담는다).

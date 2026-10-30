@@ -10347,7 +10347,10 @@ function _latestApply(m){ m=m||{}; var dS=m.draft&&m.draft.S, keep=idx, sk=Objec
    다른 기기 글이 한 칸 합쳐진 뒤로는 이 기기의 저장 안 한 고침이 다시 열 때 늘 버려졌다. 서버는 그 칸만 서버 값으로 바꿔 저장하므로 같은 일을 여기서 해 지문을 낸다 */
 function _baseAfter(sS,p){ try{ var x=JSON.parse(JSON.stringify(sS||{})); if(p) ['tx','mkc','up'].forEach(function(g){ var pg=p[g]; if(!pg||typeof pg!=='object') return; Object.keys(pg).forEach(function(k){ if(!x[g]||typeof x[g]!=='object') x[g]={}; if(pg[k]===undefined) delete x[g][k]; else x[g][k]=pg[k]; }); }); return _canonS(x); }catch(e){ return ''; } }
 function _persist(over){ try{ _closeFit(); }catch(e){} try{ _seamFitKeep(); }catch(e){}   /* [MOOD_1018] 판이 바뀌었으면 분위기 몫을 저장 전에 맞춘다 · [CLOSE_SEAM_1018] 닫는 멘트 이음새 */
-  try{ var rec={v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who,base:_srvBase,dirty:!!(courseStarted&&_autoKey()!==_autoLast)}; if(over) for(var _o in over) rec[_o]=over[_o]; localStorage.setItem('me_order', JSON.stringify(rec)); _persistBad=false; }catch(e){ _persistBad=true; } _dirtyMark(); }
+  try{ var rec={v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who,base:_srvBase,dirty:!!(courseStarted&&_autoKey()!==_autoLast)}; if(over) for(var _o in over) rec[_o]=over[_o];
+    var _ek=_autoKey(); if(rec.dirty&&_ek!==_editK) _editT=Date.now(); _editK=_ek; if(rec.dirty&&_editT) rec.t=_editT;   /* [RELOGIN_NEWER] 저장 안 한 고침이 생긴 때(이 탭이 실제로 고친 때 · 다시 쓰기만 한 때가 아니다) — 마이페이지가 로그인 풀림 때 맡긴 초안과 견준다 */
+    localStorage.setItem('me_order', JSON.stringify(rec)); _persistBad=false; }catch(e){ _persistBad=true; } _dirtyMark(); }
+var _editT=0, _editK=null;   // [RELOGIN_NEWER] 이 탭의 마지막 고친 때 · 그때의 판 지문
 /* ★[PERSIST_TRUE 2026-10-09 A~Z 점검 2라운드 A2-16] 이 기기에 남기지 못했으면(저장 공간 가득 · 막힘) 나가기 판이 «이 기기에는 남아 있어요»라고 약속하지 않는다 */
 var _persistBad=false;
 function _keepLine(){ return _persistBad?'저장하지 않으면 이 기기에도 남지 않아요':'저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요'; }
@@ -10490,7 +10493,7 @@ if(!EMBED){ try{ RitualOpen.FEATURE.upLive=true; }catch(e){} }   // [VOICE_UP_FR
 // ORDER_OWNER(2026-07-25 사용자 지시 "로그인 아이디가 바뀌었는데도 식순 데이터가 남아있는 건 문제"): 로컬 초안을 계정에 묶음 —
 //   ① 계정 소유(who) 초안은 독립 열람(비로그인 공개 페이지)에서 복원하지 않고 ② 임베드에선 orderFill의 로그인 계정과 대조해 다르면 즉시 폐기.
 try{ var _sv0=JSON.parse(localStorage.getItem('me_order')||'null');
-  if(!(_sv0&&_sv0.who&&!EMBED)&&_applySaved(_sv0)){ _srvBase=_sv0.base||''; if(_sv0.dirty) _autoLast=''; }   /* [LOCAL_AHEAD] 저장 안 한 고침이 있던 판은 다시 열어도 «저장»이 켜진 채(종전엔 복원 직후가 기준선이라 저장된 것처럼 보였다) */
+  if(!(_sv0&&_sv0.who&&!EMBED)&&_applySaved(_sv0)){ _srvBase=_sv0.base||''; if(_sv0.dirty) _autoLast=''; _editT=+_sv0.t||0; _editK=_autoKey(); }   /* [RELOGIN_NEWER] 되살린 판은 그 판이 고쳐진 때를 그대로(다시 열었다고 새것이 되지 않는다) */   /* [LOCAL_AHEAD] 저장 안 한 고침이 있던 판은 다시 열어도 «저장»이 켜진 채(종전엔 복원 직후가 기준선이라 저장된 것처럼 보였다) */
 }catch(e){}
 render();
 engine();   // [ORD_REAL_AUDIO] 첫 탭이 곧바로 소리로 이어지게 미리 싣는다(iOS 사용자 제스처 유지)
