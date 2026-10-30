@@ -47,7 +47,7 @@ const SEC = { standard: '17:44~22:43' /* [BASE_SWAP_1023] −30초 · 153 판 18
 for (const k in SEC) { const b = O.bodySec(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› ${SEC[k]}`, mmss(b[0]) + '~' + mmss(b[1]) === SEC[k], mmss(b[0]) + '~' + mmss(b[1])); }
 ok('예시 넷 알림 없음 · 축사(free 칸)는 정석에만 · 늘 축사 판([SPEECH_TILE_1012] · [EX_STD_1012] 기록도 — 반지 · 케이크가 빠져 단체 사진 18~22 · 옛 기록은 고르자마자 알림 ④ «15분»)', O.EXAMPLES.every((e) => (e.on.indexOf('free') < 0 || (e.k === 'standard' && e.set.free === 'speech')) && !O.noticeOf(O.applyExample({}, e.k)) && O.noticeList(O.applyExample({}, e.k)).length === 0) && O.applyExample({}, 'standard').freeWhat === 'speech');
 /* [TRIB_ONE_SAY 2026-10-06] 말의 길이 하나(말로 인사 = long) · 옛 one 도 long 으로 */
-ok('[TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 말로 인사» · 칩은 말로 인사 · 말 없이 둘', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'long'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 말로 인사' && O.CHIPS.tribute.map((c) => c[1]).join('|') === '말로 인사|말 없이' && O.chipOf('tribute', { tributeSay: 'one' }) === 'long'; })());
+ok('[TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 말로 인사» · 칩은 말로 인사 · 말 없이 둘', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'long'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 말로 인사' && O.CHIPS.tribute.map((c) => c[1]).join('|') === '말로 인사|말없이' && O.chipOf('tribute', { tributeSay: 'one' }) === 'long'; })());
 ok('[EX_BRIEF] 넷째 예시는 «간결» · «전부»(all)는 거뒀다', O.EXAMPLES[3].k === 'brief' && O.EXAMPLES[3].nm === '간결' && !O.exampleOf('all') && O.originOf({ on: { vow: 1 }, pickFrom: 'all' }) === '직접 고르셨어요.');
 /* ★★[EX_STD_1012 2026-10-12 사장님 «정석 · 기록 · 가족 · 간결 (추천)»] 같은 뼈대 + 성격 한두 개 · 반지 · 케이크 · 편지는 예시에 없다(+ 로 담기) · 약속은 걷었다 · 테이블 인사는 기록에만 */
 { const SPINE = ['prevideo', 'candle', 'vow', 'declare', 'tribute'] /* [TOAST_LAST_1013] 축배는 뼈대에서 내려 기록에만 */, X = (k) => O.exampleOf(k).on.join(',');
@@ -90,7 +90,7 @@ ok('모든 순간에 칸 글이 있다(tileOf 빈 값 0) [TILE_SWALLOW]', Object
 /* ── 3. 알림 넷 — 조건 그대로(명세 3-6 · 둘째 판 4-1 · 4-7) ── */
 ok('① 앞쪽 사슬(서약 · 덕담 · 인사 · 덕담은 선언 뒤라 서약 다음) → 알림 ①', O.noticeOf({ on: { bless: 1, vow: 1, toast: 1 }, tributeSay: 'one' }) === '' && O.noticeOf({ on: { bless: 1, vow: 1, tribute: 1, toast: 1 } }) === O.NOTICE.heavy);
 { const _bs = { on: { declare: 1, bless: 1, tribute: 1, letter: 1, toast: 1 } }, _n = O.noticeFull(_bs);   /* [BLESS_AFTER_DECLARE 2026-10-12] 반지 · 선언은 덕담 앞이라 이 사슬을 못 푼다 */
-  ok('① 덕담으로 시작해 인사로 끝나는 사슬(덕담 · 편지 · 인사)은 뒤쪽 문구 · 단추 «인사를 말 없이로» — «반지나 선언»이 아니다 [BLESS_AFTER_DECLARE · HEART_ORDER_1012]', O.noticeOf(_bs) === O.NOTICE.heavyBack && !!_n && _n.acts.map((a) => a[0]).join('|') === '인사를 «말 없이»로', _n && _n.msg); }
+  ok('① 덕담으로 시작해 인사로 끝나는 사슬(덕담 · 편지 · 인사)은 뒤쪽 문구 · 단추 «인사를 말 없이로» — «반지나 선언»이 아니다 [BLESS_AFTER_DECLARE · HEART_ORDER_1012]', O.noticeOf(_bs) === O.NOTICE.heavyBack && !!_n && _n.acts.map((a) => a[0]).join('|') === '인사를 «말없이»로', _n && _n.msg); }
 { /* ★[HEART_ORDER_1012 2026-10-12] 인사가 마음의 순간 끝 — 사슬에 인사가 있으면 «말 없이», 없으면(덕담 → 축사 → 편지) 그 사이 빈 자리는 축가 하나 */
   const mid = { on: { declare: 1, bless: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' }, nm = O.noticeFull(mid);
   ok('① 인사 없는 사슬(덕담 · 축사 · 편지) → «축가를 담으면» · 단추 «축가 담기» [HEART_ORDER_1012]', O.noticeOf(mid) === O.NOTICE.heavyMid && !!nm && nm.acts.map((a) => a[0]).join('|') === '축가 담기' && /^부모님 덕담 → 축사 → 편지 낭독 · /.test(nm.msg) /* [SPEECH_TILE_1012] 옛 이름 «준비한 순서» */, nm && nm.msg);
@@ -552,6 +552,16 @@ ok('[MUST_FIX_165_1024 검토 165] 17 · 151 · 154 · 120 · 107 · 189 · 165 
     && /앞으로도 오래 웃으며 만나자\./.test(t('622_speech-close-friend')) && !/며늘아/.test(t('609_bless-father')) && /^언제나 아내의 편이 되는 남편이 되겠습니다\./.test(t('903_vow-groom')) && /^서로의 시간을 존중하는 아내가 되겠습니다\./.test(t('904_vow-bride'))
     && !/아무 일은 서울로/.test(t('707_letter-each-groom')) && /사랑하는 사람을 어떻게 대해야 하는지/.test(t('502_letter-each-bride')) && /"609_bless-father": \[[^\]]*며늘아/.test(B3)
     && !/사이가 풀려요/.test(OP) && (OP.match(/중간에 숨 돌릴 틈이 생겨요/g) || []).length >= 6 && /미리 준비한 두 분 목소리가 흘러요/.test(OP); })());
+/* ★★[REVIEW_166_1030 검토 166] 프리뷰 실화면 전수 점검 — A 띄어쓰기(녹음 기록 글도 같게) · C 표기 · D 참고 예시 */
+ok('[REVIEW_166_1030 검토 166 A · C · D] 149 · 224 · 144 · 136 · 205 · 178 띄어쓰기(엔진 = 녹음 기록) · «말없이» · «인사말» · «영상이 끝나면» · 선언 · 반지 글 · 참고 예시 9칸', (() => {
+  const RCJ = JSON.parse(fs.readFileSync(P('assets/audio/narration/_recorded.json'), 'utf8')).clips, w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
+  const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '', B4 = fs.readFileSync(P('order-preview.html'), 'utf8'), rec = (k) => (RCJ[k] || {}).text || '';
+  const A = [['149_narr-open-ex3', '오늘 함께하신 여러분도'], ['224_narr-candle-in-others-ex4', '두 분의 화촉 점화 순서가'], ['144_narr-entry-arrive', '두 사람이 한자리에 섰습니다.'], ['136_narr-declare-in-friend', '오늘의 성혼 선언은'], ['205_narr-song-ex4', '축복하는 축하 공연이'], ['178_narr-letter-end-ex2', '가득한 결혼 생활이']];
+  return A.every(([k, x]) => rec(k).indexOf(x) > -1) && D.NARR.entryArrive.indexOf('한자리에') > -1 && O.CHIPS.tribute[1][1] === '말없이'
+    && /'두 분이 부모님 쪽으로 돌아서 앞으로 가요'/.test(B4) && /읽으면 두 분이 부부가 되었음을 알려요/.test(O.CARDS.declare.one) && /반지를 끼우는 두 손을/.test(B4)
+    && !/안지가|발표날|주위사람들에게|똑부러지게|유럽배낭여행/.test(['620_speech-story1-friend', '820_speech-story1-bride-friend', '821_speech-story2-bride-friend', '719_speech-open-brother'].map(t).join())
+    && !/너가/.test(t('820_speech-story1-bride-friend') + t('821_speech-story2-bride-friend')) && /^당신과 함께한 등산은 근사한 경험이었습니다\./.test(t('09_vow-bride')) && /장인어른, 장모님, 사랑합니다\.$/.test(t('713_tribute-cross-groom'))
+    && /"09_vow-bride": \[[^\]]*당신과 함께라면 등산이/.test(B4) && /function _mkSecW\(n\)/.test(B4); })());
 /* ── 8. 실브라우저(--live) ── */
 if (process.argv.includes('--live')) {
   let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }

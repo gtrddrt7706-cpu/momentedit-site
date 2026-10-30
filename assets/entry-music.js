@@ -1,6 +1,6 @@
 /* ★★[ENTRY_MUSIC_1012 2026-10-12 사장님 «마이페이지 식순 입장 부분에 올려 보자 · 일단 전부 올려 · 지금 오픈 전이니깐»]
    입장 시험실(비공개 · v50)의 «입장 음악»을 실제 빌더(order-preview.html) ② 입장 쪽으로 옮긴 1단계 —
-   두 분이 고른 곡 올리기 → 크게 올라오는 자리(찾은 후보 · 앞뒤 들어 보기) → 직접 적기 → 올리기 안내 창.
+   두 분이 고른 곡 올리기 → 곡이 커지는 자리(찾은 후보 · 앞뒤 들어 보기) → 직접 적기 → 올리기 안내 창.
    · [MUSIC_GONE 2026-08-03 «노래선정부분 완전삭제»]를 «입장» 순간에서만 뒤집는다 — 완성 화면의 곡명 칸(mPeak)은 그대로 없다.
    · 올린 파일은 이 기기 안에서 풀고(서버로 아직 보내지 않는다 · 3단계) 이 기기 IndexedDB 에 둔다(새로고침해도 남게) ·
      고른 곡 이름 · 가수 · 길이 · 고른 자리는 초안 S.mu 에 저장(마이페이지 저장과 함께 서버로 간다).
@@ -203,14 +203,14 @@
   function card(){ var u=UPS, c0=upCur(), busy=u&&u.busy?'<p class="mu-upbusy" role="status">‹'+e(u.name)+'› '+(u.dl?'불러오는 중이에요':'살펴보는 중이에요')+'</p>':'', mu=upRec(), on=upOn();   /* [REC_SONG_1012] on = 올린 곡이 고른 곡 · 아니면(추천 곡을 고름) 곡 줄만 · 누르면 다시 이 곡 */
     if(!c0&&u&&u.dl) return '<div class="mu-up mu-card">'+busy+'</div>';   /* [ENTRY_SONG_UP] 스튜디오에 보낸 곡을 받는 동안 — «곡 파일 올리기»를 같이 두면 다시 올려야 하나 헷갈린다 */
     if(!c0){ var kept=(mu&&on&&!busy&&RESTORE===2)?'<p class="mu-cs on">‹'+e(mu.t||mu.name)+'› · '+fmtMS(mu.typed!=null?mu.typed:mu.hook||0)+'에 맞춰 두었어요</p>':'';   /* 이 기기에 파일이 없을 때(다른 기기 · 지운 저장소) — 고른 것은 남아 있다 */
-      return '<div class="mu-up mu-card">'+(busy||kept+sgLine()+'<p class="mu-cs">곡 파일을 올리면 크게 올라오는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요</p>')
+      return '<div class="mu-up mu-card">'+(busy||kept+sgLine()+'<p class="mu-cs">곡 파일을 올리면 곡이 커지는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요</p>')
         +'<div class="mk-sech mk-sech-r mu-upgo"><button type="button" class="mk-hbtn" data-fk="muupopen" onclick="emAct(\'upopen\',this)">'+ICO_PLUS+' 곡 파일 올리기</button></div>'+upHint()+'</div>'; }
     var m=c0.meta, sub=(m.a?m.a+' · ':'')+fmtMS(c0.Sg.dur), pl=!!(PREV&&PREV.key==='up'), h='<div class="mu-up mu-card on">'+busy;
     h+='<ul class="mu-list mu-mine" role="radiogroup" aria-label="내 곡"><li class="mu-row'+(on?' on':'')+'"><button type="button" class="mk-pl mu-pl'+(pl?' on':'')+'" data-fk="muprev" aria-pressed="'+pl+'" aria-label="'+e(m.t)+' 음악만 '+(pl?'멈추기':'듣기')+'" onclick="emAct(\'prev\',this)">'+(pl?ico('stop'):ico('play'))+'</button>'
       +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="0" data-fk="musong"'+(on?'':' onclick="emAct(\'upuse\',this)"')+'><span class="mu-t">'+e(m.t)+'</span><span class="mu-a">'+e(sub)+'</span></button></li></ul>'+svLine();   /* [ENTRY_SONG_UP] 곡 줄 바로 아래 — 보내는 중 · 못 보냄 · [REC_SONG_1012] 안 고른 곡이면 누르면 이 곡으로 */
     if(!on) return h+'<div class="mu-upft"><button type="button" class="pk-link" data-fk="muupagain" onclick="emAct(\'upopen\',this)">다른 곡 올리기</button><span aria-hidden="true">·</span><button type="button" class="pk-link" data-fk="muupdel" onclick="emAct(\'updel\',this)">빼기</button></div></div>';   /* [REC_SONG_1012] 고른 곡이 아니면 자리 · 직접 적기 · «맞추기»는 숨긴다(시험실 renderUp 그대로) */
     upMark(c0);   /* [UP_REC_V_1019] «추천 ·»은 지금 입장 목소리 길이로 · 고른 자리는 그대로 */
-    h+='<p class="mu-hkt">크게 올라오는 자리</p><ul class="mu-list mu-hks" role="radiogroup" aria-label="크게 올라오는 자리">'+upList(c0).map(function(c,i){ var ck=i===c0.pick, p2=!!(PREV&&PREV.key==='up#'+i), lb=fmtMS(c.typed!=null?c.typed:c.t);
+    h+='<p class="mu-hkt">곡이 커지는 자리</p><ul class="mu-list mu-hks" role="radiogroup" aria-label="곡이 커지는 자리">'+upList(c0).map(function(c,i){ var ck=i===c0.pick, p2=!!(PREV&&PREV.key==='up#'+i), lb=fmtMS(c.typed!=null?c.typed:c.t);
       return '<li class="mu-row'+(ck?' on':'')+'"><button type="button" class="mk-pl mu-pl'+(p2?' on':'')+'" data-fk="muhkp:'+i+'" aria-pressed="'+p2+'" aria-label="'+lb+' 앞뒤 '+(p2?'멈추기':'들어 보기')+'" onclick="emAct(\'hookprev\','+i+')">'+(p2?ico('stop'):ico('play'))+'</button>'
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+ck+'" tabindex="'+(ck?0:-1)+'" data-fk="muhk:'+i+'" onclick="emAct(\'hookpick\','+i+')"><span class="mu-t">'+lb+'</span><span class="mu-a">'+e(upNote(c))+'</span></button></li>'; }).join('')+'</ul>'
       /* ★★[UP_TIDY 2026-10-11] 직접 적기 = 후보 줄과 같은 한 줄 · 적는 칸 = ▶ 알약 자리([OWN_PILL_SAME] 같은 크기 · 같은 금빛 테) · 이름표가 칸의 이름(누르면 칸으로) */
@@ -282,7 +282,7 @@
       pf:/^[A-Za-z0-9_-]{1,24}\.mp3$/.test(String(s.pf||''))?String(s.pf):'',p0:num(s.p0),p1:num(s.p1),g:num(s.g)>0?num(s.g):null}); }   /* [REC_CLIP_1013] 짧은 판(pf) · 그 판의 처음 · 끝(원곡 초) · 원곡으로 잰 크기 */   /* [BGM_FIRST_1013] 같은 소절이 다시 나오는 자리(문 열림 후보 · 첫째가 hook0) */
   function recMeta(k){ var L=REC.ls||[]; for(var i=0;i<L.length;i++) if(L[i].k===k) return L[i]; return null; }
   function recTitle(k){ var m=recMeta(k); return m?(m.t||m.name):''; }
-  function recH(m){ return Math.round((m.hook0||m.hook)*100)/100; }   /* 크게 올라오는 자리 = 문이 열리는 순간(hook0) */
+  function recH(m){ return Math.round((m.hook0||m.hook)*100)/100; }   /* 곡이 커지는 자리 = 문이 열리는 순간(hook0) */
   /* 목록 — 칩을 볼 때 한 번 · 실패했으면 «다시 불러오기»(또는 30초 뒤 다시 그릴 때) */
   function recListDone(){ var w=REC.lw; REC.lw=[]; w.forEach(function(f){ try{ if(REC.lst==='ok') f[0](); else f[1](recE(REC.lerr||'L4')); }catch(x){} }); }
   function recList(){ if(REC.lst==='get'||REC.lst==='ok') return; REC.lat=Date.now(); if(!emb()){ REC.lst='fail'; REC.lerr='L3'; recListDone(); return; }
@@ -478,7 +478,7 @@
   function guideBody(){ var kp=function(t,tag,on){ return '<span class="mk-kp'+(on?' on':'')+'">'+(on?ico('check'):'')+t+(tag?' '+tag:'')+'</span>'; };
     return '<ol class="mk-rd-steps">'
       +'<li><span class="mk-rd-n" aria-hidden="true">1</span><p><b>곡 파일을 올려요</b>MP3 · M4A 파일을 고르면 바로 곡을 살펴봐요'+(IOS_DEV?' · '+IOS_DEV+' ‹파일 선택›에서 골라요':'')+'</p></li>'
-      +'<li><span class="mk-rd-n" aria-hidden="true">2</span><p><b>크게 올라오는 자리를 찾아 드려요</b>후보 몇 곳 중 걷는 동안 곡이 이어지는 자리를 추천해요<span class="mu-gd-c" aria-hidden="true">'+kp('0:38','추천',true)+kp('1:28')+kp('2:24')+'</span></p></li>'
+      +'<li><span class="mk-rd-n" aria-hidden="true">2</span><p><b>곡이 커지는 자리를 찾아 드려요</b>후보 몇 곳 중 걷는 동안 곡이 이어지는 자리를 추천해요<span class="mu-gd-c" aria-hidden="true">'+kp('0:38','추천',true)+kp('1:28')+kp('2:24')+'</span></p></li>'
       +'<li><span class="mk-rd-n" aria-hidden="true">3</span><p><b>들어 보고 골라요</b>자리마다 ▶ 를 누르면 그 앞뒤를 들려 드려요</p></li>'
       +'<li><span class="mk-rd-n" aria-hidden="true">4</span><p><b>원하는 자리가 없으면 직접 적어요</b>곡에서 원하는 때를 분:초로 적으면 그 자리에 맞춰요<span class="mu-gd-in" aria-hidden="true">1:05</span></p></li></ol>'
       +(function(){ var st=vNow(), nar=!!(st&&st.nar);   /* [ENTRY_SCENE_1012] 스튜디오 나레이션 판은 마지막 말이 나레이션의 «입장!»이다 — «두 분의 마지막 말»은 AI 판만 */
