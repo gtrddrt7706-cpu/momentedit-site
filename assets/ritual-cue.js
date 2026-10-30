@@ -781,7 +781,7 @@
       }), cue({
         /* ★[PV_OUT_1019 검토 132] 영상이 끝나면(디렉터 GO) 받는 한 줄 — 앞 큐에 사람 순간(상영)이 있어 손으로 나간다(CUE_FIRE_RULE) · 두 분 목소리 판에도 같다(진행자 몫) ·
            다음 줄은 이어서 나간다(화촉) · 입장은 늘 손으로(entry 첫 줄 manual · B7) · [재생 안 됨]을 누른 날은 콘솔이 다음으로 넘긴다 */
-        k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-out', name: '영상 받는 말', text: EXTRA['narr-prevideo-out'], duck: PARAM.duckSpeech,
+        k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-out', name: '영상이 끝나면', text: EXTRA['narr-prevideo-out'], duck: PARAM.duckSpeech,
         hint: '영상이 끝나면'
       })];
     },
@@ -1235,10 +1235,10 @@
                받는 자리에서 짧게 답하면 희소해서 오히려 세다. 길어야 20초로 못박는다.
              ★예시 음성은 27_tribute-reply(배역) 이지만 당일 콘솔은 배역 클립을 재생하지 않는다 —
                그래서 «여기 live 지문»에 자리를 만들어야 실제 예식에서 그 순간이 생긴다. */
-          pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말 없이') : m.d,   /* [TRIB_PICK_CHIP_1013] 새 코스 배지 «여기는 고를 수 있어요 · ○○»는 고르는 칩 이름만 — «인사와 포옹»은 고르는 칸이 아니다(GROOM_BOW_TIP · FLOWER_OFF_1013) */   // [TRIB_ONE_SAY] 한마디부터 1분쯤까지 · 시간 몫은 1분쯤씩(140)
+          pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말없이') : m.d,   /* [TRIB_PICK_CHIP_1013] 새 코스 배지 «여기는 고를 수 있어요 · ○○»는 고르는 칩 이름만 — «인사와 포옹»은 고르는 칸이 아니다(GROOM_BOW_TIP · FLOWER_OFF_1013) */   // [TRIB_ONE_SAY] 한마디부터 1분쯤까지 · 시간 몫은 1분쯤씩(140)
           /* [OPEN_COURSE] 새 코스는 인사의 «말»을 고른다(한마디씩 · 400자씩 · 말 없이). 옛 코스는 지금 그대로 말 없이다. */
           live: (open && S.tributeSay !== 'none')
-            ? { t: '두 분이 부모님께 인사 말을 전한 뒤 · ' + mcue, est: base + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
+            ? { t: '두 분이 부모님께 인사말을 전한 뒤 · ' + mcue, est: base + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
             : { t: mcue, est: base, self: true, doing: 'move' }
         }),
         cue({
@@ -1262,13 +1262,13 @@
         var sayT = S.tributeSay !== 'none', at = ' · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로';
         var act = { t: '두 분이 부모님께 인사', est: 15, self: true, doing: 'move' };   // [TRIB_HUG_CALL_1018] 포옹은 다음 줄(256)이 청한다 · 합계 est 는 그대로(15 + 35 = base - 20)   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
         out[0].name = '부모님 앞으로'; out[0].fire = 'chain'; out[0].gapMs = 1000;   // [CHAIN_GAP_1014] 원고 «사이 1초»
-        out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사 말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
+        out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
           : { t: '두 분이 부모님 앞으로 걸어감' + at, est: 20, self: true, doing: 'move', duck: out[0].duck };
         out.unshift(cue({ k: 'tribute', blockN: '부모님 헌정', slug: pairT ? 'narr-tribute-pair' : 'narr-tribute-name', name: '부모님께 인사 시작',
           text: EXTRA[pairT ? 'narr-tribute-pair' : 'narr-tribute-name'], pick: out[0].pick }));
         out[1].pick = '';
         out.splice(2, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: sayT ? 'tribute-call-say' : 'tribute-call', name: '인사 구호', text: EXTRA[sayT ? 'tribute-call-say' : 'tribute-call'], duck: -12,   // ★[TRIB_CALL_SAY_1014] 말로 인사 날은 «그 마음을 담아,»로 두 분 말을 받아 구호(145)
-          hint: sayT ? '인사 말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
+          hint: sayT ? '인사말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
         /* ★[TRIB_HUG_CALL_1018 검토 124] 구호 뒤 포옹을 소리로 청한다 — 그 전엔 콘솔만 «포옹이 끝나면»을 기다리고 아무도 포옹을 청하지 않아, 두 분은 서 있고 부모님은 앉아 계신 몇 초가 생겼다.
            디렉터 GO(인사를 마치고 두 분이 고개를 들면) · 다음 tribute-out 은 그대로 «포옹이 끝나면» */
         out.splice(3, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-hug', name: '포옹 청하기', text: EXTRA['tribute-hug'], duck: -12, fire: 'manual',

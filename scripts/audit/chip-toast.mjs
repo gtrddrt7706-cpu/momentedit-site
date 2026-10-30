@@ -78,7 +78,7 @@ for (const W of [320, 390, 1280]) {
     ok('390 2 화촉 «양가 어머님 → 양가 아버님» — 여는 말이 통째로 바뀌면 말하지 않는다 [CHIP_FEW_WORDS · SOURCE_FIRST_1016]', !/바꿨어요$/.test(cb.text || ''), cb);
     await quiet(pg);
     // 3 — 줄 수가 바뀌는 작은 바뀜
-    for (const [k, want] of [['vow', '‹각자 차례로› 바꿨어요'], ['tribute', '‹말 없이›로 바꿨어요']]) {
+    for (const [k, want] of [['vow', '‹각자 차례로› 바꿨어요'], ['tribute', '‹말없이›로 바꿨어요']]) {
       await go(pg, k); await quiet(pg);
       const real = await pg.evaluate(([k, want]) => { const g = _lGroups(k).find((g) => g.list.some((x) => want.indexOf('‹' + x[1] + '›') === 0)); const x = g && g.list.find((x) => want.indexOf('‹' + x[1] + '›') === 0); return g && x ? 'lsc:' + g.key + ':' + x[0] : null; }, [k, want]);
       if (real) await tap(pg, `#stage [data-fk="${real}"]`);
