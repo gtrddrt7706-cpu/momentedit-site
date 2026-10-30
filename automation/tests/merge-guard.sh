@@ -7778,7 +7778,7 @@ chk 'EX_ENTRY_FEEL_1012' scripts/check-ritual-cue.js 2
 nochk "on: \['prevideo', 'candle', 'vow', 'declare', 'tribute'], set: { entry: 'A'" assets/ritual-open.js   # 간결에 가장 긴 입장 멘트(담백하게 23초)를 되살리지 말 것
 nochk "k: 'promise', nm: '약속'" assets/ritual-open.js          # 편지 중심 «약속» 예시는 걷었다 — 되살리지 말 것
 nochk "on: \['prevideo', 'candle', 'welcome', 'vow', 'ring'" assets/ritual-open.js   # 반지는 예시에 넣지 않는다(10/11 사장님 «반지 · 케이크는 코스에서 빼고») — + 로 담는다
-chk "스냅 촬영 «손과 반지» 장면으로 남길 수 있어요" order-preview.html 1
+chk "스냅 촬영에서 두 분의 손과 반지를 사진으로 남길 수 있어요" order-preview.html 1
 chk "name: '손과 반지'" assets/snap-refs.js 1                      # 반지 미리 보기 한 줄이 가리키는 스냅 장면 — 이름을 바꾸면 이 줄도
 node scripts/audit/source-basis.mjs --stage2 || fail=1
 # ★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»(추천대로 · 10/02 ENTRY_OUT_OFF «맞절도 빼고»를 뒤집음)] 새 코스 입장 끝 맞절 한 줄(132) · 3·3·3 · 15초 · 고를 것 없음
@@ -12875,7 +12875,7 @@ chk 'FLOWER_OFF_1013' assets/advisor-kb.js 1
 chk 'FLOWER_OFF_1013' scripts/audit/open-course.mjs 3
 chk 'TRIB_ACT: TRIB_ACT' assets/ritual-open.js 1
 chk "var m = (open && O && O.TRIB_ACT) || D.TRIBUTE.modes" assets/ritual-cue.js 1
-chk "'두 분이 부모님 앞으로 가서 인사 말을 전함 · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로': {" assets/ritual-story.js 1   # ★[TRIB_CALL_1014] 부모님 앞으로(말) → 구호 → 인사 · 포옹 — 장면도 둘
+chk "'두 분이 부모님 앞으로 가서 인사말을 전함 · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로': {" assets/ritual-story.js 1   # ★[TRIB_CALL_1014] 부모님 앞으로(말) → 구호 → 인사 · 포옹 — 장면도 둘
 chk "'두 분이 부모님 앞으로 걸어감 · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로': {" assets/ritual-story.js 1
 chk "'두 분이 부모님께 인사': {" assets/ritual-story.js 1   # [TRIB_HUG_CALL_1018 검토 124] 인사 · 포옹을 두 큐로
 chk "'양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)': {" assets/ritual-story.js 1
@@ -12985,7 +12985,7 @@ nochk '미완료로 두고 넘어갈게요' order-preview.html
 nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
 chk "feel: '밝고 경쾌하게 · 하객과 가까이'" assets/ritual-open.js 1   # [TABLE_GREET_1008] 옛 «단체 사진을 넉넉히» — 테이블 인사가 들어 소개를 바꿨다(사장님)
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
-chk "L('tribute','인사 말'" order-preview.html 1   # [TRIB_ONE_SAY 2026-10-06] 한마디씩 · 1분쯤씩 → 하나로(«말로 인사»)
+chk "L('tribute','인사말'" order-preview.html 1   # [TRIB_ONE_SAY 2026-10-06] 한마디씩 · 1분쯤씩 → 하나로(«말로 인사»)
 nochk "'인사 방식'" order-preview.html   # [GROOM_BOW_TIP 2026-10-06] 인사 방식(꽃 · 신랑 큰절) 칩은 걷었다 — 큰절은 팁 한 줄
 chk "\[\['고르기','예시에서 시작해 순간을 더하고 빼요.'\]" order-preview.html 1   # [E3] → [INTRO_JOURNEY 2026-09-27] 안내 화면 네 걸음 첫 줄
 chk "sub:'작은 예식은 보통 이런 흐름이에요.'}," order-preview.html 1   # [R2-38] 한 문장으로(«예시로 시작»은 아래 섹션 제목이 말한다)
@@ -14990,7 +14990,7 @@ chk 'R10_SRC_1018' assets/ritual-cue.js 1
 chk 'R10_SRC_1018' order-preview.html 1
 chk '준비한 축가가 있겠습니다. 여러분 큰 박수 부탁드립니다.' assets/ritual-open.js 1
 chk '두 사람의 앞날을 축복하는 축가가 있겠습니다.' assets/ritual-data.js 1   # [SONG_DEF_NN_1023] NN 둘째 문장이 예시 3 → 기본 글(D.NARR.song)로 옮겼다   # [MODERN_WORDS_1024 검토 164] 새 글
-chk '두 사람의 앞날을 축복하는 축하공연이 있겠습니다.' assets/ritual-open.js 1
+chk '두 사람의 앞날을 축복하는 축하 공연이 있겠습니다.' assets/ritual-open.js 1
 chk '오늘을 위해 훌륭한 덕담을 준비해 주신 부모님께 다시 한번 큰 박수 부탁드립니다.' assets/ritual-open.js 1   # [REVIEW8_1018] «훌륭한» 평가 뺌 · [R11_SRC_1018 라운드 11] 여는 말 OO 와 한 짝 · «다시 한번» 원본 그대로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «오늘을 위해 덕담을 준비해 주신 부모님께…») · 자료 OO 원문(«훌륭한» 되살림)   # ★[REVIEW26_1023 검토 150] 옛 핀 «오늘을 위해 훌륭한 덕담을 준비해주신 부모님께»
 chk "'narr-song-ex3', 'narr-song-ex4', 'narr-bless-end-ex3'" assets/ritual-cue.js 1
 # ★[ROUND_REASON_1018 · JUNCTION_MIXED_1018 · GAPS_OPEN_ONLY_1018 라운드 10] 걷힌 자로 자료 글을 빼지 않게 · 자료 글 → 우리 글 이음매도 재게 · «찾음» 묶음은 열린 줄만
@@ -15203,7 +15203,7 @@ chk '저희 둘이 잘 먹고 잘 놀고 강아지 고양이들 잘 키우며 �
 chk '일생 동안 고락을 함께할 부부가 되기를 굳게 맹세하였습니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «굳게 다짐하였습니다» · 514 = YT1 성혼선언문
 chk '제가 세상에서 가장 잘한 일이 우리 아들, 서준을 낳고 키운 것이라고 생각합니다.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «가족의 인연을 허락해주신 사돈댁에» · 910 = 실제 축사
 chk '부모님의 딸로 이 세상에 태어날 수 있었던 것이' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «아낌없는 사랑으로 …» · 1402 = 실제 편지
-chk '당연함에 미루어' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «당연하다는 이유로» · 1007 = MMW 카드 3 원문
+chk '함께하는 시간이 익숙해져도' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «당연하다는 이유로» · 1007 = MMW 카드 3 원문
 chk '진실한 행동을' assets/ritual-ref.js 1
 nochk '조금 있다 드릴 약속' assets/ritual-ref.js
 # nochk '굳게 약속하였습니다' 걷음   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «» · 514-2 = RR 8 원문 «굳게 약속하였습니다» 되돌림
@@ -16820,7 +16820,7 @@ chk 'REF_ROW4' scripts/audit/listen-page.mjs 2   # [REF_BEST4_ONLY 2026-10-09] �
 #   준비한 순서: 춤 · 공연 걷음 → «기타»(무엇을 적기 · 길이 1~3분 · 계약서 «3분 안») · 케이크 · 꽃 · 부케 = 저희가 준비(별도 비용)
 #   «상담 때 안내» 금지 — 식순은 상담을 다 마친 뒤 짓는다
 chk 'TRIB_ONE_SAY' assets/ritual-open.js 1
-chk "tribute: \[\['long', '말로 인사'\], \['none', '말 없이'\]\]" assets/ritual-open.js 1
+chk "tribute: \[\['long', '말로 인사'\], \['none', '말없이'\]\]" assets/ritual-open.js 1
 chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 1
 chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
 nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
@@ -19369,12 +19369,12 @@ chk 'BGM_R5_1023' assets/bgm-slots.js 4
 chk 'BGM_R5_1023' assets/bgm-form.js 4
 chk 'BGM_R5_1023' assets/entry-music.js 1
 chk 'BGM_R5_1023' scripts/audit/bgm-form.mjs 10
-chk "var TALK = { none: '말씀하시는 동안은 음악이 멈추고 목소리만 들려요', bed: '말씀하시는 동안 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
+chk "var TALK = { none: '말씀하시는 동안은 음악 없이 목소리만 들려요', bed: '말씀하시는 동안 잔잔한 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
 chk "speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 }" assets/bgm-slots.js 1
 chk "입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요" assets/bgm-form.js 1
 chk "입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요" assets/bgm-form.js 1   # [STUDIO_PICK_1023] 칩 이름과 같은 말
 chk "EM.src=function(){ return srcNow(); };" assets/entry-music.js 1
-chk "곡 파일을 올리면 크게 올라오는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요" assets/entry-music.js 1
+chk "곡 파일을 올리면 곡이 커지는 자리를 찾아, 그 순간 두 분이 걸어 나오게 맞춰요" assets/entry-music.js 1
 nochk "크게 올라오는 자리를 찾아 마지막 말에 맞춰요" assets/entry-music.js
 # ── 2026-10-23 [BGM_R4_1023] BGM 라운드 4 «글 · 요약» — 한눈에 보기 «음악»은 담긴 축사 · 편지마다 «… · 음악 없이 / 음악과 함께» 한 줄 + «그 밖의 음악은 스튜디오가 준비해요» ·
 #   칩 아래 한 줄은 안 누름이면 «고르지 않으시면 …» · S2 · S4 · S5 · S6 · S8 · S9 글 바꿈(엔진 · 저장 꼴 · 입장 음악 그대로)
@@ -19463,11 +19463,11 @@ chk "tribute: '두 분이 부모님께 인사하고 안아 드려요', free:" as
 nochk "인사하고 안겨요'" assets/ritual-open.js                                      # 동작 말 하나(안아 드려요)
 nochk "인사하고 안겨요'" order-preview.html
 nochk '부모님께 다가가 인사하고 안겨요' assets/ritual-story.js
-chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말 없이 흐르는 자리',txt:cs.some(" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤 · [TRIB_HUG_LINE_1018] 포옹 줄이 있는 날은 인사만
+chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말없이 흐르는 자리',txt:cs.some(" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤 · [TRIB_HUG_LINE_1018] 포옹 줄이 있는 날은 인사만
 chk "if(k==='tribute'&&/^tribute-call/.test(sl)) return '두 분이 부모님께 인사해요'" order-preview.html 1   # 말 → 인사 → 포옹 · [TRIB_HUG_LINE_1018 검토 131-4] 포옹은 256 뒤 줄
 chk "tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:300}," order-preview.html 1
 chk 'TRIB_PICK_CHIP_1013' assets/ritual-cue.js 3
-chk "pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말 없이') : m.d," assets/ritual-cue.js 1
+chk "pick: open ? (S.tributeSay !== 'none' ? '말로 인사' : '말없이') : m.d," assets/ritual-cue.js 1
 chk 'CLOSE_LAST_1013' order-preview.html 2
 chk 'CLOSE_LAST_1013' scripts/audit/stage-lines.mjs 1
 chk "if(_lateK&&c.slug==='narr-close') return k===_lateK;" order-preview.html 1     # 26 은 엔진 차례대로 맨 끝
@@ -19615,7 +19615,7 @@ chk 'R2_DECL_NAMES_1014' order-preview.html 1
 chk "누가 읽든 같은 글): '+_declNar()" order-preview.html 1
 chk 'THANKS_DUP_TOAST_1014' order-preview.html 1
 chk 'BLESS_STORY_NOTE_1014' assets/ritual-open.js 1
-chk '당신과 함께라면 등산이 근사한 경험이 되었습니다' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «함께여서» · 09 = MMW 카드 5 원문
+chk '당신과 함께한 등산은 근사한 경험이었습니다' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «함께여서» · 09 = MMW 카드 5 원문
 nochk '나도 네 곁에서 많이 자랐다는 걸' assets/ritual-ref.js
 chk '한평생 못난 딸 사랑해주시며 길러주신 은혜에' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «아빠는 내가 올 때까지 …» · 706 = 실제 릴스
 nochk '현관문 소리 날 때까지' assets/ritual-ref.js
@@ -19670,7 +19670,7 @@ chk "if (rc.rescue.slug) playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.tex
 nochk "slug: 'narr-free-fail'" assets/ritual-cue.js   # [FREE_FAIL_VOICE_OFF_1023] 재생 안 됨 한 줄(105)은 쉰다 · 디렉터가 말로
 chk '하객분들의 따뜻한 박수와 함께 모시겠습니다. 단상 위로 올라와 주십시오.' assets/ritual-open.js 1   # [검토 151-1 5)] 153 = FF 1-1 원문
 chk '이 잔에는 두 사람의 영원한 사랑이 이어지길 바라는 모두의 마음이 담겨있는데요.' assets/ritual-open.js 1   # [검토 151-1 6)] 188 = SS 묶음 d
-chk ' entryArrive:"사랑하는 가족과 소중한 하객 여러분의 축복 속에 두 사람이 한 자리에 섰습니다.",' assets/ritual-data.js 1   # [검토 151-2] 144 = WW29 한 문장 그대로
+chk ' entryArrive:"사랑하는 가족과 소중한 하객 여러분의 축복 속에 두 사람이 한자리에 섰습니다.",' assets/ritual-data.js 1   # [검토 151-2] 144 = WW29 한 문장 그대로
 chk '그럼 지금부터 신랑 신부의 결혼식을 시작하겠습니다.' assets/ritual-open.js 1   # [검토 152] 149 = T2 36 끝말(151-2 의 «거행하도록»은 출처 착오)   # [MODERN_WORDS_1024 검토 164] 새 글
 chk "'촛불이 밝혀졌습니다.'" assets/ritual-open.js 1   # ★[REVIEW31_1023 검토 157-1] 01 · 02 = G4 표 2 «다정» 판 · [검토 151-2] 213 = WW1 원문
 nochk '"id":"506_tribute-cross-bride"' assets/ritual-ref.js   # [검토 151-3] 506 뺌
@@ -20316,6 +20316,12 @@ nochk '축의금 많이 내거라' assets/ritual-ref.js
 nochk '고장 난 시계' assets/ritual-open.js
 nochk '남의 편이라서' assets/ritual-ref.js
 nochk '안에만 들어오라고' assets/ritual-ref.js
+# ── 2026-10-30 [REVIEW_166_1030 검토 166] 프리뷰 실화면 전수 점검 — A 띄어쓰기 6(소리 그대로 · 녹음 기록 글도) · C 표기 · D 참고 예시 · B 동작 — 검사 open-course «REVIEW_166_1030»
+chk 'REVIEW_166_1030' assets/ritual-open.js 1
+chk 'REVIEW_166_1030' order-preview.html 3
+nochk "lab:'말 없이 흐르는 자리'" order-preview.html
+nochk '비어 있는 칸이 있어요' order-preview.html
+chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요)' order-preview.html 1
 # ── 2026-10-30 [VC_FIX_1030] 두 분 AI 목소리 버그 넷(GPT 모의 재현 · FEATURE.voiceClone 꺼진 채 고침)
 #   ① [BAKE_FAIL_DROP] 저장 · 나가기 직전 굽기가 실패 · 40초를 넘겨도 «새 글 + 옛 글 소리»를 보내지 않는다(글 · 읽는 분이 바뀐 AI 줄은 소리를 내려놓아 당일 나레이션 · 화면은 «목소리 만들기»)
 #   ② [DONE_NOT_GONE] 없다고 확인된 소리(_rfGone · 마이페이지 안)는 파일 정보가 남아도 다 됨으로 세지 않는다
