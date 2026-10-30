@@ -1850,7 +1850,12 @@ function handleVoiceClone(body) { _gsr_();
   var st0 = JSON.parse(JSON.stringify(st)), save = function (g) { var sv = _vcSave(code, st0, st, g); if (sv !== 'stop' && sv !== 'busy') st0 = JSON.parse(JSON.stringify(st)); return sv; };   // [VC_STATE_MERGE] 바꾼 칸만 얹는다 · [VC_DEL_STOP] g = 잠근 채 다시 읽은 상태를 보는 문(참이면 쓰지 않고 'stop')
   var down = { ok: false, down: true, kind: 'gate', ecode: 'V3', error: VC_DOWN };
   var busy = function () { return { ok: false, kind: 'busy', ecode: 'V1', error: VC_DEL_BUSY }; };   // ★[VC_SAVE_BUSY 2026-10-30] 잠금을 못 잡음(1 = 몰림) — 쓰지 않았다 · 다시 누르면 된다(지우기 D1 과 같은 말)   // [ERR_CODE_GAS] 읽을 목소리 없음(스튜디오 기본 목소리 비어 있음) = 설정(3)
-  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, jobs: 1, rfkeep: 1, groom: _vcPub(st.groom, code, st), bride: _vcPub(st.bride, code, st), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_ENROLL_JOB] jobs: 1 = 작업표를 싣는 서버(화면이 «끊긴 뒤 끝까지 기다릴지»를 이것으로 가른다) · [RF_DEL_KEEP] rfkeep: 1 = 줄 파일 지우기가 keep · t 를 아는 서버(화면이 «되돌리기» 때 버린 AI 테이크를 지워도 되나를 이것으로 가른다)   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
+  /* ★[VC_WED_OVER 2026-10-30 GPT 5차 점검(고객) 5-04 · VC_FIX5_1030] 예식 다음 날부터(매일 지우기 purgeVoiceClones 와 같은 경계) · 취소 · 노쇼 · 미계약이면 새 목소리를 받지 않는다 —
+     종전엔 지운 다음 날에도 동의 · 확인 문장 · 만들기가 다 지나가 새 목소리가 생겼고, 상태는 «예식 다음 날 지웠어요»(aiGone)를 계속 말했다 · 시험 예식은 빼고 · 만든 것 듣기 · 지우기는 그대로 */
+  var over = _vcWedOver_(code, s.row);
+  if (over && (op === 'consent' || op === 'phrase' || op === 'enroll')) return { ok: false, over: true, ecode: 'V0', error: '예식이 끝나 새 목소리는 만들 수 없어요' };
+  if (op === 'status') { var pg = _vcPub(st.groom, code, st), pb = _vcPub(st.bride, code, st); if (over) { pg.left = 0; pb.left = 0; }   // [VC_WED_OVER] 남은 수 0 = 화면에 만들기 단추가 없다
+    return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, jobs: 1, rfkeep: 1, over: over, groom: pg, bride: pb, total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) }; }   // [VC_ENROLL_JOB] jobs: 1 = 작업표를 싣는 서버(화면이 «끊긴 뒤 끝까지 기다릴지»를 이것으로 가른다) · [RF_DEL_KEEP] rfkeep: 1 = 줄 파일 지우기가 keep · t 를 아는 서버(화면이 «되돌리기» 때 버린 AI 테이크를 지워도 되나를 이것으로 가른다)   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
   /* [VC_DEL_STOP 2026-10-09 점검 E-4] 지우기는 잠근 채 다시 읽은 상태로(_vcDelMark) — 그 사이 저장된 새 목소리도 함께 지우고, 도는 만들기에는 «취소»를 적는다 */
   if (op === 'delete') { if (who !== 'groom' && who !== 'bride' && who !== 'all') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };   // ★[VC_WHO_FIRST 2026-10-09 A~Z 점검 2라운드 E2-10] 두 분 · 모두만 — 거르기 전에 지우기 표시(delAt)를 쓰지 않는다
     var ws = who === 'all' ? ['groom', 'bride'] : [who], dm = _vcDelMark(code, ws);
@@ -1957,6 +1962,11 @@ function _vcChunks(t, n) { _gsr_(); t = String(t || '').trim(); if (!t) return [
   var out = [], cur = '', ps = t.match(/[^.!?。…\n]*[.!?。…]+\s*|[^.!?。…\n]+\s*|\n+/g) || [t];
   ps.forEach(function (p) { if ((cur + p).length > n && cur.trim()) { out.push(cur.trim()); cur = ''; } while (p.length > n) { out.push(p.slice(0, n).trim()); p = p.slice(n); } cur += p; });
   if (cur.trim()) out.push(cur.trim()); return out.filter(function (x) { return x; }); }
+function _vcWedOver_(code, row) {   // [VC_WED_OVER] 서버 코드 안에서만(이름 끝 _) · 시험 예식(VOICE_STUDIO_CODES)은 늘 아니다 · 예식일이 없으면 아니다(보관 결정 대기 · 건드리지 않는다)
+  if (!row || _voiceStudio(code)) return false;
+  var wy = '', stage = ''; try { wy = _ymdOf(row.get('예식일')); stage = String(row.get('현재단계') || ''); } catch (e) { return false; }
+  if (stage === '취소' || stage === '노쇼' || stage === '미계약') return true;
+  return !!(wy && Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd') > wy); }
 function _vcPub(p, code, st) { _gsr_(); p = p || {}; var sk = !!code && _voiceStudio(code);   // [VC_NO_COUNT] 시험 예식은 남은 수가 줄지 않는다
   /* ★[VC_DEL_PEND 2026-10-30] deleting = 지운 목소리를 업체가 아직 지웠다고 답하지 않음(retry) · 읽은 녹음을 아직 못 보냄 — 카드 «지우는 중이에요 · 곧 끝나요» */
   var dl = !!((p.delId && st && (st.retry || []).indexOf(p.delId) > -1) || (p.read && p.read.id && p.read.del) || (p.rdOld && p.rdOld.length));   // [VC_RD_OLD]

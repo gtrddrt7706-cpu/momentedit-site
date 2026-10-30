@@ -84,7 +84,7 @@ function res0(t) { return { getResponseCode: () => 201, getContentText: () => t 
   const run5 = (src) => { const code = ['rfWhy', 'rfPrefetch'].map((f) => grabIn(src, f)).join('\n') + '\nvar RF_WHY = {}, RF_SKIP = "", RF_GEN = {};';
     const pend = {}; class B { constructor(a) { this.s = String.fromCharCode.apply(null, Array.from(a[0])); } }
     const sb = { QS: { get: () => 'AB12CD' }, localStorage: { getItem: () => 'tok' }, S: { up: { g0: { id: 'A' } } }, rfPaint: () => {}, rfKeys: () => ['g0'], rfSlugOf: () => 'guest-1-arrival', esdWant: () => false, esdPrepVoice: () => {}, render: () => {},
-      CLIPS: {}, RF_ORIG: {}, RF_OWN: {}, RF_ST: {}, RF_EXEC: 'x', atob: (s) => Buffer.from(s, 'base64').toString('binary'), Uint8Array, Blob: B, URL: { createObjectURL: (b) => 'blob:' + b.s }, setTimeout, clearTimeout, AbortController,
+      CLIPS: {}, RF_ORIG: {}, RF_OWN: {}, RF_ST: {}, RF_FRESH: { done: true }, RF_EXEC: 'x', atob: (s) => Buffer.from(s, 'base64').toString('binary'), Uint8Array, Blob: B, URL: { createObjectURL: (b) => 'blob:' + b.s }, setTimeout, clearTimeout, AbortController,
       fetch: (u, o) => { const q = JSON.parse(o.body); if (q.fn === 'adminRitualFiles') return Promise.resolve({ json: () => ({ ok: true, files: [{ id: 'A' }, { id: 'B' }] }) });
         return new Promise((res) => { pend[q.args[1]] = () => res({ json: () => ({ ok: true, data: Buffer.from(q.args[1]).toString('base64'), mime: 'audio/wav' }) }); }); } };
     vm.createContext(sb); vm.runInContext(code, sb); return { sb, pend }; };
@@ -119,7 +119,7 @@ function res0(t) { return { getResponseCode: () => 201, getContentText: () => t 
   const run8 = async (src) => { const code = ['srcOf', 'esdPrepVoice'].map((f) => grabIn(src, f)).join('\n'); const c = { slug: 'entry-A', no: '30', file: '30_entry-A', text: '입장', own: 1, k: 'entry' };
     const sb = { esdWant: () => true, esdEntryCue: () => c, PARAM: { clipDir: '/n/' }, ENTRY: { A: { nar: '입장' } }, CLIPS: { 'entry-A': 'blob:own' }, RF_OWN: { 'entry-A': 1 }, RF_ORIG: { 'entry-A': 'blob:nar' }, RF_ST: { entry: 'ok' }, RF_WHY: {},
       ESD: { V0: null, vurl: '', vBusy: null }, ES: { prepVoice: () => ({ v: 1 }), sentN: () => 1 }, rfPaint: () => {}, render: () => {},
-      fetch: (u) => Promise.resolve({ ok: true, arrayBuffer: () => Promise.resolve({ u }) }), esdDecode: (ab) => (ab.u === 'blob:own' ? Promise.reject(new Error('decode')) : Promise.resolve('buf')) };
+      fetch: (u) => Promise.resolve({ ok: true, arrayBuffer: () => Promise.resolve({ u }) }), esdDecode: (ab) => (ab.u === 'blob:own' ? Promise.reject(new Error('decode')) : Promise.resolve('buf')) }; sb.window = sb;   // [ESD_NAR_KIND] 되돌린 나레이션은 성우 글(window.ENTRY)을 읽는다
     vm.createContext(sb); vm.runInContext(code, sb); sb.esdPrepVoice(); for (let i = 0; i < 12; i++) await flush();
     return { own: !!sb.RF_OWN['entry-A'], clip: sb.CLIPS['entry-A'], vurl: sb.ESD.vurl, v0: !!sb.ESD.V0, st: sb.RF_ST.entry, why: sb.RF_WHY.entry || '' }; };
   r = await run8(CS); ok('⑧ [ESD_OWN_FALL] 두 분 입장 인사를 못 풀면 나레이션으로 되돌리고 그 소리로 장면을 다시 잰다 · 칸 «받지 못함»(M6)', !r.own && r.clip === 'blob:nar' && r.vurl === 'blob:nar' && r.v0 && r.st === 'fail' && /M6/.test(r.why), r);
