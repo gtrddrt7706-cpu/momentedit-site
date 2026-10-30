@@ -35,7 +35,7 @@ async function toLive(pg, i) {
 }
 { const { ctx, pg, errs } = await open(S0);
   const cues = await pg.evaluate(() => window.__rr.cues());
-  const pv = cues.findIndex((c) => c.k === 'prevideo' && c.rescue && c.live), close = cues.findIndex((c) => c.slug === 'narr-close');
+  const pv = cues.findIndex((c) => c.k === 'prevideo' && c.rescue && c.live), close = cues.findIndex((c) => /^narr-close$|^narr-photo-pre/.test(c.slug || ''))   /* [END_FLOW_1030] 새 코스는 사진 전 안내 */;
   ok('식전 영상 큐(재생 안 됨 · 사람 구간)와 단체 사진 안내 큐가 있다', pv >= 0 && close > pv, { pv, close });
   const a0 = await st(pg);
   ok('1 영상 순서 밖(시작 전)에서는 «재생 안 됨»이 흐리다', a0.bw === true, a0);
@@ -53,7 +53,7 @@ async function toLive(pg, i) {
   await ctx.close(); }
 { const { ctx, pg, errs } = await open(S0);
   const cues = await pg.evaluate(() => window.__rr.cues());
-  const close = cues.findIndex((c) => c.slug === 'narr-close');
+  const close = cues.findIndex((c) => /^narr-close$|^narr-photo-pre/.test(c.slug || ''))   /* [END_FLOW_1030] 새 코스는 사진 전 안내 */;
   await pg.evaluate((j) => window.__esd.fire(j), close); await pg.waitForTimeout(400);
   const b = await st(pg);
   ok('5 안 미룬 날은 그 줄이 없다', b.rescued.length === 0 && b.hint.indexOf('미룬 순서') < 0, b);
