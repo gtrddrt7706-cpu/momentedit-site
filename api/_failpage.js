@@ -1,4 +1,4 @@
-// ★[SCRIPT_FILE_BACK 2026-10-07 triage-builder #23] «파일로» 돌려주는 길(api/script-file.js · api/voice-file.js)이 실패할 때 보여 줄 짧은 페이지.
+// ★[SCRIPT_FILE_BACK 2026-10-07 triage-builder #23] «파일로» 돌려주는 길(api/_script-file.js · api/_voice-file.js · 주소는 api/file-dl.js)이 실패할 때 보여 줄 짧은 페이지.
 //   두 길은 폼 POST 로 «지금 화면을 이동시켜» 파일을 받는다(카톡 · 인스타 앱 안에서도 되는 유일한 길 · SAVE_INAPP · VOICE_KEEP).
 //   성공하면 브라우저가 파일만 받고 화면은 그대로다. 그런데 실패(429 · 413 · 400 · GAS 실패)면 그 응답이 화면을 «통째로» 덮는다 —
 //   종전엔 흰 화면에 글 한 줄(«잠시 뒤에 다시 눌러 주세요.»)뿐이라 빌더(식순 화면 iframe)는 돌아갈 단추도 코드도 없었다(마이페이지 ✕ 는 숨겨 둔다).

@@ -1,7 +1,7 @@
 // 두 분 목소리 파일을 «파일로» 돌려준다 (Vercel 서버리스) — 카톡 · 인스타 · 네이버 같은 앱 안 브라우저용.
 // ★★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] «두 분 목소리 파일은 ○월 ○일에 지워져요. 간직하려면 내려받으세요» 의 [내려받기].
 //   카톡 인앱은 브라우저가 만든 파일(blob · data URL)을 내려받지 못한다 — 서버가 Content-Disposition: attachment 로 돌려주는 길 하나다
-//   (api/script-file.js 와 같은 까닭 · SAVE_INAPP).
+//   (api/_script-file.js 와 같은 까닭 · SAVE_INAPP · 주소 /api/voice-file 은 api/file-dl.js 가 받는다 [API_FN_CAP]).
 // ★마이페이지가 폼 POST 로 {token, id} 를 보낸다 → GAS ritualFileGet(두 분 계정으로만 · 그 예식 폴더 안의 파일만) → 그대로 파일로 돌려준다.
 // ★소리 · 토큰은 기록하지 않는다 — 콘솔 출력 · 로그 어디에도 남기지 않는다. GET 쿼리로 받지 않는다(주소는 요청 기록에 남는다).
 // ★응답 한도 4.5MB — 다듬은 녹음(24kHz 16bit 모노 · 60초 안)은 3MB 안이다. 넘으면 알린다.

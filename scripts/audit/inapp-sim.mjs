@@ -12,7 +12,7 @@ let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/play
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let bad = 0; const ok = (n, c, d) => { console.log((c ? 'ok   ' : 'FAIL ') + n + (c || !d ? '' : ' → ' + String(d).slice(0, 220))); if (!c) bad++; };
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.css': 'text/css', '.svg': 'image/svg+xml' };
-const SCRIPT_FILE = require(path.join(ROOT, 'api/script-file.js'));   // [SAVE_INAPP] 베르셀 함수를 그대로 붙인다
+const SCRIPT_FILE = require(path.join(ROOT, 'api/_script-file.js'));   // [SAVE_INAPP] 베르셀 함수를 그대로 붙인다
 const srv = http.createServer((q, r) => { if (q.url.startsWith('/api/script-file')) return SCRIPT_FILE(q, r); const u = decodeURIComponent(q.url.split('?')[0]); const p = path.join(ROOT, u); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': TYPES[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 

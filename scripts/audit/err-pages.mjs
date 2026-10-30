@@ -175,15 +175,15 @@ const CONVO = [{ role: 'user', content: '환불 규정이 복잡해서 사람과
   const formReq = (body, ip) => { const q = Readable.from([Buffer.from(body)]); q.method = 'POST'; q.headers = { 'x-real-ip': ip, 'content-type': 'application/x-www-form-urlencoded' }; q.socket = { remoteAddress: ip }; return q; };
   const call = async (file, body, ipx) => { const h = require(path.join(ROOT, 'api', file)), res = fakeRes(); await h(formReq(body, ipx), res); return res; };
   const page = (res) => /text\/html/.test(res.h['content-type'] || '') && /id="back"/.test(res.body) && /history\.back\(\)/.test(res.body) && /돌아가기/.test(res.body);
-  let x = await call('script-file.js', 'text=&name=a.txt', ip());
+  let x = await call('_script-file.js', 'text=&name=a.txt', ip());
   ok('② script-file [SCRIPT_FILE_BACK] — 빈 글 400 → 까닭 + 돌아가기(종전 흰 화면 «보낼 글이 없어요.»)', x.statusCode === 400 && page(x) && /보낼 글이 없어요/.test(x.body), x.body.slice(0, 120));
-  const ipR = ip(); for (let i = 0; i < 20; i++) await call('script-file.js', 'text=x&name=a.txt', ipR);
-  x = await call('script-file.js', 'text=x&name=a.txt', ipR);
+  const ipR = ip(); for (let i = 0; i < 20; i++) await call('_script-file.js', 'text=x&name=a.txt', ipR);
+  x = await call('_script-file.js', 'text=x&name=a.txt', ipR);
   ok('② script-file [SCRIPT_FILE_BACK] — 몰림 429 → «요청이 몰렸어요 · … (코드 X1)» · 코드는 한 덩어리 · 돌아가기', x.statusCode === 429 && page(x) && /<span class="c">\(코드 X1\)<\/span>/.test(x.body), x.body.slice(0, 160));
-  x = await call('script-file.js', 'text=' + encodeURIComponent('안녕') + '&name=a.txt', ip());
+  x = await call('_script-file.js', 'text=' + encodeURIComponent('안녕') + '&name=a.txt', ip());
   ok('② script-file — 성공은 종전대로 attachment(화면을 덮지 않는다)', x.statusCode === 200 && /^attachment;/.test(x.h['content-disposition'] || ''), x.h);
   const f0 = globalThis.fetch;
-  const vcall = async (form, fake) => { globalThis.fetch = fake; try { return await call('voice-file.js', new URLSearchParams(form).toString(), ip()); } finally { globalThis.fetch = f0; } };
+  const vcall = async (form, fake) => { globalThis.fetch = fake; try { return await call('_voice-file.js', new URLSearchParams(form).toString(), ip()); } finally { globalThis.fetch = f0; } };
   const ab = () => { const e = new Error('aborted'); e.name = 'AbortError'; return e; };
   for (const [form, fake, want, nm] of [
     [{ id: 'FILEID_abcdef0123' }, async () => { throw new Error('no call'); }, /로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 <span class="c">\(코드 L8\)<\/span>/, '토큰 없음 → L8'],

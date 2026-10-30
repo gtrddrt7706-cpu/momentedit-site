@@ -46,6 +46,14 @@
       "dest": "/api/og-inv?page=/i-family/$1.html"
     },
     {
+      "src": "^/api/script-file/?$",
+      "dest": "/api/file-dl?k=script"
+    },
+    {
+      "src": "^/api/voice-file/?$",
+      "dest": "/api/file-dl?k=voice"
+    },
+    {
       "handle": "filesystem"
     },
     {

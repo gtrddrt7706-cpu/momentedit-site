@@ -7,7 +7,7 @@ import { createRequire } from 'node:module'; import { Readable } from 'node:stre
 const require = createRequire(import.meta.url);
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const logs = []; const _log = console.log; const _err = console.error; const _warn = console.warn;
-const handler = require('../../api/voice-file.js');
+const handler = require('../../api/_voice-file.js');
 function req(method, body) { const r = Readable.from([Buffer.from(body || '')]); r.method = method; r.headers = { 'content-type': 'application/x-www-form-urlencoded', 'x-forwarded-for': '1.2.3.' + Math.floor(Math.random() * 250) }; r.socket = { remoteAddress: '1.2.3.4' }; return r; }
 function res() { const h = {}; return { statusCode: 200, headers: h, body: null, setHeader(k, v) { h[k.toLowerCase()] = v; }, end(b) { this.body = b; } }; }
 async function run(method, form, gas) {

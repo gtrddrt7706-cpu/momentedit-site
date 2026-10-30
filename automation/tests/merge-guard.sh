@@ -10171,9 +10171,9 @@ chk 'CLOSE_BOW' assets/ritual-open.js 1               # TIME._close 다시 잼
 nochk '이어서 가족, 하객 여러분과 함께' assets/ritual-data.js   # 실제 순서(하객 전체 → 가족)와 거꾸로였다
 nochk '이어서 가족, 하객 여러분과 함께' order-preview.html
 chk 'SAVE_INAPP' order-preview.html 1                 # 앱 안 브라우저 = 서버 attachment
-chk 'SAVE_INAPP' api/script-file.js 1
+chk 'SAVE_INAPP' api/_script-file.js 1
 chk 'SAVE_INAPP' scripts/audit/inapp-sim.mjs 2
-nochk 'console.log' api/script-file.js                # 글(서약 · 편지)을 기록하지 않는다
+nochk 'console.log' api/_script-file.js                # 글(서약 · 편지)을 기록하지 않는다
 nochk 'D-7까지 적으면' order-preview.html
 chk 'WRITE_FRAME' order-preview.html 3                # 편지 · 부모님께 드릴 말 쓰는 틀 · 예시 꼬리표 «장면 하나»
 nochk ' \["눈물",' order-preview.html
@@ -15532,8 +15532,17 @@ chk 'function adminRitualFileUp(' automation/platform/80_production.gs 1
 chk 'function handleRitualFilePurgeMine(' automation/platform/80_production.gs 1
 chk "case 'ritualFilePurgeMine'" automation/consultation/consultation-booking.gs 1
 chk 'adminRitualFileUp: adminRitualFileUp' automation/admin/admin.gs 1
-chk 'VOICE_KEEP' api/voice-file.js 1
-chk "Content-Disposition', \"attachment" api/voice-file.js 1
+chk 'VOICE_KEEP' api/_voice-file.js 1
+# ★★[API_FN_CAP 2026-10-30 사장님 «함수 하나 합치기»] Vercel Hobby = 배포 하나에 서버리스 함수 12개까지 — 13개가 되자 운영 · 미리 보기 배포가 모두 막혔다(Build Failed).
+#   api/ 아래 _ 로 시작하지 않는 .js/.mjs/.cjs/.ts 파일(하위 폴더 포함)이 함수다. 12개를 넘으면 빨강 — 새 함수는 기존 것에 합치거나(api/file-dl.js 처럼 _ 파일 + 나눠 주는 함수) 하나를 걷는다.
+_apifn=$(find api -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.cjs' -o -name '*.ts' \) ! -name '_*' ! -path '*/_*/*' | wc -l | tr -d ' ')
+if [ "$_apifn" -le 12 ]; then echo "ok api-fn-cap: 서버리스 함수 ${_apifn}개 (Hobby 한도 12)"; else echo "FAIL api-fn-cap: 서버리스 함수 ${_apifn}개 — Vercel Hobby 한도 12 를 넘어 배포가 막힌다 [API_FN_CAP]"; fail=1; fi
+chk 'API_FN_CAP' api/file-dl.js 1
+chk '"dest": "/api/file-dl?k=script"' vercel.json 1                        # [API_FN_CAP] 옛 주소 /api/script-file → 합친 함수
+chk '"dest": "/api/file-dl?k=voice"' vercel.json 1                         # [API_FN_CAP] 옛 주소 /api/voice-file → 합친 함수
+chk "require('./_script-file')" api/file-dl.js 1
+chk "require('./_voice-file')" api/file-dl.js 1
+chk "Content-Disposition', \"attachment" api/_voice-file.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/voice-file-sim.mjs >/dev/null 2>&1 || { echo 'FAIL voice-file: 목소리 파일 내려받기(attachment · 토큰은 본문만) 판정이 어긋났습니다 — node scripts/audit/voice-file-sim.mjs'; fail=1; }; fi
 chk 'VOICE_KEEP_SIM' scripts/audit/voice-file-sim.mjs 1
 chk 'VOICE_KEEP' mypage.html 2
@@ -17818,9 +17827,9 @@ chk "upstream: 0, why: 'empty'" api/schedule-advisor.js 1
 nochk "if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';" api/schedule-advisor.js
 chk 'SCRIPT_FILE_BACK' api/_failpage.js 1
 chk 'history.back()' api/_failpage.js 1
-chk "require('./_failpage')" api/script-file.js 1
-chk "require('./_failpage')" api/voice-file.js 1
-nochk "res.end('잠시 뒤에 다시 눌러 주세요.')" api/script-file.js
+chk "require('./_failpage')" api/_script-file.js 1
+chk "require('./_failpage')" api/_voice-file.js 1
+nochk "res.end('잠시 뒤에 다시 눌러 주세요.')" api/_script-file.js
 chk 'COPY_FAIL_SHOW' i/cover-01.html 2
 chk 'function meCopyFail(btn, on)' i/cover-01.html 1
 chk 'COPY_FAIL_SHOW' i/cover-02.html 2
