@@ -155,7 +155,7 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(/\.filter\(function\(u\)\{ return u&&u\.id; \}\)/.test(outF), '담아 둔 사진(id 없음)은 기획 저장에 실리지 않는다');
   t(/snapConsent:1 \}/.test(commit) && /return bad\|\|saveSnap\(\);/.test(commit), '동의하고 저장 — 담아 둔 사진부터(동의를 싣는다) · 하나라도 못 보내면 기획은 저장하지 않는다');
   t(/if\(!SNAPFLOW\.needAgree && !ro\) h\+='<div class="snp-del">/.test(flowR), '동의 전엔 «스냅 기획 지우기»가 없다(서버에 지울 것이 없다) · 읽기 전용에도 없다');
-  t(/me_\(order\|deliv_\|prod_ping\|order_v2note_\|snapLocal_\)/.test(my) && /exitBare:function\(\)\{ _snapLocalDel\(\);/.test(adapt), '이 기기의 임시본 — 로그아웃 · «그냥 나가기»에 지운다(LOGOUT_SWEEP)');
+  t(/_kill\.push\(_ordK\(_c\), 'me_snapLocal_'\+_c/.test(my) && /exitBare:function\(\)\{ _snapLocalDel\(\);/.test(adapt), '이 기기의 임시본 — 로그아웃(그 계정 칸 · ACCT_KEYS) · «그냥 나가기»에 지운다(LOGOUT_SWEEP)');
   t(/if\(loc\) WIZ_BASE\.snap=_wizJson\(_snapNewD\(sd\)\);/.test(my), '되살린 임시본은 «저장 안 됨» — 기준선은 서버(손잡이 · 나가기 판이 사실을 말한다)');
   ['<dt>받는 것</dt><dd>고른 장면 · 메모 · 참고 링크 · 두 분이 올린 참고 사진</dd>',
    '<dt>쓰는 곳</dt><dd>스냅 촬영 준비 · 사진작가에게 촬영 요청서로 전해요(성함 · 연락처는 전하지 않아요)</dd>',

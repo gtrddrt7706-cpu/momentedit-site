@@ -20,6 +20,7 @@ for (const [W, mob] of [[390, true], [1280, false]]) {
   const ctx = await br.newContext({ viewport: { width: W, height: 844 }, hasTouch: mob, isMobile: mob }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); return rt.fulfill({ status: 200, body: '' }); });
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`); await pg.waitForTimeout(700);
+  await pg.evaluate(() => { _ACCT = 'ME0001'; });   // [ACCT_KEYS] 마이페이지가 확인해 준 계정 칸(me_order_ME0001)
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await nx(); await pg.waitForTimeout(1400);
   await pg.evaluate(() => {
@@ -70,14 +71,14 @@ for (const [W, mob] of [[390, true], [1280, false]]) {
   await pg.waitForTimeout(4300);
   ok(W + ' 마이페이지가 답이 없으면 한 줄로 알린다(몰래 옛 초안으로 새로고침하지 않는다)', await pg.evaluate(() => /새로고침하지 못했어요/.test(document.body.innerText)));
   // ④ reload 뒤 orderFill 은 이 기기 판을 덮지 않는다
-  const kept = await pg.evaluate(() => new Promise((res) => { _restored = true; const before = JSON.stringify(S); window.postMessage({ type: 'momentedit:orderFill', reload: true, done: false, draft: { S: { course: 'open', on: {}, zzOld: 1 } } }, location.origin); setTimeout(() => res(JSON.stringify(S) === before && !S.zzOld), 300); }));
+  const kept = await pg.evaluate(() => new Promise((res) => { _restored = true; const before = JSON.stringify(S); window.postMessage({ type: 'momentedit:orderFill', acct: 'ME0001', reload: true, done: false, draft: { S: { course: 'open', on: {}, zzOld: 1 } } }, location.origin); setTimeout(() => res(JSON.stringify(S) === before && !S.zzOld), 300); }));
   ok(W + ' 새로고침 뒤 orderFill(reload) 은 이 기기 판을 그대로 둔다 [ORDER_RELOAD]', kept);
   // ⑤ [RELOAD_KEEP_AT] «두 분 목소리» 쪽에서 새로고침 → 같은 쪽(스위치를 받기 전에 첫 쪽으로 덮어쓰지 않는다)
   await pg.evaluate(() => { mkGo('_voice'); _persist(); }); await pg.waitForTimeout(300);
   const at0 = await pg.evaluate(() => S.mk.at);
   await pg.reload(); await pg.waitForTimeout(1200);
-  const at1 = await pg.evaluate(() => JSON.parse(localStorage.getItem('me_order')).S.mk.at);
-  await pg.evaluate(() => window.postMessage({ type: 'momentedit:orderFill', reload: true, done: false, voice: { up: true, clone: true, read: true }, draft: { S: S } }, location.origin)); await pg.waitForTimeout(500);
+  const at1 = await pg.evaluate(() => JSON.parse(localStorage.getItem('me_order_ME0001')).S.mk.at);
+  await pg.evaluate(() => window.postMessage({ type: 'momentedit:orderFill', acct: 'ME0001', reload: true, done: false, voice: { up: true, clone: true, read: true }, draft: { S: S } }, location.origin)); await pg.waitForTimeout(500);
   const pg1 = await pg.evaluate(() => ({ at: S.mk.at, page: !!document.querySelector('.mk-vpage') }));
   ok(W + ' «두 분 목소리»에서 새로고침해도 그 쪽으로 돌아온다 [RELOAD_KEEP_AT]', at0 === '_voice' && at1 === '_voice' && pg1.at === '_voice' && pg1.page, JSON.stringify({ at0, at1, pg1 }));
   if (mob) {

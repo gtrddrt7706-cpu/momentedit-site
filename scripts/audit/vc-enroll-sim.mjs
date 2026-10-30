@@ -226,7 +226,7 @@ async function run(sc) {
     await fr.click('[data-fk="lsc:guestVoice:ai"]'); await sleep(300);
     await fr.evaluate(() => { const d = document.getElementById('mkRecDlg'); if (d) mkDlgClose(); mkGo('_voice'); });
     await fr.waitForSelector('[data-fk="mkvcok:groom"]', { timeout: 15000 }); return fr; };
-  const open = async (pg) => { pg.on('pageerror', (e) => out.errs.push(e.message)); await pg.goto(BASE + '/__sim/parent.html'); await pg.evaluate(() => { try { localStorage.removeItem('me_order'); } catch (e) {} }); await pg.reload(); return frameOf(pg); };
+  const open = async (pg) => { pg.on('pageerror', (e) => out.errs.push(e.message)); await pg.goto(BASE + '/__sim/parent.html'); await pg.evaluate(() => { try { localStorage.removeItem('me_order_ME0001'); } catch (e) {} }); await pg.reload(); return frameOf(pg); };
   /* 동의 → 글 1 · 글 2 → «이 녹음으로 목소리 만들기» 단추까지 */
   const startEnroll = async (fr, who) => { who = who || 'groom'; await fr.click('[data-fk="mkvcok:' + who + '"],[data-fk="mkvcre:' + who + '"]'); await fr.waitForSelector('#vcSelf', { timeout: 5000 }); await fr.click('#vcSelf'); await fr.click('#vcAgree');
     await fr.waitForFunction(() => VC.read && VC.read.step === 1 && VC.read.phrase, null, { timeout: 15000 });
@@ -252,7 +252,7 @@ async function run(sc) {
     if ((s.err && !s.enr) || (sc.close && s.toast && !s.enr)) { if (!seenErr) errAt = now; seenErr = true; if (!firstErr) firstErr = s.err || s.toast; }
     if (sc.retry && !retried && ((sc.retry === 'err' && s.err) || (typeof sc.retry === 'number' && now >= sc.retry))) { retried = true; const b = await f.$('[data-fk="mkvcmake"]'); if (b) { await b.click().catch(() => {}); out.timeline.push('retry'); } else out.timeline.push('retry: 단추 없음'); }
     if (sc.reopenAt && !reopened && now >= sc.reopenAt) { await f.click('[data-fk="mkvcok:groom"]').catch(() => {}); await sleep(200); reopened = await look(f); out.timeline.push('reopen ' + reopened.ph + (reopened.panel ? ' +동의창' : '') + ' «' + reopened.dlg.slice(0, 40) + '»'); }
-    if (sc.reloadAt && !reloaded && now >= sc.reloadAt) { reloaded = true; await pg.evaluate(() => { try { localStorage.removeItem('me_order'); } catch (e) {} document.getElementById('fr').src = '/order-preview.html?embed=1&t=' + Date.now(); }); await sleep(300); f = await frameOf(pg); await sleep(500); const c = await look(f); out.timeline.push('reload · 카드 «' + c.card.slice(0, 40) + '»'); out.reloadCard = c.card;
+    if (sc.reloadAt && !reloaded && now >= sc.reloadAt) { reloaded = true; await pg.evaluate(() => { try { localStorage.removeItem('me_order_ME0001'); } catch (e) {} document.getElementById('fr').src = '/order-preview.html?embed=1&t=' + Date.now(); }); await sleep(300); f = await frameOf(pg); await sleep(500); const c = await look(f); out.timeline.push('reload · 카드 «' + c.card.slice(0, 40) + '»'); out.reloadCard = c.card;
       if (/만드는 중/.test(c.card)) { await f.click('[data-fk="mkvcok:groom"]').catch(() => {}); await sleep(200); const r2 = await look(f); out.reloadOpen = r2; out.timeline.push('reload · 카드 누름 → ' + r2.ph + (r2.panel ? ' +동의창' : '')); } }
     if (sc.tab2At && !tab2Done && now >= sc.tab2At) { tab2Done = true;
       if (sc.tab2 === 'ready') { await t2.click('[data-fk="mkvcmake"]'); out.timeline.push('tab2 만들기'); }
