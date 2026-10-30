@@ -22,7 +22,7 @@ const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.s
 const flush = (n) => new Promise((r) => setTimeout(r, n || 0));
 
 /* ───────── 서버 세계(80_production 조각 · 가짜 업체 · 드라이브 · 속성 · 고객 표) ───────── */
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcWedOver_', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcHold', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcCodeSet_', '_vcTs_', '_vcLastAct_', '_vcAiTrashAll_', '_vcVoiceKeys_', '_vcModelOffDue_', '_vcModelOff_', '_vcMonthCap_', '_vcMonthWarn_', '_vcSlots', '_vcOrphanSweep_', 'vcStudioCheckDue_'];
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcWedOver_', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcRdOldTrash_', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcDelMark', '_vcHold', '_vcReadTrash', '_vcPendOf', '_vcPracticeTrash', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcCodeSet_', '_vcTs_', '_vcLastAct_', '_vcAiTrashAll_', '_vcVoiceKeys_', '_vcModelOffDue_', '_vcModelOff_', '_vcMonthCap_', '_vcMonthWarn_', '_vcSlots', '_vcOrphanSweep_', 'vcStudioCheckDue_', '_vcPracticeLeft_', '_rfOkIs_'];
 const srvCode = (src) => [lineIn(src, /var RF_KEYS[^\n]*/), lineIn(src, /var VC_BASE[^\n]*/), lineIn(src, /var VC_DOWN[^\n]*/), lineIn(src, /var VC_COLOR[^\n]*/)].concat(FN.map((f) => grabIn(src, f))).join('\n');
 { const miss = FN.filter((f) => !grabIn(GS, f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); } }
 const NOW = Date.parse('2026-10-30T03:00:00Z'), TODAY = '2026-10-30';   // 한국 낮 12시
@@ -134,16 +134,16 @@ const V = (who, o) => Object.assign({ consent: { at: kst(NOW - 40 * 864e5), v: '
 /* ───────── ⑤ 스튜디오 확인 ───────── */
 { const S = { guestVoice: 'couple', entryVoice: 'couple', up: { g0: { id: 'A1', src: 'ai' }, g1: { id: 'A2', src: 'ai' }, g3: { id: 'A3', src: 'rec' }, entry: { id: 'A4', src: 'ai' } } };
   const run = (wed, okMap) => { const W = world({ cust: { ME0001: { wed, S } }, props: { VC_ME0001: JSON.stringify({ groom: V('groom') }), RFOK_ME0001: JSON.stringify(okMap || {}) } }); return Array.from(vm.runInContext('vcStudioCheckDue_()', W.sb)); };
-  const a = run(ymd(NOW + 2 * 864e5), { g0: { by: 'x' } }), b = run(ymd(NOW + 5 * 864e5), {}), c = run(ymd(NOW + 1 * 864e5), { g0: 1, g1: 1, entry: 1 }), d = run(ymd(NOW - 864e5), {});
+  const a = run(ymd(NOW + 2 * 864e5), { g0: { by: 'x', id: 'A1' } }), b = run(ymd(NOW + 5 * 864e5), {}), c = run(ymd(NOW + 1 * 864e5), { g0: { id: 'A1' }, g1: { id: 'A2' }, entry: { id: 'A4' } }), d = run(ymd(NOW - 864e5), {});   // [RFOK_FILE] ✓ 는 파일 id 와 함께
   ok('⑤ [VC_DEC_1030_5] 예식 2일 전 · ✓ 없는 AI 줄(시작 10분 전 · 입장 인사)만 한 줄 · 녹음 줄은 세지 않음', a.length === 1 && /시작 10분 전 · 입장 인사 확인 안 함/.test(a[0]) && !/하객 입장 때/.test(a[0]), a);
   ok('⑤ 예식 5일 전 · 다 ✓ · 예식이 지남 → 없음', !b.length && !c.length && !d.length, [b, c, d]);
   ok('⑤ 아침 보고(aiMorningReport)가 빨간 줄(true)로 싣는다', /function aiMorningReport/.test(AI) && /vcStudioCheckDue_\(\)[\s\S]{0,200}rows\.push\(\['스튜디오 확인 안 한 두 분 목소리 \(' \+ _vsc\.length \+ '건\)', [^\n]*, true\]\)/.test(grabIn(AI, 'aiMorningReport')));
   /* 콘솔 — 받아 둔 AI 줄 가운데 ✓ 없는 줄 */
   const pnt = (src, okm) => { const box = { innerHTML: '' }, sec = { hidden: false };
     const sb = { $: (q) => (q === '#rfSec' ? sec : box), document: { getElementById: () => null }, GUEST: false, S: { up: { g0: { id: 'A', src: 'ai' }, g1: { id: 'B', src: 'rec' } } }, RF_ST: { g0: 'ok', g1: 'ok' }, RF_WHY: {}, RF_SKIP: '', RF_LAB: { g0: '하객 입장 때', g1: '시작 10분 전' }, RF_FRESH: {},
-      rfKeys: () => ['g0', 'g1'], esdWant: () => false, esc: (s) => s, ecWrap: (s) => s, RF_CACHED: {}, RF_FROM: {}, rfFreshApply: () => {}, rfPrefetch: () => {} };
-    vm.createContext(sb); vm.runInContext(['rfKindLab', 'rfOkSet', 'rfUnchecked', 'rfPaint'].map((f) => grabIn(src, f)).join('\n') + '\nvar RF_OKMAP = {}, RF_OKSET = false, RF_WED = "";', sb); if (okm) sb.rfOkSet({ okMap: okm, wedding: TODAY }); sb.rfPaint(); return box.innerHTML; };
-  const p1 = pnt(CS, {}), p2 = pnt(CS, { g0: 1 }), p3 = pnt(CS, null);
+      rfKeys: () => ['g0', 'g1'], esdWant: () => false, esc: (s) => s, ecWrap: (s) => s, RF_CACHED: {}, RF_FROM: {}, RF_CUR: { g0: { id: 'A', up: true }, g1: { id: 'B', up: true } }, RF_PUTFAIL: {}, rfFreshApply: () => {}, rfPrefetch: () => {} };
+    vm.createContext(sb); vm.runInContext(['rfKindLab', 'rfOkSet', 'rfUnchecked', 'rfCachedNow', 'rfPaint'].map((f) => grabIn(src, f)).join('\n') + '\nvar RF_OKMAP = {}, RF_OKSET = false, RF_WED = "";', sb); if (okm) sb.rfOkSet({ okMap: okm, wedding: TODAY }); sb.rfPaint(); return box.innerHTML; };
+  const p1 = pnt(CS, {}), p2 = pnt(CS, { g0: { id: 'A' } }), p3 = pnt(CS, null);
   ok('⑤ 콘솔 — ✓ 없는 AI 줄만 «스튜디오 확인 안 함» · 녹음 줄 · ✓ 줄 · 목록을 못 받은 판은 말하지 않음', (p1.match(/스튜디오 확인 안 함/g) || []).length === 1 && /AI 목소리 · 받아 둠 <span class="rfchk">· 스튜디오 확인 안 함<\/span>/.test(p1) && !/스튜디오 확인 안 함/.test(p2) && !/스튜디오 확인 안 함/.test(p3), [p1.slice(0, 300), p2.slice(0, 80), p3.slice(0, 80)]);
   ok('⑤ 콘솔 큐 칩도 같은 표시', /pill\('vk', RF_OWN\[q\.slug\] \? rfKindLab\(key\) \+ \(rfUnchecked\(key\) \? ' · 스튜디오 확인 안 함' : ''\)/.test(CS));
   const br = brk(CS, [["(rfUnchecked(k) ? ' <span class=\"rfchk\">· 스튜디오 확인 안 함</span>' : '')", "''"]]); const pb = br ? pnt(br, {}) : null;
@@ -185,7 +185,6 @@ const V = (who, o) => Object.assign({ consent: { at: kst(NOW - 40 * 864e5), v: '
   ok('깨 보기 ⑦ — 옛 꼴(예식 다음 날까지 둠)이면 빨강', !!ab && ab.g.voiceId === 'uc_groom' && !ab.dels.length, ab && ab.dels); }
 
 /* ───────── ⑧ 콘솔 IndexedDB ───────── */
-class FixDate extends Date { constructor(...a) { if (a.length) super(...a); else super(NOW); } static now() { return NOW; } }   /* [TEST_CLOCK_1030] */
 function fakeIDB() { const dbs = {};
   const later = (f) => setTimeout(f, 0);
   return { dbs, open(name) { const req = {}; later(() => { const fresh = !dbs[name]; if (fresh) dbs[name] = {}; const S0 = dbs[name];
@@ -195,24 +194,24 @@ function fakeIDB() { const dbs = {};
         openCursor() { ops++; const r = {}, ks = Array.from(st.keys()); let i = 0; const step = () => later(() => { if (i < ks.length) { const k = ks[i++]; r.result = { key: k, value: st.get(k), delete() { st.delete(k); }, continue() { step(); } }; r.onsuccess && r.onsuccess(); } else { r.result = null; r.onsuccess && r.onsuccess(); end(); } }); step(); return r; } });
       return tx; } };
     req.result = db; if (fresh && req.onupgradeneeded) req.onupgradeneeded(); req.onsuccess && req.onsuccess(); }); return req; } }; }
-{ const FNS = ['rfOkSet', 'ownDb', 'ownKey', 'ownToday', 'ownDead', 'rfOwnPut', 'rfOwnGet', 'rfOwnFall', 'rfOwnSweep', 'rfKindLab', 'rfUnchecked', 'rfPaint'];
+{ const FNS = ['rfOkSet', 'ownDb', 'ownKey', 'ownToday', 'ownDead', 'rfOwnPut', 'rfOwnGet', 'rfOwnGet0', 'rfOwnFall', 'rfOwnSweep', 'rfKindLab', 'rfUnchecked', 'rfCachedNow', 'rfCurSet', 'rfOwnPutAgain', 'rfPaint'];
   const mk = (src, idb) => { const box = { innerHTML: '' }, sec = { hidden: false }, IDB = idb || fakeIDB();
     class B { constructor(a, o) { this.a = a; this.type = (o || {}).type; } }
     const sb = { indexedDB: IDB, Blob: B, URL: { createObjectURL: (b) => 'blob:' + (b.a ? 'own' : '?') }, QS: { get: () => 'AB12CD' }, GUEST: false, S: { up: { g0: { id: 'A', src: 'ai' } } }, CLIPS: { 'guest-1-arrival': '/n/01.mp3' }, RF_ORIG: {}, RF_OWN: {}, RF_ST: {}, RF_WHY: {}, RF_GEN: { g0: 3 }, RF_SKIP: '', RF_LAB: { g0: '하객 입장 때' }, RF_FRESH: {},
-      rfSlugOf: () => 'guest-1-arrival', rfKeys: () => ['g0'], esdWant: () => false, esdPrepVoice: () => {}, render: () => {}, esc: (s) => s, ecWrap: (s) => s, $: (q) => (q === '#rfSec' ? sec : box), document: { getElementById: () => null }, rfFreshApply: () => {}, rfPrefetch: () => {}, Date: FixDate, setTimeout };   /* ★[TEST_CLOCK_1030] 콘솔 ownToday 도 검사의 NOW(10/30 KST 낮)로 — 종전엔 실제 시계를 읽어 한국 자정(10/31)이 지나자 ⑧ 셋이 빨강이 됐다(main · CI) */
-    vm.createContext(sb); vm.runInContext(FNS.map((f) => grabIn(src, f)).join('\n') + '\nvar RF_OKMAP = {}, RF_OKSET = false, RF_WED = "", RF_CACHED = {}, RF_FROM = {};', sb); return { sb, box, IDB }; };
+      rfSlugOf: () => 'guest-1-arrival', rfKeys: () => ['g0'], esdWant: () => false, esdPrepVoice: () => {}, render: () => {}, esc: (s) => s, ecWrap: (s) => s, $: (q) => (q === '#rfSec' ? sec : box), document: { getElementById: () => null }, rfFreshApply: () => {}, rfPrefetch: () => {}, Date: class extends Date { constructor(...a) { if (a.length) super(...a); else super(NOW); } static now() { return NOW; } }, setTimeout };   // [VC_FIX14_1030] 오늘을 NOW 로 묶는다 — 실제 날짜가 넘어가면(10/31) «오늘 예식»이 «어제 예식»이 되어 빨갰다
+    vm.createContext(sb); vm.runInContext(FNS.map((f) => grabIn(src, f)).join('\n') + '\nvar RF_OKMAP = {}, RF_OKSET = false, RF_WED = "", RF_CACHED = {}, RF_FROM = {}, RF_CUR = {}, RF_PUTFAIL = {}, RF_BYTES = {};', sb); return { sb, box, IDB }; };
   { const miss = FNS.filter((f) => !grabIn(CS, f)); if (miss.length) ok('⑧ 원문 조각을 못 떼었다 — ' + miss.join(', '), false); }
-  const sc = async (src) => { const W = mk(src); const s = W.sb; const wed = ymd(NOW + 864e5 * 0); s.rfOkSet({ okMap: {}, wedding: wed }); s.RF_ST.g0 = 'ok'; s.rfOwnPut('g0', 'A', 'audio/wav', new Uint8Array([1, 2]));
+  const sc = async (src) => { const W = mk(src); const s = W.sb; const wed = ymd(NOW + 864e5 * 0); s.rfOkSet({ okMap: {}, wedding: wed }); s.RF_ST.g0 = 'ok'; s.rfCurSet('g0', 'A', true); s.rfOwnPut('g0', 'A', 'audio/wav', new Uint8Array([1, 2]));   // [RF_CACHE_ID] 받은 파일이 물린 뒤 보관
     await flush(5); await flush(5); s.rfPaint(); const all = W.box.innerHTML;
     /* 탭을 새로 열고(메모리 비움) 인터넷이 끊겨 받기 실패 → 같은 id 면 기기 것으로 */
-    const W2 = mk(src, W.IDB); const s2 = W2.sb; s2.RF_ST.g0 = 'fail'; s2.RF_WHY.g0 = '연결이 끊겼어요 (코드 L6)'; const r1 = await s2.rfOwnFall('g0', 'A', 3); s2.rfPaint();
-    const W3 = mk(src, W.IDB); W3.sb.RF_ST.g0 = 'fail'; const r2 = await W3.sb.rfOwnFall('g0', 'B', 3);   // 다른 파일(id)이면 쓰지 않는다
-    const W4 = mk(src, W.IDB); W4.sb.RF_ST.g0 = 'fail'; const r3 = await W4.sb.rfOwnFall('g0', 'A', 2);   // 그 사이 새 요청이 나갔다
+    const W2 = mk(src, W.IDB); const s2 = W2.sb; s2.RF_ST.g0 = 'look'; s2.RF_WHY.g0 = '연결이 끊겼어요 (코드 L6)'; const r1 = await s2.rfOwnFall('g0', 'A', 3); s2.rfPaint();
+    const W3 = mk(src, W.IDB); W3.sb.RF_ST.g0 = 'look'; const r2 = await W3.sb.rfOwnFall('g0', 'B', 3);   // 다른 파일(id)이면 쓰지 않는다
+    const W4 = mk(src, W.IDB); W4.sb.RF_ST.g0 = 'look'; const r3 = await W4.sb.rfOwnFall('g0', 'A', 2);   // 그 사이 새 요청이 나갔다
     return { all, r1, st1: s2.RF_ST.g0, clip: s2.CLIPS['guest-1-arrival'], own: s2.RF_OWN['guest-1-arrival'], paint: W2.box.innerHTML, r2, r3, idb: W.IDB }; };
   let a; try { a = await sc(CS); } catch (e) { a = { err: String(e && e.stack || e).slice(0, 300) }; }
   ok('⑧ [VC_DEC_1030_8] 받은 두 분 소리를 IndexedDB(me_couple_audio)에 두고 다 받으면 «모두 받아 둠»', !a.err && /모두 받아 둠 · 이 기기에 예식 다음 날까지/.test(a.all) && !!(a.idb.dbs.me_couple_audio && a.idb.dbs.me_couple_audio.a.get('AB12CD|g0')), a.err || a.all.slice(0, 200));
   ok('⑧ 인터넷이 끊겨 못 받으면 같은 파일(id)을 기기에서 꺼내 그 자리 두 분 소리로 · 다른 id · 옛 요청이면 안 씀', !a.err && a.r1 === true && a.st1 === 'ok' && a.clip === 'blob:own' && a.own === 1 && /기기에 받아 둔 소리/.test(a.paint) && a.r2 === false && a.r3 === false, a.err || [a.r1, a.st1, a.clip, a.r2, a.r3]);
-  ok('⑧ 받기 실패(연결 · __rfNet)에서 기기 것을 찾는다 · 받기 성공에서 기기에 둔다', /RF_ST\[k\] = 'fail'; rfPaint\(\); if \(e && e\.__rfNet && typeof rfOwnFall === 'function'\) rfOwnFall\(k, id, gen\);/.test(CS) && /if \(typeof rfOwnPut === 'function'\) rfOwnPut\(k, id, d\.mime, u\);/.test(CS));
+  ok('⑧ 받기 실패(연결 · __rfNet)에서 기기 것을 찾는다 · 받기 성공에서 기기에 둔다', /RF_ST\[k\] = \(e && e\.__rfNet && typeof rfOwnFall === 'function'\) \? 'look' : 'fail'; rfPaint\(\); if \(RF_ST\[k\] === 'look'\) rfOwnFall\(k, id, gen, isUp\);/.test(CS) && /if \(typeof rfOwnPut === 'function'\) rfOwnPut\(k, id, d\.mime, u\);/.test(CS));   // [RF_LOOK_WAIT] 찾는 동안은 look
   const sweep = async (src) => { const W = mk(src); const st = new Map([['AB12CD|g0', { id: 'A', blob: {}, exp: ymd(NOW - 864e5) }], ['AB12CD|g1', { id: 'B', blob: {}, exp: ymd(NOW) }], ['ZZ|g0', { id: 'C', blob: {}, exp: '' }]]); W.IDB.dbs.me_couple_audio = { a: st }; await W.sb.rfOwnSweep(); return Array.from(st.keys()); };
   let k; try { k = await sweep(CS); } catch (e) { k = ['ERR ' + e]; }
   ok('⑧ 예식 다음 날부터(어제 예식) · 지울 날 모름은 지운다 · 오늘 예식은 둔다', k.length === 1 && k[0] === 'AB12CD|g1', k);
@@ -221,10 +220,10 @@ function fakeIDB() { const dbs = {};
   ok('깨 보기 ⑧ — 지울 날 판정이 없으면 빨강', !!kb && kb.length === 3, kb); }
 
 /* ───────── ⑨ 디렉터 글 카드 ───────── */
-{ const FNS = ['ownTxtOf', 'ownTxtSet', 'ownTxtFor', 'rfOwnTxtLoad'];
+{ const FNS = ['ownTxtOf', 'ownTxtSet', 'ownTxtFor', 'rfOwnTxtLoad', 'rfKeyOfSlug', 'rfUpId'];
   const mk = (src, guest) => { const sent = []; const sb = { GUEST: !!guest, S: { entry: 'B' }, RF_SLUG: { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min', pv: 'narr-prevideo-in' }, RF_OWN: { 'guest-1-arrival': 1, 'entry-B': 1 }, RF_EXEC: 'https://script.example/exec', QS: { get: () => 'AB12CD' }, localStorage: { getItem: () => 'tok' }, render: () => {},
       fetch: (u, o) => { sent.push([u, o.body]); return Promise.resolve({ json: () => ({ result: { ok: true, mirror: { production: { ritualDraft: { S: { entry: 'B', vtext: { g0: '두 분이 고친 하객 맞이 글', g1: '  ' }, vlines: { 'entry:B': [{ w: 'g', t: '신랑 줄' }, { w: 'b', t: '신부 줄' }] }, pvText: '소개글' } } } } } }) }); } };
-    vm.createContext(sb); vm.runInContext(FNS.map((f) => grabIn(src, f)).join('\n') + '\nvar OWN_TXT = {};', sb); return { sb, sent }; };
+    vm.createContext(sb); vm.runInContext(FNS.map((f) => grabIn(src, f)).join('\n') + '\nvar OWN_TXT = {}, RF_CUR = {};\n' + lineIn(src, /var OWN_TXT_GEN[^\n]*/), sb); return { sb, sent }; };
   const W = mk(CS); const loaded = await W.sb.rfOwnTxtLoad(); const t = (slug) => W.sb.ownTxtFor({ slug });
   ok('⑨ [VC_DEC_1030_9] 디렉터 판 — 두 분 소리가 물린 줄은 두 분이 고친 글(하객 맞이 · 입장 인사 줄 이어서) · 소리가 안 물린 줄 · 안 고친 줄은 기본 글', loaded === true && t('guest-1-arrival') === '두 분이 고친 하객 맞이 글' && t('entry-B') === '신랑 줄 신부 줄' && t('narr-prevideo-in') === '' && t('guest-2-10min') === '', [t('guest-1-arrival'), t('entry-B'), t('narr-prevideo-in'), t('guest-2-10min')]);
   const sent = W.sent[0] || ['', '{}'], body = JSON.parse(sent[1]);
@@ -232,7 +231,7 @@ function fakeIDB() { const dbs = {};
   const G = mk(CS, true); const gl = await G.sb.rfOwnTxtLoad();
   ok('⑨ 고객 미리 듣기(GUEST)는 묻지도 보이지도 않는다', gl === false && !G.sent.length && G.sb.ownTxtFor({ slug: 'guest-1-arrival' }) === '');
   ok('⑨ 글 카드(디렉터 · 사람 구간이 아닐 때)가 ownTxtFor 를 먼저 본다', /tx\.className = 'txt';\n    tx\.textContent = ownTxtFor\(c\) \|\| c\.text \|\| '';/.test(CS));
-  const b = brk(CS, [["function ownTxtFor(c){ return (!GUEST && c && RF_OWN[c.slug] && OWN_TXT[c.slug]) || ''; }", "function ownTxtFor(c){ return ''; }"]]); const Wb = b ? mk(b) : null; if (Wb) await Wb.sb.rfOwnTxtLoad();
+  const b = brk(CS, [["if (!cu) return OWN_TXT[c.slug] || '';", "if (!cu) return '';"]]); const Wb = b ? mk(b) : null; if (Wb) await Wb.sb.rfOwnTxtLoad();
   ok('깨 보기 ⑨ — 기본 글만 보이면 빨강', !!Wb && Wb.sb.ownTxtFor({ slug: 'guest-1-arrival' }) === ''); }
 
 console.log(fail ? `✗ VC_DECISIONS_1030 실패 ${fail}건` : '✓ VC_DECISIONS_1030 — 대표 결정 아홉 통과');

@@ -1526,11 +1526,19 @@ function adminRitualFileGet(code, id) {
   var f = _rfFileIn(String(code || '').trim(), String(id || '').trim()); if (!f) return { ok: false, error: '파일을 찾을 수 없어요.' };
   var b = f.getBlob(); return { ok: true, id: f.getId(), key: _rfKeyOfName(f.getName()), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
 }
-function adminRitualFileOk(code, key, on) {
+/* [RFOK_FILE] 이 줄의 지금 파일 id — 두 분 초안(S.up) → 스튜디오가 대신 올린 파일(RFSTUDIO) · 못 찾으면 '' */
+function _rfCurId_(code, key) { try { var cust = findCustomerByCode(code), S = cust ? (((_prodLoad(cust) || {}).ritualDraft || {}).S || {}) : {}, v = (S.up || {})[key];
+    if (v && typeof v === 'object' && v.id && !/^local:/.test(String(v.id))) return String(v.id); var su = _rfStudioUps(code)[key]; return su && su.id ? String(su.id) : ''; } catch (e) { return ''; } }
+/* [RFOK_FILE] 확인 ✓ 가 이 파일의 것인가 — id 없는 옛 ✓ 는 어느 파일인지 몰라 «확인 안 함» */
+function _rfOkIs_(ok, id) { return !!(ok && ok.id && id && String(ok.id) === String(id)); }
+function adminRitualFileOk(code, key, on, fid) {
   _requireAdmin('');   // [REC_ADMIN]
   code = String(code || '').trim(); key = String(key || '').trim(); if (!code || !RF_KEYS[key]) return { ok: false, error: '자리를 알 수 없어요.' };
   var props = PropertiesService.getScriptProperties(), m = {}; try { m = JSON.parse(props.getProperty('RFOK_' + code) || '{}') || {}; } catch (e) { m = {}; }
-  if (on) m[key] = { by: _CURRENT_ADMIN || '관리자', at: fmtKST(new Date()) }; else delete m[key];
+  /* ★[RFOK_FILE 2026-10-30 GPT 14차 점검(고객) 14-08] 확인 ✓ 는 «들은 파일»에 묶는다(id) — 종전엔 자리 이름에만 묶여, A 를 확인한 뒤 B 로 다시 만들어도 B 를 «확인함»으로 셌다(아침 보고 · 콘솔 둘 다).
+     관리 화면이 지금 줄의 파일 id 를 넘긴다(옛 관리 화면이면 두 분 초안 → 스튜디오가 올린 파일 차례로 찾는다) · 확인 여부는 _rfOkIs_ 한 곳 */
+  fid = String(fid || '').trim(); if (on && !fid) fid = _rfCurId_(code, key);
+  if (on) m[key] = { by: _CURRENT_ADMIN || '관리자', at: fmtKST(new Date()), id: fid }; else delete m[key];
   props.setProperty('RFOK_' + code, JSON.stringify(m)); return { ok: true, okMap: m };
 }
 /* ★[REC_PURGE 2026-09-27 코워크 3-7] 예식 뒤 30일 — 두 분 목소리 파일을 지운다(휴지통 · 드라이브가 30일 뒤 완전 삭제) · 기록 RFGONE_<코드>=지운 날.
@@ -1750,6 +1758,7 @@ function _vcDelMark(code, ws) { _gsr_();
       /* ★[VC_DEL_PEND 2026-10-30 GPT 2차 점검 2] 지울 목소리는 retry 에 «먼저» 올려 둔다 — 업체가 지웠다고 답해야 빠진다(_vcDelVoice).
          그 사이 저장이 막히거나 업체가 실패해도 목소리는 쓰이지 않고(voiceId 비움) 매일 지우기가 다시 묻는다 · delId = 그 분이 지운 목소리(상태 «지우는 중»을 가른다) */
       if (p.voiceId) { out.ids.push(p.voiceId); cur.retry = (cur.retry || []).filter(function (v) { return v !== p.voiceId; }); cur.retry.push(p.voiceId); p.delId = p.voiceId; p.voiceId = ''; p.deleted = at; out.gone.push(w); }
+      else if (p.modelOff) { p.deleted = at; delete p.modelOff; out.gone.push(w); }   // [MODEL_OFF_DEL] 7일 전 모델만 지운 분이 «지우기»를 누르면 — 업체 쪽은 이미 지웠다(retry 그대로) · 남은 읽은 녹음은 아래에서 · 카드는 «지웠어요»
       /* ★[VC_READ_DEL 2026-10-30 GPT 2차 점검 1] 그 분 목소리를 지우면 그 분이 읽은 녹음(드라이브)도 함께 휴지통으로 — 동의 화면이 «읽은 녹음도 바로 지울 수 있어요»라고 안내한다.
          종전엔 업체 목소리만 지우고 읽은 녹음은 예식 다음 날까지 남았다. 못 보내면 id 를 남기고 del 표시(매일 지우기가 다시) */
       if (!_vcReadTrash(p, at)) out.rpend.push(w); });
@@ -2021,6 +2030,8 @@ function _vcTs_(v) { if (typeof v === 'number') return v > 0 ? v : 0; var m = St
 function _vcLastAct_(st) { st = st || {}; var a = [st.practiceAt, st.make && st.make.at, st.purgePend];
   ['groom', 'bride'].forEach(function (w) { var p = st[w] || {}; a.push(p.consent && p.consent.at, p.made, p.deleted, p.modelOff, p.read && p.read.at, p.phrase && p.phrase.ms, p.job && p.job.at, p.job && p.job.end); });
   return a.reduce(function (m, v) { var t = _vcTs_(v); return t > m ? t : m; }, 0); }
+/* [PRACTICE_PURGE] 연습 소리가 남았을 수 있나 — 마지막 연습(practiceAt)이 마지막 «다 지웠다»(purged)보다 나중 · 옛 기록(practiceAt 없음)은 연습 글자를 쓴 적이 있고 지운 적이 없을 때 */
+function _vcPracticeLeft_(st) { st = st || {}; var pa = _vcTs_(st.practiceAt), pg = _vcTs_(st.purged); if (pa) return pa > pg; return !!((st.practice || 0) > 0 && !st.purged); }
 /* [VC_DEC_1030_4] Customers 개인코드 칸 전체 — 칸이 없거나 · 한 줄도 없거나 · 읽다 실패하면 null(«행 없음»으로 읽지 않는다) */
 function _vcCodeSet_() {
   try { var sh = getCustomersSheet(), c = buildHeaderIndex(sh)['개인코드'], last = sh.getLastRow(), st0 = (typeof P !== 'undefined' && P.DATA_START_ROW) || 2;
@@ -2060,7 +2071,7 @@ function vcStudioCheckDue_() {   // [VC_DEC_1030_5] 읽기만 · 아침 보고�
     var wy = _ymdOf(cust.get('예식일')), stage = String(cust.get('현재단계') || ''); if (!wy || wy < today || wy > lim || stage === '취소' || stage === '노쇼' || stage === '미계약') return;
     var S = null; try { S = ((_prodLoad(cust) || {}).ritualDraft || {}).S || null; } catch (e) { return; } if (!S) return;
     var ok = {}; try { ok = JSON.parse(all['RFOK_' + code] || '{}') || {}; } catch (e) { ok = {}; }
-    var up = S.up || {}, miss = _vcVoiceKeys_(S).filter(function (x) { var v = up[x]; return v && typeof v === 'object' && v.src === 'ai' && v.id && !ok[x]; });
+    var up = S.up || {}, miss = _vcVoiceKeys_(S).filter(function (x) { var v = up[x]; return v && typeof v === 'object' && v.src === 'ai' && v.id && !_rfOkIs_(ok[x], v.id); });   // [RFOK_FILE] 다시 만든 파일은 다시 확인
     if (miss.length) out.push(code + ' · ' + (typeof customerNames === 'function' ? customerNames(cust) : '') + ' · 예식 ' + wy + ' · ' + miss.map(function (x) { return RF_KEYS[x] || x; }).join(' · ') + ' 확인 안 함'); });
   return out; }
 /* ★[VOICE_CLONE_0928 8-6] 매일(aiDaily · 96_ai_cost) — 예식 다음 날이 된 예식 · 취소 · 노쇼는 지운다 · 업체 지우기 실패분 다시 · 칸이 45 넘으면 관리자 메일.
@@ -2079,6 +2090,9 @@ function purgeVoiceClones(dry) { _gsr_();
       if (st.purgePend && !_vcPracticeTrash(code) && !_vcPendOf(st)) { st.purged = st.purgePend; delete st.purgePend; }   // [VC_PURGE_TRUE] 남은 것이 다 지워졌을 때 «지웠다»
       _vcSave(code, b0, st); st = _vcSt(code); }   // ★[VC_PURGE_MERGE 2026-10-08 목소리 1라운드 79] 시작 때 읽은 옛 상태로 덮지 않는다 — 그 사이 만든 목소리를 지웠다
     var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
+    /* ★[PRACTICE_PURGE 2026-10-30 GPT 14차 점검(고객) 14-06] 목소리 · 읽은 녹음이 없어도 연습 소리(두 분 글을 읽은 «연습 소리» 파일)가 남아 있으면 지우기 판정까지 간다 —
+       종전엔 여기서 돌아가 예식일이 없는 예식의 연습 소리가 90일이 지나도 남았다(처리방침 «마지막 이용 후 90일»). 남았나 = 마지막 연습 뒤에 «다 지웠다»(purged)가 없다 */
+    if (!live && _vcPracticeLeft_(st)) live = true;
     if (!live) return;
     /* ★[VC_DEC_1030_4 2026-10-30 사장님 «추천대로»] 고객 행 읽기가 «실패»(예외)면 아무것도 하지 않는다 — 실패를 «행 없음»으로 읽으면 모든 예식의 목소리를 지울 수 있다.
        «행 없음» = 이 줄의 찾기가 오류 없이 null 이고 · 개인코드 칸 전체 읽기(codes)도 성공했는데 그 코드가 없을 때만 */
