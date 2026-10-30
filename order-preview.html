@@ -4716,7 +4716,8 @@ function _mkItemDone(q){ var c=_mkChk(), _sp=_askScript(q);
   if(_sp&&String((S.tx||{})[_sp.id]||'').trim()) return true;   // [R1-01] 받은 원고를 붙였으면 부탁은 끝난 것 · [SPEECH_SCRIPT] 덕담 · 축사
   if(q.up&&_vcToNar(q.up)) return true;   /* [VC_TO_NAR] · [R5-02] 목소리 만들기를 다 쓴 분의 줄은 스튜디오 나레이션으로 나간다(카드 문구와 같은 판정) */
   if(q.up&&_lineBlank(q.up)) return true;   /* [LINE_BLANK] 비운 줄은 스튜디오 나레이션으로 나간다(카드 «비워 두면 …»과 같은 판정 · VC_TO_NAR 와 같은 까닭) */
-  if(q.up) return !!(S.up&&S.up[q.up])&&!_upStale(q.up);   /* [R7-01] 읽는 분이 바뀐 줄도 미완료 */   // [R1-02] 글을 고친 AI 줄은 다시 만들 때까지 미완료
+  if(q.up) return !!(S.up&&S.up[q.up])&&!_upStale(q.up)&&!_rfLost(q.up);   /* [R7-01] 읽는 분이 바뀐 줄도 미완료 */   /* ★[DONE_NOT_GONE 2026-10-30] 없다고 확인된 소리(_rfGone 의 «서버에 없음» · 마이페이지 안에서 «이 기기에도 없음»)는 파일 정보가 남아 있어도 다 됨으로 세지 않는다 — 머리 단추(RF_GONE_REMAKE «목소리 만들기»)와 같은 까닭.
+     마이페이지 밖 미리보기(EMBED 아님)의 «이 기기에 없어요»는 받아 올 길이 없는 것이지 없는 것이 아니라 세지 않는다 */   // [R1-02] 글을 고친 AI 줄은 다시 만들 때까지 미완료
   if(q.cat==='send'&&q.k==='prevideo'&&_linkOk(S.growthLink)) return true;
   if(_sp&&c[q.id]==='site') return !!_cueGet(q.id);   // [CUE_SIG] 원고 없이면 끝 신호까지 · [SPEECH_SCRIPT]
   return !!c[q.id]; }
@@ -5766,10 +5767,15 @@ function _b64Blob(b64,mime){ var bin=atob(b64), u=new Uint8Array(bin.length); fo
 /* [VC_LINE_0928] 한 자리 파일 보내기 — 녹음 · 올린 파일 · AI 줄이 같은 길(마이페이지 → handleRitualFile · 공개 주소 없음) · meta: AI 줄의 by(목소리 주인) · tempo */
 /* ★★[PLAY_TRUE 2026-10-04 시뮬레이션] 올리기가 «끝난 뒤»를 기다릴 수 있게 — 종전엔 _vcMake 가 올리기를 «시작»하면 끝난 것으로 쳐서
    듣기가 옛 소리를 틀고(«만들지 못했어요» 거짓 알림) · 줄 ▶ 는 올리는 중이라 아무것도 안 했다. 이제 _mkUpDone 이 오면(또는 시간이 넘으면) 풀린다 */
-var UP_WAIT={}, UP_GEN={}, MK_FAILED={};   // [UP_AGAIN_GEN] 자리마다 새로 보낸 차례 · [UP_FAIL_KEEP] 끝내 못 보낸 녹음(다시 보내기)
+var UP_WAIT={}, UP_GEN={}, MK_FAILED={}, UP_DG={};   /* [DEL_LATE_UP] UP_DG = 보낼 때 두 분 «목소리 지운 차례»(VC.delGen) */
+/* ★[DEL_LATE_UP 2026-10-30] AI 소리를 올리는 사이 그 소리를 읽은 분의 목소리를 지웠으면, 늦게 온 «올라갔어요» 답을 줄에 붙이지 않는다(자동 저장도 없음 · 올라간 파일은 바로 지운다).
+   종전엔 지우기가 비운 줄에 지운 목소리 소리가 다시 붙고 저장까지 나갔다(개인정보 약속 · DEL_AFTER_OK 와 같은 까닭). 차례는 지우기 성공에서만 센다 — 다시 녹음(VC.vgen)은 새 목소리라 따로 다룬다 */
+function _vcDelSnap(){ var g=VC.delGen||{}; return {groom:g.groom||0,bride:g.bride||0}; }
+function _upVoiceGone(key,pend){ if(!pend||pend.src!=='ai') return false; var s0=UP_DG[key]; if(!s0) return false; var by=(pend.meta||{}).by, lw=_vcLineWho(key), ws=typeof by==='string'?[by]:(Array.isArray(by)&&by.length?by:(lw==='both'?['groom','bride']:[lw])), g=VC.delGen||{};
+  return ws.some(function(w){ return (w==='groom'||w==='bride')&&(g[w]||0)!==(s0[w]||0); }); }   // [UP_AGAIN_GEN] 자리마다 새로 보낸 차례 · [UP_FAIL_KEEP] 끝내 못 보낸 녹음(다시 보내기)
 function _upWaitDone(key,ok){ var a=UP_WAIT[key]; delete UP_WAIT[key]; (a||[]).forEach(function(f){ try{ f(!!ok); }catch(e){} }); }
 function _mkSendWav(key,wav,url,src,nm,meta){ var _wp=new Promise(function(ok){ (UP_WAIT[key]=UP_WAIT[key]||[]).push(ok); }); try{ _mkSendWav0(key,wav,url,src,nm,meta); }catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; _upFail(key,_ecWord('U',0)); _upWaitDone(key,false); render(); } if(!EMBED) _upWaitDone(key,true); return _wp; }   // [ERR_CODE_BUILDER] 보내기 전에 던지면 «보내는 중…»에 멈추지 않게
-function _mkSendWav0(key,wav,url,src,nm,meta,again){ if(!again){ UP_GEN[key]=(UP_GEN[key]||0)+1; delete MK_FAILED[key]; }   /* ★[UP_AGAIN_GEN 2026-10-08 목소리 1라운드 #26] 자리마다 «새로 보낸 차례» — 다시 보내기(again)는 세지 않는다 */ if(src==='ai'&&!again&&S.vkeep&&S.vkeep[key]){ delete S.vkeep[key]; }   /* ★[UP_AGAIN_KEEP 2026-10-08 목소리 1라운드 #29 · #38] 다시 보내기는 같은 소리 — 올리는 동안 누른 «확정하기»를 풀지 않는다 */   /* ★[SIM_R1] 새로 만든 소리는 «확정하기»부터 — 글 · 예시 · 멘트 칩이 바뀌어 다시 만든 줄이 듣지도 않은 소리로 «✓ 확정됨»이 되던 것 */ if(!EMBED){ if(!S.up) S.up={}; S.up[key]=Object.assign({n:nm,id:'local:'+Date.now(),at:'',src:src,local:1},meta||{}); RF_URL[key]=url; _fAt('up.'+key); _persist(); if(MK_REC&&MK_REC.key===key) MK_REC=null; if(src==='ai'){ if(!MK_UPQ[key]) _aiDoneMark(key); } else MK.toast='이 기기에서 그 자리에 넣었어요 · 마이페이지에서 열면 저희에게 보내져요'; render(); return; }
+function _mkSendWav0(key,wav,url,src,nm,meta,again){ if(!again){ UP_GEN[key]=(UP_GEN[key]||0)+1; delete MK_FAILED[key]; UP_DG[key]=_vcDelSnap(); }   /* [DEL_LATE_UP] 다시 보내기(again)는 처음 보낸 때의 차례를 그대로 */   /* ★[UP_AGAIN_GEN 2026-10-08 목소리 1라운드 #26] 자리마다 «새로 보낸 차례» — 다시 보내기(again)는 세지 않는다 */ if(src==='ai'&&!again&&S.vkeep&&S.vkeep[key]){ delete S.vkeep[key]; }   /* ★[UP_AGAIN_KEEP 2026-10-08 목소리 1라운드 #29 · #38] 다시 보내기는 같은 소리 — 올리는 동안 누른 «확정하기»를 풀지 않는다 */   /* ★[SIM_R1] 새로 만든 소리는 «확정하기»부터 — 글 · 예시 · 멘트 칩이 바뀌어 다시 만든 줄이 듣지도 않은 소리로 «✓ 확정됨»이 되던 것 */ if(!EMBED){ if(!S.up) S.up={}; S.up[key]=Object.assign({n:nm,id:'local:'+Date.now(),at:'',src:src,local:1},meta||{}); RF_URL[key]=url; _fAt('up.'+key); _persist(); if(MK_REC&&MK_REC.key===key) MK_REC=null; if(src==='ai'){ if(!MK_UPQ[key]) _aiDoneMark(key); } else MK.toast='이 기기에서 그 자리에 넣었어요 · 마이페이지에서 열면 저희에게 보내져요'; render(); return; }
   var rd=new FileReader(), _pv=MK_UP[key]; MK.upAt=MK.upAt||{}; MK.upAt[key]=(_pv==='make'||_pv==='swap')&&(MK.aiAt||{})[key]?MK.aiAt[key]:(MK.upCont||{})[key]||(src==='ai'&&_exPrepJob(key)&&VC_ALTF[key].at)||Date.now(); MK_UP[key]=1; render();   /* [PREP_FILL] «준비 중»에서 바로 붙여 올리면 그 시계를 잇는다(MK.upCont · 데우기를 기다리던 줄은 그 일의 시각) */   /* [WAIT_FILL] 만들고 바로 올리면 같은 시계 · 미리 만든 소리만 올리면 새 시계 */
   rd.onload=function(){ var _me=setTimeout(function(){ if(MK_UP[key]===_me){ var _P=MK_PEND[key]||{}, _pd=_P[_P.last]; if(_pd&&_upAgain(key,_pd,{_to:1})) return;   /* [UP_AGAIN] 화면이 75초 기다리다 멈춘 것도 같은 길 */ delete MK_UP[key]; _upFail(key,_ecWord('U',5)); _upWaitDone(key,false); render(); } },75000); MK_UP[key]=_me;   /* ★[UP_TMR_OWN 2026-10-09 점검 R1] 시계는 자기 차례만 본다 — 같은 줄을 겹쳐 보내면 종전엔 앞 시계가 덮인 채 남아 75초에 뒤 올리기를 «다시 보내기»로 망쳤다(요청 4건 · 진짜 답은 버려짐) */   /* ★[ERR_CODE_BUILDER] 75초 = 답이 늦은 것이지 실패가 아니다(서버는 그 뒤에도 저장할 수 있다) — «확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)» · 종전 «응답이 없어요» 알림 + AI 줄의 «만든 소리를 저장하지 못했어요»가 두 번 떴다 → 한 곳(창 · 그 줄)에 한 번 */
     var tk=(MK_SEQ=MK_SEQ+1); MK_PEND[key]=MK_PEND[key]||{}; MK_PEND[key][tk]={blob:wav,url:url,src:src,meta:meta||{},nm:nm,n:again||0};   /* [UP_AGAIN] 다시 보낼 때 같은 이름 · 몇 번째인지 */ MK_PEND[key].last=tk;   /* ★[UP_RACE 2026-10-06 사장님 «파일 올렸어요 · 이건 뭐지 · 버그인 거 같아»] 같은 줄을 연달아 보내면(예시를 빨리 바꿔 누르면) 종전엔 뒤 것이 앞 것의 짐(MK_PEND)을 덮어 — 먼저 온 답이 뒤 짐을 가져가고 뒤 답은 짐이 없어 «파일 올렸어요»(src 기본값)로 적혔다. 보낼 때마다 번호를 달고 «마지막에 보낸 것»만 S.up 에 적는다 */
@@ -6391,7 +6397,7 @@ window.mkVcDel=function(w){ if((VC.delBusy||{})[w]) return; if((VC.enr||{})[w]){
   VC.delBusy=VC.delBusy||{}; VC.delBusy[w]=1; if(VC.delErr) delete VC.delErr[w]; try{ localStorage.setItem('me_vdelT',String(Date.now())); }catch(e){}   /* [VC_REOPEN_RECHECK] 지우는 중에 새로 열면 새 창이 상태를 한 번 더 받는다 */ _fxNext='[data-fk="mkvcdel:'+w+'"]'; render();   /* ★[QA_DEL_BUSY 2026-10-04 점검] 서버 답을 기다리는 동안 «지우는 중…» · 두 번 못 누른다 */
   _vc('delete',{who:w}).then(function(d){ if(d&&!d.ok&&d.down&&!d.sess){   /* [DEL_AFTER_OK] 서버 멈춤(V9) · 답 깨짐(V7)도 서버는 지웠을 수 있다 — 상태로 한 번 본다 */ var _dl=((+d.sec||0)>=55||d.timeout)?6:0, _dp=function(n){ return _vc('status').then(function(st){ if(st&&st.ok){ VC.stLast=st; } if(st&&st.ok&&!((st[w]||{}).ready)) return {ok:true}; if(n<=0) return d; return new Promise(function(r){ setTimeout(r,5000); }).then(function(){ return _dp(n-1); }); }); }; return _dp(_dl); }   /* 60초 근처에서 끊긴 것은 서버가 아직 지우는 중일 수 있어 5초마다 30초까지 */   /* ★[DEL_SAFE 2026-10-07 VC_SIM 3라운드] 지우는 요청이 끊겨도 서버는 지웠을 수 있다 — 상태를 보고 목소리가 없으면 «지웠어요»(종전엔 카드는 «아직 만들지 않았어요»인데 알림은 «연결이 끊겼어요») */ return d; }).then(function(d){ delete VC.delBusy[w]; try{ localStorage.removeItem('me_vdelT'); }catch(e){}
     if(!(d&&d.ok)){ VC.delErr=VC.delErr||{}; VC.delErr[w]=(d&&d.error)||_ecLine('V',d||{}); _fxNext='[data-fk="mkvcdel:'+w+'"]'; render(); return; }   // [DEL_AFTER_OK] 실패 — 줄 · 파일 · 카드 그대로 · 까닭은 카드 안에
-    _vcUsedBy(w).forEach(function(k){ _mkUpDrop(k); }); Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); delete VC.sraw[w]; _ttsDrop(); VC.vgen=VC.vgen||{}; VC.vgen[w]=(VC.vgen[w]||0)+1; if(VC.efail) delete VC.efail[w]; _persist();   // [TUNE_REQ_OWN] · [VC_EFAIL_KEEP] · [TTS_NEW_VOICE]   /* [SIM_R1] 지운 목소리 예시도 */   // [VC_BOTH_CHECK] 지운 목소리 소리는 들고 있지 않는다
+    _vcUsedBy(w).forEach(function(k){ _mkUpDrop(k); }); Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); delete VC.sraw[w]; _ttsDrop(); VC.vgen=VC.vgen||{}; VC.vgen[w]=(VC.vgen[w]||0)+1; VC.delGen=VC.delGen||{}; VC.delGen[w]=(VC.delGen[w]||0)+1;   /* [DEL_LATE_UP] 지금 올리는 중인 그 분 AI 소리는 늦게 와도 붙이지 않는다 */ if(VC.efail) delete VC.efail[w]; _persist();   // [TUNE_REQ_OWN] · [VC_EFAIL_KEEP] · [TTS_NEW_VOICE]   /* [SIM_R1] 지운 목소리 예시도 */   // [VC_BOTH_CHECK] 지운 목소리 소리는 들고 있지 않는다
     _vcStMine(w,{ready:false,deleted:'지움'});   // [VC_ST_MINE]
     VC.st=null; VC.stErr=false; _vcStatus(null,true); MK.toast='지웠어요'; _fxNext='[data-fk="mkvcok:'+w+'"],#mkHead'; render(); }); }); };   /* [QA_ASK_GONE] 답이 늦어도 — 다시 그린 뒤 그 분의 «목소리 만들기»로 */
 /* 8-2 4) 그 사람이 읽는 줄 가운데 «비어 있는» 줄만 AI 로 — 녹음 · 올린 파일 줄은 그대로. 다시 만들었으면(renewed) 그 사람의 AI 줄을 새 목소리로 다시 */
@@ -6591,6 +6597,7 @@ function _vcSwap(key){ if(MK.lineErr) delete MK.lineErr[key];   /* [SIM_R1] 바�
 /* [AI_PILL] 이 줄에 «AI로 만들기»가 필요한가 — 빈 줄 · 글 · 읽는 분 · 쉼이 바뀐 줄(빠르기만 다른 줄은 재생 속도로 들려주고 쪽을 떠날 때 굽는다) */
 function _aiNeed(key){ if(!_vcOn()||_vpCur(_vtMoment(key))!=='ai'||(S.vself||{})[key]||!_vcReadyFor(key)||!_recNeed(key)) return false; var v=(S.up||{})[key];
   if(v&&typeof v==='object') return v.src==='ai'?(_vtNeed(key,true,true)||(!!(MK.lineErr||{})[key]&&_vtNeed(key))||_rfGone(key)):true; return !v; }
+function _rfLost(key){ var v=(S.up||{})[key], E=v&&v.id&&RF_ERR[v.id]; return !!(E&&(E.gone||(E.local&&EMBED))); }   /* [DONE_NOT_GONE] _mkItemDone 의 판정 */
 function _rfGone(key){ var v=(S.up||{})[key], E=v&&v.id&&RF_ERR[v.id]; return !!(E&&(E.gone||E.local)); }   // [RF_GONE_REMAKE] 서버에도 · 이 기기에도 없는 소리 — 다시 만들 줄   /* ★[REBAKE_FAIL_NEED 2026-10-08 목소리 1라운드] 새 빠르기로 다시 굽다 실패한 줄(그 줄 아래 «… 다시 눌러 주세요») — 머리 단추도 «목소리 만들기»(다시 누를 곳 · 지금 값으로 만든다). 종전엔 «확정하기»라 누르면 옛 빠르기가 확정됐다 */   // 녹음 · 파일 줄도 AI 로 바꿀 수 있게(종전 아래 [AI로 만들기] 자리 · 녹음은 [되돌리기]로 남는다)
 /* ★★[KEEP_IN_PILL 2026-10-04 사장님 «확정하기 · 확정됨을 목소리 만들기 단추 자리에 · 이어지게 · 크기도 똑같이»] 머리 한 칸이 차례로 바뀐다:
    목소리 만들기(필요할 때) → 만드는 중(차오름) → 확정하기 → ✓ 확정됨. 폭은 모두 같다(8.4em). 제목 아래 «확정하기» 밑줄 글은 걷었다 */
@@ -6719,6 +6726,10 @@ function _vtLeave(k){ if(!k||['guest','prevideo','entry'].indexOf(k)<0||!_vcOn()
   if(ks.length) _vtBake(ks); }
 function _vtAllKeys(){ var o=[]; ['guest','prevideo','entry'].forEach(function(k){ _vtKeys(k).forEach(function(x){ if(o.indexOf(x)<0) o.push(x); }); }); return o; }
 function _vtBakeAll(){ return _vtBake(_vtAllKeys()); }
+/* ★[BAKE_FAIL_DROP 2026-10-30] 저장 · 나가기 직전 굽기(_vtBakeAll)가 실패하거나 40초를 넘겨도 «새 글 + 옛 글 소리»를 보내지 않는다.
+   글 · 읽는 분이 바뀐 AI 줄(_upStale)에 아직 옛 소리가 붙어 있으면 그 소리를 내려놓는다(_mkUpDrop · S.up = 0) — 당일 콘솔은 두 분 소리가 없는 줄을 나레이션으로 내보내고(VC_TO_NAR 와 같은 길),
+   화면은 그 줄을 «목소리 만들기»(_aiNeed · _mkItemDone 미완료)로 보인다. 빠르기 · 쉼만 바뀐 줄은 글이 맞으니 그대로 둔다 · 올리는 중(MK_UP)인 줄은 새 소리가 곧 덮는다 */
+function _vtStaleDrop(){ var n=0; try{ if(!_vcOn()) return 0; Object.keys(S.up||{}).forEach(function(k){ var v=S.up[k]; if(v&&typeof v==='object'&&v.src==='ai'&&!MK_UP[k]&&_upStale(k)){ _mkUpDrop(k); n++; } }); if(n) _persist(); }catch(e){} return n; }
 window.mkAiSelf=function(key){ _mkUpDrop(key); S.vself=S.vself||{}; S.vself[key]=1; _persist(); render(); };   // [VP_ONLY_PICKED] 그 줄만 직접 녹음(빈 줄 채우기가 건너뛴다)
 window.mkVselfOff=function(key){ if(S.vself) delete S.vself[key]; _persist(); render(); };   // [VP_ONLY_PICKED] 다시 AI 로 채우는 줄로
 window.mkAiBack=function(key){ var pv=(S.upPrev||{})[key]; if(!pv) return; var cur=(S.up||{})[key];
@@ -6885,6 +6896,7 @@ function _mkUpDone(d){ var key=d.key; if(!key||key==='mu') return;   /* [ENTRY_S
   if(!d.ok&&pend&&_upAgain(key,pend,d)){ if(!Object.keys(P).filter(function(x){ return x!=='last'; }).length) delete MK_PEND[key]; return; }   // [UP_AGAIN]
   if(!pend&&d.tk!=null) return;   /* [UP_RACE] 이미 지나간 번호(마지막 것이 먼저 와 적힌 뒤 늦게 온 앞 답) — 덮어쓰지 않는다 */
   if(!ks.filter(function(x){ return x!==tk; }).length) delete MK_PEND[key];   /* 아직 안 온 앞 답이 있으면 짐을 남겨 «지나간 것»으로 알아보게 */
+  if(d.ok&&_upVoiceGone(key,pend)){ clearTimeout(MK_UP[key]); delete MK_UP[key]; if(EMBED&&d.id) _rfDelSend(key,d.id,null,0,null); setTimeout(function(){ _upWaitDone(key,false); },0); render(); return; }   /* [DEL_LATE_UP] 지운 목소리로 만든 소리 — 줄 · 저장(_autoSend)을 건드리지 않고 올라간 파일만 지운다 */
   clearTimeout(MK_UP[key]); delete MK_UP[key]; setTimeout(function(){ _upWaitDone(key,d.ok); if(EX_AGAIN[key]){ delete EX_AGAIN[key]; if(!_exAgain(key)) render(); } },0);   /* [EX_BUSY_LINE] 다시 보기는 같은 틈에서(기다리던 쪽이 풀린 뒤 · 그 사이 «목소리 만들기»가 비치지 않게) */   /* [PLAY_TRUE] 아래에서 S.up 을 바꾼 뒤에 푼다 */ if(d.ok){ delete VT_FAIL[key]; delete MK_FAILED[key]; }
   if(d.ok){ if(MK.lineErr) delete MK.lineErr[key];   /* [ERR_CODE_BUILDER] 올라갔으면 그 줄의 앞 실패 글(U5 «올라갔을 수 있어요» 등)을 걷는다 */ if(!S.up) S.up={}; var _pv=S.up[key]; S.up[key]=Object.assign({n:String(d.name||'녹음 파일').slice(0,80),id:d.id||'',at:d.at||'',src:pend?pend.src:((_pv&&_pv.src)||'file')},(pend&&pend.meta)||{});   /* [UP_RACE] 짐이 없으면 «파일»로 단정하지 않고 앞 값 */ /* [VC_LINE_0928] AI 줄은 by · tempo 를 함께 */ _fAt('up.'+key); _persist();
     if(pend&&d.id){ _rfPut(d.id,pend.blob); RF_URL[key]=URL.createObjectURL(pend.blob); RF_URL[key+'#']=d.id; }
@@ -10197,7 +10209,7 @@ function doSave(){
      종전엔 바로 보내 서버에 «완성 + 옛 글 소리»가 갔고, 10여 초 뒤 새 소리가 올라오며 완성이 풀려 ④ 가 «이대로 저장하기»로 되돌아갔다(머리는 «저장됨» · 한 화면에 두 말) */
   if(!window._doneBakeOk){ var _bk=[]; try{ _bk=_vcOn()?_vtAllKeys().filter(function(k){ return _vtNeed(k)||!!VC_MKP[k]; }):[]; }catch(e){ _bk=[]; }
     if(_bk.length){ _saving=true; _saveErr=''; window._saveBaking=1; render(); try{ _autoPaint(); }catch(e){}
-      var _fired=false, _go=function(){ if(_fired) return; _fired=true; window._saveBaking=0; _saving=false; window._doneBakeOk=1; try{ doSave(); }finally{ window._doneBakeOk=0; } };
+      var _fired=false, _go=function(){ if(_fired) return; _fired=true; window._saveBaking=0; _saving=false; _vtStaleDrop();   /* [BAKE_FAIL_DROP] */ window._doneBakeOk=1; try{ doSave(); }finally{ window._doneBakeOk=0; } };
       try{ _vtBakeAll().then(_go,_go); }catch(e){ _go(); } setTimeout(_go,40000); return; } }
   _saving=true; _saveErr=''; render();
   /* ★★[ORD_SAVE_AFTER_AUTO 2026-08-12] 자동 저장이 **답을 기다리는 중이면 그것부터 끝내고** 보낸다.
@@ -10498,7 +10510,7 @@ if(EMBED){
         if(!v){ go(); return; } var t0=Date.now(); (function w(){ if(!_uk.some(function(k){ return !!MK_UP[k]; })||Date.now()-t0>180000){ setTimeout(go,300); return; } setTimeout(w,500); })(); }); return; } }   // 만들기가 실패로 끝나도(기다림이 안 풀리는 길) 멈추지 않게 — 그 줄들이 비면 나간다 · 길어야 3분
     /* [TEMPO_BAKE] 나가면 창이 닫혀 굽기가 끊긴다 — 구울 줄이 있으면 먼저 굽고(«마무리하는 중…» · 최대 40초) 다시 나가기 */
     try{ if(!window._vtExitDone&&_vcOn()&&_vtAllKeys().length){ _exitHold(1); _xBusy='bake'; _xPaint();   // [EXIT_PILL_ONE] 종전 «마무리하는 중…»
-      var _fired=false, _go=function(){ if(_fired) return; _fired=true; window._vtExitDone=true; _xBusy=''; _xPaint(); try{ window._obExit(); }finally{ window._vtExitDone=false; } };
+      var _fired=false, _go=function(){ if(_fired) return; _fired=true; _vtStaleDrop();   /* [BAKE_FAIL_DROP] */ window._vtExitDone=true; _xBusy=''; _xPaint(); try{ window._obExit(); }finally{ window._vtExitDone=false; } };
       _vtBakeAll().then(_go); setTimeout(_go,40000); return; } }catch(e){}
     if(_ordOv) return;   // [EXIT_ASK]
     if(!window._vbExitOk&&!window._upExitGo){ var _vb=_vcBusyNow(); if(_vb){ _exitHold(1); ordAsk({title:_vb,body:'나가도 '+_vcBusyBody(),yes:'나가기',no:'기다리기'}).then(function(ok){ if(!ok){ _exitHold(0); return; } window._vbExitOk=true; try{ window._obExit(); } finally{ window._vbExitOk=false; } }); return; } }   // [VC_BUSY_ASK] 판이 떠 있는 동안 Esc·재요청이 판을 갈아치우지 않게 — 갈아치우면 옛 판이 '아니오'로 풀리며 그 갈래를 밟는다. 판의 답은 판이 받는다
@@ -10569,7 +10581,7 @@ if(EMBED){
     if(!_bk.length){ _autoSend(); return; }
     if(window._saveBaking) return; window._saveBaking=1; _autoPaint();   /* ★[SAVE_AFTER_BAKE 2026-10-09 A~Z 점검 1라운드 B-3] 구울 줄이 있으면 다 구운 뒤에 보낸다(나가기 TEMPO_BAKE 와 같게 · «저장 중…» · 최대 40초).
        종전엔 굽기를 뒤에 걸어 두고 바로 보내, 서버 초안에 «새 글 + 옛 글 소리»가 «저장됨»으로 남았다(그 사이 닫으면 당일 콘솔이 옛 소리를 튼다) */
-    var _fired=false, _go=function(){ if(_fired) return; _fired=true; window._saveBaking=0; _autoSend(); _autoPaint(); };
+    var _fired=false, _go=function(){ if(_fired) return; _fired=true; window._saveBaking=0; _vtStaleDrop();   /* [BAKE_FAIL_DROP] */ _autoSend(); _autoPaint(); };
     try{ _vtBakeAll().then(_go,_go); }catch(e){ _go(); } setTimeout(_go,40000); };   /* [TEMPO_BAKE] 저장 = 남은 줄 굽기 → 보내기 */
   var _rb=document.createElement('button'); _rb.type='button'; _rb.className='ob-exit ob-more ob-reload'; _rb.id='obReload'; _rb.setAttribute('data-fk','obreload'); _rb.setAttribute('aria-label','새로고침'); _rb.title='새로고침';   /* [REFRESH_BTN] «⋯»와 «저장» 사이 */
   _rb.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>'; _rb.addEventListener('click',function(){ window._obReload(); });
