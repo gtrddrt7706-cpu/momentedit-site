@@ -123,6 +123,10 @@ try {
       const st = await fr.evaluate(() => { const h = document.querySelector('.pk-head').getBoundingClientRect(), t = document.getElementById('pkTabs').getBoundingClientRect(); return [Math.round(h.bottom), Math.round(t.top)]; });
       if (Math.abs(st[0] - st[1]) > 1) no(`${tag} 스크롤 뒤 탭이 머리 바로 아래가 아니다 ${st.join(' → ')} [DRESS_TABS_1030]`);
       const yD = await fr.evaluate(() => Math.round(pageYOffset));
+      /* [DRESS_TAB_SAME] 고른 탭을 다시 누름 · Home 은 자리 그대로(1px 이내) */
+      await fr.click('#pkTabD'); await wait(200); const yS1 = await fr.evaluate(() => Math.round(pageYOffset));
+      await fr.focus('#pkTabD'); await P.keyboard.press('Home'); await wait(200); const yS2 = await fr.evaluate(() => Math.round(pageYOffset));
+      if (Math.abs(yS1 - yD) > 1 || Math.abs(yS2 - yD) > 1) no(`${tag} 고른 탭을 다시 고르니 자리가 튀었다 ${yD} → 누름 ${yS1} · Home ${yS2} [DRESS_TAB_SAME]`);
       /* 탭 바꾸기 — 누름 · 방향키 */
       await fr.click('#pkTabA'); await wait(300);
       let v = await view(fr);
@@ -135,6 +139,9 @@ try {
       if (Math.abs(v.y - yD) > 2) no(`${tag} 드레스 탭으로 돌아오니 자리가 바뀌었다 ${yD} → ${v.y} [DRESS_TABS_1030]`);
       /* ④ 드레스 끝 «소품 · 부케도 보기 ›» */
       await fr.click('[data-act="toacc"]'); await wait(350);
+      /* [DRESS_ACC_ALIGN] 같은 행 소품 사진 윗선 1px 이내 */
+      const al = await fr.evaluate(() => { const rows = {}; document.querySelectorAll('#pkPanA button.pk-acci').forEach((b) => { const k = Math.round(b.getBoundingClientRect().top); (rows[k] = rows[k] || []).push(b.querySelector('.pk-accp').getBoundingClientRect().top); }); return Object.values(rows).map((r) => Math.round((Math.max(...r) - Math.min(...r)) * 10) / 10); });
+      if (!al.length || al.some((d) => d > 1)) no(`${tag} 소품 같은 행 사진 윗선 차이 ${JSON.stringify(al)} [DRESS_ACC_ALIGN]`);
       v = await view(fr); if (v.tab !== 'pkTabA' || v.focus !== 'pkAccH') no(`${tag} «소품 · 부케도 보기» 뒤 소품 탭 · 첫 제목 초점이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       /* ⑤ 소품 크게 보기 → Esc */
       await fr.evaluate(() => window.scrollTo(0, 300)); await wait(200); const yA = await fr.evaluate(() => Math.round(pageYOffset));
@@ -172,6 +179,40 @@ try {
       await fr.evaluate(() => document.querySelector('[data-open="S02"]').click()); await wait(400); await closeX(P, fr); fr = await open(P, true);
       v = await view(fr); if (v.tab !== 'pkTabD' || !v.tabs || Math.abs(v.y - mD) > 2) no(`${tag} 자세히를 보다 닫으면 드레스 목록(${mD})이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       await closeX(P, fr);
+      /* [DRESS_MEM_CLOSE] 스크롤 직후(0 ~ 100ms) ✕ · Esc · 바깥 · 뒤로로 닫아도 다시 열면 그 자리(2px 이내) */
+      const cl = [];
+      for (const [how, gap] of [['x', 0], ['esc', 30], ['out', 60], ['back', 100]]) {
+        fr = await open(P, true); await fr.click('#pkTabD'); await wait(150);
+        const want = 650 + cl.length * 37; await fr.evaluate((y) => window.scrollTo(0, y), want); const got0 = await fr.evaluate(() => Math.round(pageYOffset)); if (gap) await wait(gap);
+        if (how === 'x') await fr.click('#pkExit');
+        else if (how === 'esc') { await fr.focus('#pkTabD'); await P.keyboard.press('Escape'); }
+        else if (how === 'out') await P.mouse.click(Math.round(W / 2), 6);
+        else await P.evaluate(() => history.back());
+        await wait(how === 'back' ? 1000 : 500);
+        const gone = await P.evaluate(() => !document.getElementById('mp_drViewer')); if (!gone) { no(`${tag} ${how} 로 창이 안 닫혔다 [DRESS_MEM_CLOSE]`); continue; }
+        fr = await open(P, true); const y2 = await fr.evaluate(() => Math.round(pageYOffset)); cl.push(`${how} ${got0}→${y2}`);
+        if (Math.abs(y2 - got0) > 2) no(`${tag} 스크롤 ${gap}ms 뒤 ${how} 로 닫고 다시 열면 ${got0} 이 아니라 ${y2} [DRESS_MEM_CLOSE]`);
+        await closeX(P, fr);
+      }
+      rows.push(`${tag} 닫기 직후 기억 ${cl.join(' · ')}`);
+      /* [DRESS_FAB_LATEST] 고객 A → B → A — 아이콘은 누른 때의 고객 · 예약 · 리스너 하나 */
+      const ab = await P.evaluate((S) => { const base = JSON.parse(S), got = [], orig = window.openDressPicker; window.openDressPicker = (dr, o) => { got.push(o.key + ':' + (dr && dr.attire)); };
+        const mk = (c, at) => Object.assign({}, base, { code: c, consult: Object.assign({}, base.consult, { dress: Object.assign({}, base.consult.dress, { attire: at }) }) });
+        for (const [c, at] of [['ME-A', '대여 희망 · 1벌'], ['ME-B', '대여 희망 · 2벌'], ['ME-A', '대여 희망 · 1벌']]) { ensureDressFab(mk(c, at)); document.getElementById('mp_dressFab').click(); }
+        window.openDressPicker = orig; ensureDressFab(base); return got.join(' | ') + ' #' + document.querySelectorAll('#mp_dressFab').length; }, STATE(true));
+      if (ab !== 'ME-A:대여 희망 · 1벌 | ME-B:대여 희망 · 2벌 | ME-A:대여 희망 · 1벌 #1') no(`${tag} 고객이 바뀐 뒤 아이콘이 옛 고객을 연다 ${ab} [DRESS_FAB_LATEST]`);
+      /* [DRESS_NM_HOVER] 마우스로 아이콘 → 이름표로 옮겨도 이름표가 남는다 · Esc 로 닫힌다(마우스가 있는 폭만) */
+      if (W >= 768) {
+        const bb = await P.evaluate(() => { const r = document.getElementById('mp_dressFab').getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; });
+        await P.mouse.move(bb[0] + bb[2] / 2, bb[1] + bb[3] / 2); await wait(300);
+        const nb2 = await P.evaluate(() => { const r = document.querySelector('#mp_dressFab .me-fab-nm').getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; });
+        await P.mouse.move(nb2[0] + nb2[2] - 4, nb2[1] + nb2[3] / 2, { steps: 6 }); await wait(300);
+        const nmV = await P.evaluate(() => getComputedStyle(document.querySelector('#mp_dressFab .me-fab-nm')).visibility);
+        await P.keyboard.press('Escape'); await wait(250);
+        const nmE = await P.evaluate(() => getComputedStyle(document.querySelector('#mp_dressFab .me-fab-nm')).visibility);
+        await P.mouse.move(5, Math.round(H / 2)); await wait(300);
+        if (nmV !== 'visible' || nmE !== 'hidden') no(`${tag} 이름표로 옮기면 ${nmV} · Esc 뒤 ${nmE} [DRESS_NM_HOVER]`);
+      }
       await P.reload({ waitUntil: 'load' }); await P.waitForSelector(ENTRY(true), { timeout: 15000, state: 'visible', visible: true }); fr = await open(P, true);
       v = await view(fr); if (v.tab !== 'pkTabD' || v.y !== 0) no(`${tag} 새로고침 뒤에는 드레스 탭 맨 위가 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       rows.push(`${tag} 탭 ${tb.map((x) => x.join('×')).join(' · ')} · 고정 ${st.join('→')} · 창 ${card0} · 기억 소품 ${mA} · 드레스 ${mD}`);
@@ -191,4 +232,4 @@ try {
 } finally { await eng.close(); srv.close(); }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ dress-tabs — 실패 ${bad}건 [DRESS_TABS_1030]`); process.exit(1); }
-console.log('━━ dress-tabs — 통과 · 네 크기 · 상담 전 = 물음 필수(답 없음 · 일부 → 물음 1 · 완료 → 결과) · 상담 뒤 = 첫 렌더부터 물음 없이 두 탭(늦게 온 데이터 포함) · 탭 크기 · 속성 · Tab · 초점 테 · 고정 · 방향키(끝 돌기) · 아래 안내 없음 · 소품 크게 보기 · 복귀(자리 · 초점) · 닫힘 · 기억 · 말풍선 1회 [DRESS_TABS_1030]');
+console.log('━━ dress-tabs — 통과 · 네 크기 · 상담 전 = 물음 필수(답 없음 · 일부 → 물음 1 · 완료 → 결과) · 상담 뒤 = 첫 렌더부터 물음 없이 두 탭(늦게 온 데이터 포함) · 탭 크기 · 속성 · Tab · 초점 테 · 고정 · 방향키(끝 돌기) · 아래 안내 없음 · 소품 크게 보기 · 복귀(자리 · 초점) · 닫힘 · 기억 · 말풍선 1회 · 같은 탭 다시 고름 · 소품 행 맞춤 · 닫기 직후 기억 · 고객 바뀜 [DRESS_TABS_1030]');

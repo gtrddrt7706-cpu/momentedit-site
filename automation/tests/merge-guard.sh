@@ -20120,6 +20120,19 @@ chk 'DRESS_TAB_A11Y' scripts/audit/dress-tabs.mjs 4
 chk 'DRESS_AFTER_NOEND' scripts/audit/dress-tabs.mjs 2
 chk 'DRESS_TAB_RING' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_ACC_FIT' scripts/audit/dress-tabs.mjs 1
+# [DRESS_TABS_1030 GPT 라운드 권장 5] 같은 탭 다시 고름 · 닫기 직후 기억 · 소품 행 맞춤 · 고객 바뀜 · 이름표 위로
+chk "if (t === S.tab && how !== 'head')" dress.html 1                              # [DRESS_TAB_SAME]
+chk 'if (AFTER) window.__drMemNow = memNow;' dress.html 1                          # [DRESS_MEM_CLOSE]
+chk '_mw.__drMemNow && _mw.__drMemNow(); if(_mm) memSet(_mm);' mypage.html 1        # [DRESS_MEM_CLOSE] 닫기 공통 경로
+chk 'button.pk-acci{align-self:start;' dress.html 1                                # [DRESS_ACC_ALIGN]
+chk 'var cd=ex._d;' mypage.html 1                                                  # [DRESS_FAB_LATEST]
+chk '  ex._d=d;' mypage.html 1                                                     # [DRESS_FAB_LATEST]
+chk '#mp_dressFab .me-fab-nm::after' mypage.html 1                                 # [DRESS_NM_HOVER]
+chk 'DRESS_TAB_SAME' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_MEM_CLOSE' scripts/audit/dress-tabs.mjs 2
+chk 'DRESS_ACC_ALIGN' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_FAB_LATEST' scripts/audit/dress-tabs.mjs 1
+chk 'DRESS_NM_HOVER' scripts/audit/dress-tabs.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-tabs.mjs >/dev/null 2>&1; _dtab=$?
   case "$_dtab" in
     0) echo 'ok dress-tabs: 상담 전 = 물음 필수 · 상담 뒤 = 물음 없이 두 탭 · 탭 · 복귀 · 기억 · 말풍선 — 네 크기' ;;

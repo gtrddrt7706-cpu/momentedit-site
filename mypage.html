@@ -199,7 +199,8 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 /* ★'할 일 카드로 바로가기' NOW 앵커(.now-go·mp_nowGo·_nowGoWire) 삭제 금지 — 2026-07-25 사용자 지시로 전면 삭제 · 맨 위로 FAB는 별개라 유지 */
 .me-fab-tip2{white-space:normal;width:max-content;max-width:220px;line-height:1.6;text-align:left}   /* [DRESS_FAB_1024] 1회 말풍선 두 줄 · 단추 높이에 맞춘다(top 은 JS) */
 #mp_dressFab{position:relative}
-#mp_dressFab .me-fab-nm{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:9px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s}   /* [DRESS_FAB_1024] 마우스 올림 · 키보드 초점에 이름만 */
+#mp_dressFab .me-fab-nm{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:9px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:auto;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s}   /* [DRESS_FAB_1024] 마우스 올림 · 키보드 초점에 이름만 */
+#mp_dressFab .me-fab-nm::after{content:'';position:absolute;top:0;bottom:0;left:100%;width:10px}   /* ★[DRESS_NM_HOVER] 이름표와 아이콘 사이 8px 투명 다리 — 포인터를 이름표로 옮겨도 이름표가 남는다(숨은 동안은 visibility 로 눌리지 않는다) */
 @media (hover:hover){ #mp_dressFab:hover .me-fab-nm{opacity:1;visibility:visible;transition:opacity .2s ease} }
 #mp_dressFab:focus-visible .me-fab-nm{opacity:1;visibility:visible;transition:opacity .2s ease}
 #mp_dressFab.nm-off .me-fab-nm{opacity:0!important;visibility:hidden!important;transition:none!important}   /* [DRESS_TIP_ESC] Esc = 이름표 닫기(올림 · 초점이 풀리면 다시 뜬다) */
@@ -2775,7 +2776,10 @@ function openDressPicker(dr, opt){
   _mpLock(); _layerInertOn(ov);
   var saved=false, closed=false, st={dirty:false, failed:false, busy:false}, asking=false, exitWait=false, failCode='';
   function post(m){ try{ fr.contentWindow.postMessage(m, location.origin); }catch(e){} }
-  function done(){ if(closed) return; closed=true; clearTimeout(backT); backT=0; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey);
+  function memSet(m){ var ty=(m&&m.ty)||{}; _DR_AFTER_MEM={ key:String(opt.key||''), tab:m&&m.tab==='acc'?'acc':'dress', ty:{ dress:Math.max(0,+ty.dress||0), acc:Math.max(0,+ty.acc||0) } }; }
+  function done(){ if(closed) return;
+    if(opt.after){ try{ var _mw=fr.contentWindow, _mm=_mw && _mw.__drMemNow && _mw.__drMemNow(); if(_mm) memSet(_mm); }catch(e){} }   // ★[DRESS_MEM_CLOSE] 닫기 모든 길(✕ · Esc · 뒤로 · 바깥)이 지나는 이 한 곳에서 지금 자리를 먼저 적는다
+    closed=true; clearTimeout(backT); backT=0; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey);
     /* [POPUP_FIT_1024] 나갈 때 = 폰은 아래로 12px · 160ms · 넓은 화면은 옅어지며 120ms · 동작 줄이기면 바로 · 닫으면 초점은 스티커로 */
     var rm=false; try{ rm=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
     var gone=function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); };
@@ -2825,7 +2829,7 @@ function openDressPicker(dr, opt){
     if(ev.source!==fr.contentWindow || ev.origin!==location.origin) return;
     var m=ev.data||{};
     if(m.type==='momentedit:dressReady'){ post({type:'momentedit:dressFill', saved:(dr&&dr.saved)||null, open:true, ymd:(dr&&dr.ymd)||'', key:opt.key||'', popMax:popMax(), mem:(opt.after && _DR_AFTER_MEM && _DR_AFTER_MEM.key===String(opt.key||''))?_DR_AFTER_MEM:null}); setTimeout(function(){ fr.style.opacity='1'; try{ fr.focus(); }catch(e){} },70); return; }   // ★[DRESS_NO_DEADLINE 2026-10-23 사장님] 늘 열림(open:true) — 마감 뒤 «보기만»으로 보내지 않는다 · ymd 는 넘기지만 완료 화면이 마감 날을 쓰지 않는다
-    if(m.type==='momentedit:dressMem'){ if(opt.after){ var ty=m.ty||{}; _DR_AFTER_MEM={ key:String(opt.key||''), tab:m.tab==='acc'?'acc':'dress', ty:{ dress:Math.max(0,+ty.dress||0), acc:Math.max(0,+ty.acc||0) } }; } return; }   // [DRESS_TABS_1030] 창이 알린 탭 · 자리
+    if(m.type==='momentedit:dressMem'){ if(opt.after) memSet(m); return; }   // [DRESS_TABS_1030] 창이 알린 탭 · 자리
     if(m.type==='momentedit:dressHeight') return;   // ★[POPUP_FIXED_1024 사장님 «창이 막 움직이면 정신없으니깐 · 하단 기준으로»] 창 높이는 내용을 따라가지 않는다(걸음마다 위 끝 · 막대가 뛰었다) — 되살리지 말 것
     if(m.type==='momentedit:dressState'){ st.dirty=!!m.dirty; st.failed=!!m.failed; st.busy=!!m.busy; if(exitWait && !st.busy){ exitWait=false; askExit(false); } return; }   // [DRESS_EXIT_ASK]
     if(m.type==='momentedit:dressExit'){ askExit(false); return; }
@@ -4536,9 +4540,10 @@ function ensureDressFab(d){
     ex.innerHTML='<span class="me-fab-ico"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.6 3.3a1.4 1.4 0 1 1 1.4 1.4v1.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 6 7.9 8.9l1.4 4.3L2.7 20.7c5.9 1.4 12.7 1.4 18.6 0L14.7 13.2l1.4-4.3L12 6ZM9.3 13.2h5.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="me-fab-nm" aria-hidden="true">드레스 · 소품 · 부케</span>';
     ex.addEventListener('mouseleave', function(){ ex.classList.remove('nm-off'); }); ex.addEventListener('blur', function(){ ex.classList.remove('nm-off'); });
     document.addEventListener('keydown', function(e){ if(e.key!=='Escape') return; var t=document.querySelector('.me-fab-tip2'); if(t&&t.parentNode) t.parentNode.removeChild(t); var b=document.getElementById('mp_dressFab'); if(b && (document.activeElement===b || (b.matches && b.matches(':hover')))) b.classList.add('nm-off'); });   // [DRESS_TIP_ESC]
-    ex.addEventListener('click', function(){ openDressPicker((d&&d.consult&&d.consult.dress)||null, { after:true, key:String((d&&d.code)||'') }); });   // 답이 이 기기에 있으면 결과로 바로(스티커와 같은 열쇠 · 개인코드)
+    ex.addEventListener('click', function(){ var cd=ex._d; openDressPicker((cd&&cd.consult&&cd.consult.dress)||null, { after:true, key:String((cd&&cd.code)||'') }); });   // ★[DRESS_FAB_LATEST] 누른 때의 고객 · 예약(처음 만든 때의 d 가 아니다)   // 답이 이 기기에 있으면 결과로 바로(스티커와 같은 열쇠 · 개인코드)
   }
   if(ex.parentNode!==stack || ex.nextSibling!==chat){ if(chat && chat.parentNode===stack) stack.insertBefore(ex, chat); else stack.insertBefore(ex, stack.firstChild); }   // «상담 도우미» 바로 위
+  ex._d=d;   // [DRESS_FAB_LATEST] 부를 때마다 지금 데이터로 · 리스너는 처음 한 번만
   ex.style.display='flex';
   _dressFabTip(stack, ex);
 }

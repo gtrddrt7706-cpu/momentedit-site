@@ -436,7 +436,7 @@ html.pk-pop.pk-tabson .pk-tabs{position:sticky;top:var(--pk-hh,56px);z-index:6;b
 .pk-panel .dr-nm{line-height:22px}
 .pk-panel .pk-acc{margin-top:0;padding-top:0;border-top:0}
 .pk-toacc{margin:24px 0 0 -12px;font-size:14px}
-button.pk-acci{display:block;width:100%;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:6px}
+button.pk-acci{align-self:start;display:block;width:100%;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:6px}
 button.pk-acci:focus-visible{outline:2px solid var(--gold-deep);outline-offset:4px}
 button.pk-acci .pk-accp{transition:transform .12s ease}
 button.pk-acci:active .pk-accp{transform:scale(.98)}
@@ -840,6 +840,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
   function switchTab(t, how){
     if (!AFTER || S.view !== 'tabs' || !accOn()) return;
     S.touched = true;
+    if (t === S.tab && how !== 'head') { var cur = $(t === 'acc' ? 'pkTabA' : 'pkTabD'); if (cur) { try { cur.focus({ preventScroll: true }); } catch (e) {} } return; }   // [DRESS_TAB_SAME] 고른 탭을 다시 고르면(누름 · Home/End) 자리 그대로 — 맨 위는 «소품 · 부케도 보기 ›»뿐
     if (t !== S.tab) { S.ty[S.tab] = window.pageYOffset || 0; S.tab = t; }
     var pd = $('pkPanD'), pa = $('pkPanA'); if (pd) pd.hidden = t !== 'dress'; if (pa) pa.hidden = t !== 'acc';
     paintTabs();
@@ -850,12 +851,16 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
     memPost();
   }
   /* [DRESS_TABS_1030] 기억 — 마이페이지(부모) 메모리에만(서버 · 기기 저장 없음) · 자세히를 보다 닫으면 그 목록 */
-  function memPost(){
-    if (!AFTER || !EMBED) return;
+  function memNow(){
     var ty = { dress: S.ty.dress || 0, acc: S.ty.acc || 0 };
     if (S.view === 'tabs') ty[S.tab] = window.pageYOffset || 0;
-    var tab = S.view === 'accd' ? 'acc' : S.view === 'detail' ? 'dress' : S.tab;
-    try { window.parent.postMessage({ type: 'momentedit:dressMem', tab: tab, ty: ty }, location.origin); } catch (e) {}
+    return { tab: S.view === 'accd' ? 'acc' : S.view === 'detail' ? 'dress' : S.tab, ty: ty };
+  }
+  if (AFTER) window.__drMemNow = memNow;   // ★[DRESS_MEM_CLOSE] 부모가 창을 닫는 그 순간 지금 자리를 바로 읽는다(✕ · Esc · 뒤로 · 바깥 — 250ms 늦은 알림을 기다리지 않는다)
+  function memPost(){
+    if (!AFTER || !EMBED) return;
+    var mm = memNow();
+    try { window.parent.postMessage({ type: 'momentedit:dressMem', tab: mm.tab, ty: mm.ty }, location.origin); } catch (e) {}
   }
   function backToAcc(){   // [DRESS_ACC_BIG] 크게 보기 → 소품·부케 목록 — 보던 칸 · 그 자리 · 초점
     var back = S.accCur; S.tab = 'acc'; go('tabs');
