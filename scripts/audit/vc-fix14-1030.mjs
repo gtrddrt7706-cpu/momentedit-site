@@ -39,43 +39,44 @@ const txOf = (v) => { try { return JSON.parse(v).S.tx['vow.g']; } catch (e) { re
 function store(init, quota) { const m = new Map(Object.entries(init || {}));
   return { m, ls: { getItem: (k) => (m.has(k) ? m.get(k) : null), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; },
     setItem: (k, v) => { if (quota && quota(k)) { const e = new Error('quota'); e.name = 'QuotaExceededError'; throw e; } m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); } } }; }
-const MPF = ['_acctOk', '_ordK', '_keepK', '_recE', '_migPick', '_migStampW', '_acctKeysMigrate', '_acctOldSweep', '_reloginStampT', '_reloginKeyNewer'];
+const MPF = ['_acctOk', '_ordK', '_keepK', '_recE', '_migStampW', '_migOwner', '_migDone', '_migOwnT', '_migOrd', '_migKeep', '_migOldSweep', '_acctKeysMigrate', '_acctOldSweep', '_reloginStampT', '_reloginKeyNewer'];   // ★[MIG_COPY_ONCE 2026-10-30 15차] 견주기(_migPick · _MIG_DONE)를 걷고 «한 번 · 베끼기»
 function mpBoot(init, quota) { const st = store(init, quota);
-  const code = MPF.map((f) => grabIn(MP, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var _MIG_DONE=[^\n]*/].map((re) => lineIn(MP, re)).join('\n') + '\n_acctKeysMigrate(); _acctOldSweep();';
+  const code = MPF.map((f) => grabIn(MP, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/].map((re) => lineIn(MP, re)).join('\n') + '\n_acctKeysMigrate(); _acctOldSweep();';
   const sb = { localStorage: st.ls, JSON, Object, String, Math, Date: FakeDate, ERR_W: {}, ERR_DO: {} }; vm.createContext(sb); vm.runInContext(code, sb); return Object.fromEntries(st.m); }
 function opMig(init, quota) { const st = store(init, quota);
-  const sb = { localStorage: st.ls, JSON, Object, String, Math, Date: FakeDate }; vm.createContext(sb); vm.runInContext(grabIn(OP, '_recE') + '\n' + grabIn(OP, '_ordMigPick') + '\n' + grabIn(OP, '_ordMigrate') + '\n_ordMigrate();', sb); return Object.fromEntries(st.m); }
+  const sb = { localStorage: st.ls, JSON, Object, String, Math, Date: FakeDate }; vm.createContext(sb); vm.runInContext(grabIn(OP, '_recE') + '\n' + grabIn(OP, '_ordMigrate') + '\n_ordMigrate();', sb); return Object.fromEntries(st.m); }
 
 await sec('①', async () => {
   const r = mpBoot({ me_order: DR('31일 전 서약', A, NOW - 31 * DAY) });
   const v = r['me_order_' + A], w = v ? +JSON.parse(v).w : 0;
-  ok('① 14-01 [MIG_KEEP] 31일 전에 고친 옛 공용 초안(w 없음)이 옮긴 부팅의 30일 걷기에 지워지지 않는다 · 옮긴 칸에 w = 지금', txOf(v) === '31일 전 서약' && w === NOW && !('me_order' in r), r);
+  ok('① 14-01 [MIG_KEEP] 31일 전에 고친 옛 공용 초안(w 없음)이 옮긴 부팅의 30일 걷기에 지워지지 않는다 · 옮긴 칸에 w = 지금', txOf(v) === '31일 전 서약' && w === NOW && !!r['me_mig_done_' + A], r);   // [MIG_COPY_ONCE] 옮긴 표시 · 옛 칸(31일 전 고침)은 30일 걷기가 지운다
   const r2 = mpBoot({ ['me_order_' + A]: DR('정말 오래된 칸', A, NOW - 40 * DAY, true, { w: NOW - 40 * DAY }) });
   ok('① 걷기는 그대로 — 마지막 사용(w)이 30일 넘은 계정 칸은 걷는다', !(('me_order_' + A) in r2), r2);
   /* 연 때 = 마지막 사용(w) — 식순 화면 _ordRestore · 마이페이지 _acctTouch */
   ok('① 14-01 연 때 w 를 지금으로 — 식순 화면 _ordRestore · 마이페이지 renderMyPage(_acctTouch)', /_o\.w=Date\.now\(\); localStorage\.setItem\(k, JSON\.stringify\(_o\)\);/.test(grabIn(OP, '_ordRestore')) && /_acctTouch\(String\(\(d&&d\.code\)\|\|''\)\)/.test(grabIn(MP, 'renderMyPage'))); });
 
 await sec('②', async () => {
+  /* ★[MIG_COPY_ONCE 2026-10-30 GPT 15차 점검(고객) 15-02] 계정 칸이 있으면 고친 때와 상관없이 그대로 — 옛 판은 지우지 않고 예비본(무엇을 열지는 LOCAL_AHEAD) */
   const r = mpBoot({ me_order: DR('시각 없는 옛 서약', A, 0), ['me_order_' + A]: DR('서버 판', A, 0, false, { w: NOW }) });
-  ok('② 14-02 [MIG_KEEP] 시각 없는 옛 저장 안 한 초안이 «저장한 서버 판»에 지지 않는다(옮김 · 서버 판과는 LOCAL_AHEAD 가 견준다)', txOf(r['me_order_' + A]) === '시각 없는 옛 서약' && !('me_order' in r), r);
+  ok('② 14-02 · 15-02 [MIG_COPY_ONCE] 계정 칸(저장한 서버 판)이 있으면 그대로 · 시각 없는 옛 저장 안 한 초안은 지우지 않고 예비본', txOf(r['me_order_' + A]) === '서버 판' && txOf(r.me_order) === '시각 없는 옛 서약' && !!r['me_mig_done_' + A], r);
   const k = mpBoot({ me_order: DR('시각 없는 옛 서약', A, 0), ['me_order_' + A]: DR('계정 칸 고침', A, NOW - 1000) });
   ok('② 둘 다 저장 안 한 고침 · 옛 판에 시각이 없다 → 옛 칸을 지우지 않는다(계정 칸도 그대로)', txOf(k.me_order) === '시각 없는 옛 서약' && txOf(k['me_order_' + A]) === '계정 칸 고침', k);
   const d = mpBoot({ me_order: DR('옛 고침', A, NOW - 900), ['me_order_' + A]: DR('계정 칸 더 나중', A, NOW - 500) });
-  ok('② 계정 칸이 더 나중에 고친 판임을 확인했을 때만 옛 판을 버린다', txOf(d['me_order_' + A]) === '계정 칸 더 나중' && !('me_order' in d), d);
+  ok('② 계정 칸은 덮지 않는다 · 옛 판도 그대로', txOf(d['me_order_' + A]) === '계정 칸 더 나중' && txOf(d.me_order) === '옛 고침', d);
   const q = mpBoot({ me_order: DR('큰 옛 서약', A, 0) }, (key) => key === 'me_order_' + A);
-  ok('② 쓰기 실패(저장 공간 가득) — 옛 칸 그대로(다음에 다시)', txOf(q.me_order) === '큰 옛 서약', q);
-  const o = opMig({ me_order: DR('시각 없는 옛 서약', A, 0), ['me_order_' + A]: DR('서버 판', A, 0, false) }), o2 = opMig({ me_order: DR('시각 없는 옛 서약', A, 0), ['me_order_' + A]: DR('계정 칸 고침', A, NOW - 1000) });
-  ok('② 식순 화면(_ordMigrate)도 같은 규칙', txOf(o['me_order_' + A]) === '시각 없는 옛 서약' && !('me_order' in o) && txOf(o2.me_order) === '시각 없는 옛 서약', [o, o2]); });
+  ok('② 쓰기 실패(저장 공간 가득) — 옛 칸 그대로 · 옮긴 표시 없음(다음에 다시)', txOf(q.me_order) === '큰 옛 서약' && !q['me_mig_done_' + A], q);
+  const o = opMig({ me_order: DR('시각 없는 옛 서약', A, 0), ['me_order_' + A]: DR('서버 판', A, 0, false) }), o2 = opMig({ me_order: DR('주인 없는 옛 판', '', 0) });
+  ok('② 식순 화면(_ordMigrate) — 주인 있는 옛 판은 옮기지 않는다(마이페이지가 맡김과 함께) · 주인 없는 판은 공개 칸으로 베끼고 옛 칸은 그대로', txOf(o['me_order_' + A]) === '서버 판' && txOf(o.me_order) === '시각 없는 옛 서약' && txOf(o2.me_order_pub) === '주인 없는 옛 판' && txOf(o2.me_order) === '주인 없는 옛 판', [o, o2]); });
 
 await sec('③', async () => {
   const init = { me_relogin_keep: JSON.stringify({ code: A, t: NOW - 100, keys: { me_order: DR('맡긴 서약', A, NOW - 100) } }), ['me_relogin_keep_' + A]: JSON.stringify({ code: A, t: NOW - 10, keys: { ['me_snapLocal_' + A]: SN('맡긴 메모', NOW - 10) } }) };
   const r = mpBoot(init), kk = r['me_relogin_keep_' + A] ? JSON.parse(r['me_relogin_keep_' + A]) : { keys: {} };
-  ok('③ 14-03 [MIG_KEEP] 계정 맡김(스냅만 · 더 나중)이 있어도 옛 맡김의 식순 초안을 버리지 않는다 — 종류마다 합친다', txOf(kk.keys['me_order_' + A]) === '맡긴 서약' && !!kk.keys['me_snapLocal_' + A] && !('me_relogin_keep' in r), kk);
+  ok('③ 14-03 [MIG_KEEP] 계정 맡김(스냅만 · 더 나중)이 있어도 옛 맡김의 식순 초안을 버리지 않는다 — 종류마다 합친다 · [MIG_COPY_ONCE] 옛 맡김은 그대로', txOf(kk.keys['me_order_' + A]) === '맡긴 서약' && !!kk.keys['me_snapLocal_' + A] && ('me_relogin_keep' in r), kk);
   const init2 = { me_relogin_keep: JSON.stringify({ code: A, t: NOW - 100, keys: { me_order: DR('옛 맡김 서약', A, NOW - 100) } }), ['me_relogin_keep_' + A]: JSON.stringify({ code: A, t: NOW - 10, keys: { ['me_order_' + A]: DR('새 맡김 서약', A, NOW - 10) } }) };
   const r2 = mpBoot(init2), k2 = JSON.parse(r2['me_relogin_keep_' + A] || '{"keys":{}}');
   ok('③ 같은 종류는 더 나중에 고친 쪽', txOf(k2.keys['me_order_' + A]) === '새 맡김 서약', k2);
   const q = mpBoot(init, (key) => key === 'me_relogin_keep_' + A);
-  ok('③ 맡김 쓰기 실패 — 옛 맡김(me_relogin_keep) 그대로', !!q.me_relogin_keep, q); });
+  ok('③ 맡김 쓰기 실패 — 옛 맡김(me_relogin_keep) 그대로', !!q.me_relogin_keep && !q['me_mig_done_' + A], q); });
 
 /* ───────── ④ 로그인 전 창의 늦은 답 ───────── */
 await sec('④', async () => {
@@ -172,8 +173,8 @@ await sec('⑩', async () => {
   ok('⑩ 당일 14-01 [RF_LOOK_WAIT] 받기 실패 뒤 기기 보관본을 찾는 동안은 받는 중(시작 잠금) · 찾으면 두 분 소리', mid.busy === true && mid.st !== 'fail' && end.st === 'ok' && end.busy === false && end.clip === 'blob:A', [mid, end]);
   const i = CS.indexOf("(function(){ var go = $('#go'), run = go.onclick;"), iife = i < 0 ? '' : CS.slice(i, CS.indexOf('})();', i) + 5);
   let ran = 0, tst = ''; const go = { onclick: () => { ran++; }, dataset: {}, textContent: '시작' };
-  const sb = { $: () => go, RF_FRESH: { done: true, wait: false }, RF_ST: { g0: 'look' }, rfKeys: () => ['g0'], GUEST: false, QS: { get: () => 'AB12CD' }, toast: (t) => { tst = t; }, rfPaint: () => {}, rfFresh: () => Promise.resolve(null) };
-  vm.createContext(sb); vm.runInContext(['rfBusyNow', 'rfLookNow'].map((f) => grabIn(CS, f)).join('\n') + '\n' + iife, sb); go.onclick(); const r1 = ran; sb.RF_ST.g0 = 'ok'; go.onclick();
+  const sb = { $: () => go, RF_FRESH: { done: true, wait: false }, RF_ST: { g0: 'look' }, rfKeys: () => ['g0'], GUEST: false, QS: { get: () => 'AB12CD' }, toast: (t) => { tst = t; }, rfPaint: () => {}, rfFresh: () => Promise.resolve(null), setTimeout, Promise };
+  vm.createContext(sb); vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait'].map((f) => grabIn(CS, f)).join('\n') + '\n' + lineIn(CS, /var RF_LOOK = [^\n]*/) + '\n' + iife, sb); go.onclick(); const r1 = ran; sb.RF_ST.g0 = 'ok'; go.onclick();   // [RF_LOOK_ALL] 다시 누르면 찾기가 끝났으니 바로 시작
   ok('⑩ «시작» — 처음 열 때도 기기 보관본을 찾는 동안은 기다린다(«기기에 받아 둔 소리 확인 중…») · 끝나면 시작', r1 === 0 && ran === 1 && /기기에 받아 둔 소리 확인 중/.test(tst), [r1, ran, tst]); });
 
 await sec('⑪', async () => {
@@ -218,7 +219,7 @@ else await sec('⑫', async () => {
       await pg.goto(BASE + '/mypage.html', { waitUntil: 'load' }); await pg.waitForTimeout(1500);
       const ls1 = await pg.evaluate(() => ({ old: localStorage.getItem('me_order'), acct: localStorage.getItem('me_order_ME-SHOT') }));
       const w1 = ls1.acct ? +JSON.parse(ls1.acct).w : 0;
-      ok('⑫ 390 · ' + seed.n + ' — 옛 공용 me_order가 계정 칸으로 옮겨지고 걷히지 않는다(w 가 찍힘)', !ls1.old && txOf(ls1.acct) === '사십일 전 옛 서약' && w1 > Date.now() - 600000, ls1);
+      ok('⑫ 390 · ' + seed.n + ' — 옛 공용 me_order가 계정 칸으로 옮겨지고 걷히지 않는다(w 가 찍힘)', txOf(ls1.acct) === '사십일 전 옛 서약' && w1 > Date.now() - 600000, ls1);   // [MIG_COPY_ONCE] 옛 칸은 예비본(시각 없음 = 남는다 · 40일 전 고침 = 30일 걷기) — vc-fix15 ⑦ 이 잰다
       await pg.evaluate(() => openRitualBuilder({}, null)); let got = null;
       for (let i = 0; i < 40 && !got; i++) { await pg.waitForTimeout(250); const f = pg.frames().find((x) => /order-preview\.html/.test(x.url())); if (f) { try { got = await f.evaluate(() => (typeof S !== 'undefined' && S.tx && S.tx['vow.g']) || null); } catch (e) {} } }
       let dbg = null; { const f = pg.frames().find((x) => /order-preview\.html/.test(x.url())); if (f) { try { dbg = await f.evaluate(() => ({ acct: typeof _ACCT !== 'undefined' ? _ACCT : '?', tx: typeof S !== 'undefined' ? JSON.stringify(S.tx || null).slice(0, 120) : '?', ls: (localStorage.getItem('me_order_ME-SHOT') || '').slice(0, 160), rest: typeof _restored !== 'undefined' ? _restored : '?' })); } catch (e) { dbg = String(e); } } else dbg = pg.frames().map((x) => x.url()); }

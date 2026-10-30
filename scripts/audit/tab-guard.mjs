@@ -25,7 +25,7 @@ const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.s
 const flush = async () => { for (let i = 0; i < 6; i++) await new Promise((r) => setTimeout(r, 0)); };
 const MP = fs.readFileSync(process.env.TG_MP || path.join(ROOT, 'mypage.html'), 'utf8');
 const OP = fs.readFileSync(process.env.TG_OP || path.join(ROOT, 'order-preview.html'), 'utf8');
-const FNS = ['getToken', 'setToken', '_tabEpBump', '_tabEpFail', '_tabStaleMark', '_acctOk', '_ordK', '_keepK', '_recE', '_acctKeysMigrate', '_migPick', '_migStampW', '_acctOldSweep', '_tabEpNow', '_tabTie', '_tabSd', '_tabKeepUnkept', '_snapLocalRec', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
+const FNS = ['getToken', 'setToken', '_tabEpBump', '_tabEpFail', '_tabStaleMark', '_acctOk', '_ordK', '_keepK', '_recE', '_acctKeysMigrate', '_migStampW', '_migOwner', '_migDone', '_migOwnT', '_migOrd', '_migKeep', '_migOldDrop', '_migOldSweep', '_acctOldSweep', '_tabEpNow', '_tabTie', '_tabSd', '_tabKeepUnkept', '_snapLocalRec', '_tabBind', '_tabStale', '_tabStaleShow', '_tabDrop', '_tabWatch', 'clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack',
   '_reloginKeyNewer', '_reloginStampT', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin',
   '_errGoLogin', '_saveSessAsk', '_mpLogoutNow', '_post', 'readCachedState', '_snapLocalKey', '_snapLocalGet', '_snapLocalDel', '_snapLocalPut', '_snapEditMark', '_snapOut', '_snapFilledD', '_snapNewD', '_snapZoneNew'];
 const MUST = ['clearToken', '_reloginPack', '_reloginRestore', '_errGoLogin', '_post', '_snapLocalPut', '_snapOut', '_mpLogoutNow'];
@@ -50,7 +50,7 @@ function mkDoc(W) { const els = new Map();
     addEventListener(t, f) { (W.L['doc:' + t] = W.L['doc:' + t] || []).push(f); } }; }
 /* 창 하나 — o.acct 이 창이 그린 계정 · o.quota 이 창의 쓰기 실패 */
 function win(S, src, o) { o = o || {};
-  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var TAB_EP_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var _MIG_DONE=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
+  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var TAB_RST_KEY=[^\n]*/, /var TAB_EP_KEY=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/].map((re) => lineIn(src, re)).join('\n')
     + '\nfunction __start(loc, sd){ ' + lineIn(src, /SNAPFLOW=\{ active:true,[^\n]*/) + '\n}'
     + '\nfunction __start2(sd, p, needAgree, opt){ opt=opt||{};\n' + lineIn(grabIn(src, 'startSnapFlow'), /  var (?:rec=_snapLocalRec\(\), )?loc=[^\n]*\n[\s\S]*?SNAPFLOW=\{ active:true,[^\n]*\n(?:  if\(!loc && rec[^\n]*\n)?/) + '\n}'   // [TOMBSTONE_READ] 편집을 여는 줄들(startSnapFlow 원문)
     + '\nfunction __vcRelay(d){ ' + RELAY(src) + '\n}'   // [TAB_GUARD_VC] 목소리 중계(원문)
@@ -290,8 +290,8 @@ const s8 = async (src, op) => {
 };
 { const r = await run(s8, MP, OP);
   ok('⑧ 12-03 [PREVIEW_KEY_SPLIT] 남겨 둔 공개 미리보기에서 진행해도 로그인 창이 되살린 저장 안 한 식순 초안(me_order)을 덮지 않는다 · 미리보기는 me_order_pub 에', !r.err && r.cust === '되살린 저장 안 한 서약' && r.custWho === A && r.pub === '미리보기 예시', r.err || r);
-  ok('⑧ 12-03 [PREVIEW_KEY_SPLIT] 공개 미리보기는 자기 칸을 되살리고 · 비었으면 예전 미리보기의 주인 없는 판을 한 번 잇는다 · 고객 판은 읽지 않는다 · 처음부터 다시(지우기)도 자기 칸',
-    !r.err && r.rsOk && r.legacy === '예전 미리보기 판' && r.legacyGone && r.owned === null && r.ownedMoved && r.both === '공개 칸 판' && r.bothGone && /var _rk=_ordKey\(\); if\(_rk\) localStorage\.removeItem\(_rk\); sessionStorage\.setItem\('me_order_reset','1'\)/.test(OP), r.err || r);
+  ok('⑧ 12-03 [PREVIEW_KEY_SPLIT] 공개 미리보기는 자기 칸을 되살리고 · 비었으면 예전 미리보기의 주인 없는 판을 한 번 잇는다(옛 칸은 예비본으로 남는다) · 고객 판은 읽지도 옮기지도 않는다 · 처음부터 다시(지우기)도 자기 칸',
+    !r.err && r.rsOk && r.legacy === '예전 미리보기 판' && !r.legacyGone && r.owned === null && !r.ownedMoved && r.both === '공개 칸 판' && !r.bothGone && /var _rk=_ordKey\(\); if\(_rk\) localStorage\.removeItem\(_rk\); sessionStorage\.setItem\('me_order_reset','1'\)/.test(OP), r.err || r);   /* ★[MIG_COPY_ONCE 2026-10-30 15차] 옛 칸은 지우지 않는다(예비본) · 주인 있는 옛 판은 미리보기가 옮기지 않는다(마이페이지가 맡김과 함께) */
   ok('⑧ 13-06 [ACCT_KEYS] 마이페이지 안 식순 화면은 열 때 이 기기 초안을 읽지 않는다(계정을 받기 전) · 옛 공용 칸도 그때 건드리지 않는다', !r.err && r.emb === null && r.embLegacy !== null, r.err || r); }
 { const b = brk(OP, [["if(!e) return 'me_order_pub';", "if(!e) return 'me_order_AAAAAA';"]]); const rb = b ? await run(s8, MP, b) : null;
   ok('깨 보기 ⑧ — 칸을 나누지 않으면 빨강(미리보기 예시가 고객 초안을 덮는다)', !!rb && !rb.err && rb.cust === '미리보기 예시', rb && (rb.err || rb.cust)); }
@@ -455,14 +455,17 @@ const s18 = async (src, op) => {
   return { owned, pub, pubFull, newer, older, fail, keep, keepOld, op1, op2, sw };
 };
 { const r = await run(s18, MP, OP); const tx = (v) => { try { return JSON.parse(v).S.tx['vow.g']; } catch (e) { return null; } };
-  ok('⑱ [ACCT_KEYS] 옛 공용 칸(me_order · who 가) → me_order_가 · 옛 칸은 옮긴 뒤 지운다 · 주인 없는 판은 공개 칸이 비었을 때만(아니면 버린다)',
-    !r.err && tx(r.owned[OK_A]) === '가의 옛 칸 서약' && !('me_order' in r.owned) && tx(r.pub.me_order_pub) === '주인 없는 판' && !('me_order' in r.pub) && tx(r.pubFull.me_order_pub) === '공개 칸 판' && !('me_order' in r.pubFull), r.err || r);
-  ok('⑱ [ACCT_KEYS] 계정 칸이 이미 있으면 더 나중에 고친 쪽 · 쓰기가 실패하면 옛 칸을 지우지 않는다(다음에 다시)', !r.err && tx(r.newer[OK_A]) === '옛 칸 더 나중 고침' && tx(r.older[OK_A]) === '계정 칸' && !('me_order' in r.older) && tx(r.fail.me_order) === '가의 옛 칸 서약' && !(OK_A in r.fail), r.err || r);
-  ok('⑱ [ACCT_KEYS] 옛 맡김(me_relogin_keep) → me_relogin_keep_가 · 안의 식순 칸 이름도 me_order_가 · 7일 지난 맡김은 버린다 · 식순 화면(미리보기)도 같은 규칙',
-    !r.err && !!r.keep[KK_A] && tx(JSON.parse(r.keep[KK_A]).keys[OK_A]) === '맡긴 서약' && !('me_relogin_keep' in r.keep) && !(KK_A in r.keepOld) && !('me_relogin_keep' in r.keepOld)
-    && tx(r.op1[OK_A]) === '가의 옛 칸 서약' && !('me_order' in r.op1) && tx(r.op2.me_order_pub) === '공개 칸 판' && !('me_order' in r.op2), r.err || r);
-  ok('⑱ [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김은 걷는다 · 최근 것 · 때가 없는 옛 기록 · 다른 기억(v2note)은 둔다',
-    !r.err && !(OK_A in r.sw) && (OK_B in r.sw) && !('me_snapLocal_AAAAAA' in r.sw) && (KK_B in r.sw) && !(KK_A in r.sw) && ('me_snapLocal_BBBBBB' in r.sw) && ('me_order_v2note_AAAAAA' in r.sw), r.err || r.sw); }
+  /* ★[MIG_COPY_ONCE 2026-10-30 GPT 15차 점검(고객) 15-01 · 15-02 · 15-03 · 15-06] 옮기기는 «계정마다 한 번 · 베끼기» — 옛 공용 칸은 지우지 않는다(예비본) · 계정 칸이 있으면 그대로 · 옮긴 표시(me_mig_done_<코드>) */
+  ok('⑱ [ACCT_KEYS] · [MIG_COPY_ONCE] 옛 공용 칸(me_order · who 가) → me_order_가 로 베낀다 · 옛 칸은 그대로(예비본) · 옮긴 표시 · 주인 없는 판은 공개 칸이 비었을 때만',
+    !r.err && tx(r.owned[OK_A]) === '가의 옛 칸 서약' && tx(r.owned.me_order) === '가의 옛 칸 서약' && !!r.owned.me_mig_done_AAAAAA && tx(r.pub.me_order_pub) === '주인 없는 판' && ('me_order' in r.pub) && !!r.pub.me_mig_done_pub
+    && tx(r.pubFull.me_order_pub) === '공개 칸 판' && ('me_order' in r.pubFull), r.err || r);
+  ok('⑱ [MIG_COPY_ONCE] 15-02 계정 칸이 이미 있으면 고친 때와 상관없이 그대로(옛 것은 예비본) · 쓰기가 실패하면 옮긴 표시를 남기지 않는다(다음에 다시)',
+    !r.err && tx(r.newer[OK_A]) === '계정 칸' && tx(r.newer.me_order) === '옛 칸 더 나중 고침' && tx(r.older[OK_A]) === '계정 칸' && ('me_order' in r.older) && tx(r.fail.me_order) === '가의 옛 칸 서약' && !(OK_A in r.fail) && !r.fail.me_mig_done_AAAAAA, r.err || r);
+  ok('⑱ [ACCT_KEYS] · [MIG_COPY_ONCE] 옛 맡김(me_relogin_keep) → me_relogin_keep_가 · 안의 식순 칸 이름도 me_order_가 · 옛 맡김은 그대로 · 7일 지난 맡김은 들이지 않는다 · 식순 화면(미리보기)은 주인 없는 판만',
+    !r.err && !!r.keep[KK_A] && tx(JSON.parse(r.keep[KK_A]).keys[OK_A]) === '맡긴 서약' && ('me_relogin_keep' in r.keep) && !(KK_A in r.keepOld)
+    && !(OK_A in r.op1) && ('me_order' in r.op1) && tx(r.op2.me_order_pub) === '공개 칸 판' && ('me_order' in r.op2), r.err || r);
+  ok('⑱ [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김은 걷는다 · 최근 것 · 때가 없는 옛 기록(15-01 · w 를 지금으로) · 다른 기억(v2note)은 둔다',
+    !r.err && !(OK_A in r.sw) && (OK_B in r.sw) && !('me_snapLocal_AAAAAA' in r.sw) && (KK_B in r.sw) && !(KK_A in r.sw) && ('me_snapLocal_BBBBBB' in r.sw) && !!JSON.parse(r.sw.me_snapLocal_BBBBBB).w && ('me_order_v2note_AAAAAA' in r.sw), r.err || r.sw); }
 
 /* 걸림 · 줄 */
 ok('[TAB_GUARD] 보내기 한 벌(_post)이 옛 창 · 그 사이 바뀐 답을 막는다 · 로그인 풀림 길(알림 링크 · 상태 불러오기 · 저장 실패 판)이 먼저 _tabDrop 을 본다',

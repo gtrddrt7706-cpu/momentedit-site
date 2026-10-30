@@ -28,7 +28,7 @@ const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.s
 const flush = () => new Promise((r) => setTimeout(r, 0));
 const MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
 const FNS = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginSnapNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin', '_autoLogin', 'readCachedState',
-  '_acctOk', '_ordK', '_keepK', '_recE', '_acctOldSweep', '_tabEpBump', '_tabEpFail', '_tabBind', '_tabStale', '_tabStaleShow'];
+  '_acctOk', '_ordK', '_keepK', '_recE', '_acctOldSweep', '_migOwner', '_migDone', '_migOldDrop', '_migOldSweep', '_tabEpBump', '_tabEpFail', '_tabBind', '_tabStale', '_tabStaleShow'];
 const OK = 'me_order_AB12CD', KK = 'me_relogin_keep_AB12CD', KQ = (k) => /^me_relogin_keep/.test(k);
 const FAIL_LINE = '초안을 보관하지 못했어요 (코드 S4)';
 /* quota = 이 이름에 쓰면 QuotaExceededError */
@@ -36,7 +36,7 @@ const mkStore = (init, quota) => { const m = new Map(Object.entries(init || {}))
   return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { if (quota && quota(k)) { const e = new Error('quota'); e.name = 'QuotaExceededError'; throw e; } m.set(k, String(v)); },
     removeItem: (k) => m.delete(k), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; } }; };
 function world(src, o) {
-  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var TAB_EP_KEY=[^\n]*/].map((re) => lineIn(src, re)).join('\n');
+  const code = FNS.map((f) => grabIn(src, f)).join('\n') + '\n' + [/var RELOGIN_KEY=[^\n]*/, /var ERR_W=[^\n]*/, /var ERR_DO=[^\n]*/, /var ACCT_OLD_MS=[^\n]*/, /var MIG_DONE_K=[^\n]*/, /var TAB_EP_KEY=[^\n]*/].map((re) => lineIn(src, re)).join('\n');
   const ls = mkStore(o.ls, o.quota), ss = mkStore(); const W = { alerts: [], btns: [], notes: [], shows: [], reloaded: 0 };
   const sb = { localStorage: ls, sessionStorage: ss, TOKEN_KEY: 'me_token', STATE_CACHE_KEY: 'me_state_v1', _mpAcctSweep: () => {}, _mpAcct: () => o.acct || '',
     getToken: () => ls.getItem('me_token') || '', _errLine: (x, L) => '로그인이 풀렸어요 · 다시 로그인해 주세요 (코드 ' + L + '8)', _errSess: () => true, _errHtml: (s) => String(s),
@@ -155,7 +155,7 @@ const t5 = async (src, pick, wiz) => { const ls = Object.assign(BASE(), { me_del
   const OP = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
   const A = world(MP, { ls: { [OK]: DRAFT, me_order_ZZ99ZZ: '{"v":2,"S":{},"who":"ZZ99ZZ"}' } }); A.sb._reloginRestore('ZZ99ZZ');
   ok('⑤ 8-02 · [ACCT_KEYS] 다른 계정으로 로그인해 상태를 받아도 가의 식순 초안은 그대로(걷기 없음) · 식순 화면도 주인이 다르다며 지우지 않는다',
-    A.ls.getItem(OK) === DRAFT && !/function _orderOwnerSweep\(/.test(MP) && /if \(d && d\.ok\)\{ _reloginRestore\(d\.code\); cacheState\(d\);/.test(MP) && (OP.match(/localStorage\.removeItem\('me_order'\)/g) || []).length === 1 && /if\(done\) localStorage\.removeItem\('me_order'\);/.test(grabIn(OP, '_ordMigrate')), A.ls.getItem(OK)); }
+    A.ls.getItem(OK) === DRAFT && !/function _orderOwnerSweep\(/.test(MP) && /if \(d && d\.ok\)\{ _reloginRestore\(d\.code\); cacheState\(d\);/.test(MP) && !/localStorage\.removeItem\('me_order'\)/.test(OP) && /me_mig_done_pub/.test(grabIn(OP, '_ordMigrate'))   /* ★[MIG_COPY_ONCE 2026-10-30 15차] 식순 화면은 옛 공용 칸을 지우지 않는다(베끼기만 · 한 번) */, A.ls.getItem(OK)); }
 
 /* ⑥ 9-01 [RELOGIN_SNAP_KEEP] 식순 초안 없이 스냅 임시본만 있는 기기 — S4 «그대로 로그인하기» 뒤 만료된 알림 링크로 다시 들어와도(계정을 모름) 임시본이 남는다 */
 const t6 = async (src) => {
@@ -170,7 +170,9 @@ const t6 = async (src) => {
   const sw = { snap: D.ls.getItem('me_snapLocal_AB12CD'), own: D.ls.getItem('me_snapLocal_ZZ99ZZ') };
   const E = world(src, { acct: 'AB12CD', ls: Object.assign(Object.fromEntries(B.ls.m), { me_token: 't2', me_state_v1: JSON.stringify({ t: 't2', d: { code: 'AB12CD' } }) }) }); E.sb.clearToken();   // 같은 계정으로 들어와 스스로 로그아웃
   const out = { snap: E.ls.getItem('me_snapLocal_AB12CD'), other: E.ls.getItem('me_snapLocal_ZZ99ZZ') };
-  return { s4, mid, same, sw, out };
+  /* ★[MIG_COPY_ONCE 2026-10-30 15차 15-01] 30일 걷기가 쓴 때(w)가 없는 칸에 w 를 적는다 — 견줄 때는 w 를 뺀 글로 */
+  const nw = (o) => { for (const k in o) if (typeof o[k] === 'string') o[k] = o[k].replace(/,"w":\d+/, ''); return o; };
+  return { s4: nw(s4), mid: nw(mid), same: nw(same), sw: nw(sw), out: nw(out) };
 };
 { let r; try { r = await t6(MP); } catch (e) { r = { err: String(e && e.stack || e).slice(0, 300) }; }
   ok('⑥ 9-01 [RELOGIN_SNAP_KEEP] S4 «그대로 로그인하기» 뒤 만료된 알림 링크(계정을 모름) — 코드별 스냅 임시본을 지우지 않는다 · 로그인 표시는 지운다 · «이어서 저장»은 말하지 않는다',

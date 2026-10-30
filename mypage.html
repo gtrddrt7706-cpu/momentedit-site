@@ -3210,6 +3210,7 @@ function clearToken(keep){ if(typeof _tabStale=='function' && _tabStale()){ try{
   localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY); if(typeof _tabBind=='function'){ var _epOk=_tabEpBump(); _tabBind(); if(!_epOk) _tabEpFail(); }   // [TAB_GUARD] 이 창이 스스로 나갔다 — 기준을 새로 · [AUTH_EPOCH] 차례 올림 · [EPOCH_VERIFY] 못 남겼으면 이 창을 멈춘다(토큰은 이미 지웠다 · 다른 창은 토큰으로 안다)
   var _kill=['me_prod_ping']; if(_c){ _kill.push(_ordK(_c), 'me_snapLocal_'+_c, 'me_order_v2note_'+_c, 'me_deliv_'+_c); if(!keep) _kill.push(_keepK(_c)); }   // [ACCT_KEYS] 나가는 계정의 칸만 지운다(다른 계정 칸은 그 계정 화면만 읽는다) · [SNAP_AGREE_LAST] 동의 전 스냅 임시본도 · [RELOGIN_KEEP] 스스로 로그아웃하면 그 계정 맡김도 · [RELOGIN_SNAP_KEEP] 계정을 모르는 로그인 풀림이면 계정 칸은 두고 간다
   _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+  if(_c && !keep) _migOldDrop(_c, 'out');   // [MIG_COPY_ONCE] 15-06 스스로 로그아웃 — 그 계정이 주인인 옛 공용 예비본(me_order · me_relogin_keep)도 · 로그인 풀림(keep)은 둔다
   _acctOldSweep();   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김
 }catch(e){} _mpAcctSweep(); return _kp>0; }
 /* ★[RELOGIN_KEEP 2026-10-30 GPT 6차 점검(고객) 6-01 · VC_FIX6_1030] 로그인이 풀려 로그인 화면으로 갈 때(keep) 저장 못 한 이 기기 초안을 계정 코드에 묶어 따로 맡겨 둔다 —
@@ -3300,56 +3301,73 @@ function _reloginGoAnyway(line){ if(typeof _tabDrop=='function' && _tabDrop()) r
      이제 창은 제 계정(로그인 상태 · 이 창이 그린 계정) 칸만 읽고 쓴다 — 남의 칸은 읽을 일도 지울 일도 없다.
      ★로그인할 때 «주인이 다른 초안 걷기»(_orderOwnerSweep)는 걷었다 — 되살리지 말 것(지우면 다른 창 계정 초안이 사라진다 · merge-guard nochk).
      지우는 때: 스스로 로그아웃(그 계정 칸만) · 30일 넘게 손대지 않은 칸(_acctOldSweep · 맡김은 7일).
-     옛 공용 칸은 열 때 한 번 옮긴다(_acctKeysMigrate · 쓰고 다시 읽어 확인한 뒤에야 지운다) — 주인 있는 판은 그 계정 칸 · 주인 없는 판은 공개 칸이 비었을 때만(아니면 버린다) */
+     옛 공용 칸은 열 때 한 번 옮긴다(_acctKeysMigrate) — 주인 있는 판은 그 계정 칸 · 주인 없는 판은 공개 칸 · ★10-30 15차부터 베끼기만 하고 옛 칸은 예비본으로 둔다([MIG_COPY_ONCE] 아래) */
 function _acctOk(c){ return /^[A-Z0-9][A-Z0-9-]{2,19}$/.test(String(c||'')); }   // [ACCT_KEYS] 개인코드 꼴(대문자 · 숫자) — 공개 칸(pub) · 안내 표시(v2note_)와 겹치지 않는다
 function _ordK(c){ return _acctOk(c)?'me_order_'+String(c):''; }   // [ACCT_KEYS] 식순 초안 칸
 function _keepK(c){ return _acctOk(c)?RELOGIN_KEY+'_'+String(c):''; }   // [ACCT_KEYS] 맡김 칸
 function _recE(r){ r=r||{}; return Math.max(+r.t||0, +r.e||0); }   // [SAME_ACCT_T] 그 기록이 마지막으로 고쳐진 때
-/* ★★[MIG_KEEP 2026-10-30 GPT 14차 점검(고객) 14-01 · 14-02 · 14-03] 옛 공용 칸을 옮기다 고객 초안을 잃지 않는다 —
-     ① 14-02 고친 때(t · e)가 없다는 이유로 옛 «저장 안 한 초안»을 버리지 않는다 — 계정 칸이 «저장한 판»(서버에 있는 판)이면 옛 초안을 옮긴다(서버 판과는 식순 화면 [LOCAL_AHEAD] 가 견준다) ·
-        둘 다 저장 안 한 고침인데 견줄 때가 없으면 옮기지도 지우지도 않는다(옛 칸 그대로 · 버리는 것은 계정 칸이 더 나중임을 확인했을 때만)
-     ② 14-01 옮긴 칸에는 쓴 때(w)를 지금으로 적고 같은 부팅의 30일 걷기에서 뺀다(_MIG_DONE) — 종전엔 31일 전에 고친 초안을 어제 열었어도(옛 판에 w 가 없다) 옮기자마자 걷었다
-     ③ 14-03 맡김은 꾸러미 시각이 아니라 종류(식순 · 스냅)마다 고친 때로 합친다 — 종전엔 계정 맡김(스냅만)이 더 나중이라는 까닭으로 옛 맡김의 식순 초안까지 버렸다
-     ④ 옮기기에 실패하면(저장 공간 가득) 옛 칸을 그대로 둔다(다음에 다시) */
-var _MIG_DONE={};   // [MIG_KEEP] 이번 부팅에 옮긴 칸
-function _migPick(r, cj, cur){ if(cur==null) return 'move';   // [MIG_KEEP] 옮김 · 버림 · 둠
-  if(!(r && typeof r==='object' && r.dirty)) return 'drop';   // 저장한 옛 판 — 계정 칸이 이미 있으면 그것(서버에도 있다)
-  var re=_recE(r), ce=_recE(cj);
-  if(re && ce && ce>=re) return 'drop';   // 계정 칸이 더 나중에 고친 판임을 확인했다
-  if(!(cj && cj.dirty)) return 'move';   // 계정 칸은 저장한 판 — 옛 저장 안 한 초안이 지지 않는다
-  if(re && re>ce) return 'move';
-  return 'keep'; }   // 둘 다 저장 안 한 고침 · 견줄 때가 없다 — 옛 칸을 그대로 둔다(지우지 않는다)
+/* ★★[MIG_KEEP 2026-10-30 GPT 14차 점검(고객) 14-01 · 14-02 · 14-03] 옛 공용 칸을 옮기다 고객 초안을 잃지 않는다 — 옮긴 칸에는 쓴 때(w)를 지금으로 · 쓰기에 실패하면 다음에 다시.
+     ★10-30 15차에 «견주어 옮기고 지우기»를 아래 [MIG_COPY_ONCE] 로 바꿨다(고친 때 견주기가 판마다 새 소실 길을 냈다 · 15-01 · 15-02 · 15-03 · 15-06) */
+/* ★★[MIG_COPY_ONCE 2026-10-30 GPT 15차 점검(고객) 15-01 · 15-02 · 15-03 · 15-06 · Claude 결정] 옛 공용 칸 옮기기는 «계정마다 한 번 · 베끼기»다 —
+     ① 옛 공용 칸(me_order · me_relogin_keep)은 옮기면서 지우지 않는다 — 읽기 전용 예비본으로 남는다
+     ② 계정마다 한 번(me_mig_done_<코드> · 주인 없는 판은 me_mig_done_pub · 값 = 옮긴 때) — 그 뒤로는 다시 들이지 않는다(15-06 로그아웃 뒤 되들이기)
+     ③ 계정 칸이 비었으면 베끼고 · 이미 있으면 계정 칸 그대로(덮지 않는다 · 15-02) — 무엇을 열지는 식순 화면 [LOCAL_AHEAD] 가 서버 판과 견준다
+     ④ 맡김은 종류(식순 · 스냅)마다 — 계정 맡김에 없는 종류만 옛 것(제 꾸러미 때를 싣는다) · 둘 다 있으면 양쪽 다 제 고친 때(t)가 있을 때만 견주고 아니면 계정 것 ·
+        계정 맡김의 시각 없는 항목은 제 꾸러미 때로 굳힌다(합친 꾸러미의 새 때를 빌리지 않는다 · 15-03)
+     ⑤ 옛 예비본을 지우는 때 — 그 주인이 스스로 로그아웃(clearToken) · 그 주인이 서버에 식순을 저장(_migOldDrop) · 옮긴 표시가 있고 30일 넘게 손대지 않음(_migOldSweep)
+     ★종전 «견주어 옮기고 옛 칸 지우기»(_migPick · _MIG_DONE)는 걷었다 — 되살리지 말 것(merge-guard nochk)
+     ★«이 기기에 예전 초안이 있어요 · 불러오기» 한 줄은 넣지 않았다(옛 판이 더 나중임을 믿을 수 있는 고친 때가 드물어 이득보다 갈래가 늘었다) */
+var MIG_DONE_K='me_mig_done_';   // [MIG_COPY_ONCE]
+function _migOwner(who){ who=String(who||''); return who?(_acctOk(who)?who:''):'pub'; }   // [MIG_COPY_ONCE] 옛 식순 판의 주인 표시 — 주인 없는 판 = pub · 모를 꼴 = ''
+function _migDone(ow){ try{ return localStorage.getItem(MIG_DONE_K+ow)!=null; }catch(e){ return false; } }
 function _migStampW(ro){ try{ var o=JSON.parse(ro); if(o && typeof o==='object'){ o.w=Date.now(); return JSON.stringify(o); } }catch(e){} return ro; }   // [MIG_KEEP] 옮긴 때 = 마지막으로 쓴 때
-function _acctKeysMigrate(){ try{   // [ACCT_KEYS] 옛 공용 칸 → 계정 칸(한 번 · 쓰고 · 다시 읽어 확인한 뒤에야 지운다)
-  var ro=localStorage.getItem('me_order');
-  if(ro!=null){ var r=null; try{ r=JSON.parse(ro); }catch(e){} var w=String((r&&r.who)||''), tk=w?_ordK(w):'me_order_pub', done=true;
-    if(tk){ var cur=localStorage.getItem(tk), cj=null; try{ cj=JSON.parse(cur||'null'); }catch(e){} var pk=_migPick(r, cj, cur);   // [MIG_KEEP]
-      if(pk==='move'){ var nv0=_migStampW(ro); try{ localStorage.setItem(tk, nv0); }catch(e){} done=(localStorage.getItem(tk)===nv0); if(done) _MIG_DONE[tk]=1; }   // 못 썼으면 옛 칸 그대로(다음에 다시)
-      else done=(pk==='drop'); }
-    if(done) localStorage.removeItem('me_order'); }
-  var rk=localStorage.getItem(RELOGIN_KEY);
-  if(rk!=null){ var o=null; try{ o=JSON.parse(rk); }catch(e){} var c=String((o&&o.code)||''), K=_keepK(c), done2=true;
-    if(K && o && o.keys && Date.now()-(+o.t||0)<RELOGIN_TTL){ var ks={}; Object.keys(o.keys).forEach(function(k){ ks[k==='me_order'?_ordK(c):k]=_reloginStampT(String(o.keys[k]), o.t); });   // [MIG_KEEP] 옮겨 담을 때 고친 때가 없으면 맡긴 때
-      var c2=null; try{ c2=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){} var nk={}, nt=+o.t||0;
-      if(c2 && c2.code===c && c2.keys && typeof c2.keys==='object'){ Object.keys(c2.keys).forEach(function(k){ nk[k]=c2.keys[k]; }); nt=Math.max(nt, +c2.t||0);
-        Object.keys(ks).forEach(function(k){ if(!(k in nk) || _reloginKeyNewer(ks[k], String(nk[k]), c2.t)) nk[k]=ks[k]; }); }   // [MIG_KEEP] 종류마다 — 계정 맡김에 없는 종류는 옛 것 · 있으면 더 나중에 고친 쪽
-      else nk=ks;
-      var nv=JSON.stringify({code:c, t:nt, keys:nk});
-      if(localStorage.getItem(K)!==nv){ try{ localStorage.setItem(K, nv); }catch(e){} done2=(localStorage.getItem(K)===nv); }
-      if(done2) _MIG_DONE[K]=1; }   // 7일 지남 · 계정 모름은 버린다
-    if(done2) localStorage.removeItem(RELOGIN_KEY); }
+function _migOwnT(v){ try{ var j=JSON.parse(v); return (j && typeof j==='object')?(+j.t||0):0; }catch(e){ return 0; } }   // [MIG_COPY_ONCE] 그 항목 스스로의 고친 때(꾸러미 때가 아니다)
+function _migOrd(ro, ow){ var tk=ow==='pub'?'me_order_pub':_ordK(ow); if(!tk) return false;   // [MIG_COPY_ONCE] 계정 칸이 비었을 때만 베낀다
+  if(localStorage.getItem(tk)!=null) return true;   // 15-02 계정 칸 그대로(옛 것은 예비본)
+  var nv=_migStampW(ro); try{ localStorage.setItem(tk, nv); }catch(e){} return localStorage.getItem(tk)===nv; }   // 못 썼으면 표시를 남기지 않는다(다음에 다시)
+function _migKeep(o, c){ var K=_keepK(c); if(!K) return false;   // [MIG_COPY_ONCE] 옛 맡김 → 계정 맡김(종류마다)
+  if(!(o.keys && typeof o.keys==='object' && Date.now()-(+o.t||0)<RELOGIN_TTL)) return true;   // 7일 지난 맡김 · 깨진 꾸러미 — 들일 것 없음(옛 칸은 예비본 · 걷기가 지운다)
+  var ok=_ordK(c), sk='me_snapLocal_'+c, ks={}, kr={};
+  Object.keys(o.keys).forEach(function(k){ var nk=(k==='me_order')?ok:k; if(nk!==ok && nk!==sk) return; kr[nk]=String(o.keys[k]); ks[nk]=_reloginStampT(kr[nk], o.t); });   // 옛 항목은 제 꾸러미 때
+  var c2=null; try{ c2=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){} var nk={}, nt=+o.t||0;
+  if(c2 && c2.code===c && c2.keys && typeof c2.keys==='object' && Date.now()-(+c2.t||0)<RELOGIN_TTL){ nt=Math.max(nt, +c2.t||0);
+    Object.keys(c2.keys).forEach(function(k){ nk[k]=_reloginStampT(String(c2.keys[k]), c2.t); });   // 15-03 계정 맡김의 시각 없는 항목은 제 꾸러미 때로 굳힌다
+    Object.keys(ks).forEach(function(k){ if(!(k in nk)){ nk[k]=ks[k]; return; } var at=_migOwnT(kr[k]), bt=_migOwnT(String(c2.keys[k])); if(at && bt && at>bt) nk[k]=ks[k]; }); }   // 둘 다 제 고친 때가 있을 때만 견준다 · 아니면 계정 것
+  else nk=ks;
+  if(!Object.keys(nk).length) return true;
+  var nv=JSON.stringify({code:c, t:nt, keys:nk}); if(localStorage.getItem(K)===nv) return true;
+  try{ localStorage.setItem(K, nv); }catch(e){} return localStorage.getItem(K)===nv; }
+function _acctKeysMigrate(){ try{   // [ACCT_KEYS] 옛 공용 칸 → 계정 칸 · [MIG_COPY_ONCE] 계정마다 한 번 · 베끼기만(옛 칸은 지우지 않는다)
+  var ro=localStorage.getItem('me_order'), rk=localStorage.getItem(RELOGIN_KEY), r=null, o=null, fin={};
+  try{ r=JSON.parse(ro); }catch(e){} try{ o=JSON.parse(rk); }catch(e){}
+  var ow=(ro!=null)?_migOwner(r&&r.who):'', kc=(o && typeof o==='object' && _acctOk(o.code))?String(o.code):'';
+  if(ow && !_migDone(ow)) fin[ow]=_migOrd(ro, ow);
+  if(kc && !_migDone(kc)){ var k2=_migKeep(o, kc); fin[kc]=(fin[kc]!==false) && k2; }   // 같은 계정이면 둘 다 된 뒤에야 표시
+  Object.keys(fin).forEach(function(x){ if(fin[x]){ try{ localStorage.setItem(MIG_DONE_K+x, String(Date.now())); }catch(e){} } });
 }catch(e){} }
+/* [MIG_COPY_ONCE] 옛 예비본 지우기 — 그 주인 것만(do: 'out' 스스로 로그아웃 · 'save' 서버 저장 성공 · 옮긴 표시가 있을 때만) */
+function _migOldDrop(c, why){ c=String(c||''); if(!_acctOk(c)) return; if(why!=='out' && typeof _tabStale=='function' && _tabStale()) return;
+  if(why!=='out' && !_migDone(c)) return;   // 아직 옮기지 않은 예비본은 서버 저장으로 지우지 않는다
+  try{ var r=JSON.parse(localStorage.getItem('me_order')||'{}'); if(r && String(r.who||'')===c) localStorage.removeItem('me_order'); }catch(e){}
+  try{ var o=JSON.parse(localStorage.getItem(RELOGIN_KEY)||'{}'); if(o && String(o.code||'')===c) localStorage.removeItem(RELOGIN_KEY); }catch(e){} }
+/* [MIG_COPY_ONCE] 30일 걷기 — 옮긴 표시가 있는 주인의 옛 예비본만 · 기준은 쓴 때(w) → 없으면 고친 때(t · e) → 없으면 옮긴 때(표시 값) */
+function _migOldSweep(now){ try{ now=now||Date.now();
+  [['me_order', function(j){ return _migOwner(j&&j.who); }], [RELOGIN_KEY, function(j){ return (j && _acctOk(j.code))?String(j.code):''; }]].forEach(function(p){
+    var raw=localStorage.getItem(p[0]); if(raw==null) return; var j=null; try{ j=JSON.parse(raw); }catch(e){} if(!j || typeof j!=='object') return;
+    var ow=p[1](j), fl=ow?localStorage.getItem(MIG_DONE_K+ow):null; if(fl==null) return;
+    var at=(+j.w||0) || _recE(j) || (+fl||0); if(at && now-at>ACCT_OLD_MS) localStorage.removeItem(p[0]); }); }catch(e){} }
 /* [MIG_KEEP] 이 계정이 마이페이지를 연 때 = 이 기기 칸을 마지막으로 쓴 때(w) — 30일 걷기는 «마지막 사용» 기준(한 시간에 한 번만 다시 쓴다) */
 function _acctTouch(c){ if(!_acctOk(c)) return; if(typeof _tabStale=='function' && _tabStale()) return; var now=Date.now();
   [_ordK(c), 'me_snapLocal_'+c].forEach(function(k){ try{ var raw=localStorage.getItem(k); if(raw==null) return; var j=JSON.parse(raw); if(!j || typeof j!=='object' || now-(+j.w||0)<3600e3) return; j.w=now; localStorage.setItem(k, JSON.stringify(j)); }catch(e){} }); }
 var ACCT_OLD_MS=30*864e5;
-function _acctOldSweep(){ try{ var now=Date.now(), kill=[];   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김(공용 기기에 오래 남지 않게) · 고친 때가 없는 옛 기록은 두고 본다
+function _acctOldSweep(){ try{ var now=Date.now(), kill=[], stamp=[];   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김(공용 기기에 오래 남지 않게) · [MIG_COPY_ONCE] 쓴 때(w)가 없는 칸은 지금부터 센다
   for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i), m=k && /^(me_order_|me_snapLocal_|me_relogin_keep_)(.+)$/.exec(k); if(!m || !(_acctOk(m[2]) || k==='me_order_pub')) continue;
-    if(_MIG_DONE[k]) continue;   // [MIG_KEEP] 이번 부팅에 옮긴 칸은 걷지 않는다
     var j=null; try{ j=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ continue; } if(!j || typeof j!=='object') continue;
     if(m[1]==='me_relogin_keep_'){ if(!(now-(+j.t||0)<RELOGIN_TTL)) kill.push(k); continue; }
-    var at=Math.max(+j.w||0, _recE(j)); if(at && now-at>ACCT_OLD_MS) kill.push(k); }
-  kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} }); }catch(e){} }
+    if(!(+j.w)){ stamp.push([k, j]); continue; }   // [MIG_COPY_ONCE] 15-01 쓴 때(w)가 없는 계정 칸(옛 판이 옮긴 칸)은 걷지 않는다 — 처음 본 지금을 w 로 적고 그때부터 센다
+    if(now-Math.max(+j.w, _recE(j))>ACCT_OLD_MS) kill.push(k); }
+  stamp.forEach(function(x){ try{ x[1].w=now; localStorage.setItem(x[0], JSON.stringify(x[1])); }catch(e){} });
+  kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} }); _migOldSweep(now); }catch(e){} }   // [MIG_COPY_ONCE] 옛 예비본도
 _acctKeysMigrate(); _acctOldSweep();   // [ACCT_KEYS] 열 때 한 번 — 옛 공용 칸 옮기기 · 오래된 칸 걷기 · [RELOGIN_KEEP] 7일 지난 맡김은 열 때 지운다
 /* ★[C2_ACCT_SWEEP 2026-10-09 고객 여정 A~Z 점검 2라운드] 계정이 끝나는 자리(로그아웃 · 로그인 풀림 — 다 clearToken 을 지난다)에서는 저장소([LOGOUT_SWEEP])만이 아니라
      이 탭의 화면 기억도 걷는다 — 같은 기기에서 다음 사람이 로그인하면 앞사람 것이 보이거나 다음 질문에 실려 갔다.
@@ -9670,6 +9688,7 @@ function apiTrackSave(payload){
   /* ★[ERR_CODE_MYPAGE A2] 저장 결과를 한 꼴로 — 실패는 늘 {ok:false, error:원인 한 줄 + 코드, ecode, sess(로그인 풀림), slow(결과 모름)}.
      종전엔 거절 · 끊김이 사슬마다 다르게 삼켜져(빈 catch · error:'') 위저드 판이 늘 «네트워크가 잠시 불안정한 것 같아요»였다.
      ★이제 이 함수는 던지지 않는다 — 부르는 쪽은 r.ok 하나만 보면 된다(.catch 는 화면 코드 예외만 받는다). */
+  if(_t==='ritual') p=p.then(function(r){ if(r && r.ok===true){ try{ _migOldDrop(_reloginCode(), 'save'); }catch(e){} } return r; });   // [MIG_COPY_ONCE] 식순을 서버에 저장했다 — 이 계정의 옛 공용 예비본은 이제 지운다(실패 · 던짐은 그대로 아래로)
   return p.then(function(r){ return _errNorm(r,'S',ERR_SAVE_BASE); }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });
 }
 /* ★[ERR_CODE_MYPAGE F6 2026-10-07] 거짓 «다른 기기에서 먼저 저장됐어요» — 우리 저장이 시간 초과(화면만 포기)됐는데 서버는 늦게 저장을 끝냈으면

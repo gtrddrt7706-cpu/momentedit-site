@@ -20708,8 +20708,8 @@ chk 'c.goLeadMs || 0' console.html 1
 chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
 # ★[VC_FIX14_1030 2026-10-30 GPT 14차 점검(고객 14-01 ~ 14-09 · 당일 14-01 ~ 14-04)] 옛 공용 칸 이관 소실 셋 · 로그인 전 늦은 답 · 모델만 지운 분 지우기 · 연습 소리 90일 · 기기 보관 파일 id · 스튜디오 확인 파일 id · 글 카드 차례 · 보관본 찾는 동안 시작 잠금 · 스튜디오 파일 끊긴 채 다시 열기
 chk 'VC_FIX14_1030' scripts/audit/vc-fix14-1030.mjs 1
-chk 'MIG_KEEP' mypage.html 8
-chk 'MIG_KEEP' order-preview.html 3
+chk 'MIG_KEEP' mypage.html 4   # [MIG_COPY_ONCE 2026-10-30 15차] 견주어 옮기던 갈래(_migPick · _MIG_DONE)를 걷어 8 → 4
+chk 'MIG_KEEP' order-preview.html 2   # [MIG_COPY_ONCE 2026-10-30 15차] 3 → 2(_ordMigPick 를 걷었다)
 chk 'PRELOGIN_EPOCH' mypage.html 3
 chk 'MODEL_OFF_DEL' order-preview.html 2
 chk 'MODEL_OFF_DEL' automation/platform/80_production.gs 1
@@ -20725,4 +20725,22 @@ nochk "if(!(c2 && (+c2.t||0)>=(+o.t||0))){ localStorage.setItem(K, nv);" mypage.
 nochk "tx.oncomplete = function(){ RF_CACHED[k] = 1; rfPaint(); };" console.html   # [RF_CACHE_ID] 자리마다 1 이던 옛 보관 표시(파일 id 에 묶는다)
 nochk "function rfUnchecked(k){ return !GUEST && RF_OKSET && rfKindLab(k) === 'AI 목소리' && !RF_OKMAP[k]; }" console.html   # [RFOK_FILE] 자리 이름에만 묶이던 옛 확인
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix14-1030.mjs >/dev/null 2>&1; _vf14=$?; if [ "$_vf14" != 0 ]; then echo 'FAIL vc-fix14-1030: AI 목소리 14차 점검(옛 칸 이관 · 로그인 전 답 · 지우기 · 연습 소리 · 기기 보관 · 스튜디오 확인 · 글 카드 · 시작 잠금) 판정이 어긋났습니다 — node scripts/audit/vc-fix14-1030.mjs'; fail=1; else echo "ok vc-fix14-1030 ($_vf14)"; fi; fi
+# ★[VC_FIX15_1030 2026-10-30 GPT 15차 점검(고객 15-01 ~ 15-06 · 당일 15-01 · 15-02)] 옛 공용 칸 옮기기 = 계정마다 한 번 · 베끼기(옛 칸은 예비본) · 쓴 때 없는 계정 칸은 걷지 않는다 · 연습 소리 천분의 1초 · 시작 잠금이 찾기 전체를 덮는다 · 글을 확인 못 하면 기본 글 대신 «확인하지 못했어요»
+chk 'VC_FIX15_1030' scripts/audit/vc-fix15-1030.mjs 1
+chk 'MIG_COPY_ONCE' mypage.html 14
+chk 'MIG_COPY_ONCE' order-preview.html 3
+chk "if(_c && !keep) _migOldDrop(_c, 'out');" mypage.html 1   # [MIG_COPY_ONCE] 15-06 스스로 로그아웃 — 그 계정의 옛 공용 예비본도
+chk "_migOldDrop(_reloginCode(), 'save')" mypage.html 1   # [MIG_COPY_ONCE] 서버 저장 성공 — 옮긴 계정의 옛 예비본을 지운다
+chk 'PRACTICE_MS' automation/platform/80_production.gs 6
+chk 'RF_LOOK_ALL' console.html 9
+chk 'OWN_TXT_SURE' console.html 2
+nochk "function _migPick(" mypage.html   # [MIG_COPY_ONCE] 고친 때를 견주어 옮기고 옛 칸을 지우던 갈래(15-01 · 15-02 · 15-06) · 되살리지 말 것
+nochk "var _MIG_DONE=" mypage.html   # [MIG_COPY_ONCE] 이번 부팅에 옮긴 칸만 걷기에서 빼던 표(15-01 · 옛 판이 옮긴 칸은 빠졌다)
+nochk "function _ordMigPick(" order-preview.html   # [MIG_COPY_ONCE] 식순 화면의 같은 견주기
+nochk "localStorage.removeItem('me_order')" order-preview.html   # [MIG_COPY_ONCE] 식순 화면은 옛 공용 칸을 지우지 않는다(예비본)
+nochk "if(done) localStorage.removeItem('me_order');" mypage.html   # [MIG_COPY_ONCE] 옮기면서 옛 칸을 지우던 줄
+nochk "if(done2) localStorage.removeItem(RELOGIN_KEY);" mypage.html   # [MIG_COPY_ONCE] 옮기면서 옛 맡김을 지우던 줄
+nochk "function _vcPracticeLeft_(st) { st = st || {}; var pa = _vcTs_(st.practiceAt), pg = _vcTs_(st.purged); if (pa) return pa > pg;" automation/platform/80_production.gs   # [PRACTICE_MS] 분 단위로만 견주던 옛 판정(15-04)
+nochk "if (!cu) return OWN_TXT[c.slug] || '';" console.html   # [OWN_TXT_SURE] 지금 파일을 모르는데 초안 글을 보이던 줄(당일 15-02)
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix15-1030.mjs >/dev/null 2>&1; _vf15=$?; if [ "$_vf15" != 0 ]; then echo 'FAIL vc-fix15-1030: AI 목소리 15차 점검(옛 칸 한 번 베끼기 · 쓴 때 없는 칸 · 맡김 합치기 · 로그아웃 정리 · 연습 소리 · 시작 잠금 · 글 카드) 판정이 어긋났습니다 — node scripts/audit/vc-fix15-1030.mjs'; fail=1; else echo "ok vc-fix15-1030 ($_vf15)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
