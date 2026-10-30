@@ -20553,6 +20553,10 @@ chk 'RELOGIN_SNAP_KEEP' mypage.html 4
 chk 'RELOGIN_SNAP_KEEP' scripts/audit/relogin-keep.mjs 2
 chk "&& !(_ksnap && /^me_snapLocal_/.test(k))) _kill.push(k);" mypage.html 1
 nochk "snapLocal_)/.test(k)) _kill.push(k);" mypage.html   # [RELOGIN_SNAP_KEEP] 계정을 몰라도 코드별 임시본을 다 지우던 옛 줄
+# ★[RELOGIN_SNAP_NEWER 2026-10-30 GPT 10차 점검(고객) 10-01] 스냅 임시본도 고친 때(t · 글이 바뀔 때만)를 싣고 되돌릴 때 견준다 — 같은 계정 옛 탭이 다시 쓴 옛 임시본이 맡긴 최신본을 이기지 않게 · 맡김은 되돌렸거나 이 기기 것이 더 나중임을 확인했을 때만 지운다 · 검사 relogin-keep ⑦(아래 줄이 돌린다)
+chk 'RELOGIN_SNAP_NEWER' mypage.html 5
+chk 'RELOGIN_SNAP_NEWER' scripts/audit/relogin-keep.mjs 3
+nochk "if(cur!=null){ if(k!=='me_order') return;" mypage.html   # [RELOGIN_SNAP_NEWER] 스냅 임시본이 이미 있으면 견주지 않고 그것을 두고 맡김을 지우던 옛 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/relogin-keep.mjs >/dev/null 2>&1; _rlk=$?; if [ "$_rlk" != 0 ]; then echo 'FAIL relogin-keep: 로그인 풀림 때 맡기는 초안(먼저 맡기기 · 알림 링크 길 · 다른 주인 초안) 판정이 어긋났습니다 — node scripts/audit/relogin-keep.mjs'; fail=1; else echo "ok relogin-keep ($_rlk)"; fi; fi
 
 chk "L('blessN','말씀하실 분'" order-preview.html 1
