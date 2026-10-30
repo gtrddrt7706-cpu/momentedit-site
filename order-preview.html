@@ -4490,7 +4490,7 @@ var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};   // [G5]
 function _lSteps0(g,ks){
   var r; try{ r=g.RitualCue.build(S,{mode:'preview'}); }catch(e){ return []; }
   var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[], rN=null;   /* rN = [VC_TO_NAR] 나레이션 판 큐(필요할 때 한 번) */
-  var _lateK=(function(){ var a=_lRows().filter(function(x){ return R.AFTER_CLOSE&&R.AFTER_CLOSE[x]; }); return a.length?a[a.length-1]:''; })();   /* ★[CLOSE_LAST_1013] 닫는 인사 뒤 순간(축배 · 테이블 인사)을 담은 날 — 26(사진 안내)은 엔진 차례대로 그 마지막 순간 끝 */
+  var _lateK='';   /* ★[END_FLOW_1030 검토 167] 테이블 인사 · 축배가 닫는 인사 앞으로 와서 사진 안내(26 · 사진 전 안내)는 늘 닫는 인사 쪽 끝 — 옛 «마지막 순간 끝에 26» 자리 옮김(CLOSE_LAST_1013)은 걷었다 */   /* ★[CLOSE_LAST_1013] 닫는 인사 뒤 순간(축배 · 테이블 인사)을 담은 날 — 26(사진 안내)은 엔진 차례대로 그 마지막 순간 끝 */
   ks.forEach(function(k){
     var talked=false, ownDone=false, quietDone=false;
     var cs=r.cues.filter(function(c){
