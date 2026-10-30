@@ -13,13 +13,20 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 10 | 2 |
+| 1_우성.txt | 우성 | 76 | 22 |
+| 2_진희.txt | 진희 | 12 | 5 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 10줄 · 2클립
+# 우성 — 76줄 · 22클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =265_narr-photo-pre,=266_narr-photo-pre-meal
+  --clip =05_entry-A,=09_entry-E,=160_narr-entry-bow,=133_narr-thanks-in,=138_narr-candle-bow,=146_narr-candle-bow-fathers,=147_narr-candle-bow-others,=149_narr-open-ex3,=150_narr-open-ex4,=161_narr-entry-bow-ex3,=162_narr-entry-bow-ex4,=252_narr-entry-bow-ex5,=258_narr-entry-bow-ex6,=163_narr-vow-in-ex2,=166_narr-vow-in-b-ex2,=228_narr-thanks-in-ex2,=229_narr-thanks-in-ex3,=260_narr-thanks-in-ex4,=170_narr-ring-in-ex3,=209_narr-song-ex5,=265_narr-photo-pre,=266_narr-photo-pre-meal
+```
+
+```
+# 진희 — 12줄 · 5클립
+node scripts/assemble-narration.mjs --in <진희_받은폴더> \
+  --clip =04_guest-4-1min,=89_guest-4-1min-pre,=118_guest-ex2-4-1min,=119_guest-ex3-1-arrival,=122_guest-ex3-4-1min
 ```
 
