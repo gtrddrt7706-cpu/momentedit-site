@@ -3164,7 +3164,13 @@ function _tabBind(){ try{ _TAB.tok=localStorage.getItem(TOKEN_KEY)||''; _TAB.ep=
 function _tabStale(){ if(_TAB.stale) return true; if(!_TAB.tok) return false;   // [TAB_GUARD] 한 번 옛 창이면 새로 열 때까지 옛 창
   var tok='', ep=''; try{ tok=localStorage.getItem(TOKEN_KEY)||''; ep=localStorage.getItem(TAB_EP_KEY)||''; }catch(e){ return false; }
   if(tok!==_TAB.tok || ep!==_TAB.ep) _TAB.stale=true; return _TAB.stale; }   // [AUTH_EPOCH] 토큰이 같아도 차례가 다르면 옛 창
-function _tabTie(){ var t0=_TAB.tok, e0=_TAB.ep; return function(){ if(_TAB.tok===t0 && _TAB.ep===e0 && !_tabStale()) return false; if(_tabStale()) _tabStaleShow(); return true; }; }   // [AUTH_EPOCH] 보낼 때의 토큰 · 차례에 묶는다 — 그 사이 바뀌었으면(이 창 스스로여도) 답을 버린다
+/* ★[PRELOGIN_EPOCH 2026-10-30 GPT 14차 점검(고객) 14-04] 로그인 전 창(토큰 없음)의 요청도 «보낼 때의 이 기기 차례»에 묶는다 — 종전엔 _tabStale 이 토큰 없는 창을 늘 «바뀐 것 없음»으로 읽어,
+     알림 링크 로그인을 기다리는 사이 다른 창이 다른 계정으로 로그인해도 늦게 온 성공 답이 토큰을 앞사람 계정으로 바꿨다(다른 창이 다시 열면 앞사람 화면).
+     차례가 바뀌었으면 답을 버리고 이 창을 옛 창으로 세운다(«다른 창에서 바뀌었어요 (코드 L8)» · «다시 열기») */
+function _tabEpNow(){ try{ return localStorage.getItem(TAB_EP_KEY)||''; }catch(e){ return null; } }   // [PRELOGIN_EPOCH]
+function _tabTie(){ var t0=_TAB.tok, e0=_TAB.ep, s0=t0?null:_tabEpNow(); return function(){   // [PRELOGIN_EPOCH] 토큰 없는 창은 보낼 때의 차례(s0)
+    if(!t0 && s0!==null && _TAB.tok===t0 && _TAB.ep===e0){ var sn=_tabEpNow(); if(sn!==null && sn!==s0){ _TAB.stale=true; _tabStaleShow(); return true; } }
+    if(_TAB.tok===t0 && _TAB.ep===e0 && !_tabStale()) return false; if(_tabStale()) _tabStaleShow(); return true; }; }   // [AUTH_EPOCH] 보낼 때의 토큰 · 차례에 묶는다 — 그 사이 바뀌었으면(이 창 스스로여도) 답을 버린다
 function _tabSd(){ return {ok:false, reason:'tab_stale', ecode:'L8', error:TAB_LINE}; }   // [TAB_GUARD] 옛 창 · 바뀐 답
 function _tabStaleShow(){ try{ _flowBusy(false); }catch(e){}   // [TAB_GUARD] 한 줄 · 단추 하나 · 다른 막대 · 겹화면 · 확인 창 위
   try{ if(document.getElementById('mp_tabBar')) return;
@@ -3288,22 +3294,47 @@ function _acctOk(c){ return /^[A-Z0-9][A-Z0-9-]{2,19}$/.test(String(c||'')); }  
 function _ordK(c){ return _acctOk(c)?'me_order_'+String(c):''; }   // [ACCT_KEYS] 식순 초안 칸
 function _keepK(c){ return _acctOk(c)?RELOGIN_KEY+'_'+String(c):''; }   // [ACCT_KEYS] 맡김 칸
 function _recE(r){ r=r||{}; return Math.max(+r.t||0, +r.e||0); }   // [SAME_ACCT_T] 그 기록이 마지막으로 고쳐진 때
+/* ★★[MIG_KEEP 2026-10-30 GPT 14차 점검(고객) 14-01 · 14-02 · 14-03] 옛 공용 칸을 옮기다 고객 초안을 잃지 않는다 —
+     ① 14-02 고친 때(t · e)가 없다는 이유로 옛 «저장 안 한 초안»을 버리지 않는다 — 계정 칸이 «저장한 판»(서버에 있는 판)이면 옛 초안을 옮긴다(서버 판과는 식순 화면 [LOCAL_AHEAD] 가 견준다) ·
+        둘 다 저장 안 한 고침인데 견줄 때가 없으면 옮기지도 지우지도 않는다(옛 칸 그대로 · 버리는 것은 계정 칸이 더 나중임을 확인했을 때만)
+     ② 14-01 옮긴 칸에는 쓴 때(w)를 지금으로 적고 같은 부팅의 30일 걷기에서 뺀다(_MIG_DONE) — 종전엔 31일 전에 고친 초안을 어제 열었어도(옛 판에 w 가 없다) 옮기자마자 걷었다
+     ③ 14-03 맡김은 꾸러미 시각이 아니라 종류(식순 · 스냅)마다 고친 때로 합친다 — 종전엔 계정 맡김(스냅만)이 더 나중이라는 까닭으로 옛 맡김의 식순 초안까지 버렸다
+     ④ 옮기기에 실패하면(저장 공간 가득) 옛 칸을 그대로 둔다(다음에 다시) */
+var _MIG_DONE={};   // [MIG_KEEP] 이번 부팅에 옮긴 칸
+function _migPick(r, cj, cur){ if(cur==null) return 'move';   // [MIG_KEEP] 옮김 · 버림 · 둠
+  if(!(r && typeof r==='object' && r.dirty)) return 'drop';   // 저장한 옛 판 — 계정 칸이 이미 있으면 그것(서버에도 있다)
+  var re=_recE(r), ce=_recE(cj);
+  if(re && ce && ce>=re) return 'drop';   // 계정 칸이 더 나중에 고친 판임을 확인했다
+  if(!(cj && cj.dirty)) return 'move';   // 계정 칸은 저장한 판 — 옛 저장 안 한 초안이 지지 않는다
+  if(re && re>ce) return 'move';
+  return 'keep'; }   // 둘 다 저장 안 한 고침 · 견줄 때가 없다 — 옛 칸을 그대로 둔다(지우지 않는다)
+function _migStampW(ro){ try{ var o=JSON.parse(ro); if(o && typeof o==='object'){ o.w=Date.now(); return JSON.stringify(o); } }catch(e){} return ro; }   // [MIG_KEEP] 옮긴 때 = 마지막으로 쓴 때
 function _acctKeysMigrate(){ try{   // [ACCT_KEYS] 옛 공용 칸 → 계정 칸(한 번 · 쓰고 · 다시 읽어 확인한 뒤에야 지운다)
   var ro=localStorage.getItem('me_order');
   if(ro!=null){ var r=null; try{ r=JSON.parse(ro); }catch(e){} var w=String((r&&r.who)||''), tk=w?_ordK(w):'me_order_pub', done=true;
-    if(tk){ var cur=localStorage.getItem(tk), cj=null; try{ cj=JSON.parse(cur||'null'); }catch(e){}
-      if(cur==null || (w && r && r.dirty && _recE(r)>_recE(cj))){ localStorage.setItem(tk, ro); done=(localStorage.getItem(tk)===ro); } }   // 칸이 비었거나 · 계정 칸보다 더 나중에 고친 저장 안 한 판이면 옮긴다 · 공개 칸이 이미 있으면 주인 없는 옛 판은 버린다
+    if(tk){ var cur=localStorage.getItem(tk), cj=null; try{ cj=JSON.parse(cur||'null'); }catch(e){} var pk=_migPick(r, cj, cur);   // [MIG_KEEP]
+      if(pk==='move'){ var nv0=_migStampW(ro); try{ localStorage.setItem(tk, nv0); }catch(e){} done=(localStorage.getItem(tk)===nv0); if(done) _MIG_DONE[tk]=1; }   // 못 썼으면 옛 칸 그대로(다음에 다시)
+      else done=(pk==='drop'); }
     if(done) localStorage.removeItem('me_order'); }
   var rk=localStorage.getItem(RELOGIN_KEY);
   if(rk!=null){ var o=null; try{ o=JSON.parse(rk); }catch(e){} var c=String((o&&o.code)||''), K=_keepK(c), done2=true;
-    if(K && o && o.keys && Date.now()-(+o.t||0)<RELOGIN_TTL){ var ks={}; Object.keys(o.keys).forEach(function(k){ ks[k==='me_order'?_ordK(c):k]=o.keys[k]; });
-      var nv=JSON.stringify({code:c, t:o.t, keys:ks}), c2=null; try{ c2=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){}
-      if(!(c2 && (+c2.t||0)>=(+o.t||0))){ localStorage.setItem(K, nv); done2=(localStorage.getItem(K)===nv); } }   // 계정 맡김이 이미 더 나중이면 그것 · 7일 지남 · 계정 모름은 버린다
+    if(K && o && o.keys && Date.now()-(+o.t||0)<RELOGIN_TTL){ var ks={}; Object.keys(o.keys).forEach(function(k){ ks[k==='me_order'?_ordK(c):k]=_reloginStampT(String(o.keys[k]), o.t); });   // [MIG_KEEP] 옮겨 담을 때 고친 때가 없으면 맡긴 때
+      var c2=null; try{ c2=JSON.parse(localStorage.getItem(K)||'null'); }catch(e){} var nk={}, nt=+o.t||0;
+      if(c2 && c2.code===c && c2.keys && typeof c2.keys==='object'){ Object.keys(c2.keys).forEach(function(k){ nk[k]=c2.keys[k]; }); nt=Math.max(nt, +c2.t||0);
+        Object.keys(ks).forEach(function(k){ if(!(k in nk) || _reloginKeyNewer(ks[k], String(nk[k]), c2.t)) nk[k]=ks[k]; }); }   // [MIG_KEEP] 종류마다 — 계정 맡김에 없는 종류는 옛 것 · 있으면 더 나중에 고친 쪽
+      else nk=ks;
+      var nv=JSON.stringify({code:c, t:nt, keys:nk});
+      if(localStorage.getItem(K)!==nv){ try{ localStorage.setItem(K, nv); }catch(e){} done2=(localStorage.getItem(K)===nv); }
+      if(done2) _MIG_DONE[K]=1; }   // 7일 지남 · 계정 모름은 버린다
     if(done2) localStorage.removeItem(RELOGIN_KEY); }
 }catch(e){} }
+/* [MIG_KEEP] 이 계정이 마이페이지를 연 때 = 이 기기 칸을 마지막으로 쓴 때(w) — 30일 걷기는 «마지막 사용» 기준(한 시간에 한 번만 다시 쓴다) */
+function _acctTouch(c){ if(!_acctOk(c)) return; if(typeof _tabStale=='function' && _tabStale()) return; var now=Date.now();
+  [_ordK(c), 'me_snapLocal_'+c].forEach(function(k){ try{ var raw=localStorage.getItem(k); if(raw==null) return; var j=JSON.parse(raw); if(!j || typeof j!=='object' || now-(+j.w||0)<3600e3) return; j.w=now; localStorage.setItem(k, JSON.stringify(j)); }catch(e){} }); }
 var ACCT_OLD_MS=30*864e5;
 function _acctOldSweep(){ try{ var now=Date.now(), kill=[];   // [ACCT_KEYS] 30일 넘게 손대지 않은 계정 칸 · 7일 지난 맡김(공용 기기에 오래 남지 않게) · 고친 때가 없는 옛 기록은 두고 본다
   for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i), m=k && /^(me_order_|me_snapLocal_|me_relogin_keep_)(.+)$/.exec(k); if(!m || !(_acctOk(m[2]) || k==='me_order_pub')) continue;
+    if(_MIG_DONE[k]) continue;   // [MIG_KEEP] 이번 부팅에 옮긴 칸은 걷지 않는다
     var j=null; try{ j=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ continue; } if(!j || typeof j!=='object') continue;
     if(m[1]==='me_relogin_keep_'){ if(!(now-(+j.t||0)<RELOGIN_TTL)) kill.push(k); continue; }
     var at=Math.max(+j.w||0, _recE(j)); if(at && now-at>ACCT_OLD_MS) kill.push(k); }
@@ -3852,6 +3883,7 @@ function _mpWedCelebrate(d){ var c=$('mp_cheer'); try{ if(!_mpWedDone(d)) return
   else if(c) c.classList.remove('cele-wait'); }catch(e){ if(c) c.classList.remove('cele-wait'); } }
 function renderMyPage(d){
   window._mpStateD = d;   // 전체 상태 전역 — 렌더 시작점에서 세팅(하위 렌더러·게이트가 같은 상태를 보게. 종전 렌더 말미 세팅은 초기 렌더 타이밍 구멍)
+  try{ _acctTouch(String((d&&d.code)||'')); }catch(e){}   // [MIG_KEEP] 이 계정 칸의 마지막 사용(w)
   setTimeout(function(){ try{ _mpRollbackNotice(d); }catch(e){} }, 700);   // [ROLLBACK_NOTICE] 화면이 다 그려진 뒤 한 박자 늦게 — 렌더 도중에 덮으면 무엇이 바뀌었는지 못 본다
   var _mn=document.querySelector('main'); if(_mn) _mn.classList.add('wide');   // [N2] 마이페이지 폭 통일(진입부터 전부 동일 · 데스크톱 600px / 모바일 100%)
   // 환영 — 이름 + '님'(작게)
