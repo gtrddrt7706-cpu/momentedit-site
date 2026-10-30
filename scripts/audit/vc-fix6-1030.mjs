@@ -23,7 +23,7 @@ const MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
 const mkStore = (init) => { const m = new Map(Object.entries(init || {}));
   return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), key: (i) => Array.from(m.keys())[i] || null, get length() { return m.size; } }; };
 function mp1(src, o) {
-  const code = ['clearToken', '_reloginStash', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin'].map((f) => grabIn(src, f)).join('\n') + '\n' + lineIn(src, /var RELOGIN_KEY=[^\n]*/) + '\n' + lineIn(src, /var ERR_W=[^\n]*/) + '\n' + lineIn(src, /var ERR_DO=[^\n]*/);
+  const code = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin'].map((f) => grabIn(src, f)).join('\n') + '\n' + lineIn(src, /var RELOGIN_KEY=[^\n]*/) + '\n' + lineIn(src, /var ERR_W=[^\n]*/) + '\n' + lineIn(src, /var ERR_DO=[^\n]*/);
   const draft = JSON.stringify({ v: 2, S: { tx: { 'vow.g': '고친 서약' } }, who: 'AB12CD', dirty: true, base: 'k0' });
   const ls = mkStore({ me_token: 't', me_state_v1: '{}', me_order: draft, me_snapLocal_AB12CD: '{"n":1}' }), ss = mkStore();
   let reloaded = 0; const sb = { localStorage: ls, sessionStorage: ss, TOKEN_KEY: 'me_token', STATE_CACHE_KEY: 'me_state_v1', _mpAcctSweep: () => {}, _mpAcct: () => o.acct || '', readCachedState: () => null, mpAlert: () => {}, mpConfirm: () => Promise.resolve(false), _errHtml: (x) => String(x),   /* [RELOGIN_STASH_FIRST] 7차 */
@@ -37,7 +37,7 @@ function mp1(src, o) {
   const back = sb._reloginRestore(o.login);
   return { after, back, order: ls.getItem('me_order'), snap: ls.getItem('me_snapLocal_AB12CD'), keep: ls.getItem('me_relogin_keep'), draft };
 }
-{ const miss = ['clearToken', '_reloginStash', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin'].filter((f) => !grabIn(MP, f)); if (miss.length) ok('① 원문 조각을 못 떼었다 — ' + miss.join(', '), false); else {
+{ const miss = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_errGoLogin'].filter((f) => !grabIn(MP, f)); if (miss.length) ok('① 원문 조각을 못 떼었다 — ' + miss.join(', '), false); else {
   const t = (src) => { try { return { same: mp1(src, { acct: 'AB12CD', login: 'AB12CD' }), other: mp1(src, { acct: 'AB12CD', login: 'ZZ99ZZ' }), old: mp1(src, { acct: 'AB12CD', login: 'AB12CD', age: 8 * 864e5 }), out: mp1(src, { acct: 'AB12CD', login: 'AB12CD', logout: true }) }; } catch (e) { return { err: String(e && e.stack || e).slice(0, 300) }; } };
   const r = t(MP);
   const pass = !r.err && r.same.after.order === null && /다시 로그인한 뒤 이어서 저장해 주세요 \(코드 S8\)/.test(r.same.after.note || '') && r.same.back === true && r.same.order === r.same.draft && r.same.snap === '{"n":1}' && r.same.keep === null

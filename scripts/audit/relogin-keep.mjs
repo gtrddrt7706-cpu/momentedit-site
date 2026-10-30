@@ -11,6 +11,8 @@
          · 식순 화면 _persist 가 «실제로 고친 때»만 적는다(다시 쓰기만 해서 새것이 되지 않는다)
    ⑤ 8-02 [RELOGIN_S4_GO] 식순 화면 «로그인하기» → S4 판에 «그대로 로그인하기» · 누르면 로그인 표시만 지우고 이 기기 초안은 그대로 로그인 화면으로
          · 다른 계정으로 로그인하면 남의 초안을 걷는다(_orderOwnerSweep · 식순 화면 ORDER_OWNER)
+   ⑥ 9-01 [RELOGIN_SNAP_KEEP] 식순 초안 없이 스냅 임시본만 있는 기기 — S4 «그대로 로그인하기» 뒤 만료된 알림 링크(계정을 모름)로 다시 들어와도 코드별 임시본을 지우지 않는다
+         · 같은 계정 로그인이면 그대로(«이어서 고르기») · 다른 계정 로그인 확인 · 스스로 로그아웃이면 지운다
    깨 보기: 고친 줄을 옛 꼴로 되돌려 같은 장면이 빨개지는지 본다.
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
@@ -22,7 +24,7 @@ const lineIn = (src, re) => (src.match(re) || [''])[0];
 const brk = (src, pairs) => { let t = src; for (const [a, b] of pairs) { if (t.split(a).length !== 2) return null; t = t.replace(a, b); } return t; };
 const flush = () => new Promise((r) => setTimeout(r, 0));
 const MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
-const FNS = ['clearToken', '_reloginStash', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_orderOwnerSweep', '_errGoLogin', '_autoLogin', 'readCachedState'];
+const FNS = ['clearToken', '_reloginStash', '_reloginCode', '_reloginAcct', '_reloginPack', '_reloginLine', '_reloginRestore', '_reloginCurNewer', '_reloginFailShow', '_reloginGoAnyway', '_reloginShowLogin', '_orderOwnerSweep', '_errGoLogin', '_autoLogin', 'readCachedState'];
 const FAIL_LINE = '초안을 보관하지 못했어요 (코드 S4)';
 /* quota = 이 이름에 쓰면 QuotaExceededError */
 const mkStore = (init, quota) => { const m = new Map(Object.entries(init || {}));
@@ -58,7 +60,7 @@ const t1 = async (src) => {
   const pass = !r.err && r.a.order === DRAFT && r.a.snap === SNAP && r.a.tok === 't' && r.a.note === null && r.a.reloaded === 0 && !r.a.shows.includes('loginView')
     && r.a.alerts.length === 1 && r.a.alerts[0] === FAIL_LINE && r.b.order === DRAFT && r.b.snap === SNAP && r.b.notes.length === 1 && r.b.notes[0] === FAIL_LINE && !/이어서/.test(r.b.notes.join(''));
   ok('① 7-01 [RELOGIN_STASH_FIRST] 맡김 쓰기가 실패하면 초안 · 스냅 임시본 · 로그인 표시를 지우지 않고 지금 화면에 «초안을 보관하지 못했어요 (코드 S4)» · «이어서 저장»을 말하지 않는다(알림 링크 길도)', pass, r);
-  const b = brk(MP, [['if(_kp<0) return null; }', 'if(_kp<0) _kp=0; }']]); let rb = null; try { rb = b ? await t1(b) : null; } catch (e) { rb = { err: String(e).slice(0, 200) }; }
+  const b = brk(MP, [['if(_kp<0) return null;', 'if(_kp<0) _kp=0;']]); let rb = null; try { rb = b ? await t1(b) : null; } catch (e) { rb = { err: String(e).slice(0, 200) }; }
   ok('깨 보기 ① — 옛 꼴(못 맡겨도 지우고 넘어감)이면 빨강', !!rb && !rb.err && rb.a.order === null, rb); }
 { /* 쓰기는 됐는데 다시 읽어 다르면(조용히 잘림) 못 맡긴 것 */
   const A = world(MP, { acct: 'AB12CD', ls: BASE() }); const si = A.ls.setItem; A.ls.setItem = (k, v) => si(k, k === 'me_relogin_keep' ? String(v).slice(0, 10) : v);
@@ -77,7 +79,7 @@ const t2 = async (src, ls) => { const A = world(src, { ls }); A.sb._autoLogin('u
   /* 남의 토큰 캐시(토큰이 다름)는 쓰지 않는다 */
   let x; try { x = await t2(MP, { me_token: 't', me_state_v1: JSON.stringify({ t: 'other', d: { code: 'AB12CD' } }), me_snapLocal_AB12CD: SNAP }); } catch (e) { x = { err: String(e).slice(0, 200) }; }
   ok('② 7-02 상태 캐시는 지금 토큰에 맞을 때만 쓴다', !!x && !x.err && x.mid.keep === null, x);
-  const b = brk(MP, [['var code=_reloginAcct()||String(', 'var code=_mpAcct()||String(']]); let rb = null; try { rb = b ? await t2(b, L()) : null; } catch (e) { rb = { err: String(e).slice(0, 200) }; }
+  const b = brk(MP, [['var code=_reloginCode(); if(!code)', 'var code=_mpAcct()||String((r&&r.who)||\'\'); if(!code)']]); let rb = null; try { rb = b ? await t2(b, L()) : null; } catch (e) { rb = { err: String(e).slice(0, 200) }; }
   ok('깨 보기 ② — 옛 꼴(지금 계정만 봄)이면 빨강', !!rb && !rb.err && rb.back === false && rb.snap === null, rb); }
 
 /* ③ 7-03 — 되돌릴 때 다른 주인의 me_order */
@@ -152,6 +154,29 @@ const t5 = async (src, pick, wiz) => { const ls = Object.assign(BASE(), { me_del
   const opOwner = /if\(CUST&&CUST\.code&&_restored&&_who!==String\(CUST\.code\)\)\{\s*try\{ localStorage\.removeItem\('me_order'\); \}/.test(OP);
   ok('⑤ 8-02 다른 계정으로 로그인하면 남의 식순 초안을 걷는다(같은 계정 · 공개 미리보기는 그대로) · 상태를 받자마자 · 식순 화면 ORDER_OWNER 도 그대로',
     !r.err && r.other === null && r.same === DRAFT && r.pub === pub && /_orderOwnerSweep\(d\.code\); _reloginRestore\(d\.code\);/.test(MP) && opOwner, { r, opOwner }); }
+
+/* ⑥ 9-01 [RELOGIN_SNAP_KEEP] 식순 초안 없이 스냅 임시본만 있는 기기 — S4 «그대로 로그인하기» 뒤 만료된 알림 링크로 다시 들어와도(계정을 모름) 임시본이 남는다 */
+const t6 = async (src) => {
+  const A = world(src, { acct: 'AB12CD', wiz: true, pick: true, ls: { me_token: 't', me_state_v1: JSON.stringify({ t: 't', d: { code: 'AB12CD' } }), me_snapLocal_AB12CD: SNAP, me_snapLocal_ZZ99ZZ: '{"n":9}' }, quota: (k) => k === 'me_relogin_keep' });
+  A.sb._errGoLogin({ ok: false, ecode: 'S8' }, 'S'); for (let i = 0; i < 4; i++) await flush();
+  const s4 = { tok: A.ls.getItem('me_token'), snap: A.ls.getItem('me_snapLocal_AB12CD') };
+  const B = world(src, { ls: Object.fromEntries(A.ls.m) }); B.ls.setItem('me_token', 'old'); B.sb._autoLogin('url'); for (let i = 0; i < 4; i++) await flush();   // 새로 연 쪽(지금 계정 빔 · 상태 캐시 없음)
+  const mid = { snap: B.ls.getItem('me_snapLocal_AB12CD'), other: B.ls.getItem('me_snapLocal_ZZ99ZZ'), tok: B.ls.getItem('me_token'), keep: B.ls.getItem('me_relogin_keep'), notes: B.W.notes.slice() };
+  const C = world(src, { ls: Object.fromEntries(B.ls.m) }); C.sb._orderOwnerSweep('AB12CD'); C.sb._reloginRestore('AB12CD');   // 같은 계정으로 로그인(상태를 받은 자리 그대로)
+  const same = { snap: C.ls.getItem('me_snapLocal_AB12CD'), other: C.ls.getItem('me_snapLocal_ZZ99ZZ') };
+  const D = world(src, { ls: Object.fromEntries(B.ls.m) }); D.sb._orderOwnerSweep('ZZ99ZZ'); D.sb._reloginRestore('ZZ99ZZ');   // 다른 계정으로 로그인
+  const sw = { snap: D.ls.getItem('me_snapLocal_AB12CD'), own: D.ls.getItem('me_snapLocal_ZZ99ZZ') };
+  const E = world(src, { ls: Object.fromEntries(B.ls.m) }); E.sb.clearToken();   // 스스로 로그아웃
+  const out = { snap: E.ls.getItem('me_snapLocal_AB12CD'), other: E.ls.getItem('me_snapLocal_ZZ99ZZ') };
+  return { s4, mid, same, sw, out };
+};
+{ let r; try { r = await t6(MP); } catch (e) { r = { err: String(e && e.stack || e).slice(0, 300) }; }
+  ok('⑥ 9-01 [RELOGIN_SNAP_KEEP] S4 «그대로 로그인하기» 뒤 만료된 알림 링크(계정을 모름) — 코드별 스냅 임시본을 지우지 않는다 · 로그인 표시는 지운다 · «이어서 저장»은 말하지 않는다',
+    !r.err && r.s4.tok === null && r.s4.snap === SNAP && r.mid.snap === SNAP && r.mid.other === '{"n":9}' && r.mid.tok === null && r.mid.keep === null && !/이어서/.test(r.mid.notes.join('')), r);
+  ok('⑥ 9-01 같은 계정으로 로그인하면 그 임시본이 그대로(«이어서 고르기») · 다른 계정으로 로그인하면 남의 임시본을 걷고 제 것은 둔다 · 스스로 로그아웃하면 다 지운다',
+    !r.err && r.same.snap === SNAP && r.same.other === null && r.sw.snap === null && r.sw.own === '{"n":9}' && r.out.snap === null && r.out.other === null, r);
+  const bk = brk(MP, [["&& !(_ksnap && /^me_snapLocal_/.test(k))", '']]); let rb = null; try { rb = bk ? await t6(bk) : null; } catch (x) { rb = { err: String(x).slice(0, 200) }; }
+  ok('깨 보기 ⑥ — 옛 꼴(계정을 몰라도 코드별 임시본을 다 지움)이면 빨강', !!rb && !rb.err && rb.mid.snap === null, rb); }
 
 /* 다른 계정 · 7일 지남은 종전대로 지운다 */
 { const A = world(MP, { ls: { me_relogin_keep: KEEP } }); const b1 = A.sb._reloginRestore('ZZ99ZZ'); const k1 = A.ls.getItem('me_relogin_keep'), o1 = A.ls.getItem('me_order');
