@@ -64,7 +64,7 @@ try {
     let p2 = await page(c2, ''); await p2.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); }); await p2.close();
     p2 = await page(c2, q(S1) + '&rf=ME0001', gas);
     await p2.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
-    await p2.click('#go'); await p2.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
+    await p2.click('#go'); await p2.waitForFunction(() => (window.__bgmR() || []).length && window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});   // [REH_START_WAIT 2026-10-31] «시작»은 최신 확인(CON_FRESH)을 거쳐 큐를 만든다(약 0.2초) — 큐가 생긴 뒤에 쏜다(v0 는 시작 전부터 참이라 기다림이 되지 않았다 · main 에서도 들쭉날쭉 빨강)
     const I = await p2.evaluate(() => window.__esd.idx()); await p2.evaluate((i) => window.__bgmGo.fire(i), I.e); await p2.waitForTimeout(500);
     const D = await p2.evaluate(() => { const s = window.__esd.s(), pl = s.pl || {}, d = document.querySelector('#nProg .door'), l = document.getElementById('nDoor');
       return { run: s.run, th: pl.th, tot: pl.tv + pl.V, left: d ? parseFloat(d.style.left) : null, lab: l && !l.hidden ? l.textContent : '' }; });

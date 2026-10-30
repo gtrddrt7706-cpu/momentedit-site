@@ -9,6 +9,10 @@
    ⑥ 18-01(당일) [RF_LATE_FREEZE] 130초로 시작한 뒤 늦게 온 파일 · 입장 곡 답이 소리를 바꾸지 않는다(못 받은 줄은 «받지 못함 · L5») · «다시 받기»를 누르면 그때 새 차례로 붙는다
    ⑦ 18-02(당일) [RF_SEL_REFETCH] 나레이션으로 열고 하객 맞이 칩을 «두 분 목소리»로 바꾸면 need 를 다시 재고 새 차례로 받는다 — «시작»이 목록 · 파일을 기다린다
    옛 판(#1453 · 375d6ad1)에서는 ⑤ ⑥ ⑦ 이 빨강이어야 한다
+   ⑧ 19-01(고객) [RF_WAIT_GEN] «새로 저장된 소리가 있어요»로 시작 예약이 버려지면 옛 130초 시계도 끝난다 — 뒤의 «다시 불러오기» 받기를 굳히지 않는다 ·
+      기다리는 «시작»은 새 받기(다시 받기 · 칩)를 새 130초로 이어서 기다린다
+   ⑨ 19-01(당일) [RF_FREEZE_TRUE] 굳힐 때 이미 물린 지금 파일은 «받아 둠» 그대로(그 소리가 나간다) · 나레이션으로 나갈 줄은 두 분 파일 연결을 걷는다
+   옛 판(#1454 · 0a2664b1)에서는 ⑧ ⑨ 가 빨강이어야 한다
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
@@ -39,15 +43,15 @@ function world(o) {
     return new Promise((res, rej) => C.setTimeout(() => { if (b.fn === 'adminRitualFiles' && o.listFail) rej(new Error('net')); else res({ json: () => Promise.resolve({ result: body }) }); }, ms)); };
   const sb = { $: () => go, RF_FRESH: { done: !!o.done, wait: false, ask: null }, RF_ST: o.st || {}, RF_WHY: {}, RF_GEN: {}, RF_SKIP: '', RF_EXEC: 'x', S: { up: o.up || {} },
     rfKeys: () => (o.keysFn ? o.keysFn(sb.S) : o.keys.slice()), esdWant: () => !!o.mu, ESD: { st: '' }, ES: { prepSong: () => ({ x: 1 }) }, esdDecode: () => Promise.resolve({}), esdPrepVoice: () => {}, render: () => {},
-    RF_ORIG: {}, CLIPS: {}, RF_OWN: {}, RF_CUR: {}, MODE: 'console', paint: () => {}, GUEST: false, QS: { get: (k) => (k === 'rf' ? 'AB12CD' : null) },
+    RF_ORIG: {}, CLIPS: {}, RF_OWN: {}, RF_CUR: {}, RF_CACHED: {}, RF_FROM: {}, RF_PUTFAIL: {}, MODE: 'console', paint: () => {}, GUEST: false, QS: { get: (k) => (k === 'rf' ? 'AB12CD' : null) },
     localStorage: { getItem: () => 'TOK' }, toast: (t) => { W.tsts.push(t); }, rfPaint: () => {}, rfWhy: () => '연결이 끊겼어요 (코드 L6)', rfOkSet: () => {}, rfOwnSupPut: () => {},
     rfOwnSupGet: () => { W.sup++; return new Promise((r) => C.setTimeout(() => r(null), 4000)); }, rfSlugOf: (k) => k, rfOwnFall: () => {},
     fetch, AbortController: undefined, setTimeout: C.setTimeout, clearTimeout: C.clearTimeout, Promise, JSON, Object, String, Array, Uint8Array, atob, URL, Blob,
-    Date: { now: () => C.now() }, rfFresh: () => new Promise((r) => C.setTimeout(() => r(null), o.freshMs || 300)) };
+    Date: { now: () => C.now() }, rfFresh: () => new Promise((r) => C.setTimeout(() => r(o.freshFn ? o.freshFn() : null), o.freshMs || 300)) };
   vm.createContext(sb);
   if (o.mu) sb.S.mu = { src: 'up', fid: 'MU', name: '곡' };
   let n = 0; sb.URL = { createObjectURL: () => 'blob:' + (++n) };
-  vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait', 'rfPending', 'rfReadyWait', 'rfPrefetch', 'rfAgainRun', 'rfGenBump', 'rfFreeze', 'rfSelSig', 'rfSelRefetch'].map((f) => grabIn(CS, f)).join('\n') + '\n'
+  vm.runInContext(['rfBusyNow', 'rfLookNow', 'rfLookBegin', 'rfLookWait', 'rfPending', 'rfReadyWait', 'rfPrefetch', 'rfAgainRun', 'rfGenBump', 'rfFreeze', 'rfSelSig', 'rfSelRefetch', 'rfCurSet', 'rfFreshApply'].map((f) => grabIn(CS, f)).join('\n') + '\n'
     + lineIn(CS, /var RF_LOOK = [^\n]*/) + '\n' + lineIn(CS, /var RF_READY = [^\n]*/) + '\n' + lineIn(CS, /var RF_LATE_SAY = [^\n]*/) + '\n' + iife, sb);
   const bl = sb.rfLookBegin; sb.rfLookBegin = function () { W.look++; return bl(); };
   W.go = go; W.sb = sb;
@@ -140,6 +144,44 @@ await sec('⑦', async () => {
   ok('⑦ «시작»은 목록 · 파일을 기다렸다가 두 분 소리가 붙은 뒤 한 번', a === 0 && W.ran === 1 && W.sb.RF_OWN.g0 === 1, { a, ran: W.ran, own: W.sb.RF_OWN });
   W.chip('guestVoice', 'nar'); await W.C.advance(0);
   ok('⑦ 다시 «나레이션»으로 바꾸면 두 분 소리를 걷어 나레이션으로 되돌린다', !W.sb.RF_OWN.g0 && !W.sb.RF_FRESH.list && !W.sb.rfPending(), { own: W.sb.RF_OWN, list: W.sb.RF_FRESH.list }); });
+
+await sec('⑧', async () => {
+  /* 열 때 g0 은 받고 g1 은 실패 · «시작»(최신 확인 중) · «다시 받기»로 g1 이 오래 걸림 · «시작»을 다시 눌러 기다림 · 최신 확인이 «새로 저장된 소리»(g1 → F2) ·
+     40초에 «다시 불러오기» — 새 목록 50초 · 새 파일 50초(옛 시계라면 130.3초에 굳혀 버린다) */
+  const o8 = { keys: ['g0', 'g1'], files: [{ id: 'F0', key: 'g0', name: 'a' }, { id: 'F1', key: 'g1', name: 'b' }, { id: 'F2', key: 'g1', name: 'c' }], up: { g0: { id: 'F0' }, g1: { id: 'F1' } }, listMs: 5, done: false, freshMs: 1000,
+    freshFn: () => ({ keys: ['g1'], up: { g0: { id: 'F0' }, g1: { id: 'F2' } }, sel: null }), fileQ: { F0: [[10, true], [10, true], [10, true]], F1: [[10, false], [300000, false]], F2: [[50000, true]] } }, W = world(o8), T0 = W.C.now();
+  W.sb.rfPrefetch(); await W.C.advance(50);
+  W.go.onclick(); await W.C.advance(50);   // 시작 — 최신 확인 중(1초)
+  W.sb.rfAgainRun(); await W.C.advance(100);   // 다시 받기 — g1 이 오래 걸린다
+  W.go.onclick(); const live = !!W.sb.RF_READY.p; await W.C.advance(1000);   // 시작 다시 — 기다림 · 그 사이 최신 확인 답 «새로 저장된 소리»
+  const noticed = !!W.sb.RF_FRESH.ask, p0 = !!W.sb.RF_READY.p;
+  await W.C.advance(T0 + 40000 - W.C.now()); o8.listMs = 50000; W.sb.rfFreshApply(); await W.C.advance(0);   // 40초에 «다시 불러오기» — 새 목록 50초
+  ok('⑧ 19-01(고객) [RF_WAIT_GEN] 안내로 시작 예약이 버려지면 옛 기다림(시계 · 약속)도 끝난다', live && noticed && !p0, { live, noticed, p0 });
+  await W.C.advance(120000);
+  ok('⑧ 옛 130초 시계가 «다시 불러오기»의 새 받기를 굳히지 않는다 — 새 파일 F2 가 붙는다 · 늦음 아님', W.sb.RF_ST.g1 === 'ok' && W.sb.RF_OWN.g1 === 1 && W.sb.RF_CUR.g1 && W.sb.RF_CUR.g1.id === 'F2' && !W.sb.RF_READY.late && W.ran === 0, { st: W.sb.RF_ST, why: W.sb.RF_WHY, late: W.sb.RF_READY.late, ran: W.ran });
+  W.go.onclick(); await W.C.advance(10);
+  ok('⑧ 그 뒤 «시작»은 새 소리로 바로 한 번', W.ran === 1, W.ran);
+  /* 기다리는 «시작» + 100초에 «다시 받기»(새 파일 50초) — 새 받기는 새 130초 */
+  const V = world({ keys: ['g0'], files: [{ id: 'F0', key: 'g0', name: 'a' }], up: { g0: { id: 'F0' } }, listMs: 5, done: true, fileQ: { F0: [[300000, false], [50000, true]] } });
+  V.sb.rfPrefetch(); await V.C.advance(10); V.go.onclick(); await V.C.advance(100000);
+  V.sb.rfAgainRun(); await V.C.advance(35000); const a = V.ran, late = V.sb.RF_READY.late;
+  await V.C.advance(20000);
+  ok('⑧ [RF_WAIT_GEN] 기다리는 사이 새 받기 — 처음 시계(130초)로 굳히지 않고 새 받기를 기다렸다가 두 분 소리로 한 번 시작', a === 0 && !late && V.ran === 1 && V.sb.RF_OWN.g0 === 1 && !V.sb.RF_READY.late, { a, late, ran: V.ran, own: V.sb.RF_OWN, st: V.sb.RF_ST }); });
+
+await sec('⑨', async () => {
+  /* 열 때 g0 은 받고 g1 은 실패 · «다시 받기» — g0 · g1 다시 받기가 둘 다 오래 걸린다 · «시작» 130초로 굳힘 */
+  const W = world({ keys: ['g0', 'g1'], files: [{ id: 'F0', key: 'g0', name: 'a' }, { id: 'F1', key: 'g1', name: 'b' }], up: { g0: { id: 'F0' }, g1: { id: 'F1' } }, listMs: 5, done: true, fileQ: { F0: [[10, true], [300000, true]], F1: [[10, false], [300000, true]] } });
+  W.sb.rfPrefetch(); await W.C.advance(50); const c0 = W.sb.CLIPS.g0;
+  W.sb.rfAgainRun(); await W.C.advance(50); const busy = W.sb.RF_ST.g0;
+  W.go.onclick(); await W.C.advance(131000);
+  ok('⑨ 19-01(당일) [RF_FREEZE_TRUE] 굳힐 때 이미 물린 지금 파일(같은 id)은 «받아 둠» 그대로 — 화면과 나가는 소리가 같다', busy === 'busy' && W.ran === 1 && W.sb.RF_ST.g0 === 'ok' && W.sb.RF_OWN.g0 === 1 && W.sb.CLIPS.g0 === c0 && !W.sb.RF_WHY.g0, { busy, ran: W.ran, st: W.sb.RF_ST, why: W.sb.RF_WHY, own: W.sb.RF_OWN });
+  ok('⑨ 받은 적 없는 줄은 «받지 못함 · L5» · 나레이션', W.sb.RF_ST.g1 === 'fail' && /코드 L5/.test(W.sb.RF_WHY.g1 || '') && !W.sb.RF_OWN.g1 && !W.sb.CLIPS.g1, { st: W.sb.RF_ST, own: W.sb.RF_OWN });
+  /* 다시 받으려던 파일이 지금 물린 것과 다르다(F0 → F9) — 나레이션으로 나가니 두 분 파일 연결을 걷는다 */
+  const V = world({ keys: ['g0'], files: [{ id: 'F0', key: 'g0', name: 'a' }, { id: 'F9', key: 'g0', name: 'z' }], up: { g0: { id: 'F0' } }, listMs: 5, done: true, fileQ: { F0: [[10, true]], F9: [[300000, true]] } });
+  V.sb.rfPrefetch(); await V.C.advance(50); const o0 = V.sb.RF_OWN.g0;
+  V.sb.S.up = { g0: { id: 'F9' } }; V.sb.RF_ST.g0 = 'fail'; V.sb.rfAgainRun(); await V.C.advance(50);
+  V.go.onclick(); await V.C.advance(131000);
+  ok('⑨ [RF_FREEZE_TRUE] «받지 못함 · 나레이션으로 나감»인 줄은 두 분 소리 연결(RF_OWN · CLIPS)을 걷는다 — 실제로 나레이션이 나간다', o0 === 1 && V.ran === 1 && V.sb.RF_ST.g0 === 'fail' && !V.sb.RF_OWN.g0 && !V.sb.CLIPS.g0 && !V.sb.RF_CUR.g0, { o0, ran: V.ran, st: V.sb.RF_ST, own: V.sb.RF_OWN, clips: V.sb.CLIPS }); });
 
 console.log(fail ? `\n✗ CON_START_NOWAIT 실패 ${fail}건` : '\n✓ CON_START_NOWAIT — 시작 기다림 통과');
 process.exit(fail ? 1 : 0);
