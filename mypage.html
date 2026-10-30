@@ -8556,12 +8556,12 @@ function invStepMethod(box){
   /* [INV_NAME_ARIA] 2026-09-26 통합 점검 L6 · 칸 옆 «신랑» · «신부»는 이어진 이름표가 아니어서(한 이름표에 칸이 둘) 낭독기는 네 칸을 «한글» · «영문 이름»으로만 읽었다 —
      누구 칸인지 모른다. 칸마다 이름(aria-label)을 단다 · placeholder 는 예시 그대로(2/4 [INV_FIELD_LABEL] 과 같은 방식) */
   var names='<div class="pf" style="margin-top:4px"><label class="pf-l">신랑</label>'
-    +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" aria-label="신랑 한글 이름" placeholder="한글" value="'+nv('groomKo')+'">'
+    +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" aria-label="신랑 청첩장에 표시할 이름" placeholder="표시할 이름" value="'+nv('groomKo')+'">'
     +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" aria-label="신랑 영문 이름" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'
     +'<div class="pf"><label class="pf-l">신부</label>'
-    +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" aria-label="신부 한글 이름" placeholder="한글" value="'+nv('brideKo')+'">'
+    +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" aria-label="신부 청첩장에 표시할 이름" placeholder="표시할 이름" value="'+nv('brideKo')+'">'
     +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" aria-label="신부 영문 이름" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
-    +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun).</div>'   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
+    +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun). 영문 이름은 링크 주소에 쓰여요 · 꼭 영문으로 적어 주세요.</div>'   /* ★[NARROW_170_1030 검토 170] F6 로마자 이름이 왜 꼭 있어야 하는지 칸 옆에서 말한다 */   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn" role="group" aria-label="모바일 참석 QR도 받으실래요?"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'" aria-pressed="'+(d.selfQR===true)+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'" aria-pressed="'+(d.selfQR===false)+'">아니요</button></span></div>' : '';   // [INV_YN_PRESSED]
   box.innerHTML='<div class="consult-card inv-wrap">'
@@ -8594,7 +8594,7 @@ function invStepMethod(box){
     var mm=INVFLOW.draft.method;
     if(!mm){ _invErr('초대 방식을 골라 주세요.'); return; }
     if(mm!=='none'){
-      if(!d.groomKo||!d.brideKo){ _invErr('신랑·신부 이름(한글)을 입력해 주세요.'); return; }
+      if(!d.groomKo||!d.brideKo){ _invErr('청첩장에 표시할 신랑·신부 이름을 적어 주세요.')   /* ★[NARROW_170_1030 검토 170] N7 검사 조건은 그대로 */; return; }
       var _miss=_invEnMiss(d);   // [INV_EN_GATE] 빈 칸 + '알파벳이 하나도 없는 칸'(한글 입력)을 함께 막는다
       if(_miss.length){ _invEnAsk(_miss, _miss[0]==='신랑'?'mp_gEn':'mp_bEn'); return; }
     }
@@ -8644,19 +8644,22 @@ function invStepParents(box){
   function bankCur(bk,no){ bk=String(bk||''); return (String(no||'').trim() || (bk && bk!==BANKS[0])) ? bk : ''; }
   // [INV_FIELD_LABEL 2026-09-26 고객 점검 inv-5] 칸마다 누구 것인지 이름을 단다 — 값이 차면 「국민 / 110-315-175994」만 남아 신랑·신부 계좌를 칸만 보고 가릴 수 없었다
   //   [INV_BANK_PICK 검토] 부모님 은행 칸 104 → 124px(신랑·신부 칸과 같은 폭) — 561px 이상에서 칸이 나란히 설 때 「은행 선택」이 「은행 선ㅌ」로 잘렸다(1280 실측 · 화살표 몫)
-  function paRow(label,bankId,numId,key){ var s=paSplit(d[key]); return '<div class="pf-l">'+label+' 계좌</div><div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 124px;',label+' 계좌 은행',true)+'<input class="cc-input" id="'+numId+'" aria-label="'+label+' 계좌번호" placeholder="예: 110-315-175994" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
+  /* ★[PARENT_ONE_NAME_1030 검토 170 F5] 계좌마다 예금주로 보일 이름을 칸 이름 옆에 — 청첩장(shared/hydrate.js splitParents · live.html)과 같은 규칙: 두 분이면 앞 = 아버지 · 뒤 = 어머니 · 한 분만 적고 그분 계좌만 넣으면 그 계좌 */
+  function _paHolder(key){ var g=/^groom/.test(key), nm=String((g?d.groomParents:d.brideParents)||'').split(/[·,/]|\s및\s/).map(function(x){ return x.trim(); }).filter(Boolean), fa=String(d[g?'groomFatherAccount':'brideFatherAccount']||'').trim(), ma=String(d[g?'groomMotherAccount':'brideMotherAccount']||'').trim(), mom=/Mother/.test(key);
+    if(nm.length===1&&ma&&!fa) return mom?nm[0]:''; return mom?(nm[1]||''):(nm[0]||''); }
+  function paRow(label,bankId,numId,key){ var s=paSplit(d[key]), _h=_paHolder(key); return '<div class="pf-l">'+label+' 계좌'+(_h?' <span class="pf-h">· 예금주 '+escapeHtml(_h)+'</span>':'')+'</div><div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 124px;',label+' 계좌 은행',true)+'<input class="cc-input" id="'+numId+'" aria-label="'+label+' 계좌번호" placeholder="예: 110-315-175994" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
   var gtCur=d.groomChildTitle||(is04&&!d._titleTouched?OMIT:'장남'), btCur=d.brideChildTitle||(is04&&!d._titleTouched?OMIT:'차녀');
   var gbCur=bankCur(d.groomBank,d.groomAccount), bbCur=bankCur(d.brideBank,d.brideAccount);
   var pF = d.greetingShowParents==='Y' ? '<div class="inv-fields">'
     +'<div class="pf-l">신랑 측 혼주</div><div class="inv-row"><input class="cc-input" id="iv_gp" aria-label="신랑 측 혼주 성함" placeholder="예: 이재환 최미경" value="'+escapeHtml(d.groomParents||'')+'">'+selOnly('iv_gct',GT,gtCur,'flex:0 0 124px;','신랑 호칭')+'</div>'+etcRow('iv_gct',gtCur,GT,'신랑 호칭 직접 입력 (예: 장손)')
     +'<div class="pf-l">신부 측 혼주</div><div class="inv-row"><input class="cc-input" id="iv_bp" aria-label="신부 측 혼주 성함" placeholder="예: 김영호 이정숙" value="'+escapeHtml(d.brideParents||'')+'">'+selOnly('iv_bct',BT,btCur,'flex:0 0 124px;','신부 호칭')+'</div>'+etcRow('iv_bct',btCur,BT,'신부 호칭 직접 입력')
-    +'<div class="cc-note">'+(is04?'버밀리언(04)은 \'이름만\' 표기가 기본이에요. 호칭을 넣으려면 골라 주세요.<br>':'')+(is05?'보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.<br>':'')+'두 분 성함 사이 가운뎃점(·)은 띄어쓰기로 입력하면 자동으로 들어가요. 예금주·표기는 입력하신 이름에서 자동으로 만들어져요.</div></div>' : '';   // MPD_E10 note 적층 압축 — 안내 3개를 한 문단으로(§8-1-④)
+    +'<div class="cc-note">'+(is04?'버밀리언(04)은 \'이름만\' 표기가 기본이에요. 호칭을 넣으려면 골라 주세요.<br>':'')+(is05?'보태니컬(05)은 부모님을 영문 \'son of\'로 표기해, 자녀 호칭(장남·차녀)은 청첩장에 나타나지 않아요.<br>':'')+'성함 표기 없이도 만들 수 있어요 · 한 분만 적으셔도 돼요. 여러 분이면 띄어 쓰면 가운뎃점(·)이 자동으로 들어가고, 예금주 · 표기는 입력하신 이름에서 만들어져요.</div></div>'   /* ★[NARROW_170_1030 검토 170] N6 */ : '';   // MPD_E10 note 적층 압축 — 안내 3개를 한 문단으로(§8-1-④)
   var paF = d.envelopeShowParents==='Y' ? '<div class="inv-fields">'
     + paRow('신랑 아버지','iv_gfb','iv_gfa','groomFatherAccount')
     + paRow('신랑 어머니','iv_gmb','iv_gma','groomMotherAccount')
     + paRow('신부 아버지','iv_bfb','iv_bfa','brideFatherAccount')
     + paRow('신부 어머니','iv_bmb','iv_bma','brideMotherAccount')
-    + '<div class="cc-note">은행을 고르고 계좌번호를 적어 주세요. 빈 칸은 청첩장에 안 나와요.</div></div>' : '';
+    + '<div class="cc-note">은행을 고르고 계좌번호를 적어 주세요. 빈 칸은 청첩장에 안 나와요. 예금주 이름은 위 혼주 성함에서 가져와요(한 분만 적으셔도 그분 계좌에 맞춰 들어가요).</div></div>' : '';   /* [PARENT_ONE_NAME_1030] */
   var _accWhere = (function(){ var m=d.method, o='';
     var offOn=(m==='offline'||m==='both'), onOn=(m==='online'||m==='both');
     function chk(key,checked,label){ return '<label class="inv-chk"><input type="checkbox" data-acc="'+key+'" '+(checked?'checked':'')+'> '+label+'</label>'; }
@@ -8673,7 +8676,7 @@ function invStepParents(box){
     + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장</span>'+wizActs()+'</div>'+_invSteps(d,1)   // [WZ_STEPS]
-    +'<div class="inv-q">혼주(부모님) · 마음 전하실 곳</div><div class="inv-sub"><span class="ln-bal">계좌를 비워 두면 마음 전하실 곳 없이 나가요.</span><span class="ln-bal">나머지는 선택이에요.</span></div>'   // [INV2_SUB_LINES 2026-10-09] 두 문장을 « · »로 이으니 360 · 390 에서 «…나가요 · / 나머지는…»(줄 끝 점) — 문장마다 한 줄(.ln-bal)
+    +'<div class="inv-q">혼주 성함 · 마음 전하실 곳</div>'   /* ★[NARROW_170_1030 검토 170] N6 «혼주(부모님)» → 성함 칸 · 한 분만 · 없이도(아래 안내) */+'<div class="inv-sub"><span class="ln-bal">계좌를 비워 두면 마음 전하실 곳 없이 나가요.</span><span class="ln-bal">나머지는 선택이에요.</span></div>'   // [INV2_SUB_LINES 2026-10-09] 두 문장을 « · »로 이으니 360 · 390 에서 «…나가요 · / 나머지는…»(줄 끝 점) — 문장마다 한 줄(.ln-bal)
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
     + '<div class="inv-gate"><div class="inv-gate-q">마음 전하실 곳 (계좌)</div></div>' + aF
@@ -9682,11 +9685,11 @@ var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌�
        스피커가 필요하고, 나머지는 이미 앞에 있는 사람들이라 디렉터가 부르면 된다.
        **되살리지 말 것** — `gather` 필드와 「자리에서」 배지 둘 다. */
 var PHOTO_PRESETS=[
-  { n:'양가 가족 전체', d:'부모님 + 형제·자매까지 모여서' },
+  { n:'양가 가족 전체', d:'참석하신 가족 구성에 맞춰 모두 모여서' },   /* ★[NARROW_170_1030 검토 170] N5 «부모님 + 형제·자매»는 가족 구성을 좁혔다 */
   { n:'양가 부모님과',  d:'양가 어른만 남고 · 가장 많이 남기시는 컷이에요' },
-  { n:'신랑 측 가족',   d:'신랑 쪽 부모님·형제자매' },
-  { n:'신부 측 가족',   d:'신부 쪽 부모님·형제자매' },
-  { n:'형제·자매만',    d:'부모님 없이 또래끼리' },
+  { n:'신랑 측 가족',   d:'신랑 쪽 · 참석하신 가족 구성에 맞춰' },
+  { n:'신부 측 가족',   d:'신부 쪽 · 참석하신 가족 구성에 맞춰' },
+  { n:'형제·자매와 함께', d:'참석하신 가족 구성에 맞춰 담아요' },   /* ★[NARROW_170_1030 검토 170] N5 옛 이름 «형제·자매만»(저장된 초안은 PHOTO_RENAME 이 새 이름으로 읽는다 · 옛 구도 호명 녹음은 퇴역 그대로) */
   { n:'조부모님과',     d:'조부모님은 앉으신 채로 · 두 분이 곁으로 가서 담아요' },
   /* ★[PHOTO_FAMILY_ONLY 2026-09-26 사장님 G3] «친구들과» · «직장·지인과» 는 뺐다 — «단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게».
      친구는 아래 «친구들과 자유롭게» 한 칸(PHOTO_FRIEND)으로 간다. 되살리지 말 것.
@@ -9694,6 +9697,7 @@ var PHOTO_PRESETS=[
   { n:'아이들과',       d:'오래 못 기다리니 앞 순서를 권해요' }
 ];
 var PHOTO_FRIEND_EX=['대기실처럼 편하게 모여서','친구들 폰으로도 몇 장','다 같이 셀카 한 장','부케 받는 친구와 한 장'];   // [PHOTO_FRIEND_EX] 친구들과 자유롭게 · 누르면 담기는 예시
+var PHOTO_RENAME={'형제·자매만':'형제·자매와 함께'};   /* ★[NARROW_170_1030 N5] 옛 구도 이름 → 새 이름(저장된 초안을 열 때 읽기만 바꾼다) */
 var PHOTO_NAMES=PHOTO_PRESETS.map(function(x){ return x.n; });   // 이름만 · 저장값은 종전대로 문자열이다
 function photoMeta(n){ for(var i=0;i<PHOTO_PRESETS.length;i++) if(PHOTO_PRESETS[i].n===n) return PHOTO_PRESETS[i]; return null; }
 /* ★[PHOTO_MIN] 예상 시간 — 5차 리서치 실측. 20명 이상 한 컷 6~10분(25명은 하단값 6분) ·
@@ -9998,7 +10002,7 @@ function startPhotoFlow(gi, rd, dig, fok, meal){   // rd = 식순 초안(읽기 
      ★둘 다 있으면 photoWish 가 이긴다(이미 새 화면에서 고쳐 쓴 것이므로 옛 값으로 되돌리지 않는다). */
   var _sv=(((gi||{}).photoWish)||[]), _wish=_sv.length?wishClean(_sv):_wishFromFx(((gi||{}).photoFx)||[]);
   var _pc0=((gi||{}).photoCaller)||{};   // [PHOTO_CALLER]
-  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, friend:String(((gi||{}).photoFriend)||''), friendOk:!!fok, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null), dig:!!dig, meal:(meal==='yes'||meal==='no')?meal:'' };   // [PHOTO_DAY_STEPS] meal — 감사 인사 뒤 «식사 자리로 · 귀가 인사 · 모름»   // [PHOTO_FRIEND] friendOk = 서버가 photoFriend 를 안다(옛 서버는 버린다 · SNAP_V2_GATE 와 같은 까닭)
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).map(function(n){ return PHOTO_RENAME[n]||n; }),   /* [NARROW_170_1030 N5] */ wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, friend:String(((gi||{}).photoFriend)||''), friendOk:!!fok, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null), dig:!!dig, meal:(meal==='yes'||meal==='no')?meal:'' };   // [PHOTO_DAY_STEPS] meal — 감사 인사 뒤 «식사 자리로 · 귀가 인사 · 모름»   // [PHOTO_FRIEND] friendOk = 서버가 photoFriend 를 안다(옛 서버는 버린다 · SNAP_V2_GATE 와 같은 까닭)
   // 식순·스냅과 동일한 전체화면 오버레이(진행바·다른 카드를 덮어 집중도 향상 · marker: PROD_OVERLAY 2026-07-19 사용자 지시). 별도 fixed div라 renderProduction과 독립(pull-refresh 무관)
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','가족 · 친구 스냅');   // [PHOTO_MODAL_A11Y] aria-modal + 뒤 페이지 inert(_photoInert)
