@@ -1278,7 +1278,7 @@ var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 a
   V: ['voiceClone'],
   U: ['ritualFile', 'snapRefUpload', 'pvPhoto'],
   D: ['ritualFileDel', 'ritualFilePurgeMine', 'snapWithdraw'],
-  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation', 'saveDressPick', 'pvSave'],   // 시착 준비 저장(아래 _errArea 의 DRESS_ERR_AREA)
+  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation', 'pvSave', 'saveDressPick'],   // 시착 준비 저장(아래 _errArea 의 DRESS_ERR_AREA)
   L: ['login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery', 'pvThumbs'],
   P: ['paymentSignal', 'midSignal', 'balanceSignal', 'extraRetouchSignal', 'cardConfirm', 'cardPayConfig', 'saveCashReceipt', 'saveRefundAccount'],
   C: ['weddingAvailability', 'changeWeddingHold', 'cancelWeddingHold', 'quoteWeddingChange', 'requestWeddingChange', 'cancelWeddingChange', 'requestContract', 'requestContractResend', 'signFittingConsent', 'signContract'],
