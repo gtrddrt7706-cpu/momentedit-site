@@ -20170,6 +20170,13 @@ chk '@media (hover:hover){.me-fab-stack .me-fab:hover .me-fab-nm' assets/fab-nam
 chk "stack.classList.toggle('nm-tip'" assets/fab-names.js 1                                  # 1회 말풍선 우선
 nochk '#mp_dressFab .me-fab-nm{position:absolute' mypage.html                                 # 드레스 전용 규칙은 공통으로 흡수(두 벌 금지)
 chk 'FAB_NAMES_1031' scripts/audit/fab-names.mjs 3
+# ── 2026-10-31 [FAB_NM_ICO_CY · FAB_NM_HOVER_DELAY 코워크 · 사장님 «추천대로»] 이름표 세로는 아이콘 가운데(올리면 아이콘과 같이 2px) · 올림은 150ms 뒤 · 나갈 땐 바로 · 초점은 바로
+chk 'right:calc(100% + 8px);top:25px;transform:translateY(-50%);' assets/fab-names.js 1
+chk '@media (max-width:680px){.me-fab-stack .me-fab .me-fab-nm{top:23px}}' assets/fab-names.js 1          # 46px 아이콘
+chk 'transform:translateY(calc(-50% - 2px));transition:opacity .2s ease .15s,visibility 0s linear .15s' assets/fab-names.js 1
+chk '.me-fab-stack .me-fab:focus-visible .me-fab-nm{opacity:1;visibility:inherit;transition:opacity .2s ease,' assets/fab-names.js 1
+chk 'FAB_NM_ICO_CY' scripts/audit/fab-names.mjs 4
+chk 'FAB_NM_HOVER_DELAY' scripts/audit/fab-names.mjs 7
 # ── 2026-10-31 [FAB_SHARE_COPIED] 홈 공유 «복사됨»은 보이는 이름표에(종전 .me-fab-cap 은 늘 숨김 → PC 복사 확인이 안 보였다)
 chk "meShareSite(sf.querySelector('.me-fab-nm'));" index.html 1
 nochk "meShareSite(sf.querySelector('.me-fab-cap'))" index.html

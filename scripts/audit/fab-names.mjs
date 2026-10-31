@@ -5,6 +5,7 @@
  *   ① 올리면 이름표가 뜬다 · 이름은 표대로 · 화면 왼쪽 밖으로 안 잘린다 · 포인터를 이름표로 옮겨도 남는다 · Esc 로 닫힌다
  *   ② 드레스 이름표 겉모습은 그대로(위치 · 크기 · 글꼴 · 색 — 옛 판 실측값과 같다)
  *   ③ 맨 위로가 안 보일 때 · 1회 말풍선이 떠 있을 때 · 상담 도우미 패널이 열렸을 때 · 전체 화면 편집 때 이름표 안 뜸
+ *   ⑤ 이름표 가운데 = 아이콘 가운데(±0.5px · FAB_NM_ICO_CY) · 올림 100ms 뒤 투명 · 250ms 뒤 보임 · 나가면 바로 · 초점 바로(FAB_NM_HOVER_DELAY)
  *   ④ 390 휴대폰(터치 · hover 없음) — 이름표가 뜨지 않는다
  *   종료: 0 통과 · 1 틀림 · 2 재지 못했다(브라우저 없음)
  *   캡처: FAB_NAMES_SHOTS=<폴더>
@@ -55,9 +56,9 @@ const closeX = async (P, fr) => { await fr.click('#pkExit'); await wait(500); };
 
 const NAMES = { mp_ledFab: '내 내역', mp_dressFab: '드레스 · 소품 · 부케', meAdvFab: '상담 도우미', mp_topFab: '맨 위로' };
 /* 옛 판(드레스 전용 규칙) 실측 — 1280 · 이름표 상자 [left, top, width, height] · 글꼴 · 색 */
-const DRESS_OLD = process.env.FAB_DRESS_OLD ? JSON.parse(process.env.FAB_DRESS_OLD) : [[1065.3, 400.5, 134.7, 36], '"Noto Serif KR", "Nanum Myeongjo", serif | 13px | normal | 400 | normal | rgb(90, 85, 76) | 8px 10px | 9px'];   // 2026-10-31 main 0d050e7 판(드레스 전용 규칙) 실측
-const nmInfo = (P, sel) => P.evaluate((s) => { const b = document.querySelector(s); if (!b) return null; const n = b.querySelector('.me-fab-nm'); if (!n) return { none: 1 }; const c = getComputedStyle(n), r = n.getBoundingClientRect(); return { vis: c.visibility, op: +c.opacity, txt: n.textContent, box: [r.left, r.top, r.width, r.height].map((x) => Math.round(x * 10) / 10), font: [c.fontFamily, c.fontSize, c.lineHeight, c.fontWeight, c.letterSpacing, c.color, c.padding, c.borderRadius].join(' | ') }; }, sel);
-async function hover(P, sel) { const r = await P.evaluate((s) => { const b = document.querySelector(s); if (!b) return null; const q = b.getBoundingClientRect(); return [q.left + q.width / 2, q.top + q.height / 2]; }, sel); if (!r) return false; await P.mouse.move(r[0], r[1]); await wait(320); return true; }
+const DRESS_OLD = process.env.FAB_DRESS_OLD ? JSON.parse(process.env.FAB_DRESS_OLD) : [[1065.3, 398.5, 134.7, 36], '"Noto Serif KR", "Nanum Myeongjo", serif | 13px | normal | 400 | normal | rgb(90, 85, 76) | 8px 10px | 9px'];   // 2026-10-31 main 0d050e7 판(드레스 전용 규칙) 실측 · [FAB_NM_ICO_CY] 위만 400.5 → 398.5(아이콘 가운데에 맞춤 · 올리면 아이콘이 2px 뜬다)
+const nmInfo = (P, sel) => P.evaluate((s) => { const b = document.querySelector(s); if (!b) return null; const n = b.querySelector('.me-fab-nm'); if (!n) return { none: 1 }; const c = getComputedStyle(n), r = n.getBoundingClientRect(), ic = b.querySelector('.me-fab-ico'), ir = ic ? ic.getBoundingClientRect() : r; return { dy: Math.round(((r.top + r.height / 2) - (ir.top + ir.height / 2)) * 10) / 10, vis: c.visibility, op: +c.opacity, txt: n.textContent, box: [r.left, r.top, r.width, r.height].map((x) => Math.round(x * 10) / 10), font: [c.fontFamily, c.fontSize, c.lineHeight, c.fontWeight, c.letterSpacing, c.color, c.padding, c.borderRadius].join(' | ') }; }, sel);
+async function hover(P, sel) { const r = await P.evaluate((s) => { const b = document.querySelector(s); if (!b) return null; const q = b.getBoundingClientRect(); return [q.left + q.width / 2, q.top + q.height / 2]; }, sel); if (!r) return false; await P.mouse.move(r[0], r[1]); await wait(450); return true; }   // [FAB_NM_HOVER_DELAY] 150ms 지연 + 0.2초 나타남
 const away = async (P, W, H) => { await P.mouse.move(Math.round(W / 3), Math.round(H / 2)); await wait(320); };
 
 try {
@@ -73,6 +74,7 @@ try {
       if (!n || n.none) { no(`${tag} ${id} 이름표가 없다 [FAB_NAMES_1031]`); continue; }
       if (n.vis !== 'visible' || n.op < 0.9 || n.txt !== NAMES[id]) no(`${tag} ${id} 올려도 이름표 ${JSON.stringify(n)} [FAB_NAMES_1031]`);
       if (n.box[0] < 0) no(`${tag} ${id} 이름표가 왼쪽 밖으로 잘린다 ${n.box} [FAB_NAMES_1031]`);
+      if (Math.abs(n.dy) > 0.5) no(`${tag} ${id} 이름표 가운데가 아이콘 가운데와 ${n.dy}px 어긋난다 [FAB_NM_ICO_CY]`);
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/mypage-1280-${id}.png` });
       if (id === 'mp_dressFab') { rows.push(`${tag} 드레스 이름표 ${JSON.stringify(n.box)} ${n.font}`); if (process.argv.includes('--dress-now')) console.log('DRESS_NOW ' + JSON.stringify([n.box, n.font]));
         if (DRESS_OLD && (JSON.stringify(DRESS_OLD[0]) !== JSON.stringify(n.box) || DRESS_OLD[1] !== n.font)) no(`${tag} 드레스 이름표 겉모습이 바뀌었다 ${JSON.stringify(DRESS_OLD)} → ${JSON.stringify([n.box, n.font])} [FAB_NAMES_1031]`); }
@@ -130,10 +132,28 @@ try {
       await away(P, W, H); if (!(await hover(P, '.me-fab-stack ' + sel))) { no(`${tag} ${sel} 단추가 없다`); continue; }
       const n = await nmInfo(P, '.me-fab-stack ' + sel);
       if (!n || n.none || n.vis !== 'visible' || n.txt !== nm || n.box[0] < 0) no(`${tag} ${sel} 이름표 ${JSON.stringify(n)} — «${nm}» [FAB_NAMES_1031]`);
-      else rows.push(`${tag} «${n.txt}» 왼끝 ${n.box[0]}`);
+      else rows.push(`${tag} «${n.txt}» 왼끝 ${n.box[0]} · 아이콘과 세로 ${n.dy}`);
+      if (n && !n.none && Math.abs(n.dy) > 0.5) no(`${tag} ${sel} 이름표 가운데가 아이콘 가운데와 ${n.dy}px 어긋난다 [FAB_NM_ICO_CY]`);
       if (SHOTS && i++ < 3) await P.screenshot({ path: `${SHOTS}/${pg.replace('.html', '')}-1280-${i}.png` });
     }
     if (hid !== 'visible') no(`${tag} 줄이 안 보이는 상태에서 쟀다(${hid}) — 재는 길이 틀렸다`);
+    /* [FAB_NM_HOVER_DELAY] 올림 100ms 뒤엔 아직 투명 · 250ms 뒤엔 보임 · 나가면 바로 사라지기 시작 · 키보드 초점은 바로 */
+    if (pg === 'schedule.html') {
+      const sel = '.me-fab-stack ' + Object.keys(want)[0];
+      const c = await P.evaluate((s) => { const q = document.querySelector(s).getBoundingClientRect(); return [q.left + q.width / 2, q.top + q.height / 2]; }, sel);
+      await away(P, W, H); await P.mouse.move(c[0], c[1]); await wait(100); const t100 = await nmInfo(P, sel); await wait(150); const t250 = await nmInfo(P, sel);
+      await wait(300); await away(P, W, H).catch(() => {});
+      await P.mouse.move(c[0], c[1]); await wait(500); await P.mouse.move(Math.round(W / 3), Math.round(H / 2)); await wait(100); const out100 = await nmInfo(P, sel); await wait(400);
+      await P.keyboard.press('Shift'); await P.evaluate((s) => document.querySelector(s).focus(), sel); await wait(100); const f100 = await nmInfo(P, sel);
+      const fv = await P.evaluate((s) => document.querySelector(s).matches(':focus-visible'), sel);
+      await P.evaluate(() => document.activeElement && document.activeElement.blur());
+      if (t100.op > 0.05) no(`${tag} 올리고 100ms 만에 이름표가 보인다(불투명도 ${t100.op}) — 훑으면 깜빡인다 [FAB_NM_HOVER_DELAY]`);
+      if (t250.vis !== 'visible' || t250.op < 0.2) no(`${tag} 올리고 250ms 뒤에도 이름표가 안 보인다 ${t250.vis} · ${t250.op} [FAB_NM_HOVER_DELAY]`);
+      if (out100.op > 0.7) no(`${tag} 마우스가 나가고 100ms 뒤에도 이름표가 그대로다(${out100.op}) — 나갈 땐 지연 없이 [FAB_NM_HOVER_DELAY]`);
+      if (!fv) no(`${tag} 키보드 초점 흉내가 :focus-visible 이 아니다 — 재는 길이 틀렸다`);
+      else if (f100.vis !== 'visible' || f100.op < 0.3) no(`${tag} 키보드 초점 100ms 뒤에 이름표가 아직 ${f100.vis} · ${f100.op} — 초점은 지연 없이 [FAB_NM_HOVER_DELAY]`);
+      rows.push(`${tag} 올림 100ms ${t100.op} · 250ms ${t250.op} · 나감 100ms ${out100.op} · 초점 100ms ${f100.op}`);
+    }
     if (errors.length) no(`${tag} 페이지 오류 ${errors[0]}`);
     await P.close();
   }
@@ -158,4 +178,4 @@ try {
 finally { await eng.close(); srv.close(); }
 if (process.argv.includes('--print') || bad) rows.forEach((r) => console.log('   · ' + r));
 if (bad) { console.log(`━━ fab-names — 실패 ${bad}건 [FAB_NAMES_1031]`); process.exit(1); }
-console.log('━━ fab-names — 통과 · 마이페이지 · 메인 · 일정 줄 아이콘 이름표(올림 · 옮겨도 · Esc · 왼쪽 안 잘림) · 드레스 겉모습 그대로 · 맨 위로 숨음 · 말풍선 · 패널 · 전체 화면 · 휴대폰 안 뜸 [FAB_NAMES_1031]');
+console.log('━━ fab-names — 통과 · 마이페이지 · 메인 · 일정 줄 아이콘 이름표(올림 · 옮겨도 · Esc · 왼쪽 안 잘림 · 아이콘 가운데 · 올림 150ms 지연 · 초점 바로) · 드레스 겉모습 그대로 · 맨 위로 숨음 · 말풍선 · 패널 · 전체 화면 · 휴대폰 안 뜸 [FAB_NAMES_1031]');
