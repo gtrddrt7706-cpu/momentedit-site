@@ -34,13 +34,13 @@
   /* ★★[BGM_FIX_1030 2026-10-30 BGM 섹션 · GPT(Ultra) 두 라운드 합의 · 사장님 «최선인지 판단해서 반영해 봐»] 곡 표 — 이 표가 최종(10/23 목록 31곡은 버렸다)
      f = 곡 번호(곡마다 하나 · 같은 번호 = 같은 파일) · vocal = 가사가 있는 곡(고객 화면 «노래» · 깔릴 때 PARAM.vocalExtra 만큼 더 낮게) */
   var SONGS = {
-    B01: { t: '바다가 보이는 마을', src: '마녀 배달부 키키', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View', why: '산뜻한 재즈 피아노' },
+    B01: { t: '바다가 보이는 마을', src: '마녀 배달부 키키', a: '히사이시 조 · 런던 심포니 오케스트라', v: '히사이시 조 에센셜 앨범', why: '오케스트라로 넓고 산뜻하게' },   // [PICKS_TRUE_1031] 받은 판 = 오케스트라(재즈 트리오 아님)
     B02: { t: 'Day and Age', a: 'Julian Lage', v: "World's Fair", why: '맑은 기타 한 대' },
     B03: { t: 'August 10', a: 'Khruangbin', v: 'Con Todo El Mundo', why: '느긋하고 따뜻하게' },
     B04: { t: 'While You Were Sleeping', a: 'Laufey', v: 'Bewitched', why: '나른하고 포근하게', vocal: true },
     B05: { t: '인생의 회전목마', src: '하울의 움직이는 성', a: '히사이시 조', v: "Piano Stories Best '88–'08 (Piano Solo Ver.)", why: '익숙하고 우아한 왈츠' },
     B06: { t: 'Photograph', a: 'Cody Fry', v: 'Photograph · 연주판(Instrumental)', why: '현악이 감싸듯 따뜻하게' },
-    B07: { t: 'Summer', src: '기쿠지로의 여름', a: '히사이시 조', v: 'ENCORE', why: '밝고 경쾌하게' },
+    B07: { t: 'Summer', src: '기쿠지로의 여름', a: '피아노 연주', v: '세상에서 가장 아름다운 선율', why: '밝고 경쾌하게' },   // [PICKS_TRUE_1031] 받은 판 = 피아노 판
     // B08 은 비운다(2026-10-30 덧붙임 2 · Laufey «Nocturne (Interlude)» 1분 40초 — 화촉 2분 10초보다 짧다) · 이 번호는 다시 쓰지 않는다
     B09: { t: 'Innocent in Sonatine', src: '우리들의 블루스', a: '조영민', v: '우리들의 블루스 OST', why: '말 아래 조용히' },
     B10: { t: 'Song for Sienna', a: 'Brian Crain', v: 'Piano and Light', why: '잔잔한 피아노' },
@@ -48,16 +48,16 @@
     B12: { t: 'Under the Willow', a: 'Brian Crain', v: 'Piano and Light', why: '부드럽고 담백하게' },
     B13: { t: 'Moon River', src: '티파니에서 아침을', a: 'Tommy Emmanuel', v: 'The Guitar Mastery of Tommy Emmanuel · 연주판(Instrumental)', why: '익숙한 선율을 기타로' },
     B14: { t: 'Softness and Light', a: 'Brian Crain', v: 'Piano and Light', why: '빛처럼 고요하게' },
-    B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet', why: '감싸 안듯 다정하게' },
-    B16: { t: 'The Rose', src: '추억은 방울방울', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '서정적인 재즈 피아노' },
+    B15: { t: 'Butterfly Waltz', a: 'Brian Crain', v: '피아노', why: '감싸 안듯 다정하게' },   // [PICKS_TRUE_1031] 받은 판 = 피아노 독주(바이올린 듀엣 아님)
+    B16: { t: 'The Rose', src: '추억은 방울방울', a: 'Kazumi Tateishi Trio', v: 'STUDIO GHIBLI meets JAZZ BEST', why: '서정적인 재즈 피아노' },   // [PICKS_TRUE_1031] 받은 판
     B17: { t: 'Summer Montage / Madeline', src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '박수와 함께 힘 있게' },
     B18: { t: 'I Hear a Symphony', a: 'Cody Fry', v: '싱글 · 연주판(Instrumental)', why: '화사하게 차오르게' },
     B19: { t: 'Italian Summer', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet', why: '여름처럼 환하게' },
     B20: { t: 'Popcorn', a: '도경수', v: '성장', why: '톡톡 튀는 설렘', vocal: true },
     B21: { t: "Herman's Habit", src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '신나는 빅밴드 재즈' },
-    B22: { t: 'This Will Be (An Everlasting Love)', a: 'Natalie Cole', v: 'Inseparable', why: '누구나 아는 흥', vocal: true },
+    B22: { t: 'This Will Be (An Everlasting Love)', a: 'Natalie Cole', v: 'Best Of Natalie Cole', why: '누구나 아는 흥', vocal: true },   // [PICKS_TRUE_1031] 받은 판
     B23: { t: '둘의 대화', a: '윤석철트리오', v: 'SONGBOOK', why: '대화를 덮지 않는 재즈' },
-    B24: { t: 'Take Me Home, Country Roads', src: '귀를 기울이면', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '편안한 재즈 피아노' },
+    B24: { t: 'Take Me Home, Country Roads', src: '귀를 기울이면', a: 'Kazumi Tateishi Trio', v: 'STUDIO GHIBLI meets JAZZ BEST', why: '편안한 재즈 피아노' },   // [PICKS_TRUE_1031] 받은 판
     B25: { t: 'Nothing', a: 'Bruno Major', v: 'To Let a Good Thing Die', why: '나지막하고 다정하게', vocal: true },
     B26: { t: 'Bluebird', a: 'Alexis Ffrench', v: 'Evolution', why: '하루를 닫는 피아노' },
     B27: { t: 'At the Ivy Gate', a: 'Brian Crain', v: 'Piano and Light', why: '차분하게 마무리' },
