@@ -99,7 +99,7 @@ try {
     const { ctx, pg, f, errs } = await open(W, true);
     /* P2 est — 모든 순간의 행동 줄 · 당일 엔진 값과 같다 */
     const T = await f.evaluate((ks) => { const S2 = JSON.parse(JSON.stringify(S)); S2.on = S2.on || {}; ks.forEach((k) => { if (RitualOpen.PICKABLE.indexOf(k) > -1) S2.on[k] = 1; });   /* _lSteps 처럼 그 순간을 켜고 */
-      const rc = ENG.RitualCue.build(S2, { mode: 'console' }).cues, rp = ENG.RitualCue.build(S2, { mode: 'preview' }).cues, by = {}; rc.forEach((c) => { by[c.slug] = c; }); rp.forEach((c) => { if (c.live) by[c.slug] = { live: { est: c.live.fullEst || c.live.est } }; });   /* 제품과 같은 차례 — 미리 듣기 빌드의 원래 값(fullEst) · 없으면 당일 빌드 */
+      const rc = ENG.RitualCue.build(S2, { mode: 'console' }).cues, rp = ENG.RitualCue.build(S2, { mode: 'preview' }).cues, by = {}; rc.forEach((c) => { if (c.live) by[c.slug] = { live: { est: c.live.showEst || c.live.est } }; }); rp.forEach((c) => { if (c.live) by[c.slug] = { live: { est: c.live.showEst || c.live.fullEst || c.live.est } }; });   /* [EST_TRUE_1031] showEst = 화면 값 */   /* 제품과 같은 차례 — 미리 듣기 빌드의 원래 값(fullEst) · 없으면 당일 빌드 */
       const out = []; ks.forEach((k) => _lSteps(ENG, [k]).forEach((x, i) => { if (!x.quiet && !x.talk) return; const sl = x.talk ? x.of : (LP_EST_FROM[x.of] || x.of), base = by[sl] && by[sl].live ? by[sl].live.est : null,
         want = x.talk ? (base == null ? null : Math.max(0, base + (LP_TALK_ADJ[x.of] || 0))) : (LP_EST_NOTE[k] && !x.of) ? 0 : base;
         out.push({ k, i, kind: x.talk ? '○ 차례' : '● 행동', txt: x.txt, of: x.of || '', est: x.est, want, ms: _lpMs(x.est), t: _lpEstT(x.est) }); })); return out; }, ['guest', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'table', 'toast', '_close']);
@@ -142,6 +142,9 @@ try {
     await f.evaluate(() => { window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40 })); window.scrollTo(0, 0); }); const y0 = await f.evaluate(() => scrollY); await wait(f, 6000);
     const s5 = await f.evaluate(() => ({ y: scrollY, nf: LP.noFollow, i: LP.i })); await f.evaluate(() => lsStop());
     ok(`${W} P5 손으로 스크롤하면 그 재생 동안 따라가기 멈춤`, s5.nf === true && s5.y === y0, { y0, ...s5 });
+    /* ★[ONE_TIME_1031] P9 한 줄에 시간 숫자 하나 — 모든 순간의 말하는 차례 · 행동 줄 글에 «약 N분/초» 없음(시간은 «실제로는 약 …» 하나) */
+    { const bad = await f.evaluate(() => _lSteps(ENG, _lRows()).filter((x) => (x.talk || x.act || x.said) && /약 \d+\s*(분|초)/.test(x.txt || '')).map((x) => [x.k, x.txt]));
+      ok(`${W} P9 말하는 차례 · 행동 줄 글에 시간 꼬리 없음(한 줄에 시간 숫자 하나)`, bad.length === 0, bad.slice(0, 6)); }
     /* ★[LEAD_LONGER_1031] P8 크게 보기(처음부터 보고 듣기 · 본식부터 등 이어 트는 길)도 같은 규칙 — 뜸(새 곡 6초 · 이어지는 곡 3초 · 순간마다) · 행동 줄 멈춤 · «실제로는 약 …» */
     { await go(f, 'ring'); const b8 = await f.evaluate(async () => { const L = []; const o = BgmBed.lpLead; BgmBed.lpLead = function (st) { const r = o.apply(this, arguments); L.push({ k: st.k, r }); return r; };
         const E = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['candle', 'ring'], true); _lFull();

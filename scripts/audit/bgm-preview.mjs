@@ -128,7 +128,7 @@ try {
       hint: ((document.querySelector('.ls-bed[data-seg="M2"] .bed-hint') || {}).textContent || '').trim(), lab: (document.querySelector('[data-fk="bedp:M2:B06"]') || { getAttribute: () => '' }).getAttribute('aria-label') }; });   /* 틀지 않은 ▶ 의 이름(트는 ▶ 는 «멈추기») */
     const lg4 = await LOG(pg);
     ok(`${W} 4 곡 카드 ▶ — key bed 로 그 곡(B05)을 묻고 · 곡만(나레이션 요청 0) · +7 dB · 리미터(−1 dB · 20 · 2ms · 150ms) · ■ [SONG_CARD_SOLO_1031]`, lg4.includes('momentedit:ritualFileGet:bed:B05') && lg4.includes('momentedit:ritualFileGet:bed:list') && c4.who === 'card' && c4.f === 'B05' && c4.solo && c4.nar === 0 && !/narration/.test(c4.na) && Math.abs(c4.g - 7) <= 0.2 && c4.lim && c4.lim.join() === '-1,20,2,150' && c4.loop === false && c4.pressed === 'true', { c4, lg4 });
-    ok(`${W} 4 곡 칸 맨 아래 한 줄 «나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요» · ▶ 이름 «곡만 듣기»`, c4.hint === '나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요' && / · 곡만 듣기$/.test(c4.lab || ''), c4);
+    ok(`${W} 4 곡 칸 맨 아래 한 줄 «나레이션과 함께 들어 보려면 아래 ‹이 순간 전체 듣기›를 눌러 주세요» · ▶ 이름 «곡만 듣기»`, c4.hint === '나레이션과 함께 들어 보려면 아래 ‹이 순간 전체 듣기›를 눌러 주세요' && / · 곡만 듣기$/.test(c4.lab || ''), c4);
     await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 400);
     const c4b = await f.evaluate(() => ({ who: BgmBed._t.BED.who, src: !!BgmBed._t.BED.cur.src, pressed: document.querySelector('[data-fk="bedp:M2:B05"]').getAttribute('aria-pressed') }));
     ok(`${W} 4 ■ 로 멈춘다`, !c4b.src && c4b.pressed === 'false', c4b);
