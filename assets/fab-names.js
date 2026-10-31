@@ -4,6 +4,8 @@
    · 이름표와 아이콘 사이 8px 투명 다리 — 포인터를 이름표로 옮겨도 남는다 · Esc 로 닫힘(올림 · 초점이 풀리면 다시)
    · 보일 때 visibility 는 inherit — 줄이 숨었거나(.hide · 메인 첫 화면 전) 맨 위로가 안 보일 때는 이름표도 안 보인다
    · 1회 말풍선(.me-fab-tip)이 떠 있는 동안은 이름표를 안 띄운다(말풍선 우선) · 전체 화면 편집(mp-fs-on) 동안도
+   · ★[FAB_NM_ICO_CY 코워크 «이름표 가운데가 아이콘 가운데보다 2px 아래»] 기준은 단추가 아니라 아이콘 가운데(50px → 25px · 680px 이하 46px → 23px) · 올리면 아이콘이 2px 뜨니 이름표도 2px
+   · ★[FAB_NM_HOVER_DELAY 코워크 «줄을 훑으면 이름표가 줄줄이 깜빡»] 마우스 올림은 150ms 뒤에 뜬다 · 나갈 땐 지연 없이 · 키보드 초점은 바로
    · 줄 위치 · 간격 · 아이콘 크기 · 순서는 건드리지 않는다([RAIL_LOCKED] · FAB_STACK_FIXED · TOPFAB_STEADY)
    한 곳에서만 고친다 — 줄은 advisor-widget.js(마이페이지 · 문의 · 안내 · 식순 미리보기) · index.html · schedule.html 세 곳에서 생기고 셋 다 이 파일을 부른다. */
 (function () {
@@ -26,10 +28,11 @@
   };
   var css = ''
     + '.me-fab-stack .me-fab{position:relative}'
-    + '.me-fab-stack .me-fab .me-fab-nm{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);padding:8px 10px;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:9px;font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:13px;line-height:normal;font-weight:400;letter-spacing:normal;color:var(--sub,#5A554C);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:auto;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s}'
+    + '.me-fab-stack .me-fab .me-fab-nm{position:absolute;right:calc(100% + 8px);top:25px;transform:translateY(-50%);padding:8px 10px;background:#fff;border:1px solid var(--border,#DDD8D1);border-radius:9px;font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:13px;line-height:normal;font-weight:400;letter-spacing:normal;color:var(--sub,#5A554C);white-space:nowrap;box-shadow:0 4px 14px rgba(28,27,25,.09);pointer-events:auto;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s,transform .3s var(--ease,ease)}'
+    + '@media (max-width:680px){.me-fab-stack .me-fab .me-fab-nm{top:23px}}'
     + '.me-fab-stack .me-fab .me-fab-nm::after{content:"";position:absolute;top:0;bottom:0;left:100%;width:10px}'
-    + '@media (hover:hover){.me-fab-stack .me-fab:hover .me-fab-nm{opacity:1;visibility:inherit;transition:opacity .2s ease}}'
-    + '.me-fab-stack .me-fab:focus-visible .me-fab-nm{opacity:1;visibility:inherit;transition:opacity .2s ease}'
+    + '@media (hover:hover){.me-fab-stack .me-fab:hover .me-fab-nm{opacity:1;visibility:inherit;transform:translateY(calc(-50% - 2px));transition:opacity .2s ease .15s,visibility 0s linear .15s,transform .3s var(--ease,ease)}}'   // [FAB_NM_HOVER_DELAY] 올림은 150ms 뒤에 · 나갈 땐 바로 / [FAB_NM_ICO_CY] 올리면 아이콘이 2px 뜬다(.me-fab:hover .me-fab-ico) — 이름표도 같이
+    + '.me-fab-stack .me-fab:focus-visible .me-fab-nm{opacity:1;visibility:inherit;transition:opacity .2s ease,transform .3s var(--ease,ease)}'   // 키보드 초점은 지연 없이
     + '.me-fab-stack .me-fab.nm-off .me-fab-nm,.me-fab-stack.nm-tip .me-fab-nm,.me-fab-stack.hide .me-fab-nm,body.mp-fs-on .me-fab-stack .me-fab-nm{opacity:0!important;visibility:hidden!important;transition:none!important}'
     + '@media print{.me-fab-nm{display:none!important}}';
   var st = document.createElement('style');

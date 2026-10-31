@@ -79,7 +79,9 @@ async function open(W, embed) {
   return { ctx, pg, f, errs };
 }
 const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 600); };
-const row = (f, sg) => f.evaluate((sg) => { const r = document.querySelector('.ls-bed[data-seg="' + sg + '"],.bed-sub[data-seg="' + sg + '"]'); if (!r) return null;
+/* ★[MUSIC_FOLD_PICK_1031 따라감] 고르면 바로 한 줄로 접힌다 — 접힌 줄이면 «바꾸기»로 펴서 목록을 잰다(종전엔 .mu-pick 이 없어 검사가 멈췄다) */
+const row = (f, sg) => f.evaluate((sg) => { const Q = () => document.querySelector('.ls-bed[data-seg="' + sg + '"],.bed-sub[data-seg="' + sg + '"]'); let r = Q(); if (!r) return null;
+  if (!r.querySelector('.mu-pick')) { const cb = r.querySelector('.mu-chg'); if (cb) { cb.click(); r = Q(); if (!r) return null; } }
   return { gl: ((r.querySelector('.gl') || {}).textContent || '').trim(), n: r.querySelectorAll('.mu-row').length, on: [...r.querySelectorAll('.mu-pick[aria-checked="true"]')].map((b) => b.getAttribute('data-fk')),
     pl: r.querySelectorAll('.mu-pl').length, off: [...r.querySelectorAll('.mu-pl.off')].map((b) => b.getAttribute('data-fk')), note: ((r.querySelector('.bed-note') || {}).textContent || '').trim(),
     plH: Math.round(((r.querySelector('.mu-pl') || { getBoundingClientRect: () => ({ height: 0 }) }).getBoundingClientRect().height)), pkH: Math.round(r.querySelector('.mu-pick').getBoundingClientRect().height) }; }, sg);
@@ -150,6 +152,7 @@ try {
       /* D2 한 파일 — 하객 맞이 B02 곡 카드 */
       await f.click('[data-fk="bedp:M1:B02"]'); await wait(f, 1500); await f.click('[data-fk="bedp:M1:B02"]'); await wait(f, 300);
       await f.click('[data-fk="bed:M1:B04"]'); await wait(f, 300);
+      await f.evaluate(() => { const r = document.querySelector('.ls-bed[data-seg="M1"]'), cb = r && !r.querySelector('.mu-pick') && r.querySelector('.mu-chg'); if (cb) cb.click(); }); await wait(f, 200);   /* [MUSIC_FOLD_PICK_1031] 고르면 접힌다 · 아래 두 줄은 편 목록에 있다 */
       const vl = await f.evaluate(() => ((document.querySelector('.ls-bed[data-seg="M1"] .bed-voc') || {}).textContent || '').trim());
       await shot(f, W, 'guest', '.ls-bed[data-seg="M1"]');
       ok(`${W} D3 보컬 곡을 고르면 아래 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요»`, vl === '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요', vl);
@@ -159,7 +162,9 @@ try {
       ok(`${W} D3 보컬 곡(B04) 아래 나레이션은 엔진 크기 − 6(−16 → −22)`, n3.length > 0 && n3.every((x) => Math.abs(x.want - (x.dk - 6)) < 0.01), { n: n3.length, s: n3.slice(0, 3) });
     }
     /* D6 · 5 축배 */
-    await go(f, 'toast'); const b6 = await listen(f, 'toast', 16000);
+    /* ★[CHEER_WINDOW_1031] 듣는 창 16초 → 26초 — #1470(LISTEN_FIX_1031)이 축배 멘트 글을 바꾼 뒤 그 줄이 12.6초가 되어 «위하여» 꼬리(축배 곡)가 16.8초에 왔다.
+       곡 바뀜은 그대로였는데 창이 먼저 닫혀 빨강이 났다 · 멘트 길이가 다시 늘어도 26초 안이면 잰다(실측 꼬리 16.8초) */
+    await go(f, 'toast'); const b6 = await listen(f, 'toast', 26000);
     const ch = b6.findIndex((x) => x.cheer), pre = b6.slice(0, ch > -1 ? ch : 0).filter((x) => x.src), post = ch > -1 ? b6.slice(ch).filter((x) => x.src && !x.cheer) : [];
     ok(`${W} D6 축배 — «위하여» 전은 닫는 인사 곡(B17) · 뒤는 축배 곡(B28) · 축배 크기(0)`, ch > -1 && pre.length > 0 && pre.every((x) => x.f === 'B17') && post.some((x) => x.f === 'B28' && x.want === 0), { ch, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.f + ':' + x.want))].slice(0, 20) });
     /* 6 축사 · 편지 */

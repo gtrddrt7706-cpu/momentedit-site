@@ -83,18 +83,20 @@
                 calf: '클래식하면서 산뜻한 길이예요. 발끝과 슈즈가 보이니 신발도 함께 골라 보세요.',
                 knee: '가장 가볍게 움직일 수 있어요. 베일이나 헤어 장식을 더하면 신부 분위기가 또렷해져요.' } },
       { key: 'fit', step: '라인', q: '어떤 라인이 마음에 드세요?',   // ★[DRESS_Q2_LINE 1024 코워크] 아직 입어 보지 않은 옷의 편안함을 묻지 않는다 — 종전 «어떤 핏이 편하세요?» · 걸음 이름 핏 → 라인
-        figs: { body: 'slip', waist: 'aline', loose: 'empire' },
-        opts: [['body', '몸선을 따라 슬림하게'], ['waist', '허리는 잡고 아래는 여유 있게'], ['loose', '전체적으로 여유 있게']],
+        /* ★★[DRESS_SET_1031 코워크 · 사장님 «추천대로 진행» · 한국 인기 조사] 옛 «전체적으로 여유 있게(loose · 엠파이어)»는 맞는 드레스가 없어 «아직 모르겠어요(any · 걸러내지 않음)»로 — 그림 없는 낮은 칸 */
+        figs: { body: 'slip', waist: 'aline' },
+        opts: [['body', '몸선을 따라 슬림하게'], ['waist', '허리는 잡고 아래는 여유 있게'], ['any', '아직 모르겠어요']],
         tips: { body: '장식보다 원단의 결이 먼저 보여요. 누드톤 심리스 속옷을 입고 입어 보면 판단이 쉬워요.',
-                waist: '흔히 무난하다고 이야기하는 라인이에요. 허리선 위치를 옆모습으로 확인해 보세요.',   // [DRESS_WORDS] 코워크 글 «흔히 많은 체형에 무난하다고» — «체형»은 쓰지 않는 말이라 뺐다
-                loose: '몸을 조이지 않아 하루 종일 편해요. 옆모습에서 원단이 떨어지는 모양을 봐 주세요.' } },
+                waist: '흔히 무난하다고 이야기하는 라인이에요. 허리선 위치를 옆모습으로 확인해 보세요.' } },   // [DRESS_WORDS] 코워크 글 «흔히 많은 체형에 무난하다고» — «체형»은 쓰지 않는 말이라 뺐다
       /* ★[DRESS_Q_FIRST 2026-10-24 사장님 «드레스 질문을 먼저 의무적으로 묻고»] 셋째 물음도 답해야 다음 — «특별한 선호는 없어요»(none)와 나머지는 서로 해제 */
-      { key: 'pref', step: '노출 · 소매', q: '노출과 소매는 어느 쪽이 좋으세요?', sub: '해당하는 것을 모두 골라 주세요.', multi: true, none: 'none',   // ★[DRESS_Q3_SUB] 여럿 고름 안내 한 줄
-        figs: { low: '/assets/dress-refs/q/pref-low.svg', arms: '/assets/dress-refs/q/pref-arms.svg' },
-        opts: [['low', '노출이 적은 스타일'], ['arms', '소매나 볼레로가 있는 스타일'], ['none', '특별한 선호는 없어요']],
-        tips: { low: '덮는 디자인도 충분히 정갈해요. 팔을 들고 부케를 들어 보며 답답함이 없는지 확인해 주세요.',
-                arms: '붙인 모습과 뗀 모습을 둘 다 입어 보면 두 장면을 미리 그려 볼 수 있어요.',
-                none: '넥라인에 따라 인상이 꽤 달라져요. 두세 가지를 나란히 입어 보면 비교가 쉬워요.' } }
+      /* ★★[DRESS_Q3_ARMS 1031 코워크 · 사장님 «추천대로»] 셋째 물음 «노출 · 소매»(여럿) → «어깨 · 팔»(하나만 · 보조문 없음) — 답 칸 모양(pref 배열)은 그대로 · 한 칸만 담는다(one).
+           open = 어깨선이 드러나는 드레스 · sleeve = 소매가 있는(비침 포함) 드레스 · any = 걸러내지 않음. 케이프(등 뒤로 떨어짐)는 팔 덮음으로 세지 않는다 */
+      { key: 'pref', step: '어깨 · 팔', q: '어깨와 팔은 어떤 쪽이 마음에 드세요?', multi: true, one: true, none: 'any',
+        figs: { open: '/assets/dress-refs/q/pref-open.svg', sleeve: '/assets/dress-refs/q/pref-sleeve.svg' },
+        opts: [['open', '어깨선이 드러나는 쪽'], ['sleeve', '소매가 있는 쪽 · 비침 가능'], ['any', '아직 모르겠어요']],
+        tips: { open: '어깨선이 드러나면 목이 길어 보여요. 팔을 들 때 넥라인이 내려오지 않는지 확인해 주세요.',
+                sleeve: '소매가 있어도 비치는 소재라 답답하지 않아요. 붙인 모습과 뗀 모습을 둘 다 입어 보세요.',
+                any: '넥라인에 따라 인상이 꽤 달라져요. 두세 가지를 나란히 입어 보면 비교가 쉬워요.' } }
     ],
 
     /* ★★[DRESS_DETAIL_FIELDS 1024 코워크 «자세히 — 사장님이 채울 칸»] 드레스마다 더 적을 수 있는 칸(비어 있으면 그 줄은 화면에 아예 없다):
@@ -108,11 +110,23 @@
     /* 드레스 — expo: 'deep'(깊은 V넥 · 로우백) / 'soft' · sleeve: 'none' / 'sleeve' / 'bolero'(sleeve · bolero 는 «소매나 볼레로가 있는 드레스»)
        ★[DRESS_SAMPLE] 아래 여섯은 검토용 표본이다(sample:true) — 운영 주소에서는 그려지지 않는다 · 실물이 오면 지운다. */
     dresses: [
-      /* ★★[DRESS_SAMPLE_V2 2026-10-24 코워크 · 사장님 «실제 유행하는 드레스 · 우리 컨셉에 맞게» · «실제 착장 사진은 빼자»] 스타일 예시 여섯(드레스폼 · 같은 스튜디오 빛 · 글자 없음).
-         이름 «스타일 예시 0n · ○○»(실물처럼 상품명 짓지 않음) · 사진 img = 앞 · ex = 앞 · 뒤 · 디테일(캔들존 · 화이트존은 실제 촬영 사진이 올 때까지 뺀다) ·
-         화면에 «스타일 예시 이미지»를 작게 표시(사장님 결정 · 실제 매장 드레스가 오면 바꾼다) · 근거 = 코워크 dress-research.md 1~6절 · youtube/SUMMARY.md
-         물음 답 덮음: 길이 ankle 01 02 03 06 · calf 04 · knee 05 / 라인 body 01 03 · waist 02 04 05 · loose 06 / 노출 적음 02 04 05 06(03 만 deep) · 소매 · 볼레로 02 04 06 */
-      { id: 'S01', name: '스타일 예시 01 · 모던 머메이드', line: 'mermaid', length: 'ankle', neck: '스트레이트(스트랩리스)', fabric: '미카도', expo: 'soft', sleeve: 'none',
+      /* ★★[DRESS_SAMPLE_V2 2026-10-24 코워크 · 사장님 «실제 유행하는 드레스 · 우리 컨셉에 맞게» · «실제 착장 사진은 빼자»] 스타일 예시(드레스폼 · 같은 스튜디오 빛 · 글자 없음).
+         이름 «스타일 예시 0n · ○○»(실물처럼 상품명 짓지 않음) · 사진 img = 앞 · ex = 앞 · 뒤 · 디테일 · 화면에 «스타일 예시 이미지»를 작게 표시(실제 매장 드레스가 오면 바꾼다)
+         ★★[DRESS_SET_1031 코워크 · 사장님 «추천대로 진행»] 한국 인기 조사(GPT 207건 · 인스타 약 380건) 반영 — 실크 · 미카도 · 레이스 · 잔잔한 비즈 · 스트랩리스 · 오프숄더가 중심 ·
+           엠파이어 · 긴소매는 거의 없어 옛 «시폰 엠파이어 긴소매»(S06)를 뺐다(사진 d06-* 은 둔다) · 너무 방방한 볼가운은 스몰웨딩과 안 맞아 볼륨 · 트레인은 줄였다(사장님 조건).
+           보이는 순서 = 이 배열 순서(상담 뒤 탭 · 상담 전 «다른 드레스» 모두) · «스타일 예시 0n» 번호도 이 순서.
+           ★id 는 그대로 둔다(새 두 벌은 S07 · S08) — 마이페이지 저장본(picks) · 열기 주소(open=)가 옛 id 를 들고 있어, 번호를 다시 매기면 옛 S01(머메이드)이 새 드레스로 열린다.
+           shoulder = 셋째 물음 «어깨 · 팔» 답과 잇는 값(open 어깨선이 드러남 · sleeve 소매 · 비침 소매 · cape 등 뒤 케이프 = 어느 쪽에도 «맞음»이 아니다)
+         물음 답 덮음(★[DRESS_TEN_1031] 10벌): 길이 ankle 01 ~ 07 · 09 · calf 08 · knee 10 / 라인 body 02 06 07 · waist 01 03 04 05 08 09 10 / 어깨 · 팔 open 01 02 04 05 06 07 10 · sleeve 03 08 · 09 는 가까운 드레스 */
+      { id: 'S07', name: '스타일 예시 01 · 드레이프 새틴 A라인', line: 'aline', length: 'ankle', neck: '오프숄더(드레이핑)', fabric: '저광택 새틴', expo: 'soft', sleeve: 'none', shoulder: 'open',
+        mood: '어깨를 감싸는 부드러운 드레이핑', pair: '짧은 면사포 · 진주 귀걸이', img: 'n01-front',
+        intro: '어깨선을 부드럽게 감싼 드레이핑에, 볼륨을 가볍게 덜어 낸 새틴 A라인',
+        design: '완만한 일자 오프숄더 · 가슴 아래 잔주름 · 자연 허리선에서 가볍게 퍼지는 A라인 · 짧은 트레인',
+        feel: '은은한 광택이라 작은 공간 조명에서도 고급스럽게 보여요. 장식 없이 원단 주름만으로 신부다운 인상을 줘요.',
+        tryOn: ['팔을 들 때 어깨 밴드가 내려오지 않는지', '앉았을 때 허리 주름이 눌리는 모양', '걸을 때 밑단 길이'],
+        onsite: ['짧은 면사포', '진주 귀걸이'],
+        ex: [{ t: '앞', img: 'n01-front' }, { t: '뒤', img: 'n01-back' }, { t: '디테일', img: 'n01-detail' }], sample: true },
+      { id: 'S01', name: '스타일 예시 02 · 모던 머메이드', line: 'mermaid', length: 'ankle', neck: '스트레이트(스트랩리스)', fabric: '미카도', expo: 'soft', sleeve: 'none', shoulder: 'open',
         mood: '장식 없이 재단으로 세운 실루엣', pair: '탈부착 케이프 · 긴 베일', img: 'd01-front',
         intro: '장식 없이 재단과 원단으로 완성한 담백한 머메이드',
         design: '무릎 아래에서 부드럽게 퍼지는 머메이드 · 스트랩리스 직선 넥 · 짧은 트레인',
@@ -120,15 +134,34 @@
         tryOn: ['걸을 때 보폭', '앉았을 때 무릎 아래 여유', '팔을 들 때 스트랩리스가 내려가지 않는지'],
         onsite: ['탈부착 케이프', '긴 베일'],
         ex: [{ t: '앞', img: 'd01-front' }, { t: '뒤', img: 'd01-back' }, { t: '디테일', img: 'd01-detail' }], sample: true },
-      { id: 'S02', name: '스타일 예시 02 · 크레이프 A라인 · 케이프', line: 'aline', length: 'ankle', neck: '보트넥', fabric: '크레이프 · 오간자 케이프', expo: 'soft', sleeve: 'bolero',
-        mood: '등 뒤로 떨어지는 오간자 케이프', pair: '케이프 길이 · 짧은 베일', img: 'd02-front',
-        intro: '무광 크레이프 A라인에 얇은 오간자 케이프를 더한 단정한 드레스',
-        design: '허리를 잡고 아래로 여유 있게 퍼지는 A라인 · 보트넥 · 등 뒤로 떨어지는 탈부착 케이프',
-        feel: '무광이라 대부분의 조명에서 깔끔하게 나와요. 케이프를 떼면 더 가벼운 인상이에요.',
-        tryOn: ['허리선이 몸의 어디에 오는지 옆모습', '케이프를 붙인 모습과 뗀 모습'],
-        onsite: ['케이프 길이', '짧은 베일'],
-        ex: [{ t: '앞', img: 'd02-front' }, { t: '뒤', img: 'd02-back' }, { t: '디테일', img: 'd02-detail' }], sample: true },
-      { id: 'S03', name: '스타일 예시 03 · 새틴 슬립 · 백 리본', line: 'slip', length: 'ankle', neck: 'V넥(얇은 끈)', fabric: '새틴', expo: 'deep', sleeve: 'none',
+      /* ★[DRESS_N03_DETAIL] 앞 = 볼레로를 입은 모습 · 뒤 · 디테일 = 볼레로를 뗀 스퀘어넥(의도) · 다른 벌과 같은 세 장 */
+      { id: 'S08', name: '스타일 예시 03 · 잔레이스 A라인 · 볼레로', line: 'aline', length: 'ankle', neck: '스퀘어넥(볼레로는 보트넥)', fabric: '레이스 · 잔잔한 비즈', expo: 'soft', sleeve: 'bolero', shoulder: 'sleeve',
+        mood: '잔잔한 레이스와 은은한 반짝임', pair: '짧은 면사포 · 탈부착 볼레로', img: 'n03-front',
+        intro: '작은 잎과 꽃 레이스 위에 잔잔한 비즈를 얹고, 탈부착 볼레로로 두 가지 모습을 내는 A라인',
+        design: '완만한 스퀘어넥 · 3cm 어깨끈 · 레이스와 잔비즈 · 가볍게 퍼지는 A라인 · 짧은 트레인 · 보트넥 7부 볼레로(소매만 비침)',
+        feel: '가까이서 보면 레이스 결과 잔잔한 반짝임이 보여요. 볼레로를 떼면 더 가벼운 인상이에요.',
+        tryOn: ['볼레로를 입은 모습과 뗀 모습', '소매 비침 정도', '팔을 들 때 볼레로 어깨가 당기지 않는지'],
+        onsite: ['탈부착 볼레로', '짧은 면사포'],
+        ex: [{ t: '앞', img: 'n03-front' }, { t: '뒤', img: 'n03-back' }, { t: '디테일', img: 'n03-detail' }], sample: true },
+      /* ★★[DRESS_TEN_1031 코워크 · 사장님 «3개 더 추가 10벌, 인기 있는 걸로» · 인스타 캡션 300건] 04 코르셋 미카도(S10 · N09) · 05 잔비즈 튤(S09 · N08) · 07 홀터넥 실크(S11 · N10) —
+           반짝이는 벌 · 스위트하트 코르셋 · 2부 겸용 홀터넥이 없었다. id 는 새로(S06 은 다시 쓰지 않는다 · 옛 저장본 · 열기 주소와 안 부딪히게) · 사진 n08 · n09 · n10 */
+      { id: 'S10', name: '스타일 예시 04 · 코르셋 미카도 A라인', line: 'aline', length: 'ankle', neck: '완만한 스위트하트(스트랩리스)', fabric: '무광 미카도', expo: 'soft', sleeve: 'none', shoulder: 'open',
+        mood: '세로 코르셋 솔기와 V자 허리선', pair: '장식 없는 면사포 · 진주 귀걸이', img: 'n09-front',
+        intro: '세로 코르셋 솔기와 V자 허리선으로 구조감을 살린 미카도 A라인',
+        design: '스트랩리스의 완만한 스위트하트 넥 · 세로 본이 보이는 코르셋 몸판 · 앞중심이 V로 내려오는 허리 · 볼륨을 덜어 낸 A라인 · 짧은 트레인',
+        feel: '광택을 낮춘 탄탄한 미카도라 재단선이 또렷하게 보여요. 드레이핑 대신 몸판의 구조와 치마 주름이 단정한 인상을 줘요.',
+        tryOn: ['앉았을 때 코르셋 몸판이 누르거나 뜨지 않는지', '팔을 들 때 넥라인과 허리선이 움직이는 정도', '구두를 신고 걸을 때 밑단 길이와 치마 폭'],
+        onsite: ['짧은 면사포', '진주 귀걸이'],
+        ex: [{ t: '앞', img: 'n09-front' }, { t: '뒤', img: 'n09-back' }, { t: '디테일', img: 'n09-detail' }], sample: true },
+      { id: 'S09', name: '스타일 예시 05 · 잔비즈 튤 A라인', line: 'aline', length: 'ankle', neck: '스위트하트(스트랩리스)', fabric: '잔비즈 · 스팽글 튤', expo: 'soft', sleeve: 'none', shoulder: 'open',
+        mood: '비즈 튤에 은은하게 번지는 반짝임', pair: '장식 없는 짧은 면사포 · 작은 귀걸이', img: 'n08-front',
+        intro: '스위트하트 넥에 잔비즈 튤을 더하고, 치마 볼륨을 가볍게 덜어 낸 A라인',
+        design: '스트랩리스 스위트하트 넥 · 몸판 중심의 작은 비즈와 스팽글 · 자연 허리선 · 가볍게 퍼지는 튤 A라인 · 짧은 트레인',
+        feel: '작은 비즈가 빛을 받을 때 은은하게 반짝여요. 꽃무늬 레이스 없이 비즈와 얇은 튤의 결이 보여요.',
+        tryOn: ['팔을 들 때 스트랩리스가 내려가지 않는지', '조명 가까이와 떨어진 곳에서 반짝임 정도', '앉고 걸을 때 튤 치마와 밑단이 걸리지 않는지'],
+        onsite: ['짧은 면사포', '작은 귀걸이'],
+        ex: [{ t: '앞', img: 'n08-front' }, { t: '뒤', img: 'n08-back' }, { t: '디테일', img: 'n08-detail' }], sample: true },
+      { id: 'S03', name: '스타일 예시 06 · 새틴 슬립 · 백 리본', line: 'slip', length: 'ankle', neck: 'V넥(얇은 끈)', fabric: '새틴', expo: 'deep', sleeve: 'none', shoulder: 'open',
         mood: '등이 트인 뒤판과 큰 새틴 리본', pair: '얇은 볼레로 · 긴 베일', img: 'd03-front',
         intro: '바이어스 새틴이 몸을 따라 흐르고, 등에 리본 하나로 포인트를 준 슬립',
         design: '몸을 따라 흐르는 슬림 라인 · 얇은 끈 V넥 · 등이 트인 뒤판과 큰 새틴 리본',
@@ -136,30 +169,39 @@
         tryOn: ['누드톤 심리스 속옷으로 속옷 라인', '뒷모습 리본 위치', '앉았을 때 주름'],
         onsite: ['얇은 볼레로', '긴 베일'],
         ex: [{ t: '앞', img: 'd03-front' }, { t: '뒤', img: 'd03-back' }, { t: '디테일', img: 'd03-detail' }], sample: true },
-      { id: 'S04', name: '스타일 예시 04 · 오간자 티렝스', line: 'aline', length: 'calf', neck: '스퀘어넥', fabric: '오간자', expo: 'soft', sleeve: 'sleeve',
+      { id: 'S11', name: '스타일 예시 07 · 홀터넥 실크 슬림', line: 'column', length: 'ankle', neck: '하이 홀터넥 · 오픈백', fabric: '저광택 실크 크레이프', expo: 'deep', sleeve: 'none', shoulder: 'open',
+        mood: '높은 홀터넥과 깊게 열린 등선', pair: '작은 귀걸이 · 새틴 슈즈', img: 'n10-front',
+        intro: '높은 홀터넥에서 곧게 떨어지고, 깊게 열린 등선 하나로 포인트를 준 실크 슬림',
+        design: '하이 홀터넥 · 어깨와 팔이 드러나는 암홀 · 깊은 오픈백 · 몸선을 따라 곧게 떨어지는 칼럼 · 트레인 없음',
+        feel: '광택이 잔잔한 실크 크레이프라 움직일 때 원단의 흐름이 보여요. 장식을 더하지 않아 2부에도 단정하게 이어 입기 좋아요.',
+        tryOn: ['목둘레가 조이지 않고 팔을 편하게 움직일 수 있는지', '오픈백에 맞는 속옷으로 등선과 옆선', '앉고 걸을 때 엉덩이와 밑단의 여유'],
+        onsite: ['작은 귀걸이', '새틴 슈즈'],
+        ex: [{ t: '앞', img: 'n10-front' }, { t: '뒤', img: 'n10-back' }, { t: '디테일', img: 'n10-detail' }], sample: true },
+      { id: 'S04', name: '스타일 예시 08 · 오간자 티렝스', line: 'aline', length: 'calf', neck: '스퀘어넥', fabric: '오간자', expo: 'soft', sleeve: 'sleeve', shoulder: 'sleeve',
         mood: '바스크 허리선과 작은 퍼프 소매', pair: '슈즈 · 짧은 베일 · 헤어 리본', img: 'd04-front',
         intro: '스퀘어넥과 바스크 허리선에 가벼운 오간자 치마를 더한 티렝스',
         design: '허리 아래로 V를 그리는 바스크 허리 · 한두 겹 오간자 치마 · 탈부착 작은 퍼프 소매',
-        feel: '얇고 빳빳해 가볍게 볼륨이 살아요. 여섯 가운데 가장 로맨틱한 인상이에요.',
+        feel: '얇고 빳빳해 가볍게 볼륨이 살아요. 열 벌 가운데 가장 로맨틱한 인상이에요.',
         tryOn: ['밑단이 다리 어디에서 끝나는지', '신발이 보이므로 슈즈와 함께', '소매를 붙인 모습과 뗀 모습'],
         onsite: ['슈즈', '짧은 베일', '헤어 리본'],
         ex: [{ t: '앞', img: 'd04-front' }, { t: '뒤', img: 'd04-back' }, { t: '디테일', img: 'd04-detail' }], sample: true },
-      { id: 'S05', name: '스타일 예시 05 · 미니 · 오버스커트', line: 'aline', length: 'knee', neck: '라운드넥', fabric: '크레이프 · 오간자', expo: 'soft', sleeve: 'none',
+      { id: 'S02', name: '스타일 예시 09 · 크레이프 A라인 · 케이프', line: 'aline', length: 'ankle', neck: '보트넥', fabric: '크레이프 · 오간자 케이프', expo: 'soft', sleeve: 'bolero', shoulder: 'cape',
+        mood: '등 뒤로 떨어지는 오간자 케이프', pair: '케이프 길이 · 짧은 베일', img: 'd02-front',
+        intro: '무광 크레이프 A라인에 얇은 오간자 케이프를 더한 단정한 드레스',
+        design: '허리를 잡고 아래로 여유 있게 퍼지는 A라인 · 보트넥 · 등 뒤로 떨어지는 탈부착 케이프',
+        feel: '무광이라 대부분의 조명에서 깔끔하게 나와요. 케이프를 떼면 더 가벼운 인상이에요.',
+        tryOn: ['허리선이 몸의 어디에 오는지 옆모습', '케이프를 붙인 모습과 뗀 모습'],
+        onsite: ['케이프 길이', '짧은 베일'],
+        ex: [{ t: '앞', img: 'd02-front' }, { t: '뒤', img: 'd02-back' }, { t: '디테일', img: 'd02-detail' }], sample: true },
+      { id: 'S05', name: '스타일 예시 10 · 미니 · 오버스커트', line: 'aline', length: 'knee', neck: '라운드넥', fabric: '크레이프 · 오간자', expo: 'soft', sleeve: 'none', shoulder: 'open',
         mood: '크레이프 미니에 두르는 롱 오버스커트', pair: '베일 · 굽 높이가 다른 슈즈 두 켤레', img: 'd05-front',
         intro: '깔끔한 크레이프 미니에 탈부착 롱 오버스커트를 두른 두 가지 모습',
         design: '무릎 위 미니 · 허리에 두르는 오간자 오버스커트(짧은 트레인)',
         feel: '본식은 길게, 2부와 스냅은 짧게. 한 벌로 분위기를 바꿔요.',
         tryOn: ['오버스커트를 뗀 길이에서 앉았을 때', '걸을 때 오버스커트 앞트임'],
         onsite: ['베일', '굽 높이가 다른 슈즈 두 켤레'],
-        ex: [{ t: '앞', img: 'd05-front' }, { t: '뒤', img: 'd05-back' }, { t: '디테일', img: 'd05-detail' }], sample: true },
-      { id: 'S06', name: '스타일 예시 06 · 시폰 엠파이어 긴소매', line: 'empire', length: 'ankle', neck: '하이넥', fabric: '시폰', expo: 'soft', sleeve: 'sleeve',
-        mood: '비치는 비숍 소매와 겹겹 시폰', pair: '진주 귀걸이 · 짧은 베일', img: 'd06-front',
-        intro: '가슴 아래 허리선에서 시폰이 흐르듯 떨어지는 하이넥 긴소매',
-        design: '엠파이어 허리선 · 하이넥 · 비치는 비숍 소매 · 발목 길이',
-        feel: '겹겹 시폰이 걸을 때 부드럽게 흔들려요. 노출이 적고 편안한 인상이에요.',
-        tryOn: ['하이넥이 답답하지 않은지', '소매 끝 위치', '옆모습에서 원단이 떨어지는 모양'],
-        onsite: ['진주 귀걸이', '짧은 베일'],
-        ex: [{ t: '앞', img: 'd06-front' }, { t: '뒤', img: 'd06-back' }, { t: '디테일', img: 'd06-detail' }], sample: true }
+        ex: [{ t: '앞', img: 'd05-front' }, { t: '뒤', img: 'd05-back' }, { t: '디테일', img: 'd05-detail' }], sample: true }
+      /* ★[DRESS_SET_1031] 옛 S06 «시폰 엠파이어 긴소매»는 목록에서 뺐다 — 되살리지 말 것(엠파이어 · 긴소매 인기 0 · 사장님 «추천대로») · 사진 d06-* 은 저장소에 남긴다 */
     ]
   };
 
@@ -225,21 +267,26 @@
 
   /* ★[DRESS_RANK] 줄 세우기(명세 6장) — 답 ans = { len, fit, pref[] }
      - 길이 답 = dress.length 일 때 맞음 · 핏 답 = 그 라인의 fit 일 때 맞음
-     - «노출이 적은 드레스»(low)를 골랐으면 expo:'deep' 은 아래로 · «소매나 볼레로가 있는 드레스»(arms)를 골랐으면 sleeve:'none' 은 아래로
-     - 답한 조건을 모두 맞고 아래로 갈 까닭이 없으면 match(원천 순서 그대로) — 고르기 화면은 한 그리드 맨 앞에 두고 칸에 «답과 맞아요»([DRESS_ONE_GRID])
-     - 나머지는 아래로 갈 까닭이 적은 순 → 맞은 수가 많은 순 → 원천 순서
+     - ★[DRESS_Q3_ARMS 1031] 어깨 · 팔 답(open · sleeve) = 드레스 shoulder 와 같을 때 맞음 · any(아직 모르겠어요)는 보지 않는다 · 옛 «노출 · 소매» 아래로 보내기(expo · sleeve)는 걷었다
+     - 답한 조건을 모두 맞으면 match(원천 순서 그대로) — 고르기 화면은 한 그리드 맨 앞에 두고 칸에 «답과 맞아요»([DRESS_ONE_GRID])
+     - 나머지는 맞은 수가 많은 순 → 원천 순서
      - 빈 값(건너뛰기) · 옛 저장본의 'unsure'(«아직 몰라요» · 라운드 1 에서 답을 뺐다 [DRESS_Q_TRIM])는 그 조건을 보지 않는다 · 답이 하나도 없으면 나누지 않는다(asked:false)
      돌려주는 것: { asked, match:[드레스], rest:[드레스], near } — near = 답했는데 맞는 것이 0벌(«가까운 순서로 놓았어요») */
-  R.FITS = ['body', 'waist', 'loose'];
-  R.PREFS = ['low', 'arms'];
-  R.PREF_NONE = 'none';   // ★[DRESS_Q_FIRST] «특별한 선호는 없어요» — 줄 세우기는 보지 않는다 · 다른 보기와 함께 두지 않는다(함께 오면 none 을 뺀다)
+  /* ★★[DRESS_SET_1031 · DRESS_Q3_ARMS] 라인 = body · waist · any(아직 모르겠어요 · 걸러내지 않음) / 어깨 · 팔 = open · sleeve · any(하나만)
+       ★[DRESS_OLD_ANS] 이 기기 · 옛 저장본에 남은 옛 답은 새 보기로 옮겨 읽는다 — loose → any · low → any · arms → sleeve · none → any ·
+       여럿이었으면 arms 가 있으면 sleeve 아니면 any. (서버 DRESS_ANS 는 옛 값을 그대로 받는다 — 지금은 고르기가 없어 새 값을 서버로 보내는 길이 없다) */
+  R.FITS = ['body', 'waist', 'any'];
+  R.PREFS = ['open', 'sleeve'];
+  R.PREF_NONE = 'any';   // «아직 모르겠어요» — 줄 세우기는 보지 않는다
+  R.OLD_FIT = { loose: 'any' };
   R.cleanAns = function (a) {
     a = a || {};
     var len = R.lengthOf(a.len) ? a.len : (a.len === 'unsure' ? 'unsure' : '');
-    var fit = R.FITS.indexOf(a.fit) >= 0 ? a.fit : (a.fit === 'unsure' ? 'unsure' : '');
-    var pref = [];
-    (Array.isArray(a.pref) ? a.pref : []).forEach(function (p) { if ((R.PREFS.indexOf(p) >= 0 || p === R.PREF_NONE) && pref.indexOf(p) < 0) pref.push(p); });
-    if (pref.length > 1 && pref.indexOf(R.PREF_NONE) >= 0) pref.splice(pref.indexOf(R.PREF_NONE), 1);
+    var f0 = R.OLD_FIT[a.fit] || a.fit;
+    var fit = R.FITS.indexOf(f0) >= 0 ? f0 : (a.fit === 'unsure' ? 'unsure' : '');
+    var src = (Array.isArray(a.pref) ? a.pref : []).map(String), pref = [];
+    for (var i = 0; i < src.length; i++) if (R.PREFS.indexOf(src[i]) >= 0 || src[i] === R.PREF_NONE) { pref = [src[i]]; break; }   // 새 답 = 한 칸
+    if (!pref.length && src.length) pref = [src.indexOf('arms') >= 0 ? 'sleeve' : (src.some(function (p) { return p === 'low' || p === 'none'; }) ? R.PREF_NONE : '')].filter(Boolean);   // 옛 답
     return { len: len, fit: fit, pref: pref };
   };
   /* ★[DRESS_Q_FIRST 2026-10-24 사장님] 물음 셋을 다 답했나 — 길이 · 핏(«아직 몰라요»였던 옛 'unsure'는 답이 아니다) · 셋째 하나 이상(특별한 선호는 없어요 포함).
@@ -253,20 +300,20 @@
     list = (list || R.list()).slice();
     var len = (a.len && a.len !== 'unsure') ? a.len : '';
     var fit = (a.fit && a.fit !== 'unsure') ? a.fit : '';
-    var low = a.pref.indexOf('low') >= 0, arms = a.pref.indexOf('arms') >= 0;
-    var asked = !!(len || fit || low || arms);
+    if (fit === R.PREF_NONE) fit = '';   // «아직 모르겠어요»는 걸러내지 않는다
+    var arms = (a.pref[0] && a.pref[0] !== R.PREF_NONE) ? a.pref[0] : '';   // [DRESS_Q3_ARMS] open · sleeve — 드레스의 shoulder 와 같을 때 맞음(cape 는 어느 쪽에도 맞지 않는다)
+    var asked = !!(len || fit || arms);
     if (!asked) return { asked: false, match: [], rest: list, near: false };
     var rows = list.map(function (d, i) {
-      var l = R.line(d.line) || {}, need = 0, hit = 0, down = 0;
+      var l = R.line(d.line) || {}, need = 0, hit = 0;
       if (len) { need++; if (d.length === len) hit++; }
       if (fit) { need++; if (l.fit === fit) hit++; }
-      if (low && d.expo === 'deep') down++;
-      if (arms && d.sleeve === 'none') down++;
-      return { d: d, i: i, hit: hit, down: down, ok: hit === need && down === 0 };
+      if (arms) { need++; if (d.shoulder === arms) hit++; }
+      return { d: d, i: i, hit: hit, ok: hit === need };
     });
     var match = rows.filter(function (r) { return r.ok; }).map(function (r) { return r.d; });
     var rest = rows.filter(function (r) { return !r.ok; })
-      .sort(function (x, y) { return (x.down - y.down) || (y.hit - x.hit) || (x.i - y.i); })
+      .sort(function (x, y) { return (y.hit - x.hit) || (x.i - y.i); })   // [DRESS_Q3_ARMS] 맞은 수가 많은 순 → 원천 순서(아래로 보내기는 걷었다)
       .map(function (r) { return r.d; });
     return { asked: true, match: match, rest: rest, near: match.length === 0 };
   };

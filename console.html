@@ -1234,7 +1234,7 @@ function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug 
   if (k === 'tribute') return 'M5';
   if (k === 'toast') return '';   /* ★[BGM_FIX_1030] 축배 곡(M7)은 «위하여» 뒤 디렉터 GO 에서 연다(segCheer) — 축배 나레이션 동안은 앞 곡이 잇는다(END_FLOW_1030 뒤로는 테이블 인사 곡 · 테이블이 없으면 그 앞 순간 곡) */
   if (k === 'table') return 'M8';
-  if (sl === 'narr-close' || /^narr-photo-pre/.test(sl || '')) return (BED.seg === 'M8' || BED.seg === 'M8L') ? '' : (segPlan('M6P') ? 'M6P' : '');   /* ★[END_FLOW_1030] 사진 전 안내(265 · 266)도 사진 칸 곡 */   /* 사진 — 테이블 인사 뒤면 M8 이 잇고 · 닫는 인사 뒤면 사진 칸 곡(없으면 M6 이 잇는다) */
+  if (sl === 'narr-close' || /^narr-photo-pre|^narr-closing/.test(sl || '')) return (BED.seg === 'M8' || BED.seg === 'M8L') ? '' : (segPlan('M6P') ? 'M6P' : '');   /* ★[END_FLOW_1030] 사진 전 안내(265 · 266)도 사진 칸 곡 */   /* 사진 — 테이블 인사 뒤면 M8 이 잇고 · 닫는 인사 뒤면 사진 칸 곡(없으면 M6 이 잇는다) */
   if (k === '_close') return sl === 'narr-close-bow' ? '' : 'M6';   /* ★[BGM_FIX_1030] M6 = 닫는 인사의 목례 · 박수(사람 순간)부터 — 닫는 나레이션 동안은 앞 곡을 낮게(segLive) */
   if (k === '_goodbye') return segPlan('M8L') ? 'M8L' : '';   /* 마무리 인사(47)와 함께 마지막 곡 */
   return ''; }
@@ -1988,7 +1988,7 @@ function render(){
   }
   var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
   /* ★[RESCUE_REPLAY_1016 라운드 6] «재생 안 됨»으로 미룬 순서가 있으면 사진 시간 첫 큐에서 한 줄 — 고객 화면 안심 «사진 시간에 다시 틀어 드려요»(식전 영상 · 준비한 순서)의 짝 */
-  if (RESCUED.length && (c.slug === 'narr-close' || /^narr-photo-pre/.test(c.slug || '') || c.slug === 'end-0-photo'))   /* [END_FLOW_1030] */ htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
+  if (RESCUED.length && (c.slug === 'narr-close' || /^narr-photo-pre|^narr-closing/.test(c.slug || '') || c.slug === 'end-0-photo'))   /* [CLOSING_LINE_1031] 새 코스는 마무리 멘트 */   /* [END_FLOW_1030] */ htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
   if (STALL === cur && phase === 'done') htxt = '소리가 중간에 멈췄어요 · 연결을 확인하고 [뒤로] 뒤 다시 누르면 이 줄을 처음부터 내보내요' + (htxt ? ' / ' + htxt : '');   // [CON_STALL]
   h.hidden = !htxt; h.textContent = htxt;
   sf.hidden = true; nb.hidden = true;
@@ -2355,7 +2355,7 @@ window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.w
   duckOf: function(i){ return R && R.cues[i] ? R.cues[i].duck : null; }, fire: function(i){ fire(i); } };
 /* [BGM_CONSOLE2_1023] 점검용 · 읽기 전용 — bgm-console2 가 본다(지금 순서 · 단계 · 청한 음악 크기 · 축배 오름 · 큰 단추 글) */
 window.__bgmSt = function(){ var c = cur >= 0 ? cueAt(cur) : null, m = $('#mBtn'); return { cur: cur, slug: c ? c.slug : null, phase: phase, want: duckWant, now: duckNow, cheerAt: cheerAt, main: m ? m.textContent : '' }; };
-window.__bgmR = function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, fire: c.fire, duck: c.duck, live: !!c.live }; }); };
+window.__bgmR = function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, actId: c.actId || '', fire: c.fire, duck: c.duck, live: !!c.live }; }); };   // [CLOSING_LINE_1031] actId = 소리 없는 동작 큐
 window.__seg = { st: function(){ var g = function(k){ return BED.xg[k] ? Math.round(BED.xg[k].gain.value * 1000) / 1000 : null; }; return { seg: BED.seg, id: BED.id, on: BED.on, mode: BED.mode, short: !!ESD.short, src: BED.el.map(function(e){ return String(e.getAttribute('src') || ''); }), paused: BED.el.map(function(e){ return e.paused; }), xg: [g(0), g(1)], files: Object.keys(SEGF).length, sel: SEGST.sel }; } };   // [BGM_SEG8_1023] 점검용 · 읽기 전용
 window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); }, post: function(i, p){ if (R && R.cues[i]) R.cues[i].post = p; } };   // [BGM_FIX_1030] post = 점검용(마지막 큐의 긴 뒤처리를 비워 «−8 올림 없음»을 빨리 잰다)
 window.__segSel = function(id){ return segSel(id); };   // [BGM_PREVIEW_1024] 점검용 · 읽기 전용 — bgm-preview 가 본다(고객이 고른 곡이 구간 기본인가)   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)

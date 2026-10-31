@@ -294,6 +294,12 @@ const G = [
       return [`D-${sl}`, `성혼 선언 여는 말 · ${RO.NAR_EX.declare.names[i]} · ${RO.declLabel(t)}`, sl, RC.EXTRA[sl]]; })
       .concat([[`D-${RO.declInSlug('bridge-b9-declare-seat-end', t)}`, `읽은 분 자리로 · ${RO.declLabel(t)}`, RO.declInSlug('bridge-b9-declare-seat-end', t), RC.EXTRA[RO.declInSlug('bridge-b9-declare-seat-end', t)]]]))),
     note: '두 분이 «읽어 주실 분»에서 부모님 호칭을 고른 날만 나간다(그 밖의 분 · 안 고름은 호칭 없는 판). 녹음 전엔 글로 먼저 보인다.' },
+  /* ★★[CLOSING_LINE_1031 검토 178 사장님 «사진은 작가님 몫»] 287 ~ 291 — 닫는 인사 뒤 마무리 멘트 · 새 녹음 0(이미 녹음된 문장을 빌려 이어 붙인다) ·
+     줄마다 화자(안내 = 진희 · 진행 = 우성 · 빌려 오는 자리의 목소리 그대로) · 원천 RC.CLOSING_PARTS */
+  { n: 17, t: '마무리 멘트 (닫는 인사 뒤 · 이미 녹음된 문장 이어 붙임)', tone: '받은 녹음 그대로 — 새로 받지 않는다', items:
+    Object.keys(RC.CLOSING_PARTS || {}).map((sl) => [`M-${sl}`, `마무리 멘트 · ${({ 'narr-closing': '애프터 웨딩 없음', 'narr-closing-guide': '애프터 웨딩 없음 · 하객 안내', 'narr-closing-soft': '식사 · 카페(조건 빔)', 'narr-closing-soft-guide': '식사 · 카페(조건 빔) · 하객 안내', 'narr-closing-meal': '식사 있음' })[sl] || sl}`, sl,
+      RC.CLOSING_PARTS[sl].map((x) => `${x[0]}: ${x[1]}`).join('\n')]),
+    note: '닫는 인사 박수 뒤(디지털 날은 온라인 인사 뒤) 한 번 · 사진 구간은 작가님이 이끈다(나레이션 없음).' },
 ];
 
 // ── 조립
