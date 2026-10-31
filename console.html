@@ -2035,7 +2035,7 @@ function up(n1, n2){
     el.querySelector('.nm').innerHTML = esc(c.name) + '<small>' + when
       + (c.hint ? ' · ' + esc(c.hint) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음')
       + (c.alt ? ' · ' + Math.round(c.alt.overSec / 60) + '분 넘으면 문안 자동 교체' : '') + '</small>';
-    el.querySelector('.es').textContent = fmt(c.est) + (c.live ? ' +' + fmt(c.live.est) : '');
+    el.querySelector('.es').textContent = fmt(c.est) + (c.live ? ' +' + (c.live.showT || fmt(c.live.est)) : '');   // [EST_TRUE_1031] 자유 순서 = «두 분이 정한 만큼»(숫자 대신)
   }
   set('u1', n1, '다음'); set('u2', n2, '그다음');
   /* ★[GUEST_FRAME 2026-08-16] 다 들은 뒤에는 레일이 「다음 마무리 / 그다음 마무리」로 같은 말을
@@ -2231,7 +2231,7 @@ function buildSheet(){
     var b = document.createElement('button');
     b.className = 'qi' + (i === cur ? ' cur' : '') + (i < cur ? ' done' : '');
     b.innerHTML = '<span class="n">' + (c.no || '—') + '</span><span class="t">' + esc(c.name)
-      + '<small>' + fireLabel(c.fire) + ' · ' + fmt(c.est) + (c.live ? ' + 사람 ' + fmt(c.live.est) : '') + '</small></span>';
+      + '<small>' + fireLabel(c.fire) + ' · ' + fmt(c.est) + (c.live ? ' + 사람 ' + (c.live.showT || fmt(c.live.est)) : '') + '</small></span>';   // [EST_TRUE_1031]
     b.onclick = function(){ $('#sheet').classList.remove('on'); fire(i); };
     L.appendChild(b);
   });

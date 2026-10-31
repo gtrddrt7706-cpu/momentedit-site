@@ -19420,8 +19420,8 @@ chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
 chk "quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')}); } }" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
-chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
-chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
+chk "txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
+chk "txt:'여기서 '+_lpNoT(t),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
 chk "scene: _letterScene.indexOf(LETTER_BED_SWAP.from) > -1 ? _letterScene.replace(LETTER_BED_SWAP.from, LETTER_BED_SWAP.to) : ''," assets/ritual-story.js 1
 chk 'ST.LETTER_BED_SWAP' scripts/build-course-story.mjs 1
@@ -20521,6 +20521,15 @@ chk 'LISTEN_PACE_1031' scripts/audit/listen-pace.mjs 1
 chk 'listen-pace' .github/workflows/merge-guard.yml 1
 nochk 'LP.leadSt=st;[^/]*//' order-preview.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/listen-pace.mjs >/dev/null 2>&1; _lpc=$?; if [ "$_lpc" = 1 ]; then echo 'FAIL listen-pace: 이 순간 전체 듣기 흐름(음악 뜸 · 행동 줄 멈춤 · «실제로는 약» · 지금 줄 · 따라가기)이 어긋났습니다 — node scripts/audit/listen-pace.mjs'; fail=1; elif [ "$_lpc" = 2 ]; then echo 'skip listen-pace (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok listen-pace'; fi; fi
+# ── 2026-10-31 [EST_TRUE_1031 BGM 섹션 · GPT 2라운드 검증] 행동별 실제 시간(live.est) — 화촉 인사 화면 30/25(셈 15 그대로) · 부모님께 인사 30 · 축사 60 × 분 + 20 · 자유 순서 «두 분이 정한 만큼» · 단체 사진 모임 하객 수(칸 없으면 30명 75) · 두 분이 적은 글 = 음절 ÷ 4 + 5초 · 본식 합도 같은 값 · 폐지 순간(반지 데우기 · 케이크 · 와인)은 그대로
+chk 'EST_TRUE_1031' assets/ritual-cue.js 5
+chk 'EST_TRUE_1031' assets/ritual-open.js 8
+chk 'EST_TRUE_1031' order-preview.html 1
+chk 'EST_TRUE_1031' console.html 2
+chk 'EST_TRUE_1031' scripts/audit/est-true.mjs 1
+chk 'function textSec(S, k)' assets/ritual-open.js 1
+chk 'function gatherSec(S)' assets/ritual-cue.js 1
+if command -v node >/dev/null 2>&1; then if node scripts/audit/est-true.mjs >/dev/null 2>&1; then echo 'ok est-true'; else echo 'FAIL est-true: 행동별 실제 시간(live.est) 표가 어긋났습니다 — node scripts/audit/est-true.mjs'; fail=1; fi; fi
 # ── 2026-10-31 [LEAD_LONGER_1031 BGM 섹션 · 사장님 직접 들어 보고] 순간 첫 멘트 앞 음악 뜸 새 곡 6초 · 이어지는 곡 3초 · 크게 보기(처음부터 보고 듣기 · 본식부터 · 다시 듣기 · 순간 크게) · ④ 에도 LISTEN_PACE(③ 연습 · 빠르게 훑기만 빼고)
 chk 'LEAD_LONGER_1031' assets/bgm-bed.js 1
 chk 'LEAD_LONGER_1031' order-preview.html 2
@@ -21042,7 +21051,7 @@ nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-story.js
 chk 'PROG_COUNT_1031' order-preview.html 2
 chk '빠뜨린 순간' order-preview.html 1
 chk 'BLESS_UNPICK_1031' order-preview.html 1
-chk 'function _askReset(k)' order-preview.html 1
+chk 'function _askReset(k,quiet)' order-preview.html 1
 chk 'ASK_RESET_1031' order-preview.html 4
 chk 'REPICK_KEEP_1031' assets/entry-music.js 2
 nochk "toast('고른 곡을 풀었어요')" assets/entry-music.js
@@ -21059,4 +21068,24 @@ chk '그때까지 순간과 고른 것을 얼마든지 고쳐요.' order-preview
 chk 'PICKS_TRUE_1031' assets/bgm-picks.js 7
 nochk "a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View'" assets/bgm-picks.js 0
 nochk "B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet'" assets/bgm-picks.js 0
+# ── 2026-10-31 식순 고객 걷기 2라운드 GPT 12건 판정분
+chk 'function _prepKeep(k,fn)' order-preview.html 1   # [PREP_KEEP_1031] 목록이 바뀌어도 체크가 다른 일로 넘어가지 않게
+chk "_prepKeep('song',function(){" order-preview.html 1
+chk 'BED_KEEP_DRAFT_1031' assets/bgm-form.js 1
+chk 'FOLD_HUSH_1031' assets/bgm-bed.js 1
+chk 'FOLD_HUSH_1031' assets/entry-music.js 1
+chk 'WELCOME_SITE_1031' order-preview.html 1
+chk 'SV_HEAD_ONLY_1031' order-preview.html 1
+chk 'EDIT_VIEW_KEEP_1031' order-preview.html 1
+chk 'function _edDirty()' order-preview.html 1
+nochk 'editReturn=false; _editSnap=null; _doneSaved=false;' order-preview.html
+chk 'LETTER_SITE_PRACT_1031' order-preview.html 1
+chk 'TALK_RESUME_1031' order-preview.html 2
+chk 'CROSS_ALL_1031' order-preview.html 2
+chk 'OWN_END_1031' assets/entry-music.js 1
+nochk '다시 누르면 풀려요' assets/entry-music.js
+# ── 2026-10-31 [ONE_TIME_1031 BGM 섹션] 말하는 차례 줄 글에서 시간 꼬리를 뗀다 — 시간은 «실제로는 약 …» 하나(서약 «약 2분» ↔ «실제로는 약 1분 15초» 두 숫자가 보였다) · listen-pace P9
+chk 'ONE_TIME_1031' order-preview.html 1
+chk 'ONE_TIME_1031' scripts/audit/listen-pace.mjs 1
+chk "function _lpNoT(t){ return String(t||'').replace(/ · 약 \\[^·\\]+\\$/,''); }" order-preview.html 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
