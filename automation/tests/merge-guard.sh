@@ -20196,6 +20196,12 @@ chk 'transform:translateY(calc(-50% - 2px));transition:opacity .2s ease .15s,vis
 chk '.me-fab-stack .me-fab:focus-visible .me-fab-nm{opacity:1;visibility:inherit;transition:opacity .2s ease,' assets/fab-names.js 1
 chk 'FAB_NM_ICO_CY' scripts/audit/fab-names.mjs 4
 chk 'FAB_NM_HOVER_DELAY' scripts/audit/fab-names.mjs 7
+# ── 2026-10-31 [FAB_TOUCH_FOCUS 사장님 아이폰 스크린샷 «모바일인데 우측 아이콘 저거 개선» · 코워크] 창을 닫아 초점이 돌아와도 터치 · 마우스면 테두리 · 이름표 없음 · 키보드는 그대로
+chk "if (b) b.classList.toggle('nm-ptr', !kbd);" assets/fab-names.js 1
+chk '.me-fab-stack .me-fab.nm-ptr:not(:hover) .me-fab-nm' assets/fab-names.js 1
+chk '@media (hover:hover){.me-fab-stack .me-fab:focus-visible .me-fab-nm{' assets/fab-names.js 1      # 터치 화면은 초점으로 이름표를 띄우지 않는다
+chk '@media (hover:none){.me-fab-stack .me-fab:focus,.me-fab-stack .me-fab:focus-visible{outline:none}}' assets/fab-names.js 1
+chk 'FAB_TOUCH_FOCUS' scripts/audit/fab-names.mjs 5
 # ── 2026-10-31 [FAB_SHARE_COPIED] 홈 공유 «복사됨»은 보이는 이름표에(종전 .me-fab-cap 은 늘 숨김 → PC 복사 확인이 안 보였다)
 chk "meShareSite(sf.querySelector('.me-fab-nm'));" index.html 1
 nochk "meShareSite(sf.querySelector('.me-fab-cap'))" index.html

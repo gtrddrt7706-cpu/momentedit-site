@@ -6,6 +6,7 @@
    · 1회 말풍선(.me-fab-tip)이 떠 있는 동안은 이름표를 안 띄운다(말풍선 우선) · 전체 화면 편집(mp-fs-on) 동안도
    · ★[FAB_NM_ICO_CY 코워크 «이름표 가운데가 아이콘 가운데보다 2px 아래»] 기준은 단추가 아니라 아이콘 가운데(50px → 25px · 680px 이하 46px → 23px) · 올리면 아이콘이 2px 뜨니 이름표도 2px
    · ★[FAB_NM_HOVER_DELAY 코워크 «줄을 훑으면 이름표가 줄줄이 깜빡»] 마우스 올림은 150ms 뒤에 뜬다 · 나갈 땐 지연 없이 · 키보드 초점은 바로
+   · ★[FAB_TOUCH_FOCUS] 창을 닫아 초점이 돌아와도 터치 · 마우스였으면 테두리 · 이름표 없음 · 터치 화면은 초점으로 이름표를 띄우지 않는다
    · 줄 위치 · 간격 · 아이콘 크기 · 순서는 건드리지 않는다([RAIL_LOCKED] · FAB_STACK_FIXED · TOPFAB_STEADY)
    한 곳에서만 고친다 — 줄은 advisor-widget.js(마이페이지 · 문의 · 안내 · 식순 미리보기) · index.html · schedule.html 세 곳에서 생기고 셋 다 이 파일을 부른다. */
 (function () {
@@ -32,8 +33,10 @@
     + '@media (max-width:680px){.me-fab-stack .me-fab .me-fab-nm{top:23px}}'
     + '.me-fab-stack .me-fab .me-fab-nm::after{content:"";position:absolute;top:0;bottom:0;left:100%;width:10px}'
     + '@media (hover:hover){.me-fab-stack .me-fab:hover .me-fab-nm{opacity:1;visibility:inherit;transform:translateY(calc(-50% - 2px));transition:opacity .2s ease .15s,visibility 0s linear .15s,transform .3s var(--ease,ease)}}'   // [FAB_NM_HOVER_DELAY] 올림은 150ms 뒤에 · 나갈 땐 바로 / [FAB_NM_ICO_CY] 올리면 아이콘이 2px 뜬다(.me-fab:hover .me-fab-ico) — 이름표도 같이
-    + '.me-fab-stack .me-fab:focus-visible .me-fab-nm{opacity:1;visibility:inherit;transition:opacity .2s ease,transform .3s var(--ease,ease)}'   // 키보드 초점은 지연 없이
-    + '.me-fab-stack .me-fab.nm-off .me-fab-nm,.me-fab-stack.nm-tip .me-fab-nm,.me-fab-stack.hide .me-fab-nm,body.mp-fs-on .me-fab-stack .me-fab-nm{opacity:0!important;visibility:hidden!important;transition:none!important}'
+    + '@media (hover:hover){.me-fab-stack .me-fab:focus-visible .me-fab-nm{opacity:1;visibility:inherit;transition:opacity .2s ease,transform .3s var(--ease,ease)}}'   // 키보드 초점은 지연 없이 · [FAB_TOUCH_FOCUS] 터치 화면(hover:none)은 초점으로도 안 뜬다
+    + '@media (hover:none){.me-fab-stack .me-fab:focus,.me-fab-stack .me-fab:focus-visible{outline:none}}'   // [FAB_TOUCH_FOCUS] 터치 화면은 줄 단추 초점 테두리 없음
+    + '.me-fab-stack .me-fab.nm-ptr{outline:none}'   // [FAB_TOUCH_FOCUS] 터치 · 마우스로 쓰다 초점이 돌아온 단추(창을 닫은 뒤) — 테두리 · 이름표 없음
+    + '.me-fab-stack .me-fab.nm-off .me-fab-nm,.me-fab-stack .me-fab.nm-ptr:not(:hover) .me-fab-nm,.me-fab-stack.nm-tip .me-fab-nm,.me-fab-stack.hide .me-fab-nm,body.mp-fs-on .me-fab-stack .me-fab-nm{opacity:0!important;visibility:hidden!important;transition:none!important}'
     + '@media print{.me-fab-nm{display:none!important}}';
   var st = document.createElement('style');
   st.id = 'meFabNamesCss';
@@ -85,6 +88,21 @@
       for (var i = 0; i < ms.length; i++) if (ms[i].addedNodes.length) { scan(); return; }
     }).observe(document.body, { childList: true });   // 줄이 body 바로 아래에 늦게 생겨도
   }
+  /* ★[FAB_TOUCH_FOCUS 2026-10-31 사장님 아이폰 사파리 스크린샷 «모바일인데 우측 아이콘 저거 개선» · 코워크] 창(드레스 · 청첩장 샘플 · 상담 도우미)을 닫으면
+     연 단추로 초점이 돌아온다(키보드 · 화면 낭독기 길 · [DRESS_FAB_1024]). 아이폰 사파리는 이 «프로그램 초점»을 :focus-visible 로 쳐서
+     파란 사각 테두리와 이름표가 남아 옆 단추를 가렸다. 초점은 그대로 돌려주고, 마지막 입력이 터치 · 마우스였으면 보이는 것만 숨긴다(nm-ptr).
+     키보드(Tab · Enter · Esc)로 쓰면 종전대로 테두리 · 이름표가 뜬다. 창 안(iframe) 입력은 여기 안 오니 «연 때의 입력»이 남는다. */
+  var kbd = false;
+  window.addEventListener('keydown', function (e) { if (e && e.key && !/^(Shift|Control|Alt|Meta|CapsLock|Fn)$/.test(e.key)) kbd = true; }, true);
+  ['pointerdown', 'mousedown', 'touchstart'].forEach(function (t) { window.addEventListener(t, function () { kbd = false; }, { capture: true, passive: true }); });
+  document.addEventListener('focusin', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('.me-fab-stack .me-fab') : null;
+    if (b) b.classList.toggle('nm-ptr', !kbd);
+  }, true);
+  document.addEventListener('focusout', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('.me-fab-stack .me-fab') : null;
+    if (b) b.classList.remove('nm-ptr');
+  }, true);
   /* Esc = 지금 올려 둔 · 초점 둔 단추의 이름표를 닫는다 */
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
