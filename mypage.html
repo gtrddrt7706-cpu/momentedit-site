@@ -666,6 +666,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-scene{margin:10px 0 0;padding-left:12px}
 .ph-sc{padding:7px 0}
 .ph-sc-n{display:block;font-family:var(--serif-ko);font-size:13px;color:var(--accent);word-break:keep-all}
+.ph-scg{margin:12px 0 0;font-size:12px;font-weight:600;color:var(--label-soft)}   /* [PHOTO_SCENE_1031] 식전 · 본식 */
+.ph-sc-r{display:block;font-size:12.5px;color:var(--accent);margin-top:1px;line-height:1.5;word-break:keep-all}
 .ph-sc-s{display:block;font-size:11px;color:var(--label-soft);margin-top:1px;line-height:1.5;word-break:keep-all}
 .ph-qr{display:flex;justify-content:center;margin:12px 0 0}
 .ph-qr img,.ph-qr canvas{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
@@ -10173,7 +10175,7 @@ function photoSceneList(rd){
   /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4] 새 코스 초안은 빌더가 실은 목록(summary.scenes · 본식 차례 · 카드 이름 · 장면)을 그대로 쓴다.
      옛 코스 초안 · 이 줄 전에 저장된 새 코스 초안은 아래 이름 맞추기 그대로(빌더를 한 번 열면 자동 저장이 새 목록을 싣는다). */
   var _sm=((rd||{}).summary||{});
-  if(_sm.open&&_sm.scenes&&_sm.scenes.length) return _sm.scenes.filter(function(x){ return x&&String(x.n||'')!=='케이크 커팅'; }).map(function(x){ return {n:String(x.n||''), s:String(x.s||'')}; });   /* [CAKE_OLD_OFF_1017] 옛 초안 장면의 케이크 커팅 걷음 */
+  if(_sm.open&&_sm.scenes&&_sm.scenes.length) return _sm.scenes.filter(function(x){ return x&&String(x.n||'')!=='케이크 커팅'; }).map(function(x){ return {n:String(x.n||''), s:String(x.s||''), alt:Array.isArray(x.alt)?x.alt.slice(0,2).map(String):null, pre:!!x.pre, id:String(x.id||'')}; });   /* ★[PHOTO_SCENE_1031 검토 173] 대표 장면 + 참고 두 줄 · 식전/본식(빌더 RitualOpen.sceneOf 한 벌) · 옛 초안(alt 없음)은 종전대로 · [CAKE_OLD_OFF_1017] 옛 초안 장면의 케이크 줄은 뺀다
   var flow=_flowFix(_sm.flow,(rd||{}).S);   /* [CAKE_OLD_OFF_1017] */
   if(!flow||!flow.length) return null;
   flow=flow.map(function(n){ return n==='두 사람이 준비한 순서'?'준비한 순서':n; });   // [DETAIL_0925 B3] 9/25 하루 저장된 초안의 옛 이름
@@ -10535,10 +10537,21 @@ function renderPhoto(box){
      ③ 「고르지 않아도 담겨요」와 「여기서 고르실 것도 없어요」가 같은 말을 두 번 했다 — 뒤엣것을 뺐다. */
   h+='<div class="ph-sec">예식 순서에서 남는 사진</div>';   // [SEC_RANK] 꼬리 제거 — 바로 아래 본문이 「따로 하실 일은 없어요」로 같은 말을 한다
   if(_scn){
+    var _scNew=_scn.some(function(x){ return x.alt; });   /* ★★[PHOTO_SCENE_1031 검토 173] 새 장면 한 벌(대표 + 참고 두 줄 · 식전/본식) — 옛 초안은 종전 한 줄 그대로 */
+    if(_scNew){
+      /* 안내 한 줄 — 실제 작가 전달 · 확인이 연결되기 전이라 «전달 · 확인» 말과 배지를 쓰지 않는다(컷 수 · 빠짐없는 촬영 약속도 쓰지 않는다) */
+      h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">고르신 순간에 맞춰 촬영 참고 장면을 정리해요.</div>';
+      [['식전',true],['본식',false]].forEach(function(g){ var xs=_scn.filter(function(x){ return !!x.pre===g[1]; }); if(!xs.length) return;
+        h+='<div class="ph-scg">'+g[0]+'</div><div class="ph-scene">';
+        xs.forEach(function(x){ h+='<div class="ph-sc"><span class="ph-sc-n">'+escapeHtml(x.n)+'</span><span class="ph-sc-r">'+escapeHtml(x.s)+'</span>'+(x.alt&&x.alt.length?'<span class="ph-sc-s">참고 · '+x.alt.map(escapeHtml).join(' · ')+'</span>':'')+'</div>'; });
+        h+='</div>'; });
+      h+='<div class="cc-note" style="text-align:left;margin:6px 0 0">사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.</div>';
+    } else {
     h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">본식 동안 사진작가가 흐름 속에서 담아요 · 따로 하실 일은 없어요.</div>';   // ★[PHOTO_SCENE_WHEN 2026-09-27 고객 점검] 차례 1~4(본식 뒤) 아래에 놓여 «언제?»가 흐렸다 — 이 칸은 본식 «동안»이다
     h+='<div class="ph-scene">';
     _scn.forEach(function(x){ h+='<div class="ph-sc"><span class="ph-sc-n">'+escapeHtml(x.n)+'</span><span class="ph-sc-s">'+escapeHtml(x.s)+'</span></div>'; });
     h+='</div>';
+    }
   } else {
     h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">식순을 정하시면 여기에 떠요 · <b>위 구도는 먼저 고르셔도 돼요</b>.</div>';   // ★[PHOTO_DIR_WORD 2026-09-27 3부 8] «아래는» → «위 구도는» — 고르는 칸(구도)은 이 절보다 위에 있다   // [PHOTO_SCENE] 빈 칸이 '식순부터 해야 하나'로 읽히지 않게 — 두 트랙은 서로 독립이다
   }
