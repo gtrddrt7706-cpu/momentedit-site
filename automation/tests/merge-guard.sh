@@ -20952,7 +20952,7 @@ nochk '촬영 안내 골라 틀기' console.html
 # ── 2026-10-31 [MUSIC_FOLD_PICK_1031 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 순간 쪽 음악 곡 목록도 입장 음악 추천 곡([MU_FOLD])처럼 고르는 순간 접는다 · «바꾸기»로 편 뒤 다시 고르면 또 접는다
 chk 'MUSIC_FOLD_PICK_1031' assets/bgm-bed.js 5
 chk 'MUSIC_FOLD_PICK_1031' scripts/audit/music-fold.mjs 1
-chk "function folded(sg){ return !!picked(sg)&&FM()[sg]!==0; }" assets/bgm-bed.js 1
+chk "function folded(sg){ return !!picked(sg)&&FM()\\[sg\\]!==0; }" assets/bgm-bed.js 1   # [CLOSING_LINE_1031 PR 에서 고침] [sg] 가 정규식 묶음으로 읽혀 늘 0 이던 핀(#1473)
 nochk "if(!(sg in m)) m[sg]=cur?1:0;" assets/bgm-bed.js
 # ── 2026-10-31 [CLOSING_LINE_1031 검토 178 사장님 19:41 «사진은 작가님 몫»] 사진 «모여 달라 · 앞을 봐 달라»를 자동 식순에서 걷고 닫는 인사 뒤 «마무리 멘트»(287 ~ 291 · 새 녹음 0 · 이미 녹음된 47 · 266 · 264 · 44 문장을 이어 붙임)
 #    사진 구간(전체 하객 · 가족 구도 · 자유 사진 · 촬영 마무리)은 소리 없는 동작 큐(actId) · 265 · 266 · 262 · 219 RETIRED · 26 · 85 · 47 은 옛 코스 legacy(clip-status) · 마이페이지 · 하객 안내 · AI 상담 «작가님 안내에 따라»
