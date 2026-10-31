@@ -17356,7 +17356,14 @@ chk 'VOICE_OPEN_1008' automation/platform/80_production.gs 2
 chk 'VOICE_OPEN_1008' privacy.html 4
 chk 'id="voice-clone"' privacy.html 1
 chk '네오사피엔스㈜ (타입캐스트 Typecast, 국내)' privacy.html 1
-chk '2026년 10월 8일' privacy.html 3
+chk '2026년 10월 8일' privacy.html 2   # [PRIVACY_REV_1031] 3 → 2 — 개정 공고일자 줄이 10/31 로 넘어갔다 · 남는 둘 = «AI 목소리 생성» 위탁 줄 «부터» · 개정 이력 «직전 개정»
+# ★[PRIVACY_REV_1031 2026-10-31 사장님 승인] 처리방침 개정 공고 · 시행 10/31 — 두 분 목소리 보관 기간 구체화(VC_DECISIONS_1030 · 7일 전 AI 목소리 삭제 · 예식일 없음 90일).
+#   보관을 줄이기만 해 정보주체에게 불리하지 않다 → 10조 단서로 공고일 시행. 맨 위 날짜는 VOICE_UP.from 보다 늦어도 된다(voice-open.mjs) · «부터» 날짜 10/8 은 그대로
+chk '개정 시행일자 · 2026.10.31 (공고 2026.10.31)' privacy.html 1
+chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1
+chk '직전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
+chk 'PRIVACY_REV_1031' privacy.html 2
+chk 'PRIVACY_REV_1031' scripts/audit/voice-open.mjs 4
 chk 'VOICE_OPEN_1008' deploy-marks.json 1
 chk 'VOICE_OPEN_1008' scripts/audit/voice-open.mjs 1
 chk 'VOICE_OPEN_1008' scripts/audit/snap-plan.mjs 1
