@@ -1,0 +1,22 @@
+{
+  "name": "momentedit-prevideo",
+  "private": true,
+  "description": "모먼트에디트 식전 영상 뼈대(Remotion) — 마이페이지 사진 · 문구로 영상을 자동으로 만든다",
+  "scripts": {
+    "sample": "node sample-photos.mjs",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Editorial out/editorial.mp4 --x264-preset=veryfast --crf=20",
+    "stills": "node stills.mjs",
+    "plan": "npx tsx printplan.ts"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "5.3.0",
+    "@fontsource/noto-serif-kr": "5.3.1",
+    "@remotion/bundler": "4.0.539",
+    "@remotion/cli": "4.0.539",
+    "@remotion/renderer": "4.0.539",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.539"
+  }
+}

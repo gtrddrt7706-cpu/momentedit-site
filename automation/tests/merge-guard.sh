@@ -4765,6 +4765,16 @@ if command -v node >/dev/null 2>&1; then _pvo=$(node scripts/audit/prevideo-cat.
   esac
 fi
 chk 'PV_CAT_1031' automation/platform/89_prevideo.gs 1
+# ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
+#   버전 고정(무료 라이선스 판) · 유료 렌더 패키지 없음 · 길이 = 마이페이지 _pvcSecs · 개그 · 패러디 갈래 없음
+if command -v node >/dev/null 2>&1; then _pro=$(node scripts/audit/prevideo-remotion.mjs 2>&1); _prr=$?
+  case "$_prr" in
+    0) echo 'ok prevideo-remotion: 식전 영상 뼈대 — 버전 고정 · 우리 컴퓨터 렌더 · 길이 약속 · 절제 무드' ;;
+    1) echo 'FAIL prevideo-remotion: 식전 영상 뼈대 결정이 어긋났다 — node scripts/audit/prevideo-remotion.mjs'; printf '%s\n' "$_pro" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok prevideo-remotion: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'PV_REMOTION_1101' automation/prevideo/README.md 1
 chk 'PV_SAME' automation/platform/89_prevideo.gs 1
 chk 'var PVC_ON=' mypage.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?

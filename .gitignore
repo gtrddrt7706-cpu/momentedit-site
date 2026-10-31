@@ -18,6 +18,9 @@ _*.html  # [UNDERSCORE_ONE 2026-09-19] 밑줄 하나부터 막는다 — _handou
 node_modules/
 package-lock.json
 package.json
+# [PV_REMOTION_1101] 식전 영상 뼈대(Remotion)는 버전 고정이 곧 무료 라이선스 고정이라 둘 다 커밋한다(automation/ 은 배포 제외)
+!automation/prevideo/package.json
+!automation/prevideo/package-lock.json
 
 # 화면 눈확인 하네스가 매번 다시 찍는 스크린샷(admin-shot.mjs·mypage-shot.mjs).
 # 실행하면 그대로 재생성되는 산출물이라 레포에 넣지 않는다(1회 1MB+ · 픽셀 diff는 리뷰에 무의미).

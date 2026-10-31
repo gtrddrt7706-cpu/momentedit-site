@@ -18,3 +18,6 @@ consultation/ScreenC_change.html
 **/*.md
 **/*.py
 **/*.txt
+
+# ── GAS 코드 아님(식전 영상 뼈대 · Node/Remotion · [PV_REMOTION_1101]) ──
+prevideo/**
