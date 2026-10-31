@@ -20211,6 +20211,15 @@ chk 'DRESS_GUIDE_1031' scripts/audit/dress-refs.mjs 9
 chk 'DRESS_GUIDE_1031' scripts/audit/dress-fit.mjs 3
 chk 'DRESS_GUIDE_1031' scripts/audit/dress-tabs.mjs 3
 chk 'DRESS_ACC_NINE_1031' scripts/audit/dress-refs.mjs 3
+# ★★[DRESS_BOUQUET3_1031 코워크 · 사장님 «부케도 3개 정도» · 인스타 76건] 기본 조화 부케 한 칸 = 세 가지 보기(카라 · 화이트·그린 · 블러시 핑크) + 부토니에 짝 · 대표 카라 · 옛 레드 장미 사진은 내렸다(파일은 남김)
+chk "{ id: 'bouquet', name: '기본 조화 부케', img: 'acc-bouquet-calla', note: '기본 조화 부케는 저희가 준비해요 · 생화를 원하시면 별도 비용이에요', on: true," assets/dress-refs.js 1   # 부케 문구 고정 · 아홉 칸 그대로
+nochk "img: 'acc-bouquet', note:" assets/dress-refs.js                                      # 옛 레드 장미 대표 사진 — 되살리지 말 것
+chk "{ id: 'bouquet-blush-pink', name: '블러시 핑크 가든', label: '블러시 핑크', img: 'acc-bouquet-blush-pink'" assets/dress-refs.js 1
+chk "img: 'acc-boutonniere-pairs', caption: '왼쪽부터 카라 · 화이트·그린 · 블러시 핑크'" assets/dress-refs.js 1
+chk "go('accd', { accCur: acx, accVar: '' })" dress.html 1                                   # 보기는 기억하지 않는다(다시 열면 첫 종류)
+chk "var bqx = t.getAttribute('data-bq');" dress.html 1                                      # 그 자리에서 사진 · 이름만 바꾼다
+chk 'DRESS_BOUQUET3_1031' scripts/audit/dress-refs.mjs 5
+chk 'DRESS_BOUQUET3_1031' scripts/audit/dress-tabs.mjs 7
 # ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
 chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
 chk '<script src="/assets/fab-names.js" defer></script>' index.html 1
