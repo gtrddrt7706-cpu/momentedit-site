@@ -21033,7 +21033,7 @@ nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-story.js
 chk 'PROG_COUNT_1031' order-preview.html 2
 chk '빠뜨린 순간' order-preview.html 1
 chk 'BLESS_UNPICK_1031' order-preview.html 1
-chk 'function _askReset(k)' order-preview.html 1
+chk 'function _askReset(k,quiet)' order-preview.html 1
 chk 'ASK_RESET_1031' order-preview.html 4
 chk 'REPICK_KEEP_1031' assets/entry-music.js 2
 nochk "toast('고른 곡을 풀었어요')" assets/entry-music.js
@@ -21050,6 +21050,22 @@ chk '그때까지 순간과 고른 것을 얼마든지 고쳐요.' order-preview
 chk 'PICKS_TRUE_1031' assets/bgm-picks.js 7
 nochk "a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View'" assets/bgm-picks.js 0
 nochk "B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet'" assets/bgm-picks.js 0
+# ── 2026-10-31 식순 고객 걷기 2라운드 GPT 12건 판정분
+chk 'function _prepKeep(k,fn)' order-preview.html 1   # [PREP_KEEP_1031] 목록이 바뀌어도 체크가 다른 일로 넘어가지 않게
+chk "_prepKeep('song',function(){" order-preview.html 1
+chk 'BED_KEEP_DRAFT_1031' assets/bgm-form.js 1
+chk 'FOLD_HUSH_1031' assets/bgm-bed.js 1
+chk 'FOLD_HUSH_1031' assets/entry-music.js 1
+chk 'WELCOME_SITE_1031' order-preview.html 1
+chk 'SV_HEAD_ONLY_1031' order-preview.html 1
+chk 'EDIT_VIEW_KEEP_1031' order-preview.html 1
+chk 'function _edDirty()' order-preview.html 1
+nochk 'editReturn=false; _editSnap=null; _doneSaved=false;' order-preview.html
+chk 'LETTER_SITE_PRACT_1031' order-preview.html 1
+chk 'TALK_RESUME_1031' order-preview.html 2
+chk 'CROSS_ALL_1031' order-preview.html 2
+chk 'OWN_END_1031' assets/entry-music.js 1
+nochk '다시 누르면 풀려요' assets/entry-music.js
 # ── 2026-10-31 [ONE_TIME_1031 BGM 섹션] 말하는 차례 줄 글에서 시간 꼬리를 뗀다 — 시간은 «실제로는 약 …» 하나(서약 «약 2분» ↔ «실제로는 약 1분 15초» 두 숫자가 보였다) · listen-pace P9
 chk 'ONE_TIME_1031' order-preview.html 1
 chk 'ONE_TIME_1031' scripts/audit/listen-pace.mjs 1
