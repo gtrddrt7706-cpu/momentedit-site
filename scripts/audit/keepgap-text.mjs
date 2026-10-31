@@ -49,7 +49,7 @@ if (direct) {
     ledger = fs.existsSync(path.join(ROOT, LEDGER)) ? JSON.parse(fs.readFileSync(path.join(ROOT, LEDGER), 'utf8')) : { keep: [], redo: [] };
   } catch (e) { console.log('FAIL 못 읽었다 — ' + e.message); process.exit(1); }
   ledger.keep = ledger.keep || []; ledger.redo = ledger.redo || [];
-  /* ★[CLIP_STATUS_1031 검토 175] 안 나는 녹음(retired · legacy · dormant · 안 트는 배역 CAST_MUTE)의 음성 쉼은 재지 않는다 — 장부 줄은 그대로(표시만) · 쓰기(--write · --ack)도 그 줄을 건드리지 않는다 */
+  /* ★[CLIP_STATUS_1031 검토 175] 안 나는 녹음(retired · legacy · dormant · manual_off · 안 트는 배역 CAST_MUTE)의 음성 쉼은 재지 않는다 — 장부 줄은 그대로(표시만) · 쓰기(--write · --ack)도 그 줄을 건드리지 않는다 */
   const { statusAny, PAUSE_OUT, countLine, liveNarration, LIVE_LINE } = await import('../lib/clip-status.mjs');
   console.log(LIVE_LINE(liveNarration().length));
   const _isOut = (clip) => PAUSE_OUT.has(statusAny(clip));

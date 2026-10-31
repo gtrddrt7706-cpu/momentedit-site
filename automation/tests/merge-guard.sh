@@ -2521,7 +2521,7 @@ chk 'padOf(file)' scripts/build-dubbing-script.mjs 1
 #     '대기' 버튼에 '51' 이 손으로 박혀 있었다(진짜 번호는 49 · 51 은 bridge-6-resume '재개').
 #     디렉터가 클립 파일을 불러오면 CLIPS 에 번호 열쇠가 생기므로, 당일 '대기' 를 눌렀을 때
 #     재개 안내가 나갔을 자리다. 숫자를 다시 박으면 이 줄이 빨간불을 켠다.
-chk 'CLIPS\[RitualCue.noOf' console.html 2   # ★[WAIT_CLIP_OFF_1016 라운드 6] 셋 중 «대기» 자리(49 · 9/6 폐지)를 걷어 둘이 남았다 — 남은 둘도 번호는 noOf 에서
+#   ★[AUTO_ONLY_1031 검토 177] 남은 둘(playLoose · 보조 단추)도 걷어 «CLIPS[RitualCue.noOf» 핀은 내렸다 — 큐 밖 재생 길이 없다(scripts/audit/clip-status.mjs ⑦)
 nochk "CLIPS\['[0-9]" console.html 0
 # [CLIP_COUNT] 대본 클립 수 가드 — 51 로 굳어 있는 동안 대본은 74 가 됐고, 생성기가 매번
 #   실패하면서 manifest.json 이 옛 51클립짜리로 얼어붙어 있었다(사람 눈에만 뜨는 실패였다).
@@ -2558,7 +2558,7 @@ chk 'CONTRACT_V14' mypage.html 1
 # [PHOTOCUE_BOARD] 촬영 안내는 콘솔의 '골라 트는 판'에서만 나온다.
 #   판이 없으면 녹음한 클립 10개를 틀 수단이 사라진다(한 번 그 상태로 떠 있었다).
 chk 'PHOTOCUE_BOARD' console.html 3
-chk 'playLoose' console.html 2                  # 체인 밖 재생 — 진행 위치를 바꾸지 않는다
+nochk 'function playLoose' console.html          # ★[AUTO_ONLY_1031 검토 177] 체인 밖 재생은 걷었다 — 당일 소리는 식순 큐 자동 나레이션만
 
 # [NO_AUDIO] 녹음 대기 목록은 FILES ↔ manifest 를 통째로 대조해 만든다.
 #   미리듣기에 안 나오는 콘솔 전용 클립이 목록에서 조용히 빠지던 것을 막는다(실제로 16개가 떠 있었다).
@@ -12284,7 +12284,7 @@ chk 'ROUND_FREE' assets/ritual-cue.js 1
 #   대기·재개 브릿지 둘이 아직 «눌리는 버튼»으로 남아 있었다. 손으로 지우지 않고 걸러서 막는다 —
 #   손으로 지우면 다음 폐지 때 또 샌다. 정본은 ritual-cue.js 의 RETIRED 하나다 [ONE_SPEC].
 chk 'HELPER_RETIRED' console.html 1
-chk 'RitualCue.RETIRED' console.html 1
+#   ★[AUTO_ONLY_1031 검토 177] 보조 단추 목록 자체를 걷어 «RitualCue.RETIRED» 거름 핀은 내렸다(목록이 없으면 샐 자리도 없다 · ⑦ 이 되살림을 잡는다)
 
 # ★[SENT_PRUNE · SENT_RETIRED 2026-09-19] 문장 창고를 사람 손에서 떼어 놓는다.
 #   ① 문안에서 문장을 빼면 창고에 주인 없는 소리가 남는데, 종전 안내는 «_index.json 을 손으로
@@ -19682,7 +19682,7 @@ chk ' freeIn:"다음은 오늘 예식에서 두 사람이 가장 마음을 쏟�
 chk 'var FREE_IN="다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다.";' order-preview.html 1   # [FREE_IN_RR_1023] 빌더 사본
 chk 'B5_OFF_1023' assets/ritual-cue.js 2   # B5 «영상은 여기까지입니다» 금지 · RETIRED
 nochk "slugB = 'bridge-b5-video-out'" assets/ritual-cue.js   # [B5_OFF_1023] 되살리지 말 것
-chk "if (rc.rescue.slug) playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.text);" console.html 1   # [FREE_FAIL_VOICE_OFF_1023] 소리가 있을 때만 튼다
+nochk 'playLoose(rc.rescue' console.html   # [FREE_FAIL_VOICE_OFF_1023] 녹음 한 줄은 쉰다 · [AUTO_ONLY_1031] 큐 밖 재생 길 없음
 nochk "slug: 'narr-free-fail'" assets/ritual-cue.js   # [FREE_FAIL_VOICE_OFF_1023] 재생 안 됨 한 줄(105)은 쉰다 · 디렉터가 말로
 chk '하객분들의 따뜻한 박수와 함께 모시겠습니다. 단상 위로 올라와 주십시오.' assets/ritual-open.js 1   # [검토 151-1 5)] 153 = FF 1-1 원문
 chk '이 잔에는 두 사람의 영원한 사랑이 이어지길 바라는 모두의 마음이 담겨있는데요.' assets/ritual-open.js 1   # [검토 151-1 6)] 188 = SS 묶음 d
@@ -20908,4 +20908,15 @@ nochk "screen: '자, 다음은 신랑 신부의 영원한" assets/ritual-open.js
 nochk "two: '양가 어머님 맞절." assets/ritual-open.js
 nochk "fathers: '양가 아버님 맞절." assets/ritual-open.js
 nochk '화면으로 보고 계신 분들, 반갑습니다' assets/ritual-cue.js
+# ── 2026-10-31 [AUTO_ONLY_1031 검토 177 사장님 19:40 «당일 소리는 식순에서 자동으로 나오는 나레이션만»] 콘솔 보조 단추(HELPERS · 혼주 편지 43 · 어른 말씀 열기 22) · 촬영 연출 판 재생(playLoose · fx 69 70 71 73 74 75 109)을 걷었다
+#    녹음 · 파일 · 번호는 그대로 — assets/audio/clip-status.json 에 manual_off(수동 전용 · 당일 재생 안 함) · 실청 · 쉼 도구가 뺀다 · 25 덕담 긴 판은 식순 자동이라 그대로
+chk 'AUTO_ONLY_1031' console.html 4
+chk 'AUTO_ONLY_1031' assets/audio/clip-status.json 2
+chk 'AUTO_ONLY_1031' scripts/lib/clip-status.mjs 1
+chk 'AUTO_ONLY_1031' scripts/audit/clip-status.mjs 2
+chk 'AUTO_ONLY_1031' CLAUDE.md 1
+chk "'manual_off'" scripts/lib/clip-status.mjs 2
+nochk 'var HELPERS = \[' console.html
+nochk "b.onclick = function(){ playLoose(g.slug" console.html
+nochk '촬영 안내 골라 틀기' console.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
