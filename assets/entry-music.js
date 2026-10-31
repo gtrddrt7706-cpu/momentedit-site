@@ -762,6 +762,18 @@
     if(a==='biglast'){ var P4=scenePlan(); if(!P4) return; scPlay(Math.max(0,P4.PL.tv+(P4.PL.lastS||0)-0.3)); return; }
   };
   D.addEventListener('keydown',function(ev){ var t=ev.target; if(t&&t.id==='muOwn'&&ev.key==='Enter'&&!ev.isComposing){ ev.preventDefault(); upOwnSet(t.value); } });   /* 컴퓨터 · 안드로이드 «완료» */
+  /* ★★[ENTRY_CARRY_1101 사장님 «진행» · 맞절 화면 «입장 곡이 이어져요» 줄은 있는데 들어 볼 길이 없다] 두 분이 고른 입장 곡을 빌더(bgm-bed)가 맞절 · 이어 듣기에 깐다 —
+       곡(추천 곡 key rec 의 짧은 판 · 올린 곡) · 곡 크기(SONG_LUFS −12 체계 · gain) · 문 열림(H · 이 장면과 같은 pickHook) · 도착(H + SP.after 60초 = 장면 끝) · 짧은 판의 원곡 시각(o · end).
+       크기는 입장 엔진 값 그대로(intro · under · BED_TRIM) — 구간 곡 보정(songGain +7)은 걸지 않는다 · 당일 콘솔은 이미 맞절까지 입장 곡이 이어진다(BGM_FIX 1) */
+  function carryHas(){ var mu=St().mu; return !!(mu&&(recOn()||(mu.src==='up'&&!!upRec()))); }
+  function carrySig(){ var mu=St().mu; if(!carryHas()) return ''; return mu.src==='rec'?['rec',mu.k,mu.hook].join(':'):['up',mu.sid||mu.fid||mu.name,mu.hook].join(':'); }
+  function carry(){ var mu=St().mu, p; if(!carryHas()) return Promise.reject(new Error('none'));
+    if(mu.src==='rec') p=recSong(mu.k);
+    else { var u0=upCur(); if(u0&&u0.Sg) p=Promise.resolve(u0); else { restore(); p=new Promise(function(ok,no){ var t0=Date.now(); (function w(){ var u=upCur(); if(u&&u.Sg){ ok(u); return; } if(RESTORE===2||Date.now()-t0>20000){ no(new Error('up')); return; } setTimeout(w,150); })(); }); } }
+    return p.then(function(u){ var Sg=u.Sg, H=hookNow(u), st=vNow(), V0=(st&&st.src)?VR[st.key]:null, V=null;
+      if(V0&&V0.pieces&&V0.pieces.length){ var PL=ES.plan(V0,{dur:Sg.dur,gain:1},H,{hooks:hooksOf(u)}); H=PL.H; V=PL.V; }
+      var o=Sg.o||0, end=Sg.end!=null?Sg.end:Sg.dur;
+      return { sig:carrySig(), buf:Sg.buf, gain:Sg.gain, o:o, end:end, H:H, V:V, arrive:H+ES.SP.after, intro:ES.SP.intro, under:ES.SP.under, trim:ES.BED_TRIM }; }); }
   /* 빌더가 다 그린 뒤 — 이 칸이 사라졌으면(다른 쪽으로 감) 듣던 소리를 멈춘다 */
   function after(){ if((PREV||PWANT)&&!D.querySelector('.ls-mu')) hush();
     if(D.querySelector('.ls-mu .mu-car')) carKeep(CARN);   /* [REC_SONG_1012] 빌더가 다시 그려도 넘기던 카드 · 사진 그대로 */
@@ -769,6 +781,7 @@
     if(!D.querySelector('.em-scene')){ if(RUN||PEND) scHalt(); if(BIG) closeBig(); return; }   /* [ENTRY_SCENE_1012] 장면 칸이 없어지면(다른 쪽) 그 자리에 멈춘다 · 크게 보기도 닫는다 */
     fitPill(); paintGraph(); }   /* 빌더가 다시 그리면 그래프 캔버스가 새것이다 — 지금 자리로 다시 그린다(트는 중이면 다음 틀이 이어 그린다) */
 
+  EM.carry=carry; EM.carryHas=carryHas; EM.carrySig=carrySig;   /* [ENTRY_CARRY_1101] */
   EM.rowHtml=rowHtml; EM.sceneHtml=sceneHtml; EM.guideBody=guideBody; EM.after=after; EM.whole=whole; EM.paint=paintPill;   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기» 입구 · 빌더 재생 상태가 바뀔 때(_lPaint) 알약만 다시 */ EM.hush=function(){ if(hush()) redraw(); scHalt(); };   /* 빌더가 제 소리를 틀 때(_stopMk) — 이 칸 ▶ 만 되돌리고 장면은 그 자리에 멈춘다(쪽 전체를 다시 그리지 않는다) */
   EM._t={openAt:openAt,openMark:openMark,recClean:recClean,REC_FIX:REC_FIX,lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
     pv:function(){ return PREV?{key:PREV.key,x0:PREV.x0,d:PREV.d,H:PREV.H}:null; },car:function(){ return {pre:CAR_PRE,len:CAR_LEN}; },   /* [PREV_12_60_1013] 점검용 — 지금 미리 듣기가 원곡 몇 초부터 몇 초 동안인가 */

@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         part:
-          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold' }
+          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold entry-carry' }   # [ENTRY_CARRY_1101]
           - { name: b, tests: 'listen-pace knobs' }
     name: bgm-sound (${{ matrix.part.name }})
     steps:
