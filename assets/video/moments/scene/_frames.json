@@ -1,71 +1,27 @@
 {
- "about": "[PHOTO_SCENE_1031] 자동 생성 — node scripts/build-scene-frames.mjs · 손으로 고치지 않는다",
- "v": "1031a",
- "src": "1025e",
- "frames": {
-  "guest": {
-   "from": "guest",
-   "at": 6
-  },
-  "prevideo": {
-   "from": "prevideo",
-   "at": 6
-  },
-  "candle": {
-   "from": "candle",
-   "at": 5.25
-  },
-  "entry": {
-   "from": "entry",
-   "at": 6
-  },
-  "matjeol": {
-   "from": "entry-look",
-   "at": 6
-  },
-  "welcome": {
-   "from": "welcome",
-   "at": 6
-  },
-  "vow": {
-   "from": "vow",
-   "at": 6
-  },
-  "ring": {
-   "from": "ring",
-   "at": 7.4
-  },
-  "declare": {
-   "from": "declare",
-   "at": 7
-  },
-  "bless": {
-   "from": "bless",
-   "at": 6
-  },
-  "free": {
-   "from": "speech",
-   "at": 6
-  },
-  "song": {
-   "from": "song",
-   "at": 6
-  },
-  "letter": {
-   "from": "letter",
-   "at": 6
-  },
-  "tribute": {
-   "from": "tribute",
-   "at": 7
-  },
-  "table": {
-   "from": "table",
-   "at": 7
-  },
-  "toast": {
-   "from": "toast",
-   "at": 6.5
-  }
+ "about": "[PHOTO_SCENE_1031 · SCENE_PHOTO_1101] 자동 생성 — node scripts/build-scene-frames.mjs · 손으로 고치지 않는다 · 그림 = 실사 사진(영상 프레임 아님)",
+ "v": "1101c",
+ "src": "photo1101c",
+ "photos": {
+  "guest": "guest",
+  "prevideo": "prevideo",
+  "candle": "candle",
+  "entry": "entry",
+  "matjeol": "matjeol",
+  "welcome": "welcome",
+  "vow": "vow",
+  "vow:thanks": "vow-thanks",
+  "ring": "ring",
+  "declare": "declare",
+  "bless": "bless",
+  "free": "free",
+  "song": "song",
+  "letter": "letter",
+  "letter:each": "letter",
+  "tribute": "tribute",
+  "tribute:nohug": "tribute-nohug",
+  "table": "table",
+  "toast": "toast",
+  "_close": "close"
  }
 }
