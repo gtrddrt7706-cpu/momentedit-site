@@ -10,7 +10,7 @@
    3c [SOFT_START_1013 · PRE_ROLL_1013] ▶ 를 누르면 0.3초 뒤에 소리를 건다(씹힘 방지) · 첫소리는 2.5초에 걸쳐 0 에서 u² 로 올라온다(PREV_FADE · 카드 ▶ 는 그대로) · 15h 장면(음악과 함께)도 0.3초 뒤 · 장면은 6초([ENTRY_BGM_1019])
    5 넘겨도 듣던 노래는 그대로([CAR_KEEP_PLAY]) · 다른 카드에서도 ■ = 그 곡 멈추기 · 점이 금빛 · ■ → 멈춤 · 가사 걷힘
    6 ✓ → S.mu = 추천 곡(키 · 이름 · 가수 · 자리 = hook0 · 사진) · 접힌 한 줄([MU_FOLD]) · 알림 · 장면(음악과 함께 듣기)이 이 곡으로 짠다(H = hook0)
-   7 «바꾸기» → 펼쳐 고른 곡 카드 · ✓ 눌린 모양 · 다시 ✓ → 풀림(S.mu 없음 · 장면 없음 · «고른 곡을 풀었어요»)
+   7 «바꾸기» → 펼쳐 고른 곡 카드 · ✓ 눌린 모양 · 다시 ✓ → 그 곡 그대로 접힘([REPICK_KEEP_1031] · 옛 «풀림»)
    8 저장 → 초안(orderDraft)에 S.mu 가 실려 간다(당일 콘솔이 보는 그것 · src rec · k · hook)
    9 이 기기에 둔 곡 — 다시 들으면 다시 묻지 않는다(새로 연 쪽에서도)
    10 올린 곡 ↔ 추천 곡 — 올린 곡을 고른 채 추천 곡을 고르면 올린 곡 기록은 S.muUp 으로(서버 파일 그대로) · «두 분이 고른 곡» 칩 → 곡 줄만(안 고른 모양) → 누르면 다시 그 곡(fid 그대로)
@@ -203,8 +203,9 @@ try {
     // 7
     await f.click('.ls-mu [data-fk="mufold"]'); await f.waitForTimeout(700); const V7a = await view(f);
     await f.click('.ls-mu [data-fk="mucarpick"]'); await f.waitForTimeout(600); const V7b = await view(f);
-    ok(`${W} 7 «바꾸기» → 펼쳐 고른 곡 카드 · ✓ 눌린 모양 · 초점 ✓ · 다시 ✓ → 풀림(S.mu 없음 · 장면 없음 · «고른 곡을 풀었어요») · 펼친 그대로`, V7a.n === 3 && V7a.cur === 'r1' && V7a.pk.p === 'true' && V7a.pk.on && V7a.focus === 'mucarpick' && !V7b.mu && !V7b.scene && V7b.toasts.includes('고른 곡을 풀었어요') && V7b.n === 3 && V7b.pk.p === 'false',
-      { V7a: [V7a.n, V7a.cur, V7a.pk, V7a.focus], V7b: [V7b.mu, V7b.scene, V7b.n, V7b.pk] });
+    ok(`${W} 7 «바꾸기» → 펼쳐 고른 곡 카드 · ✓ 눌린 모양 · 초점 ✓ · 다시 ✓ → 그 곡 그대로 접힘([REPICK_KEEP_1031] · 다른 음악 목록과 같게 · «고른 곡을 풀었어요» 없음)`, V7a.n === 3 && V7a.cur === 'r1' && V7a.pk.p === 'true' && V7a.pk.on && V7a.focus === 'mucarpick' && V7b.mu && V7b.mu.k === 'r1' && V7b.fold && V7b.n === 0 && !V7b.toasts.includes('고른 곡을 풀었어요'),
+      { V7a: [V7a.n, V7a.cur, V7a.pk, V7a.focus], V7b: [V7b.mu, V7b.fold, V7b.n, V7b.toasts] });
+    await f.click('.ls-mu [data-fk="mufold"]'); await f.waitForTimeout(700);   /* 8 은 펼친 목록에서 다른 곡을 고른다 */
     // 8
     await f.click('.ls-mu [data-fk="mucarnext"]'); await f.waitForTimeout(500); await f.click('.ls-mu [data-fk="mucarnext"]'); await f.waitForTimeout(500);
     await f.click('.ls-mu [data-fk="mucarpick"]'); await f.waitForTimeout(600);

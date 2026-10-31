@@ -91,8 +91,8 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   // ② 줄 세우기 — 명세 문장을 다른 손으로 옮긴 셈과 대조
   /* ★[DRESS_SET_1031 · DRESS_Q3_ARMS] 명세(코워크 1031 · 10벌은 바로 아래 DRESS_TEN_1031) — 옛 7벌 open 01 · 02 · 04 · 07 / sleeve 03 · 05 / 06(케이프)은 어느 쪽에도 맞지 않는다 ·
      라인 any · 어깨 · 팔 any = 걸러내지 않음 · 옛 답은 loose → any · low → any · arms → sleeve · none → any(여럿이면 arms 가 있으면 sleeve) */
-  /* ★[DRESS_TEN_1031] 10벌 — open 01 02 04 05 06 07 10 · sleeve 03 08 · 09(케이프)는 어느 쪽에도 맞지 않는다 */
-  const ARMS_BY_NO = { '01': 'open', '02': 'open', '03': 'sleeve', '04': 'open', '05': 'open', '06': 'open', '07': 'open', '08': 'sleeve', '09': '', '10': 'open' };
+  /* ★[DRESS_TEN_1031 · DRESS_NINE_MINI_1031] 10벌 — open 01 02 04 05 06 07 09 10 · sleeve 03 08(09 케이프를 잔비즈 오프숄더 미니로 바꿨다) */
+  const ARMS_BY_NO = { '01': 'open', '02': 'open', '03': 'sleeve', '04': 'open', '05': 'open', '06': 'open', '07': 'open', '08': 'sleeve', '09': 'open', '10': 'open' };
   const noOf = (d) => (/^스타일 예시 (\d{2}) · /.exec(d.name) || [])[1] || '';
   const spec = (ans, list) => {
     const len = ['ankle', 'calf', 'knee'].includes(ans.len) ? ans.len : '';
@@ -589,7 +589,7 @@ if (process.argv.includes('--selftest')) {
     ['«아직 모르겠어요»(어깨 · 팔)가 빠짐', SRC.replace(", ['any', '아직 모르겠어요']]", "]"), GAS],
     ['옛 답 arms 가 sleeve 로 안 읽힘', SRC.replace("src.indexOf('arms') >= 0 ? 'sleeve'", "src.indexOf('arms') >= 0 ? 'open'"), GAS],
     ['어깨 · 팔이 다시 여럿 고름', SRC.replace("multi: true, one: true, none: 'any'", "multi: true, none: 'any'"), GAS],
-    ['케이프를 팔 덮음으로 셈', SRC.replace("sleeve: 'bolero', shoulder: 'cape'", "sleeve: 'bolero', shoulder: 'sleeve'"), GAS],
+    ['[DRESS_NINE_MINI_1031] 09 오프숄더 미니를 소매로 셈', SRC.replace("expo: 'soft', sleeve: 'none', shoulder: 'open',\n        mood: '새틴 어깨 밴드", "expo: 'soft', sleeve: 'none', shoulder: 'sleeve',\n        mood: '새틴 어깨 밴드"), GAS],
     ['결과 소제목에 «추천»', SRC, GAS, PAGE0.replace("<h3 class=\"pk-sub-h\">답에 어울리는 드레스 · '", "<h3 class=\"pk-sub-h\">추천 드레스 · '")],
     ['자세히에서 답 없이 목록으로', SRC, GAS, PAGE0.replace("    if (!S.answered) { go('q', { q: 0 }); return; }", "   ")],
     ['답한 적 있어도 물음부터', SRC, GAS, PAGE0.replace("S.view = S.answered ? 'list' : 'q';", "S.view = 'q';")],
@@ -613,7 +613,7 @@ if (process.argv.includes('--selftest')) {
     ['PC 보기 셋이 다시 2열', SRC, GAS, PAGE0.replace('.pk-opts.figs.figs3{grid-template-columns:repeat(3,minmax(0,1fr))}', '.pk-opts.figs.figs3{}')],
     ['폼 보기 칸이 다시 눌러 작아진다', SRC, GAS, PAGE0.replace('.pk-opt:active{transform:none;background:var(--bg)}', '.pk-opt:active{transform:scale(.98);background:var(--bg)}')],
     ['막대 주 단추가 다시 갈색', SRC, GAS, PAGE0.replace('{background:var(--seal);color:#fff}', '{background:#4E3F31;color:#fff}')],
-    ['표본 분위기 글이 라인 설명을 되풀이', SRC.replace("mood: '등 뒤로 떨어지는 오간자 케이프'", "mood: '허리에서 아래로 가볍게 퍼지는 실루엣'"), GAS],
+    ['표본 분위기 글이 라인 설명을 되풀이', SRC.replace("mood: '새틴 어깨 밴드와 작은 펄의 은은한 반짝임'", "mood: '허리에서 아래로 가볍게 퍼지는 실루엣'"), GAS],
     ['카드가 다시 상담확정에서만(서버와 어긋남)', SRC, GAS, PAGE0, MP0.replace("var DRESS_STAGES=['신청접수','상담확정'];", "var DRESS_STAGES=['상담확정'];")],
     ['카드가 다시 확정된 상담에서만', SRC, GAS, PAGE0, MP0.replace("if(!c.status || c.status==='취소') return false;", "if(!(c.status==='승인완료' || c.status==='확정')) return false;")],
     ['미리 보기 첫 상태(일정 선택 전)를 지움', SRC, GAS, PAGE0, MP0.replace("var states=[['일정 선택 전 · 0벌', pre], ['0벌', mk([])]", "var states=[['0벌', mk([])]")],
@@ -653,7 +653,7 @@ if (process.argv.includes('--selftest')) {
     ['누름 반응을 지움', SRC, GAS, PAGE0.replace('.dr-pv:active,.pk-slot.on:active{transform:scale(.98)}', '')],
     ['살펴볼 점이 다시 펼친 채', SRC, GAS, PAGE0.replace("tipsOpen: false, base:", "tipsOpen: true, base:").replace("if (act === 'tips')", "if (act === 'tipz')")],
     ['칸이 다시 사진만 단추', SRC, GAS, PAGE0.replace("'<button type=\"button\" class=\"dr-cell\" data-open=\"'", "'<div class=\"dr-cell\" data-open=\"'")],
-    ['이름에 다시 «+»', SRC.replace("크레이프 A라인 · 케이프'", "크레이프 A라인 + 케이프'"), GAS],
+    ['이름에 다시 «+»', SRC.replace("잔레이스 A라인 · 볼레로'", "잔레이스 A라인 + 볼레로'"), GAS],
     ['완료 화면에 마감 줄이 다시', SRC, GAS, PAGE0.replace("'<div class=\"pk-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>'", "'<div class=\"pk-dots\"><p class=\"dotln\">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p><p class=\"dotln\">' + esc(R.dueLine(S.ymd)) + '</p></div>'")],
     ['마감 한 줄 원천이 다른 말', SRC.replace("'상담 날짜가 정해지면 바꾸기 마감일을 알려 드릴게요.'", "'상담 이틀 전까지 바꾸실 수 있어요.'"), GAS],
     // ★[코워크 디자인 라운드 3 · 10/23] 고친 것을 되돌리면 빨강

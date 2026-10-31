@@ -82,7 +82,7 @@ try {
           const fl = await fr.evaluate(() => [!!window.__qObs, !!window.__qFlash]);
           if (!fl[0]) no(`${who} — 물음 깜빡임 감시가 창에 안 걸렸다(못 쟀다) [DRESS_AFTER_NOFLASH]`); else if (fl[1]) no(`${who} — 물음 · 결과가 잠깐이라도 그려졌다 [DRESS_AFTER_NOFLASH]`);
           if (v.q || v.mine || v.steps || !v.tabs || v.tab !== 'pkTabD' || !v.panD || v.panA) no(`${who} — 탭 화면(드레스)이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
-          if (v.ids !== 'S07,S01,S08,S10,S09,S03,S11,S04,S02,S05' || v.nos !== '01,02,03,04,05,06,07,08,09,10') no(`${who} — 드레스 순서 ${v.ids} · 번호 ${v.nos} — 스타일 예시 01 → 10 [DRESS_TEN_1031] [DRESS_TABS_1030 · DRESS_SET_1031]`);
+          if (v.ids !== 'S07,S01,S08,S10,S09,S03,S11,S04,S12,S05' || v.nos !== '01,02,03,04,05,06,07,08,09,10') no(`${who} — 드레스 순서 ${v.ids} · 번호 ${v.nos} — 스타일 예시 01 → 10 [DRESS_TEN_1031] [DRESS_TABS_1030 · DRESS_SET_1031]`);
           /* 늦게 온 데이터 — 부모가 dressFill 을 다시 보내도 탭 그대로 */
           await P.evaluate(() => document.getElementById('mp_drFrame').contentWindow.postMessage({ type: 'momentedit:dressFill', key: 'ME-TABS', open: true, saved: null }, location.origin)); await wait(300);
           const v2 = await view(fr); if (v2.q || v2.mine || !v2.tabs) no(`${who} — 늦게 온 데이터로 물음 · 결과가 나왔다 [DRESS_TABS_1030]`);
@@ -190,7 +190,7 @@ try {
       v = await view(fr); if (v.tab !== 'pkTabA' || Math.abs(v.y - mA) > 2) no(`${tag} 다시 열면 마지막 탭(소품) · 그 자리(${mA})가 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/reopen-${W}.png` });
       await fr.click('#pkTabD'); await wait(300); v = await view(fr); if (Math.abs(v.y - mD) > 2) no(`${tag} 다시 연 뒤 드레스 탭 자리(${mD})가 아니다 ${v.y} [DRESS_TABS_1030]`);
-      await fr.evaluate(() => document.querySelector('[data-open="S02"]').click()); await wait(400); await closeX(P, fr); fr = await open(P, true);
+      await fr.evaluate(() => document.querySelector('[data-open="S12"]').click()); await wait(400); await closeX(P, fr); fr = await open(P, true);
       v = await view(fr); if (v.tab !== 'pkTabD' || !v.tabs || Math.abs(v.y - mD) > 2) no(`${tag} 자세히를 보다 닫으면 드레스 목록(${mD})이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       await closeX(P, fr);
       /* [DRESS_MEM_CLOSE] 스크롤 직후(0 ~ 100ms) ✕ · Esc · 바깥 · 뒤로로 닫아도 다시 열면 그 자리(2px 이내) */

@@ -96,7 +96,7 @@
     { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['bless', 'free', 'song', 'letter'] },   // [ACTS_SHIFT_1013] 덕담이 이 막 첫 칸(10/12 BLESS_AFTER_DECLARE 때 이 막이 다섯 칸이라 약속의 순간 끝으로 옮겼던 것을 되돌림) · [SONG_BACK_1011] 축가는 선언 뒤 · [HEART_ORDER_1012] 차례는 덕담 → 축사 → 축가 → 편지 → 부모님께 인사 그대로
     /* [ACTS_SHIFT_1013] 닫는 막 — 첫 칸이 부모님께 인사 · 케이크 칸은 옛 초안이 담아 뒀을 때만([CAKE_OFF_1013] · [CAKE_TOAST_SPLIT]) · 테이블 인사는 닫는 인사 뒤([TABLE_GREET_1008]) · 칸 차례 = 실제 차례(닫는 인사 → 축배 → 테이블 인사 · [TOAST_LAST_1013])
        ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 테이블 인사 줄은 그대로 */
-    { n: '축하 · 닫는 순간', d: '부모님께 인사하고 본식을 닫는 자리, 축배와 테이블 인사까지', ks: ['tribute', 'cake', '_close', 'toast', 'table'] }
+    { n: '축하 · 닫는 순간', d: '부모님께 인사하고, 테이블 인사와 축배로 본식을 닫는 자리', ks: ['tribute', 'cake', 'table', 'toast', '_close'] }   // ★[CARD_ORDER_1031 식순 걷기 1라운드 GPT 3] 칸 차례 = 실제 차례(END_FLOW_1030 · 테이블 인사 → 축배 → 닫는 인사) — 옛 칸 차례(닫는 인사 → 축배 → 테이블 인사)가 남아 고르는 화면과 하나씩 만들기 차례가 달랐다
   ];
 
   /* ── 카드 문구(시안 2판 EV + 명세 4장 고침) ──
@@ -123,7 +123,7 @@
     cake: { n: '케이크 커팅', sn: '케이크', one: '두 분이 나이프를 함께 잡고 케이크를 잘라요.', shot: '함께 자르는 두 손', who: '두 분' },   // [CAKE_TOAST_SPLIT]
     toast: { n: '축배', sn: '축배', one: '모두 잔을 들어 «위하여». 두 분이 먼저 외치면 하객은 자리에서 일어나 함께 잔을 들어요. 축배 잔은 저희가 준비해요.', shot: '모두의 잔', who: '두 분 · 하객 모두', why: '닫는 인사 바로 앞이에요. 잔을 드는 자리는 여기 하나예요.' },   /* ★[END_FLOW_1030 검토 167] 테이블 인사 → 축배 → 닫는 인사 · 하객은 자기 자리에서(일어서기는 자유 · 앞으로 모이지 않는다) */   // [CAKE_TOAST_SPLIT] · [WINE_POUR_OFF] · [CLOSE_WORDS_1013] 다른 why 처럼 «[자리]예요. [까닭]»(TOAST_LAST_1013 · 자료 AA 1 · D · S «1부를 닫은 뒤 축배»)
     _close: { n: '닫는 인사', sn: '닫는 인사', one: '두 분이 하객께 인사를 드리고 본식을 마쳐요. 단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.',   /* ★[CLOSE_WORDS_1013] «이어서 하객 모두와 한 장» 금지 — 축배 · 테이블 인사를 담은 날은 그 뒤가 사진이다(자료 DD ③ «촬영 순서 미리») */ shot: '두 분 뒤로 보이는 하객들 · 단체 사진', who: '두 분 · 하객 모두' },
-    table: { n: '테이블 인사', sn: '테이블 인사', one: '두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블마다 1분 30초쯤 · 다 돌면 앞으로 돌아와 축배와 닫는 인사로 예식을 마무리해요. 테이블 인사 약 9분(6테이블 기준) · 그만큼 사진 시간이 줄어요.', shot: '하객 테이블로 다가가는 두 분 · 자리에서 맞는 얼굴들', who: '두 분 · 하객 모두' }   // [TABLE_GREET_1008]
+    table: { n: '테이블 인사', sn: '테이블 인사', one: '두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블마다 1분 30초쯤 · 다 돌면 앞으로 돌아와 남은 순서로 예식을 마무리해요. 테이블 인사 약 9분(6테이블 기준) · 그만큼 사진 시간이 줄어요.', shot: '하객 테이블로 다가가는 두 분 · 자리에서 맞는 얼굴들', who: '두 분 · 하객 모두' }   // [TABLE_GREET_1008]
   };
 
   /* ── 판 칩(카드 안 · 담은 뒤에만 보인다) ──
@@ -466,7 +466,10 @@
   function capSec(S) { return Math.min(capEx(), (DAYMIN - SHORT_MIN) * 60 - postSec(S)); }
   function capOver(S0, S1) { var h0 = bodySec(S0)[1], h1 = bodySec(S1)[1]; return h1 > h0 + 0.5 && h1 > capSec(S1); }   // 늘리는 쪽만 막는다(이미 넘은 옛 초안은 알림만 · 줄이는 것은 늘 된다)
   function capLeft(S) { return Math.max(0, Math.floor((capSec(S) - bodySec(S)[1]) / 60)); }
-  var CAP_MSG = { title: '이 순간을 담으려면 다른 순간을 하나 빼 주세요', body: '사진 시간을 지키기 위해서예요.' };
+  var CAP_MSG = { title: '이 순간을 담으려면 다른 순간을 하나 빼 주세요', body: '사진 시간을 지키기 위해서예요.' };   // 옛 말 — capMsg 가 대신한다(남겨 둔 것은 옛 호출 대비)
+  /* ★[CAP_NEED_1031 식순 걷기 1라운드 GPT 2] «하나 빼 주세요»만으로는 무엇을 얼마나 덜지 몰라 반지 하나를 빼도 또 막혔다 — 넘는 분을 재서 말한다(늘 1분 이상) */
+  function capNeed(S1) { return Math.max(1, Math.ceil((bodySec(S1)[1] - capSec(S1)) / 60)); }
+  function capMsg(S1, add) { return { title: (add ? '이 순간을 담으려면' : '이렇게 바꾸려면') + ' 본식을 약 ' + capNeed(S1) + '분 덜어 주세요', body: '다른 순간을 빼거나 길이를 줄여 주세요 · 사진 시간을 지키기 위해서예요.' }; }
   function tableSec(S) { return onOf(S, 'table') ? lohi(partsOf('table', S, bodySeq(S)))[1] : 0; }
   function span(S) {
     var s = bodySec(S), ta = Math.round(s[0] / 60), tb = Math.round(s[1] / 60), ts = tableSec(S), tm = ts ? Math.max(1, Math.round(ts / 60)) : 0, a = Math.max(0, ta - tm), b = Math.max(0, tb - tm);   // [TABLE_APART]
@@ -1635,7 +1638,7 @@
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
-    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
+    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, PSCENE: PSCENE, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
