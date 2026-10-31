@@ -311,7 +311,22 @@
     { id: 'earrings-pearl', name: '진주 귀걸이', img: 'acc-earrings-pearl', note: '작은 진주로 얼굴 가까이에 단정한 포인트를 더해요', on: true },
     { id: 'earrings-drop', name: '크리스털 드롭 귀걸이', img: 'acc-earrings-drop', note: '움직일 때 은은하게 반짝이는 포인트예요', on: true },
     { id: 'shoes', name: '새틴 슈즈', img: 'acc-shoes', note: '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요', on: true },
-    { id: 'bouquet', name: '기본 조화 부케', img: 'acc-bouquet', note: '기본 조화 부케는 저희가 준비해요 · 생화를 원하시면 별도 비용이에요', on: true }
+    /* ★★[DRESS_BOUQUET3_1031 코워크 · 사장님 «부케도 3개 정도 준비하는 건 어때?» · «인스타에서 인기 많은 부케 검색 후 적용»] 기본 조화 부케 한 칸 = 세 가지 보기(카라 · 화이트·그린 · 블러시 핑크) + 부토니에 짝.
+         인스타 76건 — 화이트 · 카라 · 그린이 많고 레드 · 버건디가 가장 약했다 → 옛 레드 장미 사진(acc-bouquet)은 대표에서 내렸다(파일은 남긴다 · 되살리지 말 것).
+         고르기 · 저장 · 자동 넘김 없음 — 자세히에서 보기만 바꾼다. note 는 부케 문구 고정 규칙(식순 BOUQUET · GOODS_STUDIO 와 같은 뜻)이라 종전 그대로 */
+    { id: 'bouquet', name: '기본 조화 부케', img: 'acc-bouquet-calla', note: '기본 조화 부케는 저희가 준비해요 · 생화를 원하시면 별도 비용이에요', on: true,
+      badge: '3종', browse: '3가지 부케 보기',
+      variants: [
+        { id: 'bouquet-calla', name: '화이트 카라 미니멀', label: '카라', img: 'acc-bouquet-calla', desc: '카라의 매끈한 선을 살린 작고 단정한 부케예요.', bout: 'boutonniere-calla' },
+        { id: 'bouquet-white-green', name: '화이트·그린 내추럴', label: '화이트·그린', img: 'acc-bouquet-white-green', desc: '흰 장미와 튤립에 가벼운 그린을 더해 자연스럽게 묶었어요.', bout: 'boutonniere-white-green' },
+        { id: 'bouquet-blush-pink', name: '블러시 핑크 가든', label: '블러시 핑크', img: 'acc-bouquet-blush-pink', desc: '연한 핑크 장미를 중심으로 부드럽고 둥글게 모았어요.', bout: 'boutonniere-blush-pink' }
+      ],
+      boutonniere: { toggle: '신랑 가슴 꽃 함께 보기', title: '신랑 가슴 꽃 · 부토니에', note: '신랑 가슴 꽃도 부케와 같은 꽃으로 맞춰요.', img: 'acc-boutonniere-pairs', caption: '왼쪽부터 카라 · 화이트·그린 · 블러시 핑크',
+        pairs: [
+          { id: 'boutonniere-calla', bouquet: 'bouquet-calla', name: '카라 부토니에', desc: '같은 화이트 카라 한 송이로 맞춰요.' },
+          { id: 'boutonniere-white-green', bouquet: 'bouquet-white-green', name: '화이트·그린 부토니에', desc: '흰 장미와 작은 튤립 봉오리로 맞춰요.' },
+          { id: 'boutonniere-blush-pink', bouquet: 'bouquet-blush-pink', name: '블러시 핑크 부토니에', desc: '같은 연핑크 장미와 아이보리 봉오리로 맞춰요.' }
+        ] } }
   ];
   R.ACC_LEAD = '드레스 · 면사포 · 헤어 장식 · 귀걸이 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';
   R.accList = function () { return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : []; };

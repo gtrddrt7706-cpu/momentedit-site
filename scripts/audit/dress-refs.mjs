@@ -487,6 +487,13 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(typeof R.ACC_ON === 'boolean' && Array.isArray(R.acc) && R.acc.map((a) => a.name).join() === AN && R.acc.every((a) => a.on === true || a.on === false), '⑰ [DRESS_ACC_1024 · DRESS_ACC_NINE_1031] 소품 아홉(이름 그대로 · 칸마다 on) · 덩어리 스위치 ACC_ON');
   t(R.acc.every((a) => fs.existsSync(path.join(ROOT, 'assets/dress-refs/' + a.img + '.webp'))), '⑰ [DRESS_ACC_1024] 소품 사진 파일이 다 있다(acc-*.webp)');
   t(/R\.accList = function \(\) \{ return R\.ACC_ON \? R\.acc\.filter\(function \(a\) \{ return a && a\.on && a\.img; \}\) : \[\]; \};/.test(src), '⑰ [DRESS_ACC_1024] 보이는 소품 = ACC_ON · 칸 on · 사진 있는 것만(한 곳)');
+  /* ★★[DRESS_BOUQUET3_1031] 부케 한 칸 = 세 가지 보기 + 부토니에 짝 — 아홉 칸 그대로 · 대표 카라 · note 고정 · 짝이 하나씩 맞는다 · 사진 파일 · 고르기 · 저장 없음 */
+  { const bq = R.acc.find((a) => a.id === 'bouquet') || {}, vs = bq.variants || [], bo = bq.boutonniere || {}, ps = bo.pairs || [];
+    t(R.acc.length === 9 && bq.img === 'acc-bouquet-calla' && bq.badge === '3종' && bq.browse === '3가지 부케 보기' && vs.map((v) => v.id).join() === 'bouquet-calla,bouquet-white-green,bouquet-blush-pink' && vs.map((v) => v.label).join() === '카라,화이트·그린,블러시 핑크' && R.acc.filter((a) => a.variants).length === 1, '⑰ [DRESS_BOUQUET3_1031] 부케 세 가지(카라 · 화이트·그린 · 블러시 핑크) · 대표 카라 · «3종» · 칸은 아홉 그대로');
+    t(ps.length === 3 && vs.every((v) => ps.filter((p) => p.id === v.bout && p.bouquet === v.id).length === 1) && bo.img === 'acc-boutonniere-pairs' && bo.caption === '왼쪽부터 카라 · 화이트·그린 · 블러시 핑크', '⑰ [DRESS_BOUQUET3_1031] 부토니에 세 짝이 부케 하나씩과 맞는다 · 사진 차례 글');
+    t(vs.concat([bo]).every((v) => fs.existsSync(path.join(ROOT, 'assets/dress-refs/' + v.img + '.webp'))) && fs.existsSync(path.join(ROOT, 'assets/dress-refs/acc-bouquet.webp')), '⑰ [DRESS_BOUQUET3_1031] 세 가지 · 부토니에 사진 파일이 있다 · 옛 acc-bouquet.webp 는 남긴다');
+    const bqf = (/function bqHTML\(x, v\)\{([\s\S]*?)\n  \}/.exec(PAGE) || [])[1] || '';
+    t(!!bqf && !/data-act="(pick|save|slot)"|localStorage|sessionStorage|setInterval|setTimeout/.test(bqf) && /go\('accd', \{ accCur: acx, accVar: '' \}\)/.test(PAGE) && /var bqx = t\.getAttribute\('data-bq'\);/.test(PAGE), '⑰ [DRESS_BOUQUET3_1031] 보기 전환은 고르기 · 저장 · 자동 넘김 없음 · 다시 열면 첫 종류'); }
   const bq = (R.acc.find((a) => a.id === 'bouquet') || {}).note || '', sh = (R.acc.find((a) => a.id === 'shoes') || {}).note || '';
   t(/저희가 준비해요/.test(bq) && /별도 비용/.test(bq) && !/\d/.test(bq) && sh === '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요' && R.ACC_LEAD === '드레스 · 면사포 · 헤어 장식 · 귀걸이 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.', '⑰ [DRESS_ACC_1024 · ACC_SHOES_STUDIO] 부케 글(저희가 준비 · 생화 별도 · 금액 없음) · 슈즈는 스튜디오가 준비(사장님 1024) · 소제목 한 줄에 슈즈');
   const acc = (/function accHTML\(tab\)\{([\s\S]*?)\n  \}/.exec(PAGE) || [])[1] || '';
