@@ -20600,6 +20600,9 @@ if command -v python3 >/dev/null 2>&1; then if python3 scripts/build-narration-p
 if command -v node >/dev/null 2>&1; then node scripts/audit/knobs.mjs >/dev/null 2>&1; _knc=$?; if [ "$_knc" = 1 ]; then echo 'FAIL knobs: 쉼 · 선언 앞 · 편지 끝 연출이 어긋났습니다 — node scripts/audit/knobs.mjs'; fail=1; elif [ "$_knc" = 2 ]; then echo 'skip knobs (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok knobs'; fi; fi
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
+chk 'x.db > -30 + SONG_DB' scripts/audit/knobs.mjs 1   # [LISTEN_LOOK_LEVEL_1101] K4 기준을 곡 보정만큼(같은 곡선 · 같은 잣대)
+chk 'BGM_SOUND_SPLIT_1101' .github/workflows/merge-guard.yml 2   # 소리 검사 두 칸(a · b) · 한 칸 20분 넘김 막기
+chk 'for t in ${{ matrix.part.tests }}; do' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
 
 chk "B21: { t: \"Herman's Habit\"" assets/bgm-picks.js 1
@@ -21223,4 +21226,22 @@ nochk 'window._mpHas=function' order-preview.html
 chk "var PUB_NOTE='마이페이지에서 들어 볼 수 있어요';" assets/bgm-bed.js 1
 chk '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요' assets/bgm-bed.js 1
 chk "(k?'':'고르지 않으시면 ')" assets/bgm-bed.js 1
+# ── 2026-11-01 [LISTEN_LOOK_LEVEL_1101 사장님 아이폰 실청 셋] ① 듣는 동안 지금 줄만 진하게(나머지 --sub · ▶ 원 · 점 · 세로선 옅게) ② 곡 보정 +7 dB(곡 −23 LUFS → 나레이션 −16 기준) + 음악 길 끝 리미터 · 콘솔 같은 값 · 리허설 칸
+#    ③ 끝까지 들으면 여운(−8 · 5초 · 3초에 잦아듦) · ⏹ 는 1.5초 · 이어 듣기는 순간 사이 −8 로 이어 흐름
+chk 'LISTEN_LOOK_LEVEL_1101' order-preview.html 3
+chk 'LISTEN_LOOK_LEVEL_1101' assets/bgm-bed.js 4
+chk 'LISTEN_LOOK_LEVEL_1101' assets/ritual-cue.js 1
+chk 'LISTEN_LOOK_LEVEL_1101' console.html 3
+chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/listen-pace.mjs 2
+chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-preview.mjs 1
+chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-seg8.mjs 1
+chk '    songGain: 7,' assets/ritual-cue.js 1
+chk 'return db<=-80?0.00003:Math.pow(10,(db+p.trim+p.song)/20);' assets/bgm-bed.js 1
+chk 'v.g.connect(bus(a));' assets/bgm-bed.js 1
+chk 'function lpFin()' assets/bgm-bed.js 1
+chk 'var TAIL={ up:1200, hold:5000, down:3000 };' assets/bgm-bed.js 1
+chk '(BgmBed.lpFin||BgmBed.lpEnd)()' order-preview.html 1
+chk '.mk-flow.lp-on>li:not(.lp-now),' order-preview.html 1
+chk "\['songGain', '곡 보정', 'dB'\]" console.html 1
+chk 'gBgm.connect(gSong); gSong.connect(gMaster); gMaster.connect(gLim);' console.html 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

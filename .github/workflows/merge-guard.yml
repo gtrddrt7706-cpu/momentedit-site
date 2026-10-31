@@ -58,9 +58,18 @@ jobs:
   #   guard 는 브라우저를 깔지 않아 bgm-preview · bgm-seg8 · bgm-console2 가 늘 «브라우저 없음(2)»으로 건너뛰어졌다 —
   #   END_FLOW_1030(#1428)이 축배 순간을 «위하여»에서 끝내 미리 듣기의 축배 곡(M7)이 사라졌는데 PR 마다 초록이었다(D6 · CHEER_TAIL_1030).
   #   그래서 소리 검사 셋만 브라우저를 깔고 따로 돈다(guard 와 나란히 · guard 의 시간은 그대로). 2(못 잼)도 빨강이다 — 여기서는 브라우저가 있어야 한다.
+  #   ★[BGM_SOUND_SPLIT_1101] 검사가 늘어 한 칸이 20분을 넘겼다(#1508 · listen-pace 5.7분 · bgm-preview 3.7분 · knobs 3.4분 · 합 18분 + 새 검사).
+  #   두 칸으로 나눠 다른 기계에서 나란히 돈다(소리 타이밍 검사가 한 기계에서 CPU 를 다투지 않게) · 새 브라우저 소리 검사는 짧은 쪽 칸에 더한다.
   bgm-sound:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        part:
+          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold' }
+          - { name: b, tests: 'listen-pace knobs' }
+    name: bgm-sound (${{ matrix.part.name }})
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -68,12 +77,12 @@ jobs:
           node-version: '22'
       - name: 브라우저 준비
         run: npm i --no-save --no-package-lock playwright@1.56.1 && npx --yes playwright install --with-deps chromium
-      - name: 구간 음악 소리 검사 여섯 (bgm-preview · bgm-seg8 · bgm-console2 · music-fold · listen-pace · knobs)   # [MUSIC_FOLD_1031] 곡 목록 접기도 브라우저로
+      - name: 구간 음악 소리 검사 (${{ matrix.part.tests }})   # [MUSIC_FOLD_1031] 곡 목록 접기도 브라우저로 · [BGM_SOUND_SPLIT_1101]
         shell: bash
         run: |
           set +e
           rc=0
-          for t in bgm-preview bgm-seg8 bgm-console2 music-fold listen-pace knobs; do   # [LISTEN_PACE_1031] · [KNOBS_1031]
+          for t in ${{ matrix.part.tests }}; do   # [LISTEN_PACE_1031] · [KNOBS_1031] · 목록은 위 matrix
             node "scripts/audit/$t.mjs" > "$RUNNER_TEMP/$t.txt" 2>&1; r=$?
             echo "── $t exit=$r"
             grep -E '^(FAIL|못 쟀다)' "$RUNNER_TEMP/$t.txt" | cut -c1-500

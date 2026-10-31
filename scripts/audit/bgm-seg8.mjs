@@ -5,6 +5,7 @@
    ② 고르면 저장된다(다시 열어도 그대로) · «곡 추가»로 더한 곡은 «직접 더한 곡»에 · 넣은 파일은 이 기기에 남는다(다시 열어도 ✓)
    ③ 시작 = 하객 맞이 곡 · 화촉 첫 큐에서 화촉 곡으로 3초 크로스페이드(두 재생기가 겹친다 → 앞 곡은 멈춘다) · 파일 없는 구간(감사 인사)은 앞 곡이 그대로 잇는다
    ④ 축가(자체 음원 · −90) 뒤 부모님께 인사 큐에서 그 구간 곡으로 돌아오고 크기도 그 큐 값
+   ⑧ [LISTEN_LOOK_LEVEL_1101] 구간 곡 = 곡 보정 +7 dB · 그 길 끝 리미터 · 리허설 칸 «곡 보정»
    ⑤ 고객 화면(order-preview)은 bgm-picks 를 싣되 곡 파일 주소는 없다 [BGM_PREVIEW_1024] · 쪽 오류 0
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 · BS_CON = 돌연변이 확인용(그 판의 console.html) */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import os from 'node:os'; import { createRequire } from 'node:module';
@@ -73,6 +74,9 @@ try {
   await pg.waitForTimeout(2600);
   const C = await seg(pg);
   ok('③ 3초 뒤 — 화촉 곡만 남고 앞 곡은 멈춘다', C.seg === 'M2' && C.paused[A.on] && !C.paused[C.on] && C.xg[C.on] > 0.9, C);
+  /* ⑧ [LISTEN_LOOK_LEVEL_1101 ②] 구간 곡 = 곡 보정 +7 dB(곡 −23 LUFS → 나레이션 −16 기준) · 그 길 끝 리미터 · 리허설 칸 «곡 보정» */
+  { const SG = await pg.evaluate(() => (window.__seg.song ? window.__seg.song() : {}));
+    ok('⑧ 구간 곡 = 곡 보정 +7 dB(gSong) · 그 길 끝 리미터(−1 dB · 20 · 2ms · 150ms) · 리허설 칸 «곡 보정» [LISTEN_LOOK_LEVEL_1101]', SG.mode === 'seg' && SG.g != null && Math.abs(SG.g - Math.pow(10, 7 / 20)) < 0.03 && JSON.stringify(SG.lim) === '[-1,20,2,150]' && SG.reh && SG.p === 7, SG); }
   const wi = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'welcome'));
   await pg.evaluate((i) => window.__bgmGo.fire(i), wi); await pg.waitForTimeout(800);
   const D = await seg(pg);

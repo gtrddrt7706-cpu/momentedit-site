@@ -8,6 +8,7 @@
    K5 당일 콘솔 — 사슬 큐 사이도 같은 표로 한 번만(코드 대조)
    BP_OP=<order-preview.html 경로>(깨 보기) · 종료 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const SONG_DB = (() => { try { const m = fs.readFileSync(new URL('../../assets/ritual-cue.js', import.meta.url), 'utf8').match(/songGain:\s*(-?\d+(?:\.\d+)?)/); return m ? +m[1] : 0; } catch (e) { return 0; } })();   // [LISTEN_LOOK_LEVEL_1101] K4 기준을 곡 보정만큼
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const OP = process.env.BP_OP || '', SHOT = process.env.SHOT || '';
@@ -134,9 +135,9 @@ try {
       const has = top.length && Math.max(...top) > -30; if (!has) ok(`${W} K3 선언 앞 — 곡 있음(시험 조건)`, false, { top: top.slice(0, 5) });
       else { const mx = Math.max(...top), pk = mu.filter((x) => x.src && x.db >= mx - 1).pop(), z = mu.find((x) => pk && x.t > pk.t && x.db <= -60), t1 = p ? p.t : null;
         ok(`${W} K3 선언 앞 — 4초에 걸쳐 0 · 2.5초 정적 · 첫 멘트`, !!pk && !!z && (z.t - pk.t) >= 3300 && (z.t - pk.t) <= 4800 && t1 != null && (t1 - z.t) >= 2000 && (t1 - z.t) <= 3400 && mu.filter((x) => x.t > z.t && x.t < t1).every((x) => x.db <= -55), { fade: pk && z ? Math.round(z.t - pk.t) : null, sil: z && t1 ? Math.round(t1 - z.t) : null }); } }
-    /* K4 편지 끝 */
+    /* K4 편지 끝 · ★[LISTEN_LOOK_LEVEL_1101] 소리 칸 값에는 곡 보정(songGain)이 함께 실린다 — «−30 을 넘는 때»도 그만큼 옮겨 잰다(같은 곡선 · main 과 같은 잣대) */
     { await go(f, 'letter'); const r = await run(f, 'letter', 30000), ends = r.ev.filter((x) => x.e === 'end' && isNar(x.s)), last = ends.pop(), mu = r.mu.filter((x) => last && x.t > last.t);
-      const up = mu.find((x) => x.db > -30), lowEnd = mu.filter((x) => up && x.t < up.t).every((x) => true), quiet = mu.filter((x) => x.t < last.t + 1800);
+      const up = mu.find((x) => x.db > -30 + SONG_DB), lowEnd = mu.filter((x) => up && x.t < up.t).every((x) => true), quiet = mu.filter((x) => x.t < last.t + 1800);
       const bedDay = r.q.some((x) => x.k === 'letter' && x.nar) ? null : null;
       ok(`${W} K4 편지 끝 — 정적 2초 → 4초에 걸쳐 오른다`, !!last && quiet.length > 0 && quiet.every((x) => x.db <= -55) && !!up && (up.t - last.t) >= 3000 && (up.t - last.t) <= 6800, { quietMax: quiet.length ? Math.round(Math.max(...quiet.map((x) => x.db))) : null, up: up && last ? Math.round(up.t - last.t) : null }); }
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));

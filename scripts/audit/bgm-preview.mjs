@@ -139,6 +139,10 @@ try {
     const b5 = await listen(f, 'candle', 9000);
     const v5 = b5.filter((x) => x.src && x.f), bad5 = v5.filter((x) => x.f !== 'B06' || (x.talk ? x.want !== (x.ldk != null ? x.ldk : -8) : (x.dk != null && Math.abs(x.want - x.dk) > 0.01 && !x.cheer)));
     ok(`${W} 5 화촉 «이 순간 전체 듣기 · 음악과 함께» · 고른 곡(B06)이 깔리고 줄마다 엔진 크기`, l5 === '이 순간 전체 듣기 · 음악과 함께' && v5.length > 3 && !bad5.length, { l5, n: v5.length, bad5: bad5.slice(0, 4), seq: [...new Set(b5.map((x) => x.slug + ':' + x.want))].slice(0, 12) });
+    /* G [LISTEN_LOOK_LEVEL_1101 ②] 곡 보정 +7 dB(곡 −23 LUFS → 나레이션 −16 기준 · musicTrim −3.1 은 그대로) · 음악 버스 끝 리미터(−1 dB · 20 · 2ms · 150ms) */
+    const g5 = await f.evaluate(() => { const B = BgmBed._t, L = B.BUS(), p = (ENG && ENG.RitualCue && ENG.RitualCue.PARAM) || {}; return { song: p.songGain, trim: p.musicTrim, g16: B.gainOf(-16), g8: B.gainOf(-8), g0: B.gainOf(0), lim: L ? [L.n.threshold.value, L.n.ratio.value, Math.round(L.n.attack.value * 1000), Math.round(L.n.release.value * 1000)] : null }; });
+    const dbOf = (g) => Math.round(20 * Math.log10(g) * 10) / 10;
+    ok(`${W} G 곡 보정 +7 dB — 나레이션 아래(−16) · 큐 사이(−8) · 축배(0) 가 각각 +7 −3.1 · 음악 버스 끝 리미터 [LISTEN_LOOK_LEVEL_1101]`, g5.song === 7 && g5.trim === -3.1 && dbOf(g5.g16) === -12.1 && dbOf(g5.g8) === -4.1 && dbOf(g5.g0) === 3.9 && JSON.stringify(g5.lim) === '[-1,20,2,150]', { ...g5, d: [dbOf(g5.g16), dbOf(g5.g8), dbOf(g5.g0)] });
     /* D3 보컬 — 하객 맞이 */
     {
       await go(f, 'guest'); r = await row(f, 'M1');
