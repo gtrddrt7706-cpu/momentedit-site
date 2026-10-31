@@ -444,11 +444,13 @@
   /* ★★[END_FLOW_1030 · BODY_CAP_1030 검토 167 2026-10-30 사장님] 닫는 인사 뒤 몫 — 40분 셈에 넣는다(본식 + 테이블 인사 + 이 몫 + 단체 사진 = 40).
        pre = 사진 전 안내(265 · 266)가 옛 사진 안내(26 · 닫는 인사 몫 46초 안)보다 긴 초(식사 있음 21 · 없음 9 · 엔진 글 길이 셈 · open-course 가 대조) ·
        online = 디지털 참석 날 온라인 인사(62 + 두 분 2분 · 엔진 live 와 같은 값). 빌더는 S 에 digital · meal 이 없어 마이페이지가 준 값을 setPost 로 싣는다 */
-  var POST_SEC = { meal: 20, soft: 1, softGuide: 9, none: 3, noneGuide: 11, online: 120 };   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다
+  var POST_SEC = { meal: 17, soft: 0, softGuide: 5, none: 0, noneGuide: 8, mealNt: 11, softNt: 0, softGuideNt: 0, noneNt: 0, noneGuideNt: 2, online: 120 };   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
   function _postOf(S, f) { return (S && typeof S[f] === 'boolean') ? S[f] : !!_POST[f]; }
-  function postSec(S) { var m = _postOf(S, 'meal'), g = _postOf(S, 'guide'); return (m && _postOf(S, 'mealFull') && _postOf(S, 'resv') && g ? POST_SEC.meal : m ? (g ? POST_SEC.softGuide : POST_SEC.soft) : (g ? POST_SEC.noneGuide : POST_SEC.none)) + (_postOf(S, 'digital') ? POST_SEC.online : 0); }   // ★[CLOSING_LINE_1031] 엔진 closingOf 와 같은 조건 · [PHOTO_PRE_PICK_1030] 식사 있음 = 식사 자리 + 예약 시각 + 하객 안내
+  function postSec(S) { var m = _postOf(S, 'meal'), g = _postOf(S, 'guide'), k = (m && _postOf(S, 'mealFull') && _postOf(S, 'resv') && g ? 'meal' : m ? (g ? 'softGuide' : 'soft') : (g ? 'noneGuide' : 'none'));   // ★[CLOSING_LINE_1031] 엔진 closingOf 와 같은 조건 · [PHOTO_PRE_PICK_1030] 식사 있음 = 식사 자리 + 예약 시각 + 하객 안내
+    var ex = ''; try { ex = narExCue(S || {}, 'narr-close-bow') || ''; } catch (e) { ex = ''; } if (ex === 'narr-close-bow-ex3' || ex === 'narr-close-bow-ex4') k += 'Nt';   // ★[CLOSING_SRC_1031] 닫는 멘트 186 · 187 = 감사 없이 시작하는 판
+    return POST_SEC[k] + (_postOf(S, 'digital') ? POST_SEC.online : 0); }
   /* 본식 상한 — 예시 넷 «천천히»(hi · 테이블 인사 포함) 가운데 가장 긴 값(손으로 적지 않고 잰다) · 단체 사진 SHORT_MIN 이 늘 남게 그 아래로 자른다(디지털 참석 날은 2분 낮아진다) */
   var _CAP_EX = null;
   function capEx() { if (_CAP_EX == null) _CAP_EX = Math.max.apply(null, EXAMPLES.map(function (e) { var t = applyExample({ course: 'open' }, e.k); t.course = 'open'; return bodySec(t)[1]; })); return _CAP_EX; }
@@ -1142,7 +1144,7 @@
     ring: { lab: '반지 멘트', names: ['담백하게', '격식 있게', '다정하게', '잔잔하게'],
       lines: { 'narr-ring-in': [
         '먼저 신랑님께서 신부님의 손에 사랑의 반지를 끼워 주시겠습니다. 이어서 신부님께서도 신랑의 손에 약속의 반지를 끼워 주시겠습니다.',
-        '먼저 신랑은 다시 한번 프러포즈하는 마음으로, 신부의 왼손 약지에 반지를 끼워 주세요. 이번에는 신부도 그 마음에 답하듯, 신랑에게 반지를 끼워 주세요.',
+        '먼저 신랑님께서는 다시 한번 프러포즈하는 마음으로, 신부님의 왼손 약지에 반지를 끼워 주세요. 이번에는 신부님께서도 그 마음에 답하듯, 신랑님께 반지를 끼워 주세요.',   /* ★[RING_HONOR_1031 검토 179 덧 · 사장님 실청 21:55 «신랑님 · 신부님»] 자료 S 원본(«신랑님, 다시 한번 프러포즈한다는 마음을 담아 …»)과 같은 존칭 · 둘째 문장은 «이번에는 신부»로 시작(앞 8초 동작 대기 · RING_TWO_HOLD_1023) · 녹음 = 음성 쉼(우성) */
         '이제 두 사람의 언약의 증표로 예물 교환이 있겠습니다. 신랑이 먼저 신부에게 반지를 끼워 주도록 하겠습니다. 이번에는 신부가 사랑의 마음을 담아 신랑에게 반지를 끼워 주도록 하겠습니다.'   // [T3_OK_1017] T3 «예물 교환» · 사이 «축하의 박수» 한 문장은 뺐다(한 줄로 미리 나가 끼우기 전에 박수를 청하게 된다 · CLAP_FEW)
       ]
       /* ★[NARR_R9_1018 라운드 9 2026-10-18] 반지 맺는 말(16) — 예시 4 만 T2 원본 «예물 교환» 뒤 한 줄이었다 ·
