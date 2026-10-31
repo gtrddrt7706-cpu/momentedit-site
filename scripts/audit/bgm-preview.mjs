@@ -159,7 +159,9 @@ try {
       ok(`${W} D3 보컬 곡(B04) 아래 나레이션은 엔진 크기 − 6(−16 → −22)`, n3.length > 0 && n3.every((x) => Math.abs(x.want - (x.dk - 6)) < 0.01), { n: n3.length, s: n3.slice(0, 3) });
     }
     /* D6 · 5 축배 */
-    await go(f, 'toast'); const b6 = await listen(f, 'toast', 16000);
+    /* ★[CHEER_WINDOW_1031] 듣는 창 16초 → 26초 — #1470(LISTEN_FIX_1031)이 축배 멘트 글을 바꾼 뒤 그 줄이 12.6초가 되어 «위하여» 꼬리(축배 곡)가 16.8초에 왔다.
+       곡 바뀜은 그대로였는데 창이 먼저 닫혀 빨강이 났다 · 멘트 길이가 다시 늘어도 26초 안이면 잰다(실측 꼬리 16.8초) */
+    await go(f, 'toast'); const b6 = await listen(f, 'toast', 26000);
     const ch = b6.findIndex((x) => x.cheer), pre = b6.slice(0, ch > -1 ? ch : 0).filter((x) => x.src), post = ch > -1 ? b6.slice(ch).filter((x) => x.src && !x.cheer) : [];
     ok(`${W} D6 축배 — «위하여» 전은 닫는 인사 곡(B17) · 뒤는 축배 곡(B28) · 축배 크기(0)`, ch > -1 && pre.length > 0 && pre.every((x) => x.f === 'B17') && post.some((x) => x.f === 'B28' && x.want === 0), { ch, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.f + ':' + x.want))].slice(0, 20) });
     /* 6 축사 · 편지 */
