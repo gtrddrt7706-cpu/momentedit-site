@@ -108,5 +108,7 @@
       +'<li class="mk-vr bgm-rest"><span class="mk-vt"><span class="mk-vn">그 밖의 음악은 스튜디오가 준비해요</span></span></li></ul></section>'; }   /* [BGM_R1_1023] 다른 묶음(부탁 · 보낼 것)과 같은 줄 꼴 · 이동하기는 안 골랐을 때만 · [BGM_R4_1023] 축사 · 편지 줄은 버튼 없음 · 둘 다 없는 날은 끝 줄만 */   /* [BGM_R1_1023] 다른 묶음(부탁 · 보낼 것)과 같은 줄 꼴 · 이동하기는 안 골랐을 때만 */
 
   window.bgmAct=act;
-  window.BgmForm={ rowHtml:rowHtml, flowRow:flowRow, sumHtml:sumHtml, _t:{ touch:TOUCH } };   /* _t = 점검용 */
+  /* ★[BED_KEEP_LOAD_1031 식순 걷기 3라운드 1] 새 판을 얹으면(최신 내용 불러오기 · 다시 열기 · 처음부터 다시) 곡 기억 · 눌러 둔 칩 기억을 비운다 — 옛 판 곡이 되살아나거나 칩과 설명이 엇갈렸다 */
+  function reset(){ KEEP={}; KS=null; Object.keys(TOUCH).forEach(function(k){ delete TOUCH[k]; }); }
+  window.BgmForm={ rowHtml:rowHtml, flowRow:flowRow, sumHtml:sumHtml, reset:reset, _t:{ touch:TOUCH } };   /* _t = 점검용 */
 })();
