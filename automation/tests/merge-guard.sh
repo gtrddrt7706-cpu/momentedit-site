@@ -20409,6 +20409,19 @@ chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
 #   END_FLOW_1030 이 잔 내려놓기를 «위하여» 칸에 합쳐 축배 순간이 «위하여»에서 끝나자 축배 곡이 한 번도 안 나왔다(bgm-preview D6 빨강).
 #   소리는 브라우저가 있어야 재므로 CI 의 bgm-sound 칸([BGM_SOUND_CI])이 bgm-preview · bgm-seg8 · bgm-console2 를 실제로 돌린다.
 chk 'CHEER_TAIL_1030' order-preview.html 1
+# ★[LISTEN_PACE_1031 2026-10-31 사장님 «진행» · BGM 섹션] ② 이 순간 전체 듣기 흐름 — 순간 첫 멘트 앞 음악 뜸(3초 · 이어지면 1.5초) · 행동 줄 멈춤(est ÷ 12 · 3 ~ 6초 · 음악 −8) ·
+#   흐를 때만 «실제로는 약 …» · 지금 · 지나감 표시 · 따라가기(손으로 스크롤하면 멈춤). 소리 · 시간은 브라우저가 있어야 재므로 CI bgm-sound 칸이 listen-pace 를 실제로 돌린다
+chk 'LISTEN_PACE_1031' order-preview.html 8
+chk 'LISTEN_PACE_1031' assets/bgm-bed.js 2
+chk 'function lpLead(st)' assets/bgm-bed.js 1
+chk 'lpLead:lpLead' assets/bgm-bed.js 1
+chk 'function _lpMs(est){ return Math.min(6,Math.max(3,Math.round((+est||0)/12)))\*1000; }' order-preview.html 1
+chk "var LP_EST_FROM={'tribute-in':'tribute-out'}, LP_EST_NOTE={vow:1};" order-preview.html 1
+chk 'try{ _lpPaint(); }catch(e){}   /\* \[LISTEN_PACE_1031\] 지금 · 지나감 · 남음 \*/ try{ if(window.EntryMusic&&EntryMusic.paint) EntryMusic.paint(); }' order-preview.html 1
+chk 'LISTEN_PACE_1031' scripts/audit/listen-pace.mjs 1
+chk 'listen-pace' .github/workflows/merge-guard.yml 1
+nochk 'LP.leadSt=st;[^/]*//' order-preview.html 0
+if command -v node >/dev/null 2>&1; then node scripts/audit/listen-pace.mjs >/dev/null 2>&1; _lpc=$?; if [ "$_lpc" = 1 ]; then echo 'FAIL listen-pace: 이 순간 전체 듣기 흐름(음악 뜸 · 행동 줄 멈춤 · «실제로는 약» · 지금 줄 · 따라가기)이 어긋났습니다 — node scripts/audit/listen-pace.mjs'; fail=1; elif [ "$_lpc" = 2 ]; then echo 'skip listen-pace (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok listen-pace'; fi; fi
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
