@@ -735,7 +735,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
     return '<section class="pk-acc" id="pkAcc" aria-labelledby="pkAccH"><h3 class="pk-sub-h" id="pkAccH" tabindex="-1">함께 보는 소품 · 부케</h3>'
       + (R.ACC_LEAD ? '<p class="pk-sub-s">' + esc(R.ACC_LEAD) + '</p>' : '')
       + '<div class="pk-accg">' + a.map(function(x){
-        return (tab ? '<button type="button" class="pk-acci" data-acc="' + esc(x.id) + '" aria-label="' + esc(x.name + (x.variants && x.badge ? ' · ' + x.badge : '') + ' 크게 보기') + '">' : '<div class="pk-acci">') + '<span class="pk-accp"><img src="/assets/dress-refs/' + esc(x.img) + '.webp" alt="" width="480" height="480" loading="lazy" decoding="async">' + (x.variants && x.badge ? '<span class="pk-accb" aria-hidden="true">' + esc(x.badge) + '</span>' : '') + '</span>'
+        return (tab ? '<button type="button" class="pk-acci" data-acc="' + esc(x.id) + '" aria-label="' + esc(x.name + (x.variants && x.badge ? ' · ' + x.badge : '') + ' 크게 보기') + '">' : '<div class="pk-acci">') + '<span class="pk-accp"><img src="' + esc(R.accSrc(x.img)) + '" alt="" width="480" height="480" loading="lazy" decoding="async">' + (x.variants && x.badge ? '<span class="pk-accb" aria-hidden="true">' + esc(x.badge) + '</span>' : '') + '</span>'
           + '<span class="dr-kick pk-accx">스타일 예시 이미지</span><span class="dr-nm">' + esc(x.name) + '</span>'
           + (x.note ? '<span class="pk-accn">' + esc(x.note).replace(/ · /g, '&nbsp;· ') + '</span>' : '')   /* [ACC_DOT_KEEP] « · »가 줄 머리로 넘어가지 않게 앞 낱말에 붙인다 */ + (tab ? '</button>' : '</div>');
       }).join('') + '</div>' + (tab ? '' : '<button type="button" class="pk-txt pk-drtop" data-act="drtop">드레스 다시 보기 <span aria-hidden="true">&uarr;</span></button>') + '</section>';   // ★[DRESS_ACC_TOP 1024 코워크] 소품을 다 본 뒤 드레스로 돌아가는 길
@@ -775,7 +775,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
     var x = accItem(S.accCur); if (!x) return tabsHTML();
     var v = bqVar(x), img = v ? v.img : x.img;   // ★[DRESS_BOUQUET3_1031] 세 가지 보기가 있는 칸(부케)은 지금 보는 종류의 사진
     return '<button type="button" class="pk-txt pk-back" data-act="acclist">&lsaquo; 소품·부케 목록</button>'
-      + '<div class="dv pk-accv"><div class="dv-view"><span class="pk-accp"><img id="pkBqImg" src="/assets/dress-refs/' + esc(img) + '.webp" alt="" width="480" height="480" decoding="async"></span>'
+      + '<div class="dv pk-accv"><div class="dv-view"><span class="pk-accp"><img id="pkBqImg" src="' + esc(R.accSrc(img)) + '" alt="" width="480" height="480" decoding="async"></span>'
       + '<p class="dv-meta"><span class="dr-ex">스타일 예시 이미지</span></p></div>'
       + '<div class="dv-tx"><h2 class="dv-nm" id="dvName" tabindex="-1">' + esc(x.name) + '</h2><p class="dv-p">' + esc(x.note || R.ACC_LEAD || '') + '</p>' + bqHTML(x, v) + '</div></div>';
   }
@@ -791,7 +791,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
       + '<div class="pk-bqbs" role="group" aria-labelledby="pkBqH">' + x.variants.map(function(q){ return '<button type="button" class="pk-bqb" data-bq="' + esc(q.id) + '" aria-pressed="' + (q.id === v.id ? 'true' : 'false') + '">' + esc(q.label) + ' 보기</button>'; }).join('') + '</div>'
       + '<p class="pk-bqn" id="pkBqN" aria-live="polite">' + bqNameHTML(v) + '</p></section>'
       + (b ? '<details class="pk-gd pk-bout"><summary>' + esc(b.toggle) + '</summary>'
-        + '<span class="pk-accp"><img src="/assets/dress-refs/' + esc(b.img) + '.webp" alt="' + esc(b.title + ' · ' + b.caption) + '" width="480" height="480" loading="lazy" decoding="async"></span>'
+        + '<span class="pk-accp"><img src="' + esc(R.accSrc(b.img)) + '" alt="' + esc(b.title + ' · ' + b.caption) + '" width="480" height="480" loading="lazy" decoding="async"></span>'
         + '<p class="dv-meta"><span class="dr-ex">스타일 예시 이미지</span></p>'
         + '<p class="dotln">' + esc(b.caption) + '</p><p class="dotln">' + esc(b.note) + '</p>'
         + '<ul class="pk-gul">' + b.pairs.map(function(p){ return '<li><b>' + esc(p.name) + '</b> · ' + esc(p.desc) + '</li>'; }).join('') + '</ul></details>' : '');
@@ -1109,7 +1109,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
       var bqx = t.getAttribute('data-bq');
       if (bqx) {   // ★[DRESS_BOUQUET3_1031] 보기 전환 — 그 자리에서 사진 · 이름 · 눌림만 바꾼다(다시 그리지 않음 · 스크롤 그대로 · 초점은 누른 단추)
         var bx = accItem(S.accCur); if (!bx || !bx.variants) return; S.accVar = bqx; var bv = bqVar(bx);
-        var bi = $('pkBqImg'); if (bi) bi.src = '/assets/dress-refs/' + bv.img + '.webp';
+        var bi = $('pkBqImg'); if (bi) bi.src = R.accSrc(bv.img);   // [ACC_IMG_V]
         var bn = $('pkBqN'); if (bn) bn.innerHTML = bqNameHTML(bv);
         $('pkMain').querySelectorAll('.pk-bqb').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-bq') === bv.id ? 'true' : 'false'); });
         return; }   // [DRESS_ACC_BIG] 보던 자리를 적고 크게 보기

@@ -20220,6 +20220,11 @@ chk "go('accd', { accCur: acx, accVar: '' })" dress.html 1                      
 chk "var bqx = t.getAttribute('data-bq');" dress.html 1                                      # 그 자리에서 사진 · 이름만 바꾼다
 chk 'DRESS_BOUQUET3_1031' scripts/audit/dress-refs.mjs 5
 chk 'DRESS_BOUQUET3_1031' scripts/audit/dress-tabs.mjs 7
+# ── 2026-11-01 [ACC_IMG_V 사장님 «부케 모양이 이상하잖아» · 코워크] 같은 이름으로 바꾼 부케 · 부토니에 사진 — 주소 ?v= = 파일 md5 앞 8자리(검사가 파일과 대조)
+chk "R.accSrc = function (name)" assets/dress-refs.js 1
+chk "'acc-bouquet-calla': '5bb1f518'" assets/dress-refs.js 1
+chk 'ACC_IMG_V' scripts/audit/dress-refs.mjs 2
+chk 'ACC_IMG_V' dress.html 1
 # ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
 chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
 chk '<script src="/assets/fab-names.js" defer></script>' index.html 1

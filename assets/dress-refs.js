@@ -329,6 +329,10 @@
         ] } }
   ];
   R.ACC_LEAD = '드레스 · 면사포 · 헤어 장식 · 귀걸이 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';
+  /* ★[ACC_IMG_V 2026-11-01 코워크 · 사장님 «부케 모양이 이상하잖아»] 같은 이름으로 사진을 바꾼 소품 — 주소 끝 ?v=(그 파일 md5 앞 8자리)로 브라우저 · CDN 의 옛 사진을 깬다.
+       사진을 다시 바꾸면 여기 값도 그 파일 md5 앞 8자리로(검사 dress-refs ⑰ 가 파일과 대조한다 · 어긋나면 빨강) */
+  R.IMG_V = { 'acc-bouquet-calla': '5bb1f518', 'acc-bouquet-white-green': '378beb27', 'acc-bouquet-blush-pink': '8d3cae99', 'acc-boutonniere-pairs': 'e4f74842' };
+  R.accSrc = function (name) { var v = R.IMG_V && R.IMG_V[name]; return '/assets/dress-refs/' + name + '.webp' + (v ? '?v=' + v : ''); };
   R.accList = function () { return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : []; };
   /* ★[DRESS_NAME_SPLIT 1024 코워크 GPT 2차] 이름 = 작은 보조 줄 «스타일 예시 0n» + 제목(«잔비즈 오프숄더 미니») — 실물 이름은 제목 하나 */
   R.nameParts = function (d) { var n = String((d && d.name) || ''), m = /^(스타일 예시 \d{2}) · (.+)$/.exec(n); return m ? { kick: m[1], title: m[2] } : { kick: '', title: n }; };
