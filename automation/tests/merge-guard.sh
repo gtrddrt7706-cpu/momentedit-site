@@ -20949,13 +20949,11 @@ chk "'manual_off'" scripts/lib/clip-status.mjs 2
 nochk 'var HELPERS = \[' console.html
 nochk "b.onclick = function(){ playLoose(g.slug" console.html
 nochk '촬영 안내 골라 틀기' console.html
-<<<<<<< HEAD
 # ── 2026-10-31 [MUSIC_FOLD_PICK_1031 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 순간 쪽 음악 곡 목록도 입장 음악 추천 곡([MU_FOLD])처럼 고르는 순간 접는다 · «바꾸기»로 편 뒤 다시 고르면 또 접는다
 chk 'MUSIC_FOLD_PICK_1031' assets/bgm-bed.js 5
 chk 'MUSIC_FOLD_PICK_1031' scripts/audit/music-fold.mjs 1
 chk "function folded(sg){ return !!picked(sg)&&FM()[sg]!==0; }" assets/bgm-bed.js 1
 nochk "if(!(sg in m)) m[sg]=cur?1:0;" assets/bgm-bed.js
-=======
 # ── 2026-10-31 [CLOSING_LINE_1031 검토 178 사장님 19:41 «사진은 작가님 몫»] 사진 «모여 달라 · 앞을 봐 달라»를 자동 식순에서 걷고 닫는 인사 뒤 «마무리 멘트»(287 ~ 291 · 새 녹음 0 · 이미 녹음된 47 · 266 · 264 · 44 문장을 이어 붙임)
 #    사진 구간(전체 하객 · 가족 구도 · 자유 사진 · 촬영 마무리)은 소리 없는 동작 큐(actId) · 265 · 266 · 262 · 219 RETIRED · 26 · 85 · 47 은 옛 코스 legacy(clip-status) · 마이페이지 · 하객 안내 · AI 상담 «작가님 안내에 따라»
 chk 'CLOSING_LINE_1031' assets/ritual-cue.js 8
@@ -20973,5 +20971,4 @@ chk '작가님 안내에 따라' guide.html 1
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/closing-line.mjs >/dev/null 2>&1; _cll=$?; [ "$_cll" = 1 ] && { echo 'FAIL closing-line: 마무리 멘트(세 판 × 하객 안내 × 디지털) · 사진 구간 나레이션 0 · 새 녹음 0 · 흐름 쉼 · 화면 글이 어긋났습니다 — node scripts/audit/closing-line.mjs'; fail=1; }; :; fi
->>>>>>> 19eee4ac (검토 178 — 사진은 작가님 몫 · 닫는 인사 뒤 «마무리 멘트»(새 녹음 0) [CLOSING_LINE_1031])
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
