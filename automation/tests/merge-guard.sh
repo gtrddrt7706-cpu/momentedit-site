@@ -21025,4 +21025,8 @@ chk 'DONE_EXN_1031' order-preview.html 1
 chk '저장했어요 · 남은 할 일을 확인해 주세요' order-preview.html 1
 nochk '빈 칸만 채우면 완성돼요' order-preview.html
 chk '그때까지 순간과 고른 것을 얼마든지 고쳐요.' order-preview.html 1
+# ── 2026-10-31 [PICKS_TRUE_1031 BGM 섹션] 곡 정보 글을 실제 받은 판에 맞춘다(B01 오케스트라 · B07 피아노 판 · B15 피아노 독주 · B16 · B24 · B22 판 이름) — B06 · B19 그대로
+chk 'PICKS_TRUE_1031' assets/bgm-picks.js 7
+nochk "a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View'" assets/bgm-picks.js 0
+nochk "B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet'" assets/bgm-picks.js 0
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
