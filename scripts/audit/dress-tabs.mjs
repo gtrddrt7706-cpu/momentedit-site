@@ -2,7 +2,7 @@
 /* ★★[DRESS_TABS_1030 사장님 «추천대로» · 코워크 · GPT 2라운드] 드레스 창 — 상담 전(스티커) = 물음 필수 · 상담 뒤(오른쪽 아이콘) = 물음 없이 두 탭. «눌러서» 잰다.
  *
  *   ① 상담 전 · 이 기기의 답 없음 · 일부 = 물음 1 · 답 완료 = 결과(답 요약) — 탭 없음
- *   ② 상담 뒤 · 답 없음 · 일부 · 완료 = 모두 탭 화면(드레스 탭) — 물음 · 답 요약 · 진행 표시 없음 · 드레스 스타일 예시 01 → 07(원천 순서) · 늦게 온 데이터도 탭 그대로
+ *   ② 상담 뒤 · 답 없음 · 일부 · 완료 = 모두 탭 화면(드레스 탭) — 물음 · 답 요약 · 진행 표시 없음 · 드레스 스타일 예시 01 → 10(원천 순서 · DRESS_TEN_1031) · 늦게 온 데이터도 탭 그대로
  *   ③ 탭 — 높이 44 이상 · 두 칸 같은 너비 · 고른 탭 aria-selected · 방향키로 옮김 · 패널 하나만 보임 · 스크롤해도 머리 바로 아래 고정 · 탭을 바꿔도 창이 안 움직임
  *   ④ 드레스 끝 «소품 · 부케도 보기 ›» → 소품 탭 + 첫 제목에 초점
  *   ⑤ 소품 칸 → 크게 보기(같은 창 · 이름 · «‹ 소품·부케 목록») → Esc → 그 칸 · 그 자리 · 초점 / 드레스 자세히 → Esc · 뒤로가기 → 드레스 탭 그 자리 · 이전/다음 = 스타일 예시 01 → 07 순서
@@ -82,7 +82,7 @@ try {
           const fl = await fr.evaluate(() => [!!window.__qObs, !!window.__qFlash]);
           if (!fl[0]) no(`${who} — 물음 깜빡임 감시가 창에 안 걸렸다(못 쟀다) [DRESS_AFTER_NOFLASH]`); else if (fl[1]) no(`${who} — 물음 · 결과가 잠깐이라도 그려졌다 [DRESS_AFTER_NOFLASH]`);
           if (v.q || v.mine || v.steps || !v.tabs || v.tab !== 'pkTabD' || !v.panD || v.panA) no(`${who} — 탭 화면(드레스)이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
-          if (v.ids !== 'S07,S01,S08,S03,S04,S02,S05' || v.nos !== '01,02,03,04,05,06,07') no(`${who} — 드레스 순서 ${v.ids} · 번호 ${v.nos} — 스타일 예시 01 → 07 [DRESS_TABS_1030 · DRESS_SET_1031]`);
+          if (v.ids !== 'S07,S01,S08,S10,S09,S03,S11,S04,S12,S05' || v.nos !== '01,02,03,04,05,06,07,08,09,10') no(`${who} — 드레스 순서 ${v.ids} · 번호 ${v.nos} — 스타일 예시 01 → 10 [DRESS_TEN_1031] [DRESS_TABS_1030 · DRESS_SET_1031]`);
           /* 늦게 온 데이터 — 부모가 dressFill 을 다시 보내도 탭 그대로 */
           await P.evaluate(() => document.getElementById('mp_drFrame').contentWindow.postMessage({ type: 'momentedit:dressFill', key: 'ME-TABS', open: true, saved: null }, location.origin)); await wait(300);
           const v2 = await view(fr); if (v2.q || v2.mine || !v2.tabs) no(`${who} — 늦게 온 데이터로 물음 · 결과가 나왔다 [DRESS_TABS_1030]`);
@@ -157,13 +157,22 @@ try {
       await fr.evaluate(() => document.querySelector('[data-open="S03"]').click()); await wait(400);
       const nb = await fr.evaluate(() => ({ p: (document.querySelector('.pk-nb-p') || { getAttribute: () => '' }).getAttribute('data-nb'), n: (document.querySelector('.pk-nb-n') || { getAttribute: () => '' }).getAttribute('data-nb'), back: (document.querySelector('.pk-back') || {}).textContent, q: !!document.querySelector('.pk-q'), end: document.querySelectorAll('#pkMain .pk-end-dots').length }));
       if (nb.end) no(`${tag} 상담 뒤 자세히에 맨 아래 안내가 있다 [DRESS_AFTER_NOEND]`);
-      if (nb.p !== 'S08' || nb.n !== 'S04' || !/드레스 목록/.test(nb.back || '')) no(`${tag} 자세히 이전/다음 · «‹ 드레스 목록» ${JSON.stringify(nb)} [DRESS_TABS_1030]`);
+      if (nb.p !== 'S09' || nb.n !== 'S11' || !/드레스 목록/.test(nb.back || '')) no(`${tag} 자세히 이전/다음 · «‹ 드레스 목록» ${JSON.stringify(nb)} [DRESS_TABS_1030]`);
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/detail-${W}.png` });
-      /* [DRESS_N03_DETAIL] 03(S08 · 잔레이스) 자세히도 앞 · 뒤 · 디테일 세 장 — 이전으로 넘겨 재고 다시 S03 으로 */
-      await fr.click('.pk-nb-p'); await wait(400);
-      const n3 = await fr.evaluate(() => ({ nm: (document.getElementById('dvName') || {}).textContent || '', n: document.querySelectorAll('.dv-sl').length }));
-      if (!/잔레이스/.test(n3.nm) || n3.n !== 3) no(`${tag} 03 잔레이스 자세히 사진 ${n3.n}장 — 앞 · 뒤 · 디테일 세 장 ${n3.nm} [DRESS_N03_DETAIL]`);
+      /* [DRESS_N03_DETAIL · DRESS_TEN_1031] 06(S03)에서 이전으로 05 잔비즈 → 04 코르셋 → 03 잔레이스 — 셋 다 앞 · 뒤 · 디테일 세 장 · 다시 다음으로 S03 */
+      for (const [rx, lab] of [[/잔비즈/, '05 잔비즈'], [/코르셋/, '04 코르셋'], [/잔레이스/, '03 잔레이스']]) {
+        await fr.click('.pk-nb-p'); await wait(400);
+        const n3 = await fr.evaluate(() => ({ nm: (document.getElementById('dvName') || {}).textContent || '', n: document.querySelectorAll('.dv-sl').length }));
+        if (!rx.test(n3.nm) || n3.n !== 3) no(`${tag} ${lab} 자세히 사진 ${n3.n}장 — 앞 · 뒤 · 디테일 세 장 ${n3.nm} [DRESS_N03_DETAIL · DRESS_TEN_1031]`);
+        if (SHOTS) await P.screenshot({ path: `${SHOTS}/detail-${lab.replace(/ /g, '-')}-${W}.png` });
+      }
+      for (let k = 0; k < 3; k++) { await fr.click('.pk-nb-n'); await wait(400); }
+      /* [DRESS_TEN_1031] 07 홀터넥(S11)도 세 장 — 다음으로 한 번 가서 재고 돌아온다 */
       await fr.click('.pk-nb-n'); await wait(400);
+      const n7 = await fr.evaluate(() => ({ nm: (document.getElementById('dvName') || {}).textContent || '', n: document.querySelectorAll('.dv-sl').length }));
+      if (!/홀터넥/.test(n7.nm) || n7.n !== 3) no(`${tag} 07 홀터넥 자세히 사진 ${n7.n}장 — 앞 · 뒤 · 디테일 세 장 ${n7.nm} [DRESS_TEN_1031]`);
+      if (SHOTS) await P.screenshot({ path: `${SHOTS}/detail-07-홀터넥-${W}.png` });
+      await fr.click('.pk-nb-p'); await wait(400);
       await fr.focus('.pk-back'); await P.keyboard.press('Escape'); await wait(400);
       v = await view(fr); if (v.tab !== 'pkTabD' || v.focus !== 'S03' || Math.abs(v.y - yD2) > 2 || v.q) no(`${tag} 자세히 Esc → 드레스 탭 · S03 · 그 자리가 아니다(${yD2}) ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       await fr.evaluate(() => document.querySelector('[data-open="S05"]').click()); await wait(400);
@@ -181,7 +190,7 @@ try {
       v = await view(fr); if (v.tab !== 'pkTabA' || Math.abs(v.y - mA) > 2) no(`${tag} 다시 열면 마지막 탭(소품) · 그 자리(${mA})가 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/reopen-${W}.png` });
       await fr.click('#pkTabD'); await wait(300); v = await view(fr); if (Math.abs(v.y - mD) > 2) no(`${tag} 다시 연 뒤 드레스 탭 자리(${mD})가 아니다 ${v.y} [DRESS_TABS_1030]`);
-      await fr.evaluate(() => document.querySelector('[data-open="S02"]').click()); await wait(400); await closeX(P, fr); fr = await open(P, true);
+      await fr.evaluate(() => document.querySelector('[data-open="S12"]').click()); await wait(400); await closeX(P, fr); fr = await open(P, true);
       v = await view(fr); if (v.tab !== 'pkTabD' || !v.tabs || Math.abs(v.y - mD) > 2) no(`${tag} 자세히를 보다 닫으면 드레스 목록(${mD})이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       await closeX(P, fr);
       /* [DRESS_MEM_CLOSE] 스크롤 직후(0 ~ 100ms) ✕ · Esc · 바깥 · 뒤로로 닫아도 다시 열면 그 자리(2px 이내) */
