@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 import { sentBounds, durOf, blockFit } from './lib/sent-bounds.mjs';
+import { statusOf, LISTEN_OUT, LIVE_LINE } from './lib/clip-status.mjs';   // ★[CLIP_STATUS_1031 검토 175] 안 나는 녹음 표시(파일 단위) 한 곳
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
@@ -130,12 +131,15 @@ const RETIRED = Cue.RETIRED || {};
    ★그래서 대장 배열 차례(mi)를 클립마다 들고 다니다가, 대본을 낼 때만 그것으로 다시 세운다.
      화면은 그대로 예식 순서다 — 보는 차례와 붙이는 차례는 쓰임이 다르니 따로 둔다.
    ★이 저장소가 같은 병을 두 번 앓았다(--redub 의 클립번호 정렬 · 여기). 고치는 자리도 하나로 맞춘다. */
-const RETIRED_ROWS = man.clips.filter((c) => RETIRED[c.file]).map((c) => `${c.no}_${c.file}`);
-const OLDC0 = man.clips.map((c, mi) => ({ c, mi })).filter(({ c }) => !RETIRED[c.file])
+/* ★★[CLIP_STATUS_1031 검토 175] 엔진 RETIRED 만 보던 것을 파일 단위 표(assets/audio/clip-status.json)와 함께 본다 — retired · legacy(옛 저장분 전용) · 안 트는 배역(CAST_MUTE · ritual-story 정본)은 빼고 dormant 는 «지금 안 남»으로 남긴다 [고침 3 · 4] */
+const ST = (c) => statusOf(c.dir, `${c.no}_${c.file}`);
+const RETIRED_ROWS = man.clips.filter((c) => LISTEN_OUT.has(ST(c))).map((c) => `${c.no}_${c.file}`);
+const OUT_BY = {}; man.clips.forEach((c) => { const st = ST(c); if (LISTEN_OUT.has(st)) (OUT_BY[st] = OUT_BY[st] || []).push(`${String(c.dir || '').split('/').pop()}/${c.no}_${c.file}`); });
+const OLDC0 = man.clips.map((c, mi) => ({ c, mi })).filter(({ c }) => !LISTEN_OUT.has(ST(c)))
   .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part))
     || (BY_MAN_ORDER[a.c.part] ? a.mi - b.mi : +a.c.no - +b.c.no))   // [LISTEN_EX_PART] 멘트 예시 묶음 안은 대장 차례
   .map(({ c, mi }) => ({ id: `${c.no}_${c.file}`, no: c.no, mi, ko: c.label || c.file, part: c.part,
-    role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
+    role: c.role || '', mix: !!c.mix, has: !!srcOf(c), dm: ST(c) === 'dormant',   // [CLIP_STATUS_1031] dormant = 지금 차례에선 안 섬
     sents: (c.sents || []).map((s) => String(s.text || '').trim()).filter(Boolean) }));
 /* [LISTEN_SPLIT] 파트를 짚으면 그 파트만 — 「어조」면 기존 클립을 통째로 뺀다 */
 const PARTSEL = PART && PART !== '어조' ? (PART_ORDER.find((x) => x.startsWith(PART) || x === PART) || PART) : '';
@@ -160,7 +164,7 @@ let bOk = 0, bNo = 0;
 const sylOf = (t) => (String(t).match(/[가-힣]/g) || []).length;
 man.clips.forEach((c) => {
   const id = `${c.no}_${c.file}`, f = srcOf(c);
-  if (RETIRED[c.file]) return;                    // [RETIRED_OFF_SCREEN] 폐지한 자리는 재지도 않는다
+  if (LISTEN_OUT.has(ST(c))) return;              // [RETIRED_OFF_SCREEN] 폐지한 자리는 재지도 않는다 · [CLIP_STATUS_1031] 옛 저장분 전용 · 안 트는 배역도
   if (!f || !(c.sents || []).length) return;
   const b = sentBounds(f, c.sents);
   if (b && b.length === c.sents.length) { BOUNDS[id] = b; bOk++; } else bNo++;
@@ -182,7 +186,7 @@ if (Object.keys(SHORT).length) console.log(`  ★소리가 글보다 짧은 클�
 if (Object.keys(MISS).length) console.log(`  ★★소리에 문장이 빠진 것으로 보이는 클립 ${Object.keys(MISS).length}개 [SENT_MISSING]: ` +
   Object.entries(MISS).map(([k, v]) => `${k}(대본 ${v.n} · 덩어리 ${v.b}${v.at ? ' · ' + v.at.join('·') + '번째' : ' · 자리 못 정함'})`).join(' · '));
 
-if (RETIRED_ROWS.length) console.log(`  · [RETIRED_OFF_SCREEN] 폐지한 자리 ${RETIRED_ROWS.length}개는 목록에서 뺐습니다(식장에서 안 납니다): ${RETIRED_ROWS.join(' · ')}`);
+if (RETIRED_ROWS.length) console.log(`  · [RETIRED_OFF_SCREEN · CLIP_STATUS_1031] 안 나는 자리 ${RETIRED_ROWS.length}개는 목록에서 뺐습니다 — ` + Object.entries(OUT_BY).map(([k, v]) => `${k} ${v.length}`).join(' · '));
 const missing = OLDC.filter((c) => !c.has && !c.mix);
 if (missing.length) console.log(`  · 소리 없는 기존 클립 ${missing.length}개(합성/미녹음): ${missing.map((c) => c.id).join(' · ')}`);
 
@@ -264,7 +268,7 @@ if (EMBED) {
 /* ── ④ 화면 데이터 ───────────────────────────────────────────────────────── */
 const DATA = {
   old: OLDC.map((c) => ({ id: c.id, no: c.no, mi: c.mi, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
-    r: c.role, mix: c.mix, has: c.has, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0, miss: MISS[c.id] || null })),
+    r: c.role, mix: c.mix, has: c.has, dm: c.dm, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0, miss: MISS[c.id] || null })),
   neu: NEWC.map((c) => ({ s: c.slug, k: c.ko, g: c.묶음,
     n: c.idx.map((i) => ({ i, t: sents[i], v: voices[i], lock: sents[i] === USE_EXISTING,
       old: OLDSENT.get(sents[i]) || '' })) })),
@@ -822,6 +826,7 @@ function draw() {
       h += '<div class="clip' + (open ? '' : ' done') + '"><div class="ch"><span class="n">' + esc(c.no) + '</span><b>' + esc(c.k) + '</b>'
         + '<span class="tag">' + esc(c.id) + '</span>' + (c.r ? '<span class="tag">' + esc(c.r) + '</span>' : '')
         + (re ? '<span class="tag re">다시 ' + re + '</span>' : '')
+        + (c.dm ? '<span class="tag" title="구조상 지금 차례에선 안 서는 클립 · 순서가 바뀌면 설 수 있어 살려 둔다 [CLIP_STATUS_1031]">지금 안 남</span>' : '')
         + (c.short ? '<span class="tag re" title="말속도 ' + c.short + '음절/초 · 보통 6~7">★소리가 글보다 짧음</span>' : '')
         + (c.miss ? '<span class="tag re" title="대본 ' + c.miss.n + '문장인데 소리 덩어리는 ' + c.miss.b + '개 [SENT_MISSING]">★문장이 빠진 듯 — '
             + (c.miss.at ? c.miss.at.join('·') + '번째' : '자리 못 정함') + '</span>' : '')
@@ -850,7 +855,8 @@ function draw() {
       if (!head) { h += '<div class="ph">새 어조 (아직 예식에 안 나감 · 문장 단위)</div>'; head = true; }
       h += '<div class="clip' + (open ? '' : ' done') + '"><div class="ch"><b>' + esc(c.k || c.s) + '</b>'
         + '<span class="tag new">' + esc(c.s) + '</span>'
-        + (re ? '<span class="tag re">다시 ' + re + '</span>' : '') + '</div>';
+        + (re ? '<span class="tag re">다시 ' + re + '</span>' : '')
+        + (c.dm ? '<span class="tag" title="구조상 지금 차례에선 안 서는 클립 · 순서가 바뀌면 설 수 있어 살려 둔다 [CLIP_STATUS_1031]">지금 안 남</span>' : '') + '</div>';
       c.n.forEach(function (s) {
         var k = 'n' + s.i, v = V[k];
         h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '"><div class="tx"><div>' + esc(s.t) + '</div>'
@@ -1021,6 +1027,8 @@ draw();
 `;
 
 console.log(`전체 실청 — 기존 ${OLDC.length}클립(문장 ${oldSents}) + 어조 ${NEWC.length}클립(문장 ${newSents})`);
+/* [CLIP_STATUS_1031 고침 3 · 4] 화면 줄에서 직접 센다 — 나레이션 · 소리 있음 · 지금 남(dormant 아님) · scripts/audit/clip-status.mjs 가 사장님 실청 수와 맞춰 본다 */
+console.log('  ' + LIVE_LINE(OLDC0.filter((r) => /^narration$/.test(String((man.clips[r.mi] || {}).dir || '').split('/').pop()) && r.has && !r.dm).length) + ` · 녹음 대기 ${OLDC0.filter((r) => !r.has).length} · 지금 안 남 ${OLDC0.filter((r) => r.dm).length}`);
 
 /* ★[SELF_PARSE 2026-08-15] 뽑은 화면의 **스크립트가 실제로 파싱되는지** 여기서 본다.
    13MB 짜리를 눈으로 훑을 수 없고, 한 글자 어긋나면 화면이 통째로 백지가 된다.
