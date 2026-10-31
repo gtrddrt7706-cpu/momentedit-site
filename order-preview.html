@@ -8651,7 +8651,8 @@ function _pkPeakHtml(){
 }
 /* ★[BODY_CAP_1030 검토 167] 담는 쪽 한 줄 — «남은 본식 시간 약 n분» · 이미 넘은 옛 초안은 알림만(막지 않는다 · 새로 담기만 막힌다) */
 function _capLine(cls){ var R=RitualOpen; if(!R||!R.capSec||!isOpen()) return ''; var hi=R.bodySec(S)[1], cap=R.capSec(S), n=R.capLeft(S);
-  var t=hi>cap+0.5?('본식이 약 '+Math.max(1,Math.ceil((hi-cap)/60))+'분 길어요 · 순간을 하나 빼 주세요'):n>0?('남은 본식 시간 약 '+n+'분'):'본식 시간이 다 찼어요';
+  /* ★«남은 본식 시간 약 n분» · «본식 시간이 다 찼어요» 줄 금지 — 2026-11-01 사용자 지시로 삭제 [NO_LEFT_LINE_1101] «어떤 기준인지 이해가 안 되고 · 시간이 짧으면 그만큼 사진 · 자유 시간이 길어지는 것» · 담기가 막힐 때 창(CAP_NEED_1031)이 얼마 덜지 말한다 · 이미 넘은 옛 초안 알림만 남긴다 */
+  if(!(hi>cap+0.5)) return ''; var t='본식이 약 '+Math.max(1,Math.ceil((hi-cap)/60))+'분 길어요 · 순간을 하나 빼 주세요';
   return '<p class="pk-left '+cls+'" data-fk="capleft:'+cls+'">'+esc(t)+'</p>'; }
 function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
