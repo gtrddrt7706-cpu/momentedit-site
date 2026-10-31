@@ -4807,6 +4807,7 @@ var ASK_SCRIPT={bless:{id:'bless.p',nm:'받은 덕담 원고',fk:'mkbsite',site:
 function _askScript(q){ if(!q||q.cat!=='ask') return null; if(q.k==='bless') return ASK_SCRIPT.bless;
   if(q.k==='free'&&RitualOpen.FREE_KIND[RitualOpen.chipOf('free',S)]==='speech') return ASK_SCRIPT.free; return null; }
 function _mkItemDone(q){ var c=_mkChk(), _sp=_askScript(q);
+  if(_sp&&c[q.id]==='site') return !!_cueGet(q.id);   /* ★[SITE_CUE_FIRST_1101 식순 걷기 4라운드 1] «원고 없이 현장에서»면 붙여 둔 원고가 있어도 끝 신호로만 판정 — 원고(숨김)가 있다고 다 됨으로 셌다 */
   if(_sp&&String((S.tx||{})[_sp.id]||'').trim()) return true;   // [R1-01] 받은 원고를 붙였으면 부탁은 끝난 것 · [SPEECH_SCRIPT] 덕담 · 축사
   if(q.up&&_vcToNar(q.up)) return true;   /* [VC_TO_NAR] · [R5-02] 목소리 만들기를 다 쓴 분의 줄은 스튜디오 나레이션으로 나간다(카드 문구와 같은 판정) */
   if(q.up&&_lineBlank(q.up)) return true;   /* [LINE_BLANK] 비운 줄은 스튜디오 나레이션으로 나간다(카드 «비워 두면 …»과 같은 판정 · VC_TO_NAR 와 같은 까닭) */
@@ -4907,10 +4908,11 @@ function _mkLeaveMsg(k){ if(!k||k==='_sum'||k==='_voice'||_mkOff(k)) return '';
   var tw=_txTodoWord(ts);   // [EX_NAME_TODO_1023]
   if(tw) return head+tw+'. 미완료로 둘게요.';
   /* [R3-05] 그 밖 할 일도 첫 하나(ts[0])만 말하지 않는다 — AI 판 식전 영상은 «식전 영상 링크» · «AI 두 분 목소리» 둘이 남아도 링크만 말했다 */
-  var nms=[]; ts.forEach(function(x){ if(x.kind==='tx') return; var _sp=String(x.nm).split(' · '), n=(x.q&&x.q.up)?(function(){ var c=ts.filter(function(y){ return y.q&&y.q.up; }).length; return _vpCur(k)==='ai'?'AI 목소리 '+c+'줄':'두 분 목소리 녹음 '+c+'줄'; })()   /* [SIM_R2] «AI 목소리 2줄»이 남아 있어요 — 새로 만들 줄 · 다시 만들 줄 둘 다 맞는 말 */:_sp[0]   /* [SIM_R1] 어느 줄인지 · 몇 줄인지 */.replace(/\s*\([^)]*\)\s*$/,'');
-    if(!(x.q&&x.q.up)&&n===_mkName(k)) n=x.kind==='ask'?n+' 부탁':(_sp[1]||n).replace(/\s*\([^)]*\)\s*$/,'');   /* [R4-11] 첫 토막이 순간 이름뿐이면(«화촉 · 양가 어머님께서…») 무엇이 남았는지 안 보였다 → «화촉 부탁» */
+  var nms=[], _cueW=false; ts.forEach(function(x){ if(x.kind==='tx') return; var _sp=String(x.nm).split(' · '), n=(x.q&&x.q.up)?(function(){ var c=ts.filter(function(y){ return y.q&&y.q.up; }).length; return _vpCur(k)==='ai'?'AI 목소리 '+c+'줄':'두 분 목소리 녹음 '+c+'줄'; })()   /* [SIM_R2] «AI 목소리 2줄»이 남아 있어요 — 새로 만들 줄 · 다시 만들 줄 둘 다 맞는 말 */:_sp[0]   /* [SIM_R1] 어느 줄인지 · 몇 줄인지 */.replace(/\s*\([^)]*\)\s*$/,'');
+    if(!(x.q&&x.q.up)&&n===_mkName(k)) n=x.kind==='ask'?n+' 부탁':(_sp[1]||n).replace(/\s*\([^)]*\)\s*$/,'');
+    if(x.kind==='ask'&&x.q&&_askScript(x.q)&&_mkChk()[x.q.id]==='site'){ n=(x.q.k==='bless'?'덕담':'축사')+' 끝 신호'; _cueW=true; }   /* ★[CUE_WORD_1101 식순 걷기 4라운드 2] 원고 없이 현장에서 하기로 했으면 남은 것은 «끝 신호» — «원고가 남아 있어요»라고 했다 */   /* [R4-11] 첫 토막이 순간 이름뿐이면(«화촉 · 양가 어머님께서…») 무엇이 남았는지 안 보였다 → «화촉 부탁» */
     if(nms.indexOf(n)<0) nms.push(n); });
-  var _par=ts.every(function(x){ return x.who==='부모님'; }), _askW=false;
+  var _par=ts.every(function(x){ return x.who==='부모님'; }), _askW=_cueW;   /* [CUE_WORD_1101] 끝 신호는 «부모님께 부탁드릴» 머리를 붙이지 않는다 */
   if(_par) nms=nms.map(function(n){ var m=/^(.+) 부탁$/.exec(n); if(!m) return n; _askW=true; return '부모님께 '+m[1]+_josa(m[1],'을','를')+' 부탁하는 일'; });   /* ★[REVIEW_166_1030 검토 166 C8] «부모님께 부탁드릴 «화촉 부탁»» 겹말 → «부모님께 화촉을 부탁하는 일» */
   var last=nms[nms.length-1];
   return head+(_par&&!_askW?'부모님께 부탁드릴 ':'')+nms.map(function(n){ return '«'+n+'»'; }).join(' · ')+_josa(last,'이','가')+' 남아 있어요. 미완료로 둘게요.'; }
@@ -5007,7 +5009,7 @@ function _vowAllN(){ return _vowSplit('vow.g').concat(_vowSplit('vow.b')).join('
 window.mkVowLn=function(w,j,el){ var L=_vowSplit('vow.'+w); while(L.length<=j) L.push(''); L[j]=String(el.value||'').replace(/\n+/g,' '); _vowPut(w,L); _taGrow(el);
   var cn=document.getElementById('mkc_vow_all'); if(cn){ var n=_vowAllN(), lim=TX_KIND.vow.lim*2; cn.textContent=_mkCntT(n,lim); cn.style.color=n>lim?'var(--seal)':''; }   /* 두 분 합친 글자 수 · 약 n초 */
   try{ _mkStripRepaint(); }catch(e){} };
-window.mkVowAdd=function(){ var R=_vowRows(), f=_vowFirst(), sc=f==='g'?'b':'g', last=R[R.length-1], nw=last.w===f?sc:f, L=_vowSplit('vow.'+nw); L.push('');   /* 마지막 줄과 다른 분 · 그 분 줄 끝에 붙이면 번갈아 차례의 맨 끝에 선다 */ _vowPut(nw,L); _fxNext='[data-fk="mkvw:'+nw+':'+(L.length-1)+'"]'; render(); };
+window.mkVowAdd=function(){ var R=_vowRows(), f=_vowFirst(), sc=f==='g'?'b':'g', last=R[R.length-1], nw=last.w===f?sc:f, L=_vowSplit('vow.'+nw), _sh=R.filter(function(r){ return r.w===nw; }).length; while(L.length<_sh) L.push(''); L.push('');   /* ★[VOW_EMPTY_ADD_1031 4라운드 3] 처음 보이는 빈 자리(줄 표시 전)도 한 줄로 센다 — 첫 누름에 줄이 늘지 않았다 */   /* 마지막 줄과 다른 분 · 그 분 줄 끝에 붙이면 번갈아 차례의 맨 끝에 선다 */ _vowPut(nw,L); _fxNext='[data-fk="mkvw:'+nw+':'+(L.length-1)+'"]'; render(); };
 window.mkVowDel=function(w,j){ var L=_vowSplit('vow.'+w); if(j>=L.length) return; L.splice(j,1); _vowPut(w,L); _fxNext='[data-fk="mkvwadd"]'; render(); };
 window.mkVowSite=function(on){ if(!S.mkc) S.mkc={}; ['vow.g','vow.b'].forEach(function(id){ S.mkc[id]=on?1:0; _fAt('mkc.'+id); }); _persist(); render(); };   // 번갈아 = 두 분이 한 칸 · 체크도 하나
 function _vowBothRows(){ return '<div class="mk-slr mk-vwr both mk-vwboth" role="group" aria-label="마지막에 두 분이 함께 읽는 문장"><span class="mk-vwn">두 분 함께</span>'+_vowBoth().map(function(x){ return '<p class="mk-vwfix">'+esc(x)+'</p>'; }).join('')+'</div>'
@@ -7389,7 +7391,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
     h+='</ul></section>'; }
   var site=[]; ps.forEach(function(k){ if(k==='_sum'||k==='_voice'||k==='_intro'||_mkOff(k)) return; _mkKinds(k).forEach(function(kind){ TX_WHO.forEach(function(w){ var id=kind+'.'+w[0]; if(_txSite(kind,c,id)) site.push((_mkNo(k)&&_mkNo(k)!=='식전'?_mkNo(k)+' ':'')+_mkName(k)+' · '+w[1]+(kind==='letter'?' · 따로 써서 가져와요':'')+(_cueGet(id)?' · 끝 신호 «'+_cueGet(id)+'»':_txIsLast(kind,w[0])?' · 끝 신호를 적어 주세요':''));   /* [CUE_SIG] · ★[REVIEW_166_1030 검토 166 B10] 끝 신호 칸은 마지막 분에게만 있다 — 칸이 없는 분에게는 적으라고 하지 않는다 */ }); }); _mkItems(k).forEach(function(q){ if(c[q.id]==='site') site.push((_mkNo(k)?_mkNo(k)+' ':'')+_mkName(k)+' · '+(k==='bless'?'부모님이 현장에서':k==='free'?'축사하실 분이 현장에서':'현장에서')); });   /* ★[REVIEW_166_1030 검토 166 B9] 축사는 «축사하실 분이» · 덕담만 «부모님이» */ });
   if(site.length) h+='<section class="mk-sec"><h4>현장에서 하기로 한 것 '+site.length+'</h4><ul class="mk-list">'+site.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ul></section>';
-  var asks=[], sends=[], brings=[]; ps.forEach(function(k){ if(k==='_sum'||k==='_voice'||k==='_intro'||_mkOff(k)) return; _mkItems(k).forEach(function(q){ if(q.cat==='ask'){ if(_mkChk()[q.id]!=='site') asks.push(q); }   /* ★[SUM_ASK_ALL 2026-10-07 점검] 두 분이 부탁하는 줄(축사하실 분 · 화촉 다른 두 분)도 — 머리 «미완료 9가지»인데 목록은 8줄이었다(_mkTasks 는 세고 여기는 부모님 것만 그렸다) */   /* [R7-02] «원고 없이»는 «현장에서 하기로 한 것»에만 한 번 — «부탁드릴 것 · ✓ 다 됐어요»로 또 나와 원고가 온 것처럼 읽혔다 */ else if(q.cat==='send') sends.push(q); else if(q.cat==='bring') brings.push(q); }); });
+  var asks=[], sends=[], brings=[]; ps.forEach(function(k){ if(k==='_sum'||k==='_voice'||k==='_intro'||_mkOff(k)) return; _mkItems(k).forEach(function(q){ if(q.cat==='ask'){ if(_mkChk()[q.id]!=='site') asks.push(q); else if(_askScript(q)&&!_cueGet(q.id)) asks.push({cueTodo:1,k:q.k,who:q.who,id:q.id,cat:'ask'}); }   /* [CUE_WORD_1101] 원고 없이 현장에서 + 끝 신호 빔 → «축사 끝 신호 · 끝 신호를 적어 주세요» + 이동하기 */   /* ★[SUM_ASK_ALL 2026-10-07 점검] 두 분이 부탁하는 줄(축사하실 분 · 화촉 다른 두 분)도 — 머리 «미완료 9가지»인데 목록은 8줄이었다(_mkTasks 는 세고 여기는 부모님 것만 그렸다) */   /* [R7-02] «원고 없이»는 «현장에서 하기로 한 것»에만 한 번 — «부탁드릴 것 · ✓ 다 됐어요»로 또 나와 원고가 온 것처럼 읽혔다 */ else if(q.cat==='send') sends.push(q); else if(q.cat==='bring') brings.push(q); }); });
   function li(q){ var due=(q.cat==='bring'&&q.due===0)?'':R.dueWord(q,wed); return '<li>'+esc(_ndd(q.what))+(due?NBS+'<span class="wr-due">·'+NBS+esc(_ndd(due))+'</span>':'')+'</li>'; }   /* [R1-30] 머리가 «당일 챙길 것»이라 당일 마감 글은 그리지 않는다(dueWord 는 마이페이지용 그대로) */
   /* 할 일 줄 — 왼쪽 할 것 · 언제까지 / 오른쪽 ✓(다 됨) 또는 «가기»(그 순간 쪽으로) */
   function row(nm,due,done,k){ return '<li class="mk-vr'+(done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(nm))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'
@@ -7397,7 +7399,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   /* ★[PAR_TELL_1019 검토 133-2] «부모님께 미리 전해 드리기» — 할 일로 세지 않는 한 줄 + 복사(두 분이 문자로 보내도록) · 부모님이 그날 처음 듣는 말이 없게(256 포옹 · 정면 첫 줄 · 가족사진)
      후기: 혼주가 멈출 곳 · 인사 지점을 헷갈렸다 · 혼주석에 어머니 대신 동생 · 할머니가 앉았다 → 글 안에 «부모님»을 쓰지 않는다(받는 분이 누구든 맞게) */
   var parRow='<li class="mk-vr"><span class="mk-vt"><span class="mk-vn">부모님께 미리 전해 드리기</span><span class="mk-vs">앉으실 자리 · 인사 · 가족사진</span></span><button type="button" class="rowbtn mk-vb" data-fk="parcopy" onclick="mkParCopy()">글 복사하기</button></li>';
-  h+='<section class="mk-sec"><div class="mk-sech"><h4>'+(!asks.length||asks.every(function(q){ return q.who==='parents'; })?'부모님께 부탁드릴 것':'부탁드릴 것')+'</h4></div><ul class="mk-vlist">'+asks.map(function(q){ return row(q.what,R.dueWord(q,wed),_mkItemDone(q),q.k); }).join('')+parRow+'</ul></section>';   /* [R2-40] 개수 없이(다른 묶음과 같게) */   /* [R2-40] 개수 없이(다른 묶음과 같게) */
+  h+='<section class="mk-sec"><div class="mk-sech"><h4>'+(!asks.length||asks.every(function(q){ return q.who==='parents'; })?'부모님께 부탁드릴 것':'부탁드릴 것')+'</h4></div><ul class="mk-vlist">'+asks.map(function(q){ return q.cueTodo?row((q.k==='bless'?'덕담':'축사')+' 끝 신호','끝날 때 하는 말이나 동작을 적어 주세요',false,q.k):row(q.what,R.dueWord(q,wed),_mkItemDone(q),q.k); }).join('')+parRow+'</ul></section>';   /* [R2-40] 개수 없이(다른 묶음과 같게) */   /* [R2-40] 개수 없이(다른 묶음과 같게) */
   sends.sort(function(a,b){ return (b.due||0)-(a.due||0); });
   var sRows=[], aiRows=[], upK={}; sends.forEach(function(q){ if(q.up){ if(upK[q.k]) return; var qs=sends.filter(function(x){ return x.up&&x.k===q.k; }), n=qs.filter(_mkItemDone).length; upK[q.k]=1;
       var _ai=_vpCur(q.k)==='ai';   /* [R1-28] AI 판은 «AI 두 분 목소리 4줄» */
@@ -9864,7 +9866,8 @@ function _doneOpen(){
     /* [R4-05] 글 칸 밖의 남은 할 일(부탁 · 보낼 것 · 두 분 목소리)도 같은 자리에 표시 — 머리는 «미완료 6»인데 표시가 붙은 줄은 둘뿐이라 나머지가 다 된 것처럼 보였다 */
     var _pd=(empty||_mkOff(k))?[]:_mkTasks(k).filter(function(x){ return !x.done&&x.kind!=='tx'; }), _pq=_pd[0]&&_pd[0].q;
     var _bits=[]; if(_pd.some(function(x){ return x.q&&x.q.up; })) _bits.push(_vpCur(k)==='ai'?'AI 목소리 남음':'녹음 남음');   /* [R5-04] 남은 갈래를 다 말한다(첫 하나만 말하던 것) */
-    if(_pd.some(function(x){ return x.who==='부모님'; })) _bits.push('부모님께 부탁 남음'); else if(_pd.some(function(x){ return x.q&&x.q.cat==='ask'; })) _bits.push('부탁 남음');
+    var _cueQ=function(x){ return x.q&&x.q.cat==='ask'&&_askScript(x.q)&&_mkChk()[x.q.id]==='site'; }; if(_pd.some(_cueQ)) _bits.push('끝 신호 남음');   /* [CUE_WORD_1101] */
+    if(_pd.some(function(x){ return x.who==='부모님'&&!_cueQ(x); })) _bits.push('부모님께 부탁 남음'); else if(_pd.some(function(x){ return x.q&&x.q.cat==='ask'&&!_cueQ(x); })) _bits.push('부탁 남음');
     if(_pd.some(function(x){ return x.q&&!x.q.up&&x.q.cat==='send'; })) _bits.push('보낼 것 남음');
     var _exn=!empty&&!_mkOff(k)&&_mkTasks(k).some(function(x){ return x.kind==='tx'&&!x.done&&x.exn; }); if(_exn) _bits.unshift('예시 속 이름 확인');   /* ★[DONE_EXN_1031 식순 걷기 1라운드 GPT 12] ② 의 «예시 속 이름이 남아 있어요»(EX_NAME_TODO_1023)를 ④ 줄에도 — «남은 할 일» 수에는 들어 있는데 줄은 평범한 «변경»이었다 */
     var mark=empty?'글 비어 있음':(!_pq&&!_exn)?'':_bits.join(' · ');
