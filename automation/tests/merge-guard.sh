@@ -20455,6 +20455,13 @@ chk 'LISTEN_PACE_1031' scripts/audit/listen-pace.mjs 1
 chk 'listen-pace' .github/workflows/merge-guard.yml 1
 nochk 'LP.leadSt=st;[^/]*//' order-preview.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/listen-pace.mjs >/dev/null 2>&1; _lpc=$?; if [ "$_lpc" = 1 ]; then echo 'FAIL listen-pace: 이 순간 전체 듣기 흐름(음악 뜸 · 행동 줄 멈춤 · «실제로는 약» · 지금 줄 · 따라가기)이 어긋났습니다 — node scripts/audit/listen-pace.mjs'; fail=1; elif [ "$_lpc" = 2 ]; then echo 'skip listen-pace (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok listen-pace'; fi; fi
+# ── 2026-10-31 [SONG_CARD_SOLO_1031 사장님 «음악만 나와야 하는 거 아니야? · 여기서는 좀 크게»] 곡 카드 ▶ = 그 곡만(나레이션 없음) · +7 dB · 그 길에만 리미터 · 0.8초 오름/내림 · 강조 위치 5초 전 · 곡 칸 맨 아래 한 줄 — bgm-preview 4 가 브라우저로 잰다(CI bgm-sound)
+chk 'SONG_CARD_SOLO_1031' assets/bgm-bed.js 4
+chk 'SONG_CARD_SOLO_1031' order-preview.html 1
+chk 'SONG_CARD_SOLO_1031' scripts/audit/bgm-preview.mjs 1
+chk 'lim.threshold.value=-1; lim.ratio.value=20; lim.attack.value=0.002; lim.release.value=0.15' assets/bgm-bed.js 1
+chk '나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1
+nochk 'var ln=firstLine(k);' assets/bgm-bed.js 0
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
