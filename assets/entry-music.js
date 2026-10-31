@@ -250,7 +250,7 @@
     try{ if(typeof _cgEven==='function') _cgEven(); }catch(x){}   /* ★[MU_REDRAW_EVEN_1019 2026-10-19 사장님 «추천 곡 누르면 버튼이 작아지는 현상»] 새로 끼운 칩 줄은 칸 맞춤(cg-grid · --cgs)이 없어 글자 폭(1280 · 181 → 114 · 68px)으로 줄었다가 다음 그리기 때 돌아왔다 — 끼운 그 자리에서 맞춘다(쪽 전체 · 격자 여부는 쪽의 모든 칩 줄로 정한다) */
     carKeep(oc); sceneSync(); }
   function srcSet(v){ if((v!=='up'&&v!=='rec')||srcNow()===v) return; hush(); SRC=v;   /* 칩을 바꾸면 듣던 미리 듣기는 멈춘다(단추가 사라진 채 소리만 남지 않게) */
-    if(v==='up'&&!UPS&&!upRec()){ guideOpen(); return; }   /* [UP_GUIDE_CHIP] 아직 올린 곡이 없으면 칩을 누를 때마다 안내 창(빌더가 다시 그리며 칩도 함께) */
+    if(v==='up'&&!UPS&&!upRec()&&!((St().tipSeen||{}).mu)){ guideOpen(); return; }   /* [UP_GUIDE_CHIP] 아직 올린 곡이 없으면 안내 창(빌더가 다시 그리며 칩도 함께) · ★[GUIDE_ONCE_1031 식순 걷기 1라운드 GPT 10] 처음 한 번만 — 두 칩을 오갈 때마다 같은 창을 다시 닫아야 했다 · 다시 보려면 «올리기 안내 보기» */
     rowRedraw(); var sc=D.querySelector('.ls-mu [data-fk="musrc:'+v+'"]'); if(sc) try{ sc.focus({preventScroll:true}); }catch(x){} }
   function recE(c){ var y=new Error('rec'); y.code=c||'L4'; y.song=true; return y; }
   function recErr(c){ c=String(c||'L4');   /* [ERR_CODES] 곡 받기 실패 — 자리 L(불러오기) · M(기기) */
@@ -361,9 +361,9 @@
   function recPlay(k){ if(!recMeta(k)) return; var o0=REC.buf[k]; if(o0){ recTouch(k); play('rec:'+k,o0.H,CAR_PRE,CAR_LEN,o0); return; }   /* [PRE_ROLL_1013] 이미 풀어 둔 곡은 바로(누르고 0.3초 뒤) — «곡을 불러오는 중이에요»를 거치지 않는다 */
     hush(); quietOthers(); scHalt(); PWANT=k; var tk=PTK; paintCar();
     recSong(k).then(function(o){ if(tk!==PTK||PWANT!==k) return; PWANT=null; play('rec:'+k,o.H,CAR_PRE,CAR_LEN,o); },function(err){ if(tk!==PTK||PWANT!==k) return; PWANT=null; paintCar(); toast(recErr(err&&err.code)); }); }
-  /* ✓ 고르기 — 고르면 접힌 한 줄(아래 장면이 올라온다) · 같은 곡을 다시 누르면 풀린다(펼친 그대로) · 고를 때 듣던 미리 듣기는 멈춘다 */
+  /* ✓ 고르기 — 고르면 접힌 한 줄(아래 장면이 올라온다) · 같은 곡을 다시 눌러도 그 곡 그대로 접힌다([REPICK_KEEP_1031]) · 고를 때 듣던 미리 듣기는 멈춘다 */
   function recPick(k){ var m=recMeta(k), s=St(), mu=s.mu; if(!m) return;
-    if(recOn()&&mu.k===k){ delete s.mu; save(); scReset(); paintCar(); sceneSync(); toast('고른 곡을 풀었어요'); return; }
+    if(recOn()&&mu.k===k){ var hk=boxH(); MU_OPEN=false; redraw(); boxAnim(hk); var fk=D.querySelector('.ls-mu .mu-fold'); if(fk) try{ fk.focus({preventScroll:true}); }catch(x){} return; }   /* ★[REPICK_KEEP_1031 식순 걷기 1라운드 GPT 8] 같은 곡을 다시 누르면 그대로 두고 접는다(다른 음악 목록 MUSIC_FOLD_PICK_1031 과 같게) — 종전엔 «고른 곡을 풀었어요»로 고른 곡이 사라졌다 */
     hush(); if(mu&&mu.src==='up') s.muUp=mu;   /* 올린 곡 기록은 비켜 둔다(서버 파일 · 고른 자리 그대로) */
     var h0=boxH(); s.mu={src:'rec',k:k,t:m.t,a:m.a,dur:Math.round(m.len*10)/10,hook:recH(m),img:m.img,pos:m.pos}; if(m.hooks&&m.hooks.length) s.mu.hooks=m.hooks.slice();   /* [BGM_FIRST_1013] */ SRC='rec'; MU_OPEN=false; save(); scReset(); redraw(); boxAnim(h0); recWant(k);
     toast(m.t.length<=9?'‹'+m.t+'› 곡으로 들어가요':'이 곡으로 들어가요'); var f=D.querySelector('.ls-mu .mu-fold'); if(f) try{ f.focus({preventScroll:true}); }catch(x){} }   /* [TOAST_MIN] 긴 제목은 «이 곡으로 들어가요» */

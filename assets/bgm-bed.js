@@ -202,7 +202,7 @@
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h='';
     CUST.forEach(function(sg){ if(chooser(sg)!==k) return; var gl=labelOf(sg.id)+' 음악'; list();
-      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div>'+(emb()?'<p class="bgm-note bed-hint">나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요</p>':'')+'</div>'; });   /* [SONG_CARD_SOLO_1031] 곡 칸 맨 아래 한 줄(작은 글 · 새 색 없음) */
+      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div>'+((emb()&&(typeof _mpHas!=='function'||_mpHas(k)))?'<p class="bgm-note bed-hint">나레이션과 함께 들어 보려면 아래 ‹이 순간 전체 듣기›를 눌러 주세요</p>':'')   /* ★[BED_HINT_WHERE_1031 식순 걷기 1라운드 GPT 11] 단추는 곡 목록 아래 · 단추가 없는 쪽(나레이션 한 줄 · 테이블 인사)에서는 이 줄을 쓰지 않는다 */+'</div>'; });   /* [SONG_CARD_SOLO_1031] 곡 칸 맨 아래 한 줄(작은 글 · 새 색 없음) */
     return h; }
   /* 축사 · 편지 «음악과 함께» 아래 곡 고르기(bgm-form.js 가 그 줄 안에 넣는다) */
   function subHtml(slot,k){ var sg=SUB[slot]; if(!sg||!bedOn(slot)) return ''; list(); return '<div class="bed-box bed-sub" id="'+boxId(sg)+'" data-seg="'+sg+'" data-k="'+e(k)+'">'+listHtml(sg,k)+'</div>'; }
@@ -212,7 +212,8 @@
     return '<p class="mk-ploff bed-pub">음악은 마이페이지에서 함께 들어 볼 수 있어요</p>'; }
   /* ④ 한눈에 보기 — 구간마다 «‹순간› · ‹곡›» / «‹순간› · 고르지 않으시면 ‹1순위›» (축사 · 편지는 bgm-form 이 «음악과 함께» 뒤에 붙인다) */
   function sumOf(sg){ var L=P.list(sg), k=picked(sg), s=k?P.byF(k):L[0]; if(!s) return ''; return (k?'':'고르지 않으시면 ')+'‹'+s.t+'›'; }
-  function sumRows(){ return CUST.filter(function(s){ return !!chooser(s); }).map(function(s){ return { id:s.id, k:chooser(s), t:labelOf(s.id)+' · '+sumOf(s.id) }; }); }
+  function sumRows(){ var q=seq(), at=function(k){ if(k==='guest') return -1; var i=q.indexOf(k); return i<0?999:i; };   /* [CARD_ORDER_1031] 예식 차례대로(테이블 인사 → 축배 → 닫는 인사) — 구간 목록 차례(닫는 인사 → 축배 → 테이블)로 적던 것 */
+    return CUST.filter(function(s){ return !!chooser(s); }).map(function(s){ return { id:s.id, k:chooser(s), t:labelOf(s.id)+' · '+sumOf(s.id) }; }).sort(function(a,b){ return at(a.k)-at(b.k); }); }
 
   /* 그 칸만 다시(빌더 render() 는 흐르던 소리를 끈다) */
   var RP=0;
