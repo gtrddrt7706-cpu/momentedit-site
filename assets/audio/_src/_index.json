@@ -2860,6 +2860,60 @@
    "voice": "우성",
    "when": "2026-10-31"
   },
+  "287_narr-closing#0": {
+   "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "47_end-2-goodbye#0"
+  },
+  "287_narr-closing#1": {
+   "text": "남은 하루 행복하게 보내세요.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "47_end-2-goodbye#1"
+  },
+  "287_narr-closing#2": {
+   "text": "여기서부터는 작가님이 안내해 드립니다.",
+   "voice": "우성",
+   "when": "2026-10-14",
+   "from": "44_end-0-photo#0"
+  },
+  "288_narr-closing-guide#0": {
+   "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "47_end-2-goodbye#0"
+  },
+  "288_narr-closing-guide#1": {
+   "text": "남은 하루 행복하게 보내세요.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "47_end-2-goodbye#1"
+  },
+  "288_narr-closing-guide#2": {
+   "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "264_narr-photo-upload#0"
+  },
+  "288_narr-closing-guide#3": {
+   "text": "여기서부터는 작가님이 안내해 드립니다.",
+   "voice": "우성",
+   "when": "2026-10-14",
+   "from": "44_end-0-photo#0"
+  },
+  "289_narr-closing-soft#0": {
+   "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "47_end-2-goodbye#0"
+  },
+  "289_narr-closing-soft#1": {
+   "text": "여기서부터는 작가님이 안내해 드립니다.",
+   "voice": "우성",
+   "when": "2026-10-14",
+   "from": "44_end-0-photo#0"
+  },
   "28_letter-each#0": {
    "text": "이어서, 두 사람이 서로에게 마음을 담아 쓴 편지를 읽겠습니다.",
    "voice": "우성",
@@ -2870,6 +2924,54 @@
    "text": "신랑 신부는 마주 보고 서 주세요.",
    "voice": "우성",
    "when": "2026-10-22"
+  },
+  "290_narr-closing-soft-guide#0": {
+   "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "47_end-2-goodbye#0"
+  },
+  "290_narr-closing-soft-guide#1": {
+   "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "264_narr-photo-upload#0"
+  },
+  "290_narr-closing-soft-guide#2": {
+   "text": "여기서부터는 작가님이 안내해 드립니다.",
+   "voice": "우성",
+   "when": "2026-10-14",
+   "from": "44_end-0-photo#0"
+  },
+  "291_narr-closing-meal#0": {
+   "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "47_end-2-goodbye#0"
+  },
+  "291_narr-closing-meal#1": {
+   "text": "식사는 안내된 예약 시간에 두 사람과 함께 시작하겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-30",
+   "from": "266_narr-photo-pre-meal#3"
+  },
+  "291_narr-closing-meal#2": {
+   "text": "장소와 시간은 여러분이 받으신 모바일 청첩장의 하객 안내를 통해 확인해 주세요.",
+   "voice": "우성",
+   "when": "2026-10-30",
+   "from": "266_narr-photo-pre-meal#4"
+  },
+  "291_narr-closing-meal#3": {
+   "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-10-23",
+   "from": "264_narr-photo-upload#0"
+  },
+  "291_narr-closing-meal#4": {
+   "text": "여기서부터는 작가님이 안내해 드립니다.",
+   "voice": "우성",
+   "when": "2026-10-14",
+   "from": "44_end-0-photo#0"
   },
   "29_letter-both#0": {
    "text": "신랑 신부가 편지를 써 왔습니다.",
@@ -3592,6 +3694,6 @@
    "keepGap": true
   }
  },
- "_언제": "2026-10-31 · 687자리",
+ "_언제": "2026-10-31 · 704자리",
  "_왜통낭독": "[LETTER_WHOLE_TAKE] 43_parents-letter 는 통낭독이라 이 창고에 자리를 두지 않는다 — scripts/lib/whole-take.mjs 참고"
 }

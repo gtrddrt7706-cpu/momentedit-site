@@ -10379,7 +10379,7 @@ function renderPhoto(box){
          ③ narr-photo-split 가족 구도(«작가님이 순서대로 불러 드립니다»)  ④ narr-online-in 온라인 인사(디지털 참석 날만)  ⑤ narr-photo-out 남는 시간 자유 사진.
        ★셈 · 상한 · 저장 모양([PHOTO_CAP_40] · photo/photoWish/photoCaller/photoFriend)은 그대로 — 자리만 옮겼다. 흐름 줄(알약)을 되살리지 말 것. */
   var _scn=photoSceneList(PHOTOFLOW.rd);   // [PHOTO_SCENE] 요청 칸(1번)의 접힘 글이 먼저 읽는다 — 절 자체는 번호 줄 뒤에 그린다
-  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요. 시작할 때 안내 음성이 «촬영 차례가 아닌 분들은 자리에서 편히 쉬셔도 좋습니다»라고 알려요'+(PHOTOFLOW.meal==='yes'?' · 식사는 예약 시간에 두 분과 함께 시작해요':(PHOTOFLOW.meal==='no'?' · 촬영을 마치신 분들은 편히 돌아가셔요':''))+'.</div>';   /* ★[END_FLOW_1030 검토 167] 감사 인사는 닫는 인사가 맡는다 · 사진 전 안내(266 · 265)와 같은 말 */   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요. 마무리 인사가 끝나면 작가님 안내에 따라 진행해요'+(PHOTOFLOW.meal==='yes'?' · 식사는 예약 시간에 두 분과 함께 시작해요':(PHOTOFLOW.meal==='no'?' · 촬영을 마치신 분들은 편히 돌아가셔요':''))+'.</div>';   /* ★[CLOSING_LINE_1031 검토 178] 사진 «모여 달라»는 안내 음성이 아니라 작가님 몫 · 식사 · 귀가 말은 마무리 멘트(287 ~ 291)와 같은 말 */ /* [END_FLOW_1030 검토 167] 감사 인사는 닫는 인사가 맡는다 */   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   /* ★[PHOTO_RECONFIRM 2026-09-27] 예식 확인서를 이미 확정했으면 한 줄 — 여기서 고쳐 저장하면 확정이 풀린다(guideinfo 도 확정 스냅샷에 든다 · 80_production _prodConfirmVoid).
        말은 확인서 판의 «고치시면 확정이 풀려요» · 행의 «다시 확정»과 같게. 풀린 뒤(confirmStale)는 확인서 자리가 스스로 말하니 여기선 안 띄운다. */
   var _pdc=null; try{ _pdc=((window._mpStateD||{}).production)||null; }catch(e){}

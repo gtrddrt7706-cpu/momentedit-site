@@ -345,10 +345,11 @@ for (const [course, cv] of Object.entries(D.COURSES)) {
   const conCues = RC.build({ course }, { mode: 'console' }).cues;
   const fireBy = new Map();
   for (const c of conCues) {
-    if (fireBy.has(c.slug)) { bad(`slug 중복 '${c.slug}' (${course}) — 진행 방식 대조가 어긋난다`); continue; }
-    fireBy.set(c.slug, { fire: c.fire, atMin: c.atMin });
+    const fk = c.slug || ('@' + (c.actId || c.name));   // ★[CLOSING_LINE_1031] 소리 없는 동작 큐(slug '')는 actId 로 구분한다 — 사진 구간에 넷
+    if (fireBy.has(fk)) { bad(`slug 중복 '${fk}' (${course}) — 진행 방식 대조가 어긋난다`); continue; }
+    fireBy.set(fk, { fire: c.fire, atMin: c.atMin });
   }
-  const fireOf = (c) => fireBy.get(c.slug) || { fire: c.manualInConsole ? 'manual' : 'chain' };
+  const fireOf = (c) => fireBy.get(c.slug || ('@' + (c.actId || c.name))) || { fire: c.manualInConsole ? 'manual' : 'chain' };
   const nFire = (k) => cues.filter(c => fireOf(c).fire === k).length;
   const L = LETTER[course];
   const title = L ? `코스 ${L} "${cv.nm}"` : `코스 "${cv.nm}"`;
