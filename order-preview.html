@@ -3149,7 +3149,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1031cl';   // [ASSET_V] 위 주석
+  var ASSET_V='1031w2';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4513,7 +4513,7 @@ function _lSum(k){
   if(k==='prevideo') return (S.pvVoice==='couple'&&_vcOn()&&_recNeed('pv')&&!_vcToNar('pv')?'두 분 소개글 · 두 분 목소리':'나레이션 소개')   /* [R7-04] 목소리를 다 쓴 빈 줄은 나레이션(VC_TO_NAR) */+' → 두 분의 영상';   /* [ONEMIN_FIRST] 1분 전 안내는 영상 앞(하객 맞이) */   /* [R6-03] 하객 맞이 · 입장처럼 목소리를 보인다 · 판정은 ② own 과 같다(소개글이 비면 스튜디오 한 줄) */   // [PREVIDEO_FREE]
   if(k==='ring') return '말없이 반지를 끼워요 · 앞뒤로 나레이션';
   if(k==='_close') return '끝 인사와 박수 · 단체 사진은 맨 끝에';   // [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날 «→ 그 자리에서 단체 사진»은 차례와 다르다
-  if(k==='table') return '두 분이 함께 테이블을 돌며 인사 · 테이블마다 1분 30초쯤';   /* [CARD_ORDER_1031] «→ 모여서 단체 사진» 금지 — 테이블 인사 뒤는 축배 · 닫는 인사다(END_FLOW_1030) */   /* [TABLE_GREET_1008] */
+  if(k==='table') return '두 분이 함께 테이블을 돌며 인사 · 테이블마다 1분 30초쯤';   /* [CARD_ORDER_1031] 끝에 «단체 사진으로 간다»는 말을 붙이지 않는다 — 테이블 인사 뒤는 축배 · 닫는 인사다(END_FLOW_1030) */   /* [TABLE_GREET_1008] */
   if(k==='song') return '노래 한 곡 · 반주는 MR';   /* [SONG_BACK_1011] · [SONG_SELF_1011] 부르는 분은 가족 · 친구 · 두 분 누구든 */
   if(k==='candle') return _candleWho();
   if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'&&!_vcToNar('entry')?'두 분 목소리':'나레이션');   /* [R7-04] */   /* [ENTRY_OUT_OFF] 맞절 없음 · [MATJEOL_SPLIT_1013] 맞절은 다음 순간 */

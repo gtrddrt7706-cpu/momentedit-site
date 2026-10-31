@@ -20504,7 +20504,7 @@ chk 'SONG_CARD_SOLO_1031' assets/bgm-bed.js 4
 chk 'SONG_CARD_SOLO_1031' order-preview.html 1
 chk 'SONG_CARD_SOLO_1031' scripts/audit/bgm-preview.mjs 1
 chk 'lim.threshold.value=-1; lim.ratio.value=20; lim.attack.value=0.002; lim.release.value=0.15' assets/bgm-bed.js 1
-chk '나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1
+chk '나레이션과 함께 들어 보려면 아래 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1   # [BED_HINT_WHERE_1031] 단추는 곡 목록 아래
 nochk 'var ln=firstLine(k);' assets/bgm-bed.js 0
 # ── 2026-10-31 [CHEER_WINDOW_1031 BGM 섹션] bgm-preview D6 듣는 창 26초(축배 멘트 12.6초 · 꼬리 축배 곡 16.8초) — 16초로 되돌리면 CI bgm-sound 가 다시 빨갛다
 chk 'CHEER_WINDOW_1031' scripts/audit/bgm-preview.mjs 1
@@ -20561,7 +20561,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix-1030.mjs >/de
 chk "var LATE_ORDER = \['table', 'toast'\];" assets/ritual-open.js 1
 chk 'function capSec(S) { return Math.min(capEx(), (DAYMIN - SHORT_MIN) \* 60 - postSec(S)); }' assets/ritual-open.js 1
 chk "var CAP_MSG = { title: '이 순간을 담으려면 다른 순간을 하나 빼 주세요', body: '사진 시간을 지키기 위해서예요.' };" assets/ritual-open.js 1
-chk 'function _capNo(mut)' order-preview.html 1
+chk 'function _capNo(mut,add)' order-preview.html 1   # [CAP_NEED_1031]
 chk "'end-1a-farewell': 1, 'end-1c-thanks-nomeal': 1," assets/ritual-cue.js 1
 chk "'narr-photo-pre', 'narr-photo-pre-meal'" assets/ritual-cue.js 1
 chk "if (c.act) return done();" console.html 1
