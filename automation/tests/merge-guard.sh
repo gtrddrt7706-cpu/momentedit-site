@@ -20952,6 +20952,6 @@ nochk '촬영 안내 골라 틀기' console.html
 # ── 2026-10-31 [MUSIC_FOLD_PICK_1031 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 순간 쪽 음악 곡 목록도 입장 음악 추천 곡([MU_FOLD])처럼 고르는 순간 접는다 · «바꾸기»로 편 뒤 다시 고르면 또 접는다
 chk 'MUSIC_FOLD_PICK_1031' assets/bgm-bed.js 5
 chk 'MUSIC_FOLD_PICK_1031' scripts/audit/music-fold.mjs 1
-chk "function folded(sg){ return !!picked(sg)&&FM()[sg]!==0; }" assets/bgm-bed.js 1
+chk "function folded(sg){ return !!picked(sg)&&FM()\\[sg\\]!==0; }" assets/bgm-bed.js 1   # [CHK_BRACKET_1031] grep -e 라 [sg] 는 글자 묶음 — 대괄호를 이스케이프해야 이 줄이 맞는다
 nochk "if(!(sg in m)) m[sg]=cur?1:0;" assets/bgm-bed.js
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
