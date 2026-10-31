@@ -21152,4 +21152,8 @@ chk 'head: over.head ?? GAP.head' scripts/build-typecast-import.mjs 1
 chk 'NO_LEFT_LINE_1101' order-preview.html 1
 nochk "('남은 본식 시간 약 '+n+'분')" order-preview.html
 nochk "'본식 시간이 다 찼어요'" order-preview.html
+# ── 2026-11-01 식순 고객 걷기 4라운드 GPT 3건 판정분
+chk 'SITE_CUE_FIRST_1101' order-preview.html 1   # 원고 없이 현장에서 → 끝 신호로만 다 됨
+chk 'CUE_WORD_1101' order-preview.html 4
+chk 'while(L.length<_sh) L.push' order-preview.html 1   # [VOW_EMPTY_ADD_1031] 첫 누름에 줄이 는다
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
