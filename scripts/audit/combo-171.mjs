@@ -10,10 +10,11 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 const O = require(path.join(ROOT, 'assets/ritual-open.js')), C = require(path.join(ROOT, 'assets/ritual-cue.js'));
-const fam = (w) => { const S = O.applyExample({ course: 'open' }, 'family'); S.course = 'open'; S.declareWho = w; const cs = C.build(C.norm(S), { mode: 'console' }).cues; const i = cs.findIndex((c) => c.k === 'bless'); return { cs, i }; };
-{ const a = fam('신랑 아버님'), b = fam('친구 김민수');
-  { const z = fam(''); ok('C02 선언한 분 = 부모님이거나 안 적었으면 255 없이 덕담으로 이어 감(종전)', a.cs[a.i - 1].slug !== 'bridge-b9-declare-seat-end' && a.cs[a.i].fire !== 'manual' && z.cs[z.i - 1].slug !== 'bridge-b9-declare-seat-end'); }
-  ok('C02 다른 분이 선언하면 255(자리로) 뒤 디렉터 GO 로 덕담', b.cs[b.i - 1].slug === 'bridge-b9-declare-seat-end' && b.cs[b.i].fire === 'manual' && /마이크가 부모님께 넘어가면/.test(b.cs[b.i].hint || '')); }
+/* ★[DECL_TITLE_1031 검토 174] C02 는 글자 추측(«아버 · 어머»)을 걷고 «첫 덕담도 이어서» 답으로 가른다 — 네 = 255 없이 덕담 · 아니요 · 안 고름 = 255 → 디렉터 GO (decl-title.mjs 가 호칭 판까지 잰다) */
+const fam = (t, ans) => { const S = O.applyExample({ course: 'open' }, 'family'); S.course = 'open'; if (t) S.declTitle = t; if (ans) { S.declBless = ans; S.declBlessKey = O.declBlessKey(S); } const cs = C.build(C.norm(S), { mode: 'console' }).cues; const i = cs.findIndex((c) => c.k === 'bless'); return { cs, i }; };
+{ const a = fam('gdad', 'yes'), b = fam('other'), z = fam('');
+  ok('C02 선언한 분이 첫 덕담도 이어서(네) — 255 없이 덕담으로 이어 감', !/^bridge-b9-declare-seat-end/.test(a.cs[a.i - 1].slug) && a.cs[a.i].fire !== 'manual');
+  ok('C02 다른 분 · 안 고름 — 255(자리로) 뒤 디렉터 GO 로 덕담', b.cs[b.i - 1].slug === 'bridge-b9-declare-seat-end' && b.cs[b.i].fire === 'manual' && /마이크가 부모님께 넘어가면/.test(b.cs[b.i].hint || '') && z.cs[z.i - 1].slug === 'bridge-b9-declare-seat-end' && z.cs[z.i].fire === 'manual'); }
 { const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open'; const cs = C.build(C.norm(S), { mode: 'console' }).cues, e = cs.find((c) => /^narr-song-end/.test(c.slug || ''));
   ok('C03 축가 맺는 말 힌트 «마지막 음 · 잔향이 끝나면»(녹음이 박수를 이끈다)', !!e && e.hint === '마지막 음 · 잔향이 끝나면');
   S.songBy = 'self'; const s2 = C.build(C.norm(S), { mode: 'console' }).cues.find((c) => c.slug === 'narr-song');

@@ -583,6 +583,11 @@ function _declWhoLabel(k){
   v=v.replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,30);
   return v||'아직 안 정함';
 }
+/* ★[DECL_TITLE_1031 검토 174] 읽어 주실 분 = 호칭 칩(declTitle) — RitualOpen.declBy 와 같은 규칙(이 파일 한 벌 · declare-anyone 검사가 대조) ·
+     «그 밖의 분»은 칸 글(비면 «그 밖의 분») · 옛 데이터(칩 없음)는 칸 글 그대로(네 호칭과 같으면 그 호칭) · 안 고름은 «아직 안 정함» */
+function _declWhoOf(s3){ s3=s3||{}; var T={gdad:'신랑 아버님',bdad:'신부 아버님',gmom:'신랑 어머님',bmom:'신부 어머님'};   // DECL_TITLE_MIRROR
+  if(T[s3.declTitle]) return T[s3.declTitle];
+  var w=_declWhoLabel(s3.declareWho); if(s3.declTitle==='other') return w==='아직 안 정함'?'그 밖의 분':w; return w; }
 /* [ADM_AA2] 액션 라벨 동사 사전 — 같은 행위에 두 이름을 두지 않는다(큐 버튼·상세 버튼·모달 확인 버튼 모두 같은 동사).
      "…확인"   들어온 것을 맞다고 승인    : 입금 확인 · 중도금 확인 · 잔금 확인 · 변경 확인 · 추가 보정 입금 확인
      "…처리"   상태를 다음으로 넘기는 확정 : 상담완료 처리 · 결과물 전달 처리 · 환불 완료 처리 · 노쇼 처리 · 미계약 처리
@@ -1272,7 +1277,7 @@ function _declareCardDoc(d){
     +'.sp{height:7mm}'
     +'@page{size:A5 landscape;margin:12mm}@media print{body{min-height:0}}';
   return '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>낭독 카드 '+esc((d&&d.code)||'')+'</title><style>'+css+'</style></head><body>'
-    +'<div class="cnote">천천히 읽으셔도 됩니다.</div>'+body+'</body></html>';
+    +'<div class="cnote">'+(function(){ var w=_declWhoOf(rd.S||{}); return w&&w!=='아직 안 정함'?esc('읽는 분 · '+w)+' · ':''; })()+'천천히 읽으셔도 됩니다.</div>'+body+'</body></html>';   /* ★[DECL_TITLE_1031] 큰 본문은 사람이 읽을 선언문만 · 담당자 호칭은 위 작은 줄에 따로 */
 }
 function printDeclareCard(){
   var d=curDetail; var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||null;
@@ -3114,7 +3119,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
       +row('순서 흐름', (Array.isArray(sm3.flow)&&sm3.flow.length)?_admFlowFix(sm3.flow,s3d).join(' → '):'')   /* [CAKE_OLD_OFF_1017] */   /* [ADM_SUM_ESC] 배열 아니면(깨진 초안) 행만 비운다 — join 이 던져 상세가 통째로 죽던 것 */
-      +row('성혼 선언', _declOn(s3d)?('읽는 분 · '+_declWhoLabel(s3d.declareWho)):'')   // ★DECL_ADMIN_MIRROR · [DECLARE_ANYONE] 두 분이 적은 분(안 적었으면 «아직 안 정함») · 선언을 뺀 예식은 행 없음
+      +row('성혼 선언', _declOn(s3d)?('읽는 분 · '+_declWhoOf(s3d)+((s3d.declBless==='yes'||s3d.declBless==='no')?(' · 첫 덕담도 이어서 '+(s3d.declBless==='yes'?'네':'아니요')):'')):'')   /* [DECL_TITLE_1031] 호칭 · 덕담 이어 하기 답(호칭 · 순서가 바뀐 뒤의 옛 답은 빌더가 다시 묻는다) */   // ★DECL_ADMIN_MIRROR · [DECLARE_ANYONE] 두 분이 적은 분(안 적었으면 «아직 안 정함») · 선언을 뺀 예식은 행 없음
       +row('반지 교환', s3d.ring==='off'?'뺌':'')
       /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 부모님께 드릴 꽃 — 맡긴 예식은 주문해야 한다(별도 비용).
          초안(summary.goods)은 고객 기기가 만든 값이라 배열이 아니면 행을 비운다([ADM_SUM_ESC]). */

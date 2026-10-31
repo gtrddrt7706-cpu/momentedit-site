@@ -73,7 +73,7 @@ function judge(X) {
   if (!card) bad.push('③ 관리 화면에 _declareCardDoc 가 없다');
   else {
     const cx = { DECLBY: X.D.DECLBY, esc: (s) => String(s), _printNames: () => ({ ok: true, groom: '김민준', bride: '이서연' }) };
-    vm.createContext(cx); vm.runInContext(card, cx);
+    vm.createContext(cx); vm.runInContext(card, cx); for (const f of ['_declWhoLabel', '_declWhoOf']) { const w = fnSrc(A, f); if (w) vm.runInContext(w, cx); }   /* [DECL_TITLE_1031] 카드 작은 줄이 읽는 분 호칭을 부른다 */
     const txt = (declRef) => cx._declareCardDoc({ code: 'T', mirror: { production: { ritualDraft: { S: declRef ? { declRef } : {} } } } }).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     const nb = (s) => s.replace(/\s+/g, ' ');
     if (txt(0).indexOf(nb('이제 신랑 김민준 군과 신부 이서연 양은 오늘 함께해 주신 모든 분을')) < 0) bad.push('③ 낭독 카드(안 고름)가 예시 1 · 이름 꼴이 아니다');

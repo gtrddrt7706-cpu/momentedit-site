@@ -287,6 +287,13 @@ const G = [
     RO.narExClips().map((x) => { const who = (x.base.match(/^narr-candle-in-(\w+)$/) || [])[1]; const W = { mothers: '양가 어머님', fathers: '양가 아버님', parents: '양가 부모님 네 분', others: '다른 두 분' };
       return [`X-${x.slug}`, `${x.lab} 예시 ${x.n + 1} · ${x.name}${who ? ' · ' + W[who] : ''}${/-b$/.test(x.base) ? ' · 신부부터' : ''}`, x.slug, RC.EXTRA[x.slug]]; }),
     note: '고객이 순간마다 «○○ 멘트» 칩으로 고른다(안 고르면 예시 1 · 지금 녹음). 녹음 전엔 글로 먼저 보인다.\n편지 맺는 말(narr-letter-end-ex2)은 예시 2 · 3 이 같은 글이라 한 번만 녹음한다.' },
+  /* ★★[DECL_TITLE_1031 검토 174 · 사장님 «호칭으로 불러 드리는 게 예의»] 267 ~ 286 — 성혼 선언 여는 말(말투 넷 × 부모님 호칭 넷) · 자리로(호칭 넷).
+     앞 문장(말투)은 녹음된 그대로 빌려 쓰고 새로 받는 문장은 여덟(공통형 «오늘의 성혼 선언은 H께서 직접 해 주시겠습니다.» 넷 · «H께서는 자리로 돌아가셔도 좋습니다.» 넷) · 원천 ritual-open declInText · declSeatText */
+  { n: 16, t: '성혼 선언 · 호칭 판 (읽어 주실 분이 부모님일 때)', tone: '같은 말투의 호칭 없는 판(136 · 218 · 230 · 231 · 255)과 같은 결 · 호칭은 또렷하고 공손하게', items:
+    [].concat.apply([], ['gdad', 'bdad', 'gmom', 'bmom'].map((t) => ['', '-ex2', '-ex3', '-ex4'].map((ex, i) => { const sl = RO.declInSlug('narr-declare-in-friend' + ex, t);
+      return [`D-${sl}`, `성혼 선언 여는 말 · ${RO.NAR_EX.declare.names[i]} · ${RO.declLabel(t)}`, sl, RC.EXTRA[sl]]; })
+      .concat([[`D-${RO.declInSlug('bridge-b9-declare-seat-end', t)}`, `읽은 분 자리로 · ${RO.declLabel(t)}`, RO.declInSlug('bridge-b9-declare-seat-end', t), RC.EXTRA[RO.declInSlug('bridge-b9-declare-seat-end', t)]]]))),
+    note: '두 분이 «읽어 주실 분»에서 부모님 호칭을 고른 날만 나간다(그 밖의 분 · 안 고름은 호칭 없는 판). 녹음 전엔 글로 먼저 보인다.' },
 ];
 
 // ── 조립
