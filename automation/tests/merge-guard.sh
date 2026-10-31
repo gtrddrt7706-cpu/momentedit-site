@@ -21009,4 +21009,8 @@ chk 'PS_LINKS_HEAD_1031' order-preview.html 1
 chk '<h4 id="psLk">순간마다 담을 수 있는 장면</h4>' order-preview.html 1   # 한눈에 보기 · 완성은 «순간마다»
 chk 'DONE_PREP_IF_1031' order-preview.html 1   # 완성 — 준비할 것이 없으면 빈 머리 없음
 chk 'ENTRY_UNPICK_1031' assets/entry-music.js 1   # 입장 음악 — 안 고르면 «고르지 않으시면 스튜디오가 준비해요»
+# ── 2026-10-31 [PICKS_TRUE_1031 BGM 섹션] 곡 정보 글을 실제 받은 판에 맞춘다(B01 오케스트라 · B07 피아노 판 · B15 피아노 독주 · B16 · B24 · B22 판 이름) — B06 · B19 그대로
+chk 'PICKS_TRUE_1031' assets/bgm-picks.js 7
+nochk "a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View'" assets/bgm-picks.js 0
+nochk "B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet'" assets/bgm-picks.js 0
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
