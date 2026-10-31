@@ -20493,6 +20493,9 @@ chk 'SONG_CARD_SOLO_1031' scripts/audit/bgm-preview.mjs 1
 chk 'lim.threshold.value=-1; lim.ratio.value=20; lim.attack.value=0.002; lim.release.value=0.15' assets/bgm-bed.js 1
 chk '나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1
 nochk 'var ln=firstLine(k);' assets/bgm-bed.js 0
+# ── 2026-10-31 [CHEER_WINDOW_1031 BGM 섹션] bgm-preview D6 듣는 창 26초(축배 멘트 12.6초 · 꼬리 축배 곡 16.8초) — 16초로 되돌리면 CI bgm-sound 가 다시 빨갛다
+chk 'CHEER_WINDOW_1031' scripts/audit/bgm-preview.mjs 1
+nochk "const b6 = await listen(f, 'toast', 16000);" scripts/audit/bgm-preview.mjs 0
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1

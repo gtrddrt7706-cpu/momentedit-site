@@ -557,7 +557,7 @@
   "115_guest-ex2-1-arrival#0": {
    "text": "귀한 걸음 해 주신 여러분, 고맙습니다.",
    "voice": "진희",
-   "when": "2026-10-30",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "115_guest-ex2-1-arrival#1": {
@@ -595,7 +595,7 @@
   "119_guest-ex3-1-arrival#0": {
    "text": "귀한 걸음 해 주신 여러분, 고맙습니다.",
    "voice": "진희",
-   "when": "2026-10-30",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "119_guest-ex3-1-arrival#1": {
@@ -684,9 +684,9 @@
    "when": "2026-10-31"
   },
   "120_guest-ex3-2-10min#1": {
-   "text": "오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 마음껏 셔터를 눌러 주세요.",
+   "text": "오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 곁에서 마음껏 사진으로 담아 주세요.",
    "voice": "진희",
-   "when": "2026-10-24",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "121_guest-ex3-3-5min#0": {
@@ -923,7 +923,7 @@
   "136_narr-declare-in-friend#0": {
    "text": "오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.",
    "voice": "우성",
-   "when": "2026-10-22"
+   "when": "2026-10-31"
   },
   "137_narr-open#0": {
    "text": "오늘 두 사람을 축복해 주시기 위하여 먼 걸음 해 주신 하객분들께 양가를 대표하여 감사의 말씀을 드립니다.",
@@ -942,9 +942,10 @@
    "when": "2026-10-22"
   },
   "138_narr-candle-bow#0": {
-   "text": "양가 어머님 맞절.",
+   "text": "양가 어머님, 맞절.",
    "voice": "우성",
-   "when": "2026-10-30"
+   "when": "2026-10-31",
+   "keepGap": true
   },
   "138_narr-candle-bow#1": {
    "text": "양가 어머님 하객분들께 인사!",
@@ -1095,9 +1096,10 @@
    "keepGap": true
   },
   "146_narr-candle-bow-fathers#0": {
-   "text": "양가 아버님 맞절.",
+   "text": "양가 아버님, 맞절.",
    "voice": "우성",
-   "when": "2026-10-30"
+   "when": "2026-10-31",
+   "keepGap": true
   },
   "146_narr-candle-bow-fathers#1": {
    "text": "양가 아버님 하객분들께 인사!",
@@ -1241,7 +1243,7 @@
   "150_narr-open-ex4#0": {
    "text": "여러분, 안녕하세요.",
    "voice": "우성",
-   "when": "2026-10-30",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "150_narr-open-ex4#1": {
@@ -1707,7 +1709,7 @@
   "173_narr-bless-mid-ex3#0": {
    "text": "다음으로 부모님께서, 사랑하는 두 사람의 앞날을 축복하기 위한 덕담을 준비하셨다고 합니다.",
    "voice": "우성",
-   "when": "2026-10-22",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "173_narr-bless-mid-ex3#1": {
@@ -1787,7 +1789,7 @@
   "183_tribute-call-ex3#0": {
    "text": "존경과 감사의 마음을 담아 신랑 신부, 인사!",
    "voice": "우성",
-   "when": "2026-10-30",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "184_tribute-out-ex4#0": {
@@ -2209,8 +2211,7 @@
   "218_narr-declare-in-friend-ex2#1": {
    "text": "오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.",
    "voice": "우성",
-   "when": "2026-10-22",
-   "from": "136_narr-declare-in-friend#0"
+   "when": "2026-10-31"
   },
   "219_narr-close-ex2#0": {
    "text": "계속해서 신랑 신부와의 사진 촬영이 있겠습니다.",
@@ -2378,7 +2379,7 @@
   "230_narr-declare-in-friend-ex3#1": {
    "text": "오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.",
    "voice": "우성",
-   "when": "2026-10-24"
+   "when": "2026-10-31"
   },
   "231_narr-declare-in-friend-ex4#0": {
    "text": "다음은 성혼 선언입니다.",
@@ -2388,8 +2389,7 @@
   "231_narr-declare-in-friend-ex4#1": {
    "text": "오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.",
    "voice": "우성",
-   "when": "2026-10-22",
-   "from": "136_narr-declare-in-friend#0"
+   "when": "2026-10-31"
   },
   "232_narr-bless-end-ex2#0": {
    "text": "부모님의 소중한 말씀이셨습니다.",
@@ -2561,7 +2561,7 @@
   "252_narr-entry-bow-ex5#0": {
    "text": "신랑 신부, 서로 마주 보고 서 주십시오.",
    "voice": "우성",
-   "when": "2026-10-30",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "252_narr-entry-bow-ex5#1": {
@@ -3131,9 +3131,9 @@
    "when": "2026-10-23"
   },
   "40_toast-toast#0": {
-   "text": "자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다.",
+   "text": "다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다.",
    "voice": "우성",
-   "when": "2026-10-23",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "40_toast-toast#1": {
@@ -3214,9 +3214,9 @@
    "when": "2026-10-23"
   },
   "48_online-3-welcome#0": {
-   "text": "화면으로 보고 계신 분들, 반갑습니다.",
+   "text": "화면으로 함께해 주시는 여러분, 반갑습니다.",
    "voice": "진희",
-   "when": "2026-10-19",
+   "when": "2026-10-31",
    "keepGap": true
   },
   "49_bridge-4-wait-emotion#0": {
@@ -3692,6 +3692,106 @@
    "voice": "우성",
    "when": "2026-10-22",
    "keepGap": true
+  },
+  "267_narr-declare-in-friend-gdad#0": {
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "271_narr-declare-in-friend-ex2-gdad#1": {
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "275_narr-declare-in-friend-ex3-gdad#1": {
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "279_narr-declare-in-friend-ex4-gdad#1": {
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "268_narr-declare-in-friend-bdad#0": {
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "272_narr-declare-in-friend-ex2-bdad#1": {
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "276_narr-declare-in-friend-ex3-bdad#1": {
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "280_narr-declare-in-friend-ex4-bdad#1": {
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "269_narr-declare-in-friend-gmom#0": {
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "273_narr-declare-in-friend-ex2-gmom#1": {
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "277_narr-declare-in-friend-ex3-gmom#1": {
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "281_narr-declare-in-friend-ex4-gmom#1": {
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "270_narr-declare-in-friend-bmom#0": {
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "274_narr-declare-in-friend-ex2-bmom#1": {
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "278_narr-declare-in-friend-ex3-bmom#1": {
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "282_narr-declare-in-friend-ex4-bmom#1": {
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "283_bridge-b9-declare-seat-end-gdad#0": {
+   "text": "신랑 아버님께서는 자리로 돌아가셔도 좋습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "284_bridge-b9-declare-seat-end-bdad#0": {
+   "text": "신부 아버님께서는 자리로 돌아가셔도 좋습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "285_bridge-b9-declare-seat-end-gmom#0": {
+   "text": "신랑 어머님께서는 자리로 돌아가셔도 좋습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
+  },
+  "286_bridge-b9-declare-seat-end-bmom#0": {
+   "text": "신부 어머님께서는 자리로 돌아가셔도 좋습니다.",
+   "voice": "우성",
+   "when": "2026-10-31"
   }
  },
  "_언제": "2026-10-31 · 704자리",
