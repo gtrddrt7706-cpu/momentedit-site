@@ -36,6 +36,11 @@ if (direct) {
     mani = JSON.parse(fs.readFileSync(path.join(ROOT, MANI), 'utf8'));
     src = fs.readFileSync(path.join(ROOT, BUILDER), 'utf8');
   } catch (e) { console.log('FAIL 못 읽었다 — ' + e.message); process.exit(1); }
+  /* ★[CLIP_STATUS_1031 검토 175] 안 나는 녹음(retired · legacy · dormant · manual_off · 안 트는 배역 CAST_MUTE — scripts/lib/clip-status.mjs)은 쉼을 재지 않는다 · 숫자만 알린다(표 줄은 그대로 둔다 · 표시만) */
+  const { statusAny, PAUSE_OUT, countLine, liveNarration, LIVE_LINE } = await import('../lib/clip-status.mjs');
+  console.log(LIVE_LINE(liveNarration().length));
+  const _out = table.changes.filter((x) => PAUSE_OUT.has(statusAny(x.key)));
+  if (_out.length) { table = { ...table, changes: table.changes.filter((x) => _out.indexOf(x) < 0) }; { const _oc = [...new Set(_out.map((x) => x.key))]; console.log(`알림 안 나는 녹음 ${_oc.length}클립의 흐름 쉼 ${_out.length}곳은 세지 않음(${countLine(_oc)} · assets/audio/clip-status.json)`); } }
   const { bad, stale, hit } = scan(table, mani);
   for (const b of bad) console.log('FAIL ' + b);
   /* ★[FLOW_KEY_FRESH_1030 검토 168 덧붙임] 글을 바꾸는 PR 은 이 표의 열쇠(text · next)도 같은 PR 에서 새 글로 바꾼다 — 낡은 열쇠는 그 자리 쉼을 조용히 1.25초로 떨어뜨린다(#1423 뒤 149 · 224 실제로 그랬다) ·

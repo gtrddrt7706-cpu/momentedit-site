@@ -1,0 +1,190 @@
+{
+ "about": "[CLIP_STATUS_1031 검토 175] 안 나는 녹음 표시 — 파일 단위(열쇠 = «폴더/번호_이름») · 녹음 · 파일 · 번호는 그대로(표시만). 상태: retired(어디서도 안 남) · legacy(옛 저장분 전용 — 옛 코스 · «직접 녹음» 배역) · dormant(구조상 지금 차례에선 안 섬 · 실청은 «지금 안 남»으로 따로) · manual_off(수동 전용 · 당일 재생 안 함 — 콘솔 보조 단추 · 촬영 연출 판을 걷은 자리 · AUTO_ONLY_1031). ★원천이 따로 있는 것은 여기 적지 않는다: 나레이션 폐지 슬러그 = assets/ritual-cue.js RETIRED · 안 트는 배역 = assets/ritual-story.js CAST_MUTE(06 ~ 14 · 24 · 25 · 26) — 두 군데가 갈리지 않게 그쪽을 읽는다(scripts/lib/clip-status.mjs). 실청 · 쉼 도구 · check-recorded 는 retired + legacy + dormant + manual_off + CAST_MUTE 를 함께 뺀다. 검사 scripts/audit/clip-status.mjs",
+ "v": "1031c",
+ "clips": {
+  "narration/41_toast-cake": {
+   "s": "retired",
+   "why": "케이크 · 축배 «둘 다» 판 — 케이크 순간이 RETIRED(CAKE_OLD_OFF_1017) · 축배는 «축배만» 판 하나"
+  },
+  "narration/42_toast-both": {
+   "s": "retired",
+   "why": "케이크 · 축배 «둘 다» 판 — 케이크 순간 RETIRED · 축배 판 하나"
+  },
+  "narration/76_toast-both-b": {
+   "s": "retired",
+   "why": "케이크 · 축배 «둘 다» 판의 선창 — 케이크 순간 RETIRED · 축배 판 하나"
+  },
+  "narration/77_narr-cake-out": {
+   "s": "retired",
+   "why": "케이크 커팅 마무리 — 케이크 순간 RETIRED"
+  },
+  "narration/107_toast-both-pour-b": {
+   "s": "retired",
+   "why": "«둘 다» 판 + 와인 붓기의 선창 — 케이크 RETIRED · wine 칩은 «붓지 않음» 하나"
+  },
+  "narration/114_bridge-b6-lighter": {
+   "s": "retired",
+   "why": "이음말 편지 → 케이크 — 케이크 순간 RETIRED"
+  },
+  "narration/98_toast-pour-mix": {
+   "s": "retired",
+   "why": "두 와인 붓기 — wine 칩 none 뿐(엔진 norm 이 늘 none)"
+  },
+  "narration/99_toast-pour-family": {
+   "s": "retired",
+   "why": "양가 와인 붓기 — wine 칩 none 뿐"
+  },
+  "narration/101_narr-free-in-stage": {
+   "s": "retired",
+   "why": "준비한 순서 «공연» 여는 말 — free 칩에 stage 없음(옛 값도 norm 이 갈래로 옮긴다)"
+  },
+  "narration/104_narr-free-out-clap": {
+   "s": "retired",
+   "why": "준비한 순서 박수 맺는 말 — CLAP_FEW(우리 글의 박수 자리 셋)"
+  },
+  "narration/61_narr-round-open": {
+   "s": "retired",
+   "why": "테이블 돌기 여는 말 — NO_TABLE_ROUND"
+  },
+  "narration/63_narr-final-warn": {
+   "s": "retired",
+   "why": "마지막 한 장 예고 — NO_TABLE_ROUND"
+  },
+  "narration/64_narr-final-call": {
+   "s": "retired",
+   "why": "마지막 한 장 모이는 신호 — NO_TABLE_ROUND"
+  },
+  "narration/106_tribute-bow-groom": {
+   "s": "retired",
+   "why": "신랑 큰절 여는 말 — 큐 없음(GROOM_BOW_TIP · 화면 «원하시면 큰절» 안내는 글로만)"
+  },
+  "narration/88_guide-meal": {
+   "s": "retired",
+   "why": "식사 안내 — 사진 전 안내 266(END_FLOW_1030)이 식사 안내를 맡음"
+  },
+  "narration/29_letter-both": {
+   "s": "legacy",
+   "why": "옛 코스 편지(둘이 함께) — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/44_end-0-photo": {
+   "s": "legacy",
+   "why": "옛 코스 단체 사진 여는 말 — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/52_narr-entry-out": {
+   "s": "legacy",
+   "why": "옛 코스 입장 도착 멘트 — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/56_narr-toast-out": {
+   "s": "legacy",
+   "why": "옛 코스 축배 마무리 — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/59_narr-free-out": {
+   "s": "legacy",
+   "why": "옛 코스 자유 한 칸 마무리 — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/60_narr-photo-split": {
+   "s": "legacy",
+   "why": "옛 코스 사진 나눔 안내 — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/65_narr-photo-out": {
+   "s": "legacy",
+   "why": "옛 코스 마지막 닫는 말 — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/80_narr-entry-out-C": {
+   "s": "legacy",
+   "why": "옛 코스 입장 도착 멘트 C — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/81_narr-entry-out-D": {
+   "s": "legacy",
+   "why": "옛 코스 입장 도착 멘트 D — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/82_narr-entry-out-E": {
+   "s": "legacy",
+   "why": "옛 코스 입장 도착 멘트 E — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/83_narr-entry-out-F": {
+   "s": "legacy",
+   "why": "옛 코스 입장 도착 멘트 F — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/87_narr-toast-none": {
+   "s": "legacy",
+   "why": "옛 코스 축사 없음 안내(TOAST_NONE_OFF_1012 · 새 코스엔 없음) — 새 코스에선 안 나고, 옛 코스 저장분이 열리면 그대로 돈다"
+  },
+  "narration/112_bridge-b4-breath": {
+   "s": "dormant",
+   "why": "B4 «숨 고르기» — 부모님께 인사 뒤 본식 순간이 없어 지금 차례에선 안 선다 · 차례가 바뀌면 설 수 있어 살려 둔다"
+  },
+  "cast/01_guest-1": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/02_guest-2": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/04_guest-4": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/18_entry-A": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/19_entry-B": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/20_entry-C": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/21_entry-D": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/22_entry-E": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "cast/23_entry-F": {
+   "s": "legacy",
+   "why": "배역 예시(두 분이 직접 녹음해 보내는 자리) — 새 고객이 고르는 목소리 판은 «AI 두 분 목소리 / 스튜디오 나레이션» 둘뿐(_vpChoice · AI 판은 AI_NO_CAST 로 배역을 안 틂) · «직접 녹음»(couple) 옛 저장분이 열리면 그대로 난다"
+  },
+  "narration/43_parents-letter": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 «따로 쓰는 클립» 단추를 걷었다(당일 소리는 식순 큐가 자동으로 내는 나레이션만 · 필요하면 디렉터가 말로) · 혼주 편지(어른께 드리는 안내 페이지 parents.html 은 따로 assets/audio/parents-letter.mp3)"
+  },
+  "narration/22_narr-bless-open": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 «따로 쓰는 클립» 단추를 걷었다(당일 소리는 식순 큐가 자동으로 내는 나레이션만 · 필요하면 디렉터가 말로) · 어른 말씀 열기 · ★옛 가족 코스(family) 저장분에선 식순 큐가 그대로 낸다(legacy 와 같은 자리)"
+  },
+  "narration/69_fx-vshape": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로"
+  },
+  "narration/70_fx-clink": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로"
+  },
+  "narration/71_fx-wave": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로 · «신랑 신부,» 녹음 그대로 보존"
+  },
+  "narration/73_fx-lean": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로"
+  },
+  "narration/74_fx-clap": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로"
+  },
+  "narration/75_fx-selfie": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로 · «신랑 신부,» 녹음 그대로 보존"
+  },
+  "narration/109_fx-free": {
+   "s": "manual_off",
+   "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로"
+  }
+ }
+}

@@ -103,6 +103,10 @@ if (brokenUrl.length) no(`주소는 있는데 **그 파일이 없다** ${brokenU
   + brokenUrl.map(([k, u]) => `${k} → ${u}`).join('\n    '));
 console.log(`엔진이 부르는 자리 ${want.size}개 (폐지 ${retired.length}개 뺌: ${retired.join(' · ') || '없음'})`);
 
+/* ★[CLIP_STATUS_1031 검토 175] 안 나는 녹음 표시(retired · legacy · manual_off · 안 트는 배역 CAST_MUTE)는 실청 화면에서 일부러 뺀다 — 옛 코스 저장분이 부르는 legacy 도 «줄 없음»으로 세지 않고 몇 개인지만 적는다 */
+const { statusAny, LISTEN_OUT, countLine } = await import('./lib/clip-status.mjs');
+const _markedOut = [...want.keys()].filter((id) => LISTEN_OUT.has(statusAny(id)));
+if (_markedOut.length) { for (const id of _markedOut) want.delete(id); console.log(`  안 나는 녹음 표시로 실청에서 뺀 자리 ${_markedOut.length}개(${countLine(_markedOut)} · assets/audio/clip-status.json)`); }
 /* ① 목록에 있는가 */
 const noRow = [...want.entries()].filter(([id]) => !rows.has(id));
 /* ② 소리가 실려 있는가 — 합성 클립(mix)은 재료에서 만드는 것이라 소리가 없을 수 있다 */

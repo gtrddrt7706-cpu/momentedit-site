@@ -9463,7 +9463,9 @@ nav .nav-links a, .nav-links a, .f-links a {
     legacy();
   };
   var sf=document.getElementById('meShareFab');
-  if(sf) sf.addEventListener('click', function(){ meShareSite(sf.querySelector('.me-fab-cap')); });
+  /* ★[FAB_SHARE_COPIED 2026-10-31] «복사됨»은 이름표(.me-fab-nm · [FAB_NAMES_1031])에 1.6초 — 종전 .me-fab-cap 은 늘 display:none 이라
+     공유 시트가 없는 PC(맥 크롬 · 파이어폭스)에서 복사해도 아무 표시가 없었다. 이름표가 아직 없으면(파일 전) 아래 알림(meToast) */
+  if(sf) sf.addEventListener('click', function(){ meShareSite(sf.querySelector('.me-fab-nm')); });
 })();
 </script>
 <script>
