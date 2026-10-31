@@ -44,8 +44,9 @@ try {
       R.applyExample(S, 'family'); S.on.ring = 1; S.on.free = 1; opSync(); render(); await new Promise((x) => setTimeout(x, 200));
       out.over = [...document.querySelectorAll('.pk-left')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.textContent);
       return out; });
-    const msg = '이 순간을 담으려면 다른 순간을 하나 빼 주세요사진 시간을 지키기 위해서예요.';
-    ok(W + ' 가장 긴 예시(' + r.lk + ')에서 담기 ' + r.fam.length + '개 — 모두 막히고 창 «이 순간을 담으려면 … 사진 시간을 지키기 위해서예요.»', r.fam.length > 0 && r.fam.every((x) => !x.added && x.t.indexOf(msg) === 0), JSON.stringify(r.fam.filter((x) => x.added || x.t.indexOf(msg) !== 0)));
+    const msg = '이 순간을 담으려면 본식을 약 ';   /* [CAP_NEED_1031] «… 약 n분 덜어 주세요» + «다른 순간을 빼거나 길이를 줄여 주세요 · 사진 시간을 지키기 위해서예요.» */
+    const capOk = (t) => { const u = String(t).replace(/[\u2060\u200b\u00ad]/g, '').replace(/\s+/g, ' '); return u.indexOf(msg) === 0 && /약 \d+분 덜어 주세요 ?다른 순간을 빼거나 길이를 줄여 주세요 · 사진 시간을 지키기 위해서예요\.(확인)?$/.test(u); };
+    ok(W + ' 가장 긴 예시(' + r.lk + ')에서 담기 ' + r.fam.length + '개 — 모두 막히고 창 «이 순간을 담으려면 … 사진 시간을 지키기 위해서예요.»', r.fam.length > 0 && r.fam.every((x) => !x.added && capOk(x.t)), JSON.stringify(r.fam.filter((x) => x.added || !capOk(x.t)).map((x) => [x.k, x.added, [...x.t].slice(0, 30).map((c) => c.charCodeAt(0).toString(16)).join(' ')])));
     ok(W + ' 간결 예시에서는 담기가 된다', r.br.added && !r.br.t, JSON.stringify(r.br));
     ok(W + ' 길이 칩(축사 길이)도 상한 밖으로 못 늘린다', r.len.ok, JSON.stringify(r.len));
     ok(W + ' 담는 쪽 한 줄 «남은 본식 시간 약 n분»이 하나 보인다', r.line.length === 1 && /^남은 본식 시간 약.\d+분$|^본식 시간이 다 찼어요$/.test(r.line[0]), JSON.stringify(r.line));
