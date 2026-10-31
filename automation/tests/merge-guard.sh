@@ -19982,7 +19982,8 @@ nochk 'class="pk-gh"' dress.html 0
 chk 'DRESS_Q_TRIM' assets/dress-refs.js 2                                  # «아직 몰라요» 걷기 · 셋째 걸음 «노출 · 소매»(옛 저장본 unsure 는 서버 · cleanAns 가 그대로 받는다)
 nochk "'unsure', '아직 몰라요'" assets/dress-refs.js 0
 nochk "step: '편한 쪽'" assets/dress-refs.js 0
-chk "step: '노출 · 소매'" assets/dress-refs.js 1
+chk "step: '어깨 · 팔'" assets/dress-refs.js 1                                  # [DRESS_Q3_ARMS 1031] 셋째 걸음 이름 «노출 · 소매» → «어깨 · 팔»
+nochk "step: '노출 · 소매'" assets/dress-refs.js 0
 chk 'DRESS_MEMO_ONEBTN' dress.html 3                                       # 완료 화면 단추 하나 — 글을 고치면 «남기고 돌아가기»(저장 + 돌아가기 · 실패 한 줄은 단추 아래)
 nochk 'id="pkLeave"' dress.html 0                                              # 작은 «남기기» 알약 되살리기 금지(나가기 판이 한 번 더 떴다)
 # ★[DRESS_BAR_FIT 라운드 1 · 2 «390 · 1280 목록 · 자세히에서 막대에 반쯤 걸린 글 0»] 첫 화면에서 막대 선이 글줄을 가르지 않게 — 사진 폭(자세히) · 그리드 위 여백(목록)을 몇 px 맞춘다.
@@ -20041,9 +20042,10 @@ chk '마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교�
 nochk "subs=\['상담 전에 드레스를" mypage.html 0
 nochk 'pk-skipq' dress.html 0
 nochk '질문 없이 바로 보기 <span' dress.html 0
-chk 'DRESS_Q3_SUB' assets/dress-refs.js 1                                  # 셋째 물음 보조 글 «해당하는 것을 모두 골라 주세요.»(DRESS_Q_FIRST · 하나 이상 골라야 다음)
-chk "sub: '해당하는 것을 모두 골라 주세요.'" assets/dress-refs.js 1
-chk "\['none', '특별한 선호는 없어요'\]" assets/dress-refs.js 1
+# [DRESS_Q3_ARMS 1031] 셋째 물음은 하나만 고른다(one:true) — 옛 보조 글 «해당하는 것을 모두 골라 주세요.» · «특별한 선호는 없어요»는 걷었다(옛 답 none 은 cleanAns 가 any 로)
+nochk "sub: '해당하는 것을 모두 골라 주세요.'" assets/dress-refs.js 0
+nochk "'특별한 선호는 없어요'" assets/dress-refs.js 0
+chk "\['any', '아직 모르겠어요'\]" assets/dress-refs.js 2
 chk "pref: \['low', 'arms', 'none'\]" automation/consultation/consultation-booking.gs 1   # [DRESS_PREF_NONE] 서버도 «특별히 없어요»를 받는다
 chk 'DRESS_FORM_1024' dress.html 3                                         # ★폼 디자인(물음 22 · 24 · 보기 16 · 칸 76 · 52 · PC 2열 132 · 막대 72 · 80 · 진사 주 단추) — 코워크 «상담 전 둘러보기» 완성도
 chk 'DRESS_FORM_1024' assets/dress-refs.js 1
@@ -20054,7 +20056,7 @@ chk 'DRESS_DETAIL_FIELDS' dress.html 2                                     # 자
 chk 'DRESS_DETAIL_FIELDS' assets/dress-refs.js 2
 chk "q: '어느 정도 길이가 마음에 드세요?'" assets/dress-refs.js 1
 chk "q: '어떤 라인이 마음에 드세요?'" assets/dress-refs.js 1
-chk "q: '노출과 소매는 어느 쪽이 좋으세요?'" assets/dress-refs.js 1
+chk "q: '어깨와 팔은 어떤 쪽이 마음에 드세요?'" assets/dress-refs.js 1          # [DRESS_Q3_ARMS 1031]
 chk "step: '라인'" assets/dress-refs.js 1
 nochk '이런 드레스가 편하신가요' assets/dress-refs.js 0
 nochk '특별히 없어요' assets/dress-refs.js 0
@@ -20146,6 +20148,20 @@ chk 'DRESS_MEM_CLOSE' scripts/audit/dress-tabs.mjs 2
 chk 'DRESS_ACC_ALIGN' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_FAB_LATEST' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_NM_HOVER' scripts/audit/dress-tabs.mjs 1
+# ★★[DRESS_SET_1031 코워크 · 사장님 «추천대로 진행» · 한국 인기 조사] 드레스 예시 일곱(새 두 벌 · 옛 S06 엠파이어 긴소매 뺌) · 물음 2 «아직 모르겠어요» · 물음 3 «어깨 · 팔»(하나만)
+chk "{ id: 'S07', name: '스타일 예시 01 · 드레이프 새틴 A라인'" assets/dress-refs.js 1
+chk "{ id: 'S08', name: '스타일 예시 03 · 잔레이스 A라인 · 볼레로'" assets/dress-refs.js 1
+nochk "{ id: 'S06', name:" assets/dress-refs.js                                           # [DRESS_SET_1031] 옛 엠파이어 긴소매 — 되살리지 말 것
+chk "{ key: 'pref', step: '어깨 · 팔', q: '어깨와 팔은 어떤 쪽이 마음에 드세요?', multi: true, one: true, none: 'any'," assets/dress-refs.js 1   # [DRESS_Q3_ARMS]
+chk "src.indexOf('arms') >= 0 ? 'sleeve'" assets/dress-refs.js 1                         # [DRESS_OLD_ANS] 옛 답을 새 보기로
+chk "function afterList(){ return R.list().slice(); }" dress.html 1                      # [DRESS_SET_1031] 원천 순서
+chk "if (q.multi && q.one) S.ans\[q.key\] = \[a\];" dress.html 1                              # [DRESS_Q3_ARMS] 하나만 고름
+chk 'DRESS_SET_1031' scripts/audit/dress-refs.mjs 2
+chk 'DRESS_Q3_ARMS' scripts/audit/dress-refs.mjs 3
+chk 'DRESS_OLD_ANS' scripts/audit/dress-refs.mjs 1
+chk 'DRESS_SET_1031' scripts/audit/dress-tabs.mjs 1
+chk "{ t: '디테일', img: 'n03-detail' }" assets/dress-refs.js 1                     # [DRESS_N03_DETAIL] 새 두 벌도 세 장
+chk 'DRESS_N03_DETAIL' scripts/audit/dress-tabs.mjs 1
 # ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
 chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
 chk '<script src="/assets/fab-names.js" defer></script>' index.html 1
