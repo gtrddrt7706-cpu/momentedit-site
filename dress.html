@@ -699,7 +699,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
   var GUIDE_END = AFTER ? ''
     : '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class="dotln">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';   // [DRESS_FORM_1024] 한 줄 더
   /* ★[DRESS_TABS_1030] 드레스 탭 = 스타일 예시 여섯 벌 · 늘 같은 순서(S01 → S06 · 답과 상관없이) · 자세히의 이전/다음도 이 순서 */
-  function afterList(){ return R.list().slice(); }   // ★[DRESS_SET_1031] 원천 배열 순서 그대로(«스타일 예시 01 → 07») — id 는 옛 저장본 때문에 그대로 두어 순서와 다르다(S07 · S01 · S08 …)
+  function afterList(){ return R.list().slice(); }   // ★[DRESS_SET_1031] 원천 배열 순서 그대로(«스타일 예시 01 → 10» · [DRESS_TEN_1031]) — id 는 옛 저장본 때문에 그대로 두어 순서와 다르다(S07 · S01 · S08 …)
   function accOn(){ return !!(R.accList && R.accList().length); }
   function tabsHTML(){
     var ds = afterList();
