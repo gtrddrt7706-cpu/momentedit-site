@@ -94,8 +94,8 @@ for (const w of [360, 1280]) {
   await pg.click('[data-fk="mkupdel:g0"]'); await pg.waitForTimeout(250); await pg.click('.ord-ask .oa-yes'); await pg.waitForTimeout(400);   // [REC_DLG] 브라우저 confirm 대신 우리 판
   const d1 = await pg.evaluate(() => ({ up: S.up.g0, couple: _lSteps(ENG, ['guest']).filter((x) => x.couple).length, rec: !!document.querySelector('[data-fk="mkrec:g0"]') }));
   ok(`${w} [지우기] → 그 줄은 다시 예시 · 나레이션 · [녹음] 이 돌아온다`, !d1.up && d1.couple === 0 && d1.rec, JSON.stringify(d1));
-  const tk = await pg.evaluate(() => { mkGo('vow'); render(); return { live: document.querySelectorAll('.mk-flow li.t .vk-live').length, narr: document.querySelectorAll('.mk-flow .vk-narr').length }; });
-  ok(`${w} 서약 — 두 분 차례는 «당일 직접»(기본 번갈아 = 한 줄 [VOW_HOW]) · 여는 말 · 맺는 말은 «나레이션»`, tk.live === 1 && tk.narr >= 2, JSON.stringify(tk));
+  const tk = await pg.evaluate(() => { mkGo('vow'); render(); return { live: document.querySelectorAll('.mk-flow li.t .vk-live').length, narr: document.querySelectorAll('.mk-flow .vk-narr').length, vk: document.querySelectorAll('.mk-flow .vk').length }; });
+  ok(`${w} 서약 — 줄 옆 «당일 직접» · «나레이션» 표 없음 [TAG_OFF_1101 · 11/01 사장님 «부수 설명들 전부 없애도»]`, tk.live === 0 && tk.narr === 0 && tk.vk === 0, JSON.stringify(tk));
   /* [RESTART_KEEP_REC] 다시 만들기 — 고른 것은 비우고 올린 녹음은 남긴다 · 확인 창이 그렇게 말한다 */
   await pg.evaluate(() => { S.up = S.up || {}; S.up.g1 = { id: 'local:t1', n: 't.wav' }; opRestart(); }); await pg.waitForTimeout(200);
   const rs0 = await pg.evaluate(() => (document.querySelector('.ord-ask .oa-d') || {}).textContent || '');
