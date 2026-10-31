@@ -21145,6 +21145,9 @@ chk 'REFILL_EXN_1031' order-preview.html 2
 chk 'SV_HEAD_EXACT_1031' order-preview.html 2
 chk 'function _svHeadOf(k,peak)' order-preview.html 1
 chk 'FAT_NOT_KEY_1031' order-preview.html 2
+# ── 2026-11-01 [CLOSING_HEAD_1031 검토 179 대본] 마무리 멘트 287 ~ 296 앞 무음 0.4 → 0.7(닫는 인사 → 마무리 사이 조금 길게)
+chk "if (/^narr-closing/.test(file)) return { head: 0.7 };" scripts/build-typecast-import.mjs 1
+chk 'head: over.head ?? GAP.head' scripts/build-typecast-import.mjs 1
 # ── 2026-11-01 [NO_LEFT_LINE_1101 사장님 «남은 본식 시간 약 1분 이런 건 없어도 될 것 같아»] ① 담는 쪽 남은 시간 줄 삭제 — 되살리지 말 것
 chk 'NO_LEFT_LINE_1101' order-preview.html 1
 nochk "('남은 본식 시간 약 '+n+'분')" order-preview.html
