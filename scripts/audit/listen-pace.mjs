@@ -8,11 +8,12 @@
    P5 따라가기 — 줄이 바뀌면 지금 줄이 화면 가운데쯤 · 손으로 스크롤(바퀴)하면 그 재생 동안 따라가기 멈춤
    P6 쪽 오류 0 · 390 · 1280 · SHOT=폴더(그림)
    P7 직접 말하는 차례(○ · 편지 낭독 · 축사)도 같은 규칙 — 멈춤 est ÷ 12 · «실제로는 약 …» · 음악은 그 큐의 사람 구간 크기(ldk)
+   P10 ~ P13 [LISTEN_LOOK_LEVEL_1101] 줄 톤(지금 줄만 진하게) · 끝까지 들으면 여운(−8 · 5초 · 3초에 잦아듦) · 여운 중 ⏹ 1.5초 · 이어 듣기 순간 사이 끊김 없음 · BP_BED=<bgm-bed.js 경로>(깨 보기)
    BP_OP=<order-preview.html 경로>(그 판으로 잰다 — 깨 보기 · 옛 판은 빨강)  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
-const OP = process.env.BP_OP || '', SHOT = process.env.SHOT || '';
+const OP = process.env.BP_OP || '', BED = process.env.BP_BED || '', SHOT = process.env.SHOT || '';
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 600)}`); if (!c) fail++; };
@@ -43,7 +44,7 @@ window.addEventListener('message',function(ev){ var d=ev.data||{}; if(ev.origin!
 const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]);
   if (u === '/__harness.html') { r.writeHead(200, { 'Content-Type': 'text/html' }); r.end(HARNESS); return; }
   if (/^\/assets\/audio\/narration\/.+\.mp3$/.test(u)) { r.writeHead(200, { 'Content-Type': 'audio/wav' }); r.end(SHORT); return; }
-  const p = (OP && u === '/order-preview.html') ? OP : path.join(ROOT, u);
+  const p = (OP && u === '/order-preview.html') ? OP : (BED && u === '/assets/bgm-bed.js') ? BED : path.join(ROOT, u);
   fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); srv.close(); process.exit(2); }
@@ -137,6 +138,38 @@ try {
       ok(`${W} P7 ${k} 흐를 때 «실제로는 ${want && want[1]}» · 그 줄이 지금`, !!mid && /실제로는 약/.test(mid.estT) && mid.estT.indexOf(want[1]) > -1 && mid.now.includes(t.li), mid && { estT: mid.estT, now: mid.now });
       ok(`${W} P7 ${k} 그동안 음악 = 사람 구간 크기(ldk ${t && t.s[0].ldk})`, !!t && t.s.slice(-3).every((x) => x.ldk == null || Math.abs(x.want - x.ldk) < 0.6 || (x.ldk > -80 && Math.abs(x.want - (x.ldk - 6)) < 0.6)), t && t.s.slice(-3).map((x) => [x.f, x.want, x.ldk]));
     }
+    /* ★[LISTEN_LOOK_LEVEL_1101] P10 줄 톤(지금 줄만 진하게 · 나머지 --sub · ▶ 원 옅게 · 움직임 줄이기면 전환 없음) · P11 끝까지 들으면 여운(−8 → 5초 → 3초에 잦아듦) · P12 여운 중 ⏹ = 1.5초 · P13 이어 듣기 순간 사이 끊김 없음 */
+    { await pg.emulateMedia({ reducedMotion: 'reduce' }); await go(f, 'ring'); await f.evaluate(() => { window.scrollTo(0, 0); lsPlay('ring'); }); await wait(f, 8500);
+      const tone = await f.evaluate(() => { const ul = document.querySelector('.mk-flow.lp-on'); if (!ul) return null; const probe = document.createElement('span'); probe.style.color = 'var(--sub)'; document.body.appendChild(probe); const sub = getComputedStyle(probe).color; probe.remove();
+        const lis = [...ul.querySelectorAll(':scope>li')], ni = lis.findIndex((x) => x.classList.contains('lp-now')), C = (el) => getComputedStyle(el).color, O = (el) => { const p = el.querySelector('.mk-pl'); return p ? +getComputedStyle(p).opacity : null; };
+        return { sub, ni, n: lis.length, now: ni > -1 ? C(lis[ni]) : null, nowO: ni > -1 ? O(lis[ni]) : null, after: lis.slice(ni + 1).map(C), before: lis.slice(0, Math.max(0, ni)).map(C), restO: lis.filter((x, j) => j !== ni).map(O).filter((v) => v != null), tr: getComputedStyle(lis[0]).transitionDuration, flows: document.querySelectorAll('.mk-flow.lp-on').length }; });
+      ok(`${W} P10 줄 톤 — 지금 줄만 진하게 · 지나간 줄 · 남은 줄 모두 --sub · ▶ 원 옅게(지금 줄은 그대로) · 묶음 하나만 · 움직임 줄이기면 전환 없음`, !!tone && tone.ni > -1 && tone.now !== tone.sub && tone.after.length > 0 && tone.after.every((c) => c === tone.sub) && tone.before.every((c) => c === tone.sub)
+        && (tone.nowO == null || tone.nowO === 1) && tone.restO.length > 0 && tone.restO.every((o) => o < 0.6) && tone.flows === 1 && /^0s/.test(tone.tr), tone);
+      await f.evaluate(() => lsStop()); await wait(f, 300);
+      const back = await f.evaluate(() => ({ on: document.querySelectorAll('.mk-flow.lp-on').length, op: [...document.querySelectorAll('.mk-flow>li .mk-pl')].map((p) => +getComputedStyle(p).opacity).filter((o) => o < 1).length }));
+      ok(`${W} P10 ⏹ 로 멈추면 톤을 모두 되돌린다`, back.on === 0 && back.op === 0, back);
+      await pg.emulateMedia({ reducedMotion: 'no-preference' });
+      /* P11 · P12 — ring 을 끝까지 듣는다 */
+      const toEnd = async () => f.evaluate(async () => { lsPlay('ring'); const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { if (!LP.q.length || performance.now() - t0 > 60000) { clearInterval(iv); res(); } }, 50); }); return performance.now() - t0; });
+      await go(f, 'ring'); const took = await toEnd();
+      const tail = await f.evaluate(async () => { const B = BgmBed._t.BED, o = [], t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { o.push({ t: performance.now() - t0, who: B.who, src: !!B.cur.src, want: B.cur.want }); if (performance.now() - t0 > 10500) { clearInterval(iv); res(); } }, 100); }); return o; });
+      const at = (ms) => tail.reduce((a, x) => (Math.abs(x.t - ms) < Math.abs(a.t - ms) ? x : a), tail[0]);
+      const a1 = at(300), a2 = at(1600), a3 = at(5800), a4 = at(7400), a5 = at(10300);
+      ok(`${W} P11 끝까지 들으면 여운 — 1.2초에 큐 사이 크기(−8)로 · 5초 흐른 뒤 3초에 잦아들며 끝`, took < 60000 && a1.who === 'tail' && a1.src && a2.src && a2.want >= -8.5 && a3.src && a3.want >= -8.5 && a4.src && a4.want === -90 && !a5.src && a5.who === '', { took: Math.round(took), a1, a2, a3, a4, a5 });
+      await go(f, 'ring'); await toEnd(); await wait(f, 2000); await f.evaluate(() => lsStop());
+      const s12 = await f.evaluate(async () => { await new Promise((r) => setTimeout(r, 1800)); const B = BgmBed._t.BED; return { who: B.who, src: !!B.cur.src }; });
+      ok(`${W} P12 여운 중 ⏹ — 지금처럼 1.5초에 잦아든다`, s12.who === '' && !s12.src, s12);
+      /* P13 순간이 바뀌는 사이(lpGap) — 말 줄(−16) 크기였어도 큐 사이 크기(−8)로 올라 이어 흐른다(새 순간 뜸이 그 뒤를 받는다) */
+      await go(f, 'ring'); const g13 = await f.evaluate(async () => { lsPlay('ring'); const t0 = performance.now(), B = BgmBed._t.BED; let st = null;
+        await new Promise((res) => { const iv = setInterval(() => { const q = LP.q[LP.i]; if ((q && !q.act && !q.talk && !q.said && B.cur.src && B.cur.want <= -10) || performance.now() - t0 > 15000) { st = q; clearInterval(iv); res(); } }, 50); });
+        const before = B.cur.want; BgmBed.lpGap({ k: 'ring' }, { k: 'toast' }, 1200); const after = B.cur.want, src = !!B.cur.src; try { lsStop(); } catch (x) {} return { before, after, src, k: st && st.k }; });
+      ok(`${W} P13 순간이 바뀌는 사이 — 말 줄 크기(${g13.before})였어도 큐 사이 크기(−8)로 올라 이어 흐른다`, g13.before <= -10 && g13.after >= -8.5 && g13.src, g13);
+      /* P13 이어 듣기(크게 보기 · 화촉 → 반지) — 순간이 바뀔 때 음악을 끄지 않고 −8 로 이어 흐른다 */
+      const r13 = await f.evaluate(async () => { const o = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['candle', 'ring'], true); _lFull(); const t0 = performance.now();
+        await new Promise((res) => { const iv = setInterval(() => { try { const st = LP.q[LP.i], B = BgmBed._t.BED; o.push({ t: performance.now() - t0, k: st && st.k, i: LP.i, src: !!B.cur.src, who: B.who, want: B.cur.want, f: B.cur.f }); if ((st && st.k === 'ring' && st.src && LP.i > 0 && LP.q.slice(0, LP.i).some((x) => x.k === 'ring' && x.src)) || performance.now() - t0 > 70000) { clearInterval(iv); res(); } } catch (x) {} }, 100); });
+        try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return o; });
+      const s0 = r13.findIndex((x) => x.src), bi = r13.findIndex((x) => x.k === 'ring'), gap = r13.slice(s0 > -1 ? s0 : 0).filter((x) => !x.src), atB = r13.slice(Math.max(0, bi - 2), bi + 3);
+      ok(`${W} P13 이어 듣기 — 화촉 → 반지 사이 음악이 끊기지 않는다 · 경계에서 큐 사이 크기(−8) 이상`, s0 > -1 && bi > s0 && !gap.length && atB.every((x) => x.src && x.want >= -8.5), { s0, bi, gapN: gap.length, gap: gap.slice(0, 3), atB }); }
     /* P5 손으로 스크롤하면 따라가기 멈춤 */
     await go(f, 'tribute'); await f.evaluate(() => { window.scrollTo(0, 0); lsPlay('tribute'); }); await wait(f, 4200);
     await f.evaluate(() => { window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40 })); window.scrollTo(0, 0); }); const y0 = await f.evaluate(() => scrollY); await wait(f, 6000);

@@ -1516,6 +1516,13 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-flow li.q .qa{font-weight:500}
 /* ★[LISTEN_PACE_1031] 이 순간 전체 듣기 — 지금 줄 = 지금 글 색 그대로(진하게) · 지나간 줄 = 한 단계 옅게(--sub) · 남은 줄 = 그대로 · 행동 줄이 지금이면 글 600 + 점 둘레 진사 테 · 새 색 · 새 아이콘 없음 */
 .mk-flow li.lp-past,.mk-flow li.lp-past .qa,.mk-flow li.lp-past b{color:var(--sub)}
+/* ★[LISTEN_LOOK_LEVEL_1101 ① 사장님 «재생되지 않는 부분은 글씨 톤을 낮추면?»] 듣는 동안 그 순간 줄 묶음(.lp-on)은 지금 줄만 진하게 · 지나간 줄 · 남은 줄 모두 --sub ·
+   머리 이름 · ▶ 원 · 점 · 세로선도 같은 단계로 옅게(지금 줄 ▶ 원은 그대로) · 멈추면(⏹ · 끝) .lp-on 이 걷혀 모두 되돌림 · 새 색 없음 */
+.mk-flow.lp-on>li:not(.lp-now),.mk-flow.lp-on>li:not(.lp-now) .qa,.mk-flow.lp-on>li:not(.lp-now) b,.mk-flow.lp-on>li:not(.lp-now) .mk-ln{color:var(--sub)}
+.mk-flow.lp-on>li:not(.lp-now) .mk-pl,.mk-flow.lp-on>li:not(.lp-now)::after,.mk-flow.lp-on>li:not(.lp-now)::before{opacity:.45}
+.mk-flow>li,.mk-flow>li .qa,.mk-flow>li b,.mk-flow>li .mk-ln{transition:color .3s ease}
+.mk-flow>li .mk-pl,.mk-flow>li::after,.mk-flow>li::before{transition:opacity .3s ease}
+@media (prefers-reduced-motion:reduce){.mk-flow>li,.mk-flow>li .qa,.mk-flow>li b,.mk-flow>li .mk-ln,.mk-flow>li .mk-pl,.mk-flow>li::after,.mk-flow>li::before{transition:none}}
 .mk-flow li.q.lp-now .qa{font-weight:600}
 .mk-flow li.q.lp-now::after{box-shadow:0 0 0 3px var(--bg),0 0 0 4px var(--seal)}
 .mk-flow li .lp-est{margin-left:8px;font-size:12.5px;font-weight:400;color:var(--sub);white-space:nowrap}
@@ -2304,7 +2311,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1101c"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1031w3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101rl"></script><script src="/assets/bgm-form.js?v=1031w4"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101c"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1031w3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101ll"></script><script src="/assets/bgm-form.js?v=1031w4"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3145,7 +3152,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1101c';   // [ASSET_V] 위 주석
+  var ASSET_V='1101d';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -7921,6 +7928,7 @@ function _lpPaint(){ var on=!!(LP.pace&&LP.q.length&&!LP.big), st=on?LP.q[LP.i]:
     li.classList.toggle('lp-now',now); li.classList.toggle('lp-past',past);
     var e=li.querySelector(':scope>.lp-est'), t=now&&(st.act||st.said)?_lpEstT(st.est):'';
     if(t){ if(!e){ e=document.createElement('span'); e.className='lp-est'; li.appendChild(e); } e.innerHTML='<span class="sr-only"> · </span>실제로는 '+esc(t); } else if(e) e.remove(); });
+  document.querySelectorAll('.mk-flow').forEach(function(ul){ ul.classList.toggle('lp-on',on&&!!ul.querySelector(':scope>li.lp-now')); });   /* [LISTEN_LOOK_LEVEL_1101 ①] 지금 줄이 있는 묶음만 톤을 낮춘다 */
   /* 따라가기 — 줄이 바뀔 때 그 줄을 가운데쯤으로 · 손으로 스크롤하면(LP.noFollow) 이 재생 동안 멈춘다 · 움직임 줄이기 설정이면 순간 이동 */
   if(!on||!st||!st._li||LP.noFollow||LP.fLast===LP.i) return; LP.fLast=LP.i;
   var row=document.querySelector('.mk-flow li[data-li="'+st._li+'"]'); if(!row) return;
@@ -8086,7 +8094,7 @@ function _prSec(){ var h='<section class="mk-sec pr-voice"><h4>내 목소리로 
 function _bedOn(){ try{ return !!window.BgmBed&&!LP.one&&!!STEPS[idx]&&STEPS[idx].k==='listen'; }catch(e){ return false; } }
 function _lEnd(){
   _prStop();   // [PRACTICE_VOICE]
-  try{ if(window.BgmBed) BgmBed.lpEnd(); }catch(e){}   // [BGM_PREVIEW_1024]
+  try{ if(window.BgmBed) (BgmBed.lpFin||BgmBed.lpEnd)(); }catch(e){}   // [BGM_PREVIEW_1024] · ★[LISTEN_LOOK_LEVEL_1101 ③] 끝까지 들으면 여운(−8 · 5초 · 3초에 잦아듦) · ⏹(lsStop)는 지금처럼 1.5초
   var wasAll=LP.all, range=LP.range;
   clearTimeout(LP.t); LP.tok++; LP.q=[]; LP.i=0; LP.cur=null; LP.paused=false;
   if(LP.el){ try{ LP.el.pause(); LP.el.removeAttribute('src'); }catch(e){} }

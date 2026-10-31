@@ -21223,4 +21223,22 @@ nochk 'window._mpHas=function' order-preview.html
 chk "var PUB_NOTE='마이페이지에서 들어 볼 수 있어요';" assets/bgm-bed.js 1
 chk '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요' assets/bgm-bed.js 1
 chk "(k?'':'고르지 않으시면 ')" assets/bgm-bed.js 1
+# ── 2026-11-01 [LISTEN_LOOK_LEVEL_1101 사장님 아이폰 실청 셋] ① 듣는 동안 지금 줄만 진하게(나머지 --sub · ▶ 원 · 점 · 세로선 옅게) ② 곡 보정 +7 dB(곡 −23 LUFS → 나레이션 −16 기준) + 음악 길 끝 리미터 · 콘솔 같은 값 · 리허설 칸
+#    ③ 끝까지 들으면 여운(−8 · 5초 · 3초에 잦아듦) · ⏹ 는 1.5초 · 이어 듣기는 순간 사이 −8 로 이어 흐름
+chk 'LISTEN_LOOK_LEVEL_1101' order-preview.html 3
+chk 'LISTEN_LOOK_LEVEL_1101' assets/bgm-bed.js 4
+chk 'LISTEN_LOOK_LEVEL_1101' assets/ritual-cue.js 1
+chk 'LISTEN_LOOK_LEVEL_1101' console.html 3
+chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/listen-pace.mjs 2
+chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-preview.mjs 1
+chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-seg8.mjs 1
+chk '    songGain: 7,' assets/ritual-cue.js 1
+chk 'return db<=-80?0.00003:Math.pow(10,(db+p.trim+p.song)/20);' assets/bgm-bed.js 1
+chk 'v.g.connect(bus(a));' assets/bgm-bed.js 1
+chk 'function lpFin()' assets/bgm-bed.js 1
+chk 'var TAIL={ up:1200, hold:5000, down:3000 };' assets/bgm-bed.js 1
+chk '(BgmBed.lpFin||BgmBed.lpEnd)()' order-preview.html 1
+chk '.mk-flow.lp-on>li:not(.lp-now),' order-preview.html 1
+chk "\['songGain', '곡 보정', 'dB'\]" console.html 1
+chk 'gBgm.connect(gSong); gSong.connect(gMaster); gMaster.connect(gLim);' console.html 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
