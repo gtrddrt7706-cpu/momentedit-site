@@ -20877,7 +20877,7 @@ chk 'MUSIC_FOLD_1031' assets/bgm-bed.js 3
 chk 'MUSIC_FOLD_1031' order-preview.html 3
 chk 'MUSIC_FOLD_1031' scripts/audit/music-fold.mjs 1
 chk 'MUSIC_FOLD_1031' .github/workflows/merge-guard.yml 1
-chk "if(folded(sg)&&cs) return foldHtml(sg,k,cs);" assets/bgm-bed.js 1   # folded() 먼저 — 안 고른 채 그린 방문을 «편 채»로 적는다(뒤집으면 쪽에서 고르자마자 접힌다 · 실측)
+chk "if(folded(sg)&&cs) return foldHtml(sg,k,cs);" assets/bgm-bed.js 1   # 고른 곡이 있으면 접힌 한 줄 먼저([MUSIC_FOLD_PICK_1031] 부터는 고르자마자 접는 것이 맞다)
 chk "MK.vidDone=null; MK.muFold=null; }" order-preview.html 1
 chk "try{ MK.muFold=null; }catch(e){}" order-preview.html 1
 chk 'class="pk-link mu-chg"' assets/bgm-bed.js 1
@@ -20949,4 +20949,9 @@ chk "'manual_off'" scripts/lib/clip-status.mjs 2
 nochk 'var HELPERS = \[' console.html
 nochk "b.onclick = function(){ playLoose(g.slug" console.html
 nochk '촬영 안내 골라 틀기' console.html
+# ── 2026-10-31 [MUSIC_FOLD_PICK_1031 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 순간 쪽 음악 곡 목록도 입장 음악 추천 곡([MU_FOLD])처럼 고르는 순간 접는다 · «바꾸기»로 편 뒤 다시 고르면 또 접는다
+chk 'MUSIC_FOLD_PICK_1031' assets/bgm-bed.js 5
+chk 'MUSIC_FOLD_PICK_1031' scripts/audit/music-fold.mjs 1
+chk "function folded(sg){ return !!picked(sg)&&FM()[sg]!==0; }" assets/bgm-bed.js 1
+nochk "if(!(sg in m)) m[sg]=cur?1:0;" assets/bgm-bed.js
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
