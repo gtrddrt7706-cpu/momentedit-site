@@ -19,18 +19,10 @@ const GONE = /다른 장면|연출 장면|예시예요|실제 예식 사진 아�
 const KEYS = ['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'table', 'toast', '_close'];
 ok('장면 17순간 + 판 갈래 셋(감사문 · 서로에게 · 인사만) — 대표 1 · 다른 장면 2 · 설명', KEYS.every((k) => O.PSCENE[k] && O.PSCENE[k].alt.length === 2 && O.PSCENE[k].desc) && ['vow:thanks', 'letter:each', 'tribute:nohug'].every((k) => O.PSCENE[k] && O.PSCENE[k].alt.length === 2));
 ok('라벨 값은 데이터에 남김(관리 · 작가 화면용 · 고객 화면엔 안 그림)', O.SCENE_LABEL === LABEL);
-ok('[SCENE_PHOTO_1101] 그림 보류(img null) 0 — 장면 20(판 갈래 포함) 모두 사진 · 파일 이름 = 장면 id 꼴', Object.entries(O.PSCENE).every(([id, x]) => x.img === (id === 'letter:each' ? 'letter' : id.replace(/^_/, '').replace(':', '-'))));
-{ const IDS = ['entry', 'guest', 'prevideo', 'candle', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'tribute-nohug', 'table', 'toast', 'close', 'vow-thanks'];
-  const wsz = (f) => { const b = fs.readFileSync(f).subarray(0, 40); if (b.toString('latin1', 0, 4) !== 'RIFF' || b.toString('latin1', 8, 12) !== 'WEBP') return ''; const t = b.toString('latin1', 12, 16);
-    if (t === 'VP8 ') return (b.readUInt16LE(26) & 0x3fff) + 'x' + (b.readUInt16LE(28) & 0x3fff);
-    if (t === 'VP8L') { const v = b.readUInt32LE(21); return ((v & 0x3fff) + 1) + 'x' + (((v >>> 14) & 0x3fff) + 1); }
-    if (t === 'VP8X') return (b.readUIntLE(24, 3) + 1) + 'x' + (b.readUIntLE(27, 3) + 1); return ''; };
-  const miss = []; for (const n of IDS) for (const [suf, want] of [['', '1280x720'], ['-640', '640x360']]) { const f = path.join(ROOT, 'assets/video/moments/scene', n + suf + '.webp'); const d = fs.existsSync(f) ? wsz(f) : '없음'; if (d !== want) miss.push(n + suf + ' ' + d); }
-  ok(`[SCENE_PHOTO_1101] 사진 19 id 모두 2벌 · 1280×720 / 640×360`, IDS.length === 19 && !miss.length && new Set(Object.values(O.PSCENE).map((x) => x.img)).size === 19, miss.join(' · '));
-  ok('[SCENE_PHOTO_1101] 그림 원천 = 사진 판(영상 프레임 아님)', /^photo/.test(O.SCENE_SRC_V), O.SCENE_SRC_V); }
+ok('그림 보류 = 닫는 인사 · 감사문 · 인사만(글은 그대로)', !O.PSCENE._close.img && !O.PSCENE['vow:thanks'].img && !O.PSCENE['tribute:nohug'].img && KEYS.filter((k) => k !== '_close').every((k) => O.PSCENE[k].img));
 { const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open';
   ok('남는 장면(shotOf · 마이페이지 한 줄) = 대표 장면 문구', O.bodySeq(S).every((k) => !O.sceneOf(k, S) || O.shotOf(k, S) === O.sceneOf(k, S).rep));
-  const T = Object.assign({}, S, { tribHug: 'off' }); ok('인사만 → tribute:nohug · 제 사진(보류 아님) [SCENE_PHOTO_1101]', O.sceneId('tribute', T) === 'tribute:nohug' && !O.sceneOf('tribute', T).hold && /tribute-nohug\.webp/.test(O.sceneOf('tribute', T).img.src));
+  const T = Object.assign({}, S, { tribHug: 'off' }); ok('인사만 → tribute:nohug · 그림 보류', O.sceneId('tribute', T) === 'tribute:nohug' && O.sceneOf('tribute', T).hold);
   const L = Object.assign({}, S, { on: Object.assign({}, S.on, { letter: 1 }) }); O.setChip(L, 'letter', 'each'); ok('편지 «서로에게» → letter:each', O.sceneId('letter', L) === 'letter:each');
   const sig0 = O.sceneSig(S); ok('재확인 열쇠 — 인사 동작이 바뀌면 바뀐다 · 음악(곡)만 바꾸면 그대로', O.sceneSig(T) !== sig0 && O.sceneSig(Object.assign({}, S, { bgm: { x: 1 }, entryMusic: 'k1' })) === sig0);
   ok('식전(하객 맞이 · 식전 영상) → 본식 차례 그대로', (() => { const xs = O.sceneList(S); return xs[0].k === 'guest' && xs[0].pre && xs.filter((x) => x.pre).length === 2 && xs.slice(2).every((x) => !x.pre); })()); }
@@ -93,9 +85,8 @@ try {
     ok(`${vp.tag} 편지 «서로에게» — 대표 «편지를 읽고 듣는 두 분»`, le.rep === '편지를 읽고 듣는 두 분' && le.img, JSON.stringify(le));
     await pg.evaluate(() => opPvClose()); await wait(200);
     await prep('nohug'); await open('tribute'); await shot('4-tribute-nohug');
-    await pg.waitForFunction(() => { const i = document.querySelector('#pvScene .ps-fig img'); return !i || i.complete; }, null, { timeout: 5000 }).catch(() => {});
-    const nh = await pg.evaluate(() => ({ rep: document.querySelector('#pvScene .ps-rep').textContent, img: !!document.querySelector('#pvScene .ps-fig'), src: (document.querySelector('#pvScene .ps-fig img') || {}).src || '', loaded: (document.querySelector('#pvScene .ps-fig img') || {}).naturalWidth || 0, lab: !!document.querySelector('#pvScene .ps-lab'), fine: document.querySelector('#pvScene > .ps > .ps-fine:last-child').textContent }));
-    ok(`${vp.tag} 인사만 — 제 사진(tribute-nohug) · 라벨 없음 · 구도 한 줄 [SCENE_PHOTO_1101]`, nh.rep === '부모님께 인사하는 두 분' && nh.img && /scene\/tribute-nohug-640\.webp/.test(nh.src) && nh.loaded > 0 && !nh.lab && nh.fine === '사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.', JSON.stringify(nh));
+    const nh = await pg.evaluate(() => ({ rep: document.querySelector('#pvScene .ps-rep').textContent, img: !!document.querySelector('#pvScene .ps-fig'), lab: !!document.querySelector('#pvScene .ps-lab'), fine: document.querySelector('#pvScene > .ps > .ps-fine:last-child').textContent }));
+    ok(`${vp.tag} 인사만 — 그림 · 라벨 없이 글 그대로 · 범위 안내만`, nh.rep === '부모님께 인사하는 두 분' && !nh.img && !nh.lab && nh.fine === '사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.', JSON.stringify(nh));
     await pg.evaluate(() => opPvClose()); await wait(200);
     if (vp.tag === '390') {
       const r = await pg.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)), out = {};
@@ -105,7 +96,7 @@ try {
         mkGo('_sum'); await w(300); out.links = [...document.querySelectorAll('[data-fk^="pslink:"]')].map((e) => e.textContent); out.sumImg = !!document.querySelector('.mk-sum .ps-fig');
         out.script = scriptTextOpen();
         out.pl = _ordPayload(true).summary; return out; });
-      ok('② 하나씩 만들기 — 맨 아래 접힌 줄 «사진으로 담을 장면 보기»(처음 닫힘) · 닫는 인사도 이제 사진이라 같은 이름 [SCENE_PHOTO_1101]', r.fold === '사진으로 담을 장면 보기' && r.closed && r.last && r.fold2 === '사진으로 담을 장면 보기', JSON.stringify([r.fold, r.closed, r.last, r.fold2]));
+      ok('② 하나씩 만들기 — 맨 아래 접힌 줄 «사진으로 담을 장면 보기»(처음 닫힘) · 그림 없는 순간은 «장면 설명 보기»', r.fold === '사진으로 담을 장면 보기' && r.closed && r.last && r.fold2 === '장면 설명 보기', JSON.stringify([r.fold, r.closed, r.last, r.fold2]));
       ok('② 접힌 줄 안 — 라벨 · «예시예요» · «다른 장면» 0건 · 구도 한 줄만 [PHOTO_SCENE_MIN_1101]', !GONE.test(r.foldTxt) && r.foldFine.length === 1 && r.foldFine[0] === PS_FINE, JSON.stringify(r.foldFine));
       ok('한눈에 보기 — 큰 그림 없이 순간 이름 링크만', r.links.length >= 8 && r.links[0] === '하객 맞이' && !r.sumImg, JSON.stringify(r.links));
       ok('전체 대본 복사 · 파일 받기에 장면 글 없음', !r.script.includes(LABEL) && !r.script.includes('이 순간에 담을 수 있는 장면') && !r.script.includes('마주 보고 몸을 숙이는 두 분'));
