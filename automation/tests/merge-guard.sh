@@ -20175,6 +20175,12 @@ nochk '일곱 가운데 가장 로맨틱한' assets/dress-refs.js               
 chk 'DRESS_TEN_1031' scripts/audit/dress-tabs.mjs 6
 chk 'DRESS_TEN_1031' scripts/audit/dress-refs.mjs 3
 chk 'DRESS_SWEETHEART' scripts/audit/dress-refs.mjs 2                                      # «스위트하트»는 넥라인 · «하트» 단독은 계속 금지(selftest)
+# ★★[DRESS_NINE_MINI_1031 코워크 · 사장님 «베스트 10»] 09 = 잔비즈 오프숄더 미니(S12 · n11) · 옛 «크레이프 A라인 · 케이프»(S02) 뺌 — 되살리지 말 것 · S02 id 다시 쓰지 않음
+chk "{ id: 'S12', name: '스타일 예시 09 · 잔비즈 오프숄더 미니'" assets/dress-refs.js 1
+chk "{ t: '디테일', img: 'n11-detail' }" assets/dress-refs.js 1
+nochk "{ id: 'S02', name:" assets/dress-refs.js
+nochk "shoulder: 'cape'" assets/dress-refs.js
+chk 'DRESS_NINE_MINI_1031' scripts/audit/dress-refs.mjs 2
 # ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
 chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
 chk '<script src="/assets/fab-names.js" defer></script>' index.html 1
