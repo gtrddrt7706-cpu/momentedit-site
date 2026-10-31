@@ -159,6 +159,11 @@ try {
       if (nb.end) no(`${tag} 상담 뒤 자세히에 맨 아래 안내가 있다 [DRESS_AFTER_NOEND]`);
       if (nb.p !== 'S08' || nb.n !== 'S04' || !/드레스 목록/.test(nb.back || '')) no(`${tag} 자세히 이전/다음 · «‹ 드레스 목록» ${JSON.stringify(nb)} [DRESS_TABS_1030]`);
       if (SHOTS) await P.screenshot({ path: `${SHOTS}/detail-${W}.png` });
+      /* [DRESS_N03_DETAIL] 03(S08 · 잔레이스) 자세히도 앞 · 뒤 · 디테일 세 장 — 이전으로 넘겨 재고 다시 S03 으로 */
+      await fr.click('.pk-nb-p'); await wait(400);
+      const n3 = await fr.evaluate(() => ({ nm: (document.getElementById('dvName') || {}).textContent || '', n: document.querySelectorAll('.dv-sl').length }));
+      if (!/잔레이스/.test(n3.nm) || n3.n !== 3) no(`${tag} 03 잔레이스 자세히 사진 ${n3.n}장 — 앞 · 뒤 · 디테일 세 장 ${n3.nm} [DRESS_N03_DETAIL]`);
+      await fr.click('.pk-nb-n'); await wait(400);
       await fr.focus('.pk-back'); await P.keyboard.press('Escape'); await wait(400);
       v = await view(fr); if (v.tab !== 'pkTabD' || v.focus !== 'S03' || Math.abs(v.y - yD2) > 2 || v.q) no(`${tag} 자세히 Esc → 드레스 탭 · S03 · 그 자리가 아니다(${yD2}) ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       await fr.evaluate(() => document.querySelector('[data-open="S05"]').click()); await wait(400);

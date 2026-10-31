@@ -85,7 +85,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
     (d.ex || []).forEach((e) => { if (e.img) t(!!rd('assets/dress-refs/' + e.img + '.webp'), `① ${d.id} 넘겨 보는 사진 ${e.img}`); });
     if (d.sample) t(/^스타일 예시 \d{2} · \S/.test(d.name), `① 표본 이름 «스타일 예시 NN · ○○»(실물처럼 상품명 짓지 않는다 · [DRESS_SAMPLE_V2]) · ${d.id}`);
     else t(!/^(표본|스타일 예시)/.test(d.name), `① 실물 드레스는 «표본 · 스타일 예시»라 부르지 않는다 · ${d.id}`);
-    if (d.sample && d.img) t((d.ex.map((e) => e.t).join() === '앞,뒤,디테일' || (d.id === 'S08' && d.ex.map((e) => e.t).join() === '앞,뒤')) && d.ex.every((e) => e.img), `① ${d.id} 넘겨 보기 = 앞 · 뒤 · 디테일(캔들존 · 화이트존은 실제 촬영 사진이 올 때까지 뺀다 · [DRESS_SAMPLE_V2] · S08 디테일은 사진이 오면 [DRESS_N03_DETAIL])`);
+    if (d.sample && d.img) t(d.ex.map((e) => e.t).join() === '앞,뒤,디테일' && d.ex.every((e) => e.img), `① ${d.id} 넘겨 보기 = 앞 · 뒤 · 디테일(캔들존 · 화이트존은 실제 촬영 사진이 올 때까지 뺀다 · [DRESS_SAMPLE_V2] · [DRESS_N03_DETAIL] 새 두 벌도 세 장)`);
   });
 
   // ② 줄 세우기 — 명세 문장을 다른 손으로 옮긴 셈과 대조

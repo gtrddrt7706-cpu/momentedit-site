@@ -134,7 +134,7 @@
         tryOn: ['걸을 때 보폭', '앉았을 때 무릎 아래 여유', '팔을 들 때 스트랩리스가 내려가지 않는지'],
         onsite: ['탈부착 케이프', '긴 베일'],
         ex: [{ t: '앞', img: 'd01-front' }, { t: '뒤', img: 'd01-back' }, { t: '디테일', img: 'd01-detail' }], sample: true },
-      /* ★[DRESS_N03_DETAIL] 앞 = 볼레로를 입은 모습 · 뒤 = 볼레로를 뗀 스퀘어넥(의도) — 디테일 사진(n03-detail)은 아직 안 왔다 · 오면 ex 에 한 줄 더한다 */
+      /* ★[DRESS_N03_DETAIL] 앞 = 볼레로를 입은 모습 · 뒤 · 디테일 = 볼레로를 뗀 스퀘어넥(의도) · 다른 벌과 같은 세 장 */
       { id: 'S08', name: '스타일 예시 03 · 잔레이스 A라인 · 볼레로', line: 'aline', length: 'ankle', neck: '스퀘어넥(볼레로는 보트넥)', fabric: '레이스 · 잔잔한 비즈', expo: 'soft', sleeve: 'bolero', shoulder: 'sleeve',
         mood: '잔잔한 레이스와 은은한 반짝임', pair: '짧은 면사포 · 탈부착 볼레로', img: 'n03-front',
         intro: '작은 잎과 꽃 레이스 위에 잔잔한 비즈를 얹고, 탈부착 볼레로로 두 가지 모습을 내는 A라인',
@@ -142,7 +142,7 @@
         feel: '가까이서 보면 레이스 결과 잔잔한 반짝임이 보여요. 볼레로를 떼면 더 가벼운 인상이에요.',
         tryOn: ['볼레로를 입은 모습과 뗀 모습', '소매 비침 정도', '팔을 들 때 볼레로 어깨가 당기지 않는지'],
         onsite: ['탈부착 볼레로', '짧은 면사포'],
-        ex: [{ t: '앞', img: 'n03-front' }, { t: '뒤', img: 'n03-back' }], sample: true },
+        ex: [{ t: '앞', img: 'n03-front' }, { t: '뒤', img: 'n03-back' }, { t: '디테일', img: 'n03-detail' }], sample: true },
       { id: 'S03', name: '스타일 예시 04 · 새틴 슬립 · 백 리본', line: 'slip', length: 'ankle', neck: 'V넥(얇은 끈)', fabric: '새틴', expo: 'deep', sleeve: 'none', shoulder: 'open',
         mood: '등이 트인 뒤판과 큰 새틴 리본', pair: '얇은 볼레로 · 긴 베일', img: 'd03-front',
         intro: '바이어스 새틴이 몸을 따라 흐르고, 등에 리본 하나로 포인트를 준 슬립',

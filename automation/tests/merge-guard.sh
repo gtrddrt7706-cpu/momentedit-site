@@ -20158,6 +20158,8 @@ chk 'DRESS_SET_1031' scripts/audit/dress-refs.mjs 2
 chk 'DRESS_Q3_ARMS' scripts/audit/dress-refs.mjs 3
 chk 'DRESS_OLD_ANS' scripts/audit/dress-refs.mjs 1
 chk 'DRESS_SET_1031' scripts/audit/dress-tabs.mjs 1
+chk "{ t: '디테일', img: 'n03-detail' }" assets/dress-refs.js 1                     # [DRESS_N03_DETAIL] 새 두 벌도 세 장
+chk 'DRESS_N03_DETAIL' scripts/audit/dress-tabs.mjs 1
 # ★★[DRESS_SCROLL_LOCK · DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 끝에서 더 내리면 뒤 마이페이지가 움직였다 — 창이 떠 있는 동안 다시 그리기(show)가 잠금을 풀었다(목록에 창이 없었다)
 chk "'mp_drViewer','mp_invSample'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)
 chk "document.documentElement.style.overflow='hidden';   // \[DRESS_SCROLL_LOCK\]" mypage.html 1
