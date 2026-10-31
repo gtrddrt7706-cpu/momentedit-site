@@ -20972,7 +20972,7 @@ nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/closing-line.mjs >/dev/null 2>&1; _cll=$?; [ "$_cll" = 1 ] && { echo 'FAIL closing-line: 마무리 멘트(세 판 × 하객 안내 × 디지털) · 사진 구간 나레이션 0 · 새 녹음 0 · 흐름 쉼 · 화면 글이 어긋났습니다 — node scripts/audit/closing-line.mjs'; fail=1; }; :; fi
 # ── 2026-10-31 [PICKS_TRUE_1031 BGM 섹션] 곡 정보 글을 실제 받은 판에 맞춘다(B01 오케스트라 · B07 피아노 판 · B15 피아노 독주 · B16 · B24 · B22 판 이름) — B06 · B19 그대로
-chk 'PICKS_TRUE_1031' assets/bgm-picks.js 6
+chk 'PICKS_TRUE_1031' assets/bgm-picks.js 7
 nochk "a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View'" assets/bgm-picks.js 0
 nochk "B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet'" assets/bgm-picks.js 0
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

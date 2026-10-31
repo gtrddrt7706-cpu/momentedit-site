@@ -43,7 +43,7 @@
     B07: { t: 'Summer', src: '기쿠지로의 여름', a: '피아노 연주', v: '세상에서 가장 아름다운 선율', why: '밝고 경쾌하게' },   // [PICKS_TRUE_1031] 받은 판 = 피아노 판
     // B08 은 비운다(2026-10-30 덧붙임 2 · Laufey «Nocturne (Interlude)» 1분 40초 — 화촉 2분 10초보다 짧다) · 이 번호는 다시 쓰지 않는다
     B09: { t: 'Innocent in Sonatine', src: '우리들의 블루스', a: '조영민', v: '우리들의 블루스 OST', why: '말 아래 조용히' },
-    B10: { t: 'Song for Sienna', a: 'Brian Crain', v: 'Piano and Light', why: '잔잔한 피아노' },
+    B10: { t: 'Song for Sienna', a: 'Brian Crain', v: 'Piano and Light · 피아노 독주', why: '잔잔한 피아노' },   // [PICKS_TRUE_1031] 받은 판 = Solo Piano Version
     B11: { t: "One Summer's Day", src: '센과 치히로의 행방불명', a: '히사이시 조', v: 'ENCORE', why: '그리운 마음으로' },
     B12: { t: 'Under the Willow', a: 'Brian Crain', v: 'Piano and Light', why: '부드럽고 담백하게' },
     B13: { t: 'Moon River', src: '티파니에서 아침을', a: 'Tommy Emmanuel', v: 'The Guitar Mastery of Tommy Emmanuel · 연주판(Instrumental)', why: '익숙한 선율을 기타로' },
