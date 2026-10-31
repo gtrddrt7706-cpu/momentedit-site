@@ -458,7 +458,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(/R\.SLEEVE_KO = \{ none: '없음', sleeve: '소매 있음', bolero: '볼레로' \}/.test(SRC) && /DRESS_DETAIL_FIELDS/.test(SRC) && /\.filter\(function\(r\)\{ return r\[1\]; \}\)/.test(PAGE) && /if \(!onsite\.length && d\.pair\)/.test(PAGE) && /\.slice\(0, 2\)/.test(PAGE), '⑮ [DRESS_DETAIL_FIELDS] 자세히 칸(한 줄 소개 · 허리선 · 입어 보며 확인해요 · 현장에서 함께 볼 것 · 함께 살펴볼 드레스 1~2벌)은 비면 줄째 없다 · 소매는 sleeve 값에서');
   /* ★[DRESS_TIPS_1024 · DRESS_SAMPLE_V2] 물음별 살펴볼 점 · 방문 전 준비 · «스타일 예시 이미지» 표시 */
   t(R.questions.every((q) => q.opts.every((o) => (q.key === 'fit' && o[0] === 'any') || (q.tips && typeof q.tips[o[0]] === 'string' && q.tips[o[0]].length > 10))) && /out = out\.slice\(0, 3\);/.test(PAGE) && /\+ tipsHTML\(\)/.test(PAGE) && !R.questions.some((q) => Object.values(q.tips || {}).some((x) => /추천|맞춤|체형|커버|피하세요|어울려요/.test(x))), '⑮ [DRESS_TIPS_1024] 결과 «내가 고른 스타일» 아래 고른 답마다 살펴볼 점 한 줄(라인 «아직 모르겠어요»만 없음 · 최대 3줄 · 추천 · 맞춤 · 몸 단정 없음)');
-  /* ★★[DRESS_GUIDE_1031] 옛 «방문 전 준비» 넷(R.PREP)은 신부 준비 안내로 옮겼다 — 처음 세 칸 · 더 궁금해요 · 빈 값은 그 줄 · 칸이 없다 · 자리(상담 전 답 요약 아래 · 상담 뒤 두 탭 맨 위) */
+  /* ★★[DRESS_GUIDE_1031] 옛 «방문 전 준비» 넷(R.PREP · DRESS_FORM_FIX3 의 맨 아래 덩어리)은 신부 준비 안내로 옮겼다 — 처음 세 칸 · 더 궁금해요 · 빈 값은 그 줄 · 칸이 없다 · 자리(상담 전 답 요약 아래 · 상담 뒤 두 탭 맨 위) */
   { const G = R.GUIDE || {}, gb = R.guideFor ? R.guideFor('before') : null, ga = R.guideFor ? R.guideFor('after') : null;
     t(!R.PREP && !/pk-prep-h|방문 전 준비/.test(decom(PAGE)) && !!gb && !!ga && gb.first.map((x) => x.id).join() === 'V202,V203,V204' && ga.first.map((x) => x.id).join() === 'V203,V204,V221', '⑮ [DRESS_GUIDE_1031] 옛 «방문 전 준비» 없음 · 처음 세 칸 = 상담 전 진행 · 스튜디오 · 직접 / 상담 뒤 스튜디오 · 직접 · 예식 전');
     const vals = Object.values(R.GUIDE_VALS || {}).every((v) => !String(v).trim());

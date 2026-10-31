@@ -441,7 +441,7 @@ html.pk-pop.pk-tabson .pk-tabs{position:sticky;top:var(--pk-hh,56px);z-index:6;b
 .pk-guideb{padding:4px 0 16px}
 .pk-guideb[hidden]{display:none}
 .pk-gsec + .pk-gsec{margin-top:18px}
-.pk-gh{margin:6px 0 0;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.6}
+.pk-gdh{margin:6px 0 0;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.6}
 .pk-gsh{margin:10px 0 0;font-size:12px;font-weight:500;color:var(--gold-text);letter-spacing:.04em;line-height:1.6}
 .pk-gul{list-style:none;margin-top:6px}
 .pk-gul li{position:relative;padding-left:13px;font-size:13px;color:var(--text);line-height:1.7;word-break:keep-all}
@@ -705,7 +705,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
       if (x.ul) return (x.h ? '<p class="pk-gsh">' + esc(x.h) + '</p>' : '') + '<ul class="pk-gul">' + x.ul.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
       return x.p ? '<p class="dotln">' + esc(x.p) + '</p>' : '';
     };
-    var body = g.first.map(function(e){ return '<section class="pk-gsec"><h3 class="pk-gh">' + esc(e.it.t) + '</h3>' + e.it.parts.map(part).join('') + '</section>'; }).join('');
+    var body = g.first.map(function(e){ return '<section class="pk-gsec"><h3 class="pk-gdh">' + esc(e.it.t) + '</h3>' + e.it.parts.map(part).join('') + '</section>'; }).join('');
     if (g.more.length) body += '<p class="pk-gmore">' + esc(R.GUIDE.moreLabel) + '</p>' + g.more.map(function(e){ return '<details class="pk-gd"><summary>' + esc(e.it.t) + '</summary>' + e.it.parts.map(part).join('') + '</details>'; }).join('');
     return '<div class="pk-guide"><button type="button" class="pk-txt pk-guidet" data-act="guide" aria-expanded="' + (S.guideOpen ? 'true' : 'false') + '" aria-controls="' + id + '">' + esc(g.label) + ' <span class="pk-gchev" aria-hidden="true">&rsaquo;</span></button>'
       + '<div class="pk-guideb" id="' + id + '"' + (S.guideOpen ? '' : ' hidden') + '>' + body + '</div></div>';
