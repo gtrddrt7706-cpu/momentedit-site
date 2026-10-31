@@ -313,25 +313,27 @@
     { id: 'shoes', name: '새틴 슈즈', img: 'acc-shoes', note: '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요', on: true },
     /* ★★[DRESS_BOUQUET3_1031 코워크 · 사장님 «부케도 3개 정도 준비하는 건 어때?» · «인스타에서 인기 많은 부케 검색 후 적용»] 기본 조화 부케 한 칸 = 세 가지 보기(카라 · 화이트·그린 · 블러시 핑크) + 부토니에 짝.
          인스타 76건 — 화이트 · 카라 · 그린이 많고 레드 · 버건디가 가장 약했다 → 옛 레드 장미 사진(acc-bouquet)은 대표에서 내렸다(파일은 남긴다 · 되살리지 말 것).
+         ★[BOUQUET_R3_1101] 지금 셋 = 카라 · 크림·화이트 컴팩트 돔 · 은방울 미니(id 는 처음 이름 그대로 — 저장값이 없어 바꾸지 않는다).
          고르기 · 저장 · 자동 넘김 없음 — 자세히에서 보기만 바꾼다. note 는 부케 문구 고정 규칙(식순 BOUQUET · GOODS_STUDIO 와 같은 뜻)이라 종전 그대로 */
     { id: 'bouquet', name: '기본 조화 부케', img: 'acc-bouquet-calla', note: '기본 조화 부케는 저희가 준비해요 · 생화를 원하시면 별도 비용이에요', on: true,
       badge: '3종', browse: '3가지 부케 보기',
       variants: [
-        { id: 'bouquet-calla', name: '화이트 카라 미니멀', label: '카라', img: 'acc-bouquet-calla', desc: '카라의 매끈한 선을 살린 작고 단정한 부케예요.', bout: 'boutonniere-calla' },
-        { id: 'bouquet-white-green', name: '화이트·그린 내추럴', label: '화이트·그린', img: 'acc-bouquet-white-green', desc: '흰 장미와 튤립에 가벼운 그린을 더해 자연스럽게 묶었어요.', bout: 'boutonniere-white-green' },
-        { id: 'bouquet-blush-pink', name: '블러시 핑크 가든', label: '블러시 핑크', img: 'acc-bouquet-blush-pink', desc: '연한 핑크 장미를 중심으로 부드럽고 둥글게 모았어요.', bout: 'boutonniere-blush-pink' }
+        { id: 'bouquet-calla', name: '화이트 카라 미니멀', label: '카라', img: 'acc-bouquet-calla', desc: '날렵한 카라의 선을 모아 작고 단정하게 완성했어요.', bout: 'boutonniere-calla' },
+        { id: 'bouquet-white-green', name: '크림·화이트 컴팩트 돔', label: '크림·화이트', img: 'acc-bouquet-white-green', desc: '장미·라넌큘러스·튤립을 화이트와 크림 톤으로 둥글게 모았어요.', bout: 'boutonniere-white-green' },   // [BOUQUET_R3_1101] id · 파일 이름은 옛것(저장값 없음) · 표시 이름은 크림·화이트 컴팩트 돔
+        { id: 'bouquet-blush-pink', name: '은방울 미니', label: '은방울', img: 'acc-bouquet-blush-pink', desc: '작은 은방울꽃을 둥글게 모아 섬세한 결을 살렸어요.', bout: 'boutonniere-blush-pink' }   // [BOUQUET_R3_1101] id · 파일 이름은 옛것(저장값 없음) · 표시 이름은 은방울 미니
       ],
-      boutonniere: { toggle: '신랑 가슴 꽃 함께 보기', title: '신랑 가슴 꽃 · 부토니에', note: '신랑 가슴 꽃도 부케와 같은 꽃으로 맞춰요.', img: 'acc-boutonniere-pairs', caption: '왼쪽부터 카라 · 화이트·그린 · 블러시 핑크',
+      boutonniere: { toggle: '신랑 가슴 꽃 함께 보기', title: '신랑 가슴 꽃 · 부토니에', note: '신랑 가슴 꽃도 부케와 같은 꽃으로 맞춰요.', img: 'acc-boutonniere-pairs', caption: '왼쪽부터 카라 · 크림·화이트 · 은방울',
         pairs: [
           { id: 'boutonniere-calla', bouquet: 'bouquet-calla', name: '카라 부토니에', desc: '같은 화이트 카라 한 송이로 맞춰요.' },
-          { id: 'boutonniere-white-green', bouquet: 'bouquet-white-green', name: '화이트·그린 부토니에', desc: '흰 장미와 작은 튤립 봉오리로 맞춰요.' },
-          { id: 'boutonniere-blush-pink', bouquet: 'bouquet-blush-pink', name: '블러시 핑크 부토니에', desc: '같은 연핑크 장미와 아이보리 봉오리로 맞춰요.' }
+          { id: 'boutonniere-white-green', bouquet: 'bouquet-white-green', name: '크림·화이트 부토니에', desc: '같은 화이트 라넌큘러스 한 송이로 맞춰요.' },
+          { id: 'boutonniere-blush-pink', bouquet: 'bouquet-blush-pink', name: '은방울 부토니에', desc: '같은 작은 은방울꽃으로 맞춰요.' }
         ] } }
   ];
   R.ACC_LEAD = '드레스 · 면사포 · 헤어 장식 · 귀걸이 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';
   /* ★[ACC_IMG_V 2026-11-01 코워크 · 사장님 «부케 모양이 이상하잖아»] 같은 이름으로 사진을 바꾼 소품 — 주소 끝 ?v=(그 파일 md5 앞 8자리)로 브라우저 · CDN 의 옛 사진을 깬다.
        사진을 다시 바꾸면 여기 값도 그 파일 md5 앞 8자리로(검사 dress-refs ⑰ 가 파일과 대조한다 · 어긋나면 빨강) */
-  R.IMG_V = { 'acc-bouquet-calla': '5bb1f518', 'acc-bouquet-white-green': '378beb27', 'acc-bouquet-blush-pink': '8d3cae99', 'acc-boutonniere-pairs': 'e4f74842' };
+  /* ★[BOUQUET_R3_1101 사장님 «부케가 파전같이 퍼져 있잖아, 구 형태가 아니라» · «세련되고 트렌디한 부케» → R3 «좋아»] 세워 든 둥근 부케 넷으로 다시 바꿨다 — 값도 새 파일 md5 */
+  R.IMG_V = { 'acc-bouquet-calla': 'eed1e647', 'acc-bouquet-white-green': '33df1bb1', 'acc-bouquet-blush-pink': 'fe83dca4', 'acc-boutonniere-pairs': '9ac49a43' };
   R.accSrc = function (name) { var v = R.IMG_V && R.IMG_V[name]; return '/assets/dress-refs/' + name + '.webp' + (v ? '?v=' + v : ''); };
   R.accList = function () { return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : []; };
   /* ★[DRESS_NAME_SPLIT 1024 코워크 GPT 2차] 이름 = 작은 보조 줄 «스타일 예시 0n» + 제목(«잔비즈 오프숄더 미니») — 실물 이름은 제목 하나 */
