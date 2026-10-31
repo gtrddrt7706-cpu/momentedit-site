@@ -2307,7 +2307,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1031dt"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1031lr"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1031lf"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1031lr"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -2456,7 +2456,7 @@ var TOAST={
  /* ★[TOAST_SCENE 2026-08-09] 원천 assets/ritual-data.js 의 TOAST 사본 — 글자까지 같아야 한다.
     한 덩어리 문안을 '가르치고 → 부르고 → 받는' 장면으로 다시 썼다(경위는 원천 주석에).
     ★둘 다는 문안이 둘이다(nar/nar2) — 나이프를 걷고 잔을 쥐여 드리는 사이가 옛 판엔 무음이었다. */
- toast:{d:'축배',nar:"자, 다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다. 신랑 신부가 선창하면 '위하여'라고 해 주세요.",cue:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'},   // [TOAST_COUPLE 2026-09-26]
+ toast:{d:'축배',nar:"다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다. 신랑 신부가 선창하면 '위하여'라고 해 주세요.",cue:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'},   // [TOAST_COUPLE 2026-09-26]
  cake:{d:'케이크 커팅',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡고 천천히 잘라 주세요.",cue:'두 분 케이크 앞으로 → 나이프 함께 잡기 → 카운트에 맞춰 커팅 → 하객 박수 → 정면 포즈 · 서로 보는 포즈',out:'cakeOut'},
  both:{d:'둘 다',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡고 천천히 잘라 주세요.",nar2:"마지막으로, 두 사람에게 잔이 가는 동안 다 같이 잔을 들어 주세요. 두 분이 선창하면 다 함께 '위하여!'로 답해 주세요.",cue:'편지 낭독 중 하객 잔 미리 채움 → 커팅 · 포즈 → 디렉터가 나이프 회수하고 두 분께 잔 전달',cue2:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'}
 };
@@ -3148,7 +3148,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1031dt';   // [ASSET_V] 위 주석
+  var ASSET_V='1031lf';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -9360,7 +9360,7 @@ function renderStep(k){
   else if(k==='bless'){
     var famOpen=(S.course==='family');
     // ★BLESS_LONG 1단(예방) — '말씀이 있습니다'는 열어만 두고 닫지 않아 길어진다. '한 말씀 청하겠습니다'가 분량을 함께 건넨다(런북 §8 1단 · §11-A).
-    var blessNar=famOpen?'서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.':'이제 두 사람의 행복한 가정을 기원하는 부모님의 귀중한 덕담 말씀이 있겠습니다.';   /* [R11_SRC_1018] = NARR.blessMid(자료 U1) */
+    var blessNar=famOpen?'두 사람을 가장 오래 지켜봐 오신 부모님의 말씀을 듣겠습니다. 이제, 편히 들려주십시오.':'이제 두 사람의 행복한 가정을 기원하는 부모님의 귀중한 덕담 말씀이 있겠습니다.';   /* [R11_SRC_1018] = NARR.blessMid(자료 U1) */
     var onCard=oc('bless','on','넣기',(famOpen?'예식의 문을 여는, 이 코스의 시그니처 순서예요':'부모님이나 가족 어른이 짧게 말씀을 전해요'),blessNar,'좋은 말씀 들려주신 부모님께 큰 박수 부탁드립니다.',{who:'부모님',t:'1~2분 덕담'},null);
     var blessEx='<div class="ex-n" style="margin:12px 0 4px 2px">부모님께 보여드릴 참고 예시예요 · 그대로 전하셔도, 부모님 말씀으로 바꾸셔도 좋아요</div>'
       +'<div class="ex-i">"두 사람이 손잡고 있는 모습만 봐도 오늘 하루가 다 채워집니다. 서로 아끼며, 오래오래 지금처럼 웃고 살아라. 와 주신 모든 분께도 감사드립니다."</div>'
@@ -9740,7 +9740,7 @@ var BLOCK={
     //   고객 화면에 '3분'을 노출하면 두 분이 부모님께 시간 제한을 전하게 되어 §8 1단(예방)의 의도와 정면으로 충돌한다.
     //   그래도 여기 두는 이유: assets/ritual-data.js가 원천이고 이 파일은 인라인 사본이라, 빠지면 두 곳의 문안이 갈린다.
     //   ★지우지 말 것 — scripts/check-ritual-mirror.js가 전수 대조해 즉시 실패한다.
-    return {n:'부모님 덕담',nar:famOpen?'서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.':'이제 두 사람의 행복한 가정을 기원하는 부모님의 귀중한 덕담 말씀이 있겠습니다.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"좋은 말씀 들려주신 부모님께 큰 박수 부탁드립니다.",endLong:"부모님의 진심어린, 그리고 따뜻한 말씀 참으로 고맙습니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)')};
+    return {n:'부모님 덕담',nar:famOpen?'두 사람을 가장 오래 지켜봐 오신 부모님의 말씀을 듣겠습니다. 이제, 편히 들려주십시오.':'이제 두 사람의 행복한 가정을 기원하는 부모님의 귀중한 덕담 말씀이 있겠습니다.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"좋은 말씀 들려주신 부모님께 큰 박수 부탁드립니다.",endLong:"부모님의 진심어린, 그리고 따뜻한 말씀 참으로 고맙습니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)')};
   }
 };
 function fullBlocks(){
