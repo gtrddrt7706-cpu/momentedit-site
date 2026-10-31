@@ -2716,6 +2716,9 @@ function doPost(e) { _SRV = true; _IN_POST = true; /* [GSR_GATE 2026-10-09] 입�
       case 'snapWithdraw':       return jsonOut(handleSnapWithdraw(body));    // [SNAP_CONSENT] «스냅 기획 지우기» — 기획 · 올린 사진 · 동의 기록을 지운다(세션 인증 · 이 고객 것만)
       case 'snapBrief':          return jsonOut(handleSnapBrief(body));       // [SNAP_BRIEF] 촬영 브리프(무인증 · 추측 불가 주소 · 촬영 7일 뒤 만료) — brief.html
       case 'snapBriefImg':       return jsonOut(handleSnapBriefImg(body));    // [SNAP_BRIEF] 브리프의 올린 사진 1장(그 기획에 실린 것만)
+      case 'pvSave':             return jsonOut(handlePvSave(body));          // [PV_CAT_1031] 마이페이지 «식전 영상» 저장 · 보내기 · 확정(세션 인증) — 89_prevideo
+      case 'pvPhoto':            return jsonOut(handlePvPhoto(body));         // [PV_CAT_1031] 식전 영상 사진 1장 올리기(세션 인증 · 동의 · 칸별 장수) — 89_prevideo
+      case 'pvThumbs':           return jsonOut(handlePvThumbs(body));        // [PV_CAT_1031] 올린 사진의 작은 그림(세션 인증 · 이 고객 것만) — 89_prevideo
 
       case 'saveRefundAccount':  return jsonOut(handleSaveRefundAccount(body));   // [환불 안전망] 종료 고객 환불 계좌 셀프 제출
       // ── 97 · AI 상담 인계·가용성 (Vercel /api/handoff·/api/schedule-advisor → 이 웹앱) ──

@@ -275,7 +275,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
      막대가 있는 카드(.wz-pin · _wzPin)는 막대 앞 내용(.wz-main)이 남는 높이를 먹어 막대를 카드 끝에 둔다. 카드 아래 테 · 모서리는 화면 밖으로 이어지는 꼴로 */
 .mp-fs>*:only-child{flex:1 0 auto;margin-bottom:-48px;border-bottom-width:0;border-bottom-left-radius:0;border-bottom-right-radius:0}
 .consult-card.wz-pin{display:flex;flex-direction:column;padding-bottom:0}
-#mp_photoBody .wz-pin,#mp_snapBody .wz-pin{flex:1 0 auto;border-bottom-width:0;border-bottom-left-radius:0;border-bottom-right-radius:0}   /* [WZ_PIN] 가족 · 친구 스냅 · 스냅 기획 겹화면도 같은 꼴 */
+#mp_photoBody .wz-pin,#mp_snapBody .wz-pin,#mp_pvcBody .wz-pin{flex:1 0 auto;border-bottom-width:0;border-bottom-left-radius:0;border-bottom-right-radius:0}   /* [WZ_PIN] 가족 · 친구 스냅 · 스냅 기획 겹화면도 같은 꼴 */
 .wz-pin>.wz-main{flex:1 0 auto;min-width:0}
 /* [FAB_OVER_FS] 청첩장 위저드가 열리면 .mp-fs(z-index:950·불투명 전면)가 깔리는데,
    FAB 스택은 z-index:95라 '청첩장 샘플' 아이콘이 그 밑에 파묻혔다 —
@@ -2058,14 +2058,14 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
    ★막대가 붙는 것은 전체화면(.mp-fs · 스냅/가족·친구 스냅 겹화면) 안에서만 — 되살리지 말 것: 단추를 내용 끝으로 되돌리면
      긴 화면(좌석 · 가족·친구 스냅)에서 «다음»을 찾으러 끝까지 내려가야 했다. 이 마지막 스타일 묶음에 둬야 .seat-actions 보다 뒤라 이긴다. */
 .wz-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:18px 0 0}
-.mp-fs .wz-bar,#mp_snapOverlay .wz-bar,#mp_photoOverlay .wz-bar{position:sticky;bottom:0;z-index:5;padding:16px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white,#fff) 15px)}
+.mp-fs .wz-bar,#mp_snapOverlay .wz-bar,#mp_photoOverlay .wz-bar,#mp_pvcOverlay .wz-bar{position:sticky;bottom:0;z-index:5;padding:16px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white,#fff) 15px)}
 /* [WZ_BAR_EDGE] 붙는 선은 «틀의 안쪽 여백»만큼 올라간다(sticky 규칙) — 그대로 두면 막대가 화면 아래에서 떠 있고 그 밑으로 내용이 비쳤다(390 실측).
    틀마다 아래 여백만큼 내려 화면 맨 아래에 붙인다: .mp-fs 48 · 스냅 기획 24 · 가족·친구 스냅 44(각 틀의 padding-bottom 과 같은 값 — 틀 여백을 바꾸면 여기도). */
 .mp-fs .wz-bar{bottom:-48px}
-#mp_snapOverlay .wz-bar{bottom:-24px}
+#mp_snapOverlay .wz-bar,#mp_pvcOverlay .wz-bar{bottom:-24px}   /* [PV_CAT_1031] 식전 영상 겹화면도 스냅 기획과 같은 틀(아래 여백 24) */
 #mp_photoOverlay .wz-bar{bottom:-44px}
 /* [WZ_BAR_FOCUS] 막대가 아래에 붙으면 초점 간 입력칸이 막대 뒤로 숨을 수 있다(키보드 이동 · 폰 키보드가 화면을 줄일 때) — 스크롤이 막대 높이만큼 비켜 세운다 */
-.mp-fs,#mp_snapBody,#mp_photoBody{scroll-padding-bottom:96px}
+.mp-fs,#mp_snapBody,#mp_photoBody,#mp_pvcBody{scroll-padding-bottom:96px}
 .wz-bar .cc-btn,.wz-bar .cc-btn-ghost{width:auto;margin:0;border-radius:12px;padding:15px 18px;font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.02em;line-height:1.3}
 .wz-bar .cc-btn{flex:1 1 0;min-width:0}
 .wz-bar .cc-btn-ghost{flex:0 0 auto;min-width:82px;background:var(--bg2);border-color:var(--bg2);color:var(--sub)}
@@ -2133,6 +2133,143 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .dn-taphint::before{content:'';position:absolute;left:0;top:.66em;width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
 .dn-taphint b{color:var(--accent)}
 .hold-card.hold-ok{border-color:var(--gold);background:var(--gold-bg)}   /* [NOTE_DOT] 팔레트 밖 #cdb98a · #faf6ed → 금빛 · 옅은 금빛(같은 느낌 · 토큰) */
+/* ★★[PV_CAT_1031 2026-10-31 사장님 «추천대로진행»] 식전 영상 겹화면 — 시안 «식전영상 마이페이지 시안» 그대로.
+   한 벌 부품은 그대로 쓴다(.wz-bar · .wz-steps · .mp-dotln · [SEL_ONE] 금빛 테 한 겹 · [SEAL_CTA_ONLY] 확정만 진사). 이 화면에만 있는 것만 pvc-.
+   포스터 그림(.mock-pvc)은 화면 안의 작은 화면이라 글자 램프를 받지 않는다 · 색은 팔레트 토큰만. */
+#mp_pvcOverlay .pvc-card{text-align:left}
+.pvc-eye{margin:4px 0 6px;font-family:var(--serif);font-size:11px;letter-spacing:.18em;color:var(--gold-deep)}
+.pvc-h{margin:6px 0 6px;font-family:var(--serif-ko);font-size:20px;font-weight:500;letter-spacing:-.02em;line-height:1.4;color:var(--accent);outline:none;word-break:keep-all}
+.pvc-sub{margin:0 0 14px;font-family:var(--serif-ko);font-size:13px;line-height:1.7;color:var(--sub);word-break:keep-all}
+.pvc-when{margin:12px 0 16px}
+.pvc-poster{position:relative;display:block;width:100%;margin:0;padding:0;border:1px solid var(--hairline);border-radius:8px;overflow:hidden;background:var(--bg2);aspect-ratio:16/9;font:inherit;color:inherit;text-align:left}
+button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pvc-poster:focus-visible,.pvc-sty:focus-visible,.pvc-opt:focus-visible,.pvc-add:focus-visible,.pvc-pick:focus-visible,.pvc-play:focus-visible,.pvc-lk:focus-visible,.pvc-more:focus-visible,.pvc-x:focus-visible,.pvc-thx:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.pvc-cap{position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;background:rgba(250,250,248,.92);font-family:var(--serif-ko);font-size:12px;color:var(--accent)}
+.pvc-tri{display:inline-block;width:0;height:0;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.pvc-big{margin:4px 0 12px}
+.pvc-wait{display:flex;align-items:center;justify-content:center;margin:4px 0 12px}
+.pvc-wait .pvc-mk{font-family:var(--serif-ko);font-size:13px;letter-spacing:.08em;color:var(--sub)}
+.pvc-wait[aria-hidden] .pvc-mk{animation:pvcBreathe 2.4s ease-in-out infinite}   /* [NO_BOUNCE] 밝기만 숨쉰다 */
+@keyframes pvcBreathe{0%,100%{opacity:.45}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.pvc-wait[aria-hidden] .pvc-mk,.pvc-load{animation:none}}
+/* 포스터 그림 다섯 — 시안 그대로의 구도 · 팔레트 토큰 */
+.mock-pvc{position:absolute;inset:0;overflow:hidden}
+.mock-pvc i{position:absolute;display:block}
+.mock-pvc span{position:absolute;font-family:var(--serif-ko);font-size:9px;color:var(--accent);white-space:nowrap}
+.pvc-edit{background:var(--bg2)}
+.pvc-edit .pvc-pan{left:7%;top:13%;width:26%;height:62%;background:var(--bg3)}
+.pvc-edit .pvc-pan.b{left:37%;background:var(--border)}
+.pvc-edit .pvc-edl{left:68%;top:30%;width:24%;height:1px;background:var(--gold)}
+.pvc-edit span{left:68%;top:35%}
+.pvc-cine{background:var(--text)}
+.pvc-cine .pvc-lb{left:0;right:0;top:0;height:13%;background:#000}
+.pvc-cine .pvc-lb.b{top:auto;bottom:0}
+.pvc-cine span{left:0;right:0;top:44%;text-align:center;font-family:var(--serif);font-size:11px;letter-spacing:.22em;color:var(--bg)}
+.pvc-story{background:var(--bg3)}
+.pvc-story .pvc-sun{left:70%;top:13%;width:11%;aspect-ratio:1;border-radius:999px;background:var(--bg)}
+.pvc-story .pvc-hill{left:-6%;top:53%;width:48%;aspect-ratio:1;border-radius:999px;background:var(--gold);opacity:.6}
+.pvc-story .pvc-hill.b{left:30%;top:62%;width:54%;opacity:.85}
+.pvc-story span{left:0;right:0;top:25%;text-align:center}
+.pvc-retro{background:var(--accent)}
+.pvc-retro .pvc-holes{left:0;right:0;top:4%;height:4px;background:repeating-linear-gradient(90deg,var(--bg3) 0 6px,transparent 6px 16px)}
+.pvc-retro .pvc-holes.b{top:auto;bottom:4%}
+.pvc-retro .pvc-frame{left:9%;top:15%;right:9%;bottom:15%;background:var(--gold-deep)}
+.pvc-retro span{left:auto;right:13%;bottom:19%;font-family:var(--serif);font-size:10px;color:var(--gold-bg)}
+.pvc-scrap{background:var(--gold-bg)}
+.pvc-scrap .pvc-pol{left:10%;top:14%;width:29%;height:62%;border:1px solid var(--hairline);background:linear-gradient(var(--bg3),var(--bg3)) 4px 4px/calc(100% - 8px) 72% no-repeat,var(--card-white);transform:rotate(-3deg)}
+.pvc-scrap .pvc-pol.b{left:44%;top:20%;background:linear-gradient(var(--border),var(--border)) 4px 4px/calc(100% - 8px) 72% no-repeat,var(--card-white);transform:rotate(4deg)}
+.pvc-scrap .pvc-tape{left:77%;top:16%;width:13%;height:10%;background:var(--gold);opacity:.45}
+/* 첫 화면 — 두 길 · 보조 둘 */
+.pvc-opts{display:flex;flex-direction:column;gap:10px}
+.pvc-opt{display:flex;flex-direction:column;gap:3px;width:100%;min-height:44px;padding:15px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-white);text-align:left;cursor:pointer;font:inherit;color:var(--accent);-webkit-tap-highlight-color:transparent}
+.pvc-opt b{font-family:var(--serif-ko);font-size:16px;font-weight:600}
+.pvc-opt span{font-family:var(--serif-ko);font-size:13px;line-height:1.6;color:var(--sub)}
+@media (hover:hover){.pvc-opt:hover{border-color:var(--gold-deep)}}
+.pvc-subs{display:flex;justify-content:center;gap:20px;margin:12px 0 0}
+.pvc-lk{min-height:44px;padding:0 6px;border:0;background:none;font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:4px;cursor:pointer}
+@media (hover:hover){.pvc-lk:hover{color:var(--accent);text-decoration-color:currentColor}}
+.pvc-foot{margin-top:14px}
+.pvc-a{color:var(--gold-deep);text-underline-offset:3px;white-space:nowrap}
+/* ① 스타일 */
+.pvc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 14px}
+.pvc-sty{display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:var(--accent);-webkit-tap-highlight-color:transparent}
+.pvc-pos{position:relative;display:block;aspect-ratio:16/9;border-radius:6px;overflow:hidden;border:1px solid var(--hairline)}
+.pvc-sty.on .pvc-pos{border-color:var(--gold-deep)}   /* [SEL_ONE] · [SEL_THIN] 사진 칸은 테만 — 한 겹 */
+.pvc-badge{position:absolute;left:6px;bottom:6px;z-index:2;padding:2px 8px;border-radius:999px;background:var(--card-white);box-shadow:inset 0 0 0 1px var(--gold-deep);font-family:var(--serif-ko);font-size:11px;font-weight:600;color:var(--accent)}
+.pvc-nm{font-family:var(--serif-ko);font-size:14px;font-weight:500}
+.pvc-ds{font-family:var(--serif-ko);font-size:12px;line-height:1.5;color:var(--sub);word-break:keep-all}
+/* 미리보기 · 고치기 판 */
+.pvc-scrim{position:fixed;inset:0;z-index:20;background:rgba(28,27,25,.42)}
+.pvc-sheet{position:fixed;left:50%;bottom:0;z-index:21;width:100%;max-width:620px;box-sizing:border-box;transform:translateX(-50%);padding:16px 18px calc(18px + env(safe-area-inset-bottom,0px));border-radius:12px 12px 0 0;background:var(--card-white);box-shadow:0 -10px 40px rgba(28,27,25,.18);text-align:left}
+.pvc-sh-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pvc-sh-h b{font-family:var(--serif-ko);font-size:16px;font-weight:600;color:var(--accent)}
+.pvc-x{width:44px;height:44px;margin:-8px -10px -8px 0;border:0;background:none;font-size:16px;color:var(--sub);cursor:pointer}
+.pvc-sh-b .cc-btn,.pvc-sh-b .cc-btn-ghost{border-radius:12px;padding:15px 18px;font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.02em}
+.pvc-fixl{display:flex;flex-direction:column;gap:8px}
+.pvc-fixl .pvc-opt{padding:13px 16px}
+.pvc-player{position:relative;margin:4px 0 12px;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--text)}
+.pvc-player iframe,.pvc-player video{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* ② 사진 */
+.pvc-count{display:flex;justify-content:space-between;gap:10px;margin:0 0 6px;font-family:var(--serif-ko);font-size:13px;color:var(--accent)}
+.pvc-lim{color:var(--label-soft);font-size:12px}
+.pvc-sec{padding:12px 0;border-top:1px solid var(--hairline)}
+.pvc-sec-h{display:flex;flex-direction:column;gap:2px;margin:0 0 9px;font-family:var(--serif-ko)}
+.pvc-sec-h b{font-size:14px;font-weight:600;color:var(--accent)}   /* [SUBHEAD_ONE] */
+.pvc-sec-h span{font-size:12px;line-height:1.5;color:var(--sub)}
+.pvc-ths{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pvc-th{position:relative;display:block;aspect-ratio:1;border-radius:6px;background:var(--bg2) center/cover no-repeat;border:1px solid var(--hairline)}
+.pvc-load{position:absolute;inset:0;background:var(--bg3);animation:pvcBreathe 2.4s ease-in-out infinite;border-radius:6px}
+.pvc-thx{position:absolute;top:-6px;right:-6px;width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:flex-start;justify-content:flex-end}   /* [X_ONE] 누르는 칸 44px · 보이는 원은 작게 */
+.pvc-thx::after{content:'✕';display:flex;align-items:center;justify-content:center;width:22px;height:22px;margin:0;border-radius:999px;background:rgba(28,27,25,.62);color:#fff;font-size:11px}
+.pvc-add{display:flex;align-items:center;justify-content:center;aspect-ratio:1;border:1px dashed var(--border);border-radius:6px;background:var(--card-white);font-family:var(--serif-ko);font-size:20px;color:var(--gold-deep);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pvc-rows{border-top:1px solid var(--hairline)}
+.pvc-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--hairline)}
+.pvc-rl{display:flex;flex-direction:column;gap:2px;min-width:0;font-family:var(--serif-ko)}
+.pvc-rl b{font-size:14px;font-weight:600;color:var(--accent)}
+.pvc-rl>span{font-size:12px;line-height:1.5;color:var(--sub)}
+.consult-card .pvc-date{width:auto;max-width:156px;min-height:44px;margin:0;padding:8px 10px;font-size:14px}
+.pvc-rb{width:auto;min-width:72px;min-height:44px;padding:0 14px}
+/* ③ 곡 고르기 */
+.pvc-songs{display:flex;flex-direction:column;border-top:1px solid var(--hairline)}
+.pvc-song{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--hairline)}
+.pvc-play{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:58px;height:36px;padding:0;border:1px solid var(--gold-btn-border);border-radius:999px;background:var(--card-white);color:var(--accent);cursor:pointer}   /* [PLAY_PILL] 줄 듣기 알약 */
+.pvc-play[aria-disabled="true"]{opacity:.4}
+.pvc-meta{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px;font-family:var(--serif-ko)}
+.pvc-meta b{font-size:14px;font-weight:500;color:var(--accent);word-break:keep-all}
+.pvc-meta>span{font-size:12px;color:var(--sub)}
+.pvc-rec{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--label-soft)}
+.pvc-pick{flex:0 0 auto;min-width:72px;min-height:44px;padding:0 12px;border:1px solid var(--border);border-radius:999px;background:var(--card-white);font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer}
+.pvc-song.on .pvc-pick{border-color:var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}   /* [SEL_ONE] 칩 */
+.pvc-more{display:flex;align-items:center;gap:6px;min-height:44px;margin:4px 0 0;padding:0;border:0;background:none;font-family:var(--serif-ko);font-size:13px;color:var(--gold-deep);cursor:pointer}
+.pvc-rest{margin-top:14px}
+/* 만드는 중 · 확인 */
+.pvc-summ{margin:0 0 10px;font-family:var(--serif-ko);font-size:13px;line-height:1.65;color:var(--accent);word-break:keep-all}
+.pvc-fix{width:auto;min-height:44px;padding:0 18px}
+.pvc-flow{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--hairline)}
+.pvc-flow-h{margin:0 0 10px;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent)}
+.pvc-fl{position:relative;display:flex;justify-content:space-between;margin:0;padding:0;list-style:none}
+.pvc-fl::before{content:'';position:absolute;left:8%;right:8%;top:4px;height:1px;background:var(--border)}
+.pvc-fl li{position:relative;flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:7px;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);text-align:center;word-break:keep-all}
+.pvc-fl li i{display:block;width:9px;height:9px;border-radius:999px;background:var(--card-white);box-shadow:inset 0 0 0 1px var(--border)}
+.pvc-fl li.on{color:var(--accent);font-weight:600}
+.pvc-fl li.on i{background:var(--seal);box-shadow:none}   /* 진사는 점에만 */
+.wz-bar .cc-btn.pvc-seal{background:var(--seal)}   /* [SEAL_CTA_ONLY] «이 영상으로 확정» — 결정적 행동 */
+.wz-bar .cc-btn.pvc-off{background:var(--bg3);color:var(--sub)}
+/* 준비한 영상 */
+.pvc-up{margin:2px 0 0}
+.pvc-lab{display:block;margin:0 0 7px;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent)}
+.pvc-help{margin:2px 0 0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--sub);word-break:keep-all}
+.pvc-after{margin-top:18px;padding-top:14px;border-top:1px solid var(--hairline)}
+.pvc-after .mp-dotln:first-of-type{margin-top:0}
+.pvc-linkcard{margin:4px 0 6px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card-white)}
+.pvc-linkcard>span{display:block;font-family:var(--sans);font-size:13px;color:var(--accent);overflow-wrap:anywhere}
+.pvc-state{display:flex;align-items:center;gap:7px;margin:8px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub)}
+.pvc-state i{width:6px;height:6px;border-radius:999px;background:var(--gold-deep)}
+.pvc-relink{margin-top:2px}
+.pvc-caps{margin:0;font-family:var(--serif-ko);text-align:left}
+.pvc-caps div{padding:8px 0;border-bottom:1px solid var(--hairline)}
+.pvc-caps dt{font-size:12px;color:var(--label-soft)}
+.pvc-caps dd{margin:2px 0 0;font-size:13px;line-height:1.6;color:var(--accent);word-break:keep-all}
 </style>
     <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true" aria-labelledby="mpModalTitle"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
@@ -2243,7 +2380,7 @@ function contractSrc(product, docVersion){
    열려 있는데도 뒤 배경이 함께 스크롤되고, 닫고 나면 엉뚱한 자리에 서 있다.
    ★새 전체화면 오버레이를 만들면 여기 id 를 더할 것. 세는 곳을 늘리지 말 것.
    ※'무엇을 편집 중인가'(_prodOpenTrack)와 '상담사를 숨길까'(advisor hideOn)는 묻는 질문이 달라 이 목록을 쓰지 않는다 — 각 자리에 이유를 적어 뒀다. */
-var MP_FS_OVERLAYS=['mp_snapOverlay','mp_photoOverlay','mp_obViewer','mp_ctViewer','mp_ftViewer','mp_rpViewer','mp_drViewer','mp_invSample'];   // ★[DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 · 청첩장 샘플이 빠져 있어 창이 떠 있는 동안 화면을 다시 그리면(show) 잠금이 풀리고 뒤 마이페이지가 스크롤됐다
+var MP_FS_OVERLAYS=['mp_snapOverlay','mp_photoOverlay','mp_pvcOverlay','mp_obViewer','mp_ctViewer','mp_ftViewer','mp_rpViewer','mp_drViewer','mp_invSample'];   // ★[DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 · 청첩장 샘플이 빠져 있어 창이 떠 있는 동안 화면을 다시 그리면(show) 잠금이 풀리고 뒤 마이페이지가 스크롤됐다
 function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getElementById(MP_FS_OVERLAYS[i])) return true; } return false; }
 // [당겨서 새로고침 · 상단] 맨 위에서 아래로 당기면 상태 새로고침(2026-07-18 사용자 지시 · 하단 방식에서 반전).
 //   전체 리로드가 아니라 loadMyState(로그인 유지·서버 최신 상태만) · 위저드·오버레이 편집 중엔 입력 보호를 위해 비활성.
@@ -2722,7 +2859,7 @@ function openRitualPreview(p, inv){
    (단계 저장 실패 알림도 2/4 「다음」 가운데를 덮었다 · 320 은 네 줄로 접혀 「수정하기」까지). 알림은 누름을 받지 않고(mpToast 와 같게),
    보이는 막대와 겹치면 그 막대 위 12px 로 올라선다. 겹치지 않으면(막대 없는 화면 · 막대가 화면 가운데 선 짧은 단계) 종전 자리 그대로. 알림 문구 · 막대 모양은 그대로다. */
 function _toastOverBar(t){ try{
-  var tr=t.getBoundingClientRect(), bs=document.querySelectorAll('.mp-fs .wz-bar,#mp_snapOverlay .wz-bar,#mp_photoOverlay .wz-bar');
+  var tr=t.getBoundingClientRect(), bs=document.querySelectorAll('.mp-fs .wz-bar,#mp_snapOverlay .wz-bar,#mp_photoOverlay .wz-bar,#mp_pvcOverlay .wz-bar');
   for(var i=bs.length-1;i>=0;i--){ var r=bs[i].getBoundingClientRect();
     if(r.height && r.top<innerHeight && r.bottom>0 && r.top<tr.bottom && r.bottom>tr.top){ t.style.bottom=Math.max(34, Math.round(innerHeight-r.top+12))+'px'; return; } }
 }catch(e){} }
@@ -2917,7 +3054,7 @@ function _mpUnlock(){
 //   show()가 마이페이지·로그인 등 '바탕 화면'으로 돌아올 때 호출 — orphan 잠금이 화면을 굳히지 못하게. 뜬 게 있으면(가드 통과) 절대 손대지 않아 정상 잠금은 보존.
 function _mpLockReconcile(){
   try{
-    if((typeof INVFLOW!=='undefined'&&INVFLOW.active)||(typeof TRKFLOW!=='undefined'&&TRKFLOW.active)||(typeof SEATFLOW!=='undefined'&&SEATFLOW.active)||(typeof SNAPFLOW!=='undefined'&&SNAPFLOW.active)||(typeof PHOTOFLOW!=='undefined'&&PHOTOFLOW.active)) return;   // 편집 플로우 진행 중
+    if((typeof INVFLOW!=='undefined'&&INVFLOW.active)||(typeof TRKFLOW!=='undefined'&&TRKFLOW.active)||(typeof SEATFLOW!=='undefined'&&SEATFLOW.active)||(typeof SNAPFLOW!=='undefined'&&SNAPFLOW.active)||(typeof PHOTOFLOW!=='undefined'&&PHOTOFLOW.active)||(typeof PVCFLOW!=='undefined'&&PVCFLOW.active)) return;   // 편집 플로우 진행 중
     var pb=$('mp_production'); if(pb&&pb.classList.contains('mp-fs')) return;   // 제작 편집 전체화면 진행 중
     if(_mpFsOpen()) return;   // [MP_FS_OVERLAYS] 동적 전체화면 오버레이 열림(닫으면 DOM서 제거됨) — 목록은 한 곳
     if(document.querySelector('.mp-modal.open, .pv-modal.open')) return;   // 확인·서명·원장·이미지 모달 열림
@@ -3467,13 +3604,13 @@ function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
    ★고객이 직접 고칠 입력 안내(«입금자명을 입력해 주세요»)에는 코드를 붙이지 않는다. 코드는 서버 · 연결 · 기기 실패에만. */
 var ERR_W={1:'요청이 몰렸어요',5:'응답이 늦어요',6:'연결이 끊겼어요',7:'서버가 잠깐 멈췄어요',8:'로그인이 풀렸어요'};   // [ERR_CODE_MYPAGE] 앞 반 = 무슨 일(정직하게)
 var ERR_DO={1:'잠시 뒤 다시 눌러 주세요',5:'잠시 뒤 다시 눌러 주세요',6:'다시 눌러 주세요',7:'다시 눌러 주세요',8:'다시 로그인해 주세요'};   // 뒤 반 = 할 일(자리마다 바꿔 쓸 수 있다 · 8 은 늘 로그인)
-var ERR_ACT={login:'L',autologin:'L',verify:'L',getMyState:'L',findCode:'L',resetPw:'L',doResetPw:'L',getSignature:'L',getResultGallery:'L',snapThumbs:'L',ritualFileGet:'L',
+var ERR_ACT={login:'L',autologin:'L',verify:'L',getMyState:'L',findCode:'L',resetPw:'L',doResetPw:'L',getSignature:'L',getResultGallery:'L',snapThumbs:'L',ritualFileGet:'L',pvThumbs:'L',
   getAvailability:'B',submitSchedule:'B',cancelReservation:'B',acceptProposal:'B',
   weddingAvailability:'C',changeWeddingHold:'C',cancelWeddingHold:'C',quoteWeddingChange:'C',requestWeddingChange:'C',cancelWeddingChange:'C',requestContract:'C',requestContractResend:'C',signFittingConsent:'C',signContract:'C',
   paymentSignal:'P',midSignal:'P',balanceSignal:'P',extraRetouchSignal:'P',cardConfirm:'P',cardPayConfig:'P',saveCashReceipt:'P',saveRefundAccount:'P',
   submitResultSelection:'R',requestExtraRetouch:'R',confirmRetouch:'R',requestRevision:'R',submitSurvey:'R',
-  saveProductionBase:'S',saveProductionTrack:'S',saveInvitationDraft:'S',saveInvitationPreview:'S',publishInvitation:'S',saveDressPick:'S',
-  snapRefUpload:'U',ritualFile:'U',ritualFileDel:'D',ritualFilePurgeMine:'D',snapWithdraw:'D',voiceClone:'V'};   // 서버 95_notify ERR_AREA 와 같은 글자 — 브라우저에서 난 실패도 같은 글자로
+  saveProductionBase:'S',saveProductionTrack:'S',saveInvitationDraft:'S',saveInvitationPreview:'S',publishInvitation:'S',saveDressPick:'S',pvSave:'S',
+  snapRefUpload:'U',ritualFile:'U',pvPhoto:'U',ritualFileDel:'D',ritualFilePurgeMine:'D',snapWithdraw:'D',voiceClone:'V'};   // 서버 95_notify ERR_AREA 와 같은 글자 — 브라우저에서 난 실패도 같은 글자로
 var ERR_SESS={expired:1,invalid:1,no_token:1,tab_stale:1};   // [TAB_GUARD] tab_stale = 옛 창 · 그 사이 바뀐 답(_post) — _errGoLogin 이 _tabDrop 으로 멈춘다
 var ERR_BUSY_OLD=/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 옛 서버의 잠금 대기 문구(서버 ERR_BUSY_RE 와 같다)
 function _errIsRej(x){ return !!x && typeof x==='object' && (x instanceof Error || !!x.meKind || (typeof x.name==='string' && typeof x.message==='string' && !('ok' in x))); }   // 서버 답이 아니라 «던져진 것»인가
@@ -7187,6 +7324,7 @@ function renderProduction(p, inv){
   _panelToggle('mp_cfOpen','mp_cfPanel'); _panelToggle('mp_guideOpen','mp_guidePanel');
   var _phBtn=$('mp_photoStart'); if(_phBtn) _phBtn.addEventListener('click', function(){ var _dd=p.diningDraft||null, _ml=(_dd&&(String(_dd.dining_on||'')==='N'||String(_dd.venuePick||'')==='다이닝 없이 진행할게요'))?'no':((window.RitualPreviewLink&&RitualPreviewLink.mealOf(_dd, DN_PLACEHOLDER))?'yes':'');   /* [PHOTO_DAY_STEPS] 감사 인사 뒤 가실 곳 — 식당을 골랐나(yes) · 안 함(no) · 아직 모름('') */
     startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false, !!p.photoFriendOk, _ml); });   /* [PHOTO_FRIEND] 서버가 새 칸을 알 때만 연다 */   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
+  var _pvcB=$('mp_pvcStart'); if(_pvcB) _pvcB.addEventListener('click', function(){ startPvcFlow(p.prevideo||{}); });   // [PV_CAT_1031] 식전 영상
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
     var _dd0=p.diningDraft||{};
@@ -8310,6 +8448,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
      누르면 식순 빌더 ③ 연습 화면이 열리고 «준비할 것» 목록이 장면 카드 아래 펼친 채 있다(order-preview PR_PREP_FOLD).
      ★줄 아래로 펼치던 «준비할 것» 단추 · 목록(mp_ritualPrep · mp_ritPrepBox)을 되살리지 말 것 — 같은 목록이 두 곳이 된다 */
   var _ritPre2=null;   // [PREP_LINK] 목록이 있을 때만
+  var _pvRow={ done:true, html:'' };   // [PV_CAT_1031] 식전 영상 줄 — 시안 «식전 영상 줄이 바뀌는 모습» 여덟 모양(_pvcRow)
+  try{ if(typeof PVC_ON!=='undefined' && PVC_ON && p && p.prevideo && p.prevideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _pvR=_pvcRow(p.prevideo); _pvRow={ done:_pvR.done, html:row('식전 영상', _pvR.st, 'mp_pvcStart', _pvR.label, null, {tag:_pvR.tag}) }; } }catch(e){}
   var _prepRows=[
     /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
        종전 순서는 청첩장 · 식순 · 애프터 웨딩 · 좌석·음료 · 단체 사진이었다. 식순 아래 접힘 두 줄(준비 목록 · 부케)은 식순에 딸린 것이라 식순과 함께 옮긴다.
@@ -8339,7 +8479,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, _migOfferSub(), {pre:_ritPre, pre2:_ritPre2}) },   /* [OLD_DRAFT_OFFER] 되찾을 예전 고침이 있을 때만 줄 아래 한 줄(설명이 아니라 알림 · TRK_NO_SUB 의 예외) */
     { done: true, html: '' },   /* [PR_PREP_ONE] 준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다 */   // [PREP_LINK] 요약 줄은 끈 채 «준비할 것» 단추가 여는 목록   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
-    { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
+    { done: true, html: _bouquetFold(base) },
+    _pvRow,   /* ★[PV_CAT_1031] 식전 영상 — 식순에 딸린 순서(개식 선언 뒤 · 입장 전 상영)라 식순 · 부케 바로 뒤 · 서버가 상태를 안 보내면(옛 GAS · 웨딩스냅) 빈 줄 */   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2||_frB2||_ocB2), html: (function(){ var _ph=(_gpB2.photo||[]), _any=!!(_fxB2||_frB2||_ocB2); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_any?'완료 · 수정':'구도 고르기'); return row('가족 · 친구 스냅', (_ph.length||_any)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 3부 2] 구도가 있으면 «전체 하객 + N컷», 구도는 없고 다른 내용(요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크)이 있으면 «완료 · 수정» + ✓ — 종전엔 요청만 «요청 N개», 불러 모을 분 · 링크만이면 «구도 고르기»(✓ 없음)로 남아 저장 알림과 다른 말을 했다 */   /* [PHOTO_FRIEND_ROW] 친구 부탁만 = ✓ · 「완료 · 수정」 */   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */
   ];
@@ -8509,9 +8650,16 @@ var WIZ_ADAPT={
         exitSave:function(){ exitSnapFlow(); },
         exitBare:function(){ _snapLocalDel(); _snapTearDown(); _mpRefresh(); },   // «그냥 나가기» — 저장하지 않은 것은 남지 않는다(이 기기의 임시본도)
         exitAsk:function(){ return _snapExitAsk(); },   // [SNAP_PRECONSENT_EXIT] 동의 전이면 «이 기기에 둘까요?» 판(_wizExit 가 먼저 묻는다)
-        own:function(){ return SNAPFLOW; } }
+        own:function(){ return SNAPFLOW; } },
+  /* [PV_CAT_1031] 식전 영상 — 저장 · 나가기 한 벌(올린 사진은 올릴 때 이미 서버에 붙는다 · «그냥 나가기»는 그 밖의 고침만 버린다) */
+  pvc:{ on:function(){ return typeof PVCFLOW!=='undefined' && PVCFLOW.active; },
+        data:function(){ _pvcCollect(); return PVCFLOW.d; },
+        save:function(){ if(PVCFLOW.past) return; return _pvcSave('save'); },
+        exitSave:function(){ exitPvcFlow(); },
+        exitBare:function(){ _pvcTearDown(); _mpRefresh(); },
+        own:function(){ return PVCFLOW; } }
 };
-var WIZ_ORDER=['inv','trk','seat','photo','snap'];
+var WIZ_ORDER=['inv','trk','seat','photo','snap','pvc'];
 function _wizCurId(){ for(var i=0;i<WIZ_ORDER.length;i++){ var id=WIZ_ORDER[i]; try{ if(WIZ_ADAPT[id].on()) return id; }catch(e){} } return ''; }
 function _wizStart(id){ WIZ_BASE={}; WIZ_ST={}; try{ WIZ_BASE[id]=_wizJson(WIZ_ADAPT[id].data()); }catch(e){ WIZ_BASE[id]=''; } }   // 위저드를 열 때 1회 — 기준선을 여기서 잡아야 '아무것도 안 바꾸고 나가기'가 조용하다
 /* [WIZ_EXIT_ONE] 저장을 지켜본다 — **보낸 그 순간의 값**을 기준선으로 삼는다.
@@ -11479,6 +11627,401 @@ function _snapAgreeOk(){   // [SNAP_CONSENT] 체크 줄이 없으면(이미 동�
   try{ wrap.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){}
   return false;
 }
+/* ★★[PV_CAT_1031 2026-10-31 사장님 «추천대로진행» · «켜도상관없어» · «지금은 실고객이없어»] 마이페이지 «식전 영상»
+   흐름 = 첫 화면(A안 · 사장님 확정) → 사진으로 만들기 4걸음(스타일 → 사진 → 음악 → 확인) · 준비한 영상 올리기(영상 보내기 → 확인) · 나중에 준비하기 · 사용하지 않기.
+   문구 = 비공개 기획서 11 · 11-1 · 11-2장(고객 입장 검토 4라운드 «개선점 없음»)과 시안 «식전영상 마이페이지 시안»(12장)의 말 그대로.
+   저장 = 89_prevideo(pvSave · pvPhoto · pvThumbs) · 상태는 서버가 p.prevideo 로 보낸다(없으면 옛 GAS — 줄이 안 보인다).
+   ★1차에서 뺀 것은 화면에도 두지 않는다(죽은 단추 금지) — 짧은 영상 · 인사 영상 · 큰 파일 올리기 · 문구 고치기 · 카톡 알림.
+     그래서 «알려 드려요» 대신 «이 화면에서 확인할 수 있어요»라고 쓴다(알림이 생기면 그때 바꾼다 · 책임질 수 없는 약속 금지).
+   ★예시 영상(PVC_EX)이 비어 있으면 «예시 영상을 만들고 있어요» — 그림 포스터를 «같은 사진으로 만든 예시»라 부르지 않는다.
+     곡 미리듣기(PVC_SONG_PREV)도 같다 — 열기 전에는 ▶ 가 흐리고 누르면 아래 알림 한 줄([AI_PLAY_READY] 와 같은 결). */
+var PVC_ON=true;   // [PV_CAT_1031] 기능 스위치 · 사장님 «켜도 상관없어» — false 면 줄도 화면도 안 보인다
+var PVC_STYLES=[   // 89_prevideo PV_STYLES 와 같은 순서 · 같은 열쇠
+  {k:'editorial', n:'에디토리얼', d:'화보집처럼 여백과 사진 패널'},
+  {k:'cinematic', n:'시네마틱', d:'영화 예고편 같은 검은 화면과 크레딧'},
+  {k:'storybook', n:'스토리북', d:'동화책을 펼치듯 그림으로 여는 이야기'},
+  {k:'retro', n:'레트로 필름', d:'필름 프레임과 날짜 각인'},
+  {k:'scrapbook', n:'팝 스크랩북', d:'사진을 오려 붙인 듯 밝고 경쾌하게'}];
+/* 곡 = 기획서 «곡 후보» 표(유튜브 식전 · 오프닝 영상에 많이 쓰인 곡) · s = 먼저 보여 줄 분위기(분위기마다 4곡까지 · 앞의 2곡에 «추천») */
+var PVC_SONGS=[
+  {k:'mujin', t:'청혼하지 않을 이유를 못 찾았어', a:'이무진', s:['editorial','cinematic']},
+  {k:'oban', t:'flower', a:'오반', s:['editorial','storybook']},
+  {k:'grizzly', t:'우리 다투게 돼도 이것만 기억해 줄래', a:'그리즐리', s:['retro','storybook']},
+  {k:'geomjeong', t:'한시 오분', a:'검정치마', s:['cinematic','retro']},
+  {k:'fx', t:'All Mine', a:'f(x)', s:['scrapbook']},
+  {k:'hyukoh', t:'LOVE YA!', a:'혁오', s:['scrapbook','retro']},
+  {k:'jake', t:'Lucky Me', a:'Jake Miller', s:['scrapbook']},
+  {k:'day6', t:'Welcome to the Show', a:'DAY6', s:['scrapbook','cinematic']},
+  {k:'roykim', t:'달리 표현할 수 없어요', a:'로이킴', s:['editorial']},
+  {k:'dks', t:'Popcorn', a:'도경수', s:['storybook']},
+  {k:'wonstein', t:'Promise', a:'원슈타인', s:['editorial']},
+  {k:'elijah', t:'24/7, 365', a:'Elijah Woods', s:['scrapbook']}];
+var PVC_SECS=[   // 89_prevideo PV_UP.first · days · today 와 같은 수
+  {k:'first', n:'처음', max:4, d:'어린 시절 · 최대 4장 · 선택 · 없으면 비워도 돼요'},
+  {k:'days', n:'우리의 날들', max:10, d:'최대 10장'},
+  {k:'today', n:'오늘', max:6, d:'최대 6장 · 웨딩 사진이나 최근 두 분 사진'}];
+var PVC_STEPS=['스타일','사진','음악','확인'];
+var PVC_EX={};   // 예시 영상 주소 — {sample:'…', editorial:'…', …} · 비어 있으면 «예시 영상을 만들고 있어요»
+var PVC_SONG_PREV=false;   // 곡 미리듣기(영상에 들어갈 구간) — 사용 허락 · 구간 파일이 준비되면 켠다
+var PVC_CAPS=[['표지','A day to remember. A life to share.'],['처음','서로를 알기 전의 우리 · 각자의 작은 시작'],['우리의 날들','그리고, 당신을 만났습니다 · 평범해서 더 소중했던 날들 · 늘 곁에 있던 마음 · 함께 지나온 계절'],['오늘','그리고 오늘, · 이제, 같은 내일로'],['크레딧','오늘 함께해 주신 여러분 · Our story begins now']];   // 기획서 10장 «기본 문구 세트»
+var PVC_THUMBS={};
+var PVCFLOW={active:false};
+
+function _pvcSecs(n){ return n<5?0:Math.round(70+(n-5)*47/15); }   // 기획서 5장: 5장 70초 · 20장 117초
+function _pvcLen(n){ var s=_pvcSecs(n); return s?('약 '+Math.floor(s/60)+'분 '+(s%60)+'초'):''; }
+function _pvcMd(ymd){ var m=String(ymd||'').match(/^(\d{4})-(\d{2})-(\d{2})/); return m?((+m[2])+'월 '+(+m[3])+'일'):''; }
+function _pvcDueTxt(due){ var m=String(due||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return ''; var w='일월화수목금토'.charAt(new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).getUTCDay()); return (+m[2])+'월 '+(+m[3])+'일('+w+') 23:59'; }
+function _pvcNewD(d){ d=d||{}; var A=function(v){ return Object.prototype.toString.call(v)==='[object Array]'?v:[]; };
+  return { v:1, mode:(d.mode==='make'||d.mode==='upload')?d.mode:'', step:Math.max(0,Math.min(3,+d.step||0)), style:String(d.style||''), song:String(d.song||''),
+    photos:A(d.photos).filter(function(p){ return p&&p.id; }).map(function(p){ return {id:String(p.id), th:String(p.th||''), sec:String(p.sec||'days'), n:String(p.n||'')}; }),
+    met:String(d.met||''), link:String(d.link||'') }; }
+/* 예식 준비 줄 — 시안 «식전 영상 줄이 바뀌는 모습»의 여덟 모양 그대로 */
+function _pvcRow(v){
+  v=v||{}; var st=String(v.st||''), d=_pvcNewD(v.d), left=null;
+  try{ left=v.due?_kstDdayOf(v.due):null; }catch(e){}
+  var urgent=function(){ if(left==null || left>14) return null; return left<0?'기한 지남':(left===0?'오늘까지':(_pvcMd(v.due)+'까지')); };
+  if(st==='done') return {done:true, st:'완료', label:'완료 · 수정', tag:null};
+  if(st==='editing') return {done:true, st:'완료', label:'이어하기', tag:'수정 중'};
+  if(st==='off') return {done:true, st:'', label:'다시 정하기', tag:'안 함'};
+  if(st==='making') return {done:false, st:'', label:'보기', tag:'만드는 중'};
+  if(st==='checking') return {done:false, st:'', label:'보기', tag:'스튜디오 확인 중'};
+  if(st==='review') return {done:false, st:'', label:'영상 확인', tag:'확인 필요'};
+  if(st==='draft' && d.mode) return {done:false, st:'', label:'이어하기', tag:urgent()||(d.mode==='make'?(PVC_STEPS[Math.min(d.step,2)]+' 단계'):null)};
+  return {done:false, st:'', label:'시작하기', tag:urgent()};
+}
+function _pvcScrOf(F){
+  var st=F.st, d=F.d;
+  if(st==='making') return 'making';
+  if(st==='checking') return 'sent';
+  if(st==='review' || st==='done') return 'confirm';
+  if(F.past) return 'locked';
+  if(d.mode==='upload' && (st==='draft'||st==='editing')) return 'upload';
+  if(d.mode==='make' && (st==='draft'||st==='editing')) return ['style','photos','music','music'][d.step]||'style';
+  return 'start';
+}
+function startPvcFlow(v){
+  v=v||{};
+  bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false; bkKill(PHOTOFLOW); PHOTOFLOW.active=false;
+  var left=null; try{ left=v.due?_kstDdayOf(v.due):null; }catch(e){}
+  PVCFLOW={ active:true, d:_pvcNewD(v.d), st:String(v.st||''), consent:!!v.consent, prev:v.prev||null, conf:v.conf||null, due:String(v.due||''), wed:String(v.wed||''), past:(left!=null && left<0), sheet:'', more:false, scr:'' };
+  PVCFLOW.scr=_pvcScrOf(PVCFLOW);
+  var old=$('mp_pvcOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var ov=document.createElement('div'); ov.id='mp_pvcOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','식전 영상');
+  ov.style.cssText='position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
+  var body=document.createElement('div'); body.id='mp_pvcBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:20px 16px 24px';
+  var inner=document.createElement('div'); inner.id='mp_pvcInner'; inner.style.cssText='max-width:620px;margin:0 auto -24px;width:100%;flex:1 0 auto;display:flex;flex-direction:column';   // [WZ_PIN] 스냅 기획과 같은 틀 — 머리는 위 · 막대는 화면 아래
+  body.appendChild(inner); ov.appendChild(body); document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity='1'; });
+  _mpLock();
+  _layerInertOn(ov);   // [C2_LAYER_INERT] 뒤 페이지는 막고 위에 뜨는 판(확인 창 · 알림)은 그대로
+  PVCFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
+  _wizStart('pvc');
+  renderPvc();
+  body.scrollTop=0;
+  _pvcFocusHead();
+  _pvcLoadThumbs();
+}
+function _pvcFocusHead(){ try{ var h=document.querySelector('#mp_pvcInner .pvc-h'); if(h){ h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); } }catch(e){} }
+function _pvcTearDown(){
+  _flowBusy(false);
+  if(PVCFLOW._bk!=null){ bkDone(PVCFLOW._bk); PVCFLOW._bk=null; }
+  var ov=$('mp_pvcOverlay'); _layerInertOff(ov, true); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov);
+  _mpUnlock(); PVCFLOW.active=false; PVCFLOW._exiting=false;
+}
+function _pvcOut(d){ d=d||{}; return { v:1, mode:d.mode||'', step:+d.step||0, style:d.style||'', song:d.song||'', photos:(d.photos||[]).map(function(p){ return {id:p.id, th:p.th||'', sec:p.sec, n:p.n||''}; }), met:d.met||'', link:d.link||'' }; }
+function _pvcApply(v){ if(!v||!PVCFLOW.active) return; PVCFLOW.st=String(v.st||''); PVCFLOW.prev=v.prev||null; PVCFLOW.conf=v.conf||null; PVCFLOW.consent=!!v.consent; if(v.due) PVCFLOW.due=String(v.due); }
+function _pvcSave(op, extra){
+  var F=PVCFLOW, body={action:'pvSave', token:getToken(), op:op||'save', draft:_pvcOut(F.d)};
+  if(extra){ for(var k in extra){ if(Object.prototype.hasOwnProperty.call(extra,k)) body[k]=extra[k]; } }
+  var pr=_post(body, 30000).then(function(r){ if(r&&r.ok&&r.pv){ _pvcApply(r.pv); try{ if(window._lastProd) window._lastProd.prevideo=r.pv; }catch(e){} } return r; }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });
+  return _wizWatch('pvc', pr);   // 어느 길로 보낸 저장이든 머리 알약이 «저장 중… · 저장됨 · 다시 저장»을 말한다
+}
+function _pvcCollect(){ var F=PVCFLOW; if(!F.active) return; var l=$('mp_pvcLink'); if(l) F.d.link=String(l.value||'').trim(); var m=$('mp_pvcMet'); if(m) F.d.met=String(m.value||''); }
+function _pvcGo(scr, step){
+  var F=PVCFLOW; _pvcCollect();
+  if(step!=null) F.d.step=step;
+  F.scr=scr; F.sheet='';
+  try{ if(!F.past && (F.d.mode==='make'||F.d.mode==='upload') && _wizDirty('pvc')) _pvcSave('save').catch(function(){}); }catch(e){}   // [SNAP_STEP_SAVE] 걸음을 넘길 때 바뀐 게 있으면 저장(스냅 기획과 같은 방식)
+  renderPvc();
+  var b=$('mp_pvcBody'); if(b) b.scrollTop=0;
+  _pvcFocusHead();
+}
+function exitPvcFlow(){ _mpHoldScroll();
+  if(PVCFLOW._exiting) return; _pvcCollect();
+  if(PVCFLOW.past || !(PVCFLOW.d.mode==='make'||PVCFLOW.d.mode==='upload')){ _pvcTearDown(); _mpRefresh(); return; }   // 고른 것이 없다 · 기한이 지났다 — 보낼 것이 없다
+  PVCFLOW._exiting=true; _flowBusy(true);
+  _pvcSave('save').then(function(r){
+    if(r&&r.ok){ window._mpNextToast='저장했어요'; _pvcTearDown(); _mpRefresh(); return; }
+    _flowBusy(false); PVCFLOW._exiting=false;
+    if(!bkAlive(PVCFLOW._bk)) PVCFLOW._bk=bkOpen(function(){ exitPvcFlow(); });
+    if(_errSess(r)){ _saveSessAsk(r); return; }
+    mpConfirm({ title:'저장이 안 됐어요', bodyHtml:_errHtml(_saveFailBody(r)), yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY] 바깥 누름 · Esc = 머문다
+      .then(function(a){ if(a===null) return; if(a) exitPvcFlow(); else { _pvcTearDown(); _mpRefresh(); } });
+  });
+}
+/* 머리 · 진행 표시 · 아래 막대 — 다른 입력 화면과 같은 한 벌([WZ_BAR] · [WZ_STEPS]) */
+function _pvcHead(){ return '<div class="inv-head"><span class="inv-step-n">식전 영상</span>'+wizActs()+'</div>'; }
+function _pvcSteps(cur){ var F=PVCFLOW, free=(F.st==='draft'||F.st==='editing');   // 보낸 뒤(만드는 중 · 확인 필요 · 확정)에는 걸음을 눌러 건너뛰지 않는다 — «이전» · «고치기»로만
+  if(F.d.mode==='upload') return wzSteps(['영상 보내기','확인'], cur);
+  return wzSteps(PVC_STEPS, cur, free?'data-pvcstep':''); }
+function _pvcBar(back, main){ return '<div class="wz-bar pvc-bar">'+(back||'')+(main||'')+'<p class="wz-err" id="mp_pvcErr" role="alert"></p></div>'; }
+function _pvcBtn(lab, attr, kind){ return '<button type="button" class="'+(kind==='ghost'?'cc-btn-ghost':'cc-btn')+(kind==='seal'?' pvc-seal':'')+(kind==='off'?' pvc-off':'')+'" '+attr+'>'+escapeHtml(lab)+'</button>'; }
+function _pvcErr(t){ var e=$('mp_pvcErr'); if(e) e.textContent=t||''; }
+function _pvcDots(lines){ return lines.filter(Boolean).map(function(t){ return '<p class="mp-dotln">'+t+'</p>'; }).join(''); }
+function _pvcDueLine(extra){ var t=_pvcDueTxt(PVCFLOW.due); return t?('확정 기한 '+escapeHtml(t)+(extra?'<br>'+extra:'')):(extra||''); }
+/* 다시 보내는 동안에도 확정본이 산다 — 그 사실과 확정본 보기(서버 conf.url)를 한 줄로 */
+function _pvcOldLine(){ var c=PVCFLOW.conf; if(!c || PVCFLOW.st==='done') return '';
+  return '새 영상을 다시 확정하기 전까지 기존 확정본으로 진행해요.'+(c.url?' <a class="pvc-a" href="'+escapeHtml(c.url)+'" target="_blank" rel="noopener">확정본 보기</a>':''); }
+/* 포스터 그림 — 화면 안의 작은 화면이라 글자 램프를 받지 않는다(mock-) */
+function _pvcPoster(k){
+  if(k==='cinematic') return '<div class="mock-pvc pvc-cine"><i class="pvc-lb"></i><i class="pvc-lb b"></i><span>A FILM BY US</span></div>';
+  if(k==='storybook') return '<div class="mock-pvc pvc-story"><i class="pvc-sun"></i><i class="pvc-hill"></i><i class="pvc-hill b"></i><span>옛날 옛적에</span></div>';
+  if(k==='retro') return '<div class="mock-pvc pvc-retro"><i class="pvc-holes"></i><i class="pvc-holes b"></i><i class="pvc-frame"></i><span>\'27 5 22</span></div>';
+  if(k==='scrapbook') return '<div class="mock-pvc pvc-scrap"><i class="pvc-pol"></i><i class="pvc-pol b"></i><i class="pvc-tape"></i></div>';
+  return '<div class="mock-pvc pvc-edit"><i class="pvc-pan"></i><i class="pvc-pan b"></i><i class="pvc-edl"></i><span>우리의 날들</span></div>';
+}
+function renderPvc(){
+  var inner=$('mp_pvcInner'), F=PVCFLOW; if(!inner||!F.active) return;
+  var s=F.scr||'start', h='<div class="consult-card pvc-card">'+_pvcHead();
+  if(s==='start') h+=_pvcStart();
+  else if(s==='locked') h+=_pvcLocked();
+  else if(s==='style') h+=_pvcSteps(0)+_pvcStyle();
+  else if(s==='photos') h+=_pvcSteps(1)+_pvcPhotos();
+  else if(s==='music') h+=_pvcSteps(2)+_pvcMusic();
+  else if(s==='making') h+=_pvcSteps(3)+_pvcMaking();
+  else if(s==='confirm') h+=_pvcSteps(F.d.mode==='upload'?1:3)+_pvcConfirm();
+  else if(s==='upload') h+=_pvcSteps(0)+_pvcUpload();
+  else if(s==='sent') h+=_pvcSteps(1)+_pvcSent();
+  h+='</div>';
+  if(F.sheet) h+=_pvcSheet(F.sheet);
+  inner.innerHTML=h;
+  _wzPin(inner);
+  if(F.sheet){ var c=inner.querySelector('.pvc-card'); if(c) c.inert=true; }   // 판이 떠 있는 동안 뒤 카드는 누르지 않는다(Tab 이 판 밖으로 새지 않게)
+  _pvcBind(inner);
+  _wizPaintSoon();
+}
+function _pvcStart(){
+  var ex=!!PVC_EX.sample, h='';
+  h+='<p class="pvc-eye">PRE-CEREMONY FILM</p><h2 class="pvc-h">사진만 준비하세요.</h2><p class="pvc-sub">구성과 기본 문구는 준비돼 있어요.</p>';
+  h+='<button type="button" class="pvc-poster" data-pvcex="sample" aria-label="'+(ex?'사진 5장으로 만든 예시 보기':'예시 영상 준비 중')+'">'+_pvcPoster('editorial')+'<span class="pvc-cap">'+(ex?'<i class="pvc-tri" aria-hidden="true"></i>사진 5장으로 만든 예시 · 1분 10초':'예시 영상을 만들고 있어요')+'</span></button>';
+  h+='<p class="pvc-sub pvc-when">개식 선언 뒤, 입장 전에 한 번 상영해요.</p>';
+  h+='<div class="pvc-opts"><button type="button" class="pvc-opt" data-pvcmode="make"><b>사진으로 만들기</b><span>사진 5장부터 · 분위기와 노래 고르기</span></button>'
+    +'<button type="button" class="pvc-opt" data-pvcmode="upload"><b>준비한 영상 올리기</b><span>업체나 직접 만든 영상 · 링크로 보내기</span></button></div>';
+  h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-pvcop="later">나중에 준비하기</button><button type="button" class="pvc-lk" data-pvcop="off">사용하지 않기</button></div>';
+  h+='<div class="pvc-foot">'+_pvcDots(['패키지 포함 · 추가 요금 없음', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';
+  return h;
+}
+function _pvcLocked(){
+  var F=PVCFLOW, h='<h2 class="pvc-h">확정 기한이 지났어요</h2><p class="pvc-sub">바꾸실 것은 디렉터에게 말씀해 주세요.</p>';
+  if(F.conf) h+='<div class="pvc-foot">'+_pvcDots(['확정한 영상으로 진행해요.'+(F.conf.url?' <a class="pvc-a" href="'+escapeHtml(F.conf.url)+'" target="_blank" rel="noopener">확정본 보기</a>':'')])+'</div>';
+  else h+='<div class="pvc-foot">'+_pvcDots(['식전 영상 없이 진행해요.'])+'</div>';
+  h+=_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl'));
+  return h;
+}
+function _pvcStyle(){
+  var F=PVCFLOW, anyEx=PVC_STYLES.some(function(x){ return !!PVC_EX[x.k]; });
+  var h='<h2 class="pvc-h">분위기 고르기</h2><p class="pvc-sub">'+(anyEx?'같은 사진으로 만든 예시예요. 누르면 15초 미리보기가 열려요.':'누르면 크게 볼 수 있어요. 예시 영상은 지금 만들고 있어요.')+'</p><div class="pvc-grid">';
+  PVC_STYLES.forEach(function(x){ var on=F.d.style===x.k;
+    h+='<button type="button" class="pvc-sty'+(on?' on':'')+'" data-pvcsty="'+x.k+'" aria-label="'+escapeHtml(x.n)+(on?' · 고름':'')+'"><span class="pvc-pos">'+_pvcPoster(x.k)+(on?'<span class="pvc-badge">고름</span>':'')+'</span><span class="pvc-nm">'+escapeHtml(x.n)+'</span><span class="pvc-ds">'+escapeHtml(x.d)+'</span></button>'; });
+  h+='</div>';
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), F.d.style?_pvcBtn('사진 넣기','data-pvcgo="photos"'):_pvcBtn('스타일을 골라 주세요','data-pvcgo="photos" aria-disabled="true"','off'));
+  return h;
+}
+function _pvcSheet(k){
+  if(k==='fix') return _pvcFixSheet();
+  var x=PVC_STYLES.filter(function(s){ return s.k===k; })[0]; if(!x) return '';
+  var ex=PVC_EX[k], on=PVCFLOW.d.style===k;
+  return '<div class="pvc-scrim" data-pvcclose></div><div class="pvc-sheet" role="dialog" aria-modal="true" aria-label="'+escapeHtml(x.n)+' 미리보기">'
+    +'<div class="pvc-sh-h"><b>'+escapeHtml(x.n)+'</b><button type="button" class="pvc-x" data-pvcclose aria-label="닫기">✕</button></div>'
+    +(ex?'<div class="pvc-player"><video src="'+escapeHtml(ex)+'" controls playsinline preload="metadata"></video></div>':'<div class="pvc-poster pvc-big" aria-hidden="true">'+_pvcPoster(k)+'<span class="pvc-cap">예시 영상을 만들고 있어요</span></div>')
+    +'<p class="pvc-sub">'+escapeHtml(x.d)+' · 음악은 뒤에서 따로 골라요</p>'
+    +'<div class="pvc-sh-b">'+(on?_pvcBtn('고른 스타일이에요','data-pvcclose','ghost'):_pvcBtn('이 스타일로','data-pvcpick="'+k+'"'))+'</div></div>';
+}
+/* 고치기 — 무엇을 고칠지 판 하나(스타일 · 사진 · 음악) · 시안 «확인» 화면의 «고치기» */
+function _pvcFixSheet(){
+  return '<div class="pvc-scrim" data-pvcclose></div><div class="pvc-sheet" role="dialog" aria-modal="true" aria-label="무엇을 고칠까요">'
+    +'<div class="pvc-sh-h"><b>무엇을 고칠까요?</b><button type="button" class="pvc-x" data-pvcclose aria-label="닫기">✕</button></div>'
+    +'<div class="pvc-fixl"><button type="button" class="pvc-opt" data-pvcfixto="style"><b>스타일</b></button><button type="button" class="pvc-opt" data-pvcfixto="photos"><b>사진 · 처음 만난 날</b></button><button type="button" class="pvc-opt" data-pvcfixto="music"><b>음악</b></button></div>'
+    +(PVCFLOW.conf?_pvcDots(['새 영상을 다시 확정하기 전까지 기존 확정본으로 진행해요.']):'')+'</div>';
+}
+function _pvcPhotos(){
+  var F=PVCFLOW, ph=F.d.photos, n=ph.length, h='<h2 class="pvc-h">사진 넣기</h2><p class="pvc-sub">사진은 5장부터 만들 수 있어요. 세로 사진도 넣을 수 있어요.</p>';
+  h+='<p class="pvc-count"><span>사진 '+n+'장'+(n>=5?' · '+_pvcLen(n):'')+'</span><span class="pvc-lim">전체 20장까지</span></p>';
+  PVC_SECS.forEach(function(sc){ var mine=ph.filter(function(p){ return p.sec===sc.k; });
+    h+='<div class="pvc-sec"><p class="pvc-sec-h"><b>'+sc.n+'</b><span>'+escapeHtml(sc.d)+'</span></p><div class="pvc-ths">';
+    mine.forEach(function(p, i){ var src=PVC_THUMBS[p.th]||''; h+='<span class="pvc-th"'+(src?' style="background-image:url(\''+src+'\')"':'')+'>'+(src?'':'<i class="pvc-load" aria-hidden="true"></i>')+'<button type="button" class="pvc-thx" data-pvcdel="'+escapeHtml(p.id)+'" aria-label="'+sc.n+' '+(i+1)+'번째 사진 빼기"></button></span>'; });   // 보이는 ✕ 는 ::after 한 곳(누름 칸 44px · [X_ONE])
+    if(mine.length<sc.max && n<20) h+='<button type="button" class="pvc-add" data-pvcaddsec="'+sc.k+'" aria-label="'+sc.n+' 사진 넣기"><span aria-hidden="true">+</span></button><input type="file" accept="image/*" multiple data-pvcup="'+sc.k+'" hidden>';
+    h+='</div></div>'; });
+  h+='<div class="pvc-rows"><div class="pvc-row"><span class="pvc-rl"><b>처음 만난 날 <span class="opt-tag">· 선택</span></b><span>비우면 표지에 예식 날만 나와요</span></span><input type="date" class="cc-input pvc-date" id="mp_pvcMet" value="'+escapeHtml(F.d.met||'')+'"'+(F.wed?' max="'+escapeHtml(F.wed)+'"':'')+' aria-label="처음 만난 날"></div>'
+    +'<div class="pvc-row"><span class="pvc-rl"><b>문구</b><span>기본 문구가 들어가 있어요</span></span><button type="button" class="cc-btn-ghost pvc-rb" data-pvccaps>보기</button></div></div>';
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="style" data-pvcstep2="0"','ghost'), _pvcBtn('음악 고르기','data-pvcgo="music" data-pvcstep2="2"'));
+  return h;
+}
+function _pvcMusic(){
+  var F=PVCFLOW, sty=F.d.style, sn=(PVC_STYLES.filter(function(x){ return x.k===sty; })[0]||{}).n||'고른 분위기';
+  var fit=PVC_SONGS.filter(function(x){ return x.s.indexOf(sty)>-1; }).slice(0,4), fk={}; fit.forEach(function(x){ fk[x.k]=1; });
+  var rest=PVC_SONGS.filter(function(x){ return !fk[x.k]; }), pickedRest=rest.some(function(x){ return x.k===F.d.song; });
+  var row=function(x, rec){ var on=F.d.song===x.k;
+    return '<div class="pvc-song'+(on?' on':'')+'"><button type="button" class="pvc-play" data-pvcplay'+(PVC_SONG_PREV?'':' aria-disabled="true"')+' aria-label="'+escapeHtml(x.t)+' 미리듣기"><i class="pvc-tri" aria-hidden="true"></i></button>'
+      +'<span class="pvc-meta"><b>'+escapeHtml(x.t)+'</b><span>'+escapeHtml(x.a)+(rec?'<span class="pvc-rec">추천</span>':'')+'</span></span>'
+      +'<button type="button" class="pvc-pick" data-pvcsong="'+x.k+'" aria-pressed="'+on+'">'+(on?'고름':'이 곡으로')+'</button></div>'; };
+  var h='<h2 class="pvc-h">음악 고르기</h2><p class="pvc-sub">'+escapeHtml(sn)+'에 어울리는 곡이 먼저 보여요.'+(PVC_SONG_PREV?'<br>재생하면 영상에 들어갈 구간이 나와요.':'')+'</p><div class="pvc-songs">';
+  fit.forEach(function(x,i){ h+=row(x, i<2); });
+  h+='</div>';
+  if(F.more||pickedRest){ h+='<div class="pvc-songs pvc-rest">'; rest.forEach(function(x){ h+=row(x,false); }); h+='</div>'; }
+  else h+='<button type="button" class="pvc-more" data-pvcmore>다른 음악 보기 <span aria-hidden="true">›</span></button>';
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="photos" data-pvcstep2="1"','ghost'), F.d.song?_pvcBtn('미리보기 만들기','data-pvcsubmit'):_pvcBtn('곡을 골라 주세요','data-pvcsubmit aria-disabled="true"','off'));
+  return h;
+}
+function _pvcSum(){ var d=PVCFLOW.d; if(d.mode==='upload') return '준비한 영상';
+  var sn=(PVC_STYLES.filter(function(x){ return x.k===d.style; })[0]||{}).n||'', so=PVC_SONGS.filter(function(x){ return x.k===d.song; })[0];
+  return [sn, '사진 '+d.photos.length+'장', so?(so.a+' «'+so.t+'»'):''].filter(Boolean).map(escapeHtml).join(' · '); }
+function _pvcMaking(){
+  var h='<h2 class="pvc-h">영상을 만들고 있어요</h2><p class="pvc-sub">다 되면 이 화면에서 확인할 수 있어요. 지금은 나가셔도 돼요.</p>';
+  h+='<div class="pvc-poster pvc-wait" aria-hidden="true"><span class="pvc-mk">만드는 중</span></div>';
+  h+='<p class="pvc-summ">'+_pvcSum()+'</p>';
+  h+='<div class="pvc-foot">'+_pvcDots([_pvcOldLine(), _pvcDueLine('')])+'</div>';
+  h+=_pvcBar(PVCFLOW.past?'':_pvcBtn('이전','data-pvcgo="music" data-pvcstep2="2"','ghost'), _pvcBtn('마이페이지로','data-pvcclosefl'));
+  return h;
+}
+function _pvcFlowDots(){ var L=['개식 선언','영상 소개','식전 영상','받는 말','입장'];
+  return '<div class="pvc-flow"><p class="pvc-flow-h">예식 속 자리</p><ol class="pvc-fl" role="list">'+L.map(function(t,i){ return '<li'+(i===2?' class="on" aria-current="true"':'')+'><i aria-hidden="true"></i><span>'+t+'</span></li>'; }).join('')+'</ol></div>'; }
+function _pvcConfirm(){
+  var F=PVCFLOW, done=F.st==='done', up=F.d.mode==='upload', pv=F.prev, h='';
+  h+='<h2 class="pvc-h">'+(done?'확정한 영상':'영상 확인하기')+'</h2>';
+  h+='<p class="pvc-sub">'+(done?'이 영상으로 진행해요.':'소리를 켜고 사진·문구·음악을 확인해 주세요. 확정하면 이 영상으로 진행해요.')+'</p>';
+  h+=(pv&&pv.url)?'<div class="pvc-player"><iframe src="'+escapeHtml(pv.url)+'" allow="autoplay; fullscreen" allowfullscreen title="식전 영상 미리보기"></iframe></div>':'<div class="pvc-poster pvc-wait"><span class="pvc-mk">영상을 불러오지 못했어요</span></div>';
+  h+='<p class="pvc-summ">'+_pvcSum()+'</p>';
+  if(!F.past) h+='<button type="button" class="cc-btn-ghost pvc-fix" data-pvcfix>'+(up?'다른 영상으로 다시 보내기':'고치기')+'</button>';
+  h+=_pvcFlowDots();
+  var cAt=(done&&F.conf&&F.conf.at)?(_pvcMd(F.conf.at)+' 확정'):'';
+  h+='<div class="pvc-foot">'+_pvcDots([cAt, done?'':_pvcOldLine(), _pvcDueLine(F.past?'':(done?'기한까지 고쳐서 다시 확정할 수 있어요.':'확정한 뒤에도 기한까지 고쳐서 다시 확정할 수 있어요.'))])+'</div>';
+  h+=done?_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl')):_pvcBar(F.past?'':_pvcBtn('이전', up?'data-pvcgo="upload"':'data-pvcgo="music" data-pvcstep2="2"','ghost'), _pvcBtn('이 영상으로 확정','data-pvcconfirm','seal'));
+  return h;
+}
+function _pvcUpload(){
+  var F=PVCFLOW, h='<h2 class="pvc-h">준비한 영상 올리기</h2><p class="pvc-sub">보내 주신 영상의 길이와 내용은 바꾸지 않아요.</p>';
+  h+='<div class="pvc-up"><label for="mp_pvcLink" class="pvc-lab">링크로 보내기</label><input id="mp_pvcLink" class="cc-input" type="url" inputmode="url" maxlength="400" autocomplete="off" spellcheck="false" placeholder="구글 드라이브 · 업체 공유 링크" value="'+escapeHtml(F.d.link||'')+'">'
+    +'<p class="pvc-help">원본 파일을 받을 수 있는 링크로 보내 주세요. 파일만 있으면 구글 드라이브에 올려 링크를 보내 주세요.</p></div>';
+  h+='<div class="pvc-after"><p class="pvc-flow-h">보낸 뒤</p>'+_pvcDots(['스튜디오가 원본을 받아 재생을 확인하면 이 화면에서 보고 확정해 주세요.', _pvcOldLine()])+'</div>';
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('보내기','data-pvcsubmit'));
+  return h;
+}
+function _pvcSent(){
+  var F=PVCFLOW, h='<h2 class="pvc-h">링크를 받았어요</h2><p class="pvc-sub">원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요. 지금은 나가셔도 돼요.</p>';
+  h+='<div class="pvc-linkcard"><span>'+escapeHtml(F.d.link||'')+'</span><p class="pvc-state"><i aria-hidden="true"></i>스튜디오 확인 중</p></div>';
+  if(!F.past) h+='<button type="button" class="pvc-lk pvc-relink" data-pvcgo="upload">다른 영상으로 다시 보내기</button>';
+  h+='<div class="pvc-foot">'+_pvcDots([_pvcOldLine(), _pvcDueLine('')])+'</div>';
+  h+=_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl'));
+  return h;
+}
+/* 동의 — 첫 사진 · 첫 보내기 때 그 자리에서 한 번(처리방침 «식전 영상» · 미리 체크하지 않는다 · 한 번 동의하면 다시 묻지 않는다)
+   처리방침은 새 창으로 연다 — 확인 판(11000) 위에 처리방침 창(10001)을 띄우면 판 뒤에 숨는다 */
+function _pvcAgree(){
+  if(PVCFLOW.consent||PVCFLOW._agreed) return Promise.resolve(true);
+  return mpConfirm({ title:'올리기 전에 확인해 주세요', bodyHtml:'올린 사진 · 링크 · 영상은 식전 영상을 만들고 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.<br><a href="privacy.html#prevideo" class="pvc-a" target="_blank" rel="noopener">개인정보 처리방침 «식전 영상»</a>', yes:'동의하고 올리기', no:'취소', dismissNull:true }).then(function(v){ if(v===true){ PVCFLOW._agreed=true; return true; } return false; });
+}
+function _pvcBusyText(t){ try{ var s=document.querySelector('#flow_busy .flow-busy-box span:last-child'); if(s) s.textContent=t; }catch(e){} }
+function _pvcUpload1(sec, files){
+  var F=PVCFLOW, list=Array.prototype.slice.call(files||[]).filter(function(f){ return /^image\//.test(String(f.type||'image/')); });
+  if(!list.length) return;
+  var cap=(PVC_SECS.filter(function(x){ return x.k===sec; })[0]||{}).max||10, room=Math.min(cap-F.d.photos.filter(function(p){ return p.sec===sec; }).length, 20-F.d.photos.length);
+  if(room<=0){ mpToast('이 칸은 다 찼어요'); return; }
+  if(list.length>room){ list=list.slice(0, room); mpToast('칸에 맞게 '+room+'장만 넣어요'); }
+  _pvcAgree().then(function(ok){ if(!ok) return;
+    var i=0, bad=null, got=0;
+    var next=function(){
+      if(i>=list.length || bad){ _flowBusy(false); renderPvc();
+        if(got) _pvcSave('save').catch(function(){});   // 서버 초안에는 이미 붙었다 — 이 화면의 다른 고침(날짜 · 지운 사진)까지 맞춘다
+        if(bad){ if(_errSess(bad)){ _errGoLogin(bad,'U'); return; } _errAlert('사진을 올리지 못했어요', bad.line); }
+        return; }
+      var f=list[i]; if(!i) _flowBusy(true, '사진 올리는 중…'); if(list.length>1) _pvcBusyText('사진 올리는 중… '+(i+1)+'/'+list.length);
+      Promise.all([_snapResize(f, 2560, 0.86), _snapResize(f, 400, 0.8)]).then(function(two){   // 스냅 참고 사진과 같은 길(흰 바탕 · JPEG) · 원본은 보내지 않는다
+        return _post({ action:'pvPhoto', token:getToken(), sec:sec, name:String(f.name||'').slice(0,60), data:two[0], thumb:two[1], pvConsent:1 }, 60000).then(function(r){
+          if(!(r&&r.ok&&r.id)){ bad=(r&&typeof r==='object')?r:{}; bad.line=_errLine(r,'U','다시 해 주세요'); return; }
+          PVC_THUMBS[r.th]=two[1]; F.consent=true; got++;
+          F.d.photos.push({ id:String(r.id), th:String(r.th||''), sec:sec, n:String(f.name||'').slice(0,60) });
+          if(!F.d.mode) F.d.mode='make'; if(F.st===''||F.st==='later'||F.st==='off') F.st='draft';
+        }, function(e){ bad={ line:_errLine(e,'U','다시 해 주세요') }; });
+      }, function(){ bad={ line:'이 사진 형식은 열 수 없어요 · 다른 사진을 골라 주세요 (코드 M6)' }; }).then(function(){ i++; next(); });
+    };
+    next();
+  });
+}
+function _pvcLoadThumbs(){
+  var need=PVCFLOW.d.photos.map(function(p){ return p.th; }).filter(function(t){ return t && !PVC_THUMBS[t]; });
+  if(!need.length) return;
+  api({ action:'pvThumbs', token:getToken(), ids:need.slice(0,24) }, 30000).then(function(r){
+    if(!(r&&r.ok&&r.thumbs)) return; for(var k in r.thumbs){ if(Object.prototype.hasOwnProperty.call(r.thumbs,k)) PVC_THUMBS[k]=r.thumbs[k]; }
+    if(PVCFLOW.active && PVCFLOW.scr==='photos') renderPvc();
+  }, function(){});
+}
+function _pvcSubmit(){
+  var F=PVCFLOW; _pvcCollect(); _pvcErr('');
+  if(F.d.mode==='make'){
+    if(!F.d.style){ _pvcErr('분위기를 골라 주세요'); return; }
+    if(F.d.photos.length<5){ _pvcErr('사진은 5장부터 만들 수 있어요'); return; }
+    if(!F.d.song){ _pvcErr('곡을 골라 주세요'); return; }
+  } else {
+    if(!/^https?:\/\/\S+$/i.test(F.d.link||'')){ _pvcErr('공유 링크를 넣어 주세요'); return; }
+    if(/^https?:\/\/([a-z0-9-]+\.)*(youtube\.com|youtu\.be)\//i.test(F.d.link)){ _pvcErr('유튜브 주소로는 원본을 받을 수 없어요 · 구글 드라이브나 업체 공유 링크로 보내 주세요'); return; }
+  }
+  _pvcAgree().then(function(ok){ if(!ok) return;
+    _flowBusy(true, '보내는 중…');
+    _pvcSave('submit', { pvConsent:1 }).then(function(r){
+      _flowBusy(false);
+      if(!(r&&r.ok)){ if(_errSess(r)){ _errGoLogin(r,'S'); return; } _pvcErr(_errLine(r,'S','보내지 못했어요 · 다시 눌러 주세요')); return; }
+      F.consent=true; F.scr=_pvcScrOf(F); renderPvc(); _pvcFocusHead();
+    });
+  });
+}
+function _pvcConfirmGo(){
+  _flowBusy(true, '확정하는 중…');
+  _pvcSave('confirm').then(function(r){
+    _flowBusy(false);
+    if(!(r&&r.ok)){ if(_errSess(r)){ _errGoLogin(r,'S'); return; } _pvcErr(_errLine(r,'S','확정하지 못했어요 · 다시 눌러 주세요')); return; }
+    window._mpNextToast='영상을 확정했어요'; _pvcTearDown(); _mpRefresh();
+  });
+}
+function _pvcOp(op){
+  var F=PVCFLOW;
+  var run=function(){ _flowBusy(true); _pvcSave(op).then(function(r){ _flowBusy(false);
+    if(!(r&&r.ok)){ if(_errSess(r)){ _errGoLogin(r,'S'); return; } _errAlert('저장하지 못했어요', _errLine(r,'S','다시 눌러 주세요')); return; }
+    window._mpNextToast=op==='off'?'식전 영상 없이 진행해요':'나중에 이어서 할 수 있어요'; _pvcTearDown(); _mpRefresh(); }); };
+  if(op==='off' && (F.d.photos.length || F.conf)) mpConfirm({ title:'식전 영상 없이 진행할까요?', body:'올린 사진은 그대로 두었다가, 다시 정하시면 이어서 쓸 수 있어요.', yes:'영상 없이 진행', no:'그대로 두기', dismissNull:true }).then(function(v){ if(v===true) run(); });
+  else run();
+}
+function _pvcSheetClose(back){ var F=PVCFLOW, k=F.sheet; F.sheet=''; renderPvc(); var c=document.querySelector(back||('#mp_pvcInner [data-pvcsty="'+k+'"]')); if(c) c.focus({preventScroll:true}); }
+function _pvcBind(box){
+  var F=PVCFLOW;
+  box.querySelectorAll('[data-pvcmode]').forEach(function(b){ b.addEventListener('click', function(){ var m=b.getAttribute('data-pvcmode'); F.d.mode=m; if(F.st==='off'||F.st==='later'||!F.st) F.st='draft'; _pvcGo(m==='make'?'style':'upload', 0); }); });
+  box.querySelectorAll('[data-pvcop]').forEach(function(b){ b.addEventListener('click', function(){ _pvcOp(b.getAttribute('data-pvcop')); }); });
+  box.querySelectorAll('[data-pvcex]').forEach(function(b){ b.addEventListener('click', function(){ var u=PVC_EX[b.getAttribute('data-pvcex')]; if(!u){ mpToast('예시 영상을 만들고 있어요'); return; } try{ window.open(u,'_blank','noopener'); }catch(err){} }); });
+  box.querySelectorAll('[data-pvcgo]').forEach(function(b){ b.addEventListener('click', function(){
+    if(b.getAttribute('aria-disabled')==='true'){ _pvcErr('분위기를 골라 주세요'); return; }
+    var to=b.getAttribute('data-pvcgo'), s2=b.getAttribute('data-pvcstep2');
+    if(to==='music' && F.d.photos.length<5){ _pvcErr('사진은 5장부터 만들 수 있어요'); return; }
+    _pvcGo(to, s2!=null?+s2:(to==='photos'?1:(to==='style'?0:null))); }); });
+  box.querySelectorAll('[data-pvcstep]').forEach(function(b){ b.addEventListener('click', function(){ var i=+b.getAttribute('data-pvcstep'); _pvcGo(['style','photos','music','music'][i], i); }); });
+  box.querySelectorAll('[data-pvcsty]').forEach(function(b){ b.addEventListener('click', function(){ F.sheet=b.getAttribute('data-pvcsty'); renderPvc(); var p=document.querySelector('#mp_pvcInner .pvc-sheet .pvc-x'); if(p) p.focus({preventScroll:true}); }); });
+  box.querySelectorAll('[data-pvcclose]').forEach(function(b){ b.addEventListener('click', function(){ _pvcSheetClose(F.sheet==='fix'?'#mp_pvcInner [data-pvcfix]':''); }); });
+  box.querySelectorAll('[data-pvcpick]').forEach(function(b){ b.addEventListener('click', function(){ F.d.style=b.getAttribute('data-pvcpick'); _pvcSheetClose(); }); });
+  box.querySelectorAll('[data-pvcaddsec]').forEach(function(b){ b.addEventListener('click', function(){ var inp=box.querySelector('[data-pvcup="'+b.getAttribute('data-pvcaddsec')+'"]'); if(inp) inp.click(); }); });
+  box.querySelectorAll('[data-pvcup]').forEach(function(inp){ inp.addEventListener('change', function(){ var fs=Array.prototype.slice.call(inp.files||[]); inp.value=''; _pvcCollect(); _pvcUpload1(inp.getAttribute('data-pvcup'), fs); }); });
+  box.querySelectorAll('[data-pvcdel]').forEach(function(b){ b.addEventListener('click', function(){ var id=b.getAttribute('data-pvcdel'); _pvcCollect(); F.d.photos=F.d.photos.filter(function(p){ return p.id!==id; }); renderPvc(); }); });
+  box.querySelectorAll('[data-pvccaps]').forEach(function(b){ b.addEventListener('click', function(){ mpAlert({ title:'지금 들어가는 문구', bodyHtml:'<dl class="pvc-caps">'+PVC_CAPS.map(function(c){ return '<div><dt>'+escapeHtml(c[0])+'</dt><dd>'+c[1].split(' · ').map(escapeHtml).join('<br>')+'</dd></div>'; }).join('')+'</dl><p class="mp-dotln">바꾸고 싶은 줄이 있으면 디렉터에게 말씀해 주세요.</p>' }); }); });
+  box.querySelectorAll('[data-pvcplay]').forEach(function(b){ b.addEventListener('click', function(){ if(!PVC_SONG_PREV) mpToast('미리듣기는 준비 중이에요'); }); });
+  box.querySelectorAll('[data-pvcsong]').forEach(function(b){ b.addEventListener('click', function(){ var k=b.getAttribute('data-pvcsong'); F.d.song=k; renderPvc(); var c=document.querySelector('#mp_pvcInner [data-pvcsong="'+k+'"]'); if(c) c.focus({preventScroll:true}); }); });
+  box.querySelectorAll('[data-pvcmore]').forEach(function(b){ b.addEventListener('click', function(){ F.more=true; renderPvc(); var c=document.querySelector('#mp_pvcInner .pvc-rest .pvc-pick'); if(c) c.focus({preventScroll:true}); }); });
+  box.querySelectorAll('[data-pvcsubmit]').forEach(function(b){ b.addEventListener('click', function(){ if(b.getAttribute('aria-disabled')==='true'){ _pvcErr('곡을 골라 주세요'); return; } _pvcSubmit(); }); });
+  box.querySelectorAll('[data-pvcconfirm]').forEach(function(b){ b.addEventListener('click', _pvcConfirmGo); });
+  box.querySelectorAll('[data-pvcfix]').forEach(function(b){ b.addEventListener('click', function(){ if(F.d.mode==='upload'){ _pvcGo('upload', 0); return; } F.sheet='fix'; renderPvc(); var p=document.querySelector('#mp_pvcInner .pvc-sheet .pvc-x'); if(p) p.focus({preventScroll:true}); }); });
+  box.querySelectorAll('[data-pvcfixto]').forEach(function(b){ b.addEventListener('click', function(){ var to=b.getAttribute('data-pvcfixto'); _pvcGo(to, {style:0, photos:1, music:2}[to]); }); });
+  box.querySelectorAll('[data-pvcclosefl]').forEach(function(b){ b.addEventListener('click', function(){ _pvcTearDown(); _mpRefresh(); }); });
+  var lk=$('mp_pvcLink'); if(lk) lk.addEventListener('input', function(){ F.d.link=String(lk.value||'').trim(); _pvcErr(''); });
+  var mt=$('mp_pvcMet'); if(mt) mt.addEventListener('change', function(){ F.d.met=String(mt.value||''); _wizPaintSoon(); });
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && PVCFLOW.active && PVCFLOW.sheet){ e.stopPropagation(); e.preventDefault(); _pvcSheetClose(PVCFLOW.sheet==='fix'?'#mp_pvcInner [data-pvcfix]':''); } }, true);
 function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞. 편집(SNAPFLOW) 중엔 숨김
   var box=$('mp_snap'); if(!box) return;
   /* [SNAP_V2_GATE] 서버(GAS)가 새 기획(v2)을 알 때만 연다 — 사이트가 먼저 배포되고 GAS 재배포가 늦으면

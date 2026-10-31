@@ -1276,10 +1276,10 @@ var ERR_LOG_SHEET = '오류기록';
 var ERR_SKIP = { adminLogin: 1, adminLogout: 1, adminCall: 1, advisorLog: 1, awDemandLog: 1, aiCostLog: 1, aiKbNotes: 1, aiFacts: 1, aiSafetyAlert: 1, leadClick: 1 };   // 관리자 · 기록용 호출은 도장 · 기록하지 않는다
 var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 area 와 같다
   V: ['voiceClone'],
-  U: ['ritualFile', 'snapRefUpload'],
+  U: ['ritualFile', 'snapRefUpload', 'pvPhoto'],
   D: ['ritualFileDel', 'ritualFilePurgeMine', 'snapWithdraw'],
-  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation', 'saveDressPick'],   // 시착 준비 저장(아래 _errArea 의 DRESS_ERR_AREA)
-  L: ['login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery'],
+  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation', 'pvSave', 'saveDressPick'],   // 시착 준비 저장(아래 _errArea 의 DRESS_ERR_AREA)
+  L: ['login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery', 'pvThumbs'],
   P: ['paymentSignal', 'midSignal', 'balanceSignal', 'extraRetouchSignal', 'cardConfirm', 'cardPayConfig', 'saveCashReceipt', 'saveRefundAccount'],
   C: ['weddingAvailability', 'changeWeddingHold', 'cancelWeddingHold', 'quoteWeddingChange', 'requestWeddingChange', 'cancelWeddingChange', 'requestContract', 'requestContractResend', 'signFittingConsent', 'signContract'],
   B: ['signup', 'getAvailability', 'submitSchedule', 'cancelReservation', 'emailCancelInfo', 'emailCancel', 'acceptProposal', 'leadCapture', ''],   // [ERR_AREA_SIGNUP_B 2026-10-08] 신청서 보내기(signup)는 B — 종전 L 이라 같은 신청 화면에 L1 · L9 와 B5 · B6 이 섞였다
@@ -1288,6 +1288,7 @@ var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 a
   R: ['submitResultSelection', 'requestExtraRetouch', 'confirmRetouch', 'requestRevision', 'submitSurvey']
 };
 function _errArea(a) { _gsr_();   // [ERR_CODE_GAS]
+  // [PV_CAT_1031] 식전 영상 — pvPhoto(U) · pvSave(S) · pvThumbs(L) 를 ERR_AREA 에 적었다
   /* [DRESS_ERR_AREA 2026-10-23] 시착 준비 저장(saveDressPick)도 S — 위 표가 옛 판이면 그 실패가 X 로 떨어진다 */
   a = String(a == null ? '' : a);
   for (var k in ERR_AREA) if (ERR_AREA[k].indexOf(a) > -1) return k;
