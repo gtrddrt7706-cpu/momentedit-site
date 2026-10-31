@@ -5535,8 +5535,9 @@ function renderConsult(c, product, d, boxArg, demo){
          + DEP_LINE_OK   // [CONSULT_DEPOSIT] 확정 뒤엔 대개 «입금 확인됐어요» · 칸이 비면 금액만 [DEP_OK_AMOUNT]
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오'+PLACE_SUB+'</span></div>'   // [PLACE_NO_DOT]
-         /* [DRESS_CARD_ON] 챙겨 오실 것 — 낱말은 고르기 완료 화면 «준비해 오시면 좋아요»와 같다 · 두 덩어리는 줄을 나눈다(가운뎃점이 줄 머리에 서지 않게 [PLACE_NO_DOT]) */
-         + (dressOn ? '<div class="vg-row"><span class="vg-k">챙겨 오실 것</span><span class="vg-v"><span class="ln-bal">누드톤 심리스 속옷과 실리콘 브라</span><span class="ln-bal">예식 날 신을 굽 높이의 신발</span></span></div>' : '')
+         /* ★[DRESS_GUIDE_1031 V205] 스튜디오가 피팅 이너 · 슈즈를 준비한다 — 옛 «속옷 · 브라 · 신발을 챙겨 오시라»던 두 줄은 걷었다(되살리지 말 것 · merge-guard nochk)
+            [DRESS_CARD_ON] 챙겨 오실 것 — 낱말은 고르기 완료 화면 «준비해 오시면 좋아요»와 같다 · 두 덩어리는 줄을 나눈다(가운뎃점이 줄 머리에 서지 않게 [PLACE_NO_DOT]) */
+         + (dressOn ? '<div class="vg-row"><span class="vg-k">챙겨 오실 것</span><span class="vg-v"><span class="ln-bal">피부색에 가까운 하의 속옷을 입어 주세요.</span><span class="ln-bal">피팅용 이너와 슈즈는 스튜디오에서 준비해요.</span></span></div>' : '')
          + '</div>'
          + '<details class="cc-more"><summary>'+(isSnap?'촬영':'예식')+'까지 함께 챙길 것들</summary>'
          + '<div class="visit-guide" style="margin-top:8px">'

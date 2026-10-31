@@ -403,8 +403,6 @@ span.dr-pv{cursor:inherit}
 .pk-tips li{position:relative;padding-left:13px;font-size:13px;color:var(--text);line-height:1.7;word-break:keep-all}
 .pk-tips li + li{margin-top:4px}
 .pk-tips li::before{content:'';position:absolute;left:0;top:calc(.85em - 2.5px);width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
-.pk-prep-h{font-size:12px;font-weight:500;color:var(--gold-text);letter-spacing:0.04em;line-height:1.6;margin-bottom:2px}
-.pk-end-dots .pk-prep-h + .dotln{margin-top:0}
 /* ★[DRESS_ACC_1024] 함께 보는 소품 — 다른 드레스 덩어리와 같은 윗선 · 사진 1:1(바탕 그레이지 · 받는 동안) · 폰 2열 · 560+ 3열 */
 .pk-acc{margin-top:32px;padding-top:20px;border-top:1px solid var(--hairline)}
 .pk-acc .pk-sub-h{margin-top:0}
@@ -433,6 +431,33 @@ html.pk-pop.pk-tabson.pk-scrolled .pk-head{box-shadow:none}
 html.pk-pop.pk-tabson .pk-tabs{position:sticky;top:var(--pk-hh,56px);z-index:6;background:var(--card-white);margin:0 -20px 16px;padding:0 20px}
 @media (min-width:560px){ html.pk-pop.pk-tabson .pk-tabs{margin:0 -28px 16px;padding:0 28px} }
 .pk-tabgrid{gap:24px 12px;margin-top:0}
+/* ★★[DRESS_GUIDE_1031] 신부 준비 안내 — 접힌 글 단추 한 줄 → 펼치면 처음 세 칸 + «더 궁금해요» 제목별 접힘. 상자 · 왼쪽 굵은 줄 없이 점 줄과 작은 소제목으로([NO_SIDE_STRIPE]) */
+.pk-guide{margin-top:2px}
+.pk-guide + .pk-subrow,.pk-guide + .pk-accj{margin-top:4px}   /* [DRESS_RESULT_COMPACT] 안내 한 줄이 들어와도 첫 사진이 250 안에 */
+.pk-guidet{margin-left:-12px;gap:6px}
+.pk-guidet .pk-gchev{display:inline-block;transition:transform .2s var(--ease,ease)}
+.pk-guidet[aria-expanded="true"] .pk-gchev{transform:rotate(90deg)}
+@media (prefers-reduced-motion:reduce){ .pk-guidet .pk-gchev{transition:none} }
+.pk-guideb{padding:4px 0 16px}
+.pk-guideb[hidden]{display:none}
+.pk-gsec + .pk-gsec{margin-top:18px}
+.pk-gdh{margin:6px 0 0;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--text);letter-spacing:.01em;line-height:1.6}
+.pk-gsh{margin:10px 0 0;font-size:12px;font-weight:500;color:var(--gold-text);letter-spacing:.04em;line-height:1.6}
+.pk-gul{list-style:none;margin-top:6px}
+.pk-gul li{position:relative;padding-left:13px;font-size:13px;color:var(--text);line-height:1.7;word-break:keep-all}
+.pk-gul li + li{margin-top:4px}
+.pk-gul li::before{content:'';position:absolute;left:0;top:calc(.85em - 2.5px);width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
+.pk-gsec .dotln{margin-top:6px}
+.pk-gmore{margin:22px 0 4px;padding-top:16px;border-top:1px solid var(--hairline);font-size:12px;font-weight:500;color:var(--gold-text);letter-spacing:.04em}
+.pk-gd{border-bottom:1px solid var(--hairline)}
+.pk-gd summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:4px 0;font-family:var(--serif-ko);font-size:14px;color:var(--text);cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent}
+.pk-gd summary::-webkit-details-marker{display:none}
+.pk-gd summary::after{content:'+';flex:0 0 auto;font-size:16px;line-height:1;color:var(--gold-text)}
+.pk-gd[open] summary::after{content:'\2212'}
+.pk-gd summary:focus-visible{outline:2px solid var(--gold-text);outline-offset:2px;border-radius:4px}
+.pk-gd .dotln{margin:0 0 12px}
+.pk-gd .dotln + .dotln{margin-top:-6px}
+.pk-panel > .pk-guide{margin:0 0 16px}
 @media (min-width:560px){ .pk-tabgrid{gap:24px 16px} }
 .pk-panel .dr-nm{line-height:22px}
 .pk-panel .pk-acc{margin-top:0;padding-top:0;border-top:0}
@@ -667,6 +692,24 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
       + '<div class="pk-tipb" id="pkTips"' + (S.tipsOpen ? '' : ' hidden') + '><ul class="pk-tips">' + out.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
       + '<p class="dotln pk-mine-n">상담 날에는 직접 입어 보며 라인과 편안함을 함께 살펴봐요.</p></div></div>';
   }
+  /* ★★[DRESS_GUIDE_1031 코워크 · 사장님 «신부 입장에서 200% 도움 되게»] 신부 준비 안내 — 상담 전(결과 · 답 요약 바로 아래) · 상담 뒤(두 탭 맨 위)에 접힌 글 단추 하나.
+       펼치면 처음 세 칸(상담 전: 진행 · 스튜디오 준비 · 직접 준비 / 상담 뒤: 스튜디오 준비 · 직접 준비 · 예식 전 확인) + «더 궁금해요» 아래 제목별 접힘(<details>).
+       글 · 차례는 DRESS_REFS.GUIDE 한 곳 · 정하지 않은 값(시착 시간 · 동반 · 사진 · 화장실 도움)은 그 줄 · 칸을 빼고 그린다([DRESS_GUIDE_VALS]) · 고르기 · 저장 · 읽음 표시 없음 */
+  function guideHTML(sfx){
+    if (!R.guideFor) return '';
+    var g = R.guideFor(AFTER ? 'after' : 'before'); if (!g.first.length) return '';
+    var id = 'pkGuide' + (sfx || '');
+    var part = function(x){
+      if (x.need && !R.guideHas(x.need)) return '';
+      if (x.fill) { var f = R.guideFill(x.fill); return f ? '<p class="dotln">' + esc(f) + '</p>' : ''; }
+      if (x.ul) return (x.h ? '<p class="pk-gsh">' + esc(x.h) + '</p>' : '') + '<ul class="pk-gul">' + x.ul.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+      return x.p ? '<p class="dotln">' + esc(x.p) + '</p>' : '';
+    };
+    var body = g.first.map(function(e){ return '<section class="pk-gsec"><h3 class="pk-gdh">' + esc(e.it.t) + '</h3>' + e.it.parts.map(part).join('') + '</section>'; }).join('');
+    if (g.more.length) body += '<p class="pk-gmore">' + esc(R.GUIDE.moreLabel) + '</p>' + g.more.map(function(e){ return '<details class="pk-gd"><summary>' + esc(e.it.t) + '</summary>' + e.it.parts.map(part).join('') + '</details>'; }).join('');
+    return '<div class="pk-guide"><button type="button" class="pk-txt pk-guidet" data-act="guide" aria-expanded="' + (S.guideOpen ? 'true' : 'false') + '" aria-controls="' + id + '">' + esc(g.label) + ' <span class="pk-gchev" aria-hidden="true">&rsaquo;</span></button>'
+      + '<div class="pk-guideb" id="' + id + '"' + (S.guideOpen ? '' : ' hidden') + '>' + body + '</div></div>';
+  }
   /* ★★[DRESS_ACC_1024 코워크 · 사장님 «함께 볼 소품 추가해»] 결과 «함께 보는 소품» — 소제목 · 한 줄 · 여섯 칸(폰 2열 · 560+ 3열 · 사진 1:1) · 칸 = 사진 → «스타일 예시 이미지»(드레스 칸 보조 줄과 같은 꼴) → 이름 → 작은 글(있는 칸만).
        누름 없음(사진 크게 보기 방식이 없다) · 고르기 없음([DRESS_GUIDE_ONLY]) · 목록은 DRESS_REFS.accList 한 곳(ACC_ON · 칸마다 on) */
   function accHTML(tab){
@@ -703,11 +746,11 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
   function accOn(){ return !!(R.accList && R.accList().length); }
   function tabsHTML(){
     var ds = afterList();
-    return '<section class="pk-panel" role="tabpanel" id="pkPanD" aria-labelledby="pkTabD"' + (S.tab === 'acc' && accOn() ? ' hidden' : '') + '><h2 class="sr" id="pkPanDH" tabindex="-1">드레스</h2>'
+    return '<section class="pk-panel" role="tabpanel" id="pkPanD" aria-labelledby="pkTabD"' + (S.tab === 'acc' && accOn() ? ' hidden' : '') + '><h2 class="sr" id="pkPanDH" tabindex="-1">드레스</h2>' + guideHTML('D')   // ★[DRESS_GUIDE_1031] 두 탭 맨 위 공통(펼침 상태는 하나 · S.guideOpen)
       + (ds.length ? '<div class="dr-grid pk-grid pk-tabgrid">' + ds.map(cellHTML).join('') + '</div>' : '<p class="pk-near">드레스 사진을 준비하고 있어요.</p>')
       + (accOn() ? '<button type="button" class="pk-txt pk-toacc" data-act="toacc">소품 · 부케도 보기 <span aria-hidden="true">&rsaquo;</span></button>' : '')
       + '</section>'
-      + (accOn() ? '<section class="pk-panel" role="tabpanel" id="pkPanA" aria-labelledby="pkTabA"' + (S.tab === 'acc' ? '' : ' hidden') + '>' + accHTML(true) + '</section>' : '');
+      + (accOn() ? '<section class="pk-panel" role="tabpanel" id="pkPanA" aria-labelledby="pkTabA"' + (S.tab === 'acc' ? '' : ' hidden') + '>' + guideHTML('A') + accHTML(true) + '</section>' : '');
   }
   function accItem(id){ var a = R.accList ? R.accList() : []; for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; }
   function accDetailHTML(){   // ★[DRESS_ACC_BIG] 소품 크게 보기 — 사진 → 이름 → 제공 안내(칸 글이 없으면 소품 한 줄) · «스타일 예시 이미지» 그대로
@@ -721,16 +764,14 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
     var all = R.list();
     if (!all.length) return '<p class="pk-near" data-head tabindex="-1">드레스 사진을 준비하고 있어요.</p>';
     var sp = splitList();
-    var h = '<h2 class="sr" data-head tabindex="-1">드레스 목록</h2>' + bandHTML();
+    var h = '<h2 class="sr" data-head tabindex="-1">드레스 목록</h2>' + bandHTML() + guideHTML();   // ★[DRESS_GUIDE_1031] 답 요약 바로 아래 — 접힌 한 줄
     /* ★[DRESS_ACC_1024] «소품 · 부케 보기 ›» = 요약 판 바로 아래 줄의 오른쪽 끝(소제목과 한 줄) — 따로 한 줄을 두면 첫 사진이 250 밖으로 밀린다([DRESS_RESULT_COMPACT]) */
     h += sp.near ? accJumpHTML() + '<p class="pk-near">답에 꼭 맞는 드레스가 없어 가까운 드레스를 먼저 놓았어요.</p>' : '<div class="pk-subrow"><h3 class="pk-sub-h">답에 어울리는 드레스 · ' + sp.front.length + '벌</h3>' + accJumpHTML() + '</div><p class="pk-sub-s">고른 조건을 기준으로 먼저 보여 드려요.</p>';   // [DRESS_FORM_1024] 소제목 · 작은 줄   // ★[DRESS_FIT_COUNT 1024 코워크] 소제목에 벌 수
     h += gridHTML(sp.front) + tipsHTML();   // [DRESS_TIPS_FOLD] 맞는 드레스 사진 · 이름 바로 아래
     if (sp.rest.length) h += sp.open ? '<h3 class="pk-sub-h" id="pkMoreH">다른 드레스</h3>' + gridHTML(sp.rest)
                                      : '<button type="button" class="cc-btn-ghost pk-more" data-act="more">다른 드레스도 살펴보기</button>';
     h += accHTML();   // ★[DRESS_ACC_1024] «다른 드레스도 살펴보기» 아래 · «방문 전 준비» 위
-    /* ★[DRESS_FORM_FIX3 코워크 1024 · 3] «방문 전 준비» 넷과 맨 아래 안내 두 줄 = 같은 점 줄 한 덩어리(소제목만 작게) */
-    var prep = (R.PREP && R.PREP.length) ? '<p class="pk-prep-h">방문 전 준비</p>' + R.PREP.map(function(x){ return '<p class="dotln">' + esc(x) + '</p>'; }).join('') : '';
-    if (prep) return h + GUIDE_END.replace('<div class="pk-end-dots">', '<div class="pk-end-dots pk-prep">' + prep);   // ★[DRESS_TIPS_1024] 맨 아래 안내 줄 위
+    /* ★[DRESS_GUIDE_1031] 옛 «방문 전 준비» 넷(맨 아래)은 신부 준비 안내(답 요약 아래)로 옮겼다 — 두 곳에 두지 않는다(되살리지 말 것) */
     return h + GUIDE_END;   // [DRESS_NO_DEADLINE] 카드에서 옮긴 한 줄 · [DRESS_MEMO_DONE] 남길 말은 완료 화면
   }
   function detailPickHTML(){
@@ -761,7 +802,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
     return '<div class="pk-done"><h2 class="pk-done-t" data-head tabindex="-1">' + (one ? '상담 날 이 드레스를 먼저 보여 드릴게요.' : '상담 날 이 두 벌을 먼저 보여 드릴게요.') + '</h2>'
       + '<div class="pk-figs">' + figs + '</div>'
       + '<div class="pk-dots"><p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p></div>'
-      + '<div class="pk-bring"><p class="pk-bring-h">준비해 오시면 좋아요</p><ul><li>누드톤 심리스 속옷과 실리콘 브라</li><li>예식 날 신을 굽 높이의 신발</li></ul></div>'
+      + '<div class="pk-bring"><p class="pk-bring-h">준비해 오시면 좋아요</p><ul><li>피부색에 가까운 하의 속옷을 입어 주세요.</li><li>피팅용 이너와 슈즈는 스튜디오에서 준비해요.</li></ul></div>'
       + '<div class="pk-memo-box"><label class="pk-memo-l" for="pkMemo">디렉터에게 남길 말 <span>(선택)</span></label>'
       + '<textarea class="pk-memo" id="pkMemo" maxlength="200" rows="3" placeholder="신경 쓰이는 점이나 궁금한 점을 적어 주세요">' + esc(S.memo) + '</textarea>'
       + '<div class="pk-memo-act"><span class="pk-memo-c" id="pkMemoC" aria-hidden="true">' + S.memo.length + ' / 200</span></div></div>'   // [DRESS_MEMO_ONEBTN] 작은 «남기기» 알약은 걷었다
@@ -1053,6 +1094,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
         try { rm2 = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
         try { window.scrollTo({ top: Math.max(0, ty2), behavior: rm2 ? 'auto' : 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, ty2)); }
         try { ah.focus({ preventScroll: true }); } catch (e) {} return; }
+      if (act === 'guide') { S.guideOpen = !S.guideOpen; document.querySelectorAll('.pk-guidet').forEach(function(b){ b.setAttribute('aria-expanded', S.guideOpen ? 'true' : 'false'); var gb = $(b.getAttribute('aria-controls')); if (gb) gb.hidden = !S.guideOpen; }); return; }   // ★[DRESS_GUIDE_1031] 그 자리에서 펼침(다시 그리지 않는다 · 읽던 자리 그대로)
       if (act === 'tips') { S.tipsOpen = !S.tipsOpen; var tb = $('pkTips'); if (tb) tb.hidden = !S.tipsOpen; t.setAttribute('aria-expanded', S.tipsOpen ? 'true' : 'false'); t.innerHTML = S.tipsOpen ? '살펴볼 점 접기' : '살펴볼 점 보기 <span aria-hidden="true">&rsaquo;</span>'; return; }   // [DRESS_TIPS_FOLD]
       if (act === 'list') { backToList(); return; }   // [DRESS_BACK_STEP] 목록으로 돌아가는 길 하나
       if (act === 'pick') { pick(S.cur); return; }

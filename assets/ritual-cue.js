@@ -248,7 +248,10 @@
     'bridge-b9-declare-seat-end-gdad', 'bridge-b9-declare-seat-end-bdad', 'bridge-b9-declare-seat-end-gmom', 'bridge-b9-declare-seat-end-bmom',
     /* ★★[CLOSING_LINE_1031 검토 178 사장님 19:41 «사진은 작가님 몫»] 287 ~ 291 — 닫는 인사 뒤 «마무리 멘트»(새 녹음 0 · 이미 녹음된 문장만 이어 붙임 · 원천 CLOSING_PARTS) ·
        287 애프터 웨딩 없음 · 288 + 하객 안내 · 289 식사 · 카페는 있지만 조건이 빈 날 · 290 + 하객 안내 · 291 식사 있음(식사 자리 + 예약 시각 + 하객 안내) */
-    'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-soft-guide', 'narr-closing-meal'
+    'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-soft-guide', 'narr-closing-meal',
+    /* ★★[CLOSING_SRC_1031 검토 179 사장님 21:09] 292 ~ 296 — 닫는 멘트 칩 186 · 187(«진심으로 감사») 을 고른 날의 마무리 멘트 · 47#0 «… 다시 한 번 진심으로 감사드립니다»를 빼고 시작(감사 두 번 겹침) ·
+       287 ~ 291 과 같은 순서(애프터 웨딩 없음 · + 하객 안내 · 조건 빔 · + 하객 안내 · 식사 있음) · 새 녹음 0 */
+    'narr-closing-nt', 'narr-closing-guide-nt', 'narr-closing-soft-nt', 'narr-closing-soft-guide-nt', 'narr-closing-meal-nt'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -378,17 +381,29 @@
   /* ★★[CLOSING_LINE_1031 검토 178] 마무리 멘트 글 — 이미 녹음된 문장만(새 글 0) · 원천 문장은 그 클립의 EXTRA 하나(손으로 옮겨 적지 않는다) ·
        [줄 주인 · 문장] 묶음 — 줄 주인은 녹음한 목소리(안내 = 진희 · 진행 = 우성 · 빌려 오는 자리 그대로) */
   var _sents = function (t) { return String(t || '').match(/[^.!?]+[.!?]/g).map(function (x) { return x.trim(); }); };
-  var CL_THX = ['안내', _sents(EXTRA['end-2-goodbye'])[0], '47_end-2-goodbye#0'], CL_DAY = ['안내', _sents(EXTRA['end-2-goodbye'])[1], '47_end-2-goodbye#1'],
-    CL_MEAL = [['진행', _sents(EXTRA['narr-photo-pre-meal'])[3], '266_narr-photo-pre-meal#3'], ['진행', _sents(EXTRA['narr-photo-pre-meal'])[4], '266_narr-photo-pre-meal#4']],
-    CL_UP = ['안내', EXTRA['narr-photo-upload'], '264_narr-photo-upload#0'], CL_CREW = ['진행', EXTRA['end-0-photo'], '44_end-0-photo#0'];
+  /* ★[CLOSING_SRC_1031 검토 179] 넷째 칸 = 자료 판정(src) — 사장님 대본 점검 그대로 */
+  var CL_THX = ['안내', _sents(EXTRA['end-2-goodbye'])[0], '47_end-2-goodbye#0', '자료 — U1 마지막 인사 · DD ⑦'], CL_DAY = ['안내', _sents(EXTRA['end-2-goodbye'])[1], '47_end-2-goodbye#1', '자료 — U1 마지막 인사 · DD ⑦'],
+    /* ★[CLOSING_ONE_VOICE_1031 검토 179 덧 · 사장님 실청 21:55] 마무리 = 진희(안내) 한 목소리 — 식사 두 문장은 266(우성) 녹음을 빌리지 않고 진희 새 녹음(셋째 칸 null = 새 녹음 · 음성 쉼) */
+    CL_MEAL = [['안내', _sents(EXTRA['narr-photo-pre-meal'])[3], null, '우리 운영 · 자료 없음(우리만의 예약 식사라 자료가 없음 · 유지)'], ['안내', _sents(EXTRA['narr-photo-pre-meal'])[4], null, '우리 운영 · 자료 없음(우리만의 예약 식사라 자료가 없음 · 유지)']],
+    CL_UP = ['안내', EXTRA['narr-photo-upload'], '264_narr-photo-upload#0', '자료 — G2 3-3'];
+  /* ★[CLOSING_NO_CREW_1031 검토 179 덧 · 사장님 실청 21:55 «굳이 이런 멘트 없이 작가님이 자연스럽게 안내»] 44 «여기서부터는 작가님이 안내해 드립니다.»는 마무리에서 뺐다 — 되살리지 말 것(44 녹음 · 파일은 옛 코스가 그대로 쓴다 · clip-status legacy)
+       CL_CREW 는 쉬는 294(그 판에 남은 문장이 44 하나뿐이라 RETIRED)의 녹음 기록으로만 남는다 — 살아 있는 판에 넣지 않는다 */
+  var CL_CREW = ['진행', EXTRA['end-0-photo'], '44_end-0-photo#0', '9/6 설계한 넘김 말 · 검토 179 덧(사장님 실청 21:55)으로 마무리에서 뺐다 · 294 녹음 기록'];
   var CLOSING_PARTS = {
-    'narr-closing': [CL_THX, CL_DAY, CL_CREW], 'narr-closing-guide': [CL_THX, CL_DAY, CL_UP, CL_CREW],
-    'narr-closing-soft': [CL_THX, CL_CREW], 'narr-closing-soft-guide': [CL_THX, CL_UP, CL_CREW],
-    'narr-closing-meal': [CL_THX].concat(CL_MEAL, [CL_UP, CL_CREW])
+    'narr-closing': [CL_THX, CL_DAY], 'narr-closing-guide': [CL_THX, CL_DAY, CL_UP],
+    'narr-closing-soft': [CL_THX], 'narr-closing-soft-guide': [CL_THX, CL_UP],
+    'narr-closing-meal': [CL_THX].concat(CL_MEAL, [CL_UP]),
+    /* [CLOSING_SRC_1031] 닫는 멘트 칩 186 · 187 을 고른 날 — 47#0(감사) 없이 */
+    'narr-closing-nt': [CL_DAY], 'narr-closing-guide-nt': [CL_DAY, CL_UP],
+    'narr-closing-soft-nt': [CL_CREW], 'narr-closing-soft-guide-nt': [CL_UP],   /* [CLOSING_NO_CREW_1031] 식사 · 카페만 + 하객 안내 없음 + 감사 칩 = 44 를 빼면 남는 문장 0 → 마무리 멘트 없이 작가님 촬영(294 는 쉰다 · RETIRED · 이 줄은 그 녹음 기록) */
+    'narr-closing-meal-nt': CL_MEAL.concat([CL_UP])
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 어느 판인가 — 식사 있음(266 이 서던 조건 그대로) · 식사 · 카페만(26 이 서던 자리) · 애프터 웨딩 없음(265 자리) · 하객 안내가 열린 날은 264 를 «여기서부터는 …» 앞에 */
-  function closingOf(S) { S = S || {}; return (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-closing-meal' : S.meal ? (S.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (S.guide ? 'narr-closing-guide' : 'narr-closing'); }
+  /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 칩 186 · 187(«진심으로 감사»)을 고른 날은 «-nt»(47#0 없이) — 108 · 185 를 고른 날은 그대로 */
+  var CLOSE_THANKS_EX = { 'narr-close-bow-ex3': 1, 'narr-close-bow-ex4': 1 };
+  function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-closing-meal' : S.meal ? (S.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (S.guide ? 'narr-closing-guide' : 'narr-closing');
+    var ex = ''; try { ex = (O.narExCue && O.narExCue(S, 'narr-close-bow')) || ''; } catch (e) { ex = ''; } var k = CLOSE_THANKS_EX[ex] ? b + '-nt' : b; return RETIRED[k] ? '' : k; }   /* [CLOSING_NO_CREW_1031] 쉬는 판(294 · 남는 문장 0)은 '' = 마무리 멘트 큐 없음 */
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
@@ -542,6 +557,7 @@
     /* ★★[CLOSING_LINE_1031 검토 178 사장님 «사진은 작가님 몫»] 사진 «모여 달라 · 앞을 봐 달라»를 자동 식순에서 걷었다 — 265 · 266(사진 전 안내) · 262(자유 사진 여는 말) · 219(닫는 멘트 칩의 사진 줄)는
        새 코스에서만 나던 자리라 쉰다(파일 · 문안 · 번호 그대로 · 266 · 47 · 264 · 44 의 문장은 마무리 멘트 287 ~ 291 이 빌려 쓴다) · 26 · 85 · 47 은 옛 코스가 그대로 틀어 clip-status 표에 legacy · 되살리지 말 것 */
     'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1,
+    'narr-closing-soft-nt': 1,   /* ★[CLOSING_NO_CREW_1031 검토 179 덧] 44 를 빼니 남는 문장이 0 — 이 날은 마무리 멘트 없이 작가님 촬영(파일 · 번호 그대로) */
     /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 나레이션이 선언문을 읽던 클립 다섯(30 엄숙 · 31 따뜻 · 32 가족 낭독 폴백 ·
        96 · 97 하객 박수 판)과 «가족께서 선언하십니다» 여는 말(21)을 쉰다 — 선언문은 아버님 · 친구 · 지인만 읽는다(여는 말은 134 · 135 · 136).
        ★32 는 [DROP_GUARD] 가 «폴백으로 실제로 나간다»고 지켜 오던 자리다 — 그 폴백(사람이 막히면 나레이션이 대신 읽기)이 이 결정으로 없어져 함께 쉰다.
@@ -1567,9 +1583,9 @@
          닫는 인사 «… 인사!» · 박수 → (디지털 날 온라인 인사 2분) → 마무리 → 작가님 촬영 · 판은 closingOf 하나(식사 있음 · 식사 · 카페만 · 애프터 웨딩 없음 × 하객 안내) ·
          새 녹음 0 — 이미 녹음된 문장(47 · 266 · 264 · 44)을 이어 붙인다(CLOSING_PARTS) · 콘솔 간격: 박수 뒤 GO 에 바로 · 디지털 날은 온라인 인사 끝 2초 뒤 · 마무리 끝 → 사진(작가님 · 소리 없음) */
     var _ppre = closingOf(S);
-    if (_openC) cues.push(cue({
+    if (_openC && _ppre) cues.push(cue({   /* [CLOSING_NO_CREW_1031] 문장이 없는 판('')은 큐 없음 */
       k: '_close', blockN: '폐식·단체촬영', slug: _ppre, name: '마무리 멘트', text: EXTRA[_ppre],
-      duck: -12, note: '감사 · (식사 안내) · (사진 올리기) · «여기서부터는 작가님이 안내해 드립니다» — 사진 구간은 작가님이 이끈다(나레이션 없음 · CLOSING_LINE_1031)',
+      duck: -12, note: '감사 · (식사 안내) · (사진 올리기) — 사진 구간은 작가님이 자연스럽게 이끈다(나레이션 없음 · 넘김 말 44 없음 · CLOSING_LINE_1031 · CLOSING_NO_CREW_1031)',
       goLeadMs: (S.digital ? 2000 : 0),   /* ★[PHOTO_PRE_GAP_1030] 디지털 참석 날 — 온라인 인사 끝(마이크 off · 디렉터 GO) 뒤 2초 쉬고 · 닫는 인사 박수 뒤는 GO 에 바로 */
       post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }]
     }));

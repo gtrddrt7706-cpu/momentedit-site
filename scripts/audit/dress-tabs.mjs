@@ -107,13 +107,17 @@ try {
       await fr.focus('#pkTabD'); await P.keyboard.press('ArrowRight'); await wait(200); await P.keyboard.press('ArrowLeft'); await wait(200);
       const ring = await fr.evaluate(() => { const b = document.activeElement, c = getComputedStyle(b); return [b.id, c.outlineStyle, c.outlineWidth, c.outlineColor, c.outlineOffset].join(' '); });
       if (ring !== 'pkTabD solid 2px rgb(122, 95, 55) -5px') no(`${tag} 탭 초점 테 ${ring} [DRESS_TAB_RING]`);
+      /* ★[DRESS_GUIDE_1031] 패널 맨 위 = 신부 준비 안내 글 단추(접힘) — Tab 은 안내 단추 → 첫 카드 */
+      await P.keyboard.press('Tab'); await wait(150);
+      const tg1 = await fr.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-act') + ':' + document.activeElement.getAttribute('aria-expanded') + ':' + document.activeElement.getAttribute('aria-controls'));
+      if (tg1 !== 'guide:false:pkGuideD') no(`${tag} 드레스 탭에서 Tab → 신부 준비 안내(접힘)가 아니다 ${tg1} [DRESS_GUIDE_1031]`);
       await P.keyboard.press('Tab'); await wait(150);
       const tb1 = await fr.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-open'));
       if (tb1 !== 'S07') no(`${tag} 드레스 탭에서 Tab → 첫 카드(스타일 예시 01 · S07)가 아니다 ${tb1} [DRESS_TAB_A11Y]`);
       await fr.focus('#pkTabD'); await P.keyboard.press('ArrowRight'); await wait(200); await P.keyboard.press('ArrowRight'); await wait(200);
       const wrap = await fr.evaluate(() => document.activeElement.id + ':' + document.activeElement.getAttribute('aria-selected'));
       if (wrap !== 'pkTabD:true') no(`${tag} 방향키 → 끝에서 처음으로 돌아 바로 선택되지 않는다 ${wrap} [DRESS_TAB_A11Y]`);
-      await P.keyboard.press('ArrowLeft'); await wait(200); await P.keyboard.press('Tab'); await wait(150);
+      await P.keyboard.press('ArrowLeft'); await wait(200); await P.keyboard.press('Tab'); await wait(150); await P.keyboard.press('Tab'); await wait(150);   // [DRESS_GUIDE_1031] 안내 단추 다음이 첫 칸
       const tb2 = await fr.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-acc'));
       if (!tb2) no(`${tag} 소품 탭에서 Tab → 첫 칸이 아니다 [DRESS_TAB_A11Y]`);
       await fr.click('#pkTabD'); await wait(200); await fr.evaluate(() => window.scrollTo(0, 0)); await wait(150);
@@ -144,7 +148,7 @@ try {
       if (!al.length || al.some((d) => d > 1)) no(`${tag} 소품 같은 행 사진 윗선 차이 ${JSON.stringify(al)} [DRESS_ACC_ALIGN]`);
       v = await view(fr); if (v.tab !== 'pkTabA' || v.focus !== 'pkAccH') no(`${tag} «소품 · 부케도 보기» 뒤 소품 탭 · 첫 제목 초점이 아니다 ${JSON.stringify(v)} [DRESS_TABS_1030]`);
       /* ⑤ 소품 크게 보기 → Esc */
-      await fr.evaluate(() => window.scrollTo(0, 300)); await wait(200); const yA = await fr.evaluate(() => Math.round(pageYOffset));
+      await fr.evaluate(() => document.querySelector('[data-acc="shoes"]').scrollIntoView({ block: 'center' })); await wait(200); const yA = await fr.evaluate(() => Math.round(pageYOffset));   // [DRESS_ACC_NINE_1031] 칸이 아홉이라 슈즈가 아래 — 칸이 보이는 자리에서 잰다
       await fr.click('[data-acc="shoes"]'); await wait(400);
       const big = await fr.evaluate(() => ({ nm: (document.getElementById('dvName') || {}).textContent, back: (document.querySelector('.pk-back') || {}).textContent, ex: !!document.querySelector('.pk-accv .dr-ex'), tabs: !document.getElementById('pkTabs').hidden, fit: (() => { const ph = document.querySelector('.pk-accv .pk-accp'), im = ph && ph.querySelector('img'), m = document.getElementById('pkMain'); return ph && im ? [getComputedStyle(im).objectFit, ph.getBoundingClientRect().width <= 420.5, ph.getBoundingClientRect().width <= m.clientWidth + 0.5].join(':') : ''; })() }));
       if (big.fit !== 'contain:true:true') no(`${tag} 소품 크게 보기 사진 ${big.fit} — 최대 420 · 본문 폭 이하 · contain [DRESS_ACC_FIT]`);
