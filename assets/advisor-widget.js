@@ -211,6 +211,8 @@
     + '  </footer>'
     + '</section>';
   document.body.appendChild(wrap);
+  /* ★[FAB_NAMES_1031] 줄 아이콘 이름표(마우스 올림 · 키보드 초점) — 줄을 만드는 세 곳(이 파일 · index.html · schedule.html)이 같은 파일 하나를 부른다 */
+  if (window.meFabNames) window.meFabNames(); else if (!document.getElementById('meFabNamesJs')) { var fnS = document.createElement('script'); fnS.id = 'meFabNamesJs'; fnS.src = '/assets/fab-names.js'; fnS.async = true; document.head.appendChild(fnS); }
 
   var fab = document.getElementById('meAdvFab'), stackEl = document.getElementById('meAdvStack'),
       panel = document.getElementById('meAdvPanel'), backdrop = document.getElementById('meAdvBackdrop'),
