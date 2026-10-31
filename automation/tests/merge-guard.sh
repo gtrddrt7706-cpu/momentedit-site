@@ -21146,4 +21146,8 @@ chk 'REFILL_EXN_1031' order-preview.html 2
 chk 'SV_HEAD_EXACT_1031' order-preview.html 2
 chk 'function _svHeadOf(k,peak)' order-preview.html 1
 chk 'FAT_NOT_KEY_1031' order-preview.html 2
+# ── 2026-11-01 [NO_LEFT_LINE_1101 사장님 «남은 본식 시간 약 1분 이런 건 없어도 될 것 같아»] ① 담는 쪽 남은 시간 줄 삭제 — 되살리지 말 것
+chk 'NO_LEFT_LINE_1101' order-preview.html 1
+nochk "('남은 본식 시간 약 '+n+'분')" order-preview.html
+nochk "'본식 시간이 다 찼어요'" order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

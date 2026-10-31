@@ -2309,7 +2309,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1031cy"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1031w3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1031ky"></script><script src="/assets/bgm-form.js?v=1031w4"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101a"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1031w3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1031ky"></script><script src="/assets/bgm-form.js?v=1031w4"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3150,7 +3150,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1031cy';   // [ASSET_V] 위 주석
+  var ASSET_V='1101a';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4800,7 +4800,7 @@ function _mkItems(k){ var R=RitualOpen, out=[];
   var _vw=_vpCur(k)==='ai'?' · AI 두 분 목소리':' · 두 분 목소리 녹음';   /* [R1-28] AI 로 만든 판은 «녹음»이라 하지 않는다(보낼 일이 남은 것처럼 읽혔다) · _mkUpLab 이 둘 다 걷는다 */
   if(k==='guest'&&S.guestVoice==='couple') GUEST.forEach(function(g,i){ if(!GUEST_ON(i)) return; out.push({id:'up:g'+i,up:'g'+i,k:k,who:'couple',what:_lLabFix(g[0])+_vw,cat:'send',due:7}); });
   if(k==='entry'&&S.entryVoice==='couple') out.push({id:'up:entry',up:'entry',k:k,who:'couple',what:'입장 인사'+_vw,cat:'send',due:7});
-  if(k==='prevideo'&&S.pvVoice==='couple'&&_vcOn()) out.push({id:'up:pv',up:'pv',k:k,who:'couple',what:'영상 앞 소개'+_vw,cat:'send',due:3});   // [PV_INTRO] 영상 링크와 같은 때(3일 전)
+  if(k==='prevideo'&&S.pvVoice==='couple'&&_vcOn()) out.push({id:'up:pv',up:'pv',k:k,who:'couple',what:'영상 앞 소개'+_vw,cat:'send',due:7});   /* ★[PV_DUE7_1101 2026-11-01 사장님 «식전 영상 기한, 7일 전 통일로 가자»] 영상 링크와 같은 때(7일 전) */   // [PV_INTRO] 영상 링크와 같은 때(3일 전)
   /* [RITUAL_FILE] 녹음 칸이 있으면 «… 녹음 · 대본을 드려요» 한 줄은 뺀다 — 같은 일을 두 번 세지 않는다(녹음 칸 카드가 그 말을 한다) */
   if(out.some(function(q){ return q.up; })) out=out.filter(function(q){ return q.up||!(q.cat==='send'&&/녹음|두 분 목소리 준비/.test(q.what)); });   // [PREP_VOICE_0928] 준비 목록 글이 «두 분 목소리 준비 · … «녹음 2 · 빈 줄 1»»로 바뀌어도 같은 일
   return out; }
@@ -8659,7 +8659,8 @@ function _pkPeakHtml(){
 }
 /* ★[BODY_CAP_1030 검토 167] 담는 쪽 한 줄 — «남은 본식 시간 약 n분» · 이미 넘은 옛 초안은 알림만(막지 않는다 · 새로 담기만 막힌다) */
 function _capLine(cls){ var R=RitualOpen; if(!R||!R.capSec||!isOpen()) return ''; var hi=R.bodySec(S)[1], cap=R.capSec(S), n=R.capLeft(S);
-  var t=hi>cap+0.5?('본식이 약 '+Math.max(1,Math.ceil((hi-cap)/60))+'분 길어요 · 순간을 하나 빼 주세요'):n>0?('남은 본식 시간 약 '+n+'분'):'본식 시간이 다 찼어요';
+  /* ★«남은 본식 시간 약 n분» · «본식 시간이 다 찼어요» 줄 금지 — 2026-11-01 사용자 지시로 삭제 [NO_LEFT_LINE_1101] «어떤 기준인지 이해가 안 되고 · 시간이 짧으면 그만큼 사진 · 자유 시간이 길어지는 것» · 담기가 막힐 때 창(CAP_NEED_1031)이 얼마 덜지 말한다 · 이미 넘은 옛 초안 알림만 남긴다 */
+  if(!(hi>cap+0.5)) return ''; var t='본식이 약 '+Math.max(1,Math.ceil((hi-cap)/60))+'분 길어요 · 순간을 하나 빼 주세요';
   return '<p class="pk-left '+cls+'" data-fk="capleft:'+cls+'">'+esc(t)+'</p>'; }
 function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
@@ -9216,10 +9217,10 @@ function renderStep(k){
       h+='<div class="tgl-ex" style="margin-left:0">"잠시 후, 두 사람이 걸어온 시간을 담은 짧은 영상을 함께 보시겠습니다."</div>';
       /* ★[GROW_LINK_HINT 2026-08-13 점검] 주소 형태가 아니면 그 자리에서 알려 준다 — 안 잡으면
          「abc」 같은 값이 그대로 저장돼 관리자 화면(ADM_LINK_CLICK)에서 눌리지 않는 맨글자가 되고,
-         디렉터는 D-3에 영상을 못 받는다. 막지는 않는다(붙여넣다 만 중간 상태가 있다) · 힌트만. */
+         디렉터는 7일 전에 영상을 못 받는다([PV_DUE7_1101]). 막지는 않는다(붙여넣다 만 중간 상태가 있다) · 힌트만. */
       h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">';
       h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
-      h+='<div class="wd" style="margin-top:6px">가로 mp4 3~4분 이내 · D-3까지 · 링크만 붙여두면 저희가 받아둬요.</div>';
+      h+='<div class="wd" style="margin-top:6px">가로 mp4 3~4분 이내 · 예식 7일 전까지 · 링크만 붙여두면 저희가 받아둬요.</div>';
     }
     }   // [OPEN_COURSE] if(!isOpen())
     h+='</div>';
@@ -9243,7 +9244,7 @@ function renderStep(k){
     h+=narBox(RitualOpen.NAR.prevideoIn,null);
     h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX" style="margin-top:12px">';
     h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
-    h+='<div class="wd" style="margin-top:6px">D-3까지 · 링크만 붙여 두시면 저희가 받아 둬요.</div>';   // ★길이 안내(«…분 이내») 금지 — [PREVIDEO_FREE 2026-10-02] 길이 규정 없음(2026-10-05 남은 자리 정리)
+    h+='<div class="wd" style="margin-top:6px">예식 7일 전까지 · 링크만 붙여 두시면 저희가 받아 둬요.</div>';   /* ★[PV_DUE7_1101 2026-11-01 사장님 «식전 영상 기한, 7일 전 통일로 가자»] 마이페이지 «식전 영상»과 같은 기한 */   // ★길이 안내(«…분 이내») 금지 — [PREVIDEO_FREE 2026-10-02] 길이 규정 없음(2026-10-05 남은 자리 정리)
     /* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] reassure «사진을 올린 링크 … 영상으로 만들어» 줄 뺌 · 되살리지 말 것 */
     h+='</div>'; return h;
   }
@@ -9839,7 +9840,7 @@ function prep(){
   if(inSeq('welcome') && S.welcome==='self') p.push(['D-7','첫인사 준비']);
   if(inSeq('declare')) p.push(['D-14',_declWho()?'성혼 선언 낭독 · '+_declWho()+'께 부탁':'성혼 선언문 읽어 주실 분 정하기']);   // [DECLARE_BY_PERSON] 선언문은 늘 사람이 읽는다
   if(inSeq('song') && S.song==='family') p.push(['D-14','축가 부르실 분께 미리 부탁 (반주 음원은 저희가 준비)']);
-  if(S.growth==='on') p.push(['D-3',(S.growthLink?'성장영상 링크 붙여둠 · 확인만 하면 돼요':'성장영상 링크 붙여두기')+' (가로 mp4 · 3~4분 이내)']);
+  if(S.growth==='on') p.push(['D-7',(S.growthLink?'성장영상 링크 붙여둠 · 확인만 하면 돼요':'성장영상 링크 붙여두기')+' (가로 mp4 · 3~4분 이내)']);
   if(S.entryVoice==='couple') p.push(['D-7','두 분 목소리 준비 · 입장 인사']);   // [OLD_COURSE_0928 6-7] 옛 prep() 의 «… 올리기(mp3 · m4a)»를 준비 목록과 같은 말로
   if(S.guestVoice==='couple') p.push(['D-7','두 분 목소리 준비 · 하객 맞이 안내 네 줄']);
   if(S.ring==='on') p.push(['당일','결혼반지 지참']);
