@@ -20127,7 +20127,7 @@ chk 'outline:2px solid var(--gold-text);outline-offset:-5px' dress.html 1       
 chk '.pk-accv .pk-accp img{object-fit:contain}' dress.html 1                      # [DRESS_ACC_FIT]
 chk '  _DR_AFTER_MEM=null;   // \[DRESS_MEM_RESET 1030\]' mypage.html 1                    # [DRESS_MEM_RESET]
 chk 'function _dressTipBlocked(btn)' mypage.html 1                               # [DRESS_TIP_SEEN]
-chk '#mp_dressFab.nm-off .me-fab-nm' mypage.html 1                                # [DRESS_TIP_ESC]
+chk '.me-fab-stack .me-fab.nm-off .me-fab-nm' assets/fab-names.js 1                 # [DRESS_TIP_ESC] Esc 이름표 닫기 — 줄 공통으로(FAB_NAMES_1031)
 chk 'DRESS_AFTER_NOFLASH' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_TAB_A11Y' scripts/audit/dress-tabs.mjs 4
 chk 'DRESS_AFTER_NOEND' scripts/audit/dress-tabs.mjs 2
@@ -20140,12 +20140,27 @@ chk '_mw.__drMemNow && _mw.__drMemNow(); if(_mm) memSet(_mm);' mypage.html 1    
 chk 'button.pk-acci{align-self:start;' dress.html 1                                # [DRESS_ACC_ALIGN]
 chk 'var cd=ex._d;' mypage.html 1                                                  # [DRESS_FAB_LATEST]
 chk '  ex._d=d;' mypage.html 1                                                     # [DRESS_FAB_LATEST]
-chk '#mp_dressFab .me-fab-nm::after' mypage.html 1                                 # [DRESS_NM_HOVER]
+chk '.me-fab-stack .me-fab .me-fab-nm::after' assets/fab-names.js 1                 # [DRESS_NM_HOVER] 8px 투명 다리 — 줄 공통으로(FAB_NAMES_1031)
 chk 'DRESS_TAB_SAME' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_MEM_CLOSE' scripts/audit/dress-tabs.mjs 2
 chk 'DRESS_ACC_ALIGN' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_FAB_LATEST' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_NM_HOVER' scripts/audit/dress-tabs.mjs 1
+# ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
+chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
+chk '<script src="/assets/fab-names.js" defer></script>' index.html 1
+chk '<script src="/assets/fab-names.js" defer></script>' schedule.html 1
+chk '@media (hover:hover){.me-fab-stack .me-fab:hover .me-fab-nm' assets/fab-names.js 1      # 휴대폰(hover 없음)은 안 뜬다
+chk "stack.classList.toggle('nm-tip'" assets/fab-names.js 1                                  # 1회 말풍선 우선
+nochk '#mp_dressFab .me-fab-nm{position:absolute' mypage.html                                 # 드레스 전용 규칙은 공통으로 흡수(두 벌 금지)
+chk 'FAB_NAMES_1031' scripts/audit/fab-names.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/fab-names.mjs >/dev/null 2>&1; _fnm=$?
+  case "$_fnm" in
+    0) echo 'ok fab-names: 줄 아이콘 이름표 — 마이페이지 · 메인 · 일정 · 드레스 겉모습 그대로 · 숨김 · 말풍선 · 휴대폰 안 뜸' ;;
+    1) echo 'FAIL fab-names: 오른쪽 줄 이름표가 틀렸습니다 — node scripts/audit/fab-names.mjs --print'; fail=1 ;;
+    *) echo 'ok fab-names: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 # ★★[DRESS_SCROLL_LOCK · DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 끝에서 더 내리면 뒤 마이페이지가 움직였다 — 창이 떠 있는 동안 다시 그리기(show)가 잠금을 풀었다(목록에 창이 없었다)
 chk "'mp_drViewer','mp_invSample'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)
 chk "document.documentElement.style.overflow='hidden';   // \[DRESS_SCROLL_LOCK\]" mypage.html 1
