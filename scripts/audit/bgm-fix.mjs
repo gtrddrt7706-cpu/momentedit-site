@@ -145,12 +145,12 @@ try {
       const L6 = await L(o2.pg);
       ok('C5 편지 맺는 말(뒤처리 −16 4초) 뒤 −8 로 오르지 않는다', L6.some((x) => x.db === -16 && x.ms === 4000) && !L6.some((x) => x.db === -8), L6.filter((x) => x.db !== undefined));
       /* 5 마지막 큐(귀가 인사) — 긴 뒤처리를 비우고 잰다 */
-      const n = await o2.pg.evaluate(() => window.__bgmR().length), last = n - 1, ls = await o2.pg.evaluate((i) => window.__bgmR()[i].slug, last);
+      const n = await o2.pg.evaluate(() => window.__bgmR().length), last = n - 1, ls = await o2.pg.evaluate((i) => window.__bgmR()[i].slug || ('@' + (window.__bgmR()[i].actId || '')), last);   // ★[CLOSING_LINE_1031] 새 코스 마지막 큐 = 소리 없는 «촬영 마무리»(@photo-end) · 옛 코스 47
       if (!(await o2.pg.evaluate(() => typeof window.__bgmGo.post === 'function'))) ok('C5 마지막 큐 — 점검 고리(__bgmGo.post)가 있다', false, '없음 — 옛 판');
       else { await o2.pg.evaluate((i) => window.__bgmGo.post(i, []), last); await o2.pg.evaluate(() => { window.__L.length = 0; }); await o2.pg.evaluate((i) => window.__bgmGo.fire(i), last);
         await waitFn(o2.pg, () => ['done', 'end'].includes(window.__bgmSt().phase), null, 40000); await o2.pg.waitForTimeout(600);
         const L7 = await L(o2.pg);
-        ok(`C5 마지막 큐(${ls}) 뒤 −8 로 오르지 않는다`, ls === 'end-2-goodbye' && !L7.some((x) => x.db === -8), L7.filter((x) => x.db !== undefined)); } }
+        ok(`C5 마지막 큐(${ls}) 뒤 −8 로 오르지 않는다`, (ls === 'end-2-goodbye' || ls === '@photo-end') && !L7.some((x) => x.db === -8), L7.filter((x) => x.db !== undefined)); } }
     ok('C 쪽 오류 0(감사 인사 · 편지)', !errs.length && !o2.errs.length, errs.concat(o2.errs).slice(0, 2)); await o2.ctx.close(); }
 
   /* 7 · 8 닫는 인사 · 축배 · 보컬 · 한 파일 */
