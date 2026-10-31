@@ -90,7 +90,7 @@
                 waist: '흔히 무난하다고 이야기하는 라인이에요. 허리선 위치를 옆모습으로 확인해 보세요.' } },   // [DRESS_WORDS] 코워크 글 «흔히 많은 체형에 무난하다고» — «체형»은 쓰지 않는 말이라 뺐다
       /* ★[DRESS_Q_FIRST 2026-10-24 사장님 «드레스 질문을 먼저 의무적으로 묻고»] 셋째 물음도 답해야 다음 — «특별한 선호는 없어요»(none)와 나머지는 서로 해제 */
       /* ★★[DRESS_Q3_ARMS 1031 코워크 · 사장님 «추천대로»] 셋째 물음 «노출 · 소매»(여럿) → «어깨 · 팔»(하나만 · 보조문 없음) — 답 칸 모양(pref 배열)은 그대로 · 한 칸만 담는다(one).
-           open = 어깨선이 드러나는 드레스 · sleeve = 소매가 있는(비침 포함) 드레스 · any = 걸러내지 않음. 케이프(등 뒤로 떨어짐)는 팔 덮음으로 세지 않는다 */
+           open = 어깨선이 드러나는 드레스 · sleeve = 소매가 있는(비침 포함) 드레스 · any = 걸러내지 않음 · ★[DRESS_NINE_MINI_1031] 케이프 드레스는 뺐다(소품 «오간자 케이프»는 따로) */
       { key: 'pref', step: '어깨 · 팔', q: '어깨와 팔은 어떤 쪽이 마음에 드세요?', multi: true, one: true, none: 'any',
         figs: { open: '/assets/dress-refs/q/pref-open.svg', sleeve: '/assets/dress-refs/q/pref-sleeve.svg' },
         opts: [['open', '어깨선이 드러나는 쪽'], ['sleeve', '소매가 있는 쪽 · 비침 가능'], ['any', '아직 모르겠어요']],
@@ -116,8 +116,8 @@
            엠파이어 · 긴소매는 거의 없어 옛 «시폰 엠파이어 긴소매»(S06)를 뺐다(사진 d06-* 은 둔다) · 너무 방방한 볼가운은 스몰웨딩과 안 맞아 볼륨 · 트레인은 줄였다(사장님 조건).
            보이는 순서 = 이 배열 순서(상담 뒤 탭 · 상담 전 «다른 드레스» 모두) · «스타일 예시 0n» 번호도 이 순서.
            ★id 는 그대로 둔다(새 두 벌은 S07 · S08) — 마이페이지 저장본(picks) · 열기 주소(open=)가 옛 id 를 들고 있어, 번호를 다시 매기면 옛 S01(머메이드)이 새 드레스로 열린다.
-           shoulder = 셋째 물음 «어깨 · 팔» 답과 잇는 값(open 어깨선이 드러남 · sleeve 소매 · 비침 소매 · cape 등 뒤 케이프 = 어느 쪽에도 «맞음»이 아니다)
-         물음 답 덮음(★[DRESS_TEN_1031] 10벌): 길이 ankle 01 ~ 07 · 09 · calf 08 · knee 10 / 라인 body 02 06 07 · waist 01 03 04 05 08 09 10 / 어깨 · 팔 open 01 02 04 05 06 07 10 · sleeve 03 08 · 09 는 가까운 드레스 */
+           shoulder = 셋째 물음 «어깨 · 팔» 답과 잇는 값(open 어깨선이 드러남 · sleeve 소매 · 비침 소매 · ★[DRESS_NINE_MINI_1031] 옛 cape 값은 케이프 드레스와 함께 뺐다)
+         물음 답 덮음(★[DRESS_TEN_1031] 10벌 · [DRESS_NINE_MINI_1031] 09 교체): 길이 ankle 01 ~ 07 · calf 08 · knee 09 10 / 라인 body 02 06 07 · waist 01 03 04 05 08 09 10 / 어깨 · 팔 open 01 02 04 05 06 07 09 10 · sleeve 03 08 */
       { id: 'S07', name: '스타일 예시 01 · 드레이프 새틴 A라인', line: 'aline', length: 'ankle', neck: '오프숄더(드레이핑)', fabric: '저광택 새틴', expo: 'soft', sleeve: 'none', shoulder: 'open',
         mood: '어깨를 감싸는 부드러운 드레이핑', pair: '짧은 면사포 · 진주 귀걸이', img: 'n01-front',
         intro: '어깨선을 부드럽게 감싼 드레이핑에, 볼륨을 가볍게 덜어 낸 새틴 A라인',
@@ -185,14 +185,16 @@
         tryOn: ['밑단이 다리 어디에서 끝나는지', '신발이 보이므로 슈즈와 함께', '소매를 붙인 모습과 뗀 모습'],
         onsite: ['슈즈', '짧은 베일', '헤어 리본'],
         ex: [{ t: '앞', img: 'd04-front' }, { t: '뒤', img: 'd04-back' }, { t: '디테일', img: 'd04-detail' }], sample: true },
-      { id: 'S02', name: '스타일 예시 09 · 크레이프 A라인 · 케이프', line: 'aline', length: 'ankle', neck: '보트넥', fabric: '크레이프 · 오간자 케이프', expo: 'soft', sleeve: 'bolero', shoulder: 'cape',
-        mood: '등 뒤로 떨어지는 오간자 케이프', pair: '케이프 길이 · 짧은 베일', img: 'd02-front',
-        intro: '무광 크레이프 A라인에 얇은 오간자 케이프를 더한 단정한 드레스',
-        design: '허리를 잡고 아래로 여유 있게 퍼지는 A라인 · 보트넥 · 등 뒤로 떨어지는 탈부착 케이프',
-        feel: '무광이라 대부분의 조명에서 깔끔하게 나와요. 케이프를 떼면 더 가벼운 인상이에요.',
-        tryOn: ['허리선이 몸의 어디에 오는지 옆모습', '케이프를 붙인 모습과 뗀 모습'],
-        onsite: ['케이프 길이', '짧은 베일'],
-        ex: [{ t: '앞', img: 'd02-front' }, { t: '뒤', img: 'd02-back' }, { t: '디테일', img: 'd02-detail' }], sample: true },
+      /* ★★[DRESS_NINE_MINI_1031 코워크 · 사장님 «한국인들에게 인기 있는 걸로 베스트 10»] 09 자리 = 잔비즈 오프숄더 미니(S12 · 사진 n11) — 옛 «크레이프 A라인 · 케이프»(S02)는 뺐다.
+           인스타 캡션 «케이프» 0건 · 비즈 · 반짝 · 2부 · 미니 반응이 크다. 되살리지 말 것 · S02 id 는 다시 쓰지 않는다(옛 저장본은 «목록에 없는 드레스»로 · S06 때와 같다) · 사진 d02-* 은 저장소에 남긴다 */
+      { id: 'S12', name: '스타일 예시 09 · 잔비즈 오프숄더 미니', line: 'aline', length: 'knee', neck: '오프숄더(밴드)', fabric: '비즈·펄 튤 · 새틴 밴드', expo: 'soft', sleeve: 'none', shoulder: 'open',
+        mood: '새틴 어깨 밴드와 작은 펄의 은은한 반짝임', pair: '짧은 면사포 · 새틴 슈즈', img: 'n11-front',
+        intro: '매끈한 오프숄더 밴드와 잔비즈·작은 펄이 어우러진 가벼운 미니 A라인',
+        design: '장식 없는 새틴 오프숄더 밴드 · 안감 있는 튤 몸판과 치마 전체에 잔비즈와 작은 펄 · 자연 허리선 · 무릎 위 미니 A라인 · 오버스커트와 트레인 없음',
+        feel: '안감을 댄 튤 위로 잔비즈와 작은 펄이 은은하게 반짝여요. 매끈한 새틴 밴드가 어깨선을 부드럽게 감싸요.',
+        tryOn: ['팔을 들 때 어깨 밴드가 당기거나 내려오지 않는지', '앉았을 때 밑단이 올라오는 정도', '신을 구두와 함께 보았을 때 치마 길이'],
+        onsite: ['짧은 면사포', '새틴 슈즈'],
+        ex: [{ t: '앞', img: 'n11-front' }, { t: '뒤', img: 'n11-back' }, { t: '디테일', img: 'n11-detail' }], sample: true },
       { id: 'S05', name: '스타일 예시 10 · 미니 · 오버스커트', line: 'aline', length: 'knee', neck: '라운드넥', fabric: '크레이프 · 오간자', expo: 'soft', sleeve: 'none', shoulder: 'open',
         mood: '크레이프 미니에 두르는 롱 오버스커트', pair: '베일 · 굽 높이가 다른 슈즈 두 켤레', img: 'd05-front',
         intro: '깔끔한 크레이프 미니에 탈부착 롱 오버스커트를 두른 두 가지 모습',
@@ -245,7 +247,7 @@
   ];
   R.ACC_LEAD = '드레스 · 면사포 · 주얼리 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';
   R.accList = function () { return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : []; };
-  /* ★[DRESS_NAME_SPLIT 1024 코워크 GPT 2차] 이름 = 작은 보조 줄 «스타일 예시 0n» + 제목(«크레이프 A라인 · 케이프») — 실물 이름은 제목 하나 */
+  /* ★[DRESS_NAME_SPLIT 1024 코워크 GPT 2차] 이름 = 작은 보조 줄 «스타일 예시 0n» + 제목(«잔비즈 오프숄더 미니») — 실물 이름은 제목 하나 */
   R.nameParts = function (d) { var n = String((d && d.name) || ''), m = /^(스타일 예시 \d{2}) · (.+)$/.exec(n); return m ? { kick: m[1], title: m[2] } : { kick: '', title: n }; };
   R.SLEEVE_KO = { none: '없음', sleeve: '소매 있음', bolero: '볼레로' };   // [DRESS_DETAIL_FIELDS] 자세히 «디자인»의 소매 칸
   R.figSrc = function (v) { if (!v) return ''; if (String(v).charAt(0) === '/') return String(v); var l = R.line(v); return l ? l.svg : ''; };   // [DRESS_FORM_1024] 보기 그림 = 경로 또는 라인 key
@@ -301,7 +303,7 @@
     var len = (a.len && a.len !== 'unsure') ? a.len : '';
     var fit = (a.fit && a.fit !== 'unsure') ? a.fit : '';
     if (fit === R.PREF_NONE) fit = '';   // «아직 모르겠어요»는 걸러내지 않는다
-    var arms = (a.pref[0] && a.pref[0] !== R.PREF_NONE) ? a.pref[0] : '';   // [DRESS_Q3_ARMS] open · sleeve — 드레스의 shoulder 와 같을 때 맞음(cape 는 어느 쪽에도 맞지 않는다)
+    var arms = (a.pref[0] && a.pref[0] !== R.PREF_NONE) ? a.pref[0] : '';   // [DRESS_Q3_ARMS] open · sleeve — 드레스의 shoulder 와 같을 때 맞음
     var asked = !!(len || fit || arms);
     if (!asked) return { asked: false, match: [], rest: list, near: false };
     var rows = list.map(function (d, i) {
