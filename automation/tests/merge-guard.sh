@@ -20146,6 +20146,20 @@ chk 'DRESS_MEM_CLOSE' scripts/audit/dress-tabs.mjs 2
 chk 'DRESS_ACC_ALIGN' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_FAB_LATEST' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_NM_HOVER' scripts/audit/dress-tabs.mjs 1
+# ★★[DRESS_SCROLL_LOCK · DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 끝에서 더 내리면 뒤 마이페이지가 움직였다 — 창이 떠 있는 동안 다시 그리기(show)가 잠금을 풀었다(목록에 창이 없었다)
+chk "'mp_drViewer','mp_invSample'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)
+chk "document.documentElement.style.overflow='hidden';   // \[DRESS_SCROLL_LOCK\]" mypage.html 1
+chk "ov.addEventListener('wheel', _stopScroll, {passive:false}); ov.addEventListener('touchmove', _stopScroll, {passive:false});" mypage.html 1
+chk 'html.pk-pop,html.pk-pop body{overscroll-behavior-y:contain}' dress.html 1
+chk 'DRESS_LOCK_HOLD' scripts/audit/dress-scroll-lock.mjs 3
+chk 'DRESS_SCROLL_LOCK' scripts/audit/dress-scroll-lock.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/dress-scroll-lock.mjs >/dev/null 2>&1; _dsl=$?
+  case "$_dsl" in
+    0) echo 'ok dress-scroll-lock: 창 끝에서 더 내려도 · 막 위에서도 · 다시 그려도 뒤 페이지 0 · 닫으면 원래 자리(PC 휠 · 폰 터치)' ;;
+    1) echo 'FAIL dress-scroll-lock: 드레스 창이 떠 있는 동안 뒤 마이페이지가 움직입니다 — node scripts/audit/dress-scroll-lock.mjs --print'; fail=1 ;;
+    *) echo 'ok dress-scroll-lock: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-tabs.mjs >/dev/null 2>&1; _dtab=$?
   case "$_dtab" in
     0) echo 'ok dress-tabs: 상담 전 = 물음 필수 · 상담 뒤 = 물음 없이 두 탭 · 탭 · 복귀 · 기억 · 말풍선 — 네 크기' ;;
