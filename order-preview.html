@@ -1701,6 +1701,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .vk-st{display:inline-flex;align-items:center;gap:3px}
 .vk-st svg{width:10px;height:10px}
 .vk-st.no{color:var(--light)}
+.vk-solo{display:inline-flex;align-items:center;margin-left:6px;font-size:11px;letter-spacing:.02em;vertical-align:1px}   /* [TAG_OFF_1101] 표 글 없이 상태만 */
 .vk-st.no::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--seal)}   /* ★[VOICE_KIND_0928 4-2] 진사는 점으로만 · 글자는 옅게 */
 .lf-vk{margin:0 0 4px}
 .lf-vk .vk,.lf-vk .vk-note{vertical-align:middle}   /* ★[VK_ROW_MID 2026-10-13 직접 보며 개선점] 크게 보기 머리 줄의 표 둘(«나레이션» + «입장 음악 · 곡») · 표 + 덧말이 3~4px 어긋났다 — 아이콘이 든 표는 아이콘 아래 끝이 기준선이라 떠오른다 · 가운데로 맞춘다(줄 높이는 그대로) */
@@ -7073,15 +7074,17 @@ window.mkAskCopyAll=function(){ var qs=[]; _mkPages().forEach(function(k){ if(k=
 var VK_ICO={narr:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2.5v9L5 10H3z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M10.5 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
   prep:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8h1.5M4.5 5v6M7 3v10M9.5 5.5v5M12 7v2M14.5 8h0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
   live:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 14c.6-2.8 2.4-4.2 4.5-4.2s3.9 1.4 4.5 4.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'};
-function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; if(x&&x.vk) return '<span class="vk vk-media">'+esc(x.vk)+'</span>';   /* ★[REVIEW_166_1030 검토 166 C1] 영상 · 축가 자리는 «나레이션» 아닌 «영상 상영» · «당일 노래» */ var v=R.voiceKind(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)}), lab=R.voiceLab(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)});
+/* ★★[TAG_OFF_1101 2026-11-01 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 줄 옆 «나레이션 · 영상 상영 · 당일 노래 · 당일 직접 · 두 분 목소리» 표 금지 — 2026-11-01 사용자 지시로 삭제 ·
+     남기는 것은 두 분이 할 일을 알리는 상태(«준비됨 · 아직»)뿐 · 첫 쪽 목록 · «골라서 연습하기» 목록의 «누가 말하나» 한 낱말(_vmKind · COURSE_FLOW 10/03)은 그대로 */
+function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; if(x&&x.vk) return '';   /* ★[REVIEW_166_1030 검토 166 C1] 영상 · 축가 자리는 «나레이션» 아닌 «영상 상영» · «당일 노래» */ var v=R.voiceKind(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)}), lab=R.voiceLab(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)});
   var st=v==='prep'?((S.up||{})[x.up]?' <span class="vk-st">'+ICO_CHECK+'준비됨</span>':' <span class="vk-st no">아직</span>'):'';   // [VOICE_KIND_0928] 준비됨 = 선 체크 · 아직 = 진사 점
-  return '<span class="vk vk-'+v+'">'+VK_ICO[v]+esc(lab)+st+'</span>'; }
+  return st?'<span class="vk-solo">'+st.replace(/^ /,'')+'</span>':''; }   // [TAG_OFF_1101] 상태만
 /* ★★[MK_NO_HEADS 2026-09-27 사장님 «고르기 · 흐름 저게 칸 잡아먹는 게 별로 · 더 미니멀하게»] «고르기» · «흐름» 제목과 그 위 선을 걷었다 —
    칩은 순간 설명 바로 아래 · 흐름 줄은 그 아래 이어서(줄마다 ▸ 와 목소리 표가 이미 «흐름»임을 말한다). 고를 것이 없는 쪽의 «이 순간 들어 보기»만 흐름 위 오른쪽에.
    참고 예시 · 두 분이 할 말 · 부탁은 할 일이 다른 칸이라 제목을 남긴다. 되살리지 말 것 */
 /* [FLOW_THREAD] 행동 줄(● 마디) — 끝의 «말 없이» · «미리 듣기에서는 넘겨요»만 작은 표로 뗀다(엔진 글은 그대로 · 다른 « · »는 행동의 일부라 두 분이 하객께 «목례 · 박수»처럼 남긴다) */
 var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요)$/;   // [REVIEW_166_1030 C7] «말없이» 붙여 씀
-function _qRow(t,key){ t=String(t||''); var m=t.match(Q_TAG), w=key?_lpRow(key):null; return '<li class="q'+(w?w.c:'')+'"'+(key?' data-li="'+esc(key)+'"':'')+'><span class="qa">'+esc(m?t.slice(0,m.index):t)+'</span>'+(m?'<span class="mk-qt"><span class="sr-only"> · </span>'+esc(m[1])+'</span>':'')+(w?w.e:'')+'</li>'; }   /* [LISTEN_PACE_1031] key = 줄 자리(data-li) · 흐르는 줄 표시 */
+function _qRow(t,key){ t=String(t||''); var m=t.match(Q_TAG), w=key?_lpRow(key):null; return '<li class="q'+(w?w.c:'')+'"'+(key?' data-li="'+esc(key)+'"':'')+'><span class="qa">'+esc(m?t.slice(0,m.index):t)+'</span>'+(w?w.e:'')+'</li>'; }   /* ★[TAG_OFF_1101] 줄 끝 «말 없이 · 미리 듣기에서는 넘겨요» 작은 표 금지 — 2026-11-01 사용자 지시로 삭제 · Q_TAG 는 줄 글에서 떼는 데만 쓴다 */   /* [LISTEN_PACE_1031] key = 줄 자리(data-li) · 흐르는 줄 표시 */
 function _mkNarLi(k,x,i){ return '<li class="n'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'">'+(function(w){ return '<button type="button" class="mk-pl'+(_mlOn(k+':'+i)?' on':'')+w.c+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':''); })(_mlWait(k+':'+i))+' data-ml="'+k+':'+i+'" aria-pressed="'+_mlOn(k+':'+i)+'" aria-label="'+esc((x.lab||'나레이션')+(_mlOn(k+':'+i)?' 멈추기':' 듣기'))+'" onclick="mkLine(\''+k+'\','+i+')">'+(_mlOn(k+':'+i)?ICO_STOP:ICO_PLAY)+'</button><span><span class="mk-lab">'+(x.lab?'<b class="mk-ln">'+esc(x.lab)+'</b>':'')+_vTag(k,x)+(x.pending?' · <span class="ls-new">'+esc(_pendT(x))+'</span>':'')+'</span>'+(x.own&&_upLive()?'<span class="mk-ltx1">'+esc(x.txt||'')+'</span>':esc(x.txt||''))+(x.alt?'<span class="mk-alt" data-alt="'+esc(x.alt.file)+'">'+esc(x.alt.when)+' · '+esc(x.alt.txt)+'</span>':'')+'</span></li>'; }   /* ★[CLOSING_SRC_1031 검토 179] 길어지면 바뀌는 말(덕담 긴 판 · c.alt)도 화면에 한 줄 — 화면에 없는 멘트는 현장에서도 안 나온다 · 재생 목록에는 안 들어간다 */   /* [GUEST_TAIL_1015] 흐름 칸 · 카드 뒤 꼬리가 같은 줄 */
 function _mkTailFrom(st){ var last=-1; st.forEach(function(x,i){ if(x.own) last=i; }); return last>-1?last+1:-1; }   /* [GUEST_TAIL_1015] 마지막 두 분 목소리 줄 다음 자리 */
 function _mkFlowTail(k){ if(!ENG||k!=='guest'||!_upLive()||_vpCur(k)==='nar') return ''; var st=_lSteps(ENG,[k]), from=_mkTailFrom(st), h=''; if(from<0) return '';
@@ -8306,7 +8309,7 @@ function _lFull(){
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
     h+='<h3>'+_pkName(esc(_lName(st.k)),st.k===R.peakOf(S))+'</h3>';   /* [R2-33] ★ 은 이름 뒤(① · ② 와 같게) */
-    if(!st.act) h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':((S.up||{})[st.up]||{}).src==='ai'?'AI로 만든 두 분 목소리':'두 분이 올린 파일'):st.src?'예시 목소리 · 두 분이 준비하면 그 목소리로 바뀌어요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
+    if(!st.act&&(_vTag(st.k,st)||st.own&&(st.couple||st.src))) h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':((S.up||{})[st.up]||{}).src==='ai'?'AI로 만든 두 분 목소리':'두 분이 올린 파일'):st.src?'예시 목소리 · 두 분이 준비하면 그 목소리로 바뀌어요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
     /* ★«AI 연습 소리 · 예식에서는 나오지 않아요» 배지 금지 — 2026-10-05 사용자 지시로 삭제 [PT_TEMP] (사장님 «임시라는 걸 강조해 문구 만들어 노출») · 말하는 차례 안내 한 줄(lf-cue)이 «연습용으로만 잠깐 … 예식 당일엔 직접 말해요»로 말한다 */   // [PRACTICE_READ_0928] 배지 «AI 연습 소리»   // [VOICE_CLONE 4-2]
     if(st.talk2&&PR.cur&&PR.cur.k===st.k&&PR.cur.who===st.who) h+='<p class="lf-rec" role="status"><i aria-hidden="true"></i>내 목소리 녹음 중 · 이 휴대폰에만 남아요</p>';   // [PRACTICE_VOICE]
     if(LP.loadSt===st&&!LP.loadAi) h+='<p class="lf-state" role="status">두 분 목소리를 불러오는 중이에요</p>';   // [PLAY_WAIT_FILE] · [PT_TURN_LOAD]

@@ -44,7 +44,7 @@ try {
   ok('[REVIEW_166_1030 B11] 서약 없는 날 선언 읽는 분 안 적음 = «… 이 순간을 빼 주세요» (서약으로 마무리 아님)', /성혼 선언을 하지 않으려면 이 순간을 빼 주세요\.$/.test(r.b11), r.b11);
   ok('[REVIEW_166_1030 B12] 선언 바로 뒤 부모님께 인사 — 기본과 같은 소리가 되는 칩 숨김', r.b12 === '뭉클하게,담백하게,감사하게', r.b12);
   ok('[REVIEW_166_1030 B13] 말투 칩을 바꾸면 «이 순간 전체 듣기» 멈춤', r.b13, 'narExOk=' + r.b13ok);
-  ok('[REVIEW_166_1030 C1 · C2] 연습 배지 «영상 상영» · «당일 노래» · «두 분 함께» 뒤 같은 지시 없음', r.c1.join() === 'prevideo:영상 상영,song:당일 노래' && r.c2 === 0, JSON.stringify(r.c1) + ' c2=' + r.c2);
+  ok('[REVIEW_166_1030 C1 · C2 → TAG_OFF_1101] 영상 · 축가 자리 줄 옆 표(«영상 상영» · «당일 노래») 없음 · «두 분 함께» 뒤 같은 지시 없음', r.c1.join() === 'prevideo:,song:' && r.c2 === 0, JSON.stringify(r.c1) + ' c2=' + r.c2);   /* ★[TAG_OFF_1101 2026-11-01 사장님] 줄 옆 부수 표를 걷었다 */
   ok('pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));
   await pg.close();
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
