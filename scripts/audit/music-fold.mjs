@@ -72,7 +72,7 @@ const look = (f, sg) => f.evaluate((sg) => { const r = document.querySelector('.
     pl: fo ? fo.querySelectorAll('.mu-pl').length : 0, plFk: pl ? pl.getAttribute('data-fk') : '', plH: pl ? Math.round(rect(pl).height) : 0,
     ch: ch ? { tag: ch.tagName, txt: ch.textContent.trim(), exp: ch.getAttribute('aria-expanded'), ctl: ch.getAttribute('aria-controls'), ctlOk: !!(ch.getAttribute('aria-controls') && document.getElementById(ch.getAttribute('aria-controls')) === box), h: Math.round(rect(ch).height), col: getComputedStyle(ch).color, deco: getComputedStyle(ch).textDecorationLine } : null,
     note: !!r.querySelector('.bed-note'), foldH: fo ? Math.round(rect(fo).height) : 0, rowH: row1 ? Math.round(rect(row1).height) : 0, boxTop: Math.round(rect(box).top + scrollY), boxId: box.id,
-    seal: getComputedStyle(document.documentElement).getPropertyValue('--seal').trim() }; }, sg);
+    seal: getComputedStyle(document.documentElement).getPropertyValue('--seal').trim(), gold: getComputedStyle(document.documentElement).getPropertyValue('--gold-deeper').trim() }; }, sg);   /* [LINK_GOLD_1031] «바꾸기» 색 = 빌더 글 단추(.pk-link · --gold-deeper) */
 const sealRgb = (hex) => { const h = hex.replace('#', ''); return `rgb(${parseInt(h.slice(0, 2), 16)}, ${parseInt(h.slice(2, 4), 16)}, ${parseInt(h.slice(4, 6), 16)})`; };
 const shot = async (f, W, n) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { recursive: true }); await f.evaluate(() => { document.querySelectorAll('.me-fab-stack').forEach((x) => { x.style.visibility = 'hidden'; }); }); await f.locator('#stage .mk-pick').first().screenshot({ path: path.join(SHOT, `mf-${W}-${n}.png`) }); } catch (e) { console.log('그림 못 찍음 ' + n + ' ' + e.message); } };
 /* 순간마다 — [구간, 그 쪽 순간, 고를 곡(1순위 아님), 다녀올 쪽] */
@@ -96,7 +96,7 @@ try {
     /* 3 다시 들어오면 접힌다 */
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
     ok(`${W} 3 다시 들어오면 한 줄 — 곡 줄 없음 · «Photograph» · 아랫줄 · ▶ 하나 · «준비해요» 없음`, r && r.fold && r.rows === 0 && r.t === 'Photograph' && /^Cody Fry · /.test(r.a) && r.pl === 1 && r.plFk === 'bedp:M2:B06' && !r.note, r);
-    ok(`${W} 3 «바꾸기» = button · aria-expanded=false · aria-controls → 목록 칸 · 밑줄 · 진사(--seal) · 누를 자리 44px 이상`, r && r.ch && r.ch.tag === 'BUTTON' && r.ch.txt === '바꾸기' && r.ch.exp === 'false' && r.ch.ctlOk && r.ch.h >= 44 && /underline/.test(r.ch.deco) && r.ch.col === sealRgb(r.seal), r && r.ch);
+    ok(`${W} 3 «바꾸기» = button · aria-expanded=false · aria-controls → 목록 칸 · 밑줄 · 글 단추 색(--gold-deeper · LINK_GOLD_1031) · 누를 자리 44px 이상`, r && r.ch && r.ch.tag === 'BUTTON' && r.ch.txt === '바꾸기' && r.ch.exp === 'false' && r.ch.ctlOk && r.ch.h >= 44 && /underline/.test(r.ch.deco) && r.ch.col === sealRgb(r.gold), r && r.ch);
     ok(`${W} 3 접힌 줄 높이 = 같은 곡 줄 하나(${rowH}px ± 2) · ▶ 44px 이상`, r && Math.abs(r.foldH - rowH) <= 2 && r.plH >= 44, { foldH: r && r.foldH, rowH, plH: r && r.plH });
     await shot(f, W, 'candle-fold');
     /* 4 접힌 줄 ▶ 는 듣기만 */
