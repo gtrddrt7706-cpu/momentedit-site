@@ -20530,6 +20530,18 @@ nochk 'var ln=firstLine(k);' assets/bgm-bed.js 0
 # ── 2026-10-31 [CHEER_WINDOW_1031 BGM 섹션] bgm-preview D6 듣는 창 26초(축배 멘트 12.6초 · 꼬리 축배 곡 16.8초) — 16초로 되돌리면 CI bgm-sound 가 다시 빨갛다
 chk 'CHEER_WINDOW_1031' scripts/audit/bgm-preview.mjs 1
 nochk "const b6 = await listen(f, 'toast', 16000);" scripts/audit/bgm-preview.mjs 0
+# ── 2026-10-31 [KNOBS_1031 BGM 섹션 · GPT 2라운드 + 판정] 쉼은 «말끝 → 말머리»로 한 번만(나레이션 앞뒤 무음 표 assets/narration-pad.js · 미리 듣기 1초 · 당일 2초 · 사슬 예외 그대로) · 고객 순간 미리 듣기의 선언 앞(4초에 걸쳐 0 · 2.5초 정적) · 편지 끝(정적 2초 → 4초 오름)은 당일 값
+chk 'KNOBS_1031' assets/bgm-bed.js 3
+chk 'KNOBS_1031' console.html 2
+chk 'KNOBS_1031' order-preview.html 5
+chk 'KNOBS_1031' assets/narration-pad.js 1
+chk 'KNOBS_1031' scripts/audit/knobs.mjs 1
+chk 'knobs' .github/workflows/merge-guard.yml 1
+chk '_gap = NarrPad.gap(c.file, nx.file, _gap);' console.html 1
+chk 'function lpDeclare(st,f)' assets/bgm-bed.js 1
+chk 'function lpTail(st)' assets/bgm-bed.js 1
+if command -v python3 >/dev/null 2>&1; then if python3 scripts/build-narration-pad.py --check >/dev/null 2>&1; then echo 'ok narration-pad'; else echo 'FAIL narration-pad: 나레이션 파일이 바뀌었는데 무음 표가 그대로입니다 — python3 scripts/build-narration-pad.py (miniaudio)'; fail=1; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/knobs.mjs >/dev/null 2>&1; _knc=$?; if [ "$_knc" = 1 ]; then echo 'FAIL knobs: 쉼 · 선언 앞 · 편지 끝 연출이 어긋났습니다 — node scripts/audit/knobs.mjs'; fail=1; elif [ "$_knc" = 2 ]; then echo 'skip knobs (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok knobs'; fi; fi
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
