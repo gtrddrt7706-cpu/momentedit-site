@@ -2119,6 +2119,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .mk-bgm .bgm-rest .mk-vn{color:var(--sub)}
 .ls-bed .bed-box,.ls-bgm .bed-sub{min-width:0;grid-column:1/-1;flex:0 0 100%;width:100%}   /* ★[BGM_PREVIEW_1024] 구간 곡 줄(assets/bgm-bed.js) — 입장 음악 곡 줄(.ls-mu .mu-list)과 같은 꼴 · 새 색 · 아이콘 없음 · 왼쪽 굵은 선 없음 */
 .ls-bgm .bed-sub{margin-top:4px}
+.bed-box .mu-fold1{display:flex;align-items:center;gap:2px;min-height:60px;margin:2px 0 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}   /* ★★[MUSIC_FOLD_1031] 골라 둔 곡 한 줄(assets/bgm-bed.js) — 곡 줄 하나와 같은 높이 · 위아래 가는 선 · 칸 · 그림자 · 색 상자 없음 */
+.bed-box .mu-fold1 .mu-pl{margin:0}
+.bed-box .mu-fsel{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;padding:8px 2px;color:var(--accent)}
+.bed-box .mu-chg{flex:0 0 auto;min-height:44px;margin:0;padding:0 2px 0 12px;color:var(--seal);white-space:nowrap}   /* «바꾸기» = 빌더 글 단추(.pk-link 12.5px · 밑줄) · 브랜드 진사 · 누를 자리 44px */
 .bed-box .bed-note{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}
 .bed-box .bed-voc{margin:2px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* [BGM_FIX_1030] 고른 곡이 노래면 아래 한 줄(같은 크기 · 색) */
 .bed-box .mu-voc{font-size:11px;font-weight:400;color:var(--sub);letter-spacing:.04em;white-space:nowrap}   /* [BGM_FIX_1030] 곡 이름 옆 «노래» — 작은 글 · 새 색 없음 · 아이콘 없음 */   /* 축사 · 편지 칩 아래 한 줄(.ls-bgm .bgm-note)과 같은 크기 · 색 */
@@ -2279,7 +2283,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1030pp"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1031lp"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1030pp"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1031lq"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3516,7 +3520,7 @@ function render(){
   /* ★[TA_KEEP 2026-10-04 시뮬레이션] 글을 치는 중에 다른 줄을 만들다 다시 그리면 커서가 맨 앞으로 가 글이 섞이고(하객 맞이) · 영상 앞 소개는 포커스를 잃어 남은 글이 사라졌다 —
      글칸이면 자리(data-fk 또는 id) · 커서 · 스크롤을 기억했다가 같은 글칸에 되돌린다. 고친 글이면 떠날 때 «글을 고쳤어요»가 뜨게 _taChange 를 한 번 건다 */
   var _ta0=null; try{ if(_ae0&&(_ae0.tagName==='TEXTAREA'||(_ae0.tagName==='INPUT'&&/^(text|search|tel|email|)$/.test(_ae0.type||'')))){ var _tk0=_ae0.getAttribute('data-fk'); _ta0={sel:_tk0?'[data-fk="'+_tk0.replace(/"/g,'')+'"]':(_ae0.id?'#'+_ae0.id:''),a:_ae0.selectionStart,b:_ae0.selectionEnd,top:_ae0.scrollTop,dirty:!!_ae0._dirty||_ae0.value!==_ae0.defaultValue}; if(!_ta0.sel) _ta0=null; } }catch(e){ _ta0=null; }
-  try{ if(!(STEPS[idx]&&STEPS[idx].k==='listen')){ MK.navOpen=false; MK.flowKeep=null; MK.vidDone=null; } }catch(e){}   // [VID_AUTO_ONLY] ② 에 다시 들어오면 그 쪽은 «들어옴»   // [COURSE_FLOW] ② 밖이면 흐름 쪽 기억도 놓는다   // [NAV_FOLD] ② 밖이면 접는다 → ② 에 들어올 때마다(④ «변경»으로 와도) 접힌 채
+  try{ if(!(STEPS[idx]&&STEPS[idx].k==='listen')){ MK.navOpen=false; MK.flowKeep=null; MK.vidDone=null; MK.muFold=null; } }catch(e){}   /* [MUSIC_FOLD_1031] ② 에 다시 들어오면 «새로 들어옴» — 골라 둔 곡 줄은 다시 접힌다(assets/bgm-bed.js) */   // [VID_AUTO_ONLY] ② 에 다시 들어오면 그 쪽은 «들어옴»   // [COURSE_FLOW] ② 밖이면 흐름 쪽 기억도 놓는다   // [NAV_FOLD] ② 밖이면 접는다 → ② 에 들어올 때마다(④ «변경»으로 와도) 접힌 채
   _stopAud();
   /* 임베드 나가기 — 표시·라벨을 한 곳에서 결정.
      [ORD_EXIT_ALWAYS 2026-08-03] 완성 화면에서도 띄운다. 사용자 제보: "홈으로 나가는 버튼이 어디에도 없는데?"
@@ -10551,6 +10555,7 @@ var _who='';   // ORDER_OWNER: 현 초안의 소유 계정(개인코드) — 임
 var SAVED_LOCAL=['vjob','tipSeen','vsAsked','vsChip'];
 function _applySaved(_sv,fresh){
   if(!(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs)) return false;
+  try{ MK.muFold=null; }catch(e){}   /* [MUSIC_FOLD_1031] 초안을 새로 얹으면(열기 · 다시 열기 · 최신 불러오기) 그 쪽은 새로 들어온 것 — 골라 둔 곡 줄은 접혀 시작한다 */
   var _loc={}; if(fresh){ SAVED_LOCAL.forEach(function(_k){ if(S[_k]!=null) _loc[_k]=S[_k]; }); try{ var _d0=JSON.parse(_S0); Object.keys(S).forEach(function(_k){ delete S[_k]; }); Object.keys(_d0).forEach(function(_k){ S[_k]=_d0[_k]; }); }catch(e){} }   /* ★[SAVED_FRESH 2026-10-09 A~Z 점검 1라운드 E-2] 서버 초안은 «통째로» — 기본값에서 시작해 얹는다(올바른 초안일 때만 · 위에서 확인).
      종전엔 이 기기 옛 판 위에 서버 판을 덮어써서, 서버 판에 없는 칸(예시 고름 gExC · 영상 소개 읽는 분 pvWho · 고른 예시 guestEx …)이 이 기기 값으로 남았다 —
      다른 기기에서 바꾼 것이 이 기기 옛 값으로 보이고 쪽을 떠나면 그 옛 값을 굽고 저장해 다른 기기의 선택을 서버에서 되돌렸다 · S 는 같은 물건을 비우고 다시 채운다(다른 곳이 쥔 S 를 끊지 않게) */

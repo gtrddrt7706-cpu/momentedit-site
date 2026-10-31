@@ -427,6 +427,7 @@ span.dr-pv{cursor:inherit}
 .pk-tab{flex:1 1 0;min-width:0;min-height:44px;margin:0 0 -1px;padding:11px 8px 9px;border:0;border-bottom:2px solid transparent;border-radius:0;background:none;font-family:var(--serif-ko);font-size:14px;line-height:22px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pk-tab[aria-selected="true"]{color:var(--gold-text);border-bottom-color:var(--gold-text)}
 .pk-tab:focus-visible{outline:2px solid var(--gold-text);outline-offset:-5px}   /* [DRESS_TAB_RING] 초점 테는 선택 밑줄과 따로(밑줄 위로 3px 띄운다) */
+html.pk-pop,html.pk-pop body{overscroll-behavior-y:contain}   /* ★[DRESS_SCROLL_LOCK 2026-10-31] 창 안을 끝까지 내려도 휠 · 끌기가 뒤 마이페이지로 넘어가지 않게 */
 html.pk-pop.pk-tabson .pk-head{margin-bottom:0}
 html.pk-pop.pk-tabson.pk-scrolled .pk-head{box-shadow:none}
 html.pk-pop.pk-tabson .pk-tabs{position:sticky;top:var(--pk-hh,56px);z-index:6;background:var(--card-white);margin:0 -20px 16px;padding:0 20px}
