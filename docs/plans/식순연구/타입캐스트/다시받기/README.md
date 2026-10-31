@@ -13,14 +13,22 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 20 | 20 |
+| 1_우성.txt | 우성 | 23 | 23 |
+| 2_진희.txt | 진희 | 2 | 2 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 20줄 · 20클립
+# 우성 — 23줄 · 23클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =267_narr-declare-in-friend-gdad,=271_narr-declare-in-friend-ex2-gdad,=275_narr-declare-in-friend-ex3-gdad,=279_narr-declare-in-friend-ex4-gdad,=283_bridge-b9-declare-seat-end-gdad,=268_narr-declare-in-friend-bdad,=272_narr-declare-in-friend-ex2-bdad,=276_narr-declare-in-friend-ex3-bdad,=280_narr-declare-in-friend-ex4-bdad,=284_bridge-b9-declare-seat-end-bdad,=269_narr-declare-in-friend-gmom,=273_narr-declare-in-friend-ex2-gmom,=277_narr-declare-in-friend-ex3-gmom,=281_narr-declare-in-friend-ex4-gmom,=285_bridge-b9-declare-seat-end-gmom,=270_narr-declare-in-friend-bmom,=274_narr-declare-in-friend-ex2-bmom,=278_narr-declare-in-friend-ex3-bmom,=282_narr-declare-in-friend-ex4-bmom,=286_bridge-b9-declare-seat-end-bmom
+  --clip =138_narr-candle-bow,=146_narr-candle-bow-fathers,=40_toast-toast,=267_narr-declare-in-friend-gdad,=271_narr-declare-in-friend-ex2-gdad,=275_narr-declare-in-friend-ex3-gdad,=279_narr-declare-in-friend-ex4-gdad,=283_bridge-b9-declare-seat-end-gdad,=268_narr-declare-in-friend-bdad,=272_narr-declare-in-friend-ex2-bdad,=276_narr-declare-in-friend-ex3-bdad,=280_narr-declare-in-friend-ex4-bdad,=284_bridge-b9-declare-seat-end-bdad,=269_narr-declare-in-friend-gmom,=273_narr-declare-in-friend-ex2-gmom,=277_narr-declare-in-friend-ex3-gmom,=281_narr-declare-in-friend-ex4-gmom,=285_bridge-b9-declare-seat-end-gmom,=270_narr-declare-in-friend-bmom,=274_narr-declare-in-friend-ex2-bmom,=278_narr-declare-in-friend-ex3-bmom,=282_narr-declare-in-friend-ex4-bmom,=286_bridge-b9-declare-seat-end-bmom
 ```
-★271_narr-declare-in-friend-ex2-gdad · 275_narr-declare-in-friend-ex3-gdad · 279_narr-declare-in-friend-ex4-gdad · 272_narr-declare-in-friend-ex2-bdad · 276_narr-declare-in-friend-ex3-bdad · 280_narr-declare-in-friend-ex4-bdad · 273_narr-declare-in-friend-ex2-gmom · 277_narr-declare-in-friend-ex3-gmom · 281_narr-declare-in-friend-ex4-gmom · 274_narr-declare-in-friend-ex2-bmom · 278_narr-declare-in-friend-ex3-bmom · 282_narr-declare-in-friend-ex4-bmom 은 두 사람이 한 클립에 섞여 있습니다. 우성 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+★138_narr-candle-bow · 146_narr-candle-bow-fathers · 40_toast-toast · 271_narr-declare-in-friend-ex2-gdad · 275_narr-declare-in-friend-ex3-gdad · 279_narr-declare-in-friend-ex4-gdad · 272_narr-declare-in-friend-ex2-bdad · 276_narr-declare-in-friend-ex3-bdad · 280_narr-declare-in-friend-ex4-bdad · 273_narr-declare-in-friend-ex2-gmom · 277_narr-declare-in-friend-ex3-gmom · 281_narr-declare-in-friend-ex4-gmom · 274_narr-declare-in-friend-ex2-bmom · 278_narr-declare-in-friend-ex3-bmom · 282_narr-declare-in-friend-ex4-bmom 은 두 사람이 한 클립에 섞여 있습니다. 우성 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+
+```
+# 진희 — 2줄 · 2클립
+node scripts/assemble-narration.mjs --in <진희_받은폴더> \
+  --clip =48_online-3-welcome,=120_guest-ex3-2-10min
+```
+★120_guest-ex3-2-10min 은 두 사람이 한 클립에 섞여 있습니다. 진희 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
