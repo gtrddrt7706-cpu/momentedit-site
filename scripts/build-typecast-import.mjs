@@ -286,6 +286,8 @@ const DEMO_LINE = '네, 그러겠습니다.';
 const clipGap = (id, file, lastSent) => {
   if (/위하여!$/.test(lastSent)) return { tail: 4.5 };     // 축배 뒤 온도 낙차 4~5초 (동작 대기)
   if (file === 'narr-close') return { tail: 2.5 };         // 사진 안내 — 여운을 길게(하객이 일어서기 시작하는 시간)
+  /* ★[CLOSING_HEAD_1031 검토 179 대본 «닫는 인사 → 마무리 사이 조금 길게(파일 앞 0.3)»] 마무리 멘트 287 ~ 296 은 앞 무음 0.4 → 0.7 */
+  if (/^narr-closing/.test(file)) return { head: 0.7 };
   return {};
 };
 
@@ -498,7 +500,7 @@ for (const P of PARTS) {
     const mix = IS_MIX(c.no, c.file);
     const rec = { no: c.no, id: c.id, label: c.label, file: c.file, role,
                   part: P.f, dir: P.dir || 'assets/audio/narration',
-                  head: GAP.head, tail: over.tail ?? GAP.tail, sents: [] };
+                  head: over.head ?? GAP.head, tail: over.tail ?? GAP.tail, sents: [] };
     if (mix) rec.mix = ST_.CAST[`${c.no}_${c.file}`].mix;   // 재료 목록 — 조립기가 건너뛰고 build-chorus 가 읽는다
 
     sents.forEach((s, k) => {
