@@ -48,7 +48,9 @@ function judgeA(X) {
     const who = O.declBy({ declareWho: w }) || '선언하실 분';
     if (lv.who !== who) bad.push(`② ${c}/${w}: 콘솔 «읽는 분»이 «${lv.who}» — 두 분이 적은 «${who}»가 아니다`);
     if (cs.some((x) => /부부입니다|부부가 되었습니다/.test(x.text || ''))) bad.push(`② ${c}/${w}: 나레이션 글에 수행문(부부입니다)이 있다 — 선언은 읽는 분이 한다`);
-    if (cs.some((x) => PERSONS.test(x.text || ''))) bad.push(`② ${c}/${w}: 나레이션 여는 말이 특정한 분을 부른다`);
+    /* ★[DECL_TITLE_1031 검토 174] 부모님 호칭 칩(옛 칸 글이 네 호칭과 같을 때 포함)만 여는 말이 그 호칭을 부른다 · 그 밖의 분 · 안 고름은 여전히 특정한 분을 부르지 않는다 */
+    const _hon = O.declParent && O.declParent({ declareWho: w }) ? O.declHon({ declareWho: w }) : '';
+    if (_hon ? !cs[0].text.includes(_hon + '께서 직접 해 주시겠습니다') : cs.some((x) => PERSONS.test(x.text || ''))) bad.push(`② ${c}/${w}: 나레이션 여는 말이 ${_hon ? '고른 호칭(' + _hon + ')을 부르지 않는다' : '특정한 분을 부른다'}`);
   }
   // ③ 원천 · 칩 · 예시
   if (D.DECLWHO) bad.push('③ 원천에 읽는 분 목록(DECLWHO)이 남았다');
@@ -68,7 +70,7 @@ function judgeA(X) {
   const i = full.indexOf('[성혼 선언]'), sec = i < 0 ? '' : full.slice(i, full.indexOf('\n\n', i));
   if (!sec) bad.push('④ AI 지식에 [성혼 선언] 절이 없다');
   else {
-    if (!/«읽어 주실 분» 칸/.test(sec) || !/고르는 목록이 아니다/.test(sec)) bad.push('④ AI 지식이 «읽어 주실 분 칸 · 목록 아님»을 말하지 않는다');
+    if (!/«읽어 주실 분»에서/.test(sec) || !/그 밖의 분/.test(sec) || !/이름을 소리로 읽지 않는다/.test(sec)) bad.push('④ AI 지식이 «읽어 주실 분 호칭 칩 · 그 밖의 분 · 이름은 소리로 안 읽음»을 말하지 않는다');   // ★[DECL_TITLE_1031] 옛 «칸 · 목록 아님»
     if (/\d종\(택1\)|신랑 아버님 \/ 신부 아버님/.test(sec)) bad.push('④ AI 지식이 읽는 분을 «N종(택1)» 목록으로 말한다');
     if (!/나레이션은 선언문을 읽지 않는다/.test(sec)) bad.push('④ AI 지식에 «나레이션은 선언문을 읽지 않는다»가 없다');
     if (!/서약으로 마무리/.test(sec)) bad.push('④ AI 지식에 «없으면 서약으로»가 없다');
@@ -77,7 +79,7 @@ function judgeA(X) {
   // ⑤ 빌더
   for (const k of Object.keys(D.DECLARE || {})) if (D.DECLARE[k].nar && html.includes(D.DECLARE[k].nar)) bad.push(`⑤ 빌더에 나레이션 선언 글(DECLARE.${k})이 남았다`);
   if (/L\('declare','누가 읽나요'|Object\.keys\(DECLWHO\)|oc\('declareWho'/.test(html)) bad.push('⑤ 빌더에 읽는 분 칩 · 목록이 남았다');
-  if (!/key:'declareWho',l:'읽어 주실 분'/.test(html) || !/data-fk=\\"declwho\\"|data-fk="declwho"|data-fk=\\\\"declwho\\\\"/.test(html) || !/placeholder=\\?"'\+esc\(R\.DECL_HINT\)/.test(html)) bad.push('⑤ 빌더에 «읽어 주실 분» 칸(예시는 칸 안)이 없다');
+  if (!/L\('declTitle','읽어 주실 분',R\.DECL_TITLES/.test(html) || !/data-fk=\\"declwho\\"|data-fk="declwho"|data-fk=\\\\"declwho\\\\"/.test(html) || !/placeholder=\\?"'\+esc\(R\.DECL_OTHER_HINT\)/.test(html)) bad.push('⑤ 빌더에 «읽어 주실 분» 칸(예시는 칸 안)이 없다');
   if (!/아직 적지 않았어요 · 읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요/.test(html)) bad.push('⑤ 빌더에 칸이 비었을 때 한 줄이 없다');
   /* 설명은 «값»으로 잰다 — 이 저장소는 걷은 글을 ★ 주석으로 남기는 관례라 글자 검사가 제 주석을 잡는다([DECLWHO_LIVE] 교훈) */
   const pvDecl = (html.match(/\n  declare:'([^']+)'/) || [])[1] || '';
@@ -144,17 +146,22 @@ try {
         ref: [...document.querySelectorAll('.mk-ref .mk-rw')].map((p) => p.textContent.trim()), who: S.declareWho };
     });
     const a = await look();
-    ok(`${w} ① 칸 «읽어 주실 분» 하나 · 칩 없음 · 예시 «예) 아버님 · 친구 · 지인»(칸 안 · 잘리지 않음) · 비었을 때 한 줄 «없으면 선언을 빼고 서약으로»`,
-      a.n === 1 && a.chips === 0 && a.lab === '읽어 주실 분' && a.ph === '예) 아버님 · 친구 · 지인' && a.val === '' && a.fit && /아직 적지 않았어요 · 읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요/.test(a.note), JSON.stringify(a));
-    ok(`${w} ① 흐름 «시작할 때 → 읽으실 차례 → 끝나면» · 나레이션 선언 줄 없음`, a.labs.filter((l) => l !== '다음 순서로 넘어가며').join('|') === '시작할 때|T|끝나면' && a.turn.some((t) => /읽으실 차례/.test(t)), JSON.stringify({ labs: a.labs, turn: a.turn }));
+    /* ★[DECL_TITLE_1031 검토 174] 칸 → 호칭 칩 다섯(처음엔 안 고름) · «그 밖의 분»을 고르면 30자 칸(예시 «예) 신랑 할아버님 · 신부 언니 · 신랑 친구») */
+    const chipsN = await pg.evaluate(() => [...document.querySelectorAll('[role=radiogroup]')].filter((g) => g.getAttribute('aria-label') === '읽어 주실 분').map((g) => g.querySelectorAll('[role=radio]').length)[0] || 0);
+    ok(`${w} ① 호칭 칩 다섯 «읽어 주실 분»(처음엔 안 고름 · 칸 없음 · 한 줄 «아직 고르지 않았어요 …»)`, chipsN === 5 && a.n === 0 && a.chips === 0 && await pg.evaluate(() => /아직 고르지 않았어요\. 읽어 주실 한 분을 정해 주세요\./.test(document.body.innerText)), JSON.stringify({ chipsN, n: a.n }));
+    ok(`${w} ① 흐름 «시작할 때 → 읽으실 차례 → 끝나면» · 나레이션 선언 줄 없음`, a.labs.filter((l) => l !== '다음 순서로 넘어가며').join('|').startsWith('시작할 때|T|끝나면') && a.turn.some((t) => /읽으실 차례|선언하실 분 차례/.test(t)), JSON.stringify(a.labs));
     if (SHOT) await pg.screenshot({ path: `${SHOT}/declare-${w}-empty.png`, fullPage: false });
-    await pg.fill('[data-fk="declwho"]', '신부  아버님 '); await pg.press('[data-fk="declwho"]', 'Tab'); await wait(700);
+    await pg.evaluate(() => lsChip('declTitle', 'other')); await wait(500);
+    await pg.fill('[data-fk="declwho"]', '신부  언니 '); await pg.press('[data-fk="declwho"]', 'Tab'); await wait(700);
     const b = await look();
-    ok(`${w} ② «신부 아버님» 적음 → 다듬어 저장 · 한 줄 사라짐 · 차례 «신부 아버님 차례» · 참고 예시에 «신부 아버님»`,
-      b.who === '신부 아버님' && b.val === '신부 아버님' && !b.note && b.turn.some((t) => t === '신부 아버님 차례') && b.ref.some((t) => /^신부 아버님/.test(t)),
-      JSON.stringify({ who: b.who, val: b.val, note: b.note, turn: b.turn, ref: b.ref.map((t) => t.slice(0, 20)) }));
-    const eng = await pg.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'console' }).cues.filter((x) => x.k === 'declare' && !/^bridge-/.test(x.slug)); return { f: cs.map((x) => x.file).join(), who: (cs[0].live || {}).who }; });
-    ok(`${w} ② 엔진 큐 = 136 여는 말 · 57 맺는 말 · 콘솔 읽는 분 «신부 아버님»`, eng.f === '136_narr-declare-in-friend,57_narr-declare-family-out' && eng.who === '신부 아버님', JSON.stringify(eng));
+    ok(`${w} ② 그 밖의 분 «신부 언니» 적음 → 다듬어 저장 · 예시 «예) 신랑 할아버님 · 신부 언니 · 신랑 친구» · 차례 «신부 언니 차례»`,
+      b.who === '신부 언니' && b.val === '신부 언니' && b.ph === '예) 신랑 할아버님 · 신부 언니 · 신랑 친구' && b.turn.some((t) => t === '신부 언니 차례'),
+      JSON.stringify({ who: b.who, val: b.val, ph: b.ph, turn: b.turn }));
+    const eng0 = await pg.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'console' }).cues.filter((x) => x.k === 'declare' && !/^bridge-/.test(x.slug)); return { f: cs.map((x) => x.file).join(), who: (cs[0].live || {}).who }; });
+    ok(`${w} ② 그 밖의 분 — 엔진 큐 = 136 여는 말(이름 안 부름) · 57 맺는 말 · 콘솔 읽는 분 «신부 언니»`, eng0.f === '136_narr-declare-in-friend,57_narr-declare-family-out' && eng0.who === '신부 언니', JSON.stringify(eng0));
+    await pg.evaluate(() => lsChip('declTitle', 'bdad')); await wait(600);
+    const eng = await pg.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'console' }).cues.filter((x) => x.k === 'declare' && !/^bridge-/.test(x.slug)); return { f: cs.map((x) => x.file).join(), who: (cs[0].live || {}).who, t: cs[0].text }; });
+    ok(`${w} ③ 신부 아버님 칩 — 엔진 큐 = 268 호칭 여는 말 · 57 맺는 말 · 콘솔 읽는 분 «신부 아버님»`, eng.f === '268_narr-declare-in-friend-bdad,57_narr-declare-family-out' && eng.who === '신부 아버님' && eng.t === '오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다.', JSON.stringify(eng));
     if (SHOT) await pg.screenshot({ path: `${SHOT}/declare-${w}-filled.png`, fullPage: false });
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();

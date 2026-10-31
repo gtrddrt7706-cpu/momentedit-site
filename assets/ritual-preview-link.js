@@ -71,6 +71,10 @@
     /* ★[DECLARE_ANYONE 2026-10-12] declareWho 는 뺐다 — 이제 두 분이 칸에 적은 «읽는 분» 글(사람 이름일 수 있다)이라 공개 주소에 싣지 않는다(PREVIEW_KEYS 규칙).
        엔진은 빈칸이어도 같은 소리를 낸다(여는 말은 누가 읽든 하나 · 136). */
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
+    /* ★[DECL_TITLE_1031 검토 174] 성혼 선언 읽어 주실 분의 호칭 코드('gdad'|'bdad'|'gmom'|'bmom'|'other') · 덕담 이어 하기 답('yes'|'no') · 그 답의 열쇠(코드뿐) — 여는 말 · 자리로 소리가 갈린다.
+       ★«그 밖의 분» 칸 글(declareWho · 이름일 수 있다)은 여전히 싣지 않는다 */
+    'declTitle', 'declBless', 'declBlessKey',
+    'tribHug',                                 // ★[TRIB_NO_HUG_1030 검토 172] 'off' = 인사만(포옹 줄 256 을 건너뛴다) — 172 때 빠져 공유 미리 듣기가 늘 포옹 줄을 들려줬다
     'songBy',                                  // ★[SONG_BY_1018] 축가 부르는 분 'friend'|'self' — 맺는 말 소리가 갈린다(210 · 250)
     'letter',                                  // 편지 낭독 대상
     'bless', 'blessProxy',                     // 부모님 덕담 · 나레이션 대독
