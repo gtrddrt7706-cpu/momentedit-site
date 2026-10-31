@@ -21024,7 +21024,7 @@ nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-story.js
 chk 'PROG_COUNT_1031' order-preview.html 2
 chk '빠뜨린 순간' order-preview.html 1
 chk 'BLESS_UNPICK_1031' order-preview.html 1
-chk 'function _askReset(k)' order-preview.html 1
+chk 'function _askReset(k,quiet)' order-preview.html 1
 chk 'ASK_RESET_1031' order-preview.html 4
 chk 'REPICK_KEEP_1031' assets/entry-music.js 2
 nochk "toast('고른 곡을 풀었어요')" assets/entry-music.js
