@@ -20804,4 +20804,9 @@ chk "if (RF_OWN\[sl\] && CLIPS\[sl\] && cu && cu.id && (cu.want == null || cu.wa
 nochk "if (RF_READY.p) return RF_READY.p; var t0 = Date.now();" console.html   # [RF_WAIT_GEN] 차례와 상관없이 옛 약속(옛 130초)을 돌려주던 줄
 nochk "if (Date.now() - t0 > 130000) { RF_READY.p = null; RF_READY.late = true;" console.html   # [RF_WAIT_GEN] 버린 예약의 시계도 굳히던 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/con-start-nowait.mjs >/dev/null 2>&1; _csn=$?; if [ "$_csn" != 0 ]; then echo 'FAIL con-start-nowait: 당일 콘솔 시작 기다림(받을 것 없는 예식 · 130초 한 번만) 판정이 어긋났습니다 — node scripts/audit/con-start-nowait.mjs'; fail=1; else echo "ok con-start-nowait ($_csn)"; fi; fi
+# ── 2026-10-31 [KEEPGAP_TEXT_1031 사장님 [대본 공지 · 규칙 하나]] 음성 쉼(keepGap · COMMA_ROLL_1031 · PAUSE_PREF_1030 · 입장 구호)이 붙은 문장을 글 PR 이 바꾸면 빨강 — 그 PR 에서 --ack 로 «다시 받기 대기»에 옮기고 [대본 공지]에 «음성 쉼 다시 받기 필요 · 클립 id» (흐름 쉼 표 열쇠 FLOW_KEY_FRESH_1030 과 같은 꼴)
+chk 'KEEPGAP_TEXT_1031' scripts/audit/keepgap-text.mjs 2
+chk 'KEEPGAP_TEXT_1031' docs/plans/식순연구/음성쉼_1031.json 1
+chk 'KEEPGAP_TEXT_1031' CLAUDE.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/keepgap-text.mjs >/dev/null 2>&1; _kgt=$?; [ "$_kgt" = 1 ] && { echo 'FAIL keepgap-text: 음성 쉼(keepGap) 문장의 글이 바뀌었거나 표시가 빠졌거나 장부가 낡았습니다 — node scripts/audit/keepgap-text.mjs (글을 바꿨으면 --ack 후 [대본 공지]에 «음성 쉼 다시 받기 필요 · 클립 id»)'; fail=1; }; :; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
