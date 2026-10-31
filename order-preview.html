@@ -2309,7 +2309,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1031cy"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1031w3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/bgm-bed.js?v=1031w3"></script><script src="/assets/bgm-form.js?v=1031w3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1031cy"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1031w3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/bgm-bed.js?v=1031w4"></script><script src="/assets/bgm-form.js?v=1031w4"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -4206,14 +4206,14 @@ function _thanksDupToast(k){ if((k==='welcome'||k==='vow')&&S.vowKind==='thanks'
 /* ★[ASK_RESET_1031 식순 걷기 1라운드 GPT 7] 부탁드릴 분(화촉 서는 분 · 선언 읽는 분 · 덕담 인원)이 바뀌면 그 순간의 «부탁드렸어요» 체크를 푼다 —
    양가 어머님께 부탁드렸다고 눌러 둔 뒤 아버님으로 바꿔도 ✓ 가 남아, 새로 부탁할 분께도 말씀드린 것처럼 보였다. 부탁(ask) 칸만 · 다른 할 일(보낼 것 · 챙길 것)은 그대로 */
 function _askReset(k,quiet){ var R=RitualOpen, n=0; if(!S.mkc||!R.prepOf) return 0; (R.prepOf(k,S)||[]).forEach(function(q,i){ if((q[2]||'send')!=='ask') return; var id='p:'+k+':'+i, v=S.mkc[id]; if(v==='asked'||v===1){ S.mkc[id]=0; try{ _fAt('mkc.'+id); }catch(e){} n++; } });
-  if(n&&!quiet) _noteToast('부탁드릴 분이 바뀌었어요'); return n; }
+  if(n&&!quiet) setTimeout(function(){ _noteToast('부탁드릴 분이 바뀌었어요'); },60); return n; }   /* ★[TOAST_AFTER_1031 식순 걷기 3라운드 4] 다시 그리기 · 칩 바꿈 알림(_chgShow) 뒤에 — 같은 누름의 뒤 처리가 바로 덮었다 */
 /* ★[PREP_KEEP_1031 식순 걷기 2라운드 1] 할 일 칸 번호(p:k:j)는 목록 차례라, 목록이 바뀌면(축가 부르는 분 · 가족 · 친구 ↔ 두 분이 직접) 앞 칸 체크가 다른 일로 넘어갔다
    (부탁 체크가 «MR 보냈어요»로 붙었다). 바꾸기 전 목록과 글 · 갈래가 같은 칸만 체크를 옮기고 나머지는 푼다 */
 function _prepKeep(k,fn){ var R=RitualOpen, li=function(){ return (R.prepOf(k,S)||[]).map(function(q,i){ return {id:'p:'+k+':'+i,cat:q[2]||'send',what:String(q[1])}; }); }, a=li(), old={}; a.forEach(function(x){ old[x.id]=(S.mkc||{})[x.id]; }); fn(); if(!S.mkc) return; var b=li();
   a.forEach(function(x){ if(S.mkc[x.id]){ S.mkc[x.id]=0; try{ _fAt('mkc.'+x.id); }catch(e){} } });
   b.forEach(function(y){ var m=a.filter(function(x){ return x.cat===y.cat&&x.what===y.what; })[0]; if(m&&old[m.id]){ S.mkc[y.id]=old[m.id]; try{ _fAt('mkc.'+y.id); }catch(e){} } }); }
 function _capNo(mut,add){ var R=RitualOpen; if(!R||!R.capOver||!isOpen()) return false; var t; try{ t=JSON.parse(JSON.stringify(S)); t.on=t.on||{}; mut(t); }catch(e){ return false; } if(!R.capOver(S,t)) return false; try{ var cm=R.capMsg?R.capMsg(t,add):R.CAP_MSG; ordTell({title:cm.title, body:cm.body}); }catch(e){} return true; }   /* [CAP_NEED_1031] add = 순간 담기(«이 순간을 담으려면») · 아니면 칩 · 길이(«이렇게 바꾸려면») */
-window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var _cxT=RitualOpen.crossTribute(S); var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; try{ _crossWatch(_cxT); }catch(e){}   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
+window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var _cxT=RitualOpen.crossTribute(S), _cxM=MK.toast, _cxG=MK.toastGo; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; try{ _crossWatch(_cxT); if(MK.toast&&MK.toast!==_cxM){ MK.toast=_cxM; MK.toastGo=_cxG; setTimeout(function(){ _noteToast('부모님께 인사 대상이 바뀌었어요'); },60); } }catch(e){}   /* ★[CROSS_NOW_1031 식순 걷기 3라운드 5] ① 에서 바꾼 그 자리에서 한 번 — ② 까지 들고 가지 않는다 */   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
 /* ★★[COMBO_171_1030 검토 171 C01] 인사 받는 분이 칩 하나로 바뀌는 자리(편지 «각자 부모님께» ↔ 다른 판 · 인사 말의 판) — 적어 둔 인사말이 있으면 바뀐 순간 한 줄 + 인사 칸으로 · 글은 지우지 않는다
    (종전엔 순간 빼기 · 다시 담기(mkDrop · mkUndrop)만 알렸다) */
 function _crossWatch(c0){ try{ var R=RitualOpen, c1=R.crossTribute(S), tx=S.tx||{}; if(c0===c1||!String(tx['tribute.g']||tx['tribute.b']||S.tributeText||'').trim()) return; MK.toast='인사 대상이 '+(c1?'서로의 부모님':'각자 부모님')+'으로 바뀌었어요 · 적어 두신 글을 확인해 주세요'; MK.toastGo='tribute'; }catch(e){} }
@@ -4474,7 +4474,7 @@ function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
   return o; }
 /* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
 function _lGoods(){}   /* ★«케이크 준비 · 꽃 준비» 칩(직접 준비 · 맡기기) 금지 — 2026-10-06 사용자 지시로 삭제 [GOODS_STUDIO] · 늘 저희가 준비 · 안내는 순간 설명 줄과 ③ «저희가 준비해요»가 한다 */   /* [R1-30] «당일 가져오기»는 아래 «당일 챙길 것» 묶음 제목이 이미 말한다 */
-function _lSet(key,v){ var _c0=RitualOpen.crossTribute(S), _lt0=key==='letter'?RitualOpen.chipOf('letter',S):''; var r=_lSet0(key,v); _crossWatch(_c0); if(key==='letter'&&_lt0!==RitualOpen.chipOf('letter',S)&&String((S.tx||{})['letter.g']||(S.tx||{})['letter.b']||S.letterText||'').trim()) _noteToast('편지 받는 분이 바뀌었어요');   /* [CROSS_ALL_1031] 적어 둔 편지가 있을 때만 · 글은 그대로 */ return r; }   /* ★[COMBO_171_1030 C01] 받는 분이 바뀌면 한 줄 */
+function _lSet(key,v){ var _c0=RitualOpen.crossTribute(S), _lt0=key==='letter'?RitualOpen.chipOf('letter',S):''; var r=_lSet0(key,v); _crossWatch(_c0); if(key==='letter'&&_lt0!==RitualOpen.chipOf('letter',S)&&String((S.tx||{})['letter.g']||(S.tx||{})['letter.b']||S.letterText||'').trim()) setTimeout(function(){ _noteToast('편지 받는 분이 바뀌었어요'); },60);   /* [CROSS_ALL_1031] 적어 둔 편지가 있을 때만 · 글은 그대로 */ return r; }   /* ★[COMBO_171_1030 C01] 받는 분이 바뀌면 한 줄 */
 function _lSet0(key,v){
   var R=RitualOpen; if(_capNo(function(t){ R.setChip(t,key,v); })) return;   /* [BODY_CAP_1030] 길이 칩(축사 길이 · 인사 길이 …) */
   S.touched=S.touched||{}; S.touched[key]=1;   // [CHIP_UNPICKED]
@@ -4947,8 +4947,8 @@ function _mkGoNow(k){ var m=_mkState(); _offToastOff(); if(m.at&&m.at!==k) _vtLe
   _fxNext='#mkHead';   /* ★[QA_FX_ORDER 2026-10-04 점검] 그리기 «전에» — 종전엔 그린 뒤에 걸어 두어 다음 아무 그리기(칩 하나)가 포커스를 머리로 끌어올렸다 */
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
   try{ window.scrollTo(0,0); }catch(e){} try{ if(VC.st) _exFirstStale(); }catch(e){}   /* [EX_FIRST] 예시 글인데 소리가 옛 글인 줄은 들어오자마자 */ /* ★쪽에 들어오면 두 분 소리 · 예시 미리 데우기(setTimeout(_vcWarmBoth)) 금지 — 2026-10-08 사장님 결정으로 삭제 [WHO_MAKE_NOW · EX_PRESS_MAKE] */ }
-function _mkFocusEmpty(){ var el=[].slice.call(document.querySelectorAll('.mk textarea, .mk input[type="text"], .mk input[type="url"], .mk input:not([type]), .mk .mk-tg[aria-pressed="false"]')).filter(function(x){ return !x.disabled&&x.offsetParent&&(x.tagName==='BUTTON'||(!x.readOnly&&!String(x.value||'').trim())); })[0];   // [QA_REFILL] · [QA_REFILL_TG] 빈 칸이 없으면 안 누른 «부탁드렸어요 · 보냈어요»로(화면 차례)
-  if(!el) return; try{ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; el.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'}); el.focus({preventScroll:true}); }catch(e){} }
+function _mkFocusEmpty(){ var el=[].slice.call(document.querySelectorAll('.mk textarea, .mk input[type="text"], .mk input[type="url"], .mk input:not([type]), .mk .mk-tg[aria-pressed="false"]')).filter(function(x){ return !x.disabled&&x.offsetParent&&(x.tagName==='BUTTON'||(!x.readOnly&&(!String(x.value||'').trim()||(x.tagName==='TEXTAREA'&&_exNamesIn(x.value).length>0)))); })[0];   /* ★[REFILL_EXN_1031 식순 걷기 3라운드 7] 예시 속 이름이 남은 글 칸도 «돌아가서 채우기»의 자리 — 그 이름에 커서를 둔다 */   // [QA_REFILL] · [QA_REFILL_TG] 빈 칸이 없으면 안 누른 «부탁드렸어요 · 보냈어요»로(화면 차례)
+  if(!el) return; try{ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; el.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'}); el.focus({preventScroll:true}); if(el.tagName==='TEXTAREA'&&String(el.value||'').trim()){ var _en=_exNamesIn(el.value)[0], _ei=_en?el.value.indexOf(_en):-1; if(_ei>-1) el.setSelectionRange(_ei,_ei+_en.length); } }catch(e){} }   /* [REFILL_EXN_1031] */
 function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i],d>0); return true; }   // [LEAVE_POP] 다음으로 갈 때만 묻는다
 function _mkNextLab(){ var ps=_mkPages(), i=_mkIdx(); if(i>=ps.length-1) return '다음 · 연습하기'; var n=ps[i+1], no=_mkNo(n); return (ps[i]==='_intro'?'이 흐름으로 시작하기 · ':'다음 · ')   /* [COURSE_FLOW] */+((no&&no!=='식전')?no+' ':'')+_mkName(n); }
 /* 두 분이 할 말 — 칸마다 따로 저장 · 글자수 ÷ 5 = 소리 내어 읽는 초(분당 300자 · 축사 원고 안내와 같은 기준) */
@@ -4998,7 +4998,7 @@ function _txNextNote(kind,w){ return kind==='vow'?'당일 현장에서 말해요
    각자 차례로 = 두 칸 · 먼저 읽는 분 칸이 위. 두 판 모두 맨 아래 «두 분 함께» 두 줄(VOWBOTH · 고칠 수 없음)이 서약이 어떻게 끝나는지 보여 준다 [VOW_BOTH_ROWS].
    저장은 종전 그대로 S.tx['vow.g'] · S.tx['vow.b'](콘솔 · 서버 병합 TX_MERGE 그대로) — 번갈아 칸에서 쓴 글은 줄을 \n 으로 잇고 S.txLn 에 표시한다.
    표시가 없는 글(각자 칸 · 예시 · 옛 초안)은 문장으로 나눠 번갈아 보여 준다 — 방식을 오가도 적은 글은 지워지지 않는다 */
-function _vowSplit(id){ var t=String((S.tx||{})[id]||''); if(!t.trim()) return []; if((S.txLn||{})[id]) return t.split('\n');
+function _vowSplit(id){ var t=String((S.tx||{})[id]||''); if((S.txLn||{})[id]) return t.split('\n'); if(!t.trim()) return [];   /* ★[VOW_EMPTY_ADD_1031 식순 걷기 3라운드 6] 줄 표시가 있으면 빈 줄도 줄이다 — 두 칸이 빈 채로 «＋ 줄 더하기»를 눌러도 줄이 늘지 않았다 */
   return _sentJoinQ(t.replace(/\r/g,'').split(/\n+/).reduce(function(a,p){ return a.concat(p.match(/[^.!?。…]+[.!?。…]+["'」』)\]]*|[^.!?。…]+$/g)||[]); },[]).map(function(x){ return x.trim(); }).filter(Boolean)); }
 /* ★[REVIEW_166_1030 검토 166 B7] «한 줄씩 번갈아» — 인용으로 시작하는 문장(«"모르면 물어볼게."»)은 앞 문장과 한 발언 칸으로 묶는다 · 떨어지면 상대 줄 뒤로 밀려 뜻이 끊겼다 */
 function _sentJoinQ(L){ return L.reduce(function(a,x){ if(a.length&&/^["“'‘「『]/.test(x)) a[a.length-1]+=' '+x; else a.push(x); return a; },[]); }
@@ -7597,7 +7597,7 @@ window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
    글자 아래에 같은 글을 굵게 한 벌 숨겨 두어(높이 0) 칩 폭을 늘 «굵은 폭»으로 잡는다 — 눌러도 폭이 안 변하니 줄이 안 바뀐다 */
 function _chipT(t){ return '<span class="cg-t" data-t="'+esc(t)+'">'+esc(t)+'</span>'; }
 window.lsFreeEtc=function(){ buildSteps(); _persist(); render(); };   /* [FREE_ETC] 이름이 띠 · 흐름에 곧장 */
-window.lsDeclWho=function(el){ var was=el?(el.getAttribute('data-was')||''):''; S.declareWho=_declOtherTx();   /* [DECL_TITLE_1031] «그 밖의 분» 칸 글만 */ var _rn=(was&&S.declareWho!==was.replace(/\s+/g,' ').trim())?_askReset('declare',true):0;   /* ★[ASK_RESET_1031 2라운드 2] 직접 적은 분이 바뀌어도 «부탁드렸어요»를 푼다(공백만 다듬으면 그대로) */ buildSteps(); _persist(); render(); if(_rn) _noteToast('부탁드릴 분이 바뀌었어요'); else if(S.declareWho&&S.declareWho!==was) _noteToast(NOTE_TOAST.decl); };   /* [DECLARE_ANYONE] 다듬은 글로 저장 · 흐름 «○○ 차례» · 할 일 «○○께 부탁»에 곧장 · 새로 적으면 아래 알림 «선언문은 저희가 인쇄해 드려요»(NOTE_TOAST · 종전엔 칩을 누를 때) */
+window.lsDeclWho=function(el){ var was=el?(el.getAttribute('data-was')||''):''; S.declareWho=_declOtherTx();   /* [DECL_TITLE_1031] «그 밖의 분» 칸 글만 */ var _rn=(was&&S.declareWho!==was.replace(/\s+/g,' ').trim())?_askReset('declare',true):0;   /* ★[ASK_RESET_1031 2라운드 2] 직접 적은 분이 바뀌어도 «부탁드렸어요»를 푼다(공백만 다듬으면 그대로) */ buildSteps(); _persist(); render(); if(_rn) setTimeout(function(){ _noteToast('부탁드릴 분이 바뀌었어요'); },60); else if(S.declareWho&&S.declareWho!==was) _noteToast(NOTE_TOAST.decl); };   /* [DECLARE_ANYONE] 다듬은 글로 저장 · 흐름 «○○ 차례» · 할 일 «○○께 부탁»에 곧장 · 새로 적으면 아래 알림 «선언문은 저희가 인쇄해 드려요»(NOTE_TOAST · 종전엔 칩을 누를 때) */
 window.lsFreeLen=function(v){ var n=Math.round(+v); if(!(n>=1)) n=1; if(n>10) n=10; if(_capNo(function(t){ t.freeLen=String(n); })){ try{ render(); }catch(e){} return; }   /* [BODY_CAP_1030] */ S.freeLen=String(n); S.touched=S.touched||{}; S.touched.freeLen=1; buildSteps(); _persist(); _fxNext='[data-fk="freelen"]'; render(); };
 function _lChipRow(g,opt){
   if(g.html) return '<div class="ls-cg fe-row"><span class="gl">'+esc(g.l)+'</span><span class="cg-c">'+g.html+(g.unote?'<span class="ls-gnote">'+esc(g.unote)+'</span>':'')+'</span></div>';   /* [FREE_ETC] 칩 대신 칸 · [DECLARE_ANYONE] 칸 아래 한 줄(비었을 때) */
@@ -9639,7 +9639,7 @@ window.jumpTo=function(k){
 var editReturn=false, _editSnap=null, _editSent=null, _editSavedMid=false;
 /* ★[EDIT_VIEW_KEEP_1031 식순 걷기 2라운드 7] 저장 뒤 «변경»으로 들어가 보기만 하고 돌아와도 «이대로 저장하기»로 돌아갔다 — 마지막 저장 판과 실제로 달라졌을 때만 저장 전으로.
    비교에서 빼는 것은 화면 자리(지금 쪽 · 본 쪽) · 고친 시각 · 본 안내뿐 — 값이 하나라도 바뀌면 다르다(모르면 다르다로) */
-function _edKey(o){ var c; try{ c=JSON.parse(typeof o==='string'?o:JSON.stringify(o)); }catch(e){ return Math.random()+''; } if(c&&c.mk){ delete c.mk.at; delete c.mk.seen; } if(c){ delete c.fAt; delete c.tipSeen; } return JSON.stringify(c); }
+function _edKey(o){ var c; try{ c=JSON.parse(typeof o==='string'?o:JSON.stringify(o)); }catch(e){ return Math.random()+''; } return _autoKeyOf(c)||(Math.random()+''); }   /* [FAT_NOT_KEY_1031] «저장됨» 표시를 정하는 눈(_autoKeyOf)과 하나 */
 function _edDirty(){ if(!_editSnap) return true; try{ return _edKey(S)!==_edKey(_editSnap); }catch(e){ return true; } }   /* [R8-08] _editSavedMid = 이 수정 중 저장이 한 번이라도 됐다 */   /* [R7-07] _editSent = 수정 중 보낸 판 */
 window.editStep=function(k){ _edBack='sum:'+k; editReturn=true; _editSnap=JSON.stringify(S); _editSavedMid=false; if(isOpen()){ _editOpen(k); return; } jumpTo(k); };
 /* ★[EDIT_CANCEL_FILES 2026-10-03 · R6-01] ④ «변경»으로 들어간 수정의 «취소»는 글 · 칩 같은 고르는 값만 스냅샷으로 되돌린다.
@@ -9914,17 +9914,19 @@ window.prScript=function(){ if(!ENG){ engine().then(function(g){ if(g){ MK.scrip
 function _svBody(){ var t=scriptTextOpen(); if(!t) return '<p class="mk-note">대본을 불러오지 못했어요</p>';
   var bl=t.split('\n\n'), head=bl.shift().split('\n')[0].replace(/^우리 예식 대본 · /,'');
   /* ★[SV_HEAD_ONLY_1031 식순 걷기 2라운드 6] 빈 줄로 나뉜 덩이가 모두 제목이 되어, 신부 글 · 두 분이 나눈 문단 첫 줄이 순간 제목처럼 크게 보였다 — 순간 머리(«3. 감사 인사» · «식전 …»)로 시작하는 덩이만 새 칸, 나머지는 앞 칸 본문에 잇는다 */
-  var _isH=function(b){ return /^(\d+\. \S|식전)/.test(b); }, _bl=[]; bl.filter(function(b){ return b.trim(); }).forEach(function(b){ if(!_bl.length||_isH(b)) _bl.push(b); else _bl[_bl.length-1]+='\n'+b; }); bl=_bl;
+  var _hs={}; try{ var _pk=RitualOpen.peakOf(S); _lRows().forEach(function(k){ _hs[_svHeadOf(k,_pk)]=1; }); }catch(e){}   /* ★[SV_HEAD_EXACT_1031 식순 걷기 3라운드 8] 제목은 실제 순간 머리 글과 똑같은 줄만 — 두 분 글이 «1. …»이나 «식전»으로 시작해도 본문 */
+  var _isH=function(b){ return !!_hs[b.split('\n')[0]]; }, _bl=[]; bl.filter(function(b){ return b.trim(); }).forEach(function(b){ if(!_bl.length||_isH(b)) _bl.push(b); else _bl[_bl.length-1]+='\n'+b; }); bl=_bl;
   return '<div class="sv">'+(head?'<p class="mk-note sv-top">'+esc(head)+'</p>':'')+bl.map(function(b){ var ls=b.split('\n'), h=ls.shift();
     return '<section class="sv-b"><h3 class="sv-h">'+esc(h)+'</h3>'+ls.map(function(l){ if(/^\(.*\)$/.test(l.trim())) return '<p class="sv-l sv-q">'+esc(l)+'</p>';
       var m=l.match(/^([^:.!?]{1,40}):\s?(.*)$/); return '<p class="sv-l">'+(m?'<b>'+esc(m[1])+'</b> '+esc(m[2]):esc(l))+'</p>'; }).join('')+'</section>'; }).join('')+'</div>'; }
+function _svHeadOf(k,peak){ var no=_lNo(k), nm=_lName(k); return (no==='식전'?(/^식전/.test(nm)?'':'식전 '):no+'. ')+nm+(k===peak?' (가장 벅찬 순간)':''); }   /* [SCRIPT_LAB P1-7] «식전 식전 영상» 겹말을 막는다 · [PEAK_COLOR] */
 function scriptTextOpen(){
   if(!ENG) return '';
   var R=RitualOpen, r; try{ r=ENG.RitualCue.build(S,{mode:'preview'}); }catch(e){ return ''; }
   var peak=R.peakOf(S), lines=['우리 예식 대본 · '+headLine(0),''];
   _lRows().forEach(function(k){
     var no=_lNo(k), nm=_lName(k);
-    lines.push((no==='식전'?(/^식전/.test(nm)?'':'식전 '):no+'. ')+nm+(k===peak?' (가장 벅찬 순간)':''));   /* [PEAK_COLOR] 글로만 나가는 대본은 색이 없어 말로 */   // [SCRIPT_LAB P1-7] «식전 식전 영상» 겹말을 막는다
+    lines.push(_svHeadOf(k,peak));   /* [SV_HEAD_EXACT_1031] 머리 글은 한 함수 — 글로 보기가 같은 글로 제목을 알아본다 */   /* [PEAK_COLOR] 글로만 나가는 대본은 색이 없어 말로 */   // [SCRIPT_LAB P1-7] «식전 식전 영상» 겹말을 막는다
     _lSteps(ENG,[k]).forEach(function(x){
       if(x.skip) lines.push('('+x.txt.replace(/ · 미리 듣기에서는 넘겨요$/,'')+')');
       else if(x.quiet){ lines.push('('+x.txt+')'); if(k==='vow'&&/^마지막 한 문장/.test(x.txt)) lines.push('함께: '+_vowBoth().join(' ')); }   // [G5] 말 없는 사람 순간 · ★[VOW_PRACT_1018 검토 131-2] 함께 읽는 문장을 괄호 줄 바로 뒤에(말만 하고 문장이 없으면 무엇을 준비할지 모른다 · VOW_CHORUS)
@@ -10583,6 +10585,7 @@ var _saveAfterAuto=false;   // [ORD_SAVE_AFTER_AUTO] 완성 저장이 자동 저
 function _autoKey(){ return _autoKeyOf(S); }
 function _autoKeyOf(S){ try{ var o={}; for(var k in S) o[k]=S[k]; delete o.vsAsked; delete o.vsChip; delete o.tipSeen; delete o.seen;   /* ★[SEEN_NOT_KEY 2026-10-09 A~Z 점검 2라운드 E2-1] 걸음 기록(S.seen · 완성 저장 꾸러미가 비운다)은 저장할 변경이 아니다 — _canonS 와 같은 눈 */   /* [TIP_ONCE] 안내를 «봤다»는 표시는 저장할 변경이 아니다 */   /* [R2-14] 목소리 창을 «봤다»는 표시도 걸음이다 */
   if(S.mk){ o.mk={}; for(var j in S.mk) if(j!=='at'&&j!=='seen') o.mk[j]=S.mk[j]; ['drop','dropMin'].forEach(function(x){ if(o.mk[x]&&!Object.keys(o.mk[x]).length) delete o.mk[x]; }); if(!Object.keys(o.mk).length) delete o.mk; }   /* [R2-14] ② 에 들어가기만 해도 생기는 빈 drop{} · dropMin{} 은 바뀐 값이 아니다 */
+  delete o.fAt;   /* ★[FAT_NOT_KEY_1031 식순 걷기 3라운드 9] 고친 시각만 바뀐 것(같은 글을 다시 붙여 넣음)은 저장할 변경이 아니다 — 시각 자체는 S 에 그대로(다른 기기와 합칠 때 쓴다) */
   return JSON.stringify(o); }catch(e){ return ''; } }   /* [MK_RO] ② 에서 보고 있는 쪽(mk.at) · 본 쪽(mk.seen)도 걸음이다 — 저장 표시를 켜지 않는다(SEEN_NOT_DIRTY 와 같은 까닭) */   // [SEEN_NOT_DIRTY] 고객이 고른 것(S)만 — 걸음(_seenK)은 위 근거로 뺐다
 /* ★★[ORD_SAVE_BTN 2026-08-13 사용자 지시 "지금은 자동저장이잖아 그렇게하지말고 저장 버튼을 따로 만들자"]
    자동 저장(1.5초 디바운스)을 **뗀다.** 값이 바뀌면 표시만 켜 두고, 보내는 것은 사람이 정한다.
@@ -10657,7 +10660,7 @@ var _who='';   // ORDER_OWNER: 현 초안의 소유 계정(개인코드) — 임
 var SAVED_LOCAL=['vjob','tipSeen','vsAsked','vsChip'];
 function _applySaved(_sv,fresh){
   if(!(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs)) return false;
-  try{ MK.muFold=null; }catch(e){}   /* [MUSIC_FOLD_1031] 초안을 새로 얹으면(열기 · 다시 열기 · 최신 불러오기) 그 쪽은 새로 들어온 것 — 골라 둔 곡 줄은 접혀 시작한다 */
+  try{ MK.muFold=null; if(window.BgmForm&&BgmForm.reset) BgmForm.reset(); }catch(e){}   /* [BED_KEEP_LOAD_1031] · [MUSIC_FOLD_1031] 초안을 새로 얹으면(열기 · 다시 열기 · 최신 불러오기) 그 쪽은 새로 들어온 것 — 골라 둔 곡 줄은 접혀 시작한다 */
   var _loc={}; if(fresh){ SAVED_LOCAL.forEach(function(_k){ if(S[_k]!=null) _loc[_k]=S[_k]; }); try{ var _d0=JSON.parse(_S0); Object.keys(S).forEach(function(_k){ delete S[_k]; }); Object.keys(_d0).forEach(function(_k){ S[_k]=_d0[_k]; }); }catch(e){} }   /* ★[SAVED_FRESH 2026-10-09 A~Z 점검 1라운드 E-2] 서버 초안은 «통째로» — 기본값에서 시작해 얹는다(올바른 초안일 때만 · 위에서 확인).
      종전엔 이 기기 옛 판 위에 서버 판을 덮어써서, 서버 판에 없는 칸(예시 고름 gExC · 영상 소개 읽는 분 pvWho · 고른 예시 guestEx …)이 이 기기 값으로 남았다 —
      다른 기기에서 바꾼 것이 이 기기 옛 값으로 보이고 쪽을 떠나면 그 옛 값을 굽고 저장해 다른 기기의 선택을 서버에서 되돌렸다 · S 는 같은 물건을 비우고 다시 채운다(다른 곳이 쥔 S 를 끊지 않게) */
