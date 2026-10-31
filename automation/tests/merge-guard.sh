@@ -20154,6 +20154,9 @@ chk '@media (hover:hover){.me-fab-stack .me-fab:hover .me-fab-nm' assets/fab-nam
 chk "stack.classList.toggle('nm-tip'" assets/fab-names.js 1                                  # 1회 말풍선 우선
 nochk '#mp_dressFab .me-fab-nm{position:absolute' mypage.html                                 # 드레스 전용 규칙은 공통으로 흡수(두 벌 금지)
 chk 'FAB_NAMES_1031' scripts/audit/fab-names.mjs 3
+# ── 2026-10-31 [FAB_SHARE_COPIED] 홈 공유 «복사됨»은 보이는 이름표에(종전 .me-fab-cap 은 늘 숨김 → PC 복사 확인이 안 보였다)
+chk "meShareSite(sf.querySelector('.me-fab-nm'));" index.html 1
+nochk "meShareSite(sf.querySelector('.me-fab-cap'))" index.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/fab-names.mjs >/dev/null 2>&1; _fnm=$?
   case "$_fnm" in
     0) echo 'ok fab-names: 줄 아이콘 이름표 — 마이페이지 · 메인 · 일정 · 드레스 겉모습 그대로 · 숨김 · 말풍선 · 휴대폰 안 뜸' ;;
