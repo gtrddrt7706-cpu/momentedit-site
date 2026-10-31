@@ -20809,4 +20809,16 @@ chk 'KEEPGAP_TEXT_1031' scripts/audit/keepgap-text.mjs 2
 chk 'KEEPGAP_TEXT_1031' docs/plans/식순연구/음성쉼_1031.json 1
 chk 'KEEPGAP_TEXT_1031' CLAUDE.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/keepgap-text.mjs >/dev/null 2>&1; _kgt=$?; [ "$_kgt" = 1 ] && { echo 'FAIL keepgap-text: 음성 쉼(keepGap) 문장의 글이 바뀌었거나 표시가 빠졌거나 장부가 낡았습니다 — node scripts/audit/keepgap-text.mjs (글을 바꿨으면 --ack 후 [대본 공지]에 «음성 쉼 다시 받기 필요 · 클립 id»)'; fail=1; }; :; fi
+# ── 2026-10-31 [MUSIC_FOLD_1031 사장님 시안 «1 · 음악만 접기» 고름] 순간 쪽 음악 곡 목록 — 직접 고른 곡이 있고 «새로 들어올 때»만 한 줄(▶ · 곡 · «바꾸기») · 쪽에 머무는 동안 고르면 접지 않는다 · «바꾸기»는 그 방문 동안 편 채
+#    방문 = MK.pgTok · ② 걸음 밖 render · _applySaved 가 MK.muFold 를 비운다 · 브라우저 검사는 CI bgm-sound 칸이 돌린다(guard 는 브라우저 없음 → 2 건너뜀)
+chk 'MUSIC_FOLD_1031' assets/bgm-bed.js 3
+chk 'MUSIC_FOLD_1031' order-preview.html 3
+chk 'MUSIC_FOLD_1031' scripts/audit/music-fold.mjs 1
+chk 'MUSIC_FOLD_1031' .github/workflows/merge-guard.yml 1
+chk "if(folded(sg)&&cs) return foldHtml(sg,k,cs);" assets/bgm-bed.js 1   # folded() 먼저 — 안 고른 채 그린 방문을 «편 채»로 적는다(뒤집으면 쪽에서 고르자마자 접힌다 · 실측)
+chk "MK.vidDone=null; MK.muFold=null; }" order-preview.html 1
+chk "try{ MK.muFold=null; }catch(e){}" order-preview.html 1
+chk 'class="pk-link mu-chg"' assets/bgm-bed.js 1
+chk 'aria-expanded="false" aria-controls="' assets/bgm-bed.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/music-fold.mjs >/dev/null 2>&1; _mfd=$?; if [ "$_mfd" = 1 ]; then echo 'FAIL music-fold: 음악 곡 목록 접기(안 고름 · 쪽에서 고름 · 다시 들어옴 · 바꾸기 · 모든 순간)가 어긋났습니다 — node scripts/audit/music-fold.mjs'; fail=1; else echo "ok music-fold ($_mfd)"; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
