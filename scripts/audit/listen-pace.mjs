@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★★[LISTEN_PACE_1031 2026-10-31 사장님 «진행» · BGM 섹션 명세] ② «이 순간 전체 듣기» 흐름 — 진짜 식순 화면을 «마이페이지 안»(order-preview.html?embed=1)으로 띄워 잰다
    (부모 창이 GAS 대신 구간 곡을 준다 · 나레이션 파일은 0.6초 짧은 소리 — 차례 · 시간 · 크기만 잰다 · bgm-preview 와 같은 틀).
-   P1 음악 뜸 — 곡이 있는 순간(화촉 · 반지 · 부모님께 인사 · 축배): 첫 멘트가 나오기 전 곡이 큐 사이 크기(−8)로 3초 · 곡이 없는 순간(테이블 인사 · 공개 미리보기 화촉)은 뜸 없음
+   P1 음악 뜸 — 곡이 있는 순간(화촉 · 반지 · 부모님께 인사 · 축배): 첫 멘트가 나오기 전 곡이 큐 사이 크기(−8)로 6초(★[LEAD_LONGER_1031] 종전 3초 · 이어지는 곡은 3초) · 곡이 없는 순간(테이블 인사 · 공개 미리보기 화촉)은 뜸 없음
    P2 행동 줄 멈춤 — 행동 줄(말없이)이 차례에 들어가 est ÷ 12(3 ~ 6초) 동안 머문다 · 그동안 음악 −8 · est 는 당일 엔진 live.est(또는 표 LP_EST_FROM · LP_EST_NOTE) · est 없는 행동 줄 0개(모든 순간)
    P3 작은 글 — 행동 줄이 흐를 때만 «실제로는 약 …»(반올림 표) · 지나가면 걷힌다
    P4 줄 표시 — 지금 줄 lp-now · 지나간 줄 lp-past · 남은 줄 표시 없음 · ⏹ 로 멈추면 모두 되돌림
@@ -109,10 +109,10 @@ try {
     const R = await f.evaluate(() => [8, 30, 35, 45, 60, 102, 160, 540, 0].map((e) => [e, _lpMs(e), _lpEstT(e)]));
     ok(`${W} P3 반올림(1분 미만 10초 · 1분부터 15초) — 8 → 약 10초 · 45 → 약 50초 · 102 → 약 1분 45초 · 160 → 약 2분 45초 · 540 → 약 9분 · 0 → 글 없음 · 멈춤 3 ~ 6초`,
       JSON.stringify(R) === JSON.stringify([[8, 3000, '약 10초'], [30, 3000, '약 30초'], [35, 3000, '약 40초'], [45, 4000, '약 50초'], [60, 5000, '약 1분'], [102, 6000, '약 1분 45초'], [160, 6000, '약 2분 45초'], [540, 6000, '약 9분'], [0, 3000, '']]), R);
-    for (const [k, len] of [['candle', 15000], ['ring', 12000], ['tribute', 30000], ['toast', 12000]]) {
+    for (const [k, len] of [['candle', 18000], ['ring', 15000], ['tribute', 33000], ['toast', 15000]]) {   /* [LEAD_LONGER_1031] 뜸이 3초 늘어 창도 3초씩 */
       await go(f, k); await f.evaluate(() => window.scrollTo(0, 0)); const r = await trace(f, k, len); const sp = spans(r.tr), nt = narT(r) == null ? null : narT(r) - q0T(r);
       const lead = r.tr.filter((x) => x.t < (nt || 0) + q0T(r) - 150 && x.src);
-      ok(`${W} P1 ${k} 첫 멘트 앞 음악 뜸 3초(곡이 큐 사이 크기 −8)`, nt != null && nt >= 2850 && nt <= 3900 && lead.length > 5 && lead.some((x) => Math.abs(x.want - (-8)) < 0.6), { nt, lead: lead.slice(-2).map((x) => [Math.round(x.t), x.f, x.want]) });
+      ok(`${W} P1 ${k} 첫 멘트 앞 음악 뜸 6초(곡이 큐 사이 크기 −8)`, nt != null && nt >= 5850 && nt <= 6900 && lead.length > 5 && lead.some((x) => Math.abs(x.want - (-8)) < 0.6), { nt, lead: lead.slice(-2).map((x) => [Math.round(x.t), x.f, x.want]) });
       const acts = sp.filter((x) => x.act);
       if (k === 'toast') ok(`${W} P2 ${k} 행동 줄 없음(잔 내려놓기는 «위하여» 칸 안)`, !acts.length, acts.map((x) => x.li));
       else ok(`${W} P2 ${k} 행동 줄마다 est ÷ 12(3 ~ 6초) 머문다`, acts.length > 0 && acts.every((a) => { const want = Math.min(6, Math.max(3, Math.round(a.est / 12))) * 1000, d = a.b - a.a; return d >= want - 450 && d <= want + 600; }), acts.map((a) => [a.li, a.est, Math.round(a.b - a.a)]));
@@ -142,6 +142,15 @@ try {
     await f.evaluate(() => { window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40 })); window.scrollTo(0, 0); }); const y0 = await f.evaluate(() => scrollY); await wait(f, 6000);
     const s5 = await f.evaluate(() => ({ y: scrollY, nf: LP.noFollow, i: LP.i })); await f.evaluate(() => lsStop());
     ok(`${W} P5 손으로 스크롤하면 그 재생 동안 따라가기 멈춤`, s5.nf === true && s5.y === y0, { y0, ...s5 });
+    /* ★[LEAD_LONGER_1031] P8 크게 보기(처음부터 보고 듣기 · 본식부터 등 이어 트는 길)도 같은 규칙 — 뜸(새 곡 6초 · 이어지는 곡 3초 · 순간마다) · 행동 줄 멈춤 · «실제로는 약 …» */
+    { await go(f, 'ring'); const b8 = await f.evaluate(async () => { const L = []; const o = BgmBed.lpLead; BgmBed.lpLead = function (st) { const r = o.apply(this, arguments); L.push({ k: st.k, r }); return r; };
+        const E = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['candle', 'ring'], true); _lFull();
+        const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { try { const st = LP.q[LP.i], e = document.querySelector('#lsFull .lf-est'); E.push({ t: performance.now() - t0, k: st && st.k, act: !!(st && st.act), est: e ? e.textContent.trim() : '' }); } catch (x) {} if (performance.now() - t0 > 40000 || (LP.q[LP.i] && LP.q[LP.i].k === 'ring' && E.some((y) => y.k === 'ring' && y.act))) { clearInterval(iv); res(); } }, 150); });
+        const out = { pace: LP.pace, big: !!LP.big, acts: LP.q.filter((x) => x.act).length, L, E: E.filter((x) => x.act).slice(0, 3), noEst: E.filter((x) => !x.act && x.est).length };
+        BgmBed.lpLead = o; try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return out; });
+      ok(`${W} P8 크게 보기 이어 듣기도 LISTEN_PACE(행동 줄 ${b8.acts}개)`, b8.pace === true && b8.big && b8.acts > 0, b8);
+      ok(`${W} P8 순간마다 첫 멘트 앞 뜸 — 새 곡 6초 · 이어지는 곡 3초`, b8.L.length >= 2 && b8.L.every((x) => x.r === 6000 || x.r === 3000) && b8.L[0].r === 6000, b8.L);
+      ok(`${W} P8 크게 보기 행동 줄이 흐를 때 «실제로는 약 …» · 다른 줄엔 없음`, b8.E.length > 0 && b8.E.every((x) => /^실제로는 약/.test(x.est)) && b8.noEst === 0, { E: b8.E, noEst: b8.noEst }); }
     /* P1 곡 없는 순간 — 테이블 인사(드라이브에 곡 없음) · 뜸 없음 */
     await go(f, 'table'); const rt = await trace(f, 'table', 4000); await f.evaluate(() => lsStop()); const ntT = narT(rt) == null ? null : narT(rt) - q0T(rt);
     ok(`${W} P1 곡이 없는 순간(테이블 인사)은 뜸 없음`, ntT != null && ntT < 2200, { ntT });
