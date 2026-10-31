@@ -690,10 +690,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   .pcb-b{padding:4px 10px 10px;display:flex;flex-wrap:wrap;gap:6px}
   .pcb-g{width:100%;font-size:10.5px;color:#8a8175;margin:4px 2px 0;letter-spacing:.4px}
   .pcb-who{width:100%;font-size:13px;color:#f3ede4;margin:2px 2px 6px;line-height:1.5}   /* [PHOTO_CALLER] 판 머리 한 줄 */
-  .pcb-b button{background:#262320;border:1px solid #3f3a33;color:#e8e2d8;border-radius:8px;padding:7px 11px;font-size:12.5px;cursor:pointer;text-align:left;line-height:1.35}
-  .pcb-b button:active{background:#332f2a}
-  .pcb-b button b{display:block;font-weight:600}
-  .pcb-b button i{font-style:normal;color:#8a8175;font-size:10.5px}
+  .pcb-b .pcm{background:#262320;border:1px solid #3f3a33;color:#e8e2d8;border-radius:8px;padding:7px 11px;font-size:12.5px;text-align:left;line-height:1.35}   /* [AUTO_ONLY_1031] 누르는 단추가 아니라 메모 */
+  .pcb-b .pcm b{display:block;font-weight:600}
+  .pcb-b .pcm i{font-style:normal;color:#a39a8c;font-size:11px}
   </style>
   <div class="ctl">
     <div class="inner">
@@ -713,13 +712,14 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
           <button id="bMute">음악만 멈춤<small>말은 그대로</small></button>
           <button id="bBack">뒤로<small>한 칸 되돌림</small></button>
         </div>
-        <!-- ★★[PHOTOCUE_BOARD 2026-08-08] 촬영 시간의 '골라 트는 판'.
+        <!-- ★★[AUTO_ONLY_1031 검토 177 사장님 «당일 소리는 식순에서 자동으로 나오는 나레이션만»] 이 판은 소리를 틀지 않는다 — 연출 글은 디렉터가 말로 읽는 메모다(녹음 · 파일 · 번호는 그대로 · clip-status MANUAL_OFF).
+             ★★[PHOTOCUE_BOARD 2026-08-08] 촬영 시간의 '골라 트는 판'.
              ★큐 체인이 아닌 이유: 촬영은 순서가 정해지지 않는다(어른 먼저·아이 먼저).
                예식은 흐름이라 체인이고, 촬영은 작업이라 판이다. 둘을 섞으면 어느 한쪽이 불편해진다.
              ★체인을 건드리지 않는다 — 여기서 튼 클립은 진행 위치를 바꾸지 않는다.
                디렉터가 촬영을 마치고 [다음]을 누르면 원래 자리에서 이어진다. -->
         <details id="pcBoard" class="pcb">
-          <summary>촬영 안내 골라 틀기 <small>호명 · 연출</small></summary>
+          <summary>촬영 연출 메모 <small>디렉터가 말로 · 소리 없음</small></summary>
           <div class="pcb-b" id="pcBody"></div>
         </details>
         <div class="vol">
@@ -2147,11 +2147,11 @@ $('#bWait').onclick = function(){
      안 나온 순서에 박수를 청하면 어색하다. 다음 순간은 [다음]으로 곧장 간다. */
   var rc = (phase === 'live' && R && R.cues[cur] && R.cues[cur].rescue) ? R.cues[cur] : null;
   if (rc) {
-    if (rc.rescue.slug) playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.text);   /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 디렉터가 말로 알린다 · 소리가 있을 때만 튼다 */
+    /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 디렉터가 말로 알린다 · [AUTO_ONLY_1031] 식순 큐 밖 재생 길(playLoose)은 걷었다 */
     var rn = rc.blockN || rc.name; if (RESCUED.indexOf(rn) < 0) RESCUED.push(rn);   // [RESCUE_REPLAY_1016] 사진 시간에 디렉터 칸에 한 줄(식전 영상 · 준비한 순서)
     if (R.cues[cur + 1] && R.cues[cur + 1].k === rc.k) cur = cur + 1;
     phase = 'done'; render();
-    toast(rc.rescue.slug ? '사진 시간으로 미뤘습니다 · 준비되면 [다음]' : '사진 시간으로 미뤘습니다 · 하객께 한 줄로 알리고 [다음]');
+    toast('사진 시간으로 미뤘습니다 · 하객께 한 줄로 알리고 [다음]');
     return;
   }
   /* ★[WAIT_CLIP_OFF_1016] 대기 클립(49) 갈래는 걷었다 — 9/6 WAIT_BRIDGE_RETIRED · 멈춘 자리는 디렉터가 사람 말로 · 단추는 영상 · 음원 순서 밖에선 흐리다 */
@@ -2163,14 +2163,14 @@ $('#bWait').onclick = function(){
   var P = (typeof PHOTOCUE !== 'undefined') ? PHOTOCUE : null;
   var box = $('#pcBody'); if (!P || !box) return;
   function add(label, list){
+    if (!list.some(function(g){ return !g.off; })) return;   /* [AUTO_ONLY_1031] 다 꺼진 묶음은 제목도 안 그린다 */
     var h = document.createElement('div'); h.className = 'pcb-g'; h.textContent = label; box.appendChild(h);
     list.forEach(function(g){
       if (g.off) return;   /* [PHOTO_POSE_RETIRED 2026-08-17] 꺼 둔 연출은 판에 안 그린다 */
-      var b = document.createElement('button');
+      var b = document.createElement('div'); b.className = 'pcm';   /* [AUTO_ONLY_1031] 소리 없이 글만 — 디렉터가 말로 읽는다 */
       b.innerHTML = '<b></b><i></i>';
       b.querySelector('b').textContent = g.k;
       b.querySelector('i').textContent = g.t;
-      b.onclick = function(){ playLoose(g.slug, g.k, g.t); };
       box.appendChild(b);
     });
   }
@@ -2186,23 +2186,10 @@ $('#bWait').onclick = function(){
   /* [PHOTO_FRIEND 2026-09-26 사장님] 친구들과 자유롭게 — 가족 구도를 다 찍은 뒤 사진작가에게 부탁한 것. 고객 글이라 textContent 로만. */
   if (S && S.photoFriend) { var fr = document.createElement('div'); fr.className = 'pcb-who'; fr.textContent = '친구들과 자유롭게 · ' + String(S.photoFriend).slice(0, 200); box.appendChild(fr); }
   add('불러 모으기', P.call);
-  add('연출', P.fx);
+  add('연출 · 말로', P.fx);
 })();
 
-/* 체인 밖 재생 — 진행 위치를 바꾸지 않는다(대기 클립과 같은 방식). */
-function playLoose(slug, name, txt){
-  clearT(); audioOn();
-  duckTo(PARAM.duckSpeech, 300);
-  var u = CLIPS[RitualCue.noOf(slug)] || CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
-  $('#nName').textContent = name;
-  $('#nTxt').className = 'txt'; $('#nTxt').textContent = txt;
-  aNarr.onended = null; aNarr.onerror = null;
-  aNarr.src = u;
-  var p = aNarr.play();
-  if (p && p.catch) p.catch(function(){ runProg(RitualCue.sylSec(txt), null); });
-  runProg(RitualCue.sylSec(txt), null);
-  toast(name + ' — 진행 위치는 그대로예요');
-}
+/* ★[AUTO_ONLY_1031 검토 177 사장님 «당일 소리는 식순에서 자동으로 나오는 나레이션만»] 체인 밖 재생(playLoose)은 걷었다 — 촬영 연출 판은 글 메모 · 되살리지 말 것 */
 
 $('#bMute').onclick = function(){
   muted = !muted;
@@ -2229,12 +2216,8 @@ $('#bBack').onclick = function(){
      큐 체인은 RETIRED 를 보는데 이 목록만 안 봤다 — 폐지가 화면 한 곳에서 새고 있었다.
    ★목록을 손으로 지우지 «않는다». RETIRED 로 거른다 — 손으로 지우면 다음 폐지 때 또 샌다.
      정본은 언제나 ritual-cue.js 의 RETIRED 하나다 [ONE_SPEC]. */
-var HELPERS = [
-  ['bridge-5-wait-setup', '준비 대기 안내', '무엇을 준비하는 중일 때'],
-  ['bridge-6-resume', '다시 이어가기', '멈춘 자리에서 재개할 때'],
-  ['parents-letter', '혼주 편지', '혼주께서 편지를 준비하셨을 때'],
-  ['narr-bless-open', '어른 말씀 열기', '덕담을 따로 열어야 할 때']
-].filter(function(p){ return !(RitualCue.RETIRED || {})[p[0]]; });
+/* ★★[AUTO_ONLY_1031 검토 177] «따로 쓰는 클립» 단추(혼주 편지 43 · 어른 말씀 열기 22 · 대기 · 재개 브릿지)는 걷었다 — 당일 소리는 식순 큐가 자동으로 내는 나레이션만 · 필요하면 디렉터가 말로 ·
+   녹음 · 파일 · 번호는 그대로(clip-status MANUAL_OFF) · 되살리지 말 것 */
 $('#bSheet').onclick = function(){ buildSheet(); $('#sheet').classList.add('on'); };
 $('#shClose').onclick = function(){ $('#sheet').classList.remove('on'); };
 $('#sheet').onclick = function(e){ if (e.target.id === 'sheet') $('#sheet').classList.remove('on'); };
@@ -2250,28 +2233,6 @@ function buildSheet(){
     b.innerHTML = '<span class="n">' + (c.no || '—') + '</span><span class="t">' + esc(c.name)
       + '<small>' + fireLabel(c.fire) + ' · ' + fmt(c.est) + (c.live ? ' + 사람 ' + fmt(c.live.est) : '') + '</small></span>';
     b.onclick = function(){ $('#sheet').classList.remove('on'); fire(i); };
-    L.appendChild(b);
-  });
-  var h2 = document.createElement('div'); h2.className = 'sheetsec'; h2.textContent = '따로 쓰는 클립 — 순서에 넣지 않고 한 번만';
-  L.appendChild(h2);
-  HELPERS.forEach(function(p){
-    var b = document.createElement('button');
-    b.className = 'qi';
-    b.innerHTML = '<span class="n">' + RitualCue.noOf(p[0]) + '</span><span class="t">' + esc(p[1]) + '<small>' + esc(p[2]) + '</small></span>';
-    b.onclick = function(){
-      $('#sheet').classList.remove('on');
-      clearT(); audioOn();
-      var u = CLIPS[RitualCue.noOf(p[0])] || CLIPS[p[0]] || (PARAM.clipDir + RitualCue.fileOf(p[0]) + '.mp3');
-      duckTo(PARAM.duckSpeech, 300);
-      aNarr.onended = null; aNarr.onerror = null; aNarr.src = u;
-      var pl = aNarr.play(); if (pl && pl.catch) pl.catch(function(){});
-      var tx = RitualCue.EXTRA[p[0]] || '';
-      $('#nName').textContent = p[1];
-      $('#nTxt').className = 'txt'; $('#nTxt').textContent = tx;
-      runProg(tx ? RitualCue.sylSec(tx) : 12, null);
-      phase = 'done';
-      toast(p[1] + ' 재생 — 순서는 그대로입니다');
-    };
     L.appendChild(b);
   });
 }

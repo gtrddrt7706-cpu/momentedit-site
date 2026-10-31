@@ -2,8 +2,8 @@
    원천 셋 — 두 군데에 같은 것을 적지 않는다:
      ① assets/ritual-cue.js RETIRED        나레이션 폐지 슬러그(엔진 정본)
      ② assets/ritual-story.js CAST_MUTE    안 트는 배역(06 ~ 14 · 24 · 25 · 26 · 글 예시만)
-     ③ assets/audio/clip-status.json       파일 단위 표시(열쇠 «폴더/번호_이름») — retired · legacy · dormant
-   statusOf(dir, id) → 'live' | 'retired' | 'legacy' | 'dormant' | 'muted'(= CAST_MUTE)
+     ③ assets/audio/clip-status.json       파일 단위 표시(열쇠 «폴더/번호_이름») — retired · legacy · dormant · manual_off(수동 전용 · 당일 재생 안 함 · AUTO_ONLY_1031)
+   statusOf(dir, id) → 'live' | 'retired' | 'legacy' | 'dormant' | 'manual_off' | 'muted'(= CAST_MUTE)
      dir = 'narration' | 'cast'(또는 'assets/audio/narration') · id = 'NN_슬러그'
    실청(build-listen-all · check-listen-cover) · 쉼 도구(keepgap-text · flow-gaps) · check-recorded 가 이 파일을 읽는다 [ONE_SPEC] */
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { createRequire } from 'node:module';
@@ -29,9 +29,9 @@ export function statusAny(id) {
   return fs.existsSync(path.join(ROOT, 'assets/audio/cast', id + '.mp3')) ? statusOf('cast', id) : statusOf('narration', id);
 }
 export const countLine = (ids) => { const by = {}; for (const id of ids) { const s = statusAny(id); by[s] = (by[s] || 0) + 1; } return Object.entries(by).map(([k, n]) => k + ' ' + n).join(' · '); };
-export const LISTEN_OUT = new Set(['retired', 'legacy', 'muted']);            // 실청 목록에서 뺀다(dormant 는 남기되 «지금 안 남»)
-export const PAUSE_OUT = new Set(['retired', 'legacy', 'dormant', 'muted']);  // 쉼 도구 · 실청 기준 숫자에서 뺀다
-/* 실청 기준 나레이션 — 대장(manifest)의 나레이션 클립 중 살아 있고(live) 소리 파일이 있는 것 · 사장님 실청 파일 수와 같은 자(10/31 185) */
+export const LISTEN_OUT = new Set(['retired', 'legacy', 'manual_off', 'muted']);   // [AUTO_ONLY_1031] manual_off 도 뺀다            // 실청 목록에서 뺀다(dormant 는 남기되 «지금 안 남»)
+export const PAUSE_OUT = new Set(['retired', 'legacy', 'dormant', 'manual_off', 'muted']);  // 쉼 도구 · 실청 기준 숫자에서 뺀다
+/* 실청 기준 나레이션 — 대장(manifest)의 나레이션 클립 중 살아 있고(live) 소리 파일이 있는 것 · 사장님 실청 파일 수와 같은 자(10/31 185 → 검토 177 manual_off 9 를 빼 176) */
 export function liveNarration() {
   const man = JSON.parse(fs.readFileSync(path.join(ROOT, MANIFEST), 'utf8'));
   return man.clips.filter((c) => dirOf(c.dir) === 'narration').map((c) => `${c.no}_${c.file}`)

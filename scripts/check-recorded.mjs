@@ -30,7 +30,7 @@ for (const dir of ['assets/audio/narration', 'assets/audio/cast']) {
      표의 클립은 녹음 · 파일 · 기록을 그대로 둔다(표시만) — 1:1 대조는 위 그대로 */
 { const { table, liveNarration, LIVE_LINE } = await import('./lib/clip-status.mjs'); const T = table().clips || {}, by = {};
   for (const [k, v] of Object.entries(T)) { const [dir, id] = k.split('/'); by[v.s] = (by[v.s] || 0) + 1;
-    if (!/^(retired|legacy|dormant)$/.test(v.s || '')) { console.error(`✗ 표시 «${k}» 상태가 «${v.s}» — retired · legacy · dormant 중 하나(안 트는 배역은 ritual-story CAST_MUTE 가 정본)`); bad++; }
+    if (!/^(retired|legacy|dormant|manual_off)$/.test(v.s || '')) { console.error(`✗ 표시 «${k}» 상태가 «${v.s}» — retired · legacy · dormant · manual_off 중 하나(안 트는 배역은 ritual-story CAST_MUTE 가 정본)`); bad++; }
     if (!fs.existsSync(path.join(root, 'assets/audio', dir || '', id + '.mp3'))) { console.error(`✗ 표시 «${k}» — assets/audio/${k}.mp3 가 없다(열쇠는 «폴더/번호_이름»)`); bad++; } }
   console.log(`ok 안 나는 녹음 표시 ${Object.keys(T).length}개 — ` + Object.entries(by).map(([k, n]) => `${k} ${n}`).join(' · ') + ' (파일 · 기록은 그대로) · ' + LIVE_LINE(liveNarration().length)); }
 if (bad) { console.error('\n이 기록은 「실제로 녹음된 글」의 원천입니다. 손으로 고치지 말고 assemble-narration.mjs 로 다시 만드세요.'); process.exit(1); }
