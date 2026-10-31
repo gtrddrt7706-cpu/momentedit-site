@@ -20966,6 +20966,17 @@ chk 'PHOTO_SCENE_1031' assets/ritual-open.js 2
 chk 'PHOTO_SCENE_1031' order-preview.html 6
 chk 'PHOTO_SCENE_1031' mypage.html 2
 chk 'PHOTO_SCENE_1031' admin.html 1
+# ── 2026-11-01 [PHOTO_SCENE_MIN_1101 검토 180 · 사장님 휴대폰 실화면 «미니멀하게»] 장면 칸 = 제목 · 그림 · 대표 · 설명 · 구도 한 줄 — 라벨 · 그림 설명 · 다른 장면(① · ② · 확대 · 마이페이지) 걷음 · 데이터는 남김
+chk 'PHOTO_SCENE_MIN_1101' order-preview.html 3
+chk 'PHOTO_SCENE_MIN_1101' mypage.html 1
+chk 'PHOTO_SCENE_MIN_1101' scripts/audit/photo-scene.mjs 5
+nochk 'class="ps-lab"' order-preview.html
+nochk 'class="psz-lab"' order-preview.html
+nochk 'class="ps-more"' order-preview.html
+nochk 'PS_FINE_IMG' order-preview.html
+nochk 'window.psMore' order-preview.html
+nochk 'ph-sc-s">참고 · ' mypage.html
+chk "var PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.'" order-preview.html 1
 chk '미리 찍는 웨딩 촬영과 달리, 함께한 분들과 이날에만 생기는 표정을 기록해요.' order-preview.html 1
 chk '고르신 순간에 맞춰 촬영 참고 장면을 정리해요.' mypage.html 1
 nochk '건지는 사진' order-preview.html
