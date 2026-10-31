@@ -20146,6 +20146,18 @@ chk 'DRESS_MEM_CLOSE' scripts/audit/dress-tabs.mjs 2
 chk 'DRESS_ACC_ALIGN' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_FAB_LATEST' scripts/audit/dress-tabs.mjs 1
 chk 'DRESS_NM_HOVER' scripts/audit/dress-tabs.mjs 1
+# ★★[DRESS_SET_1031 코워크 · 사장님 «추천대로 진행» · 한국 인기 조사] 드레스 예시 일곱(새 두 벌 · 옛 S06 엠파이어 긴소매 뺌) · 물음 2 «아직 모르겠어요» · 물음 3 «어깨 · 팔»(하나만)
+chk "{ id: 'S07', name: '스타일 예시 01 · 드레이프 새틴 A라인'" assets/dress-refs.js 1
+chk "{ id: 'S08', name: '스타일 예시 03 · 잔레이스 A라인 · 볼레로'" assets/dress-refs.js 1
+nochk "{ id: 'S06', name:" assets/dress-refs.js                                           # [DRESS_SET_1031] 옛 엠파이어 긴소매 — 되살리지 말 것
+chk "{ key: 'pref', step: '어깨 · 팔', q: '어깨와 팔은 어떤 쪽이 마음에 드세요?', multi: true, one: true, none: 'any'," assets/dress-refs.js 1   # [DRESS_Q3_ARMS]
+chk "src.indexOf('arms') >= 0 ? 'sleeve'" assets/dress-refs.js 1                         # [DRESS_OLD_ANS] 옛 답을 새 보기로
+chk "function afterList(){ return R.list().slice(); }" dress.html 1                      # [DRESS_SET_1031] 원천 순서
+chk "if (q.multi && q.one) S.ans\[q.key\] = \[a\];" dress.html 1                              # [DRESS_Q3_ARMS] 하나만 고름
+chk 'DRESS_SET_1031' scripts/audit/dress-refs.mjs 2
+chk 'DRESS_Q3_ARMS' scripts/audit/dress-refs.mjs 3
+chk 'DRESS_OLD_ANS' scripts/audit/dress-refs.mjs 1
+chk 'DRESS_SET_1031' scripts/audit/dress-tabs.mjs 1
 # ★★[DRESS_SCROLL_LOCK · DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 끝에서 더 내리면 뒤 마이페이지가 움직였다 — 창이 떠 있는 동안 다시 그리기(show)가 잠금을 풀었다(목록에 창이 없었다)
 chk "'mp_drViewer','mp_invSample'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)
 chk "document.documentElement.style.overflow='hidden';   // \[DRESS_SCROLL_LOCK\]" mypage.html 1
