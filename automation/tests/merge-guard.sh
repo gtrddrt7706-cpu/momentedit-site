@@ -20982,4 +20982,10 @@ chk '작가님 안내에 따라' guide.html 1
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/closing-line.mjs >/dev/null 2>&1; _cll=$?; [ "$_cll" = 1 ] && { echo 'FAIL closing-line: 마무리 멘트(세 판 × 하객 안내 × 디지털) · 사진 구간 나레이션 0 · 새 녹음 0 · 흐름 쉼 · 화면 글이 어긋났습니다 — node scripts/audit/closing-line.mjs'; fail=1; }; :; fi
+# ── 2026-10-31 식순 고객 걷기 1라운드(사장님 «디테일한 고객 입장에서 · 라운드별로 · gpt 랑 같이»)
+chk 'FLOW_HOW_IF_1031' order-preview.html 1   # 예식 흐름 — 덜어낼 줄(✓)이 없으면 «✓를 눌러» 줄도 없다
+chk 'PS_LINKS_HEAD_1031' order-preview.html 1
+chk '<h4 id="psLk">순간마다 담을 수 있는 장면</h4>' order-preview.html 1   # 한눈에 보기 · 완성은 «순간마다»
+chk 'DONE_PREP_IF_1031' order-preview.html 1   # 완성 — 준비할 것이 없으면 빈 머리 없음
+chk 'ENTRY_UNPICK_1031' assets/entry-music.js 1   # 입장 음악 — 안 고르면 «고르지 않으시면 스튜디오가 준비해요»
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

@@ -225,7 +225,7 @@
     var src=srcNow(); if(src) SRC=src; if(src==='up'||upOn()) restore(); setTimeout(recWarm,0);   /* [REC_CLIP_1013] ② 입장 쪽이면 칩을 누르기 전에도 목록 · 첫 곡을 미리 받아 둔다(종전 «칩을 볼 때만») */   /* 고른 곡에서 짐작한 칩도 이 쪽에서는 그대로(곡을 빼도 그 칩 카드가 남는다) */   /* [REC_SONG_1012] 올린 곡은 그 칩을 볼 때(또는 고른 곡일 때) 되살리고 · 추천 곡 목록은 그 칩을 볼 때(또는 고른 곡일 때) 받는다 */
     return '<div class="ls-cg cg-vp cg-hl cg-vq ls-mu" role="group" aria-label="입장 음악"><span class="gl" aria-hidden="true">입장 음악</span>'
       +'<span class="cg-c mu-src" role="radiogroup" aria-label="입장 음악 고르는 곳">'+srcChip('두 분이 고른 곡','up',src)+srcChip('스튜디오가 고른 곡','rec',src)   /* ★★[REC_SONG_1012 · MU_SRC] 칩 둘 — 처음엔 안 눌린 모양 · 누른 쪽 카드만 아래 */
-      +(src==='up'?'<span class="cg-links"><button type="button" class="pk-link mu-gl" data-fk="muguide" onclick="emAct(\'guide\',this)">올리기 안내 보기</button></span>':'')+'</span>'   /* «올리기 안내 보기»는 «두 분이 고른 곡»일 때만 */
+      +(src==='up'?'<span class="cg-links"><button type="button" class="pk-link mu-gl" data-fk="muguide" onclick="emAct(\'guide\',this)">올리기 안내 보기</button></span>':'')+((!src&&!St().mu)?'<span class="ls-gnote mk-vpask1">고르지 않으시면 스튜디오가 준비해요</span>':'')+'</span>'   /* ★[ENTRY_UNPICK_1031 식순 걷기 1라운드] 다른 음악 줄 · 한눈에 보기(«입장 곡 · 고르지 않으시면 스튜디오가 준비해요» · bgm-form)와 같은 말 — 입장 쪽에만 안 고르면 어떻게 되는지가 없었다 */   /* «올리기 안내 보기»는 «두 분이 고른 곡»일 때만 */
       +'<div class="mu-box">'+boxHtml()+'</div></div>'; }
   /* 새로고침 · 다시 열기 — 이 기기에 둔 파일로 다시 풀고 고른 자리를 되살린다(조용히 · 알림 없음) */
   function restore(){ if(RESTORE) return; var mu=upRec(); if(!mu){ RESTORE=2; return; } RESTORE=1;   /* [REC_SONG_1012] 고른 곡이든 비켜 둔 곡(S.muUp)이든 */ if(!mu.sid){ mu.sid=newSid(); save(); }   /* 1단계 때 고른 곡(곡 번호 없음)도 이제부터 같은 곡으로 알아본다 */
