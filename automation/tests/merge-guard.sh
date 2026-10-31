@@ -20600,6 +20600,8 @@ if command -v python3 >/dev/null 2>&1; then if python3 scripts/build-narration-p
 if command -v node >/dev/null 2>&1; then node scripts/audit/knobs.mjs >/dev/null 2>&1; _knc=$?; if [ "$_knc" = 1 ]; then echo 'FAIL knobs: 쉼 · 선언 앞 · 편지 끝 연출이 어긋났습니다 — node scripts/audit/knobs.mjs'; fail=1; elif [ "$_knc" = 2 ]; then echo 'skip knobs (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok knobs'; fi; fi
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
+chk 'BGM_SOUND_SPLIT_1101' .github/workflows/merge-guard.yml 2   # 소리 검사 두 칸(a · b) · 한 칸 20분 넘김 막기
+chk 'for t in ${{ matrix.part.tests }}; do' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
 
 chk "B21: { t: \"Herman's Habit\"" assets/bgm-picks.js 1
