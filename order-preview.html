@@ -1526,7 +1526,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-flow li.q.lp-now .qa{font-weight:600}
 .mk-flow li.q.lp-now::after{box-shadow:0 0 0 3px var(--bg),0 0 0 4px var(--seal)}
 .mk-flow li .lp-est{margin-left:8px;font-size:12.5px;font-weight:400;color:var(--sub);white-space:nowrap}
-.mk-flow li.q[data-bgm] .qa{font-weight:400;color:var(--sub)}   /* ★[BGM_R2_1023] 음악 흐름 줄 = «배경 안내» — 점 · 크기는 행동 줄과 같고 글만 한 단계 조용히(굵기 400 · --sub) · «할 일»(행동 줄 500 · --accent)과 한눈에 갈린다 · 새 색 · 아이콘 없음 */
+.mk-flow li.q[data-bgm] .qa{font-weight:400;color:var(--sub)}
+.mk-flow li.q .ent-none{display:block;margin-top:2px;font-size:12.5px;line-height:1.5;font-weight:400;color:var(--sub)}   /* [ENTRY_CARRY_1101] 맞절 «입장 곡이 이어져요» 아래 — 입장 곡을 아직 안 골랐을 때만 */   /* ★[BGM_R2_1023] 음악 흐름 줄 = «배경 안내» — 점 · 크기는 행동 줄과 같고 글만 한 단계 조용히(굵기 400 · --sub) · «할 일»(행동 줄 500 · --accent)과 한눈에 갈린다 · 새 색 · 아이콘 없음 */
 .mk-qt{margin-left:8px;font-size:11px;font-weight:400;letter-spacing:.02em;color:var(--light);white-space:nowrap;vertical-align:1px}   /* [FLOW_THREAD] «말 없이» · «미리 듣기에서는 넘겨요» = 줄 끝 작은 표(나레이션 · 당일 직접 표와 같은 크기) */
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start;font-size:16px;line-height:1.75;color:var(--accent)}   /* ★[FLOW_LINE_TYPE 2026-10-02 사장님 «재생 버튼 메시지 글꼴과 스타일을 하객 맞이 카드랑 통일»] 나레이션 글 = 줄 카드 글(.mk-vtx 16 · 1.75 · accent) */
 .mk-ltx1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}   /* [VP_FLOW_CLAMP] 두 분 목소리 줄 — 전문은 아래 줄 카드에 */
@@ -2311,7 +2312,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1101e"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1031w3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101ll"></script><script src="/assets/bgm-form.js?v=1031w4"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101e"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101ec"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -7297,7 +7298,7 @@ function renderMake(){
     var _bgRow=(k!=='entry'&&window.BgmForm&&!gs.some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; }))?BgmForm.rowHtml(k):'';   /* ★★[BGM_FORM_1023 2026-10-23 사장님 «식순부분에 알맞게 디자이너 관점으로 적절하게 bgm 도 구현» · «우선 폼형태부분만»] 순간마다 «음악» 줄 = 고르기 칸 맨 아래(입장 음악 줄과 같은 자리 · 같은 틀) · 안내 목소리를 고른 뒤에만(VP_ASK_FIRST 와 같다) · assets/bgm-form.js · bgm-slots.js */
     KEEP_ROW={}; if(gs.length||_bgRow) h+='<section class="mk-sec mk-pick" aria-label="고르기"><div class="ls-vars">'+_lGroupsHtml(k,gs,{vsLink:true})+_muRow+_bgRow+'</div></section>';   /* [KEEP_IN_ROW] 칩 줄이 먼저 그려진다 */   // [MK_NO_HEADS]
     /* ★[PLAY_ONE 2026-10-02 사장님 «플레이 버튼이 겹치잖아»] 들을 줄이 하나뿐이면 «이 순간 들어 보기»를 두지 않는다 — 그 줄 ▶ 이 같은 일을 한다(첫인사 · 서약 · 반지 등) */
-    var _pn=0; try{ if(ENG) _pn=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip&&!x.talk2; }).length; }catch(e){}
+    var _pn=0; try{ if(ENG) _pn=_lSteps(ENG,[k]).filter(function(x){ return !x.skip&&!x.talk2; }).length; }catch(e){}   /* ★[ENTRY_CARRY_1101 ② 사장님 «진행»] 듣기에 들어가는 줄(나레이션 · 행동 · 말하는 차례)이 둘 이상이면 «이 순간 전체 듣기» — 맞절 · 테이블 인사처럼 나레이션 한 줄 + 행동 한 줄인 순간도(뜸 · 행동 멈춤 · 음악 · 여운이 줄 ▶ 와 다르다) · 한 줄뿐이면 줄 ▶ 하나([PLAY_ONE]) */
     /* ★★[MK_FORM_ONE 2026-10-03 사장님 «서약 쪽만 다른 쪽들과 안 맞는다 · 이 순간 들어 보기가 갑자기 나온다»] 순간 쪽은 한 틀이다 —
        머리 + 한 줄(길이) → 장면 → 고르기 줄 → «이 순간 들어 보기»(흐름 머리 오른쪽 · 한 자리) → 흐름 줄 → 참고 예시 → 부탁 · 준비.
        «이 순간 들어 보기»는 나레이션 소리가 두 줄 이상인 순간이면 모두(칩 유무와 상관없이 — 칩은 이제 소리를 안 낸다 [CHIP_NO_AUTOPLAY]) · 한 줄뿐이면 그 줄 ▶ 하나([PLAY_ONE]).

@@ -52,7 +52,9 @@
       return { at:fp.i, hit:fp.hit, by:v.s.flow, html:'<li class="q" data-bgm="'+e(v.s.id)+'"><span class="qa">'+e(talkLine(v.s))+'</span></li>' }; }
     if(!v||v.kind!=='flow') return null;
     var f=B.flowFind?B.flowFind(v.at,st||[]):{ i:B.flowAt(v.at,st||[]), hit:true };   /* [BGM_R3_1023] hit = 큐 열쇠로 자리를 찾았나(못 찾으면 맨 앞 · 검사가 빨강) */
-    return { at:f.i, hit:f.hit, by:v.at, html:'<li class="q" data-bgm="'+e(v.s?v.s.id:k)+'"><span class="qa">'+e(v.t)+'</span></li>' }; }   /* 행동 줄과 같은 class(q) — 음악 줄 표시는 data-bgm 하나(흐름선 · 점 · 글 검사가 같은 줄로 잰다) */
+    return { at:f.i, hit:f.hit, by:v.at, html:'<li class="q" data-bgm="'+e(v.s?v.s.id:k)+'"><span class="qa">'+e(v.t)+'</span>'+(k==='matjeol'&&entNone()?'<span class="ent-none">입장 곡을 고르시면 함께 들려요</span>':'')+'</li>' }; }
+  /* ★[ENTRY_CARRY_1101] 맞절 — 마이페이지 안에서 입장 곡을 아직 안 골랐으면 «입장 곡이 이어져요» 아래 한 줄(이 순간 전체 듣기는 나레이션만) · 공개 미리보기는 그대로 */
+  function entNone(){ try{ return typeof EMBED!=='undefined'&&!!EMBED&&!!window.EntryMusic&&!!EntryMusic.carryHas&&!EntryMusic.carryHas(); }catch(x){ return false; } }   /* 행동 줄과 같은 class(q) — 음악 줄 표시는 data-bgm 하나(흐름선 · 점 · 글 검사가 같은 줄로 잰다) */
 
   function talkLine(s){ return (B.TALK&&B.TALK[B.get(St(),s.id).m==='bed'?'bed':'none'])||''; }   /* [BGM_R5_1023] 안 누름 = 음악 없이 */
 
