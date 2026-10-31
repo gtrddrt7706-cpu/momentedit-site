@@ -20571,7 +20571,7 @@ chk 'SONG_CARD_SOLO_1031' assets/bgm-bed.js 4
 chk 'SONG_CARD_SOLO_1031' order-preview.html 1
 chk 'SONG_CARD_SOLO_1031' scripts/audit/bgm-preview.mjs 1
 chk 'lim.threshold.value=-1; lim.ratio.value=20; lim.attack.value=0.002; lim.release.value=0.15' assets/bgm-bed.js 1
-chk '나레이션과 함께 들어 보려면 아래 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1   # [BED_HINT_WHERE_1031] 단추는 곡 목록 아래
+nochk 'class="bgm-note bed-hint"' assets/bgm-bed.js   # [SONG_ROW_LINES_1101] 곡 칸 아래 «나레이션과 함께 들어 보려면 …» 줄은 걷었다(BED_HINT_WHERE_1031 대신)
 nochk 'var ln=firstLine(k);' assets/bgm-bed.js 0
 # ── 2026-10-31 [CHEER_WINDOW_1031 BGM 섹션] bgm-preview D6 듣는 창 26초(축배 멘트 12.6초 · 꼬리 축배 곡 16.8초) — 16초로 되돌리면 CI bgm-sound 가 다시 빨갛다
 chk 'CHEER_WINDOW_1031' scripts/audit/bgm-preview.mjs 1
@@ -20656,7 +20656,7 @@ nochk '久石譲' assets/bgm-picks.js
 nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
 chk "M7: \['B28', 'B29', 'B21', 'B22'\]" assets/bgm-picks.js 1
 chk "M2: \['B05', 'B06', 'B07', 'B30'\]" assets/bgm-picks.js 1
-chk "'부터 이어서 틀어요'" assets/bgm-bed.js 1
+nochk "'부터 이어서 틀어요'" assets/bgm-bed.js   # [SONG_ROW_LINES_1101] 곡 칸 아래 «… 이어서 틀어요 · 준비해요» 줄은 걷었다
 chk "\[p.src,p.a,p.why\]" assets/bgm-bed.js 1
 # ★[VC_FIX2_1030 2026-10-30 GPT 2차 점검] 두 분 AI 목소리 — 지우기 · 저장 · 잠금 · 글자 예산(서버 아홉 · 깨 보기 포함) · 무음 녹음 · 새로 고침 경고 · 당일 콘솔 최신 확인
 chk 'VC_FIX2_1030' scripts/audit/vc-fix2-1030.mjs 1
@@ -21193,4 +21193,14 @@ chk 'var tk=++CARD.tk; unlock();' assets/bgm-bed.js 1
 chk '곡을 불러오는 중이에요' assets/bgm-bed.js 1
 chk 'if(tk!==CARD.tk) return; CARD.slow=false;' assets/bgm-bed.js 1
 chk 'saveData()' assets/bgm-bed.js 2
+# ── 2026-11-01 [SONG_ROW_LINES_1101 사장님 «이건 삭제해도 될 것 같아»] 곡 칸 아래 안내 두 줄 걷음 — «고르지 않으시면 ‹1순위›로 준비해요 · ‹곡›부터 이어서 틀어요» · «나레이션과 함께 들어 보려면 …»
+#    남기는 것: 보컬 곡 한 줄 · 공개 미리보기 «마이페이지에서 들어 볼 수 있어요» · 한눈에 보기 요약(sumOf «고르지 않으시면 ‹1순위›»)
+chk 'SONG_ROW_LINES_1101' assets/bgm-bed.js 2
+chk 'SONG_ROW_LINES_1101' scripts/audit/bgm-preview.mjs 3
+nochk 'function noteOf(' assets/bgm-bed.js
+nochk "ro(s.t)+' 준비해요'" assets/bgm-bed.js
+nochk 'window._mpHas=function' order-preview.html
+chk "var PUB_NOTE='마이페이지에서 들어 볼 수 있어요';" assets/bgm-bed.js 1
+chk '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요' assets/bgm-bed.js 1
+chk "(k?'':'고르지 않으시면 ')" assets/bgm-bed.js 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

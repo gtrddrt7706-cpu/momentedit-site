@@ -82,7 +82,7 @@ try {
     const { ctx, pg, f, errs } = await open(W, true);
     /* 1 안 고른 구간 */
     await go(f, 'candle'); let r = await look(f, 'M2');
-    ok(`${W} 1 안 고른 화촉 — 곡 줄 넷 · 접힌 줄 없음 · «고르지 않으시면 …» 한 줄`, r && r.rows === 4 && !r.fold && r.on.length === 0 && r.note, r);
+    ok(`${W} 1 안 고른 화촉 — 곡 줄 넷 · 접힌 줄 없음 · 아래 «고르지 않으시면 …» 줄 없음(SONG_ROW_LINES_1101)`, r && r.rows === 4 && !r.fold && r.on.length === 0 && !r.note, r);
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
     ok(`${W} 1 안 고른 채로 다시 들어와도 접지 않는다`, r && r.rows === 4 && !r.fold, r);
     /* 2 쪽에 머무는 동안 고르기 */
@@ -110,7 +110,7 @@ try {
     const top0 = r.boxTop, y0 = await f.evaluate(() => scrollY), d0 = await dlgN();
     await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); r = await look(f, 'M2');
     const fx = await f.evaluate(() => ({ fk: document.activeElement && document.activeElement.getAttribute('data-fk'), y: scrollY })); fx.dlg = (await dlgN()) > d0;
-    ok(`${W} 5 «바꾸기» — 그 자리에서 편다(곡 줄 넷 · 칸 윗변 그대로 · 화면 안 움직임 · 덮는 창 없음) · 포커스 = 고른 곡 줄 · «준비해요» 한 줄`, r && r.rows === 4 && !r.fold && r.on.join() === 'bed:M2:B06' && Math.abs(r.boxTop - top0) <= 1 && fx.y === y0 && !fx.dlg && fx.fk === 'bed:M2:B06' && r.note, { r, fx, top0, y0 });
+    ok(`${W} 5 «바꾸기» — 그 자리에서 편다(곡 줄 넷 · 칸 윗변 그대로 · 화면 안 움직임 · 덮는 창 없음) · 포커스 = 고른 곡 줄 · «준비해요» 줄 없음`, r && r.rows === 4 && !r.fold && r.on.join() === 'bed:M2:B06' && Math.abs(r.boxTop - top0) <= 1 && fx.y === y0 && !fx.dlg && fx.fk === 'bed:M2:B06' && !r.note, { r, fx, top0, y0 });
     await shot(f, W, 'candle-open');
     await f.evaluate(() => render()); await wait(f, 300); await f.click('[data-fk="bed:M2:B07"]'); await wait(f, 300); await f.evaluate(() => { _persist(); render(); }); await wait(f, 300); r = await look(f, 'M2');
     ok(`${W} 5 편 뒤 다시 그려도 편 채 · 다른 곡을 고르면 다시 접힌다`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B07', r);

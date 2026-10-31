@@ -30,7 +30,6 @@
   function post(type,data){ try{ window.parent.postMessage({type:type,data:data},window.location.origin); return true; }catch(x){ return false; } }
   function save(){ try{ if(typeof _persist==='function') _persist(); }catch(x){} }
   function ico(n){ try{ return n==='stop'?ICO_STOP:ICO_PLAY; }catch(x){ return ''; } }
-  function ro(w){ try{ if(typeof _josaRo==='function') return _josaRo(w); }catch(x){} return '로'; }
   function toast1(t){ try{ if(typeof _noteToast==='function'){ _noteToast(t); return; } }catch(x){} try{ if(typeof toast==='function') toast(t,3000); }catch(x){} }
   function PR(){ var p={}; try{ p=(window.ENG&&ENG.RitualCue&&ENG.RitualCue.PARAM)||{}; }catch(x){}
     var dk=p.duck||{}; return { speech:num(p.duckSpeech,-16), music:num(p.duckMusic,-8), toast:num(p.toastLevel,0), toastUp:num(p.toastUpMs,600),
@@ -217,8 +216,9 @@
       +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+loadNote(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
 
   /* ── 화면 — 곡 목록 · 아래 한 줄 ── */
-  function noteOf(sg){ var L=P.list(sg), k=picked(sg), s=k?P.byF(k):L[0]; if(!s) return '';
-    var d=P.seg(sg), t=(k?'':'고르지 않으시면 ')+'‹'+s.t+'›'+((d&&d.multi)?'부터 이어서 틀어요':ro(s.t)+' 준비해요'); return emb()?t:t+' · 마이페이지에서 들어 볼 수 있어요'; }   /* [BGM_FIX_1030 덧붙임 4] 여러 곡을 이어 트는 구간(하객 맞이 · 테이블 인사)은 «‹곡›부터 이어서 틀어요» */
+  /* ★[SONG_ROW_LINES_1101 사장님 «이건 삭제해도 될 것 같아»] 곡 칸 아래 «고르지 않으시면 ‹1순위›로 준비해요 · ‹곡›부터 이어서 틀어요» 를 걷었다 — ✓ 표시로 충분 · «고르지 않으시면 ‹1순위›»는 한눈에 보기 요약(sumOf)에만.
+       공개 미리보기만 «마이페이지에서 들어 볼 수 있어요» 한 줄 · 되살리지 말 것 */
+  var PUB_NOTE='마이페이지에서 들어 볼 수 있어요';
   function listHtml(sg,k){ var L=P.list(sg), cur=picked(sg), gl=labelOf(sg)+' 음악 곡', cs=cur?P.byF(cur):null;
     if(folded(sg)&&cs) return foldHtml(sg,k,cs);   /* [MUSIC_FOLD_1031 · MUSIC_FOLD_PICK_1031] 고른 곡이 있으면 접힌 한 줄 · «바꾸기»로 편 방문만 목록 */
     var h='<ul class="mu-list" role="radiogroup" aria-label="'+e(gl)+'">';
@@ -227,11 +227,11 @@
         +(emb()?plBtn(sg,k,p,pl,miss):'')
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+(p.vocal?'<span class="mu-voc"> 노래</span>':'')+'</span><span class="mu-a">'+e([p.src,p.a,p.why].filter(Boolean).join(' · '))+'</span></button></li>'; });
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[BED_EMPTY_RELIST_1031 식순 걷기 3라운드 3] 들어 볼 곡이 하나도 없다고 받았으면 한 줄 + 다시 불러오기(입장 추천 곡과 같게) */
-    return h+'</ul>'+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+'<p class="bgm-note bed-note">'+e(noteOf(sg))+'</p>'+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':''); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
+    return h+'</ul>'+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':''); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h=''; setTimeout(pfScan,0);   /* [SONG_CARD_TAP_1101] 그려진 뒤 곡 칸을 지켜본다 */
     CUST.forEach(function(sg){ if(chooser(sg)!==k) return; var gl=labelOf(sg.id)+' 음악'; list();
-      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div>'+((emb()&&(typeof _mpHas!=='function'||_mpHas(k)))?'<p class="bgm-note bed-hint">나레이션과 함께 들어 보려면 아래 ‹이 순간 전체 듣기›를 눌러 주세요</p>':'')   /* ★[BED_HINT_WHERE_1031 식순 걷기 1라운드 GPT 11] 단추는 곡 목록 아래 · 단추가 없는 쪽(나레이션 한 줄 · 테이블 인사)에서는 이 줄을 쓰지 않는다 */+'</div>'; });   /* [SONG_CARD_SOLO_1031] 곡 칸 맨 아래 한 줄(작은 글 · 새 색 없음) */
+      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div>'+'</div>'; });   /* ★[SONG_ROW_LINES_1101] 곡 칸 맨 아래 «나레이션과 함께 들어 보려면 …» 한 줄(BED_HINT_WHERE_1031 · SONG_CARD_SOLO_1031)을 걷었다 · 되살리지 말 것 */
     return h; }
   /* 축사 · 편지 «음악과 함께» 아래 곡 고르기(bgm-form.js 가 그 줄 안에 넣는다) */
   function subHtml(slot,k){ var sg=SUB[slot]; if(!sg||!bedOn(slot)) return ''; list(); return '<div class="bed-box bed-sub" id="'+boxId(sg)+'" data-seg="'+sg+'" data-k="'+e(k)+'">'+listHtml(sg,k)+'</div>'; }
