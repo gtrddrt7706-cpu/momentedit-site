@@ -35,7 +35,7 @@ try {
     r.forEach((x, i) => { if (x.t === 'N' && /끝나면$/.test(x.lab) && !(i > 0 && r[i - 1].t === 'A')) n2.push(id + ' «' + x.lab + '»');
       if (x.t === 'N' && /^(여는 말|맺는 말|이음말)/.test(x.lab)) n3.push(id + ' «' + x.lab + '»'); });
     if (m.k === 'declare') { const N = r.filter((x) => x.t === 'N');
-      const NL = N.map((x) => x.lab).filter((l, i, a) => !(l === '박수가 끝나면' && i === a.length - 1));   // [BRIDGE_LINK] 다음 순간이 있으면 선언 박수 뒤 이음말 B3 «박수가 끝나면»이 이 순간 줄에 붙는다
+      const NL = N.map((x) => x.lab); while (NL.length && /^(박수가 끝나면|다음 순서로 넘어가며)$/.test(NL[NL.length - 1])) NL.pop();   // [BRIDGE_LINK] 박수 뒤 이음말 B3 · ★[DECL_TITLE_1031] 읽은 분 자리로(호칭 판 · 255 · «다음 순서로 넘어가며»)가 이 순간 줄 끝에 붙는다   // [BRIDGE_LINK] 다음 순간이 있으면 선언 박수 뒤 이음말 B3 «박수가 끝나면»이 이 순간 줄에 붙는다
       if (NL.join('|') !== '시작할 때|끝나면') n4.push(id + ' 나레이션 줄 «' + N.map((x) => x.lab).join('|') + '»');
       if (N.some((x) => /부부입니다|부부가 되었습니다/.test(x.txt))) n4.push(id + ' 나레이션이 수행문을 말한다');
       if (!r.some((x) => x.t === 'A' && /차례$|읽어요/.test(x.txt + x.lab))) n4.push(id + ' 읽는 분 차례 없음');

@@ -239,7 +239,13 @@
     /* ★[PHOTO_UP_1019 검토 138-2] 264 — 우리 «사진 올리기» 안내(5분 전 뒤 · 하객 안내가 열린 날 · 바깥 링크 날은 84) · 녹음 전엔 글로 */
     'narr-photo-upload',
     /* ★★[END_FLOW_1030 검토 167] 265 · 266 — 사진 전 안내(닫는 인사 뒤 · 하객이 앉아 있을 때 남은 일을 다 말한다) · 265 = 식사 없음 판(기본) · 266 = 식사 있음 판(식사 자리 + 예약 시각 + 하객 안내 · PHOTO_PRE_PICK_1030) · ★[PAUSE_PREF_1030] 10/30 녹음이 들어와 소리 클립이다(문안 카드 아님) */
-    'narr-photo-pre', 'narr-photo-pre-meal'
+    'narr-photo-pre', 'narr-photo-pre-meal',
+    /* ★★[DECL_TITLE_1031 검토 174 · 사장님 «호칭으로 불러 드리는 게 예의»] 267 ~ 286 — 성혼 선언 여는 말 · 자리로의 호칭 판(네 부모님) ·
+       여는 말 = 말투 앞 문장(녹음된 그대로) + «오늘의 성혼 선언은 H께서 직접 해 주시겠습니다.» · 자리로 = «H께서는 자리로 돌아가셔도 좋습니다.» ·
+       새 녹음 8문장(공통 넷 · 자리로 넷) · 녹음 전엔 글로 · 엔진은 말투를 고른 뒤 호칭을 끼운다(build 끝) · 134 · 135(옛 호칭 여는 말 · RETIRED)는 다시 쓰지 않는다 */
+    'narr-declare-in-friend-gdad', 'narr-declare-in-friend-bdad', 'narr-declare-in-friend-gmom', 'narr-declare-in-friend-bmom', 'narr-declare-in-friend-ex2-gdad', 'narr-declare-in-friend-ex2-bdad', 'narr-declare-in-friend-ex2-gmom', 'narr-declare-in-friend-ex2-bmom',
+    'narr-declare-in-friend-ex3-gdad', 'narr-declare-in-friend-ex3-bdad', 'narr-declare-in-friend-ex3-gmom', 'narr-declare-in-friend-ex3-bmom', 'narr-declare-in-friend-ex4-gdad', 'narr-declare-in-friend-ex4-bdad', 'narr-declare-in-friend-ex4-gmom', 'narr-declare-in-friend-ex4-bmom',
+    'bridge-b9-declare-seat-end-gdad', 'bridge-b9-declare-seat-end-bdad', 'bridge-b9-declare-seat-end-gmom', 'bridge-b9-declare-seat-end-bmom'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -362,6 +368,10 @@
   /* ★★[EX_MANY_1017] 나레이션 멘트 예시 2 ~ 4 의 글 — 원천은 ritual-open NAR_EX 하나(손으로 옮겨 적지 않는다 · narExClips 가 같은 글을 한 번만 낸다) ·
        slug = 지금 slug + «-ex2 ~ -ex4» · FILES 맨 끝에 같은 이름이 있어야 번호(파일)가 생긴다(scripts/audit/nar-ex.mjs 가 둘을 맞댄다) */
   (O.narExClips ? O.narExClips() : []).forEach(function (x) { EXTRA[x.slug] = x.text; });
+  /* ★[DECL_TITLE_1031] 호칭 판 글 — 원천 ritual-open(declInText · declSeatText · 말투 앞 문장 DECL_TONE_HEAD) 하나 */
+  if (O.DECL_TITLES) O.DECL_TITLES.slice(0, 4).forEach(function (t) {
+    ['', '-ex2', '-ex3', '-ex4'].forEach(function (ex, i) { EXTRA[O.declInSlug('narr-declare-in-friend' + ex, t[0])] = O.declInText(i, t[1]); });
+    EXTRA[O.declInSlug('bridge-b9-declare-seat-end', t[0])] = O.declSeatText(t[1]); });
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
@@ -430,6 +440,11 @@
        ★나는 한 조합(`{declareWho:'ask'}`)만 돌려 보고 「폴백된다」고 단정했다 — 그게 틀렸다.
        ★[DECLARE_BY_PERSON 2026-10-12] 이제 그물은 «첫 갈래»가 아니라 «아직 안 고름»('')이다 — 코스 기본값도 '' 라 헛돌 일이 없고,
          부탁하지 않은 분(신랑 아버님)을 박지 않는다. 안 고른 채로도 엔진은 돈다(여는 말 136 · 할 일 «읽어 주실 분 정하기»). */
+    /* ★[DECL_TITLE_1031 · TRIB_NO_HUG_1030] 호칭 칩 · 덕담 이어 하기 답(그 열쇠) · 인사만 — 판정은 원천 ritual-open(declTitleOf · declBlessOf · hugOff)이 한다.
+         여기서 한 번 읽어 정리한다(엔진 · 미리듣기 주소 KEYS 가 같은 키를 본다 · 모르는 값은 지운다 · 옛 칸 글은 declTitleOf 가 호칭으로 읽는다) */
+    var _dt0 = (S.declTitle || S.declareWho) && O.declTitleOf ? O.declTitleOf(S) : ''; if (_dt0) s.declTitle = _dt0; else delete s.declTitle;
+    if (S.declBless === 'yes' || S.declBless === 'no') { s.declBless = S.declBless; s.declBlessKey = String(S.declBlessKey || ''); } else { delete s.declBless; delete s.declBlessKey; }
+    if (S.tribHug === 'off') s.tribHug = 'off'; else delete s.tribHug;
     s.declareWho = O.declBy(s);   // ★[DECLARE_ANYONE 2026-10-12] 두 분이 적은 글(다듬어 30자) · 옛 gdad · bdad = 그 이름 · 옛 friend · narr · family · ask · chorus · clap = «아직 안 정함»('')
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
@@ -1023,7 +1038,7 @@
         k: 'declare', blockN: '성혼 선언', slug: slug, name: '성혼 선언 시작',
         text: EXTRA[slug], pick: '읽는 분 · ' + (w || '아직 안 정함'), duck: PARAM.duckOff,   /* ★[BGM_FIX_1030] 선언은 음악 없이 — 여는 말 · 낭독 · 맺는 말까지 −90(반지 뒤 정적을 잇는다) · 박수(GO 앞 사람 순간)와 함께 피아노가 1.5초에 −8 */   // 화촉 «서는 분 · 양가 어머님»과 같은 꼴 — 대본 «나레이션(읽는 분 · 신랑 아버님)»이 «나레이션이 낭독»으로 읽히지 않게
         note: '선언문은 나레이션이 대신 읽지 않는다 — 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림',
-        live: { t: '선언하실 분이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', tv: who + O.josaOf(who, '이', '가') + ' 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', who: who,
+        live: { t: '선언하실 분이 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', tv: who + (O.declParent && O.declParent(S) ? '께서' : O.josaOf(who, '이', '가')) + ' 큰 글씨 선언문 낭독 (디렉터가 마이크 · 카드 전달)', who: who,   /* [DECL_TITLE_1031] 부모님은 «께서» */
           est: 45, self: true, doing: 'say', duck: PARAM.duckOff, fallback: '말이 막히면 디렉터가 큰 글씨 카드의 다음 줄을 짚어 드림 · 나레이션은 선언문을 대신 읽지 않음' }
       }), cue({
         k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-out', name: '성혼 선언 마무리',
@@ -1433,8 +1448,12 @@
         var _more = [];
         /* ★[COMBO_171_1030 검토 171 C02] 다음이 덕담이어도 255 를 건너뛰는 것은 «선언한 분 = 덕담하실 분(부모님)»일 때만 — 읽어 주실 분 칸이 부모님(아버님 · 어머님 …)이면 그 자리에서 이어 말씀하시고,
              친구 · 지인 · 다른 분이면 255(자리로) 뒤 디렉터 GO 로 덕담을 연다(마이크가 부모님께 넘어간 뒤) · 기존 255 그대로 */
-        var _dw = String(S.declareWho || '').trim(), _declOther = !!_dw && !/아버|어머|부모|아빠|엄마/.test(_dw);   // 비어 있으면 종전대로(바로 덕담 · 아버님이 읽는 날이 흔하다)
-        if (slugB === 'bridge-b3-clap-thanks' && (bn.k !== 'bless' || _declOther)) { _more.push('bridge-b9-declare-seat-end'); if (bn.k === 'bless') { bn.fire = 'manual'; bn.hint = '선언하신 분이 자리로 돌아가고 마이크가 부모님께 넘어가면'; } }   // ★[REVIEW26_1023 검토 150-2 1)] 늘 255 «선언해 주신 분께서는 자리로 돌아가셔도 좋습니다.» — 245 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»는 화촉 구호(138 · 146 · 147)와 같은 말이었다
+        /* ★★[DECL_TITLE_1031 검토 174 4] 글자 추측(«아버 · 어머 · 부모»)을 걷었다 — «아버지 친구»도 같은 분으로 봐서 자리 안내가 빠졌다(GPT 큐 생성으로 확인).
+             바로 다음이 덕담이면 묻는다(S.declBless · declBlessOf): 네 → 자리로 생략 · 그분이 첫 덕담 / 아니요 · 안 고름 → 자리로(호칭 판 · 그 밖의 분 255) → 귀석 · 마이크 전달 → 디렉터 GO.
+             다음이 덕담이 아니면 늘 자리로 → 귀석까지 디렉터 GO 로 기다린다. ★옛 «비어 있으면 바로 덕담»(COMBO_171 C02 의 빈 칸 갈래)은 추정이라 걷었다(사장님 «미선택 → 추정하지 않음») */
+        var _declStay = bc.k === 'declare' && bn.k === 'bless' && O.declBlessOf && O.declBlessOf(S) === 'yes';
+        if (slugB === 'bridge-b3-clap-thanks' && !_declStay) { _more.push('bridge-b9-declare-seat-end'); bn.fire = 'manual'; bn.hint = bn.k === 'bless' ? '선언하신 분이 자리로 돌아가고 마이크가 부모님께 넘어가면' : '선언하신 분이 자리로 돌아가면'; }
+        if (_declStay) bn.note = (bn.note ? bn.note + ' · ' : '') + '첫 덕담 · 성혼 선언을 읽으신 ' + O.declBy(S) + '께서 그 자리에서 이어서(마이크 그대로)';   // [DECL_TITLE_1031] 네
         if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');
         if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');   // ★[REVIEW26_1023 검토 150-2 4)] 인사 «밝게»(259 «… 눈물보다는 기쁨으로 …»)는 B12 «… 경건한 시간»과 부딪친다
@@ -1794,6 +1813,12 @@
          소리 파일(file · no) · 글(text) · 길이(est · 글로 잰 값일 때만)만 그 예시로 · c.ex = 예시 slug(녹음 기록 · 검사가 본다) */
     if (O.narExCue) cues.forEach(function (c) { var s2 = c.slug ? O.narExCue(S, c.slug) : ''; if (!s2 || !SLUG[s2] || !EXTRA[s2]) return;
       var e0 = sylSec(c.text); c.ex = s2; c.no = noOf(s2); c.file = fileOf(s2); if (c.est === e0) c.est = sylSec(EXTRA[s2]); c.text = EXTRA[s2]; });
+    /* ★★[DECL_TITLE_1031 검토 174] 호칭 — 말투(위 narExCue)를 고른 «뒤»에 끼운다(말투 교체가 호칭 문장을 옛 문장으로 덮지 않게) ·
+         슬러그(큐 열쇠)는 그대로 · 소리 파일 · 글만 호칭 판으로 · «그 밖의 분» · 안 고름은 지금 소리(136 · 218 · 230 · 231 · 255) 그대로 */
+    var _dp = O.declParent ? O.declParent(S) : '';
+    if (_dp) cues.forEach(function (c) { var b = c.slug === 'narr-declare-in-friend' ? (c.ex || c.slug) : c.slug === 'bridge-b9-declare-seat-end' ? c.slug : ''; if (!b) return;
+      var s3 = O.declInSlug(b, _dp); if (!SLUG[s3] || !EXTRA[s3]) return;
+      var e1 = sylSec(c.text); c.ex = s3; c.no = noOf(s3); c.file = fileOf(s3); if (c.est === e1) c.est = sylSec(EXTRA[s3]); c.text = EXTRA[s3]; });
 
     /* [PREVIEW_UPTO] 자른 사실을 **결과에 실어** 보낸다 — 화면이 「이 뒤는 아직」이라고 말할 근거다.
        ★소리로는 아무 말도 만들지 않는다(새 음원 없음). 화면 글로만 닫는다. */
