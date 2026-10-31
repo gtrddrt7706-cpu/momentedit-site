@@ -50,7 +50,7 @@ try {
     ok(W + ' 가장 긴 예시(' + r.lk + ')에서 담기 ' + r.fam.length + '개 — 모두 막히고 창 «이 순간을 담으려면 … 사진 시간을 지키기 위해서예요.»', r.fam.length > 0 && r.fam.every((x) => !x.added && capOk(x.t)), JSON.stringify(r.fam.filter((x) => x.added || !capOk(x.t)).map((x) => [x.k, x.added, [...x.t].slice(0, 30).map((c) => c.charCodeAt(0).toString(16)).join(' ')])));
     ok(W + ' 간결 예시에서는 담기가 된다', r.br.added && !r.br.t, JSON.stringify(r.br));
     ok(W + ' 길이 칩(축사 길이)도 상한 밖으로 못 늘린다', r.len.ok, JSON.stringify(r.len));
-    ok(W + ' 담는 쪽 한 줄 «남은 본식 시간 약 n분»이 하나 보인다', r.line.length === 1 && /^남은 본식 시간 약.\d+분$|^본식 시간이 다 찼어요$/.test(r.line[0]), JSON.stringify(r.line));
+    ok(W + ' 담는 쪽 «남은 본식 시간» 줄 없음([NO_LEFT_LINE_1101] 사장님 삭제 지시)', r.line.length === 0, JSON.stringify(r.line));
     ok(W + ' 이미 넘은 옛 초안은 알림만(«본식이 약 n분 길어요 · 순간을 하나 빼 주세요»)', r.over.length === 1 && /^본식이 약.\d+분 길어요 · 순간을 하나 빼 주세요$/.test(r.over[0]), JSON.stringify(r.over));
     ok(W + ' pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));
     await pg.close();
