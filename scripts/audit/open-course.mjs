@@ -286,7 +286,7 @@ ok('[REVIEW26_1023 검토 150-1 7)] 감사문 + 감사 인사를 담은 날만 �
   const a = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' }), b = O.noticeList({ course: 'open', on: { vow: 1 }, vowKind: 'thanks' }), c = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 } });
   const n = O.noticeFull({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' });
   return a.some((m) => /감사 인사는 빼도 돼요/.test(m)) && !b.some((m) => /감사 인사는 빼도/.test(m)) && !c.some((m) => /감사 인사는 빼도/.test(m)) && !!n && n.key === 'thanks2' && n.close && n.acts.length === 1; })());
-ok('[THANKS_SHOT_1013] 감사문을 고른 날 남는 장면은 감사문 장면 · 서약은 그대로', O.shotOf('vow', { vowKind: 'thanks' }) === '하객을 바라보며 읽는 두 분' && O.shotOf('vow', {}) === O.CARDS.vow.shot);
+ok('[THANKS_SHOT_1013] 감사문을 고른 날 남는 장면은 감사문 장면 · 서약은 그대로', O.shotOf('vow', { vowKind: 'thanks' }) === O.PSCENE['vow:thanks'].rep && O.shotOf('vow', {}) === O.PSCENE.vow.rep);   // ★[PHOTO_SCENE_1031] 남는 장면 = 대표 장면(원천 PSCENE)
 ok('[TOAST_40_OPEN_1013] ① 대표 줄도 40 · 화면 글은 엔진 글과 같다(따옴표만 다르다)', (() => { const sm = O.sampleOf('toast', {}); const t = (C.build(O.sampleS({}), { mode: 'console' }).cues.find((c) => c.slug === 'toast-toast') || {}).text || '';
   return sm.slug === 'toast-toast' && t.length > 0 && sm.screen.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '') === t.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '')   /* [SOURCE_FIRST_1016] 엔진 글은 자료 AA 따옴표 «'위하여'» · 화면은 «위하여» */; })());
 ok('[WINE_POUR_OFF] 옛 초안의 «양가 한 병씩» 값이 와도 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'toast', wine: 'family' }).every((x) => x.indexOf('toast-pour') < 0));

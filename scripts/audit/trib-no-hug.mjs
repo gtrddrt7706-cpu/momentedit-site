@@ -22,7 +22,7 @@ for (const ex of ['standard', 'record', 'family', 'brief']) for (const mode of [
   ok('길이 — 인사만이면 넉넉 합이 포옹 큐(소리 4.2 + 사람 35초)만큼 짧다', Math.abs(d - (O.HUG_SEC.call + 35)) < 0.01 && hug.live.est === 35, `${d} · ${hug && hug.live.est}`);
   ok('길이 — 말없이 판도 같은 값으로 짧다', (() => { const a = mk('record'), b = mk('record', 'off'); return Math.abs(O.bodySec(a)[1] - O.bodySec(b)[1] - (O.HUG_SEC.call + 35)) < 0.01; })());
   ok('카드 설명 — 인사만 «… 고마움을 전해요.» · 기본 «… 안아 드려요.»', O.oneOf('tribute', S1) === '부부가 되어 처음 부모님께 고마움을 전해요.' && /안아 드려요\.$/.test(O.oneOf('tribute', S0)));
-  ok('남는 장면 — 인사만이면 «안기는 순간» 없음', !/안기/.test(O.shotOf('tribute', S1)) && /안기/.test(O.shotOf('tribute', S0)));
+  ok('남는 장면 — 인사만이면 인사 장면(PHOTO_SCENE_1031 tribute:nohug) · 기본은 고마움을 나누는 장면', O.shotOf('tribute', S1) === O.PSCENE['tribute:nohug'].rep && O.shotOf('tribute', S0) === O.PSCENE.tribute.rep);
   const old = { course: 'family', on: { tribute: 1 }, tribHug: 'off' };
   ok('옛 코스는 그대로(hugOff 거짓)', !O.hugOff(old)); }
 const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp' };

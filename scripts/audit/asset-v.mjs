@@ -35,7 +35,9 @@ function pairsOf(htmlNow) {
     out.push([`${js} ?v=`, (t) => (re.exec(t) || [])[1] || '', 'order-preview.html', [`assets/${js}`]]);
   }
   out.push(['ASSET_V(소리 엔진 넷)', (t) => (/var ASSET_V='(\w+)';/.exec(t) || [])[1] || '', 'order-preview.html', ['assets/ritual-data.js', 'assets/ritual-open.js', 'assets/ritual-cue.js', 'assets/ritual-story.js']]);
-  out.push(['VIDEO_V(장면 영상)', (t) => (/var VIDEO_V = '(\?v=\w+)';/.exec(t) || [])[1] || '', 'assets/ritual-open.js', ['assets/video/moments']]);
+  out.push(['VIDEO_V(장면 영상)', (t) => (/var VIDEO_V = '(\?v=\w+)';/.exec(t) || [])[1] || '', 'assets/ritual-open.js', ['assets/video/moments', ':(exclude)assets/video/moments/scene']]);
+  /* ★[PHOTO_SCENE_1031] 장면 그림(assets/video/moments/scene · 영상의 한 장면)은 제 판 SCENE_V 를 따른다 — 영상(VIDEO_V)을 올리면 그림을 다시 뽑아야 하니(build-scene-frames --check) 둘을 가른다 */
+  out.push(['SCENE_V(장면 그림)', (t) => (/var SCENE_V = '(\w+)';/.exec(t) || [])[1] || '', 'assets/ritual-open.js', ['assets/video/moments/scene']]);
   return out;
 }
 const decide = (fileChanged, vBase, vNow) => !fileChanged || (vNow !== '' && vNow !== vBase);

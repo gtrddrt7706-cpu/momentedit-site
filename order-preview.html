@@ -922,6 +922,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-acts{display:grid;gap:20px}
 .pk-act-h{font-size:14px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
 .pk-act-d{font-size:12.5px;color:var(--light);margin:0 0 8px;line-height:1.45}
+.pk-lead{margin:0 0 14px;font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}   /* [PHOTO_SCENE_1031] */
 .pk-scnote{font-size:12.5px;color:var(--light);margin:10px 0 0;line-height:1.5}   /* [SCENE_NOTE_1023] 칸 아래 한 줄 · 작게 */
 .pk-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .pk-tile{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
@@ -992,6 +993,29 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .pv-act{display:flex;align-items:center;gap:8px;margin-top:14px;position:sticky;bottom:0;z-index:2;background:var(--bg);padding:10px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}   /* ★[PV_ACT_STICKY 코워크 추가 점검 P2-4] 360×560 에서 담기 · 빼기가 창 밖으로 밀렸다 — 창 안에서 아래에 붙는다 */
 body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽은 안 밀린다 */
 .pv-act button{min-height:48px;padding:0 16px;border-radius:999px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}   /* [UI_ONE] */
+/* ★★[PHOTO_SCENE_1031 검토 173] «이 순간에 담을 수 있는 장면» — ① 미리 보기 창 · ② 접힌 줄 · 확대 한 벌 · 라벨은 그림 바로 아래 · 작게 줄이지 않는다(안내 글과 같은 12.5px · 확대는 14px · 두 줄 허용) */
+.ps{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border)}
+.ps-h{margin:0 0 10px;font-size:14px;font-weight:600;color:var(--accent)}
+.ps-fig{display:block;width:100%;padding:0;border:0;background:var(--bg2);border-radius:10px;overflow:hidden;cursor:zoom-in;aspect-ratio:16/9}
+.ps-fig img{display:block;width:100%;height:100%;object-fit:cover}
+.ps-lab{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--ink2);word-break:keep-all}
+.ps-rep{margin:10px 0 2px;font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all}
+.ps-desc{margin:0;font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
+.ps-more{min-height:44px;margin:4px 0 0;padding:0 2px;border:0;background:none;font:inherit;font-size:12.5px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.ps-alt{margin:0 0 4px}
+.ps-alt ul{margin:2px 0 4px;padding-left:18px;font-size:14px;line-height:1.7;color:var(--sub)}
+.ps-fine{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all}
+.ps-fold{margin:18px 0 0;padding-top:12px;border-top:1px solid var(--border)}
+.ps-fold>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent)}
+.ps-fold .ps{margin-top:4px;padding-top:0;border-top:0}
+.ps-fold .ps-h{display:none}
+.ps-links{display:flex;flex-wrap:wrap;gap:2px 12px;margin:0}
+#psZoom{position:fixed;inset:0;z-index:2147482050;display:grid;place-items:center;padding:16px;background:rgba(20,16,14,.86)}
+#psZoom[hidden]{display:none}
+#psZoom .psz-box{width:min(1100px,100%);max-height:100%;overflow:auto;text-align:left}
+#psZoom img{display:block;width:100%;height:auto;border-radius:8px}
+#psZoom .psz-lab{margin:8px 0 0;font-size:14px;line-height:1.5;color:#efe7dc;word-break:keep-all}
+#psZoom .psz-x{position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;min-width:48px;min-height:48px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;cursor:pointer}
 .pv-again{display:inline-flex;align-items:center;gap:6px}
 .pv-again{background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
 .pv-add{flex:1;background:#4E3F31;border:0;color:#fff}
@@ -2283,7 +2307,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1031et"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1031lr"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1031eu"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1023ca"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1030bf"></script><script src="/assets/bgm-picks.js?v=1030bi"></script><script src="/assets/bgm-bed.js?v=1031lr"></script><script src="/assets/bgm-form.js?v=1030bf"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3123,7 +3147,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1031et';   // [ASSET_V] 위 주석
+  var ASSET_V='1031eu';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -7264,6 +7288,7 @@ function renderMake(){
     h+=_mkRef(k);
   }
   h+=_mkWrite(k)+_mkPrep(k);
+  if(!off) h+=_psFold(k);   /* [PHOTO_SCENE_1031] 설정 · 글쓰기 먼저 · 맨 아래 접힌 줄 */
   h+='</section>';
   return h+'</div>'; }
 /* [MK_INTRO] ② 첫 쪽 — ① 에서 담은 순간을 한 번 모아 보고 들어간다.
@@ -7374,6 +7399,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   h+='<section class="mk-sec"><h4>저희가 준비해요</h4><ul class="mk-list">'+_studioLis()+'</ul></section>';   // [GOODS_STUDIO] 부케 줄이 늘 있다
   var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});   // [MK_HELPERS] 옛 ③ 준비하기의 «도와주실 분»을 한눈에 보기가 이어 받는다(마이페이지 «도와주실 분»과 같은 목록)
   if(hp.length) h+='<section class="mk-sec"><h4>도와주실 분</h4><ul class="mk-list">'+hp.map(function(x){ return '<li class="mk-hp"><span>'+esc(x[0])+'</span><span class="wr-due">'+esc(x[1])+'</span></li>'; }).join('')+'</ul></section>';   /* [R2-13] 이름 위 · 덧말 아래 두 줄(덧말이 «·»로 줄 머리에 서지 않게) */
+  h+=_psLinks();   /* [PHOTO_SCENE_1031] 한눈에 보기 — 큰 그림 없이 순간 이름 링크만 */
   return h+'</section>'; }
 /* ③ 연습하기(1단계) — 지금 쓰는 연습 재생(처음부터 끝까지 · 네 막 · 빠르게 훑기)으로 연다. 직접 해 보기 · 타이머는 다음 단계 */
 /* ★★[PR_PREP_FOLD 2026-10-07 사장님 «연습하기 · 준비할 것을 하나로 통합» → «추천대로»] 마이페이지 식순 줄의 «연습하기 · 준비할 것» 두 단추를 «연습 · 준비 ›» 하나로 합쳤다 —
@@ -8541,6 +8567,7 @@ function renderPick(){
   if(!ENG&&!ENG_ERR) engine(); if(!LREC) _lrec();   // [ENG_ONCE] · 미리 보기 창의 대표 한 줄 — 칸을 누르기 전에 불러 둔다(누른 그 순간 소리가 나게)
   /* 예시 [EX_BRIEF · D1 · D2] */
   /* ★[EX_HEAD_OFF 2026-10-04 사장님 «예시로 시작해요 삭제 · 아래 설명 문구도 같이»] 예시 카드 위 제목 «예시로 시작하기»와 그 아래 가격 설명 한 줄(PRICE_SAME · RIT_PRICE_WORD)은 걷었다 — 되살리지 말 것 */
+  h+='<p class="pk-lead">미리 찍는 웨딩 촬영과 달리, 함께한 분들과 이날에만 생기는 표정을 기록해요.</p>';   /* ★[PHOTO_SCENE_1031 검토 173] 사장님 문장 · 고르기 소개에 한 번(순간마다 되풀이하지 않는다) */
   h+='<div class="pk-exs">'+R.EXAMPLES.map(_pkEx).join('')+'</div>';
   /* ★«나레이션 분위기» 칩 줄(칩 여섯 · «바꾼 곳 있음» · 누르면 아래 알림) 금지 — 2026-10-19 사장님 지시로 삭제 [MOOD_ROW_OFF_1019] («나래이션분위기 저거는 빼도될거같아»).
      코스 카드가 이미 결을 말한다(«익숙하고 편안하게 · 밝고 경쾌하게 …») — 그 아래 결을 또 고르면 서로 다른 말을 함께 고르게 된다. 결은 ② 순간마다 «○○ 멘트» 칩에서 하나씩. 되살리지 말 것 */
@@ -8712,7 +8739,7 @@ function _pvEl(){
     +'<div class="pv-grab" aria-hidden="true"></div>'
     +'<div class="pv-h"><h3 id="pvT"></h3><span class="pv-tag" id="pvTag"></span><button type="button" class="pv-x" data-pvx aria-label="닫기">'+ICO_X+'</button></div>'
     +'<div class="pv-media" id="pvM"></div><p class="pv-q" id="pvQ"></p><div class="pv-pb" aria-hidden="true"><i id="pvBar"></i></div><p class="pv-st" id="pvSt"></p>'
-    +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div class="pv-act" id="pvAct"></div>'
+    +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div id="pvScene"></div><div class="pv-act" id="pvAct"></div>'
     +'</div>';   /* ★«전체 나레이션은 연습하기에서 이어서 들어요» 한 줄(미리보기 창 맨 아래) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_FN_OFF] */
   el.addEventListener('click',function(e){ if(e.target&&e.target.closest&&e.target.closest('[data-pvx]')) opPvClose(); });
   /* ★[QA_SHEET_SWIPE 2026-10-04 점검] 손잡이가 있는데 끌어 내려도 안 닫혔다 — 손잡이 · 머리 줄을 80px 넘게 내리면 닫는다(단추 위에서 시작한 끌기는 아니다) */
@@ -8807,9 +8834,49 @@ function _pvDraw(){
   _pvSay((ln&&!ln.src)?_pendT(ln):'',!!(ln&&!ln.src&&(ln.pfail||LREC_ERR)));   // [ERR_CODE_BUILDER] 녹음 목록을 못 받았으면 «녹음 전»이 아니라 그 까닭
   var _po=el.querySelector('#pvOne'); _po.textContent=''; _po.hidden=true;   /* [PV_DESC_TOP] 설명은 위 큰 자리로 올렸다(같은 말을 두 번 하지 않게) · [PV_ONE_SHOT] */
   var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=''; ce.hidden=true;   /* ★«하나씩 만들기에서 골라요 · ○○ · ○○» 한 줄(미리보기 창) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_CHOOSE_OFF] «삭제 · 다른 곳들도 마찬가지 · 일괄» · 창이 하나라 모든 순간에서 함께 빠진다 · ch(CHOOSE_AT_LISTEN)는 남겨 둔다(② 묶음 이름 검사 [F2 · G3]) · [STEP_NONUM_OP] 의 번호 없는 이름 규칙은 다른 자리에 그대로 */ void ch;
+  var _psc=el.querySelector('#pvScene'); if(_psc){ var _psH=_psBox(k,'pv'); if(_psc._h!==_psH){ _psc.innerHTML=_psH; _psc._h=_psH; } }   /* [PHOTO_SCENE_1031] 장면 칸 — 지금 영상 · 나레이션 아래 · 담기 위(같은 글이면 다시 그리지 않는다 · 펼친 «다른 장면»이 닫히지 않게) */
   var _ps=el.querySelector('#pvShot'); _ps.innerHTML=''; _ps.hidden=true;   /* ★«남는 사진 · ○○» 따로 한 줄 금지 — 2026-10-05 사용자 지시로 합침 [PV_ONE_SHOT] «같은 의미 · 고객 입장에서 하나로 · 다른 곳들도 하나씩 열어 보면서 중복 없이» */
   _pvActs(ln);
 }
+/* ★★[PHOTO_SCENE_1031 검토 173 · 사장님 아이디어] «이 순간에 담을 수 있는 장면» — 원천 RitualOpen.sceneOf(판 갈래 · 그림 · 라벨) 하나.
+   대표 그림 1 + 라벨 «연출 장면 · 실제 예식 사진 아님»(그림 바로 아래 · 썸네일 · 상세 · 확대 모두) + 대표 · 설명 + «다른 장면 보기»(설명 두 줄 · 빈 틀 · 개수 · 체크 없음).
+   그림이 보류(img null)거나 못 읽으면 그림만 빠지고 글은 그대로. 확대는 맨 위 창 하나(닫기 · Esc → 누른 그림으로 초점) · 소리 · 영상 · 타이머를 다시 틀지 않는다.
+   전체 대본 복사 · 파일 받기(scriptTextOpen)에는 넣지 않는다. 컷 수 · 빠짐없는 촬영 약속은 쓰지 않는다(scripts/audit/photo-scene.mjs). */
+var PS_FINE_IMG='그림 속 인물 · 배경 · 빛은 장면 이해를 위한 예시예요.', PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.';
+function _psBox(k,mode){ var R=RitualOpen, x=R.sceneOf?R.sceneOf(k,S):null; if(!x) return '';
+  var id='ps_'+mode+'_'+k.replace(/[^a-z]/g,''), im=x.img, h='<section class="ps" data-ps="'+esc(x.id)+'" aria-labelledby="'+id+'"><h4 class="ps-h" id="'+id+'">이 순간에 담을 수 있는 장면</h4>';
+  if(im) h+='<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기 · '+x.label)+'"><img src="'+esc(im.small)+'" alt="" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button><p class="ps-lab">'+esc(x.label)+'</p>';
+  h+='<p class="ps-rep">'+esc(x.rep)+'</p><p class="ps-desc">'+esc(x.desc)+'</p>';
+  h+='<button type="button" class="ps-more" aria-expanded="false" aria-controls="'+id+'a" data-fk="psmore:'+k+'" onclick="psMore(this)">다른 장면 보기</button>'
+    +'<div class="ps-alt" id="'+id+'a" hidden><ul>'+x.alt.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join('')+'</ul><p class="ps-fine">장면 이해를 위한 예시예요.</p></div>';
+  h+='<p class="ps-fine">'+(im?esc(PS_FINE_IMG)+'<br>':'')+esc(PS_FINE)+'</p>';
+  return h+'</section>'; }
+/* ② 하나씩 만들기 — 설정 · 글쓰기 뒤 맨 아래 접힌 줄(그림이 없으면 «장면 설명 보기») */
+function _psFold(k){ var R=RitualOpen, x=R.sceneOf?R.sceneOf(k,S):null; if(!x) return '';
+  return '<details class="ps-fold" data-fk="psfold:'+k+'"><summary>'+(x.img?'사진으로 담을 장면 보기':'장면 설명 보기')+'</summary>'+_psBox(k,'mk')+'</details>'; }
+/* 한눈에 보기 · 완성 — 큰 그림은 되풀이하지 않고 순간 이름 링크만(누르면 그 순간 쪽 접힌 줄을 연다) */
+function _psLinks(){ var R=RitualOpen; if(!R.sceneList) return ''; var xs=R.sceneList(S); if(!xs.length) return '';
+  return '<section class="mk-sec" aria-labelledby="psLk"><h4 id="psLk">이 순간에 담을 수 있는 장면</h4><p class="ps-links">'+xs.map(function(x){ return '<button type="button" class="pk-link" data-fk="pslink:'+x.k+'" onclick="psGo(\''+x.k+'\')">'+esc(x.n)+'</button>'; }).join('')+'</p></section>'; }
+window.psGo=function(k){ var m=_mkState(), onL=!!(STEPS[idx]&&STEPS[idx].k==='listen');
+  if(m.at!==k) mkGo(k); else if(!onL) opGoStep('listen');
+  setTimeout(function(){ var d=document.querySelector('[data-fk="psfold:'+k+'"]'); if(d){ d.open=true; var sm=d.querySelector('summary'); try{ d.scrollIntoView({block:'center'}); if(sm) sm.focus({preventScroll:true}); }catch(e){} } },80); };
+window.psMore=function(b){ var on=b.getAttribute('aria-expanded')!=='true', a=document.getElementById(b.getAttribute('aria-controls')); b.setAttribute('aria-expanded',on?'true':'false'); b.textContent=on?'다른 장면 접기':'다른 장면 보기'; if(a) a.hidden=!on; };
+window._psImgErr=function(img){ var f=img.closest('.ps-fig'); if(!f) return; var l=f.nextElementSibling; if(l&&l.classList.contains('ps-lab')) l.remove(); var fn=f.parentNode&&f.parentNode.querySelector('.ps-fine'); if(fn) fn.textContent=PS_FINE; f.remove(); };   /* 그림을 못 읽으면 그림 · 라벨 · 그림 설명만 뺀다 */
+var PSZ={opener:null};
+window.psZoom=function(k,btn){ var R=RitualOpen, x=R.sceneOf(k,S); if(!x||!x.img) return;
+  var z=document.getElementById('psZoom');
+  if(!z){ z=document.createElement('div'); z.id='psZoom'; z.hidden=true; z.setAttribute('role','dialog'); z.setAttribute('aria-modal','true');
+    z.addEventListener('keydown',function(e){ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); psZoomClose(); } else if(e.key==='Tab'){ e.preventDefault(); var b=z.querySelector('.psz-x'); if(b) b.focus(); } });
+    z.addEventListener('click',function(e){ if(e.target===z) psZoomClose(); });
+    document.body.appendChild(z); }
+  PSZ.opener=btn||null;
+  z.setAttribute('aria-label',x.rep+' · '+x.label);
+  z.innerHTML='<button type="button" class="psz-x" onclick="psZoomClose()">닫기</button><div class="psz-box"><img src="'+esc(x.img.src)+'" alt="'+esc(x.rep)+'" onerror="this.remove()"><p class="psz-lab">'+esc(x.label)+'</p></div>';
+  var pv=document.getElementById('pvSheet'); if(pv&&!pv.hidden) pv.setAttribute('inert','');
+  z.hidden=false; var c=z.querySelector('.psz-x'); if(c) try{ c.focus({preventScroll:true}); }catch(e){} };
+window.psZoomClose=function(){ var z=document.getElementById('psZoom'); if(!z||z.hidden) return; z.hidden=true; z.innerHTML='';
+  var pv=document.getElementById('pvSheet'); if(pv) pv.removeAttribute('inert');
+  var o=PSZ.opener; PSZ.opener=null; if(o&&o.isConnected) try{ o.focus({preventScroll:true}); }catch(e){} };
 function _pvActs(ln){
   var R=RitualOpen, k=PV.k, el=document.getElementById('pvSheet'); if(!k||!el) return;
   if(ln===undefined) ln=_pvLine(k);
@@ -9963,7 +10030,7 @@ function renderDone(){
   h+='<button class="copy-btn" onclick="copyScript()">전체 대본 복사</button>'
     +'<button class="copy-btn" onclick="saveScriptTxt()">파일로 받기</button>'   /* [R1-22] 계정 저장과 갈리게 «받기» */
     +'</div>';   // [DONE_ACTS] 셋이 한 덩어리 — 사이에 아무것도 끼우지 말 것
-  if(isOpen()) h+=_doneOpen();   // [DONE_UNIFY 3-1] 새 코스 — ② 줄 머리 · ③ 준비 목록과 같은 원천
+  if(isOpen()) h+=_doneOpen()+_psLinks();   /* [PHOTO_SCENE_1031] 완성 — 큰 그림 없이 순간 이름 링크만 */   // [DONE_UNIFY 3-1] 새 코스 — ② 줄 머리 · ③ 준비 목록과 같은 원천
   else {
   { var _prepD=''; prep().forEach(function(p){ _prepD+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
     h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><div class="prep">'+_prepD+'</div>'; }
@@ -10656,7 +10723,17 @@ function _ordPayload(fin){
     /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4 2026-09-26] 마이페이지 «예식 순서에서 남는 사진»은 이 목록을 그대로 그린다 —
        본식 차례(bodySeq) · 카드 이름(CARDS.n) · 장면(shotOf · 준비한 순서는 무엇을에 따라). 마이페이지는 ritual-open.js 를 읽지 않아 여기서 싣는다.
        종전엔 마이페이지가 옛 블록 이름표(PHOTO_SCENE)로 이름을 맞춰 순서가 틀리고 새 이름(첫인사 · 반지 교환 …)은 빠졌다. */
-    _sm.scenes=RitualOpen.bodySeq(S).map(function(k){ return {n:RitualOpen.nameOf(k,S), s:RitualOpen.shotOf(k,S)||''}; }).filter(function(x){ return x.s; });
+    /* ★★[PHOTO_SCENE_1031 검토 173] 장면 한 벌(RitualOpen.sceneOf) — 마이페이지 «예식 순서에서 남는 사진»(scenes · 대표 + 참고 두 줄 · 식전/본식)과
+       관리 화면 작가 칸(shots · 순간 id · 식전/본식 · 순서 · 관련 선택값 · 장면 id/문구 · 그림 자산 · 구분 · 라벨 · 판 · 보류 · 식순 저장 판)이 같은 값을 읽는다.
+       재확인 표시 열쇠 = sceneSig(순간 · 대상 · 인사 동작 · 음악 · 멘트는 넣지 않는다) — 첫 저장 뒤 바뀌면 n · 때를 남긴다(_psigN · _psigAt) */
+    var _psx=[], _R=RitualOpen;
+    ['guest'].concat(_R.onOf(S,'prevideo')?['prevideo']:[]).concat(_R.bodySeq(S)).forEach(function(k){ var sc=_R.sceneOf?_R.sceneOf(k,S):null, nm=k==='guest'?'하객 맞이':_R.nameOf(k,S);
+      if(sc) _psx.push({n:nm, s:sc.rep, alt:sc.alt, pre:!!_R.PRE[k], id:sc.id, k:k});
+      else if(!_R.PRE[k]){ var sh=_R.shotOf(k,S)||''; if(sh) _psx.push({n:nm, s:sh, pre:false, k:k}); } });
+    _sm.scenes=_psx;
+    try{ var _sl=_R.sceneList(S), _sg=_R.sceneSig(S), _now=new Date().toISOString();
+      if(S._psig!==_sg){ S._psigN=S._psig?((+S._psigN||0)+1):0; S._psig=_sg; S._psigAt=_now; }
+      _sm.shots={v:_R.SCENE_V, sv:_R.SCENE_SRC_V, label:_R.SCENE_LABEL, at:_now, chgN:+S._psigN||0, chgAt:S._psigAt||'', items:_sl.map(function(x){ return {order:x.order, k:x.k, pre:x.pre, n:x.n, pick:x.pick, id:x.id, rep:x.rep, alt:x.alt, desc:x.desc, asset:x.img?x.img.asset:'', from:x.img?(x.img.from+' '+x.img.at+'초'):'', kind:x.kind, hold:x.hold}; })}; }catch(eP){}
     _sm.prep=RitualOpen.prepList(S); _sm.helpers=RitualOpen.helpersOf(S,{}); _sm.goods=RitualOpen.goodsOf(S).map(function(g){ return {what:g.what,by:g.by}; }); }   /* [GOODS_CHOICE] 맡긴 예식은 주문해야 한다 — 관리자 · 마이페이지가 읽는다 */   // [PREP_LIST] 마이페이지 준비 목록(P8) — 식사 안내 분은 마이페이지가 애프터 웨딩을 보고 더한다   // [PHOTO_CAP_RD] 마이페이지 단체 사진 상한이 이 초로 센다(엔진을 안 읽으므로)
   return {S:S, summary:_sm};
 }

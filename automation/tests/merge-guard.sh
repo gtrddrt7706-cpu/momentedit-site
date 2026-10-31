@@ -20845,4 +20845,19 @@ chk 'aria-expanded="false" aria-controls="' assets/bgm-bed.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/music-fold.mjs >/dev/null 2>&1; _mfd=$?; if [ "$_mfd" = 1 ]; then echo 'FAIL music-fold: 음악 곡 목록 접기(안 고름 · 쪽에서 고름 · 다시 들어옴 · 바꾸기 · 모든 순간)가 어긋났습니다 — node scripts/audit/music-fold.mjs'; fail=1; else echo "ok music-fold ($_mfd)"; fi; fi
 chk 'LINK_GOLD_1031' order-preview.html 1
 nochk 'mu-chg{flex:0 0 auto;min-height:44px;margin:0;padding:0 2px 0 12px;color:var(--seal)' order-preview.html
+# ── 2026-10-31 [PHOTO_SCENE_1031 검토 173 · 사장님 아이디어] 순간마다 «이 순간에 담을 수 있는 장면» — 원천 ritual-open PSCENE 하나 · 그림 16장(장면 영상 1025e · build-scene-frames) · ① 창 · ② 접힌 줄 · 한눈에 · 완성 링크 · 확대 · 마이페이지(scenes) · 관리 화면(shots) · 녹음 0
+chk "var SCENE_LABEL = '연출 장면 · 실제 예식 사진 아님';" assets/ritual-open.js 1
+chk 'PHOTO_SCENE_1031' assets/ritual-open.js 2
+chk 'PHOTO_SCENE_1031' order-preview.html 6
+chk 'PHOTO_SCENE_1031' mypage.html 2
+chk 'PHOTO_SCENE_1031' admin.html 1
+chk '미리 찍는 웨딩 촬영과 달리, 함께한 분들과 이날에만 생기는 표정을 기록해요.' order-preview.html 1
+chk '고르신 순간에 맞춰 촬영 참고 장면을 정리해요.' mypage.html 1
+nochk '건지는 사진' order-preview.html
+nochk '남는 3컷' order-preview.html
+nochk '놓치지 않도록' order-preview.html
+nochk '건지는 사진' mypage.html
+nochk '남는 3컷' mypage.html
+if command -v node >/dev/null 2>&1; then node scripts/build-scene-frames.mjs --check >/dev/null 2>&1 || { echo 'FAIL scene-frames: 장면 그림이 원천(PSCENE · 영상 판)과 다릅니다 — node scripts/build-scene-frames.mjs'; fail=1; }; :; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/photo-scene.mjs >/dev/null 2>&1; _psn=$?; [ "$_psn" = 1 ] && { echo 'FAIL photo-scene: 순간마다 «이 순간에 담을 수 있는 장면»(라벨 · 확대 · 접힌 줄 · 대본 제외 · 저장 한 벌)이 되돌아갔습니다 — node scripts/audit/photo-scene.mjs'; fail=1; }; :; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

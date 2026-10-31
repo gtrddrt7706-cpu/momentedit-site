@@ -3143,6 +3143,17 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
     /* ★[REC_ADMIN 2026-09-27 코워크 «두 분 목소리» 3-8] 하객 맞이 · 입장 인사를 «두 분 목소리»로 고른 예식 — 파일 목록 · 들어 보기 · 확인 ✓ (D-5 쯤 스튜디오가 들어 봄) */
     (function(){ var pr=admAiPrinted(d.code); if(pr!=null&&pr!==admAiSig(d)) h+='<div class="kv"><span class="k">식순지</span><span class="v"><b style="color:var(--red)">식순지를 뽑은 뒤 AI 줄이 바뀌었어요 · 다시 뽑기</b></span></div>'; })();   /* [AI_NOTICE_0928 9-1] */
     if(s3d.guestVoice==='couple'||s3d.entryVoice==='couple'||s3d.pvVoice==='couple') h+='<div class="grp-l">두 분 목소리 <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" data-fk="admrf" onclick="admRfLoad()">파일 보기</button></div><div id="admRf"></div>';
+    /* ★★[PHOTO_SCENE_1031 검토 173] 작가 칸 — 순간별 담을 수 있는 장면(대표 1 + 참고 2 + 조건) · 원천 = 빌더 RitualOpen.sceneList 한 벌(summary.shots).
+       재확인 = 첫 저장 뒤 순간 · 대상 · 인사 동작이 바뀌었을 때(음악 · 멘트만 바꾸면 안 뜬다 · sceneSig) · 고객 기기가 만든 값이라 글은 모두 esc([ADM_SUM_ESC]) */
+    (function(){ var sh=sm3.shots; if(!sh||typeof sh!=='object'||!Array.isArray(sh.items)||!sh.items.length) return;
+      var S_=function(v){ return esc(String(v==null?'':v)); }, tm=function(v){ return String(v||'').slice(0,16).replace('T',' '); };
+      h+='<div class="grp-l">작가 칸 · 담을 수 있는 장면'+((+sh.chgN||0)>0?' <b style="color:var(--red)">재확인 · 장면이 바뀌었어요'+(sh.chgAt?' ('+S_(tm(sh.chgAt))+')':'')+'</b>':'')+'</div>'
+        +row('판','장면 '+String(sh.v||'')+' · 그림은 장면 영상 '+String(sh.sv||'')+'에서 · 식순 저장 '+tm(sh.at));
+      sh.items.forEach(function(x){ if(!x||typeof x!=='object') return; var alt=Array.isArray(x.alt)?x.alt.map(String):[];
+        h+='<div class="kv"><span class="k">'+S_((x.order||'')+'. '+(x.pre?'식전':'본식')+' · '+(x.n||x.k||''))+'</span><span class="v"><b>'+S_(x.rep)+'</b>'
+          +(alt.length?'<br>참고 · '+S_(alt.join(' · ')):'')+(x.pick?'<br>조건 · '+S_(x.pick):'')
+          +'<br><span style="opacity:.75">'+S_(x.id)+' · '+(x.hold?'그림 보류(글만)':'그림 '+S_(x.asset)+' · '+S_(x.from))+' · '+S_(x.kind||'연출')+' · '+S_(sh.label||'')+'</span></span></div>'; });
+    })();
   }
   else if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)

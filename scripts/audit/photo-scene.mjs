@@ -1,0 +1,103 @@
+// ★★[PHOTO_SCENE_1031 검토 173 2026-10-31 사장님 아이디어] 순간마다 «이 순간에 담을 수 있는 장면»
+//   원천 RitualOpen.sceneOf 하나 — ① 미리 보기 창(대표 그림 · 라벨 · 설명 · 다른 장면) · ② 접힌 줄 · 한눈에 보기 · 완성 링크 · 확대(맨 위 창 하나) ·
+//   마이페이지(summary.scenes) · 관리 화면(summary.shots). 전체 대본에는 넣지 않는다 · 컷 수 · 빠짐없는 촬영 약속 금지 · 녹음 0 · 영상 새로 만들지 않음.
+//   node scripts/audit/photo-scene.mjs [--shots <폴더>]   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
+import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const SHOTS = (() => { const i = process.argv.indexOf('--shots'); return i > -1 ? process.argv[i + 1] : ''; })();
+let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
+if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
+let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
+const O = require(path.join(ROOT, 'assets/ritual-open.js'));
+const LABEL = '연출 장면 · 실제 예식 사진 아님';
+const BAN = ['건지는 사진', '남는 3컷', '놓치지 않도록'];
+// ── 데이터
+const KEYS = ['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'table', 'toast', '_close'];
+ok('장면 17순간 + 판 갈래 셋(감사문 · 서로에게 · 인사만) — 대표 1 · 다른 장면 2 · 설명', KEYS.every((k) => O.PSCENE[k] && O.PSCENE[k].alt.length === 2 && O.PSCENE[k].desc) && ['vow:thanks', 'letter:each', 'tribute:nohug'].every((k) => O.PSCENE[k] && O.PSCENE[k].alt.length === 2));
+ok('라벨 «연출 장면 · 실제 예식 사진 아님»', O.SCENE_LABEL === LABEL);
+ok('그림 보류 = 닫는 인사 · 감사문 · 인사만(글은 그대로)', !O.PSCENE._close.img && !O.PSCENE['vow:thanks'].img && !O.PSCENE['tribute:nohug'].img && KEYS.filter((k) => k !== '_close').every((k) => O.PSCENE[k].img));
+{ const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open';
+  ok('남는 장면(shotOf · 마이페이지 한 줄) = 대표 장면 문구', O.bodySeq(S).every((k) => !O.sceneOf(k, S) || O.shotOf(k, S) === O.sceneOf(k, S).rep));
+  const T = Object.assign({}, S, { tribHug: 'off' }); ok('인사만 → tribute:nohug · 그림 보류', O.sceneId('tribute', T) === 'tribute:nohug' && O.sceneOf('tribute', T).hold);
+  const L = Object.assign({}, S, { on: Object.assign({}, S.on, { letter: 1 }) }); O.setChip(L, 'letter', 'each'); ok('편지 «서로에게» → letter:each', O.sceneId('letter', L) === 'letter:each');
+  const sig0 = O.sceneSig(S); ok('재확인 열쇠 — 인사 동작이 바뀌면 바뀐다 · 음악(곡)만 바꾸면 그대로', O.sceneSig(T) !== sig0 && O.sceneSig(Object.assign({}, S, { bgm: { x: 1 }, entryMusic: 'k1' })) === sig0);
+  ok('식전(하객 맞이 · 식전 영상) → 본식 차례 그대로', (() => { const xs = O.sceneList(S); return xs[0].k === 'guest' && xs[0].pre && xs.filter((x) => x.pre).length === 2 && xs.slice(2).every((x) => !x.pre); })()); }
+// ── 금지 문구(고객 면 · 원천)
+for (const f of ['order-preview.html', 'mypage.html', 'assets/ritual-open.js', 'index.html']) { const t = fs.readFileSync(path.join(ROOT, f), 'utf8'); const hit = BAN.filter((b) => t.includes(b)); ok(`금지 문구 없음 — ${f}`, !hit.length, hit.join(' · ')); }
+// ── 그림 파일 · 판
+{ let m = null; try { m = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/video/moments/scene/_frames.json'), 'utf8')); } catch {}
+  ok('그림 판 = 원천 판(영상이 바뀌면 다시 뽑기 · build-scene-frames --check)', !!m && m.v === O.SCENE_V && m.src === O.SCENE_SRC_V); }
+// ── 브라우저
+const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.mp4': 'video/mp4' };
+const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
+await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
+const br = await pw.chromium.launch(); const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
+try {
+  for (const vp of [{ width: 390, height: 860, tag: '390' }, { width: 1280, height: 900, tag: 'pc' }]) {
+    const pg = await br.newPage({ viewport: { width: vp.width, height: vp.height }, reducedMotion: 'reduce' }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+    await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+    await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(900);
+    const prep = async (setup) => pg.evaluate(async (setup) => { const R = RitualOpen, w = (ms) => new Promise((x) => setTimeout(x, ms));
+      R.applyExample(S, 'standard'); delete S.tribHug;
+      if (setup === 'letter') { S.on.letter = 1; R.setChip(S, 'letter', 'each'); }
+      if (setup === 'nohug') S.tribHug = 'off';
+      if (setup === 'toast') S.on.toast = 1;
+      opSync(); buildSteps(); idx = STEPS.findIndex((x) => x.k === 'pick'); render(); await w(400); }, setup);
+    const open = async (k) => { await pg.evaluate(async (k) => { opPv(k); await new Promise((x) => setTimeout(x, 700)); try { _pvStop(); } catch (e) {} const sc = document.querySelector('#pvScene .ps'); if (sc) sc.scrollIntoView({ block: 'start' }); }, k); await wait(500); };
+    const shot = async (nm) => { if (!SHOTS) return; await pg.screenshot({ path: path.join(SHOTS, `${nm}-${vp.tag}.png`) }); };
+    await prep('');
+    await pg.evaluate(() => document.querySelector('.pk-lead') && document.querySelector('.pk-lead').scrollIntoView());
+    const lead = await pg.evaluate(() => [...document.querySelectorAll('.pk-lead')].map((e) => e.textContent));
+    ok(`${vp.tag} 고르기 소개 한 번 «미리 찍는 웨딩 촬영과 달리 …»`, lead.length === 1 && lead[0] === '미리 찍는 웨딩 촬영과 달리, 함께한 분들과 이날에만 생기는 표정을 기록해요.', JSON.stringify(lead));
+    await open('matjeol'); await shot('1-matjeol');
+    const m = await pg.evaluate(() => { const sc = document.querySelector('#pvScene .ps'), fig = sc && sc.querySelector('.ps-fig'), img = fig && fig.querySelector('img'), lab = fig && fig.nextElementSibling;
+      const act = document.querySelector('#pvAct'), r = sc && sc.getBoundingClientRect();
+      return { h: sc && sc.querySelector('.ps-h').textContent, lab: lab && lab.className === 'ps-lab' ? lab.textContent : '', labPx: lab ? parseFloat(getComputedStyle(lab).fontSize) : 0,
+        rep: sc && sc.querySelector('.ps-rep').textContent, ratio: fig ? +(fig.getBoundingClientRect().width / fig.getBoundingClientRect().height).toFixed(2) : 0, fit: img ? getComputedStyle(img).objectFit : '', loaded: img ? img.naturalWidth : 0,
+        orderOk: !!(sc && act && (sc.compareDocumentPosition(act) & Node.DOCUMENT_POSITION_FOLLOWING)), afterMedia: !!(sc && (document.querySelector('#pvM').compareDocumentPosition(sc) & Node.DOCUMENT_POSITION_FOLLOWING)),
+        fine: sc && [...sc.querySelectorAll(':scope > .ps-fine')].map((e) => e.textContent).join('|'), altHidden: sc && sc.querySelector('.ps-alt').hidden }; });
+    ok(`${vp.tag} ① 창 맞절 — 제목 · 그림 16:9(원본 그대로) · 라벨 바로 아래(12.5px 이상 · 안내 글 크기) · 대표 · 영상 아래 · 담기 위`, m.h === '이 순간에 담을 수 있는 장면' && m.lab === LABEL && m.labPx >= 12.5 && m.rep === '마주 보고 몸을 숙이는 두 분' && Math.abs(m.ratio - 1.78) < 0.03 && m.fit === 'cover' && m.loaded > 0 && m.orderOk && m.afterMedia, JSON.stringify(m));
+    ok(`${vp.tag} 보조 · 범위 안내 · 다른 장면은 처음 접힘`, /그림 속 인물 · 배경 · 빛은 장면 이해를 위한 예시예요\./.test(m.fine) && /사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요\./.test(m.fine) && m.altHidden, m.fine);
+    const more = await pg.evaluate(async () => { const b = document.querySelector('#pvScene .ps-more'); b.click(); await new Promise((x) => setTimeout(x, 100)); const a = document.querySelector('#pvScene .ps-alt');
+      const o = { t: b.textContent, open: !a.hidden, li: [...a.querySelectorAll('li')].map((e) => e.textContent), note: a.querySelector('.ps-fine').textContent, cnt: /\d\s*\/\s*\d/.test(a.textContent) };
+      b.click(); o.back = b.textContent; return o; });
+    ok(`${vp.tag} 다른 장면 보기 ↔ 접기 · 설명 두 줄 · 개수 표시 없음`, more.open && more.t === '다른 장면 접기' && more.back === '다른 장면 보기' && more.li.join('|') === '절하기 전 마주 선 모습|일어난 뒤 눈맞춤' && more.note === '장면 이해를 위한 예시예요.' && !more.cnt, JSON.stringify(more));
+    // 확대 — 맨 위 창 하나 · Esc 는 확대만 닫는다 · 초점은 누른 그림으로 · 소리 다시 안 튼다
+    const z = await pg.evaluate(async () => { const fig = document.querySelector('#pvScene .ps-fig'), a = PV.au; const t0 = a ? a.src : ''; fig.focus(); fig.click(); await new Promise((x) => setTimeout(x, 150));
+      const Z = document.getElementById('psZoom'), o = { open: !Z.hidden, lab: Z.querySelector('.psz-lab').textContent, inert: document.getElementById('pvSheet').hasAttribute('inert'), focusIn: Z.contains(document.activeElement), top: (+getComputedStyle(Z).zIndex || 0) > (+getComputedStyle(document.getElementById('pvSheet')).zIndex || 0) };   /* inert 창은 elementFromPoint 가 건너뛰어 점 검사는 헛돈다 — 층 값을 견준다 */
+      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await new Promise((x) => setTimeout(x, 150));
+      o.closed = Z.hidden; o.pvOpen = !document.getElementById('pvSheet').hidden; o.back = document.activeElement === fig; o.noReplay = (a ? a.src : '') === t0 && (!a || a.paused); return o; });
+    ok(`${vp.tag} 확대 — 맨 위에 보임(① 창보다 위 층) · 라벨 · Esc 는 확대만 · ① 창은 그대로 · 초점 복원 · 소리 다시 안 틂`, z.open && z.top && z.lab === LABEL && z.inert && z.focusIn && z.closed && z.pvOpen && z.back && z.noReplay, JSON.stringify(z));
+    if (vp.tag === 'pc') { await pg.evaluate(() => { document.querySelector('#pvScene .ps-fig').click(); }); await wait(300); await shot('5-zoom'); await pg.evaluate(() => psZoomClose()); }
+    await pg.evaluate(() => opPvClose()); await wait(200);
+    await prep('toast'); await open('toast'); await shot('2-toast');
+    await prep('letter'); await open('letter'); await shot('3-letter-each');
+    const le = await pg.evaluate(() => ({ rep: document.querySelector('#pvScene .ps-rep').textContent, img: !!document.querySelector('#pvScene .ps-fig') }));
+    ok(`${vp.tag} 편지 «서로에게» — 대표 «편지를 읽고 듣는 두 분»`, le.rep === '편지를 읽고 듣는 두 분' && le.img, JSON.stringify(le));
+    await pg.evaluate(() => opPvClose()); await wait(200);
+    await prep('nohug'); await open('tribute'); await shot('4-tribute-nohug');
+    const nh = await pg.evaluate(() => ({ rep: document.querySelector('#pvScene .ps-rep').textContent, img: !!document.querySelector('#pvScene .ps-fig'), lab: !!document.querySelector('#pvScene .ps-lab'), fine: document.querySelector('#pvScene > .ps > .ps-fine:last-child').textContent }));
+    ok(`${vp.tag} 인사만 — 그림 · 라벨 없이 글 그대로 · 범위 안내만`, nh.rep === '부모님께 인사하는 두 분' && !nh.img && !nh.lab && nh.fine === '사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.', JSON.stringify(nh));
+    await pg.evaluate(() => opPvClose()); await wait(200);
+    if (vp.tag === '390') {
+      const r = await pg.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)), out = {};
+        R2 = RitualOpen; R2.applyExample(S, 'standard'); delete S.tribHug; opSync(); buildSteps(); idx = STEPS.findIndex((x) => x.k === 'listen'); render(); await w(300); mkGo('matjeol'); await w(400);
+        const d = document.querySelector('[data-fk="psfold:matjeol"]'); out.fold = d ? d.querySelector('summary').textContent : ''; out.closed = d ? !d.open : false; out.last = d ? !d.nextElementSibling : false;
+        mkGo('_close'); await w(300); const d2 = document.querySelector('[data-fk="psfold:_close"]'); out.fold2 = d2 ? d2.querySelector('summary').textContent : '';
+        mkGo('_sum'); await w(300); out.links = [...document.querySelectorAll('[data-fk^="pslink:"]')].map((e) => e.textContent); out.sumImg = !!document.querySelector('.mk-sum .ps-fig');
+        out.script = scriptTextOpen();
+        out.pl = _ordPayload(true).summary; return out; });
+      ok('② 하나씩 만들기 — 맨 아래 접힌 줄 «사진으로 담을 장면 보기»(처음 닫힘) · 그림 없는 순간은 «장면 설명 보기»', r.fold === '사진으로 담을 장면 보기' && r.closed && r.last && r.fold2 === '장면 설명 보기', JSON.stringify([r.fold, r.closed, r.last, r.fold2]));
+      ok('한눈에 보기 — 큰 그림 없이 순간 이름 링크만', r.links.length >= 8 && r.links[0] === '하객 맞이' && !r.sumImg, JSON.stringify(r.links));
+      ok('전체 대본 복사 · 파일 받기에 장면 글 없음', !r.script.includes(LABEL) && !r.script.includes('이 순간에 담을 수 있는 장면') && !r.script.includes('마주 보고 몸을 숙이는 두 분'));
+      const sc = r.pl.scenes || [], sh = (r.pl.shots || {}).items || [];
+      ok('저장 — scenes(대표 + 참고 두 줄 · 식전/본식) · shots(작가 칸 한 벌 · 판 · 재확인)', sc.length && sc[0].n === '하객 맞이' && sc[0].pre && Array.isArray(sc[0].alt) && sh.length === sc.length && sh.every((x) => x.id && x.rep && x.kind === '연출') && r.pl.shots.v === O.SCENE_V && typeof r.pl.shots.chgN === 'number', JSON.stringify(r.pl.shots).slice(0, 300));
+    }
+    ok(`${vp.tag} pageerror 0`, !errs.length, errs.slice(0, 2).join(' | '));
+    await pg.close();
+  }
+} catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
+finally { await br.close(); srv.close(); }
+console.log(fail ? `\nPHOTO_SCENE FAIL ${fail}` : '\nPHOTO_SCENE OK'); process.exit(fail ? 1 : 0);
