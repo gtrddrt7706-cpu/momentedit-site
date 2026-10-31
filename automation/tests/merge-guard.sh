@@ -20162,6 +20162,18 @@ chk 'DRESS_OLD_ANS' scripts/audit/dress-refs.mjs 1
 chk 'DRESS_SET_1031' scripts/audit/dress-tabs.mjs 1
 chk "{ t: '디테일', img: 'n03-detail' }" assets/dress-refs.js 1                     # [DRESS_N03_DETAIL] 새 두 벌도 세 장
 chk 'DRESS_N03_DETAIL' scripts/audit/dress-tabs.mjs 1
+# ★★[DRESS_TEN_1031 코워크 · 사장님 «3개 더 추가 10벌, 인기 있는 걸로»] 10벌 — 04 코르셋 미카도(S10) · 05 잔비즈 튤(S09) · 07 홀터넥 실크(S11) · 기존 id 그대로 · S06 다시 쓰지 않음
+chk "{ id: 'S10', name: '스타일 예시 04 · 코르셋 미카도 A라인'" assets/dress-refs.js 1
+chk "{ id: 'S09', name: '스타일 예시 05 · 잔비즈 튤 A라인'" assets/dress-refs.js 1
+chk "{ id: 'S11', name: '스타일 예시 07 · 홀터넥 실크 슬림'" assets/dress-refs.js 1
+chk "{ id: 'S05', name: '스타일 예시 10 · 미니 · 오버스커트'" assets/dress-refs.js 1          # 미니는 맨 뒤
+chk "{ t: '디테일', img: 'n08-detail' }" assets/dress-refs.js 1
+chk "{ t: '디테일', img: 'n09-detail' }" assets/dress-refs.js 1
+chk "{ t: '디테일', img: 'n10-detail' }" assets/dress-refs.js 1
+nochk '일곱 가운데 가장 로맨틱한' assets/dress-refs.js                                        # 벌 수가 바뀌면 이 글도
+chk 'DRESS_TEN_1031' scripts/audit/dress-tabs.mjs 6
+chk 'DRESS_TEN_1031' scripts/audit/dress-refs.mjs 3
+chk 'DRESS_SWEETHEART' scripts/audit/dress-refs.mjs 2                                      # «스위트하트»는 넥라인 · «하트» 단독은 계속 금지(selftest)
 # ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
 chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
 chk '<script src="/assets/fab-names.js" defer></script>' index.html 1
@@ -20478,6 +20490,14 @@ chk 'LISTEN_PACE_1031' scripts/audit/listen-pace.mjs 1
 chk 'listen-pace' .github/workflows/merge-guard.yml 1
 nochk 'LP.leadSt=st;[^/]*//' order-preview.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/listen-pace.mjs >/dev/null 2>&1; _lpc=$?; if [ "$_lpc" = 1 ]; then echo 'FAIL listen-pace: 이 순간 전체 듣기 흐름(음악 뜸 · 행동 줄 멈춤 · «실제로는 약» · 지금 줄 · 따라가기)이 어긋났습니다 — node scripts/audit/listen-pace.mjs'; fail=1; elif [ "$_lpc" = 2 ]; then echo 'skip listen-pace (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok listen-pace'; fi; fi
+# ── 2026-10-31 [LEAD_LONGER_1031 BGM 섹션 · 사장님 직접 들어 보고] 순간 첫 멘트 앞 음악 뜸 새 곡 6초 · 이어지는 곡 3초 · 크게 보기(처음부터 보고 듣기 · 본식부터 · 다시 듣기 · 순간 크게) · ④ 에도 LISTEN_PACE(③ 연습 · 빠르게 훑기만 빼고)
+chk 'LEAD_LONGER_1031' assets/bgm-bed.js 1
+chk 'LEAD_LONGER_1031' order-preview.html 2
+chk 'LEAD_LONGER_1031' scripts/audit/listen-pace.mjs 2
+chk 'ms=cont?3000:6000;' assets/bgm-bed.js 1
+nochk 'ms=cont?1500:3000;' assets/bgm-bed.js 0
+nochk "_pace=!_prc&&!LP.big&&" order-preview.html 0
+chk 'lf-state lf-est' order-preview.html 1
 # ── 2026-10-31 [SONG_CARD_SOLO_1031 사장님 «음악만 나와야 하는 거 아니야? · 여기서는 좀 크게»] 곡 카드 ▶ = 그 곡만(나레이션 없음) · +7 dB · 그 길에만 리미터 · 0.8초 오름/내림 · 강조 위치 5초 전 · 곡 칸 맨 아래 한 줄 — bgm-preview 4 가 브라우저로 잰다(CI bgm-sound)
 chk 'SONG_CARD_SOLO_1031' assets/bgm-bed.js 4
 chk 'SONG_CARD_SOLO_1031' order-preview.html 1
@@ -20485,6 +20505,9 @@ chk 'SONG_CARD_SOLO_1031' scripts/audit/bgm-preview.mjs 1
 chk 'lim.threshold.value=-1; lim.ratio.value=20; lim.attack.value=0.002; lim.release.value=0.15' assets/bgm-bed.js 1
 chk '나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1
 nochk 'var ln=firstLine(k);' assets/bgm-bed.js 0
+# ── 2026-10-31 [CHEER_WINDOW_1031 BGM 섹션] bgm-preview D6 듣는 창 26초(축배 멘트 12.6초 · 꼬리 축배 곡 16.8초) — 16초로 되돌리면 CI bgm-sound 가 다시 빨갛다
+chk 'CHEER_WINDOW_1031' scripts/audit/bgm-preview.mjs 1
+nochk "const b6 = await listen(f, 'toast', 16000);" scripts/audit/bgm-preview.mjs 0
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
@@ -20971,6 +20994,12 @@ chk '작가님 안내에 따라' guide.html 1
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/closing-line.mjs >/dev/null 2>&1; _cll=$?; [ "$_cll" = 1 ] && { echo 'FAIL closing-line: 마무리 멘트(세 판 × 하객 안내 × 디지털) · 사진 구간 나레이션 0 · 새 녹음 0 · 흐름 쉼 · 화면 글이 어긋났습니다 — node scripts/audit/closing-line.mjs'; fail=1; }; :; fi
+# ── 2026-10-31 식순 고객 걷기 1라운드(사장님 «디테일한 고객 입장에서 · 라운드별로 · gpt 랑 같이»)
+chk 'FLOW_HOW_IF_1031' order-preview.html 1   # 예식 흐름 — 덜어낼 줄(✓)이 없으면 «✓를 눌러» 줄도 없다
+chk 'PS_LINKS_HEAD_1031' order-preview.html 1
+chk '<h4 id="psLk">순간마다 담을 수 있는 장면</h4>' order-preview.html 1   # 한눈에 보기 · 완성은 «순간마다»
+chk 'DONE_PREP_IF_1031' order-preview.html 1   # 완성 — 준비할 것이 없으면 빈 머리 없음
+chk 'ENTRY_UNPICK_1031' assets/entry-music.js 1   # 입장 음악 — 안 고르면 «고르지 않으시면 스튜디오가 준비해요»
 # ── 2026-10-31 [PICKS_TRUE_1031 BGM 섹션] 곡 정보 글을 실제 받은 판에 맞춘다(B01 오케스트라 · B07 피아노 판 · B15 피아노 독주 · B16 · B24 · B22 판 이름) — B06 · B19 그대로
 chk 'PICKS_TRUE_1031' assets/bgm-picks.js 7
 nochk "a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View'" assets/bgm-picks.js 0

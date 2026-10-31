@@ -89,9 +89,10 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   });
 
   // ② 줄 세우기 — 명세 문장을 다른 손으로 옮긴 셈과 대조
-  /* ★[DRESS_SET_1031 · DRESS_Q3_ARMS] 명세(코워크 1031) — 어깨 · 팔 open = 스타일 예시 01 · 02 · 04 · 07 / sleeve = 03 · 05 / 06(케이프)은 어느 쪽에도 맞지 않는다 ·
+  /* ★[DRESS_SET_1031 · DRESS_Q3_ARMS] 명세(코워크 1031 · 10벌은 바로 아래 DRESS_TEN_1031) — 옛 7벌 open 01 · 02 · 04 · 07 / sleeve 03 · 05 / 06(케이프)은 어느 쪽에도 맞지 않는다 ·
      라인 any · 어깨 · 팔 any = 걸러내지 않음 · 옛 답은 loose → any · low → any · arms → sleeve · none → any(여럿이면 arms 가 있으면 sleeve) */
-  const ARMS_BY_NO = { '01': 'open', '02': 'open', '03': 'sleeve', '04': 'open', '05': 'sleeve', '06': '', '07': 'open' };
+  /* ★[DRESS_TEN_1031] 10벌 — open 01 02 04 05 06 07 10 · sleeve 03 08 · 09(케이프)는 어느 쪽에도 맞지 않는다 */
+  const ARMS_BY_NO = { '01': 'open', '02': 'open', '03': 'sleeve', '04': 'open', '05': 'open', '06': 'open', '07': 'open', '08': 'sleeve', '09': '', '10': 'open' };
   const noOf = (d) => (/^스타일 예시 (\d{2}) · /.exec(d.name) || [])[1] || '';
   const spec = (ans, list) => {
     const len = ['ankle', 'calf', 'knee'].includes(ans.len) ? ans.len : '';
@@ -202,7 +203,9 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(!!card && !!pick && !!cardOn && !!stk, '⑦ 마이페이지 걷은 카드 · 스티커 · 카드 판정 · 겹화면 코드를 찾았다');
   const hay = [['원천', strs.join('\n')], ['dress.html', decom(PAGE)], ['마이페이지 스티커', decom(card + stk + pick)]];
   const hits = [];
-  for (const [nm, h] of hay) for (const w of BAN) if (h.indexOf(w) > -1) hits.push(nm + ' «' + w + '»');
+  /* ★[DRESS_SWEETHEART · DRESS_TEN_1031] «스위트하트»는 넥라인 이름(코워크 명세 · 인기 1위 넥)이라 «하트»로 세지 않는다 — «하트» 단독(찜 · 좋아요 뜻)은 그대로 막는다 */
+  const unSweet = (h, w) => (w === '하트' ? h.replace(/스위트하트/g, '') : h);
+  for (const [nm, h] of hay) for (const w of BAN) if (unSweet(h, w).indexOf(w) > -1) hits.push(nm + ' «' + w + '»');
   t(!hits.length, '⑦ 고객 문구 금지어 0건' + (hits.length ? ' · ' + hits.join(', ') : ''));
 
   // ⑧ 마이페이지 · 관리자
@@ -514,6 +517,7 @@ if (process.argv.includes('--selftest')) {
     ['신청서 Note 를 다시 span 으로 쪼갬', SRC, GAS, PAGE0, MP0, { INQ: INQ.replace(/<span data-dress-text="[^"]*">(대여 의상은 프리 사이즈\(44~88 내외\)로, 상담에서 직접 보고 확인하실 수 있습니다\.)/, '<span data-dress-off>$1</span><span>') }],
     ['나가기가 다시 닫기 신호만 보낸다', SRC, GAS, PAGE0.replace("window.parent.postMessage({ type: 'momentedit:dressExit' }, location.origin); } catch (e) {} return; }\n    location.href = '/mypage.html';\n  }\n  function applyFill", "window.parent.postMessage({ type: 'momentedit:dressClose' }, location.origin); } catch (e) {} return; }\n    location.href = '/mypage.html';\n  }\n  function applyFill")],
     ['결과에 다시 고르기 막대', SRC, GAS, PAGE0.replace("    if (S.view === 'q') {", "    if (S.view === 'list') return '<div class=\"wz-bar pk-bar\"><div class=\"pk-slots\"></div><button type=\"button\" class=\"cc-btn\" data-act=\"save\">이 두 벌로 골라 두기</button></div>';\n    if (S.view === 'q') {")],
+    ['[DRESS_SWEETHEART] «하트» 단독은 여전히 금지어', SRC.replace("mood: '비즈 튤에 은은하게 번지는 반짝임'", "mood: '하트 모양 비즈 튤의 반짝임'"), GAS],
     ['사진 없는 장도 다시 넘긴다', SRC.replace('.filter(function (e) { return e && e.img; })', '.filter(function (e) { return !!e; })'), GAS],
     ['단독에서 «저장»이 다시 보인다', SRC, GAS, PAGE0.replace('html.pk-alone #pkSave,html.pk-ro #pkSave{display:none}', '')],
     ['단독이 다시 저장한 척(«저장됨»)', SRC, GAS, PAGE0.replace("if (mode === 'done') go('done'); else if (mode === 'exit' || mode === 'home') exitNow();", "S.saved = true; if (mode === 'done') go('done'); else if (mode === 'exit' || mode === 'home') exitNow();")],
