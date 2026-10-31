@@ -95,7 +95,7 @@
     try{ v.src=a.createBufferSource(); v.src.buffer=o.b; v.src.loop=true; v.g=a.createGain(); v.g.gain.value=0.00003; v.src.connect(v.g); v.g.connect(a.destination);
       var off=Math.max(0,Math.min(o.b.duration-0.5,at||0)); v.src.start(0,off); v.t0=a.currentTime; v.off=off; v.f=f; ramp(v,db,fadeMs); }catch(x){ return null; }
     return v; }
-  function stopVoice(v,ms){ if(!v||!v.src) return; var a=AC, s=v.src; ramp(v,-90,ms); v.src=null; setTimeout(function(){ try{ s.stop(); s.disconnect(); }catch(x){} },Math.max(60,ms)+120); }
+  function stopVoice(v,ms){ if(!v||!v.src) return; var a=AC, s=v.src, l=v.lim; if(v.solo&&a&&v.g){ try{ var n=a.currentTime, g=v.g.gain; g.cancelScheduledValues(n); g.setValueAtTime(Math.max(0.00003,g.value),n); g.linearRampToValueAtTime(0.00003,n+Math.max(0.05,ms/1000)); }catch(x){} v.want=-90; } else ramp(v,-90,ms); v.src=null; setTimeout(function(){ try{ s.onended=null; s.stop(); s.disconnect(); if(l) l.disconnect(); }catch(x){} },Math.max(60,ms)+120); }   /* [SONG_CARD_SOLO_1031] 카드 소리는 +7 dB 판(ramp 의 musicTrim 을 쓰지 않는다) */
   function posOf(v){ if(!AC||!v||!v.src||!v.src.buffer) return 0; var d=v.src.buffer.duration||1; return (v.off+(AC.currentTime-v.t0))%d; }
   /* 곡을 바꾼다 — 같은 곡이면 크기만 · 다르면 3초 겹쳐 넘긴다 · 처음이면 fade 에 걸쳐 올린다 */
   function play(f,db,fadeMs,at){ var c=BED.cur;
@@ -152,19 +152,25 @@
   var CARD={ f:'', sg:'', st:'', tk:0, na:null };   /* sg = 누른 줄의 구간(같은 곡이 두 구간에 있어도 그 줄 ▶ 만 «멈추기») */
   function firstLine(k){ try{ if(!window.ENG||typeof _lSteps!=='function') return null; return _lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip&&!x.talk2&&x.src; })[0]||null; }catch(x){ return null; } }
   function na(){ if(!CARD.na){ CARD.na=new Audio(); CARD.na.preload='auto'; } return CARD.na; }
-  function stopCard(quiet){ CARD.tk++; var was=CARD.f; CARD.f=''; CARD.sg=''; CARD.st=''; try{ if(CARD.na){ CARD.na.onended=null; CARD.na.pause(); } }catch(x){} if(BED.who==='card') hushAll(quiet?300:900); if(was&&!quiet) repaint(); else if(was) repaintSoon(); }
-  function card(f,k,sg){ var p=PR(), tk=++CARD.tk, n=na();
-    try{ n.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA='; var q=n.play(); if(q&&q.catch) q.catch(function(){}); }catch(x){}   /* 탭 안에서 문을 연다 */
+  function stopCard(quiet){ CARD.tk++; var was=CARD.f; CARD.f=''; CARD.sg=''; CARD.st=''; try{ if(CARD.na){ CARD.na.onended=null; CARD.na.pause(); } }catch(x){} if(BED.who==='card') hushAll(SOLO.fade);   /* [SONG_CARD_SOLO_1031] 0.8초에 걸쳐 내려가며 */ if(was&&!quiet) repaint(); else if(was) repaintSoon(); }
+  /* ★★[SONG_CARD_SOLO_1031 2026-10-31 사장님 «음악만 나와야 하는 거 아니야? · 여기서는 좀 크게»] 곡 카드 ▶ = 그 곡만(나레이션 없음).
+       크기 = 곡 파일 −23 LUFS 를 나레이션(−16 LUFS)과 같게 +7 dB(musicTrim · 덕킹 없음) · 그 길에만 리미터(threshold −1 dB · ratio 20 · attack 2ms · release 150ms) ·
+       0.8초에 걸쳐 오르고 · ■ 나 다른 소리를 틀면 0.8초에 걸쳐 내려가며 멈춘다 · 곡 처음부터(짧은 판 길이만큼) · 강조 위치(start)가 있으면 그 5초 전부터.
+       «이 순간 전체 듣기 · 음악과 함께»는 그대로(엔진 크기 · 나레이션과 함께) */
+  var SOLO={ db:7, fade:800, pre:5 };
+  function card(f,k,sg){ var tk=++CARD.tk;
     CARD.f=f; CARD.sg=sg||''; CARD.st='load'; repaint();
     want(f,function(b,ec){ if(tk!==CARD.tk) return; if(!b){ CARD.f=''; CARD.st=''; repaint(); toast1(ec==='L3'?'이 곡은 아직 준비 중이에요':'곡을 불러오지 못했어요 (코드 '+(ec||'L4')+')'); return; }   /* L3 = 드라이브에 아직 없는 곡 */
       if(BED.who==='lp'||BED.cur.src) hushAll(300); BED.who='card'; CARD.st='play'; repaint();
-      var ln=firstLine(k);
-      if(!ln){ play(f,p.music,1000,0); setTimeout(function(){ if(tk===CARD.tk) stopCard(); },18000); return; }
-      play(f,p.music,1000,0);
-      var dk=lvOf(ln,f);
-      setTimeout(function(){ if(tk===CARD.tk) ramp(BED.cur,dk,p.lead); },1600);   /* 음성 0.4초 앞 낮춤 */
-      setTimeout(function(){ if(tk!==CARD.tk) return; n.onended=function(){ if(tk!==CARD.tk) return; setTimeout(function(){ if(tk===CARD.tk) ramp(BED.cur,p.music,p.up); },700); setTimeout(function(){ if(tk===CARD.tk) stopCard(); },5200); };
-        n.onerror=function(){ if(tk===CARD.tk) stopCard(); }; n.src=ln.src; var q=n.play(); if(q&&q.catch) q.catch(function(){ if(tk===CARD.tk) stopCard(); }); },2000); }); }
+      var a=ctx(); if(!a) return; var s0=P.byF(f), at=(s0&&s0.start!=null)?Math.max(0,+s0.start-SOLO.pre):0, v=Voice();
+      try{ if(a.state==='suspended') a.resume(); v.src=a.createBufferSource(); v.src.buffer=b; v.src.loop=false; v.g=a.createGain(); v.g.gain.value=0.00003;
+        var lim=a.createDynamicsCompressor(); lim.threshold.value=-1; lim.ratio.value=20; lim.attack.value=0.002; lim.release.value=0.15; lim.knee.value=0;
+        v.src.connect(v.g); v.g.connect(lim); lim.connect(a.destination); v.lim=lim;
+        var off=Math.max(0,Math.min(b.duration-0.5,at)); v.src.start(0,off); v.t0=a.currentTime; v.off=off; v.f=f; v.solo=true;
+        var now=a.currentTime, G=Math.pow(10,SOLO.db/20); v.g.gain.setValueAtTime(0.00003,now); v.g.gain.linearRampToValueAtTime(G,now+SOLO.fade/1000); v.want=SOLO.db;
+        var left=Math.max(0.2,b.duration-off); v.g.gain.setValueAtTime(G,now+Math.max(SOLO.fade/1000,left-SOLO.fade/1000)); v.g.gain.linearRampToValueAtTime(0.00003,now+left);
+        v.src.onended=function(){ if(tk===CARD.tk&&BED.cur===v) stopCard(); }; }catch(x){ return; }
+      BED.cur=v; }); }
 
   /* ★★[MUSIC_FOLD_1031 2026-10-31 사장님 시안 «1 · 음악만 접기» 고름] 곡을 «직접» 골라 둔 구간은 그 순간 쪽에 «새로 들어올 때»(쪽 옮김 · 화면 열기 · 다시 열기) 한 줄로 접는다 —
      접힌 줄 = (마이페이지 안이면 그 곡 ▶) + 곡 이름 · 아랫줄 + 오른쪽 «바꾸기»(밑줄 글 단추 · .pk-link 색 · LINK_GOLD_1031) · 아래 «준비해요» 한 줄은 펼쳤을 때만.
@@ -178,7 +184,7 @@
   function boxId(sg){ return 'bedBox_'+sg; }
   function foldHtml(sg,k,s){ var gl=labelOf(sg)+' 음악', pl=CARD.f===s.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[s.f];
     return '<div class="mu-fold1">'
-      +(emb()?'<button type="button" class="mk-pl mu-pl'+(pl?' on':'')+(miss&&!pl?' off':'')+'" data-fk="bedp:'+sg+':'+s.f+'" aria-pressed="'+pl+'"'+(miss&&!pl?' aria-disabled="true"':'')+' aria-label="'+e(s.t)+(pl?' 멈추기':' · 이 순간 나레이션과 함께 듣기')+'" onclick="bedAct(\'prev\',\''+s.f+'\',\''+e(k)+'\',\''+sg+'\')">'+(pl?ico('stop'):ico('play'))+'</button>':'')
+      +(emb()?'<button type="button" class="mk-pl mu-pl'+(pl?' on':'')+(miss&&!pl?' off':'')+'" data-fk="bedp:'+sg+':'+s.f+'" aria-pressed="'+pl+'"'+(miss&&!pl?' aria-disabled="true"':'')+' aria-label="'+e(s.t)+(pl?' 멈추기':' · 곡만 듣기')+'" onclick="bedAct(\'prev\',\''+s.f+'\',\''+e(k)+'\',\''+sg+'\')">'+(pl?ico('stop'):ico('play'))+'</button>':'')
       +'<div class="mu-fsel"><span class="mu-t">'+e(s.t)+(s.vocal?'<span class="mu-voc"> 노래</span>':'')+'</span><span class="mu-a">'+e([s.src,s.a,s.why].filter(Boolean).join(' · '))+'</span></div>'
       +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'; }
 
@@ -190,13 +196,13 @@
     var h='<ul class="mu-list" role="radiogroup" aria-label="'+e(gl)+'">';
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
       h+='<li class="mu-row'+(on?' on':'')+'">'
-        +(emb()?'<button type="button" class="mk-pl mu-pl'+(pl?' on':'')+(miss&&!pl?' off':'')+'" data-fk="bedp:'+sg+':'+p.f+'" aria-pressed="'+pl+'"'+(miss&&!pl?' aria-disabled="true"':'')+' aria-label="'+e(p.t)+(pl?' 멈추기':' · 이 순간 나레이션과 함께 듣기')+'" onclick="bedAct(\'prev\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')">'+(pl?ico('stop'):ico('play'))+'</button>':'')
+        +(emb()?'<button type="button" class="mk-pl mu-pl'+(pl?' on':'')+(miss&&!pl?' off':'')+'" data-fk="bedp:'+sg+':'+p.f+'" aria-pressed="'+pl+'"'+(miss&&!pl?' aria-disabled="true"':'')+' aria-label="'+e(p.t)+(pl?' 멈추기':' · 곡만 듣기')+'" onclick="bedAct(\'prev\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')">'+(pl?ico('stop'):ico('play'))+'</button>':'')
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+(p.vocal?'<span class="mu-voc"> 노래</span>':'')+'</span><span class="mu-a">'+e([p.src,p.a,p.why].filter(Boolean).join(' · '))+'</span></button></li>'; });
     return h+'</ul><p class="bgm-note bed-note">'+e(noteOf(sg))+'</p>'+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':''); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h='';
     CUST.forEach(function(sg){ if(chooser(sg)!==k) return; var gl=labelOf(sg.id)+' 음악'; list();
-      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div></div>'; });
+      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div>'+(emb()?'<p class="bgm-note bed-hint">나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요</p>':'')+'</div>'; });   /* [SONG_CARD_SOLO_1031] 곡 칸 맨 아래 한 줄(작은 글 · 새 색 없음) */
     return h; }
   /* 축사 · 편지 «음악과 함께» 아래 곡 고르기(bgm-form.js 가 그 줄 안에 넣는다) */
   function subHtml(slot,k){ var sg=SUB[slot]; if(!sg||!bedOn(slot)) return ''; list(); return '<div class="bed-box bed-sub" id="'+boxId(sg)+'" data-seg="'+sg+'" data-k="'+e(k)+'">'+listHtml(sg,k)+'</div>'; }

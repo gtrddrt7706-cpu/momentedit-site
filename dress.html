@@ -633,8 +633,8 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
       /* ★[DRESS_QSUB_SLOT 1029 사장님 · GPT 운영 점검] 세 물음의 제목 · 보조문을 한 칸에 겹쳐 두고 지금 것만 보인다 — 칸 높이 = 셋 중 가장 긴 것.
            물음 3 에만 보조문이 있어 첫 보기가 약 28px 아래였고, 좁은 폭(360)에서는 제목 줄 수도 달라 32px 더 갈렸다. 폭 · 글자 확대에 상관없이 첫 보기 자리가 같다 */
       + stepsHTML(i) + '<div class="pk-qbox">' + R.questions.map(function(x, k){ return k === i ? '<h2 class="pk-q" id="pkQ" data-head tabindex="-1">' + esc(q.q) + '</h2>' : '<p class="pk-q pk-qghost" aria-hidden="true">' + esc(x.q) + '</p>'; }).join('') + '</div>'
-      + '<div class="pk-qbox pk-qsubs">' + R.questions.map(function(x, k){ return k === i ? (q.sub ? '<p class="pk-qsub">' + esc(q.sub) + '</p>' : '<p class="pk-qsub pk-qsub-0" aria-hidden="true">&nbsp;</p>') : '<p class="pk-qsub pk-qghost" aria-hidden="true">' + (x.sub ? esc(x.sub) : '&nbsp;') + '</p>'; }).join('') + '</div>'
-      + '<div class="pk-opts' + (multi ? ' multi' : '') + (figs ? ' figs' : '') + (figs && q.opts.every(function(o){ return !!R.figSrc(figs[o[0]]); }) && q.opts.length === 3 ? ' figs3' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
+      + (!R.questions.some(function(x){ return !!x.sub; }) ? '' : '<div class="pk-qbox pk-qsubs">' + R.questions.map(function(x, k){ return k === i ? (q.sub ? '<p class="pk-qsub">' + esc(q.sub) + '</p>' : '<p class="pk-qsub pk-qsub-0" aria-hidden="true">&nbsp;</p>') : '<p class="pk-qsub pk-qghost" aria-hidden="true">' + (x.sub ? esc(x.sub) : '&nbsp;') + '</p>'; }).join('') + '</div>')   /* ★[DRESS_Q3_ARMS 1031] 보조문이 있는 물음이 없으면 칸째 두지 않는다(빈 줄 높이만 남았다) — 셋 다 같으니 걸음마다 높이가 같다 */
+      + '<div class="pk-opts' + (multi && !q.one ? ' multi' : '') + (figs ? ' figs' : '') + (figs && q.opts.every(function(o){ return !!R.figSrc(figs[o[0]]); }) && q.opts.length === 3 ? ' figs3' : '') + '" role="group" aria-labelledby="pkQ">' + opts + '</div>'
       ;   // ★[DRESS_Q_FIRST] 물음 아래 «드레스 바로 보기 ›»는 걷었다 — 답해야 결과로 간다
   }
   /* [DRESS_LIST_FIRST] 고른 답의 글을 잇는다 — «발목까지 · 몸 선을 따라 · 노출이 적은 드레스»(물음 순서 · 답 순서 · 건너뛰기는 빼고) */
@@ -699,7 +699,7 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
   var GUIDE_END = AFTER ? ''
     : '<div class="pk-end-dots"><p class="dotln">마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.</p><p class="dotln">상담 날 이 화면을 보여 주셔도 좋아요.</p></div>';   // [DRESS_FORM_1024] 한 줄 더
   /* ★[DRESS_TABS_1030] 드레스 탭 = 스타일 예시 여섯 벌 · 늘 같은 순서(S01 → S06 · 답과 상관없이) · 자세히의 이전/다음도 이 순서 */
-  function afterList(){ return R.list().slice().sort(function(a, b){ return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; }); }
+  function afterList(){ return R.list().slice(); }   // ★[DRESS_SET_1031] 원천 배열 순서 그대로(«스타일 예시 01 → 07») — id 는 옛 저장본 때문에 그대로 두어 순서와 다르다(S07 · S01 · S08 …)
   function accOn(){ return !!(R.accList && R.accList().length); }
   function tabsHTML(){
     var ds = afterList();
@@ -911,7 +911,8 @@ html .pk-main .pk-accv .dv-tx,html.pk-pop .pk-main .pk-accv .dv-tx{max-width:420
   }
   function answer(a){
     var q = R.questions[S.q];
-    if (q.multi) {   // ★[DRESS_Q_FIRST] «특별히 없어요»(q.none)는 혼자만 — 고르면 다른 보기가 꺼지고, 다른 보기를 고르면 그것이 꺼진다
+    if (q.multi && q.one) S.ans[q.key] = [a];   // ★[DRESS_Q3_ARMS 1031] 하나만 고름 — 답 칸 모양(배열)은 그대로 한 칸만
+    else if (q.multi) {   // ★[DRESS_Q_FIRST] «특별히 없어요»(q.none)는 혼자만 — 고르면 다른 보기가 꺼지고, 다른 보기를 고르면 그것이 꺼진다
       var arr = S.ans.pref.slice(), i = arr.indexOf(a);
       if (i >= 0) arr.splice(i, 1); else { if (a === q.none) arr = []; else if (q.none && arr.indexOf(q.none) >= 0) arr.splice(arr.indexOf(q.none), 1); arr.push(a); }
       S.ans.pref = arr;

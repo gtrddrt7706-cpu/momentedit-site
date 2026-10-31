@@ -102,7 +102,7 @@ try {
     await fr.click('.pk-opt[data-a="ankle"]'); await geo('물음1 답');
     await fr.click('.wz-bar [data-go="1"]'); await geo('물음2');
     await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('물음3');
-    await fr.click('.pk-opt[data-a="low"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('결과');
+    await fr.click('.pk-opt[data-a="open"]'); await fr.click('.wz-bar [data-go="1"]'); await geo('결과');
     { const g = await P.evaluate(() => { const c = document.querySelector('.dr-pop-card').getBoundingClientRect(), f = document.getElementById('mp_drFrame').getBoundingClientRect(); return { ct: c.top, ft: f.top }; });   // ★[DRESS_RESULT_COMPACT] 요약 판 64~72 · 폰 첫 사진 = 창 위 끝에서 250 안 · 살펴볼 점 기본 접힘
       const k = await fr.evaluate(() => ({ mh: Math.round(document.querySelector('.pk-mine').getBoundingClientRect().height), pt: document.querySelector('.pk-grid .dr-pv').getBoundingClientRect().top, folded: !!(document.getElementById('pkTips') && document.getElementById('pkTips').hidden), btn: !!document.querySelector('.pk-grid button.dr-cell[data-open] .dr-go') }));
       if (k.mh < 64 || k.mh > 72) no(`${tag} «내가 고른 스타일» 높이 ${k.mh} — 64~72 [DRESS_RESULT_COMPACT]`);
@@ -128,7 +128,7 @@ try {
     { const BH = W < 560 ? 72 : 80; if (q.some((x) => Math.abs(x.bh - BH) > 0.5)) no(`${tag} 막대 높이 ${q.map((x) => x.bh).join(' ')} — ${BH} 이 아니다 [DRESS_FORM_1024]`); }
     const GL = '마음에 드는 드레스를 떠올려 오시면 상담 날 바로 비교해 볼 수 있어요. 시착은 현장에서 정해요.|상담 날 이 화면을 보여 주셔도 좋아요.';
     if (!steps.filter((x) => /결과|자세히/.test(x.nm)).every((x) => x.guide === GL || x.guide.endsWith('|' + GL))) no(`${tag} 결과 · 자세히 맨 아래 안내 한 줄이 아니다 [DRESS_GUIDE_ONLY]`);
-    if (steps[0].steps.join(' ') !== '1/3 · 길이 2/3 · 라인 3/3 · 노출·소매') no(`${tag} 단계 숫자 «1/3 · 길이» 꼴이 아니다 ${steps[0].steps.join(' ')} [DRESS_STEP_NUM]`);
+    if (steps[0].steps.join(' ') !== '1/3 · 길이 2/3 · 라인 3/3 · 어깨·팔') no(`${tag} 단계 숫자 «1/3 · 길이» 꼴이 아니다 ${steps[0].steps.join(' ')} [DRESS_STEP_NUM]`);
     if (steps[0].intro !== '상담 전, 마음에 드는 스타일을 살펴보세요.') no(`${tag} 첫 물음 목적 한 줄이 아니다 [DRESS_INTRO_LINE]`);
     { const qs = steps.filter((x) => x.qTop !== null && x.bt !== null); if (new Set(qs.map((x) => x.stTop)).size !== 1) no(`${tag} 물음마다 단계선 자리가 다르다 ${qs.map((x) => x.nm + ':' + x.stTop).join(' ')} [DRESS_Q_STEADY]`); }   // 제목 높이는 물음 글 줄 수에 따라 다를 수 있어 단계선(제목 바로 위)으로 잰다
     if (steps[2].q !== '어떤 라인이 마음에 드세요?') no(`${tag} 물음 2 가 «어떤 라인이 마음에 드세요?»가 아니다 [DRESS_Q2_LINE]`);
@@ -240,7 +240,7 @@ try {
     /* [DRESS_Q_FIRST] 열면 물음 1 — 셋을 답해 결과로 · 펼쳐서 읽던 자리를 만든다 */
     const q0 = await look(fr);
     if (q0.q !== QS[0]) { no(`뒤로가기 — 처음 연 겹화면이 물음 1 이 아니다 ${JSON.stringify(q0)} [DRESS_Q_FIRST]`); throw new Error('stop'); }
-    await fr.click('.pk-opt[data-a="ankle"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="low"]'); await fr.click('.wz-bar [data-go="1"]'); await P.waitForTimeout(150);
+    await fr.click('.pk-opt[data-a="ankle"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="open"]'); await fr.click('.wz-bar [data-go="1"]'); await P.waitForTimeout(150);
     await expand(fr); await P.waitForTimeout(80);
     await fr.evaluate(() => window.scrollTo(0, 300)); await P.waitForTimeout(120);
     const y0 = await fr.evaluate(() => Math.round(window.pageYOffset));
@@ -257,7 +257,7 @@ try {
     rows2.push(`물음 1(바뀐 것 없음) → 뒤로 = 겹화면 ${gone ? '닫힘' : '그대로'} · ${path1}`);
     if (!gone || !/\/mypage\.html$/.test(path1)) no(`뒤로가기 — 물음 1 에서(바뀐 것 없음) 겹화면이 닫히지 않았거나 마이페이지를 떠났다 [DRESS_BACK_STEP]`);
     fr = await open(false);   // [DRESS_GUIDE_ONLY] 다시 열어 물음 셋 → 결과 → 첫 드레스 자세히 → 이웃 넘기기
-    await fr.click('.pk-opt[data-a="ankle"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="none"]'); await fr.click('.wz-bar [data-go="1"]'); await P.waitForTimeout(150);
+    await fr.click('.pk-opt[data-a="ankle"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="body"]'); await fr.click('.wz-bar [data-go="1"]'); await fr.click('.pk-opt[data-a="any"]'); await fr.click('.wz-bar [data-go="1"]'); await P.waitForTimeout(150);
     const [f1, want2] = await fr.evaluate(() => { const c = [...document.querySelectorAll('.pk-main [data-open]')]; const nm = (el) => el.closest('.dr-cell').querySelector('.dr-nm').textContent; return [c[0].getAttribute('data-open'), c[1] ? nm(c[1]) : '']; });   // 화면 순서 그대로
     await fr.click(`.pk-main [data-open="${f1}"]`); await P.waitForTimeout(150);
     const nb1 = await fr.evaluate(() => { const g = (s) => { const e = document.querySelector(s); return e ? { t: e.textContent.replace(/\u00a0/g, ' '), h: Math.round(e.getBoundingClientRect().height) } : null; }; return { prev: g('.pk-nb-p'), next: g('.pk-nb-n') }; });
