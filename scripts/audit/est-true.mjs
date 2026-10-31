@@ -47,7 +47,8 @@ const live = (S, re) => { const c = cues(S).filter((x) => x.live && re.test(x.sl
 ok(/est: 120, showT: '두 분이 정한 만큼'/.test(SRC), 'E4 자유 순서 120 · «두 분이 정한 만큼»');
 ok((CON.match(/c\.live\.showT \|\| fmt\(c\.live\.est\)/g) || []).length === 2, 'E4 콘솔 두 자리 = 글(showT)');
 /* E5 — 옛 코스 모임 큐(narr-close) · 새 코스는 사진 몫(목표)에 모임이 들어 있다 */
-[[20, 60], [30, 75], [null, 75]].forEach(([n, w]) => { const S = { course: 'family' }; if (n != null) S.guestN = n; const l = live(S, /^narr-close$/);
+/* [GATHER_FIXED] 하객 수는 엔진에 안 넘어온다 · 75초 고정 */
+[[null, 75]].forEach(([n, w]) => { const S = { course: 'family' }; const l = live(S, /^narr-close$/);
   ok(l && l.est === w, `E5 단체 사진 모임 · 하객 ${n == null ? '칸 없음' : n + '명'} · ${l && l.est} (${w})`); });
 /* E6 */
 { const S = J(BASE); const pv = live(S, /^narr-prevideo-in$/); ok(pv && pv.est === 180, `E6 식전 영상 ${pv && pv.est} (180 그대로)`);

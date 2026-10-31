@@ -654,7 +654,9 @@
        두 분이 적어 둔 글이 있으면 그 글 길이(음절 ÷ 4 + 5초 · 분당 240음절 · RitualOpen.textSec) · 없으면 종전 값 ·
        단체 사진 앞으로 모임 = 하객 수(20명 이하 60 · 30명 75 · 40명 90 · 사이는 선형 · 칸이 없거나 비면 정원 30명) */
   function txSec(S, k, d) { var v = O.textSec ? O.textSec(S, k) : 0; return v || d; }
-  function gatherSec(S) { var n = +(S && (S.guestN || S.guests)) || 30; n = Math.max(0, Math.min(60, n)); return Math.round(n <= 20 ? 60 : 60 + (n - 20) * 1.5); }
+  /* ★[EST_TRUE_1031 GATHER_FIXED] 단체 사진 모임 = 하객 30명 기준 75초. 하객 수는 아직 빌더 · 미리듣기 · 콘솔 어디서도 엔진에 안 넘어온다
+     (S.guestN 을 읽으면 미리듣기 KEYS 검사 [PREVIEW_KEYS] 가 «값을 만드는 곳 없음»으로 막는다). 넘기는 곳이 생기면 그때 KEYS · INJECT 와 함께 늘린다. */
+  function gatherSec(S) { return 75; }
   var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, free: 75, song: 80, toast: 85 };
   function isGAdd(S, k) {
     var c = D.COURSES[S.course];
