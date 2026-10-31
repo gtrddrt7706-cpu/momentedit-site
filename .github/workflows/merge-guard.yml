@@ -68,12 +68,12 @@ jobs:
           node-version: '22'
       - name: 브라우저 준비
         run: npm i --no-save --no-package-lock playwright@1.56.1 && npx --yes playwright install --with-deps chromium
-      - name: 구간 음악 소리 검사 셋 (bgm-preview · bgm-seg8 · bgm-console2)
+      - name: 구간 음악 소리 검사 셋 (bgm-preview · bgm-seg8 · bgm-console2 · music-fold)   # [MUSIC_FOLD_1031] 곡 목록 접기도 브라우저로
         shell: bash
         run: |
           set +e
           rc=0
-          for t in bgm-preview bgm-seg8 bgm-console2; do
+          for t in bgm-preview bgm-seg8 bgm-console2 music-fold; do
             node "scripts/audit/$t.mjs" > "$RUNNER_TEMP/$t.txt" 2>&1; r=$?
             echo "── $t exit=$r"
             grep -E '^(FAIL|못 쟀다)' "$RUNNER_TEMP/$t.txt" | cut -c1-500
