@@ -20894,17 +20894,14 @@ chk 'CLIP_STATUS_1031' scripts/audit/flow-gaps.mjs 1
 chk 'CLIP_STATUS_1031' scripts/audit/keepgap-text.mjs 1
 chk 'CLIP_STATUS_1031' CLAUDE.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/clip-status.mjs >/dev/null 2>&1; _cst=$?; [ "$_cst" = 1 ] && { echo 'FAIL clip-status: 안 나는 녹음 표시가 엔진과 다르거나 도구 숫자가 갈렸습니다(안 남이라 적은 클립이 나거나 · 없는 파일 · CAST_MUTE 를 표에 또 적음 · 실청 기준 나레이션 숫자가 다름) — node scripts/audit/clip-status.mjs'; fail=1; }; :; fi
-# ── 2026-10-31 [LISTEN_FIX_1031 검토 176 사장님 실청 코멘트] 글 고침 다섯 자리 — 다시 받기 5클립(120 · 40 · 22 · 146 · 138 · 48 중 글이 바뀐 문장) · 음성 쉼은 174 녹음과 한 PR 로 · _recorded 는 녹음 PR 이 바꾼다
+# ── 2026-10-31 [LISTEN_FIX_1031 검토 176 사장님 실청 코멘트] 글 고침 — 다시 받기 5클립(120 · 40 · 146 · 138 · 48 중 글이 바뀐 문장 · 22 는 검토 177 로 뺌) · 음성 쉼은 174 녹음과 한 PR 로 · _recorded 는 녹음 PR 이 바꾼다
 #    265 «촬영을 마치신 분들은 편히 귀가하셔도 좋습니다.»(애프터 웨딩 안 고른 날 판)와 88 guide-meal(RETIRED · 266 과 겹침)은 그대로
 chk 'LISTEN_FIX_1031' assets/ritual-open.js 1
 chk 'LISTEN_FIX_1031' assets/ritual-data.js 1
 chk 'LISTEN_FIX_1031' assets/ritual-cue.js 1
-chk '두 사람을 가장 오래 지켜봐 오신 부모님의 말씀을 듣겠습니다. 이제, 편히 들려주십시오.' assets/ritual-data.js 1
 chk '양가 아버님, 맞절. 양가 아버님 하객분들께 인사!' assets/ritual-open.js 1
 nochk '마음껏 셔터를 눌러 주세요' assets/ritual-open.js
 nochk "screen: '자, 다음은 신랑 신부의 영원한" assets/ritual-open.js
-nochk '서약의 문을, 두 사람을 가장 오래' assets/ritual-data.js
-nochk '서약의 문을, 두 사람을 가장 오래' order-preview.html
 nochk "two: '양가 어머님 맞절." assets/ritual-open.js
 nochk "fathers: '양가 아버님 맞절." assets/ritual-open.js
 nochk '화면으로 보고 계신 분들, 반갑습니다' assets/ritual-cue.js

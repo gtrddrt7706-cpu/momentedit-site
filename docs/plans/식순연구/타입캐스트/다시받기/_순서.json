@@ -2,144 +2,138 @@
  "우성": [
   {
    "n": 1,
-   "clip": "22_narr-bless-open",
-   "i": 0,
-   "text": "두 사람을 가장 오래 지켜봐 오신 부모님의 말씀을 듣겠습니다."
-  },
-  {
-   "n": 2,
    "clip": "138_narr-candle-bow",
    "i": 0,
    "text": "양가 어머님, 맞절."
   },
   {
-   "n": 3,
+   "n": 2,
    "clip": "146_narr-candle-bow-fathers",
    "i": 0,
    "text": "양가 아버님, 맞절."
   },
   {
-   "n": 4,
+   "n": 3,
    "clip": "40_toast-toast",
    "i": 0,
    "text": "다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다."
   },
   {
-   "n": 5,
+   "n": 4,
    "clip": "267_narr-declare-in-friend-gdad",
    "i": 0,
    "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 6,
+   "n": 5,
    "clip": "271_narr-declare-in-friend-ex2-gdad",
    "i": 1,
    "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 7,
+   "n": 6,
    "clip": "275_narr-declare-in-friend-ex3-gdad",
    "i": 1,
    "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 8,
+   "n": 7,
    "clip": "279_narr-declare-in-friend-ex4-gdad",
    "i": 1,
    "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 9,
+   "n": 8,
    "clip": "283_bridge-b9-declare-seat-end-gdad",
    "i": 0,
    "text": "신랑 아버님께서는 자리로 돌아가셔도 좋습니다."
   },
   {
-   "n": 10,
+   "n": 9,
    "clip": "268_narr-declare-in-friend-bdad",
    "i": 0,
    "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 11,
+   "n": 10,
    "clip": "272_narr-declare-in-friend-ex2-bdad",
    "i": 1,
    "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 12,
+   "n": 11,
    "clip": "276_narr-declare-in-friend-ex3-bdad",
    "i": 1,
    "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 13,
+   "n": 12,
    "clip": "280_narr-declare-in-friend-ex4-bdad",
    "i": 1,
    "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 14,
+   "n": 13,
    "clip": "284_bridge-b9-declare-seat-end-bdad",
    "i": 0,
    "text": "신부 아버님께서는 자리로 돌아가셔도 좋습니다."
   },
   {
-   "n": 15,
+   "n": 14,
    "clip": "269_narr-declare-in-friend-gmom",
    "i": 0,
    "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 16,
+   "n": 15,
    "clip": "273_narr-declare-in-friend-ex2-gmom",
    "i": 1,
    "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 17,
+   "n": 16,
    "clip": "277_narr-declare-in-friend-ex3-gmom",
    "i": 1,
    "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 18,
+   "n": 17,
    "clip": "281_narr-declare-in-friend-ex4-gmom",
    "i": 1,
    "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 19,
+   "n": 18,
    "clip": "285_bridge-b9-declare-seat-end-gmom",
    "i": 0,
    "text": "신랑 어머님께서는 자리로 돌아가셔도 좋습니다."
   },
   {
-   "n": 20,
+   "n": 19,
    "clip": "270_narr-declare-in-friend-bmom",
    "i": 0,
    "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 21,
+   "n": 20,
    "clip": "274_narr-declare-in-friend-ex2-bmom",
    "i": 1,
    "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 22,
+   "n": 21,
    "clip": "278_narr-declare-in-friend-ex3-bmom",
    "i": 1,
    "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 23,
+   "n": 22,
    "clip": "282_narr-declare-in-friend-ex4-bmom",
    "i": 1,
    "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
   },
   {
-   "n": 24,
+   "n": 23,
    "clip": "286_bridge-b9-declare-seat-end-bmom",
    "i": 0,
    "text": "신부 어머님께서는 자리로 돌아가셔도 좋습니다."
