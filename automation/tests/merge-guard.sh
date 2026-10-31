@@ -20882,4 +20882,7 @@ chk 'DECL_TITLE_MIRROR' admin.html 1
 chk 'DECL_TITLE_1031' api/_ritual-kb.js 2
 nochk "_declOther = !!_dw && !/아버|어머|부모|아빠|엄마/" assets/ritual-cue.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/decl-title.mjs >/dev/null 2>&1; _dtl=$?; [ "$_dtl" = 1 ] && { echo 'FAIL decl-title: 성혼 선언 호칭 칩 · 호칭 여는 말 · 자리로 · 덕담 이어 하기가 되돌아갔습니다 — node scripts/audit/decl-title.mjs'; fail=1; }; :; fi
+# ── 2026-10-31 [FAB_SHARE_COPIED] 홈 공유 «복사됨»은 보이는 이름표에(종전 .me-fab-cap 은 늘 숨김 → PC 복사 확인이 안 보였다)
+chk "meShareSite(sf.querySelector('.me-fab-nm'));" index.html 1
+nochk "meShareSite(sf.querySelector('.me-fab-cap'))" index.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
