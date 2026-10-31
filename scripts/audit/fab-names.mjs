@@ -6,6 +6,7 @@
  *   ② 드레스 이름표 겉모습은 그대로(위치 · 크기 · 글꼴 · 색 — 옛 판 실측값과 같다)
  *   ③ 맨 위로가 안 보일 때 · 1회 말풍선이 떠 있을 때 · 상담 도우미 패널이 열렸을 때 · 전체 화면 편집 때 이름표 안 뜸
  *   ⑤ 이름표 가운데 = 아이콘 가운데(±0.5px · FAB_NM_ICO_CY) · 올림 100ms 뒤 투명 · 250ms 뒤 보임 · 나가면 바로 · 초점 바로(FAB_NM_HOVER_DELAY)
+ *   ⑥ [FAB_TOUCH_FOCUS] 드레스 창을 닫아 초점이 돌아와도 — 390 터치 · 1280 마우스는 테두리 · 이름표 없음 · 1280 키보드(Tab · Enter · Esc)는 초점 · 이름표 그대로(사파리처럼 :focus-visible 강제)
  *   ④ 390 휴대폰(터치 · hover 없음) — 이름표가 뜨지 않는다
  *   종료: 0 통과 · 1 틀림 · 2 재지 못했다(브라우저 없음)
  *   캡처: FAB_NAMES_SHOTS=<폴더>
@@ -144,7 +145,7 @@ try {
       await away(P, W, H); await P.mouse.move(c[0], c[1]); await wait(100); const t100 = await nmInfo(P, sel); await wait(150); const t250 = await nmInfo(P, sel);
       await wait(300); await away(P, W, H).catch(() => {});
       await P.mouse.move(c[0], c[1]); await wait(500); await P.mouse.move(Math.round(W / 3), Math.round(H / 2)); await wait(100); const out100 = await nmInfo(P, sel); await wait(400);
-      await P.keyboard.press('Shift'); await P.evaluate((s) => document.querySelector(s).focus(), sel); await wait(100); const f100 = await nmInfo(P, sel);
+      await P.keyboard.press('Tab'); await P.evaluate((s) => document.querySelector(s).focus(), sel); await wait(100); const f100 = await nmInfo(P, sel);   // [FAB_TOUCH_FOCUS] 키보드 쓰는 중(Tab) — Shift 만으로는 키보드 사용으로 치지 않는다
       const fv = await P.evaluate((s) => document.querySelector(s).matches(':focus-visible'), sel);
       await P.evaluate(() => document.activeElement && document.activeElement.blur());
       if (t100.op > 0.05) no(`${tag} 올리고 100ms 만에 이름표가 보인다(불투명도 ${t100.op}) — 훑으면 깜빡인다 [FAB_NM_HOVER_DELAY]`);
@@ -154,6 +155,37 @@ try {
       else if (f100.vis !== 'visible' || f100.op < 0.3) no(`${tag} 키보드 초점 100ms 뒤에 이름표가 아직 ${f100.vis} · ${f100.op} — 초점은 지연 없이 [FAB_NM_HOVER_DELAY]`);
       rows.push(`${tag} 올림 100ms ${t100.op} · 250ms ${t250.op} · 나감 100ms ${out100.op} · 초점 100ms ${f100.op}`);
     }
+    if (errors.length) no(`${tag} 페이지 오류 ${errors[0]}`);
+    await P.close();
+  }
+  /* ── ★[FAB_TOUCH_FOCUS 2026-10-31 사장님 아이폰 스크린샷] 창을 닫아 초점이 돌아올 때 — 터치 · 마우스면 테두리 · 이름표 없음 · 키보드면 그대로 ──
+     아이폰 사파리는 프로그램 초점을 :focus-visible 로 친다 — 크롬은 안 그래서, 개발 도구로 그 상태를 강제로 켜고 잰다(사파리 흉내) */
+  const cdpOf = async (P) => (P.context ? await P.context().newCDPSession(P) : await P.target().createCDPSession());
+  const forceFV = async (cdp, sel) => { await cdp.send('DOM.enable'); await cdp.send('CSS.enable'); const { root } = await cdp.send('DOM.getDocument', { depth: -1 }); const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: sel }); if (!nodeId) return false; await cdp.send('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: ['focus', 'focus-visible'] }); return true; };
+  const look = (P, sel) => P.evaluate((s) => { const b = document.querySelector(s), n = b && b.querySelector('.me-fab-nm'); if (!b || !n) return null; const cb = getComputedStyle(b), cn = getComputedStyle(n);
+    return { act: document.activeElement === b, ptr: b.classList.contains('nm-ptr'), op: +cn.opacity, vis: cn.visibility, ol: cb.outlineStyle === 'none' || parseFloat(cb.outlineWidth) === 0 ? 'none' : cb.outlineStyle + ' ' + cb.outlineWidth }; }, sel);
+  for (const [W, H, how] of [[390, 844, 'touch'], [1280, 900, 'mouse'], [1280, 900, 'kbd']]) {
+    const tag = `${W} ${how} · 드레스 창 닫은 뒤`;
+    const { P, errors } = await page(W, H, true, { ans: ANS.full });
+    const cdp = await cdpOf(P);
+    if (how === 'touch') { await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 }).catch(() => {}); await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' }).catch(() => {}); }
+    await P.waitForSelector('#mp_dressFab', { timeout: 15000, state: 'visible', visible: true });
+    if (how === 'kbd') { await P.keyboard.press('Tab'); await P.evaluate(() => document.getElementById('mp_dressFab').focus()); await P.keyboard.press('Enter'); }
+    else if (how === 'touch') {   // 터치 흉내 중에는 page.click 이 멈춘다 — 손가락 탭을 직접 보낸다
+      const c = await P.evaluate(() => { const r = document.getElementById('mp_dressFab').getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)]; });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: c[0], y: c[1] }] }); await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    } else await P.click('#mp_dressFab');
+    const fr = await (await P.waitForSelector('#mp_drFrame', { timeout: 15000 })).contentFrame(); await fr.waitForSelector('#pkMain > *', { timeout: 15000, state: 'attached' }); await wait(600);
+    if (how === 'kbd') { await fr.focus('#pkTabD'); await P.keyboard.press('Escape'); } else await fr.evaluate(() => document.getElementById('pkExit').click());   // 창 안 입력은 부모에 안 온다 — 닫기만 하면 된다
+    await wait(700); if (how !== 'kbd') await P.mouse.move(Math.round(W / 3), Math.round(H / 2)).catch(() => {});
+    await wait(300);
+    const forced = await forceFV(cdp, '#mp_dressFab'); await wait(350);
+    const r = await look(P, '#mp_dressFab');
+    if (SHOTS) await P.screenshot({ path: `${SHOTS}/close-${how}-${W}.png` });
+    if (!forced || !r) no(`${tag} 재지 못했다(강제 초점 ${forced}) — 재는 길이 틀렸다`);
+    else if (how === 'kbd') { if (!r.act || r.ptr || r.op < 0.5 || r.vis !== 'visible') no(`${tag} 키보드인데 초점 · 이름표가 안 돌아왔다 ${JSON.stringify(r)} [FAB_TOUCH_FOCUS]`); }
+    else if (r.op > 0.01 || r.vis === 'visible' || r.ol !== 'none') no(`${tag} 이름표 · 테두리가 남는다(아이폰 사파리 증상) ${JSON.stringify(r)} [FAB_TOUCH_FOCUS]`);
+    rows.push(`${tag} ${JSON.stringify(r)}`);
     if (errors.length) no(`${tag} 페이지 오류 ${errors[0]}`);
     await P.close();
   }
