@@ -2203,7 +2203,7 @@
    "clip": "218_narr-declare-in-friend-ex2",
    "i": 1,
    "role": "진행",
-   "text": "오늘은 신랑 신부가 부탁드린 분께서 직접 성혼 선언문을 낭독해 주시겠습니다."
+   "text": "오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다."
   },
   {
    "n": 316,
@@ -2231,7 +2231,7 @@
    "clip": "231_narr-declare-in-friend-ex4",
    "i": 1,
    "role": "진행",
-   "text": "선언을 맡아 주실 분께 박수와 환호 부탁드립니다!"
+   "text": "오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다."
   },
   {
    "n": 320,
@@ -2795,335 +2795,559 @@
   },
   {
    "n": 400,
+   "clip": "267_narr-declare-in-friend-gdad",
+   "i": 0,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 401,
+   "clip": "271_narr-declare-in-friend-ex2-gdad",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다."
+  },
+  {
+   "n": 402,
+   "clip": "271_narr-declare-in-friend-ex2-gdad",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 403,
+   "clip": "275_narr-declare-in-friend-ex3-gdad",
+   "i": 0,
+   "role": "진행",
+   "text": "이제 이 결혼식의 가장 엄숙한 순서, 성혼 선언이 있겠습니다."
+  },
+  {
+   "n": 404,
+   "clip": "275_narr-declare-in-friend-ex3-gdad",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 405,
+   "clip": "279_narr-declare-in-friend-ex4-gdad",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 성혼 선언입니다."
+  },
+  {
+   "n": 406,
+   "clip": "279_narr-declare-in-friend-ex4-gdad",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 407,
+   "clip": "283_bridge-b9-declare-seat-end-gdad",
+   "i": 0,
+   "role": "진행",
+   "text": "신랑 아버님께서는 자리로 돌아가셔도 좋습니다."
+  },
+  {
+   "n": 408,
+   "clip": "268_narr-declare-in-friend-bdad",
+   "i": 0,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 409,
+   "clip": "272_narr-declare-in-friend-ex2-bdad",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다."
+  },
+  {
+   "n": 410,
+   "clip": "272_narr-declare-in-friend-ex2-bdad",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 411,
+   "clip": "276_narr-declare-in-friend-ex3-bdad",
+   "i": 0,
+   "role": "진행",
+   "text": "이제 이 결혼식의 가장 엄숙한 순서, 성혼 선언이 있겠습니다."
+  },
+  {
+   "n": 412,
+   "clip": "276_narr-declare-in-friend-ex3-bdad",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 413,
+   "clip": "280_narr-declare-in-friend-ex4-bdad",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 성혼 선언입니다."
+  },
+  {
+   "n": 414,
+   "clip": "280_narr-declare-in-friend-ex4-bdad",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 아버님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 415,
+   "clip": "284_bridge-b9-declare-seat-end-bdad",
+   "i": 0,
+   "role": "진행",
+   "text": "신부 아버님께서는 자리로 돌아가셔도 좋습니다."
+  },
+  {
+   "n": 416,
+   "clip": "269_narr-declare-in-friend-gmom",
+   "i": 0,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 417,
+   "clip": "273_narr-declare-in-friend-ex2-gmom",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다."
+  },
+  {
+   "n": 418,
+   "clip": "273_narr-declare-in-friend-ex2-gmom",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 419,
+   "clip": "277_narr-declare-in-friend-ex3-gmom",
+   "i": 0,
+   "role": "진행",
+   "text": "이제 이 결혼식의 가장 엄숙한 순서, 성혼 선언이 있겠습니다."
+  },
+  {
+   "n": 420,
+   "clip": "277_narr-declare-in-friend-ex3-gmom",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 421,
+   "clip": "281_narr-declare-in-friend-ex4-gmom",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 성혼 선언입니다."
+  },
+  {
+   "n": 422,
+   "clip": "281_narr-declare-in-friend-ex4-gmom",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신랑 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 423,
+   "clip": "285_bridge-b9-declare-seat-end-gmom",
+   "i": 0,
+   "role": "진행",
+   "text": "신랑 어머님께서는 자리로 돌아가셔도 좋습니다."
+  },
+  {
+   "n": 424,
+   "clip": "270_narr-declare-in-friend-bmom",
+   "i": 0,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 425,
+   "clip": "274_narr-declare-in-friend-ex2-bmom",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다."
+  },
+  {
+   "n": 426,
+   "clip": "274_narr-declare-in-friend-ex2-bmom",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 427,
+   "clip": "278_narr-declare-in-friend-ex3-bmom",
+   "i": 0,
+   "role": "진행",
+   "text": "이제 이 결혼식의 가장 엄숙한 순서, 성혼 선언이 있겠습니다."
+  },
+  {
+   "n": 428,
+   "clip": "278_narr-declare-in-friend-ex3-bmom",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 429,
+   "clip": "282_narr-declare-in-friend-ex4-bmom",
+   "i": 0,
+   "role": "진행",
+   "text": "다음은 성혼 선언입니다."
+  },
+  {
+   "n": 430,
+   "clip": "282_narr-declare-in-friend-ex4-bmom",
+   "i": 1,
+   "role": "진행",
+   "text": "오늘의 성혼 선언은 신부 어머님께서 직접 해 주시겠습니다."
+  },
+  {
+   "n": 431,
+   "clip": "286_bridge-b9-declare-seat-end-bmom",
+   "i": 0,
+   "role": "진행",
+   "text": "신부 어머님께서는 자리로 돌아가셔도 좋습니다."
+  },
+  {
+   "n": 432,
    "clip": "44_end-0-photo",
    "i": 0,
    "role": "진행",
    "text": "여기서부터는 작가님이 안내해 드립니다."
   },
   {
-   "n": 401,
+   "n": 433,
    "clip": "87_narr-toast-none",
    "i": 0,
    "role": "진행",
    "text": "축사는 따로 두지 않았습니다."
   },
   {
-   "n": 402,
+   "n": 434,
    "clip": "87_narr-toast-none",
    "i": 1,
    "role": "진행",
    "text": "여기 계신 분들이, 이미 두 사람을 잘 아시니까요."
   },
   {
-   "n": 403,
+   "n": 435,
    "clip": "52_narr-entry-out",
    "i": 0,
    "role": "진행",
    "text": "두 사람이 나란히 있습니다."
   },
   {
-   "n": 404,
+   "n": 436,
    "clip": "52_narr-entry-out",
    "i": 1,
    "role": "진행",
    "text": "잠시, 서로를 바라봐 주세요."
   },
   {
-   "n": 405,
+   "n": 437,
    "clip": "80_narr-entry-out-C",
    "i": 0,
    "role": "진행",
    "text": "지금부터는 두 사람의 시간입니다."
   },
   {
-   "n": 406,
+   "n": 438,
    "clip": "80_narr-entry-out-C",
    "i": 1,
    "role": "진행",
    "text": "잠시, 서로를 바라봐 주세요."
   },
   {
-   "n": 407,
+   "n": 439,
    "clip": "81_narr-entry-out-D",
    "i": 0,
    "role": "진행",
    "text": "그 계절을 다 건너, 두 사람이 이 자리에 닿았습니다."
   },
   {
-   "n": 408,
+   "n": 440,
    "clip": "81_narr-entry-out-D",
    "i": 1,
    "role": "진행",
    "text": "잠시, 서로를 바라봐 주세요."
   },
   {
-   "n": 409,
+   "n": 441,
    "clip": "82_narr-entry-out-E",
    "i": 0,
    "role": "진행",
    "text": "고마운 분들 덕분에, 두 사람이 여기까지 왔습니다."
   },
   {
-   "n": 410,
+   "n": 442,
    "clip": "82_narr-entry-out-E",
    "i": 1,
    "role": "진행",
    "text": "잠시, 서로를 바라봐 주세요."
   },
   {
-   "n": 411,
+   "n": 443,
    "clip": "83_narr-entry-out-F",
    "i": 0,
    "role": "진행",
    "text": "오늘부터는 혼자 쓰는 이야기가 아닙니다."
   },
   {
-   "n": 412,
+   "n": 444,
    "clip": "83_narr-entry-out-F",
    "i": 1,
    "role": "진행",
    "text": "잠시, 서로를 바라봐 주세요."
   },
   {
-   "n": 413,
+   "n": 445,
    "clip": "56_narr-toast-out",
    "i": 0,
    "role": "진행",
    "text": "편안하게 즐겨 주세요."
   },
   {
-   "n": 414,
+   "n": 446,
    "clip": "77_narr-cake-out",
    "i": 0,
    "role": "진행",
    "text": "두 사람이 케이크에 첫 칼을 넣었습니다."
   },
   {
-   "n": 415,
+   "n": 447,
    "clip": "77_narr-cake-out",
    "i": 1,
    "role": "진행",
    "text": "두 분, 나이프는 그 자리에 내려놓아 주세요."
   },
   {
-   "n": 416,
+   "n": 448,
    "clip": "57_narr-declare-family-out",
    "i": 0,
    "role": "진행",
    "text": "큰 박수로 두 사람을 축하해 주세요."
   },
   {
-   "n": 417,
+   "n": 449,
    "clip": "58_narr-free-in",
    "i": 0,
    "role": "진행",
    "text": "다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다."
   },
   {
-   "n": 418,
+   "n": 450,
    "clip": "59_narr-free-out",
    "i": 0,
    "role": "진행",
    "text": "함께 봐 주셔서 고맙습니다."
   },
   {
-   "n": 419,
+   "n": 451,
    "clip": "59_narr-free-out",
    "i": 1,
    "role": "진행",
    "text": "준비한 정성에도, 박수 한 번 부탁드립니다."
   },
   {
-   "n": 420,
+   "n": 452,
    "clip": "60_narr-photo-split",
    "i": 0,
    "role": "진행",
    "text": "자리를 지켜 주시기 바랍니다."
   },
   {
-   "n": 421,
+   "n": 453,
    "clip": "61_narr-round-open",
    "i": 0,
    "role": "진행",
    "text": "자리로 가시는 대로, 두 사람이 여러분 곁으로 찾아뵙겠습니다."
   },
   {
-   "n": 422,
+   "n": 454,
    "clip": "61_narr-round-open",
    "i": 1,
    "role": "진행",
    "text": "한 분 한 분과 눈을 맞추며 인사드리고 싶어서요."
   },
   {
-   "n": 423,
+   "n": 455,
    "clip": "61_narr-round-open",
    "i": 2,
    "role": "진행",
    "text": "앉으신 채로 편히 맞아 주시면 됩니다."
   },
   {
-   "n": 424,
+   "n": 456,
    "clip": "61_narr-round-open",
    "i": 3,
    "role": "진행",
    "text": "사진이 필요하시면 작가님을 부르셔도 좋습니다."
   },
   {
-   "n": 425,
+   "n": 457,
    "clip": "62_narr-online-in",
    "i": 0,
    "role": "진행",
    "text": "화면으로 보고 계신 분들께 인사를 올리겠습니다."
   },
   {
-   "n": 426,
+   "n": 458,
    "clip": "62_narr-online-in",
    "i": 1,
    "role": "진행",
    "text": "신랑 신부는 카메라를 향해 서주시기 바랍니다."
   },
   {
-   "n": 427,
+   "n": 459,
    "clip": "63_narr-final-warn",
    "i": 0,
    "role": "진행",
    "text": "마지막으로, 앞쪽에서 다 함께 한 장을 남기겠습니다."
   },
   {
-   "n": 428,
+   "n": 460,
    "clip": "64_narr-final-call",
    "i": 0,
    "role": "진행",
    "text": "가까이 모여 주시면 됩니다."
   },
   {
-   "n": 429,
+   "n": 461,
    "clip": "65_narr-photo-out",
    "i": 0,
    "role": "진행",
    "text": "오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다."
   },
   {
-   "n": 430,
+   "n": 462,
    "clip": "262_narr-photo-free",
    "i": 0,
    "role": "진행",
    "text": "하객 여러분께서는 가까이 오셔서 영상과 사진으로 남겨 두 사람에게 선물해 주세요."
   },
   {
-   "n": 431,
+   "n": 463,
    "clip": "265_narr-photo-pre",
    "i": 0,
    "role": "진행",
    "text": "계속해서 기념 촬영이 있겠습니다."
   },
   {
-   "n": 432,
+   "n": 464,
    "clip": "265_narr-photo-pre",
    "i": 1,
    "role": "진행",
    "text": "전체 사진 뒤에는 양가 직계 가족분들과의 기념 촬영이 이어집니다."
   },
   {
-   "n": 433,
+   "n": 465,
    "clip": "265_narr-photo-pre",
    "i": 2,
    "role": "진행",
    "text": "촬영을 마치신 분들은 편히 귀가하셔도 좋습니다."
   },
   {
-   "n": 434,
+   "n": 466,
    "clip": "265_narr-photo-pre",
    "i": 3,
    "role": "진행",
    "text": "사진 촬영을 위해, 모두 단상 앞으로 모여 주시면 감사하겠습니다."
   },
   {
-   "n": 435,
+   "n": 467,
    "clip": "266_narr-photo-pre-meal",
    "i": 0,
    "role": "진행",
    "text": "계속해서 기념 촬영이 있겠습니다."
   },
   {
-   "n": 436,
+   "n": 468,
    "clip": "266_narr-photo-pre-meal",
    "i": 1,
    "role": "진행",
    "text": "전체 사진 뒤에는 양가 직계 가족분들과의 기념 촬영이 이어집니다."
   },
   {
-   "n": 437,
+   "n": 469,
    "clip": "266_narr-photo-pre-meal",
    "i": 2,
    "role": "진행",
    "text": "촬영 차례가 아닌 분들은 자리에서 편히 쉬셔도 좋습니다."
   },
   {
-   "n": 438,
+   "n": 470,
    "clip": "266_narr-photo-pre-meal",
    "i": 3,
    "role": "진행",
    "text": "식사는 안내된 예약 시간에 두 사람과 함께 시작하겠습니다."
   },
   {
-   "n": 439,
+   "n": 471,
    "clip": "266_narr-photo-pre-meal",
    "i": 4,
    "role": "진행",
    "text": "장소와 시간은 여러분이 받으신 모바일 청첩장의 하객 안내를 통해 확인해 주세요."
   },
   {
-   "n": 440,
+   "n": 472,
    "clip": "266_narr-photo-pre-meal",
    "i": 5,
    "role": "진행",
    "text": "사진 촬영을 위해, 모두 단상 앞으로 모여 주시면 감사하겠습니다."
   },
   {
-   "n": 441,
+   "n": 473,
    "clip": "69_fx-vshape",
    "i": 0,
    "role": "진행",
    "text": "어깨만 살짝, 두 사람 쪽으로 돌려 주세요."
   },
   {
-   "n": 442,
+   "n": 474,
    "clip": "70_fx-clink",
    "i": 0,
    "role": "진행",
    "text": "옆에 계신 분과 잔을 부딪쳐 주세요."
   },
   {
-   "n": 443,
+   "n": 475,
    "clip": "71_fx-wave",
    "i": 0,
    "role": "진행",
    "text": "신랑 신부, 하객 여러분께 손을 흔들어 주세요."
   },
   {
-   "n": 444,
+   "n": 476,
    "clip": "73_fx-lean",
    "i": 0,
    "role": "진행",
    "text": "다 같이 조금씩 가까이 붙어 주세요."
   },
   {
-   "n": 445,
+   "n": 477,
    "clip": "74_fx-clap",
    "i": 0,
    "role": "진행",
    "text": "다 함께 박수 부탁드립니다."
   },
   {
-   "n": 446,
+   "n": 478,
    "clip": "75_fx-selfie",
    "i": 0,
    "role": "진행",
    "text": "신랑 신부, 휴대폰을 들어 주세요."
   },
   {
-   "n": 447,
+   "n": 479,
    "clip": "109_fx-free",
    "i": 0,
    "role": "진행",

@@ -184,10 +184,41 @@
      옛 칩 값(10/12 첫 판) gdad · bdad 는 그 이름으로 옮기고, 그 밖의 옛 값(friend · narr · family · ask · chorus · clap)은 빈칸(아직 안 정함)으로 읽는다. */
   var DECL_MAX = 30, DECL_HINT = '예) 아버님 · 친구 · 지인';   // 사장님 말 그대로(«아버지 지인 친구») · 폰 칸 한 줄에 선다(15자)
   var DECL_OLD = { gdad: '신랑 아버님', bdad: '신부 아버님', friend: '', narr: '', family: '', ask: '', chorus: '', clap: '' };
-  function declBy(S) {
-    var v = S && S.declareWho; if (typeof v !== 'string') return '';
-    if (Object.prototype.hasOwnProperty.call(DECL_OLD, v)) return DECL_OLD[v];
-    return v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, DECL_MAX);
+  function declText(v) { if (typeof v !== 'string') return ''; if (Object.prototype.hasOwnProperty.call(DECL_OLD, v)) return DECL_OLD[v];
+    return v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, DECL_MAX); }
+  /* ★★[DECL_TITLE_1031 검토 174 · 사장님 «호칭으로 불러 드리는 게 예의» · GPT 4라운드 → 0] 읽어 주실 분 = 호칭 칩 다섯(처음엔 아무것도 안 고름 · 한 분 낭독 · 양가 두 분 낭독은 이번에 안 넣는다).
+       네 부모님 호칭은 나레이션이 그 호칭으로 부른다(여는 말 «오늘의 성혼 선언은 H께서 직접 해 주시겠습니다.» · 자리로 «H께서는 자리로 돌아가셔도 좋습니다.»).
+       «그 밖의 분»은 30자 칸(S.declareWho · 이름이나 관계)을 진행 대본 · 콘솔에만 쓰고 나레이션은 «신랑 신부가 부탁드린 분»(136 · 255 그대로). 이름은 소리로 읽지 않는다.
+       옛 데이터 — 옛 칸 글이 네 호칭과 글자 그대로 같을 때만 그 칩 · 옛 코드 gdad · bdad 그대로 · 나머지 글(실명 · «아버님» · 관계)은 «그 밖의 분» + 글 보존 · 빈 칸은 아직 안 고름.
+       ★[DECLARE_ANYONE 2026-10-12] 의 «읽는 분 칩 금지»는 이 결정(10/31)이 바꿨다 — 칩은 호칭 다섯(누가 읽는지)뿐 · 나레이션이 선언문을 읽는 갈래는 여전히 없다(DECLARE_BY_PERSON) */
+  var DECL_TITLES = [['gdad', '신랑 아버님'], ['bdad', '신부 아버님'], ['gmom', '신랑 어머님'], ['bmom', '신부 어머님'], ['other', '그 밖의 분']];
+  var DECL_ASKED = '신랑 신부가 부탁드린 분', DECL_OTHER_HINT = '예) 신랑 할아버님 · 신부 언니 · 신랑 친구';
+  var DECL_OTHER_NOTE = '입력하신 이름이나 관계는 진행 대본에만 담고, 나레이션에서는 ‘신랑 신부가 부탁드린 분’으로 안내해요.';
+  var DECL_TONE_HEAD = ['', '다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다.', '이제 이 결혼식의 가장 엄숙한 순서, 성혼 선언이 있겠습니다.', '다음은 성혼 선언입니다.'];   // 담백 136 · 격식 218 · 엄숙 230 · 힘차게 231 의 앞 문장(녹음된 문장 그대로)
+  function declLabel(t) { var c = DECL_TITLES.filter(function (x) { return x[0] === t; })[0]; return c ? c[1] : ''; }
+  function declTitleOf(S) {
+    var t = S && S.declTitle; if (t && declLabel(t)) return t;
+    var v = S && S.declareWho; if (typeof v !== 'string' || !v) return '';
+    if (v === 'gdad' || v === 'bdad') return v;
+    var tx = declText(v); for (var i = 0; i < 4; i++) if (tx === DECL_TITLES[i][1]) return DECL_TITLES[i][0];
+    return tx ? 'other' : '';
+  }
+  function declParent(S) { var t = declTitleOf(S); return t && t !== 'other' ? t : ''; }
+  function declHon(S) { var t = declParent(S); return t ? declLabel(t) : DECL_ASKED; }   // 나레이션이 부르는 호칭
+  function declInText(i, h) { return (DECL_TONE_HEAD[i] ? DECL_TONE_HEAD[i] + ' ' : '') + '오늘의 성혼 선언은 ' + h + '께서 직접 해 주시겠습니다.'; }
+  function declSeatText(h) { return h + '께서는 자리로 돌아가셔도 좋습니다.'; }
+  function declInSlug(base, t) { return base + '-' + t; }   // narr-declare-in-friend(-exN) + -gdad … (새 이름 · 134 · 135 RETIRED 는 다시 쓰지 않는다)
+  function declSeatSlug(S) { var t = declParent(S); return t ? 'bridge-b9-declare-seat-end-' + t : 'bridge-b9-declare-seat-end'; }
+  /* 덕담과 같은 분 — 글자 추측 대신 묻는다: 바로 다음이 덕담일 때만 «성혼 선언을 읽으신 분이 첫 덕담도 이어서 하시나요?»
+       네 → 자리로 생략 · 그분이 첫 덕담 / 아니요 · 안 고름 → 자리로 → 귀석 · 마이크 전달 → 디렉터 GO.
+       호칭 · 순서 · 덕담 유무가 바뀌면 답은 다시 확인(열쇠 declBlessKey · 글자 없는 코드만 · 공유 주소에 실어도 된다) */
+  function declBlessAsk(S, seq) { seq = seq || bodySeq(S); var i = seq.indexOf('declare'); return i > -1 && seq[i + 1] === 'bless'; }
+  function declBlessKey(S) { return (declTitleOf(S) || '-') + '|' + (declBlessAsk(S) ? 1 : 0); }
+  function declBlessOf(S) { var v = S && S.declBless; if (v !== 'yes' && v !== 'no') return ''; return S.declBlessKey === declBlessKey(S) ? v : ''; }
+  function declBy(S) {   // 화면 · 대본 · 콘솔의 «읽는 분» — 호칭 칩 이름 · «그 밖의 분»은 칸 글(비면 «그 밖의 분») · 안 고름 ''
+    var t = declTitleOf(S); if (!t) return '';
+    if (t !== 'other') return declLabel(t);
+    return declText(S.declareWho) || '그 밖의 분';
   }
   function CHIP_OK(k, v) { return (CHIPS[k] || []).some(function (c) { return c[0] === v; }); }
   function setChip(S, k, v) {
@@ -675,7 +706,7 @@
     if (sm.who) o.slug = 'narr-candle-in-' + candleWhoOf(S); return o; }
   function firstSentences(t, n) { var parts = String(t || '').match(/[^.?!]+[.?!]+/g) || [String(t || '')]; return parts.slice(0, n).join(' ').replace(/\s+/g, ' ').trim(); }
   /* 대표 한 줄을 들을 때 엔진을 부를 S — 모든 순간을 담고 판은 표의 판(입장 A · 엄숙 · 서로에게 · 케이크와 축배 · 와인 두 병 · 영상) */
-  function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: '', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'speech', freeLen: '3', candleWho: candleWhoOf(S) }; }   // [SPEECH_TILE_1012]
+  function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: '', declTitle: declParent(S),   /* [DECL_TITLE_1031] 대표 미리 보기도 고른 호칭 소리(빈 낭독자로 다른 소리 내지 않게) */ tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'speech', freeLen: '3', candleWho: candleWhoOf(S) }; }   // [SPEECH_TILE_1012]
 
   /* ══ [PREVIEW_SHEET 2026-09-26 코워크 추가 전달 3 F2] 미리 보기 창 «② 하나씩 만들기에서 고를 것» — ② 묶음 이름(G3 로 고친 이름)과 같은 말 ══ */
   var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리', declare: '읽어 주실 분', tribute: '인사말'   /* [TRIB_ONE_SAY · GROOM_BOW_TIP] 인사 방식 칩 걷음 · [GOODS_STUDIO] 케이크 · 꽃은 저희가(고를 것 없음 · cake 키 걷음) */, letter: '받는 분', free: '길이' };   // ★[SPEECH_TILE_1012] 축사 칸 ② 는 길이 하나(무엇을 줄은 옛 초안에만)
@@ -1136,11 +1167,12 @@
     /* ★[MUST_FIX_165_1024 검토 165 · 사장님 «추천대로 개선»] GPT 694줄 전수 검토 → 꼭 고칠 것 27줄만 — 151 · 154 «밝혀 주시겠습니다» · 120 «오늘은 자연스러운 모습을 사진으로 남기니» · 107 «신랑 신부의 영원한» · 189 «축배를 들겠습니다» · 165 · 168 «소중한 친구» · 153 «멈춰 있던 시간이 다시 흐르길» · 17(data) «와인을 한 잔에 부어» · 안내 «중간에 숨 돌릴 틈이 생겨요» · «미리 준비한 두 분 목소리» · 참고 예시 15칸(ritual-ref) */
     /* ★[MODERN_WORDS_1024 검토 164] 이 표(NAR_EX)와 NAR.guestEx 의 낡은 낱말만 고쳤다(거행 · 내빈 여러분들 · ~하도록 하겠습니다 · 낭독하시겠습니다 · 모셔볼 텐데요 …) · 뜻 · 칩 결 그대로 · 감정을 싣는 칩 줄(91 · 153 · 191 · 141 · 258 · 260)은 그대로 */
     declare: { lab: '선언 멘트', names: ['담백하게', '격식 있게', '엄숙하게', '힘차게'],   /* ★[REVIEW31_1023 검토 157-3] 4(231)는 박수 청 한 줄이라 «힘차게» · MOOD 밝게 3 · 뭉클 2 */   /* ★[REVIEW29_1023 검토 153] 3 «힘차게» → «엄숙하게»(글 «가장 엄숙한 순서» 그대로) */
-      lines: { 'narr-declare-in-friend': ['다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다. 오늘은 신랑 신부가 부탁드린 분께서 직접 성혼 선언문을 낭독해 주시겠습니다.',
+      /* ★[DECL_TITLE_1031 검토 174] 둘째 문장은 네 말투 모두 공통형 «오늘의 성혼 선언은 H께서 직접 해 주시겠습니다.»(H = 호칭 · 이 표는 «신랑 신부가 부탁드린 분» 판) — 격식(218) 끝 «… 낭독해 주시겠습니다» · 힘차게(231) 박수 청 문장은 걷었다 · 호칭 판은 declInText */
+      lines: { 'narr-declare-in-friend': ['다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다. 오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.',
           /* ★[REVIEW5_1018 검토 49 · 52 · R5] 3 = 자료 XX1(유튜브 사회자 이상윤 «결혼식 스크립트» 10. 성혼선언 · «신랑(신부)의 아버님께서» → «신랑 신부가 부탁드린 분께서» ① · «아버님을 박수로 모시겠습니다» 뺌 ④ 읽는 분이 이미 앞에) ·
              4 = 자료 WW9(블로그 국제결혼 사회 대본 8. 성혼 선포 · «양가의 가족 분을 대표하여 신부 아버님께서» → «신랑 신부가 부탁드린 분께서» ① 친구가 읽는 날 «양가를 대표하여»는 틀린 말 · «선포해 주실 텐데요,» → «선포해 주시겠습니다.» · 박수 청 뺌 ④) · ★[REVIEW26_1023 검토 150-2 12)] 예시 4(231)는 검토 144-5 에서 원문(«… 선포해 주실 텐데요, 내빈 여러분들께서는 큰 박수 부탁드립니다.»)으로 되살렸다 · 지금 글이 맞다 */
           '이제 이 결혼식의 가장 엄숙한 순서, 성혼 선언이 있겠습니다. 오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.',
-          '다음은 성혼 선언입니다. 선언을 맡아 주실 분께 박수와 환호 부탁드립니다!'],   /* ★[REF_GUIDED_1024 검토 163] 4(231) = 빌린 대사(디얼비 사회 대본 «다음은 … 박수와 환호 부탁드립니다!») · 옛 WW9 «… 선포해 주실 텐데요, 내빈 여러분들께서는 …» */
+          '다음은 성혼 선언입니다. 오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.'],   /* ★[REF_GUIDED_1024 검토 163] 4(231) = 빌린 대사(디얼비 사회 대본 «다음은 … 박수와 환호 부탁드립니다!») · 옛 WW9 «… 선포해 주실 텐데요, 내빈 여러분들께서는 …» */
         'narr-declare-family-out': [
         '이상으로 성혼 선언을 마치겠습니다. 두 사람의 새로운 출발에 큰 박수 부탁드립니다.',
         '성혼이 선포되었습니다. 두 사람의 새로운 인생을 위해 큰 박수 부탁드립니다!',
@@ -1423,7 +1455,7 @@
     if (k === 'tribute') return '인사 ' + (hugOff(S) ? '인사만' : '인사와 포옹') + (crossTribute(S) ? ' · 서로의 부모님께' : '');
     if (k === 'song') return '부르는 분 ' + (S && S.songBy === 'self' ? '두 분' : '가족 · 친구');
     if (k === 'vow') return S && S.vowKind === 'thanks' ? '감사문' : '서약';
-    if (k === 'declare') return '읽는 분 ' + String((S && S.declareWho) || '').trim();
+    if (k === 'declare') return '읽는 분 ' + (declTitleOf(S) || '');   // [DECL_TITLE_1031] 호칭 코드(글자 없는 값 · «그 밖의 분» 글은 넣지 않는다)
     return ''; }
   function sceneSig(S) { return sceneList(S).map(function (x) { return x.id + (x.pick ? '=' + x.pick : ''); }).join('|'); }
   function shotOf(k, S) { var _sc = sceneOf(k, S); if (_sc) return _sc.rep;   /* ★[PHOTO_SCENE_1031] 남는 장면 = 대표 장면(원천 SCENE 하나) · 아래는 장면이 없는 옛 판만 */
@@ -1582,7 +1614,7 @@
       case 'welcome': return '두 분이 하객께 감사 인사를 해요 · ' + secTxt(p || 30);
       case 'bless': return '부모님이 덕담을 들려주세요 · 약 1분씩';   // ★[R2_BLESS_TALK_1014] ④ 는 끝의 «· 약 …»를 떼고 «말하는 시간 한 분 약 1분씩»을 붙인다 — «한 분 1분쯤»이면 시간을 두 번 말했다(«씩»이 한 분 몫) · [LINE_R1_1014] «약 3분»(시간 표 합)은 한 분이 하시는 날 3분으로 읽혔다 · 카드 · 준비 줄 · ④ 대본과 같은 말
       case 'vow': return (S && S.vowKind === 'thanks' ? '두 분이 하객께 감사문을 읽어요 · ' : '두 분이 서약을 읽어요 · ') + secTxt(p || 100);   // [THANKS_IN_VOW]
-      case 'declare': { var dw = declBy(S); return (dw ? dw + josaOf(dw, '이', '가') : '선언하실 분이') + ' 성혼 선언문을 읽어요 · ' + secTxt(p || 15); }   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 두 분이 적은 분
+      case 'declare': { var dw = declBy(S); return (declParent(S) ? dw + '께서' : dw ? dw + josaOf(dw, '이', '가') : '선언하실 분이') + ' 성혼 선언문을 읽어요 · ' + secTxt(p || 15); }   // [DECL_TITLE_1031] 부모님은 «께서»   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 두 분이 적은 분
       case 'tribute': { var t = chipOf('tribute', S); if (t === 'none') return '';
         return (crossTribute(S) ? '두 분이 서로의 부모님께 고마운 말을 전해요' : '두 분이 부모님께 고마운 말을 전해요')   /* [TRIB_ONE_SAY] */ + ' · ' + secTxt(p || 30); }
       case 'letter': return (chipOf('letter', S) === 'each' ? '두 분이 서로에게 쓴 편지를 읽어요' : '두 분이 각자 부모님께 쓴 편지를 읽어요') + ' · ' + secTxt(p || 120);
@@ -1607,7 +1639,7 @@
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, flowLv: flowLv, FLOW_LV: FLOW_LV, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf,
-    declBy: declBy, DECL_HINT: DECL_HINT, DECL_MAX: DECL_MAX,   // [DECLARE_ANYONE]
+    declBy: declBy, DECL_HINT: DECL_HINT, DECL_MAX: DECL_MAX, DECL_TITLES: DECL_TITLES, DECL_ASKED: DECL_ASKED, DECL_OTHER_HINT: DECL_OTHER_HINT, DECL_OTHER_NOTE: DECL_OTHER_NOTE, DECL_TONE_HEAD: DECL_TONE_HEAD, declLabel: declLabel, declTitleOf: declTitleOf, declParent: declParent, declHon: declHon, declInText: declInText, declSeatText: declSeatText, declInSlug: declInSlug, declSeatSlug: declSeatSlug, declBlessAsk: declBlessAsk, declBlessKey: declBlessKey, declBlessOf: declBlessOf,   // [DECL_TITLE_1031]   // [DECLARE_ANYONE]
     MOOD: MOOD, MOOD_KEYS: MOOD_KEYS, MOOD_NAME: MOOD_NAME, MOOD_REF: MOOD_REF, moodOf: moodOf, moodNarEx: moodNarEx, moodPart: moodPart, moodDiff: moodDiff, moodApply: moodApply, moodClear: moodClear,
     NAR_EX: NAR_EX, narExOf: narExOf, narExOk: narExOk, narExList: narExList, narExSlug: narExSlug, narExCue: narExCue, narExKey: narExKey, narExNames: narExNames, narExClips: narExClips, narExKeys: narExKeys   // [EX_MANY_1017]
   };

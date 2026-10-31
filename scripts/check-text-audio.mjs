@@ -282,7 +282,9 @@ const voiceOf = (slug) => (man.voice || {})[ROLE_OF.get(slug)] || VOICE;
      같은 슬러그가 두 줄 나오지만 includes 판정이라 해가 없다(둘 다 확인함). */
 const fileOfId = (id) => String(id || '').replace(/^\d+_/, '');
 const voiceOfRow = (r) => (man.voice || {})[ROLE_OF.get(fileOfId(r.ids && r.ids[0]))] || voiceOf(r.slug);
-const twinKey = (r) => (r.ids && r.ids.length ? r.ids.join('|') : r.slug);
+const twinKey = (r) => (r.ids && r.ids.length ? r.ids.join('|') : (r.no ? pad2(+r.no) + '_' + r.slug : r.slug));
+/* ★[DECL_TITLE_1031] 소리 없는 클립(noAudio · 번호+슬러그)과 어긋난 자리(bad · 녹음 id)가 **같은 녹음**이면 하나로 접는다 —
+   호칭 판(268_narr-declare-in-friend-bdad)은 화면 슬러그가 바탕 슬러그라 슬러그 비교로는 안 접혀 붙여넣기에 같은 줄이 두 번 실렸다(PASTE_MAN_ORDER 가 잡음) */
 /* ★★[SENT_VOICE 2026-09-21] 목소리는 **클립이 아니라 문장**에 붙는다.
    배역 입장(18~23)은 role 이 「신랑|신부」라 한 클립 안에서 두 사람이 번갈아 읽는다(ENTRY_ALT).
    클립 하나에 목소리 하나를 주면 그 이름이 voice 표에 없어 기본값(우성)으로 떨어진다.

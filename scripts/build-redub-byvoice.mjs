@@ -35,6 +35,7 @@ const pad2 = (n) => String(n).padStart(2, '0');
 const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim();
 
 let man, cue, imp;
+let SRC = {}; try { SRC = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/audio/_src/_index.json'), 'utf8')).slots || {}; } catch {}   // [DECL_TITLE_1031] 창고 자리
 try {
   man = JSON.parse(fs.readFileSync(path.join(T, 'manifest.json'), 'utf8'));
   cue = fs.readFileSync(path.join(ROOT, 'assets/ritual-cue.js'), 'utf8');
@@ -88,6 +89,9 @@ for (const c of man.clips) {                       // ★대장 차례 그대로
        ★대신 조용히 넘어가지도 않는다 — 마지막에 «성우 미정» 목록으로 찍고, 그 줄은 어떤
          성우 파일에도 안 들어간다. 성우가 정해지면 그날 다시 돌리면 된다. */
     if (!v) { (pending[s.role || c.role] ||= []).push(`${key} ${s.i}`); continue; }
+    /* ★[DECL_TITLE_1031 검토 174] 창고(_src)에 «그 자리»의 소리가 이미 있고 글 · 성우가 같으면 빼다 — 빌려 온 앞 문장(SENT_BORROW)이 클립째 «다시 받기»로 잡혀
+         녹음된 문장 셋을 다시 받으실 뻔했다(새 클립은 둘째 문장이 아직 없어 mp3 가 없다 · 그래도 첫째는 창고에 있다) */
+    const _sl = SRC[`${key}#${s.i}`]; if (_sl && norm(_sl.text) === norm(s.text) && (!_sl.voice || _sl.voice === v)) continue;
     if (!byVoice.has(v)) byVoice.set(v, []);
     byVoice.get(v).push({ clip: key, i: s.i, text: s.text });
   }
@@ -173,6 +177,7 @@ for (const c of man.clips) {
      개별 파일에서만 거르고 이 전체 파일은 안 걸러서 「undefined: 대사」 네 줄이 들어갔다.
      그대로 타입캐스트에 붙이면 «undefined» 라는 화자가 생긴다. 한 곳만 막으면 다른 곳으로 샌다. */
   for (const s of c.sents) { const v = VOICE[s.role || c.role]; if (!v) continue;
+    { const _sl = SRC[`${key}#${s.i}`]; if (_sl && norm(_sl.text) === norm(s.text) && (!_sl.voice || _sl.voice === v)) continue; }   // [DECL_TITLE_1031] 창고에 이미 있는 자리(빌려 온 문장)는 한 파일 판에서도 뺀다
     const dk = v + '|' + s.text;
     const prev = seen.get(dk);
     if (prev && !prev.at.some((x) => coOccur(x.clip, key))) {     // [DUP_ONCE] 한 날에 같이 안 나간다 → 합친다
