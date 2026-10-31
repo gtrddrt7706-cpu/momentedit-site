@@ -79,7 +79,9 @@ async function open(W, embed) {
   return { ctx, pg, f, errs };
 }
 const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 600); };
-const row = (f, sg) => f.evaluate((sg) => { const r = document.querySelector('.ls-bed[data-seg="' + sg + '"],.bed-sub[data-seg="' + sg + '"]'); if (!r) return null;
+/* ★[MUSIC_FOLD_PICK_1031 따라감] 고르면 바로 한 줄로 접힌다 — 접힌 줄이면 «바꾸기»로 펴서 목록을 잰다(종전엔 .mu-pick 이 없어 검사가 멈췄다) */
+const row = (f, sg) => f.evaluate((sg) => { const Q = () => document.querySelector('.ls-bed[data-seg="' + sg + '"],.bed-sub[data-seg="' + sg + '"]'); let r = Q(); if (!r) return null;
+  if (!r.querySelector('.mu-pick')) { const cb = r.querySelector('.mu-chg'); if (cb) { cb.click(); r = Q(); if (!r) return null; } }
   return { gl: ((r.querySelector('.gl') || {}).textContent || '').trim(), n: r.querySelectorAll('.mu-row').length, on: [...r.querySelectorAll('.mu-pick[aria-checked="true"]')].map((b) => b.getAttribute('data-fk')),
     pl: r.querySelectorAll('.mu-pl').length, off: [...r.querySelectorAll('.mu-pl.off')].map((b) => b.getAttribute('data-fk')), note: ((r.querySelector('.bed-note') || {}).textContent || '').trim(),
     plH: Math.round(((r.querySelector('.mu-pl') || { getBoundingClientRect: () => ({ height: 0 }) }).getBoundingClientRect().height)), pkH: Math.round(r.querySelector('.mu-pick').getBoundingClientRect().height) }; }, sg);
@@ -150,6 +152,7 @@ try {
       /* D2 한 파일 — 하객 맞이 B02 곡 카드 */
       await f.click('[data-fk="bedp:M1:B02"]'); await wait(f, 1500); await f.click('[data-fk="bedp:M1:B02"]'); await wait(f, 300);
       await f.click('[data-fk="bed:M1:B04"]'); await wait(f, 300);
+      await f.evaluate(() => { const r = document.querySelector('.ls-bed[data-seg="M1"]'), cb = r && !r.querySelector('.mu-pick') && r.querySelector('.mu-chg'); if (cb) cb.click(); }); await wait(f, 200);   /* [MUSIC_FOLD_PICK_1031] 고르면 접힌다 · 아래 두 줄은 편 목록에 있다 */
       const vl = await f.evaluate(() => ((document.querySelector('.ls-bed[data-seg="M1"] .bed-voc') || {}).textContent || '').trim());
       await shot(f, W, 'guest', '.ls-bed[data-seg="M1"]');
       ok(`${W} D3 보컬 곡을 고르면 아래 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요»`, vl === '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요', vl);
