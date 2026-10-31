@@ -1,6 +1,6 @@
 {
  "about": "[CLIP_STATUS_1031 검토 175] 안 나는 녹음 표시 — 파일 단위(열쇠 = «폴더/번호_이름») · 녹음 · 파일 · 번호는 그대로(표시만). 상태: retired(어디서도 안 남) · legacy(옛 저장분 전용 — 옛 코스 · «직접 녹음» 배역) · dormant(구조상 지금 차례에선 안 섬 · 실청은 «지금 안 남»으로 따로) · manual_off(수동 전용 · 당일 재생 안 함 — 콘솔 보조 단추 · 촬영 연출 판을 걷은 자리 · AUTO_ONLY_1031). ★원천이 따로 있는 것은 여기 적지 않는다: 나레이션 폐지 슬러그 = assets/ritual-cue.js RETIRED · 안 트는 배역 = assets/ritual-story.js CAST_MUTE(06 ~ 14 · 24 · 25 · 26) — 두 군데가 갈리지 않게 그쪽을 읽는다(scripts/lib/clip-status.mjs). 실청 · 쉼 도구 · check-recorded 는 retired + legacy + dormant + manual_off + CAST_MUTE 를 함께 뺀다. 검사 scripts/audit/clip-status.mjs",
- "v": "1031c",
+ "v": "1031d",
  "clips": {
   "narration/41_toast-cake": {
    "s": "retired",
@@ -185,6 +185,18 @@
   "narration/109_fx-free": {
    "s": "manual_off",
    "why": "[AUTO_ONLY_1031 검토 177] 수동 전용 · 당일 재생 안 함 — 콘솔 촬영 연출 판(PHOTOCUE_BOARD)은 소리 없이 글 메모만 · 디렉터가 말로"
+  },
+  "narration/26_narr-close": {
+   "s": "legacy",
+   "why": "[CLOSING_LINE_1031 검토 178] 새 코스는 닫는 인사 뒤 마무리 멘트(287 ~ 291)가 서고 사진 구간은 소리 없음 — 옛 코스 저장분이 열리면 그대로 돈다 · 단체 사진 안내(«모두 단상 앞으로 모여 주시면»)"
+  },
+  "narration/85_narr-photo-send": {
+   "s": "legacy",
+   "why": "[CLOSING_LINE_1031 검토 178] 새 코스는 닫는 인사 뒤 마무리 멘트(287 ~ 291)가 서고 사진 구간은 소리 없음 — 옛 코스 저장분이 열리면 그대로 돈다 · 사진 보내기 안내(새 코스는 마무리 멘트의 264 가 말한다)"
+  },
+  "narration/47_end-2-goodbye": {
+   "s": "legacy",
+   "why": "[CLOSING_LINE_1031 검토 178] 새 코스는 닫는 인사 뒤 마무리 멘트(287 ~ 291)가 서고 사진 구간은 소리 없음 — 옛 코스 저장분이 열리면 그대로 돈다 · 마무리 귀가 인사(두 문장은 마무리 멘트가 빌려 쓴다)"
   }
  }
 }

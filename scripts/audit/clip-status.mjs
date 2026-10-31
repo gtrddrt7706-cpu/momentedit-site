@@ -46,7 +46,7 @@ const D = require(path.join(ROOT, 'assets/ritual-data.js'));
 const EXK = ['bless', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free', 'valley'];
 for (const course of Object.keys(D.COURSES || {})) {
   const all = {}; EXK.forEach((k) => { all[k] = true; }); const open = (D.COURSES[course] || {}).open;
-  for (const ex of open ? [{}] : [{}, all].concat(EXK.map((k) => ({ [k]: true })))) for (const v of [{}, { entryVoice: 'couple', guestVoice: 'couple' }, { bless: 'on' }]) for (const mode of ['console', 'preview']) {
+  for (const ex of open ? [{}] : [{}, all].concat(EXK.map((k) => ({ [k]: true })))) for (const v of [{}, { entryVoice: 'couple', guestVoice: 'couple' }, { bless: 'on' }, { photoShare: 1, meal: 1 }])   /* [CLOSING_LINE_1031] 옛 코스 사진 링크 날(85) */ for (const mode of ['console', 'preview']) {
     try { RC.build(Object.assign({ course, extra: ex }, v), { mode }); } catch (e) {} } }
 process.chdir(ROOT); process.argv.push('--check');
 await import(path.join(ROOT, 'scripts/build-course-story.mjs'));`;
