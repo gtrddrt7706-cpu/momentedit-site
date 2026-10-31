@@ -20068,7 +20068,7 @@ chk 'DRESS_SAMPLE_V2' assets/dress-refs.js 2
 chk 'DRESS_SAMPLE_V2' admin.html 1                                          # 관리 화면도 webp(없는 jpg 를 부르지 않는다)
 chk 'DRESS_SAMPLE_V2' scripts/audit/dress-refs.mjs 5
 chk 'DRESS_SAMPLE_V2' scripts/audit/dress-fit.mjs 3
-chk 'DRESS_TIPS_1024' dress.html 3                                         # 물음별 살펴볼 점 · 방문 전 준비
+chk 'DRESS_TIPS_1024' dress.html 2                                         # 물음별 살펴볼 점 · ★[DRESS_GUIDE_1031] «방문 전 준비»는 신부 준비 안내로 옮겨 3 → 2
 chk 'DRESS_TIPS_1024' assets/dress-refs.js 1
 chk 'DRESS_TIPS_1024' scripts/audit/dress-refs.mjs 2
 chk 'DRESS_TIPS_1024' scripts/audit/dress-fit.mjs 2
@@ -20095,7 +20095,7 @@ nochk "name: '스타일 예시 0[1-6] · [^']*+" assets/dress-refs.js 0
 chk "img: 'd0[1-6]-front'" assets/dress-refs.js 6
 nochk "name: '표본 " assets/dress-refs.js 0
 nochk "R.img(d,'jpg')" admin.html 0
-chk 'DRESS_FORM_FIX3' dress.html 3                                         # PC 그림 보기 셋 3열 · 폰 hover 테 없음 · 방문 전 준비 + 안내 두 줄 한 덩어리(코워크 0bd5416 실측)
+chk 'DRESS_FORM_FIX3' dress.html 2                                         # PC 그림 보기 셋 3열 · 폰 hover 테 없음 · ★[DRESS_GUIDE_1031] 방문 전 준비 덩어리는 걷어 3 → 2
 chk 'DRESS_FORM_FIX3' scripts/audit/dress-refs.mjs 2
 chk '@media (hover:hover){.pk-opt:hover{border-color:var(--gold)}}' dress.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/dress-fit.mjs >/dev/null 2>&1; _dfit=$?
@@ -20181,6 +20181,24 @@ chk "{ t: '디테일', img: 'n11-detail' }" assets/dress-refs.js 1
 nochk "{ id: 'S02', name:" assets/dress-refs.js
 nochk "shoulder: 'cape'" assets/dress-refs.js
 chk 'DRESS_NINE_MINI_1031' scripts/audit/dress-refs.mjs 2
+# ★★[DRESS_ACC_NINE_1031 · DRESS_GUIDE_1031 코워크 · 사장님 «소품도 인기 있는 걸로» · «구비돼 있는 것처럼» · «신부 입장에서 200% 도움 되게»] 소품 아홉 칸 · 신부 준비 안내
+chk "{ id: 'hair-pearl', name: '진주·비즈 헤어 장식', img: 'acc-hair-pearl'" assets/dress-refs.js 1
+chk "{ id: 'earrings-drop', name: '크리스털 드롭 귀걸이', img: 'acc-earrings-drop'" assets/dress-refs.js 1
+nochk "{ id: 'cape', name: '오간자 케이프'" assets/dress-refs.js                        # 케이프 · 볼레로 칸은 뺐다(인스타 근거 0 ~ 1건) — 되살리지 말 것
+nochk "{ id: 'bolero', name: '레이스 볼레로'" assets/dress-refs.js
+chk "R.ACC_LEAD = '드레스 · 면사포 · 헤어 장식 · 귀걸이 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';" assets/dress-refs.js 1   # 사장님 «구비돼 있는 것처럼»
+chk "R.GUIDE_VALS = { fittingMin: '', companions: '', photo: '', restroomHelp: '' };" assets/dress-refs.js 1   # [DRESS_GUIDE_VALS] 정하지 않은 값 — 비면 그 줄 · 칸 없음
+nochk 'R.PREP = ' assets/dress-refs.js                                                 # 옛 «방문 전 준비» 넷 — 안내로 옮겼다
+nochk '누드톤 심리스 속옷과 실리콘 브라' mypage.html                                    # [DRESS_GUIDE_1031 V205] 피팅 이너 · 슈즈는 스튜디오 준비
+nochk '누드톤 심리스 속옷과 실리콘 브라' dress.html
+chk '피팅용 이너와 슈즈는 스튜디오에서 준비해요.' mypage.html 1
+chk "bandHTML() + guideHTML();" dress.html 1                                          # 상담 전 = 답 요약 바로 아래
+chk "guideHTML('D')" dress.html 1                                                     # 상담 뒤 = 두 탭 맨 위
+chk "guideHTML('A') + accHTML(true)" dress.html 1
+chk 'DRESS_GUIDE_1031' scripts/audit/dress-refs.mjs 9
+chk 'DRESS_GUIDE_1031' scripts/audit/dress-fit.mjs 3
+chk 'DRESS_GUIDE_1031' scripts/audit/dress-tabs.mjs 3
+chk 'DRESS_ACC_NINE_1031' scripts/audit/dress-refs.mjs 3
 # ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
 chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
 chk '<script src="/assets/fab-names.js" defer></script>' index.html 1
