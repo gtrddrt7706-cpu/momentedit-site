@@ -17089,7 +17089,7 @@ chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
 #   깨 보고 믿음: A 없는 화면에 flow-thread 를 돌리면 50건 빨강 · 종료 코드 1
 chk 'FLOW_THREAD' order-preview.html 7
 chk ".mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px" order-preview.html 1
-chk 'function _qRow(t)' order-preview.html 1
+chk 'function _qRow(t,key)' order-preview.html 1   # [LISTEN_PACE_1031] key = 줄 자리(지금 · 지나감 표시)
 nochk '.mk-flow li.q{color:var(--light);font-size:12.5px' order-preview.html
 nochk "if(x.quiet){ h+='<li class=\"q\">'+esc(x.txt)" order-preview.html
 nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
@@ -19418,7 +19418,7 @@ chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
-chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
+chk "quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')}); } }" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
 chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
 chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
@@ -20423,6 +20423,19 @@ chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
 #   END_FLOW_1030 이 잔 내려놓기를 «위하여» 칸에 합쳐 축배 순간이 «위하여»에서 끝나자 축배 곡이 한 번도 안 나왔다(bgm-preview D6 빨강).
 #   소리는 브라우저가 있어야 재므로 CI 의 bgm-sound 칸([BGM_SOUND_CI])이 bgm-preview · bgm-seg8 · bgm-console2 를 실제로 돌린다.
 chk 'CHEER_TAIL_1030' order-preview.html 1
+# ★[LISTEN_PACE_1031 2026-10-31 사장님 «진행» · BGM 섹션] ② 이 순간 전체 듣기 흐름 — 순간 첫 멘트 앞 음악 뜸(3초 · 이어지면 1.5초) · 행동 줄 멈춤(est ÷ 12 · 3 ~ 6초 · 음악 −8) ·
+#   흐를 때만 «실제로는 약 …» · 지금 · 지나감 표시 · 따라가기(손으로 스크롤하면 멈춤). 소리 · 시간은 브라우저가 있어야 재므로 CI bgm-sound 칸이 listen-pace 를 실제로 돌린다
+chk 'LISTEN_PACE_1031' order-preview.html 8
+chk 'LISTEN_PACE_1031' assets/bgm-bed.js 2
+chk 'function lpLead(st)' assets/bgm-bed.js 1
+chk 'lpLead:lpLead' assets/bgm-bed.js 1
+chk 'function _lpMs(est){ return Math.min(6,Math.max(3,Math.round((+est||0)/12)))\*1000; }' order-preview.html 1
+chk "var LP_EST_FROM={'tribute-in':'tribute-out'}, LP_EST_NOTE={vow:1};" order-preview.html 1
+chk 'try{ _lpPaint(); }catch(e){}   /\* \[LISTEN_PACE_1031\] 지금 · 지나감 · 남음 \*/ try{ if(window.EntryMusic&&EntryMusic.paint) EntryMusic.paint(); }' order-preview.html 1
+chk 'LISTEN_PACE_1031' scripts/audit/listen-pace.mjs 1
+chk 'listen-pace' .github/workflows/merge-guard.yml 1
+nochk 'LP.leadSt=st;[^/]*//' order-preview.html 0
+if command -v node >/dev/null 2>&1; then node scripts/audit/listen-pace.mjs >/dev/null 2>&1; _lpc=$?; if [ "$_lpc" = 1 ]; then echo 'FAIL listen-pace: 이 순간 전체 듣기 흐름(음악 뜸 · 행동 줄 멈춤 · «실제로는 약» · 지금 줄 · 따라가기)이 어긋났습니다 — node scripts/audit/listen-pace.mjs'; fail=1; elif [ "$_lpc" = 2 ]; then echo 'skip listen-pace (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok listen-pace'; fi; fi
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
