@@ -1367,7 +1367,67 @@
 
   /* ── 남는 장면(«그날 남는 사진» · 코워크 1장 고침) — 준비한 순서는 무엇을에 따라 ── */
   var FREE_SHOT = { video: '함께 보며 웃는 하객들', etc: '두 분이 준비한 순간', gift: '선물을 건네받는 두 분', speech: '말하는 분을 보며 웃는 두 분' };   // [FREE_ETC]
-  function shotOf(k, S) { if (k === 'vow' && S && S.vowKind === 'thanks') return '하객을 바라보며 읽는 두 분';   /* ★[THANKS_SHOT_1013] 감사문을 고른 날 «남는 장면»(마이페이지 summary.scenes)이 서약 장면(«서로를 보며 약속하는 옆얼굴»)이었다 — oneOf(oneT)와 같은 갈래 */
+  /* ★★[PHOTO_SCENE_1031 검토 173 · 사장님 아이디어 · GPT 4라운드 · 녹음 0 · 영상 새로 만들지 않음(사장님 «영상은 참고만 · 그대로»)]
+     순간마다 «이 순간에 담을 수 있는 장면» — 대표 장면 1 + 다른 장면 2 + 설명 한두 줄 + 대표 그림(장면 영상 1025e 의 한 장면 · 제목 글씨 없는 초).
+     원천은 여기 하나 — 식순 화면(① 미리 보기 창 · ② 접힌 줄) · 마이페이지(summary.scenes) · 관리 화면(summary.photo · 작가 화면)이 같은 값을 읽는다.
+     ★«남는 장면»(shotOf · 마이페이지 한 줄)은 대표 장면 문구 그대로다. 컷 수 · 빠짐없는 촬영 약속은 쓰지 않는다(금지 문구 목록은 scripts/audit/photo-scene.mjs BAN).
+     img: [영상 이름, 초] · null = 그림 보류(글만 · 닫는 인사는 하객이 앉은 초가 없다 · 감사문 · 인사만 판은 맞는 장면이 없다).
+     판 갈래: vow «감사문» · letter «서로에게» · tribute «인사만»(TRIB_NO_HUG_1030). 화촉 담당 · 축가 부르는 분 · 인사 대상은 식순 값 그대로(여기서 다시 고르지 않는다).
+     ★편지 «서로에게»도 그림을 둔다 — 편지 영상은 신부가 읽고 신랑이 곁에서 듣는 장면이라 부모님이 나오지 않는다(부모님께 판 · 서로에게 판 모두 맞다). */
+  var SCENE_V = '1031a';   // 장면 데이터 · 그림 판(영상 VIDEO_V 가 바뀌면 scripts/build-scene-frames.mjs 로 다시 뽑고 이 값을 올린다 · --check 가 잰다)
+  var SCENE_SRC_V = '1025e';   // 그림을 뽑은 영상 판
+  var SCENE_LABEL = '연출 장면 · 실제 예식 사진 아님';
+  var PSCENE = {
+    guest: { rep: '자리에 모여 이야기하는 하객', alt: ['웰컴 음료를 든 손', '앉아 예식을 기다리는 모습'], desc: '오신 분들이 자리를 잡고 이야기를 나누는 모습을 담아요. 두 분의 입장 전, 하객들이 함께하는 시간이에요.', img: ['guest', 6] },
+    prevideo: { rep: '영상을 함께 보는 하객의 뒷모습', alt: ['영상을 바라보는 얼굴', '스크린과 하객 전경'], desc: '두 분의 영상을 함께 보는 하객들의 모습을 담아요.', img: ['prevideo', 6] },
+    candle: { rep: '초에 불을 밝히는 손', alt: ['참여하신 분들의 모습', '점화 뒤 마주하는 모습'], desc: '초에 불을 밝히는 손과 참여하신 분들의 모습을 담아요. 누가 서시는지는 두 분이 정한 구성에 따라 달라져요.', img: ['candle', 5.25] },
+    entry: { rep: '나란히 걸어오는 두 분', alt: ['걷는 표정', '앞에 도착해 함께 선 모습'], desc: '함께 걸어 들어오는 모습부터 앞에 나란히 서는 순간까지 담아요.', img: ['entry', 6] },
+    matjeol: { rep: '마주 보고 몸을 숙이는 두 분', alt: ['절하기 전 마주 선 모습', '일어난 뒤 눈맞춤'], desc: '서로 마주 보고 인사하는 모습과, 절 전후 마주하는 표정을 담아요.', img: ['entry-look', 6] },
+    welcome: { rep: '하객을 바라보며 인사하는 두 분', alt: ['말하는 사람의 표정', '곁에서 듣는 배우자'], desc: '하객께 감사 인사를 전하는 두 분과 그 곁의 표정을 담아요.', img: ['welcome', 6] },
+    vow: { rep: '서약을 읽는 사람과 듣는 배우자', alt: ['서약서를 잡은 손', '낭독 전후 마주하는 모습'], desc: '서로에게 약속을 읽고 듣는 모습을 담아요.', img: ['vow', 6] },
+    'vow:thanks': { rep: '하객을 향해 감사문을 읽는 두 분', alt: ['글을 읽는 표정', '감사문을 쥔 손'], desc: '오늘 와 주신 분들께 감사문을 읽는 모습을 담아요.', img: null },
+    ring: { rep: '상대 손에 반지를 끼우는 손', alt: ['교환 전후 서로 보는 표정', '반지를 끼운 두 손'], desc: '서로의 손에 반지를 끼우는 장면을 중심으로 담아요. 교환 전후 마주하는 표정도 함께 살펴요.', img: ['ring', 7.4] },
+    declare: { rep: '선언 뒤 축하받는 두 분과 하객 전경', alt: ['선언문을 읽는 분', '선언을 듣는 두 분의 표정'], desc: '성혼 선언을 듣는 두 분과, 선언 뒤 축하를 나누는 모습을 담아요.', img: ['declare', 7] },
+    bless: { rep: '말씀을 전하는 부모님과 듣는 두 분', alt: ['듣는 두 분의 표정', '말씀 뒤 마주하는 모습'], desc: '부모님이 마음을 전하는 모습과 두 분이 듣는 표정을 담아요.', img: ['bless', 6] },
+    free: { rep: '축하의 말을 전하는 분과 듣는 두 분', alt: ['원고와 마이크를 쥔 손', '축사 뒤 마주하는 표정'], desc: '가까운 분이 준비한 말을 전하는 모습과 두 분이 듣는 표정을 담아요.', img: ['speech', 6] },
+    song: { rep: '축가에 귀 기울이는 하객', alt: ['노래하는 분', '노래를 마친 뒤의 표정'], desc: '노래하는 모습과 마음을 기울여 듣는 표정을 담아요. 노래하시는 분의 구성에 맞춰 장면이 달라져요.', img: ['song', 6] },
+    letter: { rep: '편지를 펼쳐 든 손', alt: ['듣는 사람의 표정', '낭독 뒤 마주하는 모습'], desc: '편지를 읽는 모습과 그 마음을 듣는 사람의 표정을 담아요.', img: ['letter', 6] },
+    'letter:each': { rep: '편지를 읽고 듣는 두 분', alt: ['편지를 쥔 손', '낭독 뒤 마주하는 모습'], desc: '서로에게 쓴 편지를 읽고, 그 마음을 듣는 모습을 담아요.', img: ['letter', 6] },
+    tribute: { rep: '부모님과 고마움을 나누는 두 분', alt: ['고른 방식의 인사', '안아 드리는 모습'], desc: '부모님께 다가가 고마움을 전하는 모습을 담아요. 두 분이 고른 인사 방식에 맞춰 진행해요.', img: ['tribute', 7] },
+    'tribute:nohug': { rep: '부모님께 인사하는 두 분', alt: ['인사하는 옆모습', '인사를 마친 뒤 마주하는 모습'], desc: '부모님께 다가가 고마움을 전하는 모습을 담아요. 두 분이 고른 인사 방식에 맞춰 진행해요.', img: null },
+    table: { rep: '한 테이블 하객과 눈을 맞추는 두 분', alt: ['이야기하는 얼굴', '다음 테이블로 함께 이동'], desc: '두 분이 테이블을 찾아가 하객과 눈을 맞추고 이야기하는 모습을 담아요.', img: ['table', 7] },
+    toast: { rep: '각자 자리에서 잔을 드는 하객과 두 분', alt: ['잔을 든 두 분', '함께하는 하객의 표정'], desc: '각자 자리에서 잔을 드는 모습과 두 분의 축하 장면을 담아요.', img: ['toast', 6.5] },
+    _close: { rep: '하객을 향해 마지막 인사를 드리는 두 분', alt: ['인사 전 하객을 바라보는 모습', '박수 보내는 하객과 공간'], desc: '본식을 마치며 하객께 인사하는 모습을 담아요. 전체 단체사진은 이 뒤에 별도로 이어져요.', img: null }
+  };
+  /* 판에 맞는 장면 열쇠(장면 id) — 없으면 '' (옛 «준비한 순서» 판 · 걷은 순간) */
+  function sceneId(k, S) {
+    if (k === 'vow' && S && S.vowKind === 'thanks') return 'vow:thanks';
+    if (k === 'letter' && chipOf('letter', S) === 'each') return 'letter:each';
+    if (k === 'tribute' && hugOff(S)) return 'tribute:nohug';
+    if (k === 'free' && FREE_KIND[chipOf('free', S)] !== 'speech') return '';
+    return PSCENE[k] ? k : '';
+  }
+  function sceneImg(id) { var x = PSCENE[id]; if (!x || !x.img) return null; var n = id.replace(/:.*/, ''); return { src: '/assets/video/moments/scene/' + n + '.webp?v=' + SCENE_V, small: '/assets/video/moments/scene/' + n + '-640.webp?v=' + SCENE_V, asset: 'scene/' + n, from: x.img[0], at: x.img[1] }; }
+  function sceneOf(k, S) { var id = sceneId(k, S), x = id && PSCENE[id]; if (!x) return null;
+    return { id: id, k: k, rep: x.rep, alt: x.alt.slice(), desc: x.desc, img: sceneImg(id), kind: '연출', label: SCENE_LABEL, hold: !x.img, v: SCENE_V }; }
+  /* 저장한 순간만 실제 차례 — 식전(하객 맞이 · 식전 영상) → 본식(bodySeq) · 작가 화면 · 마이페이지 한 벌 */
+  function sceneList(S) {
+    var out = [], pre = ['guest'].concat(onOf(S, 'prevideo') ? ['prevideo'] : []), body = bodySeq(S);
+    pre.concat(body).forEach(function (k, i) { var x = sceneOf(k, S); if (!x) return;
+      x.pre = !!PRE[k]; x.order = i + 1; x.n = k === 'guest' ? '하객 맞이' : nameOf(k, S); x.pick = scenePick(k, S); out.push(x); });
+    return out; }
+  /* 장면을 바꾸는 선택값(재확인 표시의 열쇠) — 순간 · 대상 · 인사 동작만(음악 · 멘트는 넣지 않는다) */
+  function scenePick(k, S) {
+    if (k === 'candle') { var cw = candleWhoOf(S), cl = (CANDLE_WHO.filter(function (c) { return c[0] === cw; })[0] || [])[1]; return '서는 분 ' + (cl || cw || ''); }
+    if (k === 'letter') return '받는 분 ' + chipOf('letter', S);
+    if (k === 'tribute') return '인사 ' + (hugOff(S) ? '인사만' : '인사와 포옹') + (crossTribute(S) ? ' · 서로의 부모님께' : '');
+    if (k === 'song') return '부르는 분 ' + (S && S.songBy === 'self' ? '두 분' : '가족 · 친구');
+    if (k === 'vow') return S && S.vowKind === 'thanks' ? '감사문' : '서약';
+    if (k === 'declare') return '읽는 분 ' + String((S && S.declareWho) || '').trim();
+    return ''; }
+  function sceneSig(S) { return sceneList(S).map(function (x) { return x.id + (x.pick ? '=' + x.pick : ''); }).join('|'); }
+  function shotOf(k, S) { var _sc = sceneOf(k, S); if (_sc) return _sc.rep;   /* ★[PHOTO_SCENE_1031] 남는 장면 = 대표 장면(원천 SCENE 하나) · 아래는 장면이 없는 옛 판만 */
+    if (k === 'vow' && S && S.vowKind === 'thanks') return '하객을 바라보며 읽는 두 분';   /* ★[THANKS_SHOT_1013] 감사문을 고른 날 «남는 장면»(마이페이지 summary.scenes)이 서약 장면(«서로를 보며 약속하는 옆얼굴»)이었다 — oneOf(oneT)와 같은 갈래 */
     if (k === 'tribute' && hugOff(S)) return '부모님께 인사하는 두 분';   /* [TRIB_NO_HUG_1030] 인사만이면 «안기는 순간»이 없다 */
     return k === 'free' ? FREE_SHOT[FREE_KIND[chipOf('free', S)]] : (CARDS[k] || {}).shot; }
 
@@ -1541,7 +1601,7 @@
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
-    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, helpersOf: helpersOf,
+    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, PSCENE: PSCENE, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
