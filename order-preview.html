@@ -4607,7 +4607,7 @@ function _lSteps0(g,ks){
         lab=_lWhen(lab);   /* [STAGE_LINES] 화면 이름만 «언제 나오나»로 · 대본(slab)은 원래 이름 */
         out.push({k:k,lab:lab,slab:slab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',file:c.file,ms:Math.max(2400,Math.round(String(c.text||'').length*160)),dk:c.duck,fm:c.fadeMs||0});   /* [BGM_FIX_1030] fm = 박수 뒤 줄의 내림 시간(1.5초 · 미리 낮추기) · ★[BGM_PREVIEW_1024] dk = 이 큐의 음악 크기(당일 콘솔과 같은 엔진 값) — 구간 음악 미리 듣기가 이 줄 아래로 깐다 */
         /* [G5 TOAST_TALK_GLASS] 케이크 · 축배의 «위하여» 줄은 잔 드는 큐 뒤 — 종전엔 줄의 첫 사람 순간(케이크 커팅)에 붙어 붓기 앞에 나왔다 */
-        if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||'',ldk:c.live?c.live.duck:undefined,cheer:!!(c.live&&c.live.cheer),est:tEst(c.slug||'')}); } }   /* [BGM_R3_1023] of = 잔 드는 큐 · [BGM_PREVIEW_1024] ldk = 사람 구간 음악 크기 · cheer = «위하여» 뒤 축배 크기로 */
+        if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||'',ldk:c.live?c.live.duck:undefined,cheer:!!(c.live&&c.live.cheer),est:tEst(c.slug||'')}); } }   /* [BGM_R3_1023] of = 잔 드는 큐 · [BGM_PREVIEW_1024] ldk = 사람 구간 음악 크기 · cheer = «위하여» 뒤 축배 크기로 */
       }
       /* [G5] 말 없는 사람 순간도 옅은 줄로(소리 없음 · 재생 목록에는 안 들어간다) */
       { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말없이 흐르는 자리',txt:qt,quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')}); } }   /* [LISTEN_PACE_1031] est */   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
@@ -4619,7 +4619,7 @@ function _lSteps0(g,ks){
           else if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
             var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='etc'?'두 분이 준비한 순서가 이어져요':'준비한 선물을 건네요';
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000,ldk:c.live.duck}); }
-          else { var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||'',ldk:c.live.duck,cheer:!!c.live.cheer,est:tEst(c.slug||'')});   /* [BGM_R3_1023] · [BGM_PREVIEW_1024] ldk · cheer = 사람 구간 음악 크기 · «위하여» */
+          else { var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+_lpNoT(t),talk:true,ms:3000,of:c.slug||'',ldk:c.live.duck,cheer:!!c.live.cheer,est:tEst(c.slug||'')});   /* [BGM_R3_1023] · [BGM_PREVIEW_1024] ldk · cheer = 사람 구간 음악 크기 · «위하여» */
             if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말없이 흐르는 자리',txt:cs.some(function(x){ return x.slug==='tribute-hug'; })?'두 분이 부모님께 인사해요':'두 분이 부모님께 인사하고 안아 드려요',quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')});   /* [LISTEN_PACE_1031] 옛 코스 · 말을 전하고 인사하는 큐의 시간 */   /* [TRIB_HUG_LINE_1018 검토 131-4] 포옹을 청하는 줄(256)이 있는 날은 인사만 — 포옹은 그 줄 뒤 */   /* ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤(_lQuiet)   /* [HUG_WORDS_1013] 말을 전한 뒤 인사 · 포옹 */
             if(k==='vow') out.push({k:k,lab:'말없이 흐르는 자리',txt:_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요':'마지막 한 문장은 두 분이 하객 쪽으로 돌아서서 함께 읽어요',quiet:true,ms:0,est:qEst(k,'')}); } }   /* [LISTEN_PACE_1031] 낭독 안의 한 줄 — LP_EST_NOTE */   /* [STAGE_LINES] _vowHowHint 와 같은 사실 · 할 말 카드 아래에만 있어 흐름에선 안 보였다 */
         }
@@ -7901,6 +7901,8 @@ function _lPreload(){ var n=LP.q[LP.i+1]; if(!n||!n.src) return; if(!LP.pre){ LP
 function _lpTag(a){ var n={}; (a||[]).forEach(function(x){ n[x.k]=n[x.k]||0; x._li=x.k+':'+(n[x.k]++); }); return a; }   /* 줄 자리 = 그 순간 안 번호(_mkFlow 의 data-li 와 같다 · 한 순간 _lSteps(ENG,[k]) 차례) */
 function _lpMs(est){ return Math.min(6,Math.max(3,Math.round((+est||0)/12)))*1000; }
 /* 시간 글 — 1분 미만 10초 단위 · 1분부터 15초 단위(1분 15초 · 2분 45초 …) · 없거나 0 이면 글 없음 */
+/* ★[ONE_TIME_1031 BGM 섹션] 말하는 차례 줄 글에서 시간 꼬리(«· 약 2분» · «· 약 1분씩»)를 뗀다 — 시간은 «실제로는 약 …»(live.est · EST_TRUE) 하나만. 한 줄에 두 숫자(서약 «약 2분» ↔ «실제로는 약 1분 15초»)가 보여 헷갈렸다 */
+function _lpNoT(t){ return String(t||'').replace(/ · 약 [^·]+$/,''); }
 function _lpEstT(est){ est=+est||0; if(!(est>0)) return ''; if(est<55) return '약 '+Math.max(10,Math.round(est/10)*10)+'초'; var m=Math.round(est/15)*15, mi=Math.floor(m/60), se=m%60; return '약 '+mi+'분'+(se?' '+se+'초':''); }
 function _lpPos(){ var pos={}; LP.q.forEach(function(x,j){ if(x._li&&!(x._li in pos)) pos[x._li]=j; }); return pos; }
 function _lpRow(key){ var st=LP.q[LP.i]; if(!LP.pace||!st||LP.big) return {c:'',e:''}; var pos=_lpPos(); if(!(key in pos)) return {c:'',e:''};

@@ -142,6 +142,9 @@ try {
     await f.evaluate(() => { window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40 })); window.scrollTo(0, 0); }); const y0 = await f.evaluate(() => scrollY); await wait(f, 6000);
     const s5 = await f.evaluate(() => ({ y: scrollY, nf: LP.noFollow, i: LP.i })); await f.evaluate(() => lsStop());
     ok(`${W} P5 손으로 스크롤하면 그 재생 동안 따라가기 멈춤`, s5.nf === true && s5.y === y0, { y0, ...s5 });
+    /* ★[ONE_TIME_1031] P9 한 줄에 시간 숫자 하나 — 모든 순간의 말하는 차례 · 행동 줄 글에 «약 N분/초» 없음(시간은 «실제로는 약 …» 하나) */
+    { const bad = await f.evaluate(() => _lSteps(ENG, _lRows()).filter((x) => (x.talk || x.act || x.said) && /약 \d+\s*(분|초)/.test(x.txt || '')).map((x) => [x.k, x.txt]));
+      ok(`${W} P9 말하는 차례 · 행동 줄 글에 시간 꼬리 없음(한 줄에 시간 숫자 하나)`, bad.length === 0, bad.slice(0, 6)); }
     /* ★[LEAD_LONGER_1031] P8 크게 보기(처음부터 보고 듣기 · 본식부터 등 이어 트는 길)도 같은 규칙 — 뜸(새 곡 6초 · 이어지는 곡 3초 · 순간마다) · 행동 줄 멈춤 · «실제로는 약 …» */
     { await go(f, 'ring'); const b8 = await f.evaluate(async () => { const L = []; const o = BgmBed.lpLead; BgmBed.lpLead = function (st) { const r = o.apply(this, arguments); L.push({ k: st.k, r }); return r; };
         const E = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['candle', 'ring'], true); _lFull();
