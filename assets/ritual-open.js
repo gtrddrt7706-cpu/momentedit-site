@@ -332,7 +332,7 @@
     vow: [24, 100, 8, 10],   // ★[REVIEW29_1023 검토 153] 여는 말 = 고은천 첫 · 셋째 문장 + 호명(62음절 · 옛 50 보다 +2.4초) ·   // [SOURCE_FIRST_1016] 여는 말 «다음은 …» · «천천히 하셔도 괜찮습니다»(T 33) +2.6 · 맺는 말 «두 사람의 서약이었습니다»(G3 P23) −1.6
     ring: { toDeclare: [20, 0, 80, 2], other: [20, 0, 68, 2] },
     declare: [12, 15, 8, 20],   // ★[DECLARE_BY_PERSON 2026-10-12] 누가 읽든 같다 — 여는 말 · 맺는 말 12초(136 24음절 · [DECLARE_ANYONE] 여는 말은 하나 + 57 26음절 · 쉼 포함) · 선언문 낭독 15초(66자 글 기준 · ★[DECL_REF_PRINT 2026-10-23] 지금 선언문은 참고 예시 1 · 2 = 104 · 110자라 분당 300자로 약 22초 — 모자란 7초는 뒤 여유 20초 안에서 · 늘리면 예시 시각 · 단체 사진 표 · 근거 장부가 함께 움직인다) · 마이크 · 카드 건네기 8초 · 여유 20초(읽을 분은 정면 가까운 자리 · 걸어 나오고 들어가기). 옛 나레이션 판(엄숙 16 · 따뜻 12 · 박수 30) 걷음
-    tribute: { one: [26, 34.7, 25, 30], long: [26, 138.8, 25, 30], none: [26, 0, 25, 30] },   // [SOURCE_FIRST_1016] 이름 줄 = 자료 FF 2-1(45음절 9초 · +6.2) · 구호 GG 1(−0.2)   // ★[TRIB_TIME_1014] 대본을 지금 소리로 다시 쟀다 — 이름 줄 2.8(짝 줄 3.4) + 사이 1 + 여는 말 7.4 + 구호 2.6 + 맺는 말 6.2 = 20초(옛 38 · 42.5 는 꽃 헌정 때 대본 · 말 없이 판도 대본은 같다)
+    tribute: { one: [26, 34.7, 40, 30], long: [26, 138.8, 40, 30], none: [26, 0, 40, 30] },   /* ★[EST_TRUE_1031] 말 없는 시간 25 → 40 — 인사 동작 15 → 30(양가 각각) */   // [SOURCE_FIRST_1016] 이름 줄 = 자료 FF 2-1(45음절 9초 · +6.2) · 구호 GG 1(−0.2)   // ★[TRIB_TIME_1014] 대본을 지금 소리로 다시 쟀다 — 이름 줄 2.8(짝 줄 3.4) + 사이 1 + 여는 말 7.4 + 구호 2.6 + 맺는 말 6.2 = 20초(옛 38 · 42.5 는 꽃 헌정 때 대본 · 말 없이 판도 대본은 같다)
     song: [8, 0, 210, 20],   // [SONG_BACK_1011] 여는 말 8초(19 narr-song · 32음절) · 노래 3분 30초(옛 실측 «축가 1곡» 210 · 자료 중앙값 3분) · 오가는 여유 20초(부르실 분이 앞으로 · MR 시작 · 인사)
     free: [12, 0, 188, 5],   // [FREE_WHAT] 말 없는 시간은 길이 칩에서 — 60 × 분 + 8(3분 188 · 2분 128 · 1분 68)
     letter: { each: [21, 122, 16, 10], parent: [17, 138.8, 16, 10] },   // [SOURCE_FIRST_1016] 여는 말 첫 문장 = 자료 G1 62 · GG 1
@@ -353,24 +353,35 @@
   /* ★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»] 감사문 몫 — 여는 말 7초(133 · 29음절)뿐이고 맺는 말이 없다(서약은 여는 말 + 맺는 말 21초).
      두 분이 읽는 시간(한 분 300자쯤) · 말 없는 시간 · 여유는 서약과 같다 */
   var THANKS_TIME = [7, 100, 8, 10];   // ★[REVIEW29_1023 검토 153] 다시 쟀다 — 133 = 25음절 5초 + 문장 사이 1.25 = 6.3 → 7 그대로   // [SOURCE_FIRST_1016] 읽는 시간은 글 안내(한 분 300자쯤 · 서약과 같은 칸)를 따른다 — 자료 Z 1 은 «약 1분»(글을 짧게 쓰면 그만큼 짧다)
+  /* ★★[EST_TRUE_1031] 두 분이 적어 둔 글의 읽는 시간 — 음절 ÷ 4 + 5초(분당 240음절 · 사람이 소리 내 읽는 속도) · 글이 없으면 0(종전 값을 쓴다).
+       엔진(ritual-cue live.est)과 본식 합(partsOf 의 말하는 시간)이 같은 값을 쓴다 · 신랑 · 신부 칸(S.tx)을 더하고 없으면 옛 한 칸 */
+  var TX_LEG = { welcome: 'welcomeText', vow: 'vowText', letter: 'letterText', tribute: 'tributeText' };
+  function spokenOf(S, k) { var tx = (S && S.tx) || {};
+    if (k === 'bless') return String(tx['bless.p'] || '');
+    var a = String(tx[k + '.g'] || '') + String(tx[k + '.b'] || '');
+    return a.trim() ? a : String((S && S[TX_LEG[k]]) || ''); }
+  function textSec(S, k) { var n = spokenOf(S, k).replace(/[\s.,!?·…~'"“”‘’()\[\]«»<>:;\-]/g, '').length; return n ? Math.round(n / 4 + 5) : 0; }
+  function withTx(p, S, k) { var v = textSec(S, k); return v ? [p[0], v, p[2], p[3]] : p; }
   function partsOf(k, S, seq) {
     S = S || {}; seq = seq || bodySeq(S);
     var t = TIME[k], i = seq.indexOf(k);
     switch (k) {
       case 'entry': return t[String(S.entry || 'A').toUpperCase()] || t.A;   // [MATJEOL_SPLIT_1013] 맞절 몫(BOW)은 matjeol 순간이 진다 — 종전 [MATJEOL_1011] 입장 끝 +15초
-      case 'vow': return S.vowKind === 'thanks' ? THANKS_TIME : t;   // [THANKS_IN_VOW]
+      case 'vow': return withTx(S.vowKind === 'thanks' ? THANKS_TIME : t, S, 'vow');   // [THANKS_IN_VOW] · [EST_TRUE_1031] 적은 글 길이
+      case 'welcome': return withTx(t, S, 'welcome');   // [EST_TRUE_1031]
       case 'ring': return seq[i + 1] === 'declare' ? t.toDeclare : t.other;
       case 'declare': return t;   // [DECLARE_BY_PERSON] 판 없이 하나
       case 'bless': {   /* ★★[COMBO_171_1030 검토 171 C04] 덕담 시간 = 말씀하실 분 수 × 한 분 1분쯤(76.5초 · 옛 고정 153 = 두 분) · 받은 원고가 더 길면 원고(300자 ≈ 1분) — 안 고르면 종전 그대로(153) · 사람별 타이머는 콘솔 그대로 */
         var bn = +((S && S.blessN) || 0), bt = String(((S && S.tx) || {})['bless.p'] || '').replace(/\s+/g, '').length, talk = t[1];
         if (bn >= 1) talk = Math.round(76.5 * Math.min(4, bn));
-        if (bt) talk = Math.max(talk, Math.round(bt / 5));
+        if (bt) talk = Math.max(talk, textSec(S, 'bless'));   /* [EST_TRUE_1031] 원고 = 음절 ÷ 4 + 5초(종전 300자 ≈ 1분) */
         return [t[0], talk, t[2], t[3]]; }
       case 'tribute': { var tt = t[chipOf('tribute', S)];   /* ★[TRIB_NO_HUG_1030 검토 172] «인사만»이면 포옹 몫(256 소리 · 포옹 동작 · 그 여유)을 뺀다 — 넉넉 합에서 빠지는 값(소리 + 15 + 20)이 콘솔에서 걷히는 포옹 큐(소리 + 35초)와 같다 */
+        if (tt[1]) tt = withTx(tt, S, 'tribute');   /* [EST_TRUE_1031] 말로 인사 날 · 적은 글 길이 */
         return hugOff(S) ? [tt[0] - HUG_SEC.call, tt[1], tt[2] - HUG_SEC.act, tt[3] - HUG_SEC.slack] : tt; }
-      case 'letter': return t[chipOf('letter', S)];
+      case 'letter': return withTx(t[chipOf('letter', S)], S, 'letter');   // [EST_TRUE_1031]
       case 'free': { var fl = +chipOf('freeLen', S);   // 축사 판: 여는 말 14 · 사람 말 60×분−20 · 걸음 12 · 여유 10(2분이면 대본 126 · 넉넉 161)
-        return FREE_KIND[chipOf('free', S)] === 'speech' ? [14, 60 * fl - 20, 12, 10] : [t[0], t[1], 60 * fl + 8, t[3]]; }
+        return FREE_KIND[chipOf('free', S)] === 'speech' ? [14, 60 * fl - 20, 26, 10] : [t[0], t[1], 60 * fl + 8, t[3]]; }   /* ★[EST_TRUE_1031] 축사 걸음 12 → 26(엔진 live 60 × 분 + 20 과 같은 셈) */
       case 'cake': return onOf(S, 'toast') ? t.both : t.only;   // [CAKE_TOAST_SPLIT]
       case 'toast': return onOf(S, 'cake') ? t.both : t.only;
       case '_close': return seq.indexOf('tribute') > -1 ? t.withTribute : t.noTribute;
@@ -1543,7 +1554,7 @@
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
-    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
+    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, flowLv: flowLv, FLOW_LV: FLOW_LV, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf,

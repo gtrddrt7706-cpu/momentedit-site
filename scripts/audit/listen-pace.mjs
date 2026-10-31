@@ -99,7 +99,7 @@ try {
     const { ctx, pg, f, errs } = await open(W, true);
     /* P2 est — 모든 순간의 행동 줄 · 당일 엔진 값과 같다 */
     const T = await f.evaluate((ks) => { const S2 = JSON.parse(JSON.stringify(S)); S2.on = S2.on || {}; ks.forEach((k) => { if (RitualOpen.PICKABLE.indexOf(k) > -1) S2.on[k] = 1; });   /* _lSteps 처럼 그 순간을 켜고 */
-      const rc = ENG.RitualCue.build(S2, { mode: 'console' }).cues, rp = ENG.RitualCue.build(S2, { mode: 'preview' }).cues, by = {}; rc.forEach((c) => { by[c.slug] = c; }); rp.forEach((c) => { if (c.live) by[c.slug] = { live: { est: c.live.fullEst || c.live.est } }; });   /* 제품과 같은 차례 — 미리 듣기 빌드의 원래 값(fullEst) · 없으면 당일 빌드 */
+      const rc = ENG.RitualCue.build(S2, { mode: 'console' }).cues, rp = ENG.RitualCue.build(S2, { mode: 'preview' }).cues, by = {}; rc.forEach((c) => { if (c.live) by[c.slug] = { live: { est: c.live.showEst || c.live.est } }; }); rp.forEach((c) => { if (c.live) by[c.slug] = { live: { est: c.live.showEst || c.live.fullEst || c.live.est } }; });   /* [EST_TRUE_1031] showEst = 화면 값 */   /* 제품과 같은 차례 — 미리 듣기 빌드의 원래 값(fullEst) · 없으면 당일 빌드 */
       const out = []; ks.forEach((k) => _lSteps(ENG, [k]).forEach((x, i) => { if (!x.quiet && !x.talk) return; const sl = x.talk ? x.of : (LP_EST_FROM[x.of] || x.of), base = by[sl] && by[sl].live ? by[sl].live.est : null,
         want = x.talk ? (base == null ? null : Math.max(0, base + (LP_TALK_ADJ[x.of] || 0))) : (LP_EST_NOTE[k] && !x.of) ? 0 : base;
         out.push({ k, i, kind: x.talk ? '○ 차례' : '● 행동', txt: x.txt, of: x.of || '', est: x.est, want, ms: _lpMs(x.est), t: _lpEstT(x.est) }); })); return out; }, ['guest', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'table', 'toast', '_close']);

@@ -20436,6 +20436,15 @@ chk 'LISTEN_PACE_1031' scripts/audit/listen-pace.mjs 1
 chk 'listen-pace' .github/workflows/merge-guard.yml 1
 nochk 'LP.leadSt=st;[^/]*//' order-preview.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/listen-pace.mjs >/dev/null 2>&1; _lpc=$?; if [ "$_lpc" = 1 ]; then echo 'FAIL listen-pace: 이 순간 전체 듣기 흐름(음악 뜸 · 행동 줄 멈춤 · «실제로는 약» · 지금 줄 · 따라가기)이 어긋났습니다 — node scripts/audit/listen-pace.mjs'; fail=1; elif [ "$_lpc" = 2 ]; then echo 'skip listen-pace (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok listen-pace'; fi; fi
+# ── 2026-10-31 [EST_TRUE_1031 BGM 섹션 · GPT 2라운드 검증] 행동별 실제 시간(live.est) — 화촉 인사 화면 30/25(셈 15 그대로) · 부모님께 인사 30 · 축사 60 × 분 + 20 · 자유 순서 «두 분이 정한 만큼» · 단체 사진 모임 하객 수(칸 없으면 30명 75) · 두 분이 적은 글 = 음절 ÷ 4 + 5초 · 본식 합도 같은 값 · 폐지 순간(반지 데우기 · 케이크 · 와인)은 그대로
+chk 'EST_TRUE_1031' assets/ritual-cue.js 5
+chk 'EST_TRUE_1031' assets/ritual-open.js 8
+chk 'EST_TRUE_1031' order-preview.html 1
+chk 'EST_TRUE_1031' console.html 2
+chk 'EST_TRUE_1031' scripts/audit/est-true.mjs 1
+chk 'function textSec(S, k)' assets/ritual-open.js 1
+chk 'function gatherSec(S)' assets/ritual-cue.js 1
+if command -v node >/dev/null 2>&1; then if node scripts/audit/est-true.mjs >/dev/null 2>&1; then echo 'ok est-true'; else echo 'FAIL est-true: 행동별 실제 시간(live.est) 표가 어긋났습니다 — node scripts/audit/est-true.mjs'; fail=1; fi; fi
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
 chk 'BGM_SOUND_CI' .github/workflows/merge-guard.yml 1
 chk 'scripts/audit/\$t.mjs' .github/workflows/merge-guard.yml 1
