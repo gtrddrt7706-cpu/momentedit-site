@@ -844,7 +844,7 @@
         k: 'prevideo', blockN: '식전 영상', slug: pslug, name: '식전 영상 소개',
         text: EXTRA[pslug], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
         fire: (D.COURSES[S.course] && D.COURSES[S.course].open) ? 'chain' : 'clock', atMin: 0,   // [CEREMONY_AT_VIDEO 2026-10-05] 불을 낮추고 예식 시작 시각에 · 옛 [PREVIDEO_AT_4](본식 시작 4분 전) 걷음 · ★[OPEN_DECL_1014] 새 코스는 개식 선언(시각에)에 이어 사슬
-        note: '영상 링크는 D-3 까지 받는다(길이 규정 없음 [PREVIDEO_FREE] · 사진으로 만드는 길은 없다 [PV_PHOTO_OFF_1023]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
+        note: '영상 링크는 D-7 까지 받는다([PV_DUE7_1101] 마이페이지 «식전 영상» 확정 기한과 같다 · 길이 규정 없음 [PREVIDEO_FREE] · 사진으로 만드는 길은 없다 [PV_PHOTO_OFF_1023]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         /* ★[PV_RESCUE_1014 라운드 3] 같은 영상 상영인 준비한 순서(영상)처럼 [재생 안 됨](105 · FREE_RESCUE)을 든다 — 식전 영상만 실패 처리가 없었다(자료 T1 · V 3-5 돌발 «음향 · 영상 트러블») */
         rescue: { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */,
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff,
