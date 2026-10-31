@@ -20882,4 +20882,16 @@ chk 'DECL_TITLE_MIRROR' admin.html 1
 chk 'DECL_TITLE_1031' api/_ritual-kb.js 2
 nochk "_declOther = !!_dw && !/아버|어머|부모|아빠|엄마/" assets/ritual-cue.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/decl-title.mjs >/dev/null 2>&1; _dtl=$?; [ "$_dtl" = 1 ] && { echo 'FAIL decl-title: 성혼 선언 호칭 칩 · 호칭 여는 말 · 자리로 · 덕담 이어 하기가 되돌아갔습니다 — node scripts/audit/decl-title.mjs'; fail=1; }; :; fi
+# ── 2026-10-31 [CLIP_STATUS_1031 검토 175 · 고침 3 · 4] 안 나는 녹음 표시 — 원천 셋(ritual-cue RETIRED · ritual-story CAST_MUTE · assets/audio/clip-status.json) · 녹음 · 파일 · 번호는 그대로(표시만) · 실청 · 쉼 도구 · check-recorded 가 scripts/lib/clip-status.mjs 하나로 읽고 «실청 기준 나레이션 N»을 찍는다
+#    검사가 엔진(새 코스 · 옛 코스 · 옛 코스 덧붙임 · 직접 녹음 판)을 돌려 retired · dormant 는 안 나고 · legacy 나레이션은 옛 코스에서만 · legacy 배역은 «직접 녹음» 판에서만(새 고객 0) · CAST_MUTE 는 소리로 안 서는지 · 네 도구 숫자가 같은지 잰다 · 살아 있는 넷(narration 24 · 25 · 43 · 22)은 표에 없어야 한다
+chk 'CLIP_STATUS_1031' assets/audio/clip-status.json 1
+chk 'CLIP_STATUS_1031' scripts/lib/clip-status.mjs 1
+chk 'CAST_MUTE' scripts/lib/clip-status.mjs 2   # [CLIP_STATUS_1031 고침 3] 안 트는 배역은 ritual-story 를 원천으로
+chk 'CLIP_STATUS_1031' scripts/build-listen-all.mjs 1
+chk 'CLIP_STATUS_1031' scripts/check-recorded.mjs 1
+chk 'CLIP_STATUS_1031' scripts/check-listen-cover.mjs 1
+chk 'CLIP_STATUS_1031' scripts/audit/flow-gaps.mjs 1
+chk 'CLIP_STATUS_1031' scripts/audit/keepgap-text.mjs 1
+chk 'CLIP_STATUS_1031' CLAUDE.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/clip-status.mjs >/dev/null 2>&1; _cst=$?; [ "$_cst" = 1 ] && { echo 'FAIL clip-status: 안 나는 녹음 표시가 엔진과 다르거나 도구 숫자가 갈렸습니다(안 남이라 적은 클립이 나거나 · 없는 파일 · CAST_MUTE 를 표에 또 적음 · 실청 기준 나레이션 숫자가 다름) — node scripts/audit/clip-status.mjs'; fail=1; }; :; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
