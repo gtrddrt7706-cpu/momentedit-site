@@ -237,15 +237,21 @@
        ACC_ON = 덩어리 전체 스위치(실물 사진 오기 전 끄자 하시면 false 한 줄) · 칸마다 on(사장님 답에 따라 한 칸만 끄기) · 사진 480×480 스타일 예시(acc-*.webp).
        이름은 사이트 말 그대로(«면사포» · «기본 조화 부케»). ★[ACC_SHOES_STUDIO 1024 사장님 «슈즈는 우리가 준비»] 슈즈 글 · 소제목 한 줄에 «스튜디오에서 준비». 부케 글 = 식순 BOUQUET · GOODS_STUDIO 와 같은 뜻 · 플로리스트 금액 없음 */
   R.ACC_ON = true;
+  /* ★★[DRESS_ACC_NINE_1031 코워크 · 사장님 «소품도 인기 있는 걸로, 인스타 활용» · «사이트에 필요한 소품들 모아서 올려 — 구비돼 있는 것처럼»] 아홉 칸 —
+       면사포 둘 · 헤어 장식 셋(진주 · 비즈 / 새틴 리본 / 조화 꽃) · 귀걸이 둘(진주 / 크리스털 드롭) · 슈즈 · 부케. 모두 «스튜디오에 갖춰진» 칸(고르기 · 보류 표시 없음).
+       옛 «오간자 케이프» · «레이스 볼레로» 칸은 인스타 근거 0 ~ 1건이라 뺐다(사진 acc-cape · acc-bolero 는 남긴다 · 드레스 03 의 탈부착 볼레로는 드레스 구성이라 그대로) */
   R.acc = [
-    { id: 'veil-short', name: '짧은 면사포', img: 'acc-veil-short', on: true },
-    { id: 'veil-long', name: '긴 면사포', img: 'acc-veil-long', on: true },
-    { id: 'cape', name: '오간자 케이프', img: 'acc-cape', on: true },
-    { id: 'bolero', name: '레이스 볼레로', img: 'acc-bolero', on: true },
+    { id: 'veil-short', name: '짧은 면사포', img: 'acc-veil-short', note: '가볍게 움직이기 좋아요 · 미니·슬림 드레스와 함께', on: true },
+    { id: 'veil-long', name: '긴 면사포', img: 'acc-veil-long', note: '드레스 뒤태에 길이를 더해요 · 동선에 맞춰 길이를 정해요', on: true },
+    { id: 'hair-pearl', name: '진주·비즈 헤어 장식', img: 'acc-hair-pearl', note: '낮은 번이나 베일 위에 작은 반짝임을 더해요', on: true },
+    { id: 'hair-ribbon', name: '새틴 헤어 리본', img: 'acc-hair-ribbon', note: '반묶음·포니테일에 더해요 · 드레스 백 리본과는 하나만', on: true },
+    { id: 'hair-flower', name: '조화 플라워 헤어핀', img: 'acc-hair-flower', note: '번이나 베일 위에 부드러운 꽃 포인트를 더해요', on: true },
+    { id: 'earrings-pearl', name: '진주 귀걸이', img: 'acc-earrings-pearl', note: '작은 진주로 얼굴 가까이에 단정한 포인트를 더해요', on: true },
+    { id: 'earrings-drop', name: '크리스털 드롭 귀걸이', img: 'acc-earrings-drop', note: '움직일 때 은은하게 반짝이는 포인트예요', on: true },
     { id: 'shoes', name: '새틴 슈즈', img: 'acc-shoes', note: '슈즈도 스튜디오에서 준비해요 · 드레스 길이에 맞춰 굽 높이를 함께 정해요', on: true },
     { id: 'bouquet', name: '기본 조화 부케', img: 'acc-bouquet', note: '기본 조화 부케는 저희가 준비해요 · 생화를 원하시면 별도 비용이에요', on: true }
   ];
-  R.ACC_LEAD = '드레스 · 면사포 · 주얼리 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';
+  R.ACC_LEAD = '드레스 · 면사포 · 헤어 장식 · 귀걸이 · 슈즈와 웨딩 소품은 스튜디오에 갖춰져 있어요.';
   R.accList = function () { return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : []; };
   /* ★[DRESS_NAME_SPLIT 1024 코워크 GPT 2차] 이름 = 작은 보조 줄 «스타일 예시 0n» + 제목(«잔비즈 오프숄더 미니») — 실물 이름은 제목 하나 */
   R.nameParts = function (d) { var n = String((d && d.name) || ''), m = /^(스타일 예시 \d{2}) · (.+)$/.exec(n); return m ? { kick: m[1], title: m[2] } : { kick: '', title: n }; };
