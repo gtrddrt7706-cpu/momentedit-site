@@ -15,7 +15,8 @@ if (a < 0) { console.log('━━ prep-order — _prepRows 배열을 못 찾았�
 const b = my.indexOf('\n  ];', a);
 const blk = my.slice(a, b);
 const want = [["row('청첩장'", '청첩장'], ["row('좌석 · 음료'", '좌석 · 음료'], ["row('애프터 웨딩'", '애프터 웨딩'], ["row('식순'", '식순'],
-  /* [PR_PREP_ONE 2026-10-07] 식순 준비 목록 행은 연습 화면으로 옮겼다(사장님 «연습 · 준비 하나로») */ ['_bouquetFold(', '부케(식순에 딸림)'], ["row('가족 · 친구 스냅'", '가족 · 친구 스냅']];
+  /* [PR_PREP_ONE 2026-10-07] 식순 준비 목록 행은 연습 화면으로 옮겼다(사장님 «연습 · 준비 하나로») */ ['_bouquetFold(', '부케(식순에 딸림)'],
+  /* [PV_CAT_1031 2026-10-31] 식전 영상 — 개식 선언 뒤 · 입장 전 상영이라 식순 · 부케 바로 뒤(줄은 배열 밖에서 만든 _pvRow) */ ['_pvRow,', '식전 영상'], ["row('가족 · 친구 스냅'", '가족 · 친구 스냅']];
 const pos = want.map(([k, n]) => [blk.indexOf(k), n]);
 const bad = [];
 pos.forEach(([p, n]) => { if (p < 0) bad.push(`«${n}» 행을 배열에서 못 찾았다`); });
@@ -42,5 +43,5 @@ for (let i = 1; i < wpos.length; i++) if (wpos[i][0] >= 0 && wpos[i - 1][0] >= 0
 if (wblk.indexOf("line('좌석 배치'") > -1) bad.push('내 완성물에 옛 이름 «좌석 배치» — 예식 준비 카드와 같은 «좌석 · 음료»로');
 if (wblk.indexOf("'열기')") > -1) bad.push('내 완성물 여는 단추에 «열기» — «보기» 하나로');
 if (bad.length) { console.log('━━ prep-order — 빨강 ' + bad.length + '건'); bad.forEach((x) => console.log('   · ' + x)); process.exit(1); }
-console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순(+준비 목록 · 부케) › 가족 · 친구 스냅 · 예식 확인서 · 내 완성물도 같은 순서');
+console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순(+준비 목록 · 부케) › 식전 영상 › 가족 · 친구 스냅 · 예식 확인서 · 내 완성물도 같은 순서');
 process.exit(0);

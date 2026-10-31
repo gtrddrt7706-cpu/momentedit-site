@@ -65,9 +65,9 @@
     if(fx){ var f=D.querySelector(fx); if(f) try{ f.focus({preventScroll:true}); }catch(x){} } }
 
   /* 누름 — 축사 · 편지 칩만 · 'bed' 만 적는다(«음악 없이» = 지운다) */
-  var KEEP={};   /* [BED_KEEP_1031] 구간마다 마지막으로 고른 곡 */
+  var KEEP={}, KS=null;   /* [BED_KEEP_1031] 구간마다 마지막으로 고른 곡 · ★[BED_KEEP_DRAFT_1031 2라운드 3] 초안이 바뀌면(처음부터 다시 · 다시 열기 · 되돌리기) 비운다 — 새 식순에 옛 곡이 되살아났다 */
   function act(kind,id,v){ var s=B.slot(id); if(kind!=='pick'||!s||s.picks.indexOf(v)<0) return;
-    tReset(); var S=St(), g=B.get(S,id), pr=g.set?g.m:(TOUCH[id]||''); if(pr===v) return;   /* 이미 고른 칩은 그대로(CHIP_NO_REPLAY 와 같다) */
+    tReset(); var S=St(); if(KS!==S){ KEEP={}; KS=S; } var g=B.get(S,id), pr=g.set?g.m:(TOUCH[id]||''); if(pr===v) return;   /* 이미 고른 칩은 그대로(CHIP_NO_REPLAY 와 같다) */
     TOUCH[id]=v;
     if(v==='bed'){ S.bgm=B.clean(S.bgm)||{}; S.bgm[id]=KEEP[id]?{m:'bed',k:KEEP[id]}:{m:'bed'}; try{ if(window.BgmBed) BgmBed.hush(); }catch(x){} }   /* ★[BED_KEEP_1031 식순 걷기 1라운드 GPT 9] «음악 없이»를 눌러 봤다 돌아오면 전에 고른 곡 그대로(이 화면을 연 동안만 기억 · 저장 글에는 없다) */
     else { var c=B.clean(S.bgm); if(c&&c[id]&&c[id].k) KEEP[id]=c[id].k; if(c) delete c[id]; S.bgm=B.clean(c); if(!S.bgm) delete S.bgm; try{ if(window.BgmBed) BgmBed.hush(); }catch(x){} }   /* [BGM_PREVIEW_1024] 곡 카드 소리가 흐르던 줄이 사라지면 멈춘다 */

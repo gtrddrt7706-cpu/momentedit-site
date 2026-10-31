@@ -110,9 +110,10 @@ try {
       if (!k.folded) no(`${tag} 살펴볼 점이 처음부터 펼쳐져 있다 [DRESS_TIPS_FOLD]`);
       if (!k.btn) no(`${tag} 칸 전체 단추 · «자세히 보기 ›»가 없다 [DRESS_CELL_TAP]`);
       rows.push(`${tag} 요약 ${k.mh} · 첫 사진 ${Math.round(g.ft + k.pt - g.ct)}`); }
-    { const r = await fr.evaluate(() => ({ tips: document.querySelectorAll('.pk-mine ~ .pk-tips li, .pk-tips li').length, prep: document.querySelectorAll('.pk-end-dots.pk-prep .pk-prep-h ~ .dotln').length - 2, one: document.querySelectorAll('.pk-end-dots').length }));   // ★[DRESS_TIPS_1024]
+    { const r = await fr.evaluate(() => { const g = document.querySelector('.pk-mine + .pk-guide'), b = g && g.querySelector('.pk-guideb'); return { tips: document.querySelectorAll('.pk-tips li').length, prep: document.querySelectorAll('.pk-prep-h').length, one: document.querySelectorAll('.pk-end-dots').length, g: !!g, folded: !!b && b.hidden, secs: b ? b.querySelectorAll('.pk-gsec').length : 0, blank: /\[\s*\]/.test(b ? b.textContent : '') }; });   // ★[DRESS_TIPS_1024 · DRESS_GUIDE_1031]
       if (r.tips !== 3) no(`${tag} 결과 살펴볼 점 ${r.tips}줄 — 고른 답 셋이면 세 줄 [DRESS_TIPS_1024]`);
-      if (r.prep !== 4 || r.one !== 1) no(`${tag} 방문 전 준비 ${r.prep}줄 · 덩어리 ${r.one} — 안내 두 줄과 한 덩어리 네 줄 [DRESS_TIPS_1024 · DRESS_FORM_FIX3]`); }
+      if (r.prep !== 0 || r.one !== 1) no(`${tag} 옛 «방문 전 준비» ${r.prep} · 맨 아래 안내 덩어리 ${r.one} — 준비는 답 요약 아래 안내로 옮겼다 [DRESS_GUIDE_1031]`);
+      if (!r.g || !r.folded || r.secs !== 3 || r.blank) no(`${tag} 신부 준비 안내 — 답 요약 바로 아래 · 접힘 · 처음 세 칸 · 빈칸 없음 ${JSON.stringify(r)} [DRESS_GUIDE_1031]`); }
     await expand(fr); await P.waitForTimeout(500); await geo('다른 드레스');
     await fr.evaluate(() => document.querySelector('.pk-main [data-open]').click()); await geo('자세히');
     { await P.waitForTimeout(400); const r = await fr.evaluate(async () => { const im = document.querySelector('.dv-sl img'); if (im && !im.complete) await new Promise((ok) => { im.onload = im.onerror = ok; setTimeout(ok, 3000); }); const ex = document.querySelector('.dv-meta .dr-ex'); return { w: im ? im.naturalWidth : 0, ex: ex ? ex.textContent : '', exV: ex ? ex.getBoundingClientRect().width > 0 : false, n: document.querySelectorAll('.dv-sl').length }; });   // ★[DRESS_SAMPLE_V2] 사진 · 표시

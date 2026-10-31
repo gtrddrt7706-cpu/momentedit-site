@@ -246,10 +246,10 @@
     if(kind==='prev'){ if(CARD.f===f&&CARD.sg===sg){ stopCard(); return; } if(AV.st==='ok'&&!AV.set[f]){ toast1('이 곡은 아직 준비 중이에요'); return; }
       try{ if(typeof _stopAud==='function') _stopAud(); }catch(x){} try{ if(typeof LP!=='undefined'&&LP.q&&LP.q.length&&typeof lsStop==='function') lsStop(true); }catch(x){} try{ if(window.EntryMusic) EntryMusic.hush(); }catch(x){}
       stopCard(true); card(f,k,sg); return; }
-    if(kind!=='pick') return; var S=St(); if(picked(sg)===f){ var bs=D.getElementById(boxId(sg)), hs=bs?bs.offsetHeight:0; FM()[sg]=1; repaint(); foldAnim(sg,hs); var cs=D.querySelector('#'+boxId(sg)+' .mu-chg'); if(cs) try{ cs.focus({preventScroll:true}); }catch(x){} return; }   /* [MUSIC_FOLD_PICK_1031] «바꾸기»로 편 뒤 같은 곡을 다시 누르면 그대로 접는다(고른 곡은 그대로) */
+    if(kind!=='pick') return; var S=St(); if(picked(sg)===f){ var bs=D.getElementById(boxId(sg)), hs=bs?bs.offsetHeight:0; FM()[sg]=1; if(CARD.f&&CARD.sg===sg&&CARD.f!==f) stopCard(); repaint(); foldAnim(sg,hs); var cs=D.querySelector('#'+boxId(sg)+' .mu-chg'); if(cs) try{ cs.focus({preventScroll:true}); }catch(x){} return; }   /* [MUSIC_FOLD_PICK_1031] «바꾸기»로 편 뒤 같은 곡을 다시 누르면 그대로 접는다(고른 곡은 그대로) */
     S.bgm=(window.BgmSlots?BgmSlots.clean(S.bgm):S.bgm)||{};
     if(d.slot){ S.bgm[d.slot]={ m:'bed', k:f }; } else S.bgm[sg]={ k:f };
-    var bx0=D.getElementById(boxId(sg)), h0=bx0?bx0.offsetHeight:0; FM()[sg]=1;   /* [MUSIC_FOLD_PICK_1031] 고르면 바로 한 줄 */
+    var bx0=D.getElementById(boxId(sg)), h0=bx0?bx0.offsetHeight:0; FM()[sg]=1; if(CARD.f&&CARD.sg===sg&&CARD.f!==f) stopCard();   /* [MUSIC_FOLD_PICK_1031] 고르면 바로 한 줄 · ★[FOLD_HUSH_1031 2라운드 4] 다른 곡을 듣던 중이면 멈춘다(접힌 줄엔 고른 곡 ▶ 뿐이라 듣던 곡을 멈출 단추가 사라졌다) */
     save(); repaint(); foldAnim(sg,h0); var cb=D.querySelector('#'+boxId(sg)+' .mu-chg'); if(cb) try{ cb.focus({preventScroll:true}); }catch(x){} }   /* 포커스는 «바꾸기»로(키보드로 이어서 · 화면은 움직이지 않는다) */
   /* [MUSIC_FOLD_PICK_1031] 옛 높이 → 새 높이(입장 음악 boxAnim 과 같은 곡선 · 0.34초) · 움직임 줄이기면 바로 */
   var RMB=false; try{ RMB=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(x){}

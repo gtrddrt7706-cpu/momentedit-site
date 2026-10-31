@@ -500,7 +500,7 @@ function rebind() {
     for (const [id, e] of Object.entries(j.slots)) {
       if (id.split('#')[0] !== key) continue;
       if (!fs.existsSync(fileOf(id))) continue;
-      held.push({ i: Number(id.split('#')[1]), text: e.text, voice: e.voice, keepGap: !!e.keepGap });   // ★[KEEPGAP_CARRY_1023] 안쪽 쉼 지킴은 소리에 붙은 성질이다 — 자리를 옮겨도 함께 간다
+      held.push({ i: Number(id.split('#')[1]), text: e.text, voice: e.voice, keepGap: !!e.keepGap, src: e.from || null });   // ★[REBIND_FROM_CARRY_1031] 빌려 온 소리의 출처(from)도 소리에 붙은 성질 — 옮길 때 함께 간다(291 · 296 마무리가 출처를 잃어 closing-line ④ 가 빨갛던 자리)   // ★[KEEPGAP_CARRY_1023] 안쪽 쉼 지킴은 소리에 붙은 성질이다 — 자리를 옮겨도 함께 간다
     }
     held.sort((a, b) => a.i - b.i);
     if (!held.length) continue;
@@ -516,7 +516,7 @@ function rebind() {
       const h = held.find((x) => !used.has(x.i) && x.text === s.text && (!wantV || !x.voice || x.voice === wantV));   // ★[REBIND_VOICE 2026-10-14] 글자가 같아도 읽는 사람이 바뀐 자리(번갈아 · ENTRY_ALT)는 옮기지 않는다 — 입장 A «이 첫걸음을…»이 신랑 → 신부 차례가 됐다
       if (!h) { left.push({ id: key + '#' + s.i, text: s.text }); continue; }
       used.add(h.i);
-      neo[key + '#' + s.i] = { file: path.join(tmp, h.i + '.flac'), voice: h.voice, from: h.i, keepGap: h.keepGap };
+      neo[key + '#' + s.i] = { file: path.join(tmp, h.i + '.flac'), voice: h.voice, from: h.i, keepGap: h.keepGap, src: h.src };
     }
     /* ★[REBIND_SAFE ②] 옮길 것이 하나도 없으면 이 클립은 **손대지 않는다.**
        옛 판은 그래도 held 를 전부 지우고 다시 썼다 — 그 한 줄이 192개를 날린 자리다. */
@@ -542,6 +542,7 @@ function rebind() {
          이 줄이 글 · 성우 · 날짜만 옮겨 keepGap 이 빠졌다 — 조립기가 구호 안 쉼(«신랑 신부, [쉼] 입장!»)을 깎아 3.35 → 2.2초가 됐다.
          같은 소리를 옮기는 것이니 표시도 함께 옮긴다 · 검사 scripts/audit/keepgap-carry.mjs */
       if (v.keepGap) j.slots[id].keepGap = true;
+      if (v.src) j.slots[id].from = v.src;   // [REBIND_FROM_CARRY_1031]
       if (String(v.from) !== id.split('#')[1]) { moved++; console.log(`   ${key}#${v.from} → #${id.split('#')[1]}  「${s.text.slice(0, 30)}」`); }
     }
     fs.rmSync(tmp, { recursive: true, force: true });

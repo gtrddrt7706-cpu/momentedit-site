@@ -82,6 +82,10 @@
   {
    "file": "87_letter",
    "fn": "ltGetCouple"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave"
   }
  ],
  "newfn": [
@@ -3082,6 +3086,60 @@
    "fn": "vcStudioCheckDue_",
    "mark": "RFOK_FILE",
    "why": "아침 보고의 «확인 안 함»을 파일 id 로 — 옛것이면 다시 만든 파일이 빠진다"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "PV_CAT_1031",
+   "why": "저장 · 보내기 · 확정 · 나중에 · 안 함 — 식전 영상 마이페이지 카테고리(사장님 «추천대로진행» · «켜도상관없어» 2026-10-31)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvPhoto",
+   "mark": "PV_CAT_1031",
+   "why": "사진 1장 올리기(칸별 장수 · 동의 · 시간당 상한) — 식전 영상 마이페이지 카테고리(사장님 «추천대로진행» · «켜도상관없어» 2026-10-31)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvThumbs",
+   "mark": "PV_CAT_1031",
+   "why": "올린 사진 작은 그림(이 고객 세션으로만) — 식전 영상 마이페이지 카테고리(사장님 «추천대로진행» · «켜도상관없어» 2026-10-31)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvPublic",
+   "mark": "PV_CAT_1031",
+   "why": "마이페이지에 보내는 상태 · 미리보기 들어오면 «확인 필요» — 식전 영상 마이페이지 카테고리(사장님 «추천대로진행» · «켜도상관없어» 2026-10-31)"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "PV_CAT_1031",
+   "why": "prevideo 를 마이페이지 상태에 싣는다 — 없으면 줄이 안 보인다"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeRitualFiles",
+   "mark": "PV_CAT_1031",
+   "why": "식전 영상 사진 · 영상을 예식 6개월 뒤 지운다(처리방침 보관 약속)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "PV_CAT_1031",
+   "why": "pvSave · pvPhoto · pvThumbs 길 — 없으면 마이페이지 식전 영상이 «알 수 없는 요청»"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errArea",
+   "mark": "PV_CAT_1031",
+   "why": "식전 영상 실패 코드 자리(U · S · L)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvSame_",
+   "mark": "PV_SAME",
+   "why": "걸음(step)만 바뀌면 «만드는 중 · 확정» 상태 그대로 — 둘러보기만 해도 «수정 중»이 되던 것"
   }
  ],
  "fns": {
@@ -3509,6 +3567,29 @@
    "collectDinePoolDeep",
    "_awSearchAt_",
    "_awDist_"
+  ],
+  "89_prevideo": [
+   "_pvLive_",
+   "_pvSheet_",
+   "_pvRow_",
+   "_pvWrite_",
+   "_pvArr_",
+   "_pvYmdAdd_",
+   "_pvDue_",
+   "_pvPast_",
+   "_pvNorm_",
+   "_pvSame_",
+   "_pvYoutube_",
+   "_pvFolder_",
+   "_pvSeePreview_",
+   "_pvPublic",
+   "_pvSess_",
+   "_pvConsentGive_",
+   "_pvAdminMail_",
+   "handlePvSave",
+   "handlePvPhoto",
+   "handlePvThumbs",
+   "purgePrevideo_"
   ],
   "90_test-utils": [
    "platformSelfTest",
@@ -4051,6 +4132,15 @@
    "AW_SWEEP",
    "AW_GRID"
   ],
+  "89_prevideo": [
+   "PV_UP",
+   "PV_STYLES",
+   "PV_SONGS",
+   "PV_MODES",
+   "PV_SECS",
+   "PV_ST_KO",
+   "PV_HEAD"
+  ],
   "90_test-utils": [
    "_LAST_TEST_CODE"
   ],
@@ -4220,7 +4310,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-31 02:59 · 7be9923c",
+ "_생성": "2026-10-31 23:30 · 94fe658",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4776,5 +4866,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "2e9bd1ff71c8"
+ "_표식서명": "57cf4a8751d5"
 }
