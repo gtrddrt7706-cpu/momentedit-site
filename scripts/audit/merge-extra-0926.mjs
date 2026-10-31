@@ -142,7 +142,7 @@ await safe('P1-3', async () => {
 /* P1-4 · 마이페이지 «예식 순서에서 남는 사진» = 본식 차례 · 카드 이름 · 장면 */
 await safe('P1-4', async () => {
   const { ctx, pg } = await open(390); await toListen(pg);
-  const sm = await pg.evaluate(() => { S.on.welcome = 1; S.on.ring = 1; opSync(); return { sm: _ordPayload(false).summary, seq: RitualOpen.bodySeq(S).map((k) => RitualOpen.CARDS[k].n) }; });
+  const sm = await pg.evaluate(() => { S.on.welcome = 1; S.on.ring = 1; opSync(); return { sm: _ordPayload(false).summary, seq: ['하객 맞이'].concat(RitualOpen.onOf(S, 'prevideo') ? ['식전 영상'] : []).concat(RitualOpen.bodySeq(S).map((k) => RitualOpen.CARDS[k].n)) }; });   // ★[PHOTO_SCENE_1031] 식전(하객 맞이 · 식전 영상) → 본식 차례
   ok('P1-4 빌더가 요약에 scenes 를 싣는다 — 본식 차례 그대로 [SCENE_FROM_SEQ]', Array.isArray(sm.sm.scenes) && JSON.stringify(sm.sm.scenes.map((x) => x.n)) === JSON.stringify(sm.seq), JSON.stringify({ sc: (sm.sm.scenes || []).map((x) => x.n), seq: sm.seq }));
   await ctx.close();
   const c2 = await br.newContext({ viewport: { width: 390, height: 900 } }); const p2 = await c2.newPage();
