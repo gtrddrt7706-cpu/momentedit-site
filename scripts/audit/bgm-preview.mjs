@@ -23,11 +23,13 @@
    D6 축배 — «위하여» 전 축배 나레이션은 닫는 인사 곡(M6) · 뒤에 축배 곡(M7 · B28) · ★[CHEER_TAIL_1030] «위하여»가 순간의 마지막 줄이어도(END_FLOW_1030) 꼬리 4초에 축배 곡
    E [덧붙임 4] 1 연주자는 한국 고객이 읽는 이름(久石譲 → 히사이시 조) 2 곡 이름에 «(Instrumental)» 꼬리 없음 3 곡 이름이 한 줄(390 · 하객 맞이 «바다가 보이는 마을»)
      4 아는 영화 · 드라마 곡은 아랫줄 맨 앞에 출처(«하울의 움직이는 성 · 히사이시 조 · …») 5 여러 곡을 이어 트는 구간(하객 맞이 · 테이블 인사)은 «‹곡›부터 이어서 틀어요»
+   F [SONG_CARD_TAP_1101] 곡 카드 ▶ 첫 탭 — 곡이 3초 늦게 와도 누르자마자 차오름 · 1.5초 뒤 «곡을 불러오는 중이에요» · 오면 곡 재생 1번(아이폰 흉내: 누른 흐름 밖에서 연 소리 길은 무음) · 받는 중 다른 ▶ 는 새 곡만 · 못 받으면 ▶ 로 · 미리 받기
+     BP_BED=<bgm-bed.js 경로>(그 판으로 잰다 — 깨 보기)
    BP_OP=<order-preview.html 경로>(그 판으로 잰다 — 돌연변이 확인용 · 옛 판은 빨강)  SHOT=폴더(그림)  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
-const OP = process.env.BP_OP || '', SHOT = process.env.SHOT || '';
+const OP = process.env.BP_OP || '', BED = process.env.BP_BED || '', SHOT = process.env.SHOT || '';
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 600)}`); if (!c) fail++; };
@@ -58,14 +60,14 @@ window.addEventListener('message',function(ev){ var d=ev.data||{}; if(ev.origin!
 const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]);
   if (u === '/__harness.html') { r.writeHead(200, { 'Content-Type': 'text/html' }); r.end(HARNESS); return; }
   if (/^\/assets\/audio\/narration\/.+\.mp3$/.test(u)) { r.writeHead(200, { 'Content-Type': 'audio/wav' }); r.end(SHORT); return; }
-  const p = (OP && u === '/order-preview.html') ? OP : path.join(ROOT, u);
+  const p = (OP && u === '/order-preview.html') ? OP : (BED && u === '/assets/bgm-bed.js') ? BED : path.join(ROOT, u);
   fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); srv.close(); process.exit(2); }
 const wait = (f, ms) => f.waitForTimeout(ms);
 const ALL = ['candle', 'welcome', 'vow', 'ring', 'declare', 'free', 'letter', 'tribute', 'toast', 'table'];
-async function open(W, embed) {
-  const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+async function open(W, embed, init) {
+  const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 }); if (init) await ctx.addInitScript(init); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
   let f;
   if (embed) { await pg.goto(`http://127.0.0.1:${port}/__harness.html`, { waitUntil: 'load' }); await pg.evaluate(() => go());
@@ -228,6 +230,53 @@ try {
     ok('B 공개 — 곡을 받지 않는다(key bed 묻지 않음)', !(await f.evaluate(() => Object.keys(BgmBed._t.BUF).length)) && (await f.evaluate(() => BgmBed._t.AV.st)) === '');
     ok('B 공개 — 오류 없음 · 가로 넘침 없음', !errs.length && !(await f.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
     await shot(f, 390, 'public', '.ls-bed[data-seg="M2"]');
+    await ctx.close(); }
+  /* F [SONG_CARD_TAP_1101] 곡 카드 ▶ 첫 탭 — 곡이 3초 늦게 온다 · 아이폰 흉내(누른 흐름 밖에서 연 소리 길은 소리가 안 난다 · 데이터 절약 켬) */
+  { const IOS = () => { let g = false; addEventListener('click', () => { g = true; setTimeout(() => { g = false; }, 0); }, true);
+      try { Object.defineProperty(navigator, 'connection', { configurable: true, get: () => ({ saveData: true }) }); } catch (e) {}
+      window.__ios = []; const P = window.AudioBufferSourceNode && AudioBufferSourceNode.prototype; if (!P) return; const st = P.start;
+      P.start = function (...a) { const c = this.context; if (g) c.__ul = true; window.__ios.push({ ul: !!c.__ul, g, n: this.buffer ? this.buffer.length : 0 }); return st.apply(this, a); }; };
+    const { ctx, pg, f, errs } = await open(390, true, IOS);
+    await go(f, 'candle'); await wait(f, 600);
+    const bedN = async (id) => (await LOG(pg)).filter((x) => x === 'momentedit:ritualFileGet:bed:' + id).length;
+    const n0 = await bedN('B05');
+    ok('F0 데이터 절약이면 곡 칸이 보여도 미리 받지 않는다', n0 === 0, await LOG(pg));
+    await pg.evaluate(() => { H.delay = 3000; }); await f.evaluate(() => { window.__ios.length = 0; });
+    const ft = () => f.evaluate(() => { const b = document.querySelector('[data-fk="bedp:M2:B05"]'); return { cls: b ? b.className : '', busy: b ? b.getAttribute('aria-busy') : null, pr: b ? b.getAttribute('aria-pressed') : null,
+      note: ((document.querySelector('.ls-bed[data-seg="M2"] .bed-load') || {}).textContent || '').trim(), st: BgmBed._t.CARD.st, who: BgmBed._t.BED.who, src: !!BgmBed._t.BED.cur.src, ios: window.__ios.slice() }; });
+    await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 120); const t1 = await ft();
+    ok('F1 첫 탭 즉시 — ▶ 가 차오름(wfill · ld · aria-busy) · 아직 안내 글 없음', /\bwfill\b/.test(t1.cls) && /\bld\b/.test(t1.cls) && t1.busy === 'true' && t1.st === 'load' && !t1.note, t1);
+    ok('F2 누른 흐름 안에서 소리 길을 연다 — 그 순간 무음 한 칸 재생', t1.ios.some((x) => x.g && x.n <= 1), t1.ios);
+    await wait(f, 1500); const t2 = await ft();
+    await shot(f, 390, 'tap-load', '.ls-bed[data-seg="M2"]');
+    ok('F3 1.5초가 넘으면 아래 «곡을 불러오는 중이에요» · ▶ 는 계속 차오름', t2.note === '곡을 불러오는 중이에요' && /\bld\b/.test(t2.cls), t2);
+    await wait(f, 2400); const t3 = await ft(); const big = t3.ios.filter((x) => x.n > 1);
+    ok('F4 곡이 오면 그 길로 튼다 — 곡 재생 1번 · 아이폰 흉내에서도 소리 남 · ■ · 차오름 · 안내 글 걷힘', t3.who === 'card' && t3.st === 'play' && t3.src && big.length === 1 && big[0].ul && t3.pr === 'true' && !/\bld\b/.test(t3.cls) && !t3.note, { ...t3, ios: t3.ios.slice(0, 6) });
+    ok('F5 손가락이 닿을 때 받기 시작한 곡을 누른 뒤 다시 묻지 않는다(key bed B05 한 번)', (await bedN('B05')) === 1, await LOG(pg));
+    await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 1000);
+    /* 받는 중에 다른 ▶ — 앞 결과는 버리고 새 곡만 */
+    await f.evaluate(() => { delete BgmBed._t.BUF.B05; window.__ios.length = 0; });
+    await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 500); await f.click('[data-fk="bedp:M2:B06"]'); await wait(f, 4200);
+    const t4 = await f.evaluate(() => ({ f: BgmBed._t.CARD.f, st: BgmBed._t.CARD.st, n: window.__ios.filter((x) => x.n > 1).length, b5: document.querySelector('[data-fk="bedp:M2:B05"]').getAttribute('aria-pressed'), b6: document.querySelector('[data-fk="bedp:M2:B06"]').getAttribute('aria-pressed') }));
+    ok('F6 받는 중에 다른 ▶(B06)를 누르면 앞 곡(B05) 결과는 버리고 새 곡만 튼다(곡 재생 1번)', t4.f === 'B06' && t4.st === 'play' && t4.n === 1 && t4.b5 === 'false' && t4.b6 === 'true', t4);
+    await f.click('[data-fk="bedp:M2:B06"]'); await wait(f, 1000);
+    /* 못 받으면 — 알림 + ▶ 로 되돌림 */
+    await pg.evaluate(() => { delete H.songs.B05; }); await f.evaluate(() => { delete BgmBed._t.BUF.B05; });
+    await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 3500); const t5 = await ft();
+    const ts = await f.evaluate(() => [...document.querySelectorAll('.mk-toast,.op-toast,[role="status"],[role="alert"]')].map((x) => (x.textContent || '').trim()).filter(Boolean).join(' | '));
+    ok('F7 못 받으면 ▶ 로 되돌림(차오름 · 안내 글 걷힘) · 알림 «이 곡은 아직 준비 중이에요»', t5.st === '' && t5.pr === 'false' && !/\bld\b/.test(t5.cls) && !t5.note && /이 곡은 아직 준비 중이에요/.test(ts), { ...t5, ios: 0, ts });
+    ok('F 오류 없음 · 가로 넘침 없음', !errs.length && !(await f.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
+    await ctx.close(); }
+  /* F8 미리 받기 — 곡 칸이 화면에 들어오면 그 구간 첫 곡(1순위)을 조용히 받아 둔다 · 받았으면 다시 안 받음 · 누르면 바로 */
+  { const { ctx, pg, f, errs } = await open(390, true);
+    await go(f, 'candle'); await wait(f, 900);
+    const lg = await LOG(pg), n = lg.filter((x) => /:bed:B/.test(x));
+    await go(f, 'welcome'); await go(f, 'candle'); await wait(f, 600);
+    const n2 = (await LOG(pg)).filter((x) => x === 'momentedit:ritualFileGet:bed:B05').length;
+    ok('F8 곡 칸이 보이면 1순위(B05)를 미리 받는다 · 한 번에 하나 · 돌아와도 다시 안 받음', n.includes('momentedit:ritualFileGet:bed:B05') && n2 === 1 && (await f.evaluate(() => (BgmBed._t.BUF.B05 || {}).st)) === 'ok', { n, n2 });
+    await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 200);
+    ok('F9 미리 받은 곡은 누르면 바로 ■(기다림 없음)', (await f.evaluate(() => BgmBed._t.CARD.st)) === 'play', await f.evaluate(() => BgmBed._t.CARD));
+    ok('F8 오류 없음', !errs.length, errs);
     await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();

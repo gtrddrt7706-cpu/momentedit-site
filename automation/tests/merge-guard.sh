@@ -21184,4 +21184,13 @@ nochk "'본식 시간이 다 찼어요'" order-preview.html
 chk 'SITE_CUE_FIRST_1101' order-preview.html 1   # 원고 없이 현장에서 → 끝 신호로만 다 됨
 chk 'CUE_WORD_1101' order-preview.html 4
 chk 'while(L.length<_sh) L.push' order-preview.html 1   # [VOW_EMPTY_ADD_1031] 첫 누름에 줄이 는다
+# ── 2026-11-01 [SONG_CARD_TAP_1101 사장님 아이폰 «처음 누르면 로딩 때문인지 아무 표시 없이 재생이 안 돼»] 곡 카드 ▶ 첫 탭 —
+#    누른 흐름 안에서 소리 길 열기(무음 한 칸) · 누르자마자 차오름 · 1.5초 뒤 «곡을 불러오는 중이에요» · 받는 중 다른 ▶ 는 새 곡만 · 곡 칸이 보이면 미리 받기(데이터 절약이면 안 함)
+chk 'SONG_CARD_TAP_1101' assets/bgm-bed.js 4
+chk 'SONG_CARD_TAP_1101' scripts/audit/bgm-preview.mjs 1
+chk 'function unlock()' assets/bgm-bed.js 1
+chk 'var tk=++CARD.tk; unlock();' assets/bgm-bed.js 1
+chk '곡을 불러오는 중이에요' assets/bgm-bed.js 1
+chk 'if(tk!==CARD.tk) return; CARD.slow=false;' assets/bgm-bed.js 1
+chk 'saveData()' assets/bgm-bed.js 2
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
