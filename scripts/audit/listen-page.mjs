@@ -819,9 +819,9 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => opGoStep('listen')); await pg.waitForTimeout(500);
   const e = await st();
   ok(`NF-5 ${w} ② 에 다시 들어오면(④ 에서 와도) 접힌 채`, e.hidden && e.ex === 'false', JSON.stringify(e));
-  /* 미완료 — 지나온 미완료 순간이 있으면 접힌 줄에 «미완료 순간 n»(진사 글자 · 점 없음) · 줄의 진사 칸 수와 같다 */
+  /* 미완료 — 지나온 미완료 순간이 있으면 접힌 줄에 «빠뜨린 순간 n»([PROG_COUNT_1031] 옛 «미완료 순간 n»)(진사 글자 · 점 없음) · 줄의 진사 칸 수와 같다 */
   const t = await pg.evaluate(() => { if (_mkState().at === 'vow') mkGo('declare');   /* [NF_PICK_DECLARE] */ S.on.vow = 1; opSync(); S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; _mkState().seen.vow = 1; render();   /* 혼인 서약을 지나왔고 비어 있다 → 미완료 하나는 반드시 있다 */
-    const n = document.querySelectorAll('#mkStrip .mk-it.todo').length, el = document.querySelector('#mkStrip .mk-left'), m = el ? el.textContent.match(/미완료 순간 (\d+)/) : null;
+    const n = document.querySelectorAll('#mkStrip .mk-it.todo').length, el = document.querySelector('#mkStrip .mk-left'), m = el ? el.textContent.match(/빠뜨린 순간 (\d+)/) : null;
     return { n, shown: m ? +m[1] : 0, col: el ? getComputedStyle(el).color : '', dot: el ? getComputedStyle(el, '::after').content : '' }; });
   ok(`NF-6 ${w} 미완료 수 = 줄의 진사 칸 수(1 이상으로 만들어 잰다) · 진사 글자 · 점 없음 [TODO_NODOT]`, t.n >= 1 && t.shown === t.n && ((/rgb\(107, 42, 36\)/.test(t.col) && /none|normal/.test(t.dot))), JSON.stringify(t));
   ok(`NF ${w} pageerror 0`, errs.length === 0, errs.join(' | '));

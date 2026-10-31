@@ -16454,14 +16454,15 @@ chk 'FLOW_DIST_1017' scripts/audit/flow-distinct.mjs 1
 chk 'function flowLv(k, S) {' assets/ritual-open.js 1
 chk 'lv: flowLv(k, S), after: !!APART' assets/ritual-open.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-distinct.mjs >/dev/null 2>&1 || { echo 'FAIL flow-distinct: 예시 넷 감동 곡선이 다시 같은 모양이거나 정점이 바뀌었습니다 — node scripts/audit/flow-distinct.mjs'; fail=1; }; fi
-chk "d: '부모님께 인사하고 본식을 닫는 자리, 축배와 테이블 인사까지', ks: \['tribute', 'cake', '_close', 'toast', 'table'\]" assets/ritual-open.js 1   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례 · [ACTS_SHIFT_1013] 부모님께 인사가 닫는 막 첫 칸
+chk "d: '부모님께 인사하고, 테이블 인사와 축배로 본식을 닫는 자리', ks: \['tribute', 'cake', 'table', 'toast', '_close'\]" assets/ritual-open.js 1   # [CARD_ORDER_1031] 칸 차례 = 실제 차례(END_FLOW_1030)
+nochk "ks: \['tribute', 'cake', '_close', 'toast', 'table'\]" assets/ritual-open.js   # [CAKE_OFF_1013] 설명에서 케이크를 뺐다 · [TOAST_LAST_1013] 칸 차례 = 실제 차례 · [ACTS_SHIFT_1013] 부모님께 인사가 닫는 막 첫 칸
 nochk "d: '본식을 닫고, 축배와 테이블 인사까지', ks: \['cake', '_close', 'toast', 'table'\]" assets/ritual-open.js   # [ACTS_SHIFT_1013] 맞절 칸 전 판
 nochk "d: '축배를 들고, 본식 뒤 테이블 인사까지'" assets/ritual-open.js   # [TOAST_LAST_1013] 축배가 닫는 인사 앞이던 판
 nochk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritual-open.js
 nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js
 chk 'TABLE_APART' order-preview.html 18
 chk 'id="mkFgAfter">본식 뒤</p>' order-preview.html 1
-chk "'<b>본식 뒤</b>'" order-preview.html 1
+nochk "'<b>본식 뒤</b>'" order-preview.html   # [PROG_COUNT_1031] 테이블 인사도 «본식 n / N»(뒤에 축배 · 닫는 인사가 온다)
 chk '.op-bar .t{background:var(--gold-btn)}' order-preview.html 1   # [BAR_STEPS 2026-10-09] 테이블 인사 = 중간 금(종전 --gold 는 본식과 거의 같은 금)
 chk '@media (max-width:389px){ .op-cta .cta-lg{display:none} }' order-preview.html 1
 chk 'FSUM_SEP' order-preview.html 2
@@ -20509,7 +20510,7 @@ chk 'SONG_CARD_SOLO_1031' assets/bgm-bed.js 4
 chk 'SONG_CARD_SOLO_1031' order-preview.html 1
 chk 'SONG_CARD_SOLO_1031' scripts/audit/bgm-preview.mjs 1
 chk 'lim.threshold.value=-1; lim.ratio.value=20; lim.attack.value=0.002; lim.release.value=0.15' assets/bgm-bed.js 1
-chk '나레이션과 함께 들어 보려면 위 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1
+chk '나레이션과 함께 들어 보려면 아래 ‹이 순간 전체 듣기›를 눌러 주세요' assets/bgm-bed.js 1   # [BED_HINT_WHERE_1031] 단추는 곡 목록 아래
 nochk 'var ln=firstLine(k);' assets/bgm-bed.js 0
 # ── 2026-10-31 [CHEER_WINDOW_1031 BGM 섹션] bgm-preview D6 듣는 창 26초(축배 멘트 12.6초 · 꼬리 축배 곡 16.8초) — 16초로 되돌리면 CI bgm-sound 가 다시 빨갛다
 chk 'CHEER_WINDOW_1031' scripts/audit/bgm-preview.mjs 1
@@ -20566,7 +20567,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix-1030.mjs >/de
 chk "var LATE_ORDER = \['table', 'toast'\];" assets/ritual-open.js 1
 chk 'function capSec(S) { return Math.min(capEx(), (DAYMIN - SHORT_MIN) \* 60 - postSec(S)); }' assets/ritual-open.js 1
 chk "var CAP_MSG = { title: '이 순간을 담으려면 다른 순간을 하나 빼 주세요', body: '사진 시간을 지키기 위해서예요.' };" assets/ritual-open.js 1
-chk 'function _capNo(mut)' order-preview.html 1
+chk 'function _capNo(mut,add)' order-preview.html 1   # [CAP_NEED_1031]
 chk "'end-1a-farewell': 1, 'end-1c-thanks-nomeal': 1," assets/ritual-cue.js 1
 chk "'narr-photo-pre', 'narr-photo-pre-meal'" assets/ritual-cue.js 1
 chk "if (c.act) return done();" console.html 1
@@ -21006,4 +21007,32 @@ chk 'PS_LINKS_HEAD_1031' order-preview.html 1
 chk '<h4 id="psLk">순간마다 담을 수 있는 장면</h4>' order-preview.html 1   # 한눈에 보기 · 완성은 «순간마다»
 chk 'DONE_PREP_IF_1031' order-preview.html 1   # 완성 — 준비할 것이 없으면 빈 머리 없음
 chk 'ENTRY_UNPICK_1031' assets/entry-music.js 1   # 입장 음악 — 안 고르면 «고르지 않으시면 스튜디오가 준비해요»
+# ── 2026-10-31 식순 고객 걷기 1라운드 GPT 13건 판정분
+chk 'CAP_NEED_1031' assets/ritual-open.js 1
+chk "function capNeed(S1) { return Math.max(1, Math.ceil((bodySec(S1)\[1\] - capSec(S1)) / 60)); }" assets/ritual-open.js 1
+chk 'CARD_ORDER_1031' assets/ritual-open.js 1
+chk 'CARD_ORDER_1031' assets/bgm-bed.js 1
+nochk '→ 모여서 단체 사진' order-preview.html
+nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-open.js
+nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-story.js
+chk 'PROG_COUNT_1031' order-preview.html 2
+chk '빠뜨린 순간' order-preview.html 1
+chk 'BLESS_UNPICK_1031' order-preview.html 1
+chk 'function _askReset(k)' order-preview.html 1
+chk 'ASK_RESET_1031' order-preview.html 4
+chk 'REPICK_KEEP_1031' assets/entry-music.js 2
+nochk "toast('고른 곡을 풀었어요')" assets/entry-music.js
+chk 'BED_KEEP_1031' assets/bgm-form.js 2
+chk 'GUIDE_ONCE_1031' assets/entry-music.js 1
+chk 'BED_HINT_WHERE_1031' assets/bgm-bed.js 1
+chk 'BED_HINT_WHERE_1031' order-preview.html 1
+nochk '들어 보려면 위 ‹이 순간 전체 듣기›' assets/bgm-bed.js
+chk 'DONE_EXN_1031' order-preview.html 1
+chk '저장했어요 · 남은 할 일을 확인해 주세요' order-preview.html 1
+nochk '빈 칸만 채우면 완성돼요' order-preview.html
+chk '그때까지 순간과 고른 것을 얼마든지 고쳐요.' order-preview.html 1
+# ── 2026-10-31 [PICKS_TRUE_1031 BGM 섹션] 곡 정보 글을 실제 받은 판에 맞춘다(B01 오케스트라 · B07 피아노 판 · B15 피아노 독주 · B16 · B24 · B22 판 이름) — B06 · B19 그대로
+chk 'PICKS_TRUE_1031' assets/bgm-picks.js 7
+nochk "a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~ · A Town With An Ocean View'" assets/bgm-picks.js 0
+nochk "B15: { t: 'Butterfly Waltz', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet'" assets/bgm-picks.js 0
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
