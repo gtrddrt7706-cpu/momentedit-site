@@ -10686,7 +10686,7 @@ function renderPhoto(box){
       h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">고르신 순간에 맞춰 촬영 참고 장면을 정리해요.</div>';
       [['식전',true],['본식',false]].forEach(function(g){ var xs=_scn.filter(function(x){ return !!x.pre===g[1]; }); if(!xs.length) return;
         h+='<div class="ph-scg">'+g[0]+'</div><div class="ph-scene">';
-        xs.forEach(function(x){ h+='<div class="ph-sc"><span class="ph-sc-n">'+escapeHtml(x.n)+'</span><span class="ph-sc-r">'+escapeHtml(x.s)+'</span>'+(x.alt&&x.alt.length?'<span class="ph-sc-s">참고 · '+x.alt.map(escapeHtml).join(' · ')+'</span>':'')+'</div>'; });
+        xs.forEach(function(x){ h+='<div class="ph-sc"><span class="ph-sc-n">'+escapeHtml(x.n)+'</span><span class="ph-sc-r">'+escapeHtml(x.s)+'</span></div>'; });   /* ★«참고 · ○○ · ○○»(다른 장면) 줄 금지 — 2026-11-01 사장님 지시로 삭제 [PHOTO_SCENE_MIN_1101] «미니멀하게» · alt 는 저장 데이터에 그대로(새 판 알아보기 · 관리 · 작가 화면) */
         h+='</div>'; });
       h+='<div class="cc-note" style="text-align:left;margin:6px 0 0">사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.</div>';
     } else {

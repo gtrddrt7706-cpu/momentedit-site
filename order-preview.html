@@ -993,17 +993,13 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .pv-act{display:flex;align-items:center;gap:8px;margin-top:14px;position:sticky;bottom:0;z-index:2;background:var(--bg);padding:10px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}   /* ★[PV_ACT_STICKY 코워크 추가 점검 P2-4] 360×560 에서 담기 · 빼기가 창 밖으로 밀렸다 — 창 안에서 아래에 붙는다 */
 body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽은 안 밀린다 */
 .pv-act button{min-height:48px;padding:0 16px;border-radius:999px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}   /* [UI_ONE] */
-/* ★★[PHOTO_SCENE_1031 검토 173] «이 순간에 담을 수 있는 장면» — ① 미리 보기 창 · ② 접힌 줄 · 확대 한 벌 · 라벨은 그림 바로 아래 · 작게 줄이지 않는다(안내 글과 같은 12.5px · 확대는 14px · 두 줄 허용) */
+/* ★★[PHOTO_SCENE_1031 검토 173] «이 순간에 담을 수 있는 장면» — ① 미리 보기 창 · ② 접힌 줄 · 확대 한 벌 · [PHOTO_SCENE_MIN_1101] 제목 · 그림 · 대표 · 설명 · 구도 한 줄만 */
 .ps{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border)}
 .ps-h{margin:0 0 10px;font-size:14px;font-weight:600;color:var(--accent)}
 .ps-fig{display:block;width:100%;padding:0;border:0;background:var(--bg2);border-radius:10px;overflow:hidden;cursor:zoom-in;aspect-ratio:16/9}
 .ps-fig img{display:block;width:100%;height:100%;object-fit:cover}
-.ps-lab{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--ink2);word-break:keep-all}
 .ps-rep{margin:10px 0 2px;font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all}
 .ps-desc{margin:0;font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
-.ps-more{min-height:44px;margin:4px 0 0;padding:0 2px;border:0;background:none;font:inherit;font-size:12.5px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.ps-alt{margin:0 0 4px}
-.ps-alt ul{margin:2px 0 4px;padding-left:18px;font-size:14px;line-height:1.7;color:var(--sub)}
 .ps-fine{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all}
 .ps-fold{margin:18px 0 0;padding-top:12px;border-top:1px solid var(--border)}
 .ps-fold>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent)}
@@ -1014,7 +1010,6 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 #psZoom[hidden]{display:none}
 #psZoom .psz-box{width:min(1100px,100%);max-height:100%;overflow:auto;text-align:left}
 #psZoom img{display:block;width:100%;height:auto;border-radius:8px}
-#psZoom .psz-lab{margin:8px 0 0;font-size:14px;line-height:1.5;color:#efe7dc;word-break:keep-all}
 #psZoom .psz-x{position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;min-width:48px;min-height:48px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;cursor:pointer}
 .pv-again{display:inline-flex;align-items:center;gap:6px}
 .pv-again{background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
@@ -8868,17 +8863,18 @@ function _pvDraw(){
   _pvActs(ln);
 }
 /* ★★[PHOTO_SCENE_1031 검토 173 · 사장님 아이디어] «이 순간에 담을 수 있는 장면» — 원천 RitualOpen.sceneOf(판 갈래 · 그림 · 라벨) 하나.
-   대표 그림 1 + 라벨 «연출 장면 · 실제 예식 사진 아님»(그림 바로 아래 · 썸네일 · 상세 · 확대 모두) + 대표 · 설명 + «다른 장면 보기»(설명 두 줄 · 빈 틀 · 개수 · 체크 없음).
+   대표 그림 1 + 대표 · 설명 + 구도 한 줄(PS_FINE).
+   ★★[PHOTO_SCENE_MIN_1101 검토 180 · 사장님 휴대폰 실화면 «미니멀하게»] 그림 아래 라벨 «연출 장면 · 실제 예식 사진 아님» · «그림 속 인물 · 배경 · 빛은 …예시예요» ·
+   «다른 장면 보기 / 접기» + 펼침 목록(+ «장면 이해를 위한 예시예요.»)은 고객 화면에서 뺐다(① 창 · ② 접힌 줄 · 확대 · 마이페이지 «참고 · …»). 되살리지 말 것.
+   데이터(PSCENE alt · SCENE_LABEL)는 그대로 — 관리 · 작가 화면이 읽는다. 구도 한 줄(PS_FINE)은 사장님 «사진 구도 관련 설명은 그대로».
    그림이 보류(img null)거나 못 읽으면 그림만 빠지고 글은 그대로. 확대는 맨 위 창 하나(닫기 · Esc → 누른 그림으로 초점) · 소리 · 영상 · 타이머를 다시 틀지 않는다.
    전체 대본 복사 · 파일 받기(scriptTextOpen)에는 넣지 않는다. 컷 수 · 빠짐없는 촬영 약속은 쓰지 않는다(scripts/audit/photo-scene.mjs). */
-var PS_FINE_IMG='그림 속 인물 · 배경 · 빛은 장면 이해를 위한 예시예요.', PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.';
+var PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.';
 function _psBox(k,mode){ var R=RitualOpen, x=R.sceneOf?R.sceneOf(k,S):null; if(!x) return '';
   var id='ps_'+mode+'_'+k.replace(/[^a-z]/g,''), im=x.img, h='<section class="ps" data-ps="'+esc(x.id)+'" aria-labelledby="'+id+'"><h4 class="ps-h" id="'+id+'">이 순간에 담을 수 있는 장면</h4>';
-  if(im) h+='<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기 · '+x.label)+'"><img src="'+esc(im.small)+'" alt="" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button><p class="ps-lab">'+esc(x.label)+'</p>';
+  if(im) h+='<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기')+'"><img src="'+esc(im.small)+'" alt="" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button>';
   h+='<p class="ps-rep">'+esc(x.rep)+'</p><p class="ps-desc">'+esc(x.desc)+'</p>';
-  h+='<button type="button" class="ps-more" aria-expanded="false" aria-controls="'+id+'a" data-fk="psmore:'+k+'" onclick="psMore(this)">다른 장면 보기</button>'
-    +'<div class="ps-alt" id="'+id+'a" hidden><ul>'+x.alt.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join('')+'</ul><p class="ps-fine">장면 이해를 위한 예시예요.</p></div>';
-  h+='<p class="ps-fine">'+(im?esc(PS_FINE_IMG)+'<br>':'')+esc(PS_FINE)+'</p>';
+  h+='<p class="ps-fine">'+esc(PS_FINE)+'</p>';
   return h+'</section>'; }
 /* ② 하나씩 만들기 — 설정 · 글쓰기 뒤 맨 아래 접힌 줄(그림이 없으면 «장면 설명 보기») */
 function _psFold(k){ var R=RitualOpen, x=R.sceneOf?R.sceneOf(k,S):null; if(!x) return '';
@@ -8889,8 +8885,7 @@ function _psLinks(){ /* ★[PS_LINKS_HEAD_1031 식순 걷기 1라운드] 한눈�
 window.psGo=function(k){ var m=_mkState(), onL=!!(STEPS[idx]&&STEPS[idx].k==='listen');
   if(m.at!==k) mkGo(k); else if(!onL) opGoStep('listen');
   setTimeout(function(){ var d=document.querySelector('[data-fk="psfold:'+k+'"]'); if(d){ d.open=true; var sm=d.querySelector('summary'); try{ d.scrollIntoView({block:'center'}); if(sm) sm.focus({preventScroll:true}); }catch(e){} } },80); };
-window.psMore=function(b){ var on=b.getAttribute('aria-expanded')!=='true', a=document.getElementById(b.getAttribute('aria-controls')); b.setAttribute('aria-expanded',on?'true':'false'); b.textContent=on?'다른 장면 접기':'다른 장면 보기'; if(a) a.hidden=!on; };
-window._psImgErr=function(img){ var f=img.closest('.ps-fig'); if(!f) return; var l=f.nextElementSibling; if(l&&l.classList.contains('ps-lab')) l.remove(); var fn=f.parentNode&&f.parentNode.querySelector('.ps-fine'); if(fn) fn.textContent=PS_FINE; f.remove(); };   /* 그림을 못 읽으면 그림 · 라벨 · 그림 설명만 뺀다 */
+window._psImgErr=function(img){ var f=img.closest('.ps-fig'); if(f) f.remove(); };   /* [PHOTO_SCENE_MIN_1101] 그림을 못 읽으면 그림만 뺀다(라벨 · 그림 설명 줄은 이제 없다 · 구도 한 줄은 그대로) */
 var PSZ={opener:null};
 window.psZoom=function(k,btn){ var R=RitualOpen, x=R.sceneOf(k,S); if(!x||!x.img) return;
   var z=document.getElementById('psZoom');
@@ -8899,8 +8894,8 @@ window.psZoom=function(k,btn){ var R=RitualOpen, x=R.sceneOf(k,S); if(!x||!x.img
     z.addEventListener('click',function(e){ if(e.target===z) psZoomClose(); });
     document.body.appendChild(z); }
   PSZ.opener=btn||null;
-  z.setAttribute('aria-label',x.rep+' · '+x.label);
-  z.innerHTML='<button type="button" class="psz-x" onclick="psZoomClose()">닫기</button><div class="psz-box"><img src="'+esc(x.img.src)+'" alt="'+esc(x.rep)+'" onerror="this.remove()"><p class="psz-lab">'+esc(x.label)+'</p></div>';
+  z.setAttribute('aria-label',x.rep);
+  z.innerHTML='<button type="button" class="psz-x" onclick="psZoomClose()">닫기</button><div class="psz-box"><img src="'+esc(x.img.src)+'" alt="'+esc(x.rep)+'" onerror="this.remove()"></div>';
   var pv=document.getElementById('pvSheet'); if(pv&&!pv.hidden) pv.setAttribute('inert','');
   z.hidden=false; var c=z.querySelector('.psz-x'); if(c) try{ c.focus({preventScroll:true}); }catch(e){} };
 window.psZoomClose=function(){ var z=document.getElementById('psZoom'); if(!z||z.hidden) return; z.hidden=true; z.innerHTML='';
