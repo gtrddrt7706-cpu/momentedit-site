@@ -1544,6 +1544,7 @@ function adminRitualFileOk(code, key, on, fid) {
 /* ★[REC_PURGE 2026-09-27 코워크 3-7] 예식 뒤 30일 — 두 분 목소리 파일을 지운다(휴지통 · 드라이브가 30일 뒤 완전 삭제) · 기록 RFGONE_<코드>=지운 날.
    purgeAdvisorLog(주간 트리거)가 함께 부른다 · dry=true 면 지울 대상만 로그(previewRitualFiles). ScriptProperty RITUAL_FILE_PURGE_DAYS 로 일수 조정 */
 function purgeRitualFiles(dry) { _gsr_();
+  try { if (typeof purgePrevideo_ === 'function') purgePrevideo_(dry); } catch (e) {}   // [PV_CAT_1031] 식전 영상 사진 · 폴더도 예식 6개월 뒤(89_prevideo · 처리방침 «식전 영상» 보관) — 같은 주간 정리에 태운다
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), days = +(all.RITUAL_FILE_PURGE_DAYS || 30) || 30, today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
   /* ★[RF_PURGE_AI 2026-10-08 목소리 1라운드 76] 종전엔 예식 폴더 «바로 안» 파일만 지워 하위 폴더 «AI»(두 분 목소리로 만든 안내 소리 · 읽은 녹음 · 연습 소리)가 영영 남았다(처리방침 위반).
      이제 하위 폴더 안까지 지운다. 이미 지운(RFGONE) 예식은 하위 폴더만 한 번 다시 훑는다 — 표 RFAIGONE_<코드> */
@@ -2804,6 +2805,7 @@ function buildProductionState(r) { _gsr_();
     snapPick: SNAP_V2.pick,                    // ★[SNAP_PICK_ALL] 고르기 상한 — 부부 화면은 min(목록 8, 이 값)을 쓴다 · 이 값이 없는 옛 서버(4)면 화면도 4
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
+    prevideo: (typeof _pvPublic === 'function') ? _pvPublic(String(r.get('개인코드') || '').trim(), r) : null,   // [PV_CAT_1031] 마이페이지 «식전 영상» 줄 · 화면(89_prevideo) — 없으면(옛 GAS) 줄이 안 보인다
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
     confirm: draft.confirm || null,            // [예식 확인서] 확인 스냅샷·일시(없으면 확인 전)

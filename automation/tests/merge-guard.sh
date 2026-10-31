@@ -4755,6 +4755,18 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/photo-friend.mjs >/d
     *) echo 'ok photo-friend: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
+# ★★[PV_CAT_1031 2026-10-31 사장님 «추천대로진행» · «켜도상관없어»] 마이페이지 «식전 영상» — 화면 = 서버 값 · 길(doPost · ERR_AREA · 겹화면 목록 · 저장 · 나가기) ·
+#   처리방침(id=prevideo · 6개월) · 1차에서 뺀 것이 화면에 없다 · 진짜 89_prevideo 함수 동작(동의 · 5장 · 유튜브 · [PV_SAME] 걸음만 바뀌면 상태 그대로 · 기한 잠금)
+if command -v node >/dev/null 2>&1; then _pvo=$(node scripts/audit/prevideo-cat.mjs 2>&1); _pvr=$?
+  case "$_pvr" in
+    0) echo 'ok prevideo-cat: 식전 영상 — 화면 = 서버 · 길 · 처리방침 · 정직한 화면 · 서버 동작' ;;
+    1) echo 'FAIL prevideo-cat: 식전 영상 결정이 어긋났다 — node scripts/audit/prevideo-cat.mjs'; printf '%s\n' "$_pvo" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok prevideo-cat: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'PV_CAT_1031' automation/platform/89_prevideo.gs 1
+chk 'PV_SAME' automation/platform/89_prevideo.gs 1
+chk 'var PVC_ON=' mypage.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
   case "$_pro" in
     0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 가족 · 친구 스냅 · 예식 확인서도 같은 순서' ;;
