@@ -173,7 +173,7 @@
     return bi>=0&&br>=1.25?Math.round(bi*5)/100:t; }
   function upOwnSet(txt){ var uc=upCur(); if(!uc) return false; var r=upParse(txt);
     if(!r){ toast('분:초로 적어 주세요'); return false; } if(r.err){ toast(r.err); return false; }
-    if(r.t>uc.Sg.dur-5){ toast('곡 길이 안에서 적어 주세요'); return false; }
+    if(r.t>uc.Sg.dur-5){ toast('곡 끝 5초 전까지 적어 주세요'); return false; }   /* ★[OWN_END_1031 식순 걷기 2라운드 12] 안내 끝 시각과 받는 끝 시각을 같게(곡 끝 5초 전) */
     var ts=upSnap(uc.Sg,r.t); uc.own={t:ts,typed:r.t,after:uc.Sg.dur-ts,own:true}; uc.ownTxt=fmtMS(r.t); uc.pick=upList(uc).length-1; keep(uc); redraw(); toast(fmtMS(r.t)+'에 맞췄어요'); return true; }
 
   /* ── 미리 듣기(이 칸만의 소리 · 빌더 소리와 겹치지 않게) ── */
@@ -215,7 +215,7 @@
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+ck+'" tabindex="'+(ck?0:-1)+'" data-fk="muhk:'+i+'" onclick="emAct(\'hookpick\','+i+')"><span class="mu-t">'+lb+'</span><span class="mu-a">'+e(upNote(c))+'</span></button></li>'; }).join('')+'</ul>'
       /* ★★[UP_TIDY 2026-10-11] 직접 적기 = 후보 줄과 같은 한 줄 · 적는 칸 = ▶ 알약 자리([OWN_PILL_SAME] 같은 크기 · 같은 금빛 테) · 이름표가 칸의 이름(누르면 칸으로) */
       +'<div class="mu-own"><input id="muOwn" class="tin" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" maxlength="6" placeholder="0:00" data-fk="muown" value="'+e(c0.ownTxt||'')+'" oninput="emAct(\'owntxt\',this)">'
-      +'<label class="mu-ownl" for="muOwn"><span class="mu-t">직접 적기</span><span class="mu-a">분:초 · 이 곡은 '+fmtMS(c0.Sg.dur)+'까지</span></label></div>';
+      +'<label class="mu-ownl" for="muOwn"><span class="mu-t">직접 적기</span><span class="mu-a">분:초 · 이 곡은 '+fmtMS(Math.max(0,c0.Sg.dur-5))+'까지</span></label></div>';
     /* ★★[UP_LINKS_ONE 2026-10-11] 링크 셋 한 줄 «맞추기 · 다른 곡 올리기 · 빼기»(줄 끝) — «빼기»(되돌릴 수 없다)는 맨 끝 */
     h+='<div class="mu-upft"><button type="button" class="pk-link" data-fk="muownset" onclick="emAct(\'ownset\',this)">맞추기</button><span aria-hidden="true">·</span><button type="button" class="pk-link" data-fk="muupagain" onclick="emAct(\'upopen\',this)">다른 곡 올리기</button><span aria-hidden="true">·</span><button type="button" class="pk-link" data-fk="muupdel" onclick="emAct(\'updel\',this)">빼기</button></div>';
     return h+'</div>'; }
@@ -363,7 +363,7 @@
     recSong(k).then(function(o){ if(tk!==PTK||PWANT!==k) return; PWANT=null; play('rec:'+k,o.H,CAR_PRE,CAR_LEN,o); },function(err){ if(tk!==PTK||PWANT!==k) return; PWANT=null; paintCar(); toast(recErr(err&&err.code)); }); }
   /* ✓ 고르기 — 고르면 접힌 한 줄(아래 장면이 올라온다) · 같은 곡을 다시 눌러도 그 곡 그대로 접힌다([REPICK_KEEP_1031]) · 고를 때 듣던 미리 듣기는 멈춘다 */
   function recPick(k){ var m=recMeta(k), s=St(), mu=s.mu; if(!m) return;
-    if(recOn()&&mu.k===k){ var hk=boxH(); MU_OPEN=false; redraw(); boxAnim(hk); var fk=D.querySelector('.ls-mu .mu-fold'); if(fk) try{ fk.focus({preventScroll:true}); }catch(x){} return; }   /* ★[REPICK_KEEP_1031 식순 걷기 1라운드 GPT 8] 같은 곡을 다시 누르면 그대로 두고 접는다(다른 음악 목록 MUSIC_FOLD_PICK_1031 과 같게) — 종전엔 «고른 곡을 풀었어요»로 고른 곡이 사라졌다 */
+    if(recOn()&&mu.k===k){ hush(); var hk=boxH(); MU_OPEN=false;   /* [FOLD_HUSH_1031 2라운드 4] 접을 때 듣던 미리 듣기도 멈춘다(멈출 단추가 접힌 줄에 없다) */ redraw(); boxAnim(hk); var fk=D.querySelector('.ls-mu .mu-fold'); if(fk) try{ fk.focus({preventScroll:true}); }catch(x){} return; }   /* ★[REPICK_KEEP_1031 식순 걷기 1라운드 GPT 8] 같은 곡을 다시 누르면 그대로 두고 접는다(다른 음악 목록 MUSIC_FOLD_PICK_1031 과 같게) — 종전엔 «고른 곡을 풀었어요»로 고른 곡이 사라졌다 */
     hush(); if(mu&&mu.src==='up') s.muUp=mu;   /* 올린 곡 기록은 비켜 둔다(서버 파일 · 고른 자리 그대로) */
     var h0=boxH(); s.mu={src:'rec',k:k,t:m.t,a:m.a,dur:Math.round(m.len*10)/10,hook:recH(m),img:m.img,pos:m.pos}; if(m.hooks&&m.hooks.length) s.mu.hooks=m.hooks.slice();   /* [BGM_FIRST_1013] */ SRC='rec'; MU_OPEN=false; save(); scReset(); redraw(); boxAnim(h0); recWant(k);
     toast(m.t.length<=9?'‹'+m.t+'› 곡으로 들어가요':'이 곡으로 들어가요'); var f=D.querySelector('.ls-mu .mu-fold'); if(f) try{ f.focus({preventScroll:true}); }catch(x){} }   /* [TOAST_MIN] 긴 제목은 «이 곡으로 들어가요» */
@@ -414,7 +414,7 @@
     c.querySelector('.mu-arl').setAttribute('aria-disabled',i<=0?'true':'false'); c.querySelector('.mu-arr').setAttribute('aria-disabled',i>=n-1?'true':'false');
     var bp=c.querySelector('.mu-tpp'), bk=c.querySelector('.mu-pk'), hp=pl?ICO_TP_STOP:ICO_TP_PLAY;   /* [CAR_TRANSPORT] 추천 곡이 나오는(받는) 동안은 어느 카드에서나 ■(그 곡을 멈춘다) · 멈춰 있으면 ▶(지금 카드 곡) */
     bp.setAttribute('aria-pressed',pl?'true':'false'); bp.setAttribute('aria-label',pl?recTitle(ck)+' 멈추기':tt+' 들어 보기'); if(PWANT&&!pk) bp.setAttribute('aria-busy','true'); else bp.removeAttribute('aria-busy'); if(bp.__h!==hp){ bp.innerHTML=hp; bp.__h=hp; }
-    bk.setAttribute('aria-pressed',on?'true':'false'); bk.setAttribute('aria-label',tt+' 이 곡으로 들어가요'); bk.title=on?'고른 곡 · 다시 누르면 풀려요':'이 곡으로 들어가요'; bk.classList.toggle('on',on); }
+    bk.setAttribute('aria-pressed',on?'true':'false'); bk.setAttribute('aria-label',tt+' 이 곡으로 들어가요'); bk.title=on?'고른 곡 · 다시 누르면 접혀요':'이 곡으로 들어가요';   /* [REPICK_KEEP_1031] 2라운드 11 */ bk.classList.toggle('on',on); }
   function carGo(i){ var L=REC.ls; if(!L||!L.length) return; i=clamp(i,0,L.length-1); if(i===carIdx()){ paintCar(); return; } CAR_I=i; paintCar(); recWarm(); var m=L[i], lv=D.querySelector('.ls-mu .mu-live'); if(lv) lv.textContent=(i+1)+' / '+L.length+' · '+(m.t||m.name)+(m.a?' · '+m.a:''); }   /* [CAR_KEEP_PLAY] 듣던 노래는 그대로 */
   function boxH(){ var b=D.querySelector('.ls-mu .mu-box'); return b?b.offsetHeight:0; }
   function boxAnim(h0){ var b=D.querySelector('.ls-mu .mu-box'); if(!b||!h0||RM) return; var h1=b.offsetHeight; if(Math.abs(h1-h0)<4) return; var fin=false;   /* [MU_FOLD] 옛 높이 → 새 높이(아래 장면이 미끄러지듯) · 칸은 다시 쓰이니 끝 표시는 이 한 번의 것 */

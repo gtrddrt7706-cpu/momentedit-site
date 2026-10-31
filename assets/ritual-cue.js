@@ -686,6 +686,13 @@
        팔레트에서만 닫힌 상태가 정상이다(SONG_RETIRED · RINGWARM_RETIRED 와 같은 처방).
      ★되살리지 말 것. 리뷰가 '유실된 기능'으로 보고 복원하기 쉬운 모양이다. */
   var GADD = { welcome: 1, bless: 1, letter: 1, tribute: 1, toast: 1, free: 1 };   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거 · [WINE_RETIRED] valley 제거
+  /* ★★[EST_TRUE_1031 2026-10-31 BGM 섹션 · GPT 2라운드 검증] 행동별 실제 시간(live.est)
+       두 분이 적어 둔 글이 있으면 그 글 길이(음절 ÷ 4 + 5초 · 분당 240음절 · RitualOpen.textSec) · 없으면 종전 값 ·
+       단체 사진 앞으로 모임 = 하객 수(20명 이하 60 · 30명 75 · 40명 90 · 사이는 선형 · 칸이 없거나 비면 정원 30명) */
+  function txSec(S, k, d) { var v = O.textSec ? O.textSec(S, k) : 0; return v || d; }
+  /* ★[EST_TRUE_1031 GATHER_FIXED] 단체 사진 모임 = 하객 30명 기준 75초. 하객 수는 아직 빌더 · 미리듣기 · 콘솔 어디서도 엔진에 안 넘어온다
+     (S.guestN 을 읽으면 미리듣기 KEYS 검사 [PREVIEW_KEYS] 가 «값을 만드는 곳 없음»으로 막는다). 넘기는 곳이 생기면 그때 KEYS · INJECT 와 함께 늘린다. */
+  function gatherSec(S) { return 75; }
   var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, free: 75, song: 80, toast: 85 };
   function isGAdd(S, k) {
     var c = D.COURSES[S.course];
@@ -872,8 +879,8 @@
         k: 'candle', blockN: '화촉', slug: BOWSL[who] || 'narr-candle-bow', name: '인사 안내',   /* ★[CANDLE_CALL_SRC_1016] 서는 분마다 구호가 달라 판마다 한 줄(어머님 138 · 네 분 139 · 아버님 146 · 다른 두 분 147) */
         text: EXTRA[BOWSL[who] || 'narr-candle-bow'], duck: PARAM.duckMusic, fire: 'chain', gapMs: 1250,   // [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
         live: (who === 'parents'
-          ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 15, self: true, doing: 'move' }   /* [CANDLE_CALL_SRC_1016] 인사는 구호 뒤 쉼(4초)에 들어가 자리로 돌아가는 시간만 남는다 */
-          : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 15, self: true, doing: 'move' })
+          ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 15, showEst: 25, self: true, doing: 'move' }   /* ★[EST_TRUE_1031] 화면 «실제로는» = 맞절 · 인사 · 자리로 전체(네 분 25 · 두 분 30) · est 15 는 그대로(소리 안 시간과 겹쳐 셈하지 않는다) */   /* [CANDLE_CALL_SRC_1016] 인사는 구호 뒤 쉼(4초)에 들어가 자리로 돌아가는 시간만 남는다 */
+          : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 15, showEst: 30, self: true, doing: 'move' })
       })];
     },
 
@@ -954,7 +961,7 @@
         cue({
           k: 'welcome', blockN: '감사 인사', slug: 'narr-welcome-in', name: '감사 인사 시작', text: n.nar,   /* [THANKS_GREET_1013] 옛 이름 «환영·첫인사» */
           hint: '두 분이 중앙에서 하객 쪽으로 돌아서면 · 속으로 셋을 세고',
-          live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: 46, self: true, doing: 'say', duck: PARAM.duckRead, fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴' }   // [BGM_FIX_1030] M4 사람이 말하는 자리 = 낭독 아래(−20 · GPT③ R1-6) · 순간 끝까지
+          live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: txSec(S, 'welcome', 46), self: true, doing: 'say', duck: PARAM.duckRead, fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴' }   // [BGM_FIX_1030] M4 사람이 말하는 자리 = 낭독 아래(−20 · GPT③ R1-6) · 순간 끝까지
         })
         /* ★★[WELCOME_OUT_DROP 2026-09-20] 「지금 들으신 것이 두 사람의 첫 인사였습니다」를 **큐째로 뺀다.**
            ★문안만 지우면 안 된다 — 큐가 남아 식장에서 «소리 없는 큐»가 된다([DROP_GUARD]).
@@ -984,7 +991,7 @@
         return [cue({
           k: 'vow', blockN: '감사문', slug: 'narr-thanks-in', name: '감사문 시작', text: D.NARR.thanksIn,
           live: {
-            t: tKey, est: 70, self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
+            t: tKey, est: txSec(S, 'vow', 70), self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
             first: tB ? 'b' : 'g',
             tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 한 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 한 문장은 함께' : tKey),
             both: D.THANKSBOTH, hintNext: '마지막 한 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
@@ -1006,7 +1013,7 @@
             //   할지 모른다 — 화면이 소리를 설명하지 못하면 폴백이 조용했던 때와 같은 사고다.
             /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] S.vowHow — 'alt'(기본 · 번갈아) | 'each'(각자 차례로).
                모르는 값은 'alt'. 'each' 의 문자열도 ritual-story.js 의 LIVE · CAST_AT 키다(같은 커밋에서 함께). */
-            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',   /* [R2-04] «마지막 한 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
+            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께',   /* [R2-04] «마지막 한 문장»으로 통일(VOWBOTH 는 두 문장) */ est: txSec(S, 'vow', 70), self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
             /* [VOW_FIRST] t 는 장면 열쇠라 그대로 두고(ritual-story LIVE · CAST_AT) 보여 줄 글만 tv · first 로 — 신부부터 «각자 차례로»면 «신부 먼저, 신랑 다음으로» */
             first: S.vowFirst === 'b' ? 'b' : 'g',
             tv: S.vowHow === 'each' ? (S.vowFirst === 'b' ? '신부 먼저, 신랑 다음으로 낭독 · 마지막 한 문장은 함께' : '신랑 먼저, 신부 다음으로 낭독 · 마지막 한 문장은 함께') : (S.vowFirst === 'b' ? '두 분이 한 줄씩 번갈아 낭독(신부부터) · 마지막 한 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께'),
@@ -1146,7 +1153,7 @@
           text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: PARAM.duckMusic, pick: nm,
           rescue: play ? { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */ : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
-          live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 6 : 60 * len + 8, duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true,   /* [BGM_INFO_1023] 축사 «음악과 함께» = 낭독 아래 −20 · 아니면 무음 그대로 */
+          live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 20 : 60 * len + 8,   /* ★[EST_TRUE_1031] 축사 +6 → +20(축사하는 분이 자리에서 나와 마이크를 받는 판 · 본식 합 TIME free 걸음 12 → 26) */ duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true,   /* [BGM_INFO_1023] 축사 «음악과 함께» = 낭독 아래 −20 · 아니면 무음 그대로 */
             doing: fk === 'video' ? 'watch' : fk === 'speech' ? 'say' : 'move',
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 알리고 곧장 다음 순간으로'
               : fk === 'speech' ? len + '분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }   // ★[SPEECH_FB_LEN_R7_1016 라운드 7] 늘 «3분»이던 것을 고른 길이로(큐 이름 · 진행 막대 · 고객 안심 «정해 두신 시간»과 같은 값) · ritual-story fbSrc 는 기본 3분 판
@@ -1157,7 +1164,7 @@
       return [cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-in', name: '자유 한 칸 시작',
         text: D.NARR.freeIn, duck: PARAM.duckMusic, pick: '두 분이 정한 순서',
-        live: { t: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)', est: 120, duck: PARAM.duckOff, self: true, doing: 'move', note: '무엇이 올지 모른다 — 음악·마이크·화면 필요 여부를 예식 전에 미리 물어 둔다(별도 리허설은 없다 [NO_REHEARSAL_1013])' }
+        live: { t: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)', est: 120, showT: '두 분이 정한 만큼', duck: PARAM.duckOff,   /* [EST_TRUE_1031] 숫자 대신 글 · 본식 합은 120 임시값 그대로 */ self: true, doing: 'move', note: '무엇이 올지 모른다 — 음악·마이크·화면 필요 여부를 예식 전에 미리 물어 둔다(별도 리허설은 없다 [NO_REHEARSAL_1013])' }
       }), cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-out', name: '자유 한 칸 마무리',
         text: D.NARR.freeOut, duck: PARAM.duckMusic
@@ -1265,7 +1272,7 @@
           duck: dk, pick: l.d,
           note: bed ? '음악이 낭독 아래 아주 작게(−20) 깔린다 — 처음부터 낮춰 두어 더킹 홀드 버튼이 필요 없다(§3-A)' : '이 구간은 애초에 무음이라 더킹 홀드 버튼이 필요 없다(§3-A)',
           live: {
-            t: bed ? '두 분이 직접 편지 낭독 (음악이 아주 작게)' : '두 분이 직접 편지 낭독', est: 165, self: true, doing: 'say', peak: true,
+            t: bed ? '두 분이 직접 편지 낭독 (음악이 아주 작게)' : '두 분이 직접 편지 낭독', est: txSec(S, 'letter', 165), self: true, doing: 'say', peak: true,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt, duck: dk,
             fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 편지를 배우자에게 건네 이어 읽기'
           }
@@ -1324,10 +1331,10 @@
       if (open) {
         var ti = seq ? seq.indexOf('tribute') : -1, pairT = ti > 0 && seq[ti - 1] === 'declare';
         var sayT = S.tributeSay !== 'none', at = ' · 양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로';
-        var act = { t: '두 분이 부모님께 인사', est: 15, self: true, doing: 'move' };   // [TRIB_HUG_CALL_1018] 포옹은 다음 줄(256)이 청한다 · 합계 est 는 그대로(15 + 35 = base - 20)   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
+        var act = { t: '두 분이 부모님께 인사', est: 30, self: true, doing: 'move' };   /* ★[EST_TRUE_1031] 15 → 30 — 양가 각각(신부 부모님 앞 → 신랑 부모님 앞) · 본식 합은 TIME.tribute 말 없는 시간 +15 */   // [TRIB_HUG_CALL_1018] 포옹은 다음 줄(256)이 청한다 · 합계 est 는 그대로(15 + 35 = base - 20)   // 양가 차례(신부 부모님께 먼저)는 38 의 디렉터 메모
         out[0].name = '부모님 앞으로'; out[0].fire = 'chain'; out[0].gapMs = 1000;   // [CHAIN_GAP_1014] 원고 «사이 1초»
         if (sayT && O.crossTribute && O.crossTribute(S)) out[0].note = (out[0].note ? out[0].note + ' · ' : '') + '받는 분: 서로의 부모님(신랑 → 장인 · 장모님 · 신부 → 시부모님 · 편지를 각자 부모님께 써서)';   /* ★[COMBO_171_1030 검토 171 C01] 당일 콘솔에 받는 분 */
-        out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사말을 전함' + at, est: 20 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
+        out[0].live = sayT ? { t: '두 분이 부모님 앞으로 가서 인사말을 전함' + at, est: 20 + (O.textSec && O.textSec(S, 'tribute') || (S.tributeSay === 'long' ? 140 : 35)), self: true, doing: 'say', duck: out[0].duck, fallback: '울컥해 말이 멈추면 기다린다 · 끝까지 못 하시면 디렉터가 보고 구호(145)로 넘긴다' }   // ★[TRIB_SAY_SAFE_1014 라운드 3] 자료 P «눈물이 가장 많이 나는 순서» · T1 «천천히 하셔도 괜찮습니다» — 구호는 디렉터 GO 라 끝까지 못 해도 넘어간다
           : { t: '두 분이 부모님 앞으로 걸어감' + at, est: 20, self: true, doing: 'move', duck: out[0].duck };
         out.unshift(cue({ k: 'tribute', blockN: '부모님 헌정', slug: pairT ? 'narr-tribute-pair' : 'narr-tribute-name', name: '부모님께 인사 시작',
           text: EXTRA[pairT ? 'narr-tribute-pair' : 'narr-tribute-name'], pick: out[0].pick }));
@@ -1364,7 +1371,7 @@
           pick: S.blessProxy ? '나레이션이 대독' : (famOpen ? '예식의 문을 여는 자리' : afterLetter ? '편지 뒤 자리' : ''),
           live: {
             t: S.blessProxy ? '나레이션이 미리 받은 말씀을 대독' : '부모님 말씀 (디렉터가 마이크 전달)',
-            est: 100, self: !S.blessProxy, doing: 'say', duck: S.blessProxy ? PARAM.duckSpeech : PARAM.duckRead,   // [BGM_FIX_1030] 부모님이 말씀하시는 자리 −20(대독은 나레이션 아래 −16)
+            est: txSec(S, 'bless', 100), self: !S.blessProxy, doing: 'say', duck: S.blessProxy ? PARAM.duckSpeech : PARAM.duckRead,   // [BGM_FIX_1030] 부모님이 말씀하시는 자리 −20(대독은 나레이션 아래 −16)
             swellAt: PARAM.bless.swellAt,   /* ★[BGM_FIX_1030] 2:30 = 콘솔 알림 한 줄만 — 음악은 순간 끝까지 그 크기(울음 · 침묵 · 시간 때문에 올리지 않는다) · 옛 swellTo · swellMs(음악 부풀리기) 금지 */
             longThreshold: PARAM.bless.longThreshold,
             /* ★[BLESS_PER_SPEAKER 2026-10-14 사장님 «추천대로»] 음악 신호(2:30) · 길었을 때(3:00)는 «한 분 말씀»마다 잰다 — 카드 «한 분 1분쯤»대로
@@ -1602,7 +1609,7 @@
          ★집 안에 이미 규칙이 있었다 — 올릴 거면 live 에도 같은 값을 적는다. 이 자리만 그 규칙을 빠뜨렸다.
            의도였다면 note 가 «가장 느리게»(2,000ms · entry 의 600ms 보다 느리다)라고 적을 이유가 없다.
          ★check-ritual-cue 의 [POST_LIVE_DUCK] 이 이 모양을 이제 전부 잡는다. */
-      live: { t: '하객이 앞으로 모임 · 두 분을 가운데로', est: 60, self: true, doing: 'move', duck: PARAM.duckMusic },
+      live: { t: '하객이 앞으로 모임 · 두 분을 가운데로', est: gatherSec(S), self: true, doing: 'move', duck: PARAM.duckMusic },
       post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }]
     }));
 
