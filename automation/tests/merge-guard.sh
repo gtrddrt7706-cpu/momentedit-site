@@ -20954,7 +20954,7 @@ chk 'MUSIC_FOLD_1031' scripts/audit/music-fold.mjs 1
 chk 'MUSIC_FOLD_1031' .github/workflows/merge-guard.yml 1
 chk "if(folded(sg)&&cs) return foldHtml(sg,k,cs);" assets/bgm-bed.js 1   # 고른 곡이 있으면 접힌 한 줄 먼저([MUSIC_FOLD_PICK_1031] 부터는 고르자마자 접는 것이 맞다)
 chk "MK.vidDone=null; MK.muFold=null; }" order-preview.html 1
-chk "try{ MK.muFold=null; }catch(e){}" order-preview.html 1
+chk "try{ MK.muFold=null; if(window.BgmForm&&BgmForm.reset) BgmForm.reset(); }catch(e){}" order-preview.html 1   # [BED_KEEP_LOAD_1031]
 chk 'class="pk-link mu-chg"' assets/bgm-bed.js 1
 chk 'aria-expanded="false" aria-controls="' assets/bgm-bed.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/music-fold.mjs >/dev/null 2>&1; _mfd=$?; if [ "$_mfd" = 1 ]; then echo 'FAIL music-fold: 음악 곡 목록 접기(안 고름 · 쪽에서 고름 · 다시 들어옴 · 바꾸기 · 모든 순간)가 어긋났습니다 — node scripts/audit/music-fold.mjs'; fail=1; else echo "ok music-fold ($_mfd)"; fi; fi
