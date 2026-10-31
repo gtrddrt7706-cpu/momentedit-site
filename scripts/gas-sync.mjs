@@ -57,6 +57,7 @@ const MAP = {
   'platform/86_dining_ai.gs': '86_dining_ai',
   'platform/87_letter.gs': '87_letter',                             // [LETTER_MERGED 2026-09-25] 옛 Letter System 에서 옮긴 청첩장 조회·하객 편지
   'platform/88_place_audit.gs': '88_place_audit',
+  'platform/89_prevideo.gs': '89_prevideo',                         // [PV_CAT_1031 2026-10-31] 마이페이지 «식전 영상»
   'platform/90_test-utils.gs': '90_test-utils',
   'platform/95_notify.gs': '95_notify',
   'platform/96_ai_cost.gs': '96_ai_cost',

@@ -127,7 +127,10 @@ console.log('\n[청첩장 사진 — 2026-08-17 사고의 그 사실]');
 
 console.log('\n[폐지된 기능을 KB 가 아직 말하고 있지 않은가]');
 {
-  const musicGone = !/음악|곡 선정/.test(mypage);
+  /* [PV_CAT_1031 2026-10-31] 마이페이지 «식전 영상»의 «음악 고르기»(영상에 깔 곡 · 스튜디오가 만든다)는 폐지한 입퇴장 곡 입력이 아니다 — 그 덩어리만 빼고 잰다 */
+  const _pvA = mypage.lastIndexOf('/*', mypage.indexOf('var PVC_ON=')), _pvB = mypage.indexOf('function renderSnap(p)');
+  const mpNoPv = (_pvA > -1 && _pvB > _pvA) ? mypage.slice(0, _pvA) + mypage.slice(_pvB) : mypage;
+  const musicGone = !/음악|곡 선정/.test(mpNoPv.replace(/\.pvc-[^{]*\{[^}]*\}/g, ''));
   ok(musicGone, '마이페이지에 음악·곡 선정 칸이 없다(폐지 유지)', '');
   if (musicGone) ok(!/마이페이지[^.]{0,20}(음악|곡)[^.]{0,10}입력/.test(KB), 'KB 도 «음악을 입력한다»고 말하지 않는다 [MUSIC_GONE]', 'KB 가 없는 칸을 안내하고 있다');
 }
