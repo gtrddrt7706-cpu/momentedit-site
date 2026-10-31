@@ -20162,6 +20162,18 @@ chk 'DRESS_OLD_ANS' scripts/audit/dress-refs.mjs 1
 chk 'DRESS_SET_1031' scripts/audit/dress-tabs.mjs 1
 chk "{ t: '디테일', img: 'n03-detail' }" assets/dress-refs.js 1                     # [DRESS_N03_DETAIL] 새 두 벌도 세 장
 chk 'DRESS_N03_DETAIL' scripts/audit/dress-tabs.mjs 1
+# ★★[DRESS_TEN_1031 코워크 · 사장님 «3개 더 추가 10벌, 인기 있는 걸로»] 10벌 — 04 코르셋 미카도(S10) · 05 잔비즈 튤(S09) · 07 홀터넥 실크(S11) · 기존 id 그대로 · S06 다시 쓰지 않음
+chk "{ id: 'S10', name: '스타일 예시 04 · 코르셋 미카도 A라인'" assets/dress-refs.js 1
+chk "{ id: 'S09', name: '스타일 예시 05 · 잔비즈 튤 A라인'" assets/dress-refs.js 1
+chk "{ id: 'S11', name: '스타일 예시 07 · 홀터넥 실크 슬림'" assets/dress-refs.js 1
+chk "{ id: 'S05', name: '스타일 예시 10 · 미니 · 오버스커트'" assets/dress-refs.js 1          # 미니는 맨 뒤
+chk "{ t: '디테일', img: 'n08-detail' }" assets/dress-refs.js 1
+chk "{ t: '디테일', img: 'n09-detail' }" assets/dress-refs.js 1
+chk "{ t: '디테일', img: 'n10-detail' }" assets/dress-refs.js 1
+nochk '일곱 가운데 가장 로맨틱한' assets/dress-refs.js                                        # 벌 수가 바뀌면 이 글도
+chk 'DRESS_TEN_1031' scripts/audit/dress-tabs.mjs 6
+chk 'DRESS_TEN_1031' scripts/audit/dress-refs.mjs 3
+chk 'DRESS_SWEETHEART' scripts/audit/dress-refs.mjs 2                                      # «스위트하트»는 넥라인 · «하트» 단독은 계속 금지(selftest)
 # ★★[FAB_NAMES_1031 사장님 «마우스 올리면 나오는 문구, 위쪽이랑 아래쪽 아이콘도 동일하게»] 오른쪽 줄 모든 아이콘 이름표 — 한 파일(assets/fab-names.js)을 줄을 만드는 세 곳이 부른다
 chk "fnS.src = '/assets/fab-names.js';" assets/advisor-widget.js 1
 chk '<script src="/assets/fab-names.js" defer></script>' index.html 1
