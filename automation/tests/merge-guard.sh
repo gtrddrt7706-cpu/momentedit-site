@@ -17089,7 +17089,7 @@ chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
 #   깨 보고 믿음: A 없는 화면에 flow-thread 를 돌리면 50건 빨강 · 종료 코드 1
 chk 'FLOW_THREAD' order-preview.html 7
 chk ".mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px" order-preview.html 1
-chk 'function _qRow(t)' order-preview.html 1
+chk 'function _qRow(t,key)' order-preview.html 1   # [LISTEN_PACE_1031] key = 줄 자리(지금 · 지나감 표시)
 nochk '.mk-flow li.q{color:var(--light);font-size:12.5px' order-preview.html
 nochk "if(x.quiet){ h+='<li class=\"q\">'+esc(x.txt)" order-preview.html
 nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
@@ -19418,7 +19418,7 @@ chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
-chk "quiet:true,ms:0,of:c.slug||''}); } }" order-preview.html 1
+chk "quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')}); } }" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
 chk "txt:'여기서 '+tt,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
 chk "txt:'여기서 '+t,talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
