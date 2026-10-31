@@ -21003,6 +21003,14 @@ nochk 'PS_FINE_IMG' order-preview.html
 nochk 'window.psMore' order-preview.html
 nochk 'ph-sc-s">참고 · ' mypage.html
 chk "var PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.'" order-preview.html 1
+# ── 2026-11-01 [SCENE_PHOTO_1101 검토 181 · 사장님 «영상 캡처 말고 GPT 실사 · 무드 맞춰 · 1장»] 장면 그림 = 실사 사진 19장(파일 이름 = 장면 id) · 보류 0 · 영상 프레임 아님
+chk 'SCENE_PHOTO_1101' assets/ritual-open.js 3
+chk 'SCENE_PHOTO_1101' scripts/build-scene-frames.mjs 2
+chk 'SCENE_PHOTO_1101' scripts/audit/photo-scene.mjs 4
+chk "var SCENE_SRC_V = 'photo1101';" assets/ritual-open.js 1
+nochk "img: null }" assets/ritual-open.js
+nochk "img: \['entry-look', 6\] }" assets/ritual-open.js
+chk "_close: { rep: '하객을 향해 마지막 인사를 드리는 두 분'" assets/ritual-open.js 1
 chk '미리 찍는 웨딩 촬영과 달리, 함께한 분들과 이날에만 생기는 표정을 기록해요.' order-preview.html 1
 chk '고르신 순간에 맞춰 촬영 참고 장면을 정리해요.' mypage.html 1
 nochk '건지는 사진' order-preview.html
