@@ -168,13 +168,13 @@
 
   /* ★★[MUSIC_FOLD_1031 2026-10-31 사장님 시안 «1 · 음악만 접기» 고름] 곡을 «직접» 골라 둔 구간은 그 순간 쪽에 «새로 들어올 때»(쪽 옮김 · 화면 열기 · 다시 열기) 한 줄로 접는다 —
      접힌 줄 = (마이페이지 안이면 그 곡 ▶) + 곡 이름 · 아랫줄 + 오른쪽 «바꾸기»(밑줄 글 단추 · .pk-link 색 · LINK_GOLD_1031) · 아래 «준비해요» 한 줄은 펼쳤을 때만.
-     · 안 고른 구간(«고르지 않으시면 ‹1순위›…»)은 접지 않는다 · 쪽에 머무는 동안 고르면 접지 않는다(비교하는 동안 줄이 그대로 · 화면이 흔들리지 않게)
+     · 안 고른 구간(«고르지 않으시면 ‹1순위›…»)은 접지 않는다 · ★고르면 바로 접는다(MUSIC_FOLD_PICK_1031 · 종전 «머무는 동안 고르면 접지 않는다»는 걷었다 — 입장 음악과 달라 사장님이 짚었다) · 비교는 ▶ 로(고르지 않고 듣기만)
      · «바꾸기» = 그 자리에서 목록을 편다(덮는 창 · 움직임 없음) · 그 방문 동안은 다시 그려도(render) 펼친 채 · 접힌 줄 ▶ 는 듣기만(고름을 바꾸지 않는다)
      · 방문 = MK.pgTok(쪽 들어옴 · _mkGoNow) — ② 걸음 밖에서 그리거나 초안을 새로 얹으면(_applySaved) MK.muFold 를 비운다(order-preview.html) · 칩 줄은 그대로 */
   var FB={};
   function FM(){ var M=null; try{ M=window.MK||null; }catch(x){} if(!M) M=FB; var t=M.pgTok||0; if(!M.muFold||M.muFold.tok!==t) M.muFold={ tok:t, m:{} }; return M.muFold.m; }
   /* 이 방문에서 처음 그릴 때 정한다 — 그때 직접 고른 곡이 있으면 접는다 · 아니면 이 방문 내내 편 채 */
-  function folded(sg){ var cur=picked(sg), m=FM(); if(!(sg in m)) m[sg]=cur?1:0; return !!cur&&m[sg]===1; }
+  function folded(sg){ return !!picked(sg)&&FM()[sg]!==0; }   /* ★★[MUSIC_FOLD_PICK_1031 2026-10-31 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 입장 음악 추천 곡([MU_FOLD] · ✓ 로 고르면 바로 접힘)과 같게 — 고르는 순간 접는다 · 편 채로 두는 것은 «바꾸기»로 연 그 방문뿐(0) · 다시 고르면 또 접힌다 */
   function boxId(sg){ return 'bedBox_'+sg; }
   function foldHtml(sg,k,s){ var gl=labelOf(sg)+' 음악', pl=CARD.f===s.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[s.f];
     return '<div class="mu-fold1">'
@@ -186,7 +186,7 @@
   function noteOf(sg){ var L=P.list(sg), k=picked(sg), s=k?P.byF(k):L[0]; if(!s) return '';
     var d=P.seg(sg), t=(k?'':'고르지 않으시면 ')+'‹'+s.t+'›'+((d&&d.multi)?'부터 이어서 틀어요':ro(s.t)+' 준비해요'); return emb()?t:t+' · 마이페이지에서 들어 볼 수 있어요'; }   /* [BGM_FIX_1030 덧붙임 4] 여러 곡을 이어 트는 구간(하객 맞이 · 테이블 인사)은 «‹곡›부터 이어서 틀어요» */
   function listHtml(sg,k){ var L=P.list(sg), cur=picked(sg), gl=labelOf(sg)+' 음악 곡', cs=cur?P.byF(cur):null;
-    if(folded(sg)&&cs) return foldHtml(sg,k,cs);   /* [MUSIC_FOLD_1031] folded() 먼저 — 안 고른 채 처음 그린 방문은 «편 채»로 적어 둔다(그 뒤 고르면 접히지 않게) */
+    if(folded(sg)&&cs) return foldHtml(sg,k,cs);   /* [MUSIC_FOLD_1031 · MUSIC_FOLD_PICK_1031] 고른 곡이 있으면 접힌 한 줄 · «바꾸기»로 편 방문만 목록 */
     var h='<ul class="mu-list" role="radiogroup" aria-label="'+e(gl)+'">';
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
       h+='<li class="mu-row'+(on?' on':'')+'">'
@@ -224,10 +224,16 @@
     if(kind==='prev'){ if(CARD.f===f&&CARD.sg===sg){ stopCard(); return; } if(AV.st==='ok'&&!AV.set[f]){ toast1('이 곡은 아직 준비 중이에요'); return; }
       try{ if(typeof _stopAud==='function') _stopAud(); }catch(x){} try{ if(typeof LP!=='undefined'&&LP.q&&LP.q.length&&typeof lsStop==='function') lsStop(true); }catch(x){} try{ if(window.EntryMusic) EntryMusic.hush(); }catch(x){}
       stopCard(true); card(f,k,sg); return; }
-    if(kind!=='pick') return; var S=St(); if(picked(sg)===f) return;
+    if(kind!=='pick') return; var S=St(); if(picked(sg)===f){ var bs=D.getElementById(boxId(sg)), hs=bs?bs.offsetHeight:0; FM()[sg]=1; repaint(); foldAnim(sg,hs); var cs=D.querySelector('#'+boxId(sg)+' .mu-chg'); if(cs) try{ cs.focus({preventScroll:true}); }catch(x){} return; }   /* [MUSIC_FOLD_PICK_1031] «바꾸기»로 편 뒤 같은 곡을 다시 누르면 그대로 접는다(고른 곡은 그대로) */
     S.bgm=(window.BgmSlots?BgmSlots.clean(S.bgm):S.bgm)||{};
     if(d.slot){ S.bgm[d.slot]={ m:'bed', k:f }; } else S.bgm[sg]={ k:f };
-    save(); repaint(); }
+    var bx0=D.getElementById(boxId(sg)), h0=bx0?bx0.offsetHeight:0; FM()[sg]=1;   /* [MUSIC_FOLD_PICK_1031] 고르면 바로 한 줄 */
+    save(); repaint(); foldAnim(sg,h0); var cb=D.querySelector('#'+boxId(sg)+' .mu-chg'); if(cb) try{ cb.focus({preventScroll:true}); }catch(x){} }   /* 포커스는 «바꾸기»로(키보드로 이어서 · 화면은 움직이지 않는다) */
+  /* [MUSIC_FOLD_PICK_1031] 옛 높이 → 새 높이(입장 음악 boxAnim 과 같은 곡선 · 0.34초) · 움직임 줄이기면 바로 */
+  var RMB=false; try{ RMB=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(x){}
+  function foldAnim(sg,h0){ var b=D.getElementById(boxId(sg)); if(!b||!h0||RMB) return; var h1=b.offsetHeight; if(Math.abs(h1-h0)<4) return; var fin=false;
+    b.style.height=h0+'px'; b.style.overflow='hidden'; void b.offsetHeight; b.style.transition='height .34s cubic-bezier(.22,1,.36,1)'; b.style.height=h1+'px';
+    var done=function(){ if(fin) return; fin=true; b.style.height=''; b.style.overflow=''; b.style.transition=''; }; b.addEventListener('transitionend',done,{once:true}); setTimeout(done,520); }
 
   window.bedAct=act;
   window.BgmBed={ rowHtml:rowHtml, subHtml:subHtml, pubLine:pubLine, sumRows:sumRows, sumOf:sumOf, segAt:segAt,

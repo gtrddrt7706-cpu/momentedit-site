@@ -2,10 +2,10 @@
 /* ★★[MUSIC_FOLD_1031 2026-10-31 사장님 시안 «1 · 음악만 접기» 고름] 순간 쪽 음악 곡 목록(assets/bgm-bed.js · .ls-bed · 축사 · 편지 .bed-sub)
    진짜 식순 화면을 «마이페이지 안»(order-preview.html?embed=1 · 부모 창이 GAS 대신 곡 목록을 준다)과 «밖»(공개 미리보기)으로 띄워 잰다.
    1 안 고른 구간(«고르지 않으시면 ‹1순위›…»)은 접지 않는다 — 처음 · 쪽을 옮겨 다시 와도
-   2 쪽에 머무는 동안 고르면 접지 않는다 — 곡 줄 넷 그대로 · 다시 그려도(render) 그대로 · 화면 높이가 그대로
+   2 ★[MUSIC_FOLD_PICK_1031 2026-10-31 사장님 «저런 거 있는 곳들은 똑같이»] 고르면 바로 한 줄로 접힌다(입장 음악 추천 곡 MU_FOLD 와 같게) — 포커스는 «바꾸기» · 다시 그려도 접힌 채
    3 고른 뒤 쪽을 옮겨 다시 들어오면 한 줄로 접힌다 — ▶(마이페이지 안) · 곡 이름 · 아랫줄 · «바꾸기»(button · aria-expanded=false · aria-controls → 목록 칸) · «준비해요» 한 줄 없음 · 줄 높이 = 곡 줄 하나 · 누를 자리 44px 이상
    4 접힌 줄 ▶ 는 듣기만 — 고른 곡이 바뀌지 않는다
-   5 «바꾸기» = 그 자리에서 편다(덮는 창 없음 · 칸 윗변 그대로) · 포커스는 고른 곡 줄 · 다시 그려도 · 다른 곡을 골라도 이 방문 동안 편 채
+   5 «바꾸기» = 그 자리에서 편다(덮는 창 없음 · 칸 윗변 그대로) · 포커스는 고른 곡 줄 · 다시 그려도 편 채 · 다른 곡(또는 같은 곡)을 고르면 다시 접힌다
    6 다시 열기(초안을 새로 얹음 · 같은 쪽으로 열림)도 «새로 들어옴» — 접혀 시작한다 · ② 걸음 밖에 다녀와도 접힌다
    7 음악 목록이 있는 모든 순간이 같다 — 하객 맞이 · 화촉 · 감사 인사 · 부모님께 인사 · 테이블 인사 · 축배 · 닫는 인사 · 축사 · 편지(«음악과 함께» 아래)
    8 공개 미리보기 — 접힌 줄에 ▶ 없음 · «바꾸기»는 같다
@@ -86,13 +86,14 @@ try {
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
     ok(`${W} 1 안 고른 채로 다시 들어와도 접지 않는다`, r && r.rows === 4 && !r.fold, r);
     /* 2 쪽에 머무는 동안 고르기 */
-    const h0 = await f.evaluate(() => document.querySelector('#stage .mk-pick').getBoundingClientRect().height);
-    await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 300); r = await look(f, 'M2'); const rowH = r ? r.rowH : 0;
-    const h1 = await f.evaluate(() => document.querySelector('#stage .mk-pick').getBoundingClientRect().height);
-    ok(`${W} 2 고르면 그대로 펼친 채 — 곡 줄 넷 · 고른 곡 눌린 모양 · 고르기 칸 높이 그대로(${Math.round(h0)} → ${Math.round(h1)})`, r && r.rows === 4 && !r.fold && r.on.join() === 'bed:M2:B06' && Math.abs(h1 - h0) < 1, { r, h0, h1 });
-    await f.click('[data-fk="bed:M2:B05"]'); await wait(f, 200); await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 200);
+    const rowH = await f.evaluate(() => { const x = document.querySelector('[data-fk="bed:M2:B06"]'); return x ? Math.round(x.closest('.mu-row').getBoundingClientRect().height) : 0; });   /* 고를 곡(B06)의 줄 — 접힌 줄은 그 곡을 보인다(첫 곡 줄은 폰에서 두 줄일 수 있다) */
+    await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 700); r = await look(f, 'M2');
+    const fk2 = await f.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'));
+    ok(`${W} 2 고르면 바로 한 줄 — 곡 줄 없음 · «Photograph» · 포커스 = «바꾸기»(${fk2})`, r && r.fold && r.rows === 0 && r.t === 'Photograph' && r.plFk === 'bedp:M2:B06' && fk2 === 'bedchg:M2', { r, fk2 });
+    await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); await f.click('[data-fk="bed:M2:B05"]'); await wait(f, 700);
+    await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 700);
     await f.evaluate(() => render()); await wait(f, 300); r = await look(f, 'M2');
-    ok(`${W} 2 비교하며 여러 번 골라도 · 다시 그려도(render) 펼친 채`, r && r.rows === 4 && !r.fold && r.on.join() === 'bed:M2:B06', r);
+    ok(`${W} 2 «바꾸기»로 열어 다른 곡을 골라도 다시 접힌다 · 다시 그려도(render) 접힌 채`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B06', r);
     /* 3 다시 들어오면 접힌다 */
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
     ok(`${W} 3 다시 들어오면 한 줄 — 곡 줄 없음 · «Photograph» · 아랫줄 · ▶ 하나 · «준비해요» 없음`, r && r.fold && r.rows === 0 && r.t === 'Photograph' && /^Cody Fry · /.test(r.a) && r.pl === 1 && r.plFk === 'bedp:M2:B06' && !r.note, r);
@@ -112,7 +113,9 @@ try {
     ok(`${W} 5 «바꾸기» — 그 자리에서 편다(곡 줄 넷 · 칸 윗변 그대로 · 화면 안 움직임 · 덮는 창 없음) · 포커스 = 고른 곡 줄 · «준비해요» 한 줄`, r && r.rows === 4 && !r.fold && r.on.join() === 'bed:M2:B06' && Math.abs(r.boxTop - top0) <= 1 && fx.y === y0 && !fx.dlg && fx.fk === 'bed:M2:B06' && r.note, { r, fx, top0, y0 });
     await shot(f, W, 'candle-open');
     await f.evaluate(() => render()); await wait(f, 300); await f.click('[data-fk="bed:M2:B07"]'); await wait(f, 300); await f.evaluate(() => { _persist(); render(); }); await wait(f, 300); r = await look(f, 'M2');
-    ok(`${W} 5 편 뒤 다시 그려도 · 다른 곡을 골라도 이 방문 동안 편 채`, r && r.rows === 4 && !r.fold && r.on.join() === 'bed:M2:B07', r);
+    ok(`${W} 5 편 뒤 다시 그려도 편 채 · 다른 곡을 고르면 다시 접힌다`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B07', r);
+    await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); await f.click('[data-fk="bed:M2:B07"]'); await wait(f, 700); r = await look(f, 'M2');
+    ok(`${W} 5 편 뒤 같은 곡을 다시 눌러도 접힌다(고른 곡 그대로)`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B07', r);
     /* 6 ② 걸음 밖에 다녀오기 · 다시 열기 */
     await f.evaluate(() => { const i = STEPS.findIndex((s) => s.k === 'pick'); idx = i; render(); }); await wait(f, 300);
     await f.evaluate(() => { const i = STEPS.findIndex((s) => s.k === 'listen'); idx = i; render(); }); await wait(f, 400); r = await look(f, 'M2');
@@ -131,11 +134,11 @@ try {
       if (!a) { res.push([sg, k, 'no-row']); continue; }
       const st0 = a.fold ? 'fold-before' : '';
       if (a.fold) { await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 200); }
-      await fr.click(`[data-fk="bed:${sg}:${pick}"]`); await wait(fr, 250); const b = await look(fr, sg);
+      await fr.click(`[data-fk="bed:${sg}:${pick}"]`); await wait(fr, 700); const b = await look(fr, sg);
       await go(fr, away); await go(fr, k); const c = await look(fr, sg);
       if (c && c.ch) { await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); }
       const d = await look(fr, sg);
-      const good = b && b.rows === 4 && !b.fold && c && c.fold && c.rows === 0 && c.pl === 1 && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && c.ch.exp === 'false' && !c.note && d && d.rows === 4 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
+      const good = b && b.rows === 0 && b.fold && b.plFk === `bedp:${sg}:${pick}` && c && c.fold && c.rows === 0 && c.pl === 1 && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && c.ch.exp === 'false' && !c.note && d && d.rows === 4 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
       res.push([sg, k, good ? 'ok' : 'FAIL', st0, b && b.rows, c && c.fold, d && d.rows]);
       if (W === 390 && sg === 'M4') { await go(fr, away); await go(fr, k); await shot(fr, W, 'welcome-fold'); await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); await shot(fr, W, 'welcome-open'); }
       if (W === 1280 && sg === 'M4') { await go(fr, away); await go(fr, k); await shot(fr, W, 'welcome-fold'); await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); await shot(fr, W, 'welcome-open'); }
@@ -143,14 +146,14 @@ try {
     /* 축사 · 편지 «음악과 함께» 아래 */
     for (const [slot, sg, k, pick] of [['S5', 'M4S5', 'free', 'B14'], ['S6', 'M4S6', 'letter', 'B12']]) {
       await go(fr, k); await fr.click(`[data-fk="bgm:${slot}:bed"]`); await wait(fr, 300);
-      const a = await look(fr, sg); await fr.click(`[data-fk="bed:${sg}:${pick}"]`); await wait(fr, 250); const b = await look(fr, sg);
+      const a = await look(fr, sg); await fr.click(`[data-fk="bed:${sg}:${pick}"]`); await wait(fr, 700); const b = await look(fr, sg);
       await go(fr, 'welcome'); await go(fr, k); const c = await look(fr, sg);
       if (c && c.ch) { await fr.click(`.bed-sub[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); }
       const d = await look(fr, sg);
-      const good = a && a.rows === 4 && !a.fold && b && b.rows === 4 && !b.fold && c && c.fold && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && !c.note && d && d.rows === 4 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
+      const good = a && a.rows === 4 && !a.fold && b && b.rows === 0 && b.fold && c && c.fold && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && !c.note && d && d.rows === 4 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
       res.push([sg, k, good ? 'ok' : 'FAIL', a && a.rows, b && b.rows, c && c.fold, d && d.rows]);
     }
-    ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 펼친 채 · 다시 들어오면 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 9 && res.every((x) => x[2] === 'ok'), res);
+    ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 바로 접힘 · 다시 들어와도 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 9 && res.every((x) => x[2] === 'ok'), res);
     /* 1 이 다른 구간에서도 — 안 고른 테이블 · 축배 등은 7 에서 고르기 전 접히지 않았다 */
     ok(`${W} 1 고르기 전 접힌 구간 없음(앞에서 고른 화촉 말고 모든 순간)`, res.every((x) => x[0] === 'M2' || x[3] !== 'fold-before'), res);
     ok(`${W} 9 오류 없음 · 가로 넘침 없음`, !errs.length && !(await fr.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
@@ -158,8 +161,8 @@ try {
   }
   /* 8 공개 미리보기 */
   { const { ctx, f, errs } = await open(390, false);
-    await go(f, 'candle'); await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 300); let r = await look(f, 'M2');
-    ok('8 공개 — 고르면 펼친 채', r && r.rows === 4 && !r.fold, r);
+    await go(f, 'candle'); await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 700); let r = await look(f, 'M2');
+    ok('8 공개 — 고르면 바로 접힘 · ▶ 없음', r && r.fold && r.rows === 0 && r.pl === 0, r);
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
     ok('8 공개 — 다시 들어오면 접힘 · ▶ 없음 · «바꾸기» · «준비해요» 한 줄 없음', r && r.fold && r.pl === 0 && r.ch && r.ch.ctlOk && !r.note && r.t === 'Photograph', r);
     await shot(f, 390, 'public-fold');
