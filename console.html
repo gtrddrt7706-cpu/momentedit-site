@@ -1230,7 +1230,9 @@ setInterval(function(){ if (BED.mode !== 'seg' || BED.xing) return; var el = BED
   if (!isFinite(end) || !(end > SEG_XF + 1) || el.paused) return;
   if (el.currentTime >= end - SEG_XF) { BED.li = (BED.li + 1) % Math.max(1, BED.list.length); bedPlay(BED.list[BED.li] || BED.id, SEG_XF); } }, 250);
 /* 큐 → 구간 · '' = 바꾸지 않는다(앞 곡이 잇는다) */
+var PRE_HOLD = -1;   // [BRIDGE_FIRST_1101] 꺼진 채 내보낸 이음말 큐 번호
 function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug || ''), bed = function(id){ return !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed'); };
+  if (/^bridge-(b8-face-guests|b12-tribute-calm|b14-candle-name)$/.test(sl)) return '';   /* ★[BRIDGE_FIRST_1101] 다음 순간 몫 이음말은 앞 장면을 닫는 말 — 앞 곡이 잇는다(덕킹은 그대로) · 구간 곡은 그다음 큐에서(화면 «이 순간부터» 줄 자리 · 미리 듣기와 같게) */
   if (k === 'guest') return 'M1';
   if (k === 'candle') return 'M2';
   if (k === 'entry' || k === 'matjeol') return '';   /* M3 = 입장 곡(장면이 맡는다 · 배경음은 −90) · ★[BGM_FIX_1030] 맞절도 입장 곡이 잇는다 — M4 는 감사 인사부터(옛 «곡이 짧은 날 맞절에서 피아노를 미리 깐다» 걷음) */
@@ -1340,7 +1342,7 @@ function duckTo(db, ms){
 var ES = window.EntryScene || null, ESD = { Sg: null, st: '', why: '', V0: null, vurl: '', vBusy: null, run: null };
 function esdWant(){ return !!(ES && MODE !== 'preview' && !GUEST && S && S.mu && (S.mu.src === 'up' || (S.mu.src === 'rec' && /^[A-Za-z0-9_-]{1,16}$/.test(String(S.mu.k || '')))) && S.mu.hook != null); }   // [REC_SONG_1012] 두 분이 올린 곡 · 추천 곡(곡 키) 둘 다
 function esdMain(c){ return !!(c && c.k === 'entry' && c.slug === 'entry-' + (S.entry || 'A')); }
-function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol')); }   // ★[MATJEOL_SPLIT_1013 · ESD_BUNDLE] 맞절은 10/13 부터 따로 순간(matjeol)이지만 입장 묶음으로 잇는다 — 곡이 그 큐 덕 값으로 낮게 이어지고 그다음 묶음에서 잦아든다
+function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol' || c.slug === 'bridge-b8-face-guests')); }   /* ★[BRIDGE_FIRST_1101] 맞절 뒤 «하객 쪽으로» 이음말(b8)까지 입장 곡이 잇는다 — 감사 인사(서약) 첫 멘트에서 잦아들며 구간 곡으로 */   // ★[MATJEOL_SPLIT_1013 · ESD_BUNDLE] 맞절은 10/13 부터 따로 순간(matjeol)이지만 입장 묶음으로 잇는다 — 곡이 그 큐 덕 값으로 낮게 이어지고 그다음 묶음에서 잦아든다
 function esdDecode(ab){ var O = window.OfflineAudioContext || window.webkitOfflineAudioContext, dc = new O(1, 1, 48000); return new Promise(function(ok, no){ try { var p = dc.decodeAudioData(ab, ok, no); if (p && p.then) p.then(ok, no); } catch (e) { no(e); } }); }
 function esdEntryCue(){ try { var src = R || RitualCue.build(S, { mode: MODE }), cs = (src && src.cues) || []; for (var i = 0; i < cs.length; i++) if (esdMain(cs[i])) return cs[i]; } catch (e) {} return null; }
 /* 입장 대사 — 콘솔이 그 큐에 틀 바로 그 소리(srcOf · 두 분 목소리를 받았으면 그것 · 아니면 나레이션)를 미리 풀어 문장 조각까지 잰다 */
@@ -1675,6 +1677,7 @@ function fire(i, opt){
   var c = resolve(R.cues[i]);
   if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
   if (!esdMain(c)) doorMark(null);   // [DOOR_LEAD] 입장 장면이 아니면 걷는다
+  PRE_HOLD = (/^bridge-(b12-tribute-calm|b14-candle-name)$/.test(String(c.slug || '')) && !ESD.run && duckWant != null && duckWant <= -60) ? i : -1;   /* ★[BRIDGE_FIRST_1101] 배경음이 꺼져 있던 자리(축가 · 영상 뒤)의 이음말은 꺼진 채로 — 앞의 앞 곡이 이음말 아래로 되살아나지 않게(미리 듣기와 같다) · 구간 곡은 다음 큐에서 */
   segGo(segOfCue(c));   // [BGM_SEG8_1023] 구간의 첫 큐가 나가는 순간 3초에 걸쳐 그 구간 곡으로(곡이 없으면 앞 곡이 잇는다 · 새 GO 없음)
   liveT0 = 0;                          // 방금 판정에 썼다 · 다음 큐로 새지 않게 여기서 끊는다
   castNow = null;                      // ★배역 예시는 큐를 넘어가지 않는다(배지가 다음 자리로 새는 것을 막는다)
@@ -1696,7 +1699,7 @@ function fire(i, opt){
   var _need = (MODE !== 'preview' && !esdMain(c) && duckWant > c.duck + 0.5), _dms = c.fadeMs || (PARAM.duck && PARAM.duck.leadMs) || PARAM.fadeDownMs;
   var _lead = Math.max(_need ? _dms : 0, c.goLeadMs || 0);   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
   cheerAt = -1;   // [TOAST_GO] 축배 오름은 그 큐에서 한 번
-  duckTo(c.duck, _need ? _dms : (c.fadeMs || PARAM.fadeDownMs));   // [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
+  duckTo(PRE_HOLD === i ? -90 : c.duck, _need ? _dms : (c.fadeMs || PARAM.fadeDownMs));   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
 
   var _run = function(){ playClip(c, function(){
     phase = 'post';
@@ -1725,7 +1728,7 @@ function fire(i, opt){
         /* ★★[KNOBS_1031] 큐 사이(2초 · 사슬 예외 1.25 · 3 · 4.5)는 «말끝 → 말머리» 목표 — 나레이션 파일 앞 · 뒤 무음(narration-pad.js)을 빼고 한 번만 쉰다 · 0 아래면 0 ·
            두 분 목소리(RF_OWN)처럼 표에 없는 소리는 종전 그대로 */
         if (nx && _gap > 0 && window.NarrPad && !RF_OWN[c.slug] && !RF_OWN[nx.slug] && c.file && nx.file) _gap = NarrPad.gap(c.file, nx.file, _gap);
-        if (nx && !postMusic(c) && !holdLink(c, nx, _gap)) duckTo(PARAM.duckMusic, PARAM.fadeUpMs);   // [BGM_CONSOLE2_1023 HOLD_LINK] ⓐ 짧은 이음에서는 −8 로 올리지 않는다 · ★[BGM_FIX_1030 GPT③ R1-2] 뒤처리에 음악 단계가 있는 큐 · 마지막 큐(귀가 인사)는 올리지 않는다
+        if (nx && PRE_HOLD !== i && !postMusic(c) && !holdLink(c, nx, _gap)) duckTo(PARAM.duckMusic, PARAM.fadeUpMs);   /* [BRIDGE_FIRST_1101] 꺼진 채 둔 이음말 뒤 사이에도 올리지 않는다 */   // [BGM_CONSOLE2_1023 HOLD_LINK] ⓐ 짧은 이음에서는 −8 로 올리지 않는다 · ★[BGM_FIX_1030 GPT③ R1-2] 뒤처리에 음악 단계가 있는 큐 · 마지막 큐(귀가 인사)는 올리지 않는다
         render();
         if (nx && nx.fire === 'chain') { preDuck(nx, _gap); later(function(){ advance(); }, _gap); }   // ★[CHAIN_GAP_1014] 큐가 정한 사이(원고 «1.25초 사슬» · «사이 1초») · 없으면 기본 2초
         else if (!nx) later(finish, PARAM.gapMs);

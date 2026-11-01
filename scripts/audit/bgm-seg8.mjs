@@ -87,7 +87,11 @@ try {
   await pg.waitForFunction(() => window.__bgmSt().phase === 'live', null, { timeout: 40000 }).catch(() => {});
   const E = await pg.evaluate(() => window.__bgmSt());
   ok('④ 축가(자체 음원) 동안 배경음은 −90', E.phase === 'live' && E.want === -90, E);
-  const ti = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'tribute'));
+  /* ★[BRIDGE_FIRST_1101] 축가 바로 뒤 «경건하게» 이음말(b12)은 구간을 바꾸지 않고 배경음도 꺼진 채(앞의 앞 곡이 되살아나지 않게) — 구간 곡(M5)은 그다음 큐에서 */
+  const bi = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.slug === 'bridge-b12-tribute-calm'));
+  if (bi > -1) { const g0 = await seg(pg); await pg.evaluate((i) => window.__bgmGo.fire(i), bi); await pg.waitForTimeout(1500); const G0 = await seg(pg), H0 = await pg.evaluate(() => window.__bgmSt());
+    ok('④ 축가 뒤 «경건하게» 이음말(b12) — 구간을 바꾸지 않고 배경음은 꺼진 채(−90)', G0.seg === g0.seg && H0.want === -90, { g0: g0.seg, G0: G0.seg, want: H0.want }); }
+  const ti = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'tribute' && !/^bridge-/.test(c.slug || '')));
   const tduck = await pg.evaluate((i) => window.__bgmR()[i].duck, ti);
   await pg.evaluate((i) => window.__bgmGo.fire(i), ti); await pg.waitForTimeout(3600);
   const G = await seg(pg), H = await pg.evaluate(() => window.__bgmSt());

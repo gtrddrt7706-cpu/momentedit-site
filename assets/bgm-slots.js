@@ -61,11 +61,11 @@
       one: '하객이 앉는 동안 잔잔한 연주가 흘러요',
       ref: { role: '배경', sec: [1500, 1800], level: LEVEL.main,
         note: '개식 인사(137)는 S1 이 잦아든 뒤 조용하게, 또는 아주 작게 · 개식이 늦어도 이어지게(반복 목록)' } },   /* [BGM_SEG8_1023] 콘솔 M1 은 여러 곡을 차례로 돌린다 */
-    /* [BGM_FORM_1023 v2] 화촉을 밝히는 분은 어머님 · 아버님 · 대표 두 분 중 하나라 «어머님»이라 쓰지 않는다 · 개식 안내에서 잇는다는 말은 뺐다(S2 는 화촉 이음말 263 부터) */
+    /* [BGM_FORM_1023 v2] 화촉을 밝히는 분은 어머님 · 아버님 · 대표 두 분 중 하나라 «어머님»이라 쓰지 않는다 · 개식 안내에서 잇는다는 말은 뺐다(S2 는 화촉 이음말 263 뒤부터 · BRIDGE_FIRST_1101) */
     { id: 'S2', ks: ['candle'], picks: [], at: 'top',
       one: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요',   /* [BGM_R4_1023] «걸음에 맞춰»는 걸음마다 박자를 맞추는 것처럼 읽혔다 */
       ref: { role: '메인', sec: 240, level: LEVEL.main,
-        from: '화촉 이음말(263)부터 · 식전 영상이 없는 날은 개식 끝 박수 뒤부터' } },
+        from: '화촉 이음말(263) 뒤부터 · 식전 영상이 없는 날은 개식 끝 박수 뒤부터' } },
     /* S3 = 입장 음악(entry-music.js) 그대로 — 고르기 · 저장은 그 칸(S.mu)이 한다 · 맞절에는 한 줄만 */
     { id: 'S3', ks: ['entry', 'matjeol'], entry: true, picks: [],
       one: '입장 음악',
@@ -181,6 +181,9 @@
     return { i: h, hit: false };   /* 못 찾음 — 맨 앞으로 물러난다 · bgm-form 이 빨강으로 알린다 */
   }
   function flowAt(at, st) { return flowFind(at, st).i; }
+  /* ★★[BRIDGE_FIRST_1101 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 미리 듣기 «뜸» 자리 = 화면 음악 줄 자리(head) — 순간 첫 줄이 다음 순간 몫으로 붙은 이음말
+       (b8 하객 쪽으로 · b12 경건하게 · b14 화촉 순서 알림)이면 이음말은 앞 소리로 듣고, 새 곡 뜸은 그 바로 뒤 줄 앞에서 · 목례 · 위하여 · 영상 자리 칸은 지금처럼 맨 앞(0) */
+  function leadAt(k, st, o) { var v = null; try { v = viewOf(k, o || {}); } catch (e) {} if (v && v.kind === 'flow' && AT_OF[v.at]) return 0; return head(st); }
   /* 칸의 첫 순간 = 이 칸의 순간 중 «담긴» 첫 순간(본식 차례) — 감사 인사를 담지 않은 식순이면 다음 담긴 순간이 안내 한 줄을 받는다 */
   function chooser(s, o) {
     o = o || {};
@@ -190,5 +193,5 @@
     return ks[0] || null;
   }
 
-  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, TALK: TALK, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, flowAt: flowAt, flowFind: flowFind, chooser: chooser };
+  return { SLOTS: SLOTS, PICK: PICK, LEVEL: LEVEL, LINE: LINE, TALK: TALK, slot: slot, slotOfKey: slotOfKey, label: label, get: get, clean: clean, lineOf: lineOf, viewOf: viewOf, flowAt: flowAt, flowFind: flowFind, leadAt: leadAt, chooser: chooser };
 });

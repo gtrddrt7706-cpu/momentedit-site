@@ -7828,7 +7828,7 @@ chk 'MATJEOL_SPLIT_1013' scripts/audit/open-course.mjs 4
 chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome'," assets/ritual-open.js 1
 chk "var ALWAYS = { guest: 1, entry: 1, matjeol: 1 };" assets/ritual-open.js 1
 chk "k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow'" assets/ritual-cue.js 1
-chk "function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol')); }" console.html 1
+chk "function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol' || c.slug === 'bridge-b8-face-guests')); }" console.html 1   # [BRIDGE_FIRST_1101] 맞절 뒤 b8 까지 입장 묶음
 chk "'신랑·신부 맞절': {" assets/ritual-story.js 1
 nochk "})()\].slice(0, openC ? 1 : 2).concat(openC ? \[cue({" assets/ritual-cue.js     # 입장 끝 concat 으로 되돌리지 말 것
 nochk "et\[0\] + BOW\[0\], et\[1\] + BOW\[1\]" assets/ritual-open.js                          # 입장 몫 +15초로 되돌리지 말 것
@@ -21256,7 +21256,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&entMulti())) return entOn()?ENT_F:'';" assets/bgm-bed.js 1
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk 'bgm-console2 music-fold entry-carry' .github/workflows/merge-guard.yml 1
+chk "tests: 'entry-carry bridge-first'" .github/workflows/merge-guard.yml 1   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -21264,4 +21264,27 @@ nochk "if(x&&x.vk) return '<span class=\"vk vk-media\">'" order-preview.html
 nochk "return '<span class=\"vk vk-'+v+'\">'+VK_ICO[v]+esc(lab)+st+'</span>'; }" order-preview.html
 nochk "'<span class=\"mk-qt\"><span class=\"sr-only\"> · </span>'+esc(m[1])" order-preview.html
 chk 'TAG_OFF_1101' scripts/audit/flow-thread.mjs 1
+# ★[BRIDGE_FIRST_1101 2026-11-01 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?» · BGM 섹션] 이음말이 먼저, 새 곡은 그 뒤 —
+#   다음 순간 몫 이음말(b8 · b12 · b14)은 앞 소리로(그 순간만 듣기 = 음악 없이 · 이어 듣기 = 앞 곡 말 아래 크기) · 새 곡 뜸은 그 바로 뒤 줄(화면 음악 줄 자리 = BgmSlots.leadAt) ·
+#   당일 콘솔 segOfCue 도 이음말 큐에서 구간을 바꾸지 않는다. 브라우저 검사는 CI bgm-sound (c) 칸이 잰다.
+chk 'BRIDGE_FIRST_1101' scripts/audit/bridge-first.mjs 1
+chk 'BRIDGE_FIRST_1101' assets/bgm-slots.js 2
+chk 'BRIDGE_FIRST_1101' assets/bgm-bed.js 2
+chk 'BRIDGE_FIRST_1101' order-preview.html 2
+chk 'BRIDGE_FIRST_1101' console.html 6
+chk 'BRIDGE_FIRST_1101' scripts/audit/bgm-seg8.mjs 1
+chk "c.slug === 'bridge-b8-face-guests')); }" console.html 1
+chk 'duckTo(PRE_HOLD === i ? -90 : c.duck,' console.html 1
+chk 'if (nx && PRE_HOLD !== i && !postMusic(c)' console.html 1
+chk 'function leadAt(k, st, o)' assets/bgm-slots.js 1
+chk 'leadAt: leadAt,' assets/bgm-slots.js 1
+chk 'if(st._pre){ LPB.cheer=false;' assets/bgm-bed.js 1
+chk 'if(pv&&nx&&pv.k!==nx.k&&nx._pre){' assets/bgm-bed.js 1
+chk 'function _lPreMark(){' order-preview.html 1
+chk 'st._leadHere||(!st._pre&&' order-preview.html 1
+chk "_lPreMark(); if(_bedOn()) try{ BgmBed.lpGap(_pv,_nx,_gap); }catch(e){}" order-preview.html 1
+chk "if (/^bridge-(b8-face-guests|b12-tribute-calm|b14-candle-name)\$/.test(sl)) return '';" console.html 1
+chk '화촉 이음말(263) 뒤부터' assets/bgm-slots.js 1
+nochk '화촉 이음말(263)부터' assets/bgm-slots.js 0
+if command -v node >/dev/null 2>&1; then node scripts/audit/bridge-first.mjs >/dev/null 2>&1; _bfr=$?; if [ "$_bfr" = 1 ]; then echo 'FAIL bridge-first: 이음말 먼저 · 새 곡 뒤(그 순간만 · 이어 듣기 · 화촉 · 부모님께 인사 · 콘솔 · 화면 줄 자리 = 뜸 자리)가 어긋났습니다 — node scripts/audit/bridge-first.mjs'; fail=1; elif [ "$_bfr" = 2 ]; then echo 'skip bridge-first (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bridge-first'; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
