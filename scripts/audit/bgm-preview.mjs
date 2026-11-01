@@ -274,7 +274,7 @@ try {
     await pg.evaluate(() => { delete H.songs.B05; }); await f.evaluate(() => { delete BgmBed._t.BUF.B05; });
     await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 3500); const t5 = await ft();
     const ts = await f.evaluate(() => [...document.querySelectorAll('.mk-toast,.op-toast,[role="status"],[role="alert"]')].map((x) => (x.textContent || '').trim()).filter(Boolean).join(' | '));
-    ok('F7 못 받으면 ▶ 로 되돌림(차오름 · 안내 글 걷힘) · 알림 «곡을 준비하고 있어요»(GHIBLI_ADD_1101)', t5.st === '' && t5.pr === 'false' && !/\bld\b/.test(t5.cls) && !t5.note && /곡을 준비하고 있어요/.test(ts), { ...t5, ios: 0, ts });
+    ok('F7 못 받으면 ▶ 로 되돌림(차오름 · 불러오는 중 걷힘 · 줄 안 «못 불러왔어요» 3초 · ROW_FILL_PLAY 보탬) · 알림 «곡을 준비하고 있어요»(GHIBLI_ADD_1101)', t5.st === '' && t5.pr === 'false' && !/\bld\b/.test(t5.cls) && (!t5.note || t5.note === '못 불러왔어요') && /곡을 준비하고 있어요/.test(ts), { ...t5, ios: 0, ts });
     ok('F 오류 없음 · 가로 넘침 없음', !errs.length && !(await f.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
     await ctx.close(); }
   /* F8 미리 받기 — 곡 칸이 화면에 들어오면 그 구간 첫 곡(1순위)을 조용히 받아 둔다 · 받았으면 다시 안 받음 · 누르면 바로 */
