@@ -21638,4 +21638,6 @@ chk 'function listGo(step)' console.html 1   # [DETAIL_R5_1101 규칙 5] 목록 
 chk '다음 곡을 열지 못해 지금 곡을 이어 틀어요' console.html 1
 chk 'LPB.keep={}; if(CARD.f' assets/bgm-bed.js 1   # [DETAIL_R5_1101 규칙 6] 새로 듣기 · 순간 옮기기 = 처음
 nochk "lsCloseBig();setTimeout(function(){ opGoStep" order-preview.html 0   # [DETAIL_R4_1101 ⑥] 닫고 옮기기는 콜백으로만
+chk 'function rowLd(sg,f)' assets/bgm-bed.js 1   # [ROW_FILL_PLAY_1101 보탬] 누른 곡 줄 안 «불러오는 중»
+chk '.mk-pl,.mu-pl,.mu-pick,.mu-chg,.pk-link,.mk-hbtn,.op-chip{-webkit-tap-highlight-color:transparent}' order-preview.html 1   # [ROW_FILL_PLAY_1101 보탬] 아이폰 회색 네모
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

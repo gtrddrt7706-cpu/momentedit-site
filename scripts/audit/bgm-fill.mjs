@@ -127,6 +127,17 @@ try {
       const pk = await f.evaluate(() => { try { bedAct('pick', 'B33', 'guest', 'M1'); } catch (e) {} try { bedAct('pick', 'B14', 'table', 'M8'); } catch (e) {} return JSON.stringify(S.bgm || {}); });
       ok(`${W} ROW_FILL_PLAY 고르기(pick)로 배경 곡이 저장되지 않는다(그대로 PICKS 만)`, !/B33|B14/.test(pk), pk);
       await pg.evaluate(() => { (H.__rfp || []).forEach((x) => { H.have.splice(H.have.indexOf(x), 1); delete H.songs[x]; }); H.__rfp = []; }); await f.evaluate(() => { const A = BgmBed._t.AV; A.st = ''; A.set = {}; }); }
+    /* ★[ROW_FILL_PLAY_1101 보탬] 곡 받기가 늦으면 «불러오는 중»은 누른 곡 줄 안에 하나 · 목록 아래 줄 0 · 받으면 사라지고 ■ · 아이폰 탭 강조(네모 회색) 투명 */
+    { await setS(f, {}); await go(f, 'guest'); await wait(f, 500);
+      const fx = await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M1"] .mu-pl:not(.off)'); return b ? (/^bedp:M1:(.+)$/.exec(b.getAttribute('data-fk')) || [])[1] : ''; });
+      await f.evaluate((fx) => { delete BgmBed._t.BUF[fx]; }, fx); await pg.evaluate((fx) => { H.dly[fx] = 3000; }, fx);
+      await f.evaluate((fx) => { document.querySelector('.ls-bed[data-seg="M1"] [data-fk="bedp:M1:' + fx + '"]').click(); }, fx); await wait(f, 2000);
+      const ld = await f.evaluate((fx) => { const box = document.querySelector('.ls-bed[data-seg="M1"]'), row = box.querySelector('li.mu-row[data-f="' + fx + '"]'), l = row && row.querySelector('.mu-ld'), t = row && row.querySelector('.mu-t'), lr = l && l.getBoundingClientRect(), tr = t && t.getBoundingClientRect();
+        return { inRow: box.querySelectorAll('.mu-ld').length, mine: !!l && l.textContent === '불러오는 중' && l.getAttribute('role') === 'status', below: box.querySelectorAll('.bed-load').length, over: !!(lr && tr && tr.right > lr.left && tr.bottom > lr.top && tr.top < lr.bottom), tLines: t ? Math.round(t.getBoundingClientRect().height / 19.6) : 0,
+          tap: getComputedStyle(row.querySelector('.mk-pl')).webkitTapHighlightColor }; }, fx);
+      await wait(f, 2500); const done = await f.evaluate((fx) => { const box = document.querySelector('.ls-bed[data-seg="M1"]'); return { left: box.querySelectorAll('.mu-ld').length, on: box.querySelector('[data-fk="bedp:M1:' + fx + '"]').getAttribute('aria-pressed') }; }, fx);
+      await pg.evaluate((fx) => { delete H.dly[fx]; }, fx); await f.evaluate(() => { try { document.querySelector('.mu-pl.on').click(); } catch (e) {} });
+      ok(`${W} ROW_FILL_PLAY 보탬 — 늦은 곡: 누른 줄 안 «불러오는 중» 1 · 목록 아래 줄 0 · 제목과 안 겹침 · 받으면 사라지고 ■ · 탭 강조 투명`, !!fx && ld.inRow === 1 && ld.mine && ld.below === 0 && !ld.over && done.left === 0 && done.on === 'true' && /rgba\(0, 0, 0, 0\)|transparent/.test(ld.tap), { fx, ld, done }); }
     /* d 파일이 없을 때 — 화촉 1 · 2(B05 · B31)는 드라이브에 없다 */
     await setS(f, { M2: { k: 'B31' } }); await go(f, 'candle'); await wait(f, 600);
     const d1 = await f.evaluate(() => ({ at: BgmBed._t.songAt ? BgmBed._t.songAt('candle') : '', ft: ((document.querySelector('.ls-bed[data-seg="M2"] .mu-fsel .mu-t') || {}).textContent || '') }));

@@ -407,7 +407,7 @@
   function card(f,k,sg){ var tk=++CARD.tk; unlock();
     CARD.f=f; CARD.sg=sg||''; CARD.st='load'; CARD.at=Date.now(); CARD.slow=false; repaint();
     setTimeout(function(){ if(tk===CARD.tk&&CARD.st==='load'){ CARD.slow=true; repaint(); } },LOAD_MS);
-    want(f,function(b,ec){ if(tk!==CARD.tk) return; CARD.slow=false; if(!b){ CARD.f=''; CARD.st=''; repaint(); toast1(ec==='L3'?'곡을 준비하고 있어요':'곡을 불러오지 못했어요 (코드 '+(ec||'L4')+')'); return; }   /* L3 = 드라이브에 아직 없는 곡 */
+    want(f,function(b,ec){ if(tk!==CARD.tk) return; CARD.slow=false; if(!b){ ldFail(f,sg); CARD.f=''; CARD.st=''; repaint(); toast1(ec==='L3'?'곡을 준비하고 있어요':'곡을 불러오지 못했어요 (코드 '+(ec||'L4')+')'); return; }   /* L3 = 드라이브에 아직 없는 곡 */
       var a=ctx(); if(!a){ cardFail(); return; }   /* [ROW_FILL_PLAY_1101 · DETAIL_R4_1101 ⑤] 소리 길이 없으면 ▶ 로 되돌리고 한 줄 */
       if(BED.who==='lp'||BED.cur.src) hushAll(300); BED.who='card'; var s0=P.byF(f), at=(s0&&s0.start!=null)?Math.max(0,+s0.start-SOLO.pre):0, v=Voice();
       try{ if(a.state==='suspended') a.resume(); v.src=a.createBufferSource(); v.src.buffer=b; v.src.loop=false; v.g=a.createGain(); v.g.gain.value=0.00003;
@@ -418,7 +418,7 @@
         var left=Math.max(0.2,b.duration-off); v.g.gain.setValueAtTime(G,now+Math.max(SOLO.fade/1000,left-SOLO.fade/1000)); v.g.gain.linearRampToValueAtTime(0.00003,now+left);
         v.src.onended=function(){ if(tk===CARD.tk&&BED.cur===v) stopCard(); }; }catch(x){ cardFail(); return; }   /* [ROW_FILL_PLAY_1101 · DETAIL_R4_1101 ⑤] 시작을 못 하면 ▶ 로 되돌리고 한 줄 */
       BED.cur=v; CARD.st='play'; repaint(); }); }   /* [DETAIL_R4_1101 ⑤] 소리가 실제로 시작된 뒤에 ■ */
-  function cardFail(){ CARD.f=''; CARD.sg=''; CARD.st=''; if(BED.who==='card') BED.who=''; repaint(); toast1('재생하지 못했어요 · 다시 눌러 주세요'); }
+  function cardFail(){ ldFail(CARD.f,CARD.sg); CARD.f=''; CARD.sg=''; CARD.st=''; if(BED.who==='card') BED.who=''; repaint(); toast1('재생하지 못했어요 · 다시 눌러 주세요'); }
 
   /* ★★[MUSIC_FOLD_1031 2026-10-31 사장님 시안 «1 · 음악만 접기» 고름] 곡을 «직접» 골라 둔 구간은 그 순간 쪽에 «새로 들어올 때»(쪽 옮김 · 화면 열기 · 다시 열기) 한 줄로 접는다 —
      접힌 줄 = (마이페이지 안이면 그 곡 ▶) + 곡 이름 · 아랫줄 + 오른쪽 «바꾸기»(밑줄 글 단추 · .pk-link 색 · LINK_GOLD_1031) · 아래 «준비해요» 한 줄은 펼쳤을 때만.
@@ -435,6 +435,11 @@
     if(ld){ w=' wfill ld'; st=' style="--d:'+WAIT_D+'s;--dl:-'+Math.max(0,(Date.now()-(CARD.at||Date.now()))/1000).toFixed(2)+'s"'; }
     return '<button type="button" class="mk-pl mu-pl'+(pl?' on':'')+w+(miss&&!pl?' off':'')+'"'+st+' data-fk="bedp:'+sg+':'+p.f+'" aria-pressed="'+pl+'"'+(ld?' aria-busy="true"':'')+(miss&&!pl?' aria-disabled="true"':'')+' aria-label="'+e(p.t)+(ld?' 불러오는 중':pl?' 멈추기':' · 곡만 듣기')+'" onclick="bedAct(\'prev\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')">'+(pl&&!ld?ico('stop'):ico('play'))+'</button>'; }
   function loadNote(sg){ return (CARD.sg===sg&&CARD.st==='load'&&CARD.slow)?'<p class="bgm-note bed-load" role="status">곡을 불러오는 중이에요</p>':''; }
+  /* ★[ROW_FILL_PLAY_1101 보탬 · 사장님 «곡을 불러오는 중이에요 를 노래 우측 빈 공간에»] 누른 곡 줄 안 오른쪽에 짧게 — 목록 아래 한 줄(loadNote)은 곡 줄 칸에서 그리지 않는다 · 못 받으면 같은 자리 «못 불러왔어요» 3초 ·
+       자리가 모자라면(제목이 길다) 가수 줄 오른쪽 끝으로(ldFit · 제목을 줄이거나 줄바꿈시키지 않는다) */
+  function rowLd(sg,f){ if(CARD.sg===sg&&CARD.f===f&&CARD.st==='load'&&CARD.slow) return '<span class="mu-ld" role="status">불러오는 중</span>'; if(CARD.ff===f&&CARD.fs===sg&&Date.now()<(CARD.ft||0)) return '<span class="mu-ld fail" role="status">못 불러왔어요</span>'; return ''; }
+  function ldFail(f,sg){ CARD.ff=f; CARD.fs=sg||''; CARD.ft=Date.now()+3000; setTimeout(function(){ if(CARD.ff===f&&Date.now()>=CARD.ft){ CARD.ff=''; repaint(); } },3050); }
+  function ldFit(){ try{ D.querySelectorAll('.mu-row .mu-ld').forEach(function(l){ var r=l.parentNode, t=r&&r.querySelector('.mu-t'); if(!t) return; l.classList.remove('low'); var a=t.getBoundingClientRect(), b=l.getBoundingClientRect(); if(a.right>b.left-6&&a.bottom>b.top&&a.top<b.bottom) l.classList.add('low'); }); }catch(x){} }
   /* ★★[LIST_NO_PICK_1101 2026-11-01 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] 목록 칸(하객 맞이 M1 · 테이블 인사 M8)은 고르는 칸이 아니라 «이런 곡들이 흘러요» 안내 칸 —
        이름표 아래 한 줄(12.5px · --sub) + 재생 차례대로 곡 줄 전부(BgmPicks.order · 당일 콘솔과 같은 함수 · 3곡 + fill · 다른 구간에서 고른 곡은 빠진다) · 줄 = ▶(곡 카드 · 음악만) + 제목 · 가수 ·
        고르기 · 선택 표시 · «바꾸기» · 접힌 한 줄 없음 · ★BGM_FILL_1101 의 순서 화살표 두 줄(bed-ord)은 이 목록이 대신해 걷었다 — 되살리지 말 것 */
@@ -443,15 +448,15 @@
   function listRoHtml(sg,k){ var o=ordOf(sg), cl=carryLine(sg);   /* [CARRY_SAME_1101] 앞 순간 곡이 이 목록에 있으면 맨 앞 · 그 줄 아래 한 줄 */
     var h='<p class="bgm-note bed-info">'+e(INFO[sg]||'아래 곡들이 차례로 흘러요')+'</p><ul class="mu-list mu-ro" aria-label="'+e(labelOf(sg)+' 음악 · 흐르는 차례')+'">';
     o.forEach(function(f){ var p=P.byF(f); if(!p) return; var pl=CARD.f===f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[f];
-      h+='<li class="mu-row" data-f="'+e(f)+'">'+(emb()?plBtn(sg,k,p,pl,miss):'')+'<span class="mu-info"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span>'+((cl&&f===o[0])?'<span class="bed-carry">'+cl+'</span>':'')+((f===o[0])?subLine(sg,'span'):'')+'</span></li>'; });
+      h+='<li class="mu-row" data-f="'+e(f)+'">'+(emb()?plBtn(sg,k,p,pl,miss):'')+'<span class="mu-info"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span>'+((cl&&f===o[0])?'<span class="bed-carry">'+cl+'</span>':'')+((f===o[0])?subLine(sg,'span'):'')+'</span>'+rowLd(sg,f)+'</li>'; });
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[DETAIL_R4_1101 ⑦] 안내 칸(하객 맞이 · 테이블)도 빈 목록이면 한 줄 + 다시 불러오기 — 종전엔 ▶ 다섯이 흐려지기만 했다 */
-    return h+'</ul>'+loadNote(sg)+(none?'<p class="bgm-note bed-av">곡 목록을 불러오지 못했어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>'); }
+    return h+'</ul>'+(none?'<p class="bgm-note bed-av">곡 목록을 불러오지 못했어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>'); }
   function dupHtml(sg){ if(carried(sg)) return ''; var pv=P.dupSeg?P.dupSeg(St(),sg,segOn):'';   /* [DETAIL_R3_1101 ⑧] 담긴 순간만 · 화면 한 줄은 두 분이 고른 곡 기준(파일이 없어 대체곡이 흘러도 두 분 선택은 그대로 보인다) */ return pv?'<p class="bgm-note bed-dup">'+e(labelOf(pv))+'에서도 고른 곡이에요</p>':''; }
   function foldHtml(sg,k,s){ var gl=labelOf(sg)+' 음악', pl=CARD.f===s.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[s.f];
     return '<div class="mu-fold1">'
       +(emb()?plBtn(sg,k,s,pl,miss):'')
       +'<div class="mu-fsel"><span class="mu-t">'+e(s.t)+'</span><span class="mu-a">'+e(s.a||'')+'</span></div>'
-      +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+subLine(sg)+longLine(sg)+(carried(sg)?'<p class="bgm-note bed-carry">'+carryLine(sg)+'</p>':'')+dupHtml(sg)+loadNote(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
+      +rowLd(sg,s.f)+'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+subLine(sg)+longLine(sg)+(carried(sg)?'<p class="bgm-note bed-carry">'+carryLine(sg)+'</p>':'')+dupHtml(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
 
   /* ── 화면 — 곡 목록 · 아래 한 줄 ── */
   /* ★[SONG_ROW_LINES_1101 사장님 «이건 삭제해도 될 것 같아»] 곡 칸 아래 «고르지 않으시면 ‹1순위›로 준비해요 · ‹곡›부터 이어서 틀어요» 를 걷었다 — ✓ 표시로 충분 · «고르지 않으시면 ‹1순위›»는 한눈에 보기 요약(sumOf)에만.
@@ -463,9 +468,9 @@
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
       h+='<li class="mu-row'+(on?' on':'')+'">'
         +(emb()?plBtn(sg,k,p,pl,miss):'')
-        +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></button></li>'; });   /* ★[SONG_ROW_PLAIN_1101 사장님 «제목 가수만 나오면 될 거 같아»] 곡 줄은 제목 · 가수(연주자)만 — «노래» · 판(src) · 분위기 한 줄(why)은 화면에서 뺐다(데이터는 bgm-picks.js 그대로 · 콘솔 설정 화면 그대로) · 가사 있는 곡 안내는 고른 뒤 아래 한 줄이 맡는다 */
+        +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></button>'+rowLd(sg,p.f)+'</li>'; });   /* ★[SONG_ROW_PLAIN_1101 사장님 «제목 가수만 나오면 될 거 같아»] 곡 줄은 제목 · 가수(연주자)만 — «노래» · 판(src) · 분위기 한 줄(why)은 화면에서 뺐다(데이터는 bgm-picks.js 그대로 · 콘솔 설정 화면 그대로) · 가사 있는 곡 안내는 고른 뒤 아래 한 줄이 맡는다 */
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[BED_EMPTY_RELIST_1031 식순 걷기 3라운드 3] 들어 볼 곡이 하나도 없다고 받았으면 한 줄 + 다시 불러오기(입장 추천 곡과 같게) */
-    return h+'</ul>'+subLine(sg)+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':'')+dupHtml(sg); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
+    return h+'</ul>'+subLine(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':'')+dupHtml(sg); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h=''; setTimeout(pfScan,0);   /* [SONG_CARD_TAP_1101] 그려진 뒤 곡 칸을 지켜본다 */
     CUST.forEach(function(sg){ if(chooser(sg)!==k) return; var gl=labelOf(sg.id)+' 음악'; list();
@@ -496,7 +501,7 @@
       PF.io=new IntersectionObserver(function(es){ es.forEach(function(en){ var sg=en.target.getAttribute('data-seg'); if(!sg) return; if(en.isIntersecting) PF.vis[sg]=1; else delete PF.vis[sg]; }); pfNext(); },{ rootMargin:'120px 0px' }); }
     D.querySelectorAll('.ls-bed[data-seg]').forEach(function(el){ if(el.__pf) return; el.__pf=1; PF.io.observe(el); }); pfNext(); }
   D.addEventListener('pointerdown',function(ev){ try{ var b=ev.target&&ev.target.closest&&ev.target.closest('.mu-pl[data-fk^="bedp:"]'); if(!b) return; var m=/^bedp:([^:]+):(.+)$/.exec(b.getAttribute('data-fk')||''); if(m&&has(m[2])&&!BUF[m[2]]) want(m[2]); }catch(x){} },true);
-  function repaint(){ setTimeout(pfScan,0); D.querySelectorAll('.ls-bed[data-seg],.bed-sub[data-seg]').forEach(function(box){ var sg=box.getAttribute('data-seg'), k=box.getAttribute('data-k'), ae=D.activeElement, fk=(ae&&box.contains(ae))?ae.getAttribute('data-fk'):null;
+  function repaint(){ setTimeout(pfScan,0); setTimeout(ldFit,0); D.querySelectorAll('.ls-bed[data-seg],.bed-sub[data-seg]').forEach(function(box){ var sg=box.getAttribute('data-seg'), k=box.getAttribute('data-k'), ae=D.activeElement, fk=(ae&&box.contains(ae))?ae.getAttribute('data-fk'):null;
       var tgt=box.classList.contains('bed-sub')?box:box.querySelector('.bed-box'); if(!tgt) return; tgt.innerHTML=listHtml(sg,k);
       if(fk){ var f=box.querySelector('[data-fk="'+fk+'"]'); if(f) try{ f.focus({preventScroll:true}); }catch(x){} } });
     try{ if(typeof _mpPaint==='function') _mpPaint(); }catch(x){} }
