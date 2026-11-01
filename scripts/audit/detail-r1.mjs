@@ -102,7 +102,7 @@ try {
   /* ③ 멈춤 → 이어 듣기 */
   { await go(f, 'welcome'); const r0 = await run(f, ['welcome'], 7500);
     const z = await f.evaluate(async () => { const B = BgmBed._t; lsToggle(); await new Promise((x) => setTimeout(x, 1600)); const pz = B.pz ? B.pz() : null, gone = !B.BED.cur.src || B.BED.cur.want <= -60;
-      lsToggle(); await new Promise((x) => setTimeout(x, 120)); const v = B.BED.cur, st = LP.q[LP.i], tgt = B.lvOf(st, v.f), a = { f: v.f, src: !!v.src, off: v.off, want: v.want, tgt };
+      lsToggle(); await new Promise((x) => setTimeout(x, 120)); const v = B.BED.cur, st = LP.q[LP.i], tgt = LP.leadSt ? pz.want : B.lvOf(st, v.f), a =   /* [DETAIL_R2_1101 ④] 뜸 중에 멈췄으면 남은 뜸부터 — 그 크기(멈출 때 크기)로 */ { f: v.f, src: !!v.src, off: v.off, want: v.want, tgt };
       await new Promise((x) => setTimeout(x, 650)); a.g = v.g ? v.g.gain.value : null; a.gt = B.gfOf(tgt); return { pz, gone, a }; });
     await stop(f);
     ok('③ 멈추면 곡 · 자리 · 크기를 적고 잦아든다 · 이어 들으면 그 곡 그 자리에서 지금 줄 크기로 0.6초 안에', !!z.pz && z.gone && z.a.src && z.a.f === z.pz.f && Math.abs(z.a.off - z.pz.pos) < 0.4 && z.a.want === z.a.tgt && Math.abs(z.a.g - z.a.gt) / z.a.gt < 0.08, { z, r0: r0.length }); }

@@ -191,8 +191,8 @@ try {
       ok(`${W} D2 한 파일 — 축사 칸 B13 곡 카드는 하객 맞이에서 받은 그 파일(다시 묻지 않는다 · key bed:B13 한 번)`, before === 1 && after === before + (held ? 0 : 1) && d2.f === 'B13' && d2.who === 'card' && d2.p === 'true', { before, after, held, d2 });
       await f.click('[data-fk="bedp:M4S5:B13"]'); await wait(f, 300);
     }
-    const b8 = await listen(f, 'free', 9000); const t8 = b8.filter((x) => x.talk && x.src), n8 = b8.filter((x) => !x.talk && x.src);
-    ok(`${W} 6 축사 «음악과 함께» — 곡 B13 · 말씀 동안 −20`, t8.length && t8.every((x) => x.want === -20 && x.f === 'B13') && n8.every((x) => x.f === 'B13'), { t8: t8.slice(0, 2), n8: n8.slice(0, 2) });
+    const b8 = await listen(f, 'free', 9000); const t8a = b8.filter((x) => x.talk && x.src), i8 = t8a.length ? t8a[0].i : 99, t8 = t8a.slice(5), n8 = b8.filter((x) => !x.talk && x.src && x.i < i8);   /* 말씀 줄 첫 0.5초는 곡이 바뀌는 자리(3초 겹침이 시작) */   /* [DETAIL_R2_1101 ①] 여는 말은 본식 곡(M4) · 말씀부터 고른 곡 */
+    ok(`${W} 6 축사 «음악과 함께» — 여는 말은 본식 곡(B09) · 말씀부터 곡 B13 · 말씀 동안 −20`, t8.length && t8.every((x) => x.want === -20 && x.f === 'B13') && n8.every((x) => x.f === 'B09'), { t8: t8.slice(0, 2), n8: n8.slice(0, 2) });
     /* D4 [R1-1] 초안이 통째로 바뀌면 칩 기억도 비운다 */
     await f.click('[data-fk="bgm:S5:none"]'); await wait(f, 200); await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 200);
     await f.evaluate(() => { S = JSON.parse(JSON.stringify(S)); if (S.bgm) { delete S.bgm.S5; delete S.bgm.S6; } render(); }); await go(f, 'free'); await wait(f, 300);
@@ -200,7 +200,7 @@ try {
     ok(`${W} D4 [R1-1] 초안이 바뀌면(저장에 «음악과 함께» 없음) 축사 칩은 안 눌린 모양으로`, d4.length === 2 && d4.every((v) => v === 'false'), d4);
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 300);
     await go(f, 'letter'); await f.click('[data-fk="bgm:S6:bed"]'); await wait(f, 300); await f.click('[data-fk="bed:M4S6:B12"]'); await wait(f, 300);
-    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src);
+    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5);   /* [DETAIL_R2_1101 ①] 낭독 줄 첫 0.5초는 곡이 바뀌는 자리 */
     ok(`${W} 6 편지 «음악과 함께» + 곡 고름 — S.bgm.S6 = { m:bed, k:B12 } · 낭독 동안 −20 · 곡 B12`, t9.length && t9.every((x) => x.want === -20 && x.f === 'B12') && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed' && S.bgm.S6.k === 'B12')), t9.slice(0, 2));
     /* 7 곡 없는 구간 */
     await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 4000);

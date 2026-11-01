@@ -20604,7 +20604,7 @@ chk 'KNOBS_1031' assets/narration-pad.js 1
 chk 'KNOBS_1031' scripts/audit/knobs.mjs 1
 chk 'knobs' .github/workflows/merge-guard.yml 1
 chk '_gap = NarrPad.gap(c.file, nx.file, _gap);' console.html 1
-chk 'function lpDeclare(st,f)' assets/bgm-bed.js 1
+chk 'function lpDeclare(st,f' assets/bgm-bed.js 1
 chk 'function lpTail(st,nx)' assets/bgm-bed.js 1   # [BGM_TIMING_1101] 다음 줄을 받는다
 if command -v python3 >/dev/null 2>&1; then if python3 scripts/build-narration-pad.py --check >/dev/null 2>&1; then echo 'ok narration-pad'; else echo 'FAIL narration-pad: 나레이션 파일이 바뀌었는데 무음 표가 그대로입니다 — python3 scripts/build-narration-pad.py (miniaudio)'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/knobs.mjs >/dev/null 2>&1; _knc=$?; if [ "$_knc" = 1 ]; then echo 'FAIL knobs: 쉼 · 선언 앞 · 편지 끝 연출이 어긋났습니다 — node scripts/audit/knobs.mjs'; fail=1; elif [ "$_knc" = 2 ]; then echo 'skip knobs (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok knobs'; fi; fi
@@ -20730,6 +20730,15 @@ chk 'if(BUF\[ENT_F\]!==o||ENT.turn!==tk) return;' assets/bgm-bed.js 1   # [DETAI
 chk 'function swapSrc(v,b,at,f)' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ⑧] 짧은 판 겹쳐 잇기
 chk 'DETAIL_R1_1101' scripts/audit/detail-r1.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r1.mjs >/dev/null 2>&1; _r1=$?; if [ "$_r1" = 1 ]; then echo 'FAIL detail-r1: 이어 듣기 세부 아홉(대신 흐르는 곡 · 늦은 목록 · 멈춤 이어 듣기 · 여운 · 식전 영상 · 걷는 줄 · 입장 곡 경합 · 짧은 판 · 닫는 인사) — node scripts/audit/detail-r1.mjs'; fail=1; elif [ "$_r1" = 2 ]; then echo 'skip detail-r1 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r1'; fi; fi   # ★[DETAIL_R1_1101]
+chk 'function lpDeclare(st,f,re)' assets/bgm-bed.js 1   # ★[DETAIL_R2_1101 ③] 선언 · 곡이 늦으면 온 때부터 연출 · 8초 넘으면 정적 2.5초 → 멘트
+chk 'function lpPauseLead(st)' assets/bgm-bed.js 1   # [DETAIL_R2_1101 ④] 연출 중 멈춤 → 남은 연출부터
+chk 'function stopListen()' assets/bgm-bed.js 1   # [DETAIL_R2_1101 ②] 듣는 중 곡 칩을 바꾸면 1.5초에 멈춤
+chk 'BgmBed.stopListen' assets/bgm-form.js 2   # [DETAIL_R2_1101 ②]
+chk '하객이 박수로 축하해요' order-preview.html 2   # [DETAIL_R2_1101 ⑤] 축가 → 다음 순간 박수 줄 3초
+chk 'q0.k!==st.k&&q0.k!==nk' assets/bgm-bed.js 1   # [DETAIL_R2_1101 ⑥] 편지 끝 늦은 곡 = 순간 확인
+chk 'BgmBed.turn) BgmBed.turn();' order-preview.html 2   # [DETAIL_R2_1101 ⑥] 순간 옮기기 · 새 듣기 = 새 차례
+chk 'DETAIL_R2_1101' scripts/audit/detail-r2.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r2.mjs >/dev/null 2>&1; _r2=$?; if [ "$_r2" = 1 ]; then echo 'FAIL detail-r2: 이어 듣기 세부 여섯(음악과 함께 뜸 자리 · 칩 바꾸면 멈춤 · 선언 늦은 곡 · 연출 멈춤 · 박수 줄 · 편지 끝 경합) — node scripts/audit/detail-r2.mjs'; fail=1; elif [ "$_r2" = 2 ]; then echo 'skip detail-r2 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r2'; fi; fi   # ★[DETAIL_R2_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/daylong.mjs >/dev/null 2>&1; _dl=$?; if [ "$_dl" = 1 ]; then echo 'FAIL daylong: 감사 인사 ~ 덕담 · 닫는 인사가 한 곡만 오래 반복됩니다(이어 트는 목록 · 한 줄 · 콘솔 다음 곡) — node scripts/audit/daylong.mjs'; fail=1; elif [ "$_dl" = 2 ]; then echo 'skip daylong (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok daylong'; fi; fi   # ★[DAYLONG_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/carry-same.mjs >/dev/null 2>&1; _cs=$?; if [ "$_cs" = 1 ]; then echo 'FAIL carry-same: 이어지는 두 순간에 같은 곡이 있는데 다시 시작하거나 다른 곡으로 넘어갑니다 — node scripts/audit/carry-same.mjs'; fail=1; elif [ "$_cs" = 2 ]; then echo 'skip carry-same (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok carry-same'; fi; fi   # ★[CARRY_SAME_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-under.mjs >/dev/null 2>&1; _eun=$?; if [ "$_eun" = 1 ]; then echo 'FAIL entry-under: 입장 · 맞절 듣기에서 곡이 멘트 도중 끊깁니다(판 끝 이음 · 장면 넘김 · 남아야 할 길이) — node scripts/audit/entry-under.mjs'; fail=1; elif [ "$_eun" = 2 ]; then echo 'skip entry-under (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-under'; fi; fi   # ★[ENTRY_UNDER_1101]
@@ -21460,7 +21469,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing carry-same'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
