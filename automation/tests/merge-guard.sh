@@ -21135,7 +21135,27 @@ chk "'비워 두셔도 돼요 · 지금은 참고 예시'" order-preview.html 1
 chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.html 1
 chk '_rf={free:4}\[k\]' order-preview.html 1
 chk "예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요" order-preview.html 1
-chk 'PRACTICE_WALK_1101' order-preview.html 15
+chk 'PRACTICE_WALK_1101' order-preview.html 19
+# ── 2026-11-01 [PRACTICE_WALK_R2 검토 188 · 실사이트 네 코스 GPT 2라운드] ③ 연습하기 — 위치와 방향 나누기 · 이동 줄 뒤에 위치 표시 · 부모님 앞 / 테이블에서 «먼저 앞쪽 중앙으로» · 양가 모두 · 선언 · 덕담 요약 · 예시 안내 통일 · «연습 / 당일» 시간 · 축배 두 줄
+chk "var FG_POS={guest:'wait',prevideo:'wait',candle:'wait',entry:'walk',tribute:'parents',table:'tables'};" order-preview.html 1
+chk "FG_NOW={walk:'입장 문 앞에서 출발 대기'}" order-preview.html 1
+chk 'function _fgCardPos(q,i)' order-preview.html 1
+chk "'먼저 앞쪽 중앙으로 돌아와요 → 이어서 두 분이 함께 '" order-preview.html 1
+chk "'이동 안내가 나오면 함께 가요'" order-preview.html 1
+chk "'하객을 바라보며 '" order-preview.html 1
+chk "'양가 부모님 모두께 인사해요 · 집에서는 양쪽 방향을 정해 두 번 다 해 보세요'" order-preview.html 1
+chk "'두 분이 양가 부모님 모두와 차례로 안아요 · 부모님은 편한 자세로 계셔도 돼요'" order-preview.html 1
+chk "(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요'" order-preview.html 1
+chk "문장 틀은 참고하되 이름 · 관계 · 경험은 " order-preview.html 2
+chk "'<span>연습 약 '+_mins+'분" order-preview.html 1
+chk "'당일 약 '+Math.max(1" order-preview.html 1
+chk "'당일 예상 · 본식 '+p.body" order-preview.html 1
+chk "txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요'" order-preview.html 1
+chk "txt:'하객의 화답을 기다리며 두 분도 함께 잔을 들어요'" order-preview.html 1
+chk 'PRACTICE_WALK_R2' order-preview.html 10
+nochk "그대로 써도 좋고, '+(st.refDay" order-preview.html
+nochk "어느 쪽부터 갈지는 리허설 때 디렉터와 정해요" order-preview.html
+nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.html
 # [BALL_BOW_1101 검토 186-1] 맞절 = 무도회 맞절(빌더 줄 · 콘솔 live · 이야기 장면 · AI 상담) · «3초 숙이고 · 3초 멈추고 · 3초 일어나기» 걷음
 chk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 1
 chk '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)' assets/ritual-cue.js 1
