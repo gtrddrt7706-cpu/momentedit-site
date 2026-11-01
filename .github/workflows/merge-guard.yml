@@ -67,7 +67,8 @@ jobs:
       fail-fast: false
       matrix:
         part:
-          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold entry-carry' }   # [ENTRY_CARRY_1101]
+          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold' }
+          - { name: c, tests: 'entry-carry bridge-first' }   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] 입장 · 이음말 차례 검사(a 칸이 20분에 가까워 나눔)
           - { name: b, tests: 'listen-pace knobs' }
     name: bgm-sound (${{ matrix.part.name }})
     steps:
