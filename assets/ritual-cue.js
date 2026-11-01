@@ -265,7 +265,10 @@
     'guest-w-5m-online', 'guest-w-1m', 'guest-w-1m-online',
     /* ★★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»] 317 ~ 324 — 촬영 후 안내(진희 · 작가님이 촬영을 마치면 재생) ·
        317 · 318 식사 없음(± 하객 안내) · 319 · 320 카페 · 다과만(± 하객 안내) · 321 · 322 식사 · 예약 시각 있음(± 하객 안내) · 323 · 324 식사 · 예약 시각 없음(± 하객 안내) */
-    'after-photo', 'after-photo-guide', 'after-photo-cafe', 'after-photo-cafe-guide', 'after-photo-resv-guide', 'after-photo-resv', 'after-photo-meal-guide', 'after-photo-meal'
+    'after-photo', 'after-photo-guide', 'after-photo-cafe', 'after-photo-cafe-guide', 'after-photo-resv-guide', 'after-photo-resv', 'after-photo-meal-guide', 'after-photo-meal',
+    /* ★★[CLOSING_CHEER_195 검토 195 · 사장님 23:13 «좋아»] 325 ~ 328 — 닫는 멘트 칩 «다정하게»(186 · «응원 많이 해 주시기 바랍니다»)를 고른 날의 마무리 멘트 ·
+       새 응원 문장(CL_CHEER)이 칩의 응원 부탁과 겹쳐 뺀 판 = 옛 292 · 293 · 295 · 296 글 그대로(새 녹음 0 · 창고 문장 이어 붙임) · 카페만 + 하객 안내 없음은 남는 문장 0 이라 판이 없다 */
+    'narr-closing-nt-nc', 'narr-closing-guide-nt-nc', 'narr-closing-soft-guide-nt-nc', 'narr-closing-meal-nt-nc'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -406,14 +409,22 @@
   /* ★[CLOSING_NO_CREW_1031 검토 179 덧 · 사장님 실청 21:55 «굳이 이런 멘트 없이 작가님이 자연스럽게 안내»] 44 «여기서부터는 작가님이 안내해 드립니다.»는 마무리에서 뺐다 — 되살리지 말 것(44 녹음 · 파일은 옛 코스가 그대로 쓴다 · clip-status legacy)
        CL_CREW 는 쉬는 294(그 판에 남은 문장이 44 하나뿐이라 RETIRED)의 녹음 기록으로만 남는다 — 살아 있는 판에 넣지 않는다 */
   var CL_CREW = ['진행', EXTRA['end-0-photo'], '44_end-0-photo#0', '9/6 설계한 넘김 말 · 검토 179 덧(사장님 실청 21:55)으로 마무리에서 뺐다 · 294 녹음 기록'];
+  /* ★★[CLOSING_CHEER_195 검토 195 · 사장님 23:13 «좋아» · 검토 189 후보에서 고름] 응원 한 문장(진희 새 녹음) — 감사 문장 뒤 · «남은 하루 …» 앞 · 감사 없이 시작하는 판(-nt)은 맨 앞 ·
+       닫는 멘트 칩이 이미 응원을 부탁하는 날(«다정하게» 186 «… 응원 많이 해 주시기 바랍니다»)은 같은 부탁이 겹쳐 빼고(-nt-nc · 325 ~ 328) · 칩 넷 판별: 담백하게(108) · 잔잔하게(185 «행복하길 바라면서»는 바람이지 부탁이 아니다) · 격식 있게(187) = 넣음 / 다정하게(186) = 뺌 */
+  var CL_CHEER = ['안내', '두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.', null, '검토 189 자료 후보 · 사장님 확정(검토 195 · 23:13)'];
+  var CLOSE_CHEER_EX = { 'narr-close-bow-ex3': 1 };   /* [CLOSING_CHEER_195] 칩 글에 이미 응원 부탁이 있는 칩 — 새 칩을 더하면 여기도 본다 */
   var CLOSING_PARTS = {
-    'narr-closing': [CL_THX, CL_DAY], 'narr-closing-guide': [CL_THX, CL_DAY, CL_UP],
-    'narr-closing-soft': [CL_THX], 'narr-closing-soft-guide': [CL_THX, CL_UP],
-    'narr-closing-meal': [CL_THX].concat(CL_MEAL, [CL_UP_MEAL]),   /* [CLOSING_MEAL_DUP] */
-    /* [CLOSING_SRC_1031] 닫는 멘트 칩 186 · 187 을 고른 날 — 47#0(감사) 없이 */
-    'narr-closing-nt': [CL_DAY], 'narr-closing-guide-nt': [CL_DAY, CL_UP],
-    'narr-closing-soft-nt': [CL_CREW], 'narr-closing-soft-guide-nt': [CL_UP],   /* [CLOSING_NO_CREW_1031] 식사 · 카페만 + 하객 안내 없음 + 감사 칩 = 44 를 빼면 남는 문장 0 → 마무리 멘트 없이 작가님 촬영(294 는 쉰다 · RETIRED · 이 줄은 그 녹음 기록) */
-    'narr-closing-meal-nt': CL_MEAL.concat([CL_UP_MEAL])   /* [CLOSING_MEAL_DUP] */
+    'narr-closing': [CL_THX, CL_CHEER, CL_DAY], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_DAY, CL_UP],
+    'narr-closing-soft': [CL_THX, CL_CHEER], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP],
+    'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL]),   /* [CLOSING_MEAL_DUP] */
+    /* [CLOSING_SRC_1031] 닫는 멘트 칩 187 «격식 있게»를 고른 날 — 47#0(감사) 없이 · [CLOSING_CHEER_195] 응원 문장이 맨 앞 */
+    'narr-closing-nt': [CL_CHEER, CL_DAY], 'narr-closing-guide-nt': [CL_CHEER, CL_DAY, CL_UP],
+    'narr-closing-soft-nt': [CL_CHEER], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
+    'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL]),   /* [CLOSING_MEAL_DUP] */
+    /* [CLOSING_CHEER_195] 칩 186 «다정하게»를 고른 날 — 감사 없이 · 응원 없이(옛 292 · 293 · 295 · 296 글 그대로) */
+    'narr-closing-nt-nc': [CL_DAY], 'narr-closing-guide-nt-nc': [CL_DAY, CL_UP],
+    'narr-closing-soft-guide-nt-nc': [CL_UP],
+    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL])
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 하객 맞이 · 촬영 후 안내 문장 창고 — 줄 하나 = [줄 주인 · 문장 · 빌려 오는 녹음 · 자료 판정] (CLOSING_PARTS 와 같은 모양) ·
@@ -465,7 +476,7 @@
   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 칩 186 · 187(«진심으로 감사»)을 고른 날은 «-nt»(47#0 없이) — 108 · 185 를 고른 날은 그대로 */
   var CLOSE_THANKS_EX = { 'narr-close-bow-ex3': 1, 'narr-close-bow-ex4': 1 };
   function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-closing-meal' : S.meal ? (S.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (S.guide ? 'narr-closing-guide' : 'narr-closing');
-    var ex = ''; try { ex = (O.narExCue && O.narExCue(S, 'narr-close-bow')) || ''; } catch (e) { ex = ''; } var k = CLOSE_THANKS_EX[ex] ? b + '-nt' : b; return RETIRED[k] ? '' : k; }   /* [CLOSING_NO_CREW_1031] 쉬는 판(294 · 남는 문장 0)은 '' = 마무리 멘트 큐 없음 */
+    var ex = ''; try { ex = (O.narExCue && O.narExCue(S, 'narr-close-bow')) || ''; } catch (e) { ex = ''; } var k = CLOSE_THANKS_EX[ex] ? b + (CLOSE_CHEER_EX[ex] ? '-nt-nc' : '-nt') : b; return (RETIRED[k] || !CLOSING_PARTS[k]) ? '' : k; }   /* [CLOSING_CHEER_195] 186 + 카페만 + 하객 안내 없음 = 판 없음(남는 문장 0) */   /* [CLOSING_NO_CREW_1031] 쉬는 판(294 · 남는 문장 0)은 '' = 마무리 멘트 큐 없음 */
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
@@ -619,7 +630,7 @@
     /* ★★[CLOSING_LINE_1031 검토 178 사장님 «사진은 작가님 몫»] 사진 «모여 달라 · 앞을 봐 달라»를 자동 식순에서 걷었다 — 265 · 266(사진 전 안내) · 262(자유 사진 여는 말) · 219(닫는 멘트 칩의 사진 줄)는
        새 코스에서만 나던 자리라 쉰다(파일 · 문안 · 번호 그대로 · 266 · 47 · 264 · 44 의 문장은 마무리 멘트 287 ~ 291 이 빌려 쓴다) · 26 · 85 · 47 은 옛 코스가 그대로 틀어 clip-status 표에 legacy · 되살리지 말 것 */
     'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1,
-    'narr-closing-soft-nt': 1,   /* ★[CLOSING_NO_CREW_1031 검토 179 덧] 44 를 빼니 남는 문장이 0 — 이 날은 마무리 멘트 없이 작가님 촬영(파일 · 번호 그대로) */
+    /* ★[CLOSING_CHEER_195 검토 195] 294 narr-closing-soft-nt 는 응원 한 문장 판으로 다시 쓴다(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · CLOSING_NO_CREW_1031) */
     /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 나레이션이 선언문을 읽던 클립 다섯(30 엄숙 · 31 따뜻 · 32 가족 낭독 폴백 ·
        96 · 97 하객 박수 판)과 «가족께서 선언하십니다» 여는 말(21)을 쉰다 — 선언문은 아버님 · 친구 · 지인만 읽는다(여는 말은 134 · 135 · 136).
        ★32 는 [DROP_GUARD] 가 «폴백으로 실제로 나간다»고 지켜 오던 자리다 — 그 폴백(사람이 막히면 나레이션이 대신 읽기)이 이 결정으로 없어져 함께 쉰다.
