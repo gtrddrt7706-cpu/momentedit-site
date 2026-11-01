@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★★[BED_LOAD_1101 2026-11-01 사장님 «노래가 안 흐르는데?» · 아이폰 LTE · 블루투스] 이 순간 전체 듣기 곡 받기
    a 곡이 늦게 오면(9초) 뜸이 기다린다 · 1.5초 넘으면 지금 줄 아래 «음악을 불러오는 중이에요» · 오면 그때부터 뜸 6초 뒤 멘트
-   b 아주 늦으면(15초) 뜸은 8초까지 · 멘트부터 · 곡이 오면 그 줄 크기로
+   b 12초 늦으면 멘트를 미루고 기다린다 · c 25초 늦으면 20초에 음악 없이 멘트 · 곡은 줄 사이에서 [LEAD_FIRST_1101]
    c 못 받음(L3) · 못 풂(M6) — «음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 …)» 한 줄 · 쪽 오류 0
    d 순간 여섯을 차례로 열고 들어도 풀어 둔 곡 ≤ 3
    e 순간 쪽을 열면 그 순간 곡 받기 요청 1번
@@ -76,7 +76,7 @@ async function trace(f, ks, ms) {
     (LP.q || []).forEach((x) => { if (x.talk2 || x.said) x.ms = 1500; });
     const t0 = performance.now(), Q0 = LP.q;
     await new Promise((res) => { const iv = setInterval(() => { const v = BB.BED.cur, st = LP.q[LP.i], nt = document.querySelector('.lp-bednote');
-      o.push({ t: performance.now() - t0, i: LP.i, k: st && st.k, lead: !!LP.leadSt, f: v && v.f, src: !!(v && v.src), want: v && v.want, nt: nt ? nt.textContent : '' });
+      o.push({ t: performance.now() - t0, i: LP.i, k: st && st.k, lead: !!LP.leadSt, f: v && v.f, src: !!(v && v.src), want: v && v.want, nt: nt ? nt.textContent : '', sp: !!(LP.el && !LP.el.paused && !LP.leadSt), lv: (st && v && v.f && BB.lvOf) ? BB.lvOf(st, v.f) : null });
       if (performance.now() - t0 > ms) { clearInterval(iv); res(); } }, 100); });
     const q = (Q0 || []).map((x) => ({ k: x.k, slug: x.slug || x.of || '', dk: x.dk, ldk: x.ldk }));
     try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} window._lpMs = window.__lpMs0; return { o, q }; }, { ks, ms }); }
@@ -101,12 +101,18 @@ try {
         { l0: l0 && Math.round(l0), tS: tS && Math.round(tS), l1: l1 && Math.round(l1), note: [...new Set(r.o.map((x) => x.nt))], nld: ld.length });
       ok(`${W} a 쪽 오류 0`, !errs.length, errs.slice(0, 3)); }
     if (W === 390) {
-      /* b 15초 늦게 */
-      { await go(f, 'welcome'); await forget(f, [TS]); await H({ dly: { [TS]: 15000 } }); await go(f, 'tribute');
-        const r = await trace(f, ['tribute'], 24000), L = r.o.filter((x) => x.lead), lm = L.length ? L[L.length - 1].t - L[0].t : 0, s1 = r.o.find((x) => x.f === TS && x.src && x.t > 1000);
-        const lvAt = s1 ? r.o.filter((x) => x.f === TS && x.src && x.t > s1.t + 1600 && x.t < s1.t + 2600) : [];
-        ok('b 곡이 아주 늦게(15초) 오면 뜸은 8초까지 · 멘트부터 · 곡이 오면 그 줄 크기로(큐 사이 −8 아님)', lm > 7300 && lm < 8800 && !!s1 && !s1.lead && lvAt.length > 0 && lvAt.every((x) => x.want < -10),
-          { lm: Math.round(lm), s1: s1 && { t: Math.round(s1.t), i: s1.i, lead: s1.lead }, lv: lvAt.slice(0, 2).map((x) => x.want) }); }
+      /* ★[LEAD_FIRST_1101] b 12초 늦게 — 그동안 멘트 없음 · «불러오는 중» · 도착 + 6초에 첫 멘트 */
+      { await go(f, 'welcome'); await forget(f, [TS]); await H({ dly: { [TS]: 12000 } }); await go(f, 'tribute');
+        const r = await trace(f, ['tribute'], 26000), L = r.o.filter((x) => x.lead), l0 = L.length ? L[0].t : 0, tS = (r.o.find((x) => x.f === TS && x.src) || {}).t, sp0 = (r.o.find((x) => x.sp) || {}).t;
+        ok('b 곡이 12초 늦으면 — 12초 동안 멘트 없음 · «음악을 불러오는 중이에요» · 곡 도착 + 6초 뒤 첫 멘트(LEAD_FIRST · 종전 8초에 멘트부터)', tS != null && sp0 != null && sp0 > tS + 5300 && sp0 < tS + 7200 && r.o.some((x) => x.lead && x.nt === '음악을 불러오는 중이에요'),
+          { l0: Math.round(l0), tS: tS && Math.round(tS), sp0: sp0 && Math.round(sp0) }); }
+      /* ★[LEAD_FIRST_1101] c 25초 늦게 — 20초에 음악 없이 멘트 · 안내 줄 · 곡은 말하는 줄 도중 0 · 줄 사이에서 그 줄 크기로 */
+      { await go(f, 'welcome'); await forget(f, [TS]); await H({ dly: { [TS]: 25000 } }); await go(f, 'tribute');
+        const r = await trace(f, ['tribute'], 45000), L = r.o.filter((x) => x.lead), l0 = L.length ? L[0].t : 0, sp0 = (r.o.find((x) => x.sp) || {}).t, tS = (r.o.find((x) => x.f === TS && x.src) || {}).t;
+        const nm = r.o.some((x) => x.nt === '음악 없이 먼저 들려 드려요 · 곡이 오면 이어서 흘러요'), loud = r.o.filter((x) => x.sp && x.src && x.f === TS && x.lv != null && x.want > x.lv + 0.5);   /* 말하는 중 곡 크기 > 그 줄 크기 = 0 */
+        const at = tS != null ? r.o.find((x) => x.t >= tS) : null;
+        ok('c 곡이 25초 늦으면 — 20초에 음악 없이 멘트 · «음악 없이 먼저 들려 드려요 · 곡이 오면 이어서 흘러요» · 곡은 줄 사이에서 시작(말하는 중 시작 0) · 말하는 중 곡 크기 ≤ 그 줄 크기', sp0 != null && sp0 - l0 > 19000 && sp0 - l0 < 21500 && nm && tS != null && at && !at.sp && !loud.length,
+          { sp0: sp0 && Math.round(sp0 - l0), tS: tS && Math.round(tS), atSp: at && at.sp, nm, loud: loud.slice(0, 2) }); }
       /* c 못 받음 · 못 풂 */
       for (const [nm, o, code] of [['파일 없음', { gone: { [TS]: true }, dly: { [TS]: 40 } }, 'L3'], ['디코딩 실패', { gone: { [TS]: false }, bad: { [TS]: true } }, 'M6']]) {
         await go(f, 'welcome'); await forget(f, [TS]); await H(o); await go(f, 'tribute');

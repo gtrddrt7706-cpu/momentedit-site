@@ -187,7 +187,7 @@ try {
         const out = { pace: LP.pace, big: !!LP.big, acts: LP.q.filter((x) => x.act).length, L, E: E.filter((x) => x.act).slice(0, 3), noEst: E.filter((x) => !x.act && x.est).length };
         BgmBed.lpLead = o; try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return out; });
       ok(`${W} P8 크게 보기 이어 듣기도 LISTEN_PACE(행동 줄 ${b8.acts}개)`, b8.pace === true && b8.big && b8.acts > 0, b8);
-      const lead8 = ['candle', 'ring'].map((k) => { const a = b8.L.filter((x) => x.k === k); const r = a.find((x) => x.r != null); if (r && r.r === 8000) { const q = a.find((x) => x.re != null); return q ? q.re : null; } return r ? r.r : null; });
+      const lead8 = ['candle', 'ring'].map((k) => { const a = b8.L.filter((x) => x.k === k); const r = a.find((x) => x.r != null); if (r && (r.r === 8000 || r.r === 20000)) { const q = a.find((x) => x.re != null); return q ? q.re : null; } return r ? r.r : null; });
       ok(`${W} P8 순간마다 첫 멘트 앞 뜸 — 새 곡 6초 · 이어지는 곡 3초(곡을 받는 중이었으면 온 뒤의 뜸)`, lead8[0] === 6000 && (lead8[1] === 6000 || lead8[1] === 3000), { lead8, L: b8.L });
       ok(`${W} P8 크게 보기 행동 줄이 흐를 때 «실제로는 약 …» · 다른 줄엔 없음`, b8.E.length > 0 && b8.E.every((x) => /^실제로는 약/.test(x.est)) && b8.noEst === 0, { E: b8.E, noEst: b8.noEst }); }
     /* P1 곡 없는 순간 — 테이블 인사(드라이브에 곡 없음) · 뜸 없음 */
