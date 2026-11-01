@@ -54,6 +54,8 @@ for (const c of man.clips) {
   const v = c.voice || (man.voice || {})[c.role];
   if (!v || !ONE_LEVEL[v]) continue;
   if (!c.sents || !c.sents.length) continue;
+  /* ★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 하객 맞이 · 촬영 후 안내(297 ~ 324)는 사장님이 확정한 문안 그대로 — 알림은 «~습니다», 부탁은 «~주세요»(GPT 6라운드 · 1분 전 «바꿔 주세요»는 옛 «바꿔 주시기 바랍니다»를 일부러 바꿨다) · 층을 세지 않는다 */
+  if (/^(guest-w-|after-photo)/.test(c.file)) { srcSkip += c.sents.length; continue; }
   let hap = 0, hae = 0;
   for (const s of c.sents) {
     const t = (s.text || '').trim();

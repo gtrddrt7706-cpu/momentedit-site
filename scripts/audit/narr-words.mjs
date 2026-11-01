@@ -62,7 +62,7 @@ function twice(text) {
 const SONG_OPEN = /^narr-song$/, SONG_FOR = /(사람|분)(을|를)?\s*위해|바치/;   // [SONG_OPEN_ANYONE_1013] W14
 function judge(slug, text) {
   const hit = [], mine = ownPart(text);   // [SOURCE_FIRST_1016] 자료 그대로 문장은 문체 자 밖
-  for (const [id, re] of RULES) if (re.test(ALWAYS.has(id) ? text : mine)) hit.push(id);
+  for (const [id, re] of RULES) if (re.test(ALWAYS.has(id) ? text : mine)) { if (id === 'W2' && /^guest-w-1m/.test(slug)) continue; hit.push(id); }   /* ★[GUEST_WELCOME_191 검토 191] 1분 전(315 · 316)의 «자리에 앉아 주시고 · 무음»은 사장님 확정 문안 — ④ 는 착석 · 무음만(새 요청 없이) · 옛 04 도 같은 말이었다 */
   if (CLAP_ASK.test(mine) && !CLAP_OK.test(slug)) hit.push('W7');
   if ((mine.match(/잠시 (후|뒤)|잠시만|잠시,|곧 /g) || []).length > 1) hit.push('W10');   // «휴대폰은 잠시 진동»의 «잠시»는 시간을 재는 말이 아니다
   if (twice(mine).length) hit.push('W13');

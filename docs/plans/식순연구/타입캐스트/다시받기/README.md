@@ -14,6 +14,7 @@
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
 | 1_진희.txt | 진희 | 102 | 28 |
+| 2_우성.txt | 우성 | 1 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -23,4 +24,11 @@ node scripts/assemble-narration.mjs --in <진희_받은폴더> \
   --clip =297_guest-w-arrival,=298_guest-w-arrival-guide,=314_guest-w-5m-online,=315_guest-w-1m,=316_guest-w-1m-online,=317_after-photo,=318_after-photo-guide,=319_after-photo-cafe,=320_after-photo-cafe-guide,=321_after-photo-resv-guide,=322_after-photo-resv,=323_after-photo-meal-guide,=324_after-photo-meal,=299_guest-w-10m-n10,=300_guest-w-10m-n10-mgr,=301_guest-w-10m-n10-mg,=302_guest-w-10m-n10-mr,=303_guest-w-10m-n10-m,=304_guest-w-10m-n15,=305_guest-w-10m-n15-mgr,=306_guest-w-10m-n15-mg,=307_guest-w-10m-n15-mr,=308_guest-w-10m-n15-m,=309_guest-w-10m-n20,=310_guest-w-10m-n20-mgr,=311_guest-w-10m-n20-mg,=312_guest-w-10m-n20-mr,=313_guest-w-10m-n20-m
 ```
 ★314_guest-w-5m-online 은 두 사람이 한 클립에 섞여 있습니다. 진희 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+
+```
+# 우성 — 1줄 · 1클립
+node scripts/assemble-narration.mjs --in <우성_받은폴더> \
+  --clip =07_entry-C
+```
+★07_entry-C 은 두 사람이 한 클립에 섞여 있습니다. 우성 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
