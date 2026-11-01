@@ -19446,7 +19446,7 @@ chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
-chk "quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')}); } }" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
+chk "quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
 chk "txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
 chk "txt:'여기서 '+_lpNoT(t),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
@@ -20600,7 +20600,7 @@ chk 'KNOBS_1031' scripts/audit/knobs.mjs 1
 chk 'knobs' .github/workflows/merge-guard.yml 1
 chk '_gap = NarrPad.gap(c.file, nx.file, _gap);' console.html 1
 chk 'function lpDeclare(st,f)' assets/bgm-bed.js 1
-chk 'function lpTail(st)' assets/bgm-bed.js 1
+chk 'function lpTail(st,nx)' assets/bgm-bed.js 1   # [BGM_TIMING_1101] 다음 줄을 받는다
 if command -v python3 >/dev/null 2>&1; then if python3 scripts/build-narration-pad.py --check >/dev/null 2>&1; then echo 'ok narration-pad'; else echo 'FAIL narration-pad: 나레이션 파일이 바뀌었는데 무음 표가 그대로입니다 — python3 scripts/build-narration-pad.py (miniaudio)'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/knobs.mjs >/dev/null 2>&1; _knc=$?; if [ "$_knc" = 1 ]; then echo 'FAIL knobs: 쉼 · 선언 앞 · 편지 끝 연출이 어긋났습니다 — node scripts/audit/knobs.mjs'; fail=1; elif [ "$_knc" = 2 ]; then echo 'skip knobs (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok knobs'; fi; fi
 chk 'CHEER_TAIL_1030' scripts/audit/bgm-preview.mjs 1
@@ -21278,7 +21278,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&entMulti())) return entOn()?ENT_F:'';" assets/bgm-bed.js 1
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first'" .github/workflows/merge-guard.yml 1   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing'" .github/workflows/merge-guard.yml 1   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -21309,4 +21309,27 @@ chk "if (/^bridge-(b8-face-guests|b12-tribute-calm|b14-candle-name)\$/.test(sl))
 chk '화촉 이음말(263) 뒤부터' assets/bgm-slots.js 1
 nochk '화촉 이음말(263)부터' assets/bgm-slots.js 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/bridge-first.mjs >/dev/null 2>&1; _bfr=$?; if [ "$_bfr" = 1 ]; then echo 'FAIL bridge-first: 이음말 먼저 · 새 곡 뒤(그 순간만 · 이어 듣기 · 화촉 · 부모님께 인사 · 콘솔 · 화면 줄 자리 = 뜸 자리)가 어긋났습니다 — node scripts/audit/bridge-first.mjs'; fail=1; elif [ "$_bfr" = 2 ]; then echo 'skip bridge-first (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bridge-first'; fi; fi
+# ★[BGM_TIMING_1101 2026-11-01 사장님 «BGM 투입 시점 적절함 — GPT 랑 하나하나 스텝 바이 스텝으로 토론해서 최적화해» · BGM 섹션 결정] 투입 시점 열 가지 —
+#   편지 «음악 없이» 첫 줄 뜸 대신 «끄고 정적 1초» · 편지 끝 → 다음 곡을 무음에서 3초(편지 곡 되살림 0) · 축사 · 축가 맺는 말 −90 → 박수 1.5초 −8 ·
+#   축사 여는 말 −16 · 반지 행동 −12 · 부모님 말 −20 · 서약 마지막 줄 −20 · 축배 여는 말 · «위하여» −16 · 축배만 뜸 곡 = 테이블 · 앞 순간 · 귀가 인사 −8 피어남.
+chk 'BGM_TIMING_1101' scripts/audit/bgm-timing.mjs 1
+chk 'BGM_TIMING_1101' assets/ritual-cue.js 9
+chk 'BGM_TIMING_1101' assets/bgm-bed.js 6
+chk 'BGM_TIMING_1101' order-preview.html 3
+chk 'BGM_TIMING_1101' console.html 1
+chk "duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm," assets/ritual-cue.js 1
+chk "doing: 'move', duck: -12 }" assets/ritual-cue.js 1
+chk "self: true, doing: 'say', duck: PARAM.duckRead /\* ★\[BGM_TIMING_1101\]" assets/ritual-cue.js 1
+chk "c.duck = PARAM.duckSpeech; if (c.live) c.live.duck = PARAM.duckSpeech; }" assets/ritual-cue.js 1
+chk "function clapUp(l) { l.upMs = 1500; return l; }" assets/ritual-cue.js 1
+chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }" assets/ritual-cue.js 2
+chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000 }" assets/ritual-cue.js 1
+chk "if (st.music === 'next') {" console.html 1
+chk 'function toastBed(){' assets/bgm-bed.js 1
+chk 'LPB.tailTo=Date.now()+w+3000; return w+3000+600; }' assets/bgm-bed.js 1
+chk "ldk:(k==='ring'&&c.live&&c.live.duck!=null)?c.live.duck:undefined" order-preview.html 1
+chk "ldk:(c.live&&c.live.duck!=null)?c.live.duck:-20}); } }" order-preview.html 1
+chk 'BgmBed.lpTail(_pv,_nx)' order-preview.html 1
+nochk "var f6=eff('M6'); return has(f6)?f6:''; }" assets/bgm-bed.js 0
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-timing.mjs >/dev/null 2>&1; _btm=$?; if [ "$_btm" = 1 ]; then echo 'FAIL bgm-timing: BGM 투입 시점(편지 무음 · 편지 끝 · 맺는 말 · 크기 · 축배 뜸 곡 · 귀가 인사)이 어긋났습니다 — node scripts/audit/bgm-timing.mjs'; fail=1; elif [ "$_btm" = 2 ]; then echo 'skip bgm-timing (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bgm-timing'; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
