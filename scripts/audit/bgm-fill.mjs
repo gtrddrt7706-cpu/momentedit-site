@@ -102,7 +102,7 @@ try {
     ok(`${W} c 하객 맞이 — 안내 한 줄(12.5px) · 곡 줄 5 = 재생 차례(1순위부터 · 옛 저장값 무시) · ▶ 5 · 제목 · 가수`, r && r.info === '하객이 들어와 앉는 동안 아래 곡들이 차례로 흘러요 · 약 30분' && r.fs === '12.5px' && r.list.join() === 'B01,B24,B13,B16,B33' && r.list.join() === WANT1.join() && r.pl === 5 && JSON.stringify(r.tA) === JSON.stringify(T1), r);
     ok(`${W} c 하객 맞이 — 고르기 단추 · «바꾸기» · 선택 표시 · 접힌 줄 · 순서 화살표 두 줄 0`, r && r.rows === 0 && r.chg === 0 && r.on === 0 && !r.fold && r.ord === 0, r);
     await go(f, 'table'); r = await look(f, 'M8');
-    ok(`${W} c 테이블 인사 — 안내 한 줄 · 곡 줄 5(B24 · B23 · B16 · B13 · B14) · 고르기 0`, r && r.info === '테이블 인사와 사진 동안 아래 곡들이 차례로 흘러요 · 약 30분' && r.list.join() === 'B24,B23,B16,B13,B14' && r.rows === 0 && r.chg === 0 && r.on === 0, r);
+    ok(`${W} c 테이블 인사 — 안내 한 줄 · 곡 줄 5(B23 · B14 · B24 · B16 · B13 — 하객 맞이와 겹치는 셋은 빼면 30분이 안 돼 맨 뒤로 · DETAIL_R3_1101 ⑦ 보탬) · 고르기 0`, r && r.info === '테이블 인사와 사진 동안 아래 곡들이 차례로 흘러요 · 약 30분' && r.list.join() === 'B23,B14,B24,B16,B13' && r.rows === 0 && r.chg === 0 && r.on === 0, r);
     const others = [];
     for (const [k, sg] of [['candle', 'M2'], ['welcome', 'M4'], ['tribute', 'M5'], ['_close', 'M6'], ['toast', 'M7']]) { await go(f, k); const x = await look(f, sg); others.push([sg, x ? x.info : '?', x ? x.rows : -1, x ? x.list.length : -1]); }
     ok(`${W} c 다른 구간(화촉 · 감사 인사 · 부모님께 인사 · 닫는 인사 · 축배)은 고르기 그대로 — 곡 고르기 3 · 안내 칸 아님`, others.every((x) => x[1] === '' && x[2] === 3 && x[3] === 0), others);
@@ -112,7 +112,7 @@ try {
     ok(`${W} c 같은 곡을 화촉 · 부모님께 인사에서 고르면 뒤 칸에만 «화촉에서도 고른 곡이에요»(막지 않는다)`, c2 && c2.dup === '' && c5 && c5.fold && c5.dup === '화촉에서도 고른 곡이에요', { c2: c2 && c2.dup, c5 });
     await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M5"] .mu-chg'); if (b) b.click(); }); await wait(f, 300); await f.click('[data-fk="bed:M5:B16"]'); await wait(f, 400);
     await go(f, 'guest'); r = await look(f, 'M1');
-    ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄에서 빠진다(4줄)`, r && r.list.join() === 'B01,B24,B13,B33' && !r.tA.some((x) => x[0] === 'The Rose'), r);
+    ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄 맨 뒤로(빼면 30분이 안 된다 · DETAIL_R3_1101 ⑦ 보탬)`, r && r.list.join() === 'B01,B24,B13,B33,B16' && r.tA[4] && r.tA[4][0] === 'The Rose', r);
     await shot(f, W, 'guest-flow', '.ls-bed[data-seg="M1"]');
     /* ★[ROW_FILL_PLAY_1101 사장님 아이폰 «하객 맞이 곡 ▶ 아무리 눌러도 안 나와»] 목록 칸(하객 맞이 · 테이블 인사) 곡 줄 ▶ 다섯 — 누를 때마다 그 곡이 재생(배경 곡 B16 · B33 · B13 · B14 포함) · 고르기로 배경 곡이 저장되지 않는다 */
     { await setS(f, {}); await pg.evaluate(() => { ['B14', 'B23', 'B33'].forEach((x) => { if (H.have.indexOf(x) < 0) { H.have.push(x); H.songs[x] = H.songs.B01; H.__rfp = (H.__rfp || []).concat(x); } }); });
