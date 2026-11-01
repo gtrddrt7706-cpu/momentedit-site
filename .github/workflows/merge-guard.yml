@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         part:
-          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold' }
+          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold bgm-fill' }   # [BGM_FILL_1101] 가장 짧은 칸에
           - { name: c, tests: 'entry-carry bridge-first bgm-timing' }   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] 입장 · 이음말 차례 검사(a 칸이 20분에 가까워 나눔)
           - { name: b, tests: 'listen-pace knobs' }
           - { name: d, tests: 'bgm-timing2 bed-load song-row-plain picks-three' }   # [BGM_TIMING2_1101] 축사 · 편지 «음악과 함께» 곡 바꿈 · 피크

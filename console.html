@@ -1178,15 +1178,22 @@ var SEGST = segLoad(), SEGF = {};   // SEGF: 곡 아이디 → 이 탭의 파일
 function segLoad(){ var o = {}; try { o = JSON.parse(localStorage.getItem(SEG_KEY) || '{}') || {}; } catch (e) { o = {}; } ['sel', 'add', 'start', 'meta'].forEach(function(k){ if (!o[k] || typeof o[k] !== 'object') o[k] = {}; }); return o; }
 function segSave(){ try { localStorage.setItem(SEG_KEY, JSON.stringify(SEGST)); } catch (e) {} }
 function segDef(id){ return BP ? BP.seg(id) : null; }
-function segSongs(id){ return (BP ? BP.list(id) : []).concat((SEGST.add[id] || []).map(function(x){ return { id: x.id, t: x.t, a: x.a || '', v: '', why: '', start: null, rank: 0, own: 1 }; })); }
+function segSongs(id){ return (BP ? BP.list(id) : []).concat(segFill(id)).concat((SEGST.add[id] || []).map(function(x){ return { id: x.id, t: x.t, a: x.a || '', v: '', why: '', start: null, rank: 0, own: 1 }; })); }
+/* ★[BGM_FILL_1101] 목록 칸(M1 · M8) 배경 곡 — 고객이 고르지 않는 곡 · 이 화면에서 파일을 넣어야 소리가 난다(줄에 «배경으로만 이어 틀어요») */
+function segFill(id){ var d = segDef(id); if (!BP || !BP.FILL || !d || !d.multi) return []; var L = BP.PICKS[id] || [];
+  return (BP.FILL[id] || []).filter(function(f){ return L.indexOf(f) < 0; }).map(function(f){ var o = BP.song(f); if (!o) return null; o.rank = 0; o.fill = 1; return o; }).filter(Boolean); }
 /* 고른 곡 — 한 곡 칸은 아이디 하나 · 목록 칸(M1 · M8)은 차례 배열 · 아직 안 골랐으면 추천 1순위(목록 칸은 추천 전부) */
 function segSel(id){ var d = segDef(id), L = segSongs(id), v = SEGST.sel[id], have = function(x){ return L.some(function(s){ return s.id === x; }); };
   /* ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 이 기기에서 아직 안 골랐으면 고객이 식순 화면에서 고른 곡(S.bgm · 곡 번호 f)이 기본 — 목록 칸(M1 · M8)은 그 곡을 맨 앞에 */
   var ck = (BP && BP.custK) ? BP.custK(S, id) : '', cs = ck ? L.filter(function(s){ return s.f === ck; })[0] : null;
-  if (d && d.multi) { if (Array.isArray(v)) return v.filter(have); var all = L.filter(function(s){ return !s.own; }).map(function(s){ return s.id; }); return cs ? [cs.id].concat(all.filter(function(x){ return x !== cs.id; })) : all; }
+  if (d && d.multi) { if (Array.isArray(v)) return v.filter(have); if (BP.order) return BP.order(S, id).filter(have);   /* ★[BGM_FILL_1101] 차례 = 식순 화면 순서 줄과 같은 함수(고른 곡 → 나머지 → fill · 다른 구간에서 고른 곡은 건너뜀) */
+    var all = L.filter(function(s){ return !s.own; }).map(function(s){ return s.id; }); return cs ? [cs.id].concat(all.filter(function(x){ return x !== cs.id; })) : all; }
   if (typeof v === 'string' && have(v)) return v; if (cs) return cs.id; return L[0] ? L[0].id : null; }
 /* 소리 낼 수 있는 곡(파일이 있는 것)만 — 없으면 null(앞 곡이 이어진다) */
-function segPlan(id){ var s = segSel(id), L = (Array.isArray(s) ? s : (s ? [s] : [])).filter(function(x){ return !!SEGF[x]; }); return L.length ? L : null; }
+function segPlan(id){ var s = segSel(id), L = (Array.isArray(s) ? s : (s ? [s] : [])).filter(function(x){ return !!SEGF[x]; }); if (L.length) return L;
+  /* ★[GHIBLI_ADD_1101] 한 곡 칸 — 고른 곡(없으면 1순위)의 파일이 이 기기에 없으면 그 구간 목록에서 파일이 있는 다음 곡(식순 화면 미리 듣기와 같은 차례) · 그것도 없으면 null(앞 곡이 이어진다) */
+  if (s && !Array.isArray(s) && BP && BP.order) { var o = BP.order(S, id), i = o.indexOf(s), c = i < 0 ? o : o.slice(i + 1).concat(o.slice(0, i)); for (var j = 0; j < c.length; j++) { if (SEGF[c[j]]) return [c[j]]; } }
+  return null; }
 function segStartOf(sid){ var v = SEGST.start[sid]; if (v != null && v !== '' && isFinite(+v)) return +v; var p = null; if (BP) BP.SEGS.some(function(s){ var q = BP.list(s.id).filter(function(x){ return x.id === sid; })[0]; if (q) { p = q; return true; } return false; }); return p && p.start != null ? p.start : null; }
 
 /* ── 이 기기 보관(IndexedDB) — 못 쓰는 브라우저면 이 탭에서만(종전과 같다) ── */
@@ -1264,7 +1271,7 @@ function bedVocal(){ if (!BP || !BP.song || BED.mode !== 'seg' || !BED.id) retur
 function segRow(id, s, d){ var sel = segSel(id), on = Array.isArray(sel) ? sel.indexOf(s.id) > -1 : sel === s.id, m = SEGST.meta[s.id], has = !!SEGF[s.id];
   var st = esc(segStOf(s.id));
   return '<div class="sg-song"><button class="chip" type="button" aria-pressed="' + on + '" data-seg-pick="' + id + '" data-id="' + esc(s.id) + '">' + esc(s.t) + '</button>'
-    + '<span class="sg-meta">' + esc([s.a, s.v].filter(Boolean).join(' · ')) + (s.rank === 1 ? ' · 추천 1순위' : '') + (s.own ? ' · 직접 더한 곡' : '') + ((BP && BP.custK && s.f && BP.custK(S, id) === s.f) ? ' · 두 분이 고른 곡' : '') + '</span>'   /* [BGM_PREVIEW_1024] */
+    + '<span class="sg-meta">' + esc([s.a, s.v].filter(Boolean).join(' · ')) + (s.rank === 1 ? ' · 추천 1순위' : '') + (s.own ? ' · 직접 더한 곡' : '') + (s.fill ? ' · 배경으로만 이어 틀어요' : '') + ((BP && BP.custK && s.f && BP.custK(S, id) === s.f) ? ' · 두 분이 고른 곡' : '') + '</span>'   /* [BGM_PREVIEW_1024] */
     + (s.why ? '<span class="sg-why">' + esc(s.why) + '</span>' : '')
     + '<label class="filebtn sm' + (has ? ' has' : '') + '">' + (has ? '파일 바꾸기' : '파일 넣기') + '<input type="file" accept="audio/*" data-seg-file="' + esc(s.id) + '"></label>'
     + (id === 'M7' ? '<input type="text" inputmode="decimal" class="sg-at" data-seg-start="' + esc(s.id) + '" placeholder="강조 시작(초)" value="' + esc(SEGST.start[s.id] != null ? String(SEGST.start[s.id]) : '') + '">' : '')
@@ -2382,7 +2389,7 @@ window.__bgmR = function(){ return ((R && R.cues) || []).map(function(c){ return
 window.__seg = { st: function(){ var g = function(k){ return BED.xg[k] ? Math.round(BED.xg[k].gain.value * 1000) / 1000 : null; }; return { seg: BED.seg, id: BED.id, on: BED.on, mode: BED.mode, short: !!ESD.short, src: BED.el.map(function(e){ return String(e.getAttribute('src') || ''); }), paused: BED.el.map(function(e){ return e.paused; }), xg: [g(0), g(1)], files: Object.keys(SEGF).length, sel: SEGST.sel }; },
   song: function(){ return { mode: BED.mode, g: gSong ? Math.round(gSong.gain.value * 1000) / 1000 : null, lim: gLim ? [gLim.threshold.value, gLim.ratio.value, Math.round(gLim.attack.value * 1000), Math.round(gLim.release.value * 1000)] : null, reh: REH_F.some(function(f){ return f[0] === 'songGain' && f[1] === '곡 보정'; }), p: PARAM.songGain }; } };   // [BGM_SEG8_1023] 점검용 · 읽기 전용 · [LISTEN_LOOK_LEVEL_1101] song = 곡 보정 · 리미터
 window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); }, post: function(i, p){ if (R && R.cues[i]) R.cues[i].post = p; }, bedAs: function(m, id){ var o = { m: BED.mode, id: BED.id }; BED.mode = m; BED.id = id; return o; } };   /* [BGM_TIMING2_1101] bedAs = 점검용(지금 곡이 노래 곡인 자리를 흉내 · 단체 사진 −24) */   // [BGM_FIX_1030] post = 점검용(마지막 큐의 긴 뒤처리를 비워 «−8 올림 없음»을 빨리 잰다)
-window.__segSel = function(id){ return segSel(id); };   // [BGM_PREVIEW_1024] 점검용 · 읽기 전용 — bgm-preview 가 본다(고객이 고른 곡이 구간 기본인가)   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)
+window.__segSel = function(id){ return segSel(id); }; window.__segPlan = function(id){ return segPlan(id); };   /* [GHIBLI_ADD_1101] 점검용 · 읽기 전용 — bgm-fill 이 본다(파일 있는 다음 곡) */   // [BGM_PREVIEW_1024] 점검용 · 읽기 전용 — bgm-preview 가 본다(고객이 고른 곡이 구간 기본인가)   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)
 /* [RESCUE_REPLAY_1016] 점검용 · 읽기 전용 — rescue-replay 가 본다(미룬 순서 · 디렉터 칸 · «재생 안 됨» 단추) */
 window.__rr = { cues: function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, rescue: !!c.rescue, live: !!c.live }; }); },
   st: function(){ var h = $('#nHint'), b = $('#bWait'); return { phase: phase, cur: cur, rescued: RESCUED.slice(), hint: h ? h.textContent : '', hintOn: h ? !h.hidden : false, bw: b ? b.disabled : null, bwText: b ? b.textContent : '' }; } };

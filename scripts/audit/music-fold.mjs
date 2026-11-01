@@ -22,7 +22,7 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 function wav(sec, f, sr = 16000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
   for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
 const SHORT = wav(0.6, 330);
-const HAVE = ['B01', 'B05', 'B07', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B17', 'B19', 'B24', 'B28', 'B29', 'B23'];   /* [PICKS_THREE_1101] 구간마다 3곡 · 뺀 7곡 대신 남은 곡 */
+const HAVE = ['B01', 'B05', 'B07', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B19', 'B24', 'B28', 'B29', 'B23'];   /* [PICKS_THREE_1101] 구간마다 3곡 · 뺀 7곡 대신 남은 곡 */
 const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(12, 180 + i * 20).toString('base64'); });
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
 <script>
@@ -76,7 +76,7 @@ const look = (f, sg) => f.evaluate((sg) => { const r = document.querySelector('.
 const sealRgb = (hex) => { const h = hex.replace('#', ''); return `rgb(${parseInt(h.slice(0, 2), 16)}, ${parseInt(h.slice(2, 4), 16)}, ${parseInt(h.slice(4, 6), 16)})`; };
 const shot = async (f, W, n) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { recursive: true }); await f.evaluate(() => { document.querySelectorAll('.me-fab-stack').forEach((x) => { x.style.visibility = 'hidden'; }); }); await f.locator('#stage .mk-pick').first().screenshot({ path: path.join(SHOT, `mf-${W}-${n}.png`) }); } catch (e) { console.log('그림 못 찍음 ' + n + ' ' + e.message); } };
 /* 순간마다 — [구간, 그 쪽 순간, 고를 곡(1순위 아님), 다녀올 쪽] */
-const CASES = [['M1', 'guest', 'B24', 'candle'], ['M2', 'candle', 'B07', 'welcome'], ['M4', 'welcome', 'B10', 'candle'], ['M5', 'tribute', 'B11', 'welcome'], ['M8', 'table', 'B23', 'welcome'], ['M7', 'toast', 'B29', 'welcome'], ['M6', '_close', 'B19', 'welcome']];
+const CASES = [['M1', 'guest', 'B24', 'candle'], ['M2', 'candle', 'B07', 'welcome'], ['M4', 'welcome', 'B10', 'candle'], ['M5', 'tribute', 'B16', 'welcome'], ['M8', 'table', 'B23', 'welcome'], ['M7', 'toast', 'B29', 'welcome'], ['M6', '_close', 'B19', 'welcome']];
 try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
