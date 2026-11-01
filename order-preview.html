@@ -2152,7 +2152,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
    ★고르기 칸의 글 한 줄(.bgm-line · 이름표 «음악» + 글) 금지 — 2026-10-23 사용자 지시로 흐름으로 옮김 [BGM_R1_1023] ·
    ★접는 카드(.bgm-sum · 꺾쇠) · 곡 카드(.bgm-card · 곡 파일 올리기) 금지 — 2026-10-23 사장님 지시로 삭제 [BGM_INFO_1023] · 왼쪽 굵은 선 · 칠한 안내 상자 없음([NO_SIDE_STRIPE]) */
 .ls-bgm .bgm-note{flex:0 0 100%;margin:2px 0 4px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* 칩 아래 한 줄 — 칩 격자(cg-even · cg-grid)는 단추 아닌 자식을 한 줄 전체로 편다 */
-.lp-bednote{margin:4px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);font-weight:400;word-break:keep-all;text-wrap:pretty}.lp-bednote.bad{color:var(--seal)}.ls-full .lp-bednote{margin:6px 0 0}   /* [BED_LOAD_1101] 이 순간 전체 듣기 곡 받기 한 줄 — 곡 카드 «곡을 불러오는 중이에요»와 같은 크기 · 못 받음(코드)은 진사 */
+.lp-bednote{display:block;margin:4px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);font-weight:400;word-break:keep-all;text-wrap:pretty}.lp-bednote.bad{color:var(--seal)}.ls-full .lp-bednote{margin:6px 0 0}   /* [BED_LOAD_1101] 이 순간 전체 듣기 곡 받기 한 줄 — 곡 카드 «곡을 불러오는 중이에요»와 같은 크기 · 못 받음(코드)은 진사 */
 .mk-bgm .bgm-rest .mk-vn{color:var(--sub)}
 .ls-bed .bed-box,.ls-bgm .bed-sub{min-width:0;grid-column:1/-1;flex:0 0 100%;width:100%}   /* ★[BGM_PREVIEW_1024] 구간 곡 줄(assets/bgm-bed.js) — 입장 음악 곡 줄(.ls-mu .mu-list)과 같은 꼴 · 새 색 · 아이콘 없음 · 왼쪽 굵은 선 없음 */
 .ls-bgm .bed-sub{margin-top:4px}
@@ -8030,8 +8030,8 @@ function _lStart(ks,all,hold){   /* hold = [CHIP_NO_AUTOPLAY] 줄은 새로 세�
    ③ ④ 작은 플레이어면 화면 알림(toast). 종전엔 MK.toast(② 맨 위에만 그려진다)라 크게 보기 · ③ · ④ 에선 안 보이고, 남았다가 ② 로 돌아오면 엉뚱한 때 떴다 */
 /* ★[BED_LOAD_1101 ②③] 이 순간 전체 듣기 곡 받기 한 줄(«음악을 불러오는 중이에요» · «음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 …)») — 지금 줄 아래 · 곡 카드와 같은 꼴(bgm-note bed-load) · 그 순간 듣기 동안 */
 function _lBedNote(t){ LP.bedNote=t||''; _lBedNotePlace(); if(LP.big){ try{ _lFull(); }catch(e){} } }
-function _lBedNotePlace(){ document.querySelectorAll('.mk-flow .lp-bednote').forEach(function(x){ x.remove(); }); var t=LP.bedNote; if(!t) return; var li=document.querySelector('.mk-flow li.lp-now'); if(!li) return;
-  var p=document.createElement('p'); p.className='bgm-note bed-load lp-bednote'+(/\(코드 [A-Z]\d/.test(t)?' bad':''); p.setAttribute('role','status'); p.textContent=t; li.appendChild(p); }
+function _lBedNotePlace(){ document.querySelectorAll('.mk-flow .lp-bednote').forEach(function(x){ x.remove(); }); var t=LP.bedNote; if(!t) return; var li=document.querySelector('.mk-flow li.lp-now'); if(!li) return; var box=li.querySelector(':scope>span:last-of-type')||li;   /* 줄 글 칸 안(단추 옆이 아니라 글 아래) */
+  var p=document.createElement('span'); p.className='bgm-note bed-load lp-bednote'+(/\(코드 [A-Z]\d/.test(t)?' bad':''); p.setAttribute('role','status'); p.textContent=t; box.appendChild(p); }
 function _lNote(st,t){ if(!t) return; if(LP.big){ LP.note={st:st,t:t}; try{ _lFull(); }catch(e){} return; } try{ toast(t,6000,_ecHas(t)); }catch(e){ MK.toast=t; } }   /* ★[PLAY_FAIL_BOTTOM 2026-10-09 A~Z 점검 2라운드 A2-13] ② 에서도 아래 알림으로 한 번 — 종전엔 쪽 맨 위 줄(MK.toast)에 써서 내려서 누르면 까닭이 화면 밖(top −128)에 떴다(④ 에서 고친 것과 같은 병) */
 /* [PLAY_WAIT_FILE] 파일을 받으면 그 줄을 «두 분 목소리»로 고쳐 세운다 · 기다리는 동안 다른 줄로 옮기면(⏭ · 멈춤) 버린다 */
 function _lUpOn(st,u){ st.src=u; st.couple=true; st.pending=false; st.pfail=''; st.pwhy=''; st.lab=String(st.lab||'').replace(/^두 분이 녹음하실 글\(예시\)/,'두 분 목소리'); if(st.up) _rfLineOff(st.up); }   // [RF_LINE_CLEAR] 받았으면 그 줄 아래 앞 실패 글을 걷는다
