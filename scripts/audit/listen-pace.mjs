@@ -180,7 +180,8 @@ try {
     { const bad = await f.evaluate(() => _lSteps(ENG, _lRows()).filter((x) => (x.talk || x.act || x.said) && /약 \d+\s*(분|초)/.test(x.txt || '')).map((x) => [x.k, x.txt]));
       ok(`${W} P9 말하는 차례 · 행동 줄 글에 시간 꼬리 없음(한 줄에 시간 숫자 하나)`, bad.length === 0, bad.slice(0, 6)); }
     /* ★[LEAD_LONGER_1031] P8 크게 보기(처음부터 보고 듣기 · 본식부터 등 이어 트는 길)도 같은 규칙 — 뜸(새 곡 6초 · 이어지는 곡 3초 · 순간마다) · 행동 줄 멈춤 · «실제로는 약 …» */
-    { await go(f, 'ring'); const b8 = await f.evaluate(async () => { const L = []; const o = BgmBed.lpLead; BgmBed.lpLead = function (st) { const r = o.apply(this, arguments); L.push({ k: st.k, r }); return r; };
+    { await go(f, 'ring'); await f.evaluate(() => BgmBed.lpWarm(['candle', 'ring'])); await wait(f, 1500);   /* [DAYLONG_1101] 앞 검사에서 목록 다음 곡을 미리 받으면 화촉 곡이 메모리 한도(셋)에서 밀려 «곡 받는 중 기다림(8초)»이 된다 — 뜸 길이만 재려고 먼저 받아 둔다 */
+      const b8 = await f.evaluate(async () => { const L = []; const o = BgmBed.lpLead; BgmBed.lpLead = function (st) { const r = o.apply(this, arguments); L.push({ k: st.k, r }); return r; };
         const E = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['candle', 'ring'], true); _lFull();
         const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { try { const st = LP.q[LP.i], e = document.querySelector('#lsFull .lf-est'); E.push({ t: performance.now() - t0, k: st && st.k, act: !!(st && st.act), est: e ? e.textContent.trim() : '' }); } catch (x) {} if (performance.now() - t0 > 40000 || (LP.q[LP.i] && LP.q[LP.i].k === 'ring' && E.some((y) => y.k === 'ring' && y.act))) { clearInterval(iv); res(); } }, 150); });
         const out = { pace: LP.pace, big: !!LP.big, acts: LP.q.filter((x) => x.act).length, L, E: E.filter((x) => x.act).slice(0, 3), noEst: E.filter((x) => !x.act && x.est).length };
