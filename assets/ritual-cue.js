@@ -1893,6 +1893,18 @@
     for (var oc = 0; oc < cues.length - 1; oc++) {
       if (cues[oc].slug === 'narr-open' && cues[oc].live && cues[oc].live.applause) { var _ocN = cues[oc + 1]; _ocN.fire = 'manual'; _ocN.hint = cues[oc].live.hintNext; }
     }
+    /* ★★[PREVIDEO_AFTER_1101 사장님 «BGM 이 멈추고 식전 영상 소개 멘트가 나오는 게 집중도를 올릴 수 있을 것 같아»] 식전 영상은 음악 없이 —
+         소개 큐: 하객 맞이 곡을 2초에 −90 → 정적 1초 → 소개(음악 없이) · 영상(live −90 그대로) · 받는 말도 음악 없이(올림 없음) ·
+         받는 말 뒤 화촉 순간: 이음말(b14)도 음악 없이 · 화촉 첫 큐는 무음에서 M2 를 −8 로 6초 앞서 올린 뒤 멘트(leadDb · goLeadMs · 콘솔이 읽는다) ·
+         고객 미리 듣기는 같은 큐 크기(dk −90)를 읽어 «무음 첫 줄»(2초 + 1초)로 · 식전 영상이 없는 날은 그대로 · 개식사(narr-open)는 건드리지 않는다 */
+    for (var pa = 0; pa < cues.length; pa++) {
+      var _pc = cues[pa]; if (_pc.k !== 'prevideo') continue;
+      if (/^narr-prevideo-in/.test(_pc.slug || '')) { _pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000); }
+      if (_pc.slug === 'narr-prevideo-out') { _pc.duck = PARAM.duckOff;
+        for (var pb = pa + 1; pb < cues.length; pb++) { var _pn = cues[pb]; if (_pn.k !== 'candle') break;
+          if (/^bridge-/.test(_pn.slug || '')) { _pn.duck = PARAM.duckOff; continue; }
+          _pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic; break; } }
+    }
     /* ★[VOW_OUT_GAP_1016] 서약 맺는 말(«두 사람의 서약이었습니다.» · 14) 뒤 다음 순간 여는 말은 4.5초 사슬 — 자료 G2 1-3 «서약 뒤 약 4 ~ 5초 여백»(박수 · 여운) · 맺는 말 앞 2초는 그대로 */
     for (var vg = 0; vg < cues.length - 1; vg++) {
       if (cues[vg].slug === 'narr-vow-out' && cues[vg + 1].fire === 'chain' && !cues[vg + 1].gapMs) cues[vg + 1].gapMs = 4500;

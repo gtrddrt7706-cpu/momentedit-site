@@ -21650,4 +21650,8 @@ chk '.bed-box .mu-lfold{' order-preview.html 1   # [LIST_FOLD_1102] «펼치기 
 chk "function _tgAm(c){" order-preview.html 1   # [TIME_GAP_1102] 줄 시각(atMin · 입장 때 −30)
 chk "LP.tgGap=_tgk?_gap:0;" order-preview.html 1   # [TIME_GAP_1102] 이벤트 줄 사이 쉼(시각 간격 6초 · 제목 바뀜 2.5초)
 chk "if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){" assets/bgm-bed.js 1   # [TIME_GAP_1102] 쉼 동안 −8 · −12 · 정적은 그대로
+chk "_pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000);" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 소개 앞 2초 내림 + 정적 1초 · 음악 없이
+chk "_pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic;" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 화촉 곡 무음에서 6초 앞서
+chk "var _ldb = (c.leadDb != null && _lead > 800) ? c.leadDb : null;" console.html 1   # [PREVIDEO_AFTER_1101] 콘솔이 leadDb 를 읽는다
+chk "nx.k==='prevideo'&&nx.dk!=null&&nx.dk<=-60){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }" assets/bgm-bed.js 1   # [PREVIDEO_AFTER_1101] 이어 듣기 소개 앞 2초
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
