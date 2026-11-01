@@ -21270,6 +21270,11 @@ nochk '<div class="mk-fold">' order-preview.html
 nochk 'class="mk-fbtn"' order-preview.html
 nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
 chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
+# ★[MK_HEAD_PILL 1101 사장님 PC «좀 이상한데»] 상태 단추 = 도구와 같은 알약(테 · 카드 바탕 · 44 · 12.5/500) · 자리가 되면 한 줄(.one) · 모자라면 두 층(모서리 22) · 꺾쇠는 글 바로 뒤
+chk 'MK_HEAD_PILL' order-preview.html 3
+chk 'function _mkStatFit()' order-preview.html 1
+chk '.mk-status.one{display:inline-flex' order-preview.html 1
+nochk 'border-radius:6px;background:transparent;text-align:left;color:var(--sub);font:inherit;font-size:12.5px;line-height:18px' order-preview.html
 chk 'function _askReset(k,quiet)' order-preview.html 1
 chk 'ASK_RESET_1031' order-preview.html 4
 chk 'REPICK_KEEP_1031' assets/entry-music.js 2
