@@ -4109,123 +4109,242 @@
    "clip": "287_narr-closing",
    "i": 1,
    "role": "안내",
-   "text": "남은 하루 행복하게 보내세요."
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
   },
   {
    "n": 122,
+   "clip": "287_narr-closing",
+   "i": 2,
+   "role": "안내",
+   "text": "남은 하루 행복하게 보내세요."
+  },
+  {
+   "n": 123,
    "clip": "288_narr-closing-guide",
    "i": 0,
    "role": "안내",
    "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다."
   },
   {
-   "n": 123,
+   "n": 124,
    "clip": "288_narr-closing-guide",
    "i": 1,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 125,
+   "clip": "288_narr-closing-guide",
+   "i": 2,
    "role": "안내",
    "text": "남은 하루 행복하게 보내세요."
   },
   {
-   "n": 124,
+   "n": 126,
    "clip": "288_narr-closing-guide",
-   "i": 2,
+   "i": 3,
    "role": "안내",
    "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다."
   },
   {
-   "n": 125,
+   "n": 127,
    "clip": "289_narr-closing-soft",
    "i": 0,
    "role": "안내",
    "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다."
   },
   {
-   "n": 126,
+   "n": 128,
+   "clip": "289_narr-closing-soft",
+   "i": 1,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 129,
    "clip": "290_narr-closing-soft-guide",
    "i": 0,
    "role": "안내",
    "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다."
   },
   {
-   "n": 127,
+   "n": 130,
    "clip": "290_narr-closing-soft-guide",
+   "i": 1,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 131,
+   "clip": "290_narr-closing-soft-guide",
+   "i": 2,
+   "role": "안내",
+   "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다."
+  },
+  {
+   "n": 132,
+   "clip": "291_narr-closing-meal",
+   "i": 0,
+   "role": "안내",
+   "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다."
+  },
+  {
+   "n": 133,
+   "clip": "291_narr-closing-meal",
+   "i": 1,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 134,
+   "clip": "291_narr-closing-meal",
+   "i": 2,
+   "role": "안내",
+   "text": "식사는 안내된 예약 시간에 두 사람과 함께 시작하겠습니다."
+  },
+  {
+   "n": 135,
+   "clip": "291_narr-closing-meal",
+   "i": 3,
+   "role": "안내",
+   "text": "장소와 시간은 여러분이 받으신 모바일 청첩장의 하객 안내를 통해 확인해 주세요."
+  },
+  {
+   "n": 136,
+   "clip": "291_narr-closing-meal",
+   "i": 4,
+   "role": "안내",
+   "text": "오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다."
+  },
+  {
+   "n": 137,
+   "clip": "292_narr-closing-nt",
+   "i": 0,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 138,
+   "clip": "292_narr-closing-nt",
+   "i": 1,
+   "role": "안내",
+   "text": "남은 하루 행복하게 보내세요."
+  },
+  {
+   "n": 139,
+   "clip": "293_narr-closing-guide-nt",
+   "i": 0,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 140,
+   "clip": "293_narr-closing-guide-nt",
+   "i": 1,
+   "role": "안내",
+   "text": "남은 하루 행복하게 보내세요."
+  },
+  {
+   "n": 141,
+   "clip": "293_narr-closing-guide-nt",
+   "i": 2,
+   "role": "안내",
+   "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다."
+  },
+  {
+   "n": 142,
+   "clip": "294_narr-closing-soft-nt",
+   "i": 0,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 143,
+   "clip": "295_narr-closing-soft-guide-nt",
+   "i": 0,
+   "role": "안내",
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
+  },
+  {
+   "n": 144,
+   "clip": "295_narr-closing-soft-guide-nt",
    "i": 1,
    "role": "안내",
    "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다."
   },
   {
-   "n": 128,
-   "clip": "291_narr-closing-meal",
+   "n": 145,
+   "clip": "296_narr-closing-meal-nt",
    "i": 0,
    "role": "안내",
-   "text": "끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다."
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
   },
   {
-   "n": 129,
-   "clip": "291_narr-closing-meal",
+   "n": 146,
+   "clip": "296_narr-closing-meal-nt",
    "i": 1,
    "role": "안내",
    "text": "식사는 안내된 예약 시간에 두 사람과 함께 시작하겠습니다."
   },
   {
-   "n": 130,
-   "clip": "291_narr-closing-meal",
+   "n": 147,
+   "clip": "296_narr-closing-meal-nt",
    "i": 2,
    "role": "안내",
    "text": "장소와 시간은 여러분이 받으신 모바일 청첩장의 하객 안내를 통해 확인해 주세요."
   },
   {
-   "n": 131,
-   "clip": "291_narr-closing-meal",
+   "n": 148,
+   "clip": "296_narr-closing-meal-nt",
    "i": 3,
    "role": "안내",
    "text": "오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다."
   },
   {
-   "n": 132,
-   "clip": "292_narr-closing-nt",
+   "n": 149,
+   "clip": "325_narr-closing-nt-nc",
    "i": 0,
    "role": "안내",
    "text": "남은 하루 행복하게 보내세요."
   },
   {
-   "n": 133,
-   "clip": "293_narr-closing-guide-nt",
+   "n": 150,
+   "clip": "326_narr-closing-guide-nt-nc",
    "i": 0,
    "role": "안내",
    "text": "남은 하루 행복하게 보내세요."
   },
   {
-   "n": 134,
-   "clip": "293_narr-closing-guide-nt",
+   "n": 151,
+   "clip": "326_narr-closing-guide-nt-nc",
    "i": 1,
    "role": "안내",
    "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다."
   },
   {
-   "n": 135,
-   "clip": "295_narr-closing-soft-guide-nt",
+   "n": 152,
+   "clip": "327_narr-closing-soft-guide-nt-nc",
    "i": 0,
    "role": "안내",
    "text": "여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다."
   },
   {
-   "n": 136,
-   "clip": "296_narr-closing-meal-nt",
+   "n": 153,
+   "clip": "328_narr-closing-meal-nt-nc",
    "i": 0,
    "role": "안내",
    "text": "식사는 안내된 예약 시간에 두 사람과 함께 시작하겠습니다."
   },
   {
-   "n": 137,
-   "clip": "296_narr-closing-meal-nt",
+   "n": 154,
+   "clip": "328_narr-closing-meal-nt-nc",
    "i": 1,
    "role": "안내",
    "text": "장소와 시간은 여러분이 받으신 모바일 청첩장의 하객 안내를 통해 확인해 주세요."
   },
   {
-   "n": 138,
-   "clip": "296_narr-closing-meal-nt",
+   "n": 155,
+   "clip": "328_narr-closing-meal-nt-nc",
    "i": 2,
    "role": "안내",
    "text": "오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다."

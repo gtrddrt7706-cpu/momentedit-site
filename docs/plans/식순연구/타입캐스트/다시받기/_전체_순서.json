@@ -1,1 +1,49 @@
-[]
+[
+ {
+  "n": 1,
+  "voice": "진희",
+  "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+  "at": [
+   {
+    "clip": "287_narr-closing",
+    "i": 1
+   },
+   {
+    "clip": "288_narr-closing-guide",
+    "i": 1
+   },
+   {
+    "clip": "289_narr-closing-soft",
+    "i": 1
+   },
+   {
+    "clip": "290_narr-closing-soft-guide",
+    "i": 1
+   },
+   {
+    "clip": "291_narr-closing-meal",
+    "i": 1
+   },
+   {
+    "clip": "292_narr-closing-nt",
+    "i": 0
+   },
+   {
+    "clip": "293_narr-closing-guide-nt",
+    "i": 0
+   },
+   {
+    "clip": "294_narr-closing-soft-nt",
+    "i": 0
+   },
+   {
+    "clip": "295_narr-closing-soft-guide-nt",
+    "i": 0
+   },
+   {
+    "clip": "296_narr-closing-meal-nt",
+    "i": 0
+   }
+  ]
+ }
+]

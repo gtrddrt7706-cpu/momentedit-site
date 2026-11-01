@@ -22,14 +22,15 @@ const rd = (f) => { try { return fs.readFileSync(path.join(ROOT, f), 'utf8'); } 
 let bad = 0;
 const ok = (m, c, d) => { if (c) console.log('ok   ' + m); else { bad++; console.log('FAIL ' + m + (d !== undefined ? '  → ' + (typeof d === 'string' ? d : JSON.stringify(d)).slice(0, 400) : '')); } };
 const sents = (t) => String(t || '').match(/[^.!?]+[.!?]/g).map((x) => x.trim());
-const E = C.EXTRA, A = sents(E['end-2-goodbye']), M = sents(E['narr-photo-pre-meal']).slice(3, 5), U = E['narr-photo-upload'], UM = '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', W = E['end-0-photo'];   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장
+const E = C.EXTRA, A = sents(E['end-2-goodbye']), M = sents(E['narr-photo-pre-meal']).slice(3, 5), U = E['narr-photo-upload'], UM = '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', W = E['end-0-photo'], CH = '두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.';   // ★[CLOSING_CHEER_195]   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장
 
 export function want(o) {
   const meal = o.meal && o.mealFull && o.resv && o.guide, nt = o.close === 2 || o.close === 3;   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 186(2) · 187(3) = 47#0 «… 진심으로 감사드립니다» 없이 */
-  const thx = nt ? [] : [A[0]];
+  const nc = o.close === 2;   /* ★[CLOSING_CHEER_195 검토 195] 186 «다정하게»는 칩이 이미 응원을 부탁해 응원 문장(CH)도 뺀다 */
+  const thx = (nt ? [] : [A[0]]).concat(nc ? [] : [CH]);
   const body = meal ? thx.concat(M) : o.meal ? thx : thx.concat([A[1]]);
   const parts = body.concat(o.guide ? [meal ? UM : U] : []);   /* [CLOSING_NO_CREW_1031] 44(W)는 없다 · [CLOSING_MEAL_DUP] 식사 판은 «하객 안내를 통해»가 식사 줄에 이미 있어 264 앞머리를 줄인 문장 */
-  return { slug: parts.length ? (meal ? 'narr-closing-meal' : o.meal ? (o.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (o.guide ? 'narr-closing-guide' : 'narr-closing')) + (nt ? '-nt' : '') : '',
+  return { slug: parts.length ? (meal ? 'narr-closing-meal' : o.meal ? (o.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (o.guide ? 'narr-closing-guide' : 'narr-closing')) + (nt ? (nc ? '-nt-nc' : '-nt') : '') : '',
     text: parts.join(' ') };
 }
 export function check(build) {
@@ -76,7 +77,9 @@ if (direct) {
   const s4 = [], NEW = new Set(), redub = rd('docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt');
   for (const [sl, parts] of Object.entries(C.CLOSING_PARTS || {})) {
     const id = C.noOf(sl) + '_' + sl;
-    if (!fs.existsSync(path.join(ROOT, 'assets/audio/narration', id + '.mp3'))) s4.push(`${id}.mp3 없음`);
+    const allNew = parts.every((p, i) => p[2] === null && !idx[id + '#' + i]);   /* ★[CLOSING_CHEER_195] 294 = 응원 한 문장(새 녹음 대기) — 받기 전엔 옛 소리(44)를 지우고 «녹음 대기»로 둔다 */
+    if (!fs.existsSync(path.join(ROOT, 'assets/audio/narration', id + '.mp3'))) { if (!allNew) s4.push(`${id}.mp3 없음`); }
+    else if (allNew) s4.push(`${id}.mp3 — 새 문장만 있는 판인데 옛 소리가 남아 있다(받기 전엔 녹음 대기)`);
     if (C.RETIRED[sl]) continue;   /* 쉬는 판(294) — 녹음 기록만 */
     const mc = (man.clips || []).find((c) => `${c.no}_${c.file}` === id);
     parts.forEach((p, i) => { const e = idx[id + '#' + i], src = idx[p[2]];
@@ -94,12 +97,13 @@ if (direct) {
       const ms = mc && mc.sents[i]; if (!ms || ms.text !== p[1] || (ms.role || mc.role) !== p[0]) s4.push(`${id}#${i} 대장 줄 주인 · 글이 다르다`);
       if (!String(p[3] || '').trim()) s4.push(`${id}#${i} 자료 판정(src) 칸이 비었다`); });
   }
-  if (NEW.size !== 3 || [...NEW].some((t) => M.indexOf(t) < 0 && t !== UM)) s4.push(`새 녹음 문장 ${NEW.size}개 — 식사 두 줄(266 진희판) + 식사 판 사진 올리기 한 줄(CLOSING_MEAL_DUP)만이어야 한다`);
+  if (NEW.size !== 4 || [...NEW].some((t) => M.indexOf(t) < 0 && t !== UM && t !== CH)) s4.push(`새 녹음 문장 ${NEW.size}개 — 식사 두 줄(266 진희판) + 식사 판 사진 올리기 한 줄(CLOSING_MEAL_DUP) + 응원 한 줄(CLOSING_CHEER_195)만이어야 한다`);
   ok('④ 마무리 = 진희 한 목소리 · 새 녹음 3문장(266 식사 두 줄 진희판 · 식사 판 사진 올리기 «오늘 찍으신 사진도 그곳에서 …» [CLOSING_MEAL_DUP]) · 나머지는 빌려 온 진희 녹음 · 44 없음 · mp3 · 문장마다 자료 판정(src) [CLOSING_ONE_VOICE_1031 · CLOSING_NO_CREW_1031]', !s4.length, s4);
   /* ⑤ 흐름 쉼 */
   const s5 = [];
-  for (const id of ['287_narr-closing', '288_narr-closing-guide']) { const mc = (man.clips || []).find((c) => `${c.no}_${c.file}` === id); if (!mc || mc.sents[0].after !== 1.35) s5.push(`${id}#0 뒤 쉼 ${mc && mc.sents[0].after}`); }
-  ok('⑤ 47 두 문장을 잇는 판(287 · 288)은 47 의 쉼 1.35초 그대로', !s5.length, s5);
+  /* ★[CLOSING_CHEER_195 검토 195] 47 두 문장 사이에 응원 문장이 들어가 «47 의 쉼 1.35 그대로» 판은 없어졌다 — 감사 → 응원 → 남은 하루 차례와 문장 사이 쉼(1초 이상)만 본다 */
+  for (const id of ['287_narr-closing', '288_narr-closing-guide']) { const mc = (man.clips || []).find((c) => `${c.no}_${c.file}` === id); if (!mc || mc.sents[1].text !== CH || mc.sents[2].text !== A[1] || !(mc.sents[0].after >= 1) || !(mc.sents[1].after >= 1)) s5.push(`${id} 차례 · 쉼 ${mc && JSON.stringify(mc.sents.map((x) => [x.text.slice(0, 6), x.after]))}`); }
+  ok('⑤ 287 · 288 — 감사 → 응원 → 남은 하루 차례 · 문장 사이 쉼 1초 이상 [CLOSING_CHEER_195]', !s5.length, s5);
   /* ⑥ 화면 글 */
   const mp = rd('mypage.html'), gd = rd('guide.html'), kb = rd('api/_kb.js');
   ok('⑥ 마이페이지 · 하객 안내 · AI 상담 — 사진은 작가님 안내 · 안내 음성이 모으지 않는다', /마무리 인사가 끝나면 작가님 안내에 따라 진행해요/.test(mp) && mp.indexOf('시작할 때 안내 음성이 «촬영 차례가 아닌 분들은') < 0

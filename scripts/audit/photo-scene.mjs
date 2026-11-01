@@ -79,16 +79,16 @@ try {
     await open('matjeol');
     /* ★★[SCENE_AT_194 · SCENE_ALT_193 검토 193 · 194] ① 고르는 화면 — 기본 접힘 칩 «장면 사진 N» · 펼치면 사진 + 구도 한 줄만(대표 · 설명은 alt) · 여러 장 넘겨 보기 */
     const c0 = await pg.evaluate(() => { const sc = document.querySelector('#pvScene .ps'), ch = sc && sc.querySelector('.ps-chip'), car = sc && sc.querySelector('.ps-car');
-      return { at: RitualOpen.SCENE_AT, h: sc && sc.querySelector('.ps-h').textContent, chip: ch ? ch.textContent : '', exp: ch ? ch.getAttribute('aria-expanded') : '', hid: car ? car.hidden : null, vis: car ? car.getBoundingClientRect().height : -1 }; });
-    ok(`${vp.tag} ① 창 맞절 — 처음엔 접힌 칩 «장면 사진 1»만(사진 · 글 안 보임) [SCENE_AT_194 · SCENE_DRAMA_ONLY]`, c0.at === 'pick' && c0.h === '이 순간에 담을 수 있는 장면' && c0.chip === '장면 사진 1' && c0.exp === 'false' && c0.hid === true && c0.vis === 0, JSON.stringify(c0));
+      return { n: Math.max(1, +RitualOpen.SCENE_N.matjeol || 1), at: RitualOpen.SCENE_AT, h: sc && sc.querySelector('.ps-h').textContent, chip: ch ? ch.textContent : '', exp: ch ? ch.getAttribute('aria-expanded') : '', hid: car ? car.hidden : null, vis: car ? car.getBoundingClientRect().height : -1 }; });
+    ok(`${vp.tag} ① 창 맞절 — 처음엔 접힌 칩 «장면 사진 N»만(사진 · 글 안 보임) [SCENE_AT_194 · SCENE_DRAMA_ONLY]`, c0.at === 'pick' && c0.h === '이 순간에 담을 수 있는 장면' && c0.chip === '장면 사진 ' + c0.n &&   /* ★[SCENE_EXTRA_195] 장수는 SCENE_N 그대로(맞절 3) */ c0.exp === 'false' && c0.hid === true && c0.vis === 0, JSON.stringify(c0));
     await pg.evaluate(() => { document.querySelector('#pvScene .ps-chip').click(); }); await wait(400); await shot('1-matjeol');
     const m = await pg.evaluate(() => { const sc = document.querySelector('#pvScene .ps'), car = sc.querySelector('.ps-car'), fig = sc.querySelector('.ps-fig'), img = fig && fig.querySelector('img');
       const act = document.querySelector('#pvAct');
       return { exp: sc.querySelector('.ps-chip').getAttribute('aria-expanded'), kids: [...car.children].map((e) => e.className), aria: fig ? fig.getAttribute('aria-label') : '', alt: img ? img.alt : '', nav: !!sc.querySelector('.ps-nav'),
         repVis: !!sc.querySelector('.ps-rep,.ps-desc'), ratio: fig ? +(fig.getBoundingClientRect().width / fig.getBoundingClientRect().height).toFixed(2) : 0, fit: img ? getComputedStyle(img).objectFit : '', loaded: img ? img.naturalWidth : 0,
         orderOk: !!(act && (sc.compareDocumentPosition(act) & Node.DOCUMENT_POSITION_FOLLOWING)), afterMedia: !!(document.querySelector('#pvM').compareDocumentPosition(sc) & Node.DOCUMENT_POSITION_FOLLOWING),
-        fine: [...sc.querySelectorAll('.ps-fine')].map((e) => e.textContent), txt: car.textContent }; });
-    ok(`${vp.tag} 펼침 — 그림 16:9 · 보이는 글은 구도 한 줄뿐 · 대표 · 설명은 alt · 1장이면 넘김 표시 없음 · 영상 아래 · 담기 위 [SCENE_ALT_193 · PHOTO_SCENE_MIN_1101]`, m.exp === 'true' && m.kids.join('|') === 'ps-view|ps-fine' && !m.repVis && !m.nav && m.alt === '마주 보고 몸을 숙이는 두 분 · 서로 마주 보고 인사하는 모습과, 절 전후 마주하는 표정을 담아요.' && Math.abs(m.ratio - 1.78) < 0.03 && m.fit === 'cover' && m.loaded > 0 && m.orderOk && m.afterMedia, JSON.stringify(m));
+        fine: [...sc.querySelectorAll('.ps-fine')].map((e) => e.textContent), txt: (() => { const k = car.cloneNode(true); k.querySelectorAll('.ps-nav').forEach((e) => e.remove()); return k.textContent; })() }; });   /* [SCENE_EXTRA_195] 넘김 줄(‹ › · 1 / 3)은 글이 아니라 단추 */
+    ok(`${vp.tag} 펼침 — 그림 16:9 · 보이는 글은 구도 한 줄뿐 · 대표 · 설명은 alt · 여러 장이면 넘김 줄 · 1장이면 없음 · 영상 아래 · 담기 위 [SCENE_ALT_193 · PHOTO_SCENE_MIN_1101]`, m.exp === 'true' && m.kids.join('|') === (c0.n > 1 ? 'ps-view|ps-nav|ps-fine' : 'ps-view|ps-fine') && !m.repVis && m.nav === (c0.n > 1) && m.alt === '마주 보고 몸을 숙이는 두 분 · 서로 마주 보고 인사하는 모습과, 절 전후 마주하는 표정을 담아요.' && Math.abs(m.ratio - 1.78) < 0.03 && m.fit === 'cover' && m.loaded > 0 && m.orderOk && m.afterMedia, JSON.stringify(m));
     ok(`${vp.tag} 구도 한 줄만(PS_FINE) · 라벨 · «예시예요» · «다른 장면» 0건 · 그림 이름은 대표 장면만`, m.fine.length === 1 && m.fine[0] === PS_FINE && !GONE.test(m.txt) && m.txt.trim() === PS_FINE && m.aria === '마주 보고 몸을 숙이는 두 분 · 크게 보기', JSON.stringify({ fine: m.fine, aria: m.aria, txt: m.txt }));
     // 확대 — 맨 위 창 하나 · Esc 는 확대만 닫는다 · 초점은 누른 그림으로 · 소리 다시 안 튼다
     const z = await pg.evaluate(async (GONE_SRC) => { const GONE_RE = new RegExp(GONE_SRC); const fig = document.querySelector('#pvScene .ps-fig'), a = PV.au; const t0 = a ? a.src : ''; fig.focus(); fig.click(); await new Promise((x) => setTimeout(x, 150));
@@ -99,14 +99,14 @@ try {
     if (vp.tag === 'pc') { await pg.evaluate(() => { document.querySelector('#pvScene .ps-fig').click(); }); await wait(300); await shot('5-zoom'); await pg.evaluate(() => psZoomClose()); }
     const ie = await pg.evaluate(() => { const sc = document.querySelector('#pvScene .ps-car'), c = sc.cloneNode(true); document.body.appendChild(c); _psImgErr(c.querySelector('.ps-fig img'));
       const o = { kids: [...c.children].map((e) => e.className).join('|'), fine: [...c.querySelectorAll('.ps-fine')].map((e) => e.textContent), fig: !!c.querySelector('.ps-fig'), alt: (c.querySelector('.ps-alt') || {}).textContent || '' }; c.remove(); return o; });
-    ok(`${vp.tag} 그림을 못 읽으면(_psImgErr) 그 자리에 대체 글(대표 · 설명) · 구도 한 줄 그대로 [SCENE_ALT_193 · PHOTO_SCENE_MIN_1101]`, !ie.fig && ie.kids === 'ps-view|ps-fine' && ie.alt === m.alt && ie.fine.length === 1 && ie.fine[0] === PS_FINE, JSON.stringify(ie));
+    ok(`${vp.tag} 그림을 못 읽으면(_psImgErr) 그 자리에 대체 글(대표 · 설명) · 구도 한 줄 그대로 [SCENE_ALT_193 · PHOTO_SCENE_MIN_1101]`, !ie.fig && ie.kids === (c0.n > 1 ? 'ps-view|ps-nav|ps-fine' : 'ps-view|ps-fine') && ie.alt === m.alt && ie.fine.length === 1 && ie.fine[0] === PS_FINE, JSON.stringify(ie));
     // 여러 장 — 수만 올리면 넘겨 보기(단추 · ← → 키 · 1 / N) [SCENE_N_194]
-    const cr = await pg.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)), R = RitualOpen; R.SCENE_N.matjeol = 3; PSC.i = {}; _psRe('matjeol'); await w(100);
+    const cr = await pg.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)), R = RitualOpen, n0 = R.SCENE_N.matjeol; R.SCENE_N.matjeol = 3; PSC.i = {}; _psRe('matjeol'); await w(100);
       const q = (s) => document.querySelector('#pvScene ' + s), o = { cnt0: (q('.ps-cnt') || {}).textContent, arw: document.querySelectorAll('#pvScene .ps-arw').length, role: (q('.ps-view') || { getAttribute: () => '' }).getAttribute('aria-roledescription') };
       document.querySelectorAll('#pvScene .ps-arw')[1].click(); await w(80); o.cnt1 = q('.ps-cnt').textContent; o.src1 = _psBox('matjeol', 'pv');   /* 아직 없는 둘째 사진은 그림 칸이 저절로 빠진다(_psImgErr) — 그린 글로 잰다 */
       q('.ps-view').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })); await w(80); o.cnt2 = q('.ps-cnt').textContent;
       q('.ps-view').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })); await w(80); o.cnt3 = q('.ps-cnt').textContent; o.focus = document.activeElement === q('.ps-view');
-      delete R.SCENE_N.matjeol; PSC.i = {}; _psRe('matjeol'); await w(80); o.back = !q('.ps-nav'); return o; });
+      R.SCENE_N.matjeol = 1; PSC.i = {}; _psRe('matjeol'); await w(80); o.back = !q('.ps-nav'); if (n0) R.SCENE_N.matjeol = n0; else delete R.SCENE_N.matjeol; PSC.i = {}; _psRe('matjeol'); await w(80); return o; });   /* [SCENE_EXTRA_195] 원래 장수로 되돌린다 */
     ok(`${vp.tag} 여러 장 — ‹ › 단추 · ← → 키 · «1 / 3» · 둘째 장은 <id>-2-640 · 1장으로 돌리면 넘김 표시 사라짐 [SCENE_N_194]`, cr.cnt0 === '1 / 3' && cr.arw === 2 && cr.role === '넘겨 보기' && cr.cnt1 === '2 / 3' && /scene\/matjeol-2-640\.webp/.test(cr.src1) && cr.cnt2 === '1 / 3' && cr.cnt3 === '3 / 3' && cr.focus && cr.back, JSON.stringify(cr));
     await pg.evaluate(() => opPvClose()); await wait(200);
     const openCar = async () => { await pg.evaluate(() => { const c = document.querySelector('#pvScene .ps-chip'); if (c && c.getAttribute('aria-expanded') !== 'true') c.click(); }); await wait(300); };
@@ -127,7 +127,7 @@ try {
         mkGo('_sum'); await w(300); out.linksPick = document.querySelectorAll('[data-fk^="pslink:"]').length;
         /* 스위치를 'step' 으로 — ② 쪽에 펼친 상자 · ① 창엔 없음 */
         R2.SCENE_AT = 'step'; mkGo('matjeol'); await w(400);
-        const d = document.querySelector('[data-fk="psfold:matjeol"]'); out.fold = d ? d.querySelector('summary').textContent : ''; out.foldTxt = d ? d.querySelector('.ps-car').textContent : ''; out.foldFine = d ? [...d.querySelectorAll('.ps-fine')].map((e) => e.textContent) : []; out.closed = d ? !d.open : false; out.chip = d ? !!d.querySelector('.ps-chip') : true; out.carOpen = d ? !d.querySelector('.ps-car').hidden : false;
+        const d = document.querySelector('[data-fk="psfold:matjeol"]'); out.fold = d ? d.querySelector('summary').textContent : ''; out.foldTxt = d ? (() => { const k = d.querySelector('.ps-car').cloneNode(true); k.querySelectorAll('.ps-nav').forEach((e) => e.remove()); return k.textContent; })() : '';   /* [SCENE_EXTRA_195] 넘김 줄은 단추 */ out.foldFine = d ? [...d.querySelectorAll('.ps-fine')].map((e) => e.textContent) : []; out.closed = d ? !d.open : false; out.chip = d ? !!d.querySelector('.ps-chip') : true; out.carOpen = d ? !d.querySelector('.ps-car').hidden : false;
         mkGo('_close'); await w(300); out.fold2 = !!document.querySelector('[data-fk="psfold:_close"]');
         mkGo('_sum'); await w(300); out.links = [...document.querySelectorAll('[data-fk^="pslink:"]')].map((e) => e.textContent);
         R2.SCENE_AT = 'pick'; render(); await w(200);
