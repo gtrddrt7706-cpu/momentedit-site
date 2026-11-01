@@ -2368,7 +2368,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1102b"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101np"></script><script src="/assets/bgm-picks.js?v=1101dl"></script><script src="/assets/narration-pad.js?v=1102n"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101r3"></script><script src="/assets/bgm-form.js?v=1101r2"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1102c"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101np"></script><script src="/assets/bgm-picks.js?v=1101dl"></script><script src="/assets/narration-pad.js?v=1102n"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102p"></script><script src="/assets/bgm-form.js?v=1101r2"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3209,7 +3209,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1102b';   // [ASSET_V] 위 주석
+  var ASSET_V='1102c';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -3310,7 +3310,7 @@ function _asPlay(){ try{ if(navigator.audioSession&&!(typeof _micLive==='functio
 function _asRec(){ try{ if(navigator.audioSession) navigator.audioSession.type='play-and-record'; }catch(e){} }
 function _stopMk(){ try{ if(window.EntryMusic) EntryMusic.hush(window.__emInner?{inner:1}:null); }catch(e){}   /* [DETAIL_R4_1101 ②] 안에서 넘겨줄 때만 장면을 지킨다 */ try{ if(window.BgmBed) BgmBed.hush(); }catch(e){}   /* [BGM_PREVIEW_1024] 곡 카드 ▶ 도 소리 하나 */   /* [ENTRY_MUSIC_1012] 소리 하나([ONE_SOUND]) — 줄 ▶ · 이 순간 전체 듣기를 누르면 입장 음악 미리 듣기는 멈춘다 */
   try{ if(typeof MK!=='undefined') MK.playTok=(MK.playTok||0)+1; if(typeof MK!=='undefined'&&MK.aud){ var _a=MK.aud; MK.aud=null; MK.audKey=null; _a.onended=null; _a.pause(); } }catch(e){} }
-function _lpHush(){ try{ if(typeof LP!=='undefined'&&LP.q&&LP.q.length&&!LP.paused){ LP.paused=true; clearTimeout(LP.t); try{ _lAud().pause(); }catch(e){} _lPaint(); } }catch(e){} }   /* ★[ONE_SOUND 2026-10-09 점검 R1] 줄 ▶ · 나레이션 ▶ · 맞추기 · 연습 녹음 ▶ 를 누르면 «이 순간 전체 듣기» · 작은 플레이어는 그 자리에 멈춘다(▶ 로 이어서) — 종전엔 두 소리가 같이 났다(플레이어가 틀 때는 _stopMk 로 줄 소리를 막는데 거꾸로 길이 없었다) */
+function _lpHush(){ try{ if(typeof LP!=='undefined'&&LP.q&&LP.q.length&&!LP.paused){ LP.paused=true; LP.hushed=true;   /* ★[PR_BGM_197 4] 녹음 다시 듣기 등 다른 소리 — 연습 음악도 잠깐 내린다(이어 하면 멈춘 곡 · 자리에서 0.6초) */ clearTimeout(LP.t); try{ _lAud().pause(); }catch(e){} _lPaint(); } }catch(e){} }   /* ★[ONE_SOUND 2026-10-09 점검 R1] 줄 ▶ · 나레이션 ▶ · 맞추기 · 연습 녹음 ▶ 를 누르면 «이 순간 전체 듣기» · 작은 플레이어는 그 자리에 멈춘다(▶ 로 이어서) — 종전엔 두 소리가 같이 났다(플레이어가 틀 때는 _stopMk 로 줄 소리를 막는데 거꾸로 길이 없었다) */
 function _stopAud(){
   AUDTOK++;   // 늦게 도착한 조회 결과가 다음 버튼을 덮지 않게 — 표를 바꿔 무효화한다
   var b=AUDBTN; AUDBTN=null; AUDQ=null; AUDI=0; AUDOK=0; AUDSKIP=0; AUDWAIT=false; AUDERRC='';
@@ -7629,9 +7629,10 @@ function renderPractice(){ var R=RitualOpen;
   h+='<div class="pr-grid"><div class="pr-lead">'+_modeH
     +'<button type="button" class="pr-hero" data-fk="prall" onclick="_ptGate(lsPlayAll)" aria-label="처음부터 끝까지 연습하기'+(_mins?' · 약 '+_mins+'분':'')+'">'
     +'<span class="pr-hm"'+_vfy(_hv)+'>'+(_hv?'<img src="'+esc(_hv.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
-    +'<span class="pr-hl"><b>처음부터 시작하기</b>'+(_mins?'<span>연습 약 '+_mins+'분 · 음악 없이 말과 나레이션만</span>':'')   /* [PRACTICE_WALK_R2 7] 연습 시간과 당일 시간을 나눠 말한다 */+'</span></button>'
+    +'<span class="pr-hl"><b>처음부터 시작하기</b>'+(_mins?'<span>연습 약 '+_mins+'분 · <span class="pr-mut">'+(_prMusic()?'음악과 함께':'음악 없이 말과 나레이션만')+'</span></span>'   /* ★[PR_BGM_197 7] 음악이 들어가니 «음악과 함께» · 끄면 옛 말 */:'')   /* [PRACTICE_WALK_R2 7] 연습 시간과 당일 시간을 나눠 말한다 */+'</span></button>'
     +(todo?'<p class="mk-note pr-todo">아직 안 적은 '+todo+'곳은 참고 예시 글로 보여 드려요</p>':'')
-    +'<button type="button" class="pr-sv" data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>'   /* ★[SCRIPT_VIEW_1018 검토 74] ④ «대본 복사 · 파일»과 같은 글(scriptTextOpen)을 읽기만 · 새 쪽은 없다 */
+    +'<button type="button" class="pr-sv" data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>'
+    +'<button type="button" class="pr-sv" data-fk="prmu" aria-pressed="'+(_prMusic()?'false':'true')+'" onclick="prMusicTgl()">'+(_prMusic()?'음악 끄기':'음악 켜기')+'</button>'   /* ★[PR_BGM_197 8] 작은 토글 · «글로 한눈에 보기»와 같은 모양 */   /* ★[SCRIPT_VIEW_1018 검토 74] ④ «대본 복사 · 파일»과 같은 글(scriptTextOpen)을 읽기만 · 새 쪽은 없다 */
     +_prPrepFold()   /* [PR_PREP_FOLD] 장면 카드 아래 */   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
     +'</div>';
   /* ★«빠르게 훑기»(prfast) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_FAST_OFF]
@@ -8265,7 +8266,14 @@ function _prSec(){ var h='<section class="mk-sec pr-voice"><h4>내 목소리로 
     +'<span class="mk-vbs"><button type="button" class="rowbtn" data-fk="prtakeall" onclick="prPlayAll()">처음부터 들어 보기</button><button type="button" class="pk-link" data-fk="prclear" onclick="prClear()">연습 녹음 모두 지우기</button></span>'; }
   return h+'</section>'; }
 /* ★[BGM_PREVIEW_1024] 구간 음악을 까는 듣기 — 마이페이지 안(BgmBed 가 본다) · ② 순간 쪽의 이 순간 전체 듣기 · 크게 보기(한 줄 듣기 · ③ 연습 · ④ 는 빼고) */
-function _bedOn(){ try{ return !!window.BgmBed&&!LP.one&&!!STEPS[idx]&&STEPS[idx].k==='listen'; }catch(e){ return false; } }
+function _bedOn(){ try{ var _sk=STEPS[idx]&&STEPS[idx].k; return !!window.BgmBed&&!LP.one&&(_sk==='listen'||(_sk==='practice'&&_prMusic())); }catch(e){ return false; } }   /* ★[PR_BGM_197] 연습도 ② 와 같은 BgmBed 하나(크기 · 뜸 · 곡 계획 · 이어짐 · 목록 · listArm 그대로) — 연습 쪽에 크기 · 곡을 따로 적지 않는다 */
+/* ★★[PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] 연습 음악 켜기 · 끄기(기본 켜짐 · 그 기기에만 기억) — 밤 · 이웃 · 대본만 빨리 볼 때. 꺼도 말 · 나레이션 흐름은 같다 */
+var _PRMU=null;
+function _prMusic(){ if(_PRMU!=null) return _PRMU; try{ return localStorage.getItem('me_pr_music')!=='off'; }catch(e){ return true; } }
+window.prMusicTgl=function(){ var on=!_prMusic(); _PRMU=on; try{ localStorage.setItem('me_pr_music',on?'on':'off'); }catch(e){}
+  try{ if(!on){ if(window.BgmBed) (BgmBed.lpEnd||function(){})(); } else { var st=LP.q&&LP.q[LP.i]; if(st&&_bedOn()) BgmBed.lpShow(st); } }catch(e){}
+  document.querySelectorAll('[data-fk="prmu"]').forEach(function(b){ b.setAttribute('aria-pressed',on?'false':'true'); b.textContent=on?'음악 끄기':'음악 켜기'; });
+  document.querySelectorAll('.pr-hl .pr-mut').forEach(function(e){ e.textContent=on?'음악과 함께':'음악 없이 말과 나레이션만'; }); };
 function _lEnd(){
   _prStop();   // [PRACTICE_VOICE]
   try{ if(window.BgmBed) (BgmBed.lpFin||BgmBed.lpEnd)(); }catch(e){}   // [BGM_PREVIEW_1024] · ★[LISTEN_LOOK_LEVEL_1101 ③] 끝까지 들으면 여운(−8 · 5초 · 3초에 잦아듦) · ⏹(lsStop)는 지금처럼 1.5초
@@ -8307,7 +8315,7 @@ window.lsToggle=function(){
   var _rst=LP.q[LP.i]; if(!LP.paused&&LP.leadLeftSt&&LP.leadLeftSt===_rst&&LP.leadSt===_rst&&LP.leadLeft>0){ var st=_rst, _ll=LP.leadLeft, _lme=LP.tok; LP.leadLeftSt=null; LP.hint=null; _lUnlock(); try{ if(_bedOn()&&BgmBed.lpResumeLead) BgmBed.lpResumeLead(st,_ll); }catch(e){}   /* ★[DETAIL_R2_1101 ④] 이어 들으면 남은 연출부터(처음부터 다시 하지 않는다) */
     clearTimeout(LP.t); LP.tAt=Date.now()-(LP.tMs-_ll); LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_lme===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ll); _lPaint(); return; }
   LP.leadLeftSt=null;
-  if(!LP.paused){ _lUnlock(); LP.hint=null; try{ if(_bedOn()&&BgmBed.lpResume) BgmBed.lpResume(); }catch(e){} }   /* ★[DETAIL_R1_1101 ③] 멈춘 곡 · 자리 · 지금 줄 크기로 0.6초에 */
+  if(!LP.paused){ LP.hushed=false; _lUnlock(); LP.hint=null; try{ if(_bedOn()&&BgmBed.lpResume) BgmBed.lpResume(); }catch(e){} }   /* [PR_BGM_197] */   /* ★[DETAIL_R1_1101 ③] 멈춘 곡 · 자리 · 지금 줄 크기로 0.6초에 */
   var st=LP.q[LP.i], a=_lAud();
   if(LP.paused&&LP.leadSt&&LP.leadSt===st&&LP.tAt&&LP.tMs){ LP.leadLeft=Math.max(0,LP.tMs-(Date.now()-LP.tAt)); LP.leadLeftSt=st; try{ if(window.BgmBed&&BgmBed.lpPauseLead) BgmBed.lpPauseLead(st); }catch(e){} }   /* ★[DETAIL_R2_1101 ④] 뜸(선언 앞 연출) 중 멈춤 — 남은 시간을 적어 둔다 */
   if(LP.paused){ try{ a.pause(); }catch(e){} if(st&&!st.src&&LP.tAt&&LP.tMs){ LP.tLeft=Math.max(0,LP.tMs-(Date.now()-LP.tAt)); LP.tLeftSt=st; } clearTimeout(LP.t); }   /* ★[TALK_RESUME_1031 식순 걷기 2라운드 9] 직접 말하는 차례를 멈추면 남은 시간을 적어 둔다 */

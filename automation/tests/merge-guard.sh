@@ -21226,6 +21226,14 @@ chk 'id="mkFgPost">식후</p>' order-preview.html 1
 chk 'data-fk="sum:_after"' order-preview.html 1
 chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf)" order-preview.html 1
 chk "pc.tiles === '4,4,4,5'" scripts/audit/pick-v2.mjs 1
+# ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
+chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
+chk 'function prKeep(){' assets/bgm-bed.js 1
+chk 'if(pz&&prKeep()) return;' assets/bgm-bed.js 1
+chk 'LP.hushed=true;' order-preview.html 1
+chk 'data-fk="prmu"' order-preview.html 1
+nochk "'<span>연습 약 '+_mins+'분 · 음악 없이 말과 나레이션만</span>'" order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-bgm.mjs >/dev/null 2>&1; _prb=$?; if [ "$_prb" = 1 ]; then echo 'FAIL pr-bgm: 연습 음악(엔진 · 멈춤 −20 · 다른 소리 잦아듦 · 끄기 · 시작 단추 글)이 어긋났습니다 — node scripts/audit/pr-bgm.mjs'; fail=1; elif [ "$_prb" = 2 ]; then echo 'skip pr-bgm (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok pr-bgm'; fi; fi   # ★[PR_BGM_197]
 nochk "'narr-closing': \[CL_THX, CL_DAY, CL_CREW\]" assets/ritual-cue.js
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
