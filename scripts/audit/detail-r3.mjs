@@ -54,6 +54,16 @@ try {
     const err = await pg.evaluate(() => { const e = document.getElementById('bedErr'); return e && !e.hidden ? e.textContent : ''; });
     ok('R3 ② 화촉 곡 파일이 안 열린다 — 하객 맞이 곡이 그대로 흐르고(지금 곡 · 재생기 그대로) · 빨간 한 줄', s0.id && s1.id === s0.id && s1.on === s0.on && !s1.paused[s1.on] && err === '곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요', { s0: [s0.seg, s0.id, s0.on], s1: [s1.seg, s1.id, s1.on, s1.paused], err });
     ok('R3 ② 쪽 오류 0', !errs.length, errs); await ctx.close(); }
+  /* ★[DETAIL_R5_1101 규칙 5] 목록 다음 곡이 안 열리면 — 그다음 곡으로(이번 순환에서 건너뜀 · 다시 시도 0) · 틀 곡이 하나도 없으면 지금 곡을 처음부터 + 상태 한 줄 */
+  for (const [nm, files, want] of [['skip', [['m1a.wav', 12, 300], ['m1b.wav', 0, 'bad'], ['m1c.wav', 30, 500]], 'third'], ['none', [['m1a.wav', 12, 300], ['m1b.wav', 0, 'bad'], ['m1c.wav', 0, 'bad']], 'same']]) {
+    const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const { pg, errs } = await page(ctx, base(), 'R5' + nm);
+    for (let i = 0; i < files.length; i++) await put(pg, 'M1', i + 1, fileOf(nm + files[i][0], files[i][1], files[i][2]));
+    await pg.waitForTimeout(1200); await pg.click('#go'); await pg.waitForTimeout(2500); const s0 = await st(pg);
+    const ids = await pg.evaluate(() => window.__seg.st().list.slice()); await pg.waitForTimeout(13000); const s1 = await st(pg); await pg.waitForTimeout(4000); const s2 = await st(pg);
+    const err = await pg.evaluate(() => { const e = document.getElementById('bedErr'); return e && !e.hidden ? e.textContent : ''; });
+    const good = want === 'third' ? (s1.id === ids[2] && !s1.paused[s1.on] && s2.id === ids[2]) : (s1.id === s0.id && !s1.paused[s1.on] && !s2.paused[s2.on] && err === '다음 곡을 열지 못해 지금 곡을 이어 틀어요');
+    ok(`R5 규칙 5 ${want === 'third' ? '둘째 곡이 안 열린다 — 셋째 곡으로 넘어가 계속 흐른다' : '다른 곡이 다 안 열린다 — 지금 곡을 처음부터 이어 틀고 «다음 곡을 열지 못해 지금 곡을 이어 틀어요»'}`, s0.seg === 'M1' && s0.id === ids[0] && good, { ids, s0: [s0.seg, s0.id], s1: [s1.id, s1.on, s1.paused], s2: [s2.id, s2.paused], err });
+    ok(`R5 규칙 5 ${nm} 쪽 오류 0`, !errs.length, errs); await ctx.close(); }
   /* R3 ③ 겹침 중 GO */
   { const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const { pg, errs } = await page(ctx, base(), 'R3C');
     await put(pg, 'M1', 1, fileOf('a1.wav', 60, 300)); await put(pg, 'M2', 1, fileOf('a2.wav', 60, 400)); await put(pg, 'M2', 2, fileOf('a2b.wav', 60, 400)); await put(pg, 'M2', 3, fileOf('a2c.wav', 60, 400)); await put(pg, 'M4', 1, fileOf('a4.wav', 60, 500));

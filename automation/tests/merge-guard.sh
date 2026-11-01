@@ -21601,4 +21601,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/bed-load.mjs >/dev/n
 chk 'ROW_FILL_PLAY_1101' assets/bgm-bed.js 1   # [ROW_FILL_PLAY_1101] 목록 칸 배경 곡 ▶ 도 재생 · 조용히 무시하지 않는다
 chk 'ROW_FILL_PLAY_1101' scripts/audit/bgm-fill.mjs 1
 nochk "if(!d||!P.byF(f)||(P.PICKS\[sg\]||\[\]).indexOf(f)<0) return;" assets/bgm-bed.js 0   # [ROW_FILL_PLAY_1101] ▶ 를 PICKS 로만 막던 줄
+chk 'function listGo(step)' console.html 1   # [DETAIL_R5_1101 규칙 5] 목록 다음 곡 — 못 연 곡 건너뛰기 · 없으면 지금 곡 이어 틀기 + 상태 한 줄
+chk '다음 곡을 열지 못해 지금 곡을 이어 틀어요' console.html 1
+chk 'LPB.keep={}; if(CARD.f' assets/bgm-bed.js 1   # [DETAIL_R5_1101 규칙 6] 새로 듣기 · 순간 옮기기 = 처음
+nochk "lsCloseBig();setTimeout(function(){ opGoStep" order-preview.html 0   # [DETAIL_R4_1101 ⑥] 닫고 옮기기는 콜백으로만
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

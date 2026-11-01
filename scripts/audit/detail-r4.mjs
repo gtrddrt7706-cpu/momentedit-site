@@ -3,6 +3,8 @@
    R4 ② 입장 장면 → 받는 말 넘김(HAND)을 지키는 것은 안에서 넘겨줄 때뿐 — 고객이 순간을 옮기거나 다른 ▶ 를 틀면 장면까지 멈춘다(ENTRY_UNDER 회귀)
    R4 ① 곡 카드를 받는 중에 순간을 옮기거나 새로 들으면 — 늦게 온 카드 곡이 시작하지 않는다(받는 중인 카드 차례도 무효)
    R3 ⑤ 축배 곡이 늦으면 앞 곡을 올리지 않는다 · R3 ⑥ 축사 «음악과 함께» 뒤 본식 곡은 떠난 초부터
+   R4 ⑤ 곡 카드 재생 시작이 실패하면 ▶ 로 되돌리고 한 줄
+   R4 ⑥ 크게 보기 «다음 걸음» — 닫기가 늦어도 새 걸음에 머문다(lsCloseBig 콜백)
    R4 ⑦ 안내 칸(하객 맞이 · 테이블)도 곡 목록이 빈 목록으로 오면 «곡 목록을 불러오지 못했어요» + «다시 불러오기» · 누르면 다시 묻고 목록이 오면 한 줄이 걷힌다
    BP_BED · BP_OP · BP_EM(entry-music.js) = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -163,6 +165,27 @@ try {
     const m4 = await f.evaluate(() => BgmBed._t.eff('M4')), ids = [...new Set(o6.filter((x) => x.src && x.f === m4).map((x) => x.id))], s5 = o6.some((x) => x.src && x.f !== m4 && x.k === 'free');
     const back = ids.length > 1 ? o6.find((x) => x.id === ids[ids.length - 1]) : null;
     ok('R3 ⑥ 축사 «음악과 함께» 곡 뒤 본식 곡으로 돌아오면 떠난 초부터(0초 아님)', s5 && !!back && back.off > 1, { m4, ids, back, s5, seq: [...new Set(o6.filter((x) => x.src).map((x) => x.k + ':' + x.f + ':' + x.id + ':' + Math.round(x.off || 0)))].slice(0, 24) }); }
+  /* ★[DETAIL_R5_1101 규칙 6] 새로 듣기(처음부터)는 위치 0 — 앞 흐름의 «떠난 초»를 새 듣기에 들고 오지 않는다 */
+  { const m4 = await f.evaluate(() => BgmBed._t.eff('M4')), kp = await f.evaluate((m4) => (BgmBed._t.LPB.keep || {})[m4] || 0, m4); await go(f, 'letter');
+    const o7 = await trace(f, ['letter'], 9000, false), v1 = o7.find((x) => x.src && x.f === m4);
+    ok('R5 규칙 6 새로 듣기 — 본식 곡은 처음(0초)부터 · 앞 흐름의 떠난 초를 이어 쓰지 않는다', !!v1 && v1.off < 1, { m4, kp, v1 }); }
+  /* ★[DETAIL_R4_1101 ⑥] 크게 보기 «다음 걸음» — 닫기(뒤로가기)가 늦게 와도 새 걸음에 머문다(lsCloseBig 콜백) · 옛 30ms 뒤 opGoStep 은 옛 걸음으로 되돌아왔다 */
+  { const runPat = async (code) => { await go(f, 'welcome'); await f.evaluate(() => { try { lsBig('welcome'); } catch (e) {} }); await wait(f, 700);
+      return f.evaluate(async (code) => { const ob = history.back.bind(history); history.back = function () { setTimeout(ob, 300); };   /* 뒤로가기 응답이 늦은 폰 */
+        const ev = [], og = window.opGoStep, onPop = () => ev.push('pop'); window.addEventListener('popstate', onPop); window.opGoStep = function () { ev.push('go'); return og.apply(this, arguments); };
+        const big0 = !!(history.state && history.state.big); try { (0, eval)(code); } catch (e) {} await new Promise((r) => setTimeout(r, 1300)); history.back = ob; window.opGoStep = og; window.removeEventListener('popstate', onPop);
+        try { lsStop(); } catch (e) {} return { big0, k: STEPS[idx] && STEPS[idx].k, big: !!LP.big, ev: ev.join(',') }; }, code); };
+    const btn = await f.evaluate(() => { const h = document.body.innerHTML; return { cb: (h.match(/lsCloseBig\(function\(\)\{ opGoStep\(/g) || []).length, old: (h.match(/lsCloseBig\(\);setTimeout\(function\(\)\{ opGoStep/g) || []).length }; });
+    const nw = await runPat("lsCloseBig(function(){ opGoStep('practice'); })"), od = await runPat("lsCloseBig();setTimeout(function(){ opGoStep('practice'); },30)");
+    ok('R4 ⑥ 크게 보기 «다음 걸음» — 뒤로가기가 0.3초 늦어도 새 걸음(연습)에 머문다 · 뒤로가기가 끝난 뒤에 걸음을 옮긴다 · 크게 보기는 닫힘 · 화면 단추는 콜백 꼴(30ms 꼴 0)', nw.big0 && nw.k === 'practice' && !nw.big && /^pop,go/.test(nw.ev) && btn.old === 0 && /^go/.test(od.ev), { nw, od, btn }); }   /* 순서 = 뒤로가기(pop)가 끝난 뒤에 걸음을 옮긴다 · 옛 꼴은 go 가 먼저 */
+  /* ★[DETAIL_R4_1101 ⑤ · ROW_FILL_PLAY_1101] 곡 카드 재생 시작이 실패하면 — ■ 로 남지 않고 ▶ 로 · «재생하지 못했어요 · 다시 눌러 주세요» */
+  { await go(f, 'candle'); await wait(f, 600);
+    const r5c = await f.evaluate(async () => { const P0 = AudioContext.prototype.createBufferSource; const b = document.querySelector('.ls-bed[data-seg="M2"] .mu-pl[data-fk^="bedp:M2:"]:not(.off)');
+      if (!b) return { none: true }; const fk = b.getAttribute('data-fk'); AudioContext.prototype.createBufferSource = function () { throw new Error('시험 — 재생 실패'); };
+      try { b.click(); await new Promise((r) => setTimeout(r, 1500)); } finally { AudioContext.prototype.createBufferSource = P0; }
+      const t = BgmBed._t, u = document.getElementById('lsToast'), bb = document.querySelector('[data-fk="' + fk + '"]');
+      return { fk, cf: t.CARD.f, st: t.CARD.st, who: t.BED.who, toast: u && !u.hidden ? u.textContent.trim() : '', pressed: bb && bb.getAttribute('aria-pressed') }; });
+    ok('R4 ⑤ 곡 카드 재생 시작 실패 — ▶ 로 되돌림(CARD 비움 · aria-pressed false) · «재생하지 못했어요 · 다시 눌러 주세요»', !r5c.none && r5c.cf === '' && r5c.st === '' && r5c.who !== 'card' && r5c.pressed === 'false' && /재생하지 못했어요 · 다시 눌러 주세요/.test(r5c.toast), r5c); }
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3));
   await ctx.close();
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }
