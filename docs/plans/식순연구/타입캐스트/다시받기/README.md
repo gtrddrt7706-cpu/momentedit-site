@@ -13,14 +13,6 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_진희.txt | 진희 | 2 | 2 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
-
-```
-# 진희 — 2줄 · 2클립
-node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =291_narr-closing-meal,=296_narr-closing-meal-nt
-```
-★291_narr-closing-meal · 296_narr-closing-meal-nt 은 두 사람이 한 클립에 섞여 있습니다. 진희 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
