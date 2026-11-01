@@ -64,24 +64,36 @@
     /* [BGM_FIX_1030 덧붙임 2] 축배는 «위하여» 뒤 크게 트는 자리 — 첫 소절부터 다 아는 밝은 팝(웨딩 BGM 자료 · 축배 · 퇴장은 밝은 팝이 압도적) · 화촉은 부모님 세대도 아는 드라마 OST */
     B28: { t: 'Happy', a: 'Pharrell Williams', v: 'G I R L · 원곡', why: '다 같이 손뼉 치게', vocal: true },
     B29: { t: 'Best Day Of My Life', a: 'American Authors', v: 'Oh, What a Life', why: '하루를 축하하듯 신나게', vocal: true },
-    B30: { t: '꽃바람 부는 길', src: '성균관 스캔들', a: '', v: '성균관 스캔들 OST · 연주곡', why: '단아하게 · 천천히 걷는 걸음' }   /* [BGM_FIX_1030] «어머님 걸음» → 화촉은 «두 분이 부탁한 분들»이 밝힌다(식순 화면) · 어머님으로 못 박지 않는다 */
+    B30: { t: '꽃바람 부는 길', src: '성균관 스캔들', a: '', v: '성균관 스캔들 OST · 연주곡', why: '단아하게 · 천천히 걷는 걸음' },   /* [BGM_FIX_1030] «어머님 걸음» → 화촉은 «두 분이 부탁한 분들»이 밝힌다(식순 화면) · 어머님으로 못 박지 않는다 */   /* [GHIBLI_ADD_1101] 구간 목록에서 뺐다(데이터만 둔다) */
+    /* ★[GHIBLI_ADD_1101 2026-11-01 사장님 «지브리 음악은 좀 더 추가했으면 좋겠어» · GPT 와 판 고름] 지브리 4곡 — 드라이브 ME_구간곡 B31_ ~ B34_(−23 LUFS · 끝 무음 자름 · 짧은 곡은 겹쳐 이어 7 ~ 9분) */
+    B31: { t: '언제나 몇 번이라도', src: '센과 치히로의 행방불명', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '단정한 피아노' },
+    B32: { t: '너를 태우고', src: '천공의 성 라퓨타', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '차분한 여운' },
+    B33: { t: '바람이 지나가는 길', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '산들바람 같은 재즈 피아노' },
+    B34: { t: '산책', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Memorable Songs~', why: '경쾌한 재즈 피아노' }
   };
   /* 구간 → 곡 번호(위가 1순위 · 2026-10-30 표 그대로) */
   /* ★★[PICKS_THREE_1101 사장님 «구간마다 노래를 3개로 추리고 너무 힙한 건 공감 못 하니 빼자» · GPT 확인 «없음»] 구간마다 3곡(위가 1순위) —
        목록에서 뺀 곡: B02 · B03 · B04 · B06 · B18 · B21 · B25(SONGS 데이터는 그대로 둔다 · 예전에 고른 저장값은 custK 가 «고르지 않음 = 1순위»로 읽는다) */
+  /* ★[GHIBLI_ADD_1101] 지브리 4곡을 넣은 판 — 화촉 · 부모님께 인사 · 닫는 인사 · 마지막 곡을 바꿨다(B30 · B20 · B26 은 목록에서 빠지고 데이터만 남는다) */
   var PICKS = {
-    M1: ['B01', 'B24', 'B13'],     // 하객 맞이 — 바다가 보이는 마을 · Country Roads · Moon River(반복 목록)
-    M2: ['B05', 'B07', 'B30'],     // 화촉
+    M1: ['B01', 'B24', 'B13'],     // 하객 맞이 — 바다가 보이는 마을 · Country Roads · Moon River(반복 목록 · 뒤에 FILL)
+    M2: ['B05', 'B31', 'B07'],     // 화촉
     M4: ['B09', 'B10', 'B11'],     // 감사 인사 ~ 덕담
     M4S5: ['B13', 'B14', 'B12'],   // 축사 «음악과 함께»
     M4S6: ['B10', 'B12', 'B14'],   // 편지 «음악과 함께»
-    M5: ['B15', 'B11', 'B16'],     // 부모님께 인사
-    M6: ['B17', 'B19', 'B20'],     // 닫는 인사 → 사진(한 곡이 사진까지 잇는다)
+    M5: ['B15', 'B31', 'B16'],     // 부모님께 인사
+    M6: ['B17', 'B34', 'B19'],     // 닫는 인사 → 사진(한 곡이 사진까지 잇는다)
     M6P: [],                       // 사진 칸은 비운다 — 닫는 인사 곡이 이어진다(콘솔에서 «곡 추가»로 그 기기에만 넣을 수는 있다)
     M7: ['B28', 'B29', 'B22'],     // 축배 · start = 강조 위치(콘솔 «강조 시작») · 보컬 1순위 허용(GO 뒤에 시작해 나레이션 위로 크게 나오지 않는다)
-    M8: ['B24', 'B23', 'B16'],     // 테이블 인사
-    M8L: ['B11', 'B27', 'B26']     // 마지막 곡
+    M8: ['B24', 'B23', 'B16'],     // 테이블 인사(반복 목록 · 뒤에 FILL)
+    M8L: ['B32', 'B11', 'B27']     // 마지막 곡
   };
+  /* ★★[BGM_FILL_1101 2026-11-01 사장님 «하객 맞이 음악은 계속 흐르는 건가? 한 곡만으로는 힘들지 않아?»] 목록 칸(multi · M1 · M8)은 30분을 채운다 —
+       고객이 고르는 곡은 3곡 그대로 · 당일 콘솔이 트는 차례 끝에 «배경으로만 이어 트는 곡»(fill)을 붙인다(고객 화면 곡 줄 · 곡 카드 · 미리 듣기에는 없다 · 순서 줄에는 보인다)
+       차례 = 고른 곡(없으면 1순위) → 그 구간 나머지 → fill · 한 바퀴 뒤 처음으로 · ★[GHIBLI_ADD_1101] fill 이 다른 구간에서 두 분이 고른 곡이면 건너뛴다(겹쳐 들리지 않게) */
+  var FILL = { M1: ['B16', 'B33'], M8: ['B13', 'B14'] };
+  /* 본식 차례(«앞 구간» · 같은 곡 두 구간 한 줄) — 테이블 인사 → 축배 → 닫는 인사(END_FLOW_1030) */
+  var CORDER = ['M1', 'M2', 'M4', 'M4S5', 'M4S6', 'M5', 'M8', 'M7', 'M6'];
 
   /* 구간 — 콘솔 «구간 음악» 칸의 차례 · ks = 이 구간 곡이 흐르는 엔진 순간
      ★[BGM_PREVIEW_1024] cust = 고객이 식순 화면에서 고르는 구간(그 구간의 첫 담긴 순간 쪽 «고르기» 칸에 «‹순간› 음악» 줄 하나) · slot = 축사 · 편지 «음악과 함께» 아래 곡 고르기(S.bgm.S5 · S6) ·
@@ -113,5 +125,13 @@
   function custK(S, seg) { var d = BY[seg]; if (!d || !S || !S.bgm) return ''; var v = S.bgm[d.slot || seg];
     if (!v || typeof v !== 'object') return ''; if (d.slot && v.m !== 'bed') return ''; var k = String(v.k || '');
     return (PICKS[seg] || []).indexOf(k) > -1 ? k : ''; }
-  return { SONGS: SONGS, PICKS: PICKS, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, F_RE: F_RE };
+  /* ★[BGM_FILL_1101] 곡 차례 한 곳 — 당일 콘솔 segSel(목록 칸 기본 · 한 곡 칸의 «파일 있는 다음 곡») · 식순 화면 M1 · M8 순서 줄이 이 함수 하나를 쓴다
+       order(S, 구간) = [고른 곡(없으면 1순위), 그 구간 나머지, (목록 칸이면) fill 중 다른 구간에서 고른 곡이 아닌 것] · 곡 번호 배열 · 중복 없음 */
+  function chosenBy(S, seg) { var o = {}; CORDER.forEach(function (s) { if (s === seg) return; var k = custK(S, s); if (k && !o[k]) o[k] = s; }); return o; }
+  function order(S, seg) { var L = PICKS[seg] || [], k = custK(S, seg), out = [], add = function (f) { if (f && SONGS[f] && out.indexOf(f) < 0) out.push(f); };
+    add(k || L[0]); L.forEach(add); if (BY[seg] && BY[seg].multi) { var el = chosenBy(S, seg); (FILL[seg] || []).forEach(function (f) { if (!el[f]) add(f); }); }
+    return out; }
+  /* ★[GHIBLI_ADD_1101] 같은 곡을 두 구간에서 골랐으면 뒤 구간 → 앞 구간 번호(본식 차례) · 아니면 '' — 막지는 않는다(식순 화면 곡 칸 아래 한 줄) */
+  function dupSeg(S, seg) { var k = custK(S, seg), i = CORDER.indexOf(seg); if (!k || i < 0) return ''; for (var j = 0; j < i; j++) { if (custK(S, CORDER[j]) === k) return CORDER[j]; } return ''; }
+  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, dupSeg: dupSeg, F_RE: F_RE };
 });

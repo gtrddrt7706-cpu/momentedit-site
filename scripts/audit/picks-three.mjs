@@ -4,7 +4,7 @@
    b 1순위 보컬 금지(축배 M7 만 예외) 그대로
    c 고객 화면(390 · 1280) — 구간 곡 줄이 3줄 · 그 순서 · 뺀 곡 0 · 펼치고 접기
    d 예전에 뺀 곡을 골라 둔 저장값(k='B03' 등) → «고르지 않음 = 1순위» · 오류 0(고객 화면 · 당일 콘솔)
-   e 당일 콘솔 «구간 음악» 기본 목록도 같은 3곡 · 뺀 곡 0
+   e 당일 콘솔 «구간 음악» 기본 목록도 같은 3곡 · 뺀 곡 0 · ★[BGM_FILL_1101] 목록 칸 M1 · M8 은 그 뒤 배경 곡 줄 · ★[GHIBLI_ADD_1101] 지브리 판 목록
    BP_PICKS · BP_BED · BP_OP · BP_CON = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -69,14 +69,16 @@ async function open(W, embed, init) {
 }
 
 const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 700); };
-const WANT = { M1: ['B01', 'B24', 'B13'], M2: ['B05', 'B07', 'B30'], M4: ['B09', 'B10', 'B11'], M4S5: ['B13', 'B14', 'B12'], M4S6: ['B10', 'B12', 'B14'], M5: ['B15', 'B11', 'B16'], M6: ['B17', 'B19', 'B20'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B11', 'B27', 'B26'] };
-const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B21', 'B25'];
+/* ★[GHIBLI_ADD_1101] 지브리 4곡을 넣은 판(화촉 · 부모님께 인사 · 닫는 인사 · 마지막 곡) — 뺀 곡 10(PICKS_THREE 7 + B20 · B26 · B30) */
+const WANT = { M1: ['B01', 'B24', 'B13'], M2: ['B05', 'B31', 'B07'], M4: ['B09', 'B10', 'B11'], M4S5: ['B13', 'B14', 'B12'], M4S6: ['B10', 'B12', 'B14'], M5: ['B15', 'B31', 'B16'], M6: ['B17', 'B34', 'B19'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B32', 'B11', 'B27'] };
+const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B20', 'B21', 'B25', 'B26', 'B30'];
+const FILLW = { M1: ['B16', 'B33'], M8: ['B13', 'B14'] };
 const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js'));
 try {
   /* a · b 데이터 */
   { const bad = Object.keys(WANT).filter((k) => JSON.stringify(P.PICKS[k]) !== JSON.stringify(WANT[k])), all = [].concat(...Object.values(P.PICKS));
     ok('a 구간마다 3곡 · 정한 순서 그대로(M1 · M2 · M4 · M4S5 · M4S6 · M5 · M6 · M7 · M8 · M8L)', !bad.length && Object.keys(P.PICKS).every((k) => k === 'M6P' || P.PICKS[k].length === 3), { bad: bad.map((k) => [k, P.PICKS[k]]) });
-    ok('a 뺀 7곡은 어느 목록에도 없다 · 곡 데이터(SONGS)는 남는다', !GONE.some((f) => all.includes(f)) && GONE.every((f) => P.SONGS[f] && P.SONGS[f].t), GONE.filter((f) => all.includes(f) || !P.SONGS[f]));
+    ok('a 뺀 10곡은 어느 목록에도 없다 · 곡 데이터(SONGS)는 남는다', !GONE.some((f) => all.includes(f)) && GONE.every((f) => P.SONGS[f] && P.SONGS[f].t), GONE.filter((f) => all.includes(f) || !P.SONGS[f]));
     const v1 = Object.keys(P.PICKS).filter((k) => k !== 'M7' && P.PICKS[k][0] && P.song(P.PICKS[k][0]).vocal);
     ok('b 1순위는 노래 곡이 아니다(축배 M7 만 예외)', !v1.length, v1);
     const old = { M1: { k: 'B03' }, M2: { k: 'B06' }, M8: { k: 'B25' }, M8L: { k: 'B25' }, S5: { m: 'bed', k: 'B02' }, M7: { k: 'B21' } }, S = { bgm: old };
@@ -114,9 +116,9 @@ try {
     await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":true}' })));
     await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S0)).toString('base64'))}`); await pg.waitForTimeout(1200);
     const R = await pg.evaluate((W) => { const o = {}; Object.keys(W).forEach((sg) => { const b = document.querySelector('.sg[data-seg="' + sg + '"]'); o[sg] = b ? [...b.querySelectorAll('.sg-song')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()) : null; }); return { o, txt: (document.querySelector('#sgList, .sg-list, body') || document.body).textContent }; }, WANT);
-    const bad = Object.keys(WANT).filter((sg) => R.o[sg] && !(R.o[sg].length === 3 && WANT[sg].every((f, i) => R.o[sg][i] && R.o[sg][i].indexOf(P.SONGS[f].t) > -1)));
+    const bad = Object.keys(WANT).filter((sg) => { const want = WANT[sg].concat(FILLW[sg] || []); return R.o[sg] && !(R.o[sg].length === want.length && want.every((f, i) => R.o[sg][i] && R.o[sg][i].indexOf(P.SONGS[f].t) > -1) && (FILLW[sg] || []).every((f, j) => /배경으로만 이어 틀어요/.test(R.o[sg][3 + j]))); });   /* ★[BGM_FILL_1101] 목록 칸(M1 · M8)은 3곡 뒤에 배경 곡 줄(«배경으로만 이어 틀어요») */
     const goneC = GONE.map((g) => P.SONGS[g].t).filter((t) => [].concat(...Object.values(R.o).filter(Boolean)).some((x) => x.indexOf(t) > -1));
-    ok('e 당일 콘솔 «구간 음악» 기본 목록 = 같은 3곡 · 뺀 곡 0 · 옛 저장값(뺀 곡) 오류 0', Object.values(R.o).filter(Boolean).length >= 8 && !bad.length && !goneC.length && !errs.length, { bad: bad.map((sg) => [sg, R.o[sg]]), goneC, errs: errs.slice(0, 2), segs: Object.keys(R.o).filter((k) => R.o[k]) });
+    ok('e 당일 콘솔 «구간 음악» 기본 목록 = 같은 3곡(목록 칸은 + 배경 곡) · 뺀 곡 0 · 옛 저장값(뺀 곡) 오류 0', Object.values(R.o).filter(Boolean).length >= 8 && !bad.length && !goneC.length && !errs.length, { bad: bad.map((sg) => [sg, R.o[sg]]), goneC, errs: errs.slice(0, 2), segs: Object.keys(R.o).filter((k) => R.o[k]) });
     await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();

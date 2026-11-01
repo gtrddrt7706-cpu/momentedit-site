@@ -37,8 +37,8 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 function wav(sec, f, sr = 16000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
   for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
 const SHORT = wav(0.6, 330);   /* 나레이션 대신 — 0.6초 */
-/* 드라이브에 있는 곡(시험) — B30(화촉 3) · 테이블 인사 곡(B24 · B23 · B16)은 없다 · ★[PICKS_THREE_1101] 구간마다 3곡 — 뺀 곡(B02 · B04 · B06 · B21) 대신 B07 · B20 */
-const HAVE = ['B01', 'B05', 'B07', 'B09', 'B10', 'B12', 'B13', 'B15', 'B17', 'B20', 'B28'];
+/* 드라이브에 있는 곡(시험) — B31(화촉 2 · ★[GHIBLI_ADD_1101]) · 테이블 인사 곡(B24 · B23 · B16)은 없다 · ★[PICKS_THREE_1101] 구간마다 3곡 — 뺀 곡(B02 · B04 · B06 · B21) 대신 B07 · B20 */
+const HAVE = ['B01', 'B05', 'B07', 'B09', 'B10', 'B12', 'B13', 'B15', 'B17', 'B28'];
 const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(20, 180 + i * 20).toString('base64'); });
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
 <script>
@@ -105,14 +105,14 @@ try {
     /* 1 화촉 */
     r = await row(f, 'M2');
     ok(`${W} 1 화촉 «화촉 음악» 줄 · 곡 3 · 안 눌린 모양 · 아래 «준비해요» 줄 없음 [SONG_ROW_LINES_1101]`, r && r.gl === '화촉 음악' && r.n === 3 && r.on.length === 0 && r.note === '', r);
-    ok(`${W} 1 드라이브에 없는 곡 ▶ 는 흐림(B30) · ▶ 44px 이상 · 줄 60px`, r && r.off.join() === 'bedp:M2:B30' && r.plH >= 44 && r.pkH >= 60, r);
+    ok(`${W} 1 드라이브에 없는 곡 ▶ 는 흐림(B31) · ▶ 44px 이상 · 줄 60px`, r && r.off.join() === 'bedp:M2:B31' && r.plH >= 44 && r.pkH >= 60, r);
     await shot(f, W, 'candle', '.ls-bed[data-seg="M2"]');
     /* E [덧붙임 4] 1 · 2 · 4 — 화촉 줄 글 */
     const e1 = await f.evaluate(() => ({ a: [...document.querySelectorAll('.ls-bed[data-seg="M2"] .mu-a')].map((x) => x.textContent), t: [...document.querySelectorAll('.ls-bed[data-seg="M2"] .mu-t')].map((x) => x.textContent),
       han: Object.values(BgmPicks.SONGS).filter((x) => /[\u4e00-\u9fff]/.test(x.a || '') || /[\u4e00-\u9fff]/.test(x.t || '')).map((x) => x.t), inst: Object.values(BgmPicks.SONGS).filter((x) => /\(Instrumental\)/i.test(x.t)).map((x) => x.t) }));
     ok(`${W} E1 연주자는 한국 고객이 읽는 이름 — «히사이시 조» · 곡 표에 한자 이름 없음`, e1.a[0] && e1.a[0].indexOf('히사이시 조') > -1 && !e1.a.some((x) => /久石譲/.test(x)) && !e1.han.length, e1);
     ok(`${W} E2 곡 이름에 «(Instrumental)» 꼬리 없음 — 화촉 «Summer»`, !e1.inst.length && e1.t.includes('Summer'), e1);
-    ok(`${W} E4 아랫줄 = 연주자만(★[SONG_ROW_PLAIN_1101] 출처 · 분위기 한 줄 뺌) — «히사이시 조» · «피아노 연주»`, e1.a[0] === '히사이시 조' && e1.a[1] === '피아노 연주' && !e1.a.some((x) => /하울의 움직이는 성|성균관 스캔들/.test(x)), e1.a);
+    ok(`${W} E4 아랫줄 = 연주자만(★[SONG_ROW_PLAIN_1101] 출처 · 분위기 한 줄 뺌) — «히사이시 조» · «Elizabeth Bright» · «피아노 연주»`, e1.a[0] === '히사이시 조' && e1.a[1] === 'Elizabeth Bright' && e1.a[2] === '피아노 연주' && !e1.a.some((x) => /하울의 움직이는 성|성균관 스캔들/.test(x)), e1.a);
     /* 2 감사 인사 · 혼인 서약 */
     await go(f, 'welcome'); const rw = await row(f, 'M4'); await go(f, 'vow'); const rv = await row(f, 'M4');
     ok(`${W} 2 감사 인사 쪽에 «감사 인사 음악» · 혼인 서약 쪽엔 다시 없음`, rw && rw.gl === '감사 인사 음악' && !rv, { rw, rv });
@@ -156,16 +156,18 @@ try {
       /* D2 한 파일 — 하객 맞이 B13 곡 카드(★[PICKS_THREE_1101] 하객 맞이 3 · 축사 1 이 같은 곡) */
       await f.click('[data-fk="bedp:M1:B13"]'); await wait(f, 1500); await f.click('[data-fk="bedp:M1:B13"]'); await wait(f, 300);
       await f.click('[data-fk="bed:M1:B13"]'); await wait(f, 300);
-      /* ★[PICKS_THREE_1101] 하객 맞이에 가사 있는 곡이 없어졌다 — 보컬 줄은 귀가 인사(M6 · Popcorn B20)에서 잰다 */
-      await go(f, '_close'); await f.click('[data-fk="bed:M6:B20"]'); await wait(f, 300);
-      await f.evaluate(() => { const r = document.querySelector('.ls-bed[data-seg="M6"]'), cb = r && !r.querySelector('.mu-pick') && r.querySelector('.mu-chg'); if (cb) cb.click(); }); await wait(f, 200);   /* [MUSIC_FOLD_PICK_1031] 고르면 접힌다 · 아래 두 줄은 편 목록에 있다 */
-      const vl = await f.evaluate(() => ((document.querySelector('.ls-bed[data-seg="M6"] .bed-voc') || {}).textContent || '').trim());
-      await shot(f, W, 'close', '.ls-bed[data-seg="M6"]');
+      /* ★[PICKS_THREE_1101 · GHIBLI_ADD_1101] 가사 있는 곡은 축배 목록에만 남았다 — 보컬 한 줄은 축배 2번(B29)을 골라 잰다(재고 나서 고름을 지운다) */
+      await go(f, 'toast'); await f.click('[data-fk="bed:M7:B29"]'); await wait(f, 300);
+      await f.evaluate(() => { const r = document.querySelector('.ls-bed[data-seg="M7"]'), cb = r && !r.querySelector('.mu-pick') && r.querySelector('.mu-chg'); if (cb) cb.click(); }); await wait(f, 200);   /* [MUSIC_FOLD_PICK_1031] 고르면 접힌다 · 아래 두 줄은 편 목록에 있다 */
+      const vl = await f.evaluate(() => ((document.querySelector('.ls-bed[data-seg="M7"] .bed-voc') || {}).textContent || '').trim());
+      await shot(f, W, 'toast', '.ls-bed[data-seg="M7"]');
       ok(`${W} D3 보컬 곡을 고르면 아래 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요»`, vl === '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요', vl);
-      const n5 = await f.evaluate(() => ((document.querySelector('.ls-bed[data-seg="M6"] .bed-note') || {}).textContent || '').trim());
+      const n5 = await f.evaluate(() => ((document.querySelector('.ls-bed[data-seg="M7"] .bed-note') || {}).textContent || '').trim());
+      await f.evaluate(() => { delete S.bgm.M7; BgmPicks.SONGS.B17.vocal = true; render(); });   /* 나레이션 아래 −6 은 구조만 잰다 — 닫는 인사 1순위(B17)를 이 시험에서만 가사 곡으로 표시 */
+      await go(f, '_close');
       ok(`${W} E5 고른 뒤에도 «부터 이어서 틀어요» 줄 없음 · 보컬 한 줄은 남는다`, n5 === '' && !!vl, n5);
-      const bg3 = await listen(f, '_close', 7000); const n3 = bg3.filter((x) => x.src && x.f === 'B20' && !x.talk && x.dk != null && x.dk < -8.5);
-      ok(`${W} D3 보컬 곡(B20) 아래 나레이션은 엔진 크기 − 6(−16 → −22)`, n3.length > 0 && n3.every((x) => Math.abs(x.want - (x.dk - 6)) < 0.01), { n: n3.length, s: n3.slice(0, 3) });
+      const bg3 = await listen(f, '_close', 7000); const n3 = bg3.filter((x) => x.src && x.f === 'B17' && !x.talk && x.dk != null && x.dk < -8.5); await f.evaluate(() => { delete BgmPicks.SONGS.B17.vocal; });
+      ok(`${W} D3 보컬 곡(시험 표시 B17) 아래 나레이션은 엔진 크기 − 6(−16 → −22)`, n3.length > 0 && n3.every((x) => Math.abs(x.want - (x.dk - 6)) < 0.01), { n: n3.length, s: n3.slice(0, 3) });
     }
     /* D6 · 5 축배 */
     /* ★[CHEER_WINDOW_1031] 듣는 창 16초 → 26초 — #1470(LISTEN_FIX_1031)이 축배 멘트 글을 바꾼 뒤 그 줄이 12.6초가 되어 «위하여» 꼬리(축배 곡)가 16.8초에 왔다.
@@ -270,7 +272,7 @@ try {
     await pg.evaluate(() => { delete H.songs.B05; }); await f.evaluate(() => { delete BgmBed._t.BUF.B05; });
     await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 3500); const t5 = await ft();
     const ts = await f.evaluate(() => [...document.querySelectorAll('.mk-toast,.op-toast,[role="status"],[role="alert"]')].map((x) => (x.textContent || '').trim()).filter(Boolean).join(' | '));
-    ok('F7 못 받으면 ▶ 로 되돌림(차오름 · 안내 글 걷힘) · 알림 «이 곡은 아직 준비 중이에요»', t5.st === '' && t5.pr === 'false' && !/\bld\b/.test(t5.cls) && !t5.note && /이 곡은 아직 준비 중이에요/.test(ts), { ...t5, ios: 0, ts });
+    ok('F7 못 받으면 ▶ 로 되돌림(차오름 · 안내 글 걷힘) · 알림 «곡을 준비하고 있어요»(GHIBLI_ADD_1101)', t5.st === '' && t5.pr === 'false' && !/\bld\b/.test(t5.cls) && !t5.note && /곡을 준비하고 있어요/.test(ts), { ...t5, ios: 0, ts });
     ok('F 오류 없음 · 가로 넘침 없음', !errs.length && !(await f.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
     await ctx.close(); }
   /* F8 미리 받기 — 곡 칸이 화면에 들어오면 그 구간 첫 곡(1순위)을 조용히 받아 둔다 · 받았으면 다시 안 받음 · 누르면 바로 */
