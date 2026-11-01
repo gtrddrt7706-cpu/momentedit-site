@@ -72,7 +72,7 @@ const listen = (f, ks, ms) => f.evaluate(async ({ ks, ms }) => { const BB = BgmB
   LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(ks, true); _lFull();
   (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 800; });
   const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const v = BB.BED.cur, st = LP.q[LP.i] || {};
-    o.push({ t: performance.now() - t0, k: st.k, f: v && v.f, on: !!(v && v.src && v.want > -60) });
+    o.push({ t: performance.now() - t0, k: st.k, f: v && v.f, want: v && v.src ? v.want : -90, on: !!(v && v.src && v.want > -60) });
     if (performance.now() - t0 > ms || !LP.q.length || LP.i >= LP.q.length) { clearInterval(iv); res(); } }, 100); });
   try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return o; }, { ks, ms });
 const lineOf = (f) => f.evaluate(() => [...document.querySelectorAll('.mk-flow li[data-bgm], .ls-bed, .ls-bgm')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
@@ -94,6 +94,10 @@ try {
   ok('③ 성혼 선언 화면 글 — «선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요»', /선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요/.test(names.t_declare || ''), (names.t_declare || '').slice(0, 120));
   const m8 = (BgmPicks.PICKS.M8L || []).find((x) => HAVE.includes(x)) || '';
   ok('③ 닫는 인사 — «촬영 후 안내부터 마지막 곡 ‹곡명›이 흘러요»(실제 마지막 곡)', !!names._last && names._last === T(m8), { screen: names._last, f: m8, t: T(m8) });
+  /* ④ [SILENT_STAY_1102] 하객 맞이 → 식전 영상 → 화촉 이어 듣기 — 영상 · 화촉 동안 하객 맞이 곡(B01)이 되살아나지 않는다(want 최댓값 ≤ −60) */
+  await go(f, 'guest'); const rr = await listen(f, ['guest', 'prevideo', 'candle'], 150000);
+  const b1 = rr.filter((x) => x.f === 'B01' && (x.k === 'prevideo' || x.k === 'candle')), mx = b1.length ? Math.max(...b1.map((x) => x.want)) : -90, kc = rr.some((x) => x.k === 'candle' && x.on);
+  ok('④ 식전 영상 → 화촉 사이 하객 맞이 곡(B01) want 최댓값 ≤ −60 · 화촉 곡은 흐른다', mx <= -60 && kc, { mx, n: b1.length, kc, fs: [...new Set(rr.filter((x) => x.k === 'candle' && x.on).map((x) => x.f))] });
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();

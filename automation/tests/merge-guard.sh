@@ -21665,4 +21665,5 @@ chk "near: '이 순서 즈음엔 ‹{f}›'," assets/bgm-slots.js 1   # [SCREEN_
 chk "song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 축가 음악 줄
 chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 닫는 인사 둘째 줄
 chk 'dayName:function(k){ try{ return window.BgmBed' assets/bgm-form.js 1   # [SCREEN_SOUND_1102] 화면 곡 이름 = 엔진
+chk 'if(pv&&nx&&pv.k!==nx.k&&BED.cur.want!=null&&BED.cur.want<=-60) return;' assets/bgm-bed.js 1   # [SILENT_STAY_1102] 정적이던 앞 곡은 순간이 바뀌어도 올리지 않는다
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
