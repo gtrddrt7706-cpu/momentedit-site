@@ -203,8 +203,10 @@ try {
     const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5);   /* [DETAIL_R2_1101 ①] 낭독 줄 첫 0.5초는 곡이 바뀌는 자리 */
     ok(`${W} 6 편지 «음악과 함께» + 곡 고름 — S.bgm.S6 = { m:bed, k:B12 } · 낭독 동안 −20 · 곡 B12`, t9.length && t9.every((x) => x.want === -20 && x.f === 'B12') && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed' && S.bgm.S6.k === 'B12')), t9.slice(0, 2));
     /* 7 곡 없는 구간 */
-    await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 4000);
-    ok(`${W} 7 테이블 인사(드라이브에 곡 없음) — 나레이션만 · 단추 이름 그대로 · 오류 없음`, !/음악과 함께/.test(l10) && b10.every((x) => !x.src) && !errs.length, { l10, src: b10.filter((x) => x.src).length, errs });
+    await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 11000);   /* [DETAIL_R3_1101 ⑦ 보탬] 맨 뒤 B13 이 흐르므로 첫 줄 앞 뜸(6초 · listen 은 뜸을 세지 않는다) 뒤까지 */
+    /* ★[DETAIL_R3_1101 ⑦ 보탬] 테이블 목록은 축사 «음악과 함께» 곡(B13)을 빼면 30분이 안 돼 맨 뒤로 보낸다(종전엔 뺐다) — 이 시험 드라이브엔 테이블 곡 가운데 B13 만 있어 그 곡이 흐른다 */
+    const f10 = [...new Set(b10.filter((x) => x.src).map((x) => x.f))];
+    ok(`${W} 7 테이블 인사(드라이브엔 맨 뒤 B13 하나뿐) — 있는 곡만 · 없는 곡을 기다리지 않는다 · 오류 없음`, /음악과 함께/.test(l10) && f10.join() === 'B13' && !errs.length, { l10, f10, errs });
     /* 8 한눈에 보기 */
     const sum = await f.evaluate(() => { const d = document.createElement('div'); d.innerHTML = BgmForm.sumHtml(); return [...d.querySelectorAll('.mk-vn')].map((x) => x.textContent.trim()); });
     ok(`${W} 8 한눈에 보기 — 화촉 · 고른 곡 · 감사 인사 · 고르지 않으시면 · 축사 · 편지 곡 · 차례(하객 맞이 → 화촉 → 입장 …)`, sum.includes('화촉 · ‹Summer›') && sum.includes('감사 인사 · 고르지 않으시면 ‹Innocent in Sonatine›') && sum.includes('축사 · 음악과 함께 · 고르지 않으시면 ‹Moon River›') && sum.includes('편지 · 음악과 함께 · ‹Under the Willow›') && sum.indexOf('화촉 · ‹Summer›') < sum.findIndex((t) => /^입장 곡/.test(t)), sum);

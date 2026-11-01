@@ -132,16 +132,43 @@
     return (PICKS[seg] || []).indexOf(k) > -1 ? k : ''; }
   /* ★[BGM_FILL_1101] 곡 차례 한 곳 — 당일 콘솔 segSel(목록 칸 기본 · 한 곡 칸의 «파일 있는 다음 곡») · 식순 화면 M1 · M8 순서 줄이 이 함수 하나를 쓴다
        order(S, 구간) = [고른 곡(없으면 1순위), 그 구간 나머지, (목록 칸이면) fill 중 다른 구간에서 고른 곡이 아닌 것] · 곡 번호 배열 · 중복 없음 */
-  function chosenBy(S, seg) { var o = {}; CORDER.forEach(function (s) { if (s === seg) return; var k = custK(S, s); if (k && !o[k]) o[k] = s; }); return o; }
+  function chosenBy(S, seg, on) { var o = {}; CORDER.forEach(function (s) { if (s === seg || (on && !on(s))) return; var k = custK(S, s); if (k && !o[k]) o[k] = s; }); return o; }   /* [DETAIL_R3_1101 ⑧] on = 담긴 구간만(뺀 순간의 옛 선택은 세지 않는다) */
   /* ★★[CARRY_SAME_1101 2026-11-01 사장님 «음악이 연달아 있으면 그냥 그 곡으로 이어서 가는 게 좋지 않아?»] 바로 앞 순간에 흐르던 곡(prev)이 이 구간 목록(3곡 · 목록 칸이면 fill 까지)에 있으면 그 곡을 그대로 잇는다 —
        한 곡 칸 = 두 분이 이 구간에서 다른 곡을 골랐으면 고른 곡이 이긴다(3초 겹쳐 넘김) · 목록 칸 = 그 곡을 맨 앞에 · 나머지는 원래 차례 ·
        바로 앞에서 이어 온 곡은 fill 에서 빼지 않는다(이어지지 않는 구간에서 고른 곡은 종전대로 뺀다) · prev 를 정하는 쪽: 식순 화면 = 앞 순간 구간의 곡(목록 칸이면 모른다 · '') · 당일 콘솔 = 지금 흐르는 곡 */
   function inList(seg, f) { var d = BY[seg]; return !!f && ((PICKS[seg] || []).indexOf(f) > -1 || (loopy(seg) && (FILL[seg] || []).indexOf(f) > -1)); }
   function carryOf(S, seg, prev) { prev = String(prev || '').toUpperCase(); if (!inList(seg, prev)) return ''; var k = custK(S, seg); return (k && k !== prev) ? '' : prev; }
-  function order(S, seg, prev) { var L = PICKS[seg] || [], k = custK(S, seg), c = carryOf(S, seg, prev), out = [], add = function (f) { if (f && SONGS[f] && out.indexOf(f) < 0) out.push(f); };
-    add(c || k || L[0]); L.forEach(add); if (loopy(seg)) { var el = chosenBy(S, seg); (FILL[seg] || []).forEach(function (f) { if (!el[f] || f === c) add(f); }); }
+  function order(S, seg, prev, on) { var L = PICKS[seg] || [], k = custK(S, seg), c = carryOf(S, seg, prev), out = [], add = function (f) { if (f && SONGS[f] && out.indexOf(f) < 0) out.push(f); };
+    add(c || k || L[0]); L.forEach(add); if (loopy(seg)) { var el = chosenBy(S, seg, on); (FILL[seg] || []).forEach(function (f) { if (!el[f] || f === c) add(f); }); }
     return out; }
+  /* ★[DETAIL_R4_1101 ⑧] 앞 곡이 잇는 자리(축배 나레이션 · 닫는 인사 첫 줄)에서 «음악과 함께» 곡(M4S5 · M4S6)이 흐르면 본식 곡 M4 로 — 판단은 «지금 실제로 흐르는 구간»(곡 번호 아님) · 당일 콘솔 segOfCue · 미리 듣기 carry 가 같이 쓴다 */
+  function backSeg(seg) { return /^M4S[56]$/.test(String(seg || '')) ? 'M4' : ''; }
   /* ★[GHIBLI_ADD_1101] 같은 곡을 두 구간에서 골랐으면 뒤 구간 → 앞 구간 번호(본식 차례) · 아니면 '' — 막지는 않는다(식순 화면 곡 칸 아래 한 줄) */
-  function dupSeg(S, seg) { var k = custK(S, seg), i = CORDER.indexOf(seg); if (!k || i < 0) return ''; for (var j = 0; j < i; j++) { if (custK(S, CORDER[j]) === k) return CORDER[j]; } return ''; }
-  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, F_RE: F_RE };
+  function dupSeg(S, seg, on) { var k = custK(S, seg), i = CORDER.indexOf(seg); if (!k || i < 0) return ''; for (var j = 0; j < i; j++) { if (on && !on(CORDER[j])) continue; if (custK(S, CORDER[j]) === k) return CORDER[j]; } return ''; }   /* [DETAIL_R3_1101 ⑧] 담긴 구간만 */
+  /* ★★[DETAIL_R5_1101 규칙 1 · DETAIL_R3_1101 ⑦ ⑧ · 보탬 2] 곡 계획 한 곳 — 식순 화면 · 미리 듣기 · 당일 콘솔이 이 결과를 쓴다(고객이 저장한 S.bgm 은 바꾸지 않는다)
+       순서: ① 담긴 순간의 구간만(o.on) ② 실제로 틀 수 있는 곡(o.have · 파일이 없으면 그 구간 목록의 다음 곡 = 대체곡) ③ 이어짐(CARRY_SAME · o.prev) · 중복 셈 ④ 표시
+       · 한 곡 칸 = 이어받기 < 고객이 고른 곡 · 고르지 않았으면 앞 곡 이어받기 → 1순위 · 실제로 쓰일 곡(기본곡 포함)은 «예약»
+       · 목록 칸(하객 맞이 · 테이블 · 감사 인사 ~ 덕담 · 닫는 인사 · fill 포함) = 예약된 곡과 앞 목록에 나온 곡을 뺀다 — 이어진 곡(carry)은 한 번 들은 걸로 친다
+         · 빼서 목록 합이 필요한 길이(NEED · 처리된 전체 파일 길이 o.dur · 모르면 곡당 LEN0 초) 밑으로 내려가면 빼지 않고 맨 뒤로(먼저 들은 때와 가장 멀리)
+       · dup = 앞 담긴 한 곡 칸과 같은 곡(실제 소리 기준) — 화면 «…에서도 고른 곡이에요» 한 줄 */
+  var NEED = { M1: 1800, M8: 1800, M4: 1080, M6: 900 }, LEN0 = 240;
+  function plan(S, o) {
+    o = o || {}; var on = o.on || function () { return true; }, have = o.have || function () { return true; }, dur = o.dur || function () { return 0; }, prevOf = o.prev || function () { return ''; };
+    var R = {}, rsv = {}, firstBy = {}, segs = CORDER.filter(function (sg) { return on(sg); });
+    var pick1 = function (sg, want) { var L = PICKS[sg] || []; if (!want) return ''; if (have(want)) return want; var i = L.indexOf(want), c = i < 0 ? L : L.slice(i + 1).concat(L.slice(0, i)); for (var j = 0; j < c.length; j++) { if (have(c[j])) return c[j]; } return ''; };
+    var prevF = function (sg) { var p = prevOf(sg); if (!p || !R[p] || loopy(p)) return ''; return R[p].first || ''; };
+    segs.forEach(function (sg) { if (loopy(sg)) return; var k = custK(S, sg), c = carryOf(S, sg, prevF(sg)), want = c || k || (PICKS[sg] || [])[0] || '', f = pick1(sg, want);
+      var dup = ''; if (f && firstBy[f] && firstBy[f] !== sg && !c) dup = firstBy[f]; if (f && !firstBy[f]) firstBy[f] = sg;
+      R[sg] = { seg: sg, want: want, first: f, pick: k, carry: c, list: f ? [f] : [], dup: dup }; if (f) rsv[f] = rsv[f] || sg; });
+    var seen = {};
+    segs.forEach(function (sg) { if (!loopy(sg)) return; var k = custK(S, sg), c = carryOf(S, sg, prevF(sg)), base = order(S, sg, c || '', function () { return false; }), L = base.filter(function (f) { return have(f); });
+      var lenOf = function (a) { return a.reduce(function (t, f) { var d = +dur(f); return t + (d > 0 ? d : LEN0); }, 0); }, need = NEED[sg] || 0, keep = [], back = [];
+      /* [DETAIL_R3_1101 ⑦ 보탬] 앞 칸에서 고른 배경 곡(fill)도 «빼기»가 아니라 같은 셈(예약 · 들은 곡)으로 — 빼면 모자랄 때 맨 뒤로(order 의 fill 빼기는 여기서 쓰지 않는다) */
+      L.forEach(function (f) { var taken = (f !== c) && ((rsv[f] && rsv[f] !== sg) || seen[f]); if (taken) back.push(f); else keep.push(f); });
+      var out = keep.slice(); back.forEach(function (f) { if (lenOf(out) < need) out.push(f); });   /* 빼서 모자라면 맨 뒤로 · 모자라지 않으면 뺀다 */
+      if (!out.length && L.length) out = L.slice();
+      out.forEach(function (f) { seen[f] = 1; });
+      R[sg] = { seg: sg, want: c || k || base[0] || '', first: out[0] || '', pick: k, carry: c, list: out, dup: '' }; });
+    return R; }
+  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0 };
 });

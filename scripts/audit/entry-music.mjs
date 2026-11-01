@@ -105,7 +105,7 @@ try {
     ok(`${W} 11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈춤» · aria-pressed true · open 선 앞(대기) 칸`, S11.run && S11.x > 0.8 && S11.pill === '멈춤' && S11.pressed === 'true' && S11.at === 'greet', S11);
     const CALL11 = await pg.evaluate(() => EntryScene.SP.call);
     ok(`${W} 11b [ENTRY_CALL_PAUSE_1013] 나레이션 «입장!» 앞 쉼 — 목소리 마디 둘(${S11.vsn}) · 녹음 ${S11.cut ? S11.cut.was.toFixed(2) : '?'}초 → ${CALL11}초(엔진 SP.call · 당일 콘솔과 같은 엔진)`,
-      CALL11 === 1.8 && S11.vsn === 2 && !!S11.cut && Math.abs(S11.cut.was + S11.cut.add - CALL11) < 0.01 && S11.cut.add > 0.2, { vsn: S11.vsn, cut: S11.cut, CALL11 });
+      CALL11 === 1.8 && S11.vsn === 2 && !!S11.cut && Math.abs(S11.cut.was + S11.cut.add - CALL11) < 0.01 && S11.cut.add >= 0,   /* ★[DETAIL_R5_1101 entry-music 11b] 녹음 쉼이 이제 1.77초라 늘리는 몫은 0.03초 — «1.8초로 맞춘다»만 본다(옛 «0.2초 넘게 늘린다»는 1.0초 녹음 때 기준) */ { vsn: S11.vsn, cut: S11.cut, CALL11 });
     // 12
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(300); const S12a = await scene();
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(600); const S12b = await scene();
@@ -127,7 +127,7 @@ try {
     ok(`${W} 19 크게 보기 단추 — 알약 옆 같은 높이 네모 · «크게 보며 듣기»`, B19.bh === B19.ph && B19.bw === B19.bh && B19.top === 0 && !B19.off && B19.lbl === '크게 보며 듣기' && !B19.over, B19);
     await pg.click('[data-fk="embig"]'); await pg.waitForTimeout(1200); const B20 = await big();
     const capAtX = (x) => x < P.tv ? '음악이 작게 흐르기 시작해요' : x < P.th ? null : x < P.th + 1.4 ? '음악이 크게 올라와요' : x < P.th + 3.2 ? '문이 열려요' : '두 분이 함께 걸어 들어와요';   // 시험실 STEP_AT · STEP_TXT
-    ok(`${W} 20 누르면 크게 보기(뒤는 잠김 · 뒤로 가기 한 칸) · 멈춘 자리에서 이어서 · 그 자리 자막 · ▶ 에 초점 · 그래프(장면 줄 없음) · 머리 표 둘이 한 줄 가운데([VK_ROW_MID])`, B20.open && B20.role === 'dialog' && B20.modal === 'true' && B20.inert && B20.hist && B20.s.run && B20.s.x >= S14b.pause - 0.05 && (capAtX(B20.s.x) === null || B20.cap === capAtX(B20.s.x)) && B20.tog === '멈추기' && B20.focus === 'embtog' && B20.ink > 300 && B20.sceneHidden && B20.vkn >= 2 && B20.vkd <= 1, B20);
+    ok(`${W} 20 누르면 크게 보기(뒤는 잠김 · 뒤로 가기 한 칸) · 멈춘 자리에서 이어서 · 그 자리 자막 · ▶ 에 초점 · 그래프(장면 줄 없음) · 머리 표(입장 음악 · 곡)가 한 줄 가운데([VK_ROW_MID] · 나레이션 표는 TAG_OFF_1101 로 걷음)`, B20.open && B20.role === 'dialog' && B20.modal === 'true' && B20.inert && B20.hist && B20.s.run && B20.s.x >= S14b.pause - 0.05 && (capAtX(B20.s.x) === null || B20.cap === capAtX(B20.s.x)) && B20.tog === '멈추기' && B20.focus === 'embtog' && B20.ink > 300 && B20.sceneHidden && B20.vkn >= 1 && B20.vkd <= 1, B20);   /* ★[DETAIL_R5_1101 entry-music 20 · TAG_OFF_1101] «나레이션» 표는 10/31 사장님 지시로 걷었다 — 머리 표는 «입장 음악 · 곡» 하나 · 이어서 재생(run · «멈추기»)이 맞는 동작 */
     await pg.click('#emFull [data-fk="embtog"]'); await pg.waitForTimeout(300); const B21a = await big(); await pg.click('#emFull [data-fk="embtog"]'); await pg.waitForTimeout(500); const B21b = await big();
     ok(`${W} 21 ⏸ = 그 자리에 멈춤(이어 듣기) · ▶ = 이어서`, !B21a.s.run && B21a.s.pause > 0 && B21a.tog === '이어 듣기' && B21b.s.run && B21b.s.x >= B21a.s.pause - 0.05 && B21b.tog === '멈추기', { B21a, B21b });
     await pg.click('#emFull [data-fk="emblast"]'); await pg.waitForTimeout(900); const B22a = await big();

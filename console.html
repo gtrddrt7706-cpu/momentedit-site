@@ -656,7 +656,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   </div>
 
   <!-- ★PREVIEW_BED — 고객 화면에서만 · 음악이 실제로 흐를 때만 선다(aBgm playing) -->
-  <div id="gBed">배경 음악은 분위기를 위한 예시예요. 당일 곡은 상담에서 함께 골라요.</div>
+  <div id="gBed">두 분이 고른 곡으로 흘러요 · 고르지 않은 칸은 저희가 정한 곡이에요</div><!-- [PREVIEW_LINK_SONGS_1101] 고지 줄 · 곡을 못 받은 구간은 bedNote 가 «곡을 불러오지 못해 예시 음악이 흘러요»로 바꾼다 -->
 
   <div class="stage">
     <div>
@@ -1168,7 +1168,7 @@ $('#vol').oninput = function(){ $('#volV').textContent = $('#vol').value; applyM
 /* ★PREVIEW_BED — 고지 줄은 소리가 실제로 난 뒤에 뜬다.
    파일이 없거나(404) 브라우저가 막으면 playing 이 오지 않으므로 줄도 서지 않는다. */
 aBgm.addEventListener('playing', function(){ var e = $('#gBed'); if (e && GUEST) e.classList.add('on'); });
-aBgm.addEventListener('pause',   function(){ var e = $('#gBed'); if (e) e.classList.remove('on'); });
+aBgm.addEventListener('pause',   function(){ var e = $('#gBed'); if (!e) return; if (typeof BED !== 'undefined' && BED.el.some(function(x){ return !x.paused; })) return; e.classList.remove('on'); });   /* [PREVIEW_LINK_SONGS_1101] 구간 곡이 다른 재생기로 넘어간 뒤 앞 재생기가 멈춘 것은 «음악이 멈춤»이 아니다 */
 aBgm.addEventListener('error',   function(){ var e = $('#gBed'); if (e) e.classList.remove('on'); });
 
 /* ══ ★★[BGM_SEG8_1023 2026-10-23 사장님 결정 «8구간» · BGM 섹션 라운드 2 PR 2] 구간마다 곡을 바꾼다 ══
@@ -1200,16 +1200,21 @@ function segFill(id){ var d = segDef(id); if (!BP || !BP.FILL || !d || !(d.multi
 /* 고른 곡 — 한 곡 칸은 아이디 하나 · 목록 칸(M1 · M8)은 차례 배열 · 아직 안 골랐으면 추천 1순위(목록 칸은 추천 전부) */
 /* ★★[CARRY_SAME_1101 사장님 «음악이 연달아 있으면 그냥 그 곡으로 이어서 가는 게 좋지 않아?»] cur = 지금 흐르는 곡(segGo 가 넘긴다) — 이 구간 목록에 있으면 그 곡을 그대로 잇는다 ·
      한 곡 칸 = 이 기기 · 두 분이 이 구간에서 다른 곡을 골랐으면 고른 곡 · 목록 칸 = 그 곡을 맨 앞에(나머지는 원래 차례) · 식순 화면 BgmPicks.order(S, 구간, 앞 곡)와 같은 함수 */
+/* ★★[DETAIL_R5_1101 규칙 1] 곡 계획 한 곳 — BgmPicks.plan(식순 화면 · 미리 듣기와 같은 함수) · 담긴 구간 = 이 큐 목록에 그 구간 순간이 있다 · 틀 수 있는 곡 = 이 기기에 파일이 있다 · 길이 = 넣을 때 잰 전체 길이 ·
+     목록 칸 차례(예약 · 앞 목록 곡 빼기/맨 뒤로)는 여기서 · 지금 흐르는 곡 잇기(CARRY_SAME)는 segSel 이 그 위에 */
+function segOnC(id){ var d = segDef(id); if (!d || !d.ks) return false; if (d.slot && !(S && S.bgm && S.bgm[d.slot] && S.bgm[d.slot].m === 'bed')) return false; var cs = (typeof R !== 'undefined' && R && R.cues) || null; if (!cs) return true; return cs.some(function(c){ return d.ks.indexOf(c.k) > -1; }); }
+function segPlanAll(){ if (!BP || !BP.plan) return null; try { return BP.plan(S, { on: segOnC, have: function(f){ return !!SEGF[f]; }, dur: function(f){ var m = SEGST.meta[f]; return m && m.dur ? +m.dur : 0; } }); } catch (e) { return null; } }
+function segListOf(id, cur){ var pa = segPlanAll(), b = (pa && pa[id] && pa[id].list.length) ? pa[id].list.slice() : (BP.order ? BP.order(S, id, '') : []); var c = (cur && BP.carryOf) ? BP.carryOf(S, id, cur) : ''; if (c) b = [c].concat(b.filter(function(x){ return x !== c; })); return b; }
 function segSel(id, cur){ var d = segDef(id), L = segSongs(id), v = SEGST.sel[id], have = function(x){ return L.some(function(s){ return s.id === x; }); };
   /* ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 이 기기에서 아직 안 골랐으면 고객이 식순 화면에서 고른 곡(S.bgm · 곡 번호 f)이 기본 — 목록 칸(M1 · M8)은 그 곡을 맨 앞에 */
   var ck = (BP && BP.custK) ? BP.custK(S, id) : '', cs = ck ? L.filter(function(s){ return s.f === ck; })[0] : null;
-  if (d && d.multi) { if (Array.isArray(v)) { var a = v.filter(have); return (cur && a.indexOf(cur) > 0) ? [cur].concat(a.filter(function(x){ return x !== cur; })) : a; } if (BP.order) return BP.order(S, id, cur).filter(have);   /* ★[BGM_FILL_1101] 차례 = 식순 화면 순서 줄과 같은 함수(고른 곡 → 나머지 → fill · 다른 구간에서 고른 곡은 건너뜀) */
+  if (d && d.multi) { if (Array.isArray(v)) { var a = v.filter(have); return (cur && a.indexOf(cur) > 0) ? [cur].concat(a.filter(function(x){ return x !== cur; })) : a; } if (BP.order) return segListOf(id, cur).filter(have);   /* [DETAIL_R5_1101] 계획 차례 */   /* ★[BGM_FILL_1101] 차례 = 식순 화면 순서 줄과 같은 함수(고른 곡 → 나머지 → fill · 다른 구간에서 고른 곡은 건너뜀) */
     var all = L.filter(function(s){ return !s.own; }).map(function(s){ return s.id; }); return cs ? [cs.id].concat(all.filter(function(x){ return x !== cs.id; })) : all; }
   if (typeof v === 'string' && have(v)) return v; if (cs) return cs.id; var cc = (cur && BP && BP.carryOf) ? BP.carryOf(S, id, cur) : ''; if (cc && have(cc)) return cc; return L[0] ? L[0].id : null; }
 /* 소리 낼 수 있는 곡(파일이 있는 것)만 — 없으면 null(앞 곡이 이어진다) */
 function segPlan(id, cur){ var s = segSel(id, cur), d0 = segDef(id);
   /* ★★[DAYLONG_1101] 감사 인사 ~ 덕담(M4) · 닫는 인사(M6) = 고른 곡(이 기기 · 두 분 · 앞 곡 잇기 · 없으면 1순위) → 나머지 → (M6) fill 이어 트는 목록 · 끝 3초 전 타이머가 다음 곡으로 겹쳐 넘긴다 */
-  if (d0 && d0.loop && s && !Array.isArray(s) && BP && BP.order) { var lo = [s].concat(BP.order(S, id, cur).filter(function(x){ return x !== s; })).filter(function(x){ return !!SEGF[x]; }); return lo.length ? lo : null; }
+  if (d0 && d0.loop && s && !Array.isArray(s) && BP && BP.order) { var lo = [s].concat(segListOf(id, cur).filter(function(x){ return x !== s; })).filter(function(x){ return !!SEGF[x]; });   /* [DETAIL_R5_1101] */ return lo.length ? lo : null; }
   var L = (Array.isArray(s) ? s : (s ? [s] : [])).filter(function(x){ return !!SEGF[x]; }); if (L.length) return L;
   /* ★[GHIBLI_ADD_1101] 한 곡 칸 — 고른 곡(없으면 1순위)의 파일이 이 기기에 없으면 그 구간 목록에서 파일이 있는 다음 곡(식순 화면 미리 듣기와 같은 차례) · 그것도 없으면 null(앞 곡이 이어진다) */
   if (s && !Array.isArray(s) && BP && BP.order) { var o = BP.order(S, id, cur), i = o.indexOf(s), c = i < 0 ? o : o.slice(i + 1).concat(o.slice(0, i)); for (var j = 0; j < c.length; j++) { if (SEGF[c[j]]) return [c[j]]; } }
@@ -1262,7 +1267,7 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
       if (!ok) { try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) {} bedErr('곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요'); bedLater(); return; }
       bedErr(''); var xm = Math.round(xf * 1000) + 120; BED.xing = Date.now(); bedFade(nx, 1, xf); bedFade(BED.on, 0, xf);
       var was = BED.on, wel = BED.el[was]; if (wel && !wel.paused && wel.getAttribute('src')) BED.fade[was] = Date.now() + xm;   /* 소리 나던 재생기만 «잦아드는 중» */ setTimeout(function(){ if (BED.on !== was) { try { BED.el[was].pause(); } catch (e) {} } if (BED.fade[was] <= Date.now() + 5) BED.fade[was] = 0; if (!BED.fade.some(function(t){ return t > Date.now(); })) BED.xing = 0; bedLater(); }, xm);
-      var _v0 = bedVocal(); BED.on = nx; BED.id = sid; BED.mode = 'seg'; songGainSet(true); applyMaster(); if (bedVocal() !== _v0 && duckWant != null) duckTo(duckWant, Math.round(xf * 1000)); },   /* [BGM_FIX_1030] 노래 곡 ↔ 연주 곡이 바뀌면 지금 크기를 다시 건다(vocalExtra) */
+      var _v0 = bedVocal(); BED.on = nx; BED.id = sid; BED.mode = 'seg'; songGainSet(sid !== '@PV'); pvsNote(); applyMaster(); if (bedVocal() !== _v0 && duckWant != null) duckTo(duckWant, Math.round(xf * 1000)); },   /* [BGM_FIX_1030] 노래 곡 ↔ 연주 곡이 바뀌면 지금 크기를 다시 건다(vocalExtra) */
     onPl = function(){ if (t0 == null) t0 = el.currentTime; }, onEr = function(){ fin(false); },
     iv = setInterval(function(){ if (!el.paused && t0 != null && el.currentTime > t0 + 0.05) fin(true); }, 60),
     to = setTimeout(function(){ fin(false); }, BED_OPEN_MS);
@@ -1273,15 +1278,42 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
 function bedFree(){ var now = Date.now(); for (var k = 0; k < BED.el.length; k++) { if (k === BED.on) continue; if (BED.fade[k] && BED.fade[k] > now) continue; return k; } return -1; }
 /* [DETAIL_R3_1101 ③] 미뤄 둔 요청 하나 */
 function bedLater(){ var q = BED.later; BED.later = null; if (q && BED.mode !== 'off') bedPlay(q[0], q[1], q[2]); }
+/* ★★[PREVIEW_LINK_SONGS_1101 2026-11-01 BGM 섹션] 미리듣기(preview) · 손님 판(GUEST · 식순 화면 · 마이페이지 «연습 · 준비»)도 두 분이 고른 구간 곡 —
+     곡 계획은 당일 콘솔과 같은 함수(segPlan → BgmPicks.plan · 이어짐 · 목록) · 파일은 부모(식순 화면 · 마이페이지)가 두 분 계정으로 받아 준다(key bed · 받기만)
+     · 곡을 못 받은 구간만 예시 음악(PREVIEW_BED · '@PV')으로 내려앉고 고지 줄이 «곡을 불러오지 못해 예시 음악이 흘러요» · 다른 구간은 고른 곡
+     · 디렉터가 고른 배경 음악 파일(BGMURL)이 있으면 그 파일이 이긴다(종전 그대로) · 크기 = 미리듣기 감쇠(BED_TRIM_DB) · 곡 보정(+songGain · 예시 음악은 0 dB) */
+var PVS = { wait: {}, fail: {}, want: '', missAny: false };
+function pvsOn(){ return (MODE === 'preview' || GUEST) && !BGMURL; }
+function pvsGet(f){ if (!pvsOn() || !f || f === '@PV' || SEGF[f] || PVS.wait[f] || PVS.fail[f]) return; if (window.parent === window) { PVS.fail[f] = 1; return; }
+  PVS.wait[f] = setTimeout(function(){ if (PVS.wait[f]) { delete PVS.wait[f]; PVS.fail[f] = 1; pvsArrive(f); } }, 20000);
+  try { window.parent.postMessage({ type: 'momentedit:ritualFileGet', data: { key: 'bed', id: f } }, location.origin); } catch (e) { clearTimeout(PVS.wait[f]); delete PVS.wait[f]; PVS.fail[f] = 1; } }
+window.addEventListener('message', function(ev){ var d = ev.data || {}; if (!pvsOn() || ev.origin !== location.origin || ev.source !== window.parent || d.type !== 'momentedit:ritualFileData' || d.key !== 'bed' || !d.id) return;
+  var f = String(d.id); if (!PVS.wait[f]) return; clearTimeout(PVS.wait[f]); delete PVS.wait[f];
+  if (d.ok && d.data) { try { var bin = atob(d.data), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); SEGF[f] = URL.createObjectURL(new Blob([u8], { type: d.mime || 'audio/mpeg' })); } catch (e) { PVS.fail[f] = 1; } } else PVS.fail[f] = 1;
+  pvsArrive(f); });
+/* 이 판에서 흐를 곡을 미리 받는다 — 한 곡 칸은 첫 곡 · 목록 칸은 앞 두 곡 */
+function pvsWarm(){ var pa = segPlanAll(); if (!pa) return; var all = BP.plan(S, { on: segOnC }); Object.keys(all || {}).forEach(function(id){ (all[id].list || []).slice(0, BP.loopy && BP.loopy(id) ? 2 : 1).forEach(pvsGet); }); }
+/* 구간 곡이 아직 없다 — 받는 중이면 기다렸다가(pvsArrive) · 받을 곡이 다 실패했으면 그 구간만 예시 음악 */
+function pvsMiss(id, cur){ if (!pvsOn()) return false; var all = BP.plan(S, { on: segOnC }), want = (all[id] && all[id].list.length) ? all[id].list : [];
+  var c = cur && BP.carryOf ? BP.carryOf(S, id, cur) : ''; if (c) want = [c].concat(want.filter(function(x){ return x !== c; }));
+  if (!want.length) return false; want.slice(0, 2).forEach(pvsGet);
+  if (want.some(function(f){ return PVS.wait[f]; })) { PVS.want = id; return false; }
+  if (want.slice(0, 2).every(function(f){ return PVS.fail[f]; })) { PVS.missAny = true; SEGF['@PV'] = PREVIEW_BED; BED.seg = id; BED.list = ['@PV']; BED.li = 0; return bedPlay('@PV', SEG_XF); }
+  return false; }
+function pvsArrive(f){ var id = PVS.want; if (!id) { pvsNote(); return; } if (BED.seg === id) { PVS.want = ''; return; } var L = segPlan(id, segCur()); if (L) { PVS.want = ''; segGo(id); return; } pvsMiss(id, segCur()); }
+/* 고지 줄 — 고른 곡이 흐를 때 «두 분이 고른 곡» · 예시 음악으로 내려앉았을 때 «곡을 불러오지 못해» (소리가 실제로 날 때만 · 종전 규칙) */
+function pvsNote(){ var e = $('#gBed'); if (!e || !pvsOn()) return; e.textContent = (BED.id === '@PV') ? '곡을 불러오지 못해 예시 음악이 흘러요' : '두 분이 고른 곡으로 흘러요 · 고르지 않은 칸은 저희가 정한 곡이에요'; }
+[aBgm2, aBgm3].forEach(function(el){ el.addEventListener('playing', function(){ var e = $('#gBed'); if (e && GUEST && BED.el[BED.on] === el) { pvsNote(); e.classList.add('on'); } }); });
 /* 구간 바꾸기 — 같은 구간이면 그대로 · 곡이 없으면 지금 곡을 잇는다(돌려준 값 = 바꿨나) */
-function segGo(id){ if (!id || MODE === 'preview' || GUEST) return false; if (BED.seg === id) return false; var cur = segCur(), L = segPlan(id, cur); if (!L) return false;
+function segGo(id){ if (!id || ((MODE === 'preview' || GUEST) && !pvsOn())) return false; if (BED.seg === id) return false; var cur = segCur(), L = segPlan(id, cur); if (!L) return pvsMiss(id, cur);   /* [PREVIEW_LINK_SONGS_1101] 미리듣기 = 고른 곡을 받아 온다 */
   var d = segDef(id), pd = BED.seg ? segDef(BED.seg) : null, rs = BED.res, li = 0;
   if (rs && rs.id !== id && !(d && d.parent === rs.id)) { BED.res = rs = null; }   /* 본식으로 돌아오지 않고 다음 구간으로 갔으면 지운다 */
-  if (d && d.parent && pd && pd.loop && d.parent === BED.seg) BED.res = { id: BED.seg, list: BED.list.slice(), li: BED.li };   /* ★[DAYLONG_1101] 축사 · 편지 «음악과 함께»로 들어가기 전 — 본식 목록 자리를 적어 둔다 */
-  else if (rs && rs.id === id && rs.list.length) { BED.res = null; L = rs.list.filter(function(x){ return !!SEGF[x]; }); if (!L.length) return false; li = (Math.max(0, L.indexOf(rs.list[rs.li])) + 1) % L.length; if (cur && L.indexOf(cur) > -1) li = L.indexOf(cur); }   /* [DAYLONG_1101] 돌아오면 다음 곡부터(처음으로 돌아가지 않는다) · 그 곡이 본식 목록에 있으면 그대로(CARRY_SAME) */
+  var rat = null;
+  if (d && d.parent && pd && pd.loop && d.parent === BED.seg) { var _el = BED.el[BED.on]; BED.res = { id: BED.seg, list: BED.list.slice(), li: BED.li, f: BED.id, t: (_el && isFinite(_el.currentTime)) ? _el.currentTime : 0 }; }   /* ★[DAYLONG_1101] 축사 · 편지 «음악과 함께»로 들어가기 전 — 본식 목록 자리를 적어 둔다 · ★[DETAIL_R3_1101 ⑥ · DETAIL_R5_1101 규칙 6] 곡 · 순번 · 초까지 */
+  else if (rs && rs.id === id && rs.list.length) { BED.res = null; L = rs.list.filter(function(x){ return !!SEGF[x]; }); if (!L.length) return false; li = Math.max(0, L.indexOf(rs.f)); if (L[li] === rs.f) rat = rs.t; if (cur && L.indexOf(cur) > -1) { li = L.indexOf(cur); rat = null; } }   /* [DETAIL_R3_1101 ⑥] 돌아오면 그 곡 그 자리(82초 등)에서 잇는다 · 지금 흐르는 곡이 본식 목록에 있으면 그대로(CARRY_SAME) · 처음부터 · 새 예식이면 BED.res 가 비어 처음 */
   BED.seg = id; BED.list = L; BED.li = li;
   if (cur && L[li] === cur) { bedFade(BED.on, 1, SEG_XF); return false; }   /* ★[CARRY_SAME_1101] 같은 곡 — 다시 시작하지 않는다(끝 3초 전 타이머가 이 구간 목록의 다음 곡으로 잇는다) */
-  return bedPlay(L[li], SEG_XF); }
+  return bedPlay(L[li], SEG_XF, rat); }
 /* [CARRY_SAME_1101] 지금 들리는 구간 곡 — 입장 곡 · 식전 영상 · 축가처럼 배경음이 꺼져 있던 자리(−60 아래)는 «흐르던 곡»이 아니다 */
 function segCur(){ var el = BED.el[BED.on]; if (BED.mode !== 'seg' || !BED.id || !el || el.paused || (ESD && ESD.run)) return ''; if (duckWant != null && duckWant <= -60) return ''; return BED.id; }
 /* 끝 3초 전 — 목록의 다음 곡 · 한 곡이면 그 곡 처음으로 겹쳐 넘어간다(끊기지 않게) */
@@ -1301,14 +1333,14 @@ function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug 
   if (k === 'song') return 'M4';
   if (/^(welcome|vow|ring|declare|bless)$/.test(k)) return 'M4';
   if (k === 'tribute') return 'M5';
-  if (k === 'toast') return /^M4S[56]$/.test(BED.seg) ? 'M4' : '';   /* ★[BED_LOAD_1101 덧2] 앞 곡이 잇는 자리 — «음악과 함께» 축사 · 편지 곡(M4S5 · M4S6)이 흐르면 기본 본식 곡 M4 로 3초 겹쳐 돌아온다(미리 듣기 carry 와 같다) · ★[BGM_FIX_1030] 축배 곡(M7)은 «위하여» 뒤 디렉터 GO 에서 연다(segCheer) — 축배 나레이션 동안은 앞 곡이 잇는다(END_FLOW_1030 뒤로는 테이블 인사 곡 · 테이블이 없으면 그 앞 순간 곡) */
+  if (k === 'toast') return BP.backSeg ? BP.backSeg(BED.seg) : (/^M4S[56]$/.test(BED.seg) ? 'M4' : '');   /* [DETAIL_R4_1101 ⑧] 미리 듣기 carry 와 같은 함수 */   /* ★[BED_LOAD_1101 덧2] 앞 곡이 잇는 자리 — «음악과 함께» 축사 · 편지 곡(M4S5 · M4S6)이 흐르면 기본 본식 곡 M4 로 3초 겹쳐 돌아온다(미리 듣기 carry 와 같다) · ★[BGM_FIX_1030] 축배 곡(M7)은 «위하여» 뒤 디렉터 GO 에서 연다(segCheer) — 축배 나레이션 동안은 앞 곡이 잇는다(END_FLOW_1030 뒤로는 테이블 인사 곡 · 테이블이 없으면 그 앞 순간 곡) */
   if (k === 'table') return 'M8';
   if (sl === 'narr-close' || /^narr-photo-pre|^narr-closing/.test(sl || '')) return (BED.seg === 'M8' || BED.seg === 'M8L') ? '' : (segPlan('M6P') ? 'M6P' : '');   /* ★[END_FLOW_1030] 사진 전 안내(265 · 266)도 사진 칸 곡 */   /* 사진 — 테이블 인사 뒤면 M8 이 잇고 · 닫는 인사 뒤면 사진 칸 곡(없으면 M6 이 잇는다) */
-  if (k === '_close') return sl === 'narr-close-bow' ? (/^M4S[56]$/.test(BED.seg) ? 'M4' : '') : 'M6';   /* [BED_LOAD_1101 덧2] 닫는 인사 첫 줄도 «음악과 함께» 곡이면 M4 로 · ★[BGM_FIX_1030] M6 = 닫는 인사의 목례 · 박수(사람 순간)부터 — 닫는 나레이션 동안은 앞 곡을 낮게(segLive) */
+  if (k === '_close') return sl === 'narr-close-bow' ? (BP.backSeg ? BP.backSeg(BED.seg) : (/^M4S[56]$/.test(BED.seg) ? 'M4' : '')) : 'M6';   /* [BED_LOAD_1101 덧2] 닫는 인사 첫 줄도 «음악과 함께» 곡이면 M4 로 · ★[BGM_FIX_1030] M6 = 닫는 인사의 목례 · 박수(사람 순간)부터 — 닫는 나레이션 동안은 앞 곡을 낮게(segLive) */
   if (k === '_goodbye') return segPlan('M8L') ? 'M8L' : '';   /* 마무리 인사(47)와 함께 마지막 곡 */
   return ''; }
 /* [TOAST_GO] 축배 GO — ★[BGM_FIX_1030] 이 GO 에서 축배 곡(M7)으로 바꾼다 · 강조 위치(start)에서 시작해 축배 오름(toastUpMs · 0.6초)에 걸쳐 · 곡 파일이 없으면 지금 곡이 잇는다(크기만 오른다) */
-function segCheer(){ if (MODE === 'preview' || GUEST) return; var ms = PARAM.toastUpMs || 600;
+function segCheer(){ if ((MODE === 'preview' || GUEST) && !pvsOn()) return; var ms = PARAM.toastUpMs || 600;
   if (BED.seg !== 'M7') { var L = segPlan('M7'); if (L) { BED.seg = 'M7'; BED.list = L; BED.li = 0; bedPlay(L[0], ms / 1000, segStartOf(L[0])); return; } }
   if (BED.seg !== 'M7' || !BED.id) return; var at = segStartOf(BED.id); if (at == null) return; try { BED.el[BED.on].currentTime = at; } catch (e) {} }
 /* [BGM_FIX_1030] 사람 순간이 시작될 때 바꾸는 구간 — 닫는 인사의 목례 · 박수(narr-close-bow) → M6 */
@@ -1841,11 +1873,11 @@ function setPaused(on){
     var keep = progS;
     clearT();                                              // clearT 가 stopProg 까지 한다
     progS = keep;
-    bgmWas = !aBgm.paused;
+    bgmWas = BED.el.map(function(e){ return !e.paused; });   // [PREVIEW_LINK_SONGS_1101] 구간 곡 재생기 셋 모두
     try { aNarr.pause(); } catch (e) {}
-    try { aBgm.pause(); } catch (e) {}
+    try { BED.el.forEach(function(e){ e.pause(); }); } catch (e) {}
   } else {
-    if (bgmWas) { try { aBgm.play(); } catch (e) {} }
+    if (bgmWas) { BED.el.forEach(function(e, k){ if (bgmWas[k]) { try { var pp = e.play(); if (pp && pp.catch) pp.catch(function(){}); } catch (x) {} } }); }
     var hasAudio = aNarr.getAttribute('src') && isFinite(aNarr.duration) && aNarr.duration > 0 && aNarr.currentTime < aNarr.duration - 0.15;
     if (hasAudio) {
       if (progS) runProg(progS.sec, progS.done, progS.el || aNarr.currentTime);
@@ -2365,6 +2397,7 @@ $('#go').onclick = function(){
   var bedSrc = BGMURL || (MODE === 'preview' ? PREVIEW_BED : '');   // ★PREVIEW_BED — 디렉터가 고른 파일이 언제나 이긴다
   BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false);   // [BGM_SEG8_1023] 시작 = 하객 맞이 구간 곡(파일이 있으면) · 없으면 종전 배경 음악 파일 한 곡 반복
   if (MODE !== 'preview' && !GUEST && segPlan('M1')) { duckTo(PARAM.duckMusic, 10); segGo('M1'); }
+  else if (pvsOn()) { duckTo(PARAM.duckMusic, 10); pvsWarm(); segGo('M1'); }   /* ★[PREVIEW_LINK_SONGS_1101] 미리듣기 = 두 분 곡 계획(BgmPicks.plan) · 곡을 못 받은 구간만 예시 음악 */
   else if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
   applyMaster();
   if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){ wakeLock = w; }).catch(function(){});

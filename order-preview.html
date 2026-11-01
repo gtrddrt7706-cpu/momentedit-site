@@ -2368,7 +2368,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1101z"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101np"></script><script src="/assets/bgm-picks.js?v=1101dl"></script><script src="/assets/narration-pad.js?v=1101g2"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101rf"></script><script src="/assets/bgm-form.js?v=1101r2"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101z"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101np"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1101g2"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101r6"></script><script src="/assets/bgm-form.js?v=1101r2"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -10377,7 +10377,7 @@ function openRitualPreview(){
   var _closed=false;
   function done(){
     if(_closed) return; _closed=true;
-    document.removeEventListener('keydown',onKey);
+    document.removeEventListener('keydown',onKey); window.removeEventListener('message',_rpBed);   // [PREVIEW_LINK_SONGS_1101]
     try{ fr.src='about:blank'; }catch(e){}   // ★소리를 먼저 끊는다 — DOM 에서 떼기만 하면 브라우저에 따라 오디오가 살아남아 닫은 뒤에도 계속 들린다
     if(ov.parentNode) ov.parentNode.removeChild(ov);
     document.body.style.overflow=_bo;
@@ -10388,6 +10388,14 @@ function openRitualPreview(){
   try{ if(isOpen()&&!(history.state&&history.state.rp)) _hPush({opIdx:idx,rp:1,gen:_opGen}); }catch(e){}
   function shut(){ try{ if(history.state&&history.state.rp){ history.back(); return; } }catch(e){} done(); }
   function onKey(e){ if(e.key==='Escape'&&!e.repeat) shut(); }   // 빌더의 Esc('저장 후 나가기')는 이 오버레이가 떠 있는 동안 스스로 비켜선다(아래 EMBED 블록 참고)
+  /* ★[PREVIEW_LINK_SONGS_1101] 미리듣기(console 손님 판)의 구간 곡 받기를 마이페이지로 잇는다(곡 bed · 받기만) · 마이페이지 밖(혼자 연 식순 화면)이면 바로 «못 받음» — 콘솔이 그 구간만 예시 음악으로 */
+  var _rpReq={};
+  function _rpBed(ev){ if(_closed||ev.origin!==location.origin) return; var d=ev.data||{};
+    if(ev.source===fr.contentWindow&&d.type==='momentedit:ritualFileGet'&&d.data&&d.data.key==='bed'&&d.data.id){ var id=String(d.data.id).slice(0,40);
+      if(window.parent===window){ try{ fr.contentWindow.postMessage({type:'momentedit:ritualFileData',key:'bed',id:id,ok:false,error:'곡을 불러오지 못했어요 (코드 L6)',ecode:'L6'},location.origin); }catch(e){} return; }
+      _rpReq[id]=1; try{ window.parent.postMessage({type:'momentedit:ritualFileGet',data:{key:'bed',id:id}},location.origin); }catch(e){} return; }
+    if(ev.source===window.parent&&d.type==='momentedit:ritualFileData'&&d.key==='bed'&&_rpReq[d.id]){ delete _rpReq[d.id]; try{ fr.contentWindow.postMessage(d,location.origin); }catch(e){} } }
+  window.addEventListener('message',_rpBed);
   x.addEventListener('click',shut);
   document.addEventListener('keydown',onKey);
   return ov;

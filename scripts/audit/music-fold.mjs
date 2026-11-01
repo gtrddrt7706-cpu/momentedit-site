@@ -158,7 +158,7 @@ try {
     ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 바로 접힘 · 다시 들어와도 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 7 && res.every((x) => x[2] === 'ok'), res);
     /* 7b 목록 칸(하객 맞이 · 테이블 인사)은 접지 않는다 — 고르기 · «바꾸기» · 접힌 줄 0 · 곡 줄 다섯 */
     const lr = [];
-    for (const [sg, k] of [['M1', 'guest'], ['M8', 'table']]) { await go(fr, k); lr.push(await fr.evaluate((sg) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"]'); return b ? [sg, b.querySelectorAll('.mu-pick').length, b.querySelectorAll('.mu-chg').length, !!b.querySelector('.mu-fold1'), b.querySelectorAll('li.mu-row[data-f]').length, BgmPicks.order(S, sg).length] : [sg, 'no-row']; }, sg)); }   /* 앞에서 다른 구간에 배경 곡(B16 · B14)을 골랐으면 그 곡은 빠진다 — 차례 함수와 같은 수 */
+    for (const [sg, k] of [['M1', 'guest'], ['M8', 'table']]) { await go(fr, k); lr.push(await fr.evaluate((sg) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"]'); return b ? [sg, b.querySelectorAll('.mu-pick').length, b.querySelectorAll('.mu-chg').length, !!b.querySelector('.mu-fold1'), b.querySelectorAll('li.mu-row[data-f]').length, ((BgmBed._t.plan(false) || {})[sg] || { list: [] }).list.length] : [sg, 'no-row']; }, sg)); }   /* 앞에서 다른 구간에 배경 곡(B16 · B14)을 골랐으면 그 곡은 빠진다 — 차례 함수와 같은 수 */
     ok(`${W} 7b 목록 칸(하객 맞이 · 테이블 인사)은 고르기 · 접기 없음 — 곡 줄 = 재생 차례 [LIST_NO_PICK_1101]`, lr.every((x) => x[1] === 0 && x[2] === 0 && x[3] === false && x[4] >= 3 && x[4] === x[5]), lr);
     /* 1 이 다른 구간에서도 — 안 고른 테이블 · 축배 등은 7 에서 고르기 전 접히지 않았다 */
     ok(`${W} 1 고르기 전 접힌 구간 없음(앞에서 고른 화촉 말고 모든 순간)`, res.every((x) => x[0] === 'M2' || x[3] !== 'fold-before'), res);
