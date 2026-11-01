@@ -2198,9 +2198,10 @@ function guestPrev(){
 }
 
 function panic(){
-  clearT(); esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 입장 장면(Web Audio 곡 · 예약 멘트)도 함께 — 종전엔 aNarr 만 멈춰 입장 곡 · 멘트가 계속 나갈 수 있었다
+  clearT();
   try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
   aNarr._pg = (aNarr._pg || 0) + 1;   // [PLAY_GEN]
+  esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 입장 장면(Web Audio 곡 · 예약 멘트)도 함께 — 종전엔 aNarr 만 멈춰 입장 곡 · 멘트가 계속 나갈 수 있었다
   duckTo(PARAM.duckMusic, 600);
   phase = 'done';
   render();
@@ -2284,9 +2285,10 @@ $('#bMute').onclick = function(){
 };
 
 $('#bBack').onclick = function(){
-  clearT(); esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 뒤로도 입장 장면까지 · [DETAIL_R5_1101 규칙 7 ③] 당일 정지 · 뒤로 = 모두 멈춤
+  clearT();
   try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
   aNarr._pg = (aNarr._pg || 0) + 1;   // [PLAY_GEN] 되돌린 순서의 늦은 재생 결과가 대신 나레이션을 내지 않게
+  esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 뒤로도 입장 장면까지 · [DETAIL_R5_1101 규칙 7 ③] 당일 정지 · 뒤로 = 모두 멈춤
   cur = Math.max(-1, cur - 1);
   phase = cur < 0 ? 'idle' : 'done';
   render();

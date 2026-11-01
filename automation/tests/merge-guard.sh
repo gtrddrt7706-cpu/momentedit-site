@@ -20743,7 +20743,7 @@ chk 'function segCk()' console.html 1   # ★[DETAIL_R3_1101 ①] 현장 선곡�
 chk 'id="segMine"' console.html 1   # [DETAIL_R3_1101 ①] 이 예식에서 바꾼 곡 한 줄
 chk '곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요' console.html 1   # [DETAIL_R3_1101 ②] 새 곡이 실제로 소리를 낸 뒤 넘김
 chk 'function bedFree()' console.html 1   # [DETAIL_R3_1101 ③] 셋째 재생기 · 들리는 재생기 src 안 바꿈
-chk 'clearT(); esdStop(0.6);' console.html 2   # [DETAIL_R3_1101 ④] 전체 정지 · 뒤로 = 입장 장면까지
+chk '  esdStop(0.6);   // ★.DETAIL_R3_1101 ④' console.html 2   # [DETAIL_R3_1101 ④] 전체 정지 · 뒤로 = 입장 장면까지
 chk 'function bedVolFb()' console.html 1   # [DETAIL_R4_1101 ③] 대체 경로 두 재생기 덕킹 · 음소거
 chk 'if(o&&o.inner) return; scStop(); HAND=null;' assets/entry-music.js 1   # [DETAIL_R4_1101 ②] 넘긴 장면 보호는 안에서 넘겨줄 때만
 chk 'window.__emInner=1;' order-preview.html 1   # [DETAIL_R4_1101 ②]
