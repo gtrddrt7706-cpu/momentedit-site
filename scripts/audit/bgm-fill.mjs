@@ -96,6 +96,7 @@ try {
   /* c · d 고객 화면 */
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
+    await f.evaluate(() => { const L = BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; });   /* [LIST_FOLD_1102] 아래 검사는 펼친 목록을 본다 · 접힘은 bgm-fill LIST_FOLD 가 본다 */
     await setS(f, { M1: { k: 'B13' }, M8: { k: 'B23' } });   /* 옛 저장값 — 무시돼야 한다 */
     await go(f, 'guest'); let r = await look(f, 'M1');
     const WANT1 = P.order({}, 'M1'), T1 = WANT1.map((x) => [P.SONGS[x].t, P.SONGS[x].a]);
@@ -138,6 +139,27 @@ try {
       await wait(f, 2500); const done = await f.evaluate((fx) => { const box = document.querySelector('.ls-bed[data-seg="M1"]'); return { left: box.querySelectorAll('.mu-ld').length, on: box.querySelector('[data-fk="bedp:M1:' + fx + '"]').getAttribute('aria-pressed') }; }, fx);
       await pg.evaluate((fx) => { delete H.dly[fx]; }, fx); await f.evaluate(() => { try { document.querySelector('.mu-pl.on').click(); } catch (e) {} });
       ok(`${W} ROW_FILL_PLAY 보탬 — 늦은 곡: 누른 줄 안 «불러오는 중» 1 · 목록 아래 줄 0 · 제목과 안 겹침 · 받으면 사라지고 ■ · 탭 강조 투명`, !!fx && ld.inRow === 1 && ld.mine && ld.below === 0 && !ld.over && done.left === 0 && done.on === 'true' && /rgba\(0, 0, 0, 0\)|transparent/.test(ld.tap), { fx, ld, done }); }
+    /* [LIST_FOLD_1102] 목록 칸 접힘 — 처음엔 첫 곡 줄 + «외 n곡» + «펼치기» · 펴면 다섯 줄 + «접기»(같은 자리) · 이 방문 동안 그대로 · 접힌 줄에도 ▶ */
+    { await setS(f, {}); await f.evaluate(() => { const L = BgmBed._t.LOPEN; delete L.M1; delete L.M8; }); await go(f, 'table'); await go(f, 'guest'); await wait(f, 400);
+      const fd = (sg) => f.evaluate((sg) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"], .bed-sub[data-seg="' + sg + '"]'); if (!b) return null; const t = b.querySelector('.mu-lfold'), r0 = b.querySelector('li.mu-row'), tt = r0 && r0.querySelector('.mu-t');
+        const tb = t && t.getBoundingClientRect(), ti = tt && tt.getBoundingClientRect();
+        return { rows: b.querySelectorAll('li.mu-row[data-f]').length, pl: b.querySelectorAll('li.mu-row .mk-pl').length, more: ((b.querySelector('.mu-more') || {}).textContent || '').trim(), btn: t ? t.textContent.trim() : '', ex: t ? t.getAttribute('aria-expanded') : '', inFirst: !!(t && r0 && r0.contains(t)),
+          pos: tb ? [Math.round(tb.top - r0.getBoundingClientRect().top), Math.round(tb.right)] : null, over: !!(tb && ti && ti.right > tb.left - 2 && ti.bottom > tb.top), clip: tt ? tt.scrollWidth > tt.clientWidth + 1 : true, docW: document.documentElement.scrollWidth > innerWidth + 1 }; }, sg);
+      const a0 = await fd('M1');
+      await shot(f, W, 'fold0', '.ls-bed[data-seg="M1"], .bed-sub[data-seg="M1"]');
+      await f.click('[data-fk="bedlfold:M1"]'); await wait(f, 300); const a1 = await fd('M1');
+      await shot(f, W, 'fold1', '.ls-bed[data-seg="M1"], .bed-sub[data-seg="M1"]');
+      await go(f, 'table'); await go(f, 'guest'); const a2 = await fd('M1');
+      await f.click('[data-fk="bedlfold:M1"]'); await wait(f, 300); const a3 = await fd('M1');
+      await go(f, 'table'); const b0 = await fd('M8'); const f8 = await f.evaluate(() => { const r = document.querySelector('.ls-bed[data-seg="M8"] li.mu-row[data-f], .bed-sub[data-seg="M8"] li.mu-row[data-f]'); return r ? r.getAttribute('data-f') : ''; });
+      await pg.evaluate((x) => { if (H.have.indexOf(x) < 0) { H.have.push(x); H.songs[x] = H.songs.B01; } }, f8); await f.evaluate(() => { const A = BgmBed._t.AV; A.st = ''; A.set = {}; }); await go(f, 'guest'); await go(f, 'table'); await wait(f, 500);
+      await f.click('[data-fk="bedp:M8:' + f8 + '"]'); await wait(f, 900); const pr = await f.evaluate(() => ({ f: BgmBed._t.CARD.f, sg: BgmBed._t.CARD.sg }));
+      await f.click('[data-fk="bedp:M8:' + f8 + '"]'); await wait(f, 400);
+      ok(`${W} LIST_FOLD 처음 — 첫 곡 줄 하나 · «외 4곡» · «펼치기»(첫 줄 오른쪽 · 제목과 안 겹침 · 제목 안 잘림) · 가로 넘침 0`, a0 && a0.rows === 1 && a0.pl === 1 && a0.more === '외 4곡' && a0.btn === '펼치기' && a0.ex === 'false' && a0.inFirst && !a0.over && !a0.clip && !a0.docW, a0);
+      ok(`${W} LIST_FOLD 펴면 다섯 줄 · ▶ 다섯 · «외 n곡» 없음 · 같은 자리 «접기»`, a1 && a1.rows === 5 && a1.pl === 5 && a1.more === '' && a1.btn === '접기' && a1.ex === 'true' && a0.pos && a1.pos && a0.pos[1] === a1.pos[1], { a0: a0 && a0.pos, a1 });
+      ok(`${W} LIST_FOLD 순간을 옮겼다 돌아와도 펼친 그대로 · 접으면 다시 한 줄`, a2 && a2.rows === 5 && a3 && a3.rows === 1 && a3.btn === '펼치기', { a2, a3 });
+      ok(`${W} LIST_FOLD 테이블 인사도 접힘 · 접힌 줄 ▶ 이 그 곡을 튼다`, b0 && b0.rows === 1 && b0.more === '외 4곡' && !!f8 && pr.f === f8 && pr.sg === 'M8', { b0, f8, pr });
+      await f.evaluate(() => { const L = BgmBed._t.LOPEN; L.M1 = L.M8 = true; }); }
     /* d 파일이 없을 때 — 화촉 1 · 2(B05 · B31)는 드라이브에 없다 */
     await setS(f, { M2: { k: 'B31' } }); await go(f, 'candle'); await wait(f, 600);
     const d1 = await f.evaluate(() => ({ at: BgmBed._t.songAt ? BgmBed._t.songAt('candle') : '', ft: ((document.querySelector('.ls-bed[data-seg="M2"] .mu-fsel .mu-t') || {}).textContent || '') }));

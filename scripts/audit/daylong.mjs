@@ -94,6 +94,7 @@ try {
   /* b 고객 화면 · d 미리 듣기 */
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
+    await f.evaluate(() => { const L = BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; });   /* [LIST_FOLD_1102] 아래 검사는 펼친 목록을 본다 · 접힘은 bgm-fill LIST_FOLD 가 본다 */
     await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
     await setX(f, { bgm: {} }); await go(f, 'welcome'); let r = await LN(f, 'M4');
     ok(`${W} b 감사 인사 — 고르지 않았으면 한 줄 없음`, r.t === '' && !r.fold, r);

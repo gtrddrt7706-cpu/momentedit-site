@@ -65,6 +65,7 @@ async function open(W, embed, init) {
   await nx(); await nx();
   await f.evaluate((ks) => { ks.forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'nar'; S.vsAsked = 1; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, ALL);
   await nx(); await wait(f, 800);
+  try { await f.evaluate(() => { const L = window.BgmBed && BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; }); } catch (e) {}   /* [LIST_FOLD_1102] 이 검사는 펼친 목록을 본다 · 접힘은 bgm-fill LIST_FOLD */
   return { ctx, pg, f, errs };
 }
 
