@@ -253,13 +253,13 @@ try {
     ok('F0 데이터 절약이면 곡 칸이 보여도 미리 받지 않는다', n0 === 0, await LOG(pg));
     await pg.evaluate(() => { H.delay = 3000; }); await f.evaluate(() => { window.__ios.length = 0; });
     const ft = () => f.evaluate(() => { const b = document.querySelector('[data-fk="bedp:M2:B05"]'); return { cls: b ? b.className : '', busy: b ? b.getAttribute('aria-busy') : null, pr: b ? b.getAttribute('aria-pressed') : null,
-      note: ((document.querySelector('.ls-bed[data-seg="M2"] .bed-load') || {}).textContent || '').trim(), st: BgmBed._t.CARD.st, who: BgmBed._t.BED.who, src: !!BgmBed._t.BED.cur.src, ios: window.__ios.slice() }; });
+      note: ((document.querySelector('.ls-bed[data-seg="M2"] .mu-ld') || {}).textContent || '').trim(), below: document.querySelectorAll('.ls-bed[data-seg="M2"] .bed-load').length, st: BgmBed._t.CARD.st, who: BgmBed._t.BED.who, src: !!BgmBed._t.BED.cur.src, ios: window.__ios.slice() }; });
     await f.click('[data-fk="bedp:M2:B05"]'); await wait(f, 120); const t1 = await ft();
     ok('F1 첫 탭 즉시 — ▶ 가 차오름(wfill · ld · aria-busy) · 아직 안내 글 없음', /\bwfill\b/.test(t1.cls) && /\bld\b/.test(t1.cls) && t1.busy === 'true' && t1.st === 'load' && !t1.note, t1);
     ok('F2 누른 흐름 안에서 소리 길을 연다 — 그 순간 무음 한 칸 재생', t1.ios.some((x) => x.g && x.n <= 1), t1.ios);
     await wait(f, 1500); const t2 = await ft();
     await shot(f, 390, 'tap-load', '.ls-bed[data-seg="M2"]');
-    ok('F3 1.5초가 넘으면 아래 «곡을 불러오는 중이에요» · ▶ 는 계속 차오름', t2.note === '곡을 불러오는 중이에요' && /\bld\b/.test(t2.cls), t2);
+    ok('F3 1.5초가 넘으면 누른 곡 줄 안 «불러오는 중»(목록 아래 줄 0 · ROW_FILL_PLAY_1101 보탬) · ▶ 는 계속 차오름', t2.note === '불러오는 중' && t2.below === 0 && /\bld\b/.test(t2.cls), t2);
     await wait(f, 2400); const t3 = await ft(); const big = t3.ios.filter((x) => x.n > 1);
     ok('F4 곡이 오면 그 길로 튼다 — 곡 재생 1번 · 아이폰 흉내에서도 소리 남 · ■ · 차오름 · 안내 글 걷힘', t3.who === 'card' && t3.st === 'play' && t3.src && big.length === 1 && big[0].ul && t3.pr === 'true' && !/\bld\b/.test(t3.cls) && !t3.note, { ...t3, ios: t3.ios.slice(0, 6) });
     ok('F5 손가락이 닿을 때 받기 시작한 곡을 누른 뒤 다시 묻지 않는다(key bed B05 한 번)', (await bedN('B05')) === 1, await LOG(pg));
