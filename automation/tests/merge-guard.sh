@@ -21115,6 +21115,11 @@ chk "'narr-closing': \[CL_THX, CL_DAY\], 'narr-closing-guide': \[CL_THX, CL_DAY,
 chk "'narr-closing-soft-nt': 1," assets/ritual-cue.js 1
 nochk "'narr-closing': \[CL_THX, CL_DAY, CL_CREW\]" assets/ritual-cue.js
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
+# ── 2026-11-01 [CLOSING_MEAL_DUP 검토 185 · 사장님 11:39 «추천대로 진행»] 식사 판(291 · 296) 마지막 = «오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.»(진희 새 녹음) · 식사 없는 판은 264 그대로
+chk "var CL_UP_MEAL = \['안내', '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', null," assets/ritual-cue.js 1
+chk "'narr-closing-meal': \[CL_THX\].concat(CL_MEAL, \[CL_UP_MEAL\])," assets/ritual-cue.js 1
+chk "'narr-closing-meal-nt': CL_MEAL.concat(\[CL_UP_MEAL\])" assets/ritual-cue.js 1
+chk 'CLOSING_MEAL_DUP' scripts/audit/closing-line.mjs 4
 # ── 2026-11-01 [EVENT_COUNT_CAP 검토 183 · 사장님 10:33 «추천대로 진행»] 본식 상한 = 개수 규칙(6개 · 긴 3개 · 테이블 인사 = 2) · 넘는 드문 조합은 테이블 인사 자동 맞춤
 chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1
 chk "var CNT_LONG = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 };" assets/ritual-open.js 1

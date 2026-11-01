@@ -478,7 +478,7 @@
   /* ★★[END_FLOW_1030 · BODY_CAP_1030 검토 167 2026-10-30 사장님] 닫는 인사 뒤 몫 — 40분 셈에 넣는다(본식 + 테이블 인사 + 이 몫 + 단체 사진 = 40).
        pre = 사진 전 안내(265 · 266)가 옛 사진 안내(26 · 닫는 인사 몫 46초 안)보다 긴 초(식사 있음 21 · 없음 9 · 엔진 글 길이 셈 · open-course 가 대조) ·
        online = 디지털 참석 날 온라인 인사(62 + 두 분 2분 · 엔진 live 와 같은 값). 빌더는 S 에 digital · meal 이 없어 마이페이지가 준 값을 setPost 로 싣는다 */
-  var POST_SEC = { meal: 17, soft: 0, softGuide: 5, none: 0, noneGuide: 8, mealNt: 11, softNt: 0, softGuideNt: 0, noneNt: 0, noneGuideNt: 2, online: 120 };   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다
+  var POST_SEC = { meal: 13, soft: 0, softGuide: 5, none: 0, noneGuide: 8, mealNt: 8, softNt: 0, softGuideNt: 0, noneNt: 0, noneGuideNt: 2, online: 120 };   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장이 짧아져 17 → 13 · 11 → 8(엔진 글 길이 셈 · body-cap 이 대조)
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
   function _postOf(S, f) { return (S && typeof S[f] === 'boolean') ? S[f] : !!_POST[f]; }

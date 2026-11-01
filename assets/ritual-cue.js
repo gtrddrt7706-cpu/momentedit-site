@@ -390,17 +390,20 @@
     /* ★[CLOSING_ONE_VOICE_1031 검토 179 덧 · 사장님 실청 21:55] 마무리 = 진희(안내) 한 목소리 — 식사 두 문장은 266(우성) 녹음을 빌리지 않고 진희 새 녹음(셋째 칸 null = 새 녹음 · 음성 쉼) */
     CL_MEAL = [['안내', _sents(EXTRA['narr-photo-pre-meal'])[3], null, '우리 운영 · 자료 없음(우리만의 예약 식사라 자료가 없음 · 유지)'], ['안내', _sents(EXTRA['narr-photo-pre-meal'])[4], null, '우리 운영 · 자료 없음(우리만의 예약 식사라 자료가 없음 · 유지)']],
     CL_UP = ['안내', EXTRA['narr-photo-upload'], '264_narr-photo-upload#0', '자료 — G2 3-3'];
+  /* ★★[CLOSING_MEAL_DUP 검토 185 · 사장님 11:39 «추천대로 진행»] 식사 있는 판(291 · 296)은 266#1 «장소와 시간은 여러분이 받으신 모바일 청첩장의 하객 안내를 통해 확인해 주세요.» 바로 뒤라
+     264 «여러분이 받으신 모바일 청첩장의 하객 안내를 통해 …»가 두 문장 연속으로 겹쳤다 — 식사 판만 264 앞머리를 줄인 새 문장(진희 새 녹음 · 녹음 전엔 글로) · 식사 없는 판(288 · 290 · 293 · 295)은 264 그대로 */
+  var CL_UP_MEAL = ['안내', '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', null, '자료 — G2 3-3(앞머리 «여러분이 받으신 모바일 청첩장의 하객 안내를 통해»를 «그곳에서»로 줄임 · 바로 앞 식사 줄과 겹쳐서)'];
   /* ★[CLOSING_NO_CREW_1031 검토 179 덧 · 사장님 실청 21:55 «굳이 이런 멘트 없이 작가님이 자연스럽게 안내»] 44 «여기서부터는 작가님이 안내해 드립니다.»는 마무리에서 뺐다 — 되살리지 말 것(44 녹음 · 파일은 옛 코스가 그대로 쓴다 · clip-status legacy)
        CL_CREW 는 쉬는 294(그 판에 남은 문장이 44 하나뿐이라 RETIRED)의 녹음 기록으로만 남는다 — 살아 있는 판에 넣지 않는다 */
   var CL_CREW = ['진행', EXTRA['end-0-photo'], '44_end-0-photo#0', '9/6 설계한 넘김 말 · 검토 179 덧(사장님 실청 21:55)으로 마무리에서 뺐다 · 294 녹음 기록'];
   var CLOSING_PARTS = {
     'narr-closing': [CL_THX, CL_DAY], 'narr-closing-guide': [CL_THX, CL_DAY, CL_UP],
     'narr-closing-soft': [CL_THX], 'narr-closing-soft-guide': [CL_THX, CL_UP],
-    'narr-closing-meal': [CL_THX].concat(CL_MEAL, [CL_UP]),
+    'narr-closing-meal': [CL_THX].concat(CL_MEAL, [CL_UP_MEAL]),   /* [CLOSING_MEAL_DUP] */
     /* [CLOSING_SRC_1031] 닫는 멘트 칩 186 · 187 을 고른 날 — 47#0(감사) 없이 */
     'narr-closing-nt': [CL_DAY], 'narr-closing-guide-nt': [CL_DAY, CL_UP],
     'narr-closing-soft-nt': [CL_CREW], 'narr-closing-soft-guide-nt': [CL_UP],   /* [CLOSING_NO_CREW_1031] 식사 · 카페만 + 하객 안내 없음 + 감사 칩 = 44 를 빼면 남는 문장 0 → 마무리 멘트 없이 작가님 촬영(294 는 쉰다 · RETIRED · 이 줄은 그 녹음 기록) */
-    'narr-closing-meal-nt': CL_MEAL.concat([CL_UP])
+    'narr-closing-meal-nt': CL_MEAL.concat([CL_UP_MEAL])   /* [CLOSING_MEAL_DUP] */
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 어느 판인가 — 식사 있음(266 이 서던 조건 그대로) · 식사 · 카페만(26 이 서던 자리) · 애프터 웨딩 없음(265 자리) · 하객 안내가 열린 날은 264 를 «여기서부터는 …» 앞에 */
