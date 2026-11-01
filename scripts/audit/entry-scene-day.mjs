@@ -87,6 +87,10 @@ try {
       const D = await st(pg);
       ok('4 같은 입장 묶음의 다음 큐(맞절) — 곡은 이어서 그 큐 덕 값(-12dB ≈ 0.25)으로 낮게 · 배경음은 -90', D.run && D.cur === I.bow && Math.abs(D.dk - Math.pow(10, -12 / 20)) < 0.03 && D.duck === -90, D);
     } else ok('4 (이 코스엔 같은 입장 묶음의 다음 큐가 없다 — 건너뜀)', true);
+    /* ★[ENTRY_UNDER_1101] 입장 묶음의 나머지 큐(받는 말 · 맞절 · 이음말 b8)마다 입장 곡이 그대로 흐른다 — 다음 묶음 GO 전까지 끊기지 않는다 */
+    if (I.bow > 0 && I.next > I.bow + 1) { const rest = [];
+      for (let j = I.bow + 1; j < I.next; j++) { await fireAt(pg, j); await pg.waitForTimeout(500); const R1 = await st(pg); rest.push({ j, run: R1.run, cur: R1.cur, slug: await pg.evaluate((i) => (window.__esd.slugOf ? window.__esd.slugOf(i) : ''), j) }); }
+      ok(`4b [ENTRY_UNDER_1101] 입장 묶음 나머지 큐 ${rest.length}개(받는 말 · 맞절 · 이음말)까지 입장 곡이 흐른다(ESD 재생 중)`, rest.length > 0 && rest.every((x) => x.run && x.cur === x.j), rest); }
     if (I.next > 0) {
       const want = await pg.evaluate((i) => window.__esd.duckOf(i), I.next);
       await fireAt(pg, I.next); await pg.waitForTimeout(300);
