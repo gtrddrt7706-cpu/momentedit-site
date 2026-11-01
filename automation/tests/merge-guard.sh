@@ -20681,8 +20681,8 @@ chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101
 chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101] 지브리 판
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
 chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\] }" assets/bgm-picks.js 1   # ★[BGM_FILL_1101] 목록 칸 배경 곡
-chk 'function order(S, seg)' assets/bgm-picks.js 1
-chk 'if (BP.order) return BP.order(S, id).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
+chk 'function order(S, seg, prev)' assets/bgm-picks.js 1
+chk 'if (BP.order) return BP.order(S, id, cur).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
 nochk 'function flowHtml(sg)' assets/bgm-bed.js   # 순서 화살표 두 줄은 곡 줄 목록이 대신 — 되살리지 말 것
 chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목록 칸 k 는 쓰지 않는다
@@ -20708,6 +20708,12 @@ nochk 'ENT_NEED=25' assets/bgm-bed.js   # 옛 «25초 남는 자리» — 맞절
 chk 'LP.entRest=(_ao===' order-preview.html 1   # 장면 뒤 받는 말도 입장 곡
 chk 'R.hand=true; HAND=R; restGo();' assets/entry-music.js 1   # 장면이 도착에서 잦아들 때 넘긴다
 chk 'ENTRY_UNDER_1101' scripts/audit/entry-under.mjs 1
+chk 'function carryOf(S, seg, prev)' assets/bgm-picks.js 1   # ★[CARRY_SAME_1101] 앞 순간 곡이 다음 목록에 있으면 그대로 잇는다(한 곳)
+chk 'function prevOf(sg,dp)' assets/bgm-bed.js 1   # [CARRY_SAME_1101] 식순 화면 · 미리 듣기 = 앞 순간 구간 곡
+chk "if (cur && L\\[0\\] === cur) { bedFade(BED.on, 1, SEG_XF); return false; }" console.html 1   # [CARRY_SAME_1101] 당일 콘솔 = 같은 곡이면 bedPlay 없이
+chk "return (f&&(f===a||f===b))?((P.carryOf&&P.carryOf(St(),'M4',f))||m4()):f;" assets/bgm-bed.js 1   # [CARRY_SAME_1101] «음악과 함께» 곡이 본식 목록에도 있으면 그대로(콘솔 segGo 와 같다)
+chk 'CARRY_SAME_1101' scripts/audit/carry-same.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/carry-same.mjs >/dev/null 2>&1; _cs=$?; if [ "$_cs" = 1 ]; then echo 'FAIL carry-same: 이어지는 두 순간에 같은 곡이 있는데 다시 시작하거나 다른 곡으로 넘어갑니다 — node scripts/audit/carry-same.mjs'; fail=1; elif [ "$_cs" = 2 ]; then echo 'skip carry-same (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok carry-same'; fi; fi   # ★[CARRY_SAME_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-under.mjs >/dev/null 2>&1; _eun=$?; if [ "$_eun" = 1 ]; then echo 'FAIL entry-under: 입장 · 맞절 듣기에서 곡이 멘트 도중 끊깁니다(판 끝 이음 · 장면 넘김 · 남아야 할 길이) — node scripts/audit/entry-under.mjs'; fail=1; elif [ "$_eun" = 2 ]; then echo 'skip entry-under (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-under'; fi; fi   # ★[ENTRY_UNDER_1101]
 # ★[VC_FIX2_1030 2026-10-30 GPT 2차 점검] 두 분 AI 목소리 — 지우기 · 저장 · 잠금 · 글자 예산(서버 아홉 · 깨 보기 포함) · 무음 녹음 · 새로 고침 경고 · 당일 콘솔 최신 확인
 chk 'VC_FIX2_1030' scripts/audit/vc-fix2-1030.mjs 1
@@ -21031,7 +21037,7 @@ chk 'MUSIC_FOLD_1031' assets/bgm-bed.js 3
 chk 'MUSIC_FOLD_1031' order-preview.html 3
 chk 'MUSIC_FOLD_1031' scripts/audit/music-fold.mjs 1
 chk 'MUSIC_FOLD_1031' .github/workflows/merge-guard.yml 1
-chk "if(folded(sg)&&cs) return foldHtml(sg,k,cs);" assets/bgm-bed.js 1   # 고른 곡이 있으면 접힌 한 줄 먼저([MUSIC_FOLD_PICK_1031] 부터는 고르자마자 접는 것이 맞다)
+chk "if(folded(sg)&&(cs||cr)) return foldHtml(sg,k,cs||P.byF(cr.f));" assets/bgm-bed.js 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # 고른 곡이 있으면 접힌 한 줄 먼저([MUSIC_FOLD_PICK_1031] 부터는 고르자마자 접는 것이 맞다)
 chk "MK.vidDone=null; MK.muFold=null; }" order-preview.html 1
 chk "try{ MK.muFold=null; if(window.BgmForm&&BgmForm.reset) BgmForm.reset(); }catch(e){}" order-preview.html 1   # [BED_KEEP_LOAD_1031]
 chk 'class="pk-link mu-chg"' assets/bgm-bed.js 1
@@ -21225,7 +21231,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/screen-sound.mjs >/d
 # ── 2026-10-31 [MUSIC_FOLD_PICK_1031 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 순간 쪽 음악 곡 목록도 입장 음악 추천 곡([MU_FOLD])처럼 고르는 순간 접는다 · «바꾸기»로 편 뒤 다시 고르면 또 접는다
 chk 'MUSIC_FOLD_PICK_1031' assets/bgm-bed.js 5
 chk 'MUSIC_FOLD_PICK_1031' scripts/audit/music-fold.mjs 1
-chk "function folded(sg){ return !!picked(sg)&&FM()\\[sg\\]!==0; }" assets/bgm-bed.js 1   # [CLOSING_LINE_1031 PR 에서 고침] [sg] 가 정규식 묶음으로 읽혀 늘 0 이던 핀(#1473)
+chk "function folded(sg){ return (!!picked(sg)||!!carried(sg))&&FM()\\[sg\\]!==0; }" assets/bgm-bed.js 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [CLOSING_LINE_1031 PR 에서 고침] [sg] 가 정규식 묶음으로 읽혀 늘 0 이던 핀(#1473)
 nochk "if(!(sg in m)) m[sg]=cur?1:0;" assets/bgm-bed.js
 # ── 2026-10-31 [CLOSING_LINE_1031 검토 178 사장님 19:41 «사진은 작가님 몫»] 사진 «모여 달라 · 앞을 봐 달라»를 자동 식순에서 걷고 닫는 인사 뒤 «마무리 멘트»(287 ~ 291 · 새 녹음 0 · 이미 녹음된 47 · 266 · 264 · 44 문장을 이어 붙임)
 #    사진 구간(전체 하객 · 가족 구도 · 자유 사진 · 촬영 마무리)은 소리 없는 동작 큐(actId) · 265 · 266 · 262 · 219 RETIRED · 26 · 85 · 47 은 옛 코스 legacy(clip-status) · 마이페이지 · 하객 안내 · AI 상담 «작가님 안내에 따라»
@@ -21395,7 +21401,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing'" .github/workflows/merge-guard.yml 1   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -21491,7 +21497,7 @@ chk 'function warmK(k)' assets/bgm-bed.js 1
 chk 'BgmBed.lpLead(st,_lRe)' order-preview.html 1
 chk 'function _lBedNote(t)' order-preview.html 1
 chk 'BgmBed.warmK(k)' order-preview.html 1
-chk 'function nextFirst(nk,nx){' assets/bgm-bed.js 1   # [BED_LOAD_1101 덧1] 편지 끝 곡 = 다음 순간 첫 줄 곡(축배 · 닫는 인사 = M4)
+chk 'function nextFirst(nk,nx,f){' assets/bgm-bed.js 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [BED_LOAD_1101 덧1] 편지 끝 곡 = 다음 순간 첫 줄 곡(축배 · 닫는 인사 = M4)
 chk 'function carry(f){' assets/bgm-bed.js 1   # [BED_LOAD_1101 덧2] 앞 곡이 잇는 자리의 «음악과 함께» 곡 → M4
 chk 'function songsOf(k){' assets/bgm-bed.js 1   # [BED_LOAD_1101 덧1 ③] 미리 받기 목록
 nochk "var f6=eff('M6'); if(has(f6)) want(f6);" assets/bgm-bed.js   # [BED_LOAD_1101 덧1 ③] 축배 미리 받기는 M7(M6 아님)
