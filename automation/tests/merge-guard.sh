@@ -12996,7 +12996,12 @@ chk 'POSTER_SMALL' assets/ritual-open.js 1
 nochk "var PK_CAP=" order-preview.html
 nochk "esc(prep)+'<br>'+esc(prepW)" order-preview.html
 chk 'FLOW_MIN' order-preview.html 5
-chk "'본식과 단체'+NBS+'사진')+' · 늘 '+R.DAYMIN+'분</p>'" order-preview.html 1
+# ★[FLOW_HEAD_MIN 2026-11-01 사장님 «미니멀하게 바꾸지, 설명 부분»] 휴대폰 «본식과 단체 사진 · 늘 40분» 줄 → 제목 줄 오른쪽 «늘 40분»만(R.DAYMIN) · 읽기 프로그램 글은 그대로
+nochk "'본식과 단체'+NBS+'사진')+' · 늘 '+R.DAYMIN+'분</p>'" order-preview.html                          # 곡선 아래 옛 줄 — 되살리지 말 것
+chk "+'<span class=\"pk-tm mo\" aria-hidden=\"true\">늘'+NBS+R.DAYMIN+'분</span><span class=\"sr-only\">'" order-preview.html 1
+chk '.pk-fp-h .pk-tm{margin:0;flex:0 0 auto;white-space:nowrap}' order-preview.html 1
+# ★[FLOW_RAIL_GAP 2026-11-01 사장님 스크린샷] 휴대폰 곡선 그림 오른쪽 26px — 아이콘 줄([RAIL_LOCKED])과 «닫는 인사» 점이 겹치지 않게
+chk '@media (max-width:680px){ .pk-fg-wrap{padding-right:26px} }' order-preview.html 1
 # ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선 없이 한 덩어리
 chk 'PV_SEND_ONE' order-preview.html 2
 chk ".mk-send1 .mk-vlist{border-top:0" order-preview.html 1
