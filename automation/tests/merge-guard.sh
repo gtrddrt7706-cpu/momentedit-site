@@ -21159,6 +21159,26 @@ chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.ht
 chk '_rf={free:4}\[k\]' order-preview.html 1
 chk "예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요" order-preview.html 1
 chk 'PRACTICE_WALK_1101' order-preview.html 19
+# ── 2026-11-01 [GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191 · 사장님 14:50 «하객 맞이를 좀 더 친절하게» · «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»]
+chk "var GUEST_PARTS = { 'guest-w-arrival': \[GW.hi, GW.voice, GW.snap\]" assets/ritual-cue.js 1
+chk "up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.')" assets/ritual-cue.js 1
+chk "five: gw('시작 오 분 전입니다.', '03_guest-3-5min#0')" assets/ritual-cue.js 1
+chk "function guestPick(S, i)" assets/ritual-cue.js 1
+chk "function afterPhotoOf(S)" assets/ritual-cue.js 1
+chk "return Math.max(10, Math.min(20, n));" assets/ritual-cue.js 1
+chk "if (_openG && vi === 1) {" assets/ritual-cue.js 1
+chk "repeatMs: gi === 0 ? PARAM.guestRepeatMs : 0" assets/ritual-cue.js 1
+chk "name: '촬영 후 안내', text: EXTRA\[_aps\]" assets/ritual-cue.js 1
+chk "hint: '작가님이 촬영을 마치면'" assets/ritual-cue.js 1
+chk "if (c.repeatMs && MODE !== 'preview' && !GUEST" console.html 1
+chk "lab:'촬영 후 안내 · 작가님이 촬영을 마치면 재생'" order-preview.html 1
+chk "else if(S.guestVoice!=='couple'&&!isOpen()) out.push(_exRowG('exGuestNar'" order-preview.html 1
+chk "_stepHd('촬영 후 안내', '작가님이 촬영을 마치면 안내 음성이 나와요', 'show')" mypage.html 1
+chk 'GUEST_WELCOME_191' assets/ritual-cue.js 5
+chk 'AFTER_PHOTO_191' assets/ritual-cue.js 3
+nochk "'guest-3-5min': 1," assets/ritual-cue.js
+nochk "‘하객 안내’" assets/ritual-cue.js
+nochk "다시 한번 말씀드립니다" assets/ritual-cue.js
 # ── 2026-11-01 [CLOSING_FULLER 검토 189 · 사장님 13:54 «좀 더 길었으면 · 식당이랑 사진 안내는?»] 마무리 멘트 «이어지는 줄» 회색 미리 보기(② 흐름 · ③ 연습 · 전체 대본 · 녹음 아님) · ② · ③ 엔진 빌드에 마이페이지 값(식사 · 예약 · 하객 안내)
 chk 'function _clHints()' order-preview.html 1
 chk "'마이페이지에 식사 장소 · 예약 시각을 적으시면 식사 시간 · 장소 안내가 이어져요'" order-preview.html 1

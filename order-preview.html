@@ -2347,7 +2347,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1101t4"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101t2"></script><script src="/assets/bgm-picks.js?v=1101gh"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101gh"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101w"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101t2"></script><script src="/assets/bgm-picks.js?v=1101gh"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101gh"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3188,7 +3188,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1101t4';   // [ASSET_V] 위 주석
+  var ASSET_V='1101w';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4625,7 +4625,7 @@ function _clHints(){ var o=[], meal=(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)&
   if(!g) o.push('하객 안내를 여시면 사진 올리기 안내가 이어져요');
   return o; }
 /* ★[CLOSING_FULLER 1] ② · ③ 가 마이페이지 값을 엔진에 넘긴다 — 종전엔 S 에 식사 · 하객 안내 값이 없어 식사 · 하객 안내를 다 갖춘 고객도 짧은 판(287 · 292)이 보였다(당일 콘솔 · «음악까지 미리듣기»는 RitualPreviewLink 로 넘긴다) */
-function _clS(){ if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTGUIDE)) return S; var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE===true; return o; }
+function _clS(){ if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S; var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE===true; o.digital=!!CUSTDIG; return o; }   /* [GUEST_WELCOME_191] 하객 맞이 5분 · 1분 전 온라인 판도 같은 값으로 */
 function _clHasLine(st){ return (st||[]).some(function(x){ return /마무리 멘트/.test(String(x.slab||x.lab||'')); }); }
 function _lSteps0(g,ks){
   var r; try{ r=g.RitualCue.build(_clS(),{mode:'preview'}); }catch(e){ return []; }   /* [CLOSING_FULLER 1] 마이페이지 값(식사 · 예약 · 하객 안내)으로 — 콘솔과 같은 마무리 판 */
@@ -4698,7 +4698,11 @@ function _lSteps0(g,ks){
       }
     });
     if(PR&&k==='_close'&&r.cues.some(function(c){ return /^narr-closing/.test(c.slug||''); })) _clHints().forEach(function(t){ out.push({k:k,lab:'이어지는 줄',txt:t,quiet:true,hint:true,ms:0,est:0}); });   /* [CLOSING_FULLER 1] ③ 연습만 카드로 — ② 흐름 · 대본은 줄을 따로 그린다(듣기 차례에 넣지 않는다) */
-    if(PR&&k==='_close') out.push({k:k,lab:'말없이 흐르는 자리',txt:'이후 사진 촬영은 작가님 안내로 이어져요',quiet:true,ms:0,est:0});   /* [PRACTICE_WALK_1101 13] 마무리 뒤 · 녹음 없음 */
+    if(PR&&k==='_close') out.push({k:k,lab:'말없이 흐르는 자리',txt:'이후 사진 촬영은 작가님 안내로 이어져요',quiet:true,ms:0,est:0});
+    /* ★★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»] 촬영 후 안내 — 닫는 인사 칸 맨 끝(② 흐름 · ③ 연습 «이후 사진 촬영 …» 다음 · 전체 대본) ·
+         당일 콘솔에서만 나오는 큐(사진 뒤)라 미리 듣기 빌드엔 없다 — 엔진 afterPhotoOf(마이페이지 값) 판의 글 · 녹음이 있으면 그 소리 · 본식 시간 셈에 넣지 않는다(est 0) */
+    if(k==='_close'&&isOpen()&&g.RitualCue.afterPhotoOf){ var _aps=g.RitualCue.afterPhotoOf(_clS()), _apf=g.RitualCue.fileOf(_aps), _apt=(g.RitualCue.EXTRA||{})[_aps]||'', _aph=_apf&&_lHasSound(_apf,_apt);
+      if(_apt) out.push({k:k,lab:'촬영 후 안내 · 작가님이 촬영을 마치면 재생',slab:'촬영 후 안내 · 작가님이 촬영을 마치면 재생',txt:_apt,src:_aph?(dir+_apf+'.mp3'):null,pending:!_aph,slug:_aps,file:_apf,after:true,ms:Math.max(2400,Math.round(_apt.length*160)),dk:-14,est:0}); }   /* [PRACTICE_WALK_1101 13] 마무리 뒤 · 녹음 없음 */
   });
   return out;
 }
@@ -5419,7 +5423,8 @@ function _exRowG(key,lab,names,cur,fn,fk,note){ var picked=cur>=0;   /* [EX_CHIP
   return {key:key,l:lab,list:names.map(function(x,n){ return [n,x]; }),cur:cur,picked:picked,fn:'_exTouch(\''+key+'\');'+fn,fk:fk,note:note||''}; }
 function _exRows(k){ var out=[], R=RitualOpen, EXN='고르면 아래 글이 바뀌어요 · 고쳐 써도 돼요';
   if(k==='guest'){ if(S.guestVoice==='couple'&&_vpCur('guest')==='ai') out.push(_exRowG('exGuest','참고 예시',GUEST_EX.map(function(x){ return x[0]; }),_guestExCur(),'mkGuestEx','mkex:guest:',EXN));
-    else if(S.guestVoice!=='couple') out.push(_exRowG('exGuestNar','안내 멘트',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','mkex:guestnar:','')); }
+    /* ★«안내 멘트» 예시 칩(담백 · 다정 · 유쾌 · 격식)은 새 코스에서 금지 — 2026-11-01 사장님 지시(검토 191)로 하객 맞이가 한 문안(마이페이지 값으로 판이 갈림)이 됐다 [GUEST_WELCOME_191] · 옛 코스만 */
+    else if(S.guestVoice!=='couple'&&!isOpen()) out.push(_exRowG('exGuestNar','안내 멘트',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','mkex:guestnar:','')); }
   if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') out.push(_exRowG('exEntry','참고 예시',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),_exIs('entry')?ENTRY_KEYS.indexOf(S.entry):-1,'mkEntryEx','mkex:entry:',EXN));   // [EX_CHIP_ON] 글이 그 입장 예시면 눌린 모양(코스 예시가 정한 것이어도 · 10-07 [EX_UNPICKED] 의 이 줄 기준을 걷었다)
   if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice!=='couple') out.push(_exRowG('exPvNar','소개 멘트',(R.NAR&&R.NAR.pvExNames)||PV_EX.map(function(x){ return x[0]; }),+S.pvEx||0,'mkPvNarEx','mkex:pvnar:',''));   /* [EX_ROW · PV_EX_NAR] ★[REVIEW24_1019 검토 132] 이름은 NAR.pvExNames(두 분 목소리 판 PV_EX 와 글이 갈라졌다) · 스튜디오 판 식전 영상 소개 넷(녹음 128~130)도 위쪽 칩 줄 */
   if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice==='couple'&&_vcOn()&&_vpCur('prevideo')==='ai'){ out.push(_exRowG('exPv','참고 예시',PV_EX.map(function(x){ return x[0]; }),_exNOf('pv'),'mkPvEx','mkex:pv:',EXN)); }   /* ★[VU_OLD_EX 2026-10-08 목소리 1라운드 39] 고른 칩도 _exNOf 한 곳 — 옛 예시 글(PV_OLD)로 만든 고객은 칩이 다 꺼져 두 분이 쓴 글처럼 보였다(하객 맞이 _guestExCur 와 같은 길) */

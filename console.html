@@ -1748,6 +1748,8 @@ function fire(i, opt){
         if (nx && _gap > 0 && window.NarrPad && !RF_OWN[c.slug] && !RF_OWN[nx.slug] && c.file && nx.file) _gap = NarrPad.gap(c.file, nx.file, _gap);
         if (nx && PRE_HOLD !== i && !postMusic(c) && !holdLink(c, nx, _gap)) duckTo(PARAM.duckMusic, PARAM.fadeUpMs);   /* [BRIDGE_FIRST_1101] 꺼진 채 둔 이음말 뒤 사이에도 올리지 않는다 */   // [BGM_CONSOLE2_1023 HOLD_LINK] ⓐ 짧은 이음에서는 −8 로 올리지 않는다 · ★[BGM_FIX_1030 GPT③ R1-2] 뒤처리에 음악 단계가 있는 큐 · 마지막 큐(귀가 인사)는 올리지 않는다
         render();
+        /* ★[GUEST_WELCOME_191 검토 191] 하객 입장 때 안내 — 끝나고 repeatMs(2분) 뒤 다시 · 다음 시각 큐(10분 전)가 나가면 fire → clearT 로 저절로 멈춘다 · 고객 미리 듣기는 한 번만 */
+        if (c.repeatMs && MODE !== 'preview' && !GUEST && (!nx || nx.fire === 'clock' || nx.fire === 'manual')) later(function(){ if (cur === i && phase === 'done' && !PAUSED) fire(i); }, c.repeatMs);
         if (nx && nx.fire === 'chain') { preDuck(nx, _gap); later(function(){ advance(); }, _gap); }   // ★[CHAIN_GAP_1014] 큐가 정한 사이(원고 «1.25초 사슬» · «사이 1초») · 없으면 기본 2초
         else if (!nx) later(finish, PARAM.gapMs);
       }

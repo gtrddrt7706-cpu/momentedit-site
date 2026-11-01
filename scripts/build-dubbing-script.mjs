@@ -300,6 +300,14 @@ const G = [
     Object.keys(RC.CLOSING_PARTS || {}).map((sl) => [`M-${sl}`, `마무리 멘트 · ${({ 'narr-closing': '애프터 웨딩 없음', 'narr-closing-guide': '애프터 웨딩 없음 · 하객 안내', 'narr-closing-soft': '식사 · 카페(조건 빔)', 'narr-closing-soft-guide': '식사 · 카페(조건 빔) · 하객 안내', 'narr-closing-meal': '식사 있음' })[sl.replace(/-nt$/, '')] || sl}${/-nt$/.test(sl) ? ' · 감사 없이(닫는 멘트 186 · 187 고른 날 · CLOSING_SRC_1031)' : ''}`, sl,
       (new Set(RC.CLOSING_PARTS[sl].map((x) => x[0])).size > 1 ? RC.CLOSING_PARTS[sl].map((x) => `${x[0]}: ${x[1]}`).join('\n') : RC.CLOSING_PARTS[sl].map((x) => x[1]).join(' '))]),   // [CLOSING_SRC_1031] 한 사람만 읽는 판은 화자 없이
     note: '닫는 인사 박수 뒤(디지털 날은 온라인 인사 뒤) 한 번 · 사진 구간은 작가님이 이끈다(나레이션 없음).' },
+  /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 297 ~ 324 — 새 코스 하객 맞이(입장 때 · 10분 전 · 5분 전 온라인 · 1분 전) · 촬영 후 안내 ·
+     문장 창고 방식(같은 문장은 한 번 녹음 · 판마다 이어 붙임) · 전부 진희(안내) · 원천 RC.GUEST_PARTS */
+  { n: 18, t: '하객 맞이 · 촬영 후 안내 (검토 191 · 문장 창고)', tone: '차분하고 친절하게 · 안내 방송처럼 또박또박 · 감정 수식 없이', items:
+    Object.keys(RC.GUEST_PARTS || {}).map((sl) => [`W-${sl}`, ({ 'guest-w-arrival': '하객 입장 때', 'guest-w-arrival-guide': '하객 입장 때 · 하객 안내', 'guest-w-5m-online': '5분 전 · 온라인', 'guest-w-1m': '1분 전', 'guest-w-1m-online': '1분 전 · 온라인' })[sl]
+        || (/^guest-w-10m-n(\d+)(-(\w+))?$/.test(sl) ? sl.replace(/^guest-w-10m-n(\d+)(?:-(\w+))?$/, (m, n, x) => `10분 전 · 본식 약 ${n}분` + (x ? ' · 식사 ' + ({ mgr: '하객 안내 · 예약 시각', mg: '하객 안내', mr: '현장 디렉터 · 예약 시각', m: '현장 디렉터' })[x] : '')) : '')
+        || '촬영 후 안내 · ' + ({ 'after-photo': '식사 없음', 'after-photo-guide': '식사 없음 · 하객 안내', 'after-photo-cafe': '카페 · 다과', 'after-photo-cafe-guide': '카페 · 다과 · 하객 안내', 'after-photo-resv-guide': '식사 · 예약 시각 · 하객 안내', 'after-photo-resv': '식사 · 예약 시각', 'after-photo-meal-guide': '식사 · 하객 안내', 'after-photo-meal': '식사' })[sl],
+      sl, RC.GUEST_PARTS[sl].map((x) => x[1]).join(' ')]),
+    note: '입장 때는 2분마다 다시(10분 전 안내가 시작되면 멈춤) · 판은 마이페이지 값(식사 · 예약 시각 · 하객 안내 · 디지털 참석)으로 갈린다 · 촬영 후 안내는 작가님이 촬영을 마치면 재생.' },
 ];
 
 // ── 조립

@@ -10667,7 +10667,10 @@ function renderPhoto(box){
        칸은 여전히 하나다(G2 «대략 적을 수 있게만») · 누르면 뒤에 « · »로 이어 붙고, 이미 있는 말은 다시 안 붙인다. */
     h+='<div class="ph-chips" role="group" aria-label="예시 · 누르면 칸에 담겨요">'+PHOTO_FRIEND_EX.map(function(t){ var _on=String(PHOTOFLOW.friend||'').indexOf(t)>-1; return '<span class="ph-pair ph-pair-ex"><button type="button" class="ph-chip ph-ex'+(_on?' on':'')+'" data-pfex="'+escapeHtml(t)+'"'+(_on?' aria-disabled="true"':'')+'><span class="ph-ck" aria-hidden="true">✓</span>'+escapeHtml(t)+'</button>'+_phExBtn(t)+'</span>'; }).join('')+'</div>';   // [PHOTO_CHIP_KIND] «+» 없음 · 붙인 뒤 ✓
   }
-  h+='</li></ol>';   // [PHOTO_DAY_STEPS]
+  h+='</li>';
+  /* ★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게»] 마지막 칸 — 작가님이 촬영을 마치면 안내 음성(엔진 afterPhotoOf · 콘솔 «촬영 후 안내») · 보기만 하는 차례 */
+  h+=_stepHd('촬영 후 안내', '작가님이 촬영을 마치면 안내 음성이 나와요', 'show')+'<div class="cc-note ph-st-note">마쳤다는 인사와 함께 '+(_ml==='yes'?'식사 안내 · ':'')+'사진 올리기 · 두고 가시는 물건을 한 번 더 챙겨 드려요.</div></li>';
+  h+='</ol>';   // [PHOTO_DAY_STEPS]
   /* [PHOTO_SCENE] 식순에서 이어지는 장면 — 고르는 칸이 아니라 '이미 담기는 것'을 보여 주는 칸.
      식순 초안이 없으면(아직 안 정하셨거나 옛 초안) 한 줄만 남기고 목록은 그리지 않는다. */
   /* ★[PHOTO_SCENE_VOICE 2026-08-16 고객 관점 재검토] 문구를 두 군데 고쳤다.
