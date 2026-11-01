@@ -21353,6 +21353,10 @@ nochk 'return Math.min(capEx(), (DAYMIN - SHORT_MIN)' assets/ritual-open.js
 chk 'REBIND_FROM_CARRY_1031' scripts/sent-lib.mjs 2   # [REBIND_FROM_CARRY_1031] --rebind 가 자리를 옮길 때 빌려 온 출처(from)도 함께 옮긴다 — 잃으면 closing-line ④ 가 빨강
 nochk '먼저 신랑은 다시 한번 프러포즈하는 마음으로' assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/screen-sound.mjs >/dev/null 2>&1; _scs=$?; [ "$_scs" = 1 ] && { echo 'FAIL screen-sound: 당일 콘솔이 틀 수 있는 나레이션이 식순 화면(하나씩 만들기 · 전체 대본)에 없습니다 — node scripts/audit/screen-sound.mjs'; fail=1; }; :; fi
+# ── 2026-11-01 [AFTER_SCRIPT_195 검토 195 보충 · 음성 쉼 알림] 촬영 후 안내(317 ~ 324)가 전체 대본에서 빠졌던 것 — 맨 끝 «식후 촬영 후 안내» 쪽으로 · 검사 screen-sound(CI bgm-sound d)
+chk "_lRows().concat(_afterOn()?\['_after'\]:\[\]).forEach(function(k){" order-preview.html 1
+chk "if(k==='_after') return '식후 '+AFTER_CARD.n;" order-preview.html 1
+chk 'AFTER_SCRIPT_195' scripts/audit/screen-sound.mjs 2
 # ── 2026-10-31 [MUSIC_FOLD_PICK_1031 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 순간 쪽 음악 곡 목록도 입장 음악 추천 곡([MU_FOLD])처럼 고르는 순간 접는다 · «바꾸기»로 편 뒤 다시 고르면 또 접는다
 chk 'MUSIC_FOLD_PICK_1031' assets/bgm-bed.js 5
 chk 'MUSIC_FOLD_PICK_1031' scripts/audit/music-fold.mjs 1

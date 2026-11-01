@@ -40,6 +40,10 @@ try {
     [{ meal: true, mealFull: true, resv: true }, { meal: true, mealFull: false, resv: true }, { meal: false }].forEach((m) => [false, true].forEach((guide) => [false, true].forEach((digital) => closeN.forEach((cn) => {
       S = JSON.parse(BASE); Object.assign(S, m, { guide, digital }); S.narEx = Object.assign({}, S.narEx || {}, { close: cn });
       check('닫는 인사 ' + JSON.stringify({ m, guide, digital, close: cn })); }))));
+    /* ★[AFTER_SCRIPT_195] 촬영 후 안내 여덟 판(317 ~ 324)이 전체 대본에 글 전체로 · «식후 촬영 후 안내» 머리 아래 */
+    out.after = []; [{ meal: true, mealFull: true, resv: true }, { meal: true, mealFull: true, resv: false }, { meal: true, mealFull: false }, { meal: false }].forEach((m) => [false, true].forEach((guide) => {
+      S = JSON.parse(BASE); Object.assign(S, m, { guide }); const sl = ENG.RitualCue.afterPhotoOf(S), t = (ENG.RitualCue.EXTRA || {})[sl] || '', txt = (() => { try { return scriptTextOpen(); } catch (e) { return ''; } })(), h = txt.indexOf('식후 촬영 후 안내');
+      if (!t || h < 0 || txt.indexOf(t, h) < 0) out.after.push(ENG.RitualCue.noOf(sl) + '_' + sl); out.afterN = (out.afterN || 0) + 1; }));
     /* ② 순간마다 칩 조합 전부 */
     R.ORDER.concat(['_close']).forEach((k) => { S = JSON.parse(BASE); let gs = []; try { gs = _lGroups(k).filter((g) => g.list && g.list.length && !g.q); } catch (e) {}
       let combos = [{}]; gs.forEach((g) => { const n = []; combos.forEach((c) => g.list.forEach((it) => { const v = Array.isArray(it) ? it[0] : (it.v || it.k || it); n.push(Object.assign({}, c, { [g.key]: v })); })); combos = n; });
@@ -50,6 +54,7 @@ try {
   const CL = Object.keys(res.files).filter((f) => /_narr-closing/.test(f)).sort(), ONL = Object.keys(res.files).filter((f) => /^62_/.test(f));
   ok(`잰 상태에 마무리 멘트 열네 판(287 ~ 296 · 325 ~ 328 · ★[CLOSING_CHEER_195] 294 는 응원 한 문장 판으로 다시 쓴다)과 온라인 인사(62)가 다 들어 있다 — ${CL.length} · ${ONL.length}`, CL.length === 14 && ONL.length === 1, CL);
   ok(`콘솔이 틀 수 있는 나레이션 ⊆ 식순 화면 나레이션 줄 — 상태 ${res.n}개 · 파일 ${Object.keys(res.files).length}개`, !res.over.length, uniq(res.over).slice(0, 12));
+  ok('[AFTER_SCRIPT_195] 촬영 후 안내 여덟 판(317 ~ 324)이 전체 대본 «식후 촬영 후 안내» 아래 글 전체로 — ' + res.afterN + '판', res.afterN === 8 && !res.after.length, res.after);
   ok('콘솔 나레이션 글이 전체 대본에 있다(복사 · 파일 저장)', !res.noScript.length, uniq(res.noScript).slice(0, 12));
   ok(`길어지면 바뀌는 말(alt)이 화면에 «N분이 넘으면 이 말로 바뀌어요» 한 줄로 — 콘솔 alt ${res.alts}곳`, res.alts > 0 && !res.noAlt.length, uniq(res.noAlt).slice(0, 6));
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3));
