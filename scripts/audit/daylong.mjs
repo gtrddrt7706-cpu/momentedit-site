@@ -135,8 +135,10 @@ try {
     const c = await con(S0, [['M4', 1, 300], ['M4', 2, 350], ['M4', 3, 400], ['M6', 1, 500], ['M6', 2, 550], ['M6', 3, 600], ['M6', 4, 650], ['M6', 5, 700]], 9);
     const pl = await c.pg.evaluate(() => ({ m4: window.__segPlan('M4'), m6: window.__segPlan('M6'), s4: window.__segSel('M4') }));
     ok('c 콘솔 M4 재생 목록 = B11 → B09 → B10 · M6 = B34 → B17 → B19 → B07 → B16(배경 곡 줄) · 고른 곡은 하나(설정 화면 칩)', (pl.m4 || []).join() === 'B11,B09,B10' && (pl.m6 || []).join() === 'B34,B17,B19,B07,B16' && pl.s4 === 'B11', pl);
-    const iW = c.Rq.findIndex((x) => x.k === 'welcome' && !/^bridge-/.test(x.slug || '')); await c.pg.evaluate((i) => window.__bgmGo.fire(i), iW); await c.pg.waitForTimeout(1500); const a1 = await c.pg.evaluate(() => window.__seg.st()); await c.pg.waitForTimeout(6500); const a2 = await c.pg.evaluate(() => window.__seg.st());
-    ok('c 콘솔 감사 인사 — 고른 곡(B11)부터 · 끝 3초 전 목록의 다음 곡(B09)으로', a1.seg === 'M4' && a1.id === 'B11' && a2.seg === 'M4' && a2.id === 'B09' && a2.li === 1, { a1: [a1.seg, a1.id, a1.li], a2: [a2.seg, a2.id, a2.li] });
+    const iW = c.Rq.findIndex((x) => x.k === 'welcome' && !/^bridge-/.test(x.slug || '')); await c.pg.evaluate((i) => window.__bgmGo.fire(i), iW); await c.pg.waitForTimeout(1500); const a1 = await c.pg.evaluate(() => window.__seg.st()); await c.pg.waitForTimeout(6500); const a2 = await c.pg.evaluate(() => window.__seg.st()), tk = await c.pg.evaluate(() => (typeof talkNow === 'function') && talkNow());
+    /* ★[MEANING_R1_1102 19] 두 분이 말하는 자리(감사 인사 live 'say') 도중엔 다음 곡으로 넘기지 않는다 — 같은 곡을 잇고, 다음 줄(GO)에서 넘긴다 */
+    let a3 = a2; if (tk) { await c.pg.evaluate(() => window.__bgmGo.tap()); await c.pg.waitForTimeout(1200); a3 = await c.pg.evaluate(() => window.__seg.st()); }
+    ok('c 콘솔 감사 인사 — 고른 곡(B11)부터 · 끝 3초 전 목록의 다음 곡(B09)으로(말하는 자리 도중이면 그 줄이 끝난 다음 줄에서)', a1.seg === 'M4' && a1.id === 'B11' && (!tk || a2.id === 'B11') && a3.seg === 'M4' && a3.id === 'B09' && a3.li === 1, { tk, a1: [a1.seg, a1.id, a1.li], a2: [a2.seg, a2.id, a2.li], a3: [a3.seg, a3.id, a3.li] });
     ok('c 콘솔 오류 0', !c.errs.length, c.errs.slice(0, 2)); await c.ctx.close(); }
   { const S0 = base({ welcome: 1, vow: 1, free: 1, letter: 1, song: 0, tribute: 0 }, { M4: { k: 'B11' }, S5: { m: 'bed' } });
     const c = await con(S0, [['M4', 1, 300], ['M4', 2, 350], ['M4', 3, 400], ['M4S5', 1, 500]], 60);

@@ -21653,8 +21653,8 @@ chk "if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){" assets/bgm-bed.js
 chk "_pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000);" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 소개 앞 2초 내림 + 정적 1초 · 음악 없이
 chk "_pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic;" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 화촉 곡 무음에서 6초 앞서
 chk "var _ldb = (c.leadDb != null && _lead > 800) ? c.leadDb : null;" console.html 1   # [PREVIDEO_AFTER_1101] 콘솔이 leadDb 를 읽는다
-chk "nx.k==='prevideo'&&nx.dk!=null&&nx.dk<=-60){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }" assets/bgm-bed.js 1   # [PREVIDEO_AFTER_1101] 이어 듣기 소개 앞 2초
-chk "if(st.after){ var _f8='', _l8=P.PICKS.M8L||" assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L 목록 차례)
+chk "ramp(BED.cur,-90,2000); return; }   /\\* ★\\[PREVIDEO_AFTER_1101\\]" assets/bgm-bed.js 1   # [PREVIDEO_AFTER_1101] 이어 듣기 소개 앞 2초
+chk "if(st.after){ var _f8=lastF(); if(_f8) return _f8; }" assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L 목록 차례)
 chk 'if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }' assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 앞 곡 2초 내림 · 마지막 곡은 무음에서
 chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1   # [MEANING_R1_1102 14] 닫는 인사 2초 내림
 chk "if(LP.pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
@@ -21663,4 +21663,10 @@ chk "duck: PARAM.duckSpeech,   /\* \[MEANING_R1_1102 15\]" assets/ritual-cue.js 
 chk "var TURN={ same:\[1.6,1.6\], title:\[2.5,2.5\], mins:\[6,6\], moment:\[2.2,2.2\], toAct:\[0.8,0.8\], actEnd:\[1.2,1.2\], actEmo:\[2.2,2.2\], toCouple:\[2.0,3.0\], coupleEnd:\[1.4,2.2\] };" order-preview.html 1   # [TURN_GAP_1102] 줄 사이 쉼 표(미리 듣기 / 연습)
 chk "var DWELL={ matjeol:\[5,8\], bow:\[6,8\], call:\[6,8\], hug:\[6,8\], ring:\[6,8\], candle:\[6,6\], move:\[6,8\], table:\[8,8\], clapBig:\[6,6\], clapSmall:\[5,5\], def:\[5,6\] };" order-preview.html 1   # [TURN_GAP_1102] 행동 줄 머무는 시간 표
 chk 'ms:_dwellMs(x,true),act:1' order-preview.html 1   # [TURN_GAP_1102] 연습 행동 줄 = 표(종전 2초 하나)
+chk "if(!st._base&&!entMulti()&&BED.who!=='card'){ var _dk=dayAt(st.k); if(_dk) return _dk; }" assets/bgm-bed.js 1   # [SCREEN_SOUND_1102] 순간 하나 = 당일 시간표 그 자리 곡
+chk "near: '이 순서 즈음엔 ‹{f}›'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 본식 순간 곡 이름(소리와 같은 함수)
+chk "song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 축가 음악 줄
+chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 닫는 인사 둘째 줄
+chk 'dayName:function(k){ try{ return window.BgmBed' assets/bgm-form.js 1   # [SCREEN_SOUND_1102] 화면 곡 이름 = 엔진
+chk 'if(pv&&nx&&pv.k!==nx.k&&BED.cur.want!=null&&BED.cur.want<=-60) return;' assets/bgm-bed.js 1   # [SILENT_STAY_1102] 정적이던 앞 곡은 순간이 바뀌어도 올리지 않는다
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

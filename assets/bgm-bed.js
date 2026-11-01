@@ -235,7 +235,20 @@
   /* ★[DETAIL_R1_1101 ⑤ ⑨] 앞 순간 곡을 잇는 순간(식전 영상 · 닫는 인사 첫 멘트)을 따로 들을 때 — 바로 앞 순간에서 흐르던 곡(편지 · 축사는 본식 곡 M4) · 없으면 하객 맞이 곡 */
   function backBed(k){ var q=seq().filter(onOf), i=q.indexOf(k); if(i<0) return songAt('guest'); for(var j=(i>-1?i:q.length)-1;j>=0;j--){ if(q[j]===k) continue; var f=(q[j]==='letter'||q[j]==='free')?m4():songAt(q[j]); if(f) return f; } return songAt('guest'); }
   function carry(f,sg){ if(sg==null) sg=(BED.cur&&BED.cur.f===f)?(BED.cur.seg||''):''; var b=P.backSeg?P.backSeg(sg):(/^M4S[56]$/.test(sg||'')?'M4':''); return (f&&b)?((P.carryOf&&P.carryOf(St(),'M4',f))||m4()):f; }   /* ★[DETAIL_R4_1101 ⑧] «음악과 함께» 곡인가 = 그 곡이 실제로 깔린 구간(voice.sg · 콘솔 BED.seg 와 같은 BgmPicks.backSeg) — 곡 번호로 보지 않는다(테이블에서 Moon River 가 흘러도 축사 곡이 아니다) */   /* ★[CARRY_SAME_1101] 그 곡이 본식 곡 목록(M4)에도 있으면 그대로 잇는다(당일 콘솔 segGo 와 같다) · 두 분이 본식 곡을 골랐으면 고른 곡 */   /* 앞 곡이 잇는 순간(축배 · 닫는 인사 첫 줄)에 «음악과 함께» 곡이 흐르면 M4 로 */   /* 콘솔은 마지막으로 깔린 곡이 잇는다 — 그 곡 = 뒤에서부터 곡이 있는 첫 순간 */
-  function fileFor(st){ if(st.after){ var _f8='', _l8=P.PICKS.M8L||[]; for(var _i8=0;_i8<_l8.length;_i8++){ if(has(_l8[_i8])){ _f8=_l8[_i8]; break; } } if(_f8) return _f8; }   /* ★[MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L · 목록 차례 그대로 · effHas 는 앞 곡을 «이어 가는 곡»으로 읽어 B07 을 냈다) — 당일 콘솔(_goodbye → M8L)과 같은 곡 */
+  /* ★★[SCREEN_SOUND_1102 사장님 «똑같은 BGM 이 계속 나온다»] 본식 목록(M4 · 감사 인사 ~ 편지)의 순간 하나만 들을 때 — 당일 시간표에서 그 순간이 시작하는 자리
+       (감사 인사 시작부터 엔진 시간 합 · 말 est + 사람 구간 live.est)에 흐를 곡으로 시작한다(목록 차례 · 곡 길이를 모르면 4분 · 강조 자리부터) ·
+       화면 «이 순서 즈음엔 ‹곡명›»과 같은 곡 · 이어 듣기는 실제 목록 흐름 그대로(entMulti) · «음악과 함께» 곡(M4S5 · M4S6)은 그 곡 */
+  var DAY={ key:'', v:{} }, DAY_LEN=240;
+  function daySec(){ var g=null, key=''; try{ g=window.ENG; key=JSON.stringify(St()); }catch(x){} if(DAY.key===key) return DAY.v; DAY.key=key; DAY.v={};
+    if(!g||!g.RitualCue) return DAY.v; try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ DAY.v[c.k]=(DAY.v[c.k]||0)+(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); }catch(x){} return DAY.v; }
+  function dayAt(k){ if(segAt(k)!=='M4') return ''; var L=ordOf('M4').filter(has); if(!L.length) return '';
+    var q=seq().filter(onOf).filter(function(x){ return segAt(x)==='M4'; }), i=q.indexOf(k); if(i<=0) return L[0];
+    var v=daySec(), sec=0; for(var j=0;j<i;j++) sec+=(v[q[j]]||0); var t=0; for(var n=0;n<200;n++){ var f=L[n%L.length]; if(t+DAY_LEN>sec) return f; t+=DAY_LEN; } return L[0]; }
+  function dayName(k){ var f=dayAt(k), p=f&&P.byF(f); return p?p.t:''; }
+  function lastF(){ var l=P.PICKS.M8L||[]; for(var i=0;i<l.length;i++){ if(has(l[i])) return l[i]; } return ''; }
+  function lastName(){ var f=lastF(), p=f&&P.byF(f); return p?p.t:''; }
+  function fileFor(st){ if(st.after){ var _f8=lastF(); if(_f8) return _f8; }
+    if(!st._base&&!entMulti()&&BED.who!=='card'){ var _dk=dayAt(st.k); if(_dk) return _dk; }   /* [SCREEN_SOUND_1102] 순간 하나 = 당일 시간표 그 자리 곡 */   /* ★[MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L · 목록 차례 그대로 · effHas 는 앞 곡을 «이어 가는 곡»으로 읽어 B07 을 냈다) — 당일 콘솔(_goodbye → M8L)과 같은 곡 */
     var lsg=(LPB.lf&&BED.who==='lp'&&BED.cur.src&&BED.cur.f===LPB.lf.f)?LPB.lf.sg:''; if(lsg&&(st._base||segAt(st.k))===lsg) return LPB.lf.f;   /* ★[DAYLONG_1101] 이어 듣는 동안 목록이 넘긴 곡을 그 구간의 다음 줄이 잇는다(고른 곡으로 되돌아가지 않는다) */
     if(st._base){ return effHas(st._base); }   /* ★[BGM_TIMING2_1101] «음악과 함께» 축사 · 편지 여는 말 = 앞 곡(M4) */
     if(st.k==='toast'&&!LPB.m7){ if(BED.who==='lp'&&BED.cur.src) return carry(BED.cur.f); return toastBed(); }   /* [BED_LOAD_1101 덧2] carry = M4S5 · M4S6 → M4 */
@@ -247,7 +260,7 @@
     if(st.k!==LPB.wk){ LPB.wk=st.k; var _nk=nextK(st.k), _rk=[]; try{ _rk=(typeof LP!=='undefined'&&LP.range&&LP.range.ks)||[]; }catch(x){} if(_nk&&(_rk.indexOf(_nk)>-1||st.k==='letter')) songsOf(_nk).forEach(function(_nf){ if(_nf&&!BUF[_nf]) want(_nf); }); }   /* [BED_LOAD_1101] 다음 순간 곡은 이어 듣는 범위 안이거나 편지 끝(lpTail 이 올린다)일 때만 미리 — 맞절만 들을 때 감사 인사 곡까지 받지 않는다(ENTRY_CARRY 1) */   /* ★[BGM_TIMING2_1101] 편지 끝에 오를 다음 순간 곡을 미리 받는다(편지만 따로 들을 때도 · 받는 동안 정적이 끝나 곡이 안 오르던 자리) */
     /* ★★[BRIDGE_FIRST_1101 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 다음 순간 몫으로 붙은 이음말(st._pre · 빌더가 BgmSlots.leadAt 으로 표시)은 앞 장면을 닫는 말 —
          새 곡을 걸지 않는다 · 이어 듣기면 앞 곡을 말 아래 크기(−16 · 보컬 −22)로 · 그 순간만 들으면 음악 없이 · 새 곡 뜸은 그 바로 뒤 줄(lpLead) */
-    if(st._pre){ LPB.cheer=false; if(BED.who==='lp'&&BED.cur.src){ var pp=PR(), dbp=vx(pp.speech,BED.cur.f); LPB.on=true; ramp(BED.cur,dbp,dbp>(BED.cur.want||-90)+0.5?pp.up:pp.down); } return; }
+    if(st._pre){ LPB.cheer=false; if(BED.who==='lp'&&BED.cur.src&&!(BED.cur.want!=null&&BED.cur.want<=-60&&st.dk!=null&&st.dk<=-60)){   /* [SILENT_STAY_1102] 정적 위 이음말(식전 영상 뒤 화촉 이음말 −90)은 앞 곡을 말 아래로 되살리지 않는다 */ var pp=PR(), dbp=vx(pp.speech,BED.cur.f); LPB.on=true; ramp(BED.cur,dbp,dbp>(BED.cur.want||-90)+0.5?pp.up:pp.down); } return; }
     if(st.k!=='toast') LPB.m7=false;
     if(LPB.lfw&&!(st.talk||st.talk2)){ var _w=LPB.lfw; LPB.lfw=null; if(BED.cur===_w.v&&BED.cur.src&&(st._base||segAt(st.k))===_w.sg&&BUF[_w.f]&&BUF[_w.f].st==='ok'&&swapSrc(BED.cur,BUF[_w.f].b,0,_w.f)){ LPB.f=_w.f; LPB.lf={ sg:_w.sg, f:_w.f }; } }   /* [MEANING_R1_1102 19] 말이 끝난 줄에서 미뤄 둔 다음 곡으로 */
     var f=fileFor(st), db=lvOf(st,f), up=db>(BED.cur.want||-90)+0.5, p=PR();
@@ -359,6 +372,7 @@
     if(pv&&nx&&((pv.k!==nx.k&&(nx.k==='prevideo'||nx.slug==='narr-close-bow'))||nx.slug==='narr-open')&&nx.dk!=null&&nx.dk<=-60){   /* [MEANING_R1_1102 1] 개식사 앞 — 하객 맞이 곡이 2초에 내려가고 정적 1초 */   /* [MEANING_R1_1102 14] 닫는 인사 앞도 같은 경계 */ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }   /* ★[PREVIDEO_AFTER_1101] 식전 영상 소개 앞 — 흐르던 곡을 2초에 끄고 정적 1초(쉼은 빌더가 3초로) */
     if(pv&&nx&&pv.k!==nx.k&&(nx._pre||nx._noLead)){ var dbb=vx(p.speech,BED.cur.f), vb=BED.cur; if(vb.want>dbb+0.5){ var lb=Math.min(p.lead,Math.max(0,gap)); setTimeout(function(){ if(BED.cur===vb&&LPB.on) ramp(vb,dbb,lb||p.down); },Math.max(0,gap-lb)); } return; }   /* ★[BRIDGE_FIRST_1101] 다음 줄이 이음말이면(★[BGM_TIMING2_1101] «음악과 함께» 축사 · 편지 여는 말도) −8 로 올리지 않고 0.8초 미리 낮춰 말 아래 크기로(앞 곡 그대로) */
     if(pv&&nx&&pv.k!==nx.k&&nx.k!=='declare'&&!personal(nx)&&nx.dk!=null&&nx.dk<=-60) return;   /* ★[BGM_TIMING_1101] 다음 순간 첫 줄이 무음이면 −8 로 올리지 않는다 — 곧 뜸 자리에서 1.5초에 −90 (편지 «음악 없이») */
+    if(pv&&nx&&pv.k!==nx.k&&BED.cur.want!=null&&BED.cur.want<=-60) return;   /* ★[SILENT_STAY_1102 BGM 섹션 «받는 말 끝 → 화촉 사이 하객 맞이 곡이 −8 로 0.6초 되살아난다»] 정적이던 앞 곡은 순간이 바뀌어도 올리지 않는다(−90 그대로 정리) · 새 곡은 다음 순간 뜸(lpLead)에서 무음부터 */
     if(pv&&nx&&pv.k!==nx.k){ ramp(BED.cur,Math.max(BED.cur.want,vx(p.music,BED.cur.f)),TAIL.up); return; }   /* ★[LISTEN_LOOK_LEVEL_1101 ③] 이어 듣기 — 순간이 바뀔 때 끄지 않고 큐 사이 크기(−8)로 이어 흐른다 · 다음 순간 뜸(lpLead)이 같은 곡이면 그대로 · 새 곡이면 3초 겹쳐 넘긴다 */
     if(!nx||fileFor(nx)!==BED.cur.f) return;
     /* ★[TIME_GAP_1102] 시간이 흐르는 쉼(tg 'min') = 0.8초에 −8 · 제목만 바뀜('evt') = −12(말 아래에선 올리고 · 크게 흐르던 곡은 내린다) · 다음 줄 0.8초 앞에서 말 아래로 · 정적(−60 아래)은 그대로 */
@@ -553,7 +567,7 @@
     var done=function(){ if(fin) return; fin=true; b.style.height=''; b.style.overflow=''; b.style.transition=''; }; b.addEventListener('transitionend',done,{once:true}); setTimeout(done,520); }
 
   window.bedAct=act;
-  window.BgmBed={ warmK:warmK, rowHtml:rowHtml, subHtml:subHtml, pubLine:pubLine, sumRows:sumRows, sumOf:sumOf, segAt:segAt,
+  window.BgmBed={ dayName:dayName, lastName:lastName, dayAt:dayAt, warmK:warmK, rowHtml:rowHtml, subHtml:subHtml, pubLine:pubLine, sumRows:sumRows, sumOf:sumOf, segAt:segAt,
     on:function(k){ return emb()&&(!!songAt(k)||(avWait()&&!!(segAt(k)||k==='prevideo'||k==='_close'))); },   /* [DETAIL_R1_1101 ②] 목록이 아직이면 뜸 자리를 연다(기다림 · 한 줄) */ lpShow:lpShow, lpLead:lpLead, lpResume:lpResume, lpPauseLead:lpPauseLead, lpResumeLead:lpResumeLead, turn:function(){ LPB.lt++; LPB.keep={}; LPB.late=null; if(CARD.f&&BED.who!=='card') stopCard(true); },   /* ★[DETAIL_R5_1101 규칙 6] 새로 듣기 · 순간 옮기기 = 처음 — 곡 자리 기억을 비운다(같은 흐름 안 «돌아오기»만 떠난 초부터) */   /* [DETAIL_R4_1101 ①] 순간 옮기기 · 새 듣기 = 받는 중인 카드도 무효 · [DETAIL_R5_1101 규칙 7] */ stopListen:stopListen,   /* [DETAIL_R2_1101] */ lpTail:lpTail, lpGap:lpGap, lpEnd:lpEnd, lpFin:lpFin, lpWarm:lpWarm, hush:function(){ if(BED.who==='card') stopCard(); else { if(CARD.f) stopCard(); tailHush(); } },   /* ★[DETAIL_R4_1101 ①] 받는 중인 곡 카드도 차례(CARD.tk)를 버린다 — 종전엔 이미 틀고 있는 카드만 취소해 늦게 온 카드 곡이 새 듣기(−16)를 +7 로 덮었다 */ inTail:inTail, tailHush:tailHush,   /* [DETAIL_R1_1101 ④] */
     durWarm:durWarm,   /* [ENTRY_UNDER_1101] */
     _t:{ plan:function(snd){ return planOf(snd==null?AV.st==='ok':!!snd); }, entNeed:entNeed, entAt:entAt, DUR:DUR, AV:AV, BUF:BUF, BED:BED, LPB:LPB, CARD:CARD, LOPEN:LOPEN, PF:PF, BUS:function(){ return BUS; }, TAIL:TAIL, toastBed:function(){ return toastBed(); }, prune:prune, BUF_MAX:BUF_MAX, MW:MW, LEAD_WAIT:LEAD_WAIT, note:function(){ return LPB.note||''; }, mkBus:mkBus, CEIL_DB:CEIL_DB, PR:PR, nextK:nextK,   /* [BGM_TIMING_1101] */ ENT:function(){ var o=BUF[ENT_F], x=o&&o.ext; return o?{ sig:o.sig, st:o.st, x:x?{ o:x.o, end:x.end, H:x.H, arrive:x.arrive, gain:x.gain, V:x.V }:null }:null; }, entAt:entAt, ENT_F:ENT_F, gfOf:function(db){ var v=BED.cur; return v&&v.gf?v.gf(db):gainOf(db); }, lvOf:lvOf, fileFor:function(st){ return fileFor(st); }, vx:vx, folded:function(sg){ return folded(sg); }, chooser:function(id){ return chooser(P.seg(id)); }, eff:eff, songAt:songAt, prevOf:function(sg){ return prevOf(sg); }, minOf:function(sg){ return minOf(sg); }, lf:function(){ return LPB.lf; }, subOf:function(sg){ return subOf(sg); }, pz:function(){ return LPB.pz; }, AVcb:function(){ return AV.cb.length; }, carried:function(sg){ return carried(sg); }, gainOf:gainOf } };   /* _t = 점검용 */
