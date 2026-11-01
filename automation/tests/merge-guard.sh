@@ -21550,7 +21550,7 @@ chk 'BRIDGE_FIRST_1101' order-preview.html 2
 chk 'BRIDGE_FIRST_1101' console.html 6
 chk 'BRIDGE_FIRST_1101' scripts/audit/bgm-seg8.mjs 1
 chk "c.slug === 'bridge-b8-face-guests')); }" console.html 1
-chk 'duckTo(PRE_HOLD === i ? -90 : c.duck,' console.html 1
+chk 'duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : c.duck),' console.html 1   # [PREVIDEO_AFTER_1101] leadDb 뜸 크기
 chk 'if (nx && PRE_HOLD !== i && !postMusic(c)' console.html 1
 chk 'function leadAt(k, st, o)' assets/bgm-slots.js 1
 chk 'leadAt: leadAt,' assets/bgm-slots.js 1
