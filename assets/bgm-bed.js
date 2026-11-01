@@ -337,7 +337,7 @@
   function note(kind,ec){ var t=kind==='load'?'음악을 불러오는 중이에요':kind==='nomus'?'음악 없이 먼저 들려 드려요 · 곡이 오면 이어서 흘러요':kind==='fail'?'음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 '+(ec||'L4')+')':kind==='sub'?'준비 중이라 지금은 ‹'+ec+'›이 대신 흘러요':'';   /* [DETAIL_R1_1101 ①] sub = 대신 흐르는 곡 */ LPB.note=t; LPB.noteK=(curStep()||{}).k||'';
     try{ if(typeof _lBedNote==='function') _lBedNote(t); }catch(x){} }
   /* 줄과 줄 사이 — 다음 줄이 말이면 0.4초 앞서 내린다 · «위하여» 차례가 끝나면 축배 크기로 */
-  function lpGap(pv,nx,gap){ if(!emb()||!LPB.on||BED.who!=='lp') return; var p=PR();
+  function lpGap(pv,nx,gap,tg){ if(!emb()||!LPB.on||BED.who!=='lp') return; var p=PR();
     if(LPB.late&&nx){ var lz=LPB.late; if(BUF[lz.f]&&BUF[lz.f].st==='ok'&&fileFor(nx)===lz.f&&!(BED.cur.src&&BED.cur.f===lz.f)){ LPB.late=null; if(LPB.note) note(''); play(lz.f,lvOf(nx,lz.f),3000,atOf(lz.f,nx)); LPB.f=lz.f; LPB.pend=''; return; } }   /* ★[LEAD_FIRST_1101 3] 늦게 온 곡은 줄 사이에서 · 다음 줄 크기로 3초 */
     if(LPB.tailTo&&Date.now()<LPB.tailTo) return;   /* ★[BGM_TIMING_1101] 편지 끝 연출(정적 → 오름) 중에는 순간이 바뀌어도 −8 로 올리지 않는다 */
     /* [BGM_FIX_1030] «위하여» 차례가 끝나면 축배 곡(M7)으로 — 강조 위치(start)에서 0.6초에 축배 크기로(곡이 없으면 지금 곡이 크기만) */
@@ -353,6 +353,8 @@
     if(pv&&nx&&pv.k!==nx.k&&nx.k!=='declare'&&!personal(nx)&&nx.dk!=null&&nx.dk<=-60) return;   /* ★[BGM_TIMING_1101] 다음 순간 첫 줄이 무음이면 −8 로 올리지 않는다 — 곧 뜸 자리에서 1.5초에 −90 (편지 «음악 없이») */
     if(pv&&nx&&pv.k!==nx.k){ ramp(BED.cur,Math.max(BED.cur.want,vx(p.music,BED.cur.f)),TAIL.up); return; }   /* ★[LISTEN_LOOK_LEVEL_1101 ③] 이어 듣기 — 순간이 바뀔 때 끄지 않고 큐 사이 크기(−8)로 이어 흐른다 · 다음 순간 뜸(lpLead)이 같은 곡이면 그대로 · 새 곡이면 3초 겹쳐 넘긴다 */
     if(!nx||fileFor(nx)!==BED.cur.f) return;
+    /* ★[TIME_GAP_1102] 시간이 흐르는 쉼(tg 'min') = 0.8초에 −8 · 제목만 바뀜('evt') = −12(말 아래에선 올리고 · 크게 흐르던 곡은 내린다) · 다음 줄 0.8초 앞에서 말 아래로 · 정적(−60 아래)은 그대로 */
+    if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){   /* 다음 줄이 정적(편지 끝 · 선언)이면 올리지 않는다 */ var vt=BED.cur, tl=vx(tg==='min'?p.music:-12,vt.f), dbt=lvOf(nx); if(Math.abs(tl-vt.want)>0.5) ramp(vt,tl,800);   /* 크게 흐르던 곡(입장 0 dB)도 쉼 크기로 */ setTimeout(function(){ if(BED.cur===vt&&LPB.on&&vt.want>dbt+0.5) ramp(vt,dbt,800); },Math.max(0,gap-800)); return; }
     var db=lvOf(nx); if(BED.cur.want>db+0.5){ var lead=Math.min(nx.fm||p.lead,Math.max(0,gap)), v=BED.cur; setTimeout(function(){ if(BED.cur===v&&LPB.on) ramp(v,db,lead||p.down); },Math.max(0,gap-lead)); } }   /* [BGM_FIX_1030] 미리 낮추기 0.8초 · 박수 뒤 줄 1.5초(fm) */
   function lpEnd(){ if(LPB.note) note(''); LPB.lt++; LPB.lf=null; if(LPB.pz) LPB.pz.keep=0; if(BED.who==='tail'){ clearTimeout(LPB.tt); hushAll(1500); return; }   /* [LISTEN_LOOK_LEVEL_1101 ③] 여운 중 ⏹ = 지금처럼 1.5초에 잦아듦 */
     if(BED.who!=='lp') return; if(BED.cur.f) LPB.keep[BED.cur.f]=posOf(BED.cur); LPB.on=false; LPB.f=''; LPB.pend=''; LPB.late=null; LPB.m7=false; hushAll(1500); }

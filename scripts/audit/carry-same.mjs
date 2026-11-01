@@ -86,7 +86,7 @@ const PL = (f, sg) => f.evaluate((sg) => { const b = document.querySelector('.ls
     dup: b.querySelectorAll('.bed-dup').length, fold: ((b.querySelector('.mu-fsel .mu-t') || {}).textContent || ''), chg: b.querySelectorAll('.mu-chg').length, rows: b.querySelectorAll('.mu-pick').length, on: b.querySelectorAll('[aria-checked="true"]').length }; }, sg);
 const listen = (f, ks, stopK) => f.evaluate(async ({ ks, stopK }) => { const BB = BgmBed._t, o = []; if (!window.__lpMs0) window.__lpMs0 = window._lpMs; window._lpMs = function () { return 1200; };
   LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(ks, true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk2 || x.said || x.act) x.ms = 1200; });
-  const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const v = BB.BED.cur, st = LP.q[LP.i]; o.push({ t: performance.now() - t0, k: st && st.k, lead: !!LP.leadSt, f: v && v.f, t0: v && v.t0, src: !!(v && v.src), want: v && v.want });
+  const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const v = BB.BED.cur, st = LP.q[LP.i]; o.push({ t: performance.now() - t0, k: st && st.k, lead: !!LP.leadSt, ch: !!BB.LPB.cheer, f: v && v.f, t0: v && v.t0, src: !!(v && v.src), want: v && v.want });
     if (performance.now() - t0 > 45000 || (st && st.k === stopK && !LP.leadSt && o.filter((x) => x.k === stopK && !x.lead).length > 25)) { clearInterval(iv); res(); } }, 100); });
   try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} window._lpMs = window.__lpMs0; return o; }, { ks, stopK });
 const setX = (f, o) => f.evaluate((o) => { if (o.picks) Object.keys(o.picks).forEach((k) => { BgmPicks.PICKS[k] = o.picks[k]; }); Object.keys(o.on || {}).forEach((k) => { S.on[k] = o.on[k]; }); S.freeWhat = 'speech'; S.bgm = o.bgm || {}; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, o);
@@ -131,7 +131,7 @@ try {
       ok('e 미리 듣기 부모님께 인사(B16) → 테이블 — 같은 소리 그대로(다시 시작 0) · 뜸은 이어지는 곡 길이(약 3초)', !!same && ldMs > 2300 && ldMs < 3800, { tr: tr.length, tb: [...new Set(tb.map((x) => x.f + '@' + Math.round(x.t0 * 100)))], t0: tr.length && tr[tr.length - 1].t0, ldMs: Math.round(ldMs) });
       /* g 편지 «음악과 함께»(B10) → 축배 — 본식 곡을 고르지 않았고 B10 은 본식 목록에도 있다 → 축배 여는 말도 B10 그대로(본식 1순위 B09 로 돌아가지 않는다) */
       await setX(f, { on: { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }, bgm: { S6: { m: 'bed' } } }); await go(f, 'toast'); await go(f, 'letter');
-      const fl = await f.evaluate(() => BgmBed._t.songAt('letter')), g = await listen(f, ['letter', 'toast'], 'toast'), gl = g.filter((x) => x.k === 'letter' && x.src && x.f === fl && x.want > -60), gt = g.filter((x) => x.k === 'toast' && x.src && x.want > -60);
+      const fl = await f.evaluate(() => BgmBed._t.songAt('letter')), g = await listen(f, ['letter', 'toast'], 'toast'), gl = g.filter((x) => x.k === 'letter' && x.src && x.f === fl && x.want > -60), gt = g.filter((x) => x.k === 'toast' && !x.ch && x.src && x.want > -60)   /* [TIME_GAP_1102] 축배 여는 말까지 — «위하여» 뒤 강조 자리로 옮기는 것(BGM_FIX_1030)은 따로 */;
       ok('g 미리 듣기 편지 «음악과 함께»(B10) → 축배 — 본식 곡을 안 골랐으면 축배 여는 말도 B10 그대로(다시 시작 0 · B09 0)', fl === 'B10' && gl.length > 3 && gt.length > 3 && gt.every((x) => x.f === 'B10' && x.t0 === gl[gl.length - 1].t0), { fl, gl: gl.length, gt: [...new Set(gt.map((x) => x.f + '@' + Math.round(x.t0 * 100)))] }); }
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));
     await ctx.close();
