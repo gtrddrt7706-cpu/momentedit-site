@@ -20656,9 +20656,9 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix-1030.mjs >/de
 # ── 2026-10-30 [END_FLOW_1030 · BODY_CAP_1030 검토 167 사장님] 예식 뒷부분 — 테이블 인사 → 축배 → 닫는 인사 → (디지털 참석 날) 온라인 인사 → 사진 전 안내(265 · 266) → 전체 · 가족 · 자유 사진 · 45 · 110 은 새 코스 자동 재생에서 뺌(소리만 · 가족 구도 진행 · 시간 셈은 소리 없는 동작 큐)
 #    본식 상한 = 예시 넷 «천천히» 가운데 가장 긴 값(잰다) · 단체 사진 SHORT_MIN 아래로 자름 · 늘리는 담기 · 길이 칩만 막는다 · 옛 초안은 알림만
 chk "var LATE_ORDER = \['table', 'toast'\];" assets/ritual-open.js 1
-chk 'function capSec(S) { return Math.min(capEx(), (DAYMIN - SHORT_MIN) \* 60 - postSec(S)); }' assets/ritual-open.js 1
+chk 'function capSec(S) { return (DAYMIN - SHORT_MIN) \* 60 - postSec(S); }' assets/ritual-open.js 1   # ★[EVENT_COUNT_CAP 검토 183] 예시 최장(capEx) 조건 걷음 · 단체 사진 16분만 남긴 몫
 chk "var CAP_MSG = { title: '이 순간을 담으려면 다른 순간을 하나 빼 주세요', body: '사진 시간을 지키기 위해서예요.' };" assets/ritual-open.js 1
-chk 'function _capNo(mut,add)' order-preview.html 1   # [CAP_NEED_1031]
+chk 'function _capNo(mut,add,k)' order-preview.html 1   # [CAP_NEED_1031] · [EVENT_COUNT_CAP] k = 길이 칩의 순간
 chk "'end-1a-farewell': 1, 'end-1c-thanks-nomeal': 1," assets/ritual-cue.js 1
 chk "'narr-photo-pre', 'narr-photo-pre-meal'" assets/ritual-cue.js 1
 chk "if (c.act) return done();" console.html 1
@@ -21114,6 +21114,17 @@ chk "'narr-closing': \[CL_THX, CL_DAY\], 'narr-closing-guide': \[CL_THX, CL_DAY,
 chk "'narr-closing-soft-nt': 1," assets/ritual-cue.js 1
 nochk "'narr-closing': \[CL_THX, CL_DAY, CL_CREW\]" assets/ritual-cue.js
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
+# ── 2026-11-01 [EVENT_COUNT_CAP 검토 183 · 사장님 10:33 «추천대로 진행»] 본식 상한 = 개수 규칙(6개 · 긴 3개 · 테이블 인사 = 2) · 넘는 드문 조합은 테이블 인사 자동 맞춤
+chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1
+chk "var CNT_LONG = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 };" assets/ritual-open.js 1
+chk "var CNT_MAX = 6, CNT_LONG_MAX = 3;" assets/ritual-open.js 1
+chk "title: '본식 순간은 6개까지예요'" assets/ritual-open.js 1
+chk "title: '긴 순간은 3개까지예요'" assets/ritual-open.js 1
+chk "case 'table': return \[t\[0\], 0, tableSecOf(S, seq), 0\];" assets/ritual-open.js 1
+chk 'O.tableSecOf ? O.tableSecOf(S)' assets/ritual-cue.js 1
+chk 'EVENT_COUNT_CAP' order-preview.html 7
+chk 'EVENT_COUNT_CAP' scripts/audit/body-cap.mjs 2
+nochk 'return Math.min(capEx(), (DAYMIN - SHORT_MIN)' assets/ritual-open.js
 chk 'REBIND_FROM_CARRY_1031' scripts/sent-lib.mjs 2   # [REBIND_FROM_CARRY_1031] --rebind 가 자리를 옮길 때 빌려 온 출처(from)도 함께 옮긴다 — 잃으면 closing-line ④ 가 빨강
 nochk '먼저 신랑은 다시 한번 프러포즈하는 마음으로' assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/screen-sound.mjs >/dev/null 2>&1; _scs=$?; [ "$_scs" = 1 ] && { echo 'FAIL screen-sound: 당일 콘솔이 틀 수 있는 나레이션이 식순 화면(하나씩 만들기 · 전체 대본)에 없습니다 — node scripts/audit/screen-sound.mjs'; fail=1; }; :; fi
