@@ -21029,6 +21029,11 @@ chk 'SCENE_PHOTO_1101' scripts/build-scene-frames.mjs 2
 chk 'SCENE_PHOTO_1101' scripts/audit/photo-scene.mjs 4
 chk "var SCENE_SRC_V = 'photo1101c';" assets/ritual-open.js 1
 chk 'SCENE_PHOTO_1101C' assets/ritual-open.js 1   # [SCENE_PHOTO_1101C 사장님 03:03] 어두운 C안 · 밝은 판(1101a)은 01:40 보류
+# ── 2026-11-01 [SCENE_DRAMA_ONLY 검토 182 · 사장님 10:08 «극적인 장면이 연출되는 이벤트 말고는 사진 칸 굳이 다 넣을 필요 없다»] 고객 화면 장면 칸 = 9순간만 · 데이터 · 관리 화면은 전체
+chk "var SCENE_SHOW = \['candle', 'entry', 'matjeol', 'vow', 'ring', 'song', 'letter', 'tribute', 'toast'\];" assets/ritual-open.js 1
+chk "var SCENE_SHOW=\['candle','entry','matjeol','vow','ring','song','letter','tribute','toast'\];" mypage.html 1
+chk 'SCENE_DRAMA_ONLY' order-preview.html 5
+chk 'SCENE_DRAMA_ONLY' scripts/audit/photo-scene.mjs 8
 chk "var SCENE_V = '1101c';" assets/ritual-open.js 1
 nochk "img: null }" assets/ritual-open.js
 nochk "img: \['entry-look', 6\] }" assets/ritual-open.js

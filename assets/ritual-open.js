@@ -1469,6 +1469,12 @@
     if (k === 'vow') return S && S.vowKind === 'thanks' ? '감사문' : '서약';
     if (k === 'declare') return '읽는 분 ' + (declTitleOf(S) || '');   // [DECL_TITLE_1031] 호칭 코드(글자 없는 값 · «그 밖의 분» 글은 넣지 않는다)
     return ''; }
+  /* ★★[SCENE_DRAMA_ONLY 검토 182 · 사장님 11/01 10:08 «극적인 장면이 연출되는 이벤트 말고는 사진 칸 굳이 다 넣을 필요 없다»]
+     고객 화면(① 미리 보기 창 · ② 접힌 줄 · 확대 · «순간마다 담을 수 있는 장면» 링크 · 마이페이지 «예식 순서에서 남는 사진»)은 이 9순간만(판 갈래 포함 · 순간 열쇠 기준).
+     빠진 8곳(하객 맞이 · 식전 영상 · 인사말 · 성혼 선언 · 덕담 · 축사 · 테이블 인사 · 닫는 인사)은 PSCENE · 그림을 지우지 않는다 — 관리 · 작가 화면(sceneList · summary.shots)은 전체 그대로.
+     마이페이지(mypage.html)는 이 파일을 읽지 않아 같은 목록을 한 벌 둔다 — scripts/audit/photo-scene.mjs 가 둘을 대조한다. */
+  var SCENE_SHOW = ['candle', 'entry', 'matjeol', 'vow', 'ring', 'song', 'letter', 'tribute', 'toast'];
+  function sceneShow(k) { return SCENE_SHOW.indexOf(k) > -1; }
   function sceneSig(S) { return sceneList(S).map(function (x) { return x.id + (x.pick ? '=' + x.pick : ''); }).join('|'); }
   function shotOf(k, S) { var _sc = sceneOf(k, S); if (_sc) return _sc.rep;   /* ★[PHOTO_SCENE_1031] 남는 장면 = 대표 장면(원천 SCENE 하나) · 아래는 장면이 없는 옛 판만 */
     if (k === 'vow' && S && S.vowKind === 'thanks') return '하객을 바라보며 읽는 두 분';   /* ★[THANKS_SHOT_1013] 감사문을 고른 날 «남는 장면»(마이페이지 summary.scenes)이 서약 장면(«서로를 보며 약속하는 옆얼굴»)이었다 — oneOf(oneT)와 같은 갈래 */
@@ -1645,7 +1651,7 @@
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
-    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, PSCENE: PSCENE, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
+    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,

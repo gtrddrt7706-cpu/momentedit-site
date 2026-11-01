@@ -2318,7 +2318,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1101e"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101bf"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101g"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101bf"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3159,7 +3159,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1101e';   // [ASSET_V] 위 주석
+  var ASSET_V='1101g';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -8903,24 +8903,24 @@ function _pvDraw(){
    그림이 보류(img null)거나 못 읽으면 그림만 빠지고 글은 그대로. 확대는 맨 위 창 하나(닫기 · Esc → 누른 그림으로 초점) · 소리 · 영상 · 타이머를 다시 틀지 않는다.
    전체 대본 복사 · 파일 받기(scriptTextOpen)에는 넣지 않는다. 컷 수 · 빠짐없는 촬영 약속은 쓰지 않는다(scripts/audit/photo-scene.mjs). */
 var PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.';
-function _psBox(k,mode){ var R=RitualOpen, x=R.sceneOf?R.sceneOf(k,S):null; if(!x) return '';
+function _psBox(k,mode){ var R=RitualOpen, x=R.sceneOf&&(!R.sceneShow||R.sceneShow(k))?R.sceneOf(k,S):null; if(!x) return '';   /* [SCENE_DRAMA_ONLY] 극적인 9순간만 */
   var id='ps_'+mode+'_'+k.replace(/[^a-z]/g,''), im=x.img, h='<section class="ps" data-ps="'+esc(x.id)+'" aria-labelledby="'+id+'"><h4 class="ps-h" id="'+id+'">이 순간에 담을 수 있는 장면</h4>';
   if(im) h+='<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기')+'"><img src="'+esc(im.small)+'" alt="" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button>';
   h+='<p class="ps-rep">'+esc(x.rep)+'</p><p class="ps-desc">'+esc(x.desc)+'</p>';
   h+='<p class="ps-fine">'+esc(PS_FINE)+'</p>';
   return h+'</section>'; }
 /* ② 하나씩 만들기 — 설정 · 글쓰기 뒤 맨 아래 접힌 줄(그림이 없으면 «장면 설명 보기») */
-function _psFold(k){ var R=RitualOpen, x=R.sceneOf?R.sceneOf(k,S):null; if(!x) return '';
+function _psFold(k){ var R=RitualOpen, x=R.sceneOf&&(!R.sceneShow||R.sceneShow(k))?R.sceneOf(k,S):null; if(!x) return '';   /* [SCENE_DRAMA_ONLY] */
   return '<details class="ps-fold" data-fk="psfold:'+k+'"><summary>'+(x.img?'사진으로 담을 장면 보기':'장면 설명 보기')+'</summary>'+_psBox(k,'mk')+'</details>'; }
 /* 한눈에 보기 · 완성 — 큰 그림은 되풀이하지 않고 순간 이름 링크만(누르면 그 순간 쪽 접힌 줄을 연다) */
-function _psLinks(){ /* ★[PS_LINKS_HEAD_1031 식순 걷기 1라운드] 한눈에 보기 · 완성은 여러 순간을 모아 보는 곳 — 머리는 «순간마다 …»(«이 순간에 …»는 순간 쪽 창의 제목) */ var R=RitualOpen; if(!R.sceneList) return ''; var xs=R.sceneList(S); if(!xs.length) return '';
+function _psLinks(){ /* ★[PS_LINKS_HEAD_1031 식순 걷기 1라운드] 한눈에 보기 · 완성은 여러 순간을 모아 보는 곳 — 머리는 «순간마다 …»(«이 순간에 …»는 순간 쪽 창의 제목) */ var R=RitualOpen; if(!R.sceneList) return ''; var xs=R.sceneList(S).filter(function(x){ return !R.sceneShow||R.sceneShow(x.k); }); if(!xs.length) return '';   /* [SCENE_DRAMA_ONLY] 링크도 9순간만 */
   return '<section class="mk-sec" aria-labelledby="psLk"><h4 id="psLk">순간마다 담을 수 있는 장면</h4><p class="ps-links">'+xs.map(function(x){ return '<button type="button" class="pk-link" data-fk="pslink:'+x.k+'" onclick="psGo(\''+x.k+'\')">'+esc(x.n)+'</button>'; }).join('')+'</p></section>'; }
 window.psGo=function(k){ var m=_mkState(), onL=!!(STEPS[idx]&&STEPS[idx].k==='listen');
   if(m.at!==k) mkGo(k); else if(!onL) opGoStep('listen');
   setTimeout(function(){ var d=document.querySelector('[data-fk="psfold:'+k+'"]'); if(d){ d.open=true; var sm=d.querySelector('summary'); try{ d.scrollIntoView({block:'center'}); if(sm) sm.focus({preventScroll:true}); }catch(e){} } },80); };
 window._psImgErr=function(img){ var f=img.closest('.ps-fig'); if(f) f.remove(); };   /* [PHOTO_SCENE_MIN_1101] 그림을 못 읽으면 그림만 뺀다(라벨 · 그림 설명 줄은 이제 없다 · 구도 한 줄은 그대로) */
 var PSZ={opener:null};
-window.psZoom=function(k,btn){ var R=RitualOpen, x=R.sceneOf(k,S); if(!x||!x.img) return;
+window.psZoom=function(k,btn){ var R=RitualOpen, x=(!R.sceneShow||R.sceneShow(k))?R.sceneOf(k,S):null; if(!x||!x.img) return;   /* [SCENE_DRAMA_ONLY] */
   var z=document.getElementById('psZoom');
   if(!z){ z=document.createElement('div'); z.id='psZoom'; z.hidden=true; z.setAttribute('role','dialog'); z.setAttribute('aria-modal','true');
     z.addEventListener('keydown',function(e){ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); psZoomClose(); } else if(e.key==='Tab'){ e.preventDefault(); var b=z.querySelector('.psz-x'); if(b) b.focus(); } });
@@ -10795,13 +10795,14 @@ function _ordPayload(fin){
        관리 화면 작가 칸(shots · 순간 id · 식전/본식 · 순서 · 관련 선택값 · 장면 id/문구 · 그림 자산 · 구분 · 라벨 · 판 · 보류 · 식순 저장 판)이 같은 값을 읽는다.
        재확인 표시 열쇠 = sceneSig(순간 · 대상 · 인사 동작 · 음악 · 멘트는 넣지 않는다) — 첫 저장 뒤 바뀌면 n · 때를 남긴다(_psigN · _psigAt) */
     var _psx=[], _R=RitualOpen;
-    ['guest'].concat(_R.onOf(S,'prevideo')?['prevideo']:[]).concat(_R.bodySeq(S)).forEach(function(k){ var sc=_R.sceneOf?_R.sceneOf(k,S):null, nm=k==='guest'?'하객 맞이':_R.nameOf(k,S);
+    ['guest'].concat(_R.onOf(S,'prevideo')?['prevideo']:[]).concat(_R.bodySeq(S)).forEach(function(k){ if(_R.sceneShow&&!_R.sceneShow(k)) return;   /* ★[SCENE_DRAMA_ONLY 검토 182] 마이페이지 «남는 사진»도 극적인 9순간만 — 빠진 순간은 옛 shotOf 문구로도 되살리지 않는다 */
+      var sc=_R.sceneOf?_R.sceneOf(k,S):null, nm=k==='guest'?'하객 맞이':_R.nameOf(k,S);
       if(sc) _psx.push({n:nm, s:sc.rep, alt:sc.alt, pre:!!_R.PRE[k], id:sc.id, k:k});
       else if(!_R.PRE[k]){ var sh=_R.shotOf(k,S)||''; if(sh) _psx.push({n:nm, s:sh, pre:false, k:k}); } });
     _sm.scenes=_psx;
     try{ var _sl=_R.sceneList(S), _sg=_R.sceneSig(S), _now=new Date().toISOString();
       if(S._psig!==_sg){ S._psigN=S._psig?((+S._psigN||0)+1):0; S._psig=_sg; S._psigAt=_now; }
-      _sm.shots={v:_R.SCENE_V, sv:_R.SCENE_SRC_V, label:_R.SCENE_LABEL, at:_now, chgN:+S._psigN||0, chgAt:S._psigAt||'', items:_sl.map(function(x){ return {order:x.order, k:x.k, pre:x.pre, n:x.n, pick:x.pick, id:x.id, rep:x.rep, alt:x.alt, desc:x.desc, asset:x.img?x.img.asset:'', from:x.img?(x.img.from+' '+x.img.at+'초'):'', kind:x.kind, hold:x.hold}; })}; }catch(eP){}
+      _sm.shots={v:_R.SCENE_V, sv:_R.SCENE_SRC_V, label:_R.SCENE_LABEL, at:_now, chgN:+S._psigN||0, chgAt:S._psigAt||'', items:_sl.map(function(x){ return {order:x.order, k:x.k, pre:x.pre, n:x.n, pick:x.pick, id:x.id, rep:x.rep, alt:x.alt, desc:x.desc, asset:x.img?x.img.asset:'', from:x.img?(x.img.from+(x.img.at!=null?' '+x.img.at+'초':'')):'', kind:x.kind, hold:x.hold}; })}; }catch(eP){}
     _sm.prep=RitualOpen.prepList(S); _sm.helpers=RitualOpen.helpersOf(S,{}); _sm.goods=RitualOpen.goodsOf(S).map(function(g){ return {what:g.what,by:g.by}; }); }   /* [GOODS_CHOICE] 맡긴 예식은 주문해야 한다 — 관리자 · 마이페이지가 읽는다 */   // [PREP_LIST] 마이페이지 준비 목록(P8) — 식사 안내 분은 마이페이지가 애프터 웨딩을 보고 더한다   // [PHOTO_CAP_RD] 마이페이지 단체 사진 상한이 이 초로 센다(엔진을 안 읽으므로)
   return {S:S, summary:_sm};
 }

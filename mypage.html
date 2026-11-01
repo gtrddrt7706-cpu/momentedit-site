@@ -10318,7 +10318,8 @@ function photoSceneList(rd){
   /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4] 새 코스 초안은 빌더가 실은 목록(summary.scenes · 본식 차례 · 카드 이름 · 장면)을 그대로 쓴다.
      옛 코스 초안 · 이 줄 전에 저장된 새 코스 초안은 아래 이름 맞추기 그대로(빌더를 한 번 열면 자동 저장이 새 목록을 싣는다). */
   var _sm=((rd||{}).summary||{});
-  if(_sm.open&&_sm.scenes&&_sm.scenes.length) return _sm.scenes.filter(function(x){ return x&&String(x.n||'')!=='케이크 커팅'; }).map(function(x){ return {n:String(x.n||''), s:String(x.s||''), alt:Array.isArray(x.alt)?x.alt.slice(0,2).map(String):null, pre:!!x.pre, id:String(x.id||'')}; });   /* ★[PHOTO_SCENE_1031 검토 173] 대표 장면 + 참고 두 줄 · 식전/본식(빌더 RitualOpen.sceneOf 한 벌) · 옛 초안(alt 없음)은 종전대로 · [CAKE_OLD_OFF_1017] 옛 초안 장면의 케이크 줄은 뺀다
+  var SCENE_SHOW=['candle','entry','matjeol','vow','ring','song','letter','tribute','toast'];   /* ★[SCENE_DRAMA_ONLY 검토 182] 극적인 9순간만 — ritual-open SCENE_SHOW 와 같은 목록(photo-scene.mjs 가 대조) · 이 줄 전에 저장된 초안의 다른 순간(하객 맞이 · 선언 · 덕담 …)도 여기서 뺀다 · 장면 id 가 없는 옛 줄은 그대로 */
+  if(_sm.open&&_sm.scenes&&_sm.scenes.length) return _sm.scenes.filter(function(x){ var b=String((x&&(x.k||x.id))||'').replace(/:.*/,''); return x&&String(x.n||'')!=='케이크 커팅'&&(!b||SCENE_SHOW.indexOf(b)>-1); }).map(function(x){ return {n:String(x.n||''), s:String(x.s||''), alt:Array.isArray(x.alt)?x.alt.slice(0,2).map(String):null, pre:!!x.pre, id:String(x.id||'')}; });   /* ★[PHOTO_SCENE_1031 검토 173] 대표 장면 + 참고 두 줄 · 식전/본식(빌더 RitualOpen.sceneOf 한 벌) · 옛 초안(alt 없음)은 종전대로 · [CAKE_OLD_OFF_1017] 옛 초안 장면의 케이크 줄은 뺀다
   var flow=_flowFix(_sm.flow,(rd||{}).S);   /* [CAKE_OLD_OFF_1017] */
   if(!flow||!flow.length) return null;
   flow=flow.map(function(n){ return n==='두 사람이 준비한 순서'?'준비한 순서':n; });   // [DETAIL_0925 B3] 9/25 하루 저장된 초안의 옛 이름
