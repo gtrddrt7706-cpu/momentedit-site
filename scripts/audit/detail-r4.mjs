@@ -2,6 +2,7 @@
 /* ★★[DETAIL_R4_1101 2026-11-01 BGM 섹션 «당일 · 새로 생긴 회귀 먼저»] 식순 화면 둘(콘솔 ③ 은 detail-r3)
    R4 ② 입장 장면 → 받는 말 넘김(HAND)을 지키는 것은 안에서 넘겨줄 때뿐 — 고객이 순간을 옮기거나 다른 ▶ 를 틀면 장면까지 멈춘다(ENTRY_UNDER 회귀)
    R4 ① 곡 카드를 받는 중에 순간을 옮기거나 새로 들으면 — 늦게 온 카드 곡이 시작하지 않는다(받는 중인 카드 차례도 무효)
+   R3 ⑤ 축배 곡이 늦으면 앞 곡을 올리지 않는다 · R3 ⑥ 축사 «음악과 함께» 뒤 본식 곡은 떠난 초부터
    R4 ⑦ 안내 칸(하객 맞이 · 테이블)도 곡 목록이 빈 목록으로 오면 «곡 목록을 불러오지 못했어요» + «다시 불러오기» · 누르면 다시 묻고 목록이 오면 한 줄이 걷힌다
    BP_BED · BP_OP · BP_EM(entry-music.js) = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -142,6 +143,26 @@ try {
     const b = await f.evaluate(() => ({ n: document.querySelectorAll('.bed-av').length, ro: !!document.querySelector('.mu-ro') }));
     ok(`R4 ⑦ ${k === 'guest' ? '하객 맞이' : '테이블 인사'} 안내 칸 — 빈 목록이면 «곡 목록을 불러오지 못했어요 · 다시 불러오기» · 누르면 다시 묻고 한 줄이 걷힌다`, a.ro && a.btn && a.n.some((t) => /^곡 목록을 불러오지 못했어요 · 다시 불러오기$/.test(t)) && b.ro && b.n === 0, { a, b });
   }
+  /* ★[DETAIL_R3_1101 ⑤] 축배 곡(M7)이 늦게 오면 — «위하여» 뒤 앞 곡을 축배 크기(0)로 올리지 않고 «음악을 불러오는 중이에요» */
+  { await f.evaluate(() => { delete BgmBed._t.BUF.B28; }); await pg.evaluate(() => { H.dly.B28 = 60000; }); await go(f, 'toast');
+    const r5 = await f.evaluate(async () => { const B = BgmBed._t, o = []; lsPlay('toast'); const t0 = performance.now();
+      await new Promise((res) => { const iv = setInterval(() => { const v = B.BED.cur; o.push({ t: Math.round(performance.now() - t0), cheer: !!B.LPB.cheer, f: v && v.f, src: !!(v && v.src), want: v && v.want, note: B.LPB.note || '' }); if (performance.now() - t0 > 40000) { clearInterval(iv); res(); } }, 100); });
+      try { lsStop(); } catch (x) {} return o; });
+    await pg.evaluate(() => { H.dly.B28 = 40; });
+    const ic = r5.findIndex((x) => x.cheer), aft = ic < 0 ? [] : r5.slice(ic, ic + 40).filter((x) => x.src);
+    ok('R3 ⑤ 축배 곡이 아직 — «위하여» 뒤 앞 곡을 축배 크기로 올리지 않는다(−1 dB 아래) · «음악을 불러오는 중이에요»', ic > -1 && aft.every((x) => x.f !== 'B28' && x.want < -1) && r5.slice(ic).some((x) => x.note === '음악을 불러오는 중이에요'), { ic, aft: aft.slice(0, 3), notes: [...new Set(r5.map((x) => x.note))] }); }
+  /* ★[DETAIL_R3_1101 ⑥ · DETAIL_R5_1101 규칙 6] 축사 «음악과 함께»(M4S5) 뒤 본식 곡(M4)으로 돌아오면 — 떠난 자리에서 잇는다(0초가 아니다) */
+  { await f.evaluate(() => { S.freeWhat = 'speech'; S.on.free = 1; S.on.letter = 1; S.bgm = { S5: { m: 'bed' } }; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
+    await go(f, 'free'); const m40 = await f.evaluate(() => BgmBed._t.eff('M4'));
+    const o6 = await f.evaluate(async (m4) => { const B = BgmBed._t, o = []; let n = 0, jumped = false, s5t = null; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['free', 'letter'], true); _lFull(); const t0 = performance.now();
+      await new Promise((res) => { const iv = setInterval(() => { const v = B.BED.cur, st = LP.q[LP.i]; if (v && v.src && !v.__id) v.__id = ++n;
+        o.push({ t: performance.now() - t0, k: st && st.k, f: v && v.f, src: !!(v && v.src), id: v && v.__id || 0, off: v && v.off });
+        if (!jumped && st && st.k === 'free' && v && v.src && v.f && v.f !== m4) { if (s5t == null) s5t = performance.now(); else if (performance.now() - s5t > 3000) { jumped = true; lsJump(1); } }   /* 축사 «음악과 함께» 곡이 3초 흐른 뒤 다음 순간(편지)으로 */
+        if (performance.now() - t0 > 50000 || (jumped && performance.now() - s5t > 15000)) { clearInterval(iv); res(); } }, 100); });
+      try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return o; }, m40);
+    const m4 = await f.evaluate(() => BgmBed._t.eff('M4')), ids = [...new Set(o6.filter((x) => x.src && x.f === m4).map((x) => x.id))], s5 = o6.some((x) => x.src && x.f !== m4 && x.k === 'free');
+    const back = ids.length > 1 ? o6.find((x) => x.id === ids[ids.length - 1]) : null;
+    ok('R3 ⑥ 축사 «음악과 함께» 곡 뒤 본식 곡으로 돌아오면 떠난 초부터(0초 아님)', s5 && !!back && back.off > 1, { m4, ids, back, s5, seq: [...new Set(o6.filter((x) => x.src).map((x) => x.k + ':' + x.f + ':' + x.id + ':' + Math.round(x.off || 0)))].slice(0, 24) }); }
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3));
   await ctx.close();
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }

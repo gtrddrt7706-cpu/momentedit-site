@@ -98,13 +98,14 @@ try {
     const txt = await f.evaluate(() => document.body.textContent);
     GONE.forEach((g) => { const t = P.SONGS[g].t; if (txt.indexOf(t) > -1) gone.push(t); });
     const want = (sg) => (WANT[sg] || []).concat(sg === 'M1' || sg === 'M8' ? (FILLW[sg] || []) : []);   /* [DAYLONG_1101] 닫는 인사(고르는 칸)는 고객 화면 3줄 그대로 · 배경 곡은 콘솔에만 */   /* ★[LIST_NO_PICK_1101] 목록 칸(M1 · M8)은 3곡 + 배경 곡 차례 그대로(고르기 없음) */
-    const bad = Object.keys(seen).filter((sg) => WANT[sg] && JSON.stringify(seen[sg]) !== JSON.stringify(want(sg)));
+    const srt = (a) => a.slice().sort().join();   /* ★[DETAIL_R3_1101 ⑦ 보탬] 목록 칸(M1 · M8) 차례는 하루 곡 계획(BgmPicks.plan · 겹침은 맨 뒤)이 정한다 — 차례는 detail-r5 · carry-same 이 잰다 · 여기선 곡이 같은가만 */
+    const bad = Object.keys(seen).filter((sg) => WANT[sg] && ((sg === 'M1' || sg === 'M8') ? srt(seen[sg]) !== srt(want(sg)) : JSON.stringify(seen[sg]) !== JSON.stringify(want(sg))));
     ok(`${W} c 고객 화면 구간 곡 줄 = 3줄(목록 칸은 + 배경 곡) · 정한 순서(${Object.keys(seen).join(' · ')}) · 뺀 곡 0`, Object.keys(seen).length >= 7 && !bad.length && Object.keys(seen).every((sg) => seen[sg].length === want(sg).length) && !gone.length, { bad: bad.map((sg) => [sg, seen[sg]]), gone });
     ok(`${W} c 고르면 한 줄로 접힌다(곡 줄 0 · 접힌 줄 1)`, fold.length >= 4 && fold.every((x) => x.rows === 0 && x.fsel), fold);
-    /* d 옛 저장값 */
+    /* d 옛 저장값 — 테이블 첫 곡 = 하루 계획의 첫 곡(B23 · 하객 맞이와 겹치는 B24 · B16 과 축사 «음악과 함께» B13 은 맨 뒤 · DETAIL_R3_1101 ⑦ 보탬) */
     await f.evaluate(() => { S.bgm = { M1: { k: 'B03' }, M2: { k: 'B06' }, M8: { k: 'B25' }, S5: { m: 'bed', k: 'B02' }, M7: { k: 'B21' } }; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
     const dd = [];
-    for (const [k, sg, first] of [['guest', 'M1', 'B01'], ['candle', 'M2', 'B05'], ['table', 'M8', 'B24'], ['free', 'M4S5', 'B13'], ['toast', 'M7', 'B28']]) { await go(f, k);
+    for (const [k, sg, first] of [['guest', 'M1', 'B01'], ['candle', 'M2', 'B05'], ['table', 'M8', 'B23'], ['free', 'M4S5', 'B13'], ['toast', 'M7', 'B28']]) { await go(f, k);
       dd.push(await f.evaluate(({ sg, first }) => { const t = BgmBed._t, box = document.querySelector('.ls-bed[data-seg="' + sg + '"], .bed-sub[data-seg="' + sg + '"]'); return { sg, eff: t.eff(sg), first, on: box ? [...box.querySelectorAll('.mu-pick[aria-checked="true"]')].length : -1 }; }, { sg, first })); }
     ok(`${W} d 뺀 곡을 골라 둔 옛 저장값 → 1순위로 깔고(eff) · 눌린 곡 줄 없음 · 오류 0`, dd.every((x) => x.eff === x.first && x.on <= 0) && !errs.length, { dd, errs: errs.slice(0, 2) });
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));

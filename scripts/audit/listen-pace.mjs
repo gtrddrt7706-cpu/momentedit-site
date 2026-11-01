@@ -181,16 +181,17 @@ try {
       ok(`${W} P9 말하는 차례 · 행동 줄 글에 시간 꼬리 없음(한 줄에 시간 숫자 하나)`, bad.length === 0, bad.slice(0, 6)); }
     /* ★[LEAD_LONGER_1031] P8 크게 보기(처음부터 보고 듣기 · 본식부터 등 이어 트는 길)도 같은 규칙 — 뜸(새 곡 6초 · 이어지는 곡 3초 · 순간마다) · 행동 줄 멈춤 · «실제로는 약 …» */
     { await go(f, 'ring'); await f.evaluate(() => BgmBed.lpWarm(['candle', 'ring'])); await wait(f, 1500);   /* [DAYLONG_1101] 앞 검사에서 목록 다음 곡을 미리 받으면 화촉 곡이 메모리 한도(셋)에서 밀려 «곡 받는 중 기다림(8초)»이 된다 — 뜸 길이만 재려고 먼저 받아 둔다 */
-      const b8 = await f.evaluate(async () => { const L = []; const o = BgmBed.lpLead; BgmBed.lpLead = function (st) { const r = o.apply(this, arguments); L.push({ k: st.k, r }); return r; };
+      const b8 = await f.evaluate(async () => { const L = []; const o = BgmBed.lpLead; BgmBed.lpLead = function (st, re) { const r = o.call(this, st, re && function (ms) { L.push({ k: st.k, re: ms }); return re(ms); }); L.push({ k: st.k, r }); return r; };   /* [BED_LOAD_1101] 곡을 받는 중이면 8초까지 기다리고(r = LEAD_WAIT) 오면 그때 뜸(re) */
         const E = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['candle', 'ring'], true); _lFull();
         const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { try { const st = LP.q[LP.i], e = document.querySelector('#lsFull .lf-est'); E.push({ t: performance.now() - t0, k: st && st.k, act: !!(st && st.act), est: e ? e.textContent.trim() : '' }); } catch (x) {} if (performance.now() - t0 > 40000 || (LP.q[LP.i] && LP.q[LP.i].k === 'ring' && E.some((y) => y.k === 'ring' && y.act))) { clearInterval(iv); res(); } }, 150); });
         const out = { pace: LP.pace, big: !!LP.big, acts: LP.q.filter((x) => x.act).length, L, E: E.filter((x) => x.act).slice(0, 3), noEst: E.filter((x) => !x.act && x.est).length };
         BgmBed.lpLead = o; try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return out; });
       ok(`${W} P8 크게 보기 이어 듣기도 LISTEN_PACE(행동 줄 ${b8.acts}개)`, b8.pace === true && b8.big && b8.acts > 0, b8);
-      ok(`${W} P8 순간마다 첫 멘트 앞 뜸 — 새 곡 6초 · 이어지는 곡 3초`, b8.L.length >= 2 && b8.L.every((x) => x.r === 6000 || x.r === 3000) && b8.L[0].r === 6000, b8.L);
+      const lead8 = ['candle', 'ring'].map((k) => { const a = b8.L.filter((x) => x.k === k); const r = a.find((x) => x.r != null); if (r && r.r === 8000) { const q = a.find((x) => x.re != null); return q ? q.re : null; } return r ? r.r : null; });
+      ok(`${W} P8 순간마다 첫 멘트 앞 뜸 — 새 곡 6초 · 이어지는 곡 3초(곡을 받는 중이었으면 온 뒤의 뜸)`, lead8[0] === 6000 && (lead8[1] === 6000 || lead8[1] === 3000), { lead8, L: b8.L });
       ok(`${W} P8 크게 보기 행동 줄이 흐를 때 «실제로는 약 …» · 다른 줄엔 없음`, b8.E.length > 0 && b8.E.every((x) => /^실제로는 약/.test(x.est)) && b8.noEst === 0, { E: b8.E, noEst: b8.noEst }); }
     /* P1 곡 없는 순간 — 테이블 인사(드라이브에 곡 없음) · 뜸 없음 */
-    await go(f, 'table'); const rt = await trace(f, 'table', 4000); await f.evaluate(() => lsStop()); const ntT = narT(rt) == null ? null : narT(rt) - q0T(rt);
+    await go(f, 'table'); await f.evaluate(() => { delete BgmBed._t.AV.set.B13; });   /* ★[DETAIL_R3_1101 ⑦ 보탬] 테이블 목록 맨 뒤 B13(빼면 30분이 안 돼 맨 뒤로)이 이 드라이브의 유일한 테이블 곡 — 곡이 없는 순간을 만들려고 목록에서 뺀다 */ const rt = await trace(f, 'table', 4000); await f.evaluate(() => lsStop()); const ntT = narT(rt) == null ? null : narT(rt) - q0T(rt);
     ok(`${W} P1 곡이 없는 순간(테이블 인사)은 뜸 없음`, ntT != null && ntT < 2200, { ntT });
     ok(`${W} P6 쪽 오류 0`, !errs.length, errs.slice(0, 3));
     await ctx.close();

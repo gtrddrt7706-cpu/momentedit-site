@@ -144,7 +144,7 @@ try {
     else { await c.pg.evaluate((i) => window.__bgmGo.fire(i), iW); await c.pg.waitForTimeout(1200); const b0 = await c.pg.evaluate(() => window.__seg.st());
       await c.pg.evaluate((i) => window.__bgmGo.fire(i), iF); await c.pg.waitForTimeout(800); await c.pg.evaluate(() => window.__bgmGo.tap()); await c.pg.waitForTimeout(1200); const b1 = await c.pg.evaluate(() => window.__seg.st());
       await c.pg.evaluate((i) => window.__bgmGo.fire(i), iL); await c.pg.waitForTimeout(1500); const b2 = await c.pg.evaluate(() => window.__seg.st());
-      ok('c 콘솔 축사 «음악과 함께»(M4S5 한 곡) 뒤 감사 인사 목록은 다음 곡(B09)부터 — 처음(B11)으로 돌아가지 않는다', b0.seg === 'M4' && b0.id === 'B11' && b1.seg === 'M4S5' && b1.res === 'M4' && b2.seg === 'M4' && b2.id === 'B09' && b2.li === 1, { b0: [b0.seg, b0.id], b1: [b1.seg, b1.id, b1.res], b2: [b2.seg, b2.id, b2.li, b2.list] }); }
+      ok('c 콘솔 축사 «음악과 함께»(M4S5 한 곡) 뒤 감사 인사로 돌아오면 멈춘 곡(B11)의 멈춘 초부터 — 처음 0초로 돌아가지 않는다(DETAIL_R3_1101 ⑥ · DETAIL_R5_1101 규칙 6)', b0.seg === 'M4' && b0.id === 'B11' && b1.seg === 'M4S5' && b1.res === 'M4' && b2.seg === 'M4' && b2.id === 'B11' && b2.li === 0 && b2.t >= b0.t + 0.5, { b0: [b0.seg, b0.id], b1: [b1.seg, b1.id, b1.res], b2: [b2.seg, b2.id, b2.li, b2.list, b0.t, b2.t] }); }
     ok('c 콘솔 오류 0 (2)', !c.errs.length, c.errs.slice(0, 2)); await c.ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();
