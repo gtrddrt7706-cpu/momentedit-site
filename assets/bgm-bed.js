@@ -80,6 +80,9 @@
     try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ if(L.ks.indexOf(c.k)<0) return; sec+=(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); }catch(x){ sec=0; }
     return (MIN.v[sg]=sec>0?Math.max(1,Math.round(sec/60)):0); }
   function longLine(sg){ var L=LONG[sg]; if(!L||!picked(sg)) return ''; var m=minOf(sg); return '<p class="bgm-note bed-long">'+e(L.t)+(m?' · 약 '+m+'분':'')+'</p>'; }
+  /* ★[DETAIL_R1_1101 ①] 고른 곡(없으면 1순위) 파일이 아직 없어 다음 곡이 대신 흐르면 — 줄 아래 · 미리 듣기 한 줄 «준비 중이라 지금은 ‹곡›이 대신 흘러요» */
+  function subOf(sg){ if(!emb()||AV.st!=='ok'||!sg) return ''; var f=eff(sg), h=effHas(sg); if(!f||!h||h===f||has(f)) return ''; var p=P.byF(h); return p?p.t:''; }
+  function subLine(sg,cls){ var t=subOf(sg); return t?'<'+(cls||'p')+' class="bgm-note bed-sub-note">준비 중이라 지금은 ‹'+e(t)+'›이 대신 흘러요</'+(cls||'p')+'>':''; }
   function carryLine(sg){ var c=carried(sg); return c?e(labelOf(c.sg))+'에서 흐르던 곡이 그대로 이어져요':''; }
   /* ★[GHIBLI_ADD_1101] 실제로 깔 곡 — 고른 곡(없으면 1순위)의 파일이 드라이브에 아직 없으면 그 구간 목록(고객이 보는 곡만 · fill 아님)에서 파일이 있는 다음 곡 · 콘솔 segPlan 과 같은 차례(BgmPicks.order) ·
        곡 줄 · 접힌 줄에는 원래 곡 이름 그대로(이 함수는 소리만 정한다) */
@@ -115,11 +118,12 @@
     for(var j=i;j<q.length;j++){ var st=q[j]; if(!st) continue; var mine=st.k===k||(on&&(st.k==='entry'||st.k==='matjeol'));
       if(!mine){ if(on) break; continue; } on=true; s+=lineSec(st)+ENT_GAP; }
     return s; }
-  function entOn(){ try{ if(!emb()||!window.EntryMusic||!EntryMusic.carryHas||!EntryMusic.carryHas()) return false; var sg=EntryMusic.carrySig(); if(ENT.sig&&ENT.sig!==sg){ var o=BUF[ENT_F]; if(o&&o.st!=='wait') delete BUF[ENT_F]; } ENT.sig=sg; return true; }catch(x){ return false; } }
+  function entOn(){ try{ if(!emb()||!window.EntryMusic||!EntryMusic.carryHas||!EntryMusic.carryHas()) return false; var sg=EntryMusic.carrySig(); if(ENT.sig&&ENT.sig!==sg){ var o=BUF[ENT_F]; if(o){ ENT.turn=(ENT.turn||0)+1; delete BUF[ENT_F]; if(o.st==='wait'){ var cs=o.cb; o.cb=[]; ENT.sig=sg; cs.forEach(function(c){ entWant(c); }); } } } ENT.sig=sg; return true; }catch(x){ return false; } }   /* ★[DETAIL_R1_1101 ⑦] 받는 중에 곡이 바뀌어도 새 곡으로 다시 받는다(옛 요청은 버린다) */
   function entMulti(){ try{ return typeof LP!=='undefined'&&!!LP.range&&!!LP.range.ks&&LP.range.ks.length>1; }catch(x){ return false; } }
   function entWant(cb){ var o=BUF[ENT_F]; if(o&&o.st==='ok'){ if(cb) cb(o.b); return; } if(o&&o.st==='wait'){ if(cb) o.cb.push(cb); return; }
-    o=BUF[ENT_F]={ st:'wait', b:null, cb:cb?[cb]:[] };
-    var fin=function(x){ if(BUF[ENT_F]!==o) return; o.st=x?'ok':'fail'; o.b=x?x.buf:null; o.ext=x||null; o.used=Date.now(); if(!x) delete BUF[ENT_F]; var cs=o.cb; o.cb=[]; cs.forEach(function(c){ try{ c(o.b); }catch(e2){} }); if(x) prune(); };   /* [BED_LOAD_1101 ④] 입장 곡도 셋 안에 센다 */
+    var sig0='', tk=ENT.turn=(ENT.turn||0)+1; try{ sig0=EntryMusic.carrySig(); }catch(x){}
+    o=BUF[ENT_F]={ st:'wait', b:null, cb:cb?[cb]:[], sig:sig0, tk:tk };
+    var fin=function(x){ if(BUF[ENT_F]!==o||ENT.turn!==tk) return; var sg1=''; try{ sg1=EntryMusic.carrySig(); }catch(e2){} if(sg1!==sig0){ delete BUF[ENT_F]; var cs0=o.cb; o.cb=[]; if(cs0.length) cs0.forEach(function(c){ entWant(c); }); else entWant(); return; }   /* [DETAIL_R1_1101 ⑦] 요청한 곡(sig) · 차례(turn)가 지금과 다르면 버린다 */ o.st=x?'ok':'fail'; o.b=x?x.buf:null; o.ext=x||null; o.used=Date.now(); if(!x) delete BUF[ENT_F]; var cs=o.cb; o.cb=[]; cs.forEach(function(c){ try{ c(o.b); }catch(e2){} }); if(x) prune(); };   /* [BED_LOAD_1101 ④] 입장 곡도 셋 안에 센다 */
     try{ EntryMusic.carry().then(fin,function(){ fin(null); }); }catch(x){ fin(null); } }
   /* 입장 곡 크기 — 말 아래(under) · 큐 사이(intro) · 크게(0 · 축배와 같은 크기 자리) 에 BED_TRIM · 곡 gain(−12 LUFS) */
   function entGf(x){ return function(db){ if(db<=-80) return 0.00003; var d=db>=-0.5?0:(db>=PR().music-0.5?x.intro:x.under); return x.gain*Math.pow(10,(d+x.trim)/20); }; }
@@ -130,10 +134,12 @@
   function atOf(f,st){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k); return LPB.keep[f]!=null?LPB.keep[f]:0; }
 
   /* ── 있는 곡(드라이브 목록) · 곡 받기 — 마이페이지 안에서만 ── */
-  var AV={ st:'', set:{}, t:null };
+  var AV={ st:'', set:{}, t:null, cb:[] };   /* [DETAIL_R1_1101 ②] cb = 목록을 기다리는 듣기 */
   function has(f){ return !!f&&AV.st==='ok'&&!!AV.set[f]; }
+  function avDone(){ var cs=AV.cb; AV.cb=[]; cs.forEach(function(c){ try{ c(); }catch(x){} }); }
+  function avWait(){ return emb()&&AV.st!=='ok'&&AV.st!=='fail'; }
   function list(){ if(!emb()||AV.st==='wait'||AV.st==='ok') return; AV.st='wait';
-    AV.t=setTimeout(function(){ if(AV.st==='wait'){ AV.st='fail'; repaint(); } },60000);
+    AV.t=setTimeout(function(){ if(AV.st==='wait'){ AV.st='fail'; repaint(); avDone(); } },60000);
     if(!post('momentedit:ritualFileGet',{key:'bed',id:'list'})){ clearTimeout(AV.t); AV.st='fail'; } }
   var BUF={};   // 곡 번호 → { st:'wait'|'ok'|'fail', b:AudioBuffer, cb:[] }
   function want(f,cb){ if(!f||!emb()){ if(cb) cb(null); return; } if(f===ENT_F){ entWant(cb); return; } var o=BUF[f];
@@ -148,7 +154,7 @@
   function prune(){ var ks=Object.keys(BUF).filter(function(f){ var o=BUF[f]; return o&&o.st==='ok'&&o.b; }); if(ks.length<=BUF_MAX) return; var keep=keepSet(), n=ks.length;
     ks.sort(function(a,b){ return (BUF[a].used||0)-(BUF[b].used||0); }); for(var i=0;i<ks.length&&n>BUF_MAX;i++){ if(keep[ks[i]]) continue; delete BUF[ks[i]]; n--; } }   /* ec = 못 받은 까닭 코드(서버 · 연결) */
   window.addEventListener('message',function(ev){ var d=ev&&ev.data; if(!d||ev.origin!==window.location.origin||d.type!=='momentedit:ritualFileData'||d.key!=='bed') return;
-    if(d.id==='list'){ clearTimeout(AV.t); if(d.ok&&Array.isArray(d.songs)){ AV.set={}; d.songs.forEach(function(x){ var f=x&&String(x.f||'').toUpperCase(); if(f) AV.set[f]=1; }); AV.st='ok'; if(MW.after) warmK(MW.after); } else AV.st='fail'; repaint(); return; }
+    if(d.id==='list'){ clearTimeout(AV.t); if(d.ok&&Array.isArray(d.songs)){ AV.set={}; d.songs.forEach(function(x){ var f=x&&String(x.f||'').toUpperCase(); if(f) AV.set[f]=1; }); AV.st='ok'; if(MW.after) warmK(MW.after); } else AV.st='fail'; repaint(); avDone(); return; }
     var f=String(d.id||'').toUpperCase(); if(!BUF[f]) return;
     if(!d.ok||!d.data){ var m=/\(코드 ([A-Z]\d)/.exec(String(d.error||'')); done(f,null,d.ecode||(m&&m[1])||'L4'); return; }
     var ac=ctx(); if(!ac){ done(f,null,'M6'); return; }
@@ -166,8 +172,8 @@
   var BED={ cur:Voice(), who:'' };   // who = 'lp'(이 순간 전체 듣기) · 'card'(곡 카드 ▶)
   function ramp(v,db,ms){ var a=AC; if(!a||!v.g) return; v.want=db; var now=a.currentTime, g=v.g.gain; try{ g.cancelScheduledValues(now); g.setValueAtTime(Math.max(0.00003,g.value),now); g.linearRampToValueAtTime(v.gf?v.gf(db):gainOf(db),now+Math.max(0.05,ms/1000)); }catch(x){} }   /* [ENTRY_CARRY_1101] gf = 입장 곡 크기 체계 */
   function startVoice(f,db,fadeMs,at){ var a=ctx(), o=BUF[f]; if(!a||!o||!o.b) return null; var v=Voice();
-    try{ v.src=a.createBufferSource(); v.src.buffer=o.b; v.src.loop=f!==ENT_F; if(f===ENT_F&&o.ext) v.gf=entGf(o.ext); v.g=a.createGain(); v.g.gain.value=0.00003; v.g.connect(bus(a));
-      if(f===ENT_F){ v.sg=a.createGain(); v.src.connect(v.sg); v.sg.connect(v.g); } else v.src.connect(v.g);   /* [ENTRY_UNDER_1101] 입장 곡은 판 끝에서 겹쳐 잇는다(곡마다 작은 크기 마디) */
+    try{ v.src=a.createBufferSource(); v.src.buffer=o.b; v.src.loop=f!==ENT_F&&!(o.b.duration>LIST_XF*2+1); if(f===ENT_F&&o.ext) v.gf=entGf(o.ext); v.g=a.createGain(); v.g.gain.value=0.00003; v.g.connect(bus(a));
+      v.sg=a.createGain(); v.src.connect(v.sg); v.sg.connect(v.g);   /* [ENTRY_UNDER_1101] 입장 곡은 판 끝에서 겹쳐 잇는다(곡마다 작은 크기 마디) · ★[DETAIL_R1_1101 ⑧] 구간 곡도 같은 길 — 판이 짧으면 끝 3초 전 처음(강조 자리)으로 3초 겹쳐 잇는다(종전 src.loop 맞붙임 · 판이 7초 이하일 때만 그대로) */
       var off=Math.max(0,Math.min(o.b.duration-0.5,at||0)); v.src.start(0,off); v.t0=a.currentTime; v.off=off; v.f=f; ramp(v,db,fadeMs); if(f===ENT_F) entArm(v); else listArm(v); }catch(x){ return null; }
     return v; }
   /* ★[ENTRY_UNDER_1101 ③] 입장 곡 판이 끝나기 3초 전 — 같은 판의 강조(hook) 자리에서 새로 걸고 3초 겹쳐 넘긴다(멈추면 v.src 가 바뀌어 걸지 않는다) */
@@ -179,13 +185,21 @@
         v.src=s2; v.sg=g2; v.off=h; v.t0=n; LPB.relay=(LPB.relay||0)+1; entArm(v); }catch(e){} },Math.max(0,left-ENT_XF)*1000); }
   /* ★★[DAYLONG_1101] 이어 듣기(순간 둘 이상)에서 이어 트는 목록 칸(감사 인사 ~ 덕담 M4 · 닫는 인사 M6) 곡이 끝나기 3초 전 — 그 목록의 다음 곡(받아 둔 것)으로 3초 겹쳐 넘긴다 ·
        다음 곡이 아직 없으면 같은 곡이 이어진다(판 반복) · 그 순간만 들을 때는 고른 곡 그대로 · 넘긴 곡은 그 구간의 다음 줄들이 잇는다(LPB.lf) */
+  /* [DETAIL_R1_1101 ⑧ · DAYLONG_1101] 같은 크기 마디(v.g) 안에서 소리만 바꿔 끼운다 — 새 소리를 3초에 올리고 옛 소리를 3초에 내린다 · 지금 곡(BED.cur)은 그대로라 줄 크기 · 선언 연출 · 여운 시계가 끊기지 않는다 */
+  function swapSrc(v,b,at,f){ var a=AC; if(!a||!v.g||!b) return false; var n=a.currentTime;
+    try{ var s2=a.createBufferSource(), g2=a.createGain(); s2.buffer=b; s2.loop=!(b.duration>LIST_XF*2+1); g2.gain.value=0.0001; s2.connect(g2); g2.connect(v.g); var off=Math.max(0,Math.min(b.duration-LIST_XF*2-1,at||0)); s2.start(0,off);
+      g2.gain.setValueAtTime(0.0001,n); g2.gain.linearRampToValueAtTime(1,n+LIST_XF); var os=v.src, og=v.sg;
+      if(og){ og.gain.cancelScheduledValues(n); og.gain.setValueAtTime(Math.max(0.0001,og.gain.value),n); og.gain.linearRampToValueAtTime(0.0001,n+LIST_XF); }
+      setTimeout(function(){ try{ if(os){ os.onended=null; os.stop(); os.disconnect(); } if(og) og.disconnect(); }catch(e){} },LIST_XF*1000+200);
+      v.src=s2; v.sg=g2; v.off=off; v.t0=n; v.f=f; LPB.relay=(LPB.relay||0)+1; listArm(v); return true; }catch(e){ return false; } }
+  function hookOf(f){ var s0=P.byF(f); return (s0&&s0.start!=null)?Math.max(0,+s0.start):0; }
   function lfSeg(){ var st=curStep(); if(!st||BED.who!=='lp'||!entMulti()) return ''; var sg=st._base||segAt(st.k); return (sg&&P.seg(sg)&&P.seg(sg).loop)?sg:''; }
   function lfNext(sg,f){ var o=ordOf(sg).filter(has), i=o.indexOf(f); if(!o.length) return ''; for(var j=1;j<=o.length;j++){ var x=o[(Math.max(0,i)+j)%o.length]; if(x!==f) return x; } return ''; }
   function listArm(v){ clearTimeout(v.lt); var a=AC, s=v.src; if(!a||!s||!s.buffer||v.f===ENT_F) return; var d=s.buffer.duration, left=d-posOf(v); if(!(d>LIST_XF*2+1)) return;
     var sg0=lfSeg(), n0=sg0?lfNext(sg0,v.f):''; if(n0&&!BUF[n0]) want(n0);   /* 미리 받기 */
-    v.lt=setTimeout(function(){ if(v.src!==s||BED.cur!==v||!AC) return; var sg=lfSeg(), nf=sg?lfNext(sg,v.f):'';
-      if(nf&&BUF[nf]&&BUF[nf].st==='ok'){ var nv=startVoice(nf,v.want,LIST_XF*1000,0); if(nv){ stopVoice(v,LIST_XF*1000); BED.cur=nv; LPB.f=nf; LPB.lf={ sg:sg, f:nf }; LPB.relay=(LPB.relay||0)+1; return; } }
-      if(nf&&!BUF[nf]) want(nf); setTimeout(function(){ if(v.src===s) listArm(v); },(LIST_XF+1)*1000); },Math.max(0,left-LIST_XF)*1000); }
+    v.lt=setTimeout(function(){ if(v.src!==s||!AC) return; var sg=BED.cur===v?lfSeg():'', nf=sg?lfNext(sg,v.f):'';
+      if(nf&&BUF[nf]&&BUF[nf].st==='ok'){ if(swapSrc(v,BUF[nf].b,0,nf)){ LPB.f=nf; LPB.lf={ sg:sg, f:nf }; } return; }
+      if(nf&&!BUF[nf]) want(nf); swapSrc(v,s.buffer,hookOf(v.f),v.f); },Math.max(0,left-LIST_XF)*1000); }   /* 다음 곡이 없으면 같은 곡 처음(강조 자리)으로 */
   var LIST_XF=3;
   function stopVoice(v,ms){ if(!v||!v.src) return; var a=AC, s=v.src, l=v.lim; if(v.solo&&a&&v.g){ try{ var n=a.currentTime, g=v.g.gain; g.cancelScheduledValues(n); g.setValueAtTime(Math.max(0.00003,g.value),n); g.linearRampToValueAtTime(0.00003,n+Math.max(0.05,ms/1000)); }catch(x){} v.want=-90; } else ramp(v,-90,ms); v.src=null; setTimeout(function(){ try{ s.onended=null; s.stop(); s.disconnect(); if(l){ l.disconnect(); if(l._ceil) l._ceil.disconnect(); } }catch(x){} },Math.max(60,ms)+120); }   /* [SONG_CARD_SOLO_1031] 카드 소리는 +7 dB 판(ramp 의 musicTrim 을 쓰지 않는다) */
   function posOf(v){ if(!AC||!v||!v.src||!v.src.buffer) return 0; var d=v.src.buffer.duration||1; return (v.off+(AC.currentTime-v.t0))%d; }
@@ -207,13 +221,17 @@
   function toastBed(){ if(onOf('table')){ var f8=songAt('table'); if(f8) return f8; } var q=seq().filter(onOf), i=q.indexOf('toast');
     for(var j=(i>-1?i:q.length)-1;j>=0;j--){ if(q[j]==='toast') continue; var f=(q[j]==='letter'||q[j]==='free')?m4():songAt(q[j]); if(f) return f; } return ''; }   /* ★[BED_LOAD_1101 덧2] 편지 · 축사 뒤에 잇는 곡은 기본 본식 곡(M4) — «음악과 함께» 곡(M4S5 · M4S6)이 축배로 새지 않게(당일 segOfCue 와 같다) */
   function m4(){ return effHas('M4'); }
+  /* ★[DETAIL_R1_1101 ⑤ ⑨] 앞 순간 곡을 잇는 순간(식전 영상 · 닫는 인사 첫 멘트)을 따로 들을 때 — 바로 앞 순간에서 흐르던 곡(편지 · 축사는 본식 곡 M4) · 없으면 하객 맞이 곡 */
+  function backBed(k){ var q=seq().filter(onOf), i=q.indexOf(k); if(i<0) return songAt('guest'); for(var j=(i>-1?i:q.length)-1;j>=0;j--){ if(q[j]===k) continue; var f=(q[j]==='letter'||q[j]==='free')?m4():songAt(q[j]); if(f) return f; } return songAt('guest'); }
   function carry(f){ var a=effHas('M4S5'), b=effHas('M4S6'); return (f&&(f===a||f===b))?((P.carryOf&&P.carryOf(St(),'M4',f))||m4()):f; }   /* ★[CARRY_SAME_1101] 그 곡이 본식 곡 목록(M4)에도 있으면 그대로 잇는다(당일 콘솔 segGo 와 같다) · 두 분이 본식 곡을 골랐으면 고른 곡 */   /* 앞 곡이 잇는 순간(축배 · 닫는 인사 첫 줄)에 «음악과 함께» 곡이 흐르면 M4 로 */   /* 콘솔은 마지막으로 깔린 곡이 잇는다 — 그 곡 = 뒤에서부터 곡이 있는 첫 순간 */
   function fileFor(st){ var lsg=(LPB.lf&&BED.who==='lp'&&BED.cur.src&&BED.cur.f===LPB.lf.f)?LPB.lf.sg:''; if(lsg&&(st._base||segAt(st.k))===lsg) return LPB.lf.f;   /* ★[DAYLONG_1101] 이어 듣는 동안 목록이 넘긴 곡을 그 구간의 다음 줄이 잇는다(고른 곡으로 되돌아가지 않는다) */
     if(st._base){ return effHas(st._base); }   /* ★[BGM_TIMING2_1101] «음악과 함께» 축사 · 편지 여는 말 = 앞 곡(M4) */
     if(st.k==='toast'&&!LPB.m7){ if(BED.who==='lp'&&BED.cur.src) return carry(BED.cur.f); return toastBed(); }   /* [BED_LOAD_1101 덧2] carry = M4S5 · M4S6 → M4 */
-    if(st.k==='_close'&&st.slug==='narr-close-bow'){ return (BED.who==='lp'&&BED.cur.src)?carry(BED.cur.f):''; }
+    if(st.k==='_close'&&st.slug==='narr-close-bow'){ return (BED.who==='lp'&&BED.cur.src)?carry(BED.cur.f):backBed('_close'); }   /* [DETAIL_R1_1101 ⑨] 따로 들어도 첫 멘트는 앞 순간 곡(−12) · 목례부터 M6 */
+    if(st.k==='prevideo'){ return (BED.who==='lp'&&BED.cur.src)?BED.cur.f:backBed('prevideo'); }   /* [DETAIL_R1_1101 ⑤] 식전 영상 = 하객 맞이 곡이 소개 · 받는 말 아래(−16) · 영상 줄만 −90 · 받는 말에서 1.2초에 다시(당일 콘솔과 같다) */
     return songAt(st.k); }
-  function lpShow(st){ if(!emb()||!st) return; if(BED.who==='card') stopCard(true); durWarm(); if(LPB.note&&LPB.noteK&&st.k!==LPB.noteK) note('');   /* [BED_LOAD_1101] 그 순간 듣기 동안만 */
+  function subNote(st){ if(!st||LPB.note) return; var sg=st._base||segAt(st.k), t=sg?subOf(sg):''; if(t&&fileFor(st)===effHas(sg)) note('sub',t); }   /* [DETAIL_R1_1101 ①] */
+  function lpShow(st){ if(!emb()||!st) return; if(BED.who==='card') stopCard(true); if(LPB.rs&&Date.now()-LPB.rs<900&&BED.cur.src){ LPB.rs=0; return; }   /* [DETAIL_R1_1101 ③] 방금 이어 든 곡을 lpShow 가 다시 1.2초로 덮지 않는다 */ durWarm(); if(LPB.note&&LPB.noteK&&st.k!==LPB.noteK) note('');   /* [BED_LOAD_1101] 그 순간 듣기 동안만 */
     if(st.k!==LPB.wk){ LPB.wk=st.k; var _nk=nextK(st.k), _rk=[]; try{ _rk=(typeof LP!=='undefined'&&LP.range&&LP.range.ks)||[]; }catch(x){} if(_nk&&(_rk.indexOf(_nk)>-1||st.k==='letter')) songsOf(_nk).forEach(function(_nf){ if(_nf&&!BUF[_nf]) want(_nf); }); }   /* [BED_LOAD_1101] 다음 순간 곡은 이어 듣는 범위 안이거나 편지 끝(lpTail 이 올린다)일 때만 미리 — 맞절만 들을 때 감사 인사 곡까지 받지 않는다(ENTRY_CARRY 1) */   /* ★[BGM_TIMING2_1101] 편지 끝에 오를 다음 순간 곡을 미리 받는다(편지만 따로 들을 때도 · 받는 동안 정적이 끝나 곡이 안 오르던 자리) */
     /* ★★[BRIDGE_FIRST_1101 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 다음 순간 몫으로 붙은 이음말(st._pre · 빌더가 BgmSlots.leadAt 으로 표시)은 앞 장면을 닫는 말 —
          새 곡을 걸지 않는다 · 이어 듣기면 앞 곡을 말 아래 크기(−16 · 보컬 −22)로 · 그 순간만 들으면 음악 없이 · 새 곡 뜸은 그 바로 뒤 줄(lpLead) */
@@ -221,8 +239,9 @@
     if(st.k!=='toast') LPB.m7=false;
     var f=fileFor(st), db=lvOf(st,f), up=db>(BED.cur.want||-90)+0.5, p=PR();
     LPB.cheer=false;
+    if(!f&&avWait()){ list(); var tw=LPB.lt; AV.cb.push(function(){ if(LPB.lt!==tw) return; var q=curStep(); if(q&&q===st) lpShow(q); }); return; }   /* [DETAIL_R1_1101 ②] 목록이 오면 이 줄 곡을 깐다 */
     if(!f){ if(BED.who==='lp'&&BED.cur.src) hushAll(1500); LPB.on=false; LPB.f=''; return; }
-    LPB.on=true; BED.who='lp';
+    LPB.on=true; BED.who='lp'; subNote(st);
     if(BUF[f]&&BUF[f].st==='ok'){ var at=atOf(f,st); play(f,db,up?p.up:p.down,at); LPB.f=f; return; }
     LPB.pend=f; want(f,function(b,ec){ if(!LPB.on||LPB.pend!==f) return; if(!b){ var q0=curStep(); if(q0&&q0.k===st.k) note('fail',ec); return; } var q=curStep(); if(!q||fileFor(q)!==f) return; if(LPB.note) note(''); play(f,lvOf(q,f),p.up,atOf(f,q)); LPB.f=f; });   /* [BED_LOAD_1101 ③] 못 받으면 한 줄 */   /* 곡이 늦게 오면 그때 깐다(나레이션을 기다리게 하지 않는다) */ }
   /* ★[LISTEN_PACE_1031 사장님 «BGM 이 흐르고 뜸 들인 이후 멘트»] 순간 첫 줄 앞 뜸 — 그 순간 곡을 큐 사이 크기(−8)로 깔고 3초(같은 곡이 이어지면 1.5초) ·
@@ -260,12 +279,17 @@
     setTimeout(function(){ if(BED.cur===v&&LPB.on) ramp(v,vx(p.speech,f),d.lup); },w);
     LPB.tailTo=Date.now()+w+d.lup; return w+d.lup+600; }
   function lpLead(st,re){ if(!emb()||!st) return 0; if(BED.who==='card') stopCard(true); durWarm(); var f=fileFor(st);
+    /* ★[DETAIL_R1_1101 ②] 곡 목록이 아직 안 왔다 — 곡 받기와 같은 8초 기다림 · 1.5초 넘으면 «음악을 불러오는 중이에요» · 목록이 오면 지금 줄 곡을 다시 정해 깐다(뜸 자리면 뜸부터) */
+    if(!f&&avWait()&&(segAt(st.k)||st._base||st.k==='prevideo'||st.k==='_close')){ list(); var tl=++LPB.lt; LPB.on=true; BED.who='lp'; clearTimeout(LPB.ln); LPB.ln=setTimeout(function(){ if(LPB.lt===tl&&leadOf()===st) note('load'); },LOAD_MS);
+      AV.cb.push(function(){ if(LPB.lt!==tl) return; clearTimeout(LPB.ln); if(LPB.note) note('');
+        if(leadOf()===st){ var ms=lpLead(st,re); if(re) re(ms); return; } var q=curStep(); if(q) lpShow(q); });
+      return re?LEAD_WAIT:0; }
     if(st.k!=='declare'&&lvOf(st,f||BED.cur.f)<=-60){ if(BED.who==='lp'&&BED.cur.src&&(BED.cur.want==null||BED.cur.want>-60)){ LPB.on=true; LPB.cheer=false; ramp(BED.cur,-90,1500); return 2500; } return 0; }   /* ★[BGM_TIMING_1101] 무음 첫 줄 — 그 순간 곡이 없어도(편지 «음악 없이») 흐르던 곡을 1.5초에 끄고 정적 1초 */
     if(!f) return 0;
     if(st.k==='declare'&&lvOf(st,f)<=-60) return lpDeclare(st,f);   /* [KNOBS_1031] 선언 앞은 당일 연출 */
     /* ★[BGM_TIMING_1101] 순간 첫 줄이 무음(−60 이하 · 편지 «음악 없이» 등)이면 뜸 대신 «끄고 정적 1초» — 앞 곡이 흐르면 1.5초에 −90 → 1초 뒤 첫 멘트(당일 1.5초 내림 + 내림 끝 대기와 같다) · 그 순간만이면 처음부터 음악 없이 · 판정은 위(곡이 없어도) */
     var p=PR(), cont=!!(BED.who==='lp'&&BED.cur.src&&BED.cur.f===f), ms=cont?3000:6000;   /* ★[LEAD_LONGER_1031 사장님 «처음 BGM 노래가 좀 더 흐른 뒤 멘트가 나왔으면»] 뜸 새 곡 3 → 6초 · 이어지는 곡 1.5 → 3초(큐 사이 크기 −8 · 끝 0.8초 미리 낮추기) */
-    if(st.k!=='toast') LPB.m7=false; LPB.on=true; BED.who='lp'; LPB.cheer=false;
+    if(st.k!=='toast') LPB.m7=false; LPB.on=true; BED.who='lp'; LPB.cheer=false; subNote(st);
     var go=function(){ play(f,vx(p.music,f),p.up,atOf(f,st)); LPB.f=f; var v=BED.cur, db=lvOf(st,f);
       if(v.want>db+0.5) setTimeout(function(){ if(BED.cur===v&&LPB.on&&curStep()===st) ramp(v,db,p.lead); },Math.max(0,ms-p.lead)); };
     if(BUF[f]&&BUF[f].st==='ok'){ go(); return ms; }
@@ -282,7 +306,7 @@
   var LEAD_WAIT=8000;
   function leadOf(){ try{ return (typeof LP!=='undefined')?LP.leadSt:null; }catch(x){ return null; } }
   /* [BED_LOAD_1101 ②③] 지금 줄 아래 한 줄 — 곡 카드 «곡을 불러오는 중이에요»와 같은 꼴(bgm-note bed-load) · 빌더 _lBedNote 가 그린다 · 그 순간 듣기 동안 */
-  function note(kind,ec){ var t=kind==='load'?'음악을 불러오는 중이에요':kind==='fail'?'음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 '+(ec||'L4')+')':''; LPB.note=t; LPB.noteK=(curStep()||{}).k||'';
+  function note(kind,ec){ var t=kind==='load'?'음악을 불러오는 중이에요':kind==='fail'?'음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 '+(ec||'L4')+')':kind==='sub'?'준비 중이라 지금은 ‹'+ec+'›이 대신 흘러요':'';   /* [DETAIL_R1_1101 ①] sub = 대신 흐르는 곡 */ LPB.note=t; LPB.noteK=(curStep()||{}).k||'';
     try{ if(typeof _lBedNote==='function') _lBedNote(t); }catch(x){} }
   /* 줄과 줄 사이 — 다음 줄이 말이면 0.4초 앞서 내린다 · «위하여» 차례가 끝나면 축배 크기로 */
   function lpGap(pv,nx,gap){ if(!emb()||!LPB.on||BED.who!=='lp') return; var p=PR();
@@ -299,7 +323,7 @@
     if(pv&&nx&&pv.k!==nx.k){ ramp(BED.cur,Math.max(BED.cur.want,vx(p.music,BED.cur.f)),TAIL.up); return; }   /* ★[LISTEN_LOOK_LEVEL_1101 ③] 이어 듣기 — 순간이 바뀔 때 끄지 않고 큐 사이 크기(−8)로 이어 흐른다 · 다음 순간 뜸(lpLead)이 같은 곡이면 그대로 · 새 곡이면 3초 겹쳐 넘긴다 */
     if(!nx||fileFor(nx)!==BED.cur.f) return;
     var db=lvOf(nx); if(BED.cur.want>db+0.5){ var lead=Math.min(nx.fm||p.lead,Math.max(0,gap)), v=BED.cur; setTimeout(function(){ if(BED.cur===v&&LPB.on) ramp(v,db,lead||p.down); },Math.max(0,gap-lead)); } }   /* [BGM_FIX_1030] 미리 낮추기 0.8초 · 박수 뒤 줄 1.5초(fm) */
-  function lpEnd(){ if(LPB.note) note(''); LPB.lt++; LPB.lf=null; if(BED.who==='tail'){ clearTimeout(LPB.tt); hushAll(1500); return; }   /* [LISTEN_LOOK_LEVEL_1101 ③] 여운 중 ⏹ = 지금처럼 1.5초에 잦아듦 */
+  function lpEnd(){ if(LPB.note) note(''); LPB.lt++; LPB.lf=null; if(LPB.pz) LPB.pz.keep=0; if(BED.who==='tail'){ clearTimeout(LPB.tt); hushAll(1500); return; }   /* [LISTEN_LOOK_LEVEL_1101 ③] 여운 중 ⏹ = 지금처럼 1.5초에 잦아듦 */
     if(BED.who!=='lp') return; if(BED.cur.f) LPB.keep[BED.cur.f]=posOf(BED.cur); LPB.on=false; LPB.f=''; LPB.pend=''; LPB.m7=false; hushAll(1500); }
   /* ★[LISTEN_LOOK_LEVEL_1101 ③ 사장님 «마지막 나레이션이 끝나면 노래는 다시 커지는 거야?»] 끝까지 들으면(⏹ 가 아니라) 여운 —
        음악이 1.2초에 큐 사이 크기(−8 · 이미 더 크면 그대로)로 올라와 5초 흐른 뒤 3초에 걸쳐 잦아들며 끝 · 그동안 ⏹ · 다른 듣기 · 곡 카드가 오면 그쪽이 이긴다 */
@@ -308,17 +332,27 @@
     var p=PR(), v=BED.cur, f=v.f; LPB.keep[f]=posOf(v); LPB.lf=null; LPB.on=false; LPB.f=''; LPB.pend=''; LPB.m7=false; BED.who='tail'; clearTimeout(LPB.tt);
     ramp(v,Math.max(v.want,vx(p.music,f)),TAIL.up);
     LPB.tt=setTimeout(function(){ if(BED.cur!==v||BED.who!=='tail') return; ramp(v,-90,TAIL.down);
-      LPB.tt=setTimeout(function(){ if(BED.cur===v&&BED.who==='tail') hushAll(100); },TAIL.down+100); },TAIL.up+TAIL.hold); }
+      LPB.tt=setTimeout(function(){ if(BED.cur===v&&BED.who==='tail'){ hushAll(100); paintLp(); } },TAIL.down+100); },TAIL.up+TAIL.hold); }
+  /* ★[DETAIL_R1_1101 ④] 여운(5초 + 3초)도 «흐르는 중» — 순간을 옮기거나 · 다른 소리를 틀거나 · ■ 를 누르면 1.5초에 잦아든다(종전엔 여운이 hush 를 무시했고 · 줄이 비어 lsStop 도 안 불렸다) */
+  function inTail(){ return BED.who==='tail'&&!!BED.cur.src; }
+  function tailHush(){ if(BED.who!=='tail') return false; clearTimeout(LPB.tt); hushAll(1500); paintLp(); return true; }
+  function paintLp(){ try{ if(typeof _mpPaint==='function') _mpPaint(); }catch(x){} }
   function curStep(){ try{ return (typeof LP!=='undefined'&&LP.q)?LP.q[LP.i]:null; }catch(x){ return null; } }
   /* 멈춤 · 끝 — 플레이어가 멈추면(■ · 다른 순간 · 끝) 곡도 잦아든다 */
-  setInterval(function(){ if(BED.who!=='lp'||!BED.cur.src) return; var dead=true; try{ dead=typeof LP==='undefined'||!LP.q||!LP.q.length||LP.paused||LP.one; }catch(x){} if(dead) lpEnd(); },250);
+  setInterval(function(){ if(BED.who!=='lp'||!BED.cur.src) return; var dead=true, pz=false; try{ dead=typeof LP==='undefined'||!LP.q||!LP.q.length||LP.paused||LP.one; pz=!!(LP.q&&LP.q.length&&LP.paused&&!LP.one); }catch(x){} if(!dead) return;
+    if(pz){ var v=BED.cur; LPB.pz={ f:v.f, pos:posOf(v), want:v.want, st:curStep() }; }   /* ★[DETAIL_R1_1101 ③] 멈춤 — 곡 · 자리 · 크기를 적어 둔다(이어 들으면 그 곡 그 자리에서 0.6초에) */
+    lpEnd(); if(pz&&LPB.pz) LPB.pz.keep=1; },250);
+  /* [DETAIL_R1_1101 ③] 이어 듣기(lsToggle) — 멈춘 그 곡 · 그 자리 · 지금 줄 크기로 0.6초에 다시 올린다 */
+  function lpResume(){ var z=LPB.pz; LPB.pz=null; if(!z||!z.keep||!emb()||!z.f||!(BUF[z.f]&&BUF[z.f].st==='ok')) return false; var st=curStep(); if(!st) return false;
+    LPB.on=true; BED.who='lp'; var nv=startVoice(z.f,lvOf(st,z.f),RESUME_MS,z.pos); if(!nv) return false; if(BED.cur.src) stopVoice(BED.cur,300); BED.cur=nv; LPB.f=z.f; LPB.rs=Date.now(); return true; }
+  var RESUME_MS=600;
   /* 듣기 전에 그 순간들의 곡을 받아 둔다 */
   /* ★[BED_LOAD_1101 ⑤] 순간 쪽이 열리면(흐름이 그려질 때) 그 순간 곡 하나를 조용히 받아 둔다 · 한 곡에 한 번 · 셋 한도 안(prune) · 목록이 늦으면 목록이 온 뒤 */
   var MW={ tried:{}, after:'' };
   /* ★[BED_LOAD_1101 덧1 ③] 한 순간에 받아 둘 곡 — 축사 · 편지 «음악과 함께» = 여는 말 곡 M4 + 고른 M4S5 · M4S6 · 축배 = 잇는 곡(toastBed) + 축배 곡 M7 · 그 밖 = 그 순간 곡 */
   function songsOf(k){ var o=[], add=function(f){ if(f&&o.indexOf(f)<0) o.push(f); };
     if(k==='free'&&bedOn('S5')){ add(m4()); add(songAt('free')); } else if(k==='letter'&&bedOn('S6')){ add(m4()); add(songAt('letter')); }
-    else if(k==='toast'){ add(toastBed()); add(effHas('M7')); } else add(songAt(k)); return o; }
+    else if(k==='toast'){ add(toastBed()); add(effHas('M7')); } else if(k==='prevideo') add(backBed('prevideo')); else if(k==='_close'){ add(backBed('_close')); add(songAt('_close')); } else add(songAt(k)); return o; }   /* [DETAIL_R1_1101 ⑤ ⑨] */
   function warmK(k){ if(!emb()||!k) return; list(); if(AV.st!=='ok'){ MW.after=k; return; } MW.after=''; if(saveData()) return; songsOf(k).forEach(function(f){ if(!f||BUF[f]||MW.tried[f]) return; MW.tried[f]=1; want(f); }); }
   function lpWarm(ks){ if(!emb()) return; sess(); list(); var _nw=0; if((ks||[]).indexOf('matjeol')>-1||((ks||[]).length>1&&(ks||[]).indexOf('entry')>-1)){ if(entOn()) want(ENT_F); }   /* [ENTRY_CARRY_1101] */ (ks||[]).forEach(function(k){ if(k==='matjeol'||k==='entry') return; songsOf(k).forEach(function(f){ if(_nw<BUF_MAX&&!BUF[f]){ _nw++; want(f); } }); }); }   /* ★[BED_LOAD_1101 ④ · 덧1 ③] 앞 순간부터 셋까지(LRU 한도) — 나머지는 순간이 바뀔 때 다음 순간 곡을 미리 · 한꺼번에 풀면 아이폰 메모리가 넘친다 · 축배는 M7(종전 M6 는 END_FLOW_1030 뒤로 축배 뒤 곡) */
 
@@ -377,14 +411,14 @@
   function listRoHtml(sg,k){ var o=ordOf(sg), cl=carryLine(sg);   /* [CARRY_SAME_1101] 앞 순간 곡이 이 목록에 있으면 맨 앞 · 그 줄 아래 한 줄 */
     var h='<p class="bgm-note bed-info">'+e(INFO[sg]||'아래 곡들이 차례로 흘러요')+'</p><ul class="mu-list mu-ro" aria-label="'+e(labelOf(sg)+' 음악 · 흐르는 차례')+'">';
     o.forEach(function(f){ var p=P.byF(f); if(!p) return; var pl=CARD.f===f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[f];
-      h+='<li class="mu-row" data-f="'+e(f)+'">'+(emb()?plBtn(sg,k,p,pl,miss):'')+'<span class="mu-info"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span>'+((cl&&f===o[0])?'<span class="bed-carry">'+cl+'</span>':'')+'</span></li>'; });
+      h+='<li class="mu-row" data-f="'+e(f)+'">'+(emb()?plBtn(sg,k,p,pl,miss):'')+'<span class="mu-info"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span>'+((cl&&f===o[0])?'<span class="bed-carry">'+cl+'</span>':'')+((f===o[0])?subLine(sg,'span'):'')+'</span></li>'; });
     return h+'</ul>'+loadNote(sg)+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>'); }
   function dupHtml(sg){ if(carried(sg)) return ''; var pv=P.dupSeg?P.dupSeg(St(),sg):''; return pv?'<p class="bgm-note bed-dup">'+e(labelOf(pv))+'에서도 고른 곡이에요</p>':''; }
   function foldHtml(sg,k,s){ var gl=labelOf(sg)+' 음악', pl=CARD.f===s.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[s.f];
     return '<div class="mu-fold1">'
       +(emb()?plBtn(sg,k,s,pl,miss):'')
       +'<div class="mu-fsel"><span class="mu-t">'+e(s.t)+'</span><span class="mu-a">'+e(s.a||'')+'</span></div>'
-      +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+longLine(sg)+(carried(sg)?'<p class="bgm-note bed-carry">'+carryLine(sg)+'</p>':'')+dupHtml(sg)+loadNote(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
+      +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+subLine(sg)+longLine(sg)+(carried(sg)?'<p class="bgm-note bed-carry">'+carryLine(sg)+'</p>':'')+dupHtml(sg)+loadNote(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
 
   /* ── 화면 — 곡 목록 · 아래 한 줄 ── */
   /* ★[SONG_ROW_LINES_1101 사장님 «이건 삭제해도 될 것 같아»] 곡 칸 아래 «고르지 않으시면 ‹1순위›로 준비해요 · ‹곡›부터 이어서 틀어요» 를 걷었다 — ✓ 표시로 충분 · «고르지 않으시면 ‹1순위›»는 한눈에 보기 요약(sumOf)에만.
@@ -398,7 +432,7 @@
         +(emb()?plBtn(sg,k,p,pl,miss):'')
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></button></li>'; });   /* ★[SONG_ROW_PLAIN_1101 사장님 «제목 가수만 나오면 될 거 같아»] 곡 줄은 제목 · 가수(연주자)만 — «노래» · 판(src) · 분위기 한 줄(why)은 화면에서 뺐다(데이터는 bgm-picks.js 그대로 · 콘솔 설정 화면 그대로) · 가사 있는 곡 안내는 고른 뒤 아래 한 줄이 맡는다 */
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[BED_EMPTY_RELIST_1031 식순 걷기 3라운드 3] 들어 볼 곡이 하나도 없다고 받았으면 한 줄 + 다시 불러오기(입장 추천 곡과 같게) */
-    return h+'</ul>'+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':'')+dupHtml(sg); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
+    return h+'</ul>'+subLine(sg)+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':'')+dupHtml(sg); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h=''; setTimeout(pfScan,0);   /* [SONG_CARD_TAP_1101] 그려진 뒤 곡 칸을 지켜본다 */
     CUST.forEach(function(sg){ if(chooser(sg)!==k) return; var gl=labelOf(sg.id)+' 음악'; list();
@@ -456,7 +490,7 @@
 
   window.bedAct=act;
   window.BgmBed={ warmK:warmK, rowHtml:rowHtml, subHtml:subHtml, pubLine:pubLine, sumRows:sumRows, sumOf:sumOf, segAt:segAt,
-    on:function(k){ return emb()&&!!songAt(k); }, lpShow:lpShow, lpLead:lpLead, lpTail:lpTail, lpGap:lpGap, lpEnd:lpEnd, lpFin:lpFin, lpWarm:lpWarm, hush:function(){ if(BED.who==='card') stopCard(); },
+    on:function(k){ return emb()&&(!!songAt(k)||(avWait()&&!!(segAt(k)||k==='prevideo'||k==='_close'))); },   /* [DETAIL_R1_1101 ②] 목록이 아직이면 뜸 자리를 연다(기다림 · 한 줄) */ lpShow:lpShow, lpLead:lpLead, lpResume:lpResume, lpTail:lpTail, lpGap:lpGap, lpEnd:lpEnd, lpFin:lpFin, lpWarm:lpWarm, hush:function(){ if(BED.who==='card') stopCard(); else tailHush(); }, inTail:inTail, tailHush:tailHush,   /* [DETAIL_R1_1101 ④] */
     durWarm:durWarm,   /* [ENTRY_UNDER_1101] */
-    _t:{ entNeed:entNeed, entAt:entAt, DUR:DUR, AV:AV, BUF:BUF, BED:BED, LPB:LPB, CARD:CARD, PF:PF, BUS:function(){ return BUS; }, TAIL:TAIL, toastBed:function(){ return toastBed(); }, prune:prune, BUF_MAX:BUF_MAX, MW:MW, LEAD_WAIT:LEAD_WAIT, note:function(){ return LPB.note||''; }, mkBus:mkBus, CEIL_DB:CEIL_DB, PR:PR, nextK:nextK,   /* [BGM_TIMING_1101] */ ENT:function(){ var o=BUF[ENT_F], x=o&&o.ext; return o?{ st:o.st, x:x?{ o:x.o, end:x.end, H:x.H, arrive:x.arrive, gain:x.gain, V:x.V }:null }:null; }, entAt:entAt, ENT_F:ENT_F, gfOf:function(db){ var v=BED.cur; return v&&v.gf?v.gf(db):gainOf(db); }, lvOf:lvOf, fileFor:function(st){ return fileFor(st); }, vx:vx, folded:function(sg){ return folded(sg); }, chooser:function(id){ return chooser(P.seg(id)); }, eff:eff, songAt:songAt, prevOf:function(sg){ return prevOf(sg); }, minOf:function(sg){ return minOf(sg); }, lf:function(){ return LPB.lf; }, carried:function(sg){ return carried(sg); }, gainOf:gainOf } };   /* _t = 점검용 */
+    _t:{ entNeed:entNeed, entAt:entAt, DUR:DUR, AV:AV, BUF:BUF, BED:BED, LPB:LPB, CARD:CARD, PF:PF, BUS:function(){ return BUS; }, TAIL:TAIL, toastBed:function(){ return toastBed(); }, prune:prune, BUF_MAX:BUF_MAX, MW:MW, LEAD_WAIT:LEAD_WAIT, note:function(){ return LPB.note||''; }, mkBus:mkBus, CEIL_DB:CEIL_DB, PR:PR, nextK:nextK,   /* [BGM_TIMING_1101] */ ENT:function(){ var o=BUF[ENT_F], x=o&&o.ext; return o?{ sig:o.sig, st:o.st, x:x?{ o:x.o, end:x.end, H:x.H, arrive:x.arrive, gain:x.gain, V:x.V }:null }:null; }, entAt:entAt, ENT_F:ENT_F, gfOf:function(db){ var v=BED.cur; return v&&v.gf?v.gf(db):gainOf(db); }, lvOf:lvOf, fileFor:function(st){ return fileFor(st); }, vx:vx, folded:function(sg){ return folded(sg); }, chooser:function(id){ return chooser(P.seg(id)); }, eff:eff, songAt:songAt, prevOf:function(sg){ return prevOf(sg); }, minOf:function(sg){ return minOf(sg); }, lf:function(){ return LPB.lf; }, subOf:function(sg){ return subOf(sg); }, pz:function(){ return LPB.pz; }, AVcb:function(){ return AV.cb.length; }, carried:function(sg){ return carried(sg); }, gainOf:gainOf } };   /* _t = 점검용 */
 })();
