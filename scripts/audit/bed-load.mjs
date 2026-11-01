@@ -19,10 +19,10 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 function wav(sec, f, sr = 16000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
   for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
 const SHORT = wav(0.6, 330);   /* 나레이션 대신 — 0.6초 */
-/* 드라이브에 있는 곡(시험) — B07 · B30(화촉 3 · 4) · 테이블 인사 곡(B23 · B03 · B24 · B25)은 없다 */
+/* 드라이브에 있는 곡(시험) — B30(화촉 3) · 테이블 인사 2 · 3(B23 · B16)은 없다 */
 const RL = [{ k: 'r5', name: '경쾌하게', t: '시험 입장 곡', a: '시험 가수', hook: 40, hook0: 40, len: 140, file: 'r5.mp3', img: '/assets/home/snap.webp', pos: '50% 50%' },
   { k: 'r1', name: '잔잔하게', t: '짧은 판 곡', a: '시험 가수', hook: 40, hook0: 40, len: 70, file: 'r1.mp3', pf: 'r1p.mp3', p0: 10, p1: 70, hooks: [40], img: '/assets/home/snap.webp', pos: '50% 50%' }];
-const HAVE = ['B01', 'B02', 'B04', 'B05', 'B06', 'B09', 'B10', 'B12', 'B13', 'B15', 'B17', 'B21', 'B23', 'B28'];   /* [BGM_TIMING_1101] 테이블 인사 곡(B23)도 — 축배 뜸 곡 e */
+const HAVE = ['B01', 'B05', 'B07', 'B09', 'B10', 'B11', 'B12', 'B13', 'B15', 'B17', 'B20', 'B24', 'B28'];   /* [BGM_TIMING_1101] 테이블 인사 곡도 — 축배 뜸 곡 e · ★[PICKS_THREE_1101] 구간마다 3곡 — 테이블 1순위 B24 · 뺀 곡 대신 B07 · B11 · B20 */
 const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(20, 180 + i * 20).toString('base64'); });
 const RS = { r5: wav(140, 250).toString('base64'), 'r1-p': wav(60, 300).toString('base64'), r1: wav(70, 300).toString('base64') };
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
@@ -90,7 +90,7 @@ try {
     await f.evaluate(() => { S.tributeSay = 'short'; S.on.song = 0; S.on.letter = 0; S.on.free = 0; delete S.bgm; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
     const H = (o) => pg.evaluate((o) => { Object.assign(H.dly, o.dly || {}); Object.assign(H.bad, o.bad || {}); Object.assign(H.gone, o.gone || {}); if (o.log) H.log.length = 0; return H.log.slice(); }, o);
     /* e 순간 쪽을 열면 그 곡 받기 요청 1번 */
-    for (const [mk, sid] of [['tribute', TS], ['table', 'B23'], ['candle', 'B05']]) { await go(f, mk === 'candle' ? 'welcome' : 'candle'); await forget(f, [sid]); await H({ log: 1 }); await go(f, mk); await wait(f, 1500); await go(f, mk === 'candle' ? 'welcome' : 'candle'); await go(f, mk); await wait(f, 800);
+    for (const [mk, sid] of [['tribute', TS], ['table', 'B24'], ['candle', 'B05']]) { await go(f, mk === 'candle' ? 'welcome' : 'candle'); await forget(f, [sid]); await H({ log: 1 }); await go(f, mk); await wait(f, 1500); await go(f, mk === 'candle' ? 'welcome' : 'candle'); await go(f, mk); await wait(f, 800);
       const lg = (await H({})).filter((x) => x === 'momentedit:ritualFileGet:bed:' + sid);
       ok(`${W} e 순간 쪽(${mk})을 열면 그 곡(${sid}) 받기 요청 1번 · 다시 열어도 1번`, lg.length === 1, { n: lg.length }); }
     /* a 9초 늦게 */

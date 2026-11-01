@@ -15,10 +15,10 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 function wav(sec, f, sr = 16000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
   for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
 const SHORT = wav(0.6, 330);   /* 나레이션 대신 — 0.6초 */
-/* 드라이브에 있는 곡(시험) — B07 · B30(화촉 3 · 4) · 테이블 인사 곡(B23 · B03 · B24 · B25)은 없다 */
+/* 드라이브에 있는 곡(시험) — B30(화촉 3) · 테이블 인사 2 · 3(B23 · B16)은 없다 */
 const RL = [{ k: 'r5', name: '경쾌하게', t: '시험 입장 곡', a: '시험 가수', hook: 40, hook0: 40, len: 140, file: 'r5.mp3', img: '/assets/home/snap.webp', pos: '50% 50%' },
   { k: 'r1', name: '잔잔하게', t: '짧은 판 곡', a: '시험 가수', hook: 40, hook0: 40, len: 70, file: 'r1.mp3', pf: 'r1p.mp3', p0: 10, p1: 70, hooks: [40], img: '/assets/home/snap.webp', pos: '50% 50%' }];
-const HAVE = ['B01', 'B02', 'B04', 'B05', 'B06', 'B09', 'B10', 'B12', 'B13', 'B15', 'B17', 'B21', 'B23', 'B28'];   /* [BGM_TIMING_1101] 테이블 인사 곡(B23)도 — 축배 뜸 곡 e */
+const HAVE = ['B01', 'B05', 'B07', 'B09', 'B10', 'B11', 'B12', 'B13', 'B15', 'B17', 'B20', 'B24', 'B28'];   /* [BGM_TIMING_1101] 테이블 인사 곡도 — 축배 뜸 곡 e · ★[PICKS_THREE_1101] 구간마다 3곡 — 테이블 1순위 B24 · 뺀 곡 대신 B07 · B11 · B20 */
 const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(20, 180 + i * 20).toString('base64'); });
 const RS = { r5: wav(140, 250).toString('base64'), 'r1-p': wav(60, 300).toString('base64'), r1: wav(70, 300).toString('base64') };
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
@@ -83,12 +83,12 @@ try {
       if (fp) (await rows(f)).filter((r) => r.kind === 'fold').forEach((r) => all.push(Object.assign({ k }, r))); }
     const bad = all.filter((r) => !r.want.t || r.t !== r.want.t || r.a !== (r.want.a || '') || /노래/.test(r.t) || (r.want.why && r.all.indexOf(r.want.why) > -1) || (r.want.src && r.all.indexOf(r.want.src) > -1));
     ok(`${W} a 곡 줄 ${all.length}개(구간 ${[...seen].join(' · ')}) — 글 = 제목 + 가수뿐 · 판 · 분위기 · «노래» 0`, all.length > 20 && seen.has('M4S5') && seen.has('M4S6') && all.some((r) => r.kind === 'fold') && !bad.length, { bad: bad.slice(0, 3), n: all.length, segs: [...seen] });
-    /* b 가사 있는 곡(하객 맞이 B04) */
-    { await go(f, 'guest'); await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M1"] .mu-chg[aria-expanded="false"]'); if (b) b.click(); }); await wait(f, 250);
-      await f.click('[data-fk="bed:M1:B04"]'); await wait(f, 300);
-      await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M1"] .mu-chg[aria-expanded="false"]'); if (b) b.click(); }); await wait(f, 250);
-      const vl = await f.evaluate(() => { const v = document.querySelector('.ls-bed[data-seg="M1"] .bed-voc'); return v && v.offsetParent ? v.textContent.trim() : ''; }), voc = !!(await f.evaluate(() => BgmPicks.SONGS.B04 && BgmPicks.SONGS.B04.vocal));
-      ok(`${W} b 가사 있는 곡(B04)을 고르면 아래 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요»`, voc && vl === '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요', { voc, vl }); }
+    /* b 가사 있는 곡(★[PICKS_THREE_1101] 하객 맞이에 가사 곡이 없어져 귀가 인사 Popcorn B20) */
+    { await go(f, '_close'); await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M6"] .mu-chg[aria-expanded="false"]'); if (b) b.click(); }); await wait(f, 250);
+      await f.click('[data-fk="bed:M6:B20"]'); await wait(f, 300);
+      await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M6"] .mu-chg[aria-expanded="false"]'); if (b) b.click(); }); await wait(f, 250);
+      const vl = await f.evaluate(() => { const v = document.querySelector('.ls-bed[data-seg="M6"] .bed-voc'); return v && v.offsetParent ? v.textContent.trim() : ''; }), voc = !!(await f.evaluate(() => BgmPicks.SONGS.B20 && BgmPicks.SONGS.B20.vocal));
+      ok(`${W} b 가사 있는 곡(B20)을 고르면 아래 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요»`, voc && vl === '가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요', { voc, vl }); }
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));
     await ctx.close();
   }
