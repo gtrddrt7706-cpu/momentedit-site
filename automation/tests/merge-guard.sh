@@ -20555,7 +20555,7 @@ chk 'CHEER_TAIL_1030' order-preview.html 1
 #   흐를 때만 «실제로는 약 …» · 지금 · 지나감 표시 · 따라가기(손으로 스크롤하면 멈춤). 소리 · 시간은 브라우저가 있어야 재므로 CI bgm-sound 칸이 listen-pace 를 실제로 돌린다
 chk 'LISTEN_PACE_1031' order-preview.html 8
 chk 'LISTEN_PACE_1031' assets/bgm-bed.js 2
-chk 'function lpLead(st)' assets/bgm-bed.js 1
+chk 'function lpLead(st,re)' assets/bgm-bed.js 1
 chk 'lpLead:lpLead' assets/bgm-bed.js 1
 chk 'function _lpMs(est){ return Math.min(6,Math.max(3,Math.round((+est||0)/12)))\*1000; }' order-preview.html 1
 chk "var LP_EST_FROM={'tribute-in':'tribute-out'}, LP_EST_NOTE={vow:1};" order-preview.html 1
@@ -21392,4 +21392,19 @@ chk "if (v && v.kind === 'pick' && v.s.flow) {" assets/bgm-slots.js 1
 chk 'q\[z\]._noLead=1; q\[z\]._base=' order-preview.html 1
 chk '!st._pre&&!st._noLead&&' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-timing2.mjs >/dev/null 2>&1; _bt2=$?; if [ "$_bt2" = 1 ]; then echo 'FAIL bgm-timing2: 축사 · 편지 «음악과 함께» 곡 바꿈 자리 · 축가 M4 · 단체 사진 크기 · 편지 끝 곡 · 피크(≤ −1 dBTP)가 어긋났습니다 — node scripts/audit/bgm-timing2.mjs'; fail=1; elif [ "$_bt2" = 2 ]; then echo 'skip bgm-timing2 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bgm-timing2'; fi; fi
+# ★[BED_LOAD_1101 2026-11-01 사장님 «노래가 안 흐르는데?» · 아이폰 LTE · 블루투스] 이 순간 전체 듣기 곡 받기 —
+#   소리 길을 열 때 audioSession playback(무음 스위치) · 늦은 곡은 뜸이 8초까지 기다림(1.5초 뒤 «음악을 불러오는 중이에요» · 오면 그때부터 6초) ·
+#   못 받음 · 못 풂은 지금 줄 아래 «음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 L3 · L5 · L6 · M6)» · 풀어 둔 곡 셋까지(LRU) · 순간 쪽을 열면 그 곡 미리 받기.
+chk 'BED_LOAD_1101' scripts/audit/bed-load.mjs 1
+chk 'BED_LOAD_1101' assets/bgm-bed.js 11
+chk 'BED_LOAD_1101' order-preview.html 6
+chk "if(s&&s.type!=='playback') s.type='playback';" assets/bgm-bed.js 1
+chk 'var BUF_MAX=3;' assets/bgm-bed.js 1
+chk 'var LEAD_WAIT=8000;' assets/bgm-bed.js 1
+chk "done(f,null,'M6')" assets/bgm-bed.js 2
+chk 'function warmK(k)' assets/bgm-bed.js 1
+chk 'BgmBed.lpLead(st,_lRe)' order-preview.html 1
+chk 'function _lBedNote(t)' order-preview.html 1
+chk 'BgmBed.warmK(k)' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bed-load.mjs >/dev/null 2>&1; _bdl=$?; if [ "$_bdl" = 1 ]; then echo 'FAIL bed-load: 이 순간 전체 듣기 곡 받기(늦은 곡 뜸 · 못 받음 줄 · 풀어 둔 곡 셋 · 미리 받기 · 무음 스위치)가 어긋났습니다 — node scripts/audit/bed-load.mjs'; fail=1; elif [ "$_bdl" = 2 ]; then echo 'skip bed-load (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bed-load'; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
