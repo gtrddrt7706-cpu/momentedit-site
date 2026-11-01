@@ -72,7 +72,7 @@ const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 
 /* ★[GHIBLI_ADD_1101] 지브리 4곡을 넣은 판(화촉 · 부모님께 인사 · 닫는 인사 · 마지막 곡) — 뺀 곡 10(PICKS_THREE 7 + B20 · B26 · B30) */
 const WANT = { M1: ['B01', 'B24', 'B13'], M2: ['B05', 'B31', 'B07'], M4: ['B09', 'B10', 'B11'], M4S5: ['B13', 'B14', 'B12'], M4S6: ['B10', 'B12', 'B14'], M5: ['B15', 'B31', 'B16'], M6: ['B17', 'B34', 'B19'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B32', 'B11', 'B27'] };
 const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B20', 'B21', 'B25', 'B26', 'B30'];
-const FILLW = { M1: ['B16', 'B33'], M8: ['B13', 'B14'] };
+const FILLW = { M1: ['B16', 'B33'], M8: ['B13', 'B14'], M6: ['B07', 'B16'] };   /* [DAYLONG_1101] 닫는 인사도 배경 곡 */
 const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js'));
 try {
   /* a · b 데이터 */
@@ -97,7 +97,7 @@ try {
       if (pk) fold.push(await f.evaluate(() => { const b = document.querySelector('.ls-bed'); return { rows: b.querySelectorAll('.mu-pick').length, fsel: !!b.querySelector('.mu-fsel'), h: Math.round(b.getBoundingClientRect().height) }; })); }
     const txt = await f.evaluate(() => document.body.textContent);
     GONE.forEach((g) => { const t = P.SONGS[g].t; if (txt.indexOf(t) > -1) gone.push(t); });
-    const want = (sg) => (WANT[sg] || []).concat(FILLW[sg] || []);   /* ★[LIST_NO_PICK_1101] 목록 칸(M1 · M8)은 3곡 + 배경 곡 차례 그대로(고르기 없음) */
+    const want = (sg) => (WANT[sg] || []).concat(sg === 'M1' || sg === 'M8' ? (FILLW[sg] || []) : []);   /* [DAYLONG_1101] 닫는 인사(고르는 칸)는 고객 화면 3줄 그대로 · 배경 곡은 콘솔에만 */   /* ★[LIST_NO_PICK_1101] 목록 칸(M1 · M8)은 3곡 + 배경 곡 차례 그대로(고르기 없음) */
     const bad = Object.keys(seen).filter((sg) => WANT[sg] && JSON.stringify(seen[sg]) !== JSON.stringify(want(sg)));
     ok(`${W} c 고객 화면 구간 곡 줄 = 3줄(목록 칸은 + 배경 곡) · 정한 순서(${Object.keys(seen).join(' · ')}) · 뺀 곡 0`, Object.keys(seen).length >= 7 && !bad.length && Object.keys(seen).every((sg) => seen[sg].length === want(sg).length) && !gone.length, { bad: bad.map((sg) => [sg, seen[sg]]), gone });
     ok(`${W} c 고르면 한 줄로 접힌다(곡 줄 0 · 접힌 줄 1)`, fold.length >= 4 && fold.every((x) => x.rows === 0 && x.fsel), fold);
