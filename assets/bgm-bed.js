@@ -315,24 +315,28 @@
     if(ld){ w=' wfill ld'; st=' style="--d:'+WAIT_D+'s;--dl:-'+Math.max(0,(Date.now()-(CARD.at||Date.now()))/1000).toFixed(2)+'s"'; }
     return '<button type="button" class="mk-pl mu-pl'+(pl?' on':'')+w+(miss&&!pl?' off':'')+'"'+st+' data-fk="bedp:'+sg+':'+p.f+'" aria-pressed="'+pl+'"'+(ld?' aria-busy="true"':'')+(miss&&!pl?' aria-disabled="true"':'')+' aria-label="'+e(p.t)+(ld?' 불러오는 중':pl?' 멈추기':' · 곡만 듣기')+'" onclick="bedAct(\'prev\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')">'+(pl&&!ld?ico('stop'):ico('play'))+'</button>'; }
   function loadNote(sg){ return (CARD.sg===sg&&CARD.st==='load'&&CARD.slow)?'<p class="bgm-note bed-load" role="status">곡을 불러오는 중이에요</p>':''; }
-  /* ★★[BGM_FILL_1101 덧붙임 2 사장님 «그걸 고객 화면에 잘 표현하고 이해시켜야지»] 목록 칸(하객 맞이 M1 · 테이블 인사 이후 M8)만 — 곡 칸 바로 아래 작은 글 두 줄
-       1) 고른 곡부터 약 30분 동안 차례로 이어 흘러요  2) 실제 차례(BgmPicks.order · 당일 콘솔과 같은 함수 · fill 도 그대로 · 고른 곡은 굵게 · 곡 이름 단위로 줄바꿈)
-       ★[GHIBLI_ADD_1101] 같은 곡을 앞 구간에서도 골랐으면 «‹앞 구간›에서도 고른 곡이에요» 한 줄(막지 않는다 · 모든 구간) */
-  function flowHtml(sg){ var d=P.seg(sg); if(!d||!d.multi||!P.order) return ''; var k=picked(sg), o=P.order(St(),sg);
-    return '<p class="bgm-note bed-flow">고른 곡부터 약 30분 동안 차례로 이어 흘러요</p><p class="bgm-note bed-flow bed-ord" data-ord="'+e(o.join(' '))+'">'
-      +o.map(function(f,i){ var s=P.byF(f), t=e(s?s.t:f); return '<span class="nw">'+(i?'→ ':'')+(k&&f===k?'<b>'+t+'</b>':t)+'</span>'; }).join(' ')+'</p>'; }
+  /* ★★[LIST_NO_PICK_1101 2026-11-01 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] 목록 칸(하객 맞이 M1 · 테이블 인사 M8)은 고르는 칸이 아니라 «이런 곡들이 흘러요» 안내 칸 —
+       이름표 아래 한 줄(12.5px · --sub) + 재생 차례대로 곡 줄 전부(BgmPicks.order · 당일 콘솔과 같은 함수 · 3곡 + fill · 다른 구간에서 고른 곡은 빠진다) · 줄 = ▶(곡 카드 · 음악만) + 제목 · 가수 ·
+       고르기 · 선택 표시 · «바꾸기» · 접힌 한 줄 없음 · ★BGM_FILL_1101 의 순서 화살표 두 줄(bed-ord)은 이 목록이 대신해 걷었다 — 되살리지 말 것 */
+  var INFO={ M1:'하객이 들어와 앉는 동안 아래 곡들이 차례로 흘러요 · 약 30분', M8:'테이블 인사와 사진 동안 아래 곡들이 차례로 흘러요 · 약 30분' };
+  function isList(sg){ var d=P.seg(sg); return !!(d&&d.multi); }
+  function listRoHtml(sg,k){ var o=P.order?P.order(St(),sg):P.list(sg).map(function(p){ return p.f; });
+    var h='<p class="bgm-note bed-info">'+e(INFO[sg]||'아래 곡들이 차례로 흘러요')+'</p><ul class="mu-list mu-ro" aria-label="'+e(labelOf(sg)+' 음악 · 흐르는 차례')+'">';
+    o.forEach(function(f){ var p=P.byF(f); if(!p) return; var pl=CARD.f===f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[f];
+      h+='<li class="mu-row" data-f="'+e(f)+'">'+(emb()?plBtn(sg,k,p,pl,miss):'')+'<span class="mu-info"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></span></li>'; });
+    return h+'</ul>'+loadNote(sg)+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>'); }
   function dupHtml(sg){ var pv=P.dupSeg?P.dupSeg(St(),sg):''; return pv?'<p class="bgm-note bed-dup">'+e(labelOf(pv))+'에서도 고른 곡이에요</p>':''; }
   function foldHtml(sg,k,s){ var gl=labelOf(sg)+' 음악', pl=CARD.f===s.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[s.f];
     return '<div class="mu-fold1">'
       +(emb()?plBtn(sg,k,s,pl,miss):'')
       +'<div class="mu-fsel"><span class="mu-t">'+e(s.t)+'</span><span class="mu-a">'+e(s.a||'')+'</span></div>'
-      +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+flowHtml(sg)+dupHtml(sg)+loadNote(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
+      +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+dupHtml(sg)+loadNote(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
 
   /* ── 화면 — 곡 목록 · 아래 한 줄 ── */
   /* ★[SONG_ROW_LINES_1101 사장님 «이건 삭제해도 될 것 같아»] 곡 칸 아래 «고르지 않으시면 ‹1순위›로 준비해요 · ‹곡›부터 이어서 틀어요» 를 걷었다 — ✓ 표시로 충분 · «고르지 않으시면 ‹1순위›»는 한눈에 보기 요약(sumOf)에만.
        공개 미리보기만 «마이페이지에서 들어 볼 수 있어요» 한 줄 · 되살리지 말 것 */
   var PUB_NOTE='마이페이지에서 들어 볼 수 있어요';
-  function listHtml(sg,k){ var L=P.list(sg), cur=picked(sg), gl=labelOf(sg)+' 음악 곡', cs=cur?P.byF(cur):null;
+  function listHtml(sg,k){ if(isList(sg)) return listRoHtml(sg,k); var L=P.list(sg), cur=picked(sg), gl=labelOf(sg)+' 음악 곡', cs=cur?P.byF(cur):null;
     if(folded(sg)&&cs) return foldHtml(sg,k,cs);   /* [MUSIC_FOLD_1031 · MUSIC_FOLD_PICK_1031] 고른 곡이 있으면 접힌 한 줄 · «바꾸기»로 편 방문만 목록 */
     var h='<ul class="mu-list" role="radiogroup" aria-label="'+e(gl)+'">';
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
@@ -340,7 +344,7 @@
         +(emb()?plBtn(sg,k,p,pl,miss):'')
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></button></li>'; });   /* ★[SONG_ROW_PLAIN_1101 사장님 «제목 가수만 나오면 될 거 같아»] 곡 줄은 제목 · 가수(연주자)만 — «노래» · 판(src) · 분위기 한 줄(why)은 화면에서 뺐다(데이터는 bgm-picks.js 그대로 · 콘솔 설정 화면 그대로) · 가사 있는 곡 안내는 고른 뒤 아래 한 줄이 맡는다 */
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[BED_EMPTY_RELIST_1031 식순 걷기 3라운드 3] 들어 볼 곡이 하나도 없다고 받았으면 한 줄 + 다시 불러오기(입장 추천 곡과 같게) */
-    return h+'</ul>'+flowHtml(sg)+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':'')+dupHtml(sg); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
+    return h+'</ul>'+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':'')+dupHtml(sg); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h=''; setTimeout(pfScan,0);   /* [SONG_CARD_TAP_1101] 그려진 뒤 곡 칸을 지켜본다 */
     CUST.forEach(function(sg){ if(chooser(sg)!==k) return; var gl=labelOf(sg.id)+' 음악'; list();
@@ -353,7 +357,8 @@
     if(/^(free|letter)$/.test(k)&&bedOn(k==='free'?'S5':'S6')) return '';
     return '<p class="mk-ploff bed-pub">음악은 마이페이지에서 함께 들어 볼 수 있어요</p>'; }
   /* ④ 한눈에 보기 — 구간마다 «‹순간› · ‹곡›» / «‹순간› · 고르지 않으시면 ‹1순위›» (축사 · 편지는 bgm-form 이 «음악과 함께» 뒤에 붙인다) */
-  function sumOf(sg){ var L=P.list(sg), k=picked(sg), s=k?P.byF(k):L[0]; if(!s) return ''; return (k?'':'고르지 않으시면 ')+'‹'+s.t+'›'; }
+  function sumOf(sg){ if(isList(sg)){ var o=P.order?P.order(St(),sg):[], f0=o[0]?P.byF(o[0]):null; return f0?'‹'+f0.t+'›부터 '+o.length+'곡이 차례로':''; }   /* [LIST_NO_PICK_1101] 고르는 칸이 아니다 — «고르지 않으시면» 없이 */
+    var L=P.list(sg), k=picked(sg), s=k?P.byF(k):L[0]; if(!s) return ''; return (k?'':'고르지 않으시면 ')+'‹'+s.t+'›'; }
   function sumRows(){ var q=seq(), at=function(k){ if(k==='guest') return -1; var i=q.indexOf(k); return i<0?999:i; };   /* [CARD_ORDER_1031] 예식 차례대로(테이블 인사 → 축배 → 닫는 인사) — 구간 목록 차례(닫는 인사 → 축배 → 테이블)로 적던 것 */
     return CUST.filter(function(s){ return !!chooser(s); }).map(function(s){ return { id:s.id, k:chooser(s), t:labelOf(s.id)+' · '+sumOf(s.id) }; }).sort(function(a,b){ return at(a.k)-at(b.k); }); }
 

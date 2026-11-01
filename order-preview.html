@@ -1418,20 +1418,27 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
    머리 줄 = 왼쪽 상태 단추(위 «하나씩 만들기» · 아래 «본식 6/9 · 빠뜨린 4» · 꺾쇠) + 오른쪽 도구(⋯ · 새로고침 · 저장 · 나가기 그대로) → 그 아래 네 칸 선 → 순간 제목.
    선을 도구 줄 아래에 두는 것은 코워크 수정 — ① · ③ · ④ 도 [도구 줄 → 걸음 표시]라 단계를 옮겨도 저장 · 나가기 높이가 같다.
    글 줄임은 화면만 · 화면 읽기는 aria-label 에 온 뜻(«본식 9개 순간 중 6번째 …») · 셈(_mkStat · 본식 번호)은 그대로. 옅은 테 = «눌린다» 표시(채움은 펼쳤을 때만 · 고르기 전 눌린 모양 금지). */
-.mk-status{display:grid;grid-template-columns:minmax(0,1fr) 16px;align-items:center;column-gap:4px;flex:0 1 250px;min-width:0;min-height:44px;margin:0;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;text-align:left;color:var(--sub);font:inherit;font-size:12.5px;line-height:18px;letter-spacing:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* ★[MK_HEAD_PILL 1101 사장님 PC 스크린샷 «PC 버전은 좀 이상한데»] 상태 단추는 오른쪽 도구와 같은 알약 — 옅은 테 · 카드 바탕 · 좌우 15(폰 12) · 높이 44 · 글 12.5/500(.ob-exit 와 같은 옷 · 저장의 강조 테는 안 쓴다).
+   자리가 넉넉하면 한 줄(.one «하나씩 만들기 · 본식 6/9 · 빠뜨린 4 ⌄») · 모자랄 때만 두 층(모서리 22) — _mkStatFit 이 실제 폭으로 고른다. 꺾쇠는 글 바로 뒤. 종전 네모 · 작은 모서리(6px)는 폼 입력칸처럼 읽혔다 */
+.mk-status{display:grid;grid-template-columns:auto 12px;justify-content:start;align-content:center;align-items:center;column-gap:8px;flex:0 1 auto;min-width:0;min-height:44px;margin:0;padding:3px 15px;border:1px solid var(--border);border-radius:22px;background:var(--card);text-align:left;color:var(--sub);font:inherit;font-size:12.5px;font-weight:500;line-height:18px;letter-spacing:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .mk-status[hidden]{display:none}
 .mk-status[aria-expanded="true"]{background:var(--bg2)}
-@media (hover:hover){ .mk-status:hover{background:var(--bg2)} }
+@media (hover:hover){ .mk-status:hover{border-color:var(--gold-deep)} }   /* .ob-exit:hover 와 같은 테 */
 .mk-status:focus-visible{outline:2px solid var(--seal);outline-offset:1px}
 .mk-status .mk-sh{font-weight:500;color:var(--sub);white-space:nowrap}
-.mk-status .mk-chev{justify-self:center;width:7px;height:7px;border-width:0 1.5px 1.5px 0;color:var(--accent)}
+.mk-status .mk-chev{justify-self:start;width:7px;height:7px;border-width:0 1.5px 1.5px 0;color:var(--accent)}
 .mk-status[aria-expanded="true"] .mk-chev{transform:translateY(2px) rotate(-135deg)}
 .mk-status .mk-sd{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;min-width:0;font-weight:400}
+.mk-status.one{display:inline-flex;align-items:center;column-gap:0;padding:0 15px;border-radius:999px;white-space:nowrap}
+.mk-status.one .mk-sh::after{content:"\00a0·\00a0";font-weight:400}
+.mk-status.one .mk-sd{flex-wrap:nowrap}
+.mk-status.one>*{flex-shrink:0}   /* [MK_HEAD_PILL] 한 줄에서 글이 줄어들지 않게 — 모자라면 넘쳐서 _mkStatFit 이 두 층으로 돌린다 */
+.mk-status.one .mk-chev{order:3;margin-left:10px}
 .mk-sd b{font-weight:600;color:var(--accent)}
 .mk-sd .mk-at,.mk-sd .mk-left{white-space:nowrap}
 .mk-sd .mk-at.wr{white-space:normal}   /* 뺀 순간 · 긴 이름은 낱말 단위로 줄바꿈(숫자 · 상태는 자르지 않는다) */
 .mk-sd .mk-left,.mk-sd .mk-left b{color:var(--seal)}   /* [TODO_NODOT] 빠뜨린 = 진사 글자 · 점 없음 */
-@media (max-width:560px){ .mk-status{flex:1 1 auto;padding:3px 5px} }
+@media (max-width:560px){ .mk-status{padding:3px 12px} .mk-status.one{padding:0 12px} }   /* [MK_HEAD_PILL] 폰 알약 좌우 12 = body.op4 .ob-exit(560 이하) */
 .mk-chev{width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
 .mk-strip .mk-sc[hidden]{display:none}
 body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* [MK_HEAD_D] 접힌 줄 행이 머리 줄로 갔다 — 여기는 펼친 순간 줄만(펼치면 붙는 머리 줄 바로 아래에 붙는다) · FOLD_UNDER_STEPS 의 아래 선 · 여백은 걷었다 */
@@ -2186,9 +2193,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .bed-box .bed-note,.bed-box .bed-load,.bed-box .bed-av{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}
 /* [SONG_CARD_SOLO_1031 · SONG_ROW_LINES_1101] 곡 칸 맨 아래 한 줄(.bed-hint)은 걷었다 */
 .bed-box .bed-voc{margin:2px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}
-.bed-box .bed-flow,.bed-box .bed-dup{margin:2px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* ★[BGM_FILL_1101] 목록 칸 차례 두 줄 · [GHIBLI_ADD_1101] 같은 곡 두 구간 한 줄 — bed-voc 와 같은 크기 · 색 */
-.bed-box .bed-flow+.bed-flow{margin-top:0}
-.bed-box .bed-ord .nw{white-space:nowrap}.bed-box .bed-ord b{font-weight:600;color:var(--accent)}   /* 곡 이름 단위로만 줄바꿈 · 고른 곡 굵게 */   /* [BGM_FIX_1030] 고른 곡이 노래면 아래 한 줄(같은 크기 · 색) */
+.bed-box .bed-dup{margin:2px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* [GHIBLI_ADD_1101] 같은 곡 두 구간 한 줄 — bed-voc 와 같은 크기 · 색 */
+.bed-box .bed-info{margin:0 0 4px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all;text-wrap:pretty}   /* ★[LIST_NO_PICK_1101] 목록 칸 안내 한 줄(이름표 아래) */
+.bed-box .mu-ro .mu-info{flex:1 1 auto;min-width:0;min-height:60px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;padding:8px 2px}   /* 곡 줄과 같은 모양 · 고르는 단추가 아니다(선택 표시 없음) */   /* [BGM_FIX_1030] 고른 곡이 노래면 아래 한 줄(같은 크기 · 색) */
 .bed-box .mu-voc{font-size:11px;font-weight:400;color:var(--sub);letter-spacing:.04em;white-space:nowrap}   /* [BGM_FIX_1030] 곡 이름 옆 «노래» — 작은 글 · 새 색 없음 · 아이콘 없음 */   /* 축사 · 편지 칩 아래 한 줄(.ls-bgm .bgm-note)과 같은 크기 · 색 */
 .mk-bgm .mk-vn{word-break:keep-all}   /* [BGM_R4_1023] 음악 묶음 줄은 낱말 중간에서 안 갈린다 */   /* ④ «… 스튜디오가 준비해요» */
 /* ★★[REC_SONG_1012 2026-10-12 사장님 «추천대로»(추천 곡 · 드라이브 · 로그인한 두 분만) · «왜 추천 노래 부분이 없어?»] 4단계-나 추천 곡 카드 — 시험실 v50(lab.css .lab-mu) 그대로 · 빌더 칸(.ls-mu)으로
@@ -4946,7 +4953,12 @@ function _mkStatLab(i,open){ return '하나씩 만들기. '+i.say+'.'+(i.left?' 
 function _mkStatPaint(){ var b=document.getElementById('mkStat'); if(!b) return; var on=!!document.getElementById('mkStrip'); document.body.classList.toggle('mkd',on); b.hidden=!on; if(!on){ MK.statI=null; return; }
   var i=_mkStatInfo(_mkPages()[_mkIdx()]), open=!!MK.navOpen; MK.statI=i;
   var v='<span class="mk-sh" aria-hidden="true">하나씩 만들기</span><i class="mk-chev" aria-hidden="true"></i><span class="mk-sd" aria-hidden="true"><span class="mk-at'+(i.wr?' wr':'')+'">'+i.pos+'</span>'+(i.left?'<span class="mk-left">&nbsp;· 빠뜨린 <b>'+i.left+'</b></span>':'')+'</span>';
-  if(b._v!==v){ b.innerHTML=v; b._v=v; } b.setAttribute('aria-expanded',String(open)); b.setAttribute('aria-label',_mkStatLab(i,open)); }
+  if(b._v!==v){ b.innerHTML=v; b._v=v; } b.setAttribute('aria-expanded',String(open)); b.setAttribute('aria-label',_mkStatLab(i,open)); _mkStatFit(); }
+/* [MK_HEAD_PILL] 한 줄이 들어가면 한 줄 · 아니면 두 층 — 한 줄로 그려 보고 넘치면(알약이 줄어 글이 넘치거나 도구 줄과 닿으면) 두 층 */
+function _mkStatFit(){ try{ var b=document.getElementById('mkStat'); if(!b||b.hidden) return; b.classList.add('one'); var sl=document.getElementById('obExitSlot'), r=b.getBoundingClientRect(), t=sl&&sl.getBoundingClientRect();
+  if(b.scrollWidth>b.clientWidth+1||(t&&t.width&&Math.abs(t.top-r.top)<4&&r.right>t.left-4)) b.classList.remove('one'); }catch(e){} }
+window.addEventListener('resize',function(){ _mkStatFit(); });
+try{ document.fonts&&document.fonts.ready.then(function(){ _mkStatFit(); }); }catch(e){}
 /* [STEP_COMPACT] (옛) 접힌 줄이 잘리면 걸음 이름부터 빼던 맞춤(코디 결정 2026-10-03)은 [MK_HEAD_D 1101] 사장님 «바꾸자»로 대체 — 상태 단추 위층에 늘 보인다 */
 /* ★★[CHIP_GRID_PC_1019 2026-10-19 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게 크기를 조절해서 하고싶어»] PC(≥461 · 이름표 왼쪽 칸)의 칩 줄은 6칸 격자 —
    한 줄의 칩은 같은 크기 · 칸 선이 줄끼리 맞는다(종전 글자 폭 칩은 줄마다 끝이 들쭉날쭉 · 세로 선이 안 맞았다).

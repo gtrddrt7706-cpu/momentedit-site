@@ -5,7 +5,9 @@
    c 고객 화면(390 · 1280) — M1 · M8 곡 칸 아래 두 줄(«고른 곡부터 약 30분 동안 차례로 이어 흘러요» · 차례 = order · 고른 곡 굵게 · 곡 이름 단위 nowrap) · 고르면 다시 그려짐 · 다른 구간 0 · 곡 줄은 3줄 그대로
        같은 곡을 화촉 · 부모님께 인사에서 고르면 부모님께 인사 칸에 «화촉에서도 고른 곡이에요» · fill 건너뛰기가 순서 줄에 보인다
    d 파일이 아직 없을 때 — 미리 듣기는 그 구간 목록에서 파일이 있는 다음 곡을 깐다 · 곡 이름은 그대로 · 곡 카드 ▶ 는 «곡을 준비하고 있어요»
-   e 당일 콘솔 — M1 · M8 차례 = 식순 화면 순서 줄과 같다 · 한 곡 칸은 고른 곡 파일이 없으면 다음 곡 파일
+   e 당일 콘솔 — M1 · M8 차례 = 식순 화면 곡 줄 차례와 같다 · 한 곡 칸은 고른 곡 파일이 없으면 다음 곡 파일
+   ★[LIST_NO_PICK_1101 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] M1 · M8 은 고르지 않는다 — 안내 한 줄 + 재생 차례대로 곡 줄 5(▶ + 제목 · 가수) · 고르기 · «바꾸기» · 선택 표시 0 ·
+     옛 저장값 S.bgm.M1 · M8 k 는 무시(clean 에서 빠진다) · 순서 화살표 두 줄은 걷었다 · 다른 구간 고르기는 그대로
    BP_PICKS · BP_BED · BP_OP · BP_CON = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -72,18 +74,18 @@ async function open(W, embed, init) {
 const SHOT = process.env.SHOT || '';
 const shot = async (f, W, n, sel) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { recursive: true }); await f.locator(sel).first().screenshot({ path: path.join(SHOT, `fill-${W}-${n}.png`) }); } catch {} };
 const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 700); };
-const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js'));
+const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js')), SL = require(path.join(ROOT, 'assets/bgm-slots.js'));
 const setS = (f, bgm) => f.evaluate((b) => { S.freeWhat = 'speech'; S.bgm = b; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, bgm);
-const look = (f, sg) => f.evaluate((sg) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"], .bed-sub[data-seg="' + sg + '"]'); if (!b) return null;
-  const fl = [...b.querySelectorAll('.bed-flow')], od = b.querySelector('.bed-ord'), nw = od ? [...od.querySelectorAll('.nw')] : [];
-  return { flow: fl.map((x) => x.textContent.trim()), ord: od ? od.getAttribute('data-ord') : '', bold: od ? [...od.querySelectorAll('b')].map((x) => x.textContent) : [], nwOne: nw.every((x) => x.getClientRects().length === 1),
-    rows: b.querySelectorAll('.mu-pick').length, fold: !!b.querySelector('.mu-fsel'), ft: ((b.querySelector('.mu-fsel .mu-t') || {}).textContent || ''), dup: ((b.querySelector('.bed-dup') || {}).textContent || '').trim(),
-    fs: getComputedStyle(fl[0] || b).fontSize, ordLines: od ? Math.round(od.getBoundingClientRect().height / (parseFloat(getComputedStyle(od).lineHeight) || 18)) : 0 }; }, sg);
+const look = (f, sg) => f.evaluate((sg) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"], .bed-sub[data-seg="' + sg + '"]'); if (!b) return null; const info = b.querySelector('.bed-info');
+  return { info: info ? info.textContent.replace(/\u00a0/g, ' ').trim() : '',   /* 화면이 «약 30분» 사이를 줄바꿈 없는 공백으로 묶는다 */ fs: info ? getComputedStyle(info).fontSize : '', list: [...b.querySelectorAll('li.mu-row[data-f]')].map((x) => x.getAttribute('data-f')), pl: b.querySelectorAll('li.mu-row[data-f] .mu-pl').length,
+    tA: [...b.querySelectorAll('li.mu-row[data-f]')].map((x) => [x.querySelector('.mu-t').textContent, x.querySelector('.mu-a').textContent]),
+    rows: b.querySelectorAll('.mu-pick').length, chg: b.querySelectorAll('.mu-chg').length, on: b.querySelectorAll('[aria-checked="true"]').length, fold: !!b.querySelector('.mu-fsel'), ord: b.querySelectorAll('.bed-ord, .bed-flow').length,
+    dup: ((b.querySelector('.bed-dup') || {}).textContent || '').trim() }; }, sg);
 try {
   /* a · b 데이터 */
   { const o0 = P.order({}, 'M1'), o1 = P.order({ bgm: { M1: { k: 'B13' } } }, 'M1'), o2 = P.order({ bgm: { M5: { k: 'B16' } } }, 'M1'), o3 = P.order({}, 'M8'), o4 = P.order({ bgm: { S5: { m: 'bed', k: 'B13' } } }, 'M8');
     ok('a M1 차례 = 1순위 → 나머지 → fill(B16 · B33) · 5곡 · 중복 없음', o0.join() === 'B01,B24,B13,B16,B33', o0);
-    ok('a 고른 곡이 맨 앞(M1 B13 → B13 · B01 · B24 · B16 · B33)', o1.join() === 'B13,B01,B24,B16,B33', o1);
+    ok('a [LIST_NO_PICK_1101] 옛 저장값 S.bgm.M1.k 는 무시 — 차례는 1순위부터 그대로 · clean 에서 빠진다', o1.join() === 'B01,B24,B13,B16,B33' && P.custK({ bgm: { M1: { k: 'B13' }, M8: { k: 'B23' } } }, 'M8') === '' && JSON.stringify(SL.clean({ M1: { k: 'B13' }, M8: { k: 'B23' }, M2: { k: 'B07' } })) === '{"M2":{"k":"B07"}}', o1);
     ok('a fill 이 다른 구간에서 고른 곡이면 건너뜀(부모님께 인사 B16 → M1 은 B33 만)', o2.join() === 'B01,B24,B13,B33', o2);
     ok('a M8 = B24 · B23 · B16 · B13 · B14 · 축사 «음악과 함께» B13 을 고르면 B13 건너뜀', o3.join() === 'B24,B23,B16,B13,B14' && o4.join() === 'B24,B23,B16,B14', { o3, o4 });
     ok('a 한 곡 구간 차례 = 목록(화촉 B05 · B31 · B07) · fill 없음', P.order({}, 'M2').join() === 'B05,B31,B07' && !P.FILL.M2);
@@ -94,25 +96,23 @@ try {
   /* c · d 고객 화면 */
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
-    await setS(f, {});
+    await setS(f, { M1: { k: 'B13' }, M8: { k: 'B23' } });   /* 옛 저장값 — 무시돼야 한다 */
     await go(f, 'guest'); let r = await look(f, 'M1');
-    ok(`${W} c 하객 맞이 — 곡 줄 3 · 아래 두 줄 · 차례 = order(1순위부터 · 굵은 곡 없음) · 12.5px`, r && r.rows === 3 && r.flow.length === 2 && r.flow[0] === '고른 곡부터 약 30분 동안 차례로 이어 흘러요' && r.ord === 'B01 B24 B13 B16 B33' && !r.bold.length && r.fs === '12.5px'
-      && r.flow[1] === '바다가 보이는 마을 → Take Me Home, Country Roads → Moon River → The Rose → 바람이 지나가는 길', r);
-    ok(`${W} c 곡 이름 중간에서 줄이 안 끊긴다(곡 이름 단위 nowrap) · ${W === 390 ? '두 줄까지' : '한두 줄'}`, r && r.nwOne && r.ordLines <= (W === 390 ? 3 : 2), { nwOne: r && r.nwOne, lines: r && r.ordLines });
-    await f.click('[data-fk="bed:M1:B13"]'); await wait(f, 500); r = await look(f, 'M1');
-    ok(`${W} c 고르면 접힌 줄 바로 아래 두 줄이 다시 그려진다(B13 맨 앞 · 굵게)`, r && r.fold && r.rows === 0 && r.ord === 'B13 B01 B24 B16 B33' && r.bold.join() === 'Moon River' && r.flow.length === 2, r);
+    const WANT1 = P.order({}, 'M1'), T1 = WANT1.map((x) => [P.SONGS[x].t, P.SONGS[x].a]);
+    ok(`${W} c 하객 맞이 — 안내 한 줄(12.5px) · 곡 줄 5 = 재생 차례(1순위부터 · 옛 저장값 무시) · ▶ 5 · 제목 · 가수`, r && r.info === '하객이 들어와 앉는 동안 아래 곡들이 차례로 흘러요 · 약 30분' && r.fs === '12.5px' && r.list.join() === 'B01,B24,B13,B16,B33' && r.list.join() === WANT1.join() && r.pl === 5 && JSON.stringify(r.tA) === JSON.stringify(T1), r);
+    ok(`${W} c 하객 맞이 — 고르기 단추 · «바꾸기» · 선택 표시 · 접힌 줄 · 순서 화살표 두 줄 0`, r && r.rows === 0 && r.chg === 0 && r.on === 0 && !r.fold && r.ord === 0, r);
     await go(f, 'table'); r = await look(f, 'M8');
-    ok(`${W} c 테이블 인사 — 두 줄 · 차례 B24 · B23 · B16 · B13 · B14(하객 맞이에서 B13 을 골라도 M8 fill 의 B13 은 건너뜀)`, r && r.rows === 3 && r.flow.length === 2 && r.ord === 'B24 B23 B16 B14', r);
+    ok(`${W} c 테이블 인사 — 안내 한 줄 · 곡 줄 5(B24 · B23 · B16 · B13 · B14) · 고르기 0`, r && r.info === '테이블 인사와 사진 동안 아래 곡들이 차례로 흘러요 · 약 30분' && r.list.join() === 'B24,B23,B16,B13,B14' && r.rows === 0 && r.chg === 0 && r.on === 0, r);
     const others = [];
-    for (const [k, sg] of [['candle', 'M2'], ['welcome', 'M4'], ['tribute', 'M5'], ['_close', 'M6'], ['toast', 'M7']]) { await go(f, k); const x = await look(f, sg); others.push([sg, x ? x.flow.length : -1, x ? x.rows : -1]); }
-    ok(`${W} c 다른 구간(화촉 · 감사 인사 · 부모님께 인사 · 닫는 인사 · 축배)에는 순서 줄 0 · 곡 줄 3`, others.every((x) => x[1] === 0 && x[2] === 3), others);
+    for (const [k, sg] of [['candle', 'M2'], ['welcome', 'M4'], ['tribute', 'M5'], ['_close', 'M6'], ['toast', 'M7']]) { await go(f, k); const x = await look(f, sg); others.push([sg, x ? x.info : '?', x ? x.rows : -1, x ? x.list.length : -1]); }
+    ok(`${W} c 다른 구간(화촉 · 감사 인사 · 부모님께 인사 · 닫는 인사 · 축배)은 고르기 그대로 — 곡 고르기 3 · 안내 칸 아님`, others.every((x) => x[1] === '' && x[2] === 3 && x[3] === 0), others);
     /* 겹침 한 줄 + fill 건너뛰기가 순서 줄에 */
     await go(f, 'candle'); await f.click('[data-fk="bed:M2:B31"]'); await wait(f, 400); const c2 = await look(f, 'M2');
     await go(f, 'tribute'); await f.click('[data-fk="bed:M5:B31"]'); await wait(f, 400); const c5 = await look(f, 'M5');
     ok(`${W} c 같은 곡을 화촉 · 부모님께 인사에서 고르면 뒤 칸에만 «화촉에서도 고른 곡이에요»(막지 않는다)`, c2 && c2.dup === '' && c5 && c5.fold && c5.dup === '화촉에서도 고른 곡이에요', { c2: c2 && c2.dup, c5 });
     await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M5"] .mu-chg'); if (b) b.click(); }); await wait(f, 300); await f.click('[data-fk="bed:M5:B16"]'); await wait(f, 400);
     await go(f, 'guest'); r = await look(f, 'M1');
-    ok(`${W} c 부모님께 인사에서 B16 을 고르면 하객 맞이 순서 줄에서 The Rose 가 빠진다`, r && r.ord === 'B13 B01 B24 B33' && !/The Rose/.test(r.flow[1]), r);
+    ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄에서 빠진다(4줄)`, r && r.list.join() === 'B01,B24,B13,B33' && !r.tA.some((x) => x[0] === 'The Rose'), r);
     await shot(f, W, 'guest-flow', '.ls-bed[data-seg="M1"]');
     /* d 파일이 없을 때 — 화촉 1 · 2(B05 · B31)는 드라이브에 없다 */
     await setS(f, { M2: { k: 'B31' } }); await go(f, 'candle'); await wait(f, 600);
@@ -134,8 +134,8 @@ try {
     const c = await pg.evaluate(() => ({ m1: window.__segSel('M1'), m8: window.__segSel('M8'),
       fillRows: [...document.querySelectorAll('.sg[data-seg="M1"] .sg-song')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()).filter((t) => /배경으로만 이어 틀어요/.test(t)).length }));
     c.o1 = P.order(S0, 'M1'); c.o8 = P.order(S0, 'M8');   /* 식순 화면(빌더)이 쓰는 같은 함수 · 같은 초안 */
-    ok('e 콘솔 M1 재생 목록 = 고른 곡(B13) → 나머지 → fill(다른 구간에서 고른 B16 건너뜀) · 식순 화면 순서 줄과 같은 함수', c.m1.join() === 'B13,B01,B24,B33' && c.m1.join() === c.o1.join(), c);
-    ok('e 콘솔 M8 재생 목록 = B24 · B23 · B16 · B14(하객 맞이에서 고른 B13 은 건너뜀) · 배경 곡 줄에 «배경으로만 이어 틀어요»(파일을 넣는 자리)', c.m8.join() === 'B24,B23,B16,B14' && c.m8.join() === c.o8.join() && c.fillRows === 2, c);
+    ok('e 콘솔 M1 재생 목록 = 1순위부터 고정(옛 저장값 B13 무시) → fill(다른 구간에서 고른 B16 건너뜀) · 식순 화면 곡 줄과 같은 함수', c.m1.join() === 'B01,B24,B13,B33' && c.m1.join() === c.o1.join(), c);
+    ok('e 콘솔 M8 재생 목록 = B24 · B23 · B16 · B13 · B14(하객 맞이 옛 저장값은 «고른 곡»이 아니다) · 배경 곡 줄에 «배경으로만 이어 틀어요»(파일을 넣는 자리)', c.m8.join() === 'B24,B23,B16,B13,B14' && c.m8.join() === c.o8.join() && c.fillRows === 2, c);
     const fw = (n) => ({ name: n + '.wav', mimeType: 'audio/wav', buffer: wav(3, 300) });
     await pg.setInputFiles('.sg[data-seg="M2"] .sg-song:nth-of-type(3) [data-seg-file]', fw('b07')); await pg.waitForTimeout(400);
     const pl = await pg.evaluate(() => ({ sel: window.__segSel('M2'), plan: window.__segPlan('M2') }));

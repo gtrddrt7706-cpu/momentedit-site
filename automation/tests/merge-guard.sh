@@ -20683,7 +20683,10 @@ chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
 chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\] }" assets/bgm-picks.js 1   # ★[BGM_FILL_1101] 목록 칸 배경 곡
 chk 'function order(S, seg)' assets/bgm-picks.js 1
 chk 'if (BP.order) return BP.order(S, id).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
-chk 'function flowHtml(sg)' assets/bgm-bed.js 1
+chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
+nochk 'function flowHtml(sg)' assets/bgm-bed.js   # 순서 화살표 두 줄은 곡 줄 목록이 대신 — 되살리지 말 것
+chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목록 칸 k 는 쓰지 않는다
+chk 'LIST_NO_PICK_1101' scripts/audit/bgm-fill.mjs 1
 chk 'function effHas(sg)' assets/bgm-bed.js 1   # [GHIBLI_ADD_1101] 파일 있는 다음 곡
 chk 'BGM_FILL_1101' scripts/audit/bgm-fill.mjs 1
 chk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js 1
@@ -21299,6 +21302,11 @@ nochk '<div class="mk-fold">' order-preview.html
 nochk 'class="mk-fbtn"' order-preview.html
 nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
 chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
+# ★[MK_HEAD_PILL 1101 사장님 PC «좀 이상한데»] 상태 단추 = 도구와 같은 알약(테 · 카드 바탕 · 44 · 12.5/500) · 자리가 되면 한 줄(.one) · 모자라면 두 층(모서리 22) · 꺾쇠는 글 바로 뒤
+chk 'MK_HEAD_PILL' order-preview.html 3
+chk 'function _mkStatFit()' order-preview.html 1
+chk '.mk-status.one{display:inline-flex' order-preview.html 1
+nochk 'border-radius:6px;background:transparent;text-align:left;color:var(--sub);font:inherit;font-size:12.5px;line-height:18px' order-preview.html
 chk 'function _askReset(k,quiet)' order-preview.html 1
 chk 'ASK_RESET_1031' order-preview.html 4
 chk 'REPICK_KEEP_1031' assets/entry-music.js 2
