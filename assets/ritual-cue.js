@@ -1549,8 +1549,8 @@
     /* ★★[END_FLOW_1030 검토 167] 새 코스 끝 차례 — 테이블 인사 → (B13 · 축배 · 잔 내려놓기) → 닫는 인사 → 온라인 인사(디지털 날) → 사진 전 안내 → 사진 · 옛 코스는 종전대로 */
     if (_openC && seq.indexOf('table') > -1) cues.push(cue({   // ★[END_FLOW_1030] 본식 마지막 순간 뒤 · 축배 · 닫는 인사 앞
       k: 'table', blockN: '테이블 인사', slug: 'narr-table-in', name: '테이블 인사 · 두 분이 하객께', text: D.NARR.tableIn,
-      duck: -12, note: '본식 마지막 순간이 끝나면 · 보통 신부 측 테이블부터(자료 AA · 집안 뜻이 다르면 그대로) · 오늘 ' + O.tableN(S) + '테이블 × 1분 30초',   /* [CLOSE_WORDS_1013] 축배가 닫는 인사 뒤로 옮긴 뒤(TOAST_LAST_1013) */   /* [TABLE_GREET_1008] 테이블 수는 note 에 — live.t 는 이야기 표(ritual-story LIVE)의 열쇠라 판마다 바뀌면 안 된다(STORY_COVER) */
-      live: { t: '두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초쯤 · 다 돌면 GO → ' + (seq.indexOf('toast') > -1 ? '축배' : '닫는 인사'), est: O.TABLE_SEC * O.tableN(S), self: true, doing: 'move', duck: -12,
+      duck: -12, note: '본식 마지막 순간이 끝나면 · 보통 신부 측 테이블부터(자료 AA · 집안 뜻이 다르면 그대로) · 오늘 ' + O.tableN(S) + '테이블 × 1분 30초' + (O.tableCut && O.tableCut(S) ? ' · 본식이 길어 약 ' + Math.round(O.tableSecOf(S) / 60) + '분 안에(EVENT_COUNT_CAP)' : ''),   /* [CLOSE_WORDS_1013] 축배가 닫는 인사 뒤로 옮긴 뒤(TOAST_LAST_1013) */   /* [TABLE_GREET_1008] 테이블 수는 note 에 — live.t 는 이야기 표(ritual-story LIVE)의 열쇠라 판마다 바뀌면 안 된다(STORY_COVER) */
+      live: { t: '두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초쯤 · 다 돌면 GO → ' + (seq.indexOf('toast') > -1 ? '축배' : '닫는 인사'), est: (O.tableSecOf ? O.tableSecOf(S) : O.TABLE_SEC * O.tableN(S)), self: true,   /* ★[EVENT_COUNT_CAP 검토 183] 시간표 · 빌더와 같은 값(본식 상한을 넘는 드문 조합이면 그만큼 짧게) */ doing: 'move', duck: -12,
         fallback: '시간이 다 되면 디렉터 GO → ' + (seq.indexOf('toast') > -1 ? '축배' : '닫는 인사') + ' · 못 들른 테이블은 닫는 인사(목례)에서 함께' }   /* [CLOSE_WORDS_1013] 배웅 줄은 9/26 PHOTO_THANKS 로 없앴다 */   /* [TABLE_GREET_1008] 사장님 «두 분 자유 · 시간 다 되면 안내 한 줄» — 디렉터가 테이블을 넘기지 않는다 */
     }));
     if (_openC && seq.indexOf('toast') > -1 && O.onOf(S, 'toast')) cues.push(cue({ k: 'toast', blockN: '축배', slug: 'bridge-b13-toast-stay',   /* ★[END_FLOW_1030] 축배 앞이라 축배 쪽(빌더 ② · 대본이 축배 순간에 싣는다) */ name: '이음말 · 축배 앞 자리 지키기',

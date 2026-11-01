@@ -416,10 +416,33 @@
       case 'cake': return onOf(S, 'toast') ? t.both : t.only;   // [CAKE_TOAST_SPLIT]
       case 'toast': return onOf(S, 'cake') ? t.both : t.only;
       case '_close': return seq.indexOf('tribute') > -1 ? t.withTribute : t.noTribute;
-      case 'table': return [t[0], 0, TABLE_SEC * tableN(S), 0];   // [TABLE_GREET_1008] 두 분 자유라 넉넉 여유 없이 테이블 수 × 1분 30초
+      case 'table': return [t[0], 0, tableSecOf(S, seq), 0];   // [TABLE_GREET_1008] 두 분 자유라 넉넉 여유 없이 테이블 수 × 1분 30초 · [EVENT_COUNT_CAP] 본식 상한을 넘는 드문 조합이면 그만큼만 짧게
     }
     return Array.isArray(t) ? t : [0, 0, 0, 0];
   }
+  /* ★★[EVENT_COUNT_CAP 검토 183 · 사장님 11/01 10:33 «이벤트 최대 몇 개까지 · 그 안에서는 자유롭게» → «추천대로 진행»]
+     본식 상한을 «분 계산»(«본식을 약 3분 덜어 주세요» — 무엇을 덜지 몰라 헤맸다) 대신 «개수 규칙»으로 —
+     ① 고르는 본식 순간 최대 6개(CNT_PICK · 늘 있는 입장 · 맞절 · 닫는 인사와 식전 · 하객 맞이는 안 센다)
+     ② 그중 긴 순간 최대 3개(CNT_LONG · 테이블 인사는 혼자 9분이라 2개로 센다) ③ 이 안에서는 자유.
+     규칙 안인데 본식 상한(capSec = 단체 사진 16분을 남긴 몫)을 넘는 드문 조합(테이블 인사 + 짧은 순간 넷 꼴)은 막지 않고
+     테이블 인사 시간을 넘는 만큼만 줄인다(tableSecOf · 30초 단위 · 두 테이블 몫 아래로는 안 줄인다) — 빌더 · 콘솔 · 시간표가 같은 값을 본다.
+     길이 칩을 늘리는 쪽(축사 길게 …)은 줄이기 전 값(bodyRaw)으로 재서 넘으면 무엇을 할지 말하는 창(capMsg)으로 막는다. scripts/audit/body-cap.mjs */
+  var CNT_PICK = ['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'];
+  var CNT_LONG = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 };
+  var CNT_MAX = 6, CNT_LONG_MAX = 3;
+  function countOf(S) { var n = 0, l = 0; CNT_PICK.forEach(function (k) { if (onOf(S, k)) { n++; l += CNT_LONG[k] || 0; } }); return { n: n, long: l, max: CNT_MAX, longMax: CNT_LONG_MAX }; }
+  /* 늘리는 쪽만 막는다(이미 넘은 옛 초안은 그대로 두고 빼기는 늘 된다) · '' = 통과 · 'n' = 7번째 · 'long' = 긴 순간 넷째 */
+  function countNo(S0, S1) { var a = countOf(S0), b = countOf(S1); if (b.n > CNT_MAX && b.n > a.n) return 'n'; if (b.long > CNT_LONG_MAX && b.long > a.long) return 'long'; return ''; }
+  var COUNT_MSG = { n: { title: '본식 순간은 6개까지예요', body: '하나 빼고 골라 주세요.' }, long: { title: '긴 순간은 3개까지예요', body: '테이블 인사는 2개로 세요 · 긴 순간 하나를 빼고 골라 주세요.' } };
+  var _NOFIT = 0;
+  function tableFull(S) { return TABLE_SEC * tableN(S); }
+  function tableSecOf(S, seq) { var full = tableFull(S); if (_NOFIT || !S || S.course !== 'open') return full;
+    seq = seq || bodySeq(S); var rest = TIME.table[0];
+    seq.forEach(function (k) { if (k !== 'table') rest += lohi(partsOf(k, S, seq))[1]; });
+    var room = Math.floor((capSec(S) - rest) / 30) * 30;
+    return Math.min(full, Math.max(Math.min(full, TABLE_SEC * 2), room)); }
+  function bodyRaw(S) { _NOFIT = 1; try { return bodySec(S); } finally { _NOFIT = 0; } }   // 테이블 인사를 줄이기 전 본식 합(길이 칩 확인용)
+  function tableCut(S) { return onOf(S, 'table') ? Math.max(0, tableFull(S) - tableSecOf(S)) : 0; }   // 줄인 초(0 = 그대로)
   function lohi(p) { return [p[0] + p[1] + p[2], p[0] + 1.25 * p[1] + p[2] + p[3]]; }
   // 본식 합(초) — a = 대본 합 · b = 넉넉 합. 식전(하객 맞이·식전 영상)은 넣지 않는다.
   function bodySec(S) {
@@ -464,14 +487,20 @@
     return POST_SEC[k] + (_postOf(S, 'digital') ? POST_SEC.online : 0); }
   /* 본식 상한 — 예시 넷 «천천히»(hi · 테이블 인사 포함) 가운데 가장 긴 값(손으로 적지 않고 잰다) · 단체 사진 SHORT_MIN 이 늘 남게 그 아래로 자른다(디지털 참석 날은 2분 낮아진다) */
   var _CAP_EX = null;
-  function capEx() { if (_CAP_EX == null) _CAP_EX = Math.max.apply(null, EXAMPLES.map(function (e) { var t = applyExample({ course: 'open' }, e.k); t.course = 'open'; return bodySec(t)[1]; })); return _CAP_EX; }
-  function capSec(S) { return Math.min(capEx(), (DAYMIN - SHORT_MIN) * 60 - postSec(S)); }
-  function capOver(S0, S1) { var h0 = bodySec(S0)[1], h1 = bodySec(S1)[1]; return h1 > h0 + 0.5 && h1 > capSec(S1); }   // 늘리는 쪽만 막는다(이미 넘은 옛 초안은 알림만 · 줄이는 것은 늘 된다)
+  function capEx() { /* [EVENT_COUNT_CAP] 본식 상한에서 뺐다(참고 값으로만 남김 · 사장님 «단체 사진을 최소시간만 남기고 줄이면 된다») */ if (_CAP_EX == null) _CAP_EX = Math.max.apply(null, EXAMPLES.map(function (e) { var t = applyExample({ course: 'open' }, e.k); t.course = 'open'; return bodySec(t)[1]; })); return _CAP_EX; }
+  function capSec(S) { return (DAYMIN - SHORT_MIN) * 60 - postSec(S); }   // ★[EVENT_COUNT_CAP] 단체 사진 16분(SHORT_MIN)만 남긴 몫 — 예시 넷 최장(capEx) 조건은 걷었다
+  function capOver(S0, S1, raw) { var f = raw ? bodyRaw : bodySec, h0 = f(S0)[1], h1 = f(S1)[1]; return h1 > h0 + 0.5 && h1 > capSec(S1); }   // [EVENT_COUNT_CAP] raw = 길이 칩(테이블 인사로 메우지 않는다)   // 늘리는 쪽만 막는다(이미 넘은 옛 초안은 알림만 · 줄이는 것은 늘 된다)
   function capLeft(S) { return Math.max(0, Math.floor((capSec(S) - bodySec(S)[1]) / 60)); }
   var CAP_MSG = { title: '이 순간을 담으려면 다른 순간을 하나 빼 주세요', body: '사진 시간을 지키기 위해서예요.' };   // 옛 말 — capMsg 가 대신한다(남겨 둔 것은 옛 호출 대비)
   /* ★[CAP_NEED_1031 식순 걷기 1라운드 GPT 2] «하나 빼 주세요»만으로는 무엇을 얼마나 덜지 몰라 반지 하나를 빼도 또 막혔다 — 넘는 분을 재서 말한다(늘 1분 이상) */
   function capNeed(S1) { return Math.max(1, Math.ceil((bodySec(S1)[1] - capSec(S1)) / 60)); }
-  function capMsg(S1, add) { return { title: (add ? '이 순간을 담으려면' : '이렇게 바꾸려면') + ' 본식을 약 ' + capNeed(S1) + '분 덜어 주세요', body: '다른 순간을 빼거나 길이를 줄여 주세요 · 사진 시간을 지키기 위해서예요.' }; }
+  function capMsg(S1, add, k) { if (add) return { title: '이 순간을 담으려면 본식을 약 ' + capNeed(S1) + '분 덜어 주세요', body: '다른 순간을 빼거나 길이를 줄여 주세요 · 사진 시간을 지키기 위해서예요.' };
+    /* ★[EVENT_COUNT_CAP 6] 길이 칩 — «몇 분 덜기» 대신 할 일을 말한다(짧게 할 수 있는 다른 긴 순간 하나를 이름으로) */
+    var cand = ['free', 'bless'].filter(function (x) { return x !== k && onOf(S1, x) && (x === 'free' ? +chipOf('freeLen', S1) > 1 : +(S1.blessN || 2) > 1); })
+      .sort(function (a, b) { return lohi(partsOf(b, S1))[1] - lohi(partsOf(a, S1))[1]; })[0];
+    var nm = cand ? nameOf(cand, S1) : '';
+    return { title: '이 길이로 하려면 다른 순간을 하나 빼' + (nm ? '거나 ' + nm + _jo(nm) + ' 짧게 해' : '') + ' 주세요', body: '사진 시간을 지키기 위해서예요.' }; }
+  function _jo(w) { var c = String(w).charCodeAt(String(w).length - 1) - 0xAC00; return (c >= 0 && c <= 11171 && c % 28) ? '을' : '를'; }
   function tableSec(S) { return onOf(S, 'table') ? lohi(partsOf('table', S, bodySeq(S)))[1] : 0; }
   function span(S) {
     var s = bodySec(S), ta = Math.round(s[0] / 60), tb = Math.round(s[1] / 60), ts = tableSec(S), tm = ts ? Math.max(1, Math.round(ts / 60)) : 0, a = Math.max(0, ta - tm), b = Math.max(0, tb - tm);   // [TABLE_APART]
@@ -1651,7 +1680,7 @@
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
-    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
+    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
