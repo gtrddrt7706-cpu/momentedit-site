@@ -93,7 +93,7 @@ try {
     const b10b = by(B(Object.assign({}, S, { bgm: { S5: { m: 'bed' } } })), 'bridge-b10-speech-clap');
     ok('c 축사 «음악과 함께»(M4S5)인 날은 맺는 말 −16 · 박수 −8', b10b.duck === -16 && b10b.live && b10b.live.duck === -8, [b10b.duck, b10b.live && b10b.live.duck]);
     const le = by(cs, 'narr-letter-end'), lb = by(B(Object.assign({}, S, { bgm: { S6: { m: 'bed' } } })), 'narr-letter-end');
-    ok('b 편지 끝(음악 없이) post = 정적 2초 → 다음 곡(next · 3초) · «음악과 함께»는 종전(−16 · 정적 없음)', JSON.stringify(le.post) === JSON.stringify([{ wait: 2000 }, { music: 'next', v: -16, ms: 4000, nextMs: 3000 }]) && JSON.stringify(lb.post) === JSON.stringify([{ music: 'to', v: -16, ms: 4000 }]), { le: le.post, lb: lb.post });
+    ok('b 편지 끝(음악 없이) post = 정적 2초 → 다음 곡(next · 3초) · «음악과 함께»는 정적 없이 다음 곡으로 3초 겹침(★[BGM_TIMING2_1101] 종전 «−16 그대로» → xf)', JSON.stringify(le.post) === JSON.stringify([{ wait: 2000 }, { music: 'next', v: -16, ms: 4000, nextMs: 3000 }]) && JSON.stringify(lb.post) === JSON.stringify([{ music: 'next', v: -16, ms: 4000, nextMs: 3000, xf: true }]), { le: le.post, lb: lb.post });
     const gb = cs.filter((c) => c.k === '_goodbye' && c.post && c.post.length).pop() || {};
     ok('f 귀가 인사 — 나레이션 끝 1.5초에 −8 → 90초 → 20초 소거', JSON.stringify(gb.post) === JSON.stringify([{ music: 'to', v: -8, ms: 1500 }, { wait: 90000 }, { music: 'to', v: -90, ms: 20000 }]), gb.post); }
   /* ── 미리 듣기(마이페이지 안 식순 화면) ── */

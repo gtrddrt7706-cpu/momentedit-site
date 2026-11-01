@@ -183,7 +183,10 @@
   function flowAt(at, st) { return flowFind(at, st).i; }
   /* ★★[BRIDGE_FIRST_1101 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 미리 듣기 «뜸» 자리 = 화면 음악 줄 자리(head) — 순간 첫 줄이 다음 순간 몫으로 붙은 이음말
        (b8 하객 쪽으로 · b12 경건하게 · b14 화촉 순서 알림)이면 이음말은 앞 소리로 듣고, 새 곡 뜸은 그 바로 뒤 줄 앞에서 · 목례 · 위하여 · 영상 자리 칸은 지금처럼 맨 앞(0) */
-  function leadAt(k, st, o) { var v = null; try { v = viewOf(k, o || {}); } catch (e) {} if (v && v.kind === 'flow' && AT_OF[v.at]) return 0; return head(st); }
+  function leadAt(k, st, o) { var v = null; try { v = viewOf(k, o || {}); } catch (e) {} if (v && v.kind === 'flow' && AT_OF[v.at]) return 0;
+    /* ★[BGM_TIMING2_1101] 축사 · 편지 «음악과 함께» — 뜸 자리 = 화면 음악 줄 자리(말씀 · 낭독 ○ 줄 바로 앞 · flowFind) · 그 앞 줄(여는 말)은 앞 곡(M4) 아래 · «음악 없이»는 맨 앞 그대로 */
+    if (v && v.kind === 'pick' && v.s.flow) { var S0 = (o && o.S) || (typeof window !== 'undefined' && window.S) || null; if (get(S0, v.s.id).m === 'bed') { var fp = flowFind(v.s.flow, st); if (fp.hit) return fp.i; } }
+    return head(st); }
   /* 칸의 첫 순간 = 이 칸의 순간 중 «담긴» 첫 순간(본식 차례) — 감사 인사를 담지 않은 식순이면 다음 담긴 순간이 안내 한 줄을 받는다 */
   function chooser(s, o) {
     o = o || {};

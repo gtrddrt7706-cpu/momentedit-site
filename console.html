@@ -1236,8 +1236,10 @@ function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug 
   if (k === 'guest') return 'M1';
   if (k === 'candle') return 'M2';
   if (k === 'entry' || k === 'matjeol') return '';   /* M3 = 입장 곡(장면이 맡는다 · 배경음은 −90) · ★[BGM_FIX_1030] 맞절도 입장 곡이 잇는다 — M4 는 감사 인사부터(옛 «곡이 짧은 날 맞절에서 피아노를 미리 깐다» 걷음) */
-  if (k === 'free') return (bed('S5') && segPlan('M4S5')) ? 'M4S5' : 'M4';
-  if (k === 'letter') return (bed('S6') && segPlan('M4S6')) ? 'M4S6' : 'M4';
+  /* ★[BGM_TIMING2_1101] 축사 · 편지 — 여는 말은 M4(앞 곡) · «음악과 함께»면 사람 구간(낭독 · 말씀) 시작에서 segLive 가 M4S5 · M4S6 로 3초 겹친다 · 맺는 말 · 마무리는 그 곡 그대로('') · 축가는 M4 로 못 박는다(축사 곡이 새지 않게) */
+  if (k === 'free') return /^narr-free-in/.test(sl) ? 'M4' : '';
+  if (k === 'letter') return /^letter-/.test(sl) ? 'M4' : '';
+  if (k === 'song') return 'M4';
   if (/^(welcome|vow|ring|declare|bless)$/.test(k)) return 'M4';
   if (k === 'tribute') return 'M5';
   if (k === 'toast') return '';   /* ★[BGM_FIX_1030] 축배 곡(M7)은 «위하여» 뒤 디렉터 GO 에서 연다(segCheer) — 축배 나레이션 동안은 앞 곡이 잇는다(END_FLOW_1030 뒤로는 테이블 인사 곡 · 테이블이 없으면 그 앞 순간 곡) */
@@ -1251,7 +1253,10 @@ function segCheer(){ if (MODE === 'preview' || GUEST) return; var ms = PARAM.toa
   if (BED.seg !== 'M7') { var L = segPlan('M7'); if (L) { BED.seg = 'M7'; BED.list = L; BED.li = 0; bedPlay(L[0], ms / 1000, segStartOf(L[0])); return; } }
   if (BED.seg !== 'M7' || !BED.id) return; var at = segStartOf(BED.id); if (at == null) return; try { BED.el[BED.on].currentTime = at; } catch (e) {} }
 /* [BGM_FIX_1030] 사람 순간이 시작될 때 바꾸는 구간 — 닫는 인사의 목례 · 박수(narr-close-bow) → M6 */
-function segLive(c){ if (c && c.slug === 'narr-close-bow') segGo('M6'); }
+function segLive(c){ if (c && c.slug === 'narr-close-bow') segGo('M6');
+  var _bd = function(id){ return !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed'); };   /* ★[BGM_TIMING2_1101] «음악과 함께» 축사 · 편지 — 사람 구간 시작에서 그 곡으로 3초 겹침(여는 말은 M4 −16 아래) */
+  if (c && c.k === 'free' && c.slug === 'narr-free-in-speech' && _bd('S5') && segPlan('M4S5')) segGo('M4S5');
+  if (c && c.k === 'letter' && /^letter-/.test(c.slug || '') && _bd('S6') && segPlan('M4S6')) segGo('M4S6'); }
 /* [BGM_FIX_1030] 지금 깔린 곡이 가사가 있는 곡인가(assets/bgm-picks.js vocal) — duckTo 가 나레이션 · 사람 구간을 vocalExtra 만큼 더 낮춘다 */
 function bedVocal(){ if (!BP || !BP.song || BED.mode !== 'seg' || !BED.id) return false; var s = BP.song(BED.id); return !!(s && s.vocal); }
 
@@ -1660,8 +1665,10 @@ function runPost(list, i, done){
   if (!list || i >= list.length) return done();
   var st = list[i];
   if (st.music === 'next') {   /* ★[BGM_TIMING_1101] 편지 끝 — 다음 큐가 새 구간을 열면 그 곡을 무음에서 nextMs(3초)에 올린다(편지 곡은 먼저 걷어 되살리지 않는다 · 다음 GO 의 segGo 는 같은 구간이라 그대로) · 아니면 종전 duckTo */
-    var _nq = R && R.cues[cur + 1], _ns = (_nq && MODE !== 'preview' && !GUEST) ? segOfCue(resolve(_nq)) : '';
-    if (_ns && _ns !== BED.seg && segPlan(_ns)) { try { bedFade(BED.on, 0, 0.05); } catch (e) {} duckTo(PARAM.duckOff, 10); segGo(_ns); duckTo(st.v, st.nextMs || 3000); later(function(){ runPost(list, i+1, done); }, st.nextMs || 3000); }
+    var _ns = '';
+    if (R && MODE !== 'preview' && !GUEST) { var _k0 = null; for (var _j = cur + 1; _j < R.cues.length; _j++) { var _q = resolve(R.cues[_j]); if (!_q) break; if (_k0 == null) _k0 = _q.k; if (_q.k !== _k0) break; _ns = segOfCue(_q); if (_ns || !/^bridge-/.test(String(_q.slug || ''))) break; } }   /* ★[BGM_TIMING2_1101] 다음 순간 첫 줄이 이음말(b12 등 · 앞 곡 잇기 '')이면 그 순간의 곡을 본다 — 미리 듣기 lpTail(fileFor(다음 줄) = 그 순간 곡)과 같게 · 편지 곡을 이음말 아래 되살리지 않는다 */
+    if (_ns && _ns !== BED.seg && segPlan(_ns) && st.xf) { segGo(_ns); duckTo(st.v, st.nextMs || 3000); later(function(){ runPost(list, i+1, done); }, st.nextMs || 3000); }   /* ★[BGM_TIMING2_1101] «음악과 함께» 편지 끝 — 흐르던 곡에서 다음 곡으로 3초 겹침(정적 없음) */
+    else if (_ns && _ns !== BED.seg && segPlan(_ns)) { try { bedFade(BED.on, 0, 0.05); } catch (e) {} duckTo(PARAM.duckOff, 10); segGo(_ns); duckTo(st.v, st.nextMs || 3000); later(function(){ runPost(list, i+1, done); }, st.nextMs || 3000); }
     else { duckTo(st.v, st.ms); later(function(){ runPost(list, i+1, done); }, st.ms || 0); } }
   else if (st.music) { duckTo(st.v, st.ms); later(function(){ runPost(list, i+1, done); }, st.ms || 0); }
   else if (st.wait) { later(function(){ runPost(list, i+1, done); }, st.wait); }
@@ -2374,7 +2381,7 @@ window.__bgmSt = function(){ var c = cur >= 0 ? cueAt(cur) : null, m = $('#mBtn'
 window.__bgmR = function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, actId: c.actId || '', fire: c.fire, duck: c.duck, live: !!c.live }; }); };   // [CLOSING_LINE_1031] actId = 소리 없는 동작 큐
 window.__seg = { st: function(){ var g = function(k){ return BED.xg[k] ? Math.round(BED.xg[k].gain.value * 1000) / 1000 : null; }; return { seg: BED.seg, id: BED.id, on: BED.on, mode: BED.mode, short: !!ESD.short, src: BED.el.map(function(e){ return String(e.getAttribute('src') || ''); }), paused: BED.el.map(function(e){ return e.paused; }), xg: [g(0), g(1)], files: Object.keys(SEGF).length, sel: SEGST.sel }; },
   song: function(){ return { mode: BED.mode, g: gSong ? Math.round(gSong.gain.value * 1000) / 1000 : null, lim: gLim ? [gLim.threshold.value, gLim.ratio.value, Math.round(gLim.attack.value * 1000), Math.round(gLim.release.value * 1000)] : null, reh: REH_F.some(function(f){ return f[0] === 'songGain' && f[1] === '곡 보정'; }), p: PARAM.songGain }; } };   // [BGM_SEG8_1023] 점검용 · 읽기 전용 · [LISTEN_LOOK_LEVEL_1101] song = 곡 보정 · 리미터
-window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); }, post: function(i, p){ if (R && R.cues[i]) R.cues[i].post = p; } };   // [BGM_FIX_1030] post = 점검용(마지막 큐의 긴 뒤처리를 비워 «−8 올림 없음»을 빨리 잰다)
+window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); }, post: function(i, p){ if (R && R.cues[i]) R.cues[i].post = p; }, bedAs: function(m, id){ var o = { m: BED.mode, id: BED.id }; BED.mode = m; BED.id = id; return o; } };   /* [BGM_TIMING2_1101] bedAs = 점검용(지금 곡이 노래 곡인 자리를 흉내 · 단체 사진 −24) */   // [BGM_FIX_1030] post = 점검용(마지막 큐의 긴 뒤처리를 비워 «−8 올림 없음»을 빨리 잰다)
 window.__segSel = function(id){ return segSel(id); };   // [BGM_PREVIEW_1024] 점검용 · 읽기 전용 — bgm-preview 가 본다(고객이 고른 곡이 구간 기본인가)   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)
 /* [RESCUE_REPLAY_1016] 점검용 · 읽기 전용 — rescue-replay 가 본다(미룬 순서 · 디렉터 칸 · «재생 안 됨» 단추) */
 window.__rr = { cues: function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, rescue: !!c.rescue, live: !!c.live }; }); },

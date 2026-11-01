@@ -2320,7 +2320,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1101p"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101bt"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101t4"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101t2"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101t3"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3161,7 +3161,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1101p';   // [ASSET_V] 위 주석
+  var ASSET_V='1101t4';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -8041,7 +8041,7 @@ function _upWarm(){ try{ Object.keys(S.up||{}).forEach(function(k){ var v=S.up[k
 /* ★★[BRIDGE_FIRST_1101 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 순간마다 «뜸» 자리를 화면 음악 줄과 같은 규칙(BgmSlots.leadAt = head)으로 —
      첫 줄이 다음 순간 몫 이음말이면 그 줄은 _pre(앞 소리로 듣는다 · BgmBed.lpShow 가 새 곡을 걸지 않는다) · 그 바로 뒤 줄이 _leadHere(새 곡 뜸) · 줄 목록마다 한 번 */
 function _lPreMark(){ var q=LP.q, B=window.BgmSlots; if(!q||q._pm) return; q._pm=1; if(!B||!B.leadAt) return;
-  for(var i=0;i<q.length;){ var j=i; while(j<q.length&&q[j]&&q[i]&&q[j].k===q[i].k) j++; if(j===i) j=i+1; var h=0; try{ h=B.leadAt(q[i].k,q.slice(i,j))||0; }catch(e){} if(h>0&&i+h<j){ q[i]._pre=1; q[i+h]._leadHere=1; } i=j; } }
+  for(var i=0;i<q.length;){ var j=i; while(j<q.length&&q[j]&&q[i]&&q[j].k===q[i].k) j++; if(j===i) j=i+1; var h=0; try{ var _of=''; h=B.leadAt(q[i].k,q.slice(i,j).map(function(x){ if(x.slug) _of=x.slug; return {slug:x.slug,of:x.of||((x.talk||x.talk2)?_of:''),talk:!!(x.talk||x.talk2),quiet:!!(x.quiet||x.act),skip:!!x.skip}; }),{S:S})||0; }catch(e){} if(h>0&&i+h<j){ if(/^bridge-/.test(String(q[i].slug||''))) q[i]._pre=1; else for(var z=i;z<i+h;z++){ q[z]._noLead=1; q[z]._base='M4'; } q[i+h]._leadHere=1; } i=j; } }   /* ★[BGM_TIMING2_1101] 축사 · 편지 «음악과 함께» — 차례 앞 줄은 뜸 없이 M4(_base) · 뜸은 차례 바로 앞 · 크게 보기의 차례 줄(talk2 · 참고 예시)은 of 가 없어 바로 앞 큐 이름을 이어 받는다 */
 function _lShow(){
   var st=LP.q[LP.i], a=_lAud();
   clearTimeout(LP.t);
@@ -8051,7 +8051,7 @@ function _lShow(){
   if(LP.paused) return;
   /* ★[LISTEN_PACE_1031 사장님 «BGM 이 흐르고 뜸 들인 이후 멘트»] 순간 첫 줄 앞 — 그 순간 곡이 큐 사이 크기(−8)로 3초(앞 곡이 이어지면 1.5초) 흐른 뒤 0.8초 낮추고 멘트 · 곡이 없으면 뜸 없음 */
   _lPreMark();   /* ★[BRIDGE_FIRST_1101] 뜸 자리 = 화면 음악 줄 자리(BgmSlots.leadAt) — 다음 순간 몫 이음말(b8 · b12 · b14)이 첫 줄이면 그 뒤 줄 앞에서 */
-  if(LP.pace&&!st._lead&&(st._leadHere||(!st._pre&&(!LP.i||(LP.q[LP.i-1]||{}).k!==st.k)))){ st._lead=1; var _ld=0; try{ if(_bedOn()) _ld=BgmBed.lpLead(st)||0; }catch(e){} if(_ld>0){ LP.lead=false; LP.leadSt=st; try{ a.pause(); a.removeAttribute('src'); }catch(e){} var _ltk=LP.tok;   /* 뜸 동안 소리 칸을 비운다 — 잠금 풀기 무음이 끝나며(ended) 첫 줄을 건너뛰었다 */ LP.tAt=Date.now(); LP.tMs=_ld; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ld); return; } }
+  if(LP.pace&&!st._lead&&(st._leadHere||(!st._pre&&!st._noLead&&(!LP.i||(LP.q[LP.i-1]||{}).k!==st.k)))){ st._lead=1; var _ld=0; try{ if(_bedOn()) _ld=BgmBed.lpLead(st)||0; }catch(e){} if(_ld>0){ LP.lead=false; LP.leadSt=st; try{ a.pause(); a.removeAttribute('src'); }catch(e){} var _ltk=LP.tok;   /* 뜸 동안 소리 칸을 비운다 — 잠금 풀기 무음이 끝나며(ended) 첫 줄을 건너뛰었다 */ LP.tAt=Date.now(); LP.tMs=_ld; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ld); return; } }
   if(LP.leadSt===st) LP.leadSt=null;   /* [LISTEN_PACE_1031] 뜸이 끝났다(검사 · 화면이 «뜸 중»을 안다) */
   if(_bedOn()) try{ BgmBed.lpShow(st); }catch(e){}   /* ★[BGM_PREVIEW_1024] 구간 음악 — 그 순간 곡을 이 줄 크기로(마이페이지 안 · ② 이 순간 전체 듣기만) */
   /* ★★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 이벤트 ▶ 에서 적용이 안 되는 걸 몇 번 봤다 · 구조상 절대 그럴 수 없게»]
