@@ -960,7 +960,7 @@
       return [cue({
         k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
         fire: 'chain', gapMs: 1250,   // ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
-        live: { t: '두 분이 마주 보고 맞절 (3초 숙이고 · 3초 멈추고 · 3초 일어나기)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
+        live: { t: '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
       })];   // [MATJEOL_1011] 의 큐 그대로 · k 와 blockN 만 맞절
     },
 

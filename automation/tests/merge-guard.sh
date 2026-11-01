@@ -21115,6 +21115,25 @@ chk "'narr-closing': \[CL_THX, CL_DAY\], 'narr-closing-guide': \[CL_THX, CL_DAY,
 chk "'narr-closing-soft-nt': 1," assets/ritual-cue.js 1
 nochk "'narr-closing': \[CL_THX, CL_DAY, CL_CREW\]" assets/ritual-cue.js
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
+# ── 2026-11-01 [PRACTICE_WALK_1101 검토 186 · 사장님 «연습 부분 하나씩 · 고객 입장에서»] ③ 연습하기 화면 안내(녹음 · 나레이션 문장은 그대로 · ② 미리 듣기 글도 그대로)
+chk 'function _inPr()' order-preview.html 1
+chk "SKW=PR?'연습에서는 넘겨요':'미리 듣기에서는 넘겨요'" order-preview.html 1
+chk "' · 두 분은 입장 전 대기 자리에서 준비해요'" order-preview.html 1
+chk "' · 두 분은 노래하시는 분을 바라보며 들어요'" order-preview.html 1
+chk "'① 서로 인사 → ② 하객께 인사 → ③ 자리로'" order-preview.html 1
+chk "'당일엔 입장곡에 맞춰 함께 걸어요 · 지금은 구호 뒤 나란히 걸어 두 분 자리에서 멈춰 보세요'" order-preview.html 1
+chk "txt:'이후 사진 촬영은 작가님 안내로 이어져요'" order-preview.html 1
+chk "'비워 두셔도 돼요 · 지금은 참고 예시'" order-preview.html 1
+chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.html 1
+chk 'var REF_FIRST={free:4};' order-preview.html 1
+chk "예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요" order-preview.html 1
+chk 'PRACTICE_WALK_1101' order-preview.html 15
+# [BALL_BOW_1101 검토 186-1] 맞절 = 무도회 맞절(빌더 줄 · 콘솔 live · 이야기 장면 · AI 상담) · «3초 숙이고 · 3초 멈추고 · 3초 일어나기» 걷음
+chk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 1
+chk '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)' assets/ritual-cue.js 1
+chk '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)' assets/ritual-story.js 1
+nochk "return '두 분이 마주 보고 맞절해요 · 3초 숙이고" order-preview.html
+nochk "live: { t: '두 분이 마주 보고 맞절 (3초 숙이고" assets/ritual-cue.js
 # ── 2026-11-01 [CLOSING_MEAL_DUP 검토 185 · 사장님 11:39 «추천대로 진행»] 식사 판(291 · 296) 마지막 = «오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.»(진희 새 녹음) · 식사 없는 판은 264 그대로
 chk "var CL_UP_MEAL = \['안내', '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', null," assets/ritual-cue.js 1
 chk "'narr-closing-meal': \[CL_THX\].concat(CL_MEAL, \[CL_UP_MEAL\])," assets/ritual-cue.js 1
