@@ -21660,4 +21660,7 @@ chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1  
 chk "if(LP.pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
 chk 'if(x.cheer) _lt.cheer=true;' order-preview.html 1   # [MEANING_R1_1102 13] 나눈 차례 마지막 줄이 «위하여» 표시를 잇는다
 chk "duck: PARAM.duckSpeech,   /\* \[MEANING_R1_1102 15\]" assets/ritual-cue.js 2   # [MEANING_R1_1102 15] 온라인 인사 −16 · 두 분 −20
+chk "var TURN={ same:\[1.6,1.6\], title:\[2.5,2.5\], mins:\[6,6\], moment:\[2.2,2.2\], toAct:\[0.8,0.8\], actEnd:\[1.2,1.2\], actEmo:\[2.2,2.2\], toCouple:\[2.0,3.0\], coupleEnd:\[1.4,2.2\] };" order-preview.html 1   # [TURN_GAP_1102] 줄 사이 쉼 표(미리 듣기 / 연습)
+chk "var DWELL={ matjeol:\[5,8\], bow:\[6,8\], call:\[6,8\], hug:\[6,8\], ring:\[6,8\], candle:\[6,6\], move:\[6,8\], table:\[8,8\], clapBig:\[6,6\], clapSmall:\[5,5\], def:\[5,6\] };" order-preview.html 1   # [TURN_GAP_1102] 행동 줄 머무는 시간 표
+chk 'ms:_dwellMs(x,true),act:1' order-preview.html 1   # [TURN_GAP_1102] 연습 행동 줄 = 표(종전 2초 하나)
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
