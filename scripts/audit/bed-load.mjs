@@ -127,7 +127,7 @@ try {
         let r = await trace(f, ['letter'], 15000), lv = r.o.filter((x) => x.src && x.want > -60);
         ok(`g 편지(음악 없이) → 축배(부모님께 인사 · 테이블 없음) 편지만 듣기 — 끝에 오르는 곡 = M4(${F.m4}) · M7 · M6 0`, lv.length > 3 && lv[0].f === F.m4 && !r.o.some((x) => x.src && (x.f === F.m7 || x.f === F.m6)), { first: lv[0], fs: [...new Set(r.o.filter((x) => x.src).map((x) => x.f))] });
         /* j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = M4 · M4S6 0(겹침 3초 뒤) */
-        await setOn(T2, { S6: { m: 'bed' } }); await go(f, 'toast'); await go(f, 'letter');
+        await setOn(T2, { S6: { m: 'bed' }, M4: { k: F.m4 } }); await go(f, 'toast'); await go(f, 'letter');   /* ★[CARRY_SAME_1101] 본식 곡(M4)을 골라 둔 날 — 편지 곡이 본식 목록에 있어도 고른 곡으로 돌아온다(고르지 않았으면 그대로 잇는다 · carry-same g) */
         r = await trace(f, ['letter', 'toast'], 26000); const iT = r.q.findIndex((x) => x.k === 'toast'), tT = (r.o.find((x) => x.k === 'toast') || {}).t;
         const tz = r.o.filter((x) => x.k === 'toast' && tT != null && x.t > tT + 3200 && x.src && x.want > -60);
         ok(`j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = M4(${F.m4}) · M4S6(${F.m4s6}) 0`, iT > -1 && tz.length > 3 && tz.every((x) => x.f === F.m4) && !r.o.some((x) => x.k === 'toast' && x.t > tT + 3200 && x.f === F.m4s6 && x.src), { iT, fs: [...new Set(tz.map((x) => x.f))] });
@@ -162,7 +162,7 @@ try {
   const xf = (o) => o.some((x) => x.xg && x.xg[0] > 0.05 && x.xg[1] > 0.05);
   const base = () => { const S0 = O.applyExample({ course: 'open' }, 'standard'); S0.course = 'open'; S0.freeWhat = 'speech'; S0.song = 'family'; S0.songBy = 'friend'; return S0; };
   /* h · j 당일 콘솔 — 편지 → 축배(부모님께 인사 · 테이블 없음) */
-  for (const bed of [false, true]) { const S0 = base(); S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }); if (bed) S0.bgm = { S6: { m: 'bed' } }; else delete S0.bgm;
+  for (const bed of [false, true]) { const S0 = base(); S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }); if (bed) S0.bgm = { S6: { m: 'bed' }, M4: { k: 'B09' } }; else delete S0.bgm;   /* [CARRY_SAME_1101] 본식 곡을 골라 둔 날(편지 곡 B10 은 본식 목록에도 있다 · 고르지 않은 날은 carry-same g) */
     const C = await conOpen(S0, bed ? [['M4', 440], ['M4S6', 520], ['M7', 700]] : [['M4', 440], ['M7', 700]]), iL = C.ix((c) => /^letter-/.test(c.slug || '')), iE = C.ix((c) => c.slug === 'narr-letter-end'), iT = C.ix((c) => c.slug === 'toast-toast'), iT0 = C.ix((c) => c.k === 'toast');
     if (C.miss.length || iL < 1 || iE < iL || iT < iE || iT0 < iE) { ok(`콘솔 시험 조건(${bed ? '음악과 함께' : '음악 없이'})`, false, { miss: C.miss, iL, iE, iT0, iT }); await C.ctx.close(); continue; }
     await C.pg.evaluate((i) => window.__bgmGo.fire(i), iL - 1); await C.pg.waitForTimeout(3000);

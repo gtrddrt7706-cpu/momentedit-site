@@ -147,7 +147,8 @@ try {
     /* 축사 · 편지 «음악과 함께» 아래 */
     for (const [slot, sg, k, pick] of [['S5', 'M4S5', 'free', 'B14'], ['S6', 'M4S6', 'letter', 'B12']]) {
       await go(fr, k); await fr.click(`[data-fk="bgm:${slot}:bed"]`); await wait(fr, 300);
-      const a = await look(fr, sg); await fr.click(`[data-fk="bed:${sg}:${pick}"]`); await wait(fr, 700); const b = await look(fr, sg);
+      let a = await look(fr, sg); if (a && a.fold) { await fr.click(`.bed-sub[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); a = await look(fr, sg); }   /* ★[CARRY_SAME_1101] 앞(감사 인사 B10)이 편지 목록에 있으면 고르기 전부터 그 곡 한 줄(이어짐) — «바꾸기»로 편다 */
+      await fr.click(`[data-fk="bed:${sg}:${pick}"]`); await wait(fr, 700); const b = await look(fr, sg);
       await go(fr, 'welcome'); await go(fr, k); const c = await look(fr, sg);
       if (c && c.ch) { await fr.click(`.bed-sub[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); }
       const d = await look(fr, sg);
