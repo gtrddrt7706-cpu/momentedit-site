@@ -122,7 +122,9 @@
   var F_RE = /^B\d{2,3}$/;
   function byF(f) { f = String(f || '').toUpperCase(); return F_RE.test(f) ? song(f) : null; }
   /* 고객이 고른 곡 번호 — 구간(M1 …)은 S.bgm[구간].k · 축사 · 편지 하위 칸(M4S5 · M4S6)은 S.bgm.S5 · S6 의 k(«음악과 함께»일 때만) · 그 구간 목록에 없으면 ''(1순위로 준비) */
-  function custK(S, seg) { var d = BY[seg]; if (!d || !S || !S.bgm) return ''; var v = S.bgm[d.slot || seg];
+  /* ★★[LIST_NO_PICK_1101 2026-11-01 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] 목록 칸(multi · 하객 맞이 M1 · 테이블 인사 M8)은 고르지 않는다 — 다섯 곡이 다 흐르고 고르면 시작 곡만 바뀌었다 ·
+       S.bgm.M1 · M8 의 k 는 쓰지 않는다(옛 저장값이 있어도 '' · 차례는 1순위부터 고정 · fill 과 다른 구간 곡 빼기는 그대로) · 되살리지 말 것 */
+  function custK(S, seg) { var d = BY[seg]; if (!d || d.multi || !S || !S.bgm) return ''; var v = S.bgm[d.slot || seg];
     if (!v || typeof v !== 'object') return ''; if (d.slot && v.m !== 'bed') return ''; var k = String(v.k || '');
     return (PICKS[seg] || []).indexOf(k) > -1 ? k : ''; }
   /* ★[BGM_FILL_1101] 곡 차례 한 곳 — 당일 콘솔 segSel(목록 칸 기본 · 한 곡 칸의 «파일 있는 다음 곡») · 식순 화면 M1 · M8 순서 줄이 이 함수 하나를 쓴다

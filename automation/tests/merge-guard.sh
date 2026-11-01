@@ -20683,7 +20683,10 @@ chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
 chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\] }" assets/bgm-picks.js 1   # ★[BGM_FILL_1101] 목록 칸 배경 곡
 chk 'function order(S, seg)' assets/bgm-picks.js 1
 chk 'if (BP.order) return BP.order(S, id).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
-chk 'function flowHtml(sg)' assets/bgm-bed.js 1
+chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
+nochk 'function flowHtml(sg)' assets/bgm-bed.js   # 순서 화살표 두 줄은 곡 줄 목록이 대신 — 되살리지 말 것
+chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목록 칸 k 는 쓰지 않는다
+chk 'LIST_NO_PICK_1101' scripts/audit/bgm-fill.mjs 1
 chk 'function effHas(sg)' assets/bgm-bed.js 1   # [GHIBLI_ADD_1101] 파일 있는 다음 곡
 chk 'BGM_FILL_1101' scripts/audit/bgm-fill.mjs 1
 chk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js 1
