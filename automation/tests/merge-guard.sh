@@ -7688,7 +7688,7 @@ chk 'RETIRED: RETIRED, OFFER: OFFER' assets/ritual-open.js 1
 chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
 chk 'CAKE_OFF_1013' order-preview.html 3
 chk 'function _pkShow(k)' order-preview.html 1
-chk 'a.ks.filter(_pkShow).map(_pkTile)' order-preview.html 1
+chk 'a.ks.filter(_pkShow).concat(' order-preview.html 1
 chk '(R.OFFER||R.PICKABLE).filter' order-preview.html 1
 chk 'CAKE_OFF_1013' api/_ritual-kb.js 5
 chk '(O.OFFER || O.PICKABLE).forEach' api/_ritual-kb.js 1
@@ -21217,6 +21217,15 @@ nochk "'narr-closing-soft-nt': \[CL_CREW\]" assets/ritual-cue.js
 chk "var SCENE_N = { candle: 3, entry: 3, matjeol: 3, vow: 3, 'vow-thanks': 3, ring: 3, song: 3, letter: 3, tribute: 3, 'tribute-nohug': 3, toast: 3 };" assets/ritual-open.js 1
 chk 'SCENE_EXTRA_195' scripts/build-scene-frames.mjs 1
 chk 'SCENE_EXTRA_195' scripts/audit/photo-scene.mjs 3
+# ── 2026-11-01 [AFTER_FIX_196 검토 196 · 사장님 23:16 «촬영 후 안내가 식순에 보여야 함» · 보충 «자연스럽게 · 하객 맞이 칸과 같은 모양 · 이름은 촬영 후 안내 하나» · 보충 2 «연습하기 줄은 그대로»]
+#    ① 고르기 닫는 막 끝 칸(⊙ 늘 있는 표 · 누르면 미리 보기 창 · 대표 나레이션 = 그날 판) · ② 하나씩 만들기 마지막 쪽(식후) · 예식 흐름 «식후» 줄 · 완성 순서 요약 끝 줄 · ③ 연습 · 전체 대본은 닫는 인사 끝 그대로 · 본식 시간 · 개수 규칙 밖 · 검사 pick-v2
+chk 'AFTER_FIX_196' order-preview.html 14
+chk "concat(\['_close'\]).concat(_afterOn()?\['_after'\]:\[\]).concat(\['_sum'\]);" order-preview.html 1
+chk "concat((i===R.SECTIONS.length-1&&_afterOn())?\['_after'\]:\[\])" order-preview.html 1
+chk 'id="mkFgPost">식후</p>' order-preview.html 1
+chk 'data-fk="sum:_after"' order-preview.html 1
+chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf)" order-preview.html 1
+chk "pc.tiles === '4,4,4,5'" scripts/audit/pick-v2.mjs 1
 nochk "'narr-closing': \[CL_THX, CL_DAY, CL_CREW\]" assets/ritual-cue.js
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
