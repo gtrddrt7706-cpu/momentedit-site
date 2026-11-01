@@ -88,7 +88,7 @@ async function trace(f, ks, ms, big) {
     if (big) { LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(ks, true); _lFull(); } else lsPlay(ks[0]);
     const t0 = performance.now();
     await new Promise((res) => { const iv = setInterval(() => { const v = B.BED.cur, st = LP.q[LP.i]; if (v && v.src && !v.__id) v.__id = ++n;
-      o.push({ t: performance.now() - t0, k: st && st.k, act: !!(st && st.act), who: B.BED.who, f: v && v.f, src: !!(v && v.src), want: v && v.want, id: v && v.__id || 0, off: v && v.off, g: v && v.g ? v.g.gain.value : null, lead: !!LP.leadSt });
+      o.push({ t: performance.now() - t0, k: st && st.k, act: !!(st && st.act), who: B.BED.who, f: v && v.f, src: !!(v && v.src), want: v && v.want, id: v && v.__id || 0, off: v && v.off, g: v && v.g ? v.g.gain.value : null, lead: !!LP.leadSt, nd: B.entNeed && st ? B.entNeed(st.k) : null });   /* [ENTRY_UNDER_1101] 그때의 «남아야 할 길이» */
       if (performance.now() - t0 > ms) { clearInterval(iv); res(); } }, 100); });
     try { lsStop(); } catch (x) {} try { if (big) lsCloseBig(); } catch (x) {} return o; }, { ks, ms, big }); }
 try {
@@ -114,7 +114,8 @@ try {
     /* 1 짧은 판(r1 · 10 ~ 70초) — 도착(100초)이 판 밖 → 판 안에서 25초가 남는 가장 늦은 자리(45초) */
     await f.evaluate((mu) => { S.mu = mu; _persist(); render(); }, MU('r1')); await go(f, 'matjeol'); await wait(f, 300);
     const r1b = await trace(f, ['matjeol'], 9000, false), lg1b = await LOG(pg), e1b = r1b.filter((x) => x.f === '@ENT' && x.src);
-    ok(`${W} 1 짧은 판에 도착 자리가 없으면 판 안의 가장 늦은 자리(원곡 45초 = 판 35초)부터 · 곡 전체는 묻지 않는다`, lg1b.includes('momentedit:ritualFileGet:rec:r1-p') && !lg1b.includes('momentedit:ritualFileGet:rec:r1') && e1b.length && Math.abs(e1b[0].off - 35) < 0.05, { off: e1b[0] && e1b[0].off, lg: lg1b.filter((x) => /rec/.test(x)) });
+    const want1b = e1b.length && e1b[0].nd != null ? Math.max(0, Math.min(70 - e1b[0].nd, 69) - 10) : null;   /* ★[ENTRY_UNDER_1101] 종전 «25초 남는 자리(판 35초)» → 그 순간 줄의 실제 길이로 잰 «남아야 할 길이»만큼 남는 가장 늦은 자리 */
+    ok(`${W} 1 짧은 판에 도착 자리가 없으면 판 안에서 «남아야 할 길이»(${e1b[0] && e1b[0].nd != null ? e1b[0].nd.toFixed(1) : '?'}초)만큼 남는 가장 늦은 자리(판 ${want1b != null ? want1b.toFixed(1) : '?'}초)부터 · 곡 전체는 묻지 않는다`, lg1b.includes('momentedit:ritualFileGet:rec:r1-p') && !lg1b.includes('momentedit:ritualFileGet:rec:r1') && e1b.length && want1b != null && Math.abs(e1b[0].off - want1b) < 0.6, { off: e1b[0] && e1b[0].off, nd: e1b[0] && e1b[0].nd, lg: lg1b.filter((x) => /rec/.test(x)) });
     /* 3 이어 듣기 — 입장 → 맞절 → 감사 인사 */
     await f.evaluate((mu) => { S.mu = mu; _persist(); render(); }, MU('r5')); await go(f, 'entry'); await wait(f, 300);
     const r3 = await trace(f, ['entry', 'matjeol', 'welcome'], 52000, true);

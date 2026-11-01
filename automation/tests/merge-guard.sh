@@ -18954,7 +18954,7 @@ chk "var _scn=(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml)?EntryMusic.
 chk '.mk-pick:has(+.em-scene){padding-bottom:0}' order-preview.html 1
 chk 'ENTRY_SCENE_1012' assets/entry-music.js 3
 chk 'EM.sceneHtml=sceneHtml' assets/entry-music.js 1
-chk 'redraw(); scHalt(); };' assets/entry-music.js 1                 # 빌더가 제 소리를 틀면(_stopMk) 장면은 그 자리에 멈춘다([ONE_SOUND])
+chk 'if(RUN&&RUN===HAND) return; scHalt(); };' assets/entry-music.js 1                 # 빌더가 제 소리를 틀면(_stopMk) 장면은 그 자리에 멈춘다([ONE_SOUND])
 chk 'breath:0.3,' assets/entry-scene.js 1                            # 마지막 말 끝 + 0.3초 = 하이라이트(시험실 DEF_P) · [ENTRY_SCENE_ENGINE] 2026-10-12 계산 한 곳으로 옮김
 chk 'var EM={ scene:true };' assets/entry-music.js 1                  # 안내 창이 «음악과 함께 듣기로 …»를 말한다
 nochk 'var EM={ scene:false };' assets/entry-music.js
@@ -19111,7 +19111,7 @@ chk 'ONE_PLAY_1013' assets/entry-music.js 10
 chk 'ONE_PLAY_1013' order-preview.html 6
 chk 'ONE_PLAY_1013' scripts/audit/entry-music.mjs 8
 chk "'이 순간 전체 듣기 · 음악과 함께'" assets/entry-music.js 1                       # 알약 이름(시안 a)
-chk "if(R.whole&&!BIG) restGo();" assets/entry-music.js 1                              # 장면이 끝나면 다음 줄부터
+chk "if(R.whole&&!BIG&&!R.hand) restGo();" assets/entry-music.js 1                              # 장면이 끝나면 다음 줄부터
 chk "if(typeof lsPlay==='function'){ lsPlay('entry'); return; }" assets/entry-music.js 1   # 처음부터는 빌더 입구를 지난다(목소리 확인 · 만들기)
 chk 'function _lsGo(k){' order-preview.html 1
 chk 'window.lsRest=function(k){' order-preview.html 1
@@ -20702,6 +20702,13 @@ chk 'SONG_ROW_PLAIN_1101' scripts/audit/song-row-plain.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/song-row-plain.mjs >/dev/null 2>&1; _srp=$?; if [ "$_srp" = 1 ]; then echo 'FAIL song-row-plain: 고객 화면 곡 줄이 제목 · 가수뿐이 아닙니다(판 · 분위기 · «노래») — node scripts/audit/song-row-plain.mjs'; fail=1; elif [ "$_srp" = 2 ]; then echo 'skip song-row-plain (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok song-row-plain'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/picks-three.mjs >/dev/null 2>&1; _pt3=$?; if [ "$_pt3" = 1 ]; then echo 'FAIL picks-three: 구간 곡 목록이 3곡 · 정한 순서가 아니거나 뺀 곡이 보입니다(옛 저장값 오류 포함) — node scripts/audit/picks-three.mjs'; fail=1; elif [ "$_pt3" = 2 ]; then echo 'skip picks-three (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok picks-three'; fi; fi   # ★[PICKS_THREE_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-fill.mjs >/dev/null 2>&1; _bfl=$?; if [ "$_bfl" = 1 ]; then echo 'FAIL bgm-fill: 목록 칸 차례(배경 곡) · 순서 두 줄 · 같은 곡 한 줄 · 파일 없을 때 다음 곡이 어긋납니다 — node scripts/audit/bgm-fill.mjs'; fail=1; elif [ "$_bfl" = 2 ]; then echo 'skip bgm-fill (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bgm-fill'; fi; fi   # ★[BGM_FILL_1101 · GHIBLI_ADD_1101]
+chk 'function entNeed(k)' assets/bgm-bed.js 1   # ★[ENTRY_UNDER_1101] 남아야 할 길이 = 줄 실제 길이
+chk 'function entArm(v)' assets/bgm-bed.js 1   # 판 끝 3초 겹쳐 강조 자리로
+nochk 'ENT_NEED=25' assets/bgm-bed.js   # 옛 «25초 남는 자리» — 맞절 긴 멘트에서 곡이 끊겼다 · 되살리지 말 것
+chk 'LP.entRest=(_ao===' order-preview.html 1   # 장면 뒤 받는 말도 입장 곡
+chk 'R.hand=true; HAND=R; restGo();' assets/entry-music.js 1   # 장면이 도착에서 잦아들 때 넘긴다
+chk 'ENTRY_UNDER_1101' scripts/audit/entry-under.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-under.mjs >/dev/null 2>&1; _eun=$?; if [ "$_eun" = 1 ]; then echo 'FAIL entry-under: 입장 · 맞절 듣기에서 곡이 멘트 도중 끊깁니다(판 끝 이음 · 장면 넘김 · 남아야 할 길이) — node scripts/audit/entry-under.mjs'; fail=1; elif [ "$_eun" = 2 ]; then echo 'skip entry-under (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-under'; fi; fi   # ★[ENTRY_UNDER_1101]
 # ★[VC_FIX2_1030 2026-10-30 GPT 2차 점검] 두 분 AI 목소리 — 지우기 · 저장 · 잠금 · 글자 예산(서버 아홉 · 깨 보기 포함) · 무음 녹음 · 새로 고침 경고 · 당일 콘솔 최신 확인
 chk 'VC_FIX2_1030' scripts/audit/vc-fix2-1030.mjs 1
 chk 'VC_HOLD' automation/platform/80_production.gs 4
@@ -21426,7 +21433,7 @@ chk 'ENTRY_CARRY_1101' order-preview.html 2
 chk 'ENTRY_CARRY_1101' assets/bgm-form.js 1
 chk 'EM.carry=carry; EM.carryHas=carryHas; EM.carrySig=carrySig;' assets/entry-music.js 1
 chk "ENT_F='@ENT'" assets/bgm-bed.js 1
-chk "if(k==='matjeol'||(k==='entry'&&entMulti())) return entOn()?ENT_F:'';" assets/bgm-bed.js 1
+chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
 chk "tests: 'entry-carry bridge-first bgm-timing'" .github/workflows/merge-guard.yml 1   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
