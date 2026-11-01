@@ -1320,7 +1320,11 @@ function segCur(){ var el = BED.el[BED.on]; if (BED.mode !== 'seg' || !BED.id ||
 setInterval(function(){ if (BED.mode !== 'seg' || BED.xing) return; var el = BED.el[BED.on], m = SEGST.meta[BED.id] || {}, end = m.end || el.duration;
   if (!isFinite(end) || !(end > SEG_XF + 1) || el.paused) return;
   if (end - el.currentTime <= 20 && BED.pre !== BED.id + '>' + BED.li) { BED.pre = BED.id + '>' + BED.li; listProbe(); }   /* [DETAIL_R5_1101 규칙 5] 끝 20초 전 — 다음 곡 파일을 미리 열어 본다 */
-  if (el.currentTime >= end - SEG_XF) listGo(1); }, 250);
+  if (BED.lfWant && !talkNow()) { BED.lfWant = 0; listGo(1); return; }   /* [MEANING_R1_1102 19] 말하는 줄이 끝나고 다음 나레이션 · 박수 · 이동 줄에서 다음 곡으로 */
+  if (el.currentTime >= end - SEG_XF) { if (talkNow() && BED.list.length > 1) { BED.lfWant = 1; var _m19 = SEGST.meta[BED.id] || {}; bedPlay(BED.id, SEG_XF, _m19.head || 0); return; } listGo(1); } }, 250);
+/* ★[MEANING_R1_1102 19] 두 분 · 손님이 직접 말하는 자리(live doing 'say' · 서약 · 덕담 · 낭독) — 곡 끝 3초 전에 다음 곡으로 넘기면 새 멜로디가 말 한가운데 들어온다 ·
+     그 자리 동안은 같은 곡을 강조 자리부터 3초 겹쳐 잇고, 말이 끝난 뒤 줄에서 넘긴다(미리 듣기 bgm-bed listArm 과 같은 규칙) */
+function talkNow(){ var c = cur >= 0 ? cueAt(cur) : null; return !!(phase === 'live' && c && c.live && c.live.doing === 'say'); }
 /* ★★[DETAIL_R5_1101 규칙 5] 목록 다음 곡 — 파일이 있고 못 연 적 없는 곡만 · 열다 실패하면 그다음 곡 · 틀 곡이 하나도 없으면 지금 곡을 처음부터 이어 틀고 상태 한 줄(곡 끝 처리는 이 한 곳 · DAYLONG 판 그대로) */
 function listNext(from){ var L = BED.list, n = L.length, bad = BED.bad || {}; for (var k = 1; k < n; k++) { var j = (from + k) % n, s = L[j]; if (s && SEGF[s] && !bad[s] && s !== BED.id) return j; } return -1; }
 function listGo(step){ var j = listNext(BED.li); if (j < 0) { if (BED.list.length > 1) { BED.keepErr = '다음 곡을 열지 못해 지금 곡을 이어 틀어요'; bedErr(BED.keepErr); } BED.onFail = null; var cur = BED.id, m = SEGST.meta[cur] || {}; bedPlay(cur, SEG_XF, m.head || 0); return; }

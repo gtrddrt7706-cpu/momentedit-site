@@ -101,7 +101,7 @@
       ref: { role: '신호', sec: [60, 90], level: LEVEL.main } },
     /* [BGM_FORM_1023 v2] 식사가 없는 날도 있어 «식사»는 뺐다 */
     { id: 'S10', ks: ['table'], picks: [], at: 'top',
-      one: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요',   /* [BGM_R1_1023] 무엇을 닫는지(하루) */
+      one: '테이블 인사 동안 재즈가 흘러요',   /* ★[MEANING_R1_1102 11] 사진은 닫는 인사 곡(M6) · 마지막 곡은 촬영 후 — 이 칸은 테이블 인사만 */   /* [BGM_R1_1023] 무엇을 닫는지(하루) */
       ref: { role: '배경', sec: 1800, run: 600, level: LEVEL.speech, note: '진행 예상 600초(테이블 인사 · 엔진 9분) · 음악 확보 1800초(30분 목록) + 마지막 곡 큐(마무리 인사 47)' } }   /* [BGM_SEG8_1023] 진행과 확보를 나눠 적는다 */   /* [BGM_CONSOLE1_1023] 박수 줄(131 «큰 박수로 맞이해 주십시오») 걷음 — 대본 157 로 그 문장이 빠졌다(지금 131 «… 감사의 인사를 드리겠습니다.») */
   ];
 
@@ -111,6 +111,7 @@
   var LINE = {
     prevideo: '영상에 입힌 소리로 흘러요',
     matjeol: '입장 곡이 이어져요',
+    declare: '선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요',   /* ★[MEANING_R1_1102 5] 성혼 선언 낭독은 정적 · 박수(−8)부터 음악 — «피아노가 이어져요»는 소리와 달랐다 */
     cont: '{at}부터 피아노가 조용히 이어져요'   /* [BGM_R2_1023] 짧게(폰 한 줄) · S4 의 서약 · 반지 · 선언 · 덕담 — 감사 인사부터 흐르던 곡(감사 인사를 뺀 식순이면 «혼인 서약부터…») */
   };
 
@@ -156,6 +157,7 @@
     if (k === 'entry') return { kind: 'entry' };
     var s = slotOfKey(k); if (!s || s.entry) return null;   /* 축가(MR 흐름) · 케이크(은퇴) 등은 없다 */
     if (s.picks.length) return { kind: 'pick', s: s };
+    if (k === 'declare' && s.id === 'S4') return { kind: 'flow', t: LINE.declare, at: 'top', s: s };   /* [MEANING_R1_1102 5] */
     var first = chooser(s, o);
     if (first && first !== k) {
       var nm = ''; try { nm = typeof o.nameOf === 'function' ? String(o.nameOf(first) || '') : ''; } catch (e) {}

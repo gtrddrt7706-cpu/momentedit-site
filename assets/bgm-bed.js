@@ -208,6 +208,7 @@
   function listArm(v){ clearTimeout(v.lt); var a=AC, s=v.src; if(!a||!s||!s.buffer||v.f===ENT_F) return; var d=s.buffer.duration, left=d-posOf(v); if(!(d>LIST_XF*2+1)) return;
     var sg0=lfSeg(), n0=sg0?lfNext(sg0,v.f):''; if(n0&&!BUF[n0]) want(n0);   /* 미리 받기 */
     v.lt=setTimeout(function(){ if(v.src!==s||!AC) return; var sg=BED.cur===v?lfSeg():'', nf=sg?lfNext(sg,v.f):'';
+      var cs=BED.cur===v?curStep():null; if(nf&&cs&&(cs.talk||cs.talk2)){ LPB.lfw={ sg:sg, f:nf, v:v }; if(!BUF[nf]) want(nf); swapSrc(v,s.buffer,hookOf(v.f),v.f); return; }   /* ★[MEANING_R1_1102 19] 두 분 · 손님이 말하는 줄 도중에는 다음 곡으로 넘기지 않는다 — 같은 곡을 강조 자리부터 3초 겹쳐 잇고, 그 줄이 끝난 다음 줄(lpShow)에서 넘긴다 · 당일 콘솔 talkNow 와 같은 규칙 */
       if(nf&&BUF[nf]&&BUF[nf].st==='ok'){ if(swapSrc(v,BUF[nf].b,0,nf)){ LPB.f=nf; LPB.lf={ sg:sg, f:nf }; } return; }
       if(nf&&!BUF[nf]) want(nf); swapSrc(v,s.buffer,hookOf(v.f),v.f); },Math.max(0,left-LIST_XF)*1000); }   /* 다음 곡이 없으면 같은 곡 처음(강조 자리)으로 */
   var LIST_XF=3;
@@ -248,6 +249,7 @@
          새 곡을 걸지 않는다 · 이어 듣기면 앞 곡을 말 아래 크기(−16 · 보컬 −22)로 · 그 순간만 들으면 음악 없이 · 새 곡 뜸은 그 바로 뒤 줄(lpLead) */
     if(st._pre){ LPB.cheer=false; if(BED.who==='lp'&&BED.cur.src){ var pp=PR(), dbp=vx(pp.speech,BED.cur.f); LPB.on=true; ramp(BED.cur,dbp,dbp>(BED.cur.want||-90)+0.5?pp.up:pp.down); } return; }
     if(st.k!=='toast') LPB.m7=false;
+    if(LPB.lfw&&!(st.talk||st.talk2)){ var _w=LPB.lfw; LPB.lfw=null; if(BED.cur===_w.v&&BED.cur.src&&(st._base||segAt(st.k))===_w.sg&&BUF[_w.f]&&BUF[_w.f].st==='ok'&&swapSrc(BED.cur,BUF[_w.f].b,0,_w.f)){ LPB.f=_w.f; LPB.lf={ sg:_w.sg, f:_w.f }; } }   /* [MEANING_R1_1102 19] 말이 끝난 줄에서 미뤄 둔 다음 곡으로 */
     var f=fileFor(st), db=lvOf(st,f), up=db>(BED.cur.want||-90)+0.5, p=PR();
     try{ var _nq=(typeof LP!=='undefined'&&LP.q)?LP.q[LP.i+1]:null; if(_nq&&_nq.k===st.k){ var _nf=fileFor(_nq); if(_nf&&_nf!==f&&!BUF[_nf]) want(_nf); } }catch(x){}   /* ★[DETAIL_R2_1101 ①] 여는 말(본식 곡) 동안 바로 뒤 말씀 · 낭독 줄의 «음악과 함께» 곡을 미리 받는다 — 뜸이 그 줄 앞으로 옮겨 와 곡 받기가 늦어지지 않게 */
     LPB.cheer=false;
@@ -310,9 +312,11 @@
       AV.cb.push(function(){ if(LPB.lt!==tl) return; clearTimeout(LPB.ln); if(LPB.note) note('');
         if(leadOf()===st){ var ms=lpLead(st,re); if(re) re(ms); return; } var q=curStep(); if(q) lpShow(q); });
       return re?LEAD_WAIT:0; }
-    if(st.k!=='declare'&&lvOf(st,f||BED.cur.f)<=-60){ if(BED.who==='lp'&&BED.cur.src&&(BED.cur.want==null||BED.cur.want>-60)){ LPB.on=true; LPB.cheer=false; var _sf=(st.k==='prevideo'||st.slug==='narr-close-bow')?2000:1500; ramp(BED.cur,-90,_sf); return _sf+1000; } return 0; }   /* ★[PREVIDEO_AFTER_1101] 식전 영상 소개 앞은 2초에 내리고 정적 1초 */   /* ★[BGM_TIMING_1101] 무음 첫 줄 — 그 순간 곡이 없어도(편지 «음악 없이») 흐르던 곡을 1.5초에 끄고 정적 1초 */
+    if(st.k!=='declare'&&lvOf(st,f||BED.cur.f)<=-60){ if(BED.who==='lp'&&BED.cur.src&&(BED.cur.want==null||BED.cur.want>-60)){ LPB.on=true; LPB.cheer=false; var _sf=(st.k==='prevideo'||st.slug==='narr-close-bow'||st.slug==='narr-open')?2000:1500; ramp(BED.cur,-90,_sf); return _sf+1000; } return 0; }   /* ★[PREVIDEO_AFTER_1101] 식전 영상 소개 앞은 2초에 내리고 정적 1초 */   /* ★[BGM_TIMING_1101] 무음 첫 줄 — 그 순간 곡이 없어도(편지 «음악 없이») 흐르던 곡을 1.5초에 끄고 정적 1초 */
     if(!f) return 0;
-    if(st.k==='declare'&&lvOf(st,f)<=-60) return lpDeclare(st,f,re);   /* [DETAIL_R2_1101 ③] */   /* [KNOBS_1031] 선언 앞은 당일 연출 */
+    if(st.k==='declare'&&lvOf(st,f)<=-60){ var _dq=seq().filter(onOf), _di=_dq.indexOf('declare');   /* ★[MEANING_R1_1102 18] 반지 바로 뒤일 때만 «4초 내림 + 2.5초 정적»(당일 콘솔과 같은 조건) · 그 밖에는 앞 음악을 1.5초에 끄고 정적 1초 → 선언 여는 말(정적이 두 번 겹치지 않게) */
+      if(_di>0&&_dq[_di-1]==='ring') return lpDeclare(st,f,re);
+      if(BED.who==='lp'&&BED.cur.src&&(BED.cur.want==null||BED.cur.want>-60)){ LPB.on=true; LPB.cheer=false; LPB.m7=false; ramp(BED.cur,-90,1500); return 2500; } return 1000; }   /* [DETAIL_R2_1101 ③] */   /* [KNOBS_1031] 선언 앞은 당일 연출 */
     /* ★[BGM_TIMING_1101] 순간 첫 줄이 무음(−60 이하 · 편지 «음악 없이» 등)이면 뜸 대신 «끄고 정적 1초» — 앞 곡이 흐르면 1.5초에 −90 → 1초 뒤 첫 멘트(당일 1.5초 내림 + 내림 끝 대기와 같다) · 그 순간만이면 처음부터 음악 없이 · 판정은 위(곡이 없어도) */
     var p=PR(), cont=!!(BED.who==='lp'&&BED.cur.src&&BED.cur.f===f), ms=cont?3000:6000;   /* ★[LEAD_LONGER_1031 사장님 «처음 BGM 노래가 좀 더 흐른 뒤 멘트가 나왔으면»] 뜸 새 곡 3 → 6초 · 이어지는 곡 1.5 → 3초(큐 사이 크기 −8 · 끝 0.8초 미리 낮추기) */
     if(st.k!=='toast') LPB.m7=false; LPB.on=true; BED.who='lp'; LPB.cheer=false; subNote(st);
@@ -352,7 +356,7 @@
     if(pv&&pv.k==='_close'&&pv.slug==='narr-close-bow'){ var f6=songAt('_close'); if(f6&&BUF[f6]&&BUF[f6].st==='ok'){ play(f6,p.music,p.up,LPB.keep[f6]||0); LPB.f=f6; } return; }
     if(!BED.cur.src) return;
     if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }   /* [MEANING_R1_1102 16] 앞 곡을 2초에 내리고 M8L 은 무음에서(줄이 시작할 때) */
-    if(pv&&nx&&pv.k!==nx.k&&(nx.k==='prevideo'||nx.slug==='narr-close-bow')&&nx.dk!=null&&nx.dk<=-60){   /* [MEANING_R1_1102 14] 닫는 인사 앞도 같은 경계 */ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }   /* ★[PREVIDEO_AFTER_1101] 식전 영상 소개 앞 — 흐르던 곡을 2초에 끄고 정적 1초(쉼은 빌더가 3초로) */
+    if(pv&&nx&&((pv.k!==nx.k&&(nx.k==='prevideo'||nx.slug==='narr-close-bow'))||nx.slug==='narr-open')&&nx.dk!=null&&nx.dk<=-60){   /* [MEANING_R1_1102 1] 개식사 앞 — 하객 맞이 곡이 2초에 내려가고 정적 1초 */   /* [MEANING_R1_1102 14] 닫는 인사 앞도 같은 경계 */ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }   /* ★[PREVIDEO_AFTER_1101] 식전 영상 소개 앞 — 흐르던 곡을 2초에 끄고 정적 1초(쉼은 빌더가 3초로) */
     if(pv&&nx&&pv.k!==nx.k&&(nx._pre||nx._noLead)){ var dbb=vx(p.speech,BED.cur.f), vb=BED.cur; if(vb.want>dbb+0.5){ var lb=Math.min(p.lead,Math.max(0,gap)); setTimeout(function(){ if(BED.cur===vb&&LPB.on) ramp(vb,dbb,lb||p.down); },Math.max(0,gap-lb)); } return; }   /* ★[BRIDGE_FIRST_1101] 다음 줄이 이음말이면(★[BGM_TIMING2_1101] «음악과 함께» 축사 · 편지 여는 말도) −8 로 올리지 않고 0.8초 미리 낮춰 말 아래 크기로(앞 곡 그대로) */
     if(pv&&nx&&pv.k!==nx.k&&nx.k!=='declare'&&!personal(nx)&&nx.dk!=null&&nx.dk<=-60) return;   /* ★[BGM_TIMING_1101] 다음 순간 첫 줄이 무음이면 −8 로 올리지 않는다 — 곧 뜸 자리에서 1.5초에 −90 (편지 «음악 없이») */
     if(pv&&nx&&pv.k!==nx.k){ ramp(BED.cur,Math.max(BED.cur.want,vx(p.music,BED.cur.f)),TAIL.up); return; }   /* ★[LISTEN_LOOK_LEVEL_1101 ③] 이어 듣기 — 순간이 바뀔 때 끄지 않고 큐 사이 크기(−8)로 이어 흐른다 · 다음 순간 뜸(lpLead)이 같은 곡이면 그대로 · 새 곡이면 3초 겹쳐 넘긴다 */
