@@ -21326,7 +21326,7 @@ chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodby
 chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000 }" assets/ritual-cue.js 1
 chk "if (st.music === 'next') {" console.html 1
 chk 'function toastBed(){' assets/bgm-bed.js 1
-chk 'LPB.tailTo=Date.now()+w+3000; return w+3000+600; }' assets/bgm-bed.js 1
+chk 'LPB.tailTo=Date.now()+w+um; return w+um+600; }' assets/bgm-bed.js 1
 chk "ldk:(k==='ring'&&c.live&&c.live.duck!=null)?c.live.duck:undefined" order-preview.html 1
 chk "ldk:(c.live&&c.live.duck!=null)?c.live.duck:-20}); } }" order-preview.html 1
 chk 'BgmBed.lpTail(_pv,_nx)' order-preview.html 1

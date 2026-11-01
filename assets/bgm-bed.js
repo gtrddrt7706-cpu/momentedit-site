@@ -175,9 +175,9 @@
     /* ★[BGM_TIMING_1101] 편지 끝 → 새 곡을 여는 순간(부모님께 인사 M5 · 테이블 M8 등) — 정적 2초 뒤 그 곡을 무음에서 3초에 걸쳐 올린다(편지 곡을 되살리지 않는다) · 그다음 순간 뜸은 «이어지는 곡 3초» · 같은 곡이거나 곡이 없으면 종전대로 · «음악과 함께»(정적 없음)는 종전대로 */
     var nk=nx?nx.k:nextK(st.k), fn=(nk&&nk!==st.k)?(nx?fileFor(nx):songAt(nk)):'';   /* ★[BGM_TIMING2_1101] 편지만 따로 들을 때(다음 줄 없음)도 식순 차례상 다음 순간의 곡 */
     if(bed&&fn&&fn!==f&&BUF[fn]&&BUF[fn].st==='ok'){ play(fn,vx(p.speech,fn),3000,atOf(fn,nx)); LPB.f=fn; LPB.tailTo=Date.now()+3000; return 3600; }   /* ★[BGM_TIMING2_1101] «음악과 함께» 편지 끝 — 정적 없이 다음 곡으로 3초 겹침 */
-    if(fn&&fn!==f&&BUF[fn]&&BUF[fn].st==='ok'){ var v0=BED.cur; if(v0.src) ramp(v0,-90,300);
-      setTimeout(function(){ if(!LPB.on||BED.who!=='lp'||BED.cur!==v0) return; var nv=startVoice(fn,vx(p.speech,fn),3000,atOf(fn,nx)); if(!nv) return; if(v0.src) stopVoice(v0,300); BED.cur=nv; LPB.f=fn; },w);
-      LPB.tailTo=Date.now()+w+3000; return w+3000+600; }
+    if(fn&&fn!==f&&BUF[fn]&&BUF[fn].st==='ok'){ var v0=BED.cur, um=nx?3000:d.lup; if(v0.src) ramp(v0,-90,300);   /* ★[BGM_TIMING2_1101] 편지만 따로 들으면(다음 줄 없음) 오름은 종전 그대로(4초 · KNOBS_1031 ②) · 곡만 다음 순간 곡 */
+      setTimeout(function(){ if(!LPB.on||BED.who!=='lp'||BED.cur!==v0) return; var nv=startVoice(fn,vx(p.speech,fn),um,atOf(fn,nx)); if(!nv) return; if(v0.src) stopVoice(v0,300); BED.cur=nv; LPB.f=fn; },w);
+      LPB.tailTo=Date.now()+w+um; return w+um+600; }
     if(!(BED.cur.src&&BED.cur.f===f)){ play(f,-90,200,LPB.keep[f]||0); LPB.f=f; } var v=BED.cur; if(!bed) ramp(v,-90,300);
     setTimeout(function(){ if(BED.cur===v&&LPB.on) ramp(v,vx(p.speech,f),d.lup); },w);
     LPB.tailTo=Date.now()+w+d.lup; return w+d.lup+600; }
