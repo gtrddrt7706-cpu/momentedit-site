@@ -22,7 +22,7 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 function wav(sec, f, sr = 16000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
   for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
 const SHORT = wav(0.6, 330);
-const HAVE = ['B01', 'B02', 'B04', 'B05', 'B06', 'B09', 'B10', 'B12', 'B13', 'B14', 'B15', 'B17', 'B18', 'B21', 'B28', 'B29', 'B03', 'B23'];
+const HAVE = ['B01', 'B05', 'B07', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B17', 'B19', 'B24', 'B28', 'B29', 'B23'];   /* [PICKS_THREE_1101] 구간마다 3곡 · 뺀 7곡 대신 남은 곡 */
 const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(12, 180 + i * 20).toString('base64'); });
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
 <script>
@@ -76,41 +76,41 @@ const look = (f, sg) => f.evaluate((sg) => { const r = document.querySelector('.
 const sealRgb = (hex) => { const h = hex.replace('#', ''); return `rgb(${parseInt(h.slice(0, 2), 16)}, ${parseInt(h.slice(2, 4), 16)}, ${parseInt(h.slice(4, 6), 16)})`; };
 const shot = async (f, W, n) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { recursive: true }); await f.evaluate(() => { document.querySelectorAll('.me-fab-stack').forEach((x) => { x.style.visibility = 'hidden'; }); }); await f.locator('#stage .mk-pick').first().screenshot({ path: path.join(SHOT, `mf-${W}-${n}.png`) }); } catch (e) { console.log('그림 못 찍음 ' + n + ' ' + e.message); } };
 /* 순간마다 — [구간, 그 쪽 순간, 고를 곡(1순위 아님), 다녀올 쪽] */
-const CASES = [['M1', 'guest', 'B02', 'candle'], ['M2', 'candle', 'B06', 'welcome'], ['M4', 'welcome', 'B10', 'candle'], ['M5', 'tribute', 'B06', 'welcome'], ['M8', 'table', 'B03', 'welcome'], ['M7', 'toast', 'B29', 'welcome'], ['M6', '_close', 'B18', 'welcome']];
+const CASES = [['M1', 'guest', 'B24', 'candle'], ['M2', 'candle', 'B07', 'welcome'], ['M4', 'welcome', 'B10', 'candle'], ['M5', 'tribute', 'B11', 'welcome'], ['M8', 'table', 'B23', 'welcome'], ['M7', 'toast', 'B29', 'welcome'], ['M6', '_close', 'B19', 'welcome']];
 try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
     /* 1 안 고른 구간 */
     await go(f, 'candle'); let r = await look(f, 'M2');
-    ok(`${W} 1 안 고른 화촉 — 곡 줄 넷 · 접힌 줄 없음 · 아래 «고르지 않으시면 …» 줄 없음(SONG_ROW_LINES_1101)`, r && r.rows === 4 && !r.fold && r.on.length === 0 && !r.note, r);
+    ok(`${W} 1 안 고른 화촉 — 곡 줄 셋 · 접힌 줄 없음 · 아래 «고르지 않으시면 …» 줄 없음(SONG_ROW_LINES_1101)`, r && r.rows === 3 && !r.fold && r.on.length === 0 && !r.note, r);
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
-    ok(`${W} 1 안 고른 채로 다시 들어와도 접지 않는다`, r && r.rows === 4 && !r.fold, r);
+    ok(`${W} 1 안 고른 채로 다시 들어와도 접지 않는다`, r && r.rows === 3 && !r.fold, r);
     /* 2 쪽에 머무는 동안 고르기 */
-    const rowH = await f.evaluate(() => { const x = document.querySelector('[data-fk="bed:M2:B06"]'); return x ? Math.round(x.closest('.mu-row').getBoundingClientRect().height) : 0; });   /* 고를 곡(B06)의 줄 — 접힌 줄은 그 곡을 보인다(첫 곡 줄은 폰에서 두 줄일 수 있다) */
-    await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 700); r = await look(f, 'M2');
+    const rowH = await f.evaluate(() => { const x = document.querySelector('[data-fk="bed:M2:B07"]'); return x ? Math.round(x.closest('.mu-row').getBoundingClientRect().height) : 0; });   /* 고를 곡(B07)의 줄 — 접힌 줄은 그 곡을 보인다(첫 곡 줄은 폰에서 두 줄일 수 있다) */
+    await f.click('[data-fk="bed:M2:B07"]'); await wait(f, 700); r = await look(f, 'M2');
     const fk2 = await f.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'));
-    ok(`${W} 2 고르면 바로 한 줄 — 곡 줄 없음 · «Photograph» · 포커스 = «바꾸기»(${fk2})`, r && r.fold && r.rows === 0 && r.t === 'Photograph' && r.plFk === 'bedp:M2:B06' && fk2 === 'bedchg:M2', { r, fk2 });
+    ok(`${W} 2 고르면 바로 한 줄 — 곡 줄 없음 · «Summer» · 포커스 = «바꾸기»(${fk2})`, r && r.fold && r.rows === 0 && r.t === 'Summer' && r.plFk === 'bedp:M2:B07' && fk2 === 'bedchg:M2', { r, fk2 });
     await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); await f.click('[data-fk="bed:M2:B05"]'); await wait(f, 700);
-    await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 700);
+    await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); await f.click('[data-fk="bed:M2:B07"]'); await wait(f, 700);
     await f.evaluate(() => render()); await wait(f, 300); r = await look(f, 'M2');
-    ok(`${W} 2 «바꾸기»로 열어 다른 곡을 골라도 다시 접힌다 · 다시 그려도(render) 접힌 채`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B06', r);
+    ok(`${W} 2 «바꾸기»로 열어 다른 곡을 골라도 다시 접힌다 · 다시 그려도(render) 접힌 채`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B07', r);
     /* 3 다시 들어오면 접힌다 */
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
-    ok(`${W} 3 다시 들어오면 한 줄 — 곡 줄 없음 · «Photograph» · 아랫줄 · ▶ 하나 · «준비해요» 없음`, r && r.fold && r.rows === 0 && r.t === 'Photograph' && r.a === 'Cody Fry'   /* ★[SONG_ROW_PLAIN_1101] 아랫줄 = 연주자만 */ && r.pl === 1 && r.plFk === 'bedp:M2:B06' && !r.note, r);
+    ok(`${W} 3 다시 들어오면 한 줄 — 곡 줄 없음 · «Summer» · 아랫줄 · ▶ 하나 · «준비해요» 없음`, r && r.fold && r.rows === 0 && r.t === 'Summer' && r.a === '피아노 연주'   /* ★[SONG_ROW_PLAIN_1101] 아랫줄 = 연주자만 */ && r.pl === 1 && r.plFk === 'bedp:M2:B07' && !r.note, r);
     ok(`${W} 3 «바꾸기» = button · aria-expanded=false · aria-controls → 목록 칸 · 밑줄 · 글 단추 색(--gold-deeper · LINK_GOLD_1031) · 누를 자리 44px 이상`, r && r.ch && r.ch.tag === 'BUTTON' && r.ch.txt === '바꾸기' && r.ch.exp === 'false' && r.ch.ctlOk && r.ch.h >= 44 && /underline/.test(r.ch.deco) && r.ch.col === sealRgb(r.gold), r && r.ch);
     ok(`${W} 3 접힌 줄 높이 = 같은 곡 줄 하나(${rowH}px ± 2) · ▶ 44px 이상`, r && Math.abs(r.foldH - rowH) <= 2 && r.plH >= 44, { foldH: r && r.foldH, rowH, plH: r && r.plH });
     await shot(f, W, 'candle-fold');
     /* 4 접힌 줄 ▶ 는 듣기만 */
-    await f.click('[data-fk="bedp:M2:B06"]'); await wait(f, 1200);
-    const c4 = await f.evaluate(() => ({ cf: BgmBed._t.CARD.f, k: S.bgm && S.bgm.M2 && S.bgm.M2.k, fold: !!document.querySelector('.ls-bed[data-seg="M2"] .mu-fold1'), pr: (document.querySelector('[data-fk="bedp:M2:B06"]') || { getAttribute: () => '' }).getAttribute('aria-pressed') }));
-    await f.click('[data-fk="bedp:M2:B06"]'); await wait(f, 300);
-    ok(`${W} 4 접힌 줄 ▶ — 그 곡을 듣기만(고른 곡 B06 그대로 · 접힌 채 · ■)`, c4.cf === 'B06' && c4.k === 'B06' && c4.fold && c4.pr === 'true', c4);
+    await f.click('[data-fk="bedp:M2:B07"]'); await wait(f, 1200);
+    const c4 = await f.evaluate(() => ({ cf: BgmBed._t.CARD.f, k: S.bgm && S.bgm.M2 && S.bgm.M2.k, fold: !!document.querySelector('.ls-bed[data-seg="M2"] .mu-fold1'), pr: (document.querySelector('[data-fk="bedp:M2:B07"]') || { getAttribute: () => '' }).getAttribute('aria-pressed') }));
+    await f.click('[data-fk="bedp:M2:B07"]'); await wait(f, 300);
+    ok(`${W} 4 접힌 줄 ▶ — 그 곡을 듣기만(고른 곡 B07 그대로 · 접힌 채 · ■)`, c4.cf === 'B07' && c4.k === 'B07' && c4.fold && c4.pr === 'true', c4);
     /* 5 «바꾸기» */
     const dlgN = () => f.evaluate(() => [...document.querySelectorAll('[role="dialog"],[role="alertdialog"],.mk-dlg')].filter((x) => { const b = x.getBoundingClientRect(); return b.width > 0 && b.height > 0 && getComputedStyle(x).visibility !== 'hidden'; }).length);
     const top0 = r.boxTop, y0 = await f.evaluate(() => scrollY), d0 = await dlgN();
     await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); r = await look(f, 'M2');
     const fx = await f.evaluate(() => ({ fk: document.activeElement && document.activeElement.getAttribute('data-fk'), y: scrollY })); fx.dlg = (await dlgN()) > d0;
-    ok(`${W} 5 «바꾸기» — 그 자리에서 편다(곡 줄 넷 · 칸 윗변 그대로 · 화면 안 움직임 · 덮는 창 없음) · 포커스 = 고른 곡 줄 · «준비해요» 줄 없음`, r && r.rows === 4 && !r.fold && r.on.join() === 'bed:M2:B06' && Math.abs(r.boxTop - top0) <= 1 && fx.y === y0 && !fx.dlg && fx.fk === 'bed:M2:B06' && !r.note, { r, fx, top0, y0 });
+    ok(`${W} 5 «바꾸기» — 그 자리에서 편다(곡 줄 셋 · 칸 윗변 그대로 · 화면 안 움직임 · 덮는 창 없음) · 포커스 = 고른 곡 줄 · «준비해요» 줄 없음`, r && r.rows === 3 && !r.fold && r.on.join() === 'bed:M2:B07' && Math.abs(r.boxTop - top0) <= 1 && fx.y === y0 && !fx.dlg && fx.fk === 'bed:M2:B07' && !r.note, { r, fx, top0, y0 });
     await shot(f, W, 'candle-open');
     await f.evaluate(() => render()); await wait(f, 300); await f.click('[data-fk="bed:M2:B07"]'); await wait(f, 300); await f.evaluate(() => { _persist(); render(); }); await wait(f, 300); r = await look(f, 'M2');
     ok(`${W} 5 편 뒤 다시 그려도 편 채 · 다른 곡을 고르면 다시 접힌다`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B07', r);
@@ -138,7 +138,7 @@ try {
       await go(fr, away); await go(fr, k); const c = await look(fr, sg);
       if (c && c.ch) { await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); }
       const d = await look(fr, sg);
-      const good = b && b.rows === 0 && b.fold && b.plFk === `bedp:${sg}:${pick}` && c && c.fold && c.rows === 0 && c.pl === 1 && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && c.ch.exp === 'false' && !c.note && d && d.rows === 4 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
+      const good = b && b.rows === 0 && b.fold && b.plFk === `bedp:${sg}:${pick}` && c && c.fold && c.rows === 0 && c.pl === 1 && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && c.ch.exp === 'false' && !c.note && d && d.rows === 3 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
       res.push([sg, k, good ? 'ok' : 'FAIL', st0, b && b.rows, c && c.fold, d && d.rows]);
       if (W === 390 && sg === 'M4') { await go(fr, away); await go(fr, k); await shot(fr, W, 'welcome-fold'); await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); await shot(fr, W, 'welcome-open'); }
       if (W === 1280 && sg === 'M4') { await go(fr, away); await go(fr, k); await shot(fr, W, 'welcome-fold'); await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); await shot(fr, W, 'welcome-open'); }
@@ -150,7 +150,7 @@ try {
       await go(fr, 'welcome'); await go(fr, k); const c = await look(fr, sg);
       if (c && c.ch) { await fr.click(`.bed-sub[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); }
       const d = await look(fr, sg);
-      const good = a && a.rows === 4 && !a.fold && b && b.rows === 0 && b.fold && c && c.fold && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && !c.note && d && d.rows === 4 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
+      const good = a && a.rows === 3 && !a.fold && b && b.rows === 0 && b.fold && c && c.fold && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && !c.note && d && d.rows === 3 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
       res.push([sg, k, good ? 'ok' : 'FAIL', a && a.rows, b && b.rows, c && c.fold, d && d.rows]);
     }
     ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 바로 접힘 · 다시 들어와도 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 9 && res.every((x) => x[2] === 'ok'), res);
@@ -161,13 +161,13 @@ try {
   }
   /* 8 공개 미리보기 */
   { const { ctx, f, errs } = await open(390, false);
-    await go(f, 'candle'); await f.click('[data-fk="bed:M2:B06"]'); await wait(f, 700); let r = await look(f, 'M2');
+    await go(f, 'candle'); await f.click('[data-fk="bed:M2:B07"]'); await wait(f, 700); let r = await look(f, 'M2');
     ok('8 공개 — 고르면 바로 접힘 · ▶ 없음', r && r.fold && r.rows === 0 && r.pl === 0, r);
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
-    ok('8 공개 — 다시 들어오면 접힘 · ▶ 없음 · «바꾸기» · «준비해요» 한 줄 없음', r && r.fold && r.pl === 0 && r.ch && r.ch.ctlOk && !r.note && r.t === 'Photograph', r);
+    ok('8 공개 — 다시 들어오면 접힘 · ▶ 없음 · «바꾸기» · «준비해요» 한 줄 없음', r && r.fold && r.pl === 0 && r.ch && r.ch.ctlOk && !r.note && r.t === 'Summer', r);
     await shot(f, 390, 'public-fold');
     await f.click('.ls-bed[data-seg="M2"] .mu-chg'); await wait(f, 300); r = await look(f, 'M2');
-    ok('8 공개 — «바꾸기»로 펴짐', r && r.rows === 4 && !r.fold, r);
+    ok('8 공개 — «바꾸기»로 펴짐', r && r.rows === 3 && !r.fold, r);
     ok('8 공개 — 오류 없음 · 가로 넘침 없음', !errs.length && !(await f.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
     await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }

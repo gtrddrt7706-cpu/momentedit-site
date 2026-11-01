@@ -20672,8 +20672,11 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/body-cap.mjs >/dev/n
 nochk "B08: {" assets/bgm-picks.js
 nochk '久石譲' assets/bgm-picks.js
 nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
-chk "M7: \['B28', 'B29', 'B21', 'B22'\]" assets/bgm-picks.js 1
-chk "M2: \['B05', 'B06', 'B07', 'B30'\]" assets/bgm-picks.js 1
+chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101] 구간마다 3곡
+chk "M2: \['B05', 'B07', 'B30'\]" assets/bgm-picks.js 1
+chk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js 1
+chk "M8L: \['B11', 'B27', 'B26'\]" assets/bgm-picks.js 1
+chk 'PICKS_THREE_1101' scripts/audit/picks-three.mjs 1
 nochk "'부터 이어서 틀어요'" assets/bgm-bed.js   # [SONG_ROW_LINES_1101] 곡 칸 아래 «… 이어서 틀어요 · 준비해요» 줄은 걷었다
 nochk "\[p.src,p.a,p.why\]" assets/bgm-bed.js   # ★[SONG_ROW_PLAIN_1101] 사장님 «제목 가수만 나오면 될 거 같아» — 곡 줄에 판 · 분위기 한 줄을 되살리지 않는다
 nochk 'mu-voc"> 노래' assets/bgm-bed.js   # [SONG_ROW_PLAIN_1101] 곡 이름 옆 «노래» 뺌 · 가사 있는 곡 안내는 bed-voc 한 줄
@@ -20682,6 +20685,7 @@ chk "+e(s.t)+'</span><span class=\"mu-a\">'+e(s.a||'')+'</span>" assets/bgm-bed.
 chk 'bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요' assets/bgm-bed.js 1
 chk 'SONG_ROW_PLAIN_1101' scripts/audit/song-row-plain.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/song-row-plain.mjs >/dev/null 2>&1; _srp=$?; if [ "$_srp" = 1 ]; then echo 'FAIL song-row-plain: 고객 화면 곡 줄이 제목 · 가수뿐이 아닙니다(판 · 분위기 · «노래») — node scripts/audit/song-row-plain.mjs'; fail=1; elif [ "$_srp" = 2 ]; then echo 'skip song-row-plain (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok song-row-plain'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/picks-three.mjs >/dev/null 2>&1; _pt3=$?; if [ "$_pt3" = 1 ]; then echo 'FAIL picks-three: 구간 곡 목록이 3곡 · 정한 순서가 아니거나 뺀 곡이 보입니다(옛 저장값 오류 포함) — node scripts/audit/picks-three.mjs'; fail=1; elif [ "$_pt3" = 2 ]; then echo 'skip picks-three (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok picks-three'; fi; fi   # ★[PICKS_THREE_1101]
 # ★[VC_FIX2_1030 2026-10-30 GPT 2차 점검] 두 분 AI 목소리 — 지우기 · 저장 · 잠금 · 글자 예산(서버 아홉 · 깨 보기 포함) · 무음 녹음 · 새로 고침 경고 · 당일 콘솔 최신 확인
 chk 'VC_FIX2_1030' scripts/audit/vc-fix2-1030.mjs 1
 chk 'VC_HOLD' automation/platform/80_production.gs 4

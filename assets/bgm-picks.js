@@ -35,11 +35,11 @@
      f = 곡 번호(곡마다 하나 · 같은 번호 = 같은 파일) · vocal = 가사가 있는 곡(고객 화면 «노래» · 깔릴 때 PARAM.vocalExtra 만큼 더 낮게) */
   var SONGS = {
     B01: { t: '바다가 보이는 마을', src: '마녀 배달부 키키', a: '히사이시 조 · 런던 심포니 오케스트라', v: '히사이시 조 에센셜 앨범', why: '오케스트라로 넓고 산뜻하게' },   // [PICKS_TRUE_1031] 받은 판 = 오케스트라(재즈 트리오 아님)
-    B02: { t: 'Day and Age', a: 'Julian Lage', v: "World's Fair", why: '맑은 기타 한 대' },
-    B03: { t: 'August 10', a: 'Khruangbin', v: 'Con Todo El Mundo', why: '느긋하고 따뜻하게' },
-    B04: { t: 'While You Were Sleeping', a: 'Laufey', v: 'Bewitched', why: '나른하고 포근하게', vocal: true },
+    B02: { t: 'Day and Age', a: 'Julian Lage', v: "World's Fair", why: '맑은 기타 한 대' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
+    B03: { t: 'August 10', a: 'Khruangbin', v: 'Con Todo El Mundo', why: '느긋하고 따뜻하게' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
+    B04: { t: 'While You Were Sleeping', a: 'Laufey', v: 'Bewitched', why: '나른하고 포근하게', vocal: true },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B05: { t: '인생의 회전목마', src: '하울의 움직이는 성', a: '히사이시 조', v: "Piano Stories Best '88–'08 (Piano Solo Ver.)", why: '익숙하고 우아한 왈츠' },
-    B06: { t: 'Photograph', a: 'Cody Fry', v: 'Photograph · 연주판(Instrumental)', why: '현악이 감싸듯 따뜻하게' },
+    B06: { t: 'Photograph', a: 'Cody Fry', v: 'Photograph · 연주판(Instrumental)', why: '현악이 감싸듯 따뜻하게' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B07: { t: 'Summer', src: '기쿠지로의 여름', a: '피아노 연주', v: '세상에서 가장 아름다운 선율', why: '밝고 경쾌하게' },   // [PICKS_TRUE_1031] 받은 판 = 피아노 판
     // B08 은 비운다(2026-10-30 덧붙임 2 · Laufey «Nocturne (Interlude)» 1분 40초 — 화촉 2분 10초보다 짧다) · 이 번호는 다시 쓰지 않는다
     B09: { t: 'Innocent in Sonatine', src: '우리들의 블루스', a: '조영민', v: '우리들의 블루스 OST', why: '말 아래 조용히' },
@@ -51,14 +51,14 @@
     B15: { t: 'Butterfly Waltz', a: 'Brian Crain', v: '피아노', why: '감싸 안듯 다정하게' },   // [PICKS_TRUE_1031] 받은 판 = 피아노 독주(바이올린 듀엣 아님)
     B16: { t: 'The Rose', src: '추억은 방울방울', a: 'Kazumi Tateishi Trio', v: 'STUDIO GHIBLI meets JAZZ BEST', why: '서정적인 재즈 피아노' },   // [PICKS_TRUE_1031] 받은 판
     B17: { t: 'Summer Montage / Madeline', src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '박수와 함께 힘 있게' },
-    B18: { t: 'I Hear a Symphony', a: 'Cody Fry', v: '싱글 · 연주판(Instrumental)', why: '화사하게 차오르게' },
+    B18: { t: 'I Hear a Symphony', a: 'Cody Fry', v: '싱글 · 연주판(Instrumental)', why: '화사하게 차오르게' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B19: { t: 'Italian Summer', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet', why: '여름처럼 환하게' },
     B20: { t: 'Popcorn', a: '도경수', v: '성장', why: '톡톡 튀는 설렘', vocal: true },
-    B21: { t: "Herman's Habit", src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '신나는 빅밴드 재즈' },
+    B21: { t: "Herman's Habit", src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '신나는 빅밴드 재즈' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B22: { t: 'This Will Be (An Everlasting Love)', a: 'Natalie Cole', v: 'Best Of Natalie Cole', why: '누구나 아는 흥', vocal: true },   // [PICKS_TRUE_1031] 받은 판
     B23: { t: '둘의 대화', a: '윤석철트리오', v: 'SONGBOOK', why: '대화를 덮지 않는 재즈' },
     B24: { t: 'Take Me Home, Country Roads', src: '귀를 기울이면', a: 'Kazumi Tateishi Trio', v: 'STUDIO GHIBLI meets JAZZ BEST', why: '편안한 재즈 피아노' },   // [PICKS_TRUE_1031] 받은 판
-    B25: { t: 'Nothing', a: 'Bruno Major', v: 'To Let a Good Thing Die', why: '나지막하고 다정하게', vocal: true },
+    B25: { t: 'Nothing', a: 'Bruno Major', v: 'To Let a Good Thing Die', why: '나지막하고 다정하게', vocal: true },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B26: { t: 'Bluebird', a: 'Alexis Ffrench', v: 'Evolution', why: '하루를 닫는 피아노' },
     B27: { t: 'At the Ivy Gate', a: 'Brian Crain', v: 'Piano and Light', why: '차분하게 마무리' },
     /* [BGM_FIX_1030 덧붙임 2] 축배는 «위하여» 뒤 크게 트는 자리 — 첫 소절부터 다 아는 밝은 팝(웨딩 BGM 자료 · 축배 · 퇴장은 밝은 팝이 압도적) · 화촉은 부모님 세대도 아는 드라마 OST */
@@ -67,18 +67,20 @@
     B30: { t: '꽃바람 부는 길', src: '성균관 스캔들', a: '', v: '성균관 스캔들 OST · 연주곡', why: '단아하게 · 천천히 걷는 걸음' }   /* [BGM_FIX_1030] «어머님 걸음» → 화촉은 «두 분이 부탁한 분들»이 밝힌다(식순 화면) · 어머님으로 못 박지 않는다 */
   };
   /* 구간 → 곡 번호(위가 1순위 · 2026-10-30 표 그대로) */
+  /* ★★[PICKS_THREE_1101 사장님 «구간마다 노래를 3개로 추리고 너무 힙한 건 공감 못 하니 빼자» · GPT 확인 «없음»] 구간마다 3곡(위가 1순위) —
+       목록에서 뺀 곡: B02 · B03 · B04 · B06 · B18 · B21 · B25(SONGS 데이터는 그대로 둔다 · 예전에 고른 저장값은 custK 가 «고르지 않음 = 1순위»로 읽는다) */
   var PICKS = {
-    M1: ['B01', 'B02', 'B03', 'B04'],     // 하객 맞이 — 30분 이상 목록(반복)
-    M2: ['B05', 'B06', 'B07', 'B30'],     // 화촉 · [BGM_FIX_1030 덧붙임 2] 4순위 B08 → B30
-    M4: ['B09', 'B10', 'B11', 'B12'],     // 감사 인사 ~ 덕담
-    M4S5: ['B13', 'B14', 'B02', 'B16'],   // 축사 «음악과 함께» · 4순위 B08 → B16
-    M4S6: ['B10', 'B12', 'B14', 'B13'],   // 편지 «음악과 함께»
-    M5: ['B15', 'B06', 'B16', 'B11'],     // 부모님께 인사
-    M6: ['B17', 'B18', 'B19', 'B20'],     // 닫는 인사 → 사진(한 곡이 사진까지 잇는다)
-    M6P: [],                              // 사진 칸은 비운다 — 닫는 인사 곡이 이어진다(콘솔에서 «곡 추가»로 그 기기에만 넣을 수는 있다)
-    M7: ['B28', 'B29', 'B21', 'B22'],     // 축배 · start = 강조 위치(콘솔 «강조 시작») · 보컬 1순위 허용(GO 뒤에 시작해 나레이션 위로 크게 나오지 않는다 · 덧붙임 2)
-    M8: ['B23', 'B03', 'B24', 'B25'],     // 테이블 인사 — 30분 목록
-    M8L: ['B26', 'B19', 'B27', 'B25']     // 마지막 곡
+    M1: ['B01', 'B24', 'B13'],     // 하객 맞이 — 바다가 보이는 마을 · Country Roads · Moon River(반복 목록)
+    M2: ['B05', 'B07', 'B30'],     // 화촉
+    M4: ['B09', 'B10', 'B11'],     // 감사 인사 ~ 덕담
+    M4S5: ['B13', 'B14', 'B12'],   // 축사 «음악과 함께»
+    M4S6: ['B10', 'B12', 'B14'],   // 편지 «음악과 함께»
+    M5: ['B15', 'B11', 'B16'],     // 부모님께 인사
+    M6: ['B17', 'B19', 'B20'],     // 닫는 인사 → 사진(한 곡이 사진까지 잇는다)
+    M6P: [],                       // 사진 칸은 비운다 — 닫는 인사 곡이 이어진다(콘솔에서 «곡 추가»로 그 기기에만 넣을 수는 있다)
+    M7: ['B28', 'B29', 'B22'],     // 축배 · start = 강조 위치(콘솔 «강조 시작») · 보컬 1순위 허용(GO 뒤에 시작해 나레이션 위로 크게 나오지 않는다)
+    M8: ['B24', 'B23', 'B16'],     // 테이블 인사
+    M8L: ['B11', 'B27', 'B26']     // 마지막 곡
   };
 
   /* 구간 — 콘솔 «구간 음악» 칸의 차례 · ks = 이 구간 곡이 흐르는 엔진 순간
