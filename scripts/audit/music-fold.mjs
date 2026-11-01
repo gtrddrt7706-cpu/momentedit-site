@@ -96,7 +96,7 @@ try {
     ok(`${W} 2 «바꾸기»로 열어 다른 곡을 골라도 다시 접힌다 · 다시 그려도(render) 접힌 채`, r && r.fold && r.rows === 0 && r.plFk === 'bedp:M2:B06', r);
     /* 3 다시 들어오면 접힌다 */
     await go(f, 'welcome'); await go(f, 'candle'); r = await look(f, 'M2');
-    ok(`${W} 3 다시 들어오면 한 줄 — 곡 줄 없음 · «Photograph» · 아랫줄 · ▶ 하나 · «준비해요» 없음`, r && r.fold && r.rows === 0 && r.t === 'Photograph' && /^Cody Fry · /.test(r.a) && r.pl === 1 && r.plFk === 'bedp:M2:B06' && !r.note, r);
+    ok(`${W} 3 다시 들어오면 한 줄 — 곡 줄 없음 · «Photograph» · 아랫줄 · ▶ 하나 · «준비해요» 없음`, r && r.fold && r.rows === 0 && r.t === 'Photograph' && r.a === 'Cody Fry'   /* ★[SONG_ROW_PLAIN_1101] 아랫줄 = 연주자만 */ && r.pl === 1 && r.plFk === 'bedp:M2:B06' && !r.note, r);
     ok(`${W} 3 «바꾸기» = button · aria-expanded=false · aria-controls → 목록 칸 · 밑줄 · 글 단추 색(--gold-deeper · LINK_GOLD_1031) · 누를 자리 44px 이상`, r && r.ch && r.ch.tag === 'BUTTON' && r.ch.txt === '바꾸기' && r.ch.exp === 'false' && r.ch.ctlOk && r.ch.h >= 44 && /underline/.test(r.ch.deco) && r.ch.col === sealRgb(r.gold), r && r.ch);
     ok(`${W} 3 접힌 줄 높이 = 같은 곡 줄 하나(${rowH}px ± 2) · ▶ 44px 이상`, r && Math.abs(r.foldH - rowH) <= 2 && r.plH >= 44, { foldH: r && r.foldH, rowH, plH: r && r.plH });
     await shot(f, W, 'candle-fold');

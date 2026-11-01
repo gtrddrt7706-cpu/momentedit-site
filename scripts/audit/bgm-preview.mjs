@@ -112,7 +112,7 @@ try {
       han: Object.values(BgmPicks.SONGS).filter((x) => /[\u4e00-\u9fff]/.test(x.a || '') || /[\u4e00-\u9fff]/.test(x.t || '')).map((x) => x.t), inst: Object.values(BgmPicks.SONGS).filter((x) => /\(Instrumental\)/i.test(x.t)).map((x) => x.t) }));
     ok(`${W} E1 연주자는 한국 고객이 읽는 이름 — «히사이시 조» · 곡 표에 한자 이름 없음`, e1.a[0] && e1.a[0].indexOf('히사이시 조') > -1 && !e1.a.some((x) => /久石譲/.test(x)) && !e1.han.length, e1);
     ok(`${W} E2 곡 이름에 «(Instrumental)» 꼬리 없음 — 화촉 «Photograph»`, !e1.inst.length && e1.t.includes('Photograph'), e1);
-    ok(`${W} E4 아는 영화 · 드라마 곡은 아랫줄 앞에 출처 — «하울의 움직이는 성 · 히사이시 조 · …» · «성균관 스캔들 · …» · 출처 없는 곡은 연주자부터`, e1.a[0].indexOf('하울의 움직이는 성 · 히사이시 조 · ') === 0 && e1.a[3].indexOf('성균관 스캔들 · ') === 0 && e1.a[1].indexOf('Cody Fry · ') === 0, e1.a);
+    ok(`${W} E4 아랫줄 = 연주자만(★[SONG_ROW_PLAIN_1101] 출처 · 분위기 한 줄 뺌) — «히사이시 조» · «Cody Fry»`, e1.a[0] === '히사이시 조' && e1.a[1] === 'Cody Fry' && !e1.a.some((x) => /하울의 움직이는 성|성균관 스캔들/.test(x)), e1.a);
     /* 2 감사 인사 · 혼인 서약 */
     await go(f, 'welcome'); const rw = await row(f, 'M4'); await go(f, 'vow'); const rv = await row(f, 'M4');
     ok(`${W} 2 감사 인사 쪽에 «감사 인사 음악» · 혼인 서약 쪽엔 다시 없음`, rw && rw.gl === '감사 인사 음악' && !rv, { rw, rv });
