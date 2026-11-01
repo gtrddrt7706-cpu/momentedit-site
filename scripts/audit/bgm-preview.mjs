@@ -180,11 +180,11 @@ try {
     await shot(f, W, 'free', '.ls-bgm[data-slot="S5"]');
     ok(`${W} 6 축사 «음악과 함께» → 그 아래 곡 고르기(4) · 아래 «준비해요» 줄 없음`, rs && rs.n === 4 && rs.note === '', rs);
     if (W === 390) {
-      const before = (await LOG(pg)).filter((x) => x === 'momentedit:ritualFileGet:bed:B02').length;
+      const before = (await LOG(pg)).filter((x) => x === 'momentedit:ritualFileGet:bed:B02').length, held = await f.evaluate(() => { const o = BgmBed._t.BUF.B02; return !!(o && o.st === 'ok'); });   /* ★[BED_LOAD_1101 ④] 풀어 둔 곡은 셋까지 — 그 사이 다른 순간을 지나며 지워졌으면 한 번 다시 받는다(아직 들고 있으면 다시 묻지 않는다) */
       await f.click('[data-fk="bedp:M4S5:B02"]'); await wait(f, 1500);
       const d2 = await f.evaluate(() => ({ f: BgmBed._t.BED.cur.f, who: BgmBed._t.BED.who, p: document.querySelector('[data-fk="bedp:M4S5:B02"]').getAttribute('aria-pressed') }));
       const after = (await LOG(pg)).filter((x) => x === 'momentedit:ritualFileGet:bed:B02').length;
-      ok(`${W} D2 한 파일 — 축사 칸 B02 곡 카드는 하객 맞이에서 받은 그 파일(다시 묻지 않는다 · key bed:B02 한 번)`, before === 1 && after === 1 && d2.f === 'B02' && d2.who === 'card' && d2.p === 'true', { before, after, d2 });
+      ok(`${W} D2 한 파일 — 축사 칸 B02 곡 카드는 하객 맞이에서 받은 그 파일(다시 묻지 않는다 · key bed:B02 한 번)`, before === 1 && after === before + (held ? 0 : 1) && d2.f === 'B02' && d2.who === 'card' && d2.p === 'true', { before, after, held, d2 });
       await f.click('[data-fk="bedp:M4S5:B02"]'); await wait(f, 300);
     }
     const b8 = await listen(f, 'free', 9000); const t8 = b8.filter((x) => x.talk && x.src), n8 = b8.filter((x) => !x.talk && x.src);
