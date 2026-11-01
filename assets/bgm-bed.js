@@ -12,7 +12,7 @@
      축배 «위하여» 차례가 끝나면 축배 크기로 0.6초에(디렉터 GO 자리를 미리 듣기 시계로) · 곡이 없으면 그 구간은 나레이션만(오류 없이) · 미리 듣기 길이는 늘리지 않는다
    · 소리 하나(ONE_SOUND) — 곡 카드 ▶ 를 누르면 다른 소리는 멈추고, 다른 소리를 틀면 곡 카드 소리는 멈춘다
    ★★[BGM_FIX_1030 2026-10-30 BGM 섹션 · GPT(Ultra) 합의] 곡 번호 = 곡마다 하나(B01 …) — 번호로는 구간을 알 수 없어 누름이 구간(data-seg)을 함께 건넨다 ·
-     가사가 있는 곡(vocal) = 곡 이름 옆 «노래»(작은 글 · 새 색 · 아이콘 없음) · 고르면 아래 한 줄 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요» · 깔릴 때 나레이션 · 사람 구간 vocalExtra(−6) ·
+     가사가 있는 곡(vocal) = (★[SONG_ROW_PLAIN_1101] 곡 이름 옆 «노래»는 뺐다) 고르면 아래 한 줄 «가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요» · 깔릴 때 나레이션 · 사람 구간 vocalExtra(−6) ·
      음악 전체 크기 musicTrim(−3.1 dB · 콘솔 «음악 볼륨»과 같은 값) · 미리 낮추기 0.8초(박수 뒤 줄은 1.5초) ·
      닫는 인사 곡(M6)은 닫는 나레이션 뒤 목례 · 박수부터(그 줄 동안은 앞 곡을 낮게) · 축배 곡(M7)은 «위하여» 뒤 강조 위치에서 0.6초에 — 당일 콘솔과 같다 */
 (function(){
@@ -314,7 +314,7 @@
   function foldHtml(sg,k,s){ var gl=labelOf(sg)+' 음악', pl=CARD.f===s.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[s.f];
     return '<div class="mu-fold1">'
       +(emb()?plBtn(sg,k,s,pl,miss):'')
-      +'<div class="mu-fsel"><span class="mu-t">'+e(s.t)+(s.vocal?'<span class="mu-voc"> 노래</span>':'')+'</span><span class="mu-a">'+e([s.src,s.a,s.why].filter(Boolean).join(' · '))+'</span></div>'
+      +'<div class="mu-fsel"><span class="mu-t">'+e(s.t)+'</span><span class="mu-a">'+e(s.a||'')+'</span></div>'
       +'<button type="button" class="pk-link mu-chg" data-fk="bedchg:'+sg+'" aria-expanded="false" aria-controls="'+boxId(sg)+'" aria-label="'+e(gl)+' 바꾸기" onclick="bedAct(\'open\',\'\',\''+e(k)+'\',\''+sg+'\')">바꾸기</button></div>'+loadNote(sg); }   /* [SONG_CARD_TAP_1101] 접힌 줄 아래에도 «곡을 불러오는 중이에요» */
 
   /* ── 화면 — 곡 목록 · 아래 한 줄 ── */
@@ -327,7 +327,7 @@
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
       h+='<li class="mu-row'+(on?' on':'')+'">'
         +(emb()?plBtn(sg,k,p,pl,miss):'')
-        +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+(p.vocal?'<span class="mu-voc"> 노래</span>':'')+'</span><span class="mu-a">'+e([p.src,p.a,p.why].filter(Boolean).join(' · '))+'</span></button></li>'; });
+        +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></button></li>'; });   /* ★[SONG_ROW_PLAIN_1101 사장님 «제목 가수만 나오면 될 거 같아»] 곡 줄은 제목 · 가수(연주자)만 — «노래» · 판(src) · 분위기 한 줄(why)은 화면에서 뺐다(데이터는 bgm-picks.js 그대로 · 콘솔 설정 화면 그대로) · 가사 있는 곡 안내는 고른 뒤 아래 한 줄이 맡는다 */
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[BED_EMPTY_RELIST_1031 식순 걷기 3라운드 3] 들어 볼 곡이 하나도 없다고 받았으면 한 줄 + 다시 불러오기(입장 추천 곡과 같게) */
     return h+'</ul>'+loadNote(sg)+(none?'<p class="bgm-note bed-av">아직 들어 볼 수 있는 곡이 없어요 · <button type="button" class="pk-link" data-fk="bedrelist:'+sg+'" onclick="bedAct(\'relist\',\'\',\'\',\''+sg+'\')">다시 불러오기</button></p>':'')+(emb()?'':'<p class="bgm-note bed-note">'+PUB_NOTE+'</p>')+(cs&&cs.vocal?'<p class="bgm-note bed-voc">가사가 있는 곡이라 안내 말씀 때는 더 작게 깔려요</p>':''); }   /* [BGM_FIX_1030] «노래» · 고른 곡이 노래면 한 줄 */
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
