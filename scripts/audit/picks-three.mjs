@@ -91,14 +91,15 @@ try {
     const seen = {}, gone = [], fold = [];
     for (const k of ['guest', 'candle', 'welcome', 'free', 'letter', 'tribute', 'toast', 'table']) { await go(f, k);
       await f.evaluate(() => { document.querySelectorAll('.ls-bed .mu-chg[aria-expanded="false"]').forEach((b) => b.click()); }); await wait(f, 250);
-      const r = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg], .bed-sub[data-seg]')].map((b) => ({ sg: b.getAttribute('data-seg'), fs: [...b.querySelectorAll('.mu-pick')].map((x) => (/^bed:[^:]+:(.+)$/.exec(x.getAttribute('data-fk') || '') || [])[1]), txt: b.textContent })));
+      const r = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg], .bed-sub[data-seg]')].map((b) => ({ sg: b.getAttribute('data-seg'), fs: [...b.querySelectorAll('.mu-pick')].map((x) => (/^bed:[^:]+:(.+)$/.exec(x.getAttribute('data-fk') || '') || [])[1]).concat([...b.querySelectorAll('li.mu-row[data-f]')].map((x) => x.getAttribute('data-f'))),   /* [LIST_NO_PICK_1101] 목록 칸은 고르기 없이 곡 줄(data-f) */ txt: b.textContent })));
       r.forEach((x) => { if (x.fs.length) seen[x.sg] = x.fs; });
       const pk = await f.evaluate(() => { const b = document.querySelector('.ls-bed .mu-pick'); if (b) b.click(); return !!b; }); await wait(f, 300);
       if (pk) fold.push(await f.evaluate(() => { const b = document.querySelector('.ls-bed'); return { rows: b.querySelectorAll('.mu-pick').length, fsel: !!b.querySelector('.mu-fsel'), h: Math.round(b.getBoundingClientRect().height) }; })); }
     const txt = await f.evaluate(() => document.body.textContent);
     GONE.forEach((g) => { const t = P.SONGS[g].t; if (txt.indexOf(t) > -1) gone.push(t); });
-    const bad = Object.keys(seen).filter((sg) => WANT[sg] && JSON.stringify(seen[sg]) !== JSON.stringify(WANT[sg]));
-    ok(`${W} c 고객 화면 구간 곡 줄 = 3줄 · 정한 순서(${Object.keys(seen).join(' · ')}) · 뺀 곡 0`, Object.keys(seen).length >= 7 && !bad.length && Object.values(seen).every((x) => x.length === 3) && !gone.length, { bad: bad.map((sg) => [sg, seen[sg]]), gone });
+    const want = (sg) => (WANT[sg] || []).concat(FILLW[sg] || []);   /* ★[LIST_NO_PICK_1101] 목록 칸(M1 · M8)은 3곡 + 배경 곡 차례 그대로(고르기 없음) */
+    const bad = Object.keys(seen).filter((sg) => WANT[sg] && JSON.stringify(seen[sg]) !== JSON.stringify(want(sg)));
+    ok(`${W} c 고객 화면 구간 곡 줄 = 3줄(목록 칸은 + 배경 곡) · 정한 순서(${Object.keys(seen).join(' · ')}) · 뺀 곡 0`, Object.keys(seen).length >= 7 && !bad.length && Object.keys(seen).every((sg) => seen[sg].length === want(sg).length) && !gone.length, { bad: bad.map((sg) => [sg, seen[sg]]), gone });
     ok(`${W} c 고르면 한 줄로 접힌다(곡 줄 0 · 접힌 줄 1)`, fold.length >= 4 && fold.every((x) => x.rows === 0 && x.fsel), fold);
     /* d 옛 저장값 */
     await f.evaluate(() => { S.bgm = { M1: { k: 'B03' }, M2: { k: 'B06' }, M8: { k: 'B25' }, S5: { m: 'bed', k: 'B02' }, M7: { k: 'B21' } }; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });

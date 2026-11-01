@@ -76,7 +76,8 @@ const look = (f, sg) => f.evaluate((sg) => { const r = document.querySelector('.
 const sealRgb = (hex) => { const h = hex.replace('#', ''); return `rgb(${parseInt(h.slice(0, 2), 16)}, ${parseInt(h.slice(2, 4), 16)}, ${parseInt(h.slice(4, 6), 16)})`; };
 const shot = async (f, W, n) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { recursive: true }); await f.evaluate(() => { document.querySelectorAll('.me-fab-stack').forEach((x) => { x.style.visibility = 'hidden'; }); }); await f.locator('#stage .mk-pick').first().screenshot({ path: path.join(SHOT, `mf-${W}-${n}.png`) }); } catch (e) { console.log('그림 못 찍음 ' + n + ' ' + e.message); } };
 /* 순간마다 — [구간, 그 쪽 순간, 고를 곡(1순위 아님), 다녀올 쪽] */
-const CASES = [['M1', 'guest', 'B24', 'candle'], ['M2', 'candle', 'B07', 'welcome'], ['M4', 'welcome', 'B10', 'candle'], ['M5', 'tribute', 'B16', 'welcome'], ['M8', 'table', 'B23', 'welcome'], ['M7', 'toast', 'B29', 'welcome'], ['M6', '_close', 'B19', 'welcome']];
+/* ★[LIST_NO_PICK_1101] 하객 맞이(M1) · 테이블 인사(M8)는 고르지 않는 안내 칸 — 접기 대상이 아니다(아래 7b 가 «접힘 · 바꾸기 0» 을 잰다) */
+const CASES = [['M2', 'candle', 'B07', 'welcome'], ['M4', 'welcome', 'B10', 'candle'], ['M5', 'tribute', 'B16', 'welcome'], ['M7', 'toast', 'B29', 'welcome'], ['M6', '_close', 'B19', 'welcome']];
 try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
@@ -153,7 +154,11 @@ try {
       const good = a && a.rows === 3 && !a.fold && b && b.rows === 0 && b.fold && c && c.fold && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && !c.note && d && d.rows === 3 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
       res.push([sg, k, good ? 'ok' : 'FAIL', a && a.rows, b && b.rows, c && c.fold, d && d.rows]);
     }
-    ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 바로 접힘 · 다시 들어와도 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 9 && res.every((x) => x[2] === 'ok'), res);
+    ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 바로 접힘 · 다시 들어와도 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 7 && res.every((x) => x[2] === 'ok'), res);
+    /* 7b 목록 칸(하객 맞이 · 테이블 인사)은 접지 않는다 — 고르기 · «바꾸기» · 접힌 줄 0 · 곡 줄 다섯 */
+    const lr = [];
+    for (const [sg, k] of [['M1', 'guest'], ['M8', 'table']]) { await go(fr, k); lr.push(await fr.evaluate((sg) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"]'); return b ? [sg, b.querySelectorAll('.mu-pick').length, b.querySelectorAll('.mu-chg').length, !!b.querySelector('.mu-fold1'), b.querySelectorAll('li.mu-row[data-f]').length, BgmPicks.order(S, sg).length] : [sg, 'no-row']; }, sg)); }   /* 앞에서 다른 구간에 배경 곡(B16 · B14)을 골랐으면 그 곡은 빠진다 — 차례 함수와 같은 수 */
+    ok(`${W} 7b 목록 칸(하객 맞이 · 테이블 인사)은 고르기 · 접기 없음 — 곡 줄 = 재생 차례 [LIST_NO_PICK_1101]`, lr.every((x) => x[1] === 0 && x[2] === 0 && x[3] === false && x[4] >= 3 && x[4] === x[5]), lr);
     /* 1 이 다른 구간에서도 — 안 고른 테이블 · 축배 등은 7 에서 고르기 전 접히지 않았다 */
     ok(`${W} 1 고르기 전 접힌 구간 없음(앞에서 고른 화촉 말고 모든 순간)`, res.every((x) => x[0] === 'M2' || x[3] !== 'fold-before'), res);
     ok(`${W} 9 오류 없음 · 가로 넘침 없음`, !errs.length && !(await fr.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), errs);
