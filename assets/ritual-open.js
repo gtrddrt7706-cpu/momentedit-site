@@ -1450,6 +1450,12 @@
   var SCENE_V = '1101f';   // 장면 데이터 · 그림 판(사진을 바꾸면 이 값을 올린다 — 주소 꼬리 ?v= · scripts/build-scene-frames.mjs --check 가 잰다) · ★[SCENE_PHOTO_1101F 검토 184 · 사장님 «A2 공간으로 · 우선 임시»] 보이는 9순간(SCENE_SHOW · 11장)은 아이보리 실크 드레이프 F판 · 안 보이는 8순간은 C판 그대로 · 옛 값 1101c(어두운 C안 · SCENE_PHOTO_1101C · 안 보이는 8순간에 그대로) · 1101a(밝은 판 · 01:40 보류)
   var SCENE_SRC_V = 'photo1101f';   // [SCENE_PHOTO_1101] 그림 원천 = 사진 판(옛 값 1025e = 영상 프레임)
   var SCENE_LABEL = '연출 장면 · 실제 예식 사진 아님';
+  /* ★★[SCENE_AT_194 검토 194 · 사장님 «두 곳 중 한 곳에만» → 이벤트를 처음 고르는 화면에만] 고객 화면에서 장면 사진이 보이는 곳 — 한 군데 스위치.
+       'pick' = ① 순간 고르는 화면(미리 보기 창 · 기본 접힘 «장면 사진 N» → 누르면 펼침 · 여러 장 넘겨 보기) · 'step' = ② 순간 쪽 «이 순간에 담을 수 있는 장면»(펼친 채 · 넘겨 보기) ·
+       어느 쪽이든 보이는 글은 사진 아래 «사진의 구도와 수는 …» 한 줄 · 대표 장면 · 설명은 사진의 대체 글(alt)로만(검토 193) · 관리 · 작가 화면(sceneList)은 그대로 */
+  var SCENE_AT = 'pick';
+  /* [SCENE_N_194] 장면마다 사진 수 — 1장째는 <img>.webp(지금 사진 그대로) · 2장째부터 <img>-2.webp · <img>-3.webp(각각 -640 판) · 사진이 오면 이 수만 올린다(없는 수는 1) */
+  var SCENE_N = {};
   var PSCENE = {
     guest: { rep: '자리에 모여 이야기하는 하객', alt: ['웰컴 음료를 든 손', '앉아 예식을 기다리는 모습'], desc: '오신 분들이 자리를 잡고 이야기를 나누는 모습을 담아요. 두 분의 입장 전, 하객들이 함께하는 시간이에요.', img: 'guest' },
     prevideo: { rep: '영상을 함께 보는 하객의 뒷모습', alt: ['영상을 바라보는 얼굴', '스크린과 하객 전경'], desc: '두 분의 영상을 함께 보는 하객들의 모습을 담아요.', img: 'prevideo' },
@@ -1481,8 +1487,11 @@
     return PSCENE[k] ? k : '';
   }
   function sceneImg(id) { var x = PSCENE[id]; if (!x || !x.img) return null; var n = x.img; return { src: '/assets/video/moments/scene/' + n + '.webp?v=' + SCENE_V, small: '/assets/video/moments/scene/' + n + '-640.webp?v=' + SCENE_V, asset: 'scene/' + n, from: SCENE_SRC_V }; }   // [SCENE_PHOTO_1101] 파일 이름 = PSCENE.img(장면 id 꼴) · from = 사진 판
+  function sceneImgs(id) { var x = PSCENE[id]; if (!x || !x.img) return []; var n = x.img, c = Math.max(1, +SCENE_N[n] || 1), out = [];   /* [SCENE_N_194] 여러 장 */
+    for (var i = 1; i <= c; i++) { var f = i === 1 ? n : n + '-' + i; out.push({ src: '/assets/video/moments/scene/' + f + '.webp?v=' + SCENE_V, small: '/assets/video/moments/scene/' + f + '-640.webp?v=' + SCENE_V, asset: 'scene/' + f }); }
+    return out; }
   function sceneOf(k, S) { var id = sceneId(k, S), x = id && PSCENE[id]; if (!x) return null;
-    return { id: id, k: k, rep: x.rep, alt: x.alt.slice(), desc: x.desc, img: sceneImg(id), kind: '연출', label: SCENE_LABEL, hold: !x.img, v: SCENE_V }; }
+    return { id: id, k: k, rep: x.rep, alt: x.alt.slice(), desc: x.desc, img: sceneImg(id), imgs: sceneImgs(id), kind: '연출', label: SCENE_LABEL, hold: !x.img, v: SCENE_V }; }
   /* 저장한 순간만 실제 차례 — 식전(하객 맞이 · 식전 영상) → 본식(bodySeq) · 작가 화면 · 마이페이지 한 벌 */
   function sceneList(S) {
     var out = [], pre = ['guest'].concat(onOf(S, 'prevideo') ? ['prevideo'] : []), body = bodySeq(S);
@@ -1680,7 +1689,7 @@
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
-    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
+    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,

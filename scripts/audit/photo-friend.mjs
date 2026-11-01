@@ -43,7 +43,7 @@ t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(
 // [PHOTO_FLOW_LINE] 첫눈에 뼈대 · [PHOTO_FRIEND_EX] 누르면 담기는 예시(칸은 하나 그대로)
 // ★[PHOTO_DAY_STEPS 2026-09-27 사장님] 흐름 줄(알약 셋)은 그날 차례 번호 줄로 바뀌었다 — 차례 순서가 엔진(ritual-cue 단체 사진 큐)과 같은지 잰다
 {
-  const ord = ["_stepHd('온라인 인사'", "_stepHd('모두 함께 · 전체 하객 한 장'", 'id="mp_wishAdd"', "_stepHd('가족 구도'", 'data-pmv', 'mp_pcBride', "_stepHd('남은 분들과 자유롭게'", 'id="mp_photoFriend"', "'</li></ol>'", 'ph-sec">예식 순서에서 남는 사진', 'id="mp_phGuest"'];
+  const ord = ["_stepHd('온라인 인사'", "_stepHd('모두 함께 · 전체 하객 한 장'", 'id="mp_wishAdd"', "_stepHd('가족 구도'", 'data-pmv', 'mp_pcBride', "_stepHd('남은 분들과 자유롭게'", 'id="mp_photoFriend"', "_stepHd('촬영 후 안내'", "h+='</ol>';", 'ph-sec">예식 순서에서 남는 사진', 'id="mp_phGuest"'];
   const pos = ord.map((x) => rp.indexOf(x)), miss = ord.filter((x, i) => pos[i] < 0), sorted = pos.every((p, i) => i === 0 || p > pos[i - 1]);
   t(!miss.length && sorted, '차례 — [END_FLOW_1030 검토 167] (디지털 참석 날) 온라인 인사 → 전체 하객 + 꼭 담고 싶은 사진 → 가족 구도(+ 불러 모아 주실 분) → 남은 분들과 자유롭게 → 예식 순서에서 남는 사진 → 하객 사진 모으기 · 감사 인사 차례 없음' + (miss.length ? ' — 못 찾음: ' + miss.join(' · ') : (sorted ? '' : ' — 순서가 어긋남')));
   t(rp.indexOf('class="snp-flow"') === -1 && !/var _flw=/.test(rp), '흐름 줄(알약)은 없다 — 번호 줄이 곧 흐름(같은 말 두 번 금지)');

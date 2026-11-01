@@ -7769,7 +7769,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers'
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 273;' scripts/build-typecast-import.mjs 1   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
+chk 'const CLIP_COUNT = 301;' scripts/build-typecast-import.mjs 1   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
 chk "has: (id) => /^X-|^D-/.test(id) }" scripts/build-typecast-import.mjs 1   # ★[DECL_TITLE_1031] D- = 성혼 선언 호칭 판
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -11057,7 +11057,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 296' scripts/check-ritual-cue.js 1   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다   # ★[END_FLOW_1030] 265 · 266
+chk 'N_FILES = 324' scripts/check-ritual-cue.js 1   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다   # ★[END_FLOW_1030] 265 · 266
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -17677,7 +17677,7 @@ chk 'tableIn:"신랑 신부가 오늘 참석해 주신 하객 여러분의 테�
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (_openC && seq.indexOf('table') > -1) cues.push(cue({" assets/ritual-cue.js 1   # [END_FLOW_1030] 테이블 인사 = 닫는 인사 앞
-chk 'const N_FILES = 296;' scripts/check-ritual-cue.js 1   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
+chk 'const N_FILES = 324;' scripts/check-ritual-cue.js 1   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1
@@ -20471,7 +20471,7 @@ chk 'REHEARSAL' scripts/audit/bgm-reh.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-reh.mjs >/dev/null 2>&1; _brh=$?; [ "$_brh" = 1 ] && { echo 'FAIL bgm-reh: 콘솔 리허설 값(저장 · 적용 · 미리 듣기 기본값) 또는 «문 열기 시작» 표시가 어긋났습니다 — node scripts/audit/bgm-reh.mjs'; fail=1; }; :; fi
 # ── 2026-10-23 [GUEST_5MIN_OFF_1023 검토 159-1] 하객 맞이 5분 전 «목소리» 칸 걷음(03 · 117 · 121 · 125 RETIRED · 두 분 줄 셋 · 5분 시점엔 사진 올리기 안내만) — 되살리지 말 것 · 검사 open-course «GUEST_5MIN_OFF_1023»
 chk 'GUEST_5MIN_OFF_1023' assets/ritual-cue.js 4
-chk "'guest-3-5min': 1, 'guest-ex2-3-5min': 1, 'guest-ex3-3-5min': 1, 'guest-ex4-3-5min': 1" assets/ritual-cue.js 1
+chk "'guest-ex2-3-5min': 1, 'guest-ex3-3-5min': 1, 'guest-ex4-3-5min': 1," assets/ritual-cue.js 1   # ★[GUEST_WELCOME_191 보충 3] 03 은 되살렸다(새 코스 5분 전) · 예시 셋만 쉰다
 chk "var GUEST_KEYS=\['g0','g1','g3'\];" order-preview.html 1
 nochk "\['g2','시작 5분 전','guest'\]" order-preview.html
 nochk "'g0','g1','g2','g3'" console.html
@@ -21062,6 +21062,18 @@ nochk 'PS_FINE_IMG' order-preview.html
 nochk 'window.psMore' order-preview.html
 nochk 'ph-sc-s">참고 · ' mypage.html
 chk "var PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.'" order-preview.html 1
+# ── 2026-11-01 [SCENE_AT_194 · SCENE_N_194 · SCENE_ALT_193 검토 193 · 194 · 194 수정 사장님 «두 곳 중 한 곳에만 · 이벤트를 처음 고르는 화면에만»] 장면 사진 = ① 고르는 화면만(기본 접힘 칩 «장면 사진 N» · 펼치면 넘겨 보기) · 보이는 글은 구도 한 줄 · 대표 · 설명은 alt · 자리 스위치 한 곳
+chk "var SCENE_AT = 'pick';" assets/ritual-open.js 1
+chk 'var SCENE_N = {};' assets/ritual-open.js 1
+chk 'function sceneImgs(id)' assets/ritual-open.js 1
+chk "if((mode==='pv'&&at!=='pick')||(mode!=='pv'&&at!=='step')) return '';" order-preview.html 1
+chk '장면 사진 '"'"'+n+'"'"'</button>' order-preview.html 1
+chk "function _psAlt(x){ return x.rep+' · '+x.desc; }" order-preview.html 1
+chk 'window.psKey=function(e,k)' order-preview.html 1
+chk "p.className='ps-alt'; p.textContent=img.alt" order-preview.html 1
+chk 'SCENE_AT_194' scripts/audit/photo-scene.mjs 3
+nochk "h+='<p class=\"ps-rep\">'" order-preview.html
+nochk '<p class="ps-desc">' order-preview.html
 # ── 2026-11-01 [SCENE_PHOTO_1101 검토 181 · 사장님 «영상 캡처 말고 GPT 실사 · 무드 맞춰 · 1장»] 장면 그림 = 실사 사진 19장(파일 이름 = 장면 id) · 보류 0 · 영상 프레임 아님
 chk 'SCENE_PHOTO_1101' assets/ritual-open.js 3
 chk 'SCENE_PHOTO_1101' scripts/build-scene-frames.mjs 2
@@ -21175,6 +21187,35 @@ chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.ht
 chk '_rf={free:4}\[k\]' order-preview.html 1
 chk "예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요" order-preview.html 1
 chk 'PRACTICE_WALK_1101' order-preview.html 19
+# ── 2026-11-01 [OPEN_LINE_192 · TABLE_PLUS_192 · TRIB_LAB_192 · REC_ENTRY_CLAP 검토 192 · 연습하기 3라운드] 여는 멘트 칸 · 테이블 인사 «+» · 부모님께 인사 라벨 · 입장 격식 «큰 박수로»(07#0 우성 재녹음)
+chk "lab='여는 멘트 · 예식 시작 시각에'" order-preview.html 1
+chk "?'여는 멘트':_pkName(" order-preview.html 1
+chk "(lab==='말없이'?'말없이 인사':lab)+' · 시작할 때'" order-preview.html 1
+chk "(p.tm?' + 테이블 인사 '+p.table:'')" order-preview.html 1
+chk "(k==='table'?'+ ':'')" order-preview.html 1
+chk '첫 시작을 큰 박수로 축복해 주시고' assets/ritual-data.js 1
+nochk '첫 시작을 큰 박수와 함성으로' assets/ritual-data.js
+nochk '첫 시작을 큰 박수와 함성으로' order-preview.html
+# ── 2026-11-01 [GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191 · 사장님 14:50 «하객 맞이를 좀 더 친절하게» · «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»]
+chk "var GUEST_PARTS = { 'guest-w-arrival': \[GW.hi, GW.voice, GW.snap\]" assets/ritual-cue.js 1
+chk "up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.')" assets/ritual-cue.js 1
+chk "five: gw('시작 오 분 전입니다.', '03_guest-3-5min#0')" assets/ritual-cue.js 1
+chk "function guestPick(S, i)" assets/ritual-cue.js 1
+chk "function afterPhotoOf(S)" assets/ritual-cue.js 1
+chk "return Math.max(10, Math.min(20, n));" assets/ritual-cue.js 1
+chk "if (_openG && vi === 1) {" assets/ritual-cue.js 1
+chk "repeatMs: gi === 0 ? PARAM.guestRepeatMs : 0" assets/ritual-cue.js 1
+chk "name: '촬영 후 안내', text: EXTRA\[_aps\]" assets/ritual-cue.js 1
+chk "hint: '작가님이 촬영을 마치면'" assets/ritual-cue.js 1
+chk "if (c.repeatMs && MODE !== 'preview' && !GUEST" console.html 1
+chk "lab:'촬영 후 안내 · 작가님이 촬영을 마치면 재생'" order-preview.html 1
+chk "else if(S.guestVoice!=='couple'&&!isOpen()) out.push(_exRowG('exGuestNar'" order-preview.html 1
+chk "_stepHd('촬영 후 안내', '작가님이 촬영을 마치면 안내 음성이 나와요', 'show')" mypage.html 1
+chk 'GUEST_WELCOME_191' assets/ritual-cue.js 5
+chk 'AFTER_PHOTO_191' assets/ritual-cue.js 3
+nochk "'guest-3-5min': 1," assets/ritual-cue.js
+nochk "‘하객 안내’" assets/ritual-cue.js
+nochk "다시 한번 말씀드립니다" assets/ritual-cue.js
 # ── 2026-11-01 [CLOSING_FULLER 검토 189 · 사장님 13:54 «좀 더 길었으면 · 식당이랑 사진 안내는?»] 마무리 멘트 «이어지는 줄» 회색 미리 보기(② 흐름 · ③ 연습 · 전체 대본 · 녹음 아님) · ② · ③ 엔진 빌드에 마이페이지 값(식사 · 예약 · 하객 안내)
 chk 'function _clHints()' order-preview.html 1
 chk "'마이페이지에 식사 장소 · 예약 시각을 적으시면 식사 시간 · 장소 안내가 이어져요'" order-preview.html 1
@@ -21195,7 +21236,7 @@ chk "'두 분이 양가 부모님 모두와 차례로 안아요 · 부모님은 
 chk "(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요'" order-preview.html 1
 chk "문장 틀은 참고하되 이름 · 관계 · 경험은 " order-preview.html 2
 chk "'<span>연습 약 '+_mins+'분" order-preview.html 1
-chk "'당일 약 '+Math.max(1" order-preview.html 1
+chk "'약 '+Math.max(1,Math.round(hi/60))+'분'" order-preview.html 1   # [TABLE_PLUS_192] «당일 + 약 n분»
 chk "'당일 예상 · 본식 '+p.body" order-preview.html 1
 chk "txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요'" order-preview.html 1
 chk "txt:'하객의 화답을 기다리며 두 분도 함께 잔을 들어요'" order-preview.html 1

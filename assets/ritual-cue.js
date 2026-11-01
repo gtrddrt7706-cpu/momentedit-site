@@ -66,6 +66,7 @@
        시간을 live 로 옮겼다. 타이머로 다음 큐를 자동으로 밀던 자리라, 남겨 두면 다음 사람이
        "왜 안 쓰지" 하고 되살린다. 되살리지 말 것. */
     goodbye: { outroHoldMs: 90000, outroFadeMs: 20000 },
+    guestRepeatMs: 120000,   // [GUEST_WELCOME_191] 입장 때 안내 — 2분마다 다시(10분 전 안내가 시작되면 멈춘다 · 콘솔)
     previewLiveCap: 10,    // 미리듣기에서 사람 구간을 이 초 이상 끌지 않는다(듣는 사람이 기다릴 이유가 없다)
     previewWaitMs: 1200,   // 뒤처리의 침묵·페이드도 같은 이유로 줄인다(폐식 뒤 30초 대기 등)
     clipDir: '/assets/audio/narration/'
@@ -255,7 +256,16 @@
     'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-soft-guide', 'narr-closing-meal',
     /* ★★[CLOSING_SRC_1031 검토 179 사장님 21:09] 292 ~ 296 — 닫는 멘트 칩 186 · 187(«진심으로 감사») 을 고른 날의 마무리 멘트 · 47#0 «… 다시 한 번 진심으로 감사드립니다»를 빼고 시작(감사 두 번 겹침) ·
        287 ~ 291 과 같은 순서(애프터 웨딩 없음 · + 하객 안내 · 조건 빔 · + 하객 안내 · 식사 있음) · 새 녹음 0 */
-    'narr-closing-nt', 'narr-closing-guide-nt', 'narr-closing-soft-nt', 'narr-closing-soft-guide-nt', 'narr-closing-meal-nt'
+    'narr-closing-nt', 'narr-closing-guide-nt', 'narr-closing-soft-nt', 'narr-closing-soft-guide-nt', 'narr-closing-meal-nt',
+    /* ★★[GUEST_WELCOME_191 검토 191 · 사장님 14:50 «하객 맞이를 좀 더 친절하게 — 식사 · 하객 안내로 사진 올리는 법 · 식순»] 297 ~ 316 — 새 코스 · 나레이션 판 하객 맞이(진희) ·
+       문장 창고 방식(GUEST_PARTS · 한 문장 한 번 녹음 · 판마다 이어 붙임) · 297 · 298 입장 때(± 하객 안내) · 299 ~ 313 10분 전(본식 십 · 십오 · 이십 분 × 식사 경로 다섯) ·
+       314 5분 전 온라인 판(03 은 되살렸다) · 315 · 316 1분 전(± 온라인) · 옛 115 ~ 126 · 89 는 쉰다 */
+    'guest-w-arrival', 'guest-w-arrival-guide',
+    'guest-w-10m-n10', 'guest-w-10m-n10-mgr', 'guest-w-10m-n10-mg', 'guest-w-10m-n10-mr', 'guest-w-10m-n10-m', 'guest-w-10m-n15', 'guest-w-10m-n15-mgr', 'guest-w-10m-n15-mg', 'guest-w-10m-n15-mr', 'guest-w-10m-n15-m', 'guest-w-10m-n20', 'guest-w-10m-n20-mgr', 'guest-w-10m-n20-mg', 'guest-w-10m-n20-mr', 'guest-w-10m-n20-m',
+    'guest-w-5m-online', 'guest-w-1m', 'guest-w-1m-online',
+    /* ★★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»] 317 ~ 324 — 촬영 후 안내(진희 · 작가님이 촬영을 마치면 재생) ·
+       317 · 318 식사 없음(± 하객 안내) · 319 · 320 카페 · 다과만(± 하객 안내) · 321 · 322 식사 · 예약 시각 있음(± 하객 안내) · 323 · 324 식사 · 예약 시각 없음(± 하객 안내) */
+    'after-photo', 'after-photo-guide', 'after-photo-cafe', 'after-photo-cafe-guide', 'after-photo-resv-guide', 'after-photo-resv', 'after-photo-meal-guide', 'after-photo-meal'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -406,6 +416,51 @@
     'narr-closing-meal-nt': CL_MEAL.concat([CL_UP_MEAL])   /* [CLOSING_MEAL_DUP] */
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
+  /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 하객 맞이 · 촬영 후 안내 문장 창고 — 줄 하나 = [줄 주인 · 문장 · 빌려 오는 녹음 · 자료 판정] (CLOSING_PARTS 와 같은 모양) ·
+       목소리 전부 진희(안내) · ★따옴표 없이(타입캐스트가 따옴표를 읽는다 · 191 보충 1) · 숫자는 한글(보충 2) · «장소는 … 확인해 주세요.»는 10분 전과 촬영 후가 같은 문장(보충 4) ·
+       ★사진 줄은 하객 안내(guide)만 본다 — 하객 안내에는 «사진 올리기»가 늘 있다(우리 업로드가 기본 · photoShare 는 두 분이 넣은 바깥 링크 유무일 뿐 · guide.html photoShareHtml) ·
+       ★식사 줄은 식사 자리(meal + mealFull) — 카페 · 다과만인 날은 «식사»라 하지 않는다(그날도 함께 이동하니 «조심히 돌아가세요»는 빼) */
+  var GW_SRC = '검토 191 · GPT 6라운드 · 자료 G «스튜디오 웨딩 사전 안내 대본»';
+  var gw = function (t, b) { return ['안내', t, b || null, GW_SRC]; };
+  var GW = {
+    hi: gw('발걸음해 주신 여러분, 고맙습니다.'), voice: gw('오늘 예식은 신랑 신부가 미리 준비한 목소리로 안내해 드립니다.'), snap: gw('사진은 편하게, 마음껏 담아 주세요.'),
+    up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.'),
+    ten: gw('십 분 뒤 본식을 시작하겠습니다.'),
+    n10: gw('약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'), n15: gw('약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'), n20: gw('약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'),
+    meal: gw('식사는 촬영 뒤에 함께합니다.'),
+    mgr: gw('장소와 예약 시각은 모바일 청첩장의 하객 안내에서 확인해 주세요.'), mg: gw('장소는 모바일 청첩장의 하객 안내에서 확인해 주세요.'),
+    mr: gw('장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.'), m: gw('장소와 시간은 현장 디렉터에게 여쭤 주세요.'),
+    five: gw('시작 오 분 전입니다.', '03_guest-3-5min#0'), online5: gw('온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요.'),
+    soon: gw('잠시 후 순서를 시작하겠습니다.'), sit: gw('자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'), sitOn: gw('현장에 계신 분들은 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'),
+    done: gw('기념 촬영을 모두 마쳤습니다.'), thx: gw('끝까지 함께해 주셔서 고맙습니다.'),
+    resv: gw('식사는 안내된 예약 시각에 두 분과 함께합니다.'), noResv: gw('이어서 두 분과 함께 식사합니다.'),
+    pMealUp: gw('식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.'), pUp: gw('오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다.'),
+    pResv: gw('식사 장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.'), pPlace: gw('식사 장소는 현장 디렉터에게 여쭤 주세요.'),
+    things: gw('두고 가시는 물건이 없는지 한 번 살펴 주세요.'), bye: gw('조심히 돌아가세요.')
+  };
+  var GUEST_PARTS = { 'guest-w-arrival': [GW.hi, GW.voice, GW.snap], 'guest-w-arrival-guide': [GW.hi, GW.voice, GW.snap, GW.up],
+    'guest-w-5m-online': [GW.five, GW.online5], 'guest-w-1m': [GW.soon, GW.sit], 'guest-w-1m-online': [GW.soon, GW.sitOn],
+    'after-photo': [GW.done, GW.thx, GW.things, GW.bye], 'after-photo-guide': [GW.done, GW.thx, GW.pUp, GW.things, GW.bye],
+    'after-photo-cafe': [GW.done, GW.thx, GW.things], 'after-photo-cafe-guide': [GW.done, GW.thx, GW.pUp, GW.things],
+    'after-photo-resv-guide': [GW.done, GW.thx, GW.resv, GW.pMealUp, GW.things], 'after-photo-resv': [GW.done, GW.thx, GW.resv, GW.pResv, GW.things],
+    'after-photo-meal-guide': [GW.done, GW.thx, GW.noResv, GW.pMealUp, GW.things], 'after-photo-meal': [GW.done, GW.thx, GW.noResv, GW.pPlace, GW.things] };
+  [10, 15, 20].forEach(function (n) { var b = [GW.ten, GW['n' + n]];
+    GUEST_PARTS['guest-w-10m-n' + n] = b; GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = b.concat([GW.meal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = b.concat([GW.meal, GW.mg]);
+    GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = b.concat([GW.meal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = b.concat([GW.meal, GW.m]); });
+  Object.keys(GUEST_PARTS).forEach(function (k) { EXTRA[k] = GUEST_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
+  /* 본식 길이(5분 단위 · 녹음 판 십 · 십오 · 이십) — 테이블 인사 · 축배까지(닫는 인사 앞에 선다) · 넉넉 합의 가운데 · 6천 조합 실측 10 ~ 20(검토 191) */
+  function guestMinOf(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } if (!b) return 15; var n = Math.round(((b[0] + b[1]) / 120) / 5) * 5; return Math.max(10, Math.min(20, n)); }
+  /* 판 고르기 — i = 0 입장 때 · 1 10분 전 · 2 5분 전 · 3 1분 전 */
+  function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
+    if (i === 0) return S.guide ? 'guest-w-arrival-guide' : 'guest-w-arrival';
+    if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (!mF ? '' : S.guide ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m'));
+    if (i === 2) return S.digital ? 'guest-w-5m-online' : 'guest-3-5min';
+    return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
+  function afterPhotoOf(S) { S = S || {}; var g = S.guide ? '-guide' : '';
+    if (S.meal && S.mealFull) return 'after-photo-' + (S.resv ? 'resv' : 'meal') + g;
+    if (S.meal) return 'after-photo-cafe' + g;
+    return 'after-photo' + g; }
+
   /* 어느 판인가 — 식사 있음(266 이 서던 조건 그대로) · 식사 · 카페만(26 이 서던 자리) · 애프터 웨딩 없음(265 자리) · 하객 안내가 열린 날은 264 를 «여기서부터는 …» 앞에 */
   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 칩 186 · 187(«진심으로 감사»)을 고른 날은 «-nt»(47#0 없이) — 108 · 185 를 고른 날은 그대로 */
   var CLOSE_THANKS_EX = { 'narr-close-bow-ex3': 1, 'narr-close-bow-ex4': 1 };
@@ -576,7 +631,10 @@
     /* ★[SRC_ALL_1023 검토 144-5] 단체 사진 안내 예시 4(221) — 자료 원문에 «모여 주시면»이 없어 뺐다(NAR_EX close 의 그 자리는 null · 예시 1 글) · 되살리지 말 것 */
     'narr-close-ex4': 1,
     /* ★★[GUEST_5MIN_OFF_1023 검토 159-1] 하객 맞이 5분 전 «목소리» 칸 넷(03 · 117 · 121 · 125) — 엔진이 틀지 않는다(위 guest) · 파일 · 문안 · 번호 그대로 · 되살리지 말 것 */
-    'guest-3-5min': 1, 'guest-ex2-3-5min': 1, 'guest-ex3-3-5min': 1, 'guest-ex4-3-5min': 1,
+    'guest-ex2-3-5min': 1, 'guest-ex3-3-5min': 1, 'guest-ex4-3-5min': 1,   /* ★[GUEST_WELCOME_191 검토 191 보충 3] 03 «시작 오 분 전입니다.»는 되살렸다(새 코스 5분 전) — 예시 셋은 그대로 쉰다 */
+    /* ★★[GUEST_WELCOME_191 검토 191] 새 코스 하객 맞이가 297 ~ 316 으로 바뀌어 옛 예시 판(115 ~ 126)과 89 를 쉰다(파일 · 문안 · 번호 그대로) · 01 · 02 · 04 는 옛 코스 · 두 분 목소리 판이 그대로 쓴다 · 되살리지 말 것 */
+    'guest-ex2-1-arrival': 1, 'guest-ex2-2-10min': 1, 'guest-ex2-4-1min': 1, 'guest-ex3-1-arrival': 1, 'guest-ex3-2-10min': 1, 'guest-ex3-4-1min': 1,
+    'guest-ex4-1-arrival': 1, 'guest-ex4-2-10min': 1, 'guest-ex4-4-1min': 1, 'guest-4-1min-pre': 1,
     /* ★[CANDLE_FOUR_RETIRED_1023 검토 148-2] 네 분 화촉 판(92 여는 말 · 예시 2 ~ 4 · 139 인사 안내) — 엔진은 10/19 부터 저장된 네 분을 어머님 판으로 바꿔 틀지 않는다(CANDLE_FOUR_OFF_1019) ·
        글에 자료 대응이 없어 쉰다(파일 · 문안 · 번호 그대로 · 녹음 목록 · 들어 보기에서 빠진다) · 되살리지 말 것 */
     /* ★[REVIEW26_1023 검토 150-1 3) · 150-2 1)] 단체 사진 안내 예시 3(220 · 닫는 멘트 «잔잔하게»의 짝) · B9 «… 이제 자리로 돌아가 예식을 지켜봐 주십시오.»(245 · 화촉 구호와 같은 말) — 쉰다(번호 · 파일 그대로) · B9 자리는 늘 255 · 되살리지 말 것 */
@@ -749,7 +807,7 @@
       live: o.live || null, post: o.post || [], hint: o.hint || '',
       k: o.k || '', blockN: o.blockN || '', pick: o.pick || '', own: !!o.own,
       fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin), gapMs: o.gapMs || 0, goLeadMs: o.goLeadMs || 0,   // [PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연(GO) 큐를 그만큼 쉬고 튼다   // ★[CHAIN_GAP_1014] 사슬로 이어 나갈 때 앞 줄과의 사이(밀리초 · 0 이면 PARAM.gapMs) — 원고 «1.25초 사슬» · «사이 1초»
-      note: o.note || '', alt: null, act: !!o.act, actId: o.actId || '',   // [CLOSING_LINE_1031] actId = 소리 없는 동작 큐 이름(photo-all · photo-family · photo-free · photo-end) · [END_FLOW_1030] act = 소리 없는 동작 큐(말 없음 · 문안 카드 아님 · 사람 구간만)
+      note: o.note || '', alt: null, act: !!o.act, actId: o.actId || '', repeatMs: o.repeatMs || 0,   // [GUEST_WELCOME_191] repeatMs = 끝나고 그만큼 뒤 다시(다음 시각 큐가 나가면 멈춘다 · 콘솔만)   // [CLOSING_LINE_1031] actId = 소리 없는 동작 큐 이름(photo-all · photo-family · photo-free · photo-end) · [END_FLOW_1030] act = 소리 없는 동작 큐(말 없음 · 문안 카드 아님 · 사람 구간만)
       rescue: o.rescue ? { slug: o.rescue.slug || '', no: o.rescue.slug ? noOf(o.rescue.slug) : '', file: o.rescue.slug ? fileOf(o.rescue.slug) : '', name: o.rescue.name || '', text: o.rescue.text || '' } : null   // [FREE_RESCUE] 콘솔이 사람 구간 동안 «재생 안 됨»으로 쓴다
     };
     if (c.live && c.live.duck === undefined) c.live.duck = c.duck;
@@ -809,6 +867,22 @@
          실제 대본 18개의 식 전 안내는 «10분 전 처음 알림 → 1분 전 ‘다시 한번’» 2 ~ 3단이고 5분 전에 따로 쓴 한 줄은 거의 없다. 5분 시점에는 사진 올리기 안내(84 · 264)만 혼자 나간다(하객 안내가 열린 날).
          GUEST[2] · NAR.guestEx[n][2] 자리와 g2 키는 남긴다(번호 · 저장된 초안 · 이미 올린 파일 보존) · 클립은 RETIRED · 되살리지 말 것 */
       var _openG = !!(D.COURSES[S.course] && D.COURSES[S.course].open);   // [PHOTO_UP_1019] 새 코스만 5분 전 뒤 · guide 조건
+      /* ★★[GUEST_WELCOME_191 검토 191 · 사장님 14:50] 새 코스 · 나레이션 판 — 네 시점 모두 진희 새 문안(문장 창고 GUEST_PARTS · 판 고르기 guestPick) ·
+           ① 입장 때: 2분마다 다시(repeatMs · 10분 전 안내가 시각에 나가면 멈춘다) · 하객 안내가 열린 날 사진 올리는 법 한 줄 ·
+           ② 10분 전: 본식 약 십 · 십오 · 이십 분 + 기념 촬영 예고 · 식사 자리가 있으면 식사 줄 + 경로 하나(하객 안내 · 현장 디렉터 × 예약 시각) ·
+           ③ 5분 전: 03(되살림) ± 온라인 · ④ 1분 전: 착석 · 무음만(새 요청 없음) ± «현장에 계신 분들은» ·
+           ★옛 예시 칩(S.guestEx)은 새 코스 나레이션 판에서 읽지 않는다 · 5분 전 사진 올리기(264 · 84)는 ① 로 옮겼다 · 두 분 목소리 판 · 옛 코스는 아래 종전 그대로 */
+      if (_openG && vi === 1) {
+        for (var gi = 0; gi < 4; gi++) { var gsl = guestPick(S, gi);
+          out.push(cue({
+            k: 'guest', blockN: '하객 맞이', slug: gsl, name: '하객 맞이 · ' + D.GUEST[gi][0], text: EXTRA[gsl] || (gsl === 'guest-3-5min' ? D.GUEST[2][1] : ''), duck: PARAM.duckSpeech,
+            fire: gi === 0 ? 'manual' : 'clock', atMin: at[gi], repeatMs: gi === 0 ? PARAM.guestRepeatMs : 0,
+            hint: gi === 0 ? '문이 열리고 하객이 들어오기 시작하면' : '',
+            note: gi === 0 ? '문이 열릴 때 누른다 · 2분마다 다시 나오고 10분 전 안내가 시작되면 멈춘다 · ★둘째 문장이 안내 음성 알림이다(AI고지_G1-4 · 계약서 서명 확인 줄과 짝) · 빼지 말 것' : ''
+          }));
+        }
+        return out;
+      }
       for (var i = 0; i < 4; i++) {
         if (i === 2) {   // [GUEST_5MIN_OFF_1023] 5분 전은 사진 올리기 안내 하나(하객 안내가 열린 날 · 새 코스)
           if (_openG && S.guide) out.push(cue({
@@ -1763,11 +1837,13 @@
          ★[PHOTO_THANKS 2026-09-26] 이제 여기서 듣는 분은 남은 가족 · 친구다(가실 분은 감사 인사 뒤 식사 자리로 먼저 가셨다). 자리는 코워크 제안으로 올렸다. */
       /* ★[PHOTO_SEND_FIRST_1014] 85 는 위(전체 사진 바로 뒤 · 감사 인사 앞)로 옮겼다 — 여기 두면 가실 분이 먼저 가신 뒤라 정작 사진을 가장 많이 찍은 하객이 못 듣는다 */
       /* ★[CLOSING_LINE_1031 검토 178] 새 코스는 47(감사 · 귀가 인사)을 마무리 멘트 첫머리에서 이미 말했다 — 사진 뒤는 소리 없는 «촬영 마무리»(음악만 내린다) · 옛 코스는 종전 그대로 */
-      if (_photoOpen) cues.push(cue({
-        k: '_goodbye', blockN: '마무리', slug: '', act: true, actId: 'photo-end', name: '촬영 마무리 · 두 분 환복', text: '', est: 0, duck: -14,
-        hint: '자유 사진이 끝나면', note: '소리 없음 · 두 분은 이어서 편하게 환복 · 늦어진 날은 자유 사진을 일찍 끝내고 GO(마무리 시각을 지킨다)',
+      /* ★★[AFTER_PHOTO_191 검토 191 · 191 정정 사장님 «사진은 촬영 작가님이 컨트롤»] 촬영 후 안내 — 작가님이 예정된 촬영을 모두 마치면 진행 화면에서 누른다(소리 없던 «촬영 마무리» 자리) ·
+           식사(예약 시각 ±) · 경로 하나(하객 안내 · 현장 디렉터) · 두고 가시는 물건 · 식사 · 카페가 없는 날만 «조심히 돌아가세요» · 본식 시간 셈(상한)에 들지 않는다(사진 뒤 · 마무리 몫) */
+      if (_photoOpen) { var _aps = afterPhotoOf(S); cues.push(cue({
+        k: '_goodbye', blockN: '마무리', slug: _aps, name: '촬영 후 안내', text: EXTRA[_aps], duck: -14, fire: 'manual',
+        hint: '작가님이 촬영을 마치면', note: '작가님이 예정된 촬영을 모두 마쳤다고 알린 뒤 작가님이 누른다 · 두 분은 이어서 편하게 환복 · 늦어진 날은 자유 사진을 일찍 끝내고 누른다(마무리 시각을 지킨다)',
         post: [{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.goodbye.outroFadeMs }]   /* ★[BGM_TIMING_1101] 마지막 곡이 피어난다 — 나레이션 끝 1.5초에 −8 → 90초 → 20초 소거(종전 −14 그대로 90초) */
-      }));
+      })); }
       if (!_photoOpen) cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: 'end-2-goodbye', name: '마무리 · 귀가 인사', text: EXTRA['end-2-goodbye'], duck: -14,
         /* ★[WF_FINDINGS 2026-09-12] 「하객 대부분이 나가시면」이었는데 바로 아래 note 가
@@ -1980,6 +2056,6 @@
   return {
     moodFit: moodFit, moodClash: moodClash, seamFit: seamFit, MOOD_SHIFT: MOOD_SHIFT,
     build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, FILES: FILES, EXTRA: EXTRA,
-    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, version: 'cue-v1'
+    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, afterPhotoOf: afterPhotoOf, version: 'cue-v1'
   };
 });

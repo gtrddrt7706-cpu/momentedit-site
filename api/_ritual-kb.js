@@ -3,7 +3,8 @@
 //   full: 임베드(계약 고객)용 · 상시 캐시 블록 — 토큰 캡 ≤20k(검증: scripts/check-ritual-mirror.js)
 //   lite: 독립 열람(계약 전)용 축약판 — 콜드 단가 절감(기획 v3 §5)
 const D = require('../assets/ritual-data.js');
-const O = require('../assets/ritual-open.js');   // [OPEN_COURSE] 새 코스(순간 먼저)의 순간·판·예시·시간 — 손으로 옮겨 적지 않는다
+const O = require('../assets/ritual-open.js');
+const RC = require('../assets/ritual-cue.js');   // [GUEST_WELCOME_191] 하객 맞이 · 촬영 후 안내 문장 창고   // [OPEN_COURSE] 새 코스(순간 먼저)의 순간·판·예시·시간 — 손으로 옮겨 적지 않는다
 
 // ── 생성 헬퍼 ──────────────────────────────────────────────
 function courseLines(full) {
@@ -112,8 +113,16 @@ function narrLines() {
   out.push(`- 부모님 덕담 도입(옛 가족 코스의 첫 순서): "${D.NARR.blessOpenFamily}" / (그 외 위치): "${D.NARR.blessMid}" · 마무리: "${D.NARR.blessEnd}" · 덕담은 한 분 1분쯤(30초여도 충분) · 원고를 주시면 큰 글씨 카드로 돌려드리고, 원고 없이 현장에서 바로 하셔도 된다 · 식순 화면에는 대독을 고르는 칸이 없다(옛 코스 초안만 나레이션 대독 · [KB_MATCH_SCREEN_1013])`);
   out.push(`- 폐식·단체촬영: "${D.NARR.close}"`);
   out.push('');
-  out.push('[하객 맞이 안내 4단계 문안]');
-  D.GUEST.forEach((g) => out.push(`- ${g[0]}: "${g[1]}"`));
+  /* ★[GUEST_WELCOME_191 검토 191] 새 코스 하객 맞이 · 촬영 후 안내 — 엔진 문장 창고(RC.GUEST_PARTS)에서 뽑는다(손으로 옮겨 적지 않는다) */
+  const GP = RC.GUEST_PARTS || {}, gs = (k, i) => ((GP[k] || [])[i] || [])[1] || '';
+  out.push('[하객 맞이 안내 · 나레이션(진희)]');
+  out.push(`- 하객 입장 때(문이 열리면 · 2분마다 다시 · 10분 전 안내가 시작되면 멈춤): "${RC.EXTRA['guest-w-arrival']}" · 하객 안내가 열린 날 덧붙임: "${gs('guest-w-arrival-guide', 3)}"`);
+  out.push(`- 시작 10분 전: "${gs('guest-w-10m-n15', 0)}" + 본식 길이 "약 십 · 십오 · 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다." · 식사 자리가 있는 날 "${gs('guest-w-10m-n15-mgr', 2)}" + 장소 · 예약 시각 확인 경로 한 줄(하객 안내 또는 현장 디렉터)`);
+  out.push(`- 시작 5분 전: "${gs('guest-w-5m-online', 0)}" · 디지털 참석 날 덧붙임: "${gs('guest-w-5m-online', 1)}"`);
+  out.push(`- 시작 1분 전: "${RC.EXTRA['guest-w-1m']}" · 디지털 참석 날은 "${gs('guest-w-1m-online', 1)}"`);
+  out.push(`- 촬영 후 안내(작가님이 촬영을 마치면): "${RC.EXTRA['after-photo']}" · 식사 · 사진 올리기 안내가 그날 값에 따라 붙는다 · 식사 자리가 있는 날은 «조심히 돌아가세요»를 빼고 식사 안내로`);
+  out.push('[두 분 목소리로 틀 때의 하객 맞이 예시 문안]');
+  D.GUEST.forEach((g, i) => { if (i !== 2) out.push(`- ${g[0]}: "${g[2] || g[1]}"`); });   // 두 분 목소리 판은 5분 전 줄을 틀지 않는다(GUEST_5MIN_OFF_1023)
   out.push('※ 하객 맞이도 나레이션 대신 두 분 목소리로 틀 수 있음(식순 화면의 «AI로 두 분 목소리 만들기» 또는 직접 녹음해 «파일 올리기» · D-7까지).');   // ★[KB_GUEST_VOICE_R6_1016 라운드 6] 옛 «더빙 사이트» 길은 AI_TIP_OFF(9/28)로 걷었다 · «하객이 모두 앉은 뒤»(OPEN_WORDS_1013) · «본식 맨 앞»(식전 영상은 본식 시간 밖)도 같은 커밋에서 화면 말로
   return out.join('\n');
 }

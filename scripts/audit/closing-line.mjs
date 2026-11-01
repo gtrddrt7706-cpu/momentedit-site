@@ -50,9 +50,12 @@ export function check(build) {
     const mid = q.slice(bow + 1, ic >= 0 ? ic : end + 1).map((c) => c.slug);
     if (JSON.stringify(mid) !== JSON.stringify(o.digital ? ['narr-online-in'] : [])) out.push(`② ${tag} 닫는 인사와 마무리 사이 ${JSON.stringify(mid)}`);
     if (ic >= 0 && (cl.fire !== 'manual' || (cl.goLeadMs || 0) !== (o.digital ? 2000 : 0))) out.push(`② ${tag} 마무리 멘트 GO · 간격(${cl.fire} · ${cl.goLeadMs})`);
-    const after = q.slice(end + 1);
+    const after0 = q.slice(end + 1), ap = after0[after0.length - 1] || {};
+    /* ★[AFTER_PHOTO_191 검토 191] 사진 구간 끝 «촬영 후 안내»(after-photo*) — 작가님이 촬영을 마치면 누르는 큐(manual) 하나만 소리가 난다 · 사진 구간 안 나레이션은 여전히 0 */
+    if (!/^after-photo/.test(ap.slug || '') || ap.fire !== 'manual') out.push(`③ ${tag} 사진 구간 끝이 촬영 후 안내(manual)가 아니다 — ${ap.slug || ap.actId || '(없음)'} · ${ap.fire}`);
+    const after = /^after-photo/.test(ap.slug || '') ? after0.slice(0, -1) : after0;
     if (after.some((c) => c.slug)) out.push(`③ ${tag} 마무리 뒤 소리 나는 큐 — ${after.filter((c) => c.slug).map((c) => c.slug).join(' · ')}`);
-    if (after.map((c) => c.actId).join(',') !== 'photo-all,photo-family,photo-free,photo-end') out.push(`② ${tag} 사진 큐 차례 ${after.map((c) => c.actId || c.slug).join(',')}`);
+    if (after.map((c) => c.actId).join(',') !== 'photo-all,photo-family,photo-free') out.push(`② ${tag} 사진 큐 차례 ${after0.map((c) => c.actId || c.slug).join(',')}`);
     const gone = ['narr-photo-pre', 'narr-photo-pre-meal', 'narr-close', 'narr-close-ex2', 'narr-photo-free', 'narr-photo-send', 'end-2-goodbye', 'end-0-photo'].filter((s) => q.some((c) => c.slug === s));
     if (gone.length) out.push(`③ ${tag} 걷은 큐가 남았다 — ${gone.join(' · ')}`);
   }
