@@ -21136,6 +21136,14 @@ chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.ht
 chk '_rf={free:4}\[k\]' order-preview.html 1
 chk "예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요" order-preview.html 1
 chk 'PRACTICE_WALK_1101' order-preview.html 19
+# ── 2026-11-01 [CLOSING_FULLER 검토 189 · 사장님 13:54 «좀 더 길었으면 · 식당이랑 사진 안내는?»] 마무리 멘트 «이어지는 줄» 회색 미리 보기(② 흐름 · ③ 연습 · 전체 대본 · 녹음 아님) · ② · ③ 엔진 빌드에 마이페이지 값(식사 · 예약 · 하객 안내)
+chk 'function _clHints()' order-preview.html 1
+chk "'마이페이지에 식사 장소 · 예약 시각을 적으시면 식사 시간 · 장소 안내가 이어져요'" order-preview.html 1
+chk "'하객 안내를 여시면 사진 올리기 안내가 이어져요'" order-preview.html 1
+chk "r=g.RitualCue.build(_clS(),{mode:'preview'})" order-preview.html 1
+chk "lines.push('(이어지는 줄 · '+t+')')" order-preview.html 1
+chk 'CLOSING_FULLER' order-preview.html 8
+nochk "r=g.RitualCue.build(S,{mode:'preview'})" order-preview.html
 # ── 2026-11-01 [PRACTICE_WALK_R2 검토 188 · 실사이트 네 코스 GPT 2라운드] ③ 연습하기 — 위치와 방향 나누기 · 이동 줄 뒤에 위치 표시 · 부모님 앞 / 테이블에서 «먼저 앞쪽 중앙으로» · 양가 모두 · 선언 · 덕담 요약 · 예시 안내 통일 · «연습 / 당일» 시간 · 축배 두 줄
 chk "var FG_POS={guest:'wait',prevideo:'wait',candle:'wait',entry:'walk',tribute:'parents',table:'tables'};" order-preview.html 1
 chk "FG_NOW={walk:'입장 문 앞에서 출발 대기'}" order-preview.html 1
