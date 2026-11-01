@@ -107,7 +107,7 @@ try {
       ok(`${W} b 이어 듣기 맞절 → 감사 인사 — 이음말(${(q[i0] || {}).slug}) 동안 입장 곡이 말 아래 크기(≤ −16)`, i0 > 0 && PRE.test(q[i0].slug) && late.length > 1 && late.every((x) => x.src && x.f === '@ENT' && x.want <= -16), { i0, q: q[i0], late: late.slice(0, 3) });
       ok(`${W} b 피아노(감사 인사 곡)는 이음말 뒤에 시작 · 뜸이 그 사이`, !!nf && bEnd != null && nf.t >= bEnd - 50 && r.o.some((x) => x.i === i0 + 1 && x.lead), { nf: nf && { t: Math.round(nf.t), i: nf.i, f: nf.f }, bEnd }); }
     /* c 이어 듣기 축가 → 부모님께 인사 · 식전 영상 → 화촉 — 새 곡은 이음말 뒤 */
-    for (const [a, b] of [['song', 'tribute'], ['prevideo', 'candle']]) { await go(f, b); const r = await trace(f, [a, b], 16000, true), q = r.q, i0 = q.findIndex((x) => x.k === b);
+    for (const [a, b] of [['song', 'tribute'], ['prevideo', 'candle']]) { await go(f, b); const r = await trace(f, [a, b], a === 'song' ? 20000 : 16000, true), q = r.q, i0 = q.findIndex((x) => x.k === b);   /* [DETAIL_R2_1101 ⑤] 축가 뒤 박수 줄 3초가 더해졌다 */
       const bEnd = (r.o.find((x) => x.i > i0) || {}).t, fa = (r.o.filter((x) => x.k === a && x.src).pop() || {}).f, nf = r.o.find((x) => x.src && x.k === b && x.f !== fa);   /* ★[BGM_TIMING2_1101] 축가가 M4 를 틀게 되어 이음말 동안 앞 곡(M4)이 말 아래로 이어진다 — «새 곡» = 앞 순간 곡이 아닌 곡 */
       ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤에 새 곡 · 뜸은 그 다음 줄`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && q[i0 + 1] && q[i0 + 1].lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd }); }
     /* a · b 감사 인사형 서약(vowKind thanks · 감사 인사 뺌) — b8 이 서약 첫 줄에 온다(BGM 섹션 전수조사 · 화면 top@1 · 콘솔 M4@b8 이던 갈래) */
