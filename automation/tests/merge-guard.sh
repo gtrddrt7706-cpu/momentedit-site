@@ -21396,7 +21396,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-timing2.mjs >/de
 #   소리 길을 열 때 audioSession playback(무음 스위치) · 늦은 곡은 뜸이 8초까지 기다림(1.5초 뒤 «음악을 불러오는 중이에요» · 오면 그때부터 6초) ·
 #   못 받음 · 못 풂은 지금 줄 아래 «음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 L3 · L5 · L6 · M6)» · 풀어 둔 곡 셋까지(LRU) · 순간 쪽을 열면 그 곡 미리 받기.
 chk 'BED_LOAD_1101' scripts/audit/bed-load.mjs 1
-chk 'BED_LOAD_1101' assets/bgm-bed.js 15
+chk 'BED_LOAD_1101' assets/bgm-bed.js 16
 chk 'BED_LOAD_1101' order-preview.html 6
 chk "if(s&&s.type!=='playback') s.type='playback';" assets/bgm-bed.js 1
 chk 'var BUF_MAX=3;' assets/bgm-bed.js 1
