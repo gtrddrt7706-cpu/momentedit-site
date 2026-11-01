@@ -155,9 +155,9 @@
    "when": "2026-10-22"
   },
   "07_entry-C#0": {
-   "text": "오늘 귀한 발걸음 해 주신 하객 여러분께서는 두 사람의 첫 시작을 큰 박수와 함성으로 축복해 주시고 응원해 주시기 바랍니다.",
+   "text": "오늘 귀한 발걸음 해 주신 하객 여러분께서는 두 사람의 첫 시작을 큰 박수로 축복해 주시고 응원해 주시기 바랍니다.",
    "voice": "우성",
-   "when": "2026-10-24"
+   "when": "2026-11-01"
   },
   "07_entry-C#1": {
    "text": "서로에게 행복이 되어 줄 거란 약속을, 사랑의 결심을 다시 한번 다지면서, 함께했던 지난날보다 더 행복한 앞날들을 위하여!",
@@ -3815,6 +3815,618 @@
    "text": "양가에서 한 병씩 고른 와인을, 이제 한 잔에 모읍니다.",
    "voice": "우성",
    "when": "2026-10-22",
+   "keepGap": true
+  },
+  "297_guest-w-arrival#0": {
+   "text": "발걸음해 주신 여러분, 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "297_guest-w-arrival#1": {
+   "text": "오늘 예식은 신랑 신부가 미리 준비한 목소리로 안내해 드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "297_guest-w-arrival#2": {
+   "text": "사진은 편하게, 마음껏 담아 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "298_guest-w-arrival-guide#0": {
+   "text": "발걸음해 주신 여러분, 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "298_guest-w-arrival-guide#1": {
+   "text": "오늘 예식은 신랑 신부가 미리 준비한 목소리로 안내해 드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "298_guest-w-arrival-guide#2": {
+   "text": "사진은 편하게, 마음껏 담아 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "298_guest-w-arrival-guide#3": {
+   "text": "받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "299_guest-w-10m-n10#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "299_guest-w-10m-n10#1": {
+   "text": "약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "300_guest-w-10m-n10-mgr#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "300_guest-w-10m-n10-mgr#1": {
+   "text": "약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "300_guest-w-10m-n10-mgr#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "300_guest-w-10m-n10-mgr#3": {
+   "text": "장소와 예약 시각은 모바일 청첩장의 하객 안내에서 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "301_guest-w-10m-n10-mg#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "301_guest-w-10m-n10-mg#1": {
+   "text": "약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "301_guest-w-10m-n10-mg#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "301_guest-w-10m-n10-mg#3": {
+   "text": "장소는 모바일 청첩장의 하객 안내에서 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "302_guest-w-10m-n10-mr#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "302_guest-w-10m-n10-mr#1": {
+   "text": "약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "302_guest-w-10m-n10-mr#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "302_guest-w-10m-n10-mr#3": {
+   "text": "장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "303_guest-w-10m-n10-m#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "303_guest-w-10m-n10-m#1": {
+   "text": "약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "303_guest-w-10m-n10-m#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "303_guest-w-10m-n10-m#3": {
+   "text": "장소와 시간은 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "304_guest-w-10m-n15#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "304_guest-w-10m-n15#1": {
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "305_guest-w-10m-n15-mgr#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "305_guest-w-10m-n15-mgr#1": {
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "305_guest-w-10m-n15-mgr#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "305_guest-w-10m-n15-mgr#3": {
+   "text": "장소와 예약 시각은 모바일 청첩장의 하객 안내에서 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "306_guest-w-10m-n15-mg#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "306_guest-w-10m-n15-mg#1": {
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "306_guest-w-10m-n15-mg#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "306_guest-w-10m-n15-mg#3": {
+   "text": "장소는 모바일 청첩장의 하객 안내에서 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "307_guest-w-10m-n15-mr#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "307_guest-w-10m-n15-mr#1": {
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "307_guest-w-10m-n15-mr#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "307_guest-w-10m-n15-mr#3": {
+   "text": "장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "308_guest-w-10m-n15-m#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "308_guest-w-10m-n15-m#1": {
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "308_guest-w-10m-n15-m#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "308_guest-w-10m-n15-m#3": {
+   "text": "장소와 시간은 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "309_guest-w-10m-n20#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "309_guest-w-10m-n20#1": {
+   "text": "약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "310_guest-w-10m-n20-mgr#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "310_guest-w-10m-n20-mgr#1": {
+   "text": "약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "310_guest-w-10m-n20-mgr#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "310_guest-w-10m-n20-mgr#3": {
+   "text": "장소와 예약 시각은 모바일 청첩장의 하객 안내에서 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "311_guest-w-10m-n20-mg#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "311_guest-w-10m-n20-mg#1": {
+   "text": "약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "311_guest-w-10m-n20-mg#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "311_guest-w-10m-n20-mg#3": {
+   "text": "장소는 모바일 청첩장의 하객 안내에서 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "312_guest-w-10m-n20-mr#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "312_guest-w-10m-n20-mr#1": {
+   "text": "약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "312_guest-w-10m-n20-mr#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "312_guest-w-10m-n20-mr#3": {
+   "text": "장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "313_guest-w-10m-n20-m#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "313_guest-w-10m-n20-m#1": {
+   "text": "약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "313_guest-w-10m-n20-m#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "313_guest-w-10m-n20-m#3": {
+   "text": "장소와 시간은 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "314_guest-w-5m-online#1": {
+   "text": "온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "315_guest-w-1m#0": {
+   "text": "잠시 후 순서를 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "315_guest-w-1m#1": {
+   "text": "자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "316_guest-w-1m-online#0": {
+   "text": "잠시 후 순서를 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "316_guest-w-1m-online#1": {
+   "text": "현장에 계신 분들은 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "317_after-photo#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "317_after-photo#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "317_after-photo#2": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "317_after-photo#3": {
+   "text": "조심히 돌아가세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "318_after-photo-guide#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "318_after-photo-guide#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "318_after-photo-guide#2": {
+   "text": "오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "318_after-photo-guide#3": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "318_after-photo-guide#4": {
+   "text": "조심히 돌아가세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "319_after-photo-cafe#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "319_after-photo-cafe#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "319_after-photo-cafe#2": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "320_after-photo-cafe-guide#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "320_after-photo-cafe-guide#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "320_after-photo-cafe-guide#2": {
+   "text": "오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "320_after-photo-cafe-guide#3": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "321_after-photo-resv-guide#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "321_after-photo-resv-guide#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "321_after-photo-resv-guide#2": {
+   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "321_after-photo-resv-guide#3": {
+   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "321_after-photo-resv-guide#4": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "322_after-photo-resv#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "322_after-photo-resv#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "322_after-photo-resv#2": {
+   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "322_after-photo-resv#3": {
+   "text": "식사 장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "322_after-photo-resv#4": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "323_after-photo-meal-guide#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "323_after-photo-meal-guide#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "323_after-photo-meal-guide#2": {
+   "text": "이어서 두 분과 함께 식사합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "323_after-photo-meal-guide#3": {
+   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "323_after-photo-meal-guide#4": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "324_after-photo-meal#0": {
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "324_after-photo-meal#1": {
+   "text": "끝까지 함께해 주셔서 고맙습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "324_after-photo-meal#2": {
+   "text": "이어서 두 분과 함께 식사합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "324_after-photo-meal#3": {
+   "text": "식사 장소는 현장 디렉터에게 여쭤 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "324_after-photo-meal#4": {
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
    "keepGap": true
   }
  },
