@@ -544,7 +544,13 @@
         var vv=ES.voiceStart(a,V0,vg,t0,PL.tv,from); R.vsn=vv.nodes.length; vv.nodes.forEach(function(n){ R.nodes.push(n); }); vv.gains.forEach(function(g){ R.gains.push(g); }); }   /* [ENTRY_CALL_PAUSE_1013] 목소리는 엔진이 끊어 건다 — «신랑 신부, 입장!» 앞 쉼(SP.call · 당일 콘솔과 같은 자리) */
       a.onstatechange=function(){ if(a.state!=='running'&&RUN&&!D.hidden){ scHalt(); toast('소리가 끊겨 멈춰 뒀어요'); } };   /* 시험실 AC_LIFE — 전화 · 다른 앱이 소리를 가져가면 */
       RUN=R; scPaint(); loop(); }).catch(function(err){ if(id!==RID) return; scStop(); scPaint(); toast(err&&err.song?recErr(err.code):errMsg(err)); }); }
-  function loop(){ var R=RUN; if(!R) return; var x=tau(R); paintGraph(x); if(BIG) paintCap(x); if(x>=R.PL.tend+0.2){ scStop(); LASTRUN=lastOf(R); ENDED=true; PAUSE=null; scPaint(); if(R.whole&&!BIG) restGo(); return; } R.raf=requestAnimationFrame(loop); }
+  /* ★★[ENTRY_UNDER_1101 사장님 «여기서 계속 노래가 흘러야 하는 거 아니야?»] 이 순간 전체 듣기(whole) — 장면이 «도착»에서 잦아들기 시작할 때(4초) 남은 줄(받는 말)을 빌더에 넘기고,
+       빌더 곡 엔진(BgmBed · 같은 입장 곡 · 도착 자리)이 그 아래로 이어 간다 · 장면은 제 잦아듦을 끝까지(넘긴 뒤 빌더가 _stopMk 를 불러도 끊지 않는다 · HAND) · 크게 보기는 종전대로 장면만 */
+  var HAND=null;
+  function handAt(R){ var P=R.PL, af=P.after!=null?P.after:ES.SP.after; return Math.min(P.th+af,P.tend-4); }
+  function loop(){ var R=RUN; if(!R) return; var x=tau(R); paintGraph(x); if(BIG) paintCap(x);
+    if(R.whole&&!BIG&&!R.hand&&x>=handAt(R)){ R.hand=true; HAND=R; restGo(); }
+    if(x>=R.PL.tend+0.2){ scStop(); LASTRUN=lastOf(R); ENDED=true; PAUSE=null; scPaint(); if(HAND===R) HAND=null; if(R.whole&&!BIG&&!R.hand) restGo(); return; } R.raf=requestAnimationFrame(loop); }
   /* [ONE_PLAY_1013] 장면이 끝나면(음악이 잦아든 뒤) 그 순간 다음 줄부터 빌더가 이어서 튼다 — 쪽을 떠났거나 다른 소리가 흐르면 잇지 않는다 */
   function restGo(){ try{ if(typeof lsRest!=='function'||!D.querySelector('.em-scene')) return; if(typeof LP!=='undefined'&&LP.q&&LP.q.length) return; if(typeof MK!=='undefined'&&MK.aud) return; lsRest('entry'); }catch(x){} }
   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기»(lsPlay('entry'))가 목소리 확인 · 안 만든 줄 만들기를 마친 뒤 부른다 — 곡을 골라 장면이 섰으면 장면부터 틀고 true · 아니면 false(빌더가 종전대로 줄만).
@@ -748,7 +754,7 @@
     if(a==='ownset'){ var oi=D.getElementById('muOwn'); if(!upOwnSet(oi?oi.value:'')&&oi) try{ oi.focus({preventScroll:true}); }catch(x){} return; }   /* 틀리면 칸으로 돌아가 고친다 */
     /* [ENTRY_SCENE_1012] 음악과 함께 듣기 — 준비하는 중에 누르면 취소 · 트는 중이면 그 자리에 멈춤 · 멈춘 뒤면 이어서 · 끝났으면 처음부터 */
     /* [ONE_PLAY_1013] 이 순간 전체 듣기 · 음악과 함께 — 장면 뒤 줄을 트는 중이면 멈춤 · 만드는 중이면 그대로(차오름이 말한다) · 처음부터는 빌더 입구(lsPlay)를 지나 장면부터 */
-    if(a==='scene'){ if(PEND){ scStop(); scPaint(); return; } if(RUN){ scHalt(); return; } if(restOn()){ try{ lsStop(); }catch(x){} scPaint(); return; } if(mkBusy()) return;
+    if(a==='scene'){ if(PEND){ scStop(); scPaint(); return; } if(RUN&&RUN===HAND){ scStop(); HAND=null; ENDED=true; try{ lsStop(); }catch(x){} scPaint(); return; } if(RUN){ scHalt(); return; }   /* [ENTRY_UNDER_1101] 넘긴 장면이 잦아드는 동안 «멈춤» = 받는 말 · 장면 둘 다 */ if(restOn()){ try{ lsStop(); }catch(x){} scPaint(); return; } if(mkBusy()) return;
       var st=vNow(); if(PAUSE&&st&&st.src){ scPlay(PAUSE.x,true); return; }
       if(typeof lsPlay==='function'){ lsPlay('entry'); return; }
       if(!st||!st.src){ offPress(); return; } scPlay(0,true); return; }
@@ -782,10 +788,10 @@
     fitPill(); paintGraph(); }   /* 빌더가 다시 그리면 그래프 캔버스가 새것이다 — 지금 자리로 다시 그린다(트는 중이면 다음 틀이 이어 그린다) */
 
   EM.carry=carry; EM.carryHas=carryHas; EM.carrySig=carrySig;   /* [ENTRY_CARRY_1101] */
-  EM.rowHtml=rowHtml; EM.sceneHtml=sceneHtml; EM.guideBody=guideBody; EM.after=after; EM.whole=whole; EM.paint=paintPill;   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기» 입구 · 빌더 재생 상태가 바뀔 때(_lPaint) 알약만 다시 */ EM.hush=function(){ if(hush()) redraw(); scHalt(); };   /* 빌더가 제 소리를 틀 때(_stopMk) — 이 칸 ▶ 만 되돌리고 장면은 그 자리에 멈춘다(쪽 전체를 다시 그리지 않는다) */
+  EM.rowHtml=rowHtml; EM.sceneHtml=sceneHtml; EM.guideBody=guideBody; EM.after=after; EM.whole=whole; EM.paint=paintPill;   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기» 입구 · 빌더 재생 상태가 바뀔 때(_lPaint) 알약만 다시 */ EM.hush=function(){ if(hush()) redraw(); if(RUN&&RUN===HAND) return; scHalt(); };   /* [ENTRY_UNDER_1101] 넘긴 장면은 잦아듦을 끝까지(빌더 곡이 겹쳐 받는다) */   /* 빌더가 제 소리를 틀 때(_stopMk) — 이 칸 ▶ 만 되돌리고 장면은 그 자리에 멈춘다(쪽 전체를 다시 그리지 않는다) */
   EM._t={openAt:openAt,openMark:openMark,recClean:recClean,REC_FIX:REC_FIX,lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
     pv:function(){ return PREV?{key:PREV.key,x0:PREV.x0,d:PREV.d,H:PREV.H}:null; },car:function(){ return {pre:CAR_PRE,len:CAR_LEN}; },   /* [PREV_12_60_1013] 점검용 — 지금 미리 듣기가 원곡 몇 초부터 몇 초 동안인가 */
-    scene:function(){ var P2=scenePlan(); return {run:!!RUN,pend:PEND,pause:PAUSE?PAUSE.x:null,ended:ENDED,x:RUN?tau(RUN):null,plan:P2?{open:openAt(P2.PL),tv:P2.PL.tv,tm:P2.PL.tm,off:P2.PL.off,th:P2.PL.th,tend:P2.PL.tend,V:P2.PL.V,n:P2.PL.n,tdip:P2.PL.tdip,H:P2.PL.H}:null,pieces:P2?P2.V0.pieces.length:0,
+    scene:function(){ var P2=scenePlan(); return {hand:!!(RUN&&RUN===HAND),run:!!RUN,pend:PEND,pause:PAUSE?PAUSE.x:null,ended:ENDED,x:RUN?tau(RUN):null,plan:P2?{open:openAt(P2.PL),tv:P2.PL.tv,tm:P2.PL.tm,off:P2.PL.off,th:P2.PL.th,tend:P2.PL.tend,V:P2.PL.V,n:P2.PL.n,tdip:P2.PL.tdip,H:P2.PL.H}:null,pieces:P2?P2.V0.pieces.length:0,
       cut:P2&&P2.V0.cut?{at:P2.V0.cut.at,add:P2.V0.cut.add,was:P2.V0.cut.was}:null,vsn:RUN?RUN.vsn:null}; },   /* [ENTRY_CALL_PAUSE_1013] 점검용 — 끊은 자리 · 늘린 초 · 지금 걸린 목소리 마디 수 */
     envDb:function(x){ var P2=scenePlan(); return P2?envDb(P2.PL,x):null; },
     rel:function(){ var P2=scenePlan(); return P2?P2.PL.rel.map(function(r){ return Math.round((P2.PL.tv+r)*1000)/1000; }):null; },big:function(){ return BIG; },
