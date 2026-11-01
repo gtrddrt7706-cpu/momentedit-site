@@ -130,10 +130,15 @@
   /* ★[BGM_FILL_1101] 곡 차례 한 곳 — 당일 콘솔 segSel(목록 칸 기본 · 한 곡 칸의 «파일 있는 다음 곡») · 식순 화면 M1 · M8 순서 줄이 이 함수 하나를 쓴다
        order(S, 구간) = [고른 곡(없으면 1순위), 그 구간 나머지, (목록 칸이면) fill 중 다른 구간에서 고른 곡이 아닌 것] · 곡 번호 배열 · 중복 없음 */
   function chosenBy(S, seg) { var o = {}; CORDER.forEach(function (s) { if (s === seg) return; var k = custK(S, s); if (k && !o[k]) o[k] = s; }); return o; }
-  function order(S, seg) { var L = PICKS[seg] || [], k = custK(S, seg), out = [], add = function (f) { if (f && SONGS[f] && out.indexOf(f) < 0) out.push(f); };
-    add(k || L[0]); L.forEach(add); if (BY[seg] && BY[seg].multi) { var el = chosenBy(S, seg); (FILL[seg] || []).forEach(function (f) { if (!el[f]) add(f); }); }
+  /* ★★[CARRY_SAME_1101 2026-11-01 사장님 «음악이 연달아 있으면 그냥 그 곡으로 이어서 가는 게 좋지 않아?»] 바로 앞 순간에 흐르던 곡(prev)이 이 구간 목록(3곡 · 목록 칸이면 fill 까지)에 있으면 그 곡을 그대로 잇는다 —
+       한 곡 칸 = 두 분이 이 구간에서 다른 곡을 골랐으면 고른 곡이 이긴다(3초 겹쳐 넘김) · 목록 칸 = 그 곡을 맨 앞에 · 나머지는 원래 차례 ·
+       바로 앞에서 이어 온 곡은 fill 에서 빼지 않는다(이어지지 않는 구간에서 고른 곡은 종전대로 뺀다) · prev 를 정하는 쪽: 식순 화면 = 앞 순간 구간의 곡(목록 칸이면 모른다 · '') · 당일 콘솔 = 지금 흐르는 곡 */
+  function inList(seg, f) { var d = BY[seg]; return !!f && ((PICKS[seg] || []).indexOf(f) > -1 || (!!(d && d.multi) && (FILL[seg] || []).indexOf(f) > -1)); }
+  function carryOf(S, seg, prev) { prev = String(prev || '').toUpperCase(); if (!inList(seg, prev)) return ''; var k = custK(S, seg); return (k && k !== prev) ? '' : prev; }
+  function order(S, seg, prev) { var L = PICKS[seg] || [], k = custK(S, seg), c = carryOf(S, seg, prev), out = [], add = function (f) { if (f && SONGS[f] && out.indexOf(f) < 0) out.push(f); };
+    add(c || k || L[0]); L.forEach(add); if (BY[seg] && BY[seg].multi) { var el = chosenBy(S, seg); (FILL[seg] || []).forEach(function (f) { if (!el[f] || f === c) add(f); }); }
     return out; }
   /* ★[GHIBLI_ADD_1101] 같은 곡을 두 구간에서 골랐으면 뒤 구간 → 앞 구간 번호(본식 차례) · 아니면 '' — 막지는 않는다(식순 화면 곡 칸 아래 한 줄) */
   function dupSeg(S, seg) { var k = custK(S, seg), i = CORDER.indexOf(seg); if (!k || i < 0) return ''; for (var j = 0; j < i; j++) { if (custK(S, CORDER[j]) === k) return CORDER[j]; } return ''; }
-  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, dupSeg: dupSeg, F_RE: F_RE };
+  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, dupSeg: dupSeg, F_RE: F_RE };
 });
