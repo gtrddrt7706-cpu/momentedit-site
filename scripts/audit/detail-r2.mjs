@@ -106,11 +106,11 @@ try {
   /* ③ 선언 · 곡이 늦게 */
   const decl = async (dly) => { await setS(f, { bgm: {} }); await go(f, 'welcome'); await f.evaluate(() => { Object.keys(BgmBed._t.BUF).forEach((k) => { delete BgmBed._t.BUF[k]; }); }); await pg.evaluate((d) => { H.dly.B09 = d; }, dly); await go(f, 'declare');
     await f.evaluate(() => { Object.keys(BgmBed._t.BUF).forEach((k) => { delete BgmBed._t.BUF[k]; }); });
-    const r = await run(f, ['declare'], dly > 9000 ? 15000 : 16000); await stop(f); await pg.evaluate(() => { H.dly.B09 = null; }); return r; };
+    const r = await run(f, ['declare'], dly > 9000 ? 27000 : 16000);   /* [LEAD_FIRST_1101] 곡을 20초까지 기다린다 */ await stop(f); await pg.evaluate(() => { H.dly.B09 = null; }); return r; };
   { const r = await decl(4000), l0 = r.find((x) => x.lead), tA = (r.find((x) => x.f === 'B09' && x.src) || {}).t, tM = (r.find((x) => l0 && x.t > l0.t && !x.lead && x.k === 'declare') || {}).t;
     ok('③ 선언 따로 듣기 · 곡 4초 늦음 — 곡이 온 때부터 연출(1.5 + 4 + 2.5 = 8초) 뒤 멘트', !!l0 && tA != null && tM != null && Math.abs((tM - tA) - 8000) < 1000, { l0: l0 && Math.round(l0.t), tA: tA && Math.round(tA), tM: tM && Math.round(tM) }); }
   { const r = await decl(30000), l0 = r.find((x) => x.lead), tM = (r.find((x) => l0 && x.t > l0.t && !x.lead && x.k === 'declare') || {}).t, mus = r.filter((x) => x.src && x.want > -60 && (tM == null || x.t < tM));
-    ok('③ 곡이 8초 안에 안 오면 — 연출 없이 2.5초 정적 → 멘트(뜸 시작에서 약 10.5초) · 그 사이 음악 0', !!l0 && tM != null && Math.abs((tM - l0.t) - 10500) < 1100 && mus.length === 0, { l0: l0 && Math.round(l0.t), tM: tM && Math.round(tM), mus: mus.length }); }
+    ok('③ 곡이 20초 안에 안 오면(LEAD_FIRST_1101) — 연출 없이 2.5초 정적 → 멘트(뜸 시작에서 약 22.5초) · 그 사이 음악 0', !!l0 && tM != null && Math.abs((tM - l0.t) - 22500) < 1100 && mus.length === 0, { l0: l0 && Math.round(l0.t), tM: tM && Math.round(tM), mus: mus.length }); }
   /* ④ 연출 중 멈춤 → 이어 듣기 · 다시 돌아오면 처음부터 */
   { await setS(f, { bgm: {} }); await pg.evaluate(() => { H.dly.B09 = null; }); await go(f, 'declare'); await f.evaluate(() => { Object.keys(BgmBed._t.BUF).forEach((k) => { delete BgmBed._t.BUF[k]; }); BgmBed.lpWarm(['declare']); }); await wait(f, 1500);
     const z = await f.evaluate(async () => { const B = BgmBed._t, o = []; lsPlay('declare'); const t0 = performance.now(); let tL = null, tP = null, tR = null, tM = null, after = [];
