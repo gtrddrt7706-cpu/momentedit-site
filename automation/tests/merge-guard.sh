@@ -21238,6 +21238,9 @@ chk "concat((i===R.SECTIONS.length-1&&_afterOn())?\['_after'\]:\[\])" order-prev
 chk 'id="mkFgPost">식후</p>' order-preview.html 1
 chk 'data-fk="sum:_after"' order-preview.html 1
 chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf)" order-preview.html 1
+# ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
+chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
+chk "var _afl=_afterLine(); if(_afl) lines.push('나레이션(촬영 후 안내 · 작가님이 촬영을 마치면 재생): '+_afl.text);" order-preview.html 1
 chk "pc.tiles === '4,4,4,5'" scripts/audit/pick-v2.mjs 1
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
