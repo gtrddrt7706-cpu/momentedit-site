@@ -110,9 +110,13 @@
   var INJECT = ['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'];   // [PHOTO_PRE_PICK_1030] mealFull · resv 도 밖에서   // [GUIDE_ON_1019] guide 도 밖에서   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
 
   /* [BGM_INFO_1023] 음악 칸 — 축사(S5) · 편지(S6)의 'bed' 만 남긴다(assets/bgm-slots.js clean 과 같은 규칙 · 이 파일은 그 파일 없이도 돈다) */
+  /* ★[PREVIEW_LINK_SONGS_1101] 구간 곡 선택도 싣는다 — 구간(M1 …)은 { k } · 축사 · 편지(S5 · S6)는 { m:'bed', k } · 곡 번호(B01 꼴)만 ·
+       옛 'M2_1' 꼴 · 모르는 값은 «고르지 않음»(BgmPicks.custK 와 같은 규칙) · 옛 링크(값 없음)는 그대로 기본곡 */
+  var BGM_IDS = ['M1', 'M2', 'M4', 'M5', 'M6', 'M7', 'M8'], BGM_F = /^B\d{2,3}$/;
   function bgmOf(b) {
-    var o = {}, n = 0;
-    ['S5', 'S6'].forEach(function (id) { if (b && b[id] && b[id].m === 'bed') { o[id] = { m: 'bed' }; n++; } });
+    var o = {}, n = 0; if (!b || typeof b !== 'object') return null;
+    BGM_IDS.forEach(function (id) { var v = b[id]; if (v && typeof v === 'object' && BGM_F.test(String(v.k || ''))) { o[id] = { k: String(v.k) }; n++; } });
+    ['S5', 'S6'].forEach(function (id) { var v = b[id]; if (v && v.m === 'bed') { o[id] = { m: 'bed' }; if (BGM_F.test(String(v.k || ''))) o[id].k = String(v.k); n++; } });
     return n ? o : null;
   }
 

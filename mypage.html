@@ -2840,7 +2840,7 @@ function openRitualPreview(p, inv){
   var _closed=false;
   function done(){
     if(_closed) return; _closed=true;
-    bkDone(_bkId); document.removeEventListener('keydown',onKey);
+    bkDone(_bkId); document.removeEventListener('keydown',onKey); window.removeEventListener('message',onMsg);   // [PREVIEW_LINK_SONGS_1101]
     // ★소리를 먼저 끊는다 — DOM 에서 떼기만 하면 브라우저에 따라 오디오가 살아남아 닫은 뒤에도 계속 들린다.
     try{ fr.src='about:blank'; }catch(e){}
     if(ov.parentNode) ov.parentNode.removeChild(ov);
@@ -2848,6 +2848,12 @@ function openRitualPreview(p, inv){
     // 저장한 게 없으니 loadMyState 를 부르지 않는다 — 듣고 나왔다고 화면을 다시 그릴 이유가 없다.
   }
   function onKey(e){ if(e.key==='Escape') done(); }
+  /* ★[PREVIEW_LINK_SONGS_1101] 미리듣기(console 손님 판)가 구간 곡 파일을 두 분 계정으로 받아 간다 — 곡(bed)만 · 받기만(지우기 · 다른 열쇠 없음) · 식순 화면 중계와 같은 서버 길 */
+  function onMsg(ev){ if(_closed||ev.source!==fr.contentWindow||ev.origin!==location.origin) return; var d=ev.data||{};
+    if(d.type!=='momentedit:ritualFileGet'||!d.data||d.data.key!=='bed'||!d.data.id) return; var id=String(d.data.id).slice(0,40);
+    var back=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:ritualFileData', key:'bed', id:id}, o), location.origin); }catch(e){} };
+    _post({action:'ritualFileGet', token:getToken(), key:'bed', id:id}, 180000).then(function(r){ back(r&&r.ok?{ok:true,mime:r.mime,data:r.data,songs:Array.isArray(r.songs)?r.songs:undefined}:_relayFail(r,'L','곡을 불러오지 못했어요')); }, function(e){ back(_relayFail(e,'L','곡을 불러오지 못했어요')); }); }
+  window.addEventListener('message',onMsg);
   x.addEventListener('click',done);
   document.addEventListener('keydown',onKey);
   var _bkId=bkOpen(done);   // 뒤로가기 = 닫기(저장 대기 없음 · 빌더의 3초 유예가 필요 없는 이유가 이것이다)
