@@ -112,6 +112,9 @@
     prevideo: '영상에 입힌 소리로 흘러요',
     matjeol: '입장 곡이 이어져요',
     declare: '선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요',   /* ★[MEANING_R1_1102 5] 성혼 선언 낭독은 정적 · 박수(−8)부터 음악 — «피아노가 이어져요»는 소리와 달랐다 */
+    song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요',   /* ★[SCREEN_SOUND_1102] 축가 — 칸이 없어도 소리가 나면 한 줄(MEANING_R1 8 소리와 같이) */
+    last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흘러요',   /* [SCREEN_SOUND_1102] 닫는 인사 둘째 줄 */
+    near: '이 순서 즈음엔 ‹{f}›',   /* [SCREEN_SOUND_1102] 본식 목록 순간 — 순간 하나만 들을 때 흐르는 곡과 같다(BgmBed.dayName) */
     cont: '{at}부터 피아노가 조용히 이어져요'   /* [BGM_R2_1023] 짧게(폰 한 줄) · S4 의 서약 · 반지 · 선언 · 덕담 — 감사 인사부터 흐르던 곡(감사 인사를 뺀 식순이면 «혼인 서약부터…») */
   };
 
@@ -155,15 +158,18 @@
     if (k === 'free' && o.freeKind && o.freeKind !== 'speech') return null;                  /* 옛 초안 선물 · 기타 — 엔진도 그대로 무음 */
     if (k === 'matjeol') return { kind: 'flow', t: LINE.matjeol, at: 'top' };
     if (k === 'entry') return { kind: 'entry' };
+    if (k === 'song') return { kind: 'flow', t: LINE.song, at: 'top' };   /* [SCREEN_SOUND_1102] */
     var s = slotOfKey(k); if (!s || s.entry) return null;   /* 축가(MR 흐름) · 케이크(은퇴) 등은 없다 */
     if (s.picks.length) return { kind: 'pick', s: s };
     if (k === 'declare' && s.id === 'S4') return { kind: 'flow', t: LINE.declare, at: 'top', s: s };   /* [MEANING_R1_1102 5] */
     var first = chooser(s, o);
     if (first && first !== k) {
       var nm = ''; try { nm = typeof o.nameOf === 'function' ? String(o.nameOf(first) || '') : ''; } catch (e) {}
-      return { kind: 'flow', t: LINE.cont.replace('{at}', nm || '앞 순서'), at: 'top', s: s };
+      var dn = ''; try { dn = typeof o.dayName === 'function' ? String(o.dayName(k) || '') : ''; } catch (e) {}
+      return { kind: 'flow', t: LINE.cont.replace('{at}', nm || '앞 순서') + (dn ? ' · ' + LINE.near.replace('{f}', dn) : ''), at: 'top', s: s };   /* [SCREEN_SOUND_1102] 이 순서 즈음 곡 */
     }
-    return { kind: 'flow', t: s.one, at: s.at || 'top', s: s };
+    var t2 = ''; if (k === '_close') { var ln = ''; try { ln = typeof o.lastName === 'function' ? String(o.lastName() || '') : ''; } catch (e) {} if (ln) t2 = LINE.last.replace('{f}', ln); }   /* [SCREEN_SOUND_1102] */
+    return { kind: 'flow', t: s.one, t2: t2, at: s.at || 'top', s: s };
   }
   /* 흐름 줄을 놓을 자리 — 엔진 줄(빌더 _lSteps) 차례에서 «이 줄 앞에»의 번호(0 = 맨 앞 · st.length = 맨 뒤)
      x.skip = 영상 상영 줄 · x.talk = 차례 줄 · x.quiet = 행동 줄 · x.slug 'bridge-…' = 넘어가는 이음말
