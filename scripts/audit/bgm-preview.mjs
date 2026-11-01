@@ -166,7 +166,7 @@ try {
       await f.evaluate(() => { delete S.bgm.M7; BgmPicks.SONGS.B17.vocal = true; render(); });   /* 나레이션 아래 −6 은 구조만 잰다 — 닫는 인사 1순위(B17)를 이 시험에서만 가사 곡으로 표시 */
       await go(f, '_close');
       ok(`${W} E5 고른 뒤에도 «부터 이어서 틀어요» 줄 없음 · 보컬 한 줄은 남는다`, n5 === '' && !!vl, n5);
-      const bg3 = await listen(f, '_close', 7000); const n3 = bg3.filter((x) => x.src && x.f === 'B17' && !x.talk && x.dk != null && x.dk < -8.5 && !x.pend);   /* ★[AFTER_PHOTO_191] 녹음 대기 줄(촬영 후 안내 등)은 나레이션 소리가 없어 음악을 내리지 않는다 — 소리 나는 줄만 잰다 */ await f.evaluate(() => { delete BgmPicks.SONGS.B17.vocal; });
+      const bg3 = await listen(f, '_close', 16000);   /* [DETAIL_R1_1101 ⑨] 첫 멘트는 앞 순간 곡(뜸 6초) — 목례부터 B17 */ const n3 = bg3.filter((x) => x.src && x.f === 'B17' && !x.talk && x.dk != null && x.dk < -8.5 && !x.pend);   /* ★[AFTER_PHOTO_191] 녹음 대기 줄(촬영 후 안내 등)은 나레이션 소리가 없어 음악을 내리지 않는다 — 소리 나는 줄만 잰다 */ await f.evaluate(() => { delete BgmPicks.SONGS.B17.vocal; });
       ok(`${W} D3 보컬 곡(시험 표시 B17) 아래 나레이션은 엔진 크기 − 6(−16 → −22)`, n3.length > 0 && n3.every((x) => Math.abs(x.want - (x.dk - 6)) < 0.01), { n: n3.length, s: n3.slice(0, 3) });
     }
     /* D6 · 5 축배 */

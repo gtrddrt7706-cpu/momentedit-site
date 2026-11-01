@@ -20720,6 +20720,16 @@ chk 'function listArm(v)' assets/bgm-bed.js 1   # [DAYLONG_1101] 미리 이어 �
 chk 'function longLine(sg)' assets/bgm-bed.js 1   # [DAYLONG_1101] 고른 곡 아래 한 줄(분 = 큐 시간 합)
 chk 'BED.res = { id: BED.seg, list: BED.list.slice(), li: BED.li };' console.html 1   # [DAYLONG_1101] 축사 · 편지 «음악과 함께» 뒤 본식 목록은 다음 곡부터
 chk 'DAYLONG_1101' scripts/audit/daylong.mjs 1
+chk 'function subOf(sg)' assets/bgm-bed.js 1   # ★[DETAIL_R1_1101 ①] 대신 흐르는 곡 한 줄
+chk 'function avWait()' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ②] 늦은 곡 목록 기다림
+chk 'function lpResume()' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ③] 멈춤 → 이어 듣기 그 자리
+chk 'function tailHush()' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ④] 여운도 흐르는 중
+chk 'function backBed(k)' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ⑤ ⑨] 식전 영상 · 닫는 인사 첫 멘트 = 앞 순간 곡
+chk "걷는 동안 음악이 크게 흘러요 · 미리 듣기에서는 8초로 줄였어요" order-preview.html 1   # [DETAIL_R1_1101 ⑥]
+chk 'if(BUF\[ENT_F\]!==o||ENT.turn!==tk) return;' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ⑦] 입장 곡 요청 차례
+chk 'function swapSrc(v,b,at,f)' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ⑧] 짧은 판 겹쳐 잇기
+chk 'DETAIL_R1_1101' scripts/audit/detail-r1.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r1.mjs >/dev/null 2>&1; _r1=$?; if [ "$_r1" = 1 ]; then echo 'FAIL detail-r1: 이어 듣기 세부 아홉(대신 흐르는 곡 · 늦은 목록 · 멈춤 이어 듣기 · 여운 · 식전 영상 · 걷는 줄 · 입장 곡 경합 · 짧은 판 · 닫는 인사) — node scripts/audit/detail-r1.mjs'; fail=1; elif [ "$_r1" = 2 ]; then echo 'skip detail-r1 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r1'; fi; fi   # ★[DETAIL_R1_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/daylong.mjs >/dev/null 2>&1; _dl=$?; if [ "$_dl" = 1 ]; then echo 'FAIL daylong: 감사 인사 ~ 덕담 · 닫는 인사가 한 곡만 오래 반복됩니다(이어 트는 목록 · 한 줄 · 콘솔 다음 곡) — node scripts/audit/daylong.mjs'; fail=1; elif [ "$_dl" = 2 ]; then echo 'skip daylong (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok daylong'; fi; fi   # ★[DAYLONG_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/carry-same.mjs >/dev/null 2>&1; _cs=$?; if [ "$_cs" = 1 ]; then echo 'FAIL carry-same: 이어지는 두 순간에 같은 곡이 있는데 다시 시작하거나 다른 곡으로 넘어갑니다 — node scripts/audit/carry-same.mjs'; fail=1; elif [ "$_cs" = 2 ]; then echo 'skip carry-same (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok carry-same'; fi; fi   # ★[CARRY_SAME_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-under.mjs >/dev/null 2>&1; _eun=$?; if [ "$_eun" = 1 ]; then echo 'FAIL entry-under: 입장 · 맞절 듣기에서 곡이 멘트 도중 끊깁니다(판 끝 이음 · 장면 넘김 · 남아야 할 길이) — node scripts/audit/entry-under.mjs'; fail=1; elif [ "$_eun" = 2 ]; then echo 'skip entry-under (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-under'; fi; fi   # ★[ENTRY_UNDER_1101]

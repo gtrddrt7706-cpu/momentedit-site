@@ -115,7 +115,7 @@ try {
           if (performance.now() - t0 > ms || !LP.q.length) { clearInterval(iv); res(); } }, 100); });
         const rl = BB.LPB.relay || 0; try { lsStop(); } catch (x) {} try { if (ks.length > 1) lsCloseBig(); } catch (x) {} window._lpMs = window.__lpMs0; return { o, rl }; }, { ks, ms });
       const one = await run(['welcome'], 14000), fs1 = [...new Set(one.o.filter((x) => x.src && x.want > -60).map((x) => x.f))];
-      ok('d 감사 인사만 듣기 — 곡이 끝나도 고른 곡(B10) 그대로(넘김 0)', one.rl === 0 && fs1.join() === 'B10', { rl: one.rl, fs1 });
+      ok('d 감사 인사만 듣기 — 곡이 끝나도 고른 곡(B10) 그대로(다른 곡 0 · 같은 곡 처음으로 잇기는 DETAIL_R1 ⑧)', fs1.join() === 'B10', { rl: one.rl, fs1 });
       const two = await run(['welcome', 'vow'], 22000), lv = two.o.filter((x) => x.src && x.want > -60), fs2 = [...new Set(lv.map((x) => x.f))], iN = lv.findIndex((x) => x.f === 'B09'), after = []; if (iN > -1) for (const x of lv.slice(iN)) { if (x.f !== 'B09') break; after.push(x); }   /* 9초 곡이라 B09 도 곧 다음 곡으로 넘어간다 — 넘어가기 전까지 */
       ok('d 이어 듣기(감사 인사 → 서약) — 곡이 끝나면 3초 겹쳐 목록의 다음 곡(B09) · 그 뒤 줄도 B09(고른 곡으로 되돌아가지 않음)', two.rl >= 1 && fs2[0] === 'B10' && iN > -1 && after.length > 10 && new Set(after.map((x) => x.i)).size > 1 && !lv.slice(iN).some((x) => x.f === 'B10' && lv.slice(iN).findIndex((y) => y.f !== 'B09') < 0), { rl: two.rl, fs2, after: after.length, lines: [...new Set(after.map((x) => x.i))] }); }
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));
