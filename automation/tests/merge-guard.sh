@@ -20680,7 +20680,7 @@ nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
 chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101] 구간마다 3곡
 chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101] 지브리 판
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
-chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\] }" assets/bgm-picks.js 1   # ★[BGM_FILL_1101] 목록 칸 배경 곡
+chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\] }" assets/bgm-picks.js 1   # ★[BGM_FILL_1101] 목록 칸 배경 곡
 chk 'function order(S, seg, prev)' assets/bgm-picks.js 1
 chk 'if (BP.order) return BP.order(S, id, cur).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
@@ -20710,9 +20710,17 @@ chk 'R.hand=true; HAND=R; restGo();' assets/entry-music.js 1   # 장면이 도�
 chk 'ENTRY_UNDER_1101' scripts/audit/entry-under.mjs 1
 chk 'function carryOf(S, seg, prev)' assets/bgm-picks.js 1   # ★[CARRY_SAME_1101] 앞 순간 곡이 다음 목록에 있으면 그대로 잇는다(한 곳)
 chk 'function prevOf(sg,dp)' assets/bgm-bed.js 1   # [CARRY_SAME_1101] 식순 화면 · 미리 듣기 = 앞 순간 구간 곡
-chk "if (cur && L\\[0\\] === cur) { bedFade(BED.on, 1, SEG_XF); return false; }" console.html 1   # [CARRY_SAME_1101] 당일 콘솔 = 같은 곡이면 bedPlay 없이
+chk "if (cur && L\\[li\\] === cur) { bedFade(BED.on, 1, SEG_XF); return false; }" console.html 1   # [CARRY_SAME_1101] 당일 콘솔 = 같은 곡이면 bedPlay 없이
 chk "return (f&&(f===a||f===b))?((P.carryOf&&P.carryOf(St(),'M4',f))||m4()):f;" assets/bgm-bed.js 1   # [CARRY_SAME_1101] «음악과 함께» 곡이 본식 목록에도 있으면 그대로(콘솔 segGo 와 같다)
 chk 'CARRY_SAME_1101' scripts/audit/carry-same.mjs 1
+chk 'function loopy(seg)' assets/bgm-picks.js 1   # ★[DAYLONG_1101] 감사 인사 ~ 덕담 · 닫는 인사 = 고르는 칸 + 이어 트는 목록
+chk "{ id: 'M4', nm: '감사 인사 ~ 덕담', ks: \['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter'\], cust: true, loop: true," assets/bgm-picks.js 1   # [DAYLONG_1101]
+chk "{ id: 'M6', nm: '닫는 인사', ks: \['_close'\], cust: true, loop: true," assets/bgm-picks.js 1   # [DAYLONG_1101]
+chk 'function listArm(v)' assets/bgm-bed.js 1   # [DAYLONG_1101] 미리 이어 듣기 — 곡 끝 3초 전 목록의 다음 곡
+chk 'function longLine(sg)' assets/bgm-bed.js 1   # [DAYLONG_1101] 고른 곡 아래 한 줄(분 = 큐 시간 합)
+chk 'BED.res = { id: BED.seg, list: BED.list.slice(), li: BED.li };' console.html 1   # [DAYLONG_1101] 축사 · 편지 «음악과 함께» 뒤 본식 목록은 다음 곡부터
+chk 'DAYLONG_1101' scripts/audit/daylong.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/daylong.mjs >/dev/null 2>&1; _dl=$?; if [ "$_dl" = 1 ]; then echo 'FAIL daylong: 감사 인사 ~ 덕담 · 닫는 인사가 한 곡만 오래 반복됩니다(이어 트는 목록 · 한 줄 · 콘솔 다음 곡) — node scripts/audit/daylong.mjs'; fail=1; elif [ "$_dl" = 2 ]; then echo 'skip daylong (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok daylong'; fi; fi   # ★[DAYLONG_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/carry-same.mjs >/dev/null 2>&1; _cs=$?; if [ "$_cs" = 1 ]; then echo 'FAIL carry-same: 이어지는 두 순간에 같은 곡이 있는데 다시 시작하거나 다른 곡으로 넘어갑니다 — node scripts/audit/carry-same.mjs'; fail=1; elif [ "$_cs" = 2 ]; then echo 'skip carry-same (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok carry-same'; fi; fi   # ★[CARRY_SAME_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-under.mjs >/dev/null 2>&1; _eun=$?; if [ "$_eun" = 1 ]; then echo 'FAIL entry-under: 입장 · 맞절 듣기에서 곡이 멘트 도중 끊깁니다(판 끝 이음 · 장면 넘김 · 남아야 할 길이) — node scripts/audit/entry-under.mjs'; fail=1; elif [ "$_eun" = 2 ]; then echo 'skip entry-under (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-under'; fi; fi   # ★[ENTRY_UNDER_1101]
 # ★[VC_FIX2_1030 2026-10-30 GPT 2차 점검] 두 분 AI 목소리 — 지우기 · 저장 · 잠금 · 글자 예산(서버 아홉 · 깨 보기 포함) · 무음 녹음 · 새로 고침 경고 · 당일 콘솔 최신 확인
@@ -21516,7 +21524,7 @@ chk "c.slug === 'narr-free-in-speech' && _bd('S5') && segPlan('M4S5')) segGo('M4
 chk "segPlan(_ns) && st.xf) { segGo(_ns);" console.html 1
 nochk "if (k === 'free') return (bed('S5') && segPlan('M4S5')) ? 'M4S5' : 'M4';" console.html 0
 chk "if(k==='song') return 'M4';" assets/bgm-bed.js 1
-chk "function fileFor(st){ if(st._base){" assets/bgm-bed.js 1
+chk "if(st._base){ return effHas(st._base); }" assets/bgm-bed.js 1
 chk 'var CEIL_DB=-2.5;' assets/bgm-bed.js 1
 chk "w.oversample='4x';" assets/bgm-bed.js 1
 chk 'var lim=mkBus(a);' assets/bgm-bed.js 1

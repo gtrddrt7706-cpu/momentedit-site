@@ -44,7 +44,7 @@ try {
   /* ① 설정 */
   const ids = await pg.evaluate(() => window.BgmPicks.SEGS.filter((s) => !s.entry).map((s) => s.id));
   const rows = {}; for (const id of ids) rows[id] = await row(pg, id);
-  const P = await pg.evaluate(() => { const o = {}; window.BgmPicks.SEGS.forEach((s) => { o[s.id] = window.BgmPicks.list(s.id).length + (s.multi && window.BgmPicks.FILL ? (window.BgmPicks.FILL[s.id] || []).length : 0); }); return o; });   /* ★[BGM_FILL_1101] 목록 칸(M1 · M8)은 추천 3곡 + 배경 곡 줄 */
+  const P = await pg.evaluate(() => { const o = {}; window.BgmPicks.SEGS.forEach((s) => { o[s.id] = window.BgmPicks.list(s.id).length + ((s.multi || s.loop) && window.BgmPicks.FILL ? (window.BgmPicks.FILL[s.id] || []).length : 0); }); return o; });   /* ★[BGM_FILL_1101] 목록 칸(M1 · M8)은 추천 3곡 + 배경 곡 줄 */
   const bad = ids.filter((id) => !rows[id] || rows[id].songs.length !== P[id] || (P[id] > 0 && (!rows[id].songs[0].on || !/추천 1순위/.test(rows[id].songs[0].meta))) || !rows[id].songs.every((x) => x.st === '곡 파일 필요'));   /* [BGM_FIX_1030] 사진 칸(M6P)은 곡을 비웠다 — 닫는 인사 곡이 잇는다 */
   ok(`① 구간 ${ids.length}칸 — 추천 목록이 다 보이고 1순위가 «추천 1순위»로 골라져 있고 파일이 없으면 «곡 파일 필요»`, ids.length >= 11 && !bad.length, { bad, M2: rows.M2 });
   const multiOn = rows.M1.songs.every((x) => x.on) && rows.M8.songs.every((x) => x.on) && rows.M2.songs.filter((x) => x.on).length === 1;
