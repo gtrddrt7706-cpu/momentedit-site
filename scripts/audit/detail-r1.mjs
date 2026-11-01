@@ -8,7 +8,7 @@
    ⑥ 크게 보기 이어 듣기(입장 포함) — 걷는 줄 8초 · 곡 크게(0) · 그다음 받는 말은 말 아래
    ⑦ 입장 곡을 받는 중에 곡이 바뀌면 옛 곡은 버리고 새 곡
    ⑧ 짧은 판 — 끝 3초 전 처음(강조 자리)으로 3초 겹쳐 잇는다(맞붙임 loop 0)
-   ⑨ 닫는 인사 따로 듣기 — 첫 멘트는 앞 순간 곡(축배 M7) −12 · 목례부터 M6
+   ⑨ 닫는 인사 따로 듣기 — 첫 멘트는 음악 없이(MEANING_R1_1102 14 · 종전 앞 곡 −12) · 목례부터 M6
    BP_BED · BP_OP · BP_EM · BP_PICKS = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -131,7 +131,7 @@ try {
   /* ⑨ 닫는 인사 따로 듣기 */
   { await go(f, '_close'); const vx12 = await f.evaluate(() => BgmBed._t.vx(-12, 'B28')); const r = await run(f, ['_close'], 30000, false, true); await stop(f);   /* 축배 곡은 가사가 있는 곡 — −12 에 vocalExtra(−6) */
     const bow = r.filter((x) => x.k === '_close' && x.slug === 'narr-close-bow' && !x.lead && x.src), cl = r.filter((x) => x.k === '_close' && x.slug !== 'narr-close-bow' && x.src && x.want > -60);
-    ok('⑨ 닫는 인사 따로 듣기 — 첫 멘트는 앞 순간(축배) 곡 B28 −12(노래 곡 −6 더) · 목례부터 닫는 인사 곡 B17', bow.length > 3 && bow.some((x) => x.f === 'B28' && x.want === vx12) && cl.some((x) => x.f === 'B17'), { bow: [...new Set(bow.map((x) => x.f + ':' + x.want))], cl: [...new Set(cl.map((x) => x.f))] }); }
+    ok('⑨ 닫는 인사 따로 듣기 — 첫 멘트는 음악 없이(앞 곡 내림 · MEANING_R1_1102 14) · 목례부터 닫는 인사 곡 B17', bow.length > 3 && bow.some((x) => x.want <= -60) && bow.every((x) => x.want <= -60 || x.f === 'B17') && cl.concat(bow).some((x) => x.f === 'B17' && x.want > -60),   /* 종전 «앞 곡 −12»(DETAIL_R1 ⑨)는 MEANING_R1_1102 14 «예식 끝 경계 = 정적»으로 바뀌었다 */ { bow: [...new Set(bow.map((x) => x.f + ':' + x.want))], cl: [...new Set(cl.map((x) => x.f))] }); }
   /* ⑧ 짧은 판(12초) */
   { await go(f, 'welcome'); const r = await run(f, ['welcome'], 16000); await stop(f); const m = r.filter((x) => x.f === 'B09' && x.src);
     ok('⑧ 짧은 판(12초) — 끝 3초 전 처음으로 3초 겹쳐 잇는다(맞붙임 loop 0 · 곡 B09 그대로 · 지금 곡 객체 그대로)', m.length > 50 && Math.max(...r.map((x) => x.relay)) >= 1 && m.every((x) => !x.loop) && new Set(m.map((x) => x.id)).size === 1, { n: m.length, relay: Math.max(...r.map((x) => x.relay)), loop: m.some((x) => x.loop), ids: [...new Set(m.map((x) => x.id))] }); }
