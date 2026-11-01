@@ -21238,6 +21238,9 @@ chk "concat((i===R.SECTIONS.length-1&&_afterOn())?\['_after'\]:\[\])" order-prev
 chk 'id="mkFgPost">식후</p>' order-preview.html 1
 chk 'data-fk="sum:_after"' order-preview.html 1
 chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf)" order-preview.html 1
+# ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
+chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
+chk "var _afl=_afterLine(); if(_afl) lines.push('나레이션(촬영 후 안내 · 작가님이 촬영을 마치면 재생): '+_afl.text);" order-preview.html 1
 chk "pc.tiles === '4,4,4,5'" scripts/audit/pick-v2.mjs 1
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
@@ -21354,8 +21357,7 @@ chk 'REBIND_FROM_CARRY_1031' scripts/sent-lib.mjs 2   # [REBIND_FROM_CARRY_1031]
 nochk '먼저 신랑은 다시 한번 프러포즈하는 마음으로' assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/screen-sound.mjs >/dev/null 2>&1; _scs=$?; [ "$_scs" = 1 ] && { echo 'FAIL screen-sound: 당일 콘솔이 틀 수 있는 나레이션이 식순 화면(하나씩 만들기 · 전체 대본)에 없습니다 — node scripts/audit/screen-sound.mjs'; fail=1; }; :; fi
 # ── 2026-11-01 [AFTER_SCRIPT_195 검토 195 보충 · 음성 쉼 알림] 촬영 후 안내(317 ~ 324)가 전체 대본에서 빠졌던 것 — 맨 끝 «식후 촬영 후 안내» 쪽으로 · 검사 screen-sound(CI bgm-sound d)
-chk "_lRows().concat(_afterOn()?\['_after'\]:\[\]).forEach(function(k){" order-preview.html 1
-chk "if(k==='_after') return '식후 '+AFTER_CARD.n;" order-preview.html 1
+nochk "_lRows().concat(_afterOn()?\['_after'\]:\[\]).forEach(function(k){" order-preview.html   # 두 벌 금지 — 닫는 인사 끝 한 번(AFTER_IN_SCRIPT_1102)
 chk 'AFTER_SCRIPT_195' scripts/audit/screen-sound.mjs 2
 # ── 2026-10-31 [MUSIC_FOLD_PICK_1031 사장님 «왜 안 접히는 부분들이 있어 · 저런 거 있는 곳들은 똑같이»] 순간 쪽 음악 곡 목록도 입장 음악 추천 곡([MU_FOLD])처럼 고르는 순간 접는다 · «바꾸기»로 편 뒤 다시 고르면 또 접는다
 chk 'MUSIC_FOLD_PICK_1031' assets/bgm-bed.js 5

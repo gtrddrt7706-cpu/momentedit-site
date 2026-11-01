@@ -4464,6 +4464,66 @@
    "voice": "진희",
    "when": "2026-11-01",
    "keepGap": true
+  },
+  "287_narr-closing#1": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "288_narr-closing-guide#1": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "289_narr-closing-soft#1": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "290_narr-closing-soft-guide#1": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "291_narr-closing-meal#1": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "292_narr-closing-nt#0": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "293_narr-closing-guide-nt#0": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "294_narr-closing-soft-nt#0": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "295_narr-closing-soft-guide-nt#0": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
+  },
+  "296_narr-closing-meal-nt#0": {
+   "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "keepGap": true
   }
  },
  "_언제": "2026-11-01 · 830자리",
