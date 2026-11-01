@@ -1012,9 +1012,20 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ps-h{margin:0 0 10px;font-size:14px;font-weight:600;color:var(--accent)}
 .ps-fig{display:block;width:100%;padding:0;border:0;background:var(--bg2);border-radius:10px;overflow:hidden;cursor:zoom-in;aspect-ratio:16/9}
 .ps-fig img{display:block;width:100%;height:100%;object-fit:cover}
-.ps-rep{margin:10px 0 2px;font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all}
-.ps-desc{margin:0;font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
-.ps-fine{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all}
+.ps-alt{margin:0;padding:12px 14px;border-radius:10px;background:var(--bg2);font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
+.ps-fine{margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all}
+/* [SCENE_AT_194] ① 고르는 화면 — 접힌 칩 · 넘겨 보기 */
+.ps.ps-pk{padding-top:10px}
+.ps .vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ps-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
+.ps-chip::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 2px}
+.ps-chip[aria-expanded="true"]::after{transform:rotate(-135deg);margin-top:3px}
+.ps-chip+.ps-car{margin-top:10px}
+.ps-view{border-radius:10px;outline-offset:2px}
+.ps-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 0}
+.ps-arw{width:44px;height:44px;border:0;border-radius:50%;background:none;color:var(--accent);font-size:22px;line-height:1;cursor:pointer}
+.ps-arw:hover{background:var(--bg2)}
+.ps-cnt{min-width:3.5em;text-align:center;font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
 .ps-fold{margin:18px 0 0;padding-top:12px;border-top:1px solid var(--border)}
 .ps-fold>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent)}
 .ps-fold .ps{margin-top:4px;padding-top:0;border-top:0}
@@ -9038,22 +9049,41 @@ function _pvDraw(){
    그림이 보류(img null)거나 못 읽으면 그림만 빠지고 글은 그대로. 확대는 맨 위 창 하나(닫기 · Esc → 누른 그림으로 초점) · 소리 · 영상 · 타이머를 다시 틀지 않는다.
    전체 대본 복사 · 파일 받기(scriptTextOpen)에는 넣지 않는다. 컷 수 · 빠짐없는 촬영 약속은 쓰지 않는다(scripts/audit/photo-scene.mjs). */
 var PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.';
+/* ★★[SCENE_AT_194 · SCENE_ALT_193 검토 193 · 194] 장면 사진 상자 — 보이는 글은 사진 아래 PS_FINE 한 줄 · 대표 장면 · 설명은 사진의 대체 글(alt)로만(화면 읽기 · 그림을 못 읽을 때 남는다) ·
+     ★대표 장면 제목(ps-rep) · 설명 줄(ps-desc)을 화면에 다시 보이게 하는 것 금지 — 2026-11-01 사장님 지시(검토 193) ·
+     자리는 RitualOpen.SCENE_AT 한 곳: 'pick' = ① 고르는 화면(기본 접힘 «장면 사진 N» 칩 → 누르면 펼침) · 'step' = ② 순간 쪽(펼친 채) ·
+     여러 장이면 좌우 넘겨 보기(‹ › 단추 · 손가락 밀기 · ← → 키 · «1 / 3») · 1장이면 넘김 표시 없이 */
+var PSC={open:{},i:{}};
+function _psAlt(x){ return x.rep+' · '+x.desc; }
 function _psBox(k,mode){ var R=RitualOpen, x=R.sceneOf&&(!R.sceneShow||R.sceneShow(k))?R.sceneOf(k,S):null; if(!x) return '';   /* [SCENE_DRAMA_ONLY] 극적인 9순간만 */
-  var id='ps_'+mode+'_'+k.replace(/[^a-z]/g,''), im=x.img, h='<section class="ps" data-ps="'+esc(x.id)+'" aria-labelledby="'+id+'"><h4 class="ps-h" id="'+id+'">이 순간에 담을 수 있는 장면</h4>';
-  if(im) h+='<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기')+'"><img src="'+esc(im.small)+'" alt="" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button>';
-  h+='<p class="ps-rep">'+esc(x.rep)+'</p><p class="ps-desc">'+esc(x.desc)+'</p>';
-  h+='<p class="ps-fine">'+esc(PS_FINE)+'</p>';
+  var at=R.SCENE_AT||'pick'; if((mode==='pv'&&at!=='pick')||(mode!=='pv'&&at!=='step')) return '';   /* [SCENE_AT_194] 한 곳에만 */
+  var ims=(x.imgs&&x.imgs.length)?x.imgs:(x.img?[x.img]:[]), n=ims.length, i=Math.min(PSC.i[k]||0,Math.max(0,n-1)), id='ps_'+mode+'_'+k.replace(/[^a-z]/g,''), fold=mode==='pv', open=!fold||!!PSC.open[k];
+  if(!n) return '';   /* 사진이 없는 장면은 상자째 없다(보이는 글이 구도 한 줄뿐이라) */
+  var h='<section class="ps'+(fold?' ps-pk':'')+'" data-ps="'+esc(x.id)+'" data-psk="'+k+'" aria-labelledby="'+id+'"><h4 class="ps-h'+(fold?' vh':'')+'" id="'+id+'">이 순간에 담을 수 있는 장면</h4>';
+  if(fold) h+='<button type="button" class="ps-chip" aria-expanded="'+open+'" aria-controls="'+id+'c" data-fk="pschip:'+k+'" onclick="psToggle(\''+k+'\')">장면 사진 '+n+'</button>';
+  h+='<div class="ps-car" id="'+id+'c"'+(open?'':' hidden')+'>';
+  h+='<div class="ps-view"'+(n>1?' tabindex="0" role="group" aria-roledescription="넘겨 보기" aria-label="장면 사진 '+n+'장" onkeydown="psKey(event,\''+k+'\')" ontouchstart="psTs(event)" ontouchend="psTe(event,\''+k+'\')"':'')+'>'
+    +'<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기')+'"><img src="'+esc(ims[i].small)+'" alt="'+esc(_psAlt(x))+'" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button></div>';
+  if(n>1) h+='<div class="ps-nav"><button type="button" class="ps-arw" aria-label="이전 사진" onclick="psGoI(\''+k+'\',-1)">‹</button><span class="ps-cnt" aria-live="polite">'+(i+1)+' / '+n+'</span><button type="button" class="ps-arw" aria-label="다음 사진" onclick="psGoI(\''+k+'\',1)">›</button></div>';
+  h+='<p class="ps-fine">'+esc(PS_FINE)+'</p></div>';
   return h+'</section>'; }
-/* ② 하나씩 만들기 — 설정 · 글쓰기 뒤 맨 아래 접힌 줄(그림이 없으면 «장면 설명 보기») */
-function _psFold(k){ var R=RitualOpen, x=R.sceneOf&&(!R.sceneShow||R.sceneShow(k))?R.sceneOf(k,S):null; if(!x) return '';   /* [SCENE_DRAMA_ONLY] */
-  return '<details class="ps-fold" data-fk="psfold:'+k+'"><summary>'+(x.img?'사진으로 담을 장면 보기':'장면 설명 보기')+'</summary>'+_psBox(k,'mk')+'</details>'; }
+function _psRe(k){ document.querySelectorAll('.ps[data-psk="'+k+'"]').forEach(function(b){ var m=(b.querySelector('.ps-h')||{}).id||''; m=/^ps_([a-z]+)_/.exec(m); var nh=_psBox(k,m?m[1]:'pv'); if(!nh) return; var t=document.createElement('div'); t.innerHTML=nh; var nb=t.firstChild; b.parentNode.replaceChild(nb,b); var host=nb.parentNode; if(host&&host.id==='pvScene') host._h=nh; }); }
+window.psToggle=function(k){ PSC.open[k]=!PSC.open[k]; _psRe(k); var c=document.querySelector('.ps[data-psk="'+k+'"] .ps-chip'); if(c) try{ c.focus({preventScroll:true}); }catch(e){} };
+window.psGoI=function(k,d){ var R=RitualOpen, x=R.sceneOf(k,S), n=(x&&x.imgs)?x.imgs.length:1; if(n<2) return; PSC.i[k]=((PSC.i[k]||0)+d+n)%n; _psRe(k); var v=document.querySelector('.ps[data-psk="'+k+'"] .ps-view'); if(v&&document.activeElement&&document.activeElement.classList.contains('ps-arw')){ var a=document.querySelectorAll('.ps[data-psk="'+k+'"] .ps-arw')[d<0?0:1]; if(a) try{ a.focus({preventScroll:true}); }catch(e){} } };
+window.psKey=function(e,k){ if(e.key==='ArrowLeft'){ e.preventDefault(); psGoI(k,-1); var v=document.querySelector('.ps[data-psk="'+k+'"] .ps-view'); if(v) v.focus({preventScroll:true}); } else if(e.key==='ArrowRight'){ e.preventDefault(); psGoI(k,1); var w=document.querySelector('.ps[data-psk="'+k+'"] .ps-view'); if(w) w.focus({preventScroll:true}); } };
+var PST=null; window.psTs=function(e){ var t=e.changedTouches&&e.changedTouches[0]; PST=t?{x:t.clientX,y:t.clientY}:null; };
+window.psTe=function(e,k){ var t=e.changedTouches&&e.changedTouches[0]; if(!PST||!t) return; var dx=t.clientX-PST.x, dy=t.clientY-PST.y; PST=null; if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3) psGoI(k,dx<0?1:-1); };
+/* ② 하나씩 만들기 — 설정 · 글쓰기 뒤 맨 아래 접힌 줄(SCENE_AT 'step' 일 때만) */
+function _psFold(k){ var R=RitualOpen, x=R.sceneOf&&(!R.sceneShow||R.sceneShow(k))?R.sceneOf(k,S):null; if(!x||(R.SCENE_AT||'pick')!=='step') return '';   /* [SCENE_DRAMA_ONLY] · [SCENE_AT_194] */
+  var b=_psBox(k,'mk'); if(!b) return '';
+  return '<details class="ps-fold" data-fk="psfold:'+k+'"><summary>사진으로 담을 장면 보기</summary>'+b+'</details>'; }
 /* 한눈에 보기 · 완성 — 큰 그림은 되풀이하지 않고 순간 이름 링크만(누르면 그 순간 쪽 접힌 줄을 연다) */
-function _psLinks(){ /* ★[PS_LINKS_HEAD_1031 식순 걷기 1라운드] 한눈에 보기 · 완성은 여러 순간을 모아 보는 곳 — 머리는 «순간마다 …»(«이 순간에 …»는 순간 쪽 창의 제목) */ var R=RitualOpen; if(!R.sceneList) return ''; var xs=R.sceneList(S).filter(function(x){ return !R.sceneShow||R.sceneShow(x.k); }); if(!xs.length) return '';   /* [SCENE_DRAMA_ONLY] 링크도 9순간만 */
+function _psLinks(){ /* ★[PS_LINKS_HEAD_1031 식순 걷기 1라운드] 한눈에 보기 · 완성은 여러 순간을 모아 보는 곳 — 머리는 «순간마다 …»(«이 순간에 …»는 순간 쪽 창의 제목) */ var R=RitualOpen; if(!R.sceneList||(R.SCENE_AT||'pick')!=='step') return '';   /* [SCENE_AT_194] 링크가 여는 접힌 줄은 'step' 일 때만 있다 */ var xs=R.sceneList(S).filter(function(x){ return !R.sceneShow||R.sceneShow(x.k); }); if(!xs.length) return '';   /* [SCENE_DRAMA_ONLY] 링크도 9순간만 */
   return '<section class="mk-sec" aria-labelledby="psLk"><h4 id="psLk">순간마다 담을 수 있는 장면</h4><p class="ps-links">'+xs.map(function(x){ return '<button type="button" class="pk-link" data-fk="pslink:'+x.k+'" onclick="psGo(\''+x.k+'\')">'+esc(x.n)+'</button>'; }).join('')+'</p></section>'; }
 window.psGo=function(k){ var m=_mkState(), onL=!!(STEPS[idx]&&STEPS[idx].k==='listen');
   if(m.at!==k) mkGo(k); else if(!onL) opGoStep('listen');
   setTimeout(function(){ var d=document.querySelector('[data-fk="psfold:'+k+'"]'); if(d){ d.open=true; var sm=d.querySelector('summary'); try{ d.scrollIntoView({block:'center'}); if(sm) sm.focus({preventScroll:true}); }catch(e){} } },80); };
-window._psImgErr=function(img){ var f=img.closest('.ps-fig'); if(f) f.remove(); };   /* [PHOTO_SCENE_MIN_1101] 그림을 못 읽으면 그림만 뺀다(라벨 · 그림 설명 줄은 이제 없다 · 구도 한 줄은 그대로) */
+window._psImgErr=function(img){ var f=img.closest('.ps-fig'); if(!f) return; var p=document.createElement('p'); p.className='ps-alt'; p.textContent=img.alt||''; f.parentNode.replaceChild(p,f); };   /* [SCENE_ALT_193] 그림을 못 읽으면 그 자리에 대체 글(대표 장면 · 설명)이 남는다 */   /* [PHOTO_SCENE_MIN_1101] 그림을 못 읽으면 그림만 뺀다(라벨 · 그림 설명 줄은 이제 없다 · 구도 한 줄은 그대로) */
 var PSZ={opener:null};
 window.psZoom=function(k,btn){ var R=RitualOpen, x=(!R.sceneShow||R.sceneShow(k))?R.sceneOf(k,S):null; if(!x||!x.img) return;   /* [SCENE_DRAMA_ONLY] */
   var z=document.getElementById('psZoom');
@@ -9062,8 +9092,9 @@ window.psZoom=function(k,btn){ var R=RitualOpen, x=(!R.sceneShow||R.sceneShow(k)
     z.addEventListener('click',function(e){ if(e.target===z) psZoomClose(); });
     document.body.appendChild(z); }
   PSZ.opener=btn||null;
+  var _zi=(x.imgs&&x.imgs.length)?x.imgs[Math.min(PSC.i[k]||0,x.imgs.length-1)]:x.img;   /* [SCENE_N_194] 지금 넘겨 둔 사진 */
   z.setAttribute('aria-label',x.rep);
-  z.innerHTML='<button type="button" class="psz-x" onclick="psZoomClose()">닫기</button><div class="psz-box"><img src="'+esc(x.img.src)+'" alt="'+esc(x.rep)+'" onerror="this.remove()"></div>';
+  z.innerHTML='<button type="button" class="psz-x" onclick="psZoomClose()">닫기</button><div class="psz-box"><img src="'+esc(_zi.src)+'" alt="'+esc(_psAlt(x))+'" onerror="this.remove()"></div>';
   var pv=document.getElementById('pvSheet'); if(pv&&!pv.hidden) pv.setAttribute('inert','');
   z.hidden=false; var c=z.querySelector('.psz-x'); if(c) try{ c.focus({preventScroll:true}); }catch(e){} };
 window.psZoomClose=function(){ var z=document.getElementById('psZoom'); if(!z||z.hidden) return; z.hidden=true; z.innerHTML='';

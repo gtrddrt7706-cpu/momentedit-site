@@ -21049,6 +21049,18 @@ nochk 'PS_FINE_IMG' order-preview.html
 nochk 'window.psMore' order-preview.html
 nochk 'ph-sc-s">참고 · ' mypage.html
 chk "var PS_FINE='사진의 구도와 수는 당일 진행과 현장 상황에 따라 달라질 수 있어요.'" order-preview.html 1
+# ── 2026-11-01 [SCENE_AT_194 · SCENE_N_194 · SCENE_ALT_193 검토 193 · 194 · 194 수정 사장님 «두 곳 중 한 곳에만 · 이벤트를 처음 고르는 화면에만»] 장면 사진 = ① 고르는 화면만(기본 접힘 칩 «장면 사진 N» · 펼치면 넘겨 보기) · 보이는 글은 구도 한 줄 · 대표 · 설명은 alt · 자리 스위치 한 곳
+chk "var SCENE_AT = 'pick';" assets/ritual-open.js 1
+chk 'var SCENE_N = {};' assets/ritual-open.js 1
+chk 'function sceneImgs(id)' assets/ritual-open.js 1
+chk "if((mode==='pv'&&at!=='pick')||(mode!=='pv'&&at!=='step')) return '';" order-preview.html 1
+chk '장면 사진 '"'"'+n+'"'"'</button>' order-preview.html 1
+chk "function _psAlt(x){ return x.rep+' · '+x.desc; }" order-preview.html 1
+chk 'window.psKey=function(e,k)' order-preview.html 1
+chk "p.className='ps-alt'; p.textContent=img.alt" order-preview.html 1
+chk 'SCENE_AT_194' scripts/audit/photo-scene.mjs 3
+nochk "h+='<p class=\"ps-rep\">'" order-preview.html
+nochk '<p class="ps-desc">' order-preview.html
 # ── 2026-11-01 [SCENE_PHOTO_1101 검토 181 · 사장님 «영상 캡처 말고 GPT 실사 · 무드 맞춰 · 1장»] 장면 그림 = 실사 사진 19장(파일 이름 = 장면 id) · 보류 0 · 영상 프레임 아님
 chk 'SCENE_PHOTO_1101' assets/ritual-open.js 3
 chk 'SCENE_PHOTO_1101' scripts/build-scene-frames.mjs 2
