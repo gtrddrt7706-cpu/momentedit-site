@@ -18931,7 +18931,7 @@ chk '<script src="/assets/entry-music.js' order-preview.html 1
 chk 'if(MK.muGuide&&window.EntryMusic) return' order-preview.html 1
 chk 'if(MK.muGuide){ MK.muGuide=false; render(); return; }' order-preview.html 1
 chk 'try{ if(window.EntryMusic) EntryMusic.after(); }catch(e){}' order-preview.html 1
-chk 'function _stopMk(){ try{ if(window.EntryMusic) EntryMusic.hush(); }catch(e){}' order-preview.html 1
+chk 'function _stopMk(){ try{ if(window.EntryMusic) EntryMusic.hush(' order-preview.html 1   # [DETAIL_R4_1101 ②] 안에서 넘겨줄 때만 inner
 chk 'ENTRY_MUSIC_1012' assets/entry-music.js 1
 chk 'GUIDE_OK' assets/entry-music.js 2
 chk 'UP_LINKS_ONE' assets/entry-music.js 1
@@ -18954,7 +18954,7 @@ chk "var _scn=(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml)?EntryMusic.
 chk '.mk-pick:has(+.em-scene){padding-bottom:0}' order-preview.html 1
 chk 'ENTRY_SCENE_1012' assets/entry-music.js 3
 chk 'EM.sceneHtml=sceneHtml' assets/entry-music.js 1
-chk 'if(RUN&&RUN===HAND) return; scHalt(); };' assets/entry-music.js 1                 # 빌더가 제 소리를 틀면(_stopMk) 장면은 그 자리에 멈춘다([ONE_SOUND])
+chk 'scStop(); HAND=null; scPaint(); return; } scHalt(); };' assets/entry-music.js 1                 # 빌더가 제 소리를 틀면(_stopMk) 장면은 그 자리에 멈춘다([ONE_SOUND])
 chk 'breath:0.3,' assets/entry-scene.js 1                            # 마지막 말 끝 + 0.3초 = 하이라이트(시험실 DEF_P) · [ENTRY_SCENE_ENGINE] 2026-10-12 계산 한 곳으로 옮김
 chk 'var EM={ scene:true };' assets/entry-music.js 1                  # 안내 창이 «음악과 함께 듣기로 …»를 말한다
 nochk 'var EM={ scene:false };' assets/entry-music.js
@@ -20739,6 +20739,20 @@ chk 'q0.k!==st.k&&q0.k!==nk' assets/bgm-bed.js 1   # [DETAIL_R2_1101 ⑥] 편지
 chk 'BgmBed.turn) BgmBed.turn();' order-preview.html 2   # [DETAIL_R2_1101 ⑥] 순간 옮기기 · 새 듣기 = 새 차례
 chk 'DETAIL_R2_1101' scripts/audit/detail-r2.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r2.mjs >/dev/null 2>&1; _r2=$?; if [ "$_r2" = 1 ]; then echo 'FAIL detail-r2: 이어 듣기 세부 여섯(음악과 함께 뜸 자리 · 칩 바꾸면 멈춤 · 선언 늦은 곡 · 연출 멈춤 · 박수 줄 · 편지 끝 경합) — node scripts/audit/detail-r2.mjs'; fail=1; elif [ "$_r2" = 2 ]; then echo 'skip detail-r2 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r2'; fi; fi   # ★[DETAIL_R2_1101]
+chk 'function segCk()' console.html 1   # ★[DETAIL_R3_1101 ①] 현장 선곡은 예식(rf)마다
+chk 'id="segMine"' console.html 1   # [DETAIL_R3_1101 ①] 이 예식에서 바꾼 곡 한 줄
+chk '곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요' console.html 1   # [DETAIL_R3_1101 ②] 새 곡이 실제로 소리를 낸 뒤 넘김
+chk 'function bedFree()' console.html 1   # [DETAIL_R3_1101 ③] 셋째 재생기 · 들리는 재생기 src 안 바꿈
+chk '  esdStop(0.6);   // ★.DETAIL_R3_1101 ④' console.html 2   # [DETAIL_R3_1101 ④] 전체 정지 · 뒤로 = 입장 장면까지
+chk 'function bedVolFb()' console.html 1   # [DETAIL_R4_1101 ③] 대체 경로 두 재생기 덕킹 · 음소거
+chk 'if(o&&o.inner) return; scStop(); HAND=null;' assets/entry-music.js 1   # [DETAIL_R4_1101 ②] 넘긴 장면 보호는 안에서 넘겨줄 때만
+chk 'window.__emInner=1;' order-preview.html 1   # [DETAIL_R4_1101 ②]
+chk '곡 목록을 불러오지 못했어요 · <button' assets/bgm-bed.js 1   # [DETAIL_R4_1101 ⑦] 안내 칸 빈 목록 다시 불러오기
+chk 'turn:function(){ LPB.lt++; if(CARD.f&&BED.who!==' assets/bgm-bed.js 1   # [DETAIL_R4_1101 ①] 받는 중인 곡 카드 차례도 무효
+chk 'DETAIL_R3_1101' scripts/audit/detail-r3.mjs 1
+chk 'DETAIL_R4_1101' scripts/audit/detail-r4.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r3.mjs >/dev/null 2>&1; _r3=$?; if [ "$_r3" = 1 ]; then echo 'FAIL detail-r3: 당일 콘솔(예식별 선곡 · 새 곡 열림 확인 · 셋째 재생기 · 정지/뒤로 입장 장면 · 대체 경로 덕킹) — node scripts/audit/detail-r3.mjs'; fail=1; elif [ "$_r3" = 2 ]; then echo 'skip detail-r3 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r3'; fi; fi   # ★[DETAIL_R3_1101]
+if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r4.mjs >/dev/null 2>&1; _r4=$?; if [ "$_r4" = 1 ]; then echo 'FAIL detail-r4: 넘긴 입장 장면 · 안내 칸 빈 목록 — node scripts/audit/detail-r4.mjs'; fail=1; elif [ "$_r4" = 2 ]; then echo 'skip detail-r4 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r4'; fi; fi   # ★[DETAIL_R4_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/daylong.mjs >/dev/null 2>&1; _dl=$?; if [ "$_dl" = 1 ]; then echo 'FAIL daylong: 감사 인사 ~ 덕담 · 닫는 인사가 한 곡만 오래 반복됩니다(이어 트는 목록 · 한 줄 · 콘솔 다음 곡) — node scripts/audit/daylong.mjs'; fail=1; elif [ "$_dl" = 2 ]; then echo 'skip daylong (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok daylong'; fi; fi   # ★[DAYLONG_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/carry-same.mjs >/dev/null 2>&1; _cs=$?; if [ "$_cs" = 1 ]; then echo 'FAIL carry-same: 이어지는 두 순간에 같은 곡이 있는데 다시 시작하거나 다른 곡으로 넘어갑니다 — node scripts/audit/carry-same.mjs'; fail=1; elif [ "$_cs" = 2 ]; then echo 'skip carry-same (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok carry-same'; fi; fi   # ★[CARRY_SAME_1101]
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-under.mjs >/dev/null 2>&1; _eun=$?; if [ "$_eun" = 1 ]; then echo 'FAIL entry-under: 입장 · 맞절 듣기에서 곡이 멘트 도중 끊깁니다(판 끝 이음 · 장면 넘김 · 남아야 할 길이) — node scripts/audit/entry-under.mjs'; fail=1; elif [ "$_eun" = 2 ]; then echo 'skip entry-under (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-under'; fi; fi   # ★[ENTRY_UNDER_1101]

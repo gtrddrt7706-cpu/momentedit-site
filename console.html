@@ -692,6 +692,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   .pcb-who{width:100%;font-size:13px;color:#f3ede4;margin:2px 2px 6px;line-height:1.5}   /* [PHOTO_CALLER] 판 머리 한 줄 */
   .pcb-b .pcm{background:#262320;border:1px solid #3f3a33;color:#e8e2d8;border-radius:8px;padding:7px 11px;font-size:12.5px;text-align:left;line-height:1.35}   /* [AUTO_ONLY_1031] 누르는 단추가 아니라 메모 */
   .pcb-b .pcm b{display:block;font-weight:600}
+  .bed-err{margin:8px 0 0;color:#b3261e;font-weight:700;font-size:13px}   /* [DETAIL_R3_1101 ②] */
   .pcb-b .pcm i{font-style:normal;color:#a39a8c;font-size:11px}
   </style>
   <div class="ctl">
@@ -712,6 +713,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
           <button id="bMute">음악만 멈춤<small>말은 그대로</small></button>
           <button id="bBack">뒤로<small>한 칸 되돌림</small></button>
         </div>
+        <p class="bed-err" id="bedErr" role="status" hidden></p><!-- [DETAIL_R3_1101 ②] 곡 파일을 못 열면 빨간 한 줄 -->
         <!-- ★★[AUTO_ONLY_1031 검토 177 사장님 «당일 소리는 식순에서 자동으로 나오는 나레이션만»] 이 판은 소리를 틀지 않는다 — 연출 글은 디렉터가 말로 읽는 메모다(녹음 · 파일 · 번호는 그대로 · clip-status MANUAL_OFF).
              ★★[PHOTOCUE_BOARD 2026-08-08] 촬영 시간의 '골라 트는 판'.
              ★큐 체인이 아닌 이유: 촬영은 순서가 정해지지 않는다(어른 먼저·아이 먼저).
@@ -1154,8 +1156,13 @@ function songGainSet(on){ var g = on ? Math.pow(10, (+PARAM.songGain || 0) / 20)
 function vol(){ return (+$('#vol').value) / 100; }
 function applyMaster(){
   if (gMaster && AC) gMaster.gain.setTargetAtTime(muted ? 0.0001 : vol(), AC.currentTime, .05);
-  else aBgm.volume = muted ? 0 : vol();
+  else bedVolFb();
 }
+/* ★[DETAIL_R4_1101 ③] Web Audio 를 못 쓰는 대체 경로 — 재생기 둘(aBgm · aBgm2) 모두에 지금 덕킹 · 음소거 · 볼륨을 건다(들리는 쪽만 · 다른 쪽은 0)
+     종전엔 aBgm 만 바꿔, 활성 재생기가 aBgm2 일 때 −20 덕킹 · «음악만 멈춤» 뒤에도 0.7 그대로 흘렀다 */
+var duckG = 1;
+function fbVol(){ return Math.min(1, duckG * (muted ? 0 : vol())); }
+function bedVolFb(){ if (gBgm && AC) return; var L = (typeof BED === 'undefined') ? [aBgm] : BED.el; L.forEach(function(el, k){ if (!el) return; var on = (typeof BED === 'undefined') ? k === 0 : k === BED.on; try { el.volume = on ? fbVol() : 0; } catch (e) {} }); }
 $('#vol').oninput = function(){ $('#volV').textContent = $('#vol').value; applyMaster(); };
 
 /* ★PREVIEW_BED — 고지 줄은 소리가 실제로 난 뒤에 뜬다.
@@ -1175,8 +1182,16 @@ aBgm.addEventListener('error',   function(){ var e = $('#gBed'); if (e) e.classL
    ★[BGM_PICKS_1023 사장님 21:40 «나머지 이 노래들 우선 고를 수 있게»] 추천 곡은 assets/bgm-picks.js(콘솔만 싣는다) · 1순위를 기본으로 골라 둔다(스튜디오 화면 · BOSS_WAY 1 대상 아님) */
 var BP = window.BgmPicks || null, SEG_KEY = 'me_bgm_seg_v1', SEG_XF = 3;
 var SEGST = segLoad(), SEGF = {};   // SEGF: 곡 아이디 → 이 탭의 파일 주소
-function segLoad(){ var o = {}; try { o = JSON.parse(localStorage.getItem(SEG_KEY) || '{}') || {}; } catch (e) { o = {}; } ['sel', 'add', 'start', 'meta'].forEach(function(k){ if (!o[k] || typeof o[k] !== 'object') o[k] = {}; }); return o; }
-function segSave(){ try { localStorage.setItem(SEG_KEY, JSON.stringify(SEGST)); } catch (e) {} }
+/* ★★[DETAIL_R3_1101 ①] 현장 선곡(고른 곡 sel · 직접 더한 곡 add · 강조 위치 start)은 예식(고객 코드 rf)마다 따로 · 곡 파일 이름 · 길이(meta)와 파일(IndexedDB)은 이 기기에서 함께 쓴다
+     종전엔 한 저장키에 다 들어가 앞 예식에서 바꾼 곡이 다음 예식(다른 고객)의 고른 곡을 덮었다(고객 B16 → 실제 B15) · 옛 공용 값은 어느 예식에도 쓰지 않는다(_old 로만 남긴다) */
+function segCk(){ var rf = QS.get('rf') || ''; if (rf) return 'rf:' + rf; var raw = QS.get('S') || '', h = 0; for (var i = 0; i < raw.length; i++) h = (h * 31 + raw.charCodeAt(i)) | 0; return raw ? 's:' + (h >>> 0).toString(36) : 'none'; }
+function segLoad(){ var o = {}; try { o = JSON.parse(localStorage.getItem(SEG_KEY) || '{}') || {}; } catch (e) { o = {}; } if (!o.meta || typeof o.meta !== 'object') o.meta = {}; if (!o.by || typeof o.by !== 'object') o.by = {};
+  if ((o.sel && Object.keys(o.sel).length) || (o.add && Object.keys(o.add).length) || (o.start && Object.keys(o.start).length)) { if (!o.by._old) o.by._old = { sel: o.sel || {}, add: o.add || {}, start: o.start || {} }; }
+  var k = segCk(), c = o.by[k] = o.by[k] || {}; ['sel', 'add', 'start'].forEach(function(x){ if (!c[x] || typeof c[x] !== 'object') c[x] = {}; o[x] = c[x]; }); o.ck = k; return o; }
+function segSave(){ try { localStorage.setItem(SEG_KEY, JSON.stringify({ meta: SEGST.meta, by: SEGST.by })); } catch (e) {} }
+/* [DETAIL_R3_1101 ①] 이 예식에서 바꾼 곡 — 설정 화면 맨 위 한 줄 */
+function segMine(){ var n = []; if (!BP) return ''; BP.SEGS.forEach(function(d){ var id = d.id, v = SEGST.sel[id], a = SEGST.add[id] || [], ch = (v != null && !(Array.isArray(v) && !v.length)) || a.length; if (ch) n.push(d.nm); });
+  Object.keys(SEGST.start || {}).forEach(function(sid){ if (n.indexOf('강조 위치') < 0) n.push('강조 위치'); }); return n.length ? '이 예식에서 바꾼 곡 · ' + n.join(' · ') : '이 예식에서 바꾼 곡 없음 · 두 분이 고른 곡 그대로'; }
 function segDef(id){ return BP ? BP.seg(id) : null; }
 function segSongs(id){ return (BP ? BP.list(id) : []).concat(segFill(id)).concat((SEGST.add[id] || []).map(function(x){ return { id: x.id, t: x.t, a: x.a || '', v: '', why: '', start: null, rank: 0, own: 1 }; })); }
 /* ★[BGM_FILL_1101] 목록 칸(M1 · M8) 배경 곡 — 고객이 고르지 않는 곡 · 이 화면에서 파일을 넣어야 소리가 난다(줄에 «배경으로만 이어 틀어요») */
@@ -1217,23 +1232,47 @@ function segStOf(sid){ var m = SEGST.meta[sid]; return SEGF[sid] ? '✓ ' + ((m 
 function segStPaint(sid){ [].slice.call(document.querySelectorAll('[data-seg-st]')).forEach(function(e){ if (e.getAttribute('data-seg-st') === sid) { e.textContent = segStOf(sid); e.classList.toggle('ok', !!SEGF[sid]); } }); }
 segAll().then(function(all){ Object.keys(all || {}).forEach(function(k){ var v = all[k]; if (v && v.blob) { SEGF[k] = URL.createObjectURL(v.blob); if (!SEGST.meta[k]) SEGST.meta[k] = { name: v.name || '', dur: null, end: null, head: 0 }; } }); segPaint(); });
 
-/* ── 재생기 둘 — aBgm(종전) + aBgm2 · 각자 크기(xg)를 거쳐 배경음 낮춤(gBgm)으로 ── */
+/* ── 재생기 셋 — aBgm(종전) + aBgm2 + aBgm3 · 각자 크기(xg)를 거쳐 배경음 낮춤(gBgm)으로
+     ★[DETAIL_R3_1101 ③] 셋째 재생기 — 겹침 중(앞 곡이 아직 들린다)에 GO 가 또 오면 들리는 재생기의 src 를 바꾸지 않고 비어 있는 재생기에서 새 곡을 연다(앞 곡 꼬리는 제 겹침대로 잦아든다) ── */
 var aBgm2 = document.createElement('audio'); aBgm2.id = 'aBgm2'; aBgm2.preload = 'auto'; document.body.appendChild(aBgm2);
-var BED = { el: [aBgm, aBgm2], xg: [null, null], on: 0, seg: '', list: [], li: 0, id: '', xing: 0, mode: '' };
+var aBgm3 = document.createElement('audio'); aBgm3.id = 'aBgm3'; aBgm3.preload = 'auto'; document.body.appendChild(aBgm3);
+var BED = { el: [aBgm, aBgm2, aBgm3], xg: [null, null, null], fade: [0, 0, 0], on: 0, seg: '', list: [], li: 0, id: '', xing: 0, mode: '' };
 function bedWire(){ if (!AC || BED.xg[0]) return; try { /* audioOn 이 aBgm 을 gBgm 에 바로 이었다 — 그 사이에 크기 마디를 끼운다 */
-  var s2 = AC.createMediaElementSource(aBgm2); BED.xg[0] = AC.createGain(); BED.xg[1] = AC.createGain(); BED.xg[0].gain.value = 1; BED.xg[1].gain.value = 0.0001;
-  if (bedSrcNode) { try { bedSrcNode.disconnect(); } catch (e) {} bedSrcNode.connect(BED.xg[0]); } BED.xg[0].connect(gBgm); s2.connect(BED.xg[1]); BED.xg[1].connect(gBgm); } catch (e) { BED.xg = [null, null]; } }
+  var s2 = AC.createMediaElementSource(aBgm2), s3 = AC.createMediaElementSource(aBgm3); BED.xg[0] = AC.createGain(); BED.xg[1] = AC.createGain(); BED.xg[2] = AC.createGain(); BED.xg[0].gain.value = 1; BED.xg[1].gain.value = 0.0001; BED.xg[2].gain.value = 0.0001;
+  if (bedSrcNode) { try { bedSrcNode.disconnect(); } catch (e) {} bedSrcNode.connect(BED.xg[0]); } BED.xg[0].connect(gBgm); s2.connect(BED.xg[1]); BED.xg[1].connect(gBgm); s3.connect(BED.xg[2]); BED.xg[2].connect(gBgm); } catch (e) { BED.xg = [null, null, null]; } }
 function bedFade(k, to, sec){ var g = BED.xg[k], el = BED.el[k]; if (g && AC) { var now = AC.currentTime; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), now); g.gain.linearRampToValueAtTime(Math.max(0.0001, to), now + Math.max(0.05, sec)); }
-  else { try { el.volume = to > 0.5 ? Math.min(1, vol()) : 0; } catch (e) {} } }
-/* 곡 하나를 다른 재생기에서 시작하고 3초에 걸쳐 바꾼다 */
-function bedPlay(sid, xf, at){ BED.plays = (BED.plays || 0) + 1; var nx = 1 - BED.on, el = BED.el[nx], old = BED.el[BED.on], m = SEGST.meta[sid] || {};
-  if (!SEGF[sid]) return false; bedWire(); BED.xing = Date.now();
+  else { try { el.volume = to > 0.5 ? fbVol() : 0; } catch (e) {} } }   /* [DETAIL_R4_1101 ③] 대체 경로도 지금 덕킹 · 음소거 크기로 */
+/* 곡 하나를 다른 재생기에서 시작하고 3초에 걸쳐 바꾼다
+   ★★[DETAIL_R3_1101 ②] 새 곡이 «실제로 소리를 내기 시작한 것»(playing + currentTime 이 늘었다)을 본 뒤에 겹쳐 넘긴다 — 종전엔 play() 를 부르자마자 앞 곡을 내려,
+     새 파일이 안 열리면 무음인데 화면엔 새 곡이 «지금 곡»으로 남았다 · 4초 안에 못 열면 앞 곡을 그대로 두고 빨간 한 줄
+   ★[DETAIL_R3_1101 ③] 겹침(xf)이 끝나기 전 · 새 곡을 여는 중에 온 요청은 «들리는 재생기»의 src 를 바꾸지 않는다 — 마지막 요청 하나를 적어 두고 겹침이 끝난 뒤에 처리한다
+   ★[DETAIL_R5_1101 규칙 7] 늦은 응답 · 타이머는 실행 전에 지금 재생 번호(BED.tk)를 확인한다 */
+var BED_OPEN_MS = 4000;
+function bedErr(m){ var e = $('#bedErr'); if (!e) return; e.textContent = m || ''; e.hidden = !m; BED.err = m || ''; }
+function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
+  if (BED.opening) { var po = BED.opening; BED.opening = null; try { BED.el[po.nx].pause(); } catch (e) {} }   /* [DETAIL_R3_1101 ③] 아직 소리 없는 «여는 중» 재생기는 새 요청이 쓴다(마지막 요청이 이긴다) */
+  var nx = bedFree(); if (nx < 0) { BED.later = [sid, xf, at]; return true; }   /* 셋 다 들린다(겹침 둘이 겹쳤다) — 겹침이 끝난 뒤에 */
+  BED.plays = (BED.plays || 0) + 1; var el = BED.el[nx], m = SEGST.meta[sid] || {}, tk = BED.tk = (BED.tk || 0) + 1;
+  bedWire(); BED.opening = { sid: sid, tk: tk, nx: nx };
+  try { if (BED.xg[nx] && AC) { BED.xg[nx].gain.cancelScheduledValues(AC.currentTime); BED.xg[nx].gain.setValueAtTime(0.0001, AC.currentTime); } else el.volume = 0; } catch (e) {}
   el.loop = false; el.src = SEGF[sid]; try { el.currentTime = (at != null ? at : (m.head || 0)); } catch (e) {}
-  var p = el.play(); if (p && p.catch) p.catch(function(){});
-  bedFade(nx, 1, xf); bedFade(BED.on, 0, xf);
-  var was = BED.on; setTimeout(function(){ if (BED.on !== was) { try { old.pause(); } catch (e) {} } BED.xing = 0; }, Math.round(xf * 1000) + 120);
-  var _v0 = bedVocal(); BED.on = nx; BED.id = sid; BED.mode = 'seg'; songGainSet(true); if (bedVocal() !== _v0 && duckWant != null) duckTo(duckWant, Math.round(xf * 1000));   /* [BGM_FIX_1030] 노래 곡 ↔ 연주 곡이 바뀌면 지금 크기를 다시 건다(vocalExtra) */
+  var t0 = null, done = false, fin = function(ok){ if (done) return; done = true; clearTimeout(to); clearInterval(iv); el.removeEventListener('playing', onPl); el.removeEventListener('error', onEr);
+      if (BED.tk !== tk) { if (BED.opening && BED.opening.tk === tk) BED.opening = null; return; }   /* 그사이 다른 재생(정지 · 새 곡)이 왔다 — 버린다 */
+      BED.opening = null;
+      if (!ok) { try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) {} bedErr('곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요'); bedLater(); return; }
+      bedErr(''); var xm = Math.round(xf * 1000) + 120; BED.xing = Date.now(); bedFade(nx, 1, xf); bedFade(BED.on, 0, xf);
+      var was = BED.on, wel = BED.el[was]; if (wel && !wel.paused && wel.getAttribute('src')) BED.fade[was] = Date.now() + xm;   /* 소리 나던 재생기만 «잦아드는 중» */ setTimeout(function(){ if (BED.on !== was) { try { BED.el[was].pause(); } catch (e) {} } if (BED.fade[was] <= Date.now() + 5) BED.fade[was] = 0; if (!BED.fade.some(function(t){ return t > Date.now(); })) BED.xing = 0; bedLater(); }, xm);
+      var _v0 = bedVocal(); BED.on = nx; BED.id = sid; BED.mode = 'seg'; songGainSet(true); applyMaster(); if (bedVocal() !== _v0 && duckWant != null) duckTo(duckWant, Math.round(xf * 1000)); },   /* [BGM_FIX_1030] 노래 곡 ↔ 연주 곡이 바뀌면 지금 크기를 다시 건다(vocalExtra) */
+    onPl = function(){ if (t0 == null) t0 = el.currentTime; }, onEr = function(){ fin(false); },
+    iv = setInterval(function(){ if (!el.paused && t0 != null && el.currentTime > t0 + 0.05) fin(true); }, 60),
+    to = setTimeout(function(){ fin(false); }, BED_OPEN_MS);
+  el.addEventListener('playing', onPl); el.addEventListener('error', onEr);
+  var p = el.play(); if (p && p.catch) p.catch(function(){ fin(false); });
   return true; }
+/* [DETAIL_R3_1101 ③] 비어 있는 재생기 — 지금 곡도 · 잦아드는 중도 아닌 것 */
+function bedFree(){ var now = Date.now(); for (var k = 0; k < BED.el.length; k++) { if (k === BED.on) continue; if (BED.fade[k] && BED.fade[k] > now) continue; return k; } return -1; }
+/* [DETAIL_R3_1101 ③] 미뤄 둔 요청 하나 */
+function bedLater(){ var q = BED.later; BED.later = null; if (q && BED.mode !== 'off') bedPlay(q[0], q[1], q[2]); }
 /* 구간 바꾸기 — 같은 구간이면 그대로 · 곡이 없으면 지금 곡을 잇는다(돌려준 값 = 바꿨나) */
 function segGo(id){ if (!id || MODE === 'preview' || GUEST) return false; if (BED.seg === id) return false; var cur = segCur(), L = segPlan(id, cur); if (!L) return false;
   var d = segDef(id), pd = BED.seg ? segDef(BED.seg) : null, rs = BED.res, li = 0;
@@ -1290,7 +1329,7 @@ function segRow(id, s, d){ var sel = segSel(id), on = Array.isArray(sel) ? sel.i
     + (id === 'M7' ? '<input type="text" inputmode="decimal" class="sg-at" data-seg-start="' + esc(s.id) + '" placeholder="강조 시작(초)" value="' + esc(SEGST.start[s.id] != null ? String(SEGST.start[s.id]) : '') + '">' : '')
     + '<span class="sg-st' + (has ? ' ok' : '') + '" data-seg-st="' + esc(s.id) + '">' + st + '</span></div>'; }
 function segPaint(){ var box = $('#segList'); if (!box) return; if (!BP) { box.innerHTML = '<p class="note">추천 곡 목록을 못 읽었어요 · 배경 음악 파일 하나로 진행합니다.</p>'; return; }
-  box.innerHTML = BP.SEGS.map(function(d){ var id = d.id;
+  box.innerHTML = '<p class="note sg-mine" id="segMine">' + esc(segMine()) + '</p>' + BP.SEGS.map(function(d){ var id = d.id;
     if (d.entry) return '<div class="sg"><h3>' + esc(d.nm) + '</h3><p class="sg-need">' + esc(d.need) + ' · 위 «소리 파일 확인»의 입장 음악</p></div>';
     var L = segSongs(id), pl = segPlan(id);
     return '<div class="sg" data-seg="' + id + '"><h3>' + esc(d.nm) + (d.parent ? '' : '') + '</h3><p class="sg-need">' + esc(d.need) + (d.multi ? ' · 여러 곡을 고르면 차례로 이어 틀어요' : '') + (pl ? '' : ' · 지금 파일이 없어 앞 곡이 이어져요') + '</p>'
@@ -1346,13 +1385,13 @@ function duckTo(db, ms){
   if (ESD.run) { esdDuck(db, ms); db = -90; }   // [ENTRY_SCENE_DAY] 입장 곡이 흐르는 동안 배경음은 내려 둔다 · 같은 입장 묶음의 다음 큐(맞절) 덕 값은 곡에 건다
   if (db > -80 && db < PARAM.duckMusic - 0.5 && bedVocal()) db += (+PARAM.vocalExtra || 0);   /* ★[BGM_FIX_1030] 가사가 있는 곡 아래 나레이션 · 사람 구간은 6 dB 더 낮게 — 큐 사이(−8) · 축배는 그대로 · duckWant 는 엔진 값 그대로 둔다(미리 낮추기 비교) */
   duckNow = db; if (window.__bgmLog && window.__bgmLog.length) window.__bgmLog[window.__bgmLog.length - 1].eff = db;   // [BGM_FIX_1030] 실제로 건 크기(노래 곡 더 낮춤 · 입장 장면 −90 뒤)
-  var g = dbGain(db + (MODE === 'preview' ? BED_TRIM_DB : 0));   // ★PREVIEW_BED
+  var g = dbGain(db + (MODE === 'preview' ? BED_TRIM_DB : 0)); duckG = g;   // ★PREVIEW_BED · [DETAIL_R4_1101 ③]
   if (gBgm && AC) {
     gBgm.gain.cancelScheduledValues(AC.currentTime);
     gBgm.gain.setValueAtTime(Math.max(0.0001, gBgm.gain.value), AC.currentTime);
     gBgm.gain.exponentialRampToValueAtTime(Math.max(0.0001, g), AC.currentTime + Math.max(.02, (ms||400)/1000));
   } else {
-    aBgm.volume = Math.min(1, g * (muted ? 0 : vol()));
+    bedVolFb();   // [DETAIL_R4_1101 ③] 두 재생기 모두
   }
 }
 
@@ -1822,7 +1861,7 @@ function finish(){
   clearT(); phase = 'end'; esdStop(2); conMarkOff();   // [ENTRY_SCENE_DAY] · [CON_RELOAD_GUARD]
   try { aNarr.pause(); } catch(e){}
   duckTo(PARAM.duckOff, 6000);
-  later(function(){ try { aBgm.pause(); aBgm2.pause(); } catch(e){} BED.seg = ''; BED.mode = ''; BED.res = null; songGainSet(false); }, 6200);   // [BGM_SEG8_1023] 두 재생기 다
+  later(function(){ try { BED.el.forEach(function(e){ e.pause(); }); } catch(e){} BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false); }, 6200);   // [BGM_SEG8_1023] 두 재생기 다
   render();
 }
 
@@ -2162,6 +2201,7 @@ function panic(){
   clearT();
   try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
   aNarr._pg = (aNarr._pg || 0) + 1;   // [PLAY_GEN]
+  esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 입장 장면(Web Audio 곡 · 예약 멘트)도 함께 — 종전엔 aNarr 만 멈춰 입장 곡 · 멘트가 계속 나갈 수 있었다
   duckTo(PARAM.duckMusic, 600);
   phase = 'done';
   render();
@@ -2240,7 +2280,7 @@ $('#bMute').onclick = function(){
   muted = !muted;
   $('#bMute').classList.toggle('on', muted);
   if (gMaster && AC) gMaster.gain.setTargetAtTime(muted ? 0.0001 : vol(), AC.currentTime, .4);
-  else aBgm.volume = muted ? 0 : vol();
+  else bedVolFb();   // [DETAIL_R4_1101 ③]
   toast(muted ? '음악만 멈췄습니다 · 말은 그대로 나갑니다' : '음악을 다시 올립니다');
 };
 
@@ -2248,6 +2288,7 @@ $('#bBack').onclick = function(){
   clearT();
   try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
   aNarr._pg = (aNarr._pg || 0) + 1;   // [PLAY_GEN] 되돌린 순서의 늦은 재생 결과가 대신 나레이션을 내지 않게
+  esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 뒤로도 입장 장면까지 · [DETAIL_R5_1101 규칙 7 ③] 당일 정지 · 뒤로 = 모두 멈춤
   cur = Math.max(-1, cur - 1);
   phase = cur < 0 ? 'idle' : 'done';
   render();
@@ -2322,7 +2363,7 @@ $('#go').onclick = function(){
 
   audioOn();
   var bedSrc = BGMURL || (MODE === 'preview' ? PREVIEW_BED : '');   // ★PREVIEW_BED — 디렉터가 고른 파일이 언제나 이긴다
-  BED.seg = ''; BED.mode = ''; BED.res = null; songGainSet(false);   // [BGM_SEG8_1023] 시작 = 하객 맞이 구간 곡(파일이 있으면) · 없으면 종전 배경 음악 파일 한 곡 반복
+  BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false);   // [BGM_SEG8_1023] 시작 = 하객 맞이 구간 곡(파일이 있으면) · 없으면 종전 배경 음악 파일 한 곡 반복
   if (MODE !== 'preview' && !GUEST && segPlan('M1')) { duckTo(PARAM.duckMusic, 10); segGo('M1'); }
   else if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
   applyMaster();
@@ -2365,7 +2406,7 @@ $('#bExit').onclick = function(){
     }
   } catch(e){}
   clearT(); esdStop(0.3); conMarkOff();   // [ENTRY_SCENE_DAY] · [CON_RELOAD_GUARD]
-  try { aNarr.pause(); aBgm.pause(); aBgm2.pause(); } catch(e){} BED.seg = ''; BED.mode = ''; BED.res = null; songGainSet(false);   // [BGM_SEG8_1023]
+  try { aNarr.pause(); BED.el.forEach(function(e){ e.pause(); }); } catch(e){} BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false);   // [BGM_SEG8_1023]
   if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
   $('#run').classList.remove('on');
   $('#setup').style.display = '';
@@ -2401,9 +2442,10 @@ window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.w
 /* [BGM_CONSOLE2_1023] 점검용 · 읽기 전용 — bgm-console2 가 본다(지금 순서 · 단계 · 청한 음악 크기 · 축배 오름 · 큰 단추 글) */
 window.__bgmSt = function(){ var c = cur >= 0 ? cueAt(cur) : null, m = $('#mBtn'); return { cur: cur, slug: c ? c.slug : null, phase: phase, want: duckWant, now: duckNow, cheerAt: cheerAt, main: m ? m.textContent : '' }; };
 window.__bgmR = function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, actId: c.actId || '', fire: c.fire, duck: c.duck, live: !!c.live }; }); };   // [CLOSING_LINE_1031] actId = 소리 없는 동작 큐
-window.__seg = { st: function(){ var g = function(k){ return BED.xg[k] ? Math.round(BED.xg[k].gain.value * 1000) / 1000 : null; }; return { seg: BED.seg, id: BED.id, on: BED.on, mode: BED.mode, short: !!ESD.short, src: BED.el.map(function(e){ return String(e.getAttribute('src') || ''); }), paused: BED.el.map(function(e){ return e.paused; }), xg: [g(0), g(1)], files: Object.keys(SEGF).length, sel: SEGST.sel, plays: BED.plays || 0, list: BED.list.slice(), li: BED.li, res: BED.res ? BED.res.id : '', t: BED.el[BED.on].currentTime }; },
+window.__seg = { st: function(){ var g = function(k){ return BED.xg[k] ? Math.round(BED.xg[k].gain.value * 1000) / 1000 : null; }; return { seg: BED.seg, id: BED.id, on: BED.on, mode: BED.mode, short: !!ESD.short, src: BED.el.map(function(e){ return String(e.getAttribute('src') || ''); }), paused: BED.el.map(function(e){ return e.paused; }), xg: [g(0), g(1), g(2)], files: Object.keys(SEGF).length, sel: SEGST.sel, plays: BED.plays || 0, list: BED.list.slice(), li: BED.li, res: BED.res ? BED.res.id : '', t: BED.el[BED.on].currentTime, err: BED.err || '', opening: BED.opening ? BED.opening.sid : '', later: BED.later ? BED.later[0] : '', ck: SEGST.ck, mine: segMine(), vol: BED.el.map(function(e){ return Math.round(e.volume * 1000) / 1000; }), esd: !!ESD.run }; },   /* [DETAIL_R3_1101] · [DETAIL_R4_1101 ③] */
   song: function(){ return { mode: BED.mode, g: gSong ? Math.round(gSong.gain.value * 1000) / 1000 : null, lim: gLim ? [gLim.threshold.value, gLim.ratio.value, Math.round(gLim.attack.value * 1000), Math.round(gLim.release.value * 1000)] : null, reh: REH_F.some(function(f){ return f[0] === 'songGain' && f[1] === '곡 보정'; }), p: PARAM.songGain }; } };   // [BGM_SEG8_1023] 점검용 · 읽기 전용 · [LISTEN_LOOK_LEVEL_1101] song = 곡 보정 · 리미터
 window.__bgmGo = { fire: function(i){ fire(i); }, tap: function(){ lastGo = 0; mainTap(); }, duck: function(db, ms){ duckTo(db, ms); }, post: function(i, p){ if (R && R.cues[i]) R.cues[i].post = p; }, bedAs: function(m, id){ var o = { m: BED.mode, id: BED.id }; BED.mode = m; BED.id = id; return o; } };   /* [BGM_TIMING2_1101] bedAs = 점검용(지금 곡이 노래 곡인 자리를 흉내 · 단체 사진 −24) */   // [BGM_FIX_1030] post = 점검용(마지막 큐의 긴 뒤처리를 비워 «−8 올림 없음»을 빨리 잰다)
+window.__esdT = { set: function(r){ ESD.run = r; }, run: function(){ return !!ESD.run; }, later: function(fn, ms){ return later(fn, ms); }, panic: function(){ panic(); } };   /* [DETAIL_R3_1101 ④] 점검용 — 입장 장면 자리를 흉내 낸다 */
 window.__segSel = function(id, cur){ return segSel(id, cur); }; window.__segPlan = function(id, cur){ return segPlan(id, cur); };   /* [GHIBLI_ADD_1101] 점검용 · 읽기 전용 — bgm-fill 이 본다(파일 있는 다음 곡) */   // [BGM_PREVIEW_1024] 점검용 · 읽기 전용 — bgm-preview 가 본다(고객이 고른 곡이 구간 기본인가)   // 점검용 GO(entry-scene-day 의 __esd.fire 와 같은 몫)
 /* [RESCUE_REPLAY_1016] 점검용 · 읽기 전용 — rescue-replay 가 본다(미룬 순서 · 디렉터 칸 · «재생 안 됨» 단추) */
 window.__rr = { cues: function(){ return ((R && R.cues) || []).map(function(c){ return { k: c.k, slug: c.slug, rescue: !!c.rescue, live: !!c.live }; }); },

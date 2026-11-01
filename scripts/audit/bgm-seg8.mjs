@@ -70,7 +70,7 @@ try {
   const ci = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'candle'));
   await pg.evaluate((i) => window.__bgmGo.fire(i), ci); await pg.waitForTimeout(900);
   const B = await seg(pg);
-  ok('③ 화촉 첫 큐 — 화촉 곡으로 3초 크로스페이드 중(두 재생기가 함께 돈다 · 둘 다 들린다)', B.seg === 'M2' && B.on !== A.on && !B.paused[0] && !B.paused[1] && B.xg[B.on] > 0.05 && B.xg[A.on] > 0.05 && B.xg[B.on] < 0.99, B);
+  ok('③ 화촉 첫 큐 — 화촉 곡으로 3초 크로스페이드 중(두 재생기가 함께 돈다 · 둘 다 들린다)', B.seg === 'M2' && B.on !== A.on && !B.paused[B.on] && !B.paused[A.on] &&   /* [DETAIL_R3_1101 ③] 재생기가 셋 — 새 곡 · 앞 곡 두 재생기가 함께 돈다 */ B.xg[B.on] > 0.05 && B.xg[A.on] > 0.05 && B.xg[B.on] < 0.99, B);
   await pg.waitForTimeout(2600);
   const C = await seg(pg);
   ok('③ 3초 뒤 — 화촉 곡만 남고 앞 곡은 멈춘다', C.seg === 'M2' && C.paused[A.on] && !C.paused[C.on] && C.xg[C.on] > 0.9, C);
