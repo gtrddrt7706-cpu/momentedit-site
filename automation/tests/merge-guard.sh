@@ -4778,6 +4778,8 @@ chk 'PV_REMOTION_1101' automation/prevideo/README.md 1
 # ★[PV_PARTNER_1101 2026-11-01 사장님 «퀄리티를 보니 우리가 만들면 안 될 거 같아» · «고객이 결제하게 하고 싶지 않아» · «대신 주문은 손이 많이 가 패스 · 협력사와 직접 소통»]
 #   식전 영상 = 외부 협력사 연결형(고객 결제 0 · 우리가 실사용 정산 · 우리 대행 없음) · 위 Remotion 뼈대는 보류(지우지 않는다)
 chk 'PV_PARTNER_1101' automation/prevideo/README.md 1
+# ★[PV_NO_LIMIT_1101 2026-11-01 사장님 «제한 두지 마»] 협력사 식전 영상은 사진 장수 · 길이를 제한하지 않는다(템플릿 규격 그대로)
+chk 'PV_NO_LIMIT_1101' automation/prevideo/README.md 1
 chk 'PV_SAME' automation/platform/89_prevideo.gs 1
 chk 'var PVC_ON=' mypage.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
