@@ -1659,7 +1659,11 @@ function setPill(kind, why){
 function runPost(list, i, done){
   if (!list || i >= list.length) return done();
   var st = list[i];
-  if (st.music) { duckTo(st.v, st.ms); later(function(){ runPost(list, i+1, done); }, st.ms || 0); }
+  if (st.music === 'next') {   /* ★[BGM_TIMING_1101] 편지 끝 — 다음 큐가 새 구간을 열면 그 곡을 무음에서 nextMs(3초)에 올린다(편지 곡은 먼저 걷어 되살리지 않는다 · 다음 GO 의 segGo 는 같은 구간이라 그대로) · 아니면 종전 duckTo */
+    var _nq = R && R.cues[cur + 1], _ns = (_nq && MODE !== 'preview' && !GUEST) ? segOfCue(resolve(_nq)) : '';
+    if (_ns && _ns !== BED.seg && segPlan(_ns)) { try { bedFade(BED.on, 0, 0.05); } catch (e) {} duckTo(PARAM.duckOff, 10); segGo(_ns); duckTo(st.v, st.nextMs || 3000); later(function(){ runPost(list, i+1, done); }, st.nextMs || 3000); }
+    else { duckTo(st.v, st.ms); later(function(){ runPost(list, i+1, done); }, st.ms || 0); } }
+  else if (st.music) { duckTo(st.v, st.ms); later(function(){ runPost(list, i+1, done); }, st.ms || 0); }
   else if (st.wait) { later(function(){ runPost(list, i+1, done); }, st.wait); }
   else runPost(list, i+1, done);
 }

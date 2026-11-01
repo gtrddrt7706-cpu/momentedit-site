@@ -118,7 +118,8 @@ try {
       if (k === 'toast') ok(`${W} P2 ${k} 행동 줄 없음(잔 내려놓기는 «위하여» 칸 안)`, !acts.length, acts.map((x) => x.li));
       else ok(`${W} P2 ${k} 행동 줄마다 est ÷ 12(3 ~ 6초) 머문다`, acts.length > 0 && acts.every((a) => { const want = Math.min(6, Math.max(3, Math.round(a.est / 12))) * 1000, d = a.b - a.a; return d >= want - 450 && d <= want + 600; }), acts.map((a) => [a.li, a.est, Math.round(a.b - a.a)]));
       if (acts.length) { const a = acts[0], mid = a.s[Math.floor(a.s.length / 2)];
-        ok(`${W} P2 ${k} 행동 줄 동안 음악 큐 사이 크기(−8)`, a.s.slice(-3).every((x) => x.src && Math.abs(x.want - (-8)) < 0.6), a.s.slice(-3).map((x) => [x.f, x.want]));
+        const aw = k === 'ring' ? -12 : -8;   /* ★[BGM_TIMING_1101] 반지 끼우는 동작은 −12(«피아노가 아주 작게» · 엔진 narr-ring-in live) · 다른 행동 줄은 큐 사이 −8 */
+        ok(`${W} P2 ${k} 행동 줄 동안 음악 ${aw === -8 ? '큐 사이 크기(−8)' : '−12(반지 · BGM_TIMING_1101)'}`, a.s.slice(-3).every((x) => x.src && Math.abs(x.want - aw) < 0.6), a.s.slice(-3).map((x) => [x.f, x.want]));
         const want = await f.evaluate((e) => _lpEstT(e), a.est);
         ok(`${W} P3 ${k} 행동 줄이 흐를 때만 «실제로는 ${want}»`, mid.estT === '· 실제로는 ' + want || mid.estT === '실제로는 ' + want, mid.estT);
         ok(`${W} P4 ${k} 지금 줄 = 그 행동 줄 · 앞 줄 = 지나감`, mid.now.length === 1 && mid.now[0] === a.li && mid.past.length >= 1, { now: mid.now, past: mid.past });

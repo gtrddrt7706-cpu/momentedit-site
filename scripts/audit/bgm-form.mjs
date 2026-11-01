@@ -99,15 +99,15 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
   const pick = (cs) => { const fr = cs.find((c) => c.k === 'free' && c.live), l0 = cs.find((c) => c.k === 'letter' && c.live), le = cs.find((c) => c.slug === 'narr-letter-end');
     return { free: fr && fr.live.duck, l0: l0 && l0.duck, l0live: l0 && l0.live.duck, lt: l0 && l0.live.t, le: le && le.duck, post: le && JSON.stringify(le.post) }; };
   const n0 = pick(bld(null)), nb = pick(bld({ S5: { m: 'bed' }, S6: { m: 'bed' } })), n5 = pick(bld({ S5: { m: 'bed' } })), nOld = bld(OLD), nNone = bld(null);
-  ok('0 엔진 기본(음악 없이) — 축사 사람 구간 −90 · 편지 첫 큐 · 사람 구간 · 마무리 −90 · 마무리 뒤 2초 정적 → 4초에 −16',
-    n0.free === -90 && n0.l0 === -90 && n0.l0live === -90 && n0.le === -90 && n0.lt === '두 분이 직접 편지 낭독' && n0.post === '[{"wait":2000},{"music":"to","v":-16,"ms":4000}]', n0);
+  ok('0 엔진 기본(음악 없이) — 축사 사람 구간 −90 · 편지 첫 큐 · 사람 구간 · 마무리 −90 · 마무리 뒤 2초 정적 → 다음 곡(next)',
+    n0.free === -90 && n0.l0 === -90 && n0.l0live === -90 && n0.le === -90 && n0.lt === '두 분이 직접 편지 낭독' && n0.post === '[{"wait":2000},{"music":"next","v":-16,"ms":4000,"nextMs":3000}]', n0);   /* ★[BGM_TIMING_1101] 정적 뒤 다음 순간 곡을 무음에서 3초(next) · 같은 곡이거나 없으면 종전 4초에 −16 */
   ok('0 엔진 «음악과 함께» — 축사 −20 · 편지 첫 큐 · 사람 구간 · 마무리 −20(duckRead) · 정적 없이 4초에 −16 · 편지 장면 글 판(«음악이 아주 작게») · 축사만 고르면 편지는 그대로',
     RC.PARAM.duckRead === -20 && nb.free === -20 && nb.l0 === -20 && nb.l0live === -20 && nb.le === -20 && nb.post === '[{"music":"to","v":-16,"ms":4000}]'
     && nb.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && n5.free === -20 && n5.l0 === -90 && n5.lt === '두 분이 직접 편지 낭독', { nb, n5 });
   const same = (a, b) => a.length === b.length && a.every((c, i) => JSON.stringify(c) === JSON.stringify(b[i]));
   const bedCs = bld({ S5: { m: 'bed' }, S6: { m: 'bed' } }), touched = bedCs.filter((c, i) => JSON.stringify(c) !== JSON.stringify(nNone[i])).map((c) => c.slug);
-  ok('0 엔진 — 옛 값(own · studio · none · warm)은 기본과 한 글자도 같다 · «음악과 함께»가 바꾸는 큐는 축사 · 편지 셋뿐',
-    same(nOld, nNone) && bedCs.length === nNone.length && touched.join() === 'narr-free-in-speech,letter-each,narr-letter-end', touched);
+  ok('0 엔진 — 옛 값(own · studio · none · warm)은 기본과 한 글자도 같다 · «음악과 함께»가 바꾸는 큐는 축사(여는 말 · 맺는 말) · 편지 넷뿐',
+    same(nOld, nNone) && bedCs.length === nNone.length && touched.join() === 'narr-free-in-speech,bridge-b10-speech-clap,letter-each,narr-letter-end', touched);   /* ★[BGM_TIMING_1101] 축사 맺는 말(b10)도 — «음악 없이» −90 · «음악과 함께» −16 */
   const vid = pick(bld({ S5: { m: 'bed' } }, { freeWhat: 'video' }));
   ok('0 엔진 — 옛 «영상» 축사는 «음악과 함께»가 남아 있어도 무음 그대로', vid.free === -90, vid);
   const sc = ST.LIVE['두 분이 직접 편지 낭독 (음악이 아주 작게)'], s0 = ST.LIVE['두 분이 직접 편지 낭독'];

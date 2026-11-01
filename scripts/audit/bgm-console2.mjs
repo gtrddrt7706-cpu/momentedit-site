@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★★[BGM_CONSOLE2_1023 2026-10-23 사장님 결정 «8구간» · BGM 섹션 라운드 2 PR 1 «음악이 사람보다 먼저 커지지 않게»]
    당일 콘솔(console.html)을 실제로 띄워 음악 크기 명령(duckTo)을 시각과 함께 잰다.
-   ① [TOAST_GO] 축배 선창 클립이 끝나도 음악은 «위하여 대기»(−8) · 첫 GO 에 0.6초로 toastLevel · 순서는 그대로 · 다음 GO 에 마무리
+   ① [TOAST_GO] 축배 선창 클립이 끝나도 음악은 «위하여 대기»(−16 · BGM_TIMING_1101 · 종전 −8) · 첫 GO 에 0.6초로 toastLevel · 순서는 그대로 · 다음 GO 에 마무리
    ② [HOLD_LINK] 짧은 이음 네 자리(라운드 1 표) — 사이에 −8 로 올라가지 않는다: 144 → 맞절(1.25초) · 141 → 38(1초) · 142 → 38(1초) · 137 → 90(3초)
    ③ [PRE_DUCK] 음악을 내려야 하는 큐는 음성보다 0.4초 먼저 내린다 — GO 로 여는 큐(음성은 0.4초 뒤) · 이어지는 큐(사이 끝 0.4초 전에 미리)
    ④ [HOLD_LIVE] 사람 구간은 GO 까지 그 크기 — 축사 무음 −90 · 편지 «음악과 함께» −20 이 짧은 안내가 끝났다고 풀리지 않는다
@@ -46,8 +46,8 @@ try {
     const ti = await idx(pg, 'toast-toast'); await pg.evaluate((i) => window.__bgmGo.fire(i), ti);
     const live = await waitSt(pg, () => window.__bgmSt().phase === 'live', 40000); await pg.waitForTimeout(1600);
     const A = await st(pg), L1 = await pg.evaluate(() => window.__L.slice());
-    const rose = L1.filter((x) => x.db !== undefined && x.db > -8);
-    ok('① 축배 선창 클립이 끝나도 «위하여 대기» — 음악 −8 그대로 · 0 dB 로 오르지 않는다 [TOAST_GO]', live && A.cur === ti && A.phase === 'live' && A.want === -8 && !rose.length && A.main.indexOf('축배 음악 올리기') === 0, { live, A, rose });
+    const rose = L1.filter((x) => x.db !== undefined && x.db > -16);   /* ★[BGM_TIMING_1101] 축배 여는 말 · «위하여» 대기 −8 → −16 */
+    ok('① 축배 선창 클립이 끝나도 «위하여 대기» — 음악 −16 그대로 · 0 dB 로 오르지 않는다 [TOAST_GO · BGM_TIMING_1101]', live && A.cur === ti && A.phase === 'live' && A.want === -16 && !rose.length && A.main.indexOf('축배 음악 올리기') === 0, { live, A, rose });
     await pg.evaluate(() => window.__bgmGo.tap()); await pg.waitForTimeout(300);
     const B = await st(pg), up = (await pg.evaluate(() => window.__L.slice())).filter((x) => x.db === 0);
     ok('① 첫 GO — 순서는 그대로(축배 사람 구간) · 0.6초에 toastLevel(0) 로 오른다', B.cur === ti && B.phase === 'live' && B.want === 0 && up.length === 1 && up[0].ms === 600, { B, up });

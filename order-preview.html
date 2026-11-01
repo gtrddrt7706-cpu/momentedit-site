@@ -2319,7 +2319,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1101j"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101bf"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1101u"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101ec"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101bf"></script><script src="/assets/bgm-picks.js?v=1031pt"></script><script src="/assets/narration-pad.js?v=1031kn"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1101bt"></script><script src="/assets/bgm-form.js?v=1101ec"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3160,7 +3160,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1101j';   // [ASSET_V] 위 주석
+  var ASSET_V='1101u';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4640,7 +4640,7 @@ function _lSteps0(g,ks){
         if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||'',ldk:c.live?c.live.duck:undefined,cheer:!!(c.live&&c.live.cheer),est:tEst(c.slug||'')}); } }   /* [BGM_R3_1023] of = 잔 드는 큐 · [BGM_PREVIEW_1024] ldk = 사람 구간 음악 크기 · cheer = «위하여» 뒤 축배 크기로 */
       }
       /* [G5] 말 없는 사람 순간도 옅은 줄로(소리 없음 · 재생 목록에는 안 들어간다) */
-      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말없이 흐르는 자리',txt:qt,quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')}); } }   /* [LISTEN_PACE_1031] est */   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
+      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말없이 흐르는 자리',txt:qt,quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:(k==='ring'&&c.live&&c.live.duck!=null)?c.live.duck:undefined}); } }   /* ★[BGM_TIMING_1101] 반지 끼우는 동작은 엔진 값(−12) — «피아노가 아주 작게» · 다른 행동 줄은 큐 사이(−8) 그대로 */   /* [LISTEN_PACE_1031] est */   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
       if(c.live){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요 · 미리 듣기에서는 넘겨요',skip:true,ms:1600,vk:'영상 상영',ldk:c.live.duck}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
@@ -4651,7 +4651,7 @@ function _lSteps0(g,ks){
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000,ldk:c.live.duck}); }
           else { var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+_lpNoT(t),talk:true,ms:3000,of:c.slug||'',ldk:c.live.duck,cheer:!!c.live.cheer,est:tEst(c.slug||'')});   /* [BGM_R3_1023] · [BGM_PREVIEW_1024] ldk · cheer = 사람 구간 음악 크기 · «위하여» */
             if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말없이 흐르는 자리',txt:cs.some(function(x){ return x.slug==='tribute-hug'; })?'두 분이 부모님께 인사해요':'두 분이 부모님께 인사하고 안아 드려요',quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||'')});   /* [LISTEN_PACE_1031] 옛 코스 · 말을 전하고 인사하는 큐의 시간 */   /* [TRIB_HUG_LINE_1018 검토 131-4] 포옹을 청하는 줄(256)이 있는 날은 인사만 — 포옹은 그 줄 뒤 */   /* ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤(_lQuiet)   /* [HUG_WORDS_1013] 말을 전한 뒤 인사 · 포옹 */
-            if(k==='vow') out.push({k:k,lab:'말없이 흐르는 자리',txt:_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요':'마지막 한 문장은 두 분이 하객 쪽으로 돌아서서 함께 읽어요',quiet:true,ms:0,est:qEst(k,'')}); } }   /* [LISTEN_PACE_1031] 낭독 안의 한 줄 — LP_EST_NOTE */   /* [STAGE_LINES] _vowHowHint 와 같은 사실 · 할 말 카드 아래에만 있어 흐름에선 안 보였다 */
+            if(k==='vow') out.push({k:k,lab:'말없이 흐르는 자리',txt:_vowKind()==='thanks'?'마지막 한 문장은 두 분이 함께 읽어요':'마지막 한 문장은 두 분이 하객 쪽으로 돌아서서 함께 읽어요',quiet:true,ms:0,est:qEst(k,''),ldk:(c.live&&c.live.duck!=null)?c.live.duck:-20}); } }   /* ★[BGM_TIMING_1101] 사람이 읽는 중 — 서약 낭독과 같은 크기(−20 · 종전 크기 없이 큐 사이 −8 계열) */   /* [LISTEN_PACE_1031] 낭독 안의 한 줄 — LP_EST_NOTE */   /* [STAGE_LINES] _vowHowHint 와 같은 사실 · 할 말 카드 아래에만 있어 흐름에선 안 보였다 */
         }
       }
     });
@@ -7976,7 +7976,7 @@ function _lNext(){
   if(!_nx&&_pv&&_pv.cheer&&_bedOn()){ try{ BgmBed.lpGap(_pv,null,0); }catch(e){} var _mt=LP.tok; clearTimeout(LP.t); LP.t=setTimeout(function(){ if(_mt===LP.tok&&!LP.paused) _lShow(); },4000); return; }
   var _pNar=function(x){ return !!x&&!x.talk&&!x.talk2&&!x.skip&&!x.bridge&&!x.act; }, _ltg=0;
   /* ★★[KNOBS_1031 ②] 편지 끝 연출을 당일 값 그대로 — 편지 순간의 마지막 나레이션 뒤 정적 2초(음악과 함께면 없음) → 4초에 걸쳐 음악(말 아래 크기) · 그다음 줄(또는 끝)로 */
-  if(LP.pace&&_pv&&_pv.k==='letter'&&_pNar(_pv)&&(!_nx||_nx.k!=='letter')&&_bedOn()){ var _lt=0; try{ _lt=BgmBed.lpTail(_pv)||0; }catch(e){} if(_lt>0){ var _ltk=LP.tok; clearTimeout(LP.t); if(!_nx){ LP.t=setTimeout(function(){ if(_ltk===LP.tok&&!LP.paused) _lShow(); },_lt); return; } _ltg=_lt; } }
+  if(LP.pace&&_pv&&_pv.k==='letter'&&_pNar(_pv)&&(!_nx||_nx.k!=='letter')&&_bedOn()){ var _lt=0; try{ _lt=BgmBed.lpTail(_pv,_nx)||0; }catch(e){}   /* [BGM_TIMING_1101] 다음 줄 — 새 곡을 여는 순간이면 그 곡을 무음에서 올린다 */ if(_lt>0){ var _ltk=LP.tok; clearTimeout(LP.t); if(!_nx){ LP.t=setTimeout(function(){ if(_ltk===LP.tok&&!LP.paused) _lShow(); },_lt); return; } _ltg=_lt; } }
   if(!_nx){ _lShow(); return; }
   var _gap=_nx.talk2&&!(_pv&&_pv.talk2&&_pv.k===_nx.k)?1600:(_pv&&_pv.k!==_nx.k)?1200:(_pv&&_pv.talk2&&!_nx.talk2)?900:350;
   /* ★[LISTEN_PACE_1031] ② 이 순간 전체 듣기 — 같은 순간 안 멘트와 멘트 사이 1초 · 행동 줄로 들어갈 때 0.35초 · 행동 뒤 멘트 앞 0.8초(음악을 미리 낮추는 시간) */
