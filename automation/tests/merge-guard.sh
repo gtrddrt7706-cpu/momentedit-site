@@ -21301,7 +21301,7 @@ chk 'if (nx && PRE_HOLD !== i && !postMusic(c)' console.html 1
 chk 'function leadAt(k, st, o)' assets/bgm-slots.js 1
 chk 'leadAt: leadAt,' assets/bgm-slots.js 1
 chk 'if(st._pre){ LPB.cheer=false;' assets/bgm-bed.js 1
-chk 'if(pv&&nx&&pv.k!==nx.k&&nx._pre){' assets/bgm-bed.js 1
+chk 'if(pv&&nx&&pv.k!==nx.k&&(nx._pre||nx._noLead)){' assets/bgm-bed.js 1
 chk 'function _lPreMark(){' order-preview.html 1
 chk 'st._leadHere||(!st._pre&&' order-preview.html 1
 chk "_lPreMark(); if(_bedOn()) try{ BgmBed.lpGap(_pv,_nx,_gap); }catch(e){}" order-preview.html 1
@@ -21332,4 +21332,32 @@ chk "ldk:(c.live&&c.live.duck!=null)?c.live.duck:-20}); } }" order-preview.html 
 chk 'BgmBed.lpTail(_pv,_nx)' order-preview.html 1
 nochk "var f6=eff('M6'); return has(f6)?f6:''; }" assets/bgm-bed.js 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-timing.mjs >/dev/null 2>&1; _btm=$?; if [ "$_btm" = 1 ]; then echo 'FAIL bgm-timing: BGM 투입 시점(편지 무음 · 편지 끝 · 맺는 말 · 크기 · 축배 뜸 곡 · 귀가 인사)이 어긋났습니다 — node scripts/audit/bgm-timing.mjs'; fail=1; elif [ "$_btm" = 2 ]; then echo 'skip bgm-timing (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bgm-timing'; fi; fi
+# ★[BGM_TIMING2_1101 2026-11-01 BGM 섹션 결정] 투입 시점 2판 — 축사 · 편지 «음악과 함께»는 여는 말을 M4 −16 아래 · 차례 시작에서 M4S5 · M4S6 로 3초 겹쳐 −20 ·
+#   다음 순간 첫 큐에서 그 곡으로 3초 겹쳐 되돌아감(편지 끝은 정적 없이) · 미리 듣기 뜸 = 차례 바로 앞(화면 음악 줄 자리) · 축가 M4 고정 · 단체 사진 −18(노래 곡 −24) ·
+#   편지 «음악 없이»만 들을 때 끝에 오르는 곡 = 다음 순간 곡 · 미리 듣기 버스 압축기 뒤 천장(−2.5 dBFS · 4배 오버샘플)으로 최종 출력 ≤ −1 dBTP.
+chk 'BGM_TIMING2_1101' scripts/audit/bgm-timing2.mjs 1
+chk 'BGM_TIMING2_1101' assets/ritual-cue.js 4
+chk 'BGM_TIMING2_1101' assets/bgm-bed.js 9
+chk 'BGM_TIMING2_1101' assets/bgm-slots.js 1
+chk 'BGM_TIMING2_1101' order-preview.html 1
+chk 'BGM_TIMING2_1101' console.html 5
+chk "duck: bed ? PARAM.duckSpeech : dk, pick: l.d," assets/ritual-cue.js 1
+chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000, xf: true }" assets/ritual-cue.js 1
+chk "actId: 'photo-all', name: '전체 하객 사진', text: '', est: 0, duck: -18," assets/ritual-cue.js 1
+chk "actId: 'photo-family', name: '가족 구도', text: '', est: 0, duck: -18," assets/ritual-cue.js 1
+chk "if (k === 'free') return /^narr-free-in/.test(sl) ? 'M4' : '';" console.html 1
+chk "if (k === 'letter') return /^letter-/.test(sl) ? 'M4' : '';" console.html 1
+chk "if (k === 'song') return 'M4';" console.html 1
+chk "c.slug === 'narr-free-in-speech' && _bd('S5') && segPlan('M4S5')) segGo('M4S5');" console.html 1
+chk "segPlan(_ns) && st.xf) { segGo(_ns);" console.html 1
+nochk "if (k === 'free') return (bed('S5') && segPlan('M4S5')) ? 'M4S5' : 'M4';" console.html 0
+chk "if(k==='song') return 'M4';" assets/bgm-bed.js 1
+chk "function fileFor(st){ if(st._base){" assets/bgm-bed.js 1
+chk 'var CEIL_DB=-2.5;' assets/bgm-bed.js 1
+chk "w.oversample='4x';" assets/bgm-bed.js 1
+chk 'var lim=mkBus(a);' assets/bgm-bed.js 1
+chk "if (v && v.kind === 'pick' && v.s.flow) {" assets/bgm-slots.js 1
+chk 'q\[z\]._noLead=1; q\[z\]._base=' order-preview.html 1
+chk '!st._pre&&!st._noLead&&' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-timing2.mjs >/dev/null 2>&1; _bt2=$?; if [ "$_bt2" = 1 ]; then echo 'FAIL bgm-timing2: 축사 · 편지 «음악과 함께» 곡 바꿈 자리 · 축가 M4 · 단체 사진 크기 · 편지 끝 곡 · 피크(≤ −1 dBTP)가 어긋났습니다 — node scripts/audit/bgm-timing2.mjs'; fail=1; elif [ "$_bt2" = 2 ]; then echo 'skip bgm-timing2 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bgm-timing2'; fi; fi
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

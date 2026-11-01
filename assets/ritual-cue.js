@@ -1275,7 +1275,7 @@
       return [
         cue({
           k: 'letter', blockN: '편지 낭독', slug: 'letter-' + S.letter, name: '편지 낭독 시작', text: l.nar,
-          duck: dk, pick: l.d,
+          duck: bed ? PARAM.duckSpeech : dk, pick: l.d,   /* ★[BGM_TIMING2_1101] «음악과 함께» 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례(live)에서 M4S6 로 3초 겹쳐 −20 */
           note: bed ? '음악이 낭독 아래 아주 작게(−20) 깔린다 — 처음부터 낮춰 두어 더킹 홀드 버튼이 필요 없다(§3-A)' : '이 구간은 애초에 무음이라 더킹 홀드 버튼이 필요 없다(§3-A)',
           live: {
             t: bed ? '두 분이 직접 편지 낭독 (음악이 아주 작게)' : '두 분이 직접 편지 낭독', est: txSec(S, 'letter', 165), self: true, doing: 'say', peak: true,
@@ -1286,7 +1286,7 @@
         cue({
           k: 'letter', blockN: '편지 낭독', slug: 'narr-letter-end', name: '편지 낭독 마무리', text: D.NARR.letterEnd,
           duck: dk, hint: '낭독이 끝나고 (오열이 있으면 잦아들 때까지 기다린다)',
-          post: bed ? [{ music: 'to', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs }]
+          post: bed ? [{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000, xf: true }]   /* ★[BGM_TIMING2_1101] «음악과 함께» 편지 끝 — 정적 없이 다음 순간 곡으로 3초 겹침(M4 재등장 없음) · 다음 곡이 같거나 없으면 종전 */
             : [{ wait: PARAM.letter.postSilenceMs }, { music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000 }]   /* ★[BGM_TIMING_1101] 다음 순간이 새 곡을 열면(부모님께 인사 M5 · 테이블 M8 등) 그 곡을 무음에서 3초에 · 편지 곡(M4)은 되살리지 않는다 · 같은 곡이거나 없으면 종전(4초에 −16) */
         })
       ];
@@ -1659,7 +1659,7 @@
       var _photoOpen = !!(D.COURSES[S.course] && D.COURSES[S.course].open);
       /* ★[CLOSING_LINE_1031 검토 178] 새 코스 사진 구간은 소리 없는 동작 큐만 — 전체 하객(작가님이 모은다) → 가족 구도 → 자유 사진 → 촬영 마무리 · 디렉터 GO · 시간(_go · goFree)은 그대로 */
       if (_photoOpen) cues.push(cue({
-        k: '_photo', blockN: '단체 사진', slug: '', act: true, actId: 'photo-all', name: '전체 하객 사진', text: '', est: 0, duck: -14,
+        k: '_photo', blockN: '단체 사진', slug: '', act: true, actId: 'photo-all', name: '전체 하객 사진', text: '', est: 0, duck: -18,   /* ★[BGM_TIMING2_1101] 작가 육성 안내 −14 → −18(보컬 곡이면 −24) */
         note: '소리 없음 · 작가님이 하객을 앞으로 모아 전체 하객 컷 · 이어서 두 분이 적은 꼭 담고 싶은 사진 [GROUP_PHOTO] [WISH_COUNT]',
         live: { t: '하객이 앞으로 모임 → 전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(골라 트는 판)', est: _go['end-0-photo'], self: true, doing: 'move', note: '작가님이 모아 바로 전체 하객 컷 [CLOSING_LINE_1031]' }
       }));
@@ -1679,7 +1679,7 @@
       }));
       /* ★★[END_FLOW_1030 검토 167] 새 코스는 45 · 110 을 틀지 않는다(감사 인사는 닫는 인사가 맡는다 · 파일 · 목록은 그대로) — 그 큐가 맡던 가족 구도 진행 · 시간(_go)은 소리 없는 동작 큐(act)로 그대로 */
       if (_photoOpen) cues.push(cue({
-        k: '_photo', blockN: '단체 사진', slug: '', act: true, actId: 'photo-family', name: '가족 구도', text: '', est: 0, duck: -14,
+        k: '_photo', blockN: '단체 사진', slug: '', act: true, actId: 'photo-family', name: '가족 구도', text: '', est: 0, duck: -18,   /* ★[BGM_TIMING2_1101] −14 → −18 */
         hint: '전체 사진을 담고 나면',
         note: '소리 없음 · 작가님이 가족 구도를 차례로 불러 모은다(호명은 골라 트는 판) · 촬영 차례가 아닌 분은 자리에서 쉬거나 귀가',
         live: { t: '가족 구도(작가가 불러 모음 · 호명은 골라 트는 판)', est: _go[_thx], self: true, doing: 'move' }

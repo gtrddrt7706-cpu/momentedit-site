@@ -101,8 +101,8 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
   const n0 = pick(bld(null)), nb = pick(bld({ S5: { m: 'bed' }, S6: { m: 'bed' } })), n5 = pick(bld({ S5: { m: 'bed' } })), nOld = bld(OLD), nNone = bld(null);
   ok('0 엔진 기본(음악 없이) — 축사 사람 구간 −90 · 편지 첫 큐 · 사람 구간 · 마무리 −90 · 마무리 뒤 2초 정적 → 다음 곡(next)',
     n0.free === -90 && n0.l0 === -90 && n0.l0live === -90 && n0.le === -90 && n0.lt === '두 분이 직접 편지 낭독' && n0.post === '[{"wait":2000},{"music":"next","v":-16,"ms":4000,"nextMs":3000}]', n0);   /* ★[BGM_TIMING_1101] 정적 뒤 다음 순간 곡을 무음에서 3초(next) · 같은 곡이거나 없으면 종전 4초에 −16 */
-  ok('0 엔진 «음악과 함께» — 축사 −20 · 편지 첫 큐 · 사람 구간 · 마무리 −20(duckRead) · 정적 없이 4초에 −16 · 편지 장면 글 판(«음악이 아주 작게») · 축사만 고르면 편지는 그대로',
-    RC.PARAM.duckRead === -20 && nb.free === -20 && nb.l0 === -20 && nb.l0live === -20 && nb.le === -20 && nb.post === '[{"music":"to","v":-16,"ms":4000}]'
+  ok('0 엔진 «음악과 함께» — 축사 −20 · 편지 첫 큐 −16(앞 곡 아래) · 사람 구간 · 마무리 −20(duckRead) · 끝은 정적 없이 다음 곡으로 3초 겹침 · 편지 장면 글 판(«음악이 아주 작게») · 축사만 고르면 편지는 그대로',
+    RC.PARAM.duckRead === -20 && nb.free === -20 && nb.l0 === -16 && nb.l0live === -20 && nb.le === -20 && nb.post === '[{"music":"next","v":-16,"ms":4000,"nextMs":3000,"xf":true}]'   /* ★[BGM_TIMING2_1101] 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례 −20 · 끝은 정적 없이 다음 곡으로 3초 겹침 */
     && nb.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && n5.free === -20 && n5.l0 === -90 && n5.lt === '두 분이 직접 편지 낭독', { nb, n5 });
   const same = (a, b) => a.length === b.length && a.every((c, i) => JSON.stringify(c) === JSON.stringify(b[i]));
   const bedCs = bld({ S5: { m: 'bed' }, S6: { m: 'bed' } }), touched = bedCs.filter((c, i) => JSON.stringify(c) !== JSON.stringify(nNone[i])).map((c) => c.slug);
