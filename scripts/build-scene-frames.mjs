@@ -14,7 +14,9 @@ const O = require(path.join(ROOT, 'assets/ritual-open.js'));
 const OUT = path.join(ROOT, 'assets/video/moments/scene'), META = path.join(OUT, '_frames.json');
 const SIZE = { '': [1280, 720], '-640': [640, 360] };
 const want = {}; for (const [id, x] of Object.entries(O.PSCENE)) want[id] = x.img || null;
-const files = [...new Set(Object.values(want).filter(Boolean))].sort();
+const base = [...new Set(Object.values(want).filter(Boolean))].sort();
+/* ★[SCENE_EXTRA_195 검토 195] 여러 장(SCENE_N) — 2장째부터 <이름>-2 · <이름>-3 … 도 원천 사진이다 */
+const files = base.flatMap((n) => { const c = Math.max(1, +(O.SCENE_N || {})[n] || 1), o = [n]; for (let i = 2; i <= c; i++) o.push(n + '-' + i); return o; });
 /* webp 머리에서 가로 · 세로(VP8 · VP8L · VP8X) */
 export function webpSize(f) { const b = fs.readFileSync(f).subarray(0, 40); if (b.toString('latin1', 0, 4) !== 'RIFF' || b.toString('latin1', 8, 12) !== 'WEBP') return null;
   const t = b.toString('latin1', 12, 16);
@@ -22,7 +24,7 @@ export function webpSize(f) { const b = fs.readFileSync(f).subarray(0, 40); if (
   if (t === 'VP8L') { const v = b.readUInt32LE(21); return [(v & 0x3fff) + 1, ((v >>> 14) & 0x3fff) + 1]; }
   if (t === 'VP8X') return [b.readUIntLE(24, 3) + 1, b.readUIntLE(27, 3) + 1];
   return null; }
-const meta0 = () => ({ about: '[PHOTO_SCENE_1031 · SCENE_PHOTO_1101] 자동 생성 — node scripts/build-scene-frames.mjs · 손으로 고치지 않는다 · 그림 = 실사 사진(영상 프레임 아님)', v: O.SCENE_V, src: O.SCENE_SRC_V, photos: want });
+const meta0 = () => ({ about: '[PHOTO_SCENE_1031 · SCENE_PHOTO_1101] 자동 생성 — node scripts/build-scene-frames.mjs · 손으로 고치지 않는다 · 그림 = 실사 사진(영상 프레임 아님)', v: O.SCENE_V, src: O.SCENE_SRC_V, photos: want, n: O.SCENE_N || {} });
 if (process.argv.includes('--check')) {
   const bad = [];
   if (!/^photo/.test(O.SCENE_SRC_V)) bad.push(`SCENE_SRC_V 가 ${O.SCENE_SRC_V} — 그림 원천은 사진 판(photo…)이다 [SCENE_PHOTO_1101]`);

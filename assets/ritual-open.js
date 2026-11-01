@@ -478,12 +478,12 @@
   /* ★★[END_FLOW_1030 · BODY_CAP_1030 검토 167 2026-10-30 사장님] 닫는 인사 뒤 몫 — 40분 셈에 넣는다(본식 + 테이블 인사 + 이 몫 + 단체 사진 = 40).
        pre = 사진 전 안내(265 · 266)가 옛 사진 안내(26 · 닫는 인사 몫 46초 안)보다 긴 초(식사 있음 21 · 없음 9 · 엔진 글 길이 셈 · open-course 가 대조) ·
        online = 디지털 참석 날 온라인 인사(62 + 두 분 2분 · 엔진 live 와 같은 값). 빌더는 S 에 digital · meal 이 없어 마이페이지가 준 값을 setPost 로 싣는다 */
-  var POST_SEC = { meal: 13, soft: 0, softGuide: 5, none: 0, noneGuide: 8, mealNt: 8, softNt: 0, softGuideNt: 0, noneNt: 0, noneGuideNt: 2, online: 120 };   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장이 짧아져 17 → 13 · 11 → 8(엔진 글 길이 셈 · body-cap 이 대조)
+  var POST_SEC = { meal: 18, soft: 2, softGuide: 10, none: 5, noneGuide: 12, mealNt: 12, softNt: 0, softGuideNt: 4, noneNt: 0, noneGuideNt: 7, mealNc: 8, softNc: 0, softGuideNc: 0, noneNc: 0, noneGuideNc: 2, online: 120 };   // ★[CLOSING_CHEER_195 검토 195] 응원 한 문장이 늘어난 몫(엔진 셈 · body-cap 이 잰다) · «Nc» = 186 «다정하게» 날(옛 Nt 값 그대로)   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장이 짧아져 17 → 13 · 11 → 8(엔진 글 길이 셈 · body-cap 이 대조)
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
   function _postOf(S, f) { return (S && typeof S[f] === 'boolean') ? S[f] : !!_POST[f]; }
   function postSec(S) { var m = _postOf(S, 'meal'), g = _postOf(S, 'guide'), k = (m && _postOf(S, 'mealFull') && _postOf(S, 'resv') && g ? 'meal' : m ? (g ? 'softGuide' : 'soft') : (g ? 'noneGuide' : 'none'));   // ★[CLOSING_LINE_1031] 엔진 closingOf 와 같은 조건 · [PHOTO_PRE_PICK_1030] 식사 있음 = 식사 자리 + 예약 시각 + 하객 안내
-    var ex = ''; try { ex = narExCue(S || {}, 'narr-close-bow') || ''; } catch (e) { ex = ''; } if (ex === 'narr-close-bow-ex3' || ex === 'narr-close-bow-ex4') k += 'Nt';   // ★[CLOSING_SRC_1031] 닫는 멘트 186 · 187 = 감사 없이 시작하는 판
+    var ex = ''; try { ex = narExCue(S || {}, 'narr-close-bow') || ''; } catch (e) { ex = ''; } if (ex === 'narr-close-bow-ex3') k += 'Nc'; else if (ex === 'narr-close-bow-ex4') k += 'Nt';   // ★[CLOSING_SRC_1031] 닫는 멘트 186 · 187 = 감사 없이 시작하는 판 · ★[CLOSING_CHEER_195] 186 «다정하게»는 응원 문장도 뺀 판(Nc · 325 ~ 328)
     return POST_SEC[k] + (_postOf(S, 'digital') ? POST_SEC.online : 0); }
   /* 본식 상한 — 예시 넷 «천천히»(hi · 테이블 인사 포함) 가운데 가장 긴 값(손으로 적지 않고 잰다) · 단체 사진 SHORT_MIN 이 늘 남게 그 아래로 자른다(디지털 참석 날은 2분 낮아진다) */
   var _CAP_EX = null;
@@ -1447,7 +1447,7 @@
      영상 VIDEO_V 가 바뀌어도 사진은 다시 뽑지 않는다(scripts/build-scene-frames.mjs --check 는 사진 판 · 파일 · 크기를 잰다).
      판 갈래: vow «감사문» · letter «서로에게» · tribute «인사만»(TRIB_NO_HUG_1030). 화촉 담당 · 축가 부르는 분 · 인사 대상은 식순 값 그대로(여기서 다시 고르지 않는다).
      ★편지 «서로에게»도 그림을 둔다(letter 사진을 같이 쓴다) — 편지 사진은 신부가 읽고 신랑이 곁에서 듣는 장면이라 부모님이 나오지 않는다(부모님께 판 · 서로에게 판 모두 맞다). */
-  var SCENE_V = '1101f';   // 장면 데이터 · 그림 판(사진을 바꾸면 이 값을 올린다 — 주소 꼬리 ?v= · scripts/build-scene-frames.mjs --check 가 잰다) · ★[SCENE_PHOTO_1101F 검토 184 · 사장님 «A2 공간으로 · 우선 임시»] 보이는 9순간(SCENE_SHOW · 11장)은 아이보리 실크 드레이프 F판 · 안 보이는 8순간은 C판 그대로 · 옛 값 1101c(어두운 C안 · SCENE_PHOTO_1101C · 안 보이는 8순간에 그대로) · 1101a(밝은 판 · 01:40 보류)
+  var SCENE_V = '1101g';   // ★[SCENE_EXTRA_195 검토 195 · 사장님 23:13 «임시로 3장 정도 · 눌러야 열리게»] 11장면에 -2(예전 C판 · 어두운 판) · -3(처음 판 · 맞절만 F판을 잘라 좌우 반전) · 1장째는 지금 F판 그대로 · 옛 값 1101f   // 장면 데이터 · 그림 판(사진을 바꾸면 이 값을 올린다 — 주소 꼬리 ?v= · scripts/build-scene-frames.mjs --check 가 잰다) · ★[SCENE_PHOTO_1101F 검토 184 · 사장님 «A2 공간으로 · 우선 임시»] 보이는 9순간(SCENE_SHOW · 11장)은 아이보리 실크 드레이프 F판 · 안 보이는 8순간은 C판 그대로 · 옛 값 1101c(어두운 C안 · SCENE_PHOTO_1101C · 안 보이는 8순간에 그대로) · 1101a(밝은 판 · 01:40 보류)
   var SCENE_SRC_V = 'photo1101f';   // [SCENE_PHOTO_1101] 그림 원천 = 사진 판(옛 값 1025e = 영상 프레임)
   var SCENE_LABEL = '연출 장면 · 실제 예식 사진 아님';
   /* ★★[SCENE_AT_194 검토 194 · 사장님 «두 곳 중 한 곳에만» → 이벤트를 처음 고르는 화면에만] 고객 화면에서 장면 사진이 보이는 곳 — 한 군데 스위치.
@@ -1455,7 +1455,7 @@
        어느 쪽이든 보이는 글은 사진 아래 «사진의 구도와 수는 …» 한 줄 · 대표 장면 · 설명은 사진의 대체 글(alt)로만(검토 193) · 관리 · 작가 화면(sceneList)은 그대로 */
   var SCENE_AT = 'pick';
   /* [SCENE_N_194] 장면마다 사진 수 — 1장째는 <img>.webp(지금 사진 그대로) · 2장째부터 <img>-2.webp · <img>-3.webp(각각 -640 판) · 사진이 오면 이 수만 올린다(없는 수는 1) */
-  var SCENE_N = {};
+  var SCENE_N = { candle: 3, entry: 3, matjeol: 3, vow: 3, 'vow-thanks': 3, ring: 3, song: 3, letter: 3, tribute: 3, 'tribute-nohug': 3, toast: 3 };   // ★[SCENE_EXTRA_195] 고르는 화면에 보이는 9순간(SCENE_SHOW · 판 둘 포함 11장면) — 오픈 전 실사로 같은 이름에 갈아 끼울 임시
   var PSCENE = {
     guest: { rep: '자리에 모여 이야기하는 하객', alt: ['웰컴 음료를 든 손', '앉아 예식을 기다리는 모습'], desc: '오신 분들이 자리를 잡고 이야기를 나누는 모습을 담아요. 두 분의 입장 전, 하객들이 함께하는 시간이에요.', img: 'guest' },
     prevideo: { rep: '영상을 함께 보는 하객의 뒷모습', alt: ['영상을 바라보는 얼굴', '스크린과 하객 전경'], desc: '두 분의 영상을 함께 보는 하객들의 모습을 담아요.', img: 'prevideo' },

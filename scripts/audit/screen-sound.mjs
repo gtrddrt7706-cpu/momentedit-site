@@ -48,7 +48,7 @@ try {
     return out; });
   const uniq = (a) => [...new Set(a)];
   const CL = Object.keys(res.files).filter((f) => /_narr-closing/.test(f)).sort(), ONL = Object.keys(res.files).filter((f) => /^62_/.test(f));
-  ok(`잰 상태에 마무리 멘트 아홉 판(287 ~ 296 · 쉬는 294 빼고)과 온라인 인사(62)가 다 들어 있다 — ${CL.length} · ${ONL.length}`, CL.length === 9 && ONL.length === 1 && !CL.some((f) => /^294_/.test(f)), CL);
+  ok(`잰 상태에 마무리 멘트 열네 판(287 ~ 296 · 325 ~ 328 · ★[CLOSING_CHEER_195] 294 는 응원 한 문장 판으로 다시 쓴다)과 온라인 인사(62)가 다 들어 있다 — ${CL.length} · ${ONL.length}`, CL.length === 14 && ONL.length === 1, CL);
   ok(`콘솔이 틀 수 있는 나레이션 ⊆ 식순 화면 나레이션 줄 — 상태 ${res.n}개 · 파일 ${Object.keys(res.files).length}개`, !res.over.length, uniq(res.over).slice(0, 12));
   ok('콘솔 나레이션 글이 전체 대본에 있다(복사 · 파일 저장)', !res.noScript.length, uniq(res.noScript).slice(0, 12));
   ok(`길어지면 바뀌는 말(alt)이 화면에 «N분이 넘으면 이 말로 바뀌어요» 한 줄로 — 콘솔 alt ${res.alts}곳`, res.alts > 0 && !res.noAlt.length, uniq(res.noAlt).slice(0, 6));
