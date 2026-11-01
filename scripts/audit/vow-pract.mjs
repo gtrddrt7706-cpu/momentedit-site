@@ -46,13 +46,13 @@ try {
   ok('[VOW_PRACT_1018 131-2] 글로 한눈에 보기 — 괄호 줄 바로 뒤 «함께: 저희 두 사람은 …»', r.script.indexOf('하객 쪽으로 돌아서서 함께 읽어요)\n함께: ' + BOTH) > -1);
   ok('[TRIB_HUG_LINE_1018 131-4] 부모님께 인사 — 구호 뒤 «인사해요» · 256 뒤 «부모님이 두 분을 안아 주세요» · «인사하고 안아 드려요» 없음', r.trib.some((t) => /^두 분이 부모님께 인사해요/.test(t)) && r.trib.indexOf('부모님이 두 분을 안아 주세요 · 앉으신 채로도, 일어나셔도') > r.trib.findIndex((t) => /^두 분이 부모님께 인사해요/.test(t)) && !r.trib.some((t) => /인사하고 안아 드려요/.test(t)), JSON.stringify(r.trib));
   ok(`[SEAM_KEEP_1018 131-5] 분위기 안 고름 · 예시 × 축사 칩 ${r.clapN}판 — 선언 박수 → 고맙습니다 → 자리 → 다시 박수 청 0`, r.clapN >= 8 && !r.clap.length, r.clap.join(' · '));
-  /* ★[PRACT_ACT_1019 검토 133-1] ③ 연습 재생엔 동작 줄(맞절 · 부모님 앞으로 · 포옹 …)이 2초 카드로 들어간다 · 목소리 배지 없음 · ② 듣기는 종전대로 뺀다 */
+  /* ★[PRACT_ACT_1019 검토 133-1] ③ 연습 재생엔 동작 줄(맞절 · 부모님 앞으로 · 포옹 …)이 카드로 들어간다(★검토 198 부터 흐름 보기는 ② 와 같은 실제 시간 _lpMs(est) · 2초 고정 걷음) · 목소리 배지 없음 · ② 듣기는 종전대로 뺀다 */
   const act = await pg.evaluate(async () => { S.vow = 'ok'; buildSteps(); idx = STEPS.findIndex((s) => s.k === 'practice'); render(); await new Promise((r) => setTimeout(r, 400));
     prFrom('matjeol'); await new Promise((r) => setTimeout(r, 1200)); const acts = LP.q.filter((x) => x.act); const i = LP.q.findIndex((x) => x.act && x.k === 'matjeol');
     if (i > -1) { LP.i = i; _lShow(); _lFull(); } await new Promise((r) => setTimeout(r, 300)); const f = document.getElementById('lsFull');
-    const out = { n: acts.length, ms: acts.every((x) => x.ms === 2000 && !x.src), matjeol: i > -1, badge: f ? !!f.querySelector('.lf-vk') : null };
+    const out = { n: acts.length, ms: acts.every((x) => x.ms === (LP.pace ? _lpMs(x.est) : 2000) && !x.src), matjeol: i > -1, badge: f ? !!f.querySelector('.lf-vk') : null };
     try { lsCloseBig(); } catch (e) {} idx = STEPS.findIndex((s) => s.k === 'listen'); render(); await new Promise((r) => setTimeout(r, 300)); idx = STEPS.findIndex((s) => s.k === 'listen'); _lStart(['matjeol'], false, true); await new Promise((r) => setTimeout(r, 900)); out.listenActs = LP.q.filter((x) => (x.act || x.quiet) && !(LP.pace && x.act && x.ms === _lpMs(x.est))).length; out.paceActs = LP.q.filter((x) => LP.pace && x.act && x.ms === _lpMs(x.est)).length;   /* [LISTEN_PACE_1031] ② 의 행동 줄은 연습 카드(2초)가 아니라 «이 순간 전체 듣기» 멈춤(est ÷ 12 · 3 ~ 6초) */ out.la = JSON.stringify(LP.q.filter((x) => x.act || x.quiet)).slice(0, 300); out.step = STEPS[idx] && STEPS[idx].k; return out; });
-  ok('[PRACT_ACT_1019 133-1] 연습 재생 — 동작 줄이 2초 카드(맞절 포함) · 동작 카드엔 목소리 배지 없음 · ② 듣기에는 연습 동작 카드 없음(행동 줄은 LISTEN_PACE 멈춤만)', act.n >= 3 && act.ms && act.matjeol && act.badge === false && act.listenActs === 0, JSON.stringify(act));
+  ok('[PRACT_ACT_1019 133-1 · PR_WAY_198] 연습 재생 — 동작 줄 카드(흐름 보기는 ② 와 같은 실제 시간 · 맞절 포함) · 동작 카드엔 목소리 배지 없음 · ② 듣기에는 연습 동작 카드 없음(행동 줄은 LISTEN_PACE 멈춤만)', act.n >= 3 && act.ms && act.matjeol && act.badge === false && act.listenActs === 0, JSON.stringify(act));
   ok('pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));
   await pg.close();
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
