@@ -118,6 +118,29 @@ try {
         const cnt = () => f.evaluate(() => { const B = BgmBed._t.BUF; return Object.keys(B).filter((x) => B[x] && B[x].st === 'ok' && B[x].b); }), seen = [];
         for (const k of ['candle', 'welcome', 'letter', 'tribute', 'table', 'toast']) { await go(f, k); await trace(f, [k], 6500); await wait(f, 400); const c = await cnt(); seen.push(k + ':' + c.length + '[' + c.join(',') + ']'); }
         ok('d 순간 여섯을 차례로 열고 들어도 풀어 둔 곡 ≤ 3', seen.every((s) => +s.split(':')[1].split('[')[0] <= 3) && seen.some((s) => +s.split(':')[1].split('[')[0] >= 2), seen); }
+      /* ★[BED_LOAD_1101 덧1 · 덧2] 편지 끝 곡 · 미리 받기 목록 */
+      { const F = await f.evaluate(() => { const t = BgmBed._t; return { m4: t.eff('M4'), m4s6: t.eff('M4S6'), m5: t.eff('M5'), m6: t.eff('M6'), m7: t.eff('M7') }; });
+        const setOn = (o, bgm) => f.evaluate(({ o, bgm }) => { Object.keys(o).forEach((k) => { S.on[k] = o[k]; }); if (bgm) S.bgm = bgm; else delete S.bgm; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, { o, bgm });
+        const T2 = { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 };
+        /* g 편지(음악 없이) → 축배 · 편지만 듣기 — 끝에 오르는 곡 = M4 · M7 · M6 0 */
+        await setOn(T2, null); await go(f, 'toast'); await go(f, 'letter');
+        let r = await trace(f, ['letter'], 15000), lv = r.o.filter((x) => x.src && x.want > -60);
+        ok(`g 편지(음악 없이) → 축배(부모님께 인사 · 테이블 없음) 편지만 듣기 — 끝에 오르는 곡 = M4(${F.m4}) · M7 · M6 0`, lv.length > 3 && lv[0].f === F.m4 && !r.o.some((x) => x.src && (x.f === F.m7 || x.f === F.m6)), { first: lv[0], fs: [...new Set(r.o.filter((x) => x.src).map((x) => x.f))] });
+        /* j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = M4 · M4S6 0(겹침 3초 뒤) */
+        await setOn(T2, { S6: { m: 'bed' } }); await go(f, 'toast'); await go(f, 'letter');
+        r = await trace(f, ['letter', 'toast'], 26000); const iT = r.q.findIndex((x) => x.k === 'toast'), tT = (r.o.find((x) => x.k === 'toast') || {}).t;
+        const tz = r.o.filter((x) => x.k === 'toast' && tT != null && x.t > tT + 3200 && x.src && x.want > -60);
+        ok(`j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = M4(${F.m4}) · M4S6(${F.m4s6}) 0`, iT > -1 && tz.length > 3 && tz.every((x) => x.f === F.m4) && !r.o.some((x) => x.k === 'toast' && x.t > tT + 3200 && x.f === F.m4s6 && x.src), { iT, fs: [...new Set(tz.map((x) => x.f))] });
+        /* i 다음 곡이 12초 늦을 때 편지 끝 동안 옛 곡 재생 0(편지 «음악 없이» → 부모님께 인사 · M4 는 다음 첫 줄 곡이 아님) */
+        await setOn({ letter: 1, tribute: 1, table: 0, toast: 0, song: 0, free: 0 }, null); await go(f, 'tribute'); await go(f, 'letter'); await forget(f, [F.m5]); await H({ dly: { [F.m5]: 12000 } });
+        r = await trace(f, ['letter', 'tribute'], 22000); const tE = (r.o.filter((x) => x.k === 'letter').pop() || {}).t, s5 = r.o.find((x) => x.f === F.m5 && x.src && x.want > -60);
+        ok(`i 다음 곡(${F.m5})이 12초 늦으면 편지 끝 동안 옛 곡(${F.m4}) 재생 0 · 오면 그 곡`, tE != null && !r.o.some((x) => x.t > tE - 300 && (!s5 || x.t < s5.t) && x.f === F.m4 && x.src && x.want > -60) && !!s5, { tE: tE && Math.round(tE), s5: s5 && Math.round(s5.t), old: r.o.filter((x) => x.f === F.m4 && x.src && x.want > -60).slice(0, 2) });
+        await H({ dly: { [F.m5]: 40 } });
+        /* k lpWarm 요청 목록 */
+        const lw = async (ks, on, bgm) => { await setOn(on, bgm); await f.evaluate(() => { const t = BgmBed._t; Object.keys(t.BUF).forEach((x) => { delete t.BUF[x]; }); }); await H({ log: 1 }); await f.evaluate((ks) => BgmBed.lpWarm(ks), ks); await wait(f, 400); return [...new Set((await H({})).filter((x) => /ritualFileGet:bed:B/.test(x)).map((x) => x.split(':').pop()))].sort(); };
+        const w1 = await lw(['letter'], T2, { S6: { m: 'bed' } }), w2 = await lw(['toast'], T2, null), w3 = await lw(['free'], { free: 1, letter: 0, tribute: 0, table: 0, toast: 1, song: 0 }, { S5: { m: 'bed' } });
+        const F5s = await f.evaluate(() => BgmBed._t.eff('M4S5'));
+        ok(`k lpWarm — 편지 «음악과 함께» = M4 + M4S6 · 축배 = 잇는 곡(M4) + M7(M6 아님) · 축사 «음악과 함께» = M4 + M4S5`, JSON.stringify(w1) === JSON.stringify([F.m4, F.m4s6].sort()) && JSON.stringify(w2) === JSON.stringify([F.m4, F.m7].sort()) && JSON.stringify(w3) === JSON.stringify([F.m4, F5s].sort()), { w1, w2, w3 }); }
       /* f 무음 스위치 */
       { const t = await f.evaluate(() => navigator.audioSession && navigator.audioSession.type);
         ok('f 소리 길을 열면 navigator.audioSession.type = playback(iOS 무음 스위치)', t === 'playback', t); }
@@ -125,6 +148,30 @@ try {
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));
     await ctx.close();
   }
+  const conOpen = async (S0, rows) => { const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }), errs = [], pg = await ctx.newPage(); pg.on('pageerror', (e) => errs.push(e.message));
+    await pg.addInitScript(() => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; window.__bgmLog = []; });
+    await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":true}' })));
+    await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S0)).toString('base64'))}`); await pg.waitForTimeout(900);
+    const TMP = fs.mkdtempSync(path.join(require('os').tmpdir(), 'bedload-')), miss = [];
+    for (const [sg, hz] of rows) { const p = path.join(TMP, sg + '.wav'); fs.writeFileSync(p, wav(20, hz)); try { await pg.setInputFiles('.sg[data-seg="' + sg + '"] .sg-song:nth-of-type(1) [data-seg-file]', p, { timeout: 4000 }); } catch (e) { miss.push(sg); } }
+    await pg.waitForTimeout(1200); await pg.click('#go'); await pg.waitForTimeout(700);
+    const R = await pg.evaluate(() => window.__bgmR()); return { ctx, pg, errs, R, miss, ix: (fn) => R.findIndex(fn) }; };
+  const sample = (pg, i, ms) => pg.evaluate(async ({ i, ms }) => { const o = []; window.__bgmLog.length = 0; const t0 = performance.now(); if (i != null) window.__bgmGo.fire(i);
+    await new Promise((res) => { const iv = setInterval(() => { const g = window.__seg.st(), b = window.__bgmSt(); o.push({ t: performance.now() - t0, seg: g.seg, xg: g.xg, want: b.want, slug: b.slug, ph: b.phase }); if (performance.now() - t0 > ms) { clearInterval(iv); res(); } }, 100); });
+    return o; }, { i, ms });
+  const xf = (o) => o.some((x) => x.xg && x.xg[0] > 0.05 && x.xg[1] > 0.05);
+  const base = () => { const S0 = O.applyExample({ course: 'open' }, 'standard'); S0.course = 'open'; S0.freeWhat = 'speech'; S0.song = 'family'; S0.songBy = 'friend'; return S0; };
+  /* h · j 당일 콘솔 — 편지 → 축배(부모님께 인사 · 테이블 없음) */
+  for (const bed of [false, true]) { const S0 = base(); S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }); if (bed) S0.bgm = { S6: { m: 'bed' } }; else delete S0.bgm;
+    const C = await conOpen(S0, bed ? [['M4', 440], ['M4S6', 520], ['M7', 700]] : [['M4', 440], ['M7', 700]]), iL = C.ix((c) => /^letter-/.test(c.slug || '')), iE = C.ix((c) => c.slug === 'narr-letter-end'), iT = C.ix((c) => c.slug === 'toast-toast'), iT0 = C.ix((c) => c.k === 'toast');
+    if (C.miss.length || iL < 1 || iE < iL || iT < iE || iT0 < iE) { ok(`콘솔 시험 조건(${bed ? '음악과 함께' : '음악 없이'})`, false, { miss: C.miss, iL, iE, iT0, iT }); await C.ctx.close(); continue; }
+    await C.pg.evaluate((i) => window.__bgmGo.fire(i), iL - 1); await C.pg.waitForTimeout(3000);
+    const o1 = await sample(C.pg, iL, 5000), o2 = await sample(C.pg, iE, 9000), o3 = [];
+    for (let i = iT0; i <= iT; i++) (await sample(C.pg, i, 3500)).forEach((x) => o3.push(x));
+    const before = [].concat(o1, o2, o3), tap = await C.pg.evaluate(async () => { await new Promise((r) => setTimeout(r, 300)); window.__bgmGo.tap(); await new Promise((r) => setTimeout(r, 1500)); return window.__seg.st().seg; });
+    if (!bed) ok('h 콘솔 편지(음악 없이) → 축배 — M7 은 «위하여» GO 에서만 · 그 전 축배 나레이션은 M4', !before.some((x) => x.seg === 'M7') && o3.length && o3.every((x) => x.seg === 'M4') && tap === 'M7', { segs: [...new Set(before.map((x) => x.seg))], tap });
+    else ok('j 콘솔 편지 «음악과 함께» → 축배 — 편지 끝에서 M4S6 → M4 로 3초 겹침 · 축배 여는 말 곡 = M4 · M4S6 0 · M7 은 «위하여» GO 에서만', o2[o2.length - 1].seg === 'M4' && xf(o2) && o3.length && o3.every((x) => x.seg === 'M4') && !before.some((x) => x.seg === 'M7') && tap === 'M7', { o2: [...new Set(o2.map((x) => x.seg))], o3: [...new Set(o3.map((x) => x.seg))], tap });
+    ok(`콘솔(${bed ? '음악과 함께' : '음악 없이'}) 쪽 오류 0`, !C.errs.length, C.errs.slice(0, 3)); await C.ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();
 console.log(fail ? `BED LOAD FAIL ${fail}` : 'BED LOAD OK');

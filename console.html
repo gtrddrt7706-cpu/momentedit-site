@@ -1242,10 +1242,10 @@ function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug 
   if (k === 'song') return 'M4';
   if (/^(welcome|vow|ring|declare|bless)$/.test(k)) return 'M4';
   if (k === 'tribute') return 'M5';
-  if (k === 'toast') return '';   /* ★[BGM_FIX_1030] 축배 곡(M7)은 «위하여» 뒤 디렉터 GO 에서 연다(segCheer) — 축배 나레이션 동안은 앞 곡이 잇는다(END_FLOW_1030 뒤로는 테이블 인사 곡 · 테이블이 없으면 그 앞 순간 곡) */
+  if (k === 'toast') return /^M4S[56]$/.test(BED.seg) ? 'M4' : '';   /* ★[BED_LOAD_1101 덧2] 앞 곡이 잇는 자리 — «음악과 함께» 축사 · 편지 곡(M4S5 · M4S6)이 흐르면 기본 본식 곡 M4 로 3초 겹쳐 돌아온다(미리 듣기 carry 와 같다) · ★[BGM_FIX_1030] 축배 곡(M7)은 «위하여» 뒤 디렉터 GO 에서 연다(segCheer) — 축배 나레이션 동안은 앞 곡이 잇는다(END_FLOW_1030 뒤로는 테이블 인사 곡 · 테이블이 없으면 그 앞 순간 곡) */
   if (k === 'table') return 'M8';
   if (sl === 'narr-close' || /^narr-photo-pre|^narr-closing/.test(sl || '')) return (BED.seg === 'M8' || BED.seg === 'M8L') ? '' : (segPlan('M6P') ? 'M6P' : '');   /* ★[END_FLOW_1030] 사진 전 안내(265 · 266)도 사진 칸 곡 */   /* 사진 — 테이블 인사 뒤면 M8 이 잇고 · 닫는 인사 뒤면 사진 칸 곡(없으면 M6 이 잇는다) */
-  if (k === '_close') return sl === 'narr-close-bow' ? '' : 'M6';   /* ★[BGM_FIX_1030] M6 = 닫는 인사의 목례 · 박수(사람 순간)부터 — 닫는 나레이션 동안은 앞 곡을 낮게(segLive) */
+  if (k === '_close') return sl === 'narr-close-bow' ? (/^M4S[56]$/.test(BED.seg) ? 'M4' : '') : 'M6';   /* [BED_LOAD_1101 덧2] 닫는 인사 첫 줄도 «음악과 함께» 곡이면 M4 로 · ★[BGM_FIX_1030] M6 = 닫는 인사의 목례 · 박수(사람 순간)부터 — 닫는 나레이션 동안은 앞 곡을 낮게(segLive) */
   if (k === '_goodbye') return segPlan('M8L') ? 'M8L' : '';   /* 마무리 인사(47)와 함께 마지막 곡 */
   return ''; }
 /* [TOAST_GO] 축배 GO — ★[BGM_FIX_1030] 이 GO 에서 축배 곡(M7)으로 바꾼다 · 강조 위치(start)에서 시작해 축배 오름(toastUpMs · 0.6초)에 걸쳐 · 곡 파일이 없으면 지금 곡이 잇는다(크기만 오른다) */
