@@ -1447,7 +1447,7 @@
      영상 VIDEO_V 가 바뀌어도 사진은 다시 뽑지 않는다(scripts/build-scene-frames.mjs --check 는 사진 판 · 파일 · 크기를 잰다).
      판 갈래: vow «감사문» · letter «서로에게» · tribute «인사만»(TRIB_NO_HUG_1030). 화촉 담당 · 축가 부르는 분 · 인사 대상은 식순 값 그대로(여기서 다시 고르지 않는다).
      ★편지 «서로에게»도 그림을 둔다(letter 사진을 같이 쓴다) — 편지 사진은 신부가 읽고 신랑이 곁에서 듣는 장면이라 부모님이 나오지 않는다(부모님께 판 · 서로에게 판 모두 맞다). */
-  var SCENE_V = '1101f';   // 장면 데이터 · 그림 판(사진을 바꾸면 이 값을 올린다 — 주소 꼬리 ?v= · scripts/build-scene-frames.mjs --check 가 잰다) · ★[SCENE_PHOTO_1101F 검토 184 · 사장님 «A2 공간으로 · 우선 임시»] 보이는 9순간(SCENE_SHOW · 11장)은 아이보리 실크 드레이프 F판 · 안 보이는 8순간은 C판 그대로 · 옛 값 1101c(어두운 C안) · 1101a(밝은 판 · 01:40 보류)
+  var SCENE_V = '1101f';   // 장면 데이터 · 그림 판(사진을 바꾸면 이 값을 올린다 — 주소 꼬리 ?v= · scripts/build-scene-frames.mjs --check 가 잰다) · ★[SCENE_PHOTO_1101F 검토 184 · 사장님 «A2 공간으로 · 우선 임시»] 보이는 9순간(SCENE_SHOW · 11장)은 아이보리 실크 드레이프 F판 · 안 보이는 8순간은 C판 그대로 · 옛 값 1101c(어두운 C안 · SCENE_PHOTO_1101C · 안 보이는 8순간에 그대로) · 1101a(밝은 판 · 01:40 보류)
   var SCENE_SRC_V = 'photo1101f';   // [SCENE_PHOTO_1101] 그림 원천 = 사진 판(옛 값 1025e = 영상 프레임)
   var SCENE_LABEL = '연출 장면 · 실제 예식 사진 아님';
   var PSCENE = {
