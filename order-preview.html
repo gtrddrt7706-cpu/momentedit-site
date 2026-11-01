@@ -1269,6 +1269,7 @@ body.lsfull{overflow:hidden}
 .lf-lab.who{margin-top:10px;font-size:16px;font-weight:600;color:var(--accent)}   /* [PR_ORDER] 말하는 차례 = «신랑 차례»가 머리 */
 .lf-lab.who+.lf-cue{margin-top:2px}
 .lf-txt{font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);margin:12px 0 14px;min-height:3.6em;word-break:keep-all;box-sizing:border-box}   /* [LF_STEADY] 잰 높이(테두리 포함)를 그대로 min-height 로 */
+.lf-txt.hint{font-family:var(--sans);font-size:14px;color:var(--sub)}   /* [CLOSING_FULLER 1] */
 .lf-txt.talk{font-family:var(--sans);font-size:14px;color:var(--sub);background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px}
 /* ★[FLOW_MAKE 2026-09-27] ② 하나씩 만들기 — 진행 순서 줄(가로로 밀림 · 지금 칸이 늘 보이게) · 한 화면 · 상태는 모양으로(색만으로 말하지 않는다) */
 .mk-strip{position:sticky;top:0;z-index:3;background:var(--bg);margin:0 -16px 12px;padding:0 0 8px;border-bottom:1px solid var(--border)}   /* [FOLD_UNDER_STEPS 2026-10-03 사장님] 위 여백 6 → 0 — 걸음 표시의 제 아래 여백(4px)이 곧 둘 사이(두 줄이 «겹친 막대 둘»로 안 읽히게 · 사이 선 없음) */
@@ -1540,6 +1541,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--seal)}   /* ○ 직접 말하는 차례 — ★[FLOW_PEOPLE_SEAL 2026-10-07 사장님 «어떤 건 진사고 어떤 건 그냥 이거 · 구분 기준이 뭐야 · 최선이야?»] 기준 = 진사는 «사람이 하는 순서»(● 말 없이 하는 행동 · ○ 그 자리에서 하는 말) · 옅은 금빛 ▶ 는 저희가 준비한 안내 목소리. 모양은 말이 있나 없나 · 색은 사람이 하나를 말한다 · ○ 만 금빛으로 되돌리지 말 것(오후에 ● 만 진사여서 기준이 갈렸다) */
 .mk-flow li.t.now::after{border-color:var(--seal)}   /* [TALK_BRIDGE] 지금 차례면 마디도 진사 */
 .mk-flow li.q .qa{font-weight:500}
+.mk-flow li.qh .qa{font-weight:400;font-size:12.5px;color:var(--sub)} .mk-flow li.qh::after{background:var(--bg);border:1.5px dashed var(--border)}   /* [CLOSING_FULLER 1] 아직 없는 줄 · 진사 점 대신 빈 점 */
 /* ★[LISTEN_PACE_1031] 이 순간 전체 듣기 — 지금 줄 = 지금 글 색 그대로(진하게) · 지나간 줄 = 한 단계 옅게(--sub) · 남은 줄 = 그대로 · 행동 줄이 지금이면 글 600 + 점 둘레 진사 테 · 새 색 · 새 아이콘 없음 */
 .mk-flow li.lp-past,.mk-flow li.lp-past .qa,.mk-flow li.lp-past b{color:var(--sub)}
 /* ★[LISTEN_LOOK_LEVEL_1101 ① 사장님 «재생되지 않는 부분은 글씨 톤을 낮추면?»] 듣는 동안 그 순간 줄 묶음(.lp-on)은 지금 줄만 진하게 · 지나간 줄 · 남은 줄 모두 --sub ·
@@ -4612,8 +4614,18 @@ var LP_TALK_ADJ={'tribute-in':-20};   // [G5] 잔 드는 큐(107 · 40 · 76) �
 function _gIdxOf(sl){ var m=/^guest-(?:ex\d+-)?([1-4])-/.exec(String(sl||'')); return m?(+m[1]-1):-1; }
 /* ★★[PRACTICE_WALK_1101 검토 186 · 사장님 «연습 부분 하나씩 · 고객 입장에서 연습에 적절한지»] ③ 연습하기에서만 쓰는 화면 안내 — 녹음 · 나레이션 문장은 그대로 · ② 미리 듣기 글도 그대로 */
 function _inPr(){ return !!(STEPS[idx]&&STEPS[idx].k==='practice'); }
+/* ★★[CLOSING_FULLER 검토 189-1 · 사장님 13:54 «좀 더 길었으면 · 식당이랑 사진 안내는?»] 마무리 멘트(287 ~ 296)는 마이페이지 값으로 판이 갈린다(closingOf) —
+   식사 장소 · 예약 시각(CUSTMEAL · CUSTMEALF · CUSTRESV)이나 하객 안내(CUSTGUIDE)가 아직 없으면 그 줄이 빠진 짧은 판이 나온다. 무엇을 하면 어떤 줄이 이어지는지 회색 한 줄씩(녹음 아님 · 화면만 · ② 흐름 · ③ 연습 · 전체 대본) · «» 는 흐름 줄에서 굵은 글로 바뀌어 쓰지 않는다.
+   ★«마이페이지에서 적기 ›» 이동은 아직 없다(빌더 → 마이페이지 칸으로 가는 길이 없다) — 글만 */
+function _clHints(){ var o=[], meal=(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)&&!!CUSTMEALF&&!!CUSTRESV, g=(typeof CUSTGUIDE!=='undefined'&&CUSTGUIDE===true);
+  if(!meal) o.push('마이페이지에 식사 장소 · 예약 시각을 적으시면 식사 시간 · 장소 안내가 이어져요');
+  if(!g) o.push('하객 안내를 여시면 사진 올리기 안내가 이어져요');
+  return o; }
+/* ★[CLOSING_FULLER 1] ② · ③ 가 마이페이지 값을 엔진에 넘긴다 — 종전엔 S 에 식사 · 하객 안내 값이 없어 식사 · 하객 안내를 다 갖춘 고객도 짧은 판(287 · 292)이 보였다(당일 콘솔 · «음악까지 미리듣기»는 RitualPreviewLink 로 넘긴다) */
+function _clS(){ if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTGUIDE)) return S; var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE===true; return o; }
+function _clHasLine(st){ return (st||[]).some(function(x){ return /마무리 멘트/.test(String(x.slab||x.lab||'')); }); }
 function _lSteps0(g,ks){
-  var r; try{ r=g.RitualCue.build(S,{mode:'preview'}); }catch(e){ return []; }
+  var r; try{ r=g.RitualCue.build(_clS(),{mode:'preview'}); }catch(e){ return []; }   /* [CLOSING_FULLER 1] 마이페이지 값(식사 · 예약 · 하객 안내)으로 — 콘솔과 같은 마무리 판 */
   var PR=_inPr(), SKW=PR?'연습에서는 넘겨요':'미리 듣기에서는 넘겨요';   /* [PRACTICE_WALK_1101 2] 연습 화면엔 «연습에서는 넘겨요» */
   var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[], rN=null;   /* rN = [VC_TO_NAR] 나레이션 판 큐(필요할 때 한 번) */
   /* ★[LISTEN_PACE_1031] 행동 줄의 실제 시간 = 당일 엔진 live.est(본식 시간 어림과 같은 값) — 미리 듣기 빌드는 사람 구간을 10초로 줄이고(previewLiveCap · fullEst 에 원래 값) 박수 구간(consoleOnly)은 걷어서,
@@ -4682,6 +4694,7 @@ function _lSteps0(g,ks){
         }
       }
     });
+    if(PR&&k==='_close'&&r.cues.some(function(c){ return /^narr-closing/.test(c.slug||''); })) _clHints().forEach(function(t){ out.push({k:k,lab:'이어지는 줄',txt:t,quiet:true,hint:true,ms:0,est:0}); });   /* [CLOSING_FULLER 1] ③ 연습만 카드로 — ② 흐름 · 대본은 줄을 따로 그린다(듣기 차례에 넣지 않는다) */
     if(PR&&k==='_close') out.push({k:k,lab:'말없이 흐르는 자리',txt:'이후 사진 촬영은 작가님 안내로 이어져요',quiet:true,ms:0,est:0});   /* [PRACTICE_WALK_1101 13] 마무리 뒤 · 녹음 없음 */
   });
   return out;
@@ -7176,6 +7189,7 @@ function _mkFlow(k,btn){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.w
     h+=_mkNarLi(k,x,i);
   });
   if(bq&&!bqDone) h+=bq.html;   /* [BGM_R1_1023] 자리가 맨 뒤(줄이 모자라면) */
+  if(k==='_close'&&_clHasLine(st)) _clHints().forEach(function(t){ h+='<li class="q qh"><span class="qa">'+esc(t)+'</span></li>'; });   /* [CLOSING_FULLER 1] 회색 · 듣기 줄 아님 */
   /* ★«1분 전 안내는 식전 영상이 끝난 뒤에 흘러요 · 다음 쪽에서» 줄 금지 — 2026-10-05 사장님 결정으로 1분 전이 영상 앞이 됐다 [ONEMIN_FIRST] */
   return h+'</ol></section>'; }
 /* ★[REF_NO_KYEOL 2026-09-27 사장님 «참고 예시 숫자까지만 · 뒤에 유머 이런 단어들 삭제»] 배지는 «참고 예시 N» 까지 — 결(담백 · 장면 하나 · 다정 · 유머+진심)은 화면에 안 쓴다(표에는 남는다)
@@ -8437,7 +8451,7 @@ function _lFull(){
       var _tl=(!st.src&&!LP.paused&&LP.tAt&&LP.tMs&&LP.loadSt!==st)?Math.max(0,Date.now()-LP.tAt):-1;
       if(_tl>=0) h+='<div class="lf-tbar" aria-hidden="true"><i style="animation-duration:'+LP.tMs+'ms;animation-delay:-'+Math.min(_tl,LP.tMs)+'ms"></i></div>';
       else h+='<div class="lf-tbar'+(st.src?' au':' still')+'" aria-hidden="true"><i id="lfTbarI" style="animation:none;transform:scaleX('+(st.src&&LP.el&&LP.el.duration?Math.min(1,LP.el.currentTime/LP.el.duration):0)+')"></i></div>'; }   /* [TBAR_UP 2026-10-05 사장님 «타이머 배치가 아래로 처져 있다»] 할 일 줄 바로 아래 · 글 상자 위 */
-    h+='<p class="lf-txt'+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+'">'+esc(st.txt||'')+'</p>';
+    h+='<p class="lf-txt'+(st.hint?' hint':'')+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+'">'+esc(st.txt||'')+'</p>';
     if(st.talk2){ if(PT.errK===LP.i&&PT.err) h+='<p class="lf-state" role="status">'+esc(PT.err)+'</p>'; }
     h+=_rh;   // [PR_ORDER]
     if(practice&&st&&st.k!=='_close'){ var _nx2=LP.q[LP.i+1]; if(_nx2&&_nx2.k!==st.k) h+='<p class="lf-next">'+esc(_fgNext(st.k,_nx2.k))+'</p>'; }   /* [FLOW_GRASP_1101 2] 순간 끝 · 본문 아래 · 닫는 인사 뒤는 «이후 사진 촬영…» 줄이 말한다 */
@@ -10056,13 +10070,15 @@ function scriptTextOpen(){
   _lRows().forEach(function(k){
     var no=_lNo(k), nm=_lName(k);
     lines.push(_svHeadOf(k,peak));   /* [SV_HEAD_EXACT_1031] 머리 글은 한 함수 — 글로 보기가 같은 글로 제목을 알아본다 */   /* [PEAK_COLOR] 글로만 나가는 대본은 색이 없어 말로 */   // [SCRIPT_LAB P1-7] «식전 식전 영상» 겹말을 막는다
-    _lSteps(ENG,[k]).forEach(function(x){
+    var _sst=_lSteps(ENG,[k]);
+    _sst.forEach(function(x){
       if(x.skip) lines.push('('+x.txt.replace(/ · 미리 듣기에서는 넘겨요$/,'')+')');
       else if(x.quiet){ lines.push('('+x.txt+')'); if(k==='vow'&&/^마지막 한 문장/.test(x.txt)) lines.push('함께: '+_vowBoth().join(' ')); }   // [G5] 말 없는 사람 순간 · ★[VOW_PRACT_1018 검토 131-2] 함께 읽는 문장을 괄호 줄 바로 뒤에(말만 하고 문장이 없으면 무엇을 준비할지 모른다 · VOW_CHORUS)
       else if(x.talk) { lines.push('직접: '+(/^(welcome|bless|vow|tribute)$/.test(k)?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,'')+' · '+_lSum(k):k==='toast'?x.txt.replace(/^여기서 /,'').replace(/ · 약 [^·]+$/,/한마디/.test(x.txt)?'':' · 한마디'):x.txt.replace(/^여기서 /,''))); if(k==='declare') lines.push('선언문(큰 글씨로 인쇄해 드려요 · 누가 읽든 같은 글): '+_declNar()); }   /* [R4-10] 말하는 시간은 ② · ④ 와 같은 숫자(_lSum) — 엔진 글(분 반올림 · 순간 전체)이 세 번째 숫자를 냈다 */   /* [DECLARE_BY_PERSON] 선언문 한 줄 — 읽어 주실 분이 미리 읽어 볼 수 있게(대본을 받는 사람이 그분이다) */   /* [TOAST_SAY_TALK_1013] 한마디를 적은 날 ② 줄이 이미 «한마디와 함께»라 ④ 에 « · 한마디»를 또 붙이지 않는다 */
       else if(x.own){ var _ol=String(x.lab||'').replace(/^두 분이 녹음하실 글\(예시\)( · )?/,'').trim(); lines.push((_vpCur(k)==='ai'?'AI 두 분 목소리':'두 분 녹음')+(_ol?'('+_ol+')':'')+': '+x.txt); }   /* [R4-09] AI 로 만든 판은 «녹음»이라 하지 않는다(R1-28 · 화면과 같게) */   // [RIT_NO_CUE_COPY] 안쪽 표지 «두 분이 녹음하실 글(예시)»는 뺀다(시각 이름표만 남긴다)
       else { lines.push('나레이션('+(x.slab||x.lab)+'): '+x.txt); if(x.alt) lines.push('나레이션('+x.alt.when+'): '+x.alt.txt); }   // [SCRIPT_LAB] · ★[CLOSING_SRC_1031 검토 179] 길어지면 바뀌는 말도 대본에
     });
+    if(k==='_close'&&_clHasLine(_sst)) _clHints().forEach(function(t){ lines.push('(이어지는 줄 · '+t+')'); });   /* [CLOSING_FULLER 1] 전체 대본에도 · 녹음 아님 */
     if(k==='welcome'){ var _wc=_mkChk(); if(_wc['welcome.g']||_wc['welcome.b']) lines.push(_scTx('welcome','감사 인사',S.welcomeText,'','감사 인사: 두 분이 현장에서 바로 해요','현장에서 바로 해요','감사 인사는 적으면 여기 담겨요')); else if(S.welcomeText) lines.push('감사 인사(두 분 작성 · 카드로 인쇄):\n'+S.welcomeText); }   /* [THANKS_GREET_1013] · ★[WELCOME_SITE_1031 식순 걷기 2라운드 5] «현장에서 바로 할게요»를 체크한 분의 글은 대본에서 뺀다(서약 · 편지와 같은 _scTx · 글은 보관) */
     if(k==='vow'){ var _vn=_vowKind()==='thanks'?'감사문':'서약문'; lines.push(_scTx('vow',_vn,_vowScript(),'('+_vn+' 미입력 · 예식 7일 전까지 적으면 여기 담겨요)',(_vowKind()==='thanks'?'감사문':'서약')+': 두 분이 현장에서 바로 해요','현장에서 바로 해요',_vn+'은 예식 7일 전까지 적으면 여기 담겨요').replace(_vn+'(두 분 작성):',_vn+'(두 분 작성 · 카드로 인쇄):')); }   // [THANKS_IN_VOW] · ★[VOW_CARD_PRINT_1014] 적은 글은 큰 글씨 카드로 인쇄(부모님께 드릴 말과 같은 표시)   // [P12] · [R4-03]
     if(k==='letter') lines.push(_scTx('letter','편지',S.letterText,'(편지 미입력 · 적으면 여기 담겨요)','편지: 두 분이 따로 써서 가져와 읽어요','따로 써서 가져와요','편지는 적으면 여기 담겨요'));   // [R4-03]
