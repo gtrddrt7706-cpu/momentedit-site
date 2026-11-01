@@ -153,7 +153,7 @@ try {
     await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":true}' })));
     await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S0)).toString('base64'))}`); await pg.waitForTimeout(900);
     const TMP = fs.mkdtempSync(path.join(require('os').tmpdir(), 'bedload-')), miss = [];
-    for (const [sg, hz] of rows) { const p = path.join(TMP, sg + '.wav'); fs.writeFileSync(p, wav(20, hz)); try { await pg.setInputFiles('.sg[data-seg="' + sg + '"] .sg-song:nth-of-type(1) [data-seg-file]', p, { timeout: 4000 }); } catch (e) { miss.push(sg); } }
+    for (const [sg, hz, nth] of rows) { const p = path.join(TMP, sg + '.wav'); fs.writeFileSync(p, wav(20, hz)); try { await pg.setInputFiles('.sg[data-seg="' + sg + '"] .sg-song:nth-of-type(' + (nth || 1) + ') [data-seg-file]', p, { timeout: 4000 }); } catch (e) { miss.push(sg); } }
     await pg.waitForTimeout(1200); await pg.click('#go'); await pg.waitForTimeout(700);
     const R = await pg.evaluate(() => window.__bgmR()); return { ctx, pg, errs, R, miss, ix: (fn) => R.findIndex(fn) }; };
   const sample = (pg, i, ms) => pg.evaluate(async ({ i, ms }) => { const o = []; window.__bgmLog.length = 0; const t0 = performance.now(); if (i != null) window.__bgmGo.fire(i);
@@ -162,8 +162,8 @@ try {
   const xf = (o) => o.some((x) => x.xg && x.xg[0] > 0.05 && x.xg[1] > 0.05);
   const base = () => { const S0 = O.applyExample({ course: 'open' }, 'standard'); S0.course = 'open'; S0.freeWhat = 'speech'; S0.song = 'family'; S0.songBy = 'friend'; return S0; };
   /* h · j 당일 콘솔 — 편지 → 축배(부모님께 인사 · 테이블 없음) */
-  for (const bed of [false, true]) { const S0 = base(); S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }); if (bed) S0.bgm = { S6: { m: 'bed' }, M4: { k: 'B09' } }; else delete S0.bgm;   /* [CARRY_SAME_1101] 본식 곡을 골라 둔 날(편지 곡 B10 은 본식 목록에도 있다 · 고르지 않은 날은 carry-same g) */
-    const C = await conOpen(S0, bed ? [['M4', 440], ['M4S6', 520], ['M7', 700]] : [['M4', 440], ['M7', 700]]), iL = C.ix((c) => /^letter-/.test(c.slug || '')), iE = C.ix((c) => c.slug === 'narr-letter-end'), iT = C.ix((c) => c.slug === 'toast-toast'), iT0 = C.ix((c) => c.k === 'toast');
+  for (const bed of [false, true]) { const S0 = base(); S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }); if (bed) S0.bgm = { S6: { m: 'bed', k: 'B12' }, M4: { k: 'B09' } }; else delete S0.bgm;   /* [DAYLONG_1101] 편지 곡 B12 = 본식 목록에 없는 곡(본식 목록 곡이면 그대로 잇는다 · carry-same g · daylong c) */   /* [CARRY_SAME_1101] 본식 곡을 골라 둔 날(편지 곡 B10 은 본식 목록에도 있다 · 고르지 않은 날은 carry-same g) */
+    const C = await conOpen(S0, bed ? [['M4', 440], ['M4S6', 520, 2], ['M7', 700]] : [['M4', 440], ['M7', 700]]), iL = C.ix((c) => /^letter-/.test(c.slug || '')), iE = C.ix((c) => c.slug === 'narr-letter-end'), iT = C.ix((c) => c.slug === 'toast-toast'), iT0 = C.ix((c) => c.k === 'toast');
     if (C.miss.length || iL < 1 || iE < iL || iT < iE || iT0 < iE) { ok(`콘솔 시험 조건(${bed ? '음악과 함께' : '음악 없이'})`, false, { miss: C.miss, iL, iE, iT0, iT }); await C.ctx.close(); continue; }
     await C.pg.evaluate((i) => window.__bgmGo.fire(i), iL - 1); await C.pg.waitForTimeout(3000);
     const o1 = await sample(C.pg, iL, 5000), o2 = await sample(C.pg, iE, 9000), o3 = [];
