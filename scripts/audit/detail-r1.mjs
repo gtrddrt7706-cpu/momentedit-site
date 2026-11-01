@@ -13,7 +13,7 @@
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
-const OP = process.env.BP_OP || '', BED = process.env.BP_BED || '', EMF = process.env.BP_EM || '', SHOT = process.env.SHOT || '', PICKSF = process.env.BP_PICKS || '';
+const OP = process.env.BP_OP || '', BED = process.env.BP_BED || '', EMF = process.env.BP_EM || '', SHOT = process.env.SHOT || '', PICKSF = process.env.BP_PICKS || '', CUEF = process.env.BP_CUE || '';
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 600)}`); if (!c) fail++; };
@@ -51,7 +51,7 @@ window.addEventListener('message',function(ev){ var d=ev.data||{}; if(ev.origin!
 const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]);
   if (u === '/__harness.html') { r.writeHead(200, { 'Content-Type': 'text/html' }); r.end(HARNESS); return; }
   if (/^\/assets\/audio\/narration\/.+\.mp3$/.test(u)) { r.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': SHORT.length }); r.end(SHORT); return; }   /* 길이를 실어 보낸다(실제 사이트와 같게 · 없으면 브라우저가 길이를 모른다) */
-  const p = (OP && u === '/order-preview.html') ? OP : (BED && u === '/assets/bgm-bed.js') ? BED : (EMF && u === '/assets/entry-music.js') ? EMF : (PICKSF && u === '/assets/bgm-picks.js') ? PICKSF : path.join(ROOT, u);
+  const p = (OP && u === '/order-preview.html') ? OP : (BED && u === '/assets/bgm-bed.js') ? BED : (EMF && u === '/assets/entry-music.js') ? EMF : (PICKSF && u === '/assets/bgm-picks.js') ? PICKSF : (CUEF && u === '/assets/ritual-cue.js') ? CUEF : path.join(ROOT, u);
   fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); srv.close(); process.exit(2); }
@@ -82,7 +82,7 @@ const run = (f, ks, ms, big, stopEmpty) => f.evaluate(async ({ ks, ms, big, stop
   if (big) { LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(ks, true); _lFull(); } else lsPlay(ks[0]);
   (LP.q || []).forEach((x) => { if ((x.talk || x.talk2 || x.said) && !x.walk) x.ms = 1500; });
   const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const v = B.BED.cur, st = LP.q[LP.i]; if (v && v.src && !v.__id) v.__id = ++n;
-    o.push({ t: performance.now() - t0, i: LP.i, k: st && st.k, slug: st && (st.slug || st.of) || '', skip: !!(st && st.skip), act: !!(st && st.act), walk: !!(st && st.walk), lead: !!LP.leadSt, who: B.BED.who, f: v && v.f, src: !!(v && v.src), want: v && v.want, id: v && v.__id || 0, note: LP.bedNote || '', relay: B.LPB.relay || 0, loop: !!(v && v.src && v.src.loop), q: LP.q.length, tail: !!(BgmBed.inTail && BgmBed.inTail()) });
+    o.push({ t: performance.now() - t0, i: LP.i, k: st && st.k, slug: st && (st.slug || st.of) || '', skip: !!(st && st.skip), act: !!(st && st.act), walk: !!(st && st.walk), lead: !!LP.leadSt, ta: (LP.el && !LP.el.paused && !LP.el.ended) || LP.tAt ? 1 : 0, who: B.BED.who, f: v && v.f, src: !!(v && v.src), want: v && v.want, id: v && v.__id || 0, note: LP.bedNote || '', relay: B.LPB.relay || 0, loop: !!(v && v.src && v.src.loop), q: LP.q.length, tail: !!(BgmBed.inTail && BgmBed.inTail()) });
     if (performance.now() - t0 > ms || (stopEmpty && !LP.q.length && performance.now() - t0 > 2000)) { clearInterval(iv); res(); } }, 100); });
   window._lpMs = window.__lpMs0; return o; }, { ks, ms, big, stopEmpty });
 const stop = (f) => f.evaluate(() => { try { lsStop(); } catch (e) {} try { lsCloseBig(); } catch (e) {} });
@@ -117,7 +117,17 @@ try {
   /* ⑤ 식전 영상 */
   { await go(f, 'prevideo'); const r = await run(f, ['prevideo'], 26000, false, true); await stop(f);
     const ln = r.filter((x) => x.k === 'prevideo' && !x.lead && x.src), pre = ln.filter((x) => x.slug === 'narr-prevideo-in' && !x.skip && !x.act), post = ln.filter((x) => x.slug === 'narr-prevideo-out'), sk = ln.filter((x) => x.slug !== 'narr-prevideo-out' && x.slug !== 'narr-prevideo-in');   /* 영상이 흐르는 줄 */
-    ok('⑤ 식전 영상 따로 듣기 — 소개 · 받는 말 = 하객 맞이 곡(B01) −16 · 영상 줄만 −90 · 받는 말에서 다시 오른다', pre.length > 3 && post.length > 3 && sk.length > 3 && pre.every((x) => x.f === 'B01' && x.want === -16) && sk.every((x) => x.f === 'B01' && x.want <= -89) && post.every((x) => x.f === 'B01') && post.slice(-5).every((x) => x.want === -16), { pre: pre.length, sk: [...new Set(sk.map((x) => x.want))], post: post.length, fs: [...new Set(ln.map((x) => [x.i, x.slug, x.skip, x.act, x.f, x.want].join(':')))] }); }
+    const lds = r.filter((x) => x.k === 'prevideo' && x.lead && x.src), t1 = pre.length ? pre[0].t : null, sil = lds.filter((x) => x.want <= -60 && t1 != null && x.t < t1), silMs = sil.length ? t1 - sil[0].t : 0, w0 = lds.length ? lds[0].want : null;
+    ok('⑤ [PREVIDEO_AFTER_1101] 식전 영상 따로 듣기 — 소개 · 영상 · 받는 말 모두 음악 없이(≤ −60)', pre.length > 3 && post.length > 3 && sk.length > 3 && [...pre, ...sk, ...post].every((x) => x.want <= -60), { pre: pre.length, silMs: Math.round(silMs), w0, fs: [...new Set(ln.map((x) => [x.i, x.slug, x.skip, x.act, x.f, x.want].join(':')))] }); }
+  /* ⑤b [PREVIDEO_AFTER_1101] 이어 듣기 식전 영상 → 화촉 — 화촉 곡은 무음에서 · 첫 멘트는 뜸 약 6초 뒤 · 당일 큐 값(콘솔이 읽는다) */
+  { await go(f, 'guest'); const r = await run(f, ['guest', 'prevideo', 'candle'], 80000, true); await stop(f);
+    const pv = r.filter((x) => x.k === 'prevideo' && !x.lead), cl = r.filter((x) => x.k === 'candle' && x.lead), cn = r.filter((x) => x.k === 'candle' && !x.lead), lastPv = pv.length ? pv[pv.length - 1] : null;
+    const cn2 = cl.length ? cn.filter((x) => x.t > cl[0].t) : [], ldMs = cl.length && cn2.length ? cn2[0].t - cl[0].t : 0;
+    const pi = r.filter((x) => x.k === 'prevideo' && !x.lead && /^narr-prevideo-in/.test(x.slug || '')), tI = (pi.find((x) => x.ta) || {}).t ?? null,   /* 줄 시계가 걸린 때(쉼이 끝나고 소개가 나오는 때) */ gs = r.filter((x) => tI != null && x.t < tI && x.t > tI - 4000), sil = gs.filter((x) => !x.src || x.want <= -60), silMs = sil.length && tI != null ? tI - sil[0].t : 0;
+    ok('⑤b 이어 듣기 하객 맞이 → 식전 영상 → 화촉 — 소개 앞 정적 ≥ 0.8초 · 받는 말까지 음악 없이 · 화촉 곡은 무음에서 · 첫 멘트는 약 6초 뒤', silMs >= 800 && !!lastPv && (!lastPv.src || lastPv.want <= -60) && cl.length > 10 && ldMs > 5200 && ldMs < 7600, { silMs: Math.round(silMs), last: lastPv && [lastPv.f, lastPv.want], ldMs: Math.round(ldMs), f: cl.length && cl[cl.length - 1].f });
+    const cq = await f.evaluate(() => { const c = ENG.RitualCue.build(S, { mode: 'console' }); const L = c.cues || c; const at = (fn) => L.find(fn) || {}; const i = at((x) => /^narr-prevideo-in/.test(x.slug || '')), o = at((x) => x.slug === 'narr-prevideo-out'), io = L.indexOf(o), cd = L.slice(io + 1).find((x) => x.k === 'candle' && !/^bridge-/.test(x.slug || '')) || {};
+      return { i: [i.duck, i.fadeMs, i.goLeadMs], o: o.duck, c: [cd.slug, cd.goLeadMs, cd.leadDb] }; });
+    ok('⑤b 당일 큐 — 소개 −90(2초 · 3초 쉬고) · 받는 말 −90 · 화촉 첫 큐 무음에서 −8 로 6초 앞서', cq.i.join() === '-90,2000,3000' && cq.o === -90 && cq.c[1] === 6000 && cq.c[2] === -8, cq); }
   /* ⑨ 닫는 인사 따로 듣기 */
   { await go(f, '_close'); const vx12 = await f.evaluate(() => BgmBed._t.vx(-12, 'B28')); const r = await run(f, ['_close'], 30000, false, true); await stop(f);   /* 축배 곡은 가사가 있는 곡 — −12 에 vocalExtra(−6) */
     const bow = r.filter((x) => x.k === '_close' && x.slug === 'narr-close-bow' && !x.lead && x.src), cl = r.filter((x) => x.k === '_close' && x.slug !== 'narr-close-bow' && x.src && x.want > -60);

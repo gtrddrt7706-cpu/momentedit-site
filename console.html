@@ -1808,7 +1808,9 @@ function fire(i, opt){
   var _need = (MODE !== 'preview' && !esdMain(c) && duckWant > c.duck + 0.5), _dms = c.fadeMs || (PARAM.duck && PARAM.duck.leadMs) || PARAM.fadeDownMs;
   var _lead = Math.max(_need ? _dms : 0, c.goLeadMs || 0);   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
   cheerAt = -1;   // [TOAST_GO] 축배 오름은 그 큐에서 한 번
-  duckTo(PRE_HOLD === i ? -90 : c.duck, _need ? _dms : (c.fadeMs || PARAM.fadeDownMs));   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
+  var _ldb = (c.leadDb != null && _lead > 800) ? c.leadDb : null;   // ★[PREVIDEO_AFTER_1101] 무음에서 새 곡을 먼저 −8 로 올리고(goLeadMs 동안) 멘트 0.8초 앞에서 말 아래로
+  duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : c.duck), _ldb != null ? (PARAM.fadeUpMs || 1200) : (_need ? _dms : (c.fadeMs || PARAM.fadeDownMs)));   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
+  if (_ldb != null) later(function(){ duckTo(c.duck, 800); }, _lead - 800);   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
 
   var _run = function(){ playClip(c, function(){
     phase = 'post';
