@@ -61,6 +61,7 @@ async function open(W, embed) {
   await nx(); await nx();
   await f.evaluate((ks) => { ks.forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'nar'; S.vsAsked = 1; delete S.bgm; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, ALL);
   await nx(); await wait(f, 800);
+  try { await f.evaluate(() => { const L = window.BgmBed && BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; }); } catch (e) {}   /* [LIST_FOLD_1102] 이 검사는 펼친 목록을 본다 · 접힘은 bgm-fill LIST_FOLD */
   return { ctx, pg, f, errs };
 }
 const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 500); };
@@ -158,6 +159,7 @@ try {
     ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 바로 접힘 · 다시 들어와도 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 7 && res.every((x) => x[2] === 'ok'), res);
     /* 7b 목록 칸(하객 맞이 · 테이블 인사)은 접지 않는다 — 고르기 · «바꾸기» · 접힌 줄 0 · 곡 줄 다섯 */
     const lr = [];
+    await fr.evaluate(() => { const L = BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; });   /* [LIST_FOLD_1102] 펼친 목록의 줄 수를 잰다(처음 접힘은 bgm-fill LIST_FOLD) */
     for (const [sg, k] of [['M1', 'guest'], ['M8', 'table']]) { await go(fr, k); lr.push(await fr.evaluate((sg) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"]'); return b ? [sg, b.querySelectorAll('.mu-pick').length, b.querySelectorAll('.mu-chg').length, !!b.querySelector('.mu-fold1'), b.querySelectorAll('li.mu-row[data-f]').length, ((BgmBed._t.plan(false) || {})[sg] || { list: [] }).list.length] : [sg, 'no-row']; }, sg)); }   /* 앞에서 다른 구간에 배경 곡(B16 · B14)을 골랐으면 그 곡은 빠진다 — 차례 함수와 같은 수 */
     ok(`${W} 7b 목록 칸(하객 맞이 · 테이블 인사)은 고르기 · 접기 없음 — 곡 줄 = 재생 차례 [LIST_NO_PICK_1101]`, lr.every((x) => x[1] === 0 && x[2] === 0 && x[3] === false && x[4] >= 3 && x[4] === x[5]), lr);
     /* 1 이 다른 구간에서도 — 안 고른 테이블 · 축배 등은 7 에서 고르기 전 접히지 않았다 */

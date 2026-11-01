@@ -102,6 +102,7 @@ try {
   /* b · c · d · e 고객 화면 · 미리 듣기 */
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
+    await f.evaluate(() => { const L = BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; });   /* [LIST_FOLD_1102] 아래 검사는 펼친 목록을 본다 · 접힘은 bgm-fill LIST_FOLD 가 본다 */
     await setX(f, { bgm: { M5: { k: 'B16' } } }); await go(f, 'table'); let r = await PL(f, 'M8');
     const at = await f.evaluate(() => [BgmBed._t.songAt('table'), ((BgmBed._t.prevOf ? BgmBed._t.prevOf('M8') : null) || {}).sg]);
     ok(`${W} b 부모님께 인사 The Rose → 테이블 곡 줄 = The Rose 맨 앞 · 하객 맞이와 겹치는 곡은 맨 뒤(B16 · B23 · B14 · B24 · B13 · DETAIL_R3_1101 ⑦ 보탬) · 미리 듣기 곡도 B16`, r && r.list.join() === 'B16,B23,B14,B24,B13' && at[0] === 'B16' && at[1] === 'M5', { r, at });

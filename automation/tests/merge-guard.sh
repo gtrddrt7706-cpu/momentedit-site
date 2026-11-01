@@ -21645,4 +21645,6 @@ chk 'function rowLd(sg,f)' assets/bgm-bed.js 1   # [ROW_FILL_PLAY_1101 보탬] �
 chk '.mk-pl,.mu-pl,.mu-pick,.mu-chg,.pk-link,.mk-hbtn,.op-chip{-webkit-tap-highlight-color:transparent}' order-preview.html 1   # [ROW_FILL_PLAY_1101 보탬] 아이폰 회색 네모
 chk 'var LEAD_WAIT=20000;' assets/bgm-bed.js 1   # [LEAD_FIRST_1101] 곡 없으면 20초까지 기다림 · 멘트가 곡보다 먼저 나가지 않게
 chk '음악 없이 먼저 들려 드려요 · 곡이 오면 이어서 흘러요' assets/bgm-bed.js 1   # [LEAD_FIRST_1101] 20초 넘으면 음악 없이 · 곡은 줄 사이에서
+chk "if(kind==='lfold'){ if(!isList(sg)) return;" assets/bgm-bed.js 1   # [LIST_FOLD_1102] 목록 칸 처음엔 접힘 · 펼침은 이 방문 동안
+chk '.bed-box .mu-lfold{' order-preview.html 1   # [LIST_FOLD_1102] «펼치기 · 접기» 첫 줄 오른쪽 고정
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
