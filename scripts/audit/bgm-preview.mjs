@@ -149,9 +149,9 @@ try {
       const voc = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M1"] .mu-row')].map((x) => [x.querySelector('.mu-pick').getAttribute('data-fk'), !!x.querySelector('.mu-voc'), ((x.querySelector('.mu-voc') || {}).textContent || '').trim()]));
       const e3 = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M1"] .mu-t')].map((x) => { const c = x.cloneNode(true); const v = c.querySelector('.mu-voc'); if (v) v.remove(); const lh = parseFloat(getComputedStyle(x).lineHeight) || 20; return { t: c.textContent.trim(), lines: Math.round(x.getBoundingClientRect().height / lh) }; }));
       ok(`${W} E3 곡 이름이 한 줄 — 하객 맞이 «바다가 보이는 마을»(괄호 영문 꼬리 없음)`, e3[0] && e3[0].t === '바다가 보이는 마을' && e3.every((x) => x.lines === 1), e3);
-      ok(`${W} E4 하객 맞이 1순위 아랫줄 «마녀 배달부 키키 · 히사이시 조 · 런던 심포니 오케스트라 · 오케스트라로 넓고 산뜻하게»`, (await f.evaluate(() => document.querySelector('.ls-bed[data-seg="M1"] .mu-a').textContent)) === '마녀 배달부 키키 · 히사이시 조 · 런던 심포니 오케스트라 · 오케스트라로 넓고 산뜻하게');
+      ok(`${W} E4 하객 맞이 1순위 아랫줄 = 연주자만 «히사이시 조 · 런던 심포니 오케스트라»(★[SONG_ROW_PLAIN_1101] 판 · 분위기 한 줄 뺌)`, (await f.evaluate(() => document.querySelector('.ls-bed[data-seg="M1"] .mu-a').textContent)) === '히사이시 조 · 런던 심포니 오케스트라');
       ok(`${W} E5 여러 곡을 이어 트는 구간도 «부터 이어서 틀어요» 줄 없음 [SONG_ROW_LINES_1101]`, r && r.note === '' && !(await f.evaluate(() => /이어서 틀어요/.test(document.querySelector('.ls-bed[data-seg="M1"]').textContent))), r && r.note);
-      ok(`${W} D3 하객 맞이 — 이름표 «하객 맞이 음악» · «노래»는 보컬 곡(B04)에만 · 작은 글`, r && r.gl === '하객 맞이 음악' && r.n === 4 && voc.filter((v) => v[1]).map((v) => v[0]).join() === 'bed:M1:B04' && voc.find((v) => v[1])[2] === '노래', voc);
+      ok(`${W} D3 하객 맞이 — 이름표 «하객 맞이 음악» · 곡 줄에 «노래» 없음(★[SONG_ROW_PLAIN_1101] 가사 있는 곡 안내는 고른 뒤 한 줄)`, r && r.gl === '하객 맞이 음악' && r.n === 4 && !voc.some((v) => v[1]), voc);
       ok(`${W} D3 고르기 전엔 보컬 한 줄 없음`, !(await f.evaluate(() => !!document.querySelector('.ls-bed[data-seg="M1"] .bed-voc'))));
       /* D2 한 파일 — 하객 맞이 B02 곡 카드 */
       await f.click('[data-fk="bedp:M1:B02"]'); await wait(f, 1500); await f.click('[data-fk="bedp:M1:B02"]'); await wait(f, 300);
