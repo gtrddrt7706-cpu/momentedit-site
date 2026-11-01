@@ -793,19 +793,20 @@ else {
 for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(w);
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200); await clickNext(pg); await pg.waitForTimeout(500);
-  const st = () => pg.evaluate(() => { const n = document.getElementById('mkStrip'), sc = n && n.querySelector('.mk-sc'), b = n && n.querySelector('.mk-fbtn'), r = b && b.getBoundingClientRect();
+  /* ★[MK_HEAD_D 1101 사장님 «바꾸자»] 접힌 줄 행은 머리 줄 상태 단추(#mkStat)로 갔다 — 단추 안 글은 «하나씩 만들기 / 본식 n/N · 빠뜨린 n» 그대로 · 펼침 · 접힘은 읽는 이름(aria-label) 끝 «모든 순간 보기 · 접기» */
+  const st = () => pg.evaluate(() => { const n = document.getElementById('mkStrip'), sc = n && n.querySelector('.mk-sc'), b = document.getElementById('mkStat'), r = b && b.getBoundingClientRect();
     const mo = _mkPages().filter((k) => k !== '_intro' && k !== '_sum' && !_mkOff(k)), at0 = _mkState().at, no = _mkNo(at0), pre = mo.filter((k) => _mkNo(k) === '식전');
     const head = (document.querySelector('#mkHead .mk-hn') || {}).textContent || '';   /* 쪽 제목 번호와 같은 셈이어야 한다 */
     return { has: !!n, hidden: !!(sc && sc.hidden), h: sc ? Math.round(sc.getBoundingClientRect().height) : -1, ex: b && b.getAttribute('aria-expanded'), ctl: b && b.getAttribute('aria-controls'), ctlOk: !!(b && (b.getAttribute('aria-controls') || '').split(/\s+/).map((id) => document.getElementById(id)).indexOf(sc) > -1),   /* [STEP_COMPACT 2026-10-03] 펼침은 걸음 줄(mkStp) + 순간 줄(mkScP) 둘을 연다 */
-      lab: b && b.textContent.trim(), pos: ((n.querySelector('.mk-pos') || {}).textContent || '').replace(/^하나씩 만들기 · /, ''), pstep: ((n.querySelector('.mk-pos') || {}).textContent || '').indexOf('하나씩 만들기 · ') === 0,   /* [STEP_COMPACT] 머리 «하나씩 만들기 ·»(잘리면 빠진다)는 떼고 잰다 */ at: at0, want: no === '식전' ? '식전 ' + (pre.indexOf(at0) + 1) + ' / ' + pre.length : '본식 ' + no + ' / ' + RitualOpen.bodySeq(S).length, headOk: no === '식전' || head === no, tap: r ? Math.round(r.height) : 0, navH: Math.round(n.getBoundingClientRect().height),
-      glyph: /[▾▴▼▲]/.test(n.querySelector('.mk-fold').textContent), arrows: !!n.querySelector('.mk-fold [data-fk="lmprev"],.mk-fold [aria-label*="앞 순간"]') }; });
+      lab: b && b.getAttribute('aria-label'), pos: ((b && b.querySelector('.mk-sd')) || {}).textContent || '', pstep: ((b && b.querySelector('.mk-sh')) || {}).textContent === '하나씩 만들기',   /* [STEP_COMPACT] 머리 «하나씩 만들기 ·»(잘리면 빠진다)는 떼고 잰다 */ at: at0, want: no === '식전' ? '식전 ' + (pre.indexOf(at0) + 1) + '/' + pre.length : '본식 ' + no + '/' + RitualOpen.bodySeq(S).length, headOk: no === '식전' || head === no, tap: r ? Math.round(r.height) : 0, navH: r ? Math.round(r.height) : 99, hd: Math.round((document.getElementById('mkHead') || document.body).getBoundingClientRect().top + scrollY),
+      glyph: /[▾▴▼▲]/.test(b ? b.textContent : ''), arrows: !!document.querySelector('.prog-top [data-fk="lmprev"],.prog-top [aria-label*="앞 순간"]') }; });
   const a = await st();
   ok(`NF-1 ${w} ② 진행 줄은 접힌 채 시작 — 한 줄(«${a.pos}») · «모든 순간 보기» · aria-expanded=false · aria-controls 가 줄을 가리킨다 · 화살표 · ▾ 글자 없음 [NAV_FOLD]`,
-    a.has && a.hidden && a.h === 0 && a.ex === 'false' && a.ctlOk && a.lab === '모든 순간 보기' && a.pos.indexOf(a.want) === 0 && a.headOk && a.tap >= 44 && a.navH <= 64 && !a.glyph && !a.arrows, JSON.stringify(a));
+    a.has && a.hidden && a.h === 0 && a.ex === 'false' && a.ctlOk && /^하나씩 만들기\. .+ 모든 순간 보기$/.test(a.lab || '') && a.pstep && a.pos.indexOf(a.want) === 0 && a.headOk && a.tap >= 44 && a.navH <= 64 && a.hd <= 90 && !a.glyph && !a.arrows, JSON.stringify(a));   /* [MK_HEAD_D] 머리(순간 제목 위) 약 81px */
   await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(300);
   const b = await st();
   const one = await pg.evaluate(() => { const sc = document.querySelector('#mkStrip .mk-sc'), its = [...sc.querySelectorAll('.mk-it')]; return { lines: new Set(its.map((x) => Math.round(x.getBoundingClientRect().top))).size, scroll: sc.scrollWidth > sc.clientWidth + 1, focus: document.activeElement && document.activeElement.getAttribute('data-fk') }; });
-  ok(`NF-2 ${w} 누르면 펼침 — aria-expanded=true · «접기» · 종전 줄 그대로(${w < 600 ? '한 줄 넘기기' : '줄바꿈'}) · 초점은 단추에`, !b.hidden && b.h > 30 && b.ex === 'true' && b.lab === '접기' && one.focus === 'mkfold' && (w < 600 ? (one.lines === 1 && one.scroll) : !one.scroll), JSON.stringify({ b, one }));
+  ok(`NF-2 ${w} 누르면 펼침 — aria-expanded=true · «접기» · 종전 줄 그대로(${w < 600 ? '한 줄 넘기기' : '줄바꿈'}) · 초점은 단추에`, !b.hidden && b.h > 30 && b.ex === 'true' && /모든 순간 접기$/.test(b.lab || '') && one.focus === 'mkfold' && (w < 600 ? (one.lines === 1 && one.scroll) : !one.scroll), JSON.stringify({ b, one }));
   /* ★[NF_PICK_DECLARE 2026-10-13] 고를 순간은 성혼 선언 — 예시 넷 모두의 뼈대다(EX_STD_1012). 종전 반지는 10/12 «반지 · 케이크는 코스에서 빼고 원하면 넣게»로
      «가족» 예시에서 빠져 줄에 칸이 없었다(30초 기다리다 검사 전체가 멈췄다 · CI 는 브라우저가 없어 못 잰다) */
   await pg.click('[data-fk="mkg:declare"]'); await pg.waitForTimeout(600);
@@ -821,7 +822,7 @@ for (const w of [390, 1280]) {
   ok(`NF-5 ${w} ② 에 다시 들어오면(④ 에서 와도) 접힌 채`, e.hidden && e.ex === 'false', JSON.stringify(e));
   /* 미완료 — 지나온 미완료 순간이 있으면 접힌 줄에 «빠뜨린 순간 n»([PROG_COUNT_1031] 옛 «미완료 순간 n»)(진사 글자 · 점 없음) · 줄의 진사 칸 수와 같다 */
   const t = await pg.evaluate(() => { if (_mkState().at === 'vow') mkGo('declare');   /* [NF_PICK_DECLARE] */ S.on.vow = 1; opSync(); S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; _mkState().seen.vow = 1; render();   /* 혼인 서약을 지나왔고 비어 있다 → 미완료 하나는 반드시 있다 */
-    const n = document.querySelectorAll('#mkStrip .mk-it.todo').length, el = document.querySelector('#mkStrip .mk-left'), m = el ? el.textContent.match(/빠뜨린 순간 (\d+)/) : null;
+    const n = document.querySelectorAll('#mkStrip .mk-it.todo').length, el = document.querySelector('#mkStat .mk-left'), m = el ? el.textContent.match(/빠뜨린 (\d+)/) : null;   /* [MK_HEAD_D] 화면은 «빠뜨린 n»(읽는 이름은 «확인할 항목이 남은 순간 n곳») */
     return { n, shown: m ? +m[1] : 0, col: el ? getComputedStyle(el).color : '', dot: el ? getComputedStyle(el, '::after').content : '' }; });
   ok(`NF-6 ${w} 미완료 수 = 줄의 진사 칸 수(1 이상으로 만들어 잰다) · 진사 글자 · 점 없음 [TODO_NODOT]`, t.n >= 1 && t.shown === t.n && ((/rgb\(107, 42, 36\)/.test(t.col) && /none|normal/.test(t.dot))), JSON.stringify(t));
   ok(`NF ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
