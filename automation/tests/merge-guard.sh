@@ -21585,4 +21585,7 @@ chk 'function songsOf(k){' assets/bgm-bed.js 1   # [BED_LOAD_1101 덧1 ③] 미�
 nochk "var f6=eff('M6'); if(has(f6)) want(f6);" assets/bgm-bed.js   # [BED_LOAD_1101 덧1 ③] 축배 미리 받기는 M7(M6 아님)
 chk "if (k === 'toast') return /^M4S\[56\]\$/.test(BED.seg) ? 'M4' : '';" console.html 1   # [BED_LOAD_1101 덧2]
 if command -v node >/dev/null 2>&1; then node scripts/audit/bed-load.mjs >/dev/null 2>&1; _bdl=$?; if [ "$_bdl" = 1 ]; then echo 'FAIL bed-load: 이 순간 전체 듣기 곡 받기(늦은 곡 뜸 · 못 받음 줄 · 풀어 둔 곡 셋 · 미리 받기 · 무음 스위치)가 어긋났습니다 — node scripts/audit/bed-load.mjs'; fail=1; elif [ "$_bdl" = 2 ]; then echo 'skip bed-load (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bed-load'; fi; fi
+chk 'ROW_FILL_PLAY_1101' assets/bgm-bed.js 1   # [ROW_FILL_PLAY_1101] 목록 칸 배경 곡 ▶ 도 재생 · 조용히 무시하지 않는다
+chk 'ROW_FILL_PLAY_1101' scripts/audit/bgm-fill.mjs 1
+nochk "if(!d||!P.byF(f)||(P.PICKS\[sg\]||\[\]).indexOf(f)<0) return;" assets/bgm-bed.js 0   # [ROW_FILL_PLAY_1101] ▶ 를 PICKS 로만 막던 줄
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

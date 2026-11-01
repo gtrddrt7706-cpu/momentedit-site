@@ -114,6 +114,19 @@ try {
     await go(f, 'guest'); r = await look(f, 'M1');
     ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄에서 빠진다(4줄)`, r && r.list.join() === 'B01,B24,B13,B33' && !r.tA.some((x) => x[0] === 'The Rose'), r);
     await shot(f, W, 'guest-flow', '.ls-bed[data-seg="M1"]');
+    /* ★[ROW_FILL_PLAY_1101 사장님 아이폰 «하객 맞이 곡 ▶ 아무리 눌러도 안 나와»] 목록 칸(하객 맞이 · 테이블 인사) 곡 줄 ▶ 다섯 — 누를 때마다 그 곡이 재생(배경 곡 B16 · B33 · B13 · B14 포함) · 고르기로 배경 곡이 저장되지 않는다 */
+    { await setS(f, {}); await pg.evaluate(() => { ['B14', 'B23', 'B33'].forEach((x) => { if (H.have.indexOf(x) < 0) { H.have.push(x); H.songs[x] = H.songs.B01; H.__rfp = (H.__rfp || []).concat(x); } }); });
+      await f.evaluate(() => { const A = BgmBed._t.AV; A.st = ''; A.set = {}; }); const rp = [];
+      for (const [k, sg] of [['guest', 'M1'], ['table', 'M8']]) { await go(f, k); await wait(f, 500);
+        const fs = await f.evaluate((sg) => [...document.querySelectorAll('.ls-bed[data-seg="' + sg + '"] li.mu-row[data-f]')].map((x) => x.getAttribute('data-f')), sg);
+        for (const x of fs) { await f.evaluate(({ sg, x }) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"] [data-fk="bedp:' + sg + ':' + x + '"]'); if (b) b.click(); }, { sg, x }); await wait(f, 700);
+          rp.push(await f.evaluate(({ sg, x }) => { const t = BgmBed._t; return { sg, x, f: t.CARD.f, st: t.CARD.st, who: t.BED.who, cur: t.BED.cur && t.BED.cur.f }; }, { sg, x })); }
+        await f.evaluate(() => { try { BgmBed._t.CARD && document.querySelector('.mu-pl.on') && document.querySelector('.mu-pl.on').click(); } catch (e) {} }); await wait(f, 300); }
+      const bad = rp.filter((r) => !(r.f === r.x && r.who === 'card' && r.cur === r.x && r.st === 'play'));
+      ok(`${W} ROW_FILL_PLAY 하객 맞이 · 테이블 인사 곡 줄 ▶ 열 — 누를 때마다 그 곡(배경 곡 포함 · CARD.f = 누른 곡 · BED.who card)`, rp.length === 10 && !bad.length, { bad, n: rp.length });
+      const pk = await f.evaluate(() => { try { bedAct('pick', 'B33', 'guest', 'M1'); } catch (e) {} try { bedAct('pick', 'B14', 'table', 'M8'); } catch (e) {} return JSON.stringify(S.bgm || {}); });
+      ok(`${W} ROW_FILL_PLAY 고르기(pick)로 배경 곡이 저장되지 않는다(그대로 PICKS 만)`, !/B33|B14/.test(pk), pk);
+      await pg.evaluate(() => { (H.__rfp || []).forEach((x) => { H.have.splice(H.have.indexOf(x), 1); delete H.songs[x]; }); H.__rfp = []; }); await f.evaluate(() => { const A = BgmBed._t.AV; A.st = ''; A.set = {}; }); }
     /* d 파일이 없을 때 — 화촉 1 · 2(B05 · B31)는 드라이브에 없다 */
     await setS(f, { M2: { k: 'B31' } }); await go(f, 'candle'); await wait(f, 600);
     const d1 = await f.evaluate(() => ({ at: BgmBed._t.songAt ? BgmBed._t.songAt('candle') : '', ft: ((document.querySelector('.ls-bed[data-seg="M2"] .mu-fsel .mu-t') || {}).textContent || '') }));

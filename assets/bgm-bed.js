@@ -392,16 +392,17 @@
     CARD.f=f; CARD.sg=sg||''; CARD.st='load'; CARD.at=Date.now(); CARD.slow=false; repaint();
     setTimeout(function(){ if(tk===CARD.tk&&CARD.st==='load'){ CARD.slow=true; repaint(); } },LOAD_MS);
     want(f,function(b,ec){ if(tk!==CARD.tk) return; CARD.slow=false; if(!b){ CARD.f=''; CARD.st=''; repaint(); toast1(ec==='L3'?'곡을 준비하고 있어요':'곡을 불러오지 못했어요 (코드 '+(ec||'L4')+')'); return; }   /* L3 = 드라이브에 아직 없는 곡 */
-      if(BED.who==='lp'||BED.cur.src) hushAll(300); BED.who='card'; CARD.st='play'; repaint();
-      var a=ctx(); if(!a) return; var s0=P.byF(f), at=(s0&&s0.start!=null)?Math.max(0,+s0.start-SOLO.pre):0, v=Voice();
+      var a=ctx(); if(!a){ cardFail(); return; }   /* [ROW_FILL_PLAY_1101 · DETAIL_R4_1101 ⑤] 소리 길이 없으면 ▶ 로 되돌리고 한 줄 */
+      if(BED.who==='lp'||BED.cur.src) hushAll(300); BED.who='card'; var s0=P.byF(f), at=(s0&&s0.start!=null)?Math.max(0,+s0.start-SOLO.pre):0, v=Voice();
       try{ if(a.state==='suspended') a.resume(); v.src=a.createBufferSource(); v.src.buffer=b; v.src.loop=false; v.g=a.createGain(); v.g.gain.value=0.00003;
         var lim=mkBus(a);   /* ★[BGM_TIMING2_1101] 리미터 + 천장(이 순간 전체 듣기 버스와 같은 길) */
         v.src.connect(v.g); v.g.connect(lim); v.lim=lim;
         var off=Math.max(0,Math.min(b.duration-0.5,at)); v.src.start(0,off); v.t0=a.currentTime; v.off=off; v.f=f; v.solo=true;
         var now=a.currentTime, G=Math.pow(10,SOLO.db/20); v.g.gain.setValueAtTime(0.00003,now); v.g.gain.linearRampToValueAtTime(G,now+SOLO.fade/1000); v.want=SOLO.db;
         var left=Math.max(0.2,b.duration-off); v.g.gain.setValueAtTime(G,now+Math.max(SOLO.fade/1000,left-SOLO.fade/1000)); v.g.gain.linearRampToValueAtTime(0.00003,now+left);
-        v.src.onended=function(){ if(tk===CARD.tk&&BED.cur===v) stopCard(); }; }catch(x){ return; }
-      BED.cur=v; }); }
+        v.src.onended=function(){ if(tk===CARD.tk&&BED.cur===v) stopCard(); }; }catch(x){ cardFail(); return; }   /* [ROW_FILL_PLAY_1101 · DETAIL_R4_1101 ⑤] 시작을 못 하면 ▶ 로 되돌리고 한 줄 */
+      BED.cur=v; CARD.st='play'; repaint(); }); }   /* [DETAIL_R4_1101 ⑤] 소리가 실제로 시작된 뒤에 ■ */
+  function cardFail(){ CARD.f=''; CARD.sg=''; CARD.st=''; if(BED.who==='card') BED.who=''; repaint(); toast1('재생하지 못했어요 · 다시 눌러 주세요'); }
 
   /* ★★[MUSIC_FOLD_1031 2026-10-31 사장님 시안 «1 · 음악만 접기» 고름] 곡을 «직접» 골라 둔 구간은 그 순간 쪽에 «새로 들어올 때»(쪽 옮김 · 화면 열기 · 다시 열기) 한 줄로 접는다 —
      접힌 줄 = (마이페이지 안이면 그 곡 ▶) + 곡 이름 · 아랫줄 + 오른쪽 «바꾸기»(밑줄 글 단추 · .pk-link 색 · LINK_GOLD_1031) · 아래 «준비해요» 한 줄은 펼쳤을 때만.
@@ -491,7 +492,11 @@
     if(kind==='relist'){ AV.st=''; AV.set={}; list(); repaint(); return; }   /* [BED_EMPTY_RELIST_1031] */
     if(kind==='open'){ if(!P.seg(sg)) return; FM()[sg]=0; repaint();   /* [MUSIC_FOLD_1031] «바꾸기» — 그 자리에서 편다 · 이 방문 동안 그대로 · 포커스는 고른 곡 줄로(화면은 움직이지 않는다) */
       var bx=D.getElementById(boxId(sg)), r=bx&&(bx.querySelector('.mu-pick[aria-checked="true"]')||bx.querySelector('.mu-pick')); if(r) try{ r.focus({preventScroll:true}); }catch(x){} return; }
-    f=String(f||'').toUpperCase(); var d=P.seg(sg); if(!d||!P.byF(f)||(P.PICKS[sg]||[]).indexOf(f)<0) return;   /* [BGM_FIX_1030] 번호 = 곡마다 하나 → 구간은 누른 줄(data-seg)이 건넨다 */
+    f=String(f||'').toUpperCase(); var d=P.seg(sg), inPick=(P.PICKS[sg]||[]).indexOf(f)>-1;   /* [BGM_FIX_1030] 번호 = 곡마다 하나 → 구간은 누른 줄(data-seg)이 건넨다 */
+    /* ★★[ROW_FILL_PLAY_1101 사장님 아이폰 «하객 맞이 곡 ▶ 아무리 눌러도 안 나와»] 곡 카드 ▶ 는 «그 구간 화면 곡 줄에 있는 곡»이면 받는다 — 고르기 목록(PICKS) 또는 목록 칸의 배경 곡(FILL · 화면 줄과 같은 ordOf) ·
+         종전엔 PICKS 만 받아 하객 맞이 B16 · B33 · 테이블 B13 · B14 · 닫는 인사 배경 곡 ▶ 를 그려 놓고 누르면 조용히 무시했다 · 고르기(pick)는 지금처럼 PICKS 만 */
+    if(kind==='prev'){ var inRow=inPick||(P.loopy&&P.loopy(sg)&&ordOf(sg).indexOf(f)>-1); if(!d||!P.byF(f)||!inRow){ toast1('이 곡은 지금 들을 수 없어요'); return; } }   /* 조용히 무시하지 않는다 */
+    else if(!d||!P.byF(f)||!inPick) return;
     if(kind==='prev'){ if(CARD.f===f&&CARD.sg===sg){ stopCard(); return; } if(AV.st==='ok'&&!AV.set[f]){ toast1('곡을 준비하고 있어요'); return; }   /* [GHIBLI_ADD_1101] 드라이브에 아직 없는 곡(곡 줄 · 이름은 그대로) */
       try{ if(typeof _stopAud==='function') _stopAud(); }catch(x){} try{ if(typeof LP!=='undefined'&&LP.q&&LP.q.length&&typeof lsStop==='function') lsStop(true); }catch(x){} try{ if(window.EntryMusic) EntryMusic.hush(); }catch(x){}
       stopCard(true); card(f,k,sg); return; }
