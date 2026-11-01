@@ -21558,7 +21558,7 @@ chk 'if(st._pre){ LPB.cheer=false;' assets/bgm-bed.js 1
 chk 'if(pv&&nx&&pv.k!==nx.k&&(nx._pre||nx._noLead)){' assets/bgm-bed.js 1
 chk 'function _lPreMark(){' order-preview.html 1
 chk 'st._leadHere||(!st._pre&&' order-preview.html 1
-chk "_lPreMark(); if(_bedOn()) try{ BgmBed.lpGap(_pv,_nx,_gap); }catch(e){}" order-preview.html 1
+chk "_lPreMark(); if(_bedOn()) try{ BgmBed.lpGap(_pv,_nx,_gap,_tgk); }catch(e){}" order-preview.html 1
 chk "if (/^bridge-(b8-face-guests|b12-tribute-calm|b14-candle-name)\$/.test(sl)) return '';" console.html 1
 chk '화촉 이음말(263) 뒤부터' assets/bgm-slots.js 1
 nochk '화촉 이음말(263)부터' assets/bgm-slots.js 0
@@ -21647,4 +21647,7 @@ chk 'var LEAD_WAIT=20000;' assets/bgm-bed.js 1   # [LEAD_FIRST_1101] 곡 없으�
 chk '음악 없이 먼저 들려 드려요 · 곡이 오면 이어서 흘러요' assets/bgm-bed.js 1   # [LEAD_FIRST_1101] 20초 넘으면 음악 없이 · 곡은 줄 사이에서
 chk "if(kind==='lfold'){ if(!isList(sg)) return;" assets/bgm-bed.js 1   # [LIST_FOLD_1102] 목록 칸 처음엔 접힘 · 펼침은 이 방문 동안
 chk '.bed-box .mu-lfold{' order-preview.html 1   # [LIST_FOLD_1102] «펼치기 · 접기» 첫 줄 오른쪽 고정
+chk "function _tgAm(c){" order-preview.html 1   # [TIME_GAP_1102] 줄 시각(atMin · 입장 때 −30)
+chk "LP.tgGap=_tgk?_gap:0;" order-preview.html 1   # [TIME_GAP_1102] 이벤트 줄 사이 쉼(시각 간격 6초 · 제목 바뀜 2.5초)
+chk "if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){" assets/bgm-bed.js 1   # [TIME_GAP_1102] 쉼 동안 −8 · −12 · 정적은 그대로
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
