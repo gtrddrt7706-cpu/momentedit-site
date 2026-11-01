@@ -20630,7 +20630,7 @@ chk 'REVIEW_166_1030' assets/ritual-open.js 1
 chk 'REVIEW_166_1030' order-preview.html 3
 nochk "lab:'말 없이 흐르는 자리'" order-preview.html
 nochk '비어 있는 칸이 있어요' order-preview.html
-chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요)' order-preview.html 1
+chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요|연습에서는 넘겨요)' order-preview.html 1
 # ── 2026-10-30 [REVIEW_166_1030 검토 166 B] 동작 — 한 사람 판 예시에도 두 분 글 · 받은 원고 · 현장에서면 글 보관 · 말없이면 인사 글 빼기 · 인용 줄 묶기 · 축가 직접 · 한눈에 보기 말 · 선언 안내 · 같은 소리 칩 숨김 · 칩 바꾸면 재생 멈춤 · 검사 review-166
 chk 'REVIEW_166_1030' scripts/audit/review-166.mjs 3
 chk 'function _sentJoinQ(L)' order-preview.html 1
