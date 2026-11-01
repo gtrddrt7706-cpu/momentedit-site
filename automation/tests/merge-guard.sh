@@ -20748,7 +20748,7 @@ chk 'function bedVolFb()' console.html 1   # [DETAIL_R4_1101 ③] 대체 경로 
 chk 'if(o&&o.inner) return; scStop(); HAND=null;' assets/entry-music.js 1   # [DETAIL_R4_1101 ②] 넘긴 장면 보호는 안에서 넘겨줄 때만
 chk 'window.__emInner=1;' order-preview.html 1   # [DETAIL_R4_1101 ②]
 chk '곡 목록을 불러오지 못했어요 · <button' assets/bgm-bed.js 1   # [DETAIL_R4_1101 ⑦] 안내 칸 빈 목록 다시 불러오기
-chk 'turn:function(){ LPB.lt++; LPB.keep={}; if(CARD.f&&BED.who!==' assets/bgm-bed.js 1   # [DETAIL_R4_1101 ①] 받는 중인 곡 카드 차례도 무효
+chk 'turn:function(){ LPB.lt++; LPB.keep={}; LPB.late=null; if(CARD.f&&BED.who!==' assets/bgm-bed.js 1   # [DETAIL_R4_1101 ①] 받는 중인 곡 카드 차례도 무효
 chk 'DETAIL_R3_1101' scripts/audit/detail-r3.mjs 1
 chk 'DETAIL_R4_1101' scripts/audit/detail-r4.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r3.mjs >/dev/null 2>&1; _r3=$?; if [ "$_r3" = 1 ]; then echo 'FAIL detail-r3: 당일 콘솔(예식별 선곡 · 새 곡 열림 확인 · 셋째 재생기 · 정지/뒤로 입장 장면 · 대체 경로 덕킹) — node scripts/audit/detail-r3.mjs'; fail=1; elif [ "$_r3" = 2 ]; then echo 'skip detail-r3 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r3'; fi; fi   # ★[DETAIL_R3_1101]
@@ -21622,7 +21622,7 @@ chk 'BED_LOAD_1101' assets/bgm-bed.js 16
 chk 'BED_LOAD_1101' order-preview.html 6
 chk "if(s&&s.type!=='playback') s.type='playback';" assets/bgm-bed.js 1
 chk 'var BUF_MAX=3;' assets/bgm-bed.js 1
-chk 'var LEAD_WAIT=8000;' assets/bgm-bed.js 1
+nochk 'var LEAD_WAIT=8000;' assets/bgm-bed.js 0   # [LEAD_FIRST_1101] 8초 → 20초
 chk "done(f,null,'M6')" assets/bgm-bed.js 2
 chk 'function warmK(k)' assets/bgm-bed.js 1
 chk 'BgmBed.lpLead(st,_lRe)' order-preview.html 1
@@ -21639,7 +21639,7 @@ chk 'ROW_FILL_PLAY_1101' scripts/audit/bgm-fill.mjs 1
 nochk "if(!d||!P.byF(f)||(P.PICKS\[sg\]||\[\]).indexOf(f)<0) return;" assets/bgm-bed.js 0   # [ROW_FILL_PLAY_1101] ▶ 를 PICKS 로만 막던 줄
 chk 'function listGo(step)' console.html 1   # [DETAIL_R5_1101 규칙 5] 목록 다음 곡 — 못 연 곡 건너뛰기 · 없으면 지금 곡 이어 틀기 + 상태 한 줄
 chk '다음 곡을 열지 못해 지금 곡을 이어 틀어요' console.html 1
-chk 'LPB.keep={}; if(CARD.f' assets/bgm-bed.js 1   # [DETAIL_R5_1101 규칙 6] 새로 듣기 · 순간 옮기기 = 처음
+chk 'LPB.keep={}; LPB.late=null; if(CARD.f' assets/bgm-bed.js 1   # [DETAIL_R5_1101 규칙 6] 새로 듣기 · 순간 옮기기 = 처음
 nochk "lsCloseBig();setTimeout(function(){ opGoStep" order-preview.html 0   # [DETAIL_R4_1101 ⑥] 닫고 옮기기는 콜백으로만
 chk 'function rowLd(sg,f)' assets/bgm-bed.js 1   # [ROW_FILL_PLAY_1101 보탬] 누른 곡 줄 안 «불러오는 중»
 chk '.mk-pl,.mu-pl,.mu-pick,.mu-chg,.pk-link,.mk-hbtn,.op-chip{-webkit-tap-highlight-color:transparent}' order-preview.html 1   # [ROW_FILL_PLAY_1101 보탬] 아이폰 회색 네모
