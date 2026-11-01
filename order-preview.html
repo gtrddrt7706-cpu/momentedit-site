@@ -592,6 +592,15 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .ob-nav .sh{display:none}
 @media (max-width:560px){ .ob-nav .lg{display:none} .ob-nav .sh{display:inline} body.op4 .ob-save,body.op4 #obExit{min-width:0} body.op4 .ob-exit{padding:0 12px} body.op4 #obExitSlot{gap:6px} body.op4 .ob-save{min-width:80px} }   /* ★[SAVE_PILL_STEADY 2026-10-09 A~Z 점검 1라운드 A-12] 저장 알약은 «저장 · 저장 중… · 저장됨»이 같은 폭 — 종전 50 · 79 · 62px 로 바뀌며 «⋯»가 29px 까지 움직였다(1280 은 86px 고정) */
 .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)}
+/* ★[MK_HEAD_D 1101] 폰(560 이하) 머리 알약 사이 4 · 나가기 48(문구 · 44 높이 · 바로 보임은 그대로) — 360 에서 상태 단추가 한 줄 두 층(140px)에 든다.
+   ① · ③ · ④ 도 같은 폭이라 걸음을 옮겨도 «⋯ · 저장 · 나가기»가 한 픽셀도 안 움직인다(HEAD_PILLS 의 나가기 약 61 → 48 은 이것으로 대체) */
+@media (max-width:560px){ body.op4 #obExitSlot{gap:4px} body.op4 #obExit{min-width:48px;padding:0 4px} }
+body.mkd .prog{position:sticky;top:-15px;z-index:4;background:var(--bg);box-shadow:-18px 0 0 var(--bg),18px 0 0 var(--bg)}   /* [MK_HEAD_D] ② 순간 쪽은 머리 줄(상태 · 도구)이 붙는다 · 위 15px 만 스크롤된다 · 네 칸 선은 자연스럽게 스크롤 */
+body.mkd .prog-top{justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:0}
+body.mkd #obExitSlot{margin-left:auto}
+body.mkd .op-steps-c{margin:0}   /* 머리 줄 → 8(.stage 위 여백) → 네 칸 선 → 12 → 순간 제목 = 머리 약 81px(종전 155) */
+@media (max-width:560px){ body.mkd .prog-top{gap:4px} }
+@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap;row-gap:4px} body.mkd .mk-status{order:2;flex:1 1 100%} body.mkd .mk-strip{top:92px} }   /* [MK_HEAD_D] 좁은 마우스 창(새로고침이 있다) — 도구는 그대로 맨 위 · 상태는 아래 줄 전체 폭(폭으로 새로고침을 숨기지 않는다 · REFRESH_BTN) */
 /* ★★[TOP_MENU 2026-10-03 사장님 «추천대로 개선해서 적용해 보자»] 머리 줄 = «⋯» · 저장 · 나가기. «안내 다시 보기» · «처음부터 다시 만들기»는 «⋯» 안(제 이름 그대로 · 단추와 확인 창은 종전 그대로).
    작은 창은 단추에 붙는다 · 머리카락 테 · 크림 바탕 · 그림자 · 흐림 없음 · 줄 = 폭 가득 글 단추(44px). Esc · 밖을 누르면 닫힌다 · Esc 는 초점을 «⋯»로. */
 #obMoreWrap{position:relative;display:inline-flex}
@@ -1404,15 +1413,27 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
    펼치면 종전 줄 그대로(390 한 줄 넘기기 [STRIP_ONE] · PC 줄바꿈 [MK_STRIP_WRAP] · 미완료 색 · 한눈에 보기 · + 순간 더하기 · ⓘ).
    순간을 고르면 그 쪽으로 가며 다시 접힌다 · ② 에 들어올 때마다 접힌 채(저장하지 않는다). 앞뒤 화살표는 두지 않는다 — 아래 막대의 «이전 · 다음»이 같은 일을 한다.
    펼침 표시는 가는 꺾쇠(FOLD_CHEVRON · ▾ 글자 금지). 크기 12.5(이 쪽의 RIT_TYPE5 · 줄의 탭과 같은 크기) · 굵기 600 이하 · 누르는 칸 44. */
-.mk-fold{display:flex;align-items:center;gap:8px;padding:0 16px;min-height:44px}
-.mk-pos{flex:1 1 auto;min-width:0;font-size:12.5px;letter-spacing:.04em;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mk-pos b{font-weight:500;color:var(--accent)}   /* [FOLD_UNDER_STEPS] 걸음 표시(지금 걸음 600)보다 한 단 가볍게 */
-.mk-pos .mk-left{color:var(--seal)}
-.mk-fbtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 10px;border:0;background:none;color:var(--accent);font:inherit;font-size:12.5px;font-weight:500;letter-spacing:.04em;cursor:pointer}   /* [FOLD_UNDER_STEPS] 600 → 500 */
-.mk-fbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+/* ★★[MK_HEAD_D 1101 사장님 «바꾸자»(GPT 3라운드 · 코워크 수정)] 위 NAV_FOLD 의 «왼쪽 자리 글 + 오른쪽 «모든 순간 보기» 글 단추» 한 줄은 대체 — 자리 글 전체가 펼침 단추(.mk-status)다.
+   머리 줄 = 왼쪽 상태 단추(위 «하나씩 만들기» · 아래 «본식 6/9 · 빠뜨린 4» · 꺾쇠) + 오른쪽 도구(⋯ · 새로고침 · 저장 · 나가기 그대로) → 그 아래 네 칸 선 → 순간 제목.
+   선을 도구 줄 아래에 두는 것은 코워크 수정 — ① · ③ · ④ 도 [도구 줄 → 걸음 표시]라 단계를 옮겨도 저장 · 나가기 높이가 같다.
+   글 줄임은 화면만 · 화면 읽기는 aria-label 에 온 뜻(«본식 9개 순간 중 6번째 …») · 셈(_mkStat · 본식 번호)은 그대로. 옅은 테 = «눌린다» 표시(채움은 펼쳤을 때만 · 고르기 전 눌린 모양 금지). */
+.mk-status{display:grid;grid-template-columns:minmax(0,1fr) 16px;align-items:center;column-gap:4px;flex:0 1 250px;min-width:0;min-height:44px;margin:0;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;text-align:left;color:var(--sub);font:inherit;font-size:12.5px;line-height:18px;letter-spacing:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mk-status[hidden]{display:none}
+.mk-status[aria-expanded="true"]{background:var(--bg2)}
+@media (hover:hover){ .mk-status:hover{background:var(--bg2)} }
+.mk-status:focus-visible{outline:2px solid var(--seal);outline-offset:1px}
+.mk-status .mk-sh{font-weight:500;color:var(--sub);white-space:nowrap}
+.mk-status .mk-chev{justify-self:center;width:7px;height:7px;border-width:0 1.5px 1.5px 0;color:var(--accent)}
+.mk-status[aria-expanded="true"] .mk-chev{transform:translateY(2px) rotate(-135deg)}
+.mk-status .mk-sd{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;min-width:0;font-weight:400}
+.mk-sd b{font-weight:600;color:var(--accent)}
+.mk-sd .mk-at,.mk-sd .mk-left{white-space:nowrap}
+.mk-sd .mk-at.wr{white-space:normal}   /* 뺀 순간 · 긴 이름은 낱말 단위로 줄바꿈(숫자 · 상태는 자르지 않는다) */
+.mk-sd .mk-left,.mk-sd .mk-left b{color:var(--seal)}   /* [TODO_NODOT] 빠뜨린 = 진사 글자 · 점 없음 */
+@media (max-width:560px){ .mk-status{flex:1 1 auto;padding:3px 5px} }
 .mk-chev{width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
-.mk-fbtn[aria-expanded="true"] .mk-chev{transform:translateY(2px) rotate(-135deg)}
 .mk-strip .mk-sc[hidden]{display:none}
+body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* [MK_HEAD_D] 접힌 줄 행이 머리 줄로 갔다 — 여기는 펼친 순간 줄만(펼치면 붙는 머리 줄 바로 아래에 붙는다) · FOLD_UNDER_STEPS 의 아래 선 · 여백은 걷었다 */
 /* [VOICE_ONCE] 두 분 목소리 만들기 쪽 — 진행 한 줄(✓ 금빛 짙은 글자 · 남음 옅게) · 아래 «나중에 할게요» 작은 글 단추. 사람 카드 · 길잡이는 종전 것(.mk-vlist · .mk-vsg) 그대로 */
 .mk-vprog{margin:0 0 14px;font-size:14px;color:var(--ink2);letter-spacing:.01em}
 .mk-vpk{color:var(--light)}
@@ -1452,7 +1473,6 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-vpcs .mk-vhow{display:block;margin:10px 0 0;padding:0;font-size:12.5px;line-height:1.6;color:var(--sub)}   /* [VPAGE_TIDY] */
 .mk-vlater .pk-link{min-height:44px;font-size:12.5px;color:var(--gold-deeper)}   /* [UI_ONE] */
 /* [STEP_COMPACT] 펼친 첫 줄 — 걸음 넷을 가운뎃점으로 · 지금 걸음 먹빛 600(위 걸음 표시와 같은 말) · 지나온 걸음은 밑줄 단추 44 · 레일 자리는 아래 순간 줄과 같다 */
-.mk-pos .mk-pstep[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){ .mk-chev{transition:none} }
 .mk-todo{border-color:var(--accent);color:var(--accent)}
 .mk-add{border-style:dashed}
@@ -2307,7 +2327,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <h1 class="sr-only">우리 예식 짓기</h1><!-- [RIT_NAME_TWO] -->
   <div class="prog">
     <!-- 1행: 상태 라벨 + 나가기(임베드) — 다른 위저드 헤더('청첩장 · 1/4 · 저장 후 나가기')와 같은 앵커 구조(2026-07-18 사용자 지적: 홀로 뜬 나가기 줄 정리) -->
-    <div class="prog-top"><span class="prog-now" id="pnow"></span><span id="obExitSlot"></span></div>
+    <div class="prog-top"><span class="prog-now" id="pnow"></span><button type="button" class="mk-status" id="mkStat" data-fk="mkfold" aria-expanded="false" aria-controls="mkScP" onclick="mkFold()" hidden></button><span id="obExitSlot"></span></div><!-- [MK_HEAD_D] ② 순간 쪽 상태 단추 — render 가 다시 그리지 않는 머리 줄에 둔다(초점 · 저장 · 나가기 그대로) -->
     <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
     <!-- [ORD_RESET_MID] 2행 오른쪽 — 예고 이름표(#pnext)와 같은 칸을 나눠 쓴다(_paintReset이 갈라 준다) -->
     <div class="prog-sub"><span class="prog-pct" id="ppct"></span><span class="prog-next" id="pnext"></span><button type="button" class="prog-reset" id="pReset" onclick="resetAll()">처음부터 다시 만들기</button></div>
@@ -3667,7 +3687,8 @@ function render(){
      제목(#stepHead)에 있던 포커스는 새 제목으로(② 가 엔진 · 녹음표를 불러와 다시 그릴 때 BODY 로 가던 것). */
   _cgEven();   // [CG_EVEN]
   try{ if(window.EntryMusic) EntryMusic.after(); }catch(e){}   // [ENTRY_MUSIC_1012] 다른 쪽으로 가면 입장 음악 미리 듣기를 멈춘다
-  if(document.getElementById('mkStrip')){ _mkStripKeep(); _mkPosFit(); }   // [MK_STRIP_KEEP 2026-09-27] 모바일 한 줄 — 지금 칸을 가운데로(함수만 있고 부르는 곳이 없어 뒤쪽 순간에선 지금 칸이 화면 밖이었다)
+  _mkStatPaint();   // [MK_HEAD_D] 상태 단추는 늘 그린다(② 순간 쪽 밖이면 숨긴다)
+  if(document.getElementById('mkStrip')){ _mkStripKeep(); }   // [MK_STRIP_KEEP 2026-09-27] 모바일 한 줄 — 지금 칸을 가운데로(함수만 있고 부르는 곳이 없어 뒤쪽 순간에선 지금 칸이 화면 밖이었다)
   if(!_fxNext&&_ta0){ try{ var _t1=el.querySelector(_ta0.sel)||document.querySelector(_ta0.sel); if(_t1&&_t1!==_ae0){ if(document.activeElement!==_t1) _t1.focus({preventScroll:true}); if(_ta0.a!=null) _t1.setSelectionRange(_ta0.a,_ta0.b); _t1.scrollTop=_ta0.top; if(_ta0.dirty){ _t1._dirty=1; _t1.addEventListener('blur',function(){ if(typeof _taChange==='function') _taChange(); },{once:true}); } } }catch(e){} }   // [TA_KEEP]
   if(_fxNext){ var _fx=document.querySelector(_fxNext); _fxNext=null; if(_fx) try{ _fx.focus({preventScroll:true}); }catch(e){} }
   else if(!_fk && _ae0 && _ae0.id==='stepHead' && !document.activeElement.closest('#stage')){ var _sh=document.getElementById('stepHead'); if(_sh) try{ _sh.focus({preventScroll:true}); }catch(e){} }
@@ -4875,16 +4896,10 @@ window.mkUndone=function(){ return _mkTodoN(); };   // ④ · 마이페이지가
 /* 진행 순서 줄 — 채운 칸(지금) · 체크(다 됨) · 빈 동그라미(미완료) · 흐리게+줄(뺀 순간) · 표시 없음(아직 안 봄). 색만으로 말하지 않는다 */
 function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
   /* [MK_TODO_PASSED] «미완료 N» 단추는 걷었다 — 미완료는 지나온 쪽의 빈 동그라미(진사)로만 · 모아 보기는 마지막 «한눈에 보기» */
-  /* [NAV_FOLD] 접힌 한 줄 — 순간 수는 담은 순간만(고른 순서 쪽 · 한눈에 보기 · 뺀 순간 제외) · 미완료 = 줄에서 진사로 칠해지는 «지나온 미완료» 순간 수(_mkStat 그대로 · 새 판정 없음) */
-  var _mo=ps.filter(function(k){ return k!=='_intro'&&k!=='_sum'&&k!=='_voice'&&!_mkOff(k); }), _mi=_mo.indexOf(cur), _left=_mo.filter(function(k){ return _mkStat(k)==='todo'; }).length, _open=!!MK.navOpen;
-  /* 번호는 쪽 제목(«6 · 반지 교환») · 아래 단추(«다음 · 7 성혼 선언»)와 같은 셈 — 본식은 bodySeq 차례(닫는 인사까지) · 식전은 식전끼리. 한 화면에 두 번호가 다르면 안 된다 */
-  var _no=_mkNo(cur), _pre=_mo.filter(function(k){ return _mkNo(k)==='식전'; }), _bN=RitualOpen.bodySeq(S).length;   /* ★[PROG_COUNT_1031 식순 걷기 1라운드 GPT 4] 쪽 제목 번호(_mkNo = bodySeq 차례 · 테이블 인사 포함)와 같은 셈 — 테이블 인사를 빼고 세어 «본식 9 / 8»이 났다 */   /* [TABLE_APART] 본식 n / N 의 N 에서 테이블 인사를 뺀다 · [TOAST_LAST_1013] 축배는 닫는 인사 뒤여도 본식 안(APART) */
-  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'식전 <b>'+(_pre.indexOf(cur)+1)+'</b> / '+_pre.length:'본식 <b>'+_no+'</b> / '+_bN;   /* [PROG_COUNT_1031] 테이블 인사도 «본식 7 / 9» — 그 뒤에 축배 · 닫는 인사가 오는데 «본식 뒤»라 끝난 줄 알았다 */   /* [TABLE_APART] · [TOAST_LAST_1013] APART */
-  var h='<nav class="mk-strip" id="mkStrip" aria-label="진행 순서">'
-    +'<div class="mk-fold"><span class="mk-pos" data-fk="mkpos"><span class="mk-pstep">하나씩 만들기 · </span>'+_pos+(_left?'<span class="mk-left"> · 빠뜨린 순간 '+_left+'</span>':'')+'</span>'
-    +'<button type="button" class="mk-fbtn" data-fk="mkfold" aria-expanded="'+_open+'" aria-controls="mkScP" onclick="mkFold()">'+(_open?'접기':'모든 순간 보기')+'<i class="mk-chev" aria-hidden="true"></i></button></div>'
+  var _open=!!MK.navOpen;
+  var h='<div class="mk-strip" id="mkStrip">'
     /* ★펼친 첫 줄의 걸음 줄(고르기 · 하나씩 만들기 · 연습하기 · 완성) 금지 — 2026-10-04 사용자 지시로 삭제 [STEP_LAB_TOP] · 걸음 이름과 이동은 위 접은 표시 칸 위에 */
-    +'<div class="mk-sc" id="mkScP"'+(_open?'':' hidden')+'>'+_cntLine('mk');   /* [EVENT_COUNT_CAP] */
+    +'<nav class="mk-sc" id="mkScP" aria-label="진행 순서"'+(_open?'':' hidden')+'>'+_cntLine('mk');   /* [MK_HEAD_D] 순간 줄만 nav(진행 순서) · 상태 단추와 저장 · 나가기는 이 탐색 구역 밖 */   /* [EVENT_COUNT_CAP] */
   ps.forEach(function(k){ if(k==='_intro'||k==='_voice') return; var st=_mkStat(k), no=_mkNo(k), on=(k===cur), _vk=(k==='_sum'||k==='_close')?null:_vmKind(k), _vp=_vk&&_vk.v==='prep'?_vk:null;
     var lab=(no&&no!=='식전'?no+' ':'')+_mkName(k)+(on?', 지금':'')+(st==='done'?', 다 됐어요':st==='todo'?', 미완료':st==='off'?', 뺀 순간':'')+(_vp?(_vp.ok?', 두 분 목소리 준비됨':', 두 분 목소리 아직'):'');
     h+='<button type="button" class="mk-it'+(on?' cur':'')+(st?' '+st:'')+'" data-fk="mkg:'+k+'" aria-label="'+esc(lab)+'"'+(st==='todo'?' title="확인할 항목이 남아 있어요"':'')+(on?' aria-current="step"':'')+' onclick="mkNavGo(\''+k+'\')">'   /* [NAV_FOLD] 고르면 가고 접힌다 */
@@ -4893,8 +4908,23 @@ function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
   });
   h+='<button type="button" class="mk-it mk-add" data-fk="mkadd" onclick="opGoStep(\'pick\')">+ 순간 더하기</button>';
   h+='<button type="button" class="mk-it mk-vi" data-fk="mkvi" aria-label="예식 흐름 다시 보기" onclick="mkVoiceInfo()"><span aria-hidden="true">ⓘ</span></button>';   // [VOICE_MAP] 다시 보기
-  return h+'</div></nav>'; }
-/* [STEP_COMPACT] 접힌 줄이 잘리면(390 · 미완료가 있을 때) 걸음 이름부터 뺀다 — 위 접은 표시가 이미 «하나씩 만들기»를 말한다(코디 결정 2026-10-03). 자리 · 미완료는 남긴다 */
+  return h+'</nav></div>'; }
+/* ★[MK_HEAD_D 1101] ② 순간 쪽 상태 단추 — 자리(본식 n/N · 식전 · 한눈에 보기 · 두 분 목소리 · 뺀 순간)와 빠뜨린 수. 종전 접힌 줄(_mkStrip 안)의 셈을 그대로 옮겼다(새 판정 없음) */
+function _mkStatInfo(cur){
+  /* [NAV_FOLD] 접힌 한 줄 — 순간 수는 담은 순간만(고른 순서 쪽 · 한눈에 보기 · 뺀 순간 제외) · 미완료 = 줄에서 진사로 칠해지는 «지나온 미완료» 순간 수(_mkStat 그대로 · 새 판정 없음) */
+  var ps=_mkPages(), _mo=ps.filter(function(k){ return k!=='_intro'&&k!=='_sum'&&k!=='_voice'&&!_mkOff(k); }), _mi=_mo.indexOf(cur), _left=_mo.filter(function(k){ return _mkStat(k)==='todo'; }).length;
+  /* 번호는 쪽 제목(«6 · 반지 교환») · 아래 단추(«다음 · 7 성혼 선언»)와 같은 셈 — 본식은 bodySeq 차례(닫는 인사까지) · 식전은 식전끼리. 한 화면에 두 번호가 다르면 안 된다 */
+  var _no=_mkNo(cur), _pre=_mo.filter(function(k){ return _mkNo(k)==='식전'; }), _bN=RitualOpen.bodySeq(S).length;   /* ★[PROG_COUNT_1031 식순 걷기 1라운드 GPT 4] 쪽 제목 번호(_mkNo = bodySeq 차례 · 테이블 인사 포함)와 같은 셈 — 테이블 인사를 빼고 세어 «본식 9 / 8»이 났다 */   /* [TABLE_APART] 본식 n / N 의 N 에서 테이블 인사를 뺀다 · [TOAST_LAST_1013] 축배는 닫는 인사 뒤여도 본식 안(APART) */
+  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'식전 <b>'+(_pre.indexOf(cur)+1)+'</b>/'+_pre.length:'본식 <b>'+_no+'</b>/'+_bN;   /* [MK_HEAD_D] 화면은 «본식 6/9»로 줄인다 */
+  var _say=cur==='_sum'?'한눈에 보기':cur==='_voice'?'두 분 목소리':_mi<0?'뺀 순간 · '+_mkName(cur):_no==='식전'?'식전 '+_pre.length+'개 순간 중 '+(_pre.indexOf(cur)+1)+'번째':'본식 '+_bN+'개 순간 중 '+_no+'번째';   /* [PROG_COUNT_1031] 테이블 인사도 «본식 7 / 9» — 그 뒤에 축배 · 닫는 인사가 오는데 «본식 뒤»라 끝난 줄 알았다 */   /* [TABLE_APART] · [TOAST_LAST_1013] APART */
+  return { cur:cur, wr:_mi<0&&cur!=='_sum'&&cur!=='_voice', pos:_pos, left:_left, say:_say };
+}
+function _mkStatLab(i,open){ return '하나씩 만들기. '+i.say+'.'+(i.left?' 이미 살펴본 순간 중 확인할 항목이 남은 순간 '+i.left+'곳.':'')+' '+(open?'모든 순간 접기':'모든 순간 보기'); }
+function _mkStatPaint(){ var b=document.getElementById('mkStat'); if(!b) return; var on=!!document.getElementById('mkStrip'); document.body.classList.toggle('mkd',on); b.hidden=!on; if(!on){ MK.statI=null; return; }
+  var i=_mkStatInfo(_mkPages()[_mkIdx()]), open=!!MK.navOpen; MK.statI=i;
+  var v='<span class="mk-sh" aria-hidden="true">하나씩 만들기</span><i class="mk-chev" aria-hidden="true"></i><span class="mk-sd" aria-hidden="true"><span class="mk-at'+(i.wr?' wr':'')+'">'+i.pos+'</span>'+(i.left?'<span class="mk-left">&nbsp;· 빠뜨린 <b>'+i.left+'</b></span>':'')+'</span>';
+  if(b._v!==v){ b.innerHTML=v; b._v=v; } b.setAttribute('aria-expanded',String(open)); b.setAttribute('aria-label',_mkStatLab(i,open)); }
+/* [STEP_COMPACT] (옛) 접힌 줄이 잘리면 걸음 이름부터 빼던 맞춤(코디 결정 2026-10-03)은 [MK_HEAD_D 1101] 사장님 «바꾸자»로 대체 — 상태 단추 위층에 늘 보인다 */
 /* ★★[CHIP_GRID_PC_1019 2026-10-19 사장님 «pc버전도 버튼 형태 좀 정렬 깔끔하게 크기를 조절해서 하고싶어»] PC(≥461 · 이름표 왼쪽 칸)의 칩 줄은 6칸 격자 —
    한 줄의 칩은 같은 크기 · 칸 선이 줄끼리 맞는다(종전 글자 폭 칩은 줄마다 끝이 들쭉날쭉 · 세로 선이 안 맞았다).
    고를 것이 둘 · 셋인 줄(서약 · 감사문 · 읽는 방식 · 입장 음악 · 어떻게 준비할까요)은 두 칸씩 · 넷 ~ 여섯인 멘트 줄은 한 칸씩 — 같은 일을 하는 줄은 같은 크기다.
@@ -4918,16 +4948,15 @@ function _cgEven(){ try{ var root=arguments[0], nar=window.innerWidth<=460, all=
     var rg=document.createRange(); rg.selectNodeContents(gl); var q=rg.getClientRects(), t=q[q.length-1]; if(t&&lk.getBoundingClientRect().left-t.right<12) row.classList.add('cg-lkdn'); }); }catch(e){} }
 window.addEventListener('resize',function(){ _cgEven(); });
 try{ document.fonts&&document.fonts.ready.then(function(){ _cgEven(); }); }catch(e){}
-function _mkPosFit(){ try{ var p=document.querySelector('#mkStrip .mk-pos'), st=p&&p.querySelector('.mk-pstep'); if(!st) return; st.hidden=false; if(p.scrollWidth>p.clientWidth+1) st.hidden=true; }catch(e){} }
-window.addEventListener('resize',function(){ _mkPosFit(); });
+/* ★[MK_HEAD_D 1101] 접힌 줄이 좁으면 «하나씩 만들기 ·»를 숨기던 맞춤(_mkPosFit) 금지 — 상태 단추에서는 이 이름이 화면에 보이는 유일한 걸음 이름이다(두 층이라 자르지 않는다) */
 /* [NAV_FOLD] 펼치기 · 접기 — 줄만 바꾼다(다시 그리지 않아 초점이 단추에 남는다) · Esc 로 접기 */
 window.mkFold=function(open){ var nav=document.getElementById('mkStrip'); if(!nav) return; MK.navOpen=(open===undefined)?!MK.navOpen:!!open;
-  var sc=nav.querySelector('.mk-sc'), b=nav.querySelector('.mk-fbtn'); if(sc) sc.hidden=!MK.navOpen;
-  if(b){ b.setAttribute('aria-expanded',String(!!MK.navOpen)); b.firstChild.nodeValue=MK.navOpen?'접기':'모든 순간 보기'; }
+  var sc=nav.querySelector('.mk-sc'), b=document.getElementById('mkStat'); if(sc) sc.hidden=!MK.navOpen;
+  if(b){ b.setAttribute('aria-expanded',String(!!MK.navOpen)); if(MK.statI) b.setAttribute('aria-label',_mkStatLab(MK.statI,!!MK.navOpen)); }   /* [MK_HEAD_D] 단추 안 두 층 글은 그대로 · 꺾쇠만 돈다(종전 firstChild 글 덮어쓰기 걷음) */
   if(MK.navOpen) _mkStripKeep(); };
-window.mkNavGo=function(k){ MK.navOpen=false; if(_mkRO().at===k){ mkFold(false); var b=document.querySelector('#mkStrip .mk-fbtn'); if(b) try{ b.focus({preventScroll:true}); }catch(e){} return; } mkGo(k); };
-document.addEventListener('keydown',function(e){ if(e.key!=='Escape'||!MK.navOpen) return; var nav=document.getElementById('mkStrip'); if(!nav||!nav.contains(document.activeElement)) return;
-  e.preventDefault(); e.stopPropagation(); mkFold(false); var b=nav.querySelector('.mk-fbtn'); if(b) try{ b.focus({preventScroll:true}); }catch(x){} },true);   /* [NAV_FOLD] 빌더의 Esc(저장 후 나가기)보다 먼저 — 펼친 줄 안에서만 */
+window.mkNavGo=function(k){ MK.navOpen=false; if(_mkRO().at===k){ mkFold(false); var b=document.getElementById('mkStat'); if(b) try{ b.focus({preventScroll:true}); }catch(e){} return; } mkGo(k); };
+document.addEventListener('keydown',function(e){ if(e.key!=='Escape'||!MK.navOpen) return; var nav=document.getElementById('mkStrip'), b=document.getElementById('mkStat'), ae=document.activeElement; if(!nav||!(nav.contains(ae)||(b&&ae===b))) return;
+  e.preventDefault(); e.stopPropagation(); mkFold(false); if(b) try{ b.focus({preventScroll:true}); }catch(x){} },true);   /* [NAV_FOLD] 빌더의 Esc(저장 후 나가기)보다 먼저 — 펼친 줄 · 상태 단추에서만([MK_HEAD_D]) */
 function _mkStripKeep(){ try{ var s=document.querySelector('#mkStrip .mk-sc'), c=s&&s.querySelector('.mk-it.cur'); if(c){ var l=c.offsetLeft-(s.clientWidth-c.offsetWidth)/2; s.scrollLeft=Math.max(0,l); } }catch(e){} }
 /* 넘길 때 한 줄(막지 않음 · INCOMPLETE_SOFT) */
 /* [EX_NAME_TODO_1023] 한 순간의 «두 분이 할 말» 미완료를 한 줄로 — 빈 칸은 «신랑 · 신부 칸이 비어 있어요» · 이름이 남은 칸은 «신랑 칸에 예시 속 이름이 남아 있어요» */
@@ -5010,7 +5039,7 @@ function _txPullApply(p){ try{ if(!p||!p.fAt) return; var n=0, kinds={}, act=doc
   if(!act||act.tagName!=='TEXTAREA') render(); else _mkStripRepaint();
 }catch(e){} }
 window.mkChk=function(id,on,val){ if(!S.mkc) S.mkc={}; var c=S.mkc; c[id]=on?(val||1):0; _fAt('mkc.'+id); _persist(); render(); };   // [TX_MERGE] 푼 체크 = 0(지우지 않는다)
-function _mkStripRepaint(){ var s=document.getElementById('mkStrip'); if(!s) return; var cur=_mkPages()[_mkIdx()], sl=s.querySelector('.mk-sc').scrollLeft; var tmp=document.createElement('div'); tmp.innerHTML=_mkStrip(cur); s.parentNode.replaceChild(tmp.firstChild,s); var n=document.querySelector('#mkStrip .mk-sc'); if(n) n.scrollLeft=sl; _mkPosFit(); }
+function _mkStripRepaint(){ var s=document.getElementById('mkStrip'); if(!s) return; var cur=_mkPages()[_mkIdx()], sl=s.querySelector('.mk-sc').scrollLeft; var tmp=document.createElement('div'); tmp.innerHTML=_mkStrip(cur); s.parentNode.replaceChild(tmp.firstChild,s); var n=document.querySelector('#mkStrip .mk-sc'); if(n) n.scrollLeft=sl; _mkStatPaint(); }
 /* ★[EX_NAMES 2026-09-27 코워크 EX_MORE 3-6] «이 예시로 시작하기» 뒤 예시 속 가상 인물 이름이 남으면 한 줄로 알린다(막지 않는다).
    두 분 · 가족의 실제 이름과 겹치는 것(예: 신랑 이름이 정말 «서준»)은 빼고 센다 — CUST.groom · CUST.bride */
 var EX_NAMES=['이서준','정하윤','이만수','김영자','정민재','최도현','송지은','이서연','서준','하윤','지은','서연'];
@@ -10389,7 +10418,8 @@ function _upBusyKeys(){ return Object.keys(MK_UP).filter(function(k){ return !!M
   var inner=function(el){ try{ while(el&&el!==document.body&&el.nodeType===1){ var c=getComputedStyle(el); if(/(auto|scroll)/.test(c.overflowY)&&el.scrollHeight>el.clientHeight+4) return true; el=el.parentElement; } }catch(e){} return false; };
   var set=function(n){ if(n===bs) return; bs=n; if(!bar){ bar=document.createElement('div'); bar.className='ob-pull'; bar.setAttribute('aria-hidden','true'); document.body.appendChild(bar); }
     if(n){ var t=0, hh=0; try{ var hd=document.getElementById('obExitSlot'), hb=hd&&hd.getBoundingClientRect(), st=[].slice.call(document.querySelectorAll('.op-steps,.mk-strip,.prog-bar')).map(function(e){ return e.getBoundingClientRect(); }).filter(function(r){ return r.height>0&&hb&&r.top>=hb.bottom-1; }).sort(function(a,b){ return a.top-b.top; })[0];
-      if(hb&&hb.bottom>0){ t=hb.bottom; if(st&&st.top-hb.bottom>=20) hh=st.top-hb.bottom; else if(st) t=st.bottom; } }catch(e){} bar.style.top=Math.round(t)+'px'; bar.style.height=hh?Math.round(hh)+'px':''; bar.classList.toggle('gap',!!hh); }   /* ★[PULL_BELOW_HEAD 2026-10-05 사장님 «당길 때 문구가 위 점점점이랑 겹친다»] 띠는 «⋯ · 저장 · 나가기» 알약 줄과 진행 줄 사이 빈칸 가운데(빈칸이 20px 안이면 진행 줄 아래) — 맨 위(top:0)면 알약에 겹쳤다 */
+      if(hb&&hb.bottom>0){ t=hb.bottom; if(st&&st.top-hb.bottom>=20) hh=st.top-hb.bottom; else if(st) t=st.bottom; }
+      if(document.body.classList.contains('mkd')){ hh=0; [document.querySelector('.op-steps-c'),document.getElementById('mkStrip')].forEach(function(x){ var r=x&&x.getBoundingClientRect(); if(r&&r.height>0&&r.bottom>t) t=r.bottom; }); } }catch(e){}   /* [MK_HEAD_D] ② 순간 쪽 — 머리 줄 → 네 칸 선(→ 펼친 순간 줄)의 실제 아래 · 빈칸 없음 */ bar.style.top=Math.round(t)+'px'; bar.style.height=hh?Math.round(hh)+'px':''; bar.classList.toggle('gap',!!hh); }   /* ★[PULL_BELOW_HEAD 2026-10-05 사장님 «당길 때 문구가 위 점점점이랑 겹친다»] 띠는 «⋯ · 저장 · 나가기» 알약 줄과 진행 줄 사이 빈칸 가운데(빈칸이 20px 안이면 진행 줄 아래) — 맨 위(top:0)면 알약에 겹쳤다 */
     bar.classList.toggle('on',!!n); if(n) bar.textContent=n===2?'놓으면 새로고침돼요':'아래로 조금 더 당기면 새로고침'; };
   var end=function(fire){ var go=fire&&ok===true&&pulled>70&&top()&&!busy(); tr=false; a=null; pulled=0; ok=null; st=null; set(0); if(go) window._obReload(); };
   document.addEventListener('touchstart',function(e){ tr=e.touches.length===1; ok=null; a=null; pulled=0; st=e.target; },{passive:true});

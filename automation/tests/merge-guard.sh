@@ -9945,7 +9945,7 @@ chk 'STEP_COMPACT' order-preview.html 5   # [STEP_LAB_TOP 2026-10-04] 펼친 걸
 chk 'class="op-steps-c" role="img"' order-preview.html 1
 chk 'STEP_LAB_TOP' order-preview.html 3   # ★[STEP_LAB_TOP 2026-10-04 사장님 «텍스트 그냥 삭제»] 접은 표시 = 칸 넷만 · 칸 위 이름 · 펼친 걸음 줄 둘 다 없음
 nochk 'class="op-scl"' order-preview.html   # [STEP_LAB_TOP] 칸 위 걸음 이름 금지 — 2026-10-04 사용자 지시로 삭제
-chk 'function _mkPosFit()' order-preview.html 1
+nochk 'function _mkPosFit()' order-preview.html   # [MK_HEAD_D 1101 사장님 «바꾸자»] 접힌 줄 «하나씩 만들기 ·» 숨김 맞춤은 대체 — 상태 단추 위층에 늘 보인다
 chk 'VS_LINK_IN_ROW' order-preview.html 6
 chk 'class="pk-link cg-vsl" data-fk="mkvsopen"' order-preview.html 1
 nochk '.mk-vsbar{' order-preview.html   # ★순간 쪽 목소리 한 줄 금지 — 2026-10-03 사용자 지시로 삭제
@@ -10113,7 +10113,7 @@ chk ' menu.appendChild(g); }' order-preview.html 1
 chk ' menu.appendChild(r); }' order-preview.html 1
 chk 'TOP_MENU' scripts/audit/listen-page.mjs 2
 # ★[FOLD_UNDER_STEPS 2026-10-03 사장님] ② 접힌 줄은 걸음 표시보다 한 단 가볍게(500) · 사이 여백은 걸음 표시의 제 아래 여백(4px)뿐 · 사이 선 없음(390: 접힌 줄 59 → 53px)
-chk 'FOLD_UNDER_STEPS' order-preview.html 3
+chk 'FOLD_UNDER_STEPS' order-preview.html 2   # [MK_HEAD_D 1101] 접힌 줄 행(.mk-pos · .mk-fbtn)이 머리 줄 상태 단추로 가며 3 → 2
 # ★[SEL_SEAL 2026-10-03 사장님 «파란 거 말고 우리 메인 홈페이지에서 사용한 진사 색상으로»] 고객이 보는 여섯 쪽의 글 고르기 색 = 메인과 같은 진사(실측 대비 9.24:1 · #3A2D22 on #E0D5D2)
 chk '::selection{background:rgba(107,42,36,0.18)' order-preview.html 1
 chk '::selection{background:rgba(107,42,36,0.18)' guide.html 1
@@ -21218,8 +21218,27 @@ nochk '→ 모여서 단체 사진' order-preview.html
 nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-open.js
 nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-story.js
 chk 'PROG_COUNT_1031' order-preview.html 2
-chk '빠뜨린 순간' order-preview.html 1
+chk '빠뜨린 <b>' order-preview.html 1   # [MK_HEAD_D 1101] 화면은 «빠뜨린 4»로 줄였다 · 읽는 글은 «확인할 항목이 남은 순간 n곳»
+chk '이미 살펴본 순간 중 확인할 항목이 남은 순간' order-preview.html 1
 chk 'BLESS_UNPICK_1031' order-preview.html 1
+
+# ★★[MK_HEAD_D 1101 사장님 «바꾸자»(GPT 3라운드 D안 · 코워크 수정 «선은 도구 줄 아래»)] ② 순간 쪽 머리
+#   머리 줄 = 왼쪽 상태 단추(«하나씩 만들기» / «본식 6/9 · 빠뜨린 4» · 꺾쇠 · 누르면 모든 순간) + 오른쪽 도구 그대로 → 네 칸 선 → 순간 제목(155 → 81px).
+#   상태 단추는 render 가 다시 그리지 않는 머리 줄(.prog-top)에 한 개 · 순간 줄만 nav · 폰 나가기 48 · 좁은 마우스 창은 상태가 아래 줄. 검사 scripts/audit/listen-page.mjs NF · make-shell.mjs
+chk 'MK_HEAD_D' order-preview.html 12
+chk '<button type="button" class="mk-status" id="mkStat" data-fk="mkfold" aria-expanded="false" aria-controls="mkScP"' order-preview.html 1
+chk 'function _mkStatPaint()' order-preview.html 1
+chk "'본식 '+_bN+'개 순간 중 '+_no+'번째'" order-preview.html 1
+chk "'본식 <b>'+_no+'</b>/'+_bN" order-preview.html 1
+chk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 1
+chk 'body.mkd .op-steps-c{margin:0}' order-preview.html 1
+chk '@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap' order-preview.html 1
+chk 'body.op4 #obExit{min-width:48px;padding:0 4px}' order-preview.html 1
+chk '<nav class="mk-sc" id="mkScP" aria-label="진행 순서"' order-preview.html 1
+nochk '<div class="mk-fold">' order-preview.html
+nochk 'class="mk-fbtn"' order-preview.html
+nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
+chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
 chk 'function _askReset(k,quiet)' order-preview.html 1
 chk 'ASK_RESET_1031' order-preview.html 4
 chk 'REPICK_KEEP_1031' assets/entry-music.js 2

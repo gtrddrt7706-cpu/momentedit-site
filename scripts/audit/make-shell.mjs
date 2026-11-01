@@ -75,12 +75,12 @@ for (const w of [390, 1280]) {
     await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(500);
     const mo = await pg.evaluate(() => { const c = document.querySelector('.op-steps-c'), cs = (el) => getComputedStyle(el), sp = c ? [...c.children] : [];
       const outer = (el) => { const r = el.getBoundingClientRect(), s = cs(el); return r.height + parseFloat(s.marginTop) + parseFloat(s.marginBottom); };
-      const pos = document.querySelector('#mkStrip .mk-pos'), ps = pos && pos.querySelector('.mk-pstep');
+      const pos = document.querySelector('#mkStat .mk-sd'), ps = document.querySelector('#mkStat .mk-sh');   /* [MK_HEAD_D 1101] 접힌 줄 → 머리 줄 상태 단추(위 «하나씩 만들기» · 아래 «본식 n/N …») */
       return { c: !!c, full: !!document.querySelector('.op-steps'), n: sp.length, cls: sp.map((s) => s.className).join(','), cols: sp.map((s) => cs(s).backgroundColor), h2: sp[0] ? Math.round(sp[0].getBoundingClientRect().height) : 0, al: c && c.getAttribute('aria-label'), role: c && c.getAttribute('role'), txt: c ? c.textContent : '', btn: c ? c.querySelectorAll('button').length : -1, h: c ? outer(c) : 0,
-        pos: pos ? pos.textContent : '', pstep: ps ? !ps.hidden : null, pcut: pos ? pos.scrollWidth > pos.clientWidth + 1 : null }; });
+        pos: pos ? pos.textContent : '', pstep: ps ? (!ps.hidden && ps.textContent === '하나씩 만들기' && ps.getBoundingClientRect().width > 0) : null, pcut: pos ? pos.scrollWidth > pos.clientWidth + 1 : null }; });
     ok(`${w} [STEP_COMPACT · STEP_LAB_TOP] 순간 쪽 = 접은 표시(윗선 네 칸 · 2px · 글자 없음 · 단추 없음 · role=img «4단계 중 2단계 · 하나씩 만들기») · 이름 있는 표시 없음`, mo.c && !mo.full && mo.n === 4 && mo.cls === 'done,on,,' && mo.h2 === 2 && !mo.txt && !mo.btn && mo.role === 'img' && mo.al === '4단계 중 2단계 · 하나씩 만들기', JSON.stringify(mo));
     ok(`${w} [STEP_COMPACT] 접은 표시의 색 = 이름 있는 표시 윗선 색(지나온 · 지금 · 남은)`, JSON.stringify(mo.cols.slice(0, 3)) === JSON.stringify(intro.cols.slice(0, 3)), JSON.stringify({ c: mo.cols, f: intro.cols }));
-    ok(`${w} [STEP_COMPACT] 접힌 줄 = «하나씩 만들기 · 본식 n / N …»(잘리면 걸음 이름부터 뺀다 · 자리는 남는다) · 잘림 없음`, /본식\s*1\s*\/\s*\d+/.test(mo.pos) && mo.pcut === false && (mo.pstep ? /^하나씩 만들기 · /.test(mo.pos) : true) && (w < 1000 || mo.pstep === true), JSON.stringify(mo));
+    ok(`${w} [STEP_COMPACT · MK_HEAD_D] 상태 단추 = 위 «하나씩 만들기»(늘 보인다 · 숨김 맞춤 없음) · 아래 «본식 n/N …» · 잘림 없음`, /본식\s*1\s*\/\s*\d+/.test(mo.pos) && mo.pcut === false && mo.pstep === true, JSON.stringify(mo));
     console.log(`   · ${w} 세로로 아낀 높이 = ${Math.round(intro.h - mo.h)}px (이름 있는 표시 ${Math.round(intro.h)} → 접은 표시 ${Math.round(mo.h)})`);
     if (w === 390) ok(`390 [STEP_COMPACT] 위를 덜 차지한다(이름 있는 표시보다 25px 이상 낮다)`, intro.h - mo.h >= 25, `${intro.h} → ${mo.h}`);
     /* [STEP_LAB_TOP] 펼친 첫 줄에 걸음 줄이 없다 */
@@ -126,7 +126,7 @@ for (const w of [390, 1280]) {
     await pg.evaluate(() => mkDlgClose()); await pg.waitForTimeout(250);
     /* 옛 초안의 뺀 쪽 */
     await pg.evaluate(() => { mkGo('bless'); }); await pg.waitForTimeout(300); await pg.evaluate(() => mkDrop('bless')); await pg.waitForTimeout(350);
-    const off = await pg.evaluate(() => ({ off: !!document.querySelector('.mk-pg.off'), un: !!document.querySelector('[data-fk="mkundrop"]'), pos: (document.querySelector('#mkStrip .mk-pos') || {}).textContent }));
+    const off = await pg.evaluate(() => ({ off: !!document.querySelector('.mk-pg.off'), un: !!document.querySelector('[data-fk="mkundrop"]'), pos: (document.querySelector('#mkStat .mk-sd') || {}).textContent }));
     await pg.click('[data-fk="mkundrop"]'); await pg.waitForTimeout(400);
     const back = await pg.evaluate(() => ({ on: RitualOpen.onOf(S, 'bless'), f: document.activeElement && document.activeElement.id }));
     ok(`${w} [MK_NO_DROP_LINK] 옛 초안의 뺀 쪽은 그대로(흐리게 · «다시 넣기» → 다시 담기 · 초점은 쪽 제목)`, off.off && off.un && /뺀 순간/.test(off.pos) && back.on && back.f === 'mkHead', JSON.stringify({ off, back }));
@@ -173,7 +173,7 @@ for (const w of [390, 1280]) {
     const { ctx, pg, errs, nx } = await open(w, { ai: true, st: Object.assign({ ok: true, on: true, per: {} }, st) });
     await nx(); await pg.waitForTimeout(900); await pg.evaluate(() => mkGo('_voice')); await pg.waitForTimeout(600);
     const v = await pg.evaluate(() => ({ h: (document.getElementById('mkHead') || {}).textContent, one: (document.querySelector('.mk-vpage .mk-one') || {}).textContent, prog: (document.querySelector('[data-fk="mkvprog"]') || {}).textContent, later: !!document.querySelector('[data-fk="mkvlater"]'),
-      cards: document.querySelectorAll('.mk-vpage .mk-vr').length, next: document.getElementById('next').textContent.trim(), pos: (document.querySelector('#mkStrip .mk-pos') || {}).textContent, c: !!document.querySelector('.op-steps-c'),
+      cards: document.querySelectorAll('.mk-vpage .mk-vr').length, next: document.getElementById('next').textContent.trim(), pos: (document.querySelector('#mkStat .mk-sd') || {}).textContent, c: !!document.querySelector('.op-steps-c'),
       inStrip: !!document.querySelector('#mkStrip [data-fk="mkg:_voice"]'), lines: [...document.querySelectorAll('.mk-vpage p')].length }));
     if (SHOTS) await shot(pg, `voice-${lab}-${w}`);
     const want = undefined;   /* [VPROG_OFF 2026-10-04 사장님] «신랑 남음 · 신부 남음» 진행 줄은 걷었다 — 없어야 한다 */
@@ -182,7 +182,7 @@ for (const w of [390, 1280]) {
     else ok(`${w} [VOICE_ONCE] 아직이면 설명 한 줄(«각자 1분쯤 …» · «말투는 … 다를 수 있어요») + «나중에 할게요»`, /^각자 1분 읽기 · 아쉬우면 다시 녹음해요 자세히 보기$/.test(v.one) /* [VS_ONE_LINE → VOICE_INTRO_ONE → VOICE_INTRO_LINE 2026-10-07] 한 줄 */ && v.later, JSON.stringify(v));
     if (lab === 'none') {
       await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(400);
-      const ng = await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; render(); const l = document.querySelector('[data-fk="mkvnone"]'); return { t: l && l.textContent, pos: (document.querySelector('#mkStrip .mk-pos') || {}).textContent }; });
+      const ng = await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; render(); const l = document.querySelector('[data-fk="mkvnone"]'); return { t: l && l.textContent, pos: (document.querySelector('#mkStat .mk-sd') || {}).textContent }; });
       ok(`${w} [VOICE_ONCE] AI 인데 목소리가 없으면 순간 쪽에 한 줄 «두 분 목소리를 아직 만들지 않았어요 · 만들기» · 식전 1 / 2(목소리 쪽은 순간 셈에 안 든다)`, ng.t === '두 분 목소리를 아직 만들지 않았어요 · 만들기' && /식전\s*1\s*\/\s*2/.test(ng.pos), JSON.stringify(ng));
       await pg.click('[data-fk="mkvoicego"]'); await pg.waitForTimeout(400);
       ok(`${w} [VOICE_ONCE] «만들기» → «두 분 목소리 만들기» 쪽`, await pg.evaluate(() => _mkRO().at === '_voice'));
