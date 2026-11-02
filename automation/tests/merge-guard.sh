@@ -21728,4 +21728,12 @@ chk "\[END_FLOW_200\]" assets/ritual-cue.js 3   # [END_FLOW_200] 마무리 멘�
 chk "CL_GA = \\['안내', '이어서 단체 사진을 찍겠습니다.', null" assets/ritual-cue.js 1   # [END_FLOW_200 1] 마무리 멘트 끝 모이기 두 문장
 chk "if (k === 'narr-closing-soft-nt-nc') k = 'narr-closing-nt-nc';" assets/ritual-cue.js 1   # [END_FLOW_200] 카페만 · 다정하게 · 하객 안내 없음 판도 모이기
 nochk "CL_DAY\]" assets/ritual-cue.js   # [END_FLOW_200] 마무리 멘트 끝 «남은 하루 행복하게 보내세요»는 촬영 후 안내로 옮겼다(되살리지 말 것)
+# ── 2026-11-02 [PR_REVIEW_201 검토 201] 연습 최종 검수 — 축배 펼친 동작 대기 · 역할 전달 화촉 · 덕담 · 완료 화면 재생 = 한 번 더 · 촬영 후 안내만 연습 = 식후 블록 · A ↔ B 곡 크기
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-201.mjs >/dev/null 2>&1; _pr201=$?; if [ "$_pr201" = 1 ]; then echo 'FAIL pr-201: 연습 최종 검수 다섯 가지가 깨졌습니다 — node scripts/audit/pr-201.mjs'; fail=1; else echo "ok pr-201 ($_pr201)"; fi; fi
+chk "function _prAct(x){ return x.quiet&&!x.act?" order-preview.html 1   # [PR_REVIEW_201 상1]
+chk "function _oK(x){ return x?(x.seg||x.k):''; }" order-preview.html 1   # [PR_REVIEW_201 중4]
+chk "onclick=\"prOnlyAgain()\" aria-label=\"한 번 더\"" order-preview.html 1   # [PR_REVIEW_201 중3]
+chk "function lpLevel(st)" assets/bgm-bed.js 1   # [PR_REVIEW_201 중5]
+chk "마이크는 디렉터에게 돌려주시고, 앞으로 나오셨으면 자리로 돌아가 앉아 주세요" order-preview.html 1   # [PR_REVIEW_201 상2]
+nochk "if(/자리|착석/.test(x.txt)) ret=true;" order-preview.html   # [PR_REVIEW_201 상2] 말 글로 복귀를 정하지 않는다
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
