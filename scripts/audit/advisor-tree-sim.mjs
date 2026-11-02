@@ -132,7 +132,7 @@ console.log('\n══ ③ 위젯을 열어 실제로 눌러 본다 ══');
     const hit = (re) => [...document.querySelectorAll('.me-adv-panel button, .me-adv-panel [role="button"]')]
       .find((b) => re.test((b.textContent || '').trim()));
     const steps = [];
-    for (const re of [/애프터 웨딩|식사/, /메뉴.*가격대|가격대/]) {
+    for (const re of [/애프터 웨딩|들를 곳|식사/, /메뉴.*가격대|가격대/]) {
       const b = hit(re);
       if (!b) return { steps, fail: '못 찾음: ' + re + ' · 그 자리의 선택지 = '
         + [...document.querySelectorAll('.me-adv-panel button, .me-adv-panel [role="button"]')]

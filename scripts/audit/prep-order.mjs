@@ -14,7 +14,7 @@ const a = my.indexOf('  var _prepRows=[');
 if (a < 0) { console.log('━━ prep-order — _prepRows 배열을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
 const b = my.indexOf('\n  ];', a);
 const blk = my.slice(a, b);
-const want = [["row('청첩장'", '청첩장'], ["row('좌석 · 음료'", '좌석 · 음료'], ["row('예식 후 식사 · 카페'", '예식 후 식사 · 카페'], ["row('식순'", '식순'],
+const want = [["row('청첩장'", '청첩장'], ["row('좌석 · 음료'", '좌석 · 음료'], ["row('예식 후 들를 곳'", '예식 후 들를 곳'], ["row('식순'", '식순'],
   /* [PR_PREP_ONE 2026-10-07] 식순 준비 목록 행은 연습 화면으로 옮겼다(사장님 «연습 · 준비 하나로») */ ['_bouquetFold(', '부케(식순에 딸림)'],
   /* [PV_CAT_1031 2026-10-31] 식전 영상 — 개식 선언 뒤 · 입장 전 상영이라 식순 · 부케 바로 뒤(줄은 배열 밖에서 만든 _pvRow) */ ['_pvRow,', '식전 영상'], ["row('가족 · 친구 스냅'", '가족 · 친구 스냅']];
 const pos = want.map(([k, n]) => [blk.indexOf(k), n]);
@@ -36,12 +36,12 @@ if (cblk.indexOf("line('단체 사진'") > -1) bad.push('예식 확인서에 옛
 const wa = my.indexOf('function _myWorksHtml('), wb = wa < 0 ? -1 : my.indexOf('\nfunction ', wa + 10);
 if (wa < 0 || wb < 0) { console.log('━━ prep-order — _myWorksHtml 을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
 const wblk = my.slice(wa, wb);
-const wwant = [["line('청첩장'", '내 완성물 청첩장'], ["line('좌석 · 음료'", '내 완성물 좌석 · 음료'], ["line('예식 후 식사 · 카페'", '내 완성물 예식 후 식사 · 카페'], ["line('식순'", '내 완성물 식순'], ["line('하객 안내'", '내 완성물 하객 안내(맨 뒤)']];
+const wwant = [["line('청첩장'", '내 완성물 청첩장'], ["line('좌석 · 음료'", '내 완성물 좌석 · 음료'], ["line('예식 후 들를 곳'", '내 완성물 예식 후 들를 곳'], ["line('식순'", '내 완성물 식순'], ["line('하객 안내'", '내 완성물 하객 안내(맨 뒤)']];
 const wpos = wwant.map(([k, n]) => [wblk.indexOf(k), n]);
 wpos.forEach(([p, n]) => { if (p < 0) bad.push(`«${n}» 줄을 못 찾았다`); });
 for (let i = 1; i < wpos.length; i++) if (wpos[i][0] >= 0 && wpos[i - 1][0] >= 0 && wpos[i][0] < wpos[i - 1][0]) bad.push(`«${wpos[i][1]}» 가 «${wpos[i - 1][1]}» 보다 앞에 붙는다`);
 if (wblk.indexOf("line('좌석 배치'") > -1) bad.push('내 완성물에 옛 이름 «좌석 배치» — 예식 준비 카드와 같은 «좌석 · 음료»로');
 if (wblk.indexOf("'열기')") > -1) bad.push('내 완성물 여는 단추에 «열기» — «보기» 하나로');
 if (bad.length) { console.log('━━ prep-order — 빨강 ' + bad.length + '건'); bad.forEach((x) => console.log('   · ' + x)); process.exit(1); }
-console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 예식 후 식사 · 카페 › 식순(+준비 목록 · 부케) › 식전 영상 › 가족 · 친구 스냅 · 예식 확인서 · 내 완성물도 같은 순서');
+console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 예식 후 들를 곳 › 식순(+준비 목록 · 부케) › 식전 영상 › 가족 · 친구 스냅 · 예식 확인서 · 내 완성물도 같은 순서');
 process.exit(0);
