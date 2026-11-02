@@ -4778,6 +4778,14 @@ chk 'PV_REMOTION_1101' automation/prevideo/README.md 1
 # ★[PV_PARTNER_1101 2026-11-01 사장님 «퀄리티를 보니 우리가 만들면 안 될 거 같아» · «고객이 결제하게 하고 싶지 않아» · «대신 주문은 손이 많이 가 패스 · 협력사와 직접 소통»]
 #   식전 영상 = 외부 협력사 연결형(고객 결제 0 · 우리가 실사용 정산 · 우리 대행 없음) · 위 Remotion 뼈대는 보류(지우지 않는다)
 chk 'PV_PARTNER_1101' automation/prevideo/README.md 1
+# ★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식순 화면은 식전 영상 링크를 받지 않는다 —
+#   마이페이지 «식전 영상» 카드가 받는다 · 식순 준비 목록에 할 일 없음(open-course · listen-page · ghi-polish · bgm-form 이 화면까지 잰다)
+chk 'PV_MYPAGE_1102' assets/ritual-open.js 1
+chk 'PV_MYPAGE_1102' order-preview.html 5
+chk 'PV_MYPAGE_1102' api/_ritual-kb.js 1
+chk 'PV_MYPAGE_1102' mypage.html 1
+chk 'PV_MYPAGE_1102' scripts/audit/open-course.mjs 2
+nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
 # ★[PV_NO_LIMIT_1101 2026-11-01 사장님 «제한 두지 마»] 협력사 식전 영상은 사진 장수 · 길이를 제한하지 않는다(템플릿 규격 그대로)
 chk 'PV_NO_LIMIT_1101' automation/prevideo/README.md 1
 chk 'PV_SAME' automation/platform/89_prevideo.gs 1
