@@ -21795,4 +21795,11 @@ chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 작가님이 진
 chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
 chk "하객 모두와 한 장 → 안내 → 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
+# ── 2026-11-02 [FAREWELL_NAME_204 검토 204 회신] 고객이 보는 하루 흐름 «마무리 Farewell» → «정리 Farewell»(식순 · 홈 140분 표 · AI 상담 같은 이름) · 계약서는 그대로
+chk '<span class="seq-name-ko">정리</span>' index.html 1
+nochk '<span class="seq-name-ko">마무리</span>' index.html
+chk '20m | Farewell · 옷을 갈아입고 하루를 정리하는 시간' index.html 2
+chk "'정리', '20분', \['11:00', '14:20', '17:40'\], '옷을 갈아입고 하루를 정리해요.'" assets/sequence-modal.js 1
+chk 'Farewell(정리)' api/_kb.js 1
+nochk 'Farewell(마무리)' api/_kb.js
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
