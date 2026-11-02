@@ -392,13 +392,11 @@
   function inTail(){ return BED.who==='tail'&&!!BED.cur.src; }
   function tailHush(){ if(BED.who!=='tail') return false; clearTimeout(LPB.tt); hushAll(1500); paintLp(); return true; }
   function paintLp(){ try{ if(typeof _mpPaint==='function') _mpPaint(); }catch(x){} }
-  /* ★[PR_BGM_197] ③ 연습하기에서 멈춘 동안 — 곡은 그대로 · 말 아래 크기(−20)로 한 번 내린다 · 녹음 다시 듣기(_lpHush · LP.hushed)는 종전처럼 잦아든다 */
-  function prKeep(){ try{ if(typeof _inPr!=='function'||!_inPr()||LP.hushed||!(typeof _prMusic!=='function'||_prMusic())) return false; }catch(x){ return false; }
-    if(!LPB.prz){ LPB.prz=1; var p=PR(); ramp(BED.cur,vx(p.talk,BED.cur.f),p.down); } return true; }
+  /* ★«연습 중 멈춤 = 음악 −20 으로 계속»(prKeep) 금지 — 2026-11-01 검토 198 로 걷음 [PR_WAY_198] · «잠시 멈춤»은 소리 · 진행 · 음악 자리가 함께 멈추고(아래 pz · ② 와 같다) 다시 누르면 그 곡 그 자리에서 잇는다.
+     B «직접 해보기»의 두 분 차례 기다림은 멈춤이 아니다(LP.paused 아님) — 음악은 그 줄 크기 그대로(말 아래 −20 · 일부러 둔 정적 −90 은 올리지 않는다) */
   function curStep(){ try{ return (typeof LP!=='undefined'&&LP.q)?LP.q[LP.i]:null; }catch(x){ return null; } }
   /* 멈춤 · 끝 — 플레이어가 멈추면(■ · 다른 순간 · 끝) 곡도 잦아든다 */
-  setInterval(function(){ if(BED.who!=='lp'||!BED.cur.src) return; var dead=true, pz=false; try{ dead=typeof LP==='undefined'||!LP.q||!LP.q.length||LP.paused||LP.one; pz=!!(LP.q&&LP.q.length&&LP.paused&&!LP.one); }catch(x){} if(!dead){ LPB.prz=0; return; }
-    if(pz&&prKeep()) return;   /* ★[PR_BGM_197 3] 연습 중 멈춤 · 두 분 차례 — 음악은 말 아래 크기로 계속(정적은 ■ 끝내기 · 화면을 떠날 때 · 녹음 다시 듣기만) */
+  setInterval(function(){ if(BED.who!=='lp'||!BED.cur.src) return; var dead=true, pz=false; try{ dead=typeof LP==='undefined'||!LP.q||!LP.q.length||LP.paused||LP.one; pz=!!(LP.q&&LP.q.length&&LP.paused&&!LP.one); }catch(x){} if(!dead) return;
     if(pz){ var v=BED.cur; LPB.pz={ f:v.f, pos:posOf(v), want:v.want, st:curStep() }; }   /* ★[DETAIL_R1_1101 ③] 멈춤 — 곡 · 자리 · 크기를 적어 둔다(이어 들으면 그 곡 그 자리에서 0.6초에) */
     lpEnd(); if(pz&&LPB.pz) LPB.pz.keep=1; },250);
   /* [DETAIL_R1_1101 ③] 이어 듣기(lsToggle) — 멈춘 그 곡 · 그 자리 · 지금 줄 크기로 0.6초에 다시 올린다 */

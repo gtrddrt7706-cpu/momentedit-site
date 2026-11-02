@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★★[PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기 음악
    ① 연습도 ② 와 같은 BgmBed(_bedOn 참) · 시작 단추 «연습 약 n분 · 음악과 함께» · «음악 끄기» 작은 단추(그 기기에만 기억)
-   ② 연습 중 멈춤(두 분 차례 · 일시정지) — 곡은 그대로 말 아래 크기(−20)로 계속 · 이어 하면 같은 곡
+   ② 연습 중 «잠시 멈춤» — ★검토 198 로 바뀜[PR_WAY_198] 소리 · 진행 · 음악이 함께 멈추고(곡 · 자리를 적어 둔다) · 이어 하면 같은 곡 같은 자리
    ③ 녹음 다시 듣기 등 다른 소리(_lpHush) — 잦아든다(종전 ② 규칙) · ■ 끝내기도 잦아든다
    ④ 끄면 _bedOn 거짓 · 시작 단추 «음악 없이 말과 나레이션만» · 켜면 다시
    BP_BED · BP_OP = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -75,11 +75,11 @@ try {
   const a = await f.evaluate(() => ({ on: _bedOn(), lab: ((document.querySelector('.pr-hl .pr-mut') || {}).textContent || ''), btn: ((document.querySelector('[data-fk="prmu"]') || {}).textContent || '') }));
   ok('① 연습에서도 음악 엔진(_bedOn) · 시작 단추 «음악과 함께» · «음악 끄기» 단추', a.on && a.lab === '음악과 함께' && a.btn === '음악 끄기', a);
   const r = await f.evaluate(async () => { const B = BgmBed._t, w = (ms) => new Promise((x) => setTimeout(x, ms)); lsPlay('welcome'); let t = 0; while (t < 14000 && !(B.BED.cur && B.BED.cur.src && B.BED.cur.want > -60)) { await w(200); t += 200; }
-    const f0 = B.BED.cur && B.BED.cur.f; lsToggle(); await w(1800); const v = B.BED.cur, pz = { src: !!(v && v.src), f: v && v.f, want: v && v.want, talk: B.PR().talk };
+    const f0 = B.BED.cur && B.BED.cur.f; lsToggle(); await w(1800); const v = B.BED.cur, pz = { gone: !(v && v.src) || v.want <= -60, keep: !!(B.LPB.pz && B.LPB.pz.keep && B.LPB.pz.f === f0) };
     lsToggle(); await w(700); const v2 = B.BED.cur, rs = { src: !!(v2 && v2.src), f: v2 && v2.f };
     _lpHush(); await w(1800); const v3 = B.BED.cur, hz = { gone: !(v3 && v3.src) || v3.want <= -60 };
     try { lsStop(); } catch (e) {} return { t, f0, pz, rs, hz }; });
-  ok('② 연습 중 멈춤 — 곡은 그대로 · 말 아래 크기(−20)로 계속 · 이어 하면 같은 곡', !!r.f0 && r.pz.src && r.pz.f === r.f0 && Math.abs(r.pz.want - r.pz.talk) < 0.01 && r.rs.src && r.rs.f === r.f0, r);
+  ok('② 연습 중 잠시 멈춤 — 음악도 멈춤(곡 · 자리 기억) · 이어 하면 같은 곡', !!r.f0 && r.pz.gone && r.pz.keep && r.rs.src && r.rs.f === r.f0, r);
   ok('③ 녹음 다시 듣기 등 다른 소리(_lpHush) — 연습 음악도 잦아든다', r.hz.gone, r.hz);
   const c = await f.evaluate(async () => { prMusicTgl(); const o = { on: _bedOn(), lab: (document.querySelector('.pr-hl .pr-mut') || {}).textContent, btn: (document.querySelector('[data-fk="prmu"]') || {}).textContent, ls: (() => { try { return localStorage.getItem('me_pr_music'); } catch (e) { return 'x'; } })() }; prMusicTgl(); o.back = _bedOn(); return o; });
   ok('④ 끄면 엔진 꺼짐 · «음악 없이 말과 나레이션만» · «음악 켜기» · 그 기기에 기억(off) · 켜면 다시', !c.on && c.lab === '음악 없이 말과 나레이션만' && c.btn === '음악 켜기' && (c.ls === 'off' || c.ls === 'x') && c.back, c);
@@ -87,5 +87,5 @@ try {
   await ctx.close();
 } catch (e) { console.log('FAIL 예외 ' + (e && e.stack || e)); fail++; }
 await br.close(); srv.close();
-console.log(fail ? `✗ PR_BGM_197 실패 ${fail}건` : 'ok pr-bgm — 연습 음악 엔진 · 멈춤 −20 · 다른 소리 잦아듦 · 끄기 · 시작 단추 글');
+console.log(fail ? `✗ PR_BGM_197 실패 ${fail}건` : 'ok pr-bgm — 연습 음악 엔진 · 멈춤 = 음악도 멈춤 · 다른 소리 잦아듦 · 끄기 · 시작 단추 글');
 process.exit(fail ? 1 : 0);
