@@ -21,7 +21,7 @@ const SHORT = wav(0.6, 330);   /* 나레이션 대신 — 0.6초 */
 const RL = [{ k: 'r5', name: '경쾌하게', t: '시험 입장 곡', a: '시험 가수', hook: 40, hook0: 40, len: 140, file: 'r5.mp3', img: '/assets/home/snap.webp', pos: '50% 50%' },
   { k: 'r1', name: '잔잔하게', t: '짧은 판 곡', a: '시험 가수', hook: 40, hook0: 40, len: 70, file: 'r1.mp3', pf: 'r1p.mp3', p0: 10, p1: 70, hooks: [40], img: '/assets/home/snap.webp', pos: '50% 50%' }];
 const HAVE = ['B01', 'B07', 'B09', 'B10', 'B12', 'B13', 'B15', 'B16', 'B17', 'B24', 'B28', 'B32'];   /* [MEANING_R1_1102 16] 마지막 곡(M8L 1순위 B32) */   /* 화촉 1 · 2(B05 · B31)는 없다 — d */   /* [BGM_TIMING_1101] 테이블 인사 곡(B23)도 — 축배 뜸 곡 e */
-const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(9, 180 + i * 20).toString('base64'); });
+const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(k === 'B32' ? 40 : 9, 180 + i * 20).toString('base64'); });   /* [END_FLOW_200] 마지막 곡(B32)은 40초 — 촬영 후 안내 글이 길어져(약 18초) 9초 가짜 곡이 끝나 목록 다음 곡으로 넘어갔다 · 실제 곡은 몇 분이다 */
 const RS = { r5: wav(140, 250).toString('base64'), 'r1-p': wav(60, 300).toString('base64'), r1: wav(70, 300).toString('base64') };
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
 <script>

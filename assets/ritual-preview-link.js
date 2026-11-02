@@ -185,7 +185,8 @@
   /* ★[CONSOLE_INJECT_1019 검토 138-0] 모일 식당 자리표시(장소가 아닌 고르기 값) 단일 원천 — 마이페이지 DN_PLACEHOLDER · 관리자 «당일 콘솔»이 같은 목록을 쓴다(console-inject.mjs 가 대조) */
   var DINE_PH = ['직접 섭외할게요', '상담 때 함께 정할게요', '장소 미정', '다이닝 없이 진행할게요'];
   /* [GUIDE_ON_1019] 하객 안내가 «열려 있나» — 열쇠가 있고 닫히지 않았다(닫힘 판정은 부르는 쪽 · 마이페이지 _guideLinkClosed · 관리자는 예식일 +30) */
-  function guideOf(token, closed) { return !!String(token || '').trim() && !closed; }
+  /* ★[GUIDE_ALWAYS_202 검토 202] 열쇠(guideToken)는 다이닝 · 좌석을 마친 뒤에 생겨 그 전엔 사진 올리기 안내가 빠졌다 — 모든 예식에 하객 안내가 나가니 열쇠와 상관없이 켜짐 · 예식 +30일 지나 닫힌 링크만 끔(token 인자는 옛 부르는 곳 그대로 받는다) */
+  function guideOf(token, closed) { return !closed; }
 
   function digitalOf(inv) {
     if (!inv) return false;

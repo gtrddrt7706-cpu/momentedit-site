@@ -103,13 +103,16 @@ const srcNorm = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, ''
 const SRC = new Set((() => { try { return (JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents || []).map((x) => srcNorm(x.text)).filter(Boolean); } catch (e) { return []; } })());
 let pred = 0, predSrc = 0;
 for (const course of Object.keys(D.COURSES)) {
-  const cues = RC.build({ course }, { mode: 'console' }).cues.filter((c) => c.text);
+  /* ★[AFTER_BEFORE_FAMILY_200] 소리 없는 사람 구간(단체 사진 등 1분 이상)을 사이에 둔 두 줄은 이웃이 아니다 — 그 자리를 3칸으로 센다
+       (마무리 «이어서 단체 사진을 찍겠습니다.» · 전체 단체 사진 몇 분 · 촬영 후 안내 «이어서 가족 사진을 찍겠습니다.» 는 사장님 확정 문안) */
+  let _ix = 0; const cues = [];
+  RC.build({ course }, { mode: 'console' }).cues.forEach((c) => { if (c.text) { cues.push(Object.assign({}, c, { _ix })); _ix++; } else if (c.act && c.live && (c.live.est || 0) >= 60) _ix += 3; });
   const seq = [];
-  cues.forEach((c, i) => String(c.text).split(/(?<=[.!?])\s+/).forEach((t) => {
+  cues.forEach((c) => { const i = c._ix; String(c.text).split(/(?<=[.!?])\s+/).forEach((t) => {
     const v = stemOf(t);
     if (v && SRC.has(srcNorm(t))) { predSrc++; return; }   // [SOURCE_FIRST_1016] 자료 그대로 문장
     if (v) seq.push({ i, v, t, slug: c.slug, b: c.blockN });
-  }));
+  }); });
   const hits = [];
   for (let a = 0; a < seq.length; a++) {
     for (let b = a + 1; b < seq.length; b++) {
