@@ -2119,6 +2119,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .lf-only,.lf-onlyoff{border:0;background:none;padding:0 2px;min-height:44px;font:inherit;font-size:12.5px;color:var(--gold-deeper,#8a6a45);text-decoration:underline;text-underline-offset:3px;cursor:pointer;align-self:flex-start} .lf-onlytag{margin:0;font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:4px}
 .lf-onlyend{margin:12px 0;padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--card)} .lf-onlyend p{margin:0 0 10px;font-size:14px;color:var(--accent)} .lf-onlyend .rowbtn{min-height:44px}
 .lf-prep{margin:12px 0;padding:16px;border:1px solid var(--border);border-radius:10px;background:var(--card);text-align:center} .lf-prepn{margin:0;font-family:var(--ko-serif);font-size:48px;line-height:1.1;color:#6B2A24} .lf-prept{margin:8px 0 0;font-size:16px;color:var(--accent)} .lf-preps{margin:4px 0 0;font-size:12.5px;color:var(--sub)}   /* [PR_WAY_198 ⑨ ⑩] */
+.pr-roles{margin:16px 0 0} .pr-roles h4{font-size:14px;font-weight:600;color:var(--accent);margin:0} .pr-roles ul{list-style:none;margin:6px 0 0;padding:0} .pr-roles li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:14px} .pr-roles .rowbtn{min-height:44px;flex:0 0 auto}   /* [PR_WAY_198 ⑫] */
 .pr-resume{margin:0 0 12px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card)} .pr-resume b{font-family:var(--ko-serif);font-size:16px;color:var(--accent)} .pr-rz1{margin:4px 0 0;font-size:14px;color:var(--accent)} .pr-rz2{margin:2px 0 8px;font-size:12.5px;color:var(--sub)} .pr-resume .rowbtn{min-height:44px}   /* [PR_WAY_198 ⑪] */
 .lf-trytip{margin:14px 0 6px;font-size:12.5px;color:var(--sub)} .lf-trygo{min-height:48px;width:100%;max-width:320px;background:var(--accent);color:#fff;border-color:var(--accent)}
 .mk-prgo{margin:10px 0 4px} .mk-prgo .rowbtn{min-height:44px}
@@ -7667,7 +7668,9 @@ function renderPractice(){ var R=RitualOpen;
     +'<button type="button" class="pr-try" data-fk="prtry" onclick="prStart(\'try\')"><b>직접 해보기로 시작</b><span>두 분 차례에서 멈춰 기다려요 · 다 하면 «다 했어요»</span></button>'   /* ★[PR_WAY_198 ①] B «직접 해보기» */
     +'<button type="button" class="pr-sv" data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>'
     +(!_prMuOk()?'':'<button type="button" class="pr-sv" data-fk="prmu" aria-pressed="'+(_prMusic()?'false':'true')+'" onclick="prMusicTgl()">'+(_prMusic()?'음악 끄기':'음악 켜기')+'</button>')   /* [PR_WAY_198 ⑧] 음악이 날 수 없으면 토글을 그리지 않는다 · ★[PR_BGM_197 8] 작은 토글 · «글로 한눈에 보기»와 같은 모양 */   /* ★[SCRIPT_VIEW_1018 검토 74] ④ «대본 복사 · 파일»과 같은 글(scriptTextOpen)을 읽기만 · 새 쪽은 없다 */
-    +_prPrepFold()   /* [PR_PREP_FOLD] 장면 카드 아래 */   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
+    +_prPrepFold()   /* [PR_PREP_FOLD] 장면 카드 아래 */
+    +(function(){ var rl=ENG?_prRoles():[]; if(!rl.length) return ''; return '<section class="pr-roles" aria-labelledby="prRoleH"><h4 id="prRoleH">역할 전달하기</h4><p class="mk-note">맡아 주실 분께 그분 순서만 보내요</p><ul>'
+      +rl.map(function(r){ return '<li><span>'+esc(r.nm)+'</span><button type="button" class="rowbtn" data-fk="prrole:'+r.id+'" onclick="prRole(\''+r.id+'\')">이 역할 전달하기</button></li>'; }).join('')+'</ul></section>'; })()   /* ★[PR_WAY_198 ⑫] */   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
     +'</div>';
   /* ★«빠르게 훑기»(prfast) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_FAST_OFF]
      ★«한 부분만 보기»(네 막 단추 pra:0~3) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_SEC_OFF]
@@ -8366,6 +8369,37 @@ function _prAtGet(){ var o=null; try{ o=JSON.parse(localStorage.getItem(PR_AT_KE
   for(var i=0;i<Math.max(now.length,old.length);i++){ if(now[i]!==old[i]){ ch=i; break; } }
   if(at<0||(ch>-1&&ch<=at)){ var k=now[ch>-1?Math.min(ch,now.length-1):0]; if(!k) return null; return {k:k,n:0,way:o.way,d1:_mkName(k)+' · 처음부터',d2:'순서가 바뀌어 바뀐 순간부터 해요',changed:true}; }
   return o; }
+/* ★★[PR_WAY_198 ⑫ 검토 198-3] «이 역할 전달하기» — 부모님 · 축사 · 선언하실 분께 그분 몫만(안내 음성 · 읽으실 글 · 하실 일 · 마치면) 글로 복사 + 읽기 전용 링크(role.html#r=…).
+   줄은 연습과 같은 줄(_lSteps → _lRefExpand) — 따로 적지 않는다 · 두 분 몫(«신랑 신부 …» · «두 분 …»)과 하객 몫(«하객이 …»)은 걷는다 · 마치면 안내가 없으면 «자리로 돌아가 앉아 주세요» 한 줄 */
+var PR_ROLES=[{id:'declare',t:'성혼 선언을 읽어 주실 분께',nm:'성혼 선언을 읽어 주실 분',ks:['declare'],ret:1},{id:'free',t:'축사를 해 주실 분께',nm:'축사를 해 주실 분',ks:['free'],ret:1},{id:'par',t:'양가 부모님께',nm:'양가 부모님',ks:['candle','bless','tribute']}];
+var PR_PAR_RX=/어머님|아버님|부모님/;
+function _prRoleAct(t){ return String(t||'').replace(/^[①-⑨]\s*/,'').split(' · ').filter(function(x){ x=x.trim(); return x&&x!=='말없이'&&(PR_PAR_RX.test(x)||!/^(신랑|신부|두 분|하객)/.test(x)); }).join(' · '); }   /* 다른 사람이 주어인 조각만 뺀다(«서로 인사 → 하객께 인사 → 자리로»는 남는다) */
+function _prRoleMo(k,id,q){ var rs=q.filter(function(x){ return x.k===k; }); if(!rs.length) return null;
+  var nar=function(x){ return !!x.slug&&!x.quiet&&!x.talk2&&!x.act&&!x.talk&&!x.skip; }, act=function(x){ return (x.quiet||x.act)&&!x.hint; };
+  if(id==='par'&&k==='candle'&&!rs.some(function(x){ return act(x)&&PR_PAR_RX.test(x.txt); })) return null;   // 화촉을 다른 분이 밝히면 부모님 몫 아님
+  if((id==='par'&&k==='bless')||id==='declare'||id==='free'){ if(!rs.some(function(x){ return x.sum; })) return null; }
+  if(id==='par'&&k==='tribute'){ var a=-1; rs.forEach(function(x,i){ if(a<0&&nar(x)&&/부모님께서는/.test(x.txt)) a=i; }); if(a<0) return null; rs=rs.slice(a,a+2); }
+  var st=[], ret=false;
+  var _stop=false; rs.forEach(function(x){ if(_stop) return; if(ret&&nar(x)){ _stop=true; return; }   /* 자리로 돌아가는 안내 뒤 동작(서로 인사 → 자리로)까지 · 다음 안내 음성부터는 그분 몫이 아니다 */ if(x.sum){ st.push([x.fullRef?'읽으실 글 · 예시':'읽으실 글',String(x.full||x.txt)]); return; }
+    if(nar(x)){ st.push(['안내 음성',x.txt]); if(/자리|착석/.test(x.txt)) ret=true; return; }
+    if(act(x)){ var t=_prRoleAct(x.txt); if(t) st.push(['하실 일',t]); } });
+  if(!st.length) return null;
+  if(!ret&&(PR_ROLES.filter(function(r){ return r.id===id; })[0]||{}).ret||(!ret&&k==='candle')) st.push(['마치면','자리로 돌아가 앉아 주세요']);
+  var no=_mkNo(k); return {n:(no&&no!=='식전'?no+' ':'')+_mkName(k),s:st}; }
+function _prRoleOf(id){ if(!ENG) return null; var R0=PR_ROLES.filter(function(r){ return r.id===id; })[0]; if(!R0) return null; var rows=_lRows(), q;
+  try{ q=_lRefExpand(_lSteps(ENG,rows)); }catch(e){ return null; }
+  var ms=[]; R0.ks.forEach(function(k){ if(rows.indexOf(k)<0) return; var m=_prRoleMo(k,id,q); if(m) ms.push(m); }); if(!ms.length) return null;
+  var w=(CUST&&CUST.weddingDate)||'', wt=''; if(/^\d{4}-\d{2}-\d{2}/.test(w)){ var dd=new Date(w.slice(0,10)+'T00:00:00'); wt='예식 '+dd.getFullYear()+'년 '+(dd.getMonth()+1)+'월 '+dd.getDate()+'일('+'일월화수목금토'.charAt(dd.getDay())+')'; }
+  return {t:R0.t,nm:R0.nm,w:wt,p:id==='par'?_parTellTxt():'',m:ms}; }
+function _prRoles(){ return PR_ROLES.map(function(r){ return _prRoleOf(r.id)?r:null; }).filter(Boolean); }
+function _b64u(s){ return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function _prRoleUrl(o){ return location.origin+'/role.html#r='+_b64u(JSON.stringify({t:o.t,w:o.w,p:o.p,m:o.m})); }
+function _prRoleTxt(o,url){ var L=['['+o.t+']']; if(o.w) L.push(o.w); if(o.p) L.push('',o.p);
+  o.m.forEach(function(m){ L.push('','· '+m.n); m.s.forEach(function(x){ L.push(/^읽으실 글/.test(x[0])?x[0]+'\n'+x[1]:x[0]+' · '+x[1]); }); });
+  L.push('','읽기 전용으로 보기 '+url); return L.join('\n'); }
+window.prRole=function(id){ var o=_prRoleOf(id); if(!o){ toast('전달할 순서가 없어요'); return; } var url=_prRoleUrl(o), t=_prRoleTxt(o,url);
+  try{ if(navigator.share&&/Mobi|Android|iPhone/i.test(navigator.userAgent||'')){ navigator.share({title:o.t,text:t}).then(function(){},function(){}); return; } }catch(e){}
+  try{ navigator.clipboard.writeText(t).then(function(){ toast('글과 링크를 복사했어요'); },function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };
 window.prResume=function(){ var o=_prAtGet(); if(!o) return; PRW=(o.way==='try'?'try':'flow'); LP.listOpen=false; LP.only=null;
   _ptGate(function(){ LP.fast=false; LP.noChips=false; LP.startK=o.k; LP.startN=o.n|0; _lOpenBig(); _lStart(_lRows(),true); _lFull(); }); };
 window.prPrev=function(){ var j=LP.i-1; if(j<0||!LP.q[j]) return; LP.wait=null; LP.prepDone=null; LP.prep=null; LP.i=j; LP.paused=false; LP.hint=null; LP.stay=null; try{ _lUnlock(); }catch(e){} _lShow(); };
@@ -8624,6 +8658,7 @@ function _lFull(){
     if(st.ref) _rh+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.bothRef?'':(st.refOf>1?' '+(st.refN+1):''))+(st.refSit?' · '+esc(REF_SIT[st.refSit]||st.refSit):'')+'</span><span class="lf-refd">'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+'</span></p>';   /* [PRACTICE_WALK_1101 7] 이름표와 당일 안내를 두 줄로(붙어 읽혔다) */
     if(st.vowSeq) _rh='<p class="lf-ord">순서 · '+st.vowSeq.map(function(w,i){ return i===st.vowAt?'<b class="on" aria-current="step">'+esc(w)+'</b>':esc(w); }).join(' → ')+'</p>'+_rh;   /* [PRACTICE_WALK_1101 8] · ★[PR_WAY_198 ②] 줄마다 · 지금 차례 강조 */
     if(st.full) _rh+='<details class="lf-full" ontoggle="if(this.open)try{this.scrollIntoView({block:\'start\',behavior:\'smooth\'})}catch(e){}"><summary>'+(st.fullRef?(st.fullLab||'예시 축사 전문 보기'):'받은 원고 전문 보기')+'</summary><p>'+esc(st.full)+'</p></details>';   /* [PRACTICE_WALK_1101 9] */   /* [CAST_TEXT_ONLY] 목소리가 없으니 «이 목소리는 …» 문장도 없다 */   // [REF_EXAMPLE] · [REF_TABLE] 말하는 사람마다 한 줄 · «소리»가 아니라 «목소리»(나레이션은 당일에도 나온다)
+    if(_prIn&&st.sum){ var _rid={declare:'declare',free:'free',bless:'par'}[st.k]; if(_rid) _rh+='<button type="button" class="lf-only" data-fk="lfrole" onclick="prRole(\''+_rid+'\')">이 역할 전달하기</button>'; }   /* [PR_WAY_198 ⑫] 읽어 주실 분께 그분 몫만 */
     if(!st.talk2){ h+=_rh; _rh=''; }   /* ★[PR_ORDER 2026-10-05 «최선이야?» 점검] 말하는 차례는 «누구 차례 → 할 일 → 글 → 남은 시간» 순서로 읽히게 — 글의 출처(두 분이 적은 글 · 참고 예시)는 글 아래 작은 줄로 */
     /* ★★[PR_MODE · PR_CUE 2026-10-05 사장님 «연습하기 진행 전에 선택할 수 있게 · 적은 대사를 AI 로 입혀 우선 들어 볼 것인지 아니면 직접 소리 내서 연습할 것인지»
        «고객 입장에서 대사를 직접 말하면서 연습할 수 있게 · 준비한 멘트를 읽으시면 됩니다 이런 식으로 진행 흐름에 맞추어 쉽게»]

@@ -21278,6 +21278,13 @@ chk 'function _prAtGet()' order-preview.html 1
 chk 'data-fk="prres"' order-preview.html 1
 chk 'lpCut:function()' assets/bgm-bed.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way2.mjs >/dev/null 2>&1; _prw2=$?; if [ "$_prw2" = 1 ]; then echo 'FAIL pr-way2: 연습 2단계(이 순간만 · 입장 준비 · 이어서)가 어긋났습니다 — node scripts/audit/pr-way2.mjs'; fail=1; fi; fi
+# ── 2026-11-02 [PR_WAY_198 검토 198-3] ⑫ 이 역할 전달하기 — 부모님 · 축사 · 선언하실 분께 그분 몫만(안내 음성 · 읽으실 글 · 하실 일 · 마치면) 복사 + 읽기 전용 쪽 role.html(# 뒤에만 · noindex)
+chk 'function _prRoleOf(id)' order-preview.html 1
+chk 'data-fk="lfrole"' order-preview.html 1
+chk 'PR_WAY_198 ⑫' role.html 1
+chk 'noindex, nofollow' role.html 1
+nochk 'fetch(' role.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way3.mjs >/dev/null 2>&1; _prw3=$?; if [ "$_prw3" = 1 ]; then echo 'FAIL pr-way3: 역할 전달하기(복사 글 · 읽기 전용 쪽)가 어긋났습니다 — node scripts/audit/pr-way3.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
