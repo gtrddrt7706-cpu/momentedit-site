@@ -160,7 +160,7 @@ try {
   await setX(f, { on: { vow: 1, ring: 1, declare: 1, welcome: 1, matjeol: 1, tribute: 1, table: 1, candle: 1, toast: 1 }, bgm: {} });
   const q10 = await f.evaluate(() => { const q = _lSteps(ENG, ['candle', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'table', 'toast', '_close']);
     const L = ENG.RitualCue.build(S, { mode: 'console' }).cues, out = [];
-    q.forEach((x) => { if (!x.quiet || !x.of) return; const c = L.find((y) => y.slug === x.of); if (c && c.live && c.live.duck != null) out.push([x.k, x.of, x.ldk, c.live.duck]); }); return out; });
+    q.forEach((x) => { if (!x.quiet || !x.of || x.k === 'matjeol') return;   /* 맞절은 입장 곡 크기 체계(intro −12 = 콘솔 −12 · entry-carry 가 잰다) */ const c = L.find((y) => y.slug === x.of); if (c && c.live && c.live.duck != null) out.push([x.k, x.of, x.ldk, c.live.duck]); }); return out; });
   const bad10 = q10.filter((x) => (x[2] == null ? -8 : x[2]) !== x[3]);   /* ldk 가 없으면 엔진은 큐 사이 크기(−8)로 깐다 */
   ok('10 미리 듣기 행동 줄 크기 = 당일 콘솔 live.duck(맞절 · 부모님께 인사 · 테이블 이동 · 반지 · 박수)', q10.length >= 4 && !bad10.length, { n: q10.length, bad: bad10.slice(0, 6) });
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
