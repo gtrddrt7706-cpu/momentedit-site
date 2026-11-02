@@ -21752,4 +21752,13 @@ chk 'PV_AGAIN_UP_1102' order-preview.html 2
 chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button>' order-preview.html 1
 chk '.pv-act:empty{display:none}' order-preview.html 1
 nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
+# ★[DN_BUGS_1102 GPT 애프터 웨딩 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
+chk 'DN_RSV_AFTER_PICK_1102' mypage.html 1
+chk 'function _dnRsvFor(d, place)' mypage.html 1
+chk 'DN_RSV_PER_PLACE_1102' mypage.html 3
+chk 'DN_UNDO_ALL_1102' mypage.html 1
+chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
+chk 'DN_RESET_ALWAYS_1102' mypage.html 3
+chk 'DN_EMPTY_STEP_1102' mypage.html 1
+nochk '원하시는 곳이 따로 있으면 그대로 진행하셔도 돼요' mypage.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
