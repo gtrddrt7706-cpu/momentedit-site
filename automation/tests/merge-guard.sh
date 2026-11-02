@@ -21825,7 +21825,7 @@ chk 'CLEAR_HEAD_1102' order-preview.html 3
 chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.html 1
 chk "_opPrev=null; MK.navOpen=false; MK.flowKeep=null; MK.toastGo=''; MK.statI=null;" order-preview.html 1
 chk 'CLEAR_HEAD_1102' scripts/audit/clear-head.mjs 1
-chk "listen-pace knobs detail-r1 pr-bgm clear-head' }" .github/workflows/merge-guard.yml 1
+chk "listen-pace knobs detail-r1 pr-bgm clear-head" .github/workflows/merge-guard.yml 1
 # ★[GUEST_TIME_1102 사장님 «우리가 세팅한 프로그램 시간표를 봐»] 하객 입장 = 본식 − DAY.guestIn(ritual-data · 20분) — 식순 화면 «… 약 n분 뒤» · 하객 맞이 «약 n분» · 곡 목록 길이가 이 값으로 계산한다(검사 = CI bgm-sound e 칸)
 chk 'guestIn: 20 }' assets/ritual-data.js 1
 chk 'GUEST_TIME_1102' assets/bgm-picks.js 2
@@ -21835,4 +21835,12 @@ chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
 nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
 nochk "M1: 1800" assets/bgm-picks.js
 chk "screen-bgm after-photo-loop guest-time' }" .github/workflows/merge-guard.yml 1
+# ★[NO_RELIFT_1102 사장님 «이어 듣기 하면 전에 틀었던 BGM 이 나오는 버그»] 정적 뒤 앞 곡을 되살리지 않는다 — 엔진 한 표(duck · live.duck)에서 · 미리 듣기 박수 줄도 그 값 · 정적으로 끝나면 여운 없음 · 축배 곡(M7) 지키기(검사 = CI bgm-sound b 칸)
+chk 'NO_RELIFT_1102' assets/ritual-cue.js 2
+chk 'NO_RELIFT_1102' assets/bgm-bed.js 2
+chk 'NO_RELIFT_1102' order-preview.html 3
+chk 'ldk:_cx.lvd})' order-preview.html 1
+chk 'cues\[m\].liveDuck = cues\[m\].live.duck;' assets/ritual-cue.js 1
+chk 'NO_RELIFT_1102' scripts/audit/no-relift.mjs 1
+chk "pr-bgm clear-head no-relift' }" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

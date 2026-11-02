@@ -1975,6 +1975,25 @@
       }
     }
 
+    /* ★★[NO_RELIFT_1102 사장님 «이어 듣기 하면 전에 틀었던 BGM 이 나오는 버그»] 정적 뒤 앞 곡을 되살리지 않는다 — 미리 듣기 · 연습 · 당일 콘솔이 읽는 한 표(duck · live.duck)에서 정한다.
+         본식 곡(M4 · 감사 인사 ~ 축가 · «음악 없이» 축사 · 편지 · 앞 곡을 잇는 축배)이 −90 으로 내려간 뒤에는 같은 본식 곡 칸에서 다시 올리지 않는다(박수 · 축가 여는 말 · 축가 끝 박수 = 정적 · 박수 소리가 채운다) ·
+         다시 음악이 필요한 자리는 그 순간의 곡(부모님께 인사 · 테이블 · 닫는 인사 …)이 무음에서 시작한다(엔진이 손대지 않는다) ·
+         되살아날 음악이 10초 안에 다시 −90 이면 올리지 않는다(«음악과 함께» 축사 뒤 축가 여는 말 → MR · 켜졌다 꺼졌다 금지) ·
+         예외: 성혼 선언(정적 뒤 «축하 박수부터 음악이 이어져요» · MEANING_R2 에서 새 곡으로 바뀐다) · 축배 «위하여» 뒤 M7(duck 이 아니라 cheer 로 돈다) */
+    (function () { var b5 = S.bgm || {}, quiet = false, prevM4 = false, lastK = '';
+      var m4 = function (k) { if (/^(welcome|vow|ring|declare|bless|song)$/.test(k)) return true; if (k === 'free') return !(b5.S5 && b5.S5.m === 'bed'); if (k === 'letter') return !(b5.S6 && b5.S6.m === 'bed'); if (k === 'toast') return prevM4; return false; };
+      var P = []; cues.forEach(function (c) { P.push({ c: c, w: 'say', est: +c.est || 0 }); (c.post || []).forEach(function (p) { if (p.music === 'to') P.push({ c: c, w: 'post', p: p, est: 0 }); }); if (c.live && c.live.duck != null) P.push({ c: c, w: 'live', est: +(c.live.est || 0) }); });
+      var lv = function (x) { return x.w === 'say' ? x.c.duck : x.w === 'live' ? x.c.live.duck : x.p.v; }, set = function (x, v) { if (x.w === 'say') x.c.duck = v; else if (x.w === 'live') x.c.live.duck = v; else x.p.v = v; };
+      for (var j = 0; j < P.length; j++) { var x = P[j], k = x.c.k; if (k !== lastK) { prevM4 = lastK ? m4(lastK) : false; lastK = k; } var v = lv(x); if (v == null) continue;
+        if (!m4(k)) { quiet = false; continue; }   /* 다른 곡의 순간 — 그 곡은 무음에서 시작 · 본식 곡 정적은 여기서 끝 */
+        if (v <= -60) { quiet = true; continue; }
+        if (k === 'declare') { quiet = false; continue; }   /* 예외(선언 뒤 박수) */
+        if (quiet) { set(x, -90); continue; }
+        /* 10초 안에 다시 정적이면(곡이 바뀌었다 돌아온 자리 포함) 올리지 않는다 — 앞이 정적일 때만 */
+        var pv = j > 0 ? lv(P[j - 1]) : null; if (pv != null && pv <= -60) { var t = 0, back = false; for (var m = j; m < P.length; m++) { var y = lv(P[m]); if (y != null && y <= -60) { back = true; break; } t += P[m].est; if (t >= 10) break; }
+          if (back && t < 10) { for (var n = j; n < P.length; n++) { var z = lv(P[n]); if ((z != null && z <= -60) || !m4(P[n].c.k)) break; set(P[n], -90); } quiet = true; } } }
+    })();
+
     if (mode === 'preview') {
       // 미리듣기: 전부 자동. 사람 구간은 '이런 순간이 여기 있다'만 알면 되므로 짧게 줄인다.
       for (var m = 0; m < cues.length; m++) {
@@ -1982,7 +2001,7 @@
         cues[m].fire = 'chain';
         /* ★[CLAP_GO · LOOK_HOLD · CLOSE_BOW] 콘솔에만 있는 사람 순간(박수 · 첫 모습)은 미리 듣기에서 걷는다 —
            «미리 듣기는 그대로»(코워크 회신5). 종전에 post 로 기다리던 자리는 previewPost 로 되돌린다(아래에서 같이 줄인다). */
-        if (cues[m].live && cues[m].live.consoleOnly) { cues[m].post = (cues[m].post || []).concat(cues[m].live.previewPost || []); cues[m].live = null; }
+        if (cues[m].live && cues[m].live.consoleOnly) { cues[m].liveDuck = cues[m].live.duck;   /* ★[NO_RELIFT_1102] 걷어도 크기는 남긴다 — 빌더의 박수 행동 줄이 콘솔과 같은 값(정적 뒤 −90)을 읽는다(없으면 기본 −8 로 되살아났다) */ cues[m].post = (cues[m].post || []).concat(cues[m].live.previewPost || []); cues[m].live = null; }
         if (cues[m].live) { cues[m].live.fullEst = cues[m].live.est; cues[m].live.est = Math.min(cues[m].live.est, PARAM.previewLiveCap); }
         // 침묵·페이드도 같이 줄인다. 안 줄이면 폐식 뒤 30초 대기 같은 자리에서 듣는 사람이 앱을 닫는다.
         (cues[m].post || []).forEach(function (st) {

@@ -157,7 +157,7 @@
   /* ★[BED_LOAD_1101 ④] 풀어 둔 곡(AudioBuffer · 2.5MB 곡 하나가 약 60MB)은 셋까지만 — 아이폰은 넘치면 디코딩이 조용히 실패한다 · 지금 흐르는 곡 · 받는 곡 · 지금 줄 곡 · 다음 순간 곡 · 곡 카드는 지우지 않는다 · 입장 곡(@ENT)도 센다 · 다시 필요하면 다시 받는다 */
   var BUF_MAX=3;
   function keepSet(){ var k={}; [BED.cur&&BED.cur.f, LPB.f, LPB.pend, CARD.f, PF.busy].forEach(function(f){ if(f) k[f]=1; }); var st=curStep();
-    if(st){ try{ var f1=fileFor(st); if(f1) k[f1]=1; var nk=nextK(st.k), f2=nk?songAt(nk):''; if(f2) k[f2]=1; var nq=(typeof LP!=='undefined'&&LP.q)?LP.q[LP.i+1]:null; if(nq){ var f3=fileFor(nq); if(f3) k[f3]=1; } }catch(x){} } return k; }   /* [DETAIL_R2_1101 ①] 바로 다음 줄 곡(말씀 · 낭독 «음악과 함께»)도 지키기 */
+    if(st){ try{ var f1=fileFor(st); if(f1) k[f1]=1; var nk=nextK(st.k), f2=nk?songAt(nk):''; if(f2) k[f2]=1; var nq=(typeof LP!=='undefined'&&LP.q)?LP.q[LP.i+1]:null; if(nq){ var f3=fileFor(nq); if(f3) k[f3]=1; } songsOf(st.k).forEach(function(f4){ if(f4) k[f4]=1; }); }catch(x){} } return k; }   /* ★[NO_RELIFT_1102] 지금 순간이 받아 둔 곡(축배 = 잇는 곡 + 축배 곡 M7)도 지킨다 — 닫는 인사 곡을 받으며 M7 이 지워져 «위하여» 뒤 축배 곡이 안 나던 자리 */   /* [DETAIL_R2_1101 ①] 바로 다음 줄 곡(말씀 · 낭독 «음악과 함께»)도 지키기 */
   function prune(){ var ks=Object.keys(BUF).filter(function(f){ var o=BUF[f]; return o&&o.st==='ok'&&o.b; }); if(ks.length<=BUF_MAX) return; var keep=keepSet(), n=ks.length;
     ks.sort(function(a,b){ return (BUF[a].used||0)-(BUF[b].used||0); }); for(var i=0;i<ks.length&&n>BUF_MAX;i++){ if(keep[ks[i]]) continue; delete BUF[ks[i]]; n--; } }   /* ec = 못 받은 까닭 코드(서버 · 연결) */
   window.addEventListener('message',function(ev){ var d=ev&&ev.data; if(!d||ev.origin!==window.location.origin||d.type!=='momentedit:ritualFileData'||d.key!=='bed') return;
@@ -383,7 +383,7 @@
   /* ★[LISTEN_LOOK_LEVEL_1101 ③ 사장님 «마지막 나레이션이 끝나면 노래는 다시 커지는 거야?»] 끝까지 들으면(⏹ 가 아니라) 여운 —
        음악이 1.2초에 큐 사이 크기(−8 · 이미 더 크면 그대로)로 올라와 5초 흐른 뒤 3초에 걸쳐 잦아들며 끝 · 그동안 ⏹ · 다른 듣기 · 곡 카드가 오면 그쪽이 이긴다 */
   var TAIL={ up:1200, hold:5000, down:3000 };
-  function lpFin(){ if(BED.who!=='lp'||!BED.cur.src){ lpEnd(); return; }
+  function lpFin(){ if(BED.who!=='lp'||!BED.cur.src||(BED.cur.want!=null&&BED.cur.want<=-60)){ lpEnd(); return; }   /* ★[NO_RELIFT_1102] 정적으로 끝난 순간(축가 끝 박수 · 편지 «음악 없이» …)은 여운으로 앞 곡을 되살리지 않는다 · 편지 끝 오름(lpTail)은 그대로 */
     var p=PR(), v=BED.cur, f=v.f; LPB.keep[f]=posOf(v); LPB.lf=null; LPB.on=false; LPB.f=''; LPB.pend=''; LPB.m7=false; BED.who='tail'; clearTimeout(LPB.tt);
     ramp(v,Math.max(v.want,vx(p.music,f)),TAIL.up);
     LPB.tt=setTimeout(function(){ if(BED.cur!==v||BED.who!=='tail') return; ramp(v,-90,TAIL.down);
