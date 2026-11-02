@@ -819,23 +819,11 @@
   },
   {
    "clip": "317_after-photo",
-   "text": "기념 촬영을 모두 마쳤습니다."
-  },
-  {
-   "clip": "317_after-photo",
    "text": "끝까지 함께해 주셔서 고맙습니다."
   },
   {
    "clip": "317_after-photo",
    "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요."
-  },
-  {
-   "clip": "317_after-photo",
-   "text": "조심히 돌아가세요."
-  },
-  {
-   "clip": "318_after-photo-guide",
-   "text": "기념 촬영을 모두 마쳤습니다."
   },
   {
    "clip": "318_after-photo-guide",
@@ -850,24 +838,12 @@
    "text": "오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다."
   },
   {
-   "clip": "318_after-photo-guide",
-   "text": "조심히 돌아가세요."
-  },
-  {
-   "clip": "319_after-photo-cafe",
-   "text": "기념 촬영을 모두 마쳤습니다."
-  },
-  {
    "clip": "319_after-photo-cafe",
    "text": "끝까지 함께해 주셔서 고맙습니다."
   },
   {
    "clip": "319_after-photo-cafe",
    "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요."
-  },
-  {
-   "clip": "320_after-photo-cafe-guide",
-   "text": "기념 촬영을 모두 마쳤습니다."
   },
   {
    "clip": "320_after-photo-cafe-guide",
@@ -880,10 +856,6 @@
   {
    "clip": "320_after-photo-cafe-guide",
    "text": "오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다."
-  },
-  {
-   "clip": "321_after-photo-resv-guide",
-   "text": "기념 촬영을 모두 마쳤습니다."
   },
   {
    "clip": "321_after-photo-resv-guide",
@@ -900,10 +872,6 @@
   {
    "clip": "321_after-photo-resv-guide",
    "text": "식사는 안내된 예약 시각에 두 분과 함께합니다."
-  },
-  {
-   "clip": "322_after-photo-resv",
-   "text": "기념 촬영을 모두 마쳤습니다."
   },
   {
    "clip": "322_after-photo-resv",
@@ -923,10 +891,6 @@
   },
   {
    "clip": "323_after-photo-meal-guide",
-   "text": "기념 촬영을 모두 마쳤습니다."
-  },
-  {
-   "clip": "323_after-photo-meal-guide",
    "text": "끝까지 함께해 주셔서 고맙습니다."
   },
   {
@@ -940,10 +904,6 @@
   {
    "clip": "323_after-photo-meal-guide",
    "text": "이어서 두 분과 함께 식사합니다."
-  },
-  {
-   "clip": "324_after-photo-meal",
-   "text": "기념 촬영을 모두 마쳤습니다."
   },
   {
    "clip": "324_after-photo-meal",
@@ -1111,6 +1071,56 @@
    "clip": "170_narr-ring-in-ex3",
    "text": "이번에는 신부도 그 마음에 답하듯, 신랑에게 반지를 끼워 주세요.",
    "since": "2026-10-31"
+  },
+  {
+   "clip": "317_after-photo",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "317_after-photo",
+   "text": "조심히 돌아가세요.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "318_after-photo-guide",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "318_after-photo-guide",
+   "text": "조심히 돌아가세요.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "319_after-photo-cafe",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "320_after-photo-cafe-guide",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "321_after-photo-resv-guide",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "322_after-photo-resv",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "323_after-photo-meal-guide",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
+  },
+  {
+   "clip": "324_after-photo-meal",
+   "text": "기념 촬영을 모두 마쳤습니다.",
+   "since": "2026-11-02"
   }
  ]
 }

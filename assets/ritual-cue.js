@@ -413,18 +413,21 @@
        닫는 멘트 칩이 이미 응원을 부탁하는 날(«다정하게» 186 «… 응원 많이 해 주시기 바랍니다»)은 같은 부탁이 겹쳐 빼고(-nt-nc · 325 ~ 328) · 칩 넷 판별: 담백하게(108) · 잔잔하게(185 «행복하길 바라면서»는 바람이지 부탁이 아니다) · 격식 있게(187) = 넣음 / 다정하게(186) = 뺌 */
   var CL_CHEER = ['안내', '두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.', null, '검토 189 자료 후보 · 사장님 확정(검토 195 · 23:13)'];
   var CLOSE_CHEER_EX = { 'narr-close-bow-ex3': 1 };   /* [CLOSING_CHEER_195] 칩 글에 이미 응원 부탁이 있는 칩 — 새 칩을 더하면 여기도 본다 */
+  /* ★★[END_FLOW_200 검토 200 · 사장님 12:57 ~ 13:00 «마무리 멘트 이후 단체 사진 · 그 안내는? · 촬영 후 안내는 단체 사진 이후 · 더 찍고 싶은 분은 남아서»]
+       마무리 멘트 끝 = 늘 모이기 문장(진희 새 녹음) · «남은 하루 행복하게 보내세요.»(47#1 · CL_DAY)는 촬영 후 안내 끝으로 옮겼다(식사 없는 판 · 기존 소리 그대로) — 마무리 멘트에 되살리지 말 것 */
+  var CL_GATHER = ['안내', '이어서 단체 사진을 찍겠습니다. 작가님 안내에 따라 앞으로 모여 주세요.', null, '검토 200 · 대본 확정(사장님 12:57)'];
   var CLOSING_PARTS = {
-    'narr-closing': [CL_THX, CL_CHEER, CL_DAY], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_DAY, CL_UP],
-    'narr-closing-soft': [CL_THX, CL_CHEER], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP],
-    'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL]),   /* [CLOSING_MEAL_DUP] */
+    'narr-closing': [CL_THX, CL_CHEER, CL_GATHER], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_UP, CL_GATHER],
+    'narr-closing-soft': [CL_THX, CL_CHEER, CL_GATHER], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP, CL_GATHER],
+    'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GATHER]),   /* [CLOSING_MEAL_DUP] */
     /* [CLOSING_SRC_1031] 닫는 멘트 칩 187 «격식 있게»를 고른 날 — 47#0(감사) 없이 · [CLOSING_CHEER_195] 응원 문장이 맨 앞 */
-    'narr-closing-nt': [CL_CHEER, CL_DAY], 'narr-closing-guide-nt': [CL_CHEER, CL_DAY, CL_UP],
-    'narr-closing-soft-nt': [CL_CHEER], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
-    'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL]),   /* [CLOSING_MEAL_DUP] */
+    'narr-closing-nt': [CL_CHEER, CL_GATHER], 'narr-closing-guide-nt': [CL_CHEER, CL_UP, CL_GATHER],
+    'narr-closing-soft-nt': [CL_CHEER, CL_GATHER], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP, CL_GATHER],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
+    'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GATHER]),   /* [CLOSING_MEAL_DUP] */
     /* [CLOSING_CHEER_195] 칩 186 «다정하게»를 고른 날 — 감사 없이 · 응원 없이(옛 292 · 293 · 295 · 296 글 그대로) */
-    'narr-closing-nt-nc': [CL_DAY], 'narr-closing-guide-nt-nc': [CL_DAY, CL_UP],
-    'narr-closing-soft-guide-nt-nc': [CL_UP],
-    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL])
+    'narr-closing-nt-nc': [CL_GATHER], 'narr-closing-guide-nt-nc': [CL_UP, CL_GATHER],
+    'narr-closing-soft-guide-nt-nc': [CL_UP, CL_GATHER],
+    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL, CL_GATHER])
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 하객 맞이 · 촬영 후 안내 문장 창고 — 줄 하나 = [줄 주인 · 문장 · 빌려 오는 녹음 · 자료 판정] (CLOSING_PARTS 와 같은 모양) ·
@@ -443,7 +446,8 @@
     mr: gw('장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.'), m: gw('장소와 시간은 현장 디렉터에게 여쭤 주세요.'),
     five: gw('시작 오 분 전입니다.', '03_guest-3-5min#0'), online5: gw('온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요.'),
     soon: gw('잠시 후 순서를 시작하겠습니다.'), sit: gw('자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'), sitOn: gw('현장에 계신 분들은 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'),
-    done: gw('기념 촬영을 모두 마쳤습니다.'), thx: gw('끝까지 함께해 주셔서 고맙습니다.'),
+    done: gw('단체 사진을 모두 마쳤습니다.'), thx: gw('끝까지 함께해 주셔서 고맙습니다.'),   /* [END_FLOW_200] «기념 촬영을 모두 …» → «단체 사진을 모두 …»(새 녹음) */
+    stay: gw('두 분과 따로 사진을 남기고 싶으신 분들은 잠시 남아 주세요.'), day: ['안내', '남은 하루 행복하게 보내세요.', '47_end-2-goodbye#1', '자료 — U1 마지막 인사 · DD ⑦ · [END_FLOW_200] 마무리 멘트에서 옮김(기존 소리)'],
     resv: gw('식사는 안내된 예약 시각에 두 분과 함께합니다.'), noResv: gw('이어서 두 분과 함께 식사합니다.'),
     pMealUp: gw('식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.'), pUp: gw('오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다.'),
     pResv: gw('식사 장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.'), pPlace: gw('식사 장소는 현장 디렉터에게 여쭤 주세요.'),
@@ -451,10 +455,11 @@
   };
   var GUEST_PARTS = { 'guest-w-arrival': [GW.hi, GW.voice, GW.snap], 'guest-w-arrival-guide': [GW.hi, GW.voice, GW.snap, GW.up],
     'guest-w-5m-online': [GW.five, GW.online5], 'guest-w-1m': [GW.soon, GW.sit], 'guest-w-1m-online': [GW.soon, GW.sitOn],
-    'after-photo': [GW.done, GW.thx, GW.things, GW.bye], 'after-photo-guide': [GW.done, GW.thx, GW.pUp, GW.things, GW.bye],
-    'after-photo-cafe': [GW.done, GW.thx, GW.things], 'after-photo-cafe-guide': [GW.done, GW.thx, GW.pUp, GW.things],
-    'after-photo-resv-guide': [GW.done, GW.thx, GW.resv, GW.pMealUp, GW.things], 'after-photo-resv': [GW.done, GW.thx, GW.resv, GW.pResv, GW.things],
-    'after-photo-meal-guide': [GW.done, GW.thx, GW.noResv, GW.pMealUp, GW.things], 'after-photo-meal': [GW.done, GW.thx, GW.noResv, GW.pPlace, GW.things] };
+    /* [END_FLOW_200] 고맙습니다 바로 뒤 «따로 사진 … 잠시 남아 주세요»(모든 판 · 새 녹음) · 식사 없는 판 끝 «조심히 돌아가세요.» → «남은 하루 행복하게 보내세요.»(47#1 기존 소리) */
+    'after-photo': [GW.done, GW.thx, GW.stay, GW.things, GW.day], 'after-photo-guide': [GW.done, GW.thx, GW.stay, GW.pUp, GW.things, GW.day],
+    'after-photo-cafe': [GW.done, GW.thx, GW.stay, GW.things], 'after-photo-cafe-guide': [GW.done, GW.thx, GW.stay, GW.pUp, GW.things],
+    'after-photo-resv-guide': [GW.done, GW.thx, GW.stay, GW.resv, GW.pMealUp, GW.things], 'after-photo-resv': [GW.done, GW.thx, GW.stay, GW.resv, GW.pResv, GW.things],
+    'after-photo-meal-guide': [GW.done, GW.thx, GW.stay, GW.noResv, GW.pMealUp, GW.things], 'after-photo-meal': [GW.done, GW.thx, GW.stay, GW.noResv, GW.pPlace, GW.things] };
   [10, 15, 20].forEach(function (n) { var b = [GW.ten, GW['n' + n]];
     GUEST_PARTS['guest-w-10m-n' + n] = b; GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = b.concat([GW.meal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = b.concat([GW.meal, GW.mg]);
     GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = b.concat([GW.meal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = b.concat([GW.meal, GW.m]); });
