@@ -21906,6 +21906,11 @@ chk 'PR_WAIT_LDK_204' scripts/audit/pr-way4.mjs 1
 # ── 2026-11-02 [MEAL_HINT_HIDE_204 #1574 확인 · 대본 → 나레이션] 식사를 이미 정한 날(엔진이 식사 문장을 붙이는 날)엔 «+ 식사 안내 멘트» 힌트 숨김 — 같은 값(_clS)으로 판단
 chk "function _clHints(){ var _s=_clS()||{}, o=\[\], meal=!!(_s.meal&&_s.mealFull), g=" order-preview.html 1
 nochk "meal=(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)&&!!CUSTMEALF&&!!CUSTRESV" order-preview.html
+# ── 2026-11-02 [LAST_SONG_WORDS_204 BGM 지적 · 대본 확정] 마지막 곡(M8L)은 목록으로 이어 트는 칸 — «마지막 곡이 끝날 때까지»(한 곡 길이로 오해) 금지 · «그동안 마지막 곡이 계속 흘러요»
+chk '편하게 사진을 남겨요. 그동안 마지막 곡이 계속 흘러요.' assets/ritual-story.js 1
+chk '추가 촬영(남은 사진 시간 동안 · 마지막 곡이 계속 흘러요)' assets/ritual-cue.js 1
+nochk '마지막 곡이 끝날 때까지' assets/ritual-story.js
+nochk '마지막 곡이 끝날 때까지' assets/ritual-cue.js
 # ★[CNT_ROW_ALIGN_1102 사장님 «본식 순간 6/6 · 긴 순간 3/3 라인이 안 맞는데»] 진행 줄 안 카운터 = 높이 44 가운데(순간 글자와 한 줄)
 chk 'CNT_ROW_ALIGN_1102' order-preview.html 1
 nochk '.mk-sc .pk-cnt{margin:4px 2px 8px}' order-preview.html
