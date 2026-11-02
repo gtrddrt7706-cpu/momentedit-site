@@ -481,7 +481,7 @@
   var POST_SEC = { meal: 18, soft: 2, softGuide: 10, none: 5, noneGuide: 12, mealNt: 12, softNt: 0, softGuideNt: 4, noneNt: 0, noneGuideNt: 7, mealNc: 8, softNc: 0, softGuideNc: 0, noneNc: 0, noneGuideNc: 2, online: 120 };   // ★[CLOSING_CHEER_195 검토 195] 응원 한 문장이 늘어난 몫(엔진 셈 · body-cap 이 잰다) · «Nc» = 186 «다정하게» 날(옛 Nt 값 그대로)   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장이 짧아져 17 → 13 · 11 → 8(엔진 글 길이 셈 · body-cap 이 대조)
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
-  function _postOf(S, f) { return (S && typeof S[f] === 'boolean') ? S[f] : !!_POST[f]; }
+  function _postOf(S, f) { if (S && typeof S[f] === 'boolean') return S[f]; if (f === 'guide') return S && S.guide != null ? !!S.guide : _POST.guide !== false; return !!_POST[f]; }   // ★[GUIDE_ALWAYS_202] 하객 안내는 기본 켜짐(ritual-cue gOn 과 같은 규칙)
   function postSec(S) { var m = _postOf(S, 'meal'), g = _postOf(S, 'guide'), k = (m && _postOf(S, 'mealFull') && _postOf(S, 'resv') && g ? 'meal' : m ? (g ? 'softGuide' : 'soft') : (g ? 'noneGuide' : 'none'));   // ★[CLOSING_LINE_1031] 엔진 closingOf 와 같은 조건 · [PHOTO_PRE_PICK_1030] 식사 있음 = 식사 자리 + 예약 시각 + 하객 안내
     var ex = ''; try { ex = narExCue(S || {}, 'narr-close-bow') || ''; } catch (e) { ex = ''; } if (ex === 'narr-close-bow-ex3') k += 'Nc'; else if (ex === 'narr-close-bow-ex4') k += 'Nt';   // ★[CLOSING_SRC_1031] 닫는 멘트 186 · 187 = 감사 없이 시작하는 판 · ★[CLOSING_CHEER_195] 186 «다정하게»는 응원 문장도 뺀 판(Nc · 325 ~ 328)
     return POST_SEC[k] + (_postOf(S, 'digital') ? POST_SEC.online : 0); }

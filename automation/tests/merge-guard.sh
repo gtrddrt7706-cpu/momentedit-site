@@ -21356,7 +21356,7 @@ chk "function _photoLine()" order-preview.html 1
 chk "+POST_KS.map(row).join('')+'</ol>'" order-preview.html 1   # [POST_FLOW_200]
 chk "lab:k==='_after'?_post('_after').sub:" order-preview.html 1   # [POST_FLOW_200]
 chk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장)
-chk "'+ 사진 올리기 안내: 하객 안내 켜기'" order-preview.html 1
+nochk "o.push('+ 사진 올리기 안내" order-preview.html   # ★[GUIDE_ALWAYS_202] «하객 안내 켜기» 줄 삭제(사장님 17:30 · 되살리지 말 것)
 chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
 chk ".mk-flow li.qh::after{content:'+';" order-preview.html 1
 nochk "이 안내도 맞춰 바뀌어요'" order-preview.html
@@ -21752,4 +21752,9 @@ chk "마이크는 디렉터에게 돌려주시고, 앞으로 나오셨으면 자
 nochk "if(/자리|착석/.test(x.txt)) ret=true;" order-preview.html   # [PR_REVIEW_201 상2] 말 글로 복귀를 정하지 않는다
 nochk "작가님 안내에 따라 앞으로 모여 주세요" assets/ritual-cue.js   # [END_FLOW_200 사장님 17:08] 녹음 문장에 «작가님» 없음 · 모여 달라 멘트 없음
 nochk "CL_GB" assets/ritual-cue.js   # [END_FLOW_200 사장님 17:08] 마무리 멘트 끝은 한 문장
+# ── 2026-11-02 [GUIDE_ALWAYS_202 검토 202] 사진 올리기 안내는 조건 없이 — 하객 안내 기본 켜짐(끈 예외 예식만 guide 0 · 당일 콘솔 칩) · 식사 경로는 종전대로
+chk "function gOn(S) { return !S || S.guide == null ? true : !!S.guide; }" assets/ritual-cue.js 1
+chk "function guideOf(token, closed) { return !closed; }" assets/ritual-preview-link.js 1
+chk "var CUSTGUIDE=true;" order-preview.html 1
+nochk "S\.guide ?" assets/ritual-cue.js   # 하객 안내 조건은 gOn(S) 하나로
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

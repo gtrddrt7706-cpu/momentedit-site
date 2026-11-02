@@ -246,25 +246,25 @@ ok('[CANDLE_NAME_1019] 영상 받는 말(261) → 3초 → «이어서, 화촉 �
 /* ★★[GUEST_WELCOME_191 검토 191] 새 코스 나레이션 판 하객 맞이 — ① 입장 때(손으로 · 2분마다 · 하객 안내 날 사진 줄 298) ② 10분 전(본식 길이 · 식사 경로) ③ 5분 전 03 ± 온라인 ④ 1분 전 315 ± 온라인 · 5분 전 사진 올리기(264 · 84)는 걷었다 · 옛 코스는 종전대로 */
 ok('[GUEST_WELCOME_191] 하객 맞이 판 — 하객 안내 날 입장 때 298(사진 올리기 줄) · 바깥 링크만 있고 하객 안내가 없으면 297 · 264 · 84 는 하객 맞이에서 안 튼다 · 입장 때는 2분마다(repeatMs) · 옛 코스는 종전대로(1분 전 뒤 84)', (() => {
   const s = (o) => slugs(Object.assign({ course: 'open', on: {} }, o));
-  const a = s({ guide: 1 }), b = s({ guide: 1, photoShare: 1 }), c = s({ photoShare: 1 }), d = s({});
+  const a = s({ guide: 1 }), b = s({ guide: 1, photoShare: 1 }), c = s({ photoShare: 1, guide: 0 }), d = s({ guide: 0 }), e = s({});   /* ★[GUIDE_ALWAYS_202] 하객 안내는 기본 켜짐 — 끈 예외 예식(guide 0)만 297 */
   const g0 = C.build({ course: 'open', on: {} }, { mode: 'console' }).cues[0] || {};
   const oldK = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].open)[0], o = slugs({ course: oldK, photoShare: 1 });
-  return a[0] === 'guest-w-arrival-guide' && b[0] === 'guest-w-arrival-guide' && c[0] === 'guest-w-arrival' && d[0] === 'guest-w-arrival' && [a, b, c, d].every((x) => x.indexOf('narr-photo-upload') < 0 && x.indexOf('narr-photo-ask') < 0 && x.indexOf('narr-photo-send') < 0)
+  return a[0] === 'guest-w-arrival-guide' && b[0] === 'guest-w-arrival-guide' && c[0] === 'guest-w-arrival' && d[0] === 'guest-w-arrival' && e[0] === 'guest-w-arrival-guide' && [a, b, c, d].every((x) => x.indexOf('narr-photo-upload') < 0 && x.indexOf('narr-photo-ask') < 0 && x.indexOf('narr-photo-send') < 0)
     && a.indexOf('narr-closing-guide') > -1 && g0.fire === 'manual' && g0.repeatMs === 120000
     && o.indexOf('narr-photo-ask') === o.findIndex((x) => /^guest-4-1min/.test(x || '')) + 1 && o.indexOf('narr-photo-upload') < 0; })());
 ok('[GUEST_WELCOME_191] 10분 전 — 본식 길이 판(십 · 십오 · 이십) · 식사 자리(meal + mealFull)면 식사 줄 + 경로 하나(하객 안내 · 현장 디렉터 × 예약 시각) · 카페 · 다과만이면 식사 줄 없음', (() => {
   const ten = (o) => { const x = slugs(Object.assign({ course: 'open', on: {} }, o)).find((y) => /^guest-w-10m-/.test(y || '')) || ''; return x.replace(/^guest-w-10m-n\d+/, ''); };
   const n = ['brief', 'standard'].map((k) => { const S = O.applyExample({ course: 'open' }, k); S.course = 'open'; return C.guestMinOf(S); });
-  return ten({}) === '' && ten({ meal: 1, mealFull: 1, guide: 1, resv: 1 }) === '-mgr' && ten({ meal: 1, mealFull: 1, guide: 1 }) === '-mg' && ten({ meal: 1, mealFull: 1, resv: 1 }) === '-mr' && ten({ meal: 1, mealFull: 1 }) === '-m' && ten({ meal: 1, guide: 1, resv: 1 }) === ''
+  return ten({}) === '' && ten({ meal: 1, mealFull: 1, guide: 1, resv: 1 }) === '-mgr' && ten({ meal: 1, mealFull: 1, guide: 1 }) === '-mg' && ten({ meal: 1, mealFull: 1, resv: 1, guide: 0 }) === '-mr' && ten({ meal: 1, mealFull: 1, guide: 0 }) === '-m' && ten({ meal: 1, mealFull: 1 }) === '-mg' && ten({ meal: 1, guide: 1, resv: 1 }) === ''
     && n[0] === 10 && n[1] === 20 && [10, 15, 20].every((m) => C.EXTRA['guest-w-10m-n' + m]); })());
 ok('[ONEMIN_FIRST · GUEST_WELCOME_191] 식전 영상이 없어도 시각 같음(-10 · -5 · -1) · 5분 전은 03(디지털 날 314) · 1분 전 315(디지털 날 316)', C.build({ course: 'open', on: {} }, { mode: 'console' }).cues.filter((c) => /^guest-(w-10m|3-5min|w-5m|w-1m)/.test(c.slug || '')).map((c) => c.atMin).join(',') === '-10,-5,-1'
   && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-5m-online') > -1 && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-1m-online') > -1 && slugs({ course: 'open', on: {} }).indexOf('guest-3-5min') > -1);
 ok('[GUEST_WELCOME_191] 화촉이 뒤에 와도 1분 전은 315(89 는 쉰다)', (() => { const s = slugs({ course: 'open', on: { candle: 1 } }); return s.indexOf('guest-w-1m') > -1 && s.indexOf('guest-4-1min-pre') < 0 && s.indexOf('guest-4-1min') < 0 && C.RETIRED['guest-4-1min-pre']; })());
 ok('[AFTER_PHOTO_191 · POST_FLOW_200] 촬영 후 안내 — 가족 구도 뒤 · 추가 촬영 앞 · 작가님이 누름(manual · 힌트) · 판(식사 · 카페 · 없음 × 하객 안내) · 미리 듣기 빌드엔 없다', (() => {
   const ap = (o) => { const r = C.build(Object.assign({ course: 'open', on: {} }, o), { mode: 'console' }), cs = r.cues, c = cs.find((x) => /^after-photo/.test(x.slug || '')) || {}, i = cs.indexOf(c); c._next = (cs[i + 1] || {}).actId; c._prev = (cs[i - 1] || {}).actId; return c; };
-  const a = ap({}), b = ap({ meal: 1, mealFull: 1, resv: 1, guide: 1 }), c = ap({ meal: 1, guide: 1 }), d = ap({ meal: 1, mealFull: 1 });
+  const a = ap({ guide: 0 }), b = ap({ meal: 1, mealFull: 1, resv: 1, guide: 1 }), c = ap({ meal: 1, guide: 1 }), d = ap({ meal: 1, mealFull: 1, guide: 0 }), a2 = ap({});   /* [GUIDE_ALWAYS_202] 기본은 -guide */
   const pre = C.build({ course: 'open', on: {} }, { mode: 'preview' }).cues.some((x) => /^after-photo/.test(x.slug || ''));
-  return a.slug === 'after-photo' && a.name === '촬영 후 안내' && a.fire === 'manual' && a.hint === '단체 사진(전체 → 가족)을 마치면' && a._prev === 'photo-family' && a._next === 'photo-free' && b.slug === 'after-photo-resv-guide' && c.slug === 'after-photo-cafe-guide' && d.slug === 'after-photo-meal' && !pre
+  return a.slug === 'after-photo' && a.name === '촬영 후 안내' && a.fire === 'manual' && a.hint === '단체 사진(전체 → 가족)을 마치면' && a._prev === 'photo-family' && a._next === 'photo-free' && b.slug === 'after-photo-resv-guide' && c.slug === 'after-photo-cafe-guide' && d.slug === 'after-photo-meal' && !pre && a2.slug === 'after-photo-guide'
     && /남은 하루 행복하게 보내세요\.$/.test(a.text) && /^단체 사진을 모두 마쳤습니다\./.test(a.text) && !/남은 하루/.test(b.text) && !/남은 하루/.test(c.text) && [a, b, c, d].every((x) => /두 분과 따로 사진을 남기고 싶으신 분들은 잠시 남아 주세요\./.test(x.text)); })());   /* [END_FLOW_200 2] */
 ok('두 분 목소리면 04 는 그대로(첫 줄이 이미 맞다)', slugs({ course: 'open', on: { candle: 1 }, guestVoice: 'couple' }).indexOf('guest-4-1min') > -1);
 ok('화촉 서는 분 → 여는 말 판', ['mothers', 'fathers', 'others'].every((w) => slugs({ course: 'open', on: { candle: 1 }, candleWho: w }).indexOf('narr-candle-in-' + w) > -1));
@@ -401,8 +401,9 @@ ok('[GUEST_EX_NAR · GUEST_WELCOME_191] 새 코스 나레이션 판은 예시 �
   const g = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'guest' && c.slug !== 'narr-open' && !/^bridge-/.test(c.slug)).map((c) => c.slug).join(',');   // [BRIDGE_MORE_1018] 입장 앞 이음말(B7)은 앞 순간(여기선 하객 맞이 · 개식) 끝에 붙는다   // [OPEN_DECL_1014] 개식 선언(137)은 하객 맞이 끝에 늘 · 예시 · 목소리와 상관없다(아래 한 줄)
   const op = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'guest' && !/^bridge-/.test(c.slug)).map((c) => c.slug).pop() === 'narr-open';
   return g({ course: 'open', on: { prevideo: 1 }, guestEx: 2 }) === g({ course: 'open', on: { prevideo: 1 }, guestEx: 0 })   /* ★[GUEST_WELCOME_191 검토 191] 새 코스 나레이션 판은 예시 칩을 읽지 않는다(한 문안 · 마이페이지 값으로 판) */
-    && /^guest-w-arrival,guest-w-10m-n\d+,guest-3-5min,guest-w-1m$/.test(g({ course: 'open', on: { prevideo: 1 }, guestEx: 0 }))
-    && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) === 'guest-1-arrival,guest-2-10min,guest-4-1min'
+    && /^guest-w-arrival-guide,guest-w-10m-n\d+,guest-3-5min,guest-w-1m$/.test(g({ course: 'open', on: { prevideo: 1 }, guestEx: 0 }))
+    && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) === 'guest-1-arrival,guest-2-10min,narr-photo-upload,guest-4-1min'   /* [GUIDE_ALWAYS_202] 두 분 목소리 판도 사진 올리기 안내(5분 전 자리)가 늘 */
+    && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple', guide: 0 }) === 'guest-1-arrival,guest-2-10min,guest-4-1min'
     && op({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) && op({ course: 'open', on: { prevideo: 1 }, guestEx: 2 }) && !C.build({ course: 'family' }, { mode: 'console' }).cues.some((c) => c.slug === 'narr-open')
     && g({ course: 'open', on: {}, guestEx: 9 }).startsWith('guest-w-arrival');   /* [GUEST_WELCOME_191] 모르는 값도 새 판 */
 })());

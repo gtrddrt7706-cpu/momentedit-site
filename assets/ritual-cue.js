@@ -468,11 +468,14 @@
   function guestMinOf(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } if (!b) return 15; var n = Math.round(((b[0] + b[1]) / 120) / 5) * 5; return Math.max(10, Math.min(20, n)); }
   /* 판 고르기 — i = 0 입장 때 · 1 10분 전 · 2 5분 전 · 3 1분 전 */
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
-    if (i === 0) return S.guide ? 'guest-w-arrival-guide' : 'guest-w-arrival';
-    if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (!mF ? '' : S.guide ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m'));
+    if (i === 0) return gOn(S) ? 'guest-w-arrival-guide' : 'guest-w-arrival';
+    if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (!mF ? '' : gOn(S) ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m'));
     if (i === 2) return S.digital ? 'guest-w-5m-online' : 'guest-3-5min';
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
-  function afterPhotoOf(S) { S = S || {}; var g = S.guide ? '-guide' : '';
+  /* ★★[GUIDE_ALWAYS_202 검토 202 · 사장님 17:30 «사진 올리기는 그냥 안내해도 되는 거 아니야?»] 모바일 청첩장 하객 안내(사진 올리기 단추)는 모든 예식에 나간다 —
+       하객 안내 줄은 기본 켜짐 · S.guide 를 «없음»(false · 0)으로 분명히 준 예외 예식만 끈다(관리자 당일 콘솔 «하객 안내» 칩) · 식사 경로 줄은 종전대로 식사 · 예약 조건 */
+  function gOn(S) { return !S || S.guide == null ? true : !!S.guide; }
+  function afterPhotoOf(S) { S = S || {}; var g = gOn(S) ? '-guide' : '';
     if (S.meal && S.mealFull) return 'after-photo-' + (S.resv ? 'resv' : 'meal') + g;
     if (S.meal) return 'after-photo-cafe' + g;
     return 'after-photo' + g; }
@@ -480,7 +483,7 @@
   /* 어느 판인가 — 식사 있음(266 이 서던 조건 그대로) · 식사 · 카페만(26 이 서던 자리) · 애프터 웨딩 없음(265 자리) · 하객 안내가 열린 날은 264 를 «여기서부터는 …» 앞에 */
   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 칩 186 · 187(«진심으로 감사»)을 고른 날은 «-nt»(47#0 없이) — 108 · 185 를 고른 날은 그대로 */
   var CLOSE_THANKS_EX = { 'narr-close-bow-ex3': 1, 'narr-close-bow-ex4': 1 };
-  function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-closing-meal' : S.meal ? (S.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (S.guide ? 'narr-closing-guide' : 'narr-closing');
+  function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull && S.resv && gOn(S)) ? 'narr-closing-meal' : S.meal ? (gOn(S) ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (gOn(S) ? 'narr-closing-guide' : 'narr-closing');
     var ex = ''; try { ex = (O.narExCue && O.narExCue(S, 'narr-close-bow')) || ''; } catch (e) { ex = ''; } var k = CLOSE_THANKS_EX[ex] ? b + (CLOSE_CHEER_EX[ex] ? '-nt-nc' : '-nt') : b; if (k === 'narr-closing-soft-nt-nc') k = 'narr-closing-nt-nc';   /* ★[END_FLOW_200] 186 + 카페만 + 하객 안내 없음 = 모이기 두 문장뿐(325 와 같은 글) — 판이 없어 모이기 말이 빠지던 자리 */
     return (RETIRED[k] || !CLOSING_PARTS[k]) ? '' : k; }   /* [CLOSING_CHEER_195] 186 + 카페만 + 하객 안내 없음 = 판 없음(남는 문장 0) */   /* [CLOSING_NO_CREW_1031] 쉬는 판(294 · 남는 문장 0)은 '' = 마무리 멘트 큐 없음 */
 
@@ -902,7 +905,7 @@
       }
       for (var i = 0; i < 4; i++) {
         if (i === 2) {   // [GUEST_5MIN_OFF_1023] 5분 전은 사진 올리기 안내 하나(하객 안내가 열린 날 · 새 코스)
-          if (_openG && S.guide) out.push(cue({
+          if (_openG && gOn(S)) out.push(cue({
             k: 'guest', blockN: '하객 맞이', slug: S.photoShare ? 'narr-photo-ask' : 'narr-photo-upload', name: '사진 올리기 안내 · 5분 전',
             text: EXTRA[S.photoShare ? 'narr-photo-ask' : 'narr-photo-upload'], duck: PARAM.duckSpeech, fire: 'clock', atMin: at[2],
             note: '하객 안내가 열린 날만 나간다 · 예식 5분 전 시각에'
