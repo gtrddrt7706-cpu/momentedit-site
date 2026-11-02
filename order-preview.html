@@ -3996,7 +3996,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 옷을 갈아입어요']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','하객 모두와 한 장 → 안내 → 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요']];   /* ★[POST_CARD_204 검토 204 4] 촬영 후 안내 자리 · «마무리»는 닫는 인사의 «마무리 멘트»와 겹쳐 «정리» */   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
@@ -4704,14 +4704,14 @@ var AFTER_SUM='전체 단체 사진을 마치면 · 가족 사진 · 두고 가�
 function _post(k){ return RitualOpen.postOf(k)||{n:'',sub:''}; }
 function _postLine(k){ return RitualOpen.postLine(k); }
 function _postDur(k){ try{ return RitualOpen.postDur(k,S)||''; }catch(e){ return ''; } }
-var PHOTO_FIX={n:_post('_photo').n,tile:_post('_photo').sub,img:'/assets/video/moments/close.webp'};
+var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 작가님이 진행해요',img:'/assets/video/moments/close.webp'};   /* ★[POST_CARD_204 검토 204 2] 전체 한 장만 — 가족 · 추가는 촬영 후 안내 뒤 «가족 사진 · 추가 촬영» 칸 */
 var EXTRA_FIX={n:_post('_extra').n,tile:'원하시는 분들과 · 남은 시간 동안',img:'/assets/video/moments/close-end.webp'};
 function _photoLine(){ var p=_postDur('_photo'); return _postLine('_photo')+(p?' · '+p:''); }
 var POST_KS=RitualOpen.POST_FLOW.map(function(x){ return x.k; });   /* ['_photo','_after','_extra'] */
 /* ★[POST_FLOW_200 보충 BGM] 닫는 인사 음악 둘째 줄은 BGM 섹션 줄(bgm-slots LINE.last · BgmBed.lastName · [SCREEN_SOUND_1102]) 하나 — 여기서 따로 그리지 않는다 */
-var AFTER_CARD={n:_post('_after').n,tile:'전체 단체 사진을 마치면 흐르는 안내',one:'전체 단체 사진을 마치면 작가님이 이 안내를 틀어요. 이어서 가족 사진과, 더 찍고 싶은 분들의 촬영이 이어져요.'};   /* ★[END_FLOW_200 최종] 대본 확정 문구 */   /* [POST_FLOW_200 3] */
+var AFTER_CARD={n:_post('_after').n,tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분',   /* ★[POST_CARD_204 검토 204 1] 전체 단체 사진 직후 · 가족 사진 전(«마지막 안내» 아님) */one:'전체 단체 사진을 마치면 작가님이 이 안내를 틀어요. 이어서 가족 사진과, 더 찍고 싶은 분들의 촬영이 이어져요.'};   /* ★[END_FLOW_200 최종] 대본 확정 문구 */   /* [POST_FLOW_200 3] */
 function _afterOn(){ return isOpen(); }
-function _afterImg(){ return '/assets/video/moments/close-end.webp'+(RitualOpen.VIDEO_V||''); }   /* 닫는 인사 영상 끝 장면(하객이 함께 선 모습) — 칸 · 창 그림 */
+function _afterImg(){ return '/assets/video/moments/guest-end.webp'+(RitualOpen.VIDEO_V||''); }   /* ★[POST_CARD_204 검토 204 3] 가족 사진 · 추가 촬영 칸(close-end)과 같은 그림이던 것 — 하객이 함께 선 장면(guest-end)으로 */   /* 닫는 인사 영상 끝 장면(하객이 함께 선 모습) — 칸 · 창 그림 */
 function _afterLine(){ var g=ENG; if(!g||!g.RitualCue||!g.RitualCue.afterPhotoOf) return null; var sl=g.RitualCue.afterPhotoOf(_clS()), f=g.RitualCue.fileOf(sl), t=(g.RitualCue.EXTRA||{})[sl]||''; if(!t) return null;
   var ok=!!(f&&_lHasSound(f,t)); return { text:t, src:ok?(g.RitualCue.PARAM.clipDir+f+'.mp3'):'', stopMs:0, slug:sl, file:f }; }
 function _lSteps0(g,ks){

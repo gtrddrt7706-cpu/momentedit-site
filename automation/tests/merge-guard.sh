@@ -21788,4 +21788,11 @@ nochk "'narr-closing-meal': \[CL_THX, CL_CHEER, CL_RESV" assets/ritual-cue.js   
 chk "var AFTER_SUM='전체 단체 사진을 마치면 · 가족 사진 · 두고 가시는 물건 · 이동 안내';" order-preview.html 1
 chk 'INFO_SPLIT_200' scripts/audit/open-course.mjs 10
 chk 'INFO_SPLIT_200' scripts/audit/closing-line.mjs 2
+# ── 2026-11-02 [POST_CARD_204 검토 204 · 사장님 19:14 «부딪히는 부분들이 있잖아»] 식후 칸 · 하루의 흐름 표 문구가 확정 흐름(전체 단체 사진 → 촬영 후 안내 → 가족 · 추가)과 맞게
+chk "tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분'" order-preview.html 1
+nochk '촬영을 마치면 흐르는 마지막 안내' order-preview.html
+chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 작가님이 진행해요'" order-preview.html 1
+chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
+chk "하객 모두와 한 장 → 안내 → 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1
+nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
