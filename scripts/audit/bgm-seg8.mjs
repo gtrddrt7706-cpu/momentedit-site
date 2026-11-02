@@ -92,8 +92,8 @@ try {
   if (bi > -1) { const g0 = await seg(pg); await pg.evaluate((i) => window.__bgmGo.fire(i), bi); await pg.waitForTimeout(1500); const G0 = await seg(pg), H0 = await pg.evaluate(() => window.__bgmSt());
     ok('④ 축가 뒤 «경건하게» 이음말(b12) — 구간을 바꾸지 않고 배경음은 꺼진 채(−90)', G0.seg === g0.seg && H0.want === -90, { g0: g0.seg, G0: G0.seg, want: H0.want }); }
   const ti = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'tribute' && !/^bridge-/.test(c.slug || '')));
-  const tduck = await pg.evaluate((i) => window.__bgmR()[i].duck, ti);
-  await pg.evaluate((i) => window.__bgmGo.fire(i), ti); await pg.waitForTimeout(3600);
+  const tduck = await pg.evaluate((i) => window.__bgmR()[i].duck, ti), tlead = await pg.evaluate((i) => window.__bgmR()[i].goLeadMs || 0, ti);
+  await pg.evaluate((i) => window.__bgmGo.fire(i), ti); await pg.waitForTimeout(Math.max(3600, tlead + 2500));   /* ★[MEANING_R1_1102 12] 축가 뒤 부모님께 인사 첫 줄 앞 6초 −8 머무름(goLeadMs) — 머무름이 끝나 줄이 나간 뒤 크기를 읽는다 */
   const G = await seg(pg), H = await pg.evaluate(() => window.__bgmSt());
   ok('④ 축가 뒤 부모님께 인사 — 그 구간 곡(M5)으로 돌아오고 크기는 그 큐 값', G.seg === 'M5' && !G.paused[G.on] && H.want === tduck && H.want > -90, { G, H, tduck });
   await pg.close();
