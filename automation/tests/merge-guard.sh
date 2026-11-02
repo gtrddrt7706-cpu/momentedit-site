@@ -21285,6 +21285,17 @@ chk 'PR_WAY_198 ⑫' role.html 1
 chk 'noindex, nofollow' role.html 1
 nochk 'fetch(' role.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way3.mjs >/dev/null 2>&1; _prw3=$?; if [ "$_prw3" = 1 ]; then echo 'FAIL pr-way3: 역할 전달하기(복사 글 · 읽기 전용 쪽)가 어긋났습니다 — node scripts/audit/pr-way3.mjs'; fail=1; fi; fi
+# ── 2026-11-02 [PR_WAY_198 보충 · 1단계 검수 7건] 상1 행위자 데이터(who2) · 상2 진행 상수 표(window.RunPace · _lGapOf 한 곳) · 상3 B 대기 −20 · 중4 재생 중 토글 · 중5 머리 20px · 긴 대사 24~28 · 중6 촬영 후 안내 칩 · 목록 · 중7 연습 시간 = _prQ 같은 줄
+chk 'function _lQuietWho(k,sl)' order-preview.html 1
+chk 'window.RunPace=window.RunPace||' order-preview.html 1
+chk 'function _lGapOf(q,i,_pv,_nx,pace)' order-preview.html 1
+chk 'var _go=_lGapOf(LP.q,LP.i,_pv,_nx,LP.pace)' order-preview.html 1
+chk 'function _prWaitLv(st)' order-preview.html 1
+chk 'window.prWay=function(w)' order-preview.html 1
+chk 'function _prEstMs(ks)' order-preview.html 1
+chk 'data-fk="prj:_after"' order-preview.html 1
+nochk "say md" order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way4.mjs >/dev/null 2>&1; _prw4=$?; if [ "$_prw4" = 1 ]; then echo 'FAIL pr-way4: 연습 보충(행위자 · 진행 상수 · 토글 · 식후 · 연습 시간)이 어긋났습니다 — node scripts/audit/pr-way4.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
@@ -21692,7 +21703,7 @@ chk "ramp(BED.cur,-90,2000); return; }   /\\* ★\\[PREVIDEO_AFTER_1101\\]" asse
 chk "if(st.after){ var _f8='', _l8=P.PICKS.M8L||" assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L 목록 차례)
 chk 'if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }' assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 앞 곡 2초 내림 · 마지막 곡은 무음에서
 chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1   # [MEANING_R1_1102 14] 닫는 인사 2초 내림
-chk "if(LP.pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
+chk "if(pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
 chk 'if(x.cheer) _lt.cheer=true;' order-preview.html 1   # [MEANING_R1_1102 13] 나눈 차례 마지막 줄이 «위하여» 표시를 잇는다
 chk "duck: PARAM.duckSpeech,   /\* \[MEANING_R1_1102 15\]" assets/ritual-cue.js 2   # [MEANING_R1_1102 15] 온라인 인사 −16 · 두 분 −20
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
