@@ -82,7 +82,7 @@ try {
   const KS = ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'song', 'tribute', 'table', '_close'];
   const res = {}, first = {}, names = {};
   for (const k of KS) { await go(f, k); const L = await lineOf(f); const r = await listen(f, [k], k === 'song' || k === 'table' || k === '_close' ? 30000 : 25000); const on = r.filter((x) => x.on && x.k === k);
-    res[k] = { line: L.length, snd: on.length > 2 }; first[k] = (on[0] || {}).f || ''; const m = L.join(' ').match(/이 순서 즈음엔 ‹([^›]+)›/); names[k] = m ? m[1] : ''; if (k === '_close') names._last = (L.join(' ').match(/마지막 곡 ‹([^›]+)›/) || [])[1] || ''; if (k === 'song' || k === 'declare') names['t_' + k] = L.join(' '); }
+    res[k] = { line: L.length, snd: on.length > 2 }; first[k] = (on[0] || {}).f || ''; const m = L.join(' ').match(/이 순서 즈음엔 ‹([^›]+)›/); names[k] = m ? m[1] : ''; if (k === '_close') names._last = (L.join(' ').match(/마지막 곡 ‹([^›]+)›/) || [])[1] || ''; if (k === 'song' || k === 'declare' || k === '_close') names['t_' + k] = L.join(' '); }
   const bad1 = KS.filter((k) => res[k].snd && !res[k].line), bad1b = KS.filter((k) => !res[k].line && res[k].snd);
   ok('① 순간 하나만 들을 때 음악이 들리면 그 쪽에 음악 줄이 있다', !bad1.length && !bad1b.length, { bad: bad1, res });
   const T = (x) => { const p = BgmPicks.byF ? BgmPicks.byF(x) : null; return p ? p.t : ''; };
@@ -93,7 +93,7 @@ try {
   ok('③ 축가 화면 글 — «여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요»', /여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요/.test(names.t_song || ''), (names.t_song || '').slice(0, 120));
   ok('③ 성혼 선언 화면 글 — «선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요»', /선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요/.test(names.t_declare || ''), (names.t_declare || '').slice(0, 120));
   const m8 = (BgmPicks.PICKS.M8L || []).find((x) => HAVE.includes(x)) || '';
-  ok('③ 닫는 인사 — «촬영 후 안내부터 마지막 곡 ‹곡명›이 흘러요»(실제 마지막 곡)', !!names._last && names._last === T(m8), { screen: names._last, f: m8, t: T(m8) });
+  ok('③ 닫는 인사 — «촬영 후 안내부터 마지막 곡 ‹곡명›이 흐르고, 추가 촬영이 끝날 때까지 이어져요»(실제 마지막 곡 · AFTER_PHOTO_LOOP_1102)', !!names._last && names._last === T(m8) && /추가 촬영이 끝날 때까지 이어져요/.test(names.t__close || ''), { screen: names._last, f: m8, t: T(m8) });
   /* ④ [SILENT_STAY_1102] 하객 맞이 → 식전 영상 → 화촉 이어 듣기 — 영상 · 화촉 동안 하객 맞이 곡(B01)이 되살아나지 않는다(want 최댓값 ≤ −60) */
   await go(f, 'guest'); const rr = await listen(f, ['guest', 'prevideo', 'candle'], 150000);
   const b1 = rr.filter((x) => x.f === 'B01' && (x.k === 'prevideo' || x.k === 'candle')), mx = b1.length ? Math.max(...b1.map((x) => x.want)) : -90, kc = rr.some((x) => x.k === 'candle' && x.on);
