@@ -4778,6 +4778,14 @@ chk 'PV_REMOTION_1101' automation/prevideo/README.md 1
 # ★[PV_PARTNER_1101 2026-11-01 사장님 «퀄리티를 보니 우리가 만들면 안 될 거 같아» · «고객이 결제하게 하고 싶지 않아» · «대신 주문은 손이 많이 가 패스 · 협력사와 직접 소통»]
 #   식전 영상 = 외부 협력사 연결형(고객 결제 0 · 우리가 실사용 정산 · 우리 대행 없음) · 위 Remotion 뼈대는 보류(지우지 않는다)
 chk 'PV_PARTNER_1101' automation/prevideo/README.md 1
+# ★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식순 화면은 식전 영상 링크를 받지 않는다 —
+#   마이페이지 «식전 영상» 카드가 받는다 · 식순 준비 목록에 할 일 없음(open-course · listen-page · ghi-polish · bgm-form 이 화면까지 잰다)
+chk 'PV_MYPAGE_1102' assets/ritual-open.js 1
+chk 'PV_MYPAGE_1102' order-preview.html 5
+chk 'PV_MYPAGE_1102' api/_ritual-kb.js 1
+chk 'PV_MYPAGE_1102' mypage.html 1
+chk 'PV_MYPAGE_1102' scripts/audit/open-course.mjs 2
+nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
 # ★[PV_NO_LIMIT_1101 2026-11-01 사장님 «제한 두지 마»] 협력사 식전 영상은 사진 장수 · 길이를 제한하지 않는다(템플릿 규격 그대로)
 chk 'PV_NO_LIMIT_1101' automation/prevideo/README.md 1
 chk 'PV_SAME' automation/platform/89_prevideo.gs 1
@@ -21630,7 +21638,7 @@ chk "doing: 'move', duck: -12 }" assets/ritual-cue.js 1
 chk "self: true, doing: 'say', duck: PARAM.duckRead /\* ★\[BGM_TIMING_1101\]" assets/ritual-cue.js 1
 chk "c.duck = PARAM.duckSpeech; if (c.live) c.live.duck = PARAM.duckSpeech; }" assets/ritual-cue.js 1
 chk "function clapUp(l) { l.upMs = 1500; return l; }" assets/ritual-cue.js 1
-chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }" assets/ritual-cue.js 2
+chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }" assets/ritual-cue.js 1   # [AFTER_PHOTO_LOOP_1102] 옛 코스 귀가 인사만 90초 → 20초
 chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000 }" assets/ritual-cue.js 1
 chk "if (st.music === 'next') {" console.html 1
 chk 'function toastBed(){' assets/bgm-bed.js 1
@@ -21720,14 +21728,25 @@ chk 'return sec?Math.round(sec\*1000):_dwellMs(x,true); }' order-preview.html 1 
 chk "if(!st._base&&!entMulti()&&BED.who!=='card'){ var _dk=dayAt(st.k); if(_dk) return _dk; }" assets/bgm-bed.js 1   # [SCREEN_SOUND_1102] 순간 하나 = 당일 시간표 그 자리 곡
 chk "near: '이 순서 즈음엔 ‹{f}›'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 본식 순간 곡 이름(소리와 같은 함수)
 chk "song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 축가 음악 줄
-chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 닫는 인사 둘째 줄
+chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흐르고, 추가 촬영이 끝날 때까지 이어져요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 닫는 인사 둘째 줄
 chk 'dayName:function(k){ try{ return window.BgmBed' assets/bgm-form.js 1   # [SCREEN_SOUND_1102] 화면 곡 이름 = 엔진
 chk 'if(pv&&nx&&pv.k!==nx.k&&BED.cur.want!=null&&BED.cur.want<=-60) return;' assets/bgm-bed.js 1   # [SILENT_STAY_1102] 정적이던 앞 곡은 순간이 바뀌어도 올리지 않는다
 chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 줄도 곡 넘김을 놓치지 않는다(겹침 중 «말 끊김» 기억)
 chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
 chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
 chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
-chk "detail-r4 screen-bgm' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+chk "detail-r4 screen-bgm after-photo-loop' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+# ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 촬영 후 안내 뒤 추가 촬영 동안 마지막 곡 목록이 이어진다 · ■ 끝내기에서만 3초에 잦아듦
+chk 'AFTER_PHOTO_LOOP_1102' assets/ritual-cue.js 2
+chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }\]   /\* ★★\[AFTER_PHOTO_LOOP_1102" assets/ritual-cue.js 1
+chk "endHold: !!o.endHold," assets/ritual-cue.js 1
+chk "else if (!nx && !(c.endHold && MODE !== 'preview')) later(finish, PARAM.gapMs);" console.html 1
+chk "duckTo(PARAM.duckOff, 3000);   /\* ★\[AFTER_PHOTO_LOOP_1102\]" console.html 1
+chk "{ id: 'M8L', nm: '마지막 곡', parent: 'M8', last: true, loop: true," assets/bgm-picks.js 1
+chk "'M6', 'M8L'\];   /\* \[AFTER_PHOTO_LOOP_1102\]" assets/bgm-picks.js 1
+chk "M8L: 1e9 }" assets/bgm-picks.js 1
+chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흐르고, 추가 촬영이 끝날 때까지 이어져요'," assets/bgm-slots.js 1
+chk 'AFTER_PHOTO_LOOP_1102' scripts/audit/after-photo-loop.mjs 1
 # ★★[MK_HEAD_ONE_1102 사장님 «두 줄은 절대 하지 말고 한 줄로만 · 숫자랑 너무 끼어 있으니까» · «숫자가 문자보다 위로»] 상태 단추는 늘 한 줄 · 남는 폭을 채운다(넓은 화면은 걸음 막대 두 칸 끝까지) · 모자라면 걸음 이름 → 앞말 순으로 뺀다 · «빠뜨린 n» 붙은 꼴로 재서 순간마다 흔들리지 않는다 · 숫자 덩이만 살짝 내린다
 chk 'MK_HEAD_ONE_1102' order-preview.html 3
 nochk "b.classList.remove('one')" order-preview.html   # 두 층으로 돌아가는 길 금지
