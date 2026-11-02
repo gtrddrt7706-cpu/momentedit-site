@@ -469,9 +469,10 @@
   /* ★★[LIST_NO_PICK_1101 2026-11-01 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] 목록 칸(하객 맞이 M1 · 테이블 인사 M8)은 고르는 칸이 아니라 «이런 곡들이 흘러요» 안내 칸 —
        이름표 아래 한 줄(12.5px · --sub) + 재생 차례대로 곡 줄 전부(BgmPicks.order · 당일 콘솔과 같은 함수 · 3곡 + fill · 다른 구간에서 고른 곡은 빠진다) · 줄 = ▶(곡 카드 · 음악만) + 제목 · 가수 ·
        고르기 · 선택 표시 · «바꾸기» · 접힌 한 줄 없음 · ★BGM_FILL_1101 의 순서 화살표 두 줄(bed-ord)은 이 목록이 대신해 걷었다 — 되살리지 말 것 */
-  var INFO={ M1:'하객이 들어와 앉는 동안 아래 곡들이 차례로 흘러요', M8:'테이블 인사와 사진 동안 아래 곡들이 차례로 흘러요 · 약 30분' };
+  /* ★[BED_TITLE_ONE_1102 사장님 «한 줄로 · 하객이 채워 넣고 확정»] 목록 칸 안내는 이름표 옆 한 줄(.gl-sub) — «아래 곡들이»는 뺐다(바로 아래가 곡 목록) */
+  var INFO={ M1:'들어와 앉는 동안 차례로 흘러요', M8:'테이블 인사와 사진 동안 차례로 흘러요 · 약 30분' };
   /* ★[GUEST_TIME_1102 사장님 «우리가 세팅한 프로그램 시간표를 봐»] 하객 맞이 «약 n분» = 하객 입장 ~ 본식(ritual-data DAY.guestIn · BgmPicks.guestMin) — 손으로 적지 않는다 · 못 읽으면 꼬리 없이 */
-  Object.defineProperty(INFO,'M1',{ enumerable:true, get:function(){ var g=(P&&P.guestMin)?P.guestMin():0; return '하객이 들어와 앉는 동안 아래 곡들이 차례로 흘러요'+(g?' · 약 '+g+'분':''); } });
+  Object.defineProperty(INFO,'M1',{ enumerable:true, get:function(){ var g=(P&&P.guestMin)?P.guestMin():0; return '들어와 앉는 동안 차례로 흘러요'+(g?' · 약 '+g+'분':''); } });   /* [BED_TITLE_ONE_1102] */
   function isList(sg){ var d=P.seg(sg); return !!(d&&d.multi); }
   /* ★[LIST_FOLD_1102 2026-11-02] 목록 칸은 처음엔 접힌다 — 첫 곡 줄 하나 + «외 n곡» + «펼치기»(첫 줄 오른쪽 · 펴도 같은 자리에서 «접기») · 펼침은 이 방문 동안 그대로(LOPEN · 저장 안 함) · 접힌 줄에도 ▶ */
   var LOPEN={};
@@ -506,7 +507,8 @@
   /* ② 순간 쪽 «고르기» 칸 — 이 순간이 첫 담긴 순간인 구간마다 «‹순간› 음악» 줄 하나 */
   function rowHtml(k){ var h=''; setTimeout(pfScan,0);   /* [SONG_CARD_TAP_1101] 그려진 뒤 곡 칸을 지켜본다 */
     CUST.forEach(function(sg){ if(chooser(sg)!==k) return; var gl=labelOf(sg.id)+' 음악'; list();
-      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl" aria-hidden="true">'+e(gl)+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div>'+'</div>'; });   /* ★[SONG_ROW_LINES_1101] 곡 칸 맨 아래 «나레이션과 함께 들어 보려면 …» 한 줄(BED_HINT_WHERE_1031 · SONG_CARD_SOLO_1031)을 걷었다 · 되살리지 말 것 */
+      var _inf=isList(sg.id)?(INFO[sg.id]||'아래 곡들이 차례로 흘러요'):'';   /* [BED_TITLE_ONE_1102] 목록 칸만 이름표 옆에 안내 */
+      h+='<div class="ls-cg cg-vp cg-hl cg-vq ls-bed'+(_inf?' bed-one':'')+'" role="group" aria-label="'+e(gl)+'" data-seg="'+sg.id+'" data-k="'+e(k)+'"><span class="gl"><span aria-hidden="true">'+e(gl)+'</span>'+(_inf?'<span class="gl-sub">'+e(_inf)+'</span>':'')+'</span><div class="bed-box" id="'+boxId(sg.id)+'">'+listHtml(sg.id,k)+'</div>'+'</div>'; });   /* ★[SONG_ROW_LINES_1101] 곡 칸 맨 아래 «나레이션과 함께 들어 보려면 …» 한 줄(BED_HINT_WHERE_1031 · SONG_CARD_SOLO_1031)을 걷었다 · 되살리지 말 것 */
     return h; }
   /* 축사 · 편지 «음악과 함께» 아래 곡 고르기(bgm-form.js 가 그 줄 안에 넣는다) */
   function subHtml(slot,k){ var sg=SUB[slot]; if(!sg||!bedOn(slot)) return ''; list(); return '<div class="bed-box bed-sub" id="'+boxId(sg)+'" data-seg="'+sg+'" data-k="'+e(k)+'">'+listHtml(sg,k)+'</div>'; }
@@ -536,6 +538,7 @@
   D.addEventListener('pointerdown',function(ev){ try{ var b=ev.target&&ev.target.closest&&ev.target.closest('.mu-pl[data-fk^="bedp:"]'); if(!b) return; var m=/^bedp:([^:]+):(.+)$/.exec(b.getAttribute('data-fk')||''); if(m&&has(m[2])&&!BUF[m[2]]) want(m[2]); }catch(x){} },true);
   function repaint(){ setTimeout(pfScan,0); setTimeout(ldFit,0); D.querySelectorAll('.ls-bed[data-seg],.bed-sub[data-seg]').forEach(function(box){ var sg=box.getAttribute('data-seg'), k=box.getAttribute('data-k'), ae=D.activeElement, fk=(ae&&box.contains(ae))?ae.getAttribute('data-fk'):null;
       var tgt=box.classList.contains('bed-sub')?box:box.querySelector('.bed-box'); if(!tgt) return; tgt.innerHTML=listHtml(sg,k);
+      var _gs=box.querySelector('.gl-sub'); if(_gs) _gs.textContent=INFO[sg]||'아래 곡들이 차례로 흘러요';   /* [BED_TITLE_ONE_1102] «약 n분»이 바뀌면 이름표 옆도 */
       if(fk){ var f=box.querySelector('[data-fk="'+fk+'"]'); if(f) try{ f.focus({preventScroll:true}); }catch(x){} } });
     try{ if(typeof _mpPaint==='function') _mpPaint(); }catch(x){} }
 
