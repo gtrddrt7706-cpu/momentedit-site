@@ -89,11 +89,11 @@ try {
   if (SHOT) await pg.screenshot({ path: SHOT.replace(/\.png$/, '') + '-start.png', fullPage: false });
   const q = await f.evaluate(async () => { prStart('try'); await new Promise((x) => setTimeout(x, 900)); const Q = LP.q;
     const cheer = Q.filter((x) => x.k === 'toast' && x.cheer);
-    const after = Q.filter((x) => x.after);
+    const after = Q.filter((x) => x.after);   /* 곡은 bgm-bed fileFor(st.after) 한 길 — meaning-r1 16 이 잰다 */
     const w = Q.map((x, i) => ({ i, w: _prWait(x), who: x.who || '', txt: String(x.txt || '').slice(0, 20), talk2: !!x.talk2, act: !!x.act, k: x.k }));
-    return { n: Q.length, cheer: cheer.map((x) => ({ talk2: !!x.talk2, who: x.who })), after: after.map((x) => x._base), w }; });
+    return { n: Q.length, cheer: cheer.map((x) => ({ talk2: !!x.talk2, who: x.who })), after: after.map((x) => x.k), w }; });
   ok('⑥ 축배 «위하여» GO 는 말하는 줄 하나에만', q.cheer.length === 1 && q.cheer[0].talk2, q.cheer);
-  ok('+ 촬영 후 안내 줄 = 마지막 곡(M8L)', q.after.length >= 1 && q.after.every((b) => b === 'M8L'), q.after);
+  ok('+ 연습에도 촬영 후 안내 줄이 있다(곡 M8L 은 bgm-bed 한 길 · meaning-r1 16)', q.after.length >= 1, q.after);
   const waits = q.w.filter((x) => x.w), par = q.w.filter((x) => /^(양가 |신랑 |신부 )?(어머님|아버님|부모님)/.test(x.txt.replace(/^[①-⑨]\s*/, '')) && x.act);
   ok('B 기다리는 줄 = 신랑 · 신부 · 두 분 줄만(부모님 동작 · 조건 안내는 자동)', waits.length >= 3 && waits.every((x) => /^(신랑|신부|두 분)$/.test(x.who) || (x.act && !/^(신랑|신부) ?(아버님|어머님)/.test(x.txt) && /^(두 분|신랑|신부)/.test(x.txt.replace(/^[①-⑨]\s*/, '')))) && par.every((x) => !x.w), { waits: waits.slice(0, 8), par: par.slice(0, 4) });
   /* B — 첫 두 분 줄로 가서 기다리는지 */

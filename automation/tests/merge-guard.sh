@@ -21263,7 +21263,7 @@ chk "'다 했어요 · 다음 순서':'다 했어요 · 다음 줄'" order-previ
 chk 'class="lf-ctl pr3"' order-preview.html 1
 chk 'function _lLock(on){' order-preview.html 1
 chk "if(x.cheer||x.of){ var _lt=null;" order-preview.html 1   # [PR_WAY_198 ⑥] 축배 GO 는 main [MEANING_R1_1102 13] 과 같은 고침 하나로
-chk "after:true,_base:'M8L'," order-preview.html 1
+nochk "after:true,_base:'M8L'," order-preview.html   # [PR_WAY_198 +] 촬영 후 안내 M8L 은 bgm-bed fileFor 한 길([MEANING_R1_1102 16]) — 줄에 _base 를 달면 그 길을 비켜 간다
 chk 'data-fk="sumpr"' order-preview.html 1
 chk 'function _prMuOk(){' order-preview.html 1
 chk "w\[0\]==='practice'&&courseStarted&&RitualOpen.picked(S).length" order-preview.html 1
