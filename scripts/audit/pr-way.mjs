@@ -85,7 +85,7 @@ try {
   await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 600)); });
   const s1 = await f.evaluate(() => ({ flow: ((document.querySelector('[data-fk="prall"] .pr-hl b') || {}).textContent || ''), tr: ((document.querySelector('[data-fk="prtry"] b') || {}).textContent || ''),
     chips: document.querySelectorAll('.pr-fcs .pr-fc').length, role: ((document.querySelector('.pr-role') || {}).textContent || ''), mu: !!document.querySelector('[data-fk="prmu"]') }));
-  ok('① 첫 화면 두 단추 «흐름 보기로 시작» · «직접 해보기로 시작» · 동선 칩 · 역할 한 줄', s1.flow === '흐름 보기로 시작' && s1.tr === '직접 해보기로 시작' && s1.chips >= 4 && s1.role === '재생은 디렉터가, 촬영은 작가님이 안내해요.' && s1.mu, s1);
+  ok('① 첫 화면 두 단추 «흐름 보기로 시작» · «직접 해보기로 시작» · 동선 칩 · 역할 한 줄', s1.flow === '흐름 보기로 시작' && s1.tr === '직접 해보기로 시작' && s1.chips >= 4 && s1.role === '재생은 디렉터가, 촬영은 현장에서 안내해요.' && s1.mu, s1);
   if (SHOT) await pg.screenshot({ path: SHOT.replace(/\.png$/, '') + '-start.png', fullPage: false });
   const q = await f.evaluate(async () => { prStart('try'); await new Promise((x) => setTimeout(x, 900)); const Q = LP.q;
     const cheer = Q.filter((x) => x.k === 'toast' && x.cheer);
