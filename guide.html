@@ -558,7 +558,7 @@ function diningHtml(dn){
   // [GUIDE_EMPTY_SEC] on만 켜고 담은 곳이 하나도 없으면 제목만 있는 빈 섹션이 떴다(실측).
   //   하객에겐 '뭔가 있는데 안 뜬 화면'으로 보인다 — 내용이 없으면 섹션 자체를 내지 않는다.
   if(!dn.pick && !restos.length && !spots.length) return '';
-  var h='<div class="sec"><div class="sec-h"><h2 class="sec-t">식사 · 애프터</h2><span class="sec-n">Dining</span></div>';
+  var h='<div class="sec"><div class="sec-h"><h2 class="sec-t">예식 후 일정</h2><span class="sec-n">After</span></div>';
   if(dn.pick){
     // 선택 식당이 찜 목록에도 있으면 카드 하나로 합침 — 같은 이름 이중 노출 방지 + 소개·지도·전화를 '여기로 모여요' 안에서 바로(2026-07-17 사용자 지적)
     var mi=-1; for(var i=0;i<restos.length;i++){ if(normName(restos[i].n)===normName(dn.pick)){ mi=i; break; } }
