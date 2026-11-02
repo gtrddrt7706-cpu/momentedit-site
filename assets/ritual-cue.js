@@ -1655,7 +1655,7 @@
         else if (!_to.live) _to.live = { t: '하객이 잔을 내려놓음 · 두 분도 잔을 건넴', est: 20, self: false, doing: 'move', duck: PARAM.duckMusic, consoleOnly: true, hintNext: '잔이 다 내려가면', previewPost: [] }; } }
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
-      duck: -12, hint: (_openC && seq.indexOf('toast') > -1) ? '잔이 다 내려가면' : (_openC && seq.indexOf('table') > -1) ? '두 분이 테이블 인사를 마치고 앞에 나란히 서면' : _cSeam === 'bridge-b9-declare-seat-end' ? '선언하신 분이 자리로 돌아가고 두 분이 나란히 서면' : _cSeam === 'bridge-b8-face-guests' ? '두 분이 하객 쪽으로 돌아서면' : '두 분이 앞에 나란히 서면',
+      duck: PARAM.duckOff, fadeMs: 2000, goLeadMs: 3000,   /* ★[MEANING_R1_1102 14] «예식 끝» 경계 — 앞 곡(축배 팝)을 2초에 내리고 정적 1초 → 멘트는 음악 없이 → 목례 · 박수(live −8)에서 M6 */ hint: (_openC && seq.indexOf('toast') > -1) ? '잔이 다 내려가면' : (_openC && seq.indexOf('table') > -1) ? '두 분이 테이블 인사를 마치고 앞에 나란히 서면' : _cSeam === 'bridge-b9-declare-seat-end' ? '선언하신 분이 자리로 돌아가고 두 분이 나란히 서면' : _cSeam === 'bridge-b8-face-guests' ? '두 분이 하객 쪽으로 돌아서면' : '두 분이 앞에 나란히 서면',
       fire: (_cSeam === 'bridge-b9-declare-seat-end' || _cSeam === 'bridge-b8-face-guests') ? 'manual' : undefined,   // [REVIEW26_1023 검토 150-1 5)] B8 뒤도 디렉터 GO   // [CLOSE_SEAM_1018 ②] B9 뒤는 디렉터 GO   // ★[CLOSE_BOW_CALL_1014] 구호(«신랑 신부, 하객 여러분께 인사!»)로 끝난다 — 두 분이 하객 쪽으로 서 있어야 바로 목례
       live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec, '')   /* ★[BRIDGE_MORE_1018 B13] 축배가 있는 날도 박수 뒤 바로 «잠시 자리를 지켜 …»(B13) · «잔 됨» 기다림은 B13 의 사람 구간이 맡는다 */ //   // [TOAST_40_OPEN_1013] 다음이 축배면 잔 확인 뒤(GLASS_READY · 자료 AA 6-5)
     }));
@@ -1664,9 +1664,9 @@
     /* ★[BRIDGE_MORE_1018 B13 · 인스타 섹션 검토 6판 64] «결혼식을 마치겠습니다» 박수 뒤 하객이 일어서기 전에 — 잔이 놓이는 사이(«잔 됨» 신호까지) 자리를 지켜 달라는 한 줄(자료 U1) */
     /* ★[END_FLOW_1030] 디지털 참석이 있는 날 — 닫는 인사 바로 뒤에 온라인 인사(두 분 약 2분) → 라이브 종료 · 마이크 off(종전엔 사진 구간 가운데) */
     if (_openC && S.digital) cues.push(cue({
-      k: '_close', blockN: '폐식·단체촬영', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
+      k: '_close', blockN: '폐식·단체촬영', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: PARAM.duckSpeech,   /* [MEANING_R1_1102 15] 나레이션 −16 · 두 분이 카메라에 말하는 2분은 −20 */
       note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off · 이후는 현장만',
-      live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: 120, self: true, doing: 'say' }
+      live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: 120, self: true, doing: 'say', duck: -20 }
     }));
     /* ★★[END_FLOW_1030 검토 167] 사진 전 안내(새 녹음 · 한 클립 두 판) — 식사 있음(애프터 웨딩 식사 · 하객 안내가 있는 날) · 식사 없음(그 밖 · 카페만 포함).
          새 코스에서 26(narr-close)을 대신한다 · [PAUSE_PREF_1030] 10/30 녹음으로 소리 클립 · 사람 구간(모임 + 전체 하객 · 꼭 담고 싶은 사진)은 26 이 하던 그대로 */
@@ -1679,7 +1679,7 @@
     var _ppre = closingOf(S);
     if (_openC && _ppre) cues.push(cue({   /* [CLOSING_NO_CREW_1031] 문장이 없는 판('')은 큐 없음 */
       k: '_close', blockN: '폐식·단체촬영', slug: _ppre, name: '마무리 멘트', text: EXTRA[_ppre],
-      duck: -12, note: '감사 · (식사 안내) · (사진 올리기) — 사진 구간은 작가님이 자연스럽게 이끈다(나레이션 없음 · 넘김 말 44 없음 · CLOSING_LINE_1031 · CLOSING_NO_CREW_1031)',
+      duck: PARAM.duckSpeech, note: '감사 · (식사 안내) · (사진 올리기) — 사진 구간은 작가님이 자연스럽게 이끈다(나레이션 없음 · 넘김 말 44 없음 · CLOSING_LINE_1031 · CLOSING_NO_CREW_1031)',
       goLeadMs: (S.digital ? 2000 : 0),   /* ★[PHOTO_PRE_GAP_1030] 디지털 참석 날 — 온라인 인사 끝(마이크 off · 디렉터 GO) 뒤 2초 쉬고 · 닫는 인사 박수 뒤는 GO 에 바로 */
       post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }]
     }));
@@ -1789,9 +1789,9 @@
         live: { t: '가족 구도 · 불러 모아 주실 분과 함께(호명은 골라 트는 판)', est: _go['narr-photo-split'], self: true, doing: 'move' }
       }));
       if (!_photoOpen && S.digital) cues.push(cue({   // [END_FLOW_1030] 새 코스는 닫는 인사 바로 뒤(위)
-        k: '_photo', blockN: '단체 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
+        k: '_photo', blockN: '단체 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: PARAM.duckSpeech,   /* [MEANING_R1_1102 15] 나레이션 −16 · 두 분이 카메라에 말하는 2분은 −20 */
         note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
-        live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: _go['narr-online-in'], self: true, doing: 'say' }
+        live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: _go['narr-online-in'], self: true, doing: 'say', duck: -20 }
       }));
       var _freeOpen = !!(D.COURSES[S.course] && D.COURSES[S.course].open);   // [PHOTO_FREE_OPEN_1019]
       if (!_freeOpen) cues.push(cue({   // ★[SRC_ALL_1023 검토 144-4] 새 코스는 65(«사진 속에 그대로 남았습니다»)를 틀지 않는다 — 나눠 담기 · 온라인 인사 뒤 262 자유 사진 여는 말로 바로
@@ -1897,6 +1897,7 @@
          소개 큐: 하객 맞이 곡을 2초에 −90 → 정적 1초 → 소개(음악 없이) · 영상(live −90 그대로) · 받는 말도 음악 없이(올림 없음) ·
          받는 말 뒤 화촉 순간: 이음말(b14)도 음악 없이 · 화촉 첫 큐는 무음에서 M2 를 −8 로 6초 앞서 올린 뒤 멘트(leadDb · goLeadMs · 콘솔이 읽는다) ·
          고객 미리 듣기는 같은 큐 크기(dk −90)를 읽어 «무음 첫 줄»(2초 + 1초)로 · 식전 영상이 없는 날은 그대로 · 개식사(narr-open)는 건드리지 않는다 */
+    cues.forEach(function (c) { if (c.slug === 'narr-close-bow') c.fadeMs = 2000; });   /* [MEANING_R1_1102 14] cue() 가 fadeMs 를 싣지 않아 여기서 */
     for (var pa = 0; pa < cues.length; pa++) {
       var _pc = cues[pa]; if (_pc.k !== 'prevideo') continue;
       if (/^narr-prevideo-in/.test(_pc.slug || '')) { _pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000); }

@@ -67,7 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         part:
-          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold bgm-fill daylong time-gap' }   # [BGM_FILL_1101] 가장 짧은 칸에 · [TIME_GAP_1102] 이벤트 줄 사이 쉼
+          - { name: a, tests: 'bgm-preview bgm-seg8 bgm-console2 music-fold bgm-fill daylong time-gap meaning-r1' }   # [BGM_FILL_1101] 가장 짧은 칸에 · [TIME_GAP_1102] 이벤트 줄 사이 쉼
           - { name: c, tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs' }   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] 입장 · 이음말 차례 검사(a 칸이 20분에 가까워 나눔)
           - { name: b, tests: 'listen-pace knobs detail-r1 pr-bgm' }   # [PR_BGM_197] 연습 음악
           - { name: e, tests: 'pr-way detail-r4' }   # [PR_WAY_198] 연습 두 길 — b 칸이 20분을 넘어 나눔

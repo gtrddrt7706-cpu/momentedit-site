@@ -2385,7 +2385,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1102pa"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101np"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102pw"></script><script src="/assets/bgm-form.js?v=1101r2"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1102mr"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101np"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102px"></script><script src="/assets/bgm-form.js?v=1101r2"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3226,7 +3226,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1102pa';   // [ASSET_V] 위 주석
+  var ASSET_V='1102mr';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -8029,7 +8029,7 @@ function _lRefExpand(q){
       if(x.k==='free') grp=[{k:x.k,lab:'축사하시는 분 차례',who:'축사하시는 분',src:null,pending:true,talk2:true,talkTxt:x.txt,txt:'축사하실 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}];
       else grp=[{k:x.k,lab:_sw+' 차례',who:_sw,src:null,pending:true,talk2:true,talkTxt:x.txt,txt:(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}]; }
     if(x.k==='toast'&&_inPr()&&grp.length) grp=[{k:x.k,lab:'말없이 흐르는 자리',txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요',quiet:true,ms:0,est:0}].concat(grp,[{k:x.k,lab:'말없이 흐르는 자리',txt:'하객의 화답을 기다리며 두 분도 함께 잔을 들어요',quiet:true,ms:0,est:0}]);   /* ★[PRACTICE_WALK_R2 8] 축배 — 잔을 드는 자리 · 구호 뒤 할 일(누가 선창하는지는 고른 대로) */
-    if(x.cheer){ var _chl=null; grp.forEach(function(q){ q.cheer=false; if(q.talk2) _chl=q; }); if(_chl){ _chl.cheer=true; _chl.of=_chl.of||x.of; } }   /* ★[PR_WAY_198 ⑥] 축배 «위하여» 줄의 GO(cheer) — 카드로 바꿔도 마지막 말하는 줄 하나에만 그대로 넘긴다(다음 줄 lpGap 이 M7 을 한 번) */
+    if(x.cheer||x.of){ var _lt=null; grp.forEach(function(g){ if(g.talk2||g.both) _lt=g; }); if(_lt){ if(x.cheer) _lt.cheer=true; if(x.of&&!_lt.of) _lt.of=x.of; } }   /* ★★[MEANING_R1_1102 13] 차례로 나눈 줄(신랑 차례 · 신부 차례)의 마지막에 «위하여»(cheer)를 싣는다 — 종전엔 나누면서 잃어 하루 이어 듣기에서 축배 곡(M7)이 안 올라왔다 */
     grp.forEach(function(st){ if(!st.both&&st.talk2){ var pu=_ptSrc(st); if(pu){ st.src=pu; st.ptts=true; st.pending=false; } }   // [VOICE_CLONE 4-2] AI가 읽어 주는 연습용 소리
       out.push(st); });
   });
@@ -8169,7 +8169,9 @@ function _lNext(){
        ① 실제로 1분 이상 떨어진 줄(큐 시각 atMin · 하객 맞이 안내끼리 · 같은 꼴의 다른 자리) = 6초 쉼 · 음악 0.8초에 −8 → 다음 줄 0.8초 앞 말 아래 · 줄 사이 «… 약 n분 뒤»
        ② 시각 간격 없이 제목만 바뀜(소개 → 영상이 끝나면 · 시작할 때 → 끝나면) = 2.5초 쉼 · 음악 −12 로 살짝 → 0.8초 앞 말 아래(정적 자리는 정적 그대로)
        «이어서»는 같은 이벤트 · 한 이벤트 안 줄과 줄은 TURN_GAP 값 · 당일 콘솔은 시각대로 나가 그대로 */
-  if(LP.pace&&_pv&&_pv.k!==_nx.k&&_nx.k==='prevideo'&&_nx.dk!=null&&_nx.dk<=-60&&_bedOn()) _gap=Math.max(_gap,3000);   /* ★[PREVIDEO_AFTER_1101] 하객 맞이 곡 2초에 −90 + 정적 1초 → 소개 */
+  if(LP.pace&&_pv&&_pv.k!==_nx.k&&(_nx.k==='prevideo'||_nx.slug==='narr-close-bow')&&_nx.dk!=null&&_nx.dk<=-60&&_bedOn()) _gap=Math.max(_gap,3000);   /* [MEANING_R1_1102 14] 닫는 인사 앞도 */
+  if(LP.pace&&_pv&&_nx.after&&!_pv.after&&_bedOn()) _gap=Math.max(_gap,3000);
+  if(LP.pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'&&_nx.dk!=null&&_nx.dk<=-60&&_bedOn()) _gap=Math.max(_gap,7000);   /* [MEANING_R1_1102 14] 축배 곡 4초 → 2초 내림 + 정적 1초 → 닫는 인사 */   /* [MEANING_R1_1102 16] 촬영 후 안내 앞 — 앞 곡 2초 내림 + 정적 1초 */   /* ★[PREVIDEO_AFTER_1101] 하객 맞이 곡 2초에 −90 + 정적 1초 → 소개 */
   var _tgk=''; LP.tgK='';
   if(LP.pace&&_pv&&_pv.k===_nx.k&&_nar(_nx)){ var _pn=null; for(var _j=LP.i-1;_j>=0&&LP.q[_j]&&LP.q[_j].k===_nx.k;_j--){ if(_nar(LP.q[_j])){ _pn=LP.q[_j]; break; } }
     if(_pn&&_pn.am!=null&&_nx.am!=null&&Math.abs(_nx.am-_pn.am)>=1){ _tgk='min'; _gap=Math.max(_gap,6000); LP.tgK=_nx._li||''; }
