@@ -14711,7 +14711,7 @@ chk "h+=_stepHd('모두 함께 · 전체 하객 한 장'" mypage.html 1
 nochk "h+=_stepHd('감사 인사 · 남아 주실 분 안내'" mypage.html   # ★[END_FLOW_1030 검토 167] 감사 인사 차례는 걷었다(닫는 인사가 맡는다) · 되살리지 말 것
 chk "h+=_stepHd('가족 구도'" mypage.html 1
 chk "if(_dig) h+=_stepHd('온라인 인사'" mypage.html 1
-chk "h+=_stepHd('남은 분들과 자유롭게'" mypage.html 1
+chk "h+=_stepHd('추가 촬영'" mypage.html 1   # [POST_FLOW_200] 옛 «남은 분들과 자유롭게»
 nochk '먼저 가실 분들은 이때 식사 자리로 옮겨요.' mypage.html   # ★[END_FLOW_1030] «먼저 가시라» 안내 금지(사장님 10/30)
 nochk "var _flw=\[\['다 함께 한 장'" mypage.html                                    # 흐름 줄(알약) 되살리지 말 것 — 번호 줄이 곧 흐름
 chk 'PHOTO_SHOOT_ORDER' mypage.html 3
@@ -21219,7 +21219,7 @@ chk '분이 넘으면 이 말로 바뀌어요' order-preview.html 1
 chk 'CLOSING_NO_CREW_1031' assets/ritual-cue.js 4
 chk 'CLOSING_NO_CREW_1031' scripts/audit/closing-line.mjs 2
 chk 'CLOSING_ONE_VOICE_1031' assets/ritual-cue.js 1
-chk "'narr-closing': \[CL_THX, CL_CHEER, CL_DAY\], 'narr-closing-guide': \[CL_THX, CL_CHEER, CL_DAY, CL_UP\]," assets/ritual-cue.js 1   # ★[CLOSING_CHEER_195] 응원 문장이 감사 뒤
+chk "'narr-closing': \[CL_THX, CL_CHEER, CL_GA, CL_GB\], 'narr-closing-guide': \[CL_THX, CL_CHEER, CL_UP, CL_GA, CL_GB\]," assets/ritual-cue.js 1   # ★[CLOSING_CHEER_195] 응원 문장이 감사 뒤
 # ── 2026-11-01 [CLOSING_CHEER_195 검토 195 · 사장님 23:13 «좋아»] 마무리 멘트에 응원 한 문장(«두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.» · 진희 새 녹음) — 감사 뒤 · «남은 하루» 앞 · 감사 없는 판(-nt)은 맨 앞 ·
 #    닫는 멘트 칩 «다정하게»(186 · 이미 «응원 많이 해 주시기 바랍니다»)는 겹쳐 뺀 판(-nt-nc · 325 ~ 328 · 옛 글 그대로) · 294 는 응원 한 문장 판으로 다시 쓴다(받기 전엔 mp3 없이 녹음 대기) · 검사 closing-line · body-cap · screen-sound
 chk 'CLOSING_CHEER_195' assets/ritual-cue.js 6
@@ -21237,13 +21237,13 @@ chk 'SCENE_EXTRA_195' scripts/audit/photo-scene.mjs 3
 #    ① 고르기 닫는 막 끝 칸(⊙ 늘 있는 표 · 누르면 미리 보기 창 · 대표 나레이션 = 그날 판) · ② 하나씩 만들기 마지막 쪽(식후) · 예식 흐름 «식후» 줄 · 완성 순서 요약 끝 줄 · ③ 연습 · 전체 대본은 닫는 인사 끝 그대로 · 본식 시간 · 개수 규칙 밖 · 검사 pick-v2
 chk 'AFTER_FIX_196' order-preview.html 14
 chk "concat(\['_close'\]).concat(_afterOn()?\['_after'\]:\[\]).concat(\['_sum'\]);" order-preview.html 1
-chk "concat((i===R.SECTIONS.length-1&&_afterOn())?\['_photo','_after'\]:\[\])" order-preview.html 1
+chk "concat((i===R.SECTIONS.length-1&&_afterOn())?POST_KS:\[\])" order-preview.html 1   # [POST_FLOW_200]
 chk 'id="mkFgPost">식후</p>' order-preview.html 1
 chk 'data-fk="sum:_after"' order-preview.html 1
 chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf)" order-preview.html 1
 # ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
 chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
-chk "var _afl=_afterLine(); if(_afl) lines.push('나레이션(촬영 후 안내 · 작가님이 촬영을 마치면 재생): '+_afl.text);" order-preview.html 1
+chk "if(_afl) lines.push('나레이션(촬영 후 안내 · 단체 사진을 마치면 재생): '+_afl.text);" order-preview.html 1   # [POST_FLOW_200]
 chk "pc.tiles === '4,4,4,7'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
@@ -21313,7 +21313,7 @@ chk "' · 두 분은 입장 전 대기 자리에서 준비해요'" order-preview
 chk "' · 두 분은 노래하시는 분을 바라보며 들어요'" order-preview.html 1
 chk "'① 서로 인사 → ② 하객께 인사 → ③ 자리로'" order-preview.html 1
 chk "'당일엔 입장곡에 맞춰 함께 걸어요 · 지금은 구호 뒤 나란히 걸어 두 분 자리에서 멈춰 보세요'" order-preview.html 1
-chk "txt:'단체 사진 · 작가님이 진행해요 · 연습에서는 넘겨요'" order-preview.html 1   # [GROUP_PHOTO_199 4]
+chk "txt:_post('_photo').n+' · 전체 → 가족 · 연습에서는 넘겨요'" order-preview.html 1   # [GROUP_PHOTO_199 4]
 chk "'비워 두셔도 돼요 · 지금은 참고 예시'" order-preview.html 1
 chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.html 1
 chk '_rf={free:4}\[k\]' order-preview.html 1
@@ -21338,11 +21338,11 @@ chk "return Math.max(10, Math.min(20, n));" assets/ritual-cue.js 1
 chk "if (_openG && vi === 1) {" assets/ritual-cue.js 1
 chk "repeatMs: gi === 0 ? PARAM.guestRepeatMs : 0" assets/ritual-cue.js 1
 chk "name: '촬영 후 안내', text: EXTRA\[_aps\]" assets/ritual-cue.js 1
-chk "hint: '작가님이 촬영을 마치면'" assets/ritual-cue.js 1
+chk "hint: '단체 사진(전체 → 가족)을 마치면'" assets/ritual-cue.js 1   # [POST_FLOW_200]
 chk "if (c.repeatMs && MODE !== 'preview' && !GUEST" console.html 1
-chk "lab:'촬영 후 안내 · 작가님이 촬영을 마치면 재생'" order-preview.html 1
+chk "slab:'촬영 후 안내 · 단체 사진을 마치면 재생'" order-preview.html 1   # [POST_FLOW_200]
 chk "else if(S.guestVoice!=='couple'&&!isOpen()) out.push(_exRowG('exGuestNar'" order-preview.html 1
-chk "_stepHd('촬영 후 안내', '작가님이 촬영을 마치면 안내 음성이 나와요', 'show')" mypage.html 1
+chk "_stepHd('촬영 후 안내', '전체 · 가족 단체 사진을 마치면 작가님이 안내 음성을 틀어요', 'show')" mypage.html 1   # [POST_FLOW_200]
 chk 'GUEST_WELCOME_191' assets/ritual-cue.js 5
 chk 'AFTER_PHOTO_191' assets/ritual-cue.js 3
 nochk "'guest-3-5min': 1," assets/ritual-cue.js
@@ -21351,10 +21351,10 @@ nochk "다시 한번 말씀드립니다" assets/ritual-cue.js
 # ── 2026-11-01 [CLOSING_FULLER 검토 189 · 사장님 13:54 «좀 더 길었으면 · 식당이랑 사진 안내는?»] 마무리 멘트 «이어지는 줄» 회색 미리 보기(② 흐름 · ③ 연습 · 전체 대본 · 녹음 아님) · ② · ③ 엔진 빌드에 마이페이지 값(식사 · 예약 · 하객 안내)
 chk 'function _clHints()' order-preview.html 1
 # ── 2026-11-02 [GROUP_PHOTO_199 검토 199 보충] 닫는 인사 → 단체 사진(작가님 진행) → 촬영 후 안내 · 고정 줄(빼기 · 편집 없음 · 본식 수 · 시간 규칙 밖)
-chk 'GROUP_PHOTO_199' order-preview.html 5
+chk 'GROUP_PHOTO_199' order-preview.html 3   # [POST_FLOW_200] 셋은 POST_KS 로 합쳤다
 chk "function _photoLine()" order-preview.html 1
-chk "row('_photo')+row('_after')" order-preview.html 1
-chk "lab:k==='_after'?'단체 사진을 모두 마치면 · 작가님 신호로 재생'" order-preview.html 1
+chk "+POST_KS.map(row).join('')+'</ol>'" order-preview.html 1   # [POST_FLOW_200]
+chk "lab:k==='_after'?_post('_after').sub:" order-preview.html 1   # [POST_FLOW_200]
 chk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장)
 chk "'+ 사진 올리기 안내: 하객 안내 켜기'" order-preview.html 1
 chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
@@ -21392,9 +21392,9 @@ nochk "return '두 분이 마주 보고 맞절해요 · 3초 숙이고" order-pr
 nochk "live: { t: '두 분이 마주 보고 맞절 (3초 숙이고" assets/ritual-cue.js
 # ── 2026-11-01 [CLOSING_MEAL_DUP 검토 185 · 사장님 11:39 «추천대로 진행»] 식사 판(291 · 296) 마지막 = «오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.»(진희 새 녹음) · 식사 없는 판은 264 그대로
 chk "var CL_UP_MEAL = \['안내', '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', null," assets/ritual-cue.js 1
-chk "'narr-closing-meal': \[CL_THX, CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
-chk "'narr-closing-meal-nt': \[CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
-chk "'narr-closing-meal-nt-nc': CL_MEAL.concat(\[CL_UP_MEAL\])" assets/ritual-cue.js 1
+chk "'narr-closing-meal': \[CL_THX, CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA, CL_GB\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
+chk "'narr-closing-meal-nt': \[CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA, CL_GB\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
+chk "'narr-closing-meal-nt-nc': CL_MEAL.concat(\[CL_UP_MEAL, CL_GA, CL_GB\])" assets/ritual-cue.js 1
 chk 'CLOSING_MEAL_DUP' scripts/audit/closing-line.mjs 4
 # ── 2026-11-01 [EVENT_COUNT_CAP 검토 183 · 사장님 10:33 «추천대로 진행»] 본식 상한 = 개수 규칙(6개 · 긴 3개 · 테이블 인사 = 2) · 넘는 드문 조합은 테이블 인사 자동 맞춤
 chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1
