@@ -21658,7 +21658,7 @@ chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3
 chk "if (st.music === 'next') {" console.html 1
 chk 'function toastBed(){' assets/bgm-bed.js 1
 chk 'LPB.tailTo=Date.now()+w+um; return w+um+600; }' assets/bgm-bed.js 1
-chk "ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:undefined" order-preview.html 1
+chk "ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:(k!==" order-preview.html 1
 chk "ldk:(c.live&&c.live.duck!=null)?c.live.duck:-20}); } }" order-preview.html 1
 chk 'BgmBed.lpTail(_pv,_nx)' order-preview.html 1
 nochk "var f6=eff('M6'); return has(f6)?f6:''; }" assets/bgm-bed.js 0
