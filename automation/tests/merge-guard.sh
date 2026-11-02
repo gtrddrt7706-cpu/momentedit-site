@@ -21237,14 +21237,14 @@ chk 'SCENE_EXTRA_195' scripts/audit/photo-scene.mjs 3
 #    ① 고르기 닫는 막 끝 칸(⊙ 늘 있는 표 · 누르면 미리 보기 창 · 대표 나레이션 = 그날 판) · ② 하나씩 만들기 마지막 쪽(식후) · 예식 흐름 «식후» 줄 · 완성 순서 요약 끝 줄 · ③ 연습 · 전체 대본은 닫는 인사 끝 그대로 · 본식 시간 · 개수 규칙 밖 · 검사 pick-v2
 chk 'AFTER_FIX_196' order-preview.html 14
 chk "concat(\['_close'\]).concat(_afterOn()?\['_after'\]:\[\]).concat(\['_sum'\]);" order-preview.html 1
-chk "concat((i===R.SECTIONS.length-1&&_afterOn())?\['_after'\]:\[\])" order-preview.html 1
+chk "concat((i===R.SECTIONS.length-1&&_afterOn())?\['_photo','_after'\]:\[\])" order-preview.html 1
 chk 'id="mkFgPost">식후</p>' order-preview.html 1
 chk 'data-fk="sum:_after"' order-preview.html 1
 chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf)" order-preview.html 1
 # ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
 chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
 chk "var _afl=_afterLine(); if(_afl) lines.push('나레이션(촬영 후 안내 · 작가님이 촬영을 마치면 재생): '+_afl.text);" order-preview.html 1
-chk "pc.tiles === '4,4,4,5'" scripts/audit/pick-v2.mjs 1
+chk "pc.tiles === '4,4,4,6'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
 nochk 'function prKeep(){' assets/bgm-bed.js   # [PR_WAY_198] 연습 «잠시 멈춤» = 음악도 멈춤(② 와 같다) — −20 으로 계속 걷음
@@ -21313,7 +21313,7 @@ chk "' · 두 분은 입장 전 대기 자리에서 준비해요'" order-preview
 chk "' · 두 분은 노래하시는 분을 바라보며 들어요'" order-preview.html 1
 chk "'① 서로 인사 → ② 하객께 인사 → ③ 자리로'" order-preview.html 1
 chk "'당일엔 입장곡에 맞춰 함께 걸어요 · 지금은 구호 뒤 나란히 걸어 두 분 자리에서 멈춰 보세요'" order-preview.html 1
-chk "txt:'이후 사진 촬영은 작가님 안내로 이어져요'" order-preview.html 1
+chk "txt:'단체 사진 · 작가님이 진행해요 · 연습에서는 넘겨요'" order-preview.html 1   # [GROUP_PHOTO_199 4]
 chk "'비워 두셔도 돼요 · 지금은 참고 예시'" order-preview.html 1
 chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.html 1
 chk '_rf={free:4}\[k\]' order-preview.html 1
@@ -21350,8 +21350,16 @@ nochk "‘하객 안내’" assets/ritual-cue.js
 nochk "다시 한번 말씀드립니다" assets/ritual-cue.js
 # ── 2026-11-01 [CLOSING_FULLER 검토 189 · 사장님 13:54 «좀 더 길었으면 · 식당이랑 사진 안내는?»] 마무리 멘트 «이어지는 줄» 회색 미리 보기(② 흐름 · ③ 연습 · 전체 대본 · 녹음 아님) · ② · ③ 엔진 빌드에 마이페이지 값(식사 · 예약 · 하객 안내)
 chk 'function _clHints()' order-preview.html 1
-chk "'마이페이지에 식사 장소 · 예약 시각을 적으시면 식사 시간 · 장소 안내가 이어져요'" order-preview.html 1
-chk "'하객 안내를 여시면 사진 올리기 안내가 이어져요'" order-preview.html 1
+# ── 2026-11-02 [GROUP_PHOTO_199 검토 199 보충] 닫는 인사 → 단체 사진(작가님 진행) → 촬영 후 안내 · 고정 줄(빼기 · 편집 없음 · 본식 수 · 시간 규칙 밖)
+chk 'GROUP_PHOTO_199' order-preview.html 5
+chk "function _photoLine()" order-preview.html 1
+chk "row('_photo')+row('_after')" order-preview.html 1
+chk "lab:k==='_after'?'단체 사진을 모두 마치면 · 작가님 신호로 재생'" order-preview.html 1
+chk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장)
+chk "'+ 사진 올리기 안내: 하객 안내 켜기'" order-preview.html 1
+chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
+chk ".mk-flow li.qh::after{content:'+';" order-preview.html 1
+nochk "이 안내도 맞춰 바뀌어요'" order-preview.html
 chk "r=g.RitualCue.build(_clS(),{mode:'preview'})" order-preview.html 1
 chk "lines.push('(이어지는 줄 · '+t+')')" order-preview.html 1
 chk 'CLOSING_FULLER' order-preview.html 8
