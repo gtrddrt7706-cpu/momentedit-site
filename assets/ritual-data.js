@@ -890,7 +890,7 @@ var PHOTOCUE={
      시각: 하객 입장 09:50 → **10:00** · 본식 10:10 → **10:20** · 배웅 11:00 · 끝 11:20(도착 · 끝 그대로).
      두 분의 캔들존 촬영은 09:45 에 끝나고, 이동을 마친 09:50 부터 캔들존이 완전히 빈다(하객 입장 10분 전).
      ★이 한 줄이 원천이다 — check-source-drift · check-ritual-cue · open-course 가 이 값으로 전부 다시 잰다. */
-var DAY = { total: 140, ready: 20, snap: 60, farewell: 20 };
+var DAY = { total: 140, ready: 20, snap: 60, farewell: 20, guestIn: 20 };   /* ★[GUEST_TIME_1102 사장님 «우리가 세팅한 프로그램 시간표를 봐»] guestIn = 하객 입장이 본식 몇 분 전인가(10:00 · 10:20) — 식순 화면 «하객 입장 때 → 시작 10분 전» 사이 · 하객 맞이 음악 «약 n분» · 곡 목록 길이(BgmPicks.guestMin) · 홈 진행표 «하객 입장 n분»(check-source-drift)이 이 값으로 계산한다 */
 
 var MIN={
  base:{damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17},   // [WELCOME_DEFAULT] 보이는 셋에 첫인사(1분) 편입 — 22→23 · 24→25 · 16→17   // [EVENT_BUDGET] 보이는 셋은 이벤트 수 x 4분 · 숨긴 셋은 저장된 초안이 참조하므로 그대로   // [VEIL_RETIRED 2026-08-03] 감동 29→28 · 베일 1분 제거분

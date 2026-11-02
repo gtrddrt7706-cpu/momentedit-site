@@ -21770,4 +21770,13 @@ nochk "(_pf?'★':'☆')" mypage.html
 nochk 'class="dgc-ico"' mypage.html
 nochk '🍽' mypage.html
 nochk '🍃' mypage.html
+# ★[GUEST_TIME_1102 사장님 «우리가 세팅한 프로그램 시간표를 봐»] 하객 입장 = 본식 − DAY.guestIn(ritual-data · 20분) — 식순 화면 «… 약 n분 뒤» · 하객 맞이 «약 n분» · 곡 목록 길이가 이 값으로 계산한다(검사 = CI bgm-sound e 칸)
+chk 'guestIn: 20 }' assets/ritual-data.js 1
+chk 'GUEST_TIME_1102' assets/bgm-picks.js 2
+chk 'GUEST_TIME_1102' assets/bgm-bed.js 1
+chk 'GUEST_TIME_1102' order-preview.html 2
+chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
+nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
+nochk "M1: 1800" assets/bgm-picks.js
+chk "screen-bgm after-photo-loop guest-time' }" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
