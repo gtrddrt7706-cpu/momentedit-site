@@ -214,11 +214,11 @@ try {
          여기 남는 것: 흐름 음악 줄 없음 · 링크 칸 없음 · 이름 · 기한 줄 바로 아래 «마이페이지 «식전 영상»에서 준비해요»(12.5px · --sub) 한 줄 */
     await go(pg, 'prevideo'); const P9 = await pg.evaluate(() => { const box = document.querySelector('.mk-pvmy'), vr = box && box.querySelector('.mk-vr'), n = box && box.querySelector('.mk-pvmyt'), cs = n ? getComputedStyle(n) : null;
       const vrr = vr ? vr.getBoundingClientRect() : null, nr = n ? n.getBoundingClientRect() : null;
-      return { has: !!box, link: !!document.querySelector('#stage input[type="url"]'), old: document.querySelectorAll('.mk-pvsnd').length, txt: n ? n.textContent.replace(/[\s\u00a0]+/g, ' ').trim() : '', fs: cs ? cs.fontSize : '', col: cs ? cs.color : '', below: !!(vrr && nr && nr.top >= vrr.bottom - 1 && nr.top - vrr.bottom < 24),
+      return { has: !!box, link: !!document.querySelector('#stage input[type="url"]'), old: document.querySelectorAll('.mk-pvsnd').length, txt: n ? n.textContent.replace(/[«»]/g, '').replace(/[\s\u00a0]+/g, ' ').trim() : '' /* «»는 그린 뒤 굵은 글씨(GUIL_OFF) */, b: n ? !!n.querySelector('b,strong') || /«/.test(n.textContent) : false, fs: cs ? cs.fontSize : '', col: cs ? cs.color : '', below: !!(vrr && nr && nr.top >= vrr.bottom - 1 && nr.top - vrr.bottom < 24),
         bgm: document.querySelectorAll('.mk-flow > li[data-bgm]').length, hz: document.documentElement.scrollWidth > innerWidth + 1 }; });
     await shot(pg, W, 'bgm-prevideo-mypage', '.mk-pvmy');
     ok(`${W} 9 [BGM_R3_1023 · PV_MYPAGE_1102] 식전 영상 — 흐름 음악 줄 없음 · 링크 칸 없음 · 이름 줄 바로 아래 «마이페이지 «식전 영상»에서 준비해요»(12.5px · --sub) 한 줄`,
-      P9.has && !P9.link && P9.old === 0 && P9.txt === '마이페이지 «식전 영상»에서 준비해요' && P9.fs === '12.5px' && P9.col === 'rgb(90, 85, 76)' && P9.below && P9.bgm === 0 && !P9.hz, P9);
+      P9.has && !P9.link && P9.old === 0 && P9.txt === '마이페이지 식전 영상에서 준비해요' && P9.b && P9.fs === '12.5px' && P9.col === 'rgb(90, 85, 76)' && P9.below && P9.bgm === 0 && !P9.hz, P9);
     ok(`${W} 1 [BGM_R2_1023] 편지를 빼 축가 바로 뒤가 부모님께 인사면 첫 줄 «경건하게» 이음말(${t12s}) 바로 뒤에 음악 줄`, t12s === 'bridge-b12-tribute-calm' && t12.fi === 1 && /넘어가며/.test(t12.prev) && t12.ftxt === G(ONE.tribute), { t12s, fi: t12.fi, prev: t12.prev, ftxt: t12.ftxt });
     ok(`${W} 1 손대지 않으면 S.bgm 이 없다`, seen.table.bgm === 'null', seen.table.bgm);
     /* 2 칩 */

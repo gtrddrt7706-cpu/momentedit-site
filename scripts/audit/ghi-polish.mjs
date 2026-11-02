@@ -132,7 +132,7 @@ for (const w of [390, 1280]) {
   ok(`${w} H1 ② 감사 인사 칸 이름 · aria-label = «감사 인사 · 신랑/신부» [H1_FIRST_HELLO] [THANKS_GREET_1013]`, h1.ta && !h1.oldName, JSON.stringify(h1));
   await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(300);
   const h2 = await pg.evaluate(() => { const st = document.getElementById('stage'), link = st.querySelector('input[type="url"]'), how = st.querySelector('.send-how'), my = st.querySelector('.mk-pvmy');
-    return { link: !!link, how: !!how, my: !!(my && /마이페이지 «식전 영상»에서 준비해요/.test(my.textContent)) }; });
+    return { link: !!link, how: !!how, my: !!(my && /마이페이지 «?식전 영상»?에서 준비해요/.test(my.textContent) /* GUIL_OFF */) }; });
   ok(`${w} H2 ② 식전 영상 쪽 — 링크 칸 없음 · 보내는 길 상자 없음 · 마이페이지 «식전 영상» 한 덩어리 [H2_SEND_LUMP → PREVIDEO_FREE → PV_MYPAGE_1102 2026-11-02 사장님 «저기서 영상을 받을 필요도 없잖아»]`, !h2.link && !h2.how && h2.my, JSON.stringify(h2));
   await pg.evaluate(() => mkGo('_sum')); await pg.waitForTimeout(300);
   ok(`${w} H3 ② 한눈에 보기 도와주실 분 «불러 모아 주실 분 · «가족 · 친구 스냅»» [H3_CALLER_HELPER]`, await pg.evaluate(() => /가족사진 때 친척분들을 불러 모아 주실 분\s*양가 한 분씩 · 마이페이지 «?가족\s·\s친구\s스냅»?에 적어 두면 디렉터가 먼저 말씀드려요/.test(document.getElementById('stage').textContent)));
