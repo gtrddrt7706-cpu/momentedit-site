@@ -600,7 +600,7 @@ body.mkd .prog-top{justify-content:space-between;align-items:flex-start;gap:8px;
 body.mkd #obExitSlot{margin-left:auto}
 body.mkd .op-steps-c{margin:0}   /* 머리 줄 → 8(.stage 위 여백) → 네 칸 선 → 12 → 순간 제목 = 머리 약 81px(종전 155) */
 @media (max-width:560px){ body.mkd .prog-top{gap:4px} }
-@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap;row-gap:4px} body.mkd .mk-status{order:2;flex:1 1 100%} body.mkd .mk-strip{top:92px} }   /* [MK_HEAD_D] 좁은 마우스 창(새로고침이 있다) — 도구는 그대로 맨 위 · 상태는 아래 줄 전체 폭(폭으로 새로고침을 숨기지 않는다 · REFRESH_BTN) */
+@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap;row-gap:4px} body.mkd .mk-status{order:2;flex:1 1 100%;max-width:none} body.mkd .mk-strip{top:92px} }   /* [MK_HEAD_D] 좁은 마우스 창(새로고침이 있다) — 도구는 그대로 맨 위 · 상태는 아래 줄 전체 폭(폭으로 새로고침을 숨기지 않는다 · REFRESH_BTN) */
 /* ★★[TOP_MENU 2026-10-03 사장님 «추천대로 개선해서 적용해 보자»] 머리 줄 = «⋯» · 저장 · 나가기. «안내 다시 보기» · «처음부터 다시 만들기»는 «⋯» 안(제 이름 그대로 · 단추와 확인 창은 종전 그대로).
    작은 창은 단추에 붙는다 · 머리카락 테 · 크림 바탕 · 그림자 · 흐림 없음 · 줄 = 폭 가득 글 단추(44px). Esc · 밖을 누르면 닫힌다 · Esc 는 초점을 «⋯»로. */
 #obMoreWrap{position:relative;display:inline-flex}
@@ -1445,8 +1445,19 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-status.one{display:inline-flex;align-items:center;column-gap:0;padding:0 15px;border-radius:999px;white-space:nowrap}
 .mk-status.one .mk-sh::after{content:"\00a0·\00a0";font-weight:400}
 .mk-status.one .mk-sd{flex-wrap:nowrap}
-.mk-status.one>*{flex-shrink:0}   /* [MK_HEAD_PILL] 한 줄에서 글이 줄어들지 않게 — 모자라면 넘쳐서 _mkStatFit 이 두 층으로 돌린다 */
+.mk-status.one>*{flex-shrink:0}   /* [MK_HEAD_PILL] 한 줄에서 글이 줄어들지 않게 — 모자라면 _mkStatFit 이 걸음 이름 · 앞말을 뺀다(두 층 없음 · MK_HEAD_ONE_1102) */
 .mk-status.one .mk-chev{order:3;margin-left:10px}
+/* ★[MK_HEAD_ONE_1102] 늘 한 줄 · 남는 폭을 채운다(꺾쇠는 오른쪽 끝) · 넓은 화면은 아래 걸음 막대 두 칸 끝까지(calc(50% - 4px)) · 자리가 모자라면 걸음 이름(nn) → 앞말(np) 순으로 뺀다 */
+body.mkd .mk-status{flex:1 1 0;max-width:calc(50% - 4px)}
+.mk-status.one .mk-chev{margin-left:auto;flex:none}
+.mk-status.one .mk-sd{margin-right:10px}   /* 꺾쇠는 테두리로 그린 작은 네모라 padding 을 주면 함께 커진다 — 틈은 글 쪽 margin 으로 */
+.mk-status.nn .mk-sh{display:none}
+.mk-status.np .mk-pre{display:none}
+.mk-status.one .mk-at.wr{white-space:nowrap}
+.mk-status.el .mk-sd{flex-shrink:1;overflow:hidden}
+.mk-status.el .mk-at{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mk-status .mk-num{position:relative;top:.06em}   /* 노토 산스 KR 숫자가 한글보다 떠 보였다(사장님 «숫자가 문자보다 위로») — 숫자 덩이만 살짝 내린다 */
+.mk-status .mk-num b,.mk-status b.mk-num{font-variant-numeric:tabular-nums}
 .mk-sd b{font-weight:600;color:var(--accent)}
 .mk-sd .mk-at,.mk-sd .mk-left{white-space:nowrap}
 .mk-sd .mk-at.wr{white-space:normal}   /* 뺀 순간 · 긴 이름은 낱말 단위로 줄바꿈(숫자 · 상태는 자르지 않는다) */
@@ -4997,18 +5008,23 @@ function _mkStatInfo(cur){
   var ps=_mkPages(), _mo=ps.filter(function(k){ return k!=='_intro'&&k!=='_sum'&&k!=='_voice'&&!_mkOff(k); }), _mi=_mo.indexOf(cur), _left=_mo.filter(function(k){ return _mkStat(k)==='todo'; }).length;
   /* 번호는 쪽 제목(«6 · 반지 교환») · 아래 단추(«다음 · 7 성혼 선언»)와 같은 셈 — 본식은 bodySeq 차례(닫는 인사까지) · 식전은 식전끼리. 한 화면에 두 번호가 다르면 안 된다 */
   var _no=_mkNo(cur), _pre=_mo.filter(function(k){ return _mkNo(k)==='식전'; }), _bN=RitualOpen.bodySeq(S).length;   /* ★[PROG_COUNT_1031 식순 걷기 1라운드 GPT 4] 쪽 제목 번호(_mkNo = bodySeq 차례 · 테이블 인사 포함)와 같은 셈 — 테이블 인사를 빼고 세어 «본식 9 / 8»이 났다 */   /* [TABLE_APART] 본식 n / N 의 N 에서 테이블 인사를 뺀다 · [TOAST_LAST_1013] 축배는 닫는 인사 뒤여도 본식 안(APART) */
-  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':cur==='_after'?'<b>식후</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'식전 <b>'+(_pre.indexOf(cur)+1)+'</b>/'+_pre.length:'본식 <b>'+_no+'</b>/'+_bN;   /* [MK_HEAD_D] 화면은 «본식 6/9»로 줄인다 */
+  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':cur==='_after'?'<b>식후</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'<span class="mk-pre">식전 </span><span class="mk-num"><b>'+(_pre.indexOf(cur)+1)+'</b>/'+_pre.length+'</span>':'<span class="mk-pre">본식 </span><span class="mk-num"><b>'+_no+'</b>/'+_bN+'</span>';   /* [MK_HEAD_ONE_1102] 앞말(본식 · 식전)은 자리가 모자라면 뺀다 · 숫자는 한 덩이(mk-num)로 글 줄에 맞춘다 */   /* [MK_HEAD_D] 화면은 «본식 6/9»로 줄인다 */
   var _say=cur==='_sum'?'한눈에 보기':cur==='_voice'?'두 분 목소리':cur==='_after'?'식후 · 촬영 후 안내':_mi<0?'뺀 순간 · '+_mkName(cur):_no==='식전'?'식전 '+_pre.length+'개 순간 중 '+(_pre.indexOf(cur)+1)+'번째':'본식 '+_bN+'개 순간 중 '+_no+'번째';   /* [PROG_COUNT_1031] 테이블 인사도 «본식 7 / 9» — 그 뒤에 축배 · 닫는 인사가 오는데 «본식 뒤»라 끝난 줄 알았다 */   /* [TABLE_APART] · [TOAST_LAST_1013] APART */
   return { cur:cur, wr:_mi<0&&cur!=='_sum'&&cur!=='_voice', pos:_pos, left:_left, say:_say };
 }
 function _mkStatLab(i,open){ return '하나씩 만들기. '+i.say+'.'+(i.left?' 이미 살펴본 순간 중 확인할 항목이 남은 순간 '+i.left+'곳.':'')+' '+(open?'모든 순간 접기':'모든 순간 보기'); }
 function _mkStatPaint(){ var b=document.getElementById('mkStat'); if(!b) return; var on=!!document.getElementById('mkStrip'); document.body.classList.toggle('mkd',on); b.hidden=!on; if(!on){ MK.statI=null; return; }
   var i=_mkStatInfo(_mkPages()[_mkIdx()]), open=!!MK.navOpen; MK.statI=i;
-  var v='<span class="mk-sh" aria-hidden="true">하나씩 만들기</span><i class="mk-chev" aria-hidden="true"></i><span class="mk-sd" aria-hidden="true"><span class="mk-at'+(i.wr?' wr':'')+'">'+i.pos+'</span>'+(i.left?'<span class="mk-left">&nbsp;· 빠뜨린 <b>'+i.left+'</b></span>':'')+'</span>';
+  var v='<span class="mk-sh" aria-hidden="true">하나씩 만들기</span><i class="mk-chev" aria-hidden="true"></i><span class="mk-sd" aria-hidden="true"><span class="mk-at'+(i.wr?' wr':'')+'">'+i.pos+'</span>'+(i.left?'<span class="mk-left">&nbsp;· 빠뜨린 <b class="mk-num">'+i.left+'</b></span>':'')+'</span>';
   if(b._v!==v){ b.innerHTML=v; b._v=v; } b.setAttribute('aria-expanded',String(open)); b.setAttribute('aria-label',_mkStatLab(i,open)); _mkStatFit(); }
-/* [MK_HEAD_PILL] 한 줄이 들어가면 한 줄 · 아니면 두 층 — 한 줄로 그려 보고 넘치면(알약이 줄어 글이 넘치거나 도구 줄과 닿으면) 두 층 */
-function _mkStatFit(){ try{ var b=document.getElementById('mkStat'); if(!b||b.hidden) return; b.classList.add('one'); var sl=document.getElementById('obExitSlot'), r=b.getBoundingClientRect(), t=sl&&sl.getBoundingClientRect();
-  if(b.scrollWidth>b.clientWidth+1||(t&&t.width&&Math.abs(t.top-r.top)<4&&r.right>t.left-4)) b.classList.remove('one'); }catch(e){} }
+/* [MK_HEAD_PILL] 늘 한 줄(1102 부터 두 층 없음) — 넘치면 덜 중요한 글부터 뺀다 */
+/* ★★[MK_HEAD_ONE_1102 2026-11-02 사장님 «두 줄은 절대 하지 말고 한 줄로만 · 숫자랑 너무 끼어 있으니까»] 상태 단추는 늘 한 줄 — 모자라면 두 층이 아니라 덜 중요한 글부터 뺀다:
+   ① «하나씩 만들기 · 본식 9/9 · 빠뜨린 6» → ② «본식 9/9 · 빠뜨린 6»(걸음 이름은 아래 걸음 막대가 말한다) → ③ «9/9 · 빠뜨린 6». 화면 읽기(aria-label)는 늘 온 뜻 · 두 층(.one 을 떼는 것) 금지 */
+function _mkStatFit(){ try{ var b=document.getElementById('mkStat'); if(!b||b.hidden) return; b.classList.add('one'); b.classList.remove('nn','np','el');
+  /* 순간을 옮길 때마다 걸음 이름이 보였다 사라졌다 하지 않게 — «빠뜨린 n»이 붙은 꼴로 잰다(화면이 흔들리지 않게) */
+  var sd=b.querySelector('.mk-sd'), pr=null; if(sd&&!sd.querySelector('.mk-left')){ pr=document.createElement('span'); pr.className='mk-left'; pr.innerHTML='&nbsp;· 빠뜨린 <b class="mk-num">0</b>'; sd.appendChild(pr); }
+  var over=function(){ return b.scrollWidth>b.clientWidth+1; };
+  b.classList.remove('el'); if(over()) b.classList.add('nn'); if(over()) b.classList.add('np'); if(pr) pr.remove(); if(over()) b.classList.add('el'); }catch(e){} }   /* 그래도 넘치면(뺀 순간 · 긴 이름) 이름 끝을 «…»로 — 줄바꿈은 하지 않는다 */
 window.addEventListener('resize',function(){ _mkStatFit(); });
 try{ document.fonts&&document.fonts.ready.then(function(){ _mkStatFit(); }); }catch(e){}
 /* [STEP_COMPACT] (옛) 접힌 줄이 잘리면 걸음 이름부터 빼던 맞춤(코디 결정 2026-10-03)은 [MK_HEAD_D 1101] 사장님 «바꾸자»로 대체 — 상태 단추 위층에 늘 보인다 */

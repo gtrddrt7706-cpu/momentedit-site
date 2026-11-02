@@ -21442,7 +21442,7 @@ nochk '→ 모여서 단체 사진' order-preview.html
 nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-open.js
 nochk '앞으로 돌아와 축배와 닫는 인사로' assets/ritual-story.js
 chk 'PROG_COUNT_1031' order-preview.html 2
-chk '빠뜨린 <b>' order-preview.html 1   # [MK_HEAD_D 1101] 화면은 «빠뜨린 4»로 줄였다 · 읽는 글은 «확인할 항목이 남은 순간 n곳»
+chk '빠뜨린 <b class="mk-num">' order-preview.html 1   # [MK_HEAD_D 1101] 화면은 «빠뜨린 4»로 줄였다 · 읽는 글은 «확인할 항목이 남은 순간 n곳»
 chk '이미 살펴본 순간 중 확인할 항목이 남은 순간' order-preview.html 1
 chk 'BLESS_UNPICK_1031' order-preview.html 1
 
@@ -21453,7 +21453,7 @@ chk 'MK_HEAD_D' order-preview.html 12
 chk '<button type="button" class="mk-status" id="mkStat" data-fk="mkfold" aria-expanded="false" aria-controls="mkScP"' order-preview.html 1
 chk 'function _mkStatPaint()' order-preview.html 1
 chk "'본식 '+_bN+'개 순간 중 '+_no+'번째'" order-preview.html 1
-chk "'본식 <b>'+_no+'</b>/'+_bN" order-preview.html 1
+chk "<span class=\"mk-pre\">본식 </span><span class=\"mk-num\"><b>'+_no+'</b>/'+_bN" order-preview.html 1
 chk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 1
 chk 'body.mkd .op-steps-c{margin:0}' order-preview.html 1
 chk '@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap' order-preview.html 1
@@ -21706,4 +21706,11 @@ chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1  
 chk "if(pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
 chk 'if(x.cheer) _lt.cheer=true;' order-preview.html 1   # [MEANING_R1_1102 13] 나눈 차례 마지막 줄이 «위하여» 표시를 잇는다
 chk "duck: PARAM.duckSpeech,   /\* \[MEANING_R1_1102 15\]" assets/ritual-cue.js 2   # [MEANING_R1_1102 15] 온라인 인사 −16 · 두 분 −20
+# ★★[MK_HEAD_ONE_1102 사장님 «두 줄은 절대 하지 말고 한 줄로만 · 숫자랑 너무 끼어 있으니까» · «숫자가 문자보다 위로»] 상태 단추는 늘 한 줄 · 남는 폭을 채운다(넓은 화면은 걸음 막대 두 칸 끝까지) · 모자라면 걸음 이름 → 앞말 순으로 뺀다 · «빠뜨린 n» 붙은 꼴로 재서 순간마다 흔들리지 않는다 · 숫자 덩이만 살짝 내린다
+chk 'MK_HEAD_ONE_1102' order-preview.html 3
+nochk "b.classList.remove('one')" order-preview.html   # 두 층으로 돌아가는 길 금지
+chk ".mk-status.nn .mk-sh{display:none}" order-preview.html 1
+chk ".mk-status.np .mk-pre{display:none}" order-preview.html 1
+chk "body.mkd .mk-status{flex:1 1 0;max-width:calc(50% - 4px)}" order-preview.html 1
+chk ".mk-status .mk-num{position:relative;top:.06em}" order-preview.html 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
