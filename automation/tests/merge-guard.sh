@@ -21739,4 +21739,9 @@ chk ".mk-status .mk-num{position:relative;top:.06em}" order-preview.html 1
 chk 'PV_FOOT_MIN_1102' order-preview.html 3
 nochk '<span class="pv-fixed">늘 있는 순간이에요</span>' order-preview.html
 chk '.ps.ps-pk{margin-top:6px;padding-top:0;border-top:0}' order-preview.html 1
+# ★[PV_AGAIN_UP_1102 사장님 «올리고 오른쪽으로»] ① 창 «다시 듣기»는 장면 사진 고리 줄 오른쪽(사진 없는 순간도 같은 자리) · 아래 고정 줄은 담기 · 빼기만(늘 있는 순간이면 줄째 없음)
+chk 'PV_AGAIN_UP_1102' order-preview.html 2
+chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button>' order-preview.html 1
+chk '.pv-act:empty{display:none}' order-preview.html 1
+nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

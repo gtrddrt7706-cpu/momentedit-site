@@ -1039,6 +1039,12 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 #psZoom .psz-x{position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;min-width:48px;min-height:48px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;cursor:pointer}
 .pv-again{display:inline-flex;align-items:center;gap:6px}
 .pv-again{background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
+/* ★[PV_AGAIN_UP_1102] 다시 듣기 = 장면 사진 고리와 같은 줄 오른쪽 · 글 단추(테 없음) · 사진을 펼쳐도 그 자리 · 아래 고정 줄은 담기 · 빼기가 있을 때만 */
+.pv-row{position:relative;min-height:44px;margin-top:6px}
+.pv-row .ps.ps-pk{margin-top:0}
+.pv-row .pv-again{position:absolute;top:0;right:0;min-height:44px;padding:0 2px;border:0;background:none;font:inherit;font-size:14px;font-weight:500;color:var(--accent);cursor:pointer}
+.pv-row .pv-again:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
+.pv-act:empty{display:none}
 .pv-add{flex:1;background:#4E3F31;border:0;color:#fff}
 .pv-add.out{flex:0 0 auto;background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
 .pv-in{flex:1;text-align:right;font-size:14px;font-weight:600;color:var(--ink2)}
@@ -9203,7 +9209,7 @@ function _pvEl(){
     +'<div class="pv-grab" aria-hidden="true"></div>'
     +'<div class="pv-h"><h3 id="pvT"></h3><span class="pv-tag" id="pvTag"></span><button type="button" class="pv-x" data-pvx aria-label="닫기">'+ICO_X+'</button></div>'
     +'<div class="pv-media" id="pvM"></div><p class="pv-q" id="pvQ"></p><div class="pv-pb" aria-hidden="true"><i id="pvBar"></i></div><p class="pv-st" id="pvSt"></p>'
-    +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div id="pvScene"></div><div class="pv-act" id="pvAct"></div>'
+    +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div class="pv-row" id="pvRow"><div id="pvScene"></div><button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button></div><div class="pv-act" id="pvAct"></div>'
     +'</div>';   /* ★«전체 나레이션은 연습하기에서 이어서 들어요» 한 줄(미리보기 창 맨 아래) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_FN_OFF] */
   el.addEventListener('click',function(e){ if(e.target&&e.target.closest&&e.target.closest('[data-pvx]')) opPvClose(); });
   /* ★[QA_SHEET_SWIPE 2026-10-04 점검] 손잡이가 있는데 끌어 내려도 안 닫혔다 — 손잡이 · 머리 줄을 80px 넘게 내리면 닫는다(단추 위에서 시작한 끌기는 아니다) */
@@ -9365,13 +9371,14 @@ window.psZoomClose=function(){ var z=document.getElementById('psZoom'); if(!z||z
 function _pvActs(ln){
   var R=RitualOpen, k=PV.k, el=document.getElementById('pvSheet'); if(!k||!el) return;
   if(ln===undefined) ln=_pvLine(k);
-  var a=el.querySelector('#pvAct'), had=!!(document.activeElement&&a.contains(document.activeElement)), wasAgain=had&&document.activeElement.classList.contains('pv-again');
+  var a=el.querySelector('#pvAct'), had=!!(document.activeElement&&a.contains(document.activeElement)), wasAgain=false;
   var always=!!R.ALWAYS[k]||k==='_close'||k==='_after', on=always||R.onOf(S,k);   /* [AFTER_FIX_196] */
-  a.innerHTML='<button type="button" class="pv-again" onclick="_pvPlay()">'+ICO_AGAIN+' '+((ln&&ln.src)?'다시 듣기':'처음부터')+'</button>'   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
+  var ag=el.querySelector('#pvAgain'); if(ag) ag.innerHTML=ICO_AGAIN+' '+((ln&&ln.src)?'다시 듣기':'처음부터');   /* ★[PV_AGAIN_UP_1102 사장님 «올리고 오른쪽으로»] 다시 듣기는 장면 사진 줄 오른쪽(사진이 없는 순간도 같은 자리) · 아래 줄은 담기 · 빼기만 */
+  a.innerHTML=''   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
     +(always?''   /* ★[PV_FOOT_MIN_1102] «늘 있는 순간이에요»는 뺐다 — 담기 · 빼기 단추가 없는 것으로 충분하다(늘 있는 순간은 고를 일이 없다) */
       :(on?'<span class="pv-in">✓ 담겨 있어요</span><button type="button" class="pv-add out" onclick="opTgl(\''+k+'\')">빼기</button>'
           :'<button type="button" class="pv-add" onclick="opTgl(\''+k+'\')">'+'이 순간 담기'+'</button>'));
-  if(had){ var f=a.querySelector(wasAgain?'.pv-again':'.pv-add')||a.querySelector('button'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
+  if(had){ var f=a.querySelector('.pv-add')||a.querySelector('button'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
 }
 function _pvSay(t,bad){ var e=document.getElementById('pvSt'); if(!e) return; e.textContent=t||''; _ecNw(e);   /* [CODE_NOWRAP] */ e.classList.toggle('bad',!!(t&&bad)); if(t&&bad) e.setAttribute('role','alert'); else e.removeAttribute('role'); }   // [ERR_CODE_BUILDER] 미리 보기 창 상태 한 줄 — 실패는 진사 · role=alert
 /* ★★[BAR_SMOOTH 2026-10-10 사장님 «로딩 바 차오르는 게 살짝 뚝뚝 끊기는 느낌이야 개선해 줘»]
