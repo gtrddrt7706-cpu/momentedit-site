@@ -1202,7 +1202,7 @@ function segFill(id){ var d = segDef(id); if (!BP || !BP.FILL || !d || !(d.multi
      한 곡 칸 = 이 기기 · 두 분이 이 구간에서 다른 곡을 골랐으면 고른 곡 · 목록 칸 = 그 곡을 맨 앞에(나머지는 원래 차례) · 식순 화면 BgmPicks.order(S, 구간, 앞 곡)와 같은 함수 */
 /* ★★[DETAIL_R5_1101 규칙 1] 곡 계획 한 곳 — BgmPicks.plan(식순 화면 · 미리 듣기와 같은 함수) · 담긴 구간 = 이 큐 목록에 그 구간 순간이 있다 · 틀 수 있는 곡 = 이 기기에 파일이 있다 · 길이 = 넣을 때 잰 전체 길이 ·
      목록 칸 차례(예약 · 앞 목록 곡 빼기/맨 뒤로)는 여기서 · 지금 흐르는 곡 잇기(CARRY_SAME)는 segSel 이 그 위에 */
-function segOnC(id){ var d = segDef(id); if (!d || !d.ks) return false; if (d.slot && !(S && S.bgm && S.bgm[d.slot] && S.bgm[d.slot].m === 'bed')) return false; var cs = (typeof R !== 'undefined' && R && R.cues) || null; if (!cs) return true; return cs.some(function(c){ return d.ks.indexOf(c.k) > -1; }); }
+function segOnC(id){ var d = segDef(id); if (d && id === 'M8L' && !d.ks) d = Object.assign({}, d, { ks: ['_goodbye'] });   /* [AFTER_PHOTO_LOOP_1102] 마지막 곡 = 촬영 후 안내(_goodbye) 큐가 있는 날 */ if (!d || !d.ks) return false; if (d.slot && !(S && S.bgm && S.bgm[d.slot] && S.bgm[d.slot].m === 'bed')) return false; var cs = (typeof R !== 'undefined' && R && R.cues) || null; if (!cs) return true; return cs.some(function(c){ return d.ks.indexOf(c.k) > -1; }); }
 function segPlanAll(){ if (!BP || !BP.plan) return null; try { return BP.plan(S, { on: segOnC, have: function(f){ return !!SEGF[f]; }, dur: function(f){ var m = SEGST.meta[f]; return m && m.dur ? +m.dur : 0; } }); } catch (e) { return null; } }
 function segListOf(id, cur){ var pa = segPlanAll(), b = (pa && pa[id] && pa[id].list.length) ? pa[id].list.slice() : (BP.order ? BP.order(S, id, '') : []); var c = (cur && BP.carryOf) ? BP.carryOf(S, id, cur) : ''; if (c) b = [c].concat(b.filter(function(x){ return x !== c; })); return b; }
 function segSel(id, cur){ var d = segDef(id), L = segSongs(id), v = SEGST.sel[id], have = function(x){ return L.some(function(s){ return s.id === x; }); };
@@ -1850,7 +1850,7 @@ function fire(i, opt){
         /* ★[GUEST_WELCOME_191 검토 191] 하객 입장 때 안내 — 끝나고 repeatMs(2분) 뒤 다시 · 다음 시각 큐(10분 전)가 나가면 fire → clearT 로 저절로 멈춘다 · 고객 미리 듣기는 한 번만 */
         if (c.repeatMs && MODE !== 'preview' && !GUEST && (!nx || nx.fire === 'clock' || nx.fire === 'manual')) later(function(){ if (cur === i && phase === 'done' && !PAUSED) fire(i); }, c.repeatMs);
         if (nx && nx.fire === 'chain') { preDuck(nx, _gap); later(function(){ advance(); }, _gap); }   // ★[CHAIN_GAP_1014] 큐가 정한 사이(원고 «1.25초 사슬» · «사이 1초») · 없으면 기본 2초
-        else if (!nx) later(finish, PARAM.gapMs);
+        else if (!nx && !(c.endHold && MODE !== 'preview')) later(finish, PARAM.gapMs);   /* ★[AFTER_PHOTO_LOOP_1102] 촬영 후 안내(endHold)는 저절로 끝내지 않는다 — 추가 촬영 동안 마지막 곡 목록이 이어지고 ■ 끝내기(GO)에서 3초에 잦아든다 · 고객 미리 듣기는 종전 그대로 */
       }
     });
   }); };
@@ -1907,8 +1907,8 @@ function setPaused(on){
 function finish(){
   clearT(); phase = 'end'; esdStop(2); conMarkOff();   // [ENTRY_SCENE_DAY] · [CON_RELOAD_GUARD]
   try { aNarr.pause(); } catch(e){}
-  duckTo(PARAM.duckOff, 6000);
-  later(function(){ try { BED.el.forEach(function(e){ e.pause(); }); } catch(e){} BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false); }, 6200);   // [BGM_SEG8_1023] 두 재생기 다
+  duckTo(PARAM.duckOff, 3000);   /* ★[AFTER_PHOTO_LOOP_1102] ■ 끝내기 = 3초에 잦아듦(추가 촬영까지 이어 틀던 마지막 곡 · 자동 소거는 없다) */
+  later(function(){ try { BED.el.forEach(function(e){ e.pause(); }); } catch(e){} BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false); }, 3200);   // [BGM_SEG8_1023] 두 재생기 다
   render();
 }
 

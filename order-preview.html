@@ -1580,7 +1580,9 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-flow li.t.now::after{border-color:var(--seal)}   /* [TALK_BRIDGE] 지금 차례면 마디도 진사 */
 .mk-flow li.q .qa{font-weight:500}
 .mk-flow li.q .qa.bgm-l2{display:block;margin-top:2px}   /* [SCREEN_SOUND_1102] 닫는 인사 둘째 줄(촬영 후 마지막 곡) */
-.mk-flow li.qh .qa{font-weight:600;font-size:14px;color:var(--seal)} .mk-flow li.qh::after{content:'+';background:none;border:0;color:var(--seal);font-size:14px;font-weight:700;line-height:9px;text-align:center}   /* [CL_HINT_199] 진사 · 짧게 · 점 자리에 작은 «+» */   /* [CLOSING_FULLER 1] 아직 없는 줄 · 진사 점 대신 빈 점 */
+.mk-flow li.qh .qa{font-weight:600;font-size:14px;color:var(--seal)}
+.mk-flow li.qh .qh-go{display:inline;min-height:0;padding:0;margin:0;border:0;background:none;font:inherit;color:inherit;text-align:left;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}   /* [MEAL_GO_1102] 글 고리 · 줄 높이 그대로 */
+.mk-flow li.qh .qh-go:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px} .mk-flow li.qh::after{content:'+';background:none;border:0;color:var(--seal);font-size:14px;font-weight:700;line-height:9px;text-align:center}   /* [CL_HINT_199] 진사 · 짧게 · 점 자리에 작은 «+» */   /* [CLOSING_FULLER 1] 아직 없는 줄 · 진사 점 대신 빈 점 */
 /* ★[LISTEN_PACE_1031] 이 순간 전체 듣기 — 지금 줄 = 지금 글 색 그대로(진하게) · 지나간 줄 = 한 단계 옅게(--sub) · 남은 줄 = 그대로 · 행동 줄이 지금이면 글 600 + 점 둘레 진사 테 · 새 색 · 새 아이콘 없음 */
 .mk-flow li.lp-past,.mk-flow li.lp-past .qa,.mk-flow li.lp-past b{color:var(--sub)}
 /* ★[LISTEN_LOOK_LEVEL_1101 ① 사장님 «재생되지 않는 부분은 글씨 톤을 낮추면?»] 듣는 동안 그 순간 줄 묶음(.lp-on)은 지금 줄만 진하게 · 지나간 줄 · 남은 줄 모두 --sub ·
@@ -2410,7 +2412,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1102pv"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1102ss"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102s3"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1102aq"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1102aq"></script><script src="/assets/bgm-picks.js?v=1102aq"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102s3"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3251,7 +3253,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1102pv';   // [ASSET_V] 위 주석
+  var ASSET_V='1102aq';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -3832,6 +3834,8 @@ function _hTell(){ if(!EMBED) return; try{ parent.postMessage({type:'momentedit:
 function _hPush(st){ try{ st.d=_hDepth()+1; history.pushState(st,''); }catch(e){} _hTell(); }
 /* ★[EXIT_HOLD 2026-10-09 A~Z 점검 1라운드 A-3] 나가기가 묻거나 기다리는 동안(보내는 중 · 마무리 · 만드는 중 · 저장 안 한 변경) 마이페이지에 «잡고 있어요»를 알린다 — 마이페이지의 뒤로가기 3초 닫기를 멈춘다.
    머물기로 하면(취소 · 기다리기) «놓았어요» — 마이페이지가 뒤로가기 층을 다시 쌓는다. 종전엔 폰 뒤로가기로 판이 떠도 3초 뒤 창이 저장 없이 닫히고 «저장 확인 중이에요»가 떴다 */
+/* ★[MEAL_GO_1102] 조건 줄 «식사 안내 멘트: 마이페이지 › 애프터 웨딩 …» — 마이페이지에 «다음은 애프터 웨딩» 을 먼저 알리고 늘 쓰는 나가기(저장 묻기 포함)를 탄다 · 머물면(_exitHold(0)) 마이페이지가 잊는다 */
+window.clGo=function(to){ if(!EMBED) return; try{ parent.postMessage({type:'momentedit:orderGoTo', to:to},window.location.origin); }catch(e){} try{ window._obExit(); }catch(e){} };
 function _exitHold(on){ if(!EMBED) return; try{ parent.postMessage({type:'momentedit:orderExitHold', on:!!on},window.location.origin); }catch(e){} }
 /* ★[BACK_DISMISS 2026-10-09 A~Z 점검 2라운드 A2-9] 판(ordAsk · ordTell)이 떠 있는 동안 폰 뒤로가기는 그 판만 닫는다(Esc 와 같은 값 · 머무르는 쪽) — 물러난 칸은 앞으로 한 칸 되돌린다.
    종전엔 판은 그대로 두고 밑의 걸음만 바뀌어(② → ① → 안내) 판의 답이 다른 걸음에 떨어졌다 */
@@ -4685,7 +4689,7 @@ function _inPr(){ return !!(STEPS[idx]&&STEPS[idx].k==='practice'); }
    식사 장소 · 예약 시각(CUSTMEAL · CUSTMEALF · CUSTRESV)이나 하객 안내(CUSTGUIDE)가 아직 없으면 그 줄이 빠진 짧은 판이 나온다. 무엇을 하면 어떤 줄이 이어지는지 회색 한 줄씩(녹음 아님 · 화면만 · ② 흐름 · ③ 연습 · 전체 대본) · «» 는 흐름 줄에서 굵은 글로 바뀌어 쓰지 않는다.
    ★«마이페이지에서 적기 ›» 이동은 아직 없다(빌더 → 마이페이지 칸으로 가는 길이 없다) — 글만 */
 function _clHints(){ var o=[], meal=(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)&&!!CUSTMEALF&&!!CUSTRESV, g=(typeof CUSTGUIDE!=='undefined'&&CUSTGUIDE===true);
-  if(!meal) o.push('+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기');
+  if(!meal) o.push('+ 식사 안내 멘트: 마이페이지 › 애프터 웨딩에서 식당 · 예약 시각을 정하면 붙어요');   /* ★[MEAL_HINT_1102 사장님 «이 행동에 따라 안내 멘트가 맞춰 바뀐다는 걸 고객이 인지할 수 있게» → 1안 · 대본 섹션 동의] «무엇 멘트: 하면 붙어요» — 문구 · 모양은 디테일 섹션 · 조건 · 녹음 판은 나레이션(검토 202 · 사진 줄은 그쪽이 뺀다) */
   if(!g) o.push('+ 사진 올리기 안내: 하객 안내 켜기');
   return o; }   /* ★[CL_HINT_199 검토 199 · 사장님 폰 캡처] 흐린 회색 긴 글 → 진사색 짧은 한 줄 «+ 무엇: 어디서 하기»(대본 확정 문구의 « — »는 전각 줄표 금지 규칙으로 «:») · 조건이 켜져 있으면 이 줄 대신 실제 붙는 문장(종전 그대로) */
 /* ★[CLOSING_FULLER 1] ② · ③ 가 마이페이지 값을 엔진에 넘긴다 — 종전엔 S 에 식사 · 하객 안내 값이 없어 식사 · 하객 안내를 다 갖춘 고객도 짧은 판(287 · 292)이 보였다(당일 콘솔 · «음악까지 미리듣기»는 RitualPreviewLink 로 넘긴다) */
@@ -7300,7 +7304,7 @@ function _mkFlow(k,btn){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.w
   });
   if(bq&&!bqDone) h+=bq.html;   /* [BGM_R1_1023] 자리가 맨 뒤(줄이 모자라면) */
   var _phRow=(k==='_close'&&_afterOn())?_qRow(_photoLine()):'';   /* [GROUP_PHOTO_199 1] 닫는 인사 끝 · 말 없는 줄(진한 점) */
-  if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints().forEach(function(t){ h+='<li class="q qh"><span class="qa">'+esc(t.replace(/^\+\s*/,''))+'</span></li>'; });   /* [CL_HINT_199] 타임라인은 점 자리 «+» 하나(글 앞 «+»는 뺀다 · 연습 카드 · 전체 대본은 글에 «+») 하객 맞이 · 닫는 인사 · 식후 같은 줄(세 곳 다 식사 · 하객 안내 값으로 문장이 붙는다 · 엔진 guestCue · closingOf · afterPhotoOf) */   /* ★[AFTER_FIX_196] 하객 맞이 칸처럼 «어디서 바꾸나» 한 줄 — 글은 마이페이지 값으로 갈린다 */   /* [CLOSING_FULLER 1] 회색 · 듣기 줄 아님 */
+  if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints().forEach(function(t){ var _tx=esc(t.replace(/^\+\s*/,'')); h+='<li class="q qh"><span class="qa">'+((EMBED&&/^\+ 식사 안내 멘트/.test(t))?'<button type="button" class="qh-go" data-fk="clgo:dining" onclick="clGo(\'dining\')">'+_tx+'</button>':_tx)+'</span></li>'; });   /* ★[MEAL_GO_1102] 마이페이지 안(식순 창)에서는 누르면 나가기 흐름을 거쳐 애프터 웨딩 칸으로 · 혼자 연 화면은 글만 */   /* [CL_HINT_199] 타임라인은 점 자리 «+» 하나(글 앞 «+»는 뺀다 · 연습 카드 · 전체 대본은 글에 «+») 하객 맞이 · 닫는 인사 · 식후 같은 줄(세 곳 다 식사 · 하객 안내 값으로 문장이 붙는다 · 엔진 guestCue · closingOf · afterPhotoOf) */   /* ★[AFTER_FIX_196] 하객 맞이 칸처럼 «어디서 바꾸나» 한 줄 — 글은 마이페이지 값으로 갈린다 */   /* [CLOSING_FULLER 1] 회색 · 듣기 줄 아님 */
   h+=_phRow;
   /* ★«1분 전 안내는 식전 영상이 끝난 뒤에 흘러요 · 다음 쪽에서» 줄 금지 — 2026-10-05 사장님 결정으로 1분 전이 영상 앞이 됐다 [ONEMIN_FIRST] */
   return h+'</ol></section>'; }
