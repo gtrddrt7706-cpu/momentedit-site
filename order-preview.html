@@ -4690,7 +4690,7 @@ function _clHints(){ var o=[], meal=(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)&
   /* ★«+ 사진 올리기 안내: 하객 안내 켜기» 줄 금지 — 2026-11-02 검토 202 사장님 «하객 안내 켜기가 뭐야?»로 삭제 [GUIDE_ALWAYS_202] · 사진 올리기 안내는 늘 나온다 */
   return o; }   /* ★[CL_HINT_199 검토 199 · 사장님 폰 캡처] 흐린 회색 긴 글 → 진사색 짧은 한 줄 «+ 무엇: 어디서 하기»(대본 확정 문구의 « — »는 전각 줄표 금지 규칙으로 «:») · 조건이 켜져 있으면 이 줄 대신 실제 붙는 문장(종전 그대로) */
 /* ★[CLOSING_FULLER 1] ② · ③ 가 마이페이지 값을 엔진에 넘긴다 — 종전엔 S 에 식사 · 하객 안내 값이 없어 식사 · 하객 안내를 다 갖춘 고객도 짧은 판(287 · 292)이 보였다(당일 콘솔 · «음악까지 미리듣기»는 RitualPreviewLink 로 넘긴다) */
-function _clS(){ if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S; var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE!==false; o.digital=!!CUSTDIG; return o; }   /* [GUEST_WELCOME_191] 하객 맞이 5분 · 1분 전 온라인 판도 같은 값으로 */
+function _clS(){ if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;   /* ★[GUIDE_ALWAYS_202] 하객 안내 기본 켜짐(CUSTGUIDE=true)만으로는 덮어쓰지 않는다 — 마이페이지 값이 하나도 없으면 S 그대로(덮으면 식사 값이 «없음»으로 바뀐다 · screen-sound 가 잡음) */ var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE!==false; o.digital=!!CUSTDIG; return o; }   /* [GUEST_WELCOME_191] 하객 맞이 5분 · 1분 전 온라인 판도 같은 값으로 */
 function _clHasLine(st){ return (st||[]).some(function(x){ return /마무리 멘트/.test(String(x.slab||x.lab||'')); }); }
 /* ★★[AFTER_FIX_196 검토 196 · 사장님 23:16 «촬영 후 안내가 식순에 보여야 함 · 이벤트를 하나하나 고르는 화면에서» · 보충 «자연스럽게 · 하객 맞이 칸과 같은 모양 · 이름은 촬영 후 안내 하나»]
    «촬영 후 안내»(_after) = 식순 맨 끝 늘 있는 칸 — ① 고르기 칸(닫는 인사 뒤 · ⊙ 표) · 미리 보기 창 · ② 하나씩 만들기 마지막 쪽 · 예식 흐름 «식후» 줄 · 한눈에 보기 · 완성.

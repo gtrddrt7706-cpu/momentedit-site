@@ -21766,4 +21766,7 @@ chk 'PV_AGAIN_UP_1102' order-preview.html 2
 chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button>' order-preview.html 1
 chk '.pv-act:empty{display:none}' order-preview.html 1
 nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
+# ── 2026-11-02 [GUIDE_ALWAYS_202 보충] 하객 안내 기본 켜짐만으로 _clS 가 S 를 덮지 않는다(덮으면 마이페이지 값이 없을 때 식사 값이 «없음»으로 바뀌어 콘솔 ⊆ 화면이 깨진다 · screen-sound 가 잡음)
+chk "if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;" order-preview.html 1
+nochk "!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S;" order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
