@@ -130,8 +130,9 @@ try {
         const T2 = { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 };
         /* g 편지(음악 없이) → 축배 · 편지만 듣기 — 끝에 오르는 곡 = M4 · M7 · M6 0 */
         await setOn(T2, null); await go(f, 'toast'); await go(f, 'letter');
+        const dk = await f.evaluate(() => BgmBed.dayAt('letter') || BgmBed._t.eff('M4'));   /* ★[SCREEN_SOUND_1102 2] 편지만 들으면 당일 시간표 그 자리 곡 */
         let r = await trace(f, ['letter'], 15000), lv = r.o.filter((x) => x.src && x.want > -60);
-        ok(`g 편지(음악 없이) → 축배(부모님께 인사 · 테이블 없음) 편지만 듣기 — 끝에 오르는 곡 = M4(${F.m4}) · M7 · M6 0`, lv.length > 3 && lv[0].f === F.m4 && !r.o.some((x) => x.src && (x.f === F.m7 || x.f === F.m6)), { first: lv[0], fs: [...new Set(r.o.filter((x) => x.src).map((x) => x.f))] });
+        ok(`g 편지(음악 없이) → 축배(부모님께 인사 · 테이블 없음) 편지만 듣기 — 끝에 오르는 곡 = 본식 목록 그 자리 곡(${dk}) · M7 · M6 0`, lv.length > 3 && lv[0].f === dk && !r.o.some((x) => x.src && (x.f === F.m7 || x.f === F.m6)), { first: lv[0], fs: [...new Set(r.o.filter((x) => x.src).map((x) => x.f))] });
         /* j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = M4 · M4S6 0(겹침 3초 뒤) */
         await setOn(T2, { S6: { m: 'bed' }, M4: { k: F.m4 } }); await go(f, 'toast'); await go(f, 'letter');   /* ★[CARRY_SAME_1101] 본식 곡(M4)을 골라 둔 날 — 편지 곡이 본식 목록에 있어도 고른 곡으로 돌아온다(고르지 않았으면 그대로 잇는다 · carry-same g) */
         r = await trace(f, ['letter', 'toast'], 26000); const iT = r.q.findIndex((x) => x.k === 'toast'), tT = (r.o.find((x) => x.k === 'toast') || {}).t;

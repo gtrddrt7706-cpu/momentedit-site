@@ -15108,6 +15108,9 @@ chk '모든 순간 보기' order-preview.html 1
 chk '아직 남은 일이 있어요' order-preview.html 1
 chk '처음부터 다시 만들기' order-preview.html 1
 chk '모두 비우기' order-preview.html 1
+chk '이 식순으로 연습하기' order-preview.html 1   # [PR_WAY_198] 지시문 «실제 화면 보기» 8
+chk '직접 해보기로 시작' order-preview.html 1
+chk '«흐름 보기로 시작»(자동으로 흘러요)' docs/handoff/insta-find.md 1
 # ★★[REVIEW5_1018 2026-10-18 인스타 섹션 검토 5판(29 ~ 55) · 사장님 «최소 4개» · «버튼 하나하나 전부»] 감사문 멘트 칩 · 편지(부모님께) 멘트 칩 새로 ·
 #   서약 · 덕담 · 축가 맺는 말 · 선언(친구 · 지인) 여는 말 · 부모님께 인사(걸어가는 말 · 구호 둘) · 화촉 다른 두 분 · 테이블 예시 5 · 참고 예시(선언 셋 · 축사 · 덕담) ·
 #   화면 글 셋(서약 «두 분 함께» 아래 · 편지 안내 «고르시면» · «남은 할 일» TODO_NAME_1018) · 새 클립 224 ~ 242(녹음 전엔 글로)
@@ -16147,7 +16150,7 @@ chk 'G3_NO_MINI' order-preview.html 1   # [G3_NO_MINI 2026-10-05] 하객 맞이 
 #   연습 방법 라디오 화살표 · 말하는 차례 «누구 차례 → 할 일 → 글 → 남은 시간 → 글의 출처» · 연습 중 예시 번호 칩 없음
 chk 'PR_ORDER' order-preview.html 6
 chk 'window.prModeKey=function(ev)' order-preview.html 1
-chk '<b>처음부터 시작하기</b>' order-preview.html 1
+chk '<b>흐름 보기로 시작</b>' order-preview.html 1   # [PR_WAY_198] 옛 «처음부터 시작하기» → A «흐름 보기로 시작»
 chk 'PR_ORDER' scripts/audit/play-wait-file.mjs 2
 chk 'PR_ORDER' scripts/audit/pr-from-mypage.mjs 1
 # ★[PT_PREP · PT_VOICE_FALLBACK 2026-10-05 사장님 «미리 전부 만들어서 딜레이 없이» · «AI 음성 소리가 안 나는데?»] AI 로 먼저 = 틀기 전에 말하는 차례 소리를 전부(셋씩) · 다 되기 전 재생은 기다렸다 바로 ·
@@ -16155,7 +16158,7 @@ chk 'PR_ORDER' scripts/audit/pr-from-mypage.mjs 1
 chk 'PT_PREP' order-preview.html 7
 chk 'function _ptPrep()' order-preview.html 1
 chk 'function _ptGate(f)' order-preview.html 1
-chk 'onclick="_ptGate(lsPlayAll)"' order-preview.html 1
+chk "window.prStart=function(w){ PRW=(w==='try'?'try':'flow'); LP.listOpen=false; _ptGate(lsPlayAll); };" order-preview.html 1   # [PR_WAY_198] 두 시작 단추 모두 _ptGate 를 지난다
 chk 'PT_VOICE_FALLBACK' automation/platform/80_production.gs 1
 chk 'PT_VOICE_FALLBACK' scripts/audit/vc-par.mjs 1
 chk 'PT_PREP' scripts/audit/play-wait-file.mjs 2
@@ -19327,11 +19330,11 @@ chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-s
 chk "one: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "one: '이 순간부터 피아노가 아주 작게 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023] «목소리 뒤로» → «이 순간부터»
 chk "one: '인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1        # [BGM_R2_1023]
-chk "one: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요'," assets/bgm-slots.js 1
+chk "one: '테이블 인사 동안 재즈가 흘러요'," assets/bgm-slots.js 1
 chk "one: '«위하여!»에 맞춰 신나는 곡이 시작돼요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "cont: '{at}부터 피아노가 조용히 이어져요'" assets/bgm-slots.js 1        # [BGM_R2_1023]
 chk "duckRead: -20," assets/ritual-cue.js 1
-chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : PARAM.duckOff, self: true," assets/ritual-cue.js 1
+chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : fk === 'gift' ? -12 : PARAM.duckOff, self: true," assets/ritual-cue.js 1
 chk "var bed = bgmBed(S, 'S6'), dk = bed ? PARAM.duckRead : PARAM.duckOff;" assets/ritual-cue.js 1
 chk "LIVE\['두 분이 직접 편지 낭독 (음악이 아주 작게)'\] = {" assets/ritual-story.js 1
 chk "if (k === 'bgm') { var bg = bgmOf(S.bgm); if (bg) o.bgm = bg; continue; }" assets/ritual-preview-link.js 1    # 옛 곡 이름(own.n)이 미리 듣기 주소로 안 나간다
@@ -21244,13 +21247,30 @@ chk "var _afl=_afterLine(); if(_afl) lines.push('나레이션(촬영 후 안내 
 chk "pc.tiles === '4,4,4,5'" scripts/audit/pick-v2.mjs 1
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
-chk 'function prKeep(){' assets/bgm-bed.js 1
-chk 'if(pz&&prKeep()) return;' assets/bgm-bed.js 1
+nochk 'function prKeep(){' assets/bgm-bed.js   # [PR_WAY_198] 연습 «잠시 멈춤» = 음악도 멈춤(② 와 같다) — −20 으로 계속 걷음
 chk 'LP.hushed=true;' order-preview.html 1
 chk 'data-fk="prmu"' order-preview.html 1
 nochk "'<span>연습 약 '+_mins+'분 · 음악 없이 말과 나레이션만</span>'" order-preview.html
-if command -v node >/dev/null 2>&1; then node scripts/audit/pr-bgm.mjs >/dev/null 2>&1; _prb=$?; if [ "$_prb" = 1 ]; then echo 'FAIL pr-bgm: 연습 음악(엔진 · 멈춤 −20 · 다른 소리 잦아듦 · 끄기 · 시작 단추 글)이 어긋났습니다 — node scripts/audit/pr-bgm.mjs'; fail=1; elif [ "$_prb" = 2 ]; then echo 'skip pr-bgm (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok pr-bgm'; fi; fi   # ★[PR_BGM_197]
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-bgm.mjs >/dev/null 2>&1; _prb=$?; if [ "$_prb" = 1 ]; then echo 'FAIL pr-bgm: 연습 음악(엔진 · 멈춤 = 음악도 멈춤 · 다른 소리 잦아듦 · 끄기 · 시작 단추 글)이 어긋났습니다 — node scripts/audit/pr-bgm.mjs'; fail=1; elif [ "$_prb" = 2 ]; then echo 'skip pr-bgm (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok pr-bgm'; fi; fi   # ★[PR_BGM_197]
 nochk "'narr-closing': \[CL_THX, CL_DAY, CL_CREW\]" assets/ritual-cue.js
+# ── 2026-11-01 [PR_WAY_198 검토 198-1 · 사장님 «추천대로»] ③ 연습하기 두 길 — A 흐름 보기(② 와 같은 엔진 값 · 따로 숫자 없음) · B 직접 해보기(신랑 · 신부 · 두 분 줄만 기다림)
+chk 'PR_WAY_198' order-preview.html 20
+chk "window.prStart=function(w){ PRW=(w==='try'?'try':'flow');" order-preview.html 1
+chk "data-fk=\"prtry\" onclick=\"prStart(.'try.')\"" order-preview.html 1
+chk 'if(st.talk2) return st.both||/^(신랑|신부|두 분)$/.test(who);' order-preview.html 1
+chk 'var _wst=LP.q\[LP.i\]; if(_prWait(_wst)){ LP.wait=_wst;' order-preview.html 1
+chk "'다 했어요 · 다음 순서':'다 했어요 · 다음 줄'" order-preview.html 1
+chk 'class="lf-ctl pr3"' order-preview.html 1
+chk 'function _lLock(on){' order-preview.html 1
+chk "if(x.cheer||x.of){ var _lt=null;" order-preview.html 1   # [PR_WAY_198 ⑥] 축배 GO 는 main [MEANING_R1_1102 13] 과 같은 고침 하나로
+nochk "after:true,_base:'M8L'," order-preview.html   # [PR_WAY_198 +] 촬영 후 안내 M8L 은 bgm-bed fileFor 한 길([MEANING_R1_1102 16]) — 줄에 _base 를 달면 그 길을 비켜 간다
+chk 'data-fk="sumpr"' order-preview.html 1
+chk 'function _prMuOk(){' order-preview.html 1
+chk "w\[0\]==='practice'&&courseStarted&&RitualOpen.picked(S).length" order-preview.html 1
+chk 'data-fk="lftry"' order-preview.html 1
+chk 'PR_WAY_198' assets/bgm-bed.js 1
+nochk 'if(pz&&prKeep()) return;' assets/bgm-bed.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
 chk 'OPEN_NO_SHOUT' assets/ritual-open.js 1
@@ -21532,7 +21552,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs screen-bgm'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -21581,7 +21601,7 @@ chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3
 chk "if (st.music === 'next') {" console.html 1
 chk 'function toastBed(){' assets/bgm-bed.js 1
 chk 'LPB.tailTo=Date.now()+w+um; return w+um+600; }' assets/bgm-bed.js 1
-chk "ldk:(k==='ring'&&c.live&&c.live.duck!=null)?c.live.duck:undefined" order-preview.html 1
+chk "ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:undefined" order-preview.html 1
 chk "ldk:(c.live&&c.live.duck!=null)?c.live.duck:-20}); } }" order-preview.html 1
 chk 'BgmBed.lpTail(_pv,_nx)' order-preview.html 1
 nochk "var f6=eff('M6'); return has(f6)?f6:''; }" assets/bgm-bed.js 0
@@ -21669,4 +21689,8 @@ chk "song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래
 chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 닫는 인사 둘째 줄
 chk 'dayName:function(k){ try{ return window.BgmBed' assets/bgm-form.js 1   # [SCREEN_SOUND_1102] 화면 곡 이름 = 엔진
 chk 'if(pv&&nx&&pv.k!==nx.k&&BED.cur.want!=null&&BED.cur.want<=-60) return;' assets/bgm-bed.js 1   # [SILENT_STAY_1102] 정적이던 앞 곡은 순간이 바뀌어도 올리지 않는다
+chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 줄도 곡 넘김을 놓치지 않는다(겹침 중 «말 끊김» 기억)
+chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
+chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
+chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

@@ -32,9 +32,10 @@ const G = (t) => String(t).replace(/[«»]/g, '');   /* 화면은 «» 를 글�
 /* 명세 표 — 순간마다 흐름 줄 하나 · 자리 [BGM_R1_1023] */
 const CONT = '감사 인사부터 피아노가 조용히 이어져요';   /* [BGM_R2_1023] */
 const ONE = { guest: '하객이 앉는 동안 잔잔한 연주가 흘러요', candle: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요', matjeol: '입장 곡이 이어져요',
-  welcome: '이 순간부터 피아노가 아주 작게 흘러요', vow: CONT, ring: CONT, declare: CONT, bless: CONT,
-  tribute: '인사드리는 동안 밝고 따뜻한 곡이 흘러요', _close: '박수와 함께 힘 있는 곡이 시작돼요', toast: '«위하여!»에 맞춰 신나는 곡이 시작돼요', table: '테이블 인사와 사진 동안 재즈가 흐르고, 마지막 곡으로 하루를 마무리해요' };
-const AT = { guest: 'top', candle: 'top', matjeol: 'top', welcome: 'top', vow: 'top', ring: 'top', declare: 'top', bless: 'top', tribute: 'top', _close: 'bow', toast: 'cheers', table: 'top' };
+  welcome: '이 순간부터 피아노가 아주 작게 흘러요', vow: CONT, ring: CONT, declare: '선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요' /* ★[MEANING_R1_1102 5] */, bless: CONT,
+  song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요' /* ★[SCREEN_SOUND_1102] 소리가 나면 화면에 쓴다 */,
+  tribute: '인사드리는 동안 밝고 따뜻한 곡이 흘러요', _close: '박수와 함께 힘 있는 곡이 시작돼요', toast: '«위하여!»에 맞춰 신나는 곡이 시작돼요', table: '테이블 인사 동안 재즈가 흘러요' /* ★[MEANING_R1_1102 11] */ };
+const AT = { guest: 'top', candle: 'top', matjeol: 'top', welcome: 'top', vow: 'top', ring: 'top', declare: 'top', bless: 'top', song: 'top', tribute: 'top', _close: 'bow', toast: 'cheers', table: 'top' };
 /* [BGM_R2_1023] 기본 식순(전부 담음)에서 첫 줄이 넘어가는 이음말인 쪽 — 화촉(263 화촉 순서 알림) · 감사 인사(맞절에서 «하객 쪽으로») */
 const HEADB = { candle: 1, welcome: 1 };   /* ★[BGM_AUDIT_CANDLE_1023] 이 순간들은 «첫 줄이 이음말일 때가 있는» 쪽 — 기대는 고정값이 아니라 그 쪽 첫 줄(음악 줄 빼고)을 보고 정한다(R3 규칙 그대로) · 화촉은 고른 여는 말이 «촛불 · 화촉»을 먼저 말하면 B14 이음말이 없다(B14_SKIP_CANDLE_1023) */
 const NAME = { welcome: '감사 인사', vow: '혼인 서약', ring: '반지 교환', declare: '성혼 선언', bless: '덕담' };
@@ -78,9 +79,9 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
   ok('0 [BGM_R1_1023 · BGM_R2_1023] 자리 — 영상 줄 바로 앞 · 목례 줄 뒤 · «위하여!» 차례 뒤 · 맨 앞 = 첫 줄이 넘어가는 이음말이면 그 바로 뒤(화촉 · 감사 인사 · 부모님께 인사 · 못 찾은 자리 모두) · 아니면 맨 앞 · 가운데 이음말은 상관없다',
     FA.video === 1 && FA.video0 === 0 && FA.bridge === 1 && FA.bridge0 === 0 && FA.bow === 2 && FA.cheers === 2 && FA.top === 0
     && FA.topB8 === 1 && FA.topB12 === 1 && FA.topMid === 0 && FA.videoB === 1 && FA.bowB === 1 && FA.cheersB === 1 && B.SLOTS.every((s) => !s.at || s.at !== 'bridge'), FA);
-  ok('0 고르기는 축사 · 편지만 — «음악 없이»(기본 · 먼저) · «음악과 함께» · 나머지 칸은 고르기 없음 · 입장 · 축가는 흐름 줄 없음(입장 음악 줄 그대로)',
+  ok('0 고르기는 축사 · 편지만 — «음악 없이»(기본 · 먼저) · «음악과 함께» · 나머지 칸은 고르기 없음 · 입장은 흐름 줄 없음(입장 음악 줄 그대로) · 축가는 흐름 줄 [SCREEN_SOUND_1102]',
     B.SLOTS.filter((s) => s.picks.length).map((s) => s.id + ':' + s.picks.join('/')).join() === 'S5:none/bed,S6:none/bed' && B.label(B.slot('S5'), 'none') === '음악 없이' && B.label(B.slot('S5'), 'bed') === '음악과 함께'
-    && V('free').kind === 'pick' && V('letter').kind === 'pick' && V('entry').kind === 'entry' && V('song') === null);
+    && V('free').kind === 'pick' && V('letter').kind === 'pick' && V('entry').kind === 'entry' && V('song') && V('song').kind === 'flow');
   ok('0 [BGM_R4_1023] 축사 · 편지 아래 한 줄 여섯(안 누름 «고르지 않으시면 …» · 음악 없이 · 음악과 함께 «… 동안 잔잔한 연주곡이 아주 작게 흘러요») · «아래 · 깔려요 · 오르골» 없음', ['S5', 'S6'].every((id) => ['none', 'bed', 'unset'].every((m) => B.lineOf(B.slot(id), m) === NOTE[id][m])) && !B.SLOTS.some((x) => /아래 밝은|깔려요|오르골|걸음에 맞춰|목소리 뒤로|«인사!»와|울려 퍼져요/.test(JSON.stringify([x.one, x.lines]))));
   ok('0 옛 «영상» 축사 = 흐름 줄 «영상에 입힌 소리로 흘러요»(영상 줄 앞) · 옛 선물 · 기타 = 줄 없음 · 감사 인사를 빼면 서약이 첫 줄을 받고 반지는 «혼인 서약부터…»',
     V('free', { freeKind: 'video' }).kind === 'flow' && V('free', { freeKind: 'video' }).t === '영상에 입힌 소리로 흘러요' && V('free', { freeKind: 'video' }).at === 'video' && V('free', { freeKind: 'gift' }) === null && V('free', { freeKind: 'etc' }) === null
@@ -187,7 +188,7 @@ try {
     for (const k of ['entry', 'prevideo', ...Object.keys(ONE), 'song', 'free', 'letter']) { await go(pg, k); const L = await look(pg); seen[k] = L;
       if (['candle', 'welcome', 'vow', 'free', 'letter', '_close', 'toast', 'tribute'].includes(k)) await shot(pg, W, 'bgm-' + k.replace('_', ''));
       let good = !L.hz && !L.old && L.fq <= 1 && !L.gls.includes('음악');
-      if (ONE[k]) good = good && !L.row && L.fq === 1 && L.ftxt === G(ONE[k]) && L.fbtn === 0 && /\bq\b/.test(L.fcls) && posOk(k, L) && lookOk(L) && (W > 1000 || L.flines === 1 || !['welcome', 'vow', 'ring', 'declare', 'bless', 'tribute'].includes(k)) && (L.pillN == null || L.pillN === L.nN);   /* [BGM_R2_1023] 문구 셋은 폰에서 한 줄 */
+      if (ONE[k]) good = good && !L.row && L.fq === 1 && L.ftxt === G(ONE[k]) && L.fbtn === 0 && /\bq\b/.test(L.fcls) && posOk(k, L) && lookOk(L) && (W > 1000 || L.flines === 1 || !['welcome', 'vow', 'ring', 'bless', 'tribute'].includes(k)) /* ★[MEANING_R1_1102 5] 선언 줄은 명세 글이 길어 폰 두 줄 */ && (L.pillN == null || L.pillN === L.nN);   /* [BGM_R2_1023] 문구 셋은 폰에서 한 줄 */
       else if (k === 'entry') good = good && !L.row && L.mu && L.fq === 0 && L.gls.includes('입장 음악');   /* 입장 음악 줄은 그대로 */
       else if (k === 'song') good = good && !L.row && L.fq === 0;
       else if (k === 'prevideo') good = good && !L.row && L.fq === 0;   /* [BGM_R3_1023] 흐름 음악 줄 없음 — 아래 9 에서 링크 칸 한 줄을 잰다 */
