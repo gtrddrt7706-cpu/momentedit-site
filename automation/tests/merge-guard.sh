@@ -21259,7 +21259,7 @@ chk "window.prStart=function(w){ PRW=(w==='try'?'try':'flow');" order-preview.ht
 chk "data-fk=\"prtry\" onclick=\"prStart(.'try.')\"" order-preview.html 1
 chk 'if(st.talk2) return st.both||/^(신랑|신부|두 분)$/.test(who);' order-preview.html 1
 chk 'var _wst=LP.q\[LP.i\]; if(_prWait(_wst)){ LP.wait=_wst;' order-preview.html 1
-chk "'다 했어요 · 다음 순서':'다 했어요 · 다음 줄'" order-preview.html 1
+chk "'다 했어요 · 다음 순서'):'다 했어요 · 다음 줄'" order-preview.html 1
 chk 'class="lf-ctl pr3"' order-preview.html 1
 chk 'function _lLock(on){' order-preview.html 1
 chk "if(x.cheer||x.of){ var _lt=null;" order-preview.html 1   # [PR_WAY_198 ⑥] 축배 GO 는 main [MEANING_R1_1102 13] 과 같은 고침 하나로
@@ -21270,6 +21270,14 @@ chk "w\[0\]==='practice'&&courseStarted&&RitualOpen.picked(S).length" order-prev
 chk 'data-fk="lftry"' order-preview.html 1
 chk 'PR_WAY_198' assets/bgm-bed.js 1
 nochk 'if(pz&&prKeep()) return;' assets/bgm-bed.js
+# ── 2026-11-02 [PR_WAY_198 검토 198-2] ⑨ 이 순간만 연습(끝나면 한 번 더 / 다음 순간 · 한 번 더 = lpCut 으로 같은 시작점) · ⑩ 입장 «입장!» 앞 5초 준비(따로 시계) · 입장 걷기는 B 에서 기다림 · ⑪ 이어서 연습(문장 자리 · 자동 재생 없음 · 순서 바뀌면 바뀐 순간부터)
+chk 'function _prOnlyGo(k)' order-preview.html 1
+chk 'function _prPrep(st)' order-preview.html 1
+chk "if(st.act&&!st.hint&&st.k==='entry') return true;" order-preview.html 1
+chk 'function _prAtGet()' order-preview.html 1
+chk 'data-fk="prres"' order-preview.html 1
+chk 'lpCut:function()' assets/bgm-bed.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way2.mjs >/dev/null 2>&1; _prw2=$?; if [ "$_prw2" = 1 ]; then echo 'FAIL pr-way2: 연습 2단계(이 순간만 · 입장 준비 · 이어서)가 어긋났습니다 — node scripts/audit/pr-way2.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로

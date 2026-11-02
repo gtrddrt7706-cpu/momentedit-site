@@ -95,7 +95,7 @@ try {
   ok('⑥ 축배 «위하여» GO 는 말하는 줄 하나에만', q.cheer.length === 1 && q.cheer[0].talk2, q.cheer);
   ok('+ 연습에도 촬영 후 안내 줄이 있다(곡 M8L 은 bgm-bed 한 길 · meaning-r1 16)', q.after.length >= 1, q.after);
   const waits = q.w.filter((x) => x.w), par = q.w.filter((x) => /^(양가 |신랑 |신부 )?(어머님|아버님|부모님)/.test(x.txt.replace(/^[①-⑨]\s*/, '')) && x.act);
-  ok('B 기다리는 줄 = 신랑 · 신부 · 두 분 줄만(부모님 동작 · 조건 안내는 자동)', waits.length >= 3 && waits.every((x) => /^(신랑|신부|두 분)$/.test(x.who) || (x.act && !/^(신랑|신부) ?(아버님|어머님)/.test(x.txt) && /^(두 분|신랑|신부)/.test(x.txt.replace(/^[①-⑨]\s*/, '')))) && par.every((x) => !x.w), { waits: waits.slice(0, 8), par: par.slice(0, 4) });
+  ok('B 기다리는 줄 = 신랑 · 신부 · 두 분 줄만(입장 걷기 포함 · 198-2 ⑩ · 부모님 동작 · 조건 안내는 자동)', waits.length >= 3 && waits.every((x) => /^(신랑|신부|두 분)$/.test(x.who) || (x.act && x.k === 'entry') || (x.act && !/^(신랑|신부) ?(아버님|어머님)/.test(x.txt) && /^(두 분|신랑|신부)/.test(x.txt.replace(/^[①-⑨]\s*/, '')))) && par.every((x) => !x.w), { waits: waits.slice(0, 8), par: par.slice(0, 4) });
   /* B — 첫 두 분 줄로 가서 기다리는지 */
   const b = await f.evaluate(async (j) => { const B = BgmBed._t, w = (ms) => new Promise((x) => setTimeout(x, ms)); LP.i = j; _lShow(); let t = 0; while (t < 8000 && LP.wait !== LP.q[j]) { await w(200); t += 200; }
     const want0 = B.BED.cur && B.BED.cur.want, src0 = !!(B.BED.cur && B.BED.cur.src); await w(Math.max(2500, (LP.q[j].ms || 0) + 600)); const still = LP.i === j && LP.wait === LP.q[j], paused = LP.paused, want1 = B.BED.cur && B.BED.cur.want;
