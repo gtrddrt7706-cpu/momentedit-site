@@ -517,7 +517,7 @@
   var POST_FLOW = [
     { k: '_photo', n: '단체 사진', sub: '전체 → 가족 · 작가님 진행' },
     { k: '_after', n: '촬영 후 안내', sub: '단체 사진을 마치면 · 작가님 신호로 재생' },
-    { k: '_extra', n: '추가 촬영', sub: '원하시는 분들과 · 마지막 곡이 끝날 때까지 이어져요', dur: '원하는 만큼(마지막 곡이 끝날 때까지)' }
+    { k: '_extra', n: '추가 촬영', sub: '원하시는 분들과 · 남은 사진 시간 동안', dur: '남은 사진 시간 동안' }   // ★[POST_FLOW_200 회신 2] «원하는 만큼» 대신 — 40분 셈 안의 남는 시간이라는 것을 해치지 않게
   ];
   function postOf(k) { for (var i = 0; i < POST_FLOW.length; i++) if (POST_FLOW[i].k === k) return POST_FLOW[i]; return null; }
   function postDur(k, S) { var x = postOf(k); if (!x) return ''; if (k === '_photo') { try { return span(S).photo; } catch (e) { return ''; } } return x.dur || ''; }

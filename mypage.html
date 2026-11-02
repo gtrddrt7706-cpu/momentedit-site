@@ -10667,7 +10667,7 @@ function renderPhoto(box){
      사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
      → 고르는 칸 없이 **대략 적는 칸 하나만.** 시간은 따로 떼지 않는다(진행표의 «시간이 남으면 … 자유 사진» 자리) — 그래서 «몇 분»을 약속하지 않는다.
      ★서버가 이 칸을 알 때만(friendOk) 그린다 — 옛 서버는 화이트리스트에 없는 칸을 버려 «저장됐어요»인데 사라진다(photoWish 가 겪은 그 사고). */
-  h+=_stepHd('추가 촬영', '원하시는 분들과 · 마지막 곡이 끝날 때까지 이어져요');   // [PHOTO_DAY_STEPS] 5번(온라인 인사가 없는 날은 4번) · 시간은 약속하지 않는다(narr-photo-out · 남는 시간)
+  h+=_stepHd('추가 촬영', '원하시는 분들과 · 남은 사진 시간 동안');   // [PHOTO_DAY_STEPS] 5번(온라인 인사가 없는 날은 4번) · 시간은 약속하지 않는다(narr-photo-out · 남는 시간)
   if(PHOTOFLOW.friendOk){   // 친구들과 자유롭게 — 칸 이름은 확인서 · 관리자 · 콘솔과 같은 photoFriend
     h+='<div class="ph-sec ph-sec-in">사진작가에게 부탁할 것 <span class="opt-tag">· 선택</span></div>';
     h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">남아 주신 친구 · 지인분들과 어떻게 찍고 싶은지 적어 주세요.</span> <span class="ln-bal">아래 예시를 누르면 칸에 담겨요.</span></div>';   /* ★[PHOTO_FRIEND_HINT 2026-09-27 고객 점검] 옛 문구는 «폰으로도 찍어 달라» 한 가지만 말해 아래 예시 넷(셀카 · 부케 …)과 어긋났고, 누르면 칸에 담긴다는 말이 화면에 없었다(aria-label 에만) */ h+='';

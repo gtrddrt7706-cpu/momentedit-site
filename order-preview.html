@@ -4697,7 +4697,7 @@ function _post(k){ return RitualOpen.postOf(k)||{n:'',sub:''}; }
 function _postLine(k){ return RitualOpen.postLine(k); }
 function _postDur(k){ try{ return RitualOpen.postDur(k,S)||''; }catch(e){ return ''; } }
 var PHOTO_FIX={n:_post('_photo').n,tile:_post('_photo').sub,img:'/assets/video/moments/close.webp'};
-var EXTRA_FIX={n:_post('_extra').n,tile:'원하시는 분들과 · 마지막 곡까지',img:'/assets/video/moments/close-end.webp'};
+var EXTRA_FIX={n:_post('_extra').n,tile:'원하시는 분들과 · 남은 시간 동안',img:'/assets/video/moments/close-end.webp'};
 function _photoLine(){ var p=_postDur('_photo'); return _postLine('_photo')+(p?' · '+p:''); }
 var POST_KS=RitualOpen.POST_FLOW.map(function(x){ return x.k; });   /* ['_photo','_after','_extra'] */
 /* [POST_FLOW_200 보충 BGM] 마지막 곡 이름 = 스튜디오가 정한 M8L 목록 첫 곡(BgmPicks · 고객이 고르지 않는다) */
@@ -7551,7 +7551,7 @@ function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
   /* ★[FLOW_MIN_UNIQ_1018 인스타 섹션 검토 12] 시작 분은 가까운 분으로 반올림하되, 앞 순간과 같거나 이르면 한 분 뒤로 — 반올림만 하면 1분이 안 되는 순간(선언 약 50초 · 맞절 · 감사 인사) 뒤에서
      «8분 · 성혼 선언 · 8분 · 축사»처럼 두 순서가 같은 분에 서 겹쳐 보였다(정석 · 가족 · 간결 · 차이는 1분 안) · data-at(초)은 그대로 */
   var atMin={}, _pm=-1; body.concat(aft).forEach(function(k){ if(at[k]==null) return; var m=Math.round(at[k]/60); if(m<=_pm) m=_pm+1; atMin[k]=m; _pm=m; });
-  function row(k){ var _af=POST_KS.indexOf(k)>-1, on=R.onOf(S,k)||k==='_close'||_af, fixed=!!R.ALWAYS[k]||k==='_close'||_af, t=_af?{lo:0,hi:0}:_flowSec(k), nm=(k==='_photo'||k==='_extra')?_postLine(k).replace(' · 마지막 곡이 끝날 때까지 이어져요',''):_mkName(k), mid=(t.lo+t.hi)/2;   /* [GROUP_PHOTO_199 2] */   /* [AFTER_FIX_196] */
+  function row(k){ var _af=POST_KS.indexOf(k)>-1, on=R.onOf(S,k)||k==='_close'||_af, fixed=!!R.ALWAYS[k]||k==='_close'||_af, t=_af?{lo:0,hi:0}:_flowSec(k), nm=(k==='_photo'||k==='_extra')?_postLine(k):_mkName(k), mid=(t.lo+t.hi)/2;   /* [GROUP_PHOTO_199 2] */   /* [AFTER_FIX_196] */
     var tm=!on?'':(R.PRE[k]||k==='guest')?'예식 전':k==='_photo'?'사진':k==='_extra'?'이어서':_af?'촬영 후':atMin[k]+'분';   /* 뺀 줄은 제 시작 시각이 없다 · [FLOW_MIN_UNIQ_1018] 같은 분이 둘이면 뒤가 한 분 뒤로 */
     return '<li class="cf-r'+(on?'':' off')+'" data-k="'+k+'"'+(k!=='guest'&&!_af?' data-mid="'+mid+'"':'')+(on&&!R.PRE[k]&&!_af?' data-lo="'+t.lo+'" data-hi="'+t.hi+'" data-at="'+(at[k]||0)+'"':'')+'>'
       +'<span class="sr-only">'+esc((tm?tm+' · ':'')+nm+' · '+(on?'담김':'빠짐'))+'</span>'
@@ -10342,7 +10342,7 @@ function _doneOpen(){
       +'<button class="sr-c" aria-label="'+esc(_lName(k))+(mark?' '+(empty?'글 ':'')+(_exn&&_bits.length===1?'고치기':'채우기'):' 바꾸기')+'" data-fk="sum:'+k+'" onclick="editStep(\''+k+'\')">'+(mark?(_exn&&_bits.length===1?'고치기':'채우기'):'변경')+'</button></div>';
   });
   if(_afterOn()) POST_KS.forEach(function(k){ var x=_post(k), d=_postDur(k);   /* ★[POST_FLOW_200 C · D] 식후 세 줄 = POST_FLOW 차례 · 단체 사진 약 n분 = 전체 · 가족만 · 추가 촬영 = 원하는 만큼(40분 밖) */
-    h+='<div class="sumrow"><div class="sr-n sr-pre">식후</div><div class="sr-l">'+esc(x.n)+'</div><div class="sr-v">'+esc(k==='_after'?AFTER_SUM:(k==='_photo'?x.sub+(d?' · 추가 촬영까지 '+d:''):'원하시는 분들과 · '+d))+'</div>'
+    h+='<div class="sumrow"><div class="sr-n sr-pre">식후</div><div class="sr-l">'+esc(x.n)+'</div><div class="sr-v">'+esc(k==='_after'?AFTER_SUM:(k==='_photo'?x.sub+(d?' · 추가 촬영까지 '+d:''):x.sub))+'</div>'
       +(k==='_after'?'<button class="sr-c" aria-label="'+esc(x.n)+' 보기" data-fk="sum:_after" onclick="editStep(\'_after\')">보기</button>':'')+'</div>'; });   /* ★[AFTER_FIX_196] 순서 요약 맨 끝 · 글은 마이페이지 값으로 갈려 여기서 고칠 것이 없다(«보기») */
   h+='</div>';
   return h;

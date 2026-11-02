@@ -173,7 +173,7 @@ function state(msg){ $('root').innerHTML='<div class="state" role="status">'+nbC
       var who=[pc.groom?('신랑 쪽 · '+esc(pc.groom)):'', pc.bride?('신부 쪽 · '+esc(pc.bride)):''].filter(Boolean).join(' / ');
       st+='<li><b>가족 구도</b><span class="sub">두 분이 고른 순서 · 구도마다 불러 모아 주세요</span>'+(nm.length?('<ol>'+nm.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join('')+'</ol>'):'<span class="sub">고른 구도 없음</span>')+(who?('<span class="sub">불러 모아 주실 분 · '+who+' · 이 분께 먼저 말씀드리면 빨라요</span>'):'')+'</li>';
       st+='<li><b>촬영 후 안내</b><span class="sub">가족 구도를 마치면 진행 화면에서 틀어 주세요 · 마지막 곡이 시작돼요</span></li>';   /* ★[POST_FLOW_200] 단체 사진 → 촬영 후 안내 → 추가 촬영 */
-      st+='<li><b>추가 촬영</b><span class="sub">원하시는 분들과 · 마지막 곡이 끝날 때까지 · 두 분 숨 고르기 포함</span>'+(String(ph.friend||'').trim()?('<p class="note">'+esc(ph.friend)+'</p>'):'')+'</li>';
+      st+='<li><b>추가 촬영</b><span class="sub">원하시는 분들과 · 남은 사진 시간 동안 · 두 분 숨 고르기 포함</span>'+(String(ph.friend||'').trim()?('<p class="note">'+esc(ph.friend)+'</p>'):'')+'</li>';
       var mn=(ph.win&&ph.win.length===2)?('단체 사진 시간 약 '+(ph.win[0]===ph.win[1]?ph.win[0]:(ph.win[0]+'~'+ph.win[1]))+'분 · '):'';
       h+='<div class="box"><h2>가족 · 친구 스냅 <small style="font-size:12px;font-weight:400;color:var(--light)">본식 뒤</small></h2><p class="mood" style="margin:0 0 10px">'+mn+'지금 계획 약 '+(+ph.mins||0)+'분</p><ol class="steps">'+st+'</ol></div>';
     }
