@@ -21895,7 +21895,7 @@ chk "var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};" order
 chk "if(_afterOn()) h+=_fxFlow('pre');" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('post');" order-preview.html 1
 chk '늘 포함돼요</span><span class="fx-more">진행 보기</span>' order-preview.html 1
-chk "{t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',when:'전체 단체 사진을 마치면'}" order-preview.html 1
+chk "{t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',after:'전체 단체 사진을 마치면'}" order-preview.html 1
 chk "sub: '한 장 · 현장 진행' }" assets/ritual-open.js 1
 nochk "작가님이 진행해요" order-preview.html
 nochk "촬영은 작가님이 안내해요" order-preview.html

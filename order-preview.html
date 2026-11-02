@@ -935,7 +935,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-fp>.op-note{margin-top:12px}   /* [NOTE_UNDER] */
 .pk-acts{display:grid;gap:20px}
 /* ★★[FIX_FLOW_204 검토 204 보충 A] 늘 있는 진행 줄 — 고르는 칸과 다른 모양(얇은 줄 · 담기 · 빼기 · ✓ 없음) · 펼치면 세로 차례 · 그림 없음 */
-.fx-flow{margin:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fx-flow{margin:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .fx-flow>summary{list-style:none;display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-height:48px;padding:8px 2px;cursor:pointer;font-size:14px;color:var(--accent)}
 .fx-flow>summary::-webkit-details-marker{display:none}
 .fx-flow .fx-k{font-size:12.5px;color:var(--sub);white-space:nowrap}
@@ -950,14 +950,14 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .fx-l .fx-b{min-width:0;word-break:keep-all}
 .fx-l .fx-b b{font-weight:600;color:var(--accent)}
 .fx-l .fx-d{display:block;font-size:12.5px;color:var(--sub)}
-.fx-l .fx-who{font-size:11px;color:var(--sub);white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.fx-l .fx-who{font-size:11px;color:var(--sub);white-space:nowrap;border:1px solid var(--border);border-radius:999px;padding:1px 8px}
 .fx-l .fx-who.v{color:var(--accent);border-color:var(--gold)}
 .cf-r.cf-fx{align-items:start;padding:8px 0}
 .cf-r.cf-fx .cf-t{padding-top:1px}
 .cf-r.cf-fx>.cf-fixmk{align-self:center}
 .fx-l.nt li{grid-template-columns:minmax(0,1fr) auto}
 .cf-r .cf-sub{display:block;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all;margin-top:2px}
-.cf-r .cf-who{display:inline-block;margin-left:6px;font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;vertical-align:1px}
+.cf-r .cf-who{display:inline-block;margin-left:6px;font-size:11px;color:var(--sub);border:1px solid var(--border);border-radius:999px;padding:0 7px;vertical-align:1px}
 .cf-r .cf-who.v{color:var(--accent);border-color:var(--gold)}
 .cf-r .cf-pl{display:inline-flex;align-items:center;gap:4px;margin-top:4px;min-height:32px;padding:0 10px;border:1px solid var(--gold);border-radius:999px;background:none;color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer}
 .cf-when{margin:4px 0 0 82px;font-size:12.5px;color:var(--sub)}
@@ -2441,7 +2441,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1102pu"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1102pu"></script><script src="/assets/bgm-picks.js?v=1102pu"></script><script src="/assets/narration-pad.js?v=1102pu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102pu"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1102pv"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1102pv"></script><script src="/assets/bgm-picks.js?v=1102pv"></script><script src="/assets/narration-pad.js?v=1102pv"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102pv"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3282,7 +3282,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1102pu';   // [ASSET_V] 위 주석
+  var ASSET_V='1102pv';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4755,7 +4755,7 @@ function _fixSteps(kind){ var S2=_clS(), mF=!!(S2.meal&&S2.mealFull), cs=[];
       {t:'1분 전',n:'하객 맞이 안내',d:'착석 · 휴대폰 무음',w:'v',tx:(gq[3]||{}).text||''},
       {t:'시작',n:'여는 멘트',d:'예식 시작을 알려요',w:'v',tx:tx(/^narr-open/)}]; }
   return [{t:'',n:_post('_photo').n,d:'한 장 · 하객 모두와',w:'a'},
-    {t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',when:'전체 단체 사진을 마치면'},
+    {t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',after:'전체 단체 사진을 마치면'},
     {t:'',n:_post('_extra').n,d:'원하시는 분들과 · 음악은 계속 흘러요',w:'a'},
     {t:'',n:'정리',d:'옷을 갈아입고 하루를 정리해요',w:'c'}]; }
 var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};
@@ -7627,7 +7627,7 @@ function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
   function fxRow(x,i){ var v=x.w==='v';
     return '<li class="cf-r cf-fx" data-fx="'+esc(x.n)+'"><span class="cf-t">'+esc(x.t||'')+'</span><span class="cf-dot" aria-hidden="true"></span>'
       +'<span class="cf-nm">'+esc(x.n)+'<span class="cf-who'+(v?' v':'')+'">'+esc(FX_WHO[x.w])+'</span>'
-      +(x.when?'<span class="cf-sub">'+esc(x.when)+'</span>':'')
+      +(x.after?'<span class="cf-sub">'+esc(x.after)+'</span>':'')   /* 열쇠 이름 after · when:'…' 은 동의 화면 «언제 지우나요» 한 곳뿐(voice-open 이 첫 when 을 읽는다) */
       +'<span class="cf-sub">'+esc(x.tx||x.d)+'</span>'
       +(x.play?'<button type="button" class="cf-pl" data-fk="fxpl:'+x.play+'" onclick="opPv(\''+x.play+'\')" aria-label="'+esc(x.n)+' 들어 보기">'+ICO_PLAY+'들어 보기</button>':'')+'</span>'
       +(i===0?_fixMk('cf-fixmk'):'<span aria-hidden="true"></span>')+'</li>'; }
