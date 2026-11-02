@@ -21482,6 +21482,11 @@ nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
 chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
 # ★[MK_HEAD_PILL 1101 사장님 PC «좀 이상한데»] 상태 단추 = 도구와 같은 알약(테 · 카드 바탕 · 44 · 12.5/500) · 자리가 되면 한 줄(.one) · 모자라면 두 층(모서리 22) · 꺾쇠는 글 바로 뒤
 chk 'MK_HEAD_PILL' order-preview.html 3
+# ★[DRESS_FAB_AFTER_CEREMONY 1102 사장님 «본식 이후에는 드레스 우측 아이콘 레일에 없어져야»] 예식 당일 본식 시작 시각(한국 시각 · 계약 슬롯 → +1h 표 WT_SLOT_MAP)이 지나면 숨김 · 시각 없으면 당일까지 · 검사 scripts/audit/dress-refs.mjs(시계 고정 11가지)
+chk 'DRESS_FAB_AFTER_CEREMONY' mypage.html 5
+chk 'var at=_dressCeremonyAt(d); if(at!=null&&Date.now()>=at) return false;' mypage.html 1
+chk 'return Date.UTC(+m\[1\],+m\[2\]-1,+m\[3\],+h\[1\]-9,+h\[2\]);' mypage.html 1
+chk 'DRESS_FAB_AFTER_CEREMONY' scripts/audit/dress-refs.mjs 1
 chk 'function _mkStatFit()' order-preview.html 1
 chk '.mk-status.one{display:inline-flex' order-preview.html 1
 nochk 'border-radius:6px;background:transparent;text-align:left;color:var(--sub);font:inherit;font-size:12.5px;line-height:18px' order-preview.html

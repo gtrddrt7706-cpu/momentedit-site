@@ -4617,7 +4617,7 @@ function renderMyPage(d){
     //   청첩장·식순에 찍히는 시간은 슬롯 ID(+1h: 09:00→10:00 / 12:20→13:20 / 15:40→16:40) — 저장값·다이닝 키가 전부 이 ID.
     //   ★inquiry 실제 운영 시간표의 본예식은 +70분(10:10·13:30·16:50 · SNAP_50 2026-09-25)이라 표기와 ID가 다르다. 표기 통일은 결정 대기함 [J5] 참고.
     if (d.production && d.production.base && d.contract && d.contract.fill && d.contract.fill.weddingTime){
-      var _wtMap={'09:00':'10:00','12:20':'13:20','15:40':'16:40'};
+      var _wtMap=WT_SLOT_MAP;   // [DRESS_FAB_AFTER_CEREMONY] 표 하나(드레스 아이콘의 본식 시각도 이 표로 읽는다)
       if (_wtMap[d.contract.fill.weddingTime]){ d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime]; d.production.base.weddingTimeLocked=true; }
     }
     var _comboHold = payPlan(d).hold;
@@ -4965,12 +4965,22 @@ function _dressFabOn(d){
   var dr=d.consult&&d.consult.dress; if(dr && /^\s*자체 준비/.test(String(dr.attire||''))) return false;   // 의상을 직접 준비하시면 두지 않는다(스티커와 같다)
   var pb=(d.production&&d.production.base)||null, sc=(d.contract&&d.contract.signed&&d.contract.fill)||null;
   var m=String((pb&&pb.weddingDate)||(sc&&sc.weddingDate)||'').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if(m){ var t=new Date(), today=t.getFullYear()*10000+(t.getMonth()+1)*100+t.getDate(); if(today>(+m[1])*10000+(+m[2])*100+(+m[3])) return false; }   // 예식 당일까지
+  if(m){ var today=_snapKstToday(); if(today>Date.UTC(+m[1],+m[2]-1,+m[3])) return false;   // 예식 다음 날부터 숨김(한국 날짜 · 기기 시간대와 무관)
+    var at=_dressCeremonyAt(d); if(at!=null&&Date.now()>=at) return false; }   // ★[DRESS_FAB_AFTER_CEREMONY 1102] 사장님 «본식 이후에는 없어져야» — 당일 본식 시작 시각 지나면 숨김 · 시각을 못 읽으면 당일까지(종전)
   return true;
+}
+/* [DRESS_FAB_AFTER_CEREMONY] 계약 슬롯(도착) → 본식 시각(+1h) — 제작 폼 예식 시간(_wtMap)과 같은 표 */
+var WT_SLOT_MAP={'09:00':'10:00','12:20':'13:20','15:40':'16:40'};
+/* [DRESS_FAB_AFTER_CEREMONY] 본식 시작(한국 시각) → 시각(ms) · 날짜나 시각을 못 읽으면 null. 계약 슬롯이 있으면 그것(제작 폼이 덮어쓰는 값과 같다) · 없으면 제작 기본값의 시각 */
+function _dressCeremonyAt(d){
+  var pb=(d.production&&d.production.base)||null, sc=(d.contract&&d.contract.signed&&d.contract.fill)||null, cf=(d.contract&&d.contract.fill)||null;
+  var m=String((pb&&pb.weddingDate)||(sc&&sc.weddingDate)||'').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if(!m) return null;
+  var tt=(cf&&WT_SLOT_MAP[cf.weddingTime])||String((pb&&pb.weddingTime)||'').trim(), h=tt.match(/^(\d{1,2}):(\d{2})/); if(!h) return null;
+  return Date.UTC(+m[1],+m[2]-1,+m[3],+h[1]-9,+h[2]);
 }
 function ensureDressFab(d){
   var ex=document.getElementById('mp_dressFab');
-  if(!_dressFabOn(d)){ if(ex) ex.style.display='none'; return; }
+  if(!_dressFabOn(d)){ if(ex){ ex.style.display='none'; clearTimeout(ex._ht); var _tp=document.querySelector('.me-fab-tip2'); if(_tp&&_tp.parentNode) _tp.parentNode.removeChild(_tp); } return; }   // [DRESS_FAB_AFTER_CEREMONY] 아이콘만 빠진다(다른 아이콘 자리 · 순서 그대로) · 1회 말풍선도 · 열려 있던 드레스 창은 그대로
   var stack=document.getElementById('meAdvStack');
   if(!stack){ setTimeout(function(){ ensureDressFab(d); }, 300); return; }   // 위젯 로드 전이면 재시도
   var chat=stack.querySelector('#meAdvFab');   // 자리를 잡는 데만 쓴다 — 누르거나 여는 데 쓰지 않는다(여는 길은 공개 API MEAdvisor · ASK_SENDS)
@@ -4983,6 +4993,7 @@ function ensureDressFab(d){
   }
   if(ex.parentNode!==stack || ex.nextSibling!==chat){ if(chat && chat.parentNode===stack) stack.insertBefore(ex, chat); else stack.insertBefore(ex, stack.firstChild); }   // «상담 도우미» 바로 위
   ex._d=d;   // [DRESS_FAB_LATEST] 부를 때마다 지금 데이터로 · 리스너는 처음 한 번만
+  clearTimeout(ex._ht); var _at=_dressCeremonyAt(d), _left=_at==null?-1:_at-Date.now(); if(_left>0&&_left<864e5) ex._ht=setTimeout(function(){ ensureDressFab(ex._d); }, _left+1000);   // [DRESS_FAB_AFTER_CEREMONY] 화면을 켜 둔 채 본식 시각이 지나도 빠진다
   ex.style.display='flex';
   _dressFabTip(stack, ex);
 }

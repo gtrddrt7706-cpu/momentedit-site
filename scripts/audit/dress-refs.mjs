@@ -478,6 +478,29 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   const cst = ((/var DRESS_STAGES=\[([^\]]*)\];/.exec(MP) || [])[1] || '').split(',').map((x) => x.trim().replace(/'/g, '')).filter(Boolean);
   t(fst.length > 0 && !fst.some((x) => cst.indexOf(x) >= 0) && fst.indexOf('상담완료') >= 0 && fst.indexOf('제작중') >= 0 && !fst.some((x) => /^(신청접수|상담확정|예식완료|결과물전달|후기)$/.test(x)), '⑯ [DRESS_FAB_1024] 아이콘 단계 = 상담 뒤 ~ 제작중 · 상담 전(스티커 단계)과 겹침 0 · 예식 뒤 단계 없음 (지금 ' + fst.join('·') + ')');
   const fon = (/function _dressFabOn\(d\)\{([\s\S]*?)\n\}/.exec(MP) || [])[1] || '';
+  /* ★[DRESS_FAB_AFTER_CEREMONY 1102 사장님 «본식 이후에는 없어져야»] 시계를 고정해 판정을 실제로 돌린다 — 예식 2026-11-07 · 계약 슬롯 12:20 → 본식 13:20(한국 시각 = 04:20Z) */
+  const fabRun = (iso, d) => { try {
+    const pick = (re) => (re.exec(MP) || [])[0] || '';
+    const code = [/var WT_SLOT_MAP=\{[^}]*\};/, /function _snapKstToday\(\)\{[^\n]*\}/, /function _dressCeremonyAt\(d\)\{[\s\S]*?\n\}/, /var DRESS_FAB_STAGES=\[[^\]]*\];/, /function _dressFabOn\(d\)\{[\s\S]*?\n\}/].map(pick).join('\n');
+    const NOW = Date.parse(iso); const D = class extends Date { constructor(...a) { if (a.length) super(...a); else super(NOW); } static now() { return NOW; } };
+    const sb = { window: { DRESS_REFS: { live: true } }, Date: D }; vm.createContext(sb); vm.runInContext(code + '\nthis.__r=_dressFabOn(' + JSON.stringify(d) + ');', sb); return sb.__r;
+  } catch (e) { return 'ERR ' + e.message; } };
+  const fb = (o) => Object.assign({ code: 'ME0001', stage: '제작중', product: '시그니처', production: { base: { weddingDate: '2026-11-07' } }, contract: { fill: { weddingTime: '12:20' } } }, o || {});
+  const fcase = [
+    ['당일 본식 전(12:59 KST)', fabRun('2026-11-07T03:59:00Z', fb()), true],
+    ['당일 0시 KST(기기는 아직 전날 UTC)', fabRun('2026-11-06T15:30:00Z', fb()), true],
+    ['본식 시작 직후(13:21 KST)', fabRun('2026-11-07T04:21:00Z', fb()), false],
+    ['다음 날(10:00 KST)', fabRun('2026-11-08T01:00:00Z', fb()), false],
+    ['시각 없음 · 당일 밤(19:00 KST)', fabRun('2026-11-07T10:00:00Z', fb({ contract: {} })), true],
+    ['시각 없음 · 다음 날', fabRun('2026-11-07T15:30:00Z', fb({ contract: {} })), false],
+    ['제작 기본값 시각만(16:40) · 16:30 KST', fabRun('2026-11-07T07:30:00Z', fb({ contract: {}, production: { base: { weddingDate: '2026-11-07', weddingTime: '16:40' } } })), true],
+    ['제작 기본값 시각만(16:40) · 16:41 KST', fabRun('2026-11-07T07:41:00Z', fb({ contract: {}, production: { base: { weddingDate: '2026-11-07', weddingTime: '16:40' } } })), false],
+    ['예식완료 단계(예식 전 날짜라도)', fabRun('2026-11-05T03:00:00Z', fb({ stage: '예식완료' })), false],
+    ['결과물전달 단계', fabRun('2026-11-05T03:00:00Z', fb({ stage: '결과물전달' })), false],
+    ['예식일 · 시각 둘 다 없음 · 제작중(데이터 없음은 그대로)', fabRun('2026-12-01T03:00:00Z', fb({ contract: {}, production: { base: {} } })), true],
+  ];
+  const fbad = fcase.filter((c) => c[1] !== c[2]);
+  t(fbad.length === 0 && /ex\._ht=setTimeout\(function\(\)\{ ensureDressFab\(ex\._d\); \}, _left\+1000\)/.test(MP) && /var _wtMap=WT_SLOT_MAP;/.test(MP), '⑯ [DRESS_FAB_AFTER_CEREMONY] 드레스 아이콘 — 본식 시작 시각(한국 시각)이 지나면 숨김 · 시각 없으면 당일까지 · 다음 날 · 예식완료 숨김 · 켜 둔 화면도 그 시각에 빠진다(시계 고정 ' + fcase.length + '가지)' + (fbad.length ? ' → ' + fbad.map((c) => c[0] + '=' + c[1]).join(' | ') : ''));
   t(/!R \|\| !R\.live \|\| !d \|\| d\.isException \|\| d\.product==='웨딩스냅'/.test(fon) && /DRESS_FAB_STAGES\.indexOf/.test(fon) && /if\(today>/.test(fon) && /자체 준비/.test(fon), '⑯ [DRESS_FAB_1024] 아이콘 판정 = 스위치 · 종료 고객 · 스냅 · 단계 · 예식일 지남 · 자체 준비');
   t(/stack\.insertBefore\(ex, chat\)/.test(MP) && /var chat=stack\.querySelector\('#meAdvFab'\);/.test(MP) && /  ensureDressFab\(d\);/.test(MP) && /ex\.id='mp_dressFab'; ex\.className='me-fab'; ex\.setAttribute\('aria-label','드레스 · 소품 · 부케'\);/.test(MP), '⑯ [DRESS_FAB_1024] «상담 도우미» 바로 위 · 같은 .me-fab · 이름 «드레스 · 소품 · 부케» · 그릴 때마다 판정');
   t(/opt\.after\?'&ctx=after':''/.test(MP) && /var AFTER = Q\.get\('ctx'\) === 'after';/.test(PAGE) && /hn\.textContent = '드레스 · 소품 · 부케'/.test(PAGE) && /me_drfabtip_v1/.test(MP), '⑯ [DRESS_FAB_TITLE] 아이콘으로 열면 창 이름 «드레스 · 소품 · 부케» · 1회 말풍선');
@@ -688,6 +711,9 @@ if (process.argv.includes('--selftest')) {
     ['아이콘이 상담 전에도(상담확정)', SRC, GAS, PAGE0, MP0.replace("var DRESS_FAB_STAGES=['시착',", "var DRESS_FAB_STAGES=['상담확정','시착',")],
     ['아이콘이 예식 뒤에도', SRC, GAS, PAGE0, MP0.replace("'입금완료','제작중'];", "'입금완료','제작중','예식완료'];")],
     ['아이콘 예식일 지남 판정을 걷음', SRC, GAS, PAGE0, MP0.replace("if(today>", "if(false&&today>")],
+    ['아이콘이 본식 뒤에도(당일 시각 판정 걷음)', SRC, GAS, PAGE0, MP0.replace("if(at!=null&&Date.now()>=at) return false;", "")],
+    ['본식 시각을 기기 시간대로 셈', SRC, GAS, PAGE0, MP0.replace("return Date.UTC(+m[1],+m[2]-1,+m[3],+h[1]-9,+h[2]);", "return new Date(+m[1],+m[2]-1,+m[3],+h[1],+h[2]).getTime()+3600e3;")],
+    ['켜 둔 화면에서 본식 시각에 안 빠짐', SRC, GAS, PAGE0, MP0.replace("ex._ht=setTimeout(function(){ ensureDressFab(ex._d); }, _left+1000);", "")],
     ['아이콘이 줄 맨 위로', SRC, GAS, PAGE0, MP0.replace("stack.insertBefore(ex, chat); else", "stack.insertBefore(ex, stack.firstChild); else")],
     ['아이콘으로 열어도 창 이름 그대로', SRC, GAS, PAGE0, MP0.replace("(opt.after?'&ctx=after':'')", "''")],
     ['소품 스위치를 안 봄', SRC.replace('return R.ACC_ON ? R.acc.filter(function (a) { return a && a.on && a.img; }) : [];', 'return R.acc.slice();'), GAS, PAGE0],
