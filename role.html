@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko" spellcheck="false">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFAF8">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<title>맡아 주실 순서 안내 · 모먼트에디트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Noto+Serif+KR:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<!-- ★★[PR_WAY_198 ⑫ 검토 198-3] 역할 전달 · 부모님 · 축사 · 선언하실 분께 그분 몫(안내 음성 · 읽으실 글 · 하실 일 · 마치면)만 보여 주는 읽기 전용 쪽.
+     글은 주소의 # 뒤에만 실려 서버로 가지 않는다(저장 · 로그인 · 고치기 없음) · 검색에 걸리지 않는다(noindex) · 링크는 식순 화면 «이 역할 전달하기»가 만든다 -->
+<style>
+:root{color-scheme:light;--bg:#FAFAF8;--bg2:#F5F3EF;--text:#1C1B19;--sub:#4A463E;--light:#6E6959;--accent:#3A2D22;--seal:#6B2A24;--border:#DDD8D1;
+  --serif:'Cormorant Garamond',Georgia,serif;--ko:'Noto Serif KR','Nanum Myeongjo',serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--ko);font-size:16px;line-height:1.9;word-break:keep-all;-webkit-font-smoothing:antialiased}
+.wrap{max-width:640px;margin:0 auto;padding:28px 16px 64px}
+.mark{font-family:var(--serif);font-size:12px;letter-spacing:.32em;color:var(--accent)}
+h1{margin:20px 0 4px;font-size:24px;font-weight:500;line-height:1.5;color:var(--accent)}
+.when{font-size:14px;color:var(--sub)}
+.ro{margin-top:4px;font-size:12.5px;color:var(--light)}
+.mo{margin-top:28px;padding-top:16px;border-top:1px solid var(--border)}
+.mo h2{font-size:20px;font-weight:500;color:var(--accent)}
+.st{margin-top:14px}
+.st .lb{display:block;font-size:12.5px;color:var(--light);letter-spacing:.02em}
+.st .tx{white-space:pre-wrap;font-size:16px;color:var(--text)}
+.st.say .tx{margin-top:6px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:20px;line-height:1.8;color:var(--accent)}
+.st.do .tx{color:var(--seal)}
+.pre{margin-top:20px;padding:14px 16px;border-radius:10px;background:var(--bg2);white-space:pre-wrap;font-size:16px}
+.bad{margin-top:40px;font-size:16px;color:var(--sub)}
+footer{margin-top:40px;font-size:12.5px;color:var(--light)}
+</style>
+</head>
+<body>
+<main class="wrap" id="main" aria-live="polite">
+  <p class="mark">MOMENT EDIT</p>
+  <noscript><p class="bad">안내를 보려면 자바스크립트를 켜 주세요</p></noscript>
+</main>
+<script>
+(function(){
+  var M=document.getElementById('main');
+  function el(t,c,x){ var e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; }
+  function dec(s){ s=String(s||'').replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; return decodeURIComponent(escape(atob(s))); }
+  var d=null; try{ var m=/[#&]r=([A-Za-z0-9_-]+)/.exec(location.hash||''); if(m) d=JSON.parse(dec(m[1])); }catch(e){ d=null; }
+  if(!d||!d.t||!Array.isArray(d.m)){ M.appendChild(el('p','bad','안내를 열지 못했어요 · 링크를 다시 받아 주세요')); return; }
+  document.title=String(d.t)+' · 모먼트에디트';
+  M.appendChild(el('h1','',String(d.t)));
+  if(d.w) M.appendChild(el('p','when',String(d.w)));
+  M.appendChild(el('p','ro','읽기 전용 안내예요 · 두 사람이 정한 순서 그대로예요'));
+  if(d.p){ M.appendChild(el('div','pre',String(d.p))); }
+  d.m.forEach(function(mo){ if(!mo||!Array.isArray(mo.s)) return; var s=el('section','mo'); s.appendChild(el('h2','',String(mo.n||'')));
+    mo.s.forEach(function(x){ if(!x||x.length<2) return; var k=String(x[0]), c=k==='읽으실 글'||/^읽으실 글/.test(k)?'say':k==='하실 일'?'do':''; var b=el('div','st'+(c?' '+c:'')); b.appendChild(el('span','lb',k)); b.appendChild(el('p','tx',String(x[1]))); s.appendChild(b); });
+    M.appendChild(s); });
+  M.appendChild(el('footer','','당일 진행은 안내 음성과 디렉터가 함께 맡아요'));
+})();
+</script>
+</body>
+</html>
