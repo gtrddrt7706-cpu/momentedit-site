@@ -210,14 +210,15 @@ try {
     await pg.evaluate(() => { delete S.on.letter; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'tribute'); const t12 = await look(pg);
     const t12s = await pg.evaluate(() => { try { return String((_lSteps(ENG, ['tribute'])[0] || {}).slug || ''); } catch (e) { return 'ERR'; } });
     await pg.evaluate(() => { S.on.letter = 1; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); });
-    /* 9 [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄 — 12.5px · --sub · 칸 바로 아래 · 흐름 음악 줄 없음 */
-    await go(pg, 'prevideo'); const P9 = await pg.evaluate(() => { const i = document.querySelector('input[aria-label="식전 영상 링크"]'), li = i && i.closest('li'), n = li && li.querySelector('.mk-pvsnd'), cs = n ? getComputedStyle(n) : null;
-      const ir = i ? i.getBoundingClientRect() : null, nr = n ? n.getBoundingClientRect() : null;
-      return { has: !!i, txt: n ? n.textContent.replace(/[\s\u00a0]+/g, ' ').trim() : '', fs: cs ? cs.fontSize : '', col: cs ? cs.color : '', below: !!(ir && nr && nr.top >= ir.bottom - 1 && nr.top - ir.bottom < 40), n: document.querySelectorAll('.mk-pvsnd').length,
+    /* 9 [BGM_R3_1023 → PV_MYPAGE_1102 2026-11-02 사장님 «저기서 영상을 받을 필요도 없잖아»] 식전 영상 쪽 — 링크 칸 · «영상 소리 그대로» 줄은 받는 곳(마이페이지 «식전 영상»)으로 옮겼다.
+         여기 남는 것: 흐름 음악 줄 없음 · 링크 칸 없음 · 이름 · 기한 줄 바로 아래 «마이페이지 «식전 영상»에서 준비해요»(12.5px · --sub) 한 줄 */
+    await go(pg, 'prevideo'); const P9 = await pg.evaluate(() => { const box = document.querySelector('.mk-pvmy'), vr = box && box.querySelector('.mk-vr'), n = box && box.querySelector('.mk-pvmyt'), cs = n ? getComputedStyle(n) : null;
+      const vrr = vr ? vr.getBoundingClientRect() : null, nr = n ? n.getBoundingClientRect() : null;
+      return { has: !!box, link: !!document.querySelector('#stage input[type="url"]'), old: document.querySelectorAll('.mk-pvsnd').length, txt: n ? n.textContent.replace(/[«»]/g, '').replace(/[\s\u00a0]+/g, ' ').trim() : '' /* «»는 그린 뒤 굵은 글씨(GUIL_OFF) */, b: n ? !!n.querySelector('b,strong') || /«/.test(n.textContent) : false, fs: cs ? cs.fontSize : '', col: cs ? cs.color : '', below: !!(vrr && nr && nr.top >= vrr.bottom - 1 && nr.top - vrr.bottom < 24),
         bgm: document.querySelectorAll('.mk-flow > li[data-bgm]').length, hz: document.documentElement.scrollWidth > innerWidth + 1 }; });
-    await shot(pg, W, 'bgm-prevideo-link', '.mk-send1');
-    ok(`${W} 9 [BGM_R3_1023] 식전 영상 — 흐름 음악 줄 없음 · «식전 영상 링크» 칸 바로 아래 «${PVSND}»(12.5px · --sub) 한 줄`,
-      P9.has && P9.txt === PVSND && P9.fs === '12.5px' && P9.col === 'rgb(90, 85, 76)' && P9.below && P9.n === 1 && P9.bgm === 0 && !P9.hz, P9);
+    await shot(pg, W, 'bgm-prevideo-mypage', '.mk-pvmy');
+    ok(`${W} 9 [BGM_R3_1023 · PV_MYPAGE_1102] 식전 영상 — 흐름 음악 줄 없음 · 링크 칸 없음 · 이름 줄 바로 아래 «마이페이지 «식전 영상»에서 준비해요»(12.5px · --sub) 한 줄`,
+      P9.has && !P9.link && P9.old === 0 && P9.txt === '마이페이지 식전 영상에서 준비해요' && P9.b && P9.fs === '12.5px' && P9.col === 'rgb(90, 85, 76)' && P9.below && P9.bgm === 0 && !P9.hz, P9);
     ok(`${W} 1 [BGM_R2_1023] 편지를 빼 축가 바로 뒤가 부모님께 인사면 첫 줄 «경건하게» 이음말(${t12s}) 바로 뒤에 음악 줄`, t12s === 'bridge-b12-tribute-calm' && t12.fi === 1 && /넘어가며/.test(t12.prev) && t12.ftxt === G(ONE.tribute), { t12s, fi: t12.fi, prev: t12.prev, ftxt: t12.ftxt });
     ok(`${W} 1 손대지 않으면 S.bgm 이 없다`, seen.table.bgm === 'null', seen.table.bgm);
     /* 2 칩 */

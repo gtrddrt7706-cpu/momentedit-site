@@ -141,6 +141,8 @@ ok('축사 2분 = 대본 140초 · 넉넉 175초([EST_TRUE_1031] 걸음 +14 · �
 ok('준비한 순서 자리 = 덕담 뒤 · 축가 앞 · 편지 → 인사 [HEART_ORDER_1012]', (() => { const q = O.bodySeq({ on: { declare: 1, bless: 1, tribute: 1, free: 1, song: 1, letter: 1 } }); return q.indexOf('bless') + 1 === q.indexOf('free') && q.indexOf('free') + 1 === q.indexOf('song') && q.indexOf('song') + 1 === q.indexOf('letter') && q.indexOf('letter') + 1 === q.indexOf('tribute'); })());
 /* ★[PREVIDEO_PICK 2026-09-27 사장님 «식전 영상은 필수로 하지 말자 · 선택할 수 있게»] 종전 «늘 있다(PREVIDEO_ALWAYS)»를 뒤집었다 */
 ok('식전 영상은 담는 순간(빈 채엔 없음 · 담으면 식전 · 예시 넷은 담아 둔다) [PREVIDEO_PICK]', !O.ALWAYS.prevideo && O.PICKABLE.indexOf('prevideo') > -1 && O.seqOf({ on: {} }).indexOf('prevideo') < 0 && O.seqOf({ on: { prevideo: 1 } }).indexOf('prevideo') > -1 && !!O.PRE.prevideo && O.EXAMPLES.every((e) => e.on.indexOf('prevideo') > -1));
+/* ★[PV_MYPAGE_1102 2026-11-02 사장님 «저기서 영상을 받을 필요도 없잖아»] 식전 영상은 마이페이지 «식전 영상» 카드가 받는다 — 식순 준비 목록(prepOf · prepList)에 할 일이 없다 */
+ok('[PV_MYPAGE_1102] 식전 영상을 담아도 식순 준비 목록에 «식전 영상 링크» 할 일이 없다(마이페이지 «식전 영상»이 받는다)', O.prepOf('prevideo', { on: { prevideo: 1 } }).length === 0 && !JSON.stringify(O.prepList({ course: 'open', on: { prevideo: 1 } })).includes('식전 영상 링크'));
 /* ★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] 케이크 커팅은 새로 담지 않는다 — 새로 담는 목록(OFFER)에 없고, 옛 초안이 담아 둔 케이크는 그대로 돈다(PICKABLE · 순서 · 큐) */
 { const L = { course: 'open', on: { cake: 1, toast: 1 } }; L.toast = O.toastMode(L);
   ok('[CAKE_OFF_1013 · CAKE_OLD_OFF_1017] 케이크는 새로 담지 않는다(OFFER 에 없음 · RETIRED) · ★10/17 옛 초안에 담아 둔 케이크도 순서 · 큐에 없다(PICKABLE 에는 옛 값 읽기용으로 남는다)',

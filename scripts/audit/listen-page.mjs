@@ -400,7 +400,8 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => { if (!RitualOpen.onOf(S, 'prevideo')) { S.on.prevideo = 1; opSync(); } mkGo('prevideo'); }); await pg.waitForTimeout(400);
   const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, send: document.querySelectorAll('.send-how a[href^="https://pf.kakao.com"], .send-how a[href^="mailto:"]').length }));
   /* ★[PREVIDEO_FREE 2026-10-02 사장님 «링크 칸 하나만»] 카톡 · 메일 보내기 · 길이 · 장수 규정은 걷었다 — 링크 칸 하나 · 규정 글 없음 */
-  ok('2-4 · 2-8 ② 식전 영상 쪽 = 링크 칸 하나 · 카톡 · 메일 · 3분 · 30~40장 없음 [PREVIDEO_FREE]', w.send === 0 && !/30~40장|3분 안|25MB/.test(w.t) && /MYBOX/.test(await pg.evaluate(() => (document.querySelector('#stage input[aria-label="식전 영상 링크"]') || {}).placeholder || '')), w.send + ' ' + w.t.slice(0, 200));
+  /* ★[PV_MYPAGE_1102 2026-11-02 사장님 «저기서 영상을 받을 필요도 없잖아»] 링크 칸도 걷었다 — 마이페이지 «식전 영상»에서 준비한다는 한 줄만 */
+  ok('2-4 · 2-8 ② 식전 영상 쪽 = 링크 칸 없음 · 마이페이지 «식전 영상» 한 줄 · 카톡 · 메일 · 3분 · 30~40장 없음 [PREVIDEO_FREE · PV_MYPAGE_1102]', w.send === 0 && !/30~40장|3분 안|25MB/.test(w.t) && /마이페이지 «?식전 영상»?에서 준비해요/.test(w.t) /* «»는 그린 뒤 굵은 글씨로 바뀐다(GUIL_OFF) */ && !(await pg.evaluate(() => !!document.querySelector('#stage input[type="url"]'))), w.send + ' ' + w.t.slice(0, 200));
   await pg.evaluate(() => { S.vowHow = 'each'; mkGo('vow'); }); await pg.waitForTimeout(400);   /* [VOW_FORM] 한 분 칸 = «각자 차례로» 판 */
   const warn = await pg.evaluate(() => { const t = document.getElementById('mkt_vow_g'); t.value = 'ㄱ'.repeat(300); t.dispatchEvent(new Event('input', { bubbles: true })); const a = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = 'ㄱ'.repeat(400); t.dispatchEvent(new Event('input', { bubbles: true })); const b = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); return [a, b]; });
   ok('2-5 서약 한 분 300자는 경고색 아님 · 400자(한 분 기준 넘음)는 경고색', warn[0] !== warn[1], JSON.stringify(warn));
