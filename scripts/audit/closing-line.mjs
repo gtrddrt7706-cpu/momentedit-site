@@ -22,23 +22,23 @@ const rd = (f) => { try { return fs.readFileSync(path.join(ROOT, f), 'utf8'); } 
 let bad = 0;
 const ok = (m, c, d) => { if (c) console.log('ok   ' + m); else { bad++; console.log('FAIL ' + m + (d !== undefined ? '  → ' + (typeof d === 'string' ? d : JSON.stringify(d)).slice(0, 400) : '')); } };
 const sents = (t) => String(t || '').match(/[^.!?]+[.!?]/g).map((x) => x.trim());
+const RESV = '식사는 안내된 예약 시각에 두 분과 함께합니다.', NORESV = '식사는 두 분과 함께합니다.', JOIN = '두 분은 남은 촬영을 마친 뒤 합류합니다.';   // [INFO_SPLIT_200]
 const E = C.EXTRA, A = sents(E['end-2-goodbye']), M = sents(E['narr-photo-pre-meal']).slice(3, 5), U = E['narr-photo-upload'], UM = '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', W = E['end-0-photo'], CH = '두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.', GA = ['이어서 단체 사진을 찍겠습니다.'];   // [END_FLOW_200 사장님 17:08] 한 문장   // ★[END_FLOW_200] 마무리 멘트 끝 = 늘 모이기 두 문장(새 녹음)   // ★[CLOSING_CHEER_195]   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장
 
 export function want(o) {
-  const meal = o.meal && o.mealFull && o.resv && o.guide, nt = o.close === 2 || o.close === 3;   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 186(2) · 187(3) = 47#0 «… 진심으로 감사드립니다» 없이 */
+  const meal = o.meal && o.mealFull, nt = o.close === 2 || o.close === 3;   /* ★[INFO_SPLIT_200 검토 200 수정 2] 식사 날(식사 자리) × 예약 시각 · 하객 안내 갈래 없음 */   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 186(2) · 187(3) = 47#0 «… 진심으로 감사드립니다» 없이 */
   const nc = o.close === 2;   /* ★[CLOSING_CHEER_195 검토 195] 186 «다정하게»는 칩이 이미 응원을 부탁해 응원 문장(CH)도 뺀다 */
   const thx = (nt ? [] : [A[0]]).concat(nc ? [] : [CH]);
-  const body = meal ? thx.concat(M) : thx;   /* ★[END_FLOW_200] «남은 하루 …»(A[1])는 촬영 후 안내 끝으로 옮겼다 */
-  const parts = body.concat(o.guide ? [meal ? UM : U] : []).concat(GA);   /* [CLOSING_NO_CREW_1031] 44(W)는 없다 · [CLOSING_MEAL_DUP] 식사 판은 «하객 안내를 통해»가 식사 줄에 이미 있어 264 앞머리를 줄인 문장 */
-  let sl = (meal ? 'narr-closing-meal' : o.meal ? (o.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (o.guide ? 'narr-closing-guide' : 'narr-closing')) + (nt ? (nc ? '-nt-nc' : '-nt') : '');
-  if (sl === 'narr-closing-soft-nt-nc') sl = 'narr-closing-nt-nc';   /* [END_FLOW_200] 모이기 두 문장뿐 — 325 와 같은 글 */
+  const body = meal ? thx.concat([o.resv ? RESV : NORESV, JOIN]) : thx;   /* ★[INFO_SPLIT_200] 식사 시각 · 합류만 — 경로 · 사진은 5분 전 · «남은 하루»는 촬영 후 안내 */
+  const parts = body.concat(GA);   /* [CLOSING_NO_CREW_1031] 44(W)는 없다 */
+  const sl = (meal ? (o.resv ? 'narr-closing-mealr' : 'narr-closing-mealnr') : 'narr-closing') + (nt ? (nc ? '-nt-nc' : '-nt') : '');
   return { slug: sl,
     text: parts.join(' ') };
 }
 export function check(build) {
   const out = [];
   const CASES = [];
-  for (const meal of [{ meal: 1, mealFull: 1, resv: 1 }, { meal: 1, mealFull: 0, resv: 1 }, { meal: 0 }]) for (const guide of [0, 1]) for (const digital of [0, 1]) for (const close of [0, 1, 2, 3]) CASES.push(Object.assign({}, meal, { guide, digital, close }));
+  for (const meal of [{ meal: 1, mealFull: 1, resv: 1 }, { meal: 1, mealFull: 1, resv: 0 }, { meal: 1, mealFull: 0, resv: 1 }, { meal: 0 }]) for (const guide of [0, 1]) for (const digital of [0, 1]) for (const close of [0, 1, 2, 3]) CASES.push(Object.assign({}, meal, { guide, digital, close }));
   for (const o of CASES) {
     const tag = JSON.stringify(o), w = want(o);
     const q = build(Object.assign({ course: 'open', on: { toast: 1 }, narEx: { close: o.close } }, o), 'console').cues;
@@ -58,7 +58,7 @@ export function check(build) {
     if (!/^after-photo/.test(ap.slug || '') || ap.fire !== 'manual') out.push(`③ ${tag} 사진 구간 끝이 촬영 후 안내(manual)가 아니다 — ${ap.slug || ap.actId || '(없음)'} · ${ap.fire}`);
     const after = after0.filter((c) => c !== ap);
     if (after.some((c) => c.slug)) out.push(`③ ${tag} 마무리 뒤 소리 나는 큐 — ${after.filter((c) => c.slug).map((c) => c.slug).join(' · ')}`);
-    if (after0.map((c) => c.actId || (/^after-photo/.test(c.slug || '') ? 'after' : c.slug)).join(',') !== 'photo-all,photo-family,after,photo-free') out.push(`② ${tag} 사진 큐 차례(전체 → 가족 → 촬영 후 안내 → 추가 촬영) ${after0.map((c) => c.actId || c.slug).join(',')}`);
+    if (after0.map((c) => c.actId || (/^after-photo/.test(c.slug || '') ? 'after' : c.slug)).join(',') !== 'photo-all,after,photo-family,photo-free') out.push(`② ${tag} 사진 큐 차례(전체 → 촬영 후 안내 → 가족 → 추가 촬영 · AFTER_BEFORE_FAMILY_200) ${after0.map((c) => c.actId || c.slug).join(',')}`);
     const gone = ['narr-photo-pre', 'narr-photo-pre-meal', 'narr-close', 'narr-close-ex2', 'narr-photo-free', 'narr-photo-send', 'end-2-goodbye', 'end-0-photo'].filter((s) => q.some((c) => c.slug === s));
     if (gone.length) out.push(`③ ${tag} 걷은 큐가 남았다 — ${gone.join(' · ')}`);
   }
@@ -69,7 +69,7 @@ const direct = !!process.argv[1] && /closing-line\.mjs$/.test(process.argv[1]);
 if (direct) {
   const bld = (S, mode) => C.build(S, { mode });
   const r = check(bld);
-  ok('① ② ③ ⑦ 세 판 × 하객 안내 × 디지털 × 닫는 멘트 넷 = 48 조합 — 글 · 차례 · 간격 · 사진 구간 나레이션 0 · «진심으로 감사» 한 번 [CLOSING_SRC_1031]', !r.length, r);
+  ok('① ② ③ ⑦ 네 식사 판 × 하객 안내 × 디지털 × 닫는 멘트 넷 = 64 조합 — 글 · 차례 · 간격 · 사진 구간 나레이션 0 · «진심으로 감사» 한 번 [CLOSING_SRC_1031]', !r.length, r);
   /* 미리 듣기도 마무리 멘트가 끝 · 사진 큐 없음 */
   const pv = C.build({ course: 'open', on: {} }, { mode: 'preview' }).cues;
   ok('미리 듣기 — 마무리 멘트가 맨 끝(사진 구간은 당일 콘솔에만)', /^narr-closing/.test((pv[pv.length - 1] || {}).slug || ''), pv.slice(-3).map((c) => c.slug));
@@ -80,7 +80,8 @@ if (direct) {
   for (const [sl, parts] of Object.entries(C.CLOSING_PARTS || {})) {
     const id = C.noOf(sl) + '_' + sl;
     const allNew = parts.every((p, i) => p[2] === null && !idx[id + '#' + i]);   /* ★[CLOSING_CHEER_195] 294 = 응원 한 문장(새 녹음 대기) — 받기 전엔 옛 소리(44)를 지우고 «녹음 대기»로 둔다 */
-    if (!fs.existsSync(path.join(ROOT, 'assets/audio/narration', id + '.mp3'))) { if (!allNew) s4.push(`${id}.mp3 없음`); }
+    const pend = parts.some((p, i) => !idx[id + '#' + i]);   /* ★[INFO_SPLIT_200] 새 판(339 ~ 344)은 새 문장을 받기 전까지 mp3 가 없다(녹음 대기) */
+    if (!fs.existsSync(path.join(ROOT, 'assets/audio/narration', id + '.mp3'))) { if (!allNew && !pend) s4.push(`${id}.mp3 없음`); }
     else if (allNew) s4.push(`${id}.mp3 — 새 문장만 있는 판인데 옛 소리가 남아 있다(받기 전엔 녹음 대기)`);
     if (C.RETIRED[sl]) continue;   /* 쉬는 판(294) — 녹음 기록만 */
     const mc = (man.clips || []).find((c) => `${c.no}_${c.file}` === id);
@@ -88,7 +89,8 @@ if (direct) {
       if (p[0] !== '안내') s4.push(`${id}#${i} 줄 주인 ${p[0]} — 마무리는 진희(안내) 한 목소리 [CLOSING_ONE_VOICE_1031]`);
       if (/여기서부터는 작가님이 안내해/.test(p[1])) s4.push(`${id}#${i} 44 가 살아 있는 판에 있다 [CLOSING_NO_CREW_1031]`);
       if (p[2] === null) { NEW.add(p[1]);
-        if (e && (e.from || e.voice !== '진희' || e.text !== p[1])) s4.push(`${id}#${i} 새 녹음 자리에 빌린 · 다른 목소리 소리(${e.from || e.voice})`);
+        const okBorrow = e && e.from && idx[e.from] && idx[e.from].text === p[1] && idx[e.from].voice === '진희' && !idx[e.from].from;   /* [INFO_SPLIT_200] 같은 글 · 진희가 이미 받은 소리를 빌린 자리(287#1 응원 문장 등)는 된다 */
+        if (e && !okBorrow && (e.from || e.voice !== '진희' || e.text !== p[1])) s4.push(`${id}#${i} 새 녹음 자리에 빌린 · 다른 목소리 소리(${e.from || e.voice})`);
         if (!e && redub.indexOf('진희: ' + p[1]) < 0) s4.push(`${id}#${i} 아직 안 받은 새 문장이 «다시 받기»에 진희로 없다`);
         const ms = mc && mc.sents[i]; if (!ms || ms.text !== p[1] || (ms.role || mc.role) !== p[0]) s4.push(`${id}#${i} 대장 줄 주인 · 글이 다르다`);
         if (!String(p[3] || '').trim()) s4.push(`${id}#${i} 자료 판정(src) 칸이 비었다`); return; }
@@ -99,7 +101,7 @@ if (direct) {
       const ms = mc && mc.sents[i]; if (!ms || ms.text !== p[1] || (ms.role || mc.role) !== p[0]) s4.push(`${id}#${i} 대장 줄 주인 · 글이 다르다`);
       if (!String(p[3] || '').trim()) s4.push(`${id}#${i} 자료 판정(src) 칸이 비었다`); });
   }
-  if (NEW.size !== 5 || [...NEW].some((t) => M.indexOf(t) < 0 && t !== UM && t !== CH && GA.indexOf(t) < 0)) s4.push(`새 녹음 문장 ${NEW.size}개 — 식사 두 줄(266 진희판) + 식사 판 사진 올리기 한 줄(CLOSING_MEAL_DUP) + 응원 한 줄(CLOSING_CHEER_195) + 모이기 한 줄(END_FLOW_200)만이어야 한다`);
+  if (NEW.size !== 4 || [...NEW].some((t) => t !== CH && t !== NORESV && t !== JOIN && GA.indexOf(t) < 0)) s4.push(`새 녹음 문장 ${NEW.size}개 — 응원 한 줄(CLOSING_CHEER_195) + 모이기 한 줄(END_FLOW_200) + 식사 예약 시각 없음 · 합류 두 줄(INFO_SPLIT_200)만이어야 한다 · 예약 시각 있음은 321 을 빌린다`);
   ok('④ 마무리 = 진희 한 목소리 · 새 녹음 3문장(266 식사 두 줄 진희판 · 식사 판 사진 올리기 «오늘 찍으신 사진도 그곳에서 …» [CLOSING_MEAL_DUP]) · 나머지는 빌려 온 진희 녹음 · 44 없음 · mp3 · 문장마다 자료 판정(src) [CLOSING_ONE_VOICE_1031 · CLOSING_NO_CREW_1031]', !s4.length, s4);
   /* ⑤ 흐름 쉼 */
   const s5 = [];
@@ -109,7 +111,7 @@ if (direct) {
   /* ⑥ 화면 글 */
   const mp = rd('mypage.html'), gd = rd('guide.html'), kb = rd('api/_kb.js');
   ok('⑥ 마이페이지 · 하객 안내 · AI 상담 — 사진은 작가님 안내 · 안내 음성이 모으지 않는다', /마무리 인사가 끝나면 작가님 안내에 따라 진행해요/.test(mp) && mp.indexOf('시작할 때 안내 음성이 «촬영 차례가 아닌 분들은') < 0
-    && /예식 뒤: 작가님 안내에 따라 모두 함께 한 장/.test(gd) && /마무리 인사\(안내 음성\) 뒤 작가님 안내에 따라/.test(kb) && kb.indexOf('사진 전 안내 뒤 하객 모두와') < 0);
+    && /예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진 · 추가 촬영을 하실 분은 남고/.test(gd) && /마무리 인사\(안내 음성\) 뒤 작가님 안내에 따라/.test(kb) && kb.indexOf('사진 전 안내 뒤 하객 모두와') < 0);
   /* 스스로 깨 보기 */
   let dead = 0;
   const brk = (mut) => (S, mode) => { const r0 = C.build(S, { mode }); return { cues: mut(r0.cues.slice()) }; };

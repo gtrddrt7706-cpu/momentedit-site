@@ -31,7 +31,7 @@ function check(src) {
     const iP = cs.findIndex((c) => c.actId === 'photo-all'), iF = cs.findIndex((c) => c.actId === 'photo-family'), iA = cs.findIndex((c) => /^after-photo/.test(c.slug || '')), iX = cs.findIndex((c) => c.actId === 'photo-free');
     if (iP < 0 || iF < 0 || iA < 0 || iX < 0) { bad.push(`E ${ex.k}: 전체 하객 · 가족 구도 · 촬영 후 안내 · 추가 촬영 큐 중 없는 것(${iP},${iF},${iA},${iX})`); continue; }
     if (!(iP + 1 === iA && iA + 1 === iF && iF < iX)) bad.push(`E ${ex.k}: 큐 차례가 전체 하객 → 촬영 후 안내 → 가족 구도 → 추가 촬영이 아니다(${iP},${iA},${iF},${iX})`);
-    if (cs[iX].name !== WANT[2]) bad.push(`E ${ex.k}: 추가 촬영 큐 이름 «${cs[iX].name}»`);
+    if (cs[iX].name !== '추가 촬영' || WANT[2].indexOf(cs[iX].name) < 0) bad.push(`E ${ex.k}: 추가 촬영 큐 이름 «${cs[iX].name}»(화면 «${WANT[2]}» 안의 이름)`);   /* [AFTER_BEFORE_FAMILY_200] 콘솔은 가족 구도 · 추가 촬영 두 큐 */
     if (cs[iA].name !== WANT[1]) bad.push(`E ${ex.k}: 촬영 후 안내 큐 이름 «${cs[iA].name}»`);
     if (!(cs[iX].live && cs[iX].live.est >= 10)) bad.push(`E ${ex.k}: 추가 촬영 남는 시간(est)이 비었다`);
   }

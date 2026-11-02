@@ -7769,7 +7769,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers'
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 305;' scripts/build-typecast-import.mjs 1   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
+chk 'const CLIP_COUNT = 324;' scripts/build-typecast-import.mjs 1   # [INFO_SPLIT_200 검토 200 수정 2] 305 → 324(+19 · 329 ~ 347)   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
 chk "has: (id) => /^X-|^D-/.test(id) }" scripts/build-typecast-import.mjs 1   # ★[DECL_TITLE_1031] D- = 성혼 선언 호칭 판
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -21002,7 +21002,7 @@ chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
 # ── 2026-10-30 [PAUSE_PREF_1030 · PHOTO_PRE_PICK_1030 · PHOTO_PRE_GAP_1030] 사장님 검수본 쉼 · 사진 전 안내 판 고르기 · 온라인 인사 뒤 2초
 chk 'const FLOW_FORCE = new Map(' scripts/build-typecast-import.mjs 1
-chk "function closingOf(S) { S = S || {}; var b = 'narr-closing';" assets/ritual-cue.js 1   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
+chk "function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull) ? (S.resv ? 'narr-closing-mealr' : 'narr-closing-mealnr') : 'narr-closing';" assets/ritual-cue.js 1   # ★[INFO_SPLIT_200] 식사 자리 × 예약 시각 · 하객 안내 갈래 없음   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
 chk 'function mealFullOf(dd, placeholders)' assets/ritual-preview-link.js 1
 chk 'c.goLeadMs || 0' console.html 1
 chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
@@ -21395,7 +21395,7 @@ chk "var CL_UP_MEAL = \['안내', '오늘 찍으신 사진도 그곳에서 바�
 chk "'narr-closing-meal': \[CL_THX, CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
 chk "'narr-closing-meal-nt': \[CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
 chk "'narr-closing-meal-nt-nc': CL_MEAL.concat(\[CL_UP_MEAL, CL_GA\])" assets/ritual-cue.js 1
-chk 'CLOSING_MEAL_DUP' scripts/audit/closing-line.mjs 4
+chk 'CLOSING_MEAL_DUP' scripts/audit/closing-line.mjs 3   # [INFO_SPLIT_200] 식사 판 사진 줄이 마무리에서 빠져 한 자리 줄었다
 # ── 2026-11-01 [EVENT_COUNT_CAP 검토 183 · 사장님 10:33 «추천대로 진행»] 본식 상한 = 개수 규칙(6개 · 긴 3개 · 테이블 인사 = 2) · 넘는 드문 조합은 테이블 인사 자동 맞춤
 chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1
 chk "var CNT_LONG = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 };" assets/ritual-open.js 1
@@ -21421,7 +21421,7 @@ nochk "if(!(sg in m)) m[sg]=cur?1:0;" assets/bgm-bed.js
 # ── 2026-10-31 [CLOSING_LINE_1031 검토 178 사장님 19:41 «사진은 작가님 몫»] 사진 «모여 달라 · 앞을 봐 달라»를 자동 식순에서 걷고 닫는 인사 뒤 «마무리 멘트»(287 ~ 291 · 새 녹음 0 · 이미 녹음된 47 · 266 · 264 · 44 문장을 이어 붙임)
 #    사진 구간(전체 하객 · 가족 구도 · 자유 사진 · 촬영 마무리)은 소리 없는 동작 큐(actId) · 265 · 266 · 262 · 219 RETIRED · 26 · 85 · 47 은 옛 코스 legacy(clip-status) · 마이페이지 · 하객 안내 · AI 상담 «작가님 안내에 따라»
 chk 'CLOSING_LINE_1031' assets/ritual-cue.js 8
-chk 'CLOSING_LINE_1031' assets/ritual-open.js 2
+chk 'CLOSING_LINE_1031' assets/ritual-open.js 1   # [INFO_SPLIT_200] postSec 조건 주석이 INFO_SPLIT_200 으로 바뀌었다
 chk 'CLOSING_LINE_1031' console.html 2
 chk 'CLOSING_LINE_1031' scripts/build-dubbing-script.mjs 1
 chk 'CLOSING_LINE_1031' scripts/build-typecast-import.mjs 3
@@ -21770,4 +21770,14 @@ nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.ht
 # ── 2026-11-02 [GUIDE_ALWAYS_202 보충] 하객 안내 기본 켜짐만으로 _clS 가 S 를 덮지 않는다(덮으면 마이페이지 값이 없을 때 식사 값이 «없음»으로 바뀌어 콘솔 ⊆ 화면이 깨진다 · screen-sound 가 잡음)
 chk "if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;" order-preview.html 1
 nochk "!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S;" order-preview.html
+# ── 2026-11-02 [INFO_SPLIT_200 검토 200 수정 2 · 사장님 18:00 «한 번에 다 안내하면 귀에 안 들어오니 나눠서» · 18:02 «추천대로»] 입장 = 사진 올리기 · 10분 전 = 식사 예고 · 5분 전 = 경로 + 사진 · 마무리 = 식사 시각 · 합류 · 촬영 후 = 남기 · 물건 · 이동 허락
+chk "if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');" assets/ritual-cue.js 1
+chk "var G5 = { '-mgr': [GW.mgr, GW.upThere], '-mg': [GW.mg, GW.upThere], '-mr': [GW.mr], '-m': [GW.m], '-g': [GW.pUp] };" assets/ritual-cue.js 1
+chk "'narr-closing-mealr': [CL_THX, CL_CHEER, CL_RESV, CL_JOIN, CL_GA], 'narr-closing-mealnr': [CL_THX, CL_CHEER, CL_NORESV, CL_JOIN, CL_GA]" assets/ritual-cue.js 1
+chk "'after-photo': [GW.done, GW.fam, GW.stay, GW.things, GW.goHome, GW.day], 'after-photo-meal': [GW.done, GW.fam, GW.stay, GW.things, GW.goMeal]," assets/ritual-cue.js 1
+chk "/* ★★[INFO_SPLIT_200 검토 200 수정 2]" assets/ritual-cue.js 1
+nochk "'narr-closing-meal': [CL_THX, CL_CHEER, CL_RESV" assets/ritual-cue.js   # 옛 291 은 받은 소리 기록(5분 전이 «오늘 찍으신 사진도 …»를 빌린다) — 새 판으로 덮지 않는다
+chk "var AFTER_SUM='전체 단체 사진을 마치면 · 가족 사진 · 두고 가시는 물건 · 이동 안내';" order-preview.html 1
+chk 'INFO_SPLIT_200' scripts/audit/open-course.mjs 10
+chk 'INFO_SPLIT_200' scripts/audit/closing-line.mjs 2
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

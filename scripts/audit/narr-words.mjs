@@ -65,7 +65,7 @@ function judge(slug, text) {
   for (const [id, re] of RULES) if (re.test(ALWAYS.has(id) ? text : mine)) { if (id === 'W2' && /^guest-w-1m/.test(slug)) continue; hit.push(id); }   /* ★[GUEST_WELCOME_191 검토 191] 1분 전(315 · 316)의 «자리에 앉아 주시고 · 무음»은 사장님 확정 문안 — ④ 는 착석 · 무음만(새 요청 없이) · 옛 04 도 같은 말이었다 */
   if (CLAP_ASK.test(mine) && !CLAP_OK.test(slug)) hit.push('W7');
   if ((mine.match(/잠시 (후|뒤)|잠시만|잠시,|곧 /g) || []).length > 1) hit.push('W10');   // «휴대폰은 잠시 진동»의 «잠시»는 시간을 재는 말이 아니다
-  if (twice(mine).filter((w) => !(/^after-photo/.test(slug) && w === '사진을')).length) hit.push('W13');   /* ★[END_FLOW_200 검토 200] 촬영 후 안내 «단체 사진을 … 따로 사진을»은 사장님 확정 문안 — 다른 두 사진(단체 · 따로)을 가르는 말이라 겹침이 아니다 · 그 한 낱말만 */
+  if (twice(mine).filter((w) => !(/^after-photo/.test(slug) && /^(사진을|분들은)$/.test(w))).length) hit.push('W13');   /* ★[INFO_SPLIT_200 검토 200 수정 2] «남고 싶으신 분들은 · 그 밖의 분들은»도 확정 문안 — 남는 분과 가는 분을 가르는 말 */   /* ★[END_FLOW_200 검토 200] 촬영 후 안내 «단체 사진을 … 따로 사진을»은 사장님 확정 문안 — 다른 두 사진(단체 · 따로)을 가르는 말이라 겹침이 아니다 · 그 한 낱말만 */
   if (SONG_OPEN.test(slug) && SONG_FOR.test(mine)) hit.push('W14');
   return hit;
 }
