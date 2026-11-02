@@ -8097,7 +8097,8 @@ function _dwellKind(x){ var k=x.k||'', sl=String(x.of||x.slug||''), t=String(x.t
   if(/^tribute-hug/.test(sl)) return 'hug'; if(/^tribute-call/.test(sl)) return 'call'; if(k==='ring') return 'ring'; if(k==='candle') return 'candle'; if(k==='table') return 'table';
   if(/박수/.test(t)||/clap/.test(sl)) return (k==='declare'||k==='song')?'clapBig':(k==='bless'||k==='free')?'clapSmall':'def';
   if(/^tribute-in/.test(sl)||/걸어|자리로|앞으로|이동/.test(t)) return 'move'; return 'def'; }
-function _dwellMs(x,prc){ var d=DWELL[_dwellKind(x)]||DWELL.def; return d[prc?1:0]*1000; }
+var _LPMS0=_lpMs;   /* 검사가 window._lpMs 를 짧게 바꿔 돌린다 — 바꿨으면 그 값을 따른다(실제 화면은 표) */
+function _dwellMs(x,prc){ if(window._lpMs!==_LPMS0) return window._lpMs(x.est); var d=DWELL[_dwellKind(x)]||DWELL.def; return d[prc?1:0]*1000; }
 /* 줄 사이 쉼 — 미리 듣기 / 연습(초) · 한 표 */
 var TURN={ same:[1.6,1.6], title:[2.5,2.5], mins:[6,6], moment:[2.2,2.2], toAct:[0.8,0.8], actEnd:[1.2,1.2], actEmo:[2.2,2.2], toCouple:[2.0,3.0], coupleEnd:[1.4,2.2] };
 function _turn(n){ var v=TURN[n]; return Math.round(v[LP.prc?1:0]*1000); }
