@@ -4790,6 +4790,11 @@ chk 'PV_MYPAGE_1102' api/_ritual-kb.js 1
 chk 'PV_MYPAGE_1102' mypage.html 1
 chk 'PV_MYPAGE_1102' scripts/audit/open-course.mjs 2
 nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
+# ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
+#   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
+chk 'JUNCTION_LINK_1102' order-preview.html 1
+chk 'JUNCTION_LIST_1102' scripts/build-junctions.mjs 1
+chk 'JUNCTION_LIST_1102' docs/handoff/junctions.md 1
 # ★[PV_NO_LIMIT_1101 2026-11-01 사장님 «제한 두지 마»] 협력사 식전 영상은 사진 장수 · 길이를 제한하지 않는다(템플릿 규격 그대로)
 chk 'PV_NO_LIMIT_1101' automation/prevideo/README.md 1
 chk 'PV_SAME' automation/platform/89_prevideo.gs 1

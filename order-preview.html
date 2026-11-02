@@ -11276,6 +11276,13 @@ engine();   // [ORD_REAL_AUDIO] 첫 탭이 곧바로 소리로 이어지게 미�
 /* ★[BGM_JUMP 2026-10-23 BGM 섹션 «미리보기에서 로그인 없이 빌더 순간 화면을 바로 열 방법»] 그냥 연 화면(임베드 아님)에서만 — order-preview.html?mk=letter 처럼 순간 키를 주면
    그 순간을 담고(빠져 있으면) ② 그 쪽을 연다. 화촉 candle · 감사 인사 welcome · 축사 free · 편지 letter · 부모님께 인사 tribute · 테이블 인사 table · 닫는 인사 _close · 축배 toast · 하객 맞이 guest · 한눈에 보기 _sum.
    고객 예식(마이페이지 임베드 ?embed=1)에는 쓰지 않는다 · 이 기기 초안에만 남는다 */
+/* ★[JUNCTION_LINK_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사 · 직접 보면서 하나하나»] 그냥 연 화면(임베드 아님)에서만 — order-preview.html?on=candle,vow,tribute 처럼
+   담을 순간을 «이 목록 그대로»로 맞춘다(목록에 없는 고르는 순간은 뺀다 · on=- 이면 다 뺀다) · 개수 규칙(본식 6 · 긴 순간 3)을 넘는 목록이면 아무것도 바꾸지 않는다.
+   ?mk= 와 함께 쓰면 그 순간 쪽을 연다(아래 BGM_JUMP 가 이어 받는다) · 검토 판 docs/handoff/junctions.md 의 «바로 보기» 주소 · 고객 예식(?embed=1)에는 쓰지 않는다 */
+setTimeout(function(){ if(EMBED) return; var _oq=/[?&]on=([A-Za-z_,\-]{1,200})/.exec(location.search||''); if(!_oq) return; var R=window.RitualOpen; if(!R||!isOpen()||!R.OFFER) return;
+  try{ var want={}; _oq[1].split(',').forEach(function(k){ if(R.OFFER.indexOf(k)>-1) want[k]=1; }); var c=R.countOf({course:'open',on:want}); if(c.n>c.max||c.long>c.longMax) return;
+    if(!S.on) S.on={}; R.OFFER.forEach(function(k){ if(want[k]) S.on[k]=1; else { S.on[k]=0; delete S.on[k]; } }); if(want.free) S.freeWhat='speech';
+    var _m1=_mkState(); Object.keys(want).forEach(function(k){ delete _m1.drop[k]; }); opSync(); if(!/[?&]mk=/.test(location.search||'')){ buildSteps(); opGoStep('pick'); } }catch(e){} },0);
 setTimeout(function(){ if(EMBED) return; var _mq=/[?&]mk=([A-Za-z_]{2,16})/.exec(location.search||''); if(!_mq) return; var k=_mq[1], R=window.RitualOpen; if(!R||!isOpen()) return;
   try{ if(R.PICKABLE.indexOf(k)>-1&&!(R.RETIRED&&R.RETIRED[k])&&!R.onOf(S,k)){ S.on[k]=1; var _m0=_mkState(); if(_m0.drop) delete _m0.drop[k]; opSync(); } buildSteps(); opGoStep('pick'); if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen'); }catch(e){} },0);   /* [BGM_JUMP_SAME 2026-10-23 BGM 섹션 실사이트 확인] 초안의 마지막 순간(at)이 주소와 같으면 mkGo 가 바로 끝나 «고르기»에 머물렀다 → 그때는 «하나씩 만들기»(그 순간 쪽)를 바로 연다 */
 // ── 마이페이지 임베드(?embed=1) — 같은 출처 postMessage로 서버 초안 수신 · 저장 전달 (계약서 오버레이와 동일 관례) ──
