@@ -21761,4 +21761,11 @@ chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
 chk 'DN_RESET_ALWAYS_1102' mypage.html 3
 chk 'DN_EMPTY_STEP_1102' mypage.html 1
 nochk '원하시는 곳이 따로 있으면 그대로 진행하셔도 돼요' mypage.html
+# ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 들어가서 이모지 같은 거 전부 없애고»] 고르기 카드 🍽 · 🍃 삭제 — 되살리지 말 것
+chk 'DN_NO_EMOJI_1102' mypage.html 4
+nochk "content:'\\\\2665'" mypage.html
+nochk "(_pf?'★':'☆')" mypage.html
+nochk 'class="dgc-ico"' mypage.html
+nochk '🍽' mypage.html
+nochk '🍃' mypage.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
