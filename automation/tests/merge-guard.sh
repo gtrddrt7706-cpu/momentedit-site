@@ -4778,6 +4778,10 @@ chk 'PV_REMOTION_1101' automation/prevideo/README.md 1
 # ★[PV_PARTNER_1101 2026-11-01 사장님 «퀄리티를 보니 우리가 만들면 안 될 거 같아» · «고객이 결제하게 하고 싶지 않아» · «대신 주문은 손이 많이 가 패스 · 협력사와 직접 소통»]
 #   식전 영상 = 외부 협력사 연결형(고객 결제 0 · 우리가 실사용 정산 · 우리 대행 없음) · 위 Remotion 뼈대는 보류(지우지 않는다)
 chk 'PV_PARTNER_1101' automation/prevideo/README.md 1
+# ★[PV_LEVEL2_1102 2026-11-02 사장님 «2단계까지만 가능하면 돼»] 목표 = 협력사 화면을 마이페이지 안에(2단계) · 안 되면 전용 링크(1단계) · 3단계(디자이너 틀 + 우리 엔진)는 안 한다
+chk 'PV_LEVEL2_1102' automation/prevideo/README.md 1
+# ★[PV_FEELMAKER_1102 2026-11-02 사장님 «필메이커로 가자»] 식전 영상 협력사 = 필메이커(필커뮤니티)
+chk 'PV_FEELMAKER_1102' automation/prevideo/README.md 1
 # ★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식순 화면은 식전 영상 링크를 받지 않는다 —
 #   마이페이지 «식전 영상» 카드가 받는다 · 식순 준비 목록에 할 일 없음(open-course · listen-page · ghi-polish · bgm-form 이 화면까지 잰다)
 chk 'PV_MYPAGE_1102' assets/ritual-open.js 1
@@ -21483,6 +21487,11 @@ nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
 chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
 # ★[MK_HEAD_PILL 1101 사장님 PC «좀 이상한데»] 상태 단추 = 도구와 같은 알약(테 · 카드 바탕 · 44 · 12.5/500) · 자리가 되면 한 줄(.one) · 모자라면 두 층(모서리 22) · 꺾쇠는 글 바로 뒤
 chk 'MK_HEAD_PILL' order-preview.html 3
+# ★[DRESS_FAB_AFTER_CEREMONY 1102 사장님 «본식 이후에는 드레스 우측 아이콘 레일에 없어져야»] 예식 당일 본식 시작 시각(한국 시각 · 계약 슬롯 → +1h 표 WT_SLOT_MAP)이 지나면 숨김 · 시각 없으면 당일까지 · 검사 scripts/audit/dress-refs.mjs(시계 고정 11가지)
+chk 'DRESS_FAB_AFTER_CEREMONY' mypage.html 5
+chk 'var at=_dressCeremonyAt(d); if(at!=null&&Date.now()>=at) return false;' mypage.html 1
+chk 'return Date.UTC(+m\[1\],+m\[2\]-1,+m\[3\],+h\[1\]-9,+h\[2\]);' mypage.html 1
+chk 'DRESS_FAB_AFTER_CEREMONY' scripts/audit/dress-refs.mjs 1
 chk 'function _mkStatFit()' order-preview.html 1
 chk '.mk-status.one{display:inline-flex' order-preview.html 1
 nochk 'border-radius:6px;background:transparent;text-align:left;color:var(--sub);font:inherit;font-size:12.5px;line-height:18px' order-preview.html
@@ -21737,7 +21746,7 @@ chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 
 chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
 chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
 chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
-chk "detail-r4 screen-bgm after-photo-loop' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+chk "detail-r4 screen-bgm after-photo-loop" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
 # ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 촬영 후 안내 뒤 추가 촬영 동안 마지막 곡 목록이 이어진다 · ■ 끝내기에서만 3초에 잦아듦
 chk 'AFTER_PHOTO_LOOP_1102' assets/ritual-cue.js 2
 chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }\]   /\* ★★\[AFTER_PHOTO_LOOP_1102" assets/ritual-cue.js 1
@@ -21836,4 +21845,13 @@ chk "listen-pace knobs detail-r1 pr-bgm clear-head' }" .github/workflows/merge-g
 # [AFTER_BEFORE_FAMILY_200] 촬영 후 안내 → 가족 구도 → 추가 촬영(새 코스 마지막 큐 · endHold) 동안 같은 곡 목록이 이어진다 — after-photo-loop 이 새 순서로 잰다(CI bgm-sound e 칸)
 chk 'AFTER_BEFORE_FAMILY_200' scripts/audit/after-photo-loop.mjs 2
 chk "act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12, endHold: true," assets/ritual-cue.js 1
+# ★[GUEST_TIME_1102 사장님 «우리가 세팅한 프로그램 시간표를 봐»] 하객 입장 = 본식 − DAY.guestIn(ritual-data · 20분) — 식순 화면 «… 약 n분 뒤» · 하객 맞이 «약 n분» · 곡 목록 길이가 이 값으로 계산한다(검사 = CI bgm-sound e 칸)
+chk 'guestIn: 20 }' assets/ritual-data.js 1
+chk 'GUEST_TIME_1102' assets/bgm-picks.js 2
+chk 'GUEST_TIME_1102' assets/bgm-bed.js 1
+chk 'GUEST_TIME_1102' order-preview.html 2
+chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
+nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
+nochk "M1: 1800" assets/bgm-picks.js
+chk "screen-bgm after-photo-loop guest-time' }" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

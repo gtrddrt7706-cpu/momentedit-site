@@ -100,7 +100,7 @@ try {
     await setS(f, { M1: { k: 'B13' }, M8: { k: 'B23' } });   /* 옛 저장값 — 무시돼야 한다 */
     await go(f, 'guest'); let r = await look(f, 'M1');
     const WANT1 = P.order({}, 'M1'), T1 = WANT1.map((x) => [P.SONGS[x].t, P.SONGS[x].a]);
-    ok(`${W} c 하객 맞이 — 안내 한 줄(12.5px) · 곡 줄 5 = 재생 차례(1순위부터 · 옛 저장값 무시) · ▶ 5 · 제목 · 가수`, r && r.info === '하객이 들어와 앉는 동안 아래 곡들이 차례로 흘러요 · 약 30분' && r.fs === '12.5px' && r.list.join() === 'B01,B24,B13,B16,B33' && r.list.join() === WANT1.join() && r.pl === 5 && JSON.stringify(r.tA) === JSON.stringify(T1), r);
+    ok(`${W} c 하객 맞이 — 안내 한 줄(12.5px) · 곡 줄 5 = 재생 차례(1순위부터 · 옛 저장값 무시) · ▶ 5 · 제목 · 가수`, r && r.info === '하객이 들어와 앉는 동안 아래 곡들이 차례로 흘러요 · 약 20분' && r.fs === '12.5px' && r.list.join() === 'B01,B24,B13,B16,B33' && r.list.join() === WANT1.join() && r.pl === 5 && JSON.stringify(r.tA) === JSON.stringify(T1), r);
     ok(`${W} c 하객 맞이 — 고르기 단추 · «바꾸기» · 선택 표시 · 접힌 줄 · 순서 화살표 두 줄 0`, r && r.rows === 0 && r.chg === 0 && r.on === 0 && !r.fold && r.ord === 0, r);
     await go(f, 'table'); r = await look(f, 'M8');
     ok(`${W} c 테이블 인사 — 안내 한 줄 · 곡 줄 5(B23 · B14 · B24 · B16 · B13 — 하객 맞이와 겹치는 셋은 빼면 30분이 안 돼 맨 뒤로 · DETAIL_R3_1101 ⑦ 보탬) · 고르기 0`, r && r.info === '테이블 인사와 사진 동안 아래 곡들이 차례로 흘러요 · 약 30분' && r.list.join() === 'B23,B14,B24,B16,B13' && r.rows === 0 && r.chg === 0 && r.on === 0, r);
