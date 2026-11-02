@@ -21840,4 +21840,7 @@ chk 'BED_TITLE_ONE_1102' assets/bgm-bed.js 4
 chk "M1:'들어와 앉는 동안 차례로 흘러요'" assets/bgm-bed.js 1
 chk '.ls-bed.bed-one .bed-box .bed-info{display:none}' order-preview.html 1
 nochk '동안 아래 곡들이 차례로 흘러요' assets/bgm-bed.js
+# ★[CNT_ROW_ALIGN_1102 사장님 «본식 순간 6/6 · 긴 순간 3/3 라인이 안 맞는데»] 진행 줄 안 카운터 = 높이 44 가운데(순간 글자와 한 줄)
+chk 'CNT_ROW_ALIGN_1102' order-preview.html 1
+nochk '.mk-sc .pk-cnt{margin:4px 2px 8px}' order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
