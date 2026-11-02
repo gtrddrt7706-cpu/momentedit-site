@@ -4778,6 +4778,14 @@ chk 'PV_REMOTION_1101' automation/prevideo/README.md 1
 # ★[PV_PARTNER_1101 2026-11-01 사장님 «퀄리티를 보니 우리가 만들면 안 될 거 같아» · «고객이 결제하게 하고 싶지 않아» · «대신 주문은 손이 많이 가 패스 · 협력사와 직접 소통»]
 #   식전 영상 = 외부 협력사 연결형(고객 결제 0 · 우리가 실사용 정산 · 우리 대행 없음) · 위 Remotion 뼈대는 보류(지우지 않는다)
 chk 'PV_PARTNER_1101' automation/prevideo/README.md 1
+# ★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식순 화면은 식전 영상 링크를 받지 않는다 —
+#   마이페이지 «식전 영상» 카드가 받는다 · 식순 준비 목록에 할 일 없음(open-course · listen-page · ghi-polish · bgm-form 이 화면까지 잰다)
+chk 'PV_MYPAGE_1102' assets/ritual-open.js 1
+chk 'PV_MYPAGE_1102' order-preview.html 5
+chk 'PV_MYPAGE_1102' api/_ritual-kb.js 1
+chk 'PV_MYPAGE_1102' mypage.html 1
+chk 'PV_MYPAGE_1102' scripts/audit/open-course.mjs 2
+nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
 # ★[PV_NO_LIMIT_1101 2026-11-01 사장님 «제한 두지 마»] 협력사 식전 영상은 사진 장수 · 길이를 제한하지 않는다(템플릿 규격 그대로)
 chk 'PV_NO_LIMIT_1101' automation/prevideo/README.md 1
 chk 'PV_SAME' automation/platform/89_prevideo.gs 1
@@ -21124,7 +21132,7 @@ chk "var SCENE_AT = 'pick';" assets/ritual-open.js 1
 chk 'var SCENE_N = {' assets/ritual-open.js 1   # [SCENE_EXTRA_195] 장수 표(빈 표 → 11장면 3)
 chk 'function sceneImgs(id)' assets/ritual-open.js 1
 chk "if((mode==='pv'&&at!=='pick')||(mode!=='pv'&&at!=='step')) return '';" order-preview.html 1
-chk '장면 사진 '"'"'+n+'"'"'</button>' order-preview.html 1
+chk '장면 사진 '"'"'+n+'"'"'장 보기</button>' order-preview.html 1   # [PV_FOOT_MIN_1102] 칩 → 글 고리
 chk "function _psAlt(x){ return x.rep+' · '+x.desc; }" order-preview.html 1
 chk 'window.psKey=function(e,k)' order-preview.html 1
 chk "p.className='ps-alt'; p.textContent=img.alt" order-preview.html 1
@@ -21742,4 +21750,13 @@ chk 'MEAL_GO_1102' mypage.html 2
 chk "window.clGo=function(to){ if(!EMBED) return;" order-preview.html 1
 chk "if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }" mypage.html 1
 chk "if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext='';" mypage.html 1
+# ★[PV_FOOT_MIN_1102 사장님 «여기 부분 미니멀하게 정리가 필요해 보여» → «추천대로»] ① 미리 보기 창 아래 — 장면 사진은 글 고리 · 위 선 없음 · «늘 있는 순간이에요» 없음 · «다시 듣기»는 아래 줄 그대로
+chk 'PV_FOOT_MIN_1102' order-preview.html 3
+nochk '<span class="pv-fixed">늘 있는 순간이에요</span>' order-preview.html
+chk '.ps.ps-pk{margin-top:6px;padding-top:0;border-top:0}' order-preview.html 1
+# ★[PV_AGAIN_UP_1102 사장님 «올리고 오른쪽으로»] ① 창 «다시 듣기»는 장면 사진 고리 줄 오른쪽(사진 없는 순간도 같은 자리) · 아래 고정 줄은 담기 · 빼기만(늘 있는 순간이면 줄째 없음)
+chk 'PV_AGAIN_UP_1102' order-preview.html 2
+chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button>' order-preview.html 1
+chk '.pv-act:empty{display:none}' order-preview.html 1
+nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

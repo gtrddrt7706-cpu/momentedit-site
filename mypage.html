@@ -11915,7 +11915,7 @@ function _pvcConfirm(){
   return h;
 }
 function _pvcUpload(){
-  var F=PVCFLOW, h='<h2 class="pvc-h">준비한 영상 올리기</h2><p class="pvc-sub">보내 주신 영상의 길이와 내용은 바꾸지 않아요.</p>';
+  var F=PVCFLOW, h='<h2 class="pvc-h">준비한 영상 올리기</h2><p class="pvc-sub">보내 주신 영상은 길이 · 내용 · 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요.</p>';   /* ★[PV_MYPAGE_1102 2026-11-02] 식순 링크 칸 아래 있던 «영상 소리 그대로 · 배경 음악은 영상에» 한 줄([BGM_R3_1023])을 받는 곳으로 옮겼다 */
   h+='<div class="pvc-up"><label for="mp_pvcLink" class="pvc-lab">링크로 보내기</label><input id="mp_pvcLink" class="cc-input" type="url" inputmode="url" maxlength="400" autocomplete="off" spellcheck="false" placeholder="구글 드라이브 · 업체 공유 링크" value="'+escapeHtml(F.d.link||'')+'">'
     +'<p class="pvc-help">원본 파일을 받을 수 있는 링크로 보내 주세요. 파일만 있으면 구글 드라이브에 올려 링크를 보내 주세요.</p></div>';
   h+='<div class="pvc-after"><p class="pvc-flow-h">보낸 뒤</p>'+_pvcDots(['스튜디오가 원본을 받아 재생을 확인하면 이 화면에서 보고 확정해 주세요.', _pvcOldLine()])+'</div>';

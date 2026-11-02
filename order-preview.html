@@ -1015,7 +1015,8 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ps-alt{margin:0;padding:12px 14px;border-radius:10px;background:var(--bg2);font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
 .ps-fine{margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all}
 /* [SCENE_AT_194] ① 고르는 화면 — 접힌 칩 · 넘겨 보기 */
-.ps.ps-pk{padding-top:10px}
+.ps.ps-pk{margin-top:6px;padding-top:0;border-top:0}   /* ★[PV_FOOT_MIN_1102] ① 창 — 선을 하나 덜고 칩은 글 고리로(장면 사진은 곁가지라 단추 무게를 주지 않는다) */
+.ps-pk .ps-chip{min-height:44px;padding:0 2px;border:0;border-radius:0;background:none;color:var(--gold-deeper);font-size:14px;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 .ps .vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ps-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
 .ps-chip::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 2px}
@@ -1038,10 +1039,15 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 #psZoom .psz-x{position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;min-width:48px;min-height:48px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;cursor:pointer}
 .pv-again{display:inline-flex;align-items:center;gap:6px}
 .pv-again{background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
+/* ★[PV_AGAIN_UP_1102] 다시 듣기 = 장면 사진 고리와 같은 줄 오른쪽 · 글 단추(테 없음) · 사진을 펼쳐도 그 자리 · 아래 고정 줄은 담기 · 빼기가 있을 때만 */
+.pv-row{position:relative;min-height:44px;margin-top:6px}
+.pv-row .ps.ps-pk{margin-top:0}
+.pv-row .pv-again{position:absolute;top:0;right:0;min-height:44px;padding:0 2px;border:0;background:none;font:inherit;font-size:14px;font-weight:500;color:var(--accent);cursor:pointer}
+.pv-row .pv-again:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
+.pv-act:empty{display:none}
 .pv-add{flex:1;background:#4E3F31;border:0;color:#fff}
 .pv-add.out{flex:0 0 auto;background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
 .pv-in{flex:1;text-align:right;font-size:14px;font-weight:600;color:var(--ink2)}
-.pv-fixed{flex:1;text-align:right;font-size:12.5px;color:var(--light)}
 .pv-fn{font-size:12.5px;color:var(--light);margin:10px 0 0;text-align:center}
 /* 예시 확인 알림 줄 — 3초 · [UNDO_OFF] 되돌리기 단추 없음 */
 .pk-undo{position:fixed;left:50%;bottom:calc(128px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);background:#4E3F31;color:#fff;font-size:12.5px;font-weight:500;border-radius:999px;padding:12px 22px;box-shadow:0 6px 20px rgba(58,45,34,.18);word-break:keep-all;pointer-events:none}   /* [UNDO_OFF] 단추가 없으니 여백을 고르게 · 누를 것이 없어 아래를 가리지 않게 터치는 통과 */
@@ -1360,7 +1366,8 @@ body.lsfull{overflow:hidden}
 .mk-send1 .mk-vt{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;flex:1 1 auto;min-width:0}   /* [PV_LINK_ONE] 이름 왼쪽 · 기한 오른쪽 한 줄 */
 .mk-send1 .mk-vlist{border-top:0;margin-top:0}.mk-send1 .mk-vr{border-bottom:0;padding-bottom:2px}.mk-send1 .mk-vx{border-bottom:0;padding-top:8px}.mk-send1 .mk-vn{font-weight:600}
 .mk-vx .upchk{margin-bottom:4px}
-.mk-vx .mk-pvsnd{margin:8px 0 0}   /* [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄(12.5px · --sub = mk-note) */
+.mk-vx .mk-pvsnd{margin:8px 0 0}
+.mk-pvmy .mk-vx{padding-top:4px}.mk-vx .mk-pvmyt{margin:0}   /* [PV_MYPAGE_1102] 링크 칸이 없으니 이름 줄 바로 아래 한 줄 */   /* [BGM_R3_1023] 식전 영상 링크 칸 아래 한 줄(12.5px · --sub = mk-note) */
 /* ★«고른 순서» 펼침 목록(.mk-ilist · .mk-irow · 꺾쇠 · 펼친 칸 .mk-idet · 고를 것 · «이 순간 만들러 가기 ›») 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW 2026-10-03 사장님 «이 순간 만들러 가기 › 이건 삭제 · 고를 것도 삭제»]
    ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 후 다음으로 · 뺀 이벤트는 옅은 투명으로 · 미니멀하면서 깔끔하고 군더더기 없이»]
    ② 첫 쪽 = 예식 흐름. 식전 · 본식 두 묶음 · 한 줄 = 번호 · 이름(★) · 목소리 한 낱말 · 약 몇 분 · «빼기». 선은 줄 사이 머리카락 선뿐 · 상자 · 카드 없음.
@@ -2405,7 +2412,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1102ss"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1102ss"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102s3"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1102pv"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1102ss"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102s3"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3246,7 +3253,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1102ss';   // [ASSET_V] 위 주석
+  var ASSET_V='1102pv';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -5258,9 +5265,10 @@ function _mkCopied(key){ var cp=(MK.copied&&MK.copied.k===key)?MK.copied:null; r
 function _mkCopyTo(key,t,msg){ var done=function(ok){ MK.copied={k:key,ok:ok,msg:msg}; clearTimeout(MK.copiedT); MK.copiedT=setTimeout(function(){ MK.copied=null; document.querySelectorAll('.mk-copied').forEach(function(e){ e.textContent=''; e.classList.remove('bad'); }); },6000); render(); };
   try{ navigator.clipboard.writeText(t).then(function(){ done(true); },function(){ done(false); }); }catch(e){ done(false); } }
 window.mkAskCopyPage=function(k){ var qs=_mkItems(k).filter(function(q){ return q.cat==='ask'; }); if(qs.length) _mkCopyTo('ask:'+k,_mkAskText(qs),'복사됐어요 · 부모님께 카톡으로 붙여 보내세요'); };
-function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(); if(!items.length) return '';
+function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(), pvMy=k==='prevideo'&&R.onOf(S,k); if(!items.length&&!pvMy) return '';   /* [PV_MYPAGE_1102] 식전 영상은 할 일이 없어도 «어디서 준비하나» 한 덩어리는 그린다 */
   var h='', gn=(R.onOf(S,k)?_lGroups(k):[]).map(function(g){ return (g.unote||'')+' '+(g.tip||''); }).join(' ');   /* [NOTE_TOAST] 덧말(note)은 칩 아래에 없다 — 보이는 줄만 겹침으로 친다 */
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
+  if(pvMy) h+=_pvMyRow(wed);   /* ★[PV_MYPAGE_1102] 링크 칸 대신 마이페이지 «식전 영상» 안내 한 덩어리 — 되살리지 말 것 */
   ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
     if(cat==='ask'&&qs.every(function(q){ return _askScript(q)&&c[q.id]==='site'; })) hd=_askScript(qs[0]).hd;   // [SPEECH_SCRIPT] 축사도   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
@@ -5289,6 +5297,10 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
     });
     h+='</ul></section>'; });
   return h; }
+/* ★★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식전 영상은 마이페이지 «식전 영상» 카드에서 준비하고 받는다(협력사 연결형 · [PV_PARTNER_1101]).
+   식순에는 링크 칸을 두지 않는다 — 이름 · 기한 한 줄([PV_SEND_ONE] 모양) + «어디서» 한 줄. 받는 곳이 둘이면 두 분이 어디에 보냈는지 헷갈리고 준비 목록이 두 번 셌다. */
+function _pvMyRow(wed){ return '<section class="mk-sec mk-prep mk-send1 mk-pvmy"><ul class="mk-vlist"><li class="mk-vr"><span class="mk-vt"><span class="mk-vn">식전 영상</span><span class="mk-vs">'+esc(_ndd(RitualOpen.dueWord({due:7},wed)))+'</span></span></li>'
+  +'<li class="mk-vx"><p class="mk-note mk-pvmyt">마이페이지 «식전 영상»에서 준비해요</p></li></ul></section>'; }
 function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=_linkOk(v)?'':'none'; }
 function _linkOk(v){ return /^https?:\/\/[^\s\/?#]+\.[^\s\/?#]+\S*$/i.test(String(v||'').trim()); }   // [QA_LINK_HOST] 가운데 띄어쓰기도 아니다   /* ★[QA_LINK_HOST 2026-10-04 점검] «https://» 만 쳐도 «링크 받았어요»가 떴다 — 주소(점이 있는 이름)까지 있어야 */   /* [R1-44] 식전 영상 링크 «링크 받았어요» 표시를 다른 쪽에 다녀오지 않아도 바로 */
 /* ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부 · 지금은 너무 지저분하니 디자인적으로 깔끔하게 · 첨부 안 되어 있으면 미완료»]
@@ -8939,9 +8951,8 @@ function _openWrite(){
   if(_pv||send.length||_voice){
   h+='<div class="wr-sec"><div class="wr-sub">보낼 것</div>';
   if(_pv){
-  h+='<div class="wr-item">'+esc(R.prepOf('prevideo',S)[0][1])+' <span class="wr-due">· '+esc(R.dueWord({due:3},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 한 원천
-  h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">';
-  h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
+  h+='<div class="wr-item">식전 영상 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 같은 이름
+  h+='<div class="wd" style="margin-top:6px">마이페이지 «식전 영상»에서 준비해요</div>';   /* ★[PV_MYPAGE_1102 2026-11-02 사장님] 링크 칸 · 주소 안내를 걷었다 — 식전 영상은 마이페이지 카드가 받는다 · 되살리지 말 것 */
   /* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] «사진을 올린 링크 … 영상으로 만들어요» 줄 뺌 · 되살리지 말 것 · 옛 줄 표식 [UPLOAD_HONEST 2-8] · [PREVIDEO_FREE] */
   }
   /* ★[H2_SEND_LUMP 2026-09-26 코워크 최종판 5-2] 식전 영상(링크 칸 · 설명 · 카톡 · 메일 · 25MB 안내)을 한 덩어리로 — 종전엔 축배 음료 줄이
@@ -9207,7 +9218,7 @@ function _pvEl(){
     +'<div class="pv-grab" aria-hidden="true"></div>'
     +'<div class="pv-h"><h3 id="pvT"></h3><span class="pv-tag" id="pvTag"></span><button type="button" class="pv-x" data-pvx aria-label="닫기">'+ICO_X+'</button></div>'
     +'<div class="pv-media" id="pvM"></div><p class="pv-q" id="pvQ"></p><div class="pv-pb" aria-hidden="true"><i id="pvBar"></i></div><p class="pv-st" id="pvSt"></p>'
-    +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div id="pvScene"></div><div class="pv-act" id="pvAct"></div>'
+    +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div class="pv-row" id="pvRow"><div id="pvScene"></div><button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button></div><div class="pv-act" id="pvAct"></div>'
     +'</div>';   /* ★«전체 나레이션은 연습하기에서 이어서 들어요» 한 줄(미리보기 창 맨 아래) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_FN_OFF] */
   el.addEventListener('click',function(e){ if(e.target&&e.target.closest&&e.target.closest('[data-pvx]')) opPvClose(); });
   /* ★[QA_SHEET_SWIPE 2026-10-04 점검] 손잡이가 있는데 끌어 내려도 안 닫혔다 — 손잡이 · 머리 줄을 80px 넘게 내리면 닫는다(단추 위에서 시작한 끌기는 아니다) */
@@ -9326,7 +9337,7 @@ function _psBox(k,mode){ var R=RitualOpen, x=R.sceneOf&&(!R.sceneShow||R.sceneSh
   var ims=(x.imgs&&x.imgs.length)?x.imgs:(x.img?[x.img]:[]), n=ims.length, i=Math.min(PSC.i[k]||0,Math.max(0,n-1)), id='ps_'+mode+'_'+k.replace(/[^a-z]/g,''), fold=mode==='pv', open=!fold||!!PSC.open[k];
   if(!n) return '';   /* 사진이 없는 장면은 상자째 없다(보이는 글이 구도 한 줄뿐이라) */
   var h='<section class="ps'+(fold?' ps-pk':'')+'" data-ps="'+esc(x.id)+'" data-psk="'+k+'" aria-labelledby="'+id+'"><h4 class="ps-h'+(fold?' vh':'')+'" id="'+id+'">이 순간에 담을 수 있는 장면</h4>';
-  if(fold) h+='<button type="button" class="ps-chip" aria-expanded="'+open+'" aria-controls="'+id+'c" data-fk="pschip:'+k+'" onclick="psToggle(\''+k+'\')">장면 사진 '+n+'</button>';
+  if(fold) h+='<button type="button" class="ps-chip" aria-expanded="'+open+'" aria-controls="'+id+'c" data-fk="pschip:'+k+'" onclick="psToggle(\''+k+'\')">장면 사진 '+n+'장 보기</button>';   /* ★[PV_FOOT_MIN_1102 사장님 «여기 부분 미니멀하게» → «추천대로»] 알약 칩 → 글 고리 «장면 사진 N장 보기 ⌄» · 위 가는 선 없음 */
   h+='<div class="ps-car" id="'+id+'c"'+(open?'':' hidden')+'>';
   h+='<div class="ps-view"'+(n>1?' tabindex="0" role="group" aria-roledescription="넘겨 보기" aria-label="장면 사진 '+n+'장" onkeydown="psKey(event,\''+k+'\')" ontouchstart="psTs(event)" ontouchend="psTe(event,\''+k+'\')"':'')+'>'
     +'<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기')+'"><img src="'+esc(ims[i].small)+'" alt="'+esc(_psAlt(x))+'" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button></div>';
@@ -9369,13 +9380,14 @@ window.psZoomClose=function(){ var z=document.getElementById('psZoom'); if(!z||z
 function _pvActs(ln){
   var R=RitualOpen, k=PV.k, el=document.getElementById('pvSheet'); if(!k||!el) return;
   if(ln===undefined) ln=_pvLine(k);
-  var a=el.querySelector('#pvAct'), had=!!(document.activeElement&&a.contains(document.activeElement)), wasAgain=had&&document.activeElement.classList.contains('pv-again');
+  var a=el.querySelector('#pvAct'), had=!!(document.activeElement&&a.contains(document.activeElement)), wasAgain=false;
   var always=!!R.ALWAYS[k]||k==='_close'||k==='_after', on=always||R.onOf(S,k);   /* [AFTER_FIX_196] */
-  a.innerHTML='<button type="button" class="pv-again" onclick="_pvPlay()">'+ICO_AGAIN+' '+((ln&&ln.src)?'다시 듣기':'처음부터')+'</button>'   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
-    +(always?'<span class="pv-fixed">늘 있는 순간이에요</span>'
+  var ag=el.querySelector('#pvAgain'); if(ag) ag.innerHTML=ICO_AGAIN+' '+((ln&&ln.src)?'다시 듣기':'처음부터');   /* ★[PV_AGAIN_UP_1102 사장님 «올리고 오른쪽으로»] 다시 듣기는 장면 사진 줄 오른쪽(사진이 없는 순간도 같은 자리) · 아래 줄은 담기 · 빼기만 */
+  a.innerHTML=''   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
+    +(always?''   /* ★[PV_FOOT_MIN_1102] «늘 있는 순간이에요»는 뺐다 — 담기 · 빼기 단추가 없는 것으로 충분하다(늘 있는 순간은 고를 일이 없다) */
       :(on?'<span class="pv-in">✓ 담겨 있어요</span><button type="button" class="pv-add out" onclick="opTgl(\''+k+'\')">빼기</button>'
           :'<button type="button" class="pv-add" onclick="opTgl(\''+k+'\')">'+'이 순간 담기'+'</button>'));
-  if(had){ var f=a.querySelector(wasAgain?'.pv-again':'.pv-add')||a.querySelector('button'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
+  if(had){ var f=a.querySelector('.pv-add')||a.querySelector('button'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
 }
 function _pvSay(t,bad){ var e=document.getElementById('pvSt'); if(!e) return; e.textContent=t||''; _ecNw(e);   /* [CODE_NOWRAP] */ e.classList.toggle('bad',!!(t&&bad)); if(t&&bad) e.setAttribute('role','alert'); else e.removeAttribute('role'); }   // [ERR_CODE_BUILDER] 미리 보기 창 상태 한 줄 — 실패는 진사 · role=alert
 /* ★★[BAR_SMOOTH 2026-10-10 사장님 «로딩 바 차오르는 게 살짝 뚝뚝 끊기는 느낌이야 개선해 줘»]
@@ -9694,9 +9706,7 @@ function renderStep(k){
   if(k==='prevideo'){
     var h='<div style="margin-top:16px">';
     h+=narBox(RitualOpen.NAR.prevideoIn,null);
-    h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX" style="margin-top:12px">';
-    h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
-    h+='<div class="wd" style="margin-top:6px">예식 7일 전까지 · 링크만 붙여 두시면 저희가 받아 둬요.</div>';   /* ★[PV_DUE7_1101 2026-11-01 사장님 «식전 영상 기한, 7일 전 통일로 가자»] 마이페이지 «식전 영상»과 같은 기한 */   // ★길이 안내(«…분 이내») 금지 — [PREVIDEO_FREE 2026-10-02] 길이 규정 없음(2026-10-05 남은 자리 정리)
+    h+='<div class="wd" style="margin-top:12px">영상은 마이페이지 «식전 영상»에서 준비해요 · 예식 7일 전까지</div>';   /* ★[PV_MYPAGE_1102 2026-11-02 사장님 «저기서 영상을 받을 필요도 없잖아»] 링크 칸 걷음 · 되살리지 말 것 · 옛 줄 [PV_DUE7_1101] 기한은 그대로 · 길이 안내 금지는 그대로 [PREVIDEO_FREE] */
     /* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] reassure «사진을 올린 링크 … 영상으로 만들어» 줄 뺌 · 되살리지 말 것 */
     h+='</div>'; return h;
   }
