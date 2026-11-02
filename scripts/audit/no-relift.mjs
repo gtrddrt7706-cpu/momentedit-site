@@ -3,7 +3,7 @@
    E 엔진 표 — 축사 «음악 없이» 뒤 박수 · 축가 여는 말 · 축가 끝 박수 = −90 · 본식 곡 칸에서 정적 뒤 다시 올라오는 자리 0(성혼 선언 예외) · 다시 올라 10초 안에 정적 0
      (축사 «음악과 함께» · 축사를 뺀 날 · 부모님께 인사 · 테이블을 뺀 날도) · 다음 순간 곡(부모님께 인사 · 닫는 인사)은 무음에서 그대로
    P 미리 듣기 하루 이어 듣기(감사 인사 → … → 축배 → 닫는 인사) — 정적이 된 곡이 다른 줄에서 다시 올라오는 일 0(성혼 선언 뒤 · 축배 곡 M7 예외) ·
-     축가 여는 말 · 축가 끝 박수 · 편지 첫 줄 동안 음악 0 · 축가(MR) 앞 정적 ≥ 1초 · 축배 «위하여» 뒤 축배 곡(M7) 1회 이상 · 순간 하나(축가 · 편지)만 들어도 같은 규칙
+     축가 여는 말 · 축가 끝 박수 · 편지 첫 줄 동안 음악 0 · 축가(MR) 앞 정적 ≥ 1초 · 축배 «위하여» 뒤 축배 곡(M7) 1회 이상 · 순간 하나(축가 · 편지 · 하객 맞이 — 여는 멘트 뒤 여운 없음)만 들어도 같은 규칙
    BP_BED · BP_OP · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -121,6 +121,10 @@ try {
   /* 순간 하나 */
   for (const k of ['song', 'letter']) { await go(f, k); const o1 = await run(f, [k], k === 'song' ? 14000 : 20000), up = o1.filter((x) => x.on && (k === 'song' || x.s === 'letter-each')), b1 = backAgain(o1, '');
     ok(`P ${k === 'song' ? '축가' : '편지'}만 듣기 — 여는 말 · ${k === 'song' ? '축가 · 박수' : '첫 줄'} 동안 음악 0 · 되살아남 0`, !up.length && !b1.length, { up: up.map((x) => [Math.round(x.t), x.i, x.s || x.lab, x.f, x.want]), b1 }); }
+  /* [NO_RELIFT_1102 덧2 사장님 «여는 멘트 전에 BGM 은 멈추게 하자»] 하객 맞이만 듣기 — 여는 멘트(narr-open) 시작부터 끝까지 · 그 뒤 여운까지 음악 0 */
+  { await go(f, 'guest'); const og = await run(f, ['guest'], 120000), i0 = og.findIndex((x) => x.s === 'narr-open'), aft = i0 > -1 ? og.slice(i0).filter((x) => x.on) : [];
+    const tail = await f.evaluate(() => new Promise((res) => { const o = []; let n = 0; const iv = setInterval(() => { const v = BgmBed._t.BED.cur; o.push(!!(v && v.src && v.want > -60)); if (++n > 40) { clearInterval(iv); res(o); } }, 100); }));
+    ok('P 하객 맞이만 듣기 — 여는 멘트 시작부터 끝까지 · 끝난 뒤 여운까지 음악 0', i0 > -1 && !aft.length && !tail.some(Boolean), { i0, aft: aft.slice(0, 3).map((x) => [Math.round(x.t), x.s || x.lab, x.f, x.want]), tail: tail.filter(Boolean).length }); }
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3));
   await ctx.close();
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }

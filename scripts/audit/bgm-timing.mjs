@@ -89,7 +89,7 @@ try {
     ok('d 축사 여는 말 −16 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 낭독 −20 · 축배 여는 말 · «위하여» −16 · 잔 나누는 이음말 말 −16 · 잔 나누는 40초 −8(MEANING_R1_1102 12)',
       fi.duck === -16 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -20 && vi.live && vi.live.duck === -20 && tt.duck === -16 && tt.live && tt.live.duck === -16 && b13.duck === -16 && b13.live && b13.live.duck === -8,
       { fi: fi.duck, ri: ri.live && ri.live.duck, ti: ti.live && ti.live.duck, tt: [tt.duck, tt.live && tt.live.duck], b13: [b13.duck, b13.live && b13.live.duck] });
-    ok('c 축사 · 축가 맺는 말 −90(«음악 없이») · 박수 = −8 을 1.5초에', b10.duck === -90 && b10.live && b10.live.duck === -8 && b10.live.upMs === 1500 && se.duck === -90 && se.live && se.live.duck === -8 && se.live.upMs === 1500, { b10: [b10.duck, b10.live], se: [se.slug, se.duck, se.live && se.live.upMs] });
+    ok('c 축사 · 축가 맺는 말 −90(«음악 없이») · 박수도 정적(NO_RELIFT_1102 · 박수 소리가 채운다 · 종전 −8)', b10.duck === -90 && b10.live && b10.live.duck === -90 && se.duck === -90 && se.live && se.live.duck === -90, { b10: [b10.duck, b10.live], se: [se.slug, se.duck, se.live && se.live.upMs] });
     const b10b = by(B(Object.assign({}, S, { bgm: { S5: { m: 'bed' } } })), 'bridge-b10-speech-clap');
     ok('c 축사 «음악과 함께»(M4S5)인 날은 맺는 말 −16 · 박수 −8', b10b.duck === -16 && b10b.live && b10b.live.duck === -8, [b10b.duck, b10b.live && b10b.live.duck]);
     const le = by(cs, 'narr-letter-end'), lb = by(B(Object.assign({}, S, { bgm: { S6: { m: 'bed' } } })), 'narr-letter-end');
@@ -156,7 +156,7 @@ try {
       await pg.evaluate(() => { window.__bgmLog.length = 0; }); await pg.evaluate((i) => window.__bgmGo.fire(i), i);
       await pg.waitForFunction(() => window.__bgmSt().phase === 'live', null, { timeout: 30000 }).catch(() => {}); await pg.waitForTimeout(300);
       const lg = await pg.evaluate(() => window.__bgmLog.slice()), st = await pg.evaluate(() => window.__bgmSt());
-      ok(`c 콘솔 ${sl} — 맺는 말 −90 · 박수(사람 순간)에서 1.5초에 −8`, lg.length >= 2 && lg[0].db === -90 && lg.some((x) => x.db === -8 && x.ms === 1500) && st.want === -8, { lg: lg.slice(0, 4), want: st.want }); }
+      ok(`c 콘솔 ${sl} — 맺는 말 −90 · 박수(사람 순간)도 정적(NO_RELIFT_1102 · 앞 곡을 되살리지 않는다)`, lg.length >= 1 && lg[0].db === -90 && !lg.some((x) => x.db > -60) && st.want === -90, { lg: lg.slice(0, 4), want: st.want }); }
     ok('콘솔 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();

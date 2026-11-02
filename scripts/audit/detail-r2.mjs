@@ -126,7 +126,7 @@ try {
   /* ⑤ 축가 → 부모님께 인사 */
   { await setS(f, { bgm: {} }); await go(f, 'song'); const r = await run(f, ['song', 'tribute'], 22000, true); await stop(f); const q = await f.evaluate(() => null);
     const clap = r.filter((x) => x.k === 'song' && x.act && x.src && !x.lead), txt = await f.evaluate(() => { LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['song', 'tribute'], true, true); const c = LP.q.filter((x) => x.clap).map((x) => [x.txt, x.ms]); lsStop(); try { lsCloseBig(); } catch (e) {} return c; });
-    ok('⑤ 축가 → 부모님께 인사 이어 듣기 — 박수 줄 3초 «하객이 박수로 축하해요» · 음악 −8', txt.length === 1 && txt[0][0] === '하객이 박수로 축하해요' && txt[0][1] === 3000 && clap.length > 5 && clap.slice(-5).every((x) => x.want === -8), { txt, clap: [...new Set(clap.map((x) => x.f + ':' + x.want))] }); }
+    ok('⑤ 축가 → 부모님께 인사 이어 듣기 — 박수 줄 3초 «하객이 박수로 축하해요» · 음악 없음(NO_RELIFT_1102 · 축가 뒤 정적 · 부모님께 인사 곡은 무음에서)', txt.length === 1 && txt[0][0] === '하객이 박수로 축하해요' && txt[0][1] === 3000 && clap.every((x) => !(x.want > -60)), { txt, clap: [...new Set(clap.map((x) => x.f + ':' + x.want))] }); }
   /* ⑥ 편지 끝 연출 경합 */
   { await setS(f, { on: { letter: 1, tribute: 1 }, bgm: {} }); await go(f, 'welcome'); await f.evaluate(() => BgmBed.lpWarm(['welcome', 'tribute'])); await wait(f, 1500); await go(f, 'letter');
     const z = await f.evaluate(async () => { const B = BgmBed._t; lsPlay('letter'); const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { if ((B.LPB.tailTo && B.LPB.tailTo > Date.now()) || performance.now() - t0 > 40000) { clearInterval(iv); res(); } }, 50); });
