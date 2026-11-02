@@ -21664,7 +21664,7 @@ chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3
 chk "if (st.music === 'next') {" console.html 1
 chk 'function toastBed(){' assets/bgm-bed.js 1
 chk 'LPB.tailTo=Date.now()+w+um; return w+um+600; }' assets/bgm-bed.js 1
-chk "ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:undefined" order-preview.html 1
+chk "ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:(k!==" order-preview.html 1
 chk "ldk:(c.live&&c.live.duck!=null)?c.live.duck:-20}); } }" order-preview.html 1
 chk 'BgmBed.lpTail(_pv,_nx)' order-preview.html 1
 nochk "var f6=eff('M6'); return has(f6)?f6:''; }" assets/bgm-bed.js 0
@@ -21881,7 +21881,7 @@ chk 'CLEAR_HEAD_1102' order-preview.html 3
 chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.html 1
 chk "_opPrev=null; MK.navOpen=false; MK.flowKeep=null; MK.toastGo=''; MK.statI=null;" order-preview.html 1
 chk 'CLEAR_HEAD_1102' scripts/audit/clear-head.mjs 1
-chk "listen-pace knobs detail-r1 pr-bgm clear-head' }" .github/workflows/merge-guard.yml 1
+chk "listen-pace knobs detail-r1 pr-bgm clear-head" .github/workflows/merge-guard.yml 1
 # [AFTER_BEFORE_FAMILY_200] 촬영 후 안내 → 가족 구도 → 추가 촬영(새 코스 마지막 큐 · endHold) 동안 같은 곡 목록이 이어진다 — after-photo-loop 이 새 순서로 잰다(CI bgm-sound e 칸)
 chk 'AFTER_BEFORE_FAMILY_200' scripts/audit/after-photo-loop.mjs 2
 chk "act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12, endHold: true," assets/ritual-cue.js 1
@@ -21893,7 +21893,7 @@ chk 'GUEST_TIME_1102' order-preview.html 2
 chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
 nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
 nochk "M1: 1800" assets/bgm-picks.js
-chk "screen-bgm after-photo-loop guest-time' }" .github/workflows/merge-guard.yml 1
+chk "screen-bgm after-photo-loop guest-time" .github/workflows/merge-guard.yml 1
 # ── 2026-11-02 [FIX_FLOW_204 검토 204 보충 A ~ D · 사장님 «추천대로 진행»] 고객이 나레이션과 진행(행동)을 시간순으로 파악 — 늘 있는 진행(식전 하객 맞이 · 사진 · 정리)을 한 벌(_fixSteps)로 ① 진행 줄 · ② 예식 흐름이 함께 쓴다
 chk "function _fixSteps(kind)" order-preview.html 1
 chk "var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};" order-preview.html 1
@@ -21924,4 +21924,12 @@ nochk '동안 아래 곡들이 차례로 흘러요' assets/bgm-bed.js
 # ★[CNT_ROW_ALIGN_1102 사장님 «본식 순간 6/6 · 긴 순간 3/3 라인이 안 맞는데»] 진행 줄 안 카운터 = 높이 44 가운데(순간 글자와 한 줄)
 chk 'CNT_ROW_ALIGN_1102' order-preview.html 1
 nochk '.mk-sc .pk-cnt{margin:4px 2px 8px}' order-preview.html
+# ★[NO_RELIFT_1102 사장님 «이어 듣기 하면 전에 틀었던 BGM 이 나오는 버그»] 정적 뒤 앞 곡을 되살리지 않는다 — 엔진 한 표(duck · live.duck)에서 · 미리 듣기 박수 줄도 그 값 · 정적으로 끝나면 여운 없음 · 축배 곡(M7) 지키기(검사 = CI bgm-sound b 칸)
+chk 'NO_RELIFT_1102' assets/ritual-cue.js 2
+chk 'NO_RELIFT_1102' assets/bgm-bed.js 2
+chk 'NO_RELIFT_1102' order-preview.html 3
+chk 'ldk:_cx.lvd})' order-preview.html 1
+chk 'cues\[m\].liveDuck = cues\[m\].live.duck;' assets/ritual-cue.js 1
+chk 'NO_RELIFT_1102' scripts/audit/no-relift.mjs 1
+chk "after-photo-loop guest-time no-relift" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
