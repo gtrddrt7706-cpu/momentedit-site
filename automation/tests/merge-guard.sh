@@ -21745,7 +21745,9 @@ chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></b
 chk '.pv-act:empty{display:none}' order-preview.html 1
 nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
 # ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 들어가서 이모지 같은 거 전부 없애고»] 고르기 카드 🍽 · 🍃 삭제 — 되살리지 말 것
-chk 'DN_NO_EMOJI_1102' mypage.html 2
+chk 'DN_NO_EMOJI_1102' mypage.html 4
+nochk "content:'\\\\2665'" mypage.html
+nochk "(_pf?'★':'☆')" mypage.html
 nochk 'class="dgc-ico"' mypage.html
 nochk '🍽' mypage.html
 nochk '🍃' mypage.html
