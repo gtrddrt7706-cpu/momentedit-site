@@ -12990,7 +12990,7 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ _kbChip(el,function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });   // MPD4_F3 큐시트 칩 키보드화
   var _dnRefocus=function(find){ try{ var nb=find(); if(nb) nb.focus({preventScroll:true}); }catch(e){} };   // [DN_ARIA_STATE] 다시 그린 뒤 같은 단추로 — 초점이 사라지면 aria-pressed · aria-expanded 의 새 값이 안 들린다
-  Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill[data-ax],.dn-segbtn'),function(el){   /* [DN_CHIP_ONE_1102] 상황 칩도 .dn-fpill 이라 조건 칩만(data-ax) */  el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; if(fls.noCafe && !fls.group && !fls.headN && !fls.al) delete fls.noCafe; TRKFLOW.draft._filters=fls;   /* ★[DN_NO_HIDDEN_FL_1102 GPT 1라운드 05] 상황 칩이 남긴 «카페 빼기»는 화면에 칩이 없다 — 그 칩을 만든 조건(단체 · 인원 · 한잔)을 다 끄면 함께 지운다 */ TRKFLOW.draft._aiSummary=''; if(typeof DN_UI!=='undefined') DN_UI.all=false; render(box); _dnRefocus(function(){ return [].filter.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(b){ return b.getAttribute('data-ax')===ax && b.getAttribute('data-fv')===v; })[0]; }); }); });   // 다이닝 취향칩·세그먼트 토글(수동 조정 시 추천 요약 해제 — 모순 방지·조건 바뀌면 상위 8곳부터 다시)
+  Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill[data-ax],.dn-segbtn'),function(el){   /* [DN_CHIP_ONE_1102] 상황 칩도 .dn-fpill 이라 조건 칩만(data-ax) */  el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; if(fls.noCafe && !fls.group && !fls.al) delete fls.noCafe;   /* [GPT 2라운드 03] 인원만 남으면 «카페 빼기»도 푼다 */ TRKFLOW.draft._filters=fls;   /* ★[DN_NO_HIDDEN_FL_1102 GPT 1라운드 05] 상황 칩이 남긴 «카페 빼기»는 화면에 칩이 없다 — 그 칩을 만든 조건(단체 · 인원 · 한잔)을 다 끄면 함께 지운다 */ TRKFLOW.draft._aiSummary=''; if(typeof DN_UI!=='undefined') DN_UI.all=false; render(box); _dnRefocus(function(){ return [].filter.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(b){ return b.getAttribute('data-ax')===ax && b.getAttribute('data-fv')===v; })[0]; }); }); });   // 다이닝 취향칩·세그먼트 토글(수동 조정 시 추천 요약 해제 — 모순 방지·조건 바뀌면 상위 8곳부터 다시)
   var _drst=$('dn_reset'); if(_drst){ _drst.addEventListener('click',function(){ collect(); TRKFLOW.draft._filters={}; TRKFLOW.draft._aiSummary=''; render(box); }); }   // 조건 초기화
   // [찜] 별표 토글(카드 선택과 분리 — span role=button: label 활성화 전달 안 받음 + stopPropagation) · 재렌더 후 앵커 기준 스크롤 유지(튐 방지)
   var _dnFindByAttr=function(attr,val){ var all=box.querySelectorAll('['+attr+']'); for(var i=0;i<all.length;i++){ if(all[i].getAttribute(attr)===val) return all[i]; } return null; };
@@ -13022,8 +13022,8 @@ function bindTrk(box, render, collect, opt){
   var _daskai=$('dn_askai'); if(_daskai){ _daskai.addEventListener('click',function(){ var inp=$('dncInput'); if(inp){ try{inp.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){} inp.focus(); } }); }   // 빈 결과 → AI 입력으로 유도(막다른 길 방지)
   var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?false:DN_UI.det; DN_UI.det=!opn; render(box); _dnRefocus(function(){ return $('dn_det'); }); }); }   // 조건 더 좁히기 펼침/접기(기본 접힘과 동일 기준)
   var _dpre=$('dn_pre'); if(_dpre){ _dpre.addEventListener('click',function(){ collect(); var opn=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre; DN_UI.pre=!opn; render(box); _dnRefocus(function(){ return $('dn_pre'); }); }); }   // '이런 자리를 찾고 있어요' 프리셋 펼침/접기(기본 접힘)
-  var _dmore=$('dn_more'); if(_dmore){ _dmore.addEventListener('click',function(){ collect(); DN_UI.all=true; render(box); }); }   // 리스트 전체 보기
-  var _dless=$('dn_less'); if(_dless){ _dless.addEventListener('click',function(){ collect(); DN_UI.all=false; render(box); _dnRefocus(function(){ return $('dn_more')||$('dn_attr_h'); }); }); }   // [DN_LIST_LESS_1102]
+  var _dmore=$('dn_more'); if(_dmore){ _dmore.addEventListener('click',function(){ collect(); DN_UI.all=true; DN_UI.less=false; render(box); }); }   // 리스트 전체 보기
+  var _dless=$('dn_less'); if(_dless){ _dless.addEventListener('click',function(){ collect(); DN_UI.all=false; DN_UI.less=true; render(box); _dnRefocus(function(){ return $('dn_more')||$('dn_attr_h'); }); }); }   // [DN_LIST_LESS_1102]
   Array.prototype.forEach.call(box.querySelectorAll('[data-preset]'),function(el){ el.addEventListener('click',function(){ collect(); var p=DN_PRESETS[+el.getAttribute('data-preset')]; if(p){ var _cur=Object.assign({},TRKFLOW.draft._filters||{}); delete _cur.noCafe; TRKFLOW.draft._filters=Object.assign(_cur,p.set);   /* ★[DN_PRESET_MERGE_1102 사장님 «추천대로»] 상황 칩은 그 칩의 조건만 바꾼다 — 정해 둔 인원 · 예산을 지우지 않는다 */ TRKFLOW.draft._aiSummary=''; DN_UI.all=false; DN_UI.det=null; logAwDemand({source:'preset', label:p.label, head:(p.set&&p.set.headN)||''}); render(box); } }); });   // 원탭 프리셋 — 필터 교체
   var _dattr=$('dn_attr_h'); if(_dattr){ _dattr.addEventListener('click',function(){ collect(); DN_UI.attr=!DN_UI.attr; render(box); _dnRefocus(function(){ return $('dn_attr_h'); }); }); }   // 가볼 만한 곳 펼침/접기 · [DN_ATTR_KB] 다시 그린 뒤 같은 단추로(새 aria-expanded 가 들리게)
   var _dncF=$('dncForm'); if(_dncF){
@@ -13093,11 +13093,12 @@ function bindTrk(box, render, collect, opt){
 // 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. (식당 카드는 DINE_DB 칩 필터가 단일 출처)
 // 본예식 시간 → 식사 회차 안내 문구 (10:00→11:50 / 13:20→15:00 브레이크 시간대 / 16:40→18:10)
 function _dineSlot(wt){
+  /* ★[DN_ORIGIN_ALL_1102 GPT 2라운드 04] 예식 시각이 있는 세 갈래에도 «어디서부터»를 — 목록 아래 각주를 뺀 뒤([DN_ONE_CAUTION_1102]) 이 갈래엔 출발점이 없었다 */
   /* [DN_CLOCK_SAY 2026-09-26 · 점검 L5 clock24 · 사장님 결정 ②] 도착 시각은 말하는 꼴(«11시 50분» · «3시» · «6시 10분») — 앞말(오전 · 오후 · 저녁 예식)이 이미 때를 말한다.
        바로 아래 예약 시간 칸의 예시(«오후 1시 30분»)와 같은 꼴이다. 숫자(도착 기준 11:50 · 15:00 · 18:10)는 그대로다(_DN_ARR). */
-  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11시 50분 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.'};
-  if(wt==='13:20') return {lead:'오후 예식은 3시 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 곳, 또는 여유로운 카페·브런치 파티가 잘 맞아요.'};
-  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 6시 10분 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.'};
+  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11시 50분 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요. 차로 걸리는 시간은 고양 향동 스튜디오 출발 기준이에요.'};
+  if(wt==='13:20') return {lead:'오후 예식은 3시 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 곳, 또는 여유로운 카페·브런치 파티가 잘 맞아요. 차로 걸리는 시간은 고양 향동 스튜디오 출발 기준이에요.'};
+  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 6시 10분 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요. 차로 걸리는 시간은 고양 향동 스튜디오 출발 기준이에요.'};
   /* [DN_TRUE_COPY] 2026-09-26 사장님 결정 ⑰ · «직접 검증해 둔»은 검증한 곳(v:true)이 있을 때만 쓴다 — 지금 80곳이 전부 미검증이라
      머리 제목도 «검증» 대신 «추천»으로 바뀌는데(_dnVerifiedN) 이 줄만 «검증»이라고 말하고 있었다(책임질 수 없는 안심). */
   var _vN=0; for(var _i=0;_i<DINE_DB.length;_i++){ if(DINE_DB[_i].v) _vN++; }
@@ -13342,7 +13343,7 @@ function dineFilterUI(d, wt){
   list.sort(function(a,b){ if(!!b.pick!==!!a.pick) return a.pick?-1:1; if(bigGroup){ var cs=_capScore(a)-_capScore(b); if(cs) return cs; } if(a.eld!==b.eld) return a.eld?-1:1; if(a.v!==b.v) return a.v?-1:1; return a.d-b.d; });
   // 카드는 상위 8곳만 먼저 — 전체는 버튼으로(59곳 일괄 나열 방지). 이미 고른 곳이 잘리면 자동 전체 표시.
   var CAP=8, showAll=DN_UI.all;
-  if(!showAll && (d.venuePick || (d._favs&&d._favs.length))){ for(var ci=CAP;ci<list.length;ci++){ if(list[ci].n===d.venuePick || _dnFavHas(d,list[ci].n)){ showAll=true; break; } } }   // 담은 곳(_favs)이 상위 8곳 밖이면 자동 전체 표시 — 재진입 시 담은 카드가 안 보이던 문제
+  if(!showAll && !DN_UI.less && (d.venuePick || (d._favs&&d._favs.length))){   /* [DN_LIST_LESS_1102 · GPT 2라운드 02] 두 분이 접었으면 담은 곳 때문에 다시 펼치지 않는다 */ for(var ci=CAP;ci<list.length;ci++){ if(list[ci].n===d.venuePick || _dnFavHas(d,list[ci].n)){ showAll=true; break; } } }   // 담은 곳(_favs)이 상위 8곳 밖이면 자동 전체 표시 — 재진입 시 담은 카드가 안 보이던 문제
   var shown=(showAll||list.length<=CAP+2)?list:list.slice(0,CAP);
   /* ★[DN_RESET_ALWAYS_1102 GPT 1라운드 05] «조건 초기화»는 조건이 하나라도 걸려 있으면 늘 — 종전엔 결과가 0곳일 때만 나와, 상황 칩이 남긴 숨은 조건을 풀 길이 없었다 */
   var _flOn=Object.keys(fl).some(function(k){ return !!fl[k]; });
@@ -13369,7 +13370,7 @@ function dineFilterUI(d, wt){
       +(_fav?'<span class="dn-savedtag">담음</span>':'')
       +escapeHtml(r.n)+_badge
       +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</div>';
-  }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':((DN_UI.all&&list.length>CAP+2)?'<button type="button" class="dn-morebtn" id="dn_less">추천 '+CAP+'곳만 보기</button>':''))   /* ★[DN_LIST_LESS_1102 사장님 «추천대로»] 전체를 펼친 뒤 다시 접기 */
+  }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':((showAll&&!DN_UI.less&&list.length>CAP+2)?'<button type="button" class="dn-morebtn" id="dn_less">추천 '+CAP+'곳만 보기</button>':''))   /* ★[DN_LIST_LESS_1102 사장님 «추천대로»] 전체를 펼친 뒤 다시 접기 */
   : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 찾는 곳이 따로 있으면 위 칸에 이름을 적어 주세요.</div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:10px 16px">조건 초기화</button><button type="button" class="cc-btn-ghost" id="dn_askai" style="width:auto;padding:10px 16px">말로 찾아볼까요?</button></div>';
   // (2026-07-12 통합) 시나리오 칩(키즈·뒷풀이)은 위 컨셉 칩 줄로 이동 · 지도 결과는 아래 리스트 영역에 노출 → AI와 리스트가 한 흐름.
   var chat=d._chat||[];
@@ -13409,7 +13410,7 @@ function dineFilterUI(d, wt){
   /* [DN_TRUE_COPY] 2026-09-26 사장님 결정 ⑰ · 「그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요」를 뺐다 —
      기본 추천 8곳이 모두 주차 미상(pk:null)이고 3곳은 전화번호도 없다. 살펴 둔 근거가 없는 안심이었다.
      대신 할 일을 말한다 · 통화 문구도 이미 «룸(또는 단체석)·주차 가능할까요?»를 묻는다. 결과 0곳이면 숨김(종전대로). */
-  var care=list.length?'<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">예약 통화에서 <span style="white-space:nowrap">단체석 · 주차를</span> 꼭 물어봐 주세요.</div>':'';   // [DN_DOT_SPLIT 2026-09-26 · 점검 L2 · L5] 320~350 에서 «자리 / ·주차·식사예요»로 가운뎃점이 줄 머리에 섰다(기준판은 «자리·주차· / 식사예요» 줄 끝) — 세 낱말을 한 덩어리로
+  var care='';   /* ★[DN_ONE_CAUTION_1102 · GPT 2라운드 06] «예약 통화에서 단체석 · 주차를 꼭 물어봐 주세요»도 정리 전 확인 창 한 곳으로(창이 단체석 · 주차를 말한다) */
   /* ★[DINE_ORIGIN 2026-09-14] 「차8분」의 «어디서부터»가 화면에 없었다. 코드에는 「향동 기준 차로(분)」
      이라고 적혀 있는데(mypage.html:7998 필드 주석) 고객이 보는 글에는 기준점이 빠져 있었다.
      ★고객에게도 필요한 정보다 — 기준점을 모르면 「차8분」은 아무 뜻이 없다. */
@@ -13482,6 +13483,8 @@ function renderDining(box){
   var d=TRKFLOW.draft;
   // 옛 저장값 호환: venuePick이 없으면 venue·구 파트너 선택에서 복원(구 '식사 형태'는 표시만 안 하고 보존)
   if(!d.venuePick) d.venuePick = d.venue || ((d.partner==='직접 섭외할게요'||d.partner==='상담 때 함께 정할게요')?d.partner:'');
+  /* ★[DN_RSV_BIND_EARLY_1102 GPT 2라운드 01] 옛 저장분(reserveFor 없음)은 들어오자마자 지금 예약할 곳에 묶는다 — 늦게 묶으면 ① 에서 A 를 빼고 ② 에서 B 를 정할 때 A 의 시간 · 이름이 B 에 붙었다 */
+  if(d.reserveFor==null && (d.reserveTime||d.reserveName) && d.venuePick) d.reserveFor=d.venuePick;
   /* ★★[DN_SKIP_VS_FAVS 2026-09-22 사장님 지적 「담은곳보기 누르면 애프터웨딩없이 진행해요 라는 페이지가나오는데」]
      담은 곳이 있는데 venuePick 이 「다이닝 없이 진행할게요」인 저장값이 들어오면, 정리 자리(step 1)가
      그 분기를 먼저 타서 **담아 둔 곳이 통째로 안 보인다.** 브라우저로 재현했다 —
@@ -13658,7 +13661,7 @@ function renderDining(box){
           return '<div class="dn-fav dn-agg'+(isRep?' rep':'')+'"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" aria-label="'+escapeHtml(v.n)+' 빼기">✕</button>'
             +'<div class="n">'+(isRep?'<span class="repbadge">예약할 곳</span>':'')+escapeHtml(v.n)+'</div>'
             +(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
-            +(function(){ var _t=r?[_DN_GROUP[r.g], r.eld?'좌식':'', r.pk==='good'?'주차 넉넉':''].filter(Boolean).join(' · '):''; return '<div class="m">'+escapeHtml(_t||'단체석 · 주차는 전화로 확인')+'</div>'; })()   /* ★[DN_AGG_INFO_1102 사장님 «추천대로»] 고를 때 본 단체석 · 주차를 비교 화면에도 · 모르면 «전화로 확인» */
+            +(function(){ var _t=r?[_DN_GROUP[r.g]||'단체석 확인 필요', r.eld?'좌식':'', r.pk==='good'?'주차 넉넉':'주차 확인 필요'].filter(Boolean).join(' · '):'단체석 · 주차 확인 필요'; return '<div class="m">'+escapeHtml(_t)+'</div>';   /* [GPT 2라운드 05] 모르는 항목은 항목마다 «확인 필요» */ })()   /* ★[DN_AGG_INFO_1102 사장님 «추천대로»] 고를 때 본 단체석 · 주차를 비교 화면에도 · 모르면 «전화로 확인» */
             +(isRep   // 대표는 아래 예약 블록에 전화·지도가 크게 나오므로 작은 링크 줄은 생략(중복 방지). 나머지는 결정 전 빠른 확인용으로 노출
                 ? '<div class="dn-aggbook">'+_bookBlock(v.n,v.tel,v.url)+'</div><div class="dn-showlock">하객 안내에 \'여기로 모여요\'로 공개돼요</div>'
                 : '<div class="a">'+(tel?('<a href="tel:'+tel+'">전화</a>'):'')+'<a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도</a></div>'

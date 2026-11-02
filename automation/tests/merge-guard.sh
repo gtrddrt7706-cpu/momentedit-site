@@ -13532,7 +13532,11 @@ chk 'body.op4 .prog-top{min-height:0;justify-content:flex-end}' order-preview.ht
 # [DN_TRUE_COPY] 사장님 결정 ⑰ ①② · «직접 검증해 둔»은 검증한 곳(v:true)이 있을 때만 · «살펴 둔 곳들이라, 분위기만 고르시면» 대신 «예약 통화에서 단체석·주차를 꼭 물어봐 주세요»
 chk 'DN_TRUE_COPY' mypage.html 2
 chk "(_vN>0?'직접 검증해 둔':'추천하는')" mypage.html 1
-chk '예약 통화에서 <span style="white-space:nowrap">단체석 · 주차를</span> 꼭 물어봐 주세요.</div>' mypage.html 1   # [DN_INTRO_SHORT_1102] 한 줄로
+nochk '예약 통화에서 <span style="white-space:nowrap">단체석 · 주차를</span> 꼭 물어봐 주세요.' mypage.html   # [DN_ONE_CAUTION_1102 · GPT 2라운드 06] 정리 전 확인 창 한 곳(창이 단체석 · 주차를 말한다)
+chk 'DN_RSV_BIND_EARLY_1102' mypage.html 1
+chk 'DN_ORIGIN_ALL_1102' mypage.html 1
+chk '출발 기준이에요.' mypage.html 3
+chk 'DN_UI.less=true' mypage.html 1
 nochk '디렉터가 직접 검증해 둔 연계' mypage.html        # 검증 0곳인데 리드가 «검증»이라 말하던 문장
 nochk '분위기만 고르시면 돼요.</div>' mypage.html       # 근거 없는 «살펴 둔 곳» 안심(주석의 인용은 </div> 가 없어 안 걸린다)
 # [DN_TEL_MAP] 사장님 결정 ⑰ ③ · 전화번호 없는 대표 예약처 = «지도에서 매장 번호를 확인해 예약해 주세요» · 예약 안내의 «위 전화번호와»도 그때만 가른다
@@ -14007,7 +14011,7 @@ chk "(mode==='tel'?'<span class=\"ln-bal\">위 전화번호와 통화 문구를 
 nochk "'지도에서 매장 번호를 확인하고," mypage.html      # 코드의 옛 noTel 문장(따옴표로 시작) — 주석의 인용은 안 잡는다
 nochk "해주세요 · '+(noTel?" mypage.html
 # [DN_DOT_SPLIT] 애프터 웨딩 가운뎃점 — 줄 끝 · 머리에 안 서게(«자리·주차·식사예요» 한 덩어리 · 나열은 U+2060 · 절을 잇는 점은 &nbsp;)
-chk 'DN_DOT_SPLIT' mypage.html 4
+chk 'DN_DOT_SPLIT' mypage.html 3   # [DN_ONE_CAUTION_1102] 목록 아래 각주(가운뎃점 U+2060 자리)는 뺐다
 nochk '자리·주차·식사예요' mypage.html   # [DN_INTRO_SHORT_1102] 앞 반 문장은 뺐다(폰 첫 화면)
 chk 'white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.' mypage.html 1
 chk '괜찮아요&nbsp;·&nbsp;이&nbsp;줄만 빠지고' mypage.html 1
