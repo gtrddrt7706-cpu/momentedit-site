@@ -21833,4 +21833,7 @@ chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.
 chk "_opPrev=null; MK.navOpen=false; MK.flowKeep=null; MK.toastGo=''; MK.statI=null;" order-preview.html 1
 chk 'CLEAR_HEAD_1102' scripts/audit/clear-head.mjs 1
 chk "listen-pace knobs detail-r1 pr-bgm clear-head' }" .github/workflows/merge-guard.yml 1
+# [AFTER_BEFORE_FAMILY_200] 촬영 후 안내 → 가족 구도 → 추가 촬영(새 코스 마지막 큐 · endHold) 동안 같은 곡 목록이 이어진다 — after-photo-loop 이 새 순서로 잰다(CI bgm-sound e 칸)
+chk 'AFTER_BEFORE_FAMILY_200' scripts/audit/after-photo-loop.mjs 2
+chk "act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12, endHold: true," assets/ritual-cue.js 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
