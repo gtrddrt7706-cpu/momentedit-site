@@ -21736,7 +21736,7 @@ chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 
 chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
 chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
 chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
-chk "detail-r4 screen-bgm after-photo-loop' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+chk "detail-r4 screen-bgm after-photo-loop" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
 # ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 촬영 후 안내 뒤 추가 촬영 동안 마지막 곡 목록이 이어진다 · ■ 끝내기에서만 3초에 잦아듦
 chk 'AFTER_PHOTO_LOOP_1102' assets/ritual-cue.js 2
 chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }\]   /\* ★★\[AFTER_PHOTO_LOOP_1102" assets/ritual-cue.js 1
