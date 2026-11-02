@@ -14132,7 +14132,7 @@ nochk '<span style="color:var(--gold,#B89A75)">&amp;</span>' mypage.html 0
 chk 'CF_DATE_NBSP' mypage.html 1
 # [DOT_SPLIT_0926] 새 안내문 · 청첩장 완성 화면 · 하객 안내 패널 · 확인서 확정 안내의 «·»가 줄 끝 · 줄 머리에 매달리지 않게([CHECKS_NO_DANGLE]) — 절은 마침표 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060
 chk 'DOT_SPLIT_0926' mypage.html 13
-chk "var GUIDE_MAKE_COND='<b>예식&nbsp;후&nbsp;들를&nbsp;곳</b>과 <b>좌석 배치</b>" mypage.html 1
+chk "var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b>" mypage.html 1
 chk '<span class="ln-bal">비어 있는 부분은 하객 화면에 나오지 않아요.</span>' mypage.html 1
 chk '<span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span>' mypage.html 1
 nochk '링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>' mypage.html 0
@@ -14156,7 +14156,7 @@ chk "var _eid0=String(_d0.eventId||(INVFLOW.pub&&INVFLOW.pub.eventId)||'');" myp
 chk "if(r.urls && INVFLOW._lkChg==='' && _eid0 && r.eventId && String(r.eventId)!==_eid0) INVFLOW._lkChg='name';" mypage.html 1
 # [FOLD_JOSA_GLUE] (G4 검토) 완성 화면 «하객 안내만 따로 보내기» 둘째 줄 — balance 로 감싼 뒤 320~345 «…웨딩(식사) / 을 완료하면»(조사 줄 머리) · «자리 / 찾기» 갈림 → «웨딩(식사)을» U+2060 · «애프터 웨딩» · «자리 찾기» · «식사 안내» NBSP
 chk 'FOLD_JOSA_GLUE' mypage.html 1
-chk "예식&nbsp;후&nbsp;들를&nbsp;곳을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b>" mypage.html 1
+chk "애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b>" mypage.html 1
 nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 0
 # [CF_DATE_NBSP 보정] 확인서 예식 일시는 fmtWedKoT(내 내역 · 임시 고정 · 결제 카드와 같은 모양) — NBSP 한 덩어리는 320~325 에서 긴 날짜가 칸 밖으로 넘쳤다(180조합 중 84 → 0)
 # (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate)
@@ -21355,7 +21355,7 @@ chk 'GROUP_PHOTO_199' order-preview.html 3   # [POST_FLOW_200] 셋은 POST_KS �
 chk "function _photoLine()" order-preview.html 1
 chk "+POST_KS.map(row).join('')+'</ol>'" order-preview.html 1   # [POST_FLOW_200]
 chk "lab:k==='_after'?_post('_after').sub:" order-preview.html 1   # [POST_FLOW_200]
-chk "'+ 식사 안내 멘트: 마이페이지 › 예식 후 들를 곳에서 식당 · 예약 시각을 정하면 붙어요'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장)
+chk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장)
 nochk "o.push('+ 사진 올리기 안내" order-preview.html   # ★[GUIDE_ALWAYS_202] «하객 안내 켜기» 줄 삭제(사장님 17:30 · 되살리지 말 것)
 chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
 chk ".mk-flow li.qh::after{content:'+';" order-preview.html 1
@@ -21766,17 +21766,4 @@ chk 'PV_AGAIN_UP_1102' order-preview.html 2
 chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button>' order-preview.html 1
 chk '.pv-act:empty{display:none}' order-preview.html 1
 nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
-# ── 2026-11-02 [AFTER_NAME_203 검토 203 · 사장님 17:39] 마이페이지 «애프터 웨딩» → «예식 후 일정»(예식 뒤 촬영 상품으로 오해 · 식당 · 카페 · 가볼 곳 · 조용히 마무리까지) — 보이는 글만 · 내부 키(dining) 그대로
-chk "row('예식 후 들를 곳', _dSt, 'mp_diningStart'" mypage.html 1
-chk "dining:{ label:'예식 후 들를 곳'" mypage.html 1
-nochk "row('애프터 웨딩'" mypage.html
-nochk "역시 애프터 웨딩 만들래요" mypage.html
-chk '<h2 class="sec-t">예식 후 들를 곳</h2><span class="sec-n">After</span>' guide.html 1
-nochk '예식 후 일정</h2>' guide.html
-nochk '식사 · 애프터</h2>' guide.html
-chk "dining:{t:'예식 후 들를 곳'" admin.html 1
-nochk "row('예식 후 일정'" mypage.html   # [AFTER_NAME_203 최종 11/02 · 사장님 17:45 «가볼 만한 곳 같은 것도 안내하잖아»] «예식 후 들를 곳»(식사부터 주변 방문까지 · 선택적 · «일정»은 시간표 · «식사 · 카페»는 가볼 곳이 빠진다 · «함께할 곳»은 전원 동행 기대 · «코스»는 동선 상품 오해)
-nochk "row('예식 후 식사 · 카페'" mypage.html
-chk "<span class=\"dgc-d\">예식 후 들를 곳 안내는 안 만들래요</span>" mypage.html 1
-chk "L+=line('애프터 웨딩', dv);" mypage.html 1   # 확인서는 이름 그대로(확인서 · 계약서 · 메일 · 알림톡은 목록만)
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
