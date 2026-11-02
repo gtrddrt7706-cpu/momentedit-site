@@ -99,7 +99,7 @@
      ★[BGM_PREVIEW_1024] cust = 고객이 식순 화면에서 고르는 구간(그 구간의 첫 담긴 순간 쪽 «고르기» 칸에 «‹순간› 음악» 줄 하나) · slot = 축사 · 편지 «음악과 함께» 아래 곡 고르기(S.bgm.S5 · S6) ·
        M3(입장 곡) · M6P(사진) · M8L(마지막 곡)은 고객이 고르지 않는다(스튜디오가 정한다) */
   var SEGS = [
-    { id: 'M1', nm: '하객 맞이', ks: ['guest'], multi: true, cust: true, need: '30분 이상 · 개식이 늦어도 이어지게(반복 목록)' },
+    { id: 'M1', nm: '하객 맞이', ks: ['guest'], multi: true, cust: true, need: '' },   /* need 글 = 아래 [GUEST_TIME_1102] getter */
     { id: 'M2', nm: '화촉', ks: ['candle'], cust: true, need: '2분 10초 이상' },
     { id: 'M3', nm: '입장 → 맞절', ks: ['entry', 'matjeol'], entry: true, need: '입장 음악 칸(두 분 · 스튜디오가 고른 곡) 그대로' },
     { id: 'M4', nm: '감사 인사 ~ 덕담', ks: ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter'], cust: true, loop: true, need: '6분 이상 · 반복 편집본' },
@@ -115,6 +115,7 @@
   /* ★★[DAYLONG_1101 2026-11-01 사장님 «한 곡이 너무 오래 반복돼» · 감사 인사 ~ 덕담 약 18분 · 닫는 인사 → 사진 약 15분] loop = 고르는 칸 그대로(3곡 · «바꾸기») · 당일은 이어 트는 목록 —
        차례 = 고른 곡(없으면 1순위) → 나머지 → (닫는 인사만) fill → 한 바퀴 뒤 처음으로 · fill 건너뛰기 · 앞 곡 잇기(CARRY_SAME) 그대로 · 축사 · 편지 «음악과 함께»(M4S5 · M4S6)는 한 곡 그대로 */
   var BY = {}; SEGS.forEach(function (s) { BY[s.id] = s; });
+  Object.defineProperty(BY.M1, 'need', { enumerable: true, get: function () { var g = guestMin(); return (g ? g + '분 이상' : '하객 입장 동안') + ' · 개식이 늦어도 이어지게(반복 목록)'; } });   /* [GUEST_TIME_1102] 콘솔 구간 칸 글도 원천에서 */
   function loopy(seg) { var d = BY[seg]; return !!(d && (d.multi || d.loop)); }   /* 이어 트는 목록 칸(고르지 않는 M1 · M8 + 고르는 M4 · M6) */
   /* 곡 아이디 — [BGM_FIX_1030] 곡 번호 그대로(같은 곡은 어느 구간에서나 같은 아이디 · 콘솔이 그 기기에 넣은 파일을 구간마다 다시 넣지 않는다) ·
      번호가 없는 곡(콘솔 «곡 추가»는 own: 아이디를 따로 쓴다)만 옛 꼴(구간 · 곡 · 연주자) */
@@ -151,7 +152,10 @@
        · 목록 칸(하객 맞이 · 테이블 · 감사 인사 ~ 덕담 · 닫는 인사 · fill 포함) = 예약된 곡과 앞 목록에 나온 곡을 뺀다 — 이어진 곡(carry)은 한 번 들은 걸로 친다
          · 빼서 목록 합이 필요한 길이(NEED · 처리된 전체 파일 길이 o.dur · 모르면 곡당 LEN0 초) 밑으로 내려가면 빼지 않고 맨 뒤로(먼저 들은 때와 가장 멀리)
        · dup = 앞 담긴 한 곡 칸과 같은 곡(실제 소리 기준) — 화면 «…에서도 고른 곡이에요» 한 줄 */
-  var NEED = { M1: 1800, M8: 1800, M4: 1080, M6: 900, M8L: 1e9 }, LEN0 = 240;   /* [AFTER_PHOTO_LOOP_1102] M8L = 추가 촬영이 끝날 때까지 — 겹친 곡도 빼지 않고 뒤로(R3 ⑦ 보탬) */
+  var NEED = { M8: 1800, M4: 1080, M6: 900, M8L: 1e9 }, LEN0 = 240;
+  /* ★[GUEST_TIME_1102] 하객 맞이(M1) 길이 = 하객 입장 ~ 본식(ritual-data DAY.guestIn) — 손으로 적지 않는다. 식순 화면은 엔진(ENG.DAY) · 콘솔은 DAY 전역 · Node 는 require 로 읽는다 · 못 읽으면 0(«약 n분» 꼬리 없음) */
+  function guestMin() { var D = null; try { if (typeof window !== 'undefined') D = (window.ENG && window.ENG.DAY) || (window.DAY && window.DAY.guestIn != null ? window.DAY : null); if (!D && typeof require === 'function') D = require('./ritual-data.js').DAY; } catch (e) { D = null; } return D && +D.guestIn > 0 ? +D.guestIn : 0; }
+  Object.defineProperty(NEED, 'M1', { enumerable: true, get: function () { return guestMin() * 60; } });   /* [AFTER_PHOTO_LOOP_1102] M8L = 추가 촬영이 끝날 때까지 — 겹친 곡도 빼지 않고 뒤로(R3 ⑦ 보탬) */
   function plan(S, o) {
     o = o || {}; var on = o.on || function () { return true; }, have = o.have || function () { return true; }, dur = o.dur || function () { return 0; }, prevOf = o.prev || function () { return ''; };
     var R = {}, rsv = {}, firstBy = {}, segs = CORDER.filter(function (sg) { return on(sg); });
@@ -170,5 +174,5 @@
       out.forEach(function (f) { seen[f] = 1; });
       R[sg] = { seg: sg, want: c || k || base[0] || '', first: out[0] || '', pick: k, carry: c, list: out, dup: '' }; });
     return R; }
-  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0 };
+  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[id] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0, guestMin: guestMin };
 });

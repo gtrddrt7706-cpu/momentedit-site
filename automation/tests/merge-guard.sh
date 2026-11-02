@@ -21745,7 +21745,7 @@ chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 
 chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
 chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
 chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
-chk "detail-r4 screen-bgm after-photo-loop' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+chk "detail-r4 screen-bgm after-photo-loop" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
 # ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 촬영 후 안내 뒤 추가 촬영 동안 마지막 곡 목록이 이어진다 · ■ 끝내기에서만 3초에 잦아듦
 chk 'AFTER_PHOTO_LOOP_1102' assets/ritual-cue.js 2
 chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }\]   /\* ★★\[AFTER_PHOTO_LOOP_1102" assets/ritual-cue.js 1
@@ -21792,4 +21792,13 @@ chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.
 chk "_opPrev=null; MK.navOpen=false; MK.flowKeep=null; MK.toastGo=''; MK.statI=null;" order-preview.html 1
 chk 'CLEAR_HEAD_1102' scripts/audit/clear-head.mjs 1
 chk "listen-pace knobs detail-r1 pr-bgm clear-head' }" .github/workflows/merge-guard.yml 1
+# ★[GUEST_TIME_1102 사장님 «우리가 세팅한 프로그램 시간표를 봐»] 하객 입장 = 본식 − DAY.guestIn(ritual-data · 20분) — 식순 화면 «… 약 n분 뒤» · 하객 맞이 «약 n분» · 곡 목록 길이가 이 값으로 계산한다(검사 = CI bgm-sound e 칸)
+chk 'guestIn: 20 }' assets/ritual-data.js 1
+chk 'GUEST_TIME_1102' assets/bgm-picks.js 2
+chk 'GUEST_TIME_1102' assets/bgm-bed.js 1
+chk 'GUEST_TIME_1102' order-preview.html 2
+chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
+nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
+nochk "M1: 1800" assets/bgm-picks.js
+chk "screen-bgm after-photo-loop guest-time' }" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

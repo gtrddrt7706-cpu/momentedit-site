@@ -311,6 +311,8 @@ function scan(needle) {
   const bad6 = [];
   if (!leadM) bad6.push("assets/sequence-modal.js 에서 '하객 입장' 블록 길이를 못 읽었다 — 형식이 바뀌었다");
   const LEAD = leadM ? +leadM[1] : 0;
+  /* ★[GUEST_TIME_1102] 원천은 ritual-data DAY.guestIn — 진행표 «하객 입장 n분»이 그 값과 같아야 한다(식순 화면 · 하객 맞이 음악 «약 n분»이 같은 값을 쓴다) */
+  if (leadM && LEAD !== D.DAY.guestIn) bad6.push(`assets/sequence-modal.js «하객 입장 ${LEAD}분» ≠ ritual-data DAY.guestIn ${D.DAY.guestIn} [GUEST_TIME_1102]`);
   const CLOCK = ['inquiry.html', 'schedule.html', 'mypage.html'];
   let slots = 0;
   for (const f of CLOCK) {
@@ -430,7 +432,7 @@ function scan(needle) {
     const body = (a) => toMin(a) + D.DAY.ready + D.DAY.snap;
     const want = {
       '단독 스냅 촬영': arr.map((a) => hhmm(toMin(a) + D.DAY.ready)),
-      '하객 입장': arr.map((a) => hhmm(body(a) - 20)),
+      '하객 입장': arr.map((a) => hhmm(body(a) - D.DAY.guestIn)),   /* [GUEST_TIME_1102] */
       '본식': arr.map((a) => hhmm(body(a))),
       '단체 사진': arr.map((a) => hhmm(body(a) + O6.RANGE.rep)),
       '마무리': arr.map((a) => hhmm(toMin(a) + D.DAY.total - D.DAY.farewell)),
