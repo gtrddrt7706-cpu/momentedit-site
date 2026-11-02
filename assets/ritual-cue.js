@@ -865,7 +865,7 @@
       live: o.live || null, post: o.post || [], hint: o.hint || '',
       k: o.k || '', blockN: o.blockN || '', pick: o.pick || '', own: !!o.own,
       fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin), gapMs: o.gapMs || 0, goLeadMs: o.goLeadMs || 0,   // [PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연(GO) 큐를 그만큼 쉬고 튼다   // ★[CHAIN_GAP_1014] 사슬로 이어 나갈 때 앞 줄과의 사이(밀리초 · 0 이면 PARAM.gapMs) — 원고 «1.25초 사슬» · «사이 1초»
-      note: o.note || '', alt: null, act: !!o.act, actId: o.actId || '', repeatMs: o.repeatMs || 0,   // [GUEST_WELCOME_191] repeatMs = 끝나고 그만큼 뒤 다시(다음 시각 큐가 나가면 멈춘다 · 콘솔만)   // [CLOSING_LINE_1031] actId = 소리 없는 동작 큐 이름(photo-all · photo-family · photo-free · photo-end) · [END_FLOW_1030] act = 소리 없는 동작 큐(말 없음 · 문안 카드 아님 · 사람 구간만)
+      note: o.note || '', alt: null, act: !!o.act, actId: o.actId || '', repeatMs: o.repeatMs || 0, endHold: !!o.endHold,   /* [AFTER_PHOTO_LOOP_1102] endHold = 마지막 큐여도 저절로 끝내지 않는다(■ 끝내기까지) */   // [GUEST_WELCOME_191] repeatMs = 끝나고 그만큼 뒤 다시(다음 시각 큐가 나가면 멈춘다 · 콘솔만)   // [CLOSING_LINE_1031] actId = 소리 없는 동작 큐 이름(photo-all · photo-family · photo-free · photo-end) · [END_FLOW_1030] act = 소리 없는 동작 큐(말 없음 · 문안 카드 아님 · 사람 구간만)
       rescue: o.rescue ? { slug: o.rescue.slug || '', no: o.rescue.slug ? noOf(o.rescue.slug) : '', file: o.rescue.slug ? fileOf(o.rescue.slug) : '', name: o.rescue.name || '', text: o.rescue.text || '' } : null   // [FREE_RESCUE] 콘솔이 사람 구간 동안 «재생 안 됨»으로 쓴다
     };
     if (c.live && c.live.duck === undefined) c.live.duck = c.duck;
@@ -1802,7 +1802,7 @@
       if (_photoOpen) { var _aps = afterPhotoOf(S); cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: _aps, name: '촬영 후 안내', text: EXTRA[_aps], duck: -14, fire: 'manual',
         hint: '전체 단체 사진을 마치면', note: '작가님이 전체 단체 사진(한 장)을 마치면 누른다 · 이어서 가족 사진 · 더 남고 싶은 분들과 추가 촬영(마지막 곡이 끝날 때까지) · 늦어진 날은 추가 촬영을 짧게(마무리 시각을 지킨다)',   // ★[END_FLOW_200 최종] 전체 단체 사진 직후 · 가족 사진 전
-        post: [{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.goodbye.outroFadeMs }]   /* ★[BGM_TIMING_1101] 마지막 곡이 피어난다 — 나레이션 끝 1.5초에 −8 → 90초 → 20초 소거(종전 −14 그대로 90초) */
+        post: [{ music: 'to', v: PARAM.duckMusic, ms: 1500 }]   /* ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 안내 −14 → 끝나면 1.5초에 −8 → 가족 사진 · 추가 촬영이 끝나 진행 화면 ■ 끝내기까지 계속 · 끝내기 때만 3초에 잦아듦 · 자동 소거(옛 90초 → 20초) 없음 */
       })); }
       if (!_photoOpen) cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: 'end-0-photo', name: '하객 모두와 한 장', text: EXTRA['end-0-photo'],   /* ★[PHOTO_CUE_NAME_1015 라운드 5] «하객컷»은 현장 말 — 콘솔 고객판 제목 · 다음 줄에 그대로 뜬다(블록 how 와 같은 말로) */ duck: -14,
@@ -1904,7 +1904,7 @@
            식사(예약 시각 ±) · 경로 하나(하객 안내 · 현장 디렉터) · 두고 가시는 물건 · 식사 · 카페가 없는 날만 «조심히 돌아가세요» · 본식 시간 셈(상한)에 들지 않는다(사진 뒤 · 마무리 몫) */
       /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 A] 추가 촬영 — 촬영 후 안내 뒤 · 원하시는 분들과 · 소리 없음(작가님 진행) · 마지막 곡이 끝날 때까지 · 이름은 RitualOpen.POST_FLOW */
       if (_photoOpen && _freeOpen) { var _px = { n: '추가 촬영' }; cues.push(cue({   /* ★[AFTER_BEFORE_FAMILY_200] 콘솔은 가족 구도 · 추가 촬영이 따로 큐 — 화면 한 줄 «가족 사진 · 추가 촬영»(POST_FLOW _extra)이 둘을 묶는다 */
-        k: '_goodbye', blockN: '마무리', slug: '', act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12,
+        k: '_goodbye', blockN: '마무리', slug: '', act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12, endHold: true,   /* [AFTER_PHOTO_LOOP_1102] 새 코스 마지막 큐 — 저절로 끝내지 않는다(■ 끝내기까지 음악) */
         hint: '가족 사진을 마치면',   /* ★[AFTER_BEFORE_FAMILY_200] */
         live: { t: _px.n + ' · 원하시는 분들과 · 남는 시간만큼', est: Math.max(10, _goFreeOpen), goFree: _goFreeOpen, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다(옛 자유 사진 몫 · _goFreeOpen)
       })); }

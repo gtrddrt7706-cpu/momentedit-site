@@ -1188,7 +1188,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 /* [찜] 별표·모아보기 — 다이닝 후보 저장(draft._favs · 계정 저장이라 부부 공용) */
 .inv-opt.dn-saved{position:relative;padding-right:58px}   /* 담은 카드 — 우상단 '담음' 표시 자리 확보 */
 .dn-savedtag{position:absolute;top:11px;right:12px;font-family:var(--serif-ko);font-size:11px;color:var(--gold-deep,#7A5F37);letter-spacing:.03em;user-select:none;-webkit-user-select:none}
-.dn-savedtag::before{content:'\2665';margin-right:3px;font-size:10px;color:var(--gold,#B89A75)}   /* 은은한 골드 하트 · 시스템 체크(✓) 대신 웨딩 무드 */
+/* ★[DN_NO_EMOJI_1102] «담음» 앞 하트 글자(♥)는 뺐다 — 폰에 따라 그림 글자로 그려진다 · 글 «담음»만 */
 .dn-taphint{font-family:var(--serif-ko)}   /* 모양은 [NOTE_DOT](마지막 스타일 묶음) */
 .dn-taphint b{font-weight:600}
 .dn-star{position:absolute;top:7px;right:6px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;font-size:19px;line-height:1;color:#D8D2C6;padding:0;user-select:none;-webkit-user-select:none}
@@ -1323,7 +1323,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-gate-card{display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:13px;background:#fff;padding:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s,box-shadow .15s,background .15s}
 .dn-gate-card:active{background:var(--bg2)}
 .dn-gate-card:hover{border-color:var(--gold-deep)}
-.dn-gate-card .dgc-ico{font-size:22px;display:block;margin-bottom:7px;line-height:1}
+/* ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 이모지 같은 거 전부 없애고»] 고르기 카드의 그림 글자(접시 · 잎) 삭제 — 되살리지 말 것(merge-guard nochk) · 카드는 제목 · 설명 두 줄 */
 .dn-gate-card .dgc-t{display:block;font-family:var(--serif-ko);font-size:15px;color:var(--accent);font-weight:600}
 .dn-gate-card .dgc-d{display:block;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
 .dn-gate-card.dn-gate-skip{background:var(--bg2,#F5F3EF)}
@@ -2611,10 +2611,13 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
-  var saved=false, _closed=false, _frameReady=false, _rdOv=null, _depth=0, _dBase=0, _backT=null, _backPend=false;   // [RELOAD_UNWIND] _dBase = 새로고침 때 되감지 못하고 남은 옛 문서 칸   // [HIST_DEPTH] 빌더가 쌓은 기록 칸 수 · [EXIT_HOLD] 뒤로가기 3초 닫기 · 뒤로가기로 층을 쓴 뒤인가   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
+  var _goNext='', saved=false, _closed=false, _frameReady=false, _rdOv=null, _depth=0, _dBase=0, _backT=null, _backPend=false;   // [RELOAD_UNWIND] _dBase = 새로고침 때 되감지 못하고 남은 옛 문서 칸   // [HIST_DEPTH] 빌더가 쌓은 기록 칸 수 · [EXIT_HOLD] 뒤로가기 3초 닫기 · 뒤로가기로 층을 쓴 뒤인가   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
   /* ★[HIST_DEPTH 2026-10-09 A~Z 점검 1라운드 A-5] 빌더가 쌓은 칸(_depth)까지 한 번에 되감는다 — 한 칸만 되감으면 남은 빌더 칸이 «아무 일 없는 뒤로가기»가 되고, 되감기 표시(_bkClosing)가 남아 다음 뒤로가기 하나를 삼켰다 */
   function _bkDoneDeep(id,n){ if(!n){ bkDone(id); return; } if(_bkFromPop||!_bkStack.length) return; var top=_bkStack[_bkStack.length-1]; if(top.id!==id){ bkDone(id); return; } _bkStack.pop(); _bkClosing=true; try{ history.go(-(n+1)); }catch(e){ _bkClosing=false; } }
-  function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); try{ if(_pmo) _pmo.disconnect(); }catch(e){} _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
+  function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); try{ if(_pmo) _pmo.disconnect(); }catch(e){} _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock();
+    /* ★[MEAL_GO_1102] 식순의 «식사 안내 멘트 › 애프터 웨딩» 을 눌러 나갔으면 닫힌 뒤 그 칸을 연다(저장했으면 새로 불러온 뒤) */
+    var _gn=_goNext; _goNext=''; var _goDn=function(){ if(_gn!=='dining') return; var b=$('mp_diningStart'); if(b) b.click(); };
+    if(saved){ if(_gn){ _flowBusy(true,'불러오는 중…'); loadMyState({ silent:true, done:function(){ _flowBusy(false); setTimeout(_goDn,0); } }); } else _mpRefresh(); } else if(_gn) setTimeout(_goDn,0); }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }
   /* ★[LATEST_FILL 2026-10-09 A~Z 점검 2라운드 A2-4] 충돌 판에서 «최신 내용 불러오기»를 골랐으면(_revConflict · r._latest) 실패 대신 그 최신본을 빌더로 — 빌더가 그 판으로 내용을 바꾼다 */
   /* ★[PARENT_ASK_HOLD 2026-10-09 A~Z 점검 2라운드 A2-9] 이 창 위에 마이페이지 판(충돌 · 알림 · mpModal)이 떠 있는 동안 폰 뒤로가기는 빌더 걸음을 바꾸지 않는다 — 빌더에 «판 떠 있음»을 알린다.
@@ -2668,7 +2671,8 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; _dBase=Math.max(0,d.d|0); _depth=_dBase; var _ru='/order-preview.html?embed=1&t='+Date.now();
       try{ fr.contentWindow.location.replace(_ru); }catch(e){ try{ fr.src=_ru; _dBase++; _depth=_dBase; }catch(e2){} } return; }
     if(d.type==='momentedit:orderDepth'){ _depth=_dBase+Math.max(0,d.d|0); return; }   // [HIST_DEPTH] · [RELOAD_UNWIND] 남은 옛 칸 + 새 문서 칸
-    if(d.type==='momentedit:orderExitHold'){ clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[HOLD_RESTACK 2026-10-09 A~Z 점검 2라운드 A2-6] 잡으면 바로 층을 다시 쌓는다 — 종전엔 «머물기»를 고른 뒤에야 쌓아, 판이 뜬 사이 뒤로가기를 한 번 더 누르면 마이페이지를 떠났다(이제 그 뒤로가기는 판을 닫는다 · 빌더 BACK_DISMISS) */   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
+    if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }   // [MEAL_GO_1102]
+    if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext=''; clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[HOLD_RESTACK 2026-10-09 A~Z 점검 2라운드 A2-6] 잡으면 바로 층을 다시 쌓는다 — 종전엔 «머물기»를 고른 뒤에야 쌓아, 판이 뜬 사이 뒤로가기를 한 번 더 누르면 마이페이지를 떠났다(이제 그 뒤로가기는 판을 닫는다 · 빌더 BACK_DISMISS) */   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderRelogin'){ var _rc=/^[A-Z]8$/.test(String(d.ecode||''))?String(d.ecode):'S8'; _errGoLogin({ok:false, ecode:_rc}, _rc.charAt(0)); return; }   /* ★[RELOGIN_BTN 2026-10-30 GPT 5차 점검(고객) 5-01 · VC_FIX5_1030] 식순 화면의 «로그인하기» — 겹화면을 닫고 로그인 화면으로(그 줄을 로그인 칸에 · 저장 실패 «로그인하기»와 같은 길) */
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
@@ -2677,7 +2681,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
          alert 은 동기 차단이라, 닫기 전까지 아래 postMessage 가 나가지 못했다. 그 사이 빌더는
          낙관 표시한 '저장됨'을 그대로 들고 있었고, 한 화면에 "저장 실패" 알림과 "저장됨" 버튼이 공존했다
          (2026-08-03 사용자 스크린샷). 메시지를 먼저 보내고, 전달이 안 될 때만 네이티브로 물러선다. */
-      var _exFail=function(r){   // [ERR_CODE_MYPAGE F7] 저장 결과를 통째로 받아 까닭(msg · 코드)을 빌더에 그대로 — 종전엔 끊김 · 시간 초과 · 거절이 같은 말이었다
+      var _exFail=function(r){ _goNext='';   // [ERR_CODE_MYPAGE F7] 저장 결과를 통째로 받아 까닭(msg · 코드)을 빌더에 그대로 — 종전엔 끊김 · 시간 초과 · 거절이 같은 말이었다
         if(_latestTo(r,'exit')){ clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   // [LATEST_FILL] 최신본으로 바꾸고 머문다
         var msg=_saveFailBody(r), sent=false;
         try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:orderExitReset', msg:msg}, _relayErr(r)), location.origin); sent=true; }catch(e){}
@@ -13365,7 +13369,7 @@ function dineFilterUI(d, wt){
       + d._places.map(function(p,pi){
           var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):'';
           var _pf=_dnFavHas(d,p.name);
-          return '<div class="dnc-pl"><span class="dn-star'+(_pf?' on':'')+'" role="button" tabindex="0" data-favp="'+pi+'" aria-label="'+(_pf?'담기 취소':'담기')+'" aria-pressed="'+_pf+'">'+(_pf?'★':'☆')+'</span>'
+          return '<div class="dnc-pl"><span class="dn-star'+(_pf?' on':'')+'" role="button" tabindex="0" data-favp="'+pi+'" aria-label="'+(_pf?'담기 취소':'담기')+'" aria-pressed="'+_pf+'">'+'<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M10 2.6l2.2 4.7 5.1.6-3.8 3.5 1 5.1L10 14l-4.5 2.5 1-5.1-3.8-3.5 5.1-.6z" fill="'+(_pf?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span>'   /* [DN_NO_EMOJI_1102] ★ · ☆ 글자 → 같은 모양 그림(선 · 채움) */
             + '<div class="dnc-pl-n">'+escapeHtml(p.name)+(p.cat?' <span>'+escapeHtml(p.cat)+'</span>':'')+'</div>'
             + '<div class="dnc-pl-m">'+escapeHtml([km,p.addr].filter(Boolean).join(' · '))+'</div>'
             + '<div class="dnc-pl-a">'+(p.phone?('<a href="tel:'+escapeHtml(p.phone.replace(/[^0-9]/g,''))+'">전화</a>'):'')
@@ -13514,8 +13518,8 @@ function renderDining(box){
       +'<div class="inv-q">예식 뒤의 시간, 어떻게 할까요?</div>'
       +'<div class="inv-sub">예식 후 식사·카페 자리를 하객분들께 안내할지 정해요. 꼭 하지 않으셔도 괜찮아요.</div>'
       +'<div class="dn-gate">'
-        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-ico">🍽</span><span class="dgc-t">식사·카페 안내 만들기</span><span class="dgc-d">하객께 식당·카페·가볼 곳을 안내해요</span></button>'
-        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-ico">🍃</span><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span></button>'
+        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-t">식사·카페 안내 만들기</span><span class="dgc-d">하객께 식당·카페·가볼 곳을 안내해요</span></button>'
+        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span></button>'
       +'</div></div>';
     /* [DN_MAKE_BASE] 2026-09-26 · 만들기 → 같은 step0 식당 화면으로. 그린 «뒤에» 기준선을 다시 잡는다([WIZ_BASE_AFTER] 와 같은 규칙).
        목록 화면이 처음 붙이는 collect() 가 dining_on:'Y' 를 계산해 넣어, 아무것도 안 고른 부부가 «나가기»에서 «저장하지 않은 변경이 있어요»를 받았다.
@@ -13527,9 +13531,9 @@ function renderDining(box){
       collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N';
       /* ★★[GATE_CARD_BUSY] 종전: `var _t0=_nn.textContent; _nn.disabled=true;`
          ①신호가 없었다 — `:disabled` 스타일이 없어 눌러도 화면이 그대로였다(CSS 주석 참고).
-         ②★그리고 되돌리는 줄이 카드를 부쉈다. 이 카드 안은 <span> 셋이다(dgc-ico·dgc-t·dgc-d).
+         ②★그리고 되돌리는 줄이 카드를 부쉈다. 이 카드 안은 <span> 셋이었다(dgc-ico·dgc-t·dgc-d · 그림 글자 dgc-ico 는 1102 에 뺐다 [DN_NO_EMOJI_1102]).
            `_nn.textContent = _t0` 은 그 셋을 **전부 지우고** 한 덩어리 글자로 바꾼다 —
-           즉 저장이 실패하면 카드가 「🍃예식만으로 조용히 마무리애프터…」로 뭉개진 채 남는다.
+           즉 저장이 실패하면 카드가 「(그림)예식만으로 조용히 마무리애프터…」로 뭉개진 채 남는다.
            실패는 «다시 누르시면 돼요»여야 하는데, 다시 누를 카드가 망가져 있었다.
          → 설명 줄(dgc-d)만 갈았다 넣는다. 바깥 구조는 건드리지 않는다.
          ★reject 도 받는다 — 종전엔 .catch 가 없어 네트워크가 끊기면 버튼이 영영 잠긴 채였다. */

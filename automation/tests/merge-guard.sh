@@ -21363,7 +21363,8 @@ chk 'GROUP_PHOTO_199' order-preview.html 3   # [POST_FLOW_200] 셋은 POST_KS �
 chk "function _photoLine()" order-preview.html 1
 chk "+POST_KS.map(row).join('')+'</ol>'" order-preview.html 1   # [POST_FLOW_200]
 chk "lab:k==='_after'?_post('_after').sub:" order-preview.html 1   # [POST_FLOW_200]
-chk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장)
+chk "'+ 식사 안내 멘트: 마이페이지 › 애프터 웨딩에서 식당 · 예약 시각을 정하면 붙어요'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
+nochk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html   # [MEAL_HINT_1102] 할 일만 말하던 옛 줄
 nochk "o.push('+ 사진 올리기 안내" order-preview.html   # ★[GUIDE_ALWAYS_202] «하객 안내 켜기» 줄 삭제(사장님 17:30 · 되살리지 말 것)
 chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
 chk ".mk-flow li.qh::after{content:'+';" order-preview.html 1
@@ -21639,7 +21640,7 @@ chk "doing: 'move', duck: -12 }" assets/ritual-cue.js 1
 chk "self: true, doing: 'say', duck: PARAM.duckRead /\* ★\[BGM_TIMING_1101\]" assets/ritual-cue.js 1
 chk "c.duck = PARAM.duckSpeech; if (c.live) c.live.duck = PARAM.duckSpeech; }" assets/ritual-cue.js 1
 chk "function clapUp(l) { l.upMs = 1500; return l; }" assets/ritual-cue.js 1
-chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }" assets/ritual-cue.js 2
+chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }" assets/ritual-cue.js 1   # [AFTER_PHOTO_LOOP_1102] 옛 코스 귀가 인사만 90초 → 20초
 chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000 }" assets/ritual-cue.js 1
 chk "if (st.music === 'next') {" console.html 1
 chk 'function toastBed(){' assets/bgm-bed.js 1
@@ -21736,7 +21737,18 @@ chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 
 chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
 chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
 chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
-chk "detail-r4 screen-bgm' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+chk "detail-r4 screen-bgm after-photo-loop' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+# ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 촬영 후 안내 뒤 추가 촬영 동안 마지막 곡 목록이 이어진다 · ■ 끝내기에서만 3초에 잦아듦
+chk 'AFTER_PHOTO_LOOP_1102' assets/ritual-cue.js 2
+chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }\]   /\* ★★\[AFTER_PHOTO_LOOP_1102" assets/ritual-cue.js 1
+chk "endHold: !!o.endHold," assets/ritual-cue.js 1
+chk "else if (!nx && !(c.endHold && MODE !== 'preview')) later(finish, PARAM.gapMs);" console.html 1
+chk "duckTo(PARAM.duckOff, 3000);   /\* ★\[AFTER_PHOTO_LOOP_1102\]" console.html 1
+chk "{ id: 'M8L', nm: '마지막 곡', parent: 'M8', last: true, loop: true," assets/bgm-picks.js 1
+chk "'M6', 'M8L'\];   /\* \[AFTER_PHOTO_LOOP_1102\]" assets/bgm-picks.js 1
+chk "M8L: 1e9 }" assets/bgm-picks.js 1
+chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›{j} 흐르고, 추가 촬영이 끝날 때까지 이어져요'," assets/bgm-slots.js 1   # [POST_FLOW_200 보충 BGM] 조사 맞춤({j})
+chk 'AFTER_PHOTO_LOOP_1102' scripts/audit/after-photo-loop.mjs 1
 # ★★[MK_HEAD_ONE_1102 사장님 «두 줄은 절대 하지 말고 한 줄로만 · 숫자랑 너무 끼어 있으니까» · «숫자가 문자보다 위로»] 상태 단추는 늘 한 줄 · 남는 폭을 채운다(넓은 화면은 걸음 막대 두 칸 끝까지) · 모자라면 걸음 이름 → 앞말 순으로 뺀다 · «빠뜨린 n» 붙은 꼴로 재서 순간마다 흔들리지 않는다 · 숫자 덩이만 살짝 내린다
 chk 'MK_HEAD_ONE_1102' order-preview.html 3
 nochk "b.classList.remove('one')" order-preview.html   # 두 층으로 돌아가는 길 금지
@@ -21766,6 +21778,12 @@ chk "function gOn(S) { return !S || S.guide == null ? true : !!S.guide; }" asset
 chk "function guideOf(token, closed) { return !closed; }" assets/ritual-preview-link.js 1
 chk "var CUSTGUIDE=true;" order-preview.html 1
 nochk "S\.guide ?" assets/ritual-cue.js   # 하객 안내 조건은 gOn(S) 하나로
+# ★[MEAL_GO_1102 대본 섹션 · 사장님 «칸 이름이 ‹애프터 웨딩›인데 ‹마이페이지›라 헷갈림»] 식사 조건 줄 = 메뉴 이름 그대로 · 마이페이지 안에서는 누르면 나가기(저장 묻기) → 애프터 웨딩 칸 · 머물면 잊는다
+chk 'MEAL_GO_1102' order-preview.html 3
+chk 'MEAL_GO_1102' mypage.html 2
+chk "window.clGo=function(to){ if(!EMBED) return;" order-preview.html 1
+chk "if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }" mypage.html 1
+chk "if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext='';" mypage.html 1
 # ★[PV_FOOT_MIN_1102 사장님 «여기 부분 미니멀하게 정리가 필요해 보여» → «추천대로»] ① 미리 보기 창 아래 — 장면 사진은 글 고리 · 위 선 없음 · «늘 있는 순간이에요» 없음 · «다시 듣기»는 아래 줄 그대로
 chk 'PV_FOOT_MIN_1102' order-preview.html 3
 nochk '<span class="pv-fixed">늘 있는 순간이에요</span>' order-preview.html
@@ -21802,4 +21820,17 @@ chk '20m | Farewell · 옷을 갈아입고 하루를 정리하는 시간' index.
 chk "'정리', '20분', \['11:00', '14:20', '17:40'\], '옷을 갈아입고 하루를 정리해요.'" assets/sequence-modal.js 1
 chk 'Farewell(정리)' api/_kb.js 1
 nochk 'Farewell(마무리)' api/_kb.js
+# ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 들어가서 이모지 같은 거 전부 없애고»] 고르기 카드 🍽 · 🍃 삭제 — 되살리지 말 것
+chk 'DN_NO_EMOJI_1102' mypage.html 4
+nochk "content:'\\\\2665'" mypage.html
+nochk "(_pf?'★':'☆')" mypage.html
+nochk 'class="dgc-ico"' mypage.html
+nochk '🍽' mypage.html
+nochk '🍃' mypage.html
+# ★[CLEAR_HEAD_1102 사장님 아이폰 «모두 비우기 하면 위에 ‹식전 1/2›가 남아 있다»] 머리 상태 단추 숨김은 .one 보다 무겁게 · ② 밖에서는 글을 비운다 · 비우기는 화면 기억도 비운다(검사 = CI bgm-sound b 칸)
+chk 'CLEAR_HEAD_1102' order-preview.html 3
+chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.html 1
+chk "_opPrev=null; MK.navOpen=false; MK.flowKeep=null; MK.toastGo=''; MK.statI=null;" order-preview.html 1
+chk 'CLEAR_HEAD_1102' scripts/audit/clear-head.mjs 1
+chk "listen-pace knobs detail-r1 pr-bgm clear-head' }" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
