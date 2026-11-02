@@ -1561,6 +1561,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--seal)}   /* ○ 직접 말하는 차례 — ★[FLOW_PEOPLE_SEAL 2026-10-07 사장님 «어떤 건 진사고 어떤 건 그냥 이거 · 구분 기준이 뭐야 · 최선이야?»] 기준 = 진사는 «사람이 하는 순서»(● 말 없이 하는 행동 · ○ 그 자리에서 하는 말) · 옅은 금빛 ▶ 는 저희가 준비한 안내 목소리. 모양은 말이 있나 없나 · 색은 사람이 하나를 말한다 · ○ 만 금빛으로 되돌리지 말 것(오후에 ● 만 진사여서 기준이 갈렸다) */
 .mk-flow li.t.now::after{border-color:var(--seal)}   /* [TALK_BRIDGE] 지금 차례면 마디도 진사 */
 .mk-flow li.q .qa{font-weight:500}
+.mk-flow li.q .qa.bgm-l2{display:block;margin-top:2px}   /* [SCREEN_SOUND_1102] 닫는 인사 둘째 줄(촬영 후 마지막 곡) */
 .mk-flow li.qh .qa{font-weight:400;font-size:12.5px;color:var(--sub)} .mk-flow li.qh::after{background:var(--bg);border:1.5px dashed var(--border)}   /* [CLOSING_FULLER 1] 아직 없는 줄 · 진사 점 대신 빈 점 */
 /* ★[LISTEN_PACE_1031] 이 순간 전체 듣기 — 지금 줄 = 지금 글 색 그대로(진하게) · 지나간 줄 = 한 단계 옅게(--sub) · 남은 줄 = 그대로 · 행동 줄이 지금이면 글 600 + 점 둘레 진사 테 · 새 색 · 새 아이콘 없음 */
 .mk-flow li.lp-past,.mk-flow li.lp-past .qa,.mk-flow li.lp-past b{color:var(--sub)}
@@ -2391,7 +2392,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1102mr"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1101np"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102r2"></script><script src="/assets/bgm-form.js?v=1101r2"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1102ss"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1102ss"></script><script src="/assets/bgm-picks.js?v=1101r5"></script><script src="/assets/narration-pad.js?v=1102cu"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1102s3"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3232,7 +3233,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1102mr';   // [ASSET_V] 위 주석
+  var ASSET_V='1102ss';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4739,7 +4740,7 @@ function _lSteps0(g,ks){
         if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||'',ldk:c.live?c.live.duck:undefined,cheer:!!(c.live&&c.live.cheer),est:tEst(c.slug||'')}); } }   /* [BGM_R3_1023] of = 잔 드는 큐 · [BGM_PREVIEW_1024] ldk = 사람 구간 음악 크기 · cheer = «위하여» 뒤 축배 크기로 */
       }
       /* [G5] 말 없는 사람 순간도 옅은 줄로(소리 없음 · 재생 목록에는 안 들어간다) */
-      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말없이 흐르는 자리',txt:qt,quiet:true,who2:_lQuietWho(k,c.slug||''),ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:(k==='ring'&&c.live&&c.live.duck!=null)?c.live.duck:undefined}); } }   /* ★[BGM_TIMING_1101] 반지 끼우는 동작은 엔진 값(−12) — «피아노가 아주 작게» · 다른 행동 줄은 큐 사이(−8) 그대로 */   /* [LISTEN_PACE_1031] est */   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
+      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말없이 흐르는 자리',txt:qt,quiet:true,who2:_lQuietWho(k,c.slug||''),ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:undefined}); } }   /* 맞절은 입장 곡 크기 체계(큐 사이 = intro −12 · 콘솔 −12 와 같다 · ENTRY_CARRY_1101) */   /* ★[MEANING_R1_1102 10] 행동 줄 크기 = 당일 콘솔 live.duck 한 표(맞절 · 부모님께 인사 · 포옹 · 테이블 이동 −12 · 반지 −12 · 박수 −8) — 종전 «반지만 엔진 값 · 나머지 −8»(BGM_TIMING_1101)은 콘솔과 달랐다 */   /* [LISTEN_PACE_1031] est */   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
       if(c.live){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요'+(PR?' · 두 분은 입장 전 대기 자리에서 준비해요':'')+' · '+SKW,skip:true,ms:1600,vk:'영상 상영',ldk:c.live.duck}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
@@ -8173,7 +8174,7 @@ function _lGapOf(q,i,_pv,_nx,pace){ var prc=_inPr()&&pace&&!LP.fast, RP=window.R
        ① 실제로 1분 이상 떨어진 줄(큐 시각 atMin · 하객 맞이 안내끼리 · 같은 꼴의 다른 자리) = 6초 쉼 · 음악 0.8초에 −8 → 다음 줄 0.8초 앞 말 아래 · 줄 사이 «… 약 n분 뒤»
        ② 시각 간격 없이 제목만 바뀜(소개 → 영상이 끝나면 · 시작할 때 → 끝나면) = 2.5초 쉼 · 음악 −12 로 살짝 → 0.8초 앞 말 아래(정적 자리는 정적 그대로)
        «이어서»는 같은 이벤트 · 한 이벤트 안 줄과 줄은 TURN_GAP 값 · 당일 콘솔은 시각대로 나가 그대로 */
-  if(pace&&_pv&&_pv.k!==_nx.k&&(_nx.k==='prevideo'||_nx.slug==='narr-close-bow')&&_nx.dk!=null&&_nx.dk<=-60&&_bedOn()) _gap=Math.max(_gap,3000);   /* [MEANING_R1_1102 14] 닫는 인사 앞도 */
+  if(pace&&_pv&&((_pv.k!==_nx.k&&(_nx.k==='prevideo'||_nx.slug==='narr-close-bow'))||_nx.slug==='narr-open')&&_nx.dk!=null&&_nx.dk<=-60&&_bedOn()) _gap=Math.max(_gap,3000);   /* [MEANING_R1_1102 1] 개식사 앞도 2초 내림 + 정적 1초 */   /* [MEANING_R1_1102 14] 닫는 인사 앞도 */
   if(pace&&_pv&&_nx.after&&!_pv.after&&_bedOn()) _gap=Math.max(_gap,3000);
   if(pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'&&_nx.dk!=null&&_nx.dk<=-60&&_bedOn()) _gap=Math.max(_gap,7000);   /* [MEANING_R1_1102 14] 축배 곡 4초 → 2초 내림 + 정적 1초 → 닫는 인사 */   /* [MEANING_R1_1102 16] 촬영 후 안내 앞 — 앞 곡 2초 내림 + 정적 1초 */   /* ★[PREVIDEO_AFTER_1101] 하객 맞이 곡 2초에 −90 + 정적 1초 → 소개 */
   var _tgk='', _tgK='';

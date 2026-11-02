@@ -167,8 +167,9 @@ try {
     ok('R3 ⑥ 축사 «음악과 함께» 곡 뒤 본식 곡으로 돌아오면 떠난 초부터(0초 아님)', s5 && !!back && back.off > 1, { m4, ids, back, s5, seq: [...new Set(o6.filter((x) => x.src).map((x) => x.k + ':' + x.f + ':' + x.id + ':' + Math.round(x.off || 0)))].slice(0, 24) }); }
   /* ★[DETAIL_R5_1101 규칙 6] 새로 듣기(처음부터)는 위치 0 — 앞 흐름의 «떠난 초»를 새 듣기에 들고 오지 않는다 */
   { const m4 = await f.evaluate(() => BgmBed._t.eff('M4')), kp = await f.evaluate((m4) => (BgmBed._t.LPB.keep || {})[m4] || 0, m4); await go(f, 'letter');
-    const o7 = await trace(f, ['letter'], 9000, false), v1 = o7.find((x) => x.src && x.f === m4);
-    ok('R5 규칙 6 새로 듣기 — 본식 곡은 처음(0초)부터 · 앞 흐름의 떠난 초를 이어 쓰지 않는다', !!v1 && v1.off < 1, { m4, kp, v1 }); }
+    const dk = await f.evaluate((m4) => BgmBed.dayAt('letter') || m4, m4), hk = await f.evaluate((dk) => BgmBed._t.hookOf ? BgmBed._t.hookOf(dk) : 0, dk);   /* ★[SCREEN_SOUND_1102 2] 편지만 = 당일 시간표 그 자리 곡 · 목록 첫 곡이 아니면 강조 자리부터 */
+    const o7 = await trace(f, ['letter'], 9000, false), v1 = o7.find((x) => x.src && x.f === dk);
+    ok('R5 규칙 6 새로 듣기 — 본식 곡은 처음(0초)부터 · 앞 흐름의 떠난 초를 이어 쓰지 않는다', !!v1 && (dk === m4 ? v1.off < 1 : Math.abs(v1.off - hk) < 1.5) && !(kp > 1 && Math.abs(v1.off - kp) < 0.5 && Math.abs(kp - hk) > 0.5), { m4, dk, hk, kp, v1 }); }
   /* ★[DETAIL_R4_1101 ⑥] 크게 보기 «다음 걸음» — 닫기(뒤로가기)가 늦게 와도 새 걸음에 머문다(lsCloseBig 콜백) · 옛 30ms 뒤 opGoStep 은 옛 걸음으로 되돌아왔다 */
   { const runPat = async (code) => { await go(f, 'welcome'); await f.evaluate(() => { try { lsBig('welcome'); } catch (e) {} }); await wait(f, 700);
       return f.evaluate(async (code) => { const ob = history.back.bind(history); history.back = function () { setTimeout(ob, 300); };   /* 뒤로가기 응답이 늦은 폰 */
