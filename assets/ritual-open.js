@@ -509,6 +509,19 @@
     var pm = Math.round(postSec(S) / 60), pa = Math.max(0, DAYMIN - tb - pm), pb = Math.max(0, DAYMIN - ta - pm);   // ★[END_FLOW_1030] 닫는 인사 뒤 몫(pm)도 40분 안   // [TABLE_APART] 단체 사진 = 40 − (본식 + 테이블 인사) · ★[SPAN_SUM40 코워크 추가 점검 P2-2 2026-09-26] 반올림한 본식에서 뺀다 — 따로 반올림하면 «본식 17 + 단체 사진 24 = 41»이 보였다
     return { sec: s, a: a, b: b, ta: ta, tb: tb, tm: tm, pm: pm, pa: pa, pb: pb, body: rng(a, b), table: tm ? ('약 ' + tm + '분') : '', photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요', midMin: (s[0] + s[1]) / 120 - ts / 60 };   // [PHOTO_FLOOR0] · [TABLE_APART]
   }
+  /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 A · 사장님 «식후 블록을 함수/표 하나에서 만들어 모든 곳이 같은 이름 · 같은 순서로»]
+       식후 = 단체 사진(전체 → 가족 · 작가님 진행) → 촬영 후 안내 → 추가 촬영(원하시는 분들과). 이 표 하나가 식순 화면(① 고르기 · ② 하나씩 · 예식 흐름 · 한눈에 · 완성 · 연습) ·
+       당일 엔진(ritual-cue · 촬영 후 안내 → 추가 촬영 큐 차례) 이름과 차례의 원천이다. 마이페이지 · 관리 · 콘솔은 이 파일을 안 읽어 같은 이름을 한 벌 두고 scripts/audit/post-flow.mjs 가 대조한다.
+       ★이름은 셋뿐 — «단체 사진» · «촬영 후 안내» · «추가 촬영»(«사진 촬영» · «기념 촬영» · «자유 사진» · «남은 분들과 자유롭게»는 화면 이름으로 쓰지 않는다 · 나레이션 문장은 따로)
+       ★시간 — span.photo(40 − 본식) 안에 전체 · 가족 목표와 남는 시간이 함께 든다 · 남는 시간이 촬영 후 안내 뒤 추가 촬영(엔진 goFree)으로 간다 — 화면은 «단체 사진(전체 · 가족) · 추가 촬영 약 n분»으로 함께 적는다(40분 밖으로 빼려면 하루 계획 · 계약서가 먼저 바뀐다) */
+  var POST_FLOW = [
+    { k: '_photo', n: '단체 사진', sub: '전체 → 가족 · 작가님 진행' },
+    { k: '_after', n: '촬영 후 안내', sub: '단체 사진을 마치면 · 작가님 신호로 재생' },
+    { k: '_extra', n: '추가 촬영', sub: '원하시는 분들과 · 마지막 곡이 끝날 때까지 이어져요', dur: '원하는 만큼(마지막 곡이 끝날 때까지)' }
+  ];
+  function postOf(k) { for (var i = 0; i < POST_FLOW.length; i++) if (POST_FLOW[i].k === k) return POST_FLOW[i]; return null; }
+  function postDur(k, S) { var x = postOf(k); if (!x) return ''; if (k === '_photo') { try { return span(S).photo; } catch (e) { return ''; } } return x.dur || ''; }
+  function postLine(k) { var x = postOf(k); return x ? x.n + ' · ' + x.sub : ''; }
   /* [TABLE_APART] 한 줄 글 — «본식 약 a~b분 · 테이블 인사 약 n분 · 단체 사진 약 c~d분»(테이블 인사를 안 담으면 가운데가 없다) · 알림 · 콘솔 · AI 상담이 같은 말을 쓴다 */
   function spanText(S) { var p = span(S); return '본식 ' + p.body + (p.tm ? ' · 테이블 인사 ' + p.table : '') + ' · 단체 사진 ' + p.photo; }
   // 카드의 «약 n분»(이 순간을 담으면)
@@ -1691,7 +1704,7 @@
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
-    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
+    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, flowLv: flowLv, FLOW_LV: FLOW_LV, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf,

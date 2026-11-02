@@ -22,7 +22,7 @@ t(my.indexOf('placeholder="직접 추가 (예: 대학 동기)"') === -1, '«직�
 
 // G1·G2 — 친구들과 자유롭게 한 칸 · 서버가 알 때만
 const rp = slice(my, 'function renderPhoto(box){', '\nfunction ');
-t(/if\(PHOTOFLOW\.friendOk\)\{[\s\S]{0,400}친구들과 자유롭게[\s\S]{0,900}id="mp_photoFriend"/.test(rp), '화면 — «친구들과 자유롭게» 칸은 서버가 알 때만(friendOk) 그린다');
+t(/if\(PHOTOFLOW\.friendOk\)\{[\s\S]{0,400}(친구들과 자유롭게|사진작가에게 부탁할 것)[\s\S]{0,900}id="mp_photoFriend"/.test(rp), '화면 — «친구들과 자유롭게» 칸은 서버가 알 때만(friendOk) 그린다');
 t((rp.match(/<textarea|<input/g) || []).length > 0 && (rp.match(/id="mp_photoFriend"/g) || []).length === 1, '친구 칸은 하나(G2 «대략 적을 수 있게만»)');
 t(rp.indexOf('mp_pcBride') > -1 && rp.indexOf('mp_photoFriend') > rp.indexOf('mp_pcBride'), '자리 — «불러 모아 주실 분» 뒤(가족 → 친구 순서)');
 t(/!!p\.photoFriendOk[,)]/.test(my) && /function startPhotoFlow\(gi, rd, dig, fok(, meal)?\)/.test(my) && /friendOk:!!fok/.test(my), '여는 곳이 서버 표시(photoFriendOk)를 넘긴다');
@@ -32,7 +32,7 @@ t(/photoFriend:PHOTOFLOW\.friendOk \? /.test(sp), '사진 화면 저장 — 서�
 const gc = slice(my, 'function wireGuideInfoEditor(box, gi){', '// 공개 방식');
 t(/photoFriend: gi\.photoFriend \? String\(gi\.photoFriend\) : undefined/.test(gc), '좌석 화면 저장 — 친구 부탁을 그대로 실어 보낸다(트랙 통째 교체로 지워지지 않게)');
 const cf = slice(my, 'function prodConfirmHtml(', '\nfunction ');
-t(/var _phF=String\(gi\.photoFriend\|\|''\)\.trim\(\)/.test(cf) && /\|\|_phF\|\|_phCg\|\|_phCb\|\|_phS\)\{ var _pv='전체 하객'/.test(cf) && /불러 모아 주실 분 · /.test(cf) && /남은 분들과 자유롭게 · /.test(cf), '예식 확인서 — 친구 부탁 · 불러 모아 주실 분이 «가족 · 친구 스냅» 줄에 붙는다(그것만 있어도 줄이 선다 · [PHOTO_EMPTY_SAVE])');
+t(/var _phF=String\(gi\.photoFriend\|\|''\)\.trim\(\)/.test(cf) && /\|\|_phF\|\|_phCg\|\|_phCb\|\|_phS\)\{ var _pv='전체 하객'/.test(cf) && /불러 모아 주실 분 · /.test(cf) && /추가 촬영 · /.test(cf), '예식 확인서 — 친구 부탁 · 불러 모아 주실 분이 «가족 · 친구 스냅» 줄에 붙는다(그것만 있어도 줄이 선다 · [PHOTO_EMPTY_SAVE])');
 // [PHOTO_FRIEND_ROW] 2026-09-26 통합 점검 L2 — 예식 준비 행도 같은 판정: 부탁만 적은 부부가 확인서엔 적히는데 행은 «구도 고르기»(✓ 없음)였다
 const pd = slice(my, 'function productionDashHtml(', '\nfunction ');
 // [PHOTO_EMPTY_SAVE 2026-09-27 지시문 6편 3부 2] 구도가 없으면 요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크 무엇이든 «완료 · 수정» + ✓ (종전 «요청 N개» 갈래는 뺐다)
@@ -43,13 +43,13 @@ t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(
 // [PHOTO_FLOW_LINE] 첫눈에 뼈대 · [PHOTO_FRIEND_EX] 누르면 담기는 예시(칸은 하나 그대로)
 // ★[PHOTO_DAY_STEPS 2026-09-27 사장님] 흐름 줄(알약 셋)은 그날 차례 번호 줄로 바뀌었다 — 차례 순서가 엔진(ritual-cue 단체 사진 큐)과 같은지 잰다
 {
-  const ord = ["_stepHd('온라인 인사'", "_stepHd('모두 함께 · 전체 하객 한 장'", 'id="mp_wishAdd"', "_stepHd('가족 구도'", 'data-pmv', 'mp_pcBride', "_stepHd('남은 분들과 자유롭게'", 'id="mp_photoFriend"', "_stepHd('촬영 후 안내'", "h+='</ol>';", 'ph-sec">예식 순서에서 남는 사진', 'id="mp_phGuest"'];
+  const ord = ["_stepHd('온라인 인사'", "_stepHd('모두 함께 · 전체 하객 한 장'", 'id="mp_wishAdd"', "_stepHd('가족 구도'", 'data-pmv', 'mp_pcBride', "_stepHd('촬영 후 안내'", "_stepHd('추가 촬영'", 'id="mp_photoFriend"', "h+='</ol>';", 'ph-sec">예식 순서에서 남는 사진', 'id="mp_phGuest"'];
   const pos = ord.map((x) => rp.indexOf(x)), miss = ord.filter((x, i) => pos[i] < 0), sorted = pos.every((p, i) => i === 0 || p > pos[i - 1]);
-  t(!miss.length && sorted, '차례 — [END_FLOW_1030 검토 167] (디지털 참석 날) 온라인 인사 → 전체 하객 + 꼭 담고 싶은 사진 → 가족 구도(+ 불러 모아 주실 분) → 남은 분들과 자유롭게 → 예식 순서에서 남는 사진 → 하객 사진 모으기 · 감사 인사 차례 없음' + (miss.length ? ' — 못 찾음: ' + miss.join(' · ') : (sorted ? '' : ' — 순서가 어긋남')));
+  t(!miss.length && sorted, '차례 — [END_FLOW_1030 검토 167] (디지털 참석 날) 온라인 인사 → 전체 하객 + 꼭 담고 싶은 사진 → 가족 구도(+ 불러 모아 주실 분) → 촬영 후 안내 → 추가 촬영(친구 부탁 칸 · POST_FLOW_200) → 예식 순서에서 남는 사진 → 하객 사진 모으기 · 감사 인사 차례 없음' + (miss.length ? ' — 못 찾음: ' + miss.join(' · ') : (sorted ? '' : ' — 순서가 어긋남')));
   t(rp.indexOf('class="snp-flow"') === -1 && !/var _flw=/.test(rp), '흐름 줄(알약)은 없다 — 번호 줄이 곧 흐름(같은 말 두 번 금지)');
   const cue = read('assets/ritual-cue.js') || '';
-  const eng = ["slug: 'narr-online-in'", 'slug: _ppre', "actId: 'photo-all'", "actId: 'photo-family'", "actId: 'photo-free'"].map((x) => cue.indexOf(x));   // ★[CLOSING_LINE_1031] 마무리 멘트 → 소리 없는 사진 큐(전체 하객 → 가족 구도 → 자유 사진)
-  t(eng.every((p, i) => p > -1 && (i === 0 || p > eng[i - 1])) && rp.indexOf("_stepHd('감사 인사 · 남아 주실 분 안내'") === -1, '엔진 새 코스 큐 순서가 화면 차례와 같다(온라인 인사 → 마무리 멘트 → 전체 하객 → 가족 구도 → 자유 사진 · END_FLOW_1030 · CLOSING_LINE_1031) · 감사 인사 차례는 걷었다');
+  const eng = ["slug: 'narr-online-in'", 'slug: _ppre', "actId: 'photo-all'", "actId: 'photo-family'", "name: '촬영 후 안내'", "actId: 'photo-free', name: _px.n"].map((x) => cue.indexOf(x));   // ★[CLOSING_LINE_1031] 마무리 멘트 → 소리 없는 사진 큐(전체 하객 → 가족 구도 → 자유 사진)
+  t(eng.every((p, i) => p > -1 && (i === 0 || p > eng[i - 1])) && rp.indexOf("_stepHd('감사 인사 · 남아 주실 분 안내'") === -1, '엔진 새 코스 큐 순서가 화면 차례와 같다(온라인 인사 → 마무리 멘트 → 전체 하객 → 가족 구도 → 촬영 후 안내 → 추가 촬영 · END_FLOW_1030 · POST_FLOW_200 · CLOSING_LINE_1031) · 감사 인사 차례는 걷었다');
 }
 t(/사진작가가 불러 드리고 자연스럽게 이끌어요/.test(rp), '«고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요» — [PHOTO_FREE] 부르는 것은 사진작가');
 // [PHOTO_EX_VIEW] 예시 목록 이름 = 화면 목록 이름(이름으로 찾는다) · 3장씩 · 전각 줄표 없음(머리 주석 제외)
@@ -110,9 +110,9 @@ t(capNote.indexOf("'두 분 식순이면 본식 뒤 단체 사진 시간이 약&
 t(/var mn=document\.getElementById\('mp_photoMin'\); if\(mn\) mn\.innerHTML=photoMinNote\(sel\);/.test(rp), '요청 칸에 칠 때 «약 M분» 줄도 함께 고친다(다시 그리지 않는다 · 커서 그대로)');
 
 // 관리자 · 당일 콘솔 · 서버
-t(/row\('친구들과 자유롭게',_pfr\)/.test(adm) && /\|\|_pfr\) h\+=/.test(adm), '관리자 고객 상세 — «친구들과 자유롭게» 줄');
+t(/row\('추가 촬영 부탁',_pfr\)/.test(adm) && /\|\|_pfr\) h\+=/.test(adm), '관리자 고객 상세 — «친구들과 자유롭게» 줄');
 t(/_cS\.photoFriend=String\(gi\.photoFriend\)\.slice\(0,200\)/.test(adm), '관리자 «당일 콘솔» 단추가 친구 부탁을 넘긴다');
-t(/S && S\.photoFriend[\s\S]{0,200}textContent = '친구들과 자유롭게 · '/.test(con), '당일 콘솔 판 머리에 친구 부탁(textContent 로만)');
+t(/S && S\.photoFriend[\s\S]{0,200}textContent = '추가 촬영 · '/.test(con), '당일 콘솔 판 머리에 친구 부탁(textContent 로만)');
 t(/var _pfr = String\(gir\.photoFriend \|\| ''\)\.replace\(\/\[<>\]\/g, ''\)\.slice\(0, 200\)\.trim\(\);\s*\n\s*if \(_pfr\) body\.draft\.photoFriend = _pfr;/.test(gs), '서버 화이트리스트에 photoFriend(200자 · <> 지움 · 비면 키 없음)');
 t(/photoFriendOk: true,/.test(gs), '서버가 photoFriendOk 표시를 준다');
 

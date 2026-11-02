@@ -3182,7 +3182,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
   var _pfr=(gi&&gi.photoFriend)?String(gi.photoFriend):'';   /* [PHOTO_FRIEND 2026-09-26 사장님] 친구들과 자유롭게 — 가족 구도 뒤 사진작가에게 부탁할 것(고객 글 · row 가 esc 한다) */
   /* ★[WISH_ROW_HTML 2026-09-27] _pwh 는 이미 esc 한 조각 + <br> · <a>(참고 링크)다 — row() 가 한 번 더 esc 해 «&lt;br&gt;» 글자로 보이고 링크가 안 눌렸다. 날 HTML 로 넣는다(고객 글은 위에서 esc).
   /* ★[PHOTO_DAY_STEPS 2026-09-27] 줄 순서 = 그날 차례(전체 하객 → 꼭 담고 싶은 사진 → 가족 구도 → 불러 모아 주실 분 → 친구들과 자유롭게) · 부부 화면 · 확인서 · 브리프와 같다 */
-  if(_pho||_pfx||_pwh||_psu||_pcl||_pfr) h+='<div class="grp-l">가족 · 친구 스냅</div>'+(_pwh?('<div class="kv"><span class="k">꼭 담고 싶은 사진(전체 하객 바로 뒤)</span><span class="v">'+_pwh+'</span></div>'):'')+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('친구들과 자유롭게',_pfr)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
+  if(_pho||_pfx||_pwh||_psu||_pcl||_pfr) h+='<div class="grp-l">가족 · 친구 스냅</div>'+(_pwh?('<div class="kv"><span class="k">꼭 담고 싶은 사진(전체 하객 바로 뒤)</span><span class="v">'+_pwh+'</span></div>'):'')+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('추가 촬영 부탁',_pfr)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
   // ★★[SNAP_PICK_V2 2026-09-26 사장님 회의] 스냅 기획 — 공간별 고른 장면(번호 = 우선순위 · 9/27 부터 기본 줄 없음) · 링크 · 올린 그림 · 한 칸 · 준비물 · 디렉터 확인·회신 · 촬영 브리프 주소.
   //   장면 이름·준비물은 assets/snap-refs.js(부부 화면·브리프와 같은 원천)에서 읽는다. 옛 칸(v1)이 있으면 아래 «옛 기록»으로만 보인다(SNAP_LEGACY_KEEP).
   var _smW=((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).snapMeta||{};   // [SNAP_CONSENT] 지운 기록(withdrawn)은 기획이 없어도 보인다

@@ -415,19 +415,19 @@
   var CLOSE_CHEER_EX = { 'narr-close-bow-ex3': 1 };   /* [CLOSING_CHEER_195] 칩 글에 이미 응원 부탁이 있는 칩 — 새 칩을 더하면 여기도 본다 */
   /* ★★[END_FLOW_200 검토 200 · 사장님 12:57 ~ 13:00 «마무리 멘트 이후 단체 사진 · 그 안내는? · 촬영 후 안내는 단체 사진 이후 · 더 찍고 싶은 분은 남아서»]
        마무리 멘트 끝 = 늘 모이기 문장(진희 새 녹음) · «남은 하루 행복하게 보내세요.»(47#1 · CL_DAY)는 촬영 후 안내 끝으로 옮겼다(식사 없는 판 · 기존 소리 그대로) — 마무리 멘트에 되살리지 말 것 */
-  var CL_GATHER = ['안내', '이어서 단체 사진을 찍겠습니다. 작가님 안내에 따라 앞으로 모여 주세요.', null, '검토 200 · 대본 확정(사장님 12:57)'];
+  var CL_GA = ['안내', '이어서 단체 사진을 찍겠습니다.', null, '검토 200 · 대본 확정(사장님 12:57)'], CL_GB = ['안내', '작가님 안내에 따라 앞으로 모여 주세요.', null, '검토 200 · 대본 확정(사장님 12:57)'];   // [END_FLOW_200] 문장 자리 하나씩
   var CLOSING_PARTS = {
-    'narr-closing': [CL_THX, CL_CHEER, CL_GATHER], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_UP, CL_GATHER],
-    'narr-closing-soft': [CL_THX, CL_CHEER, CL_GATHER], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP, CL_GATHER],
-    'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GATHER]),   /* [CLOSING_MEAL_DUP] */
+    'narr-closing': [CL_THX, CL_CHEER, CL_GA, CL_GB], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA, CL_GB],
+    'narr-closing-soft': [CL_THX, CL_CHEER, CL_GA, CL_GB], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA, CL_GB],
+    'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA, CL_GB]),   /* [CLOSING_MEAL_DUP] */
     /* [CLOSING_SRC_1031] 닫는 멘트 칩 187 «격식 있게»를 고른 날 — 47#0(감사) 없이 · [CLOSING_CHEER_195] 응원 문장이 맨 앞 */
-    'narr-closing-nt': [CL_CHEER, CL_GATHER], 'narr-closing-guide-nt': [CL_CHEER, CL_UP, CL_GATHER],
-    'narr-closing-soft-nt': [CL_CHEER, CL_GATHER], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP, CL_GATHER],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
-    'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GATHER]),   /* [CLOSING_MEAL_DUP] */
+    'narr-closing-nt': [CL_CHEER, CL_GA, CL_GB], 'narr-closing-guide-nt': [CL_CHEER, CL_UP, CL_GA, CL_GB],
+    'narr-closing-soft-nt': [CL_CHEER, CL_GA, CL_GB], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP, CL_GA, CL_GB],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
+    'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA, CL_GB]),   /* [CLOSING_MEAL_DUP] */
     /* [CLOSING_CHEER_195] 칩 186 «다정하게»를 고른 날 — 감사 없이 · 응원 없이(옛 292 · 293 · 295 · 296 글 그대로) */
-    'narr-closing-nt-nc': [CL_GATHER], 'narr-closing-guide-nt-nc': [CL_UP, CL_GATHER],
-    'narr-closing-soft-guide-nt-nc': [CL_UP, CL_GATHER],
-    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL, CL_GATHER])
+    'narr-closing-nt-nc': [CL_GA, CL_GB], 'narr-closing-guide-nt-nc': [CL_UP, CL_GA, CL_GB],
+    'narr-closing-soft-guide-nt-nc': [CL_UP, CL_GA, CL_GB],
+    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL, CL_GA, CL_GB])
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 하객 맞이 · 촬영 후 안내 문장 창고 — 줄 하나 = [줄 주인 · 문장 · 빌려 오는 녹음 · 자료 판정] (CLOSING_PARTS 와 같은 모양) ·
@@ -481,7 +481,8 @@
   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 칩 186 · 187(«진심으로 감사»)을 고른 날은 «-nt»(47#0 없이) — 108 · 185 를 고른 날은 그대로 */
   var CLOSE_THANKS_EX = { 'narr-close-bow-ex3': 1, 'narr-close-bow-ex4': 1 };
   function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull && S.resv && S.guide) ? 'narr-closing-meal' : S.meal ? (S.guide ? 'narr-closing-soft-guide' : 'narr-closing-soft') : (S.guide ? 'narr-closing-guide' : 'narr-closing');
-    var ex = ''; try { ex = (O.narExCue && O.narExCue(S, 'narr-close-bow')) || ''; } catch (e) { ex = ''; } var k = CLOSE_THANKS_EX[ex] ? b + (CLOSE_CHEER_EX[ex] ? '-nt-nc' : '-nt') : b; return (RETIRED[k] || !CLOSING_PARTS[k]) ? '' : k; }   /* [CLOSING_CHEER_195] 186 + 카페만 + 하객 안내 없음 = 판 없음(남는 문장 0) */   /* [CLOSING_NO_CREW_1031] 쉬는 판(294 · 남는 문장 0)은 '' = 마무리 멘트 큐 없음 */
+    var ex = ''; try { ex = (O.narExCue && O.narExCue(S, 'narr-close-bow')) || ''; } catch (e) { ex = ''; } var k = CLOSE_THANKS_EX[ex] ? b + (CLOSE_CHEER_EX[ex] ? '-nt-nc' : '-nt') : b; if (k === 'narr-closing-soft-nt-nc') k = 'narr-closing-nt-nc';   /* ★[END_FLOW_200] 186 + 카페만 + 하객 안내 없음 = 모이기 두 문장뿐(325 와 같은 글) — 판이 없어 모이기 말이 빠지던 자리 */
+    return (RETIRED[k] || !CLOSING_PARTS[k]) ? '' : k; }   /* [CLOSING_CHEER_195] 186 + 카페만 + 하객 안내 없음 = 판 없음(남는 문장 0) */   /* [CLOSING_NO_CREW_1031] 쉬는 판(294 · 남는 문장 0)은 '' = 마무리 멘트 큐 없음 */
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
@@ -1805,15 +1806,13 @@
         live: { t: '자유 사진 · 남는 시간만큼 · 두 분 숨 고르기 포함', est: 0, self: true, doing: 'move' }   // 옛 코스는 종전 그대로(65 가 자유 사진)
       }));
       /* ★[PHOTO_FREE_OPEN_1019 검토 133-3] 262 자유 사진 여는 말 — 새 코스만 · 65 에 사슬로 이어 «이제 무엇을 해도 되는지»를 말한다(자료 DD 폐식사 템플릿 2) · 자유 사진(사람 순간)은 이 줄이 맡는다 */
-      if (_freeOpen) cues.push(cue({   // ★[CLOSING_LINE_1031 검토 178] 262 여는 말은 걷었다(RETIRED) — 자유 사진은 소리 없이 작가님 · 디렉터 GO
-        k: '_final', blockN: '단체 사진', slug: '', act: true, actId: 'photo-free', name: '자유 사진', text: '', est: 0, duck: -12,
-        hint: '가족 구도를 다 담고 나면',
-        live: { t: '자유 사진 · 남는 시간만큼 · 두 분 숨 고르기 포함', est: 0, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다
-      }));
+      /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 A] 새 코스의 «추가 촬영»(옛 자유 사진 · actId photo-free 그대로)은 촬영 후 안내 «뒤»로 옮겼다 — 단체 사진(전체 → 가족) → 촬영 후 안내 → 추가 촬영.
+           아래 _goodbye 자리에서 넣는다 · 남는 시간(goFree)은 ROUND_FIT 이 _goFreeOpen 에 적어 둔다. 여기로 되돌리지 말 것 */
       /* [ROUND_FIT 2패스 본체 · GROUP_PHOTO · PHOTO_GO2GO] 단체 사진 창 = 본식이 끝난 뒤((26) 말이 끝난 뒤)부터 마무리 GO 까지.
          남는 시간(자유 사진) = (40 − 본식 넉넉 합) − 목표 합(전체 하객 · 가족 구도 · 온라인 인사) · 최소 120초(두 분 숨 고르기).
          ★(108) · (26) 의 말과 목례 · 박수는 본식(닫는 인사 TIME)에 들어 있어 여기서 세지 않는다 — (26) 뒤 «하객이 앞으로 모임»은
            전체 하객 사진 목표 안이다(전체 하객 약 6분에 모이는 시간도 든다). 온라인 날도 받는 큐는 (65, narr-photo-out) 하나다. */
+      var _goFreeOpen = 0;   // [POST_FLOW_200]
       (function () {
         var bodyMin = D.COURSES[S.course].open ? Math.round(O.bodySec(S)[1] / 60) : (D.MIN.base[S.course] || D.MIN.base.damback);
         var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell) - bodyMin;   // 분 · 단체 사진 몫
@@ -1836,6 +1835,7 @@
         var _fc = _photoOpen ? by['@photo-free'] : by['narr-photo-out'];   // [PHOTO_FREE_OPEN_1019] 옛 코스는 65 · ★[CLOSING_LINE_1031] 새 코스는 소리 없는 자유 사진
         fit(_fc, goFree, 0);
         if (_fc && _fc.live) _fc.live.goFree = goFree;   // 콘솔 · 검사가 읽는 «자유 사진 목표»(말 포함)
+        _goFreeOpen = goFree;   // [POST_FLOW_200] 새 코스 추가 촬영(촬영 후 안내 뒤)이 쓴다
       })();
       /* ★★[ONLINE_ALREADY_ENDED 2026-08-16 사용자 지적] 배웅에서 온라인을 갈라 말하지 않는다.
          사용자 원문: *"본식끝나고 온라인 화면도 종료 한다고 우리 정했잖아 이건 그걸기억못하는듯한 진행인데"*
@@ -1857,8 +1857,14 @@
            식사(예약 시각 ±) · 경로 하나(하객 안내 · 현장 디렉터) · 두고 가시는 물건 · 식사 · 카페가 없는 날만 «조심히 돌아가세요» · 본식 시간 셈(상한)에 들지 않는다(사진 뒤 · 마무리 몫) */
       if (_photoOpen) { var _aps = afterPhotoOf(S); cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: _aps, name: '촬영 후 안내', text: EXTRA[_aps], duck: -14, fire: 'manual',
-        hint: '작가님이 촬영을 마치면', note: '작가님이 예정된 촬영을 모두 마쳤다고 알린 뒤 작가님이 누른다 · 두 분은 이어서 편하게 환복 · 늦어진 날은 자유 사진을 일찍 끝내고 누른다(마무리 시각을 지킨다)',
+        hint: '단체 사진(전체 → 가족)을 마치면', note: '작가님이 전체 · 가족 단체 사진을 마치면 누른다 · 이어서 원하시는 분들과 추가 촬영(마지막 곡이 끝날 때까지) · 늦어진 날은 추가 촬영을 짧게(마무리 시각을 지킨다)',   // [POST_FLOW_200]
         post: [{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.goodbye.outroFadeMs }]   /* ★[BGM_TIMING_1101] 마지막 곡이 피어난다 — 나레이션 끝 1.5초에 −8 → 90초 → 20초 소거(종전 −14 그대로 90초) */
+      })); }
+      /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 A] 추가 촬영 — 촬영 후 안내 뒤 · 원하시는 분들과 · 소리 없음(작가님 진행) · 마지막 곡이 끝날 때까지 · 이름은 RitualOpen.POST_FLOW */
+      if (_photoOpen && _freeOpen) { var _px = (O.postOf && O.postOf('_extra')) || { n: '추가 촬영', sub: '원하시는 분들과' }; cues.push(cue({
+        k: '_goodbye', blockN: '마무리', slug: '', act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12,
+        hint: '촬영 후 안내가 끝나면',
+        live: { t: _px.n + ' · 원하시는 분들과 · 남는 시간만큼', est: Math.max(10, _goFreeOpen), goFree: _goFreeOpen, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다(옛 자유 사진 몫 · _goFreeOpen)
       })); }
       if (!_photoOpen) cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: 'end-2-goodbye', name: '마무리 · 귀가 인사', text: EXTRA['end-2-goodbye'], duck: -14,

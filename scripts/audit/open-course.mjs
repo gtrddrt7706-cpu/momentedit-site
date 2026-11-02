@@ -260,12 +260,12 @@ ok('[GUEST_WELCOME_191] 10분 전 — 본식 길이 판(십 · 십오 · 이십)
 ok('[ONEMIN_FIRST · GUEST_WELCOME_191] 식전 영상이 없어도 시각 같음(-10 · -5 · -1) · 5분 전은 03(디지털 날 314) · 1분 전 315(디지털 날 316)', C.build({ course: 'open', on: {} }, { mode: 'console' }).cues.filter((c) => /^guest-(w-10m|3-5min|w-5m|w-1m)/.test(c.slug || '')).map((c) => c.atMin).join(',') === '-10,-5,-1'
   && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-5m-online') > -1 && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-1m-online') > -1 && slugs({ course: 'open', on: {} }).indexOf('guest-3-5min') > -1);
 ok('[GUEST_WELCOME_191] 화촉이 뒤에 와도 1분 전은 315(89 는 쉰다)', (() => { const s = slugs({ course: 'open', on: { candle: 1 } }); return s.indexOf('guest-w-1m') > -1 && s.indexOf('guest-4-1min-pre') < 0 && s.indexOf('guest-4-1min') < 0 && C.RETIRED['guest-4-1min-pre']; })());
-ok('[AFTER_PHOTO_191] 촬영 후 안내 — 사진 뒤 마지막 · 작가님이 누름(manual · 힌트) · 판(식사 · 카페 · 없음 × 하객 안내) · 미리 듣기 빌드엔 없다', (() => {
-  const ap = (o) => { const r = C.build(Object.assign({ course: 'open', on: {} }, o), { mode: 'console' }), cs = r.cues, c = cs[cs.length - 1] || {}; return c; };
+ok('[AFTER_PHOTO_191 · POST_FLOW_200] 촬영 후 안내 — 가족 구도 뒤 · 추가 촬영 앞 · 작가님이 누름(manual · 힌트) · 판(식사 · 카페 · 없음 × 하객 안내) · 미리 듣기 빌드엔 없다', (() => {
+  const ap = (o) => { const r = C.build(Object.assign({ course: 'open', on: {} }, o), { mode: 'console' }), cs = r.cues, c = cs.find((x) => /^after-photo/.test(x.slug || '')) || {}, i = cs.indexOf(c); c._next = (cs[i + 1] || {}).actId; c._prev = (cs[i - 1] || {}).actId; return c; };
   const a = ap({}), b = ap({ meal: 1, mealFull: 1, resv: 1, guide: 1 }), c = ap({ meal: 1, guide: 1 }), d = ap({ meal: 1, mealFull: 1 });
   const pre = C.build({ course: 'open', on: {} }, { mode: 'preview' }).cues.some((x) => /^after-photo/.test(x.slug || ''));
-  return a.slug === 'after-photo' && a.name === '촬영 후 안내' && a.fire === 'manual' && a.hint === '작가님이 촬영을 마치면' && b.slug === 'after-photo-resv-guide' && c.slug === 'after-photo-cafe-guide' && d.slug === 'after-photo-meal' && !pre
-    && /조심히 돌아가세요\.$/.test(a.text) && !/조심히/.test(b.text) && !/조심히/.test(c.text); })());
+  return a.slug === 'after-photo' && a.name === '촬영 후 안내' && a.fire === 'manual' && a.hint === '단체 사진(전체 → 가족)을 마치면' && a._prev === 'photo-family' && a._next === 'photo-free' && b.slug === 'after-photo-resv-guide' && c.slug === 'after-photo-cafe-guide' && d.slug === 'after-photo-meal' && !pre
+    && /남은 하루 행복하게 보내세요\.$/.test(a.text) && /^단체 사진을 모두 마쳤습니다\./.test(a.text) && !/남은 하루/.test(b.text) && !/남은 하루/.test(c.text) && [a, b, c, d].every((x) => /두 분과 따로 사진을 남기고 싶으신 분들은 잠시 남아 주세요\./.test(x.text)); })());   /* [END_FLOW_200 2] */
 ok('두 분 목소리면 04 는 그대로(첫 줄이 이미 맞다)', slugs({ course: 'open', on: { candle: 1 }, guestVoice: 'couple' }).indexOf('guest-4-1min') > -1);
 ok('화촉 서는 분 → 여는 말 판', ['mothers', 'fathers', 'others'].every((w) => slugs({ course: 'open', on: { candle: 1 }, candleWho: w }).indexOf('narr-candle-in-' + w) > -1));
 /* ★[DECLARE_BY_PERSON 2026-10-12 사장님] 선언 박수 판(96 · 97)은 걷었다 — 옛 초안의 clap 값이 와도 여는 말 136 → 사람 낭독 → 맺는 말 57 */
@@ -321,9 +321,9 @@ ok('[TRIB_CALL_SAY_1014 · PHOTO_SEND_FIRST_1014 · CLOSING_LINE_1031] 말로 �
     && p1.r[ith].actId === 'photo-all' && p1.r[ith].fire === 'chain' && (p1.r.find((c) => c.actId === 'photo-family') || {}).fire === 'manual'
     && p0.s.indexOf('narr-photo-send') < 0 && p0.s.indexOf('narr-closing-soft') > -1; })());
 /* ★[SPLIT_OFF_OPEN_1023 검토 148-1] 새 코스는 60(«자리를 지켜 주시기 바랍니다.»)을 틀지 않는다 — 감사 인사(45 · 110) 다음이 바로 262 · 가족 구도 목표는 감사 인사 사람 구간이 맡아 자유 사진 몫이 그대로 · 옛 코스는 60 그대로 */
-ok('[SPLIT_OFF_OPEN_1023 · CLOSING_LINE_1031] 새 코스 = 가족 구도(소리 없음) → 자유 사진(소리 없음 · 262 걷음) · 60 없음 · 가족 구도 시간은 가족 구도 큐 · 옛 코스는 60 그대로', [0, 1].every((meal) => {
+ok('[SPLIT_OFF_OPEN_1023 · CLOSING_LINE_1031 · POST_FLOW_200] 새 코스 = 가족 구도(소리 없음) → 촬영 후 안내 → 추가 촬영(소리 없음 · 262 걷음) · 60 없음 · 가족 구도 시간은 가족 구도 큐 · 옛 코스는 60 그대로', [0, 1].every((meal) => {
   const r = C.build({ course: 'open', on: {}, meal }, { mode: 'console' }).cues, s = r.map((c) => c.slug), ia = r.findIndex((c) => c.actId === 'photo-family'), t = r[ia] || {};   /* [END_FLOW_1030] 45 · 110 은 새 코스에서 안 튼다 — 가족 구도는 소리 없는 동작 큐 */
-  return s.indexOf('narr-photo-split') < 0 && s.indexOf('end-1a-farewell') < 0 && s.indexOf('end-1c-thanks-nomeal') < 0 && s.indexOf('narr-photo-free') < 0 && (r[ia + 1] || {}).actId === 'photo-free' && !!t.live && /가족 구도/.test(t.live.t) && t.live.est > 300 && t.live.famGoal === 360;
+  return s.indexOf('narr-photo-split') < 0 && s.indexOf('end-1a-farewell') < 0 && s.indexOf('end-1c-thanks-nomeal') < 0 && s.indexOf('narr-photo-free') < 0 && /^after-photo/.test((r[ia + 1] || {}).slug || '') && (r[ia + 2] || {}).actId === 'photo-free' && !!t.live && /가족 구도/.test(t.live.t) && t.live.est > 300 && t.live.famGoal === 360;
 }) && slugs({ course: 'damback', meal: 1 }).indexOf('narr-photo-split') > -1);
 ok('[GROOM_BOW_TIP] 옛 초안의 신랑 큰절(bowGroom)도 꽃과 포옹 — 큰절 줄(106) 없음 · 사람 구간은 여는 말에', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'narr-tribute-name,tribute-in,tribute-call-say,tribute-hug,tribute-out' && !!r[1].live && !!r[2].live && !!r[3].live; })());   // [TRIB_CALL_SAY_1014] 말 칸을 안 고른 옛 초안도 말로 인사 판(sayT) → 145   // ★[TRIB_NAME_1014 · TRIB_CALL_1014] 이름 줄 → 여는 말(걸음) → 구호(인사 · 포옹) → 맺는 말
 /* ★[TRIB_BACK_1014] 맺는 말(39 «두 분, 다시 앞으로 와 주세요») 뒤 돌아오는 사람 순간 — 다음 큐(닫는 인사 · 옛 코스의 다음 순간)는 두 분이 나란히 선 뒤 디렉터 GO(사슬이면 걷는 중에 «하객 여러분께 인사!») */

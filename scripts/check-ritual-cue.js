@@ -346,10 +346,10 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     if (pn !== undefined) S.photoN = pn; if (pw !== undefined) S.photoWishN = pw;
     const r = C.build(C.norm(S)); const cues = Array.isArray(r) ? r : (r.cues || []);
     const bow = cues.findIndex((c) => c.slug === 'narr-close-bow'), from = cues.findIndex((c, i) => i > bow && /^narr-closing/.test(c.slug || ''));   // ★[END_FLOW_1030] 창 = 닫는 인사 뒤(온라인 인사 · 마무리 멘트 포함)부터 마무리까지 · ★[CLOSING_LINE_1031] 사진 전 안내 → 마무리 멘트
-    const to = cues.findIndex((c, i) => i > from && c.blockN === '마무리');   // [PHOTO_THANKS 2026-09-26] 옛 «배웅»
+    const to = cues.findIndex((c, i) => i > from && c.blockN === '마무리' && c.actId !== 'photo-free');   // [PHOTO_THANKS 2026-09-26] 옛 «배웅»
     const tag = `${ex.k}/온라인=${dg ? 1 : 0}/구도=${pn === undefined ? '?' : pn}/요청=${pw === undefined ? '?' : pw}`;
     if (from < 0 || to < 0) { bad.push(`${tag} 창을 못 잡았다(마무리 멘트 ${from} · 마무리 ${to}) — 슬러그 · 블록 이름이 바뀌었다`); continue; }
-    const win = cues.slice(from + 1, to), pre = cues.slice(bow + 1, from), pp = cues[from];
+    const win = cues.slice(from + 1, to).concat(cues.filter((c, i) => i > to && c.actId === 'photo-free')), pre = cues.slice(bow + 1, from), pp = cues[from];
     const ppX = Math.max(0, Math.round((pp.est || 0) * (1 - String(D.NARR.close || '').length / Math.max(1, String(pp.text || '').length))));   // 사진 전 안내가 26 보다 긴 몫(26 의 말은 닫는 인사 시간 안)
     const sum = ((pp.live && pp.live.est) || 0) + ppX + pre.concat(win).reduce((a, c) => a + (c.est || 0) + ((c.live && c.live.est) || 0), 0);
     const want = (SUM - Math.round(O.bodySec(S)[1] / 60)) * 60;

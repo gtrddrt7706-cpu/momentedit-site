@@ -77,8 +77,8 @@ try {
   await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 700)); });
   /* 중6 · 중7 첫 화면 */
   const s0 = await f.evaluate(() => { const ch = [...document.querySelectorAll('.pr-fcs .pr-fc b')].map((b) => b.textContent); const n = (document.querySelector('.mk-one') || {}).textContent || '';
-    const mins = ((document.querySelector('[data-fk="prall"] .pr-hl > span') || {}).textContent || '').replace(/\u00a0/g, ' '); return { last: ch.slice(-2), list: !!document.querySelector('[data-fk="prj:_after"]'), n, mins, est: Math.round(_prEstMs(_lRows()) / 60000), tr: ((document.querySelector('[data-fk="prtry"] span') || {}).textContent || '').replace(/\u00a0/g, ' ') }; });
-  ok('중6 «오늘 흐름» 끝 = 사진 → 촬영 후 안내 · 목록에 «식후 · 촬영 후 안내»', s0.last.join('>') === '사진>촬영 후 안내' && s0.list, s0);
+    const mins = ((document.querySelector('[data-fk="prall"] .pr-hl > span') || {}).textContent || '').replace(/\u00a0/g, ' '); return { last: ch.slice(-3), list: !!document.querySelector('[data-fk="prj:_after"]'), n, mins, est: Math.round(_prEstMs(_lRows()) / 60000), tr: ((document.querySelector('[data-fk="prtry"] span') || {}).textContent || '').replace(/\u00a0/g, ' ') }; });
+  ok('중6 «오늘 흐름» 끝 = 단체 사진 → 촬영 후 안내 → 추가 촬영 [POST_FLOW_200] · 목록에 «식후 · 촬영 후 안내»', s0.last.join('>') === '단체 사진>촬영 후 안내>추가 촬영' && s0.list, s0);
   ok('중7 «연습 약 n분» = 실제 연습 줄 계산 · B 는 두 분 시간에 따라', new RegExp('연습 약 ' + s0.est + '분').test(s0.mins) && /두 분이 직접 하는 시간에 따라 달라요/.test(s0.tr), s0);
   const q = await f.evaluate(async () => { const pq = _prQ(_lRows()); prStart('try'); await new Promise((x) => setTimeout(x, 900)); LP.paused = true; clearTimeout(LP.t);
     const same = pq.length === LP.q.length && pq.every((x, i) => x.k === LP.q[i].k && x.txt === LP.q[i].txt && x.ms === LP.q[i].ms);

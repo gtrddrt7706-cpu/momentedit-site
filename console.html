@@ -2310,7 +2310,7 @@ $('#bWait').onclick = function(){
   if (S && Array.isArray(S.photoNames) && S.photoNames.length) { var pn = document.createElement('div'); pn.className = 'pcb-who'; pn.textContent = '가족 구도 · ' + S.photoNames.slice(0, 11).map(function (t) { return String(t).slice(0, 24); }).join(' › '); box.appendChild(pn); }
   if (who.length) { var w = document.createElement('div'); w.className = 'pcb-who'; w.textContent = '불러 모아 주실 분 · ' + who.join(' / '); box.appendChild(w); }
   /* [PHOTO_FRIEND 2026-09-26 사장님] 친구들과 자유롭게 — 가족 구도를 다 찍은 뒤 사진작가에게 부탁한 것. 고객 글이라 textContent 로만. */
-  if (S && S.photoFriend) { var fr = document.createElement('div'); fr.className = 'pcb-who'; fr.textContent = '친구들과 자유롭게 · ' + String(S.photoFriend).slice(0, 200); box.appendChild(fr); }
+  if (S && S.photoFriend) { var fr = document.createElement('div'); fr.className = 'pcb-who'; fr.textContent = '추가 촬영 · ' + String(S.photoFriend).slice(0, 200); box.appendChild(fr); }
   add('불러 모으기', P.call);
   add('연출 · 말로', P.fx);
 })();

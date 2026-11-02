@@ -21244,7 +21244,7 @@ chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.Ritua
 # ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
 chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
 chk "var _afl=_afterLine(); if(_afl) lines.push('나레이션(촬영 후 안내 · 작가님이 촬영을 마치면 재생): '+_afl.text);" order-preview.html 1
-chk "pc.tiles === '4,4,4,6'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내
+chk "pc.tiles === '4,4,4,7'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
 nochk 'function prKeep(){' assets/bgm-bed.js   # [PR_WAY_198] 연습 «잠시 멈춤» = 음악도 멈춤(② 와 같다) — −20 으로 계속 걷음
@@ -21714,4 +21714,11 @@ chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1  
 chk "if(pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
 chk 'if(x.cheer) _lt.cheer=true;' order-preview.html 1   # [MEANING_R1_1102 13] 나눈 차례 마지막 줄이 «위하여» 표시를 잇는다
 chk "duck: PARAM.duckSpeech,   /\* \[MEANING_R1_1102 15\]" assets/ritual-cue.js 2   # [MEANING_R1_1102 15] 온라인 인사 −16 · 두 분 −20
+# ── 2026-11-02 [POST_FLOW_200 검토 200 · 200 보충 2 F] 식후 = 단체 사진 → 촬영 후 안내 → 추가 촬영 · 원천 RitualOpen.POST_FLOW 하나 · 순서 표시 일치
+node scripts/audit/post-flow.mjs; case $? in 0) : ;; *) echo 'FAIL post-flow: 식후 순서 표시가 화면 · 엔진 · 마이페이지 · 콘솔에서 어긋났습니다 — node scripts/audit/post-flow.mjs'; fail=1 ;; esac
+chk 'var POST_FLOW = \[' assets/ritual-open.js 1   # [POST_FLOW_200]
+chk "\[END_FLOW_200\]" assets/ritual-cue.js 3   # [END_FLOW_200] 마무리 멘트 모이기 문장 · 촬영 후 안내 끝 «남은 하루»(47#1 소리)
+chk "CL_GA = \\['안내', '이어서 단체 사진을 찍겠습니다.', null" assets/ritual-cue.js 1   # [END_FLOW_200 1] 마무리 멘트 끝 모이기 두 문장
+chk "if (k === 'narr-closing-soft-nt-nc') k = 'narr-closing-nt-nc';" assets/ritual-cue.js 1   # [END_FLOW_200] 카페만 · 다정하게 · 하객 안내 없음 판도 모이기
+nochk "CL_DAY\]" assets/ritual-cue.js   # [END_FLOW_200] 마무리 멘트 끝 «남은 하루 행복하게 보내세요»는 촬영 후 안내로 옮겼다(되살리지 말 것)
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
