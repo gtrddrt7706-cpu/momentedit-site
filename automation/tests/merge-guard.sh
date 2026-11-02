@@ -383,7 +383,7 @@ _ftop=$(grep -c 'class="seat-ftop"' mypage.html 2>/dev/null); _ftop=${_ftop:-0};
 # ── 2026-07-19 담은 곳 = 하객 공개 분리(담기≠노출 · 대표+선택한 곳만 하객 노출)
 chk 'data-favshow' mypage.html 2                   # 담은 곳 하객 공개 토글 렌더+배선
 chk '_dnFavShowToggle' mypage.html 2               # 하객 공개 토글 헬퍼+호출
-chk 'dn-showtgl' mypage.html 3                     # 토글 CSS·마크업
+chk 'dn-showtgl' mypage.html 11                    # 토글 CSS·마크업 · [DN_SHOW_SWITCH_1102] 스위치 모양
 chk 'v.show === true' automation/platform/80_production.gs 2   # 서버 하객 노출=최종 선택(show)만 필터
 # ── 2026-07-19 단체 사진 전용화면(PHOTOFLOW·구도+연출 photoFx) — 병렬 세션 기능을 통합 브랜치에 포트(역전 방지)
 chk 'startPhotoFlow' mypage.html 2                  # 단체사진 전용화면 진입 함수+배선
@@ -5179,7 +5179,7 @@ nochk '하객에게 직접 감사 인사' order-preview.html
 #   ★단, 계약 동의문 「하객에게는 안내 음성과 식순지…」는 **그대로 둔다** —
 #     contract/v1-1.html 및 서명 완료된 보존본(archive/v1-6·v1-7)과 글자 그대로 대조되는 문장이다.
 chk '하객분들께 어떻게 보여드릴까요' mypage.html 1
-chk '하객분들께도 보여주기' mypage.html 3
+chk '하객 안내에 표시' mypage.html 4   # [DN_SHOW_SWITCH_1102] 토글 이름 «하객분들께도 보여주기» → «하객 안내에 표시»(스위치 · 사장님 «추천대로»)
 chk '하객에게는 안내 음성과 식순지' mypage.html 1
 # [PAID_STAGE_RESYNC 2026-08-16 사용자 신고 "강제변경으로 돌린 뒤 더 이상 진행이 안 된다"]
 #   ROLLBACK_KEEP_PAID(수납 보존) + 입금확인 already 조기반환 + 되돌리기 24시간 가드가 겹쳐
@@ -13536,7 +13536,11 @@ chk 'body.op4 .prog-top{min-height:0;justify-content:flex-end}' order-preview.ht
 # [DN_TRUE_COPY] 사장님 결정 ⑰ ①② · «직접 검증해 둔»은 검증한 곳(v:true)이 있을 때만 · «살펴 둔 곳들이라, 분위기만 고르시면» 대신 «예약 통화에서 단체석·주차를 꼭 물어봐 주세요»
 chk 'DN_TRUE_COPY' mypage.html 2
 chk "(_vN>0?'직접 검증해 둔':'추천하는')" mypage.html 1
-chk '예약 통화에서 단체석·주차를 꼭 물어봐 주세요.</div>' mypage.html 1
+nochk '예약 통화에서 <span style="white-space:nowrap">단체석 · 주차를</span> 꼭 물어봐 주세요.' mypage.html   # [DN_ONE_CAUTION_1102 · GPT 2라운드 06] 정리 전 확인 창 한 곳(창이 단체석 · 주차를 말한다)
+chk 'DN_RSV_BIND_EARLY_1102' mypage.html 1
+chk 'DN_ORIGIN_ALL_1102' mypage.html 1
+chk '출발 기준이에요.' mypage.html 3
+chk 'DN_UI.less=true' mypage.html 1
 nochk '디렉터가 직접 검증해 둔 연계' mypage.html        # 검증 0곳인데 리드가 «검증»이라 말하던 문장
 nochk '분위기만 고르시면 돼요.</div>' mypage.html       # 근거 없는 «살펴 둔 곳» 안심(주석의 인용은 </div> 가 없어 안 걸린다)
 # [DN_TEL_MAP] 사장님 결정 ⑰ ③ · 전화번호 없는 대표 예약처 = «지도에서 매장 번호를 확인해 예약해 주세요» · 예약 안내의 «위 전화번호와»도 그때만 가른다
@@ -13978,7 +13982,7 @@ chk 'id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-l
 # [DN_ARIA_STATE] 애프터 웨딩 고르는 단추 aria-pressed · 펼침 단추 aria-expanded + aria-controls · 다시 그린 뒤 같은 단추로 초점
 chk 'DN_ARIA_STATE' mypage.html 5
 chk "data-fv=\"'+escapeHtml(v)+'\" aria-pressed=\"'+on+'\"" mypage.html 1
-chk "data-ax=\"theme\" data-fv=\"'+o\[0\]+'\" aria-pressed=\"'+on+'\"" mypage.html 1
+chk "pill('theme','formal','정찬')+pill('theme','casual','캐주얼')+pill('theme','cafe','카페')" mypage.html 1   # [DN_CHIP_ONE_1102] 자리 칩도 알약 · aria-pressed 는 pill() 이 그린다(DN_ARIA_STATE)
 chk 'aria-controls="dn_detBody"' mypage.html 1
 chk 'aria-controls="dn_preBody"' mypage.html 1
 chk 'id="dn_detBody"' mypage.html 1
@@ -14011,12 +14015,12 @@ chk "(mode==='tel'?'<span class=\"ln-bal\">위 전화번호와 통화 문구를 
 nochk "'지도에서 매장 번호를 확인하고," mypage.html      # 코드의 옛 noTel 문장(따옴표로 시작) — 주석의 인용은 안 잡는다
 nochk "해주세요 · '+(noTel?" mypage.html
 # [DN_DOT_SPLIT] 애프터 웨딩 가운뎃점 — 줄 끝 · 머리에 안 서게(«자리·주차·식사예요» 한 덩어리 · 나열은 U+2060 · 절을 잇는 점은 &nbsp;)
-chk 'DN_DOT_SPLIT' mypage.html 4
-chk '<span style="white-space:nowrap">자리·주차·식사예요</span>. 예약 통화에서 단체석·주차를 꼭 물어봐 주세요.</div>' mypage.html 1
+chk 'DN_DOT_SPLIT' mypage.html 3   # [DN_ONE_CAUTION_1102] 목록 아래 각주(가운뎃점 U+2060 자리)는 뺐다
+nochk '자리·주차·식사예요' mypage.html   # [DN_INTRO_SHORT_1102] 앞 반 문장은 뺐다(폰 첫 화면)
 chk 'white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.' mypage.html 1
 chk '괜찮아요&nbsp;·&nbsp;이&nbsp;줄만 빠지고' mypage.html 1
 chk '룸(또는 단체석)⁠·⁠주차 가능할까요?' mypage.html 1
-chk '식사⁠·⁠카페⁠·⁠아이 동반⁠·⁠뒤풀이⁠·⁠볼거리까지' mypage.html 1
+chk '마음에 드는 곳을 담아 두 분이 비교해 보세요. 꼭 정하지 않으셔도 괜찮아요.' mypage.html 1   # [DN_INTRO_SHORT_1102]
 nochk '가장 아쉬워하는 건 자리·주차·식사예요' mypage.html
 nochk "'단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차" mypage.html      # 코드의 통화 문구(따옴표로 시작) — [DN_TRUE_COPY] 주석의 인용은 안 잡는다
 # [SNAP_AGREE_BAL] 스냅 동의 — 320 꼬리 줄(«지워요» · «있어요») · «접기» 누름 폭 44px · 자세히 보기 가운뎃점 앞뒤 묶기(문구는 코워크 명세 그대로)
@@ -21829,13 +21833,43 @@ chk '20m | Farewell · 옷을 갈아입고 하루를 정리하는 시간' index.
 chk "'정리', '20분', \['11:00', '14:20', '17:40'\], '옷을 갈아입고 하루를 정리해요.'" assets/sequence-modal.js 1
 chk 'Farewell(정리)' api/_kb.js 1
 nochk 'Farewell(마무리)' api/_kb.js
+# ★[DN_BUGS_1102 GPT 애프터 웨딩 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
+chk 'DN_RSV_AFTER_PICK_1102' mypage.html 1
+chk 'function _dnRsvFor(d, place)' mypage.html 1
+chk 'DN_RSV_PER_PLACE_1102' mypage.html 3
+chk 'DN_UNDO_ALL_1102' mypage.html 1
+chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
+chk 'DN_RESET_ALWAYS_1102' mypage.html 3
+chk 'DN_EMPTY_STEP_1102' mypage.html 1
+nochk '원하시는 곳이 따로 있으면 그대로 진행하셔도 돼요' mypage.html
 # ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 들어가서 이모지 같은 거 전부 없애고»] 고르기 카드 🍽 · 🍃 삭제 — 되살리지 말 것
-chk 'DN_NO_EMOJI_1102' mypage.html 4
+chk 'DN_NO_EMOJI_1102' mypage.html 3   # [DN_ONE_PICK_1102] 별 그림 자리는 카드 담기로 바뀌었다
 nochk "content:'\\\\2665'" mypage.html
 nochk "(_pf?'★':'☆')" mypage.html
 nochk 'class="dgc-ico"' mypage.html
 nochk '🍽' mypage.html
 nochk '🍃' mypage.html
+# ★[DN_DESIGN_1102 사장님 «전부 추천대로»] 애프터 웨딩 1라운드 1~12 · 14 — 자동 예약할 곳 없음 · 펼침 셋 한 모양 · 칩 한 모양 · 공개 스위치 · 지도 결과도 카드로 담기 · 전화 확인 한 번 · 위 안내 줄임 · «예약할 곳으로 정하기» · 인원 «명» · 상황 칩은 그 조건만 · 접기 · 가볼 곳 위로 · 비교 정보 · 가운뎃점 띄움
+chk 'DN_NO_AUTO_REP_1102' mypage.html 1
+nochk 'if(!rep && restos.length===1){ rep=restos\[0\].n; d.venuePick=rep; }' mypage.html
+chk 'DN_FOLD_ONE_1102' mypage.html 2
+nochk 'border:1px dashed var(--border);background:none;border-radius:9px;justify-content:center' mypage.html
+chk 'DN_CHIP_ONE_1102' mypage.html 4
+nochk 'class="dn-segbtn' mypage.html
+chk 'DN_SHOW_SWITCH_1102' mypage.html 2
+chk 'role="switch" aria-checked=' mypage.html 1
+chk 'DN_ONE_PICK_1102' mypage.html 2
+nochk 'class="dn-star' mypage.html
+chk 'DN_ONE_CAUTION_1102' mypage.html 3
+chk 'DN_INTRO_SHORT_1102' mypage.html 2
+chk 'DN_REP_LABEL_1102' mypage.html 1
+nochk '여기로 예약할래요</button>' mypage.html
+chk 'DN_PRESET_MERGE_1102' mypage.html 1
+chk 'DN_LIST_LESS_1102' mypage.html 2
+chk 'DN_ATTR_UP_1102' mypage.html 1
+chk 'DN_AGG_INFO_1102' mypage.html 1
+chk "pill('headN','s','10명 이하')" mypage.html 1
+chk 'DN_DOT_SPACE_1102' mypage.html 1
 # ★[CLEAR_HEAD_1102 사장님 아이폰 «모두 비우기 하면 위에 ‹식전 1/2›가 남아 있다»] 머리 상태 단추 숨김은 .one 보다 무겁게 · ② 밖에서는 글을 비운다 · 비우기는 화면 기억도 비운다(검사 = CI bgm-sound b 칸)
 chk 'CLEAR_HEAD_1102' order-preview.html 3
 chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.html 1
@@ -21854,4 +21888,7 @@ chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
 nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
 nochk "M1: 1800" assets/bgm-picks.js
 chk "screen-bgm after-photo-loop guest-time' }" .github/workflows/merge-guard.yml 1
+# ★[CNT_ROW_ALIGN_1102 사장님 «본식 순간 6/6 · 긴 순간 3/3 라인이 안 맞는데»] 진행 줄 안 카운터 = 높이 44 가운데(순간 글자와 한 줄)
+chk 'CNT_ROW_ALIGN_1102' order-preview.html 1
+nochk '.mk-sc .pk-cnt{margin:4px 2px 8px}' order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
