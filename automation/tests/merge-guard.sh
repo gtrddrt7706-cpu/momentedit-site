@@ -7705,7 +7705,7 @@ chk 'RETIRED: RETIRED, OFFER: OFFER' assets/ritual-open.js 1
 chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
 chk 'CAKE_OFF_1013' order-preview.html 3
 chk 'function _pkShow(k)' order-preview.html 1
-chk 'a.ks.filter(_pkShow).concat(' order-preview.html 1
+chk 'a.ks.filter(_pkShow).map(_pkTile)' order-preview.html 1   # [FIX_FLOW_204 A] 늘 있는 진행 카드는 ① 칸에서 뺐다(진행 줄)
 chk '(R.OFFER||R.PICKABLE).filter' order-preview.html 1
 chk 'CAKE_OFF_1013' api/_ritual-kb.js 5
 chk '(O.OFFER || O.PICKABLE).forEach' api/_ritual-kb.js 1
@@ -21258,8 +21258,8 @@ chk 'SCENE_EXTRA_195' scripts/audit/photo-scene.mjs 3
 #    ① 고르기 닫는 막 끝 칸(⊙ 늘 있는 표 · 누르면 미리 보기 창 · 대표 나레이션 = 그날 판) · ② 하나씩 만들기 마지막 쪽(식후) · 예식 흐름 «식후» 줄 · 완성 순서 요약 끝 줄 · ③ 연습 · 전체 대본은 닫는 인사 끝 그대로 · 본식 시간 · 개수 규칙 밖 · 검사 pick-v2
 chk 'AFTER_FIX_196' order-preview.html 14
 chk "concat(\['_close'\]).concat(_afterOn()?\['_after'\]:\[\]).concat(\['_sum'\]);" order-preview.html 1
-chk "concat((i===R.SECTIONS.length-1&&_afterOn())?POST_KS:\[\])" order-preview.html 1   # [POST_FLOW_200]
-chk 'id="mkFgPost">식후</p>' order-preview.html 1
+nochk "concat((i===R.SECTIONS.length-1&&_afterOn())?POST_KS:\[\])" order-preview.html   # ★[FIX_FLOW_204 A] 단체 사진 · 촬영 후 안내 카드는 고르는 칸에서 뺐다(늘 진행되는 순서 · 사장님 «추천대로») — 되살리지 말 것
+chk 'id="mkFgPost">사진 · 정리</p><p class="cf-when">마무리 멘트 다음</p>' order-preview.html 1   # [FIX_FLOW_204 B]
 chk 'data-fk="sum:_after"' order-preview.html 1
 chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf)" order-preview.html 1
 # ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
@@ -21374,9 +21374,10 @@ chk 'function _clHints()' order-preview.html 1
 # ── 2026-11-02 [GROUP_PHOTO_199 검토 199 보충] 닫는 인사 → 단체 사진(작가님 진행) → 촬영 후 안내 · 고정 줄(빼기 · 편집 없음 · 본식 수 · 시간 규칙 밖)
 chk 'GROUP_PHOTO_199' order-preview.html 3   # [POST_FLOW_200] 셋은 POST_KS 로 합쳤다
 chk "function _photoLine()" order-preview.html 1
-chk "+POST_KS.map(row).join('')+'</ol>'" order-preview.html 1   # [POST_FLOW_200]
+chk "_fixSteps('post').map(fxRow).join('')" order-preview.html 1   # [FIX_FLOW_204 B] 예식 흐름 사진 · 정리 = 늘 있는 진행 한 벌
 chk "lab:k==='_after'?_post('_after').sub:" order-preview.html 1   # [POST_FLOW_200]
-chk "'+ 식사 안내 멘트: 마이페이지 › 애프터 웨딩에서 식당 · 예약 시각을 정하면 붙어요'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
+chk "'+ 식사 안내 멘트: 애프터 웨딩에서 식당을 정하면 붙어요'" order-preview.html 1   # ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요»] «마이페이지 ›» · «예약 시각» 뺌
+nochk '식사 안내 멘트: 마이페이지 ›' order-preview.html   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
 nochk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html   # [MEAL_HINT_1102] 할 일만 말하던 옛 줄
 nochk "o.push('+ 사진 올리기 안내" order-preview.html   # ★[GUIDE_ALWAYS_202] «하객 안내 켜기» 줄 삭제(사장님 17:30 · 되살리지 말 것)
 chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
@@ -21827,9 +21828,9 @@ chk 'INFO_SPLIT_200' scripts/audit/closing-line.mjs 2
 # ── 2026-11-02 [POST_CARD_204 검토 204 · 사장님 19:14 «부딪히는 부분들이 있잖아»] 식후 칸 · 하루의 흐름 표 문구가 확정 흐름(전체 단체 사진 → 촬영 후 안내 → 가족 · 추가)과 맞게
 chk "tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분'" order-preview.html 1
 nochk '촬영을 마치면 흐르는 마지막 안내' order-preview.html
-chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 작가님이 진행해요'" order-preview.html 1
+chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행'" order-preview.html 1   # [FIX_FLOW_204 D] «작가님» 표기 없음
 chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
-chk "하객 모두와 한 장 → 안내 → 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1
+chk "\['15~33분쯤','단체 사진','Group Record','전체 → 안내 → 가족 · 추가 촬영'\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
 # ── 2026-11-02 [FAREWELL_NAME_204 검토 204 회신] 고객이 보는 하루 흐름 «마무리 Farewell» → «정리 Farewell»(식순 · 홈 140분 표 · AI 상담 같은 이름) · 계약서는 그대로
 chk '<span class="seq-name-ko">정리</span>' index.html 1
@@ -21893,6 +21894,28 @@ chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
 nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
 nochk "M1: 1800" assets/bgm-picks.js
 chk "screen-bgm after-photo-loop guest-time" .github/workflows/merge-guard.yml 1
+# ── 2026-11-02 [FIX_FLOW_204 검토 204 보충 A ~ D · 사장님 «추천대로 진행»] 고객이 나레이션과 진행(행동)을 시간순으로 파악 — 늘 있는 진행(식전 하객 맞이 · 사진 · 정리)을 한 벌(_fixSteps)로 ① 진행 줄 · ② 예식 흐름이 함께 쓴다
+chk "function _fixSteps(kind)" order-preview.html 1
+chk "var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};" order-preview.html 1
+chk "if(_afterOn()) h+=_fxFlow('pre');" order-preview.html 1
+chk "if(_afterOn()) h+=_fxFlow('post');" order-preview.html 1
+chk '늘 포함돼요</span><span class="fx-more">진행 보기</span>' order-preview.html 1
+chk "{t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',after:'전체 단체 사진을 마치면'}" order-preview.html 1
+chk "sub: '한 장 · 현장 진행' }" assets/ritual-open.js 1
+nochk "작가님이 진행해요" order-preview.html
+nochk "촬영은 작가님이 안내해요" order-preview.html
+# ── 2026-11-02 [PR_WAIT_LDK_204 BGM 연동 (가) · 대본 → 나레이션] B «다 했어요» 대기 = 엔진 ldk 가 있으면 그 값(부모님께 걸어가기 −12 · −60 아래 정적) · 빈 줄만 −20(PARAM duckTalk) · A 로 바꾸면 원복
+chk "if(w&&st.ldk==null&&!('_ldk0' in st)){   /\* ★\[PR_WAIT_LDK_204 (가)\]" order-preview.html 1
+nochk "if(w&&!(st.ldk!=null&&st.ldk<=-60)){" order-preview.html
+chk 'PR_WAIT_LDK_204' scripts/audit/pr-way4.mjs 1
+# ── 2026-11-02 [MEAL_HINT_HIDE_204 #1574 확인 · 대본 → 나레이션] 식사를 이미 정한 날(엔진이 식사 문장을 붙이는 날)엔 «+ 식사 안내 멘트» 힌트 숨김 — 같은 값(_clS)으로 판단
+chk "function _clHints(){ var _s=_clS()||{}, o=\[\], meal=!!(_s.meal&&_s.mealFull), g=" order-preview.html 1
+nochk "meal=(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)&&!!CUSTMEALF&&!!CUSTRESV" order-preview.html
+# ── 2026-11-02 [LAST_SONG_WORDS_204 BGM 지적 · 대본 확정] 마지막 곡(M8L)은 목록으로 이어 트는 칸 — «마지막 곡이 끝날 때까지»(한 곡 길이로 오해) 금지 · «그동안 마지막 곡이 계속 흘러요»
+chk '편하게 사진을 남겨요. 그동안 마지막 곡이 계속 흘러요.' assets/ritual-story.js 1
+chk '추가 촬영(남은 사진 시간 동안 · 마지막 곡이 계속 흘러요)' assets/ritual-cue.js 1
+nochk '마지막 곡이 끝날 때까지' assets/ritual-story.js
+nochk '마지막 곡이 끝날 때까지' assets/ritual-cue.js
 # ★[BED_TITLE_ONE_1102 사장님 «이 이름과 안내를 한 줄로» → «추천대로»] 목록 음악 칸(하객 맞이 · 테이블 인사)은 이름표 옆 안내 한 줄(.gl-sub · 12.5 · --sub) · «하객이 · 아래 곡들이» 뺌(제목과 겹침 · 360 한 줄)
 chk 'BED_TITLE_ONE_1102' assets/bgm-bed.js 4
 chk "M1:'들어와 앉는 동안 차례로 흘러요'" assets/bgm-bed.js 1

@@ -97,13 +97,14 @@ try {
     return o; });
   ok('상2 쉼 = 상수 표에서 파일 무음을 뺀 값(안내 → 말 3.0 · 말 → 받는 멘트 2.2 · 멘트 사이 1.6 · 순간 2.2)', g.c2t && g.c2t.g === g.c2t.want && g.t2c && g.t2c.g === g.t2c.want && g.cc && g.cc.g === g.cc.want && g.mm && g.mm.g === g.mm.want, g);
   /* 상3 · 중4 · 중5 */
-  const b = await f.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)); const j = LP.q.findIndex((x) => x.act && /양가 부모님 모두께 인사해요/.test(x.txt || '')); LP.i = j; LP.paused = false; _lShow(); await w(600);
-    const o = { wait: LP.wait === LP.q[j], ldk: LP.q[j].ldk, tog: [...document.querySelectorAll('#lsFull [data-fk^="lfway:"]')].map((e) => e.getAttribute('aria-checked')) };
+  const b = await f.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)); const j = LP.q.findIndex((x) => x.act && /양가 부모님 모두께 인사해요/.test(x.txt || '')); const l0 = ('_ldk0' in LP.q[j]) ? LP.q[j]._ldk0 : LP.q[j].ldk; LP.i = j; LP.paused = false; _lShow(); await w(600);
+    const e = LP.q.find((x) => x.act && x.ldk == null && !('_ldk0' in x) && _prWait(x)); let eL = 'none'; if (e) { _prWaitLv(e); eL = e.ldk; PRW = 'flow'; _prWaitLv(e); eL = [eL, e.ldk == null]; PRW = 'try'; }
+    const o = { l0, eL, wait: LP.wait === LP.q[j], ldk: LP.q[j].ldk, tog: [...document.querySelectorAll('#lsFull [data-fk^="lfway:"]')].map((e) => e.getAttribute('aria-checked')) };
     prWay('flow'); await w(100); o.flowWait = !!LP.wait; o.ldk2 = LP.q[j].ldk; await w((LP.q[j].ms || 3000) + 2500); o.moved = LP.i > j;
     PRW = 'try'; const k2 = LP.q.findIndex((x) => x.talk2 && x.who === '신랑'); LP.i = k2; LP.paused = false; _lShow(); await w(400); const lab = document.querySelector('#lsFull .lf-lab.who'), cs = lab && getComputedStyle(lab); o.lab = cs && [cs.fontSize, cs.fontWeight];
     const lg = LP.q.findIndex((x) => x.talk2 && String(x.txt || '').length > 140); if (lg > -1) { LP.i = lg; LP.paused = true; clearTimeout(LP.t); _lFull(); await w(60); const t = document.querySelector('#lsFull .lf-txt.say'); o.long = t ? parseFloat(getComputedStyle(t).fontSize) : 0; } else o.long = -1;
     return o; });
-  ok('상3 B 두 분 동작 기다림 = 말 아래(−20)', b.wait && b.ldk === -20, b);
+  ok('상3 B 두 분 동작 기다림 — 엔진 ldk 가 있으면 그 값 · 빈 줄만 말 아래(−20) · A 로 바꾸면 원복 [PR_WAIT_LDK_204]', b.wait && b.ldk === (b.l0 != null ? b.l0 : -20) && (b.eL === 'none' || (b.eL[0] === -20 && b.eL[1])), b);
   ok('중4 재생 중 «흐름 보기 / 직접 해보기» — 지금 줄 그대로 · 흐름으로 바꾸면 기다림이 풀려 넘어감', b.tog.join() === 'false,true' && !b.flowWait && b.moved, b);
   ok('중5 머리 20px 굵게 · 긴 대사도 24px 이상', b.lab && b.lab[0] === '20px' && +b.lab[1] >= 700 && (b.long === -1 || b.long >= 24), b);
   /* 중6 목록 → 촬영 후 안내 줄 */
