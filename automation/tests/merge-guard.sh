@@ -21355,7 +21355,7 @@ chk 'GROUP_PHOTO_199' order-preview.html 5
 chk "function _photoLine()" order-preview.html 1
 chk "row('_photo')+row('_after')" order-preview.html 1
 chk "lab:k==='_after'?'단체 사진을 모두 마치면 · 작가님 신호로 재생'" order-preview.html 1
-chk "'+ 식사 안내 멘트: 마이페이지에 장소 · 예약 시각을 적으면 붙어요'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
+chk "'+ 식사 안내 멘트: 마이페이지 › 애프터 웨딩에서 식당 · 예약 시각을 정하면 붙어요'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
 nochk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html   # [MEAL_HINT_1102] 할 일만 말하던 옛 줄
 chk "'+ 사진 올리기 안내: 하객 안내 켜기'" order-preview.html 1
 chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
@@ -21736,4 +21736,10 @@ chk ".mk-status.nn .mk-sh{display:none}" order-preview.html 1
 chk ".mk-status.np .mk-pre{display:none}" order-preview.html 1
 chk "body.mkd .mk-status{flex:1 1 0;max-width:calc(50% - 4px)}" order-preview.html 1
 chk ".mk-status .mk-num{position:relative;top:.06em}" order-preview.html 1
+# ★[MEAL_GO_1102 대본 섹션 · 사장님 «칸 이름이 ‹애프터 웨딩›인데 ‹마이페이지›라 헷갈림»] 식사 조건 줄 = 메뉴 이름 그대로 · 마이페이지 안에서는 누르면 나가기(저장 묻기) → 애프터 웨딩 칸 · 머물면 잊는다
+chk 'MEAL_GO_1102' order-preview.html 3
+chk 'MEAL_GO_1102' mypage.html 2
+chk "window.clGo=function(to){ if(!EMBED) return;" order-preview.html 1
+chk "if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }" mypage.html 1
+chk "if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext='';" mypage.html 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
