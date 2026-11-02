@@ -21002,7 +21002,7 @@ chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
 # ── 2026-10-30 [PAUSE_PREF_1030 · PHOTO_PRE_PICK_1030 · PHOTO_PRE_GAP_1030] 사장님 검수본 쉼 · 사진 전 안내 판 고르기 · 온라인 인사 뒤 2초
 chk 'const FLOW_FORCE = new Map(' scripts/build-typecast-import.mjs 1
-chk "function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull && S.resv && gOn(S)) ? 'narr-closing-meal'" assets/ritual-cue.js 1   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
+chk "function closingOf(S) { S = S || {}; var b = 'narr-closing';" assets/ritual-cue.js 1   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
 chk 'function mealFullOf(dd, placeholders)' assets/ritual-preview-link.js 1
 chk 'c.goLeadMs || 0' console.html 1
 chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
@@ -21227,7 +21227,7 @@ chk 'CLOSING_CHEER_195' scripts/audit/closing-line.mjs 4
 chk "var CLOSE_CHEER_EX = { 'narr-close-bow-ex3': 1 };" assets/ritual-cue.js 1
 chk "'narr-closing-nt-nc', 'narr-closing-guide-nt-nc', 'narr-closing-soft-guide-nt-nc', 'narr-closing-meal-nt-nc'" assets/ritual-cue.js 1
 chk "if (ex === 'narr-close-bow-ex3') k += 'Nc'; else if (ex === 'narr-close-bow-ex4') k += 'Nt';" assets/ritual-open.js 1
-nochk "'narr-closing-soft-nt': 1," assets/ritual-cue.js
+# [CLOSING_ONE_200 검토 200 최종] 294 는 다시 쉰다(식사 · 하객 안내 갈래가 마무리 멘트에서 빠졌다) — 옛 nochk 걷음
 nochk "'narr-closing-soft-nt': \[CL_CREW\]" assets/ritual-cue.js
 # ── 2026-11-01 [SCENE_EXTRA_195 검토 195 · 사장님 23:13 «임시로 아무 사진이나 3장 정도 · 눌러야 열리게»] 보이는 9순간(11장면) 사진 3장 — -2 · -3(+ 640) · 오픈 전 실사로 같은 이름에 갈아 끼운다
 chk "var SCENE_N = { candle: 3, entry: 3, matjeol: 3, vow: 3, 'vow-thanks': 3, ring: 3, song: 3, letter: 3, tribute: 3, 'tribute-nohug': 3, toast: 3 };" assets/ritual-open.js 1
@@ -21313,7 +21313,7 @@ chk "' · 두 분은 입장 전 대기 자리에서 준비해요'" order-preview
 chk "' · 두 분은 노래하시는 분을 바라보며 들어요'" order-preview.html 1
 chk "'① 서로 인사 → ② 하객께 인사 → ③ 자리로'" order-preview.html 1
 chk "'당일엔 입장곡에 맞춰 함께 걸어요 · 지금은 구호 뒤 나란히 걸어 두 분 자리에서 멈춰 보세요'" order-preview.html 1
-chk "txt:_post('_photo').n+' · 전체 → 가족 · 연습에서는 넘겨요'" order-preview.html 1   # [GROUP_PHOTO_199 4]
+chk "txt:_post('_photo').n+' · 한 장 · 연습에서는 넘겨요'" order-preview.html 1   # [GROUP_PHOTO_199 4]
 chk "'비워 두셔도 돼요 · 지금은 참고 예시'" order-preview.html 1
 chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.html 1
 chk '_rf={free:4}\[k\]' order-preview.html 1
@@ -21338,11 +21338,11 @@ chk "return Math.max(10, Math.min(20, n));" assets/ritual-cue.js 1
 chk "if (_openG && vi === 1) {" assets/ritual-cue.js 1
 chk "repeatMs: gi === 0 ? PARAM.guestRepeatMs : 0" assets/ritual-cue.js 1
 chk "name: '촬영 후 안내', text: EXTRA\[_aps\]" assets/ritual-cue.js 1
-chk "hint: '단체 사진(전체 → 가족)을 마치면'" assets/ritual-cue.js 1   # [POST_FLOW_200]
+chk "hint: '전체 단체 사진을 마치면'" assets/ritual-cue.js 1   # [POST_FLOW_200]
 chk "if (c.repeatMs && MODE !== 'preview' && !GUEST" console.html 1
-chk "slab:'촬영 후 안내 · 단체 사진을 마치면 재생'" order-preview.html 1   # [POST_FLOW_200]
+chk "slab:'촬영 후 안내 · 전체 단체 사진을 마치면 재생'" order-preview.html 1   # [POST_FLOW_200]
 chk "else if(S.guestVoice!=='couple'&&!isOpen()) out.push(_exRowG('exGuestNar'" order-preview.html 1
-chk "_stepHd('촬영 후 안내', '전체 · 가족 단체 사진을 마치면 작가님이 안내 음성을 틀어요', 'show')" mypage.html 1   # [POST_FLOW_200]
+chk "_stepHd('촬영 후 안내', '전체 단체 사진을 마치면 작가님이 안내 음성을 틀어요', 'show')" mypage.html 1   # [POST_FLOW_200]
 chk 'GUEST_WELCOME_191' assets/ritual-cue.js 5
 chk 'AFTER_PHOTO_191' assets/ritual-cue.js 3
 nochk "'guest-3-5min': 1," assets/ritual-cue.js
@@ -21431,7 +21431,8 @@ chk "'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-so
 chk "'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1," assets/ritual-cue.js 1
 chk "actId: 'photo-all'" assets/ritual-cue.js 1
 chk '작가님 안내에 따라' mypage.html 1
-chk '작가님 안내에 따라' guide.html 1
+chk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진 · 추가 촬영을 하실 분은 남고, 그 밖의 분은 식사 자리로 먼저 이동해요.' guide.html 1   # [GATHER_200]
+nochk '차례가 아닌 분은 자리에서 편히 쉬어 주세요' guide.html
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/closing-line.mjs >/dev/null 2>&1; _cll=$?; [ "$_cll" = 1 ] && { echo 'FAIL closing-line: 마무리 멘트(세 판 × 하객 안내 × 디지털) · 사진 구간 나레이션 0 · 새 녹음 0 · 흐름 쉼 · 화면 글이 어긋났습니다 — node scripts/audit/closing-line.mjs'; fail=1; }; :; fi

@@ -478,7 +478,7 @@
   /* ★★[END_FLOW_1030 · BODY_CAP_1030 검토 167 2026-10-30 사장님] 닫는 인사 뒤 몫 — 40분 셈에 넣는다(본식 + 테이블 인사 + 이 몫 + 단체 사진 = 40).
        pre = 사진 전 안내(265 · 266)가 옛 사진 안내(26 · 닫는 인사 몫 46초 안)보다 긴 초(식사 있음 21 · 없음 9 · 엔진 글 길이 셈 · open-course 가 대조) ·
        online = 디지털 참석 날 온라인 인사(62 + 두 분 2분 · 엔진 live 와 같은 값). 빌더는 S 에 digital · meal 이 없어 마이페이지가 준 값을 setPost 로 싣는다 */
-  var POST_SEC = { meal: 21, soft: 5, softGuide: 13, none: 5, noneGuide: 13, mealNt: 15, softNt: 0, softGuideNt: 7, noneNt: 0, noneGuideNt: 7, mealNc: 10, softNc: 0, softGuideNc: 2, noneNc: 0, noneGuideNc: 2, online: 120 };   // ★[END_FLOW_200] 모이기 한 문장(«이어서 단체 사진을 찍겠습니다.») · «남은 하루»는 촬영 후 안내로 — 엔진 셈 그대로(body-cap 이 잰다)   // ★[CLOSING_CHEER_195 검토 195] 응원 한 문장이 늘어난 몫(엔진 셈 · body-cap 이 잰다) · «Nc» = 186 «다정하게» 날(옛 Nt 값 그대로)   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장이 짧아져 17 → 13 · 11 → 8(엔진 글 길이 셈 · body-cap 이 대조)
+  var POST_SEC = { meal: 5, soft: 5, softGuide: 5, none: 5, noneGuide: 5, mealNt: 0, softNt: 0, softGuideNt: 0, noneNt: 0, noneGuideNt: 0, mealNc: 0, softNc: 0, softGuideNc: 0, noneNc: 0, noneGuideNc: 0, online: 120 };   // ★[CLOSING_ONE_200 검토 200 최종] 마무리 멘트에 식사 · 사진 올리기 줄이 없어져 판마다 같다(칩만 가른다 · 촬영 후 안내는 40분 셈 밖 · 사진 뒤) · 열쇠는 옛 판 이름 그대로   // ★[END_FLOW_200] 모이기 한 문장(«이어서 단체 사진을 찍겠습니다.») · «남은 하루»는 촬영 후 안내로 — 엔진 셈 그대로(body-cap 이 잰다)   // ★[CLOSING_CHEER_195 검토 195] 응원 한 문장이 늘어난 몫(엔진 셈 · body-cap 이 잰다) · «Nc» = 186 «다정하게» 날(옛 Nt 값 그대로)   // ★[CLOSING_SRC_1031 검토 179] «Nt» = 닫는 멘트 186 · 187 을 고른 날(감사 없이 시작 · 292 ~ 296)   // ★[CLOSING_LINE_1031 검토 178] 마무리 멘트(287 ~ 291)가 26 보다 긴 몫 — 엔진 closingOf 와 같은 판(식사 있음 · 식사 · 카페만 ± 하객 안내 · 애프터 웨딩 없음 ± 하객 안내) · scripts/audit/body-cap.mjs 가 엔진 글 길이 셈과 맞댄다   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장이 짧아져 17 → 13 · 11 → 8(엔진 글 길이 셈 · body-cap 이 대조)
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
   function _postOf(S, f) { if (S && typeof S[f] === 'boolean') return S[f]; if (f === 'guide') return S && S.guide != null ? !!S.guide : _POST.guide !== false; return !!_POST[f]; }   // ★[GUIDE_ALWAYS_202] 하객 안내는 기본 켜짐(ritual-cue gOn 과 같은 규칙)
@@ -510,14 +510,15 @@
     return { sec: s, a: a, b: b, ta: ta, tb: tb, tm: tm, pm: pm, pa: pa, pb: pb, body: rng(a, b), table: tm ? ('약 ' + tm + '분') : '', photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요', midMin: (s[0] + s[1]) / 120 - ts / 60 };   // [PHOTO_FLOOR0] · [TABLE_APART]
   }
   /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 A · 사장님 «식후 블록을 함수/표 하나에서 만들어 모든 곳이 같은 이름 · 같은 순서로»]
-       식후 = 단체 사진(전체 → 가족 · 작가님 진행) → 촬영 후 안내 → 추가 촬영(원하시는 분들과). 이 표 하나가 식순 화면(① 고르기 · ② 하나씩 · 예식 흐름 · 한눈에 · 완성 · 연습) ·
+       식후 = 전체 단체 사진(한 장) → 촬영 후 안내 → 가족 사진 · 추가 촬영(원하시는 분들과 · END_FLOW_200 최종). 이 표 하나가 식순 화면(① 고르기 · ② 하나씩 · 예식 흐름 · 한눈에 · 완성 · 연습) ·
        당일 엔진(ritual-cue · 촬영 후 안내 → 추가 촬영 큐 차례) 이름과 차례의 원천이다. 마이페이지 · 관리 · 콘솔은 이 파일을 안 읽어 같은 이름을 한 벌 두고 scripts/audit/post-flow.mjs 가 대조한다.
        ★이름은 셋뿐 — «단체 사진» · «촬영 후 안내» · «추가 촬영»(«사진 촬영» · «기념 촬영» · «자유 사진» · «남은 분들과 자유롭게»는 화면 이름으로 쓰지 않는다 · 나레이션 문장은 따로)
        ★시간 — span.photo(40 − 본식) 안에 전체 · 가족 목표와 남는 시간이 함께 든다 · 남는 시간이 촬영 후 안내 뒤 추가 촬영(엔진 goFree)으로 간다 — 화면은 «단체 사진(전체 · 가족) · 추가 촬영 약 n분»으로 함께 적는다(40분 밖으로 빼려면 하루 계획 · 계약서가 먼저 바뀐다) */
+  /* ★★[END_FLOW_200 최종 · 사장님 17:16 ~ 17:19] 전체 단체 사진(한 장) → 촬영 후 안내(그 직후 · 가족 사진 전) → 가족 사진 · 추가 촬영(남고 싶은 분) */
   var POST_FLOW = [
-    { k: '_photo', n: '단체 사진', sub: '전체 → 가족 · 작가님 진행' },
-    { k: '_after', n: '촬영 후 안내', sub: '단체 사진을 마치면 · 작가님 신호로 재생' },
-    { k: '_extra', n: '추가 촬영', sub: '원하시는 분들과 · 남은 사진 시간 동안', dur: '남은 사진 시간 동안' }   // ★[POST_FLOW_200 회신 2] «원하는 만큼» 대신 — 40분 셈 안의 남는 시간이라는 것을 해치지 않게
+    { k: '_photo', n: '전체 단체 사진', sub: '한 장 · 작가님 진행' },
+    { k: '_after', n: '촬영 후 안내', sub: '전체 단체 사진을 마치면 · 작가님 신호로 재생' },
+    { k: '_extra', n: '가족 사진 · 추가 촬영', sub: '원하시는 분들과 · 남은 사진 시간 동안', dur: '남은 사진 시간 동안' }   // ★[POST_FLOW_200 회신 2] «원하는 만큼» 대신 — 40분 셈 안의 남는 시간이라는 것을 해치지 않게
   ];
   function postOf(k) { for (var i = 0; i < POST_FLOW.length; i++) if (POST_FLOW[i].k === k) return POST_FLOW[i]; return null; }
   function postDur(k, S) { var x = postOf(k); if (!x) return ''; if (k === '_photo') { try { return span(S).photo; } catch (e) { return ''; } } return x.dur || ''; }

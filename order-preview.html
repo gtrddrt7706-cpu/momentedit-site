@@ -4695,7 +4695,7 @@ function _clHasLine(st){ return (st||[]).some(function(x){ return /마무리 멘
 /* ★★[AFTER_FIX_196 검토 196 · 사장님 23:16 «촬영 후 안내가 식순에 보여야 함 · 이벤트를 하나하나 고르는 화면에서» · 보충 «자연스럽게 · 하객 맞이 칸과 같은 모양 · 이름은 촬영 후 안내 하나»]
    «촬영 후 안내»(_after) = 식순 맨 끝 늘 있는 칸 — ① 고르기 칸(닫는 인사 뒤 · ⊙ 표) · 미리 보기 창 · ② 하나씩 만들기 마지막 쪽 · 예식 흐름 «식후» 줄 · 한눈에 보기 · 완성.
    엔진 순간(ORDER · CARDS)이 아니다 — 본식 시간 · 개수 규칙(cap · CNT)에 들지 않고 빼기도 없다. 글 · 소리는 엔진 afterPhotoOf(마이페이지 값) 하나 · ③ 연습하기 «닫는 인사» 끝 줄은 그대로(196 보충 2) */
-var AFTER_SUM='단체 사진을 마치면 · 식사 · 장소 · 두고 가시는 물건 안내';   /* [POST_FLOW_200] */
+var AFTER_SUM='전체 단체 사진을 마치면 · 식사 · 장소 · 사진 올리기 · 두고 가시는 물건 안내';   /* ★[END_FLOW_200 최종] 식사 · 사진 올리기는 마무리 멘트에서 이리로 */   /* [POST_FLOW_200] */
 /* ★«식사 장소 · 예약 시각과 하객 안내를 마이페이지에서 바꾸면 이 안내도 맞춰 바뀌어요»(AFTER_HINT) 금지 — 2026-11-02 검토 199 로 걷음 [CL_HINT_199] · 식후 쪽도 하객 맞이 · 닫는 인사와 같은 «+ 무엇: 어디서 하기» 줄([AFTER_FIX_196]) */
 /* ★★[GROUP_PHOTO_199 검토 199 보충 · 사장님 «이거 이후 단체 사진 찍는 거 아니야?»] 닫는 인사(마무리 멘트) → 단체 사진(전체 · 가족 · 추가 · 작가님 진행) → 촬영 후 안내.
    고정 줄 — 빼기 · 편집할 것 없음 · 본식 순서 수 · 시간 규칙에 안 넣음(사진 시간은 R.span(S).photo 그대로) */
@@ -4708,7 +4708,7 @@ var EXTRA_FIX={n:_post('_extra').n,tile:'원하시는 분들과 · 남은 시간
 function _photoLine(){ var p=_postDur('_photo'); return _postLine('_photo')+(p?' · '+p:''); }
 var POST_KS=RitualOpen.POST_FLOW.map(function(x){ return x.k; });   /* ['_photo','_after','_extra'] */
 /* ★[POST_FLOW_200 보충 BGM] 닫는 인사 음악 둘째 줄은 BGM 섹션 줄(bgm-slots LINE.last · BgmBed.lastName · [SCREEN_SOUND_1102]) 하나 — 여기서 따로 그리지 않는다 */
-var AFTER_CARD={n:_post('_after').n,tile:'단체 사진을 마치면 흐르는 안내',one:'전체 · 가족 단체 사진을 마치면 작가님이 이 안내를 틀어요. 이어서 더 찍고 싶은 분들이 남아 추가 촬영을 해요.'};   /* [POST_FLOW_200 3] */
+var AFTER_CARD={n:_post('_after').n,tile:'전체 단체 사진을 마치면 흐르는 안내',one:'전체 단체 사진을 마치면 작가님이 이 안내를 틀어요. 이어서 가족 사진과, 더 찍고 싶은 분들의 촬영이 이어져요.'};   /* ★[END_FLOW_200 최종] 대본 확정 문구 */   /* [POST_FLOW_200 3] */
 function _afterOn(){ return isOpen(); }
 function _afterImg(){ return '/assets/video/moments/close-end.webp'+(RitualOpen.VIDEO_V||''); }   /* 닫는 인사 영상 끝 장면(하객이 함께 선 모습) — 칸 · 창 그림 */
 function _afterLine(){ var g=ENG; if(!g||!g.RitualCue||!g.RitualCue.afterPhotoOf) return null; var sl=g.RitualCue.afterPhotoOf(_clS()), f=g.RitualCue.fileOf(sl), t=(g.RitualCue.EXTRA||{})[sl]||''; if(!t) return null;
@@ -4786,12 +4786,12 @@ function _lSteps0(g,ks){
       }
     });
     if(PR&&k==='_close'&&r.cues.some(function(c){ return /^narr-closing/.test(c.slug||''); })) _clHints().forEach(function(t){ out.push({k:k,lab:'이어지는 줄',txt:t,quiet:true,hint:true,ms:0,est:0}); });   /* [CLOSING_FULLER 1] ③ 연습만 카드로 — ② 흐름 · 대본은 줄을 따로 그린다(듣기 차례에 넣지 않는다) */
-    if(PR&&k==='_close') out.push({k:k,seg:'_after',lab:'말없이 흐르는 자리',txt:_post('_photo').n+' · 전체 → 가족 · 연습에서는 넘겨요',quiet:true,who2:'other',ms:0,est:0});   /* [PR_REVIEW_201 중4] seg = 연습 범위(식후 블록) */   /* [POST_FLOW_200 7] */
+    if(PR&&k==='_close') out.push({k:k,seg:'_after',lab:'말없이 흐르는 자리',txt:_post('_photo').n+' · 한 장 · 연습에서는 넘겨요',quiet:true,who2:'other',ms:0,est:0});   /* [PR_REVIEW_201 중4] seg = 연습 범위(식후 블록) */   /* [POST_FLOW_200 7] */
     /* ★★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»] 촬영 후 안내 — 닫는 인사 칸 맨 끝(② 흐름 · ③ 연습 «이후 사진 촬영 …» 다음 · 전체 대본) ·
          당일 콘솔에서만 나오는 큐(사진 뒤)라 미리 듣기 빌드엔 없다 — 엔진 afterPhotoOf(마이페이지 값) 판의 글 · 녹음이 있으면 그 소리 · 본식 시간 셈에 넣지 않는다(est 0) */
     /* ★[AFTER_FIX_196] ② 하나씩 만들기는 «촬영 후 안내»가 제 쪽(_after) — 닫는 인사 쪽 하나만 그릴 때(ks = ['_close'] · 연습 아님)는 싣지 않는다 · ③ 연습 · 처음부터 끝까지 · 전체 대본은 닫는 인사 끝 그대로 */
     if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf){ var _aps=g.RitualCue.afterPhotoOf(_clS()), _apf=g.RitualCue.fileOf(_aps), _apt=(g.RitualCue.EXTRA||{})[_aps]||'', _aph=_apf&&_lHasSound(_apf,_apt);
-      if(_apt) out.push({k:k,lab:k==='_after'?_post('_after').sub:'촬영 후 안내 · 단체 사진을 마치면 재생',slab:'촬영 후 안내 · 단체 사진을 마치면 재생',txt:_apt,src:_aph?(dir+_apf+'.mp3'):null,pending:!_aph,slug:_aps,file:_apf,after:true,seg:(k==='_close'?'_after':undefined),ms:Math.max(2400,Math.round(_apt.length*160)),dk:-14,est:0}); }
+      if(_apt) out.push({k:k,lab:k==='_after'?_post('_after').sub:'촬영 후 안내 · 전체 단체 사진을 마치면 재생',slab:'촬영 후 안내 · 전체 단체 사진을 마치면 재생',txt:_apt,src:_aph?(dir+_apf+'.mp3'):null,pending:!_aph,slug:_aps,file:_apf,after:true,seg:(k==='_close'?'_after':undefined),ms:Math.max(2400,Math.round(_apt.length*160)),dk:-14,est:0}); }
     if(PR&&k==='_close'&&isOpen()) out.push({k:k,seg:'_after',lab:'말없이 흐르는 자리',txt:_post('_extra').n+' · 연습 끝',quiet:true,who2:'other',ms:0,est:0});   /* ★[POST_FLOW_200 7] 단체 사진 → 촬영 후 안내 → 추가 촬영 · 연습 끝 */   /* [PRACTICE_WALK_1101 13] 마무리 뒤 · 녹음 없음 */
   });
   return out;
@@ -7304,7 +7304,7 @@ function _mkFlow(k,btn){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.w
     h+=_mkNarLi(k,x,i);
   });
   if(bq&&!bqDone) h+=bq.html;   /* [BGM_R1_1023] 자리가 맨 뒤(줄이 모자라면) */
-  var _phRow=(k==='_close'&&_afterOn())?_qRow('다음 · '+_post('_photo').n+'(전체 → 가족)'):k==='_after'?_qRow(_postLine('_extra')):'';   /* ★[POST_FLOW_200 4 · 5] 닫는 인사 끝 «다음 · 단체 사진(전체 → 가족)» · 촬영 후 안내 끝 «추가 촬영 · …» (진한 점) */
+  var _phRow=(k==='_close'&&_afterOn())?_qRow('다음 · '+_post('_photo').n):k==='_after'?_qRow(_postLine('_extra')):'';   /* ★[POST_FLOW_200 4 · 5] 닫는 인사 끝 «다음 · 단체 사진(전체 → 가족)» · 촬영 후 안내 끝 «추가 촬영 · …» (진한 점) */
   if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints().forEach(function(t){ h+='<li class="q qh"><span class="qa">'+esc(t.replace(/^\+\s*/,''))+'</span></li>'; });   /* [CL_HINT_199] 타임라인은 점 자리 «+» 하나(글 앞 «+»는 뺀다 · 연습 카드 · 전체 대본은 글에 «+») 하객 맞이 · 닫는 인사 · 식후 같은 줄(세 곳 다 식사 · 하객 안내 값으로 문장이 붙는다 · 엔진 guestCue · closingOf · afterPhotoOf) */   /* ★[AFTER_FIX_196] 하객 맞이 칸처럼 «어디서 바꾸나» 한 줄 — 글은 마이페이지 값으로 갈린다 */   /* [CLOSING_FULLER 1] 회색 · 듣기 줄 아님 */
   h+=_phRow;
   /* ★«1분 전 안내는 식전 영상이 끝난 뒤에 흘러요 · 다음 쪽에서» 줄 금지 — 2026-10-05 사장님 결정으로 1분 전이 영상 앞이 됐다 [ONEMIN_FIRST] */
@@ -8788,7 +8788,7 @@ function _lFull(){
     var sp=R.span(S);
     if(_lAnyVid()) h+=_lVid('_close',{big:true});   // [NO_EMPTY_BOX]
     var _esec=LP.ended.range&&LP.ended.range.sec;   // [QA_SEC]
-    h+='<div class="lf-end">'+(_esec?('«'+esc(_esec)+'»'+_josa(_esec,'을','를')+' 끝까지 보셨어요'):LP.ended.all?('끝까지 보셨어요 · '+esc((function(p){ return '당일 예상 · 본식 '+p.body+(p.tm?' + 테이블 인사 '+p.table:'')+' · '+_post('_photo').n+'(전체 · 가족) · '+_post('_extra').n+' '+p.photo;   /* ★[POST_FLOW_200 D] 40분 셈 안의 남는 시간이 추가 촬영으로 간다(엔진 goFree) — 단체 사진만의 분이 아니라 둘을 함께 적는다 */   /* ★[TABLE_PLUS_192 검토 192-2] 테이블 인사는 본식에 «더하는» 몫(TABLE_APART) — «+» 로 */ })(R.span(S)))):'이 순간을 다 보셨어요')
+    h+='<div class="lf-end">'+(_esec?('«'+esc(_esec)+'»'+_josa(_esec,'을','를')+' 끝까지 보셨어요'):LP.ended.all?('끝까지 보셨어요 · '+esc((function(p){ return '당일 예상 · 본식 '+p.body+(p.tm?' + 테이블 인사 '+p.table:'')+' · 단체 사진(전체 · 가족) · 추가 촬영 '+p.photo;   /* ★[POST_FLOW_200 D] 40분 셈 안의 남는 시간이 추가 촬영으로 간다(엔진 goFree) — 단체 사진만의 분이 아니라 둘을 함께 적는다 */   /* ★[TABLE_PLUS_192 검토 192-2] 테이블 인사는 본식에 «더하는» 몫(TABLE_APART) — «+» 로 */ })(R.span(S)))):'이 순간을 다 보셨어요')
       +((_inPr()&&PRW==='flow'&&LP.ended.all)?'<p class="lf-trytip">이번엔 두 분 차례에서 멈춰 기다려요</p><button type="button" class="rowbtn lf-trygo" data-fk="lftry" onclick="prTryAgain()">두 분 차례 직접 해보기</button>':'')   /* ★[PR_WAY_198 ①] 흐름 보기를 끝까지 보면 B 를 권한다 */
       +'<div class="lf-endb"><button type="button" class="rowbtn" data-fk="lfagain" onclick="lsAgain()">다시 보기</button>'
       +((LP.noChips&&window.RitualPreviewLink&&RitualPreviewLink.url(S,{digital:!!CUSTDIG,photoShare:!!CUSTPHOTO,meal:!!CUSTMEAL,mealFull:!!CUSTMEALF,resv:!!CUSTRESV,guide:!!CUSTGUIDE}))?'<button type="button" class="rowbtn" onclick="lsCloseBig(openRitualPreview)">음악까지 미리듣기</button>':'')

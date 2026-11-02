@@ -10601,6 +10601,8 @@ function renderPhoto(box){
     +PHOTO_WISH_EX.map(function(c){ var _t=c.n+' · '+c.c, _on=wish.some(function(w){ return String((w&&w.what)||'').indexOf(_t)>-1; }); return '<span class="ph-chip ph-ex'+(_on?' on':'')+'" data-wex="'+escapeHtml(_t)+'"'+(_on?' aria-disabled="true"':'')+'><span class="ph-ck" aria-hidden="true">✓</span>'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // [PHOTO_CHIP_KIND] 붙인 뒤 ✓ · 다시 눌러도 두 번 붙지 않는다 · [PHOTO_DIR_WORD] 접힘 안 «위 장면은 그대로 담겨요»는 식순이 정해진 때만(_scn · 식순이 없으면 «위 장면»이 없다)   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리) · [PH_DOT_SPLIT] « · »로 잇던 두 곳을 마침표로(320~414 모두 «· 안 적으셔도»가 줄 머리였다)
   h+='</li>';
   /* ★[END_FLOW_1030 검토 167] 옛 2번 «감사 인사 · 남아 주실 분 안내»는 걷었다 — 감사 인사는 닫는 인사가 맡고, 남는 분 안내는 사진 전 안내(265 · 266)가 사진 앞에서 한다(맨 위 한 줄). 되살리지 말 것 */
+  /* ★★[END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200] 촬영 후 안내는 전체 단체 사진(꼭 담고 싶은 사진까지) 직후 · 가족 구도 전 — 하객 모두가 계실 때 한 번 */
+  h+=_stepHd('촬영 후 안내', '전체 단체 사진을 마치면 작가님이 안내 음성을 틀어요', 'show')+'<div class="cc-note ph-st-note">이어서 가족 사진을 찍는다는 말과 함께 '+(_ml==='yes'?'식사 안내 · ':'')+'사진 올리기 · 두고 가시는 물건을 챙겨 드려요.</div></li>';
   h+=_stepHd('가족 구도', '고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요');   // [PHOTO_FREE] 부르고 세우는 것은 사진작가 · 나레이션 «가족사진은 작가님이 순서대로 불러 드립니다»와 같은 말
   h+=(sel.length?('<div class="ph-ordlab">찍는 순서'+(sel.length>1?' · ↑↓로 바꿀 수 있어요':'')+'</div><div class="ph-list">'):'<div class="cc-note ph-none" style="text-align:left;margin:8px 0 2px">아직 고른 구도가 없어요 · 아래에서 더해 주세요.</div>');
   sel.forEach(function(n,i){
@@ -10660,9 +10662,8 @@ function renderPhoto(box){
   h+='<input id="mp_pcBride" class="cc-input" data-pc="bride" maxlength="40" autocomplete="off" placeholder="예: 외삼촌 이○○" value="'+escapeHtml(_pc.bride||'')+'" style="margin:0">';
   h+='</li>';
   /* [PHOTO_DAY_STEPS] 온라인 인사 — 디지털 참석 날만(엔진 S.digital · narr-online-in «화면으로 보고 계신 분들께 인사를 올리겠습니다» · [SRC_ALL_1023 검토 144-4] 자료 RR · II) · 보기만 */
-  /* ★★[POST_FLOW_200 검토 200 · 200 보충 2] 차례 = 단체 사진(전체 → 가족) → 촬영 후 안내 → 추가 촬영 — 식순 화면 · 콘솔과 같은 이름 · 같은 차례(RitualOpen.POST_FLOW · post-flow.mjs 가 대조) */
+  /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 → END_FLOW_200 최종] 차례 = 전체 단체 사진 → 촬영 후 안내(위로 옮김) → 가족 구도 → 추가 촬영 — 식순 화면 · 콘솔과 같은 이름 · 같은 차례(RitualOpen.POST_FLOW · post-flow.mjs 가 대조) */
   /* ★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게»] 마지막 칸 — 작가님이 촬영을 마치면 안내 음성(엔진 afterPhotoOf · 콘솔 «촬영 후 안내») · 보기만 하는 차례 */
-  h+=_stepHd('촬영 후 안내', '전체 · 가족 단체 사진을 마치면 작가님이 안내 음성을 틀어요', 'show')+'<div class="cc-note ph-st-note">마쳤다는 인사와 함께 '+(_ml==='yes'?'식사 안내 · ':'')+'사진 올리기 · 두고 가시는 물건을 한 번 더 챙겨 드려요.</div></li>';
   /* ★[PHOTO_FRIEND 2026-09-26 사장님 G1·G2] «친구들과 자유롭게» — 가족 구도를 다 찍은 뒤 친구들과는 편하게(폰으로도 · 사진작가에게 부탁).
      사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
      → 고르는 칸 없이 **대략 적는 칸 하나만.** 시간은 따로 떼지 않는다(진행표의 «시간이 남으면 … 자유 사진» 자리) — 그래서 «몇 분»을 약속하지 않는다.
