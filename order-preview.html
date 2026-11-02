@@ -1440,7 +1440,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 /* ★[MK_HEAD_PILL 1101 사장님 PC 스크린샷 «PC 버전은 좀 이상한데»] 상태 단추는 오른쪽 도구와 같은 알약 — 옅은 테 · 카드 바탕 · 좌우 15(폰 12) · 높이 44 · 글 12.5/500(.ob-exit 와 같은 옷 · 저장의 강조 테는 안 쓴다).
    자리가 넉넉하면 한 줄(.one «하나씩 만들기 · 본식 6/9 · 빠뜨린 4 ⌄») · 모자랄 때만 두 층(모서리 22) — _mkStatFit 이 실제 폭으로 고른다. 꺾쇠는 글 바로 뒤. 종전 네모 · 작은 모서리(6px)는 폼 입력칸처럼 읽혔다 */
 .mk-status{display:grid;grid-template-columns:auto 12px;justify-content:start;align-content:center;align-items:center;column-gap:8px;flex:0 1 auto;min-width:0;min-height:44px;margin:0;padding:3px 15px;border:1px solid var(--border);border-radius:22px;background:var(--card);text-align:left;color:var(--sub);font:inherit;font-size:12.5px;font-weight:500;line-height:18px;letter-spacing:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.mk-status[hidden]{display:none}
+.mk-status[hidden],.mk-status.one[hidden]{display:none}   /* ★[CLEAR_HEAD_1102 사장님 아이폰 «모두 비우기 하면 위에 ‹식전 1/2›가 남아 있다»] .one(inline-flex)이 뒤에 있어 [hidden] 을 이겼다 — ② 를 떠나도 단추가 남았다. 되돌리지 말 것 */
 .mk-status[aria-expanded="true"]{background:var(--bg2)}
 @media (hover:hover){ .mk-status:hover{border-color:var(--gold-deep)} }   /* .ob-exit:hover 와 같은 테 */
 .mk-status:focus-visible{outline:2px solid var(--seal);outline-offset:1px}
@@ -5024,7 +5024,7 @@ function _mkStatInfo(cur){
   return { cur:cur, wr:_mi<0&&cur!=='_sum'&&cur!=='_voice', pos:_pos, left:_left, say:_say };
 }
 function _mkStatLab(i,open){ return '하나씩 만들기. '+i.say+'.'+(i.left?' 이미 살펴본 순간 중 확인할 항목이 남은 순간 '+i.left+'곳.':'')+' '+(open?'모든 순간 접기':'모든 순간 보기'); }
-function _mkStatPaint(){ var b=document.getElementById('mkStat'); if(!b) return; var on=!!document.getElementById('mkStrip'); document.body.classList.toggle('mkd',on); b.hidden=!on; if(!on){ MK.statI=null; return; }
+function _mkStatPaint(){ var b=document.getElementById('mkStat'); if(!b) return; var on=!!document.getElementById('mkStrip'); document.body.classList.toggle('mkd',on); b.hidden=!on; if(!on){ MK.statI=null; if(b._v){ b.innerHTML=''; b._v=''; b.classList.remove('one','nn','np','el'); } return; }   /* [CLEAR_HEAD_1102] ② 밖에서는 지난 순간 위치 글을 남기지 않는다 */
   var i=_mkStatInfo(_mkPages()[_mkIdx()]), open=!!MK.navOpen; MK.statI=i;
   var v='<span class="mk-sh" aria-hidden="true">하나씩 만들기</span><i class="mk-chev" aria-hidden="true"></i><span class="mk-sd" aria-hidden="true"><span class="mk-at'+(i.wr?' wr':'')+'">'+i.pos+'</span>'+(i.left?'<span class="mk-left">&nbsp;· 빠뜨린 <b class="mk-num">'+i.left+'</b></span>':'')+'</span>';
   if(b._v!==v){ b.innerHTML=v; b._v=v; } b.setAttribute('aria-expanded',String(open)); b.setAttribute('aria-label',_mkStatLab(i,open)); _mkStatFit(); }
@@ -10859,7 +10859,7 @@ window.opRestart=function(){
     Object.keys(_old.mkc||{}).forEach(function(id){ S.mkc[id]=0; });
     S.fAt=_fa;
     if(_hasUp){ S.up=_upKeep; Object.keys(_old.fAt||{}).forEach(function(k){ if(/^up\./.test(k)) S.fAt[k]=_old.fAt[k]; }); }
-    _opPrev=null;
+    _opPrev=null; MK.navOpen=false; MK.flowKeep=null; MK.toastGo=''; MK.statI=null;   /* ★[CLEAR_HEAD_1102] 지운 순간의 위치 · 펼침 · 이어 보기 기억도 비운다(위치 S.mk.at 은 _S0 으로 이미 비었다) — «다음 · 하나씩 만들기»가 지운 순간을 가리키지 않게 */
     try{ _pkUndo(''); }catch(e){} _seenK={}; _doneSaved=false; _saveErr='';   // [RESTART_KEEP_REC] · [RESTART_IN_PLACE] _S0 = 미개봉 초기 판(ORDER_OWNER) · [R2-01] 이 줄은 앞 줄 // 주석에 먹혀 실행되지 않았다(저장 상태가 안 풀렸다)
     _opGen=String(Date.now()); try{ sessionStorage.setItem('me_order_gen', _opGen); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
     buildSteps(); for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k==='pick'){ idx=i; break; } }
