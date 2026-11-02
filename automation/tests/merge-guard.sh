@@ -21801,4 +21801,7 @@ chk 'D.DAY.guestIn' scripts/check-source-drift.mjs 2
 nochk "arrival/.test(c.slug||'')) return -30" order-preview.html
 nochk "M1: 1800" assets/bgm-picks.js
 chk "screen-bgm after-photo-loop guest-time' }" .github/workflows/merge-guard.yml 1
+# ★[CNT_ROW_ALIGN_1102 사장님 «본식 순간 6/6 · 긴 순간 3/3 라인이 안 맞는데»] 진행 줄 안 카운터 = 높이 44 가운데(순간 글자와 한 줄)
+chk 'CNT_ROW_ALIGN_1102' order-preview.html 1
+nochk '.mk-sc .pk-cnt{margin:4px 2px 8px}' order-preview.html
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
