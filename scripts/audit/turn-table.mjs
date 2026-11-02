@@ -79,10 +79,15 @@ try {
   /* 실제 차례 — 미리 듣기 · 연습 큐의 행동 줄 ms 가 표를 읽는다 */
   const q = await f.evaluate(() => { const ks = ['matjeol', 'tribute', 'table']; const st = _lSteps(ENG, ks).filter((x) => x.quiet && x.txt); return st.map((x) => [x.k, x.of, _dwellMs(x, false), _dwellMs(x, true)]); });
   ok('행동 줄(맞절 · 부모님께 인사 · 테이블)이 표 값을 받는다', q.length >= 2 && q.every((x) => x[2] >= 5000 && x[3] >= 6000), q.slice(0, 6));
-  /* 줄 사이 쉼을 정하는 곳(_lNext)과 차례를 만드는 곳(lsPlay · go)이 표를 읽는다 — 미리 듣기 · 연습 둘 다 */
-  const w = await f.evaluate(() => { const n = String(_lNext), g = String(_lStart);
-    return { n: ['same', 'moment', 'toAct', 'actEnd', 'actEmo', 'toCouple', 'coupleEnd'].filter((x) => n.indexOf("_turn('" + x + "')") < 0), prc: /LP\.pace\|\|LP\.prc/.test(n), dw: (g.match(/_dwellMs\(x,(true|false)\)/g) || []).length, prcSet: /LP\.prc=_prc/.test(g) }; });
-  ok('쉼 · 머무는 시간 표를 실제 차례가 읽는다(미리 듣기 · 연습 · 같은 표)', !!w && !w.n.length && w.prc && w.dw === 2 && w.prcSet, w);
+  /* 줄 사이 쉼을 정하는 곳(_lGapOf · 재생과 연습 예상 시간이 같이 쓴다 · PR_WAY_198)과 차례를 만드는 곳(go · _rpAct)이 표를 읽는다 — 미리 듣기 · 연습 둘 다 */
+  const w = await f.evaluate(() => { const n = String(_lGapOf), g = String(_lStart), r = String(_rpAct);
+    return { n: ['same', 'moment', 'toAct', 'actEnd', 'actEmo', 'toCouple', 'coupleEnd'].filter((x) => n.indexOf("T('" + x + "')") < 0), prc: /_turn\(n,prc\)/.test(n), dw: /_dwellMs\(x,_prc\)/.test(g) && /_dwellMs\(x,true\)/.test(r), prcSet: /LP\.prc=_prc/.test(g) }; });
+  ok('쉼 · 머무는 시간 표를 실제 차례가 읽는다(미리 듣기 · 연습 · 같은 표)', !!w && !w.n.length && w.prc && w.dw && w.prcSet, w);
+  /* 실제 쉼 — 미리 듣기 같은 순간 말 → 말(나레이션 파일 없음) 1.6초 · 순간 바뀜 2.2초 · 연습 안내 → 두 분 3.0초(상수 표 RunPace 와 같은 값) */
+  const gv = await f.evaluate(() => { const n1 = { k: 'vow', slug: 'a' }, n2 = { k: 'vow', slug: 'b' }, n3 = { k: 'ring', slug: 'c' }, t2 = { k: 'vow', talk2: 1 };
+    const pv = _lGapOf([n1, n2], 1, n1, n2, true).gap, mv = _lGapOf([n1, n3], 1, n1, n3, true).gap, fast = _lGapOf([n1, n2], 1, n1, n2, false).gap, tc = _lGapOf([n1, t2], 1, n1, t2, true).gap;
+    return { pv, mv, fast, tc }; });
+  ok('실제 쉼 — 미리 듣기 같은 순간 1.6초 · 순간 바뀜 2.2초 · 두 분 차례 앞 2초 · 빠르게 훑기는 종전 짧은 값', gv.pv === 1600 && gv.mv === 2200 && gv.tc === 2000 && gv.fast < 1600, gv);
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();
