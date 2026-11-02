@@ -21355,7 +21355,8 @@ chk 'GROUP_PHOTO_199' order-preview.html 5
 chk "function _photoLine()" order-preview.html 1
 chk "row('_photo')+row('_after')" order-preview.html 1
 chk "lab:k==='_after'?'단체 사진을 모두 마치면 · 작가님 신호로 재생'" order-preview.html 1
-chk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장)
+chk "'+ 식사 안내 멘트: 마이페이지에 장소 · 예약 시각을 적으면 붙어요'" order-preview.html 1   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
+nochk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html   # [MEAL_HINT_1102] 할 일만 말하던 옛 줄
 chk "'+ 사진 올리기 안내: 하객 안내 켜기'" order-preview.html 1
 chk "if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints()" order-preview.html 1   # [CL_HINT_199] 하객 맞이 · 닫는 인사 · 식후 같은 줄
 chk ".mk-flow li.qh::after{content:'+';" order-preview.html 1
