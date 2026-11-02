@@ -2,7 +2,7 @@
 /* ★★[LISTEN_PACE_1031 2026-10-31 사장님 «진행» · BGM 섹션 명세] ② «이 순간 전체 듣기» 흐름 — 진짜 식순 화면을 «마이페이지 안»(order-preview.html?embed=1)으로 띄워 잰다
    (부모 창이 GAS 대신 구간 곡을 준다 · 나레이션 파일은 0.6초 짧은 소리 — 차례 · 시간 · 크기만 잰다 · bgm-preview 와 같은 틀).
    P1 음악 뜸 — 곡이 있는 순간(화촉 · 반지 · 부모님께 인사 · 축배): 첫 멘트가 나오기 전 곡이 큐 사이 크기(−8)로 6초(★[LEAD_LONGER_1031] 종전 3초 · 이어지는 곡은 3초) · 곡이 없는 순간(테이블 인사 · 공개 미리보기 화촉)은 뜸 없음
-   P2 행동 줄 멈춤 — 행동 줄(말없이)이 차례에 들어가 est ÷ 12(3 ~ 6초) 동안 머문다 · 그동안 음악 −8 · est 는 당일 엔진 live.est(또는 표 LP_EST_FROM · LP_EST_NOTE) · est 없는 행동 줄 0개(모든 순간)
+   P2 행동 줄 멈춤 — 행동 줄(말없이)이 차례에 들어가 머무는 시간 표(TURN_GAP_1102)만큼 머문다 · 그동안 음악 −8 · est 는 당일 엔진 live.est(또는 표 LP_EST_FROM · LP_EST_NOTE) · est 없는 행동 줄 0개(모든 순간)
    P3 작은 글 — 행동 줄이 흐를 때만 «실제로는 약 …»(반올림 표) · 지나가면 걷힌다
    P4 줄 표시 — 지금 줄 lp-now · 지나간 줄 lp-past · 남은 줄 표시 없음 · ⏹ 로 멈추면 모두 되돌림
    P5 따라가기 — 줄이 바뀌면 지금 줄이 화면 가운데쯤 · 손으로 스크롤(바퀴)하면 그 재생 동안 따라가기 멈춤
@@ -110,13 +110,13 @@ try {
     const R = await f.evaluate(() => [8, 30, 35, 45, 60, 102, 160, 540, 0].map((e) => [e, _lpMs(e), _lpEstT(e)]));
     ok(`${W} P3 반올림(1분 미만 10초 · 1분부터 15초) — 8 → 약 10초 · 45 → 약 50초 · 102 → 약 1분 45초 · 160 → 약 2분 45초 · 540 → 약 9분 · 0 → 글 없음 · 멈춤 3 ~ 6초`,
       JSON.stringify(R) === JSON.stringify([[8, 3000, '약 10초'], [30, 3000, '약 30초'], [35, 3000, '약 40초'], [45, 4000, '약 50초'], [60, 5000, '약 1분'], [102, 6000, '약 1분 45초'], [160, 6000, '약 2분 45초'], [540, 6000, '약 9분'], [0, 3000, '']]), R);
-    for (const [k, len] of [['candle', 18000], ['ring', 15000], ['tribute', 33000], ['toast', 15000]]) {   /* [LEAD_LONGER_1031] 뜸이 3초 늘어 창도 3초씩 */
+    for (const [k, len] of [['candle', 26000], ['ring', 21000], ['tribute', 44000], ['toast', 15000]]) {   /* [TURN_GAP_1102] 행동 줄 6초 · 쉼 1.2 ~ 2.2초로 창을 늘림 */   /* [LEAD_LONGER_1031] 뜸이 3초 늘어 창도 3초씩 */
       await go(f, k); await f.evaluate(() => window.scrollTo(0, 0)); const r = await trace(f, k, len); const sp = spans(r.tr), nt = narT(r) == null ? null : narT(r) - q0T(r);
       const lead = r.tr.filter((x) => x.t < (nt || 0) + q0T(r) - 150 && x.src);
       ok(`${W} P1 ${k} 첫 멘트 앞 음악 뜸 6초(곡이 큐 사이 크기 −8)`, nt != null && nt >= 5400 && nt <= 6900 &&   /* CI 러너가 붐비면 100ms 표본 · 타이머가 0.4 ~ 0.5초 일찍 잡힌다(#1535 · #1538 CI 에서 5456 · 5794) — 6초 뜸을 재는 자리는 그대로 */ lead.length > 5 && lead.some((x) => Math.abs(x.want - (-8)) < 0.6), { nt, lead: lead.slice(-2).map((x) => [Math.round(x.t), x.f, x.want]) });
       const acts = sp.filter((x) => x.act);
       if (k === 'toast') ok(`${W} P2 ${k} 행동 줄 없음(잔 내려놓기는 «위하여» 칸 안)`, !acts.length, acts.map((x) => x.li));
-      else ok(`${W} P2 ${k} 행동 줄마다 est ÷ 12(3 ~ 6초) 머문다`, acts.length > 0 && acts.every((a) => { const want = Math.min(6, Math.max(3, Math.round(a.est / 12))) * 1000, d = a.b - a.a; return d >= want - 450 && d <= want + 600; }), acts.map((a) => [a.li, a.est, Math.round(a.b - a.a)]));
+      else ok(`${W} P2 ${k} 행동 줄마다 머무는 시간 표(TURN_GAP_1102 · 미리 듣기 화촉 · 반지 · 부모님께 인사 6초)`, acts.length > 0 && acts.every((a) => { const want = 6000, d = a.b - a.a; return d >= want - 450 && d <= want + 1400;   /* 머문 뒤 쉼(행동 끝 → 말 1.2초)까지 그 줄로 잡힌다 */ }), acts.map((a) => [a.li, a.est, Math.round(a.b - a.a)]));
       if (acts.length) { const a = acts[0], mid = a.s[Math.floor(a.s.length / 2)];
         const aw = k === 'ring' ? -12 : k === 'tribute' ? -20 : -8;   /* ★[MEANING_R1_1102 10] 행동 줄 크기 = 당일 콘솔 live.duck(부모님께 인사 첫 행동 tribute-in −20 · 두 분이 고마운 말을 하는 자리) */   /* ★[BGM_TIMING_1101] 반지 끼우는 동작은 −12(«피아노가 아주 작게» · 엔진 narr-ring-in live) · 다른 행동 줄은 큐 사이 −8 */
         ok(`${W} P2 ${k} 행동 줄 동안 음악 ${aw === -8 ? '큐 사이 크기(−8)' : aw + '(당일 콘솔 live.duck)'}`, a.s.slice(-3).every((x) => x.src && Math.abs(x.want - aw) < 0.6), a.s.slice(-3).map((x) => [x.f, x.want]));
