@@ -1798,7 +1798,7 @@
         note: '소리 없음 · 작가님이 하객을 앞으로 모아 전체 하객 컷 · 이어서 두 분이 적은 꼭 담고 싶은 사진 [GROUP_PHOTO] [WISH_COUNT]',
         live: { t: '하객이 앞으로 모임 → 전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(골라 트는 판)', est: _go['end-0-photo'], self: true, doing: 'move', note: '작가님이 모아 바로 전체 하객 컷 [CLOSING_LINE_1031]' }
       }));
-      /* ★★[END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200] 촬영 후 안내는 전체 단체 사진 직후 · 가족 사진 전(사장님 17:16 ~ 17:19 «가도 되는 타이밍») — 하객 모두가 계실 때 한 번 · 가족 구도는 이어서(소리 없음 · 사슬) */
+      /* ★★[END_FLOW_200] [END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200] 촬영 후 안내는 전체 단체 사진 직후 · 가족 사진 전(사장님 17:16 ~ 17:19 «가도 되는 타이밍») — 하객 모두가 계실 때 한 번 · 가족 구도는 이어서(소리 없음 · 사슬) */
       if (_photoOpen) { var _aps = afterPhotoOf(S); cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: _aps, name: '촬영 후 안내', text: EXTRA[_aps], duck: -14, fire: 'manual',
         hint: '전체 단체 사진을 마치면', note: '작가님이 전체 단체 사진(한 장)을 마치면 누른다 · 이어서 가족 사진 · 더 남고 싶은 분들과 추가 촬영(마지막 곡이 끝날 때까지) · 늦어진 날은 추가 촬영을 짧게(마무리 시각을 지킨다)',   // ★[END_FLOW_200 최종] 전체 단체 사진 직후 · 가족 사진 전

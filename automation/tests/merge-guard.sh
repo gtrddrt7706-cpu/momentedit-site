@@ -21780,11 +21780,11 @@ chk "if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) 
 nochk "!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S;" order-preview.html
 # ── 2026-11-02 [INFO_SPLIT_200 검토 200 수정 2 · 사장님 18:00 «한 번에 다 안내하면 귀에 안 들어오니 나눠서» · 18:02 «추천대로»] 입장 = 사진 올리기 · 10분 전 = 식사 예고 · 5분 전 = 경로 + 사진 · 마무리 = 식사 시각 · 합류 · 촬영 후 = 남기 · 물건 · 이동 허락
 chk "if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');" assets/ritual-cue.js 1
-chk "var G5 = { '-mgr': [GW.mgr, GW.upThere], '-mg': [GW.mg, GW.upThere], '-mr': [GW.mr], '-m': [GW.m], '-g': [GW.pUp] };" assets/ritual-cue.js 1
-chk "'narr-closing-mealr': [CL_THX, CL_CHEER, CL_RESV, CL_JOIN, CL_GA], 'narr-closing-mealnr': [CL_THX, CL_CHEER, CL_NORESV, CL_JOIN, CL_GA]" assets/ritual-cue.js 1
-chk "'after-photo': [GW.done, GW.fam, GW.stay, GW.things, GW.goHome, GW.day], 'after-photo-meal': [GW.done, GW.fam, GW.stay, GW.things, GW.goMeal]," assets/ritual-cue.js 1
-chk "/* ★★[INFO_SPLIT_200 검토 200 수정 2]" assets/ritual-cue.js 1
-nochk "'narr-closing-meal': [CL_THX, CL_CHEER, CL_RESV" assets/ritual-cue.js   # 옛 291 은 받은 소리 기록(5분 전이 «오늘 찍으신 사진도 …»를 빌린다) — 새 판으로 덮지 않는다
+chk "var G5 = { '-mgr': \[GW.mgr, GW.upThere\], '-mg': \[GW.mg, GW.upThere\], '-mr': \[GW.mr\], '-m': \[GW.m\], '-g': \[GW.pUp\] };" assets/ritual-cue.js 1
+chk "'narr-closing-mealr': \[CL_THX, CL_CHEER, CL_RESV, CL_JOIN, CL_GA\], 'narr-closing-mealnr': \[CL_THX, CL_CHEER, CL_NORESV, CL_JOIN, CL_GA\]" assets/ritual-cue.js 1
+chk "'after-photo': \[GW.done, GW.fam, GW.stay, GW.things, GW.goHome, GW.day\], 'after-photo-meal': \[GW.done, GW.fam, GW.stay, GW.things, GW.goMeal\]," assets/ritual-cue.js 1
+chk "★★\[INFO_SPLIT_200 검토 200 수정 2\]" assets/ritual-cue.js 1
+nochk "'narr-closing-meal': \[CL_THX, CL_CHEER, CL_RESV" assets/ritual-cue.js   # 옛 291 은 받은 소리 기록(5분 전이 «오늘 찍으신 사진도 …»를 빌린다) — 새 판으로 덮지 않는다
 chk "var AFTER_SUM='전체 단체 사진을 마치면 · 가족 사진 · 두고 가시는 물건 · 이동 안내';" order-preview.html 1
 chk 'INFO_SPLIT_200' scripts/audit/open-course.mjs 10
 chk 'INFO_SPLIT_200' scripts/audit/closing-line.mjs 2
