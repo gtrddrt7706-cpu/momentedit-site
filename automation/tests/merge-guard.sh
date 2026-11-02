@@ -21777,6 +21777,12 @@ nochk "(_pf?'★':'☆')" mypage.html
 nochk 'class="dgc-ico"' mypage.html
 nochk '🍽' mypage.html
 nochk '🍃' mypage.html
+# ★[CLEAR_HEAD_1102 사장님 아이폰 «모두 비우기 하면 위에 ‹식전 1/2›가 남아 있다»] 머리 상태 단추 숨김은 .one 보다 무겁게 · ② 밖에서는 글을 비운다 · 비우기는 화면 기억도 비운다(검사 = CI bgm-sound b 칸)
+chk 'CLEAR_HEAD_1102' order-preview.html 3
+chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.html 1
+chk "_opPrev=null; MK.navOpen=false; MK.flowKeep=null; MK.toastGo=''; MK.statI=null;" order-preview.html 1
+chk 'CLEAR_HEAD_1102' scripts/audit/clear-head.mjs 1
+chk "listen-pace knobs detail-r1 pr-bgm clear-head' }" .github/workflows/merge-guard.yml 1
 # ★[GUEST_TIME_1102 사장님 «우리가 세팅한 프로그램 시간표를 봐»] 하객 입장 = 본식 − DAY.guestIn(ritual-data · 20분) — 식순 화면 «… 약 n분 뒤» · 하객 맞이 «약 n분» · 곡 목록 길이가 이 값으로 계산한다(검사 = CI bgm-sound e 칸)
 chk 'guestIn: 20 }' assets/ritual-data.js 1
 chk 'GUEST_TIME_1102' assets/bgm-picks.js 2
