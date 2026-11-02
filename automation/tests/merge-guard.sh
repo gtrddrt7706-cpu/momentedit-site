@@ -21763,6 +21763,13 @@ chk 'PV_AGAIN_UP_1102' order-preview.html 2
 chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></button>' order-preview.html 1
 chk '.pv-act:empty{display:none}' order-preview.html 1
 nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
+# ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 들어가서 이모지 같은 거 전부 없애고»] 고르기 카드 🍽 · 🍃 삭제 — 되살리지 말 것
+chk 'DN_NO_EMOJI_1102' mypage.html 4
+nochk "content:'\\\\2665'" mypage.html
+nochk "(_pf?'★':'☆')" mypage.html
+nochk 'class="dgc-ico"' mypage.html
+nochk '🍽' mypage.html
+nochk '🍃' mypage.html
 # ★[CLEAR_HEAD_1102 사장님 아이폰 «모두 비우기 하면 위에 ‹식전 1/2›가 남아 있다»] 머리 상태 단추 숨김은 .one 보다 무겁게 · ② 밖에서는 글을 비운다 · 비우기는 화면 기억도 비운다(검사 = CI bgm-sound b 칸)
 chk 'CLEAR_HEAD_1102' order-preview.html 3
 chk '.mk-status\[hidden\],.mk-status.one\[hidden\]{display:none}' order-preview.html 1

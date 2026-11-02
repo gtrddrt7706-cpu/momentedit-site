@@ -1188,7 +1188,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 /* [찜] 별표·모아보기 — 다이닝 후보 저장(draft._favs · 계정 저장이라 부부 공용) */
 .inv-opt.dn-saved{position:relative;padding-right:58px}   /* 담은 카드 — 우상단 '담음' 표시 자리 확보 */
 .dn-savedtag{position:absolute;top:11px;right:12px;font-family:var(--serif-ko);font-size:11px;color:var(--gold-deep,#7A5F37);letter-spacing:.03em;user-select:none;-webkit-user-select:none}
-.dn-savedtag::before{content:'\2665';margin-right:3px;font-size:10px;color:var(--gold,#B89A75)}   /* 은은한 골드 하트 · 시스템 체크(✓) 대신 웨딩 무드 */
+/* ★[DN_NO_EMOJI_1102] «담음» 앞 하트 글자(♥)는 뺐다 — 폰에 따라 그림 글자로 그려진다 · 글 «담음»만 */
 .dn-taphint{font-family:var(--serif-ko)}   /* 모양은 [NOTE_DOT](마지막 스타일 묶음) */
 .dn-taphint b{font-weight:600}
 .dn-star{position:absolute;top:7px;right:6px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;font-size:19px;line-height:1;color:#D8D2C6;padding:0;user-select:none;-webkit-user-select:none}
@@ -1323,7 +1323,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-gate-card{display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:13px;background:#fff;padding:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s,box-shadow .15s,background .15s}
 .dn-gate-card:active{background:var(--bg2)}
 .dn-gate-card:hover{border-color:var(--gold-deep)}
-.dn-gate-card .dgc-ico{font-size:22px;display:block;margin-bottom:7px;line-height:1}
+/* ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 이모지 같은 거 전부 없애고»] 고르기 카드의 그림 글자(접시 · 잎) 삭제 — 되살리지 말 것(merge-guard nochk) · 카드는 제목 · 설명 두 줄 */
 .dn-gate-card .dgc-t{display:block;font-family:var(--serif-ko);font-size:15px;color:var(--accent);font-weight:600}
 .dn-gate-card .dgc-d{display:block;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
 .dn-gate-card.dn-gate-skip{background:var(--bg2,#F5F3EF)}
@@ -13363,7 +13363,7 @@ function dineFilterUI(d, wt){
       + d._places.map(function(p,pi){
           var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):'';
           var _pf=_dnFavHas(d,p.name);
-          return '<div class="dnc-pl"><span class="dn-star'+(_pf?' on':'')+'" role="button" tabindex="0" data-favp="'+pi+'" aria-label="'+(_pf?'담기 취소':'담기')+'" aria-pressed="'+_pf+'">'+(_pf?'★':'☆')+'</span>'
+          return '<div class="dnc-pl"><span class="dn-star'+(_pf?' on':'')+'" role="button" tabindex="0" data-favp="'+pi+'" aria-label="'+(_pf?'담기 취소':'담기')+'" aria-pressed="'+_pf+'">'+'<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M10 2.6l2.2 4.7 5.1.6-3.8 3.5 1 5.1L10 14l-4.5 2.5 1-5.1-3.8-3.5 5.1-.6z" fill="'+(_pf?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span>'   /* [DN_NO_EMOJI_1102] ★ · ☆ 글자 → 같은 모양 그림(선 · 채움) */
             + '<div class="dnc-pl-n">'+escapeHtml(p.name)+(p.cat?' <span>'+escapeHtml(p.cat)+'</span>':'')+'</div>'
             + '<div class="dnc-pl-m">'+escapeHtml([km,p.addr].filter(Boolean).join(' · '))+'</div>'
             + '<div class="dnc-pl-a">'+(p.phone?('<a href="tel:'+escapeHtml(p.phone.replace(/[^0-9]/g,''))+'">전화</a>'):'')
@@ -13512,8 +13512,8 @@ function renderDining(box){
       +'<div class="inv-q">예식 뒤의 시간, 어떻게 할까요?</div>'
       +'<div class="inv-sub">예식 후 식사·카페 자리를 하객분들께 안내할지 정해요. 꼭 하지 않으셔도 괜찮아요.</div>'
       +'<div class="dn-gate">'
-        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-ico">🍽</span><span class="dgc-t">식사·카페 안내 만들기</span><span class="dgc-d">하객께 식당·카페·가볼 곳을 안내해요</span></button>'
-        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-ico">🍃</span><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span></button>'
+        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-t">식사·카페 안내 만들기</span><span class="dgc-d">하객께 식당·카페·가볼 곳을 안내해요</span></button>'
+        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span></button>'
       +'</div></div>';
     /* [DN_MAKE_BASE] 2026-09-26 · 만들기 → 같은 step0 식당 화면으로. 그린 «뒤에» 기준선을 다시 잡는다([WIZ_BASE_AFTER] 와 같은 규칙).
        목록 화면이 처음 붙이는 collect() 가 dining_on:'Y' 를 계산해 넣어, 아무것도 안 고른 부부가 «나가기»에서 «저장하지 않은 변경이 있어요»를 받았다.
@@ -13525,9 +13525,9 @@ function renderDining(box){
       collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N';
       /* ★★[GATE_CARD_BUSY] 종전: `var _t0=_nn.textContent; _nn.disabled=true;`
          ①신호가 없었다 — `:disabled` 스타일이 없어 눌러도 화면이 그대로였다(CSS 주석 참고).
-         ②★그리고 되돌리는 줄이 카드를 부쉈다. 이 카드 안은 <span> 셋이다(dgc-ico·dgc-t·dgc-d).
+         ②★그리고 되돌리는 줄이 카드를 부쉈다. 이 카드 안은 <span> 셋이었다(dgc-ico·dgc-t·dgc-d · 그림 글자 dgc-ico 는 1102 에 뺐다 [DN_NO_EMOJI_1102]).
            `_nn.textContent = _t0` 은 그 셋을 **전부 지우고** 한 덩어리 글자로 바꾼다 —
-           즉 저장이 실패하면 카드가 「🍃예식만으로 조용히 마무리애프터…」로 뭉개진 채 남는다.
+           즉 저장이 실패하면 카드가 「(그림)예식만으로 조용히 마무리애프터…」로 뭉개진 채 남는다.
            실패는 «다시 누르시면 돼요»여야 하는데, 다시 누를 카드가 망가져 있었다.
          → 설명 줄(dgc-d)만 갈았다 넣는다. 바깥 구조는 건드리지 않는다.
          ★reject 도 받는다 — 종전엔 .catch 가 없어 네트워크가 끊기면 버튼이 영영 잠긴 채였다. */
