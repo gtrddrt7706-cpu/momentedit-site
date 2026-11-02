@@ -24,9 +24,11 @@ if (plan) {
     void S; }
   /* b */
   { const have = (f) => f !== 'B13', r = plan({ bgm: { S5: { m: 'bed' } } }, { on: all, have, dur: () => 2000 });   /* 곡마다 길어 목록이 모자라지 않을 때 */
-    const used = []; Object.keys(r).forEach((sg) => r[sg].list.forEach((f) => used.push(f)));
-    const dup = used.filter((f, i) => used.indexOf(f) !== i);
-    ok('b 축사 곡 B13 파일이 없다 — 대체곡 B14 · 그 뒤 하루 중복 0(목록 길이 충분) · B13 은 어디에도 없다', r.M4S5.first === 'B14' && !dup.length && used.indexOf('B13') < 0, { first: r.M4S5.first, dup, M1: r.M1.list, M8: r.M8.list }); }
+    /* [AFTER_PHOTO_LOOP_1102] 마지막 곡(M8L)은 이어 트는 목록 — 앞에서 쓴 곡을 빼지 않고 뒤로 보낸다(사장님 사양). 하루 중복은 M8L 밖에서 세고, M8L 은 자기 안 중복 0 · B13 없음만 본다 */
+    const used = []; Object.keys(r).forEach((sg) => { if (sg !== 'M8L') r[sg].list.forEach((f) => used.push(f)); });
+    const dup = used.filter((f, i) => used.indexOf(f) !== i), lp = (r.M8L && r.M8L.list) || [];
+    const lpOk = lp.every((f, i) => lp.indexOf(f) === i) && lp.indexOf('B13') < 0;
+    ok('b 축사 곡 B13 파일이 없다 — 대체곡 B14 · 그 뒤 하루 중복 0(목록 길이 충분 · 마지막 곡 이어 트는 목록은 따로) · B13 은 어디에도 없다', r.M4S5.first === 'B14' && !dup.length && used.indexOf('B13') < 0 && lpOk, { first: r.M4S5.first, dup, M1: r.M1.list, M8: r.M8.list, M8L: lp }); }
   /* c */
   { const S = { bgm: { S5: { m: 'bed' } } }, rl = plan(S, { on: all, dur: long }), rs = plan(S, { on: all, dur: short });
     ok('c 축사 «음악과 함께» 기본곡 B13 은 예약 — 목록이 길면 하객 맞이 · 테이블에서 빠진다', rl.M4S5.first === 'B13' && rl.M1.list.indexOf('B13') < 0 && rl.M8.list.indexOf('B13') < 0, { M1: rl.M1.list, M8: rl.M8.list });
