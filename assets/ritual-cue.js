@@ -415,19 +415,19 @@
   var CLOSE_CHEER_EX = { 'narr-close-bow-ex3': 1 };   /* [CLOSING_CHEER_195] 칩 글에 이미 응원 부탁이 있는 칩 — 새 칩을 더하면 여기도 본다 */
   /* ★★[END_FLOW_200 검토 200 · 사장님 12:57 ~ 13:00 «마무리 멘트 이후 단체 사진 · 그 안내는? · 촬영 후 안내는 단체 사진 이후 · 더 찍고 싶은 분은 남아서»]
        마무리 멘트 끝 = 늘 모이기 문장(진희 새 녹음) · «남은 하루 행복하게 보내세요.»(47#1 · CL_DAY)는 촬영 후 안내 끝으로 옮겼다(식사 없는 판 · 기존 소리 그대로) — 마무리 멘트에 되살리지 말 것 */
-  var CL_GA = ['안내', '이어서 단체 사진을 찍겠습니다.', null, '검토 200 · 대본 확정(사장님 12:57)'], CL_GB = ['안내', '작가님 안내에 따라 앞으로 모여 주세요.', null, '검토 200 · 대본 확정(사장님 12:57)'];   // [END_FLOW_200] 문장 자리 하나씩
+  var CL_GA = ['안내', '이어서 단체 사진을 찍겠습니다.', null, '검토 200 · 대본 확정(사장님 12:57 · 17:08 한 문장)'];   // ★[END_FLOW_200 · 사장님 17:08 «작가님을 언급하지는 말고 · 자연스럽게 작가님이 이어받아서 진행»] 마무리 멘트 끝 = 이 한 문장 · «작가님 안내에 따라 … 모여 주세요» · «작가님이 안내해 드립니다»는 넣지 않는다(녹음 문장에 «작가님» 없음 · 10/31 «모여 달라 · 앞을 봐 달라» 멘트 없음 그대로)
   var CLOSING_PARTS = {
-    'narr-closing': [CL_THX, CL_CHEER, CL_GA, CL_GB], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA, CL_GB],
-    'narr-closing-soft': [CL_THX, CL_CHEER, CL_GA, CL_GB], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA, CL_GB],
-    'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA, CL_GB]),   /* [CLOSING_MEAL_DUP] */
+    'narr-closing': [CL_THX, CL_CHEER, CL_GA], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA],
+    'narr-closing-soft': [CL_THX, CL_CHEER, CL_GA], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA],
+    'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA]),   /* [CLOSING_MEAL_DUP] */
     /* [CLOSING_SRC_1031] 닫는 멘트 칩 187 «격식 있게»를 고른 날 — 47#0(감사) 없이 · [CLOSING_CHEER_195] 응원 문장이 맨 앞 */
-    'narr-closing-nt': [CL_CHEER, CL_GA, CL_GB], 'narr-closing-guide-nt': [CL_CHEER, CL_UP, CL_GA, CL_GB],
-    'narr-closing-soft-nt': [CL_CHEER, CL_GA, CL_GB], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP, CL_GA, CL_GB],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
-    'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA, CL_GB]),   /* [CLOSING_MEAL_DUP] */
+    'narr-closing-nt': [CL_CHEER, CL_GA], 'narr-closing-guide-nt': [CL_CHEER, CL_UP, CL_GA],
+    'narr-closing-soft-nt': [CL_CHEER, CL_GA], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP, CL_GA],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
+    'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA]),   /* [CLOSING_MEAL_DUP] */
     /* [CLOSING_CHEER_195] 칩 186 «다정하게»를 고른 날 — 감사 없이 · 응원 없이(옛 292 · 293 · 295 · 296 글 그대로) */
-    'narr-closing-nt-nc': [CL_GA, CL_GB], 'narr-closing-guide-nt-nc': [CL_UP, CL_GA, CL_GB],
-    'narr-closing-soft-guide-nt-nc': [CL_UP, CL_GA, CL_GB],
-    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL, CL_GA, CL_GB])
+    'narr-closing-nt-nc': [CL_GA], 'narr-closing-guide-nt-nc': [CL_UP, CL_GA],
+    'narr-closing-soft-guide-nt-nc': [CL_UP, CL_GA],
+    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL, CL_GA])
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 하객 맞이 · 촬영 후 안내 문장 창고 — 줄 하나 = [줄 주인 · 문장 · 빌려 오는 녹음 · 자료 판정] (CLOSING_PARTS 와 같은 모양) ·

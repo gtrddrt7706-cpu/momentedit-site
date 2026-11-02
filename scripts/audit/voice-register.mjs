@@ -48,7 +48,7 @@ const HAE = /(어요|아요|에요|예요|해요|세요|려요|워요|죠)[.!?]?
      알릴 때 «~합니다» · 끝인사는 «행복하게 보내세요»처럼 말한다(자료 DD 템플릿 7 · 8). 우리 문장은 그대로 잰다. */
 const srcNorm = (t) => String(t).replace(/[\s.,!?·«»"'“”‘’~…]/g, '');
 const SRC = new Set((() => { try { return (JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents || []).map((x) => srcNorm(x.text)).filter(Boolean); } catch (e) { return []; } })());
-const BOSS_SET = new Set(['작가님 안내에 따라 앞으로 모여 주세요.']);   // [END_FLOW_200] 마무리 멘트 끝 모이기(대본 확정 12:57)
+const BOSS_SET = new Set([]);   // [END_FLOW_200] 마무리 멘트 끝 모이기(대본 확정 12:57)
 let srcSkip = 0;
 const byVoice = new Map();
 for (const c of man.clips) {

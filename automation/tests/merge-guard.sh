@@ -21219,7 +21219,7 @@ chk '분이 넘으면 이 말로 바뀌어요' order-preview.html 1
 chk 'CLOSING_NO_CREW_1031' assets/ritual-cue.js 4
 chk 'CLOSING_NO_CREW_1031' scripts/audit/closing-line.mjs 2
 chk 'CLOSING_ONE_VOICE_1031' assets/ritual-cue.js 1
-chk "'narr-closing': \[CL_THX, CL_CHEER, CL_GA, CL_GB\], 'narr-closing-guide': \[CL_THX, CL_CHEER, CL_UP, CL_GA, CL_GB\]," assets/ritual-cue.js 1   # ★[CLOSING_CHEER_195] 응원 문장이 감사 뒤
+chk "'narr-closing': \[CL_THX, CL_CHEER, CL_GA\], 'narr-closing-guide': \[CL_THX, CL_CHEER, CL_UP, CL_GA\]," assets/ritual-cue.js 1   # ★[CLOSING_CHEER_195] 응원 문장이 감사 뒤
 # ── 2026-11-01 [CLOSING_CHEER_195 검토 195 · 사장님 23:13 «좋아»] 마무리 멘트에 응원 한 문장(«두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.» · 진희 새 녹음) — 감사 뒤 · «남은 하루» 앞 · 감사 없는 판(-nt)은 맨 앞 ·
 #    닫는 멘트 칩 «다정하게»(186 · 이미 «응원 많이 해 주시기 바랍니다»)는 겹쳐 뺀 판(-nt-nc · 325 ~ 328 · 옛 글 그대로) · 294 는 응원 한 문장 판으로 다시 쓴다(받기 전엔 mp3 없이 녹음 대기) · 검사 closing-line · body-cap · screen-sound
 chk 'CLOSING_CHEER_195' assets/ritual-cue.js 6
@@ -21392,9 +21392,9 @@ nochk "return '두 분이 마주 보고 맞절해요 · 3초 숙이고" order-pr
 nochk "live: { t: '두 분이 마주 보고 맞절 (3초 숙이고" assets/ritual-cue.js
 # ── 2026-11-01 [CLOSING_MEAL_DUP 검토 185 · 사장님 11:39 «추천대로 진행»] 식사 판(291 · 296) 마지막 = «오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.»(진희 새 녹음) · 식사 없는 판은 264 그대로
 chk "var CL_UP_MEAL = \['안내', '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', null," assets/ritual-cue.js 1
-chk "'narr-closing-meal': \[CL_THX, CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA, CL_GB\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
-chk "'narr-closing-meal-nt': \[CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA, CL_GB\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
-chk "'narr-closing-meal-nt-nc': CL_MEAL.concat(\[CL_UP_MEAL, CL_GA, CL_GB\])" assets/ritual-cue.js 1
+chk "'narr-closing-meal': \[CL_THX, CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
+chk "'narr-closing-meal-nt': \[CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA\])," assets/ritual-cue.js 1   # [CLOSING_CHEER_195]
+chk "'narr-closing-meal-nt-nc': CL_MEAL.concat(\[CL_UP_MEAL, CL_GA\])" assets/ritual-cue.js 1
 chk 'CLOSING_MEAL_DUP' scripts/audit/closing-line.mjs 4
 # ── 2026-11-01 [EVENT_COUNT_CAP 검토 183 · 사장님 10:33 «추천대로 진행»] 본식 상한 = 개수 규칙(6개 · 긴 3개 · 테이블 인사 = 2) · 넘는 드문 조합은 테이블 인사 자동 맞춤
 chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1
@@ -21750,4 +21750,6 @@ chk "onclick=\"prOnlyAgain()\" aria-label=\"한 번 더\"" order-preview.html 1 
 chk "function lpLevel(st)" assets/bgm-bed.js 1   # [PR_REVIEW_201 중5]
 chk "마이크는 디렉터에게 돌려주시고, 앞으로 나오셨으면 자리로 돌아가 앉아 주세요" order-preview.html 1   # [PR_REVIEW_201 상2]
 nochk "if(/자리|착석/.test(x.txt)) ret=true;" order-preview.html   # [PR_REVIEW_201 상2] 말 글로 복귀를 정하지 않는다
+nochk "작가님 안내에 따라 앞으로 모여 주세요" assets/ritual-cue.js   # [END_FLOW_200 사장님 17:08] 녹음 문장에 «작가님» 없음 · 모여 달라 멘트 없음
+nochk "CL_GB" assets/ritual-cue.js   # [END_FLOW_200 사장님 17:08] 마무리 멘트 끝은 한 문장
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

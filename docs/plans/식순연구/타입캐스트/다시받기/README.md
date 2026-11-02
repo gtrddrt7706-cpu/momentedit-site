@@ -13,12 +13,12 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_진희.txt | 진희 | 44 | 22 |
+| 1_진희.txt | 진희 | 30 | 22 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 진희 — 44줄 · 22클립
+# 진희 — 30줄 · 22클립
 node scripts/assemble-narration.mjs --in <진희_받은폴더> \
   --clip =317_after-photo,=318_after-photo-guide,=319_after-photo-cafe,=320_after-photo-cafe-guide,=321_after-photo-resv-guide,=322_after-photo-resv,=323_after-photo-meal-guide,=324_after-photo-meal,=287_narr-closing,=288_narr-closing-guide,=289_narr-closing-soft,=290_narr-closing-soft-guide,=291_narr-closing-meal,=292_narr-closing-nt,=293_narr-closing-guide-nt,=294_narr-closing-soft-nt,=295_narr-closing-soft-guide-nt,=296_narr-closing-meal-nt,=325_narr-closing-nt-nc,=326_narr-closing-guide-nt-nc,=327_narr-closing-soft-guide-nt-nc,=328_narr-closing-meal-nt-nc
 ```
