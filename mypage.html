@@ -2340,7 +2340,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      그래서 **캐시 첫 페인트에는 버튼이 없고, 서버 갱신이 끝나 다시 그릴 때 나타났다.**
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
-<script src="/assets/ritual-preview-link.js"></script>
+<script src="/assets/ritual-preview-link.js?v=1102g2"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
 <script src="/assets/dress-refs.js"></script><!-- [DRESS_REFS] 시착 드레스 목록(단 하나의 원천) · 스위치 live 가 꺼져 있으면 카드가 그려지지 않는다 -->
 <script src="/assets/photo-refs.js"></script><!-- [PHOTO_EX_VIEW] 가족 · 친구 스냅 예시 사진 목록(단 하나의 원천) -->
@@ -10629,6 +10629,8 @@ function renderPhoto(box){
     +PHOTO_WISH_EX.map(function(c){ var _t=c.n+' · '+c.c, _on=wish.some(function(w){ return String((w&&w.what)||'').indexOf(_t)>-1; }); return '<span class="ph-chip ph-ex'+(_on?' on':'')+'" data-wex="'+escapeHtml(_t)+'"'+(_on?' aria-disabled="true"':'')+'><span class="ph-ck" aria-hidden="true">✓</span>'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // [PHOTO_CHIP_KIND] 붙인 뒤 ✓ · 다시 눌러도 두 번 붙지 않는다 · [PHOTO_DIR_WORD] 접힘 안 «위 장면은 그대로 담겨요»는 식순이 정해진 때만(_scn · 식순이 없으면 «위 장면»이 없다)   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리) · [PH_DOT_SPLIT] « · »로 잇던 두 곳을 마침표로(320~414 모두 «· 안 적으셔도»가 줄 머리였다)
   h+='</li>';
   /* ★[END_FLOW_1030 검토 167] 옛 2번 «감사 인사 · 남아 주실 분 안내»는 걷었다 — 감사 인사는 닫는 인사가 맡고, 남는 분 안내는 사진 전 안내(265 · 266)가 사진 앞에서 한다(맨 위 한 줄). 되살리지 말 것 */
+  /* ★★[END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200] 촬영 후 안내는 전체 단체 사진(꼭 담고 싶은 사진까지) 직후 · 가족 구도 전 — 하객 모두가 계실 때 한 번 */
+  h+=_stepHd('촬영 후 안내', '전체 단체 사진을 마치면 작가님이 안내 음성을 틀어요', 'show')+'<div class="cc-note ph-st-note">이어서 가족 사진을 찍는다는 말과 함께 두고 가시는 물건을 챙기고, 그 밖의 분들께 '+(_ml==='yes'?'식사 자리로 먼저 이동하시라고':'편히 돌아가셔도 된다고')+' 안내해요.</div></li>';   /* ★[INFO_SPLIT_200] 식사 시각 · 합류는 마무리 멘트 · 경로 · 사진은 5분 전 */
   h+=_stepHd('가족 구도', '고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요');   // [PHOTO_FREE] 부르고 세우는 것은 사진작가 · 나레이션 «가족사진은 작가님이 순서대로 불러 드립니다»와 같은 말
   h+=(sel.length?('<div class="ph-ordlab">찍는 순서'+(sel.length>1?' · ↑↓로 바꿀 수 있어요':'')+'</div><div class="ph-list">'):'<div class="cc-note ph-none" style="text-align:left;margin:8px 0 2px">아직 고른 구도가 없어요 · 아래에서 더해 주세요.</div>');
   sel.forEach(function(n,i){
@@ -10688,11 +10690,13 @@ function renderPhoto(box){
   h+='<input id="mp_pcBride" class="cc-input" data-pc="bride" maxlength="40" autocomplete="off" placeholder="예: 외삼촌 이○○" value="'+escapeHtml(_pc.bride||'')+'" style="margin:0">';
   h+='</li>';
   /* [PHOTO_DAY_STEPS] 온라인 인사 — 디지털 참석 날만(엔진 S.digital · narr-online-in «화면으로 보고 계신 분들께 인사를 올리겠습니다» · [SRC_ALL_1023 검토 144-4] 자료 RR · II) · 보기만 */
+  /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 → END_FLOW_200 최종] 차례 = 전체 단체 사진 → 촬영 후 안내(위로 옮김) → 가족 구도 → 추가 촬영 — 식순 화면 · 콘솔과 같은 이름 · 같은 차례(RitualOpen.POST_FLOW · post-flow.mjs 가 대조) */
+  /* ★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게»] 마지막 칸 — 작가님이 촬영을 마치면 안내 음성(엔진 afterPhotoOf · 콘솔 «촬영 후 안내») · 보기만 하는 차례 */
   /* ★[PHOTO_FRIEND 2026-09-26 사장님 G1·G2] «친구들과 자유롭게» — 가족 구도를 다 찍은 뒤 친구들과는 편하게(폰으로도 · 사진작가에게 부탁).
      사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
      → 고르는 칸 없이 **대략 적는 칸 하나만.** 시간은 따로 떼지 않는다(진행표의 «시간이 남으면 … 자유 사진» 자리) — 그래서 «몇 분»을 약속하지 않는다.
      ★서버가 이 칸을 알 때만(friendOk) 그린다 — 옛 서버는 화이트리스트에 없는 칸을 버려 «저장됐어요»인데 사라진다(photoWish 가 겪은 그 사고). */
-  h+=_stepHd('남은 분들과 자유롭게', '가족 구도를 다 찍은 뒤 남는 시간만큼 편하게 찍어요');   // [PHOTO_DAY_STEPS] 5번(온라인 인사가 없는 날은 4번) · 시간은 약속하지 않는다(narr-photo-out · 남는 시간)
+  h+=_stepHd('추가 촬영', '원하시는 분들과 · 남은 사진 시간 동안');   // [PHOTO_DAY_STEPS] 5번(온라인 인사가 없는 날은 4번) · 시간은 약속하지 않는다(narr-photo-out · 남는 시간)
   if(PHOTOFLOW.friendOk){   // 친구들과 자유롭게 — 칸 이름은 확인서 · 관리자 · 콘솔과 같은 photoFriend
     h+='<div class="ph-sec ph-sec-in">사진작가에게 부탁할 것 <span class="opt-tag">· 선택</span></div>';
     h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">남아 주신 친구 · 지인분들과 어떻게 찍고 싶은지 적어 주세요.</span> <span class="ln-bal">아래 예시를 누르면 칸에 담겨요.</span></div>';   /* ★[PHOTO_FRIEND_HINT 2026-09-27 고객 점검] 옛 문구는 «폰으로도 찍어 달라» 한 가지만 말해 아래 예시 넷(셀카 · 부케 …)과 어긋났고, 누르면 칸에 담긴다는 말이 화면에 없었다(aria-label 에만) */ h+='';
@@ -10702,8 +10706,6 @@ function renderPhoto(box){
     h+='<div class="ph-chips" role="group" aria-label="예시 · 누르면 칸에 담겨요">'+PHOTO_FRIEND_EX.map(function(t){ var _on=String(PHOTOFLOW.friend||'').indexOf(t)>-1; return '<span class="ph-pair ph-pair-ex"><button type="button" class="ph-chip ph-ex'+(_on?' on':'')+'" data-pfex="'+escapeHtml(t)+'"'+(_on?' aria-disabled="true"':'')+'><span class="ph-ck" aria-hidden="true">✓</span>'+escapeHtml(t)+'</button>'+_phExBtn(t)+'</span>'; }).join('')+'</div>';   // [PHOTO_CHIP_KIND] «+» 없음 · 붙인 뒤 ✓
   }
   h+='</li>';
-  /* ★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게»] 마지막 칸 — 작가님이 촬영을 마치면 안내 음성(엔진 afterPhotoOf · 콘솔 «촬영 후 안내») · 보기만 하는 차례 */
-  h+=_stepHd('촬영 후 안내', '작가님이 촬영을 마치면 안내 음성이 나와요', 'show')+'<div class="cc-note ph-st-note">마쳤다는 인사와 함께 '+(_ml==='yes'?'식사 안내 · ':'')+'사진 올리기 · 두고 가시는 물건을 한 번 더 챙겨 드려요.</div></li>';
   h+='</ol>';   // [PHOTO_DAY_STEPS]
   /* [PHOTO_SCENE] 식순에서 이어지는 장면 — 고르는 칸이 아니라 '이미 담기는 것'을 보여 주는 칸.
      식순 초안이 없으면(아직 안 정하셨거나 옛 초안) 한 줄만 남기고 목록은 그리지 않는다. */
@@ -12285,7 +12287,7 @@ function prodConfirmHtml(p, inv){
     if(_phFx && !_phW) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">연출 · '+_phFx.map(escapeHtml).join(' · ')+'</span>';   // [WISH_FX_MIRROR] 요청이 있으면 photoFx 는 그 거울이라 같은 내용이 두 번 뜬다 — 요청 쪽만 보인다
     if(_phL) _pv+='<br>가족 구도 · '+_phL.map(escapeHtml).join(' · ')+' <span class="cc-mini">(전체 하객 + '+_phL.length+'컷)</span>';   // [PHOTO_UNIT_ONE] 행과 같은 말 · 고른 순서 = 촬영 순서
     if(_phCg||_phCb) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">불러 모아 주실 분 · '+[_phCg?('신랑 쪽 '+escapeHtml(_phCg)):'', _phCb?('신부 쪽 '+escapeHtml(_phCb)):''].filter(Boolean).join(' · ')+'</span>';   // [PHOTO_EMPTY_SAVE]
-    if(_phF) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">남은 분들과 자유롭게 · '+escapeHtml(_phF)+'</span>';   // [PHOTO_FRIEND] 편집 화면의 차례 이름과 같게(칸은 photoFriend)
+    if(_phF) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">추가 촬영 · '+escapeHtml(_phF)+'</span>';   // [PHOTO_FRIEND] 편집 화면의 차례 이름과 같게(칸은 photoFriend)
     if(_phS) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">하객 사진 모으기 · 링크 있음</span>';   // [PHOTO_SHARE_LINE]
     L+=line('가족 · 친구 스냅', _pv); }   // [GROUP_SNAP_NAME]
   /* ★★[PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 **그 화면을 열 때** 계산된다 —

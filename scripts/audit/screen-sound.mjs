@@ -37,7 +37,7 @@ try {
     }
     /* ① 닫는 인사 쪽 — 식사 셋 × 하객 안내 × 디지털 × 닫는 멘트 칩 */
     const closeN = (R.narExList ? R.narExList(S, 'close') : [[0]]).map((x) => x[0]);
-    [{ meal: true, mealFull: true, resv: true }, { meal: true, mealFull: false, resv: true }, { meal: false }].forEach((m) => [false, true].forEach((guide) => [false, true].forEach((digital) => closeN.forEach((cn) => {
+    [{ meal: true, mealFull: true, resv: true }, { meal: true, mealFull: true, resv: false }, { meal: true, mealFull: false, resv: true }, { meal: false }].forEach((m) => [false, true].forEach((guide) => [false, true].forEach((digital) => closeN.forEach((cn) => {
       S = JSON.parse(BASE); Object.assign(S, m, { guide, digital }); S.narEx = Object.assign({}, S.narEx || {}, { close: cn });
       check('닫는 인사 ' + JSON.stringify({ m, guide, digital, close: cn })); }))));
     /* ★[AFTER_SCRIPT_195] 촬영 후 안내 여덟 판(317 ~ 324)이 전체 대본에 글 전체로 · 한 번만(AFTER_IN_SCRIPT_1102 와 합친 뒤 두 벌 금지) */
@@ -52,9 +52,9 @@ try {
     return out; });
   const uniq = (a) => [...new Set(a)];
   const CL = Object.keys(res.files).filter((f) => /_narr-closing/.test(f)).sort(), ONL = Object.keys(res.files).filter((f) => /^62_/.test(f));
-  ok(`잰 상태에 마무리 멘트 열네 판(287 ~ 296 · 325 ~ 328 · ★[CLOSING_CHEER_195] 294 는 응원 한 문장 판으로 다시 쓴다)과 온라인 인사(62)가 다 들어 있다 — ${CL.length} · ${ONL.length}`, CL.length === 14 && ONL.length === 1, CL);
+  ok(`잰 상태에 마무리 멘트 아홉 판(★[INFO_SPLIT_200] 식사 없음 287 · 292 · 325 · 식사 + 예약 시각 342 ~ 344 · 예약 시각 없음 339 ~ 341 · 하객 안내 판은 쉰다)과 온라인 인사(62)가 다 들어 있다 — ${CL.length} · ${ONL.length}`, CL.length === 9 && ONL.length === 1, CL);
   ok(`콘솔이 틀 수 있는 나레이션 ⊆ 식순 화면 나레이션 줄 — 상태 ${res.n}개 · 파일 ${Object.keys(res.files).length}개`, !res.over.length, uniq(res.over).slice(0, 12));
-  ok('[AFTER_SCRIPT_195] 촬영 후 안내 여덟 판(317 ~ 324)이 전체 대본에 글 전체로 한 번씩(두 번 아님) — ' + res.afterN + '판', res.afterN === 8 && !res.after.length, res.after);
+  ok('[AFTER_SCRIPT_195 · INFO_SPLIT_200] 촬영 후 안내 여덟 상태(살아 있는 판 317 · 319 · 324)가 전체 대본에 글 전체로 한 번씩(두 번 아님) — ' + res.afterN + '판', res.afterN === 8 && !res.after.length, res.after);
   ok('콘솔 나레이션 글이 전체 대본에 있다(복사 · 파일 저장)', !res.noScript.length, uniq(res.noScript).slice(0, 12));
   ok(`길어지면 바뀌는 말(alt)이 화면에 «N분이 넘으면 이 말로 바뀌어요» 한 줄로 — 콘솔 alt ${res.alts}곳`, res.alts > 0 && !res.noAlt.length, uniq(res.noAlt).slice(0, 6));
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3));

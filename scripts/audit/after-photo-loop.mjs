@@ -27,7 +27,7 @@ ok('b 마지막 곡 = 이어 트는 목록(M8L) · 1순위 먼저 · 세 곡 모
 
 /* c 화면 글 */
 const SL = fs.readFileSync(path.join(ROOT, 'assets/bgm-slots.js'), 'utf8');
-ok('c 닫는 인사 둘째 줄 — «촬영 후 안내부터 마지막 곡 ‹곡명›이 흐르고, 추가 촬영이 끝날 때까지 이어져요»', SL.indexOf("last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흐르고, 추가 촬영이 끝날 때까지 이어져요'") > -1);
+ok('c 닫는 인사 둘째 줄 — «촬영 후 안내부터 마지막 곡 ‹곡명›이 흐르고, 추가 촬영이 끝날 때까지 이어져요»', SL.indexOf("last: '촬영 후 안내부터 마지막 곡 ‹{f}›{j} 흐르고, 추가 촬영이 끝날 때까지 이어져요'") > -1);
 
 /* d 당일 콘솔 */
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
@@ -61,11 +61,17 @@ try {
   ok('d after-photo GO → 안내 동안 −14 → 끝나면 −8 · 마지막 곡(M8L)', tr.some((x) => x[1] === -14) && tr[tr.length - 1][1] === -8 && tr[tr.length - 1][2] === 'M8L', tr);
   await pg.waitForTimeout(2500);   /* 뒤처리(−8 로 1.5초)가 다 걸린 뒤 */
   const a10 = await pg.evaluate(() => { const b = window.__bgmSt(), s = window.__seg.st(); return { want: b.want, now: b.now, seg: s.seg, id: s.id, paused: s.paused, phase: b.phase, longT: [...window.__longT.values()] }; });
-  ok('d 추가 촬영 동안 −8 · 재생 중 · 긴 예약(30초 이상 · 옛 90초 기다림 → 20초 소거) 0 = 몇 분이 지나도 음악이 그대로', a10.want === -8 && a10.seg === 'M8L' && a10.paused.some((p) => p === false) && !a10.longT.length, a10);
+  /* ★[AFTER_BEFORE_FAMILY_200] 촬영 후 안내 뒤는 가족 구도(사슬 · 현장 육성이라 −18) → 추가 촬영(GO · −12) — 음악은 같은 마지막 곡 목록으로 계속 · 소거 예약 없음 */
+  const LIVE = (w) => w === -8 || w === -18 || w === -12;
+  ok('d 가족 사진 · 추가 촬영 동안 음악 계속(−8 · 가족 구도 −18) · 재생 중 · 긴 예약(30초 이상 · 옛 90초 기다림 → 20초 소거) 0 = 몇 분이 지나도 음악이 그대로', LIVE(a10.want) && a10.seg === 'M8L' && a10.paused.some((p) => p === false) && !a10.longT.length, a10);
   const ids = new Set([a10.id]); for (let z = 0; z < 26; z++) { await pg.waitForTimeout(500); const s = await pg.evaluate(() => window.__seg.st()); ids.add(s.id); }   /* 곡(9초)은 실제 시간으로 흐른다 — 끝 3초 전 다음 곡 */
   const a2 = await pg.evaluate(() => { const b = window.__bgmSt(), s = window.__seg.st(); return { want: b.want, seg: s.seg, id: s.id, list: s.list, paused: s.paused }; });
-  ok('d 곡 끝에서 목록의 다음 곡으로 넘김(13초 동안 두 곡 이상) · 크기 −8 그대로', ids.size >= 2 && a2.want === -8 && a2.seg === 'M8L', { ids: [...ids], a2 });
+  ok('d 곡 끝에서 목록의 다음 곡으로 넘김(13초 동안 두 곡 이상) · 크기 그대로', ids.size >= 2 && a2.want === a10.want && a2.seg === 'M8L', { ids: [...ids], a2 });
   const vol = () => pg.evaluate(() => { const s = window.__seg.st(); return { v: Math.max.apply(null, s.vol.map((x, k) => (s.paused[k] ? 0 : +x || 0))), phase: window.__bgmSt().phase }; });
+  await pg.evaluate(() => window.__bgmGo.tap()); await pg.waitForTimeout(900);   /* [AFTER_BEFORE_FAMILY_200] 가족 구도 → 추가 촬영(GO · 새 코스 마지막 큐 · endHold) */
+  const a3 = await pg.evaluate(() => { const b = window.__bgmSt(), s = window.__seg.st(); return { want: b.want, seg: s.seg, phase: b.phase }; });
+  ok('d 추가 촬영(마지막 큐)에서도 같은 곡 목록이 −12 로 계속 · 저절로 끝나지 않는다(endHold)', a3.want === -12 && a3.seg === 'M8L' && a3.phase !== 'end', a3);
+  await pg.waitForTimeout(2500);
   const h0 = await vol(); const nLog = await pg.evaluate(() => window.__bgmLog.length); await pg.evaluate(() => window.__bgmGo.tap());   /* ■ 끝내기(마지막 큐 뒤 GO) */
   await pg.waitForTimeout(1500); const h1 = await vol(); await pg.waitForTimeout(2200); const h2 = await vol(); const lg = await pg.evaluate((n) => window.__bgmLog.slice(n).map((x) => [x.db, x.ms]), nLog);
   ok('d ■ 끝내기에서만 잦아듦 — 3초에(1.5초엔 아직 들림 · 3.7초엔 끝 · 옛 6초면 3.7초에 아직 들림)', h1.v > 0.005 && h2.v <= 0.005 && h2.phase === 'end' && lg.length === 1 && lg[0][0] === -90 && lg[0][1] === 3000, { h0, h1, h2, lg });

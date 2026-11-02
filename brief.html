@@ -169,10 +169,11 @@ function state(msg){ $('root').innerHTML='<div class="state" role="status">'+nbC
       var nm=(ph.names||[]), ws=ph.wish||null, pc=ph.caller||{}, st='';
       st+='<li><b>전체 하객 한 장</b><span class="sub">늘 첫 컷 · 두 분이 가운데 · 모두 앞으로</span></li>';
       st+='<li><b>꼭 담고 싶은 사진</b><span class="sub">전체 하객 바로 뒤 · 모두 있을 때</span>'+(ws&&ws.length?('<ol>'+ws.map(function(w){ return '<li>'+esc(w.what)+((w.ref&&safeUrl(w.ref)!=='about:blank')?(' · <a href="'+esc(safeUrl(w.ref))+'" target="_blank" rel="noopener noreferrer">참고 링크</a>'):'')+'</li>'; }).join('')+'</ol>'):(ph.wishN?('<span class="sub">두 분이 적은 요청 '+(+ph.wishN)+'개 · 디렉터에게 받아 주세요</span>'):'<span class="sub">적은 요청 없음</span>'))+'</li>';
+      st+='<li><b>촬영 후 안내</b><span class="sub">전체 하객 사진(꼭 담고 싶은 사진까지)을 마치면 진행 화면에서 틀어 주세요 · 마지막 곡이 시작돼요 · 이어서 가족 구도</span></li>';   /* ★[END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200] 전체 단체 사진 → 촬영 후 안내 → 가족 구도 → 추가 촬영 */
       st+='<li><b>감사 인사</b><span class="sub">두 분이 하객 모두께 인사(약 1분) · 나레이션이 가족과 사진을 더 남길 분만 남아 달라고 안내해요</span></li>';
       var who=[pc.groom?('신랑 쪽 · '+esc(pc.groom)):'', pc.bride?('신부 쪽 · '+esc(pc.bride)):''].filter(Boolean).join(' / ');
       st+='<li><b>가족 구도</b><span class="sub">두 분이 고른 순서 · 구도마다 불러 모아 주세요</span>'+(nm.length?('<ol>'+nm.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join('')+'</ol>'):'<span class="sub">고른 구도 없음</span>')+(who?('<span class="sub">불러 모아 주실 분 · '+who+' · 이 분께 먼저 말씀드리면 빨라요</span>'):'')+'</li>';
-      st+='<li><b>남은 분들과 자유롭게</b><span class="sub">남는 시간만큼 · 두 분 숨 고르기 포함</span>'+(String(ph.friend||'').trim()?('<p class="note">'+esc(ph.friend)+'</p>'):'')+'</li>';
+      st+='<li><b>추가 촬영</b><span class="sub">원하시는 분들과 · 남은 사진 시간 동안 · 두 분 숨 고르기 포함</span>'+(String(ph.friend||'').trim()?('<p class="note">'+esc(ph.friend)+'</p>'):'')+'</li>';
       var mn=(ph.win&&ph.win.length===2)?('단체 사진 시간 약 '+(ph.win[0]===ph.win[1]?ph.win[0]:(ph.win[0]+'~'+ph.win[1]))+'분 · '):'';
       h+='<div class="box"><h2>가족 · 친구 스냅 <small style="font-size:12px;font-weight:400;color:var(--light)">본식 뒤</small></h2><p class="mood" style="margin:0 0 10px">'+mn+'지금 계획 약 '+(+ph.mins||0)+'분</p><ol class="steps">'+st+'</ol></div>';
     }
