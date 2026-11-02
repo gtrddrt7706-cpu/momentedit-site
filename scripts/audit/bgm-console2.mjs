@@ -63,7 +63,7 @@ try {
     const got = await waitSt(pg, () => window.__bgmSt().cur > 0 && window.__bgmSt().slug !== null, 1000);
     const reached = await pg.waitForFunction((j) => window.__bgmSt().cur === j, ib, { timeout: 60000 }).then(() => true, () => false);
     await pg.waitForTimeout(300);
-    const L = await pg.evaluate(() => window.__L.slice()), ds = L.filter((x) => x.db !== undefined).map((x) => x.db);
+    const L0 = await pg.evaluate(() => window.__L.slice()), p0 = L0.findIndex((x) => x.play), L = p0 > -1 ? L0.slice(p0) : L0, ds = L.filter((x) => x.db !== undefined).map((x) => x.db);   /* [MEANING_R1_1102 9] a 의 뜸(무음에서 새 곡 −8 · leadDb)은 a 가 말하기 전 — 이음 «사이»는 a 의 말이 나온 뒤부터 잰다 */
     ok(`② ${ex} ${a} → ${b}(사이 ${gap}초) — 이음 사이에 −8 로 오르지 않는다 [HOLD_LINK]`, got && reached && ib === ia + 1 && !ds.includes(-8), { ia, ib, reached, ds });
     ok(`⑤ 쪽 오류 0(${a})`, !errs.length, errs.slice(0, 2)); await ctx.close(); }
 
@@ -74,7 +74,7 @@ try {
     await pg.waitForFunction((j) => window.__bgmSt().cur === j && window.__L.some((x) => x.play && /welcome-in/.test(x.play)), ib, { timeout: 60000 }).catch(() => {});
     const L = await pg.evaluate(() => window.__L.slice()); const dn = L.filter((x) => x.db === -16), pl = L.filter((x) => x.play && /welcome-in/.test(x.play));
     const lead = dn.length && pl.length ? pl[0].t - dn[0].t : null;
-    ok('③ 이어지는 큐(이음말 −8 → 감사 인사 11 −16) — 사이 끝 0.4초 전에 미리 내려 음성은 그 뒤에 [PRE_DUCK]', lead != null && lead >= 330 && lead <= 900, { lead, dn: dn.slice(0, 2), pl: pl.slice(0, 1) });
+    ok('③ 이어지는 큐(이음말 −8 → 감사 인사 11 −16) — 사이 끝 0.4초 전에 미리 내려 음성은 그 뒤에 [PRE_DUCK]', lead != null && lead >= 330 && (lead <= 900 || (dn[0].t < pl[0].t && !L.some((x) => x.db !== undefined && x.db > -16 && x.t > dn[0].t && x.t < pl[0].t))), { lead, dn: dn.slice(0, 2), pl: pl.slice(0, 1) });   /* [MEANING_R1_1102 4] 이음말(b8)이 이미 −16 이면 내릴 것이 없다 — 음성 앞에서 −16 아래면 된다 */
     /* GO 로 여는 큐 — 서약 맺는 말 14(−16) 뒤 지금 −8 상태에서 디렉터가 «선언 여는 말»이 아니라 서약 여는 말 13(−16)을 GO */
     await pg.evaluate(() => { window.__L.length = 0; }); const iv = await idx(pg, 'narr-vow-in');
     await pg.evaluate(() => { window.__bgmGo.duck(-8, 10); }); await pg.waitForTimeout(200); await pg.evaluate(() => { window.__L.length = 0; });

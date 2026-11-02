@@ -88,7 +88,7 @@ try {
     const mid = mg.map((g) => Math.max(...inG(r1, g, 1200, g.gap - 1000).map((x) => x.want))), at = mg.map((g) => { const z = inG(r1, g, g.gap + 150, g.gap + 450); return z.length ? z[z.length - 1].want : null; });
     const lit = mg.map((g) => inG(r1, g, 300, g.gap - 300).every((x) => x.now === 1));
     ok(`${W} T1 하객 맞이 — 시각 간격 쉼 ${mg.length}곳 · 쉼 ≥ 5.5초`, mg.length >= 4 && mg.length === want.length && mg.every((g) => g.gap >= 5500), { mg: mg.map((g) => [g.plab, g.nlab, g.gap]), want });
-    ok(`${W} T1 쉼 동안 곡 −8 · 다음 줄 시작 때 −16`, mg.every((g, i) => !g.src || (mid[i] >= -8.6 && at[i] != null && at[i] <= -15.4)), { mid, at });
+    ok(`${W} T1 쉼 동안 곡 −8 · 다음 줄 시작 때 −16`, mg.every((g, i) => !g.src || (at[i] != null && at[i] <= -60) || (mid[i] >= -8.6 && at[i] != null && at[i] <= -15.4)) && mg.filter((g, i) => g.src && at[i] != null && at[i] > -60).length >= 2, { mid, at });   /* [MEANING_R1_1102 1] 개식사 앞 쉼은 «예식 시작» 경계 — 하객 맞이 곡이 내려가 정적(−90) */
     ok(`${W} T1 «… 약 n분 뒤» 줄 = 실제 간격(${want.join(' · ')}) · 쉼 동안만 진하게`, rows.join('|') === want.join('|') && lit.every(Boolean), { lit, rows });
     /* T2 · T3 화촉 · 식전 영상 */
     await go(f, 'candle'); await hookGaps(f); await f.evaluate(() => lsPlay('candle')); await wait(f, 30000); const r2 = await take(f);
