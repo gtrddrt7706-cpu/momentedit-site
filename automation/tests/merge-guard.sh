@@ -4778,6 +4778,8 @@ chk 'PV_REMOTION_1101' automation/prevideo/README.md 1
 # ★[PV_PARTNER_1101 2026-11-01 사장님 «퀄리티를 보니 우리가 만들면 안 될 거 같아» · «고객이 결제하게 하고 싶지 않아» · «대신 주문은 손이 많이 가 패스 · 협력사와 직접 소통»]
 #   식전 영상 = 외부 협력사 연결형(고객 결제 0 · 우리가 실사용 정산 · 우리 대행 없음) · 위 Remotion 뼈대는 보류(지우지 않는다)
 chk 'PV_PARTNER_1101' automation/prevideo/README.md 1
+# ★[PV_LEVEL2_1102 2026-11-02 사장님 «2단계까지만 가능하면 돼»] 목표 = 협력사 화면을 마이페이지 안에(2단계) · 안 되면 전용 링크(1단계) · 3단계(디자이너 틀 + 우리 엔진)는 안 한다
+chk 'PV_LEVEL2_1102' automation/prevideo/README.md 1
 # ★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식순 화면은 식전 영상 링크를 받지 않는다 —
 #   마이페이지 «식전 영상» 카드가 받는다 · 식순 준비 목록에 할 일 없음(open-course · listen-page · ghi-polish · bgm-form 이 화면까지 잰다)
 chk 'PV_MYPAGE_1102' assets/ritual-open.js 1
