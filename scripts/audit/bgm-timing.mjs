@@ -3,7 +3,7 @@
    a 편지 «음악 없이» — 그 순간만 듣기 = 첫 소리가 여는 말 · 피아노 뜸 없음 · 이어 듣기에서 곡이 흐르다 오면 1.5초에 −90 → 정적 1초 → 여는 말
    b 편지 끝 → 부모님께 인사 — 편지 곡(M4) 되살림 0 · 정적 2초 뒤 부모님께 인사 곡이 무음에서 3초에(당일 콘솔 · 미리 듣기)
    c 축사 · 축가 맺는 말 «… 박수 부탁드립니다» −90 · 박수에서 1.5초에 −8(«음악과 함께» 축사는 맺는 말 −16)
-   d 크기 — 축사 여는 말 −16 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 마지막 한 문장 −20 · 축배 여는 말 · «위하여» −16(잔 나누는 이음말 −8 그대로)
+   d 크기 — 축사 여는 말 −16 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 마지막 한 문장 −20 · 축배 여는 말 · «위하여» −16(잔 나누는 이음말 말 −16 · 40초 −8 · MEANING_R1_1102 12)
    e 축배만 듣기 뜸 곡 = 테이블 인사 곡(담겼으면) · 아니면 축배 바로 앞 순간의 곡(종전 닫는 인사 곡)
    f 귀가 인사 — 나레이션 끝 1.5초에 −8 → 90초 → 20초 소거
    BP_CUE · BP_OP · BP_BED · BP_CON = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -86,9 +86,9 @@ try {
   /* ── 엔진 값(당일 콘솔 · 미리 듣기 공통 원천) ── */
   { const S = { on: { vow: 1, ring: 1, free: 1, song: 1, letter: 1, tribute: 1, toast: 1, table: 1, welcome: 1, declare: 1 }, freeWhat: 'speech', song: 'family', songBy: 'friend', tributeSay: 'short' }, cs = B(S);
     const fi = by(cs, 'narr-free-in-speech'), ri = by(cs, 'narr-ring-in'), ti = by(cs, 'tribute-in'), tt = by(cs, 'toast-toast'), b13 = by(cs, 'bridge-b13-toast-stay'), b10 = by(cs, 'bridge-b10-speech-clap'), se = cs.find((c) => /^narr-song-end/.test(c.slug || '')) || {}, vi = by(cs, 'narr-vow-in');
-    ok('d 축사 여는 말 −16 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 낭독 −20 · 축배 여는 말 · «위하여» −16 · 잔 나누는 이음말 −8 그대로',
-      fi.duck === -16 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -20 && vi.live && vi.live.duck === -20 && tt.duck === -16 && tt.live && tt.live.duck === -16 && b13.duck === -8,
-      { fi: fi.duck, ri: ri.live && ri.live.duck, ti: ti.live && ti.live.duck, tt: [tt.duck, tt.live && tt.live.duck], b13: b13.duck });
+    ok('d 축사 여는 말 −16 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 낭독 −20 · 축배 여는 말 · «위하여» −16 · 잔 나누는 이음말 말 −16 · 잔 나누는 40초 −8(MEANING_R1_1102 12)',
+      fi.duck === -16 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -20 && vi.live && vi.live.duck === -20 && tt.duck === -16 && tt.live && tt.live.duck === -16 && b13.duck === -16 && b13.live && b13.live.duck === -8,
+      { fi: fi.duck, ri: ri.live && ri.live.duck, ti: ti.live && ti.live.duck, tt: [tt.duck, tt.live && tt.live.duck], b13: [b13.duck, b13.live && b13.live.duck] });
     ok('c 축사 · 축가 맺는 말 −90(«음악 없이») · 박수 = −8 을 1.5초에', b10.duck === -90 && b10.live && b10.live.duck === -8 && b10.live.upMs === 1500 && se.duck === -90 && se.live && se.live.duck === -8 && se.live.upMs === 1500, { b10: [b10.duck, b10.live], se: [se.slug, se.duck, se.live && se.live.upMs] });
     const b10b = by(B(Object.assign({}, S, { bgm: { S5: { m: 'bed' } } })), 'bridge-b10-speech-clap');
     ok('c 축사 «음악과 함께»(M4S5)인 날은 맺는 말 −16 · 박수 −8', b10b.duck === -16 && b10b.live && b10b.live.duck === -8, [b10b.duck, b10b.live && b10b.live.duck]);

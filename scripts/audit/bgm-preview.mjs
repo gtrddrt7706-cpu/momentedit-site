@@ -179,8 +179,8 @@ try {
     const tb6 = await f.evaluate(() => BgmBed._t.toastBed ? BgmBed._t.toastBed() : '');
     ok(`${W} D6 축배 — «위하여» 전은 테이블 · 앞 순간 곡(${tb6}) · 뒤는 축배 곡(B28) · 축배 크기(0)`, ch > -1 && !!tb6 && tb6 !== 'B17' && pre.length > 0 && pre.every((x) => x.f === tb6) && post.some((x) => x.f === 'B28' && x.want === 0), { ch, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.f + ':' + x.want))].slice(0, 20) });
     /* 6 축사 · 편지 */
-    await go(f, 'free'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x) => x.talk && x.src);
-    ok(`${W} 6 축사 «음악 없이» — 말씀 동안 −90 · 곡 B09(감사 인사 1순위)`, t7.length && t7.every((x) => x.want === -90 && x.f === 'B09'), t7.slice(0, 3));
+    await go(f, 'free'); const dk7 = await f.evaluate(() => BgmBed.dayAt('free') || 'B09'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x) => x.talk && x.src);   /* ★[SCREEN_SOUND_1102 2] 축사만 들으면 당일 시간표 그 자리 곡 */
+    ok(`${W} 6 축사 «음악 없이» — 말씀 동안 −90 · 곡 ${dk7}(본식 목록 그 자리 곡)`, t7.length && t7.every((x) => x.want === -90 && x.f === dk7), t7.slice(0, 3));
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 400); const rs = await row(f, 'M4S5');
     await shot(f, W, 'free', '.ls-bgm[data-slot="S5"]');
     ok(`${W} 6 축사 «음악과 함께» → 그 아래 곡 고르기(3) · 아래 «준비해요» 줄 없음`, rs && rs.n === 3 && rs.note === '', rs);
