@@ -2329,7 +2329,7 @@ chk 'PREP_WHERE: PREP_WHERE' assets/ritual-open.js 1
 chk 'R4-06' mypage.html 1
 chk 'R4-02' admin.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/restart-tomb.mjs >/dev/null 2>&1 || { echo 'FAIL restart-tomb: «모두 비우기» 뒤 지운 글이 서버 합치기에서 되살아납니다 — node scripts/audit/restart-tomb.mjs'; fail=1; }; fi
-chk 'LP.q=LP.fast?_q0:_lRefExpand(_q0)' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
+chk 'LP.q=LP.fast?_q0:_prc?_prQ(ks):_lRefExpand(_q0)' order-preview.html 1   # [보충 중7] 연습은 _prQ(안에서 _lRefExpand) ·       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
 chk 'NOW_ONELINE' mypage.html 1                          # NOW 헤드라인 한 줄 원칙 + balance 안전망 · 빼면 '주세요' 3자만 둘째 줄에 남는 고아 줄이 돌아온다
@@ -19454,7 +19454,7 @@ chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
-chk "quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
+chk "quiet:true,who2:_lQuietWho(k,c.slug||''),ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
 chk "txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
 chk "txt:'여기서 '+_lpNoT(t),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
@@ -19513,7 +19513,7 @@ chk "tribute: '두 분이 부모님께 인사하고 안아 드려요', free:" as
 nochk "인사하고 안겨요'" assets/ritual-open.js                                      # 동작 말 하나(안아 드려요)
 nochk "인사하고 안겨요'" order-preview.html
 nochk '부모님께 다가가 인사하고 안겨요' assets/ritual-story.js
-chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말없이 흐르는 자리',txt:cs.some(" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤 · [TRIB_HUG_LINE_1018] 포옹 줄이 있는 날은 인사만
+chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말없이 흐르는 자리',who2:'couple',txt:cs.some(" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤 · [TRIB_HUG_LINE_1018] 포옹 줄이 있는 날은 인사만
 chk "if(k==='tribute'&&/^tribute-call/.test(sl)) return '두 분이 부모님께 인사해요'" order-preview.html 1   # 말 → 인사 → 포옹 · [TRIB_HUG_LINE_1018 검토 131-4] 포옹은 256 뒤 줄
 chk "tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:300}," order-preview.html 1
 chk 'TRIB_PICK_CHIP_1013' assets/ritual-cue.js 3
@@ -21273,7 +21273,7 @@ nochk 'if(pz&&prKeep()) return;' assets/bgm-bed.js
 # ── 2026-11-02 [PR_WAY_198 검토 198-2] ⑨ 이 순간만 연습(끝나면 한 번 더 / 다음 순간 · 한 번 더 = lpCut 으로 같은 시작점) · ⑩ 입장 «입장!» 앞 5초 준비(따로 시계) · 입장 걷기는 B 에서 기다림 · ⑪ 이어서 연습(문장 자리 · 자동 재생 없음 · 순서 바뀌면 바뀐 순간부터)
 chk 'function _prOnlyGo(k)' order-preview.html 1
 chk 'function _prPrep(st)' order-preview.html 1
-chk "if(st.act&&!st.hint&&st.k==='entry') return true;" order-preview.html 1
+chk "if(st.act&&!st.hint&&st.who2) return /^(couple|groom|bride)$/.test(st.who2);" order-preview.html 1   # [보충 상1] 입장 걷기도 행위자 데이터(couple)로
 chk 'function _prAtGet()' order-preview.html 1
 chk 'data-fk="prres"' order-preview.html 1
 chk 'lpCut:function()' assets/bgm-bed.js 1
