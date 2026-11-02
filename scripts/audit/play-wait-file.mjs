@@ -95,14 +95,14 @@ try {
     await pg.evaluate(() => { lsStop(); RitualOpen.FEATURE.practiceTts = false; render(); }); await wait(300);
     ok(`${w} C 연습 읽기 스위치가 꺼지면 고르기 없음(직접뿐)`, await pg.evaluate(() => !document.querySelector('.pr-mode')));
     await pg.evaluate(() => { try { localStorage.removeItem('me_pr_mode'); } catch (e) {} PT.mode = 'self'; });
-    // [TURN_BREATH] 말하는 차례 앞 숨(1.6초) — 화면은 먼저 바뀌고 소리 · 시계는 뒤에 · [TBAR_ALWAYS] 멈춤에도 막대 자리
+    // [TURN_BREATH] 말하는 차례 앞 숨(연습은 공통 진행 상수 표 «안내 → 두 분 말» 3.0초에서 파일 뒤 무음을 뺀 값 · [PR_WAY_198 보충 상2]) — 화면은 먼저 바뀌고 소리 · 시계는 뒤에 · [TBAR_ALWAYS] 멈춤에도 막대 자리
     await pg.evaluate(() => { PT.mode = 'self'; try { localStorage.setItem('me_pr_mode', 'self'); } catch (e) {} lsStop(); prFrom('vow', 1); }); await wait(500);
-    const tb = await pg.evaluate(() => { const j = LP.q.findIndex((x, i) => i > 0 && x.talk2 && !LP.q[i - 1].talk2); LP.i = j - 1; LP.paused = false; const t0 = Date.now(); _lNext(); return { j, at: LP.i, k: (LP.q[LP.i] || {}).k, talk2: !!(LP.q[LP.i] || {}).talk2, cue: !!document.querySelector('#lsFull .lf-cue'), tAt: LP.tAt }; });
+    const tb = await pg.evaluate(() => { const j = LP.q.findIndex((x, i) => i > 0 && x.talk2 && !LP.q[i - 1].talk2); LP.i = j - 1; LP.paused = false; const t0 = Date.now(); _lNext(); return { j, at: LP.i, k: (LP.q[LP.i] || {}).k, talk2: !!(LP.q[LP.i] || {}).talk2, cue: !!document.querySelector('#lsFull .lf-cue'), tAt: LP.tAt, gap: _lGapOf(LP.q, LP.i, LP.q[LP.i - 1], LP.q[LP.i], LP.pace).gap }; });
     await wait(700);
     const tb1 = await pg.evaluate(() => ({ tAt: LP.tAt }));
-    await wait(1300);
+    await wait(Math.max(1300, tb.gap - 700 + 600));
     const tb2 = await pg.evaluate(() => ({ tAt: LP.tAt, bar: !!document.querySelector('#lsFull .lf-tbar') }));
-    ok(`${w} 말하는 차례 앞 1.6초 숨 — 화면은 바로 «신랑 차례 · 할 일» · 시계는 숨 뒤에 [TURN_BREATH]`, tb.talk2 && tb.cue && !tb.tAt && !tb1.tAt && tb2.tAt > 0 && tb2.bar, JSON.stringify({ tb, tb1, tb2 }));
+    ok(`${w} 말하는 차례 앞 숨(상수 표 · 1초 넘게) — 화면은 바로 «신랑 차례 · 할 일» · 시계는 숨 뒤에 [TURN_BREATH]`, tb.talk2 && tb.cue && tb.gap > 1000 && !tb.tAt && !tb1.tAt && tb2.tAt > 0 && tb2.bar, JSON.stringify({ tb, tb1, tb2 }));
     await pg.evaluate(() => { lsToggle(); }); await wait(300);
     ok(`${w} 멈춰도 말하는 차례엔 막대 자리가 남는다 [TBAR_ALWAYS]`, await pg.evaluate(() => LP.paused && !!document.querySelector('#lsFull .lf-tbar.still')));
     await pg.evaluate(() => lsStop()); await wait(300);

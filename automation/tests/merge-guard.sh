@@ -2329,7 +2329,7 @@ chk 'PREP_WHERE: PREP_WHERE' assets/ritual-open.js 1
 chk 'R4-06' mypage.html 1
 chk 'R4-02' admin.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/restart-tomb.mjs >/dev/null 2>&1 || { echo 'FAIL restart-tomb: «모두 비우기» 뒤 지운 글이 서버 합치기에서 되살아납니다 — node scripts/audit/restart-tomb.mjs'; fail=1; }; fi
-chk 'LP.q=LP.fast?_q0:_lRefExpand(_q0)' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
+chk 'LP.q=LP.fast?_q0:_prc?_prQ(ks):_lRefExpand(_q0)' order-preview.html 1   # [보충 중7] 연습은 _prQ(안에서 _lRefExpand) ·       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
 chk 'NOW_ONELINE' mypage.html 1                          # NOW 헤드라인 한 줄 원칙 + balance 안전망 · 빼면 '주세요' 3자만 둘째 줄에 남는 고아 줄이 돌아온다
@@ -19454,7 +19454,7 @@ chk 'BGM_R3_1023' scripts/audit/bgm-form.mjs 10
 chk "if (k === 'prevideo') return null;" assets/bgm-slots.js 1
 chk "var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 }," assets/bgm-slots.js 1   # [BGM_R5_1023] 뒤에 speech · letter 가 붙었다
 chk 'function flowFind(at, st)' assets/bgm-slots.js 1
-chk "quiet:true,ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
+chk "quiet:true,who2:_lQuietWho(k,c.slug||''),ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:" order-preview.html 1   # [LISTEN_PACE_1031] est = 행동 줄 실제 시간
 chk "txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk · cheer 가 붙는다
 chk "txt:'여기서 '+_lpNoT(t),talk:true,ms:3000,of:c.slug||''" order-preview.html 1   # [BGM_PREVIEW_1024] 뒤에 ldk 가 붙는다
 chk '<p class="mk-note mk-pvsnd">보내 주신 영상은 영상 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요</p>' order-preview.html 1
@@ -19513,7 +19513,7 @@ chk "tribute: '두 분이 부모님께 인사하고 안아 드려요', free:" as
 nochk "인사하고 안겨요'" assets/ritual-open.js                                      # 동작 말 하나(안아 드려요)
 nochk "인사하고 안겨요'" order-preview.html
 nochk '부모님께 다가가 인사하고 안겨요' assets/ritual-story.js
-chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말없이 흐르는 자리',txt:cs.some(" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤 · [TRIB_HUG_LINE_1018] 포옹 줄이 있는 날은 인사만
+chk "if(k==='tribute'&&!cs.some(function(x){ return /^tribute-call/.test(x.slug||''); })) out.push({k:k,lab:'말없이 흐르는 자리',who2:'couple',txt:cs.some(" order-preview.html 1   # ★[TRIB_CALL_1014] 새 코스는 구호 줄 뒤 · [TRIB_HUG_LINE_1018] 포옹 줄이 있는 날은 인사만
 chk "if(k==='tribute'&&/^tribute-call/.test(sl)) return '두 분이 부모님께 인사해요'" order-preview.html 1   # 말 → 인사 → 포옹 · [TRIB_HUG_LINE_1018 검토 131-4] 포옹은 256 뒤 줄
 chk "tribute:{nm:'부모님께 인사',leg:'tributeText',chk:'',lim:300}," order-preview.html 1
 chk 'TRIB_PICK_CHIP_1013' assets/ritual-cue.js 3
@@ -21273,7 +21273,7 @@ nochk 'if(pz&&prKeep()) return;' assets/bgm-bed.js
 # ── 2026-11-02 [PR_WAY_198 검토 198-2] ⑨ 이 순간만 연습(끝나면 한 번 더 / 다음 순간 · 한 번 더 = lpCut 으로 같은 시작점) · ⑩ 입장 «입장!» 앞 5초 준비(따로 시계) · 입장 걷기는 B 에서 기다림 · ⑪ 이어서 연습(문장 자리 · 자동 재생 없음 · 순서 바뀌면 바뀐 순간부터)
 chk 'function _prOnlyGo(k)' order-preview.html 1
 chk 'function _prPrep(st)' order-preview.html 1
-chk "if(st.act&&!st.hint&&st.k==='entry') return true;" order-preview.html 1
+chk "if(st.act&&!st.hint&&st.who2) return /^(couple|groom|bride)$/.test(st.who2);" order-preview.html 1   # [보충 상1] 입장 걷기도 행위자 데이터(couple)로
 chk 'function _prAtGet()' order-preview.html 1
 chk 'data-fk="prres"' order-preview.html 1
 chk 'lpCut:function()' assets/bgm-bed.js 1
@@ -21285,6 +21285,17 @@ chk 'PR_WAY_198 ⑫' role.html 1
 chk 'noindex, nofollow' role.html 1
 nochk 'fetch(' role.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way3.mjs >/dev/null 2>&1; _prw3=$?; if [ "$_prw3" = 1 ]; then echo 'FAIL pr-way3: 역할 전달하기(복사 글 · 읽기 전용 쪽)가 어긋났습니다 — node scripts/audit/pr-way3.mjs'; fail=1; fi; fi
+# ── 2026-11-02 [PR_WAY_198 보충 · 1단계 검수 7건] 상1 행위자 데이터(who2) · 상2 진행 상수 표(window.RunPace · _lGapOf 한 곳) · 상3 B 대기 −20 · 중4 재생 중 토글 · 중5 머리 20px · 긴 대사 24~28 · 중6 촬영 후 안내 칩 · 목록 · 중7 연습 시간 = _prQ 같은 줄
+chk 'function _lQuietWho(k,sl)' order-preview.html 1
+chk 'window.RunPace=window.RunPace||' order-preview.html 1
+chk 'function _lGapOf(q,i,_pv,_nx,pace)' order-preview.html 1
+chk 'var _go=_lGapOf(LP.q,LP.i,_pv,_nx,LP.pace)' order-preview.html 1
+chk 'function _prWaitLv(st)' order-preview.html 1
+chk 'window.prWay=function(w)' order-preview.html 1
+chk 'function _prEstMs(ks)' order-preview.html 1
+chk 'data-fk="prj:_after"' order-preview.html 1
+nochk "say md" order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way4.mjs >/dev/null 2>&1; _prw4=$?; if [ "$_prw4" = 1 ]; then echo 'FAIL pr-way4: 연습 보충(행위자 · 진행 상수 · 토글 · 식후 · 연습 시간)이 어긋났습니다 — node scripts/audit/pr-way4.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
@@ -21692,7 +21703,7 @@ chk "ramp(BED.cur,-90,2000); return; }   /\\* ★\\[PREVIDEO_AFTER_1101\\]" asse
 chk "if(st.after){ var _f8='', _l8=P.PICKS.M8L||" assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L 목록 차례)
 chk 'if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }' assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 앞 곡 2초 내림 · 마지막 곡은 무음에서
 chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1   # [MEANING_R1_1102 14] 닫는 인사 2초 내림
-chk "if(LP.pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
+chk "if(pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
 chk 'if(x.cheer) _lt.cheer=true;' order-preview.html 1   # [MEANING_R1_1102 13] 나눈 차례 마지막 줄이 «위하여» 표시를 잇는다
 chk "duck: PARAM.duckSpeech,   /\* \[MEANING_R1_1102 15\]" assets/ritual-cue.js 2   # [MEANING_R1_1102 15] 온라인 인사 −16 · 두 분 −20
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
