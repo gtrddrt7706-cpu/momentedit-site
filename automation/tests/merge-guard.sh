@@ -21622,7 +21622,7 @@ chk "doing: 'move', duck: -12 }" assets/ritual-cue.js 1
 chk "self: true, doing: 'say', duck: PARAM.duckRead /\* ★\[BGM_TIMING_1101\]" assets/ritual-cue.js 1
 chk "c.duck = PARAM.duckSpeech; if (c.live) c.live.duck = PARAM.duckSpeech; }" assets/ritual-cue.js 1
 chk "function clapUp(l) { l.upMs = 1500; return l; }" assets/ritual-cue.js 1
-chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }" assets/ritual-cue.js 2
+chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }, { wait: PARAM.goodbye.outroHoldMs }" assets/ritual-cue.js 1   # [AFTER_PHOTO_LOOP_1102] 옛 코스 귀가 인사만 90초 → 20초
 chk "{ music: 'next', v: PARAM.duckSpeech, ms: PARAM.letter.musicUpMs, nextMs: 3000 }" assets/ritual-cue.js 1
 chk "if (st.music === 'next') {" console.html 1
 chk 'function toastBed(){' assets/bgm-bed.js 1
@@ -21712,12 +21712,23 @@ chk 'return sec?Math.round(sec*1000):_dwellMs(x,true); }' order-preview.html 1  
 chk "if(!st._base&&!entMulti()&&BED.who!=='card'){ var _dk=dayAt(st.k); if(_dk) return _dk; }" assets/bgm-bed.js 1   # [SCREEN_SOUND_1102] 순간 하나 = 당일 시간표 그 자리 곡
 chk "near: '이 순서 즈음엔 ‹{f}›'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 본식 순간 곡 이름(소리와 같은 함수)
 chk "song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 축가 음악 줄
-chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 닫는 인사 둘째 줄
+chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흐르고, 추가 촬영이 끝날 때까지 이어져요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 닫는 인사 둘째 줄
 chk 'dayName:function(k){ try{ return window.BgmBed' assets/bgm-form.js 1   # [SCREEN_SOUND_1102] 화면 곡 이름 = 엔진
 chk 'if(pv&&nx&&pv.k!==nx.k&&BED.cur.want!=null&&BED.cur.want<=-60) return;' assets/bgm-bed.js 1   # [SILENT_STAY_1102] 정적이던 앞 곡은 순간이 바뀌어도 올리지 않는다
 chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 줄도 곡 넘김을 놓치지 않는다(겹침 중 «말 끊김» 기억)
 chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
 chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
 chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
-chk "detail-r4 screen-bgm' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+chk "detail-r4 screen-bgm after-photo-loop' }" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
+# ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 촬영 후 안내 뒤 추가 촬영 동안 마지막 곡 목록이 이어진다 · ■ 끝내기에서만 3초에 잦아듦
+chk 'AFTER_PHOTO_LOOP_1102' assets/ritual-cue.js 2
+chk "post: \[{ music: 'to', v: PARAM.duckMusic, ms: 1500 }\]   /\* ★★\[AFTER_PHOTO_LOOP_1102" assets/ritual-cue.js 1
+chk "endHold: !!o.endHold," assets/ritual-cue.js 1
+chk "else if (!nx && !(c.endHold && MODE !== 'preview')) later(finish, PARAM.gapMs);" console.html 1
+chk "duckTo(PARAM.duckOff, 3000);   /\* ★\[AFTER_PHOTO_LOOP_1102\]" console.html 1
+chk "{ id: 'M8L', nm: '마지막 곡', parent: 'M8', last: true, loop: true," assets/bgm-picks.js 1
+chk "'M6', 'M8L'\];   /\* \[AFTER_PHOTO_LOOP_1102\]" assets/bgm-picks.js 1
+chk "M8L: 1e9 }" assets/bgm-picks.js 1
+chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›이 흐르고, 추가 촬영이 끝날 때까지 이어져요'," assets/bgm-slots.js 1
+chk 'AFTER_PHOTO_LOOP_1102' scripts/audit/after-photo-loop.mjs 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

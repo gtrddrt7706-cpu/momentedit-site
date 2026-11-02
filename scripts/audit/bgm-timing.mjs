@@ -95,7 +95,8 @@ try {
     const le = by(cs, 'narr-letter-end'), lb = by(B(Object.assign({}, S, { bgm: { S6: { m: 'bed' } } })), 'narr-letter-end');
     ok('b 편지 끝(음악 없이) post = 정적 2초 → 다음 곡(next · 3초) · «음악과 함께»는 정적 없이 다음 곡으로 3초 겹침(★[BGM_TIMING2_1101] 종전 «−16 그대로» → xf)', JSON.stringify(le.post) === JSON.stringify([{ wait: 2000 }, { music: 'next', v: -16, ms: 4000, nextMs: 3000 }]) && JSON.stringify(lb.post) === JSON.stringify([{ music: 'next', v: -16, ms: 4000, nextMs: 3000, xf: true }]), { le: le.post, lb: lb.post });
     const gb = cs.filter((c) => c.k === '_goodbye' && c.post && c.post.length).pop() || {};
-    ok('f 귀가 인사 — 나레이션 끝 1.5초에 −8 → 90초 → 20초 소거', JSON.stringify(gb.post) === JSON.stringify([{ music: 'to', v: -8, ms: 1500 }, { wait: 90000 }, { music: 'to', v: -90, ms: 20000 }]), gb.post); }
+    const ap = /^after-photo/.test(gb.slug || '');   /* ★[AFTER_PHOTO_LOOP_1102] 촬영 후 안내 = −8 로 올리고 ■ 끝내기까지 계속(자동 소거 없음) · 옛 코스 귀가 인사는 종전 90초 → 20초 */
+    ok('f 귀가 인사 — 나레이션 끝 1.5초에 −8 → (촬영 후 안내) 끝내기까지 계속 · (옛 귀가 인사) 90초 → 20초 소거', JSON.stringify(gb.post) === JSON.stringify(ap ? [{ music: 'to', v: -8, ms: 1500 }] : [{ music: 'to', v: -8, ms: 1500 }, { wait: 90000 }, { music: 'to', v: -90, ms: 20000 }]), { slug: gb.slug, post: gb.post }); }
   /* ── 미리 듣기(마이페이지 안 식순 화면) ── */
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
