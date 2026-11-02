@@ -80,7 +80,7 @@ try {
     /* ★★[SCENE_AT_194 · SCENE_ALT_193 검토 193 · 194] ① 고르는 화면 — 기본 접힘 칩 «장면 사진 N» · 펼치면 사진 + 구도 한 줄만(대표 · 설명은 alt) · 여러 장 넘겨 보기 */
     const c0 = await pg.evaluate(() => { const sc = document.querySelector('#pvScene .ps'), ch = sc && sc.querySelector('.ps-chip'), car = sc && sc.querySelector('.ps-car');
       return { n: Math.max(1, +RitualOpen.SCENE_N.matjeol || 1), at: RitualOpen.SCENE_AT, h: sc && sc.querySelector('.ps-h').textContent, chip: ch ? ch.textContent : '', exp: ch ? ch.getAttribute('aria-expanded') : '', hid: car ? car.hidden : null, vis: car ? car.getBoundingClientRect().height : -1 }; });
-    ok(`${vp.tag} ① 창 맞절 — 처음엔 접힌 칩 «장면 사진 N»만(사진 · 글 안 보임) [SCENE_AT_194 · SCENE_DRAMA_ONLY]`, c0.at === 'pick' && c0.h === '이 순간에 담을 수 있는 장면' && c0.chip === '장면 사진 ' + c0.n &&   /* ★[SCENE_EXTRA_195] 장수는 SCENE_N 그대로(맞절 3) */ c0.exp === 'false' && c0.hid === true && c0.vis === 0, JSON.stringify(c0));
+    ok(`${vp.tag} ① 창 맞절 — 처음엔 접힌 칩 «장면 사진 N»만(사진 · 글 안 보임) [SCENE_AT_194 · SCENE_DRAMA_ONLY]`, c0.at === 'pick' && c0.h === '이 순간에 담을 수 있는 장면' && c0.chip === '장면 사진 ' + c0.n + '장 보기' &&   /* [PV_FOOT_MIN_1102] 글 고리 */   /* ★[SCENE_EXTRA_195] 장수는 SCENE_N 그대로(맞절 3) */ c0.exp === 'false' && c0.hid === true && c0.vis === 0, JSON.stringify(c0));
     await pg.evaluate(() => { document.querySelector('#pvScene .ps-chip').click(); }); await wait(400); await shot('1-matjeol');
     const m = await pg.evaluate(() => { const sc = document.querySelector('#pvScene .ps'), car = sc.querySelector('.ps-car'), fig = sc.querySelector('.ps-fig'), img = fig && fig.querySelector('img');
       const act = document.querySelector('#pvAct');

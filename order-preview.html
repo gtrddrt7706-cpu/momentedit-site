@@ -1015,7 +1015,8 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ps-alt{margin:0;padding:12px 14px;border-radius:10px;background:var(--bg2);font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
 .ps-fine{margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all}
 /* [SCENE_AT_194] ① 고르는 화면 — 접힌 칩 · 넘겨 보기 */
-.ps.ps-pk{padding-top:10px}
+.ps.ps-pk{margin-top:6px;padding-top:0;border-top:0}   /* ★[PV_FOOT_MIN_1102] ① 창 — 선을 하나 덜고 칩은 글 고리로(장면 사진은 곁가지라 단추 무게를 주지 않는다) */
+.ps-pk .ps-chip{min-height:44px;padding:0 2px;border:0;border-radius:0;background:none;color:var(--gold-deeper);font-size:13.5px;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 .ps .vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ps-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
 .ps-chip::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 2px}
@@ -1041,7 +1042,6 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .pv-add{flex:1;background:#4E3F31;border:0;color:#fff}
 .pv-add.out{flex:0 0 auto;background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
 .pv-in{flex:1;text-align:right;font-size:14px;font-weight:600;color:var(--ink2)}
-.pv-fixed{flex:1;text-align:right;font-size:12.5px;color:var(--light)}
 .pv-fn{font-size:12.5px;color:var(--light);margin:10px 0 0;text-align:center}
 /* 예시 확인 알림 줄 — 3초 · [UNDO_OFF] 되돌리기 단추 없음 */
 .pk-undo{position:fixed;left:50%;bottom:calc(128px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);background:#4E3F31;color:#fff;font-size:12.5px;font-weight:500;border-radius:999px;padding:12px 22px;box-shadow:0 6px 20px rgba(58,45,34,.18);word-break:keep-all;pointer-events:none}   /* [UNDO_OFF] 단추가 없으니 여백을 고르게 · 누를 것이 없어 아래를 가리지 않게 터치는 통과 */
@@ -9322,7 +9322,7 @@ function _psBox(k,mode){ var R=RitualOpen, x=R.sceneOf&&(!R.sceneShow||R.sceneSh
   var ims=(x.imgs&&x.imgs.length)?x.imgs:(x.img?[x.img]:[]), n=ims.length, i=Math.min(PSC.i[k]||0,Math.max(0,n-1)), id='ps_'+mode+'_'+k.replace(/[^a-z]/g,''), fold=mode==='pv', open=!fold||!!PSC.open[k];
   if(!n) return '';   /* 사진이 없는 장면은 상자째 없다(보이는 글이 구도 한 줄뿐이라) */
   var h='<section class="ps'+(fold?' ps-pk':'')+'" data-ps="'+esc(x.id)+'" data-psk="'+k+'" aria-labelledby="'+id+'"><h4 class="ps-h'+(fold?' vh':'')+'" id="'+id+'">이 순간에 담을 수 있는 장면</h4>';
-  if(fold) h+='<button type="button" class="ps-chip" aria-expanded="'+open+'" aria-controls="'+id+'c" data-fk="pschip:'+k+'" onclick="psToggle(\''+k+'\')">장면 사진 '+n+'</button>';
+  if(fold) h+='<button type="button" class="ps-chip" aria-expanded="'+open+'" aria-controls="'+id+'c" data-fk="pschip:'+k+'" onclick="psToggle(\''+k+'\')">장면 사진 '+n+'장 보기</button>';   /* ★[PV_FOOT_MIN_1102 사장님 «여기 부분 미니멀하게» → «추천대로»] 알약 칩 → 글 고리 «장면 사진 N장 보기 ⌄» · 위 가는 선 없음 */
   h+='<div class="ps-car" id="'+id+'c"'+(open?'':' hidden')+'>';
   h+='<div class="ps-view"'+(n>1?' tabindex="0" role="group" aria-roledescription="넘겨 보기" aria-label="장면 사진 '+n+'장" onkeydown="psKey(event,\''+k+'\')" ontouchstart="psTs(event)" ontouchend="psTe(event,\''+k+'\')"':'')+'>'
     +'<button type="button" class="ps-fig" data-fk="psfig:'+k+'" onclick="psZoom(\''+k+'\',this)" aria-label="'+esc(x.rep+' · 크게 보기')+'"><img src="'+esc(ims[i].small)+'" alt="'+esc(_psAlt(x))+'" loading="lazy" decoding="async" onerror="_psImgErr(this)"></button></div>';
@@ -9368,7 +9368,7 @@ function _pvActs(ln){
   var a=el.querySelector('#pvAct'), had=!!(document.activeElement&&a.contains(document.activeElement)), wasAgain=had&&document.activeElement.classList.contains('pv-again');
   var always=!!R.ALWAYS[k]||k==='_close'||k==='_after', on=always||R.onOf(S,k);   /* [AFTER_FIX_196] */
   a.innerHTML='<button type="button" class="pv-again" onclick="_pvPlay()">'+ICO_AGAIN+' '+((ln&&ln.src)?'다시 듣기':'처음부터')+'</button>'   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
-    +(always?'<span class="pv-fixed">늘 있는 순간이에요</span>'
+    +(always?''   /* ★[PV_FOOT_MIN_1102] «늘 있는 순간이에요»는 뺐다 — 담기 · 빼기 단추가 없는 것으로 충분하다(늘 있는 순간은 고를 일이 없다) */
       :(on?'<span class="pv-in">✓ 담겨 있어요</span><button type="button" class="pv-add out" onclick="opTgl(\''+k+'\')">빼기</button>'
           :'<button type="button" class="pv-add" onclick="opTgl(\''+k+'\')">'+'이 순간 담기'+'</button>'));
   if(had){ var f=a.querySelector(wasAgain?'.pv-again':'.pv-add')||a.querySelector('button'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }

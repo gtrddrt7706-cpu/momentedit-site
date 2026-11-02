@@ -21124,7 +21124,7 @@ chk "var SCENE_AT = 'pick';" assets/ritual-open.js 1
 chk 'var SCENE_N = {' assets/ritual-open.js 1   # [SCENE_EXTRA_195] 장수 표(빈 표 → 11장면 3)
 chk 'function sceneImgs(id)' assets/ritual-open.js 1
 chk "if((mode==='pv'&&at!=='pick')||(mode!=='pv'&&at!=='step')) return '';" order-preview.html 1
-chk '장면 사진 '"'"'+n+'"'"'</button>' order-preview.html 1
+chk '장면 사진 '"'"'+n+'"'"'장 보기</button>' order-preview.html 1   # [PV_FOOT_MIN_1102] 칩 → 글 고리
 chk "function _psAlt(x){ return x.rep+' · '+x.desc; }" order-preview.html 1
 chk 'window.psKey=function(e,k)' order-preview.html 1
 chk "p.className='ps-alt'; p.textContent=img.alt" order-preview.html 1
@@ -21735,4 +21735,8 @@ chk ".mk-status.nn .mk-sh{display:none}" order-preview.html 1
 chk ".mk-status.np .mk-pre{display:none}" order-preview.html 1
 chk "body.mkd .mk-status{flex:1 1 0;max-width:calc(50% - 4px)}" order-preview.html 1
 chk ".mk-status .mk-num{position:relative;top:.06em}" order-preview.html 1
+# ★[PV_FOOT_MIN_1102 사장님 «여기 부분 미니멀하게 정리가 필요해 보여» → «추천대로»] ① 미리 보기 창 아래 — 장면 사진은 글 고리 · 위 선 없음 · «늘 있는 순간이에요» 없음 · «다시 듣기»는 아래 줄 그대로
+chk 'PV_FOOT_MIN_1102' order-preview.html 3
+nochk '<span class="pv-fixed">늘 있는 순간이에요</span>' order-preview.html
+chk '.ps.ps-pk{margin-top:6px;padding-top:0;border-top:0}' order-preview.html 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
