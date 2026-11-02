@@ -21714,6 +21714,9 @@ chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1  
 chk "if(pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'" order-preview.html 1   # [MEANING_R1_1102 14] 축배 박수 뒤 닫는 인사 앞 정적
 chk 'if(x.cheer) _lt.cheer=true;' order-preview.html 1   # [MEANING_R1_1102 13] 나눈 차례 마지막 줄이 «위하여» 표시를 잇는다
 chk "duck: PARAM.duckSpeech,   /\* \[MEANING_R1_1102 15\]" assets/ritual-cue.js 2   # [MEANING_R1_1102 15] 온라인 인사 −16 · 두 분 −20
+chk "var TURN={ same:\[1.6,1.6\], title:\[2.5,2.5\], mins:\[6,6\], moment:\[2.2,2.2\], toAct:\[0.8,0.8\], actEnd:\[1.2,1.2\], actEmo:\[2.2,2.2\], toCouple:\[2.0,3.0\], coupleEnd:\[1.4,2.2\] };" order-preview.html 1   # [TURN_GAP_1102] 줄 사이 쉼 표(미리 듣기 / 연습)
+chk "var DWELL={ matjeol:\[5,8\], bow:\[6,8\], call:\[6,8\], hug:\[6,8\], ring:\[6,8\], candle:\[6,6\], move:\[6,8\], table:\[8,8\], clapBig:\[6,6\], clapSmall:\[5,5\], def:\[5,6\] };" order-preview.html 1   # [TURN_GAP_1102] 행동 줄 머무는 시간 표
+chk 'return sec?Math.round(sec\*1000):_dwellMs(x,true); }' order-preview.html 1   # [TURN_GAP_1102] 연습 행동 줄 = 표(종전 2초 하나)
 chk "if(!st._base&&!entMulti()&&BED.who!=='card'){ var _dk=dayAt(st.k); if(_dk) return _dk; }" assets/bgm-bed.js 1   # [SCREEN_SOUND_1102] 순간 하나 = 당일 시간표 그 자리 곡
 chk "near: '이 순서 즈음엔 ‹{f}›'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 본식 순간 곡 이름(소리와 같은 함수)
 chk "song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요'," assets/bgm-slots.js 1   # [SCREEN_SOUND_1102] 축가 음악 줄
