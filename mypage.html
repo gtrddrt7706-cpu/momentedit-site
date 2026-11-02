@@ -2611,10 +2611,13 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
-  var saved=false, _closed=false, _frameReady=false, _rdOv=null, _depth=0, _dBase=0, _backT=null, _backPend=false;   // [RELOAD_UNWIND] _dBase = 새로고침 때 되감지 못하고 남은 옛 문서 칸   // [HIST_DEPTH] 빌더가 쌓은 기록 칸 수 · [EXIT_HOLD] 뒤로가기 3초 닫기 · 뒤로가기로 층을 쓴 뒤인가   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
+  var _goNext='', saved=false, _closed=false, _frameReady=false, _rdOv=null, _depth=0, _dBase=0, _backT=null, _backPend=false;   // [RELOAD_UNWIND] _dBase = 새로고침 때 되감지 못하고 남은 옛 문서 칸   // [HIST_DEPTH] 빌더가 쌓은 기록 칸 수 · [EXIT_HOLD] 뒤로가기 3초 닫기 · 뒤로가기로 층을 쓴 뒤인가   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
   /* ★[HIST_DEPTH 2026-10-09 A~Z 점검 1라운드 A-5] 빌더가 쌓은 칸(_depth)까지 한 번에 되감는다 — 한 칸만 되감으면 남은 빌더 칸이 «아무 일 없는 뒤로가기»가 되고, 되감기 표시(_bkClosing)가 남아 다음 뒤로가기 하나를 삼켰다 */
   function _bkDoneDeep(id,n){ if(!n){ bkDone(id); return; } if(_bkFromPop||!_bkStack.length) return; var top=_bkStack[_bkStack.length-1]; if(top.id!==id){ bkDone(id); return; } _bkStack.pop(); _bkClosing=true; try{ history.go(-(n+1)); }catch(e){ _bkClosing=false; } }
-  function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); try{ if(_pmo) _pmo.disconnect(); }catch(e){} _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
+  function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); try{ if(_pmo) _pmo.disconnect(); }catch(e){} _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock();
+    /* ★[MEAL_GO_1102] 식순의 «식사 안내 멘트 › 애프터 웨딩» 을 눌러 나갔으면 닫힌 뒤 그 칸을 연다(저장했으면 새로 불러온 뒤) */
+    var _gn=_goNext; _goNext=''; var _goDn=function(){ if(_gn!=='dining') return; var b=$('mp_diningStart'); if(b) b.click(); };
+    if(saved){ if(_gn){ _flowBusy(true,'불러오는 중…'); loadMyState({ silent:true, done:function(){ _flowBusy(false); setTimeout(_goDn,0); } }); } else _mpRefresh(); } else if(_gn) setTimeout(_goDn,0); }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }
   /* ★[LATEST_FILL 2026-10-09 A~Z 점검 2라운드 A2-4] 충돌 판에서 «최신 내용 불러오기»를 골랐으면(_revConflict · r._latest) 실패 대신 그 최신본을 빌더로 — 빌더가 그 판으로 내용을 바꾼다 */
   /* ★[PARENT_ASK_HOLD 2026-10-09 A~Z 점검 2라운드 A2-9] 이 창 위에 마이페이지 판(충돌 · 알림 · mpModal)이 떠 있는 동안 폰 뒤로가기는 빌더 걸음을 바꾸지 않는다 — 빌더에 «판 떠 있음»을 알린다.
@@ -2668,7 +2671,8 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; _dBase=Math.max(0,d.d|0); _depth=_dBase; var _ru='/order-preview.html?embed=1&t='+Date.now();
       try{ fr.contentWindow.location.replace(_ru); }catch(e){ try{ fr.src=_ru; _dBase++; _depth=_dBase; }catch(e2){} } return; }
     if(d.type==='momentedit:orderDepth'){ _depth=_dBase+Math.max(0,d.d|0); return; }   // [HIST_DEPTH] · [RELOAD_UNWIND] 남은 옛 칸 + 새 문서 칸
-    if(d.type==='momentedit:orderExitHold'){ clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[HOLD_RESTACK 2026-10-09 A~Z 점검 2라운드 A2-6] 잡으면 바로 층을 다시 쌓는다 — 종전엔 «머물기»를 고른 뒤에야 쌓아, 판이 뜬 사이 뒤로가기를 한 번 더 누르면 마이페이지를 떠났다(이제 그 뒤로가기는 판을 닫는다 · 빌더 BACK_DISMISS) */   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
+    if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }   // [MEAL_GO_1102]
+    if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext=''; clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[HOLD_RESTACK 2026-10-09 A~Z 점검 2라운드 A2-6] 잡으면 바로 층을 다시 쌓는다 — 종전엔 «머물기»를 고른 뒤에야 쌓아, 판이 뜬 사이 뒤로가기를 한 번 더 누르면 마이페이지를 떠났다(이제 그 뒤로가기는 판을 닫는다 · 빌더 BACK_DISMISS) */   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderRelogin'){ var _rc=/^[A-Z]8$/.test(String(d.ecode||''))?String(d.ecode):'S8'; _errGoLogin({ok:false, ecode:_rc}, _rc.charAt(0)); return; }   /* ★[RELOGIN_BTN 2026-10-30 GPT 5차 점검(고객) 5-01 · VC_FIX5_1030] 식순 화면의 «로그인하기» — 겹화면을 닫고 로그인 화면으로(그 줄을 로그인 칸에 · 저장 실패 «로그인하기»와 같은 길) */
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
@@ -2677,7 +2681,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
          alert 은 동기 차단이라, 닫기 전까지 아래 postMessage 가 나가지 못했다. 그 사이 빌더는
          낙관 표시한 '저장됨'을 그대로 들고 있었고, 한 화면에 "저장 실패" 알림과 "저장됨" 버튼이 공존했다
          (2026-08-03 사용자 스크린샷). 메시지를 먼저 보내고, 전달이 안 될 때만 네이티브로 물러선다. */
-      var _exFail=function(r){   // [ERR_CODE_MYPAGE F7] 저장 결과를 통째로 받아 까닭(msg · 코드)을 빌더에 그대로 — 종전엔 끊김 · 시간 초과 · 거절이 같은 말이었다
+      var _exFail=function(r){ _goNext='';   // [ERR_CODE_MYPAGE F7] 저장 결과를 통째로 받아 까닭(msg · 코드)을 빌더에 그대로 — 종전엔 끊김 · 시간 초과 · 거절이 같은 말이었다
         if(_latestTo(r,'exit')){ clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   // [LATEST_FILL] 최신본으로 바꾸고 머문다
         var msg=_saveFailBody(r), sent=false;
         try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:orderExitReset', msg:msg}, _relayErr(r)), location.origin); sent=true; }catch(e){}
