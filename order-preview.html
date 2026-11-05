@@ -5221,24 +5221,38 @@ function _mkCnt(id,v,lim){ var n=String(v||'').length; return '<span class="mk-c
 /* ★[TX_MERGE 2026-09-27 사장님 결정 «이번에 같이 고치기»] 칸마다 고친 시각을 적는다(S.fAt['tx.vow.g'] …).
    신랑 폰에서 신랑 칸 · 신부 폰에서 신부 칸을 따로 저장해도 서버가 칸마다 더 나중 것을 골라 합친다(80_production · _ritualTxMerge).
    ★체크를 풀 때 키를 지우지 않고 0 으로 둔다 — 지우면 서버가 «없는 칸»으로 읽고 다른 기기 값으로 되살린다. */
-function _fAt(key){ if(!S.fAt) S.fAt={}; S.fAt[key]=Date.now(); }
+function _fAt(key){ if(!S.fAt) S.fAt={}; S.fAt[key]=Math.max(Date.now(),(+S.fAt[key]||0)+1); try{ _fAtMine[key]=S.fAt[key]; }catch(e){} }   /* [B2_NA_11] 이 기기 시계가 늦어도 고친 칸은 불러온 판보다 뒤 */
 window.mkTx=function(id,t){ var _w=document.getElementById('mkw_'+id.replace('.','_')); if(_w) _w.textContent=_exWarn(id,t.value);   // [EX_NAMES]
   var kind=id.split('.')[0], k=TX_KIND[kind]; if(!S.tx) S.tx={}; S.tx[id]=t.value; if(S.txLn) delete S.txLn[id]; _fAt('tx.'+id); _txLeg(kind);   // [VOW_FORM] 칸에 적은 글은 줄 표시를 걷는다(번갈아 판은 문장으로 다시 나눠 보여 준다)
   var c=document.getElementById('mkc_'+id.replace('.','_')); if(c){ var n=t.value.length; c.textContent=_mkCntT(n,k.lim); c.style.color=n>k.lim?'var(--seal)':''; }
   _taGrow(t); _persist(); _mkStripRepaint(); };
 /* [TX_MERGE] 서버가 다른 기기의 더 나중 칸을 돌려주면(pull) 이 화면에도 채운다 — 안 채우면 다음 저장 때 이 기기가 옛 글을 들고 간다
    (서버가 칸마다 시각으로 다시 고르니 지워지지는 않지만, 화면이 서버와 다르게 보인다). 지금 쓰고 있는 칸은 건드리지 않는다. */
-function _txPullApply(p){ try{ if(!p||!p.fAt) return; var n=0, kinds={}, act=document.activeElement, actId=act&&act.id||'';
+/* ★[B2_NA_10 · B2_NA_11 2026-11-06 BATCH2 나10 · 나11] 다른 기기 글을 합칠 때 «지금 쓰는 칸»은 줄 아이디가 아니라 그 칸이 맡은 원고(vow.g · vow.b · bless.p …)로 지킨다 —
+     번갈아 서약 둘째 줄(mkt_vow_g_1)을 쓰는 동안 vow.g 통째가 덮였다 · 받은 원고 칸(data-tx)은 아예 지켜지지 않았다.
+     부딪히면 두 글을 다 남긴다(TXCONF) — 쓰던 칸이면 쓰던 글을 두고 다른 기기 글을 곁에 · 보낸 글이 서버에서 밀렸으면 받은 글을 두고 쓰던 글을 곁에 ·
+     «다른 기기에서 이 글이 바뀌었어요. 쓰던 내용과 함께 확인해 주세요.» · 이 기기 시계가 늦어도 고친 칸의 시각은 불러온 시각보다 뒤(_fAt) */
+var TXCONF={}, _txConfNew=false, _fAtMine={};
+function _txSynced(){ try{ var sf=(_sentS&&_sentS.fAt)||{}; Object.keys(_fAtMine).forEach(function(k){ if(+sf[k]===_fAtMine[k]||+(S.fAt||{})[k]!==_fAtMine[k]) delete _fAtMine[k]; }); }catch(e){} }   /* 보낸 고침 · 덮인 칸은 «내 고침» 표시를 걷는다 */
+function _txOwn(el){ if(!el) return ''; var d=el.getAttribute&&el.getAttribute('data-tx'); if(d) return d; var m=/^mkt_([a-z]+)_([a-z])(?:_\d+)?$/.exec(el.id||''); return m?m[1]+'.'+m[2]:''; }
+function _txConfBox(ids){ return ids.filter(function(id){ return TXCONF[id]; }).map(function(id){ var c=TXCONF[id], t=c.other!=null?c.other:c.mine;
+  return '<div class="save-err mk-txconf" role="status">다른 기기에서 이 글이 바뀌었어요. 쓰던 내용과 함께 확인해 주세요.<details><summary>'+(c.other!=null?'다른 기기의 글 보기':'쓰던 내용 보기')+'</summary><p style="white-space:pre-wrap">'+esc(t)+'</p></details><button type="button" class="pk-link" data-fk="txconf:'+id+'" onclick="txConfOk(\''+id+'\')">확인했어요</button></div>'; }).join(''); }
+window.txConfOk=function(id){ delete TXCONF[id]; render(); };
+function _txPullApply(p){ try{ if(!p||!p.fAt){ _txSynced(); return; } var n=0, kinds={}, act=document.activeElement, actId=act&&act.id||'', own=_txOwn(act);
   if(!S.fAt) S.fAt={}; if(!S.tx) S.tx={}; if(!S.mkc) S.mkc={}; var c=S.mkc;
   Object.keys(p.fAt).forEach(function(key){ var at=+p.fAt[key]||0; if(at<=(+S.fAt[key]||0)) return;
     var dot=key.indexOf('.'), grp=key.slice(0,dot), id=key.slice(dot+1);
-    if(grp==='tx'){ if(actId==='mkt_'+id.replace('.','_')) return; S.tx[id]=String((p.tx||{})[id]||''); kinds[id.split('.')[0]]=1;
+    if(grp==='tx'){ var _in=String((p.tx||{})[id]||''), _cur=String(S.tx[id]||'');
+      if(own===id||actId==='mkt_'+id.replace('.','_')){ if(_in.trim()!==_cur.trim()){ TXCONF[id]={other:_in}; _txConfNew=2; } return; }   /* [B2_NA_10] 쓰는 중 = 쓰던 글을 둔다 */
+      if(_cur.trim()&&_in.trim()!==_cur.trim()&&_fAtMine[key]&&_fAtMine[key]===+(S.fAt||{})[key]){ TXCONF[id]={mine:_cur}; if(!_txConfNew) _txConfNew=true; }   /* [B2_NA_11] 이 기기에서 고친 글이 밀렸으면 곁에 */
+      S.tx[id]=_in; kinds[id.split('.')[0]]=1;
       var ta=document.getElementById('mkt_'+id.replace('.','_')); if(ta&&!(id.indexOf('vow.')===0&&_vowHow()==='alt')) ta.value=S.tx[id]; }   // [VOW_FORM] 번갈아 줄 칸은 한 줄이 한 칸이라 통째 글을 넣지 않는다(다음 그리기가 줄로 나눠 보인다)
     else if(grp==='mkc'){ c[id]=(p.mkc||{})[id]||0; }
     else if(grp==='up'){ if(!S.up) S.up={}; S.up[id]=(p.up||{})[id]||0; }
     else return;
     S.fAt[key]=at; n++; });
-  if(!n) return; for(var kd in kinds) if(TX_KIND[kd]) _txLeg(kd); _persist();
+  _txSynced(); if(_txConfNew&&own&&TXCONF[own]&&act&&act.tagName==='TEXTAREA'){ try{ var _cb=document.querySelector('[data-fk="txconf:'+own+'"]'); if(!_cb) act.insertAdjacentHTML('beforebegin',_txConfBox([own])); }catch(e){} }   /* 쓰는 칸은 다시 그리지 않고 그 위에 */
+  if(!n){ if(_txConfNew&&!(act&&act.tagName==='TEXTAREA')) render(); return; } for(var kd in kinds) if(TX_KIND[kd]) _txLeg(kd); _persist();
   if(!act||act.tagName!=='TEXTAREA') render(); else _mkStripRepaint();
 }catch(e){} }
 window.mkChk=function(id,on,val){ if(!S.mkc) S.mkc={}; var c=S.mkc; c[id]=on?(val||1):0; _fAt('mkc.'+id); _persist(); render(); };   // [TX_MERGE] 푼 체크 = 0(지우지 않는다)
@@ -5282,7 +5296,11 @@ function _vowForm(K,c){ var f=_vowFirst(), nm={g:'신랑',b:'신부'}, h='';
   if(_vowHow()==='alt'){ var site=!!(c['vow.g']&&c['vow.b']), R=_vowRows(), n=R.length;
     h+='<div class="mk-slc mk-txc mk-vwc"><div class="mk-txh mk-vwh"><span class="mk-who">번갈아 읽을 글</span><label class="upchk mk-ck"><input type="checkbox"'+(site?' checked':'')+' data-fk="mkvwsite" onchange="mkVowSite(this.checked)"><span>'+esc(K.chk)+'</span></label></div>';
     if(site) h+='<p class="mk-note mk-cue-first">당일 두 분이 현장에서 번갈아 말해요</p>';
-    else { h+='<ol class="mk-sl mk-vwl" aria-label="'+esc('번갈아 읽을 '+_vowNm()+' · 줄마다')+'">'+R.map(function(x,i){ var lab=nm[x.w];
+    else { /* ★[B2_NA_07 2026-11-06 BATCH2 나07] 각자 판에서 한 분만 «현장에서 바로»를 고른 채 번갈아로 오면 그 상태를 드러낸다 — 종전엔 체크칸이 꺼진 모양인데 연습은 현장으로 읽었다 ·
+           현장인 분의 줄은 읽을 원고처럼 보이지 않게 숨기고(적은 글은 지우지 않는다) · «○○도 글을 적을게요»로 그분 표시만 푼다 */
+      var _s1=c['vow.g']?'g':c['vow.b']?'b':''; if(_s1){ var _o1=_s1==='g'?'b':'g'; R=R.filter(function(x){ return x.w!==_s1; }); n=R.length;
+        h+='<p class="mk-note mk-cue-first mk-vw1">'+(_s1==='g'?'신랑은':'신부는')+' 현장에서 바로 말해요. '+(_o1==='g'?'신랑은':'신부는')+' 적어 둔 글을 읽어요. <button type="button" class="pk-link" data-fk="mkvw1off:'+_s1+'" onclick="mkChk(\'vow.'+_s1+'\',false)">'+nm[_s1]+'도 글을 적을게요</button></p>'; }
+      h+='<ol class="mk-sl mk-vwl" aria-label="'+esc('번갈아 읽을 '+_vowNm()+' · 줄마다')+'">'+R.map(function(x,i){ var lab=nm[x.w];
         return '<li class="mk-slr mk-vwr"><span class="mk-vwn">'+lab+'</span>'+(n>2?'<button type="button" class="mk-slx" data-fk="mkvwx:'+x.w+':'+x.j+'" aria-label="'+esc((i+1)+'번째 줄 빼기 · '+lab)+'" onclick="mkVowDel(\''+x.w+'\','+x.j+')">'+ICO_X+'</button>':'')
           +'<span class="mk-slb"><textarea class="ta grow mk-slt" rows="1" maxlength="300" id="mkt_vow_'+x.w+(x.j?'_'+x.j:'')+'" data-fk="mkvw:'+x.w+':'+x.j+'" aria-label="'+esc(_vowNm()+' '+(i+1)+'번째 줄 · '+lab)+'" placeholder="'+esc((x.w==='b'?'신부가':'신랑이')+' 읽을 줄을 적어 주세요')+'" oninput="mkVowLn(\''+x.w+'\','+x.j+',this)" onchange="_taChange()">'+esc(x.t)+'</textarea></span></li>'; }).join('')+'</ol>'
         +'<div class="mk-slf"><button type="button" class="pk-link mk-sladd" data-fk="mkvwadd" onclick="mkVowAdd()">＋ 줄 더하기</button>'+(function(){ var n=_vowAllN(), lim=K.lim*2; return '<span class="mk-cnt mk-vwcnt" id="mkc_vow_all"'+(n>lim?' style="color:var(--seal)"':'')+'>'+_mkCntT(n,lim)+'</span>'; })()+'</div>'; }   /* 두 분 합친 글자 수 · 약 n초(한 분 기준 두 배) */
@@ -5324,6 +5342,7 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return ''; try{ _
   if(kind==='letter') h+='<p class="mk-note mk-txwhy">편지는 당일 직접 읽어요 · 적어 두시면 저희가 마지막 줄을 보고 다음 순서를 이어요 · «'+esc(K.chk)+'»를 고르시면 끝 신호만 알려 주세요</p>';   /* [REVIEW5_1018] 검토 37 «체크하면»은 기계 말 · 화면 다른 곳은 «고르시면» */   // NOTE_READ 뜻은 그대로(보내지 않아도 된다 = 체크)
   else if(kind==='welcome'||kind==='vow') h+='<p class="mk-note mk-txwhy">당일엔 두 분이 직접 말해요 · 적어 두시면 저희가 글을 보며 다음 순서로 넘어갈 때를 맞춰요</p>';   // ★[TXWHY_US_1014 2026-10-14 사장님 «추천대로»] 고객 화면 말투 «저희가»(GUEST_SKIN) · «디렉터가» 되살리지 말 것
   if(S.txMig&&S.txMig[kind]) h+='<p class="mk-note">전에 한 칸에 적어 두신 글을 신랑 칸에 옮겨 두었어요 · 두 칸으로 나눠 주세요</p>';
+  h+=_txConfBox([kind+'.g',kind+'.b']);   /* [B2_NA_10] */
   if(kind==='vow'){ h+=_vowForm(K,c); }
   else { h+='<div class="mk-slc mk-txc">';
   TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], v=(S.tx||{})[id]||'', chk=_txSite(kind,c,id), fid='mkt_'+id.replace('.','_');   // [SITE_CHK_OFF] · [CUE_FORM]
@@ -5371,7 +5390,7 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
            종전 [R3-03](원고 칸 아래 오른쪽 · 위에 두면 칸이 체크에 딸린 것처럼 읽힌다)은 그때 첫인사 · 서약도 아래였을 때의 맞춤이었다 — CUE_FORM 이 그쪽을 머리 줄로 올리며 덕담 · 축사만 남았다. 아래로 되돌리지 말 것.
            «원고 없이»를 고르면 원고 칸은 그리지 않는다 · 붙여 둔 원고(S.tx['bless.p'])는 지우지 않아 체크를 풀면 다시 보인다 */
         var _bSite=c[q.id]==='site';
-        h+='<li class="mk-vx">'+'<div class="mk-txh mk-bsh"><label class="upchk mk-ck"><input type="checkbox" data-fk="'+_sp.fk+'"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;'+_sp.fk+'&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>'+esc(_sp.site)+'</span></label></div>'+(_bSite?'':'<textarea class="ta grow" rows="2" maxlength="4000" aria-label="'+_sp.nm+'" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\''+_sp.id+'\']=this.value;_taGrow(this);_fAt(\'tx.'+_sp.id+'\');_persist();_mkStripRepaint();var _c=document.getElementById(\''+_cid+'\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
+        h+='<li class="mk-vx">'+'<div class="mk-txh mk-bsh"><label class="upchk mk-ck"><input type="checkbox" data-fk="'+_sp.fk+'"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;'+_sp.fk+'&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>'+esc(_sp.site)+'</span></label></div>'+(_bSite?'':_txConfBox([_sp.id])+'<textarea class="ta grow" rows="2" maxlength="4000" data-tx="'+_sp.id+'" aria-label="'+_sp.nm+'" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\''+_sp.id+'\']=this.value;_taGrow(this);_fAt(\'tx.'+_sp.id+'\');_persist();_mkStripRepaint();var _c=document.getElementById(\''+_cid+'\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
           +(_bSite?'':'<div class="mk-fl"><span class="mk-cnt" id="'+_cid+'">'+_mkCntT(String(bv).length,1e9)+'</span></div>')   /* ★[QA_BLESS_CNT 2026-10-04 점검] 붙인 원고도 글자 수 · 초 */+(_bSite?_cueBox(q.id):'')+((_bSite&&String(bv).trim())?'<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>':'')+'</li>'; }   /* [R4-02] 숨은 원고가 있으면 대본에서 뺀다는 것을 알린다 */   /* [R2-35] 두 분이 «그렇다»고 고르는 말 */
       if(cat==='send'&&q.k==='prevideo'){
         h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_pvOkTg(this.value);_mkStripRepaint()" onblur="growHint(this.value,true)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">'
@@ -7447,7 +7466,8 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   var _card=function(set,n,lo){ var on=_picked&&(_fill?n===_onN:n===cur); return '<button type="button" class="op-chip mk-exc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(!_picked&&n===lo))?'0':'-1')+'" data-fk="mkrc:'+k+':'+n+'" aria-label="'+esc(_refName(set,n)+' · '+(_tt[n]||_pv[n]))+'" onclick="mkRefPick(\''+k+'\','+n+',1)">'+_chipT(_tt[n]||_pv[n])+'</button>'; };   /* [EX_ROW] 칩 글 = 느낌 이름(«예시 N»은 화면 읽기에만) · [QA_RC_ROVE] 고른 칩만 tabindex 0 */   /* [QA_RC_ROVE] 고른 카드만 tabindex 0 · [REF_TITLE] */
   h+=sets.map(function(set,n){ return _card(set,n,0); }).join('')+'</span></div>';   /* ★참고 예시 카드 줄 아래 머리말(«고르면 아래 칸에 들어가요 · 고쳐 써도 돼요 · 예시 속 이름은 가상 인물이에요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [NOTE_TOAST] · 카드를 누를 때 아래 알림(_refToast) */
   var set=sets[cur], who='';
-  h+='<div class="mk-rsel'+(_fill&&_mkRefFillable(k,cur)?' mk-rsel0':'')+'"><p class="sr-only">참고 '+esc(_refName(set,cur))+'</p>';   /* [R8-14 REF_PILL_OFF] 바로 위 칸에서 «예시 N»이 골라진 모양인데 «참고 예시 N» 알약이 또 붙어(고르는 칩과 같은 꼴) 누르는 것처럼 보였다 — 보이는 알약을 걷고 화면 읽기에는 남긴다 · ③ 연습 카드의 lf-refb 는 그대로 */
+  h+='<div class="mk-rsel'+(_fill&&_mkRefFillable(k,cur)?' mk-rsel0':'')+'"><p class="sr-only">참고 '+esc(_refName(set,cur))+'</p>';
+  if(k==='free'&&+RitualOpen.chipOf('freeLen',S)>3) h+='<p class="mk-rl mk-rlen">정한 길이에 맞춰 예시를 다듬어 주세요.</p>';   /* [B2_NA_06] 예시는 3분 판 · 누르기 전에 읽혀야 하는 줄이라 알림이 아니라 글 */   /* [R8-14 REF_PILL_OFF] 바로 위 칸에서 «예시 N»이 골라진 모양인데 «참고 예시 N» 알약이 또 붙어(고르는 칩과 같은 꼴) 누르는 것처럼 보였다 — 보이는 알약을 걷고 화면 읽기에는 남긴다 · ③ 연습 카드의 lf-refb 는 그대로 */
   /* ★[REF_ONE_COUNT 2026-10-07 사장님 «하나하나 확인해서 개선»] 한 분이 잇달아 말하는 문단(축사 · 한 분 네 문단)은 이름 한 번 · 글자 수 · 초도 끝에 한 번(그분 몫 합) —
      문단마다 «147자 · 약 30초»가 붙어 네 사람이 나눠 읽는 글처럼 보였다. 덕담 · 성혼 선언처럼 분마다 한 문단이면 종전과 같다 */
   /* ★[UX1_1023 REF_FOLD 2026-10-23 사장님 «추천대로 · 너가 판단해서»(BGM 섹션 전달 · GPT 검토 5)] 보기만 하는 예시(축사 · 성혼 선언 · 덕담 …)는 첫 네 줄 남짓만 보이고
@@ -8075,7 +8095,7 @@ function _lRefKey(k){ var R=RitualOpen;
   if(k==='letter') return ['letter:'+R.chipOf('letter',S)];
   if(k==='tribute'){ var t=R.chipOf('tribute',S); if(t==='none') return []; return ['tribute:'+(R.crossTribute(S)?'cross':t)]; }   // [TRIB_ONE_SAY 2026-10-06] 말은 «말로 인사»(long) 하나 — 서로의 부모님께면 cross 예시
   if(k==='toast'){ return ['toast:'+R.chipOf('toast',S)]; }   // [CAKE_TOAST_SPLIT] 축배 순간엔 늘 «위하여»
-  if(k==='free') return R.FREE_KIND[R.chipOf('free',S)]==='speech'?['free:speech:'+R.chipOf('freeLen',S)]:[];
+  if(k==='free') return R.FREE_KIND[R.chipOf('free',S)]==='speech'?['free:speech:'+Math.min(3,Math.max(1,+R.chipOf('freeLen',S)||3))]:[];   /* ★[B2_NA_06 2026-11-06 BATCH2 나06] 4 ~ 10분은 표의 가장 긴 판(3분) 예시 넷 — 종전엔 예시 · 원고 전문 · 역할 전달이 통째로 사라졌다 */
   if(k==='declare') return ['declare'];   /* [DECLARE_BY_PERSON] 선언문 하나 — 누가 읽든 같은 글(읽는 분 이름은 _lRefSets 가 입힌다) */
   return []; }
 function _lRefMatch(rowKey,want){ var a=rowKey.split(':'), b=want.split(':'); if(a.length!==b.length) return false;
@@ -8090,9 +8110,11 @@ function _exNmOk(n){ return /^[가-힣]{2,4}$/.test(n||''); }
 function _exGiven(n){ return n.length===3?n.slice(1):n.length===4?n.slice(2):n; }
 function _exBat(s){ var c=s.charCodeAt(s.length-1)-0xAC00; return c>=0&&c<11172?c%28:0; }   // 0 = 받침 없음 · 8 = ㄹ
 function _exMine(t){ t=String(t||''); var g=String((CUST&&CUST.groom)||'').replace(/\s/g,''), b=String((CUST&&CUST.bride)||'').replace(/\s/g,'');
-  [['이서준','서준',g],['정하윤','하윤',b]].forEach(function(r){ var full=r[2]; if(!_exNmOk(full)) return; var gv=_exGiven(full), j=_exBat(gv);
-    t=t.replace(new RegExp('('+r[0]+'|'+r[1]+')(으로|이(?=[가-힣]|[ ,.!?…])|아(?![가-힣])|을|은)?','g'),function(m,w,p){ var isF=w===r[0], base=isF?full:gv, j=_exBat(base);
-      return base+(p==='으로'?(j&&j!==8?'으로':'로'):p==='이'?(j?'이':isF?'가':''):p==='아'?(j?'아':'야'):p==='을'?(j?'을':'를'):p==='은'?(j?'은':'는'):''); }); });   // 이: 성까지 쓴 이름 뒤면 토씨(이/가) · 부르는 이름 뒤면 붙임(받침 없으면 뗀다)
+  /* ★[B2_NA_05 2026-11-06 BATCH2 나05] 두 이름을 한 번에 바꾼다 — 차례로 두 번 바꾸면 넣은 신랑 이름(김하윤)이 신부 차례에 다시 걸려 «김민지»가 됐다 · 넣은 이름은 다시 찾지 않는다 */
+  var map={}, toks=[]; [['이서준','서준',g],['정하윤','하윤',b]].forEach(function(r){ var full=r[2]; if(!_exNmOk(full)) return; var gv=_exGiven(full); map[r[0]]=[full,1]; map[r[1]]=[gv,0]; toks.push(r[0],r[1]); });
+  if(!toks.length) return t;
+  t=t.replace(new RegExp('('+toks.join('|')+')(으로|이(?=[가-힣]|[ ,.!?…])|아(?![가-힣])|을|은|과)?','g'),function(m,w,p){ var isF=!!map[w][1], base=map[w][0], j=_exBat(base);
+      return base+(p==='으로'?(j&&j!==8?'으로':'로'):p==='이'?(j?'이':isF?'가':''):p==='아'?(j?'아':'야'):p==='을'?(j?'을':'를'):p==='은'?(j?'은':'는'):p==='과'?(j?'과':'와'):''); });   /* ★[B2_NA_37 2026-11-06 BATCH2 나37] 과/와도 받침에 맞춘다(민수와 · 종전 «민수과») */   // 이: 성까지 쓴 이름 뒤면 토씨(이/가) · 부르는 이름 뒤면 붙임(받침 없으면 뗀다)
   return t; }
 function _lRefRows(want){ var rows=(window.RITUAL_REF&&RITUAL_REF.rows)||[], by={}, order=[];
   rows.forEach(function(r){ if(!_lRefMatch(r.key,want)) return; if(!by[r.n]){ by[r.n]=[]; order.push(r.n); } by[r.n].push(r); });
@@ -8548,12 +8570,16 @@ function _prAtWhere(q,i){ var st=q[i], k=st.k, a=i; while(a>0&&q[a-1].k===k) a--
   /* ★[VOW_FACE_NI13 2026-11-05 이음매 NI13] 일반 서약은 함께 읽는 문장(both)과 그 뒤 받는 말에서 하객 쪽을 본다 — 같은 서약 안 앞줄까지만 본다(다른 순간 · 새 연습에 남지 않는다) · 개인 문장은 서로 마주 · 감사문 서약은 종전 방향 */
   if(k==='vow'&&_vowKind()!=='thanks'){ var _bt=false; for(var bj=a;bj<=i;bj++){ if(q[bj].both) _bt=true; } if(_bt&&!(st.talk2&&!st.both)) f='guests'; }
   return {k:k,n:n,d1:st.stage?nm:nm+' · '+d,d2:at+(f==='each'?' 서로 마주 봐요':f==='guests'?' 하객 쪽을 봐요':'')}; }
-function _prAtSave(){ try{ var st=LP.q[LP.i]; if(!st||!_inPr()||!LP.all||LP.fast) return; var w=_prAtWhere(LP.q,LP.i); w.way=PRW; w.rows=_lRows().join(','); w.t=Date.now(); localStorage.setItem(PR_AT_KEY,JSON.stringify(w)); }catch(e){} }
+/* ★[B2_NA_03 2026-11-06 BATCH2 나03] 이어서 연습은 그 순간의 줄 구성(누가 · 무엇을 · 어떤 소리)까지 적는다 — 읽는 방식 · 먼저 읽는 분 · 예시를 바꾼 뒤
+     옛 줄 번호로 다른 분 문장에 이어 붙던 것 · 다르면 그 순간 처음부터(«내용이 바뀌어 이 순간 처음부터 해요.») · 구성 기록이 없는 옛 기록도 처음부터(«저장한 위치를 확인할 수 없어 …») */
+function _prAtSig(k){ try{ var a=_lSteps(ENG,_lRows()).filter(function(x){ return x.k===k; }).map(function(x){ return [x.slug||'',x.who||'',x.both?1:0,x.talk2?1:0,String(x.txt||'')].join('\u0001'); }).join('\u0002'), h=5381; for(var i=0;i<a.length;i++) h=((h*33)^a.charCodeAt(i))>>>0; return 'v1:'+a.length+':'+h.toString(36); }catch(e){ return ''; } }
+function _prAtSave(){ try{ var st=LP.q[LP.i]; if(!st||!_inPr()||!LP.all||LP.fast) return; var w=_prAtWhere(LP.q,LP.i); w.way=PRW; w.rows=_lRows().join(','); w.sig=_prAtSig(w.k); w.t=Date.now(); localStorage.setItem(PR_AT_KEY,JSON.stringify(w)); }catch(e){} }
 function _prAtClear(){ try{ localStorage.removeItem(PR_AT_KEY); }catch(e){} }
 function _prAtGet(){ var o=null; try{ o=JSON.parse(localStorage.getItem(PR_AT_KEY)||'null'); }catch(e){ o=null; } if(!o||!o.k) return null;
   var now=_lRows(), old=String(o.rows||'').split(','), at=now.indexOf(o.k), ch=-1;
   for(var i=0;i<Math.max(now.length,old.length);i++){ if(now[i]!==old[i]){ ch=i; break; } }
   if(at<0||(ch>-1&&ch<=at)){ var k=now[ch>-1?Math.min(ch,now.length-1):0]; if(!k) return null; return {k:k,n:0,way:o.way,d1:_mkName(k)+' · 처음부터',d2:'순서가 바뀌어 바뀐 순간부터 해요',changed:true}; }
+  if((o.n|0)>0&&ENG){ var _sg=_prAtSig(o.k); if(!o.sig||(_sg&&_sg!==o.sig)) return {k:o.k,n:0,way:o.way,d1:_mkName(o.k)+' · 처음부터',d2:o.sig?'내용이 바뀌어 이 순간 처음부터 해요.':'저장한 위치를 확인할 수 없어 이 순간 처음부터 해요.',changed:true}; }   /* [B2_NA_03] */
   return o; }
 /* ★★[PR_WAY_198 ⑫ 검토 198-3] «이 역할 전달하기» — 부모님 · 축사 · 선언하실 분께 그분 몫만(안내 음성 · 읽으실 글 · 하실 일 · 마치면) 글로 복사 + 읽기 전용 링크(role.html#r=…).
    줄은 연습과 같은 줄(_lSteps → _lRefExpand) — 따로 적지 않는다 · 두 분 몫(«신랑 신부 …» · «두 분 …»)과 하객 몫(«하객이 …»)은 걷는다 · 마치면 안내가 없으면 «자리로 돌아가 앉아 주세요» 한 줄 */
@@ -8576,13 +8602,16 @@ function _prRoleMo(k,id,q){ var rs=q.filter(function(x){ return x.k===k; }); if(
 function _prRoleOf(id){ if(!ENG) return null; var R0=PR_ROLES.filter(function(r){ return r.id===id; })[0]; if(!R0) return null; var rows=_lRows(), q;
   try{ q=_lRefExpand(_lSteps(ENG,rows)); }catch(e){ return null; }
   var ms=[]; R0.ks.forEach(function(k){ if(rows.indexOf(k)<0) return; var m=_prRoleMo(k,id,q); if(m) ms.push(m); }); if(!ms.length) return null;
+  /* ★[B2_NA_04 2026-11-06 BATCH2 나04] 성혼 선언을 읽은 분이 첫 덕담도 이어서 하면(엔진은 마이크를 그대로 잇는다) — 선언 몫 끝에 «자리로» 대신 이어서 덕담 · 덕담 원고 전체 · 덕담 뒤 마이크 돌려주기 */
+  if(id==='declare'&&RitualOpen.declBlessOf&&RitualOpen.declBlessOf(S)==='yes'&&rows.indexOf('bless')>-1){ var _dm=ms[ms.length-1]; _dm.s=_dm.s.filter(function(x){ return x[0]!=='마치면'; }); _dm.s.push(['이어서','마이크를 그대로 들고, 이어서 첫 덕담을 해 주세요.']);
+    var _bs=q.filter(function(x){ return x.k==='bless'&&x.sum; })[0], _bno=_mkNo('bless'), _bm={n:(_bno&&_bno!=='식전'?_bno+' ':'')+_mkName('bless'),s:[]}; if(_bs) _bm.s.push(['덕담 원고 · 전체',String(_bs.full||_bs.txt)]); _bm.s.push(['마치면','마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자리로 돌아가 앉아 주세요.']); ms.push(_bm); }
   var w=(CUST&&CUST.weddingDate)||'', wt=''; if(/^\d{4}-\d{2}-\d{2}/.test(w)){ var dd=new Date(w.slice(0,10)+'T00:00:00'); wt='예식 '+dd.getFullYear()+'년 '+(dd.getMonth()+1)+'월 '+dd.getDate()+'일('+'일월화수목금토'.charAt(dd.getDay())+')'; }
   return {t:R0.t,nm:R0.nm,w:wt,p:id==='par'?_parTellTxt():'',m:ms}; }
 function _prRoles(){ return PR_ROLES.map(function(r){ return _prRoleOf(r.id)?r:null; }).filter(Boolean); }
 function _b64u(s){ return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function _prRoleUrl(o){ return location.origin+'/role.html#r='+_b64u(JSON.stringify({t:o.t,w:o.w,p:o.p,m:o.m})); }
 function _prRoleTxt(o,url){ var L=['['+o.t+']']; if(o.w) L.push(o.w); if(o.p) L.push('',o.p);
-  o.m.forEach(function(m){ L.push('','· '+m.n); m.s.forEach(function(x){ L.push(/^읽으실 글/.test(x[0])?x[0]+'\n'+x[1]:x[0]+' · '+x[1]); }); });
+  o.m.forEach(function(m){ L.push('','· '+m.n); m.s.forEach(function(x){ L.push(/^(읽으실 글|덕담 원고)/.test(x[0])?x[0]+'\n'+x[1]:x[0]+' · '+x[1]); }); });   /* [B2_NA_04] 덕담 원고도 글 칸 */
   L.push('','읽기 전용으로 보기 '+url); return L.join('\n'); }
 window.prRole=function(id){ var o=_prRoleOf(id); if(!o){ toast('전달할 순서가 없어요'); return; } var url=_prRoleUrl(o), t=_prRoleTxt(o,url);
   try{ if(navigator.share&&/Mobi|Android|iPhone/i.test(navigator.userAgent||'')){ navigator.share({title:o.t,text:t}).then(function(){},function(){}); return; } }catch(e){}
@@ -10621,8 +10650,10 @@ function renderDone(){
     :'<b>이 기기에</b> 저장됐어요'+_dueTail+'.<br>다른 기기에서도 이어 보시려면 마이페이지에 로그인해 이 화면을 열어 주세요.')+'</div>';
   /* [ORD_SAVE_STATE] 저장 실패는 이 지면 안에서 말한다 — 네이티브 알림처럼 화면을 덮고 사라지지 않는다.
      고른 내용은 이 기기에 그대로 남아 있다는 것부터 알린다(다시 만들까 봐 불안해하지 않게). */
+  if(typeof TXCONF==='object') h+=_txConfBox(Object.keys(TXCONF));   /* [B2_NA_11] 부딪힌 두 글은 ④ 에서도 */
+  if(_doneChg&&!_saveErr&&!_doneSaved) h+='<div class="save-err" role="status">저장은 끝났어요. 그동안 고친 내용은 다시 저장해 주세요.</div>';   /* [B2_NA_09] */
   if(_saveErr) h+='<div class="save-err" role="alert"><b>'+(/\(코드 S5\)/.test(_saveErr)?'저장됐는지 아직 몰라요':'저장이 안 됐어요')+'</b>'+esc(_saveErr)   /* [ERR_CODE_BUILDER] S5(답이 늦음)는 «안 됐어요»가 아니다 */
-    +(/너무 길어요/.test(_saveErr)?'<span>'+_keepHere()+' · 글을 줄인 뒤 다시 저장해 주세요.</span></div>':_isSess(_saveErr)?'<span>'+_keepHere()+' · 아래 <b>로그인하기</b>를 눌러 다시 로그인해 주세요.</span></div>':'<span>'+_keepHere()+' · 아래 <b>다시 저장하기</b>를 눌러 주세요.</span></div>');   /* [RELOGIN_BTN] 로그인 풀림(S8)은 다시 저장해도 같다 */   /* ★[LONG_NO_RETRY 2026-10-09 A~Z 점검 2라운드 A2-15] 글이 길어 거절된 것은 다시 눌러도 같다 — «다시 저장하기»를 권하지 않는다 */
+    +((_saveErr===SAVE_LOCAL_FAIL||_saveErr===SAVE_LOCAL_NEWER)?'</div>':/너무 길어요/.test(_saveErr)?'<span>'+_keepHere()+' · 글을 줄인 뒤 다시 저장해 주세요.</span></div>':_isSess(_saveErr)?'<span>'+_keepHere()+' · 아래 <b>로그인하기</b>를 눌러 다시 로그인해 주세요.</span></div>':'<span>'+_keepHere()+' · 아래 <b>다시 저장하기</b>를 눌러 주세요.</span></div>');   /* [RELOGIN_BTN] 로그인 풀림(S8)은 다시 저장해도 같다 */   /* ★[LONG_NO_RETRY 2026-10-09 A~Z 점검 2라운드 A2-15] 글이 길어 거절된 것은 다시 눌러도 같다 — «다시 저장하기»를 권하지 않는다 */
   /* [PREVIEW_LINK_V1] 완성 직후가 가장 듣고 싶은 순간이다 — 방금 고른 순서를 소리로 확인한다.
      ★주소는 assets/ritual-preview-link.js 가 조립한다. 여기서 직접 만들지 말 것 —
        고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
@@ -11048,13 +11079,19 @@ document.getElementById('next').addEventListener('click',function(){ if(_saving)
      손으로 각각 적어 두면 한쪽만 고치는 날이 온다(그날이 이미 왔었다: 16000 대 8000). */
 var PARENT_GIVEUP=16000;
 var _doneSaved=false, _saving=false, _saveErr='', _saveT=null;
+var SAVE_LOCAL_FAIL='이 기기에 저장하지 못했어요. 대본을 복사하거나 파일로 받아 주세요.', SAVE_LOCAL_NEWER='다른 창에 더 최근 내용이 있어요. 지금 대본을 먼저 복사하거나 파일로 받아 주세요.';   /* [B2_NA_08] 단독 화면 완성 저장 실패 두 갈래 */
 /* [R2-02] 저장한 순간의 기준값 — 어느 길(걸음 표시 · «② 한눈에 보기로 이동하기»)로 들어가 고쳐도 값이 달라지면 저장 상태를 푼다(_dirtyMark).
    걸음만 옮기면 _autoKey 가 같아 그대로 «저장됨» */
 var _doneKey='';
 function doSave(){
   if(_saving) return;
+  _doneChg=false; _txConfNew=false;   /* [B2_NA_09] · [B2_NA_11] */
   _persist();
-  if(!EMBED){ _doneSaved=true; _doneKey=_autoKey(); _saveErr=''; _persist(); render(); return; }   /* [R2-02] */
+  if(!EMBED){ _doneSaved=true; _doneKey=_autoKey(); _saveErr=''; var _t0=Date.now(), _rc=null; _persist();   /* [R2-02] */
+    /* ★[B2_NA_08 2026-11-06 BATCH2 나08] 단독 화면 완성 저장 = 이 기기에 실제로 쓴 것을 읽어 확인한 뒤에만 «저장됨» — 저장 공간 실패 · 다른 창이 더 최근이라 안 쓴 날도 성공으로 보였다 */
+    try{ _rc=JSON.parse(localStorage.getItem(_ordKey())||'null'); }catch(e){ _rc=null; }
+    if(_persistBad||!_rc||!_rc.sv||(+_rc.w||0)<_t0){ var _nw=!_persistBad&&_rc&&(+_rc.w||0)<_t0; _doneSaved=false; _saveErr=_nw?SAVE_LOCAL_NEWER:SAVE_LOCAL_FAIL; }
+    render(); return; }
   /* ★[DONE_AFTER_BAKE 2026-10-09 A~Z 점검 2라운드 A2-8] ④ «이대로 저장하기»도 머리 «저장»(SAVE_AFTER_BAKE)과 같은 길 — 구울 줄이 있으면 다 구운 뒤에 완성 저장을 보낸다(«저장 중…» · 최대 40초).
      종전엔 바로 보내 서버에 «완성 + 옛 글 소리»가 갔고, 10여 초 뒤 새 소리가 올라오며 완성이 풀려 ④ 가 «이대로 저장하기»로 되돌아갔다(머리는 «저장됨» · 한 화면에 두 말) */
   if(!window._doneBakeOk){ var _bk=[]; try{ _bk=_vcOn()?_vtAllKeys().filter(function(k){ return _vtNeed(k)||!!VC_MKP[k]; }):[]; }catch(e){ _bk=[]; }
@@ -11080,17 +11117,22 @@ function doSave(){
 }
 function _saveDone(ok,msg){
   clearTimeout(_saveT); _saving=false;
-  _doneSaved=!!ok; if(_doneSaved){ _doneKey=_autoKey(); _autoLast=_doneKey; _autoDirty=false; } _saveErr=ok?'':(msg||_ecWord('S',0));   /* [R2-02] · [ERR_CODE_BUILDER] 까닭 없는 실패도 코드(S0) */
+  /* ★[B2_NA_09 2026-11-06 BATCH2 나09] 완성 저장을 기다리는 사이 고쳤으면(보낸 판 ≠ 지금 판) 완성으로 두지 않는다 — 기준선은 서버가 받은 보낸 판 · «저장» · «이대로 저장하기»가 다시 켜진다 · 새 판을 저절로 보내지 않는다 */
+  _doneChg=!!(ok&&_doneSendKey&&_autoKey()!==_doneSendKey);
+  if(ok&&_txConfNew&&!_doneChg){ _doneSaved=false; _doneKey=_autoKey(); _autoLast=(_txConfNew===2)?'':_doneKey; _autoDirty=(_txConfNew===2); _saveErr=''; _txConfNew=false; _persist(); render(); return; }   /* [B2_NA_11] 두 글이 부딪힌 저장은 완성으로 두지 않는다(확인 뒤 다시 저장) */
+  _txConfNew=false;
+  if(_doneChg){ _doneSaved=false; _doneKey=_doneSendKey; _autoLast=_doneSendKey; _autoDirty=true; _saveErr=''; }
+  else { _doneSaved=!!ok; if(_doneSaved){ _doneKey=_autoKey(); _autoLast=_doneKey; _autoDirty=false; } _saveErr=ok?'':(msg||_ecWord('S',0)); }   /* [R2-02] · [ERR_CODE_BUILDER] 까닭 없는 실패도 코드(S0) */
   /* ★[DONE_CLEAN 2026-10-09 A~Z 점검 2라운드 A2-1] 완성 저장이 되면 그 판이 기준선이다(_autoLast) — 종전엔 기준선을 안 옮겨 이 기기 판에 dirty:true 가 남았고,
      다시 열면 «저장 전 고침을 이어서 열었어요»(거짓) · 완성이 풀린 ④ · 나가기 «저장하지 않은 변경이 있어요»(거짓)가 떴다 */
   _persist(); render();
-  if(ok){ try{ toast('저장했어요'); }catch(e){} }
-  else { try{ toast(_saveErr,6000,true); }catch(e){} }   /* ★[SAVE_FAIL_TOAST 2026-10-09 A~Z 점검 1라운드 A-7] 실패도 보이는 곳에 — 아래로 내려 요약을 본 뒤 누르면 까닭(.save-err)은 690px 위라 단추만 «다시 저장하기»로 바뀌었다(머리 «저장» 실패 _autoFail 과 같은 알림) */
+  if(ok&&!_doneChg){ try{ toast('저장했어요'); }catch(e){} }
+  else if(!ok){ try{ toast(_saveErr,6000,true); }catch(e){} }   /* ★[SAVE_FAIL_TOAST 2026-10-09 A~Z 점검 1라운드 A-7] 실패도 보이는 곳에 — 아래로 내려 요약을 본 뒤 누르면 까닭(.save-err)은 690px 위라 단추만 «다시 저장하기»로 바뀌었다(머리 «저장» 실패 _autoFail 과 같은 알림) */
 }
 /* ★[LOCAL_AHEAD 2026-10-09 A~Z 점검 1라운드 A-2] 나가기 판은 «저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요»라고 약속하는데, 마이페이지에서 다시 열면 서버 판이 이 기기 판을 통째로 덮어 그 고침이 사라졌다.
    이 기기 판에 «마지막으로 맞춘 서버 판의 지문(base)»과 «그 뒤 저장 안 한 고침이 있나(dirty)»를 같이 적는다 — 다시 열 때 서버 판 지문이 base 와 같으면(그사이 다른 기기가 저장 안 함) 이 기기 판을 이어서 연다(«저장»이 켜진 채).
    다르면 서버 판(다른 기기에서 저장한 판)으로 열고 «저장한 판으로 열었어요» 한 줄 · 지문은 저장할 변경만 본다(봤다 표시 · 걸음 · 이 기기 몫 · 서버가 tx 로 다시 짓는 옛 글 칸은 뺀다) */
-var _srvBase='', _sentKey='', _sentS=null;
+var _srvBase='', _sentKey='', _sentS=null, _doneSendKey='', _doneChg=false;   /* [B2_NA_09] */
 /* ★[CANON_EMPTY 2026-10-09 A~Z 점검 2라운드 A2-2] 서버 합치기(_ritualTxMerge)는 빈 칸 tx · mkc · up 을 {} 로 덧붙이고 fAt(칸마다 고친 때)를 다시 짓는다 — 내용이 아니라 받침이다.
    종전엔 이 둘을 그대로 세어, 글만 쓴 초안은 저장해도 서버 판 지문이 보낸 판과 달라 «저장한 판으로 열었어요»로 열고 저장 안 한 고침을 버렸다(LOCAL_AHEAD 가 가장 흔한 길에서 안 먹었다).
    서버 _txRest 와 같은 눈으로 — 빈 칸은 없는 칸 · fAt · txMig 는 세지 않는다 */
@@ -11383,6 +11425,7 @@ function _embedSave(){
   if(!EMBED) return;
   var pl; try{ pl=_ordPayload(true); }catch(e){ _saveDone(false,_ecWord('S',9)); return; }   // [DONE_SEEN_EMPTY] 완성 저장 — 다 걸었으니 자를 데가 없다
   _sentKey=_canonS(pl.S); try{ _sentS=JSON.parse(JSON.stringify(pl.S)); }catch(e){ _sentS=null; }   /* [LOCAL_AHEAD] · [BASE_AFTER_PULL] */
+  _doneSendKey=_autoKey(); _doneChg=false;   /* [B2_NA_09] 보낸 판의 지문 */
   try{ parent.postMessage({type:'momentedit:orderSave', data:pl}, window.location.origin); }catch(e){ _saveDone(false,_ecWord('S',6)); }
   /* ★[SAVE_THROW_SAY 2026-10-07 1라운드 점검] 꾸러미를 못 지었으면(S9) · 마이페이지로 못 보냈으면(S6) 바로 말한다 — 종전엔 예외를 삼켜 아무것도 안 보냈는데
      16초 뒤 «저장 확인이 늦어요 · 저장됐을 수 있어요 (코드 S5)»(사실 아님)가 떴다. 머리 «저장»(_autoSend)과 같은 갈래 */
@@ -11666,7 +11709,7 @@ window.ME_ADV_PAGE={
   hideOn:function(){ return !!document.getElementById('ob_rpViewer'); }   // [PREVIEW_LINK_V1] 미리듣기 중엔 숨김 — 소리를 듣는 자리라 말 걸 자리가 아니다(한 화면 한 상담사 · mypage 와 같은 판단)
 };
 </script>
-<script src="/assets/ritual-preview-link.js?v=1105a"></script>
+<script src="/assets/ritual-preview-link.js?v=1106na"></script>
 <script src="/assets/advisor-widget.js"></script>
 </body>
 </html>

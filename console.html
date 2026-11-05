@@ -1597,7 +1597,9 @@ function clearT(){ timers.forEach(clearTimeout); timers = []; stopProg(); }
 function later(fn, ms){ var t = setTimeout(fn, ms); timers.push(t); return t; }
 /* [CON_STALL] 멈춘 줄 — 자동 진행을 세우고(phase done · 다음 순서로 저절로 가지 않는다) 디렉터 칸에 할 일 한 줄. [뒤로] → 다시 누름이 그 줄을 처음부터 다시 낸다 */
 var STALL = -1;
-function conStall(){ STALL = cur; phase = 'done'; stopProg(); try { render(); } catch (e) {} toast('소리가 중간에 멈췄어요'); }
+/* ★[B2_NA_12 2026-11-06 BATCH2 나12] 현장 콘솔 — 소리를 못 받음 · 0초에서 멈춤 · 재생 실패도 «다 나갔다»로 치지 않고 그 줄에서 선다(까닭 한 줄) · 실제로 끝까지 흐른 증거(ended · 끝 1초 안)만 다음으로 */
+var STALL_WHY = '';
+function conStall(){ STALL = cur; phase = 'done'; var why = arguments[0] || ''; STALL_WHY = why; stopProg(); try { render(); } catch (e) {} toast(why || '소리가 중간에 멈췄어요'); }
 /* ★[CON_RELOAD_GUARD 2026-10-30 GPT 5차 점검(당일 6) · VC_FIX5_1030] 예식 도중 새로고침 · 탭 닫기는 브라우저가 한 번 묻는다 · 진행하던 순서는 이 탭에 적어 두고 다시 열면 시작 단추 위에 한 줄 —
    종전엔 확인 없이 처음 화면으로 돌아가 어느 순서까지 나갔는지 디렉터가 기억해서 찾아야 했다 · 고객 미리 듣기는 빼고 · 끝내기(나가기 · 마지막 순서)는 지운다 */
 function conMark(i){ if (GUEST) return; try { var c = R && R.cues[i]; if (c) sessionStorage.setItem('me_con_at', JSON.stringify({ q: location.search, i: i, n: String(c.name || ''), at: Date.now() })); } catch (e) {} }
@@ -1664,6 +1666,7 @@ function playSrc(url, estSec, cb){
   function chk(){
     if (done || pg !== aNarr._pg) return;   // [PLAY_GEN]
     var d = aNarr.duration, t = aNarr.currentTime || 0, left = (isFinite(d) && d > 0) ? d - t : 0;
+    if (!GUEST && MODE !== 'preview' && !aNarr.ended && t < 0.3) { done = true; stopProg(); aNarr.onerror = aNarr.onloadedmetadata = aNarr.onended = null; try { aNarr.pause(); } catch (e) {} conStall('소리를 재생하지 못했어요.'); return; }   /* [B2_NA_12] 못 받음 · 0초 정지 */
     if (!GUEST && MODE !== 'preview' && left > 1) {
       var flowing = !aNarr.paused && !aNarr.ended && !(wired && AC && AC.state !== 'running');
       if (flowing && t > tLast + 0.2) { tLast = t; tmr = setTimeout(chk, Math.round(left * 1000) + 900); timers.push(tmr); return; }
@@ -1757,7 +1760,8 @@ function playClip(c, done){
   playSrc(url, c.est || 3, function(ok, why, err){
     if (ok) return done();
     /* ★[CON_OWN_FALL 2026-10-30 GPT 3차 점검(당일 2) · VC_FIX3_1030] 받아 둔 두 분 소리가 이 기기에서 안 나면(깨진 파일 · 못 여는 형식) 그 자리 나레이션을 처음부터 — 종전엔 성우를 시도하지 않고 글 카드(무음)로 지났다 */
-    if (!GUEST && RF_OWN[c.slug] && url === CLIPS[c.slug]) { var nu = narOf(c); if (nu && nu !== url) { toast('두 분 소리 대신 나레이션으로');   /* [CON_FALL_SHORT 2026-10-30 GPT 4차 점검 4-06 · VC_FIX4_1030] 떠 있는 알림은 짧게(TOAST_MIN 꼴 · 2.2초) */ return playSrc(nu, c.est || 3, function(ok2, why2, err2){ if (ok2) return done(); fallbackCard(c, why2 || '파일 없음', done, err2); }); } }
+    if (!GUEST && RF_OWN[c.slug] && url === CLIPS[c.slug]) { var nu = narOf(c); if (nu && nu !== url) { toast('두 분 소리 대신 나레이션으로');   /* [CON_FALL_SHORT 2026-10-30 GPT 4차 점검 4-06 · VC_FIX4_1030] 떠 있는 알림은 짧게(TOAST_MIN 꼴 · 2.2초) */ return playSrc(nu, c.est || 3, function(ok2, why2, err2){ if (ok2) return done(); if (!GUEST && MODE !== 'preview') { conStall((why2 === '재생 막힘' && err2 && err2.name === 'NotAllowedError') ? '재생이 막혔어요.' : '소리를 재생하지 못했어요.'); return; } fallbackCard(c, why2 || '파일 없음', done, err2); }); } }   /* [B2_NA_12] */
+    if (!GUEST && MODE !== 'preview') { conStall((why === '재생 막힘' && err && err.name === 'NotAllowedError') ? '재생이 막혔어요.' : '소리를 재생하지 못했어요.'); return; }   /* [B2_NA_12] 현장은 실패를 끝으로 치지 않는다 · 성우 대신(위)은 그대로 */
     fallbackCard(c, why || '파일 없음', done, err);   // [GUEST_WHY]
   });
 }
@@ -2151,6 +2155,7 @@ function render(){
   /* ★[RESCUE_REPLAY_1016 라운드 6] «재생 안 됨»으로 미룬 순서가 있으면 사진 시간 첫 큐에서 한 줄 — 고객 화면 안심 «사진 시간에 다시 틀어 드려요»(식전 영상 · 준비한 순서)의 짝 */
   if (RESCUED.length && (c.slug === 'narr-close' || /^narr-photo-pre|^narr-closing/.test(c.slug || '') || c.slug === 'end-0-photo'))   /* [CLOSING_LINE_1031] 새 코스는 마무리 멘트 */   /* [END_FLOW_1030] */ htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
   if (STALL === cur && phase === 'done') htxt = '소리가 중간에 멈췄어요 · 연결을 확인하고 [뒤로] 뒤 다시 누르면 이 줄을 처음부터 내보내요' + (htxt ? ' / ' + htxt : '');   // [CON_STALL]
+  if (STALL === cur && phase === 'done' && STALL_WHY) htxt = htxt.replace('소리가 중간에 멈췄어요', STALL_WHY.replace(/\.$/, ''));   /* [B2_NA_12] 까닭별 한 줄 */
   h.hidden = !htxt; h.textContent = htxt;
   sf.hidden = true; nb.hidden = true;
   $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
@@ -2234,7 +2239,7 @@ function holdEnd(){
 $('#gPrev').addEventListener('click', guestPrev);
 $('#gPause').addEventListener('click', function(){ setPaused(!PAUSED); });
 mBtn.addEventListener('pointerdown', holdStart);
-mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); if (!was) mainTap(); });
+mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); _goPuAt = Date.now(); if (!was) mainTap(); });   /* [B2_NA_13] 뒤따르는 click 은 한 번으로 */
 mBtn.addEventListener('pointerleave', function(){ holdEnd(); });
 mBtn.addEventListener('pointercancel', function(){ holdEnd(); });
 
@@ -2501,9 +2506,17 @@ document.addEventListener('visibilitychange', function(){
 });
 
 /* 스페이스바 = 다음 (현장에서 무선 프리젠터가 대개 이걸 보낸다) */
+/* ★[B2_NA_13 2026-11-06 BATCH2 나13] 다른 조작(음량 · 정지 · 입력)에 손이 가 있으면 그 요소의 키가 먼저 — 음량 막대 방향키 · 정지 단추 Space 가 다음 순서를 내보냈다 ·
+     눌러 둔 키의 반복(repeat)은 진행하지 않는다 · 주 진행 단추는 Enter · Space · 클릭이 한 길(mainTap) · 같은 입력의 pointerup 뒤 click 은 한 번으로 · 본문 · 주 단추에서는 프리젠터 PageDown · ArrowRight 그대로 */
+var _goKbAt = 0, _goPuAt = 0;
+function _goOther(t){ if (!t || t === document.body || t === document.documentElement || t === mBtn) return false; var g = String(t.tagName || ''); return g === 'INPUT' || g === 'SELECT' || g === 'TEXTAREA' || g === 'BUTTON' || g === 'A' || !!t.isContentEditable || (t.getAttribute && /^(slider|button|textbox|spinbutton)$/.test(t.getAttribute('role') || '')); }
+mBtn.addEventListener('click', function(){ var n = Date.now(); if (n - _goPuAt < 700 || n - _goKbAt < 700) return; mainTap(); });   /* 화면 읽기 프로그램 등 포인터 없는 클릭 */
 document.addEventListener('keydown', function(e){
   if (!$('#run').classList.contains('on')) return;
-  if (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight') { e.preventDefault(); mainTap(); }
+  if (_goOther(e.target) && e.code !== 'Escape') return;   /* [B2_NA_13] */
+  if (e.repeat && (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight' || e.code === 'Enter' || e.code === 'NumpadEnter')) { e.preventDefault(); return; }
+  if ((e.code === 'Enter' || e.code === 'NumpadEnter') && e.target === mBtn) { e.preventDefault(); _goKbAt = Date.now(); mainTap(); return; }
+  if (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight') { e.preventDefault(); _goKbAt = Date.now(); mainTap(); }
   if (GUEST) return;      // ★뒤로·전체 정지는 디렉터 것이다
   if (e.code === 'PageUp' || e.code === 'ArrowLeft') { e.preventDefault(); $('#bBack').onclick(); }
   if (e.code === 'Escape') { e.preventDefault(); panic(); }

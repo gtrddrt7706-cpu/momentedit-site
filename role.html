@@ -55,7 +55,7 @@ footer{margin-top:40px;font-size:12.5px;color:var(--light)}
   M.appendChild(el('p','ro','읽기 전용 안내예요 · 두 사람이 정한 순서 그대로예요'));
   if(d.p){ M.appendChild(el('div','pre',String(d.p))); }
   d.m.forEach(function(mo){ if(!mo||!Array.isArray(mo.s)) return; var s=el('section','mo'); s.appendChild(el('h2','',String(mo.n||'')));
-    mo.s.forEach(function(x){ if(!x||x.length<2) return; var k=String(x[0]), c=k==='읽으실 글'||/^읽으실 글/.test(k)?'say':k==='하실 일'?'do':''; var b=el('div','st'+(c?' '+c:'')); b.appendChild(el('span','lb',k)); b.appendChild(el('p','tx',String(x[1]))); s.appendChild(b); });
+    mo.s.forEach(function(x){ if(!x||x.length<2) return; var k=String(x[0]), c=k==='읽으실 글'||/^(읽으실 글|덕담 원고)/.test(k)?'say':k==='하실 일'?'do':''; var b=el('div','st'+(c?' '+c:'')); b.appendChild(el('span','lb',k)); b.appendChild(el('p','tx',String(x[1]))); s.appendChild(b); });
     M.appendChild(s); });
   M.appendChild(el('footer','','당일 진행은 안내 음성과 디렉터가 함께 맡아요'));
 })();
