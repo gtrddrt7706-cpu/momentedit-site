@@ -139,7 +139,7 @@ try {
   { await setS(f, { mu: MU('r5'), bgm: {} }); await go(f, 'entry'); await wait(f, 1200); const r = await run(f, ['entry', 'matjeol'], 30000, true); await stop(f);
     const wk = r.filter((x) => x.walk), wkm = wk.filter((x) => x.f === '@ENT' && x.src), iW = wk.length ? wk[wk.length - 1].i : -1, nx = r.filter((x) => x.i === iW + 1 && x.k === 'entry' && x.src && x.f === '@ENT' && !x.lead);
     const dur = wk.length ? wk[wk.length - 1].t - wk[0].t : 0, txt = await f.evaluate(() => (LP.q || []).filter((x) => x.walk).map((x) => x.txt)[0] || '');
-    ok('⑥ 크게 보기 이어 듣기 — 걷는 줄 약 8초 · 입장 곡 크게(0) · 그다음 줄은 말 아래', wk.length > 50 && dur > 7000 && dur < 9500 && wkm.length > 40 && wkm.slice(10).every((x) => x.want === 0) && (nx.length === 0 || nx.every((x) => x.want <= -12)), { wk: wk.length, dur: Math.round(dur), w: [...new Set(wkm.map((x) => x.want))], nx: [...new Set(nx.map((x) => x.want))] }); }
+    ok('⑥ 크게 보기 이어 듣기 — 걷는 줄 약 8초 · 입장 곡 크게(0) · 그다음 줄(도착 멘트)은 잦아듦(MEANING_R2_1102 ENTRY_SETTLE · −90 을 4.5초)', wk.length > 50 && dur > 7000 && dur < 9500 && wkm.length > 40 && wkm.slice(10).every((x) => x.want === 0) && (nx.length === 0 || (nx[nx.length - 1].want <= -60 && !nx.some((x) => x.want > 0))),   /* 줄 사이 쉼엔 걷기 0 dB 가 이어지다 멘트 시작부터 잦아든다 */ { wk: wk.length, dur: Math.round(dur), w: [...new Set(wkm.map((x) => x.want))], nx: [...new Set(nx.map((x) => x.want))] }); }
   /* ⑦ 입장 곡 받는 중 바뀜 */
   { const z = await f.evaluate(async () => { const E = window.EntryMusic, keep = { has: E.carryHas, sig: E.carrySig, carry: E.carry }, B = BgmBed._t; let sig = 'A';
       const ac = new (window.AudioContext || window.webkitAudioContext)(), buf = ac.createBuffer(1, 8000, 8000);

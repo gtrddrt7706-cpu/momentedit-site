@@ -1984,6 +1984,25 @@
       if (_ms === 'bridge-b12-tribute-calm') { _mc.duck = PARAM.duckSpeech; _mc.post = [{ music: 'to', v: PARAM.duckOff, ms: 1500 }];
         var _mn = cues[mr + 1]; if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000); _mn.leadDb = PARAM.duckMusic; _mn.gapMs = Math.max(_mn.gapMs || 0, 1000); } }
     }
+    /* ★★[MEANING_R2_1102 원칙 · 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] (위 MEANING_R1 원칙에 더한다)
+         행진 · 이동은 음악이 끌어올린다 / 두 분이 멈춰 서서 하는 의식(맞절 등)은 음악을 빼서 «조용한 고점»(박수가 빈자리를 채운다) ·
+         곡은 «장면 경계»에서만 바뀐다(행동 줄 · 두 분이 말하는 줄 도중에 목록이 다음 곡으로 넘어가지 않는다 · bgm-bed listArm · 콘솔 listGo) ·
+         엄숙 → 기쁨으로 바뀌는 자리(성혼 선언 뒤)는 앞 곡을 잇지 않고 새 곡으로 올린다 · 미리 듣기(②) · 연습 · 당일 콘솔은 한 표 */
+    for (var r2 = 0; r2 < cues.length; r2++) {
+      var _rc = cues[r2], _rs = _rc.slug || '';
+      /* [ENTRY_HUSH] 입장 직전 숨 고르기 — 나레이션 −16 · 줄 끝에서 화촉 곡을 2초에 −90 → 정적 1초 → 입장 곡은 무음에서 입장 구호 아래 −12 (겹침 0) */
+      var _rp = cues[r2 - 1] || null, _rpq = !_rp || ((_rp.live && _rp.live.duck != null ? _rp.live.duck : _rp.duck) <= -60);   /* 앞 큐가 정적으로 끝났나(화촉이 없는 날 개식사 뒤 등) */
+      if (_rs === 'bridge-b7-entry-ready' && !_rpq) { _rc.duck = PARAM.duckSpeech; _rc.post = [{ music: 'to', v: PARAM.duckOff, ms: 2000 }, { wait: 1000 }]; _rc.hushNext = true; }
+      /* [ENTRY_SETTLE] 입장 곡은 «도착에서 잦아듦» — 도착 멘트 시작부터 4.5초에 걸쳐 −90(박수 아래로 · 음성은 기다리지 않는다 fadeWith) · 맞절 안내 · 맞절 = 정적 */
+      if (_rs === 'narr-entry-arrive') { _rc.duck = PARAM.duckOff; _rc.fadeMs = 4500; _rc.fadeWith = true; }
+      if (_rc.k === 'matjeol' && _rs === 'narr-entry-bow') { _rc.duck = PARAM.duckOff; if (_rc.live) _rc.live.duck = PARAM.duckOff; }
+      /* [ENTRY_SETTLE] 하객을 향해 서시겠습니다(b8) = 정적 → 줄 끝에서 감사 인사 곡을 무음에서 뜸(6초 앞서 −8 · 종전 3초 겹침 대신) */
+      if (_rs === 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol') { _rc.duck = PARAM.duckOff;   /* 맞절 바로 뒤만 — 편지 끝 이음말(b8 · 편지 «음악과 함께» 곡 아래)은 그대로 */ var _rn = cues[r2 + 1]; if (_rn && _rn.k === _rc.k) { _rn.goLeadMs = Math.max(_rn.goLeadMs || 0, 6000); _rn.leadDb = PARAM.duckMusic; _rn.gapMs = Math.max(_rn.gapMs || 0, 1000); } }
+      /* [DECLARE_LIFT] 성혼 선언 뒤 축하 박수 = 새 곡 — 덕담(다음 순간) 곡 · 없으면 목록 다음 곡을 강조 자리에서 −8 로 0.6초에(엄숙 → 기쁨 · 앞 곡을 멈춘 자리부터 되살리지 않는다) */
+      if (_rs === 'narr-declare-family-out' && _rc.live) { _rc.live.newSong = true; _rc.live.upMs = 600; }
+      /* [TRIBUTE_WALK] 부모님께 걸어가는 동작 −12(이동은 음악이 받침) → 두 분이 말하는 차례 −20 그대로 */
+      if (/^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;
+    }
     for (var pa = 0; pa < cues.length; pa++) {
       var _pc = cues[pa]; if (_pc.k !== 'prevideo') continue;
       if (/^narr-prevideo-in/.test(_pc.slug || '')) { _pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000); }
@@ -2047,16 +2066,17 @@
          본식 곡(M4 · 감사 인사 ~ 축가 · «음악 없이» 축사 · 편지 · 앞 곡을 잇는 축배)이 −90 으로 내려간 뒤에는 같은 본식 곡 칸에서 다시 올리지 않는다(박수 · 축가 여는 말 · 축가 끝 박수 = 정적 · 박수 소리가 채운다) ·
          다시 음악이 필요한 자리는 그 순간의 곡(부모님께 인사 · 테이블 · 닫는 인사 …)이 무음에서 시작한다(엔진이 손대지 않는다) ·
          되살아날 음악이 10초 안에 다시 −90 이면 올리지 않는다(«음악과 함께» 축사 뒤 축가 여는 말 → MR · 켜졌다 꺼졌다 금지) ·
-         예외: 성혼 선언(정적 뒤 «축하 박수부터 음악이 이어져요» · MEANING_R2 에서 새 곡으로 바뀐다) · 축배 «위하여» 뒤 M7(duck 이 아니라 cheer 로 돈다) */
-    (function () { var b5 = S.bgm || {}, quiet = false, prevM4 = false, lastK = '';
+         성혼 선언 뒤 박수는 앞 곡이 아니라 새 곡(MEANING_R2 DECLARE_LIFT · live.newSong · 표에선 −8 로 남는다) · 예외는 축배 «위하여» 뒤 M7 하나(duck 이 아니라 cheer 로 돈다) */
+    (function () { var b5 = S.bgm || {}, quiet = false, heard = false, prevM4 = false, lastK = '';   /* heard = 본식 곡이 한 번이라도 들렸나(시작 전 정적 · 하객을 향해 서는 이음말은 «꺼짐»이 아니다 · MEANING_R2) */
       var m4 = function (k) { if (/^(welcome|vow|ring|declare|bless|song)$/.test(k)) return true; if (k === 'free') return !(b5.S5 && b5.S5.m === 'bed'); if (k === 'letter') return !(b5.S6 && b5.S6.m === 'bed'); if (k === 'toast') return prevM4; return false; };
       var P = []; cues.forEach(function (c) { P.push({ c: c, w: 'say', est: +c.est || 0 }); (c.post || []).forEach(function (p) { if (p.music === 'to') P.push({ c: c, w: 'post', p: p, est: 0 }); }); if (c.live && c.live.duck != null) P.push({ c: c, w: 'live', est: +(c.live.est || 0) }); });
       var lv = function (x) { return x.w === 'say' ? x.c.duck : x.w === 'live' ? x.c.live.duck : x.p.v; }, set = function (x, v) { if (x.w === 'say') x.c.duck = v; else if (x.w === 'live') x.c.live.duck = v; else x.p.v = v; };
       for (var j = 0; j < P.length; j++) { var x = P[j], k = x.c.k; if (k !== lastK) { prevM4 = lastK ? m4(lastK) : false; lastK = k; } var v = lv(x); if (v == null) continue;
-        if (!m4(k)) { quiet = false; continue; }   /* 다른 곡의 순간 — 그 곡은 무음에서 시작 · 본식 곡 정적은 여기서 끝 */
-        if (v <= -60) { quiet = true; continue; }
-        if (k === 'declare') { quiet = false; continue; }   /* 예외(선언 뒤 박수) */
+        if (!m4(k)) { quiet = false; heard = false; continue; }   /* 다른 곡의 순간 — 그 곡은 무음에서 시작 · 본식 곡 정적은 여기서 끝 */
+        if (v <= -60) { if (heard) quiet = true; continue; }
+        if (k === 'declare') { quiet = false; heard = true; continue; }   /* 예외(선언 뒤 박수) */
         if (quiet) { set(x, -90); continue; }
+        heard = true;
         /* 10초 안에 다시 정적이면(곡이 바뀌었다 돌아온 자리 포함) 올리지 않는다 — 앞이 정적일 때만 */
         var pv = j > 0 ? lv(P[j - 1]) : null; if (pv != null && pv <= -60) { var t = 0, back = false; for (var m = j; m < P.length; m++) { var y = lv(P[m]); if (y != null && y <= -60) { back = true; break; } t += P[m].est; if (t >= 10) break; }
           if (back && t < 10) { for (var n = j; n < P.length; n++) { var z = lv(P[n]); if ((z != null && z <= -60) || !m4(P[n].c.k)) break; set(P[n], -90); } quiet = true; } } }

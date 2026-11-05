@@ -91,7 +91,7 @@ try {
   const fs4 = ['welcome', 'vow', 'ring', 'declare', 'bless'].map((k) => first[k]).filter(Boolean);
   ok('② 서약 · 반지 · 선언 · 덕담 · 감사 인사가 모두 같은 곡으로 시작하지 않는다(당일 시간표 곡)', fs4.length >= 4 && new Set(fs4).size > 1, fs4);
   ok('③ 축가 화면 글 — «여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요»', /여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요/.test(names.t_song || ''), (names.t_song || '').slice(0, 120));
-  ok('③ 성혼 선언 화면 글 — «선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요»', /선언문을 읽는 동안은 음악 없이, 축하 박수부터 음악이 이어져요/.test(names.t_declare || ''), (names.t_declare || '').slice(0, 120));
+  ok('③ 성혼 선언 화면 글 — «선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요»', /선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요/.test(names.t_declare || ''), (names.t_declare || '').slice(0, 120));
   const m8 = (BgmPicks.PICKS.M8L || []).find((x) => HAVE.includes(x)) || '';
   ok('③ 닫는 인사 — «촬영 후 안내부터 마지막 곡 ‹곡명›이 흐르고, 추가 촬영이 끝날 때까지 이어져요»(실제 마지막 곡 · AFTER_PHOTO_LOOP_1102)', !!names._last && names._last === T(m8) && /추가 촬영이 끝날 때까지 이어져요/.test(names.t__close || ''), { screen: names._last, f: m8, t: T(m8) });
   /* ④ [SILENT_STAY_1102] 하객 맞이 → 식전 영상 → 화촉 이어 듣기 — 영상 · 화촉 동안 하객 맞이 곡(B01)이 되살아나지 않는다(want 최댓값 ≤ −60) */
