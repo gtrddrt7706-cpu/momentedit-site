@@ -2451,6 +2451,7 @@ function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getE
       var ld=document.getElementById('loading'); if(ld && ld.style.display==='flex') return true;   // 갱신 중 재발동 방지
       if(overlayOpen()) return true;
       if(dirtyOutsideFlows()) return true;
+      if(window._galDirty && window._galDirty()) return true;   // [B2_MA_53] 제출 전 사진 선택이 있으면 당겨서 새로고침을 보류
     }catch(e){ return true; }
     return false;
   }
@@ -7823,6 +7824,10 @@ function _galMore(first){
     g.page=d.page||next; g.pages=d.pages||1; g.total=d.total||d.files.length;
     d.files.forEach(function(f){ if(f&&f.id){ g.files.push(f); } });
     if(first){
+      /* ★[B2_MA_52 2026-11-06 2차 B2-마52] 번호를 쓰기 시작했거나 번호 방식의 기존 선택이 있으면 늦게 온 썸네일이 번호 칸을 숨기지 않는다 —
+         종전엔 썸네일이 오면 무조건 칸을 숨겨 적던 번호가 사라진 것처럼 보였다(대응되지 않은 번호를 지우지 않는다 · 비어 있는 첫 화면만 썸네일로 바꾼다) */
+      var _pc=$('mp_picks'), _typed=!!(_pc && String(_pc.value||'').trim() && String(_pc.value||'')!==String(_pc.defaultValue||'')), _numOld=!!(g.picked && !/\([A-Za-z0-9_-]{10,}\)/.test(g.picked));
+      if(_typed || _numOld){ _GAL=null; var _mw=$('mp_pickManual'); if(_mw && !$('mp_pickKeep')){ var _kn=document.createElement('div'); _kn.id='mp_pickKeep'; _kn.className='cc-mini'; _kn.style.cssText='margin:6px 0 0;color:var(--label-soft)'; _kn.textContent='적어 둔 번호를 유지했어요. 번호로 계속 고르실 수 있어요.'; _mw.appendChild(_kn); } return; }
       // 이전 제출("파일명(ID)")에서 선택 복원
       var m=g.picked.match(/\(([A-Za-z0-9_-]{10,})\)/g)||[];
       m.forEach(function(t){ var id=t.slice(1,-1); if(!g.sel[id]){ g.sel[id]=true; g.order.push(id); } });
@@ -7855,6 +7860,9 @@ function _galRender(){
   var mb=$('mp_galMore'); if(mb) mb.addEventListener('click',function(){ _galMore(false); });
   var gs=$('mp_galSubmit'); if(gs) gs.addEventListener('click',_galSubmit);
 }
+/* ★[B2_MA_53 2026-11-06 2차 B2-마53] 제출 전 사진 선택이 저장된 선택과 다르면 «변경»이다 — 당겨서 새로고침 · 머리 새로고침이 그 선택을 말없이 지우지 않게(당김은 보류 · 머리 단추는 한 번 묻는다) */
+window._galDirty=function(){ var g=_GAL; if(!g) return false; var sv={}; (String(g.picked||'').match(/\(([A-Za-z0-9_-]{10,})\)/g)||[]).forEach(function(t){ sv[t.slice(1,-1)]=1; });
+  var a=Object.keys(g.sel).sort().join(','), b=Object.keys(sv).sort().join(','); return a!==b; };
 function _galCount(){
   var g=_GAL, el=$('mp_galCount'); if(!g||!el) return;
   var n=g.order.length;
@@ -7873,8 +7881,9 @@ function _galSubmit(){
   var picks=g.order.map(function(id){ return { id:id, name:byId[id]||'' }; });
   var btn=$('mp_galSubmit'); if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
-  _act({ p:{action:'submitResultSelection', token:getToken(), picks:picks}, L:'R', base:'잠시 뒤 다시 눌러 주세요', done:_donePick(),   // [ERR_CODE_MYPAGE] F4
-    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('고른 컷을 보내지 못했어요', line); reset(); } });
+  window.__pickOther=false;
+  _act({ p:{action:'submitResultSelection', token:getToken(), picks:picks}, L:'R', base:'잠시 뒤 다시 눌러 주세요', done:_donePick(picks.map(function(x){ return (x.name||'')+'('+x.id+')'; }).join(', ')),   // [ERR_CODE_MYPAGE] F4 · [B2_MA_54]
+    ok:function(){ loadMyState(); }, fail:function(line){ if(window.__pickOther){ window.__pickOther=false; _errAlert('고른 컷을 확인해 주세요', PICK_OTHER); } else _errAlert('고른 컷을 보내지 못했어요', line); reset(); } });
 }
 function doSubmitSelection(){
   // [PICK_NORMALIZE] 제출 = 정규화된 캐논 문자열(쉼표+공백) — 표시(칩·카운트)와 저장이 항상 일치. 초과 안내는 상시 카운터가 담당(종전 1회성 confirm 대체 · 회의 A-1 합의)
@@ -7884,11 +7893,21 @@ function doSubmitSelection(){
   var btn=$('mp_pickSubmit');
   if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
-  _act({ p:{action:'submitResultSelection', token:getToken(), picks:picks}, L:'R', base:'잠시 뒤 다시 눌러 주세요', done:_donePick(),   // [ERR_CODE_MYPAGE] F4
-    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('고른 컷 번호를 보내지 못했어요', line); reset(); } });
+  window.__pickOther=false;
+  _act({ p:{action:'submitResultSelection', token:getToken(), picks:picks}, L:'R', base:'잠시 뒤 다시 눌러 주세요', done:_donePick(picks),   // [ERR_CODE_MYPAGE] F4 · [B2_MA_54]
+    ok:function(){ loadMyState(); }, fail:function(line){ if(window.__pickOther){ window.__pickOther=false; _errAlert('고른 컷을 확인해 주세요', PICK_OTHER); } else _errAlert('고른 컷 번호를 보내지 못했어요', line); reset(); } });
 }
 /* [ERR_CODE_MYPAGE] 시간 초과 뒤 «컷 선택이 들어갔나» — 선택 시각(선택일시)이 보낼 때와 달라졌으면 들어간 것이다 */
-function _donePick(){ var r0=((window._mpStateD||{}).result)||{}, t0=String(r0['선택일시']||''); return function(st){ var r=st.result||{}; return !!(String(r['선택일시']||'') && String(r['선택일시']||'')!==t0); }; }
+/* ★[B2_MA_54 2026-11-06 2차 B2-마54] 다시 불러온 기록이 «내가 보낸 컷 목록»과 같을 때만 완료 — 종전엔 다른 기기가 다른 컷을 제출해 시각만 바뀌어도 내 성공으로 셌다.
+   다르면 «다른 기기에서 사진 선택이 바뀌었어요. 고른 컷을 다시 확인해 주세요.» · 내 고른 초안은 그대로 둔다(덧붙이거나 덮어쓰지 않는다) */
+function _pickKey(v){ var ids=String(v||'').match(/\(([A-Za-z0-9_-]{10,})\)/g); if(ids&&ids.length) return ids.map(function(t){ return t.slice(1,-1); }).sort().join(',');
+  return _pickNorm(String(v||'')).list.slice().sort().join(','); }
+function _donePick(sent){ var r0=((window._mpStateD||{}).result)||{}, t0=String(r0['선택일시']||''); return function(st){ var r=st.result||{};
+  var ch=!!(String(r['선택일시']||'') && String(r['선택일시']||'')!==t0); if(!ch) return false;
+  if(sent==null) return true;
+  if(_pickKey(r['선택'])===_pickKey(sent)) return true;
+  window.__pickOther=true; return false; }; }
+var PICK_OTHER='다른 기기에서 사진 선택이 바뀌었어요. 고른 컷을 다시 확인해 주세요.';
 function doConfirmRetouch(){
   mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n받으신 컷을 다듬고 싶으시면 ④의 수정 요청하기(무료 1회)로, 새 컷 추가는 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){   // REVISION_LOOP — 카카오톡 안내를 공식 경로(수정 요청하기)로 대체
     if(!ok) return;
@@ -9445,8 +9464,11 @@ function doPublishInv(box){
   INVFLOW._lkChg=(['online','offline','both'].indexOf(String(_d0.method||''))>=0 && _invPubHistory(_d0)) ? _invLinkChange(_d0) : undefined;
   var _eid0=String(_d0.eventId||(INVFLOW.pub&&INVFLOW.pub.eventId)||'');   // [INV_DONE_EID] 반영 전 링크의 eventId — «그대로»는 결과와 대조한 뒤에만 말한다(아래)
   if(btn){ btn.disabled=true; btn.textContent=/마치기$/.test(_lbl)?'마치는 중…':(/반영하기$/.test(_lbl)?'반영하는 중…':'만드는 중…'); }
-  function reset(msg){ if(btn){ btn.disabled=false; btn.textContent=_lbl; } if(msg&&$('iv_err')) _errSet($('iv_err'), msg); }   // [ERR_CODE_NOWRAP]
-  var dr=INVFLOW.draft, sendDraft=dr;
+  /* ★[B2_MA_09 2026-11-06 2차 B2-마09] 발행하는 동안 편집 · 이전 · 단계 이동을 잠근다(전체 덮개) — 종전엔 발행 단추만 잠겨, 응답을 기다리는 사이 이전으로 가 이름을 고치면
+     자동 재시도가 바뀐 초안을 보냈다. 보낼 초안은 시작 때 복사해 고정하고 자동 재시도에도 같은 것을 쓴다 */
+  _flowBusy(true, /반영하기$/.test(_lbl)?'고친 내용을 반영하는 중이에요.':'청첩장을 만드는 중이에요.'); INVFLOW._publishing=true;
+  function reset(msg){ _flowBusy(false); INVFLOW._publishing=false; if(btn){ btn.disabled=false; btn.textContent=_lbl; } if(msg&&$('iv_err')) _errSet($('iv_err'), msg); }   // [ERR_CODE_NOWRAP]
+  var dr=INVFLOW.draft, sendDraft=dr; try{ sendDraft=JSON.parse(JSON.stringify(dr)); }catch(e){}
   if(dr.method==='both' && dr._onlineSame!=='N'){   // '오프라인과 같게' 미러는 발행 직전 1회만(작성 중 미러가 온라인 커스텀을 덮던 것 이동 · 2026-07-18 리뷰)
     var _O=SIDE_KEYS.offline, _N=SIDE_KEYS.online, _cp={}; _cp[_N.d]=dr[_O.d]||''; ['title','sub','body','quote','gb','bb'].forEach(function(k){ _cp[_N[k]]=dr[_O[k]]||''; });
     sendDraft=Object.assign({},sendDraft,_cp);
@@ -9473,6 +9495,7 @@ function doPublishInv(box){
        완성 화면에서 뒤로가기 → 「그냥 나가기」(방금 발행한 사람은 고르기 쉽다)나 새로고침이면 재진입이 3/4·4/4 로 열렸다.
        「완료」를 누른 것과 같은 결과다. 기준선(_wizWatch)도 새로 잡혀 뒤로가기의 «저장하지 않은 변경» 판도 사라진다.
        ★[WIZ_EXIT_ONE](나가기가 몰래 저장하지 않는다)과 부딪히지 않는다 — 이건 나가기가 아니라 「만들기」를 누른 결과다. */
+    _flowBusy(false); INVFLOW._publishing=false;   // [B2_MA_09]
     if(r.urls||r.skipped) saveInvDraft();
     if(r.urls){ var _b1=INVFLOW.base||{}; INVFLOW.pub={eventId:INVFLOW.draft.eventId||'', urls:r.urls}; INVFLOW.pubBase={groomKo:_b1.groomKo||'', brideKo:_b1.brideKo||'', groomEn:_b1.groomEn||'', brideEn:_b1.brideEn||''}; }   // [INV_PUB_LABEL] 방금 발행한 것이 다음 「수정하기」의 링크 대조 기준
     /* [INV_DONE_EID] 2026-09-26 G4 검토 · 완성 화면의 «보내신 링크는 그대로예요»가 반영 «전» 예측(_invLinkChange)만 믿었다 —
@@ -11790,7 +11813,7 @@ function startPvcFlow(v){
   v=v||{};
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false; bkKill(PHOTOFLOW); PHOTOFLOW.active=false;
   var left=null; try{ left=v.due?_kstDdayOf(v.due):null; }catch(e){}
-  PVCFLOW={ active:true, d:_pvcNewD(v.d), st:String(v.st||''), consent:!!v.consent, prev:v.prev||null, conf:v.conf||null, due:String(v.due||''), wed:String(v.wed||''), past:(left!=null && left<0), sheet:'', more:false, scr:'' };
+  PVCFLOW={ active:true, d:_pvcNewD(v.d), st:String(v.st||''), consent:!!v.consent, prev:v.prev||null, conf:v.conf||null, due:String(v.due||''), wed:String(v.wed||''), past:(left!=null && left<0), sheet:'', more:false, scr:'', rev:(v.rev==null?null:(+v.rev||0)) };   // [B2_MA_07] 이 기기가 아는 판
   PVCFLOW.scr=_pvcScrOf(PVCFLOW);
   var old=$('mp_pvcOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_pvcOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','식전 영상');
@@ -11816,11 +11839,17 @@ function _pvcTearDown(){
   _mpUnlock(); PVCFLOW.active=false; PVCFLOW._exiting=false;
 }
 function _pvcOut(d){ d=d||{}; return { v:1, mode:d.mode||'', step:+d.step||0, style:d.style||'', song:d.song||'', photos:(d.photos||[]).map(function(p){ return {id:p.id, th:p.th||'', sec:p.sec, n:p.n||''}; }), met:d.met||'', link:d.link||'' }; }
-function _pvcApply(v){ if(!v||!PVCFLOW.active) return; PVCFLOW.st=String(v.st||''); PVCFLOW.prev=v.prev||null; PVCFLOW.conf=v.conf||null; PVCFLOW.consent=!!v.consent; if(v.due) PVCFLOW.due=String(v.due); }
+function _pvcApply(v){ if(!v||!PVCFLOW.active) return; if(v.rev!=null) PVCFLOW.rev=+v.rev||0; /* [B2_MA_07] */ PVCFLOW.st=String(v.st||''); PVCFLOW.prev=v.prev||null; PVCFLOW.conf=v.conf||null; PVCFLOW.consent=!!v.consent; if(v.due) PVCFLOW.due=String(v.due); }
+/* ★[B2_MA_07 2026-11-06 2차 B2-마07] 같은 식전 영상의 저장 · 보내기 · 확정을 «순서대로» 한 줄로 보낸다 — 걸음을 넘기며 낸 자동 저장이 끝나기 전에 «만들기»가 나가
+   늦게 끝난 옛 저장이 보낸 상태를 되돌릴 수 있었다. 본문은 «보낼 차례가 왔을 때»의 최신 초안으로 만든다(보내기는 최신 내용을 한 번만) · 이 기기가 아는 판(rev)을 함께 보내 서버도 옛 저장을 버린다 */
 function _pvcSave(op, extra){
-  var F=PVCFLOW, body={action:'pvSave', token:getToken(), op:op||'save', draft:_pvcOut(F.d)};
-  if(extra){ for(var k in extra){ if(Object.prototype.hasOwnProperty.call(extra,k)) body[k]=extra[k]; } }
-  var pr=_post(body, 30000).then(function(r){ if(r&&r.ok&&r.pv){ _pvcApply(r.pv); try{ if(window._lastProd) window._lastProd.prevideo=r.pv; }catch(e){} } return r; }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });
+  var F=PVCFLOW;
+  var send=function(){ var body={action:'pvSave', token:getToken(), op:op||'save', draft:_pvcOut(F.d), rev:(F.rev==null?null:F.rev)};
+    if(extra){ for(var k in extra){ if(Object.prototype.hasOwnProperty.call(extra,k)) body[k]=extra[k]; } }
+    return _post(body, 30000).then(function(r){ if(r&&r.pv){ _pvcApply(r.pv); try{ if(window._lastProd) window._lastProd.prevideo=r.pv; }catch(e){} } return r; }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); }); };
+  F._qN=(F._qN||0)+1;
+  var pr=(F._q||Promise.resolve()).then(send, send);
+  F._q=pr.then(function(){ F._qN--; }, function(){ F._qN--; });
   return _wizWatch('pvc', pr);   // 어느 길로 보낸 저장이든 머리 알약이 «저장 중… · 저장됨 · 다시 저장»을 말한다
 }
 function _pvcCollect(){ var F=PVCFLOW; if(!F.active) return; var l=$('mp_pvcLink'); if(l) F.d.link=String(l.value||'').trim(); var m=$('mp_pvcMet'); if(m) F.d.met=String(m.value||''); }
@@ -12044,7 +12073,8 @@ function _pvcUpload1(sec, files){
       var f=list[i]; if(!i) _flowBusy(true, '사진 올리는 중…'); if(list.length>1) _pvcBusyText('사진 올리는 중… '+(i+1)+'/'+list.length);
       Promise.all([_snapResize(f, 2560, 0.86), _snapResize(f, 400, 0.8)]).then(function(two){   // 스냅 참고 사진과 같은 길(흰 바탕 · JPEG) · 원본은 보내지 않는다
         return _post({ action:'pvPhoto', token:getToken(), sec:sec, name:String(f.name||'').slice(0,60), data:two[0], thumb:two[1], pvConsent:1 }, 60000).then(function(r){
-          if(!(r&&r.ok&&r.id)){ bad=(r&&typeof r==='object')?r:{}; bad.line=_errLine(r,'U','다시 해 주세요'); return; }
+          if(!(r&&r.ok&&r.id)){ bad=(r&&typeof r==='object')?r:{}; bad.line=(r&&r.full&&r.error)?r.error:_errLine(r,'U','다시 해 주세요'); if(r&&r.full&&r.pv&&r.pv.d){ try{ F.d.photos=(r.pv.d.photos||[]).map(function(p){ return {id:p.id, th:p.th||'', sec:p.sec, n:p.n||''}; }); }catch(e){} } return; }   // [B2_MA_59] 자리가 찼으면 서버의 지금 사진으로 맞춘다(말없이 빼지 않게)
+          if(r.rev!=null) F.rev=+r.rev||0;   // [B2_MA_07]
           PVC_THUMBS[r.th]=two[1]; F.consent=true; got++;
           F.d.photos.push({ id:String(r.id), th:String(r.th||''), sec:sec, n:String(f.name||'').slice(0,60) });
           if(!F.d.mode) F.d.mode='make'; if(F.st===''||F.st==='later'||F.st==='off') F.st='draft';
@@ -12073,7 +12103,7 @@ function _pvcSubmit(){
     if(/^https?:\/\/([a-z0-9-]+\.)*(youtube\.com|youtu\.be)\//i.test(F.d.link)){ _pvcErr('유튜브 주소로는 원본을 받을 수 없어요 · 구글 드라이브나 업체 공유 링크로 보내 주세요'); return; }
   }
   _pvcAgree().then(function(ok){ if(!ok) return;
-    _flowBusy(true, '보내는 중…');
+    _flowBusy(true, (F._qN>0)?'저장을 마친 뒤 영상을 만들게요.':'보내는 중…');   // [B2_MA_07] 기다릴 때만
     _pvcSave('submit', { pvConsent:1 }).then(function(r){
       _flowBusy(false);
       if(!(r&&r.ok)){ if(_errSess(r)){ _errGoLogin(r,'S'); return; } _pvcErr(_errLine(r,'S','보내지 못했어요 · 다시 눌러 주세요')); return; }
@@ -12083,8 +12113,11 @@ function _pvcSubmit(){
 }
 function _pvcConfirmGo(){
   _flowBusy(true, '확정하는 중…');
-  _pvcSave('confirm').then(function(r){
+  /* ★[B2_MA_08 2026-11-06 2차 B2-마08] 보고 있는 미리보기의 영상 ID · 요청 판을 함께 보낸다 — 서버의 최신 미리보기와 다르면 확정하지 않는다 */
+  var _pv=PVCFLOW.prev||{};
+  _pvcSave('confirm', { prevId:_pv.id==null?null:_pv.id, ver:_pv.ver==null?null:_pv.ver }).then(function(r){
     _flowBusy(false);
+    if(r&&r.newer){ try{ renderPvc(); }catch(e){} _pvcErr(r.error||'새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.'); return; }   // [B2_MA_08] 새 미리보기로 다시 그린 뒤 한 줄
     if(!(r&&r.ok)){ if(_errSess(r)){ _errGoLogin(r,'S'); return; } _pvcErr(_errLine(r,'S','확정하지 못했어요 · 다시 눌러 주세요')); return; }
     window._mpNextToast='영상을 확정했어요'; _pvcTearDown(); _mpRefresh();
   });
@@ -12259,7 +12292,10 @@ function prodConfirmHtml(p, inv){
        확정 기록(스냅샷)은 줄바꿈을 « · »로 이어 적는다(아래 wireProdConfirm). 옛 코스 요약(아래 else)은 그대로. */
     rv='본식 순서 '+escapeHtml(String(rd.summary.moments||0))+'개 · 본식 '+escapeHtml(String(rd.summary.min||''))+(rd.summary.table?'<br>테이블 인사 '+escapeHtml(String(rd.summary.table)):'')+(rd.summary.photo?'<br>단체 사진 '+escapeHtml(String(rd.summary.photo)):'');   /* [TABLE_APART 2026-10-08] 테이블 인사는 본식 · 단체 사진과 따로 한 줄 */
     var _mi=[]; if(rd.summary.from) _mi.push('‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작');
-    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] 서약 카드에서 감사문을 골랐으면 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('감사 인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
+    /* ★[B2_MA_88 2026-11-06 2차 B2-마88] 식순 빌더가 전체 대본으로 정한 «대본에 담긴 글»(summary.texts)이 있으면 그것만 — 뺀 순간 · 현장에서 바로 하기 · 안 함의 보관 글은 목록에서 뺀다(저장 내용은 그대로).
+       없으면(옛 저장) 종전 «작성됨» 줄 그대로 · 담긴 글이 없으면 줄을 내지 않는다 */
+    if(Object.prototype.toString.call(rd.summary.texts)==='[object Array]'){ if(rd.summary.texts.length) _mi.push('대본에 담긴 글: '+rd.summary.texts.map(function(x){ return escapeHtml(String(x)); }).join(' · ')); }
+    else if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] 서약 카드에서 감사문을 골랐으면 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('감사 인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
     if(_mi.length) rv+='<br><span class="cc-mini">'+_mi.join('<br>')+'</span>'; }
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
     if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] */ if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('감사 인사');   /* [THANKS_GREET_1013 · CHIP_NAME_1014] 옛 판 요약도 같은 이름 */ if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
@@ -13830,7 +13866,10 @@ $('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen
 try{ _softHint($('fg_email'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.'); }catch(e){}   // MPD4_H3 이메일 형식 검사 신설(비차단)
 
 // [새로고침] 진행 상황 수동 갱신 — loadMyState가 로딩 화면으로 피드백
-(function(){ var rb=document.getElementById('mp_refresh'); if(rb){ rb.addEventListener('click', function(){ if(window._mePullRefresh){ _mePullRefresh(); } else { loadMyState(); } }); } })();   // 당겨서 새로고침과 같은 경로 — 위저드 입력 수집 후 갱신(버튼만 수집을 건너뛰던 우회로 봉합)
+(function(){ var rb=document.getElementById('mp_refresh'); if(rb){ rb.addEventListener('click', function(){
+  var go=function(){ if(window._mePullRefresh){ _mePullRefresh(); } else { loadMyState(); } };
+  if(window._galDirty && window._galDirty()){ mpConfirm({ title:'아직 제출하지 않은 사진 선택이 있어요.', body:'새로고침하면 고른 컷이 사라져요.', yes:'새로고침', no:'그대로 두기', dismissNull:true }).then(function(v){ if(v===true) go(); }); return; }   // [B2_MA_53] 헤더 새로고침도 같은 보호
+  go(); }); } })();   // 당겨서 새로고침과 같은 경로 — 위저드 입력 수집 후 갱신(버튼만 수집을 건너뛰던 우회로 봉합)
 
 // ── 코드찾기 / 비번재설정 요청 ─────────────────
 var forgotMode = 'findCode';

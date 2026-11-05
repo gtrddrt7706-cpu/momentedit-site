@@ -22464,3 +22464,29 @@ chk '보정할 사진 선택 완료' automation/platform/95_notify.gs 1
 chk 'B2_MA_94' automation/platform/95_notify.gs 1
 chk '애프터 웨딩 장소 점검' automation/platform/88_place_audit.gs 2
 chk '청첩장·식순·애프터 웨딩이 옛 일시로 남을 수 있음' automation/platform/70_journey.gs 1
+# ── 2026-11-06 [B2_MA_* 2차 B2 나머지 10건] 식전 영상 순서 · 확정 대조 · 사진 칸 · 청첩장 발행 · 보정 사진 고르기 · 대본에 담긴 글
+chk 'B2_MA_07' mypage.html 4                     # 저장 · 보내기 · 확정을 한 줄로 · 판 번호(rev)
+chk '저장을 마친 뒤 영상을 만들게요.' mypage.html 1
+chk 'B2_MA_07' automation/platform/89_prevideo.gs 5
+chk 'B2_MA_08' mypage.html 2                     # 확정 = 본 미리보기 id · 요청 판
+chk 'B2_MA_08' automation/platform/89_prevideo.gs 3
+chk '새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.' automation/platform/89_prevideo.gs 1
+chk 'B2_MA_59' automation/platform/89_prevideo.gs 1
+chk '다른 기기에서 사진이 추가돼 자리가 찼어요. 현재 사진을 확인해 주세요.' automation/platform/89_prevideo.gs 1
+chk 'B2_MA_59' mypage.html 1
+chk 'B2_MA_09' mypage.html 2                     # 발행하는 동안 잠금 · 보낼 초안 복사
+chk '청첩장을 만드는 중이에요.' mypage.html 1
+chk '고친 내용을 반영하는 중이에요.' mypage.html 1
+chk 'B2_MA_10' automation/platform/85_invitation.gs 1
+chk '반영 결과를 아직 확인하지 못했어요. 새로고침해 청첩장을 확인해 주세요.' automation/platform/85_invitation.gs 1
+chk 'B2_MA_11' automation/platform/85_invitation.gs 5
+chk '청첩장 연결을 확인하고 있어요. 상담으로 알려 주세요.' automation/platform/85_invitation.gs 2
+chk 'B2_MA_52' mypage.html 1
+chk '적어 둔 번호를 유지했어요. 번호로 계속 고르실 수 있어요.' mypage.html 1
+chk 'B2_MA_53' mypage.html 3
+chk '아직 제출하지 않은 사진 선택이 있어요.' mypage.html 1
+chk 'B2_MA_54' mypage.html 3
+chk '다른 기기에서 사진 선택이 바뀌었어요. 고른 컷을 다시 확인해 주세요.' mypage.html 1
+chk 'B2_MA_88' mypage.html 1                     # 대본에 담긴 글 = 빌더 전체 대본과 한 판정(summary.texts)
+chk 'B2_MA_88' order-preview.html 2
+chk 'function _scriptTexts' order-preview.html 1

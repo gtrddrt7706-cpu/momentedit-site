@@ -119,6 +119,20 @@ r = save('save', { mode: 'make', step: 0, style: 'retro', song: 'oban', photos: 
 ok(r && r.ok && store.T1.m.st === 'editing', '확정 뒤 분위기를 바꾸면 «확정 · 수정 중»(확정본은 그대로)', store.T1.m.st);
 r = save('save', { mode: 'make', step: 1, style: 'editorial', song: 'oban', photos: PH(6) });
 ok(r && r.ok && store.T1.m.st === 'done', '되돌리면 다시 «확정»', store.T1.m.st);
+// 4b [B2_MA_07 · B2_MA_08] 판 번호 — 보내기보다 먼저 낸 옛 저장은 늦게 와도 버린다 · 확정은 본 미리보기(id · 요청 판)와 같을 때만
+{ const W0 = G._pvWrite_; G._pvWrite_ = (sh, row, code, d, m) => { m.rev = (+m.rev || 0) + 1; store[code] = { d: J(d), m: J(m) }; };
+  store = { T1: { d: {}, m: { uploads: UP(6), consent: { at: 'x' } } } };
+  r = save('save', { mode: 'make', style: 'editorial', song: 'mujin', photos: PH(6) }); const oldRev = r.pv.rev;
+  r = save('submit', { mode: 'make', style: 'editorial', song: 'mujin', photos: PH(6) }, { rev: oldRev });
+  ok(r && r.ok && store.T1.m.st === 'making', '[B2_MA_07] 보내기 → 만드는 중', store.T1.m.st);
+  r = save('save', { mode: 'make', style: 'retro', song: 'mujin', photos: PH(6) }, { rev: oldRev });
+  ok(r && r.ok && r.stale && store.T1.m.st === 'making' && store.T1.d.style === 'editorial', '[B2_MA_07] 보내기보다 먼저 낸 옛 저장이 늦게 와도 «만드는 중» · 보낸 내용 그대로', JSON.stringify({ st: store.T1.m.st, style: store.T1.d.style }));
+  store.T1.m.st = 'review'; store.T1.m.prev = { id: 'VID2', at: 'x' };
+  r = save('confirm', null, { prevId: 'VID1', ver: 1 });
+  ok(r && r.ok === false && r.newer && /새 영상이 준비됐어요/.test(r.error || '') && store.T1.m.st === 'review', '[B2_MA_08] 본 미리보기와 다르면 확정하지 않는다', JSON.stringify(r && { e: r.error, st: store.T1.m.st }));
+  r = save('confirm', null, { prevId: 'VID2', ver: store.T1.m.submit.n });
+  ok(r && r.ok && store.T1.m.st === 'done' && store.T1.m.conf.prev === 'VID2', '[B2_MA_08] 본 것과 같으면 확정', store.T1.m.st);
+  G._pvWrite_ = W0; }
 // 5 준비한 영상 — 유튜브 거절 · 드라이브 받음
 store = { T1: { d: {}, m: { consent: { at: 'x' } } } };
 r = save('submit', { mode: 'upload', link: 'https://youtu.be/abc' });

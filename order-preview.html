@@ -10667,6 +10667,20 @@ function _svBody(){ var t=scriptTextOpen(); if(!t) return '<p class="mk-note">�
       out+=fl(l); i++; }
     return '<section class="sv-b"><h3 class="sv-h">'+esc(h)+'</h3>'+out+'</section>'; }).join('')+'</div>'; }
 function _svHeadOf(k,peak){ var no=_lNo(k), nm=_lName(k); return (no==='식전'?(/^식전/.test(nm)?'':'식전 '):no+'. ')+nm+(k===peak?' (가장 벅찬 순간)':''); }   /* [SCRIPT_LAB P1-7] «식전 식전 영상» 겹말을 막는다 · [PEAK_COLOR] */
+/* ★[B2_MA_88 2026-11-06 2차 B2-마88] 이번 전체 대본(scriptTextOpen)에 «두 분이 적은 글»이 실제로 실리는 것만 — 마이페이지 확정 내용 «대본에 담긴 글»이 읽는다(summary.texts).
+   판정은 전체 대본과 한 곳: 담은 순간(_lRows) · 현장에서 바로 / 따로 가져와요 체크(_scTx 와 같은 규칙) · 부모님께 드릴 말 «안 함» · 비운 글은 빠진다. 저장된 글은 지우지 않는다 */
+function _scTxHas(kind, txt){ var c=_mkChk(), g=!!c[kind+'.g'], b=!!c[kind+'.b']; if(g&&b) return false; if(g||b) return !!String((S.tx||{})[kind+'.'+(g?'b':'g')]||'').trim(); return !!String(txt||'').trim(); }
+function _scriptTexts(){
+  var out=[], rows; try{ rows=_lRows(); }catch(e){ return null; }
+  rows.forEach(function(k){
+    if(k==='welcome'){ var _wc=_mkChk(); if((_wc['welcome.g']||_wc['welcome.b']) ? _scTxHas('welcome',S.welcomeText) : !!String(S.welcomeText||'').trim()) out.push('감사 인사'); }
+    else if(k==='vow'){ if(_scTxHas('vow',_vowScript())) out.push(_vowKind()==='thanks'?'감사문':'서약문'); }
+    else if(k==='letter'){ if(_scTxHas('letter',S.letterText)) out.push('편지'); }
+    else if(k==='tribute'){ if(String(S.tributeText||'').trim() && RitualOpen.chipOf('tribute',S)!=='none') out.push('부모님께 드릴 말'); }
+    else if(k==='toast'){ if(_txJoin('toast')) out.push('축배 한마디'); }
+  });
+  return out;
+}
 function scriptTextOpen(){ var _sm=_scriptMode; _scriptMode=true; try{ return _scriptTextOpen0(); } finally{ _scriptMode=_sm; } }   /* [B2_NA_47] ③ · ④ 같은 글 — 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영은 한 번 */
 function _scriptTextOpen0(){
   if(!ENG) return '';
@@ -11542,7 +11556,7 @@ function _ordPayload(fin){
      예시에서 시작했으면 그 이름도 싣는다(«‹가족› 예시에서 시작»). 옛 코스 요약은 한 글자도 안 바뀐다. */
   if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
     try{ var _fo=_flowOpen(); if(_fo.length){ _sm.flow=_fo; _sm.count=_opMoments(); } }catch(eF){}   /* ★[FLOW_FROM_TWO_1017] 하객 식순지 · 마이페이지 · 관리자가 읽는 순서 = ② 줄 · 수(관리자 «n개 순간»)는 ④ 머리 «담은 순간»과 같은 셈(식전 영상 뺌) */
-    _sm.open=true; _sm.moments=_opMoments();   /* [RIT_DONE_TITLE] */ _sm.photo=_sp.photo; _sm.table=_sp.table; _sm.from=_ex?_ex.nm:'';   /* [TABLE_APART] 테이블 인사 약 n분(안 담으면 '') */
+    _sm.open=true; _sm.moments=_opMoments(); try{ var _stx=_scriptTexts(); if(_stx) _sm.texts=_stx; }catch(eT){}   /* [B2_MA_88] 대본에 실리는 글 */   /* [RIT_DONE_TITLE] */ _sm.photo=_sp.photo; _sm.table=_sp.table; _sm.from=_ex?_ex.nm:'';   /* [TABLE_APART] 테이블 인사 약 n분(안 담으면 '') */
     _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])];
     /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4 2026-09-26] 마이페이지 «예식 순서에서 남는 사진»은 이 목록을 그대로 그린다 —
        본식 차례(bodySeq) · 카드 이름(CARDS.n) · 장면(shotOf · 준비한 순서는 무엇을에 따라). 마이페이지는 ritual-open.js 를 읽지 않아 여기서 싣는다.

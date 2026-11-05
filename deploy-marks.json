@@ -3248,6 +3248,36 @@
    "fn": "_nfAdminText",
    "mark": "B2_MA_94",
    "why": "운영 메일 «애프터 웨딩: 장소 미정 · 코드 / 장소 추천·예약 안내 필요»"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "B2_MA_07",
+   "why": "식전 영상 — 보내기 · 확정보다 먼저 낸 옛 저장은 늦게 와도 버린다(판 번호)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "B2_MA_08",
+   "why": "확정은 고객이 본 미리보기(id · 요청 판)와 같을 때만"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvPhoto",
+   "mark": "B2_MA_59",
+   "why": "마지막 자리 — 최종 기록 잠금 안에서 칸 · 전체 장수를 다시 본다"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "handlePublishInvitation",
+   "mark": "B2_MA_10",
+   "why": "공개 행 쓰기 전 용량 · 필수값 검사 · 쓰다 실패하면 이전 공개본 복구"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "_invResolveEventId",
+   "mark": "B2_MA_11",
+   "why": "청첩장 행 재사용은 고객 코드 · 연결된 예식 ID 로 · 주인 모를 행이면 멈춤"
   }
  ],
  "fns": {

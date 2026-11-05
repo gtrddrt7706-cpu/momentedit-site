@@ -56,7 +56,11 @@ function _invFindLastRow(sheet, idCol) { _gsr_();
   for (var i = v.length - 1; i >= 0; i--) { if (String(v[i][0]).trim() !== '') return INV.DATA_START_ROW + i; }
   return INV.DATA_START_ROW - 1;
 }
-function _invResolveEventId(sheet, colOf, base, groomName, brideName) { _gsr_();
+function _invResolveEventId(sheet, colOf, base, groomName, brideName, ownId, ownCode) { _gsr_();
+  /* ★[B2_MA_11 2026-11-06 2차 B2-마11] 기존 링크를 다시 쓸지는 «이 고객에 이미 연결된 예식 ID»로 정한다 — 종전엔 이름 · 영문 머리글자 · 월일이 같으면
+     다른 고객의 공개 행을 그대로 다시 썼다. ①이 고객의 eventId 행이면 그 행 ②이름이 같은 행이라도 다른 고객 몫이면 건너뛰고 새 ID · 새 행
+     ③주인을 알 수 없는 이름 일치 행이면 쓰지 않는다(conflict) — 부르는 쪽이 «청첩장 연결을 확인하고 있어요. 상담으로 알려 주세요.»로 멈춘다 */
+  ownId = String(ownId || '').trim(); ownCode = String(ownCode || '').trim();
   var idCol = colOf['eventId']; if (!idCol) throw new Error("Couples 'eventId' 헤더(3행)를 찾을 수 없음");
   var gCol = colOf['groomName'], bCol = colOf['brideName'];
   var lastRow = _invFindLastRow(sheet, idCol);
@@ -75,9 +79,21 @@ function _invResolveEventId(sheet, colOf, base, groomName, brideName) { _gsr_();
     if (!rid) continue;
     existing[rid] = true;
     if (rid !== base && rid.indexOf(base + '-') !== 0) continue;
-    var rg = gN[i] ? String(gN[i][0]).trim() : '', rb = bN[i] ? String(bN[i][0]).trim() : '';
-    if ((!rg && !rb) || (rg === groomName && rb === brideName)) return { eventId: rid, rowNum: INV.DATA_START_ROW + i };
+    if (ownId && rid === ownId) return { eventId: rid, rowNum: INV.DATA_START_ROW + i };   // [B2_MA_11] ①
   }
+  var unknownHit = false;
+  for (var i2 = 0; i2 < ids.length; i2++) {
+    var rid2 = String(ids[i2][0]).trim();
+    if (!rid2 || (rid2 !== base && rid2.indexOf(base + '-') !== 0)) continue;
+    var rg = gN[i2] ? String(gN[i2][0]).trim() : '', rb = bN[i2] ? String(bN[i2][0]).trim() : '';
+    if (!((!rg && !rb) || (rg === groomName && rb === brideName))) continue;
+    var owner = null; try { owner = (typeof _findCustomerBy === 'function') ? _findCustomerBy('eventId', rid2, false) : null; } catch (e) { owner = null; }
+    var oc = owner ? String(owner.get('개인코드') || '').trim() : '';
+    if (oc && ownCode && oc === ownCode) return { eventId: rid2, rowNum: INV.DATA_START_ROW + i2 };   // 이 고객 몫(옛 저장에 eventId 가 비었던 경우)
+    if (oc) continue;   // [B2_MA_11] ② 다른 고객 몫 — 다시 쓰지 않는다
+    unknownHit = true;   // [B2_MA_11] ③ 주인을 확인하지 못한 행 — 이 고객 몫이 뒤에 없을 때만 멈춘다
+  }
+  if (unknownHit) return { conflict: true };
   // 2) 신규 부부 — 추측 불가 랜덤 접미(6자)로 새 id. eventId만 아는 외부인의 대량 열람 차단(시트 내 유일).
   var cand = base + '-' + _invRandEventSuffix(), guard = 0;
   while (existing[cand] && guard++ < 50) cand = base + '-' + _invRandEventSuffix();
@@ -216,16 +232,15 @@ function handlePublishInvitation(body) { _gsr_();
     var colOf = _couplesColOf(sheet);
     var eid = _invMakeEventId(base.groomEn, base.brideEn, base.weddingDate);
     if (!/^[a-z]+-[a-z]+-\d{4}$/.test(eid)) return { ok: false, error: 'eventId 생성 실패 — 영문 이름·예식 날짜를 확인해 주세요. (' + eid + ')' };
-    var rv = _invResolveEventId(sheet, colOf, eid, base.groomKo || '', base.brideKo || '');
+    var rv = _invResolveEventId(sheet, colOf, eid, base.groomKo || '', base.brideKo || '', String(d.eventId || cust.get('eventId') || ''), code);
+    if (rv.conflict) return { ok: false, ecode: 'S0', error: '청첩장 연결을 확인하고 있어요. 상담으로 알려 주세요.' };   // [B2_MA_11]
     var eventId = rv.eventId, rowNum = rv.rowNum;
-
-    _couplesWrite(sheet, colOf, rowNum, 'eventId', eventId, true);
     var fields = _invCouplesFields(base, draft);
-    Object.keys(fields).forEach(function (k) { _couplesWrite(sheet, colOf, rowNum, k, fields[k], true); });
-
     var urls = _invUrls(eventId, fields.designOnline, fields.designFamily, fields.digitalAttendance);
 
-    // 배선 + draft/상태 저장 (Customers)
+    /* ★[B2_MA_10 2026-11-06 2차 B2-마10] 공개 행(Couples)을 쓰기 «전»에 완성될 제작 데이터의 용량 · 필수값을 먼저 잰다 — 종전엔 공개 행을 한 칸씩 먼저 쓰고 뒤에서 용량 초과로 멈춰
+       공개 청첩장만 바뀌고 고객 저장본은 옛것인 채로 갈렸다(기존 용량 오류 문구는 그대로). 쓰는 도중 실패하면 이전 공개본으로 되돌리고,
+       되돌리기까지 실패해 반영 여부를 확정하지 못하면 «반영 결과를 아직 확인하지 못했어요. 새로고침해 청첩장을 확인해 주세요.» */
     var _pubOld = JSON.stringify([d.eventId || '', d.invitationUrls || {}, (d.tracks || {}).invitation || '']);
     d.eventId = eventId; d.invitationUrls = urls;
     d.tracks = d.tracks || {}; d.tracks.invitation = '완료';
@@ -235,7 +250,17 @@ function handlePublishInvitation(body) { _gsr_();
     var _updPub = _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation', cust: cust });   // PROD_ACCESSOR
     if (base.groomKo) _updPub['신랑이름'] = base.groomKo;   // 확인·보완된 이름을 마스터에도 반영(기초정보 화면의 역할 승계)
     if (base.brideKo) _updPub['신부이름'] = base.brideKo;
-    touchCustomer(custSheet, custCol, cust.num, _updPub);
+    var _lc = sheet.getLastColumn(), _snapRow = null;
+    try { _snapRow = sheet.getRange(rowNum, 1, 1, _lc).getValues(); } catch (e) { _snapRow = null; }
+    try {
+      _couplesWrite(sheet, colOf, rowNum, 'eventId', eventId, true);
+      Object.keys(fields).forEach(function (k) { _couplesWrite(sheet, colOf, rowNum, k, fields[k], true); });
+      touchCustomer(custSheet, custCol, cust.num, _updPub);
+    } catch (eW) {
+      var _back = false; try { if (_snapRow) { sheet.getRange(rowNum, 1, 1, _lc).setValues(_snapRow); _back = true; } } catch (eB) {}
+      if (!_back) return { ok: false, ecode: 'S5', error: '반영 결과를 아직 확인하지 못했어요. 새로고침해 청첩장을 확인해 주세요.' };
+      return { ok: false, ecode: 'S9', error: '발행이 안 됐어요 · 다시 눌러 주세요', _why: 'publish write ' + String(eW && eW.message || eW).slice(0, 160) };
+    }
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 위저드 재진입(_step='confirm' 복원) 시 발행만 호출돼 전이가 빠지던 경로(코워크 교차검증 치명1)
 
     _ltBustCouple(eventId);   // [LETTER_MERGED] 조회가 같은 프로젝트로 와서 캐시를 바로 지울 수 있다(종전엔 최대 60초 옛 내용)
@@ -284,7 +309,8 @@ function saveInvitationPreview(body) { _gsr_();
     var colOf = _couplesColOf(sheet);
     var eid = _invMakeEventId(base.groomEn, base.brideEn, base.weddingDate);   // ★ 발행과 동일한 결정적 eventId
     if (!/^[a-z]+-[a-z]+-\d{4}$/.test(eid)) return { ok: false, error: 'eventId 생성 실패 — 영문 이름·예식 날짜를 확인해 주세요. (' + eid + ')' };
-    var rv = _invResolveEventId(sheet, colOf, eid, base.groomKo || '', base.brideKo || '');
+    var rv = _invResolveEventId(sheet, colOf, eid, base.groomKo || '', base.brideKo || '', String(d.eventId || cust.get('eventId') || ''), code);
+    if (rv.conflict) return { ok: false, ecode: 'S0', error: '청첩장 연결을 확인하고 있어요. 상담으로 알려 주세요.' };   // [B2_MA_11] 미리보기도 같은 규칙
     var eventId = rv.eventId, rowNum = rv.rowNum;
 
     _couplesWrite(sheet, colOf, rowNum, 'eventId', eventId, true);
