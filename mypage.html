@@ -2762,7 +2762,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({}, d.data, {action:'voiceClone', token:_vcTok})),signal:_vcAc?_vcAc.signal:undefined})
         .then(function(r){ return r.json(); }).then(function(r){ if(_vcT) clearTimeout(_vcT); _vcBack(r||{ok:false}); })
         .catch(function(e){ if(_vcT) clearTimeout(_vcT); var _to=!!(e&&e.name==='AbortError'), _bad=!_to&&!!(e&&e.name==='SyntaxError');
-          var _fin=function(net){ _vcBack({ok:false,down:true,timeout:_to,net:_to?0:net,sec:Math.round((Date.now()-_vcT0)/1000),error:_to?'오래 걸려 멈췄어요 · 다시 눌러 주세요 (코드 V5)':net==='bad'?'서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 V7)':net==='srv'?'서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V9)':'연결이 끊겼어요 · 다시 눌러 주세요 (코드 V6)'}); };
+          var _fin=function(net){ _vcBack({ok:false,down:true,timeout:_to,net:_to?0:net,sec:Math.round((Date.now()-_vcT0)/1000),error:_to?'오래 걸려 멈췄어요 · 다시 눌러 주세요 (코드 V5)':net==='bad'?'응답을 확인하지 못했어요 · 다시 눌러 주세요 (코드 V7)':net==='srv'?'서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V9)':'연결이 끊겼어요 · 다시 눌러 주세요 (코드 V6)'}); };
           if(_to||_bad){ _fin(_bad?'bad':0); return; }
           if(_vcTie && _vcTie()){ _vcBack({}); return; }   // [TAB_GUARD_VC] 다시 묻기 전에도 — 그 사이 바뀌었으면 묻지 않는다
           /* ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?» (맞추기 창 «연결이 끊겼어요 (코드 V6)»)] 브라우저는 «인터넷이 끊김»과 «서버가 처리하다 죽어 오류 페이지(CORS 없음)를 줌»을 같은 오류로 준다.
@@ -3634,7 +3634,7 @@ function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
    ★브라우저에서 난 실패는 여기서 가른다 — 기다리다 멈춤 5 · 연결 끊김 6 · 서버 답이 JSON 이 아님 7. 로그인 풀림(reason)은 8 → 로그인으로.
    ★5 는 «실패»가 아니라 «결과 모름»이다 — 서버는 잠금을 15초까지 기다리며 계속 도는데 화면은 12초에 멈춘다. 쓰기 동작은 _wrSlow 가 상태를 다시 불러 결과를 말한다.
    ★고객이 직접 고칠 입력 안내(«입금자명을 입력해 주세요»)에는 코드를 붙이지 않는다. 코드는 서버 · 연결 · 기기 실패에만. */
-var ERR_W={1:'요청이 몰렸어요',5:'응답이 늦어요',6:'연결이 끊겼어요',7:'서버가 잠깐 멈췄어요',8:'로그인이 풀렸어요'};   // [ERR_CODE_MYPAGE] 앞 반 = 무슨 일(정직하게)
+var ERR_W={1:'요청이 몰렸어요',5:'응답이 늦어요',6:'연결이 끊겼어요',7:'응답을 확인하지 못했어요',8:'로그인이 풀렸어요'};   /* [B2_GEUL_28] 7 = 답을 읽지 못함 · 서버가 멈췄다고 단정하지 않는다 */   // [ERR_CODE_MYPAGE] 앞 반 = 무슨 일(정직하게)
 var ERR_DO={1:'잠시 뒤 다시 눌러 주세요',5:'잠시 뒤 다시 눌러 주세요',6:'다시 눌러 주세요',7:'다시 눌러 주세요',8:'다시 로그인해 주세요'};   // 뒤 반 = 할 일(자리마다 바꿔 쓸 수 있다 · 8 은 늘 로그인)
 var ERR_ACT={login:'L',autologin:'L',verify:'L',getMyState:'L',findCode:'L',resetPw:'L',doResetPw:'L',getSignature:'L',getResultGallery:'L',snapThumbs:'L',ritualFileGet:'L',pvThumbs:'L',
   getAvailability:'B',submitSchedule:'B',cancelReservation:'B',acceptProposal:'B',

@@ -59,7 +59,7 @@ for (const w of [360, 390, 1280]) {
         relayTo: await map({ ok: false, down: true, timeout: true, error: OLD_RELAY }),
         relayNet: await map({ ok: false, down: true, timeout: false, error: OLD_RELAY }),
         net: await map({ ok: false, down: true, net: 1, error: '연결이 끊겼어요 · 다시 눌러 주세요 (코드 V6)' }),
-        bad: await map({ ok: false, down: true, net: 'bad', error: '서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 V7)' }),
+        bad: await map({ ok: false, down: true, net: 'bad', error: '응답을 확인하지 못했어요 · 다시 눌러 주세요 (코드 V7)' }),
         srv: await map({ ok: false, down: true, net: 'srv', error: '서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V9)' }),
         unread: await map({ ok: false, bad: true, error: '이 줄 글에 소리로 읽기 어려운 글자가 있어요. 글을 고치거나 직접 녹음해 주세요' }),
         sess: await map({ ok: false, reason: 'expired', error: '로그인이 만료되었어요. 다시 로그인해 주세요.' }),

@@ -105,7 +105,7 @@ async function open(w) {
   const once = Object.entries(u).every(([k, t]) => (t.match(/\(코드 /g) || []).length === (ZERO.indexOf(k) > -1 ? 0 : 1) && !BAD.test(t));
   ok('① 서버 코드는 그대로(«. » → « · » · 끝 마침표만 정리) · 두 번 붙이지 않음', u.coded === '파일을 저장하지 못했어요 · 다시 눌러 주세요 (코드 U4)' && u.coded9 === '요청을 처리하지 못했어요 · 잠시 후 다시 시도해 주세요 (코드 U9 · 7KQ2)', u.coded + ' | ' + u.coded9);
   ok('① 옛 마이페이지 글 — «연결을 확인» → 6 · 서버 글 없는 말 → 0 · 아무것도 없음 → 0', u.oldNet === '연결이 끊겨 못 올렸어요 · 다시 눌러 주세요 (코드 U6)' && u.oldGen === '올리지 못했어요 · 다시 눌러 주세요 (코드 U0)' && u.bare === '저장하지 못했어요 · 다시 저장해 주세요 (코드 S0)' && u.oldSave === '연결이 끊겼어요 · 다시 저장해 주세요 (코드 S6)', [u.oldNet, u.oldGen, u.bare, u.oldSave].join(' | '));
-  ok('① kind · reason · ecode · closed → 5 · 7 · 8 · 서버 글 + 숫자(1~9) · 서버 글 + 0 은 글만(ERR_ZERO_TEXT)', u.ecodeL === '이 예식의 파일 자리가 없어요' && u.slow === '확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)' && u.bad === '서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 L7)' && u.sess === '로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 S8)' && u.vSess === '로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 V8)' && u.ecode === '파일을 찾을 수 없어요' && u.ecodeN === '한 개에 20MB 까지 올릴 수 있어요 (코드 U2)' && u.closed === '두 분 목소리 올리기는 아직 준비 중이에요 · 카톡이나 메일로 보내 주세요 (코드 U3)', JSON.stringify(u));
+  ok('① kind · reason · ecode · closed → 5 · 7 · 8 · 서버 글 + 숫자(1~9) · 서버 글 + 0 은 글만(ERR_ZERO_TEXT)', u.ecodeL === '이 예식의 파일 자리가 없어요' && u.slow === '확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)' && u.bad === '응답을 확인하지 못했어요 · 다시 눌러 주세요 (코드 L7)' && u.sess === '로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 S8)' && u.vSess === '로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 V8)' && u.ecode === '파일을 찾을 수 없어요' && u.ecodeN === '한 개에 20MB 까지 올릴 수 있어요 (코드 U2)' && u.closed === '두 분 목소리 올리기는 아직 준비 중이에요 · 카톡이나 메일로 보내 주세요 (코드 U3)', JSON.stringify(u));
   ok('① 어느 글에도 코드가 꼭 하나(서버 까닭 글 + 0 은 없음) · 장식 이모지 · 전각 줄표 없음', once, JSON.stringify(u));
   /* ⑪ [ERR_ZERO_TEXT] 서버 까닭 글 + 0(또는 모름)은 코드 없이 · 1~9 는 코드 · 화면이 만든 대체 글엔 0 */
   const z = await pg.evaluate(() => ({ srv0: _ecLine('V', { ok: false, error: '아직 만든 AI 목소리가 없어요.', ecode: 'V0' }), srvN: _ecLine('U', { ok: false, error: '한 개에 20MB 까지 올릴 수 있어요.' }),
@@ -242,7 +242,7 @@ async function open(w) {
     window.__mock['momentedit:ritualFileDel'] = () => { window.__delN++; return { ok: false, error: '불러오지 못했어요. 연결을 확인해 주세요.' }; }; __shrink({ 3000: 60 }); _mkUpDelGo('g0'); });
   await wait(900);
   const f7 = await pg.evaluate(() => { __unshrink(); return { n: window.__delN, up: S.up.g0 && S.up.g0.id, le: (MK.lineErr || {}).g0 || '', old: /불러오지 못했어요/.test(document.body.innerText) }; });
-  ok('⑦ 직접 지운 줄 실패 → 한 번 더 묻고 · 줄을 되돌려 «지우지 못해 남아 있어요 · 다시 눌러 주세요 (코드 D6)» · «불러오지 못했어요» 없음', f7.n === 2 && f7.up === 'f-g0-del' && f7.le === '지우지 못해 남아 있어요 · 다시 눌러 주세요 (코드 D6)' && !f7.old, JSON.stringify(f7));
+  ok('⑦ 직접 지운 줄 답을 잃음(D6) → 한 번 더 묻고 · 줄을 되돌려 «삭제 여부를 확인하지 못했어요 · 다시 눌러 주세요 (코드 D6)»(남았다고 단정하지 않음 · B2_GEUL_15) · «불러오지 못했어요» 없음', f7.n === 2 && f7.up === 'f-g0-del' && f7.le === '삭제 여부를 확인하지 못했어요 · 다시 눌러 주세요 (코드 D6)' && !f7.old, JSON.stringify(f7));
   await pg.evaluate(() => { S.up.g1 = { n: 'AI', id: 'f-g1-ai', src: 'ai', by: 'groom' }; window.__delN = 0; if (MK.lineErr) delete MK.lineErr.g1;
     window.__mock['momentedit:ritualFileDel'] = () => { window.__delN++; return { ok: false, error: '지우지 못했어요. 다시 눌러 주세요. (코드 D4)' }; }; __shrink({ 3000: 60 }); _mkUpDrop('g1'); render(); });
   await wait(900);
@@ -318,7 +318,7 @@ async function open(w) {
     for (let i = 0; i < 80 && !/코드/.test(b.textContent); i++) await new Promise((r) => setTimeout(r, 50)); const t = b.textContent, nw = !!b.querySelector('.ec-nw'); _stopAud(); b.remove(); return { t, nw }; });
   ok('⑪ 이어 듣기에서 일부만 못 열면 «일부 소리를 못 불러왔어요 · 1개 건너뜀 (코드 L0)»(«준비 중» 추측 아님) · 코드 한 덩어리 [SKIP_CODE · CODE_NOWRAP]', r14.t === '일부 소리를 못 불러왔어요 · 1개 건너뜀 (코드 L0)' && r14.nw, JSON.stringify(r14));
   const r17 = await pg.evaluate(() => [_micWhy({ name: 'InvalidStateError' }, 'g0'), _micWhy({ name: 'InvalidStateError' }, 'vc:groom:1'), _micWhy({ name: 'NotReadableError' }, 'vc:groom:1')]);
-  ok('⑪ 까닭을 모르는 마이크 오류는 M0(«다른 앱이 마이크를 써요» M3 아님) · 다른 앱은 그대로 M3 [MIC_M0]', /\(코드 M0\)$/.test(r17[0]) && r17[1] === '마이크를 열지 못했어요 · 다시 눌러 주세요 (코드 M0)' && r17[2] === '다른 앱이 마이크를 써요 · 그 앱을 닫아 주세요 (코드 M3)', JSON.stringify(r17));
+  ok('⑪ 까닭을 모르는 마이크 오류는 M0 · NotReadableError 는 M3(«다른 앱 사용 중»으로 단정하지 않고 «연결과 사용 중인 앱을 확인» · B2_GEUL_12) [MIC_M0]', /\(코드 M0\)$/.test(r17[0]) && r17[1] === '마이크를 열지 못했어요 · 다시 눌러 주세요 (코드 M0)' && r17[2] === '마이크를 열지 못했어요 · 연결과 사용 중인 앱을 확인해 주세요 (코드 M3)', JSON.stringify(r17));
   const r18 = await pg.evaluate(async () => { const s0 = window._mkSendWav0; let n = 0; window._mkSendWav0 = function () { n++; throw new Error('read'); };
     __shrink({ 8000: 30 }); if (MK.lineErr) delete MK.lineErr.g3; MK_UP.g3 = 1; const again = _upAgain('g3', { blob: new Blob(), url: '', src: 'rec', nm: '녹음', meta: null, n: 0 }, { ok: false, ecode: 'U6' });
     await new Promise((r) => setTimeout(r, 300)); __unshrink(); window._mkSendWav0 = s0; const o = { again, n, le: (MK.lineErr || {}).g3 || '', up: !!MK_UP.g3 }; if (MK.lineErr) delete MK.lineErr.g3; return o; });
@@ -416,7 +416,7 @@ async function open(w) {
   const { ctx, pg, errs } = await open(360); try {
   await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; mkGo('guest'); }); await wait(500);
   /* 글은 화면 함수가 만든 그대로 잰다(문구를 고치면 이 검사가 다시 잰다) */
-  const l1 = await pg.evaluate(() => { const C = [_ecWord('U', 0), _ecWord('U', 4), _ecWord('U', 5), _ecWord('U', 6), _ecWord('L', 0), _ecWord('L', 5), _ecWord('L', 6), _ecWord('L', 7), _ecWord('D', 5), EC_M6, '파일을 찾을 수 없어요', '지우지 못해 남아 있어요 · 다시 눌러 주세요 (코드 D6)', '파일을 지우지 못했어요 · 문의해 주세요 (코드 D4)', '재생이 막혔어요 · ▶ 를 다시 눌러 주세요 (코드 M7)', '목소리 정보가 안 왔어요 · 다시 눌러 주세요 (코드 V6)', '이 기기에 없는 녹음이에요 · 다시 녹음해 주세요', _ecWord('U', 1), _ecWord('U', 2), _ecWord('U', 3), _ecWord('U', 9), '만들지 못했어요 · 잠시 뒤 다시 눌러 주세요 (코드 V0)', _vcDownWord(1), '아직 만든 AI 목소리가 없어요'];   /* [ERR_R1_BUILDER] 만들기 대체 글 V0 · 연습 읽기 실패(NOW_LINE_FAIL) · 서버 까닭 글(ERR_ZERO_TEXT) */
+  const l1 = await pg.evaluate(() => { const C = [_ecWord('U', 0), _ecWord('U', 4), _ecWord('U', 5), _ecWord('U', 6), _ecWord('L', 0), _ecWord('L', 5), _ecWord('L', 6), _ecWord('L', 7), _ecWord('D', 5), EC_M6, '파일을 찾을 수 없어요', '삭제 여부를 확인하지 못했어요 · 다시 눌러 주세요 (코드 D6)', '지우지 못해 남아 있어요 · 다시 눌러 주세요 (코드 D4)', '파일을 지우지 못했어요 · 문의해 주세요 (코드 D4)', '재생이 막혔어요 · ▶ 를 다시 눌러 주세요 (코드 M7)', '목소리 정보가 안 왔어요 · 다시 눌러 주세요 (코드 V6)', '이 기기에 없는 녹음이에요 · 다시 녹음해 주세요', _ecWord('U', 1), _ecWord('U', 2), _ecWord('U', 3), _ecWord('U', 9), '만들지 못했어요 · 잠시 뒤 다시 눌러 주세요 (코드 V0)', _vcDownWord(1), '아직 만든 AI 목소리가 없어요'];   /* [ERR_R1_BUILDER] 만들기 대체 글 V0 · 연습 읽기 실패(NOW_LINE_FAIL) · 서버 까닭 글(ERR_ZERO_TEXT) */
     const out = C.map((x) => { MK.lineErr = { g0: x }; render(); const p = [...document.querySelectorAll('.mk-pg .mk-exw[role="alert"]')].find((e) => __N(e.textContent) === x); return [x, p ? __lines(p) : 0]; }); MK.lineErr = {}; render(); return out; });
   const l1x = l1.filter((r) => r[1] !== 1);
   ok(`⑩ 360 줄 카드 — 올리기 · 받기 · 지우기 · 틀기 · 목소리 정보 · 기기 실패 글 ${l1.length}개가 한 줄`, !l1x.length, JSON.stringify(l1x));

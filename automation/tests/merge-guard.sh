@@ -7924,7 +7924,7 @@ chk 'DECLARE_BY_PERSON' scripts/audit/declare-by-person.mjs 1
 nochk "declare: \[\['gdad', '신랑 아버님'\]" assets/ritual-open.js 0   # [DECLARE_ANYONE 2026-10-12] 읽는 분 칩은 걷었다(칸에 적는다)
 chk "'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'" assets/ritual-cue.js 1
 nochk "L('declare','누가 읽나요'" order-preview.html 0   # [DECLARE_ANYONE] 칩 줄 대신 칸 «읽어 주실 분»
-chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 2   # [REVIEW_166_1030 B11] 칩 아래 · 준비 칸 둘은 _declNoWho 한 곳으로
+chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 1   # [B2_GEUL_26] ① 설명은 «이 순간을 빼도 돼요»(서약이 남는다고 가정하지 않음) · 칸 한 줄(_declNoWho)만 · [REVIEW_166_1030 B11] 칩 아래 · 준비 칸 둘은 _declNoWho 한 곳으로
 chk '나레이션은 선언문을 읽지 않는다' api/_ritual-kb.js 1
 nochk "\['solemn', '나레이션 · 엄숙하게'\]" assets/ritual-open.js 0
 nochk "\['family', '가족이 낭독'\]" assets/ritual-open.js 0
@@ -8259,7 +8259,7 @@ nochk '이제 사진을 남기겠습니다.' assets/ritual-data.js
 nochk '이제 사진을 남기겠습니다.' order-preview.html
 chk '오늘 저희의 가장 빛나는 순간을 함께해 주셔서 감사합니다.' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «여러분 덕분에, 오늘 이 순간이 더 행복합니다.…» · 옛 주석 감사 인사 담백 신랑 셋째 · Z 1 흐름 5 + 감사문 캡처 «여러분 덕분에»
 nochk '준비한 이야기를 들려드리겠습니다' assets/ritual-ref.js
-chk '사랑하는 하윤이와 서준이에게, 오빠 민재가.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «우리 가족이 되어 주신 서준 씨 …» · 513 = 실제 축사(유튜브 A2SzVDHF5YE)
+chk '사랑하는 하윤이와 서준이에게, 오빠가.' assets/ritual-ref.js 1   # [B2_GEUL_08] 가상 이름 «민재» 뺌 · ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «우리 가족이 되어 주신 서준 씨 …» · 513 = 실제 축사(유튜브 A2SzVDHF5YE)
 nochk '서준 씨, 우리 가족이 된 걸 환영합니다.' assets/ritual-ref.js
 # [WAIT_SAFE_R6_1016] 서약 · 감사문 · 편지 안심 — 폐지된 대기 클립(WAIT_BRIDGE_RETIRED 9/6)을 약속하지 않는다
 chk 'WAIT_SAFE_R6_1016' assets/ritual-story.js 1
@@ -13083,7 +13083,7 @@ chk 'ENTRY_LAB_QUOTE' order-preview.html 1
 chk 'TILE_FREE_COMMA' assets/ritual-open.js 1
 nochk '고른 순간에만 나서요' order-preview.html 1   # 옛 코스 갈래 한 줄만 남는다(새 코스는 «담은 순간에만»)
 chk '담은 순간에만 나서요' order-preview.html 1
-chk '단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.' assets/ritual-open.js 1   # [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날도 참
+chk '전체 단체 사진 뒤에는 촬영 후 안내, 가족 사진과 추가 촬영이 이어져요.' assets/ritual-open.js 1   # [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날도 참 · [B2_GEUL_11] 촬영 후 안내 · 가족 사진 · 추가 촬영(POST_FLOW 차례)
 nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' assets/ritual-open.js 0
 nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' order-preview.html 0
 chk '두 분이 하객께 목례 · 박수' order-preview.html 1
@@ -15405,7 +15405,7 @@ chk 'REVIEW24_1019' assets/ritual-open.js 7
 chk 'PV_OUT_1019' assets/ritual-cue.js 3
 chk 'PV_OUT_1019' assets/ritual-open.js 1
 chk "'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out'" assets/ritual-cue.js 1
-chk "pvExNames: \['담백하게', '다정하게', '잔잔하게', '격식 있게'\]" assets/ritual-open.js 1
+chk "pvExNames: \['담백하게', '다정하게', '잔잔하게'\]," assets/ritual-open.js 1   # [B2_GEUL_01 d-01] 예시 4(130 시선 명령)는 고르는 목록에서 뺐다
 chk 'R.NAR&&R.NAR.pvExNames' order-preview.html 1
 chk 'PV_HOST_1019' scripts/build-typecast-import.mjs 2
 nochk '.pk-exs .pk-ex{padding-right:48px}' order-preview.html   # [RAIL_IGNORE_1019] 예시 카드 말풍선 자리(종전 PK_EX_BUBBLE_1019) — 걷었다
@@ -19622,7 +19622,7 @@ nochk '그다음 디렉터 대독' assets/ritual-cue.js
 nochk '그다음 디렉터 대독' assets/ritual-story.js
 nochk "scene: '나레이션이 부르면" assets/ritual-story.js
 nochk '부모님 품에 안기는' order-preview.html
-chk "'부모님이 덕담을 들려주세요 · 약 1분씩'" assets/ritual-open.js 1   # [R2_BLESS_TALK_1014] 라운드 2 G3 — ④ 대본에서 시간을 한 번만
+chk "'부모님이 덕담을 전해요 · 약 1분씩'" assets/ritual-open.js 1   # [R2_BLESS_TALK_1014] 라운드 2 G3 — ④ 대본에서 시간을 한 번만
 chk "'축사 원고 · 1분에 300자쯤" assets/ritual-open.js 1
 nochk '축사하실 분께 부탁드리기' assets/ritual-open.js
 chk "song:'노래하실 분께서 직접 불러 주시는 시간입니다.'" order-preview.html 1   # ★[BRIDGE_NO_ECHO_1014] 여는 말과 겹치는 낱말을 뺐다
@@ -21835,7 +21835,7 @@ chk "tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분
 nochk '촬영을 마치면 흐르는 마지막 안내' order-preview.html
 chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행'" order-preview.html 1   # [FIX_FLOW_204 D] «작가님» 표기 없음
 chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
-chk "\['15~33분쯤','단체 사진','Group Record','전체 → 안내 → 가족 · 추가 촬영'\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
+chk "\['15~33분쯤','단체 사진','Group Record','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /\* \[B2_GEUL_22\] \*/\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
 # ── 2026-11-02 [FAREWELL_NAME_204 검토 204 회신] 고객이 보는 하루 흐름 «마무리 Farewell» → «정리 Farewell»(식순 · 홈 140분 표 · AI 상담 같은 이름) · 계약서는 그대로
 chk '<span class="seq-name-ko">정리</span>' index.html 1
@@ -22169,3 +22169,62 @@ chk 'B2_NA_73' order-preview.html 1   # 장면 사진 ‹ › 누른 뒤 초점�
 chk 'B2_NA_74' order-preview.html 2   # 큰 사진을 못 불러오면 한 줄 + 대표 장면 · 설명
 chk '큰 사진을 불러오지 못했어요.' order-preview.html 1
 chk 'aria-label="음악 음량"' console.html 1   # [B2_NA_75] 음악 음량 슬라이더 이름
+# ── 2026-11-06 [BATCH2 글01~32] 대본 글 묶음 — 고객 화면 글 · 오류 글 · 역할 전달 · 콘솔 단추(B2_GEUL_xx · 새 녹음 0 · 녹음 글 그대로)
+chk 'B2_GEUL_01' assets/ritual-cue.js 1   # d-01 저장된 pvEx 3 → 기본 90(norm 0~2)
+chk 'B2_GEUL_01' order-preview.html 1
+nochk "'잔잔하게', '격식 있게'\]" assets/ritual-open.js 0
+nochk '스크린에 주목해' docs/handoff/narr-now.md 0
+chk '두 분이 테이블을 돌며 하객께 인사해요. 다 돌면 앞으로 돌아와 남은 순서를 이어가요. 그만큼 사진 시간은 줄어요.' assets/ritual-open.js 1   # B2_GEUL_09 d-07
+chk '두 분이 테이블을 돌며 하객께 인사해요. 가까이 마주하는 모습을 담아요. 그만큼 사진 시간은 줄어요.' order-preview.html 1
+nochk '6테이블 기준' assets/ritual-open.js 0
+nochk '6테이블 기준' order-preview.html 0
+chk '두 분이 하객께 인사하며 본식을 마쳐요. 전체 단체 사진 뒤에는 촬영 후 안내, 가족 사진과 추가 촬영이 이어져요.' order-preview.html 1   # B2_GEUL_11
+nochk '가족 · 친구 순서예요' order-preview.html 0
+nochk '가족 · 친구 순서예요' assets/ritual-open.js 0
+chk '전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' order-preview.html 1   # B2_GEUL_22
+chk '부모님이 두 분께 덕담을 전해요' assets/ritual-open.js 2   # B2_GEUL_23 카드 · 칸
+chk '부모님이 두 분께 덕담을 전해요(한 분 1분쯤). 말씀하시는' order-preview.html 1
+nochk '덕담을 들려주세요' assets/ritual-open.js 0
+nochk '덕담을 들려주세요' order-preview.html 0
+chk '전체 단체 사진 뒤에 이 안내를 틀어요. 그다음 가족 사진과 추가 촬영을 진행해요.' order-preview.html 1   # B2_GEUL_24
+chk '식순을 확인하고 저장해요. 대본도 복사하거나 파일로 받아요.' order-preview.html 1   # B2_GEUL_25
+chk '두 분이 정하신 한 분이 성혼 선언문을 읽어, 부부가 되었음을 하객께 알려요.' assets/ritual-open.js 1   # B2_GEUL_26
+chk '부부가 되었음을 하객께 알려요. 하객이 박수로 축하하는 장면을 함께 담아요. 읽어 주실 분이 없으면 이 순간을 빼도 돼요.' order-preview.html 1
+nochk '축하의 말을 전해요(3분 안팎)' assets/ritual-open.js 0   # B2_GEUL_29
+nochk '축하의 말을 전해요(3분 안팎)' order-preview.html 0
+chk '안내 음성에 맞춰 신랑 신부를 안아 주세요. 앉으신 채로도 괜찮아요.' order-preview.html 1   # B2_GEUL_03 부모님 역할 · 포옹
+chk '일어나셨다면 포옹 뒤 편히 앉아 주세요.' order-preview.html 1
+chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자리로 돌아가 앉아 주세요.' order-preview.html 1   # B2_GEUL_04 축사 · 귀석 선언(P16 덕담 잇는 분 제외)
+chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
+nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
+chk '신부의 첫 문장이 앞말을 이어받고 있어요. 시작 문장을 확인해 주세요.' order-preview.html 1   # B2_GEUL_07
+chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
+chk '고르지 않으시면 말로 인사해요' order-preview.html 1
+chk 'g.tipToo&&g.tip' order-preview.html 1
+chk '그리고 내가 제일 좋아하는 우리 매제, 오늘' assets/ritual-ref.js 1   # B2_GEUL_08
+nochk '우리 이 서방' assets/ritual-ref.js 0
+nochk '오빠 민재가' assets/ritual-ref.js 0
+chk '신부 글만 바꿨어요 · 신랑은 그대로' order-preview.html 1   # B2_GEUL_06
+chk 'function _refOne(sets,i)' order-preview.html 1
+chk "c===3?\['마이크를 열지 못했어요','연결과 사용 중인 앱을 확인해 주세요'" order-preview.html 1   # B2_GEUL_12 M3
+nochk ":c===3?\['다른 앱이 마이크를 써요'" order-preview.html 0
+chk "반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요." order-preview.html 1   # B2_GEUL_13
+chk "data-fk=\\\"mksongkakao\\\"" order-preview.html 1
+chk '흐름을 불러오는 데 오래 걸려요' order-preview.html 2   # B2_GEUL_14
+chk 'var ENG_TO_MS=40000;' order-preview.html 1
+chk 'B2_GEUL_14' scripts/audit/eng-once.mjs 1
+chk '삭제 여부를 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 1   # B2_GEUL_15
+chk "MK.toast=_cf?'삭제를 확인하고 있어요'" order-preview.html 1
+chk '입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요' automation/platform/80_production.gs 1   # B2_GEUL_16
+nochk "t === 'ritual' ? '서약 · 편지'" automation/platform/80_production.gs 0
+nochk "track === 'ritual' ? '서약 · 편지'" automation/platform/80_production.gs 0
+chk '/너무 길어요|글이 많아/.test(_saveErr)' order-preview.html 1
+chk 'var EX_NAMES_SOFT=' order-preview.html 1   # B2_GEUL_17
+chk '예시 이름이 남았는지 확인해 주세요' order-preview.html 1
+chk '나중에 마이페이지 식순의 «연습 · 준비»에서 연습해요' order-preview.html 1   # B2_GEUL_20
+nochk '마이페이지 «연습하기»에서 해도 돼요' order-preview.html 0
+chk '응답을 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 2   # B2_GEUL_28 EC_BASE · VC_DOWN_W
+nochk '서버가 잠깐 멈췄어요' order-preview.html 0
+chk "7:'응답을 확인하지 못했어요'" mypage.html 1
+chk '이 줄은 300자까지 적을 수 있어요' order-preview.html 1   # B2_GEUL_31
+chk '촬영 끝내기 <small>추가 촬영을 마치면 누르세요' console.html 1   # B2_GEUL_32

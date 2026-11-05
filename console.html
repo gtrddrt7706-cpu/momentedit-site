@@ -2203,6 +2203,9 @@ function render(){
   } else if (n1 && n1.fire === 'clock' && startAt) {
     main.innerHTML = '지금 바로 → <small>' + esc(n1.name) + ' · ' + clockAt(n1) + '에 저절로 나갑니다</small>';
     main.className = 'main wait';
+  } else if (!n1 && c && c.endHold && MODE !== 'preview' && phase !== 'end') {
+    main.innerHTML = '촬영 끝내기 <small>추가 촬영을 마치면 누르세요</small>';   /* ★[B2_GEUL_32] 마지막 추가 촬영 중 · 다음 큐 없음 — 이 단추는 «다음 순서»가 아니라 진행 · 음악을 끝낸다(누를 때만 · 3초에 잦아듦 · AFTER_PHOTO_LOOP_1102) */
+    main.className = 'main';
   } else {
     main.innerHTML = '다음 <small>' + (n1 ? esc(n1.name) : '마무리') + '</small>';
     main.className = 'main';

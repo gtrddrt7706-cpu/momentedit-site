@@ -39,7 +39,7 @@ const GT = ['입장 직후', '시작 10분 전', '시작 5분 전', '시작 1분
 L.push('- 지금 글: ' + (D.GUEST || []).map((g, i) => `(${GT[i] || g[0]}) ${g[1]}`).join(' / '));
 (O.NAR.guestEx || []).forEach((set, i) => L.push(`- 예시 ${i + 2}: ` + set.map((t, j) => `(${GT[j] || j + 1}) ${t}`).join(' / ')));
 L.push('', '### 식전 영상 소개 (지금 글 + 예시)', '');
-(O.NAR.pvEx || []).forEach((t, i) => L.push(`- 예시 ${i + 2}: ${t}`));
+(O.NAR.pvEx || []).slice(0, Math.max(0, (O.NAR.pvExNames || []).length - 1)).forEach((t, i) => L.push(`- 예시 ${i + 2}: ${t}`));   // [B2_GEUL_01] 고르는 목록에 있는 예시만(130 은 뺐다)
 L.push('', '### 나레이션 멘트 예시 (순간마다 «○○ 멘트» · 예시 1 = 지금 글 · 이름은 «~하게»)', '');
 for (const k of O.narExKeys()) {
   const ex = O.NAR_EX[k]; const nm = ex.names;

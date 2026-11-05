@@ -629,7 +629,7 @@
       s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
       s.freeLen = O.chipOf('freeLen', s);
       s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;
-      s.pvEx = /^[0-3]$/.test(String(s.pvEx)) ? +s.pvEx : 0;   // [PV_EX_NAR] 식전 영상 소개 나레이션 예시(0 = 90 그대로)   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
+      s.pvEx = /^[0-2]$/.test(String(s.pvEx)) ? +s.pvEx : 0;   /* ★[B2_GEUL_01 d-01] 3(130 시선 명령 예시)은 고르는 목록에서 빠졌다 — 저장된 3 은 기본 90 으로 */   // [PV_EX_NAR] 식전 영상 소개 나레이션 예시(0 = 90 그대로)   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
       /* ★[EX_MANY_1017] 나레이션 멘트 예시(S.narEx[순간] = 1 ~ (예시 수 − 1) · 0 = 예시 1) — 모르는 순간 · 범위 밖 값만 지운다 · «맞는 날»(when)은 쓸 때 본다(서약 ↔ 감사문을 오가도 고른 값은 남는다) */
       if (s.narEx && typeof s.narEx === 'object') { var _ne = {}; Object.keys(s.narEx).forEach(function (k) { var v = Math.floor(+s.narEx[k]); var _nm = O.NAR_EX && O.NAR_EX[k] && O.NAR_EX[k].names, _mx = Array.isArray(_nm) ? Math.max(3, _nm.length - 1) : 3; if (O.NAR_EX && O.NAR_EX[k] && v >= 1 && v <= _mx) _ne[k] = v; });   /* ★[EX_MAX_BY_NAMES_1018 인스타 섹션 검토 9] 상한은 그 순간 예시 수(names 배열 · 넷보다 많을 때만 늘린다 · 서는 분마다 바뀌는 names(함수)는 종전 3) — «3» 고정이라 축가 예시 5(값 4)를 고르면 저장 값이 지워져 예시 1로 돌아갔다 */ if (Object.keys(_ne).length) s.narEx = _ne; else delete s.narEx; } else delete s.narEx;
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */

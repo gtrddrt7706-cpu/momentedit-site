@@ -83,8 +83,8 @@ function judgeA(X) {
   if (!/아직 적지 않았어요 · 읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요/.test(html)) bad.push('⑤ 빌더에 칸이 비었을 때 한 줄이 없다');
   /* 설명은 «값»으로 잰다 — 이 저장소는 걷은 글을 ★ 주석으로 남기는 관례라 글자 검사가 제 주석을 잡는다([DECLWHO_LIVE] 교훈) */
   const pvDecl = (html.match(/\n  declare:'([^']+)'/) || [])[1] || '';
-  if (!/두 분이 정하신 한 분이 읽/.test(pvDecl) || PERSONS.test(pvDecl) || /나레이션|가족이/.test(pvDecl)) bad.push('⑤ 빌더 ① 설명(PV_DESC.declare)이 «두 분이 정하신 한 분»이 아니다: ' + pvDecl.slice(0, 60));
-  if (!/서약으로 마무리/.test(pvDecl)) bad.push('⑤ 빌더 ① 설명에 «없으면 서약으로»가 없다');
+  if (!/두 분이 정하신 한 분이 (성혼 선언문을 )?읽/.test(pvDecl) || PERSONS.test(pvDecl) || /나레이션|가족이/.test(pvDecl)) bad.push('⑤ 빌더 ① 설명(PV_DESC.declare)이 «두 분이 정하신 한 분»이 아니다: ' + pvDecl.slice(0, 60));
+  if (!/읽어 주실 분이 없으면 (선언을 빼고 서약으로 마무리|이 순간을 빼도 돼요)/.test(pvDecl)) bad.push('⑤ 빌더 ① 설명에 «읽어 주실 분이 없으면 …»(빼는 길)이 없다');   // [B2_GEUL_26] ① 설명은 서약이 남는다고 가정하지 않는 중립 문장 · 칸 한 줄(_declNoWho)은 «서약으로 마무리» 그대로
   const din = (html.match(/var DECL_IN="([^"]+)";/) || [])[1];
   if (din !== D.NARR.declareIn) bad.push(`⑤ 빌더 여는 말 사본(DECL_IN)이 원천과 다르다: ${din}`);
   if (/declareWho:'narr'|declareWho:'family'|declareWho:'gdad'/.test(html)) bad.push('⑤ 빌더 기본값(S · COURSE_DEF)이 읽는 분을 쥐고 있다');
