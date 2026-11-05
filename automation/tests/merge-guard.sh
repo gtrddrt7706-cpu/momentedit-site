@@ -21959,3 +21959,7 @@ chk "if (i === 0) return 'guest-w-arrival-guide';" assets/ritual-cue.js 1
 chk "'-mr': \[GW.mr, GW.pUp\], '-m': \[GW.m, GW.pUp\]" assets/ritual-cue.js 1
 nochk "(S.digital ? 'guest-w-5m-online' : 'guest-3-5min')" assets/ritual-cue.js
 chk 'PHOTO_ALWAYS_NI02' scripts/audit/open-course.mjs 3
+# ── 2026-11-05 [DINE_HINT_NI15 이음매 NI15] 식사 힌트 = 마이페이지 식사 상태(미정만 «정하면 붙어요» · 확인 필요 한 줄 · 확정은 숨김) · 설정 도움말은 재생 · 연습 시간에서 뺀다
+chk "if(_ds==='needs-confirmation') o.push('+ 식사 여부 확인이 필요해요');" order-preview.html 1
+chk "filter(function(x){ return !x.hint&&(!x.quiet||x.txt); })" order-preview.html 1
+chk 'dining:_dst, guide:_gOn' mypage.html 1

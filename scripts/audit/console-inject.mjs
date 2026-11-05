@@ -43,7 +43,7 @@ ok('④ mealFull · resv 가 KEYS · INJECT 에 있다', ['mealFull', 'resv'].ev
 const op = rd('order-preview.html'), ro = rd('assets/ritual-open.js');
 ok('④ 세 갈래가 같은 값을 넘긴다 — 콘솔(관리자) · 미리 듣기(마이페이지) · 연습하기(식순 화면) · 40분 셈(postSec)',
   /_cS\.mealFull=!!_RPL\.mealFullOf\(dd,_RPL\.DINE_PH\)/.test(ad) && /_cS\.resv=!!_RPL\.resvOf\(dd,gi\)/.test(ad)
-  && /mealFull:RitualPreviewLink\.mealFullOf\(p&&p\.diningDraft, DN_PLACEHOLDER\), resv:RitualPreviewLink\.resvOf\(p&&p\.diningDraft, p&&p\.guideinfoDraft\)/.test(mp) && /meal:_meal, mealFull:_mealF, resv:_resv, guide:_gOn/.test(mp)
+  && /mealFull:RitualPreviewLink\.mealFullOf\(p&&p\.diningDraft, DN_PLACEHOLDER\), resv:RitualPreviewLink\.resvOf\(p&&p\.diningDraft, p&&p\.guideinfoDraft\)/.test(mp) && /meal:_meal, mealFull:_mealF, resv:_resv, dining:_dst, guide:_gOn/.test(mp)
   && (op.match(/mealFull:!!CUSTMEALF, ?resv:!!CUSTRESV/g) || []).length === 4 && /CUSTMEALF=ev\.data\.mealFull/.test(op)
   && /var m = _postOf\(S, 'meal'\) && _postOf\(S, 'mealFull'\), k = m \? \(_postOf\(S, 'resv'\) \? 'meal' : 'mealNr'\) : 'none'/.test(ro)   /* [INFO_SPLIT_200] 40분 셈도 식사 자리 × 예약 시각 */ && /rMealFull:\['mealFull'/.test(co) && /id="rResv"/.test(co));
 /* ★[PHOTO_PRE_GAP_1030] 콘솔 간격 — 디지털 참석 날 온라인 인사 끝 GO 뒤 2초 · 그 밖은 GO 에 바로 · 사진 전 안내 뒤 전체 사진은 GO */

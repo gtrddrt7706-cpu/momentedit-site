@@ -4721,11 +4721,16 @@ function _inPr(){ return !!(STEPS[idx]&&STEPS[idx].k==='practice'); }
    식사 장소 · 예약 시각(CUSTMEAL · CUSTMEALF · CUSTRESV)이나 하객 안내(CUSTGUIDE)가 아직 없으면 그 줄이 빠진 짧은 판이 나온다. 무엇을 하면 어떤 줄이 이어지는지 회색 한 줄씩(녹음 아님 · 화면만 · ② 흐름 · ③ 연습 · 전체 대본) · «» 는 흐름 줄에서 굵은 글로 바뀌어 쓰지 않는다.
    ★«마이페이지에서 적기 ›» 이동은 아직 없다(빌더 → 마이페이지 칸으로 가는 길이 없다) — 글만 */
 function _clHints(){ var _s=_clS()||{}, o=[], meal=!!(_s.meal&&_s.mealFull), g=   /* ★[MEAL_HINT_HIDE_204 #1574 확인] 엔진이 식사 문장을 붙이는 값(_clS · 마이페이지 값 · 없으면 S)과 같은 자로 — 식사를 이미 정한 날(meal · mealFull · 예약 시각 유무 무관)엔 힌트 숨김 */ (typeof CUSTGUIDE!=='undefined'&&CUSTGUIDE===true);
-  if(!meal) o.push('+ 식사 안내 멘트: 애프터 웨딩에서 식당을 정하면 붙어요');   /* ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요 · 마이페이지 빼고 짧게»] 골라 담기 · 하나씩 · 연습 · 전체 대본이 이 한 줄(_clHints)을 함께 쓴다 */   /* ★[MEAL_HINT_1102 사장님 «이 행동에 따라 안내 멘트가 맞춰 바뀐다는 걸 고객이 인지할 수 있게» → 1안 · 대본 섹션 동의] «무엇 멘트: 하면 붙어요» — 문구 · 모양은 디테일 섹션 · 조건 · 녹음 판은 나레이션(검토 202 · 사진 줄은 그쪽이 뺀다) */
+  /* ★★[DINE_HINT_NI15 2026-11-05 이음매 NI15] 힌트는 마이페이지가 보낸 식사 상태(CUSTDINE · none · cafe · meal · undecided · needs-confirmation)로 고른다 —
+       아직 안 정한 날만 «정하면 붙어요» · 장소는 있는데 식사 · 카페를 모르는 날은 «식사 여부 확인이 필요해요» · 식사 없음 · 카페 · 식사로 정한 날은 숨김.
+       상태가 안 온 옛 화면 · 독립 화면은 «없음 확정»으로 짐작하지 않고 종전처럼(식사로 정했으면 숨김 · 아니면 «정하면 붙어요») */
+  var _ds=(typeof CUSTDINE==='string')?CUSTDINE:'';
+  if(_ds==='needs-confirmation') o.push('+ 식사 여부 확인이 필요해요');
+  else if(_ds==='undecided'||(!_ds&&!meal)) o.push('+ 식사 안내 멘트: 애프터 웨딩에서 식당을 정하면 붙어요');   /* ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요 · 마이페이지 빼고 짧게»] 골라 담기 · 하나씩 · 연습 · 전체 대본이 이 한 줄(_clHints)을 함께 쓴다 */   /* ★[MEAL_HINT_1102 사장님 «이 행동에 따라 안내 멘트가 맞춰 바뀐다는 걸 고객이 인지할 수 있게» → 1안 · 대본 섹션 동의] «무엇 멘트: 하면 붙어요» — 문구 · 모양은 디테일 섹션 · 조건 · 녹음 판은 나레이션(검토 202 · 사진 줄은 그쪽이 뺀다) */
   /* ★«+ 사진 올리기 안내: 하객 안내 켜기» 줄 금지 — 2026-11-02 검토 202 사장님 «하객 안내 켜기가 뭐야?»로 삭제 [GUIDE_ALWAYS_202] · 사진 올리기 안내는 늘 나온다 */
   return o; }   /* ★[CL_HINT_199 검토 199 · 사장님 폰 캡처] 흐린 회색 긴 글 → 진사색 짧은 한 줄 «+ 무엇: 어디서 하기»(대본 확정 문구의 « — »는 전각 줄표 금지 규칙으로 «:») · 조건이 켜져 있으면 이 줄 대신 실제 붙는 문장(종전 그대로) */
 /* ★[CLOSING_FULLER 1] ② · ③ 가 마이페이지 값을 엔진에 넘긴다 — 종전엔 S 에 식사 · 하객 안내 값이 없어 식사 · 하객 안내를 다 갖춘 고객도 짧은 판(287 · 292)이 보였다(당일 콘솔 · «음악까지 미리듣기»는 RitualPreviewLink 로 넘긴다) */
-function _clS(){ if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;   /* ★[GUIDE_ALWAYS_202] 하객 안내 기본 켜짐(CUSTGUIDE=true)만으로는 덮어쓰지 않는다 — 마이페이지 값이 하나도 없으면 S 그대로(덮으면 식사 값이 «없음»으로 바뀐다 · screen-sound 가 잡음) */ var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE!==false; o.digital=!!CUSTDIG; return o; }   /* [GUEST_WELCOME_191] 하객 맞이 5분 · 1분 전 온라인 판도 같은 값으로 */
+function _clS(){ if(typeof CUSTMEAL==='undefined'||!((typeof CUSTDINE==='string'&&CUSTDINE)||CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;   /* [DINE_HINT_NI15] 식사 상태를 받았으면(없음 확정 포함) 문맥 값이 S 를 덮는다 · 아무것도 안 받았으면 S 그대로 */   /* ★[GUIDE_ALWAYS_202] 하객 안내 기본 켜짐(CUSTGUIDE=true)만으로는 덮어쓰지 않는다 — 마이페이지 값이 하나도 없으면 S 그대로(덮으면 식사 값이 «없음»으로 바뀐다 · screen-sound 가 잡음) */ var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE!==false; o.digital=!!CUSTDIG; return o; }   /* [GUEST_WELCOME_191] 하객 맞이 5분 · 1분 전 온라인 판도 같은 값으로 */
 function _clHasLine(st){ return (st||[]).some(function(x){ return /마무리 멘트/.test(String(x.slab||x.lab||'')); }); }
 /* ★★[AFTER_FIX_196 검토 196 · 사장님 23:16 «촬영 후 안내가 식순에 보여야 함 · 이벤트를 하나하나 고르는 화면에서» · 보충 «자연스럽게 · 하객 맞이 칸과 같은 모양 · 이름은 촬영 후 안내 하나»]
    «촬영 후 안내»(_after) = 식순 맨 끝 늘 있는 칸 — ① 고르기 칸(닫는 인사 뒤 · ⊙ 표) · 미리 보기 창 · ② 하나씩 만들기 마지막 쪽 · 예식 흐름 «식후» 줄 · 한눈에 보기 · 완성.
@@ -8278,7 +8283,7 @@ window.RunPace=window.RunPace||{ act:{candle:6,table:8,matjeol:8,clap:5.5}, cueT
 function _rpAct(x){ var A=(window.RunPace||{}).act||{}, sec=(x.k==='candle'&&/^narr-candle-in-/.test(x.of||''))?A.candle:(x.k==='table'&&x.of==='narr-table-in')?A.table:(x.k==='matjeol')?A.matjeol:/박수/.test(String(x.txt||''))?A.clap:null; return sec?Math.round(sec*1000):_dwellMs(x,true); }   /* [TURN_GAP_1102] 표(RunPace)에 없는 동작 = 머무름 표의 연습 값(부모님께 인사 · 포옹 · 반지 · 이동 · 목례 박수 8초 · 그 밖 6초) */
 /* ★[PR_WAY_198 보충 중7] 연습 줄 = 재생과 같은 줄(_prQ) · 연습 예상 시간 = 그 줄의 길이 + _lGapOf 쉼(입장 준비 5초 · 편지 끝 연출 포함) — 첫 화면 «연습 약 n분»이 실제 A 완주와 맞게 */
 function _prAct(x){ return x.quiet&&!x.act?Object.assign({},x,{src:null,pending:false,ms:_rpAct(x),act:1}):x; }   /* [PR_REVIEW_201 상1] 말없는 줄 = 동작(행위자 · 시간) — 펼쳐 더한 줄(축배 잔 · 화답)도 같은 길 */
-function _prQ(ks){ return _lRefExpand(_lpTag(_lSteps(ENG,ks)).filter(function(x){ return !x.quiet||x.txt; }).map(_prAct)).map(_prAct); }
+function _prQ(ks){ return _lRefExpand(_lpTag(_lSteps(ENG,ks)).filter(function(x){ return !x.hint&&(!x.quiet||x.txt); }).map(_prAct)).map(_prAct); }   /* ★[DINE_HINT_NI15] 설정 도움말(이어지는 줄 · hint)은 재생 · 연습 시간에서 뺀다 — 6초 «행동»처럼 기다리던 것(마무리 녹음 다음은 전체 단체 사진) */
 function _prDur(x){ if(x.act||x.said||x.talk2||x.talk||x.skip) return x.ms||3000; var D=(window.BgmBed&&BgmBed._t&&BgmBed._t.DUR)||{}, d=x.src&&D[x.src]; if(d>0) return Math.round(d*1000); var t=String(x.txt||''); return t?Math.round(Math.max(2,t.length/6.5)*1000):(x.ms||3000); }
 function _prEstMs(ks){ if(!ENG) return 0; var q=_prQ(ks), t=0, mu=_prMusic(); q.forEach(function(x,i){ t+=_prDur(x); if(i>0) t+=_lGapOf(q,i,q[i-1],x,true).gap;
     if(x.k==='entry'&&(i===0||q[i-1].k!=='entry')) t+=5000;   /* 입장 준비 5초(⑩) */ if(mu&&q[i-1]&&q[i-1].k==='letter'&&x.k!=='letter') t+=6000; });   /* 편지 끝 연출(정적 2초 + 4초) */
@@ -11302,7 +11307,7 @@ var CUSTPHOTO=false;
 var CUSTTBL=0;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수 — mypage 가 orderFill 로 보낸다 · render 가 S.tableN 에 싣는다(초안과 함께 저장 → 콘솔 · 시간표가 같은 값) */
 var CUSTGUIDE=true;   // ★[GUIDE_ALWAYS_202] 기본 켜짐 —   // [GUIDE_ON_1019] 하객 안내가 열려 있나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 사진 올리기 안내가 안 나간다)
 var CUSTMEALF=false, CUSTRESV=false;   // [PHOTO_PRE_PICK_1030] 식사 자리 · 예약 시각 유무 — mypage orderFill(구버전이면 false · 26/265 로 지난다)
-var CUSTMEAL=false;   // [MEAL_GUIDE] 모일 식당을 골랐나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 멘트가 안 나간다)
+var CUSTMEAL=false; var CUSTDINE='';   // [DINE_HINT_NI15] 식사 상태(none · cafe · meal · undecided · needs-confirmation) — mypage orderFill · 옛 화면이면 '' (짐작하지 않는다)   // [MEAL_GUIDE] 모일 식당을 골랐나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 멘트가 안 나간다)
 /* ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 저장할 때 **어디까지 걸어왔는지**를 함께 보낸다.
    ★무엇이 문제였나 — 코스를 고르는 순간 모든 순간이 기본값으로 채워진다. 그래서 3번째 단계에서
      「저장 후 나가기」를 해도 미리듣기는 **폐식까지** 흐른다. 화면은 「고르신 순서 그대로」라고
@@ -11520,6 +11525,7 @@ if(EMBED){
       if(typeof ev.data.tables==='number'&&ev.data.tables>0) CUSTTBL=ev.data.tables;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수(없으면 하객 수 ÷ 5) — 아래에서 S.tableN 에 싣는다(콘솔 · 시간표가 같은 값을 본다) */
       if(typeof ev.data.guide==='boolean') CUSTGUIDE=ev.data.guide;   // [GUIDE_ON_1019]
       if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;
+      if(typeof ev.data.dining==='string'&&/^(none|cafe|meal|undecided|needs-confirmation)$/.test(ev.data.dining)) CUSTDINE=ev.data.dining;   // [DINE_HINT_NI15] 상태 낱말만(장소 이름 · 예약 글은 싣지 않는다)
       if(typeof ev.data.mealFull==='boolean') CUSTMEALF=ev.data.mealFull; if(typeof ev.data.resv==='boolean') CUSTRESV=ev.data.resv;   // [PHOTO_PRE_PICK_1030]
       try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, mealFull:!!CUSTMEALF, resv:!!CUSTRESV, guide:CUSTGUIDE!==false}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
       // ORDER_OWNER → ★[ACCT_KEYS 2026-10-30] 이 기기 초안은 계정 칸이라 «주인이 다르면 지우기»가 필요 없다 — 마이페이지가 확인해 준 계정 칸만 이제 처음 읽는다(그 전엔 읽지 않았다).
