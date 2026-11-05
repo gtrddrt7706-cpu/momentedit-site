@@ -16518,7 +16518,8 @@ nochk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritua
 nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js
 chk 'TABLE_APART' order-preview.html 18
 chk 'id="mkFgAfter">본식 뒤</p>' order-preview.html 1
-nochk "'<b>본식 뒤</b>'" order-preview.html   # [PROG_COUNT_1031] 테이블 인사도 «본식 n / N»(뒤에 축배 · 닫는 인사가 온다)
+nochk "AFTER_CLOSE)\[cur\]?'<b>본식 뒤</b>'" order-preview.html   # [PROG_COUNT_1031] 테이블 인사도 «본식 n / N»(뒤에 축배 · 닫는 인사가 온다) · [STAGE_SHOW_NI11 · d-14 2026-11-05] «본식 뒤»는 촬영 후 안내 쪽(_after) 이름으로만 — 테이블 인사 쪽 옛 꼴만 막는다
+chk "cur==='_after'?'<b>본식 뒤</b>'" order-preview.html 1   # [STAGE_SHOW_NI11 · d-14]
 chk '.op-bar .t{background:var(--gold-btn)}' order-preview.html 1   # [BAR_STEPS 2026-10-09] 테이블 인사 = 중간 금(종전 --gold 는 본식과 거의 같은 금)
 chk '@media (max-width:389px){ .op-cta .cta-lg{display:none} }' order-preview.html 1
 chk 'FSUM_SEP' order-preview.html 2
@@ -21813,11 +21814,11 @@ chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></b
 chk '.pv-act:empty{display:none}' order-preview.html 1
 nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
 # ── 2026-11-02 [GUIDE_ALWAYS_202 보충] 하객 안내 기본 켜짐만으로 _clS 가 S 를 덮지 않는다(덮으면 마이페이지 값이 없을 때 식사 값이 «없음»으로 바뀌어 콘솔 ⊆ 화면이 깨진다 · screen-sound 가 잡음)
-chk "if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;" order-preview.html 1
+chk "if(typeof CUSTMEAL==='undefined'||!((typeof CUSTDINE==='string'&&CUSTDINE)||CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;" order-preview.html 1   # [DINE_HINT_NI15] 식사 상태를 받으면 문맥 값
 nochk "!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S;" order-preview.html
 # ── 2026-11-02 [INFO_SPLIT_200 검토 200 수정 2 · 사장님 18:00 «한 번에 다 안내하면 귀에 안 들어오니 나눠서» · 18:02 «추천대로»] 입장 = 사진 올리기 · 10분 전 = 식사 예고 · 5분 전 = 경로 + 사진 · 마무리 = 식사 시각 · 합류 · 촬영 후 = 남기 · 물건 · 이동 허락
 chk "if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');" assets/ritual-cue.js 1
-chk "var G5 = { '-mgr': \[GW.mgr, GW.upThere\], '-mg': \[GW.mg, GW.upThere\], '-mr': \[GW.mr\], '-m': \[GW.m\], '-g': \[GW.pUp\] };" assets/ritual-cue.js 1
+chk "var G5 = { '-mgr': \[GW.mgr, GW.upThere\], '-mg': \[GW.mg, GW.upThere\], '-mr': \[GW.mr, GW.pUp\], '-m': \[GW.m, GW.pUp\], '-g': \[GW.pUp\] };" assets/ritual-cue.js 1   # [PHOTO_ALWAYS_NI02] 현장 디렉터 판에도 사진 문장
 chk "'narr-closing-mealr': \[CL_THX, CL_CHEER, CL_RESV, CL_JOIN, CL_GA\], 'narr-closing-mealnr': \[CL_THX, CL_CHEER, CL_NORESV, CL_JOIN, CL_GA\]" assets/ritual-cue.js 1
 chk "'after-photo': \[GW.done, GW.fam, GW.stay, GW.things, GW.goHome, GW.day\], 'after-photo-meal': \[GW.done, GW.fam, GW.stay, GW.things, GW.goMeal\]," assets/ritual-cue.js 1
 chk "★★\[INFO_SPLIT_200 검토 200 수정 2\]" assets/ritual-cue.js 1
@@ -21982,3 +21983,37 @@ chk "bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';
 chk "(_openClap ? '박수가 줄기 시작하면 \[다음\]으로 화촉 시작' : '다음 줄(화촉 시작)은 이어서 나간다')" assets/ritual-cue.js 1
 chk "csc.hint = '다음 순서가 준비되면 · 박수가 나왔으면 잦아든 뒤';" assets/ritual-cue.js 1
 chk "cues\[ds + 1\].fire = 'manual'; cues\[ds + 1\].hint = '선언하신 분이 자리로 돌아가면';" assets/ritual-cue.js 1
+# ── 2026-11-05 [PHOTO_ALWAYS_NI02 이음매 NI02] 사진 올리기 안내는 하객 안내를 끈 예외 예식에도 — 입장 298 늘 · 5분 전 현장 디렉터 판에 333 사진 문장(창고 이어 붙임 · 새 녹음 0) · 식사 없는 날 333 · 334
+chk "if (i === 0) return 'guest-w-arrival-guide';" assets/ritual-cue.js 1
+chk "'-mr': \[GW.mr, GW.pUp\], '-m': \[GW.m, GW.pUp\]" assets/ritual-cue.js 1
+nochk "(S.digital ? 'guest-w-5m-online' : 'guest-3-5min')" assets/ritual-cue.js
+chk 'PHOTO_ALWAYS_NI02' scripts/audit/open-course.mjs 3
+# ── 2026-11-05 [DINE_HINT_NI15 이음매 NI15] 식사 힌트 = 마이페이지 식사 상태(미정만 «정하면 붙어요» · 확인 필요 한 줄 · 확정은 숨김) · 설정 도움말은 재생 · 연습 시간에서 뺀다
+chk "if(_ds==='needs-confirmation') o.push('+ 식사 여부 확인이 필요해요');" order-preview.html 1
+chk "filter(function(x){ return !x.hint&&(!x.quiet||x.txt); })" order-preview.html 1
+chk 'dining:_dst, guide:_gOn' mypage.html 1
+# ── 2026-11-05 [GUEST_GROUP_NI03 이음매 NI03] 하객 맞이 표 = 시계 큐 + 이어지는 줄 묶음(온라인 날 1분 전 316 → 48)
+chk 'GUEST_GROUP_NI03' order-preview.html 1
+nochk "var gq=cs.filter(function(c){ return c.k==='guest'&&c.text; });" order-preview.html
+# ── 2026-11-05 [WISH_AFTER_FAMILY_NI10 이음매 NI10] 요청 사진 몫은 가족 사진 뒤 추가 촬영으로 — 전체 사진 = 전체 한 장 · 촬영 후 안내는 그 직후 · 사진 세 칸 합 그대로
+chk 'var _wishSec = _pw >= 0 ? 60 \* _pw : 120;' assets/ritual-cue.js 1
+chk "_goFreeOpen = goFree + (_photoOpen ? _wishSec : 0);" assets/ritual-cue.js 1
+chk "note: '가족 사진 뒤, 두 분이 적은 요청 사진과 추가 촬영을 진행한다 \[WISH_AFTER_FAMILY_NI10\]'," assets/ritual-cue.js 1
+
+# ── 2026-11-05 [이음매 NI06 · NI07 · NI08 · NI13 · NI14 · NI11 + 2차 d-14] 연습 화면 이음매 — 소리 없는 동작 줄 · 직접 부르는 축가 · 따로 써 온 편지 · 함께 읽은 뒤 하객 쪽 · B 남은 시간 재개 대기 · 본식 뒤 단계 이름
+chk 'PR_ACT_NI06' order-preview.html 3
+chk '두 분이 앞쪽 중앙으로 돌아와 나란히 서요' order-preview.html 1
+chk '하객이 잔을 내려놓으면 두 분도 잔을 건네고, 하객을 향해 나란히 서요' order-preview.html 1
+chk 'SONG_SELF_WAIT_NI07' order-preview.html 1
+chk '노래하실 분이 준비한 축가를 불러요' order-preview.html 1
+chk 'LETTER_BRING_NI08' order-preview.html 1
+chk 'VOW_FACE_NI13' order-preview.html 1
+chk 'B_RESUME_WAIT_NI14' order-preview.html 1
+chk 'STAGE_SHOW_NI11' order-preview.html 6
+chk "function _stName(st){ return st&&st.stage?_post(st.stage).n:_lName(st&&st.k); }" order-preview.html 1
+chk "return '다음 · 본식 뒤 '+_post('_photo').n" order-preview.html 1
+nochk '<b>식후</b>' order-preview.html
+nochk '<span class="pr-no pre">식후</span>' order-preview.html
+nochk "return '다음 · 식후 '" order-preview.html
+chk 'MATJEOL_PILL_R2' order-preview.html 1   # [MEANING_R2 · 2026-11-06] 맞절 = 정적 → 알약에 «음악과 함께» 없음(엔진 줄이 모두 정적이면)
+chk 'MATJEOL_PILL_R2' scripts/audit/entry-carry.mjs 1

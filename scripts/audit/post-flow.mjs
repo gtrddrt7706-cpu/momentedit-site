@@ -49,7 +49,7 @@ function check(src) {
     ['② 닫는 인사 끝', "_qRow('다음 · '+_post('_photo').n)"],
     ['② 촬영 후 안내 첫 줄', "(k==='_after'?_qRow(_postLine('_photo')):'')"],
     ['② 촬영 후 안내 끝 줄', "k==='_after'?_qRow(_postLine('_extra')):''"],
-    ['다음 단추', "return '다음 · 식후 '+_post('_photo').n+' · '+_post('_after').n;"],
+    ['다음 단추', "return '다음 · 본식 뒤 '+_post('_photo').n+' · '+_post('_after').n;"],   // [STAGE_SHOW_NI11 · d-14]
     ['드롭다운 구분 줄', "if(k==='_after') h+=_sep('_photo');"],
     ['연습 단체 사진', "txt:_post('_photo').n+' · 한 장 · 연습에서는 넘겨요'"],
     ['연습 추가 촬영', "txt:_post('_extra').n+' · 연습 끝'"],
