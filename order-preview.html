@@ -3292,7 +3292,7 @@ var ENG_TO_MS=40000;
 function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
-  var g={};
+  var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
   var ASSET_V='1106b3';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
@@ -4840,8 +4840,8 @@ function _lSteps0(g,ks){
         /* [DETAIL_0925 B6] 두 분 목소리 — 두 분이 녹음하실 글(예시)을 그대로 보여 준다(입장 ENTRY[k].self · 하객 맞이 GUEST 두 분 판) */
         /* [COUPLE_EX_VOICE 2026-09-26] 예시 목소리(배역 녹음)가 글과 같으면 소리로 들려준다 — 당일엔 두 분이 녹음한 목소리가 나간다 */
         if(c.k==='guest'){ var gi=_gi;   // [G_IDX_SLUG] 위와 같은 원천
-          var gg=GUEST[gi], gt=_recNeed('g'+gi);   /* [LINE_EDIT] 두 분이 고친 글 */ var gu=_upStale('g'+gi)?null:_rfUrl('g'+gi);   /* [R7-01] 읽는 분이 바뀐 소리는 틀지 않는다 */ out.push({k:k,am:_tgAm(c),lab:(gu?'두 분 목소리 · ':'두 분이 녹음하실 글(예시) · ')+(gg?_lLabFix(gg[0]):''),txt:gt,own:true,up:'g'+gi,couple:!!gu,src:gu||(_vpCur('guest')==='ai'?null:_lCastSrc(CAST_GUEST[gi],gt)),ms:Math.max(2600,Math.round(String(gt).length*160))}); }   // ★[REC_UPLOAD] 올린 두 분 녹음이 있으면 그 자리에서 그 소리
-        else if(c.k==='prevideo'){ var pt=_recNeed('pv'), pu=_pvStale()?null:_rfUrl('pv'); out.push({k:k,lab:pu?'두 분 목소리 · 영상 앞 소개':'두 분 소개글 · 아직 소리 없음',txt:pt,own:true,up:'pv',couple:!!pu,src:pu,pending:!pu,ms:Math.max(2600,Math.round(pt.length*160))}); }   // [PV_INTRO] 만든 소리가 없으면 글만(예시 목소리가 없다)
+          var gg=GUEST[gi], gt=_recNeed('g'+gi);   /* [LINE_EDIT] 두 분이 고친 글 */ var gu=_upStale('g'+gi)?null:_rfUrl('g'+gi);   /* [R7-01] 읽는 분이 바뀐 소리는 틀지 않는다 */ out.push({k:k,am:_tgAm(c),lab:(gu?'두 분 목소리 · ':'두 분이 녹음하실 글(예시) · ')+(gg?_lLabFix(gg[0]):''),txt:gt,own:true,up:'g'+gi,couple:!!gu,src:gu||(_vpCur('guest')==='ai'?null:_lCastSrc(CAST_GUEST[gi],gt)),ms:Math.max(2600,Math.round(String(gt).length*160)),dk:c.duck}); }   // ★[REC_UPLOAD] 올린 두 분 녹음이 있으면 그 자리에서 그 소리
+        else if(c.k==='prevideo'){ var pt=_recNeed('pv'), pu=_pvStale()?null:_rfUrl('pv'); out.push({k:k,lab:pu?'두 분 목소리 · 영상 앞 소개':'두 분 소개글 · 아직 소리 없음',txt:pt,own:true,up:'pv',couple:!!pu,src:pu,pending:!pu,ms:Math.max(2600,Math.round(pt.length*160)),dk:c.duck}); }   /* ★[OWN_DK_B4 2026-11-06 BGM 섹션 B4] 두 분 목소리로 바꿔도 원래 큐의 크기(dk) 그대로 — 식전 영상 앞뒤 정적(−90 · 사장님 결정) · 하객 맞이 두 분 판도 같은 꼴(−16 · 소리 같음) */   // [PV_INTRO] 만든 소리가 없으면 글만(예시 목소리가 없다)
         else if(!ownDone){ ownDone=true; var et=_recNeed('entry'), eu=_upStale('entry')?null:_rfUrl('entry');   /* [WHO_LAB] 하객 맞이 · 소개처럼 읽는 차례가 바뀐 소리도 «두 분 목소리»로 세우지 않는다 */   /* [LINE_EDIT] */ out.push({k:k,lab:eu?'두 분 목소리':'두 분이 녹음하실 글(예시)',txt:et,own:true,up:'entry',couple:!!eu,src:eu||(_vpCur('entry')==='ai'?null:_lCastSrc(CAST_ENTRY[S.entry],et)),ms:Math.max(2600,Math.round(String(et).length*160))}); }
       }
       else if(c.file){

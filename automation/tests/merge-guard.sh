@@ -22212,6 +22212,9 @@ chk "반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요." or
 chk "data-fk=\\\"mksongkakao\\\"" order-preview.html 1
 chk '흐름을 불러오는 데 오래 걸려요' order-preview.html 2   # B2_GEUL_14
 chk 'var ENG_TO_MS=40000;' order-preview.html 1
+chk 'var g={}, gen=++ENG_GEN, ac=null, tm=0;' order-preview.html 1   # [ENG_DECL_KEEP] 병합에서 이 줄이 빠지면 식순 화면이 «ac is not defined»로 멈춘다(2차 묶음 합치기 때 실제로 빠졌다)
+chk 'dk:c.duck});' order-preview.html 2   # [OWN_DK_B4] 두 분 목소리 줄도 원래 큐의 BGM 크기(식전 영상 소개 −90 · 하객 맞이 −16)
+chk 'OWN_DK_B4' order-preview.html 1
 chk 'B2_GEUL_14' scripts/audit/eng-once.mjs 1
 chk '지웠는지 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 1   # B2_GEUL_15
 chk "MK.toast=_cf?'삭제를 확인하고 있어요'" order-preview.html 1
