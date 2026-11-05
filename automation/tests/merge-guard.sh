@@ -22038,3 +22038,6 @@ nochk "else if(_tgk==='min') _rp=Math.max(_rp,6000);" order-preview.html
 chk 'DECL_GAP_ONE_AU02' order-preview.html 2
 chk 'gn:!!c.gapNone,' order-preview.html 1
 chk 'MIN_GAP_PAD_AU01' scripts/audit/time-gap.mjs 2
+chk 'JUNCTION_SILENT_TX05' scripts/build-junctions.mjs 1   # [이음매 TX05] 소리 없는 사진 행동도 검토 판에
+chk '소리 없음 · 전체 단체 사진 · 현장 진행' docs/handoff/junctions.md 1
+nochk '기념 촬영을 모두 마쳤습니다' docs/handoff/junctions.md
