@@ -22379,6 +22379,28 @@ chk '아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 
 chk 'B2_MA_04' live.html 6                        # 최신 응답 반영 · 같은 영상은 끊지 않는다 · 캐시 열쇠 분리
 chk "me_couple_live_" live.html 1
 chk 'B2_MA_05' live.html 4                        # 편지 폼 안에서만 · 보이는 단추만 · 두 분으로 넓히지 않는다
+# ★[LT_SEND_WATCH · LETTER_SPLIT_A · LETTER_MAIL_A · LETTER_TRUE_COPY 2026-11-06 사장님 «미발송은 검사하는 필터가 있어야» · «발송 건수는 알 수 있어야(내용은 몰라도)» · 결정 2 = A]
+#   하객 편지 — 편지마다 번호 · 상태(접수 → 보냄 / 보류(금지어) / 실패) · 보낸 «뒤»에 보냄 · 보냄이 아니면 관리자 알림(번호 · 예식 · 상태만) ·
+#   매일 07시 점검(한 시간 넘은 미발송 다시 보내기 1회 · 보고 한 통 · 편지현황 시트) · 신랑 · 신부 각자 주소 · 같은 주소면 «두 분 모두»만 · 홈 문구 사실대로
+chk 'LT_SEND_WATCH' automation/platform/87_letter.gs 10
+chk "var LT_ST = { IN: '접수', SENT: '보냄', HOLD: '보류(금지어)', NOADDR: '실패(주소 없음)', ERR: '실패(메일 오류)' };" automation/platform/87_letter.gs 1
+chk 'd.moderated ? LT_ST.HOLD : LT_ST.IN,' automation/platform/87_letter.gs 1
+nochk "d.moderated ? '검수 대기' : '전송됨'" automation/platform/87_letter.gs      # 보내기 «전»에 전송됨을 적던 옛 줄
+nochk '편지 미전달 · 수신자 이메일 없음' automation/platform/87_letter.gs   # 본문을 실어 보내던 옛 알림
+chk "try { Logger.log('\[letterSendWatch\] ' + JSON.stringify(_ltSendWatch_()));" automation/platform/87_letter.gs 1
+chk 'function letterSendCheck() { _requireAdmin();' automation/platform/87_letter.gs 1
+chk 'LETTER_SPLIT_A' automation/platform/87_letter.gs 1
+chk 'LETTER_SPLIT_A' live.html 1
+chk 'const one = couple.letterSplit === false' live.html 1
+chk 'LETTER_MAIL_A' automation/platform/85_invitation.gs 2
+chk 'groomEmail: _invMail_(draft.letterGroomEmail) || _invMail_(base.ciGroomEmail) || base.email' automation/platform/85_invitation.gs 1
+chk 'LETTER_MAIL_A' automation/platform/80_production.gs 2
+chk 'LETTER_MAIL_A' mypage.html 4
+chk 'LETTER_TRUE_COPY' index.html 1
+chk '편지는 두 분께 전해 드려요. 전달을 위해 잠시 보관돼요.' index.html 1
+nochk '스튜디오를 거치지 않고 두 분께만 도착합니다' index.html
+chk 'sendWatchGuard();   // \[LT_SEND_WATCH\] D7' scripts/audit/letter-sim.mjs 1
+chk 'LETTER_SPLIT_A' scripts/audit/letter-switch.mjs 2
 chk '받는 분을 다시 골라 주세요.' live.html 1
 chk 'B2_MA_40' live.html 3                        # [d-12] 보내는 동안 잠금
 chk '편지를 보내고 있어요. 잠시만 기다려 주세요.' live.html 1

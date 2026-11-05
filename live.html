@@ -2535,12 +2535,15 @@ function applyCoupleInfo(couple){
     const _segOf = r => _lf.querySelector('.lf-seg[data-recipient="' + r + '"]');
     const _hide = (r, hide) => { const el = _segOf(r); if (el) el.style.display = hide ? 'none' : ''; return el; };
     const noG = couple.hasGroomEmail === false, noB = couple.hasBrideEmail === false;
-    const gEl = _hide('groom', noG), bEl = _hide('bride', noB);
+    /* ★[LETTER_SPLIT_A 2026-11-06 사장님 결정 2 = A] 두 주소가 다 있고 서로 다를 때만 «신랑에게만 · 신부에게만» — 한쪽이 비었거나 같은 주소면 «두 분 모두»만(지킬 수 없는 약속은 안 보인다) ·
+       «오직 신랑만 이 편지를 볼 수 있어요»(칸 안내)는 그 단추를 골랐을 때만 나오니, 실제로 신랑 주소로만 갈 때만 보인다 · 옛 서버(값 없음)는 종전대로 */
+    const one = couple.letterSplit === false && !(noG && noB);
+    const gEl = _hide('groom', noG || one), bEl = _hide('bride', noB || one);   // 감춘 쪽을 이미 골랐으면 아래가 선택을 비운다(B2_MA_05 · «두 분 모두»로 저절로 넓히지 않는다)
     // 둘 다 없으면 선택 자체가 뜻이 없다 — 줄을 통째로 접는다(편지는 그대로 보관·스튜디오 전달)
     const block = _lf.querySelector('.lf-recipient-block');
     if (block) block.style.display = (noG && noB) ? 'none' : '';
     const active = _lf.querySelector('.lf-seg.active');
-    if (active && ((noG && active === gEl) || (noB && active === bEl))) {
+    if (active && (((noG || one) && active === gEl) || ((noB || one) && active === bEl))) {
       _lf.querySelectorAll('.lf-seg').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
       const hid = document.getElementById('lfRecipient');
       if (hid) hid.value = '';

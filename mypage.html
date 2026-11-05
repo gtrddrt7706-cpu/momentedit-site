@@ -9115,6 +9115,14 @@ function invStepMethod(box){
     +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun). 영문 이름은 링크 주소에 쓰여요 · 꼭 영문으로 적어 주세요.</div>'   /* ★[NARROW_170_1030 검토 170] F6 로마자 이름이 왜 꼭 있어야 하는지 칸 옆에서 말한다 */   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn" role="group" aria-label="모바일 참석 QR도 받으실래요?"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'" aria-pressed="'+(d.selfQR===true)+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'" aria-pressed="'+(d.selfQR===false)+'">아니요</button></span></div>' : '';   // [INV_YN_PRESSED]
+  /* ★[LETTER_MAIL_A 2026-11-06 사장님 결정 2 = A] 하객 편지 받을 신랑 · 신부 이메일(선택) — 편지 페이지(모바일 참석)가 생기는 방식에서만 ·
+     계약서 요청 때 적은 값으로 미리 채운다 · 비우면 가입 이메일(85_invitation _invCouplesFields) · 두 주소가 다르면 하객이 «신랑에게만 · 신부에게만»도 고른다(87_letter letterSplit) */
+  var _lvOn=(m==='online'||m==='both'||(m==='self'&&d.selfQR===true)), _lm=(INVFLOW.base||{}).letterMail||{};
+  function mv(k,f){ return escapeHtml(String((d[k]!=null?d[k]:f)||'')); }
+  var mail=_lvOn?('<label class="pf-l" style="margin-top:14px">하객 편지 받을 이메일 <span style="color:var(--light);font-weight:300">(선택)</span></label>'
+    +'<input type="email" class="cc-input" id="mp_lgE" autocomplete="off" aria-label="신랑 이메일 · 하객 편지 받는 곳" placeholder="신랑 이메일" value="'+mv('letterGroomEmail',_lm.groom)+'">'
+    +'<input type="email" class="cc-input" id="mp_lbE" autocomplete="off" aria-label="신부 이메일 · 하객 편지 받는 곳" placeholder="신부 이메일" value="'+mv('letterBrideEmail',_lm.bride)+'" style="margin-top:6px">'
+    +'<div class="cc-note" style="margin:5px 0 0">비우면 가입 이메일로 가요 · 두 주소가 다르면 하객이 받는 분을 고를 수 있어요</div>'):'';
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장</span>'+wizActs()+'</div>'+_invSteps(d,0)   // MPD_E9 경로별 단계 수(§8-1-⑤) · [WZ_STEPS] 숫자 글 «청첩장 · 1 / 4» → 식순과 같은 진행 표시
     +'<div class="inv-q">두 분 이름부터 적을게요</div>'
@@ -9126,6 +9134,7 @@ function invStepMethod(box){
     +opt('self','실물(종이)·개인 제작할게요','종이 청첩장 등 직접 준비 · 인쇄용 QR(모바일 참석&#8288;·&#8288;하객 안내)은 저희가 드려요')   /* [DOT_SPLIT_0926] 390 «…QR(모바일 참석· / 하객 안내)…» 줄 끝 점 → 괄호 안 «·» 양옆 U+2060 */
     +qr
     +opt('none','청첩장 없이','')
+    +mail
     +'<div class="inv-nav wz-bar"><div id="iv_err" class="wz-err" role="alert"></div><button type="button" class="cc-btn" id="iv_next">다음</button></div>'   // [WZ_ERR_INV] 오류 줄은 막대 안
     +'</div>'; _wzPin(box);
   function collectNames(){
@@ -9133,9 +9142,11 @@ function invStepMethod(box){
       var el=$(p[1]); if(el) d[p[0]]=(el.value||'').trim();
       if(d[p[0]]) (INVFLOW.base||(INVFLOW.base={}))[p[0]]=d[p[0]];   // 확인·완료 화면(표지 이름)도 같은 값 사용
     });
+    [['letterGroomEmail','mp_lgE'],['letterBrideEmail','mp_lbE']].forEach(function(p){ var el=$(p[1]); if(el) d[p[0]]=(el.value||'').trim(); });   // [LETTER_MAIL_A] 칸이 있을 때만(편지 페이지가 생기는 방식)
   }
   INVFLOW._collect=collectNames;   // 당겨서 새로고침 입력 수집 훅(유실 방지)
   ['mp_gEn','mp_bEn','mp_gKo','mp_bKo'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', function(){ collectNames(); updateCover(); }); });
+  ['mp_lgE','mp_lbE'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', collectNames); });   // [LETTER_MAIL_A]
   updateCover();
   Array.prototype.forEach.call(box.querySelectorAll('.inv-opt[data-m]'),function(el){ _kbChip(el, function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box);
     var nc=box.querySelector('.inv-opt[data-m="'+INVFLOW.draft.method+'"]'); if(nc) try{ nc.focus({preventScroll:true}); }catch(e){} }); });   // [INV_OPT_KB] 클릭 · Enter · Space
@@ -9149,7 +9160,9 @@ function invStepMethod(box){
       var _miss=_invEnMiss(d);   // [INV_EN_GATE] 빈 칸 + '알파벳이 하나도 없는 칸'(한글 입력)을 함께 막는다
       if(_miss.length){ _invEnAsk(_miss, _miss[0]==='신랑'?'mp_gEn':'mp_bEn'); return; }
     }
-    if(mm==='self' && INVFLOW.draft.selfQR!==true && INVFLOW.draft.selfQR!==false){ _invErr('모바일 참석 QR을 받으실지 골라 주세요.'); return; }   // 미응답이 조용히 '청첩장 없이(none)'로 발행되던 함정 차단(2026-07-18 리뷰)
+    if(mm==='self' && INVFLOW.draft.selfQR!==true && INVFLOW.draft.selfQR!==false){ _invErr('모바일 참석 QR을 받으실지 골라 주세요.'); return; }
+    var _badM=[['mp_lgE','신랑'],['mp_lbE','신부']].filter(function(p){ var el=$(p[0]), v=el?(el.value||'').trim():''; return v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); });   // [LETTER_MAIL_A]
+    if(_badM.length){ _invErr(_badM[0][1]+' 이메일 주소를 확인해 주세요.'); try{ $(_badM[0][0]).focus(); }catch(e){} return; }   // 미응답이 조용히 '청첩장 없이(none)'로 발행되던 함정 차단(2026-07-18 리뷰)
     var _sv=saveInvDraft();
     if(mm==='online'||mm==='offline'||mm==='both'){ INVFLOW.step='parents'; }
     else { INVFLOW.step='confirm'; }   // self/none → 바로 확인·발행

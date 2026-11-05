@@ -125,6 +125,11 @@ function _invDigital(draft) { _gsr_();
   try { return _invCouplesFields({}, draft || {}).digitalAttendance === 'Y'; } catch (e) { return false; }
 }
 
+// [LETTER_MAIL_A] 이메일 모양만 받는다(아니면 빈 값 → 다음 후보로)
+function _invMail_(v) {
+  v = String(v || '').trim();
+  return (v.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) ? v : '';
+}
 // 입구·디자인·인사말·계좌 draft → Couples 41열(eventId 제외 40키) 매핑.
 function _invCouplesFields(base, draft) { _gsr_();
   base = base || {}; draft = draft || {};
@@ -135,7 +140,11 @@ function _invCouplesFields(base, draft) { _gsr_();
   return {
     groomName: base.groomKo || '', brideName: base.brideKo || '',
     groomNameEn: base.groomEn || '', brideNameEn: base.brideEn || '',
-    groomEmail: base.email || '', brideEmail: base.email || '',
+    /* ★[LETTER_MAIL_A 2026-11-06 사장님 결정 2 = A (B2-K36 · L04 · L13)] 하객 편지를 신랑 · 신부 각자 주소로 —
+       ① 마이페이지 청첩장 1단계 «하객 편지 받을 이메일»(선택 · 계약 때 적은 값으로 미리 채워 둔다) ② 계약서 요청 때 적은 신랑 · 신부 이메일 ③ 가입 이메일.
+       종전엔 두 칸 다 가입 이메일이라 «신부에게만» 편지도 가입 이메일(신랑 것일 수 있다)로 갔다. 둘이 같거나 한쪽이 비면 하객 화면이 «두 분 모두»만 보인다(87_letter letterSplit). */
+    groomEmail: _invMail_(draft.letterGroomEmail) || _invMail_(base.ciGroomEmail) || base.email || '',
+    brideEmail: _invMail_(draft.letterBrideEmail) || _invMail_(base.ciBrideEmail) || base.email || '',
     weddingDate: base.weddingDate || '', weddingTime: base.weddingTime || '',
     designFamily: dFamily, designOnline: dOnline, digitalAttendance: live,
     greetingShowParents: draft.greetingShowParents || 'N',

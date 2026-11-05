@@ -94,7 +94,8 @@ function _ensureProductionBase(cust, prodDraft, invDraft) { _gsr_();
   var _ci = _parseJsonSafe(cust.get('동의기록')).계약정보 || {};
   var _ctrT = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(_ci.weddingTime || '').trim()] || '';
   var wTime = _ctrT || String(b.weddingTime || '').trim();
-  prodDraft.base = { groomKo: gKo, brideKo: bKo, groomEn: gEn, brideEn: bEn, email: email, weddingDate: wDate, weddingTime: wTime, savedAt: fmtKST(new Date()) };
+  prodDraft.base = { groomKo: gKo, brideKo: bKo, groomEn: gEn, brideEn: bEn, email: email, weddingDate: wDate, weddingTime: wTime, savedAt: fmtKST(new Date()),
+    ciGroomEmail: String(_ci.groomEmail || '').trim(), ciBrideEmail: String(_ci.brideEmail || '').trim() };   // [LETTER_MAIL_A 2026-11-06] 계약서 요청 때 적은 신랑 · 신부 이메일(하객 편지 받는 곳 · 85_invitation)
   return prodDraft.base;
 }
 
@@ -2864,6 +2865,7 @@ function buildProductionState(r) { _gsr_();
     weddingDate: lockedWed || b.weddingDate || '',          // 계약 확정일 우선(없으면 제작폼 입력값)
     weddingTime: b.weddingTime || '',
     weddingLocked: !!lockedWed,                             // true면 제작폼에서 날짜 읽기전용(계약서 기준)
+    letterMail: (function () { try { var _c = _parseJsonSafe(r.get('동의기록')).계약정보 || {}; return { groom: String(_c.groomEmail || '').trim(), bride: String(_c.brideEmail || '').trim() }; } catch (e) { return { groom: '', bride: '' }; } })(),   // [LETTER_MAIL_A 2026-11-06] 두 분 본인 화면에만 · 청첩장 1단계 «하객 편지 받을 이메일» 미리 채우기
     // 문의 때 적은 예상 하객 수 — 최종확정 위저드 프리필용(수정 가능 · 1~99만 유효).
     //   프리필이 쓰일 때만 예약시트 교차 조회(최종확정 인원이 있거나 완료면 생략 — 매 로드 불필요 조회 제거)
     expectedGuests: (function () { try { if (((draft.finalDraft || {}).headcount) || (draft.tracks || {}).final === '완료') return ''; if (typeof findRowByPersonalCode !== 'function') return ''; var bk = findRowByPersonalCode(String(r.get('개인코드') || '').trim()); var g = bk ? String(bk.get('하객') || '').replace(/[^0-9]/g, '') : ''; return (Number(g) > 0 && Number(g) < 100) ? g : ''; } catch (e) { return ''; } })()

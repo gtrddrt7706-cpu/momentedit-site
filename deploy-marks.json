@@ -3278,6 +3278,36 @@
    "fn": "_invResolveEventId",
    "mark": "B2_MA_11",
    "why": "청첩장 행 재사용은 고객 코드 · 연결된 예식 ID 로 · 주인 모를 행이면 멈춤"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGuestLetter",
+   "mark": "LT_SEND_WATCH",
+   "why": "하객 편지마다 번호 · 상태(접수 → 보냄 / 보류 / 실패) · 보냄이 아니면 관리자 알림(번호 · 예식 · 상태만)"
+  },
+  {
+   "file": "87_letter",
+   "fn": "vimeoGuardDaily",
+   "mark": "LT_SEND_WATCH",
+   "why": "매일 07시 하객 편지 점검 — 한 시간 넘은 미발송 다시 보내기 1회 · 보고 한 통 · 편지현황 시트"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltCoupleFull",
+   "mark": "LETTER_SPLIT_A",
+   "why": "두 주소가 다 있고 다를 때만 letterSplit — 하객 화면이 «신랑에게만 · 신부에게만»을 그때만 보인다"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "_invCouplesFields",
+   "mark": "LETTER_MAIL_A",
+   "why": "청첩장 발행이 하객 편지 주소를 신랑 · 신부 각자로(마이페이지 칸 > 계약서 칸 > 가입 이메일)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_ensureProductionBase",
+   "mark": "LETTER_MAIL_A",
+   "why": "계약서 요청 때 적은 신랑 · 신부 이메일을 제작 기본값에 싣는다(청첩장 발행이 쓴다)"
   }
  ],
  "fns": {
@@ -3658,6 +3688,7 @@
    "_invRandEventSuffix",
    "_invUrls",
    "_invDigital",
+   "_invMail_",
    "_invCouplesFields",
    "handleSaveInvitationDraft",
    "handlePublishInvitation",
@@ -3682,6 +3713,16 @@
    "_ltWithLock",
    "_ltAppendMessage",
    "_ltAppendModeration",
+   "_ltStKind_",
+   "_ltStatusOf_",
+   "_ltNewId_",
+   "_ltRecipientOfKo_",
+   "_ltWatchHead_",
+   "_ltSetStatus_",
+   "_ltWatchAlert_",
+   "_ltSendWatch_",
+   "_ltCountsWrite_",
+   "letterSendCheck",
    "_ltSendToRecipients_",
    "_ltLetterHtml",
    "_ltEsc",
@@ -4268,7 +4309,9 @@
    "INV"
   ],
   "87_letter": [
-   "LT"
+   "LT",
+   "LT_ST",
+   "LT_WATCH"
   ],
   "88_place_audit": [
    "AW_STUDIO",
@@ -4454,7 +4497,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-06 08:10 · faef14d7",
+ "_생성": "2026-11-06 08:29 · 94b0bf59",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5022,5 +5065,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "d4f0cd43475a"
+ "_표식서명": "d30cc574985e"
 }
