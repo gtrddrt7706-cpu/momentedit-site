@@ -81,6 +81,7 @@ const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 
 const hold = async (f, k) => { await go(f, k); await f.evaluate((k) => { try { lsStop(); } catch (e) {} lsPlay(k); }, k);
   await f.waitForFunction(() => { const B = BgmBed._t.BED; return B.who === 'lp' && B.cur && B.cur.src && B.cur.g; }, null, { timeout: 30000 }); await wait(f, 7500);
   await f.evaluate(() => { clearTimeout(LP.t); LP.tok++; const v = BgmBed._t.BED.cur, g = v.g.gain, o = g.linearRampToValueAtTime.bind(g); window.__rl = []; g.linearRampToValueAtTime = function (val, t) { window.__rl.push({ val, ms: Math.round((t - v.g.context.currentTime) * 1000) }); return o(val, t); }; }); };
+const near = (x, y) => x != null && Math.abs(x - y) <= 40;   /* [SEAM_BG_MS] 걸린 시간은 오디오 시계로 재서 CI 에서 수 ms ~ 수십 ms 어긋난다(388 · 400) — ±40ms 안이면 같은 값(내림 400 · 올림 1200 은 그대로 갈린다) */
 const probe = (f, fn, st, w0) => f.evaluate(({ fn, st, w0 }) => { const v = BgmBed._t.BED.cur; v.want = w0 === 'undef' ? undefined : w0 === 'NaN' ? NaN : w0; window.__rl.length = 0; const s1 = Object.assign({ k: LP.q[LP.i].k }, st);
   try { if (fn === 'show') BgmBed.lpShow(s1); else BgmBed.lpLevel(s1); } catch (e) { return { err: String(e) }; } const r = window.__rl.slice(); return { n: r.length, ms: r.length ? r[r.length - 1].ms : null, want: v.want, f: v.f }; }, { fn, st, w0 });
 
@@ -200,9 +201,9 @@ try {
   if (want('BG08')) {
     await hold(f, 'welcome'); const f0 = await f.evaluate(() => BgmBed._t.BED.cur.f), P = await f.evaluate(() => BgmBed._t.PR());
     const a = await probe(f, 'show', { dk: -12 }, 0), b = await probe(f, 'show', { dk: -12 }, -8), c = await probe(f, 'show', { dk: -12 }, -20);
-    ok(`BG08-T01 lpShow — 0 → −12 내림 ${P.down}ms · −8 → −12 내림 · −20 → −12 올림 ${P.up}ms (곡 그대로 ${f0})`, a.ms === P.down && b.ms === P.down && c.ms === P.up && [a, b, c].every((x) => x.f === f0 && x.want === -12), { a, b, c });
+    ok(`BG08-T01 lpShow — 0 → −12 내림 ${P.down}ms · −8 → −12 내림 · −20 → −12 올림 ${P.up}ms (곡 그대로 ${f0})`, near(a.ms, P.down) && near(b.ms, P.down) && near(c.ms, P.up) && [a, b, c].every((x) => x.f === f0 && x.want === -12), { a, b, c });
     const d = await probe(f, 'level', { talk: true, ldk: -20 }, 0), e = await probe(f, 'level', { talk: true, ldk: -20 }, -90), g = await probe(f, 'level', { talk: true, ldk: -20 }, -60), h = await probe(f, 'level', { talk: true, ldk: 0 }, 0);
-    ok('BG08-T02 lpLevel — 0 → −20 조절함(내림) · −90 · −60 은 조절 안 함(무음 보호) · 0 → 0 은 무음으로 보지 않음', d.n === 1 && d.ms === P.down && d.want === -20 && e.n === 0 && g.n === 0 && h.n === 1 && h.want === 0, { d, e, g, h });
+    ok('BG08-T02 lpLevel — 0 → −20 조절함(내림) · −90 · −60 은 조절 안 함(무음 보호) · 0 → 0 은 무음으로 보지 않음', d.n === 1 && near(d.ms, P.down) && d.want === -20 && e.n === 0 && g.n === 0 && h.n === 1 && h.want === 0, { d, e, g, h });
     const u = await probe(f, 'level', { talk: true, ldk: -20 }, 'undef'), nn = await probe(f, 'level', { talk: true, ldk: -20 }, null), na = await probe(f, 'level', { talk: true, ldk: -20 }, 'NaN');
     ok('BG08-T03 미지정 · null · NaN = −90(조절 안 함) · 곡 파일 그대로', u.n === 0 && nn.n === 0 && na.n === 0 && [u, nn, na].every((x) => x.f === f0), { u, nn, na });
     await f.evaluate(() => { try { lsStop(); } catch (e) {} });
