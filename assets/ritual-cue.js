@@ -1913,7 +1913,7 @@
         k: '_goodbye', blockN: '마무리', slug: '', act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12, endHold: true,   /* [AFTER_PHOTO_LOOP_1102] 새 코스 마지막 큐 — 저절로 끝내지 않는다(■ 끝내기까지 음악) */
         hint: '가족 사진을 마치면',   /* ★[AFTER_BEFORE_FAMILY_200] */
         note: '가족 사진 뒤, 두 분이 적은 요청 사진과 추가 촬영을 진행한다 [WISH_AFTER_FAMILY_NI10]',
-        live: { t: _px.n + ' · 원하시는 분들과 · 남는 시간만큼', est: Math.max(10, _goFreeOpen), goFree: _goFreeOpen, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다(옛 자유 사진 몫 · _goFreeOpen)
+        live: { t: _px.n + ' · 원하시는 분들과 · 남는 시간만큼', est: Math.max(10, _goFreeOpen), goFree: _goFreeOpen - _wishSec, wishSec: _wishSec, self: true, doing: 'move' }   /* [WISH_AFTER_FAMILY_NI10] goFree = 남는 시간(자유 사진 목표 · 종전 뜻) · wishSec = 옮겨 온 요청 몫 · est = 둘의 합 */   // [ROUND_FIT] 2패스가 남는 시간을 준다(옛 자유 사진 몫 · _goFreeOpen)
       })); }
       if (!_photoOpen) cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: 'end-2-goodbye', name: '마무리 · 귀가 인사', text: EXTRA['end-2-goodbye'], duck: -14,

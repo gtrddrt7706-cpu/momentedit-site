@@ -381,7 +381,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
     if (DAYM !== SUM) bad.push(`PHOTO_DAY ${DAYM} ≠ DAY 합 ${SUM}`);
     const goal = (S) => { const r = C.build(C.norm(S)); const cs = Array.isArray(r) ? r : r.cues; const by = {}; cs.forEach((c) => { by[c.slug] = c; if (c.actId) by['@' + c.actId] = c; });
-      const pc = by['@photo-all'] || by['narr-close'], g = (pc && pc.live && pc.live.est) || 0;   // ★[CLOSING_LINE_1031] 새 코스는 소리 없는 전체 하객 사진 큐(photo-all)가 전체 하객 목표를 든다
+      const pc = by['@photo-all'] || by['narr-close'], fx = cs.find((c) => c.actId === 'photo-free' && c.live && c.live.wishSec != null), g = ((pc && pc.live && pc.live.est) || 0) + ((fx && fx.live.wishSec) || 0);   // [WISH_AFTER_FAMILY_NI10] 요청 몫은 가족 뒤 추가 촬영에 있다(wishSec) — 전체 하객 목표 = 전체 한 장 + 요청 몫(마이페이지 PHOTO_ALL + 요청 수와 같은 셈)   // ★[CLOSING_LINE_1031] 새 코스는 소리 없는 전체 하객 사진 큐(photo-all)가 전체 하객 목표를 든다
       const th = by['end-1a-farewell'] || by['end-1c-thanks-nomeal'] || by['@photo-family'], fam = (th && th.live && th.live.famGoal) || 0;   // [END_FLOW_1030] 새 코스는 소리 없는 가족 구도 큐
       const t = (k, pre) => by[k] ? (pre || 0) + by[k].est + by[k].live.est : 0;
       return { all: by['end-0-photo'] ? t('end-0-photo', g) : g /* [SRC_ALL_1023 검토 144-4] 새 코스는 44 없이 26 의 사람 구간이 전체 하객 목표를 든다 */, thx: (th ? (th.est || 0) + ((th.live && th.live.est) || 0) : 0) - fam, per: by['narr-photo-split'] ? t('narr-photo-split') : fam /* [SPLIT_OFF_OPEN_1023 검토 148-1] 새 코스는 60 없이 감사 인사 줄이 가족 구도 목표(famGoal)를 든다 */, onl: t('narr-online-in'), free: (by['@photo-free'] || by['narr-photo-out']).live.goFree }; };
