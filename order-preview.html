@@ -4620,7 +4620,7 @@ function _lGroups(k){
       if(_gh&&_gf){ var _k=!!(_gk&&_gk.picked===false), _a=_gh.picked===false, _b=_gf.picked===false, _u=[];   /* [THANKS_IN_VOW] 무엇을 읽나요도 같은 한 줄에 */
         if(_k) _u.push('서약'); if(_a) _u.push('한 줄씩 번갈아'); if(_b) _u.push('신랑부터');
         if(_u.length) _gf.unote='고르지 않으시면 '+(_u.length>1?_u.join(' · ')+' 진행돼요':_k?'서약을 읽어요':_a?'한 줄씩 번갈아 읽어요':'신랑부터 시작해요');
-        if(_vowFirst()==='b'&&/^\s*(그리고|그래서|그런데|그러니|또한?)[\s,]/.test(String((S.tx||{})['vow.b']||''))) _gf.unote=(_gf.unote?_gf.unote+' ':'')+'신부의 첫 문장이 앞말을 이어받고 있어요. 시작 문장을 확인해 주세요.'; } }   /* ★[B2_GEUL_07] 신부부터로 바꾼 뒤 신부 글이 «그리고 …»로 시작하면(감사문 예시 · 앞 사람 말을 잇는 글) 한 줄 — 글은 자동으로 고치지 않는다 */
+        if(_vowFirst()==='b'&&/^\s*(그리고|그래서|그런데|그러니|또한?)[\s,]/.test(String((S.tx||{})['vow.b']||''))) _gf.unote=(_gf.unote?_gf.unote+' · ':'')+'신부의 첫 문장이 앞말을 이어받고 있어요. 시작 문장을 확인해 주세요.'; } }   /* ★[B2_GEUL_07] 신부부터로 바꾼 뒤 신부 글이 «그리고 …»로 시작하면(감사문 예시 · 앞 사람 말을 잇는 글) 한 줄 — 글은 자동으로 고치지 않는다 */
     /* ★[DECLARE_BY_PERSON 2026-10-12 사장님 «그게 싫다면 서약으로»] 선언문 읽을 분을 아직 안 골랐으면 한 줄 — 없으면 선언을 빼는 길(①에서 순간 빼기)을 정직하게 */
     if(k==='declare'){ var _gt=g.filter(function(x){ return x.key==='declTitle'; })[0], _gb=g.filter(function(x){ return x.key==='declBless'; })[0];   /* [DECL_TITLE_1031] */
       if(_gt&&!R.declTitleOf(S)) _gt.unote='아직 고르지 않았어요. 읽어 주실 한 분을 정해 주세요.';
