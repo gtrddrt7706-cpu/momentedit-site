@@ -22113,3 +22113,23 @@ chk "if ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) || phase === 'end') retur
 chk 'B2-K09' console.html 2   # 늦은 날 1분 전 안내와 개식이 겹치면 개식이 먼저(1분 전 건너뜀)
 chk "fire(i, { clock: true }); break; }" console.html 1
 nochk '전체 정지 — 다음 큐는 손으로 눌러야 나갑니다' console.html
+# ── 2026-11-06 [BATCH2 나38~75] 2차 묶음 나레이션 구현 몫(나38 ~ 나75 · 나62 는 사장님 결정 K8 로 그대로)
+chk 'B2_NA_38' order-preview.html 1   # 번갈아 빈 줄은 연습 · 대본 차례에서 뺀다(칸에는 그대로)
+chk 'B2_NA_39' order-preview.html 4   # 취소하면 예시 선택(LS.ref)도 글과 함께 · 성혼 선언은 S.declRef 하나 · 모두 비우기도 예시 기억을 비운다
+chk 'B2_NA_40' order-preview.html 1   # 네 글자 성명은 자르지 않는다
+nochk 'n.length===4?n.slice(2)' order-preview.html
+chk 'B2_NA_41' order-preview.html 3   # 자동 나누기는 번호 · 연도 · 소수 · 닫는 따옴표를 문장에 붙인다(_sentCut 한 곳)
+nochk 'p.match(/\[^.!?。…\]+\[.!?。…\]+' order-preview.html
+chk 'B2_NA_42' order-preview.html 2   # 고른 예시는 표 번호(LS.refN)로 따라간다
+chk 'B2_NA_43' order-preview.html 2   # 수정 중 저장의 취소 기준 = 서버가 합친 판(_snapPull)
+chk '저장한 내용은 그대로예요. 저장 뒤 고친 내용만 취소했어요.' order-preview.html 1
+nochk '수정 중에 저장된 내용은 취소해도 그대로예요' order-preview.html
+chk 'B2_NA_44' order-preview.html 1   # 이 순간 전체 듣기 — 옮기거나 멈춘 뒤 늦게 끝난 굽기는 저절로 틀지 않는다
+chk 'B2_NA_45' order-preview.html 1   # 빈소리 중 멈춤(AbortError)이면 본 소리를 틀지 않는다
+nochk 'p.catch(function(){ go(); })' order-preview.html
+chk 'B2_NA_46' order-preview.html 1   # 덕담 말하는 시간 = 고른 인원(한 분 약 1분씩 / 약 1분)
+chk 'B2_NA_47' order-preview.html 2   # 대본 글은 화면 단계와 무관(_scriptMode) · 촬영 후 안내 한 번
+chk 'B2_NA_49' order-preview.html 1   # ① «고른 본식 순간 n/6» · ②④ · 마이페이지 «본식 순서 n개»
+chk '고른 본식 순간 <b>' order-preview.html 1
+nochk "'담은 순간 '+_opMoments()" order-preview.html
+chk "rv='본식 순서 '+escapeHtml" mypage.html 1

@@ -87,7 +87,7 @@ try {
     ok(W + ' 규칙 안인데 넘는 조합 → 담김 · 테이블 인사 자동 맞춤 · 한 줄 «테이블 인사를 약 n분으로 맞췄어요»', r.fit.added && !r.fit.t && r.fitCut > 0 && !!r.toast, JSON.stringify({ fit: r.fit, cut: r.fitCut, toast: r.toast }));
     ok(W + ' 규칙 안 짧은 순간 담기는 된다(창 없음)', r.free.added && !r.free.t, JSON.stringify(r.free));
     ok(W + ' 길이 칩(축사 10분)이 넘으면 막고 할 일을 말한다 «이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요»', r.len.v === '3' && /이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요/.test(r.len.t) && !/분 덜어/.test(r.len.t), JSON.stringify(r.len));
-    ok(W + ' 카운터 «본식 순간 6/6 · 긴 순간 3/3»(① · ③ · 분 숫자 없음)', r.cntPk === '본식 순간 6/6 · 긴 순간 3/3' && r.cntSum === r.cntPk, JSON.stringify([r.cntPk, r.cntSum]));
+    ok(W + ' 카운터 «고른 본식 순간 6/6 · 긴 순간 3/3»(① · ③ · 분 숫자 없음 · B2_NA_49)', r.cntPk === '고른 본식 순간 6/6 · 긴 순간 3/3' && r.cntSum === r.cntPk, JSON.stringify([r.cntPk, r.cntSum]));
     ok(W + ' 이미 넘은 옛 초안은 알림만(«본식이 약 n분 길어요 · 순간을 하나 빼 주세요»)', r.over.length <= 1 && r.over.every((x) => /^본식이 약.\d+분 길어요 · 순간을 하나 빼 주세요$/.test(x)), JSON.stringify(r.over));
     ok(W + ' pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));
     await pg.close();
