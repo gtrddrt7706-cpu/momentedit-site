@@ -242,7 +242,7 @@ function _prodPack(d, opts) { _gsr_();
     if (withPrev && val.length > capP && !migrating) {
       try { val = _prodTrackPack(d[t + 'Draft'], undefined); withPrev = false; } catch (e4) {}
     }
-    err = put(PROD_TRACK_COL[t], val, withPrev ? capP : cap, t === 'ritual' ? '서약 · 편지' : (TRACK_LABEL_KO[t] || t));
+    err = put(PROD_TRACK_COL[t], val, withPrev ? capP : cap, t === 'ritual' ? '' : (TRACK_LABEL_KO[t] || t));   // [B2_GEUL_16] 식순은 어느 원고가 긴지 모른다 — 이름을 고정하지 않는다
     if (err) return { cols: {}, err: err };
   }
   // [B-6] 합산 상한은 '행 전체'를 묶어야 의미가 있다 — 이번에 쓰지 않는 컬럼의 현재 길이도 더한다.
@@ -260,6 +260,7 @@ var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌�
 function _prodTooLong_(label) {
   // [PROD_CAP_WORDS] 표식은 함수 안에(배포 점검이 이 몸통을 읽는다 · FILE_COVER)
   var a = 'S'; try { if (typeof _errArea === 'function' && typeof __ERR_ACT !== 'undefined' && __ERR_ACT) a = _errArea(__ERR_ACT) || 'S'; } catch (e) { a = 'S'; }
+  if (!label) return '입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요 (코드 ' + a + '0)';   // ★[B2_GEUL_16] 어느 원고가 넘었는지 모르면(식순 합) 이름을 단정하지 않는다 · 빌더는 «글이 많아»도 LONG_NO_RETRY 로 읽는다
   return '글이 너무 길어요 · ' + label + ' 글을 조금 줄여 주세요 (코드 ' + a + '0)';
 }
 /* ★[RITUAL_CAP_OWN 2026-10-09 A~Z 점검 2라운드 A2-15] 식순 초안 크기 — 옛 한 칸(S.tx 두 칸으로 다시 짓는 사본)은 빼고 잰다. tx 에 짝이 없는 옛 칸(옛 빌더 초안)은 그 글이 원본이라 센다 */
@@ -702,7 +703,7 @@ function handleSaveProductionTrack(body) { _gsr_();
       /* ★[RITUAL_CAP_OWN 2026-10-09 A~Z 점검 2라운드 A2-15] 식순은 옛 한 칸(welcomeText · vowText · letterText · tributeText — S.tx 로 다시 짓는 사본)을 빼고 잰다 —
          그 칸까지 세면 두 분 글이 두 번 세어져 편지 둘(각 2,500자)쯤에서 12,000자에 걸렸다 · 저장은 그대로 · 거절 글은 숫자 없이 줄일 글만(PROD_CAP_WORDS) */
       var _dcN = -1; try { _dcN = (track === 'ritual') ? _ritualCapLen_((body && body.draft) || {}) : JSON.stringify((body && body.draft) || {}).length; } catch (eDc) { _dcN = -1; }
-      if (_dcN > 12000) return { ok: false, error: _prodTooLong_(track === 'ritual' ? '서약 · 편지' : (TRACK_LABEL_KO[track] || track)) };
+      if (_dcN > 12000) return { ok: false, error: _prodTooLong_(track === 'ritual' ? '' : (TRACK_LABEL_KO[track] || track)) };   // [B2_GEUL_16] 식순 전체 합 — 원인 원고를 서약 · 편지로 고정하지 않는다
     }
     d[track + 'Draft'] = (body && body.draft) || {};
     var _snapJobs = [];   // [SNAP_PICK_V2] 사진 정리·마감 뒤 알림 — 시트 쓰기가 끝난 뒤에만 _notifyQ 로 넘긴다(쓰기 전에 실패하면 지우지 않게)
