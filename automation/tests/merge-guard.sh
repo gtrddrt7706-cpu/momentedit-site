@@ -21817,7 +21817,7 @@ chk "if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) 
 nochk "!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S;" order-preview.html
 # ── 2026-11-02 [INFO_SPLIT_200 검토 200 수정 2 · 사장님 18:00 «한 번에 다 안내하면 귀에 안 들어오니 나눠서» · 18:02 «추천대로»] 입장 = 사진 올리기 · 10분 전 = 식사 예고 · 5분 전 = 경로 + 사진 · 마무리 = 식사 시각 · 합류 · 촬영 후 = 남기 · 물건 · 이동 허락
 chk "if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');" assets/ritual-cue.js 1
-chk "var G5 = { '-mgr': \[GW.mgr, GW.upThere\], '-mg': \[GW.mg, GW.upThere\], '-mr': \[GW.mr\], '-m': \[GW.m\], '-g': \[GW.pUp\] };" assets/ritual-cue.js 1
+chk "var G5 = { '-mgr': \[GW.mgr, GW.upThere\], '-mg': \[GW.mg, GW.upThere\], '-mr': \[GW.mr, GW.pUp\], '-m': \[GW.m, GW.pUp\], '-g': \[GW.pUp\] };" assets/ritual-cue.js 1   # [PHOTO_ALWAYS_NI02] 현장 디렉터 판에도 사진 문장
 chk "'narr-closing-mealr': \[CL_THX, CL_CHEER, CL_RESV, CL_JOIN, CL_GA\], 'narr-closing-mealnr': \[CL_THX, CL_CHEER, CL_NORESV, CL_JOIN, CL_GA\]" assets/ritual-cue.js 1
 chk "'after-photo': \[GW.done, GW.fam, GW.stay, GW.things, GW.goHome, GW.day\], 'after-photo-meal': \[GW.done, GW.fam, GW.stay, GW.things, GW.goMeal\]," assets/ritual-cue.js 1
 chk "★★\[INFO_SPLIT_200 검토 200 수정 2\]" assets/ritual-cue.js 1
@@ -21954,3 +21954,8 @@ chk "bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';
 chk "(_openClap ? '박수가 줄기 시작하면 \[다음\]으로 화촉 시작' : '다음 줄(화촉 시작)은 이어서 나간다')" assets/ritual-cue.js 1
 chk "csc.hint = '다음 순서가 준비되면 · 박수가 나왔으면 잦아든 뒤';" assets/ritual-cue.js 1
 chk "cues\[ds + 1\].fire = 'manual'; cues\[ds + 1\].hint = '선언하신 분이 자리로 돌아가면';" assets/ritual-cue.js 1
+# ── 2026-11-05 [PHOTO_ALWAYS_NI02 이음매 NI02] 사진 올리기 안내는 하객 안내를 끈 예외 예식에도 — 입장 298 늘 · 5분 전 현장 디렉터 판에 333 사진 문장(창고 이어 붙임 · 새 녹음 0) · 식사 없는 날 333 · 334
+chk "if (i === 0) return 'guest-w-arrival-guide';" assets/ritual-cue.js 1
+chk "'-mr': \[GW.mr, GW.pUp\], '-m': \[GW.m, GW.pUp\]" assets/ritual-cue.js 1
+nochk "(S.digital ? 'guest-w-5m-online' : 'guest-3-5min')" assets/ritual-cue.js
+chk 'PHOTO_ALWAYS_NI02' scripts/audit/open-course.mjs 3

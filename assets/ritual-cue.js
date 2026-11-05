@@ -492,17 +492,20 @@
     GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = b.concat([GW.meal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = b.concat([GW.meal, GW.mg]);
     GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = b.concat([GW.meal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = b.concat([GW.meal, GW.m]); });
   /* ★[INFO_SPLIT_200] 5분 전 = 시작 오 분 전 + 확인 경로(식사 날 · 하객 안내 / 현장 디렉터 × 예약 시각) + 사진(하객 안내) ± 온라인(맨 끝) · 식사도 하객 안내도 없는 날은 03 · 314 그대로 */
-  var G5 = { '-mgr': [GW.mgr, GW.upThere], '-mg': [GW.mg, GW.upThere], '-mr': [GW.mr], '-m': [GW.m], '-g': [GW.pUp] };
+  /* ★★[PHOTO_ALWAYS_NI02 2026-11-05 이음매 NI02] 사진 올리기 안내는 하객 안내를 끈 예외 예식에도 나간다 — 입장 때는 늘 298 · 5분 전 현장 디렉터 판(331 · 332 · 335 · 336)은
+         장소 문장 뒤에 333 의 사진 문장(pUp)을 붙인다(새 녹음 0 · 창고 문장 이어 붙임) · 식사 없는 날은 하객 안내와 상관없이 333 · 334 · 온라인 문장은 늘 맨 끝 ·
+         식사 장소 경로(하객 안내 / 현장 디렉터)는 종전대로 gOn 이 고른다(gOn 을 늘 참으로 바꾸지 않는다) */
+  var G5 = { '-mgr': [GW.mgr, GW.upThere], '-mg': [GW.mg, GW.upThere], '-mr': [GW.mr, GW.pUp], '-m': [GW.m, GW.pUp], '-g': [GW.pUp] };
   Object.keys(G5).forEach(function (x) { GUEST_PARTS['guest-w-5m' + x] = [GW.five].concat(G5[x]); GUEST_PARTS['guest-w-5m' + x + '-online'] = [GW.five].concat(G5[x], [GW.online5]); });
   Object.keys(GUEST_PARTS).forEach(function (k) { EXTRA[k] = GUEST_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 본식 길이(5분 단위 · 녹음 판 십 · 십오 · 이십) — 테이블 인사 · 축배까지(닫는 인사 앞에 선다) · 넉넉 합의 가운데 · 6천 조합 실측 10 ~ 20(검토 191) */
   function guestMinOf(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } if (!b) return 15; var n = Math.round(((b[0] + b[1]) / 120) / 5) * 5; return Math.max(10, Math.min(20, n)); }
   /* 판 고르기 — i = 0 입장 때 · 1 10분 전 · 2 5분 전 · 3 1분 전 */
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
-    if (i === 0) return gOn(S) ? 'guest-w-arrival-guide' : 'guest-w-arrival';
+    if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
     if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 */
     if (i === 2) { var r5 = mF ? (gOn(S) ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m')) : (gOn(S) ? '-g' : '');   /* [INFO_SPLIT_200] 경로 · 사진은 5분 전 */
-      return r5 ? 'guest-w-5m' + r5 + (S.digital ? '-online' : '') : (S.digital ? 'guest-w-5m-online' : 'guest-3-5min'); }
+      return 'guest-w-5m' + (r5 || '-g') + (S.digital ? '-online' : ''); }   /* [PHOTO_ALWAYS_NI02] 식사 없는 날은 하객 안내와 상관없이 사진 판(333 · 334) — 03 · 314 는 이 자리에 안 쓴다 */
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
   /* ★★[GUIDE_ALWAYS_202 검토 202 · 사장님 17:30 «사진 올리기는 그냥 안내해도 되는 거 아니야?»] 모바일 청첩장 하객 안내(사진 올리기 단추)는 모든 예식에 나간다 —
        하객 안내 줄은 기본 켜짐 · S.guide 를 «없음»(false · 0)으로 분명히 준 예외 예식만 끈다(관리자 당일 콘솔 «하객 안내» 칩) · 식사 경로 줄은 종전대로 식사 · 예약 조건 */
