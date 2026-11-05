@@ -4790,6 +4790,10 @@ chk 'PV_MYPAGE_1102' api/_ritual-kb.js 1
 chk 'PV_MYPAGE_1102' mypage.html 1
 chk 'PV_MYPAGE_1102' scripts/audit/open-course.mjs 2
 nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
+# ★[PV_FEEL_1106 2026-11-06 사장님 «필메이커 길로 바꿔 두기»] 마이페이지 식전 영상 첫 화면 = 필메이커 안내 + 준비한 영상 올리기 · 자체 제작(«사진으로 만들기») 입구는 되살리지 않는다
+chk 'PV_FEEL_1106' mypage.html 5
+chk 'PV_FEEL_1106' api/_kb.js 1
+nochk 'data-pvcmode="make"' mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1
@@ -21952,6 +21956,30 @@ chk 'BG03-T01' scripts/audit/seam-bg.mjs 2
 chk 'BG04-T01' scripts/audit/seam-bg.mjs 1
 chk 'BG07-T01' scripts/audit/seam-bg.mjs 1
 nochk '테이블 인사와 사진 동안' assets/bgm-bed.js
+# ★[SEAM_B2 이음매 2차 묶음 B2 · BGM 몫(엔진)] 음07 본식 첫 곡 · 음04 긴 입장 곡 이어 잇기 · 음03 맞절 뒤 축배 본식 곡 · 음02 · 음05 재현 0(검사로 고정) · 음06 정적에서 정지 · 음08 대체 재생기 끝내기 페이드 · 음09 이어 든 줄만 · 음10 쉼 예약 번호(검사 = CI bgm-sound a · e 칸 seam-b2-entry · seam-b2-rest)
+chk 'B2_EUM07' assets/bgm-picks.js 1
+chk 'B2_EUM04' console.html 2
+chk 'function esdRelay' console.html 1
+chk 'B2_EUM03' console.html 1
+chk 'B2_EUM03' assets/bgm-bed.js 1
+chk 'B2_EUM06' console.html 2
+chk 'B2_EUM08' console.html 3
+chk 'function fbFade' console.html 1
+chk 'B2_EUM09' assets/bgm-bed.js 2
+chk 'B2_EUM10' assets/bgm-bed.js 1
+chk 'gOk()&&' assets/bgm-bed.js 4
+chk '음02-T01' scripts/audit/seam-b2.mjs 1
+chk '음03-T01' scripts/audit/seam-b2.mjs 1
+chk '음04-T01' scripts/audit/seam-b2.mjs 1
+chk '음05-T01' scripts/audit/seam-b2.mjs 1
+chk '음06-T01' scripts/audit/seam-b2.mjs 1
+chk '음07-T01' scripts/audit/seam-b2.mjs 2
+chk '음08-T01' scripts/audit/seam-b2.mjs 1
+chk '음09-T01' scripts/audit/seam-b2.mjs 1
+chk '음10-T01' scripts/audit/seam-b2.mjs 1
+chk "meaning-r1 seam-b2-entry" .github/workflows/merge-guard.yml 1
+chk "seam-bg seam-b2-rest" .github/workflows/merge-guard.yml 1
+chk "ONLY = process.env.ONLY || '음02,음04'" scripts/audit/seam-b2-entry.mjs 1
 chk "no-relift seam-bg" .github/workflows/merge-guard.yml 1
 # ★[MEANING_R2_1102 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] 행진은 음악 · 의식은 조용한 고점 · 새 장면은 새 곡 — 엔진 한 표 + bgm-bed · 콘솔(검사 = CI bgm-sound e 칸)
 chk 'MEANING_R2_1102 원칙' assets/ritual-cue.js 1
