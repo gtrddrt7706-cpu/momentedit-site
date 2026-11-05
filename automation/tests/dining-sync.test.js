@@ -20,8 +20,8 @@ srcs.forEach(([nm, p, re]) => {
   check(nm + ' FOODS 일치(' + foods.length + '종)', JSON.stringify(foods) === JSON.stringify(aiFoods));
 });
 
-// ② DINE_DB 음식 태그 추출 (mypage.html · f:[...])
-const mp = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
+// ② DINE_DB 음식 태그 추출 (assets/dining-data.js · f:[...]) — [DINE_DATA_NI16] 목록은 이 파일 하나(마이페이지 · 관리자가 함께 읽는다)
+const mp = fs.readFileSync(path.join(ROOT, 'assets', 'dining-data.js'), 'utf8');
 const dbFoods = new Set();
 (mp.match(/f:\s*\[[^\]]*\]/g) || []).forEach(blk => {
   (blk.match(/'([^']+)'/g) || []).forEach(q => dbFoods.add(q.slice(1, -1)));

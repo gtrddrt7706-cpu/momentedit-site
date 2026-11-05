@@ -21933,3 +21933,13 @@ chk 'cues\[m\].liveDuck = cues\[m\].live.duck;' assets/ritual-cue.js 1
 chk 'NO_RELIFT_1102' scripts/audit/no-relift.mjs 1
 chk "after-photo-loop guest-time no-relift" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
+# ── 2026-11-05 [DINE_STATUS_NI16 · DINE_DATA_NI16 · RESV_PARSE_NI17 이음매 NI16 · NI17] 식사 · 카페는 «지금 고른 곳»의 음식 분류(목록 f · 지도 분류)로 한 번 판정 · 목록은 assets/dining-data.js 하나 · 예약은 시각 꼴만
+chk 'function diningStatusOf(dd, placeholders)' assets/ritual-preview-link.js 1
+chk 'function resvTimeOk(t)' assets/ritual-preview-link.js 1
+nochk "if (CAFE_RE.test(String(dd.mealType || ''))) return false;" assets/ritual-preview-link.js
+chk 'var DINE_DB = \[' assets/dining-data.js 1
+nochk 'var DINE_DB = \[' mypage.html
+chk '<script src="/assets/dining-data.js' mypage.html 1
+chk '<script src="/assets/dining-data.js' admin.html 1
+chk 'DINE_STATUS_NI16' scripts/audit/console-inject.mjs 1
+chk 'RESV_PARSE_NI17' scripts/audit/console-inject.mjs 1
