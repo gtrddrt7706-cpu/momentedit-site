@@ -22031,3 +22031,10 @@ chk '두 분과 하객이 자기 자리에서 잔을 들어요. 두 분이 먼�
 chk '두 분과 하객이 자기 자리에서 잔을 들어요. 두 분이 먼저 «위하여»를 외치면 하객이 함께 화답해요.' order-preview.html 1
 nochk '하객은 자리에서 일어나 함께 잔을 들어요' order-preview.html
 nochk '하객은 자리에서 일어나 함께 잔을 들어요' assets/ritual-open.js
+# ── 2026-11-06 [이음매 AU01 · AU02] 쉼은 한 번만 — 시간 시점 6초 = 말끝 → 말머리(NarrPad 한 번) · 반지 → 선언은 연출과 일반 쉼 중 하나만
+chk 'MIN_GAP_PAD_AU01' order-preview.html 2
+nochk "_tgk='min'; _gap=Math.max(_gap,6000);" order-preview.html
+nochk "else if(_tgk==='min') _rp=Math.max(_rp,6000);" order-preview.html
+chk 'DECL_GAP_ONE_AU02' order-preview.html 2
+chk 'gn:!!c.gapNone,' order-preview.html 1
+chk 'MIN_GAP_PAD_AU01' scripts/audit/time-gap.mjs 2

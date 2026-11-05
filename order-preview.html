@@ -4835,7 +4835,7 @@ function _lSteps0(g,ks){
         lab=_lWhen(lab);   /* [STAGE_LINES] 화면 이름만 «언제 나오나»로 · 대본(slab)은 원래 이름 */
         if(/^narr-open/.test(c.slug||'')) lab='여는 멘트 · 예식 시작 시각에';   /* ★[OPEN_LINE_192 검토 192-1] 우성 개식 멘트가 «하객 맞이 안내» 안에 붙어 진희 안내처럼 보였다 — 따로 이름 붙인 칸(연습 카드 제목도 «여는 멘트») */
         if(k==='tribute'&&(lab==='말없이'||/말로 인사$/.test(lab))) lab=(lab==='말없이'?'말없이 인사':lab)+' · 시작할 때';   /* ★[TRIB_LAB_192 검토 192-3] 인사 방식과 때를 같이 — «말없이»만이면 그 줄에서 나레이션이 나와 헷갈렸다 */
-        out.push({k:k,lab:lab,slab:slab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',file:c.file,gm:c.gapMs||0,am:_tgAm(c),alt:c.alt&&c.alt.file?{txt:c.alt.text||'',file:c.alt.file,when:Math.round((+c.alt.overSec||0)/60)+'분이 넘으면 이 말로 바뀌어요'}:null,ms:Math.max(2400,Math.round(String(c.text||'').length*160)),dk:c.duck,lvd:(c.live&&c.live.duck!=null)?c.live.duck:c.liveDuck,fm:c.fadeMs||0});   /* [NO_RELIFT_1102] lvd = 이 줄 뒤 사람 구간(박수) 엔진 크기 */   /* [BGM_FIX_1030] fm = 박수 뒤 줄의 내림 시간(1.5초 · 미리 낮추기) · ★[BGM_PREVIEW_1024] dk = 이 큐의 음악 크기(당일 콘솔과 같은 엔진 값) — 구간 음악 미리 듣기가 이 줄 아래로 깐다 */   /* [KNOBS_1031] gm = 그 줄에 적힌 쉼(gapMs) · 미리 듣기 쉼 계산이 읽는다 */
+        out.push({k:k,lab:lab,slab:slab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',file:c.file,gm:c.gapMs||0,gn:!!c.gapNone,am:_tgAm(c),alt:c.alt&&c.alt.file?{txt:c.alt.text||'',file:c.alt.file,when:Math.round((+c.alt.overSec||0)/60)+'분이 넘으면 이 말로 바뀌어요'}:null,ms:Math.max(2400,Math.round(String(c.text||'').length*160)),dk:c.duck,lvd:(c.live&&c.live.duck!=null)?c.live.duck:c.liveDuck,fm:c.fadeMs||0});   /* [NO_RELIFT_1102] lvd = 이 줄 뒤 사람 구간(박수) 엔진 크기 */   /* [BGM_FIX_1030] fm = 박수 뒤 줄의 내림 시간(1.5초 · 미리 낮추기) · ★[BGM_PREVIEW_1024] dk = 이 큐의 음악 크기(당일 콘솔과 같은 엔진 값) — 구간 음악 미리 듣기가 이 줄 아래로 깐다 */   /* [KNOBS_1031] gm = 그 줄에 적힌 쉼(gapMs) · 미리 듣기 쉼 계산이 읽는다 */
         /* [G5 TOAST_TALK_GLASS] 케이크 · 축배의 «위하여» 줄은 잔 드는 큐 뒤 — 종전엔 줄의 첫 사람 순간(케이크 커팅)에 붙어 붓기 앞에 나왔다 */
         if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||'',ldk:c.live?c.live.duck:undefined,cheer:!!(c.live&&c.live.cheer),est:tEst(c.slug||'')}); } }   /* [BGM_R3_1023] of = 잔 드는 큐 · [BGM_PREVIEW_1024] ldk = 사람 구간 음악 크기 · cheer = «위하여» 뒤 축배 크기로 */
       }
@@ -8327,14 +8327,16 @@ function _lGapOf(q,i,_pv,_nx,pace){ var prc=_inPr()&&pace&&!LP.fast, RP=window.R
   if(pace&&_pv&&_nx.after&&!_pv.after&&_bedOn()) _gap=Math.max(_gap,3000);
   if(pace&&_pv&&_pv.cheer&&_nx.slug==='narr-close-bow'&&_nx.dk!=null&&_nx.dk<=-60&&_bedOn()) _gap=Math.max(_gap,7000);   /* [MEANING_R1_1102 14] 축배 곡 4초 → 2초 내림 + 정적 1초 → 닫는 인사 */   /* [MEANING_R1_1102 16] 촬영 후 안내 앞 — 앞 곡 2초 내림 + 정적 1초 */   /* ★[PREVIDEO_AFTER_1101] 하객 맞이 곡 2초에 −90 + 정적 1초 → 소개 */
   var _tgk='', _tgK='';
+  /* ★[MIN_GAP_PAD_AU01 2026-11-06 이음매 AU01] 시간 시점이 바뀌는 쉼(6초)은 «말끝 → 말머리» 목표 — 앞 파일 뒤 무음 + 다음 파일 앞 무음(NarrPad)을 한 번만 뺀다 · 파일을 모르는 쪽(두 분 목소리 · 표에 없는 소리)은 빼지 않는다(추측 없음) · 0 아래면 0 · 음악 연출 하한(3 · 7초)은 위에서 이미 든 값 그대로 */
+  var _mf=function(x){ return x&&x.src&&x.file&&String(x.src).indexOf(x.file)>-1?x.file:''; }, _mp=function(f){ return (window.NarrPad&&f&&NarrPad.of(f))||[0,0]; }, _minGap=Math.max(0,6000-_mp(_mf(_pv))[1]-_mp(_mf(_nx))[0]);
   if(pace&&_pv&&_pv.k===_nx.k&&_nar(_nx)){ var _pn=null; for(var _j=i-1;_j>=0&&q[_j]&&q[_j].k===_nx.k;_j--){ if(_nar(q[_j])){ _pn=q[_j]; break; } }
-    if(_pn&&_pn.am!=null&&_nx.am!=null&&Math.abs(_nx.am-_pn.am)>=1){ _tgk='min'; _gap=Math.max(_gap,6000); _tgK=_nx._li||''; }
+    if(_pn&&_pn.am!=null&&_nx.am!=null&&Math.abs(_nx.am-_pn.am)>=1){ _tgk='min'; _gap=Math.max(_gap,_minGap); _tgK=_nx._li||''; }
     else if(_pn&&_nx.lab&&_nx.lab!=='이어서'&&!/^bridge-/.test(_nx.slug||'')&&_pn.lab!==_nx.lab){   /* 이음말(«다음 순서로 넘어가며»)은 BRIDGE_FIRST 차례 그대로 */ _tgk='evt'; _gap=Math.max(_gap,2500); } }
   if(prc&&_pv){ var _pf=function(x){ return x&&x.src&&x.file&&String(x.src).indexOf(x.file)>-1?x.file:''; }, _pd=function(f){ return (window.NarrPad&&f&&NarrPad.of(f))||[0,0]; }, _rp=null;
     if(_nx.talk2&&!(_pv.talk2&&_pv.k===_nx.k)&&_nar(_pv)) _rp=RP.cueToTalk*1000-_pd(_pf(_pv))[1];
     else if(_pv.talk2&&_nar(_nx)) _rp=RP.talkToCue*1000-_pd(_pf(_nx))[0];
     else if(_nar(_pv)&&_nar(_nx)){ var _t2=(_nx.gm>0&&_nx.gm<2000)?_nx.gm:(_pv.k===_nx.k?RP.cueGap:RP.momentGap)*1000; _rp=_t2-_pd(_pf(_pv))[1]-_pd(_pf(_nx))[0]; }
-    if(_rp!=null&&isFinite(_rp)){ _rp=Math.max(0,Math.round(_rp)); if(_tgk==='evt') _rp=Math.max(_rp,RP.titleGap*1000); else if(_tgk==='min') _rp=Math.max(_rp,6000); _gap=Math.max(_rp,(_pv.cheer||(_nx.dk!=null&&_nx.dk<=-60)||_nx.after)?_gap:0); } }   /* [보충 상2] 연습은 상수 표 · 정해 둔 정적 자리(축배 뒤 · 닫는 인사 앞 · 촬영 후 안내 앞)는 그 값이 크면 그대로 */
+    if(_rp!=null&&isFinite(_rp)){ _rp=Math.max(0,Math.round(_rp)); if(_tgk==='evt') _rp=Math.max(_rp,RP.titleGap*1000); else if(_tgk==='min') _rp=Math.max(_rp,_minGap);   /* [MIN_GAP_PAD_AU01] 6초를 다시 덮지 않는다 */ _gap=Math.max(_rp,(_pv.cheer||(_nx.dk!=null&&_nx.dk<=-60)||_nx.after)?_gap:0); } }   /* [보충 상2] 연습은 상수 표 · 정해 둔 정적 자리(축배 뒤 · 닫는 인사 앞 · 촬영 후 안내 앞)는 그 값이 크면 그대로 */
   return {gap:_gap,tgk:_tgk,tgK:_tgK}; }
 function _oK(x){ return x?(x.seg||x.k):''; }   /* ★[PR_REVIEW_201 중4] «이 순간만 연습» 범위 — 닫는 인사 쪽에 붙은 식후 블록(단체 사진 · 촬영 후 안내 · 추가 촬영)은 따로(seg '_after' · after · M8L 정보는 그대로) */
 function _lNext(){
@@ -8363,6 +8365,8 @@ function _lNext(){
   var _go=_lGapOf(LP.q,LP.i,_pv,_nx,LP.pace), _gap=_go.gap, _tgk=_go.tgk; LP.tgK=_go.tgK;
   if(_ltg) _gap=Math.max(_gap,_ltg);   /* [KNOBS_1031 ②] 편지 끝 연출 뒤 다음 순간 */
   LP.tgGap=_tgk?_gap:0;   /* 검사가 잰다 */
+  /* ★[DECL_GAP_ONE_AU02 2026-11-06 이음매 AU02] 반지 → 선언(엔진 gapNone) — 경계 주인은 하나: 선언 앞 연출(4초 내림 + 2.5초 정적)이 실제로 돌면 그것만 · 곡이 없거나 음악이 꺼져 연출이 안 돌면 이 일반 쉼을 그 자리에서 기다린다(_lShow 의 뜸 자리) */
+  if(LP.pace&&_nx.gn&&_nx.k==='declare'&&_bedOn()&&!_nx._lead&&_gap>0){ _nx._gapOwe=_gap; _gap=0; }
   _lPreMark(); if(_bedOn()) try{ BgmBed.lpGap(_pv,_nx,_gap,_tgk); }catch(e){}   /* [BGM_PREVIEW_1024] 다음 줄이 말이면 0.4초 앞서 내린다 · «위하여» 뒤 축배 크기로 */
   LP.cur=_nx.k; LP.tAt=0; try{ LP.el&&LP.el.pause(); }catch(e){} _lPaint(); var _me=LP.tok; clearTimeout(LP.t);
   LP.t=setTimeout(function(){ if(_me===LP.tok&&!LP.paused&&LP.q[LP.i]===_nx) _lShow(); },_gap);
@@ -8413,7 +8417,8 @@ function _lShow(){ LP.wait=null; if(LP.big&&!LP.lock) _lLock(true); if(_prPrepOn
   if(LP.paused) return;
   /* ★[LISTEN_PACE_1031 사장님 «BGM 이 흐르고 뜸 들인 이후 멘트»] 순간 첫 줄 앞 — 그 순간 곡이 큐 사이 크기(−8)로 3초(앞 곡이 이어지면 1.5초) 흐른 뒤 0.8초 낮추고 멘트 · 곡이 없으면 뜸 없음 */
   _lPreMark();   /* ★[BRIDGE_FIRST_1101] 뜸 자리 = 화면 음악 줄 자리(BgmSlots.leadAt) — 다음 순간 몫 이음말(b8 · b12 · b14)이 첫 줄이면 그 뒤 줄 앞에서 */
-  if(LP.pace&&!st._lead&&(st._leadHere||(!st._pre&&!st._noLead&&(!LP.i||(LP.q[LP.i-1]||{}).k!==st.k)))){ st._lead=1; var _ld=0, _ltk0=LP.tok, _lRe=function(ms){ if(_ltk0!==LP.tok||LP.leadSt!==st||LP.paused) return; clearTimeout(LP.t); LP.tAt=Date.now(); LP.tMs=ms; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk0===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },ms); };   /* ★[BED_LOAD_1101 ②] 곡이 늦게 오면 BgmBed 가 뜸 시계를 다시 건다(온 때부터 6초 · 못 받으면 곧바로) */ try{ if(_bedOn()) _ld=BgmBed.lpLead(st,_lRe)||0; }catch(e){} if(_ld>0){ LP.lead=false; LP.leadSt=st; try{ a.pause(); a.removeAttribute('src'); }catch(e){} var _ltk=LP.tok;   /* 뜸 동안 소리 칸을 비운다 — 잠금 풀기 무음이 끝나며(ended) 첫 줄을 건너뛰었다 */ LP.tAt=Date.now(); LP.tMs=_ld; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ld); return; } }
+  if(LP.pace&&!st._lead&&(st._leadHere||(!st._pre&&!st._noLead&&(!LP.i||(LP.q[LP.i-1]||{}).k!==st.k)))){ st._lead=1; var _ld=0, _ltk0=LP.tok, _lRe=function(ms){ if(_ltk0!==LP.tok||LP.leadSt!==st||LP.paused) return; clearTimeout(LP.t); LP.tAt=Date.now(); LP.tMs=ms; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk0===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },ms); };   /* ★[BED_LOAD_1101 ②] 곡이 늦게 오면 BgmBed 가 뜸 시계를 다시 건다(온 때부터 6초 · 못 받으면 곧바로) */ try{ if(_bedOn()) _ld=BgmBed.lpLead(st,_lRe)||0; }catch(e){} if(_ld>0){ st._gapOwe=0; LP.lead=false; LP.leadSt=st; try{ a.pause(); a.removeAttribute('src'); }catch(e){} var _ltk=LP.tok;   /* 뜸 동안 소리 칸을 비운다 — 잠금 풀기 무음이 끝나며(ended) 첫 줄을 건너뛰었다 */ LP.tAt=Date.now(); LP.tMs=_ld; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ld); return; } }
+  if(st._gapOwe>0){ var _ow=st._gapOwe, _owk=LP.tok; st._gapOwe=0; clearTimeout(LP.t); LP.tAt=Date.now(); LP.tMs=_ow; LP.t=setTimeout(function(){ if(_owk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ow); return; }   /* [DECL_GAP_ONE_AU02] 연출이 안 돌았다 — 미뤄 둔 일반 쉼 */
   if(LP.leadSt===st) LP.leadSt=null;   /* [LISTEN_PACE_1031] 뜸이 끝났다(검사 · 화면이 «뜸 중»을 안다) */
   if(_bedOn()) try{ BgmBed.lpShow(st); }catch(e){}   /* ★[BGM_PREVIEW_1024] 구간 음악 — 그 순간 곡을 이 줄 크기로(마이페이지 안 · ② 이 순간 전체 듣기만) */
   /* ★★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 이벤트 ▶ 에서 적용이 안 되는 걸 몇 번 봤다 · 구조상 절대 그럴 수 없게»]
