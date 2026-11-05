@@ -22228,3 +22228,7 @@ nochk '서버가 잠깐 멈췄어요' order-preview.html 0
 chk "7:'응답을 확인하지 못했어요'" mypage.html 1
 chk '이 줄은 300자까지 적을 수 있어요' order-preview.html 1   # B2_GEUL_31
 chk '촬영 끝내기 <small>추가 촬영을 마치면 누르세요' console.html 1   # B2_GEUL_32
+# ── 2026-11-06 [BGM 2차 order-preview 몫 · 음01] 연습 B 기다림 크기 = 엔진 큐 크기(맞절 정적) · 음05 · 09 · 10 은 #1584 bgm-bed 몫
+chk 'PR_WAIT_ENG_LV' order-preview.html 2
+chk 'function _prEngLv(st)' order-preview.html 1
+chk 'PR_WAIT_ENG_LV' scripts/audit/pr-way4.mjs 1
