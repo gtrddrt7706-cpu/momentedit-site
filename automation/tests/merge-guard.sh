@@ -16518,7 +16518,8 @@ nochk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritua
 nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js
 chk 'TABLE_APART' order-preview.html 18
 chk 'id="mkFgAfter">본식 뒤</p>' order-preview.html 1
-nochk "'<b>본식 뒤</b>'" order-preview.html   # [PROG_COUNT_1031] 테이블 인사도 «본식 n / N»(뒤에 축배 · 닫는 인사가 온다)
+nochk "AFTER_CLOSE)\[cur\]?'<b>본식 뒤</b>'" order-preview.html   # [PROG_COUNT_1031] 테이블 인사도 «본식 n / N»(뒤에 축배 · 닫는 인사가 온다) · [STAGE_SHOW_NI11 · d-14 2026-11-05] «본식 뒤»는 촬영 후 안내 쪽(_after) 이름으로만 — 테이블 인사 쪽 옛 꼴만 막는다
+chk "cur==='_after'?'<b>본식 뒤</b>'" order-preview.html 1   # [STAGE_SHOW_NI11 · d-14]
 chk '.op-bar .t{background:var(--gold-btn)}' order-preview.html 1   # [BAR_STEPS 2026-10-09] 테이블 인사 = 중간 금(종전 --gold 는 본식과 거의 같은 금)
 chk '@media (max-width:389px){ .op-cta .cta-lg{display:none} }' order-preview.html 1
 chk 'FSUM_SEP' order-preview.html 2
@@ -21983,3 +21984,19 @@ nochk "var gq=cs.filter(function(c){ return c.k==='guest'&&c.text; });" order-pr
 chk 'var _wishSec = _pw >= 0 ? 60 \* _pw : 120;' assets/ritual-cue.js 1
 chk "_goFreeOpen = goFree + (_photoOpen ? _wishSec : 0);" assets/ritual-cue.js 1
 chk "note: '가족 사진 뒤, 두 분이 적은 요청 사진과 추가 촬영을 진행한다 \[WISH_AFTER_FAMILY_NI10\]'," assets/ritual-cue.js 1
+
+# ── 2026-11-05 [이음매 NI06 · NI07 · NI08 · NI13 · NI14 · NI11 + 2차 d-14] 연습 화면 이음매 — 소리 없는 동작 줄 · 직접 부르는 축가 · 따로 써 온 편지 · 함께 읽은 뒤 하객 쪽 · B 남은 시간 재개 대기 · 본식 뒤 단계 이름
+chk 'PR_ACT_NI06' order-preview.html 3
+chk '두 분이 앞쪽 중앙으로 돌아와 나란히 서요' order-preview.html 1
+chk '하객이 잔을 내려놓으면 두 분도 잔을 건네고, 하객을 향해 나란히 서요' order-preview.html 1
+chk 'SONG_SELF_WAIT_NI07' order-preview.html 1
+chk '노래하실 분이 준비한 축가를 불러요' order-preview.html 1
+chk 'LETTER_BRING_NI08' order-preview.html 1
+chk 'VOW_FACE_NI13' order-preview.html 1
+chk 'B_RESUME_WAIT_NI14' order-preview.html 1
+chk 'STAGE_SHOW_NI11' order-preview.html 6
+chk "function _stName(st){ return st&&st.stage?_post(st.stage).n:_lName(st&&st.k); }" order-preview.html 1
+chk "return '다음 · 본식 뒤 '+_post('_photo').n" order-preview.html 1
+nochk '<b>식후</b>' order-preview.html
+nochk '<span class="pr-no pre">식후</span>' order-preview.html
+nochk "return '다음 · 식후 '" order-preview.html
