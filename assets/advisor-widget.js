@@ -652,6 +652,7 @@
     input.style.height = Math.min(input.scrollHeight, 96) + 'px';
   });
   input.addEventListener('keydown', function (e) {
+    if (e.isComposing || e.keyCode === 229) return;   // [B2_HOME_14] 한글 조합 중 Enter 는 글자를 마치는 키다 — 보내지 않는다(조합을 마친 뒤 Enter 만 전송 · Shift+Enter 줄바꿈 그대로)
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
   });
   form.addEventListener('submit', function (e) {

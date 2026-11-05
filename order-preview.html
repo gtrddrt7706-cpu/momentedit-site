@@ -4676,11 +4676,12 @@ function _sumSec(x){ x=Math.round(x); if(x<55) return '약 '+Math.max(5,Math.rou
 /* [R4-01] 원고 기준으로 길이를 정하는 두 경우(덕담 · 인사 «1분쯤씩»)는 한 분 «약 1분» — 부탁 줄 «한 분 300자 안팎(1분쯤)» · 칩 «1분쯤씩»과 같은 숫자([R1-20] 1분쯤 = 300자).
    원천 TIME 은 명세 고정([R1-31])이라 그대로 두고 보이는 값만 맞춘다 · ② 차례 줄 · ④ 요약 · 대본이 이 하나를 쓴다 */
 function _perSec(k,x){ if(k==='bless'||(k==='tribute'&&RitualOpen.chipOf('tribute',S)==='long')) return '약 1분'; return _sumSec(x); }
+function _g5(){ try{ var f=_fixSteps('pre')[2]; return (f&&f.tx)?' · 5분 전':''; }catch(e){ return ''; } }   /* [B2_HOME_25] ④ 하객 맞이 요약 — 실제 5분 전 큐가 있을 때만 «· 5분 전»(② 시점 묶음 _fixSteps 와 같은 판정) */
 function _lSum(k){
   var R=RitualOpen, bits=[];
   if(k==='guest'){ var _gks=GUEST_KEYS.slice(), _gn=_gks.filter(_vcToNar).length;   /* [R7-04] ② 와 같은 판정([VC_TO_NAR]) · [ONEMIN_FIRST] 1분 전 줄은 늘 하객 맞이 */
     var _op=isOpen()?((S.guestVoice==='couple'&&!_gn)?' · 예식 시작은 나레이션':' · 예식 시작'):'';   /* ★[OPEN_SUM_1014 라운드 3] ② 하객 맞이는 개식 선언(137 · «예식 시작»)까지 다섯 줄 — ④ 요약도 · 두 분 목소리 판이어도 개식은 나레이션(원고 8장 8) */
-    return (S.guestVoice!=='couple'||_gn===_gks.length?'나레이션':_gn?'두 분 목소리 · 일부 나레이션':'두 분 목소리')+' · 하객이 들어오실 때 · 예식 10분 전 · 1분 전'+_op; }   /* ★[GUEST_SUM_FOUR 2026-10-09 A~Z 점검 1라운드 A-14] ② 하객 맞이 줄은 넷(시작 1분 전 포함 · ONEMIN_FIRST) — ④ 요약도 넷 */
+    return (S.guestVoice!=='couple'||_gn===_gks.length?'나레이션':_gn?'두 분 목소리 · 일부 나레이션':'두 분 목소리')+' · 하객이 들어오실 때 · 예식 10분 전'+_g5()+' · 1분 전'+_op; }   /* ★[GUEST_SUM_FOUR 2026-10-09 A~Z 점검 1라운드 A-14] ② 하객 맞이 줄은 넷(시작 1분 전 포함 · ONEMIN_FIRST) — ④ 요약도 넷 */
   if(k==='prevideo') return (S.pvVoice==='couple'&&_vcOn()&&_recNeed('pv')&&!_vcToNar('pv')?'두 분 소개글 · 두 분 목소리':'나레이션 소개')   /* [R7-04] 목소리를 다 쓴 빈 줄은 나레이션(VC_TO_NAR) */+' → 두 분의 영상';   /* [ONEMIN_FIRST] 1분 전 안내는 영상 앞(하객 맞이) */   /* [R6-03] 하객 맞이 · 입장처럼 목소리를 보인다 · 판정은 ② own 과 같다(소개글이 비면 스튜디오 한 줄) */   // [PREVIDEO_FREE]
   if(k==='ring') return '말없이 반지를 끼워요 · 앞뒤로 나레이션';
   if(k==='_close') return '끝 인사와 박수 · 이어서 단체 사진';   /* [POST_FLOW_200 C] */   // [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날 «→ 그 자리에서 단체 사진»은 차례와 다르다
