@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const rd = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 let bad = 0; const ok = (m, c, x) => { console.log((c ? 'ok   ' : 'FAIL ') + m + (c || !x ? '' : '\n     ' + x)); if (!c) bad++; };
-global.window = global; require(path.join(ROOT, 'assets/ritual-preview-link.js'));
+global.window = global; require(path.join(ROOT, 'assets/dining-data.js')); global.DINE_DB = global.DINE_DB || (function () { const vm = require('node:vm'), c = {}; vm.createContext(c); vm.runInContext(rd('assets/dining-data.js'), c); return c.DINE_DB; })(); require(path.join(ROOT, 'assets/ritual-preview-link.js'));   /* [DINE_DATA_NI16] 목록을 먼저 읽는다(마이페이지 · 관리자와 같은 순서) */
 const L = global.RitualPreviewLink;
 ok('① guide 가 KEYS · INJECT 에 있다', L.KEYS.indexOf('guide') > -1 && L.INJECT.indexOf('guide') > -1);
 ok('① guideOf — 닫히지 않았으면 참(열쇠와 상관없이 · [GUIDE_ALWAYS_202])', L.guideOf('G123', false) === true && L.guideOf('G123', true) === false && L.guideOf('', false) === true && L.guideOf('', true) === false);
@@ -29,13 +29,16 @@ ok('③ 엔진 — [CLOSING_LINE_1031] 마무리 멘트: 식사 자리 + 예약 
 /* ★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30 14:22] 266 은 «식사는 안내된 예약 시간에»라고 말한다 — 식사 자리 · 예약 시각 · 하객 안내 셋 다일 때만 */
 const pp = (o) => sl(Object.assign({ meal: 1, mealFull: 1, resv: 1, guide: 1 }, o)).filter((x) => /^narr-closing/.test(x || ''));
 ok('④ 엔진 — [INFO_SPLIT_200] 식사 자리 + 예약 시각 342 · 예약 시각 빔 339 · 카페만 · 애프터 웨딩 안 고름 287(하객 안내와 상관없이)', pp({})[0] === 'narr-closing-mealr' && pp({ mealFull: 0 })[0] === 'narr-closing' && pp({ resv: 0 })[0] === 'narr-closing-mealnr' && pp({ guide: 0 })[0] === 'narr-closing-mealr' && pp({ meal: 0, mealFull: 0, resv: 0 })[0] === 'narr-closing' && pp({ meal: 0, mealFull: 0, resv: 0, guide: 0 })[0] === 'narr-closing', JSON.stringify([pp({}), pp({ mealFull: 0 }), pp({ resv: 0 }), pp({ guide: 0 })]));
-const fv = (m) => ({ venuePick: '어느 곳', _favs: [{ n: '어느 곳', m }] });
-ok('④ mealFullOf — 목록 «카페» · 지도 «음식점 > 카페» 는 식사 아님 · 식당은 식사 · 담은 곳에 없으면 모름(식사 아님) · 옛 식사 형태 «다과»는 식사 아님',
-  L.mealFullOf(fv('차12분 · 보통 · 카페'), L.DINE_PH) === false && L.mealFullOf(fv('음식점 > 카페 > 커피전문점 · 1.2km'), L.DINE_PH) === false && L.mealFullOf(fv('차5분 · 보통 · 한식·코스'), L.DINE_PH) === true
-  && L.mealFullOf({ venuePick: '어느 곳' }, L.DINE_PH) === false && L.mealFullOf(Object.assign(fv('한식'), { mealType: '다과' }), L.DINE_PH) === false && L.mealFullOf({ venuePick: '장소 미정', _favs: [{ n: '장소 미정', m: '한식' }] }, L.DINE_PH) === false);
-ok('④ mealFullOf — 마이페이지 목록(DINE_DB)의 카페는 전부 식사 아님 · 식당은 전부 식사(목록이 바뀌어도 맞는지)', (() => { const mm = mp.match(/var DINE_DB = \[([\s\S]*?)\n\];/); if (!mm) return false; const db = eval('[' + mm[1] + ']'); const PR = { low: '', mid: '', high: '' };
-  return db.length > 20 && db.every((r) => L.mealFullOf(fv('차' + r.d + '분 · ' + (PR[r.p] || '') + (r.f && r.f.length ? ' · ' + r.f.join('·') : '')), L.DINE_PH) === (r.th !== 'cafe')); })());
+const fv = (m) => ({ venuePick: '어느 곳', _favs: [{ n: '어느 곳', m, src: 'kakao' }] });
+ok('④ mealFullOf — [DINE_STATUS_NI16] 지도 «음식점 > 카페» 는 식사 아님 · «음식점 > 한식» 은 식사 · 주소의 «카페거리»는 근거 아님 · 담은 곳 설명 · 옛 식사 형태는 근거 아님(확인 필요) · 자리표시는 안 고름',
+  L.mealFullOf(fv('음식점 > 카페 > 커피전문점 · 1.2km'), L.DINE_PH) === false && L.mealFullOf(fv('음식점 > 한식 · 1.2km · 카페거리 10'), L.DINE_PH) === true
+  && L.diningStatusOf({ venuePick: '어느 곳', _favs: [{ n: '어느 곳', m: '차5분 · 보통 · 한식·코스' }] }, L.DINE_PH) === 'needs-confirmation' && L.diningStatusOf(Object.assign({ venuePick: '너른마당', mealType: '카페' }), L.DINE_PH) === 'meal'
+  && L.diningStatusOf({ venuePick: '장소 미정', _favs: [{ n: '장소 미정', m: '음식점 > 한식', src: 'kakao' }] }, L.DINE_PH) === 'undecided' && L.diningStatusOf({ dining_on: 'N', venuePick: '너른마당' }, L.DINE_PH) === 'none');
+ok('④ mealFullOf — 목록(assets/dining-data.js DINE_DB)의 카페는 전부 cafe · 음식 종류가 있는 식당은 전부 meal · 음식 종류가 빈 곳은 확인 필요(목록이 바뀌어도 맞는지)', (() => { const db = global.DINE_DB; if (!db || db.length <= 20) return false;
+  return db.every((r) => L.diningStatusOf({ venuePick: r.n }, L.DINE_PH) === (r.th === 'cafe' ? 'cafe' : (r.f && r.f.length ? 'meal' : 'needs-confirmation'))); })());
+ok('④ 마이페이지 · 관리자가 목록을 미리듣기 규칙보다 먼저 읽는다 [DINE_DATA_NI16]', [mp, ad].every((h) => h.indexOf('/assets/dining-data.js') > -1 && h.indexOf('/assets/dining-data.js') < h.indexOf('/assets/ritual-preview-link.js')) && !/var DINE_DB = \[/.test(mp));
 ok('④ resvOf — 다이닝 예약 시각 우선 · 키 없을 때만 하객 안내 옛 저장분 · 빈 값 = 지움', L.resvOf({ reserveTime: '13:30' }, {}) === true && L.resvOf({}, { reserveTime: '13:30' }) === true && L.resvOf({ reserveTime: '' }, { reserveTime: '13:30' }) === false && L.resvOf({}, {}) === false);
+ok('④ resvOf — [RESV_PARSE_NI17] 시각 꼴만 예약 · 미정 · 취소 · 24:80 · 오후 13시는 예약 아님 · 지금 «미정»이면 옛 12:00 을 되살리지 않는다', ['13:30', '9:05', '13시', '13시30분', '오후1시30분', '오전12시', '00:00'].every((t) => L.resvTimeOk(t)) && ['미정', '예약 전', '추후 안내', '취소', '24:80', '오후13시', '13:30 취소'].every((t) => !L.resvTimeOk(t)) && L.resvOf({ reserveTime: '미정' }, { reserveTime: '12:00' }) === false && L.resvOf({}, { reserveTime: '12:00' }) === true);
 ok('④ mealFull · resv 가 KEYS · INJECT 에 있다', ['mealFull', 'resv'].every((k) => L.KEYS.indexOf(k) > -1 && L.INJECT.indexOf(k) > -1));
 const op = rd('order-preview.html'), ro = rd('assets/ritual-open.js');
 ok('④ 세 갈래가 같은 값을 넘긴다 — 콘솔(관리자) · 미리 듣기(마이페이지) · 연습하기(식순 화면) · 40분 셈(postSec)',

@@ -164,22 +164,52 @@
 
   /* ★★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30 14:22] 사진 전 안내 판 고르기 — 266(식사 있음)은 «식사는 안내된 예약 시간에 두 사람과 함께»라고 말한다.
        그래서 266 은 ① 모일 곳이 식사 자리 ② 예약 시각이 적혀 있다 ③ 하객 안내가 열려 있다 — 셋 다일 때만 · 다이닝은 있는데 하나라도 비면 26(중립) · 안 고른 날 265.
-     mealFullOf — 모일 곳(venuePick)을 «담은 곳»(_favs)에서 찾아 그 설명(m: 목록의 음식 종류 · 지도 분류)이 카페 · 디저트 · 베이커리 · 제과 · 다과면 «식사 아님».
-       목록(DINE_DB)의 카페는 모두 음식 종류 «카페» 하나 · 식당에는 «카페»가 없다(10/30 실측) · 지도 분류는 «음식점 > 카페 > …» 꼴.
-       ★담은 곳에서 못 찾으면(옛 저장분) «모른다» = 식사 아님으로 본다 — 266 의 «식사는 …» 말이 카페 날에 나가는 것보다 26(중립)이 안전하다.
-       옛 «식사 형태»(mealType)가 남아 있으면 그 값도 본다. */
+     mealFullOf — 식사 자리인가는 아래 diningStatusOf(지금 고른 곳의 음식 분류) 한 곳에서 판정한다 [DINE_STATUS_NI16] · 종전의 «담은 곳 설명 · 옛 식사 형태» 판정은 걷었다. */
   var CAFE_RE = /카페|디저트|베이커리|제과|다과|티룸|커피/;
-  function mealFullOf(dd, placeholders) {
-    if (!mealOf(dd, placeholders)) return false;
-    if (CAFE_RE.test(String(dd.mealType || ''))) return false;
-    var p = String(dd.venuePick || '').trim(), f = Array.isArray(dd._favs) ? dd._favs : [];
-    for (var i = 0; i < f.length; i++) if (f[i] && String(f[i].n || '').trim() === p) return !CAFE_RE.test(String(f[i].m || ''));
+  /* ★★[DINE_STATUS_NI16 2026-11-05 이음매 NI16] 식사 · 카페를 «지금 고른 곳»의 음식 분류로 한 번 판정한다 — none · undecided · cafe · meal · needs-confirmation.
+       ① dining_on=N → none ② 고른 곳 없음 · 자리표시 → undecided ③ 지금 고른 곳(venuePick)의 음식 분류만 근거로 모은다 —
+         목록(DINE_DB · assets/dining-data.js)의 f(음식 종류) · 지도에서 담은 곳(src=kakao)의 분류(«음식점 > 카페 > …» 토막만 · 거리 · 주소는 버린다).
+         목록의 m(분위기) · 담은 곳 설명의 거리 · 가격 · 빈 값은 근거가 아니다. 목록에서 담은 곳(src=db)은 그 설명이 아니라 지금 목록의 f 를 본다.
+       ④ 근거끼리 엇갈리면(카페 대 식사) needs-confirmation · 하나뿐이거나 같으면 그 값 · 근거가 없으면 needs-confirmation(목록을 아직 못 읽었을 때도 · 식사로 짐작하지 않는다).
+       옛 «식사 형태»(mealType)는 지금 고른 곳과 이어진 근거가 아니라 판정에 쓰지 않는다(옛 «카페»가 지금 고른 한정식을 덮던 것). */
+  function _foodKind(txt) { var t = String(txt || '').trim(); if (!t) return ''; return CAFE_RE.test(t) ? 'cafe' : 'meal'; }
+  function _dbKind(name) {
+    var db = (w.DINE_DB) ? w.DINE_DB : ((typeof DINE_DB !== 'undefined' && DINE_DB) ? DINE_DB : null); if (!db || !db.length) return '';
+    for (var i = 0; i < db.length; i++) if (db[i] && String(db[i].n || '').trim() === name) { var f = Array.isArray(db[i].f) ? db[i].f.join(' ') : ''; return _foodKind(f); }
+    return '';
+  }
+  function _mapKind(m) {   /* 지도 분류 «음식점 > 한식 > … · 1.2km · 주소» — '>' 가 든 토막만 분류로 본다(주소의 «카페거리»를 카페로 읽지 않게) */
+    var parts = String(m || '').split(' · ');
+    for (var i = 0; i < parts.length; i++) if (parts[i].indexOf('>') > -1) return _foodKind(parts[i]);
+    return '';
+  }
+  function diningStatusOf(dd, placeholders) {
+    if (!dd) return 'undecided';
+    if (String(dd.dining_on || '').trim() === 'N') return 'none';
+    if (!mealOf(dd, placeholders)) return 'undecided';
+    var p = String(dd.venuePick || '').trim(), f = Array.isArray(dd._favs) ? dd._favs : [], ev = [];
+    var k = _dbKind(p); if (k) ev.push(k);
+    for (var i = 0; i < f.length; i++) if (f[i] && String(f[i].n || '').trim() === p && f[i].src === 'kakao') { var mk = _mapKind(f[i].m); if (mk) ev.push(mk); }
+    if (!ev.length) return 'needs-confirmation';
+    for (var j = 1; j < ev.length; j++) if (ev[j] !== ev[0]) return 'needs-confirmation';
+    return ev[0];
+  }
+  function mealFullOf(dd, placeholders) { return diningStatusOf(dd, placeholders) === 'meal'; }   /* [PHOTO_PRE_PICK_1030] 사진 전 안내 · 식사 안내 판 — 확인된 식사만 */
+  /* ★★[RESV_PARSE_NI17 2026-11-05 이음매 NI17] resvOf — 식사 예약 «시각»이 있나.
+       값: 다이닝 칸(reserveTime)이 null · undefined 가 아니면 그 값(빈 값 · 공백 = 지움 · 옛 값을 되살리지 않는다) · 그때만 하객 안내 옛 저장분.
+       시각: 글 전체가 시각 꼴일 때만 — 13:30 · 9:05(0 ~ 23시 · 0 ~ 59분) · 13시 · 13시 30분 · 오전 / 오후 1 ~ 12시[ M분].
+       «미정 · 예약 전 · 추후 안내 · 취소 · 24:80 · 오후 13시 · 13:30 취소»처럼 다른 말이 섞이거나 범위를 벗어나면 예약 없음(문장에서 숫자만 뽑지 않는다). */
+  function resvTimeOk(t) {
+    var s = String(t == null ? '' : t).trim(), m; if (!s) return false;
+    var hm = function (h, mi, lo, hi) { h = +h; mi = (mi == null || mi === '') ? 0 : +mi; return h >= lo && h <= hi && mi >= 0 && mi <= 59; };
+    if ((m = /^(\d{1,2}):(\d{2})$/.exec(s))) return hm(m[1], m[2], 0, 23);
+    if ((m = /^(오전|오후)\s*(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분)?$/.exec(s))) return hm(m[2], m[3], 1, 12);
+    if ((m = /^(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분)?$/.exec(s))) return hm(m[1], m[2], 0, 23);
     return false;
   }
-  /* resvOf — 식사 예약 시각이 있나(마이페이지 하객 안내 조립과 같은 규칙: 다이닝 값 우선 · 키가 없을 때만 하객 안내 옛 저장분 · 빈 값 = 지움) */
   function resvOf(dd, gi) {
     var t = (dd && dd.reserveTime != null) ? dd.reserveTime : (gi && gi.reserveTime);
-    return !!String(t || '').trim();
+    return resvTimeOk(t);
   }
 
   /* ★[CONSOLE_INJECT_1019 검토 138-0] 모일 식당 자리표시(장소가 아닌 고르기 값) 단일 원천 — 마이페이지 DN_PLACEHOLDER · 관리자 «당일 콘솔»이 같은 목록을 쓴다(console-inject.mjs 가 대조) */
@@ -221,5 +251,5 @@
     return url(rd.S, extra);
   }
 
-  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf, mealOf: mealOf, mealFullOf: mealFullOf, resvOf: resvOf, guideOf: guideOf, DINE_PH: DINE_PH };
+  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf, mealOf: mealOf, mealFullOf: mealFullOf, diningStatusOf: diningStatusOf, resvOf: resvOf, resvTimeOk: resvTimeOk, guideOf: guideOf, DINE_PH: DINE_PH };
 })(window);

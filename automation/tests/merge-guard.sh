@@ -21951,3 +21951,19 @@ chk '두 분이 앞에 서시면 음악이 잦아들고' assets/bgm-slots.js 1
 chk 'MEANING_R2_1102' scripts/audit/meaning-r2.mjs 1
 chk "seam-bg meaning-r2" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
+# ── 2026-11-05 [DINE_STATUS_NI16 · DINE_DATA_NI16 · RESV_PARSE_NI17 이음매 NI16 · NI17] 식사 · 카페는 «지금 고른 곳»의 음식 분류(목록 f · 지도 분류)로 한 번 판정 · 목록은 assets/dining-data.js 하나 · 예약은 시각 꼴만
+chk 'function diningStatusOf(dd, placeholders)' assets/ritual-preview-link.js 1
+chk 'function resvTimeOk(t)' assets/ritual-preview-link.js 1
+nochk "if (CAFE_RE.test(String(dd.mealType || ''))) return false;" assets/ritual-preview-link.js
+chk 'var DINE_DB = \[' assets/dining-data.js 1
+nochk 'var DINE_DB = \[' mypage.html
+chk '<script src="/assets/dining-data.js' mypage.html 1
+chk '<script src="/assets/dining-data.js' admin.html 1
+chk 'DINE_STATUS_NI16' scripts/audit/console-inject.mjs 1
+chk 'RESV_PARSE_NI17' scripts/audit/console-inject.mjs 1
+# ── 2026-11-05 [BOW_NEXT_NI01 · OPEN_CANDLE_GO_NI04 · CLAP_SOFT_NI05 · DECL_SEAT_GO_NI09 이음매] 디렉터 힌트 · GO 를 실제 다음 동작에 맞춤(녹음 · 순서 그대로)
+chk "bwn.hint = '맞절을 마치면';" assets/ritual-cue.js 1
+chk "bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';" assets/ritual-cue.js 1
+chk "(_openClap ? '박수가 줄기 시작하면 \[다음\]으로 화촉 시작' : '다음 줄(화촉 시작)은 이어서 나간다')" assets/ritual-cue.js 1
+chk "csc.hint = '다음 순서가 준비되면 · 박수가 나왔으면 잦아든 뒤';" assets/ritual-cue.js 1
+chk "cues\[ds + 1\].fire = 'manual'; cues\[ds + 1\].hint = '선언하신 분이 자리로 돌아가면';" assets/ritual-cue.js 1

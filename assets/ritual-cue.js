@@ -1595,7 +1595,7 @@
         if (_openC) cues.push(cue({
           live: _openClap ? applause('하객 박수 · 예식 시작', PARAM.declare.applauseMs / 1000) : null,
           k: 'guest', blockN: '예식 시작', slug: 'narr-open', name: '개식 선언', text: EXTRA['narr-open'], duck: PARAM.duckSpeech,   // ★[OPEN_BLOCK_1014 라운드 3] 블록은 따로(자료 모두 개식을 한 순서로 둔다) — «하객 맞이»에 얹으면 콘솔이 하객 맞이 설명을 빌려 쓰고, 디지털 참석 날엔 식전 안내 뒤에 같은 설명 · 팁이 두 번 떴다
-          fire: 'clock', atMin: 0, note: '예식 시작 시각 · ' + (seq.indexOf('prevideo') > -1 ? (_openClap ? '불을 낮추기 직전 · 박수가 잦아들면 [다음]으로 식전 영상 소개' : '불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다') : seq.indexOf('candle') > -1 ? '다음 줄(화촉 시작)은 이어서 나간다' : '다음 입장은 [다음]으로(신부 준비 완료 · 문 앞 대기 확인 후)')   // ★[OPEN_MEMO_R7_1016 라운드 7] 늘 «식전 영상 소개»라던 메모를 담은 순간에 따라 — 영상을 뺀 날 틀린 말이었다 · ★[OPEN_MEMO_NAME_R8_1016 라운드 8] 괄호 안은 다음 큐의 이름 그대로(식전 영상 소개 · 화촉 시작) — 디렉터가 «다음» 줄에서 바로 찾는다
+          fire: 'clock', atMin: 0, note: '예식 시작 시각 · ' + (seq.indexOf('prevideo') > -1 ? (_openClap ? '불을 낮추기 직전 · 박수가 잦아들면 [다음]으로 식전 영상 소개' : '불을 낮추기 직전 · 다음 줄(식전 영상 소개)은 이어서 나간다') : seq.indexOf('candle') > -1 ? (_openClap ? '박수가 줄기 시작하면 [다음]으로 화촉 시작' : '다음 줄(화촉 시작)은 이어서 나간다') /* ★[OPEN_CANDLE_GO_NI04 이음매 NI04] 박수 판은 화촉 첫 줄이 손으로 나간다(fire 는 그대로 · 메모만 맞춤) */ : '다음 입장은 [다음]으로(신부 준비 완료 · 문 앞 대기 확인 후)')   // ★[OPEN_MEMO_R7_1016 라운드 7] 늘 «식전 영상 소개»라던 메모를 담은 순간에 따라 — 영상을 뺀 날 틀린 말이었다 · ★[OPEN_MEMO_NAME_R8_1016 라운드 8] 괄호 안은 다음 큐의 이름 그대로(식전 영상 소개 · 화촉 시작) — 디렉터가 «다음» 줄에서 바로 찾는다
         }));
         if (seq.indexOf('prevideo') > -1) cues.push.apply(cues, BUILD.prevideo(S));   // [ONEMIN_FIRST] 공지 다음 · 입장 앞
       }
@@ -1924,15 +1924,27 @@
     // ★CUE_FIRE_RULE 적용 — 앞 큐에 사람 구간이 있으면 수동, 없으면 자동 체인.
     //   ①fire를 이미 직접 정한 큐(01 문 열림 · 02~04 시각)는 건드리지 않는다
     //   ②체인은 다음 '수동 지점'에서 반드시 멈춘다 = 러너가 fire!=='chain'을 보면 정지(안전 규칙 1)
+    /* ★[DECL_SEAT_GO_NI09 2026-11-05 이음매 NI09] 255(읽은 분 자리로) 뒤 실제 다음 순서가 테이블 인사(131) · 축배 앞 이음말(249)이면 그 첫 줄을 디렉터 GO 로 —
+         종전엔 사슬이라 읽은 분이 자리로 가는 동안 다음 말이 겹쳤다 · 바로 닫는 날은 닫는 인사가 이미 GO(그대로) · 249 뒤 잔 준비 GO · 닫는 인사의 원래 조건도 그대로 */
+    for (var ds = 0; ds < cues.length - 1; ds++) if (cues[ds].slug === 'bridge-b9-declare-seat-end' && /^(narr-table-in|bridge-b13-toast-stay)$/.test(cues[ds + 1].slug || '') && !cues[ds + 1].fire) { cues[ds + 1].fire = 'manual'; cues[ds + 1].hint = '선언하신 분이 자리로 돌아가면'; }
     for (var i = 0; i < cues.length; i++) {
       var c = cues[i], prev = cues[i - 1];
       if (!c.fire) c.fire = (i === 0 || (prev && prev.live)) ? 'manual' : 'chain';
       /* [CLAP_GO · LOOK_HOLD] 사람 순간이 «다음을 누를 때»를 스스로 안다 — 박수 · 첫 모습 */
-      if (c.fire === 'manual' && prev && prev.live && prev.live.hintNext) c.hint = prev.live.hintNext;
+      if (c.fire === 'manual' && prev && prev.live && prev.live.hintNext) { c.hint = prev.live.hintNext; if (prev.live.applause) c._clapGo = 1; }   // [CLAP_SOFT_NI05] 박수 GO 표시 — 고른 멘트가 박수를 청하는지는 예시 글을 얹은 뒤 본다
       if (c.fire === 'manual' && !c.hint && prev && prev.live) c.hint = prev.live.t + ' 후';
       /* [CLAP_GO] 박수 동안 올려 둔 음악은 GO 뒤 1.5초에 걸쳐 내린다(종전 선언 post 의 toLetterMs 와 같은 값) */
       if (prev && prev.live && prev.live.applause) c.fadeMs = PARAM.declare.toLetterMs;
       c.idx = i;
+    }
+    /* ★[BOW_NEXT_NI01 2026-11-05 이음매 NI01] 맞절 뒤 준비 힌트는 «어디로 가나»에 맞춘다 — 맞절은 서로 눈맞춤으로 끝나 «다시 앞을 보면»은 틀린 신호였다.
+         하객 쪽으로 돌아서는 안내(B8 · 감사 인사 · 감사문 서약)가 다음이면 «맞절을 마치면» · 마주 선 채 이어지는 서약 · 반지 · 서로에게 편지면 «맞절을 마치고 서로 마주 선 자세를 바로 하면».
+         그 밖(부모님께 인사 · 각자 부모님께 편지)은 종전 힌트 그대로 · 녹음 · 동작 순서는 바꾸지 않는다(디렉터 힌트만) */
+    for (var bw = 0; bw < cues.length - 1; bw++) {
+      var bwc = cues[bw], bwn = cues[bw + 1];
+      if (!(bwc.k === 'matjeol' && bwc.live && bwn.fire === 'manual' && bwn.hint === bwc.live.hintNext)) continue;
+      if (bwn.slug === 'bridge-b8-face-guests') bwn.hint = '맞절을 마치면';
+      else if ((bwn.k === 'vow' && S.vowKind !== 'thanks') || bwn.k === 'ring' || (bwn.k === 'letter' && O.chipOf('letter', S) === 'each')) bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';
     }
 
     /* ★[OPEN_GAP_1014 라운드 3] 개식 선언(137) 뒤 다음 줄(식전 영상 소개 · 영상을 뺀 날은 화촉 · 입장)은 3초 쉬고 사슬 —
@@ -2089,6 +2101,10 @@
          소리 파일(file · no) · 글(text) · 길이(est · 글로 잰 값일 때만)만 그 예시로 · c.ex = 예시 slug(녹음 기록 · 검사가 본다) */
     if (O.narExCue) cues.forEach(function (c) { var s2 = c.slug ? O.narExCue(S, c.slug) : ''; if (!s2 || !SLUG[s2] || !EXTRA[s2]) return;
       var e0 = sylSec(c.text); c.ex = s2; c.no = noOf(s2); c.file = fileOf(s2); if (c.est === e0) c.est = sylSec(EXTRA[s2]); c.text = EXTRA[s2]; });
+    /* ★[CLAP_SOFT_NI05 2026-11-05 이음매 NI05] 박수 GO 뒤 힌트는 «고른 멘트»로 정한다 — 박수를 청하지 않는 멘트(예: 덕담 받는 말 195)를 고른 날
+         «박수가 줄기 시작하면»은 오지 않을 박수를 기다리게 했다 · 박수 사람 순간(live)은 그대로 둔다(현장 박수가 나올 수 있다) · 박수를 청하는 멘트로 되돌리면 종전 힌트 */
+    for (var cs = 1; cs < cues.length; cs++) { var csc = cues[cs]; if (!csc._clapGo) continue; delete csc._clapGo;
+      if (csc.hint === '박수가 줄기 시작하면' && !CLAP_ASK.test(String(cues[cs - 1].text || ''))) csc.hint = '다음 순서가 준비되면 · 박수가 나왔으면 잦아든 뒤'; }
     /* ★★[DECL_TITLE_1031 검토 174] 호칭 — 말투(위 narExCue)를 고른 «뒤»에 끼운다(말투 교체가 호칭 문장을 옛 문장으로 덮지 않게) ·
          슬러그(큐 열쇠)는 그대로 · 소리 파일 · 글만 호칭 판으로 · «그 밖의 분» · 안 고름은 지금 소리(136 · 218 · 230 · 231 · 255) 그대로 */
     var _dp = O.declParent ? O.declParent(S) : '';
