@@ -4756,7 +4756,12 @@ function _afterOn(){ return isOpen(); }
 function _fixSteps(kind){ var S2=_clS(), mF=!!(S2.meal&&S2.mealFull), cs=[];
   try{ if(ENG&&ENG.RitualCue){ var r=ENG.RitualCue.build(S2,{mode:'console'}); cs=Array.isArray(r)?r:(r.cues||[]); } }catch(e){ cs=[]; }
   function tx(re){ for(var i=0;i<cs.length;i++){ if(re.test(cs[i].slug||'')) return String(cs[i].text||''); } return ''; }
-  if(kind==='pre'){ var gq=cs.filter(function(c){ return c.k==='guest'&&c.text; });
+  if(kind==='pre'){ /* ★[GUEST_GROUP_NI03 2026-11-05 이음매 NI03] 시점 묶음 = 시계 큐(입장 · 10 · 5 · 1분 전) 하나 + 다음 시계 큐 전까지 이어지는 줄 — 온라인 날 1분 전 316 뒤 48(«화면으로 함께해 주시는 여러분, 반갑습니다.»)도 1분 전 묶음에 ·
+         종전엔 하객 줄을 차례대로 네 칸에 꽂아 48 이 빠지고 이후 칸이 밀릴 수 있었다 · 개식(narr-open)은 «시작» 칸 · 음성 위치는 그대로(K1) */
+    var gq=[], _gc=null, _GA=[/^guest-w-arrival/,/^guest-w-10m-/,/^guest-(w-5m|3-5min)/,/^guest-(w-1m|4-1min)/];
+    cs.forEach(function(c){ if(c.k!=='guest'||!c.text||/^narr-open/.test(c.slug||'')||/^bridge-/.test(c.slug||'')) { if(c.k!=='guest'||/^narr-open/.test(c.slug||'')) _gc=null; return; }
+      var gi=-1; _GA.forEach(function(re,j){ if(re.test(c.slug||'')) gi=j; });
+      if(gi>-1){ _gc=gq[gi]={text:c.text}; } else if(_gc){ _gc.text+=' '+c.text; } });
     return [{t:'입장 때',n:'하객 맞이 안내',d:'환영 · 사진 올리기 방법',w:'v',tx:(gq[0]||{}).text||''},
       {t:'10분 전',n:'하객 맞이 안내',d:mF?'시작 예고 · 식사 예고':'시작 예고',w:'v',tx:(gq[1]||{}).text||''},
       {t:'5분 전',n:'하객 맞이 안내',d:mF?'식사 장소 확인 · 사진 올리기':'사진 올리기',w:'v',tx:(gq[2]||{}).text||''},

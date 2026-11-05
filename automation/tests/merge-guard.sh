@@ -21813,7 +21813,7 @@ chk '<button type="button" class="pv-again" id="pvAgain" onclick="_pvPlay()"></b
 chk '.pv-act:empty{display:none}' order-preview.html 1
 nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.html
 # ── 2026-11-02 [GUIDE_ALWAYS_202 보충] 하객 안내 기본 켜짐만으로 _clS 가 S 를 덮지 않는다(덮으면 마이페이지 값이 없을 때 식사 값이 «없음»으로 바뀌어 콘솔 ⊆ 화면이 깨진다 · screen-sound 가 잡음)
-chk "if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;" order-preview.html 1
+chk "if(typeof CUSTMEAL==='undefined'||!((typeof CUSTDINE==='string'&&CUSTDINE)||CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;" order-preview.html 1   # [DINE_HINT_NI15] 식사 상태를 받으면 문맥 값
 nochk "!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S;" order-preview.html
 # ── 2026-11-02 [INFO_SPLIT_200 검토 200 수정 2 · 사장님 18:00 «한 번에 다 안내하면 귀에 안 들어오니 나눠서» · 18:02 «추천대로»] 입장 = 사진 올리기 · 10분 전 = 식사 예고 · 5분 전 = 경로 + 사진 · 마무리 = 식사 시각 · 합류 · 촬영 후 = 남기 · 물건 · 이동 허락
 chk "if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');" assets/ritual-cue.js 1
@@ -21963,3 +21963,6 @@ chk 'PHOTO_ALWAYS_NI02' scripts/audit/open-course.mjs 3
 chk "if(_ds==='needs-confirmation') o.push('+ 식사 여부 확인이 필요해요');" order-preview.html 1
 chk "filter(function(x){ return !x.hint&&(!x.quiet||x.txt); })" order-preview.html 1
 chk 'dining:_dst, guide:_gOn' mypage.html 1
+# ── 2026-11-05 [GUEST_GROUP_NI03 이음매 NI03] 하객 맞이 표 = 시계 큐 + 이어지는 줄 묶음(온라인 날 1분 전 316 → 48)
+chk 'GUEST_GROUP_NI03' order-preview.html 1
+nochk "var gq=cs.filter(function(c){ return c.k==='guest'&&c.text; });" order-preview.html
