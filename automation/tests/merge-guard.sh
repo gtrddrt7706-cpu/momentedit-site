@@ -22241,3 +22241,78 @@ nochk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을' 
 nochk '지금부터 서로의 눈을 바라봐 주시기 바랍니다. 긴 시간' assets/ritual-open.js
 nochk '지금부터 서로의 눈을 지그시 바라봐 주세요' assets/ritual-open.js
 nochk '두 분은 부모님을 바라보며 편지를 낭독해' order-preview.html
+# ── 2026-11-06 [B2_HOME_01 ~ B2_HOME_32 · 2차 홈 · AI 상담] 제한 시간은 본문까지 · 일정 잠금 · 저장본 표시 · 신청 결과 · 취소 잠금 · 애프터 웨딩 AI 답 · 이름 맞추기
+chk 'B2_HOME_01' inquiry.html 2
+chk 'B2_HOME_01' schedule.html 3
+chk 'B2_HOME_01' cancel.html 1
+chk 'B2_HOME_01' seat.html 1
+nochk 'if (tm) clearTimeout(tm); return res.json(); }' inquiry.html
+nochk 'if(tm) clearTimeout(tm); return r.json(); }' schedule.html
+nochk 'if(tm) clearTimeout(tm); return r.json(); }' cancel.html
+chk '신청 결과를 아직 확인하지 못했어요. 안내 메일을 먼저 확인해 주세요.' inquiry.html 1
+chk 'B2_HOME_02' schedule.html 8
+chk "if(window.__schedBusy) return;" schedule.html 3
+chk 'B2_HOME_15' schedule.html 3
+chk '이전에 확인한 일정이에요. 최신 일정을 확인하고 있어요.' schedule.html 1
+chk 'B2_HOME_13' inquiry.html 2
+chk 'value="특별히 망설이는 점은 없어요" data-none="1"' inquiry.html 1
+nochk '망설이시는 점은 상담에서 풀어 드립니다' inquiry.html
+chk 'B2_HOME_31' inquiry.html 1
+chk 'B2_HOME_16' inquiry.html 2
+chk 'B2_HOME_17' inquiry.html 2
+chk 'B2_HOME_16' automation/platform/40_signup.gs 3
+chk 'B2_HOME_17' automation/platform/40_signup.gs 2
+chk 'function _signupHit_(raw, fp, names, phone, memo, detail)' automation/platform/40_signup.gs 1
+nochk 'if (cached) return { ok: true, code: cached };' automation/platform/40_signup.gs
+chk 'B2_HOME_18' cancel.html 4
+chk 'B2_HOME_14' index.html 1
+chk 'B2_HOME_14' assets/advisor-widget.js 1
+chk 'B2_HOME_06' mypage.html 2
+chk 'B2_HOME_07' mypage.html 7
+chk 'B2_HOME_08' mypage.html 1
+chk 'B2_HOME_08' api/after-concierge.js 3
+chk 'B2_HOME_09' mypage.html 1
+chk 'B2_HOME_10' mypage.html 2
+chk 'B2_HOME_28' mypage.html 3
+chk 'B2_HOME_11' index.html 1
+nochk '성혼 선언 뒤에 가까운 분이, 또는 두 분 중 한 분이나 함께 한 곡을 부릅니다' index.html
+nochk '그 첫 장면에도' index.html
+chk 'B2_HOME_12' index.html 1
+nochk '캡처가 아니라 실제로 움직이는 도구' index.html
+chk 'B2_HOME_20' index.html 1
+chk 'B2_HOME_20' assets/advisor-kb.js 1
+nochk '다이닝 찾기에서' index.html
+nochk '다이닝 찾기에서' assets/advisor-kb.js
+nochk '마이페이지 다이닝 단계' api/_kb.js
+chk 'B2_HOME_21' index.html 1
+chk 'B2_HOME_21' assets/sequence-modal.js 1
+nochk '가족 구도를 차례로 담' index.html
+nochk '가족 구도를 차례로 담' assets/sequence-modal.js
+chk 'B2_HOME_30' index.html 1
+chk 'B2_HOME_32' index.html 1
+chk 'B2_HOME_32' guide.html 1
+nochk '식사·카페 안내</span></h3>' index.html
+nochk '다이닝 안내' index.html
+nochk '다이닝 안내' assets/advisor-kb.js
+nochk '식사 · 애프터</h2>' guide.html
+chk 'B2_HOME_03' assets/advisor-kb.js 1
+chk 'B2_HOME_03' api/_kb.js 1
+chk 'B2_HOME_26' assets/advisor-kb.js 1
+chk 'B2_HOME_26' api/_kb.js 2
+nochk '리허설 진행 여부와 방식은 상담에서 안내드립니다' assets/advisor-kb.js
+chk 'B2_HOME_04' api/_ritual-kb.js 2
+nochk '폐식·단체촬영: ' api/_ritual-kb.js
+nochk '작가님이 촬영을 마치면' api/_ritual-kb.js
+chk 'B2_HOME_05' api/_ritual-kb.js 4
+nochk '어떤 순간도 필수가 아니다 · 두세 순간만 담아도 완성된 예식' api/_ritual-kb.js
+chk 'B2_HOME_22' api/_ritual-kb.js 1
+nochk '→ 마무리 \$' api/_ritual-kb.js
+chk 'B2_HOME_23' api/_ritual-kb.js 1
+nochk '→ 글 적어두기 → 완성' api/_ritual-kb.js
+chk 'B2_HOME_24' api/_ritual-kb.js 1
+nochk '두 분 입장 한 번이 행진이다' api/_ritual-kb.js
+chk 'B2_HOME_25' api/_ritual-kb.js 1
+chk 'B2_HOME_25' order-preview.html 1
+chk 'B2_HOME_27' api/_ritual-kb.js 1
+chk 'B2_HOME_27' api/ritual-advisor.js 1
+nochk '(b)확정 전 정책' api/ritual-advisor.js

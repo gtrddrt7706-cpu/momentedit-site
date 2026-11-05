@@ -12947,9 +12947,10 @@ var TRK_META = { dining:{ label:'애프터 웨딩', steps:2, names:['고르기',
 var MP_FINAL_POLICY = { seats:30, max:30, unit:0 };   // [SEATED30] 서른 분 전원 착석(2026-09-13 검토38) — seats 를 25 로 되돌리지 말 것   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
+  try{ if(TRKFLOW&&TRKFLOW._dac) TRKFLOW._dac.abort(); }catch(e){}   // [B2_HOME_07] 앞 편집이 보낸 AI 추천 요청은 끊는다(늦은 답이 새 편집에 그려지지 않게)
   bkKill(INVFLOW); INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선) · 남은 뒤로가기 층 정리
   var dr = draft ? JSON.parse(JSON.stringify(draft)) : {};
-  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._pendingTyping; delete dr._sending; delete dr._aiNoRes; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; DN_UI.pre=null; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
+  if(track==='dining'){ delete dr._aiSummary; delete dr._aiText; delete dr._chat; delete dr._places; delete dr._pendingTyping; delete dr._sending; delete dr._aiNoRes; delete dr._aiApplied; delete dr._aiFil; if(typeof DN_UI!=='undefined'){ DN_UI.det=null; DN_UI.all=false; DN_UI.attr=false; DN_UI.pre=null; } }   // 재진입 시 AI 대화·라이브 결과만 초기화(2026-06-13 지시) · 칩 필터(_filters)는 보존 — 고르던 과정이 리셋돼 보이던 문제(2026-07-11 사용자 지시)
   if(track==='final' && !dr.headcount && base && base.expectedGuests){ dr.headcount=String(base.expectedGuests); dr._fromInquiry=String(base.expectedGuests); }   // 문의 때 예상 하객 프리필(수정 가능)
   var st = Math.min(Math.max(dr._step||0,0), TRK_META[track].steps-1);
   TRKFLOW = { active:true, track:track, step:st, draft:dr, base:base||{}, steps:TRK_META[track].steps };
@@ -12974,7 +12975,7 @@ function exitTrkFlow(){ _mpHoldScroll();   // 누르는 즉시 스피너 → 저
   TRKFLOW.active=false; _flowBusy(true);   // '저장 중…' 베일(제작 접점 일관 · 오버레이 유지)
   saveTrkDraft(false).then(function(r){
     TRKFLOW._exiting=false;
-    if(r&&r.ok){ _flowBusy(false); bkKill(TRKFLOW); _mpRefresh(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
+    if(r&&r.ok){ _flowBusy(false); bkKill(TRKFLOW); try{ if(TRKFLOW._dac) TRKFLOW._dac.abort(); }catch(e){} _mpRefresh(); return; }   // [B2_HOME_07]   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
     _flowBusy(false); TRKFLOW.active=true; show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
     if(!bkAlive(TRKFLOW._bk)) TRKFLOW._bk=bkOpen(function(){ exitTrkFlow(); });   // 뒤로가기로 나가다 실패 — 가드 재무장
     if(r&&r.sess){ _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE F5]
@@ -13080,39 +13081,52 @@ function bindTrk(box, render, collect, opt){
       if(!t){ if(er)er.textContent='누구와 함께 보내실지 한 줄 들려 주세요.'; return; }
       collect();
       d2._chat=(d2._chat||[]).concat([{role:'user',content:t}]).slice(-10);
-      d2._sending=true; d2._pendingTyping=true; d2._aiNoRes=false;
+      d2._sending=true; d2._pendingTyping=true; d2._aiNoRes=false; d2._aiApplied=false;   // [B2_HOME_28] 답을 기다리는 동안은 «조건을 맞췄어요»를 말하지 않는다
+      var _myFlow=TRKFLOW, _f0=JSON.stringify(d2._filters||{});   // [B2_HOME_06 · B2_HOME_07] 보낸 순간의 편집 · 조건 — 답이 올 때 바뀌었으면 조건을 덮지 않는다 · 닫힌 편집엔 그리지 않는다
+      var _live=function(){ return TRKFLOW===_myFlow && _myFlow.active && TRKFLOW.track==='dining'; };
+      /* [B2_HOME_10] 답을 그릴 때 입력 칸을 새로 만든다 — 그 칸에 쓰고 있었으면 초점 · 커서를 되돌린다(다른 칸 · 화면으로 갔으면 초점을 빼앗지 않는다 · 글은 _dncTyped 가 지킨다) */
+      var _rerender=function(){ var i0=$('dncInput'), f=!!(i0&&document.activeElement===i0), s0=i0?i0.selectionStart:null, s1=i0?i0.selectionEnd:null; render(box); if(f){ var i1=$('dncInput'); if(i1){ try{ i1.focus({preventScroll:true}); if(s0!=null) i1.setSelectionRange(s0,s1); }catch(e){} } } };
       if(inp){ inp.value=''; } d2._dncTyped='';   // 보낸 질문은 입력 보존 대상에서 해제
       render(box);   // 고객 진사 말풍선 + AI 점점점을 렌더로 즉시(첫 메시지 슬림 뷰에서도 동작)
       var mg0=$('dncMsgs'); if(mg0) mg0.scrollTop=mg0.scrollHeight;
       /* ★[ERR_CODE_MYPAGE F10] AI 추천(api/after-concierge) — 종전엔 영문 기술어(ai_unavailable · ai_parse · server_error · unconfigured)를 그대로 보였고,
          시간 한도가 없었으며, 깨진 답 · 늦음도 «연결이 잠시 불안정해요»였다. 한글 한 줄 + A 코드로(_dncErr) · 40초 한도(A5) */
       var _dac=(typeof AbortController!=='undefined')?new AbortController():null, _dst=0, _dtm=_dac?setTimeout(function(){ try{ _dac.__meTimeout=1; _dac.abort(); }catch(e){} },40000):null;
+      _myFlow._dac=_dac;   // [B2_HOME_07] 닫을 때 끊을 수 있게
       fetch('/api/after-concierge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:d2._chat}),signal:_dac?_dac.signal:undefined})
         .then(function(_rr){ _dst=_rr.status; return _rr.json().then(function(j){ if(j&&typeof j==='object'&&!j.ok&&!j.http) j.http=_dst; return j; }); })
         .then(function(r){ if(_dtm) clearTimeout(_dtm); var _md=false;
+          if(!_live()) return;   // [B2_HOME_07] 편집이 끝났거나 새 편집이 열렸다 — 늦은 답은 그리지 않는다
           d2._sending=false; d2._pendingTyping=false;
           if(r&&r.ok){
             d2._aiNoRes=false;   // 새 응답 도착 — 지난 '못 찾음' 제안 상태 해제
             var say=(r.reply||'')+(r.ask?(' '+r.ask):'');
+            /* [B2_HOME_06 · B2_HOME_08] 조건 적용 — 보낸 뒤 두 분이 조건을 바꿨으면(_f0) 덮지 않는다 · «빼기»(drop)와 «그대로 두기»(none)를 가른다 · 범위 밖 답은 조건을 건드리지 않는다 */
+            var _stale=JSON.stringify(d2._filters||{})!==_f0, _drop=Array.isArray(r.drop)?r.drop:[], _hasF=!!(r.filters&&Object.keys(r.filters).length), _applied=false;
+            if(!_stale && r.intent!=='offtopic' && (_hasF||_drop.length)){ var _nf=Object.assign({},d2._filters||{});
+              _drop.forEach(function(k){ if(!(r.filters&&r.filters[k]!=null)) delete _nf[k]; });
+              if(_hasF){ Object.assign(_nf,r.filters);
+                if(r.filters.theme){ delete _nf.noCafe; if(r.filters.theme==='cafe') delete _nf.al; } }   // AI는 al·noCafe(프리셋 전용 키)를 못 다루므로, AI가 컨셉(theme)을 새로 잡으면 충돌 키를 해제 — '카페 가고 싶어요'가 잔존 al:yes에 걸려 0곳 되는 문제 방지
+              d2._filters=_nf; _applied=true; }
+            else if(_stale && (_hasF||_drop.length)){ say=say.replace(/\s*아래 리스트를 맞췄어요[.\s]*/g,' ').trim()+' 지금 고른 조건으로 보여 드릴게요.'; }
+            d2._aiApplied=_applied && !r.ask; d2._aiFil=JSON.stringify(d2._filters||{});   // [B2_HOME_28] 실제로 적용한 답(추가 질문 아님)에만 «조건을 맞췄어요»
             d2._chat=d2._chat.concat([{role:'assistant',content:say}]).slice(-10);
-            if(r.filters && Object.keys(r.filters).length){ d2._filters=Object.assign({},d2._filters||{},r.filters);
-              if(r.filters.theme){ delete d2._filters.noCafe; if(r.filters.theme==='cafe') delete d2._filters.al; } }   // AI는 al·noCafe(프리셋 전용 키)를 못 다루므로, AI가 컨셉(theme)을 새로 잡으면 충돌 키를 해제 — '카페 가고 싶어요'가 잔존 al:yes에 걸려 0곳 되는 문제 방지
             logAwDemand({source:'ai', category:r.category||'', theme:(r.filters&&r.filters.theme)||'', food:(r.filters&&r.filters.food)||'', head:(d2._filters&&d2._filters.headN)||''});   // 수요 로깅(개인정보 없음)
             if(r.source==='kakao' && r.places && r.places.length){ d2._places=r.places.slice(0,7); }
             else if(r.source==='kakao'){ d2._places=[]; d2._aiNoRes=true; d2._chat=d2._chat.concat([{role:'assistant',content:'지도에서 딱 맞는 곳을 찾지 못했어요. 장소 종류를 넣어 말씀해 주시면 잘 찾아져요. (예: 아이랑 갈 실내 놀이방 · 고기 굽는 단체 뒤풀이 집) 아래 버튼을 눌러 바로 다시 찾아보셔도 돼요.'}]).slice(-10); }
             /* ★[ERR_CODE_MYPAGE F10] 지도 조회가 실패한 것 — 종전 «이 부분은 상담 때 디렉터가 함께 안내드릴게요»는 상담을 마친 두 분에게 틀린 말이었다(식순 · 애프터 웨딩은 상담 뒤).
                대화 기록(AI 에게 다시 가는 글)에 넣지 않고 입력 칸 아래 한 줄로 — 단계와 상관없는 말 + 코드 */
-            else if(r.mapDown){ _md=true; }
+            else if(r.mapDown){ _md=true; d2._places=[]; }   // [B2_HOME_09] 새 장소 요청의 지도 조회가 실패했다 — 앞 검색 카드를 새 결과처럼 남기지 않는다(«담음»으로 저장한 곳은 _favs 에 그대로)
             else { d2._places=[]; }
-            render(box);
+            _rerender();
             var mg=$('dncMsgs'); if(mg) mg.scrollTop=mg.scrollHeight;
             if(_md){ var er4=$('dn_aiErr'); if(er4) _errSet(er4, '지도 정보를 잠시 못 불러왔어요 · 아래에서 직접 골라 주세요 (코드 A4)'); }   // [ERR_CODE_NOWRAP]
           } else {
-            render(box);
+            _rerender();
             var er2=$('dn_aiErr'); if(er2) _errSet(er2, _dncErr(r));   // [ERR_CODE_NOWRAP]
           }
         })
-        .catch(function(e){ if(_dtm) clearTimeout(_dtm); d2._sending=false; d2._pendingTyping=false; render(box); var er3=$('dn_aiErr'); if(er3) _errSet(er3, _dncErr(e, _dac, _dst)); });   // [ERR_CODE_NOWRAP]
+        .catch(function(e){ if(_dtm) clearTimeout(_dtm); if(!_live()) return; d2._sending=false; d2._pendingTyping=false; _rerender(); var er3=$('dn_aiErr'); if(er3) _errSet(er3, _dncErr(e, _dac, _dst)); });   // [ERR_CODE_NOWRAP] · [B2_HOME_07] 끊긴 요청(편집 닫힘)은 다시 그리지 않는다 · [B2_HOME_10]
     };
     _dncF.addEventListener('submit',function(e){ e.preventDefault(); _dncGo(); });
     var _dncInp=$('dncInput'); if(_dncInp){ _dncInp.addEventListener('input',function(){ TRKFLOW.draft._dncTyped=_dncInp.value; }); }   // 쓰다 만 질문 보존 — 응답 도착·필터 탭·당겨서 새로고침의 재렌더에도 입력이 남게(value 시드와 짝)
@@ -13126,7 +13140,7 @@ function bindTrk(box, render, collect, opt){
     if(opt.last){ var b=$('trk_next'), _lbl0=b?b.textContent:'완료'; if(b){ b.disabled=true; b.textContent='저장 중…'; }   // [DN_NONE_RESULT] 실패하면 원래 라벨(닫기 · 저장하고 닫기)로 되돌린다 — 종전엔 늘 «완료»로 바뀌었다
       saveTrkDraft(true).then(function(r){
         if(!(r && r.ok)){ if($('trk_err')) _errSet($('trk_err'), _saveFailBody(r)); if(b){ b.disabled=false; b.textContent=_lbl0; } if(r&&r.sess) _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE] 원인 한 줄 + 코드 · 로그인 풀림   // [SAVE_FALSE_OK] 성공을 확인하고 닫는다 — 'ok===false 가 아니면 성공'은 응답이 없을 때 뚫린다(exitTrkFlow 와 같은 극성)
-        bkKill(TRKFLOW); var _wasFinal=(TRKFLOW.track==='final'); TRKFLOW.active=false;
+        bkKill(TRKFLOW); var _wasFinal=(TRKFLOW.track==='final'); TRKFLOW.active=false; try{ if(TRKFLOW._dac) TRKFLOW._dac.abort(); }catch(e){}   // [B2_HOME_07] 편집을 닫으면 AI 요청도 끊는다
         if(_wasFinal) window._seatNext=true;   // [통합 · 2026-07-19] 최종 확정 저장 직후 자리 배치로 자동 연결(명단이 머릿속에 있는 순간) — renderProduction이 소비
         loadMyState();   // 완료로 나가는 경로도 뒤로가기 층 소비 — 잔층이 남으면 다음 뒤로가기가 유령 저장(확인서 해제)을 일으킴
       }); return; }
@@ -13352,7 +13366,7 @@ function dineFilterUI(d, wt){
         ? '<div class="dn-ai-rule"></div><div class="dnc-msgs" id="dncMsgs"><div class="dnc-m dnc-b">예식 끝난 뒤 어디로 모실지 함께 챙겨드릴게요. \'조용한 룸\', \'아이랑 놀 곳\'처럼 적어 주시면 어울리는 자리를 찾아드려요.</div>'
           + msgs
           + (d._pendingTyping?'<div class="dnc-m dnc-b dnc-typing" aria-label="답변 준비 중"><span class="td"></span><span class="td"></span><span class="td"></span></div>':'')
-          + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
+          + ((!d._pendingTyping && !d._aiNoRes && d._aiApplied && JSON.stringify(d._filters||{})===d._aiFil && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
           + '</div>'
         : '<div class="dn-ai-slim-q">«조용한 룸» · «아이랑 갈 곳»처럼 적어 주시면 찾아드려요.</div>')   // [DN_INTRO_SHORT_1102]
     + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="찾는 자리를 말로 적기" placeholder="편하게 적어 주세요" style="margin:0" value="'+escapeHtml(String(d._dncTyped||''))+'"><button type="submit" class="cc-btn" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'   /* ★[SEAL_CTA_ONLY 2026-09-27 사장님 «일관성»] 진사 단추는 결정적 행동(서명 · 계약 요청 · 입금 신호 · 확정)에만 — 대화 «보내기»는 먹빛(.cc-btn) */   // [FIELD_NAME_A11Y] AI 칸도 자리표시(«편하게 적어 주세요»)뿐이었다 — 적기 시작하면 무슨 칸인지 사라졌다
@@ -13371,7 +13385,7 @@ function dineFilterUI(d, wt){
      이라고 적혀 있는데(mypage.html:7998 필드 주석) 고객이 보는 글에는 기준점이 빠져 있었다.
      ★고객에게도 필요한 정보다 — 기준점을 모르면 「차8분」은 아무 뜻이 없다. */
   var fine='';   /* [DN_ONE_CAUTION_1102] 목록 아래 변동 안내는 뺐다 — 기준점(향동 스튜디오)은 리드 줄([DINE_ORIGIN])에 · 예약 전 확인은 정리 전 확인 창 한 곳 */   // [DN_DOT_SPLIT] 나열의 가운뎃점 양옆 U+2060(320 «영업시간· / 단체석은»)
-  var aiHint = (d._chat&&d._chat.length) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';
+  var aiHint = (d._chat&&d._chat.length && !d._pendingTyping && d._aiApplied && JSON.stringify(d._filters||{})===d._aiFil) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';   // [B2_HOME_28] 조건을 실제로 적용한 답이고 목록 조건이 그 답 그대로일 때만(대기 · 추가 질문 · 범위 밖 · 두 분이 바꾼 뒤엔 숨김)
   // 예식 후 가볼 만한 곳 — 접이식 큐레이션. 각 항목도 눌러서 담기(식당과 함께 다음 취합 페이지에서 봄). '지도' 링크는 담기와 분리.
   var attrItems=DN_ATTRACTIONS.map(function(a){
     var _af=_dnFavHas(d,a.n), _aUrl='https://map.naver.com/p/search/'+encodeURIComponent(a.n);
