@@ -43,7 +43,7 @@ t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(
 // [PHOTO_FLOW_LINE] 첫눈에 뼈대 · [PHOTO_FRIEND_EX] 누르면 담기는 예시(칸은 하나 그대로)
 // ★[PHOTO_DAY_STEPS 2026-09-27 사장님] 흐름 줄(알약 셋)은 그날 차례 번호 줄로 바뀌었다 — 차례 순서가 엔진(ritual-cue 단체 사진 큐)과 같은지 잰다
 {
-  const ord = ["_stepHd('온라인 인사'", "_stepHd('모두 함께 · 전체 하객 한 장'", 'id="mp_wishAdd"', "_stepHd('촬영 후 안내'", "_stepHd('가족 구도'", 'data-pmv', 'mp_pcBride', "_stepHd('추가 촬영'", 'id="mp_photoFriend"', "h+='</ol>';", 'ph-sec">예식 순서에서 남는 사진', 'id="mp_phGuest"'];
+  const ord = ["_stepHd('온라인 인사'", "_stepHd('전체 단체 사진'",   /* [B2_MA_66 2026-11-06] 제목 «전체 단체 사진» · «가족 사진» */ 'id="mp_wishAdd"', "_stepHd('촬영 후 안내'", "_stepHd('가족 사진'", 'data-pmv', 'mp_pcBride', "_stepHd('추가 촬영'", 'id="mp_photoFriend"', "h+='</ol>';", 'ph-sec">예식 순서에서 남는 사진', 'id="mp_phGuest"'];
   const pos = ord.map((x) => rp.indexOf(x)), miss = ord.filter((x, i) => pos[i] < 0), sorted = pos.every((p, i) => i === 0 || p > pos[i - 1]);
   t(!miss.length && sorted, '차례 — [END_FLOW_1030 검토 167] (디지털 참석 날) 온라인 인사 → 전체 하객 + 꼭 담고 싶은 사진 → 촬영 후 안내(AFTER_BEFORE_FAMILY_200) → 가족 구도(+ 불러 모아 주실 분) → 추가 촬영(친구 부탁 칸 · POST_FLOW_200) → 예식 순서에서 남는 사진 → 하객 사진 모으기 · 감사 인사 차례 없음' + (miss.length ? ' — 못 찾음: ' + miss.join(' · ') : (sorted ? '' : ' — 순서가 어긋남')));
   t(rp.indexOf('class="snp-flow"') === -1 && !/var _flw=/.test(rp), '흐름 줄(알약)은 없다 — 번호 줄이 곧 흐름(같은 말 두 번 금지)');
@@ -51,7 +51,7 @@ t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(
   const eng = ["slug: 'narr-online-in'", 'slug: _ppre', "actId: 'photo-all'", "name: '촬영 후 안내'", "actId: 'photo-family'", "actId: 'photo-free', name: _px.n"].map((x) => cue.indexOf(x));   // ★[CLOSING_LINE_1031] 마무리 멘트 → 소리 없는 사진 큐(전체 하객 → 가족 구도 → 자유 사진)
   t(eng.every((p, i) => p > -1 && (i === 0 || p > eng[i - 1])) && rp.indexOf("_stepHd('감사 인사 · 남아 주실 분 안내'") === -1, '엔진 새 코스 큐 순서가 화면 차례와 같다(온라인 인사 → 마무리 멘트 → 전체 하객 → 촬영 후 안내 → 가족 구도 → 추가 촬영 · AFTER_BEFORE_FAMILY_200 · END_FLOW_1030 · POST_FLOW_200 · CLOSING_LINE_1031) · 감사 인사 차례는 걷었다');
 }
-t(/사진작가가 불러 드리고 자연스럽게 이끌어요/.test(rp), '«고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요» — [PHOTO_FREE] 부르는 것은 사진작가');
+t(/고른 구도와 순서대로 찍어요\./.test(rp), '«고른 구도와 순서대로 찍어요.» — [B2_MA_66 2026-11-06 2차 판정] 가족 사진 차례 설명(옛 «사진작가가 불러 드리고…»는 판정본 문구로 바뀌었다)');
 // [PHOTO_EX_VIEW] 예시 목록 이름 = 화면 목록 이름(이름으로 찾는다) · 3장씩 · 전각 줄표 없음(머리 주석 제외)
 {
   const refs = read('assets/photo-refs.js') || '';

@@ -72,13 +72,17 @@ async function kakaoSearch(query) {
     clearTimeout(t);
     if (!r.ok) return { down: true, places: [] };
     const j = await r.json();
+    /* ★[B2_MA_46 2026-11-06 2차 B2-마46] 장소명은 «글자» 단위로 자른다 — UTF-16 60칸으로 자르면 이모지 · 보조 한자의 글자 쌍이 반으로 끊겨
+       화면의 지도 주소 만들기(encodeURIComponent)가 멈췄다 · [B2_MA_38] 지도 장소 ID(id)를 함께 보낸다(같은 이름의 다른 지점을 가른다) */
+    const cut = (v, n) => Array.from(String(v || '')).slice(0, n).join('');
     const places = (j.documents || []).map((d) => ({
-      name: String(d.place_name || '').slice(0, 60),
+      id: String(d.id || '').slice(0, 30),
+      name: cut(d.place_name, 60),
       dist: Number(d.distance) || null,                                  // m
       phone: String(d.phone || '').slice(0, 20),
-      addr: String(d.road_address_name || d.address_name || '').slice(0, 80),
+      addr: cut(d.road_address_name || d.address_name, 80),
       url: /^https?:\/\/place\.map\.kakao\.com\//.test(String(d.place_url || '')) ? d.place_url : '',
-      cat: String(d.category_name || '').split('>').pop().trim().slice(0, 20)
+      cat: cut(String(d.category_name || '').split('>').pop().trim(), 20)
     })).filter((p) => p.name);
     return { down: false, places };
   } catch (e) { return { down: true, places: [] }; }

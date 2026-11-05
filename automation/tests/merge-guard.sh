@@ -106,7 +106,7 @@ chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 
 chk 'AbortError' mypage.html 2                     # 공유·QR 저장 폴백
 chk '발행 직전 1회만' mypage.html 1                # both 같게 미러 시점
 chk '계좌를 비워 두면' mypage.html 1               # 계좌 필수 거짓 문구 정정
-chk 'GUIDE_MAKE_COND' mypage.html 3                # 하객 안내 조건 공용 상수
+chk 'GUIDE_MAKE_COND' mypage.html 2                # 하객 안내 조건 공용 상수
 chk '본예식 20분 전' mypage.html 1                 # 인쇄 킷 도착 안내 · [DAY_PLAN 2026-08-09] 본식 10:05 기준 09:45 입장 = 20분 전(청첩장 16종과 같은 값)
 chk 'trk-sep' mypage.html 2                        # 확인·전달 그룹 구분선
 chk 'trk-tag' mypage.html 2                        # 선택 태그
@@ -1540,7 +1540,7 @@ chk 'GUIDE_PHOTO_INFO' guide.html 2            # 외부 공간으로 나가는 �
 #   ★마커는 없어져도 **지키려던 세 가지는 그대로 있어야 한다**(접근 범위·프로필 노출·정리하면 버튼도 닫힘).
 #     그래서 마커 대신 문장을 직접 센다 — 이름이 아니라 내용을 지키는 쪽이 원래 의도에 맞다.
 chk '링크를 아는 분은 누구나 들어갈 수 있어요' mypage.html 1
-chk '버튼도 닫혀요' mypage.html 1                 # [SEC_RANK] 문구를 줄여도 안 걸리게 핵심만 센다 — 지키는 것은 문장이 아니라 '앨범을 지우면 버튼도 닫힌다'는 사실
+chk '링크를 비우면 안내 페이지에서 사진을 받아요' mypage.html 1   # [B2_MA_76 2026-11-06] 문구가 바뀌었다 ·                 # [SEC_RANK] 문구를 줄여도 안 걸리게 핵심만 센다 — 지키는 것은 문장이 아니라 '앨범을 지우면 버튼도 닫힌다'는 사실
 # ── 2026-07-26 guide.html 3라운드(예식장 현장 조건 — 느린 회선·실패·확대)
 chk 'GUIDE_FONT_NOBLOCK' guide.html 1          # 폰트 CSS가 렌더 블로킹이라 FCP 3056ms·백지였다. media=print+onload로 뺐다 → FCP 60ms
 chk 'media="print"' guide.html 1               # ★위 처방의 본체. rel=stylesheet만 남기면 다시 렌더 블로킹이 되고 흰 화면이 돌아온다
@@ -5849,8 +5849,8 @@ chk "weduploader\\\\.com" mypage.html 1
 # ★[GUEST_PHOTO_IN 2026-08-17] 위 두 chk(weduploader 권장 문구·부부 드라이브 직송 문구)는 **정당한 폐지**로 내렸다.
 #   우리가 직접 받게 되면서 그 자리 첫 줄이 '남의 링크를 넣어 주세요'에서 '준비하실 건 없어요'로 바뀌었다.
 #   외부 링크 안내 자체는 접힌 「다른 방법도 되나요」 안에 남아 있고, 그쪽은 아래에서 지킨다.
-chk '가입도 이름 입력도 없이' mypage.html 1        # 외부 링크(weduploader)를 넣었을 때의 안내는 살아 있다
-chk '가입도 이름 입력도 없이' mypage.html 1
+chk '가입·이름 입력 없이' mypage.html 1        # [B2_MA_41 2026-11-06] · 외부 링크(weduploader)를 넣었을 때의 안내는 살아 있다
+chk '가입·이름 입력 없이' mypage.html 1
 chk '예식 전날 한 번 열어' mypage.html 1              # 직송형 공통 약점(OAuth 끊김) 안내
 chk 'BROWSE FILES' guide.html 1                       # 영어 두 단어를 한국어로 덮는 유일한 자리
 chk '이름도 가입도 필요 없어요' guide.html 1
@@ -13458,7 +13458,7 @@ nochk '^\.inv-chk{display:flex' mypage.html 0
 # [GUIDE_NOTE_TRUE] 하객 안내 칩·안내문은 한 판정(_guideSections)에서 — 애프터 웨딩 ✓ 인데 식당이 없으면 「장소 미정」 + «식당을 고르면» · 둘 다 켜지면 안내문 없음
 chk 'function _guideSections(p)' mypage.html 1
 chk '+_guideNoteHtml(p)' mypage.html 1
-chk "g.dnPend?'장소 미정':''" mypage.html 1
+chk "g.dnPend?'장소 미정':'준비 전'" mypage.html 1   # [B2_MA_14 2026-11-06] 상태 넷(사용 안 함 · 공개한 곳 없음 · 장소 미정 · 준비 전)
 nochk '<span class="cc-mini">비어 있는 부분은' mypage.html 0
 # [GUIDE_SHARE_GRID] 하객 안내 패널만 두 칸 격자(좌석 공유 패널의 .seat-share-btns 전역 규칙은 그대로) + 「공유」
 chk 'seat-share-btns gd-share-btns' mypage.html 1
@@ -13964,7 +13964,7 @@ nochk "PHOTOFLOW._psOpen=true; rerender(); } }); }" mypage.html
 chk 'SHARE_SCHEME' mypage.html 4
 chk "u='https://'+u;" mypage.html 1
 chk 'id="mp_psBad" role="status"' mypage.html 1
-chk '<span class="ln-bal">링크가 아니라서 저장되지 않아요.</span>' mypage.html 1
+chk '<span class="ln-bal">링크를 끝까지 붙여 주세요.</span>' mypage.html 1   # [B2_MA_35 2026-11-06] 잘못된 링크 안내 문구가 바뀌었다(판정본 그대로)
 chk "_nb.hidden=!!_nu||!String(psi.value||'').trim();" mypage.html 1
 # [PH_MORE_CUE] 사진 오버레이 접힘 두 곳 — 44px · 꺾쇠 · 키보드 초점 테두리(상담 · 시착 카드 [CC_MORE_CUE] 와 한 모양)
 chk 'PH_MORE_CUE' mypage.html 1
@@ -14019,7 +14019,7 @@ nochk '</b>로 예약만 마치면' mypage.html
 # [DN_RSV_MODE] 예약 안내 — 위에 실제로 있는 것만 가리킨다('tel' · 'notel' · 'none' 대표 전 · 'bare' 단일 경로) · 지도 안내는 카드 한 번
 chk 'DN_RSV_MODE' mypage.html 6
 chk "_dnRsvHtml(d, !rep?'none':(_dnTelOf(rep," mypage.html 1
-chk "_dnRsvHtml(d, !R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel'))" mypage.html 1
+chk "_dnRsvHtml(d, _vpPh?'none':(!R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel')))" mypage.html 1   # [B2_MA_29 2026-11-06] 옛 자리표시는 none 갈래
 chk "(mode==='tel'?'<span class=\"ln-bal\">위 전화번호와 통화 문구를 그대로 쓰시면 돼요.</span>'" mypage.html 1
 nochk "'지도에서 매장 번호를 확인하고," mypage.html      # 코드의 옛 noTel 문장(따옴표로 시작) — 주석의 인용은 안 잡는다
 nochk "해주세요 · '+(noTel?" mypage.html
@@ -14391,7 +14391,7 @@ nochk 'save:function(){ return savePhoto(); },' mypage.html 0
 nochk 'if(PHOTOFLOW._exiting) return; PHOTOFLOW._exiting=true;' mypage.html 0
 nochk "psi.addEventListener('blur'.*scrollIntoView" mypage.html 0
 # [SHARE_GATE_WAYOUT] 관문이 저장을 멈추니 경고 둘째 줄이 나가는 길을 둘 다 말한다(«선택» 칸이라 비워도 된다)
-chk '<span class="ln-bal">주소 전체를 복사해 붙여&nbsp;넣거나 칸을 비워 주세요.</span>' mypage.html 1
+chk '<span class="ln-bal">따로 만든 곳이 없으면 비워 두셔도 돼요.</span>' mypage.html 1   # [B2_MA_35 2026-11-06] 판정본 문구
 nochk '<span class="ln-bal">주소 전체를 복사해 붙여 주세요.</span>' mypage.html 0
 # [PHOTO_FAIL_STAY] 사진 저장 실패 판 «저장이 안 됐어요» — 바깥 · Esc 는 null(판만 닫고 머문다) · 명시적 «저장 없이 나가기»만 버린다([WIZ_EXIT_ONE] dismissNull · 나머지 네 판은 묶음 H3b)
 chk 'PHOTO_FAIL_STAY' mypage.html 1
@@ -14732,9 +14732,9 @@ chk "img: 'w04-3'" assets/snap-refs.js 1
 #   가족 · 친구 스냅 편집 화면 = 그날 차례 번호 줄(① 전체 하객 + 꼭 담고 싶은 사진 ② 감사 인사 ③ 가족 구도 ④ 온라인 인사 ⑤ 남은 분들과 자유롭게)
 chk 'PHOTO_DAY_STEPS' mypage.html 8
 chk '<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">' mypage.html 1
-chk "h+=_stepHd('모두 함께 · 전체 하객 한 장'" mypage.html 1
+chk "h+=_stepHd('전체 단체 사진'" mypage.html 1   # [B2_MA_66 2026-11-06]
 nochk "h+=_stepHd('감사 인사 · 남아 주실 분 안내'" mypage.html   # ★[END_FLOW_1030 검토 167] 감사 인사 차례는 걷었다(닫는 인사가 맡는다) · 되살리지 말 것
-chk "h+=_stepHd('가족 구도'" mypage.html 1
+chk "h+=_stepHd('가족 사진'" mypage.html 1   # [B2_MA_66 2026-11-06]
 chk "if(_dig) h+=_stepHd('온라인 인사'" mypage.html 1
 chk "h+=_stepHd('추가 촬영'" mypage.html 1   # [POST_FLOW_200] 옛 «남은 분들과 자유롭게»
 nochk '먼저 가실 분들은 이때 식사 자리로 옮겨요.' mypage.html   # ★[END_FLOW_1030] «먼저 가시라» 안내 금지(사장님 10/30)
@@ -18709,7 +18709,7 @@ chk 'SETUP_ERRBOX' order-preview.html 1
 chk "_vc('phrase',{who:w,keep:keep?1:undefined})" order-preview.html 1
 chk "sec:sec,phrase:R.phrase||''" order-preview.html 1
 chk 'LATEST_FILL' mypage.html 4
-chk '_latest:(r&&r.latest)||null' mypage.html 1
+chk '_latest:_lt' mypage.html 1   # [B2_MA_44 2026-11-06] 받은 최신본으로 초안 · 기준선까지 바꾼 뒤 싣는다
 chk 'REV_FORCE_DIRECT' mypage.html 1
 chk 'return _trkSend(p2);' mypage.html 1
 nochk 'return apiTrackSave(p2);' mypage.html
@@ -22397,3 +22397,70 @@ chk 'B2_MA_06' shared/hydrate.js 3                 # 처음 읽은 틀에 매번
 chk 'B2_MA_36' shared/hydrate.js 2                 # 하객 안내 단추 — 끝내 실패하면 «다시 불러오기»
 chk '하객 안내를 불러오지 못했어요.' shared/hydrate.js 1
 chk 'B2_MA_51' shared/hydrate.js 1                 # 단독 표본에도 예시 표시
+# ── 2026-11-06 [B2_MA_* 2차 B2 마이페이지] 애프터 웨딩 · 하객 안내 패널 · 단체 사진 · 식전 영상 · 로그인 찾기 · 운영 메일
+chk 'B2_MA_02' mypage.html 2                     # 하객 안내 패널 — 사진 올리기는 늘 · 식사 · 좌석은 준비한 것만
+chk '하객 안내에서 사진을 올릴 수 있어요.' mypage.html 2
+chk 'B2_MA_14' mypage.html 3                     # 상태 = 실제 공개 장소 · «식사 · 애프터 웨딩»(d-18)
+chk "'식사 · 애프터 웨딩'" mypage.html 1
+nochk "'식사 · 애프터'" mypage.html
+chk 'B2_MA_12' mypage.html 4                     # 예약 시각 · 식사·카페 후보 · 사진 준비 요약(확인된 식사만)
+chk '\[식사·카페 후보 · ' mypage.html 1
+chk 'B2_MA_13' mypage.html 3
+chk 'B2_MA_16' mypage.html 1
+chk 'B2_MA_22' mypage.html 3                     # 실패한 앞 저장이 뒤 선택을 뒤집지 않는다(저장 번호)
+chk '공개 설정을 저장하지 못했어요. 다시 저장해 주세요.' mypage.html 1
+chk 'B2_MA_24' mypage.html 2
+chk 'B2_MA_25' mypage.html 1
+chk 'B2_MA_26' mypage.html 3
+chk '공유가 안 됐어요. 아래 목록을 복사해 보내 주세요.' mypage.html 1
+chk 'B2_MA_28' mypage.html 1
+chk 'B2_MA_29' mypage.html 2
+chk '예약할 곳을 정하면 예약 시각과 예약자 이름을 적을 수 있어요.' mypage.html 1
+chk 'B2_MA_30' mypage.html 1                     # _rsvBy 를 지금 값과 합쳐 변경 비교
+chk 'B2_MA_58' mypage.html 1                     # _onlineSame 도 변경
+chk 'B2_MA_31' mypage.html 3                     # 인원 칩으로만 총액 · 옛 25명 고정 금지
+chk 'B2_MA_33' mypage.html 1
+chk '전체 5.2km로, 약 2시간 걸리는 중급 숲길이에요.' mypage.html 1
+nochk '어르신도 부담 없이 짧게 걷기 좋아요' mypage.html
+chk 'B2_MA_35' mypage.html 2
+chk 'B2_MA_35' automation/platform/80_production.gs 1
+chk 'B2_MA_37' mypage.html 2                     # AI 볼거리 = 가볼 곳(attr)
+chk 'B2_MA_38' mypage.html 3                     # 지도 장소 ID 로 같은 장소 판정
+chk 'B2_MA_38' api/after-concierge.js 1
+chk 'B2_MA_46' api/after-concierge.js 1          # 글자 단위 자르기
+chk 'B2_MA_46' mypage.html 2
+chk 'B2_MA_39' mypage.html 1                     # 저장 대기열엔 사본
+chk 'B2_MA_41' mypage.html 1
+chk 'B2_MA_43' automation/platform/80_production.gs 1
+chk 'B2_MA_44' mypage.html 1
+chk '최신 내용을 불러오지 못했어요. 다시 불러와 주세요.' mypage.html 1
+chk 'B2_MA_45' mypage.html 1
+nochk '1회분 보관돼 문제가 생기면' mypage.html
+chk 'B2_MA_48' mypage.html 2
+chk 'B2_MA_49' mypage.html 1
+chk 'B2_MA_55' mypage.html 1
+chk 'img|dscf|dsc|photo' mypage.html 1
+chk 'B2_MA_56' mypage.html 1
+chk 'B2_MA_57' mypage.html 3
+chk 'B2_MA_65' mypage.html 1
+chk '애프터 웨딩 안내 없이 진행할게요' mypage.html 1
+chk 'B2_MA_66' mypage.html 2
+chk 'B2_MA_69' mypage.html 1
+chk 'B2_MA_76' mypage.html 1
+chk 'B2_MA_77' mypage.html 1
+chk 'B2_MA_78' mypage.html 1
+chk 'B2_MA_83' mypage.html 1
+chk '단체 인원 확인 필요' mypage.html 2
+chk 'B2_MA_93' mypage.html 1
+chk 'B2_MA_93' api/_ritual-kb.js 1
+nochk '개식 선언' api/_ritual-kb.js
+chk 'B2_K35' mypage.html 2                       # 대본 판정 — 근거 없는 두 단정만 덜고 도착 기준은 그대로
+nochk '골든타임' mypage.html
+nochk '만족도가 가장 좋아요' mypage.html
+chk 'B2_MA_67' automation/platform/95_notify.gs 1
+chk "마이페이지의 ‘예식 준비’에서 청첩장과 식순을 차근차근 정해 주세요." automation/platform/95_notify.gs 1
+chk 'B2_MA_68' automation/platform/95_notify.gs 1
+chk '보정할 사진 선택 완료' automation/platform/95_notify.gs 1
+chk 'B2_MA_94' automation/platform/95_notify.gs 1
+chk '애프터 웨딩 장소 점검' automation/platform/88_place_audit.gs 2
+chk '청첩장·식순·애프터 웨딩이 옛 일시로 남을 수 있음' automation/platform/70_journey.gs 1

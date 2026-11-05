@@ -107,11 +107,11 @@ function _awRunAudit_() {
 function awMonthlyAudit() { _trigIn_(arguments[0]); /* [GSR_GATE 2026-10-09] 예약 실행 첫 줄(_trigIn_) */
   var r;
   try { r = _awRunAudit_(); }
-  catch (e) { try { _awNotifyAdmin_('[모먼트] 다이닝 월간검증 실패: ' + e); } catch (e2) {} return; }
+  catch (e) { try { _awNotifyAdmin_('[모먼트] 애프터 웨딩 장소 점검 실패: ' + e); } catch (e2) {} return; }   // [B2_MA_94 2026-11-06 2차 B2-마94] 운영 메일도 고객 화면 이름(애프터 웨딩)으로
   Logger.log('월간 검증 — 일치 ' + r.found + ' · 유사 ' + r.fuzzy + ' · 미발견 ' + r.missing);
   if (r.missing > 0) {
     var head = r.missNames.slice(0, 4).join(', ') + (r.missNames.length > 4 ? ' 외 ' + (r.missNames.length - 4) + '곳' : '');
-    _awNotifyAdmin_('[모먼트] 다이닝 월간검증: 폐업·상호변경 의심 ' + r.missing + '곳 발견(' + head + '). AW_장소검증 시트 확인 후 리스트 정리를 요청해 주세요.');
+    _awNotifyAdmin_('[모먼트] 애프터 웨딩 장소 점검: 폐업·상호변경 의심 ' + r.missing + '곳 발견(' + head + '). AW_장소검증 시트 확인 후 리스트 정리를 요청해 주세요.');
   }
 }
 

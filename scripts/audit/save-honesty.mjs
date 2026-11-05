@@ -112,7 +112,7 @@ for(const mode of ['reject','okfalse']){
   if(fav.no) ok(false, '공개 토글을 화면에서 찾지 못했다(검사 자체가 헛돎)', fav.btns||'');
   else {
     ok(!fav.show, '저장에 실패하면 공개 상태를 되돌린다 [SAVE_FALSE_OK]', String(fav.show));
-    ok(/안 됐어요/.test(fav.said), '하객에게 보이는 설정이 어긋나면 말해 준다', fav.said.slice(0,60));
+    ok(/안 됐어요|저장하지 못했어요/.test(fav.said), '하객에게 보이는 설정이 어긋나면 말해 준다', fav.said.slice(0,60));   // [B2_MA_22] «공개 설정을 저장하지 못했어요. 다시 저장해 주세요.»
   }
 }
 

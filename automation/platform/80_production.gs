@@ -406,7 +406,14 @@ function _prodStateRev(d) { _gsr_();
 //   UI 키(_step 등)는 _prodUiStrip으로 제외 — 화면 위치만 달라도 충돌로 오탐하지 않게. 두 기기 동시 편집의 조용한 덮어쓰기를 잡는다(회의 R-7).
 function _prodTrackRev(d, track) { _gsr_();
   var j = '';
-  try { j = _prodUiStrip(JSON.stringify((d || {})[track + 'Draft'] || {}), track); } catch (e) { return ''; }
+  /* ★[B2_MA_43 2026-11-06 2차 B2-마43] 저장 충돌 비교는 확인서 재확인 면제(_prodUiStrip)와 따로 — 담은 곳 · 하객 공개(_favs) · 조건(_filters) · 장소별 예약 값(_rsvBy)은
+     보존해야 하는 값이라 지문에 넣는다(두 기기의 후보 · 공개 저장이 조용히 덮이던 것). 화면 위치 등 나머지 «_» 키는 종전대로 뺀다 */
+  try {
+    var _o = JSON.parse(JSON.stringify((d || {})[track + 'Draft'] || {})), _keep = { _favs: 1, _filters: 1, _rsvBy: 1 };
+    for (var _k in _o) { if (_k.charAt(0) === '_' && !_keep[_k]) delete _o[_k]; }
+    if (track === 'guideinfo') delete _o.showSeat;
+    j = JSON.stringify(_o);
+  } catch (e) { return ''; }
   var h = 5381;
   for (var i = 0; i < j.length; i++) { h = ((h * 33) ^ j.charCodeAt(i)) >>> 0; }
   return String(h);
@@ -589,7 +596,7 @@ function handleSaveProductionTrack(body) { _gsr_();
     if (_pfr) body.draft.photoFriend = _pfr;
     // 하객 사진 모으기 링크(선택) — 부부가 만든 외부 공유 앨범/오픈채팅. http(s)만·최대 300자. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
     var _psu = String(gir.photoShareUrl || '').trim().slice(0, 300);
-    if (/^https?:\/\//i.test(_psu)) body.draft.photoShareUrl = _psu;
+    if (/^https?:\/\/[^\/?#\s:@]+\.[^\/?#\s:@]+/i.test(_psu)) body.draft.photoShareUrl = _psu;   // [B2_MA_35] 호스트가 있는 http(s) 주소만(«https://» · «https://#사진» 거절 · 빈칸은 기본 사진 올리기)
   }
   // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝) — 전 항목 선택 · 배열 상한·문자열 길이 · 링크는 http/https 만. (2026-07-19 스냅사진 파트 · marker: SNAP_PREP_NORMALIZE)
   //   ★[SNAP_PICK_V2 2026-09-26] 판이 둘이다 — v:2 면 «고르는 스냅 기획»(공간별 장면·올린 그림·링크·한 칸), 아니면 옛 칸(배포 시차로 남은 탭).

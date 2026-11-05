@@ -58,7 +58,7 @@ function check(src) {
   for (const [nm, t] of need) if (!op.includes(t)) bad.push(`B ${nm}: 식후 줄이 POST_FLOW 로 그려지지 않는다`);
   for (const t of ["row('_photo')+row('_after')", "['_photo','_after']", "사진 촬영(전체", "x.p==='photo'?'사진'", "_afterOn())?POST_KS:[])"]) if (op.includes(t)) bad.push(`B 옛 식후 줄이 남았다 «${t}»`);
   /* M 마이페이지 · 브리프 · 콘솔 · 관리 */
-  const mp = code(src.mp), iMP = mp.indexOf("_stepHd('모두 함께 · 전체 하객 한 장'"), iMA = mp.indexOf("_stepHd('촬영 후 안내'"), iMX = mp.indexOf("_stepHd('추가 촬영'"), iMF = mp.indexOf("_stepHd('가족 구도'");
+  /* [B2_MA_66 2026-11-06] 마이페이지 차례 제목 «전체 단체 사진» · «가족 사진» */ const mp = code(src.mp), iMP = mp.indexOf("_stepHd('전체 단체 사진'"), iMA = mp.indexOf("_stepHd('촬영 후 안내'"), iMX = mp.indexOf("_stepHd('추가 촬영'"), iMF = mp.indexOf("_stepHd('가족 사진'");
   if (iMP < 0 || iMA < 0 || iMX < 0 || iMF < 0 || !(iMP < iMA && iMA < iMF && iMF < iMX)) bad.push(`M 마이페이지 사진 단계 차례가 전체 → 촬영 후 안내 → 가족 구도 → 추가 촬영이 아니다(${iMP},${iMA},${iMF},${iMX})`);
   const br = code(src.br), iBA = br.indexOf('<b>촬영 후 안내</b>'), iBF = br.indexOf('<b>가족 구도</b>'), iBX = br.indexOf('<b>추가 촬영</b>');
   if (iBA < 0 || iBF < 0 || iBX < 0 || !(iBA < iBF && iBF < iBX)) bad.push('M 브리프 차례가 촬영 후 안내 → 가족 구도 → 추가 촬영이 아니다');
@@ -79,7 +79,7 @@ src.C = require(path.join(ROOT, 'assets/ritual-cue.js'));
 const bad = check(src);
 /* 스스로 깨 보기 — 되돌리면 빨강인가 */
 const brk = [
-  ['마이페이지 차례 뒤집기', { ...src, mp: src.mp.replace("_stepHd('촬영 후 안내'", '_X_').replace("_stepHd('가족 구도'", "_stepHd('촬영 후 안내'").replace('_X_', "_stepHd('가족 구도'") }],
+  ['마이페이지 차례 뒤집기', { ...src, mp: src.mp.replace("_stepHd('촬영 후 안내'", '_X_').replace("_stepHd('가족 사진'", "_stepHd('촬영 후 안내'").replace('_X_', "_stepHd('가족 사진'") }],
   ['예식 흐름 옛 줄', { ...src, op: src.op.replace("_fixSteps('post').map(fxRow).join('')", "row('_photo')+row('_after')") }],
   ['원천 이름 바꾸기', { ...src, O: { ...src.O, POST_FLOW: [src.O.POST_FLOW[0], src.O.POST_FLOW[2], src.O.POST_FLOW[1]] } }],
 ];

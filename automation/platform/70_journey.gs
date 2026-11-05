@@ -1198,7 +1198,7 @@ function adminConfirmWeddingChange(code) {
     touchCustomer(sheet, colOf, cust.num, updCols);
     if (_prodSyncFail) {   // 예식일은 바뀌었지만 제작 base가 옛 일시로 남은 상태 — 사람이 손으로 맞춰야 한다
       try { _recordHandler(code, '[예식일변경] 제작 base 동기화 실패 · ' + _prodSyncFail.slice(0, 200)); } catch (eR) {}
-      try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[예식일변경] 제작 base 동기화 실패 · ' + code + ' · 청첩장·식순·다이닝이 옛 일시로 남을 수 있음 · 사유: ' + _prodSyncFail.slice(0, 200)); } catch (eM) {}
+      try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[예식일변경] 제작 base 동기화 실패 · ' + code + ' · 청첩장·식순·애프터 웨딩이 옛 일시로 남을 수 있음 · 사유: '   /* [B2_MA_94] */  + _prodSyncFail.slice(0, 200)); } catch (eM) {}
     }
     // ★wedchg-seat-inv 좌석 공개 조회 캐시 무효화 — 예식일이 바뀌면 하객 좌석 페이지의 '예식일'이 즉시 갱신되게(캐시 5분 대기 방지).
     //   handleSaveProductionTrack(80)과 동일한 6분 톰스톤(seatv_inv_) 패턴 — put-after-remove 레이스 차단.
