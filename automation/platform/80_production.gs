@@ -427,7 +427,7 @@ function _txRest(dr) { _gsr_();
   var o = JSON.parse(JSON.stringify(dr || {}));
   for (var k in o) { if (k.charAt(0) === '_' || k === 'summary') delete o[k]; }
   var S = o.S || {};
-  ['tx', 'mkc', 'up', 'fAt', 'txMig', 'seen'].forEach(function (k) { delete S[k]; });
+  ['tx', 'mkc', 'up', 'fAt', 'txMig', 'seen', 'txLn'].forEach(function (k) { delete S[k]; });   // [B2_NA_55] 줄 표시(txLn)는 글 칸과 한 몸 — 칸마다 합친다(나머지 비교에서 뺀다)
   for (var kd in TX_MERGE_LEG) delete S[TX_MERGE_LEG[kd]];
   for (var k2 in S) { if (k2.charAt(0) === '_') delete S[k2]; }
   if (S.mk) { delete S.mk.at; delete S.mk.seen; }
@@ -438,8 +438,8 @@ function _ritualTxMerge(oldDr, newDr) { _gsr_();
   try {
     var nS = (newDr || {}).S, oS = ((oldDr || {}).S) || {};
     if (!nS || !nS.fAt || !Object.keys(nS.fAt).length) return null;
-    var nA = nS.fAt || {}, oA = oS.fAt || {}, fAt = {}, pull = { tx: {}, mkc: {}, up: {}, fAt: {} }, pulled = 0;
-    var out = JSON.parse(JSON.stringify(newDr)), S = out.S;
+    var nA = nS.fAt || {}, oA = oS.fAt || {}, fAt = {}, pull = { tx: {}, mkc: {}, up: {}, fAt: {}, txLn: {} }, pulled = 0;
+    var out = JSON.parse(JSON.stringify(newDr)), S = out.S, oLn = oS.txLn || {}, nLn = nS.txLn || {};   /* [B2_NA_55] 번갈아 줄 표시는 그 글 칸을 따라간다(서버 · 회신 · 화면) */
     S.tx = S.tx || {}; S.mkc = S.mkc || {};
     S.up = S.up || {};
     [['tx', oS.tx || {}, nS.tx || {}], ['mkc', oS.mkc || {}, nS.mkc || {}], ['up', oS.up || {}, nS.up || {}]].forEach(function (g) {   // [RITUAL_FILE] 올린 녹음 표시(S.up)도 칸마다
@@ -450,7 +450,9 @@ function _ritualTxMerge(oldDr, newDr) { _gsr_();
         if (!hasN || ot > nt) {   // 서버 쪽이 더 나중(또는 이 기기가 만진 적 없는 칸) → 서버 값을 지킨다
           S[grp][k] = ov[k];
           if (ot) fAt[fk] = ot;
-          if (!hasN || _txCanon(ov[k]) !== _txCanon(nv[k])) { pull[grp][k] = ov[k]; if (ot) pull.fAt[fk] = ot; pulled++; }
+          var lnDiff = grp === 'tx' && !!oLn[k] !== !!nLn[k];   // [B2_NA_55] 글이 같아도 줄 구분이 다르면 회신
+          if (grp === 'tx') { if (oLn[k]) { S.txLn = S.txLn || {}; S.txLn[k] = 1; } else if (S.txLn) delete S.txLn[k]; }
+          if (!hasN || _txCanon(ov[k]) !== _txCanon(nv[k]) || lnDiff) { pull[grp][k] = ov[k]; if (grp === 'tx') pull.txLn[k] = oLn[k] ? 1 : 0; if (ot) pull.fAt[fk] = ot; pulled++; }
         } else if (nt) fAt[fk] = nt;
       });
     });

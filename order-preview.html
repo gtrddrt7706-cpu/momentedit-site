@@ -2506,7 +2506,7 @@ window.copyGuestScript=function(){
   GUEST.forEach(function(g,i){ if(!GUEST_ON(i)) return; lines.push('['+g[0]+']'); lines.push(g[2]); lines.push(''); });   // [GUEST_5MIN_OFF_1023] 5분 전 줄은 걷었다
   var txt=lines.join('\n');
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('대본을 복사했어요');},function(){toast('길게 눌러 복사해 주세요');}); }
-  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('대본을 복사했어요');}catch(e){toast('길게 눌러 복사해 주세요');} }
+  else { var ok=false; try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy')===true;document.body.removeChild(ta);}catch(e){ ok=false; } toast(ok?'대본을 복사했어요':'길게 눌러 복사해 주세요'); }   /* [B2_NA_53] 돌려준 값을 본다 */
 };
 window.mockUpload=function(k){
   var inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.mp3,.m4a,.aac,.wav';
@@ -5254,7 +5254,7 @@ function _txPullApply(p){ try{ if(!p||!p.fAt){ _txSynced(); return; } var n=0, k
     if(grp==='tx'){ var _in=String((p.tx||{})[id]||''), _cur=String(S.tx[id]||'');
       if(own===id||actId==='mkt_'+id.replace('.','_')){ if(_in.trim()!==_cur.trim()){ TXCONF[id]={other:_in}; _txConfNew=2; } return; }   /* [B2_NA_10] 쓰는 중 = 쓰던 글을 둔다 */
       if(_cur.trim()&&_in.trim()!==_cur.trim()&&_fAtMine[key]&&_fAtMine[key]===+(S.fAt||{})[key]){ TXCONF[id]={mine:_cur}; if(!_txConfNew) _txConfNew=true; }   /* [B2_NA_11] 이 기기에서 고친 글이 밀렸으면 곁에 */
-      S.tx[id]=_in; kinds[id.split('.')[0]]=1;
+      S.tx[id]=_in; kinds[id.split('.')[0]]=1; if(p.txLn&&(id in p.txLn)){ if(p.txLn[id]){ S.txLn=S.txLn||{}; S.txLn[id]=1; } else if(S.txLn) delete S.txLn[id]; }   /* [B2_NA_55] 줄 표시도 그 글과 함께 */
       var ta=document.getElementById('mkt_'+id.replace('.','_')); if(ta&&!(id.indexOf('vow.')===0&&_vowHow()==='alt')) ta.value=S.tx[id]; }   // [VOW_FORM] 번갈아 줄 칸은 한 줄이 한 칸이라 통째 글을 넣지 않는다(다음 그리기가 줄로 나눠 보인다)
     else if(grp==='mkc'){ c[id]=(p.mkc||{})[id]||0; }
     else if(grp==='up'){ if(!S.up) S.up={}; S.up[id]=(p.up||{})[id]||0; }
@@ -6068,12 +6068,21 @@ function _recStopAll(){ var r=MK_REC; if(!r) return; clearInterval(r.iv); clearT
 var INAPP_MIC={ok:false,go:null};
 function _topUrl(){ try{ return window.top.location.href; }catch(e){ return location.href; } }
 function _micAsk(go){ if(!_inApp()||INAPP_MIC.ok){ go(); return; } INAPP_MIC.go=go; _inAppPanel(); }
-function _inAppPanel(){ var old=document.getElementById('mkInApp'); if(old) old.remove(); var kk=/KAKAOTALK/i.test(navigator.userAgent||'');
+/* ★[B2_NA_54 2026-11-06 2차 묶음] 바깥 브라우저 안내의 저장 줄은 실제 저장 결과대로 — 종전엔 늘 «저장해 두었어요»였다.
+   서버 저장 확인 · 이 기기 저장만 확인 · 저장 실패 확인 · 확인 못 함 넷 · 복사가 필요한 셋은 «글 확인하러 돌아가기»(창만 닫는다) */
+function _inAppSave(){ try{ _persist(); }catch(e){}
+  var srv=!!(EMBED&&courseStarted&&!_autoWait&&!_autoDirty&&(_autoState==='ok'||_doneSaved)), dev=!!(_ordKey()&&!_persistBad);
+  if(srv) return {t:'마이페이지에 저장했어요. 같은 계정으로 다시 열어 주세요.',copy:false};
+  if(dev) return {t:'이 기기에 임시 저장했어요. 브라우저를 바꾸기 전에 글을 따로 복사해 두세요.',copy:true};
+  if(_persistBad) return {t:'적은 내용을 저장하지 못했어요. 브라우저를 바꾸기 전에 글을 따로 복사해 두세요.',copy:true};
+  return {t:'저장 여부를 확인하지 못했어요. 브라우저를 바꾸기 전에 글을 따로 복사해 두세요.',copy:true}; }
+window.inAppBack=function(){ var d=document.getElementById('mkInApp'); if(d) d.remove(); INAPP_MIC.go=null; };   /* [B2_NA_54] 글을 보러 돌아간다 — 녹음은 시작하지 않는다 */
+function _inAppPanel(){ var old=document.getElementById('mkInApp'); if(old) old.remove(); var kk=/KAKAOTALK/i.test(navigator.userAgent||''), sv=_inAppSave();
   var d=document.createElement('div'); d.id='mkInApp'; d.className='mk-inapp'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true'); d.setAttribute('aria-labelledby','mkInAppT');
-  d.innerHTML='<div class="mk-inapp-c"><p class="mk-inapp-t" id="mkInAppT">이 앱 안에서는 녹음이 안 될 수 있어요</p><p class="mk-note">휴대폰 기본 브라우저(사파리 · 크롬)에서 열어 주세요. 적어 두신 것은 저장해 두었어요.</p>'
-    +'<div class="mk-inapp-b">'+(kk?'<button type="button" class="mk-inapp-go" data-fk="inappopen" onclick="inAppOpen()">브라우저로 열기</button>':'')+'<button type="button" class="rowbtn" data-fk="inappcopy" onclick="inAppCopy()">주소 복사</button><button type="button" class="rowbtn" data-fk="inapphere" onclick="inAppHere()">여기서 해 볼게요</button></div>'
+  d.innerHTML='<div class="mk-inapp-c"><p class="mk-inapp-t" id="mkInAppT">이 앱 안에서는 녹음이 안 될 수 있어요</p><p class="mk-note">휴대폰 기본 브라우저(사파리 · 크롬)에서 열어 주세요. '+esc(sv.t)+'</p>'
+    +'<div class="mk-inapp-b">'+(kk?'<button type="button" class="mk-inapp-go" data-fk="inappopen" onclick="inAppOpen()">브라우저로 열기</button>':'')+'<button type="button" class="rowbtn" data-fk="inappcopy" onclick="inAppCopy()">주소 복사</button><button type="button" class="rowbtn" data-fk="inapphere" onclick="inAppHere()">여기서 해 볼게요</button>'+(sv.copy?'<button type="button" class="rowbtn" data-fk="inappback" onclick="inAppBack()">글 확인하러 돌아가기</button>':'')+'</div>'
     +'<p class="mk-note">바깥 브라우저에서는 다시 로그인해야 할 수 있어요</p><p class="mk-copied" id="mkInAppMsg" role="status"></p></div>';
-  document.body.appendChild(d); try{ _persist(); }catch(e){} var f=d.querySelector('button'); if(f) f.focus(); }
+  document.body.appendChild(d); var f=d.querySelector('button'); if(f) f.focus(); }
 window.inAppOpen=function(){ try{ _persist(); }catch(e){} var u='kakaotalk://web/openExternal?url='+encodeURIComponent(_topUrl()); try{ window.top.location.href=u; }catch(e){ location.href=u; } };
 window.inAppCopy=function(){ var u=_topUrl(), m=document.getElementById('mkInAppMsg'), done=function(ok){ if(m) m.textContent=ok?'주소를 복사했어요 · 사파리나 크롬 주소창에 붙여 넣어 주세요':'복사하지 못했어요 · 오른쪽 위 메뉴의 «다른 브라우저로 열기»를 눌러 주세요'; };
   try{ navigator.clipboard.writeText(u).then(function(){ done(true); },function(){ done(false); }); }catch(e){ done(false); } };
@@ -7376,7 +7385,7 @@ function _mkAskText(qs){ var R=RitualOpen, wed=(CUST&&CUST.weddingDate)||'', nee
 function _parTellTxt(){ var R=RitualOpen, tr=R.onOf(S,'tribute'), say=S.tributeSay!=='none', L=['예식 날 부탁드릴 것이 있어요.','· 단상에서 가장 가까운 정면 첫 줄에 앉아 주세요.'];   /* [PAR_TELL_1019] 엔진과 같은 사실(TRIB_CALL_1014 · TRIB_HUG_CALL_1018 · end-1a 가족사진) */
   if(tr){ /* [PARENT_WORDS_1019 검토 136-2] 두 분이 부모님께 보내는 글이라 앞일은 «~할게요» · «드린 뒤 … 드려요» 겹침 풀기 */ L.push(say?'· 저희가 앞으로 가서 감사 말씀을 드리고 인사드릴게요.':'· 저희가 앞으로 가서 인사드릴게요.'); L.push('· 안내 음성이 청하면 저희를 안아 주세요. 앉으신 채로도 괜찮아요.'); }
   L.push('· 단체 사진 뒤 가족사진까지 함께 남아 주세요.'); return L.join('\n'); }
-window.mkParCopy=function(){ var t=_parTellTxt(); try{ navigator.clipboard.writeText(t).then(function(){ toast('글을 복사했어요'); },function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };
+window.mkParCopy=function(){ var t=_parTellTxt(), bad=function(){ ordTell({title:'복사하지 못했어요',body:'아래 글을 선택해 복사해 주세요.\n\n'+t}); }; try{ navigator.clipboard.writeText(t).then(function(){ toast('글을 복사했어요'); },bad); }catch(e){ bad(); } };   /* [B2_NA_52] 부모님 전달 글은 화면에 펼쳐져 있지 않다 — 못 하면 창에 글을 펼쳐 고를 수 있게 */
 function _mkCopy(t,msg){ try{ navigator.clipboard.writeText(t).then(function(){ MK.toast=msg; render(); },function(){ MK.toast='복사하지 못했어요 · 길게 눌러 직접 복사해 주세요'; render(); }); }catch(e){ MK.toast='복사하지 못했어요 · 길게 눌러 직접 복사해 주세요'; render(); } }
 window.mkAskCopy=function(id){ var q=null; _mkPages().forEach(function(k){ _mkItems(k).forEach(function(x){ if(x.id===id) q=x; }); }); if(q) _mkCopy(_mkAskText([q]),'부탁 글을 복사했어요'); };
 window.mkAskCopyAll=function(){ var qs=[]; _mkPages().forEach(function(k){ if(k==='_sum'||k==='_voice'||_mkOff(k)) return; _mkItems(k).forEach(function(q){ if(q.cat==='ask'&&q.who==='parents') qs.push(q); }); }); if(qs.length) _mkCopy(_mkAskText(qs),'부탁 글을 한 번에 복사했어요'); };
@@ -7429,6 +7438,7 @@ function _mkFlow(k,btn){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.w
       if(k==='vow'&&_vowFirst()==='b') whos=whos.slice().reverse();   /* [VOW_FIRST] 각자 차례로 · 신부부터 */   /* ★[MK_FORM_ONE] 차례 줄 «약 1분 40초» 금지 — 2026-10-03 사용자 지시로 삭제(길이는 순간 머리 한 곳 · LEN_ONE · LINE_NO_SEC) */   /* [VOW_HOW] 번갈아 읽으면 차례가 둘로 나뉘지 않는다 · 한 줄(약 1분 40초) */
       if(k==='bless'||k==='free'){ h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>말씀하실 차례</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* ★[FLOW_ONE_TURN 2026-10-07] 축사도 덕담처럼 — 말할 분을 고르는 칸이 없다([R6-02]) · 예시 인물 «신부 오빠 차례»가 문단마다 네 줄 되풀이됐다 */
       if(k==='declare'){ h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>'+esc(_declWho()?_declWho()+' 차례':'읽으실 차례')+'</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [DECLARE_BY_PERSON] 고른 분 이름 · 안 골랐으면 «읽으실 차례» */   /* [FLOW_ONE_TURN] 가족 낭독 — 읽을 분은 두 분이 부탁하는 가족 한 분(예시의 «신랑 아버지»로 박지 않는다 · 고른 예시가 «양가 나눠 읽기»여도 첫 예시 인물이 떴다) */
+      if(k==='toast'){ [['g','신랑'],['b','신부']].forEach(function(gw){ if(String((S.tx||{})['toast.'+gw[0]]||'').trim()) h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>'+gw[1]+' 한마디</b>'+_vTag(k,{talk:true})+'</li>'; }); h+=_qRow('두 분의 선창에 하객이 «위하여!»로 답해요.',k+':'+i); return; }   /* [B2_NA_51] 축배 — 적은 분만 «신랑 한마디 · 신부 한마디» · 비워도 차례처럼 보이지 않게 · 뒤에 선창 한 줄 */
       whos=whos.filter(function(w,i){ return !i||w!==whos[i-1]; });   /* [FLOW_ONE_TURN] 같은 분이 잇달아 말하면 한 줄 */   /* ★[MK_FORM_ONE] «· 한 분 약 1분» 금지 — 2026-10-03 사용자 지시로 삭제 */   /* [R6-02] 덕담은 말할 분을 고르는 칸이 없다 — 참고 예시 1의 인물(«신랑 아버지 · 신부 어머니»)을 차례로 박으면 순서가 정해진 것처럼 읽혔다(① «한 분만 하셔도 · 다른 어른이 하셔도») · «부모님 차례»는 앞 표 «부모님»과 겹쳐 쓰지 않는다 */
       whos.forEach(function(w){ h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>'+esc(w)+' 차례</b>'+(k==='toast'?' · 한마디':'')+_vTag(k,{talk:true})+'</li>'; }); return; }   /* ★[MK_FORM_ONE] 차례 줄 «· 약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 · 축배 «한마디»는 길이가 아니라 말의 꼴이라 둔다 */   /* [R2-30] 축배 차례만 길이가 비었다 */   /* [R4-01] 덕담 · 인사 «1분쯤씩»은 한 분 «약 1분»(_perSec) */   /* [R3-02] 한 분 시간은 ④ 요약과 같은 _sumSec — ②는 분 반올림(R.secTxt) · ④는 10초 단위라 덕담이 «약 1분 + 약 1분» ↔ «약 2분 30초»로 갈렸다 */   /* [R1-31] 차례 카드는 5초 단위 — 첫인사 한 분 13초가 «약 10초»로 내려가 바로 아래 예시(13~14초)와 어긋났다. 원천 TIME 은 명세 고정(open-course 예시 시간)이라 그대로 */
     if(x.skip){ h+=_qRow(String(x.txt||'').replace(/ · 약 \d+분(?= · |$)/,''),k+':'+i); return; }   /* ★[MK_FORM_ONE] 흐름 줄 «· 약 n분»(마음의 순간 영상 길이) 금지 — 2026-10-03 사용자 지시로 삭제 · 고른 길이는 바로 위 칩이 말한다 · ④ 대본(6701)은 그대로 */
@@ -9296,7 +9306,7 @@ function _pkEx(ex){
   var R=RitualOpen, T=R.applyExample({},ex.k), es=R.span(T), on=R.sameAsExample(S,ex.k);   /* ★[QA_EX_PRESSED 2026-10-04 점검] 눌린 모양 = 지금 그 예시 그대로일 때만 — 종전(pickFrom)엔 고친 뒤에도 눌려 있어 다시 누르면 고친 것이 말없이 예시로 돌아갔다 */
   var f=String(ex.feel||'').split(' · ');   /* [D1] 분위기 두 구절을 두 줄로 — 가운뎃점 없이 */
   return '<button type="button" class="pk-ex" aria-pressed="'+(on?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')">'
-    +'<span class="pk-ex-t"><span class="pk-ex-n"><b>'+esc(ex.nm)+'</b><span class="pk-ex-m">본식 '+esc(_nb(es.body))+'</span>'+'</span>'
+    +'<span class="pk-ex-t"><span class="pk-ex-n"><b>'+esc(ex.nm)+'</b><span class="pk-ex-m">본식 '+esc(_nb(es.body))+(es.tm?' · 테이블 인사 '+esc(_nb(es.table)):'')+'</span>'+'</span>'   /* [B2_NA_50] 테이블 인사가 든 예시는 그 시간도(계산값 · 고정 숫자 없음) */
     +'<span class="pk-ex-f">'+f.map(esc).join('<br>')+'</span></span>'
     +'<span class="pk-ex-gw" aria-hidden="true"><span class="pk-ex-g" data-fg="ex:'+ex.k+'"></span></span></button>';   /* ★[RIT_CURVE_LABEL 2026-09-27 사장님 결정 A] → ★[CURVE_CAP_OFF 2026-10-03 사장님 «예시 카드에서 빼기»] 카드마다 «감동 흐름» 글자를 걷는다 — 바로 아래 판 제목 «우리 예식의 감동 흐름» 한 번이면 된다(한 화면 다섯 번) · 곡선은 그대로 · 되살리지 말 것 */
 }
@@ -10685,9 +10695,9 @@ window.saveScriptTxt=function(){
   return 'blob';
 };
 window.copyScript=function(){
-  var txt=scriptText();
-  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('대본을 복사했어요');},function(){toast('길게 눌러 복사해 주세요');}); }
-  else { try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('대본을 복사했어요');}catch(e){toast('길게 눌러 복사해 주세요');} }
+  var txt=scriptText(), bad=function(){ ordTell({title:'복사하지 못했어요',body:'‘파일로 받기’를 눌러 주세요.'}); };   /* [B2_NA_52] 전체 대본은 길게 누를 원문이 없다 — 파일로 받기로 */
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toast('대본을 복사했어요');},bad); }
+  else { var ok=false; try{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();ok=document.execCommand('copy')===true;document.body.removeChild(ta);}catch(e){ ok=false; } if(ok) toast('대본을 복사했어요'); else bad(); }   /* [B2_NA_53] 옛 복사 길은 돌려준 값이 true 일 때만 «복사했어요» */
 };
 /* ★[REHEARSE_MERGED 2026-08-12 사용자 지시] 연습 공간 화면 **폐지 — 되살리지 말 것.**
    완성 화면에 듣기 단추가 둘이라(미리듣기 · 연습 공간) 무엇이 다른지 알 수 없었다.
@@ -11233,8 +11243,8 @@ function _latestApply(m){ m=m||{}; var dS=m.draft&&m.draft.S, keep=idx, sk=Objec
    다른 기기 글이 한 칸 합쳐진 뒤로는 이 기기의 저장 안 한 고침이 다시 열 때 늘 버려졌다. 서버는 그 칸만 서버 값으로 바꿔 저장하므로 같은 일을 여기서 해 지문을 낸다 */
 /* ★[B2_NA_43 2026-11-06 2차 묶음] 수정 중 저장의 «취소» 기준 = 서버가 합친 판 — 보낸 판에 회신의 칸(pull · 다른 기기가 더 나중에 고친 글)을 시각째 얹는다.
      종전엔 보낸 판만 기준이라 취소하면 다른 기기의 최신 원고가 이 기기의 옛 글로 돌아갔다 */
-function _snapPull(sent,p){ try{ var x=JSON.parse(sent); if(!p||!p.fAt) return sent; x.fAt=x.fAt||{}; Object.keys(p.fAt).forEach(function(key){ var at=+p.fAt[key]||0; if(at<=(+x.fAt[key]||0)) return; var dot=key.indexOf('.'), g=key.slice(0,dot), id=key.slice(dot+1); if(['tx','mkc','up'].indexOf(g)<0) return; if(!x[g]||typeof x[g]!=='object') x[g]={}; x[g][id]=g==='tx'?String((p.tx||{})[id]||''):((p[g]||{})[id]||0); x.fAt[key]=at; }); return JSON.stringify(x); }catch(e){ return sent; } }
-function _baseAfter(sS,p){ try{ var x=JSON.parse(JSON.stringify(sS||{})); if(p) ['tx','mkc','up'].forEach(function(g){ var pg=p[g]; if(!pg||typeof pg!=='object') return; Object.keys(pg).forEach(function(k){ if(!x[g]||typeof x[g]!=='object') x[g]={}; if(pg[k]===undefined) delete x[g][k]; else x[g][k]=pg[k]; }); }); return _canonS(x); }catch(e){ return ''; } }
+function _snapPull(sent,p){ try{ var x=JSON.parse(sent); if(!p||!p.fAt) return sent; x.fAt=x.fAt||{}; Object.keys(p.fAt).forEach(function(key){ var at=+p.fAt[key]||0; if(at<=(+x.fAt[key]||0)) return; var dot=key.indexOf('.'), g=key.slice(0,dot), id=key.slice(dot+1); if(['tx','mkc','up'].indexOf(g)<0) return; if(!x[g]||typeof x[g]!=='object') x[g]={}; x[g][id]=g==='tx'?String((p.tx||{})[id]||''):((p[g]||{})[id]||0); if(g==='tx'&&p.txLn&&(id in p.txLn)){ if(p.txLn[id]){ x.txLn=x.txLn||{}; x.txLn[id]=1; } else if(x.txLn) delete x.txLn[id]; } x.fAt[key]=at; }); return JSON.stringify(x); }catch(e){ return sent; } }
+function _baseAfter(sS,p){ try{ var x=JSON.parse(JSON.stringify(sS||{})); if(p) ['tx','mkc','up','txLn'].forEach(function(g){ var pg=p[g]; if(!pg||typeof pg!=='object') return; Object.keys(pg).forEach(function(k){ if(!x[g]||typeof x[g]!=='object') x[g]={}; if(pg[k]===undefined||(g==='txLn'&&!pg[k])) delete x[g][k]; else x[g][k]=pg[k]; }); }); return _canonS(x); }catch(e){ return ''; } }
 /* ★[TAB_GUARD 2026-10-30 GPT 11차 점검(고객) 11-03] 마이페이지가 «옛 창»이면(다른 창이 로그인 · 로그아웃 · 맡긴 초안 되돌리기 · 부모 _tabStale) 이 기기 초안을 쓰지도 지우지도 않는다 —
      종전엔 옛 창의 식순 화면이 다시 그리거나 고칠 때 옛 판으로 me_order 를 덮어, 다른 창이 막 되돌린 최신 초안이 사라졌다. 저장도 부모가 멈춘다(_post) */
 /* ★[PREVIEW_KEY_SPLIT 2026-10-30 GPT 12차 점검(고객) 12-03] 그냥 연 공개 미리보기(마이페이지 밖 · 부모 없음)는 고객 식순 초안(me_order)과 다른 칸(me_order_pub)에 남기고 · 되살리고 · 지운다 —

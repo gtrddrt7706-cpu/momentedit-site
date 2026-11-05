@@ -22133,3 +22133,14 @@ chk 'B2_NA_49' order-preview.html 1   # ① «고른 본식 순간 n/6» · ②�
 chk '고른 본식 순간 <b>' order-preview.html 1
 nochk "'담은 순간 '+_opMoments()" order-preview.html
 chk "rv='본식 순서 '+escapeHtml" mypage.html 1
+chk 'B2_NA_50' order-preview.html 1   # ① 예시 카드 — 테이블 인사가 든 예시는 그 시간도(계산값)
+chk 'B2_NA_51' order-preview.html 1   # ② 축배 — 적은 분만 «신랑 한마디 · 신부 한마디» + 선창 한 줄
+chk '두 분의 선창에 하객이 «위하여!»로 답해요.' order-preview.html 1
+chk 'B2_NA_52' order-preview.html 2   # 복사 실패 — 부모님 글은 창에 펼치고 · 전체 대본은 «파일로 받기»
+chk "body:'‘파일로 받기’를 눌러 주세요.'" order-preview.html 1
+chk 'B2_NA_53' order-preview.html 2   # 옛 복사 길(execCommand)은 돌려준 값이 true 일 때만 «복사했어요»
+nochk "document.execCommand('copy');document.body" order-preview.html
+chk 'B2_NA_54' order-preview.html 2   # 앱 안 브라우저 안내의 저장 줄 = 실제 저장 결과 넷 · «글 확인하러 돌아가기»
+nochk '적어 두신 것은 저장해 두었어요' order-preview.html
+chk 'B2_NA_55' order-preview.html 1   # 번갈아 줄 표시(txLn)도 회신(pull)과 함께
+chk 'B2_NA_55' automation/platform/80_production.gs 3   # 서버 합치기 — txLn 은 나머지 비교에서 빼고 글 칸과 함께 고른다
