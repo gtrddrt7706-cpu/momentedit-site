@@ -6211,7 +6211,7 @@ function _micWhy(e,key){ var n=String(e&&e.name||''), vc=/^vc:/.test(key||''), p
   else c=0;
   W=c===1?['마이크 허락이 없어요','설정에서 켜 주세요','설정에서 켜거나 «파일 올리기»로 올려 주세요']
     :c===2?['마이크가 없어요','연결하고 다시 눌러 주세요','연결하거나 «파일 올리기»로 올려 주세요']
-    :c===3?['마이크를 열지 못했어요','연결과 사용 중인 앱을 확인해 주세요','연결과 사용 중인 앱을 확인해 주세요']   /* ★[B2_GEUL_12] NotReadableError · AbortError 등은 까닭이 여럿 — 다른 앱 사용 중으로 단정하지 않는다(코드 M3 · 다시 누르기 그대로) */
+    :c===3?['마이크를 열지 못했어요','연결과 앱을 확인해요','연결과 앱을 확인해요']   /* ★[B2_GEUL_12] NotReadableError · AbortError 등은 까닭이 여럿 — 다른 앱 사용 중으로 단정하지 않는다(코드 M3 · 다시 누르기 그대로) · 녹음 창은 한 줄(360)이라 «연결과 앱을 확인해요» */
     :c===4?['앱 안에선 녹음이 안 돼요','브라우저로 열어 주세요','브라우저로 열거나 «파일 올리기»로 올려 주세요']
     :c===5?['이 브라우저는 녹음이 안 돼요','사파리나 크롬으로 열어 주세요','«파일 올리기»로 올려 주세요']
     :['마이크를 열지 못했어요','다시 눌러 주세요','다시 누르거나 «파일 올리기»로 올려 주세요'];   // 360px 녹음 창(글칸 약 320px) — 1분 읽기 · 연습은 한 줄(M4 · M5 는 드물어 두 줄) · 줄 녹음은 «파일 올리기» 대안이 붙어 두 줄
@@ -7245,7 +7245,7 @@ function _rfDelDone(d){ if(!d||!d.id||d.key==='mu') return;   /* [ENTRY_SONG_UP]
   if(q&&n!==8&&q.n<1){ q.n++; setTimeout(function(){ if(RF_DELQ[d.id]===q) _rfDelSend(key,d.id,null); },3000); return; }
   delete RF_DELQ[d.id]; var now=(S.up||{})[key]; if(now&&typeof now==='object') return;
   var kept=!!(q&&q.v&&key); if(kept){ S.up=S.up||{}; S.up[key]=q.v; _fAt('up.'+key); _persist(); }
-  var w=(n===8?EC_BASE[8]:n===5?EC_TXT.D[5]:(n===6||n===7)?(kept?'삭제 여부를 확인하지 못했어요 · 다시 눌러 주세요':'삭제 여부를 확인하지 못했어요 · 문의해 주세요'):kept?'지우지 못해 남아 있어요 · 다시 눌러 주세요':'파일을 지우지 못했어요 · 문의해 주세요')+' (코드 '+c+')';   /* ★[B2_GEUL_15] 답을 잃은 것(6 끊김 · 7 답 깨짐)은 서버가 이미 지웠을 수 있다 — «남아 있어요»로 단정하지 않는다 · 코드 그대로 */
+  var w=(n===8?EC_BASE[8]:n===5?EC_TXT.D[5]:(n===6||n===7)?(kept?'지웠는지 확인하지 못했어요 · 다시 눌러 주세요':'지웠는지 확인하지 못했어요 · 문의해 주세요'):kept?'지우지 못해 남아 있어요 · 다시 눌러 주세요':'파일을 지우지 못했어요 · 문의해 주세요')+' (코드 '+c+')';   /* ★[B2_GEUL_15] 360 줄 카드 한 줄(«삭제 여부를 …»은 두 줄) · 답을 잃은 것(6 끊김 · 7 답 깨짐)은 서버가 이미 지웠을 수 있다 — «남아 있어요»로 단정하지 않는다 · 코드 그대로 */
   if(key) _lineFail(key,w); else MK.toast=w; render(); }
 function _mkUpLabKey(key){ if(/^g\d$/.test(key)){ var g=GUEST[+key.slice(1)]; return g?_lLabFix(g[0]):key; } return key==='entry'?'입장 인사':key; }
 window.mkUp=function(key){

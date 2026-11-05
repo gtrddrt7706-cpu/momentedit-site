@@ -22206,14 +22206,14 @@ nochk '우리 이 서방' assets/ritual-ref.js 0
 nochk '오빠 민재가' assets/ritual-ref.js 0
 chk '신부 글만 바꿨어요 · 신랑은 그대로' order-preview.html 1   # B2_GEUL_06
 chk 'function _refOne(sets,i)' order-preview.html 1
-chk "c===3?\['마이크를 열지 못했어요','연결과 사용 중인 앱을 확인해 주세요'" order-preview.html 1   # B2_GEUL_12 M3
+chk "c===3?\['마이크를 열지 못했어요','연결과 앱을 확인해요','연결과 앱을 확인해요'\]" order-preview.html 1   # B2_GEUL_12 M3(까닭 단정 없음 · 360 한 줄)
 nochk ":c===3?\['다른 앱이 마이크를 써요'" order-preview.html 0
 chk "반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요." order-preview.html 1   # B2_GEUL_13
 chk "data-fk=\\\"mksongkakao\\\"" order-preview.html 1
 chk '흐름을 불러오는 데 오래 걸려요' order-preview.html 2   # B2_GEUL_14
 chk 'var ENG_TO_MS=40000;' order-preview.html 1
 chk 'B2_GEUL_14' scripts/audit/eng-once.mjs 1
-chk '삭제 여부를 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 1   # B2_GEUL_15
+chk '지웠는지 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 1   # B2_GEUL_15
 chk "MK.toast=_cf?'삭제를 확인하고 있어요'" order-preview.html 1
 chk '입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요' automation/platform/80_production.gs 1   # B2_GEUL_16
 nochk "t === 'ritual' ? '서약 · 편지'" automation/platform/80_production.gs 0
