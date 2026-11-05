@@ -52,7 +52,7 @@ try {
     await pg.waitForTimeout(1200); await pg.click('#go'); await pg.waitForTimeout(3800); const s0 = await st(pg);
     const ci = await cueIx(pg, 'candle'); await pg.evaluate((i) => window.__bgmGo.fire(i), ci); await pg.waitForTimeout(5200); const s1 = await st(pg);
     const err = await pg.evaluate(() => { const e = document.getElementById('bedErr'); return e && !e.hidden ? e.textContent : ''; });
-    ok('R3 ② 화촉 곡 파일이 안 열린다 — 하객 맞이 곡이 그대로 흐르고(지금 곡 · 재생기 그대로) · 빨간 한 줄', s0.id && s1.id === s0.id && s1.on === s0.on && !s1.paused[s1.on] && err === '곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요', { s0: [s0.seg, s0.id, s0.on], s1: [s1.seg, s1.id, s1.on, s1.paused], err });
+    ok('R3 ② 화촉 곡 파일이 안 열린다 — 하객 맞이 곡이 그대로 흐르고(지금 곡 · 재생기 그대로) · 빨간 한 줄', s0.id && s1.id === s0.id && s1.on === s0.on && !s1.paused[s1.on] && err === '곡 파일을 열지 못했어요 · 재생 중인 곡은 그대로 이어집니다.', { s0: [s0.seg, s0.id, s0.on], s1: [s1.seg, s1.id, s1.on, s1.paused], err });
     ok('R3 ② 쪽 오류 0', !errs.length, errs); await ctx.close(); }
   /* ★[DETAIL_R5_1101 규칙 5] 목록 다음 곡이 안 열리면 — 그다음 곡으로(이번 순환에서 건너뜀 · 다시 시도 0) · 틀 곡이 하나도 없으면 지금 곡을 처음부터 + 상태 한 줄 */
   for (const [nm, files, want] of [['skip', [['m1a.wav', 12, 300], ['m1b.wav', 0, 'bad'], ['m1c.wav', 30, 500]], 'third'], ['none', [['m1a.wav', 12, 300], ['m1b.wav', 0, 'bad'], ['m1c.wav', 0, 'bad']], 'same']]) {

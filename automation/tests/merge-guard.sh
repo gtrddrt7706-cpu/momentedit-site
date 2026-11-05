@@ -20770,7 +20770,7 @@ chk 'DETAIL_R2_1101' scripts/audit/detail-r2.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r2.mjs >/dev/null 2>&1; _r2=$?; if [ "$_r2" = 1 ]; then echo 'FAIL detail-r2: 이어 듣기 세부 여섯(음악과 함께 뜸 자리 · 칩 바꾸면 멈춤 · 선언 늦은 곡 · 연출 멈춤 · 박수 줄 · 편지 끝 경합) — node scripts/audit/detail-r2.mjs'; fail=1; elif [ "$_r2" = 2 ]; then echo 'skip detail-r2 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r2'; fi; fi   # ★[DETAIL_R2_1101]
 chk 'function segCk()' console.html 1   # ★[DETAIL_R3_1101 ①] 현장 선곡은 예식(rf)마다
 chk 'id="segMine"' console.html 1   # [DETAIL_R3_1101 ①] 이 예식에서 바꾼 곡 한 줄
-chk '곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요' console.html 1   # [DETAIL_R3_1101 ②] 새 곡이 실제로 소리를 낸 뒤 넘김
+chk '곡 파일을 열지 못했어요 · 재생 중인 곡은 그대로 이어집니다.' console.html 1   # [B2_NA_65 바꿈] [DETAIL_R3_1101 ②] 새 곡이 실제로 소리를 낸 뒤 넘김
 chk 'function bedFree()' console.html 1   # [DETAIL_R3_1101 ③] 셋째 재생기 · 들리는 재생기 src 안 바꿈
 chk '  esdStop(0.6);   // ★.DETAIL_R3_1101 ④' console.html 2   # [DETAIL_R3_1101 ④] 전체 정지 · 뒤로 = 입장 장면까지
 chk 'function bedVolFb()' console.html 1   # [DETAIL_R4_1101 ③] 대체 경로 두 재생기 덕킹 · 음소거
@@ -22144,3 +22144,28 @@ chk 'B2_NA_54' order-preview.html 2   # 앱 안 브라우저 안내의 저장 �
 nochk '적어 두신 것은 저장해 두었어요' order-preview.html
 chk 'B2_NA_55' order-preview.html 1   # 번갈아 줄 표시(txLn)도 회신(pull)과 함께
 chk 'B2_NA_55' automation/platform/80_production.gs 3   # 서버 합치기 — txLn 은 나머지 비교에서 빼고 글 칸과 함께 고른다
+chk 'B2_NA_48' order-preview.html 4   # 전체 대본 — 사람 원고는 읽는 자리(«직접» 줄 뒤)에 · 길면 접어 둔다(B2-K21)
+chk 'class="sv-fold"' order-preview.html 1
+chk 'B2_NA_56' order-preview.html 1   # 읽는 분이 바뀌었는지는 declBy 로(옛 초안 declareWho 만 있어도)
+chk 'B2_NA_57' order-preview.html 1   # 세 번 다 답이 없으면 줄 아래 «다시 보내기»
+chk 'B2_NA_58' order-preview.html 1   # 번갈아 줄 빼기 — 순서가 바뀌면 먼저 알린다
+chk '부터 읽도록 문장 순서가 바뀌어요.' order-preview.html 1
+chk 'B2_NA_59' order-preview.html 1   # 번갈아 칸 — 예시 이름 알림을 적는 동안 다시 잰다
+chk 'B2_NA_60' console.html 3   # 진행 화면 꺼짐 막기 — release 에서 비우고 보일 때 다시(wakeOn 한 곳)
+chk 'B2_NA_61' console.html 5   # 지난 시각 큐 = «예정 시각이 지났어요 · 직접 진행» · 겹치면 개식이 이긴다(B2-K09)
+chk '예정 시각이 지났어요. 필요하면 직접 눌러 주세요.' console.html 1
+chk 'B2_NA_63' console.html 6   # 미리듣기 멈춤 — 남은 시간째 다시 걸기 · 멈춤 중 결과는 적어만 둔다
+chk 'B2_NA_64' order-preview.html 2   # «그 밖의 분» 칸을 고친 뒤 첫 칩 누름이 먹는다(다시 그리기를 누름 뒤로)
+chk 'B2_NA_65' console.html 1   # 곡 실패 — 이어질 곡이 흐를 때만 «그대로 이어집니다»
+chk 'B2_NA_66' order-preview.html 1   # 화촉 부모님 역할 — 순서 기호를 모두 걷는다
+chk 'B2_NA_67' order-preview.html 1   # 함께 읽는 문장 — 배지 «함께 읽는 문장» · «이 문장은 미리 넣어 두었어요»(d-05)
+chk "'함께 읽는 문장':'참고 예시'" order-preview.html 1
+chk 'B2_NA_68' order-preview.html 1   # 축사 예시 알림 «그분 이야기로 바꿔도 돼요»
+chk 'B2_NA_69' order-preview.html 1   # 예정 시간 0 인 참고 예시 = 글자 수 ÷ 5 올림 · 최소 3초
+chk 'B2_NA_70' order-preview.html 1   # 참고 예시 화면 읽기 문단 = 라디오와 같은 번호
+chk 'B2_NA_71' order-preview.html 1   # 촬영 후 안내 상태 = «촬영 후 안내 · 사진·정리»
+chk 'B2_NA_72' order-preview.html 1   # «이동하기» 단추 이름에 그 줄의 대상
+chk 'B2_NA_73' order-preview.html 1   # 장면 사진 ‹ › 누른 뒤 초점은 그 단추로
+chk 'B2_NA_74' order-preview.html 2   # 큰 사진을 못 불러오면 한 줄 + 대표 장면 · 설명
+chk '큰 사진을 불러오지 못했어요.' order-preview.html 1
+chk 'aria-label="음악 음량"' console.html 1   # [B2_NA_75] 음악 음량 슬라이더 이름
