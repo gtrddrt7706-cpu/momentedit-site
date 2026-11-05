@@ -21964,7 +21964,7 @@ chk 'MEANING_R2_1102' console.html 3
 chk '축하 박수와 함께 새 곡이 시작돼요' assets/bgm-slots.js 1
 chk '두 분이 앞에 서시면 음악이 잦아들고' assets/bgm-slots.js 1
 chk 'MEANING_R2_1102' scripts/audit/meaning-r2.mjs 1
-chk "seam-bg meaning-r2" .github/workflows/merge-guard.yml 1
+chk "turn-table meaning-r2" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
 # ── 2026-11-05 [DINE_STATUS_NI16 · DINE_DATA_NI16 · RESV_PARSE_NI17 이음매 NI16 · NI17] 식사 · 카페는 «지금 고른 곳»의 음식 분류(목록 f · 지도 분류)로 한 번 판정 · 목록은 assets/dining-data.js 하나 · 예약은 시각 꼴만
 chk 'function diningStatusOf(dd, placeholders)' assets/ritual-preview-link.js 1

@@ -99,7 +99,7 @@ try {
     const s10 = ((sl.SLOTS || sl.slots || []).find ? (sl.SLOTS || sl.slots || []).find((x) => x.id === 'S10') : null) || {};
     ok('BG07-T01 테이블 인사 카드 설명 «테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분» · «사진» 0', !!m && m[1] === '테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분' && !/사진/.test(m[1]), { info: m && m[1] });
     ok('BG07 대조 — 음악 칸(S10) 한 줄도 테이블 인사만(사진 0)', !s10.one || (/테이블 인사/.test(s10.one) && !/사진/.test(s10.one)), { one: s10.one }); }
-  /* [SEAM_BG_LANES] 콘솔 갈래 · 미리 듣기 갈래를 나란히(각자 브라우저 창) — CI e 칸 20분 안에 */
+  /* [SEAM_BG_LANES] 콘솔 갈래 · 미리 듣기 갈래 둘(BG03 · 나머지)을 나란히(각자 브라우저 창) — CI e 칸 20분 안에 */
   const laneA = (async () => { try {
   if (want('BG01')) {
     /* T01 영상 있음 · 화촉 없음 · 입장 A */
@@ -182,6 +182,42 @@ try {
     const o3 = await runP(['bless', 'letter'], 40000), op3 = o3.filter((x) => x.k === 'letter' && !x.talk && /^letter-/.test(x.s || '') && x.on), rd3 = o3.filter((x) => x.k === 'letter' && x.talk && x.on);
     ok('BG02-T03 미리 듣기 대조 — 덕담 곡이 흐르면 여는 말 −16(M4) → 낭독 곡 −20', op3.length > 0 && op3[op3.length - 1].seg === 'M4' && op3[op3.length - 1].want === -16 && rd3.length > 0 && rd3[rd3.length - 1].seg === 'M4S6', { op3: op3.length && [op3[op3.length - 1].f, op3[op3.length - 1].seg, op3[op3.length - 1].want], rd3: rd3.length && [rd3[rd3.length - 1].f, rd3[rd3.length - 1].seg] });
   }
+  if (want('BG04')) {
+    const toL = () => f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1 && STEPS[idx].k !== 'listen') { idx = i; render(); } });
+    for (const [nm, ex] of [['경건(b12 있음)', null], ['밝게(b12 없음)', { tribute: 5 }]]) {
+      await setX({ on: { song: 1, tribute: 1, letter: 0, free: 0, table: 0 }, bgm: {} }); await f.evaluate((ex) => { S.narEx = ex || {}; _persist(); render(); }, ex); await go(f, 'song'); await toL();
+      const o = await runP(['song', 'tribute'], 32000), iN = o.findIndex((x) => /^narr-tribute-name/.test(x.s || '')), b12 = o.filter((x) => x.s === 'bridge-b12-tribute-calm'), se = o.findIndex((x) => /^narr-song-end/.test(x.s || ''));
+      const gap = o.slice(se, iN < 0 ? o.length : iN).filter((x) => x.on), first = o.find((x) => x.on && o.indexOf(x) >= iN);
+      ok(`BG04-T0${ex ? 2 : 1} 미리 듣기 ${nm} — 축가 끝 · ${ex ? '' : 'b12 · '}사이 동안 소리 0 · 첫 소리는 부모님께 인사 첫 줄 M5`, se > -1 && iN > se && (ex ? !b12.length : b12.length > 0) && !gap.length && !!first && first.seg === 'M5' && /^narr-tribute-name/.test(first.s || ''), { b12: b12.length, gap: gap.slice(0, 3).map((x) => [x.s || x.lab, x.f, x.seg, x.want]), first: first && [first.s, first.seg, first.want] }); }
+    /* T02 대조 — 앞 곡이 들리던 이음말(«음악과 함께» 편지 → b8)은 제 크기 −16 그대로 */
+    await setX({ on: { song: 0, free: 0, tribute: 0, letter: 1, table: 1, toast: 1, bless: 1 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await f.evaluate(() => { S.narEx = {}; _persist(); render(); }); await go(f, 'letter'); await toL();
+    { const o = await runP(['letter', 'table'], 26000), b8 = o.filter((x) => x.s === 'bridge-b8-face-guests');
+      ok('BG04-T02 미리 듣기 대조 — 앞 곡이 들리던 이음말(편지 «음악과 함께» → b8)은 −16 그대로(정적 조건을 넓히지 않는다)', b8.length > 3 && b8.slice(-3).every((x) => x.on && x.want === -16), { b8: [...new Set(b8.map((x) => x.f + '/' + x.seg + '@' + x.want))] }); }
+  }
+  await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
+  if (want('BG08')) {
+    await hold(f, 'welcome'); const f0 = await f.evaluate(() => BgmBed._t.BED.cur.f), P = await f.evaluate(() => BgmBed._t.PR());
+    const a = await probe(f, 'show', { dk: -12 }, 0), b = await probe(f, 'show', { dk: -12 }, -8), c = await probe(f, 'show', { dk: -12 }, -20);
+    ok(`BG08-T01 lpShow — 0 → −12 내림 ${P.down}ms · −8 → −12 내림 · −20 → −12 올림 ${P.up}ms (곡 그대로 ${f0})`, a.ms === P.down && b.ms === P.down && c.ms === P.up && [a, b, c].every((x) => x.f === f0 && x.want === -12), { a, b, c });
+    const d = await probe(f, 'level', { talk: true, ldk: -20 }, 0), e = await probe(f, 'level', { talk: true, ldk: -20 }, -90), g = await probe(f, 'level', { talk: true, ldk: -20 }, -60), h = await probe(f, 'level', { talk: true, ldk: 0 }, 0);
+    ok('BG08-T02 lpLevel — 0 → −20 조절함(내림) · −90 · −60 은 조절 안 함(무음 보호) · 0 → 0 은 무음으로 보지 않음', d.n === 1 && d.ms === P.down && d.want === -20 && e.n === 0 && g.n === 0 && h.n === 1 && h.want === 0, { d, e, g, h });
+    const u = await probe(f, 'level', { talk: true, ldk: -20 }, 'undef'), nn = await probe(f, 'level', { talk: true, ldk: -20 }, null), na = await probe(f, 'level', { talk: true, ldk: -20 }, 'NaN');
+    ok('BG08-T03 미지정 · null · NaN = −90(조절 안 함) · 곡 파일 그대로', u.n === 0 && nn.n === 0 && na.n === 0 && [u, nn, na].every((x) => x.f === f0), { u, nn, na });
+    await f.evaluate(() => { try { lsStop(); } catch (e) {} });
+  }
+  ok('쪽 오류 0', !errs.length, errs.slice(0, 3));
+  await ctx.close();
+  } catch (e) { ok('미리 듣기 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })();
+  const laneC = (async () => { if (!want('BG03')) return; try {
+    const { ctx, f, errs } = await open(390, true);
+    await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
+  const setX = (o) => f.evaluate((o) => { Object.keys(o.on || {}).forEach((k) => { S.on[k] = o.on[k]; }); S.freeWhat = 'speech'; S.letter = o.letter || S.letter; S.bgm = o.bgm || {}; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, o);
+  const runP = (ks, ms) => f.evaluate(async ({ ks, ms }) => { const BB = BgmBed._t, o = []; window.__lt = []; if (!BgmBed.__lt0) { BgmBed.__lt0 = BgmBed.lpTail; BgmBed.lpTail = function (st, nx) { const r = BgmBed.__lt0(st, nx); window.__lt.push({ st: st && (st.slug || st.of || st.lab), dk: st && st.dk, nx: nx && (nx.slug || nx.of || nx.lab), ndk: nx && nx.dk, r }); return r; }; } if (!window.__lpMs0) window.__lpMs0 = window._lpMs; window._lpMs = function () { return 2500; };
+    if (ks.length > 1) { LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(ks, true); _lFull(); } else lsPlay(ks[0]);
+    (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; });
+    const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const v = BB.BED.cur, st = LP.q[LP.i]; o.push({ t: performance.now() - t0, k: st && st.k, s: st && st.slug || '', i: LP.i, lab: st && st.lab || '', talk: !!(st && (st.talk || st.talk2)), f: v && v.f, seg: v && v.seg, on: !!(v && v.src && v.want > -60), want: v && v.want });
+      if (performance.now() - t0 > ms || !LP.q.length) { clearInterval(iv); res(); } }, 100); });
+    try { lsStop(); } catch (x) {} try { if (ks.length > 1) lsCloseBig(); } catch (x) {} window._lpMs = window.__lpMs0; return o; }, { ks, ms });
   if (want('BG03')) {
     const dump = (o) => { let l = ''; const r = []; o.forEach((x) => { const z = x.i + ' ' + x.k + ' ' + (x.s || x.lab) + ' ' + (x.on ? x.f + '/' + x.seg + '@' + x.want : '-'); if (z !== l) { r.push(Math.round(x.t) + ' ' + z); l = z; } }); return r; };
     const toListen = () => f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1 && STEPS[idx].k !== 'listen') { idx = i; render(); } return STEPS[idx].k; });   /* 크게 보기를 닫으면 고르기 화면으로 간다 — 판마다 듣기 화면에서(편지 끝 처리는 듣기 화면 · 크게 보기에서만 돈다) */
@@ -211,33 +247,9 @@ try {
         (M8 || []).forEach((x) => { delete H.dly[x]; }); return { lt: window.__lt.slice(), M8, on: o.filter((x) => x.on).slice(0, 3) }; });
       ok('BG03-T05 미리 듣기 다음 곡이 늦게 오는 사이 멈춤 — 늦은 곡 · 옛 곡 올림 0', r.lt.length === 1 && !r.on.length, r); }
   }
-  if (want('BG04')) {
-    const toL = () => f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1 && STEPS[idx].k !== 'listen') { idx = i; render(); } });
-    for (const [nm, ex] of [['경건(b12 있음)', null], ['밝게(b12 없음)', { tribute: 5 }]]) {
-      await setX({ on: { song: 1, tribute: 1, letter: 0, free: 0, table: 0 }, bgm: {} }); await f.evaluate((ex) => { S.narEx = ex || {}; _persist(); render(); }, ex); await go(f, 'song'); await toL();
-      const o = await runP(['song', 'tribute'], 32000), iN = o.findIndex((x) => /^narr-tribute-name/.test(x.s || '')), b12 = o.filter((x) => x.s === 'bridge-b12-tribute-calm'), se = o.findIndex((x) => /^narr-song-end/.test(x.s || ''));
-      const gap = o.slice(se, iN < 0 ? o.length : iN).filter((x) => x.on), first = o.find((x) => x.on && o.indexOf(x) >= iN);
-      ok(`BG04-T0${ex ? 2 : 1} 미리 듣기 ${nm} — 축가 끝 · ${ex ? '' : 'b12 · '}사이 동안 소리 0 · 첫 소리는 부모님께 인사 첫 줄 M5`, se > -1 && iN > se && (ex ? !b12.length : b12.length > 0) && !gap.length && !!first && first.seg === 'M5' && /^narr-tribute-name/.test(first.s || ''), { b12: b12.length, gap: gap.slice(0, 3).map((x) => [x.s || x.lab, x.f, x.seg, x.want]), first: first && [first.s, first.seg, first.want] }); }
-    /* T02 대조 — 앞 곡이 들리던 이음말(«음악과 함께» 편지 → b8)은 제 크기 −16 그대로 */
-    await setX({ on: { song: 0, free: 0, tribute: 0, letter: 1, table: 1, toast: 1, bless: 1 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await f.evaluate(() => { S.narEx = {}; _persist(); render(); }); await go(f, 'letter'); await toL();
-    { const o = await runP(['letter', 'table'], 26000), b8 = o.filter((x) => x.s === 'bridge-b8-face-guests');
-      ok('BG04-T02 미리 듣기 대조 — 앞 곡이 들리던 이음말(편지 «음악과 함께» → b8)은 −16 그대로(정적 조건을 넓히지 않는다)', b8.length > 3 && b8.slice(-3).every((x) => x.on && x.want === -16), { b8: [...new Set(b8.map((x) => x.f + '/' + x.seg + '@' + x.want))] }); }
-  }
-  await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
-  if (want('BG08')) {
-    await hold(f, 'welcome'); const f0 = await f.evaluate(() => BgmBed._t.BED.cur.f), P = await f.evaluate(() => BgmBed._t.PR());
-    const a = await probe(f, 'show', { dk: -12 }, 0), b = await probe(f, 'show', { dk: -12 }, -8), c = await probe(f, 'show', { dk: -12 }, -20);
-    ok(`BG08-T01 lpShow — 0 → −12 내림 ${P.down}ms · −8 → −12 내림 · −20 → −12 올림 ${P.up}ms (곡 그대로 ${f0})`, a.ms === P.down && b.ms === P.down && c.ms === P.up && [a, b, c].every((x) => x.f === f0 && x.want === -12), { a, b, c });
-    const d = await probe(f, 'level', { talk: true, ldk: -20 }, 0), e = await probe(f, 'level', { talk: true, ldk: -20 }, -90), g = await probe(f, 'level', { talk: true, ldk: -20 }, -60), h = await probe(f, 'level', { talk: true, ldk: 0 }, 0);
-    ok('BG08-T02 lpLevel — 0 → −20 조절함(내림) · −90 · −60 은 조절 안 함(무음 보호) · 0 → 0 은 무음으로 보지 않음', d.n === 1 && d.ms === P.down && d.want === -20 && e.n === 0 && g.n === 0 && h.n === 1 && h.want === 0, { d, e, g, h });
-    const u = await probe(f, 'level', { talk: true, ldk: -20 }, 'undef'), nn = await probe(f, 'level', { talk: true, ldk: -20 }, null), na = await probe(f, 'level', { talk: true, ldk: -20 }, 'NaN');
-    ok('BG08-T03 미지정 · null · NaN = −90(조절 안 함) · 곡 파일 그대로', u.n === 0 && nn.n === 0 && na.n === 0 && [u, nn, na].every((x) => x.f === f0), { u, nn, na });
-    await f.evaluate(() => { try { lsStop(); } catch (e) {} });
-  }
-  ok('쪽 오류 0', !errs.length, errs.slice(0, 3));
-  await ctx.close();
-  } catch (e) { ok('미리 듣기 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })();
-  await Promise.all([laneA, laneB]);
+    ok('BG03 미리 듣기 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
+  } catch (e) { ok('BG03 미리 듣기 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })();
+  await Promise.all([laneA, laneB, laneC]);
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }
 await br.close(); srv.close();
 console.log(fail ? `SEAM BG FAIL ${fail}` : 'SEAM BG OK');
