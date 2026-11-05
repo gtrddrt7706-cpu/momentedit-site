@@ -6,6 +6,7 @@
    b 맞절 단독 · 60초 판(r1): 시작 자리 = 도착(원곡 100초)이 판 밖이라 «판 끝 − 남아야 할 길이» · 끝까지 소리
    c 입장 단독 «이 순간 전체 듣기»(장면): 장면이 도착에서 잦아들 때 남은 줄(받는 말)을 넘기고 입장 곡이 그 아래로 이어진다(크기 = 말 아래) · 장면 · 곡 엔진 사이 끊김 0 · 마지막 줄 뒤 여운(큐 사이 −8 → 잦아듦)
      · 시험에서만 장면의 «문 열린 뒤 크게 머무는 초»(SP.after 60)를 6초로 줄여 잰다(식이 같다)
+   ★★[MEANING_R2_1102 ENTRY_SETTLE 사장님 «도착에서 잦아듦으로 고쳐»] 위 규칙(맞절 끝까지 곡)을 고쳤다 — a · b 맞절 = 조용한 고점(곡 소리 0) · c 받는 말(도착 멘트)에서 4.5초에 잦아듦 · 정적으로 끝나 여운 없음
    BP_BED · BP_OP · BP_EM(entry-music.js) = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -114,7 +115,8 @@ try {
     const R = await run(f, 'matjeol', 120000, 1500), H = holes(R.o), e = R.o.filter((x) => x.f === '@ENT' && x.src);
     const talk = R.o.filter((x) => x.k === 'matjeol' && x.talk === false && !x.act && !x.lead && x.f === '@ENT');
     const relay = Math.max(0, ...R.o.map((x) => x.relay)), lines = [...new Set(R.o.filter((x) => x.k === 'matjeol').map((x) => x.i))].length;
-    ok(`a 맞절 멘트 판 ${n}(줄 ${lines}개 · 12초 나레이션) × 짧은 판 25초 — 첫 소리부터 마지막 줄 끝까지 곡 소리 0 인 순간 없음 · 판 끝에서 강조 자리로 겹쳐 이음(${relay}번)`, e.length > 50 && H.n === 0 && relay >= 1, { H, relay, e: e.length, ids: [...new Set(e.map((x) => x.id))] });
+    const loud = R.o.filter((x) => x.k === 'matjeol' && x.f === '@ENT' && x.src && x.g > 0.0002);
+    ok(`a 맞절 멘트 판 ${n}(줄 ${lines}개) — 맞절 = 조용한 고점 · 맞절 안내 · 맞절 동안 곡 소리 0(MEANING_R2_1102 · 종전 «끝까지 곡»)`, lines >= 1 && !loud.length, { loud: loud.length, e: e.length });
     if (n === 0) ok('a 남아야 할 길이는 받은 나레이션 길이(12초)로 잰다 — DUR', R.DUR.some((d) => Math.abs(d - 12) < 0.2), R.DUR.slice(0, 6));
   }
   /* b 60초 판 · 맞절 «기본» — 시작 = 판 끝 − 남아야 할 길이(도착 100초가 판 밖) */
@@ -123,7 +125,8 @@ try {
     const want = b0.x ? Math.max(0, Math.min(b0.x.end - b0.need, b0.x.end - 1) - b0.x.o) : null;
     ok(`b 60초 판(원곡 10 ~ 70초) — 도착(100초)이 판 밖이면 «판 끝 − 남아야 할 길이(${b0.need && b0.need.toFixed(1)}초)» 자리(판 ${want != null ? want.toFixed(1) : '?'}초)부터`, b0.x && b0.need > 30 && Math.abs(b0.at - want) < 0.01, b0);
     await go(f, 'matjeol'); await wait(f, 400); const R = await run(f, 'matjeol', 120000, 1500), H = holes(R.o);
-    ok('b 60초 판 — 끝까지 곡 소리 0 인 순간 없음', H.n === 0, H); }
+    const loud = R.o.filter((x) => x.k === 'matjeol' && x.f === '@ENT' && x.src && x.g > 0.0002);
+    ok('b 60초 판 — 맞절 동안 곡 소리 0(MEANING_R2_1102)', !loud.length, { loud: loud.length }); }
   /* c 입장 단독 «이 순간 전체 듣기» — 장면 → 받는 말 아래로 입장 곡 */
   await f.evaluate((mu) => { S.mu = mu; _persist(); render(); EntryScene.SP.after = 6; }, MU('r5')); await go(f, 'entry'); await wait(f, 900);
   { const R = await run(f, 'entry', 150000, 9500), o = R.o, H = holes(o);
@@ -131,10 +134,12 @@ try {
     const scEnd = o.map((x) => x.sc).lastIndexOf(true), entStart = o.findIndex((x) => x.rest && x.f === '@ENT' && x.src);
     ok(`c 장면이 도착에서 잦아들 때 남은 줄을 넘긴다 — 장면이 아직 흐르는 동안 입장 곡이 겹쳐 받는다(장면 끝 ${scEnd} · 곡 시작 ${entStart})`, restIdx > -1 && entStart > -1 && entStart <= scEnd + 2, { restIdx, scEnd, entStart });
     const slugs = [...new Set(rest.filter((x) => x.busy).map((x) => x.slug))];
-    ok(`c 받는 말(${slugs.join(' · ')}) 동안 입장 곡이 흐른다 · 크기 = 그 큐의 말 아래 값(−12 · 맞절 멘트와 같은 체계 → 입장 곡 under)`, restTalk.length > 20 && restTalk.every((x) => x.want <= -12 && x.want >= -16), { n: restTalk.length, w: [...new Set(restTalk.map((x) => x.want))] });
-    ok('c 첫 소리부터 마지막 줄 끝까지 곡 소리 0 인 순간 없음(장면 → 곡 엔진 이음 포함)', H.n === 0, H);
+    const restSnd = rest.filter((x) => x.k === 'entry' && x.busy && x.f === '@ENT' && x.src), t0r = rest.length ? rest[0].t : 0, early = rest.filter((x) => x.t - t0r < 1500 && (x.sc || (x.f === '@ENT' && x.src && x.g > 0.0002)));   /* 입장만 들으면 도착에서 «입장 장면» 소리가 스스로 잦아든다 — 장면 소리(sc)도 «남아 있는 소리»로 센다 */
+    ok(`c 받는 말(${slugs.join(' · ')}) — 입장 곡이 멘트 시작부터 잦아든다(−90 · 뚝 끊지 않고 소리가 남아 있다가 · MEANING_R2_1102)`, restSnd.length > 0 && restSnd.some((x) => x.want === -90) && early.length > 0, { n: restSnd.length, w: [...new Set(restSnd.map((x) => x.want))], early: early.length });
+    const H2 = holes(o.slice(0, restIdx > -1 ? restIdx : o.length).concat(restIdx > -1 ? [Object.assign({}, o[restIdx], { busy: true })] : []));
+    ok('c 첫 소리부터 받는 말 시작까지 곡 소리 0 인 순간 없음(장면 → 곡 엔진 이음 포함)', H2.n === 0, H2);
     const after = o.slice(o.map((x) => x.busy).lastIndexOf(true) + 1), w8 = after.filter((x) => x.want === -8 && x.src), gone = after.filter((x) => !x.src || (x.want != null && x.want <= -60));
-    ok(`c 마지막 줄 뒤 여운 — 큐 사이 크기(−8)로 머문 뒤 잦아든다(머묾 ${w8.length} · 잦아듦 ${gone.length})`, w8.length >= 20 && gone.length > 0, { w8: w8.length, gone: gone.length, last: after.slice(-2) }); }
+    ok(`c 마지막 줄 뒤 — 정적으로 끝났으니 여운으로 되살리지 않는다(머묾 ${w8.length} · NO_RELIFT_1102)`, w8.length === 0, { w8: w8.length, gone: gone.length, last: after.slice(-2) }); }
   ok('쪽 오류 0', !errs.length, errs.slice(0, 3));
   await ctx.close();
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }

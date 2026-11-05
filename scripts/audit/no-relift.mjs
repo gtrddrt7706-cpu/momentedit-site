@@ -20,7 +20,7 @@ const SHORT = wav(0.6, 330);   /* 나레이션 대신 — 0.6초 */
 /* 드라이브에 있는 곡(시험) — B07 · B30(화촉 3 · 4) · 테이블 인사 곡(B23 · B03 · B24 · B25)은 없다 */
 const RL = [{ k: 'r5', name: '경쾌하게', t: '시험 입장 곡', a: '시험 가수', hook: 40, hook0: 40, len: 140, file: 'r5.mp3', img: '/assets/home/snap.webp', pos: '50% 50%' },
   { k: 'r1', name: '잔잔하게', t: '짧은 판 곡', a: '시험 가수', hook: 40, hook0: 40, len: 70, file: 'r1.mp3', pf: 'r1p.mp3', p0: 10, p1: 70, hooks: [40], img: '/assets/home/snap.webp', pos: '50% 50%' }];
-const HAVE = ['B01', 'B07', 'B09', 'B10', 'B12', 'B13', 'B15', 'B16', 'B17', 'B24', 'B28', 'B32'];   /* B32 = 마지막 곡(M8L) — 촬영 후 안내 */   /* 화촉 1 · 2(B05 · B31)는 없다 — d */   /* [BGM_TIMING_1101] 테이블 인사 곡(B23)도 — 축배 뜸 곡 e */
+const HAVE = ['B01', 'B07', 'B09', 'B10', 'B11', 'B12', 'B13', 'B15', 'B16', 'B17', 'B24', 'B28', 'B32'];   /* B11 = 본식 목록 첫 곡(실제 목록 셋 · 선언 뒤 새 곡을 고를 자리가 있게) */   /* B32 = 마지막 곡(M8L) — 촬영 후 안내 */   /* 화촉 1 · 2(B05 · B31)는 없다 — d */   /* [BGM_TIMING_1101] 테이블 인사 곡(B23)도 — 축배 뜸 곡 e */
 const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(9, 180 + i * 20).toString('base64'); });
 const RS = { r5: wav(140, 250).toString('base64'), 'r1-p': wav(60, 300).toString('base64'), r1: wav(70, 300).toString('base64') };
 const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
@@ -75,10 +75,10 @@ const table = (f, o) => f.evaluate((o) => { const S1 = JSON.parse(JSON.stringify
   return P; }, o);
 const M4K = (k, o) => /^(welcome|vow|ring|declare|bless|song)$/.test(k) || (k === 'free' && !(o.bgm && o.bgm.S5)) || (k === 'letter' && !(o.bgm && o.bgm.S6));
 /* 본식 곡 칸에서 정적 뒤 다시 올라오는 자리 · 올라 10초 안에 정적 */
-const relifts = (P, o) => { const bad = []; let quiet = false, toastM4 = false, lastK = '';
+const relifts = (P, o) => { const bad = []; let quiet = false, heard = false, toastM4 = false, lastK = '';   /* heard = 본식 곡이 한 번 들렸나(시작 전 정적 · 맞절 뒤 이음말은 «꺼짐»이 아니다 · MEANING_R2) */
   for (let j = 0; j < P.length; j++) { const x = P[j]; if (x.v == null) continue; if (x.k !== lastK) { if (x.k === 'toast') toastM4 = M4K(lastK, o); lastK = x.k; } const m4 = M4K(x.k, o) || (x.k === 'toast' && toastM4);
-    if (!m4) { quiet = false; continue; } if (x.v <= -60) { quiet = true; continue; } if (x.k === 'declare') { quiet = false; continue; }
-    if (quiet) bad.push(`${x.k}/${x.s}/${x.w} ${x.v}`); }
+    if (!m4) { quiet = false; heard = false; continue; } if (x.v <= -60) { if (heard) quiet = true; continue; } if (x.k === 'declare') { quiet = false; heard = true; continue; }   /* 선언 뒤 박수 = 새 곡(MEANING_R2 DECLARE_LIFT) */
+    if (quiet) bad.push(`${x.k}/${x.s}/${x.w} ${x.v}`); heard = true; }
   for (let j = 1; j < P.length; j++) { if (!(P[j - 1].v <= -60 && P[j].v > -60)) continue; let t = 0, back = false; for (let m = j; m < P.length; m++) { if (P[m].v <= -60) { back = true; break; } t += P[m].t; if (t >= 10) break; }
     if (back && t < 10 && P[j].k !== 'declare' && P[j].k !== 'prevideo') bad.push(`10초 ${P[j].k}/${P[j].s}/${P[j].w} → ${t}s`); }
   return bad; };
@@ -91,8 +91,8 @@ const run = (f, ks, ms) => f.evaluate(async ({ ks, ms }) => { const BB = BgmBed.
     if (performance.now() - t0 > ms || !LP.q.length) { clearInterval(iv); res(); } }, 100); });
   try { lsStop(); } catch (x) {} try { if (ks.length > 1) lsCloseBig(); } catch (x) {} window._lpMs = window.__lpMs0; return o; }, { ks, ms });
 /* 정적이 된 곡이 다른 줄에서 다시(선언 뒤 · M7 예외) */
-const backAgain = (o, m7) => { const hz = {}, heard = {}, bad = []; o.forEach((x) => { if (!x.f) return; if (!x.on) { if (heard[x.f] && x.want != null && x.want <= -60 && hz[x.f] == null) hz[x.f] = x.i; return; } heard[x.f] = 1;   /* 들렸던 곡이 정적이 된 뒤만 센다(처음부터 소리 없이 깔린 곡은 아니다) */
-  if (hz[x.f] != null && hz[x.f] !== x.i) { if (x.k === 'declare' || x.f === m7) { delete hz[x.f]; return; } bad.push(`${x.f} #${hz[x.f]}→#${x.i} ${x.k} ${x.s || x.lab}`); delete hz[x.f]; } }); return [...new Set(bad)]; };
+const backAgain = (o, m7) => { const hz = {}, bad = []; let pv = null; o.forEach((x) => { const was = pv; pv = x; if (!x.f) return; if (!x.on) { if (was && was.on && was.f === x.f && x.want != null && x.want <= -60 && hz[x.f] == null) hz[x.f] = x.i; return; }   /* 들리던 곡이 그 자리에서 꺼진 것만 센다(정적 동안 목록이 조용히 넘어간 곡은 아니다) */   /* 들렸던 곡이 정적이 된 뒤만 센다(처음부터 소리 없이 깔린 곡은 아니다) */
+  if (hz[x.f] != null && hz[x.f] !== x.i && x.f !== m7) bad.push(`${x.f} #${hz[x.f]}→#${x.i} ${x.k} ${x.s || x.lab}`); Object.keys(hz).forEach((g) => { delete hz[g]; }); }); return [...new Set(bad)]; };   /* 들린 곡이 생기면 앞 정적 기록은 지운다 — 다른 곡이 흐른 뒤 목록이 돌아온 것은 되살림이 아니다 · 선언 뒤 박수도 이제 새 곡이라 예외가 아니다(예외는 축배 곡 M7 하나) */
 try {
   /* 두 판을 나란히(CI 칸 20분 한도) — 엔진 표 + 하루 이어 듣기 / 순간 하나 듣기 */
   const ON = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 1, toast: 1 };
@@ -112,7 +112,7 @@ try {
     const m7 = await f.evaluate(() => BgmPicks.plan ? (BgmBed._t && (function () { try { return (BgmPicks.PICKS.M7 || [])[0]; } catch (e) { return ''; } })()) : '');
     const DAY = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'table', 'toast', '_close'];
     const o = await run(f, DAY, 240000), ba = backAgain(o, m7);
-    ok('P 하루 이어 듣기 — 정적이 된 곡이 다른 줄에서 다시 올라오는 일 0(선언 뒤 · 축배 곡 예외)', ba.length === 0 && o.length > 500, { ba, n: o.length });
+    ok('P 하루 이어 듣기 — 정적이 된 곡이 다른 줄에서 다시 올라오는 일 0(축배 곡 M7 예외 · 선언 뒤 박수는 새 곡)', ba.length === 0 && o.length > 500, { ba, n: o.length });
     const at = (pr) => o.filter(pr), song0 = at((x) => x.k === 'song' && x.on), let0 = at((x) => x.k === 'letter' && x.s === 'letter-each' && x.on);
     ok('P 축가 여는 말 · 축가 · 축가 끝 박수 · 편지 첫 줄 동안 음악 0', !song0.length && !let0.length, { song: [...new Set(song0.map((x) => x.f + ' ' + (x.s || x.lab)))], letter: let0.length });
     const mr = o.findIndex((x) => x.k === 'song' && x.lab === '축가가 흐르는 자리'); let q0 = 0; for (let j = mr - 1; j >= 0 && !o[j].on; j--) q0 = o[mr].t - o[j].t;

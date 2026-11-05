@@ -106,11 +106,9 @@ try {
     const lead1 = e1.filter((x) => x.lead), nar1 = e1.filter((x) => !x.lead && !x.act && x.k === 'matjeol' && x.who === 'lp'), act1 = e1.filter((x) => x.act && x.who === 'lp');
     const dbOf = (x) => Math.round(20 * Math.log10(x.g / gf.gain) * 10) / 10, want = (d) => d + gf.ES.trim;
     const lastOf = (a) => a.length ? a[a.length - 1] : null;
-    ok(`${W} 2 크기 = 입장 엔진 체계 — 뜸 · 행동 줄 = 큐 사이(intro ${want(gf.ES.intro)} dB) · 멘트 = 말 아래(under ${want(gf.ES.under)} dB) · 구간 곡 +7 없음`,
-      lead1.length > 10 && act1.length > 5 && nar1.length > 3 && Math.abs(dbOf(lead1[Math.floor(lead1.length / 2)]) - want(gf.ES.intro)) < 0.6 && Math.abs(dbOf(lastOf(act1.slice(0, -3)) || act1[0]) - want(gf.ES.intro)) < 0.6 && nar1.some((x) => Math.abs(dbOf(x) - want(gf.ES.under)) < 0.6),
-      { lead: lead1.slice(5, 7).map(dbOf), nar: nar1.slice(0, 4).map(dbOf), act: act1.slice(-4).map(dbOf) });
-    const tl = r1.filter((x) => x.who === 'tail'), t0 = tl.length ? tl[0].t : null, at = (ms) => r1.reduce((a, x) => (Math.abs(x.t - (t0 + ms)) < Math.abs(a.t - (t0 + ms)) ? x : a), r1[0]);
-    ok(`${W} 2 마지막 줄 뒤 여운 — 큐 사이 크기로 5초 → 3초에 잦아들며 끝(LISTEN_LOOK_LEVEL 과 같다)`, t0 != null && at(1600).src && at(1600).want >= -8.5 && at(5800).src && at(7400).want === -90 && !at(9800).src, t0 == null ? r1.slice(-5) : { a: at(1600), b: at(5800), c: at(7400), d: at(9800) });
+    /* ★[MEANING_R2_1102 ENTRY_SETTLE] 맞절 = 조용한 고점 — 맞절만 들어도 곡 소리 0 · 정적으로 끝나 여운 0(종전 «뜸 · 멘트 · 행동 줄 = 입장 엔진 크기 · 여운 5초») */
+    const loud1 = e1.filter((x) => x.g != null && x.g > 0.0002 && x.who === 'lp'), tl = r1.filter((x) => x.who === 'tail' && x.src);
+    ok(`${W} 2 맞절 = 조용한 고점 — 맞절 안내 · 맞절 동안 곡 소리 0 · 끝 여운 0(MEANING_R2_1102)`, !loud1.length && !tl.length, { loud: loud1.length, tail: tl.length });
     /* 1 짧은 판(r1 · 10 ~ 70초) — 도착(100초)이 판 밖 → 판 안에서 25초가 남는 가장 늦은 자리(45초) */
     await f.evaluate((mu) => { S.mu = mu; _persist(); render(); }, MU('r1')); await go(f, 'matjeol'); await wait(f, 300);
     const r1b = await trace(f, ['matjeol'], 9000, false), lg1b = await LOG(pg), e1b = r1b.filter((x) => x.f === '@ENT' && x.src);

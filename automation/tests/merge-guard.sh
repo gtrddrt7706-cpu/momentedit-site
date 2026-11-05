@@ -21937,4 +21937,17 @@ chk 'SEAM_BG08' assets/bgm-bed.js 1
 nochk '(BED.cur.want||-90)' assets/bgm-bed.js
 chk 'BG08-T01' scripts/audit/seam-bg.mjs 1
 chk "no-relift seam-bg" .github/workflows/merge-guard.yml 1
+# ★[MEANING_R2_1102 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] 행진은 음악 · 의식은 조용한 고점 · 새 장면은 새 곡 — 엔진 한 표 + bgm-bed · 콘솔(검사 = CI bgm-sound e 칸)
+chk 'MEANING_R2_1102 원칙' assets/ritual-cue.js 1
+chk "if (_rs === 'narr-entry-arrive') { _rc.duck = PARAM.duckOff; _rc.fadeMs = 4500; _rc.fadeWith = true; }" assets/ritual-cue.js 1
+chk "_rc.live.newSong = true; _rc.live.upMs = 600;" assets/ritual-cue.js 1
+chk 'ENTRY_HUSH' assets/bgm-bed.js 2
+chk 'DECLARE_LIFT' assets/bgm-bed.js 1
+chk 'LIST_HOLD' assets/bgm-bed.js 2
+chk 'TRIBUTE_WALK' assets/bgm-bed.js 1
+chk 'MEANING_R2_1102' console.html 3
+chk '축하 박수와 함께 새 곡이 시작돼요' assets/bgm-slots.js 1
+chk '두 분이 앞에 서시면 음악이 잦아들고' assets/bgm-slots.js 1
+chk 'MEANING_R2_1102' scripts/audit/meaning-r2.mjs 1
+chk "seam-bg meaning-r2" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

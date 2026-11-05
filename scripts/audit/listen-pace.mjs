@@ -118,7 +118,7 @@ try {
       if (k === 'toast') ok(`${W} P2 ${k} 행동 줄 없음(잔 내려놓기는 «위하여» 칸 안)`, !acts.length, acts.map((x) => x.li));
       else ok(`${W} P2 ${k} 행동 줄마다 머무는 시간 표(TURN_GAP_1102 · 미리 듣기 화촉 · 반지 · 부모님께 인사 6초)`, acts.length > 0 && acts.every((a) => { const want = 6000, d = a.b - a.a; return d >= want - 450 && d <= want + 1400;   /* 머문 뒤 쉼(행동 끝 → 말 1.2초)까지 그 줄로 잡힌다 */ }), acts.map((a) => [a.li, a.est, Math.round(a.b - a.a)]));
       if (acts.length) { const a = acts[0], mid = a.s[Math.floor(a.s.length / 2)];
-        const aw = k === 'ring' ? -12 : k === 'tribute' ? -20 : -8;   /* ★[MEANING_R1_1102 10] 행동 줄 크기 = 당일 콘솔 live.duck(부모님께 인사 첫 행동 tribute-in −20 · 두 분이 고마운 말을 하는 자리) */   /* ★[BGM_TIMING_1101] 반지 끼우는 동작은 −12(«피아노가 아주 작게» · 엔진 narr-ring-in live) · 다른 행동 줄은 큐 사이 −8 */
+        const aw = k === 'ring' ? -12 : k === 'tribute' ? -12 : -8;   /* ★[MEANING_R2_1102 TRIBUTE_WALK] 부모님께 걸어가는 첫 행동 줄 −12(이동은 음악이 받침 · 엔진 walkDuck · 말하는 차례는 −20 그대로) */   /* ★[MEANING_R1_1102 10] 행동 줄 크기 = 당일 콘솔 live.duck(부모님께 인사 첫 행동 tribute-in −20 · 두 분이 고마운 말을 하는 자리) */   /* ★[BGM_TIMING_1101] 반지 끼우는 동작은 −12(«피아노가 아주 작게» · 엔진 narr-ring-in live) · 다른 행동 줄은 큐 사이 −8 */
         ok(`${W} P2 ${k} 행동 줄 동안 음악 ${aw === -8 ? '큐 사이 크기(−8)' : aw + '(당일 콘솔 live.duck)'}`, a.s.slice(-3).every((x) => x.src && Math.abs(x.want - aw) < 0.6), a.s.slice(-3).map((x) => [x.f, x.want]));
         const want = await f.evaluate((e) => _lpEstT(e), a.est);
         ok(`${W} P3 ${k} 행동 줄이 흐를 때만 «실제로는 ${want}»`, mid.estT === '· 실제로는 ' + want || mid.estT === '실제로는 ' + want, mid.estT);
@@ -170,7 +170,7 @@ try {
         await new Promise((res) => { const iv = setInterval(() => { try { const st = LP.q[LP.i], B = BgmBed._t.BED; o.push({ t: performance.now() - t0, k: st && st.k, i: LP.i, src: !!B.cur.src, who: B.who, want: B.cur.want, f: B.cur.f }); if ((st && st.k === 'ring' && st.src && LP.i > 0 && LP.q.slice(0, LP.i).some((x) => x.k === 'ring' && x.src)) || performance.now() - t0 > 70000) { clearInterval(iv); res(); } } catch (x) {} }, 100); });
         try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return o; });
       const s0 = r13.findIndex((x) => x.src), bi = r13.findIndex((x) => x.k === 'ring'), gap = r13.slice(s0 > -1 ? s0 : 0).filter((x) => !x.src), atB = r13.slice(Math.max(0, bi - 2), bi + 3);
-      ok(`${W} P13 이어 듣기 — 화촉 → 반지 사이 음악이 끊기지 않는다 · 경계에서 큐 사이 크기(−8) 이상`, s0 > -1 && bi > s0 && !gap.length && atB.every((x) => x.src && x.want >= -8.5), { s0, bi, gapN: gap.length, gap: gap.slice(0, 3), atB }); }
+      ok(`${W} P13 이어 듣기 — 화촉 → 반지 사이 음악이 끊기지 않는다 · 경계에서 말 아래 크기(−16 · 입장 앞 이음말 b7 · MEANING_R2_1102 ENTRY_HUSH) 이상`, s0 > -1 && bi > s0 && !gap.length && atB.every((x) => x.src && x.want >= -16.5), { s0, bi, gapN: gap.length, gap: gap.slice(0, 3), atB }); }
     /* P5 손으로 스크롤하면 따라가기 멈춤 */
     await go(f, 'tribute'); await f.evaluate(() => { window.scrollTo(0, 0); lsPlay('tribute'); }); await wait(f, 4200);
     await f.evaluate(() => { window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40 })); window.scrollTo(0, 0); }); const y0 = await f.evaluate(() => scrollY); await wait(f, 6000);
