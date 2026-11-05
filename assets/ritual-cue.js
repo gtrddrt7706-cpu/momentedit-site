@@ -1989,7 +1989,7 @@
       var _rc = cues[r2], _rs = _rc.slug || '';
       /* [ENTRY_HUSH] 입장 직전 숨 고르기 — 나레이션 −16 · 줄 끝에서 화촉 곡을 2초에 −90 → 정적 1초 → 입장 곡은 무음에서 입장 구호 아래 −12 (겹침 0) */
       var _rp = cues[r2 - 1] || null, _rpq = !_rp || ((_rp.live && _rp.live.duck != null ? _rp.live.duck : _rp.duck) <= -60);   /* 앞 큐가 정적으로 끝났나(화촉이 없는 날 개식사 뒤 등) */
-      if (_rs === 'bridge-b7-entry-ready' && !_rpq) { _rc.duck = PARAM.duckSpeech; _rc.post = [{ music: 'to', v: PARAM.duckOff, ms: 2000 }, { wait: 1000 }]; _rc.hushNext = true; }
+      /* [ENTRY_HUSH] b7 은 아래(식전 영상 정리 뒤 · SEAM_BG01)에서 */
       /* [ENTRY_SETTLE] 입장 곡은 «도착에서 잦아듦» — 도착 멘트 시작부터 4.5초에 걸쳐 −90(박수 아래로 · 음성은 기다리지 않는다 fadeWith) · 맞절 안내 · 맞절 = 정적 */
       if (_rs === 'narr-entry-arrive') { _rc.duck = PARAM.duckOff; _rc.fadeMs = 4500; _rc.fadeWith = true; }
       if (_rc.k === 'matjeol' && _rs === 'narr-entry-bow') { _rc.duck = PARAM.duckOff; if (_rc.live) _rc.live.duck = PARAM.duckOff; }
@@ -2008,6 +2008,11 @@
           if (/^bridge-/.test(_pn.slug || '')) { _pn.duck = PARAM.duckOff; continue; }
           _pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic; break; } }
     }
+    /* ★[SEAM_BG01 이음매 명세 · MEANING_R2_1102 ENTRY_HUSH] 입장 앞 이음말(b7) — 식전 영상 · 개식사 정리가 끝난 «뒤»에 정한다(앞 큐 크기가 확정된 뒤) ·
+         앞이 정적으로 끝났으면(화촉 없는 날 영상 · 개식사 뒤) b7 도 정적을 이어받는다(−90 · 하객 맞이 곡이 다시 오르지 않는다 · 입장 GO 에서 입장 곡만) ·
+         앞 곡이 들리면(화촉 있는 날) 나레이션 −16 · 줄 끝 2초에 −90 + 정적 1초 → 입장 곡은 무음에서 */
+    for (var b7i = 0; b7i < cues.length; b7i++) { var _b7 = cues[b7i]; if (_b7.slug !== 'bridge-b7-entry-ready') continue; var _b7p = cues[b7i - 1] || null, _b7q = !_b7p || ((_b7p.live && _b7p.live.duck != null ? _b7p.live.duck : _b7p.duck) <= -60);
+      if (_b7q) { _b7.duck = PARAM.duckOff; _b7.post = []; } else { _b7.duck = PARAM.duckSpeech; _b7.post = [{ music: 'to', v: PARAM.duckOff, ms: 2000 }, { wait: 1000 }]; _b7.hushNext = true; } }
     /* ★[VOW_OUT_GAP_1016] 서약 맺는 말(«두 사람의 서약이었습니다.» · 14) 뒤 다음 순간 여는 말은 4.5초 사슬 — 자료 G2 1-3 «서약 뒤 약 4 ~ 5초 여백»(박수 · 여운) · 맺는 말 앞 2초는 그대로 */
     for (var vg = 0; vg < cues.length - 1; vg++) {
       if (cues[vg].slug === 'narr-vow-out' && cues[vg + 1].fire === 'chain' && !cues[vg + 1].gapMs) cues[vg + 1].gapMs = 4500;
@@ -2068,8 +2073,9 @@
       var m4 = function (k) { if (/^(welcome|vow|ring|declare|bless|song)$/.test(k)) return true; if (k === 'free') return !(b5.S5 && b5.S5.m === 'bed'); if (k === 'letter') return !(b5.S6 && b5.S6.m === 'bed'); if (k === 'toast') return prevM4; return false; };
       var P = []; cues.forEach(function (c) { P.push({ c: c, w: 'say', est: +c.est || 0 }); (c.post || []).forEach(function (p) { if (p.music === 'to') P.push({ c: c, w: 'post', p: p, est: 0 }); }); if (c.live && c.live.duck != null) P.push({ c: c, w: 'live', est: +(c.live.est || 0) }); });
       var lv = function (x) { return x.w === 'say' ? x.c.duck : x.w === 'live' ? x.c.live.duck : x.p.v; }, set = function (x, v) { if (x.w === 'say') x.c.duck = v; else if (x.w === 'live') x.c.live.duck = v; else x.p.v = v; };
+      var bedOpen = function (x) { return x.w === 'say' && ((x.c.k === 'letter' && b5.S6 && b5.S6.m === 'bed' && /^letter-/.test(x.c.slug || '')) || (x.c.k === 'free' && b5.S5 && b5.S5.m === 'bed' && x.c.slug === 'narr-free-in-speech')); };   /* ★[SEAM_BG02] «음악과 함께» 축사 · 편지 여는 말은 본식 곡(M4) 아래에서 말한다 — 앞이 정적이면 여는 말도 정적(M4 를 되살리지 않는다) · 낭독 · 축사(live)에서 고른 곡이 무음에서 */
       for (var j = 0; j < P.length; j++) { var x = P[j], k = x.c.k; if (k !== lastK) { prevM4 = lastK ? m4(lastK) : false; lastK = k; } var v = lv(x); if (v == null) continue;
-        if (!m4(k)) { quiet = false; heard = false; continue; }   /* 다른 곡의 순간 — 그 곡은 무음에서 시작 · 본식 곡 정적은 여기서 끝 */
+        if (!m4(k) && !bedOpen(x)) { quiet = false; heard = false; continue; }   /* 다른 곡의 순간 — 그 곡은 무음에서 시작 · 본식 곡 정적은 여기서 끝 */
         if (v <= -60) { if (heard) quiet = true; continue; }
         if (k === 'declare') { quiet = false; heard = true; continue; }   /* 예외(선언 뒤 박수) */
         if (quiet) { set(x, -90); continue; }

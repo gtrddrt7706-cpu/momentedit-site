@@ -91,7 +91,8 @@ try {
     const cb = B(Object.assign({}, S, { bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } })), cn = B(S);
     const fi = by(cb, 'narr-free-in-speech'), li = cb.find((c) => /^letter-/.test(c.slug || '')) || {}, le = by(cb, 'narr-letter-end'), lin = cn.find((c) => /^letter-/.test(c.slug || '')) || {};
     ok('a 축사 «음악과 함께» — 여는 말 −16(앞 곡 아래) · 말씀 차례 −20', fi.duck === -16 && fi.live && fi.live.duck === -20, [fi.duck, fi.live && fi.live.duck]);
-    ok('b 편지 «음악과 함께» — 여는 말 −16 · 낭독 차례 −20 · 끝 = 정적 없이 다음 곡으로 3초 겹침(xf)', li.duck === -16 && li.live && li.live.duck === -20 && JSON.stringify(le.post) === JSON.stringify([{ music: 'next', v: -16, ms: 4000, nextMs: 3000, xf: true }]), { li: [li.duck, li.live && li.live.duck], post: le.post });
+    const li0 = B(Object.assign({}, S, { on: Object.assign({}, S.on, { song: 0 }), bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } })).find((c) => /^letter-/.test(c.slug || '')) || {};   /* ★[SEAM_BG02] 여는 말 −16 은 앞 곡이 들릴 때(축가 없음) · 축가 끝(정적) 뒤면 −90 */
+    ok('b 편지 «음악과 함께» — 여는 말 −16(앞 곡이 들릴 때 · 축가 뒤 정적이면 −90) · 낭독 차례 −20 · 끝 = 정적 없이 다음 곡으로 3초 겹침(xf)', li0.duck === -16 && li.duck === -90 && li.live && li.live.duck === -20 && JSON.stringify(le.post) === JSON.stringify([{ music: 'next', v: -16, ms: 4000, nextMs: 3000, xf: true }]), { li: [li.duck, li.live && li.live.duck], li0: li0.duck, post: le.post });
     ok('b 편지 «음악 없이» 여는 말은 그대로 무음', lin.duck <= -60, lin.duck);
     const pa = cn.find((c) => c.actId === 'photo-all') || {}, pf = cn.find((c) => c.actId === 'photo-family') || {}, pr = cn.find((c) => c.actId === 'photo-free') || {};
     ok('d 단체 사진(하객 단체 · 가족 구도) −18 · 자유 사진 −12 그대로', pa.duck === -18 && pf.duck === -18 && (!pa.live || pa.live.duck == null || pa.live.duck === -18) && (!pf.live || pf.live.duck == null || pf.live.duck === -18) && pr.duck === -12, { pa: [pa.duck, pa.live && pa.live.duck], pf: [pf.duck, pf.live && pf.live.duck], pr: pr.duck }); }
