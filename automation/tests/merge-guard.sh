@@ -4790,6 +4790,10 @@ chk 'PV_MYPAGE_1102' api/_ritual-kb.js 1
 chk 'PV_MYPAGE_1102' mypage.html 1
 chk 'PV_MYPAGE_1102' scripts/audit/open-course.mjs 2
 nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
+# ★[PV_FEEL_1106 2026-11-06 사장님 «필메이커 길로 바꿔 두기»] 마이페이지 식전 영상 첫 화면 = 필메이커 안내 + 준비한 영상 올리기 · 자체 제작(«사진으로 만들기») 입구는 되살리지 않는다
+chk 'PV_FEEL_1106' mypage.html 5
+chk 'PV_FEEL_1106' api/_kb.js 1
+nochk 'data-pvcmode="make"' mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1
