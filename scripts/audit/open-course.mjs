@@ -246,12 +246,12 @@ ok('[CANDLE_NAME_1019] 영상 받는 말(261) → 3초 → «이어서, 화촉 �
   const old = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].open).every((k) => C.build({ course: k }, { mode: 'console' }).cues.every((c) => c.slug !== 'bridge-b14-candle-name'));
   return s[i - 1] === 'narr-prevideo-out' && b.gapMs === 3000 && b.k === 'candle' && b.text === '먼저 오늘의 성스러운 예식을 위하여 축복의 촛불을 밝히는 순서가 있겠습니다.' /* [SRC_ALL_1023 검토 144-2] 자료 RR 그대로 */ && /^narr-candle-in-/.test(n.slug || '') && n.fire === 'chain' && skip && old; })());
 /* ★★[GUEST_WELCOME_191 검토 191] 새 코스 나레이션 판 하객 맞이 — ① 입장 때(손으로 · 2분마다 · 하객 안내 날 사진 줄 298) ② 10분 전(본식 길이 · 식사 경로) ③ 5분 전 03 ± 온라인 ④ 1분 전 315 ± 온라인 · 5분 전 사진 올리기(264 · 84)는 걷었다 · 옛 코스는 종전대로 */
-ok('[GUEST_WELCOME_191] 하객 맞이 판 — 하객 안내 날 입장 때 298(사진 올리기 줄) · 바깥 링크만 있고 하객 안내가 없으면 297 · 264 · 84 는 하객 맞이에서 안 튼다 · 입장 때는 2분마다(repeatMs) · 옛 코스는 종전대로(1분 전 뒤 84)', (() => {
+ok('[GUEST_WELCOME_191 · PHOTO_ALWAYS_NI02] 하객 맞이 판 — 입장 때는 늘 298(사진 올리기 줄 · 하객 안내를 끈 예외 예식도) · 264 · 84 는 하객 맞이에서 안 튼다 · 입장 때는 2분마다(repeatMs) · 옛 코스는 종전대로(1분 전 뒤 84)', (() => {
   const s = (o) => slugs(Object.assign({ course: 'open', on: {} }, o));
   const a = s({ guide: 1 }), b = s({ guide: 1, photoShare: 1 }), c = s({ photoShare: 1, guide: 0 }), d = s({ guide: 0 }), e = s({});   /* ★[GUIDE_ALWAYS_202] 하객 안내는 기본 켜짐 — 끈 예외 예식(guide 0)만 297 */
   const g0 = C.build({ course: 'open', on: {} }, { mode: 'console' }).cues[0] || {};
   const oldK = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].open)[0], o = slugs({ course: oldK, photoShare: 1 });
-  return a[0] === 'guest-w-arrival-guide' && b[0] === 'guest-w-arrival-guide' && c[0] === 'guest-w-arrival' && d[0] === 'guest-w-arrival' && e[0] === 'guest-w-arrival-guide' && [a, b, c, d].every((x) => x.indexOf('narr-photo-upload') < 0 && x.indexOf('narr-photo-ask') < 0 && x.indexOf('narr-photo-send') < 0)
+  return a[0] === 'guest-w-arrival-guide' && b[0] === 'guest-w-arrival-guide' && c[0] === 'guest-w-arrival-guide' && d[0] === 'guest-w-arrival-guide' && e[0] === 'guest-w-arrival-guide' && [a, b, c, d].every((x) => x.indexOf('narr-photo-upload') < 0 && x.indexOf('narr-photo-ask') < 0 && x.indexOf('narr-photo-send') < 0)
     && a.indexOf('narr-closing') > -1 && a.indexOf('narr-closing-guide') < 0 && C.RETIRED['narr-closing-guide'] && g0.fire === 'manual'   /* [INFO_SPLIT_200] 마무리 멘트 하객 안내 판은 쉰다 */ && g0.repeatMs === 120000
     && o.indexOf('narr-photo-ask') === o.findIndex((x) => /^guest-4-1min/.test(x || '')) + 1 && o.indexOf('narr-photo-upload') < 0; })());
 ok('[GUEST_WELCOME_191] 10분 전 — 본식 길이 판(십 · 십오 · 이십) · 식사 자리(meal + mealFull)면 식사 줄 + 경로 하나(하객 안내 · 현장 디렉터 × 예약 시각) · 카페 · 다과만이면 식사 줄 없음', (() => {
@@ -262,13 +262,13 @@ ok('[GUEST_WELCOME_191] 10분 전 — 본식 길이 판(십 · 십오 · 이십)
     && [{ meal: 1, mealFull: 1, guide: 1, resv: 1 }, { meal: 1, mealFull: 1, guide: 1 }, { meal: 1, mealFull: 1, resv: 1, guide: 0 }, { meal: 1, mealFull: 1, guide: 0 }, { meal: 1, mealFull: 1 }].every((o) => ten(o) === '-meal') && ten({ meal: 1, guide: 1, resv: 1 }) === ''
     && [10, 15, 20].every((m) => /식사는 촬영 뒤에 함께합니다\.$/.test(C.EXTRA['guest-w-10m-n' + m + '-meal'] || '') && !/하객 안내|디렉터/.test(C.EXTRA['guest-w-10m-n' + m + '-meal']))
     && n[0] === 10 && n[1] === 20 && [10, 15, 20].every((m) => C.EXTRA['guest-w-10m-n' + m]); })());
-ok('[ONEMIN_FIRST · GUEST_WELCOME_191 · INFO_SPLIT_200] 식전 영상이 없어도 시각 같음(-10 · -5 · -1) · 5분 전 = 경로 · 사진 판(329 ~ 338 · 디지털 날 -online) · 식사도 하객 안내도 없으면 03(디지털 날 314) · 1분 전 315(디지털 날 316)', (() => {
+ok('[ONEMIN_FIRST · GUEST_WELCOME_191 · INFO_SPLIT_200] 식전 영상이 없어도 시각 같음(-10 · -5 · -1) · 5분 전 = 경로 · 사진 판(329 ~ 338 · 디지털 날 -online) · 식사 없는 날은 하객 안내와 상관없이 333(디지털 날 334 · PHOTO_ALWAYS_NI02) · 현장 디렉터 판도 사진 문장 · 온라인은 맨 끝 · 1분 전 315(디지털 날 316)', (() => {
   const f5 = (o) => slugs(Object.assign({ course: 'open', on: {} }, o)).find((y) => /^guest-(w-5m|3-5min)/.test(y || '')) || '';
   const M = { meal: 1, mealFull: 1 };
   return C.build({ course: 'open', on: {} }, { mode: 'console' }).cues.filter((c) => /^guest-(w-10m|3-5min|w-5m|w-1m)/.test(c.slug || '')).map((c) => c.atMin).join(',') === '-10,-5,-1'
-    && f5({}) === 'guest-w-5m-g' && f5({ digital: 1 }) === 'guest-w-5m-g-online' && f5({ guide: 0 }) === 'guest-3-5min' && f5({ guide: 0, digital: 1 }) === 'guest-w-5m-online'
+    && f5({}) === 'guest-w-5m-g' && f5({ digital: 1 }) === 'guest-w-5m-g-online' && f5({ guide: 0 }) === 'guest-w-5m-g' && f5({ guide: 0, digital: 1 }) === 'guest-w-5m-g-online'
     && f5(Object.assign({ resv: 1 }, M)) === 'guest-w-5m-mgr' && f5(M) === 'guest-w-5m-mg' && f5(Object.assign({ resv: 1, guide: 0 }, M)) === 'guest-w-5m-mr' && f5(Object.assign({ guide: 0 }, M)) === 'guest-w-5m-m'
-    && f5(Object.assign({ resv: 1, digital: 1 }, M)) === 'guest-w-5m-mgr-online' && f5({ meal: 1, resv: 1 }) === 'guest-w-5m-g'
+    && f5(Object.assign({ resv: 1, digital: 1 }, M)) === 'guest-w-5m-mgr-online' && /현장 디렉터에게 여쭤 주세요\. 오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다\. 온라인으로/.test(C.EXTRA['guest-w-5m-mr-online'] || '') && /올리실 수 있습니다\.$/.test(C.EXTRA['guest-w-5m-m'] || '') && f5({ meal: 1, resv: 1 }) === 'guest-w-5m-g'
     && /^시작 오 분 전입니다\./.test(C.EXTRA['guest-w-5m-mgr'] || '') && /온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요\.$/.test(C.EXTRA['guest-w-5m-mgr-online'] || '')
     && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-1m-online') > -1 && slugs({ course: 'open', on: {} }).indexOf('guest-w-1m') > -1; })());
 ok('[GUEST_WELCOME_191] 화촉이 뒤에 와도 1분 전은 315(89 는 쉰다)', (() => { const s = slugs({ course: 'open', on: { candle: 1 } }); return s.indexOf('guest-w-1m') > -1 && s.indexOf('guest-4-1min-pre') < 0 && s.indexOf('guest-4-1min') < 0 && C.RETIRED['guest-4-1min-pre']; })());
@@ -298,9 +298,9 @@ ok('[REVIEW26_1023 검토 150] 간결 화촉 151 · 정석 축사 174 · 가족 
   const ex = (k, base) => { const S = O.applyExample({ course: 'open' }, k); S.course = 'open'; return O.narExCue(S, base); };   // 큐는 기본 이름 · 고른 예시는 narExCue 가 바꿔 끼운다
   const b = ex('brief', 'narr-candle-in-mothers'), st = ex('standard', 'narr-free-in-speech'), fa = ex('family', 'narr-bless-end'), re = ex('record', 'narr-close-bow');
   const thx = (w) => O.narExOk({ course: 'open', on: { vow: 1, welcome: w ? 1 : 0 }, vowKind: 'thanks' }, 'thanks', 1);
-  const g = C.build({ course: 'open', on: {}, guide: 0 }, { mode: 'console' }).cues.find((c) => c.slug === 'guest-3-5min') || {};   /* [INFO_SPLIT_200] 03 은 식사도 하객 안내도 없는 날만(하객 안내는 기본 켜짐 → 5분 전 = 333) */
+  const g = { slug: C.build({ course: 'open', on: {}, guide: 0 }, { mode: 'console' }).cues.some((c) => c.slug === 'guest-3-5min') ? 'guest-3-5min' : '' };   /* [PHOTO_ALWAYS_NI02] 03 은 새 코스 5분 전에 안 쓴다(하객 안내를 끈 날도 사진 판 333) */
   return b === '' /* [BASE_SWAP_1023] 간결 화촉 151 «담백하게»는 이제 기본 */ && ex('family', 'narr-candle-in-mothers') === 'narr-candle-in-mothers-ex2' /* 가족 = 뭉클 칩(91) */ && st === 'narr-free-in-speech-ex2' && fa === 'narr-bless-end-ex2' && re === 'narr-close-bow-ex4'
-    && thx(false) && !thx(true) && !O.NAR_EX.close.lines['narr-close'] /* [CLOSING_LINE_1031] 단체 사진 안내 예시 줄은 걷었다 */ && C.RETIRED['narr-close-ex2'] && C.RETIRED['narr-close-ex3'] && g.slug === 'guest-3-5min' && !C.RETIRED['guest-3-5min'] /* ★[GUEST_WELCOME_191 검토 191 보충 3] 5분 전 03 을 되살렸다 */; })());
+    && thx(false) && !thx(true) && !O.NAR_EX.close.lines['narr-close'] /* [CLOSING_LINE_1031] 단체 사진 안내 예시 줄은 걷었다 */ && C.RETIRED['narr-close-ex2'] && C.RETIRED['narr-close-ex3'] && g.slug === '' && !C.RETIRED['guest-3-5min'] /* ★[GUEST_WELCOME_191 검토 191 보충 3] 03 소리는 남는다(창고 «시작 오 분 전입니다.»가 빌려 쓴다) · [PHOTO_ALWAYS_NI02] 새 코스 5분 전 판은 늘 사진 판 */; })());
 ok('[REVIEW26_1023 검토 150] 마지막 순간이 서약 · 반지 · 편지(서로에게)면 B8 → 108 디렉터 GO · 감사문이면 B8 없음 · B9 는 늘 255 · 인사 «밝게»면 B12 없음', (() => {
   const end = (S) => { const cs = C.build(Object.assign({ course: 'open' }, S), { mode: 'console' }).cues, i = cs.findIndex((c) => c.slug === 'narr-close-bow'); return [cs[i - 1] && cs[i - 1].slug, cs[i] && cs[i].fire]; };
   const v = end({ on: { vow: 1 } }), r = end({ on: { ring: 1 } }), l = end({ on: { letter: 1 }, letter: 'each' }), t = end({ on: { vow: 1 }, vowKind: 'thanks' });

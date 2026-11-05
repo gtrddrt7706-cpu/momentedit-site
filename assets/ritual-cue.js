@@ -492,17 +492,20 @@
     GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = b.concat([GW.meal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = b.concat([GW.meal, GW.mg]);
     GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = b.concat([GW.meal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = b.concat([GW.meal, GW.m]); });
   /* ★[INFO_SPLIT_200] 5분 전 = 시작 오 분 전 + 확인 경로(식사 날 · 하객 안내 / 현장 디렉터 × 예약 시각) + 사진(하객 안내) ± 온라인(맨 끝) · 식사도 하객 안내도 없는 날은 03 · 314 그대로 */
-  var G5 = { '-mgr': [GW.mgr, GW.upThere], '-mg': [GW.mg, GW.upThere], '-mr': [GW.mr], '-m': [GW.m], '-g': [GW.pUp] };
+  /* ★★[PHOTO_ALWAYS_NI02 2026-11-05 이음매 NI02] 사진 올리기 안내는 하객 안내를 끈 예외 예식에도 나간다 — 입장 때는 늘 298 · 5분 전 현장 디렉터 판(331 · 332 · 335 · 336)은
+         장소 문장 뒤에 333 의 사진 문장(pUp)을 붙인다(새 녹음 0 · 창고 문장 이어 붙임) · 식사 없는 날은 하객 안내와 상관없이 333 · 334 · 온라인 문장은 늘 맨 끝 ·
+         식사 장소 경로(하객 안내 / 현장 디렉터)는 종전대로 gOn 이 고른다(gOn 을 늘 참으로 바꾸지 않는다) */
+  var G5 = { '-mgr': [GW.mgr, GW.upThere], '-mg': [GW.mg, GW.upThere], '-mr': [GW.mr, GW.pUp], '-m': [GW.m, GW.pUp], '-g': [GW.pUp] };
   Object.keys(G5).forEach(function (x) { GUEST_PARTS['guest-w-5m' + x] = [GW.five].concat(G5[x]); GUEST_PARTS['guest-w-5m' + x + '-online'] = [GW.five].concat(G5[x], [GW.online5]); });
   Object.keys(GUEST_PARTS).forEach(function (k) { EXTRA[k] = GUEST_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 본식 길이(5분 단위 · 녹음 판 십 · 십오 · 이십) — 테이블 인사 · 축배까지(닫는 인사 앞에 선다) · 넉넉 합의 가운데 · 6천 조합 실측 10 ~ 20(검토 191) */
   function guestMinOf(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } if (!b) return 15; var n = Math.round(((b[0] + b[1]) / 120) / 5) * 5; return Math.max(10, Math.min(20, n)); }
   /* 판 고르기 — i = 0 입장 때 · 1 10분 전 · 2 5분 전 · 3 1분 전 */
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
-    if (i === 0) return gOn(S) ? 'guest-w-arrival-guide' : 'guest-w-arrival';
+    if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
     if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 */
     if (i === 2) { var r5 = mF ? (gOn(S) ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m')) : (gOn(S) ? '-g' : '');   /* [INFO_SPLIT_200] 경로 · 사진은 5분 전 */
-      return r5 ? 'guest-w-5m' + r5 + (S.digital ? '-online' : '') : (S.digital ? 'guest-w-5m-online' : 'guest-3-5min'); }
+      return 'guest-w-5m' + (r5 || '-g') + (S.digital ? '-online' : ''); }   /* [PHOTO_ALWAYS_NI02] 식사 없는 날은 하객 안내와 상관없이 사진 판(333 · 334) — 03 · 314 는 이 자리에 안 쓴다 */
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
   /* ★★[GUIDE_ALWAYS_202 검토 202 · 사장님 17:30 «사진 올리기는 그냥 안내해도 되는 거 아니야?»] 모바일 청첩장 하객 안내(사진 올리기 단추)는 모든 예식에 나간다 —
        하객 안내 줄은 기본 켜짐 · S.guide 를 «없음»(false · 0)으로 분명히 준 예외 예식만 끈다(관리자 당일 콘솔 «하객 안내» 칩) · 식사 경로 줄은 종전대로 식사 · 예약 조건 */
@@ -1788,6 +1791,9 @@
       var _pn = +S.photoN, _pw = (S.photoWishN === undefined || S.photoWishN === null || S.photoWishN === '') ? -1 : Math.max(0, Math.min(2, +S.photoWishN || 0));
       /* ★[PHOTO_THANKS 2026-09-26] 감사 인사 약 1분(말 · 목례 · 가실 분이 일어나는 시간)을 목표에 넣었다 — 자유 사진이 그만큼 준다. */
       var _thx = S.meal ? 'end-1a-farewell' : 'end-1c-thanks-nomeal';   // [THANKS_TEXT] 식사 있는 날 45 · 없는 날 110
+      /* ★[WISH_AFTER_FAMILY_NI10 2026-11-05 이음매 NI10] 요청 사진 몫(wishSec)을 따로 둔다 — 요청 0 · 1 · 2 = 0 · 60 · 120초 · 미입력 = 미확정 여유 120(전체 360 + 120 = 종전 480) ·
+           새 코스는 전체 사진 목표에서 빼고 가족 뒤 추가 촬영에 같은 초만큼 더한다(촬영 후 안내는 전체 한 장 직후 · 합은 그대로) · 옛 코스는 종전 */
+      var _wishSec = _pw >= 0 ? 60 * _pw : 120;
       var _go = { 'end-0-photo': (_pw >= 0 ? 360 + 60 * _pw : 480), 'end-1a-farewell': 60, 'end-1c-thanks-nomeal': 60, 'narr-photo-split': (_pn > 0 ? 180 * _pn : 360), 'narr-online-in': 120 };
       /* ★★[SRC_ALL_1023 검토 144-4 · 사장님 10/23 «작가가 바로 진행»] 새 코스는 44(«여기서부터는 작가님이 안내해 드립니다»)를 틀지 않는다 — 26 «모두 단상 앞으로 모여 주시면» 뒤 작가가 바로 전체 하객 컷을 찍는다.
            전체 하객 사람 구간(모임 + 전체컷 + 꼭 담고 싶은 사진)은 26 의 사람 구간이 맡는다(아래 ROUND_FIT 이 목표를 그대로 준다) · 옛 코스는 종전 그대로 */
@@ -1795,8 +1801,8 @@
       /* ★[CLOSING_LINE_1031 검토 178] 새 코스 사진 구간은 소리 없는 동작 큐만 — 전체 하객(작가님이 모은다) → 가족 구도 → 자유 사진 → 촬영 마무리 · 디렉터 GO · 시간(_go · goFree)은 그대로 */
       if (_photoOpen) cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: '', act: true, actId: 'photo-all', name: '전체 하객 사진', text: '', est: 0, duck: -18,   /* ★[BGM_TIMING2_1101] 작가 육성 안내 −14 → −18(보컬 곡이면 −24) */
-        note: '소리 없음 · 작가님이 하객을 앞으로 모아 전체 하객 컷 · 이어서 두 분이 적은 꼭 담고 싶은 사진 [GROUP_PHOTO] [WISH_COUNT]',
-        live: { t: '하객이 앞으로 모임 → 전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(골라 트는 판)', est: _go['end-0-photo'], self: true, doing: 'move', note: '작가님이 모아 바로 전체 하객 컷 [CLOSING_LINE_1031]' }
+        note: '소리 없음 · 전체 단체 사진 한 장을 마치면 촬영 후 안내를 재생한다 [WISH_AFTER_FAMILY_NI10] · 두 분이 적은 꼭 담고 싶은 사진은 가족 사진 뒤(추가 촬영)',
+        live: { t: '하객이 앞으로 모임 → 전체 하객 단체컷', est: _go['end-0-photo'] - _wishSec, self: true, doing: 'move', note: '작가님이 모아 바로 전체 하객 컷 [CLOSING_LINE_1031]' }
       }));
       /* ★★[END_FLOW_200] [END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200] 촬영 후 안내는 전체 단체 사진 직후 · 가족 사진 전(사장님 17:16 ~ 17:19 «가도 되는 타이밍») — 하객 모두가 계실 때 한 번 · 가족 구도는 이어서(소리 없음 · 사슬) */
       if (_photoOpen) { var _aps = afterPhotoOf(S); cues.push(cue({
@@ -1872,7 +1878,7 @@
         var gather = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
         function fit(c, goal, pre) { if (c && c.live) c.live.est = Math.max(10, Math.round(goal - (pre || 0) - (c.est || 0))); }
         var _pc = _photoOpen ? by['@photo-all'] : null;   // [CLOSING_LINE_1031] 전체 하객 사진(소리 없음)   // [END_FLOW_1030] 다이닝은 있는데 266 셋(식사 자리 · 예약 시각 · 하객 안내) 중 하나라도 빈 날은 26 이 사진 전 안내 자리 [PHOTO_PRE_PICK_1030]
-        if (_photoOpen) { if (_pc && _pc.live) _pc.live.est = Math.max(10, _go['end-0-photo']); }   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
+        if (_photoOpen) { if (_pc && _pc.live) _pc.live.est = Math.max(10, _go['end-0-photo'] - _wishSec); }   /* [WISH_AFTER_FAMILY_NI10] 전체 사진 = 전체 한 장 몫만(요청 몫은 추가 촬영으로) */   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
         else fit(by['end-0-photo'], _go['end-0-photo'], gather);
         var _fam = _photoOpen ? by['@photo-family'] : by[_thx];   // [END_FLOW_1030] 새 코스는 소리 없는 가족 구도 큐
         fit(_fam, _go[_thx] + (_photoOpen ? _go['narr-photo-split'] : 0));   // [PHOTO_THANKS] · [SPLIT_OFF_OPEN_1023] 새 코스는 가족 구도까지
@@ -1882,7 +1888,7 @@
         var _fc = _photoOpen ? by['@photo-free'] : by['narr-photo-out'];   // [PHOTO_FREE_OPEN_1019] 옛 코스는 65 · ★[CLOSING_LINE_1031] 새 코스는 소리 없는 자유 사진
         fit(_fc, goFree, 0);
         if (_fc && _fc.live) _fc.live.goFree = goFree;   // 콘솔 · 검사가 읽는 «자유 사진 목표»(말 포함)
-        _goFreeOpen = goFree;   // [POST_FLOW_200] 새 코스 추가 촬영(촬영 후 안내 뒤)이 쓴다
+        _goFreeOpen = goFree + (_photoOpen ? _wishSec : 0);   // [POST_FLOW_200] 새 코스 추가 촬영(촬영 후 안내 뒤)이 쓴다 · [WISH_AFTER_FAMILY_NI10] 요청 몫을 같은 초만큼 더한다(goals 에 이미 들어 있어 goFree 에서 다시 빼지 않는다 · 합 그대로)
       })();
       /* ★★[ONLINE_ALREADY_ENDED 2026-08-16 사용자 지적] 배웅에서 온라인을 갈라 말하지 않는다.
          사용자 원문: *"본식끝나고 온라인 화면도 종료 한다고 우리 정했잖아 이건 그걸기억못하는듯한 진행인데"*
@@ -1906,7 +1912,8 @@
       if (_photoOpen && _freeOpen) { var _px = { n: '추가 촬영' }; cues.push(cue({   /* ★[AFTER_BEFORE_FAMILY_200] 콘솔은 가족 구도 · 추가 촬영이 따로 큐 — 화면 한 줄 «가족 사진 · 추가 촬영»(POST_FLOW _extra)이 둘을 묶는다 */
         k: '_goodbye', blockN: '마무리', slug: '', act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12, endHold: true,   /* [AFTER_PHOTO_LOOP_1102] 새 코스 마지막 큐 — 저절로 끝내지 않는다(■ 끝내기까지 음악) */
         hint: '가족 사진을 마치면',   /* ★[AFTER_BEFORE_FAMILY_200] */
-        live: { t: _px.n + ' · 원하시는 분들과 · 남는 시간만큼', est: Math.max(10, _goFreeOpen), goFree: _goFreeOpen, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다(옛 자유 사진 몫 · _goFreeOpen)
+        note: '가족 사진 뒤, 두 분이 적은 요청 사진과 추가 촬영을 진행한다 [WISH_AFTER_FAMILY_NI10]',
+        live: { t: _px.n + ' · 원하시는 분들과 · 남는 시간만큼', est: Math.max(10, _goFreeOpen), goFree: _goFreeOpen - _wishSec, wishSec: _wishSec, self: true, doing: 'move' }   /* [WISH_AFTER_FAMILY_NI10] goFree = 남는 시간(자유 사진 목표 · 종전 뜻) · wishSec = 옮겨 온 요청 몫 · est = 둘의 합 */   // [ROUND_FIT] 2패스가 남는 시간을 준다(옛 자유 사진 몫 · _goFreeOpen)
       })); }
       if (!_photoOpen) cues.push(cue({
         k: '_goodbye', blockN: '마무리', slug: 'end-2-goodbye', name: '마무리 · 귀가 인사', text: EXTRA['end-2-goodbye'], duck: -14,

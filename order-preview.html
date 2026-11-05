@@ -2444,7 +2444,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1105s1"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1105r2"></script><script src="/assets/bgm-picks.js?v=1105b2"></script><script src="/assets/narration-pad.js?v=1102pv"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1105b2"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1106n1"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1105r2"></script><script src="/assets/bgm-picks.js?v=1105b2"></script><script src="/assets/narration-pad.js?v=1105n3"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1105b2"></script><script src="/assets/bgm-form.js?v=1102ss"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3285,7 +3285,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  var ASSET_V='1105s1';   // [ASSET_V] 위 주석
+  var ASSET_V='1106n1';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })).then(function(src){
@@ -4540,6 +4540,10 @@ function _lOffRows(){ var R=RitualOpen; return (R.OFFER||R.PICKABLE).filter(func
 function _josa(w,a,b){ var c=String(w).charCodeAt(String(w).length-1); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b; }
 /* 목록 번호 — 식전은 «식전», 본식은 1 부터(닫는 인사까지). 크게 보기도 같은 번호를 쓴다(칩으로 이어 들어도 전체 기준) */
 function _lNo(k){ if(k==='guest'||RitualOpen.PRE[k]) return '식전'; var b=RitualOpen.bodySeq(S); var i=b.indexOf(k); return i<0?'':String(i+1); }
+/* ★★[STAGE_SHOW_NI11 2026-11-05 이음매 NI11 · 2차 d-14] 본식 뒤 세 줄(seg '_after')은 재생 범위와 따로 «보이는 단계»(stage)를 가진다 — 전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영 ·
+     큰 제목 · 작은 보기 · 소리 안내 · 이어서 연습 이름이 stage 를 읽는다(닫는 인사 9/9 로 보이지 않게) · 연습 범위(seg) · 재생 위치 · B 대기 · 음악(after · M8L)은 그대로 */
+function _stName(st){ return st&&st.stage?_post(st.stage).n:_lName(st&&st.k); }
+function _stNo(st){ return st&&st.seg==='_after'?'본식 뒤':_lNoOf(st&&st.k); }
 function _lNoOf(k){ var b=RitualOpen.bodySeq(S), i=b.indexOf(k); return i<0?((k==='guest'||RitualOpen.PRE[k])?'식전':'담지 않은 순간'):((i+1)+' / '+b.length); }   // [OFF_LISTEN] 담지 않은 순간을 «식전»이라 부르지 않게
 
 /* 줄 안 «바꿀 수 있는 것» — 키는 지금 S 그대로 · 새 키는 첫 모습(entryScene) 하나.
@@ -4721,11 +4725,16 @@ function _inPr(){ return !!(STEPS[idx]&&STEPS[idx].k==='practice'); }
    식사 장소 · 예약 시각(CUSTMEAL · CUSTMEALF · CUSTRESV)이나 하객 안내(CUSTGUIDE)가 아직 없으면 그 줄이 빠진 짧은 판이 나온다. 무엇을 하면 어떤 줄이 이어지는지 회색 한 줄씩(녹음 아님 · 화면만 · ② 흐름 · ③ 연습 · 전체 대본) · «» 는 흐름 줄에서 굵은 글로 바뀌어 쓰지 않는다.
    ★«마이페이지에서 적기 ›» 이동은 아직 없다(빌더 → 마이페이지 칸으로 가는 길이 없다) — 글만 */
 function _clHints(){ var _s=_clS()||{}, o=[], meal=!!(_s.meal&&_s.mealFull), g=   /* ★[MEAL_HINT_HIDE_204 #1574 확인] 엔진이 식사 문장을 붙이는 값(_clS · 마이페이지 값 · 없으면 S)과 같은 자로 — 식사를 이미 정한 날(meal · mealFull · 예약 시각 유무 무관)엔 힌트 숨김 */ (typeof CUSTGUIDE!=='undefined'&&CUSTGUIDE===true);
-  if(!meal) o.push('+ 식사 안내 멘트: 애프터 웨딩에서 식당을 정하면 붙어요');   /* ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요 · 마이페이지 빼고 짧게»] 골라 담기 · 하나씩 · 연습 · 전체 대본이 이 한 줄(_clHints)을 함께 쓴다 */   /* ★[MEAL_HINT_1102 사장님 «이 행동에 따라 안내 멘트가 맞춰 바뀐다는 걸 고객이 인지할 수 있게» → 1안 · 대본 섹션 동의] «무엇 멘트: 하면 붙어요» — 문구 · 모양은 디테일 섹션 · 조건 · 녹음 판은 나레이션(검토 202 · 사진 줄은 그쪽이 뺀다) */
+  /* ★★[DINE_HINT_NI15 2026-11-05 이음매 NI15] 힌트는 마이페이지가 보낸 식사 상태(CUSTDINE · none · cafe · meal · undecided · needs-confirmation)로 고른다 —
+       아직 안 정한 날만 «정하면 붙어요» · 장소는 있는데 식사 · 카페를 모르는 날은 «식사 여부 확인이 필요해요» · 식사 없음 · 카페 · 식사로 정한 날은 숨김.
+       상태가 안 온 옛 화면 · 독립 화면은 «없음 확정»으로 짐작하지 않고 종전처럼(식사로 정했으면 숨김 · 아니면 «정하면 붙어요») */
+  var _ds=(typeof CUSTDINE==='string')?CUSTDINE:'';
+  if(_ds==='needs-confirmation') o.push('+ 식사 여부 확인이 필요해요');
+  else if(_ds==='undecided'||(!_ds&&!meal)) o.push('+ 식사 안내 멘트: 애프터 웨딩에서 식당을 정하면 붙어요');   /* ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요 · 마이페이지 빼고 짧게»] 골라 담기 · 하나씩 · 연습 · 전체 대본이 이 한 줄(_clHints)을 함께 쓴다 */   /* ★[MEAL_HINT_1102 사장님 «이 행동에 따라 안내 멘트가 맞춰 바뀐다는 걸 고객이 인지할 수 있게» → 1안 · 대본 섹션 동의] «무엇 멘트: 하면 붙어요» — 문구 · 모양은 디테일 섹션 · 조건 · 녹음 판은 나레이션(검토 202 · 사진 줄은 그쪽이 뺀다) */
   /* ★«+ 사진 올리기 안내: 하객 안내 켜기» 줄 금지 — 2026-11-02 검토 202 사장님 «하객 안내 켜기가 뭐야?»로 삭제 [GUIDE_ALWAYS_202] · 사진 올리기 안내는 늘 나온다 */
   return o; }   /* ★[CL_HINT_199 검토 199 · 사장님 폰 캡처] 흐린 회색 긴 글 → 진사색 짧은 한 줄 «+ 무엇: 어디서 하기»(대본 확정 문구의 « — »는 전각 줄표 금지 규칙으로 «:») · 조건이 켜져 있으면 이 줄 대신 실제 붙는 문장(종전 그대로) */
 /* ★[CLOSING_FULLER 1] ② · ③ 가 마이페이지 값을 엔진에 넘긴다 — 종전엔 S 에 식사 · 하객 안내 값이 없어 식사 · 하객 안내를 다 갖춘 고객도 짧은 판(287 · 292)이 보였다(당일 콘솔 · «음악까지 미리듣기»는 RitualPreviewLink 로 넘긴다) */
-function _clS(){ if(typeof CUSTMEAL==='undefined'||!(CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;   /* ★[GUIDE_ALWAYS_202] 하객 안내 기본 켜짐(CUSTGUIDE=true)만으로는 덮어쓰지 않는다 — 마이페이지 값이 하나도 없으면 S 그대로(덮으면 식사 값이 «없음»으로 바뀐다 · screen-sound 가 잡음) */ var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE!==false; o.digital=!!CUSTDIG; return o; }   /* [GUEST_WELCOME_191] 하객 맞이 5분 · 1분 전 온라인 판도 같은 값으로 */
+function _clS(){ if(typeof CUSTMEAL==='undefined'||!((typeof CUSTDINE==='string'&&CUSTDINE)||CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;   /* [DINE_HINT_NI15] 식사 상태를 받았으면(없음 확정 포함) 문맥 값이 S 를 덮는다 · 아무것도 안 받았으면 S 그대로 */   /* ★[GUIDE_ALWAYS_202] 하객 안내 기본 켜짐(CUSTGUIDE=true)만으로는 덮어쓰지 않는다 — 마이페이지 값이 하나도 없으면 S 그대로(덮으면 식사 값이 «없음»으로 바뀐다 · screen-sound 가 잡음) */ var o={}; for(var p in S) o[p]=S[p]; o.meal=!!CUSTMEAL; o.mealFull=!!CUSTMEALF; o.resv=!!CUSTRESV; o.guide=CUSTGUIDE!==false; o.digital=!!CUSTDIG; return o; }   /* [GUEST_WELCOME_191] 하객 맞이 5분 · 1분 전 온라인 판도 같은 값으로 */
 function _clHasLine(st){ return (st||[]).some(function(x){ return /마무리 멘트/.test(String(x.slab||x.lab||'')); }); }
 /* ★★[AFTER_FIX_196 검토 196 · 사장님 23:16 «촬영 후 안내가 식순에 보여야 함 · 이벤트를 하나하나 고르는 화면에서» · 보충 «자연스럽게 · 하객 맞이 칸과 같은 모양 · 이름은 촬영 후 안내 하나»]
    «촬영 후 안내»(_after) = 식순 맨 끝 늘 있는 칸 — ① 고르기 칸(닫는 인사 뒤 · ⊙ 표) · 미리 보기 창 · ② 하나씩 만들기 마지막 쪽 · 예식 흐름 «식후» 줄 · 한눈에 보기 · 완성.
@@ -4751,7 +4760,12 @@ function _afterOn(){ return isOpen(); }
 function _fixSteps(kind){ var S2=_clS(), mF=!!(S2.meal&&S2.mealFull), cs=[];
   try{ if(ENG&&ENG.RitualCue){ var r=ENG.RitualCue.build(S2,{mode:'console'}); cs=Array.isArray(r)?r:(r.cues||[]); } }catch(e){ cs=[]; }
   function tx(re){ for(var i=0;i<cs.length;i++){ if(re.test(cs[i].slug||'')) return String(cs[i].text||''); } return ''; }
-  if(kind==='pre'){ var gq=cs.filter(function(c){ return c.k==='guest'&&c.text; });
+  if(kind==='pre'){ /* ★[GUEST_GROUP_NI03 2026-11-05 이음매 NI03] 시점 묶음 = 시계 큐(입장 · 10 · 5 · 1분 전) 하나 + 다음 시계 큐 전까지 이어지는 줄 — 온라인 날 1분 전 316 뒤 48(«화면으로 함께해 주시는 여러분, 반갑습니다.»)도 1분 전 묶음에 ·
+         종전엔 하객 줄을 차례대로 네 칸에 꽂아 48 이 빠지고 이후 칸이 밀릴 수 있었다 · 개식(narr-open)은 «시작» 칸 · 음성 위치는 그대로(K1) */
+    var gq=[], _gc=null, _GA=[/^guest-w-arrival/,/^guest-w-10m-/,/^guest-(w-5m|3-5min)/,/^guest-(w-1m|4-1min)/];
+    cs.forEach(function(c){ if(c.k!=='guest'||!c.text||/^narr-open/.test(c.slug||'')||/^bridge-/.test(c.slug||'')) { if(c.k!=='guest'||/^narr-open/.test(c.slug||'')) _gc=null; return; }
+      var gi=-1; _GA.forEach(function(re,j){ if(re.test(c.slug||'')) gi=j; });
+      if(gi>-1){ _gc=gq[gi]={text:c.text}; } else if(_gc){ _gc.text+=' '+c.text; } });
     return [{t:'입장 때',n:'하객 맞이 안내',d:'환영 · 사진 올리기 방법',w:'v',tx:(gq[0]||{}).text||''},
       {t:'10분 전',n:'하객 맞이 안내',d:mF?'시작 예고 · 식사 예고':'시작 예고',w:'v',tx:(gq[1]||{}).text||''},
       {t:'5분 전',n:'하객 맞이 안내',d:mF?'식사 장소 확인 · 사진 올리기':'사진 올리기',w:'v',tx:(gq[2]||{}).text||''},
@@ -4772,7 +4786,7 @@ function _afterLine(){ var g=ENG; if(!g||!g.RitualCue||!g.RitualCue.afterPhotoOf
 function _lSteps0(g,ks){
   var r; try{ r=g.RitualCue.build(_clS(),{mode:'preview'}); }catch(e){ return []; }   /* [CLOSING_FULLER 1] 마이페이지 값(식사 · 예약 · 하객 안내)으로 — 콘솔과 같은 마무리 판 */
   var PR=_inPr(), SKW=PR?'연습에서는 넘겨요':'미리 듣기에서는 넘겨요';   /* [PRACTICE_WALK_1101 2] 연습 화면엔 «연습에서는 넘겨요» */
-  var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[], rN=null;   /* rN = [VC_TO_NAR] 나레이션 판 큐(필요할 때 한 번) */
+  var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[], rN=null, qt0='';   /* rN = [VC_TO_NAR] 나레이션 판 큐(필요할 때 한 번) */
   /* ★[LISTEN_PACE_1031] 행동 줄의 실제 시간 = 당일 엔진 live.est(본식 시간 어림과 같은 값) — 미리 듣기 빌드는 사람 구간을 10초로 줄이고(previewLiveCap · fullEst 에 원래 값) 박수 구간(consoleOnly)은 걷어서,
      그 둘은 당일 빌드(rC · 필요할 때 한 번)에서 읽는다 · 큐가 그 행동의 live 가 아닌 줄은 LP_EST_FROM(같은 동작의 다른 큐) · LP_EST_NOTE(동작이 아니라 낭독 안의 한 줄 = 0) */
   var rC=null, estOf=function(sl){ var c=null; r.cues.forEach(function(x){ if(x.slug===sl) c=x; }); if(c&&c.live) return +(c.live.showEst||c.live.fullEst||c.live.est)||0;   /* [EST_TRUE_1031] showEst = 화면 «실제로는» 값(화촉 인사 30 · 25 · 본식 합은 est 그대로) */
@@ -4826,12 +4840,19 @@ function _lSteps0(g,ks){
         if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+_lpNoT(tt),talk:true,ms:3000,of:c.slug||'',ldk:c.live?c.live.duck:undefined,cheer:!!(c.live&&c.live.cheer),est:tEst(c.slug||'')}); } }   /* [BGM_R3_1023] of = 잔 드는 큐 · [BGM_PREVIEW_1024] ldk = 사람 구간 음악 크기 · cheer = «위하여» 뒤 축배 크기로 */
       }
       /* [G5] 말 없는 사람 순간도 옅은 줄로(소리 없음 · 재생 목록에는 안 들어간다) */
-      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말없이 흐르는 자리',txt:qt,quiet:true,who2:_lQuietWho(k,c.slug||''),ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:(k!=='matjeol'&&c.liveDuck!=null)?c.liveDuck:undefined}); } }   /* ★[NO_RELIFT_1102] 미리 듣기 판에서 걷은 박수 구간(consoleOnly)도 엔진 크기 — 콘솔과 한 표 */   /* 맞절은 입장 곡 크기 체계(큐 사이 = intro −12 · 콘솔 −12 와 같다 · ENTRY_CARRY_1101) */   /* ★[MEANING_R1_1102 10] 행동 줄 크기 = 당일 콘솔 live.duck 한 표(맞절 · 부모님께 인사 · 포옹 · 테이블 이동 −12 · 반지 −12 · 박수 −8) — 종전 «반지만 엔진 값 · 나머지 −8»(BGM_TIMING_1101)은 콘솔과 달랐다 */   /* [LISTEN_PACE_1031] est */   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
+      { var qt=_lQuiet(k,c); if(qt&&quietDone!==qt){ quietDone=qt; out.push({k:k,lab:'말없이 흐르는 자리',txt:qt,quiet:true,who2:_lQuietWho(k,c.slug||''),ms:0,of:c.slug||'',est:qEst(k,c.slug||''),ldk:(k!=='matjeol'&&c.live&&c.live.duck!=null)?c.live.duck:(k!=='matjeol'&&c.liveDuck!=null)?c.liveDuck:undefined}); } }
+      /* ★★[PR_ACT_NI06 2026-11-05 이음매 NI06] 연습에만 — 미리 듣기 빌드가 걷은 당일 행동(consoleOnly live)을 당일 빌드에서 읽어 한 줄씩 되살린다(같은 큐 slug + 행동 종류로 한 번) ·
+           박수(개식 · 축사 · 축가 · 덕담 — 고른 멘트가 박수를 청한 판만 · 선언 · 닫는 인사는 위 줄이 이미 말한다) · 부모님께 인사 뒤 복귀 · 축배 앞 잔 준비 ·
+           하객 박수 = 자동(guests) · 두 분 복귀 · 잔 준비 = 두 분 완료(couple · B 대기) · 음악 크기 = 당일 live.duck 그대로 · 음성 글로 옮기지 않는다 · 일반 미리 듣기엔 붙이지 않는다 */
+      if(PR&&!(qt0=_lQuiet(k,c))){ var _cl=null; if(!rC){ try{ rC=g.RitualCue.build(S,{mode:'console'}); }catch(e){ rC={cues:[]}; } } (rC.cues||[]).forEach(function(x){ if(x.slug&&x.slug===c.slug&&x.live&&x.live.consoleOnly) _cl=x.live; });
+        if(_cl){ var _at=_cl.applause?'하객이 박수로 축하해요':c.slug==='tribute-out'?'두 분이 앞쪽 중앙으로 돌아와 나란히 서요':c.slug==='bridge-b13-toast-stay'?'두 분과 하객의 잔이 준비될 때까지 기다려요':'', _aid=(c.slug||'')+(_cl.applause?':clap':':act');
+          if(_at&&!out.some(function(y){ return y.aid===_aid; })) out.push({k:k,lab:'말없이 흐르는 자리',txt:_at,quiet:true,aid:_aid,who2:_cl.applause?'guests':'couple',ms:0,of:c.slug||'',est:Math.round(+_cl.est||0),ldk:_cl.duck}); } }   /* ★[NO_RELIFT_1102] 미리 듣기 판에서 걷은 박수 구간(consoleOnly)도 엔진 크기 — 콘솔과 한 표 */   /* 맞절은 입장 곡 크기 체계(큐 사이 = intro −12 · 콘솔 −12 와 같다 · ENTRY_CARRY_1101) */   /* ★[MEANING_R1_1102 10] 행동 줄 크기 = 당일 콘솔 live.duck 한 표(맞절 · 부모님께 인사 · 포옹 · 테이블 이동 −12 · 반지 −12 · 박수 −8) — 종전 «반지만 엔진 값 · 나머지 −8»(BGM_TIMING_1101)은 콘솔과 달랐다 */   /* [LISTEN_PACE_1031] est */   /* ★[BGM_R3_1023] of = 이 줄이 나온 큐 열쇠(엔진 slug) — 음악 줄 자리(BgmSlots.flowFind)가 글자 대신 이것으로 찾는다 · 지우지 말 것 */   /* [STAGE_LINES] 종전 «한 순간에 한 줄» → 큐마다(같은 글 연달아는 한 번) — 선언 박수판은 «증인의 박수»와 «축하 박수» 둘 */
       if(c.live){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요'+(PR?' · 두 분은 입장 전 대기 자리에서 준비해요':'')+' · '+SKW,skip:true,ms:1600,vk:'영상 상영',ldk:c.live.duck}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
           /* [SONG_BACK_1011] 축가는 두 분이 말하는 자리가 아니다 — «두 분 차례»(talk)가 아니라 준비한 순서 영상처럼 «미리 듣기에서는 넘겨요» 한 줄 */
-          if(k==='song'){ talked=true; out.push({k:k,lab:'축가가 흐르는 자리',vk:'당일 노래',txt:'여기서 축가를 불러요 · 한 곡 3분 안팎'+(PR?' · 두 분은 노래하시는 분을 바라보며 들어요':'')+' · '+SKW   /* [SONG_ANYONE_WORDS_1013] «약 4분»은 시간 표 210초를 반올림한 값 · 준비 줄(«3분 안팎 한 곡»)과 같은 말 */,skip:true,ms:3000,ldk:c.live.duck}); }
+          if(k==='song'&&PR&&S.songBy==='self'){ talked=true; out.push({k:k,lab:'두 분 차례 · 축가',txt:'노래하실 분이 준비한 축가를 불러요 · 노래를 마치면 «다 했어요»를 눌러 주세요',quiet:true,aid:'narr-song:self',who2:'couple',ms:0,of:c.slug||'',est:Math.round(+((c.live&&(c.live.fullEst||c.live.est))||0)),ldk:c.live.duck}); }   /* ★[SONG_SELF_WAIT_NI07 2026-11-05 이음매 NI07] 두 분이 직접 부르는 축가는 두 분 동작 — B 에서 «다 했어요»까지 기다린다 · 한 분만 부를 수도 있어 «노래하실 분» · −90 그대로 · 다른 분 축가는 아래 요약 그대로 */
+          else if(k==='song'){ talked=true; out.push({k:k,lab:'축가가 흐르는 자리',vk:'당일 노래',txt:'여기서 축가를 불러요 · 한 곡 3분 안팎'+(PR?' · 두 분은 노래하시는 분을 바라보며 들어요':'')+' · '+SKW   /* [SONG_ANYONE_WORDS_1013] «약 4분»은 시간 표 210초를 반올림한 값 · 준비 줄(«3분 안팎 한 곡»)과 같은 말 */,skip:true,ms:3000,ldk:c.live.duck}); }
           else if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
             var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='etc'?'두 분이 준비한 순서가 이어져요':'준비한 선물을 건네요';
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · '+SKW,skip:true,ms:3000,ldk:c.live.duck}); }
@@ -4841,14 +4862,15 @@ function _lSteps0(g,ks){
         }
       }
     });
+    if(PR&&k==='table'&&out.some(function(y){ return y.k==='table'; })) out.push({k:k,lab:'말없이 흐르는 자리',txt:'테이블 인사를 마치면 두 분이 앞으로 돌아와 나란히 서요',quiet:true,aid:'narr-table-in:back',who2:'couple',ms:0,of:'narr-table-in',est:0});   /* [PR_ACT_NI06] 테이블 뒤 복귀(당일 시간에 새 이동 몫을 더하지 않는다 · est 0) */
     if(PR&&k==='_close'&&r.cues.some(function(c){ return /^narr-closing/.test(c.slug||''); })) _clHints().forEach(function(t){ out.push({k:k,lab:'이어지는 줄',txt:t,quiet:true,hint:true,ms:0,est:0}); });   /* [CLOSING_FULLER 1] ③ 연습만 카드로 — ② 흐름 · 대본은 줄을 따로 그린다(듣기 차례에 넣지 않는다) */
-    if(PR&&k==='_close') out.push({k:k,seg:'_after',lab:'말없이 흐르는 자리',txt:_post('_photo').n+' · 한 장 · 연습에서는 넘겨요',quiet:true,who2:'other',ms:0,est:0});   /* [PR_REVIEW_201 중4] seg = 연습 범위(식후 블록) */   /* [POST_FLOW_200 7] */
+    if(PR&&k==='_close') out.push({k:k,seg:'_after',stage:'_photo',lab:'말없이 흐르는 자리',txt:_post('_photo').n+' · 한 장 · 연습에서는 넘겨요',quiet:true,who2:'other',ms:0,est:0});   /* [PR_REVIEW_201 중4] seg = 연습 범위(식후 블록) */   /* [POST_FLOW_200 7] */
     /* ★★[AFTER_PHOTO_191 검토 191 · 사장님 «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»] 촬영 후 안내 — 닫는 인사 칸 맨 끝(② 흐름 · ③ 연습 «이후 사진 촬영 …» 다음 · 전체 대본) ·
          당일 콘솔에서만 나오는 큐(사진 뒤)라 미리 듣기 빌드엔 없다 — 엔진 afterPhotoOf(마이페이지 값) 판의 글 · 녹음이 있으면 그 소리 · 본식 시간 셈에 넣지 않는다(est 0) */
     /* ★[AFTER_FIX_196] ② 하나씩 만들기는 «촬영 후 안내»가 제 쪽(_after) — 닫는 인사 쪽 하나만 그릴 때(ks = ['_close'] · 연습 아님)는 싣지 않는다 · ③ 연습 · 처음부터 끝까지 · 전체 대본은 닫는 인사 끝 그대로 */
     if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.RitualCue.afterPhotoOf){ var _aps=g.RitualCue.afterPhotoOf(_clS()), _apf=g.RitualCue.fileOf(_aps), _apt=(g.RitualCue.EXTRA||{})[_aps]||'', _aph=_apf&&_lHasSound(_apf,_apt);
-      if(_apt) out.push({k:k,lab:k==='_after'?_post('_after').sub:'촬영 후 안내 · 전체 단체 사진을 마치면 재생',slab:'촬영 후 안내 · 전체 단체 사진을 마치면 재생',txt:_apt,src:_aph?(dir+_apf+'.mp3'):null,pending:!_aph,slug:_aps,file:_apf,after:true,seg:(k==='_close'?'_after':undefined),ms:Math.max(2400,Math.round(_apt.length*160)),dk:-14,est:0}); }
-    if(PR&&k==='_close'&&isOpen()) out.push({k:k,seg:'_after',lab:'말없이 흐르는 자리',txt:_post('_extra').n+' · 연습 끝',quiet:true,who2:'other',ms:0,est:0});   /* ★[POST_FLOW_200 7] 단체 사진 → 촬영 후 안내 → 추가 촬영 · 연습 끝 */   /* [PRACTICE_WALK_1101 13] 마무리 뒤 · 녹음 없음 */
+      if(_apt) out.push({k:k,lab:k==='_after'?_post('_after').sub:'촬영 후 안내 · 전체 단체 사진을 마치면 재생',slab:'촬영 후 안내 · 전체 단체 사진을 마치면 재생',txt:_apt,src:_aph?(dir+_apf+'.mp3'):null,pending:!_aph,slug:_aps,file:_apf,after:true,seg:(k==='_close'?'_after':undefined),stage:(k==='_close'?'_after':undefined),ms:Math.max(2400,Math.round(_apt.length*160)),dk:-14,est:0}); }
+    if(PR&&k==='_close'&&isOpen()) out.push({k:k,seg:'_after',stage:'_extra',lab:'말없이 흐르는 자리',txt:_post('_extra').n+' · 연습 끝',quiet:true,who2:'other',ms:0,est:0});   /* ★[POST_FLOW_200 7] 단체 사진 → 촬영 후 안내 → 추가 촬영 · 연습 끝 */   /* [PRACTICE_WALK_1101 13] 마무리 뒤 · 녹음 없음 */
   });
   return out;
 }
@@ -5005,7 +5027,7 @@ function _mkPages(){ var R=RitualOpen, m=_mkRO();
   return ks; }
 function _mkIdx(){ var ps=_mkPages(), i=ps.indexOf(_mkRO().at); return i<0?0:i; }
 function _mkOff(k){ return !!(_mkRO().drop[k]) && !RitualOpen.onOf(S,k); }
-function _mkNo(k){ if(k==='_sum'||k==='_intro'||k==='_voice') return ''; if(k==='guest'||RitualOpen.PRE[k]) return '식전'; if(k==='_after') return '식후';   /* [AFTER_FIX_196] */ if(_mkOff(k)) return ''; var b=RitualOpen.bodySeq(S), i=b.indexOf(k); return i<0?'':String(i+1); }
+function _mkNo(k){ if(k==='_sum'||k==='_intro'||k==='_voice') return ''; if(k==='guest'||RitualOpen.PRE[k]) return '식전'; if(k==='_after') return '본식 뒤';   /* [AFTER_FIX_196] · [STAGE_SHOW_NI11 · d-14] «식후» → «본식 뒤»(고르기 화면과 같은 말) */ if(_mkOff(k)) return ''; var b=RitualOpen.bodySeq(S), i=b.indexOf(k); return i<0?'':String(i+1); }
 function _mkName(k){ return k==='_sum'?'한눈에 보기':k==='_intro'?'예식 흐름':k==='_voice'?'두 분 목소리 만들기':_lName(k); }   /* [VOICE_ONCE] */   /* [COURSE_FLOW] «고른 순서» → «예식 흐름» */
 /* 두 분이 할 말이 있는 자리 — 원천(prepOf)의 «쓸 글»을 따른다(첫인사 · 서약 · 편지 · 부모님께 인사) */
 /* ★[TX_OPT 2026-10-07 점검] 선택 칸(비워 둬도 되는 글) = 부모님께 인사 · 축배 한마디 — 미완료 셈 · ④ «글 비어 있음» · 연습 «안 적은 곳»이 이 한 곳을 본다.
@@ -5086,8 +5108,8 @@ function _mkStatInfo(cur){
   var ps=_mkPages(), _mo=ps.filter(function(k){ return k!=='_intro'&&k!=='_sum'&&k!=='_voice'&&!_mkOff(k); }), _mi=_mo.indexOf(cur), _left=_mo.filter(function(k){ return _mkStat(k)==='todo'; }).length;
   /* 번호는 쪽 제목(«6 · 반지 교환») · 아래 단추(«다음 · 7 성혼 선언»)와 같은 셈 — 본식은 bodySeq 차례(닫는 인사까지) · 식전은 식전끼리. 한 화면에 두 번호가 다르면 안 된다 */
   var _no=_mkNo(cur), _pre=_mo.filter(function(k){ return _mkNo(k)==='식전'; }), _bN=RitualOpen.bodySeq(S).length;   /* ★[PROG_COUNT_1031 식순 걷기 1라운드 GPT 4] 쪽 제목 번호(_mkNo = bodySeq 차례 · 테이블 인사 포함)와 같은 셈 — 테이블 인사를 빼고 세어 «본식 9 / 8»이 났다 */   /* [TABLE_APART] 본식 n / N 의 N 에서 테이블 인사를 뺀다 · [TOAST_LAST_1013] 축배는 닫는 인사 뒤여도 본식 안(APART) */
-  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':cur==='_after'?'<b>식후</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'<span class="mk-pre">식전 </span><span class="mk-num"><b>'+(_pre.indexOf(cur)+1)+'</b>/'+_pre.length+'</span>':'<span class="mk-pre">본식 </span><span class="mk-num"><b>'+_no+'</b>/'+_bN+'</span>';   /* [MK_HEAD_ONE_1102] 앞말(본식 · 식전)은 자리가 모자라면 뺀다 · 숫자는 한 덩이(mk-num)로 글 줄에 맞춘다 */   /* [MK_HEAD_D] 화면은 «본식 6/9»로 줄인다 */
-  var _say=cur==='_sum'?'한눈에 보기':cur==='_voice'?'두 분 목소리':cur==='_after'?'식후 · 촬영 후 안내':_mi<0?'뺀 순간 · '+_mkName(cur):_no==='식전'?'식전 '+_pre.length+'개 순간 중 '+(_pre.indexOf(cur)+1)+'번째':'본식 '+_bN+'개 순간 중 '+_no+'번째';   /* [PROG_COUNT_1031] 테이블 인사도 «본식 7 / 9» — 그 뒤에 축배 · 닫는 인사가 오는데 «본식 뒤»라 끝난 줄 알았다 */   /* [TABLE_APART] · [TOAST_LAST_1013] APART */
+  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':cur==='_after'?'<b>본식 뒤</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'<span class="mk-pre">식전 </span><span class="mk-num"><b>'+(_pre.indexOf(cur)+1)+'</b>/'+_pre.length+'</span>':'<span class="mk-pre">본식 </span><span class="mk-num"><b>'+_no+'</b>/'+_bN+'</span>';   /* [MK_HEAD_ONE_1102] 앞말(본식 · 식전)은 자리가 모자라면 뺀다 · 숫자는 한 덩이(mk-num)로 글 줄에 맞춘다 */   /* [MK_HEAD_D] 화면은 «본식 6/9»로 줄인다 */
+  var _say=cur==='_sum'?'한눈에 보기':cur==='_voice'?'두 분 목소리':cur==='_after'?'본식 뒤 · 촬영 후 안내':_mi<0?'뺀 순간 · '+_mkName(cur):_no==='식전'?'식전 '+_pre.length+'개 순간 중 '+(_pre.indexOf(cur)+1)+'번째':'본식 '+_bN+'개 순간 중 '+_no+'번째';   /* [PROG_COUNT_1031] 테이블 인사도 «본식 7 / 9» — 그 뒤에 축배 · 닫는 인사가 오는데 «본식 뒤»라 끝난 줄 알았다 */   /* [TABLE_APART] · [TOAST_LAST_1013] APART */
   return { cur:cur, wr:_mi<0&&cur!=='_sum'&&cur!=='_voice', pos:_pos, left:_left, say:_say };
 }
 function _mkStatLab(i,open){ return '하나씩 만들기. '+i.say+'.'+(i.left?' 이미 살펴본 순간 중 확인할 항목이 남은 순간 '+i.left+'곳.':'')+' '+(open?'모든 순간 접기':'모든 순간 보기'); }
@@ -5189,7 +5211,7 @@ function _mkGoNow(k){ var m=_mkState(); _offToastOff(); try{ if(window.BgmBed&&B
 function _mkFocusEmpty(){ var el=[].slice.call(document.querySelectorAll('.mk textarea, .mk input[type="text"], .mk input[type="url"], .mk input:not([type]), .mk .mk-tg[aria-pressed="false"]')).filter(function(x){ return !x.disabled&&x.offsetParent&&(x.tagName==='BUTTON'||(!x.readOnly&&(!String(x.value||'').trim()||(x.tagName==='TEXTAREA'&&_exNamesIn(x.value).length>0)))); })[0];   /* ★[REFILL_EXN_1031 식순 걷기 3라운드 7] 예시 속 이름이 남은 글 칸도 «돌아가서 채우기»의 자리 — 그 이름에 커서를 둔다 */   // [QA_REFILL] · [QA_REFILL_TG] 빈 칸이 없으면 안 누른 «부탁드렸어요 · 보냈어요»로(화면 차례)
   if(!el) return; try{ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; el.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'}); el.focus({preventScroll:true}); if(el.tagName==='TEXTAREA'&&String(el.value||'').trim()){ var _en=_exNamesIn(el.value)[0], _ei=_en?el.value.indexOf(_en):-1; if(_ei>-1) el.setSelectionRange(_ei,_ei+_en.length); } }catch(e){} }   /* [REFILL_EXN_1031] */
 function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i],d>0); return true; }   // [LEAVE_POP] 다음으로 갈 때만 묻는다
-function _mkNextLab(){ var ps=_mkPages(), i=_mkIdx(); if(i>=ps.length-1) return '다음 · 연습하기'; var n=ps[i+1], no=_mkNo(n); if(n==='_after') return '다음 · 식후 '+_post('_photo').n+' · '+_post('_after').n;   /* [POST_FLOW_200 5] */ return (ps[i]==='_intro'?'이 흐름으로 시작하기 · ':'다음 · ')   /* [COURSE_FLOW] */+((no&&no!=='식전')?no+' ':'')+_mkName(n); }
+function _mkNextLab(){ var ps=_mkPages(), i=_mkIdx(); if(i>=ps.length-1) return '다음 · 연습하기'; var n=ps[i+1], no=_mkNo(n); if(n==='_after') return '다음 · 본식 뒤 '+_post('_photo').n+' · '+_post('_after').n;   /* [POST_FLOW_200 5] */ return (ps[i]==='_intro'?'이 흐름으로 시작하기 · ':'다음 · ')   /* [COURSE_FLOW] */+((no&&no!=='식전')?no+' ':'')+_mkName(n); }
 /* 두 분이 할 말 — 칸마다 따로 저장 · 글자수 ÷ 5 = 소리 내어 읽는 초(분당 300자 · 축사 원고 안내와 같은 기준) */
 function _mkSec(n){ return Math.ceil(n/5); }
 function _mkSecW(n){ var x=_mkSec(n); return x<60?'약 '+x+'초':'약 '+Math.floor(x/60)+'분'+(x%60?' '+(x%60)+'초':''); }   /* ★[REVIEW_166_1030 검토 166 C9] 60초 넘으면 «약 1분 44초» */
@@ -7487,7 +7509,7 @@ function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k]||(MK.lsMake||{
    ★[ONEMIN_FIRST 2026-10-05 사장님] 1분 전이 영상 앞(하객 맞이 순간)이 되어 엔진 차례 그대로 넷이 나온다. 꼬리는 늘 빈 것 · «식전 영상이 흐른 뒤» 쉼 되살리지 말 것 */
 function _lGuestTail(){ return []; }
 /* ★[SONG_ROW_LINES_1101] _mpHas(곡 칸 «나레이션과 함께 들어 보려면» 줄을 쓸지 · BED_HINT_WHERE_1031)는 그 줄과 함께 걷었다 */
-function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length+(k==='guest'?_lGuestTail().length?1:0:0); }catch(e){} try{ if(window.BgmBed&&BgmBed.on(k)) return '이 순간 전체 듣기 · 음악과 함께'; }catch(e){} return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }   /* [BGM_PREVIEW_1024] 구간 곡이 깔리는 순간만 «음악과 함께»(입장과 같은 말) */
+function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length+(k==='guest'?_lGuestTail().length?1:0:0); }catch(e){} var _st=[]; try{ if(ENG) _st=_lSteps(ENG,[k]); }catch(e){} try{ if(window.BgmBed&&BgmBed.on(k)&&!(_st.length&&_st.every(function(x){ return x.dk==null||!(x.dk>-60); }))) return '이 순간 전체 듣기 · 음악과 함께'; }catch(e){}   /* ★[MATJEOL_PILL_R2 2026-11-06 MEANING_R2 · 대본 승인] 엔진이 그 순간 줄을 모두 정적(−60 아래)으로 두면 «음악과 함께»를 말하지 않는다 — 맞절 = 정적 · 입장은 그대로 */ return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }   /* [BGM_PREVIEW_1024] 구간 곡이 깔리는 순간만 «음악과 함께»(입장과 같은 말) */
 function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈춤':_mpLab(k)); }); }   /* [PLAY_MID_1023] «멈춤» */   // [MP_ALL_WORD]
 window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; if(st.own&&st.up&&_playOff(st.up)){ mkPlayOff(st.up); return; } MK.playOff=null; _offToastOff();   /* [AI_PLAY_READY] 줄 카드 ▶(아직 소리 파일이 없는 줄)도 같은 입구 */
   LP.lineKey=k+':'+i; LP.lineSt=st; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
@@ -7793,8 +7815,8 @@ function renderPractice(){ var R=RitualOpen;
         +'<span class="pr-th" aria-hidden="true">'+(v?'<img src="'+esc(v.poster)+'" alt="" loading="lazy" decoding="async">':'')+'</span>'
         +'<span class="pr-nm">'+(no&&no!=='식전'?'<span class="pr-no">'+esc(no)+'</span>':'<span class="pr-no pre">식전</span>')+esc(_mkName(k))+(function(m){ return m?'<span class="pr-min">'+esc(m)+'</span>':''; })(_fgMin(k))+'</span>'   /* [FLOW_GRASP_1101 5] */
         +'<span class="vk vk-'+o.v+'">'+VK_ICO[o.v]+esc(o.lab)+'</span><span class="pr-go" aria-hidden="true">›</span></button></li>'; }).join('')
-    +(_afterOn()?POST_KS.map(function(k){ if(k==='_after') return '<li><button type="button" class="pr-row" data-fk="prj:_after" onclick="prFromAfter()"><span class="pr-th" aria-hidden="true"><img src="'+esc(_afterImg())+'" alt="" loading="lazy" decoding="async"></span><span class="pr-nm"><span class="pr-no pre">식후</span>'+esc(_post(k).n)+'</span><span class="pr-go" aria-hidden="true">›</span></button></li>';
-        return '<li><div class="pr-row pr-fix" data-fk="prx:'+k+'"><span class="pr-th" aria-hidden="true"></span><span class="pr-nm"><span class="pr-no pre">식후</span>'+esc(_post(k).n)+'<span class="pr-min">'+(k==='_photo'?'연습에서는 넘겨요':'연습 끝')+'</span></span></div></li>'; }).join(''):'')   /* ★[POST_FLOW_200 6] 단체 사진 · 추가 촬영은 누를 것 없는 줄(작가님 진행) */   /* ★[보충 중6] 식후 · 촬영 후 안내(본식 순서 수에는 안 더한다 · 기존 촬영 후 안내 줄로) */
+    +(_afterOn()?POST_KS.map(function(k){ if(k==='_after') return '<li><button type="button" class="pr-row" data-fk="prj:_after" onclick="prFromAfter()"><span class="pr-th" aria-hidden="true"><img src="'+esc(_afterImg())+'" alt="" loading="lazy" decoding="async"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'</span><span class="pr-go" aria-hidden="true">›</span></button></li>';
+        return '<li><div class="pr-row pr-fix" data-fk="prx:'+k+'"><span class="pr-th" aria-hidden="true"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'<span class="pr-min">'+(k==='_photo'?'연습에서는 넘겨요':'연습 끝')+'</span></span></div></li>'; }).join(''):'')   /* ★[POST_FLOW_200 6] 단체 사진 · 추가 촬영은 누를 것 없는 줄(작가님 진행) */   /* ★[보충 중6] 식후 · 촬영 후 안내(본식 순서 수에는 안 더한다 · 기존 촬영 후 안내 줄로) */
     +'</ol></section></div>';
   /* ★[PR_MODE 2026-10-05 사장님] AI 로 듣기는 연습 시작 전 «연습 방법» 고르기로 돌아왔다(맨 위 pr-mode · 아래 체크박스 모양은 여전히 금지) */
   /* ★«내 목소리로 연습»(내 차례 녹음 prrec · 두 분 차례도 AI 로 듣기 ptts · _prSec) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_VOICE_OFF] (사장님 «녹음하는 기능 우리 삭제했잖아» → «추천대로») · 두 분 차례는 글을 보며 따라 읽는다 */
@@ -8138,7 +8160,12 @@ function _lRefExpand(q){
       else { st.txt=pt.txt; st.ref=true; st.kyeol=pt.kyeol; st.refN=n; st.refOf=sets.length; st.refSit=_refSit(set); st.refDay=(x.k==='tribute'&&_inPr())?'비워 두셔도 돼요 · 지금은 참고 예시':_lRefDay(x.k,set); st.ms=(each||_mkSec(pt.txt.length))*1000; }   /* [PRACTICE_WALK_1101 12] 부모님께 드릴 말은 선택 */
       if(wk) st.wk=wk; grp.push(st); });
     /* ★[REVIEW_166_1030 검토 166 B1] 고른 참고 예시가 한 사람 판(편지 예시 3 · 4 신부만 · 교차 인사 예시 1 · 4 신랑만)이어도 두 분이 적은 글은 다 차례에 넣는다 — 종전엔 예시에 없는 분의 글이 연습 · 흐름에서 빠졌다 */
-    if(kind) [['g','신랑'],['b','신부']].forEach(function(gw){ if(grp.some(function(q){ return q.wk===gw[0]; })) return; if(_txSite(kind,c,kind+'.'+gw[0])) return; var mine2=String((S.tx||{})[kind+'.'+gw[0]]||'').trim(); if(!mine2) return;
+    if(kind) [['g','신랑'],['b','신부']].forEach(function(gw){ if(grp.some(function(q){ return q.wk===gw[0]; })) return; var _st2s=_txSite(kind,c,kind+'.'+gw[0]);
+      /* ★[LETTER_BRING_NI08 2026-11-05 이음매 NI08] 예시에 없는 분이 편지를 «따로 써서 가져올게요»로 고른 날도 그분 차례를 넣는다(종전엔 바로 빠졌다) — 카드 «신랑이 읽어요» ·
+           «따로 써 온 편지를 읽는 차례예요» · 저장된 옛 글은 읽지 않는다 · 신랑은 신부 앞 · B 는 차례마다 완료를 기다린다(talk2) · 시간 = 그 순간 몫을 화자 수로 나눈 값 */
+      if(_st2s&&kind==='letter'){ var st3={k:x.k,lab:gw[1]+'이 읽어요',who:gw[1],src:null,pending:true,talk2:true,talkTxt:x.txt,txt:'따로 써 온 편지를 읽는 차례예요',site:true,siteLetter:true,ms:(each||20)*1000,wk:gw[0],ldk:x.ldk};
+        if(gw[0]==='g'){ var fj=grp.findIndex(function(q){ return q.wk; }); grp.splice(fj<0?grp.length:fj,0,st3); } else grp.push(st3); return; }
+      if(_st2s) return; var mine2=String((S.tx||{})[kind+'.'+gw[0]]||'').trim(); if(!mine2) return;
       var st2={k:x.k,lab:gw[1]+' 차례',who:gw[1],src:null,pending:true,talk2:true,talkTxt:x.txt,txt:mine2,mine:true,ms:_mkSec(mine2.length)*1000,wk:gw[0],ldk:x.ldk};
       if(gw[0]==='g'){ var fi=grp.findIndex(function(q){ return q.wk; }); grp.splice(fi<0?grp.length:fi,0,st2); } else grp.push(st2); });
     /* ★[REVIEW_166_1030 검토 166 B2] 덕담 · 축사 — 받은 원고(S.tx['bless.p'] · ['free.p'])를 넣었으면 예시 대신 그 원고를 읽는다 · «원고 없이 현장에서»를 고른 날은 예시 그대로 */
@@ -8152,7 +8179,7 @@ function _lRefExpand(q){
       var _sw=x.k==='free'?'축사하시는 분':grp.length>1?'부모님':grp[0].who, _sl={free:'예시 축사 전문 보기',declare:'예시 선언문 전문 보기',bless:'예시 덕담 전문 보기'}[x.k];
       if(x.k==='free') grp=[{k:x.k,lab:'축사하시는 분 차례',who:'축사하시는 분',src:null,pending:true,talk2:true,talkTxt:x.txt,txt:'축사하실 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}];
       else grp=[{k:x.k,lab:_sw+' 차례',who:_sw,src:null,pending:true,talk2:true,talkTxt:x.txt,txt:(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}]; }
-    if(x.k==='toast'&&_inPr()&&grp.length) grp=[{k:x.k,lab:'말없이 흐르는 자리',txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요',quiet:true,who2:'couple',ms:0,est:0}].concat(grp,[{k:x.k,lab:'말없이 흐르는 자리',txt:'하객의 화답을 기다리며 두 분도 함께 잔을 들어요',quiet:true,who2:'couple',ms:0,est:0}]);   /* ★[PRACTICE_WALK_R2 8] 축배 — 잔을 드는 자리 · 구호 뒤 할 일(누가 선창하는지는 고른 대로) */
+    if(x.k==='toast'&&_inPr()&&grp.length) grp=[{k:x.k,lab:'말없이 흐르는 자리',txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요',quiet:true,who2:'couple',ms:0,est:0}].concat(grp,[{k:x.k,lab:'말없이 흐르는 자리',txt:'하객의 화답을 기다리며 두 분도 함께 잔을 들어요',quiet:true,who2:'couple',ms:0,est:0},{k:x.k,lab:'말없이 흐르는 자리',txt:'하객이 잔을 내려놓으면 두 분도 잔을 건네고, 하객을 향해 나란히 서요',quiet:true,aid:'toast:putdown',who2:'couple',ms:0,est:0}]);   /* [PR_ACT_NI06] 화답 뒤 잔 내려놓기 */   /* ★[PRACTICE_WALK_R2 8] 축배 — 잔을 드는 자리 · 구호 뒤 할 일(누가 선창하는지는 고른 대로) */
     if(x.cheer||x.of){ var _lt=null; grp.forEach(function(g){ if(g.talk2||g.both) _lt=g; }); if(_lt){ if(x.cheer) _lt.cheer=true; if(x.of&&!_lt.of) _lt.of=x.of; } }   /* ★★[MEANING_R1_1102 13] 차례로 나눈 줄(신랑 차례 · 신부 차례)의 마지막에 «위하여»(cheer)를 싣는다 — 종전엔 나누면서 잃어 하루 이어 듣기에서 축배 곡(M7)이 안 올라왔다 */
     grp.forEach(function(st){ if(!st.both&&st.talk2){ var pu=_ptSrc(st); if(pu){ st.src=pu; st.ptts=true; st.pending=false; } }   // [VOICE_CLONE 4-2] AI가 읽어 주는 연습용 소리
       out.push(st); });
@@ -8278,7 +8305,7 @@ window.RunPace=window.RunPace||{ act:{candle:6,table:8,matjeol:8,clap:5.5}, cueT
 function _rpAct(x){ var A=(window.RunPace||{}).act||{}, sec=(x.k==='candle'&&/^narr-candle-in-/.test(x.of||''))?A.candle:(x.k==='table'&&x.of==='narr-table-in')?A.table:(x.k==='matjeol')?A.matjeol:/박수/.test(String(x.txt||''))?A.clap:null; return sec?Math.round(sec*1000):_dwellMs(x,true); }   /* [TURN_GAP_1102] 표(RunPace)에 없는 동작 = 머무름 표의 연습 값(부모님께 인사 · 포옹 · 반지 · 이동 · 목례 박수 8초 · 그 밖 6초) */
 /* ★[PR_WAY_198 보충 중7] 연습 줄 = 재생과 같은 줄(_prQ) · 연습 예상 시간 = 그 줄의 길이 + _lGapOf 쉼(입장 준비 5초 · 편지 끝 연출 포함) — 첫 화면 «연습 약 n분»이 실제 A 완주와 맞게 */
 function _prAct(x){ return x.quiet&&!x.act?Object.assign({},x,{src:null,pending:false,ms:_rpAct(x),act:1}):x; }   /* [PR_REVIEW_201 상1] 말없는 줄 = 동작(행위자 · 시간) — 펼쳐 더한 줄(축배 잔 · 화답)도 같은 길 */
-function _prQ(ks){ return _lRefExpand(_lpTag(_lSteps(ENG,ks)).filter(function(x){ return !x.quiet||x.txt; }).map(_prAct)).map(_prAct); }
+function _prQ(ks){ return _lRefExpand(_lpTag(_lSteps(ENG,ks)).filter(function(x){ return !x.hint&&(!x.quiet||x.txt); }).map(_prAct)).map(_prAct); }   /* ★[DINE_HINT_NI15] 설정 도움말(이어지는 줄 · hint)은 재생 · 연습 시간에서 뺀다 — 6초 «행동»처럼 기다리던 것(마무리 녹음 다음은 전체 단체 사진) */
 function _prDur(x){ if(x.act||x.said||x.talk2||x.talk||x.skip) return x.ms||3000; var D=(window.BgmBed&&BgmBed._t&&BgmBed._t.DUR)||{}, d=x.src&&D[x.src]; if(d>0) return Math.round(d*1000); var t=String(x.txt||''); return t?Math.round(Math.max(2,t.length/6.5)*1000):(x.ms||3000); }
 function _prEstMs(ks){ if(!ENG) return 0; var q=_prQ(ks), t=0, mu=_prMusic(); q.forEach(function(x,i){ t+=_prDur(x); if(i>0) t+=_lGapOf(q,i,q[i-1],x,true).gap;
     if(x.k==='entry'&&(i===0||q[i-1].k!=='entry')) t+=5000;   /* 입장 준비 5초(⑩) */ if(mu&&q[i-1]&&q[i-1].k==='letter'&&x.k!=='letter') t+=6000; });   /* 편지 끝 연출(정적 2초 + 4초) */
@@ -8514,11 +8541,13 @@ function _prPrep(st){ var id=(LP.prepId=(LP.prepId||0)+1); LP.prep={st:st,n:5,id
     if(LP.prep.n<=0){ LP.prep=null; LP.prepDone=st; _lShow(); return; } _lFull(); tick(); },1000); })(); }
 /* ★★[PR_WAY_198 ⑪] 이어서 연습 — 문장 자리까지 이 기기에 적는다(순간 · 그 순간 몇째 줄 · 방식 · 그때 순서) · 다음에 열면 «어디서부터»를 먼저 보여 주고 누를 때만 튼다(자동 재생 없음) · 순서가 바뀌었으면 바뀐 순간부터 */
 var PR_AT_KEY='me_pr_at', PR_ORD=['첫','두','세','네','다섯','여섯','일곱','여덟','아홉','열'];
-function _prAtWhere(q,i){ var st=q[i], k=st.k, a=i; while(a>0&&q[a-1].k===k) a--; var n=i-a, nm=_mkName(k), d;
+function _prAtWhere(q,i){ var st=q[i], k=st.k, a=i; while(a>0&&q[a-1].k===k) a--; var n=i-a, nm=st.stage?'본식 뒤 · '+_stName(st):_mkName(k), d;   /* [STAGE_SHOW_NI11] 이어서 연습 이름도 단계로 */
   if(st.talk2&&/^(신랑|신부)$/.test(st.who||'')){ var c=0; for(var j=a;j<=i;j++){ if(q[j].talk2&&q[j].who===st.who) c++; } d=st.who+' '+(PR_ORD[c-1]||c)+' 번째 문장'; }
   else if(st.both) d='두 분이 함께 읽는 문장'; else if(st.talk2) d=(st.who||'')+' 차례'; else if(n===0) d='처음부터'; else d=(PR_ORD[n]||(n+1))+' 번째 줄';
   var p=_fgCardPos(q,i), f=FG_FACE[k], at=FG_NOW[p]||(FG_LAB[p]+'에서');
-  return {k:k,n:n,d1:nm+' · '+d,d2:at+(f==='each'?' 서로 마주 봐요':f==='guests'?' 하객 쪽을 봐요':'')}; }
+  /* ★[VOW_FACE_NI13 2026-11-05 이음매 NI13] 일반 서약은 함께 읽는 문장(both)과 그 뒤 받는 말에서 하객 쪽을 본다 — 같은 서약 안 앞줄까지만 본다(다른 순간 · 새 연습에 남지 않는다) · 개인 문장은 서로 마주 · 감사문 서약은 종전 방향 */
+  if(k==='vow'&&_vowKind()!=='thanks'){ var _bt=false; for(var bj=a;bj<=i;bj++){ if(q[bj].both) _bt=true; } if(_bt&&!(st.talk2&&!st.both)) f='guests'; }
+  return {k:k,n:n,d1:st.stage?nm:nm+' · '+d,d2:at+(f==='each'?' 서로 마주 봐요':f==='guests'?' 하객 쪽을 봐요':'')}; }
 function _prAtSave(){ try{ var st=LP.q[LP.i]; if(!st||!_inPr()||!LP.all||LP.fast) return; var w=_prAtWhere(LP.q,LP.i); w.way=PRW; w.rows=_lRows().join(','); w.t=Date.now(); localStorage.setItem(PR_AT_KEY,JSON.stringify(w)); }catch(e){} }
 function _prAtClear(){ try{ localStorage.removeItem(PR_AT_KEY); }catch(e){} }
 function _prAtGet(){ var o=null; try{ o=JSON.parse(localStorage.getItem(PR_AT_KEY)||'null'); }catch(e){ o=null; } if(!o||!o.k) return null;
@@ -8614,6 +8643,7 @@ window.lsToggle=function(){
   var st=LP.q[LP.i], a=_lAud();
   if(LP.paused&&LP.leadSt&&LP.leadSt===st&&LP.tAt&&LP.tMs){ LP.leadLeft=Math.max(0,LP.tMs-(Date.now()-LP.tAt)); LP.leadLeftSt=st; try{ if(window.BgmBed&&BgmBed.lpPauseLead) BgmBed.lpPauseLead(st); }catch(e){} }   /* ★[DETAIL_R2_1101 ④] 뜸(선언 앞 연출) 중 멈춤 — 남은 시간을 적어 둔다 */
   if(LP.paused){ try{ a.pause(); }catch(e){} if(st&&!st.src&&LP.tAt&&LP.tMs){ LP.tLeft=Math.max(0,LP.tMs-(Date.now()-LP.tAt)); LP.tLeftSt=st; } clearTimeout(LP.t); }   /* ★[TALK_RESUME_1031 식순 걷기 2라운드 9] 직접 말하는 차례를 멈추면 남은 시간을 적어 둔다 */
+  else if(st&&!st.src&&LP.tLeftSt===st&&_inPr()&&_prWait(st)){ LP.tLeftSt=null; LP.tLeft=0; clearTimeout(LP.t); LP.wait=st; LP.tAt=0; LP.tMs=0; _prWaitLv(st); try{ if(LP.big) _lFull(); }catch(e){} }   /* ★[B_RESUME_WAIT_NI14 2026-11-05 이음매 NI14] 흐름 보기에서 멈췄다가 직접 해보기로 이어 하면 남은 자동 시간을 버리고 «다 했어요»까지 기다린다(음악 크기는 _prWaitLv · 지정값 그대로) · 흐름 보기면 아래 남은 시간 그대로 */
   else if(st&&!st.src&&LP.tLeftSt===st&&LP.tLeft>300&&LP.tMs){ var _lf=LP.tLeft, _me=LP.tok; LP.tLeftSt=null; clearTimeout(LP.t); LP.tAt=Date.now()-(LP.tMs-_lf); LP.t=setTimeout(function(){ if(_me===LP.tok&&!LP.paused) _lNext(); },_lf); try{ if(LP.big&&st.talk2) _lFull(); }catch(e){} }   /* [TALK_RESUME_1031] 이어 들으면 남은 시간부터(막대도 그 자리부터) · 처음부터 다시 세는 것은 «다시 보기»만 */
   else if(st&&st.src&&a.getAttribute('src')===st.src){ var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr); }   // [INAPP_UNLOCK] 무음으로 풀었으면 src 가 바뀌었으니 아래 _lShow 로 다시 건다
   else _lShow();
@@ -8704,7 +8734,7 @@ function _lPaint(){
   document.querySelectorAll('.ls-row').forEach(function(r){ var k=r.getAttribute('data-lk'), on=!!st && k===st.k; r.classList.toggle('now', on);
     var b=r.querySelector('.ls-play'), pl=on&&!LP.paused; if(b&&b.getAttribute('data-pl')!==(pl?'1':'0')){ b.setAttribute('data-pl',pl?'1':'0');   // [A11Y_PLAYTOG] 재생 중인 줄은 «멈춤»
       var pi=b.querySelector('.ls-pi'); if(pi) pi.innerHTML=pl?ICO_PAUSE:ICO_PLAY;   /* [PLAY_BESIDE_NUM] 그림은 두고 원 안 아이콘만 바꾼다 */ b.setAttribute('aria-label',_lName(k)+(pl?' 멈춤':' 듣기')); b.setAttribute('onclick',pl?'lsToggle()':"lsPlay('"+k+"')"); } });
-  if(st&&LP.last!==st.k){ LP.last=st.k; _lSay(_lName(st.k)+' · '+_lNoOf(st.k)); }
+  if(st&&LP.last!==(st.stage||st.k)){ LP.last=st.stage||st.k; _lSay(_stName(st)+' · '+_stNo(st)); }   /* [STAGE_SHOW_NI11] */
   var _mWas=el.style.display==='flex', _ae=document.activeElement, _mFk=(_ae&&el.contains(_ae))?_ae.getAttribute('data-fk'):null;   /* ★[QA_MINI_FOCUS 2026-10-04 점검] 다시 그려도 누른 단추에 포커스가 남는다 — 종전엔 innerHTML 로 갈아 끼울 때마다 <body> 로 떨어졌다 */
   /* ★★[MINI_OFF_ROWS 2026-10-04 사장님 «여기 밑에 재생 박스는 굳이 안 나와도 될 것 같아»] ② 순간 쪽은 줄마다 ▶ 가 있다 — 흐르는 줄의 ▶ 가 ❚❚(누르면 멈춤 · 다시 누르면 이어서)가 되고,
      아래 작은 플레이어는 그 줄들이 보이는 쪽에서는 띄우지 않는다. 줄 ▶ 가 없는 곳(연습 등)은 종전대로 작은 플레이어 */
@@ -8719,7 +8749,7 @@ function _lPaint(){
   else {
     el.style.display='flex';
     var _pv=LP.q[LP.i-1], _nx=LP.q[LP.i+1], _hasP=!!(_pv&&_pv.k===st.k), _hasN=!!(_nx&&_nx.k===st.k), _n=0, _at=0; LP.q.forEach(function(x,j){ if(x.k===st.k){ _n++; if(j<=LP.i) _at++; } });   // [LINE_STEP]
-    el.innerHTML='<button type="button" class="lm-t" data-fk="lmt" aria-label="크게 보기 · '+esc(_lName(st.k))+'" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+(_n>1?' <span class="lm-n">'+_at+' / '+_n+'</span>':'')+'</b><small>'+(LP.baking===st?(st.up&&_upStale(st.up)?'바뀐 글로 만드는 중… ':'새 빠르기 · 쉼으로 만드는 중… '):'')+esc((function(){ var _sb=st.talk||st.skip||st.own?st.txt:st.lab; return _sb===_lName(st.k)?(st.txt||''):_sb; })())+(st.pending&&!LS.allPend?' · '+esc(st.talk2?'직접 읽기':_pendT(st,1)):'')+'</small></button>'   /* ★[TALK_DIRECT_TAG_1023 코워크 묶음 A-2] 두 분(또는 부모님)이 직접 말하는 차례는 «아직 녹음 전»이 아니라 «직접 읽기» — 녹음해서 내야 하는 줄로 읽혔다 · 나레이션 줄은 그대로 */
+    el.innerHTML='<button type="button" class="lm-t" data-fk="lmt" aria-label="크게 보기 · '+esc(_stName(st))+'" onclick="lsOpenBig()"><b>'+esc(_stName(st))+(_n>1?' <span class="lm-n">'+_at+' / '+_n+'</span>':'')+'</b><small>'+(LP.baking===st?(st.up&&_upStale(st.up)?'바뀐 글로 만드는 중… ':'새 빠르기 · 쉼으로 만드는 중… '):'')+esc((function(){ var _sb=st.talk||st.skip||st.own?st.txt:st.lab; return _sb===_lName(st.k)?(st.txt||''):_sb; })())+(st.pending&&!LS.allPend?' · '+esc(st.talk2?'직접 읽기':_pendT(st,1)):'')+'</small></button>'   /* ★[TALK_DIRECT_TAG_1023 코워크 묶음 A-2] 두 분(또는 부모님)이 직접 말하는 차례는 «아직 녹음 전»이 아니라 «직접 읽기» — 녹음해서 내야 하는 줄로 읽혔다 · 나레이션 줄은 그대로 */
       +'<button type="button" class="lm-g" data-fk="lmg" onclick="lsOpenBig()">크게 보기</button>'   /* ★[RIT_BIG_BTN 2026-09-27 4부 11] 크게 보기로 가는 단추가 안 보였다(제목 줄이 단추인 줄 몰랐다) — 글 단추 */
       +'<button type="button" class="lm-b lm-mv" data-fk="lmprevk"'+(LP.range&&LP.range.ks.length>1?'':' disabled aria-disabled="true"')+' onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>'   /* [CTL_FIVE] 늘 다섯 칸 */   /* ★[UI_ONE 2026-10-04 사장님 «작은 플레이어 · 크게 보기 같은 단추 묶음»] 앞 순간 · 앞 줄 · 잠시 멈춤 · 다음 줄 · 다음 순간 */
       +'<button type="button" class="lm-b lm-l" data-fk="lmprev"'+(_hasP?'':' disabled aria-disabled="true"')+' onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>'
@@ -8796,7 +8826,7 @@ function _lFull(){
     var ks=[]; LP.q.forEach(function(x){ if(ks.indexOf(x.k)<0) ks.push(x.k); });
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
-    h+='<h3>'+(/^narr-open/.test(st.slug||'')?'여는 멘트':_pkName(esc(_lName(_prIn?_oK(st):st.k)),st.k===R.peakOf(S)))+'</h3>';   /* [PR_REVIEW_201 중4] 연습 · 식후 블록 줄은 «촬영 후 안내» */   /* [OPEN_LINE_192] */   /* [R2-33] ★ 은 이름 뒤(① · ② 와 같게) */
+    h+='<h3>'+(/^narr-open/.test(st.slug||'')?'여는 멘트':_pkName(esc(st.stage?_stName(st):_lName(_prIn?_oK(st):st.k)),st.k===R.peakOf(S)))+'</h3>';   /* [PR_REVIEW_201 중4] 연습 · 식후 블록 줄은 «촬영 후 안내» */   /* [OPEN_LINE_192] */   /* [R2-33] ★ 은 이름 뒤(① · ② 와 같게) */
     if(_prIn&&!LP.fast){ var _nm9=_lName(_oK(st));   /* ★[PR_WAY_198 ⑨ ⑩] 입장 준비 5초 · 이 순간만 연습 · 끝 선택 */
       if(LP.prep&&LP.prep.st===st) h+='<div class="lf-prep" role="timer" aria-live="polite"><p class="lf-prepn">'+LP.prep.n+'</p><p class="lf-prept">입장 준비 · 입장 문 앞에서 출발을 기다려요</p><p class="lf-preps">«입장!» 구호가 나오면 걸어요</p></div>';
       else if(LP.onlyEnd===_oK(st)) h+='<div class="lf-onlyend" role="status"><p>«'+esc(_nm9)+'»'+esc(_josa(_nm9,'을','를'))+' 연습했어요</p><button type="button" class="rowbtn" data-fk="lfagain1" onclick="prOnlyAgain()">한 번 더</button></div>';
@@ -8899,16 +8929,16 @@ function _lFull(){
   var _ctl=!!(fk&&/^lf(prev|next)/.test(fk));   // ★[QA_BIG_FOCUS 2026-10-04 점검] 첫 줄 · 끝 줄에서 ‹ › 가 사라지면 ⌄ 가 아니라 ❚❚ 로
   if(!tgt&&(chipFocus||_ctl||!f.contains(document.activeElement))) tgt=f.querySelector((chipFocus||_ctl)?'[data-fk="lftog"]':'[data-fk="lfmin"]')||f.querySelector('[data-fk="lfagain"]');
   if(tgt&&tgt.focus){ try{ tgt.focus({preventScroll:true}); }catch(e){} }
-  try{ if('mediaSession' in navigator&&st){ navigator.mediaSession.metadata=new MediaMetadata({title:_lName(st.k),artist:'우리 예식 · 연습'}); } }catch(e){}
+  try{ if('mediaSession' in navigator&&st){ navigator.mediaSession.metadata=new MediaMetadata({title:_stName(st),artist:'우리 예식 · 연습'}); } }catch(e){}
 }
 /* ★[PR_RAIL 2026-10-05 사장님 «PC 버전 연습 공간 · 좌우 공간 넓게 써서 활용도 좋게»] 크게 보기(처음부터 끝까지)의 순간 목록 —
    PC(1000 이상)에서만 오른쪽에 선다(폰은 숨김 · ⏮ ⏭ 와 ⌄ 로 충분하다). 지금 순간은 진사 막대 · 지난 순간은 옅게 · 누르면 그 순간부터 이어서 흐른다(lsGoK) */
-function _lRail(st){ var ks=[]; LP.q.forEach(function(x){ if(ks.indexOf(x.k)<0) ks.push(x.k); });
-  var cur=st?st.k:'', ci=ks.indexOf(cur);
-  return '<aside class="lf-rail" aria-label="순간 목록"><p class="lf-rh">예식 순서</p><ol>'+ks.map(function(k,i){ var on=k===cur, no=_mkNo(k);
+function _lRail(st){ var ks=[]; LP.q.forEach(function(x){ var rk=x.seg==='_after'?'_after':x.k; if(ks.indexOf(rk)<0) ks.push(rk); });   /* [STAGE_SHOW_NI11] 본식 뒤 줄은 «본식 뒤 촬영 후 안내» 한 칸 · 지금 줄이 그쪽이면 닫는 인사가 아니라 그 칸 */
+  var cur=st?(st.seg==='_after'?'_after':st.k):'', ci=ks.indexOf(cur);
+  return '<aside class="lf-rail" aria-label="순간 목록"><p class="lf-rh">'+(cur==='_after'?'본식 뒤 · 예식 순서':'예식 순서')+'</p><ol>'+ks.map(function(k,i){ var on=k===cur, no=_mkNo(k);
     return '<li><button type="button" class="lf-rr'+(on?' on':(ci>-1&&i<ci)?' past':'')+'" data-fk="lfk:'+k+'"'+(on?' aria-current="step"':'')+' onclick="lsGoK(\''+k+'\')">'
       +'<span class="pr-no'+(no&&no!=='식전'?'':' pre')+'">'+esc(no&&no!=='식전'?no:'식전')+'</span><span class="lf-rn">'+esc(_mkName(k))+'</span>'+(function(m){ return m?'<span class="lf-rm">'+esc(m)+'</span>':''; })(_fgMin(k))+'</button></li>'; }).join('')+'</ol></aside>'; }
-window.lsGoK=function(k){ var j=-1; for(var i=0;i<LP.q.length;i++){ if(_oK(LP.q[i])===k||(k!=='_after'&&LP.q[i].k===k)){ j=i; break; } } if(j<0) return;
+window.lsGoK=function(k){ var j=-1; for(var i=0;i<LP.q.length;i++){ if(_oK(LP.q[i])===k||(k!=='_after'&&LP.q[i].k===k)){ j=i; break; } } if(j<0) return;   /* [STAGE_SHOW_NI11] «본식 뒤» = 블록 첫 줄(전체 단체 사진)부터 · [PR_REVIEW_201 중4] 그대로 */
   LP.hint=null; LP.paused=false; LP.stay=null; LP.choose=null; LP.listOpen=false; if(LP.only&&LP.only!==k){ LP.only=null; } LP.onlyEnd=null; LP.prepDone=null; _lUnlock(); LP.i=j; _lShow(); };   /* [PR_WAY_198 ④] 목록에서 고르면 닫힌다 */   // [PR_RAIL] lsJump 과 같은 길(멈춰 있었어도 그 순간부터 튼다)
 /* 케이크 · 축배는 줄에 맞춰 장면이 바뀐다(F: toast-pour 붓기 · toast 잔 들기) · 첫 모습(바라보기 · 맞절) · 큰절 */
 function _lSceneName(st){
@@ -10428,7 +10458,7 @@ function _doneOpen(){
       +'<button class="sr-c" aria-label="'+esc(_lName(k))+(mark?' '+(empty?'글 ':'')+(_exn&&_bits.length===1?'고치기':'채우기'):' 바꾸기')+'" data-fk="sum:'+k+'" onclick="editStep(\''+k+'\')">'+(mark?(_exn&&_bits.length===1?'고치기':'채우기'):'변경')+'</button></div>';
   });
   if(_afterOn()) POST_KS.forEach(function(k){ var x=_post(k), d=_postDur(k);   /* ★[POST_FLOW_200 C · D] 식후 세 줄 = POST_FLOW 차례 · 단체 사진 약 n분 = 전체 · 가족만 · 추가 촬영 = 원하는 만큼(40분 밖) */
-    h+='<div class="sumrow"><div class="sr-n sr-pre">식후</div><div class="sr-l">'+esc(x.n)+'</div><div class="sr-v">'+esc(k==='_after'?AFTER_SUM:(k==='_photo'?x.sub+(d?' · 추가 촬영까지 '+d:''):x.sub))+'</div>'
+    h+='<div class="sumrow"><div class="sr-n sr-pre">본식 뒤</div><div class="sr-l">'+esc(x.n)+'</div><div class="sr-v">'+esc(k==='_after'?AFTER_SUM:(k==='_photo'?x.sub+(d?' · 추가 촬영까지 '+d:''):x.sub))+'</div>'
       +(k==='_after'?'<button class="sr-c" aria-label="'+esc(x.n)+' 보기" data-fk="sum:_after" onclick="editStep(\'_after\')">보기</button>':'')+'</div>'; });   /* ★[AFTER_FIX_196] 순서 요약 맨 끝 · 글은 마이페이지 값으로 갈려 여기서 고칠 것이 없다(«보기») */
   h+='</div>';
   return h;
@@ -11302,7 +11332,7 @@ var CUSTPHOTO=false;
 var CUSTTBL=0;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수 — mypage 가 orderFill 로 보낸다 · render 가 S.tableN 에 싣는다(초안과 함께 저장 → 콘솔 · 시간표가 같은 값) */
 var CUSTGUIDE=true;   // ★[GUIDE_ALWAYS_202] 기본 켜짐 —   // [GUIDE_ON_1019] 하객 안내가 열려 있나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 사진 올리기 안내가 안 나간다)
 var CUSTMEALF=false, CUSTRESV=false;   // [PHOTO_PRE_PICK_1030] 식사 자리 · 예약 시각 유무 — mypage orderFill(구버전이면 false · 26/265 로 지난다)
-var CUSTMEAL=false;   // [MEAL_GUIDE] 모일 식당을 골랐나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 멘트가 안 나간다)
+var CUSTMEAL=false; var CUSTDINE='';   // [DINE_HINT_NI15] 식사 상태(none · cafe · meal · undecided · needs-confirmation) — mypage orderFill · 옛 화면이면 '' (짐작하지 않는다)   // [MEAL_GUIDE] 모일 식당을 골랐나 — mypage 가 orderFill 로 보낸다(구버전이면 false · 멘트가 안 나간다)
 /* ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 저장할 때 **어디까지 걸어왔는지**를 함께 보낸다.
    ★무엇이 문제였나 — 코스를 고르는 순간 모든 순간이 기본값으로 채워진다. 그래서 3번째 단계에서
      「저장 후 나가기」를 해도 미리듣기는 **폐식까지** 흐른다. 화면은 「고르신 순서 그대로」라고
@@ -11520,6 +11550,7 @@ if(EMBED){
       if(typeof ev.data.tables==='number'&&ev.data.tables>0) CUSTTBL=ev.data.tables;   /* [TABLE_GREET_1008] 좌석 배치도 테이블 수(없으면 하객 수 ÷ 5) — 아래에서 S.tableN 에 싣는다(콘솔 · 시간표가 같은 값을 본다) */
       if(typeof ev.data.guide==='boolean') CUSTGUIDE=ev.data.guide;   // [GUIDE_ON_1019]
       if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;
+      if(typeof ev.data.dining==='string'&&/^(none|cafe|meal|undecided|needs-confirmation)$/.test(ev.data.dining)) CUSTDINE=ev.data.dining;   // [DINE_HINT_NI15] 상태 낱말만(장소 이름 · 예약 글은 싣지 않는다)
       if(typeof ev.data.mealFull==='boolean') CUSTMEALF=ev.data.mealFull; if(typeof ev.data.resv==='boolean') CUSTRESV=ev.data.resv;   // [PHOTO_PRE_PICK_1030]
       try{ RitualOpen.setPost({digital:!!CUSTDIG, meal:!!CUSTMEAL, mealFull:!!CUSTMEALF, resv:!!CUSTRESV, guide:CUSTGUIDE!==false}); }catch(e){}   /* ★[END_FLOW_1030 · BODY_CAP_1030] 닫는 인사 뒤 몫(온라인 인사 · 사진 전 안내)을 40분 셈과 상한에 */   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
       // ORDER_OWNER → ★[ACCT_KEYS 2026-10-30] 이 기기 초안은 계정 칸이라 «주인이 다르면 지우기»가 필요 없다 — 마이페이지가 확인해 준 계정 칸만 이제 처음 읽는다(그 전엔 읽지 않았다).

@@ -127,7 +127,7 @@ try {
   ok('② 서약 순서 줄 — 지금 차례 강조', m.vow === m.vowWant && !!m.vow, m);
   ok('③ 긴 참고 예시 설명은 첫 참고 예시 줄에서만 · 작은 «참고 예시» 표시는 그대로', m.ref0 === true && m.ref1 === false && m.tag1 === true, m);
   ok('⑤ 선언 · 덕담 요약 칸 고정 높이 없음', m.sumMin === '0px' && m.sumH < 140, m);
-  ok('④ «n/N · 예식 순서» 누르면 목록 · 고르면 그 순간 · 목록 닫힘', /^(\d+\/\d+|식전|식후) · 예식 순서/.test(m.listLab) && m.listRows >= 4 && m.goK === true, m);
+  ok('④ «n/N · 예식 순서» 누르면 목록 · 고르면 그 순간 · 목록 닫힘', /^(\d+\/\d+|식전|식후|본식 뒤) · 예식 순서/.test(m.listLab) && m.listRows >= 4 && m.goK === true, m);
   ok('⑤ 다음 줄은 맨 위부터', m.top === 0, m);
   /* ⑦ 화면 잠금 */
   const wl = await f.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)); const r0 = __wl.req; lsCloseBig(); await w(200); const rel = __wl.rel;

@@ -97,7 +97,7 @@ try {
     /* 1 · 2 맞절 — 곡 전체(r5 · 140초 · 문 열림 40초) */
     await f.evaluate((mu) => { S.mu = mu; _persist(); render(); }, MU('r5')); await go(f, 'matjeol'); await wait(f, 500);
     const l1 = await lab(f, 'matjeol');
-    ok(`${W} 1 맞절 알약 «이 순간 전체 듣기 · 음악과 함께»(입장 곡을 골랐다)`, l1 === '이 순간 전체 듣기 · 음악과 함께', l1);
+    ok(`${W} 1 맞절 알약 «이 순간 전체 듣기»(입장 곡을 골라도 맞절 = 정적 · «음악과 함께» 없음) [MATJEOL_PILL_R2]`, l1 === '이 순간 전체 듣기', l1);
     const r1 = await trace(f, ['matjeol'], 26000, false), lg1 = await LOG(pg);
     const e1 = r1.filter((x) => x.f === '@ENT' && x.src), x1 = await f.evaluate(() => ({ ent: BgmBed._t.ENT(), at: BgmBed._t.entAt('matjeol') }));
     ok(`${W} 1 입장 곡을 묻고(key rec · r5) '@ENT' 로 깐다 · 다른 구간 곡은 묻지 않는다`, lg1.includes('momentedit:ritualFileGet:rec:r5') && e1.length > 20 && !lg1.some((x) => /:bed:B/.test(x) && !/:bed:list/.test(x)), { lg1: lg1.filter((x) => /rec|bed/.test(x)).slice(0, 8), n: e1.length });
