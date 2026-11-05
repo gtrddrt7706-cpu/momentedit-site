@@ -255,7 +255,8 @@
   function dayName(k){ var f=dayAt(k), p=f&&P.byF(f); return p?p.t:''; }
   function lastF(){ var l=P.PICKS.M8L||[]; for(var i=0;i<l.length;i++){ if(has(l[i])) return l[i]; } return ''; }
   function lastName(){ var f=lastF(), p=f&&P.byF(f); return p?p.t:''; }
-  function fileFor(st){ if(st.after){ var _f8=lastF(); if(_f8){ if(st===curStep()) LPB.aft=_f8; return _f8; } }
+  function fileFor(st){ if(st.after&&st===curStep()){ var _fa=lastF(); if(_fa) LPB.aft=_fa; }   /* [SEAM_BG06] 지금 줄의 촬영 후 안내 곡을 기억 */
+    if(st.after){ var _f8=lastF(); if(_f8) return _f8; }
     if(LPB.aft&&/^_(close|after|photo|goodbye)$/.test(st.k||'')&&st.slug!=='narr-close-bow'&&st.slug!=='narr-closing'&&!st.after){ var _ci=-1, _ai=-1; try{ if(typeof LP!=='undefined'&&LP.q){ _ci=LP.q.indexOf(st); for(var _j=0;_j<LP.q.length;_j++){ if(LP.q[_j]&&LP.q[_j].after){ _ai=_j; break; } } } }catch(x){} if(_ai>-1&&_ci>_ai) return LPB.aft; }   /* ★[SEAM_BG06] 촬영 후 안내 뒤의 가족 · 추가 촬영 줄(after 표시 없음 · NI10 · NI11 stage)도 같은 마지막 곡(M8L) — 닫는 인사 곡(M6)으로 돌아가거나 0초로 다시 걸지 않는다 · 끝내기 · 새 시작에서 지움 */
     var lsg=(LPB.lf&&BED.who==='lp'&&BED.cur.src&&BED.cur.f===LPB.lf.f)?LPB.lf.sg:''; if(lsg&&(st._base||segAt(st.k))===lsg) return LPB.lf.f;   /* ★[DAYLONG_1101] 이어 듣는 동안 목록이 넘긴 곡을 그 구간의 다음 줄이 잇는다(고른 곡으로 되돌아가지 않는다) */
     if(!st._base&&!entMulti()&&BED.who!=='card'){ var _dk=dayAt(st.k); if(_dk) return _dk; }   /* [SCREEN_SOUND_1102] 순간 하나 = 당일 시간표 그 자리 곡 */   /* ★[MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L · 목록 차례 그대로 · effHas 는 앞 곡을 «이어 가는 곡»으로 읽어 B07 을 냈다) — 당일 콘솔(_goodbye → M8L)과 같은 곡 */
