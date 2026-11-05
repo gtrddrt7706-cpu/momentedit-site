@@ -168,7 +168,7 @@
     segs.forEach(function (sg) { if (!loopy(sg)) return; var k = custK(S, sg), c = carryOf(S, sg, prevF(sg)), base = order(S, sg, c || '', function () { return false; }), L = base.filter(function (f) { return have(f); });
       var lenOf = function (a) { return a.reduce(function (t, f) { var d = +dur(f); return t + (d > 0 ? d : LEN0); }, 0); }, need = NEED[sg] || 0, keep = [], back = [];
       /* [DETAIL_R3_1101 ⑦ 보탬] 앞 칸에서 고른 배경 곡(fill)도 «빼기»가 아니라 같은 셈(예약 · 들은 곡)으로 — 빼면 모자랄 때 맨 뒤로(order 의 fill 빼기는 여기서 쓰지 않는다) */
-      L.forEach(function (f) { var taken = (f !== c) && ((rsv[f] && rsv[f] !== sg) || seen[f]); if (taken) back.push(f); else keep.push(f); });
+      L.forEach(function (f) { var taken = (f !== c) && (f !== k) && ((rsv[f] && rsv[f] !== sg) || seen[f]); if (taken) back.push(f); else keep.push(f); });   /* ★[B2_EUM07] 두 분이 이 칸에 고른 곡(k)은 다른 칸(편지 «음악과 함께» 등)에서 같은 곡을 써도 뒤로 밀지 않는다 — 식순 화면 · 연습 · 당일(segSel = 고른 곡부터) 첫 곡이 같다 · «…에서도 고른 곡이에요» 한 줄(dupSeg)은 그대로 */
       var out = keep.slice(); back.forEach(function (f) { if (lenOf(out) < need) out.push(f); });   /* 빼서 모자라면 맨 뒤로 · 모자라지 않으면 뺀다 */
       if (!out.length && L.length) out = L.slice();
       out.forEach(function (f) { seen[f] = 1; });
