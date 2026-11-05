@@ -22017,3 +22017,17 @@ nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
 chk 'MATJEOL_PILL_R2' order-preview.html 1   # [MEANING_R2 · 2026-11-06] 맞절 = 정적 → 알약에 «음악과 함께» 없음(엔진 줄이 모두 정적이면)
 chk 'MATJEOL_PILL_R2' scripts/audit/entry-carry.mjs 1
+# ── 2026-11-06 [이음매 BG05 · BG06 · TX01 ~ TX04] 축배 행동 줄 음악 · 촬영 후 안내 뒤 M8L · 요약 · 설명 글(대본 승인)
+chk 'TOAST_LV_BG05' order-preview.html 1
+chk 'AFTER_HOLD_BG06' order-preview.html 1
+chk "stage:'_extra',after:true," order-preview.html 1
+chk '나레이션에 맞춰 서로 무도회 맞절을 하고 눈을 맞춰요' order-preview.html 1
+nochk '3초씩 숙이고' order-preview.html
+chk '예식 10분 전 · 5분 전 · 1분 전' order-preview.html 1
+chk '개식 선언 뒤, 입장 전에 두 분이 준비한 영상을 상영해요' assets/ritual-open.js 1
+chk 'PV_AFTER_OPEN_TX02' order-preview.html 3
+nochk '예식 시작 시각에 두 분이 준비한 영상' assets/ritual-open.js
+chk '두 분과 하객이 자기 자리에서 잔을 들어요. 두 분이 먼저 «위하여»를 외치면 하객이 함께 화답해요.' assets/ritual-open.js 1
+chk '두 분과 하객이 자기 자리에서 잔을 들어요. 두 분이 먼저 «위하여»를 외치면 하객이 함께 화답해요.' order-preview.html 1
+nochk '하객은 자리에서 일어나 함께 잔을 들어요' order-preview.html
+nochk '하객은 자리에서 일어나 함께 잔을 들어요' assets/ritual-open.js
