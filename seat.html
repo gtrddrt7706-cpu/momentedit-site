@@ -260,7 +260,7 @@ function gapi(payload){
   var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },12000):null;
   return fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
-    .then(function(r){ if(tm) clearTimeout(tm); return r; }, function(e){ if(tm) clearTimeout(tm); throw e; });
+    .then(function(r){ return r.json(); }).then(function(j){ if(tm) clearTimeout(tm); return j; }, function(e){ if(tm) clearTimeout(tm); throw e; });   // [B2_HOME_01] 12초 제한은 본문(JSON)을 다 읽을 때까지 — 이제 gapi 는 읽은 JSON 을 돌려준다
 }
 /* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
    실패마다 한 줄 + «(코드 G#)» · G = 하객 · 부모님 화면 · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
@@ -535,7 +535,6 @@ function renderMineOnly(seat, t){
     var my=seq;
     fr.textContent='자리를 찾는 중이에요…';
     gapi({action:'seatView', t:t, q:v})
-      .then(function(r){ return r.json(); })
       .then(function(d){
         if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
         if(!d || !d.ok){ _frFail(fr, _ecSrv(d,'G','자리를 찾지 못했어요'), _ecRetry(d)?function(){ search(v); }:null); return; }   // [ERR_CODE_PAGES] 서버 글(코드 포함) · 다시 해서 될 때만 «다시 찾기»
@@ -566,7 +565,6 @@ function seatFailHtml(sm){   // [ERR_CODE_PAGES] sm = 무슨 일 · 할 일 · �
   if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
   function load(attempt){
     gapi({action:'seatView', t:t})
-      .then(function(r){ return r.json(); })
       .then(function(d){
         if(d && d.ok && d.seat){ render(d.seat); }
         else if(d && d.mineOnly){ renderMineOnly(d.seat, t); }   // 부부가 '내 자리만'으로 설정 — 검색 전용 화면

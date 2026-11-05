@@ -3152,6 +3152,16 @@
    "fn": "_prodTooLong_",
    "mark": "B2_GEUL_16",
    "why": "식순 저장이 길이 상한에 걸리면 «입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요 (코드 S0)» — 서약 · 편지로 원인을 단정하지 않는다 · 붙이고 새 버전으로 배포"
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "B2_HOME_16",
+   "why": "2분 안에 내용을 고쳐 다시 보낸 신청은 같은 코드에 changed 를 실어 답한다(기존 접수 · 비밀번호는 덮지 않고 고친 내용은 관리자 메일로). 이 판이 없으면 고친 내용이 반영된 것처럼 «접수됐어요»만 나간다"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "B2_HOME_17",
+   "why": "접수 메일이 안 나가면 mailFail 을 실어 답한다(완료 화면이 «메일을 보내지 못했어요 · 개인코드 보관»). 이 판이 없으면 메일이 안 갔는데도 «메일로 보내 드렸어요»라 한다"
   }
  ],
  "fns": {
@@ -3209,6 +3219,7 @@
   ],
   "40_signup": [
    "handleSignup",
+   "_signupHit_",
    "_shortHash",
    "sendSignupEmail_",
    "_applySummaryFromDetail"

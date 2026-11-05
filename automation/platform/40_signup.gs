@@ -49,8 +49,11 @@ function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의
   // 5) 더블클릭/중복 제출 가드 — 같은 (이메일+이름) 짧은 시간 내 재요청이면 같은 코드 반환
   var dedupKey = 'SIGNUP_' + _shortHash((email + '|' + groom + '|' + bride).toLowerCase());
   var cache = CacheService.getScriptCache();
+  /* [B2_HOME_16] 2분 안의 다시 보냄은 같은 코드 그대로(행·메일 중복 방지) — 단, 내용(연락처·메모·희망 내용·상품·비밀번호)을 고쳐 보냈으면
+     같은 성공으로 말하지 않는다(changed · 화면 «방금 고친 내용은 아직 반영되지 않았어요») · 기존 접수(비밀번호 포함)는 덮어쓰지 않는다 · 고친 내용은 관리자 메일로 따로 */
+  var fp = _shortHash([phone, memo, detail, product, pw].join('\u0001'));
   var cached = cache.get(dedupKey);
-  if (cached) return { ok: true, code: cached };  // 직전 발급 코드 그대로(행·메일 중복 방지)
+  if (cached) return _signupHit_(cached, fp, groom + ' · ' + bride, phone, memo, detail);
   /* [SIGNUP_ADDR_CAP 2026-10-09 라운드 8] 같은 이메일로 새 신청은 한 시간에 3번까지 — 남의 주소로 거듭 신청해 그 메일함을 채우거나
      이메일 로그인 · 코드 찾기가 엉뚱한 신청을 가리키게 하지 못하게(같은 신청의 다시 누름은 위 2분 가드가 같은 코드로 돌려준다) */
   var _sak = 'SIGNUPADDR_' + _shortHash(email.toLowerCase()) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _san = +(cache.get(_sak) || 0);
@@ -67,7 +70,7 @@ function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의
   try {
     // 잠금 안에서 다시 한 번 dedup 확인(경합 방어)
     cached = cache.get(dedupKey);
-    if (cached) { lock.releaseLock(); return { ok: true, code: cached }; }
+    if (cached) { lock.releaseLock(); return _signupHit_(cached, fp, groom + ' · ' + bride, phone, memo, detail); }
 
     var sheet = getCustomersSheet();
     var colOf = buildHeaderIndex(sheet);
@@ -99,7 +102,7 @@ function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의
     var t = issueToken(sheet, colOf, rowNum);
     token = t.token;
 
-    cache.put(dedupKey, code, 120); // 2분 dedup
+    cache.put(dedupKey, JSON.stringify({ c: code, f: fp }), 120); // 2분 dedup · [B2_HOME_16] 내용 지문(f)과 함께
   } finally {
     try { lock.releaseLock(); } catch (e) {}
   }
@@ -116,9 +119,13 @@ function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의
   }
 
   // 8) 접수 메일 — 실패해도 행/코드는 유지(메일은 재시도 가능). 관리자에 오류 알림.
+  //   [B2_HOME_17] 신청 완료와 메일 결과를 나눠 답한다(mailFail) — 화면이 «메일을 보내지 못했어요 · 개인코드 보관»을 말한다
+  var mailFail = false;
   try {
     sendSignupEmail_(email, groom + ' · ' + bride, code, token, product, detail);
   } catch (mailErr) {
+    mailFail = true;
+    try { cache.put(dedupKey, JSON.stringify({ c: code, f: fp, m: 1 }), 120); } catch (_eC) {}   // 다시 보냄에도 같은 메일 결과를 말한다
     notifyStudio('[플랫폼] ⚠️오류 · 신청 접수 메일 발송 실패',
       groom + ' · ' + bride + '\n수신: ' + email + '\n코드: ' + code + '\n오류: ' + (mailErr && mailErr.message));
   }
@@ -131,7 +138,26 @@ function handleSignup(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의
   } catch (e) {}
   notifyKakao('admin.newSignup', code, { names: groom + '·' + bride, product: product, phone: phone });   // 관리자: 신규 신청 · 일정 잡기(카톡)
 
-  return { ok: true, code: code };
+  return mailFail ? { ok: true, code: code, mailFail: true } : { ok: true, code: code };   // [B2_HOME_17]
+}
+
+/* [B2_HOME_16] 2분 중복 가드에 걸린 신청의 답 — 옛 캐시(코드 글자만)도 읽는다 · 내용이 다르면 changed · 메일 실패면 mailFail.
+   ★고친 내용은 기존 접수에 쓰지 않는다(비밀번호를 덮지 않는다) — 관리자 메일로만 알린다(비밀번호는 싣지 않는다) */
+function _signupHit_(raw, fp, names, phone, memo, detail) {
+  var v = null;
+  try { v = (String(raw).charAt(0) === '{') ? JSON.parse(raw) : { c: String(raw) }; } catch (e) { v = { c: String(raw) }; }
+  if (!v || !v.c) return { ok: true, code: String(raw) };
+  var r = { ok: true, code: String(v.c) };
+  if (v.m) r.mailFail = true;
+  if (v.f && v.f !== fp) {
+    r.changed = true;
+    try {
+      notifyStudio('[플랫폼] 신청 다시 보냄 · 고친 내용 미반영',
+        '개인코드: ' + r.code + '\n' + names + '\n앞선 접수와 내용이 달라요(2분 안 다시 보냄). 기존 접수는 그대로이고 아래 값은 반영되지 않았어요.\n연락처: ' + phone + '\n메모: ' + memo + '\n희망 내용: ' + String(detail || '').slice(0, 400),
+        'SIGNUPCHG_' + r.code + '_' + fp);
+    } catch (e) {}
+  }
+  return r;
 }
 
 // 짧은 해시(캐시 키용) — 충돌 가능성 낮은 16자

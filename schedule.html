@@ -1106,7 +1106,8 @@ function renderCal(){
       el.classList.add('avail');
       el.setAttribute('aria-pressed', (selDate&&key(selDate)===key(d))?'true':'false');   // [SCH_SRNAME]
       if(selDate && key(selDate)===key(d)) el.classList.add('sel');
-      el.onclick=()=>{var _kbd=false; try{ _kbd=el.matches(':focus-visible'); }catch(e){}
+      el.onclick=()=>{if(window.__schedBusy) return;   // [B2_HOME_02] 신청 결과를 기다리는 동안 날짜 · 시간은 잠근다(보낸 값과 화면이 갈리지 않게)
+        var _kbd=false; try{ _kbd=el.matches(':focus-visible'); }catch(e){}
         window.__schedTouched=true;selDate=d;selTime=null;renderCal();renderTime();updateSummary();
         var _hcn=document.getElementById('holdCalNote'); if(_hcn) _hcn.style.display='none';   // [HOLD_FIRST] 다시 골랐으면 «비워 두었어요»는 끝난 말이다
         // [SCH_SRNAME] 달력을 다시 그리면 포커스가 날아간다 — 키보드로 고른 경우에만 같은 날짜로 되돌린다.
@@ -1162,7 +1163,8 @@ function renderTime(){
       s.setAttribute('aria-label', period+' '+t+' · 마감');}
     else{ if(selTime===t)s.classList.add('sel');
       s.setAttribute('aria-pressed', selTime===t?'true':'false');   // [SCH_SRNAME] 고른 시간이 어느 것인지
-      s.onclick=()=>{var _kb=false; try{ _kb=s.matches(':focus-visible'); }catch(e){}
+      s.onclick=()=>{if(window.__schedBusy) return;   // [B2_HOME_02]
+        var _kb=false; try{ _kb=s.matches(':focus-visible'); }catch(e){}
         selTime=t;renderTime();updateSummary();revealGuide();
         if(_kb){ var _b=[...document.querySelectorAll('#slots button.slot')].find(function(x){return (x.getAttribute('aria-label')||'').indexOf(t)>-1;});
           if(_b&&_b.focus){ try{ _b.focus({preventScroll:true}); }catch(e){} } } };   // 키보드로 고른 경우에만 같은 칸으로 포커스 복귀
@@ -1206,7 +1208,7 @@ function updateSummary(){
     const pickStr=fmtDate(selDate)+' '+selTime;
     sum.classList.add('on');
     sum.innerHTML='<span class="pick">'+pickStr+'</span> 상담 신청';
-    btn.disabled=false;
+    btn.disabled=!!window.__schedBusy;   // [B2_HOME_02]
     sDa.classList.add('done');sDa.classList.remove('active');
     sT.classList.add('done');sT.classList.remove('active');
     sDo.classList.add('active');
@@ -1298,6 +1300,7 @@ function doSubmit(){
   /* ★[SUBMIT_ONCE 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-8] 고정 바 «신청하기»는 누를 때마다 400ms 뒤 doSubmit 을 건다 — 80 · 250ms 간격으로 두 번 누르면
      신청(submitSchedule)이 두 번 가고 관리자 «시간 선택» 알림도 두 번 갔다. 보내는 중(본 단추가 잠김)이면 돌아간다 */
   var _sb0=document.getElementById('submitBtn'); if(_sb0&&_sb0.disabled&&_sb0.classList.contains('loading')) return;
+  if(window.__schedBusy) return;   // [B2_HOME_02] 신청 중인지는 단추 disabled 와 따로 본다(updateSummary 가 단추를 다시 풀 수 있다)
   var _mdDone=document.getElementById('modal'); if(_mdDone&&_mdDone.classList.contains('show')) return;   // 이미 접수돼 완료 창이 떠 있다 — 다시 보내지 않는다
   if(!selDate||!selTime) return;
   var _card=_payM()==='card';
@@ -1321,6 +1324,9 @@ function doSubmit(){
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
   btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
+  /* [B2_HOME_02] 보낸 날짜 · 시간을 붙잡아 둔다 — 완료 안내 · 결과 다시 묻기는 이 값으로(그 사이 화면 값이 바뀌어도) · 결과가 정리되면 restore() 가 잠금을 푼다 */
+  window.__schedBusy=true; var _sentDate=selDate, _sentTime=selTime, _busyMsg=_sentTime+' 신청 결과를 확인하고 있어요.';
+  (function(){ var _s0=document.getElementById('summary'); if(_s0){ _s0.textContent=_busyMsg; _s0.classList.remove('on'); } })();
   btn.querySelector('span').textContent='신청 중';   /* [LOADING_ONE] 점은 CSS .btn.loading span::before 가 그린다 —
      innerHTML 로 점 span 을 «넣으면» 버튼 안 화살표 SVG 가 날아가고, restore() 의
      querySelector('span') 이 그 점 span 을 집어 거기에 라벨을 넣는다(실제로 한 번 그렇게 만들었다). */
@@ -1328,7 +1334,8 @@ function doSubmit(){
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;
   const payer=(_card||_paid)?'':(document.getElementById('depPayer')?document.getElementById('depPayer').value:'').trim();   // [RESCHED_NOW] 낸 예약금이면 보내지 않는다(서버도 덮지 않는다)
-  const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent=_payLabel();};
+  const restore=function(){window.__schedBusy=false;btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent=_payLabel();
+    var _s1=document.getElementById('summary'); if(_s1&&_s1.textContent===_busyMsg) updateSummary(); };   // [B2_HOME_02] 실패 · 완료 글이 없으면 진행 글을 걷는다
   /* [PAY_METHOD] 카드 — 신청이 들어간 뒤 토스 결제창을 연다. 같은 신청으로 다시 결제할 때는 신청을 또 넣지 않는다(관리자 알림이 두 번 가지 않게) */
   const _sel={d:key(selDate),t:selTime,h:_holdPayload()}, _sig=JSON.stringify(_sel);
   const _openPay=function(){
@@ -1361,18 +1368,18 @@ function doSubmit(){
   var _sum=function(t){ var s=document.getElementById('summary'); s.innerHTML=_ecHtml(t); s.classList.remove('on'); s.style.color='var(--seal)'; return s; };   // [ERR_CODE_GLUE]
   var _ymdP=function(v){ var m=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(String(v||'')); return m?m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2):''; };   // 서버 currentDate 는 «2027-01-09» · 화면 key() 는 «2027-1-9»
   var _recheck=function(n){
-    var want=_ymdP(key(selDate)), before=_ymdP(SERVER.currentDate);
+    var want=_ymdP(key(_sentDate)), before=_ymdP(SERVER.currentDate);   // [B2_HOME_02] 보낸 날짜로
     btn.querySelector('span').textContent='신청됐는지 확인 중';
     _sum(n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요');   // [ERR_RECHECK_NOCODE] 다시 묻는 «중간» 줄엔 코드 없음 — 결과를 말하는 마지막 줄에만(P6)
     var ac=(typeof AbortController!=='undefined')?new AbortController():null, tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },25000):null;
     fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAvailability',token:SERVER.token}),signal:ac?ac.signal:undefined})
-      .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; })
+      .then(function(r){ return r.json(); }).then(function(j){ if(tm) clearTimeout(tm); return j; }, function(e){ if(tm) clearTimeout(tm); throw e; })   // [B2_HOME_01] 제한 시간은 본문을 다 읽을 때까지
       .then(function(s){
         if(s&&s.cancelled){ _onRes(s); return; }
         var now=_ymdP(s&&s.ok?s.currentDate:''), hasT=!!(s&&s.ok&&typeof s.currentTime==='string'&&s.currentTime), nowT=hasT?s.currentTime:'';   // [RESCHED_NOW] 서버가 시간도 주면 같은 날 시간만 바꾼 신청도 가린다(옛 서버는 날짜로만)
-        var moved=before!==want||(hasT&&String(SERVER.currentTime||'')!==selTime);
-        if(s&&s.ok&&want&&now===want&&(!hasT||nowT===selTime)&&moved){ _onRes({ok:true}); return; }   // 고르신 날짜(· 시간)가 들어가 있다 — 신청이 된 것이다(완료 창 · 카드면 결제창)
-        restore(); _sum((s&&s.ok&&(now!==want||(hasT&&nowT!==selTime)))?'아직 신청 전이에요 · 다시 눌러 주세요 (코드 B'+n+')':'결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')');
+        var moved=before!==want||(hasT&&String(SERVER.currentTime||'')!==_sentTime);
+        if(s&&s.ok&&want&&now===want&&(!hasT||nowT===_sentTime)&&moved){ _onRes({ok:true}); return; }   // 고르신 날짜(· 시간)가 들어가 있다 — 신청이 된 것이다(완료 창 · 카드면 결제창)
+        restore(); _sum((s&&s.ok&&(now!==want||(hasT&&nowT!==_sentTime)))?'아직 신청 전이에요 · 다시 눌러 주세요 (코드 B'+n+')':'결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')');
       })
       .catch(function(){ restore(); _sum('결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')'); });
   };
@@ -1380,8 +1387,8 @@ function doSubmit(){
       if(res&&res.ok&&_card){ window.__cardSubmitted=_sig; try{ localStorage.removeItem('me_state_v1'); }catch(e){} _openPay(); return; }
       if(res&&res.ok){
         try{ localStorage.removeItem('me_state_v1'); }catch(e){}   // 마이페이지 상태 캐시 무효화 → 복귀 시 옛 화면(신청 전) 깜빡임 방지 · 최신 상태만 노출
-        const dateStr=fmtDate(selDate);
-        document.getElementById('modalPick').innerHTML=_esc(SERVER.names||'')+' 님<br>'+_esc(dateStr)+' · '+_esc(selTime);   // ★[DONE_NAME_ESC 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-9 ③ · 서버 점검 E2-12] 이름에 < · & 가 있으면 깨졌다 — 카드 길(아래 1494행 부근)과 같은 _esc
+        const dateStr=fmtDate(_sentDate);   // [B2_HOME_02] 실제로 보낸 날짜 · 시간
+        document.getElementById('modalPick').innerHTML=_esc(SERVER.names||'')+' 님<br>'+_esc(dateStr)+' · '+_esc(_sentTime);   // ★[DONE_NAME_ESC 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-9 ③ · 서버 점검 E2-12] 이름에 < · & 가 있으면 깨졌다 — 카드 길(아래 1494행 부근)과 같은 _esc
         if(SERVER.depositPaid===true){   // [RESCHED_NOW] 예약금을 이미 낸 분의 시간 변경 — 서버가 하는 일대로(시간선택완료 → 디렉터 확인 → 확정 메일 · 입금확인은 그대로) · 완료 창 마크업은 그대로 두고 이 경우의 글만
           var _mdP=document.querySelector('#modal .modal'), _bdP=_mdP&&_mdP.querySelector('.modal-body');
           document.getElementById('modalTitle').textContent='시간 변경이 접수되었습니다';
@@ -1408,7 +1415,7 @@ function doSubmit(){
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
   var _acS=(typeof AbortController!=='undefined')?new AbortController():null, _tmS=_acS?setTimeout(function(){ try{ _acS.abort(); }catch(e){} },45000):null;   // [SCHED_SUBMIT_RECHECK] 45초
   fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((!_card&&!_paid&&document.getElementById('depCRWant')&&document.getElementById('depCRWant').checked)?((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,''):''),hold:_holdPayload(),payBy:(_card?'card':'bank')}),signal:_acS?_acS.signal:undefined})
-    .then(function(r){ if(_tmS) clearTimeout(_tmS); return r.json(); }, function(e){ if(_tmS) clearTimeout(_tmS); throw e; })
+    .then(function(r){ return r.json(); }).then(function(j){ if(_tmS) clearTimeout(_tmS); return j; }, function(e){ if(_tmS) clearTimeout(_tmS); throw e; })   // [B2_HOME_01] 본문까지 45초
     .then(_onRes)
     .catch(function(e){ var n=_ecN(e);
       if(n===5||n===7){ _recheck(n); return; }   // [SCHED_SUBMIT_RECHECK] 결과 모름 — 다시 물어 결과를 말한다
@@ -1499,7 +1506,7 @@ renderCal();renderTime();updateSummary();
   var confirmPay=function(again){
     var ac=(typeof AbortController!=='undefined')?new AbortController():null, tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },40000):null;
     return fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cardConfirm',token:SERVER.token,milestone:'예약금',paymentKey:pk,orderId:oid,amount:amt}),signal:ac?ac.signal:undefined})
-      .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; })
+      .then(function(r){ return r.json(); }).then(function(j){ if(tm) clearTimeout(tm); return j; }, function(e){ if(tm) clearTimeout(tm); throw e; })   // [B2_HOME_01] 제한 시간은 본문을 다 읽을 때까지
       .catch(function(e){ if(again) throw e; return new Promise(function(res){ setTimeout(res,2500); }).then(function(){ return confirmPay(true); }); });
   };
   confirmPay(false)
@@ -1679,15 +1686,30 @@ if(_hdw){
   function clearNote(){ clearTimeout(slowT); var n=$('calLoadNote'); if(n&&n.parentNode) n.parentNode.removeChild(n); }
   // ① 캐시 즉시 표시(있으면)
   try{ var c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
-    if(c&&c.at&&(Date.now()-c.at)<600000&&c.data&&c.data.ok){ var cs=c.data; cs.token=token; cs.me=!!me; applyHead(cs); boot(cs); painted=true; clearNote(); }
+    if(c&&c.at&&(Date.now()-c.at)<600000&&c.data&&c.data.ok){ var cs=c.data; cs.token=token; cs.me=!!me; applyHead(cs); boot(cs); painted=true; }   // [B2_HOME_15] 안내는 지우지 않는다 — 아래 pull() 이 «이전에 확인한 일정» 줄로 바꾼다
   }catch(e){}
   // ② 서버 응답(타임아웃 25초)
+  /* ★[B2_HOME_15] 10분 안에 저장된 일정을 먼저 그렸으면 그것이 «이전에 확인한 일정»임을 말하고, 최신 조회가 실패하면 그대로 알린다(확정처럼 보이게 두지 않는다) ·
+     «다시 불러오기»는 고른 날짜 · 시간을 지우지 않고 서버만 다시 묻는다 · 로그인 풀림(8)은 마이페이지로 */
+  function staleNote(t, retry){
+    var n=$('calLoadNote');
+    if(!n){ n=document.createElement('div'); n.id='calLoadNote'; n.style.cssText=note.style.cssText; var g=$('calGrid'); if(g&&g.parentNode) g.parentNode.insertBefore(n,g); }
+    clearTimeout(slowT); n.innerHTML=_ecHtml(t); n.setAttribute('role', retry?'alert':'status');
+    if(retry){ var rb=document.createElement('button'); rb.type='button'; rb.textContent='다시 불러오기';
+      rb.style.cssText='display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:4px;padding:0 16px;border:1px solid var(--line,#E4DED3);border-radius:4px;background:none;color:var(--seal,#6B2A24);font:inherit;font-size:12px;cursor:pointer';
+      rb.onclick=function(){ pull(); }; n.appendChild(document.createElement('br')); n.appendChild(rb); }
+  }
+  function staleFail(code){ staleNote(/[A-Z]8$/.test(code)?'로그인이 풀렸어요. 마이페이지에서 다시 열어 주세요. (코드 '+code+')':'최신 일정을 확인하지 못했어요. 다시 불러와 주세요. (코드 '+code+')', !/[A-Z]8$/.test(code)); }
+  function pull(){
+  if(painted) staleNote('이전에 확인한 일정이에요. 최신 일정을 확인하고 있어요.');
   var done=false;
-  var killer=setTimeout(function(){ if(done)return; done=true; if(!painted){ clearNote(); fail('일정을 불러오지 못했어요.<br>응답이 늦어요 (코드 B5)',1); } },25000);   // [ERR_CODE_PAGES]
+  var killer=setTimeout(function(){ if(done)return; done=true; if(!painted){ clearNote(); fail('일정을 불러오지 못했어요.<br>응답이 늦어요 (코드 B5)',1); } else staleFail('B5'); },25000);   // [ERR_CODE_PAGES]
   fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAvailability',token:token})})
     .then(function(r){return r.json();})
     .then(function(s){
-      if(done)return; done=true; clearTimeout(killer); clearNote();
+      if(done)return; done=true; clearTimeout(killer);
+      if(!(s&&s.cancelled)&&(!s||!s.ok)&&painted){ var _sc=/\(코드 ([A-Z]\d)/.exec(_ecSrv(s,'B','')); staleFail(_sc?_sc[1]:'B9'); return; }   // [B2_HOME_15]
+      clearNote();
       if(s&&s.cancelled){ try{ localStorage.removeItem('me_state_v1'); localStorage.removeItem(CACHE_KEY); }catch(e){}
         fail('이 예약은 <b style="color:#6B2A24">취소된 상태</b>예요.<br>현재 상태는 마이페이지에서 확인하실 수 있어요.<br><br><span style="font-size:12px;color:#A39C8E">잠시 후 마이페이지로 이동합니다…</span>');
         setTimeout(function(){ location.href='/mypage.html'; }, 2200); return; }
@@ -1709,7 +1731,9 @@ if(_hdw){
       }
       window.__schedShownSig=JSON.stringify({a:s.avail,f:s.full});
     })
-    .catch(function(e){ if(done)return; done=true; clearTimeout(killer); clearNote(); if(!painted) fail('일정을 불러오지 못했어요.<br>'+_ecNet(e,'B',''),1); });   // [ERR_CODE_PAGES] 연결 끊김 B6 · 서버 답이 깨짐 B7 — 종전엔 둘 다 «불러오기 실패 · 새로고침 해주세요»
+    .catch(function(e){ if(done)return; done=true; clearTimeout(killer); if(painted){ staleFail('B'+_ecN(e)); return; } clearNote(); fail('일정을 불러오지 못했어요.<br>'+_ecNet(e,'B',''),1); });
+  }
+  pull();   // [ERR_CODE_PAGES] 연결 끊김 B6 · 서버 답이 깨짐 B7 — 종전엔 둘 다 «불러오기 실패 · 새로고침 해주세요»
 })();
 </script>
 <!-- 진행 시간표 FAB — 예약(inquiry) 페이지와 동일 아이콘·위치(우측 세로중앙). 클릭 시 sequence-modal 열림 -->
