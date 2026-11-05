@@ -21936,6 +21936,21 @@ chk "after-photo-loop guest-time no-relift" .github/workflows/merge-guard.yml 1
 chk 'SEAM_BG08' assets/bgm-bed.js 1
 nochk '(BED.cur.want||-90)' assets/bgm-bed.js
 chk 'BG08-T01' scripts/audit/seam-bg.mjs 1
+# ★[SEAM_BG01~BG04 · BG07 이음매 명세 BGM 몫] 화촉 없는 입장 전 무음 · 조용한 앞 순간 뒤 «음악과 함께» 편지 · 편지 끝 다음 음악 = 실제 다음 장면 · 축가 뒤 b12 앞 곡 유지 · 테이블 음악 카드 설명(검사 = CI bgm-sound e 칸 seam-bg)
+chk 'SEAM_BG01' assets/ritual-cue.js 2
+chk 'SEAM_BG01' console.html 1
+chk 'SEAM_BG02' assets/ritual-cue.js 1
+chk 'SEAM_BG03' console.html 2
+chk 'SEAM_BG03' assets/bgm-bed.js 3
+chk 'function tailQuiet' assets/bgm-bed.js 1
+chk 'SEAM_BG04' assets/bgm-bed.js 1
+chk "M8:'테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분'" assets/bgm-bed.js 1
+chk 'BG01-T01' scripts/audit/seam-bg.mjs 1
+chk 'BG02-T01' scripts/audit/seam-bg.mjs 2
+chk 'BG03-T01' scripts/audit/seam-bg.mjs 2
+chk 'BG04-T01' scripts/audit/seam-bg.mjs 1
+chk 'BG07-T01' scripts/audit/seam-bg.mjs 1
+nochk '테이블 인사와 사진 동안' assets/bgm-bed.js
 chk "no-relift seam-bg" .github/workflows/merge-guard.yml 1
 # ★[MEANING_R2_1102 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] 행진은 음악 · 의식은 조용한 고점 · 새 장면은 새 곡 — 엔진 한 표 + bgm-bed · 콘솔(검사 = CI bgm-sound e 칸)
 chk 'MEANING_R2_1102 원칙' assets/ritual-cue.js 1
@@ -21949,7 +21964,7 @@ chk 'MEANING_R2_1102' console.html 3
 chk '축하 박수와 함께 새 곡이 시작돼요' assets/bgm-slots.js 1
 chk '두 분이 앞에 서시면 음악이 잦아들고' assets/bgm-slots.js 1
 chk 'MEANING_R2_1102' scripts/audit/meaning-r2.mjs 1
-chk "seam-bg meaning-r2" .github/workflows/merge-guard.yml 1
+chk "turn-table meaning-r2" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
 # ── 2026-11-05 [DINE_STATUS_NI16 · DINE_DATA_NI16 · RESV_PARSE_NI17 이음매 NI16 · NI17] 식사 · 카페는 «지금 고른 곳»의 음식 분류(목록 f · 지도 분류)로 한 번 판정 · 목록은 assets/dining-data.js 하나 · 예약은 시각 꼴만
 chk 'function diningStatusOf(dd, placeholders)' assets/ritual-preview-link.js 1
