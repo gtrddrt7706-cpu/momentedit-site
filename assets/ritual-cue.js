@@ -1791,6 +1791,9 @@
       var _pn = +S.photoN, _pw = (S.photoWishN === undefined || S.photoWishN === null || S.photoWishN === '') ? -1 : Math.max(0, Math.min(2, +S.photoWishN || 0));
       /* ★[PHOTO_THANKS 2026-09-26] 감사 인사 약 1분(말 · 목례 · 가실 분이 일어나는 시간)을 목표에 넣었다 — 자유 사진이 그만큼 준다. */
       var _thx = S.meal ? 'end-1a-farewell' : 'end-1c-thanks-nomeal';   // [THANKS_TEXT] 식사 있는 날 45 · 없는 날 110
+      /* ★[WISH_AFTER_FAMILY_NI10 2026-11-05 이음매 NI10] 요청 사진 몫(wishSec)을 따로 둔다 — 요청 0 · 1 · 2 = 0 · 60 · 120초 · 미입력 = 미확정 여유 120(전체 360 + 120 = 종전 480) ·
+           새 코스는 전체 사진 목표에서 빼고 가족 뒤 추가 촬영에 같은 초만큼 더한다(촬영 후 안내는 전체 한 장 직후 · 합은 그대로) · 옛 코스는 종전 */
+      var _wishSec = _pw >= 0 ? 60 * _pw : 120;
       var _go = { 'end-0-photo': (_pw >= 0 ? 360 + 60 * _pw : 480), 'end-1a-farewell': 60, 'end-1c-thanks-nomeal': 60, 'narr-photo-split': (_pn > 0 ? 180 * _pn : 360), 'narr-online-in': 120 };
       /* ★★[SRC_ALL_1023 검토 144-4 · 사장님 10/23 «작가가 바로 진행»] 새 코스는 44(«여기서부터는 작가님이 안내해 드립니다»)를 틀지 않는다 — 26 «모두 단상 앞으로 모여 주시면» 뒤 작가가 바로 전체 하객 컷을 찍는다.
            전체 하객 사람 구간(모임 + 전체컷 + 꼭 담고 싶은 사진)은 26 의 사람 구간이 맡는다(아래 ROUND_FIT 이 목표를 그대로 준다) · 옛 코스는 종전 그대로 */
@@ -1798,8 +1801,8 @@
       /* ★[CLOSING_LINE_1031 검토 178] 새 코스 사진 구간은 소리 없는 동작 큐만 — 전체 하객(작가님이 모은다) → 가족 구도 → 자유 사진 → 촬영 마무리 · 디렉터 GO · 시간(_go · goFree)은 그대로 */
       if (_photoOpen) cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: '', act: true, actId: 'photo-all', name: '전체 하객 사진', text: '', est: 0, duck: -18,   /* ★[BGM_TIMING2_1101] 작가 육성 안내 −14 → −18(보컬 곡이면 −24) */
-        note: '소리 없음 · 작가님이 하객을 앞으로 모아 전체 하객 컷 · 이어서 두 분이 적은 꼭 담고 싶은 사진 [GROUP_PHOTO] [WISH_COUNT]',
-        live: { t: '하객이 앞으로 모임 → 전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(골라 트는 판)', est: _go['end-0-photo'], self: true, doing: 'move', note: '작가님이 모아 바로 전체 하객 컷 [CLOSING_LINE_1031]' }
+        note: '소리 없음 · 전체 단체 사진 한 장을 마치면 촬영 후 안내를 재생한다 [WISH_AFTER_FAMILY_NI10] · 두 분이 적은 꼭 담고 싶은 사진은 가족 사진 뒤(추가 촬영)',
+        live: { t: '하객이 앞으로 모임 → 전체 하객 단체컷', est: _go['end-0-photo'] - _wishSec, self: true, doing: 'move', note: '작가님이 모아 바로 전체 하객 컷 [CLOSING_LINE_1031]' }
       }));
       /* ★★[END_FLOW_200] [END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200] 촬영 후 안내는 전체 단체 사진 직후 · 가족 사진 전(사장님 17:16 ~ 17:19 «가도 되는 타이밍») — 하객 모두가 계실 때 한 번 · 가족 구도는 이어서(소리 없음 · 사슬) */
       if (_photoOpen) { var _aps = afterPhotoOf(S); cues.push(cue({
@@ -1875,7 +1878,7 @@
         var gather = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
         function fit(c, goal, pre) { if (c && c.live) c.live.est = Math.max(10, Math.round(goal - (pre || 0) - (c.est || 0))); }
         var _pc = _photoOpen ? by['@photo-all'] : null;   // [CLOSING_LINE_1031] 전체 하객 사진(소리 없음)   // [END_FLOW_1030] 다이닝은 있는데 266 셋(식사 자리 · 예약 시각 · 하객 안내) 중 하나라도 빈 날은 26 이 사진 전 안내 자리 [PHOTO_PRE_PICK_1030]
-        if (_photoOpen) { if (_pc && _pc.live) _pc.live.est = Math.max(10, _go['end-0-photo']); }   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
+        if (_photoOpen) { if (_pc && _pc.live) _pc.live.est = Math.max(10, _go['end-0-photo'] - _wishSec); }   /* [WISH_AFTER_FAMILY_NI10] 전체 사진 = 전체 한 장 몫만(요청 몫은 추가 촬영으로) */   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
         else fit(by['end-0-photo'], _go['end-0-photo'], gather);
         var _fam = _photoOpen ? by['@photo-family'] : by[_thx];   // [END_FLOW_1030] 새 코스는 소리 없는 가족 구도 큐
         fit(_fam, _go[_thx] + (_photoOpen ? _go['narr-photo-split'] : 0));   // [PHOTO_THANKS] · [SPLIT_OFF_OPEN_1023] 새 코스는 가족 구도까지
@@ -1885,7 +1888,7 @@
         var _fc = _photoOpen ? by['@photo-free'] : by['narr-photo-out'];   // [PHOTO_FREE_OPEN_1019] 옛 코스는 65 · ★[CLOSING_LINE_1031] 새 코스는 소리 없는 자유 사진
         fit(_fc, goFree, 0);
         if (_fc && _fc.live) _fc.live.goFree = goFree;   // 콘솔 · 검사가 읽는 «자유 사진 목표»(말 포함)
-        _goFreeOpen = goFree;   // [POST_FLOW_200] 새 코스 추가 촬영(촬영 후 안내 뒤)이 쓴다
+        _goFreeOpen = goFree + (_photoOpen ? _wishSec : 0);   // [POST_FLOW_200] 새 코스 추가 촬영(촬영 후 안내 뒤)이 쓴다 · [WISH_AFTER_FAMILY_NI10] 요청 몫을 같은 초만큼 더한다(goals 에 이미 들어 있어 goFree 에서 다시 빼지 않는다 · 합 그대로)
       })();
       /* ★★[ONLINE_ALREADY_ENDED 2026-08-16 사용자 지적] 배웅에서 온라인을 갈라 말하지 않는다.
          사용자 원문: *"본식끝나고 온라인 화면도 종료 한다고 우리 정했잖아 이건 그걸기억못하는듯한 진행인데"*
@@ -1909,6 +1912,7 @@
       if (_photoOpen && _freeOpen) { var _px = { n: '추가 촬영' }; cues.push(cue({   /* ★[AFTER_BEFORE_FAMILY_200] 콘솔은 가족 구도 · 추가 촬영이 따로 큐 — 화면 한 줄 «가족 사진 · 추가 촬영»(POST_FLOW _extra)이 둘을 묶는다 */
         k: '_goodbye', blockN: '마무리', slug: '', act: true, actId: 'photo-free', name: _px.n, text: '', est: 0, duck: -12, endHold: true,   /* [AFTER_PHOTO_LOOP_1102] 새 코스 마지막 큐 — 저절로 끝내지 않는다(■ 끝내기까지 음악) */
         hint: '가족 사진을 마치면',   /* ★[AFTER_BEFORE_FAMILY_200] */
+        note: '가족 사진 뒤, 두 분이 적은 요청 사진과 추가 촬영을 진행한다 [WISH_AFTER_FAMILY_NI10]',
         live: { t: _px.n + ' · 원하시는 분들과 · 남는 시간만큼', est: Math.max(10, _goFreeOpen), goFree: _goFreeOpen, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다(옛 자유 사진 몫 · _goFreeOpen)
       })); }
       if (!_photoOpen) cues.push(cue({

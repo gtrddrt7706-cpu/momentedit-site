@@ -21979,3 +21979,7 @@ chk 'dining:_dst, guide:_gOn' mypage.html 1
 # ── 2026-11-05 [GUEST_GROUP_NI03 이음매 NI03] 하객 맞이 표 = 시계 큐 + 이어지는 줄 묶음(온라인 날 1분 전 316 → 48)
 chk 'GUEST_GROUP_NI03' order-preview.html 1
 nochk "var gq=cs.filter(function(c){ return c.k==='guest'&&c.text; });" order-preview.html
+# ── 2026-11-05 [WISH_AFTER_FAMILY_NI10 이음매 NI10] 요청 사진 몫은 가족 사진 뒤 추가 촬영으로 — 전체 사진 = 전체 한 장 · 촬영 후 안내는 그 직후 · 사진 세 칸 합 그대로
+chk 'var _wishSec = _pw >= 0 ? 60 \* _pw : 120;' assets/ritual-cue.js 1
+chk "_goFreeOpen = goFree + (_photoOpen ? _wishSec : 0);" assets/ritual-cue.js 1
+chk "note: '가족 사진 뒤, 두 분이 적은 요청 사진과 추가 촬영을 진행한다 \[WISH_AFTER_FAMILY_NI10\]'," assets/ritual-cue.js 1
