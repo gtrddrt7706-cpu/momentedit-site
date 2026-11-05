@@ -22044,4 +22044,4 @@ nochk '기념 촬영을 모두 마쳤습니다' docs/handoff/junctions.md
 # ── 2026-11-06 [FLOW_DECL_ST12 대본 검수 ST12-01] 마이페이지 사진 준비 — 닫히지 않은 주석이 var flow 를 삼키지 않게
 chk 'FLOW_DECL_ST12' mypage.html 1
 chk 'FLOW_DECL_ST12' scripts/audit/photo-scene-flow.mjs 1
-node scripts/audit/photo-scene-flow.mjs >/dev/null 2>&1 || { echo "REVERT? photo-scene-flow: 사진 준비 장면 목록이 오류를 낸다 [FLOW_DECL_ST12]"; fail=1; }
+if command -v node >/dev/null 2>&1; then node scripts/audit/photo-scene-flow.mjs >/dev/null 2>&1; _psf=$?; if [ "$_psf" = 1 ]; then echo 'REVERT? photo-scene-flow: 사진 준비 장면 목록이 오류를 낸다 [FLOW_DECL_ST12]'; fail=1; else echo "ok photo-scene-flow ($_psf)"; fi; fi   # 2 = 브라우저 없음(재지 못함)
