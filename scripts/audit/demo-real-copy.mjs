@@ -103,7 +103,7 @@ if (r.real && !String(r.real).startsWith('ERR:')) {
 
 /* ④ 완료 문구는 한 곳에서 나온다 — 시트 제목·본문 둘 다 페이지 안의 값과 같아야 한다 */
 if (r.done && !String(r.done).startsWith('ERR:')) {
-  if (!/\d+장 전해졌어요/.test(r.done)) no('완료 제목 꼴이 바뀌었다 — ' + r.done);
+  if (!/\d+장 잘 받았어요/.test(r.done)) no('완료 제목 꼴이 바뀌었다 — ' + r.done);   // [B2_MA_75 · d-08] «N장 잘 받았어요»
   else if (!r.sub) no('완료 본문(GP_DONE_SUB)이 없다');
   else ok('완료 문구가 한 곳에서 나온다 — 「' + r.done + '」 / 「' + r.sub + '」');
 }

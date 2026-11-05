@@ -783,6 +783,7 @@ function handleSaveProductionTrack(body) { _gsr_();
       if (_gHas) {
         _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
         _upd['안내공유토큰'] = _guideToken;
+        try { var _evc = String(cust.get('eventId') || '').trim(); if (_evc) CacheService.getScriptCache().remove('gbe_' + _evc); } catch (e) {}   // [B2_MA_81] 처음 발급하면 그 예식의 «안내 없음» 캐시(300초)를 바로 지운다 · 다른 예식 캐시는 그대로
       }
     }
     touchCustomer(sheet, colOf, cust.num, _upd);
@@ -958,7 +959,7 @@ function handleSeatView(body) { _gsr_();
 //   seatView 액션에 q가 실려 오면 여기로(디스패처 무변경). 응답에 하객 이름은 절대 담지 않음(테이블 라벨만).
 //   원본 테이블은 seatf_ 키로 5분 캐시(예식 당일 검색 버스트 대비) · 저장 측 톰스톤(seatv_inv_)을 똑같이 존중.
 // [좌석 공용 헬퍼] 이름 정규화·행순서 번호·검색용 슬림 테이블 — seat.html·guide.html 프런트와 동일 규칙(수정 시 3면 함께)
-function _seatNorm(s) { _gsr_(); return String(s || '').replace(/[\s　]+/g, '').toLowerCase(); }   // 공백(전각 포함) 제거 — 입력·저장 어느 쪽이든 매칭
+function _seatNorm(s) { _gsr_(); s = String(s || ''); try { s = s.normalize('NFC'); /* [B2_MA_80] 완성형 · 조합형(복사한 이름)을 같은 꼴(NFC)로 — guide.html · seat.html 과 같은 규칙 */ } catch (e) {} return s.replace(/[\s　]+/g, '').toLowerCase(); }   // 공백(전각 포함) 제거 — 입력·저장 어느 쪽이든 매칭
 function _seatRowNum(tables) { _gsr_();   // 행순서 번호 = seat.html·guide.html·좌석표 프린트와 동일(위→아래 · 좌 1·3·5 / 우 2·4·6)
   var Ls = [], Rs = [];
   tables.forEach(function (t, i) { (String((t || {}).side || 'L') === 'R' ? Rs : Ls).push(i); });
@@ -985,7 +986,9 @@ function _seatFindByToken(token, q) { _gsr_();
      한 글자('김')로도 검색이 돌았다 — 한 글자는 명단을 성씨 단위로 훑는 열쇠가 된다.
      ★프런트에만 있는 규칙은 규칙이 아니다. 화면과 같은 값(2)을 서버에도 둔다.
      ★상한 30자는 종전대로. */
-  if (!q || q.length < 2 || q.length > 30) return { ok: false, error: '성함을 두 글자 이상 입력해 주세요.' };
+  // [B2_MA_92] 최소 · 최대를 나눠 말한다 — 30자 넘는 이름에 «두 글자 이상»이 나가던 것(화면과 같은 기준 · 공백을 뺀 길이)
+  if (!q || q.length < 2) return { ok: false, error: '성함을 두 글자 이상 입력해 주세요.' };
+  if (q.length > 30) return { ok: false, error: '성함은 공백을 빼고 30자까지 적어 주세요.' };
   var _svc = null, _fresh = false, tables = null;
   try { _svc = CacheService.getScriptCache(); } catch (e) {}
   if (_svc) {
@@ -1010,7 +1013,9 @@ function _seatFindByToken(token, q) { _gsr_();
     var got = ((t && t.seats) || []).some(function (s) { var nm = _seatNorm(s); return nm && nm.indexOf(q) >= 0; });
     if (!got) return;
     var _no = num[i] || (i + 1), _c = String((t && t.name) || '').trim();
-    hits.push({ no: _no, label: (_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 ' + _no) });
+    // [B2_MA_79] ex = 이 자리에 «성함 그대로»가 있다 — 화면은 모든 후보가 ex 일 때만 동명이인이라 말한다(부분 일치를 동명이인으로 단정하지 않게 · 이름은 싣지 않는다)
+    var _ex = ((t && t.seats) || []).some(function (s) { return _seatNorm(s) === q; });
+    hits.push({ no: _no, label: (_c && !/^테이블\s*\d+$/.test(_c)) ? _c : ('테이블 ' + _no), ex: _ex ? 1 : 0 });
     hitIdx.push(i);
   });
   // 단일 일치 → 홀 전체 배치(익명)+본인 자리·이름만 — 어느 테이블이 어디인지 보여 현장에서 넘버·명패 없이 바로 찾아가게(2026-07-17 사용자 지시).
@@ -1080,6 +1085,7 @@ function handleGuideView(body) { _gsr_();
   var restos = _favs.filter(function (v) { return v && v.src !== 'attr' && (v.show === true || (_pk && _nnDn(v.n) === _pk)); }).map(_mapItem);
   var spots = _favs.filter(function (v) { return v && v.src === 'attr' && v.show === true; }).map(_mapItem);
   var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || _pick !== '');
+  var _rsvOn = diningOn && _pick !== '';   // [B2_MA_47] 식사 · 카페 안내가 꺼졌거나 지금 공개할 예약처가 없으면 예약자 이름 · 시각을 싣지 않는다(초안의 장소별 값은 그대로 · 되돌리기용)
   var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
   return {
     ok: true,
@@ -1088,13 +1094,33 @@ function handleGuideView(body) { _gsr_();
       bride: String(cust.get('신부이름') || ''),
       date: _ymdOf(cust.get('예식일')) || '',
       dining: { on: diningOn, pick: _pick, restos: restos, spots: spots,
-        rtime: String((dd.reserveTime != null) ? dd.reserveTime : (gi.reserveTime || '')).slice(0, 40),   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 키 자체가 없을 때만 구 guideinfo 폴백(빈 문자열='지움'은 존중 · 유령값 방지)
-        rname: String((dd.reserveName != null) ? dd.reserveName : (gi.reserveName || '')).slice(0, 30) },
+        rtime: _rsvOn ? String((dd.reserveTime != null) ? dd.reserveTime : (gi.reserveTime || '')).slice(0, 40) : '',   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 키 자체가 없을 때만 구 guideinfo 폴백(빈 문자열='지움'은 존중 · 유령값 방지)
+        rname: _rsvOn ? String((dd.reserveName != null) ? dd.reserveName : (gi.reserveName || '')).slice(0, 30) : '' },
       seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
       seatFull: (String(gi.seatMode || '') !== 'mine'),   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false. (eventId·live 필드 제거 2026-07-17 — 라이브 미전송)
       photoShare: (/^https?:\/\//i.test(String(gi.photoShareUrl || ''))) ? String(gi.photoShareUrl) : ''   // 하객 사진 모으기 링크 — guide가 '사진 올리기' 버튼으로 노출(부부 외부 앨범/오픈채팅 · http(s)만)
     }
   };
+}
+/* ★★[B2_MA_02 2026-11-06 2차 B2-마02 · Z-02 짝] 사진 올리기는 모든 예식에 안내되는데 링크 발급은 «내용 있는 식사 · 좌석 완료»에만 걸려 있었다 —
+   식사 · 좌석을 안 만든 예식은 하객 안내 링크가 없어 사진 올리기 길이 끊겼다(«꺼진 페이지»). 제작 단계에 들어온 예식이면 식사 · 좌석과 상관없이 발급한다.
+   안내 화면은 준비한 것만 그린다(식사 · 좌석이 없으면 사진 구역만). 이미 있으면 그대로(링크 · QR 안정) · 열이 없으면(마이그레이션 전) 아무것도 안 한다.
+   [B2_MA_81] 처음 발급하면 가족 청첩장의 «안내 있나» 캐시(gbe_<eventId> · 300초)를 바로 지운다 */
+function _guideTokenEnsure_(r) {
+  try {
+    if (!r || String(r.get('안내공유토큰') || '').trim()) return;
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    if (!colOf['안내공유토큰']) return;
+    var code = String(r.get('개인코드') || '').trim(); if (!code) return;
+    var lock = LockService.getScriptLock(); lock.waitLock(10000);
+    try {
+      var c2 = _findCustomerBy('개인코드', code, false); if (!c2) return;
+      if (String(c2.get('안내공유토큰') || '').trim()) return;
+      var t = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);
+      touchCustomer(sheet, colOf, c2.num, { '안내공유토큰': t });
+      try { var ev = String(c2.get('eventId') || '').trim(); if (ev) CacheService.getScriptCache().remove('gbe_' + ev); } catch (e) {}
+    } finally { try { lock.releaseLock(); } catch (e2) {} }
+  } catch (e) {}
 }
 // [1회 실행] Customers에 안내공유토큰 열 추가(멱등). setupCustomers 재실행 없이 안전하게 열만 append.
 function addGuideTokenColumn() { _requireAdmin();
@@ -2219,8 +2245,13 @@ function handleGuestPhoto(body) { _gsr_();
 
   var b64 = String(body.data || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, '');
   if (!b64) return { ok: false, error: '파일이 비어 있어요.' };
-  var bytes = Math.floor(b64.length * 3 / 4);
-  if (bytes > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '한 개에 ' + GP_MAX_FILE_MB + 'MB 까지 올릴 수 있어요.' };
+  /* ★[B2_MA_70 2026-11-06 2차 B2-마70] 실제 파일 바이트 수로 잰다 — Base64 끝의 채움 문자(=)를 빼지 않아 화면이 보낸 20×1,048,576 바이트 파일을 넘는다고 거절할 수 있었다.
+     화면(guide.html)과 같은 «20×1,048,576 바이트 포함» 한도 · 실제로 넘는 파일은 그대로 거절한다 */
+  var _pad = /==$/.test(b64) ? 2 : (/=$/.test(b64) ? 1 : 0);
+  var bytes = Math.floor(b64.length * 3 / 4) - _pad;
+  if (bytes > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일 한 개에 ' + GP_MAX_FILE_MB + 'MB까지 올릴 수 있어요.' };
+  // [B2_MA_19] 전송 식별값 — 화면이 파일마다 만들어 다시 보낼 때도 같은 값을 쓴다(없으면 종전처럼 매번 새 파일)
+  var uid = String(body.uid || '').trim(); if (!/^[A-Za-z0-9_-]{8,40}$/.test(uid)) uid = '';
 
   var cust = _findCustomerBy('안내공유토큰', token, false);
   if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
@@ -2230,15 +2261,34 @@ function handleGuestPhoto(body) { _gsr_();
   // ★열 가드 — 없으면 저장하지 않는다. writeCell 이 조용히 건너뛰어 '올렸는데 없다'가 되는 것을 막는다.
   if (!colOf['하객사진폴더ID']) return { ok: false, ecode: 'G3', _why: 'Customers 에 하객사진폴더ID 열 없음', error: '아직 준비 중이에요. 두 분께 알려 주세요.' };   // [ERR_CODE_GAS] 설정(3) — 다시 눌러도 안 된다
 
-  if ((Number(cust.get('하객사진수') || 0) || 0) >= GP_MAX_FILES) return { ok: false, full: true, error: '사진이 충분히 모였어요. 고맙습니다.' };
-  if ((Number(cust.get('하객사진MB') || 0) || 0) * 1048576 + bytes > GP_MAX_TOTAL_MB * 1048576) return { ok: false, full: true, error: '사진이 충분히 모였어요. 고맙습니다.' };
+  /* ★[B2_MA_19 2026-11-06 2차 B2-마19 · d-09] 같은 전송을 두 번 저장하지 않는다 — 저장은 됐는데 응답만 끊긴 사진을 화면이 «다시 확인하기»로 다시 보내면
+     이미 받은 것으로 답한다(행사별로 열쇠를 나눈다 · 파일 이름만으로 판단하지 않는다 · 같은 식별값에 다른 크기가 오면 거절) */
+  var _uk = uid ? ('gpu_' + token + '_' + uid) : '', _svc = null;
+  if (uid) {
+    try { _svc = CacheService.getScriptCache(); } catch (e) {}
+    var _seen = _svc ? _svc.get(_uk) : null;
+    if (_seen == null) { var _fd0 = String(cust.get('하객사진폴더ID') || '').trim();
+      if (_fd0) { try { var _it = DriveApp.getFolderById(_fd0).searchFiles('title contains "' + uid + '"'); if (_it.hasNext()) _seen = String(_it.next().getSize()); } catch (e) {} } }
+    if (_seen != null) {
+      if (Number(_seen) !== bytes) return { ok: false, ecode: 'G0', error: '같은 사진 표시로 다른 파일이 왔어요. 사진을 다시 골라 주세요.' };
+      return { ok: true, dup: true, n: Number(cust.get('하객사진수') || 0) || 0 };
+    }
+  }
 
   // (1) 폴더 확보 — 첫 하객 여럿이 동시에 눌러도 폴더가 둘 생기지 않게 짧게 잠근다.
-  var lock = LockService.getScriptLock(), fid = '';
+  /* ★[B2_MA_86 2026-11-06 2차 B2-마86] 남은 장수 · 용량을 «같은 짧은 잠금 안»에서 확인하고 이 한 장 몫을 예약한다 —
+     종전엔 잠금 밖에서 검사해 여러 하객이 동시에 남은 한도를 함께 통과할 수 있었다. 저장이 끝나면 확정 · 실패하면 되돌린다.
+     용량은 정수 바이트로 쌓고(속성 GPB_<토큰>) 시트의 MB 는 보여 주기용으로만 반올림한다. 실패 글은 실제로 찬 한도를 말한다(limit) */
+  var lock = LockService.getScriptLock(), fid = '', _rk = 'gpres_' + token;
   /* [ERR_CODE_GAS 2026-10-07] 잠금 대기(G1)와 폴더 만들기 실패(G4)를 가른다 — 종전엔 둘 다 «지금은 붐벼요» */
   try { lock.waitLock(20000); } catch (e) { try { if (typeof lockBusySignal === 'function') lockBusySignal('guestPhoto'); } catch (_l) {} return { ok: false, ecode: 'G1', error: '지금은 붐벼요. 잠시 뒤 다시 눌러 주세요.' }; }
   try {
-    fid = _gpFolderFor(_findCustomerBy('안내공유토큰', token, false) || cust, sheet, colOf);
+    var f1 = _findCustomerBy('안내공유토큰', token, false) || cust;
+    var res = _gpResGet_(_rk), used = _gpBytesGet_(token, f1);
+    if ((Number(f1.get('하객사진수') || 0) || 0) + res.n >= GP_MAX_FILES) return { ok: false, full: true, limit: 'count', error: '받을 수 있는 사진 수가 찼어요.' };
+    if (used + res.b + bytes > GP_MAX_TOTAL_MB * 1048576) return { ok: false, full: true, limit: 'size', error: '받을 수 있는 사진 용량이 찼어요.' };
+    fid = _gpFolderFor(f1, sheet, colOf);
+    if (fid) { res.n += 1; res.b += bytes; _gpResPut_(_rk, res); }
   } catch (e) {
     return { ok: false, ecode: 'G4', _why: 'gp folder ' + String(e && e.message || e).slice(0, 170), error: '사진 둘 곳을 열지 못했어요. 잠시 뒤 다시 눌러 주세요.' };
   } finally { try { lock.releaseLock(); } catch (e2) {} }
@@ -2246,28 +2296,49 @@ function handleGuestPhoto(body) { _gsr_();
 
   // (2) 파일 쓰기 — ★잠금 밖. 여기가 느린 구간이라 잠그면 하객들이 줄을 서다 당일에 실패한다.
   try {
-    DriveApp.getFolderById(fid).createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, _gpSafeName(body.name, mime)));
+    var _nm = _gpSafeName(body.name, mime); if (uid) _nm = _nm.replace(/^(\d{4}-\d{6})_/, '$1_' + uid + '_');   // [B2_MA_19] 이름에 식별값 — 캐시가 비어도 드라이브에서 다시 찾는다
+    DriveApp.getFolderById(fid).createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, _nm));
+    if (_svc && _uk) { try { _svc.put(_uk, String(bytes), 21600); } catch (e) {} }
   } catch (e) {   // [ERR_CODE_GAS] 드라이브 실패 — 연결 탓(«끊겼어요»)으로 말하지 않는다
+    try { lock.waitLock(20000); var r0 = _gpResGet_(_rk); r0.n = Math.max(0, r0.n - 1); r0.b = Math.max(0, r0.b - bytes); _gpResPut_(_rk, r0); } catch (e4) {} finally { try { lock.releaseLock(); } catch (e5) {} }   // [B2_MA_86] 예약을 되돌린다
     return { ok: false, ecode: 'G4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '사진을 저장하지 못했어요. 다시 눌러 주세요.' };
   }
 
   // (3) 집계 — 다시 짧게 잠그고 **그때 읽은 값**에 더한다(동시 업로드로 숫자가 덮이지 않게).
   //     ★여기가 실패해도 사진은 이미 저장됐다 → 하객에게는 성공으로 답한다. 숫자는 부부 화면 표시용일 뿐이다.
-  var n = (Number(cust.get('하객사진수') || 0) || 0) + 1;
+  /* ★[B2_MA_82 2026-11-06 2차 B2-마82] 집계가 실패하면 «다시 맞추기» 표시(GPRECOUNT_<토큰>)를 남기고, 다음 업로드에서 폴더의 실제 파일로 장수 · 용량을 다시 만든다
+     (몇 번을 다시 해도 같은 값 · 늘지 않는다). 그동안 마이페이지는 «사진 수를 확인하고 있어요.» */
+  var n = (Number(cust.get('하객사진수') || 0) || 0) + 1, _pp = PropertiesService.getScriptProperties();
   try {
     lock.waitLock(20000);
+    var r1 = _gpResGet_(_rk); r1.n = Math.max(0, r1.n - 1); r1.b = Math.max(0, r1.b - bytes); _gpResPut_(_rk, r1);
     var f2 = _findCustomerBy('안내공유토큰', token, false) || cust;
-    n = (Number(f2.get('하객사진수') || 0) || 0) + 1;
-    touchCustomer(sheet, colOf, f2.num, {
-      '하객사진수': n,
-      '하객사진MB': Math.round(((Number(f2.get('하객사진MB') || 0) || 0) + bytes / 1048576) * 10) / 10,
-      '하객사진최근': fmtKST(new Date())
-    });
-  } catch (e) { /* 집계 실패는 사진 유실이 아니다 */ }
+    if (_pp.getProperty('GPRECOUNT_' + token)) {
+      var rc = _gpRecount_(fid);
+      n = rc.n; _pp.setProperty('GPB_' + token, String(rc.b)); _pp.deleteProperty('GPRECOUNT_' + token);
+      touchCustomer(sheet, colOf, f2.num, { '하객사진수': n, '하객사진MB': Math.round(rc.b / 1048576 * 10) / 10, '하객사진최근': fmtKST(new Date()) });
+    } else {
+      n = (Number(f2.get('하객사진수') || 0) || 0) + 1;
+      var nb = _gpBytesGet_(token, f2) + bytes;
+      _pp.setProperty('GPB_' + token, String(nb));
+      touchCustomer(sheet, colOf, f2.num, {
+        '하객사진수': n,
+        '하객사진MB': Math.round(nb / 1048576 * 10) / 10,
+        '하객사진최근': fmtKST(new Date())
+      });
+    }
+  } catch (e) { try { _pp.setProperty('GPRECOUNT_' + token, '1'); } catch (e6) {} /* 집계 실패는 사진 유실이 아니다 · [B2_MA_82] 다시 맞추기 표시 */ }
   finally { try { lock.releaseLock(); } catch (e3) {} }
 
   return { ok: true, n: n };
 }
+/* [B2_MA_86] 예약(아직 저장 중인 장수 · 바이트) — 15분 캐시. 시간이 지나 사라진 예약은 실패로 세지 않는다(그냥 비운다) */
+function _gpResGet_(k) { try { var v = CacheService.getScriptCache().get(k); var o = v ? JSON.parse(v) : null; if (o && isFinite(o.n) && isFinite(o.b)) return { n: Math.max(0, +o.n), b: Math.max(0, +o.b) }; } catch (e) {} return { n: 0, b: 0 }; }
+function _gpResPut_(k, o) { try { CacheService.getScriptCache().put(k, JSON.stringify({ n: o.n, b: o.b }), 900); } catch (e) {} }
+/* [B2_MA_86] 쌓인 용량(정수 바이트) — 없으면 시트의 MB 로 시작한다(옛 예식) */
+function _gpBytesGet_(token, cust) { var v = PropertiesService.getScriptProperties().getProperty('GPB_' + token); if (v != null && isFinite(+v)) return Math.max(0, Math.floor(+v)); return Math.round((Number(cust.get('하객사진MB') || 0) || 0) * 1048576); }
+/* [B2_MA_82] 폴더의 실제 파일로 장수 · 바이트를 다시 센다 */
+function _gpRecount_(fid) { var n = 0, b = 0; var it = DriveApp.getFolderById(fid).getFiles(); while (it.hasNext()) { var f = it.next(); n++; b += f.getSize(); } return { n: n, b: b }; }
 
 // [1회 실행] Customers 에 하객사진 열 4개 추가(멱등). ★'새 버전' 배포 _전에_ 실행할 것.
 //   ★폴더ID를 **마지막**에 넣는다 — handleGuestPhoto 가 그 열 하나로 '전부 있음'을 판정하므로,
@@ -2772,6 +2843,7 @@ function buildProductionState(r) { _gsr_();
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 제작/청첩장 단계 없음 · 시그 전용 카드 노출·잘못된 '제작중' 전이 방지
   var stage = String(r.get('현재단계') || '').trim();
   if (PRODUCTION_STAGES.indexOf(stage) === -1) return null;
+  _guideTokenEnsure_(r);   // [B2_MA_02] 제작 단계의 모든 예식에 하객 안내(사진 올리기) 링크 — 식사 · 좌석과 상관없이
   var draft = _prodLoad(r);   // PROD_ACCESSOR
   var entered = !!draft.base;
   var b = draft.base || {};
@@ -2824,6 +2896,7 @@ function buildProductionState(r) { _gsr_();
     guideinfoDraft: draft.guideinfoDraft || null,      // 하객 안내 정보(오시는 길·드레스코드) 이어하기·편집용
     guestPhoto: {   // [GUEST_PHOTO_IN] 하객이 우리 안내 페이지에서 올린 사진 - 부부 화면 표시용(장수·폴더·최근)
       n: Number(r.get('하객사진수') || 0) || 0,
+      recounting: (function () { try { var t = String(r.get('안내공유토큰') || '').trim(); return !!(t && PropertiesService.getScriptProperties().getProperty('GPRECOUNT_' + t)); } catch (e) { return false; } })(),   // [B2_MA_82] 다시 맞추는 중일 때만 «사진 수를 확인하고 있어요.»
       url: (function () { var f = String(r.get('하객사진폴더ID') || '').trim(); return f ? 'https://drive.google.com/drive/folders/' + f : ''; })(),
       at: String(r.get('하객사진최근') || '').trim()
     },

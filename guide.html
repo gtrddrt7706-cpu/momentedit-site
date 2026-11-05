@@ -214,7 +214,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
   padding:15px 20px;text-decoration:none;min-height:48px;box-sizing:border-box;
   transition:border-color .3s var(--ease,ease),background .12s ease}
 .ps-btn:active{background:var(--bg2);border-color:var(--faint)}
-.ps-btn:active{background:var(--accent)}
+/* ★[B2_MA_71 2026-11-06 2차 B2-마71] 뒤에 같은 :active 가 한 번 더 있어 배경을 글자색(#3A2D22)으로 덮었다 — 누르는 동안 글자가 사라졌다. 밝은 배경 하나만 둔다 */
 
 /* ★라이브 섹션 복원 금지 — 2026-07-17 사용자 지시로 삭제(하객 안내=오프라인 하객용 · 라이브는 온라인 청첩장이 단일 창구) */
 
@@ -277,8 +277,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .act svg{stroke:var(--gold-text)}
 .mtb-stage{opacity:1}   /* 0.75가 곱해져 2.64:1이 되던 것 — 흐림이 아니라 색으로 조용하게 */
 
-/* 흰 글자를 얹는 골드 배경 — 3.95:1이라 정작 버튼 글자가 안 읽혔다 → 5.97:1 */
-.hero .today,
+/* 흰 글자를 얹는 골드 배경 — 3.95:1이라 정작 버튼 글자가 안 읽혔다 → 5.97:1
+   ★[B2_MA_72 2026-11-06 2차 B2-마72] 이 줄의 선택자가 아래 «--light 글자» 목록에 붙어 흰 글자를 #6E6959 로 덮었다 — 당일 표시의 색 규칙을 따로 둔다(진한 금색 #7A5F37 바탕 · 흰 글자 약 5.967:1) */
+.hero .today{background:var(--gold-text);color:#fff}
+
 
 
 /* --faint(2.61:1) 텍스트 4곳 → --light(4.79:1) */
@@ -391,6 +393,8 @@ body{
   margin-top:18px;padding:0 26px;font-family:var(--serif-ko);font-size:14px;
   color:#fff;background:var(--gold-text);border:none;border-radius:24px;cursor:pointer}
 .retry-btn:active{background:var(--accent)}
+/* [B2_MA_20] 받아 둔 안내 위의 한 줄 — 경고색 대신 조용한 띠(브랜드 절제) */
+.g-stale{font-size:12.5px;line-height:1.6;color:var(--sub);background:var(--bg2);border-radius:6px;padding:10px 12px;margin:0 0 14px;text-align:center;word-break:keep-all}
 </style>
 </head>
 <body>
@@ -398,6 +402,7 @@ body{
   <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로</button></div>
   <div class="brand">Moment Edit</div>
   <main id="root"><div class="card"><div class="state" role="status"><span class="bdot"></span>안내를 불러오는 중이에요…</div></div></main>
+<script src="/assets/dining-data.js?v=1105a"></script><!-- [B2_MA_64] 식사 · 카페 판정 목록(마이페이지 · 당일 콘솔과 같은 원천 · DINE_DATA_NI16) -->
 </div>
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
@@ -458,12 +463,16 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){retu
       fetch 가 끝나지 않아 그 catch 가 영영 안 불렸을 뿐이다. 고친 것은 «끝나게» 한 것뿐이다.
    ★사진 업로드(guestPhoto)에는 걸지 않는다 — 느린 회선에서 큰 본문을 올리는 중에 끊기면 그게 더 나쁘다.
    ★12초는 GAS 콜드스타트를 자르지 않으려는 값이다(mypage MPD_E3 와 같은 근거). 줄이지 말 것. */
+/* ★[B2_MA_27 2026-11-06 2차 B2-마27] 12초 제한은 «응답 본문을 다 읽을 때까지» 둔다 — 종전엔 응답 머리가 오면 타이머를 지워,
+   json() 이 끝나지 않으면 오류 · 자동 재시도 · «다시 불러오기»에 닿지 못했다. 돌려주는 것은 json() 하나뿐인 얇은 응답(부르는 곳은 r.json() 만 쓴다) */
 function gapi(payload){
   var ac=(typeof AbortController!=='undefined')?new AbortController():null;
   var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },12000):null;
+  function clr(){ if(tm){ clearTimeout(tm); tm=null; } }
   return fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
-    .then(function(r){ if(tm) clearTimeout(tm); return r; }, function(e){ if(tm) clearTimeout(tm); throw e; });
+    .then(function(r){ return { ok:r.ok, status:r.status, json:function(){ return r.json().then(function(v){ clr(); return v; }, function(e){ clr(); throw e; }); } }; },
+      function(e){ clr(); throw e; });
 }
 /* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
    실패마다 한 줄 + «(코드 G#)» · G = 하객 · 부모님 화면 · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
@@ -552,6 +561,18 @@ function spotHtml(v, withTel){
   var _m=guestMeta(v.m);
   return '<div class="spot"><div class="sn">'+esc(v.n)+'</div>'+(_m?'<div class="sm">'+esc(_m)+'</div>':'')+'<div class="acts">'+acts+'</div></div>';
 }
+/* [B2_MA_64] 지금 고른 곳(pick)의 음식 분류 — meal · cafe · ''(모름). ritual-preview-link.js diningStatusOf 와 같은 근거 · 근거가 엇갈리거나 없으면 모름 */
+var GD_CAFE_RE=/카페|디저트|베이커리|제과|다과|티룸|커피/;
+function _gdKind(t){ t=String(t||'').trim(); return t?(GD_CAFE_RE.test(t)?'cafe':'meal'):''; }
+function pickKind(dn){
+  var p=String((dn&&dn.pick)||'').trim(), ev=[]; if(!p) return '';
+  var db=window.DINE_DB||[];
+  for(var i=0;i<db.length;i++) if(db[i]&&String(db[i].n||'').trim()===p){ var k=_gdKind(Array.isArray(db[i].f)?db[i].f.join(' '):''); if(k) ev.push(k); break; }
+  (dn.restos||[]).forEach(function(v){ if(String((v&&v.n)||'').trim()!==p) return; var parts=String(v.m||'').split(' · '); for(var j=0;j<parts.length;j++) if(parts[j].indexOf('>')>-1){ var mk=_gdKind(parts[j]); if(mk) ev.push(mk); break; } });
+  if(!ev.length) return '';
+  for(var x=1;x<ev.length;x++) if(ev[x]!==ev[0]) return '';
+  return ev[0];
+}
 function diningHtml(dn){
   if(!dn || !dn.on) return '';
   var restos=(dn.restos||[]).slice(), spots=dn.spots||[];
@@ -570,7 +591,10 @@ function diningHtml(dn){
       +(_pm?'<div class="pm">'+esc(_pm)+'</div>':'')
       +(rsv?'<div class="rsv">'+rsv+'</div>':'')
       +'<div class="acts">'+acts+'</div></div>';
-    h+='<div class="gather">예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진 · 추가 촬영을 하실 분은 남고, 그 밖의 분은 식사 자리로 먼저 이동해요. '+(dn.rtime?'식사는 안내된 예약 시각에 두 분과 함께해요.':'식사는 두 분과 함께해요.')+'</div>';   /* ★[END_FLOW_200 최종 · GATHER_200] 대본 확정 문구 · 옛 «차례가 아닌 분 … 쉬어 주세요» 괄호는 뺐다(그 밖의 분은 먼저 이동) · 예약 시각이 없으면 «식사는 두 분과 함께해요.» · 이 줄은 식사 자리(pick)가 있을 때만 나와 식사 없는 날 판은 쓰지 않는다 */   /* ★[CLOSING_LINE_1031 검토 178] 사진은 작가님이 이끈다(안내 음성은 모으지 않는다) · ★[END_FLOW_1030 검토 167 2026-10-30 사장님] 감사 인사는 닫는 인사가 맡는다 · 마무리 멘트(291)와 같은 말 · «먼저 식사 자리로» · «끝까지 남아 달라»는 쓰지 않는다 */   // [PHOTO_THANKS 2026-09-26 사장님 결정] 가실 분은 감사 인사 뒤 곧바로 위 장소로 · ★[PHOTO_GUIDE_OPEN 2026-09-27] 나레이션(end-1a-farewell «두 사람과 따로 사진을 남기고 싶으신 분들도 함께 남아 주십시오»)과 같게 친구 · 지인에게도 열었다([GUESTS_OPEN])
+    /* ★[B2_MA_64 · B2_MA_12 · d-17 2026-11-06 2차 B2-마64 · 마12] 식사 이동 문장은 «확인된 식사 자리»에만 — 카페 · 분류를 모르는 곳에는 사진 순서만 말한다.
+       판정은 마이페이지 · 당일 콘솔과 같은 근거(목록 assets/dining-data.js 의 음식 종류 · 지도 분류 토막 · DINE_STATUS_NI16). 카페 날 이동 문장은 K7 결정 전 더하지 않는다 */
+    if(pickKind(dn)==='meal') h+='<div class="gather">예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진 · 추가 촬영을 하실 분은 남고, 그 밖의 분은 식사 자리로 먼저 이동해요. '+(dn.rtime?'식사는 안내된 예약 시각에 두 분과 함께해요.':'식사는 두 분과 함께해요.')+'</div>';
+    else h+='<div class="gather">단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.</div>';   /* ★[END_FLOW_200 최종 · GATHER_200] 대본 확정 문구 · 옛 «차례가 아닌 분 … 쉬어 주세요» 괄호는 뺐다(그 밖의 분은 먼저 이동) · 예약 시각이 없으면 «식사는 두 분과 함께해요.» · 이 줄은 식사 자리(pick)가 있을 때만 나와 식사 없는 날 판은 쓰지 않는다 */   /* ★[CLOSING_LINE_1031 검토 178] 사진은 작가님이 이끈다(안내 음성은 모으지 않는다) · ★[END_FLOW_1030 검토 167 2026-10-30 사장님] 감사 인사는 닫는 인사가 맡는다 · 마무리 멘트(291)와 같은 말 · «먼저 식사 자리로» · «끝까지 남아 달라»는 쓰지 않는다 */   // [PHOTO_THANKS 2026-09-26 사장님 결정] 가실 분은 감사 인사 뒤 곧바로 위 장소로 · ★[PHOTO_GUIDE_OPEN 2026-09-27] 나레이션(end-1a-farewell «두 사람과 따로 사진을 남기고 싶으신 분들도 함께 남아 주십시오»)과 같게 친구 · 지인에게도 열었다([GUESTS_OPEN])
     if(restos.length) h+='<div class="subh">함께 들르기 좋은 곳</div>';   // 픽이 있으면 나머지 찜은 보조로 구분(어디로 가야 하는지 흐려지지 않게)
   }
   if(restos.length){ restos.forEach(function(v){ h+=spotHtml(v,true); }); }
@@ -589,7 +613,7 @@ function diningHtml(dn){
      올라간 사진 목록도 보여주지 않는다(하객끼리 서로 안 보이는 것이 이 기능의 출발점). */
 var GP_MAX_MB=20, GP_ONCE=30;   // 서버 한도(20MB)와 같은 값 · 한 번에 고를 수 있는 장수
 function guestUploadHtml(){
-  return '<div class="sec"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'
+  return '<div class="sec" id="photos"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'   // [B2_MA_17] #photos — 온라인 청첩장 · 디지털 참석의 «사진 올리기»가 바로 이 구역으로 온다
     +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
     +'<input type="file" id="gpFile" accept="image/*,video/*" multiple style="display:none">'
     +'<button type="button" class="ps-btn" id="gpPick">사진 올리기</button>'
@@ -598,23 +622,36 @@ function guestUploadHtml(){
        읽는 순간은 «올린 직후»이고, 그때는 확인 한 마디면 된다. 그 말을 시트가 맡는다.
        ★진행(「3 / 5 올리는 중」)과 실패(「다시 시도」)는 그대로 인라인(gpStat)이다 —
          진행은 계속 보여야 하고, 실패엔 누를 버튼이 붙는다. 시트로 옮기면 둘 다 망가진다. */
-    +'<div class="gp-stat" id="gpStat" style="display:none"></div></div>';
+    +'<div class="gp-stat" id="gpStat" style="display:none"></div>'
+    /* ★[B2_MA_32 2026-11-06 2차 B2-마32] 처음부터 있는 알림 자리 — gpStat 은 숨었다 나타나 낭독기가 진행 · 실패를 못 읽었다.
+       시작 · 부분 실패 · 남은 장수만 한 번씩 싣는다(매 장마다 되풀이하지 않는다 · 성공은 시트가 초점을 받아 말한다) */
+    +'<div class="sr-only" id="gpLive" role="status" aria-live="polite"></div></div>';
 }
 /* ★[GP_DONE_MSG] 다 올린 뒤 하는 말은 **여기 한 곳**에서 만든다. 베껴 두면 한쪽만 옛말을 하게 된다.
    ★2026-08-18 [GP_DONE_SHEET] 로 자리를 옮겼다 — 인라인 한 줄이 아니라 시트의 제목·본문이 된다.
-     본문은 버튼 아래에서 뺀 안내(이름도 가입도 필요 없다)를 이어받는다. 지운 게 아니라 옮긴 것이다. */
-function gpDoneMsg(n){ return n+'장 전해졌어요'; }
-var GP_DONE_SUB='두 분께 바로 전해졌어요 · 이름도 가입도 필요 없어요.';
+     본문은 버튼 아래에서 뺀 안내(이름도 가입도 필요 없다)를 이어받는다. 지운 게 아니라 옮긴 것이다.
+   ★★[B2_MA_75 2026-11-06 2차 B2-마75 · d-08] 기본 사진 올리기는 스튜디오 폴더에 모아 결과물과 함께 두 분께 전한다 —
+     «전해졌어요 · 두 분께 바로»는 지금 끝난 일처럼 읽혔다. 제목 «N장 잘 받았어요» · 본문 «두 분께 전해 드릴게요. 고맙습니다.»
+     (외부 서비스로 바로 보내는 갈래의 글은 따로다 · 나레이션 녹음은 그대로 · B2-K38) */
+function gpDoneMsg(n){ return n+'장 잘 받았어요'; }
+var GP_DONE_SUB='두 분께 전해 드릴게요. 고맙습니다.';
 function gpSay(msg, kind){
   var el=document.getElementById('gpStat'); if(!el) return;
   el.className='gp-stat'+(kind?' gp-'+kind:''); el.innerHTML=_ecGlue(msg); el.style.display='';   // [ERR_CODE_GLUE] msg 는 이미 HTML(esc 된 까닭) — 코드만 한 덩어리로
 }
+function gpLive(t){ var el=document.getElementById('gpLive'); if(!el) return; el.textContent=''; setTimeout(function(){ el.textContent=t; }, 30); }   // [B2_MA_32] 같은 글도 다시 읽히게 비웠다가 싣는다
+/* ★★[B2_MA_01 · B2_MA_18 2026-11-06 2차 B2-마01 · 마18] 사진 올리기 상태는 «화면 밖»(GP)에 둔다.
+   종전엔 bindGuestUpload 안의 변수였다 — ①남은 사진을 보내면 failed=[] 로 앞 실패 1장의 다시 보내기 길이 사라졌고
+   ②캐시로 그린 뒤 늦게 온 최신 응답이 화면을 다시 그리면 실패 · 미전송 목록과 단추가 함께 지워졌다.
+   fail = 확실히 안 간 사진 · unsure = 응답을 못 받아 갔는지 모르는 사진(B2-마19) · rest = 아직 안 보낸 사진 · done = 이번에 잘 받은 장수(시트를 띄우면 0) */
+var GP={busy:false, done:0, big:0, fail:[], unsure:[], rest:[], stop:'', lastWhy:'', pendingGuide:null};   // [ERR_CODE_PAGES] lastWhy = 마지막으로 실패한 사진의 까닭(코드 포함) — «N장은 아직 올라가지 않았어요 · 까닭»
+function _gpUid(f){ if(!f.__gpUid) f.__gpUid=Date.now().toString(36)+Math.random().toString(36).slice(2,12); return f.__gpUid; }   // [B2_MA_19] 파일마다 전송 식별값 — 다시 보내도 같다(서버가 같은 전송을 두 번 저장하지 않는다)
+function _gpDrop(list, f){ var i=list.indexOf(f); if(i>=0) list.splice(i,1); }
 function bindGuestUpload(){
   var pick=document.getElementById('gpPick'), inp=document.getElementById('gpFile');
   if(!pick||!inp) return;
   var token=guideToken(); if(!token) return;   // [GUIDE_PATH_READ] 경로 형태(/g/<토큰>)도 받는다
-  var busy=false, failed=[], rest=[];   // rest = 한 번에 고를 수 있는 장수를 넘겨 «아직 안 보낸» 사진들
-  pick.addEventListener('click', function(){ if(!busy) inp.click(); });
+  pick.addEventListener('click', function(){ if(!GP.busy) inp.click(); });
   /* ★★[GP_OVER_PICK 2026-08-22 병렬 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면 «말없이» 잘렸다.
      실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 — 남은 5장이 사라진 것을
      하객이 알 길이 없다. 조용한 절삭은 «다 갔다»로 읽힌다.
@@ -626,11 +663,12 @@ function bindGuestUpload(){
      즉 잘못한 것도 없는데 실패보다 초과가 더 불리했다.
      ★고른 파일 객체는 inp.value='' 뒤에도 살아 있다. 그래서 «넘친 것»을 rest 에 쥐고 있다가
        「남은 N장 보내기」로 이어 보낸다. 실패와 같은 대접이다.
-     ★다시 30장을 넘겨도 된다 — rest 에서 30장씩 꺼내니 80장을 골라도 세 번에 나눠 간다. */
+     ★다시 30장을 넘겨도 된다 — rest 에서 30장씩 꺼내니 80장을 골라도 세 번에 나눠 간다.
+     ★[B2_MA_01] 새로 골라도 앞의 실패 · 미전송 목록은 그대로 남는다(새 선택의 넘친 것은 앞에 둔다) */
   inp.addEventListener('change', function(){
     var all=[].slice.call(inp.files||[]);
     inp.value='';                        // 같은 파일을 다시 골라도 change 가 뜨게 비운다
-    rest=all.slice(GP_ONCE);
+    GP.rest=all.slice(GP_ONCE).concat(GP.rest);   // [GP_OVER_PICK] 옛 핀: rest=all.slice(GP_ONCE)
     if(all.length) send(all.slice(0,GP_ONCE));
   });
 
@@ -638,28 +676,34 @@ function bindGuestUpload(){
      「N장이 전해지지 않았어요 · 다시 시도」 한 줄이었다. 다시 눌러도 안 되는 것(사진 폴더 설정이 없음 · G3)에도 «다시 시도»를 내밀었다.
      - G3 «아직 준비 중이에요 · 저장할 곳을 열지 못했어요»(설정 없음) → 멈추고 단추를 안 준다(만료 · 다 모임과 같은 대접)
      - G1 붐빔 · G4 드라이브 저장 실패(«올리다 끊겼어요»는 실은 드라이브 실패다 — 연결 탓으로 말하지 않는다) → 까닭 + 다시 시도
-     - 연결 G6 · 서버 답이 깨짐 G7(올리기는 시간 제한이 없어 G5 는 없다 · GUEST_TIMEOUT) · 이 기기가 사진을 못 읽음 M6 → 까닭 + 다시 시도 */
+     - 연결 G6 · 서버 답이 깨짐 G7(올리기는 시간 제한이 없어 G5 는 없다 · GUEST_TIMEOUT) · 이 기기가 사진을 못 읽음 M6 → 까닭 + 다시 시도
+       ★[B2_MA_19] 연결이 끊기거나 답이 깨진 것(G6 · G7)은 서버에 이미 저장됐을 수 있다 — «안 갔다»가 아니라 «확인하지 못했다»로 따로 둔다 */
   function _gpG3(v){ return String((v&&v.ecode)||'')==='G3'||/아직 준비 중이에요|저장할 곳을 열지 못했어요/.test(String((v&&v.error)||'')); }
   function _gpWhy(v){ var t=String((v&&v.error)||''), c=/\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), ec=String((v&&v.ecode)||''), eid=String((v&&v.eid)||''),
       code=c?c[1]:(/^[A-Z][1-9]$/.test(ec)?'코드 '+ec+(eid?' · '+eid:''):'');
     if(ec==='G1'||/붐벼요/.test(t)) return '지금은 붐벼요 ('+(code||'코드 G1')+')';
     if(ec==='G4'||/올리다 끊겼어요|저장하지 못했어요|둘 곳을 열지 못했어요/.test(t)) return '사진을 저장하지 못했어요 ('+(code||'코드 G4')+')';
     return _ecSrv(v,'G','사진을 받지 못했어요'); }
+  /* ★[B2_MA_21] 멈춘 까닭 — 장수 한도 · 용량 한도 · 그 밖(만료 · 설정)은 서버 글 그대로 */
+  function _gpStopWhy(v){
+    if(v&&v.full){ return v.limit==='count'?'받을 수 있는 사진 수가 찼어요.':v.limit==='size'?'받을 수 있는 사진 용량이 찼어요.':'사진을 더 받을 수 없어요.'; }
+    var m=_ecSrv(v,'G','사진을 받지 못했어요');
+    if(_gpG3(v)&&!/\(코드 /.test(m)) m=m.replace(/[\s.]+$/,'')+' (코드 G3)';   // 옛 GAS 는 코드를 안 붙인다 — 설정 없음은 G3 · [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다
+    return m; }
   function one(file){
     return new Promise(function(res){
-      if(file.size > GP_MAX_MB*1048576){ res({ok:false, big:true}); return; }
+      if(file.size > GP_MAX_MB*1048576){ res({ok:false, big:true}); return; }   // [B2_MA_70] 실제 파일 바이트 수 — 서버도 같은 20×1,048,576 바이트(채움 문자를 뺀 실제 크기)로 잰다
       var fr=new FileReader();
       fr.onerror=function(){ res({ok:false, why:'이 기기에서 사진을 열지 못했어요 (코드 M6)'}); };   // [ERR_CODE_PAGES] 기기가 파일을 못 읽음(HEIC · 메모리) — 서버 · 연결 탓이 아니다
       fr.onload=function(){
         var d=String(fr.result||''); var i=d.indexOf(',');
         fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body:JSON.stringify({ action:'guestPhoto', g:token, name:file.name, mime:(file.type||'image/jpeg'), data:(i>=0?d.slice(i+1):d) }) })
+          body:JSON.stringify({ action:'guestPhoto', g:token, uid:_gpUid(file), name:file.name, mime:(file.type||'image/jpeg'), data:(i>=0?d.slice(i+1):d) }) })
           .then(function(r){ return r.json(); })
           .then(function(v){ if(v&&v.ok){ res({ok:true}); return; }
-            var g3=_gpG3(v), m=_ecSrv(v,'G','사진을 받지 못했어요');
-            if(g3&&!/\(코드 /.test(m)) m=m.replace(/[\s.]+$/,'')+' (코드 G3)';   // 옛 GAS 는 코드를 안 붙인다 — 설정 없음은 G3 · [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다
-            res({ok:false, msg:m, stop:!!(v&&(v.expired||v.full))||g3, why:_gpWhy(v)}); })
-          .catch(function(e){ res({ok:false, why:_ecNet(e,'G','')}); });   // [ERR_CODE_PAGES] 연결 G6 · 서버 답이 깨짐 G7
+            var stop=!!(v&&(v.expired||v.full))||_gpG3(v);
+            res({ok:false, stop:stop, msg:stop?_gpStopWhy(v):'', why:_gpWhy(v)}); })
+          .catch(function(e){ res({ok:false, unsure:true, why:_ecNet(e,'G','')}); });   // [ERR_CODE_PAGES] 연결 G6 · 서버 답이 깨짐 G7 · [B2_MA_19] 저장됐는지 모른다
       };
       fr.readAsDataURL(file);
     });
@@ -670,41 +714,64 @@ function bindGuestUpload(){
        누르기 전에는 아무도 안 읽는다는 그 판단은 그대로다. 넘쳤을 때만 · 그 순간에만 말한다. */
   function gpProgress(done, total){
     var m=done+' / '+total+' 올리는 중이에요 · 창을 닫지 말아 주세요';
-    if(rest.length) m+='<br>남은 '+rest.length+'장은 끝나고 이어서 보낼 수 있어요.';
+    if(GP.rest.length) m+='<br>남은 '+GP.rest.length+'장은 끝나고 이어서 보낼 수 있어요.';
     gpSay(m);
   }
-  var lastWhy='';   // [ERR_CODE_PAGES] 마지막으로 실패한 사진의 까닭(코드 포함) — 「N장이 전해지지 않았어요 · 까닭」
   function send(files){
-    busy=true; window.__gpBusy=true; failed=[]; lastWhy=''; var done=0, big=0, stopMsg='';   // [GP_NO_REPAINT] 올리는 동안 render 를 막는다
+    GP.busy=true; window.__gpBusy=true; GP.stop=''; GP.lastWhy=''; var batchDone=0;   // [GP_NO_REPAINT] 올리는 동안 render 를 막는다
     pick.textContent='올리는 중이에요'; pick.classList.add('ps-btn-off');
-    gpProgress(0, files.length);
+    gpProgress(0, files.length); gpLive('0 / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');   // [B2_MA_32] 시작만 한 번
     (function next(i){
-      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg); return; }
-      one(files[i]).then(function(v){
-        if(v.ok) done++; else if(v.big) big++; else { failed.push(files[i]); if(v.stop) stopMsg=v.msg||''; if(v.why) lastWhy=v.why; }
-        gpProgress(done, files.length);
+      if(i>=files.length){ finish(); return; }
+      var f=files[i];
+      one(f).then(function(v){
+        if(v.ok){ batchDone++; GP.done++; _gpDrop(GP.fail,f); _gpDrop(GP.unsure,f); }
+        else if(v.big){ GP.big++; _gpDrop(GP.fail,f); _gpDrop(GP.unsure,f); }
+        else if(v.unsure){ _gpDrop(GP.fail,f); if(GP.unsure.indexOf(f)<0) GP.unsure.push(f); if(v.why) GP.lastWhy=v.why; }
+        else { _gpDrop(GP.unsure,f); if(GP.fail.indexOf(f)<0) GP.fail.push(f); if(v.why) GP.lastWhy=v.why;
+          if(v.stop){ GP.stop=v.msg||'사진을 더 받을 수 없어요.'; GP.rest=files.slice(i+1).concat(GP.rest); finish(); return; } }   // [B2_MA_21] 못 보낸 묶음의 나머지도 «못 올린 사진»에 센다
+        gpProgress(batchDone, files.length);
         next(i+1);
       });
     })(0);
   }
-  function finish(total, done, big, stopMsg){
-    busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
-    if(stopMsg){ gpSay(esc(stopMsg), 'err'); return; }
-    var over=rest.length;
-    var msg=done?gpDoneMsg(done):'';   // 아직 안 끝났을 때만 쓰인다 — 온전한 성공은 아래에서 시트로 간다
-    if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지).';
-    if(over) msg+=(msg?'<br>':'')+'남은 '+over+'장이 아직 있어요. <button type="button" class="gp-retry" id="gpRest">남은 '+over+'장 보내기</button>';
-    if(failed.length) msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요'+(lastWhy?' · '+esc(lastWhy):'.')+' <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';   // [ERR_CODE_PAGES] 까닭 + 코드(G1 · G4 · G6 · G7 · M6)
+  function finish(){
+    GP.busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
+    gpPaint(true);
+    /* [B2_MA_23] 올리는 동안 받은 최신 안내는 끝난 뒤 반드시 반영한다(사진 상태는 GP 에 있어 다시 그려도 남는다) */
+    if(GP.pendingGuide){ var pg=GP.pendingGuide; GP.pendingGuide=null; setTimeout(function(){ render(pg); }, 0); }
+  }
+  /* 지금 상태를 그린다 — 끝났을 때(fresh) 와 다시 그린 화면에 되살릴 때 같은 함수 */
+  function gpPaint(fresh){
+    if(GP.busy) return;
+    var over=GP.rest.length, nf=GP.fail.length, nu=GP.unsure.length, big=GP.big, done=GP.done;
+    if(GP.stop){   // [B2_MA_21] «2장 잘 받았어요. 3장은 못 올렸어요.» + 실제 까닭 · 다시 눌러도 안 되니 단추는 없다
+      var lost=nf+nu+over;
+      gpSay((done?gpDoneMsg(done)+'. ':'')+(lost?lost+'장은 못 올렸어요. ':'')+esc(GP.stop), 'err');
+      if(fresh) gpLive((done?gpDoneMsg(done)+'. ':'')+(lost?lost+'장은 못 올렸어요. ':'')+GP.stop);
+      return;
+    }
+    if(!fresh && !over && !nf && !nu) return;
+    var msg='';
+    /* ★[B2_MA_01 · d-08] «34장 잘 받았어요. 1장은 아직 올라가지 않았어요.» / «안 된 1장 다시 보내기» — 남은 사진이 있으면 다 됐다고 말하지 않는다 */
+    if(done && (over||nf||nu)) msg=gpDoneMsg(done)+'.';
+    if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요. 파일 한 개에 '+GP_MAX_MB+'MB까지 올릴 수 있어요.';   // [B2_MA_70]
+    if(nf) msg+=(msg?(done&&msg.indexOf('<br>')<0?' ':'<br>'):'')+nf+'장은 아직 올라가지 않았어요.'+(GP.lastWhy&&!nu?' '+esc(GP.lastWhy):'')+' <button type="button" class="gp-retry" id="gpRetry">안 된 '+nf+'장 다시 보내기</button>';   // [ERR_CODE_PAGES] 까닭 + 코드(G1 · G4 · M6)
+    if(nu) msg+=(msg?'<br>':'')+'사진이 올라갔는지 확인하지 못했어요.'+(GP.lastWhy?' '+esc(GP.lastWhy):'')+' <button type="button" class="gp-retry" id="gpCheck">다시 확인하기</button>';   // [B2_MA_19 · d-09] 같은 식별값으로 다시 물어 서버가 «이미 받음»이면 그대로 잘 받은 것으로 센다
+    if(over) msg+=(msg?'<br>':'')+'아직 보내지 않은 사진이 '+over+'장 있어요. <button type="button" class="gp-retry" id="gpRest">남은 '+over+'장 보내기</button>';   // [B2_MA_18] 옛 핀: 남은 '+over+'장 보내기
     /* ★[GP_OVER_WEIGHT 2026-09-08 코워크 지적] 넘쳤을 땐 «성공 시트»를 띄우지 않는다.
        종전엔 시트 본문에 「30장 전해졌어요」(15px)를 크게 띄우고, 넘친 안내는 부제(12px)로 그 뒤에 붙였다.
        큰 글씨가 «끝났다»고 말하면 작은 글씨는 안 읽힌다. 실패를 시트로 안 보내는 이유와 똑같다.
        ★끝난 게 아니면 «끝났다는 시트»를 띄우지 않는다. 두 문장을 같은 크기로, 누를 것과 함께 둔다. */
-    if(over || failed.length){
+    if(over || nf || nu){
       gpSay(msg,'err');
       var rb=document.getElementById('gpRetry');
-      if(rb) rb.addEventListener('click', function(){ send(failed.slice()); });
+      if(rb) rb.addEventListener('click', function(){ send(GP.fail.slice()); });
+      var cb=document.getElementById('gpCheck');
+      if(cb) cb.addEventListener('click', function(){ send(GP.unsure.slice()); });
       var ob=document.getElementById('gpRest');
-      if(ob) ob.addEventListener('click', function(){ var take=rest.slice(0,GP_ONCE); rest=rest.slice(GP_ONCE); send(take); });
+      if(ob) ob.addEventListener('click', function(){ var take=GP.rest.slice(0,GP_ONCE); GP.rest=GP.rest.slice(GP_ONCE); send(take); });
+      if(fresh){ var st0=document.getElementById('gpStat'); gpLive(st0?st0.textContent.replace(/\s+/g,' ').trim():''); var fb=rb||cb||ob; if(fb&&(nf||nu)) fb.focus(); }   // [B2_MA_32] 실패 · 남은 장수를 한 번 읽고 · 실패면 다시 보내기 단추로 초점
       return;
     }
     if(!done){
@@ -712,17 +779,21 @@ function bindGuestUpload(){
          「보낼 사진이 없었어요」는 «고르지 않았다»는 뜻으로 읽힌다. 실제로는 크기·전송 때문에 걸러진 것이다.
          실측: 25MB 한 장만 고르니 그 문구가 떴다 — 하객은 왜 안 갔는지 알 수 없다.
          [GP_DONE_SHEET] 로 성공을 시트로 옮기면서 big 을 이 갈래에서 잃어버린 것이 원인이다. */
-      if(big) gpSay('사진이 너무 커서 보내지 못했어요 · 한 장에 '+GP_MAX_MB+'MB까지 보낼 수 있어요.','err');
+      if(big) gpSay('사진이 너무 커서 보내지 못했어요 · 파일 한 개에 '+GP_MAX_MB+'MB까지 올릴 수 있어요.','err');   // [B2_MA_70]
       else    gpSay('보낼 사진이 없었어요.');
+      GP.big=0;
       return;
     }
     /* [GP_DONE_SHEET] 성공은 시트로 알린다 — 인라인 줄은 지워 «옛 결과»가 남지 않게 한다.
        큰 파일을 걸렀으면 그 사실은 시트 본문에 함께 싣는다(따로 남기면 확인이 두 곳으로 갈라진다). */
     var st=document.getElementById('gpStat'); if(st){ st.innerHTML=''; st.style.display='none'; }
     var sub=GP_DONE_SUB;   // 여기까지 왔으면 넘친 것도 실패한 것도 없다 — 시트는 «온전히 끝났을 때»만 뜬다
-    if(big) sub='너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지). '+sub;
+    if(big) sub='너무 큰 파일 '+big+'개는 빼고 보냈어요. '+sub;
+    GP.done=0; GP.big=0;   // [B2_MA_01] 다 끝났으니 다음 묶음은 새로 센다
     sheetOpen('Photos', gpDoneMsg(done), sub, pick);
   }
+  if(GP.busy){ pick.textContent='올리는 중이에요'; pick.classList.add('ps-btn-off'); }
+  else gpPaint(false);   // [B2_MA_18] 다시 그린 화면에도 실패 · 미전송 목록과 단추를 되살린다
 }
 function photoShareHtml(url){
   /* ★★★[GUEST_PHOTO_IN 2026-08-17 사용자 지시] 부부가 외부 링크를 넣지 않았으면 **우리가 직접 받는다.**
@@ -734,7 +805,7 @@ function photoShareHtml(url){
   //   기존 안내는 '큰 선물이 돼요' 한 줄뿐이라, 하객은 누르기 전에 어디로 가는지도
   //   오픈채팅이면 내 프로필·닉네임이 방에 보인다는 것도 알 수 없었다.
   //   ★'모든 사진이 안전하게 보관돼요' 같은 말은 쓰지 않는다 — 남의 서비스라 우리가 보증할 수 없다.
-  return '<div class="sec"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'
+  return '<div class="sec" id="photos"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'
     +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
     +'<a class="ps-btn" href="'+esc(url)+'" target="_blank" rel="noopener" aria-label="사진 올리기 · 새 탭에서 열려요">사진 올리기<span class="ps-ext" aria-hidden="true">↗</span></a>'
     /* ★★[SHARE_KAKAO_1TO1 2026-08-16] 링크가 **1:1 오픈채팅**이면 하객이 겪는 것이 완전히 다르다 —
@@ -767,16 +838,16 @@ function photoShareHtml(url){
 /* [NO_WAITROOM 2026-09-25 코워크 5-6] 하객이 먼저 찾는 것 — 신부 대기실. 없다는 것을 자리 안내 곁에 한 줄로 알린다.
    ★견본 글(두 분이 하객에게 보내는 글)은 저장소에 따로 없어 그 글이 하는 일을 여기서 대신한다(구현 보고 2). */
 var NO_WAITROOM='<div class="privacy">신부 대기실은 따로 없어요. 예식을 마치는 인사 때 두 분이 하객 모두께 함께 감사 인사를 드려요.</div>';   /* ★[END_FLOW_1030 검토 167] 감사 인사 = 닫는 인사(사진 뒤가 아니다) */   // [PHOTO_THANKS 2026-09-26] 옛 «문 앞 배웅(한 분씩)»
-var SEAT=null, SEAT_STATE='loading';   // loading | ok | fail — 로딩 전 조회·실패를 피드백(죽은 입력 방지)
+var SEAT=null, SEAT_STATE='loading', SEAT_GEN=0, LAST_SEAT_KEY='', PHOTO_JUMPED=false;   // [B2_MA_34 · B2_MA_63] SEAT_GEN = 좌석 칸을 새로 그린 횟수(옛 화면의 늦은 응답을 버리는 열쇠)   // loading | ok | fail — 로딩 전 조회·실패를 피드백(죽은 입력 방지)
 function seatFindHtml(full){
   // 전체 공개 = 검색 없이 성함이 그대로 보이는 배치도(종이 좌석표처럼) · '내 자리만' = 검색 방식(명단 비수신)
   //   2026-07-18 사용자 지시 — 전체 공개에 검색을 두면 부분 검색 노출과 겹쳐 모드 정체성이 흐려짐. ★검색창·'전체 좌석 배치도 보기' 링크 복원 금지
   if(full){
-    return '<div class="sec"><div class="sec-h"><h2 class="sec-t">좌석 배치도</h2><span class="sec-n">Seating</span></div>'
+    return '<div class="sec" id="seatSec"><div class="sec-h"><h2 class="sec-t">좌석 배치도</h2><span class="sec-n">Seating</span></div>'
       +'<div class="mtb-wrap" id="seatMap"><div class="state" style="padding:20px"><span class="bdot"></span>좌석 안내를 불러오는 중이에요…</div></div>'
       +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div>'+NO_WAITROOM+'</div>';
   }
-  return '<div class="sec"><div class="sec-h"><h2 class="sec-t">내 자리 찾기</h2><span class="sec-n">Your Table</span></div>'
+  return '<div class="sec" id="seatSec"><div class="sec-h"><h2 class="sec-t">내 자리 찾기</h2><span class="sec-n">Your Table</span></div>'
     +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" aria-label="성함" placeholder="성함을 입력하세요"><div class="find-res" id="fr" role="status" aria-live="polite" aria-atomic="true"></div></div>'
     +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div>'+NO_WAITROOM+'</div>';
 }
@@ -792,7 +863,13 @@ function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1�
   for(var rr=0;rr<mr;rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
   return num;
 }
-function normName(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); }   // 공백(전각 포함) 제거 — '김 민수'로 입력해도 '김민수' 좌석을 찾게(양방향)
+function normName(s){ s=String(s||''); try{ s=s.normalize('NFC'); }catch(e){} return s.replace(/[\s　]+/g,'').toLowerCase(); }   // 공백(전각 포함) 제거 — '김 민수'로 입력해도 '김민수' 좌석을 찾게(양방향) · [B2_MA_80] 완성형 · 조합형(복사한 이름)을 같은 꼴(NFC)로 맞춰 비교 · 보이는 이름은 그대로
+/* ★[B2_MA_79 · d-10 2026-11-06 2차 B2-마79] 여러 자리 결과 — 부분 일치를 동명이인으로 단정하지 않는다.
+   모든 후보 자리에 «성함 그대로»가 있을 때만 동명이인 글 · 그 밖은 «여러 자리에서 검색돼요» 글. seat.html 과 같은 말 */
+var SEAT_MANY='여러 자리에서 검색돼요. 성함을 모두 적으셨다면 배치도나 현장 안내를 확인해 주세요.';
+var SEAT_SAME='같은 성함이 있어요. 자리는 현장 안내에서 확인해 주세요.';
+/* ★[B2_MA_92 2026-11-06 2차 B2-마92] 30자를 넘으면 «두 글자 이상»이 아니라 길이를 말한다(조용히 잘라 다른 사람 자리로 찾지 않는다) · 서버와 같은 기준(공백을 뺀 길이) */
+var SEAT_LONG='성함은 공백을 빼고 30자까지 적어 주세요.';
 // [GUIDE_DEADREF] ★현재 이 함수를 호출하는 곳은 없다(2026-07-26 전수 확인).
 //   2026-07-18에 '전체 공개 = 검색 없음'으로 정리되면서 호출부가 사라졌다.
 //   그런데 안에 남아 있던 두 문구가 '아래 전체 배치도로 확인해 주세요'라고 없는 것을 가리키고 있었다
@@ -803,6 +880,8 @@ function findSeat(v){
   if(SEAT_STATE==='mine') return;   // 서버 검색 모드로 강등된 상태 — 결과 표시는 bindSeatServer가 전담(로컬 실패 문구로 덮지 않게)
   var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
   if(!v){ fr.innerHTML=''; renderFullMap(); return; }
+  if(normName(v).length<2){ fr.textContent='성함을 두 글자 이상 입력해 주세요.'; return; }   // [B2_MA_73] 표본도 두 글자부터(한 글자 «김»에 세 자리가 함께 강조되며 첫 자리 음료를 단정하던 것)
+  if(normName(v).length>30){ fr.textContent=SEAT_LONG; return; }   // [B2_MA_92]
   if(SEAT_STATE==='loading'){ fr.innerHTML='<span class="bdot"></span>좌석 안내를 불러오는 중이에요…';   /* [BUSY_ONE] */ return; }
   if(SEAT_STATE==='fail' || !SEAT){ fr.textContent='좌석 안내를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'; return; }
   var lc=normName(v), tables=SEAT.tables||[], num=seatRowNum(tables), hits=[];
@@ -812,11 +891,13 @@ function findSeat(v){
     if(got) hits.push(i);
   }
   if(!hits.length){ fr.textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; renderFullMap(); return; }
-  if(hits.length>1){ fr.innerHTML='<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.'; return; }   // 흔한 성·부분일치 → 엉뚱한 자리 안내 방지(동명이인은 배치도로)
+  if(hits.length>1){   // 흔한 성·부분일치 → 엉뚱한 자리 안내 방지 · [B2_MA_79] 모든 자리에 성함 그대로가 있을 때만 동명이인
+    var same=hits.every(function(hi){ return (tables[hi].seats||[]).some(function(x){ return normName(x)===lc; }); });
+    fr.textContent=same?SEAT_SAME:SEAT_MANY; return; }
   var hitI=hits[0], t=tables[hitI]||{}, no=num[hitI]||(hitI+1), c=String(t.name||'').trim();
   var label=(c && !/^테이블\s*\d+$/.test(c)) ? c : ('테이블 '+no);
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
-  var _dk=drinkHtml(((t.drinks||[])[mi[0]])||'');   // [GUIDE_DRINK] 내 자리 음료만
+  var _dk=(mi.length===1 && normName((t.seats||[])[mi[0]])===lc)?drinkHtml(((t.drinks||[])[mi[0]])||''):'';   // [GUIDE_DRINK] 내 자리 음료만 · [B2_MA_73] 성함 그대로 한 자리일 때만(서버 규칙과 같다)
   var _rh=seatRoomHtml(_roomLocal(tables, num, hitI, mi, lc)), _sm=$('seatMap');
   if(_sm){ _sm.innerHTML=_rh; fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk; }
   else fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk+_rh;
@@ -834,12 +915,13 @@ function bindSeat(seatToken, full){
   var q=$('q');
   if(!full){ if(q) bindSeatServer(seatToken, q); return; }   // '내 자리만' — 명단 비수신·서버 검색
   // 전체 공개 = 맵이 곧 콘텐츠 — 즉시 조회해 성함이 보이는 배치도를 바로(2026-07-18 사용자 지시 · 검색 없음)
-  var started=false;
+  var started=false, gen=SEAT_GEN;   // [B2_MA_63] 이 화면 세대 — 좌석 화면을 새로 그리면(«내 자리만» · 좌석 없음으로 바뀌어도) 앞 요청의 성공 · 만료 · 준비 중 · 오류 · 재시도 답은 버린다
   function startLoad(){
     if(started) return; started=true; SEAT_STATE='loading';
     gapi({action:'seatView', t:seatToken})
       .then(function(r){ return r.json(); })
       .then(function(d){
+        if(gen!==SEAT_GEN) return;   // [B2_MA_63]
         if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; renderFullMap(); }
         else if(d&&d.mineOnly){   // 부부가 그 사이 '내 자리만'으로 전환(캐시 포함) — 죽은 검색 대신 서버 검색으로 강등
           /* ★[GUIDE_MINE_SWAP 2026-10-07 triage-pages #12] 전체 배치도 모양(검색칸 #q 없음)으로 그린 뒤 이 답이 오면 종전엔 bindSeatServer(seatToken, null) 이
@@ -859,7 +941,7 @@ function bindSeat(seatToken, full){
         else if(_ecRetry(d)){ seatMapSay('좌석 안내를 불러오지 못했어요.', _ecSrv(d,'G','다시 눌러 주세요'), true); }
         else { seatMapSay('좌석 안내를 불러오지 못했어요.', _ecSrv(d,'G','잠시 뒤 다시 열어 주세요')); }
       })
-      .catch(function(e){ seatMapSay('좌석 안내를 불러오지 못했어요.', _ecNet(e,'G',''), true); });   // [ERR_CODE_PAGES] 시간 G5 · 연결 G6 · 서버 답이 깨짐 G7
+      .catch(function(e){ if(gen!==SEAT_GEN) return; seatMapSay('좌석 안내를 불러오지 못했어요.', _ecNet(e,'G',''), true); });   // [B2_MA_63]   // [ERR_CODE_PAGES] 시간 G5 · 연결 G6 · 서버 답이 깨짐 G7
   }
   /* [ERR_CODE_PAGES] 좌석 칸 안내 한 곳 — again 이면 «다시 불러오기»(재시도가 답일 때만). 그 밖 상태는 SEAT_STATE='fail' 로 둔다(findSeat 가 본다) */
   function seatMapSay(t, sm, again){ SEAT_STATE='fail'; var _sf=$('seatMap'); if(!_sf) return;
@@ -956,8 +1038,9 @@ function seatRoomHtml(hit){
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
   if(hits.length===1) return rtBadge(hits[0].no, hits[0].label)+'<b>'+esc(hits[0].label)+'</b> 자리예요'+drinkHtml(hits[0].drink)+seatRoomHtml(hits[0]);   // [GUIDE_DRINK] 서버가 drink를 실어 보낼 때만
-  if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
-  return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
+  /* [B2_MA_79] 서버가 «이 자리에 성함 그대로가 있다»(ex)를 모든 후보에 실어 줄 때만 동명이인 · 후보는 «1번 테이블 · 가족석»처럼 번호와 함께(같은 이름표가 둘이어도 갈리게) */
+  if(hits.length<=3 && hits.every(function(h){ return h.ex; })){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].no+'번 테이블'+(/^테이블\s*\d+$/.test(String(hits[i].label||''))?'':' · '+hits[i].label))+'</b>'); return L.join(' · ')+'<br>'+SEAT_SAME; }
+  return SEAT_MANY;
 }
 function bindSeatServer(seatToken, q){
   if(!q) return function(){};   // [GUIDE_MINE_SWAP] 검색칸이 없으면 잇지 않는다(종전 TypeError → «연결이 끊겼어요»로 읽혔다)
@@ -966,13 +1049,14 @@ function bindSeatServer(seatToken, q){
     var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
     if(!v){ fr.innerHTML=''; renderFullMap(); return; }
     if(normName(v).length<2){ fr.textContent='성함을 두 글자 이상 입력해 주세요.'; return; }   // 한 글자(성씨만)는 어차피 다수 매칭 — 호출 절약
+    if(normName(v).length>30){ fr.textContent=SEAT_LONG; return; }   // [B2_MA_92]
     if(last && last.q===v){ fr.innerHTML=last.html; return; }
-    var my=seq;
+    var my=seq, gen=SEAT_GEN;   // [B2_MA_34] 화면을 다시 그리면(SEAT_GEN) 앞 화면의 검색 응답은 버린다
     fr.textContent='자리를 찾는 중이에요…';
     gapi({action:'seatView', t:seatToken, q:v})
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
+        if(my!==seq || gen!==SEAT_GEN || String(q.value||'').trim()!==v) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지) · [B2_MA_34] 지금 화면 · 지금 입력의 요청일 때만
         if(d && d.ok && !d.hits && d.seat && d.seat.tables){   // 구버전 GAS(검색 미지원·전체 반환) — 받은 배치로 로컬 검색(GAS 재배포 전 시차 안전망)
           var tables=d.seat.tables, num=seatRowNum(tables), lc=normName(v), hits0=[], hIdx=[];
           for(var i=0;i<tables.length;i++){ var seats=(tables[i].seats||[]), got=false;
@@ -989,7 +1073,7 @@ function bindSeatServer(seatToken, q){
         if(!d || !d.ok){ _frFail(fr, _ecSrv(d,'G','자리를 찾지 못했어요'), _ecRetry(d)?function(){ search(v); }:null); return; }   // [ERR_CODE_PAGES] 서버 글(코드 포함) · 다시 해서 될 때만 «다시 찾기»
         var h=seatHitsHtml(v, d.hits||[]); last={q:v,html:h}; fr.innerHTML=h;
       })
-      .catch(function(e){ var fr2=$('fr'); if(my===seq && fr2) _frFail(fr2, _ecNet(e,'G',''), function(){ search(v); }); });   // [ERR_CODE_PAGES] 종전 «네트워크 상태를 확인해 주세요» 한 줄 → 까닭(G5 · G6 · G7) + 다시 찾기
+      .catch(function(e){ var fr2=$('fr'); if(my===seq && gen===SEAT_GEN && fr2) _frFail(fr2, _ecNet(e,'G',''), function(){ search(v); }); });   // [ERR_CODE_PAGES] 종전 «네트워크 상태를 확인해 주세요» 한 줄 → 까닭(G5 · G6 · G7) + 다시 찾기 · [B2_MA_34] 옛 화면의 늦은 실패는 띄우지 않는다
   }
   bindNameInput(q, search, 450, function(){ seq++; });   // 입력 즉시 이전 응답 무효화(지운 입력창 아래 잔상 방지) · [IME_QUIET] 조합 중에는 서버를 부르지 않는다
   return search;   // 모드 전환 직후 이미 입력된 값 즉시 검색용
@@ -1019,21 +1103,36 @@ function render(g){
      사진을 올리기 시작하면 그 사이 두 번째 렌더가 화면을 갈아 끼워 **진행 표시가 사라지고**
      버튼이 새것으로 바뀐다 — 하객은 올라가는 중인지 멈춘 건지 알 수 없게 된다.
      ★올리는 동안은 화면을 건드리지 않는 것이 맞다. 갱신은 다음 방문에 반영된다. */
-  if(window.__gpBusy) return;
+  if(window.__gpBusy){ GP.pendingGuide=g; return; }   // [B2_MA_23] 올리는 동안 받은 최신 안내는 끝난 뒤 반영한다(GP_NO_REPAINT 는 그대로)
   var couple=esc(g.groom||'')+(g.groom&&g.bride?'<span class="heart">&amp;</span>':'')+esc(g.bride||'');
   var date=fmtDate(g.date);
   var hasSeat=!!g.seatToken;
   var today=isWeddingDay(g.date)?'<div class="today">오늘 두 분의 예식일이에요</div>':'';
-  $('root').innerHTML='<div class="card">'
+  /* ★[B2_MA_62 2026-11-06 2차 B2-마62] 같은 좌석 설정(토큰 · 공개 방식)의 최신 응답이면 좌석 칸을 다시 만들지 않는다 —
+     종전엔 캐시로 그린 뒤 최신 응답이 오면 이름 입력칸 · 한글 조합 · 초점 · 검색 결과가 비워졌다. 좌석 칸은 그 자리에 두고 나머지만 갈아 끼운다.
+     설정이 바뀌면 칸을 새로 그리고 SEAT_GEN 을 올려 옛 응답을 버린다(B2-마34 · 마63) */
+  var seatKey=hasSeat?(String(g.seatToken)+'|'+(g.seatFull?1:0)):'', oldSec=$('seatSec');
+  var keep=!DEMO && !!seatKey && seatKey===LAST_SEAT_KEY && !!oldSec && !!oldSec.parentNode;
+  var html='<div class="card">'
     +'<div class="hero"><div class="ek">The Wedding of</div><h1 class="couple">'+couple+'</h1>'+(date?'<div class="date">'+esc(date)+'</div>':'')+today+'</div>'
-    +(hasSeat?seatFindHtml(!!g.seatFull):'')
+    +(hasSeat?(keep?'<div id="seatKeep"></div>':seatFindHtml(!!g.seatFull)):'')
     +diningHtml(g.dining)
     +photoShareHtml(g.photoShare)
     +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
     +'</div>';
-  if(hasSeat && !DEMO) bindSeat(g.seatToken, !!g.seatFull);   // [GUIDE_DEMO] 표본은 서버를 부르지 않는다
+  if(keep){
+    var tmp=document.createElement('div'); tmp.innerHTML=html;
+    var nc=tmp.firstChild, ph=nc.querySelector('#seatKeep'), oc=oldSec.parentNode, before=true;
+    [].slice.call(oc.childNodes).forEach(function(n){ if(n!==oldSec) oc.removeChild(n); });
+    [].slice.call(nc.childNodes).forEach(function(n){ if(n===ph){ before=false; return; } if(before) oc.insertBefore(n, oldSec); else oc.appendChild(n); });
+  } else {
+    SEAT_GEN++; LAST_SEAT_KEY=seatKey; SEAT=null; SEAT_STATE='loading';
+    $('root').innerHTML=html;
+    if(hasSeat && !DEMO) bindSeat(g.seatToken, !!g.seatFull);   // [GUIDE_DEMO] 표본은 서버를 부르지 않는다
+  }
   if(!DEMO) bindGuestUpload();   // [GUEST_PHOTO_IN] 매 렌더마다 다시 건다 — render 가 innerHTML 을 갈아 끼우므로 앞의 리스너는 사라진다
   if(window.gCue) window.gCue();   // [GUIDE_SCROLLCUE] 내용이 화면보다 길 때만 나타난다
+  if(!PHOTO_JUMPED && location.hash==='#photos'){ var _ph=$('photos'); if(_ph){ PHOTO_JUMPED=true; try{ _ph.scrollIntoView({block:'start'}); }catch(e){} } }   // [B2_MA_17] 한 번만(다시 그려도 하객의 스크롤을 빼앗지 않는다)
 }
 // [GUIDE_RETRY] 실패하면 하객이 할 수 있는 게 아무것도 없었다.
 //   fetch 한 번 → 실패하면 '잠시 후 다시 시도해 주세요' 한 줄. 누를 것도, 자동 재시도도 없었다(실측: 버튼 0개).
@@ -1079,7 +1178,7 @@ var DTIP={
   map:{ k:'Sample', h:'표본이라 지도가 열리지 않아요',
         d:'실제 예식에서는 누르는 순간 그 장소의 지도가 바로 열려요 · 하객분들이 길을 헤매지 않으시도록.' },
   photo:{ k:'Sample', h:'표본이라 사진이 올라가지 않아요',
-        d:'실제 예식에서는 누르는 순간 사진첩이 열리고, 고르신 사진이 두 분께 바로 전해져요 · 이름도 가입도 필요 없어요.' }
+        d:'실제 예식에서는 사진첩에서 고른 사진이 올라가요. 이름도 가입도 필요 없어요.' }   // [B2_MA_75] «두 분께 바로 전해져요» 걷음 — 기본 경로는 스튜디오가 모아 결과물과 함께 전한다
 };
 /* ★[GP_DONE_SHEET] 시트는 «하나»만 둔다 — 표본 안내(data-dtip)와 업로드 확인이 같은 것을 쓴다.
    페이지에 팝업 구현이 둘이면 여닫는 규칙·초점 되돌리기·Esc 가 갈라진다(실제로 겪은 병).
@@ -1094,15 +1193,27 @@ function sheetEnsure(){
     +'<button type="button" class="x">알겠어요</button></div>';
   document.body.appendChild(ov);
   var back=null;   /* 닫으면 누르던 자리로 초점을 돌려준다 — 안 그러면 초점이 문서 맨 앞으로 튄다 */
-  function close(){ ov.classList.remove('open'); setTimeout(function(){ ov.classList.remove('show'); },320);
+  /* ★[B2_MA_15 · B2_MA_87 2026-11-06 2차 B2-마15 · 마87] ①창이 열린 동안 Tab · Shift+Tab 은 창 안에 머물고 뒤 화면은 잠근다(inert)
+     ②열기 · 닫기마다 번호를 매겨 앞선 닫기 타이머 · 열기 requestAnimationFrame 이 지금 창을 바꾸지 못하게 한다(Escape 직후 Enter 로 다시 열면 숨던 것) */
+  var gen=0, tmClose=null;
+  function bgLock(on){ ['root','backBar'].forEach(function(id){ var el=document.getElementById(id); if(!el) return; if(on){ el.setAttribute('inert',''); el.setAttribute('aria-hidden','true'); } else { el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); } }); }
+  function isOpen(){ return ov.classList.contains('show'); }
+  function close(){ var my=++gen; ov.classList.remove('open'); if(tmClose) clearTimeout(tmClose);
+    tmClose=setTimeout(function(){ tmClose=null; if(my!==gen) return; ov.classList.remove('show'); },320);
+    bgLock(false);
     if(back && back.focus){ try{ back.focus(); }catch(_){} } back=null; }
   ov.querySelector('.x').addEventListener('click', close);
   ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && ov.classList.contains('open')) close(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && ov.classList.contains('open')) close();
+    else if(e.key==='Tab' && isOpen() && ov.classList.contains('open')){ e.preventDefault(); ov.querySelector('.x').focus(); }   // [B2_MA_15] 창 안 누를 것은 «알겠어요» 하나 — 초점이 뒤로 빠지지 않는다
+  });
   _sheetOpen=function(k,h,d,backEl){
+    var my=++gen; if(tmClose){ clearTimeout(tmClose); tmClose=null; }
     ov.querySelector('.k').textContent=k; ov.querySelector('.h').textContent=h; ov.querySelector('.d').textContent=d;
     back=backEl||null;
-    ov.classList.add('show'); requestAnimationFrame(function(){ ov.classList.add('open'); });
+    ov.classList.add('show'); requestAnimationFrame(function(){ if(my!==gen) return; ov.classList.add('open'); });
+    bgLock(true);
     ov.querySelector('.x').focus();
   };
   return _sheetOpen;
@@ -1176,6 +1287,8 @@ function renderDemo(){
   [].slice.call(root.querySelectorAll('a.act')).forEach(function(a){
     var b=document.createElement('button');
     b.type='button'; b.className='act'; b.innerHTML=a.innerHTML; b.setAttribute('data-dtip','map');
+    var _al=String(a.getAttribute('aria-label')||''), _nm=_al.replace(/\s*지도 · 새 탭에서 열려요$/,'');   // [B2_MA_74] 세 단추가 모두 «지도»로 들리던 것 — 장소 이름 + «지도 예시» · 새 탭으로 열리지 않으니 그 말은 옮기지 않는다
+    if(_nm && _nm!==_al) b.setAttribute('aria-label', _nm+' 지도 예시');
     a.parentNode.replaceChild(b, a);
   });
   /* 사진 버튼은 두 모양이 있다 — 외부 링크를 넣었으면 <a class="ps-btn">, 우리 업로더면 <button id="gpPick">.
@@ -1237,7 +1350,7 @@ function renderDemo(){
           } else {
             $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
           } }
-        else if(_ecRetry(d)){ if(!painted) failed(_ecSrv(d,'G','다시 눌러 주세요')); }   // [ERR_CODE_PAGES] 서버가 몰렸거나 서버 오류(G1 · G9) — 링크 탓이 아니니 캐시는 지우지 않고 다시 불러오기
+        else if(_ecRetry(d)){ if(!painted) failed(_ecSrv(d,'G','다시 눌러 주세요')); else staleBanner(); }   // [B2_MA_20] 받아 둔 안내 위에 «새 안내를 못 불러왔어요»   // [ERR_CODE_PAGES] 서버가 몰렸거나 서버 오류(G1 · G9) — 링크 탓이 아니니 캐시는 지우지 않고 다시 불러오기
         else { try{ localStorage.removeItem(cacheKey); }catch(e){}
           $('root').innerHTML=stateHtml((d&&d.error)?_ecSrv(d,'G',''):'안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]
       })
@@ -1248,9 +1361,18 @@ function renderDemo(){
           setTimeout(function(){ load(attempt+1); }, attempt===0?1200:3000);
           return;
         }
-        if(painted) return;   // 캐시로 이미 보여 주고 있으면 굳이 지우지 않는다
+        if(painted){ staleBanner(); return; }   // 캐시로 이미 보여 주고 있으면 굳이 지우지 않는다 · [B2_MA_20] 대신 최종 실패를 위에 한 줄로 알린다
         failed(_ecNet(e,'G',''), !_n);   // 할 일은 «다시 불러오기» 단추가 말한다(GUIDE_RETRY — 제목 · 까닭 · 단추가 한 번씩)
       });
+  }
+  /* ★[B2_MA_20 2026-11-06 2차 B2-마20] 받아 둔 안내(캐시)를 보여 주는 중 최신 조회가 끝내 실패하면 그 사실을 위에 알린다 —
+     종전엔 회선 실패 세 번 · 서버 G1/G9 에도 표시도 다시 불러오기 단추도 없었다. 장소 정보는 그대로 두고 · 새 조회가 성공하면 render 가 걷는다 */
+  function staleBanner(){
+    var card=document.querySelector('#root .card'); if(!card || $('gStale')) return;
+    var b=document.createElement('div'); b.id='gStale'; b.className='g-stale'; b.setAttribute('role','status');
+    b.innerHTML='받아 둔 안내예요. 새 안내를 못 불러왔어요. <button type="button" class="gp-retry" id="gStaleRetry">다시 불러오기</button>';
+    card.insertBefore(b, card.firstChild);
+    $('gStaleRetry').addEventListener('click', function(){ var x=$('gStale'); if(x&&x.parentNode) x.parentNode.removeChild(x); load(0); });
   }
   function failed(sm, hard){   // [ERR_N_HONEST] hard = 화면 쪽 예외 — 단추가 화면을 새로 연다(같은 코드로 다시 그리면 같은 자리에서 멈춘다)
         $('root').innerHTML=failHtml(sm);

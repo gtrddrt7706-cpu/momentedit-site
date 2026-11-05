@@ -22316,3 +22316,84 @@ chk 'B2_HOME_25' order-preview.html 1
 chk 'B2_HOME_27' api/_ritual-kb.js 1
 chk 'B2_HOME_27' api/ritual-advisor.js 1
 nochk '(b)확정 전 정책' api/ritual-advisor.js
+# ── 2026-11-06 [B2_MA_* 2차 B2 마이페이지 · guide 화면] 하객 안내 · 좌석 · 디지털 참석 · 청첩장 · 하객 사진 서버
+#    (b) «마이페이지·guide 화면» 94건 중 하객 화면 묶음 — 판정본(batch2-judge) 문구 그대로 · d-08 · d-09 · d-10 · d-11 · d-12 · d-17
+chk 'B2_MA_01' guide.html 2                       # 사진 상태는 화면 밖(GP) — 남은 사진을 보내도 앞 실패의 다시 보내기가 남는다
+chk 'gpCheck' guide.html 2                        # [B2_MA_19 · d-09] 응답을 못 받은 사진 = «다시 확인하기»
+chk '사진이 올라갔는지 확인하지 못했어요.' guide.html 1
+chk 'B2_MA_19' automation/platform/80_production.gs 2   # 같은 전송(uid)은 한 번만 저장 · 같은 식별값에 다른 파일은 거절
+chk "GP_DONE_SUB='두 분께 전해 드릴게요. 고맙습니다.'" guide.html 1   # [B2_MA_75] 기본 업로드 완료 본문
+nochk '두 분께 바로 전해졌어요' guide.html
+chk 'B2_MA_21' guide.html 2                       # 멈춘 까닭 — 장수 · 용량 · 그 밖
+chk "limit: 'count'" automation/platform/80_production.gs 1
+chk 'B2_MA_32' guide.html 2                       # 처음부터 있는 알림 자리(gpLive)
+chk 'B2_MA_70' automation/platform/80_production.gs 1   # Base64 채움 문자를 뺀 실제 바이트
+chk 'B2_MA_82' automation/platform/80_production.gs 2
+chk 'B2_MA_86' automation/platform/80_production.gs 3
+chk 'B2_MA_27' guide.html 1                       # 12초 제한을 응답 본문까지
+chk 'B2_MA_27' seat.html 1
+chk 'B2_MA_15' guide.html 2                       # 확인 창 초점 가두기 · 뒤 화면 inert
+chk 'B2_MA_87' guide.html 1                       # 열기 · 닫기 번호(앞선 타이머가 지금 창을 못 바꾼다)
+chk 'B2_MA_20' guide.html 3                       # 받아 둔 안내 위 «새 안내를 못 불러왔어요»
+chk '받아 둔 안내예요. 새 안내를 못 불러왔어요.' guide.html 1
+chk 'B2_MA_23' guide.html 2                       # 올리는 동안 받은 최신 안내는 끝난 뒤 반영
+chk 'B2_MA_62' guide.html 1                       # 같은 좌석 설정이면 좌석 칸을 다시 만들지 않는다
+chk 'B2_MA_34' guide.html 3
+chk 'B2_MA_63' guide.html 3
+chk 'B2_MA_64' guide.html 3                       # [d-17] 카페 · 분류 모름 = 사진 순서만
+chk '단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.' guide.html 1
+chk 'B2_MA_71' guide.html 1
+nochk '^\.ps-btn:active{background:var(--accent)}' guide.html
+chk 'B2_MA_72' guide.html 1
+chk '\.hero \.today{background:var(--gold-text);color:#fff}' guide.html 1
+chk 'B2_MA_73' guide.html 2
+chk 'B2_MA_74' guide.html 1
+chk 'B2_MA_79' guide.html 2                       # [d-10] 부분 일치를 동명이인으로 단정하지 않는다
+chk 'B2_MA_79' seat.html 2
+chk 'B2_MA_79' automation/platform/80_production.gs 1
+chk '여러 자리에서 검색돼요. 성함을 모두 적으셨다면 배치도나 현장 안내를 확인해 주세요.' guide.html 1
+chk '여러 자리에서 검색돼요. 성함을 모두 적으셨다면 배치도나 현장 안내를 확인해 주세요.' seat.html 1
+chk '같은 성함이 있어요. 자리는 현장 안내에서 확인해 주세요.' guide.html 1
+chk '같은 성함이 있어요. 자리는 현장 안내에서 확인해 주세요.' seat.html 1
+nochk '님이 <b>여러 자리</b>에서 검색돼요' guide.html
+nochk '님이 <b>여러 자리</b>에서 검색돼요' seat.html
+chk 'B2_MA_80' guide.html 1                       # NFC 로 맞춰 비교
+chk 'B2_MA_80' seat.html 2
+chk 'B2_MA_80' automation/platform/80_production.gs 1
+chk '성함은 공백을 빼고 30자까지 적어 주세요.' guide.html 1   # [B2_MA_92]
+chk '성함은 공백을 빼고 30자까지 적어 주세요.' seat.html 1
+chk '성함은 공백을 빼고 30자까지 적어 주세요.' automation/platform/80_production.gs 1
+chk 'B2_MA_02' automation/platform/80_production.gs 2   # 제작 단계 모든 예식에 하객 안내(사진 올리기) 링크
+chk 'function _guideTokenEnsure_' automation/platform/80_production.gs 1
+chk 'B2_MA_47' automation/platform/80_production.gs 1   # 식사 안내가 꺼졌거나 예약처가 없으면 예약자 이름 · 시각을 싣지 않는다
+chk 'B2_MA_81' automation/platform/80_production.gs 2   # 첫 발급 때 «안내 없음» 캐시를 지운다
+chk 'B2_MA_17' guide.html 2                       # #photos — 온라인 청첩장 · 디지털 참석의 «사진 올리기»
+chk 'B2_MA_17' live.html 3
+chk 'B2_MA_17' shared/hydrate.js 2
+chk 'B2_MA_03' live.html 2                        # [d-11] 실패해도 자동 재조회를 시작 · 끝나면 «다시 불러오기»
+chk '예식 정보를 불러오지 못했어요. 다시 불러와 주세요.' live.html 2
+chk '아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 확인해 주세요.' live.html 2
+chk 'B2_MA_04' live.html 6                        # 최신 응답 반영 · 같은 영상은 끊지 않는다 · 캐시 열쇠 분리
+chk "me_couple_live_" live.html 1
+chk 'B2_MA_05' live.html 4                        # 편지 폼 안에서만 · 보이는 단추만 · 두 분으로 넓히지 않는다
+chk '받는 분을 다시 골라 주세요.' live.html 1
+chk 'B2_MA_40' live.html 3                        # [d-12] 보내는 동안 잠금
+chk '편지를 보내고 있어요. 잠시만 기다려 주세요.' live.html 1
+chk 'B2_MA_42' live.html 1
+chk 'B2_MA_42' shared/hydrate.js 2
+chk 'B2_MA_60' live.html 2                        # «디지털 참석» · 점멸 없음 · 시각 창 없음
+nochk '<span class="live-dot"></span>On Air' live.html
+nochk 'on = (now >= st - 30' live.html
+chk 'B2_MA_61' live.html 2
+nochk 'Approx. 30' live.html
+chk '계좌번호 복사"' live.html 6                    # [B2_MA_84] 접근성 이름 여섯
+chk 'B2_MA_85' live.html 1
+chk 'B2_MA_89' live.html 1
+chk 'B2_MA_90' live.html 2
+chk 'B2_MA_91' live.html 3
+chk '이름을 적어 주세요.' live.html 1
+chk '편지 내용을 적어 주세요.' live.html 1
+chk 'B2_MA_06' shared/hydrate.js 3                 # 처음 읽은 틀에 매번 채운다(최신 청첩장 반영)
+chk 'B2_MA_36' shared/hydrate.js 2                 # 하객 안내 단추 — 끝내 실패하면 «다시 불러오기»
+chk '하객 안내를 불러오지 못했어요.' shared/hydrate.js 1
+chk 'B2_MA_51' shared/hydrate.js 1                 # 단독 표본에도 예시 표시

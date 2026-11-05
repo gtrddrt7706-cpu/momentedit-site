@@ -452,22 +452,31 @@
 
   // innerHTML 교체로 죽은 본문 스크립트 재실행 (결선 시 <script type="me/inert">로 표시됨)
   // 초기 파싱 땐 안 돌고, 채우기 끝난 최종 DOM에서 딱 1회 실행 → 인터랙션 보존
+  /* [B2_MA_06] 틀(TPL)에 다시 채우면 본문 스크립트도 새 DOM 에 다시 돌아야 한다(접기 · 복사 단추 등).
+     두 번째부터는 블록으로 감싸 최상위 let/const 이 «이미 선언됨»으로 멈추지 않게 한다(첫 실행은 종전 그대로) */
+  var _inertRuns = 0;
   function runInertScripts() {
+    var wrap = (_inertRuns++ > 0);
     var list = document.body.querySelectorAll('script[type="me/inert"]');
     for (var i = 0; i < list.length; i++) {
       var old = list[i], s = document.createElement('script');
       for (var j = 0; j < old.attributes.length; j++) {
         if (old.attributes[j].name !== 'type') s.setAttribute(old.attributes[j].name, old.attributes[j].value);
       }
-      s.textContent = old.textContent;
+      s.textContent = wrap ? ('{\n' + old.textContent + '\n}') : old.textContent;
       old.parentNode.replaceChild(s, old);
     }
   }
 
+  /* ★[B2_MA_06 2026-11-06 2차 B2-마06] 처음 읽은 청첩장 틀(채우기 전 body)을 보존하고 매번 그 틀에 최신 정보를 채운다 —
+     종전엔 이미 채운 본문을 다시 변환해, 캐시로 먼저 그린 뒤 온 최신 정보(날짜 · 시각 수정 · 계좌 변경 · 숨김 · 인사글 · 디지털 참석)가 화면에 반영되지 않았다 */
+  var TPL = null;
   function apply(couple) {
     try {
       var venue = window.MOMENT_VENUE || {};
-      document.body.innerHTML = transform(document.body.innerHTML, couple, venue, designNum());
+      if (TPL == null) TPL = document.body.innerHTML;
+      document.body.innerHTML = transform(TPL, couple, venue, designNum());
+      foldSync();   // [B2_MA_42]
       if (couple.groomName && couple.brideName) document.title = couple.groomName + ' ♥ ' + couple.brideName + '의 결혼식에 초대합니다 | Moment Edit';
       /* [LD_FILL] head의 정적 JSON-LD가 16종 공통으로 name " ·  결혼식"/startDate "" 빈 채 나가고 있었다(연동 점검 적발).
          noindex라 검색 노출용은 아니지만, JS 실행 크롤러·공유 미리보기 도구에는 이제 정확한 값이 잡힌다.
@@ -520,28 +529,58 @@
     if (subko && SUB[dn]) { var k = document.querySelector(SUB[dn]); if (k) k.textContent = subko; }
   }
 
+  /* ★[B2_MA_42 2026-11-06 2차 B2-마42] 접힌 봉투(가족 · 온라인 01 의 div 아코디언) 안의 «복사» 단추가 Tab · 화면낭독기 대상으로 남던 것 —
+     접히면 inert · aria-hidden, 펼치면 푼다(한쪽을 열어 다른 쪽이 접혀도 class 가 바뀌는 순간 다시 맞춘다). <details> 판은 브라우저가 이미 뺀다 · 보이는 글은 그대로 */
+  var _foldObs = null;
+  function foldSync() {
+    try {
+      var items = document.querySelectorAll('div.env-acc-item');
+      for (var i = 0; i < items.length; i++) {
+        var open = items[i].classList.contains('open'), ch = items[i].children;
+        for (var j = 0; j < ch.length; j++) {
+          if (ch[j].classList.contains('env-acc-q')) continue;
+          if (open) { ch[j].removeAttribute('inert'); ch[j].removeAttribute('aria-hidden'); } else { ch[j].setAttribute('inert', ''); ch[j].setAttribute('aria-hidden', 'true'); }
+        }
+      }
+      if (!_foldObs && typeof MutationObserver !== 'undefined') { _foldObs = new MutationObserver(foldSync); _foldObs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] }); }
+    } catch (e) {}
+  }
+
   // ─── 하객 안내 연결(가족 카드 전용 · 2026-07-17 사용자 제안) ─────────
   // 직접 모시는 청첩장을 받은 하객이 그 자리에서 식사 안내·자리 찾기(guide.html)로 들어가게.
   // 안내 링크는 애프터 웨딩·좌석을 완료해야 생기므로(청첩장 발행보다 늦는 게 보통) 열람 시점에 조회해, 준비된 경우에만 버튼을 심는다.
   // 최종 apply() 이후에만 호출할 것 — body.innerHTML 교체가 주입 노드를 지우기 때문(init의 getCouple 체인 끝에서 호출).
   var GUIDE_EXEC = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
-  function injectGuideCta(eventId) {
-    if (location.pathname.indexOf('/i-family/') === -1 || !eventId) return;   // 온라인 커버(/i/)는 디지털 참석용 — 가족 카드에서만
+  /* ★[B2_MA_17 2026-11-06 2차 B2-마17] 온라인 청첩장(/i/)에도 «사진 올리기» 전용 연결 — 하객 안내의 사진 구역(#photos)으로 바로. 좌석 · 식사 · 예약 정보는 옮기지 않는다
+     ★[B2_MA_36 2026-11-06 2차 B2-마36] 조회가 끊기거나 답이 깨지면 조용히 사라지던 단추 — 시간 제한(12초) · 두 번 더 묻고, 끝내 실패하면 그 자리에 «하객 안내를 불러오지 못했어요.» + «다시 불러오기».
+       준비된 안내가 없다는 정상 답({ok:false})은 그대로 아무것도 그리지 않는다 */
+  function injectGuideCta(eventId, attempt) {
+    if (!eventId) return;
+    var fam = location.pathname.indexOf('/i-family/') !== -1;   // 가족 카드 = 하객 안내 열기 · 온라인 커버 = 사진 올리기([B2_MA_17])
+    attempt = attempt || 0;
     // [HYDRATE_DEMO] 표본은 조회 없이 즉시 — 표본 안내(g=demo)로 연결. 갤러리 iframe 안이면
     // 새 창 대신 부모에게 카드 이동을 요청한다(gv:goto:guide → 10번 하객 안내 카드).
     /* [GUIDE_PATH] ? 없는 경로 형태 — mypage.html 의 guideUrl 주석 참고. ?g= 도 계속 열린다. */
-    if (eventId === 'test-couple') { _paintGuideCta('/g/demo', true); return; }
-    fetch(GUIDE_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'guideView', byEvent: eventId }) })
+    if (eventId === 'test-couple') { _paintGuideCta(fam ? '/g/demo' : '/g/demo#photos', true, fam ? '' : 'photo'); return; }
+    var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null, tm = ac ? setTimeout(function () { try { ac.abort(); } catch (e) {} }, 12000) : null;
+    fetch(GUIDE_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'guideView', byEvent: eventId }), signal: ac ? ac.signal : undefined })
       .then(function (r) { return r.json(); })
       .then(function (d) {
+        if (tm) clearTimeout(tm);
         if (!d || !d.ok || !d.g) return;
-        _paintGuideCta('/g/' + encodeURIComponent(d.g), false);   // [GUIDE_PATH]
+        _paintGuideCta('/g/' + encodeURIComponent(d.g) + (fam ? '' : '#photos'), false, fam ? '' : 'photo');   // [GUIDE_PATH]
       })
-      .catch(function () {});
+      .catch(function () {
+        if (tm) clearTimeout(tm);
+        if (attempt < 2) { setTimeout(function () { injectGuideCta(eventId, attempt + 1); }, attempt ? 3000 : 1200); return; }
+        if (fam) _paintGuideCta('', false, 'fail', eventId);   // [B2_MA_36]
+      });
   }
-  function _paintGuideCta(href, demo) {
+  function _paintGuideCta(href, demo, mode, evForRetry) {
     (function () {
-        if (document.getElementById('meGuideCta')) return;
+        var _old = document.getElementById('meGuideCta');
+        if (_old && mode !== 'fail' && _old.getAttribute('data-fail')) { _old.parentNode.removeChild(_old); _old = null; }
+        if (_old) return;
         // 테두리는 배경 밝기에 적응 — 어두운 디자인(08 등)에서 검정 계열 테두리가 사라지지 않게
         var _dark = false;
         try { var _bc = (getComputedStyle(document.body).backgroundColor || '').match(/\d+/g); if (_bc && _bc.length >= 3) _dark = (0.299 * _bc[0] + 0.587 * _bc[1] + 0.114 * _bc[2]) < 128; } catch (e) {}
@@ -553,12 +592,18 @@
            '버튼이 없는 청첩장'으로 보였다(2026-08-01 사용자 지적 · elementFromPoint로 확정).
            ★position:relative + z-index를 지우면 특정 디자인에서만 조용히 사라진다. 8종 전수 재검증 없이 건드리지 말 것. */
         sec.style.cssText = 'position:relative;z-index:5;margin:72px auto 8px;text-align:center;opacity:0;transition:opacity .55s ease';   // 마지막 본문 섹션 안에 넣어 계좌와 함께 흐르게 + 부드럽게 나타나기. 상단 72px=계좌와 충분히 띄워 CTA로 구분(44는 좁다는 지적 2026-07-22)
+        var _btnCss = 'display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit;background:transparent;font-family:inherit;cursor:pointer';
+        if (mode === 'fail') sec.setAttribute('data-fail', '1');
         sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid ' + _bd + ';border-radius:14px">'
           /* [CTA_EYEBROW] opacity .55는 11px에서 3.1:1로 AA 미달(axe, 2026-08-01). .68 → 5.0:1.
              ★고정 hex로 바꾸지 말 것 — 08 같은 어두운 디자인에서는 상속색이 반전돼야 한다. 위계는 opacity가 아니라 크기(11px)가 낸다. */
-          + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:10px">Guest Guide</div>'
-          + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내 · 자리 찾기 ·<br>사진 올리기를 한 곳에 모아 두었어요.</div>'   /* [PHOTO_UP_1019 검토 138-2] 나레이션(5분 전 · 단체 사진 뒤)이 «청첩장 속 하객 안내 → 사진 올리기»로 부른다 — 카드에도 그 이름이 있어야 지나치지 않는다 */
-          + '<a id="meGuideCtaBtn" href="' + href + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
+          + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:10px">' + (mode === 'photo' ? 'Photos' : 'Guest Guide') + '</div>'
+          + (mode === 'photo' ? ''   // [B2_MA_17] 온라인 커버 — 단추 하나(설명 없이)
+            : mode === 'fail' ? '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">하객 안내를 불러오지 못했어요.</div>'   // [B2_MA_36]
+            : '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내 · 자리 찾기 ·<br>사진 올리기를 한 곳에 모아 두었어요.</div>')   /* [PHOTO_UP_1019 검토 138-2] 나레이션(5분 전 · 단체 사진 뒤)이 «청첩장 속 하객 안내 → 사진 올리기»로 부른다 — 카드에도 그 이름이 있어야 지나치지 않는다 */
+          + (mode === 'fail'
+            ? '<button type="button" id="meGuideCtaRetry" style="' + _btnCss + '">다시 불러오기</button>'
+            : '<a id="meGuideCtaBtn" href="' + href + '" style="' + _btnCss + '">' + (mode === 'photo' ? '사진 올리기' : '하객 안내 열기') + '</a>')
           + '</div>';
         // 100vh~118vh 본문 섹션 뒤에 홀로 떨어져 '너무 내려가' 보이던 문제(family-02·03·06·07) → 마지막 본문 섹션(.sec) 안 끝에 삽입해 계좌와 함께 흐르게. 섹션이 없으면 footer 앞으로 폴백(2026-07-22 · marker: meGuideCta-inline)
         var _secs = document.querySelectorAll('.sec');
@@ -585,6 +630,10 @@
             });
           }
         }
+        if (mode === 'fail') {   // [B2_MA_36] 다시 불러오기 — 이 자리를 걷고 처음부터 다시 묻는다
+          var _rb = document.getElementById('meGuideCtaRetry');
+          if (_rb) _rb.addEventListener('click', function () { if (sec.parentNode) sec.parentNode.removeChild(sec); injectGuideCta(evForRetry, 0); });
+        }
         requestAnimationFrame(function () { sec.style.opacity = '1'; });
     })();
   }
@@ -607,6 +656,7 @@
   }
 
   function init() {
+    if (TPL == null) TPL = document.body.innerHTML;   // [B2_MA_06] 채우기 전 틀 — 표본 띠(markDemo)를 붙이기 전에 잡는다
     preconnectWebhook();
     var _p = new URLSearchParams(location.search);
     var eventId = (_p.get('e') || '').trim();
@@ -691,7 +741,7 @@
     }
     var failsafe = setTimeout(waitLine, 5000);
 
-    if (!eventId) { markDemo('링크가 잘렸을 수 있어요'); apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
+    if (!eventId) { apply(SAMPLE); markDemo('링크가 잘렸을 수 있어요'); clearTimeout(failsafe); reveal(); return; }   // [B2_MA_06] 틀에 채운 뒤 띠를 붙인다(apply 가 body 를 새로 쓴다)
 
     // [HYDRATE_DEMO] ?e=test-couple = 홍보 미리보기(메인·청첩장 갤러리)다 — 시트를 부르지 않는다.
     //   ① 예식 당일 GAS가 붐빌 때 홍보 조회가 부하를 얹으면 안 된다(guide.html?g=demo와 같은 원칙).
@@ -708,6 +758,10 @@
       for (_k in SAMPLE) if (Object.prototype.hasOwnProperty.call(SAMPLE, _k)) _demo[_k] = SAMPLE[_k];
       _demo.eventId = 'test-couple';
       apply(_demo); clearTimeout(failsafe); reveal();
+      /* ★[B2_MA_51 2026-11-06 2차 B2-마51] 단독으로 연 표본(test-couple)에도 «예시 청첩장이에요 · 실제 초대장이 아닙니다» · 계좌 «이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.» —
+         종전엔 이 갈래만 markDemo 를 부르지 않아 표본 계좌가 진짜처럼 보였다. 갤러리 · 홈 폰 목업(프레임 안)은 바깥이 이미 «미리보기»라 종전대로 띠를 달지 않는다 */
+      var _tcFrame = false; try { _tcFrame = !!(window.parent && window.parent !== window); } catch (e) { _tcFrame = true; }
+      if (!_tcFrame) markDemo('');
       injectGuideCta('test-couple');
       return;
     }
@@ -757,20 +811,20 @@
           if (hySrv(data)) {   // [ERR_CODE_PAGES] · [GETCOUPLE_CONTRACT] 서버 오류 — 전에 본 진짜 내용이 있으면 그것을 쓴다(아래 catch 와 같은 대접)
             var _c0 = safeCache(cacheKey);
             if (_c0) { apply(_c0); return; }
-            markDemo(hyWhy(null, data)); apply(SAMPLE); return;
+            apply(SAMPLE); markDemo(hyWhy(null, data)); return;
           }
           /* [DEMO_BADGE] 서버가 «그런 예식 없음»을 답한 경우 — eventId 는 있었지만 잘못된 값이다.
              여기서도 표본으로 떨어지므로 같은 표시를 단다(«없는 주소»를 진짜 초대장으로 보이게 두지 않는다). */
-          markDemo('주소를 다시 확인해 주세요');
           apply(SAMPLE);
+          markDemo('주소를 다시 확인해 주세요');
         }
       })
       .catch(function (e) {
         if (rendered) return;
         var _c = safeCache(cacheKey);
         if (_c) { apply(_c); return; }          // 전에 본 진짜 내용이 있으면 그것을 쓴다(표본 아님)
-        markDemo(hyWhy(e));                     // [DEMO_BADGE] 표본으로 떨어질 때만 표시 · [ERR_CODE_PAGES] 종전 «연결이 불안정해요» → 까닭 + 코드(G5 · G6 · G7)
         apply(SAMPLE);
+        markDemo(hyWhy(e));                     // [DEMO_BADGE] 표본으로 떨어질 때만 표시 · [ERR_CODE_PAGES] 종전 «연결이 불안정해요» → 까닭 + 코드(G5 · G6 · G7) · [B2_MA_06] 틀에 채운 뒤
       })
       .then(function () { if (!rendered) { clearTimeout(failsafe); reveal(); } injectGuideCta(eventId); });   // 주입은 최종 렌더 뒤(innerHTML 교체에 지워지지 않게)
   }

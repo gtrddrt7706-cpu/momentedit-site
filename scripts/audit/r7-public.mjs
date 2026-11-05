@@ -56,9 +56,10 @@ try {
   const cases = [
     ['10분 뒤 본식 · 영상 있음', mk(soon.date, soon.time, '123456789'), true],
     ['2시간 전 시작 · 영상 있음', mk(mid.date, mid.time, '123456789'), true],
-    ['사흘 뒤 본식 · 영상 있음', mk(dayOff(3), '12:20', '123456789'), false],
-    ['두 달 전 본식 · 다시보기', mk(dayOff(-60), '12:20', '123456789'), false],
-    ['날짜 모름 · 영상 있음', mk('', '', '123456789'), false],
+    /* ★[B2_MA_60 2026-11-06 2차 B2-마60] 머리 표시는 «디지털 참석»(점멸 없음) — 실제 송출 상태를 모르니 시각으로 켜고 끄지 않는다. 영상이 붙어 있으면 보이고 없으면 숨긴다 */
+    ['사흘 뒤 본식 · 영상 있음', mk(dayOff(3), '12:20', '123456789'), true],
+    ['두 달 전 본식 · 다시보기', mk(dayOff(-60), '12:20', '123456789'), true],
+    ['날짜 모름 · 영상 있음', mk('', '', '123456789'), true],
     ['10분 뒤 본식 · 영상 없음', mk(soon.date, soon.time, ''), false],
   ];
   for (const [name, c, want] of cases) {
@@ -67,7 +68,7 @@ try {
     await o.page.waitForFunction((v) => (v ? !!document.querySelector('#playerFrame iframe') : window.__liveAt !== undefined), c.vimeoId, { timeout: 8000 }).catch(() => {});
     await wait(400);
     const r = await o.page.evaluate(() => { const els = [...document.querySelectorAll('.on-air')]; return { n: els.length, live: els.filter((e) => e.classList.contains('is-live')).length, player: !!document.querySelector('#playerFrame iframe') }; });
-    ok(`① 라이브 «${name}» → ON AIR ${want ? '켬' : '끔'} [ON_AIR_WINDOW]`, r.n > 0 && (want ? r.live === r.n : r.live === 0), JSON.stringify(r));
+    ok(`① 라이브 «${name}» → «디지털 참석» ${want ? '켬' : '끔'} [B2_MA_60]`, r.n > 0 && (want ? r.live === r.n : r.live === 0), JSON.stringify(r));
     if (o.errs.length) ok(`pageerror 0 (① ${name})`, false, o.errs[0].slice(0, 140));
     await o.ctx.close();
   }

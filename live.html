@@ -1661,7 +1661,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       <span class="back-arrow">←</span>
       <span class="brand-mark-text">MOMENT<span class="dot"></span>EDIT</span>
     </a>
-    <span class="on-air"><span class="live-dot"></span>On Air</span>
+    <span class="on-air">디지털 참석</span><!-- [B2_MA_60 2026-11-06 2차 B2-마60] 실제 송출 상태를 모르니 «방송 중»(On Air · 점멸 점)이라 말하지 않는다 -->
   </div>
 </header>
 <main>
@@ -1781,6 +1781,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     </svg>
     <span>영상을 탭하시면 전체화면으로 감상하실 수 있습니다.</span>
   </p>
+  <p class="player-fs-hint" id="playerSound" hidden>영상에서 소리를 켜 주세요.</p><!-- [B2_MA_90 2026-11-06 2차 B2-마90] 영상은 소리 꺼진 채 자동 재생(muted=1)으로 붙는다 — 영상이 붙었을 때만 한 줄 · 소리를 저절로 켜지 않는다 -->
 
   <!-- CREDIT BAR -->
   <div class="credit-bar" style="padding:0;margin-top:36px">
@@ -1793,9 +1794,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
         <span class="credit-key">Time</span>
         <span class="credit-val">13:40 <span class="small">KST</span></span>
       </div>
-      <div class="credit-row">
-        <span class="credit-key">Duration</span>
-        <span class="credit-val">Approx. 30 <span class="small">Min</span></span>
+      <div class="credit-row"><!-- [B2_MA_61 2026-11-06 2차 B2-마61] 코스 · 지연과 상관없던 «약 30분» 고정 표시 대신 끝나는 때를 말로 · 다른 고정 숫자로 바꾸지 않는다 -->
+        <span class="credit-key credit-key-ko">방송 마무리</span>
+        <span class="credit-val">두 분이 화면으로 인사를 마친 뒤</span>
       </div>
       <div class="credit-row">
         <span class="credit-key">Broadcast</span>
@@ -1968,7 +1969,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     </div>
 
   </div>
-  <p class="form-fallback" id="lfReach">이 편지는 두 분에게만 전달됩니다.</p><!-- [LETTER_REACH 2026-10-09 D-16] 고른 받는 사람에 맞춰 바뀐다(신랑에게만 · 신부에게만 · 두 분에게만) -->
+  <p class="form-fallback" id="lfReach">이 편지는 두 분에게만 전달됩니다.</p>
+  <!-- [B2_MA_17 2026-11-06 2차 B2-마17] 사진 올리기 전용 연결 — 나레이션이 부르는 «하객 안내 → 사진 올리기»로 바로(좌석 · 식사 · 예약 정보는 옮겨 오지 않는다) · 안내 링크가 있을 때만 -->
+  <div class="live-photo" id="livePhoto" hidden style="text-align:center;margin-top:36px"><a id="livePhotoBtn" href="#" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:var(--accent)">사진 올리기</a></div><!-- [LETTER_REACH 2026-10-09 D-16] 고른 받는 사람에 맞춰 바뀐다(신랑에게만 · 신부에게만 · 두 분에게만) -->
 </section>
 
 <!-- ═══ SECTION 03 — ENVELOPE ═══ -->
@@ -2002,17 +2005,17 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
           <div class="env-row">
             <span class="env-bank">국민은행</span>
             <span class="env-account">123456-78-901234</span>
-            <button class="env-copy" type="button" data-account="12345678901234">복사</button>
+            <button class="env-copy" type="button" data-account="12345678901234" aria-label="신랑 계좌번호 복사">복사</button>
           </div>
           <div class="env-holder"><span class="label">예금주</span>이서준</div>
           <div class="env-row env-parent" data-rel="father" hidden>
             <span class="env-bank"></span><span class="env-account"></span>
-            <button class="env-copy" type="button" data-account="">복사</button>
+            <button class="env-copy" type="button" data-account="" aria-label="신랑 아버지 계좌번호 복사">복사</button>
           </div>
           <div class="env-holder env-parent" data-rel="father" hidden><span class="label">아버지</span></div>
           <div class="env-row env-parent" data-rel="mother" hidden>
             <span class="env-bank"></span><span class="env-account"></span>
-            <button class="env-copy" type="button" data-account="">복사</button>
+            <button class="env-copy" type="button" data-account="" aria-label="신랑 어머니 계좌번호 복사">복사</button>
           </div>
           <div class="env-holder env-parent" data-rel="mother" hidden><span class="label">어머니</span></div>
         </div>
@@ -2035,17 +2038,17 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
           <div class="env-row">
             <span class="env-bank">신한은행</span>
             <span class="env-account">110-987-654321</span>
-            <button class="env-copy" type="button" data-account="110987654321">복사</button>
+            <button class="env-copy" type="button" data-account="110987654321" aria-label="신부 계좌번호 복사">복사</button>
           </div>
           <div class="env-holder"><span class="label">예금주</span>정하윤</div>
           <div class="env-row env-parent" data-rel="father" hidden>
             <span class="env-bank"></span><span class="env-account"></span>
-            <button class="env-copy" type="button" data-account="">복사</button>
+            <button class="env-copy" type="button" data-account="" aria-label="신부 아버지 계좌번호 복사">복사</button>
           </div>
           <div class="env-holder env-parent" data-rel="father" hidden><span class="label">아버지</span></div>
           <div class="env-row env-parent" data-rel="mother" hidden>
             <span class="env-bank"></span><span class="env-account"></span>
-            <button class="env-copy" type="button" data-account="">복사</button>
+            <button class="env-copy" type="button" data-account="" aria-label="신부 어머니 계좌번호 복사">복사</button>
           </div>
           <div class="env-holder env-parent" data-rel="mother" hidden><span class="label">어머니</span></div>
         </div>
@@ -2085,6 +2088,19 @@ document.querySelectorAll('.env-q').forEach(btn => {
   });
 });
 
+/* ★[B2_MA_42 2026-11-06 2차 B2-마42] 접힌 봉투 안의 «복사» 단추가 Tab · 화면낭독기 대상으로 남던 것 — 접히면 inert · aria-hidden, 펼치면 푼다.
+   한쪽을 열어 다른 쪽이 접힐 때도 같은 처리(class 가 바뀌는 순간 다시 맞춘다) · 보이는 글은 그대로 */
+function envFoldSync(){
+  document.querySelectorAll('.env-item').forEach(function(item){
+    var open = item.classList.contains('open');
+    [].slice.call(item.children).forEach(function(c){
+      if (c.classList.contains('env-q')) return;
+      if (open) { c.removeAttribute('inert'); c.removeAttribute('aria-hidden'); } else { c.setAttribute('inert', ''); c.setAttribute('aria-hidden', 'true'); }
+    });
+  });
+}
+try { new MutationObserver(envFoldSync).observe(document.querySelector('.envelopes') || document.body, { subtree: true, attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+envFoldSync();
 /* ★[ENV_DEMO_OPEN 2026-08-18 사용자 제안 "계좌 신부쪽이 열려있는 부분으로 등록해놓으면 좋지않을까"]
    홈 목업(프레임) 안에서만 신부 쪽을 펼쳐 둔다.
    접힌 두 줄만 보이면 이 화면이 무엇을 하는 곳인지 알 수 없다 — 홍보 화면에서
@@ -2313,10 +2329,11 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
       });
     } catch (e) {}
     document.body.classList.add('couple-ready');
+    livePhotoLink('test-couple');   // [B2_MA_17] 표본은 표본 안내(사진 구역)로
     return;
   }
 
-  const cacheKey = 'me_couple_' + eventId;   // 청첩장 커버(hydrate)와 캐시 공유
+  const cacheKey = 'me_couple_live_' + eventId;   // [B2_MA_04] 화면마다 공개 응답이 다르다(view=live) — 청첩장(hydrate · me_couple_)과 캐시 열쇠를 나눈다
   let rendered = false;      // 캐시로 이미 그렸는지(couple-ready 표시 판단용)
   let infoApplied = false;   // 부부 정보가 화면에 한 번이라도 적용됐는지(폴링 더미 방지용)
 
@@ -2388,25 +2405,33 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
       }
     }
 
+    /* ★[B2_MA_03 2026-11-06 2차 B2-마03] 실패해도 여기서 함수를 끝내지 않는다 — 종전엔 서버 오류 JSON 을 세 번 받으면 return 으로 빠져
+       아래 자동 재조회(pollUntilVideo)가 시작되지 않았는데도 «이 화면이 계속 다시 시도하고 있어요»라고 말했다 */
     if (!data || !data.ok) {
       console.warn('[Live] Couple not loaded:', eventId, data && data.error);
-      if (liveSrvFail(data)) { if (!infoApplied) { setNotLoaded(true); sayNotLoaded(liveSrvN(data), String(data.eid || lastEid)); } return; }   // [ERR_CODE_PAGES] 서버 오류 G9 — 링크 안내가 아니다
+      if (liveSrvFail(data)) { if (!infoApplied) { setNotLoaded(true); sayNotLoaded(liveSrvN(data), String(data.eid || lastEid)); } }   // [ERR_CODE_PAGES] 서버 오류 G9 — 링크 안내가 아니다
       // [LIVE_LINK_UNKNOWN] 서버가 '그런 예식 없다'고 답한 경우만.
       // 캐시로 이미 그린 하객(infoApplied)은 건드리지 않는다 — 멀쩡한 화면을 지우면 안 된다.
-      if (!infoApplied) { setNotLoaded(false); setLinkUnknown(true); }
-      return; // finally에서 표시
-    }
-
-    try { localStorage.setItem(cacheKey, JSON.stringify(data.couple)); } catch (_) {}
-    if (!rendered) {
+      else if (!infoApplied) { setNotLoaded(false); setLinkUnknown(true); }
+    } else {
+    const _prevRaw = (function(){ try { return localStorage.getItem(cacheKey); } catch (_) { return null; } })();
+    const _freshRaw = JSON.stringify(data.couple);
+    try { localStorage.setItem(cacheKey, _freshRaw); } catch (_) {}
+    /* ★[B2_MA_04] 캐시로 먼저 그렸어도 최신 응답이 다르면 부부 정보를 다시 적용한다(편지 글 · 고른 받는 사람 · 스크롤은 그대로 — applyCoupleInfo 는 편지 칸을 비우지 않는다).
+       실패 응답일 땐 여기 오지 않으니 정상 화면을 지우지 않는다 */
+    if (!rendered || _prevRaw !== _freshRaw) {
       applyCoupleInfo(data.couple);
       infoApplied = true;
       setNotLoaded(false);   // [ERR_CODE_PAGES] 5초 안전망이 띄운 기다림 안내를 거둔다
+      setLinkUnknown(false);
     }
     // 캐시로 먼저 그렸어도 최신 응답에 영상(vimeoId)이 생겼으면 즉시 부착.
     // attachVimeoPlayer는 이미 부착됐거나 vimeoId 없으면 no-op → 항상 호출해도 안전.
     // (기존엔 rendered=true면 건너뛰어 하객이 새로고침을 2번 해야 영상이 보였음)
-    attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
+    // [B2_MA_04] 같은 영상(ID · 해시)이면 끊지 않고 · 다르면 바꾸고 · 최신 정상 응답에서 영상 ID 가 비었으면 옛 영상을 걷는다(대기 자리 · 후속 확인 복구)
+    if (String(data.couple.vimeoId || '').trim()) attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
+    else detachVimeoPlayer();
+    }
   } catch (err) {
     console.error('[Live] Failed to load couple info:', err);
     /* ★[LIVE_NOT_LOADED 2026-09-12] 여기서 아무것도 안 하면 아래 finally 가 «정적 더미»를 공개한다.
@@ -2423,25 +2448,37 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
   // 새로고침 없이 자동 시작("예식 시각에 시작됩니다" 약속 이행).
   // 초기 fetch가 실패한 하객도 이 폴링이 이어받아 자동 복구.
   // 처음 3회는 짧게(15·30·60초) 그 뒤 90초 간격, 최대 80회(약 2시간) · 부착 즉시 중단.
-  (function pollUntilVideo(){
-    if (!document.getElementById('playerPlaceholder')) return;
+  /* ★★[B2_MA_03 · d-11 2026-11-06 2차 B2-마03] 자동 재조회 — 한 번에 15초까지(응답 본문까지) · 실제로 다시 확인하는 동안만 «다시 시도하고 있어요».
+     다 돌고도 못 받았으면(마지막이 실패) «예식 정보를 불러오지 못했어요. 다시 불러와 주세요.» + «다시 불러오기».
+     정상 응답인데 영상 주소가 끝까지 비었으면 대기 자리에 «아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 확인해 주세요.»
+     [B2_MA_04] 영상을 걷었을 때(최신 정상 응답에서 ID 가 빈 경우)도 다시 시작한다 */
+  let _pollOn = false;
+  function pollUntilVideo(){
+    if (_pollOn || !document.getElementById('playerPlaceholder') || document.body.classList.contains('link-unknown')) return;   // «그런 예식 없음»은 다시 묻지 않는다(종전과 같다)
+    _pollOn = true;
     const firstDelays = [15000, 30000, 60000];
-    let tries = 0;
+    let tries = 0, lastFail = false;
     async function tick(){
-      if (!document.getElementById('playerPlaceholder') || tries > 80) return;
+      if (!document.getElementById('playerPlaceholder')) { _pollOn = false; return; }
+      if (tries > 80) { _pollOn = false; endPoll(); return; }
+      const ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const tm = ac ? setTimeout(() => { try { ac.abort(); } catch (_) {} }, 15000) : null;
       try {
-        const r = await fetch(COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=live');
+        const r = await fetch(COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=live', ac ? { signal: ac.signal } : undefined);
         const d = await r.json();
+        if (tm) clearTimeout(tm);
         if (d.ok && d.couple) {
+          lastFail = false;
           // 초기 fetch가 실패했던 하객도 폴링 성공 시 부부 정보 채움(더미 방지)
           if (!infoApplied) { applyCoupleInfo(d.couple); infoApplied = true; setLinkUnknown(false); setNotLoaded(false); }
           if (d.couple.vimeoId) {
             try { localStorage.setItem(cacheKey, JSON.stringify(d.couple)); } catch (_) {}
             attachVimeoPlayer(d.couple.vimeoId, d.couple.vimeoHash);
+            _pollOn = false;
             return;
           }
-        }
-      } catch (_) {}
+        } else lastFail = true;
+      } catch (_) { if (tm) clearTimeout(tm); lastFail = true; }
       schedule();
     }
     function schedule(){
@@ -2449,9 +2486,38 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
       tries++;
       setTimeout(tick, wait);
     }
+    function endPoll(){
+      if (lastFail && !infoApplied) {
+        setNotLoaded(true);
+        const desc = document.querySelector('.live-notloaded-box .lp-message-desc');
+        if (desc) {
+          desc.innerHTML = '예식 정보를 불러오지 못했어요. 다시 불러와 주세요. <button type="button" class="le-retry" id="liveReload">다시 불러오기</button>';
+          const rb = document.getElementById('liveReload');
+          if (rb) rb.addEventListener('click', () => { sayNotLoaded('wait'); pollNow(); });
+        }
+      } else {
+        const ko = document.querySelector('#playerPlaceholder .placeholder-text-ko');
+        if (ko) ko.textContent = '아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 확인해 주세요.';
+      }
+    }
+    function pollNow(){ tries = 0; _pollOn = true; tick(); }
     schedule();
-  })();
+  }
+  window.__livePoll = pollUntilVideo;   // [B2_MA_04] 영상을 걷은 뒤 다시 부른다
+  pollUntilVideo();
+  livePhotoLink(eventId);   // [B2_MA_17]
 })();
+
+/* [B2_MA_17] 하객 안내 링크(사진 구역)를 묻는다 — 가족 청첩장의 «하객 안내 열기»와 같은 질의(guideView · byEvent) · 없거나 실패면 아무것도 안 그린다(편지 · 영상과 무관) */
+function livePhotoLink(eventId){
+  var show = function (href) { var box = document.getElementById('livePhoto'), a = document.getElementById('livePhotoBtn'); if (!box || !a) return; a.href = href; box.hidden = false; };
+  if (eventId === 'test-couple') { show('/g/demo#photos'); return; }
+  var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null, tm = ac ? setTimeout(function () { try { ac.abort(); } catch (e) {} }, 12000) : null;
+  fetch('https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec', { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'guideView', byEvent: eventId }), signal: ac ? ac.signal : undefined })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (tm) clearTimeout(tm); if (d && d.ok && d.g) show('/g/' + encodeURIComponent(d.g) + '#photos'); })
+    .catch(function () { if (tm) clearTimeout(tm); });
+}
 
 // ═══════════════════════════════════════════════════════════════
 // DOM 동적 업데이트 — 모든 위치를 부부 정보로 채움
@@ -2463,22 +2529,23 @@ function applyCoupleInfo(couple){
      고르면 편지가 스튜디오까지만 가고 두 분 편지함엔 닿지 않는데, 하객은 전해졌다고 믿게 된다.
      ★서버(getCouple)가 이 두 값을 안 주는 동안(재배포 전)은 undefined —— 그때는 아무것도 감추지 않는다. */
   try {
-    const _segOf = r => document.querySelector('.lf-seg[data-recipient="' + r + '"]');
+    /* ★[B2_MA_05 2026-11-06 2차 B2-마05] 블록 · 단추 · 현재 선택 모두 «실제 편지 폼(#letterForm)» 안에서 찾는다 — 표본 블록(letterPreview)에도 같은 단추가 있어 엉뚱한 쪽을 숨기던 것.
+       감춘 쪽이 지금 골라져 있어도 «두 분 모두»로 저절로 넓히지 않는다 — 선택을 비우고, 보낼 때 «받는 분을 다시 골라 주세요.»로 막는다(편지 글은 그대로) */
+    const _lf = document.getElementById('letterForm') || document;
+    const _segOf = r => _lf.querySelector('.lf-seg[data-recipient="' + r + '"]');
     const _hide = (r, hide) => { const el = _segOf(r); if (el) el.style.display = hide ? 'none' : ''; return el; };
     const noG = couple.hasGroomEmail === false, noB = couple.hasBrideEmail === false;
     const gEl = _hide('groom', noG), bEl = _hide('bride', noB);
     // 둘 다 없으면 선택 자체가 뜻이 없다 — 줄을 통째로 접는다(편지는 그대로 보관·스튜디오 전달)
-    const block = document.querySelector('.lf-recipient-block');
-    if (block && noG && noB) block.style.display = 'none';
-    // 감춘 쪽이 지금 선택돼 있으면 '두 분 모두'로 되돌린다(빈 선택 상태로 남지 않게)
-    const active = document.querySelector('.lf-seg.active');
+    const block = _lf.querySelector('.lf-recipient-block');
+    if (block) block.style.display = (noG && noB) ? 'none' : '';
+    const active = _lf.querySelector('.lf-seg.active');
     if (active && ((noG && active === gEl) || (noB && active === bEl))) {
-      document.querySelectorAll('.lf-seg').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
-      const both = _segOf('both');
-      if (both) { both.classList.add('active'); both.setAttribute('aria-checked', 'true'); }
+      _lf.querySelectorAll('.lf-seg').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
       const hid = document.getElementById('lfRecipient');
-      if (hid) hid.value = 'both';
+      if (hid) hid.value = '';
     }
+    if (typeof window.__lfRoving === 'function') window.__lfRoving();   // [B2_MA_05] tabindex 를 지금 보이는 단추에 맞춘다
   } catch (_e) {}
 
   // 1. 영문 이름 (Cover) — 성 제외, 이름만 (couple-en-name 두 개)
@@ -2674,7 +2741,7 @@ function updateEnvelopeBlock(item, info){
     if (selfRow) selfRow.style.display = '';
     if (selfHolder) selfHolder.style.display = '';
     const bankEl = item.querySelector('.env-row:not(.env-parent) .env-bank');
-    if (bankEl) bankEl.textContent = info.bank ? (/은행$/.test(info.bank) ? info.bank : (info.bank + '은행')) : '';
+    if (bankEl) bankEl.textContent = info.bank ? (/(은행|뱅크)$/.test(info.bank) ? info.bank : (info.bank + '은행')) : '';   // [B2_MA_85 2026-11-06 2차 B2-마85] 부모 계좌와 같은 은행 이름 처리 — 카카오뱅크 · 토스뱅크 · 케이뱅크 그대로
     const accountEl = item.querySelector('.env-row:not(.env-parent) .env-account');
     if (accountEl) accountEl.textContent = acct;
     const copyBtn = item.querySelector('.env-row:not(.env-parent) .env-copy');
@@ -2692,15 +2759,34 @@ function updateEnvelopeBlock(item, info){
 // 시트 vimeoId 열에 ID 입력 → 자동 송출(폴링·재방문 시). 열 위치 무관, 3행 헤더명 기준
 // vimeoId 비어있으면 Preview 플레이스홀더 유지
 // ═══════════════════════════════════════════════════════════════
+/* ★[B2_MA_04 2026-11-06 2차 B2-마04] 영상 ID · 해시가 같으면 그대로(같은 영상을 끊지 않는다) · 달라졌을 때만 바꾼다.
+   최신 «정상» 응답에서 영상 ID 가 비었으면 옛 영상을 걷고 대기 자리를 되살린다(detach) — 실패 응답의 빈 값으로는 부르지 않는다 */
+let _livePlaceholderHtml = '';
+function detachVimeoPlayer(){
+  const frame = document.getElementById('playerFrame');
+  const ifr = frame ? frame.querySelector('iframe') : null;
+  if (!frame || !ifr) return false;
+  ifr.remove();
+  if (!document.getElementById('playerPlaceholder') && _livePlaceholderHtml) frame.insertAdjacentHTML('afterbegin', _livePlaceholderHtml);
+  delete frame.dataset.vid;
+  onAirSync();
+  if (typeof window.__livePoll === 'function') window.__livePoll();
+  return true;
+}
 function attachVimeoPlayer(vimeoId, vimeoHash){
   const frame = document.getElementById('playerFrame');
-  const placeholder = document.getElementById('playerPlaceholder');
-  if (!frame || !placeholder) return;
+  let placeholder = document.getElementById('playerPlaceholder');
+  if (!frame) return;
+  if (placeholder && !_livePlaceholderHtml) _livePlaceholderHtml = placeholder.outerHTML;
 
   // vimeoId 없으면 플레이스홀더 유지
   if (!vimeoId || !String(vimeoId).trim()) return;
 
   const id = String(vimeoId).trim();
+  const key = id + '|' + String(vimeoHash || '').trim();   // [B2_MA_04]
+  const old = frame.querySelector('iframe');
+  if (old) { if (frame.dataset.vid === key) return; old.remove(); }
+  if (!placeholder && !old) return;
   const hashPart = vimeoHash ? 'h=' + encodeURIComponent(String(vimeoHash).trim()) + '&' : '';
   const params = hashPart + 'autoplay=1&muted=1&dnt=1&pip=0&badge=0&autopause=0&title=0&byline=0&portrait=0&quality=1080p';
 
@@ -2710,21 +2796,21 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
   iframe.allowFullscreen = true;
   iframe.title = 'Moment Edit Digital Attendance';
 
-  placeholder.remove();
+  if (placeholder) placeholder.remove();
   frame.appendChild(iframe);
+  frame.dataset.vid = key;   // [B2_MA_04]
   onAirSync();   // [ON_AIR_WHEN_LIVE] 방송 중 판정 = 영상이 붙은 때 · [ON_AIR_WINDOW] 그리고 본식 시각 앞뒤일 때
 }
 /* ★[ON_AIR_WINDOW 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-10] «● ON AIR»는 영상이 붙어 있고(ON_AIR_WHEN_LIVE) «본식 시각(SLOT_CLOCK) 30분 전 ~ 3시간 뒤»일 때만.
    종전엔 영상 주소만 있으면 늘 켜졌다 — 87_letter vimeoGuardDaily 가 «3일 전까지 등록»을 요구하니 그 사흘 내내 «방송 중»이었고, 몇 달 뒤 다시보기에도 켜졌다.
    그 밖에는 숨긴다(자리는 그대로 · visibility). «다시보기» 같은 새 표시는 만들지 않는다. 날짜 · 시각을 모르면 켜지 않는다.
    시각은 한국 시각(KST)으로 잰다 — 해외 하객 기기의 시간대와 상관없이 같은 순간에 켜지고 꺼진다. 화면을 열어 둔 채 시각이 지나도 1분마다 다시 본다. */
+/* ★[B2_MA_60 2026-11-06 2차 B2-마60] 실제 송출 상태를 알 수 있는 연결이 없다 — 머리의 표시는 «디지털 참석»(점멸 없음)으로 바꾸고, 시각만으로 방송 시작 · 끝을 짐작하지 않는다.
+   영상이 붙어 있을 때 보인다(붙기 전 · 링크 오류 화면에선 숨김 · ON_AIR_WHEN_LIVE 자리 규칙 그대로). ON_AIR_WINDOW 의 시각 창은 걷었다 */
 function onAirSync(){
-  var on = false, w = window.__liveAt || {}, m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(w.date || '')), t = /^(\d{1,2}):(\d{2})$/.exec(String(w.time || ''));
-  if (m && t && document.querySelector('#playerFrame iframe')) {
-    var st = Date.UTC(+m[1], +m[2] - 1, +m[3], +t[1] - 9, +t[2]), now = Date.now();
-    on = (now >= st - 30 * 60000) && (now <= st + 3 * 3600000);
-  }
+  var on = !!document.querySelector('#playerFrame iframe');
   document.querySelectorAll('.on-air').forEach(function(el){ if (on) el.classList.add('is-live'); else el.classList.remove('is-live'); });
+  var snd = document.getElementById('playerSound'); if (snd) snd.hidden = !on;   // [B2_MA_90]
 }
 setInterval(onAirSync, 60000);
 
@@ -2788,7 +2874,7 @@ setInterval(onAirSync, 60000);
   const retryBtn = document.getElementById('leRetry');
   const lbBackBtn = document.getElementById('lbBack');
   const recipientInput = document.getElementById('lfRecipient');
-  const segBtns = document.querySelectorAll('.lf-seg');
+  const segBtns = form.querySelectorAll('.lf-seg');   // [B2_MA_05] 실제 편지 폼 안의 단추만(표본 블록 제외)
 
   // 예식 ID 없거나 미리보기 전용 ID(test-couple)이면 프리뷰 모드
   // → 편지 폼이 숨겨지고 프리뷰 블록이 보임. 실제 편지 전송 차단.
@@ -2820,6 +2906,7 @@ setInterval(onAirSync, 60000);
       btn.setAttribute('aria-checked', 'true');
       recipientInput.value = r;
       setReach(r);   // [LETTER_REACH]
+      lfErr(form.querySelector('.lf-recipient-block'), '');   // [B2_MA_05] 다시 고르면 안내를 걷는다
       const nextPh = placeholders[r] || placeholders.both;
       // textarea가 비어 있을 때만 placeholder를 페이드 전환
       if (msgEl.value === '') {
@@ -2842,18 +2929,25 @@ setInterval(onAirSync, 60000);
      ★선택은 기존 click 경로를 그대로 탄다 — aria-checked·#lfRecipient·placeholder 갱신이
        한 곳에만 있어야 둘이 갈라지지 않는다. */
   const segList = Array.prototype.slice.call(segBtns);
+  /* ★[B2_MA_05] 방향키 · Tab 은 «지금 보이고 고를 수 있는» 단추만 돈다 — 메일이 없어 숨긴 받는 분도 목록에 남아 골라지던 것.
+     골라진 것이 없으면(받는 분이 사라진 뒤) 보이는 첫 단추가 Tab 자리를 맡는다 */
+  const segVisible = () => segList.filter(b => b.style.display !== 'none' && !b.disabled);
   function syncRoving() {
-    segList.forEach(b => b.setAttribute('tabindex', b.classList.contains('active') ? '0' : '-1'));
+    const vis = segVisible(), act = vis.filter(b => b.classList.contains('active'))[0] || vis[0];
+    segList.forEach(b => b.setAttribute('tabindex', b === act ? '0' : '-1'));
   }
+  window.__lfRoving = syncRoving;
   syncRoving();
-  segList.forEach((btn, i) => {
+  segList.forEach((btn) => {
     btn.addEventListener('keydown', (e) => {
       let d = 0;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') d = 1;
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') d = -1;
       else return;
       e.preventDefault();
-      const next = segList[(i + d + segList.length) % segList.length];
+      const vis = segVisible(), i = vis.indexOf(btn);
+      if (!vis.length) return;
+      const next = vis[(Math.max(i, 0) + d + vis.length) % vis.length];
       next.click();
       next.focus();
     });
@@ -2921,6 +3015,7 @@ setInterval(onAirSync, 60000);
     recipientInput.value = 'both';
     setReach('both');   // [LETTER_REACH] 다시 쓰기는 «두 분»에서 시작한다
     msgEl.setAttribute('placeholder', placeholders.both);
+    syncRoving();   // [B2_MA_89 2026-11-06 2차 B2-마89] 고른 «두 분에게»만 tabindex=0 · 나머지 -1(선택 · aria-checked 를 되돌리고 roving 을 안 맞추던 것)
   }
   function showError(msg){
     form.style.display = 'none';
@@ -2954,6 +3049,24 @@ setInterval(onAirSync, 60000);
     if (/^[A-Z_]+$/.test(t)) return '편지를 전하지 못했어요 · 다시 보내 주세요 (코드 ' + (ec || 'G0') + ')';
     return _ecSrv(d, 'G', '편지를 전하지 못했어요 · 다시 보내 주세요');
   }
+  /* ★[B2_MA_40 · d-12 2026-11-06 2차 B2-마40] 보내는 동안 편지 · 이름 · 관계는 읽기 전용, 받는 분 단추는 잠근다 — 버튼만 잠겨 보내는 중에 글 · 받는 분이 바뀌던 것.
+     안내 «편지를 보내고 있어요. 잠시만 기다려 주세요.» · 실패하면 같은 내용 그대로 다시 연다 */
+  function lfLock(on) {
+    [msgEl, nameEl, relEl].forEach(el => { if (el) el.readOnly = !!on; });
+    segList.forEach(b => { b.disabled = !!on; b.setAttribute('aria-disabled', on ? 'true' : 'false'); });
+    if (on) { if (reachEl) reachEl.textContent = '편지를 보내고 있어요. 잠시만 기다려 주세요.'; }
+    else { setReach(recipientInput.value || 'both'); syncRoving(); }
+  }
+  /* [B2_MA_91 · B2_MA_05] 칸 아래 한 줄 — 빈 글이면 걷는다 */
+  function lfErr(el, msg) {
+    if (!el) return;
+    let n = el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('lf-err') ? el.nextElementSibling : null;
+    if (!msg) { if (n) n.remove(); el.removeAttribute('aria-invalid'); return; }
+    if (!n) { n = document.createElement('p'); n.className = 'lf-err'; n.setAttribute('role', 'alert'); el.insertAdjacentElement('afterend', n); }
+    n.textContent = msg;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.setAttribute('aria-invalid', 'true');
+  }
+  [msgEl, nameEl].forEach(el => el && el.addEventListener('input', () => { if (String(el.value).trim()) lfErr(el, ''); }));
   // 제출
   /* [LETTER_SEND] 보내는 중 재진입 차단 — 버튼만 disabled로 두면 이름 칸에서 Enter를 눌러
      같은 편지가 한 번 더 나갈 수 있다(폼 submit은 버튼을 거치지 않는다). */
@@ -2965,14 +3078,27 @@ setInterval(onAirSync, 60000);
     const message = msgEl.value.trim();
     const guestName = nameEl.value.trim();
     const relation = relEl.value.trim();
-    const recipient = recipientInput.value || 'both';
+    const recipient = recipientInput.value;
 
-    if (!message || !guestName) return;
+    /* ★[B2_MA_91 2026-11-06 2차 B2-마91] 공백만 적으면 아무 말 없이 멈추던 것 — 그 칸 바로 아래 한 줄 + 초점(적은 글 · 받는 분은 그대로) */
+    lfErr(msgEl, message ? '' : '편지 내용을 적어 주세요.');
+    lfErr(nameEl, guestName ? '' : '이름을 적어 주세요.');
+    if (!message) { msgEl.focus(); return; }
+    if (!guestName) { nameEl.focus(); return; }
+    /* [B2_MA_05] 받는 분이 비었거나 숨겨진 쪽이면 보내지 않는다(두 분으로 넓히지 않는다) */
+    const _rb = form.querySelector('.lf-seg[data-recipient="' + recipient + '"]');
+    if (!recipient || !_rb || _rb.style.display === 'none') {
+      const blk = form.querySelector('.lf-recipient-block'); lfErr(blk, '받는 분을 다시 골라 주세요.');
+      const f0 = segVisible()[0]; if (f0) f0.focus();
+      return;
+    }
+    lfErr(form.querySelector('.lf-recipient-block'), '');
 
     // 로딩 상태
     sending = true;
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
+    lfLock(true);   // [B2_MA_40]
 
     const payload = {
       action: 'guestLetter',   // [LETTER_SWITCH] 본 GAS doPost 가 이 이름표로 편지를 받는다 — 없으면 case '' (상담 신청)로 떨어진다
@@ -2998,7 +3124,7 @@ setInterval(onAirSync, 60000);
         signal: _ltAc ? _ltAc.signal : undefined,
       });
 
-      const done = () => { sending = false; submitBtn.classList.remove('loading'); submitBtn.disabled = false; };
+      const done = () => { sending = false; submitBtn.classList.remove('loading'); submitBtn.disabled = false; lfLock(false); };
 
       /* [LETTER_SEND] 예전엔 응답을 못 읽으면 'status 2xx면 성공'으로 넘겼다.
          Apps Script는 스크립트 오류·할당량 초과에도 200 + HTML 오류 페이지를 돌려준다 —
@@ -3024,6 +3150,7 @@ setInterval(onAirSync, 60000);
       sending = false;
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
+      lfLock(false);   // [B2_MA_40] 실패하면 그대로 다시 고칠 수 있게 푼다
       showError(_ecN(err) === 5 ? '편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 (코드 G5)' : _ecNet(err, 'G', '잠시 뒤 다시 보내 주세요'));   // [ERR_CODE_PAGES] 종전 «네트워크 오류입니다» — 연결 G6 · [LETTER_TIMEOUT] 30초 G5(결과 모름 · G7 줄과 같은 말)
     }
   });
@@ -3114,6 +3241,11 @@ a.brand-mark-link .back-arrow{color:var(--gold-text)}
 /* 3. '의 아들 · 의 딸' — 부모 이름 뒤 접미. 3.04 → 5.71:1
    이름보다 조용해야 하는 건 맞지만, 그건 10px·이탤릭·세리프가 이미 하고 있다. */
 .env-q-parents .of{opacity:1}
+/* [B2_MA_90] 소리 안내는 영상이 붙었을 때만(클래스의 inline-flex 가 [hidden] 을 이기지 않게) · [B2_MA_61] 한글 열쇠는 영문 자간(0.28em)을 쓰지 않는다(LIVE_KO_TRACK 과 같은 처방) */
+.player-fs-hint[hidden]{display:none}
+.credit-key-ko{letter-spacing:0.06em}
+/* [B2_MA_91] 편지 칸 아래 한 줄 — 빈칸(공백만)일 때 그 칸 바로 아래 */
+.lf-err{margin:6px 0 0;font-size:12px;line-height:1.6;color:var(--seal);letter-spacing:0.02em}
 </style>
 <style>
 /* [LIVE_LINK_UNKNOWN] 링크가 틀렸을 때 가짜 예식을 보여주던 문제 (2026-07-26).

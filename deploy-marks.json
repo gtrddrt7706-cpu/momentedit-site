@@ -3164,6 +3164,48 @@
    "fn": "handleSignup",
    "mark": "B2_HOME_17",
    "why": "접수 메일이 안 나가면 mailFail 을 실어 답한다(완료 화면이 «메일을 보내지 못했어요 · 개인코드 보관»). 이 판이 없으면 메일이 안 갔는데도 «메일로 보내 드렸어요»라 한다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuestPhoto",
+   "mark": "B2_MA_86",
+   "why": "하객 사진 — 같은 전송 한 번만(uid) · 실제 바이트 한도 · 찬 한도(장수/용량) · 잠금 안 예약 · 집계 실패 다시 맞추기(B2-마19 · 70 · 21 · 86 · 82)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_seatFindByToken",
+   "mark": "B2_MA_79",
+   "why": "좌석 검색 — 후보마다 «성함 그대로»(ex) · 30자 초과는 길이 안내(B2-마79 · 92)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuideView",
+   "mark": "B2_MA_47",
+   "why": "하객 안내 — 식사 안내가 꺼졌거나 예약처가 없으면 예약자 이름 · 시각을 싣지 않는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "B2_MA_02",
+   "why": "제작 단계 모든 예식에 하객 안내(사진 올리기) 링크 발급 — 식사 · 좌석과 상관없이"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "B2_MA_81",
+   "why": "안내 링크 첫 발급 때 가족 청첩장 «안내 없음» 캐시를 지운다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_seatNorm",
+   "mark": "B2_MA_80",
+   "why": "좌석 이름 비교를 NFC 로 — 복사한 조합형 이름도 맞는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuestPhoto",
+   "mark": "B2_MA_82",
+   "why": "하객 사진 집계 실패 → 다시 맞추기 표시 · 다음 업로드에서 폴더 실제 파일로 다시 센다"
   }
  ],
  "fns": {
@@ -3386,6 +3428,7 @@
    "_seatFindSlim",
    "_seatFindByToken",
    "handleGuideView",
+   "_guideTokenEnsure_",
    "addGuideTokenColumn",
    "_gpRootFolder",
    "_gpSafeName",
@@ -3482,6 +3525,10 @@
    "adminVoiceUsage",
    "adminVoiceRead",
    "handleGuestPhoto",
+   "_gpResGet_",
+   "_gpResPut_",
+   "_gpBytesGet_",
+   "_gpRecount_",
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
    "purgeGuestPhotosApply",
@@ -4459,6 +4506,18 @@
   },
   {
    "key": "ERRALERT_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "GPB_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "GPRECOUNT_",
    "kind": "state",
    "a": "",
    "b": ""
