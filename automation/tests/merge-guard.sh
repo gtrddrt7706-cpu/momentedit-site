@@ -22045,3 +22045,66 @@ nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
 chk 'MATJEOL_PILL_R2' order-preview.html 1   # [MEANING_R2 · 2026-11-06] 맞절 = 정적 → 알약에 «음악과 함께» 없음(엔진 줄이 모두 정적이면)
 chk 'MATJEOL_PILL_R2' scripts/audit/entry-carry.mjs 1
+# ── 2026-11-06 [BATCH2 나01~37] 나레이션 구현 2차(나02 · 나28 결정 대기 · 나25 · 나33 1차와 겹침 · 나35 제외)
+chk 'B2_NA_01' assets/ritual-preview-link.js 3   # 미리듣기 주소에 고른 예시(narEx) · 테이블 수 · 덕담 수 · 호칭 코드
+chk 'var _nx = narExPick(S); if (_nx) o.narEx = _nx;' assets/ritual-preview-link.js 1
+chk 'function _prAtSig(k)' order-preview.html 1   # [B2_NA_03] 이어서 연습 = 순간 줄 구성 지문
+chk '내용이 바뀌어 이 순간 처음부터 해요.' order-preview.html 1
+chk '저장한 위치를 확인할 수 없어 이 순간 처음부터 해요.' order-preview.html 1
+chk '마이크를 그대로 들고, 이어서 첫 덕담을 해 주세요.' order-preview.html 1   # [B2_NA_04]
+chk 'B2_NA_05' order-preview.html 1   # 이름 한 번에 바꾸기
+nochk "\[\['이서준','서준',g\],\['정하윤','하윤',b\]\]\.forEach(function(r){ var full=r\[2\]; if(!_exNmOk(full)) return; var gv=_exGiven(full), j=_exBat(gv);" order-preview.html
+chk "p==='과'?(j?'과':'와')" order-preview.html 1   # [B2_NA_37]
+chk "Math.min(3,Math.max(1,+R.chipOf('freeLen',S)||3))" order-preview.html 1   # [B2_NA_06]
+chk '정한 길이에 맞춰 예시를 다듬어 주세요.' order-preview.html 1
+chk '도 글을 적을게요</button>' order-preview.html 1   # [B2_NA_07] d-06
+chk 'B2_NA_07' order-preview.html 1
+chk 'SAVE_LOCAL_FAIL' order-preview.html 3   # [B2_NA_08]
+chk '이 기기에 저장하지 못했어요. 대본을 복사하거나 파일로 받아 주세요.' order-preview.html 1
+chk '다른 창에 더 최근 내용이 있어요. 지금 대본을 먼저 복사하거나 파일로 받아 주세요.' order-preview.html 1
+chk '저장은 끝났어요. 그동안 고친 내용은 다시 저장해 주세요.' order-preview.html 1   # [B2_NA_09]
+chk '_doneSendKey=_autoKey()' order-preview.html 1
+chk 'function _txOwn(el)' order-preview.html 1   # [B2_NA_10] 쓰는 원고로 지키기
+chk '다른 기기에서 이 글이 바뀌었어요. 쓰던 내용과 함께 확인해 주세요.' order-preview.html 1   # d-13
+chk 'S.fAt\[key\]=Math.max(Date.now(),(+S.fAt\[key\]||0)+1)' order-preview.html 1   # [B2_NA_11] 늦은 시계
+chk 'B2_NA_12' console.html 4   # 현장 콘솔 실패를 끝으로 치지 않는다
+chk "conStall('소리를 재생하지 못했어요.')" console.html 1
+chk "'재생이 막혔어요.'" console.html 2
+chk 'function _goOther(t)' console.html 1   # [B2_NA_13]
+chk 'if (e.repeat && (e.code' console.html 1
+chk 'function letterFaceHint(S)' assets/ritual-cue.js 1   # [B2_NA_14]
+chk "aid:'letter:face'" order-preview.html 1
+chk 'function _fgFace(k)' order-preview.html 1   # [B2_NA_15] d-02
+chk '앞쪽 중앙에서 이어지는 순서예요.' order-preview.html 1
+chk '하객을 바라보고 감사문을 읽어요.' order-preview.html 1
+nochk 'f=FG_FACE\[k\], at=' order-preview.html
+chk 'function hintOf(c)' console.html 1   # [B2_NA_16]
+chk "if(!hold){ LP.only=null; LP.onlyEnd=null; }" order-preview.html 1   # [B2_NA_17]
+chk 'function _prRzSync()' order-preview.html 1   # [B2_NA_18]
+chk 'function _lPlayable()' order-preview.html 1   # [B2_NA_19]
+chk "_rq!==LP.req||!_lPlayable()" order-preview.html 1
+chk '현장에서 직접 말하는 부분은 글로 보여 드려요. 당일엔 두 분과 가까운 분들이 직접 말해요.' console.html 1   # [B2_NA_20] d-04
+chk '직접 말하는 시간은 짧게 줄여 보여 드려요.' console.html 2
+nochk '예시 목소리로 들려드려요' console.html
+chk "row(k,_fxPre?'이어서':'')" order-preview.html 1   # [B2_NA_21]
+nochk "r.replace('<span class=\"cf-t\" aria-hidden=\"true\">예식 전</span>'" order-preview.html
+chk 'B2_NA_22' assets/ritual-open.js 2   # 현장 · 따로 편지 보관 글은 시간 셈에서 뺀다
+chk '따로 준비한 편지는 길이를 알 수 없어 기본 시간으로 계산해요.' order-preview.html 1
+chk 'function _prBusy()' order-preview.html 1   # [B2_NA_23]
+chk '다음 차례를 준비하고 있어요' order-preview.html 1
+chk "if(k==='vow'&&St().vowKind==='thanks') return '감사문';" assets/bgm-bed.js 1   # [B2_NA_24]
+chk "if(k==='vow'&&S.vowKind==='thanks') return '감사문';" assets/bgm-form.js 1
+chk '현재 식순에는 이 시각의 안내가 없습니다.' order-preview.html 1   # [B2_NA_26]
+chk '착석 · 휴대폰 무음 · 온라인 참석자 환영' order-preview.html 1
+chk '본식부터 단체 사진까지 배정한 시간은' order-preview.html 1   # [B2_NA_27] d-16
+nochk '본식과 단체 사진을 더하면' order-preview.html
+chk '마지막 말이나 동작' order-preview.html 1   # [B2_NA_29]
+chk "'사진 순서만 연습'" order-preview.html 1   # [B2_NA_30] d-14 · B2-K19 그룹 반복
+chk '본식 뒤 · 사진 순서' order-preview.html 1
+chk 'function _prLeadMs(q,i,x,st)' order-preview.html 1   # [B2_NA_31]
+chk 'function _prMinPaint()' order-preview.html 1
+chk "{id:'song',t:'축가를 불러 주실 분께'" order-preview.html 1   # [B2_NA_32]
+chk '안내 음성이 끝나면 마이크를 받아 주세요. 반주에 맞춰 노래해 주세요.' order-preview.html 1
+chk '초에 불을 밝혀 주세요.' order-preview.html 1
+chk 'function _narExLen(ek,n)' order-preview.html 1   # [B2_NA_34]
+chk 'B2_NA_36' order-preview.html 1   # 확인창이 열리면 포커스는 창 안

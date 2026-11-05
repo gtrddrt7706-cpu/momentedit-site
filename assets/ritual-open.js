@@ -391,7 +391,15 @@
     if (k === 'bless') return String(tx['bless.p'] || '');
     var a = String(tx[k + '.g'] || '') + String(tx[k + '.b'] || '');
     return a.trim() ? a : String((S && S[TX_LEG[k]]) || ''); }
-  function textSec(S, k) { var n = spokenOf(S, k).replace(/[\s.,!?·…~'"“”‘’()\[\]«»<>:;\-]/g, '').length; return n ? Math.round(n / 4 + 5) : 0; }
+  /* ★[B2_NA_22 2026-11-06 BATCH2 나22] «현장에서 바로 · 따로 써서 가져올게요»를 고른 분의 글은 보관만 한다 — 시간 셈에서 빼고 그분 몫은 기본 말하기 시간의 절반(지금 정해 둔 값 · B2-K23 현행) ·
+       한 분만 적은 글이면 두 분 몫을 따로 셈해 더한다 · 둘 다 현장이면 기본 시간 · 보관 글 · 체크를 풀었을 때의 글은 그대로 */
+  var SITE_TX = { welcome: 1, vow: 1, letter: 1 };
+  function _txN(t) { return String(t || '').replace(/[\s.,!?·…~'"“”‘’()\[\]«»<>:;\-]/g, '').length; }
+  function _talkBase(S, k) { var t = TIME[k]; if (k === 'vow') return (S.vowKind === 'thanks' ? THANKS_TIME : t)[1]; if (k === 'letter') return (t[chipOf('letter', S)] || t.each)[1]; return t && t[1] || 0; }
+  function textSec(S, k) {
+    var mk = (S && S.mkc) || {}, sg = SITE_TX[k] && !!mk[k + '.g'], sb = SITE_TX[k] && !!mk[k + '.b'];
+    if (sg || sb) { if (sg && sb) return 0; var n1 = _txN(((S && S.tx) || {})[k + '.' + (sg ? 'b' : 'g')]); return n1 ? Math.round(n1 / 4 + 5) + Math.round(_talkBase(S, k) / 2) : 0; }   // [B2_NA_22]
+    var n = _txN(spokenOf(S, k)); return n ? Math.round(n / 4 + 5) : 0; }
   function withTx(p, S, k) { var v = textSec(S, k); return v ? [p[0], v, p[2], p[3]] : p; }
   function partsOf(k, S, seq) {
     S = S || {}; seq = seq || bodySeq(S);

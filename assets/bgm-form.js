@@ -31,7 +31,7 @@
   function onOf(k){ if(k==='guest'||k==='_close') return true; var R=RO(); try{ return !!(R&&R.onOf(St(),k))&&!off(k); }catch(x){ return false; } }
   function opt(){ var R=RO(), S=St(), sq=[]; try{ sq=R?R.bodySeq(S):[]; }catch(x){}
     var fk=''; try{ fk=(R&&R.FREE_KIND&&R.FREE_KIND[S.freeWhat||'speech'])||''; }catch(x){}
-    return {onOf:onOf, seq:sq, freeKind:fk, nameOf:function(k){ try{ return R?R.nameOf(k,St()):k; }catch(x){ return k; } }, dayName:function(k){ try{ return window.BgmBed&&BgmBed.dayName?BgmBed.dayName(k):''; }catch(x){ return ''; } }, lastName:function(){ try{ return window.BgmBed&&BgmBed.lastName?BgmBed.lastName():''; }catch(x){ return ''; } }}; }   /* [SCREEN_SOUND_1102] 곡 이름 — 소리와 같은 함수 */
+    return {onOf:onOf, seq:sq, freeKind:fk, nameOf:function(k){ if(k==='vow'&&S.vowKind==='thanks') return '감사문'; try{ return R?R.nameOf(k,St()):k; }catch(x){ return k; } }, dayName:function(k){ try{ return window.BgmBed&&BgmBed.dayName?BgmBed.dayName(k):''; }catch(x){ return ''; } }, lastName:function(){ try{ return window.BgmBed&&BgmBed.lastName?BgmBed.lastName():''; }catch(x){ return ''; } }}; }   /* [SCREEN_SOUND_1102] 곡 이름 — 소리와 같은 함수 */
 
   /* ── ② 순간 쪽 «고르기» 칸 음악 줄 — 축사 · 편지만(이름표 «축사 음악 · 편지 음악» [BGM_R1_1023]) ── */
   /* ★[BGM_PREVIEW_1024] 구간 곡 줄(assets/bgm-bed.js · 이 순간이 첫 담긴 순간인 구간) + 축사 · 편지 칩 줄(«음악과 함께» 아래 곡 고르기) */

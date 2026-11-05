@@ -896,6 +896,8 @@
   var CLAP_ASK = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/;   // ★[MODERN_WORDS_1024 검토 164] «주세요» 더함 — 57 «큰 박수로 두 사람을 축하해 주세요.»도 박수 청이다
   /* ★[BGM_TIMING_1101] 축사 · 축가 «박수 부탁드립니다» 뒤 박수 — 성혼 선언 끝(narr-declare-end → 박수)과 같은 꼴: 박수 시작에 1.5초에 걸쳐 −8 */
   function clapUp(l) { l.upMs = 1500; return l; }
+  /* ★[B2_NA_14 2026-11-06 BATCH2 나14] 편지 멘트 예시 2 ~ 4 는 받는 쪽 방향(마주 서기 · 부모님 바라보기)을 말하지 않는다 — 소리는 그대로 두고 디렉터 준비 기준에 방향을 싣는다(새 이동 순서는 만들지 않는다) */
+  function letterFaceHint(S) { var n = O.narExOf ? O.narExOf(S, S.letter === 'parent' ? 'letterParent' : 'letter') : 0; return !n ? '' : S.letter === 'parent' ? '두 분이 부모님 쪽을 바라보고 편지·마이크 준비가 끝나면' : '두 분이 서로 마주 서고 편지·마이크 준비가 끝나면'; }
   function applause(t, est, hintNext, previewPost) {
     return { t: t, est: est, self: true, doing: 'move', duck: PARAM.duckMusic, applause: true, consoleOnly: true,
       hintNext: hintNext || '박수가 줄기 시작하면', previewPost: previewPost || [] };
@@ -1953,6 +1955,7 @@
       if (bwn.slug === 'bridge-b8-face-guests') bwn.hint = '맞절을 마치면';
       else if ((bwn.k === 'vow' && S.vowKind !== 'thanks') || bwn.k === 'ring' || (bwn.k === 'letter' && O.chipOf('letter', S) === 'each')) bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';
     }
+    cues.forEach(function (c) { if (!/^letter-(each|parent)$/.test(c.slug || '') || /마주|바라보/.test(c.hint || '')) return; var _lfh = letterFaceHint(S); if (_lfh) c.hint = c.hint ? c.hint + ' · ' + _lfh : _lfh; });   // [B2_NA_14] 맞절 뒤 방향 힌트(BOW_NEXT_NI01)가 이미 말하면 그대로
 
     /* ★[OPEN_GAP_1014 라운드 3] 개식 선언(137) 뒤 다음 줄(식전 영상 소개 · 영상을 뺀 날은 화촉 · 입장)은 3초 쉬고 사슬 —
          순서(화제)가 바뀌는 자리(자료 G2 5-2 «3 ~ 3.5초») · «…예식을 시작하겠습니다»는 자료가 박수와 함께 쓰는 말이라(BB ⑥) 청하지 않아도 손뼉이 나올 수 있다 */
