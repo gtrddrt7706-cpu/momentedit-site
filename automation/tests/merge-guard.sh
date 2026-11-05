@@ -21948,3 +21948,9 @@ chk '<script src="/assets/dining-data.js' mypage.html 1
 chk '<script src="/assets/dining-data.js' admin.html 1
 chk 'DINE_STATUS_NI16' scripts/audit/console-inject.mjs 1
 chk 'RESV_PARSE_NI17' scripts/audit/console-inject.mjs 1
+# ── 2026-11-05 [BOW_NEXT_NI01 · OPEN_CANDLE_GO_NI04 · CLAP_SOFT_NI05 · DECL_SEAT_GO_NI09 이음매] 디렉터 힌트 · GO 를 실제 다음 동작에 맞춤(녹음 · 순서 그대로)
+chk "bwn.hint = '맞절을 마치면';" assets/ritual-cue.js 1
+chk "bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';" assets/ritual-cue.js 1
+chk "(_openClap ? '박수가 줄기 시작하면 \[다음\]으로 화촉 시작' : '다음 줄(화촉 시작)은 이어서 나간다')" assets/ritual-cue.js 1
+chk "csc.hint = '다음 순서가 준비되면 · 박수가 나왔으면 잦아든 뒤';" assets/ritual-cue.js 1
+chk "cues\[ds + 1\].fire = 'manual'; cues\[ds + 1\].hint = '선언하신 분이 자리로 돌아가면';" assets/ritual-cue.js 1
