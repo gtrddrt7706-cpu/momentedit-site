@@ -1007,24 +1007,24 @@
       var BOWSL = { mothers: 'narr-candle-bow', parents: 'narr-candle-bow-four', fathers: 'narr-candle-bow-fathers', others: 'narr-candle-bow-others' };   // [CANDLE_CALL_SRC_1016]
       return [cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-in-' + who, name: '화촉 시작',
-        text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckMusic, pick: '서는 분 · ' + nm,
+        text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckSpeech,   /* ★[GPT_R1_CANDLE] 화촉 여는 말 · 맺는 말 · 인사 안내(말 14 ~ 34초)는 말 아래(−16) — 점화 · 인사 · 자리로 행동(live)은 −8 그대로 · 가사 없는 배경이 말 알아듣기에 낫다는 근거(정확한 dB 근거는 아님) */ pick: '서는 분 · ' + nm,
         /* ★[CANDLE_BOW_1012 2026-10-12 사장님 «부모님 입장을 생략한다는 얘기였어 · 신랑 신부는 입장해야지»] 생략한 것은 부모님이 따로 걸어 들어오는 입장 하나다.
              불을 밝힌 뒤 하객께 드리는 인사는 입장이 아니라 화촉의 한 동작이다(자료 D «점화 → 어머님 맞절 → 하객 인사 → 착석» · G «어머님끼리 맞절» · O «점화 후 인사 타이밍 통일»).
              두 분이 서면 서로 한 번 · 하객께 한 번 · 네 분이면 하객께 한 번. 몇 초라 시간 표(TIME.candle 여유 38초) 안이다 */
         /* ★★[CANDLE_CALL_1014] 사람 순간을 둘로 나눴다 — ① 나와서 불을 밝힘(여기) → 맺는 말(불을 다 밝히면 · 지적 7) → 인사 안내(사슬) → ② 인사 · 자리로(인사 안내 줄 · [CANDLE_BOW_1012] 의 인사를 안내 줄이 청한다) */
         live: (who === 'parents'
-          ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move' }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나온다(따로 걸어 들어오는 입장 없음)
-          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move' })
+          ? { t: '양가 부모님 네 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move', duck: PARAM.duckMusic }   // [PARENTS_ENTRY_OFF 2026-10-12] 네 분은 자리에서 나온다(따로 걸어 들어오는 입장 없음)
+          : { t: '서는 두 분이 앞으로 나와 초에 불을 밝힘', est: 45, self: true, doing: 'move', duck: PARAM.duckMusic })
       }), cue({
         k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',   /* ★[CANDLE_OUT_ONE_1023 검토 152 엔진 1)] 입장 C 갈래(140 · 95 와 같은 글)를 걷었다 — 늘 95 · 고른 화촉 맺는 말 칩이 그대로 나간다 · 140 은 RETIRED */   // ★[CANDLE_TONE_1014] 입장 «격식 있게»면 맺는 말 대안(140)
-        text: EXTRA['narr-candle-out'], duck: PARAM.duckMusic,
+        text: EXTRA['narr-candle-out'], duck: PARAM.duckSpeech,   // [GPT_R1_CANDLE]
         hint: '불을 다 밝히면'   // ★[CANDLE_CALL_1014] 10/10 지적 7 «때를 불을 다 밝히면으로 당김» — 옛 «두 분이 자리에 앉으시면»
       }), cue({
         k: 'candle', blockN: '화촉', slug: BOWSL[who] || 'narr-candle-bow', name: '인사 안내',   /* ★[CANDLE_CALL_SRC_1016] 서는 분마다 구호가 달라 판마다 한 줄(어머님 138 · 네 분 139 · 아버님 146 · 다른 두 분 147) */
-        text: EXTRA[BOWSL[who] || 'narr-candle-bow'], duck: PARAM.duckMusic, fire: 'chain', gapMs: 1250,   // [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
+        text: EXTRA[BOWSL[who] || 'narr-candle-bow'], duck: PARAM.duckSpeech, fire: 'chain',   // [GPT_R1_CANDLE] gapMs: 1250,   // [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
         live: (who === 'parents'
-          ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 15, showEst: 25, self: true, doing: 'move' }   /* ★[EST_TRUE_1031] 화면 «실제로는» = 맞절 · 인사 · 자리로 전체(네 분 25 · 두 분 30) · est 15 는 그대로(소리 안 시간과 겹쳐 셈하지 않는다) */   /* [CANDLE_CALL_SRC_1016] 인사는 구호 뒤 쉼(4초)에 들어가 자리로 돌아가는 시간만 남는다 */
-          : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 15, showEst: 30, self: true, doing: 'move' })
+          ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 15, showEst: 25, self: true, doing: 'move', duck: PARAM.duckMusic }   /* ★[EST_TRUE_1031] 화면 «실제로는» = 맞절 · 인사 · 자리로 전체(네 분 25 · 두 분 30) · est 15 는 그대로(소리 안 시간과 겹쳐 셈하지 않는다) */   /* [CANDLE_CALL_SRC_1016] 인사는 구호 뒤 쉼(4초)에 들어가 자리로 돌아가는 시간만 남는다 */
+          : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 15, showEst: 30, self: true, doing: 'move', duck: PARAM.duckMusic })
       })];
     },
 
