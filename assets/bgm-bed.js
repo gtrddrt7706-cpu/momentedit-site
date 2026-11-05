@@ -34,7 +34,7 @@
   function PR(){ var p={}; try{ p=(window.ENG&&ENG.RitualCue&&ENG.RitualCue.PARAM)||{}; }catch(x){}
     var dk=p.duck||{}; return { speech:num(p.duckSpeech,-16), music:num(p.duckMusic,-8), toast:num(p.toastLevel,0), toastUp:num(p.toastUpMs,600),
       down:num(dk.downMs,num(p.fadeDownMs,400)), up:num(dk.upMs,num(p.fadeUpMs,1200)), lead:num(dk.leadMs,800), voc:num(p.vocalExtra,-6), talk:num(p.duckTalk,-20), trim:num(p.musicTrim,-3.1), song:num(p.songGain,7) }; }
-  function num(v,d){ return (typeof v==='number'&&isFinite(v))?v:d; }
+  function num(v,d){ return (typeof v==='number'&&isFinite(v))?v:d; }   /* ★[SEAM_BG08] 크기 비교의 기본값 — 유한한 숫자면 그대로(0 dB 도 정상 음악값) · 없거나 NaN 일 때만 −90 · «want||-90» 금지(0 을 무음으로 읽어 내림 대신 올림 · lpLevel 이 일찍 돌아갔다) */
   function gainOf(db){ var p=PR(); return db<=-80?0.00003:Math.pow(10,(db+p.trim+p.song)/20); }   /* [BGM_FIX_1030] 음악 전체 크기(musicTrim) · [LISTEN_LOOK_LEVEL_1101 ②] 곡 보정(songGain +7 · 곡 −23 LUFS → 나레이션 −16 기준) */
   /* [LISTEN_LOOK_LEVEL_1101 ②] 음악 버스 끝 리미터 — 곡 카드와 같은 값(−1 dB · 20:1 · 2ms · 150ms) · 이 순간 전체 듣기 곡이 모두 이 길로 */
   var BUS=null;
@@ -257,22 +257,22 @@
     return songAt(st.k); }
   function subNote(st){ if(!st||LPB.note) return; var sg=st._base||segAt(st.k), t=sg?subOf(sg):''; if(t&&fileFor(st)===effHas(sg)) note('sub',t); }   /* [DETAIL_R1_1101 ①] */
   /* ★[PR_REVIEW_201 중5] 연습 중 A ↔ B 를 바꿔 그 줄 크기(ldk)가 바뀌면 흐르는 곡을 그 크기로만 옮긴다 — 곡 · 자리는 그대로 · 의도한 정적(−60 아래)이면 손대지 않는다 */
-  function lpLevel(st){ if(!emb()||!st||BED.who!=='lp'||!BED.cur||!BED.cur.src) return; if((BED.cur.want||-90)<=-60) return; var db=lvOf(st,BED.cur.f); if(db<=-60) return; var p=PR(); ramp(BED.cur,db,db>(BED.cur.want||-90)+0.5?p.up:p.down); }
+  function lpLevel(st){ if(!emb()||!st||BED.who!=='lp'||!BED.cur||!BED.cur.src) return; if(num(BED.cur.want,-90)<=-60) return; var db=lvOf(st,BED.cur.f); if(db<=-60) return; var p=PR(); ramp(BED.cur,db,db>num(BED.cur.want,-90)+0.5?p.up:p.down); }
   function lpShow(st){ if(!emb()||!st) return; if(BED.who==='card') stopCard(true); if(LPB.rs&&Date.now()-LPB.rs<900&&BED.cur.src){ LPB.rs=0; return; }   /* [DETAIL_R1_1101 ③] 방금 이어 든 곡을 lpShow 가 다시 1.2초로 덮지 않는다 */ durWarm(); if(LPB.note&&LPB.noteK&&st.k!==LPB.noteK) note('');   /* [BED_LOAD_1101] 그 순간 듣기 동안만 */
     if(st.k!==LPB.wk){ LPB.wk=st.k; var _nk=nextK(st.k), _rk=[]; try{ _rk=(typeof LP!=='undefined'&&LP.range&&LP.range.ks)||[]; }catch(x){} if(_nk&&(_rk.indexOf(_nk)>-1||st.k==='letter')) songsOf(_nk).forEach(function(_nf){ if(_nf&&!BUF[_nf]) want(_nf); }); }   /* [BED_LOAD_1101] 다음 순간 곡은 이어 듣는 범위 안이거나 편지 끝(lpTail 이 올린다)일 때만 미리 — 맞절만 들을 때 감사 인사 곡까지 받지 않는다(ENTRY_CARRY 1) */   /* ★[BGM_TIMING2_1101] 편지 끝에 오를 다음 순간 곡을 미리 받는다(편지만 따로 들을 때도 · 받는 동안 정적이 끝나 곡이 안 오르던 자리) */
     /* ★★[BRIDGE_FIRST_1101 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 다음 순간 몫으로 붙은 이음말(st._pre · 빌더가 BgmSlots.leadAt 으로 표시)은 앞 장면을 닫는 말 —
          새 곡을 걸지 않는다 · 이어 듣기면 앞 곡을 말 아래 크기(−16 · 보컬 −22)로 · 그 순간만 들으면 음악 없이 · 새 곡 뜸은 그 바로 뒤 줄(lpLead) */
-    if(st._pre){ LPB.cheer=false; if(BED.who==='lp'&&BED.cur.src&&!(BED.cur.want!=null&&BED.cur.want<=-60&&st.dk!=null&&st.dk<=-60)){   /* [SILENT_STAY_1102] 정적 위 이음말(식전 영상 뒤 화촉 이음말 −90)은 앞 곡을 말 아래로 되살리지 않는다 */ var pp=PR(), dbp=vx(pp.speech,BED.cur.f); LPB.on=true; ramp(BED.cur,dbp,dbp>(BED.cur.want||-90)+0.5?pp.up:pp.down); } return; }
+    if(st._pre){ LPB.cheer=false; if(BED.who==='lp'&&BED.cur.src&&!(BED.cur.want!=null&&BED.cur.want<=-60&&st.dk!=null&&st.dk<=-60)){   /* [SILENT_STAY_1102] 정적 위 이음말(식전 영상 뒤 화촉 이음말 −90)은 앞 곡을 말 아래로 되살리지 않는다 */ var pp=PR(), dbp=vx(pp.speech,BED.cur.f); LPB.on=true; ramp(BED.cur,dbp,dbp>num(BED.cur.want,-90)+0.5?pp.up:pp.down); } return; }
     if(st.k!=='toast') LPB.m7=false;
     if(LPB.lfw&&!(st.talk||st.talk2)){ var _w=LPB.lfw; LPB.lfw=null; if(BED.cur===_w.v&&BED.cur.src&&(st._base||segAt(st.k))===_w.sg&&BUF[_w.f]&&BUF[_w.f].st==='ok'&&swapSrc(BED.cur,BUF[_w.f].b,0,_w.f)){ LPB.f=_w.f; LPB.lf={ sg:_w.sg, f:_w.f }; } }   /* [MEANING_R1_1102 19] 말이 끝난 줄에서 미뤄 둔 다음 곡으로 */
-    var f=fileFor(st), db=lvOf(st,f), up=db>(BED.cur.want||-90)+0.5, p=PR();
+    var f=fileFor(st), db=lvOf(st,f), up=db>num(BED.cur.want,-90)+0.5, p=PR();
     try{ var _nq=(typeof LP!=='undefined'&&LP.q)?LP.q[LP.i+1]:null; if(_nq&&_nq.k===st.k){ var _nf=fileFor(_nq); if(_nf&&_nf!==f&&!BUF[_nf]) want(_nf); } }catch(x){}   /* ★[DETAIL_R2_1101 ①] 여는 말(본식 곡) 동안 바로 뒤 말씀 · 낭독 줄의 «음악과 함께» 곡을 미리 받는다 — 뜸이 그 줄 앞으로 옮겨 와 곡 받기가 늦어지지 않게 */
     LPB.cheer=false;
     if(!f&&avWait()){ list(); var tw=LPB.lt; AV.cb.push(function(){ if(LPB.lt!==tw) return; var q=curStep(); if(q&&q===st) lpShow(q); }); return; }   /* [DETAIL_R1_1101 ②] 목록이 오면 이 줄 곡을 깐다 */
     if(!f){ if(BED.who==='lp'&&BED.cur.src) hushAll(1500); LPB.on=false; LPB.f=''; return; }
     LPB.on=true; BED.who='lp'; subNote(st);
     if(BUF[f]&&BUF[f].st==='ok'){ var at=atOf(f,st); play(f,db,up?p.up:p.down,at); LPB.f=f; return; }
-    if(BED.who==='lp'&&BED.cur.src&&BED.cur.f!==f){ var _od=lvOf(st,BED.cur.f); if(_od>-60) ramp(BED.cur,_od,_od>(BED.cur.want||-90)+0.5?p.up:p.down); }   /* [DETAIL_R5_1101 규칙 4] 새 곡을 받는 동안 흐르는 곡도 지금 줄 크기로 */
+    if(BED.who==='lp'&&BED.cur.src&&BED.cur.f!==f){ var _od=lvOf(st,BED.cur.f); if(_od>-60) ramp(BED.cur,_od,_od>num(BED.cur.want,-90)+0.5?p.up:p.down); }   /* [DETAIL_R5_1101 규칙 4] 새 곡을 받는 동안 흐르는 곡도 지금 줄 크기로 */
     LPB.pend=f; want(f,function(b,ec){ if(!LPB.on||LPB.pend!==f) return; if(!b){ var q0=curStep(); if(q0&&q0.k===st.k) note('fail',ec); return; } var q=curStep(); if(!q||fileFor(q)!==f) return; if(LPB.note) note(''); play(f,lvOf(q,f),p.up,atOf(f,q)); LPB.f=f; });   /* [BED_LOAD_1101 ③] 못 받으면 한 줄 */   /* 곡이 늦게 오면 그때 깐다(나레이션을 기다리게 하지 않는다) */ }
   /* ★[LISTEN_PACE_1031 사장님 «BGM 이 흐르고 뜸 들인 이후 멘트»] 순간 첫 줄 앞 뜸 — 그 순간 곡을 큐 사이 크기(−8)로 깔고 3초(같은 곡이 이어지면 1.5초) ·
      끝 0.8초(미리 낮추기 leadMs) 동안 그 줄 크기로 내린다 · 돌려준 값 = 기다릴 ms · 곡이 없으면(공개 미리보기 · 드라이브에 없음) 0 = 뜸 없음 */

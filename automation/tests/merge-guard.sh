@@ -21932,4 +21932,9 @@ chk 'ldk:_cx.lvd})' order-preview.html 1
 chk 'cues\[m\].liveDuck = cues\[m\].live.duck;' assets/ritual-cue.js 1
 chk 'NO_RELIFT_1102' scripts/audit/no-relift.mjs 1
 chk "after-photo-loop guest-time no-relift" .github/workflows/merge-guard.yml 1
+# ★[SEAM_BG08 이음매 명세 BG08] 음악값 0 을 무음으로 읽지 않는다 — 크기 비교는 num(want,-90)(검사 = CI bgm-sound e 칸 seam-bg)
+chk 'SEAM_BG08' assets/bgm-bed.js 1
+nochk '(BED.cur.want||-90)' assets/bgm-bed.js
+chk 'BG08-T01' scripts/audit/seam-bg.mjs 1
+chk "no-relift seam-bg" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
