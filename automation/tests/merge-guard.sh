@@ -21620,7 +21620,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -22515,3 +22515,31 @@ chk '다른 기기에서 사진 선택이 바뀌었어요. 고른 컷을 다시 
 chk 'B2_MA_88' mypage.html 1                     # 대본에 담긴 글 = 빌더 전체 대본과 한 판정(summary.texts)
 chk 'B2_MA_88' order-preview.html 2
 chk 'function _scriptTexts' order-preview.html 1
+# ── 2026-11-06 [이음매 BG05 · BG06 · TX01 ~ TX04] 축배 행동 줄 음악 · 촬영 후 안내 뒤 M8L · 요약 · 설명 글(대본 승인)
+chk 'TOAST_LV_BG05' order-preview.html 1
+chk 'AFTER_HOLD_BG06' order-preview.html 1
+chk "stage:'_extra',after:true," order-preview.html 1
+chk '나레이션에 맞춰 서로 무도회 맞절을 하고 눈을 맞춰요' order-preview.html 1
+nochk '3초씩 숙이고' order-preview.html
+chk 'GUEST_SUM_5M_TX03' order-preview.html 1   # 실제 5분 전 큐가 있을 때 요약에(_g5 · B2_HOME_25)
+chk '개식 선언 뒤, 입장 전에 두 분이 준비한 영상을 상영해요' assets/ritual-open.js 1
+chk 'PV_AFTER_OPEN_TX02' order-preview.html 3
+nochk '예식 시작 시각에 두 분이 준비한 영상' assets/ritual-open.js
+chk '두 분과 하객이 자기 자리에서 잔을 들어요. 두 분이 먼저 «위하여»를 외치면 하객이 함께 화답해요.' assets/ritual-open.js 1
+chk '두 분과 하객이 자기 자리에서 잔을 들어요. 두 분이 먼저 «위하여»를 외치면 하객이 함께 화답해요.' order-preview.html 1
+nochk '하객은 자리에서 일어나 함께 잔을 들어요' order-preview.html
+nochk '하객은 자리에서 일어나 함께 잔을 들어요' assets/ritual-open.js
+# ── 2026-11-06 [이음매 AU01 · AU02] 쉼은 한 번만 — 시간 시점 6초 = 말끝 → 말머리(NarrPad 한 번) · 반지 → 선언은 연출과 일반 쉼 중 하나만
+chk 'MIN_GAP_PAD_AU01' order-preview.html 2
+nochk "_tgk='min'; _gap=Math.max(_gap,6000);" order-preview.html
+nochk "else if(_tgk==='min') _rp=Math.max(_rp,6000);" order-preview.html
+chk 'DECL_GAP_ONE_AU02' order-preview.html 2
+chk 'gn:!!c.gapNone,' order-preview.html 1
+chk 'MIN_GAP_PAD_AU01' scripts/audit/time-gap.mjs 2
+chk 'JUNCTION_SILENT_TX05' scripts/build-junctions.mjs 1   # [이음매 TX05] 소리 없는 사진 행동도 검토 판에
+chk '소리 없음 · 전체 단체 사진 · 현장 진행' docs/handoff/junctions.md 1
+nochk '기념 촬영을 모두 마쳤습니다' docs/handoff/junctions.md
+# ── 2026-11-06 [FLOW_DECL_ST12 대본 검수 ST12-01] 마이페이지 사진 준비 — 닫히지 않은 주석이 var flow 를 삼키지 않게
+chk 'FLOW_DECL_ST12' mypage.html 1
+chk 'FLOW_DECL_ST12' scripts/audit/photo-scene-flow.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/photo-scene-flow.mjs >/dev/null 2>&1; _psf=$?; if [ "$_psf" = 1 ]; then echo 'REVERT? photo-scene-flow: 사진 준비 장면 목록이 오류를 낸다 [FLOW_DECL_ST12]'; fail=1; else echo "ok photo-scene-flow ($_psf)"; fi; fi   # 2 = 브라우저 없음(재지 못함)
