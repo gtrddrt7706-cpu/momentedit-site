@@ -62,7 +62,7 @@ jobs:
   #   두 칸으로 나눠 다른 기계에서 나란히 돈다(소리 타이밍 검사가 한 기계에서 CPU 를 다투지 않게) · 새 브라우저 소리 검사는 짧은 쪽 칸에 더한다.
   bgm-sound:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30   # [CELL_TIMEOUT_30 2026-11-06] 칸 d · e 가 검사를 다 통과한 뒤 20분 한도에 걸려 취소됐다(#1586) — 검사가 늘어 한 칸이 18~20분
     strategy:
       fail-fast: false
       matrix:
