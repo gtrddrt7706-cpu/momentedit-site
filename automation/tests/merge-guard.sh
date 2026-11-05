@@ -22041,3 +22041,7 @@ chk 'MIN_GAP_PAD_AU01' scripts/audit/time-gap.mjs 2
 chk 'JUNCTION_SILENT_TX05' scripts/build-junctions.mjs 1   # [이음매 TX05] 소리 없는 사진 행동도 검토 판에
 chk '소리 없음 · 전체 단체 사진 · 현장 진행' docs/handoff/junctions.md 1
 nochk '기념 촬영을 모두 마쳤습니다' docs/handoff/junctions.md
+# ── 2026-11-06 [FLOW_DECL_ST12 대본 검수 ST12-01] 마이페이지 사진 준비 — 닫히지 않은 주석이 var flow 를 삼키지 않게
+chk 'FLOW_DECL_ST12' mypage.html 1
+chk 'FLOW_DECL_ST12' scripts/audit/photo-scene-flow.mjs 1
+node scripts/audit/photo-scene-flow.mjs >/dev/null 2>&1 || { echo "REVERT? photo-scene-flow: 사진 준비 장면 목록이 오류를 낸다 [FLOW_DECL_ST12]"; fail=1; }
