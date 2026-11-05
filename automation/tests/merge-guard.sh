@@ -22015,3 +22015,5 @@ chk "return '다음 · 본식 뒤 '+_post('_photo').n" order-preview.html 1
 nochk '<b>식후</b>' order-preview.html
 nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
+chk 'MATJEOL_PILL_R2' order-preview.html 1   # [MEANING_R2 · 2026-11-06] 맞절 = 정적 → 알약에 «음악과 함께» 없음(엔진 줄이 모두 정적이면)
+chk 'MATJEOL_PILL_R2' scripts/audit/entry-carry.mjs 1
