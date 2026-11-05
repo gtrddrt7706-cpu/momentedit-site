@@ -1566,7 +1566,7 @@ function cueAt(i){ return (R && (shown[i] || R.cues[i])) || null; }
 var castNow = null;                       // 지금 흐르는 배역 예시 클립(배지의 원천)
 var blkNow = '', blkFresh = false;        // 블록 머리말은 블록이 바뀌는 첫 큐에서만 띄운다
 function resetRun(){
-  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; RESCUED = []; TAKE_USED = {}; STALL = -1;   // [STALL_HOLD_CLOCK] 새로 시작하면 앞 판의 멈춤은 걷는다
+  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; RESCUED = []; TAKE_USED = {}; STALL = -1; MAN_HOLD = false;   // [STALL_HOLD_CLOCK] 새로 시작하면 앞 판의 멈춤은 걷는다
   castNow = null; blkNow = ''; blkFresh = false;
 }
 
@@ -1825,6 +1825,7 @@ function fire(i, opt){
   try { aNarr.onended = aNarr.onerror = aNarr.onloadedmetadata = null; if (!aNarr.paused) aNarr.pause(); } catch (e) {}
   aNarr._pg = (aNarr._pg || 0) + 1;   // [PLAY_GEN] 새 순서 — 앞 순서 소리의 늦은 결과는 버린다
   STALL = -1; conMark(i);   // [CON_STALL] · [CON_RELOAD_GUARD]
+  if (!opt.clock && typeof MAN_HOLD !== 'undefined') { if (MAN_HOLD && startAt) { var _now = Date.now(); for (var _k = 0; _k < R.cues.length; _k++) { var _ck = R.cues[_k]; if (_k !== i && _ck.fire === 'clock' && !fired[_k] && _ck.atMin != null && _now >= startAt + _ck.atMin * 60000) fired[_k] = true; } } MAN_HOLD = false; }   // [B2_NA_02] 디렉터가 낸 순서 = 손 대기 풂 · 지난 시각 안내 버림
   cur = i; fired[i] = true; GWHY = null;   // [GUEST_WHY] 새 순서 — 앞 판(다시 듣기 · 이전)의 까닭이 남지 않게
   var c = resolve(R.cues[i]);
   if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
@@ -2284,6 +2285,11 @@ function guestPrev(){
 }
 
 var PANIC_AT = null;
+/* ★[B2_NA_02 2026-11-06 BATCH2 나02 · B2-K09 사장님 결정] 전체 정지 · 뒤로 = 손 대기(MAN_HOLD) — 시각 안내(10 · 5 · 1분 전 · 개식)도 저절로 나가지 않는다 ·
+     풀리는 것은 디렉터가 순서를 직접 낼 때(fire · 시각이 낸 것 말고) · 새로 시작(resetRun)뿐 · 손으로 낼 때 이미 지난 시각 안내는 버린다(몰려 나가지 않게) ·
+     파일 오류 멈춤(STALL)과는 다른 상태로 둔다 · 끝난 판(end)에서는 시각 큐를 내지 않는다 ·
+     예식이 늦어 1분 전 안내가 개식과 겹치면 개식이 먼저 — 1분 전 안내는 건너뛴다(다음 시각 큐가 이미 왔거나 그 안내 길이 안에 오면) */
+var MAN_HOLD = false;
 function panic(){
   clearT();
   try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
@@ -2294,7 +2300,7 @@ function panic(){
   if (!_hush && !_hold) duckTo(PARAM.duckMusic, 600);   /* ★[B2_EUM06] 일부러 정적(−90)인 자리에서 멈추면 정적 그대로 — 다음 큐가 제 크기를 연다 · 사진 · 촬영 후 안내 · 추가 촬영 음악은 그 크기 그대로 · 끝내기 3초 페이드는 따로(■) */
   phase = 'done';
   render();
-  toast('전체 정지 — 다음 큐는 손으로 눌러야 나갑니다');
+  MAN_HOLD = true; toast('전체 정지 · 다음 순서는 직접 눌러 주세요.');   // [B2_NA_02] 손 대기가 보장된다(MAN_HOLD)
 }
 
 /* [BLESS_PER_SPEAKER] 다음 분께 마이크를 건넸다 — 시간을 새로 재고(ALT_CLIP 판정 · 진행 막대) 올렸던 음악을 내리고 신호를 다시 건다 */
@@ -2381,7 +2387,7 @@ $('#bBack').onclick = function(){
   cur = Math.max(-1, cur - 1);
   phase = cur < 0 ? 'idle' : 'done';
   render();
-  toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');
+  MAN_HOLD = true; toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');   // [B2_NA_02]
 };
 
 /* 큐 목록 시트 — 점프 + 보조 클립 */
@@ -2417,11 +2423,15 @@ var startAt = null;
 function tick(){
   var d = new Date();
   $('#bClock').textContent = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2) + ':' + ('0'+d.getSeconds()).slice(-2);
-  if (!R || !startAt || MODE === 'preview' || phase === 'clip' || phase === 'live' || STALL >= 0) return;   /* ★[STALL_HOLD_CLOCK 2026-10-30 GPT 6차 점검(당일 3) · VC_FIX6_1030] 소리가 멈춘 채면 시각 큐도 기다린다 — 풀리는 것은 디렉터가 순서를 직접 낼 때(fire · [뒤로] 뒤 다시 누름 포함)뿐 · 종전엔 개식 시각에 저절로 나가 복구 중에 끼어들었다 */
+  if (!R || !startAt || MODE === 'preview' || phase === 'clip' || phase === 'live' || STALL >= 0) return;
+  if ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) || phase === 'end') return;   // [B2_NA_02] 손 대기 · 끝난 판   /* ★[STALL_HOLD_CLOCK 2026-10-30 GPT 6차 점검(당일 3) · VC_FIX6_1030] 소리가 멈춘 채면 시각 큐도 기다린다 — 풀리는 것은 디렉터가 순서를 직접 낼 때(fire · [뒤로] 뒤 다시 누름 포함)뿐 · 종전엔 개식 시각에 저절로 나가 복구 중에 끼어들었다 */
   for (var i = 0; i < R.cues.length; i++) {
     var c = R.cues[i];
     if (c.fire !== 'clock' || fired[i] || c.atMin == null) continue;
-    if (d.getTime() >= startAt + c.atMin * 60000 && d.getTime() < startAt + (c.atMin * 60000) + 90000) { fire(i); break; }
+    if (d.getTime() >= startAt + c.atMin * 60000 && d.getTime() < startAt + (c.atMin * 60000) + 90000) {
+      var _nj = -1; for (var j = i + 1; j < R.cues.length; j++) { if (R.cues[j].fire === 'clock' && !fired[j] && R.cues[j].atMin != null && R.cues[j].atMin > c.atMin) { _nj = j; break; } }
+      if (_nj > -1 && d.getTime() + (c.est || 0) * 1000 >= startAt + R.cues[_nj].atMin * 60000) { fired[i] = true; continue; }   /* [B2_NA_02 · B2-K09] 다음 시각 큐(개식)와 겹치면 앞 안내를 건너뛴다 */
+      fire(i, { clock: true }); break; }
   }
 }
 setInterval(tick, 1000);

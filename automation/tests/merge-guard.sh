@@ -22045,7 +22045,7 @@ nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
 chk 'MATJEOL_PILL_R2' order-preview.html 1   # [MEANING_R2 · 2026-11-06] 맞절 = 정적 → 알약에 «음악과 함께» 없음(엔진 줄이 모두 정적이면)
 chk 'MATJEOL_PILL_R2' scripts/audit/entry-carry.mjs 1
-# ── 2026-11-06 [BATCH2 나01~37] 나레이션 구현 2차(나02 · 나28 결정 대기 · 나25 · 나33 1차와 겹침 · 나35 제외)
+# ── 2026-11-06 [BATCH2 나01~37] 나레이션 구현 2차(나02 = B2-K09 결정 반영 · 나28 결정 대기 · 나25 · 나33 1차와 겹침 · 나35 제외)
 chk 'B2_NA_01' assets/ritual-preview-link.js 3   # 미리듣기 주소에 고른 예시(narEx) · 테이블 수 · 덕담 수 · 호칭 코드
 chk 'var _nx = narExPick(S); if (_nx) o.narEx = _nx;' assets/ritual-preview-link.js 1
 chk 'function _prAtSig(k)' order-preview.html 1   # [B2_NA_03] 이어서 연습 = 순간 줄 구성 지문
@@ -22108,3 +22108,8 @@ chk '안내 음성이 끝나면 마이크를 받아 주세요. 반주에 맞춰 
 chk '초에 불을 밝혀 주세요.' order-preview.html 1
 chk 'function _narExLen(ek,n)' order-preview.html 1   # [B2_NA_34]
 chk 'B2_NA_36' order-preview.html 1   # 확인창이 열리면 포커스는 창 안
+chk 'MAN_HOLD = true;' console.html 2   # [B2_NA_02] 전체 정지 · 뒤로 = 손 대기 — 시각 안내도 멈춤
+chk "if ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) || phase === 'end') return;" console.html 1
+chk 'B2-K09' console.html 2   # 늦은 날 1분 전 안내와 개식이 겹치면 개식이 먼저(1분 전 건너뜀)
+chk "fire(i, { clock: true }); break; }" console.html 1
+nochk '전체 정지 — 다음 큐는 손으로 눌러야 나갑니다' console.html
