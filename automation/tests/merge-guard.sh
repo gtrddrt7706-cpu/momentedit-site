@@ -12328,7 +12328,7 @@ chk 'heard_ok' 'docs/plans/식순연구/parents-letter-대기.json' 1
 nochk '자리마다 차례로 찾아뵙겠습니다' assets/ritual-data.js
 nochk '이십 분쯤 걸리니' assets/ritual-data.js
 #   ② 사장님이 «남기고»라고 짚으신 두 문장은 반드시 살아 있어야 한다
-chk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js 1
+# [CREW_WORD_OFF_1106 대본 11/06 «나레이션 작가님 없음»] 옛 핀(이 문장을 남긴다)은 걷었다 — 아래 nochk 가 되살림을 막는다
 chk '앉으신 채로 편히 맞아 주시면 됩니다' assets/ritual-data.js 1
 #   ③ 가운데 안내 클립 폐지 — 파일·번호는 남기고 RETIRED 로만 끈다(SONG_RETIRED 와 같은 처방)
 chk "'narr-round-mid': 1" assets/ritual-cue.js 1
@@ -22613,4 +22613,9 @@ nochk '총액과 들이는 수고를 줄여 드립니다' assets/advisor-kb.js
 nochk '예식 150일 이후 취소 시' assets/advisor-kb.js
 nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분)' api/schedule-advisor.js
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
+chk 'VIDEO_IN_40_NI12' assets/ritual-open.js 1   # [이음매 NI12] 식전 영상 몫은 40분 안(본식 시간에 한 번)
+nochk '(3분 안 · 두 분은 문 밖에서 대기)' assets/ritual-cue.js   # [NI12] «3분 안»은 길이 제한처럼 읽혀 뺐다
+chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
+nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
+nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
