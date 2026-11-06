@@ -1661,7 +1661,7 @@ details.env-acc-item[open] .env-acc-plus{
    ★var(--safe-top) 은 그대로 둔다 — 노치 보정은 이 값과 별개다. */
 </style>
 <script src="/shared/venue.js?v=20260529a"></script>
-<script src="/shared/hydrate.js?v=20261106a" defer></script>
+<script src="/shared/hydrate.js?v=20261106b" defer></script>
 <script src="/shared/gv-back.js?v=20260804" defer></script>
 <style>body{opacity:0;transition:opacity .5s ease}body.couple-ready{opacity:1}
 /* [CUE_ONE] 스크롤 큐 8종 통일 (2026-08-03 사용자 "1번 청첩장이랑 다른데 연속성 있게 통일하자")
@@ -2012,8 +2012,8 @@ details.env-acc-item[open] .env-acc-plus{
         </div>
         <div class="venue-meta-row venue-meta-arrival">
           <dt>Arrival · 도착 안내</dt>
-          <dd>본예식 <span class="em">20분 전</span>부터 내빈 입장이 시작됩니다.<br>
-              대기 공간이 없으니, 입장 시간에 맞춰 도착 부탁드립니다.</dd>
+          <dd>하객 입장 <span class="em">{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}<br>
+              대기 공간이 없어 입장 시각에 맞춰 와 주세요.</dd><!-- [ENTRY_TIME_1106 대본 4차 G12] 하객이 20분을 셈하지 않게 두 시각 -->
         </div>
       </dl>
     </div>

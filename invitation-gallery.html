@@ -449,7 +449,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     <span class="gv-ver-sep" aria-hidden="true">·</span>
     <button type="button" class="gv-ver-b" id="gv-ver-off" aria-pressed="false">오프라인</button>
   </div>
-  <div class="gv-ver-cap" id="gv-ver-cap" aria-live="polite">링크로 보내는 판 · 모바일 참석 포함</div>
+  <div class="gv-ver-cap" id="gv-ver-cap" aria-live="polite">링크로 보내는 판 · 디지털 참석 포함</div>
   <div class="gv-verinfo" id="gv-verinfo"></div>   <!-- [GV_INFO] 안내 카드일 때 토글 자리를 대신 쓴다 -->
 </div>
 <main class="gv-main">
@@ -547,9 +547,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     /* [GALLERY_LIVE] 온라인 판의 부가 화면 — 오프라인엔 '하객 안내'가 있는데 온라인 쪽 라이브는
        Enter를 눌러 새 탭으로 나가야만 볼 수 있었다(2026-08-02 사용자 지적 "설명이 한쪽만 있다").
        ★순서: 두 판 설명 → 온라인 부가 → 오프라인 부가. 위 토글(온라인·오프라인)과 같은 왼→오 차례. */
-    {name:'모바일 참석', src:'live.html?e=test-couple', bg:'#FAFAF8', dig:true,
-     info:{eyebrow:'Online', title:'모바일 참석',
-       lines:['온라인 청첩장 안의 <i>Enter</i>를 누르면 열리는 화면입니다.',
+    {name:'디지털 참석', src:'live.html?e=test-couple', bg:'#FAFAF8', dig:true,   /* [DIGITAL_NAME_1106 대본 4차 H19] live.html · 홈과 같은 이름 · 줄임 «모바일 참석» 쓰지 않음 */
+     info:{eyebrow:'Online', title:'디지털 참석',
+       lines:['온라인 청첩장 안의 <i>온라인으로 함께하기</i>를 누르면 열리는 화면입니다.',   /* [JOIN_KO_1106] 단추 이름과 같게 */
               '오지 못한 분도 예식을 실시간으로 보실 수 있고,',
               '광고도 접속자 목록도 없이 편지만 조용히 남습니다.']}},
     {name:'하객 안내', src:'guide.html?g=demo', bg:'#FAFAF8', live:true,
@@ -1009,7 +1009,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     if (offB) offB.setAttribute('aria-pressed', v==='off' ? 'true' : 'false');
     var cap = document.getElementById('gv-ver-cap');
     if (cap) cap.textContent = v==='on'
-      ? '링크로 보내는 판 · 모바일 참석 포함'
+      ? '링크로 보내는 판 · 디지털 참석 포함'
       : '직접 모시는 분께 · 하객 안내 버튼이 안에 있어요';
     loadIframe(idx); loadIframe(idx-1); loadIframe(idx+1);
     openNew.href = srcFor(idx);
