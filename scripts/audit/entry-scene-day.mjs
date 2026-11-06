@@ -66,7 +66,7 @@ try {
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
     const A = await st(pg);
     ok('1a 미리 받기 — 초안의 곡 id 로 받아 «입장 음악 · ✓ ‹시험 곡› · 0:40 하이라이트 · 받아 둠»', A.st === 'ok' && A.sg && gets.includes(FID) && A.rf === '✓ ‹시험 곡› · 0:40 하이라이트 · 받아 둠' + SHORT, { A, gets });   /* [BGM_SEG8_1023 ENTRY_SHORT] 시험 곡은 하이라이트 뒤 110초(< 180) — «곡 길이 모자람 · 맞절은 피아노로» */
-    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
+    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().n > 0, null, { timeout: 30000 }).catch(() => {});   /* [GAP_ENTRY_1106] 큐(R)는 시작 뒤 조금 늦게 선다 · 대사 준비(v0)와 큐 둘 다 기다린다 */
     const I = await idxOf(pg), B0 = await st(pg);
     VP_NAR = B0.vp;
     ok('1b 시작하면 입장 대사(나레이션)를 미리 풀어 둔다 · 입장 큐가 있다 · 대사 조각 둘 이상', B0.v0 && I.e >= 0 && B0.vp >= 2, { I, v0: B0.v0, vp: B0.vp });
@@ -76,8 +76,8 @@ try {
     ok('2 입장 GO — 장면(곡 · 대사 Web Audio) · 계획 = 식순 화면과 같은 식(앞 10초 [ENTRY_BGM_1019] · 마지막 말 끝 + 0.3초 = 0:40 · 곡은 그만큼 앞에서) · 배경음 -90 · 이름표 «입장 음악 · 시험 곡»',
       B.run && B.ri === I.e && B.phase === 'clip' && pl.tv === 10 && pl.tm === 0 && Math.abs(pl.th - (10 + pl.V + 0.3)) < 0.001 && Math.abs(pl.off - (40 - pl.V - 0.3 - 10)) < 0.001 && pl.H === 40 && B.duck === -90 && B.ac === 'running' && B.tags.includes('입장 음악 · 시험 곡'), B);
     const CALL2 = await pg.evaluate(() => window.EntryScene && EntryScene.SP.call);
-    ok(`2b [ENTRY_CALL_PAUSE_1013] 대사는 «입장!» 앞에서 둘로 끊어 건다(마디 ${B.vsn}) — 녹음 쉼 ${B.cut ? B.cut.was.toFixed(2) : '?'}초 → ${CALL2}초 · 대사가 그만큼 길어져 큐도 그 뒤에 넘어간다(식순 화면과 같은 자리)`,
-      CALL2 === 1.8 && B.vsn === 2 && !!B.cut && Math.abs(B.cut.was + B.cut.add - CALL2) < 0.01 && B.cut.add > 0.2, { vsn: B.vsn, cut: B.cut, V: pl.V, CALL2 });
+    ok(`2b [ENTRY_CALL_PAUSE_1013] 대사 «입장!» 앞 쉼 — ${B.cut ? '녹음 쉼 ' + B.cut.was.toFixed(2) + '초 → ' + CALL2 + '초로 늘려 둘로 끊어 건다(마디 ' + B.vsn + ') · 대사가 그만큼 길어져 큐도 그 뒤에 넘어간다' : '녹음 쉼이 ' + CALL2 + '초 이상이라 끊지 않는다(마디 ' + B.vsn + ' · 쉼 = 녹음 값)'}(식순 화면과 같은 자리)`,
+      CALL2 === 1.8 && ((B.vsn === 2 && !!B.cut && Math.abs(B.cut.was + B.cut.add - CALL2) < 0.01 && B.cut.add > 0) || (B.vsn === 1 && !B.cut && B.vp >= 2)),   /* ★[GAP_ENTRY_1106] 녹음 구호 앞 쉼이 SP.call 이상이면 끊지 않음(마디 1) · 짧으면 1.8 로 늘려 마디 2 — 엔진 SP.call 은 그대로 · «입장!»을 짚었는지는 entry-call-pause 나가 잰다 */ { vsn: B.vsn, cut: B.cut, V: pl.V, CALL2 });
     const wait = Math.ceil((pl.tv + pl.V) * 1000) + 1500;
     await pg.waitForTimeout(wait);
     const C = await st(pg);
@@ -130,7 +130,7 @@ try {
     const S0 = Object.assign(JSON.parse(J(S_OK)), { guestVoice: 'couple', entryVoice: 'couple' });
     const { ctx, pg, errs } = await open(S0, '');
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
-    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
+    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().n > 0, null, { timeout: 30000 }).catch(() => {});   /* [GAP_ENTRY_1106] 큐(R)는 시작 뒤 조금 늦게 선다 · 대사 준비(v0)와 큐 둘 다 기다린다 */
     const I = await idxOf(pg), seen = [], V8 = await st(pg);
     ok('8a 두 분 목소리 자리인데 파일을 못 받으면(스튜디오 나레이션이 나간다) 대사 조각도 나레이션 판과 같게 — 두 분 글로 세면 «마지막 말 앞 낮추기»가 한 문장 일찍 온다',
       V8.v0 && VP_NAR != null && V8.vp === VP_NAR, { vp: V8.vp, VP_NAR });
@@ -151,7 +151,7 @@ try {
     const { ctx, pg, errs, gets } = await open(S0, '');
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
     const A = await st(pg);
-    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
+    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().n > 0, null, { timeout: 30000 }).catch(() => {});   /* [GAP_ENTRY_1106] 큐(R)는 시작 뒤 조금 늦게 선다 · 대사 준비(v0)와 큐 둘 다 기다린다 */
     const I = await idxOf(pg); await fireAt(pg, I.e); await pg.waitForTimeout(400);
     const B = await st(pg);
     ok('9 추천 곡 — rec:r1 로 받아 «✓ ‹Popcorn› · 0:40 하이라이트 · 받아 둠» · 입장 GO 장면 · 이름표 «입장 음악 · Popcorn» · 쪽 오류 없음',
@@ -163,7 +163,7 @@ try {
     const S0 = { course: 'open', entry: 'A', entryVoice: 'nar', mu: { src: 'rec', k: 'r1', t: 'Popcorn', a: '도경수', dur: 150, hook: 8, hooks: [8, 60] } };
     const { ctx, pg, errs } = await open(S0, '');
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
-    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0, null, { timeout: 30000 }).catch(() => {});
+    await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().n > 0, null, { timeout: 30000 }).catch(() => {});   /* [GAP_ENTRY_1106] 큐(R)는 시작 뒤 조금 늦게 선다 · 대사 준비(v0)와 큐 둘 다 기다린다 */
     const I = await idxOf(pg); await fireAt(pg, I.e); await pg.waitForTimeout(400);
     const B = await st(pg), pl = B.pl || {};
     ok(`10 [BGM_FIRST_1013] 멘트(${(pl.V || 0).toFixed(1)}초)가 고른 자리(8초)보다 길면 뒤 자리 60초에 문 열림 · 음악이 10초 먼저(tv 10 · tm 0 [ENTRY_BGM_1019]) — 식순 화면과 같은 후보(S.mu.hooks)`,
