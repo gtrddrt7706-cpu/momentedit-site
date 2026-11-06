@@ -21975,6 +21975,12 @@ chk 'GPT_R1_NOMUS' assets/bgm-bed.js 2
 chk 'GPT_R1_LONG' assets/bgm-bed.js 1
 chk '여러 연주곡이 차례로 이어져요' assets/bgm-bed.js 1
 chk 'GPT_R1_CANDLE' assets/ritual-cue.js 3
+chk 'REG_P17' assets/bgm-bed.js 8           # [REG_P17] 멈춘 동안 «음악 켜기» = 보류된 켜기만 · 이어 들을 때 지금 줄 곡 · 저장 위치 · 줄 크기 0.6초 · 무음 줄은 그대로 · 끄기 · 끝내기 · 새 시작은 지움
+chk 'function pzNow' assets/bgm-bed.js 1
+chk 'function holdGo' assets/bgm-bed.js 1
+chk 'T01 멈춘 동안 lpShow' scripts/audit/reg-p17.mjs 1
+chk 'T04 대조' scripts/audit/reg-p17.mjs 1
+chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
 chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1
