@@ -5,7 +5,7 @@
    2 입장 큐 GO — 장면이 돈다(곡 · 대사 Web Audio) · 계획 = 식순 화면과 같은 식(entry-scene.js · 앞 10초 [ENTRY_BGM_1019] · 마지막 말 끝 + 0.3초 = 0:40) · 배경음은 내려 둔다(-90)
      · 큐 이름표 «입장 음악 · ‹곡›»
    3 대사가 끝나면 큐가 넘어간다(뒤처리 · 걸음) — 곡은 계속 크게 · 배경음은 여전히 내려 둔 채(뒤처리의 «음악 크게»도 곡 쪽 일이다)
-   4 같은 입장 묶음의 다음 큐(맞절) — 곡은 이어서 그 큐의 덕 값(-12dB)으로 낮게 · 배경음은 그대로 내려 둔 채
+   4 같은 입장 묶음의 다음 큐(맞절) — 엔진 −90(ENTRY_SETTLE · «맞절 조용히») · 곡은 이어서 그 큐 덕 값으로 잦아들어 정적 · 배경음은 그대로 내려 둔 채
    5 다음 묶음 GO — 장면이 끝나고(곡 4초에 걸쳐 잦아듦) 배경음이 그 큐 값으로 돌아온다
    6 곡이 없으면(초안에 곡 id 없음 · 목록에도 없음) «파일 없음 · 배경음으로 나감» · 입장 GO 는 종전 길(나레이션 소리 요소)
    7 곡을 못 받으면 «받지 못함 · 배경음으로 나감 · … (코드 L0)» + «다시 받기» · 입장 GO 는 종전 길 · 쪽 오류 없음
@@ -37,8 +37,8 @@ function wav(sec, hook) { const sr = 22050, n = sr * sec, b = Buffer.alloc(44 + 
 const SHORT = ' · 곡 길이 모자람 · 곡이 끝나면 피아노가 이어요';   // [BGM_SEG8_1023 ENTRY_SHORT] 150초 곡 · 하이라이트 40초 → 뒤 110초
 const SONG = wav(150, 40), FID = 'SONGID0123456789abcd';
 const S_OK = { course: 'open', entry: 'A', entryVoice: 'nar', mu: { src: 'up', name: 'song-day', t: '시험 곡', a: '', dur: 150, hook: 40, typed: null, sid: 'x1', fid: FID } };
-async function open(S0, mode) {
-  const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+async function open(S0, mode, W) {
+  const ctx = await br.newContext({ viewport: { width: W || 1280, height: 900 } }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.addInitScript(() => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; });
   const gets = [];
   await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
@@ -84,8 +84,9 @@ try {
     ok(`3 대사가 끝나면(약 ${Math.round(pl.tv + pl.V)}초) 큐가 넘어간다(뒤처리 · 걸음) — 곡은 계속 · 배경음은 여전히 -90`, C.run && (C.phase === 'live' || C.phase === 'post') && C.duck === -90, C);
     if (I.bow > 0) {
       await fireAt(pg, I.bow); await pg.waitForTimeout(1200);
-      const D = await st(pg);
-      ok('4 같은 입장 묶음의 다음 큐(맞절) — 곡은 이어서 그 큐 덕 값(-12dB ≈ 0.25)으로 낮게 · 배경음은 -90', D.run && D.cur === I.bow && Math.abs(D.dk - Math.pow(10, -12 / 20)) < 0.03 && D.duck === -90, D);
+      const D = await st(pg); await pg.waitForTimeout(5000); const D2 = await st(pg);
+      const bowDk = await pg.evaluate((i) => { const c = (window.__bgmR ? window.__bgmR() : [])[i]; return c ? c.duck : null; }, I.bow);   /* ★[ENTRY_SETTLE · MEANING_R2_1102 사장님 확정 «맞절 조용히»] 엔진 맞절 큐 = −90 — 검사 기대만 고쳤다(엔진 회귀 아님 · ESD_DAY_1106) */
+      ok('4 같은 입장 묶음의 다음 큐(맞절) — 엔진 맞절 큐 −90(ENTRY_SETTLE) · 곡은 이어서 그 큐 덕 값으로 잦아들어 정적 · 배경음은 -90', bowDk === -90 && D.run && D.cur === I.bow && D.dk < Math.pow(10, -12 / 20) && D2.dk < 0.01 && D.duck === -90, { bowDk, D: { dk: D.dk, cur: D.cur, run: D.run }, D2: { dk: D2.dk } });
     } else ok('4 (이 코스엔 같은 입장 묶음의 다음 큐가 없다 — 건너뜀)', true);
     /* ★[ENTRY_UNDER_1101] 입장 묶음의 나머지 큐(받는 말 · 맞절 · 이음말 b8)마다 입장 곡이 그대로 흐른다 — 다음 묶음 GO 전까지 끊기지 않는다 */
     if (I.bow > 0 && I.next > I.bow + 1) { const rest = [];
@@ -126,9 +127,9 @@ try {
   // 8 — 갈래 칩(나레이션 · 두 분 녹음 · 당일 직접)은 줄마다 하나 · 입장 줄만 «입장 음악» 칩이 하나 더.
   //   첫 판은 입장 음악 칩을 갈래 칩 사슬(if · else if · else) 한가운데 끼워, 두 분 목소리 줄(하객 맞이 등)에 «나레이션»이 겹쳐 붙었다.
   //   1~7 의 초안은 두 분 목소리 줄이 없어(entryVoice nar · guestVoice 없음) 못 잡았다 — 그래서 하객 맞이 · 입장을 두 분 목소리로 둔 초안으로 한 줄씩 누른다.
-  {
+  for (const W8 of [1280, 390, 360]) {   /* [ESD_DAY_1106] 폰 폭(390 · 360)에서도 실제로 그려지는가 — 칩이 화면 안 · 한 줄 */
     const S0 = Object.assign(JSON.parse(J(S_OK)), { guestVoice: 'couple', entryVoice: 'couple' });
-    const { ctx, pg, errs } = await open(S0, '');
+    const { ctx, pg, errs } = await open(S0, '', W8);
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 30000 }).catch(() => {});
     await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().n > 0, null, { timeout: 30000 }).catch(() => {});   /* [GAP_ENTRY_1106] 큐(R)는 시작 뒤 조금 늦게 선다 · 대사 준비(v0)와 큐 둘 다 기다린다 */
     const I = await idxOf(pg), seen = [], V8 = await st(pg);
@@ -137,11 +138,13 @@ try {
     for (let i = 0; I.e > 0 && i <= I.e; i++) { await fireAt(pg, i); await pg.waitForTimeout(150);
       const t = await pg.evaluate(() => { const ps = [...document.querySelectorAll('#nTag .pill')];
         const lines = ps.map((x) => { const r = document.createRange(); r.selectNodeContents(x); return r.getClientRects().length; });   // 알약 안 글의 줄 수(꺾이면 2 이상) — 높이 비교는 «모두 똑같이 꺾인» 판을 못 잡는다
-        return { vk: document.querySelectorAll('#nTag .pill.vk').length, mu: document.querySelectorAll('#nTag .pill.mu').length, all: ps.map((x) => x.textContent), wrap: Math.max(0, ...lines) }; });
+        const out = ps.filter((x) => { const b = x.getBoundingClientRect(); return !(b.width > 0 && b.height > 0 && b.left >= 0 && b.right <= window.innerWidth + 0.5); }).length;   // 화면 밖 · 안 그려진 알약
+        return { vk: document.querySelectorAll('#nTag .pill.vk').length, mu: document.querySelectorAll('#nTag .pill.mu').length, all: ps.map((x) => x.textContent), wrap: Math.max(0, ...lines), out, sx: document.documentElement.scrollWidth > window.innerWidth + 1 }; });
       if (t.vk) seen.push(Object.assign({ i }, t)); }   // 칩을 안 그리는 단계(«다음 순서로» 대기)는 세지 않는다
-    const bad = seen.filter((t) => (t.i < I.e ? (t.vk !== 1 || t.mu !== 0) : (t.vk !== 2 || t.mu !== 1)) || t.wrap > 1);   // [PILL_WRAP] 알약 안 글은 한 줄
+    const bad = seen.filter((t) => (t.i < I.e ? (t.vk !== 1 || t.mu !== 0) : (t.vk !== 2 || t.mu !== 1)) || t.wrap > 1 || t.out > 0);   // [PILL_WRAP] 알약 안 글은 한 줄
     const couple = seen.filter((t) => t.i < I.e && t.all.includes('두 분 목소리 없음 · 나레이션으로')).length;
-    ok('8 갈래 칩은 줄마다 하나(두 분 목소리 줄 포함) · 입장 줄만 «입장 음악 · 시험 곡» 칩이 하나 더 · 알약 안 글이 한 줄(PILL_WRAP) · 쪽 오류 없음',
+    if (W8 !== 1280) { const sh = path.join(require('os').tmpdir(), 'esd-day-' + W8 + '.png'); try { await pg.screenshot({ path: sh }); console.log('   화면 ' + W8 + ' → ' + sh); } catch (e) {} }
+    ok((W8 === 1280 ? '8' : '8w ' + W8 + 'px') + ' 갈래 칩은 줄마다 하나(두 분 목소리 줄 포함) · 입장 줄만 «입장 음악 · 시험 곡» 칩이 하나 더 · 알약 안 글이 한 줄(PILL_WRAP) · 쪽 오류 없음' + (W8 === 1280 ? '' : ' · 칩이 화면 안'),
       I.e > 0 && couple >= 1 && seen.some((t) => t.i === I.e && t.all.includes('입장 음악 · 시험 곡')) && !bad.length && errs.length === 0, { e: I.e, couple, bad, last: seen.slice(-2), errs });
     await ctx.close();
   }
