@@ -68,9 +68,12 @@ console.log('\n[8조⑤ 변경을 통한 회피 — 미루고 취소해도 그�
 
   const 미룬뒤 = quoteAt(300, withHist(hist(19, 0)));      // D-19(40%)에서 미룸
   const 그때취소 = quoteAt(19, base);                       // 미루지 않고 그때 취소했다면
-  ok(Number(미룬뒤.refund) === Number(그때취소.refund),
-    '미루고 취소해도 그때 구간이 유지된다(8조⑤) [CHANGE_RATCHET]',
-    `미룬 뒤 ${미룬뒤.refund} vs 그때 ${그때취소.refund}`);
+  /* ★[CHANGE_FEE_CREDIT 2026-11-06] 8조① «이미 지급한 변경 수수료는 … 위약금에 충당» — 구간 · 위약금은 그때와 같고(8조⑤),
+     환불은 그때 환불 + 받은 수수료 충당분(위약금 한도)이다. 고객이 실제로 낸 돈 기준으로는 그때 취소와 같다(같은 사유로 중복 부담 없음). */
+  const _fc = Math.min(330000, Number(미룬뒤.penalty) || 0);
+  ok(미룬뒤.rate === 그때취소.rate && Number(미룬뒤.penalty) === Number(그때취소.penalty) && Number(미룬뒤.feeCredit) === _fc && Number(미룬뒤.refund) === Number(그때취소.refund) + _fc,
+    '미루고 취소해도 그때 구간이 유지된다(8조⑤) · 받은 변경 수수료는 위약금에 충당(8조①) [CHANGE_RATCHET · CHANGE_FEE_CREDIT]',
+    `미룬 뒤 ${미룬뒤.refund}(충당 ${미룬뒤.feeCredit}) vs 그때 ${그때취소.refund} · 구간 ${미룬뒤.rate}/${그때취소.rate}`);
   ok(/8조⑤/.test(String(미룬뒤.rule || '')), '적용 근거가 문구에 남는다', String(미룬뒤.rule));
 
   const 무상에서미룸 = quoteAt(400, withHist(hist(300, 0)));   // 무상 구간(D-300)에서 미룬 것은 하한 없음
