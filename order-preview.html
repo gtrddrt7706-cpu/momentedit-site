@@ -10883,7 +10883,7 @@ function renderDone(){
   if(typeof TXCONF==='object') h+=_txConfBox(Object.keys(TXCONF));   /* [B2_NA_11] 부딪힌 두 글은 ④ 에서도 */
   if(_doneChg&&!_saveErr&&!_doneSaved) h+='<div class="save-err" role="status">저장은 끝났어요. 그동안 고친 내용은 다시 저장해 주세요.</div>';   /* [B2_NA_09] */
   if(_saveErr) h+='<div class="save-err" role="alert"><b>'+(/\(코드 S5\)/.test(_saveErr)?'저장됐는지 아직 몰라요':'저장이 안 됐어요')+'</b>'+esc(_saveErr)   /* [ERR_CODE_BUILDER] S5(답이 늦음)는 «안 됐어요»가 아니다 */
-    +((_saveErr===SAVE_LOCAL_FAIL||_saveErr===SAVE_LOCAL_NEWER)?'</div>':/너무 길어요|글이 많아/.test(_saveErr)?'<span>'+_keepHere()+' · 글을 줄인 뒤 다시 저장해 주세요.</span></div>':_isSess(_saveErr)?'<span>'+_keepHere()+' · 아래 <b>로그인하기</b>를 눌러 다시 로그인해 주세요.</span></div>':'<span>'+_keepHere()+' · 아래 <b>다시 저장하기</b>를 눌러 주세요.</span></div>');   /* [RELOGIN_BTN] 로그인 풀림(S8)은 다시 저장해도 같다 */   /* ★[LONG_NO_RETRY 2026-10-09 A~Z 점검 2라운드 A2-15] 글이 길어 거절된 것은 다시 눌러도 같다 — «다시 저장하기»를 권하지 않는다 */
+    +((_saveErr===SAVE_LOCAL_FAIL||_saveErr===SAVE_LOCAL_NEWER)?'</div>':/너무 길어요|글이 많아/.test(_saveErr)?'<span>'+_keepHere()+' · 글을 줄인 뒤 다시 저장해 주세요.</span>'+_longTxBtn()+'</div>':_isSess(_saveErr)?'<span>'+_keepHere()+' · 아래 <b>로그인하기</b>를 눌러 다시 로그인해 주세요.</span></div>':'<span>'+_keepHere()+' · 아래 <b>다시 저장하기</b>를 눌러 주세요.</span></div>');   /* [RELOGIN_BTN] 로그인 풀림(S8)은 다시 저장해도 같다 */   /* ★[LONG_NO_RETRY 2026-10-09 A~Z 점검 2라운드 A2-15] 글이 길어 거절된 것은 다시 눌러도 같다 — «다시 저장하기»를 권하지 않는다 */
   /* [PREVIEW_LINK_V1] 완성 직후가 가장 듣고 싶은 순간이다 — 방금 고른 순서를 소리로 확인한다.
      ★주소는 assets/ritual-preview-link.js 가 조립한다. 여기서 직접 만들지 말 것 —
        고객이 쓴 글(서약문·편지·첫인사)을 주소에 싣지 않는 규칙이 그 파일 한 곳에 있다.
@@ -11428,6 +11428,10 @@ var _editT=0, _editK=null, _editE=0;   // [RELOGIN_NEWER] 이 탭의 마지막 �
 /* ★[PERSIST_TRUE 2026-10-09 A~Z 점검 2라운드 A2-16] 이 기기에 남기지 못했으면(저장 공간 가득 · 막힘) 나가기 판이 «이 기기에는 남아 있어요»라고 약속하지 않는다 */
 var _persistBad=false;
 function _keepLine(){ return _persistBad?'저장하지 않으면 이 기기에도 남지 않아요':'저장하지 않아도 고르신 내용은 이 기기에는 남아 있어요'; }
+/* ★[B2_FIX_GEUL_16 2026-11-06 재검증 재수정] 글이 많아 저장이 거절되면(S0) 원고가 있는 자리로 돌아가는 단추 한 줄 — 가장 긴 원고의 순간(editStep · 고친 뒤 ④ 로 돌아온다).
+   «한눈에 보기로 이동하기» 단추는 되살리지 않는다([DONE_NO_SUM_LINK]) — 이 단추는 거절 상자 안에서만 · 원고 칸 하나로 간다. 새 코스(isOpen)에서만 · 글이 없으면 단추도 없다 */
+function _longTxBtn(){ try{ if(!isOpen()) return ''; var best='', bn=0; _lRows().forEach(function(k){ if(!_mkKinds(k).length) return; var n=0; TX_WHO.forEach(function(w){ n+=String((S.tx||{})[k+'.'+w[0]]||'').length; }); if(n>bn){ bn=n; best=k; } });
+  return best?'<button type="button" class="ls-back" style="display:block;margin-top:6px" onclick="editStep(\''+best+'\')">가장 긴 원고로 가기 · '+esc(_lName(best))+'</button>':''; }catch(e){ return ''; } }
 function _keepHere(){ return _persistBad?'이 기기에도 남기지 못했어요':'고르신 내용은 이 기기에 그대로 있어요'; }   // [PERSIST_TRUE] 실패 판 · 알림의 같은 약속도   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '') · [LOCAL_AHEAD] base · dirty   // ORDER_OWNER: who=초안 소유 계정(개인코드 · 독립 열람은 '')
 /* ★★[ORD_AUTOSAVE 2026-08-12 사용자 지시 "저장후 나가기 말고 그냥 나가기는없어?"]
    ★고친 것은 버튼이 아니라 **구조**다. 지금까지 서버 저장 갈래는 둘뿐이었다 —
@@ -11942,7 +11946,7 @@ window.ME_ADV_PAGE={
   hideOn:function(){ return !!document.getElementById('ob_rpViewer'); }   // [PREVIEW_LINK_V1] 미리듣기 중엔 숨김 — 소리를 듣는 자리라 말 걸 자리가 아니다(한 화면 한 상담사 · mypage 와 같은 판단)
 };
 </script>
-<script src="/assets/ritual-preview-link.js?v=1106na"></script>
+<script src="/assets/ritual-preview-link.js?v=1106p4"></script>
 <script src="/assets/advisor-widget.js"></script>
 </body>
 </html>
