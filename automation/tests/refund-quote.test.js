@@ -54,6 +54,8 @@ const code = [
   stageExLine,
   extractVarObject(SRC_JOURNEY, 'FITTING_CONSENT'),
   extractVarObject(SRC_JOURNEY, 'PAYMENT'),
+  extractVarObject(SRC_JOURNEY, 'CONTRACT'),
+  extractVarObject(SRC_JOURNEY, 'REFUND_TERMS_SAME'),   // [REFUND_TERMS_SAME · REFUND_REVIEW_1106]
   extractFunction(SRC_JOURNEY, '_parseJsonSafe'),
   extractFunction(SRC_JOURNEY, '_balanceDueLabel'),
   extractFunction(SRC_JOURNEY, '_midDueLabel'),
@@ -181,6 +183,42 @@ ctx.findRowByPersonalCode = () => null;
   const _sq2 = ctx._refundQuote(row({ 상품타입: '웨딩스냅', 계약상태: '서명완료', 계약총액: 600000,
     예식일: addDays(ASOF, 5), 계약서명일시: '2026-01-01 10:00', 입금상태: '확인', 잔금상태: '확인' }), ASOF);
   check('스냅 촬영 5일 전 완납 → 50%·60만−30만 환급', _sq2 && _sq2.rate === 0.5 && _sq2.refund === 300000);
+}
+
+// ★[REFUND_REVIEW_1106 2026-11-06 대본 지시 3 · L11 · L14 · L20] 예외는 단정하지 않고 review(«확인 필요 — 사장님 확정»)
+{
+  const CUR = ctx.CONTRACT.docVersion, SCUR = ctx.CONTRACT.snapDocVersion;
+  const sig = (rec, extra) => row(signedBase(Object.assign({ 동의기록: JSON.stringify(Object.assign({ 시착: { 벌수: 2, 예약금: 100000, 추가벌비용: 50000 }, 계약: { docVersion: CUR } }, rec || {})) }, extra || {})));
+  let r = ctx._refundQuote(sig(null, { 예식일: addDays(ASOF, 100) }), ASOF);
+  check('[REVIEW] 지금 판 서명 · 예외 없음 → review 빈 목록', Array.isArray(r.review) && r.review.length === 0, JSON.stringify(r.review));
+  r = ctx._refundQuote(sig({ 계약: { docVersion: 'v1.7' } }, { 예식일: addDays(ASOF, 100) }), ASOF);
+  check('[L20] 환불 조항이 다른 옛 판(v1.7) → 확인 필요', r.review.some((x) => /옛 판\(v1\.7\)/.test(x)), JSON.stringify(r.review));
+  r = ctx._refundQuote(sig({ 계약: { docVersion: 'v1.12' } }, { 예식일: addDays(ASOF, 100) }), ASOF);
+  check('[L20] 환불 조항이 같은 옛 판(v1.12) → 확인 필요 없음', r.review.length === 0, JSON.stringify(r.review));
+  r = ctx._refundQuote(sig({ 계약: {} }, { 예식일: addDays(ASOF, 100) }), ASOF);
+  check('[L20] 판 기록 없음 → 확인 필요', r.review.some((x) => /판 기록 없음/.test(x)));
+  // 8조① 받은 변경 수수료는 위약금에 충당 — D-29(40%) · 수수료 28만 받음 → 남은 위약금 = 112만 − 28만
+  r = ctx._refundQuote(sig({ 변경이력: [{ from: { date: addDays(ASOF, 80) }, to: { date: addDays(ASOF, 29) }, fee: 280000, at: addDays(ASOF, -5) + ' 10:00' }] }, { 예식일: addDays(ASOF, 29), 중도금상태: '확인' }), ASOF);
+  check('[CHANGE_FEE_CREDIT] 받은 변경 수수료 28만 → 위약금 112만에 충당 · 환불 = 기수령 − 84만', r.feeCredit === 280000 && r.refund === r.paid - (Math.round(TOTAL * 0.4) - 280000) && /충당\(8조①\)/.test(r.rule), JSON.stringify({ fc: r.feeCredit, refund: r.refund, paid: r.paid, rule: r.rule }));
+  r = ctx._refundQuote(sig({ 변경이력: [{ from: { date: addDays(ASOF, 300) }, to: { date: addDays(ASOF, 200) }, fee: 280000, at: addDays(ASOF, -5) + ' 10:00' }] }, { 예식일: addDays(ASOF, 200) }), ASOF);
+  check('[CHANGE_FEE_CREDIT] 위약금 없는 구간(무상취소)의 받은 수수료 → 확인 필요(자동으로 돌려주지도 · 안 돌려주지도 않는다)', r.penalty === 0 && r.review.some((x) => /변경 수수료 280000원/.test(x)), JSON.stringify(r.review));
+  // 스냅 — 촬영 당일 · 지남은 시작 전/후 단정 금지
+  const snap = (extra) => row(Object.assign({ 상품타입: '웨딩스냅', 계약상태: '서명완료', 계약총액: 600000, 계약서명일시: '2026-01-01 10:00', 입금상태: '확인', 잔금상태: '확인', 동의기록: JSON.stringify({ 계약: { docVersion: SCUR } }) }, extra));
+  r = ctx._refundQuote(snap({ 예식일: ASOF }), ASOF);
+  check('[L14] 스냅 촬영 당일 → 70% 잠정 + 확인 필요(시작 후면 100%)', r.rate === 0.7 && r.review.some((x) => /시작 후면 100%/.test(x)), JSON.stringify(r.review));
+  r = ctx._refundQuote(snap({ 예식일: addDays(ASOF, -2) }), ASOF);
+  check('[L14] 스냅 촬영일 지남 → 확인 필요', r.review.some((x) => /촬영 시작 여부/.test(x)));
+  r = ctx._refundQuote(snap({ 예식일: addDays(ASOF, 40) }), ASOF);
+  check('[L14] 스냅 촬영 40일 전 → 확인 필요 없음', r.review.length === 0 && r.rate === 0.1, JSON.stringify(r.review));
+  // 7조① 기산점 = 계약서 받은 날(서명일) · 초일 불산입(+7일까지)
+  r = ctx._refundQuote(snap({ 예식일: addDays(ASOF, 40), 계약서명일시: addDays(ASOF, -7) + ' 18:00' }), ASOF);
+  check('[L11] 스냅 받은 날 + 7일 → 청약철회 0% · 문구 «계약서 받은 날부터»', r.rate === 0 && /계약서 받은 날부터 7일/.test(r.rule), r.rule);
+  r = ctx._refundQuote(snap({ 예식일: addDays(ASOF, 40), 계약서명일시: addDays(ASOF, -8) + ' 09:00' }), ASOF);
+  check('[L11] 스냅 받은 날 + 8일 → 10%', r.rate === 0.1, r.rule);
+  r = ctx._refundQuote(snap({ 예식일: addDays(ASOF, 40), 동의기록: JSON.stringify({ 계약: { docVersion: 'snap-v1.0' } }) }), ASOF);
+  check('[L20] 스냅 옛 판(snap-v1.0 · 환불 조항 다름) → 확인 필요', r.review.some((x) => /snap-v1\.0/.test(x)));
+  r = ctx._refundQuote(snap({ 예식일: addDays(ASOF, 40), 동의기록: JSON.stringify({ 계약: { docVersion: 'snap-v1.1' } }) }), ASOF);
+  check('[L20] 스냅 옛 판(snap-v1.1 · 환불 조항 같음) → 확인 필요 없음', r.review.length === 0, JSON.stringify(r.review));
 }
 
 // 철회기한 경계 — 서명일+15일까지 철회, +16일부터 위약 표(D-100 → 10%)

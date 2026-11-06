@@ -736,6 +736,8 @@ function adminHome() {
               if (_rq.penalty > 0) _rsub += '(위약금 ' + Math.round((_rq.rate || 0) * 100) + '% 공제)';
               else if (_rq.fitCount > 0) _rsub += '(시착 ' + _rq.fitCount + '벌 공제)';
             }
+            /* ★[REFUND_REVIEW_1106 2026-11-06 대본 지시 3] 예외가 걸린 환불은 숫자가 잠정 — «확인 필요 — 사장님 확정» · 0원이어도 큐에서 숨기지 않는다(자동 확정 금지) */
+            if (_rq && Array.isArray(_rq.review) && _rq.review.length) { _rsub += ' · 확인 필요 — 사장님 확정(' + _rq.review[0] + (_rq.review.length > 1 ? (' 외 ' + (_rq.review.length - 1) + '건') : '') + ')'; _rZeroC = false; }
           } catch (e) {}
           // [REFUND_QUEUE_CANCEL_NOACCT · FU2 2026-07-25] 계좌 미입력 신규 노출분은 환불액 0원이면 큐 생략(고객 환불카드도 안 떠 계좌 받을 일 자체가 없음 · 노쇼·미계약 분기와 동일). 계좌 입력 건은 사람 판단 위해 유지(변화 0).
           if (_racct || !_rZeroC) {
@@ -770,6 +772,7 @@ function adminHome() {
               if (Number(_rq2.refund) <= 0) _show2 = false;   // 공제로 환불액 0원 — 송금할 게 없어 큐 생략(상세 환불 산정에는 그대로 표시)
               else _rsub2 += ' · ' + Number(_rq2.refund).toLocaleString() + '원' + (_rq2.fitCount > 0 ? ('(시착 ' + _rq2.fitCount + '벌 공제)') : '');
             }
+            if (_rq2 && Array.isArray(_rq2.review) && _rq2.review.length) { _rsub2 += ' · 확인 필요 — 사장님 확정(' + _rq2.review[0] + (_rq2.review.length > 1 ? (' 외 ' + (_rq2.review.length - 1) + '건') : '') + ')'; _show2 = true; }   // [REFUND_REVIEW_1106]
           } catch (e) {}
           if (_show2) {
             if (!_racct2 && !_rCardOnly2) _rsub2 += ' · 환불 계좌 요청 필요(카톡)';

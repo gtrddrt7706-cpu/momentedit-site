@@ -202,6 +202,30 @@
  ],
  "marks": [
   {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "REFUND_REVIEW_1106",
+   "why": "환불 계산 예외(옛 판 · 스냅 촬영 당일 · 위약금 없는 구간의 받은 변경 수수료 · 기록 없음)는 확인 필요로 · 받은 변경 수수료를 위약금에 충당(8조①) — 옛것이면 단정한 숫자가 그대로 나간다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "CHANGE_FEE_CREDIT",
+   "why": "8조① 이미 받은 변경 수수료를 위약금에 충당"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "SNAP_DAY_UNSURE",
+   "why": "스냅 촬영 당일 시작 전/후 단정 금지"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "REFUND_REVIEW_1106",
+   "why": "환불 큐에 확인 필요 — 사장님 확정 · 0원이어도 숨기지 않는다"
+  },
+  {
    "file": "admin",
    "fn": "adminHome",
    "mark": "CPN_QUEUE",
@@ -4312,6 +4336,7 @@
    "FITTING_TERMS_BY_VERSION",
    "SIGNATURES_SHEET",
    "CONTRACT",
+   "REFUND_TERMS_SAME",
    "WEDDING_SLOT",
    "PRICING",
    "HOLIDAYS_LUNAR",
@@ -4558,7 +4583,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-06 08:52 · 69df36f9",
+ "_생성": "2026-11-06 20:04 · 1a57763",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5126,5 +5151,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "ed90a09fe641"
+ "_표식서명": "b7b10462886b"
 }

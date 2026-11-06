@@ -227,6 +227,10 @@ var CONTRACT = {
   effectNotice: '서명하면 계약이 성립해요. 계약 내용을 충분히 확인하신 뒤 진행해 주세요.',
   reviewNote: '서명 전 계약 내용을 충분히 확인해 주세요. 기한이 지나면 계약서는 자동 파기됩니다.'
 };
+/* ★[REFUND_TERMS_SAME 2026-11-06 대본 지시 3 · L20] 옛 판 서명 건은 «그 판 조건»으로 — 환불 조항(시그니처 4조⑧ · 7조 · 8조 · 9조 / 스냅 7조 · 8조 · 9조)이
+   지금 판과 글자까지 같은 옛 판만 여기 적는다(지금 판은 따로 적지 않아도 같다). 목록에 없는 옛 판 서명 건은 견적에 «확인 필요 — 사장님 확정»이 붙는다.
+   ★손으로 늘리지 말 것 — scripts/audit/refund-terms-same.mjs 가 보존본(contract/archive)을 조문째 대조해 이 목록과 맞는지 잰다(판을 올리면 같은 PR 에서 고친다). */
+var REFUND_TERMS_SAME = { sig: ['v1.8', 'v1.9', 'v1.10', 'v1.11', 'v1.12', 'v1.13', 'v1.14'], snap: ['snap-v1.1'] };
 
 // [02-3] 계약서 서명(고객) → 계약서명일시 + 계약상태=서명완료 + 동의기록.계약 + 현재단계→계약완료.
 //   가드: 계약상태=발송 + 기한 내. 멱등(이미 서명완료). Lock + 최신 재읽기.
@@ -879,10 +883,10 @@ function _refundQuote(r, asOfYmd) { _gsr_();
        7~3일 50% / 2~1일·당일·노쇼 70%) · 환불 = 기수령(계약금 20%+잔금 80% 확인분) − 위약금.
        상담 예약금은 스냅 원장(_journeyAmounts 예약금:0)과 동일하게 여기서 합산하지 않는다(예약 트랙에서 별도 환불).
        §9③ 촬영 개시 후 100%·§8④ 변경 래칫은 사람 판단으로 남긴다 — 구현하게 되면 이 주석을 갱신할 것. */
-    var _sPaid = 0;
+    var _sPaid = 0, _sReview = [];   // [REFUND_REVIEW_1106] 단정할 수 없는 자리 — «확인 필요 — 사장님 확정»
     var _sOut = function (rule, rate, penalty, refund, dd2) {
       return { paid: _sPaid, fitCount: 0, fitDeduct: 0, needCount: false,
-               penalty: penalty, rate: rate, rule: rule, refund: Math.max(0, refund), dd: dd2, asOf: asOf };
+               penalty: penalty, rate: rate, rule: rule, refund: Math.max(0, refund), dd: dd2, asOf: asOf, review: _sReview };
     };
     if (String(r.get('계약상태') || '').trim() !== '서명완료') return _sOut('계약 전', 0, 0, 0, null);
     var _sAmt = _journeyAmounts(r.get('계약총액'), '웨딩스냅');
@@ -891,19 +895,30 @@ function _refundQuote(r, asOfYmd) { _gsr_();
     if (String(r.get('잔금상태') || '').trim() === '확인') _sPaid += _sAmt.잔금;
     var _sDd = _dayDiff((typeof _payWeddingYmd === 'function') ? _payWeddingYmd(r) : _ymdOf(r.get('예식일')), asOf);   // 촬영까지 남은 일수(0=당일 · 음수=지남) · 폴백은 테스트 샌드박스(부분 로드) 방어
     if (_sDd == null) return { pending: true };
+    /* ★[SNAP_WITHDRAW_FROM_DOC 2026-11-06 대본 지시 3 · L11] 7조① 기산점 = «계약서(전자문서)를 받은 날»(계약서 문구 그대로).
+       두 분이 받는 것은 서명을 마친 계약서(마이페이지에 그날 바로 열린다)라 그 날 = 계약서명일시로 센다 · 초일 불산입(받은 날 + 7일까지).
+       서명일 기록이 없으면 단정하지 않는다(확인 필요). 표의 «계약일 + 7일»은 같은 날을 말한다. */
     var _signYmd = _ymdOf(r.get('계약서명일시'));
-    var _sinceSign = _signYmd ? _dayDiff(asOf, _signYmd) : null;   // 서명 후 경과일
+    var _sinceSign = _signYmd ? _dayDiff(asOf, _signYmd) : null;   // 계약서 받은 날(= 서명일)부터 지난 날
+    if (!_signYmd) _sReview.push('계약서 받은 날(서명일) 기록 없음 · 청약철회 기간 확인');
+    var _sDocV = String((_parseJsonSafe(r.get('동의기록')).계약 || {}).docVersion || '').trim();   // [REFUND_TERMS_SAME · L20] 옛 판이면 그 판 조건
+    if (!_sDocV) _sReview.push('서명한 계약서 판 기록 없음 · 그 판 환불 조건 확인');
+    else if (_sDocV !== CONTRACT.snapDocVersion && REFUND_TERMS_SAME.snap.indexOf(_sDocV) === -1) _sReview.push('옛 판(' + _sDocV + ') 서명 · 그 판 환불 조건으로 확인');
     var _sRate, _sRule;
     /* ★[SNAP_WITHDRAW_GUARD 2026-08-30 경계값 적대검증에서 잡음] 철회는 «촬영 개시 전»에만 성립한다(스냅 계약서 §7③).
        초판은 서명 후 7일만 보고 촬영일을 안 봐서, **촬영이 끝난 다음날에도 100% 환급**이 나왔다(실측: dd=-1·서명 3일째 → 전액).
        시그니처는 같은 자리에 `dd >= 1`(예식 전일까지) 가드가 있다(아래 ② 7조① 줄) — 그 가드를 스냅에도 맞춘다. */
-    if (_sinceSign != null && _sinceSign >= 0 && _sinceSign <= 7 && _sDd >= 1) { _sRate = 0;    _sRule = '계약일 + 7일 이내(청약철회)'; }
+    if (_sinceSign != null && _sinceSign >= 0 && _sinceSign <= 7 && _sDd >= 1) { _sRate = 0;    _sRule = '계약서 받은 날부터 7일 이내(청약철회 · 7조①)'; }
     else if (_sDd >= 31) { _sRate = 0.10; _sRule = '계약일 + 8일 ~ 촬영 31일 전'; }
     else if (_sDd >= 15) { _sRate = 0.20; _sRule = '촬영 30 ~ 15일 전'; }
     else if (_sDd >= 8)  { _sRate = 0.30; _sRule = '촬영 14 ~ 8일 전'; }
     else if (_sDd >= 3)  { _sRate = 0.50; _sRule = '촬영 7 ~ 3일 전'; }
     else if (_sDd >= 1)  { _sRate = 0.70; _sRule = '촬영 2 ~ 1일 전'; }
     else                 { _sRate = 0.70; _sRule = '촬영 당일 · 노쇼'; }
+    /* ★[SNAP_DAY_UNSURE 2026-11-06 대본 지시 3 · L14] 촬영 당일 · 그 뒤는 «시작 전(9조② 70%)»인지 «시작 후(9조③ 100%)»인지 코드가 모른다 —
+       단정하지 않고 70% 를 잠정으로 보이며 확인 필요를 붙인다(자동 확정 금지). 당일 시작 전 철회 기간 안이면 그것도 확인 */
+    if (_sDd <= 0) _sReview.push(_sDd === 0 ? '촬영 당일 · 시작 전이면 70%(9조②) · 시작 후면 100%(9조③) 확인' : '촬영일 지남 · 촬영 시작 여부 확인(시작 후면 100% · 9조③)');
+    if (_sDd === 0 && _sinceSign != null && _sinceSign >= 0 && _sinceSign <= 7) _sReview.push('청약철회 기간 안의 촬영 당일 · 시작 전이면 전액 환급(7조①③)');
     var _sPen = Math.round(_sAmt.총액 * _sRate);
     return _sOut(_sRule, _sRate, _sPen, _sPaid - _sPen, _sDd);
   }
@@ -941,9 +956,12 @@ function _refundQuote(r, asOfYmd) { _gsr_();
      (실측: 벌수 -1 → 공제 -50,000 → 환불 150,000 > 기수령 100,000). 공제 하한을 0으로 잠근다. */
   var fitDeduct = Math.min(Math.max(0, fitCount || 0) * _perBul, _depAmt);
 
+  var review = [];   // ★[REFUND_REVIEW_1106 2026-11-06 대본 지시 3] 예외가 걸리면 숫자는 잠정 · 관리자 «확인 필요 — 사장님 확정» · 자동 확정 금지
+  if (needCount) review.push('시착 벌수 기록 없음');
+  var feeCredit = 0;   // [CHANGE_FEE_CREDIT] 8조① 이미 받은 변경 수수료를 위약금에 충당한 몫
   function out(rule, rate, penalty, refund, dd) {   // paid는 클로저 — 중도금·잔금 가산 후 호출돼도 최신값
     return { paid: paid, fitCount: (fitCount == null ? 0 : fitCount), fitDeduct: fitDeduct, needCount: needCount,
-             penalty: penalty, rate: rate, rule: rule, refund: Math.max(0, refund), dd: dd, asOf: asOf };
+             penalty: penalty, rate: rate, rule: rule, refund: Math.max(0, refund), dd: dd, asOf: asOf, review: review, feeCredit: feeCredit };
   }
 
   // ① 계약 전(계약상태!=서명완료) — 위약금 없음. 예약금에서 시착비만 공제(시착 전 취소는 전액 환불).
@@ -961,6 +979,14 @@ function _refundQuote(r, asOfYmd) { _gsr_();
   }
   var dd = _dayDiff(_ymdOf(r.get('예식일')), asOf);   // 예식까지 남은 일수(D-dd · 0=당일 · 음수=지남)
   if (dd == null) return { pending: true };
+  var _rec0 = _parseJsonSafe(r.get('동의기록'));
+  /* [REFUND_TERMS_SAME · L20] 옛 판 서명 건은 그 판 조건 — 환불 조항이 같은 판이 아니면 확인 필요(지금 서명 0건 · 자동으로 옛 판 표를 셈하지 않는다) */
+  var _docV = String((_rec0.계약 || {}).docVersion || '').trim();
+  if (!_docV) review.push('서명한 계약서 판 기록 없음 · 그 판 환불 조건 확인');
+  else if (_docV !== CONTRACT.docVersion && REFUND_TERMS_SAME.sig.indexOf(_docV) === -1) review.push('옛 판(' + _docV + ') 서명 · 그 판 환불 조건으로 확인');
+  /* ★[CHANGE_FEE_CREDIT 2026-11-06 대본 지시 3 · L11] 8조① «이미 지급한 변경 수수료는 … 위약금이 발생하는 경우 그 위약금에 충당한다».
+     받은 수수료 = 변경이력의 fee(관리자가 입금 확인 뒤 «변경 확인»을 눌러 적용된 변경만 남는다 · adminConfirmWeddingChange). 위약금 한도 안에서만 충당한다. */
+  var feesPaid = 0; try { (_rec0.변경이력 || []).forEach(function (h) { var f = Math.round(Number(h && h.fee) || 0); if (f > 0) feesPaid += f; }); } catch (e) {}
 
   /* ★★[CHANGE_RATCHET 2026-08-21 환불 경계값 점검에서 잡음] 제8조⑤ «변경을 통한 회피 금지» 구현.
      계약서 원문: «예식일이 변경된 경우에도 제7조·제9조의 기간 산정 기준일은 변경된 예식일로 한다.
@@ -990,6 +1016,7 @@ function _refundQuote(r, asOfYmd) { _gsr_();
 
   // ② 7조① 청약철회 — 계약 성립일부터 15일 이내, 예식 용역 개시 전(예식 전일=dd>=1)까지.
   var signYmd = _ymdOf(r.get('계약서명일시'));
+  if (feesPaid > 0 && ((signYmd && asOf <= _shiftYmd(signYmd, 15) && dd >= 1) || (dd >= 150 && _floorRate <= 0))) review.push('받은 변경 수수료 ' + feesPaid + '원 · 위약금이 없는 구간이라 돌려드릴지 확인');   // [CHANGE_FEE_CREDIT]
   if (signYmd && asOf <= _shiftYmd(signYmd, 15) && dd >= 1) return out('청약철회(7조)', 0, 0, paid - fitDeduct, dd);
   // ③ 7조② 무상취소 — 예식일 150일 전까지 위약금 없이 해제. ★단 8조⑤ 하한이 있으면 무상으로 내려가지 않는다.
   if (dd >= 150 && _floorRate <= 0) return out('무상취소(7조)', 0, 0, paid - fitDeduct, dd);
@@ -998,7 +1025,8 @@ function _refundQuote(r, asOfYmd) { _gsr_();
   if (dd >= 150) rate = 0;                                  // 무상 구간인데 하한이 걸린 경우 — 아래에서 하한으로 올라간다
   if (_floorRate > rate) { rate = _floorRate; }              // [CHANGE_RATCHET] 8조⑤ — 낮은 구간으로 내려가지 않는다
   var penalty = Math.round(amounts.총액 * rate);
-  return out('위약금 ' + Math.round(rate * 100) + '%(9조)' + (_floorWhy && _floorRate >= rate ? (' · 8조⑤ ' + _floorWhy + ' 구간 유지') : ''), rate, penalty, paid - penalty, dd);
+  feeCredit = Math.min(feesPaid, penalty);   // [CHANGE_FEE_CREDIT] 남은 위약금 = 위약금 − 받은 변경 수수료(한도 위약금)
+  return out('위약금 ' + Math.round(rate * 100) + '%(9조)' + (_floorWhy && _floorRate >= rate ? (' · 8조⑤ ' + _floorWhy + ' 구간 유지') : '') + (feeCredit > 0 ? (' · 변경 수수료 ' + feeCredit + '원 충당(8조①)') : ''), rate, penalty, paid - (penalty - feeCredit), dd);
 }
 
 // [02-8] 노출 게이트 — 마이페이지(getMyState.refund)·관리자 상세(adminDetail.refundQuote) 공용.

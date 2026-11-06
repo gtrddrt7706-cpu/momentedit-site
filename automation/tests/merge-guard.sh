@@ -18382,6 +18382,18 @@ chk "_authSendOk_(kind, email)" automation/platform/50_auth-handlers.gs 1
 chk "_trigSafe_(_pw) + (uid ? 'U' : 'N')" automation/platform/70_journey.gs 1
 nochk "취소된 예약은 승인할 수 없습니다. (되살아남 방지)" automation/admin/admin.gs
 nochk "error: '취소된 예약입니다.'" automation/admin/admin.gs
+# ★★[REFUND_REVIEW_1106 2026-11-06 대본 지시 3 · 운영·계약 L11 · L14 · L20] 환불 계산기 — 계약서대로 + 예외는 «확인 필요 — 사장님 확정» · 자동 확정 금지
+#   스냅 7조① 기산점 = 계약서 받은 날 · 촬영 당일 시작 전/후 단정 금지 · 받은 변경 수수료는 위약금에 충당(시그니처 8조①) · 옛 판 서명은 그 판 조건(REFUND_TERMS_SAME)
+chk 'REFUND_REVIEW_1106' automation/platform/70_journey.gs 2
+chk 'CHANGE_FEE_CREDIT' automation/platform/70_journey.gs 2
+chk 'SNAP_DAY_UNSURE' automation/platform/70_journey.gs 1
+chk 'SNAP_WITHDRAW_FROM_DOC' automation/platform/70_journey.gs 1
+chk 'var REFUND_TERMS_SAME' automation/platform/70_journey.gs 1
+chk 'REFUND_REVIEW_1106' automation/admin/admin.gs 2
+chk 'function _rqReview' admin.html 1
+chk 'rqBossOk' admin.html 2
+nochk "_sRule = '계약일 + 7일 이내(청약철회)'" automation/platform/70_journey.gs 0
+if command -v node >/dev/null 2>&1; then node scripts/audit/refund-terms-same.mjs >/dev/null 2>&1; _rts=$?; if [ "$_rts" != 0 ]; then echo "FAIL refund-terms-same($_rts) — 옛 판 환불 조건 목록이 보존본과 어긋난다 · node scripts/audit/refund-terms-same.mjs [REFUND_TERMS_SAME]"; fail=1; else echo "ok refund-terms-same [REFUND_TERMS_SAME]"; fi; fi
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
