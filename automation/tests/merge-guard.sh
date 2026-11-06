@@ -22688,3 +22688,18 @@ chk 'id="snapTime" name="희망 촬영 시간"' inquiry.html 1
 chk '평일 웨딩스냅 · 운영 초기' inquiry.html 1
 chk 'class="field-group wed-only"' inquiry.html 3                               # 요일 · 하객 · 디지털 참석
 chk 'ref-header-cell">전체 일정 종료' inquiry.html 1                            # [H4_03] 상담 표 열 이름
+# ★★[H4_AI 2026-11-06 AI 상담 Q33 · Q34 · Q35 · 식전 영상 · 사장님 결정 6(AI 인계)] — 되돌리면 빨강
+chk 'H4_Q33' api/_ritual-kb.js 1                                                  # 입장 = 두 분 함께 · 아버지 동반 입장 없음(공통 사실)
+chk 'H4_Q33' api/ritual-advisor.js 1                                              # 전제가 다르면 먼저 바로잡기
+chk 'H4_Q34' api/_ritual-kb.js 1                                                  # 덕담 원고 7일 · 축사 3일 = prepOf
+chk 'H4_Q35' api/ritual-advisor.js 1                                              # 초성은 먼저 확인
+chk '유튜브 링크만으로 등록하는 방식은 아니에요' api/_ritual-kb.js 1             # [H4_Q35 · Q11] 입장곡 = 파일
+nochk '사진 5장 ~ 20장으로 저희가 만들어 드리는 길' api/_ritual-kb.js             # [H4_PV_MAKER] 저희가 직접 만들지 않는다(사장님 결정)
+chk 'H4_HANDOFF_ASK' assets/advisor-widget.js 2                                   # 자동 인계 금지 — «상담원 연결»을 누른 뒤에만
+chk "t.textContent = '상담원과 이어 드릴까요?';" assets/advisor-widget.js 1
+chk "k.addEventListener('click',doHandoff);" index.html 1                         # 홈 · 카톡 상담을 누른 뒤에만
+nochk 'doHandoff();   // 디렉터에게 대화 브리핑 자동 전달' index.html
+chk 'H4_HANDOFF_PHONE' api/handoff.js 2                                           # AI 요약 · 관리자 시트에 전화번호 없음
+chk 'conversation: \[\],' api/handoff.js 1                                        # [H4_HANDOFF_TOPIC] 질문 원문 미보관 · 주제 · 분류만
+nochk "customer.phone && ('연락처 '" api/handoff.js
+chk 'H4_HANDOFF_PHONE' scripts/audit/err-pages.mjs 1                              # 행동 검사(모델 요청 · GAS 고객 · 요약)
