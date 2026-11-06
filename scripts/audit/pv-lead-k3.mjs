@@ -86,7 +86,10 @@ k3Check(C2, '② 10분 전 판 고르기 — 예상 본식 10분 미만 = short(
   ok('② 깨 보기 — 짧은 판 고르기를 지운 판(옛 299 · 345)은 빨강', m3 !== CUE_SRC && k3Check(loadCue(m3)) > 0); }
 { const red = fs.readFileSync(P('docs/plans/식순연구/타입캐스트/재더빙_리드보강.txt'), 'utf8'), all = fs.readFileSync(P('docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'), 'utf8').split('\n');
   /* 이미 받은 두 문장(«십 분 뒤 …» · «식사는 촬영 뒤에 …»)은 창고에서 빌려 왔다(sent-lib --borrow) — 다시 받는 것은 새 문장 하나 */
-  ok('② 녹음 대기 명단에 348 · 349 · 다시받기(전체)에는 진희 새 문장 한 줄만', /\[348\] guest-w-10m-n10-short/.test(red) && /\[349\] guest-w-10m-n10-short-meal/.test(red) && all.filter((l) => l.trim() === '진희: 본식을 마친 뒤에는 기념 촬영이 있습니다.').length === 1 && !all.some((l) => /십 분 뒤 본식을 시작하겠습니다|식사는 촬영 뒤에 함께합니다/.test(l))); }
+  /* ★[REC_K3_1106] 녹음이 들어오면(348 · 349 mp3 · _recorded) 대기 명단 · 다시받기에서 빠져야 맞다 — 들어오기 전엔 종전대로 대기에 있다 */
+  const recK3 = ['348_guest-w-10m-n10-short', '349_guest-w-10m-n10-short-meal'].every((f) => fs.existsSync(P('assets/audio/narration/' + f + '.mp3'))) && (() => { try { const r = JSON.parse(fs.readFileSync(P('assets/audio/narration/_recorded.json'), 'utf8')); const c = r.clips || {}; return !!(c['348_guest-w-10m-n10-short'] && c['349_guest-w-10m-n10-short-meal']); } catch (e) { return false; } })();
+  if (recK3) ok('② [REC_K3_1106] 녹음 받음 — 348 · 349 소리 · 녹음 기록이 있고 대기 명단 · 다시받기(전체)에서 빠졌다', !/\[348\] guest-w-10m-n10-short/.test(red) && !/\[349\] guest-w-10m-n10-short-meal/.test(red) && !all.some((l) => /본식을 마친 뒤에는 기념 촬영이 있습니다|십 분 뒤 본식을 시작하겠습니다|식사는 촬영 뒤에 함께합니다/.test(l)));
+  else ok('② 녹음 대기 명단에 348 · 349 · 다시받기(전체)에는 진희 새 문장 한 줄만', /\[348\] guest-w-10m-n10-short/.test(red) && /\[349\] guest-w-10m-n10-short-meal/.test(red) && all.filter((l) => l.trim() === '진희: 본식을 마친 뒤에는 기념 촬영이 있습니다.').length === 1 && !all.some((l) => /십 분 뒤 본식을 시작하겠습니다|식사는 촬영 뒤에 함께합니다/.test(l))); }
 
 /* ── 실브라우저 — 당일 콘솔 기다림 · 식순 화면 글 */
 if (!FAST) {
