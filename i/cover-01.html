@@ -1009,6 +1009,9 @@ body{
   .cover-scroll{opacity:1;animation:none}
   .cover-scroll-line{animation:none}
 }
+/* [JOIN_KO_1106 대본 4차 G05] 온라인으로 함께하기 — 어르신도 단추 뜻을 바로 알게 한국어 · 설명은 단추 아래 한 줄 */
+.join-help{margin:14px auto 0 !important;font-size:13px !important;line-height:1.7 !important;letter-spacing:0 !important;text-align:center;word-break:keep-all;text-wrap:balance}
+.join-btn>span:first-child,.live-btn>span:first-child{letter-spacing:.06em !important;white-space:nowrap;font-size:max(13px,1em)}   /* 영문 대문자용 넓은 자간이 한글을 벌려 놓지 않게 · 한 줄 */
 </style>
 <script src="/shared/venue.js?v=20260529a"></script>
 <script src="/shared/hydrate.js?v=20261106a" defer></script>
@@ -1260,10 +1263,11 @@ body{
         이 안에 있습니다.
       </div>
 
-      <a href="/live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
-        <span>Enter</span>
+      <a href="/live.html?e={{EVENT_ID}}" class="join-btn" aria-label="온라인으로 함께하기 · 디지털 참석 페이지">
+        <span>온라인으로 함께하기</span>
         <span class="arrow">→</span>
       </a>
+      <p class="join-desc join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p><!-- [JOIN_KO_1106 대본 4차 G05] 단추가 무엇을 하는지 한 줄 · 서비스 이름 «디지털 참석»은 그대로 -->
 
       <div class="join-features">
         <span>Live</span>

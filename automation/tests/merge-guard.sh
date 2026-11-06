@@ -22637,3 +22637,25 @@ chk "addEventListener('hashchange'" role.html 1
 chk '안내를 열 수 없어요. 보내 주신 분께 링크를 다시 부탁해 주세요.' role.html 1
 chk 'ROLE_WRAP_1106' role.html 1            # 긴 단어만 칸 안에서 줄바꿈
 chk 'overflow-wrap:anywhere' role.html 1
+# ── 2026-11-06 하객 화면 방 · 대본 4차(G05 · G06 · G09 · H19 · G12) — 청첩장 · 갤러리
+for _f in i/cover-01.html i/cover-02.html i/cover-03.html i/cover-04.html i/cover-05.html i/cover-06.html i/cover-07.html i/cover-08.html; do
+  chk '<span>온라인으로 함께하기</span>' "$_f" 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+  chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' "$_f" 1
+  nochk '<span>Enter' "$_f"
+done
+chk 'ONLINE_GREET_1106' i/cover-08.html 1
+chk '<p>멀리서도 저희의 시작을 함께 지켜봐 주세요.</p>' i/cover-08.html 1   # [G06] 온라인용 기본 인사(고객이 쓴 인사글은 그대로)
+nochk '그 자리에 오셔서, 저희의 시작을 함께 지켜봐 주세요.' i/cover-08.html
+chk 'DIGITAL_NAME_1106' invitation-gallery.html 1                       # [H19] 카드 이름 «디지털 참석»
+nochk "name:'모바일 참석'" invitation-gallery.html
+nochk '링크로 보내는 판 · 모바일 참석 포함' invitation-gallery.html
+for _f in i/invitations/invitation-01-classic.html i/invitations/invitation-02-editorial.html i/invitations/invitation-03-letterpress.html i/invitations/invitation-04-Vermilion.html i/invitations/invitation-05-botanical.html i/invitations/invitation-06-hangeul.html i/invitations/invitation-07-architect.html i/invitations/invitation-08-noir.html; do
+  chk 'OLD_COPY_DEMO_1106' "$_f" 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+  chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' "$_f" 1
+done
+chk 'ENTRY_TIME_1106' shared/hydrate.js 2                               # [G12] 현장 청첩장 — 하객 입장 · 본식 두 시각(본식 20분 전)
+chk 'GUEST_ENTRY_KO: GUEST_ENTRY_KO, WEDDING_TIME_KO: WEDDING_TIME_KO' shared/hydrate.js 1
+for _f in i-family/family-01.html i-family/family-02.html i-family/family-03.html i-family/family-04.html i-family/family-05.html i-family/family-06.html i-family/family-07.html i-family/family-08.html; do
+  chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' "$_f" 1
+  nochk '20분 전</span>부터 내빈 입장이 시작됩니다' "$_f"
+done

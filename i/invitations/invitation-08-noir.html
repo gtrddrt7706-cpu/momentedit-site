@@ -1364,5 +1364,16 @@ details.env-acc[open] .env-acc-plus{transform:rotate(45deg)}
 })();
 </script>
 
+<script>/* ★[OLD_COPY_DEMO_1106 대본 4차 G09] 옛 공개 사본(검색으로 들어오는 디자인 예시) — 이름 · 날짜 · 계좌가 예시라는 표시가 없어 진짜 청첩장처럼 읽혔다.
+   hydrate markDemo(DEMO_BADGE · DEMO_ACCT_MARK)와 같은 모양 · 같은 말 · 지금 디자인 표본으로 가는 길. 갤러리 등 프레임 안에서는 바깥이 이미 «미리보기»라 달지 않는다 */
+(function(){ try{ if(window.parent&&window.parent!==window) return; }catch(e){ return; }
+  var b=document.createElement('div'); b.id='meDemoBadge';
+  b.style.cssText='position:sticky;top:0;z-index:99999;background:#FAFAF8;color:#6B2A24;text-align:center;letter-spacing:.04em;border-bottom:1px solid rgba(107,42,36,.18);font:500 12px/1.5 system-ui,-apple-system,sans-serif;padding:11px 14px';
+  b.innerHTML='예시 청첩장이에요 · 이름·날짜·계좌 모두 예시예요.<br><a href="/i/cover-08.html?e=test-couple" style="font:400 11px/1.5 system-ui,-apple-system,sans-serif;color:#5A554C;letter-spacing:.02em;text-decoration:underline;text-underline-offset:3px">지금 디자인으로 예시 보기</a>';
+  document.body.insertBefore(b, document.body.firstChild); document.documentElement.setAttribute('data-demo','1');
+  var c=document.querySelector('[data-account], .acc-copy, .env-acc-copy'), r=c&&c.closest?c.closest('.env-acc-row, .acc-row, .env-acc, li, tr, div'):null;
+  if(r&&r.parentNode){ var a=document.createElement('p'); a.id='meDemoAcct'; a.style.cssText='margin:24px auto 12px;max-width:26em;padding:11px 14px;border:1px solid rgba(107,42,36,.28);border-radius:6px;color:#6B2A24;background:#FAFAF8;font:400 12px/1.7 system-ui,-apple-system,sans-serif;text-align:center;letter-spacing:.02em';
+    a.textContent='이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.'; r.parentNode.insertBefore(a, r); }
+})();</script>
 </body>
 </html>
