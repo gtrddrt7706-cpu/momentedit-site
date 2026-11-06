@@ -21348,6 +21348,7 @@ chk 'function _prEstMs(ks)' order-preview.html 1
 chk 'data-fk="prj:_after"' order-preview.html 1
 nochk "say md" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way4.mjs >/dev/null 2>&1; _prw4=$?; if [ "$_prw4" = 1 ]; then echo 'FAIL pr-way4: 연습 보충(행위자 · 진행 상수 · 토글 · 식후 · 연습 시간)이 어긋났습니다 — node scripts/audit/pr-way4.mjs'; fail=1; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/b5-practice.mjs >/dev/null 2>&1; _b5p=$?; if [ "$_b5p" = 1 ]; then echo 'FAIL b5-practice: 5차 연습 회귀(편지 몫 · 본식 뒤 머리 · A 복귀 8초 · 축가 3초 · 짧은 잔여 재개 · 멈춤 중 음악 · 이어서 연습 칸 · 역할 복사 실패 창)가 어긋났습니다 — node scripts/audit/b5-practice.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
@@ -22109,7 +22110,7 @@ chk 'PR_ACT_NI06' order-preview.html 3
 chk '두 분이 앞쪽 중앙으로 돌아와 나란히 서요' order-preview.html 1
 chk '하객이 잔을 내려놓으면 두 분도 잔을 건네고, 하객을 향해 나란히 서요' order-preview.html 1
 chk 'SONG_SELF_WAIT_NI07' order-preview.html 1
-chk '노래하실 분이 준비한 축가를 불러요' order-preview.html 1
+chk 'narr-song:self' order-preview.html 2   # [B5_P14] 본인 축가 카드 글은 A/B 따로(_songSelfTxt) — 종전 «노래하실 분이 준비한 축가를 불러요» 핀을 옮김
 chk 'LETTER_BRING_NI08' order-preview.html 1
 chk 'VOW_FACE_NI13' order-preview.html 1
 chk 'B_RESUME_WAIT_NI14' order-preview.html 1
@@ -22662,4 +22663,22 @@ chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
+chk 'B5_NI08' order-preview.html 1   # [5차 P v2 NI08] 편지 두 분 따로 — 최종 화자 배열을 세운 뒤 그 순간 몫을 한 번만 나눈다(각 139초 × 2 금지)
+chk 'B5_NI11' order-preview.html 1   # [5차 P v2 NI11 · P10] 크게 보기 머리 = _stNo(st) — 촬영 후 안내 중 «본식 뒤 · 예식 순서»
+nochk "esc(_lNoOf(st.k)+' · 예식 순서')" order-preview.html   # ★머리를 순간 번호(_lNoOf)로 되돌리지 말 것 — 본식 뒤 줄이 «9 / 9»로 보였다
+chk 'B5_P01' order-preview.html 2   # [5차 P v2 P01 · P14] 연습 A — 부모님께 인사 뒤 복귀 8초(이동) · 본인 축가 3초(_rpAct) · 머무름 표(TURN_GAP_1102)는 그대로
+chk 'B5_P14' order-preview.html 2   # [5차 P v2 P14 · NI07] 본인 축가 카드 글 A/B 따로 · 방식 바꾸면 지금 줄 글도
+chk '직접 부르는 차례예요 · 흐름 보기에서는 짧게 넘겨요.' order-preview.html 1
+chk '직접 부르는 차례예요. 시작과 끝 인사를 연습해 보세요.' order-preview.html 1
+nochk '노래를 마치면 «다 했어요»를 눌러 주세요' order-preview.html   # ★A 에도 보이던 B 용 완료 문구 되살리지 말 것
+chk 'B5_NI14' order-preview.html 1   # [5차 P v2 NI14 · P13] 흐름 보기 재개 — 남은 시간이 양수면 남은 시간만(300ms 안 포함) · 끝난 줄이면 다음 줄
+nochk 'LP.tLeftSt===st&&LP.tLeft>300&&LP.tMs' order-preview.html   # ★300ms 이하 잔여를 줄 처음부터 다시 세던 조건 되살리지 말 것
+chk 'B5_P17' order-preview.html 4   # [5차 P v2 P17] 잠시 멈춤 중 음악 켜기는 설정만 · 재개 때 지금 줄 곡 · 자리 · 크기
+nochk 'else { var st=LP.q&&LP.q\[LP.i\]; if(st&&_bedOn()) BgmBed.lpShow(st); }' order-preview.html   # ★멈춤 중에도 켜자마자 lpShow 하던 길 되살리지 말 것
+chk 'B5_PN02' order-preview.html 3   # [5차 P v2 P-N02] 이어서 연습 자리 — 공개 · 계정마다 칸(_prAtKey) · 계정 확인 전 읽기 · 쓰기 없음 · 옛 공용 me_pr_at 미배정
+nochk "localStorage.getItem(PR_AT_KEY" order-preview.html   # ★공용 한 칸(me_pr_at)으로 되돌리지 말 것
+chk 'B5_PN03' order-preview.html 5   # [5차 P v2 P-N03] 역할 전달 복사 실패 — 고를 수 있는 창에 역할 글 · 읽기 전용 링크 · 성공 알림은 실제 성공 뒤 · 공유 취소는 오류 아님
+chk '복사하지 못했어요. 아래 글을 길게 눌러 복사해 주세요.' order-preview.html 1
+nochk "function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };" order-preview.html   # ★역할 전달 복사 실패를 알림만으로 되돌리지 말 것
+chk 'B5_PRACTICE' scripts/audit/b5-practice.mjs 1   # 5차 연습 회귀 검사 파일이 살아 있는가
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
