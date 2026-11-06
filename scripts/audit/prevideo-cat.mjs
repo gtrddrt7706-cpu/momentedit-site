@@ -68,6 +68,11 @@ ok(blk.indexOf('알려 드려요') < 0, '«알려 드려요» 없음 — 알림�
 ok(blk.indexOf('이 화면에서 확인할 수 있어요') > -1 || blk.indexOf('«다시 확인»에서 확인해 주세요') > -1, '«이 화면에서 확인할 수 있어요» 또는 «다시 확인»(조회 · 알림 약속 없음 · PV_STATE_1106 M07)');
 ok(/var PVC_EX=\{\}/.test(blk) ? blk.indexOf('예시 영상을 만들고 있어요') > -1 : true, '예시 영상이 없으면 «예시 영상을 만들고 있어요»(그림을 예시라 부르지 않는다)');
 ok((blk.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '').match(/'[^'\n]*\u2014[^'\n]*'/g) || []).length === 0, '화면 글에 전각 줄표(—) 없음');
+// [CODE_IN_COMMENT 2026-11-06 검토 1604-1 · 1609 r2] 줄 중간에 넣은 «// 주석» 이 뒤 코드를 삼킨 사고가 이틀에 두 번(관리자 메일 제한 · 올리기 화면 닫는 </div>) — 표식 주석 뒤에 코드 조각이 있으면 빨강
+{ const bad2 = blk.split('\n').filter((l) => /\/\/ *\[[A-Z0-9_]+[^\n]*(\+'<\/|';\s*$|\)\);\s*$)/.test(l));
+  ok(!bad2.length, '표식 주석 뒤에 코드 조각이 없다(주석이 코드를 삼키지 않았다)', bad2.map((l) => l.trim().slice(0, 120)).join(' | '));
+  const up = (blk.match(/function _pvcUpload\(\)\{[\s\S]*?\n\}/) || [''])[0].replace(/\/\/[^\n]*/g, '');
+  ok(up && (up.match(/<div/g) || []).length === (up.match(/<\/div>/g) || []).length, '올리기 화면 — 여는 <div> 와 닫는 </div> 수가 같다(막대가 «보낸 뒤» 칸 안으로 들어가지 않는다)', up.slice(0, 80)); }
 // [PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 · 고치던 확정본은 접은 길(분위기 · 사진 · 음악)로 다시 열리지 않는다 — 첫 화면에서 방법을 다시 고른다
 { const so = (blk.match(/function _pvcScrOf\(F\)\{[\s\S]*?\n\}/) || [''])[0];
   ok(/d\.mode==='make' && \(st==='draft'\|\|st==='editing'\)\) return 'start';/.test(so) && !/\['style','photos','music','music'\]\[d\.step\]/.test(so), '[PN07] 옛 사진으로 만들기 초안 → 첫 화면(접은 걸음으로 안 감)', so.slice(0, 200));
