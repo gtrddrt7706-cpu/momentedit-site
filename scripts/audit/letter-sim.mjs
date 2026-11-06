@@ -22,6 +22,9 @@
  *      뒤에 편지번호 · 재시도 · 상태시각 · 점검(I~L)이 붙는다. 관리자 알림은 보냄이 아니면 모두(번호 · 예식 · 상태만 · 본문 · 하객 이름 없음) —
  *      옛 «편지 미전달 · 수신자 이메일 없음»(본문을 실었다)은 사라졌다. 그래서 Messages 는 상태 칸과 새 칸을 빼고 대조하고, 상태 · 알림은 sendWatchGuard 가 따로 잰다.
  *   D8 getCouple 에 letterSplit(두 주소가 다 있고 다를 때만 true) [LETTER_SPLIT_A 2026-11-06 사장님 결정 2 = A] — 대조 전에 떼고 따로 잰다.
+ *   D9 받는 분 거절 [B2_FIX_MA_05 · B2_FIX_L13 2026-11-06 재검증 재수정] — 잘못된 받는 분 값(weird)은 «두 분 모두»로 넓히지 않고, 두 주소가 갈리지 않는 예식의
+ *      «한 분에게만»(GROOM · bride)도 «받는 분을 다시 골라 주세요.»(G0)로 막는다 — 시트에 적지 않고 메일도 없다. 그 편지(기준값 12 · 13 · 14)는 새 응답 모양으로 대조하고
+ *      Messages 대조에서 그 줄을 뺀다 · splitGuard 가 따로 잰다.
  * 시험 데이터는 전부 지어낸 값이다(실제 고객 정보 없음).
  */
 import fs from 'node:fs';
@@ -179,6 +182,7 @@ const LETTERS = [
   { eventId: 'cc-dd-0612-x7k2mq', guestName: '하객 아', relation: '', message: '신부 주소 없음', recipient: 'bride' },
   { eventId: 'vm-a-0926', guestName: 'ㄱ'.repeat(60), relation: 'ㄴ'.repeat(40), message: 'ㄷ'.repeat(2100), recipient: 'weird' }
 ];
+const D9_RES = { ok: false, ecode: 'G0', error: '받는 분을 다시 골라 주세요.' };   // [B2_FIX_MA_05 · B2_FIX_L13] D9 막힌 응답
 const COUPLE_CASES = [];
 for (const id of ['aa-bb-1024', 'cc-dd-0612-x7k2mq', 'ee-ff-0101', 'test-couple', 'zz-zz-0000', '', 'INVALID ID!', 'ab', 'pg-old-1201'])
   for (const view of ['', 'online', 'family', 'live', 'LIVE'])
@@ -347,7 +351,11 @@ function oneAddrGuard() {
   r = send(C('g@a.test', 'b@a.test'), 'both');
   ok(r.n === 2 && r.to.join(',') === 'g@a.test,b@a.test', `D5 주소가 다르면 두 통(종전 그대로): ${JSON.stringify(r)}`);
   r = send(C('same@a.test', 'same@a.test'), 'bride');
-  ok(r.n === 1 && r.to[0] === 'same@a.test', `D5 «신부님께»는 한 통(종전 그대로): ${JSON.stringify(r)}`);
+  ok(r.n === 0 && r.to.length === 0, `D9 같은 주소 예식의 «신부님께»는 함께 쓰는 주소로 보내지 않는다(B2_FIX_L13): ${JSON.stringify(r)}`);
+  r = send(C('g@a.test', 'b@a.test'), 'bride');
+  ok(r.n === 1 && r.to[0] === 'b@a.test', `D9 주소가 갈리면 «신부님께»는 신부 주소 한 통: ${JSON.stringify(r)}`);
+  r = send(C('g@a.test', ''), 'groom');
+  ok(r.n === 0, `D9 한쪽 주소만 있는 예식의 «신랑님께»도 보내지 않는다(하객 화면이 숨기는 선택지): ${JSON.stringify(r)}`);
   r = send(C('', 'b@a.test'), 'both');
   ok(r.n === 1 && r.to[0] === 'b@a.test', `D5 한쪽 주소만 있으면 한 통(종전 그대로): ${JSON.stringify(r)}`);
 }
@@ -412,7 +420,28 @@ function sendWatchGuard() {
   ok(map({ email: 'join@x.test' }, {}) === 'join@x.test|join@x.test', 'LETTER_MAIL_A: 아무것도 없으면 둘 다 가입 이메일(종전과 같다)');
   ok(map({ email: 'join@x.test', ciGroomEmail: 'g@c.test', ciBrideEmail: 'b@c.test' }, {}) === 'g@c.test|b@c.test', 'LETTER_MAIL_A: 계약서 칸이 있으면 각자');
   ok(map({ email: 'join@x.test', ciGroomEmail: 'g@c.test', ciBrideEmail: 'b@c.test' }, { letterGroomEmail: 'g2@m.test', letterBrideEmail: '아니다' }) === 'g2@m.test|b@c.test', 'LETTER_MAIL_A: 마이페이지 칸이 먼저 · 모양이 아니면 다음 후보');
-  ok(map({ email: 'join@x.test', ciBrideEmail: 'b@c.test' }, {}) === 'join@x.test|b@c.test', 'LETTER_MAIL_A: 한쪽만 있으면 나머지는 가입 이메일');
+  ok(map({ email: 'join@x.test', ciBrideEmail: 'b@c.test' }, {}) === 'join@x.test|b@c.test', 'LETTER_MAIL_A: 한쪽만 있으면 나머지는 가입 이메일');   // [B2_FIX_K36] 걷음 — 대본 결정 대기(빈 칸 폴백을 지우면 «두 분 모두» 편지도 한 주소로만 간다)
+  splitGuard(ctx, A);
+}
+
+// [B2_FIX_MA_05 · B2_FIX_L13] D9 — 받는 분 값 · 갈리지 않는 예식의 «한 분에게만»을 접수 전에 막는다(시트 · 메일 없음)
+function splitGuard(ctx, A) {
+  const R = (v) => { ctx.__v = v; return run(ctx, '_ltRecipient(__v)'); };
+  ok(R('groom') === 'groom' && R(' GROOM ') === 'groom' && R('both') === 'both' && R('bride') === 'bride', 'D9 _ltRecipient: 바른 값은 그대로(대소문자 · 공백 무시)');
+  ok(R('') === 'both' && R(null) === 'both' && R(undefined) === 'both', 'D9 _ltRecipient: 값이 없는 옛 화면은 종전대로 «두 분 모두»');
+  ok(R('weird') === '' && R('groom,bride') === '' && R('신랑') === '', 'D9 _ltRecipient: 잘못된 값은 두 분으로 넓히지 않는다(빈 값)');
+  const M = () => A.getSheetByName('Messages')._rows.length;
+  const send = (p) => { const n0 = M(), m0 = ctx._log.mails.length; ctx._cache.clear(); ctx.__p = Object.assign({ relation: '', message: '받는 분 시험' }, p); const r = J(run(ctx, 'ltGuestLetter(__p)')); return { r, rows: M() - n0, to: ctx._log.mails.slice(m0).map((m) => m.to) }; };
+  let x = send({ eventId: 'sw-b-0101', guestName: '하객 같은주소', recipient: 'bride' });
+  ok(JSON.stringify(x.r) === JSON.stringify(D9_RES) && x.rows === 0 && x.to.length === 0, `D9 같은 주소 예식의 «신부에게만»은 막는다(시트 · 메일 없음): ${JSON.stringify(x)}`);
+  x = send({ eventId: 'sw-c-0101', guestName: '하객 한쪽', recipient: 'groom' });
+  ok(JSON.stringify(x.r) === JSON.stringify(D9_RES) && x.rows === 0, `D9 한쪽 주소만 있는 예식의 «신랑에게만»은 막는다: ${JSON.stringify(x)}`);
+  x = send({ eventId: 'sw-a-0101', guestName: '하객 이상값', recipient: 'everyone' });
+  ok(JSON.stringify(x.r) === JSON.stringify(D9_RES) && x.rows === 0, `D9 갈리는 예식이어도 잘못된 값은 막는다: ${JSON.stringify(x)}`);
+  x = send({ eventId: 'sw-a-0101', guestName: '하객 신랑만', recipient: 'groom' });
+  ok(x.r.ok === true && x.rows === 1 && x.to.join(',') === 'g@x.test', `D9 갈리는 예식의 «신랑에게만»은 신랑 주소 한 통: ${JSON.stringify(x)}`);
+  x = send({ eventId: 'sw-b-0101', guestName: '하객 두분', recipient: 'both' });
+  ok(x.r.ok === true && x.to.length === 1, `D9 같은 주소 예식의 «두 분 모두»는 그대로 한 통: ${JSON.stringify(x)}`);
 }
 
 // ─────────── 실행 ───────────
@@ -437,19 +466,30 @@ const d6 = (r) => (r && r.ok === false && D6[r.error]) ? { ok: false, ecode: 'G1
 const noSplit = (r) => { const x = J(r); if (x && x.couple) delete x.couple.letterSplit; return x; };
 const ST_OK = ['접수', '보냄', '보류(금지어)', '실패(주소 없음)', '실패(메일 오류)'];
 const msgCore = (rows) => rows.map((r) => r.slice(0, 7).filter((_, j) => j !== 5));   // 시각 뺀 뒤 0~6 · 상태(5) 빼고
+/* [B2_FIX_MA_05 · B2_FIX_L13] D9 — 이제 막히는 편지(잘못된 값 · 갈리지 않는 예식의 «한 분에게만»). 기준값의 그 줄(하객 이름 · 2번 칸)은 Messages 대조에서 뺀다 */
+const d9Hit = (L) => { const v = String(L.recipient == null ? '' : L.recipient).toLowerCase().trim(); return (v && !['groom', 'bride', 'both'].includes(v)) || ((v === 'groom' || v === 'bride') && L.eventId === 'cc-dd-0612-x7k2mq'); };
+const D9_NAMES = new Set(LETTERS.filter(d9Hit).map((L) => String(L.guestName || '').trim().substring(0, 50)));
+const noD9 = (rows) => rows.filter((r) => !D9_NAMES.has(String(r[2])));
 COUPLE_CASES.forEach((c, i) => ok(diff(noSplit(N.couple[i]), G.couple[i]), `getCouple ${JSON.stringify(c)} 응답이 옛 웹훅과 다르다`));
 N.couple.forEach((r, i) => { if (r && r.ok && r.couple) ok(typeof r.couple.letterSplit === 'boolean', `getCouple ${JSON.stringify(COUPLE_CASES[i])} letterSplit 이 참 · 거짓이어야 한다(D8)`); });
+ok(D9_NAMES.size === 3, `D9 막히는 편지는 기준값 셋(12 · 13 · 14)이어야 한다: ${D9_NAMES.size}`);
 LETTERS.forEach((L, i) => {
+  if (d9Hit(L)) {   // D9 — 막힌다 · 메일 · 알림 없음
+    ok(diff(N.letters[i].res, D9_RES), `편지 ${i + 1}(${L.eventId} · ${L.recipient}) 는 «받는 분을 다시 골라 주세요.»로 막혀야 한다(D9): ${JSON.stringify(N.letters[i].res)}`);
+    ok(N.letters[i].couple.length === 0 && N.letters[i].admin.length === 0, `편지 ${i + 1} 막힌 편지는 메일 · 알림이 없어야 한다(D9)`);
+    return;
+  }
   ok(diff(N.letters[i].res, d6(G.letters[i].res)), `편지 ${i + 1}(${L.eventId}) 응답이 다르다: ${JSON.stringify(N.letters[i].res)} ≠ ${JSON.stringify(d6(G.letters[i].res))}`);
   ok(diff(N.letters[i].couple, G.letters[i].couple), `편지 ${i + 1}(${L.eventId}) 두 분께 가는 메일이 다르다`);
   const nA = N.letters[i].admin.filter((m) => !/^\[Moment Edit\] 하객 편지 /.test(m.subject)), gA = G.letters[i].admin.filter((m) => !/편지 미전달 · 수신자 이메일 없음/.test(m.subject));   // D7
   ok(diff(nA, gA), `편지 ${i + 1}(${L.eventId}) 관리자 알림이 다르다: ${JSON.stringify(nA)} ≠ ${JSON.stringify(gA)}`);
   N.letters[i].admin.forEach((m) => { const t = m.subject + '\n' + m.body; ok(!(String(L.message || '').length >= 3 && t.includes(L.message)) && !(String(L.guestName || '').length >= 2 && t.includes(L.guestName)), `편지 ${i + 1} 관리자 알림에 편지 본문 · 하객 이름이 실렸다(D7): ${m.subject}`); });
 });
-ok(diff(msgCore(N.messages), msgCore(G.messages)), 'Messages 에 남는 행이 다르다(상태 칸 · 새 칸 빼고)');
+ok(diff(msgCore(N.messages), msgCore(noD9(G.messages))), 'Messages 에 남는 행이 다르다(상태 칸 · 새 칸 빼고 · D9 막힌 편지 빼고)');
+ok(!N.messages.some((r) => D9_NAMES.has(String(r[2]))), 'D9 막힌 편지가 Messages 에 적혔다');
 { /* D7 — 이번에 들어온 편지(번호가 있는 줄)의 상태가 응답과 맞고, 보냄이 아니면 그 예식 · 상태의 관리자 알림이 있다 */
   const newRows = N.messages.filter((r) => /^L\d{12}[A-Z0-9]{3}$/.test(String(r[7] || '')));
-  ok(newRows.length >= 8, `편지번호가 붙은 새 줄이 너무 적다: ${newRows.length}`);
+  ok(newRows.length >= 7, `편지번호가 붙은 새 줄이 너무 적다: ${newRows.length}`);   // D9 로 셋이 접수 전에 막힌다(10 → 7)
   const subs = N.letters.flatMap((x) => x.admin.map((m) => m.subject));
   newRows.forEach((r) => { ok(ST_OK.includes(r[5]) && r[5] !== '접수', `새 줄 상태가 다섯 가지 중 «접수» 아닌 하나여야 한다: ${r[5]}`);
     if (r[5] !== '보냄') ok(subs.includes(`[Moment Edit] 하객 편지 ${r[5]} · ${r[0]}`), `«${r[5]}» 편지(${r[0]})의 관리자 알림이 없다`); });
@@ -457,11 +497,11 @@ ok(diff(msgCore(N.messages), msgCore(G.messages)), 'Messages 에 남는 행이 �
 }
 ok(diff(N.moderation, G.moderation), 'Moderation 에 남는 행이 다르다');
 ok(diff(N.vimeo, G.vimeo), `영상 점검 결과가 다르다: ${JSON.stringify(N.vimeo)} ≠ ${JSON.stringify(G.vimeo)}`);
-ok(diff(N.purge.couples, G.purge.couples) && diff(N.purge.moderation, G.purge.moderation) && diff(msgCore(N.purge.messages), msgCore(G.purge.messages)), '개인정보 파기 결과(시트 상태)가 다르다');
+ok(diff(N.purge.couples, G.purge.couples) && diff(N.purge.moderation, G.purge.moderation) && diff(msgCore(N.purge.messages), msgCore(noD9(G.purge.messages))), '개인정보 파기 결과(시트 상태)가 다르다');
 // 기준값 자체가 «뭔가를 재고 있는가» — 비어 있는 기준값과 대조해 통과하면 안 된다
 ok(G.couple.filter((x) => x.ok).length >= 40 && G.letters.filter((x) => x.couple.length).length >= 4 && G.letters.filter((x) => x.admin.length).length >= 4
   && G.vimeo.lines.length >= 2 && G.messages.length >= 10 && G.moderation.length >= 4, '기준값이 너무 비었다 — 대조가 아무것도 안 잰다');
 
 const total = COUPLE_CASES.length + LETTERS.length * 3 + 4;
 if (bad.length) { console.log(`[LETTER_SIM] ✖ ${bad.length}건`); bad.forEach((b) => console.log('  ✖ ' + b)); process.exit(1); }
-console.log(`[LETTER_SIM] ✅ 옛 Letter System 과 같다 — getCouple ${COUPLE_CASES.length}건 · 편지 ${LETTERS.length}건(응답·메일·기록) · 영상 점검 · 파기 · 옮기기 방어 (대조 ${total}항목 · 의도한 차이 D1~D5 만 허용)`);
+console.log(`[LETTER_SIM] ✅ 옛 Letter System 과 같다 — getCouple ${COUPLE_CASES.length}건 · 편지 ${LETTERS.length}건(응답·메일·기록) · 영상 점검 · 파기 · 옮기기 방어 (대조 ${total}항목 · 의도한 차이 D1~D9 만 허용)`);

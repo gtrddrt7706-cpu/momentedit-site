@@ -106,7 +106,7 @@ chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 
 chk 'AbortError' mypage.html 2                     # 공유·QR 저장 폴백
 chk '발행 직전 1회만' mypage.html 1                # both 같게 미러 시점
 chk '계좌를 비워 두면' mypage.html 1               # 계좌 필수 거짓 문구 정정
-chk 'GUIDE_MAKE_COND' mypage.html 2                # 하객 안내 조건 공용 상수
+nochk "'+GUIDE_MAKE_COND+'" mypage.html 0         # [B2_FIX_MA_02 2026-11-06] 하객 안내 조건 상수 걷음 — 링크는 모든 예식에 발급(조건 문구 되살리지 말 것)
 chk '본예식 20분 전' mypage.html 1                 # 인쇄 킷 도착 안내 · [DAY_PLAN 2026-08-09] 본식 10:05 기준 09:45 입장 = 20분 전(청첩장 16종과 같은 값)
 chk 'trk-sep' mypage.html 2                        # 확인·전달 그룹 구분선
 chk 'trk-tag' mypage.html 2                        # 선택 태그
@@ -14192,7 +14192,7 @@ nochk '<span style="color:var(--gold,#B89A75)">&amp;</span>' mypage.html 0
 chk 'CF_DATE_NBSP' mypage.html 1
 # [DOT_SPLIT_0926] 새 안내문 · 청첩장 완성 화면 · 하객 안내 패널 · 확인서 확정 안내의 «·»가 줄 끝 · 줄 머리에 매달리지 않게([CHECKS_NO_DANGLE]) — 절은 마침표 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060
 chk 'DOT_SPLIT_0926' mypage.html 13
-chk "var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b>" mypage.html 1
+nochk "var GUIDE_MAKE_COND=" mypage.html 0   # [B2_FIX_MA_02] 상수 걷음(옛 조건 · «채워 완료하면»)
 chk '<span class="ln-bal">비어 있는 부분은 하객 화면에 나오지 않아요.</span>' mypage.html 1
 chk '<span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span>' mypage.html 1
 nochk '링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>' mypage.html 0
@@ -21469,7 +21469,7 @@ chk "'두 분이 양가 부모님 모두와 차례로 안아요 · 부모님은 
 chk "(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요'" order-preview.html 1
 chk "문장 틀은 참고하되 이름 · 관계 · 경험은 " order-preview.html 2
 chk "'<span>연습 약 '+_mins+'분" order-preview.html 1
-chk "'약 '+Math.max(1,Math.round(hi/60))+'분'" order-preview.html 1   # [TABLE_PLUS_192] «당일 + 약 n분»
+chk "'당일 '+(k==='table'?'+ ':'')+R.secTxt(sec)" order-preview.html 1   # [TABLE_PLUS_192] «당일 + 약 n분» · [B2_FIX_GEUL_30 2026-11-06] 시간은 ② 와 같은 자(_flowSec · secTxt)
 chk "'당일 예상 · 본식 '+p.body" order-preview.html 1
 chk "txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요'" order-preview.html 1
 chk "txt:'하객의 화답을 기다리며 두 분도 함께 잔을 들어요'" order-preview.html 1
@@ -22083,6 +22083,13 @@ chk '음08-T01' scripts/audit/seam-b2.mjs 1
 chk '음09-T01' scripts/audit/seam-b2.mjs 1
 chk '음10-T01' scripts/audit/seam-b2.mjs 1
 chk "meaning-r1 seam-b2-entry" .github/workflows/merge-guard.yml 1
+chk 'EAR_D_1106' console.html 10           # [EAR_D_1106] 겹침 곡선 한 곳(xfCurve · 등전력) — 입장 곡 → M4 인계 · LONG 이어 잇기 · 목록 넘김 · LIST_HOLD · 도착 멘트 1초 앞 잦아듦(ARRIVE_LEAD_MS)
+chk 'function xfCurve' console.html 1
+chk 'var ARRIVE_LEAD_MS = 1000;' console.html 1
+chk 'esdStop(SEG_XF, true); esdBedBack(SEG_XF \* 1000, true);' console.html 1
+chk '① 짧은 입장 곡 → 본식 곡(M4) 인계' scripts/audit/ear-d.mjs 1
+chk '② 도착 멘트 첫 단어' scripts/audit/ear-d.mjs 1
+chk 'meaning-r1 seam-b2-entry ear-d' .github/workflows/merge-guard.yml 1
 chk "seam-bg seam-b2-rest" .github/workflows/merge-guard.yml 1
 chk "ONLY = process.env.ONLY || '음02,음04,음06K'" scripts/audit/seam-b2-entry.mjs 1
 # ★[B2_K16 2026-11-06 결정 «정지는 정지»] 입장 곡 도중 전체 정지 = 입장 곡 · 배경 0 · GO 재개 = 같은 곡 멈춘 자리부터 0.6초(검사 = CI a 칸 seam-b2-entry 음06K)
@@ -22613,6 +22620,34 @@ chk '새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.' automati
 chk 'B2_MA_59' automation/platform/89_prevideo.gs 1
 chk '다른 기기에서 사진이 추가돼 자리가 찼어요. 현재 사진을 확인해 주세요.' automation/platform/89_prevideo.gs 1
 chk 'B2_MA_59' mypage.html 1
+# ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR4] 하객 안내 첫 응답 · 편지 받는 분 · 식전 영상 다른 기기 사진 · 하객 사진 수 · 길이 거절 단추 · 지도 분류
+chk 'B2_FIX_MA_02' automation/platform/80_production.gs 3   # _guideTokenEnsure_ 가 토큰을 돌려주고 첫 응답에 싣는다
+chk 'B2_FIX_MA_02' mypage.html 1                            # 완성 화면 힌트는 main #1601 [GUIDE_ALL_EVENTS_1106] 글(같은 고침)
+chk 'GUIDE_ALL_EVENTS_1106' mypage.html 1
+chk 'var _gTokNow = _guideTokenEnsure_(r);' automation/platform/80_production.gs 1
+chk 'B2_FIX_MA_05' automation/platform/87_letter.gs 3       # 잘못된 받는 분 값은 두 분으로 넓히지 않는다
+chk "return (v === 'groom' || v === 'bride' || v === 'both') ? v : '';" automation/platform/87_letter.gs 1
+nochk "return (v === 'groom' || v === 'bride' || v === 'both') ? v : 'both';" automation/platform/87_letter.gs 0
+chk 'B2_FIX_L13' automation/platform/87_letter.gs 4         # 갈리지 않는 예식의 «한 분에게만»은 접수 · 보내기 둘 다 막는다
+chk 'function _ltSplit_' automation/platform/87_letter.gs 1
+chk "var LT_PICK_AGAIN = '받는 분을 다시 골라 주세요.';" automation/platform/87_letter.gs 1
+chk 'B2_FIX_MA_59' automation/platform/89_prevideo.gs 4     # 다른 기기가 올린 사진(rv > 요청 판)은 옛 저장이 빼지 않는다
+chk 'B2_FIX_MA_59' mypage.html 4                            # added 를 받아 그린다 · 사진 올리기에 요청 판
+chk 'function _pvcAdopt' mypage.html 1
+chk 'B2_FIX_MA_82' automation/platform/80_production.gs 7   # 상태 조회 때도 다시 맞추기 · 다시 센 파일은 또 더하지 않는다
+chk 'function _gpRecountApply_' automation/platform/80_production.gs 1
+chk 'function _gpStateNow_' automation/platform/80_production.gs 1
+chk 'B2_FIX_MA_82' mypage.html 1                            # recounting 이면 «사진 수를 확인하고 있어요.»
+chk '>사진 수를 확인하고 있어요.</div>' mypage.html 1
+chk 'B2_FIX_MA_82' scripts/audit/guest-photo-sim.mjs 2
+chk 'B2_FIX_GEUL_16' order-preview.html 1                   # 길이 거절 상자 — 가장 긴 원고로 가는 단추
+chk "+_longTxBtn()+'</div>'" order-preview.html 1
+chk 'B2_FIX_NI16' api/after-concierge.js 1                  # 지도 분류 «갈래 > 끝 토막»
+chk 'B2_FIX_NI16' assets/ritual-preview-link.js 2           # 옛 끝 토막 꼴 — 분명한 음식 분류 낱말일 때만
+chk 'B2_FIX_NI16' scripts/audit/console-inject.mjs 2
+chk 'B2_FIX_MA_38_GAS' automation/platform/80_production.gs 1   # 하객 안내 대표 장소 = 이름 + venuePickPid(없으면 옛 초안처럼 이름)
+chk "String(v.pid || '').trim() === _ppid" automation/platform/80_production.gs 1
+chk 'B2_FIX_MA_38_GAS' automation/tests/guide.test.js 1
 chk 'B2_MA_09' mypage.html 2                     # 발행하는 동안 잠금 · 보낼 초안 복사
 chk '청첩장을 만드는 중이에요.' mypage.html 1
 chk '고친 내용을 반영하는 중이에요.' mypage.html 1
@@ -22928,6 +22963,22 @@ chk 'B2_FIX_NI05' assets/ritual-cue.js 1
 chk 'B2_FIX_NA_62' order-preview.html 2
 chk 'B2_FIX_GEUL_18' order-preview.html 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r1.mjs >/dev/null 2>&1; _b2r1=$?; node scripts/audit/b2-fix-r1.mjs --selftest >/dev/null 2>&1; _b2r1s=$?; if [ "$_b2r1" != 0 ] || [ "$_b2r1s" != 0 ]; then echo "REVERT? b2-fix-r1: 재검증 재수정 1묶음(사진 안내 늘 · 서약 · 축사 박수 · 개식 힌트 · 본식 뒤 · 덕담 차례)이 어긋났습니다 ($_b2r1/$_b2r1s) — node scripts/audit/b2-fix-r1.mjs"; fail=1; else echo 'ok b2-fix-r1'; fi; fi
+# ★[B2_FIX_R2 2026-11-06 재검증 재수정 2묶음] 나38 · 나41 · 나51 · 글30 · 나03 · 나50 · NI17 · 나02 · 나20 — 화면 함수를 브라우저에서 불러 잰다(scripts/audit/b2-fix-r2.mjs · 브라우저 없으면 2 = 재지 못함)
+chk 'B2_FIX_NA_38' order-preview.html 2
+chk 'B2_FIX_NA_41' order-preview.html 1
+chk 'B2_FIX_NA_51' order-preview.html 2
+chk 'B2_FIX_NA_51' assets/ritual-open.js 1
+chk 'B2_FIX_GEUL_30' order-preview.html 1
+chk 'B2_FIX_NA_03' order-preview.html 1
+chk 'B2_FIX_NA_50' order-preview.html 1
+chk 'B2_FIX_NI17' mypage.html 1
+chk 'B2_FIX_NA_02' console.html 1
+chk 'B2_FIX_NA_20' console.html 1
+nochk '가까운 분들의 목소리로 바뀝니다' console.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r2.mjs >/dev/null 2>&1; _b2r2=$?; node scripts/audit/b2-fix-r2.mjs --selftest >/dev/null 2>&1; _b2r2s=$?; if [ "$_b2r2" = 1 ] || [ "$_b2r2s" = 1 ]; then echo "REVERT? b2-fix-r2: 재검증 재수정 2묶음(서약 차례 · 인용 · 축배 한마디 · 시간 · 이어서 지문 · 360 카드 · 도움말 · 손 대기 · 끝 화면)이 어긋났습니다 ($_b2r2/$_b2r2s) — node scripts/audit/b2-fix-r2.mjs"; fail=1; else echo "ok b2-fix-r2 ($_b2r2)"; fi; fi
+chk 'B2_FIX_NA_02_ORDER' console.html 3
+chk 'B2_FIX_NA_38_ONE' order-preview.html 1
+chk 'B2_FIX_NA_50_375' order-preview.html 1
 # ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
 chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
 nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것

@@ -1707,7 +1707,9 @@
       case 'letter': return (chipOf('letter', S) === 'each' ? '두 분이 서로에게 쓴 편지를 읽어요' : '두 분이 각자 부모님께 쓴 편지를 읽어요') + ' · ' + secTxt(p || 120);
       case 'song': return '축가 한 곡 · 연습에서는 건너뛰어요';   // [SONG_BACK_1011] 영상 · 기타 판 준비한 순서와 같은 꼴
       case 'toast': { var _tx = (S && S.tx) || {};   /* ★[TOAST_SAY_TALK_1013] 축배 한마디를 적었으면 그 말과 함께(자료 AA 6-1 · 감사 한 문장 + 구호) */
-        return String(_tx['toast.g'] || '').trim() || String(_tx['toast.b'] || '').trim() ? '두 분이 한마디와 함께 «위하여!»를 외치면 하객이 함께 답해요 · 약 20초' : '두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 10초'; }   // [TOAST_COUPLE 2026-09-26 코워크 회신5 3-2] ② 말하는 자리 카드
+        /* ★[B2_FIX_NA_51 2026-11-06 재검증 재수정] 적은 분 기준 — 두 분 다 · 한 분만(«신부 한마디 뒤 두 분이 …») · 아무도(한마디 말 없이) · 시간 값은 종전 그대로 */
+        var _tg = !!String(_tx['toast.g'] || '').trim(), _tb = !!String(_tx['toast.b'] || '').trim();
+        return _tg && _tb ? '두 분이 한마디와 함께 «위하여!»를 외치면 하객이 함께 답해요 · 약 20초' : (_tg || _tb) ? (_tg ? '신랑' : '신부') + ' 한마디 뒤 두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 20초' : '두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 10초'; }   // [TOAST_COUPLE 2026-09-26 코워크 회신5 3-2] ② 말하는 자리 카드
       case 'free': fk = FREE_KIND[chipOf('free', S)]; n = chipOf('freeLen', S);
         if (fk === 'speech') return '축사하실 분이 축하의 말을 전해요 · 약 ' + n + '분';   // [SPEECH_WORDS_1013] 카드 설명과 같은 «전해요»   // [SPEECH_TILE_1012]
         return chipLabel('free', S) + ' · 연습에서는 건너뛰어요';

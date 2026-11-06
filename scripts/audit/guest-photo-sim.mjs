@@ -33,7 +33,7 @@ const code = helper + '\n' + src.slice(from, to);
    이 검사가 붉어지는 것을 확인했다(게이트가 돌리는 검사다 = 그날부터 모든 PR 이 막힌다).
    ★박은 날짜로 되돌리지 말 것. 만료 경로는 아래 reset({ 예식일:'2020-01-01' }) 가 따로 본다. */
 const dAgo = (n) => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
-let created = [], written = [], PROPS = {}, CACHE = {}, FILES_IN = [];   // [B2_MA_19 · B2_MA_82 · B2_MA_86] 속성 · 캐시 · 폴더 안 파일 흉내
+let created = [], written = [], PROPS = {}, CACHE = {}, FILES_IN = [], FID_N = 0, ON_CREATE = null, LOCK_FREE = true;   // [B2_FIX_MA_82] 파일 id · 만든 직후 끼어드는 일 · 잠금 잡힘   // [B2_MA_19 · B2_MA_82 · B2_MA_86] 속성 · 캐시 · 폴더 안 파일 흉내
 const mk = (over={}) => {
   const row = { 안내공유토큰:'G1234567890abcd', 개인코드:'ME-0001', 예식일: dAgo(3),
                 하객사진수:0, 하객사진MB:0, 하객사진폴더ID:'', ...over };
@@ -44,15 +44,15 @@ const sandbox = {
   DriveApp: {
     getFoldersByName: () => ({ hasNext: () => true, next: () => ({ createFolder: n => ({ getId: () => 'FID_' + n }) }) }),
     createFolder: n => ({ createFolder: m => ({ getId: () => 'FID_' + m }) }),
-    getFolderById: id => ({ createFile: b => { created.push(b); FILES_IN.push({ name: b.name, size: b.bytes.length }); return { getId: () => 'FILE1' }; }, getName: () => 'f', setTrashed(){},
+    getFolderById: id => ({ createFile: b => { created.push(b); const fid = 'FILE' + (++FID_N); FILES_IN.push({ name: b.name, size: b.bytes.length, id: fid, at: Date.now() }); if (ON_CREATE) { const f = ON_CREATE; ON_CREATE = null; f(); } return { getId: () => fid }; }, getName: () => 'f', setTrashed(){},
       searchFiles: q => { const m = /contains "([^"]+)"/.exec(q); const hit = FILES_IN.filter(f => m && f.name.includes(m[1])); let i = 0; return { hasNext: () => i < hit.length, next: () => { const f = hit[i++]; return { getSize: () => f.size }; } }; },
-      getFiles: () => { let i = 0; return { hasNext: () => i < FILES_IN.length, next: () => { const f = FILES_IN[i++]; return { getSize: () => f.size }; } }; } })
+      getFiles: () => { let i = 0; return { hasNext: () => i < FILES_IN.length, next: () => { const f = FILES_IN[i++]; return { getSize: () => f.size, getId: () => f.id || ('OLD_' + i), getDateCreated: () => new Date(f.at || 0) }; } }; } })
   },
   PropertiesService: { getScriptProperties: () => ({ getProperty: k => (k in PROPS ? PROPS[k] : null), setProperty: (k, v) => { PROPS[k] = String(v); }, deleteProperty: k => { delete PROPS[k]; } }) },
   CacheService: { getScriptCache: () => ({ get: k => (k in CACHE ? CACHE[k] : null), put: (k, v) => { CACHE[k] = String(v); }, remove: k => { delete CACHE[k]; } }) },
   Utilities: { newBlob: (b, m, n) => ({ bytes:b, mime:m, name:n }), base64Decode: s => Buffer.from(s, 'base64'),
                formatDate: () => '0817-120000', getUuid: () => 'u' },
-  LockService: { getScriptLock: () => ({ waitLock(){}, releaseLock(){} }) },
+  LockService: { getScriptLock: () => ({ waitLock(){}, tryLock(){ return LOCK_FREE; }, releaseLock(){} }) },
   Logger: { log(){} },
   _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
   _findCustomerBy: () => CUR,
@@ -64,8 +64,8 @@ const sandbox = {
   fmtKST: () => '2026-08-17 12:00',
   P: { DATA_START_ROW: 2 }, rowFromValues: () => null
 };
-const fn = new Function(...Object.keys(sandbox), code + '\nreturn { handleGuestPhoto, _gpSafeName };');
-const { handleGuestPhoto, _gpSafeName } = fn(...Object.values(sandbox));
+const fn = new Function(...Object.keys(sandbox), code + '\nreturn { handleGuestPhoto, _gpSafeName, _gpStateNow_ };');
+const { handleGuestPhoto, _gpSafeName, _gpStateNow_ } = fn(...Object.values(sandbox));
 
 const B64 = n => Buffer.alloc(n, 1).toString('base64');
 let fail = 0;
@@ -74,7 +74,7 @@ const t = (name, got, want) => {
   console.log((ok ? '  ok  ' : '  ✗   ') + name + (ok ? '' : '  → ' + JSON.stringify(got)));
   if (!ok) fail++;
 };
-const reset = over => { CUR = mk(over); created = []; written = []; PROPS = {}; CACHE = {}; FILES_IN = []; };
+const reset = over => { CUR = mk(over); created = []; written = []; PROPS = {}; CACHE = {}; FILES_IN = []; ON_CREATE = null; LOCK_FREE = true; };
 
 console.log('[거절해야 하는 것]');
 reset(); t('토큰 없음',      handleGuestPhoto({ mime:'image/jpeg', data:B64(10) }),               r => !r.ok);
@@ -118,6 +118,21 @@ t('예약은 저장 뒤 비워진다', CACHE['gpres_G1234567890abcd'], v => v &&
 reset(); handleGuestPhoto({ g:'G1234567890abcd', mime:'image/jpeg', data:B64(100) }); FILES_IN.push({ name:'x', size:50 }); PROPS['GPRECOUNT_G1234567890abcd'] = '1';
 const rc = handleGuestPhoto({ g:'G1234567890abcd', mime:'image/jpeg', data:B64(100) });
 t('다시 맞추기 표시가 있으면 폴더 실제 파일로 센다(B2-마82)', [rc.n, PROPS['GPRECOUNT_G1234567890abcd']], v => v[0] === 3 && v[1] === undefined);
+
+/* ★[B2_FIX_MA_82 2026-11-06 재검증 재수정] 상태 조회에서도 다시 맞춘다 · 쓰는 중이던 전송이 다시 센 파일을 또 더하지 않는다 · 반복해도 늘지 않는다 */
+console.log('[재검증 재수정 — 다시 맞추기 · 두 번 세지 않기]');
+reset(); handleGuestPhoto({ g:'G1234567890abcd', mime:'image/jpeg', data:B64(100) }); FILES_IN.push({ name:'y', size:70 }); PROPS['GPRECOUNT_G1234567890abcd'] = '1';
+const s1 = _gpStateNow_(CUR), s2 = _gpStateNow_(CUR);
+t('상태 조회가 폴더 실제 파일로 다시 맞춘다(업로드를 기다리지 않는다)', [s1, CUR._row['하객사진수'], PROPS['GPRECOUNT_G1234567890abcd']], v => v[0].n === 2 && v[0].recounting === false && v[1] === 2 && v[2] === undefined);
+t('다시 조회해도 늘지 않는다', s2, v => v.n === 2 && v.recounting === false);
+reset(); handleGuestPhoto({ g:'G1234567890abcd', mime:'image/jpeg', data:B64(100) }); PROPS['GPRECOUNT_G1234567890abcd'] = '1'; LOCK_FREE = false;
+t('잠금을 못 잡으면 «확인하고 있어요»로 둔다(recounting)', _gpStateNow_(CUR), v => v.recounting === true && v.n === 1);
+reset(); handleGuestPhoto({ g:'G1234567890abcd', mime:'image/jpeg', data:B64(100) }); PROPS['GPRECOUNT_G1234567890abcd'] = '1';
+ON_CREATE = () => { _gpStateNow_(CUR); };   // 이 전송이 파일을 만든 직후 · 집계 전에 다른 조회가 다시 센다
+const dbl = handleGuestPhoto({ g:'G1234567890abcd', mime:'image/jpeg', data:B64(100) });
+t('다시 센 목록에 든 파일은 그 전송이 또 더하지 않는다(2장 = 2)', [dbl.n, CUR._row['하객사진수'], FILES_IN.length], v => v[0] === 2 && v[1] === 2 && v[2] === 2);
+const after = handleGuestPhoto({ g:'G1234567890abcd', mime:'image/jpeg', data:B64(100) });
+t('그 뒤 새 전송은 종전처럼 +1', [after.n, FILES_IN.length], v => v[0] === 3 && v[1] === 3);
 
 console.log('[파일 이름]');
 t('경로 문자 제거', _gpSafeName('../../etc/pw.jpg', 'image/jpeg'), n => !n.includes('/') && !n.includes('..'));
