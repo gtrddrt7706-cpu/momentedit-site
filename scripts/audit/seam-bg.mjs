@@ -234,7 +234,7 @@ try {
       const { o, L, iE } = await pv(nm, on, 'each', {}, ['letter'], 16000), un = o.slice(Math.max(0, iE)).filter((x) => x.on);
       ok(`BG03-T02 미리 듣기 ${nm} — 편지 끝 처리(lpTail)는 불리되 M4 −16 / −8 올림 0(꼬리 0)`, iE > -1 && L.length === 1 && !un.length && L.every((x) => !(x.r > 0)), { un: un.slice(0, 3).map((x) => [x.s || x.lab, x.f, x.seg, x.want]), L }); }
     /* T03 미리 듣기 — 부모님께 → 테이블: 정적 2초 → 3초 오름 한 번 · 테이블 첫 줄 뜸이 또 걸지 않는다 */
-    { const { o, L, iE } = await pv('parent→table', { letter: 1, table: 1, toast: 1 }, 'parent', {}, ['letter', 'table'], 24000), iT = o.findIndex((x) => x.k === 'table'), f1 = o.find((x) => x.on), fs = [...new Set(o.filter((x) => x.on).map((x) => x.f))];
+    { const { o, L, iE } = await pv('parent→table', { letter: 1, table: 1, toast: 1 }, 'parent', {}, ['letter', 'table'], 34000)   /* [B2_GEUL_02_05] 부모님께 여는 말이 길어지고 편지 꺼내는 조용한 줄이 생겨 테이블 첫 줄이 23초쯤 — 24초 창으로는 M8 을 못 봤다 */, iT = o.findIndex((x) => x.k === 'table'), f1 = o.find((x) => x.on), fs = [...new Set(o.filter((x) => x.on).map((x) => x.f))];
       const dip = o.slice(o.indexOf(f1) + 1).some((x, j, a) => !x.on && a.slice(j).some((y) => y.on));
       ok('BG03-T03 미리 듣기 부모님께 → 테이블 — 편지 끝 처리 한 번 · 첫 소리는 테이블 첫 줄에서 약 2초 뒤 M8 · 곡 하나 · 끊김 0', iE > -1 && L.length === 1 && L[0].st === 'narr-letter-end' && !!f1 && f1.k === 'table' && f1.seg === 'M8' && f1.t - o[iT].t >= 1500 && fs.length === 1 && !dip, { L, f1: f1 && [f1.k, f1.seg, Math.round(f1.t - o[iT].t)], fs, dip }); }
     /* T04 엔진 — 음악 없는 편지 끝은 −90 그대로 · «음악과 함께»의 b8 은 −16(무조건 −90 으로 바꾸지 않는다) */
@@ -245,7 +245,7 @@ try {
     { await setX({ on: { song: 0, free: 0, tribute: 0, bless: 1, letter: 1, table: 1, toast: 1 }, bgm: {}, letter: 'parent' }); await go(f, 'letter'); await toListen();
       const r = await f.evaluate(async () => { const H = window.parent.H; const M8 = [BgmBed._t.songAt('table')].filter(Boolean); (M8 || []).forEach((x) => { H.dly[x] = 7000; delete BgmBed._t.BUF[x]; });
         const BB = BgmBed._t; window.__lt = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['letter', 'table'], true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; });
-        await new Promise((res) => { const iv = setInterval(() => { if (window.__lt.length) { clearInterval(iv); res(); } }, 50); setTimeout(res, 20000); });
+        await new Promise((res) => { const iv = setInterval(() => { if (window.__lt.length) { clearInterval(iv); res(); } }, 50); setTimeout(res, 32000); });   /* [B2_GEUL_02_05] 편지 끝이 19초쯤 */
         try { lsStop(); } catch (e) {} try { lsCloseBig(); } catch (e) {} const o = []; await new Promise((res) => { const t0 = performance.now(), iv = setInterval(() => { const v = BB.BED.cur; o.push({ f: v && v.f, on: !!(v && v.src && v.want > -60) }); if (performance.now() - t0 > 9000) { clearInterval(iv); res(); } }, 100); });
         (M8 || []).forEach((x) => { delete H.dly[x]; }); return { lt: window.__lt.slice(), M8, on: o.filter((x) => x.on).slice(0, 3) }; });
       ok('BG03-T05 미리 듣기 다음 곡이 늦게 오는 사이 멈춤 — 늦은 곡 · 옛 곡 올림 0', r.lt.length === 1 && !r.on.length, r); }
