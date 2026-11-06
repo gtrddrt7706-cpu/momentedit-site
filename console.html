@@ -1527,7 +1527,7 @@ function esdEnd(run, ended){ if (ESD.run !== run || run.ending) return; if (!ESD
 function esdRelay(run){ var Sg = ESD.Sg, a = run.a; if (ESD.run !== run || !Sg || !Sg.buf || !a || a.state === 'closed' || !esdIn(cueAt(cur))) return false;
   try { var n = a.currentTime, h = Math.max(0, Math.min(Sg.dur - SEG_XF * 2 - 1, +run.PL.H || 0)), cg = run.cg || run.eg, lv = Math.max(0.0001, cg.gain.value), os = run.src;
     var s2 = a.createBufferSource(), g2 = a.createGain(); s2.buffer = Sg.buf; g2.gain.value = 0.0001; xfCurve(g2.gain, lv, SEG_XF, n); s2.connect(g2); g2.connect(run.mg); s2.start(n, h);   /* [EAR_D_1106 ①] 같은 곡선 */
-    cg.gain.value = lv; xfCurve(cg.gain, 0.0001, SEG_XF, n);
+    xfCurve(cg.gain, 0.0001, SEG_XF, n);   /* [EAR_D_1106 검토 D ⓐ] .value 를 직접 쓰지 않는다(곡선이 도는 중이면 Chromium 오류) — xfCurve 가 예약을 지우고 지금 값에서 잇는다 */
     os.onended = null; try { os.stop(n + SEG_XF + 0.05); } catch (e) {}
     (run.xg = run.xg || []).push(g2); run.src = s2; run.cg = g2; run.relay = (run.relay || 0) + 1; run.sT0 = n; run.sOff = h;
     s2.onended = function(){ esdEnd(run, true); }; if (run.tEnd) clearTimeout(run.tEnd);
