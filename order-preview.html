@@ -937,6 +937,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-acts{display:grid;gap:20px}
 /* ★★[FIX_FLOW_204 검토 204 보충 A] 늘 있는 진행 줄 — 고르는 칸과 다른 모양(얇은 줄 · 담기 · 빼기 · ✓ 없음) · 펼치면 세로 차례 · 그림 없음 */
 .fx-flow{margin:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.fx-flow.fx-one{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-height:44px;padding:8px 2px;font-size:14px;color:var(--accent)}   /* [PICK_FLOW_ONE_1106] 한 줄 · 펼침 없음 */
 .fx-flow>summary{list-style:none;display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-height:48px;padding:8px 2px;cursor:pointer;font-size:14px;color:var(--accent)}
 .fx-flow>summary::-webkit-details-marker{display:none}
 .fx-flow .fx-k{font-size:12.5px;color:var(--sub);white-space:nowrap}
@@ -965,7 +966,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-act-h{font-size:14px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
 .pk-act-d{font-size:12.5px;color:var(--light);margin:0 0 8px;line-height:1.45}
 .pk-lead{margin:0 0 14px;font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}   /* [PHOTO_SCENE_1031] */
-.pk-scnote{font-size:12.5px;color:var(--light);margin:10px 0 0;line-height:1.5}   /* [SCENE_NOTE_1023] 칸 아래 한 줄 · 작게 */
+.pk-scnote{font-size:12.5px;color:var(--light);margin:8px 0 0;line-height:1.5;text-align:right}   /* [PICK_FLOW_ONE_1106] 칸 그림의 설명 · 오른쪽 작은 글씨 */   /* [SCENE_NOTE_1023] 칸 아래 한 줄 · 작게 */
 .pk-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .pk-tile{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .pk-tile.on,.pk-tile.fix{border-color:var(--gold);background:var(--tile-on)}
@@ -1121,7 +1122,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-fp>.pk-side{grid-column:2;grid-row:1 / span 2}
   .pk-fp>.op-note{grid-column:1;grid-row:2;margin-top:0;align-self:start}   /* [NOTE_UNDER] PC 는 그림 아래 */
   .pk-acts{gap:18px;margin-bottom:48px}
-  .pk-scnote{padding-left:168px;margin:-38px 0 48px}   /* [SCENE_NOTE_1023] PC 는 칸 줄과 왼쪽을 맞춘다(이름 칸 150 + 사이 18) · 칸 아래 48 여백 안으로 올린다 */
+  .pk-scnote{padding-left:168px;margin:-38px 0 30px}   /* [PICK_FLOW_ONE_1106] 오른쪽 정렬 · 칸 줄 아래 여백 안 */   /* [SCENE_NOTE_1023] PC 는 칸 줄과 왼쪽을 맞춘다(이름 칸 150 + 사이 18) · 칸 아래 48 여백 안으로 올린다 */
   .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
   .pk-act-h{font-size:14px;color:var(--accent)}
   .pk-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
@@ -4797,9 +4798,8 @@ function _fixSteps(kind){ var S2=_clS(), mF=!!(S2.meal&&S2.mealFull), cs=[];
     {t:'',n:'정리',d:'옷을 갈아입고 하루를 정리해요',w:'c'}]; }
 var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};
 /* [FIX_FLOW_204 A] ① 고르기 — 카드 목록 위(식전) · 아래(본식 뒤)의 얇은 진행 줄 · 펼치기 = «진행 보기» · ▶ 없음(듣기는 ② 에서) */
-function _fxFlow(kind){ var pre=kind==='pre', st=_fixSteps(kind);
-  return '<details class="fx-flow" data-fk="fx:'+kind+'"><summary><span class="fx-k">'+(pre?'식전':'본식 뒤')+'</span><span class="fx-n">'+(pre?'하객 맞이 안내':'사진 · 정리')+'</span><span class="fx-s">늘 포함돼요</span><span class="fx-more">진행 보기</span></summary>'
-    +'<ol class="fx-l'+(pre?'':' nt')+'">'+st.map(function(x){ return '<li>'+(pre?'<span class="fx-t">'+esc(x.t||'')+'</span>':'')+'<span class="fx-b"><b>'+esc(x.n)+'</b><span class="fx-d">'+esc(x.d)+'</span></span><span class="fx-who'+(x.w==='v'?' v':'')+'">'+esc(FX_WHO[x.w])+'</span></li>'; }).join('')+'</ol></details>'; }
+function _fxFlow(kind){ var pre=kind==='pre';   /* ★★[PICK_FLOW_ONE_1106 대본 11/06 · 사장님 «이거를 왜 여기서 설명하고 있는 거야? 지저분하게»] ① 고르기에서는 한 줄만 — «진행 보기» 펼침 · 차례 목록(현장 진행 · 안내 음성 · 두 분 동작 알약)은 뺐다(되살리지 말 것) · 자세한 차례는 ② 하나씩 만들기 · 전체 순서 · 연습에서 */
+  return '<div class="fx-flow fx-one" data-fk="fx:'+kind+'"><span class="fx-k">'+(pre?'식전':'본식 뒤')+'</span><span class="fx-n">'+(pre?'하객 맞이 안내':'사진 · 정리')+'</span><span class="fx-s">늘 포함돼요</span></div>'; }
 function _afterImg(){ return '/assets/video/moments/guest-end.webp'+(RitualOpen.VIDEO_V||''); }   /* ★[POST_CARD_204 검토 204 3] 가족 사진 · 추가 촬영 칸(close-end)과 같은 그림이던 것 — 하객이 함께 선 장면(guest-end)으로 */   /* 닫는 인사 영상 끝 장면(하객이 함께 선 모습) — 칸 · 창 그림 */
 function _afterLine(){ var g=ENG; if(!g||!g.RitualCue||!g.RitualCue.afterPhotoOf) return null; var sl=g.RitualCue.afterPhotoOf(_clS()), f=g.RitualCue.fileOf(sl), t=(g.RitualCue.EXTRA||{})[sl]||''; if(!t) return null;
   var ok=!!(f&&_lHasSound(f,t)); return { text:t, src:ok?(g.RitualCue.PARAM.clipDir+f+'.mp3'):'', stopMs:0, slug:sl, file:f }; }
@@ -9318,9 +9318,9 @@ function renderPick(){
   h+='<div class="pk-sh" id="pkActsH"><h3 class="pk-h">순간 더하고 빼기</h3><span class="pk-aux">칸을 누르면 미리 보고 들어요 · ＋로 담아요</span></div>'+_cntLine('pk');   /* [EVENT_COUNT_CAP] */   /* ★범례(✓ 고른 순간 · ⊙ 늘 있는 순간) 금지 — 2026-10-06 사용자 지시로 삭제 [FIX_LEG_OFF] · 표만으로 읽힌다 */
   if(_afterOn()) h+=_fxFlow('pre');   /* ★[FIX_FLOW_204 A] 늘 있는 진행 — 카드 목록 위 «식전 · 하객 맞이 안내» · 아래 «본식 뒤 · 사진 · 정리» · 단체 사진 · 촬영 후 안내 카드는 뺐다(고를 것이 아니라 늘 진행되는 순서 · 되살리지 말 것) */
   h+='<div class="pk-acts">'+R.SECTIONS.map(function(a,i){ return '<section class="pk-act" aria-labelledby="pkA'+i+'"><div class="pk-act-l"><h4 class="pk-act-h" id="pkA'+i+'">'+esc(a.n)+'</h4><p class="pk-act-d">'+esc(a.d)+'</p></div><div class="pk-tiles">'+a.ks.filter(_pkShow).map(_pkTile).join('')+'</div></section>'; }).join('')+'</div>';   /* [CAKE_OFF_1013] 새로 담지 않는 칸은 담겨 있을 때만 */
-  if(_afterOn()) h+=_fxFlow('post');
   /* ★① 칸 아래 «칸의 그림 자리에는 AI로 만든 장면 영상의 첫 장면이 들어가요» 한 줄 금지 — 2026-10-03 사용자 지시로 삭제 [AI_LABEL_OFF] */
-  h+='<p class="pk-scnote">이해를 돕는 연출 장면이에요</p>';   /* ★[SCENE_NOTE_1023 2026-10-23 사장님 «실제랑 다르다고 작게 적어 놓는 게 좋을까 · 제안줄래» → «요약해서 · 조금 달라요 이런 거 빼고»] 장면 그림 · 영상이 처음 보이는 칸 아래 한 번만 · «AI» 낱말 없음(AI_LABEL_OFF 와 다른 줄 — 기대치를 맞추는 «연출» 한 마디) · 칸마다 · 그림 위에 붙이지 않는다 */
+  h+='<p class="pk-scnote">이해를 돕는 연출 장면이에요</p>';   /* [PICK_FLOW_ONE_1106] 칸 목록 바로 아래 · 본식 뒤 한 줄보다 위 — «정리» 줄 옆에 붙어 정리 설명처럼 보이던 것(사장님 캡처 11/06) */
+  if(_afterOn()) h+=_fxFlow('post');   /* ★[SCENE_NOTE_1023 2026-10-23 사장님 «실제랑 다르다고 작게 적어 놓는 게 좋을까 · 제안줄래» → «요약해서 · 조금 달라요 이런 거 빼고»] 장면 그림 · 영상이 처음 보이는 칸 아래 한 번만 · «AI» 낱말 없음(AI_LABEL_OFF 와 다른 줄 — 기대치를 맞추는 «연출» 한 마디) · 칸마다 · 그림 위에 붙이지 않는다 */
   h+='</div>';
   return h;
 }
