@@ -1596,7 +1596,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
    ★왼쪽 고정(옛 [PLAY_ICON_FIXED_1023] · 동그라미를 알약 왼쪽 안쪽에 못 박기) 되살리지 말 것 — 2026-10-23 사용자 지시로 취소 · scripts/audit/scene-words.mjs */
 .em-lab-tg{display:inline-grid;justify-items:start}
 /* ★[LOAD_SHOW_1106] 소리를 받는 동안 — 지금 줄 ▶ 원 자리 · 알약 · 작은 플레이어 ❚❚ 자리에 작은 돌기(14px · 1.5px 테 · 0.9초 한 바퀴 · 줄이는 움직임 설정이면 느리게) · 새 색 없음(currentColor) */
-.ldsp{display:inline-block;flex:none;width:14px;height:14px;box-sizing:border-box;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:ldsp .9s linear infinite;vertical-align:middle}
+.ldsp{display:inline-block;flex:none;width:14px;height:14px;margin:0 8px;box-sizing:border-box;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:ldsp .9s linear infinite;vertical-align:middle}
 @keyframes ldsp{to{transform:rotate(360deg)}}
 .mk-flow li.lp-ld .mk-pl svg,.ls-row.lp-ld .ls-pi svg,.ls-mini .lm-p.lp-ldb svg{visibility:hidden}
 .mk-flow li.lp-ld .mk-pl::after,.ls-row.lp-ld .ls-pi::after,.ls-mini .lm-p.lp-ldb::after{content:'';position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;box-sizing:border-box;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:ldsp .9s linear infinite}
@@ -2461,7 +2461,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1106r2w"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1106rt"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106pw"></script><script src="/assets/bgm-picks.js?v=1105b2"></script><script src="/assets/narration-pad.js?v=1106d1"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1106p17"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1106e7"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1106rw"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106pw"></script><script src="/assets/bgm-picks.js?v=1105b2"></script><script src="/assets/narration-pad.js?v=1106d1"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1106p17"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3306,7 +3306,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1106r2w';   // [ASSET_V] 위 주석 · [B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다
+  var ASSET_V='1106e7';   // [ASSET_V] 위 주석 · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -6162,15 +6162,15 @@ window.mkRecNs=function(){ MK.ns=true; var k=MK_REC&&MK_REC.key; if(MK_REC&&MK_R
    들어 보기 화면이 뜬 뒤 0.6초 안의 누름은 받지 않는다(방금 녹음이 사라지거나 듣지 않고 넘어가던 것) */
 function _reviewFresh(){ var r=MK_REC; return !!(r&&r.ph==='review'&&Date.now()-(r.t||0)<600); }
 window.mkRecAgain=function(){ if(_reviewFresh()) return; var k=MK_REC&&MK_REC.key; if(MK_REC&&MK_REC.url) try{ URL.revokeObjectURL(MK_REC.url); }catch(e){} MK_REC=null; if(k) mkRecGo(k); };
-function _recFromBlob(key,blob,src,name,cap,cut){ MK_REC={key:key,ph:'busy',msg:'다듬는 중…'}; render();   // [REC_CUT] cut = 두 분이 멈추지 않았는데 멈춘 녹음
+function _recFromBlob(key,blob,src,name,cap,cut){ var me=MK_REC={key:key,ph:'busy',msg:'다듬는 중…'}; render();   /* ★[ST12_02_LATE_FILE 2026-11-06 점검 ST12-02 «현재 선택한 파일의 결과만 반영»] 이 다듬기의 차례표(me) — 끝났을 때 창이 여전히 이 차례일 때만 결과(들어 보기 · 길이 · 알림 · 오류)를 그린다. 종전엔 자리(key)만 봐서 A 를 고르고 × → B 를 고르면 늦게 끝난 A 가 B 의 들어 보기를 덮었다 */   // [REC_CUT] cut = 두 분이 멈추지 않았는데 멈춘 녹음
   if(!blob||!blob.size){ MK_REC={key:key,ph:'err',src:src,msg:_openWhy({meKind:'empty'},src,key)}; render(); return; }   /* ★[ERR_CODE_BUILDER] 빈 녹음 — 전화 · 알림으로 녹음이 끊기면 MediaRecorder 는 오류 없이 빈 소리를 준다(종전엔 «읽지 못했어요»와 섞였다) */
   blob.arrayBuffer().then(function(ab){ return _recProcess(ab,/^vc:/.test(key)?30:_mkSec(_recNeed(key).length)); }).then(function(o){   // [VOICE_CLONE_0928] 1분 읽기 글마다 30초 기준 · 15초 안이면 «짧아요»
-    if(!MK_REC||MK_REC.key!==key) return;
+    if(MK_REC!==me) return;   // [ST12_02_LATE_FILE]
     var _cap=src==='rec'&&!!cap;   // [REC_CAP_ONE]
     if(o.dur>REC_MAX_SEC+(_cap?1.5:0)){ MK_REC={key:key,ph:'err',src:src,msg:src==='file'?'60초가 넘는 파일이에요 · 60초 안으로 줄여 올려 주세요':/^vc:/.test(key)?'60초가 넘어요 · 이 글만 조금 빠르게 다시 읽어 주세요':'60초가 넘어요 · 한 줄만 조금 빠르게 다시 녹음해 주세요'}; render(); return; }   /* [REC_CAP_SAY] 길어서 넘친 것 — «천천히»가 아니라 «조금 빠르게» · 1분에서 저절로 멈춘 녹음은 끝 반올림만큼 봐준다 */
     if(!o.silent&&(_cap||(src==='rec'&&cut))) o.warn=[_cap?'1분이 되어 녹음이 멈췄어요\n끝까지 읽었는지 들어 보세요':'녹음이 중간에 멈췄어요\n끝까지 읽었는지 들어 보세요'].concat((o.warn||[]).filter(function(x){ return !/길어요|짧아요/.test(x); }));   /* ★[REC_CUT_KEEP 2026-10-30 GPT 4차 점검 4-03 · VC_FIX4_1030] 멈춘 녹음 알림이 다른 알림을 통째로 덮지 않는다 — 소리가 없으면(무음) «소리가 녹음되지 않았어요» 한 줄 그대로(재생기가 없는데 «들어 보세요»라 하지 않게) · 작은 소리 · 찢어짐 · 주변 소리는 함께 남기고 길이 알림(길어요 · 짧아요)만 뺀다(멈춤 알림이 길이를 말한다) */   /* [REC_CUT] 1분 멈춤(REC_CAP_SAY)과 같은 꼴 · 입력 안내라 코드 없음 */   /* [REC_CAP_SAY] 종전엔 말없이 멈추고 «조금 길어요 · 그대로 써도 돼요»(본인 확인 문장이 잘려도 같은 말) */   /* [ERR_CODE_BUILDER] 올린 파일 · 1분 읽기에 «한 줄만 다시 녹음»은 맞지 않는 말이었다(입력 안내라 코드 없음) */
     MK_REC={key:key,ph:'review',wav:o.wav,url:URL.createObjectURL(o.wav),dur:o.dur,warn:o.warn,noisy:!!o.noisy,silent:!!o.silent,src:src,name:name||'',t:Date.now()}; render();   /* [REC_SILENT] */   /* [REVIEW_TAP_GUARD] 들어 보기 화면이 뜬 때 */
-  }).catch(function(e){ if(!MK_REC||MK_REC.key!==key) return;
+  }).catch(function(e){ if(MK_REC!==me) return;   // [ST12_02_LATE_FILE] 앞 파일의 실패도 새 파일 창을 바꾸지 않는다
     if(src==='file'){ MK_REC={key:key,ph:'err',src:src,msg:_openWhy(e,src,key)}; render(); return; }   // ★[REC_TRIM 2026-09-28 코워크 0928 6-2] 못 여는 파일은 받은 그대로 보내지 않는다(다듬기 · 60초 검사를 건너뛰게 된다)
     MK_REC={key:key,ph:'err',src:src,msg:_openWhy(e,src,key)}; render(); }); }   /* [ERR_CODE_BUILDER] M6 — 오디오 문맥을 못 만든 것(아이폰 한도 · 파일 탓 아님)과 정말 못 여는 파일을 가른다 */
 /* ★★[REC_TRIM 2026-09-28 코워크 0928 6-3] 다듬기 — 모노 → 80Hz 고역 통과(두 번) → 잡음 재기(20dB) → 앞뒤 빈소리 자르기(0.15초) → LUFS -16 · 봉우리 -1dB → 24kHz 16bit 모노 WAV.
@@ -7285,12 +7285,13 @@ function _rfUrl(key,force){ var v=(S.up||{})[key]; if(!v||typeof v!=='object'||!
   if(RF_LOAD[v.id]) return null;
   var _E=RF_ERR[v.id]; if(_E&&!force&&(_E.gone||Date.now()-_E.at<15000)) return null;   // [RF_GONE_REMAKE] 없는 파일은 그리기마다 다시 묻지 않는다(▶ 를 누르면 다시)   /* ★[ERR_CODE_BUILDER] 방금 못 받은 파일은 그리기마다 다시 묻지 않는다(15초) — ▶ 를 누르면(force) 바로 다시 */
   delete RF_ERR[v.id]; RF_LOAD[v.id]=1;
-  _rfGet(v.id).then(function(b){ if(b){ RF_URL[key]=URL.createObjectURL(b); RF_URL[key+'#']=v.id; _rfRedraw(); return; }
+  _rfGet(v.id).then(function(b){ var _now=(S.up||{})[key]; if(!_now||typeof _now!=='object'||_now.id!==v.id){ delete RF_LOAD[v.id]; return; }   /* ★[ST12_02_LATE_FILE] 찾는 사이 그 자리 소리가 바뀌었거나(새 파일 · 녹음) 비었으면 옛 파일 결과(소리 · «이 기기에 없어요»)를 버린다 — 종전엔 새 파일 자리에 옛 소리를 붙였다 */
+    if(b){ RF_URL[key]=URL.createObjectURL(b); RF_URL[key+'#']=v.id; _rfRedraw(); return; }
     if(!EMBED||/^local:/.test(v.id)){ delete RF_LOAD[v.id]; _rfErr(key,v.id,{local:1}); return; }   /* [ERR_CODE_BUILDER] 받아 올 곳이 없는 녹음 — 종전엔 «불러오는 중이에요»가 영영 남았다 */
     try{ parent.postMessage({type:'momentedit:ritualFileGet', data:{key:key,id:v.id}}, window.location.origin); }catch(e){ delete RF_LOAD[v.id]; _rfErr(key,v.id,{t:_ecWord('L',6)}); } });
   return null; }
 /* [ERR_CODE_BUILDER] 받기 실패를 적어 두고 · ▶ 를 누르고 기다리던 줄이면 그 줄 아래에 바로 까닭(코드) — «불러오는 중»은 묻는 동안에만 */
-function _rfErr(key,id,E){ E.at=Date.now(); RF_ERR[id]=E; var w=MK.rfWant; if(w&&w.k===key&&Date.now()-w.at<90000){ MK.rfWant=null; _rfLine(key,_rfErrT(E,key)); render(); } }
+function _rfErr(key,id,E){ E.at=Date.now(); RF_ERR[id]=E; var _c=(S.up||{})[key]; if(!_c||typeof _c!=='object'||_c.id!==id) return;   /* [ST12_02_LATE_FILE] 다른 파일이 된 자리에는 옛 파일 까닭을 적지 않는다(기록은 그 파일 몫으로 남긴다) */ var w=MK.rfWant; if(w&&w.k===key&&Date.now()-w.at<90000){ MK.rfWant=null; _rfLine(key,_rfErrT(E,key)); render(); } }
 /* ★[RF_LINE_CLEAR 2026-10-07 1라운드 점검] 받기 실패 글을 그 줄 아래에 둘 때 무엇을 적었는지 기억한다 — 서버 까닭 글 + 0 은 코드가 없어([ERR_ZERO_TEXT]) «(코드 L#)»로는 못 알아본다.
    소리를 받아 틀면 그 글만 걷는다(다른 일의 까닭은 그대로) */
 function _rfLine(key,t){ (MK.rfWhy=MK.rfWhy||{})[key]=t; _lineFail(key,t); }

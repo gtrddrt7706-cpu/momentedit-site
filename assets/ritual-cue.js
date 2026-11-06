@@ -275,7 +275,10 @@
     'guest-w-5m-mgr-online', 'guest-w-5m-mg-online', 'guest-w-5m-mr-online', 'guest-w-5m-m-online', 'guest-w-5m-g-online',
     'narr-closing-mealnr', 'narr-closing-mealnr-nt', 'narr-closing-mealnr-nt-nc',
     /* [INFO_SPLIT_200] 342 ~ 344 마무리 멘트 식사 · 예약 시각 판(칩 셋) · 345 ~ 347 10분 전 식사 날 판(십 · 십오 · 이십) — 옛 291 · 296 · 328 · 300 ~ 313 의 받은 소리(경로 · 사진 문장)를 5분 전이 빌려 쓰도록 옛 판은 글 그대로 쉰다 */
-    'narr-closing-mealr', 'narr-closing-mealr-nt', 'narr-closing-mealr-nt-nc', 'guest-w-10m-n10-meal', 'guest-w-10m-n15-meal', 'guest-w-10m-n20-meal'
+    'narr-closing-mealr', 'narr-closing-mealr-nt', 'narr-closing-mealr-nt-nc', 'guest-w-10m-n10-meal', 'guest-w-10m-n15-meal', 'guest-w-10m-n20-meal',
+    /* ★★[K3_SHORT_1106 결정 K3 · D03 «10분 미만 본식 길이 안내»] 348 · 349 — 예상 본식이 10분 미만인 날의 10분 전(299 · 345 대신 · 부르는 이름 299s · 345s) ·
+       «약 십 분간 진행되고» 대신 길이를 말하지 않는 새 문장 하나(진희 · 녹음 대기 · 화면 글 먼저) · 10분 이상은 299 ~ 313 · 345 ~ 347 그대로 */
+    'guest-w-10m-n10-short', 'guest-w-10m-n10-short-meal'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -455,6 +458,7 @@
     up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.'),
     ten: gw('십 분 뒤 본식을 시작하겠습니다.'),
     n10: gw('약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'), n15: gw('약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'), n20: gw('약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'),
+    nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.'),   /* [K3_SHORT_1106] 10분 미만 본식 — 길이를 말하지 않는다(새 문장 · 녹음 대기) */
     meal: gw('식사는 촬영 뒤에 함께합니다.'),
     mgr: gw('장소와 예약 시각은 모바일 청첩장의 하객 안내에서 확인해 주세요.'), mg: gw('장소는 모바일 청첩장의 하객 안내에서 확인해 주세요.'),
     mr: gw('장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.'), m: gw('장소와 시간은 현장 디렉터에게 여쭤 주세요.'),
@@ -491,6 +495,8 @@
     /* 쉬는 판 — 옛 글 그대로(받은 경로 문장을 5분 전이 빌린다) */
     GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = b.concat([GW.meal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = b.concat([GW.meal, GW.mg]);
     GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = b.concat([GW.meal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = b.concat([GW.meal, GW.m]); });
+  /* [K3_SHORT_1106] 299s · 345s = 10분 미만 본식 판(시작 예고 + 길이 없는 촬영 예고 ± 식사) */
+  GUEST_PARTS['guest-w-10m-n10-short'] = [GW.ten, GW.nShort]; GUEST_PARTS['guest-w-10m-n10-short-meal'] = [GW.ten, GW.nShort, GW.meal];
   /* ★[INFO_SPLIT_200] 5분 전 = 시작 오 분 전 + 확인 경로(식사 날 · 하객 안내 / 현장 디렉터 × 예약 시각) + 사진(하객 안내) ± 온라인(맨 끝) · 식사도 하객 안내도 없는 날은 03 · 314 그대로 */
   /* ★★[PHOTO_ALWAYS_NI02 2026-11-05 이음매 NI02] 사진 올리기 안내는 하객 안내를 끈 예외 예식에도 나간다 — 입장 때는 늘 298 · 5분 전 현장 디렉터 판(331 · 332 · 335 · 336)은
          장소 문장 뒤에 333 의 사진 문장(pUp)을 붙인다(새 녹음 0 · 창고 문장 이어 붙임) · 식사 없는 날은 하객 안내와 상관없이 333 · 334 · 온라인 문장은 늘 맨 끝 ·
@@ -499,11 +505,13 @@
   Object.keys(G5).forEach(function (x) { GUEST_PARTS['guest-w-5m' + x] = [GW.five].concat(G5[x]); GUEST_PARTS['guest-w-5m' + x + '-online'] = [GW.five].concat(G5[x], [GW.online5]); });
   Object.keys(GUEST_PARTS).forEach(function (k) { EXTRA[k] = GUEST_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 본식 길이(5분 단위 · 녹음 판 십 · 십오 · 이십) — 테이블 인사 · 축배까지(닫는 인사 앞에 선다) · 넉넉 합의 가운데 · 6천 조합 실측 10 ~ 20(검토 191) */
+  /* ★[K3_SHORT_1106] 예상 본식(넉넉 합 가운데 · guestMinOf 와 같은 자)이 10분 미만인가 — 그날은 «약 십 분간»(299 · 345)을 말하지 않는다 · 길이를 모르면(옛 판) 아니다 */
+  function guestShort(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } return !!b && (b[0] + b[1]) / 2 < 600; }
   function guestMinOf(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } if (!b) return 15; var n = Math.round(((b[0] + b[1]) / 120) / 5) * 5; return Math.max(10, Math.min(20, n)); }
   /* 판 고르기 — i = 0 입장 때 · 1 10분 전 · 2 5분 전 · 3 1분 전 */
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
     if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
-    if (i === 1) return 'guest-w-10m-n' + guestMinOf(S) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 */
+    if (i === 1) return (guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 · [K3_SHORT_1106] 10분 미만 본식은 길이 없는 판(299s · 345s) */
     if (i === 2) { var r5 = mF ? (gOn(S) ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m')) : (gOn(S) ? '-g' : '');   /* [INFO_SPLIT_200] 경로 · 사진은 5분 전 */
       return 'guest-w-5m' + (r5 || '-g') + (S.digital ? '-online' : ''); }   /* [PHOTO_ALWAYS_NI02] 식사 없는 날은 하객 안내와 상관없이 사진 판(333 · 334) — 03 · 314 는 이 자리에 안 쓴다 */
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
@@ -2026,7 +2034,10 @@
     }
     for (var pa = 0; pa < cues.length; pa++) {
       var _pc = cues[pa]; if (_pc.k !== 'prevideo') continue;
-      if (/^narr-prevideo-in/.test(_pc.slug || '')) { _pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000); }
+      /* ★[PV_LEAD_NOCLAP_1106 J_A A11 · B2-쉼01 · 사장님 청취 확인] 박수를 청하지 않는 개식(칩 1 ~ 5 · 사슬 3초 · 이미 −90)에 바로 이어지는 소개는 뜸(goLeadMs 3초)을 얹지 않는다 —
+           당일 콘솔에서 사슬 3초 + 뜸 3초가 겹쳐 약 6초 정적이었다(미리 듣기는 3초) · 박수를 청하는 개식(GO) · 그 밖 자리는 그대로(하객 맞이 곡 2초 내림 + 정적 1초) */
+      var _pp = cues[pa - 1] || null, _pvNoClap = !!_pp && _pp.slug === 'narr-open' && _pc.fire === 'chain' && !(_pp.live && _pp.live.applause) && _pp.duck <= -60;   /* 박수 판은 여기서 아직 GO(manual) · live.applause — 미리 듣기 사슬 4.5초 전환은 이 뒤 */
+      if (/^narr-prevideo-in/.test(_pc.slug || '')) { _pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; if (!_pvNoClap) _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000); }
       if (_pc.slug === 'narr-prevideo-out') { _pc.duck = PARAM.duckOff;
         for (var pb = pa + 1; pb < cues.length; pb++) { var _pn = cues[pb]; if (_pn.k !== 'candle') break;
           if (/^bridge-/.test(_pn.slug || '')) { _pn.duck = PARAM.duckOff; continue; }
@@ -2236,6 +2247,6 @@
   return {
     moodFit: moodFit, moodClash: moodClash, seamFit: seamFit, MOOD_SHIFT: MOOD_SHIFT,
     build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, FILES: FILES, EXTRA: EXTRA,
-    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, afterPhotoOf: afterPhotoOf, version: 'cue-v1'
+    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, guestShort: guestShort, afterPhotoOf: afterPhotoOf, version: 'cue-v1'
   };
 });
