@@ -3,7 +3,8 @@
    음07 본식(M4)과 편지에 같은 곡을 고르면 — 곡 계획 첫 곡 = 두 분이 본식에 고른 곡(편지에 같은 곡을 써도 뒤로 밀지 않는다) · 식순 화면(미리 듣기) · 당일 콘솔 첫 곡 같음 · «…에서도 고른 곡이에요» 한 줄 그대로
    음02 R2 뒤 다시 재현 — 도착 잦아듦(4.5초)으로 맞절 · b8 · 첫 나레이션 위 입장 트랙 소거 겹침이 남지 않는다(남는 자리 0 · 검사로 고정)
    음03 맞절 바로 뒤 축배 — 본식 곡을 무음에서(당일 · 미리 듣기 같은 곡) · 옛 하객 맞이 · 화촉 곡 되살림 0 · «위하여» M7 · 축배 곡 없으면 본식 곡이 잇는다
-   음06 일부러 정적인 자리에서 전체 정지 — 정적 그대로 · 다음 큐가 제 크기 · 촬영 후 안내 음악 그대로 · 입장 곡 도중 정지는 지금 동작(B2-K16 대기 · 기록만)
+   음06K(B2-K16 «정지는 정지») 입장 곡 도중 전체 정지 — 입장 곡 · 배경 0 · GO 재개 = 같은 곡 멈춘 자리부터(0.6초) · 도착 멘트 정상 잦아듦
+   음06 일부러 정적인 자리에서 전체 정지 — 정적 그대로 · 다음 큐가 제 크기 · 촬영 후 안내 음악 그대로 · 입장 곡 도중 정지는 음06K
    음08 Web Audio 를 못 쓰는 기기의 ■ 끝내기 — 지금 크기에서 3초에 걸쳐 · 3.2초에 멈춤 · 걸음마다 음소거 · 볼륨 반영 · 새 크기 명령 · 새 시작 · 끝 정리에서 지난 페이드 무효
    음05 멈춘 동안 «음악 켜기» — 엔진은 이미 소리 0 · 이어 들을 때 멈춘 곡 자리(LPB.pz) · 줄 크기로 연다(재현 0 · 지킴이) · 단추 쪽(order-preview 7782 · 8568–8571)은 나레이션 몫
    음09 이어 든 직후 0.9초 «다시 덮지 않기»는 같은 줄에만 — 다른 줄로 옮기면 그 줄 곡 · 크기를 바로 · 끝내기 · 새 시작 때 기록을 지운다
@@ -137,6 +138,37 @@ try {
       ok('음03 미리 듣기 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
   }
   } catch (e) { ok('음03 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
+  (async () => { if (!want('음06K')) return; try {
+    /* 음06K(B2-K16 «정지는 정지») — 입장 걷기 중 전체 정지 → 10초 · 60초 동안 입장 곡 · 배경 0 → GO 재개 = 같은 곡 멈춘 자리 ±1초 · 배경 0 → 도착 멘트에서 정상 잦아듦 */
+    const SR = 22050, mk = (sec) => { const n = SR * sec, b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(SR, 24); b.writeUInt32LE(SR * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
+      for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(9000 * Math.sin(2 * Math.PI * 220 * i / SR)), 44 + i * 2); return b.toString('base64'); };
+    const SONG = mk(150), FID = 'SONGID0123456789abcd', S1 = Object.assign(S0of({ prevideo: 0, candle: 0 }, 'A'), { entryVoice: 'nar', mu: { src: 'up', name: 'song-day', t: '시험 곡', a: '', dur: 150, hook: 40, typed: null, sid: 'x1', fid: FID } });
+    const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }), pg = await ctx.newPage(), errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+    await pg.addInitScript(() => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; window.__bgmLog = []; });
+    await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); const H = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
+      if (/script\.google\.com/.test(u)) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {}
+        if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: H, body: JSON.stringify({ ok: true, sup: {}, files: [{ key: 'mu', id: FID, name: '입장 음악 · song-day.wav' }] }) });
+        if (b.fn === 'adminRitualFileGet') return rt.fulfill({ status: 200, headers: H, body: JSON.stringify({ ok: true, id: FID, mime: 'audio/wav', data: SONG }) }); }
+      return rt.fulfill({ status: 200, headers: H, body: '{"ok":true}' }); });
+    await pg.goto(`http://127.0.0.1:${port}/console.html`); await pg.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); });
+    await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S1)).toString('base64'))}&rf=ME0001`); await pg.waitForTimeout(800);
+    await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 60000 }).catch(() => {}); await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().e >= 0, null, { timeout: 60000 }).catch(() => {});
+    const Rq = await pg.evaluate(() => window.__bgmR()), I = await pg.evaluate(() => window.__esd.idx()), iA = Rq.findIndex((x) => x.slug === 'narr-entry-arrive');
+    await pg.evaluate((j) => window.__esd.fire(j), I.e); await pg.waitForTimeout(500);
+    for (let k = 0; k < 3 && !(await pg.evaluate(() => window.__esd.s().run)); k++) { await pg.waitForTimeout(1500); await pg.evaluate((j) => window.__esd.fire(j), I.e); await pg.waitForTimeout(500); }
+    await pg.waitForFunction(() => window.__esd.s().phase !== 'clip', null, { timeout: 60000 }).catch(() => {}); await pg.waitForTimeout(2000);
+    const w = await pg.evaluate(() => window.__esd.s()); await pg.evaluate(() => { window.__bgmLog.length = 0; }); await pg.evaluate(() => window.__esdT.panic());
+    const smp = async () => pg.evaluate(() => { const x = window.__esd.s(); return { run: x.run, paused: x.paused, now: x.duck }; });
+    await pg.waitForTimeout(10000); const s10 = await smp(); await pg.waitForTimeout(50000); const s60 = await smp(), lp = await pg.evaluate(() => window.__bgmLog.slice());
+    await pg.evaluate(() => { window.__bgmLog.length = 0; }); await pg.evaluate(() => window.__bgmGo.tap()); await pg.waitForTimeout(1200); const r1 = await pg.evaluate(() => window.__esd.s()), lr = await pg.evaluate(() => window.__bgmLog.slice());
+    await pg.evaluate((j) => window.__bgmGo.fire(j), iA); const ta = []; for (let k = 0; k < 70; k++) { await pg.waitForTimeout(100); ta.push(await pg.evaluate(() => { const x = window.__esd.s(); return { run: x.run, dkg: x.dkg, cur: x.cur }; })); }
+    const quiet = (x) => !x.run && x.paused != null && Math.abs(x.paused - w.spos) <= 1 && x.now <= -60;
+    ok('음06K-T01 입장 걷기 중 전체 정지 — 10초 · 60초 동안 입장 곡 · 배경 재생 0 · 배경 −8 복귀 0', w.run && w.spos > 0 && quiet(s10) && quiet(s60) && !lp.some((x) => x.eff > -60), { w: [w.run, w.spos, w.phase], s10, s60, up: lp.filter((x) => x.eff > -60).slice(0, 3) });
+    ok('음06K-T02 GO 재개 — 같은 곡(150초 판) · 멈춘 자리 ±1초에서 이어짐 · 배경 0', r1.run && r1.sbuf === 150 && Math.abs(r1.spos - s60.paused - 1.2) <= 1 && !lr.some((x) => x.eff > -60), { r1: [r1.run, r1.sbuf, r1.spos], paused: s60.paused, lr: lr.slice(0, 3) });
+    const fa = ta.filter((x) => x.run);
+    ok('음06K-T03 다음 큐(도착 멘트) — 입장 곡이 정상으로 잦아든다(계속 내려가 7초 안에 −34 dB 아래로)', iA > -1 && fa.length > 10 && fa[0].cur === iA && fa[0].dkg > 0.3 && fa.every((x, j) => !j || x.dkg <= fa[j - 1].dkg + 0.001) && fa[fa.length - 1].dkg <= 0.02, { first: fa[0], last: fa[fa.length - 1], n: fa.length });
+    ok('음06K 콘솔 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
+  } catch (e) { ok('음06K 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => {   /* 입장 장면(곡 해독 · Web Audio)을 쓰는 둘은 차례로 — 나란히 돌리면 시험 기기 부하로 곡을 제때 못 연다 */
     try {
   if (want('음02')) {
