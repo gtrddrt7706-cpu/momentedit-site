@@ -22634,6 +22634,11 @@ nochk '예식 150일 이후 취소 시' assets/advisor-kb.js
 nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분)' api/schedule-advisor.js
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
+chk 'BGM_VOL_ONE_1106' console.html 3   # [BGM_VOL_ONE_1106 검토 D] Web Audio 로 이은 배경 재생기 볼륨 1 — 콘솔 첫 «시작» 무음 막기
+chk 'function volOne()' console.html 1
+chk 'wired = true; volOne();' console.html 1
+chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1
+chk 'clear-head bgm-vol' .github/workflows/merge-guard.yml 1
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
