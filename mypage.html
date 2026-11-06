@@ -2353,7 +2353,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
-<script src="/assets/ritual-preview-link.js?v=1106na"></script>
+<script src="/assets/ritual-preview-link.js?v=1106p4"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
 <script src="/assets/dress-refs.js"></script><!-- [DRESS_REFS] 시착 드레스 목록(단 하나의 원천) · 스위치 live 가 꺼져 있으면 카드가 그려지지 않는다 -->
 <script src="/assets/photo-refs.js"></script><!-- [PHOTO_EX_VIEW] 가족 · 친구 스냅 예시 사진 목록(단 하나의 원천) -->
@@ -10292,9 +10292,9 @@ function guideHubHtml(p, inv){
   return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
     : '<div class="cc-note" style="text-align:left;margin:0 0 4px"><span class="ln-bal">하객 안내에서 사진을 올릴 수 있어요.</span><span class="ln-bal">식사와 좌석은 준비한 내용만 보여요.</span></div>';   // [B2_MA_02 2026-11-06 2차 B2-마02] 링크는 식사 · 좌석과 상관없이 모든 예식에 발급된다(서버 _guideTokenEnsure_) — 옛 «채워 완료하면 만들어져요» 조건 문구를 걷었다   // [DOT_SPLIT_0926] 360 · 390 «· 준비된 내용만…» 줄 머리 점 → 마침표 두 덩어리
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
-// 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
-//   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
-var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b> 중 하나라도 내용을 채워 완료하면';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 완성 화면 320 «…애프터 웨딩(식사)· / 좌석 배치…» 줄 끝 점 — «·» 양옆 U+2060([SIGN_DEP_TRUE] 선례)
+// ★[B2_FIX_MA_02 2026-11-06 재검증 재수정] 하객 안내 생성 조건 상수(GUIDE_MAKE_COND · «…중 하나라도 내용을 채워 완료하면»)는 걷었다 — 서버가 제작 단계의 모든 예식에 링크를 발급한다(_guideTokenEnsure_).
+//   완성 화면 힌트(guideHint)와 패널(guideHubHtml)은 같은 글(«하객 안내에서 사진을 올릴 수 있어요. 식사와 좌석은 준비한 내용만 보여요.»). 옛 조건 문구를 되살리지 말 것.
+//   (아래 [COND_PAREN_GLUE] · [DOT_SPLIT_0926] 은 그 상수의 줄바꿈 기록)
 /* [COND_PAREN_GLUE] 2026-09-26 G4 검토 · 점을 붙이자 덩어리가 커져 줄이 괄호 앞에서 갈렸다 — 하객 안내 패널(링크 없음) 320~330 «안내 링크는 애프터 웨딩 / (식사)·좌석 배치…»로
    풀이 «(식사)»가 앞말과 떨어져 줄 머리에 섰다(한글 뒤 여는 괄호는 줄바꿈 자리다). «웨딩»과 «(» 사이도 U+2060 · «애프터 웨딩»은 한 낱말(NBSP · _guideNoteHtml 과 같은 규칙).
    320~430 · 768 · 1280 두 자리(패널 · 완성 화면 힌트) 괄호 머리 · 매달린 점 · «애프터 / 웨딩» 0 */
@@ -10939,7 +10939,8 @@ function renderPhoto(box){
        그러면 링크를 아는 누구나 하객 사진을 보게 된다. 전달은 결과물 인도 때 함께 한다(문구와 같은 약속).
      ★0장이면 아무 말도 하지 않는다 — 예식 전에 '0장'을 보여 주면 고장으로 읽힌다. */
   var _gp=null; try{ _gp=((window._mpStateD||{}).production||{}).guestPhoto||null; }catch(e){}
-  if(_gp && (_gp.n||0)>0) h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">지금까지 <b>'+(_gp.n|0)+'장</b>이 도착했어요'+(_gp.at?' · 마지막 '+escapeHtml(String(_gp.at).slice(5,16)):'')+'.</div>';
+  if(_gp && _gp.recounting) h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">사진 수를 확인하고 있어요.</div>';   // [B2_FIX_MA_82 2026-11-06 재검증 재수정] 서버가 장수를 다시 맞추는 중일 때만 — 옛 장수를 «지금까지 N장»으로 말하지 않는다
+  else if(_gp && (_gp.n||0)>0) h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">지금까지 <b>'+(_gp.n|0)+'장</b>이 도착했어요'+(_gp.at?' · 마지막 '+escapeHtml(String(_gp.at).slice(5,16)):'')+'.</div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:6px">'+(_psu?'하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요':'하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요')+'. QR은 테이블 카드용이에요.</div>';   // [PHOTO_LINK_FOLD] 링크가 있으면 버튼이 어디로 가는지를 말한다(guide.html photoShareHtml) · [PH_DOT_SPLIT] « · »를 마침표로(320 «이어져요 · / QR은»)
   /* [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다 — 부부가 엉뚱한 것을 넣고도 모르는 일이 없게. */
   var _sk=photoShareKind(_psu);
@@ -11926,12 +11927,15 @@ function _pvcSave(op, extra){
   var F=PVCFLOW;
   var send=function(){ var body={action:'pvSave', token:getToken(), op:op||'save', draft:_pvcOut(F.d), rev:(F.rev==null?null:F.rev)}; if(F.kind==='mid') body.kind='mid';   // [MID_VIDEO_1106]
     if(extra){ for(var k in extra){ if(Object.prototype.hasOwnProperty.call(extra,k)) body[k]=extra[k]; } }
-    return _post(body, 30000).then(function(r){ if(r&&r.pv){ _pvcApply(r.pv); try{ if(window._lastProd) window._lastProd[_pvcKey()]=r.pv; }catch(e){} } if(r&&r.locked) F.past=true; return r; }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); }); };   // [PV_STATE_1106 M16] locked = 기한 지남 — 일시 오류와 달리 다시 보내지 않는다
+    return _post(body, 30000).then(function(r){ if(r&&r.pv){ _pvcApply(r.pv); try{ if(window._lastProd) window._lastProd[_pvcKey()]=r.pv; }catch(e){} } if(r&&r.ok&&_pvcAdopt(r.added)&&F.active&&F.scr==='photos') renderPvc(); if(r&&r.locked) F.past=true; return r; }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); }); };   // [B2_FIX_MA_59] 서버가 남긴 다른 기기 사진을 받아 그린다   // [PV_STATE_1106 M16] locked = 기한 지남 — 일시 오류와 달리 다시 보내지 않는다
   F._qN=(F._qN||0)+1;
   var pr=(F._q||Promise.resolve()).then(send, send);
   F._q=pr.then(function(){ F._qN--; }, function(){ F._qN--; });
   return _wizWatch('pvc', pr);   // 어느 길로 보낸 저장이든 머리 알약이 «저장 중… · 저장됨 · 다시 저장»을 말한다
 }
+/* [B2_FIX_MA_59 2026-11-06 재검증 재수정] 이 기기가 모르던 다른 기기 사진(서버 added)을 목록에 더한다 — 판(F.rev)만 앞서고 사진이 빠진 채면 다음 저장이 그 사진을 «본 뒤 뺀 것»으로 지웠다 */
+function _pvcAdopt(list){ var F=PVCFLOW; if(!Array.isArray(list)||!list.length||!F.d) return false; var have={}, n=0; (F.d.photos||[]).forEach(function(p){ have[String(p.id)]=1; });
+  list.forEach(function(p){ if(p&&p.id&&!have[String(p.id)]){ have[String(p.id)]=1; F.d.photos.push({ id:String(p.id), th:String(p.th||''), sec:String(p.sec||''), n:String(p.n||'') }); n++; } }); return n>0; }
 function _pvcCollect(){ var F=PVCFLOW; if(!F.active) return; var l=$('mp_pvcLink'); if(l) F.d.link=String(l.value||'').trim(); var m=$('mp_pvcMet'); if(m) F.d.met=String(m.value||''); }
 function _pvcGo(scr, step){
   var F=PVCFLOW; _pvcCollect();
@@ -12220,9 +12224,9 @@ function _pvcUpload1(sec, files){
         return; }
       var f=list[i]; if(!i) _flowBusy(true, '사진 올리는 중…'); if(list.length>1) _pvcBusyText('사진 올리는 중… '+(i+1)+'/'+list.length);
       Promise.all([_snapResize(f, 2560, 0.86), _snapResize(f, 400, 0.8)]).then(function(two){   // 스냅 참고 사진과 같은 길(흰 바탕 · JPEG) · 원본은 보내지 않는다
-        return _post({ action:'pvPhoto', token:getToken(), sec:sec, name:String(f.name||'').slice(0,60), data:two[0], thumb:two[1], pvConsent:1 }, 60000).then(function(r){
+        return _post({ action:'pvPhoto', token:getToken(), sec:sec, name:String(f.name||'').slice(0,60), data:two[0], thumb:two[1], pvConsent:1, rev:(F.rev==null?null:F.rev) }, 60000).then(function(r){   // [B2_FIX_MA_59] 요청 판
           if(!(r&&r.ok&&r.id)){ bad=(r&&typeof r==='object')?r:{}; bad.line=(r&&r.full&&r.error)?r.error:_errLine(r,'U','다시 해 주세요'); if(r&&r.full&&r.pv&&r.pv.d){ try{ F.d.photos=(r.pv.d.photos||[]).map(function(p){ return {id:p.id, th:p.th||'', sec:p.sec, n:p.n||''}; }); }catch(e){} } return; }   // [B2_MA_59] 자리가 찼으면 서버의 지금 사진으로 맞춘다(말없이 빼지 않게)
-          if(r.rev!=null) F.rev=+r.rev||0;   // [B2_MA_07]
+          _pvcAdopt(r.added); if(r.rev!=null) F.rev=+r.rev||0;   // [B2_MA_07] · [B2_FIX_MA_59] 판을 앞당기기 전에 모르던 사진부터 받는다
           PVC_THUMBS[r.th]=two[1]; F.consent=true; got++;
           F.d.photos.push({ id:String(r.id), th:String(r.th||''), sec:sec, n:String(f.name||'').slice(0,60) });
           if(!F.d.mode) F.d.mode='make'; if(F.st===''||F.st==='later'||F.st==='off') F.st='draft';

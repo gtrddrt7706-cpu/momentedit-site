@@ -106,7 +106,7 @@ chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 
 chk 'AbortError' mypage.html 2                     # 공유·QR 저장 폴백
 chk '발행 직전 1회만' mypage.html 1                # both 같게 미러 시점
 chk '계좌를 비워 두면' mypage.html 1               # 계좌 필수 거짓 문구 정정
-chk 'GUIDE_MAKE_COND' mypage.html 2                # 하객 안내 조건 공용 상수
+nochk "'+GUIDE_MAKE_COND+'" mypage.html 0         # [B2_FIX_MA_02 2026-11-06] 하객 안내 조건 상수 걷음 — 링크는 모든 예식에 발급(조건 문구 되살리지 말 것)
 chk '본예식 20분 전' mypage.html 1                 # 인쇄 킷 도착 안내 · [DAY_PLAN 2026-08-09] 본식 10:05 기준 09:45 입장 = 20분 전(청첩장 16종과 같은 값)
 chk 'trk-sep' mypage.html 2                        # 확인·전달 그룹 구분선
 chk 'trk-tag' mypage.html 2                        # 선택 태그
@@ -14189,7 +14189,7 @@ nochk '<span style="color:var(--gold,#B89A75)">&amp;</span>' mypage.html 0
 chk 'CF_DATE_NBSP' mypage.html 1
 # [DOT_SPLIT_0926] 새 안내문 · 청첩장 완성 화면 · 하객 안내 패널 · 확인서 확정 안내의 «·»가 줄 끝 · 줄 머리에 매달리지 않게([CHECKS_NO_DANGLE]) — 절은 마침표 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060
 chk 'DOT_SPLIT_0926' mypage.html 13
-chk "var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b>" mypage.html 1
+nochk "var GUIDE_MAKE_COND=" mypage.html 0   # [B2_FIX_MA_02] 상수 걷음(옛 조건 · «채워 완료하면»)
 chk '<span class="ln-bal">비어 있는 부분은 하객 화면에 나오지 않아요.</span>' mypage.html 1
 chk '<span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span>' mypage.html 1
 nochk '링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>' mypage.html 0
@@ -22585,6 +22585,34 @@ chk '새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.' automati
 chk 'B2_MA_59' automation/platform/89_prevideo.gs 1
 chk '다른 기기에서 사진이 추가돼 자리가 찼어요. 현재 사진을 확인해 주세요.' automation/platform/89_prevideo.gs 1
 chk 'B2_MA_59' mypage.html 1
+# ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR4] 하객 안내 첫 응답 · 편지 받는 분 · 식전 영상 다른 기기 사진 · 하객 사진 수 · 길이 거절 단추 · 지도 분류
+chk 'B2_FIX_MA_02' automation/platform/80_production.gs 3   # _guideTokenEnsure_ 가 토큰을 돌려주고 첫 응답에 싣는다
+chk 'B2_FIX_MA_02' mypage.html 1                            # 완성 화면 힌트는 main #1601 [GUIDE_ALL_EVENTS_1106] 글(같은 고침)
+chk 'GUIDE_ALL_EVENTS_1106' mypage.html 1
+chk 'var _gTokNow = _guideTokenEnsure_(r);' automation/platform/80_production.gs 1
+chk 'B2_FIX_MA_05' automation/platform/87_letter.gs 3       # 잘못된 받는 분 값은 두 분으로 넓히지 않는다
+chk "return (v === 'groom' || v === 'bride' || v === 'both') ? v : '';" automation/platform/87_letter.gs 1
+nochk "return (v === 'groom' || v === 'bride' || v === 'both') ? v : 'both';" automation/platform/87_letter.gs 0
+chk 'B2_FIX_L13' automation/platform/87_letter.gs 4         # 갈리지 않는 예식의 «한 분에게만»은 접수 · 보내기 둘 다 막는다
+chk 'function _ltSplit_' automation/platform/87_letter.gs 1
+chk "var LT_PICK_AGAIN = '받는 분을 다시 골라 주세요.';" automation/platform/87_letter.gs 1
+chk 'B2_FIX_MA_59' automation/platform/89_prevideo.gs 4     # 다른 기기가 올린 사진(rv > 요청 판)은 옛 저장이 빼지 않는다
+chk 'B2_FIX_MA_59' mypage.html 4                            # added 를 받아 그린다 · 사진 올리기에 요청 판
+chk 'function _pvcAdopt' mypage.html 1
+chk 'B2_FIX_MA_82' automation/platform/80_production.gs 7   # 상태 조회 때도 다시 맞추기 · 다시 센 파일은 또 더하지 않는다
+chk 'function _gpRecountApply_' automation/platform/80_production.gs 1
+chk 'function _gpStateNow_' automation/platform/80_production.gs 1
+chk 'B2_FIX_MA_82' mypage.html 1                            # recounting 이면 «사진 수를 확인하고 있어요.»
+chk '>사진 수를 확인하고 있어요.</div>' mypage.html 1
+chk 'B2_FIX_MA_82' scripts/audit/guest-photo-sim.mjs 2
+chk 'B2_FIX_GEUL_16' order-preview.html 1                   # 길이 거절 상자 — 가장 긴 원고로 가는 단추
+chk "+_longTxBtn()+'</div>'" order-preview.html 1
+chk 'B2_FIX_NI16' api/after-concierge.js 1                  # 지도 분류 «갈래 > 끝 토막»
+chk 'B2_FIX_NI16' assets/ritual-preview-link.js 2           # 옛 끝 토막 꼴 — 분명한 음식 분류 낱말일 때만
+chk 'B2_FIX_NI16' scripts/audit/console-inject.mjs 2
+chk 'B2_FIX_MA_38_GAS' automation/platform/80_production.gs 1   # 하객 안내 대표 장소 = 이름 + venuePickPid(없으면 옛 초안처럼 이름)
+chk "String(v.pid || '').trim() === _ppid" automation/platform/80_production.gs 1
+chk 'B2_FIX_MA_38_GAS' automation/tests/guide.test.js 1
 chk 'B2_MA_09' mypage.html 2                     # 발행하는 동안 잠금 · 보낼 초안 복사
 chk '청첩장을 만드는 중이에요.' mypage.html 1
 chk '고친 내용을 반영하는 중이에요.' mypage.html 1

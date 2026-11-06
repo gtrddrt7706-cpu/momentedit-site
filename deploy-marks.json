@@ -3408,6 +3408,72 @@
    "fn": "_pgPrevideo_",
    "mark": "MID_VIDEO_1106",
    "why": "매일 정리가 식중 영상 줄(«개인코드#mid»)도 같은 6개월 · 영구 삭제"
+  },
+  {
+   "file": "80_production",
+   "fn": "_guideTokenEnsure_",
+   "mark": "B2_FIX_MA_02",
+   "why": "하객 안내 토큰을 돌려준다(첫 응답에 새 링크)"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "B2_FIX_MA_02",
+   "why": "발급 직후 토큰을 guideToken 에 싣는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuestPhoto",
+   "mark": "B2_FIX_MA_82",
+   "why": "다시 센 파일은 그 전송이 또 더하지 않는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "B2_FIX_MA_82",
+   "why": "상태 조회 때 하객 사진 수를 다시 맞춘다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltRecipient",
+   "mark": "B2_FIX_MA_05",
+   "why": "잘못된 받는 분 값을 두 분으로 넓히지 않는다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGuestLetter",
+   "mark": "B2_FIX_L13",
+   "why": "갈리지 않는 예식의 한 분에게만 편지를 막는다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltSendToRecipients_",
+   "mark": "B2_FIX_L13",
+   "why": "한 분에게만은 두 주소가 갈릴 때만 보낸다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltCoupleFull",
+   "mark": "B2_FIX_L13",
+   "why": "letterSplit 을 보내기와 같은 자로"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "B2_FIX_MA_59",
+   "why": "다른 기기가 올린 사진을 옛 저장이 빼지 않는다"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvPhoto",
+   "mark": "B2_FIX_MA_59",
+   "why": "요청 판을 다시 보고 모르던 사진을 돌려준다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuideView",
+   "mark": "B2_FIX_MA_38_GAS",
+   "why": "대표 장소를 이름 + 지도 장소 ID 로(옛 초안은 이름으로)"
   }
  ],
  "fns": {
@@ -3749,6 +3815,8 @@
    "_gpResPut_",
    "_gpBytesGet_",
    "_gpRecount_",
+   "_gpRecountApply_",
+   "_gpStateNow_",
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
    "purgeGuestPhotosApply",
@@ -3826,6 +3894,7 @@
    "ltGuestLetter",
    "_ltCoupleMin",
    "_ltRecipient",
+   "_ltSplit_",
    "_ltRecipientKo",
    "_ltRateCheck",
    "_ltWithLock",
@@ -4435,6 +4504,7 @@
   ],
   "87_letter": [
    "LT",
+   "LT_PICK_AGAIN",
    "LT_ST",
    "LT_WATCH"
   ],
@@ -4623,7 +4693,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-06 20:42 · b8b0a2c",
+ "_생성": "2026-11-07 00:24 · 43c67c9a3",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4753,6 +4823,12 @@
   },
   {
    "key": "GPB_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "GPRCID_",
    "kind": "state",
    "a": "",
    "b": ""
@@ -5191,5 +5267,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "560f2315b32a"
+ "_표식서명": "f64168a87ea8"
 }
