@@ -4353,6 +4353,27 @@
    "from": "300_guest-w-10m-n10-mgr#2",
    "keepGap": true
   },
+  "348_guest-w-10m-short#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "from": "299_guest-w-10m-n10#0",
+   "keepGap": true
+  },
+  "349_guest-w-10m-short-meal#0": {
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "from": "345_guest-w-10m-n10-meal#0",
+   "keepGap": true
+  },
+  "349_guest-w-10m-short-meal#2": {
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "from": "345_guest-w-10m-n10-meal#2",
+   "keepGap": true
+  },
   "34_declare-ask-b#0": {
    "text": "여러분은 방금, 두 사람의 약속을 함께 지켜보셨습니다.",
    "voice": "우성",
@@ -5007,6 +5028,6 @@
    "when": "2026-11-06"
   }
  },
- "_언제": "2026-11-06 · 918자리",
+ "_언제": "2026-11-06 · 921자리",
  "_왜통낭독": "[LETTER_WHOLE_TAKE] 43_parents-letter 는 통낭독이라 이 창고에 자리를 두지 않는다 — scripts/lib/whole-take.mjs 참고"
 }

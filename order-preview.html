@@ -3303,7 +3303,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1106wk';   // [ASSET_V] 위 주석
+  var ASSET_V='1106k3';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
