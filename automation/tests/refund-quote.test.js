@@ -192,7 +192,7 @@ ctx.findRowByPersonalCode = () => null;
   let r = ctx._refundQuote(sig(null, { 예식일: addDays(ASOF, 100) }), ASOF);
   check('[REVIEW] 지금 판 서명 · 예외 없음 → review 빈 목록', Array.isArray(r.review) && r.review.length === 0, JSON.stringify(r.review));
   r = ctx._refundQuote(sig({ 계약: { docVersion: 'v1.7' } }, { 예식일: addDays(ASOF, 100) }), ASOF);
-  check('[L20] 환불 조항이 다른 옛 판(v1.7) → 확인 필요', r.review.some((x) => /옛 판\(v1\.7\)/.test(x)), JSON.stringify(r.review));
+  check('[L20] 환불 조문이 지금 판과 글자째 다른 옛 판(v1.7 · 8조③ 인원 문장) → 확인 필요', r.review.some((x) => /옛 판\(v1\.7\)/.test(x)), JSON.stringify(r.review));
   r = ctx._refundQuote(sig({ 계약: { docVersion: 'v1.12' } }, { 예식일: addDays(ASOF, 100) }), ASOF);
   check('[L20] 환불 조항이 같은 옛 판(v1.12) → 확인 필요 없음', r.review.length === 0, JSON.stringify(r.review));
   r = ctx._refundQuote(sig({ 계약: {} }, { 예식일: addDays(ASOF, 100) }), ASOF);
@@ -200,8 +200,11 @@ ctx.findRowByPersonalCode = () => null;
   // 8조① 받은 변경 수수료는 위약금에 충당 — D-29(40%) · 수수료 28만 받음 → 남은 위약금 = 112만 − 28만
   r = ctx._refundQuote(sig({ 변경이력: [{ from: { date: addDays(ASOF, 80) }, to: { date: addDays(ASOF, 29) }, fee: 280000, at: addDays(ASOF, -5) + ' 10:00' }] }, { 예식일: addDays(ASOF, 29), 중도금상태: '확인' }), ASOF);
   check('[CHANGE_FEE_CREDIT] 받은 변경 수수료 28만 → 위약금 112만에 충당 · 환불 = 기수령 − 84만', r.feeCredit === 280000 && r.refund === r.paid - (Math.round(TOTAL * 0.4) - 280000) && /충당\(8조①\)/.test(r.rule), JSON.stringify({ fc: r.feeCredit, refund: r.refund, paid: r.paid, rule: r.rule }));
+  // [FEE_OVER_PENALTY] 받은 수수료(56만)가 위약금(D-100 10% = 28만)보다 크면 충당은 위약금까지 · 남는 몫은 확인 필요 · 환불은 기수령을 넘지 않는다
+  r = ctx._refundQuote(sig({ 변경이력: [{ from: { date: addDays(ASOF, 160) }, to: { date: addDays(ASOF, 130) }, fee: 280000, at: addDays(ASOF, -40) + ' 10:00' }, { from: { date: addDays(ASOF, 130) }, to: { date: addDays(ASOF, 100) }, fee: 280000, at: addDays(ASOF, -5) + ' 10:00' }] }, { 예식일: addDays(ASOF, 100) }), ASOF);
+  check('[FEE_OVER_PENALTY] 수수료 > 위약금 → 충당 = 위약금 · 남는 28만 확인 필요 · 환불 ≤ 기수령', r.feeCredit === r.penalty && r.refund <= r.paid && r.review.some((x) => /위약금보다 280,000원 많음/.test(x)), JSON.stringify({ fc: r.feeCredit, pen: r.penalty, refund: r.refund, paid: r.paid, rv: r.review }));
   r = ctx._refundQuote(sig({ 변경이력: [{ from: { date: addDays(ASOF, 300) }, to: { date: addDays(ASOF, 200) }, fee: 280000, at: addDays(ASOF, -5) + ' 10:00' }] }, { 예식일: addDays(ASOF, 200) }), ASOF);
-  check('[CHANGE_FEE_CREDIT] 위약금 없는 구간(무상취소)의 받은 수수료 → 확인 필요(자동으로 돌려주지도 · 안 돌려주지도 않는다)', r.penalty === 0 && r.review.some((x) => /변경 수수료 280000원/.test(x)), JSON.stringify(r.review));
+  check('[CHANGE_FEE_CREDIT] 위약금 없는 구간(무상취소)의 받은 수수료 → 확인 필요(자동으로 돌려주지도 · 안 돌려주지도 않는다)', r.penalty === 0 && r.review.some((x) => /변경 수수료 280,000원/.test(x)), JSON.stringify(r.review));
   // 스냅 — 촬영 당일 · 지남은 시작 전/후 단정 금지
   const snap = (extra) => row(Object.assign({ 상품타입: '웨딩스냅', 계약상태: '서명완료', 계약총액: 600000, 계약서명일시: '2026-01-01 10:00', 입금상태: '확인', 잔금상태: '확인', 동의기록: JSON.stringify({ 계약: { docVersion: SCUR } }) }, extra));
   r = ctx._refundQuote(snap({ 예식일: ASOF }), ASOF);

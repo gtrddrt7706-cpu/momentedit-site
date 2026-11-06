@@ -1016,7 +1016,7 @@ function _refundQuote(r, asOfYmd) { _gsr_();
 
   // ② 7조① 청약철회 — 계약 성립일부터 15일 이내, 예식 용역 개시 전(예식 전일=dd>=1)까지.
   var signYmd = _ymdOf(r.get('계약서명일시'));
-  if (feesPaid > 0 && ((signYmd && asOf <= _shiftYmd(signYmd, 15) && dd >= 1) || (dd >= 150 && _floorRate <= 0))) review.push('받은 변경 수수료 ' + feesPaid + '원 · 위약금이 없는 구간이라 돌려드릴지 확인');   // [CHANGE_FEE_CREDIT]
+  if (feesPaid > 0 && ((signYmd && asOf <= _shiftYmd(signYmd, 15) && dd >= 1) || (dd >= 150 && _floorRate <= 0))) review.push('받은 변경 수수료 ' + feesPaid.toLocaleString() + '원 · 위약금이 없는 구간이라 돌려드릴지 확인');   // [CHANGE_FEE_CREDIT]
   if (signYmd && asOf <= _shiftYmd(signYmd, 15) && dd >= 1) return out('청약철회(7조)', 0, 0, paid - fitDeduct, dd);
   // ③ 7조② 무상취소 — 예식일 150일 전까지 위약금 없이 해제. ★단 8조⑤ 하한이 있으면 무상으로 내려가지 않는다.
   if (dd >= 150 && _floorRate <= 0) return out('무상취소(7조)', 0, 0, paid - fitDeduct, dd);
@@ -1026,7 +1026,8 @@ function _refundQuote(r, asOfYmd) { _gsr_();
   if (_floorRate > rate) { rate = _floorRate; }              // [CHANGE_RATCHET] 8조⑤ — 낮은 구간으로 내려가지 않는다
   var penalty = Math.round(amounts.총액 * rate);
   feeCredit = Math.min(feesPaid, penalty);   // [CHANGE_FEE_CREDIT] 남은 위약금 = 위약금 − 받은 변경 수수료(한도 위약금)
-  return out('위약금 ' + Math.round(rate * 100) + '%(9조)' + (_floorWhy && _floorRate >= rate ? (' · 8조⑤ ' + _floorWhy + ' 구간 유지') : '') + (feeCredit > 0 ? (' · 변경 수수료 ' + feeCredit + '원 충당(8조①)') : ''), rate, penalty, paid - (penalty - feeCredit), dd);
+  if (feesPaid > penalty) review.push('받은 변경 수수료가 위약금보다 ' + (feesPaid - penalty).toLocaleString() + '원 많음 · 돌려드릴지 확인');   // [CHANGE_FEE_CREDIT · FEE_OVER_PENALTY] 남는 몫을 조용히 버리지 않는다
+  return out('위약금 ' + Math.round(rate * 100) + '%(9조)' + (_floorWhy && _floorRate >= rate ? (' · 8조⑤ ' + _floorWhy + ' 구간 유지') : '') + (feeCredit > 0 ? (' · 변경 수수료 ' + feeCredit.toLocaleString() + '원 충당(8조①)') : ''), rate, penalty, paid - (penalty - feeCredit), dd);
 }
 
 // [02-8] 노출 게이트 — 마이페이지(getMyState.refund)·관리자 상세(adminDetail.refundQuote) 공용.
