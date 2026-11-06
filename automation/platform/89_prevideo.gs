@@ -171,7 +171,7 @@ function _pvSess_(body) {
   return { code: code, cust: s.row };
 }
 function _pvConsentGive_(m, code, kind) {
-  m.consent = { at: fmtKST(new Date()), ver: PV_UP.from };
+  m.consent = { at: fmtKST(new Date()), ver: (_pvKind_(kind) === 'mid' && PV_UP.midFrom) ? PV_UP.midFrom : PV_UP.from };   // [MID_VIDEO_1106 · 재검토 1604] 식중은 처리방침 «식중 영상» 날짜
   try { if (typeof _recordHandler === 'function') _recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + PV_UP.from); } catch (e) {}   // [MID_VIDEO_1106]
 }
 // 관리자 메일 — 코드마다 10분에 한 통(같은 사람이 여러 번 보내도 메일이 쌓이지 않게)
@@ -231,6 +231,7 @@ function handlePvSave(body) { _gsr_();
         : ((kind === 'mid' ? '식중 영상 도착(식순 «준비한 순서» 자리) · ' : '준비한 식전 영상 도착 · ') + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);   // [MID_VIDEO_1106]
     } else if (op === 'confirm') {
       if (st !== 'review' || !(m.prev && m.prev.id)) return { ok: false, error: '확정할 영상이 아직 없어요.' };
+      if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순 «준비한 순서»에서 «영상»을 먼저 골라 주세요.' };   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 확정하지 않는다
       /* ★[B2_MA_08 2026-11-06 2차 B2-마08] 고객이 본 미리보기(id · 요청 판)와 지금 서버의 미리보기가 다르면 확정하지 않는다 — 종전엔 지금 m.prev 를 그대로 확정했다 */
       if ((body.prevId != null && String(body.prevId) !== String(m.prev.id)) || (body.ver != null && Number(body.ver) !== (Number((m.submit || {}).n) || 0))) return { ok: false, newer: true, error: '새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.', pv: _pvPublic(code, cust, kind) };
       m.subRev = (Number(m.rev) || 0) + 1;

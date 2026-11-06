@@ -4777,8 +4777,8 @@ if command -v node >/dev/null 2>&1; then _mvo=$(node scripts/audit/midvideo.mjs 
     *) echo 'ok midvideo: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
-chk 'MID_VIDEO_1106' mypage.html 31
-chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 17
+chk 'MID_VIDEO_1106' mypage.html 35
+chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 19
 chk 'MID_VIDEO_1106' admin.html 3
 chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
 chk 'MID_VIDEO_1106' automation/platform/95_notify.gs 5

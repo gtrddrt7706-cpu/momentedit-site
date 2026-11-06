@@ -39,6 +39,8 @@ let r = row({ st: '' }, false, 20);
 ok(r.done === true && r.label === '넣기' && r.tag === '선택', '꺼짐 → «넣기 · 선택» · 할 일 아님(done)', JSON.stringify(r));
 r = row({ st: 'done' }, false, 20);
 ok(r.label === '보기' && r.tag === '식순 확인', '확정한 뒤 식순에서 빼면 «식순 확인»(«넣기»로 덮지 않는다 · 검토 1604-3)', JSON.stringify(r));
+r = row({ st: '', due: '2020-05-01' }, false, -2);
+ok(r.label === '보기' && r.tag === '기한 지남', '식순에 없고 기한도 지났으면 «넣기»를 권하지 않는다(재검토 1604)', JSON.stringify(r));
 r = row({ st: '', due: '2099-05-01' }, true, 10);
 ok(r.done === false && r.label === '올리기' && r.tag === '5월 1일까지', '미제출 → «올리기» · 14일 안이면 기한', JSON.stringify(r));
 r = row({ st: 'checking', due: '2099-05-01' }, true, 10);
@@ -63,6 +65,10 @@ ok(/식순에 정한 길이/.test(mstart) && /식순에 정한 길이/.test(fnSr
 ok(/openRitualBuilder\([^)]*\{at:'midvideo'\}\)/.test(fnSrc(my, '_mvcToRitual')), '«식순에서 넣기 · 빼기» = 식순 화면을 at:midvideo 로 연다(마이페이지가 식순을 따로 쓰지 않는다)');
 ok(!/saveProductionTrack[^\n]*track:'ritual'[^\n]*free/.test(blk), '식중 영상 코드가 식순 초안을 직접 저장하지 않는다');
 { const cf = fnSrc(my, '_pvcConfirm');
+  ok(/\(done\|\|_mOff\)\?_pvcBar\(''/.test(cf), '식순에서 뺀 식중 영상 — 확정 단추 없음(재검토 1604)');
+  ok(/PVCFLOW\.kind==='mid' && PVCFLOW\.on!==true\) return ''/.test(fnSrc(my, '_pvcOldLine')), '«기존 확정본으로 진행해요» — 식순에서 뺀 식중 영상엔 안 나온다(재검토 1604)');
+  ok(/F\.kind==='mid' && F\.on!==true\) h\+=/.test(fnSrc(my, '_pvcLocked')), '기한 지남 화면 — 식순에서 뺀 식중 영상은 «없이 진행해요»(확정본 «진행해요» 아님 · 재검토 1604)');
+  ok(/_pvcNeed\(_pvcClash\(F\.st, F\.conf\)\)/.test(fnSrc(my, '_pvcSent')), '링크를 받았어요 화면에도 식순 어긋남 한 줄(재검토 1604)');
   ok(/var _mOff=\(F\.kind==='mid'&&F\.on!==true\)/.test(cf) && /_mOff\?'식순에 이 영상이 없어요\.'/.test(cf) && /_mOff\?'':/.test(cf), '식순에서 뺀 식중 영상 — 확인 화면이 «진행해요 · 상영해요»를 말하지 않는다(검토 1604-3)'); }
 ok(/\n    _pvRow,   _mvRow,/.test(my) && my.indexOf("row('식중 영상'") > -1 && my.indexOf("$('mp_mvcStart')") > -1, '예식 준비 줄 — 식전 영상 바로 뒤 · 단추 연결');
 ok(/body\.kind='mid'/.test(fnSrc(my, '_pvcSave')) && /d\.production\[_pvcKey\(\)\]/.test(fnSrc(my, '_pvcRecheck')), '저장 · 다시 확인이 식중 줄(kind mid · midvideo)을 쓴다');
@@ -105,6 +111,11 @@ ok(store.T1.d.style === 'editorial' && store.T1.m.st === 'draft', '식전 줄은
 ok(r.pv && r.pv.kind === 'mid' && r.pv.on === true && r.pv.len === 4 && r.pv.due === ymd(33), '돌려주는 상태 — kind mid · 식순 켬 · 길이 4분 · 기한 예식 7일 전', JSON.stringify(r.pv));
 r = save('submit', { link: 'https://drive.google.com/x' });
 ok(r && r.ok === false && r.consent === false && /식중 영상 동의가 필요해요/.test(r.error || ''), '동의 없이 보내기 → 거절(«식중 영상 동의»)', JSON.stringify(r));
+{ const R0 = RIT, S0 = J(store); RIT = { on: { free: 1 }, freeWhat: 'speech' };
+  store['T1#mid'] = { d: { mode: 'upload', link: 'https://drive.google.com/x' }, m: { st: 'review', prev: { id: 'MVX' }, consent: { at: 'x' } } };
+  const rc = save('confirm', null);
+  ok(rc && rc.ok === false && /먼저 골라 주세요/.test(rc.error || '') && store['T1#mid'].m.st === 'review', '식순에서 뺀 식중 영상은 서버도 확정하지 않는다(재검토 1604)', JSON.stringify(rc));
+  store = S0; RIT = R0; }
 { const R0 = RIT; RIT = { on: { free: 1 }, freeWhat: 'speech' };
   const rr = save('submit', { link: 'https://drive.google.com/x' }, { pvConsent: 1 });
   ok(rr && rr.ok === false && /먼저 골라 주세요/.test(rr.error || ''), '식순이 영상이 아니면 서버도 보내기를 막는다', JSON.stringify(rr)); RIT = R0; }
