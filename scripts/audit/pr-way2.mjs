@@ -70,7 +70,7 @@ async function open(W, embed, init) {
 
 try {
   const { ctx, pg, f, errs } = await open(390, true);
-  await f.evaluate(async () => { try { localStorage.removeItem('me_pr_at'); } catch (e) {} idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 600)); });
+  await f.evaluate(async () => { try { localStorage.removeItem(_prAtKey()); } catch (e) {} idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 600)); });
   /* ⑩ */
   const p = await f.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)), B = BgmBed._t; prStart('flow'); await w(900);
     lsGoK('entry'); await w(300); const st = LP.q[LP.i], o = { k: st.k, prep: LP.prep && LP.prep.n, num: ((document.querySelector('#lsFull .lf-prepn') || {}).textContent || ''), main: ((document.querySelector('#lsFull [data-fk="lfmain"]') || {}).textContent || ''), entF: !!(B.BED.cur && B.BED.cur.f === '@ENT') };
@@ -94,14 +94,14 @@ try {
   /* ⑪ */
   const r = await f.evaluate(async () => { const w = (ms) => new Promise((x) => setTimeout(x, ms)); PRW = 'try';
     const Q = LP.q; let j = -1, c = 0; for (let i = 0; i < Q.length; i++) { if (Q[i].k === 'vow' && Q[i].talk2 && Q[i].who === '신부') { c++; if (c === 2) { j = i; break; } } }
-    LP.i = j; LP.paused = false; _lShow(); await w(200); const sv = JSON.parse(localStorage.getItem('me_pr_at') || 'null'); const want = { k: Q[j].k, who: Q[j].who, txt: Q[j].txt };
+    LP.i = j; LP.paused = false; _lShow(); await w(200); const sv = JSON.parse(localStorage.getItem(_prAtKey()) || 'null'); const want = { k: Q[j].k, who: Q[j].who, txt: Q[j].txt };
     try { lsStop(); } catch (e) {} lsCloseBig(); await w(300); idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await w(500);
     const card = { d1: ((document.querySelector('.pr-rz1') || {}).textContent || ''), d2: ((document.querySelector('.pr-rz2') || {}).textContent || ''), btn: !!document.querySelector('[data-fk="prres"]'), playing: !!(LP.q.length && !LP.paused) };
     prResume(); await w(1200); const st = LP.q[LP.i]; const got = { k: st.k, who: st.who, txt: st.txt, way: PRW };
     try { lsStop(); } catch (e) {} lsCloseBig(); await w(300);
-    const o2 = JSON.parse(localStorage.getItem('me_pr_at')); const rs = o2.rows.split(','); const vi = rs.indexOf('vow'); [rs[0], rs[1]] = [rs[1], rs[0]]; o2.rows = rs.join(','); localStorage.setItem('me_pr_at', JSON.stringify(o2));
+    const o2 = JSON.parse(localStorage.getItem(_prAtKey())); const rs = o2.rows.split(','); const vi = rs.indexOf('vow'); [rs[0], rs[1]] = [rs[1], rs[0]]; o2.rows = rs.join(','); localStorage.setItem(_prAtKey(), JSON.stringify(o2));
     idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await w(400); const ch = { d1: ((document.querySelector('.pr-rz1') || {}).textContent || ''), d2: ((document.querySelector('.pr-rz2') || {}).textContent || '') };
-    prStart('flow'); await w(600); idx = STEPS.findIndex((x) => x.k === 'practice'); LP.all = true; _lEnd(); await w(100); const gone = localStorage.getItem('me_pr_at') === null;
+    prStart('flow'); await w(600); idx = STEPS.findIndex((x) => x.k === 'practice'); LP.all = true; _lEnd(); await w(100); const gone = localStorage.getItem(_prAtKey()) === null;
     return { sv, want, card, got, ch, gone }; });
   ok('⑪ 문장 자리까지 적음 — «혼인 서약 · 신부 두 번째 문장» · «앞쪽 중앙에서 서로 마주 봐요»', r.sv && r.sv.d1 === '혼인 서약 · 신부 두 번째 문장' && r.sv.d2 === '앞쪽 중앙에서 서로 마주 봐요' && r.sv.way === 'try', r.sv);
   ok('⑪ 첫 화면에 어디서부터 먼저 · 자동 재생 없음 · 누르면 그 문장부터(같은 방식)', r.card.d1 === r.sv.d1 && r.card.d2 === r.sv.d2 && r.card.btn && !r.card.playing && r.got.k === r.want.k && r.got.who === r.want.who && r.got.txt === r.want.txt && r.got.way === 'try', { card: r.card, got: r.got, want: r.want });
