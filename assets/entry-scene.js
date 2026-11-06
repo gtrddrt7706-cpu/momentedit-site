@@ -5,7 +5,8 @@
    ★여기 값을 바꾸면 식순 화면 미리 듣기와 당일 콘솔이 함께 바뀐다 — 그게 이 파일이 있는 까닭이다. */
 (function(){
   'use strict';
-  var SP={lead:10,fade:6,intro:-6,duck:1.5,under:-12,build:3,dip:4,breath:0.3,rise:0.3,after:60,call:1.8}, PREV_FADE=2.5, FADE_DN=0.4, OUTF=4, LATE_T=0.3, VOICE_LUFS=-16, SONG_LUFS=-12, BED_TRIM=-6, PRE_ROLL=0.3;
+  var _W=(typeof window!=='undefined'&&window.RitualOpen&&window.RitualOpen.WALK)||null;   /* ★[WALK_HALF_1106] 문 열린 뒤 크게 머무는 초 = RitualOpen.WALK.scene 한 곳(옛 60 · 엔진이 먼저 실린다 · 없으면 같은 값 30) */
+  var SP={lead:10,fade:6,intro:-6,duck:1.5,under:-12,build:3,dip:4,breath:0.3,rise:0.3,after:(_W&&_W.scene>0?_W.scene:30),call:1.8}, PREV_FADE=2.5, FADE_DN=0.4, OUTF=4, LATE_T=0.3, VOICE_LUFS=-16, SONG_LUFS=-12, BED_TRIM=-6, PRE_ROLL=0.3;
   /* ★★[ENTRY_BGM_1019 2026-10-19 사장님 «처음도입부분을 좀더 길게 늘리고 서서히 0에서 볼륨을 높였다가 멘트 직전에 낮출것이고 모든 bgm전부(입장)» ·
        «도착 까지 시간을 좀더 늘릴거야 행진이후 1분이상»] (BGM 섹션 설계 명세 1 · 10/19)
      음악이 멘트보다 10초 먼저(lead · 종전 4초) — 첫소리 0 에서 6초에 걸쳐 올라와(fade · u² · 종전 2.5초) 6 ~ 8.5초 intro(-6dB)로 깔리고

@@ -18,7 +18,7 @@ let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}
 // 엔진(노드) — 4 판이 감당하는 멘트 길이 전부
 const sb = { window: {} }; vm.createContext(sb); vm.runInContext(fs.readFileSync(ESRC, 'utf8'), sb); const ES = sb.window.EntryScene;
 if (!ES || typeof ES.plan !== 'function') { console.log('FAIL 엔진을 읽지 못했다'); process.exit(1); }
-const SP = ES.SP, WANT = { lead: 10, fade: 6, duck: 1.5, after: 60, OUTF: 4, prev: 2.5 };
+const SP = ES.SP, WANT = { lead: 10, fade: 6, duck: 1.5, after: 30 /* ★[WALK_HALF_1106] 사장님 «절반 정도» · 옛 60 */, OUTF: 4, prev: 2.5 };
 ok(`0 엔진 값 — lead ${SP.lead} · fade ${SP.fade} · duck ${SP.duck} · after ${SP.after} · 잦아듦 ${ES.OUTF} · 미리 듣기 첫소리 ${ES.PREV_FADE}`,
   SP.lead === WANT.lead && SP.fade === WANT.fade && SP.duck === WANT.duck && SP.after === WANT.after && ES.OUTF === WANT.OUTF && ES.PREV_FADE === WANT.prev, { SP, OUTF: ES.OUTF, PREV_FADE: ES.PREV_FADE });
 if (!fs.existsSync(SJ)) { console.log('못 쟀다 — 문서 저장소 곡 목록이 없다(' + SJ + ') · DOCS=<momentedit-docs 경로>'); process.exit(fail ? 1 : 2); }   // 엔진 값(0)은 문서 저장소 없이도 잰다(CI)

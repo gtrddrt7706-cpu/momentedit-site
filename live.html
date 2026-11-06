@@ -1657,7 +1657,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <!-- [LIVE_INFRAME] 갤러리 프레임 안에서는 화살표를 지운다 — 폰 목업 안에서 홈으로 항해하면
          미리보기 여정이 갤러리 밖으로 샌다(guide.html [GUIDE_INFRAME]과 같은 처방).
          워드마크는 남기고 링크 성질만 없앤다(브랜드 노출은 유지). -->
-    <a href="index.html" class="brand-mark brand-mark-link" data-home-link aria-label="청첩장으로 돌아가기">
+    <a href="/" class="brand-mark brand-mark-link" data-home-link aria-label="모먼트에디트 홈으로">
       <span class="back-arrow">←</span>
       <span class="brand-mark-text">MOMENT<span class="dot"></span>EDIT</span>
     </a>
@@ -2818,31 +2818,35 @@ function onAirSync(){
 setInterval(onAirSync, 60000);
 
 // ═══════════════════════════════════════════════════════════════
-// HOME LINK · 새 탭으로 열린 경우 탭 닫기, 직접 방문이면 이동
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 흐름:
-//  · 홈 → 청첩장(새 탭) → 라이브 → Return to Studio 클릭
-//    → 이 탭이 닫히고 원래 홈 탭(스크롤 위치 유지)으로 자연스럽게 복귀
-//  · 하객이 카톡 링크로 직접 라이브 방문 → Return to Studio 클릭
-//    → window.close()가 무시되고 index.html로 정상 이동 (fallback)
-//
-// 판별 기준:
-//  · window.opener 존재 → 다른 탭에서 열어준 경우 (close 가능)
-//  · history.length === 1 → 탭의 첫 페이지 (뒤로 갈 기록이 없음)
+// HOME LINK · 같은 예식 청첩장에서 왔으면 그 청첩장으로 · 모르면 홈으로 (LIVE_BACK_DEST_1106)
 // ═══════════════════════════════════════════════════════════════
 (function initHomeLinks(){
   const links = document.querySelectorAll('[data-home-link]');
   if (!links.length) return;
+  if (document.documentElement.classList.contains('me-inframe')) return;   // [LIVE_INFRAME] 갤러리 안에서는 링크 성질이 없다
+  /* ★★[LIVE_BACK_DEST_1106 2026-11-06 대본 4차 G15] 이름과 목적지를 맞춘다 — 임의의 방문 기록(history.back)에 기대지 않는다.
+     종전: 이름은 «청첩장으로 돌아가기»인데 기록이 있으면 무조건 뒤로 · 없으면 홈(index.html). 새 탭 직접 접속은 빈 화면, 다른 사이트 · 다른 예식 청첩장을 거쳐 온 하객은 그쪽으로 돌아갔다.
+     지금: 같은 예식(?e= 같은 값)의 청첩장에서 왔을 때만 «청첩장으로 돌아가기» + 그 청첩장 주소. 이 탭에서 한 번 알아 둔 청첩장은 새로고침해도 기억한다(sessionStorage · 이 예식만).
+     모르면 «모먼트에디트 홈으로» + 홈. 같은 탭에서 그 청첩장을 거쳐 왔으면 뒤로 가서 읽던 자리를 지키되, 뒤로가 안 먹으면 그 주소로 연다. */
+  const ev = (new URLSearchParams(location.search).get('e') || '').trim();
+  const INV_RE = /^\/(i\/cover-0[1-8]|i-family\/family-0[1-8])\.html$/;
+  const sameInv = (u) => { try { if (!u || !ev) return ''; const x = new URL(u, location.href); if (x.origin !== location.origin || !INV_RE.test(x.pathname)) return ''; if ((x.searchParams.get('e') || '').trim() !== ev) return ''; return x.pathname + '?e=' + encodeURIComponent(ev); } catch (e) { return ''; } };
+  const fromRef = sameInv(document.referrer);
+  let inv = fromRef;
+  const KEY = 'me_live_inv:' + ev;
+  try { if (inv) sessionStorage.setItem(KEY, inv); else if (ev) inv = sameInv(sessionStorage.getItem(KEY) || ''); } catch (e) {}
 
   links.forEach(link => {
+    const name = inv ? '청첩장으로 돌아가기' : '모먼트에디트 홈으로';
+    link.setAttribute('href', inv || '/');
+    link.setAttribute('aria-label', name); link.setAttribute('title', name);
+    if (!inv) return;   // 홈은 보통 링크 그대로
     link.addEventListener('click', (e) => {
+      if (!fromRef || window.history.length < 2) return;   // 기록에 그 청첩장이 없으면 링크 그대로 연다
       e.preventDefault();
-      // 청첩장에서 입장한 경우(같은 탭) → 뒤로가기로 청첩장 복귀
-      if (window.history.length > 1) { history.back(); return; }
-      // 다른 탭에서 열린 경우 → 탭 닫아 청첩장 탭으로 복귀
-      if (window.opener && !window.opener.closed) { window.close(); }
-      // 직접 접속(QR 등) → 최종 fallback
-      setTimeout(() => { window.location.href = link.href; }, 120);
+      const here = location.href; history.back();
+      const t = setTimeout(() => { if (location.href === here && document.visibilityState !== 'hidden') location.href = inv; }, 700);   // 뒤로가 먹지 않았으면 그 청첩장 주소로 연다
+      window.addEventListener('pagehide', () => clearTimeout(t), { once: true });   // [LIVE_BACK_DEST_1106 검토 A] 뒤로 간 쪽이 저장됐다 «앞으로»로 돌아와도 남은 타이머가 다시 보내지 않게
     });
   });
 })();

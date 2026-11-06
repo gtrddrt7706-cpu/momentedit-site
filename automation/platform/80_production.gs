@@ -2832,6 +2832,7 @@ function buildProductionState(r) { _gsr_();
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     prevideo: (typeof _pvPublic === 'function') ? _pvPublic(String(r.get('개인코드') || '').trim(), r) : null,   // [PV_CAT_1031] 마이페이지 «식전 영상» 줄 · 화면(89_prevideo) — 없으면(옛 GAS) 줄이 안 보인다
+    midvideo: (typeof _pvPublic === 'function') ? _pvPublic(String(r.get('개인코드') || '').trim(), r, 'mid') : null,   // ★[MID_VIDEO_1106] 마이페이지 «식중 영상 · 선택» 줄 — 켜고 끄는 원천은 식순 «준비한 순서 · 영상»(on) · 링크 · 상태만 여기 · 없으면(옛 GAS) 줄이 안 보인다
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
     confirm: draft.confirm || null,            // [예식 확인서] 확인 스냅샷·일시(없으면 확인 전)
