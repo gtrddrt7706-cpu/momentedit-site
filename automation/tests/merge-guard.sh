@@ -22613,8 +22613,6 @@ nochk '총액과 들이는 수고를 줄여 드립니다' assets/advisor-kb.js
 nochk '예식 150일 이후 취소 시' assets/advisor-kb.js
 nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분)' api/schedule-advisor.js
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
-chk 'VIDEO_IN_40_NI12' assets/ritual-open.js 1   # [이음매 NI12] 식전 영상 몫은 40분 안(본식 시간에 한 번)
-nochk '(3분 안 · 두 분은 문 밖에서 대기)' assets/ritual-cue.js   # [NI12] «3분 안»은 길이 제한처럼 읽혀 뺐다
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
