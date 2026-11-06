@@ -21995,7 +21995,13 @@ chk '음09-T01' scripts/audit/seam-b2.mjs 1
 chk '음10-T01' scripts/audit/seam-b2.mjs 1
 chk "meaning-r1 seam-b2-entry" .github/workflows/merge-guard.yml 1
 chk "seam-bg seam-b2-rest" .github/workflows/merge-guard.yml 1
-chk "ONLY = process.env.ONLY || '음02,음04'" scripts/audit/seam-b2-entry.mjs 1
+chk "ONLY = process.env.ONLY || '음02,음04,음06K'" scripts/audit/seam-b2-entry.mjs 1
+# ★[B2_K16 2026-11-06 결정 «정지는 정지»] 입장 곡 도중 전체 정지 = 입장 곡 · 배경 0 · GO 재개 = 같은 곡 멈춘 자리부터 0.6초(검사 = CI a 칸 seam-b2-entry 음06K)
+chk 'B2_K16' console.html 6
+chk 'function esdPause' console.html 1
+chk 'function esdResume' console.html 1
+chk '음06K-T01' scripts/audit/seam-b2.mjs 1
+nochk 'B2-K16 대기 · 그 경우는 지금 동작 그대로' console.html
 chk "no-relift seam-bg" .github/workflows/merge-guard.yml 1
 # ★[MEANING_R2_1102 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] 행진은 음악 · 의식은 조용한 고점 · 새 장면은 새 곡 — 엔진 한 표 + bgm-bed · 콘솔(검사 = CI bgm-sound e 칸)
 chk 'MEANING_R2_1102 원칙' assets/ritual-cue.js 1
