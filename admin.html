@@ -3050,6 +3050,15 @@ function cardProduction(d){
   return '<div class="raw">'+raw+'</div><div class="cnote">청첩장·다이닝·식순·최종확정은 고객이 만들어요 (관리자 보기 전용)</div>';
 }
 function _tstat(s){ return s==='완료'?'완료 ✓':(s==='진행중'?'작성 중':'시작 전'); }
+var _ADM_PV_ST={draft:'작성 중',making:'만드는 중',checking:'스튜디오 확인 중',review:'고객 확인 대기',done:'확정',editing:'확정 · 수정 중',later:'나중에',off:'안 함'};   // [MID_VIDEO_1106] 89_prevideo PV_ST_KO 와 같은 뜻
+function _admVideoLines(prod){ var h='', due=function(v){ var m=String((v&&v.due)||'').match(/^\d{4}-(\d{2})-(\d{2})$/); return m?(' · 기한 '+(+m[1])+'/'+(+m[2])+' 23:59'):''; };
+  var past=function(v){ var m=String((v&&v.due)||''); if(!/^\d{4}-\d{2}-\d{2}$/.test(m)) return false; var t=new Date(Date.now()+9*36e5).toISOString().slice(0,10); return t>m; };
+  var line=function(nm, v, extra){ var st=String(v.st||''), lab=_ADM_PV_ST[st]||'시작 전', warn=(past(v)&&['done','off'].indexOf(st)<0)?' <span style="color:var(--red)">· 기한 지남 — 영상 없이 진행</span>':'';
+    return '<div class="cnote">'+nm+' <b>'+esc(lab)+'</b>'+esc(due(v))+(extra||'')+(v.d&&v.d.link?' · '+_chipLink('받은 링크', String(v.d.link)):'')+warn+'</div>'; };
+  var pv=prod&&prod.prevideo, mv=prod&&prod.midvideo;
+  if(pv&&pv.up) h+=line('식전 영상', pv, '');
+  if(mv&&mv.up){ if(mv.on===true) h+=line('식중 영상', mv, ' · 식순 켬 · '+esc(String(mv.len||3))+'분'); else h+='<div class="cnote">식중 영상 <b>넣지 않음</b> · 식순 «준비한 순서 · 영상»이 아니에요</div>'; }
+  return h; }
 function prodTracksHtml(prod, d){
   if(!prod) return '<div class="cnote">다이닝 · 식순 · 최종확정 · 정보 없음</div>';
   var t=prod.tracks||{}, dd=prod.diningDraft||null, rd=prod.ritualDraft||null, fd=prod.finalDraft||null, h='';
@@ -3061,6 +3070,8 @@ function prodTracksHtml(prod, d){
   if(rd&&rd._v===3){ var s3=rd.summary||{}; var q3=[]; if(s3.course)q3.push(esc(s3.course)); if(s3.count)q3.push(esc(String(s3.count))+'개 순간'); if(s3.min)q3.push(esc(String(s3.min))); if(q3.length)h+=' · '+q3.join(' · '); }   /* [ADM_SUM_ESC 2026-08-13 점검] count 도 esc — 초안(summary)은 고객 기기가 만든 값이라 전부 외부 데이터다 */
   else if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }
   h+='</div>';
+  /* ★[MID_VIDEO_1106 체크리스트 12] 식전 · 식중 영상 — 상태 · 확정 기한(예식 7일 전) · 식중은 식순 «준비한 순서 · 영상»이 켜고 끈다 · 기한날 아직 안 보냈으면 아침 10시 관리자 메일(89_prevideo sendVideoDueNotices) */
+  h+=_admVideoLines(prod);
   h+='<div class="cnote">최종확정 <b>'+esc(_tstat(t.final))+'</b>';
   if(fd&&fd.headcount){ var f=[]; f.push('하객 '+esc(String(fd.headcount))+'명'); if(Number(fd.standing)>0)f.push('스탠딩 '+fd.standing+(_moneyNum(fd.extraFee)>0?(' · 추가 '+_moneyNum(fd.extraFee).toLocaleString()+'원(잔금 합산)'):' · 추가 요금 없음'));   /* [ADMIN_NOFEE_LINE] 초과단가 0 이면 「추가 0원」을 찍지 않는다 */ if(fd.drink)f.push(esc(fd.drink)); if(Number(fd.softCount)>0)f.push('논알콜 '+esc(String(fd.softCount))+'잔'); if(fd.allergy)f.push('특이사항✓'); h+=' · '+f.join(' · '); }
   h+='</div>';

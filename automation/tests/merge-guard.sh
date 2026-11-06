@@ -4767,6 +4767,22 @@ if command -v node >/dev/null 2>&1; then _pvo=$(node scripts/audit/prevideo-cat.
   esac
 fi
 chk 'PV_CAT_1031' automation/platform/89_prevideo.gs 1
+# ★★[MID_VIDEO_1106 2026-11-06 사장님 «식중 영상은 선택으로» · 대본 체크리스트 7 · 8 · 9 · 12 · 13 · 16] 식중 영상(선택) = 식순 «준비한 순서 · 영상» 자리 —
+#   켜고 끄는 원천은 식순 초안 하나(마이페이지는 그 칸을 연다 · 식순을 따로 쓰지 않는다) · 상태 넷(미제출 · 제출 · 확정 · 영상 없이 진행) · 서버 «개인코드#mid» 줄(링크뿐)
+#   · 기한 안내(예식 14일 · 7일 전 · 기한날 관리자 한 줄) · 관리자 화면 줄 · 6개월 지우기에 «#mid» — 진짜 마이페이지 · GAS 함수를 돌린다
+if command -v node >/dev/null 2>&1; then _mvo=$(node scripts/audit/midvideo.mjs 2>&1); _mvr=$?
+  case "$_mvr" in
+    0) echo 'ok midvideo: 식중 영상 — 켜고 끄기 · 상태 넷 · 서버 · 기한 안내 · 길' ;;
+    1) echo 'FAIL midvideo: 식중 영상 결정이 어긋났다 — node scripts/audit/midvideo.mjs'; printf '%s\n' "$_mvo" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok midvideo: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'MID_VIDEO_1106' mypage.html 25
+chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 13
+chk 'MID_VIDEO_1106' admin.html 2
+chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
+chk 'MID_VIDEO_1106' automation/platform/95_notify.gs 5
+chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
 #   버전 고정(무료 라이선스 판) · 유료 렌더 패키지 없음 · 길이 = 마이페이지 _pvcSecs · 개그 · 패러디 갈래 없음
 if command -v node >/dev/null 2>&1; then _pro=$(node scripts/audit/prevideo-remotion.mjs 2>&1); _prr=$?
