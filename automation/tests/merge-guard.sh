@@ -22083,6 +22083,13 @@ chk '음08-T01' scripts/audit/seam-b2.mjs 1
 chk '음09-T01' scripts/audit/seam-b2.mjs 1
 chk '음10-T01' scripts/audit/seam-b2.mjs 1
 chk "meaning-r1 seam-b2-entry" .github/workflows/merge-guard.yml 1
+chk 'EAR_D_1106' console.html 10           # [EAR_D_1106] 겹침 곡선 한 곳(xfCurve · 등전력) — 입장 곡 → M4 인계 · LONG 이어 잇기 · 목록 넘김 · LIST_HOLD · 도착 멘트 1초 앞 잦아듦(ARRIVE_LEAD_MS)
+chk 'function xfCurve' console.html 1
+chk 'var ARRIVE_LEAD_MS = 1000;' console.html 1
+chk 'esdStop(SEG_XF, true); esdBedBack(SEG_XF \* 1000, true);' console.html 1
+chk '① 짧은 입장 곡 → 본식 곡(M4) 인계' scripts/audit/ear-d.mjs 1
+chk '② 도착 멘트 첫 단어' scripts/audit/ear-d.mjs 1
+chk 'meaning-r1 seam-b2-entry ear-d' .github/workflows/merge-guard.yml 1
 chk "seam-bg seam-b2-rest" .github/workflows/merge-guard.yml 1
 chk "ONLY = process.env.ONLY || '음02,음04,음06K'" scripts/audit/seam-b2-entry.mjs 1
 # ★[B2_K16 2026-11-06 결정 «정지는 정지»] 입장 곡 도중 전체 정지 = 입장 곡 · 배경 0 · GO 재개 = 같은 곡 멈춘 자리부터 0.6초(검사 = CI a 칸 seam-b2-entry 음06K)
