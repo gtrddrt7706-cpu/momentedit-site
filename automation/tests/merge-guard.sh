@@ -4826,7 +4826,7 @@ chk 'PV_VERIFY_1106' mypage.html 2
 chk '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.' mypage.html 1
 nochk '원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요' mypage.html
 # ★[PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 재개 — 접은 걸음(분위기 · 사진 · 음악)으로 다시 열지 않는다 · 첫 화면에서 방법을 다시 고른다(확정본 · 보낸 요청은 그대로)
-chk 'PN07_MAKE_RESUME' mypage.html 6
+chk 'PN07_MAKE_RESUME' mypage.html 12
 nochk "if(d.mode==='make' && (st==='draft'||st==='editing')) return ['style','photos','music','music'][d.step]||'style';" mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다

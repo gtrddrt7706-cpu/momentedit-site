@@ -72,7 +72,9 @@ ok((blk.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '').match(/'[^'\
 { const so = (blk.match(/function _pvcScrOf\(F\)\{[\s\S]*?\n\}/) || [''])[0];
   ok(/d\.mode==='make' && \(st==='draft'\|\|st==='editing'\)\) return 'start';/.test(so) && !/\['style','photos','music','music'\]\[d\.step\]/.test(so), '[PN07] 옛 사진으로 만들기 초안 → 첫 화면(접은 걸음으로 안 감)', so.slice(0, 200));
   ok(/if\(st==='draft' && d\.mode==='make'\) return \{done:false, st:'', label:'시작하기'/.test(blk) && blk.indexOf("+' 단계'") < 0, '[PN07] 예식 준비 줄 «이어하기 · 사진 단계» 없음 → «시작하기»');
-  ok(/사진으로 만들기는 이제 준비하지 않아요/.test(blk) && /if\(F\.d\.mode==='make'\)\{ _pvcGo\('start'\); return; \}/.test(blk), '[PN07] 첫 화면 한 줄 · 확정본의 «다른 영상으로 다시 보내기»도 방법부터'); }
+  ok(/사진으로 만들기는 이제 준비하지 않아요/.test(blk) && /if\(F\.d\.mode==='make'\)\{ _pvcGo\('start'\); return; \}/.test(blk), '[PN07] 첫 화면 한 줄 · 확정본의 «다른 영상으로 다시 보내기»도 방법부터');
+  ok(blk.indexOf('data-pvcgo="music" data-pvcstep2="2"\',\'ghost\'), _pvcBtn(\'마이페이지로\'') < 0 && /_pvcBar\(\(F\.past\|\|!up\)\?'':_pvcBtn\('이전','data-pvcgo="upload"','ghost'\)/.test(blk), '[PN07 · 검토 1609-2] 만드는 중 · 사진으로 만들기 미리보기에서 «이전»으로 음악 걸음에 안 간다');
+  ok(/function _pvcConfLine\(\)/.test(blk) && /_pvcConfLine\(\), _pvcDueLine\(_pvcConfLine\(\)\?'':/.test(blk), '[PN07 · 검토 1609-1] 확정본이 있으면 첫 화면이 «영상 없이»가 아니라 «기존 확정본으로 진행»'); }
 
 console.log('━━ ⑤ 서버 동작');
 const { sandbox: G, errors } = loadGas();
