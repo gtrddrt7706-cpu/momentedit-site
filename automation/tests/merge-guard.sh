@@ -18403,6 +18403,20 @@ chk "_authSendOk_(kind, email)" automation/platform/50_auth-handlers.gs 1
 chk "_trigSafe_(_pw) + (uid ? 'U' : 'N')" automation/platform/70_journey.gs 1
 nochk "취소된 예약은 승인할 수 없습니다. (되살아남 방지)" automation/admin/admin.gs
 nochk "error: '취소된 예약입니다.'" automation/admin/admin.gs
+# ★★[REFUND_REVIEW_1106 2026-11-06 대본 지시 3 · 운영·계약 L11 · L14 · L20] 환불 계산기 — 계약서대로 + 예외는 «확인 필요 — 사장님 확정» · 자동 확정 금지
+#   스냅 7조① 기산점 = 계약서 받은 날 · 촬영 당일 시작 전/후 단정 금지 · 받은 변경 수수료는 위약금에 충당(시그니처 8조①) · 옛 판 서명은 그 판 조건(REFUND_TERMS_SAME)
+chk 'REFUND_REVIEW_1106' automation/platform/70_journey.gs 2
+chk 'CHANGE_FEE_CREDIT' automation/platform/70_journey.gs 2
+chk 'SNAP_DAY_UNSURE' automation/platform/70_journey.gs 1
+chk 'SNAP_WITHDRAW_FROM_DOC' automation/platform/70_journey.gs 1
+chk 'var REFUND_TERMS_SAME' automation/platform/70_journey.gs 1
+chk 'REFUND_REVIEW_1106' automation/admin/admin.gs 2
+chk 'function _rqReview' admin.html 1
+chk 'rqBossOk' admin.html 2
+nochk "_sRule = '계약일 + 7일 이내(청약철회)'" automation/platform/70_journey.gs 0
+if command -v node >/dev/null 2>&1; then node scripts/audit/refund-terms-same.mjs >/dev/null 2>&1; _rts=$?; if [ "$_rts" != 0 ]; then echo "FAIL refund-terms-same($_rts) — 옛 판 환불 조건 목록이 보존본과 어긋난다 · node scripts/audit/refund-terms-same.mjs [REFUND_TERMS_SAME]"; fail=1; else echo "ok refund-terms-same [REFUND_TERMS_SAME]"; fi; fi
+# ★[INTERNAL_NOINDEX_1106 2026-11-06 대본 지시 4] 내부 점검 화면 · 옛 계약 보존본 — noindex · 사이트맵 0 · 고객 화면 링크 0 · 새 내부 화면은 목록에
+if command -v node >/dev/null 2>&1; then node scripts/audit/internal-noindex.mjs >/dev/null 2>&1; _ini=$?; if [ "$_ini" != 0 ]; then echo "FAIL internal-noindex($_ini) — 내부 화면 · 계약 보존본이 고객 주소에 드러난다 · node scripts/audit/internal-noindex.mjs [INTERNAL_NOINDEX_1106]"; fail=1; else echo "ok internal-noindex [INTERNAL_NOINDEX_1106]"; fi; fi
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
@@ -21908,7 +21922,7 @@ chk 'Farewell(정리)' api/_kb.js 1
 nochk 'Farewell(마무리)' api/_kb.js
 # ★[DN_BUGS_1102 GPT 애프터 웨딩 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
 chk 'DN_RSV_AFTER_PICK_1102' mypage.html 1
-chk 'function _dnRsvFor(d, place)' mypage.html 1
+chk 'function _dnRsvFor(d, place, nm)' mypage.html 1   # [B2_FIX_MA_38 2026-11-06] nm = 옛 이름 열쇠 옮기기용
 chk 'DN_RSV_PER_PLACE_1102' mypage.html 3
 chk 'DN_UNDO_ALL_1102' mypage.html 1
 chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
@@ -22888,3 +22902,33 @@ chk 'H4_HANDOFF_PHONE' api/handoff.js 2                                         
 chk 'conversation: \[\],' api/handoff.js 1                                        # [H4_HANDOFF_TOPIC] 질문 원문 미보관 · 주제 · 분류만
 nochk "customer.phone && ('연락처 '" api/handoff.js
 chk 'H4_HANDOFF_PHONE' scripts/audit/err-pages.mjs 1                              # 행동 검사(모델 요청 · GAS 고객 · 요약)
+# ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
+chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
+nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
+chk '촬영 후 안내가 끝나면 가족 사진을 이어서 찍어요.' brief.html 1
+chk 'B2_FIX_MA_03' live.html 3                      # 재조회 끝 — 마지막이 실패면 캐시 화면이어도 실패 문구 + 코드(G#)
+chk '^var _livePlaceholderHtml;' live.html 1   # [B2_FIX_MA_03_KEEP] 초기값 없이(캐시 길이 담은 값을 지우지 않게)
+nochk "^var _livePlaceholderHtml = '';" live.html
+chk 'B2_FIX_MA_38_OLDKEY' mypage.html 1   # 옛 초안의 이름 열쇠 예약 값도 꺼내 새 열쇠(이름#pid)로
+chk '연결을 확인하지 못했어요. 화면을 새로 고쳐 주세요.' live.html 1
+chk 'B2_FIX_MA_09' mypage.html 3                    # 청첩장 발행 중 뒤로가기 · 키보드로 이전 · 단계 이동 안 함
+chk "if(id==='inv' && INVFLOW._publishing){ _wizRearm(id); return; }" mypage.html 1
+chk 'B2_FIX_MA_16' mypage.html 1                    # 가볼 곳 카드도 실패하면 바꾸기 전 전체(_dnSnap)로
+nochk "_dnFavSaved(function(){ _dnFavToggle(TRKFLOW.draft,_u1); render(box); });" mypage.html
+chk 'B2_FIX_MA_38' mypage.html 7                    # 공개 · 빼기 · 예약할 곳 · 장소별 예약 값도 지도 장소 ID(pid)로
+chk 'function _dnIsRep' mypage.html 1
+chk 'B2_FIX_MA_53' mypage.html 4                    # 사진 선택 때문에 당겨서 새로고침을 보류할 때 까닭 한 줄
+chk "'아직 제출하지 않은 사진 선택이 있어요.'" mypage.html 1
+chk 'B2_FIX_MA_18' guide.html 4                     # 링크 닫힘 — 올리는 중엔 끝난 뒤 · 보낸 장수 · 남은 장수 한 줄
+chk 'function closedPaint' guide.html 1
+chk 'B2_FIX_MA_36' shared/hydrate.js 2              # 하객 안내 단추 — 서버 오류 · 몰림(ecode 1~9)도 다시 묻고 끝내 실패면 실패 자리
+chk 'B2_FIX_MA_85' live.html 2                      # 은행 이름 한 규칙(새마을금고 · 우체국에 «은행» 안 붙임)
+chk 'B2_FIX_MA_85' shared/hydrate.js 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' live.html 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' shared/hydrate.js 1
+nochk "(/(은행|뱅크)\$/.test(" live.html
+nochk '저희가 검증한' index.html
+nochk '저희가 검증한' assets/advisor-kb.js
+nochk '저희가 검증한' api/_kb.js
+nochk '프라이버시까지 확인해 추천' index.html
+nochk '검증한 인근 식당' index.html
