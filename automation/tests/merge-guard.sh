@@ -22644,7 +22644,6 @@ nochk '노래를 마치면 «다 했어요»를 눌러 주세요' order-preview.
 chk 'B5_NI14' order-preview.html 1   # [5차 P v2 NI14 · P13] 흐름 보기 재개 — 남은 시간이 양수면 남은 시간만(300ms 안 포함) · 끝난 줄이면 다음 줄
 nochk 'LP.tLeftSt===st&&LP.tLeft>300&&LP.tMs' order-preview.html   # ★300ms 이하 잔여를 줄 처음부터 다시 세던 조건 되살리지 말 것
 chk 'B5_P17' order-preview.html 4   # [5차 P v2 P17] 잠시 멈춤 중 음악 켜기는 설정만 · 재개 때 지금 줄 곡 · 자리 · 크기
-chk 'B5_P17' assets/bgm-bed.js 1   # [B5_P17] 늦게 온 목록 · 곡이 멈춤 중에 곡을 틀지 않는다(lpPaused)
 nochk 'else { var st=LP.q&&LP.q\[LP.i\]; if(st&&_bedOn()) BgmBed.lpShow(st); }' order-preview.html   # ★멈춤 중에도 켜자마자 lpShow 하던 길 되살리지 말 것
 chk 'B5_PN02' order-preview.html 3   # [5차 P v2 P-N02] 이어서 연습 자리 — 공개 · 계정마다 칸(_prAtKey) · 계정 확인 전 읽기 · 쓰기 없음 · 옛 공용 me_pr_at 미배정
 nochk "localStorage.getItem(PR_AT_KEY" order-preview.html   # ★공용 한 칸(me_pr_at)으로 되돌리지 말 것
