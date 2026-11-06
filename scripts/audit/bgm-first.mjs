@@ -54,10 +54,10 @@ if (typeof ES.pickHook !== 'function') { ok('3 pickHook 이 엔진에 있다', f
 // 6 — 짧은 판의 끝
 { const V0 = voice(17), PL = ES.plan(V0, song(280, { end: 62 }), 39.57, { hooks: [39.57, 65.16] });
   ok(`6 짧은 판(끝 62초)이면 장면 끝도 그 안(${PL.tend.toFixed(2)} ≤ ${(PL.tm + 62 - PL.off).toFixed(2)})`, PL.tend <= PL.tm + (62 - PL.off) + 1e-9, PL); }
-// 7 — [ENTRY_BGM_1019] 문 열린 뒤 «도착»까지 64초(크게 60 + 잦아듦 4) · 당일 콘솔은 디렉터가 다음을 누를 때까지
+// 7 — [ENTRY_BGM_1019] 문 열린 뒤 «도착»까지 34초(크게 30 + 잦아듦 4 · ★[WALK_HALF_1106] 사장님 «절반 정도» · 옛 64초 = 60 + 4) · 당일 콘솔은 디렉터가 다음을 누를 때까지
 { const V0 = voice(17), PL = ES.plan(V0, song(200), 40), DAY = ES.plan(V0, song(200), 40, { after: 1e5 });
-  const gA = dB(ES.envGain(PL, PL.th + 59.9)), gB = dB(ES.envGain(PL, PL.th + 62)), gC = ES.envGain(PL, PL.tend + 0.01);
-  ok(`7 «도착»까지 ${(PL.tend - PL.th).toFixed(1)}초(after ${ES.SP.after} · 잦아듦 ${ES.OUTF}) · 59.9초 ${gA.toFixed(1)}dB(크게 그대로) · 62초 ${gB.toFixed(1)}dB(잦아드는 중) · 끝 뒤 0 · 당일 콘솔 장면 끝 = 곡 끝`,
-    ES.SP.after === 60 && ES.OUTF === 4 && Math.abs(PL.tend - PL.th - 64) < 1e-9 && Math.abs(gA - ES.BED_TRIM) < 0.6 && gB < gA - 10 && gC === 0 && Math.abs(DAY.tend - (DAY.tm + 200 - DAY.off)) < 1e-9, { th: PL.th, tend: PL.tend, gA, gB, day: DAY.tend }); }
+  const gA = dB(ES.envGain(PL, PL.th + 29.9)), gB = dB(ES.envGain(PL, PL.th + 32))   /* [WALK_HALF_1106] 옛 59.9 · 62 */, gC = ES.envGain(PL, PL.tend + 0.01);
+  ok(`7 «도착»까지 ${(PL.tend - PL.th).toFixed(1)}초(after ${ES.SP.after} · 잦아듦 ${ES.OUTF}) · 29.9초 ${gA.toFixed(1)}dB(크게 그대로) · 32초 ${gB.toFixed(1)}dB(잦아드는 중) · 끝 뒤 0 · 당일 콘솔 장면 끝 = 곡 끝`,
+    ES.SP.after === 30 /* [WALK_HALF_1106] 옛 60 */ && ES.OUTF === 4 && Math.abs(PL.tend - PL.th - 34) < 1e-9 && Math.abs(gA - ES.BED_TRIM) < 0.6 && gB < gA - 10 && gC === 0 && Math.abs(DAY.tend - (DAY.tm + 200 - DAY.off)) < 1e-9, { th: PL.th, tend: PL.tend, gA, gB, day: DAY.tend }); }
 console.log(fail ? `bgm-first: FAIL ${fail}` : 'bgm-first: ok');
 process.exit(fail ? 1 : 0);
