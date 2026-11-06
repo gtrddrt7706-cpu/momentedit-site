@@ -107,8 +107,8 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
     && nb.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && n5.free === -20 && n5.l0 === -90 && n5.lt === '두 분이 직접 편지 낭독', { nb, n5 });
   const same = (a, b) => a.length === b.length && a.every((c, i) => JSON.stringify(c) === JSON.stringify(b[i]));
   const bedCs = bld({ S5: { m: 'bed' }, S6: { m: 'bed' } }), touched = bedCs.filter((c, i) => JSON.stringify(c) !== JSON.stringify(nNone[i])).map((c) => c.slug);
-  ok('0 엔진 — 옛 값(own · studio · none · warm)은 기본과 한 글자도 같다 · «음악과 함께»가 바꾸는 큐는 축사(여는 말 · 맺는 말) · 축가 여는 말 · 편지 넷뿐',
-    same(nOld, nNone) && bedCs.length === nNone.length && touched.join() === 'narr-free-in-speech,bridge-b10-speech-clap,narr-song,letter-each,narr-letter-end', touched);   /* ★[NO_RELIFT_1102] 축가 여는 말(narr-song)도 — 축사 «음악 없이» 뒤엔 정적 그대로(−90) · «음악과 함께» 뒤엔 −16 */   /* ★[BGM_TIMING_1101] 축사 맺는 말(b10)도 — «음악 없이» −90 · «음악과 함께» −16 */
+  ok('0 엔진 — 옛 값(own · studio · none · warm)은 기본과 한 글자도 같다 · «음악과 함께»가 바꾸는 큐는 축사(여는 말 · 맺는 말) · 편지 넷뿐(축가 여는 말은 어느 쪽이든 −90 · ONE_FLOW_1106 ⑤)',
+    same(nOld, nNone) && bedCs.length === nNone.length && touched.join() === 'narr-free-in-speech,bridge-b10-speech-clap,letter-each,narr-letter-end', touched);   /* ★[ONE_FLOW_1106 ⑤] «음악과 함께» 축사 · 편지 바로 뒤 축가 여는 말도 줄 시작에서 정적 → MR — «음악 없이»와 같은 −90 이라 바꾸는 큐에서 빠진다 */   /* ★[NO_RELIFT_1102] 축가 여는 말(narr-song)도 — 축사 «음악 없이» 뒤엔 정적 그대로(−90) · «음악과 함께» 뒤엔 −16 */   /* ★[BGM_TIMING_1101] 축사 맺는 말(b10)도 — «음악 없이» −90 · «음악과 함께» −16 */
   const vid = pick(bld({ S5: { m: 'bed' } }, { freeWhat: 'video' }));
   ok('0 엔진 — 옛 «영상» 축사는 «음악과 함께»가 남아 있어도 무음 그대로', vid.free === -90, vid);
   const sc = ST.LIVE['두 분이 직접 편지 낭독 (음악이 아주 작게)'], s0 = ST.LIVE['두 분이 직접 편지 낭독'];
