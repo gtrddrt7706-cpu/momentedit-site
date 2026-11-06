@@ -4825,6 +4825,9 @@ nochk '패키지 포함 · 추가 요금 없음' mypage.html
 chk 'PV_VERIFY_1106' mypage.html 2
 chk '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.' mypage.html 1
 nochk '원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요' mypage.html
+# ★[PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 재개 — 접은 걸음(분위기 · 사진 · 음악)으로 다시 열지 않는다 · 첫 화면에서 방법을 다시 고른다(확정본 · 보낸 요청은 그대로)
+chk 'PN07_MAKE_RESUME' mypage.html 12
+nochk "if(d.mode==='make' && (st==='draft'||st==='editing')) return ['style','photos','music','music'][d.step]||'style';" mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1
@@ -15385,7 +15388,7 @@ nochk "\['N21-i', '이음말 · 엄숙한 순간 → 축가'" scripts/build-dubb
 chk "if (slugB === 'bridge-b3-clap-thanks' && !_declStay) { _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # ★[DECL_TITLE_1031] 글자 추측(아버 · 어머) 대신 «첫 덕담도 이어서» 답 · 안 고름은 자리로 + GO   # [COMBO_171_1030 C02] 다음이 덕담이어도 다른 분이 선언했으면 255
 chk "&& _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «&& !/\^이제/.test(_nxT) && _nxT.indexOf('하»
 chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «!BRIDGE_OPEN.test(_nxT)) _more.push('bri»
-chk "&& !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1
+chk "&& (bn.k === 'song' || !CLAP_ASK.test(_nxT))) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1   # [B2_FIX_NA_35 2026-11-06] 축사 → 축가는 여는 말이 박수를 청해도 246 · 그 밖은 종전 ⑤
 chk 'TOAST_PUTDOWN_1018' assets/ritual-cue.js 1
 chk "→ 음악 → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'" assets/ritual-story.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «chk "'하객이 잔을 내려놓음 · 두 분도 잔을 건넴'"»
 chk '기원하며 축복의 불을 밝혀 주시겠습니다' assets/ritual-open.js 2   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 151 · 154 = 자료 G 원문 되돌림(옛 핀 «밝혀 주시겠습니다» 3 · 남은 하나는 쉬는 parents 판)
@@ -20591,7 +20594,7 @@ nochk '빨래는 제가 개겠습니다' docs/plans/식순연구/참고예시_�
 chk 'MODERN_WORDS_1024 검토 164' assets/ritual-data.js 1
 chk 'MODERN_WORDS_1024 검토 164' assets/ritual-open.js 1   # 186 은 IG_CLOSE_1024 로 통째 바뀜
 chk 'MODERN_WORDS_1024 검토 164' assets/ritual-cue.js 2
-chk "CLAP_ASK = /박수\[^.!?\]\*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/" assets/ritual-cue.js 1
+chk "CLAP_ASK = /박수\[^.!?\]\*(부탁|바랍니다|주시면|주십시오|주세요|맞아)|박수로\[^.!?\]\*하겠습니다/" assets/ritual-cue.js 1   # [B2_FIX_NI05 2026-11-06] 개식 «여러분의 박수로 시작하겠습니다!»도 박수 청
 nochk '시간을 할애하시어' assets/ritual-data.js
 nochk '결혼식을 거행하' assets/ritual-open.js
 nochk '혼인서약 낭독\.' assets/ritual-data.js 1   # 결정 주석 한 곳(예로 든 옛 말투)
@@ -22147,7 +22150,10 @@ chk 'VOW_FACE_NI13' order-preview.html 1
 chk 'B_RESUME_WAIT_NI14' order-preview.html 1
 chk 'STAGE_SHOW_NI11' order-preview.html 6
 chk "function _stName(st){ return st&&st.stage?_post(st.stage).n:_lName(st&&st.k); }" order-preview.html 1
-chk "return '다음 · 본식 뒤 '+_post('_photo').n" order-preview.html 1
+chk "return '다음 · '+_post('_photo').n+' · '+_post('_after').n;" order-preview.html 1   # [B2_FIX_GEUL_19 2026-11-06] 다음 단추에 «본식 뒤» 안 붙임
+chk 'B2_FIX_GEUL_19' order-preview.html 2
+nochk "'<p class=\"mk-note\">식후 · '" order-preview.html
+nochk "return '다음 · 본식 뒤 '" order-preview.html
 nochk '<b>식후</b>' order-preview.html
 nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
@@ -22903,6 +22909,14 @@ chk 'H4_HANDOFF_PHONE' api/handoff.js 2                                         
 chk 'conversation: \[\],' api/handoff.js 1                                        # [H4_HANDOFF_TOPIC] 질문 원문 미보관 · 주제 · 분류만
 nochk "customer.phone && ('연락처 '" api/handoff.js
 chk 'H4_HANDOFF_PHONE' scripts/audit/err-pages.mjs 1                              # 행동 검사(모델 요청 · GAS 고객 · 요약)
+# ★[B2_FIX_R1 2026-11-06 재검증 재수정 1묶음] 나28 · 글19 · 나62 · 나64 · 글18 · NI05 · 나33 · 나35 — 엔진을 돌려 동작으로 잰다(scripts/audit/b2-fix-r1.mjs · --selftest 로 깨 본다)
+chk 'B2_FIX_NA_28' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_33' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_35' assets/ritual-cue.js 1
+chk 'B2_FIX_NI05' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_62' order-preview.html 2
+chk 'B2_FIX_GEUL_18' order-preview.html 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r1.mjs >/dev/null 2>&1; _b2r1=$?; node scripts/audit/b2-fix-r1.mjs --selftest >/dev/null 2>&1; _b2r1s=$?; if [ "$_b2r1" != 0 ] || [ "$_b2r1s" != 0 ]; then echo "REVERT? b2-fix-r1: 재검증 재수정 1묶음(사진 안내 늘 · 서약 · 축사 박수 · 개식 힌트 · 본식 뒤 · 덕담 차례)이 어긋났습니다 ($_b2r1/$_b2r1s) — node scripts/audit/b2-fix-r1.mjs"; fail=1; else echo 'ok b2-fix-r1'; fi; fi
 # ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
 chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
 nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
