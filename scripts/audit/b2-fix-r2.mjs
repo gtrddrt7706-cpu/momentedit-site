@@ -44,7 +44,7 @@ for (const W of [360, 375, 390]) {
   ok(`390 페이지 오류 없음`, errs.length === 0, errs.slice(0, 2));
   await ctx.close();
 }
-ok('[B2_FIX_NA_02] 손 대기 중 시각 큐 단추 글 = 직접 눌러 주세요', CO.includes("' · 손 대기 중이에요. 직접 눌러 주세요.</small>'") && CO.indexOf("typeof MAN_HOLD !== 'undefined' && MAN_HOLD) {") < CO.indexOf("'에 저절로 나갑니다</small>'"));
+ok('[B2_FIX_NA_02] 손 대기 중 시각 큐 단추 글 = 직접 눌러 주세요', CO.includes("' · 손 대기 중이에요. 직접 눌러 주세요.'") && CO.includes("' · 예정 시각이 지났어요. 필요하면 직접 눌러 주세요.'") && CO.indexOf('MAN_HOLD = true;   // ★[B2_FIX_NA_02_ORDER') > -1 && CO.indexOf('MAN_HOLD = true;   // ★[B2_FIX_NA_02_ORDER') < CO.indexOf("toast(ESD.paused") && CO.indexOf("typeof MAN_HOLD !== 'undefined' && MAN_HOLD) {") < CO.indexOf("'에 저절로 나갑니다</small>'"));
 ok('[B2_FIX_NA_20] 미리듣기 끝 화면 = 장면 카드 · 직접 맡습니다(«목소리로 바뀝니다» 없음)', CO.includes('장면 카드로 보신 말하기 차례는 두 분과 가까운 분들이 직접 맡습니다.') && !CO.includes('가까운 분들의 목소리로 바뀝니다'));
 ok('[B2_FIX_NI17] 예약 시각 도움말 «예약을 마친 시각만 적어 주세요.» · «미정이면 비워 두셔도 괜찮아요»', MP.includes('예약을 마친 시각만 적어 주세요.') && MP.includes('미정이면 비워&nbsp;두셔도 괜찮아요'));
 await br.close(); srv.close();
