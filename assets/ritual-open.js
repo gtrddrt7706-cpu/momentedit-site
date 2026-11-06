@@ -357,6 +357,10 @@
        ② 이 순간 전체 듣기 · 연습 · 크게 보기의 «음악과 함께» 장면에서 문 열린 뒤 크게 머무는 초(entry-scene SP.after) 60 → 30.
        당일 콘솔은 그대로 디렉터 GO(장면 after 1e5) · 음악 크기 · 곡선 · 잦아듦(OUTF 4초)은 그대로 · 여유(42초)는 걸음이 아니라 흔들림 몫이라 그대로 */
   var WALK_K = 0.5, WALK = { k: WALK_K, day: 102 * WALK_K, quiet: 25 * WALK_K, scene: 60 * WALK_K, was: { day: 102, quiet: 25, scene: 60 } };
+  /* ★★[TOAST_EST60_1106 2026-11-06 BGM 시뮬레이션 · 축배 음악 칸 «1 ~ 1.5분»] 축배 사람 구간(잔 들기 → «위하여» → 잔 내려놓기) = 60초 한 곳 —
+       엔진 축배 큐 live.est(옛 10 + 잔 내려놓기 20 = 30) · 본식 시간 표 말 없는 시간(옛 20) · 미리 듣기 «실제로는 약 1분»이 이 값을 읽는다 ·
+       종전 30초면 기록 코스에서 축배 곡이 16초만 흘렀다 · 당일 콘솔은 그대로 디렉터 GO(«잔이 다 내려가면») · 여유 40초 그대로 */
+  var TOAST_SEC = 60;
   var TIME = {
     prevideo: [9, 0, 180, 0],   // ★[SOURCE_FIRST_1016] 여는 말 90 = 자료 G2 121 대안 2(29음절 5.8초 · +2)
     candle: [43, 0, 60, 38],   // ★[BASE_SWAP_1023 검토 156] 기본 여는 말이 짧아졌다 — 옛 어머님 판 FF 1-2 33초 → 기본 셋 중 가장 긴 아버님 판(76음절 15.2 + 문장 사이 2.5 = 17.7) · 58 − 33 + 17.7 = 42.7 → 43 ·   // ★[SOURCE_FIRST_1016 · CANDLE_CALL_SRC_1016] 대본 25 → 58초(어머님 판 여는 말 FF 1-2 140음절 33초 + 맺는 말 4.2 + 인사 구호 11.7 + 구호 뒤 4초 둘 + 사슬 1.25) · 말 없는 시간 70 → 60(맞절 · 인사가 구호 사이 쉼으로 들어가 자리로 돌아가는 15초만 남는다)   // [PARENTS_ENTRY_OFF 2026-10-12] 판 없이 하나(입장 +20초 걷음) · [CANDLE_BOW_1012] 불을 밝힌 뒤 인사 몇 초는 여유 38초 안 · ★[CANDLE_CALL_1014] 대본 12.5 → 25초(여는 말 앞 문장 +6.3 · 인사 안내 줄 4.7 + 사슬 1.25)
@@ -375,7 +379,7 @@
     /* [CAKE_TOAST_SPLIT] 종전 «케이크와 축배»(both.none [41, 0, 63, 106])를 두 순간에 나눈다 — 합은 그대로.
        축배 몫 = 축배만 판(여는 말 + 잔 안내 + 선창 + 마무리 · [22, 0, 20, 40]) · 케이크 몫 = 나머지. 한쪽만이면 종전 «케이크만» · «축배만» 줄. */
     cake: { both: [19, 0, 43, 66], only: [26, 0, 35, 45] },
-    toast: { both: [23, 0, 20, 40], only: [23, 0, 20, 40] },   // [SOURCE_FIRST_1016] 여는 말 = 자료 AA 37 · 49(+1.5) · 마무리 AA 41
+    toast: { both: [23, 0, TOAST_SEC, 40], only: [23, 0, TOAST_SEC, 40] },   /* [TOAST_EST60_1106] 말 없는 시간 = 축배 사람 구간(옛 20) */   // [SOURCE_FIRST_1016] 여는 말 = 자료 AA 37 · 49(+1.5) · 마무리 AA 41
     /* ★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2] 다시 쟀다 — 대본 +5(108 끝 선언 44음절 + 26 새 글 65음절 − 옛 26 85음절 · 300음절/분) ·
        말 없는 시간 +11(목례 3 · 박수 8) · 여유 +2(박수 7~9초 ±1 · 목례 ±1 · 연구 B02 · D02). 인사 유무 판 차이는 그대로.
        ★처음엔 여유 +4 로 넣었는데 «전부» 예시 넉넉 합(×1.25 포함)이 25:01 로 고객 범위(RANGE 12~25 · 코워크 결정)를 넘었다.
@@ -1715,7 +1719,7 @@
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
-    CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
+    CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,

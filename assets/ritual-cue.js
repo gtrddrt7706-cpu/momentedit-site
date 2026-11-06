@@ -1703,7 +1703,7 @@
       /* ★[REVIEW26_1023 검토 150-1 4)] 테이블 인사가 없는 날은 56 «편안하게 즐겨 주세요.»(AA 3 · 2부 식사 자리 마무리)를 틀지 않는다 — 20초 뒤 «… 모두 단상 앞으로 모여 주시면 …»과 부딪쳤다 ·
            잔 내려놓기 사람 구간(위 TOAST_PUTDOWN_1018)은 선창 줄의 사람 구간 뒤에 그대로 이어 붙인다(시간 · 디렉터 GO 그대로) · 테이블 인사가 있는 날은 56 그대로 */
       if (_to && _to.slug === 'narr-toast-out') { var _tp = cues[cues.length - 2];
-        if (_tp && _tp.k === 'toast' && _tp.live) { cues.pop(); _tp.live.t = _tp.live.t + ' → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'; _tp.live.est = (_tp.live.est || 0) + 20; _tp.live.hintNext = '잔이 다 내려가면'; }
+        if (_tp && _tp.k === 'toast' && _tp.live) { cues.pop(); _tp.live.t = _tp.live.t + ' → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'; _tp.live.est = (O && O.TOAST_SEC) || 60; /* ★[TOAST_EST60_1106] 축배 사람 구간 = RitualOpen.TOAST_SEC 한 곳(옛 «위하여» 10 + 잔 내려놓기 20 = 30) */ _tp.live.hintNext = '잔이 다 내려가면'; }
         else if (!_to.live) _to.live = { t: '하객이 잔을 내려놓음 · 두 분도 잔을 건넴', est: 20, self: false, doing: 'move', duck: PARAM.duckMusic, consoleOnly: true, hintNext: '잔이 다 내려가면', previewPost: [] }; } }
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
