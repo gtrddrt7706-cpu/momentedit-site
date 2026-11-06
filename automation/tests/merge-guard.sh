@@ -22634,7 +22634,7 @@ nochk '예식 150일 이후 취소 시' assets/advisor-kb.js
 nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분)' api/schedule-advisor.js
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
-chk 'BGM_VOL_ONE_1106' console.html 3   # [BGM_VOL_ONE_1106 검토 D] Web Audio 로 이은 배경 재생기 볼륨 1 — 콘솔 첫 «시작» 무음 막기
+chk 'BGM_VOL_ONE_1106' console.html 4   # [BGM_VOL_ONE_1106 검토 D] Web Audio 로 이은 배경 재생기 볼륨 1 — 콘솔 첫 «시작» 무음 막기
 chk 'function volOne()' console.html 1
 chk 'wired = true; volOne();' console.html 1
 chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1

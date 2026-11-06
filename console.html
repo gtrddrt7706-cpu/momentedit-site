@@ -2523,7 +2523,7 @@ $('#go').onclick = function(){
   FBF.tk++; clearInterval(FBF.iv); BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false);   // [BGM_SEG8_1023] 시작 = 하객 맞이 구간 곡(파일이 있으면) · 없으면 종전 배경 음악 파일 한 곡 반복
   if (MODE !== 'preview' && !GUEST && segPlan('M1')) { duckTo(PARAM.duckMusic, 10); segGo('M1'); }
   else if (pvsOn()) { duckTo(PARAM.duckMusic, 10); pvsWarm(); segGo('M1'); }   /* ★[PREVIEW_LINK_SONGS_1101] 미리듣기 = 두 분 곡 계획(BgmPicks.plan) · 곡을 못 받은 구간만 예시 음악 */
-  else if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
+  else if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = (wired && gMaster) ? 1 : vol();   /* [BGM_VOL_ONE_1106 검토 E] 이어 붙였으면 마스터 크기는 gMaster 한 번만 */ duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
   applyMaster();
   wakeOn();   // [B2_NA_60]
   render();
