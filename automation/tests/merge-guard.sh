@@ -1393,7 +1393,7 @@ nochk 'margin: -3px 0 -3px auto' index.html
 #   맨 아래 「(정확한 주소 확정 예정)」을 «준비 중»이 아니라 «미완성»으로 읽었다.
 #   ★소개 섹션(y≈3,600)의 한 줄을 지우지 말 것 — 지우면 그 오독이 그대로 돌아온다.
 chk 'OPEN_TIMING' index.html 1
-chk '2027년 4월 정식 오픈을 앞두고' index.html 1   # [B3_Q01 2026-11-06] 오픈 시점 = 사장님 지시 «2027년 4월»(종전 «하반기» · 홈 · 일반 KB · 즉답 함께) · 소개 섹션 한 줄은 그대로 지킨다
+chk '2027년 4월 오픈을 준비하며' index.html 2   # [H4_02 · B3_Q01 2026-11-06] 오픈 시점 = 사장님 지시 «2027년 4월»(종전 «하반기» · 홈 · 일반 KB · 즉답 함께) · 소개 섹션 한 줄은 그대로 지킨다
 nochk '2027년 하반기 정식 오픈' api/_kb.js
 nochk '2027년 하반기 정식 오픈' assets/advisor-kb.js
 chk '도로명 주소는 확정되면 안내드립니다' index.html 1
@@ -4805,6 +4805,10 @@ chk "head = '식전 영상을 확인해 주세요';" mypage.html 1
 chk "if(F.st==='off') h+='<div class=\"pvc-foot\">'" mypage.html 1
 chk '템플릿 비용 포함 · 추가 옵션 별도' mypage.html 1
 nochk '패키지 포함 · 추가 요금 없음' mypage.html
+# ★[PV_VERIFY_1106 2026-11-06 대본 검증 몫 M06 · M07] 표 원문 그대로 — 식순 어긋남 줄은 「식순」(화면 이름 꼴) · 접수 대기 화면도 «다시 확인» 안내(«이 화면에서 볼 수 있어요»는 화면이 스스로 바뀌는 것처럼 읽혔다)
+chk 'PV_VERIFY_1106' mypage.html 2
+chk '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.' mypage.html 1
+nochk '원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요' mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1
@@ -12979,7 +12983,7 @@ nochk "'인사 사진'" assets/sequence-modal.js
 chk "['단체 사진', '15~33분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1   # [TOAST_LAST_1013] 15~32 → 15~33
 chk 'Private Snap 60분 · Ceremony 7~25분 · 단체 사진 15~33분' index.html 1   # [TOAST_LAST_1013]
 nochk '전체 사진과 두 분의 감사 인사 뒤 식사 자리로' index.html   # ★[END_FLOW_1030 검토 167] 감사 인사는 닫는 인사 · 식사는 예약 시간에 함께 — 옛 «감사 인사 뒤 식사 자리로 가시고 · 11시까지»를 되살리지 말 것
-chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어지고, 식사는 예약 시간에 두 분과 함께 시작합니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030]
+chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어집니다. 식사를 예약하셨다면 정리를 마친 뒤 예약 시각에 두 분과 함께 시작합니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030] · [H4_05] 식사는 140분 밖
 nochk '9시 50분 입장' index.html
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' automation/platform/95_notify.gs 1
@@ -13498,7 +13502,8 @@ nochk "'링크·QR'):'준비 전'" mypage.html 0
 chk "need===true?'미완료':(need||'아직 정하지 않음')" mypage.html 1
 chk "line('식순', rv, true)" mypage.html 1
 chk "line('좌석 · 음료', fv, true)" mypage.html 1
-chk "'식사·좌석을 채우면 자동으로 생겨요'" mypage.html 1
+nochk "'식사·좌석을 채우면 자동으로 생겨요'" mypage.html 0   # [GUIDE_ALL_EVENTS_1106 4차 G01] 링크는 모든 예식에 생긴다([B2_MA_02] 서버 _guideTokenEnsure_) — 확인서 빈 줄은 «자동으로 생겨요»(«아직 정하지 않음» 대신 쓰는 ⑭ 규칙은 그대로)
+chk "line('하객 안내', p.guideToken?'링크 준비됨':'', '자동으로 생겨요')" mypage.html 1
 nochk '">미완료</span>' mypage.html 0
 # [EG_DASH_NOTE] 사장님 결정 ⑮ — 3/4 예시(점선 그림)는 그대로 두고 아래 한 줄
 chk '<div class="inv-onep-note">점선은 이름·날짜가 바뀌는 자리예요 · 실제 청첩장에는 없어요</div>' mypage.html 1
@@ -14706,7 +14711,7 @@ chk '\.snp-pv-ph ~ \.snp-pv-n{background:#fff;color:var(--sub)' mypage.html 1
 nochk 'box-sizing:border-box;padding:14px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65' mypage.html 0
 chk 'SNAP_EDIT_UNTIL' mypage.html 3
 chk "eu=new Date(wu-4\*864e5)" mypage.html 1
-chk "(_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.')" mypage.html 1
+chk "_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.')" mypage.html 1   # [SNAP_DUE_TODAY_1106] 앞에 «오늘까지» 갈래가 붙었다
 chk "까지는 언제든 고칠&nbsp;수 있어요." mypage.html 1
 nochk '예식&nbsp;3일&nbsp;전까지는 언제든 고칠 수 있어요' mypage.html 0
 nochk '스냅 기획은 예식 3일 전까지 고르실 수 있어요' mypage.html 0
@@ -18997,6 +19002,9 @@ chk 'ENTRY_MUSIC_1012' scripts/check-retired-scene.mjs 1
 nochk '곡을 넣는 칸은 따로 없다' api/_kb.js                       # 입장 음악 칸이 생겼다 — 없다고 말하지 않는다
 nochk '화면에 곡을 넣는 칸은 따로 없다' api/_ritual-kb.js
 chk 'ENTRY_MUSIC_1012' scripts/audit/entry-music.mjs 1
+# ── 2026-11-06 [GAP_ENTRY_1106] 입장 멘트 문장 사이 쉼(흐름 쉼 표) · 녹음 «입장!» 앞 쉼이 SP.call 이상이면 끊지 않음(마디 1) · 짧으면 1.8 로 늘려 마디 2 — entry-music 11b · entry-scene-day 2b 기대
+chk 'GAP_ENTRY_1106' scripts/audit/entry-music.mjs 1
+chk 'GAP_ENTRY_1106' scripts/audit/entry-scene-day.mjs 1
 # ── 2026-10-12 입장 음악 2단계-가 [ENTRY_SCENE_1012] — «음악과 함께 듣기»(그래프 · 긴 알약 · 그 자리 재생 · 이어 듣기 · 그래프 누르면 그 자리부터)
 #   목소리 = 빌더가 트는 입장 줄(_lSteps · 두 분 목소리 / 나레이션) · 곡 = 이 기기에 올린 곡 · 마지막 말 끝 + 0.3초 = 고른 자리(시험실 plan · envDb 그대로)
 #   두 분 AI 를 안 만들었으면 그래프 없이 흐린 알약(AI_PLAY_READY) · 크게 보기는 2단계-나 · 아래 entry-music 점검 10 ~ 18
@@ -21344,6 +21352,7 @@ chk 'function _prEstMs(ks)' order-preview.html 1
 chk 'data-fk="prj:_after"' order-preview.html 1
 nochk "say md" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way4.mjs >/dev/null 2>&1; _prw4=$?; if [ "$_prw4" = 1 ]; then echo 'FAIL pr-way4: 연습 보충(행위자 · 진행 상수 · 토글 · 식후 · 연습 시간)이 어긋났습니다 — node scripts/audit/pr-way4.mjs'; fail=1; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/b5-practice.mjs >/dev/null 2>&1; _b5p=$?; if [ "$_b5p" = 1 ]; then echo 'FAIL b5-practice: 5차 연습 회귀(편지 몫 · 본식 뒤 머리 · A 복귀 8초 · 축가 3초 · 짧은 잔여 재개 · 멈춤 중 음악 · 이어서 연습 칸 · 역할 복사 실패 창)가 어긋났습니다 — node scripts/audit/b5-practice.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
@@ -21524,6 +21533,19 @@ nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
 chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
 # ★[MK_HEAD_PILL 1101 사장님 PC «좀 이상한데»] 상태 단추 = 도구와 같은 알약(테 · 카드 바탕 · 44 · 12.5/500) · 자리가 되면 한 줄(.one) · 모자라면 두 층(모서리 22) · 꺾쇠는 글 바로 뒤
 chk 'MK_HEAD_PILL' order-preview.html 3
+# ★[4차 마이페이지 1106 · 대본 분배] M10 스냅 마감 당일 · M11 확인서 애프터 웨딩 공개 상태 · M13 옛 영상 만들기 «분위기» 한 이름 · M18 예약 시각 확인 · G01 하객 안내는 모든 예식
+chk 'SNAP_DUE_TODAY_1106' mypage.html 1
+chk 'late:days<14, today:days===14, lock:days<=3' mypage.html 1
+nochk 'late:days<=14, lock:days<=3' mypage.html 0
+chk 'DN_CONF_PUB_1106' mypage.html 3
+chk "dv='후보 '+_fn+'곳<br>하객에게 공개한 곳 없음'" mypage.html 1   # [CF_LINE_BREAK] 갈릴 자리는 «·» 대신 줄바꿈
+chk 'function _dnPubFavs(dd)' mypage.html 1
+nochk "    } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';" mypage.html 0
+chk "var PVC_STEPS=\['분위기','사진','음악','확인'\];" mypage.html 1
+nochk "_pvcBtn('이 스타일로'" mypage.html 0
+chk 'RSV_TIME_CHK_1106' mypage.html 5
+chk 'function _dnRtBad(t)' mypage.html 1
+chk 'GUIDE_ALL_EVENTS_1106' mypage.html 2
 # ★[DRESS_FAB_AFTER_CEREMONY 1102 사장님 «본식 이후에는 드레스 우측 아이콘 레일에 없어져야»] 예식 당일 본식 시작 시각(한국 시각 · 계약 슬롯 → +1h 표 WT_SLOT_MAP)이 지나면 숨김 · 시각 없으면 당일까지 · 검사 scripts/audit/dress-refs.mjs(시계 고정 11가지)
 chk 'DRESS_FAB_AFTER_CEREMONY' mypage.html 5
 chk 'var at=_dressCeremonyAt(d); if(at!=null&&Date.now()>=at) return false;' mypage.html 1
@@ -21926,7 +21948,9 @@ chk "function _fixSteps(kind)" order-preview.html 1
 chk "var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('pre');" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('post');" order-preview.html 1
-chk '늘 포함돼요</span><span class="fx-more">진행 보기</span>' order-preview.html 1
+chk '<span class="fx-s">늘 포함돼요</span></div>' order-preview.html 1   # [PICK_FLOW_ONE_1106] ① 고르기는 한 줄
+nochk 'fx-more">진행 보기' order-preview.html   # ★[PICK_FLOW_ONE_1106] 대본 11/06 사장님 «왜 여기서 설명» — ① 펼침 · 목록 되살리지 말 것
+chk 'PICK_FLOW_ONE_1106' order-preview.html 3
 chk "{t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',after:'전체 단체 사진을 마치면'}" order-preview.html 1
 chk "sub: '한 장 · 현장 진행' }" assets/ritual-open.js 1
 nochk "작가님이 진행해요" order-preview.html
@@ -22077,7 +22101,7 @@ chk 'PR_ACT_NI06' order-preview.html 3
 chk '두 분이 앞쪽 중앙으로 돌아와 나란히 서요' order-preview.html 1
 chk '하객이 잔을 내려놓으면 두 분도 잔을 건네고, 하객을 향해 나란히 서요' order-preview.html 1
 chk 'SONG_SELF_WAIT_NI07' order-preview.html 1
-chk '노래하실 분이 준비한 축가를 불러요' order-preview.html 1
+chk 'narr-song:self' order-preview.html 2   # [B5_P14] 본인 축가 카드 글은 A/B 따로(_songSelfTxt) — 종전 «노래하실 분이 준비한 축가를 불러요» 핀을 옮김
 chk 'LETTER_BRING_NI08' order-preview.html 1
 chk 'VOW_FACE_NI13' order-preview.html 1
 chk 'B_RESUME_WAIT_NI14' order-preview.html 1
@@ -22630,7 +22654,97 @@ chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
+chk 'B5_NI08' order-preview.html 1   # [5차 P v2 NI08] 편지 두 분 따로 — 최종 화자 배열을 세운 뒤 그 순간 몫을 한 번만 나눈다(각 139초 × 2 금지)
+chk 'B5_NI11' order-preview.html 1   # [5차 P v2 NI11 · P10] 크게 보기 머리 = _stNo(st) — 촬영 후 안내 중 «본식 뒤 · 예식 순서»
+nochk "esc(_lNoOf(st.k)+' · 예식 순서')" order-preview.html   # ★머리를 순간 번호(_lNoOf)로 되돌리지 말 것 — 본식 뒤 줄이 «9 / 9»로 보였다
+chk 'B5_P01' order-preview.html 2   # [5차 P v2 P01 · P14] 연습 A — 부모님께 인사 뒤 복귀 8초(이동) · 본인 축가 3초(_rpAct) · 머무름 표(TURN_GAP_1102)는 그대로
+chk 'B5_P14' order-preview.html 2   # [5차 P v2 P14 · NI07] 본인 축가 카드 글 A/B 따로 · 방식 바꾸면 지금 줄 글도
+chk '직접 부르는 차례예요 · 흐름 보기에서는 짧게 넘겨요.' order-preview.html 1
+chk '직접 부르는 차례예요. 시작과 끝 인사를 연습해 보세요.' order-preview.html 1
+nochk '노래를 마치면 «다 했어요»를 눌러 주세요' order-preview.html   # ★A 에도 보이던 B 용 완료 문구 되살리지 말 것
+chk 'B5_NI14' order-preview.html 1   # [5차 P v2 NI14 · P13] 흐름 보기 재개 — 남은 시간이 양수면 남은 시간만(300ms 안 포함) · 끝난 줄이면 다음 줄
+nochk 'LP.tLeftSt===st&&LP.tLeft>300&&LP.tMs' order-preview.html   # ★300ms 이하 잔여를 줄 처음부터 다시 세던 조건 되살리지 말 것
+chk 'B5_P17' order-preview.html 4   # [5차 P v2 P17] 잠시 멈춤 중 음악 켜기는 설정만 · 재개 때 지금 줄 곡 · 자리 · 크기
+nochk 'else { var st=LP.q&&LP.q\[LP.i\]; if(st&&_bedOn()) BgmBed.lpShow(st); }' order-preview.html   # ★멈춤 중에도 켜자마자 lpShow 하던 길 되살리지 말 것
+chk 'B5_PN02' order-preview.html 3   # [5차 P v2 P-N02] 이어서 연습 자리 — 공개 · 계정마다 칸(_prAtKey) · 계정 확인 전 읽기 · 쓰기 없음 · 옛 공용 me_pr_at 미배정
+nochk "localStorage.getItem(PR_AT_KEY" order-preview.html   # ★공용 한 칸(me_pr_at)으로 되돌리지 말 것
+chk 'B5_PN03' order-preview.html 5   # [5차 P v2 P-N03] 역할 전달 복사 실패 — 고를 수 있는 창에 역할 글 · 읽기 전용 링크 · 성공 알림은 실제 성공 뒤 · 공유 취소는 오류 아님
+chk '복사하지 못했어요. 아래 글을 길게 눌러 복사해 주세요.' order-preview.html 1
+nochk "function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };" order-preview.html   # ★역할 전달 복사 실패를 알림만으로 되돌리지 말 것
+chk 'B5_PRACTICE' scripts/audit/b5-practice.mjs 1   # 5차 연습 회귀 검사 파일이 살아 있는가
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
+# ★★[H4_HOME 2026-11-06 홈 4차 H02 ~ H22 · 대본 판정] 홈 · FAQ · 즉답 · AI 지식을 같은 말로 — 되돌리면 빨강
+chk '2027년 4월 오픈 준비 · 도로명 주소는 확정되면 안내드립니다' index.html 1   # [H4_02] 주소 괄호(보이는 글 · aria 같은 줄)
+nochk '정식 오픈을 앞두고' index.html                                             # [H4_02] 날짜 확정처럼 읽힌다
+chk '준비부터 촬영·예식·정리까지 140분입니다. 본식과 단체 사진은 합쳐 40분입니다.' index.html 1   # [H4_03] 표 리드
+chk '촬영 55분(두 공간·이동 포함)과 입장 준비 5분입니다.' index.html 1         # [H4_03 · H4_SNAP] 단독 스냅
+chk '전체 일정 종료' assets/sequence-modal.js 1                                   # [H4_03] 본식 끝 ≠ 전체 일정 끝
+chk '단체 사진 시작 시각은 본식 20분 기준 예시입니다' assets/sequence-modal.js 1 # [H4_03]
+chk '추가 촬영 동안 음악이 계속 흘러요' index.html 1                             # [H4_04] 확정 규칙 «추가 촬영 동안 음악 계속»
+nochk '촬영 후 안내(사진 올리기 포함)' index.html                                 # [H4_04] 촬영 후 안내 판(after-photo*)에 사진 줄이 없다 — 사진 올리기는 입장 때 · 5분 전
+chk '식사는 선택이며, 스튜디오의 140분 일정에 포함되지 않습니다.' index.html 2   # [H4_05] FAQ · JSON-LD
+nochk '서두를 일이 없도록 이 시간 안에 다 들어 있습니다' index.html               # [H4_05] 식사가 140분 안처럼 읽혔다
+chk 'Visual Archive ·<span class="ll-ko"> 촬영 예시' index.html 1                # [H4_10]
+chk '안내 음성과 두 분의 말을 미리 듣고 연습해요' index.html 1                    # [H4_12]
+chk 'more-count" style="margin-right:1px">8</span>개 보기' index.html 1                                         # [H4_13] 접힌 질문 수 = 8(환불 · 마이크로 · 부모님 · 축의 · 청첩장 · 행진 · 사회자 · 촬영만)
+chk '별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면' index.html 2       # [H4_14] FAQ · JSON-LD · 엔진 차례(table → toast → 닫는 인사)
+chk '별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면' api/_kb.js 1
+nochk '행진 대신 두 분이 하객 쪽으로 나와 인사드리고' index.html
+nochk '행진 대신 두 분이 하객 쪽으로 나와 인사드리고' api/_kb.js
+nochk '덕담 뒤, 축가 앞에' api/_kb.js                                              # [H4_14] 이웃 순간을 안 담으면 틀린 말
+chk '성혼 선언을 담으신 경우에는 선언문을 읽는 분이 두 분 이름을 부릅니다' index.html 2
+chk 'card-label">Long Hours' index.html 1                                           # [H4_17] 15 Hours(05:00 → 자정 = 19시간) 걷음
+nochk '15 Hours' index.html
+chk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다' index.html 1                  # [H4_18] 80 = 330 - 250
+nochk '굳이 주말일 이유가 없습니다' index.html
+nochk '자켓' index.html                                                           # [H4_20] 표준 표기 «재킷»
+nochk '자켓' api/_kb.js
+nochk '자켓' assets/advisor-kb.js
+nochk '검증한 인근 식당' index.html                                               # [H4_22] 식당 데이터에 검증 완료 기록 없음(대본 «검증» 빼기)
+nochk '검증한 인근 식당' api/_kb.js
+nochk '검증한 인근 식당' assets/advisor-kb.js
+nochk '맛·주차·프라이버시까지 확인해 추천' index.html
+chk '예약과 결제는 두 분이 식당에 직접 해 주세요' index.html 2                   # [H4_22 · 대본 식당 문장]
+chk '예약과 결제는 두 분이 식당에 직접 해 주세요' assets/advisor-kb.js 1
+chk '저희 쪽 사정으로 취소되면 받은 금액 전액을 돌려드립니다.' index.html 1       # [H4_D11 대본 결정 · 홈 취소 FAQ]
+nochk '받으신 금액 전액을 돌려드리고' index.html
+# [H4_KB 2026-11-06 대본 결정 문구 · AI 상담 · 즉답]
+chk '카드 결제와 계좌 이체 모두 가능해요' api/_kb.js 1                            # [H4_PAY] 사장님 11/06 «카드 결제 가능»
+chk '카드 결제와 계좌 이체 모두 가능해요' assets/advisor-kb.js 2
+nochk '계좌이체로만' assets/advisor-kb.js
+nochk '계좌이체만 가능' api/_kb.js
+chk '계약서의 시기별 기준을 따르고, 정확한 금액은 상담에서 확인해 드려요' api/_kb.js 1   # [H4_REFUND] 금액 · 요율 직접 말하지 않음
+chk '계약서의 시기별 기준을 따르고, 정확한 금액은 상담에서 확인해 드려요' assets/advisor-kb.js 1
+chk '상세 주소와 주차는 상담 때 안내해 드려요' assets/advisor-kb.js 1              # [H4_ADDR]
+chk '아이도 자리를 쓰면 30명에 포함돼요' assets/advisor-kb.js 1                    # [H4_KIDS]
+chk '시착하시면 상담 예약금은 시착 비용으로 전환돼요' assets/advisor-kb.js 1      # [H4_FIT]
+chk '종교 의식도, 주례자를 모시는 것도 가능해요' assets/advisor-kb.js 1           # [H4_RELIGION]
+chk '조건은 상담 때 안내해 드려요' api/_kb.js 1                                    # [H4_HONOR] 오픈 혜택 조건
+chk '본식 동안이에요(고른 순서에 따라 약 7~25분)' api/_kb.js 1                     # [H4_LIVE] 디지털 참석
+chk '식중 영상은 선택이에요. 축사와 둘 중 하나로 정하고' api/_kb.js 1             # [H4_MIDVIDEO] 사장님 11/06
+chk '덕담 원고는 예식 7일 전까지 준비해 주세요' api/_kb.js 1                       # [H4_Q34]
+# ★★[H4_15 2026-11-06 홈 4차 H15 · 대본 판정 «상»] 상담 신청서 맨 앞 «상담할 상품» — 스냅이면 예식 칸을 끄고(검증 제외) 촬영 날짜 · 시간 · 스냅 가격 · product 웨딩스냅
+chk 'name="product" value="웨딩스냅"' inquiry.html 1
+chk "product: snapProd ? '웨딩스냅' : '시그니처'" inquiry.html 1                 # 40_signup.gs 상품타입으로 저장(되돌리면 스냅 신청이 시그니처로 저장)
+chk 'id="snapTime" name="희망 촬영 시간"' inquiry.html 1
+chk '평일 웨딩스냅 · 운영 초기' inquiry.html 1
+chk 'class="field-group wed-only"' inquiry.html 3                               # 요일 · 하객 · 디지털 참석
+chk 'ref-header-cell">전체 일정 종료' inquiry.html 1                            # [H4_03] 상담 표 열 이름
+# ★★[H4_AI 2026-11-06 AI 상담 Q33 · Q34 · Q35 · 식전 영상 · 사장님 결정 6(AI 인계)] — 되돌리면 빨강
+chk 'H4_Q33' api/_ritual-kb.js 1                                                  # 입장 = 두 분 함께 · 아버지 동반 입장 없음(공통 사실)
+chk 'H4_Q33' api/ritual-advisor.js 1                                              # 전제가 다르면 먼저 바로잡기
+chk 'H4_Q34' api/_ritual-kb.js 1                                                  # 덕담 원고 7일 · 축사 3일 = prepOf
+chk 'H4_Q35' api/ritual-advisor.js 1                                              # 초성은 먼저 확인
+chk '유튜브 링크만으로 등록하는 방식은 아니에요' api/_ritual-kb.js 1             # [H4_Q35 · Q11] 입장곡 = 파일
+nochk '사진 5장 ~ 20장으로 저희가 만들어 드리는 길' api/_ritual-kb.js             # [H4_PV_MAKER] 저희가 직접 만들지 않는다(사장님 결정)
+chk 'H4_HANDOFF_ASK' assets/advisor-widget.js 2                                   # 자동 인계 금지 — «상담원 연결»을 누른 뒤에만
+chk "t.textContent = '상담원과 이어 드릴까요?';" assets/advisor-widget.js 1
+chk "k.addEventListener('click',doHandoff);" index.html 1                         # 홈 · 카톡 상담을 누른 뒤에만
+nochk 'doHandoff();   // 디렉터에게 대화 브리핑 자동 전달' index.html
+chk 'H4_HANDOFF_PHONE' api/handoff.js 2                                           # AI 요약 · 관리자 시트에 전화번호 없음
+chk 'conversation: \[\],' api/handoff.js 1                                        # [H4_HANDOFF_TOPIC] 질문 원문 미보관 · 주제 · 분류만
+nochk "customer.phone && ('연락처 '" api/handoff.js
+chk 'H4_HANDOFF_PHONE' scripts/audit/err-pages.mjs 1                              # 행동 검사(모델 요청 · GAS 고객 · 요약)
 # ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
 chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
 nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
@@ -22656,12 +22770,8 @@ chk 'B2_FIX_MA_85' shared/hydrate.js 1
 chk '(은행|뱅크|금고|우체국|신협|증권|조합)' live.html 1
 chk '(은행|뱅크|금고|우체국|신협|증권|조합)' shared/hydrate.js 1
 nochk "(/(은행|뱅크)\$/.test(" live.html
-chk 'B2_FIX_HOME_19' index.html 2                   # «저희가 검증한 인근 식당» · «맛·주차·프라이버시까지 확인해 추천» 걷음
-chk 'B2_FIX_HOME_19' assets/advisor-kb.js 1
-chk 'B2_FIX_HOME_19' api/_kb.js 1
 nochk '저희가 검증한' index.html
 nochk '저희가 검증한' assets/advisor-kb.js
 nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
-chk '추천 목록이며, 단체석·주차·예약 가능 여부는 식당에 직접 확인해 주세요.' assets/advisor-kb.js 1
