@@ -2210,6 +2210,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 @media (hover:hover){.pvc-lk:hover{color:var(--accent);text-decoration-color:currentColor}}
 .pvc-foot{margin-top:14px}
 .pvc-a{color:var(--gold-deep);text-underline-offset:3px;white-space:nowrap}
+.cf-pvc{background:none;border:0;padding:12px 2px;margin:-12px 0;font:inherit;text-decoration:underline;cursor:pointer}   /* [PV_NOW_1106 M01] 확인서 안 글자 단추 — 줄 높이는 그대로 · 누르는 칸만 넓게 */
 /* ① 스타일 */
 .pvc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 14px}
 .pvc-sty{display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:var(--accent);-webkit-tap-highlight-color:transparent}
@@ -4401,9 +4402,27 @@ function renderMyPage(d){
          지난 예식을 앞으로의 일로 말했다. 예식 다음 날은 결과물을 기다리며 가장 많이 들어오는 날이다.
          → 기한 닥친 결제가 없으면 서버 «예식 완료» 문장(nextActionFor '예식완료') 그대로 · 결제가 남았으면 결제 NOW 를 두되 준비 권유 부제는 뺀다. */
       var _evPast = (_ddEv != null && _ddEv < 0);
+      /* ★[PV_NOW_1106 2026-11-06 4차 묶음 M01 · 대본 «채택»] 식전 영상이 남았는데 «예식 준비가 끝났어요» · «확인서만 남았어요»로 덮지 않는다.
+         영상을 필수로 만들지는 않는다 — 기능이 꺼진 계정(prevideo.up 없음) · 사용 안 함 · 확정 · 기존 확정본으로 고치는 중은 할 일이 아니다.
+         고르지 않음 · 초안 · 나중에는 식순에 영상을 담았을 때만, 기한이 지났으면 말하지 않는다(그날은 영상 없이). 서명 · 동의 문구 · 서버 게이트는 그대로. */
+      var _pvN = (typeof PVC_ON !== 'undefined' && PVC_ON && _pdn.prevideo && _pdn.prevideo.up && d.product !== '웨딩스냅') ? _pdn.prevideo : null, _pvLeft = '', _pvAct = false;   // 준비 목록의 «식전 영상» 줄과 같은 조건
+      if (_pvN) {
+        var _pvS = String(_pvN.st || ''), _pvRd = _pdn.ritualDraft, _pvOnR = !!(_pvRd && _pvRd._v === 3 && _pvRd.S && _pvRd.S.on && _pvRd.S.on.prevideo);
+        var _pvDl = null; try { _pvDl = _pvN.due ? _kstDdayOf(_pvN.due) : null; } catch (e) {}
+        if (_pvS === 'review') { _pvLeft = '식전 영상을 확인해 주세요'; _pvAct = true; }
+        else if (_pvS === 'making') _pvLeft = '식전 영상을 만들고 있어요.';
+        else if (_pvS === 'checking') _pvLeft = '보내 주신 영상을 확인하고 있어요.';
+        else if ((_pvS === '' || _pvS === 'draft' || _pvS === 'later') && _pvOnR && !(_pvDl != null && _pvDl < 0)) _pvLeft = '식전 영상 준비가 남아 있어요.';
+      }
       if (_evPast && !(_mDue || _bDue)) {
         head = '결과물을 준비하고 있어요';
         sub  = '준비되면 안내드릴게요.';
+      } else if (_reqOk && _cfDone && _pvAct) {   // [PV_NOW_1106 M01] 영상 확인이 두 분 손에 남았다
+        head = '식전 영상을 확인해 주세요';
+        sub  = '「식전\u00a0영상」\u2060에서 보고 확정해 주세요.' + (_payLn ? ('\n' + _payLn) : '');
+      } else if (_reqOk && _cfDone && _pvLeft) {   // [PV_NOW_1106 M01] 확인서는 확정 · 영상은 아직(만드는 중 · 확인 중 · 준비 남음)
+        head = '예식 확인서를 확정했어요';
+        sub  = _pvLeft + (_payLn ? ('\n' + _payLn) : '');
       } else if (_reqOk && _cfDone) {
         head = '예식 준비가 끝났어요';
         // 잔금은 카드가 메인에 뜰 때부터(D-30 · [BAL_MINI_ONE]) 말한다 — 그 전엔 NEXT 가 날짜와 함께 예고한다([NEXT_PAY_DATE] · 너무 이르게 재촉하지 않는다)
@@ -4418,7 +4437,7 @@ function renderMyPage(d){
              : _evPast ? ''   // [EVENT_PAST_NOW] 예식이 지났으면 «예식 준비는 이어서 하셔도 돼요»는 뜻이 없다(결제 요청 머리만)
              : ((d.stage === '입금완료') ? '예식 준비는 지금 바로 시작하셔도\u00a0돼요.' : '예식 준비는 그대로 이어서 하셔도\u00a0돼요.');   // 320 에서 «돼요.» 두 글자만 떨어지지 않게
       } else if (_reqOk) {
-        head = _pdn.confirmStale ? '다시 확정해 주세요' : (_payLn ? '예식 확인서가 남았어요' : '예식 확인서만 남았어요');
+        head = _pdn.confirmStale ? '다시 확정해 주세요' : (_pvLeft ? '예식 확인서를 확인해 주세요' : (_payLn ? '예식 확인서가 남았어요' : '예식 확인서만 남았어요'));   // [PV_NOW_1106 M01] 영상도 남았으면 «만»을 말하지 않는다
         sub  = '아래 「예식\u00a0확인서」\u2060에서 확정하시면 ' + (_pdn.confirmStale ? '바뀐' : '그') + ' 내용 그대로 준비해요.' + (_payLn ? ('\n' + _payLn) : '');
       } else if (d.stage === '입금완료' && _nxReq === '청첩장') {   // [NOW_PREP_WORD 검토 2026-09-26] «청첩장부터»는 청첩장이 남았을 때만 — 단계가 입금완료에 머문 채 청첩장을 끝낸 고객(전이 누락 · backfillProduceStage 대상)에게는 아래 «이어가요» 갈래가 첫 남은 행을 부른다
         head = '예식 준비를 시작해요';
@@ -11895,9 +11914,9 @@ function exitPvcFlow(){ _mpHoldScroll();
       .then(function(a){ if(a===null) return; if(a) exitPvcFlow(); else { _pvcTearDown(); _mpRefresh(); } });
   });
 }
-function _pvcLateClose(){   // [PV_STATE_1106 M16] 내용 보기(머문다) · 닫기 — 저장은 다시 시도하지 않는다
-  mpConfirm({ title:'확정 기한이 지났어요', body:'이번 수정은 저장되지 않았어요. 변경할 내용은 디렉터에게 말씀해 주세요.', yes:'닫기', no:'내용 보기', dismissNull:true })
-    .then(function(a){ if(a===true){ _pvcTearDown(); _mpRefresh(); } else if(!bkAlive(PVCFLOW._bk)) PVCFLOW._bk=bkOpen(function(){ exitPvcFlow(); }); });
+function _pvcLateClose(){   // [PV_STATE_1106 M16] «내용 확인하고 닫기» — 저장은 다시 시도하지 않는다
+  mpAlert({ title:'확정 기한이 지났어요', body:'이번 수정은 저장되지 않았어요. 변경할 내용은 디렉터에게 말씀해 주세요.', confirmText:'내용 확인하고 닫기' })
+    .then(function(){ _pvcTearDown(); _mpRefresh(); });   // [PV_STATE_1106 M16] 표 원문 단추 하나
 }
 /* 머리 · 진행 표시 · 아래 막대 — 다른 입력 화면과 같은 한 벌([WZ_BAR] · [WZ_STEPS]) */
 function _pvcHead(){ return '<div class="inv-head"><span class="inv-step-n">식전 영상</span>'+wizActs()+'</div>'; }
@@ -11908,7 +11927,7 @@ function _pvcBar(back, main){ return '<div class="wz-bar pvc-bar">'+(back||'')+(
 function _pvcBtn(lab, attr, kind){ return '<button type="button" class="'+(kind==='ghost'?'cc-btn-ghost':'cc-btn')+(kind==='seal'?' pvc-seal':'')+(kind==='off'?' pvc-off':'')+'" '+attr+'>'+escapeHtml(lab)+'</button>'; }
 function _pvcErr(t){ var e=$('mp_pvcErr'); if(e) e.textContent=t||''; }
 function _pvcDots(lines){ return lines.filter(Boolean).map(function(t){ return '<p class="mp-dotln">'+t+'</p>'; }).join(''); }
-function _pvcDueLine(extra){ var t=_pvcDueTxt(PVCFLOW.due); return t?('확정 기한 '+escapeHtml(t)+(extra?'<br>'+extra:'')):(extra||''); }
+function _pvcDueLine(extra){ var t=_pvcDueTxt(PVCFLOW.due); return t?('확정 기한 · '+escapeHtml(t)+' · 예식 7일 전'+(extra?'<br>'+extra:'')):(extra||''); }   // [PV_STATE_1106 M09] 표 원문 «확정 기한 · {월}월 {일}일({요일}) 23:59 · 예식 7일 전» — 날짜는 서버 due 그대로
 /* ★[PV_STATE_1106 2026-11-06 4차 묶음 M04 · M06 · M08 · M09 · M16 · M21 · 대본 판정 «채택»] 식전 영상 상태 한 벌
    식순 초안(p.ritualDraft · _v 3 · S.on)은 마이페이지가 이미 받은 판으로만 읽는다 — 없으면 null(«모름» · 경고 · 화촉 줄을 지어내지 않는다).
    영상 상태와 식순 포함은 따로 저장된다(D04 결정 대기) — 둘이 확실히 부딪힐 때만 한 줄로 알린다 · 자동으로 넣거나 빼지 않는다. */
@@ -11959,15 +11978,16 @@ function renderPvc(){
    «필메이커에서 만들기»는 서버에 남기지 않는 안내 화면(scr 'feel')이다 — 서버 PV_MODES 는 make · upload 그대로라 GAS 재배포가 필요 없다.
    완성본은 «준비한 영상 올리기»(링크)로 받는다. 쿠폰 코드는 디렉터가 보낸다(제휴 확정 뒤 · 지금은 오픈 전 재문의로 보류 · 조건은 비공개 docs).
    제작 대행 · USB 같은 추가 옵션은 고객이 필메이커에서 직접 결제(사장님 11/03). 사진 장수 · 길이는 템플릿을 따른다(PV_NO_LIMIT_1101). */
+var PVC_FEEL_ON=true;   // [PV_STATE_1106 M21 · D07 결정 대기] 제휴는 오픈 전 재문의(보류) — 안 되면 false 한 줄로 필메이커 길을 거둔다(첫 화면 = 준비한 영상 올리기만)
 var PVC_FEEL_URL='https://www.feelmaker.co.kr/';
 var PVC_FEEL_PICKS=[];   // [PV_FEEL_1106] 우리 톤에 맞춰 고른 템플릿 [{n:'이름', u:'주소'}] — 고르면 채운다 · 비어 있으면 목록 줄을 두지 않는다(죽은 줄 금지)
 function _pvcStart(){
   var h='';
   h+='<p class="pvc-eye">PRE-CEREMONY FILM</p><h2 class="pvc-h">어떻게 준비할까요?</h2><p class="pvc-sub pvc-when">여는 멘트 뒤, 입장 전에 한 번 상영해요.</p>';
-  h+='<div class="pvc-opts"><button type="button" class="pvc-opt" data-pvcgo="feel"><b>필메이커에서 만들기</b><span>템플릿을 골라 직접 만들기 · 쿠폰으로 무료</span></button>'
+  h+='<div class="pvc-opts">'+(PVC_FEEL_ON?'<button type="button" class="pvc-opt" data-pvcgo="feel"><b>필메이커에서 만들기</b><span>템플릿을 골라 직접 만들기 · 쿠폰으로 무료</span></button>':'')
     +'<button type="button" class="pvc-opt" data-pvcmode="upload"><b>준비한 영상 올리기</b><span>업체나 직접 만든 영상 · 링크로 보내기</span></button></div>';
   h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-pvcop="later">나중에 준비하기</button><button type="button" class="pvc-lk" data-pvcop="off">사용하지 않기</button></div>';
-  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots(['템플릿 비용 포함 · 추가 옵션 별도', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
+  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots([PVC_FEEL_ON?'템플릿 비용 포함 · 추가 옵션 별도':'', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
   return h;
 }
 function _pvcLocked(){
@@ -12040,7 +12060,7 @@ function _pvcSum(){ var d=PVCFLOW.d; if(d.mode==='upload') return '준비한 영
   var sn=(PVC_STYLES.filter(function(x){ return x.k===d.style; })[0]||{}).n||'', so=PVC_SONGS.filter(function(x){ return x.k===d.song; })[0];
   return [sn, '사진 '+d.photos.length+'장', so?(so.a+' «'+so.t+'»'):''].filter(Boolean).map(escapeHtml).join(' · '); }
 function _pvcMaking(){
-  var h='<h2 class="pvc-h">영상을 만들고 있어요</h2><p class="pvc-sub">다 되면 이 화면에서 확인할 수 있어요. 지금은 나가셔도 돼요.</p>';   // [PV_STATE_1106 M07] 문장은 그대로 · 아래 «다시 확인»이 조회한다(알림은 없다 · 정직한 화면)
+  var h='<h2 class="pvc-h">영상을 만들고 있어요</h2><p class="pvc-sub">준비 상태는 «다시 확인»에서 확인해 주세요. 지금은 나가셔도 돼요.</p>';   // [PV_STATE_1106 M07] 표 원문 · 아래 «다시 확인»이 조회한다(알림은 없다 · 정직한 화면)
   h+='<div class="pvc-poster pvc-wait" aria-hidden="true"><span class="pvc-mk">만드는 중</span></div>';
   h+='<p class="pvc-summ">'+_pvcSum()+'</p>';
   h+=_pvcRecheckBtn();
@@ -12072,10 +12092,10 @@ function _pvcFeel(){   // [PV_FEEL_1106] 필메이커 안내 — 네 걸음 · �
     +'<li><b>템플릿 고르기</b><span>필메이커 «식전영상»에서 마음에 드는 템플릿을 골라요. 사진 장수 · 길이는 템플릿마다 달라요.</span>'
       +(PVC_FEEL_PICKS.length?'<span class="pvc-feel-picks">'+PVC_FEEL_PICKS.map(function(p){ return '<a class="pvc-a" href="'+escapeHtml(p.u)+'" target="_blank" rel="noopener">'+escapeHtml(p.n)+'</a>'; }).join(' · ')+'</span>':'')
       +'<a class="pvc-a pvc-feel-go" href="'+escapeHtml(PVC_FEEL_URL)+'" target="_blank" rel="noopener">필메이커 열기</a></li>'
-    +'<li><b>쿠폰 넣기</b><span>결제할 때 쿠폰을 넣으면 템플릿 비용이 0원이에요. 쿠폰 코드는 디렉터가 보내 드려요.</span></li>'
+    +'<li><b>쿠폰 넣기</b><span>쿠폰은 템플릿 비용에 적용돼요. 제작 대행 · USB 배송은 별도예요. 쿠폰 코드는 디렉터가 보내 드려요.</span></li>'   // [PV_STATE_1106 M21] 표 원문
     +'<li><b>만들고 내려받기</b><span>사진과 문구를 넣어 완성한 뒤 영상 파일을 내려받아요.</span></li>'
     +'<li><b>여기로 보내기</b><span>«준비한 영상 올리기»에 링크로 보내 주시면 상영을 준비해요.</span></li></ol>';
-  h+='<div class="pvc-foot">'+_pvcDots(['제작 대행 · USB 배송은 필메이커에서 따로 결제해요.', '만드는 방법은 필메이커 고객센터에서 안내해요.', _pvcDueLine('')])+'</div>';
+  h+='<div class="pvc-foot">'+_pvcDots(['만드는 방법은 필메이커 고객센터에서 안내해요.', _pvcDueLine('')])+'</div>';   // [PV_STATE_1106 M21] «별도» 줄은 쿠폰 걸음에 한 번만(BOSS 3 · 중복 빼기)
   h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('영상 올리러 가기','data-pvcmode="upload"'));
   return h;
 }
@@ -12312,6 +12332,10 @@ function cfTodayKST(){
   var n=new Date(), k=new Date(n.getTime()+(n.getTimezoneOffset()*60000)+(9*3600000));
   return k.getFullYear()+'년 '+(k.getMonth()+1)+'월 '+k.getDate()+'일';
 }
+/* [PV_NOW_1106 M01] 확인서 — 식전 영상은 이 확인서 밖에서 따로 확정한다는 한 줄 + 그 화면 열기(기능이 꺼진 계정 · 웨딩스냅에는 두지 않는다 · 기록(.cf-l)에 들어가지 않는 안내 줄) */
+function _cfPvLine(p){ var v=(p&&p.prevideo)||null; if(!(typeof PVC_ON!=='undefined' && PVC_ON && v && v.up && (window._mpStateD||{}).product!=='웨딩스냅')) return ''; var st=String(v.st||'');
+  var t=(st==='done')?'식전 영상은 따로 확정했어요.':(st==='off')?'식전 영상은 «사용하지 않기»로 정하셨어요.':'식전 영상은 해당 화면에서 따로 확인 · 확정해 주세요.';
+  return '<span class="ln-bal">'+t+' <button type="button" class="pvc-a cf-pvc" data-cfpvc>식전 영상 열기</button></span>'; }
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
@@ -12542,12 +12566,12 @@ function prodConfirmHtml(p, inv){
     var _need=[]; if(!_rDone) _need.push('식순'); if(!_fHas) _need.push('좌석 · 음료');
     var _over=(_named>MP_FINAL_POLICY.max);
     if(!_need.length) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용으로 확정합니다</button>'
-      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini"><span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span><span class="ln-bal">저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span></span></div>';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 360 · 390 «…함께 기록돼요 · / 저희는…» 줄 끝 점(전역 cc-note balance) → 마침표 두 덩어리
+      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini"><span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span><span class="ln-bal">저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span>'+_cfPvLine(p)+'</span></div>';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 360 · 390 «…함께 기록돼요 · / 저희는…» 줄 끝 점(전역 cc-note balance) → 마침표 두 덩어리
     /* 이름을 「」로 감싸 붙인다 — 「좌석 · 음료」 자체에 가운뎃점이 들어 있어, 맨 이름을 나열하면
        '식순 · 좌석 · 음료'가 세 항목으로 읽힌다. 조사(을/를·이/가)도 함께 피할 수 있다. */
     /* [CF_LEFT_LINES 2026-10-09] 문장마다 한 줄(.ln-bal) — «…확정하실 수 / 있어요 · 섹션마다 … / 돼요.»(320) · «…있어요 · / 섹션마다…»(360 · 390)처럼 외톨이 · 줄 끝 점이 났다 */
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini"><span class="ln-bal">아직 남은 것&nbsp;· '+_need.map(function(n){ return '<b>「'+n+'」</b>'; }).join(' ')+'</span>'
-      +'<span class="ln-bal">다 마치면 여기에서 한&nbsp;번에 확정하실&nbsp;수&nbsp;있어요.</span><span class="ln-bal">섹션마다 따로 확인하지 않으셔도&nbsp;돼요.</span>'
+      +'<span class="ln-bal">다 마치면 여기에서 한&nbsp;번에 확정하실&nbsp;수&nbsp;있어요.</span><span class="ln-bal">섹션마다 따로 확인하지 않으셔도&nbsp;돼요.</span>'+_cfPvLine(p)
       /* 좌석·음료가 남았을 때의 이유는 **세 가지가 다르다.** 한 문장으로 뭉뜽그리면 그중 둘에게 거짓말이 된다. */
       /* [CF_HEADS_MISSING] 갈래 판정도 `_fHas` 기준으로 — 위 게이트와 같은 잣대를 쓴다(다르면 또 갈린다).
          「인원이 저장되지 않았어요」는 위 대조 경고가 이미 자세히 말하므로 여기선 되풀이하지 않는다. */
@@ -12589,6 +12613,7 @@ function _seatFinHeal(p){
   }catch(e){}
 }
 function wireProdConfirm(box, p){
+  try{ (box.querySelectorAll('[data-cfpvc]')||[]).forEach(function(b){ b.addEventListener('click', function(){ if(typeof startPvcFlow==='function') startPvcFlow((window._lastProd||p||{}).prevideo); }); }); }catch(e){}   // [PV_NOW_1106 M01] 확인서에서 영상 화면 열기
   var btn=$('cf_go'); if(!btn) return;
   btn.addEventListener('click', function(){
     // 스냅샷 = 화면 요약 그대로(텍스트) — 확인 시점 기록(면책). 전화·지도 같은 버튼 링크 단어는 기록에서 제외(기록은 사실만)

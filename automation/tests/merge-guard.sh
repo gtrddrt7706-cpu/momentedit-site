@@ -4798,7 +4798,10 @@ chk 'PV_FEEL_1106' api/_kb.js 1
 nochk 'data-pvcmode="make"' mypage.html
 # ★[PV_STATE_1106 2026-11-06 4차 묶음 M04 · M05 · M06 · M07 · M08 · M09 · M16 · M21 · 대본 판정 «채택»] 식전 영상 상태 한 벌 —
 #   «사용하지 않기»가 옛 확정본보다 먼저 · 식순과 확실히 부딪힐 때만 한 줄 · 다시 확인(조회만) · 고치는 화면에도 기한 · 기한 지남(locked)은 다시 저장을 권하지 않는다 · 템플릿 비용과 추가 옵션 구분
-chk 'PV_STATE_1106' mypage.html 24
+chk 'PV_STATE_1106' mypage.html 29
+# ★[PV_NOW_1106 2026-11-06 4차 묶음 M01 · 대본 «채택»] 식전 영상이 남았는데 «예식 준비가 끝났어요» · «확인서만 남았어요»로 덮지 않는다(영상을 필수로 만들지는 않는다)
+chk 'PV_NOW_1106' mypage.html 7
+chk "head = '식전 영상을 확인해 주세요';" mypage.html 1
 chk "if(F.st==='off') h+='<div class=\"pvc-foot\">'" mypage.html 1
 chk '템플릿 비용 포함 · 추가 옵션 별도' mypage.html 1
 nochk '패키지 포함 · 추가 요금 없음' mypage.html
