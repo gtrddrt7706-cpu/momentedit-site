@@ -613,6 +613,7 @@ function _ltCheckBanned(message) { _gsr_();
 //   → D-3 사전등록 SOP(docs/plans/PLAN_영상운영_기획안.md) 누락을 시스템이 잡는다. 수동 점검: 이 함수를 직접 실행.
 function vimeoGuardDaily() { _trigIn_(arguments[0]);
   try { purgeCoupleData(); } catch (e) { Logger.log('[purgeCoupleData] 실패: ' + (e && e.message)); }   // 예식 후 6개월 PII 파기(같은 매일 트리거에 얹음)
+  try { if (typeof _purgeDaily_ === 'function') _purgeDaily_(); } catch (e) { Logger.log('[purgeDaily] 실패: ' + (e && e.message)); }   // ★[PURGE_POLICY_1106] 자료 정리(처리방침 기간 · 영구 삭제 · 시험 모드) — 70_journey
   try { Logger.log('[letterSendWatch] ' + JSON.stringify(_ltSendWatch_())); } catch (e) { Logger.log('[letterSendWatch] 실패: ' + (e && e.message)); }   // [LT_SEND_WATCH] 하객 편지 점검(같은 매일 트리거)
   var sheet;
   try { sheet = _ltSheet(LT.COUPLES); } catch (e) { Logger.log('[vimeoGuard] ' + e.message); return; }

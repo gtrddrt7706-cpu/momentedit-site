@@ -803,8 +803,10 @@ git push -u origin <브랜치>
 | `awMonthlyAudit` | 88_place_audit | 월간 검증 본체(트리거 자동·수동 1회 실행 가능). 폐업·상호변경 의심 발견 시 ADMIN_PHONE으로 알림 |
 | `collectDinePool` | 88_place_audit | 스튜디오 반경 7km 업종 스윕으로 후보 식당·카페 대량 수집 → AW_장소후보 시트(검토 O → 사이트 승격) |
 | `collectDinePoolDeep` | 88_place_audit | 후보 최대 수집(3×3 격자 셀별 스윕 — 기본 수집의 2~3배). 3~5분·6분 한도 전 자동 종료 |
-| `purgeRitualFiles` | **80_production** | ★[REC_PURGE] 예식 30일 뒤(`RITUAL_FILE_PURGE_DAYS` · 기본 30) 두 분 목소리 파일(드라이브 `ME_예식준비파일/<코드>`)을 휴지통으로 · 기록 `RFGONE_<코드>`. `purgeAdvisorLog`(consultation-booking · 주간)가 함께 부른다 · 별도 트리거 불필요 |
+| `purgeRitualFiles` | **80_production** | ★[PURGE_POLICY_1106 2026-11-06] 식전 영상 · 두 분 목소리 파일 정리 — 본문은 `70_journey` `_pgPrevideo_` · `_pgVoiceFiles_`(예식 뒤 30일 · 영구 삭제 · 다 지웠을 때만 `RFGONE_<코드>`). 매일 07시 `vimeoGuardDaily`(87_letter)가 `_purgeDaily_` 로 부른다(주간 정리에서 뺐다) · 실제 삭제는 `PURGE_LIVE` 가 켜졌을 때만 |
 | `previewRitualFiles` | **80_production** | 위 지우기의 미리보기 — 아무것도 안 지우고 대상만 로그 |
+| `purgeTestRun` | **70_journey** | ★[PURGE_POLICY_1106] 자료 정리를 지금 **시험으로** 한 번 — 아무것도 안 지우고 종류별(하객 사진 · 목소리 파일 · 식전 영상 · 결과물 · 스냅 참고 · 백업 사본) «대상 · 지울 수 있음 · 실패» 건수를 «자료정리기록» 시트에 · 실패는 관리자 메일 |
+| `purgeLiveOn` · `purgeLiveOff` | **70_journey** | ★[PURGE_POLICY_1106] 자료 정리 **실제 삭제 켜기 · 끄기**(스크립트 속성 `PURGE_LIVE`). 켜기 전에는 매일 07시 정리도 시험 모드(목록 · 건수만). 켜면 처리방침 기간대로 **영구 삭제**(드라이브 API · 되돌릴 수 없음) — 시험 건수를 확인한 뒤에만 |
 | `adminRitualFiles`·`adminRitualFileGet`·`adminRitualFileOk` | **80_production** | [REC_ADMIN] 관리 화면 «두 분 목소리» 목록 · 들어 보기 · 확인 ✓ / 당일 콘솔 미리 받기(adminCall) |
 | `vcSelfTest` | **80_production** | ★[VC_SELFTEST] 타입캐스트 시험 — 키 · 요금제 · 목소리 칸 → 드라이브 «ME_목소리시험» 폴더의 가장 최근 **우리** 녹음으로 인스턴트 복제 → 한 문장 읽어 같은 폴더에 mp3 → 만든 목소리 바로 지우기. 스위치(`VOICE_CLONE`)를 안 켜도 돈다 · 고객 폴더(`ME_예식준비파일`) 파일은 받지 않는다([VC_OURS_ONLY]) · 402/403 · 칸 0 이면 «이 요금제로는 복제 불가» 결론 한 줄. 필요한 것은 스크립트 속성 `TYPECAST_API_KEY` 하나 |
 | `vcLastErrors` | **80_production** | ★[VC_WHY] 예식마다 AI 목소리 **마지막 실패 한 건**(언제 · 무엇 · HTTP · 타입캐스트가 돌려준 오류 글)을 로그로 — «지금은 AI 목소리를 만들 수 없어요»가 뜨면 여기부터. 발송 · 변경 없음. 같은 내용이 관리 화면 «이 예식 AI 목소리» 줄과 관리자 메일(예식 · 코드별 하루 한 통)에도 간다 |

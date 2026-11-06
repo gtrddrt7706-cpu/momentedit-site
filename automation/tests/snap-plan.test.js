@@ -26,6 +26,10 @@ sb._recordHandler = () => {};
 sb.setCustomerStage = () => {};
 sb._requireAdmin = () => ({ ok: true });
 sb.CacheService = { getScriptCache: () => ({ get: (k) => CACHE[k] || null, put: (k, v) => { CACHE[k] = v; }, remove: (k) => { delete CACHE[k]; } }) };
+/* [PURGE_POLICY_1106] 새 정리는 드라이브 API 로 영구 삭제한다(휴지통 아님) — DELETE 한 ID 를 TRASHED 에 함께 적는다 · 실제 삭제는 PURGE_LIVE='Y' 일 때만 */
+sb.ScriptApp = Object.assign({}, sb.ScriptApp, { getOAuthToken: () => 'tok' });
+sb.UrlFetchApp = { fetch: (u, o) => { const id = decodeURIComponent((u.match(/files\/([^?]+)/) || [])[1] || ''); if (o && o.method === 'delete') { TRASHED.push(id); return { getResponseCode: () => 204 }; } return { getResponseCode: () => 200 }; } };
+sb.LockService = sb.LockService || { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) };
 sb.PropertiesService = { getScriptProperties: () => ({ getProperty: (k) => (k in PROPS ? PROPS[k] : null), setProperty: (k, v) => { PROPS[k] = v; }, deleteProperty: (k) => { delete PROPS[k]; } }) };
 const mkFile = (bytes, mime, name) => { const id = 'F' + String(NEXT++).padStart(12, '0'); FILES[id] = { bytes, mime, name }; return { getId: () => id, setTrashed: () => TRASHED.push(id) }; };
 const mkFolder = (id) => ({ getId: () => id, createFolder: (n) => mkFolder('D' + String(NEXT++).padStart(12, '0')), createFile: (blob) => mkFile(blob.getBytes(), blob.getContentType(), blob.getName()), setTrashed: () => TRASHED.push(id) });
@@ -186,10 +190,10 @@ const folder = JSON.parse(DB.C1['제작_meta']).snapMeta.folder;
 DB.C1.예식일 = ymd(-184);
 TRASHED = [];
 const dry = sb.purgeSnapRefs();
-ok(/드라이런/.test(dry) && /C1/.test(dry) && TRASHED.length === 0, '11a 드라이런 — 대상만 · 안 지움', dry);
-sb.purgeSnapRefs(false);
+ok(/시험/.test(dry) && /대상 1건/.test(dry) && TRASHED.length === 0, '11a 드라이런(시험) — 대상만 · 안 지움 [PURGE_POLICY_1106]', dry);
+PROPS.PURGE_LIVE = 'Y'; sb.purgeSnapRefs(false); delete PROPS.PURGE_LIVE;
 const d11 = load();
-ok(TRASHED.includes(folder) && !('SNAPBRIEF_' + bt in PROPS), '11b 폴더 휴지통 · 브리프 주소 닫힘');
+ok(TRASHED.includes(folder) && !('SNAPBRIEF_' + bt in PROPS), '11b 폴더 영구 삭제 · 브리프 주소 닫힘');
 ok(d11.snapDraft.zones.candle.picks[0] === 'c05' && d11.snapDraft.zones.candle.links.length === 0 && d11.snapDraft.note === '' && (d11.snapMeta.uploads || []).length === 0, '11c 고른 장면만 남고 링크·메모·올린 목록 비움', d11.snapDraft);
 fresh(40); DB.C1.예식일 = ymd(-100);
 save({ v: 2, zones: { candle: { picks: ['c05'] } } }, true);
@@ -289,8 +293,8 @@ ok(load().snapMeta.stale === true && MAIL.length === 1, '16g 전할 말을 고�
 fresh(40);
 save({ v: 2, zones: { candle: { picks: ['c05'], note: '부탁' } } }, true);
 DB.C1.예식일 = ymd(-184);
-ok(/C1/.test(sb.purgeSnapRefs()), '16h 전할 말만 남아도 파기 대상(처리방침 «메모 6개월 이내 파기»)');
-sb.purgeSnapRefs(false);
+ok(/대상 1건/.test(sb.purgeSnapRefs()), '16h 전할 말만 남아도 파기 대상(처리방침 «메모 6개월 이내 파기»)');
+PROPS.PURGE_LIVE = 'Y'; sb.purgeSnapRefs(false); delete PROPS.PURGE_LIVE;
 ok(!('note' in load().snapDraft.zones.candle) && load().snapDraft.zones.candle.picks[0] === 'c05', '16i 파기 — 전할 말 지움 · 고른 장면은 남김', load().snapDraft);
 
 console.log(`\n${fail ? '❌' : '✅'} snap-plan: ${pass} 통과 · ${fail} 실패`);
