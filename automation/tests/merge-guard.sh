@@ -21922,7 +21922,7 @@ chk 'Farewell(정리)' api/_kb.js 1
 nochk 'Farewell(마무리)' api/_kb.js
 # ★[DN_BUGS_1102 GPT 애프터 웨딩 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
 chk 'DN_RSV_AFTER_PICK_1102' mypage.html 1
-chk 'function _dnRsvFor(d, place)' mypage.html 1
+chk 'function _dnRsvFor(d, place, nm)' mypage.html 1   # [B2_FIX_MA_38 2026-11-06] nm = 옛 이름 열쇠 옮기기용
 chk 'DN_RSV_PER_PLACE_1102' mypage.html 3
 chk 'DN_UNDO_ALL_1102' mypage.html 1
 chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
@@ -22895,3 +22895,33 @@ chk 'H4_HANDOFF_PHONE' api/handoff.js 2                                         
 chk 'conversation: \[\],' api/handoff.js 1                                        # [H4_HANDOFF_TOPIC] 질문 원문 미보관 · 주제 · 분류만
 nochk "customer.phone && ('연락처 '" api/handoff.js
 chk 'H4_HANDOFF_PHONE' scripts/audit/err-pages.mjs 1                              # 행동 검사(모델 요청 · GAS 고객 · 요약)
+# ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
+chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
+nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
+chk '촬영 후 안내가 끝나면 가족 사진을 이어서 찍어요.' brief.html 1
+chk 'B2_FIX_MA_03' live.html 3                      # 재조회 끝 — 마지막이 실패면 캐시 화면이어도 실패 문구 + 코드(G#)
+chk '^var _livePlaceholderHtml;' live.html 1   # [B2_FIX_MA_03_KEEP] 초기값 없이(캐시 길이 담은 값을 지우지 않게)
+nochk "^var _livePlaceholderHtml = '';" live.html
+chk 'B2_FIX_MA_38_OLDKEY' mypage.html 1   # 옛 초안의 이름 열쇠 예약 값도 꺼내 새 열쇠(이름#pid)로
+chk '연결을 확인하지 못했어요. 화면을 새로 고쳐 주세요.' live.html 1
+chk 'B2_FIX_MA_09' mypage.html 3                    # 청첩장 발행 중 뒤로가기 · 키보드로 이전 · 단계 이동 안 함
+chk "if(id==='inv' && INVFLOW._publishing){ _wizRearm(id); return; }" mypage.html 1
+chk 'B2_FIX_MA_16' mypage.html 1                    # 가볼 곳 카드도 실패하면 바꾸기 전 전체(_dnSnap)로
+nochk "_dnFavSaved(function(){ _dnFavToggle(TRKFLOW.draft,_u1); render(box); });" mypage.html
+chk 'B2_FIX_MA_38' mypage.html 7                    # 공개 · 빼기 · 예약할 곳 · 장소별 예약 값도 지도 장소 ID(pid)로
+chk 'function _dnIsRep' mypage.html 1
+chk 'B2_FIX_MA_53' mypage.html 4                    # 사진 선택 때문에 당겨서 새로고침을 보류할 때 까닭 한 줄
+chk "'아직 제출하지 않은 사진 선택이 있어요.'" mypage.html 1
+chk 'B2_FIX_MA_18' guide.html 4                     # 링크 닫힘 — 올리는 중엔 끝난 뒤 · 보낸 장수 · 남은 장수 한 줄
+chk 'function closedPaint' guide.html 1
+chk 'B2_FIX_MA_36' shared/hydrate.js 2              # 하객 안내 단추 — 서버 오류 · 몰림(ecode 1~9)도 다시 묻고 끝내 실패면 실패 자리
+chk 'B2_FIX_MA_85' live.html 2                      # 은행 이름 한 규칙(새마을금고 · 우체국에 «은행» 안 붙임)
+chk 'B2_FIX_MA_85' shared/hydrate.js 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' live.html 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' shared/hydrate.js 1
+nochk "(/(은행|뱅크)\$/.test(" live.html
+nochk '저희가 검증한' index.html
+nochk '저희가 검증한' assets/advisor-kb.js
+nochk '저희가 검증한' api/_kb.js
+nochk '프라이버시까지 확인해 추천' index.html
+nochk '검증한 인근 식당' index.html
