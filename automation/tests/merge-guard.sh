@@ -21926,7 +21926,9 @@ chk "function _fixSteps(kind)" order-preview.html 1
 chk "var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('pre');" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('post');" order-preview.html 1
-chk '늘 포함돼요</span><span class="fx-more">진행 보기</span>' order-preview.html 1
+chk '<span class="fx-s">늘 포함돼요</span></div>' order-preview.html 1   # [PICK_FLOW_ONE_1106] ① 고르기는 한 줄
+nochk 'fx-more">진행 보기' order-preview.html   # ★[PICK_FLOW_ONE_1106] 대본 11/06 사장님 «왜 여기서 설명» — ① 펼침 · 목록 되살리지 말 것
+chk 'PICK_FLOW_ONE_1106' order-preview.html 3
 chk "{t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',after:'전체 단체 사진을 마치면'}" order-preview.html 1
 chk "sub: '한 장 · 현장 진행' }" assets/ritual-open.js 1
 nochk "작가님이 진행해요" order-preview.html
