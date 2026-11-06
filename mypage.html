@@ -528,6 +528,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dst:focus-visible:not(.tip-x) .dst-tip{opacity:1;visibility:visible;transition:opacity .15s var(--ease,ease),visibility 0s}
 @media (hover:hover) and (pointer:fine){ .dst:hover:not(.tip-x) .dst-tip{opacity:1;visibility:visible;transition:opacity .15s var(--ease,ease) .25s,visibility 0s linear .25s} }
 .cc-done-row{display:flex;align-items:center;gap:8px;padding:14px 18px;cursor:pointer}
+.dn-rtchk{margin:-2px 0 8px;font-size:12.5px;line-height:1.6;color:var(--seal)}   /* [RSV_TIME_CHK_1106] 예약 시각 칸 아래 확인 줄 */
+.dn-rtchk[hidden]{display:none}
 .cc-done-check{color:var(--gold-deep);font-weight:600}
 .cc-done-label{flex:1;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .cc-done-toggle{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft)}
@@ -4504,7 +4506,7 @@ function renderMyPage(d){
     /* [SNAP_NUDGE · SNAP_PICK_V2 D2 2026-09-26 사장님 결정] 스냅 기획이 비어 있으면 예식 3주 전부터 한 줄 — 마감은 예식 14일 전 · 3일 전부터는 잠겨 안 붙인다.
        선택 항목이라 헤드라인을 뺏지 않고 서브 끝에만 붙인다(지금 할 일의 주인공은 그대로). 결과물 단계엔 붙이지 않는다. */
     try{ var _sp=d.production; if(_sp && _sp.snapV2 && !(d.result && d.result.status) && typeof _snapFilledD==='function' && !_snapFilledD(_sp.snapDraft||{}) && !((_sp.snapMeta||{}).lock)){
-      var _sdu=_snapDue(_sp); if(_sdu && _sdu.days<=21 && _sdu.days>3){ sub=(sub?sub+'\n':'')+(_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.'):('스냅 기획은 '+_sdu.due+'('+_sdu.dueDow+')까지 골라 주세요.')); } } }catch(e){}   // [SNAP_EDIT_UNTIL] 늦은 날 줄은 날짜로(잠기기 전날)
+      var _sdu=_snapDue(_sp); if(_sdu && _sdu.days<=21 && _sdu.days>3){ sub=(sub?sub+'\n':'')+(_sdu.today?'스냅 기획은 오늘까지 골라 주세요.':_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.'):('스냅 기획은 '+_sdu.due+'('+_sdu.dueDow+')까지 골라 주세요.')); } } }catch(e){}   // [SNAP_EDIT_UNTIL] 늦은 날 줄은 날짜로(잠기기 전날)
     $('mp_nowHead').textContent = head;
     var subEl = $('mp_nowSub');
     /* ★[NOW_SUB_BAL 2026-09-26 · 통합 점검 L6] 부제는 문장('\n')마다 한 덩어리(.ln-bal = display:block + text-wrap:balance)로 고르게 —
@@ -9652,7 +9654,7 @@ function invStepDone(box, r){
   if(!_gCard && u.family){
     guideHint = _gClosed
       ? (_gTok?'<div class="cc-note" style="text-align:left">하객 안내 링크는 <b>예식 후 30일</b>이 지나 자동으로 닫혔어요. (개인정보 보호)</div>':'')
-      : '<div class="cc-note" style="text-align:left">「예식 준비」의 '+GUIDE_MAKE_COND+', 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요. <span class="cc-mini">(준비된 내용부터 보여요 · 다시 발행할 필요 없어요)</span></div>';
+      : '<div class="cc-note" style="text-align:left"><span class="ln-bal">오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</span><span class="ln-bal">사진 올리기는 모든 예식에서 이용하실 수 있어요. 좌석과 애프터&nbsp;웨딩은 준비된 내용만 보여요.</span></div>';   // ★[GUIDE_ALL_EVENTS_1106 4차 G01] 링크는 식사 · 좌석과 상관없이 모든 예식에 생긴다([B2_MA_02] 서버 _guideTokenEnsure_) — 옛 «채워 완료하면 생겨요»(GUIDE_MAKE_COND) 조건을 걷었다
   }
   // [인쇄 킷 · 2026-07-18 사용자 승인] 실물(종이)·개인 제작 구성 — 인쇄에 옮길 확정 정보(이름·일시)를 한 블록으로(QR 2종과 세트)
   var _kit='';
@@ -10194,14 +10196,17 @@ function _dnHas(dd){ dd=dd||{}; if(String(dd.dining_on||'')==='N') return true; 
    ②좌석도 같다 — 「배치 완료」(행 ✓)인데 자리에 이름이 없으면 «자리에 이름을 넣으면 열려요».
    ③둘 다 켜졌으면 안내문을 내지 않는다(다 채운 분께 «완료하면 열려요»는 덜 끝난 게 있냐는 물음만 남긴다).
    ★판정은 하객 화면의 실제 노출(handleGuideView)과 같아야 한다(위 주석) — 여기 조건을 바꾸면 서버 쪽도 같이 본다. */
+/* [DN_CONF_PUB_1106] 하객에게 실제로 공개되는 담은 곳 — «하객 안내에 표시»를 켠 곳 · 예약할 곳(대표)과 같은 식당. 칩([B2_MA_14]) · 확인서가 같은 판정을 쓴다(서버 handleGuideView 와 같은 규칙) */
+function _dnPubFavs(dd){ dd=dd||{}; var vp=String(dd.venuePick||'').trim(), ok=!!(vp && DN_PLACEHOLDER.indexOf(vp)===-1), nn=function(x){ return String(x||'').replace(/[\s　]+/g,'').toLowerCase(); };
+  return (Object.prototype.toString.call(dd._favs)==='[object Array]'?dd._favs:[]).filter(function(v){ return v && (v.show===true || (v.src!=='attr' && ok && nn(v.n)===nn(vp))); }); }
 function _guideSections(p){
   p=p||{}; var dd=p.diningDraft||{}, t=p.tracks||{};
   var favs=(Object.prototype.toString.call(dd._favs)==='[object Array]')?dd._favs.length:0;
   var vp=String(dd.venuePick||'').trim();
   /* ★[B2_MA_14 2026-11-06 2차 B2-마14] 상태는 «하객에게 실제로 공개되는 장소»로 센다 — 서버(80_production handleGuideView)와 같은 규칙:
      예약할 곳(대표) · «하객 안내에 표시»를 켠 식당 · 가볼 곳. 대표 없이 비공개 후보만 담아도 ✓ 가 뜨던 것 */
-  var _vpOk=!!(vp && DN_PLACEHOLDER.indexOf(vp)===-1), _nnD=function(x){ return String(x||'').replace(/[\s　]+/g,'').toLowerCase(); };
-  var _pubN=(favs?dd._favs:[]).filter(function(v){ return v && (v.show===true || (v.src!=='attr' && _vpOk && _nnD(v.n)===_nnD(vp))); }).length;
+  var _vpOk=!!(vp && DN_PLACEHOLDER.indexOf(vp)===-1);
+  var _pubN=_dnPubFavs(dd).length;   // [DN_CONF_PUB_1106] 확인서(M11)와 같은 판정 한 곳
   var dining=String(dd.dining_on||'')!=='N' && (_pubN>0 || _vpOk);
   var dnHidden=String(dd.dining_on||'')!=='N' && !dining && favs>0;   // 비공개 후보만
   var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
@@ -11231,7 +11236,7 @@ function _snapDue(p){
   /* ★[SNAP_EDIT_UNTIL 2026-09-27 고객 점검] 고칠 수 있는 마지막 날 = 예식 4일 전(서버 [SNAP_LOCK] 은 «예식 3일 전부터» 잠근다 · lockDays 3).
        종전 «예식 3일 전까지는 언제든 고칠 수 있어요»(⑤ 요약) · «예식 3일 전까지 고르실 수 있어요»(지금 할 일)는 «까지»가 그날을 넣어 읽혀,
        같은 화면의 «예식 3일 전부터는 고칠 수 없어요»와 그날 하루가 어긋났다. 날짜로 말한다 — 되돌리지 말 것. */
-  return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), edit:(eu.getUTCMonth()+1)+'월 '+eu.getUTCDate()+'일', editDow:'일월화수목금토'.charAt(eu.getUTCDay()), late:days<=14, lock:days<=3 };
+  return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), edit:(eu.getUTCMonth()+1)+'월 '+eu.getUTCDate()+'일', editDow:'일월화수목금토'.charAt(eu.getUTCDay()), late:days<14, today:days===14, lock:days<=3 };   // ★[SNAP_DUE_TODAY_1106 4차 M10] 마감 당일(D-14)은 «지났어요»가 아니라 «오늘까지» · 지남은 D-13부터
 }
 /* [SNAP_CARD_AFTER] opt.step — 낸 뒤 «수정»은 ⑤ 요약 걸음으로 연다 · opt.ro — 잠긴 뒤 «낸 내용 보기»(⑤ 요약만 · 읽기 전용) */
 function startSnapFlow(sd, p, needAgree, opt){
@@ -11429,7 +11434,7 @@ function _spWhen(D, R, due){
     +'</ul>';
   /* [SNAP_DESIGN_0926] 마감 줄 — 배경 칠한 안내 상자 → 작은 라벨 + 한 줄([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지» · 디자인 점검) */
   var _had=_snapFilledD(((SNAPFLOW.p||{}).snapDraft)||{});   // [SNAP_WORD_SCENE] 늦은 날 — 아직 안 낸 사람에게는 «고르셔도»(카드와 같은 말) · 낸 사람에게는 «고치셔도»
-  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.late?('예식 14일 전이 지났어요. 지금 '+(_had?'고치셔도':'고르셔도')+' 디렉터에게 바로 전해져요.'):('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
+  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.today?(_had?'오늘이 마감이에요. 고치셔도 디렉터에게 바로 전해져요.':'오늘까지 골라 주세요. 디렉터가 확인해 사진작가에게 전해요.'):due.late?('예식 14일 전이 지났어요. 지금 '+(_had?'고치셔도':'고르셔도')+' 디렉터에게 바로 전해져요.'):('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
   return h;
 }
 function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||[]).some(function(e){ return !!R.exImg(e); }); }); }   // [SNAP_PHOTO_FIRST] 예시 사진이 한 장이라도 오면 그 공간은 사진 칸   // [SNAP_NOIMG_LIST] 사진이 한 장이라도 들어온 공간 = 칸 · 없으면 목록
@@ -11804,7 +11809,7 @@ var PVC_SECS=[   // 89_prevideo PV_UP.first · days · today 와 같은 수
   {k:'first', n:'처음', max:4, d:'어린 시절 · 최대 4장 · 선택 · 없으면 비워도 돼요'},
   {k:'days', n:'우리의 날들', max:10, d:'최대 10장'},
   {k:'today', n:'오늘', max:6, d:'최대 6장 · 웨딩 사진이나 최근 두 분 사진'}];
-var PVC_STEPS=['스타일','사진','음악','확인'];
+var PVC_STEPS=['분위기','사진','음악','확인'];   // ★[PVC_MOOD_WORD_1106 4차 M13] 같은 고르기를 단계표 · 제목 · 단추 · 오류가 모두 «분위기»로(종전 단계표 · 단추만 «스타일») · 저장 키(style)는 그대로
 var PVC_EX={};   // 예시 영상 주소 — {sample:'…', editorial:'…', …} · 비어 있으면 «예시 영상을 만들고 있어요»
 var PVC_SONG_PREV=false;   // 곡 미리듣기(영상에 들어갈 구간) — 사용 허락 · 구간 파일이 준비되면 켠다
 var PVC_CAPS=[['표지','A day to remember. A life to share.'],['처음','서로를 알기 전의 우리 · 각자의 작은 시작'],['우리의 날들','그리고, 당신을 만났습니다 · 평범해서 더 소중했던 날들 · 늘 곁에 있던 마음 · 함께 지나온 계절'],['오늘','그리고 오늘, · 이제, 같은 내일로'],['크레딧','오늘 함께해 주신 여러분 · Our story begins now']];   // 기획서 10장 «기본 문구 세트»
@@ -12005,7 +12010,7 @@ function _pvcStyle(){
     h+='<button type="button" class="pvc-sty'+(on?' on':'')+'" data-pvcsty="'+x.k+'" aria-label="'+escapeHtml(x.n)+(on?' · 고름':'')+'"><span class="pvc-pos">'+_pvcPoster(x.k)+(on?'<span class="pvc-badge">고름</span>':'')+'</span><span class="pvc-nm">'+escapeHtml(x.n)+'</span><span class="pvc-ds">'+escapeHtml(x.d)+'</span></button>'; });
   h+='</div>';
   h+='<div class="pvc-foot">'+_pvcDots([_pvcDueLine('')])+'</div>';   // [PV_STATE_1106 M09] 고치는 화면에도 같은 자리 · 같은 기한 줄
-  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), F.d.style?_pvcBtn('사진 넣기','data-pvcgo="photos"'):_pvcBtn('스타일을 골라 주세요','data-pvcgo="photos" aria-disabled="true"','off'));
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), F.d.style?_pvcBtn('사진 넣기','data-pvcgo="photos"'):_pvcBtn('분위기를 골라 주세요','data-pvcgo="photos" aria-disabled="true"','off'));
   return h;
 }
 function _pvcSheet(k){
@@ -12016,13 +12021,13 @@ function _pvcSheet(k){
     +'<div class="pvc-sh-h"><b>'+escapeHtml(x.n)+'</b><button type="button" class="pvc-x" data-pvcclose aria-label="닫기">✕</button></div>'
     +(ex?'<div class="pvc-player"><video src="'+escapeHtml(ex)+'" controls playsinline preload="metadata"></video></div>':'<div class="pvc-poster pvc-big" aria-hidden="true">'+_pvcPoster(k)+'<span class="pvc-cap">예시 영상을 만들고 있어요</span></div>')
     +'<p class="pvc-sub">'+escapeHtml(x.d)+' · 음악은 뒤에서 따로 골라요</p>'
-    +'<div class="pvc-sh-b">'+(on?_pvcBtn('고른 스타일이에요','data-pvcclose','ghost'):_pvcBtn('이 스타일로','data-pvcpick="'+k+'"'))+'</div></div>';
+    +'<div class="pvc-sh-b">'+(on?_pvcBtn('고른 분위기예요','data-pvcclose','ghost'):_pvcBtn('이 분위기로','data-pvcpick="'+k+'"'))+'</div></div>';
 }
 /* 고치기 — 무엇을 고칠지 판 하나(스타일 · 사진 · 음악) · 시안 «확인» 화면의 «고치기» */
 function _pvcFixSheet(){
   return '<div class="pvc-scrim" data-pvcclose></div><div class="pvc-sheet" role="dialog" aria-modal="true" aria-label="무엇을 고칠까요">'
     +'<div class="pvc-sh-h"><b>무엇을 고칠까요?</b><button type="button" class="pvc-x" data-pvcclose aria-label="닫기">✕</button></div>'
-    +'<div class="pvc-fixl"><button type="button" class="pvc-opt" data-pvcfixto="style"><b>스타일</b></button><button type="button" class="pvc-opt" data-pvcfixto="photos"><b>사진 · 처음 만난 날</b></button><button type="button" class="pvc-opt" data-pvcfixto="music"><b>음악</b></button></div>'
+    +'<div class="pvc-fixl"><button type="button" class="pvc-opt" data-pvcfixto="style"><b>분위기</b></button><button type="button" class="pvc-opt" data-pvcfixto="photos"><b>사진 · 처음 만난 날</b></button><button type="button" class="pvc-opt" data-pvcfixto="music"><b>음악</b></button></div>'
     +(PVCFLOW.conf?_pvcDots(['새 영상을 다시 확정하기 전까지 기존 확정본으로 진행해요.']):'')+'</div>';
 }
 function _pvcPhotos(){
@@ -12297,7 +12302,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
       + '<div class="cc-title">스냅 기획</div>'
       + '<div class="cc-sub">'+(lock?'사진작가가 장면을 골라 담아요.':'고르신 장면을 사진작가에게 전해요.')+'</div>'   // 잠긴 뒤엔 «고르신 장면을 전해요»가 아래 «고를 수 없어요»와 어긋난다(390 실측) · [CC_SUB_FIT] 19자 — 390px 한 줄(21자 한도 · 고아 줄 방지) · «그대로 찍어요»는 약속 과잉이라 뺐다(시간이 줄면 앞 번호부터 · 책임질 수 없는 안심 금지)
       + (lock?'<div class="cc-note" style="text-align:center">예식&nbsp;3일&nbsp;전부터는 여기서 고를 수 없어요.</div>'
-             :((due?('<div class="cc-note" style="text-align:center">'+(due.late?'마감이 지났지만 지금 고르셔도 디렉터에게 바로 전해져요.':(due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
+             :((due?('<div class="cc-note" style="text-align:center">'+(due.today?'오늘까지 골라 주세요':due.late?'마감이 지났지만 지금 고르셔도 디렉터에게 바로 전해져요.':(due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
                /* [SNAP_BTN_GHOST 2026-09-26 사장님 결정 ⑥ · 고객 점검 prod-4 · x-4] 채움(cc-btn) → 테두리(cc-btn-ghost) — 개요 화면의 유일한 채움 버튼이
                   «선택이에요»라고 밝힌 스냅 기획이라, 필수 준비(예식 준비 행은 전부 테두리 · TRK_BTN_SAME)보다 «지금 할 일»로 먼저 읽혔다.
                   카드 자리(예식 준비 앞)·문구·크기는 그대로 — 무게만 내린다. 채움으로 되돌리지 말 것. */
@@ -12404,8 +12409,16 @@ function prodConfirmHtml(p, inv){
          밑줄을 넣는다 — 같은 줄의 식당 이름(굵은 글자)과 색만으로 갈리면 누를 것인지 안 읽힌다. */
       dv+=' <span class="cf-links">'+(_tel?('<a href="tel:'+_tel+'">전화</a>'):'')+'<a href="'+_dnMapUrl(_nm)+'" target="_blank" rel="noopener">지도</a></span>';
       var _rvT=String((dd.reserveTime!=null)?dd.reserveTime:(gi.reserveTime||'')), _rvN=String((dd.reserveName!=null)?dd.reserveName:(gi.reserveName||''));   // 다이닝 값 우선 · 키 없을 때만 구 저장분 폴백(빈 값='지움' 존중 — GAS와 동일 규칙)
-      if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvT+(_rvT&&_rvN?' · ':'')+_rvN))+'</span>';
-    } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';
+      var _rvTs=_dnRtBad(_rvT)?'시각 확인 필요':_rvT;   // [RSV_TIME_CHK_1106 4차 M18] 시각이 아닌 글은 시각처럼 적지 않는다
+      if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvTs+(_rvTs&&_rvN?' · ':'')+_rvN))+'</span>';
+    } else {   /* ★[DN_CONF_PUB_1106 4차 M11] 대표 식당이 없을 때 — 하객에게 공개한 곳 · 비공개 후보 · 상담 선택을 나눠 말한다(종전엔 모두 «장소 미정 · 상담에서 디렉터와 함께 정해요» · 아무도 안 한 약속) */
+      var _pb=_dnPubFavs(dd), _fn=(dd._favs||[]).length, _pk=String(dd.venuePick||dd.partner||''), _ns=function(a){ var x=a.slice(0,3).map(function(v){ return escapeHtml(String(v.n||'')); }); if(a.length>3) x.push('<span style="white-space:nowrap">외 '+(a.length-3)+'곳</span>'); return x.join('<br>'); };   // [CF_LINE_BREAK] 이름 사이는 «·» 대신 줄바꿈(줄 머리 · 줄 끝 점 없게) · 긴 이름은 칸 안에서 감긴다(nowrap 없음)
+      if(_pb.length) dv=(_pb.every(function(v){ return v.src==='attr'; })?'들를 곳':'하객 안내에 공개')+'<br>'+_ns(_pb);
+      else if(_fn) dv='후보 '+_fn+'곳<br>하객에게 공개한 곳 없음';
+      else if(_pk==='상담 때 함께 정할게요') dv='장소 미정<br>상담에서 디렉터와 함께 정해요';   // 두 분이 상담을 고른 경우만 상담 약속
+      else if(_pk==='직접 섭외할게요') dv='장소 미정<br>두 분이 직접 정해요';
+      else dv='장소 미정';
+    }
   }
   // 애프터 웨딩 줄도 아래 [CF_ORDER_0926] 자리에서 붙인다
   /* ★★[SEAT_TRUTH_ONE 2026-08-16 사용자 제보 "좌석 배치완료했는데도 불구하고 좌석 완료하라고 되어있네"]
@@ -12525,7 +12538,7 @@ function prodConfirmHtml(p, inv){
     else if(_pl>0 && _hn>0 && _pl!==_hn)
       L+='<div class="cf-warn">좌석 배치 '+_pl+'명 · 적어 두신 인원 '+_hn+'명 · 숫자가 달라요. 자리 없이 함께하는 분이 있다면 그대로 두셔도 돼요.</div>';
   }
-  L+=line('하객 안내', p.guideToken?'링크 준비됨':'', '식사·좌석을 채우면 자동으로 생겨요');   // [CF_EMPTY_WORD] 저절로 생기는 것 — 할 일로 적지 않는다
+  L+=line('하객 안내', p.guideToken?'링크 준비됨':'', '자동으로 생겨요');   // [GUIDE_ALL_EVENTS_1106 4차 G01] 링크는 식사 · 좌석과 상관없이 모든 예식에 생긴다 — 옛 «식사·좌석을 채우면» 조건을 걷었다   // [CF_EMPTY_WORD] 저절로 생기는 것 — 할 일로 적지 않는다
   // 확인 상태·버튼 — 판정은 _cfOk 하나로. 마감 입력은 각 소속 화면으로 이동(예약=다이닝 위저드 · 자리 찾기=좌석 편집기 · 2026-07-17 사용자 지시) → 확인서는 순수 요약+확인만
   var C='';
   if(_cfOk){
@@ -13632,7 +13645,8 @@ function _dnRsvHtml(d, mode){
       +_rsvLead
       +(mode==='bare'?'예약을 마치고':'마치고')+' 아래를 적어 두시면 하객 안내에 함께 보여드려요. '
       +'<span style="color:var(--light)">비워&nbsp;두셔도 괜찮아요&nbsp;·&nbsp;이&nbsp;줄만 빠지고 <span style="white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.</span></div>'   // [DN_RSV_MODE] «장소 / ·지도·전화는»(380 · 768 · 1280)처럼 가운뎃점이 줄 머리에 서지 않게 한 덩어리 · 절을 잇는 가운뎃점도 앞뒤에 묶는다(«괜찮아요 · 이 / 줄만»으로 «이»가 떨어지던 것까지 · 1280 «비워 / 두셔도»도)
-    +'<div class="gi-row" style="margin-top:4px"><label class="gi-l" for="dn_rtime">예약 시각</label><input class="cc-input" id="dn_rtime" type="text" autocomplete="off" maxlength="40" value="'+escapeHtml(d.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
+    +'<div class="gi-row" style="margin-top:4px"><label class="gi-l" for="dn_rtime">예약 시각</label><input class="cc-input" id="dn_rtime" type="text" autocomplete="off" maxlength="40" value="'+escapeHtml(d.reserveTime||'')+'" placeholder="예: 오후 1시 30분" aria-describedby="dn_rtchk"></div>'
+    +'<p class="dn-rtchk" id="dn_rtchk" role="status"'+(_dnRtBad(d.reserveTime)?'':' hidden')+'><span class="ln-bal">예약 시각을 확인해 주세요. 예: 오후 1시 30분</span><span class="ln-bal">아직 정하지 않았다면 비워 두세요.</span></p>'   // [RSV_TIME_CHK_1106 4차 M18]
     +'<div class="gi-row"><label class="gi-l" for="dn_rname">예약자 이름</label><input class="cc-input" id="dn_rname" type="text" autocomplete="off" maxlength="30" value="'+escapeHtml(d.reserveName||'')+'" placeholder="예: 김신랑"></div>';
 }
 /* ★[DN_RSV_PER_PLACE_1102 GPT 1라운드 03] 예약 시간 · 이름은 «그 장소의 것» — 예약할 곳을 A → B 로 바꾸면 A 값은 A 몫으로 넣어 두고 B 값(없으면 빈칸)을 꺼낸다.
@@ -13642,8 +13656,11 @@ function _dnRsvFor(d, place){ place=String(place||''); if(!place) return;
   if(d.reserveFor===place) return;
   var by=d._rsvBy||{}; by[d.reserveFor]={t:d.reserveTime||'',n:d.reserveName||''};
   var sv=by[place]||{}; d.reserveTime=sv.t||''; d.reserveName=sv.n||''; d.reserveFor=place; d._rsvBy=by; }
+/* ★[RSV_TIME_CHK_1106 4차 M18] 예약 시각은 식순 · 하객 안내와 같은 자(RitualPreviewLink.resvTimeOk · «13:30 · 13시 30분 · 오후 1시 30분»)로 본다 — 빈칸은 괜찮다.
+   «미정 · 예약 전 · 13:30 취소»처럼 시각이 아닌 글은 지우지 않고 그 자리에서 고치라고 한 줄 알린다(저장은 막지 않는다 · 입력 보존). 확인서도 같은 자로 «시각 확인 필요» */
+function _dnRtBad(t){ var v=String(t==null?'':t).trim(); if(!v) return false; try{ return !RitualPreviewLink.resvTimeOk(v); }catch(e){ return false; } }
 function _dnRsvWire(d){   // 입력 즉시 draft에 반영 — '저장 후 나가기'(collect 미경유)로 나가도 값이 실리게
-  var _rt=$('dn_rtime'); if(_rt) _rt.addEventListener('input', function(){ d.reserveTime=(_rt.value||'').trim().slice(0,40); });
+  var _rt=$('dn_rtime'), _rc=$('dn_rtchk'); if(_rt) _rt.addEventListener('input', function(){ d.reserveTime=(_rt.value||'').trim().slice(0,40); if(_rc) _rc.hidden=!_dnRtBad(d.reserveTime); });   // [RSV_TIME_CHK_1106]
   var _rn=$('dn_rname'); if(_rn) _rn.addEventListener('input', function(){ d.reserveName=(_rn.value||'').trim().slice(0,30); });
 }
 function renderDining(box){
