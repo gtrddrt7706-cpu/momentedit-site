@@ -1477,7 +1477,7 @@ function validateForm(){
 
   // 하객 인원 상한(30명) 검증 — 스크롤만
   var gNum = parseInt(form.querySelector('#guests').value, 10);
-  if (!isNaN(gNum) && gNum > 30) {
+  if (!_isSnapProd() && !isNaN(gNum) && gNum > 30) {   // [H4_15] 스냅이면 숨긴 하객 칸을 보지 않는다(검토 ③)
     var _gE = form.querySelector('#guests');
     meFlashTo(_gE); _fieldErrSay(_gE, '30명까지 모실 수 있어요');   // [FIELD_ERR_MSG] (보통은 위 HTML max=30 이 먼저 잡는다)
     return false;

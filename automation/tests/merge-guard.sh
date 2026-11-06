@@ -12979,7 +12979,7 @@ nochk "'인사 사진'" assets/sequence-modal.js
 chk "['단체 사진', '15~33분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1   # [TOAST_LAST_1013] 15~32 → 15~33
 chk 'Private Snap 60분 · Ceremony 7~25분 · 단체 사진 15~33분' index.html 1   # [TOAST_LAST_1013]
 nochk '전체 사진과 두 분의 감사 인사 뒤 식사 자리로' index.html   # ★[END_FLOW_1030 검토 167] 감사 인사는 닫는 인사 · 식사는 예약 시간에 함께 — 옛 «감사 인사 뒤 식사 자리로 가시고 · 11시까지»를 되살리지 말 것
-chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어지고, 식사는 예약 시간에 두 분과 함께 시작합니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030]
+chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어집니다. 식사를 예약하셨다면 정리를 마친 뒤 예약 시각에 두 분과 함께 시작합니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030] · [H4_05] 식사는 140분 밖
 nochk '9시 50분 입장' index.html
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' automation/platform/95_notify.gs 1
@@ -22644,7 +22644,7 @@ chk '식사는 선택이며, 스튜디오의 140분 일정에 포함되지 않�
 nochk '서두를 일이 없도록 이 시간 안에 다 들어 있습니다' index.html               # [H4_05] 식사가 140분 안처럼 읽혔다
 chk 'Visual Archive ·<span class="ll-ko"> 촬영 예시' index.html 1                # [H4_10]
 chk '안내 음성과 두 분의 말을 미리 듣고 연습해요' index.html 1                    # [H4_12]
-chk 'more-count">8</span>개 보기' index.html 1                                         # [H4_13] 접힌 질문 수 = 8(환불 · 마이크로 · 부모님 · 축의 · 청첩장 · 행진 · 사회자 · 촬영만)
+chk 'more-count" style="margin-right:1px">8</span>개 보기' index.html 1                                         # [H4_13] 접힌 질문 수 = 8(환불 · 마이크로 · 부모님 · 축의 · 청첩장 · 행진 · 사회자 · 촬영만)
 chk '별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면' index.html 2       # [H4_14] FAQ · JSON-LD · 엔진 차례(table → toast → 닫는 인사)
 chk '별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면' api/_kb.js 1
 nochk '행진 대신 두 분이 하객 쪽으로 나와 인사드리고' index.html

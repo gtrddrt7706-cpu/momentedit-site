@@ -30,7 +30,7 @@ const SCHEMA = {
   type: 'object',
   properties: {
     category: { type: 'string', description: '핵심 문의 분류 (예: 계약·환불, 일정 변경, 가격, 결과물 등) 짧게' },
-    summary: { type: 'string', description: '문의 주제와 AI가 못 푼 까닭을 2~3문장으로 · 질문 원문 인용 · 연락처 금지' },   // [H4_HANDOFF_TOPIC]
+    summary: { type: 'string', description: '문의 주제와 AI가 못 푼 까닭을 2~3문장으로 · 질문 원문 인용 금지 · 연락처 금지' },   // [H4_HANDOFF_TOPIC]
     suggestedReply: { type: 'string', description: '대표가 고객에게 보낼 만한 정중한 답변 초안' },
     rationale: { type: 'string', description: '해석 + 근거 + 대표가 확인/결정할 점 (관리자 전용)' },
     confidence: { type: 'string', enum: ['높음', '보통', '낮음'] },
