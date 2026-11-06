@@ -22635,7 +22635,7 @@ nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/
 chk 'B5_NI08' order-preview.html 1   # [5차 P v2 NI08] 편지 두 분 따로 — 최종 화자 배열을 세운 뒤 그 순간 몫을 한 번만 나눈다(각 139초 × 2 금지)
 chk 'B5_NI11' order-preview.html 1   # [5차 P v2 NI11 · P10] 크게 보기 머리 = _stNo(st) — 촬영 후 안내 중 «본식 뒤 · 예식 순서»
 nochk "esc(_lNoOf(st.k)+' · 예식 순서')" order-preview.html   # ★머리를 순간 번호(_lNoOf)로 되돌리지 말 것 — 본식 뒤 줄이 «9 / 9»로 보였다
-chk 'B5_P01' order-preview.html 3   # [5차 P v2 P01 · P14] 연습 A — 부모님께 인사 뒤 복귀 8초 · 본인 축가 3초(DWELL songSelf)
+chk 'B5_P01' order-preview.html 2   # [5차 P v2 P01 · P14] 연습 A — 부모님께 인사 뒤 복귀 8초(이동) · 본인 축가 3초(_rpAct) · 머무름 표(TURN_GAP_1102)는 그대로
 chk 'B5_P14' order-preview.html 2   # [5차 P v2 P14 · NI07] 본인 축가 카드 글 A/B 따로 · 방식 바꾸면 지금 줄 글도
 chk '직접 부르는 차례예요 · 흐름 보기에서는 짧게 넘겨요.' order-preview.html 1
 chk '직접 부르는 차례예요. 시작과 끝 인사를 연습해 보세요.' order-preview.html 1

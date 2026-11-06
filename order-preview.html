@@ -8374,10 +8374,9 @@ function _lPreload(){ var n=LP.q[LP.i+1]; if(!n||!n.src) return; if(!LP.pre){ LP
 function _lpTag(a){ var n={}; (a||[]).forEach(function(x){ n[x.k]=n[x.k]||0; x._li=x.k+':'+(n[x.k]++); }); return a; }   /* 줄 자리 = 그 순간 안 번호(_mkFlow 의 data-li 와 같다 · 한 순간 _lSteps(ENG,[k]) 차례) */
 function _lpMs(est){ return Math.min(6,Math.max(3,Math.round((+est||0)/12)))*1000; }
 /* ★★[TURN_GAP_1102 사장님 확정 값] 행동 줄(말없이) 머무는 시간 — 미리 듣기 / 연습 · 연습은 실제로 움직여 보는 시간이라 길게 · 당일 콘솔은 사람이 GO(그대로) */
-var DWELL={ matjeol:[5,8], bow:[6,8], call:[6,8], hug:[6,8], ring:[6,8], candle:[6,6], move:[6,8], table:[8,8], clapBig:[6,6], clapSmall:[5,5], songSelf:[3,3], def:[5,6] };   /* [B5_P01] songSelf = 두 분이 직접 부르는 축가 — 흐름 보기(A)는 3초 요약(B 는 «다 했어요»까지) */
+var DWELL={ matjeol:[5,8], bow:[6,8], call:[6,8], hug:[6,8], ring:[6,8], candle:[6,6], move:[6,8], table:[8,8], clapBig:[6,6], clapSmall:[5,5], def:[5,6] };
 function _dwellKind(x){ var k=x.k||'', sl=String(x.of||x.slug||''), t=String(x.txt||'');
   if(k==='matjeol'||sl==='narr-entry-bow') return 'matjeol'; if(sl==='narr-close-bow') return 'bow';
-  if(x.aid==='narr-song:self') return 'songSelf';   /* ★[B5_P01 2026-11-06 5차 P v2 P01 · P14] 본인 축가 A 3초(종전 6초) */
   if(/^tribute-out/.test(sl)&&x.who2==='couple') return 'move';   /* ★[B5_P01] 부모님께 인사 뒤 «두 분이 앞쪽 중앙으로 돌아와 나란히 서요» = 이동 — A 8초(종전 «돌아와»가 이동 낱말에 안 걸려 6초) · B 는 완료까지 */
   if(/^tribute-hug/.test(sl)) return 'hug'; if(/^tribute-call/.test(sl)) return 'call'; if(k==='ring') return 'ring'; if(k==='candle') return 'candle'; if(k==='table') return 'table';
   if(/박수/.test(t)||/clap/.test(sl)) return (k==='declare'||k==='song')?'clapBig':(k==='bless'||k==='free')?'clapSmall':'def';
@@ -8417,7 +8416,8 @@ function _lTimer(ms){ clearTimeout(LP.t); var me=LP.tok; var _wst=LP.q[LP.i]; if
    ③ 연습은 공통 진행 상수 표(window.RunPace · 같은 이름이 먼저 있으면 그 값)를 읽는다: 안내 → 두 분 말 3.0 · 말 끝 → 받는 멘트 2.2 · 멘트 사이 1.6 · 순간 2.2 · 제목 2.5
    쉼은 «말끝 → 말머리» 한 번만 — 나레이션 파일 앞뒤 무음(NarrPad)을 빼고, 의식 정적(정해 둔 −90 자리)은 max 로 겹치지 않게(더하지 않는다) */
 window.RunPace=window.RunPace||{ act:{candle:6,table:8,matjeol:8,clap:5.5}, cueToTalk:3.0, talkToCue:2.2, cueGap:1.6, momentGap:2.2, titleGap:2.5 };
-function _rpAct(x){ var A=(window.RunPace||{}).act||{}, sec=(x.k==='candle'&&/^narr-candle-in-/.test(x.of||''))?A.candle:(x.k==='table'&&x.of==='narr-table-in')?A.table:(x.k==='matjeol')?A.matjeol:/박수/.test(String(x.txt||''))?A.clap:null; return sec?Math.round(sec*1000):_dwellMs(x,true); }   /* [TURN_GAP_1102] 표(RunPace)에 없는 동작 = 머무름 표의 연습 값(부모님께 인사 · 포옹 · 반지 · 이동 · 목례 박수 8초 · 그 밖 6초) */
+function _rpAct(x){ if(x.aid==='narr-song:self') return 3000;   /* ★[B5_P01 2026-11-06 5차 P v2 P01 · P14] 두 분이 직접 부르는 축가 — 흐름 보기(A)는 다른 분 축가 요약과 같은 3초(종전 머무름 표 기본 6초) · B 는 «다 했어요»까지 · 머무름 표(TURN_GAP_1102 확정 값)는 그대로 */
+  var A=(window.RunPace||{}).act||{}, sec=(x.k==='candle'&&/^narr-candle-in-/.test(x.of||''))?A.candle:(x.k==='table'&&x.of==='narr-table-in')?A.table:(x.k==='matjeol')?A.matjeol:/박수/.test(String(x.txt||''))?A.clap:null; return sec?Math.round(sec*1000):_dwellMs(x,true); }   /* [TURN_GAP_1102] 표(RunPace)에 없는 동작 = 머무름 표의 연습 값(부모님께 인사 · 포옹 · 반지 · 이동 · 목례 박수 8초 · 그 밖 6초) */
 /* ★[PR_WAY_198 보충 중7] 연습 줄 = 재생과 같은 줄(_prQ) · 연습 예상 시간 = 그 줄의 길이 + _lGapOf 쉼(입장 준비 5초 · 편지 끝 연출 포함) — 첫 화면 «연습 약 n분»이 실제 A 완주와 맞게 */
 function _prAct(x){ return x.quiet&&!x.act?Object.assign({},x,{src:null,pending:false,ms:_rpAct(x),act:1}):x; }   /* [PR_REVIEW_201 상1] 말없는 줄 = 동작(행위자 · 시간) — 펼쳐 더한 줄(축배 잔 · 화답)도 같은 길 */
 function _prQ(ks){ return _lRefExpand(_lpTag(_lSteps(ENG,ks)).filter(function(x){ return !x.hint&&(!x.quiet||x.txt); }).map(_prAct)).map(_prAct); }   /* ★[DINE_HINT_NI15] 설정 도움말(이어지는 줄 · hint)은 재생 · 연습 시간에서 뺀다 — 6초 «행동»처럼 기다리던 것(마무리 녹음 다음은 전체 단체 사진) */
