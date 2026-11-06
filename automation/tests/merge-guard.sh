@@ -4805,6 +4805,10 @@ chk "head = '식전 영상을 확인해 주세요';" mypage.html 1
 chk "if(F.st==='off') h+='<div class=\"pvc-foot\">'" mypage.html 1
 chk '템플릿 비용 포함 · 추가 옵션 별도' mypage.html 1
 nochk '패키지 포함 · 추가 요금 없음' mypage.html
+# ★[PV_VERIFY_1106 2026-11-06 대본 검증 몫 M06 · M07] 표 원문 그대로 — 식순 어긋남 줄은 「식순」(화면 이름 꼴) · 접수 대기 화면도 «다시 확인» 안내(«이 화면에서 볼 수 있어요»는 화면이 스스로 바뀌는 것처럼 읽혔다)
+chk 'PV_VERIFY_1106' mypage.html 2
+chk '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.' mypage.html 1
+nochk '원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요' mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1

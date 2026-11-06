@@ -11933,7 +11933,7 @@ function _pvcDueLine(extra){ var t=_pvcDueTxt(PVCFLOW.due); return t?('확정 �
    영상 상태와 식순 포함은 따로 저장된다(D04 결정 대기) — 둘이 확실히 부딪힐 때만 한 줄로 알린다 · 자동으로 넣거나 빼지 않는다. */
 function _pvcRitOn(k){ try{ var rd=(window._lastProd||{}).ritualDraft, S=(rd&&rd._v===3&&rd.S)?rd.S:null; if(!S||!S.on) return null; return !!S.on[k]; }catch(e){ return null; } }
 function _pvcClash(st, conf){ var on=_pvcRitOn('prevideo'); if(on===null) return '';
-  if((st==='done'||(st==='editing'&&conf)) && !on) return '영상은 확정됐지만 식순에는 빠져 있어요. «식순»에서 확인해 주세요.';
+  if((st==='done'||(st==='editing'&&conf)) && !on) return '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.';   /* [PV_VERIFY_1106 M06] 표 원문 「식순」(화면 이름은 「」 · CF 와 같은 꼴) */
   if(st==='off' && on) return '식순에는 영상이 있지만, 영상은 «사용하지 않기»로 정하셨어요. 두 화면을 확인해 주세요.';
   return ''; }
 function _pvcNeed(t){ return t?'<p class="mp-dotln need">'+t+'</p>':''; }   // 손이 필요한 한 줄(진사 점 · NOTE_DOT)
@@ -12108,7 +12108,7 @@ function _pvcUpload(){
   return h;
 }
 function _pvcSent(){
-  var F=PVCFLOW, h='<h2 class="pvc-h">링크를 받았어요</h2><p class="pvc-sub">원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요. 지금은 나가셔도 돼요.</p>';   // [PV_STATE_1106 M07] 아래 «다시 확인»
+  var F=PVCFLOW, h='<h2 class="pvc-h">링크를 받았어요</h2><p class="pvc-sub">준비 상태는 «다시 확인»에서 확인해 주세요. 지금은 나가셔도 돼요.</p>';   /* [PV_VERIFY_1106 M07] 접수 대기도 제작 중과 같은 표 원문 — «이 화면에서 볼 수 있어요»는 화면이 스스로 바뀌는 것처럼 읽혔다(상태는 아래 «스튜디오 확인 중») */   // [PV_STATE_1106 M07] 아래 «다시 확인»
   h+='<div class="pvc-linkcard"><span>'+escapeHtml(F.d.link||'')+'</span><p class="pvc-state"><i aria-hidden="true"></i>스튜디오 확인 중</p></div>';
   h+=_pvcRecheckBtn();
   if(!F.past) h+='<button type="button" class="pvc-lk pvc-relink" data-pvcgo="upload">다른 영상으로 다시 보내기</button>';
