@@ -49,7 +49,7 @@ ok(/var MP_FS_OVERLAYS=\[[^\]]*'mp_pvcOverlay'/.test(my), '겹화면 목록(MP_F
 ok(/var WIZ_ORDER=\[[^\]]*'pvc'/.test(my) && /\n  pvc:\{ on:function\(\)\{ return typeof PVCFLOW/.test(my), '저장 · 나가기 한 벌(WIZ_ADAPT · WIZ_ORDER)에 pvc');
 ok(/\n    _pvRow,/.test(my) && my.indexOf("row('식전 영상'") > -1 && my.indexOf("$('mp_pvcStart')") > -1, '예식 준비 줄(_pvRow) · 단추 연결');
 ok(/PVCFLOW\.active\)\) return;/.test(my), '스크롤 잠금 자가 치유(_mpLockReconcile)가 식전 영상 편집 중엔 손대지 않는다');
-ok(/function purgeRitualFiles\(dry\) \{[^\n]*\n[^\n]*purgePrevideo_\(dry\)/.test(pr), '예식 6개월 뒤 지우기 — purgeRitualFiles 가 purgePrevideo_ 를 부른다');
+ok(/function purgeRitualFiles\(dry\) \{[\s\S]{0,800}?_pgPrevideo_\(live, t\)/.test(pr), '예식 6개월 뒤 지우기 — purgeRitualFiles 가 식전 영상 정리(_pgPrevideo_)를 부른다 [PURGE_POLICY_1106]');
 ok(/prevideo: \(typeof _pvPublic === 'function'\)/.test(pr), 'buildProductionState 가 prevideo 를 싣는다');
 ok(/keepDays: 183/.test(gs), '보관 183일(= 처리방침 «6개월 이내»)');
 

@@ -307,20 +307,7 @@ function handlePvThumbs(body) { _gsr_();
 
 // 예식 6개월 뒤 — 폴더째 휴지통 · 시트 줄의 초안 · 메타를 비운다(처리방침 «식전 영상» 보관 약속)
 function purgePrevideo_(dry) {
-  var sh = _pvSheet_(), last = sh.getLastRow(), gone = [];
-  if (last < 2) return gone;
-  var today = _kstYmd(new Date()), vals = sh.getRange(2, 1, last - 1, PV_HEAD.length).getValues();
-  for (var i = 0; i < vals.length; i++) {
-    var code = String(vals[i][0] || '').trim(); if (!code) continue;
-    var cust = null; try { cust = findCustomerByCode(code); } catch (e) { continue; }
-    var wed = cust && typeof _ymdOf === 'function' ? _ymdOf(cust.get('예식일')) : '';
-    if (!wed || _pvYmdAdd_(wed, PV_UP.keepDays) > today) continue;
-    var m = {}; try { m = JSON.parse(String(vals[i][4] || '{}')) || {}; } catch (e) { m = {}; }
-    if (!m.folder && !String(vals[i][3] || '').replace(/[{}"\s]/g, '')) continue;
-    gone.push(code);
-    if (dry) continue;
-    if (m.folder) { try { DriveApp.getFolderById(String(m.folder)).setTrashed(true); } catch (e) {} }
-    sh.getRange(i + 2, 2, 1, PV_HEAD.length - 1).setValues([['지움', '', '{}', JSON.stringify({ purged: fmtKST(new Date()) }), fmtKST(new Date())]]);
-  }
-  return gone;
+  /* ★[PURGE_POLICY_1106 2026-11-06] 본문은 70_journey _pgPrevideo_ — 예식 후 6개월(달력) · 폴더 영구 삭제 · 지웠을 때만 «지움» */
+  var o = _pgPrevideo_(!dry && _pgLive_(), _kstYmd(new Date()));
+  return o.codes;
 }
