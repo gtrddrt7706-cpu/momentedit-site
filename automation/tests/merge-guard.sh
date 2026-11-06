@@ -1393,7 +1393,9 @@ nochk 'margin: -3px 0 -3px auto' index.html
 #   맨 아래 「(정확한 주소 확정 예정)」을 «준비 중»이 아니라 «미완성»으로 읽었다.
 #   ★소개 섹션(y≈3,600)의 한 줄을 지우지 말 것 — 지우면 그 오독이 그대로 돌아온다.
 chk 'OPEN_TIMING' index.html 1
-chk '2027년 하반기 정식 오픈을 앞두고' index.html 1
+chk '2027년 4월 정식 오픈을 앞두고' index.html 1   # [B3_Q01 2026-11-06] 오픈 시점 = 사장님 지시 «2027년 4월»(종전 «하반기» · 홈 · 일반 KB · 즉답 함께) · 소개 섹션 한 줄은 그대로 지킨다
+nochk '2027년 하반기 정식 오픈' api/_kb.js
+nochk '2027년 하반기 정식 오픈' assets/advisor-kb.js
 chk '도로명 주소는 확정되면 안내드립니다' index.html 1
 # ★[HONOR_BASIS 2026-09-06 사용자 답변 "계약기준"] 「2027 상반기 한정」이 「2027년 하반기 오픈」과
 #   어긋나 보였다(하반기에 여는데 상반기 한정이면 예식을 못 한다). 기준이 «계약»임을 한 단어로 밝힌다.
@@ -12329,7 +12331,7 @@ chk 'heard_ok' 'docs/plans/식순연구/parents-letter-대기.json' 1
 nochk '자리마다 차례로 찾아뵙겠습니다' assets/ritual-data.js
 nochk '이십 분쯤 걸리니' assets/ritual-data.js
 #   ② 사장님이 «남기고»라고 짚으신 두 문장은 반드시 살아 있어야 한다
-chk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js 1
+# [CREW_WORD_OFF_1106 대본 11/06 «나레이션 작가님 없음»] 옛 핀(이 문장을 남긴다)은 걷었다 — 아래 nochk 가 되살림을 막는다
 chk '앉으신 채로 편히 맞아 주시면 됩니다' assets/ritual-data.js 1
 #   ③ 가운데 안내 클립 폐지 — 파일·번호는 남기고 RETIRED 로만 끈다(SONG_RETIRED 와 같은 처방)
 chk "'narr-round-mid': 1" assets/ritual-cue.js 1
@@ -22574,3 +22576,47 @@ nochk '기념 촬영을 모두 마쳤습니다' docs/handoff/junctions.md
 chk 'FLOW_DECL_ST12' mypage.html 1
 chk 'FLOW_DECL_ST12' scripts/audit/photo-scene-flow.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/photo-scene-flow.mjs >/dev/null 2>&1; _psf=$?; if [ "$_psf" = 1 ]; then echo 'REVERT? photo-scene-flow: 사진 준비 장면 목록이 오류를 낸다 [FLOW_DECL_ST12]'; fail=1; else echo "ok photo-scene-flow ($_psf)"; fi; fi   # 2 = 브라우저 없음(재지 못함)
+# ── 2026-11-06 [B3_FACTS · 3차 AI 상담 답 품질 Q01 ~ Q32] 식순 지식의 공통 사실은 엔진 · 예시 데이터에서 만든다(full · lite 둘 다) · 옛 문장 · 내부 표식 · 입력 상한 · 밤 안내 · 상태 꼴
+chk 'B3_FACTS' api/_ritual-kb.js 1
+chk 'function factLines()' api/_ritual-kb.js 1
+chk '\${factLines()}' api/_ritual-kb.js 2
+chk 'B3_Q21' api/_ritual-kb.js 2
+chk 'B3_Q21' api/ritual-advisor.js 2
+chk 'B3_Q29' api/ritual-advisor.js 2
+chk 'B3_Q12' api/ritual-advisor.js 1
+chk 'B3_Q12' api/advisor.js 1
+chk 'B3_Q13' api/schedule-advisor.js 1
+chk 'B3_Q14' assets/advisor-widget.js 2
+chk 'B3_Q15' assets/advisor-widget.js 3
+chk 'B3_Q26' assets/advisor-widget.js 4
+chk 'B3_Q26' index.html 3
+chk 'B3_Q30' index.html 3
+chk 'B3_Q17' api/_kb.js 2
+chk 'B3_Q18' assets/advisor-kb.js 2
+chk 'B3_Q19' assets/advisor-kb.js 1
+chk 'B3_Q22' assets/advisor-kb.js 1
+chk 'B3_DUE' assets/advisor-kb.js 1
+chk '2027년 4월 오픈을 준비하고 있어요' api/_kb.js 1
+chk '2027년 4월 오픈을 준비하고 있어요' assets/advisor-kb.js 1
+nochk '작성한 글은 기기에만 저장된다' api/_ritual-kb.js
+nochk '맺는 말은 없다(노래 뒤 박수는 청하지 않는다' api/_ritual-kb.js
+nochk '두 분은 5분 전부터 문 밖에서 대기' api/_ritual-kb.js
+nochk "k === 'free' ? \['free', 'freeLen'\]" api/_ritual-kb.js
+nochk '나레이션 멘트를 2 ~ 4개 중 고를 수 있다' api/_ritual-kb.js
+nochk '하객 약 30명 안팎' api/_ritual-kb.js
+nochk '(전에 담아 둔 식순은 그대로)' api/_ritual-kb.js
+nochk '당일 운영(리허설·지연·연장)은 확정 전 정책' api/ritual-advisor.js
+nochk '결과물 수령 시점, 반려동물·전통의상·종교의식, 상담 언어' api/advisor.js
+nochk '내일 영업시간에 이어서 답해드려요' assets/advisor-widget.js
+nochk '이 금액이 끝이에요' api/_kb.js
+nochk '어긋나는 장면이 없어요' api/_kb.js
+nochk '가격 불만 1위' api/_kb.js
+nochk '열에 아홉' assets/advisor-kb.js
+nochk '총액과 들이는 수고를 줄여 드립니다' assets/advisor-kb.js
+nochk '예식 150일 이후 취소 시' assets/advisor-kb.js
+nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분)' api/schedule-advisor.js
+chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
+chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
+nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
+nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
+if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi

@@ -124,8 +124,8 @@
       ],
       "dir": "assets/audio/narration",
       "clips": 56,
-      "sents": 129,
-      "chars": 4001
+      "sents": 128,
+      "chars": 3971
     },
     {
       "file": "5_배역.txt",
@@ -7975,12 +7975,6 @@
         {
           "i": 2,
           "text": "앉으신 채로 편히 맞아 주시면 됩니다.",
-          "before": 0,
-          "after": 1
-        },
-        {
-          "i": 3,
-          "text": "사진이 필요하시면 작가님을 부르셔도 좋습니다.",
           "before": 0,
           "after": 0
         }

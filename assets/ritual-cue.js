@@ -1813,7 +1813,7 @@
         post: [{ music: 'to', v: PARAM.duckMusic, ms: 1500 }]   /* ★★[AFTER_PHOTO_LOOP_1102 사장님 «음악도 계속 나와야지»] 안내 −14 → 끝나면 1.5초에 −8 → 가족 사진 · 추가 촬영이 끝나 진행 화면 ■ 끝내기까지 계속 · 끝내기 때만 3초에 잦아듦 · 자동 소거(옛 90초 → 20초) 없음 */
       })); }
       if (!_photoOpen) cues.push(cue({
-        k: '_photo', blockN: '단체 사진', slug: 'end-0-photo', name: '하객 모두와 한 장', text: EXTRA['end-0-photo'],   /* ★[PHOTO_CUE_NAME_1015 라운드 5] «하객컷»은 현장 말 — 콘솔 고객판 제목 · 다음 줄에 그대로 뜬다(블록 how 와 같은 말로) */ duck: -14,
+        k: '_photo', blockN: '단체 사진', slug: '', act: true, actId: 'photo-all', name: '하객 모두와 한 장', text: '', est: 0,   /* ★[CREW_44_OFF_1106 대본 11/06 «작가님» 규칙] 옛 코스(숨김 · 초안 호환)도 44 «여기서부터는 작가님이 안내해 드립니다»를 틀지 않는다 — 소리 없는 동작 큐 · 시간(_go)은 그대로 · 되살리지 말 것 */   /* ★[PHOTO_CUE_NAME_1015 라운드 5] «하객컷»은 현장 말 — 콘솔 고객판 제목 · 다음 줄에 그대로 뜬다(블록 how 와 같은 말로) */ duck: -14,
         live: { t: '전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(골라 트는 판)', est: _go['end-0-photo'], note: '전체 하객 약 6분 + 꼭 담고 싶은 사진(두 분이 적은 만큼 · 하나에 1분 남짓) [GROUP_PHOTO] [WISH_COUNT]' }
       }));
       /* ★★[PHOTO_THANKS 2026-09-26 사장님 결정 · 코워크 «사장님 제안 둘» 1] 전체 사진 바로 뒤 — 두 분이 하객 모두께 함께 감사 인사(목례).
@@ -1874,14 +1874,14 @@
         var by = {}, i;
         for (i = 0; i < cues.length; i++) by[cues[i].slug] = cues[i];
         for (i = 0; i < cues.length; i++) if (cues[i].actId) by['@' + cues[i].actId] = cues[i];   // [CLOSING_LINE_1031] 소리 없는 동작 큐는 actId 로 찾는다
-        var goals = 0; for (var g in _go) if (by[g] || ((g === 'end-0-photo' || g === 'narr-photo-split' || g === _thx) && _photoOpen)) goals += _go[g];   // [END_FLOW_1030] 감사 인사 큐는 소리 없는 가족 구도 큐가 이어받는다(목표 그대로)
+        var goals = 0; for (var g in _go) if (by[g] || (g === 'end-0-photo' && by['@photo-all']) || ((g === 'narr-photo-split' || g === _thx) && _photoOpen)) goals += _go[g];   // [CREW_44_OFF_1106] 전체 하객 목표는 소리 없는 큐(@photo-all · 새 · 옛 코스 모두)가 든다   // [END_FLOW_1030] 감사 인사 큐는 소리 없는 가족 구도 큐가 이어받는다(목표 그대로)
         if (_photoOpen && by[closingOf(S)]) { var _pp = by[closingOf(S)]; goals += Math.max(0, Math.round((_pp.est || 0) * (1 - String(D.NARR.close || '').length / Math.max(1, String(_pp.text || '').length)))); }   // ★[CLOSING_LINE_1031] 마무리 멘트가 26 보다 긴 몫 — 40분 셈에 마무리 길이(26 의 말은 닫는 인사 시간에 이미 있다)   // ★[END_FLOW_1030] 사진 전 안내가 26 보다 긴 몫(약 40초 − 26) — 26 의 말은 닫는 인사 시간에 이미 있다   // [SPLIT_OFF_OPEN_1023] 새 코스의 가족 구도 목표는 감사 인사 줄이 든다   // [SRC_ALL_1023] 새 코스의 전체 하객 목표는 26 이 든다
         var goFree = Math.max(120, budget * 60 - goals);
         var gather = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
         function fit(c, goal, pre) { if (c && c.live) c.live.est = Math.max(10, Math.round(goal - (pre || 0) - (c.est || 0))); }
         var _pc = _photoOpen ? by['@photo-all'] : null;   // [CLOSING_LINE_1031] 전체 하객 사진(소리 없음)   // [END_FLOW_1030] 다이닝은 있는데 266 셋(식사 자리 · 예약 시각 · 하객 안내) 중 하나라도 빈 날은 26 이 사진 전 안내 자리 [PHOTO_PRE_PICK_1030]
         if (_photoOpen) { if (_pc && _pc.live) _pc.live.est = Math.max(10, _go['end-0-photo'] - _wishSec); }   /* [WISH_AFTER_FAMILY_NI10] 전체 사진 = 전체 한 장 몫만(요청 몫은 추가 촬영으로) */   // [SRC_ALL_1023] 26 의 말은 본식 몫 · 사람 구간 = 모임 + 전체 하객 목표 그대로
-        else fit(by['end-0-photo'], _go['end-0-photo'], gather);
+        else fit(by['@photo-all'], _go['end-0-photo'], gather);   // [CREW_44_OFF_1106] 옛 코스도 소리 없는 큐
         var _fam = _photoOpen ? by['@photo-family'] : by[_thx];   // [END_FLOW_1030] 새 코스는 소리 없는 가족 구도 큐
         fit(_fam, _go[_thx] + (_photoOpen ? _go['narr-photo-split'] : 0));   // [PHOTO_THANKS] · [SPLIT_OFF_OPEN_1023] 새 코스는 가족 구도까지
         if (_photoOpen && _fam && _fam.live) _fam.live.famGoal = _go['narr-photo-split'];   // [SPLIT_OFF_OPEN_1023] 그 안의 가족 구도 목표(검사 · 콘솔이 읽는다)
