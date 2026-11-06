@@ -1021,7 +1021,7 @@
         hint: '불을 다 밝히면'   // ★[CANDLE_CALL_1014] 10/10 지적 7 «때를 불을 다 밝히면으로 당김» — 옛 «두 분이 자리에 앉으시면»
       }), cue({
         k: 'candle', blockN: '화촉', slug: BOWSL[who] || 'narr-candle-bow', name: '인사 안내',   /* ★[CANDLE_CALL_SRC_1016] 서는 분마다 구호가 달라 판마다 한 줄(어머님 138 · 네 분 139 · 아버님 146 · 다른 두 분 147) */
-        text: EXTRA[BOWSL[who] || 'narr-candle-bow'], duck: PARAM.duckSpeech, fire: 'chain',   // [GPT_R1_CANDLE] gapMs: 1250,   // [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
+        text: EXTRA[BOWSL[who] || 'narr-candle-bow'], duck: PARAM.duckSpeech, fire: 'chain', gapMs: 1250,   // [GPT_R1_CANDLE] · [CHAIN_GAP_1014] 원고 «맺는 말에 이어 1.25초»
         live: (who === 'parents'
           ? { t: '네 분이 하객께 인사한 뒤 자리로', est: 15, showEst: 25, self: true, doing: 'move', duck: PARAM.duckMusic }   /* ★[EST_TRUE_1031] 화면 «실제로는» = 맞절 · 인사 · 자리로 전체(네 분 25 · 두 분 30) · est 15 는 그대로(소리 안 시간과 겹쳐 셈하지 않는다) */   /* [CANDLE_CALL_SRC_1016] 인사는 구호 뒤 쉼(4초)에 들어가 자리로 돌아가는 시간만 남는다 */
           : { t: '두 분이 서로 맞절 · 하객께 인사한 뒤 자리로', est: 15, showEst: 30, self: true, doing: 'move', duck: PARAM.duckMusic })
