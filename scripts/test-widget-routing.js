@@ -11,7 +11,7 @@ function grab(name) {
   return m[0];
 }
 /* eslint-disable no-eval */
-eval(grab('dateish') + '\n' + grab('slotish') + '\n' + grab('affirmish') + '\n' + grab('offTopicish') + '\n' + grab('schedish'));
+eval(grab('dateish') + '\n' + grab('slotish') + '\n' + grab('affirmish') + '\n' + grab('offTopicish') + '\n' + grab('hardDate') + '\n' + grab('schedish'));   // [B3_Q14] schedish 가 hardDate 를 본다
 
 function route(q, mode) {
   const stay = mode === 'sched' && !offTopicish(q) && (dateish(q) || slotish(q) || affirmish(q));
@@ -45,6 +45,10 @@ const cases = [
   ['140분이면 너무 짧지 않나요?', 'adv', 'adv'],
   ['하객은 몇 명까지 가능한가요?', 'adv', 'adv'],
   ['부모님과 함께 상담해도 되나요?', 'adv', 'adv'],
+  // [B3_Q14] 다른 주제 + 기한(N일 전) · 요일 낱말만 = 일반 상담 / 실제 날짜가 있으면 일정
+  ['평일에 카드 결제 가능한가요?', 'adv', 'adv'],
+  ['예식 7일 전에 영상 보내도 되나요?', 'adv', 'adv'],
+  ['5월 3일 예식 가능한가요? 가격도 궁금해요', 'adv', 'sched'],
 ];
 
 let fails = 0;
