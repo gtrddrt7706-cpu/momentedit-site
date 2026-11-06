@@ -49,7 +49,7 @@ if (has('_ritualCapLen_') && has('_prodPack')) {
   const d5 = two(5000), j5 = JSON.stringify(d5).length, c5 = C._ritualCapLen_(d5), pk5 = C._prodPack({ ritualDraft: d5 }, { track: 'ritual' });
   ok('A2-15 ① 편지 둘 각 5,000자 — 잰 길이는 옛 칸(letterText)을 뺀 값 · 저장된다 · 저장 꼴은 옛 칸까지 그대로', j5 > 20000 && c5 < 12000 && j5 - c5 > 10000 && !pk5.err && /letterText/.test(pk5.cols['제작_ritual'] || ''), JSON.stringify({ j5, c5, err: pk5.err }));
   const d6 = two(6100), pk6 = C._prodPack({ ritualDraft: d6 }, { track: 'ritual' });
-  ok('A2-15 ② 편지 둘 각 6,100자 — 거절 «글이 너무 길어요 · 서약 · 편지 글을 조금 줄여 주세요 (코드 S0)»', pk6.err === '글이 너무 길어요 · 서약 · 편지 글을 조금 줄여 주세요 (코드 S0)', pk6.err);
+  ok('A2-15 ② 편지 둘 각 6,100자 — 거절 «입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요 (코드 S0)»(원인 원고를 단정하지 않음 · B2_GEUL_16)', pk6.err === '입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요 (코드 S0)', pk6.err);
   const old = { _v: 3, S: { letterText: L(13000) } }, pkO = C._prodPack({ ritualDraft: old }, { track: 'ritual' });
   ok('A2-15 ③ tx 에 짝이 없는 옛 칸(옛 빌더 초안)은 그 글이 원본이라 센다 — 13,000자면 거절', C._ritualCapLen_(old) > 12000 && !!pkO.err, JSON.stringify({ len: C._ritualCapLen_(old), err: pkO.err }));
   const dn = { memo: L(12500) }, pkD = C._prodPack({ diningDraft: dn }, { track: 'dining' });

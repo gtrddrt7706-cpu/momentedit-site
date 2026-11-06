@@ -268,7 +268,7 @@ ok('선언 택1 원칙 위반 서술("선언 뒤에 …답하는") 0건' + (addO
 
 try { KB = require(path.join(root, 'api/_ritual-kb.js')); } catch (e) { ok('_ritual-kb.js 로드', false); process.exit(1); }
 const probes = [
-  D.ENTRY.A.nar, D.DECLBY.nar, D.LETTER.parent.nar, D.NARR.vow.nar, D.NARR.close, D.RINGWARM.family.nar,   // [DECLARE_BY_PERSON · DECLARE_ANYONE] 선언 대표 문안 = 사람이 읽는 선언문(한 벌)
+  D.ENTRY.A.nar, D.DECLBY.nar, D.LETTER.parent.nar, D.NARR.vow.nar, require(path.join(root, 'assets/ritual-cue.js')).EXTRA['narr-closing'], D.RINGWARM.family.nar,   // [B2_HOME_04] 옛 모으기 문장(D.NARR.close · 폐식·단체촬영) 대신 지금 마무리 멘트 큐 문장   // [DECLARE_BY_PERSON · DECLARE_ANYONE] 선언 대표 문안 = 사람이 읽는 선언문(한 벌)
 ];
 ok('KB full이 원천 대표 문안 6종을 그대로 인용', probes.every((s) => KB.full.includes(s)));
 /* [COURSE_HIDDEN 2026-08-08] 옛 검사는 '담백 25분'이라는 **한 코스의 이름과 숫자**를 박아 두고 있었다.

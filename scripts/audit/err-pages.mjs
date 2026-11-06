@@ -448,13 +448,14 @@ await run('③ guide', async () => {
   for (const [resp, want, retry, nm] of [
     [`{ body: { ok: false, ecode: 'G3', error: '아직 준비 중이에요. 두 분께 알려 주세요. (코드 G3)' } }`, /아직 준비 중이에요\. 두 분께 알려 주세요 \(코드 G3\)/, false, '설정 없음(새 GAS · G3) → 멈춤 · 다시 시도 없음 · 코드 앞 마침표 없음(ERR_NO_DOT_PAGE)'],
     [`{ body: { ok: false, error: '아직 준비 중이에요. 두 분께 알려 주세요.' } }`, /아직 준비 중이에요\. 두 분께 알려 주세요 \(코드 G3\)/, false, '설정 없음(옛 GAS · 코드 없음) → G3 붙임 · 다시 시도 없음 · 코드 앞 마침표 없음(ERR_NO_DOT_PAGE)'],
-    [`{ body: { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' } }`, /2장이 전해지지 않았어요 · 사진을 저장하지 못했어요 \(코드 G4\)/, true, '드라이브 실패(옛 글) → G4 · 연결 탓 아님 · 다시 시도'],
-    [`'net'`, /2장이 전해지지 않았어요 · 연결이 끊겼어요 \(코드 G6\)/, true, '연결 끊김 → G6 · 다시 시도']]) {
+    /* [B2_MA_01 · d-08] «N장은 아직 올라가지 않았어요» + «안 된 N장 다시 보내기» · [B2_MA_19 · d-09] 연결이 끊긴 것은 «올라갔는지 확인하지 못했어요» + «다시 확인하기»(gpCheck) */
+    [`{ body: { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' } }`, /2장은 아직 올라가지 않았어요\. 사진을 저장하지 못했어요 \(코드 G4\)/, true, '드라이브 실패(옛 글) → G4 · 연결 탓 아님 · 다시 시도'],
+    [`'net'`, /사진이 올라갔는지 확인하지 못했어요\. 연결이 끊겼어요 \(코드 G6\)/, true, '연결 끊김 → G6 · 다시 확인하기']]) {
     const { ctx, pg } = await open('/guide.html?g=t_err', `if (b.action === 'guideView') return { body: ${JSON.stringify(GUIDE({ seatToken: '' }))} }; if (b.action === 'guestPhoto') return ${resp};`);
     await until(pg, () => !!document.getElementById('gpPick'));
     await pg.setInputFiles('#gpFile', PNGS);
     await until(pg, () => !window.__gpBusy && /코드/.test((document.getElementById('gpStat') || {}).textContent || ''), null, 8000);
-    const t = await txt(pg, '#gpStat'), hasRetry = !!(await pg.$('#gpRetry')), n = await calls(pg, 'guestPhoto'), gb = await gluedBad(pg, '#gpStat');
+    const t = await txt(pg, '#gpStat'), hasRetry = !!(await pg.$('#gpRetry')) || !!(await pg.$('#gpCheck')), n = await calls(pg, 'guestPhoto'), gb = await gluedBad(pg, '#gpStat');
     ok(`③ guide 사진(F10) — ${nm}`, want.test(t) && hasRetry === retry && (retry || n === 1) && !/연결/.test(retry && /G4/.test(nm) ? t : '') && !/\. \(코드/.test(t) && !gb.length, { t, hasRetry, n, gb });
     await ctx.close();
   }

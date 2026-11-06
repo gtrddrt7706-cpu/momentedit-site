@@ -255,12 +255,14 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){retu
       fetch 가 끝나지 않아 그 catch 가 영영 안 불렸을 뿐이다. 고친 것은 «끝나게» 한 것뿐이다.
    ★사진 업로드(guestPhoto)에는 걸지 않는다 — 느린 회선에서 큰 본문을 올리는 중에 끊기면 그게 더 나쁘다.
    ★12초는 GAS 콜드스타트를 자르지 않으려는 값이다(mypage MPD_E3 와 같은 근거). 줄이지 말 것. */
+/* ★[B2_MA_27 2026-11-06 2차 B2-마27] guide.html 과 같은 처방 — 12초 제한을 응답 본문을 다 읽을 때까지 둔다(부르는 곳은 r.json() 만 쓴다) */
 function gapi(payload){
   var ac=(typeof AbortController!=='undefined')?new AbortController():null;
   var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },12000):null;
+  function clr(){ if(tm){ clearTimeout(tm); tm=null; } }
   return fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
-    .then(function(r){ if(tm) clearTimeout(tm); return r; }, function(e){ if(tm) clearTimeout(tm); throw e; });
+    .then(function(r){ return r.json(); }).then(function(j){ if(tm) clearTimeout(tm); return j; }, function(e){ if(tm) clearTimeout(tm); throw e; });   // [B2_HOME_01] 12초 제한은 본문(JSON)을 다 읽을 때까지 — 이제 gapi 는 읽은 JSON 을 돌려준다
 }
 /* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
    실패마다 한 줄 + «(코드 G#)» · G = 하객 · 부모님 화면 · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
@@ -439,6 +441,13 @@ function render(seat){
    ★끝 글자가 낱자모(ㄱ · 김ㅁ)면 아직 치는 중이다 — 찾지 않는다(종전 답을 그대로 둔다).
    ★guide.html 이 같은 함수를 한 벌 가진다(bindSeatServer) — 한 곳만 고치지 말 것. */
 var IME_IDLE=800;
+/* ★[B2_MA_80 · B2_MA_79 · B2_MA_92 2026-11-06 2차] guide.html 과 같은 규칙 · 같은 말 —
+   ①비교는 같은 유니코드 꼴(NFC · 복사한 조합형 이름도 맞는다 · 보이는 이름은 그대로) ②여러 자리면 모든 자리에 성함 그대로가 있을 때만 동명이인(d-10)
+   ③30자를 넘으면 길이를 말한다(조용히 잘라 다른 자리로 찾지 않는다) */
+function seatNorm(s){ s=String(s||''); try{ s=s.normalize('NFC'); }catch(e){} return s.replace(/[\s　]+/g,'').toLowerCase(); }
+var SEAT_MANY='여러 자리에서 검색돼요. 성함을 모두 적으셨다면 배치도나 현장 안내를 확인해 주세요.';
+var SEAT_SAME='같은 성함이 있어요. 자리는 현장 안내에서 확인해 주세요.';
+var SEAT_LONG='성함은 공백을 빼고 30자까지 적어 주세요.';
 function bindNameInput(q, run, wait, onAny){
   if(!q) return;
   var comp=false, tm=null;
@@ -454,12 +463,13 @@ function findSeat(v){
   tblEls.forEach(function(el){ el.classList.remove('hit'); });
   $('fr').innerHTML='';
   if(!v) return;
-  var norm=function(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); };   // 공백(전각 포함) 제거 — '김 민수' 입력·저장 어느 쪽이든 매칭
-  var lc=norm(v), first=null, groups={}, hitN=0;
+  var norm=seatNorm;   // 공백(전각 포함) 제거 — '김 민수' 입력·저장 어느 쪽이든 매칭 · [B2_MA_80] NFC
+  var lc=norm(v), first=null, groups={}, hitN=0, exG={};
   if(!lc) return;
+  if(lc.length>30){ $('fr').textContent=SEAT_LONG; return; }   // [B2_MA_92]
   seatEls.forEach(function(el){
     var nm=norm(el.textContent);
-    if(nm && nm.indexOf(lc)>=0){ el.classList.add('hit'); groups[+el.getAttribute('data-g')]=1; hitN++; if(!first) first=el; }
+    if(nm && nm.indexOf(lc)>=0){ el.classList.add('hit'); groups[+el.getAttribute('data-g')]=1; hitN++; if(!first) first=el; if(nm===lc) exG[+el.getAttribute('data-g')]=1; }
   });
   var gk=Object.keys(groups);
   if(!gk.length){ $('fr').textContent='그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.'; return; }
@@ -467,7 +477,7 @@ function findSeat(v){
   // ★[IME_QUIET] 자동 스크롤은 두 글자 이상 · 한 사람으로 좁혀졌을 때만 — 여러 자리 · 한 글자에서는 입력칸을 그 자리에 둔다(지도엔 다 강조돼 있다)
   var goSeat=(hitN===1 && lc.length>=2);
   if(gk.length>1){   // 흔한 성·부분일치 → 텍스트로 한 자리만 단정하지 않음(엉뚱한 자리 방지). 지도엔 다 강조돼 있음.
-    $('fr').innerHTML='<b>'+esc(v)+'</b> 님이 여러 자리에서 검색돼요 · 성함을 더 입력해 주세요.';
+    $('fr').textContent=gk.every(function(g){ return exG[g]; })?SEAT_SAME:SEAT_MANY;   // [B2_MA_79 · d-10] 부분 일치를 동명이인으로 단정하지 않는다
     return;
   }
   var hitG=+gk[0];
@@ -520,22 +530,22 @@ function renderMineOnly(seat, t){
     +'</div>';
   // 검색·결과 규칙은 guide.html(bindSeatServer·seatHitsHtml)과 동일 — 문구·규칙 수정 시 두 파일 함께
   var q=$('q'), seq=0, last=null;   // last={q,html} — 같은 검색 재입력 시 서버 재호출 없이 재사용
-  var norm=function(s){ return String(s||'').replace(/[\s　]+/g,'').toLowerCase(); };
+  var norm=seatNorm;   // [B2_MA_80]
   function hitsHtml(v, hits){   // 0=못 찾음 · 1=단정+홀 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력
     if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
     if(hits.length===1){ var h0=hits[0], _lc=String(h0.label||'').trim(), _cc=(_lc && !/^테이블\s*\d+$/.test(_lc)); return (_cc ? ('<b>'+esc(_lc)+'</b> 자리예요 · '+h0.no+'번 테이블') : ('<b>'+h0.no+'번 테이블</b> 자리예요'))+mineRoomHtml(h0); }   // 번호중복 제거 2026-07-19
-    if(hits.length<=3){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].label)+'</b>'); return '<b>'+esc(v)+'</b> 님 자리는 '+L.join(' · ')+' 중 하나예요 · 같은 성함이 있어요, 현장 안내에서 확인해 주세요.'; }
-    return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
+    if(hits.length<=3 && hits.every(function(h){ return h.ex; })){ var L=[]; for(var i=0;i<hits.length;i++) L.push('<b>'+esc(hits[i].no+'번 테이블'+(/^테이블\s*\d+$/.test(String(hits[i].label||''))?'':' · '+hits[i].label))+'</b>'); return L.join(' · ')+'<br>'+SEAT_SAME; }   // [B2_MA_79] 서버가 모든 후보에 «성함 그대로»(ex)를 실을 때만
+    return SEAT_MANY;
   }
   function search(v){
     var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
     if(!v){ fr.innerHTML=''; return; }
     if(norm(v).length<2){ fr.textContent='성함을 두 글자 이상 입력해 주세요.'; return; }   // 한 글자(성씨만)는 어차피 다수 매칭 — 호출 절약
+    if(norm(v).length>30){ fr.textContent=SEAT_LONG; return; }   // [B2_MA_92]
     if(last && last.q===v){ fr.innerHTML=last.html; return; }
     var my=seq;
     fr.textContent='자리를 찾는 중이에요…';
     gapi({action:'seatView', t:t, q:v})
-      .then(function(r){ return r.json(); })
       .then(function(d){
         if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
         if(!d || !d.ok){ _frFail(fr, _ecSrv(d,'G','자리를 찾지 못했어요'), _ecRetry(d)?function(){ search(v); }:null); return; }   // [ERR_CODE_PAGES] 서버 글(코드 포함) · 다시 해서 될 때만 «다시 찾기»
@@ -566,7 +576,6 @@ function seatFailHtml(sm){   // [ERR_CODE_PAGES] sm = 무슨 일 · 할 일 · �
   if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
   function load(attempt){
     gapi({action:'seatView', t:t})
-      .then(function(r){ return r.json(); })
       .then(function(d){
         if(d && d.ok && d.seat){ render(d.seat); }
         else if(d && d.mineOnly){ renderMineOnly(d.seat, t); }   // 부부가 '내 자리만'으로 설정 — 검색 전용 화면

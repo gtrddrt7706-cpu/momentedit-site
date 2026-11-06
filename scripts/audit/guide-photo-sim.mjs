@@ -85,6 +85,7 @@ const SCREEN = `(() => {
     줄색: vis(st) ? getComputedStyle(st).color : null,
     줄크기: vis(st) ? px(st) : null,
     다시시도: !!document.getElementById('gpRetry'),
+    다시확인: !!document.getElementById('gpCheck'),   // [B2_MA_19 · d-09] 응답을 못 받은 사진 — «다시 확인하기»
     이어보내기: !!document.getElementById('gpRest'),
     버튼: pick ? t(pick) : null,
     버튼잠김: pick ? pick.classList.contains('ps-btn-off') : null,
@@ -168,9 +169,14 @@ const J = (body, delay = 0) => async (route) => {
 
 const results = [];
 results.push(await run('성공', { count: 3, handler: J(OK) }));
+const G4 = '{"ok":false,"ecode":"G4","error":"사진을 저장하지 못했어요. 다시 눌러 주세요."}';
 results.push(await run('부분실패', { count: 4, handler: async (route, n) =>
-  (n % 2 === 0 ? route.abort('connectionfailed') : J(OK)(route)) }));
-results.push(await run('완전실패', { count: 3, handler: (route) => route.abort('connectionfailed') }));
+  (n % 2 === 0 ? J(G4)(route) : J(OK)(route)) }));
+results.push(await run('완전실패', { count: 3, handler: J(G4) }));
+/* ★[B2_MA_19 · d-09] 연결이 끊겨 응답을 못 받은 사진은 «안 갔다»가 아니라 «확인하지 못했다» — 서버에 이미 저장됐을 수 있다 */
+results.push(await run('응답유실', { count: 3, handler: (route) => route.abort('connectionfailed') }));
+/* ★[B2_MA_01 · d-08] 35장 중 첫 30장에서 1장이 실패한 뒤 남은 5장을 보내도, 그 1장의 다시 보내기 길이 남는다 */
+results.push(await run('실패뒤남은', { count: 35, handler: async (route, n) => (n === 3 ? J(G4)(route) : J(OK)(route)), clickRest: true }));
 results.push(await run('장수초과', { count: 35, handler: J(OK, 40), midShot: 900, clickRest: true }));
 results.push(await run('느린회선', { count: 3, handler: J(OK, 1500), midShot: 1200 }));
 results.push(await run('토큰만료', { count: 3, handler: J('{"ok":false,"expired":true,"error":"이 링크는 만료됐어요."}') }));
@@ -201,8 +207,20 @@ for (const r of results) {
   }
   if (r.name === '부분실패') {
     r.다시시도 ? good('다시 시도 버튼이 있다') : fail('부분 실패인데 다시 시도할 길이 없다');
-    /\d+장이 전해지지 않았어요/.test(r.줄 || '') ? good('안 간 장수를 숫자로 말한다')
+    /\d+장 잘 받았어요\. \d+장은 아직 올라가지 않았어요/.test(r.줄 || '') ? good('받은 장수 · 안 간 장수를 숫자로 말한다(d-08)')
       : fail('안 간 장수가 숫자로 안 나온다: ' + r.줄);
+    /안 된 \d+장 다시 보내기/.test(r.줄 || '') ? good('«안 된 N장 다시 보내기»') : fail('다시 보내기 단추 글이 다르다: ' + r.줄);
+  }
+  if (r.name === '응답유실') {
+    r.다시확인 ? good('«다시 확인하기»가 있다(d-09)') : fail('응답을 못 받았는데 확인할 길이 없다');
+    /사진이 올라갔는지 확인하지 못했어요/.test(r.줄 || '') ? good('«올라갔는지 확인하지 못했어요»로 가른다') : fail('결과 모름을 실패로 단정한다: ' + r.줄);
+    r.버튼잠김 === false ? good('버튼이 되살아났다') : fail('버튼이 잠긴 채 남았다');
+  }
+  if (r.name === '실패뒤남은') {
+    r.이어 && r.이어.더보낸수 === 5 ? good('남은 5장이 나갔다') : fail(`이어보내기가 ${r.이어 && r.이어.더보낸수}건`);
+    r.이어 && r.이어.다시시도 ? good('남은 사진을 보낸 뒤에도 앞 실패 1장의 다시 보내기가 남는다(B2-마01)') : fail('남은 사진을 보내자 앞 실패의 다시 보내기가 사라졌다');
+    r.이어 && /34장 잘 받았어요\. 1장은 아직 올라가지 않았어요/.test(r.이어.줄 || '') ? good('«34장 잘 받았어요. 1장은 아직 올라가지 않았어요.»') : fail('누적 장수 글이 다르다: ' + (r.이어 && r.이어.줄));
+    r.이어 && !r.이어.시트 ? good('미전송이 남았으니 성공 시트를 안 띄운다') : fail('미전송이 남았는데 성공 시트가 떴다');
   }
   if (r.name === '완전실패') {
     r.다시시도 ? good('다시 시도 버튼이 있다') : fail('다시 시도할 길이 없다');

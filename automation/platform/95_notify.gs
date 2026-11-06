@@ -523,7 +523,7 @@ function _nfCustomerMsg(event, name, x) { _gsr_();
       // 상품별 다음 안내가 달라 #{안내} 변수로 분기(알림톡 T18 · SMS 대체문구는 동일 결과)
       var depGuide = x.snap
         ? '이제 촬영 준비를 시작할게요. 일정에 맞춰 차근차근 안내드리겠습니다.'
-        : '다음 단계로 마이페이지에서 제작 정보를 입력해 주세요. 입력해 주시면 제작이 시작됩니다.';
+        : '마이페이지의 ‘예식 준비’에서 청첩장과 식순을 차근차근 정해 주세요.';   // [B2_MA_67 2026-11-06 2차 B2-마67] 실제 메뉴 «예식 준비»로 — 없는 «제작 정보 입력» 단계를 찾게 하던 것(웨딩의 #{안내} · 대체 본문만 · 스냅 «촬영 준비»는 그대로)
       return { vars: { '#{이름}': name, '#{안내}': depGuide },
         text: '[모먼트에디트] ' + name + '님, 계약금 입금이 확인되었습니다. ' + depGuide + ' ' + _nfMy('production') };
     case 'cust.fittingRequest':
@@ -613,10 +613,10 @@ function _nfAdminText(event, code, x) { _gsr_();
     case 'admin.changeRequest':  return tag + ' 예식일 변경 요청' + c + ' ' + (x.from || '') + ' → ' + (x.to || '') + (x.fee ? (' · 수수료 ' + _nfWon(x.fee) + '원(입금자 ' + (x.payer || '-') + ')') : ' · 무상') + ' / 확인 필요';
     case 'admin.fittingSigned':  return tag + ' 시착 동의 서명 완료' + c + ' / 상담완료 처리';
     case 'admin.contractSigned': return tag + ' 계약 서명 완료' + c + ' (' + (x.product || '') + ')';
-    case 'admin.resultPicked':   return tag + ' 보정본 선택 완료' + c + ' (' + (x.count || 0) + '컷) / 작업 착수';
+    case 'admin.resultPicked':   return tag + ' 보정할 사진 선택 완료' + c + ' (' + (x.count || 0) + '컷) / 보정 작업 시작';   // [B2_MA_68 2026-11-06 2차 B2-마68] «보정본 선택»은 완성 결과물을 고른 것처럼 읽혔다 · 결과물 도착 «보정본이 도착했습니다»는 그대로
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + (x.card ? ' / 예약금 카드 결제 취소 필요(토스)' : (' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '')));   // [DEPOSIT_CARD] 카드 예약금은 송금이 아니라 카드 취소
-    case 'admin.diningConsult':  return tag + ' 다이닝: 식당을 못 정한 채 마무리' + c + ' / 디렉터가 추천·예약 도와줄 것';
+    case 'admin.diningConsult':  return tag + ' 애프터 웨딩: 장소 미정' + c + ' / 장소 추천·예약 안내 필요';   // [B2_MA_94 2026-11-06 2차 B2-마94] 고객 화면 이름(애프터 웨딩)과 같게 · 코드 · 수 · 시트명은 그대로
     case 'admin.finalConfirm':   return tag + ' 예식 최종 확정' + (x.changed ? '(변경·재확인)' : '') + c + ' / 하객 ' + (x.head || '-') + '명'
       /* ADMIN_NOFEE_LINE 2026-09-19 — 초과단가 0(하객 30명까지 추가금 없음)이면 스탠딩이 있어도 청구가 없다.
          종전엔 standing 만 보고 문구를 켜서 26~30명 구간에서 «추가 0원 잔금 합산 청구»가 관리자 메일에 찍혔다

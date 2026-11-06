@@ -32,6 +32,7 @@ await new Promise((r) => srv.listen(0, '127.0.0.1', r));
 const PORT = srv.address().port;
 let browser = null;
 try { browser = await pw.chromium.launch(); } catch (e) { console.log('· 못 봄(브라우저 실행 실패) — ' + e.message.split('\n')[0]); srv.close(); process.exit(2); }
+let PATCH = null;
 let bad = 0; const say = (ok, m) => { if (!ok) bad++; console.log((ok ? 'OK  ' : '✖   ') + m); };
 
 async function open(url, extra) {
@@ -43,7 +44,8 @@ async function open(url, extra) {
     const req = route.request(); const u = new URL(req.url());
     gas.push({ method: req.method(), url: req.url(), body: req.postData() });
     if (req.method() === 'GET' && u.searchParams.get('action') === 'getCouple') {
-      const a = answer(u.searchParams.get('eventId'), u.searchParams.get('view') || '', u.searchParams.get('fresh') || '');
+      let a = answer(u.searchParams.get('eventId'), u.searchParams.get('view') || '', u.searchParams.get('fresh') || '');
+      if (PATCH && a && a.couple) a = { ...a, couple: { ...a.couple, ...PATCH } };   // [LETTER_SPLIT_A] 새 칸을 얹어 본다
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(a || { ok: false, error: 'COUPLE_NOT_FOUND' }) });
     }
     if (req.method() === 'POST') {
@@ -85,6 +87,15 @@ for (const [pg, view] of [['/i/cover-05.html?e=aa-bb-1024', 'online'], ['/i-fami
   say(!gas.some((x) => x.url.includes('AKfycbwW')), 'live.html → 옛 웹훅 호출 0건');
   say(/시험 하객/.test(text), 'live.html → 서버가 ok 를 말하자 «전해졌다» 화면에 하객 이름');
 }
+/* [LETTER_SPLIT_A 2026-11-06 사장님 결정 2 = A] 두 주소가 다르면(letterSplit true) 셋 · 같거나 한쪽이 비면(false) «두 분 모두»만 · 옛 서버(값 없음)는 종전대로 셋
+   ★깨 보고 믿었다 — live.html 의 one 판정을 지우면 false 경우가 빨강 */
+const segs = (page) => page.evaluate(() => [...document.querySelectorAll('#letterForm .lf-seg')].filter((b) => b.offsetParent && getComputedStyle(b).display !== 'none').map((b) => b.dataset.recipient).join(','));
+for (const [patch, want, label] of [[{ letterSplit: true }, 'groom,both,bride', '두 주소가 다르면 셋'], [{ letterSplit: false }, 'both', '같은 주소 · 한쪽 없음이면 «두 분 모두»만'], [{ letterSplit: false, hasBrideEmail: false }, 'both', '신부 주소 없음 + letterSplit false → «두 분 모두»만'], [null, 'groom,both,bride', '옛 서버(letterSplit 없음)는 종전대로']]) {
+  PATCH = patch; let got = '';
+  await open('/live.html?e=aa-bb-1024', async (page) => { await page.evaluate(() => { const f = document.getElementById('letterForm'); if (f) f.scrollIntoView(); }); got = await segs(page); });
+  say(got === want, `live.html 받는 분 단추 — ${label} (${got})`);
+}
+PATCH = null;
 await browser.close(); srv.close();
 console.log(bad ? `[LETTER_SWITCH_E2E] ✖ ${bad}건` : '[LETTER_SWITCH_E2E] ✅ 청첩장·가족·라이브가 본 GAS 로 부르고, 편지가 이름표를 달고 간다');
 process.exit(bad ? 1 : 0);

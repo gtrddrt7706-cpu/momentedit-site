@@ -811,7 +811,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     <!-- 상담 준비용: 가장 망설여지는 점 (복수 선택) -->
     <div class="field-group">
       <span class="field-group-label">가장 망설여지는 점<span class="required-dot"></span></span>
-      <p class="field-group-hint" style="margin-top:-2px;margin-bottom:14px">망설이시는 점은 상담에서 풀어 드립니다. 모두 골라&nbsp;주세요.</p>
+      <p class="field-group-hint" style="margin-top:-2px;margin-bottom:14px">해당하는 것을 모두 골라&nbsp;주세요.</p><!-- [B2_HOME_13] 망설임이 없는 분도 정직하게 고를 칸 «특별히 망설이는 점은 없어요» · 다른 고민과 함께 고를 수 없다 -->
       <div class="chip-list">
         <label class="chip">
           <input type="checkbox" name="hesitation" value="비용 부담">
@@ -844,6 +844,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         <label class="chip">
           <input type="checkbox" name="hesitation" value="아직 막연함">
           <span class="chip-label">아직 막연함</span>
+        </label>
+        <label class="chip">
+          <input type="checkbox" name="hesitation" value="특별히 망설이는 점은 없어요" data-none="1">
+          <span class="chip-label">특별히 망설이는 점은 없어요</span>
         </label>
       </div>
     </div>
@@ -1244,6 +1248,7 @@ guestsInput.addEventListener('input', () => {
       if (cur.getDay()===0 || cur.getDay()===6) btn.classList.add('weekend');
       if (cur < MIN){
         btn.classList.add('past');
+        btn.disabled = true;   // [B2_HOME_31] 지난 날짜는 회색만이 아니라 정말 못 누른다 — 낭독기 · Tab 에서도 빠진다
       } else {
         (function(c){
           btn.addEventListener('click', function(){
@@ -1629,6 +1634,13 @@ function showSuccess(code){
     }
   }
 
+  /* [B2_HOME_16 · B2_HOME_17] 완료 화면 글 — 메일이 안 갔으면 «보내 드렸어요»라 하지 않는다 · 2분 안에 고쳐 다시 보낸 신청은 앞선 접수로 확인됐다고 말한다 */
+  var _d = arguments[1] || {}, _sb = successScreen.querySelector('.success-body');
+  if (_sb && (_d.mailFail || _d.changed)) {
+    var _p = function(t, last){ var e = document.createElement('p'); e.style.marginBottom = last ? '22px' : '7px'; e.textContent = t; return e; };
+    if (_d.mailFail) { _sb.innerHTML = ''; _sb.appendChild(_p('신청은 접수됐지만 안내 메일을 보내지 못했어요. 위 개인코드를 보관하고 마이페이지에서 로그인해 주세요.', true)); }
+    if (_d.changed) { var _c = _p('앞서 접수된 신청을 확인했어요. 방금 고친 내용은 아직 반영되지 않았어요.', true); _c.style.color = 'var(--seal)'; _c.setAttribute('role', 'status'); _sb.insertBefore(_c, _sb.firstChild); }
+  }
   successScreen.classList.add('show');
   window.scrollTo({top:0, behavior:'smooth'});
   // 브라우저 뒤로가기로 돌아왔을 때를 위한 history state
@@ -1726,17 +1738,25 @@ function meDoSubmit(){
       body: JSON.stringify(payload),
       signal: ac ? ac.signal : undefined
     })
-    .then(function(res){ if (tm) clearTimeout(tm); return res.json(); }, function(e){ if (tm) clearTimeout(tm); throw e; })
+    .then(function(res){ return res.json(); })   // [B2_HOME_01] 40초 제한은 본문(JSON)을 다 읽을 때까지 — 응답 머리만 오고 본문이 멈춰도 다시 보내기 · 실패 안내가 돈다
+    .then(function(j){ if (tm) clearTimeout(tm); return j; }, function(e){ if (tm) clearTimeout(tm); throw e; })
     .catch(function(e){ var n = _ecN(e); if (again || (n !== 5 && n !== 7)) throw e; return send(true); });   // [ERR_N_HONEST] 다시 보내는 것은 «결과 모름»(5 · 7)일 때만 — 연결 끊김(6) · 화면 쪽 예외(0)는 다시 보내도 같다
   }
   send(false)
   .then(function(data){
-    if (data && data.ok) { showSuccess(data.code); }
+    if (data && data.ok) { showSuccess(data.code, data); }   // [B2_HOME_16 · B2_HOME_17] 고친 내용 미반영(changed) · 메일 실패(mailFail)는 완료 화면이 따로 말한다
     else { resetBtn(_ecSrv(data, 'B', '신청서를 받지 못했어요 · 잠시 뒤 다시 보내 주세요'), _ecRetry(data) || !(data && data.error)); }   // [ERR_CODE_PAGES]
   })
-  .catch(function(e){ resetBtn(_ecNet(e, 'B', '다시 보내 주세요'), true); });   // [ERR_CODE_PAGES] 연결 끊김 B6 · 두 번 다 늦음 B5 · 서버 답이 깨짐 B7
+  .catch(function(e){ var n = _ecN(e); resetBtn((n === 5 || n === 7) ? '신청 결과를 아직 확인하지 못했어요. 안내 메일을 먼저 확인해 주세요. (코드 B' + n + ')' : _ecNet(e, 'B', '다시 보내 주세요'), true); });   // [B2_HOME_01] 두 번 다 결과 모름(5 · 7) = 접수됐을 수 있다 — 메일부터 보게   // [ERR_CODE_PAGES] 연결 끊김 B6 · 두 번 다 늦음 B5 · 서버 답이 깨짐 B7
 }
 
+/* [B2_HOME_13] «특별히 망설이는 점은 없어요»는 혼자만 — 이것을 고르면 다른 고민을 풀고, 다른 고민을 고르면 이것을 푼다 */
+form.addEventListener('change', function(e){
+  var t = e.target;
+  if (!t || t.name !== 'hesitation' || !t.checked) return;
+  var all = form.querySelectorAll('input[name="hesitation"]');
+  for (var i = 0; i < all.length; i++) { var o = all[i]; if (o !== t && (t.getAttribute('data-none') ? true : !!o.getAttribute('data-none'))) o.checked = false; }
+});
 /* [JS_REQUIRED_REACH] 고르는 «즉시» 오류 표시를 거둔다 — 다음 제출까지 기다리지 않는다. */
 form.addEventListener('change', function(e){
   var t = e.target;

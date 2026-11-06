@@ -105,7 +105,7 @@ function api(payload, ms){   // [ERR_CODE_PAGES] ms = 쓰기 동작만 길게(�
   var ac=(typeof AbortController!=='undefined')?new AbortController():null;
   var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },ms||12000):null;
   return fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),signal:ac?ac.signal:undefined})
-    .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; });
+    .then(function(r){ return r.json(); }).then(function(j){ if(tm) clearTimeout(tm); return j; }, function(e){ if(tm) clearTimeout(tm); throw e; });   // [B2_HOME_01] 제한 시간은 본문(JSON)을 다 읽을 때까지
 }
 /* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
    실패마다 한 줄 + «(코드 B#)» · B = 상담 예약 · 문의 · 예약 취소 · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
@@ -192,6 +192,7 @@ function loadInfo(){
           +'<div class="note" style="margin-top:8px;text-align:left">지금 비워 두셔도 취소는 진행돼요 · 환불이 필요하면 취소 후에 계좌를 따로 여쭤봐요.</div>')
       +'<button type="button" class="btn" id="go">예약 취소하기</button>'
       +'<button type="button" class="btn btn-ghost" id="keep">아니요, 유지할게요</button>'
+      +'<div class="note" id="cBusy" role="status" style="display:none"></div>'   /* [B2_HOME_18] 처리 중 · 결과 확인 중 한 줄 */
       +'<div class="note" id="cErr" role="alert" style="display:none;color:var(--seal)"></div>'
       /* ★[CAN_NO_FIT_LINE 2026-10-09 고객 여정 점검 D-18] 상담 전 취소 화면에 «드레스 시착을 진행하신 경우 차감» 줄이 늘 떴다 — 시착은 상담 당일에 하니 아직 상담 전인 분께는 맞지 않는 말이다.
          시착 기록이 있으면 위 «환불 예상» 칸(서버 refund · 벌수 · 공제)이 이미 말한다. 그 칸이 없을 때(옛 서버)만 종전 줄로 덮는다 */
@@ -202,9 +203,13 @@ function loadInfo(){
     document.getElementById('go').addEventListener('click', function(){
       var _ae=document.getElementById('acct'), acct=_ae?(_ae.value||'').trim():'';   // [DEPOSIT_CARD] 카드면 계좌 칸이 없다
       var b=document.getElementById('go'); b.disabled=true; b.innerHTML='<span class="bdot"></span>처리 중';   /* [BUSY_ONE] textContent 면 태그가 글자로 찍힌다 */
+      /* [B2_HOME_18] 취소 요청을 보낸 뒤에는 «유지» 단추와 환불 계좌 칸도 잠근다(완료 안내는 보낸 계좌 기준) · 실패로 확인되면 되돌린다 */
+      var _kp=document.getElementById('keep'), _cb=document.getElementById('cBusy');
+      var busy=function(t){ if(_kp) _kp.disabled=!!t; if(_ae) _ae.disabled=!!t; if(_cb){ _cb.textContent=t||''; _cb.style.display=t?'':'none'; } };
+      busy('취소 요청을 처리하고 있어요.');
       var done=function(){ showMsg('Done','예약이 취소되었어요',(byCard?'예약금은 결제하신 카드로 취소해 드릴게요.<br>카드사에 따라 반영까지 며칠 걸릴 수 있어요.':acct?'입력하신 계좌로 예약금을 환불해 드릴게요.<br>(영업일 기준 수일 소요)':'환불받으실 계좌를 따로 여쭤볼게요.')+'<br><br>다시 찾아주실 때 언제든 편하게 모실게요.'); };   // ★[CAN_ACCT_EMPTY 2026-10-09 D-10] 계좌를 비우고 취소해도 «입력하신 계좌로»라 했다 · 서버도 비었으면 계좌를 따로 여쭌다(REFUND_ACCT_REQ)
       var say=function(t){ var _e=document.getElementById('cErr'); if(_e){ _e.style.display=''; _e.innerHTML=_ecHtml(t); } };   // [CAN_ALERT] OS alert 대체 — 화면 안에서, 낭독기에도 들리게 · [ERR_CODE_GLUE] 코드는 한 덩어리(글자는 같다)
-      var back=function(t){ b.disabled=false; b.textContent='예약 취소하기'; say(t); };
+      var back=function(t){ busy(''); b.disabled=false; b.textContent='예약 취소하기'; say(t); };   // [B2_HOME_18] 입력 · 단추를 되돌린다
       /* ★★[ERR_CODE_PAGES · CANCEL_RECHECK 2026-10-07] 취소는 «쓰기»다. 답을 못 받은 것(5 기다리다 멈춤 · 7 서버 답이 깨짐)은 «실패»가 아니라 «결과 모름»이다.
          서버(emailCancel)는 캘린더 삭제 · 메일 셋 · 알림까지 하느라 12초를 자주 넘었고, 그동안 서버는 취소를 끝내는데 화면은 «취소에 실패했어요»라 말했다.
          다시 누르면 서버는 {ok:true, already:true}(이미 취소)로 답했다 — 실패라 들은 취소가 실은 된 것이었다.
@@ -225,7 +230,7 @@ function loadInfo(){
         if(n===6){ back(_ecNet(e,'B','다시 눌러 주세요')); return; }   // [ERR_CODE_PAGES] 연결이 끊긴 것은 요청이 서버에 닿지 않은 쪽이 대부분 — 다시 눌러도 서버가 이미 취소면 «이미 취소»로 답한다
         if(!n){ back(_ecNet(e,'B','')); return; }   // [ERR_N_HONEST] 화면 쪽 예외(0) — «서버가 잠깐 멈췄어요»가 아니다 · 새로 고치면 지금 상태(취소됨 · 확정)를 다시 보여 준다
         /* 무엇을 하는 중인지는 단추가(● 취소됐는지 확인 중) · 무슨 일인지는 줄이(코드는 결과를 말하는 마지막 줄에) — 360px 폰의 좁은 카드(258px)에서 한 줄씩 */
-        b.innerHTML='<span class="bdot"></span>취소됐는지 확인 중'; say(n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요'); recheck(n, 3);   // [ERR_RECHECK_NOCODE 2026-10-07] 저절로 다시 묻는 «중간» 줄엔 코드 없음 — 결과를 말하는 마지막 줄(아직 취소 전 · 결과를 못 받았어요)에만(P6)
+        b.innerHTML='<span class="bdot"></span>취소됐는지 확인 중'; busy('취소 결과를 확인하고 있어요.'); say(n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요'); recheck(n, 3);   // [B2_HOME_18] 결과 모름 — 잠금 유지   // [ERR_RECHECK_NOCODE 2026-10-07] 저절로 다시 묻는 «중간» 줄엔 코드 없음 — 결과를 말하는 마지막 줄(아직 취소 전 · 결과를 못 받았어요)에만(P6)
       });
     });
   }).catch(function(e){ showMsg('안내','예약 정보를 불러오지 못했어요', esc(_ecNet(e,'B',''))); _ecAgain(); });   // [ERR_CODE_PAGES] 할 일은 «다시 불러오기» 단추가 말한다

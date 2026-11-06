@@ -29,7 +29,8 @@ const SYS =
   + '예식·계약·가격 등 애프터 웨딩과 무관한 질문이면 intent=offtopic, reply에 "그 부분은 화면의 상담 도우미가 도와드려요"라고만 안내한다.\n'
   + 'category: dining(식사 자리) | cafe(카페·다과) | kids(아이와 함께·키즈카페) | afterparty(친구 뒷풀이·술자리) | attraction(볼거리·산책·관광) | none(아직 불명확)\n'
   + 'query: 카카오맵에 검색할 짧은 한국어 검색어(지역명 없이 업종만. 예: "키즈카페", "수제맥주 펍", "공원 산책"). category가 none이거나 dining·cafe면 빈 문자열.\n'
-  + 'filters(식사·카페일 때만 · 아니면 모두 none/false): theme formal|casual|cafe|none · price low|mid|high|none · dist "10"|"15"|none · food ' + FOODS.join('|') + '|none · group room|seats|none · elderly true|false';
+  + 'filters(식사·카페일 때만 · 아니면 모두 none/false): theme formal|casual|cafe|none · price low|mid|high|none · dist "10"|"15"|none · food ' + FOODS.join('|') + '|none · group room|seats|none · elderly true|false\n'
+  + 'none·false는 «이번에 말하지 않음(지금 조건 그대로 두기)»이다. 고객이 어떤 조건을 빼 달라·상관없다고 분명히 말했을 때만 그 조건 이름(theme·price·dist·food·group·elderly)을 drop 배열에 넣는다(없으면 빈 배열).';   // [B2_HOME_08] 그대로 두기와 빼기를 가른다
 
 const SCHEMA = {
   type: 'object',
@@ -43,10 +44,11 @@ const SCHEMA = {
     food:     { type: 'string', enum: FOODS.concat(['none']) },
     group:    { type: 'string', enum: ['room', 'seats', 'none'] },
     elderly:  { type: 'boolean' },
+    drop:     { type: 'array', items: { type: 'string', enum: ['theme', 'price', 'dist', 'food', 'group', 'elderly'] } },   // [B2_HOME_08] 고객이 빼 달라고 한 조건
     ask:      { type: 'string' },
     reply:    { type: 'string' }
   },
-  required: ['intent', 'category', 'query', 'theme', 'price', 'dist', 'food', 'group', 'elderly', 'ask', 'reply'],
+  required: ['intent', 'category', 'query', 'theme', 'price', 'dist', 'food', 'group', 'elderly', 'drop', 'ask', 'reply'],
   additionalProperties: false
 };
 
@@ -70,13 +72,17 @@ async function kakaoSearch(query) {
     clearTimeout(t);
     if (!r.ok) return { down: true, places: [] };
     const j = await r.json();
+    /* ★[B2_MA_46 2026-11-06 2차 B2-마46] 장소명은 «글자» 단위로 자른다 — UTF-16 60칸으로 자르면 이모지 · 보조 한자의 글자 쌍이 반으로 끊겨
+       화면의 지도 주소 만들기(encodeURIComponent)가 멈췄다 · [B2_MA_38] 지도 장소 ID(id)를 함께 보낸다(같은 이름의 다른 지점을 가른다) */
+    const cut = (v, n) => Array.from(String(v || '')).slice(0, n).join('');
     const places = (j.documents || []).map((d) => ({
-      name: String(d.place_name || '').slice(0, 60),
+      id: String(d.id || '').slice(0, 30),
+      name: cut(d.place_name, 60),
       dist: Number(d.distance) || null,                                  // m
       phone: String(d.phone || '').slice(0, 20),
-      addr: String(d.road_address_name || d.address_name || '').slice(0, 80),
+      addr: cut(d.road_address_name || d.address_name, 80),
       url: /^https?:\/\/place\.map\.kakao\.com\//.test(String(d.place_url || '')) ? d.place_url : '',
-      cat: String(d.category_name || '').split('>').pop().trim().slice(0, 20)
+      cat: cut(String(d.category_name || '').split('>').pop().trim(), 20)
     })).filter((p) => p.name);
     return { down: false, places };
   } catch (e) { return { down: true, places: [] }; }
@@ -144,6 +150,8 @@ module.exports = async (req, res) => {
     if (FOODS.indexOf(parsed.food) >= 0) f.food = parsed.food;
     if (['room', 'seats'].indexOf(parsed.group) >= 0) f.group = parsed.group;
     if (parsed.elderly === true) f.elderly = true;
+    /* [B2_HOME_08] «빼기»는 따로 전한다 — none·false(그대로 두기)는 화면 조건을 지우지 않는다 · 같은 답에서 값을 준 축은 빼지 않는다 */
+    const drop = (Array.isArray(parsed.drop) ? parsed.drop : []).filter((k, i, a) => ['theme', 'price', 'dist', 'food', 'group', 'elderly'].indexOf(k) >= 0 && a.indexOf(k) === i && !(k in f));
     let ask = clean(parsed.ask).slice(0, 120);
     if (userTurns >= 2) ask = '';                                    // 니즈 질문은 최대 2번 — 그 뒤엔 추천으로 진행
     const reply = clean(parsed.reply).slice(0, 240) || '어울리는 곳을 함께 찾아드릴게요.';
@@ -164,7 +172,7 @@ module.exports = async (req, res) => {
     try { await require('./_qlog')('애프터', history[history.length - 1].content, { reply: reply, isTest: !!(body && body.test) }); } catch (e) {}   // [AI_TEST_TAG 2026-08-07]
 
     return out(200, { ok: true, intent: parsed.intent === 'offtopic' ? 'offtopic' : 'place',
-      category: cat, reply, ask, filters: f, places, source, mapDown });
+      category: cat, reply, ask, filters: f, drop: (cat === 'dining' || cat === 'cafe') ? drop : [], places, source, mapDown });
   } catch (err) {
     console.error('after_concierge_exception', err && err.message);
     return out(500, { ok: false, error: 'server_error' });

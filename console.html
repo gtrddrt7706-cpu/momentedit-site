@@ -624,8 +624,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
      이 한 줄이 배역 예시 목소리 전체의 근거다(오해는 소리가 아니라 화면이 막는다). -->
 <section id="gIntro" class="wrap">
   <h1>예식, 미리 한 번 들어 보세요</h1>
-  <p>사람이 말하는 부분은 예시 목소리로 들려드려요. 당일엔 두 분과 가까운 분들이 직접 말합니다.</p>
-  <p id="giFlow">고르신 순서 그대로 처음부터 끝까지 흘러요. 사람이 말하는 시간은 짧게 줄여 들려드려요.</p>
+  <!-- ★[B2_NA_20 2026-11-06 BATCH2 나20 · d-04] 사람이 말하는 자리는 대역 목소리를 틀지 않는다(CAST_TEXT_ONLY) — 예시 목소리로 들려준다는 첫 줄은 지키지 않는 약속이었다 -->
+  <p>현장에서 직접 말하는 부분은 글로 보여 드려요. 당일엔 두 분과 가까운 분들이 직접 말해요.</p>
+  <p id="giFlow">고르신 순서 그대로 처음부터 끝까지 흘러요. 직접 말하는 시간은 짧게 줄여 보여 드려요.</p>
   <!-- ★[PREVIEW_UPTO 2026-08-12] 중간까지만 걸어온 초안이면 여기서 그 사실을 먼저 말한다.
        ★위 #giFlow 의 「처음부터 끝까지」도 그때는 거짓이 되므로 함께 바꾼다 —
          한쪽만 고치면 한 화면이 서로 다른 말을 한다. -->
@@ -726,7 +727,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         </details>
         <div class="vol">
           <span>음악</span>
-          <input type="range" id="vol" min="0" max="100" value="70">
+          <input type="range" id="vol" min="0" max="100" value="70" aria-label="음악 음량"><!-- [B2_NA_75] 슬라이더 이름 -->
           <b id="volV">70</b>
         </div>
       </div>
@@ -1269,7 +1270,7 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
   var t0 = null, done = false, fin = function(ok){ if (done) return; done = true; clearTimeout(to); clearInterval(iv); el.removeEventListener('playing', onPl); el.removeEventListener('error', onEr);
       if (BED.tk !== tk) { if (BED.opening && BED.opening.tk === tk) BED.opening = null; return; }   /* 그사이 다른 재생(정지 · 새 곡)이 왔다 — 버린다 */
       BED.opening = null;
-      if (!ok) { try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) {} (BED.bad = BED.bad || {})[sid] = 1; if (_ofl) { _ofl(sid); return; } bedErr('곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요'); bedLater(); return; }   /* ★[DETAIL_R5_1101 규칙 5] 못 연 곡은 이 예식에서 다시 시도하지 않는다 · 목록이 넘길 때 실패하면 그다음 곡으로(listGo) */
+      if (!ok) { try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) {} (BED.bad = BED.bad || {})[sid] = 1; if (_ofl) { _ofl(sid); return; } var _pe = BED.el[BED.on], _keep = !!(_pe && _pe !== el && !_pe.paused && _pe.getAttribute('src')); bedErr(_keep ? '곡 파일을 열지 못했어요 · 재생 중인 곡은 그대로 이어집니다.' : '곡 파일을 열지 못했어요.'); bedLater(); return; }   /* [B2_NA_65] 이어질 곡이 실제로 흐를 때만 «그대로 이어집니다» */   /* ★[DETAIL_R5_1101 규칙 5] 못 연 곡은 이 예식에서 다시 시도하지 않는다 · 목록이 넘길 때 실패하면 그다음 곡으로(listGo) */
       if (sid !== BED.id) BED.keepErr = ''; bedErr(BED.keepErr || ''); var xm = Math.round(xf * 1000) + 120;   /* [DETAIL_R5_1101 규칙 5] 같은 곡을 이어 트는 동안은 상태 한 줄을 남긴다 */ BED.xing = Date.now(); bedFade(nx, 1, xf); bedFade(BED.on, 0, xf);
       var was = BED.on, wel = BED.el[was]; if (wel && !wel.paused && wel.getAttribute('src')) BED.fade[was] = Date.now() + xm;   /* 소리 나던 재생기만 «잦아드는 중» */ setTimeout(function(){ if (BED.on !== was) { try { BED.el[was].pause(); } catch (e) {} } if (BED.fade[was] <= Date.now() + 5) BED.fade[was] = 0; if (!BED.fade.some(function(t){ return t > Date.now(); })) BED.xing = 0; bedLater(); }, xm);
       var _v0 = bedVocal(); BED.on = nx; BED.id = sid; BED.mode = 'seg'; songGainSet(sid !== '@PV'); pvsNote(); applyMaster(); if (bedVocal() !== _v0 && duckWant != null) duckTo(duckWant, Math.round(xf * 1000)); },   /* [BGM_FIX_1030] 노래 곡 ↔ 연주 곡이 바뀌면 지금 크기를 다시 건다(vocalExtra) */
@@ -1460,6 +1461,9 @@ function duckTo(db, ms){
    곡 · 목소리 둘 중 하나라도 못 받으면 종전 방식(입장 멘트 뒤 배경음 음량만 올림)으로 저절로 간다. 고객 미리 듣기(preview)는 종전 그대로.
    ★일시정지(setPaused · #gPause)는 고객 화면(GUEST)에만 있어 이 장면과 만나지 않는다 — 디렉터 화면에 일시정지를 붙이면 장면(Web Audio)도 함께 멈추고 대사 끝 타이머를 다시 걸 것 ── */
 var ES = window.EntryScene || null, ESD = { Sg: null, st: '', why: '', V0: null, vurl: '', vBusy: null, run: null };
+/* ★[B2_NA_16 2026-11-06 BATCH2 나16] 입장 앞(B7) 지문은 실제 재생 방식에 맞춘다 — 음악 연동 입장(곡을 받았다)은 한 번의 GO 뒤 «문 열기 시작» 표시에 맞춰 문을 연다 ·
+     곡을 못 받아 일반 재생이면 종전 지문(입장 멘트에서 한 번 더 GO) */
+function hintOf(c){ if (!c) return ''; if (c.slug === 'bridge-b7-entry-ready' && esdWant() && ESD.st === 'ok') return '두 분과 현장 준비가 끝나면 입장 GO. 문은 화면의 ‘문 열기 시작’ 신호에 맞춰 엽니다.'; return c.hint || ''; }
 function esdWant(){ return !!(ES && MODE !== 'preview' && !GUEST && S && S.mu && (S.mu.src === 'up' || (S.mu.src === 'rec' && /^[A-Za-z0-9_-]{1,16}$/.test(String(S.mu.k || '')))) && S.mu.hook != null); }   // [REC_SONG_1012] 두 분이 올린 곡 · 추천 곡(곡 키) 둘 다
 function esdMain(c){ return !!(c && c.k === 'entry' && c.slug === 'entry-' + (S.entry || 'A')); }
 function esdIn(c){ return !!(c && (c.k === 'entry' || c.k === 'matjeol' || c.slug === 'bridge-b8-face-guests')); }   /* ★[BRIDGE_FIRST_1101] 맞절 뒤 «하객 쪽으로» 이음말(b8)까지 입장 곡이 잇는다 — 감사 인사(서약) 첫 멘트에서 잦아들며 구간 곡으로 */   // ★[MATJEOL_SPLIT_1013 · ESD_BUNDLE] 맞절은 10/13 부터 따로 순간(matjeol)이지만 입장 묶음으로 잇는다 — 곡이 그 큐 덕 값으로 낮게 이어지고 그다음 묶음에서 잦아든다
@@ -1559,7 +1563,17 @@ var phase = 'idle';        // idle | clip | post | live | end
 var timers = [];
 var muted = false;
 var fired = {};            // clock 큐 중복 발사 막기
-var wakeLock = null;
+var wakeLock = null, wakePend = false;
+/* ★[B2_NA_60 2026-11-06 2차 묶음] 화면 꺼짐 막기 = 연습 화면(LP.lock)과 같은 규칙 — 시스템이 풀면(release · 다른 앱 · 탭) 지금 잠금을 비우고,
+   진행 중이며 화면이 보일 때만 다시 청한다 · 청하는 동안 겹쳐 청하지 않는다 · 진행이 끝난 뒤 늦게 온 잠금은 바로 놓는다 · 재생 · 다음 순서 · 음악은 건드리지 않는다 */
+function wakeOn() {
+  if (!navigator.wakeLock || wakeLock || wakePend || document.visibilityState !== 'visible') return;
+  wakePend = true;
+  navigator.wakeLock.request('screen').then(function(w){ wakePend = false;
+    if (!$('#run').classList.contains('on')) { try { w.release(); } catch(e){} return; }
+    wakeLock = w; try { w.addEventListener('release', function(){ if (wakeLock === w) wakeLock = null; }); } catch(e){}
+  }).catch(function(){ wakePend = false; });
+}
 var progT = null;
 var TAKE_URL = 'assets/audio/console/take-time.mp3', TAKE_K = { vow: 1, letter: 1, tribute: 1, bless: 1, free: 1, speech: 1, welcome: 1 }, TAKE_USED = {};   // [TAKE_TIME_1019]
 var RESCUED = [];          // ★[RESCUE_REPLAY_1016] «재생 안 됨»으로 미룬 순서 이름 — 고객 안심 «사진 시간에 다시 틀어 드려요»를 콘솔이 기억한다
@@ -1574,7 +1588,7 @@ function cueAt(i){ return (R && (shown[i] || R.cues[i])) || null; }
 var castNow = null;                       // 지금 흐르는 배역 예시 클립(배지의 원천)
 var blkNow = '', blkFresh = false;        // 블록 머리말은 블록이 바뀌는 첫 큐에서만 띄운다
 function resetRun(){
-  cur = -1; phase = 'idle'; fired = {}; shown = {}; liveT0 = 0; RESCUED = []; TAKE_USED = {}; STALL = -1;   // [STALL_HOLD_CLOCK] 새로 시작하면 앞 판의 멈춤은 걷는다
+  cur = -1; phase = 'idle'; fired = {}; CLK_SKIP = {}; GONE_SIG = ''; shown = {}; liveT0 = 0; RESCUED = []; TAKE_USED = {}; STALL = -1; MAN_HOLD = false;   // [STALL_HOLD_CLOCK] 새로 시작하면 앞 판의 멈춤은 걷는다
   castNow = null; blkNow = ''; blkFresh = false;
 }
 
@@ -1605,11 +1619,15 @@ function swellArm(c){
     LONGNOTE = cur; toast('한 분 말씀 ' + fmt(c.live.swellAt) + ' · 음악은 그대로'); render(); }, c.live.swellAt * 1000);   /* ★[BGM_FIX_1030] 음악은 올리지 않는다 — 콘솔 알림 한 줄만(진행 칩 «한 분 말씀 2:30») · 옛 duckTo(swellTo) 금지 */
 }
 function stopProg(){ if (progT) { clearInterval(progT); progT = null; } }
-function clearT(){ timers.forEach(clearTimeout); timers = []; stopProg(); }
-function later(fn, ms){ var t = setTimeout(fn, ms); timers.push(t); return t; }
+function clearT(){ timers.forEach(clearTimeout); timers = []; LATER = []; stopProg(); }
+/* ★[B2_NA_63 2026-11-06 2차 묶음] 미리듣기 멈춤 · 이어듣기 — 걸어 둔 순서 타이머(later)를 «남은 시간»과 함께 적어 두었다가 이어 들을 때 그만큼만 다시 건다(쉼 · 음악 전환 · 사람 카드) */
+var LATER = [], HELD_LATER = null, HELD_SETTLE = null;
+function later(fn, ms){ var o = { fn: fn, at: Date.now() + ms }; var t = setTimeout(function(){ LATER = (LATER || []).filter(function(x){ return x !== o; }); fn(); }, ms); o.t = t; (LATER = LATER || []).push(o); timers.push(t); return t; }
 /* [CON_STALL] 멈춘 줄 — 자동 진행을 세우고(phase done · 다음 순서로 저절로 가지 않는다) 디렉터 칸에 할 일 한 줄. [뒤로] → 다시 누름이 그 줄을 처음부터 다시 낸다 */
 var STALL = -1;
-function conStall(){ STALL = cur; phase = 'done'; stopProg(); try { render(); } catch (e) {} toast('소리가 중간에 멈췄어요'); }
+/* ★[B2_NA_12 2026-11-06 BATCH2 나12] 현장 콘솔 — 소리를 못 받음 · 0초에서 멈춤 · 재생 실패도 «다 나갔다»로 치지 않고 그 줄에서 선다(까닭 한 줄) · 실제로 끝까지 흐른 증거(ended · 끝 1초 안)만 다음으로 */
+var STALL_WHY = '';
+function conStall(){ STALL = cur; phase = 'done'; var why = arguments[0] || ''; STALL_WHY = why; stopProg(); try { render(); } catch (e) {} toast(why || '소리가 중간에 멈췄어요'); }
 /* ★[CON_RELOAD_GUARD 2026-10-30 GPT 5차 점검(당일 6) · VC_FIX5_1030] 예식 도중 새로고침 · 탭 닫기는 브라우저가 한 번 묻는다 · 진행하던 순서는 이 탭에 적어 두고 다시 열면 시작 단추 위에 한 줄 —
    종전엔 확인 없이 처음 화면으로 돌아가 어느 순서까지 나갔는지 디렉터가 기억해서 찾아야 했다 · 고객 미리 듣기는 빼고 · 끝내기(나가기 · 마지막 순서)는 지운다 */
 function conMark(i){ if (GUEST) return; try { var c = R && R.cues[i]; if (c) sessionStorage.setItem('me_con_at', JSON.stringify({ q: location.search, i: i, n: String(c.name || ''), at: Date.now() })); } catch (e) {} }
@@ -1656,9 +1674,13 @@ function srcOf(c){
      처음엔 est(대본 음절 추정)로 걸 수밖에 없는데, 실제 파일이 그보다 길면 그 자리에서 잘린다.
      특히 배역 예시 클립은 est 자체가 없다(3초로 시작한다) — 다시 걸지 않으면 전부 3초에 끊긴다. */
 function playSrc(url, estSec, cb){
-  var dur = estSec || 3, done = false, tmr = null, tLast = -1, pg = aNarr._pg;   // [PLAY_GEN] 이 소리를 낸 순서의 차례
+  var dur = estSec || 3, done = false, tmr = null, tLast = -1, pg = aNarr._pg, me = {};   // [PLAY_GEN] 이 소리를 낸 순서의 차례
+  aNarr._live = me; aNarr._livePg = pg;   // [B2_NA_63] 지금 흐르는 소리 한 벌(이 순서의)
+  var paused = function(){ try { return !!PAUSED; } catch (e) { return false; } };
   function settle(ok, why, err){
-    if (done) return; done = true;
+    if (done) return;
+    if (paused() && pg === aNarr._pg) { HELD_SETTLE = function(){ settle(ok, why, err); }; return; }   /* [B2_NA_63] 멈춤 중 도착한 결과는 적어만 두고 다음 순서로 가지 않는다 */
+    done = true; if (aNarr._live === me) aNarr._live = null;
     if (tmr) clearTimeout(tmr);
     if (pg !== aNarr._pg) return;   /* ★[PLAY_GEN 2026-10-30 GPT 6차 점검(당일 2) · VC_FIX6_1030] 앞 순서의 늦은 성공 · 실패는 버린다 — 지금 순서의 진행 막대 · 손잡이 · 대신 나레이션을 건드리지 않는다 */
     stopProg();
@@ -1674,8 +1696,9 @@ function playSrc(url, estSec, cb){
      흐르고 있으면(멈춤 아님 · 소리 장치 켜짐 · 지난번보다 진행) 남은 만큼 다시 기다리고, 멈췄으면(스피커 연결 끊김 · 소리 장치 멈춤 등) 자동 진행을 세운다(conStall).
      종전엔 10초 소리를 2초에서 멈춰도 10.9초에 성공 처리해 못 들은 뒷말을 두고 다음 순서 · 사람 시간으로 넘어갔다 · 고객 미리 듣기는 종전 그대로 */
   function chk(){
-    if (done || pg !== aNarr._pg) return;   // [PLAY_GEN]
+    if (done || pg !== aNarr._pg || paused()) return;   // [PLAY_GEN] · [B2_NA_63] 멈춤 중엔 세지 않는다(이어 들을 때 _rearm)
     var d = aNarr.duration, t = aNarr.currentTime || 0, left = (isFinite(d) && d > 0) ? d - t : 0;
+    if (!GUEST && MODE !== 'preview' && !aNarr.ended && t < 0.3) { done = true; stopProg(); aNarr.onerror = aNarr.onloadedmetadata = aNarr.onended = null; try { aNarr.pause(); } catch (e) {} conStall('소리를 재생하지 못했어요.'); return; }   /* [B2_NA_12] 못 받음 · 0초 정지 */
     if (!GUEST && MODE !== 'preview' && left > 1) {
       var flowing = !aNarr.paused && !aNarr.ended && !(wired && AC && AC.state !== 'running');
       if (flowing && t > tLast + 0.2) { tLast = t; tmr = setTimeout(chk, Math.round(left * 1000) + 900); timers.push(tmr); return; }
@@ -1686,8 +1709,9 @@ function playSrc(url, estSec, cb){
   aNarr.onerror = function(){ settle(false, '파일 없음'); };
   aNarr.onloadedmetadata = function(){
     if (done) return;
-    if (isFinite(aNarr.duration) && aNarr.duration > 0.4) { dur = aNarr.duration; arm(); runProg(dur, null); }
+    if (isFinite(aNarr.duration) && aNarr.duration > 0.4) { dur = aNarr.duration; if (paused()) return; arm(); runProg(dur, null); }   // [B2_NA_63] 멈춤 중엔 길이만 적는다
   };
+  aNarr._rearm = function(){ if (done || pg !== aNarr._pg) return; if (tmr) clearTimeout(tmr); var t = aNarr.currentTime || 0; tmr = setTimeout(chk, Math.max(0, Math.round((dur - t) * 1000)) + 900); timers.push(tmr); runProg(dur, null, t); };   // [B2_NA_63] 이어 들을 때 남은 만큼
   aNarr.onended = function(){ settle(true); };
   aNarr.src = url;
   var p = aNarr.play();
@@ -1769,7 +1793,8 @@ function playClip(c, done){
   playSrc(url, c.est || 3, function(ok, why, err){
     if (ok) return done();
     /* ★[CON_OWN_FALL 2026-10-30 GPT 3차 점검(당일 2) · VC_FIX3_1030] 받아 둔 두 분 소리가 이 기기에서 안 나면(깨진 파일 · 못 여는 형식) 그 자리 나레이션을 처음부터 — 종전엔 성우를 시도하지 않고 글 카드(무음)로 지났다 */
-    if (!GUEST && RF_OWN[c.slug] && url === CLIPS[c.slug]) { var nu = narOf(c); if (nu && nu !== url) { toast('두 분 소리 대신 나레이션으로');   /* [CON_FALL_SHORT 2026-10-30 GPT 4차 점검 4-06 · VC_FIX4_1030] 떠 있는 알림은 짧게(TOAST_MIN 꼴 · 2.2초) */ return playSrc(nu, c.est || 3, function(ok2, why2, err2){ if (ok2) return done(); fallbackCard(c, why2 || '파일 없음', done, err2); }); } }
+    if (!GUEST && RF_OWN[c.slug] && url === CLIPS[c.slug]) { var nu = narOf(c); if (nu && nu !== url) { toast('두 분 소리 대신 나레이션으로');   /* [CON_FALL_SHORT 2026-10-30 GPT 4차 점검 4-06 · VC_FIX4_1030] 떠 있는 알림은 짧게(TOAST_MIN 꼴 · 2.2초) */ return playSrc(nu, c.est || 3, function(ok2, why2, err2){ if (ok2) return done(); if (!GUEST && MODE !== 'preview') { conStall((why2 === '재생 막힘' && err2 && err2.name === 'NotAllowedError') ? '재생이 막혔어요.' : '소리를 재생하지 못했어요.'); return; } fallbackCard(c, why2 || '파일 없음', done, err2); }); } }   /* [B2_NA_12] */
+    if (!GUEST && MODE !== 'preview') { conStall((why === '재생 막힘' && err && err.name === 'NotAllowedError') ? '재생이 막혔어요.' : '소리를 재생하지 못했어요.'); return; }   /* [B2_NA_12] 현장은 실패를 끝으로 치지 않는다 · 성우 대신(위)은 그대로 */
     fallbackCard(c, why || '파일 없음', done, err);   // [GUEST_WHY]
   });
 }
@@ -1829,6 +1854,7 @@ function fire(i, opt){
   try { aNarr.onended = aNarr.onerror = aNarr.onloadedmetadata = null; if (!aNarr.paused) aNarr.pause(); } catch (e) {}
   aNarr._pg = (aNarr._pg || 0) + 1;   // [PLAY_GEN] 새 순서 — 앞 순서 소리의 늦은 결과는 버린다
   STALL = -1; conMark(i);   // [CON_STALL] · [CON_RELOAD_GUARD]
+  if (!opt.clock && typeof MAN_HOLD !== 'undefined') { if (MAN_HOLD && startAt) { var _now = Date.now(); for (var _k = 0; _k < R.cues.length; _k++) { var _ck = R.cues[_k]; if (_k !== i && _ck.fire === 'clock' && !fired[_k] && _ck.atMin != null && _now >= startAt + _ck.atMin * 60000) fired[_k] = true; } } MAN_HOLD = false; }   // [B2_NA_02] 디렉터가 낸 순서 = 손 대기 풂 · 지난 시각 안내 버림
   cur = i; fired[i] = true; GWHY = null;   // [GUEST_WHY] 새 순서 — 앞 판(다시 듣기 · 이전)의 까닭이 남지 않게
   var c = resolve(R.cues[i]);
   if (ESD.paused && !ESD.run) { if (esdIn(c) && !esdMain(c)) esdResume(); else ESD.paused = null; }   /* ★[B2_K16] 정지 뒤 입장 묶음의 다음 큐(도착 · 맞절)를 바로 내면 곡을 이어 그 큐 크기로(도착 = 잦아듦) · 묶음 밖이면 버린다 */
@@ -1927,7 +1953,8 @@ function setPaused(on){
   PAUSED = on;
   if (on) {
     if (progS) progS.el = (Date.now() - progS.t0) / 1000;   // 걷기 전에 얼마나 왔는지 적어 둔다
-    var keep = progS;
+    var keep = progS, now = Date.now();
+    HELD_LATER = (LATER || []).map(function(o){ return { fn: o.fn, left: Math.max(0, o.at - now) }; });   // [B2_NA_63] 남은 시간째
     clearT();                                              // clearT 가 stopProg 까지 한다
     progS = keep;
     bgmWas = BED.el.map(function(e){ return !e.paused; });   // [PREVIEW_LINK_SONGS_1101] 구간 곡 재생기 셋 모두
@@ -1935,13 +1962,19 @@ function setPaused(on){
     try { BED.el.forEach(function(e){ e.pause(); }); } catch (e) {}
   } else {
     if (bgmWas) { BED.el.forEach(function(e, k){ if (bgmWas[k]) { try { var pp = e.play(); if (pp && pp.catch) pp.catch(function(){}); } catch (x) {} } }); }
+    var hl = HELD_LATER || [], hs = HELD_SETTLE; HELD_LATER = null; HELD_SETTLE = null;
+    var reLater = function(){ hl.forEach(function(h){ later(h.fn, h.left); }); };   // [B2_NA_63] 남은 시간만 · 한 번
+    if (hs) { reLater(); hs(); render(); return; }   // [B2_NA_63] 멈춤 중에 끝난 소리 — 이제 한 번 마무리한다
+    var live = !!aNarr._live && aNarr._livePg === aNarr._pg && !!aNarr.getAttribute('src') && !aNarr.ended;
     var hasAudio = aNarr.getAttribute('src') && isFinite(aNarr.duration) && aNarr.duration > 0 && aNarr.currentTime < aNarr.duration - 0.15;
-    if (hasAudio) {
-      if (progS) runProg(progS.sec, progS.done, progS.el || aNarr.currentTime);
-      try { aNarr.play(); } catch (e) {}
+    if (live || hasAudio) {
+      if (live && aNarr._rearm) aNarr._rearm(); else if (progS) runProg(progS.sec, progS.done, progS.el || aNarr.currentTime);
+      try { var pa = aNarr.play(); if (pa && pa.catch) pa.catch(function(){}); } catch (e) {}
+      reLater();
     } else if (progS && progS.el != null && progS.el < progS.sec) {
-      runProg(progS.sec, progS.done, progS.el);
-    } else { progS = null; advance(); }
+      runProg(progS.sec, progS.done, progS.el); reLater();
+    } else if (hl.length) { progS = null; reLater(); }   // [B2_NA_63] 쉼 · 음악 전환 중이었으면 남은 시간 뒤에 그 일이 다음으로 넘긴다
+    else { progS = null; advance(); }
   }
   render();
 }
@@ -2160,10 +2193,11 @@ function render(){
     tx.className = 'txt';
     tx.textContent = ownTxtFor(c) || c.text || '';   // [VC_DEC_1030_9] 디렉터 판 · 두 분 소리가 물린 줄은 두 분이 고친 글
   }
-  var htxt = (phase === 'live') ? (c.note || '') : (c.hint || c.note || '');
+  var htxt = (phase === 'live') ? (c.note || '') : (hintOf(c) || c.note || '');   // [B2_NA_16]
   /* ★[RESCUE_REPLAY_1016 라운드 6] «재생 안 됨»으로 미룬 순서가 있으면 사진 시간 첫 큐에서 한 줄 — 고객 화면 안심 «사진 시간에 다시 틀어 드려요»(식전 영상 · 준비한 순서)의 짝 */
   if (RESCUED.length && (c.slug === 'narr-close' || /^narr-photo-pre|^narr-closing/.test(c.slug || '') || c.slug === 'end-0-photo'))   /* [CLOSING_LINE_1031] 새 코스는 마무리 멘트 */   /* [END_FLOW_1030] */ htxt = '미룬 순서 · ' + RESCUED.join(' · ') + ' · 사진 시간에 다시 틀어 주세요' + (htxt ? ' / ' + htxt : '');
   if (STALL === cur && phase === 'done') htxt = '소리가 중간에 멈췄어요 · 연결을 확인하고 [뒤로] 뒤 다시 누르면 이 줄을 처음부터 내보내요' + (htxt ? ' / ' + htxt : '');   // [CON_STALL]
+  if (STALL === cur && phase === 'done' && STALL_WHY) htxt = htxt.replace('소리가 중간에 멈췄어요', STALL_WHY.replace(/\.$/, ''));   /* [B2_NA_12] 까닭별 한 줄 */
   h.hidden = !htxt; h.textContent = htxt;
   sf.hidden = true; nb.hidden = true;
   $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
@@ -2176,9 +2210,15 @@ function render(){
   } else if (cheerPending()) {
     main.innerHTML = '축배 음악 올리기 <small>«위하여!»가 끝나면 누르세요</small>';   // [BGM_CONSOLE2_1023 TOAST_GO]
     main.className = 'main';
+  } else if (n1 && n1.fire === 'clock' && startAt && clockGone(n1)) {
+    main.innerHTML = '다음 <small>' + esc(n1.name) + ' · 예정 시각이 지났어요. 필요하면 직접 눌러 주세요.</small>';   // [B2_NA_61]
+    main.className = 'main';
   } else if (n1 && n1.fire === 'clock' && startAt) {
     main.innerHTML = '지금 바로 → <small>' + esc(n1.name) + ' · ' + clockAt(n1) + '에 저절로 나갑니다</small>';
     main.className = 'main wait';
+  } else if (!n1 && c && c.endHold && MODE !== 'preview' && phase !== 'end') {
+    main.innerHTML = '촬영 끝내기 <small>추가 촬영을 마치면 누르세요</small>';   /* ★[B2_GEUL_32] 마지막 추가 촬영 중 · 다음 큐 없음 — 이 단추는 «다음 순서»가 아니라 진행 · 음악을 끝낸다(누를 때만 · 3초에 잦아듦 · AFTER_PHOTO_LOOP_1102) */
+    main.className = 'main';
   } else {
     main.innerHTML = '다음 <small>' + (n1 ? esc(n1.name) : '마무리') + '</small>';
     main.className = 'main';
@@ -2205,9 +2245,9 @@ function up(n1, n2){
       el.querySelector('.es').textContent = fmt(c.est + (c.live ? (c.live.est || 0) : 0));
       return;
     }
-    var when = (c.fire === 'clock' && startAt) ? ('시각에 · ' + clockAt(c)) : fireLabel(c.fire);
+    var when = (c.fire === 'clock' && startAt) ? (clockGone(c) ? '직접 진행' : ('시각에 · ' + clockAt(c))) : fireLabel(c.fire);   // [B2_NA_61]
     el.querySelector('.nm').innerHTML = esc(c.name) + '<small>' + when
-      + (c.hint ? ' · ' + esc(c.hint) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음')
+      + (hintOf(c) ? ' · ' + esc(hintOf(c)) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음')   // [B2_NA_16]
       + (c.alt ? ' · ' + Math.round(c.alt.overSec / 60) + '분 넘으면 문안 자동 교체' : '') + '</small>';
     el.querySelector('.es').textContent = fmt(c.est) + (c.live ? ' +' + (c.live.showT || fmt(c.live.est)) : '');   // [EST_TRUE_1031] 자유 순서 = «두 분이 정한 만큼»(숫자 대신)
   }
@@ -2247,7 +2287,7 @@ function holdEnd(){
 $('#gPrev').addEventListener('click', guestPrev);
 $('#gPause').addEventListener('click', function(){ setPaused(!PAUSED); });
 mBtn.addEventListener('pointerdown', holdStart);
-mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); if (!was) mainTap(); });
+mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); _goPuAt = Date.now(); if (!was) mainTap(); });   /* [B2_NA_13] 뒤따르는 click 은 한 번으로 */
 mBtn.addEventListener('pointerleave', function(){ holdEnd(); });
 mBtn.addEventListener('pointercancel', function(){ holdEnd(); });
 
@@ -2289,6 +2329,11 @@ function guestPrev(){
 }
 
 var PANIC_AT = null;
+/* ★[B2_NA_02 2026-11-06 BATCH2 나02 · B2-K09 사장님 결정] 전체 정지 · 뒤로 = 손 대기(MAN_HOLD) — 시각 안내(10 · 5 · 1분 전 · 개식)도 저절로 나가지 않는다 ·
+     풀리는 것은 디렉터가 순서를 직접 낼 때(fire · 시각이 낸 것 말고) · 새로 시작(resetRun)뿐 · 손으로 낼 때 이미 지난 시각 안내는 버린다(몰려 나가지 않게) ·
+     파일 오류 멈춤(STALL)과는 다른 상태로 둔다 · 끝난 판(end)에서는 시각 큐를 내지 않는다 ·
+     예식이 늦어 1분 전 안내가 개식과 겹치면 개식이 먼저 — 1분 전 안내는 건너뛴다(다음 시각 큐가 이미 왔거나 그 안내 길이 안에 오면) */
+var MAN_HOLD = false;
 function panic(){
   clearT();
   try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
@@ -2300,7 +2345,7 @@ function panic(){
   if (!_hush && !_hold && !_esd) duckTo(PARAM.duckMusic, 600);   /* ★[B2_K16] 입장 곡 도중 정지 = 배경까지 조용히(−8 복귀 0) */   /* ★[B2_EUM06] 일부러 정적(−90)인 자리에서 멈추면 정적 그대로 — 다음 큐가 제 크기를 연다 · 사진 · 촬영 후 안내 · 추가 촬영 음악은 그 크기 그대로 · 끝내기 3초 페이드는 따로(■) */
   phase = 'done';
   render();
-  toast(ESD.paused ? '전체 정지 — GO 를 누르면 입장 곡을 멈춘 자리부터 이어요' : '전체 정지 — 다음 큐는 손으로 눌러야 나갑니다');
+  MAN_HOLD = true; toast(ESD.paused ? '전체 정지 — GO 를 누르면 입장 곡을 멈춘 자리부터 이어요' : '전체 정지 · 다음 순서는 직접 눌러 주세요.');   // [B2_NA_02] 손 대기가 보장된다(MAN_HOLD) · [B2_K16] 입장 곡 도중이면 이어 듣기 안내
 }
 
 /* [BLESS_PER_SPEAKER] 다음 분께 마이크를 건넸다 — 시간을 새로 재고(ALT_CLIP 판정 · 진행 막대) 올렸던 음악을 내리고 신호를 다시 건다 */
@@ -2387,7 +2432,7 @@ $('#bBack').onclick = function(){
   cur = Math.max(-1, cur - 1);
   phase = cur < 0 ? 'idle' : 'done';
   render();
-  toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');
+  MAN_HOLD = true; toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');   // [B2_NA_02]
 };
 
 /* 큐 목록 시트 — 점프 + 보조 클립 */
@@ -2420,14 +2465,28 @@ function buildSheet(){
 
 /* 시각 고정 큐 — 개식 시각을 넣었을 때만 저절로 나간다 */
 var startAt = null;
+/* ★[B2_NA_61 · B2-K09 2026-11-06 사장님 결정] 시각 큐가 저절로 나가는 창(예정 시각 ~ 90초)이 지났거나 · 순서가 이미 그 뒤로 갔거나 ·
+   늦어져 다음 시각 큐(개식)와 겹쳐 건너뛴 큐는 «저절로 나가지 않는다» — 화면도 그렇게 말한다(«예정 시각이 지났어요 · 직접 진행»).
+   겹치면 개식이 이기고 1분 전 안내는 건너뛴다(늦은 안내를 저절로 틀거나 순서를 바꾸지 않는다) */
+var CLK_SKIP = {}, GONE_SIG = '';
+function clockGone(c){ if (!R || !startAt || !c || c.fire !== 'clock' || c.atMin == null) return false; var i = R.cues.indexOf(c); if (i < 0 || fired[i]) return false;
+  return !!CLK_SKIP[i] || i < cur || Date.now() >= startAt + c.atMin * 60000 + 90000; }
 function tick(){
   var d = new Date();
   $('#bClock').textContent = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2) + ':' + ('0'+d.getSeconds()).slice(-2);
+  var SK = (typeof CLK_SKIP !== 'undefined') ? CLK_SKIP : {}, cu = (typeof cur !== 'undefined') ? cur : -1;   // [B2_NA_61]
+  if (R && startAt && MODE !== 'preview' && typeof clockGone === 'function') { var gs = R.cues.map(function(c){ return clockGone(c) ? 1 : 0; }).join(''); if (gs !== GONE_SIG) { GONE_SIG = gs; try { render(); } catch (e) {} } }   // [B2_NA_61] 지나는 그 순간 표시를 바꾼다
   if (!R || !startAt || MODE === 'preview' || phase === 'clip' || phase === 'live' || STALL >= 0) return;   /* ★[STALL_HOLD_CLOCK 2026-10-30 GPT 6차 점검(당일 3) · VC_FIX6_1030] 소리가 멈춘 채면 시각 큐도 기다린다 — 풀리는 것은 디렉터가 순서를 직접 낼 때(fire · [뒤로] 뒤 다시 누름 포함)뿐 · 종전엔 개식 시각에 저절로 나가 복구 중에 끼어들었다 */
+  if ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) || phase === 'end') return;   // [B2_NA_02] 손 대기 · 끝난 판
   for (var i = 0; i < R.cues.length; i++) {
     var c = R.cues[i];
-    if (c.fire !== 'clock' || fired[i] || c.atMin == null) continue;
-    if (d.getTime() >= startAt + c.atMin * 60000 && d.getTime() < startAt + (c.atMin * 60000) + 90000) { fire(i); break; }
+    if (c.fire !== 'clock' || fired[i] || c.atMin == null || SK[i] || i < cu) continue;   // [B2_NA_61] 지나간 순서로 되돌아가지 않는다
+    if (d.getTime() >= startAt + c.atMin * 60000 && d.getTime() < startAt + (c.atMin * 60000) + 90000) {
+      var later2 = -1; for (var j = i + 1; j < R.cues.length; j++) { var cj = R.cues[j]; if (cj.fire === 'clock' && !fired[j] && cj.atMin != null && d.getTime() >= startAt + cj.atMin * 60000 && d.getTime() < startAt + cj.atMin * 60000 + 90000) later2 = j; }
+      if (later2 > -1) { for (var k = i; k < later2; k++) if (R.cues[k].fire === 'clock' && !fired[k]) SK[k] = 1; fire(later2, { clock: true }); break; }   // [B2_NA_61 · B2-K09] 늦어져 겹치면 뒤 큐(개식)가 이긴다 · 앞 안내는 건너뛴다
+      var _nj = -1; for (var j = i + 1; j < R.cues.length; j++) { if (R.cues[j].fire === 'clock' && !fired[j] && R.cues[j].atMin != null && R.cues[j].atMin > c.atMin) { _nj = j; break; } }
+      if (_nj > -1 && d.getTime() + (c.est || 0) * 1000 >= startAt + R.cues[_nj].atMin * 60000) { SK[i] = 1; continue; }   /* [B2_NA_02 · B2-K09] 다음 시각 큐(개식)와 겹치면 앞 안내를 건너뛴다 */
+      fire(i, { clock: true }); break; }
   }
 }
 setInterval(tick, 1000);
@@ -2463,7 +2522,7 @@ $('#go').onclick = function(){
   else if (pvsOn()) { duckTo(PARAM.duckMusic, 10); pvsWarm(); segGo('M1'); }   /* ★[PREVIEW_LINK_SONGS_1101] 미리듣기 = 두 분 곡 계획(BgmPicks.plan) · 곡을 못 받은 구간만 예시 음악 */
   else if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
   applyMaster();
-  if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){ wakeLock = w; }).catch(function(){});
+  wakeOn();   // [B2_NA_60]
   render();
 
   if (MODE === 'preview') { var _rp = REC_P || recLoad(), _r0 = R;   // [GUEST_REC_WHY] 녹음 목록을 받은 뒤(최대 8초) 첫 순서로 — 그사이 멈춤 · 나가기 · 손으로 «다음»이면 그대로 둔다
@@ -2510,15 +2569,21 @@ $('#bExit').onclick = function(){
 };
 
 document.addEventListener('visibilitychange', function(){
-  if (document.visibilityState === 'visible' && wakeLock === null && navigator.wakeLock && $('#run').classList.contains('on')) {
-    navigator.wakeLock.request('screen').then(function(w){ wakeLock = w; }).catch(function(){});
-  }
+  if (document.visibilityState === 'visible' && $('#run').classList.contains('on')) wakeOn();   // [B2_NA_60] 풀린 잠금은 release 에서 비워 둔다
 });
 
 /* 스페이스바 = 다음 (현장에서 무선 프리젠터가 대개 이걸 보낸다) */
+/* ★[B2_NA_13 2026-11-06 BATCH2 나13] 다른 조작(음량 · 정지 · 입력)에 손이 가 있으면 그 요소의 키가 먼저 — 음량 막대 방향키 · 정지 단추 Space 가 다음 순서를 내보냈다 ·
+     눌러 둔 키의 반복(repeat)은 진행하지 않는다 · 주 진행 단추는 Enter · Space · 클릭이 한 길(mainTap) · 같은 입력의 pointerup 뒤 click 은 한 번으로 · 본문 · 주 단추에서는 프리젠터 PageDown · ArrowRight 그대로 */
+var _goKbAt = 0, _goPuAt = 0;
+function _goOther(t){ if (!t || t === document.body || t === document.documentElement || t === mBtn) return false; var g = String(t.tagName || ''); return g === 'INPUT' || g === 'SELECT' || g === 'TEXTAREA' || g === 'BUTTON' || g === 'A' || !!t.isContentEditable || (t.getAttribute && /^(slider|button|textbox|spinbutton)$/.test(t.getAttribute('role') || '')); }
+mBtn.addEventListener('click', function(){ var n = Date.now(); if (n - _goPuAt < 700 || n - _goKbAt < 700) return; mainTap(); });   /* 화면 읽기 프로그램 등 포인터 없는 클릭 */
 document.addEventListener('keydown', function(e){
   if (!$('#run').classList.contains('on')) return;
-  if (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight') { e.preventDefault(); mainTap(); }
+  if (_goOther(e.target) && e.code !== 'Escape') return;   /* [B2_NA_13] */
+  if (e.repeat && (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight' || e.code === 'Enter' || e.code === 'NumpadEnter')) { e.preventDefault(); return; }
+  if ((e.code === 'Enter' || e.code === 'NumpadEnter') && e.target === mBtn) { e.preventDefault(); _goKbAt = Date.now(); mainTap(); return; }
+  if (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight') { e.preventDefault(); _goKbAt = Date.now(); mainTap(); }
   if (GUEST) return;      // ★뒤로·전체 정지는 디렉터 것이다
   if (e.code === 'PageUp' || e.code === 'ArrowLeft') { e.preventDefault(); $('#bBack').onclick(); }
   if (e.code === 'Escape') { e.preventDefault(); panic(); }
@@ -2581,7 +2646,7 @@ if (GUEST) {
        옛 판은 코스 기본값 덕에 폐식까지 흘렀다. 두 분이 본 적 없는 뒷부분을
        「고르신 순서 그대로」라며 들려주던 것이라, 그 문장부터 함께 고친다. */
     if (gp.upto) {
-      $('#giFlow').textContent = '지금까지 정하신 데까지 흘러요. 사람이 말하는 시간은 짧게 줄여 들려드려요.';
+      $('#giFlow').textContent = '지금까지 정하신 데까지 흘러요. 직접 말하는 시간은 짧게 줄여 보여 드려요.';   // [B2_NA_20] d-04
       /* ★수를 말하지 않는다 — cues 는 한 순간에 둘씩 붙어 「N개 순서」가 거짓이 된다(실측 7 대 4).
          무엇까지 들려주는지를 **이름**으로 말한다. 세는 단위가 바뀌어도 안 낡는다. */
       $('#giUpto').textContent = (gp.uptoName ? ('「' + gp.uptoName + '」까지 들려드려요. ') : '')

@@ -815,6 +815,7 @@ git push -u origin <브랜치>
 | `adminVoiceUsage`·`adminVoiceRead`·`adminRitualFileUp` | **80_production** | 관리 화면 «두 분 목소리» — «AI 목소리 칸 n / 50» · «이번 달 AI 글자 n / 200,000» · 읽은 녹음 듣기(확인 문장과 함께) · [RF_STUDIO_UP] 스튜디오 대신 올리기(adminCall) |
 | `letterMigrate` | **87_letter** | ★1회 실행 — 옛 「Moment Edit Letter System」 스프레드시트의 탭 4개(Couples·Messages·Moderation·Banned)를 본 스프레드시트로 복사 → 화면 값이 원본과 한 칸도 다르지 않은지 대조(어긋나면 사본 지우고 멈춤) → `LETTER_MIGRATED=Y` → `setupAllTriggers` 로 매일 07시 점검까지 건다. 다시 돌려도 안전(이미 옮긴 탭은 건너뜀). 옛 스프레드시트는 백업으로 남는다 [LETTER_MERGED 2026-09-25] |
 | `vimeoGuardDaily` | **87_letter** | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 관리자 메일(하루 1통·수동 점검 가능) + 첫 줄에서 `purgeCoupleData`. ★관리자 페이지에서 미계약·취소·노쇼로 닫은 예식은 건너뛴다(Customers 조회 실패면 «모르면 보낸다») [VIMEO_GUARD_XPROJ]. 트리거는 `setupAllTriggers`(70_journey)가 매일 07시로 건다 — 옛 `setupVimeoGuard`(부부폼 프로젝트)는 가져오지 않았다 |
+| `letterSendCheck` | **87_letter** | ★[LT_SEND_WATCH 2026-11-06] 하객 편지 점검을 지금 바로 — 접수 뒤 1시간이 지나도 «보냄»이 아닌 편지를 한 번 더 보내고(편지마다 1회 · 보류(금지어)는 안 보냄) 관리자에게 한 통(번호 · 예식 · 상태 · 건수만 · 하루 한 통) + 예식별 건수를 «편지현황» 시트에. 매일 07시 `vimeoGuardDaily`(같은 파일)가 같은 일을 한다 · 별도 트리거 불필요 |
 | `purgeCoupleData`·`previewCoupleData` | **87_letter** | 예식 + 6개월(기본 183일 · `COUPLE_PURGE_DAYS`) 지난 예식의 청첩장·편지 개인정보 비우기(행 보존) · `COUPLE_PURGE_OFF='Y'` 면 정지. preview 는 아무것도 안 바꾸고 대상만 로그 |
 
 ## ★★공개 입구 잠금 — GAS 새 함수를 만들 때 [B19_LOCK] (2026-10-09 사장님 «바로 막기»)

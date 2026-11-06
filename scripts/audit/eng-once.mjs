@@ -11,9 +11,9 @@ let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/play
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
-let cueN = 0, cueFail = true;
+let cueN = 0, cueFail = true, cueHang = false;   // [B2_GEUL_14] cueHang = 답을 끝없이 미룬다
 const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]);
-  if (/\/assets\/ritual-cue\.js$/.test(u)) { cueN++; if (cueFail) { r.writeHead(500); r.end('x'); return; } }
+  if (/\/assets\/ritual-cue\.js$/.test(u)) { cueN++; if (cueHang) return; if (cueFail) { r.writeHead(500); r.end('x'); return; } }
   const p = path.join(ROOT, u); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const BASE = 'http://127.0.0.1:' + srv.address().port;
 const br = await pw.chromium.launch(); const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -30,6 +30,13 @@ try {
   cueFail = false; await pg.evaluate(() => document.querySelector('[data-fk="engretry"]').click()); await wait(2500);
   const rec = await pg.evaluate(() => ({ eng: !!ENG, box: !!document.querySelector('[data-fk="engretry"]') }));
   ok('2 «다시 불러오기»는 누를 때 한 번만 묻고 · 엔진이 돌아오면 상자가 걷힌다', n2 - n1 === 1 && rec.eng && !rec.box, JSON.stringify({ perPress: n2 - n1, rec }));
+  /* 3 [B2_GEUL_14] 흐름 파일 하나가 답을 미루면 한도(ENG_TO_MS) 뒤 «흐름을 불러오는 데 오래 걸려요 · 다시 불러와 주세요 (코드 L5)» + «다시 불러오기» · 옛 요청은 새 상태를 덮지 않는다 */
+  cueHang = true; await pg.evaluate(() => { ENG = null; ENGP = null; ENG_ERR = ''; ENG_TO_MS = 1500; engine().then(() => render()); render(); }); await wait(2600);
+  const hb = await pg.evaluate(() => { const b = document.querySelector('[data-fk="engretry"]'); const w = b && b.closest('.mk-wait'); return { has: !!b, err: ENG_ERR, t: w ? w.textContent.replace(/\s+/g, ' ').trim() : '' }; });
+  ok('3 흐름 파일이 답을 미루면 한도 뒤 «흐름을 불러오는 데 오래 걸려요 · 다시 불러와 주세요 (코드 L5)» + «다시 불러오기» [B2_GEUL_14]', hb.has && hb.err === 'L5' && /흐름을 불러오는 데 오래 걸려요/.test(hb.t) && /다시 불러와 주세요 \(코드 L5\)/.test(hb.t), JSON.stringify(hb));
+  cueHang = false; await pg.evaluate(() => { ENG_TO_MS = 40000; document.querySelector('[data-fk="engretry"]').click(); }); await wait(2500);
+  const hr = await pg.evaluate(() => ({ eng: !!ENG, err: ENG_ERR, box: !!document.querySelector('[data-fk="engretry"]') }));
+  ok('3 다시 불러오기 → 엔진이 돌아오면 상자가 걷힌다(멈춘 요청이 덮지 않음)', hr.eng && !hr.err && !hr.box, JSON.stringify(hr));
   ok('pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));
   await pg.close();
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }

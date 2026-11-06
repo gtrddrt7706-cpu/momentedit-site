@@ -185,7 +185,7 @@ ok('축가 카드가 «악기 연주는 받지 않아요»를 말한다 · 축�
 {
   const OP = fs.readFileSync(P('order-preview.html'), 'utf8');
   const pv = (k) => ((OP.match(new RegExp("\\n  " + k + ":'([^']+)'")) || [])[1] || '');
-  const vowOk = (t) => /서로에게/.test(t) && /직접/.test(t), declOk = (t) => /하객 앞에서/.test(t) && /두 분이 정하신 한 분이 읽/.test(t) && !/아버님이나|친구 · 지인|신랑 아버님|신부 아버님/.test(t) && !/나레이션|가족이/.test(t) && /성혼 선언문을 읽으면/.test(t);   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 특정한 분을 박지 않는다
+  const vowOk = (t) => /서로에게/.test(t) && /직접/.test(t), declOk = (t) => /하객 앞에서|하객께 알려요/.test(t) && /두 분이 정하신 한 분이 (성혼 선언문을 )?읽/.test(t) && !/아버님이나|친구 · 지인|신랑 아버님|신부 아버님/.test(t) && !/나레이션|가족이/.test(t) && /성혼 선언문을 읽(으면|어, 부부가 되었음을 하객께)/.test(t);   // [B2_GEUL_26] «두 분이 정하신 한 분이 성혼 선언문을 읽어, 부부가 되었음을 하객께 알려요»   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 특정한 분을 박지 않는다
   ok('[VOW_DECL_DIFF] ② · AI 지식 — 서약 «서로에게 · 직접» / 선언 «하객 앞에서 · 두 분이 정하신 한 분»(DECLARE_ANYONE)', vowOk(O.CARDS.vow.one) && declOk(O.CARDS.declare.one), O.CARDS.vow.one + ' | ' + O.CARDS.declare.one);
   ok('[VOW_DECL_DIFF] ① 미리 보기 창 — 같은 기준 · 옛 «부부가 되었음을 알리고»(두 분이 알리는 것처럼 읽힘) 없음', vowOk(pv('vow')) && declOk(pv('declare')) && !/되었음을 알리고/.test(pv('declare')), pv('vow') + ' | ' + pv('declare'));
 }
@@ -588,7 +588,7 @@ ok('[REVIEW_166_1030 검토 166 A · C · D] 149 · 224 · 144 · 136 · 205 · 
   const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '', B4 = fs.readFileSync(P('order-preview.html'), 'utf8'), rec = (k) => (RCJ[k] || {}).text || '';
   const A = [['149_narr-open-ex3', '오늘 함께하신 여러분도'], ['224_narr-candle-in-others-ex4', '두 분의 화촉 점화 순서가'], ['144_narr-entry-arrive', '두 사람이 한자리에 섰습니다.'], ['136_narr-declare-in-friend', '오늘의 성혼 선언은'], ['205_narr-song-ex4', '축복하는 축하 공연이'], ['178_narr-letter-end-ex2', '가득한 결혼 생활이']];
   return A.every(([k, x]) => rec(k).indexOf(x) > -1) && D.NARR.entryArrive.indexOf('한자리에') > -1 && O.CHIPS.tribute[1][1] === '말없이'
-    && /'두 분이 부모님 쪽으로 돌아서 앞으로 가요'/.test(B4) && /읽으면 두 분이 부부가 되었음을 알려요/.test(O.CARDS.declare.one) && /반지를 끼우는 두 손을/.test(B4)
+    && /'두 분이 부모님 쪽으로 돌아서 앞으로 가요'/.test(B4) && /(읽으면 두 분이|성혼 선언문을 읽어,) 부부가 되었음을 (하객께 )?알려요/.test(O.CARDS.declare.one) && /반지를 끼우는 두 손을/.test(B4)
     && !/안지가|발표날|주위사람들에게|똑부러지게|유럽배낭여행/.test(['620_speech-story1-friend', '820_speech-story1-bride-friend', '821_speech-story2-bride-friend', '719_speech-open-brother'].map(t).join())
     && !/너가/.test(t('820_speech-story1-bride-friend') + t('821_speech-story2-bride-friend')) && /^당신과 함께한 등산은 근사한 경험이었습니다\./.test(t('09_vow-bride')) && /장인어른, 장모님, 사랑합니다\.$/.test(t('713_tribute-cross-groom'))
     && /"09_vow-bride": \[[^\]]*당신과 함께라면 등산이/.test(B4) && /function _mkSecW\(n\)/.test(B4); })());

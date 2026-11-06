@@ -18,6 +18,10 @@
  *      같은 주소 경우는 아래 oneAddrGuard 가 따로 잰다.
  *   D6 편지 몰림 응답 — 한 줄 말투(«. » → « · » · 끝 마침표 없음) + 몰림 코드 G1 [LT_RATE_G1 · LT_RATE_ECODE 2026-10-08]
  *      화면 실패 코드 장치(ERR_CODES)가 «(코드 G1)»을 붙이게. 시간당 몰림 글도 «다시 시도해» → «다시 보내»로 같은 말이 됐다.
+ *   D7 하객 편지 발송 감시 [LT_SEND_WATCH 2026-11-06 사장님 «미발송은 검사하는 필터가 있어야»] — Messages 상태(G)는 «접수 → 보냄 / 보류(금지어) / 실패(주소 없음 · 메일 오류)»,
+ *      뒤에 편지번호 · 재시도 · 상태시각 · 점검(I~L)이 붙는다. 관리자 알림은 보냄이 아니면 모두(번호 · 예식 · 상태만 · 본문 · 하객 이름 없음) —
+ *      옛 «편지 미전달 · 수신자 이메일 없음»(본문을 실었다)은 사라졌다. 그래서 Messages 는 상태 칸과 새 칸을 빼고 대조하고, 상태 · 알림은 sendWatchGuard 가 따로 잰다.
+ *   D8 getCouple 에 letterSplit(두 주소가 다 있고 다를 때만 true) [LETTER_SPLIT_A 2026-11-06 사장님 결정 2 = A] — 대조 전에 떼고 따로 잰다.
  * 시험 데이터는 전부 지어낸 값이다(실제 고객 정보 없음).
  */
 import fs from 'node:fs';
@@ -85,6 +89,7 @@ function makeSS(id, tz) {
   ss.getSheetByName = (n) => ss._sheets.find((s) => s._name === n) || null;
   ss.deleteSheet = (s) => { ss._sheets = ss._sheets.filter((x) => x !== s); };
   ss.add = (name, rows) => { const s = makeSheet(ss, name, rows); ss._sheets.push(s); return s; };
+  ss.insertSheet = (name) => ss.add(name, []);
   return ss;
 }
 function makeCtx({ active, byId }) {
@@ -347,6 +352,69 @@ function oneAddrGuard() {
   ok(r.n === 1 && r.to[0] === 'b@a.test', `D5 한쪽 주소만 있으면 한 통(종전 그대로): ${JSON.stringify(r)}`);
 }
 
+// [LT_SEND_WATCH] D7 · [LETTER_SPLIT_A] D8 · [LETTER_MAIL_A] — 메일 오류 · 매일 점검(다시 보내기 1회 · 보고 한 번 · 건수 시트) · 갈라 보내기 표시 · 발행 매핑
+function sendWatchGuard() {
+  const A = makeSS('MAIN', TZ);
+  const ctx = makeCtx({ active: A, byId: {} });
+  ctx._props.set('LETTER_MIGRATED', 'Y');
+  run(ctx, `function setupAllTriggers() { return ''; } function getCustomersSheet() { return null; } var STAGE_EXCEPTIONS = []; function _deFormula(v) { return v; } function _nfAdminEmail(s, h) { __adminBox.push({ subject: s, body: h }); }`);
+  ctx.__adminBox = [];
+  load(ctx, 'automation/platform/85_invitation.gs'); load(ctx, 'automation/platform/87_letter.gs');
+  const K = ['eventId', 'groomName', 'brideName', 'groomEmail', 'brideEmail', 'weddingDate'];
+  A.add('Couples', [['식별'], ['예식ID'], K, ['sw-a-0101', '가나', '다라', 'g@x.test', 'b@x.test', '2027-01-01'], ['sw-b-0101', '마바', '사아', 'Same@x.test', 'same@x.test', '2027-01-01'], ['sw-c-0101', '자차', '카타', 'g@y.test', '', '2027-01-01']]);
+  A.add('Messages', [['시각', 'eventId', '부부', '하객', '관계', '편지', '상태', '받는 분']]);
+  A.add('Moderation', [['시각']]); A.add('Banned', [['단어', '분류'], ['씨발', '욕설']]);
+  // ① getCouple letterSplit — 둘 다 있고 다를 때만 true
+  const split = (id) => { ctx.__p = { eventId: id, view: 'live', fresh: '1' }; const r = J(run(ctx, 'ltGetCouple(__p)')); return r.couple && r.couple.letterSplit; };
+  ok(split('sw-a-0101') === true && split('sw-b-0101') === false && split('sw-c-0101') === false, `letterSplit: 다른 주소 true · 같은 주소 false · 한쪽 없음 false 여야 한다(D8): ${[split('sw-a-0101'), split('sw-b-0101'), split('sw-c-0101')]}`);
+  // ② 메일 오류 — 던지지 않고 «실패(메일 오류)» · 응답 delivered:false · 알림(본문 없음)
+  const realSend = ctx.GmailApp.sendEmail; let boom = true;
+  ctx.GmailApp.sendEmail = (...a) => { if (boom) throw new Error('Service invoked too many times'); return realSend(...a); };
+  ctx.__p = { eventId: 'sw-a-0101', guestName: '하객 메일오류', relation: '', message: '메일이 실패하는 편지', recipient: 'both' };
+  const r1 = J(run(ctx, 'ltGuestLetter(__p)'));
+  const M = () => A.getSheetByName('Messages')._rows;
+  const row1 = M()[M().length - 1];
+  ok(r1.ok === true && r1.delivered === false, `메일 오류: 응답은 ok · delivered:false 여야 한다(편지는 보관 · 다시 보낸다): ${JSON.stringify(r1)}`);
+  ok(row1[6] === '실패(메일 오류)' && /^L\d{12}[A-Z0-9]{3}$/.test(row1[8]) && row1[9] === 0, `메일 오류: 시트 상태 «실패(메일 오류)» · 편지번호 · 재시도 0: ${JSON.stringify(row1.slice(6))}`);
+  ok(M()[0][8] === '편지번호' && M()[0][11] === '점검', 'Messages 1행에 새 칸 이름(편지번호 ~ 점검)이 붙어야 한다');
+  const al = ctx.__adminBox.find((m) => /하객 편지 실패\(메일 오류\) · sw-a-0101/.test(m.subject));
+  ok(al && al.body.includes(row1[8]) && !al.body.includes('메일이 실패하는 편지') && !al.body.includes('하객 메일오류'), `메일 오류 알림: 편지번호는 있고 본문 · 하객 이름은 없어야 한다: ${al && al.body}`);
+  // ③ 매일 점검 — 한 시간 넘은 «보냄» 아닌 편지만 · 다시 보내기 1회 · 보류는 다시 안 보냄 · 보고 한 번 · 건수 시트
+  boom = false;
+  const old = new ctx.Date(NOW - 2 * 3600000), fresh = new ctx.Date(NOW - 10 * 60000);
+  row1[0] = old;
+  const sh = A.getSheetByName('Messages');
+  sh._rows.push([old, 'sw-a-0101', '가나 · 다라', '하객 접수', '', '접수에 멈춘 편지', '접수', '신랑에게만', 'L260925070000AAA', 0, old, '']);
+  sh._rows.push([old, 'sw-c-0101', '자차 · 카타', '하객 신부', '', '신부 주소 없는 편지', '실패(주소 없음)', '신부에게만', 'L260925070000BBB', 0, old, '']);
+  sh._rows.push([old, 'sw-a-0101', '가나 · 다라', '하객 욕', '', '걸린 편지', '보류(금지어)', '두 분 함께', 'L260925070000CCC', 0, old, '']);
+  sh._rows.push([fresh, 'sw-a-0101', '가나 · 다라', '하객 새', '', '방금 실패', '실패(메일 오류)', '두 분 함께', 'L260925070000DDD', 0, fresh, '']);
+  const m0 = ctx._log.mails.length, a0 = ctx.__adminBox.length;
+  const w1 = J(run(ctx, '_ltSendWatch_()'));
+  const sentNow = ctx._log.mails.slice(m0).map((m) => m.to);
+  const byId = (id) => sh._rows.find((r) => r[8] === id);
+  ok(w1.retried === 3 && w1.fixed === 2, `매일 점검: 다시 보내기 3건(메일 오류 · 접수 · 주소 없음) · 그중 보냄 2: ${JSON.stringify(w1)}`);
+  ok(byId(row1[8])[6] === '보냄' && byId(row1[8])[9] === 1 && byId('L260925070000AAA')[6] === '보냄' && byId('L260925070000BBB')[6] === '실패(주소 없음)' && byId('L260925070000BBB')[9] === 1, '매일 점검: 다시 보낸 편지의 상태 · 재시도 횟수');
+  ok(byId('L260925070000CCC')[9] === 0 && byId('L260925070000CCC')[6] === '보류(금지어)', '매일 점검: 보류(금지어)는 다시 보내지 않는다');
+  ok(byId('L260925070000DDD')[9] === 0 && !byId('L260925070000DDD')[11], '매일 점검: 한 시간이 안 된 편지는 건드리지 않는다');
+  ok(sentNow.join(',') === 'g@x.test,b@x.test,g@x.test', `매일 점검: 다시 보낸 메일 받는 곳(두 분 · 신랑만): ${sentNow}`);
+  const rep1 = ctx.__adminBox.slice(a0).filter((m) => /하객 편지 점검/.test(m.subject));
+  ok(rep1.length === 1 && /4건/.test(rep1[0].subject) && /L260925070000CCC/.test(rep1[0].body) && !/걸린 편지|접수에 멈춘 편지|하객 욕|하객 접수/.test(rep1[0].body) && /sw-a-0101 · 접수 \d+ · 보냄 \d+ · 보류 1/.test(unhtml(rep1[0].body)), `매일 점검 메일: 한 통 · 번호 · 예식 · 상태 · 건수만: ${rep1.map((m) => m.subject + ' | ' + unhtml(m.body)).join(' // ')}`);
+  const cs = A.getSheetByName('편지현황');
+  const ca = cs && cs._rows.find((r) => r[0] === 'sw-a-0101');
+  ok(ca && ca[1] === 4 && ca[2] === 2 && ca[3] === 1 && ca[4] === 1 && ca[5] === 0, `편지현황 시트: sw-a-0101 접수 4 · 보냄 2 · 보류 1 · 실패 1 · 처리 중 0: ${JSON.stringify(ca)}`);
+  ok(cs && cs._rows[0][0] === '예식' && !cs._rows.flat().some((v) => /편지\b|하객/.test(String(v)) && !/^예식$/.test(String(v))), '편지현황 시트에 본문 · 하객 이름이 없어야 한다');
+  // 다시 돌려도 — 다시 보내기 없음 · 보고할 새 줄 없음(한 시간 안 된 줄 제외)
+  const m1 = ctx._log.mails.length; ctx._cache.clear();
+  const w2 = J(run(ctx, '_ltSendWatch_()'));
+  ok(w2.retried === 0 && w2.report === 0 && ctx._log.mails.length === m1, `매일 점검 두 번째: 다시 보내기 · 보고 없음: ${JSON.stringify(w2)}`);
+  // ④ 발행 매핑 — 마이페이지 칸 > 계약서 칸 > 가입 이메일 · 이메일 모양이 아니면 다음 후보
+  const map = (b, d) => { ctx.__b = b; ctx.__d = d; const f = J(run(ctx, '_invCouplesFields(__b, __d)')); return [f.groomEmail, f.brideEmail].join('|'); };
+  ok(map({ email: 'join@x.test' }, {}) === 'join@x.test|join@x.test', 'LETTER_MAIL_A: 아무것도 없으면 둘 다 가입 이메일(종전과 같다)');
+  ok(map({ email: 'join@x.test', ciGroomEmail: 'g@c.test', ciBrideEmail: 'b@c.test' }, {}) === 'g@c.test|b@c.test', 'LETTER_MAIL_A: 계약서 칸이 있으면 각자');
+  ok(map({ email: 'join@x.test', ciGroomEmail: 'g@c.test', ciBrideEmail: 'b@c.test' }, { letterGroomEmail: 'g2@m.test', letterBrideEmail: '아니다' }) === 'g2@m.test|b@c.test', 'LETTER_MAIL_A: 마이페이지 칸이 먼저 · 모양이 아니면 다음 후보');
+  ok(map({ email: 'join@x.test', ciBrideEmail: 'b@c.test' }, {}) === 'join@x.test|b@c.test', 'LETTER_MAIL_A: 한쪽만 있으면 나머지는 가입 이메일');
+}
+
 // ─────────── 실행 ───────────
 if (CAPTURE) {
   if (!fs.existsSync(path.join(ROOT, 'automation/guest-letter-webhook.gs'))) { console.log('✖ 옛 파일이 없어 기준값을 만들 수 없습니다(git 기록에서 꺼내 두고 다시)'); process.exit(2); }
@@ -360,20 +428,36 @@ const G = JSON.parse(fs.readFileSync(GOLDEN, 'utf8'));
 const N = runNew();
 migrateGuards();
 oneAddrGuard();   // [LETTER_ONE_ADDR] D5
+sendWatchGuard();   // [LT_SEND_WATCH] D7 · [LETTER_SPLIT_A] D8 · [LETTER_MAIL_A]
 const diff = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 /* [LT_RATE_G1] D6 — 기준값의 옛 몰림 글을 새 응답 모양으로 옮겨 대조한다(그 밖의 응답은 한 글자도 그대로) */
 const D6 = { '편지가 연달아 도착하고 있어요. 잠시 뒤에 다시 보내 주세요.': '편지가 연달아 도착하고 있어요 · 잠시 뒤에 다시 보내 주세요', '지금은 편지가 많이 몰렸어요. 잠시 뒤에 다시 시도해 주세요.': '지금은 편지가 많이 몰렸어요 · 잠시 뒤에 다시 보내 주세요' };
 const d6 = (r) => (r && r.ok === false && D6[r.error]) ? { ok: false, ecode: 'G1', error: D6[r.error] } : r;
-COUPLE_CASES.forEach((c, i) => ok(diff(N.couple[i], G.couple[i]), `getCouple ${JSON.stringify(c)} 응답이 옛 웹훅과 다르다`));
+/* [LT_SEND_WATCH · LETTER_SPLIT_A] D7 · D8 — 새로 생긴 값은 떼고 대조한다(따로 잰다) */
+const noSplit = (r) => { const x = J(r); if (x && x.couple) delete x.couple.letterSplit; return x; };
+const ST_OK = ['접수', '보냄', '보류(금지어)', '실패(주소 없음)', '실패(메일 오류)'];
+const msgCore = (rows) => rows.map((r) => r.slice(0, 7).filter((_, j) => j !== 5));   // 시각 뺀 뒤 0~6 · 상태(5) 빼고
+COUPLE_CASES.forEach((c, i) => ok(diff(noSplit(N.couple[i]), G.couple[i]), `getCouple ${JSON.stringify(c)} 응답이 옛 웹훅과 다르다`));
+N.couple.forEach((r, i) => { if (r && r.ok && r.couple) ok(typeof r.couple.letterSplit === 'boolean', `getCouple ${JSON.stringify(COUPLE_CASES[i])} letterSplit 이 참 · 거짓이어야 한다(D8)`); });
 LETTERS.forEach((L, i) => {
   ok(diff(N.letters[i].res, d6(G.letters[i].res)), `편지 ${i + 1}(${L.eventId}) 응답이 다르다: ${JSON.stringify(N.letters[i].res)} ≠ ${JSON.stringify(d6(G.letters[i].res))}`);
   ok(diff(N.letters[i].couple, G.letters[i].couple), `편지 ${i + 1}(${L.eventId}) 두 분께 가는 메일이 다르다`);
-  ok(diff(N.letters[i].admin, G.letters[i].admin), `편지 ${i + 1}(${L.eventId}) 관리자 알림이 다르다: ${JSON.stringify(N.letters[i].admin)} ≠ ${JSON.stringify(G.letters[i].admin)}`);
+  const nA = N.letters[i].admin.filter((m) => !/^\[Moment Edit\] 하객 편지 /.test(m.subject)), gA = G.letters[i].admin.filter((m) => !/편지 미전달 · 수신자 이메일 없음/.test(m.subject));   // D7
+  ok(diff(nA, gA), `편지 ${i + 1}(${L.eventId}) 관리자 알림이 다르다: ${JSON.stringify(nA)} ≠ ${JSON.stringify(gA)}`);
+  N.letters[i].admin.forEach((m) => { const t = m.subject + '\n' + m.body; ok(!(String(L.message || '').length >= 3 && t.includes(L.message)) && !(String(L.guestName || '').length >= 2 && t.includes(L.guestName)), `편지 ${i + 1} 관리자 알림에 편지 본문 · 하객 이름이 실렸다(D7): ${m.subject}`); });
 });
-ok(diff(N.messages, G.messages), 'Messages 에 남는 행이 다르다');
+ok(diff(msgCore(N.messages), msgCore(G.messages)), 'Messages 에 남는 행이 다르다(상태 칸 · 새 칸 빼고)');
+{ /* D7 — 이번에 들어온 편지(번호가 있는 줄)의 상태가 응답과 맞고, 보냄이 아니면 그 예식 · 상태의 관리자 알림이 있다 */
+  const newRows = N.messages.filter((r) => /^L\d{12}[A-Z0-9]{3}$/.test(String(r[7] || '')));
+  ok(newRows.length >= 8, `편지번호가 붙은 새 줄이 너무 적다: ${newRows.length}`);
+  const subs = N.letters.flatMap((x) => x.admin.map((m) => m.subject));
+  newRows.forEach((r) => { ok(ST_OK.includes(r[5]) && r[5] !== '접수', `새 줄 상태가 다섯 가지 중 «접수» 아닌 하나여야 한다: ${r[5]}`);
+    if (r[5] !== '보냄') ok(subs.includes(`[Moment Edit] 하객 편지 ${r[5]} · ${r[0]}`), `«${r[5]}» 편지(${r[0]})의 관리자 알림이 없다`); });
+  ok(newRows.some((r) => r[5] === '보류(금지어)') && newRows.some((r) => r[5] === '실패(주소 없음)') && newRows.some((r) => r[5] === '보냄'), '보냄 · 보류 · 주소 없음 셋이 다 나와야 한다(시험 데이터가 그걸 잰다)');
+}
 ok(diff(N.moderation, G.moderation), 'Moderation 에 남는 행이 다르다');
 ok(diff(N.vimeo, G.vimeo), `영상 점검 결과가 다르다: ${JSON.stringify(N.vimeo)} ≠ ${JSON.stringify(G.vimeo)}`);
-ok(diff(N.purge, G.purge), '개인정보 파기 결과(시트 상태)가 다르다');
+ok(diff(N.purge.couples, G.purge.couples) && diff(N.purge.moderation, G.purge.moderation) && diff(msgCore(N.purge.messages), msgCore(G.purge.messages)), '개인정보 파기 결과(시트 상태)가 다르다');
 // 기준값 자체가 «뭔가를 재고 있는가» — 비어 있는 기준값과 대조해 통과하면 안 된다
 ok(G.couple.filter((x) => x.ok).length >= 40 && G.letters.filter((x) => x.couple.length).length >= 4 && G.letters.filter((x) => x.admin.length).length >= 4
   && G.vimeo.lines.length >= 2 && G.messages.length >= 10 && G.moderation.length >= 4, '기준값이 너무 비었다 — 대조가 아무것도 안 잰다');

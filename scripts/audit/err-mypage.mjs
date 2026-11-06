@@ -144,7 +144,7 @@ await sec('②③', async () => {
   GAS.getMyState = (p) => (p.probe ? GAS.probe : { json: STATE() });
   const net = await k({ abort: 1 }, 12000), bad = await k({ html: 1 }, 12000), bad5 = await k({ html: 1, status: 500 }, 12000), slow = await k({ hold: 1500, json: { ok: true } }, 300);
   ok('② 끊김 → 6 «연결이 끊겼어요 · 다시 눌러 주세요 (코드 L6)»', net.kind === 'net' && net.line === '연결이 끊겼어요 · 다시 눌러 주세요 (코드 L6)', JSON.stringify(net));
-  ok('② JSON 아님(200 · 500 오류 화면) → 7 «서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 L7)»', bad.kind === 'bad' && bad5.kind === 'bad' && bad.line === '서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 L7)', JSON.stringify([bad, bad5]));
+  ok('② JSON 아님(200 · 500 오류 화면) → 7 «응답을 확인하지 못했어요 · 다시 눌러 주세요 (코드 L7)»(B2_GEUL_28)', bad.kind === 'bad' && bad5.kind === 'bad' && bad.line === '응답을 확인하지 못했어요 · 다시 눌러 주세요 (코드 L7)', JSON.stringify([bad, bad5]));
   ok('② 기다리다 멈춤 → 5 «응답이 늦어요 · 잠시 뒤 다시 눌러 주세요 (코드 L5)» · 종전 표시(__meTimeout)도 그대로 · 동작 이름(meAct)', slow.kind === 'slow' && slow.to && slow.act === 'getMyState' && slow.line === '응답이 늦어요 · 잠시 뒤 다시 눌러 주세요 (코드 L5)', JSON.stringify(slow));
   const s = await pg.evaluate(() => ({
     has: _errLine({ ok: false, ecode: 'S9', eid: '7KQ2', error: '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요. (코드 S9 · 7KQ2)' }, 'S'),
@@ -275,7 +275,7 @@ await sec('⑥', async () => {
     ok('⑥ ritualFileGet — 불러오기(L) · 끊김 L6 · 서버 거절 «파일을 불러오지 못했어요 · 다시 눌러 주세요 (코드 L0)»', g6.error === '연결이 끊겼어요 · 다시 눌러 주세요 (코드 L6)' && g0.error === '파일을 불러오지 못했어요 · 다시 눌러 주세요 (코드 L0)', JSON.stringify([g6, g0]));
     GAS.ritualFile = { html: 1 };
     const u7 = await relay({ type: 'momentedit:ritualFile', data: { key: 'g0', tk: 7, name: 'a.mp3', mime: 'audio/mpeg', data: 'data:audio/mpeg;base64,AAAA' } }, 'momentedit:ritualFileDone');
-    ok('⑥ ritualFile — 올리기(U) · 서버 답이 깨짐 U7 · 보낸 번호(tk) 그대로', u7.error === '서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 U7)' && u7.tk === 7 && u7.kind === 'bad', JSON.stringify(u7));
+    ok('⑥ ritualFile — 올리기(U) · 서버 답이 깨짐 U7 · 보낸 번호(tk) 그대로', u7.error === '응답을 확인하지 못했어요 · 다시 눌러 주세요 (코드 U7)' && u7.tk === 7 && u7.kind === 'bad', JSON.stringify(u7));
     GAS.saveProductionTrack = { json: { ok: false, error: '저장할 내용이 너무 길어요. 12,000자 안으로 줄여 주세요.' } };
     const f0 = await relay({ type: 'momentedit:orderDraft', data: { S: { a: 1 }, summary: {} } }, 'momentedit:orderDraftFail');
     GAS.saveProductionTrack = { json: { ok: false, reason: 'expired', error: '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.' } };

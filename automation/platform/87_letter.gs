@@ -59,12 +59,12 @@ function _ltBustCouple(eventId) { _gsr_();
 }
 
 // 관리자 알림 — 본 프로젝트 규칙(_nfAdminEmail). dedupKey 가 있으면 24시간에 한 번.
-function _ltAdminMail(subject, text, dedupKey) { _gsr_();
+function _ltAdminMail(subject, text, dedupKey, ttlSec) { _gsr_();
   try {
     if (dedupKey) {
       var c = CacheService.getScriptCache();
       if (c.get(dedupKey)) return;
-      c.put(dedupKey, '1', 86400);
+      c.put(dedupKey, '1', ttlSec || 86400);   // [LT_SEND_WATCH] 즉시 알림은 1시간 창
     }
     _nfAdminEmail(subject, _ltEsc(text).replace(/\n/g, '<br>'));
   } catch (e) {}
@@ -134,6 +134,11 @@ function _ltCoupleFull(eventId, view) { _gsr_();
     var _gi = headers.indexOf('groomEmail'), _bi = headers.indexOf('brideEmail');
     couple.hasGroomEmail = _gi !== -1 && String(row[_gi] || '').indexOf('@') !== -1;
     couple.hasBrideEmail = _bi !== -1 && String(row[_bi] || '').indexOf('@') !== -1;
+    /* ★[LETTER_SPLIT_A 2026-11-06 사장님 결정 2 = A (B2-K36 · L04 · L13)] 신랑 · 신부 주소가 둘 다 있고 서로 다를 때만 true —
+       하객 편지 화면은 false 면 «신랑에게만 · 신부에게만»을 숨기고 «두 분 모두»만 보인다(받는 사람 약속을 지킬 수 없는 선택지를 안 보인다).
+       주소 자체는 여전히 내보내지 않는다(참 · 거짓만). */
+    couple.letterSplit = couple.hasGroomEmail && couple.hasBrideEmail
+      && String(row[_gi] || '').trim().toLowerCase() !== String(row[_bi] || '').trim().toLowerCase();
     if (!_ltAcctVisible(couple, view)) {
       ['groomAccount', 'brideAccount', 'groomFatherAccount', 'groomMotherAccount', 'brideFatherAccount', 'brideMotherAccount']
         .forEach(function (k) { if (k in couple) couple[k] = ''; });
@@ -205,7 +210,11 @@ function ltGuestLetter(body) { _gsr_();
     // 금지어 검사 — ★본문만 보면 이름·관계 칸으로 그대로 새어 나간다(둘 다 메일에 그대로 찍힌다).
     var mod = _ltCheckBanned([guestName, relation, message].filter(Boolean).join(' \n '));
 
-    _ltAppendMessage({
+    /* ★[LT_SEND_WATCH 2026-11-06 사장님 «미발송 같은 건 검사하는 필터가 있어야 문제가 생겨도 인지할 수 있다» · «발송이 몇 건 됐는지는 알 수 있어야 해 — 내용은 몰라도»]
+       편지마다 번호(I열)와 상태(G열)를 남긴다 — 접수 → 보냄 / 보류(금지어) / 실패(주소 없음) / 실패(메일 오류).
+       종전엔 메일을 보내기 «전»에 «전송됨»을 적어, 메일이 실패해도 시트는 보냄이었다(L18 과 같은 원칙 — 오류를 잡고 보냄으로 적지 않는다).
+       보냄이 아니면 바로 관리자 메일(번호 · 예식 · 상태만 · 본문 · 하객 이름 없음) · 매일 07시 점검이 한 번 더 보내 보고(재시도 1회) 예식별 건수를 «편지현황» 시트에 적는다. */
+    var lid = _ltAppendMessage({
       eventId: eventId, guestName: guestName, relation: relation, message: message,
       groomName: couple.groomName, brideName: couple.brideName, moderated: mod.blocked, recipient: recipient
     });
@@ -215,12 +224,18 @@ function ltGuestLetter(body) { _gsr_();
         eventId: eventId, guestName: guestName, message: message, matchedWord: mod.word,
         category: mod.category, relation: relation, recipient: recipient
       });
+      _ltWatchAlert_(lid, eventId, LT_ST.HOLD);   // [LT_SEND_WATCH] 금지어 검수는 그대로 · 보류만 알린다
       return { ok: false, error: 'BLOCKED_CONTENT' };
     }
 
     // [LETTER_DELIVERED] 받을 주소가 하나도 없으면 메일은 못 나간다(편지는 시트에 남고 관리자에게 알림).
     //  ok:true 만 돌려주면 하객은 '전해졌습니다'를 보고 두 분은 못 받는 상태가 된다 — delivered 로 구분한다.
-    var sent = _ltSendToRecipients_(couple, guestName, relation, message, recipient);
+    //  [LT_SEND_WATCH] 메일 오류도 던지지 않고 «실패(메일 오류)»로 적는다 — 편지는 시트에 남고 매일 점검이 한 번 더 보낸다
+    var info = {};
+    var sent = _ltSendToRecipients_(couple, guestName, relation, message, recipient, info);
+    var st = _ltStatusOf_(info);
+    _ltSetStatus_(lid, st, false);
+    if (st !== LT_ST.SENT) _ltWatchAlert_(lid, eventId, st);
     return { ok: true, delivered: sent > 0 };
   } catch (err) {
     /* ★[ERR_CODE_GAS 2026-10-07] 종전엔 실패할 때마다 하객 편지 원문(이름 · 관계 · 글)을 실은 관리자 메일을 보냈다(중복 억제 없음).
@@ -287,18 +302,22 @@ function _ltWithLock(fn) { _gsr_();
 
 function _ltAppendMessage(d) { _gsr_();
   var sheet = _ltSheet(LT.MESSAGES);
+  var lid = _ltNewId_(), now = new Date();
   _ltWithLock(function () {
+    _ltWatchHead_(sheet);
     sheet.appendRow([
-      new Date(),
+      now,
       _deFormula(d.eventId),
       _deFormula(d.groomName + ' · ' + d.brideName),
       _deFormula(d.guestName),
       _deFormula(d.relation || '(미기재)'),
       _deFormula(d.message),
-      d.moderated ? '검수 대기' : '전송됨',
-      _ltRecipientKo(d.recipient)
+      d.moderated ? LT_ST.HOLD : LT_ST.IN,   // [LT_SEND_WATCH] 접수 — 보낸 «뒤»에 보냄으로 바꾼다
+      _ltRecipientKo(d.recipient),
+      lid, 0, now, ''
     ]);
   });
+  return lid;
 }
 
 function _ltAppendModeration(d) { _gsr_();
@@ -318,13 +337,146 @@ function _ltAppendModeration(d) { _gsr_();
   });
 }
 
-function _ltSendToRecipients_(couple, guestName, relation, message, recipient) {
+// ═══════════════ ②-2 하객 편지 발송 감시 [LT_SEND_WATCH 2026-11-06] ═══════════════
+// 편지마다 Messages 에 번호(I) · 재시도 횟수(J) · 상태 바뀐 때(K) · 점검 보고한 날(L)을 남긴다. 상태(G)는 아래 다섯 가지.
+// ★알림 · 점검 메일 · 편지현황 시트에는 번호 · 예식 · 상태 · 건수만 — 편지 본문 · 하객 이름은 싣지 않는다(사장님 «내용은 몰라도»).
+var LT_ST = { IN: '접수', SENT: '보냄', HOLD: '보류(금지어)', NOADDR: '실패(주소 없음)', ERR: '실패(메일 오류)' };
+var LT_WATCH = { AGE_MIN: 60, WINDOW_DAYS: 8, RETRY_MAX: 1, RETRY_CAP: 30, REPORT_MAX: 50, SUMMARY: '편지현황',
+  HEAD: ['편지번호', '재시도', '상태시각', '점검'] };
+
+// 옛 기록(«전송됨» · «검수 대기»)도 같은 갈래로 센다
+function _ltStKind_(st) {
+  st = String(st || '').trim();
+  if (st === LT_ST.SENT || st === '전송됨') return 'sent';
+  if (st === LT_ST.HOLD || st === '검수 대기') return 'hold';
+  if (st.indexOf('실패') === 0) return 'fail';
+  return 'inn';
+}
+function _ltStatusOf_(info) {
+  info = info || {};
+  if (!info.targets) return LT_ST.NOADDR;
+  return (info.sent === info.targets) ? LT_ST.SENT : LT_ST.ERR;   // 한 통이라도 못 나갔으면 실패 — 다시 보낼 때 겹쳐 가는 것은 허용(B2-K37)
+}
+function _ltNewId_() {
+  var t = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHHmmss').slice(2), A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', x = '';
+  for (var i = 0; i < 3; i++) x += A.charAt(Math.floor(Math.random() * A.length));
+  return 'L' + t + x;
+}
+function _ltRecipientOfKo_(ko) {
+  ko = String(ko || '').trim();
+  return ko === '신랑에게만' ? 'groom' : ko === '신부에게만' ? 'bride' : 'both';
+}
+// Messages 1행에 새 칸 이름이 없으면 단다(I~L · 옛 8칸 뒤)
+function _ltWatchHead_(sheet) {
+  try {
+    var h = sheet.getRange(1, 9, 1, 4).getValues()[0];
+    if (!String(h[0] || '').trim()) sheet.getRange(1, 9, 1, 4).setValues([LT_WATCH.HEAD]);
+  } catch (e) {}
+}
+// 편지번호로 줄을 찾아 상태를 바꾼다(아래에서 위로 · 최근 500줄)
+function _ltSetStatus_(lid, st, retried) {
+  if (!lid) return 0;
+  try {
+    var sh = _ltSheet(LT.MESSAGES), last = sh.getLastRow();
+    if (last < 2) return 0;
+    var from = Math.max(2, last - 499), ids = sh.getRange(from, 9, last - from + 1, 2).getValues();
+    for (var i = ids.length - 1; i >= 0; i--) {
+      if (String(ids[i][0] || '').trim() !== lid) continue;
+      var row = from + i;
+      sh.getRange(row, 7).setValue(st);
+      sh.getRange(row, 10, 1, 2).setValues([[(Number(ids[i][1]) || 0) + (retried ? 1 : 0), new Date()]]);
+      return row;
+    }
+  } catch (e) {}
+  return 0;
+}
+// 보냄이 아니면 바로 관리자 메일 — 같은 예식 · 같은 상태는 한 시간에 한 통(나머지는 매일 점검에 모인다)
+function _ltWatchAlert_(lid, eventId, st) {
+  var what = st === LT_ST.HOLD ? '금지어 검수에 걸려 보내지 않았어요. 걸린 편지는 Moderation 시트에 있어요.'
+    : st === LT_ST.NOADDR ? '받을 이메일이 없어 보내지 못했어요. 청첩장 발행 정보(신랑 · 신부 이메일)를 확인해 주세요. 매일 07시 점검이 한 번 더 보내요.'
+    : st === LT_ST.ERR ? '메일 보내기가 실패했어요. 매일 07시 점검이 한 번 더 보내요.'
+    : '접수만 되고 끝나지 않았어요. 매일 07시 점검이 한 번 더 보내요.';
+  _ltAdminMail('[Moment Edit] 하객 편지 ' + st + ' · ' + eventId,
+    '편지번호: ' + (lid || '(없음)') + '\n예식: ' + eventId + '\n상태: ' + st + '\n\n' + what +
+    '\n\n편지 본문 · 하객 이름은 싣지 않아요. Messages 시트에서 편지번호로 찾을 수 있어요.\n같은 예식 · 같은 상태는 한 시간에 한 통만 보내요.',
+    'ltw_' + eventId + '_' + st, 3600);
+}
+
+// 매일 07시(vimeoGuardDaily 가 부른다) — 접수 뒤 1시간이 지나도 «보냄»이 아닌 편지를 모아 한 통 + 한 번 더 보내기(편지마다 1회) + 예식별 건수 시트
+function _ltSendWatch_() {
+  var sh; try { sh = _ltSheet(LT.MESSAGES); } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+  var last = sh.getLastRow(), counts = {}, report = [], retried = 0, fixed = 0, cpc = {};
+  var nowMs = new Date().getTime(), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+  var vals = last >= 2 ? sh.getRange(2, 1, last - 1, 12).getValues() : [];
+  for (var i = 0; i < vals.length; i++) {
+    var r = vals[i], eid = String(r[1] || '').trim();
+    if (!eid) continue;
+    var ts = (r[0] && r[0].getTime) ? r[0].getTime() : Date.parse(r[0]);
+    var k = _ltStKind_(r[6]), c = counts[eid] || (counts[eid] = { n: 0, sent: 0, hold: 0, fail: 0, inn: 0, last: 0 });
+    c.n++; c[k]++; if (ts > c.last) c.last = ts;
+    if (k === 'sent') continue;
+    if (!(ts > 0) || nowMs - ts < LT_WATCH.AGE_MIN * 60000 || nowMs - ts > LT_WATCH.WINDOW_DAYS * 86400000) continue;
+    var lid = String(r[8] || '').trim(), tries = Number(r[9] || 0) || 0, st = String(r[6] || '').trim(), did = false;
+    // 한 번 더 보내기 — 보류(금지어)는 검수에 걸린 것이라 다시 보내지 않는다 · 번호 없는 옛 기록 · 본문이 지워진 편지도 건너뛴다
+    if (k !== 'hold' && lid && tries < LT_WATCH.RETRY_MAX && retried < LT_WATCH.RETRY_CAP && String(r[5] || '').trim()) {
+      retried++; did = true;
+      var cp = (eid in cpc) ? cpc[eid] : (cpc[eid] = _ltCoupleMin(eid)), info = {};
+      if (cp) { try { _ltSendToRecipients_(cp, String(r[3] || ''), String(r[4] || '') === '(미기재)' ? '' : String(r[4] || ''), String(r[5] || ''), _ltRecipientOfKo_(r[7]), info); } catch (e2) { info = { targets: 1, sent: 0 }; } }
+      var nst = cp ? _ltStatusOf_(info) : LT_ST.NOADDR, nk = _ltStKind_(nst);
+      sh.getRange(2 + i, 7).setValue(nst);
+      sh.getRange(2 + i, 10, 1, 2).setValues([[tries + 1, new Date()]]);
+      c[k]--; c[nk]++; k = nk;
+      if (nk === 'sent') fixed++;
+      st = nst + ' · 다시 보내기 ' + (tries + 1) + '회';
+    }
+    if (did || !String(r[11] || '').trim()) {
+      if (report.length < LT_WATCH.REPORT_MAX) report.push((lid || '(번호 없음)') + ' · ' + eid + ' · ' + st);
+      sh.getRange(2 + i, 12).setValue(today);
+    }
+  }
+  _ltCountsWrite_(counts);
+  if (report.length) {
+    var evs = {}; report.forEach(function (x) { evs[x.split(' · ')[1]] = 1; });
+    _ltAdminMail('[Moment Edit] 하객 편지 점검 · 보냄이 아닌 편지 ' + report.length + '건',
+      '접수 뒤 한 시간이 지나도 «보냄»이 아닌 편지예요(편지번호 · 예식 · 상태).\n\n' + report.join('\n') +
+      '\n\n다시 보내기 ' + retried + '건 · 그중 보냄 ' + fixed + '건 (편지마다 한 번만 다시 보내요 · 보류(금지어)는 다시 보내지 않아요)\n\n예식별 건수\n' +
+      Object.keys(evs).map(function (e) { var c = counts[e] || {}; return e + ' · 접수 ' + (c.n || 0) + ' · 보냄 ' + (c.sent || 0) + ' · 보류 ' + (c.hold || 0) + ' · 실패 ' + (c.fail || 0) + ' · 처리 중 ' + (c.inn || 0); }).join('\n') +
+      '\n\n편지 본문 · 하객 이름은 싣지 않아요. 전체 예식의 건수는 «' + LT_WATCH.SUMMARY + '» 시트에 있어요.',
+      'ltw_daily_' + today);
+  }
+  return { ok: true, events: Object.keys(counts).length, report: report.length, retried: retried, fixed: fixed };
+}
+// «편지현황» 시트 — 예식별 접수 · 보냄 · 보류 · 실패 · 처리 중 건수(본문 · 이름 없음) · 최근 편지 순
+function _ltCountsWrite_(counts) {
+  try {
+    var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(LT_WATCH.SUMMARY);
+    if (!sh) sh = ss.insertSheet(LT_WATCH.SUMMARY);
+    var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
+    var rows = [['예식', '접수', '보냄', '보류(금지어)', '실패', '처리 중', '마지막 편지', '갱신 ' + stamp]];
+    Object.keys(counts).sort(function (a, b) { return counts[b].last - counts[a].last; }).forEach(function (e) {
+      var c = counts[e];
+      rows.push([e, c.n, c.sent, c.hold, c.fail, c.inn, c.last ? Utilities.formatDate(new Date(c.last), 'Asia/Seoul', 'yyyy-MM-dd HH:mm') : '', '']);
+    });
+    var old = sh.getLastRow();
+    while (rows.length < old) rows.push(['', '', '', '', '', '', '', '']);
+    sh.getRange(1, 1, rows.length, 8).setValues(rows.map(function (x) { return x.map(_deFormula); }));
+  } catch (e) { Logger.log('[편지현황] ' + (e && e.message)); }
+}
+// 편집기에서 지금 바로 점검(매일 07시와 같은 일 · 메일은 하루 한 통)
+function letterSendCheck() { _requireAdmin();   // [LT_SEND_WATCH]
+  var r = _ltSendWatch_();
+  Logger.log('[letterSendCheck] ' + JSON.stringify(r));
+  return r;
+}
+
+function _ltSendToRecipients_(couple, guestName, relation, message, recipient, info) {
+  info = info || {};
   var targets = [], seen = {};
   /* [LETTER_ONE_ADDR 2026-09-26 통합 점검 L4] «두 분께» 편지가 같은 주소로 같은 메일 두 통 가던 것을 한 통으로.
      청첩장 발행(85_invitation _invCouplesFields)이 groomEmail·brideEmail 을 둘 다 가입 이메일 하나로 채워,
      거의 모든 «두 분께» 편지가 같은 받은편지함에 두 번 떨어졌다. 같은 주소(대소문자·앞뒤 공백 무시)는 한 번만 보낸다.
      ★받는 주소·제목·본문·반환(보낸 통수)의 뜻은 그대로다 — 주소가 다르면 종전처럼 각각 간다.
-     ★«신부님께»가 가입 이메일로 가는 것(신랑 주소일 수 있다)은 이것으로 안 풀린다 — 사장님 결정 대기(B안 · mypage [CI_NO_LETTER_PROMISE]). */
+     ★«신부님께»가 가입 이메일로 가는 것(신랑 주소일 수 있다)은 이것으로 안 풀린다 — 2026-11-06 사장님 결정 2 = A 로 풀었다(청첩장 발행이 신랑 · 신부 각자 주소 · 같은 주소면 하객 화면이 «두 분 모두»만). */
   var add = function (email, name, role) {
     var k = String(email || '').trim().toLowerCase();
     if (email && email.indexOf('@') !== -1 && !seen[k]) { seen[k] = 1; targets.push({ email: email, name: name, role: role }); }
@@ -333,11 +485,9 @@ function _ltSendToRecipients_(couple, guestName, relation, message, recipient) {
   else if (recipient === 'bride') add(couple.brideEmail, couple.brideName, 'bride');
   else { add(couple.groomEmail, couple.groomName, 'groom'); add(couple.brideEmail, couple.brideName, 'bride'); }
 
+  info.targets = targets.length; info.sent = 0; info.failed = 0;
   if (targets.length === 0) {
-    _ltAdminMail('[Moment Edit] 편지 미전달 · 수신자 이메일 없음 (직접 전달 필요)',
-      '예식 ID ' + couple.eventId + '의 수신자 이메일이 없습니다.\n' +
-      '수신 대상: ' + _ltRecipientKo(recipient) + '\n\n' +
-      '하객: ' + guestName + '\n메시지: ' + message);
+    /* [LT_SEND_WATCH] 종전엔 여기서 하객 이름 · 편지 본문을 실은 관리자 메일을 보냈다 — 이제 부르는 쪽이 번호 · 예식 · 상태만 알린다(_ltWatchAlert_) */
     return 0;   // [LETTER_DELIVERED] 편지는 시트에 남아 있다 — 스튜디오가 직접 전달한다
   }
 
@@ -351,13 +501,16 @@ function _ltSendToRecipients_(couple, guestName, relation, message, recipient) {
     + message + '\n\nMoment Edit\nFocus on the Essence, Record the Truth.';
 
   for (var i = 0; i < targets.length; i++) {
-    GmailApp.sendEmail(targets[i].email, subject, plainBody, {
-      htmlBody: _ltLetterHtml(guestName, relation, message, recipient),
-      name: 'Moment Edit',
-      from: LT.STUDIO_EMAIL
-    });
+    try {   // [LT_SEND_WATCH] 한 통이 실패해도 던지지 않는다 — 몇 통 나갔는지 세어 «보냄 / 실패»를 사실대로 적는다
+      GmailApp.sendEmail(targets[i].email, subject, plainBody, {
+        htmlBody: _ltLetterHtml(guestName, relation, message, recipient),
+        name: 'Moment Edit',
+        from: LT.STUDIO_EMAIL
+      });
+      info.sent++;
+    } catch (e) { info.failed++; info.err = String(e && e.message || e).slice(0, 120); }
   }
-  return targets.length;
+  return info.sent;
 }
 
 // 편지 메일 본문 — 강제 다크 고정(풀블리드 table bgcolor + color-scheme 메타 → 어느 클라이언트에서도 흰 배경 안 뜸)
@@ -460,6 +613,7 @@ function _ltCheckBanned(message) { _gsr_();
 //   → D-3 사전등록 SOP(docs/plans/PLAN_영상운영_기획안.md) 누락을 시스템이 잡는다. 수동 점검: 이 함수를 직접 실행.
 function vimeoGuardDaily() { _trigIn_(arguments[0]);
   try { purgeCoupleData(); } catch (e) { Logger.log('[purgeCoupleData] 실패: ' + (e && e.message)); }   // 예식 후 6개월 PII 파기(같은 매일 트리거에 얹음)
+  try { Logger.log('[letterSendWatch] ' + JSON.stringify(_ltSendWatch_())); } catch (e) { Logger.log('[letterSendWatch] 실패: ' + (e && e.message)); }   // [LT_SEND_WATCH] 하객 편지 점검(같은 매일 트리거)
   var sheet;
   try { sheet = _ltSheet(LT.COUPLES); } catch (e) { Logger.log('[vimeoGuard] ' + e.message); return; }
   var colOf = _couplesColOf(sheet);   // 3행 영문키(85_invitation)

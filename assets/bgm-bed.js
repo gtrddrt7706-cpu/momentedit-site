@@ -55,7 +55,7 @@
   /* 그 구간의 첫 담긴 순간 — 고르기 줄이 서는 쪽(본식 차례 · 없으면 목록 차례) */
   function chooser(sg){ var on=sg.ks.filter(onOf); if(on.length<2) return on[0]||null; var q=seq();
     on.sort(function(a,b){ var i=q.indexOf(a), j=q.indexOf(b); return (i<0?99+sg.ks.indexOf(a):i)-(j<0?99+sg.ks.indexOf(b):j); }); return on[0]; }
-  function nameOf(k){ var R=RO(); try{ return R?String(R.nameOf(k,St())||''):''; }catch(x){ return ''; } }
+  function nameOf(k){ if(k==='vow'&&St().vowKind==='thanks') return '감사문'; var R=RO(); try{ return R?String(R.nameOf(k,St())||''):''; }catch(x){ return ''; } }   /* ★[B2_NA_24 2026-11-06 BATCH2 나24] 감사문을 고른 날 음악 고르기 제목 · 한눈에 보기 구간 이름 = «감사문» · 서약 날은 «혼인 서약» 그대로 · 구간 · 곡 · 차례는 그대로 */
   function labelOf(sg){ var d=P.seg(sg); if(!d) return ''; if(d.slot) return (d.slot==='S5'?'축사':'편지'); var k=chooser(d); if(k==='free'||k==='letter') return '본식'; var n=nameOf(k); return (n&&n!==k)?n:d.nm; }   /* [BGM_FIX_1030] 엔진 이름표가 없는 순간(guest · _close)은 열쇠가 그대로 돌아온다 — 구간 이름(하객 맞이 · 닫는 인사)으로 */   /* 감사 인사 ~ 덕담을 다 뺀 날 첫 순간이 축사 · 편지면 그 칩 줄 이름(«축사 음악»)과 겹친다 */
   /* 고른 곡 번호 · 실제로 쓸 곡(안 골랐으면 1순위) */
   function picked(sg){ return P.custK(St(),sg); }

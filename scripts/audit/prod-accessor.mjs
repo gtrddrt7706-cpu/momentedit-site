@@ -60,7 +60,7 @@ console.log('\n[4] 용량 캡 — _prodSizeError(DRAFT_SIZE_CAP)');
   const msg = G._prodSizeError(big, { track: 'ritual' });
   /* ★[PROD_CAP_WORDS 2026-10-09 A~Z 점검 2라운드 A2-15] 거절 글 계약이 바뀌었다 — 종전 «현재 약 N자 · 최대 N자»(저장 꼴 JSON 길이)는 화면 칸 글자 수와 비교가 안 됐다.
      이제 «글이 너무 길어요 · ○○ 글을 조금 줄여 주세요 (코드 S0)» — 길이 숫자 없음 · 줄일 글 이름 · 코드 · «너무 길어요»(빌더 LONG_NO_RETRY 가 이 말로 «다시 저장하기» 안내를 뺀다) */
-  ok(!!msg && /너무 길어요/.test(msg) && /서약 · 편지 글을 조금 줄여 주세요/.test(msg) && /\(코드 S0\)$/.test(msg) && !/[0-9][0-9,]*자/.test(msg), '초과는 «글이 너무 길어요 · 줄일 글 (코드 S0)» 안내 반환(길이 숫자 없음)', msg.slice(0, 50));
+  ok(!!msg && /^입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요/.test(msg) && !/서약 · 편지/.test(msg) && /\(코드 S0\)$/.test(msg) && !/[0-9][0-9,]*자/.test(msg), '식순 초과는 «입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요 (코드 S0)»(원인 원고를 단정하지 않음 · B2_GEUL_16 · 길이 숫자 없음)', msg.slice(0, 50));
   ok(msg.indexOf('—') < 0, '안내 문구에 전각 줄표 없음(문구 규칙)');
 }
 
@@ -183,7 +183,7 @@ console.log('\n[9] 캡·손상 격리 — 한 트랙 사고가 다른 트랙을 
   const big = { tracks: {}, ritualDraft: { S: { t: 'ㅁ'.repeat(13000) } }, seatDraft: { tables: [] } };
   const rErr = G._prodSizeError(big, { track: 'ritual' });
   const sErr = G._prodSizeError(big, { track: 'seat' });
-  ok(!!rErr && rErr.indexOf('서약 · 편지') >= 0 && /\(코드 S0\)$/.test(rErr), '초과 트랙은 그 트랙에서 줄일 글 이름으로 거부(식순 → 서약 · 편지 · PROD_CAP_WORDS)', rErr.slice(0, 40));
+  ok(!!rErr && rErr.indexOf('입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요') === 0 && rErr.indexOf('서약 · 편지') < 0 && /\(코드 S0\)$/.test(rErr), '초과 트랙은 그 트랙에서 거부 · 식순은 원인 원고를 단정하지 않는다(B2_GEUL_16 · PROD_CAP_WORDS)', rErr.slice(0, 40));
   const dErr = G._prodSizeError({ tracks: {}, diningDraft: { t: 'ㅁ'.repeat(13000) } }, { track: 'dining' });
   ok(!!dErr && dErr.indexOf('애프터 웨딩') >= 0 && !/[0-9][0-9,]*자/.test(dErr), '다른 트랙도 그 트랙 이름 · 길이 숫자 없음(애프터 웨딩)', dErr.slice(0, 40));
   ok(sErr === '', '★같은 고객의 다른 트랙 저장은 정상(분리의 목적)');
@@ -287,7 +287,7 @@ console.log('\n[15] 재검토 A급 — _prodStoreCols가 err를 삼키지 않는
   let threw = false, msg = '';
   try { G._prodStoreCols(over, {}, { track: 'ritual' }); } catch (e) { threw = true; msg = String(e.message || e); }
   ok(threw, '★err를 삼키고 빈 cols로 진행하지 않고 던진다(조용한 ok:true 차단)');
-  ok(msg === G._prodPack(over, { track: 'ritual' }).err && /너무 길어요/.test(msg) && /\(코드 S0\)$/.test(msg), '던진 메시지가 고객 안내 문구 그대로(«글이 너무 길어요 · … (코드 S0)» · PROD_CAP_WORDS)', msg.slice(0, 50));
+  ok(msg === G._prodPack(over, { track: 'ritual' }).err && /너무 길어요|글이 많아/.test(msg) && /\(코드 S0\)$/.test(msg), '던진 메시지가 고객 안내 문구 그대로(«… 글이 많아 … (코드 S0)» · PROD_CAP_WORDS · B2_GEUL_16)', msg.slice(0, 50));
   // 정상 크기는 당연히 안 던짐
   let ok2 = true; try { G._prodStoreCols({ tracks: {}, ritualDraft: { t: 'ok' } }, {}, { track: 'ritual' }); } catch (e) { ok2 = false; }
   ok(ok2, '정상 저장은 그대로 통과');

@@ -120,13 +120,41 @@
     return n ? o : null;
   }
 
+  /* ★[B2_NA_01 2026-11-06 BATCH2 나01] 고른 나레이션 예시(S.narEx) · 테이블 수(S.tableN) · 덕담 수(S.blessN) · 성혼 선언 호칭 코드(declTitle)도 싣는다 —
+       엔진은 RitualOpen(narExCue · tableN · declTitleOf)을 거쳐 읽어 위 KEYS 검사(PREVIEW_KEYS · S.xxx 만 센다)에 안 잡혔고,
+       미리듣기에서 «격식 있게»(148)를 골라도 기본 137 로 흘렀다. 값은 숫자 · 코드뿐(글 아님) ·
+       narEx = 예시 키 → 1 이상 정수(RitualOpen 이 있으면 narExOf 가 정한 값 · 옛 초안 맞바꿈 포함 · 없으면 같은 규칙의 짧은 판) ·
+       tableN = RitualOpen.tableN 결과(1 ~ 6) · blessN = 1 ~ 4 정수 · declTitle = 호칭 코드(declTitleOf · 옛 declareWho 코드 포함) */
+  var DECL_CODES = ['gdad', 'bdad', 'gmom', 'bmom', 'other'];
+  function narExPick(S) {
+    var nx = S && S.narEx, R = w.RitualOpen, o = {}, n = 0;
+    if (!nx || typeof nx !== 'object') return null;
+    var old = S.entryScene != null && +S.exv !== 2;   /* [BASE_SWAP_1023] 옛 초안의 «1» = 지금 기본(ritual-open exSwapped 와 같은 규칙) */
+    Object.keys(nx).forEach(function (k) {
+      if (!/^[a-zA-Z][a-zA-Z0-9]{0,23}$/.test(k)) return;
+      var v;
+      if (R && R.narExOf && R.NAR_EX) { if (!R.NAR_EX[k]) return; v = R.narExOf(S, k); }
+      else { v = Math.floor(+nx[k]); if (!(v >= 1 && v <= 9)) return; if (old && v === 1 && (k === 'matjeol' || (k === 'candle' && (S.candleWho || 'mothers') === 'mothers'))) return; }
+      if (v >= 1) { o[k] = v; n++; }
+    });
+    return n ? o : null;
+  }
+  function declPick(S) {
+    var R = w.RitualOpen, t = (R && R.declTitleOf) ? R.declTitleOf(S) : (S.declTitle || ((S.declareWho === 'gdad' || S.declareWho === 'bdad') ? S.declareWho : ''));
+    return DECL_CODES.indexOf(t) > -1 ? t : '';
+  }
+
   // 고를 것만 골라 담는다. undefined·null 은 넣지 않는다 — 미리듣기 쪽 기본값이 그대로 서게(병합 주입).
   function pick(S) {
     var o = {};
     if (!S) return o;
+    var _nx = narExPick(S); if (_nx) o.narEx = _nx;   /* [B2_NA_01] */
+    if (S.tableN != null && +S.tableN >= 1) { var R0 = w.RitualOpen; o.tableN = (R0 && R0.tableN) ? R0.tableN(S) : Math.min(6, Math.max(1, Math.round(+S.tableN))); }   /* [B2_NA_01] */
+    var _bn = Math.floor(+S.blessN); if (_bn >= 1 && _bn <= 4) o.blessN = _bn;   /* [B2_NA_01] */
     for (var i = 0; i < KEYS.length; i++) {
       var k = KEYS[i];
       if (k === 'bgm') { var bg = bgmOf(S.bgm); if (bg) o.bgm = bg; continue; }   /* [BGM_INFO_1023] 'bed' 만 · 옛 곡 이름 · 다른 값은 버린다 */
+      if (k === 'declTitle') { var dt = declPick(S); if (dt) o.declTitle = dt; continue; }   /* [B2_NA_01] 호칭 코드만 */
       if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : (k === 'vowFirst') ? (S[k] === 'b' ? 'b' : 'g') : (k === 'vowKind') ? (S[k] === 'thanks' ? 'thanks' : 'vow') : S[k];   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
     }
     return o;

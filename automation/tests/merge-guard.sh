@@ -106,7 +106,7 @@ chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 
 chk 'AbortError' mypage.html 2                     # 공유·QR 저장 폴백
 chk '발행 직전 1회만' mypage.html 1                # both 같게 미러 시점
 chk '계좌를 비워 두면' mypage.html 1               # 계좌 필수 거짓 문구 정정
-chk 'GUIDE_MAKE_COND' mypage.html 3                # 하객 안내 조건 공용 상수
+chk 'GUIDE_MAKE_COND' mypage.html 2                # 하객 안내 조건 공용 상수
 chk '본예식 20분 전' mypage.html 1                 # 인쇄 킷 도착 안내 · [DAY_PLAN 2026-08-09] 본식 10:05 기준 09:45 입장 = 20분 전(청첩장 16종과 같은 값)
 chk 'trk-sep' mypage.html 2                        # 확인·전달 그룹 구분선
 chk 'trk-tag' mypage.html 2                        # 선택 태그
@@ -1540,7 +1540,7 @@ chk 'GUIDE_PHOTO_INFO' guide.html 2            # 외부 공간으로 나가는 �
 #   ★마커는 없어져도 **지키려던 세 가지는 그대로 있어야 한다**(접근 범위·프로필 노출·정리하면 버튼도 닫힘).
 #     그래서 마커 대신 문장을 직접 센다 — 이름이 아니라 내용을 지키는 쪽이 원래 의도에 맞다.
 chk '링크를 아는 분은 누구나 들어갈 수 있어요' mypage.html 1
-chk '버튼도 닫혀요' mypage.html 1                 # [SEC_RANK] 문구를 줄여도 안 걸리게 핵심만 센다 — 지키는 것은 문장이 아니라 '앨범을 지우면 버튼도 닫힌다'는 사실
+chk '링크를 비우면 안내 페이지에서 사진을 받아요' mypage.html 1   # [B2_MA_76 2026-11-06] 문구가 바뀌었다 ·                 # [SEC_RANK] 문구를 줄여도 안 걸리게 핵심만 센다 — 지키는 것은 문장이 아니라 '앨범을 지우면 버튼도 닫힌다'는 사실
 # ── 2026-07-26 guide.html 3라운드(예식장 현장 조건 — 느린 회선·실패·확대)
 chk 'GUIDE_FONT_NOBLOCK' guide.html 1          # 폰트 CSS가 렌더 블로킹이라 FCP 3056ms·백지였다. media=print+onload로 뺐다 → FCP 60ms
 chk 'media="print"' guide.html 1               # ★위 처방의 본체. rel=stylesheet만 남기면 다시 렌더 블로킹이 되고 흰 화면이 돌아온다
@@ -5855,8 +5855,8 @@ chk "weduploader\\\\.com" mypage.html 1
 # ★[GUEST_PHOTO_IN 2026-08-17] 위 두 chk(weduploader 권장 문구·부부 드라이브 직송 문구)는 **정당한 폐지**로 내렸다.
 #   우리가 직접 받게 되면서 그 자리 첫 줄이 '남의 링크를 넣어 주세요'에서 '준비하실 건 없어요'로 바뀌었다.
 #   외부 링크 안내 자체는 접힌 「다른 방법도 되나요」 안에 남아 있고, 그쪽은 아래에서 지킨다.
-chk '가입도 이름 입력도 없이' mypage.html 1        # 외부 링크(weduploader)를 넣었을 때의 안내는 살아 있다
-chk '가입도 이름 입력도 없이' mypage.html 1
+chk '가입·이름 입력 없이' mypage.html 1        # [B2_MA_41 2026-11-06] · 외부 링크(weduploader)를 넣었을 때의 안내는 살아 있다
+chk '가입·이름 입력 없이' mypage.html 1
 chk '예식 전날 한 번 열어' mypage.html 1              # 직송형 공통 약점(OAuth 끊김) 안내
 chk 'BROWSE FILES' guide.html 1                       # 영어 두 단어를 한국어로 덮는 유일한 자리
 chk '이름도 가입도 필요 없어요' guide.html 1
@@ -7930,7 +7930,7 @@ chk 'DECLARE_BY_PERSON' scripts/audit/declare-by-person.mjs 1
 nochk "declare: \[\['gdad', '신랑 아버님'\]" assets/ritual-open.js 0   # [DECLARE_ANYONE 2026-10-12] 읽는 분 칩은 걷었다(칸에 적는다)
 chk "'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend'" assets/ritual-cue.js 1
 nochk "L('declare','누가 읽나요'" order-preview.html 0   # [DECLARE_ANYONE] 칩 줄 대신 칸 «읽어 주실 분»
-chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 2   # [REVIEW_166_1030 B11] 칩 아래 · 준비 칸 둘은 _declNoWho 한 곳으로
+chk '읽어 주실 분이 없으면 선언을 빼고 서약으로 마무리해요' order-preview.html 1   # [B2_GEUL_26] ① 설명은 «이 순간을 빼도 돼요»(서약이 남는다고 가정하지 않음) · 칸 한 줄(_declNoWho)만 · [REVIEW_166_1030 B11] 칩 아래 · 준비 칸 둘은 _declNoWho 한 곳으로
 chk '나레이션은 선언문을 읽지 않는다' api/_ritual-kb.js 1
 nochk "\['solemn', '나레이션 · 엄숙하게'\]" assets/ritual-open.js 0
 nochk "\['family', '가족이 낭독'\]" assets/ritual-open.js 0
@@ -8206,7 +8206,7 @@ chk '두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.' ass
 chk "candleOutFormal: '두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 가정의 마음이 하나의 불꽃이 되었습니다.…» · 옛 주석 140(격식 날) · T1 «따뜻한» 뺌
 chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 되어' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «오늘의 주인공을, 앞으로 모시겠습니다.…» · 옛 주석 입장 B · G2 4 선창 4
 chk '서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 되어' order-preview.html 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «오늘의 주인공을, 앞으로 모시겠습니다.…»
-chk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.' assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
+chk '맞절은 단순한 인사가 아닌, 기쁠 때나 어려울 때나 서로의 곁을 지키며 살아가겠다는 약속이며' assets/ritual-open.js 1   # [B2_GEUL_02_05 2026-11-06] 시선 문장 걷음 ·   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 132 · S 1부 6 단어 바꿈
 chk "s.text === '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을 마음에 담아 보시기 바랍니다.'" scripts/build-typecast-import.mjs 1   # ★[REVIEW29_1023 검토 153] 자료 글로 옮김 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «s.text === '두 분, 서로의 눈을 바라봐 주세요.…» · 옛 주석 맞절 뒤 3초 쉼 열쇠 — 글과 함께 바뀌어야 한다(옛 열쇠면 쉼이 조용히 사라진다)
 chk ' thanksIn:"다음은 감사문 낭독이 있겠습니다."' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « thanksIn:"감사문 낭독이 있겠습니다.…» · 옛 주석 감사문 여는 말 · 서약과 같은 틀   # [RETAKE_168_1030]
 chk ' song:"두 사람의 앞날을 축복하는 축가가 있겠습니다."' assets/ritual-data.js 1   # ★[SONG_OPEN_PLAIN_1023 코워크 10/23] 첫 문장 뺌 · 칩 «담백하게» · ★[SONG_DEF_NN_1023 검토 151-1 2)] 자료 NN 원문(옛 예시 3) · 옛 핀 « song:"다음은 오늘을 위해 틈틈이 준비한 무대가 있겠습니다."» · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 « song:"축가가 있겠습니다.…» · 옛 주석 축가 여는 말 · 덕담 맺는 말 «…들었습니다» 뒤 «들어 보시겠습니다» 되풀이도 풂   # [MODERN_WORDS_1024 검토 164] 새 글
@@ -8265,7 +8265,7 @@ nochk '이제 사진을 남기겠습니다.' assets/ritual-data.js
 nochk '이제 사진을 남기겠습니다.' order-preview.html
 chk '오늘 저희의 가장 빛나는 순간을 함께해 주셔서 감사합니다.' assets/ritual-ref.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «여러분 덕분에, 오늘 이 순간이 더 행복합니다.…» · 옛 주석 감사 인사 담백 신랑 셋째 · Z 1 흐름 5 + 감사문 캡처 «여러분 덕분에»
 nochk '준비한 이야기를 들려드리겠습니다' assets/ritual-ref.js
-chk '사랑하는 하윤이와 서준이에게, 오빠 민재가.' assets/ritual-ref.js 1   # ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «우리 가족이 되어 주신 서준 씨 …» · 513 = 실제 축사(유튜브 A2SzVDHF5YE)
+chk '사랑하는 하윤이와 서준이에게, 오빠가.' assets/ritual-ref.js 1   # [B2_GEUL_08] 가상 이름 «민재» 뺌 · ★[SRC_ALL_1023 검토 145 · 146 · 사장님 10/23 «자료집 글로만»] 옛 핀 «우리 가족이 되어 주신 서준 씨 …» · 513 = 실제 축사(유튜브 A2SzVDHF5YE)
 nochk '서준 씨, 우리 가족이 된 걸 환영합니다.' assets/ritual-ref.js
 # [WAIT_SAFE_R6_1016] 서약 · 감사문 · 편지 안심 — 폐지된 대기 클립(WAIT_BRIDGE_RETIRED 9/6)을 약속하지 않는다
 chk 'WAIT_SAFE_R6_1016' assets/ritual-story.js 1
@@ -8661,7 +8661,7 @@ nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_�
 nochk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt'
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOW_OPENS_COLD] 「다 지웠어」 프레임은 새 [11]에도 없다 — nochk 가 이미 막는다
-chk '신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니다. 두 분은 부모님을 바라보며 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세…» · 옛 주석 ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
+chk '신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니다. 그럼 지금부터 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # [B2_GEUL_02_05 2026-11-06 대본 · 우성 녹음 앞]   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세…» · 옛 주석 ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
 chk '이어서, 두 사람이 서로에게 마음을 담아 쓴 편지를 읽겠습니다.' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람이 서로에게 쓴 편지가 있습니다.…» · 옛 주석 28 — 진행자가 읽는 것처럼 들렸다 · ★[NAR_ENGINE_1014] 10/14 원고 3단계 글(«못 한 말이 있습니다»는 짐작 W5)
 chk '신랑 신부가 편지를 써 왔습니다.' assets/ritual-data.js 1
 
@@ -10953,7 +10953,7 @@ chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 #   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
 #   새 문장도 주어가 사람이고, 하객의 시선을 부모님께 돌리는 기능도 그대로다. 형태만 짧아졌다.
 #   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
-chk '신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니다. 두 분은 부모님을 바라보며 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세…» · 옛 주석 ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
+chk '신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니다. 그럼 지금부터 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # [B2_GEUL_02_05 2026-11-06 대본 · 우성 녹음 앞]   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세…» · 옛 주석 ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
 nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
 nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
 nochk '오늘 이 자리를 함께 채워 주셔서' assets/ritual-cue.js
@@ -12303,10 +12303,10 @@ chk 'SOFT_TONE' scripts/apply-soft-narration.mjs 1
 # ★옛 문구를 nochk 로 막으려다 멀쩡한 자리를 잡았다 — ritual-data 의 TONE_TABLE 블록은
 #   «어조 60벌»(21_B_제안.md §3 에서 생성)이고 그쪽은 이미 186개를 녹음해 둔 다른 묶음이다.
 #   같은 문장이라도 자리가 다르면 다르게 본다(SOFT_NOT_BLANKET) — 그래서 새 문구가 있는지로만 지킨다.
-chk '신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니다. 두 분은 부모님을 바라보며 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세…» · 옛 주석 ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
+chk '신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니다. 그럼 지금부터 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # [B2_GEUL_02_05 2026-11-06 대본 · 우성 녹음 앞]   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «두 사람이 부모님께 쓴 편지가 있습니다. 두 분, 읽어 드리세…» · 옛 주석 ★[LETTER_TO_FIRST_1014] 받는 분을 첫 문장에   # ★[NAR_ENGINE_1014] 10/14 원고 3단계(«쑥스러워»는 짐작 W5 · «부모님께» 두 번 W13) · 옛 줄 «평소엔 쑥스러워 …»   # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
 # ★셋에서 둘로 준 까닭 — 27#1 이 「직접 읽어 드리시면 됩니다」로 바뀌었다(부모님께 읽는 것이라 높임).
 #   숫자만 내리지 않고 **옮겨 간 자리를 함께 잠근다** — 안 그러면 그 한 줄이 아무 검사도 안 받는다.
-chk '두 분은 부모님을 바라보며 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # ★[LETTER_TO_FIRST_1014] «부모님께»는 첫 문장으로   # ★[NAR_ENGINE_1014] 10/14 원고 3단계 · ★[NAR_B2_1014] 4판 «읽어 드리세요»를 엔진에(글 먼저 · 녹음 대기)   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
+chk '그럼 지금부터 편지를 낭독해 주시기 바랍니다.' assets/ritual-data.js 1   # [B2_GEUL_02_05 2026-11-06]   # ★[LETTER_TO_FIRST_1014] «부모님께»는 첫 문장으로   # ★[NAR_ENGINE_1014] 10/14 원고 3단계 · ★[NAR_B2_1014] 4판 «읽어 드리세요»를 엔진에(글 먼저 · 녹음 대기)   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «두 분, 읽어 드리세요.…»)
 nochk '두 분, 부모님께 전해 주세요.' assets/ritual-data.js   # 편지를 건네러 가는 말로 읽혔다(원고 4판 · GG 1)
 chk '두 분, 차례로 전해 주세요.' assets/ritual-data.js 1
 nochk '신랑부터 차례로 서로의 손에 반지를 끼워 줍니다.' assets/ritual-data.js   # ★[R11_SRC_1018 라운드 11] 반지 여는 말은 자료 T2 «예물 교환»(새 글은 위 R11 핀이 잠근다) · 옛 핀 chk 2 = G1 58(★[SOURCE_FIRST_1016] 자료 글로 옮김 · 그 전 «두 분, 신랑부터 차례로 서로의 손에 끼워 주세요.…» · ★[NAR_ENGINE_1014] «반지를» 두 번 W13) · 되살리지 말 것
@@ -13089,7 +13089,7 @@ chk 'ENTRY_LAB_QUOTE' order-preview.html 1
 chk 'TILE_FREE_COMMA' assets/ritual-open.js 1
 nochk '고른 순간에만 나서요' order-preview.html 1   # 옛 코스 갈래 한 줄만 남는다(새 코스는 «담은 순간에만»)
 chk '담은 순간에만 나서요' order-preview.html 1
-chk '단체 사진은 하객 모두와 한 장, 그다음 가족 · 친구 순서예요.' assets/ritual-open.js 1   # [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날도 참
+chk '전체 단체 사진 뒤에는 촬영 후 안내, 가족 사진과 추가 촬영이 이어져요.' assets/ritual-open.js 1   # [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날도 참 · [B2_GEUL_11] 촬영 후 안내 · 가족 사진 · 추가 촬영(POST_FLOW 차례)
 nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' assets/ritual-open.js 0
 nochk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요' order-preview.html 0
 chk '두 분이 하객께 목례 · 박수' order-preview.html 1
@@ -13464,7 +13464,7 @@ nochk '^\.inv-chk{display:flex' mypage.html 0
 # [GUIDE_NOTE_TRUE] 하객 안내 칩·안내문은 한 판정(_guideSections)에서 — 애프터 웨딩 ✓ 인데 식당이 없으면 「장소 미정」 + «식당을 고르면» · 둘 다 켜지면 안내문 없음
 chk 'function _guideSections(p)' mypage.html 1
 chk '+_guideNoteHtml(p)' mypage.html 1
-chk "g.dnPend?'장소 미정':''" mypage.html 1
+chk "g.dnPend?'장소 미정':'준비 전'" mypage.html 1   # [B2_MA_14 2026-11-06] 상태 넷(사용 안 함 · 공개한 곳 없음 · 장소 미정 · 준비 전)
 nochk '<span class="cc-mini">비어 있는 부분은' mypage.html 0
 # [GUIDE_SHARE_GRID] 하객 안내 패널만 두 칸 격자(좌석 공유 패널의 .seat-share-btns 전역 규칙은 그대로) + 「공유」
 chk 'seat-share-btns gd-share-btns' mypage.html 1
@@ -13970,7 +13970,7 @@ nochk "PHOTOFLOW._psOpen=true; rerender(); } }); }" mypage.html
 chk 'SHARE_SCHEME' mypage.html 4
 chk "u='https://'+u;" mypage.html 1
 chk 'id="mp_psBad" role="status"' mypage.html 1
-chk '<span class="ln-bal">링크가 아니라서 저장되지 않아요.</span>' mypage.html 1
+chk '<span class="ln-bal">링크를 끝까지 붙여 주세요.</span>' mypage.html 1   # [B2_MA_35 2026-11-06] 잘못된 링크 안내 문구가 바뀌었다(판정본 그대로)
 chk "_nb.hidden=!!_nu||!String(psi.value||'').trim();" mypage.html 1
 # [PH_MORE_CUE] 사진 오버레이 접힘 두 곳 — 44px · 꺾쇠 · 키보드 초점 테두리(상담 · 시착 카드 [CC_MORE_CUE] 와 한 모양)
 chk 'PH_MORE_CUE' mypage.html 1
@@ -14025,7 +14025,7 @@ nochk '</b>로 예약만 마치면' mypage.html
 # [DN_RSV_MODE] 예약 안내 — 위에 실제로 있는 것만 가리킨다('tel' · 'notel' · 'none' 대표 전 · 'bare' 단일 경로) · 지도 안내는 카드 한 번
 chk 'DN_RSV_MODE' mypage.html 6
 chk "_dnRsvHtml(d, !rep?'none':(_dnTelOf(rep," mypage.html 1
-chk "_dnRsvHtml(d, !R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel'))" mypage.html 1
+chk "_dnRsvHtml(d, _vpPh?'none':(!R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel')))" mypage.html 1   # [B2_MA_29 2026-11-06] 옛 자리표시는 none 갈래
 chk "(mode==='tel'?'<span class=\"ln-bal\">위 전화번호와 통화 문구를 그대로 쓰시면 돼요.</span>'" mypage.html 1
 nochk "'지도에서 매장 번호를 확인하고," mypage.html      # 코드의 옛 noTel 문장(따옴표로 시작) — 주석의 인용은 안 잡는다
 nochk "해주세요 · '+(noTel?" mypage.html
@@ -14397,7 +14397,7 @@ nochk 'save:function(){ return savePhoto(); },' mypage.html 0
 nochk 'if(PHOTOFLOW._exiting) return; PHOTOFLOW._exiting=true;' mypage.html 0
 nochk "psi.addEventListener('blur'.*scrollIntoView" mypage.html 0
 # [SHARE_GATE_WAYOUT] 관문이 저장을 멈추니 경고 둘째 줄이 나가는 길을 둘 다 말한다(«선택» 칸이라 비워도 된다)
-chk '<span class="ln-bal">주소 전체를 복사해 붙여&nbsp;넣거나 칸을 비워 주세요.</span>' mypage.html 1
+chk '<span class="ln-bal">따로 만든 곳이 없으면 비워 두셔도 돼요.</span>' mypage.html 1   # [B2_MA_35 2026-11-06] 판정본 문구
 nochk '<span class="ln-bal">주소 전체를 복사해 붙여 주세요.</span>' mypage.html 0
 # [PHOTO_FAIL_STAY] 사진 저장 실패 판 «저장이 안 됐어요» — 바깥 · Esc 는 null(판만 닫고 머문다) · 명시적 «저장 없이 나가기»만 버린다([WIZ_EXIT_ONE] dismissNull · 나머지 네 판은 묶음 H3b)
 chk 'PHOTO_FAIL_STAY' mypage.html 1
@@ -14738,9 +14738,9 @@ chk "img: 'w04-3'" assets/snap-refs.js 1
 #   가족 · 친구 스냅 편집 화면 = 그날 차례 번호 줄(① 전체 하객 + 꼭 담고 싶은 사진 ② 감사 인사 ③ 가족 구도 ④ 온라인 인사 ⑤ 남은 분들과 자유롭게)
 chk 'PHOTO_DAY_STEPS' mypage.html 8
 chk '<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">' mypage.html 1
-chk "h+=_stepHd('모두 함께 · 전체 하객 한 장'" mypage.html 1
+chk "h+=_stepHd('전체 단체 사진'" mypage.html 1   # [B2_MA_66 2026-11-06]
 nochk "h+=_stepHd('감사 인사 · 남아 주실 분 안내'" mypage.html   # ★[END_FLOW_1030 검토 167] 감사 인사 차례는 걷었다(닫는 인사가 맡는다) · 되살리지 말 것
-chk "h+=_stepHd('가족 구도'" mypage.html 1
+chk "h+=_stepHd('가족 사진'" mypage.html 1   # [B2_MA_66 2026-11-06]
 chk "if(_dig) h+=_stepHd('온라인 인사'" mypage.html 1
 chk "h+=_stepHd('추가 촬영'" mypage.html 1   # [POST_FLOW_200] 옛 «남은 분들과 자유롭게»
 nochk '먼저 가실 분들은 이때 식사 자리로 옮겨요.' mypage.html   # ★[END_FLOW_1030] «먼저 가시라» 안내 금지(사장님 10/30)
@@ -15411,7 +15411,7 @@ chk 'REVIEW24_1019' assets/ritual-open.js 7
 chk 'PV_OUT_1019' assets/ritual-cue.js 3
 chk 'PV_OUT_1019' assets/ritual-open.js 1
 chk "'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out'" assets/ritual-cue.js 1
-chk "pvExNames: \['담백하게', '다정하게', '잔잔하게', '격식 있게'\]" assets/ritual-open.js 1
+chk "pvExNames: \['담백하게', '다정하게', '잔잔하게'\]," assets/ritual-open.js 1   # [B2_GEUL_01 d-01] 예시 4(130 시선 명령)는 고르는 목록에서 뺐다
 chk 'R.NAR&&R.NAR.pvExNames' order-preview.html 1
 chk 'PV_HOST_1019' scripts/build-typecast-import.mjs 2
 nochk '.pk-exs .pk-ex{padding-right:48px}' order-preview.html   # [RAIL_IGNORE_1019] 예시 카드 말풍선 자리(종전 PK_EX_BUBBLE_1019) — 걷었다
@@ -18715,7 +18715,7 @@ chk 'SETUP_ERRBOX' order-preview.html 1
 chk "_vc('phrase',{who:w,keep:keep?1:undefined})" order-preview.html 1
 chk "sec:sec,phrase:R.phrase||''" order-preview.html 1
 chk 'LATEST_FILL' mypage.html 4
-chk '_latest:(r&&r.latest)||null' mypage.html 1
+chk '_latest:_lt' mypage.html 1   # [B2_MA_44 2026-11-06] 받은 최신본으로 초안 · 기준선까지 바꾼 뒤 싣는다
 chk 'REV_FORCE_DIRECT' mypage.html 1
 chk 'return _trkSend(p2);' mypage.html 1
 nochk 'return apiTrackSave(p2);' mypage.html
@@ -19628,7 +19628,7 @@ nochk '그다음 디렉터 대독' assets/ritual-cue.js
 nochk '그다음 디렉터 대독' assets/ritual-story.js
 nochk "scene: '나레이션이 부르면" assets/ritual-story.js
 nochk '부모님 품에 안기는' order-preview.html
-chk "'부모님이 덕담을 들려주세요 · 약 1분씩'" assets/ritual-open.js 1   # [R2_BLESS_TALK_1014] 라운드 2 G3 — ④ 대본에서 시간을 한 번만
+chk "'부모님이 덕담을 전해요 · 약 1분씩'" assets/ritual-open.js 1   # [R2_BLESS_TALK_1014] 라운드 2 G3 — ④ 대본에서 시간을 한 번만
 chk "'축사 원고 · 1분에 300자쯤" assets/ritual-open.js 1
 nochk '축사하실 분께 부탁드리기' assets/ritual-open.js
 chk "song:'노래하실 분께서 직접 불러 주시는 시간입니다.'" order-preview.html 1   # ★[BRIDGE_NO_ECHO_1014] 여는 말과 겹치는 낱말을 뺐다
@@ -20776,7 +20776,7 @@ chk 'DETAIL_R2_1101' scripts/audit/detail-r2.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r2.mjs >/dev/null 2>&1; _r2=$?; if [ "$_r2" = 1 ]; then echo 'FAIL detail-r2: 이어 듣기 세부 여섯(음악과 함께 뜸 자리 · 칩 바꾸면 멈춤 · 선언 늦은 곡 · 연출 멈춤 · 박수 줄 · 편지 끝 경합) — node scripts/audit/detail-r2.mjs'; fail=1; elif [ "$_r2" = 2 ]; then echo 'skip detail-r2 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r2'; fi; fi   # ★[DETAIL_R2_1101]
 chk 'function segCk()' console.html 1   # ★[DETAIL_R3_1101 ①] 현장 선곡은 예식(rf)마다
 chk 'id="segMine"' console.html 1   # [DETAIL_R3_1101 ①] 이 예식에서 바꾼 곡 한 줄
-chk '곡 파일을 열지 못했어요 · 앞 곡을 이어 틀어요' console.html 1   # [DETAIL_R3_1101 ②] 새 곡이 실제로 소리를 낸 뒤 넘김
+chk '곡 파일을 열지 못했어요 · 재생 중인 곡은 그대로 이어집니다.' console.html 1   # [B2_NA_65 바꿈] [DETAIL_R3_1101 ②] 새 곡이 실제로 소리를 낸 뒤 넘김
 chk 'function bedFree()' console.html 1   # [DETAIL_R3_1101 ③] 셋째 재생기 · 들리는 재생기 src 안 바꿈
 chk '  esdStop(0.6);   // ★.DETAIL_R3_1101 ④' console.html 2   # [DETAIL_R3_1101 ④] 전체 정지 · 뒤로 = 입장 장면까지
 chk 'function bedVolFb()' console.html 1   # [DETAIL_R4_1101 ③] 대체 경로 두 재생기 덕킹 · 음소거
@@ -21841,7 +21841,7 @@ chk "tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분
 nochk '촬영을 마치면 흐르는 마지막 안내' order-preview.html
 chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행'" order-preview.html 1   # [FIX_FLOW_204 D] «작가님» 표기 없음
 chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
-chk "\['15~33분쯤','단체 사진','Group Record','전체 → 안내 → 가족 · 추가 촬영'\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
+chk "\['15~33분쯤','단체 사진','Group Record','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /\* \[B2_GEUL_22\] \*/\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
 # ── 2026-11-02 [FAREWELL_NAME_204 검토 204 회신] 고객이 보는 하루 흐름 «마무리 Farewell» → «정리 Farewell»(식순 · 홈 140분 표 · AI 상담 같은 이름) · 계약서는 그대로
 chk '<span class="seq-name-ko">정리</span>' index.html 1
@@ -22073,13 +22073,483 @@ nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
 chk 'MATJEOL_PILL_R2' order-preview.html 1   # [MEANING_R2 · 2026-11-06] 맞절 = 정적 → 알약에 «음악과 함께» 없음(엔진 줄이 모두 정적이면)
 chk 'MATJEOL_PILL_R2' scripts/audit/entry-carry.mjs 1
+# ── 2026-11-06 [BATCH2 나01~37] 나레이션 구현 2차(나02 = B2-K09 결정 반영 · 나28 결정 대기 · 나25 · 나33 1차와 겹침 · 나35 제외)
+chk 'B2_NA_01' assets/ritual-preview-link.js 3   # 미리듣기 주소에 고른 예시(narEx) · 테이블 수 · 덕담 수 · 호칭 코드
+chk 'var _nx = narExPick(S); if (_nx) o.narEx = _nx;' assets/ritual-preview-link.js 1
+chk 'function _prAtSig(k)' order-preview.html 1   # [B2_NA_03] 이어서 연습 = 순간 줄 구성 지문
+chk '내용이 바뀌어 이 순간 처음부터 해요.' order-preview.html 1
+chk '저장한 위치를 확인할 수 없어 이 순간 처음부터 해요.' order-preview.html 1
+chk '마이크를 그대로 들고, 이어서 첫 덕담을 해 주세요.' order-preview.html 1   # [B2_NA_04]
+chk 'B2_NA_05' order-preview.html 1   # 이름 한 번에 바꾸기
+nochk "\[\['이서준','서준',g\],\['정하윤','하윤',b\]\]\.forEach(function(r){ var full=r\[2\]; if(!_exNmOk(full)) return; var gv=_exGiven(full), j=_exBat(gv);" order-preview.html
+chk "p==='과'?(j?'과':'와')" order-preview.html 1   # [B2_NA_37]
+chk "Math.min(3,Math.max(1,+R.chipOf('freeLen',S)||3))" order-preview.html 1   # [B2_NA_06]
+chk '정한 길이에 맞춰 예시를 다듬어 주세요.' order-preview.html 1
+chk '도 글을 적을게요</button>' order-preview.html 1   # [B2_NA_07] d-06
+chk 'B2_NA_07' order-preview.html 1
+chk 'SAVE_LOCAL_FAIL' order-preview.html 3   # [B2_NA_08]
+chk '이 기기에 저장하지 못했어요. 대본을 복사하거나 파일로 받아 주세요.' order-preview.html 1
+chk '다른 창에 더 최근 내용이 있어요. 지금 대본을 먼저 복사하거나 파일로 받아 주세요.' order-preview.html 1
+chk '저장은 끝났어요. 그동안 고친 내용은 다시 저장해 주세요.' order-preview.html 1   # [B2_NA_09]
+chk '_doneSendKey=_autoKey()' order-preview.html 1
+chk 'function _txOwn(el)' order-preview.html 1   # [B2_NA_10] 쓰는 원고로 지키기
+chk '다른 기기에서 이 글이 바뀌었어요. 쓰던 내용과 함께 확인해 주세요.' order-preview.html 1   # d-13
+chk 'S.fAt\[key\]=Math.max(Date.now(),(+S.fAt\[key\]||0)+1)' order-preview.html 1   # [B2_NA_11] 늦은 시계
+chk 'B2_NA_12' console.html 4   # 현장 콘솔 실패를 끝으로 치지 않는다
+chk "conStall('소리를 재생하지 못했어요.')" console.html 1
+chk "'재생이 막혔어요.'" console.html 2
+chk 'function _goOther(t)' console.html 1   # [B2_NA_13]
+chk 'if (e.repeat && (e.code' console.html 1
+chk 'function letterFaceHint(S)' assets/ritual-cue.js 1   # [B2_NA_14]
+chk "aid:'letter:face'" order-preview.html 1
+chk 'function _fgFace(k)' order-preview.html 1   # [B2_NA_15] d-02
+chk '앞쪽 중앙에서 이어지는 순서예요.' order-preview.html 1
+chk '하객을 바라보고 감사문을 읽어요.' order-preview.html 1
+nochk 'f=FG_FACE\[k\], at=' order-preview.html
+chk 'function hintOf(c)' console.html 1   # [B2_NA_16]
+chk "if(!hold){ LP.only=null; LP.onlyEnd=null; }" order-preview.html 1   # [B2_NA_17]
+chk 'function _prRzSync()' order-preview.html 1   # [B2_NA_18]
+chk 'function _lPlayable()' order-preview.html 1   # [B2_NA_19]
+chk "_rq!==LP.req||!_lPlayable()" order-preview.html 1
+chk '현장에서 직접 말하는 부분은 글로 보여 드려요. 당일엔 두 분과 가까운 분들이 직접 말해요.' console.html 1   # [B2_NA_20] d-04
+chk '직접 말하는 시간은 짧게 줄여 보여 드려요.' console.html 2
+nochk '예시 목소리로 들려드려요' console.html
+chk "row(k,_fxPre?'이어서':'')" order-preview.html 1   # [B2_NA_21]
+nochk "r.replace('<span class=\"cf-t\" aria-hidden=\"true\">예식 전</span>'" order-preview.html
+chk 'B2_NA_22' assets/ritual-open.js 2   # 현장 · 따로 편지 보관 글은 시간 셈에서 뺀다
+chk '따로 준비한 편지는 길이를 알 수 없어 기본 시간으로 계산해요.' order-preview.html 1
+chk 'function _prBusy()' order-preview.html 1   # [B2_NA_23]
+chk '다음 차례를 준비하고 있어요' order-preview.html 1
+chk "if(k==='vow'&&St().vowKind==='thanks') return '감사문';" assets/bgm-bed.js 1   # [B2_NA_24]
+chk "if(k==='vow'&&S.vowKind==='thanks') return '감사문';" assets/bgm-form.js 1
+chk '현재 식순에는 이 시각의 안내가 없습니다.' order-preview.html 1   # [B2_NA_26]
+chk '착석 · 휴대폰 무음 · 온라인 참석자 환영' order-preview.html 1
+chk '본식부터 단체 사진까지 배정한 시간은' order-preview.html 1   # [B2_NA_27] d-16
+nochk '본식과 단체 사진을 더하면' order-preview.html
+chk '마지막 말이나 동작' order-preview.html 1   # [B2_NA_29]
+chk "'사진 순서만 연습'" order-preview.html 1   # [B2_NA_30] d-14 · B2-K19 그룹 반복
+chk '본식 뒤 · 사진 순서' order-preview.html 1
+chk 'function _prLeadMs(q,i,x,st)' order-preview.html 1   # [B2_NA_31]
+chk 'function _prMinPaint()' order-preview.html 1
+chk "{id:'song',t:'축가를 불러 주실 분께'" order-preview.html 1   # [B2_NA_32]
+chk '안내 음성이 끝나면 마이크를 받아 주세요. 반주에 맞춰 노래해 주세요.' order-preview.html 1
+chk '초에 불을 밝혀 주세요.' order-preview.html 1
+chk 'function _narExLen(ek,n)' order-preview.html 1   # [B2_NA_34]
+chk 'B2_NA_36' order-preview.html 1   # 확인창이 열리면 포커스는 창 안
+chk 'MAN_HOLD = true;' console.html 2   # [B2_NA_02] 전체 정지 · 뒤로 = 손 대기 — 시각 안내도 멈춤
+chk "if ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) || phase === 'end') return;" console.html 1
+chk 'B2-K09' console.html 2   # 늦은 날 1분 전 안내와 개식이 겹치면 개식이 먼저(1분 전 건너뜀)
+chk "fire(i, { clock: true }); break; }" console.html 1
+nochk '전체 정지 — 다음 큐는 손으로 눌러야 나갑니다' console.html
+# ── 2026-11-06 [BATCH2 나38~75] 2차 묶음 나레이션 구현 몫(나38 ~ 나75 · 나62 는 사장님 결정 K8 로 그대로)
+chk 'B2_NA_38' order-preview.html 1   # 번갈아 빈 줄은 연습 · 대본 차례에서 뺀다(칸에는 그대로)
+chk 'B2_NA_39' order-preview.html 4   # 취소하면 예시 선택(LS.ref)도 글과 함께 · 성혼 선언은 S.declRef 하나 · 모두 비우기도 예시 기억을 비운다
+chk 'B2_NA_40' order-preview.html 1   # 네 글자 성명은 자르지 않는다
+nochk 'n.length===4?n.slice(2)' order-preview.html
+chk 'B2_NA_41' order-preview.html 3   # 자동 나누기는 번호 · 연도 · 소수 · 닫는 따옴표를 문장에 붙인다(_sentCut 한 곳)
+nochk 'p.match(/\[^.!?。…\]+\[.!?。…\]+' order-preview.html
+chk 'B2_NA_42' order-preview.html 2   # 고른 예시는 표 번호(LS.refN)로 따라간다
+chk 'B2_NA_43' order-preview.html 2   # 수정 중 저장의 취소 기준 = 서버가 합친 판(_snapPull)
+chk '저장한 내용은 그대로예요. 저장 뒤 고친 내용만 취소했어요.' order-preview.html 1
+nochk '수정 중에 저장된 내용은 취소해도 그대로예요' order-preview.html
+chk 'B2_NA_44' order-preview.html 1   # 이 순간 전체 듣기 — 옮기거나 멈춘 뒤 늦게 끝난 굽기는 저절로 틀지 않는다
+chk 'B2_NA_45' order-preview.html 1   # 빈소리 중 멈춤(AbortError)이면 본 소리를 틀지 않는다
+nochk 'p.catch(function(){ go(); })' order-preview.html
+chk 'B2_NA_46' order-preview.html 1   # 덕담 말하는 시간 = 고른 인원(한 분 약 1분씩 / 약 1분)
+chk 'B2_NA_47' order-preview.html 2   # 대본 글은 화면 단계와 무관(_scriptMode) · 촬영 후 안내 한 번
+chk 'B2_NA_49' order-preview.html 1   # ① «고른 본식 순간 n/6» · ②④ · 마이페이지 «본식 순서 n개»
+chk '고른 본식 순간 <b>' order-preview.html 1
+nochk "'담은 순간 '+_opMoments()" order-preview.html
+chk "rv='본식 순서 '+escapeHtml" mypage.html 1
+chk 'B2_NA_50' order-preview.html 1   # ① 예시 카드 — 테이블 인사가 든 예시는 그 시간도(계산값)
+chk 'B2_NA_51' order-preview.html 1   # ② 축배 — 적은 분만 «신랑 한마디 · 신부 한마디» + 선창 한 줄
+chk '두 분의 선창에 하객이 «위하여!»로 답해요.' order-preview.html 1
+chk 'B2_NA_52' order-preview.html 2   # 복사 실패 — 부모님 글은 창에 펼치고 · 전체 대본은 «파일로 받기»
+chk "body:'‘파일로 받기’를 눌러 주세요.'" order-preview.html 1
+chk 'B2_NA_53' order-preview.html 2   # 옛 복사 길(execCommand)은 돌려준 값이 true 일 때만 «복사했어요»
+nochk "document.execCommand('copy');document.body" order-preview.html
+chk 'B2_NA_54' order-preview.html 2   # 앱 안 브라우저 안내의 저장 줄 = 실제 저장 결과 넷 · «글 확인하러 돌아가기»
+nochk '적어 두신 것은 저장해 두었어요' order-preview.html
+chk 'B2_NA_55' order-preview.html 1   # 번갈아 줄 표시(txLn)도 회신(pull)과 함께
+chk 'B2_NA_55' automation/platform/80_production.gs 3   # 서버 합치기 — txLn 은 나머지 비교에서 빼고 글 칸과 함께 고른다
+chk 'B2_NA_48' order-preview.html 4   # 전체 대본 — 사람 원고는 읽는 자리(«직접» 줄 뒤)에 · 길면 접어 둔다(B2-K21)
+chk 'class="sv-fold"' order-preview.html 1
+chk 'B2_NA_56' order-preview.html 1   # 읽는 분이 바뀌었는지는 declBy 로(옛 초안 declareWho 만 있어도)
+chk 'B2_NA_57' order-preview.html 1   # 세 번 다 답이 없으면 줄 아래 «다시 보내기»
+chk 'B2_NA_58' order-preview.html 1   # 번갈아 줄 빼기 — 순서가 바뀌면 먼저 알린다
+chk '부터 읽도록 문장 순서가 바뀌어요.' order-preview.html 1
+chk 'B2_NA_59' order-preview.html 1   # 번갈아 칸 — 예시 이름 알림을 적는 동안 다시 잰다
+chk 'B2_NA_60' console.html 3   # 진행 화면 꺼짐 막기 — release 에서 비우고 보일 때 다시(wakeOn 한 곳)
+chk 'B2_NA_61' console.html 5   # 지난 시각 큐 = «예정 시각이 지났어요 · 직접 진행» · 겹치면 개식이 이긴다(B2-K09)
+chk '예정 시각이 지났어요. 필요하면 직접 눌러 주세요.' console.html 1
+chk 'B2_NA_63' console.html 6   # 미리듣기 멈춤 — 남은 시간째 다시 걸기 · 멈춤 중 결과는 적어만 둔다
+chk 'B2_NA_64' order-preview.html 2   # «그 밖의 분» 칸을 고친 뒤 첫 칩 누름이 먹는다(다시 그리기를 누름 뒤로)
+chk 'B2_NA_65' console.html 1   # 곡 실패 — 이어질 곡이 흐를 때만 «그대로 이어집니다»
+chk 'B2_NA_66' order-preview.html 1   # 화촉 부모님 역할 — 순서 기호를 모두 걷는다
+chk 'B2_NA_67' order-preview.html 1   # 함께 읽는 문장 — 배지 «함께 읽는 문장» · «이 문장은 미리 넣어 두었어요»(d-05)
+chk "'함께 읽는 문장':'참고 예시'" order-preview.html 1
+chk 'B2_NA_68' order-preview.html 1   # 축사 예시 알림 «그분 이야기로 바꿔도 돼요»
+chk 'B2_NA_69' order-preview.html 1   # 예정 시간 0 인 참고 예시 = 글자 수 ÷ 5 올림 · 최소 3초
+chk 'B2_NA_70' order-preview.html 1   # 참고 예시 화면 읽기 문단 = 라디오와 같은 번호
+chk 'B2_NA_71' order-preview.html 1   # 촬영 후 안내 상태 = «촬영 후 안내 · 사진·정리»
+chk 'B2_NA_72' order-preview.html 1   # «이동하기» 단추 이름에 그 줄의 대상
+chk 'B2_NA_73' order-preview.html 1   # 장면 사진 ‹ › 누른 뒤 초점은 그 단추로
+chk 'B2_NA_74' order-preview.html 2   # 큰 사진을 못 불러오면 한 줄 + 대표 장면 · 설명
+chk '큰 사진을 불러오지 못했어요.' order-preview.html 1
+chk 'aria-label="음악 음량"' console.html 1   # [B2_NA_75] 음악 음량 슬라이더 이름
+# ── 2026-11-06 [BATCH2 글01~32] 대본 글 묶음 — 고객 화면 글 · 오류 글 · 역할 전달 · 콘솔 단추(B2_GEUL_xx · 새 녹음 0 · 녹음 글 그대로)
+chk 'B2_GEUL_01' assets/ritual-cue.js 1   # d-01 저장된 pvEx 3 → 기본 90(norm 0~2)
+chk 'B2_GEUL_01' order-preview.html 1
+nochk "'잔잔하게', '격식 있게'\]" assets/ritual-open.js 0
+nochk '스크린에 주목해' docs/handoff/narr-now.md 0
+chk '두 분이 테이블을 돌며 하객께 인사해요. 다 돌면 앞으로 돌아와 남은 순서를 이어가요. 그만큼 사진 시간은 줄어요.' assets/ritual-open.js 1   # B2_GEUL_09 d-07
+chk '두 분이 테이블을 돌며 하객께 인사해요. 가까이 마주하는 모습을 담아요. 그만큼 사진 시간은 줄어요.' order-preview.html 1
+nochk '6테이블 기준' assets/ritual-open.js 0
+nochk '6테이블 기준' order-preview.html 0
+chk '두 분이 하객께 인사하며 본식을 마쳐요. 전체 단체 사진 뒤에는 촬영 후 안내, 가족 사진과 추가 촬영이 이어져요.' order-preview.html 1   # B2_GEUL_11
+nochk '가족 · 친구 순서예요' order-preview.html 0
+nochk '가족 · 친구 순서예요' assets/ritual-open.js 0
+chk '전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' order-preview.html 1   # B2_GEUL_22
+chk '부모님이 두 분께 덕담을 전해요' assets/ritual-open.js 2   # B2_GEUL_23 카드 · 칸
+chk '부모님이 두 분께 덕담을 전해요(한 분 1분쯤). 말씀하시는' order-preview.html 1
+nochk '덕담을 들려주세요' assets/ritual-open.js 0
+nochk '덕담을 들려주세요' order-preview.html 0
+chk '전체 단체 사진 뒤에 이 안내를 틀어요. 그다음 가족 사진과 추가 촬영을 진행해요.' order-preview.html 1   # B2_GEUL_24
+chk '식순을 확인하고 저장해요. 대본도 복사하거나 파일로 받아요.' order-preview.html 1   # B2_GEUL_25
+chk '두 분이 정하신 한 분이 성혼 선언문을 읽어, 부부가 되었음을 하객께 알려요.' assets/ritual-open.js 1   # B2_GEUL_26
+chk '부부가 되었음을 하객께 알려요. 하객이 박수로 축하하는 장면을 함께 담아요. 읽어 주실 분이 없으면 이 순간을 빼도 돼요.' order-preview.html 1
+nochk '축하의 말을 전해요(3분 안팎)' assets/ritual-open.js 0   # B2_GEUL_29
+nochk '축하의 말을 전해요(3분 안팎)' order-preview.html 0
+chk '안내 음성에 맞춰 신랑 신부를 안아 주세요. 앉으신 채로도 괜찮아요.' order-preview.html 1   # B2_GEUL_03 부모님 역할 · 포옹
+chk '일어나셨다면 포옹 뒤 편히 앉아 주세요.' order-preview.html 1
+chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자리로 돌아가 앉아 주세요.' order-preview.html 1   # B2_GEUL_04 축사 · 귀석 선언(P16 덕담 잇는 분 제외)
+chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
+nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
+chk '신부의 첫 문장이 앞말을 이어받고 있어요. 시작 문장을 확인해 주세요.' order-preview.html 1   # B2_GEUL_07
+chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
+chk '고르지 않으시면 말로 인사해요' order-preview.html 1
+chk 'g.tipToo&&g.tip' order-preview.html 1
+chk '그리고 내가 제일 좋아하는 우리 매제, 오늘' assets/ritual-ref.js 1   # B2_GEUL_08
+nochk '우리 이 서방' assets/ritual-ref.js 0
+nochk '오빠 민재가' assets/ritual-ref.js 0
+chk '신부 글만 바꿨어요 · 신랑은 그대로' order-preview.html 1   # B2_GEUL_06
+chk 'function _refOne(sets,i)' order-preview.html 1
+chk "c===3?\['마이크를 열지 못했어요','연결과 앱을 확인해요','연결과 앱을 확인해요'\]" order-preview.html 1   # B2_GEUL_12 M3(까닭 단정 없음 · 360 한 줄)
+nochk ":c===3?\['다른 앱이 마이크를 써요'" order-preview.html 0
+chk "반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요." order-preview.html 1   # B2_GEUL_13
+chk "data-fk=\\\"mksongkakao\\\"" order-preview.html 1
+chk '흐름을 불러오는 데 오래 걸려요' order-preview.html 2   # B2_GEUL_14
+chk 'var ENG_TO_MS=40000;' order-preview.html 1
+chk 'var g={}, gen=++ENG_GEN, ac=null, tm=0;' order-preview.html 1   # [ENG_DECL_KEEP] 병합에서 이 줄이 빠지면 식순 화면이 «ac is not defined»로 멈춘다(2차 묶음 합치기 때 실제로 빠졌다)
+chk 'dk:c.duck});' order-preview.html 2   # [OWN_DK_B4] 두 분 목소리 줄도 원래 큐의 BGM 크기(식전 영상 소개 −90 · 하객 맞이 −16)
+chk 'OWN_DK_B4' order-preview.html 1
+chk 'B2_GEUL_14' scripts/audit/eng-once.mjs 1
+chk '지웠는지 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 1   # B2_GEUL_15
+chk "MK.toast=_cf?'삭제를 확인하고 있어요'" order-preview.html 1
+chk '입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요' automation/platform/80_production.gs 1   # B2_GEUL_16
+nochk "t === 'ritual' ? '서약 · 편지'" automation/platform/80_production.gs 0
+nochk "track === 'ritual' ? '서약 · 편지'" automation/platform/80_production.gs 0
+chk '/너무 길어요|글이 많아/.test(_saveErr)' order-preview.html 1
+chk 'var EX_NAMES_SOFT=' order-preview.html 1   # B2_GEUL_17
+chk '예시 이름이 남았는지 확인해 주세요' order-preview.html 1
+chk '나중에 마이페이지 식순의 «연습 · 준비»에서 연습해요' order-preview.html 1   # B2_GEUL_20
+nochk '마이페이지 «연습하기»에서 해도 돼요' order-preview.html 0
+chk '응답을 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 2   # B2_GEUL_28 EC_BASE · VC_DOWN_W
+nochk '서버가 잠깐 멈췄어요' order-preview.html 0
+chk "7:'응답을 확인하지 못했어요'" mypage.html 1
+chk '이 줄은 300자까지 적을 수 있어요' order-preview.html 1   # B2_GEUL_31
+chk '촬영 끝내기 <small>추가 촬영을 마치면 누르세요' console.html 1   # B2_GEUL_32
+# ── 2026-11-06 [BGM 2차 order-preview 몫 · 음01] 연습 B 기다림 크기 = 엔진 큐 크기(맞절 정적) · 음05 · 09 · 10 은 #1584 bgm-bed 몫
+chk 'PR_WAIT_ENG_LV' order-preview.html 2
+chk 'function _prEngLv(st)' order-preview.html 1
+chk 'PR_WAIT_ENG_LV' scripts/audit/pr-way4.mjs 1
+# ── 2026-11-06 [B2_GEUL_02_05 대본 · 우성 녹음 앞] 맞절 넷 · 부모님께 편지 · 감사문 뭉클 — 화면 글 먼저(음성 쉼이 REC_WOOSUNG_1106 로 음원 교체)
+chk "entryBow:\"다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다. 맞절은 부부로서의 첫 예를 올리는 인사인데요. 서로를 존중하는 마음으로, 신랑 신부, 맞절.\"" assets/ritual-data.js 1
+chk '신랑 신부, 처음 만났던 날, 함께 웃으면서 행복했던 지난 시간들을 회상해 주시기 바랍니다.' assets/ritual-open.js 1
+chk '이제 두 사람의 감사 인사를 듣겠습니다.' assets/ritual-open.js 1
+nochk '그럼 서로의 눈을 바라보며 맞절하겠습니다' assets/ritual-data.js
+nochk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을' assets/ritual-open.js
+nochk '지금부터 서로의 눈을 바라봐 주시기 바랍니다. 긴 시간' assets/ritual-open.js
+nochk '지금부터 서로의 눈을 지그시 바라봐 주세요' assets/ritual-open.js
+nochk '두 분은 부모님을 바라보며 편지를 낭독해' order-preview.html
+# ── 2026-11-06 [B2_HOME_01 ~ B2_HOME_32 · 2차 홈 · AI 상담] 제한 시간은 본문까지 · 일정 잠금 · 저장본 표시 · 신청 결과 · 취소 잠금 · 애프터 웨딩 AI 답 · 이름 맞추기
+chk 'B2_HOME_01' inquiry.html 2
+chk 'B2_HOME_01' schedule.html 3
+chk 'B2_HOME_01' cancel.html 1
+chk 'B2_HOME_01' seat.html 1
+nochk 'if (tm) clearTimeout(tm); return res.json(); }' inquiry.html
+nochk 'if(tm) clearTimeout(tm); return r.json(); }' schedule.html
+nochk 'if(tm) clearTimeout(tm); return r.json(); }' cancel.html
+chk '신청 결과를 아직 확인하지 못했어요. 안내 메일을 먼저 확인해 주세요.' inquiry.html 1
+chk 'B2_HOME_02' schedule.html 8
+chk "if(window.__schedBusy) return;" schedule.html 3
+chk 'B2_HOME_15' schedule.html 3
+chk '이전에 확인한 일정이에요. 최신 일정을 확인하고 있어요.' schedule.html 1
+chk 'B2_HOME_13' inquiry.html 2
+chk 'value="특별히 망설이는 점은 없어요" data-none="1"' inquiry.html 1
+nochk '망설이시는 점은 상담에서 풀어 드립니다' inquiry.html
+chk 'B2_HOME_31' inquiry.html 1
+chk 'B2_HOME_16' inquiry.html 2
+chk 'B2_HOME_17' inquiry.html 2
+chk 'B2_HOME_16' automation/platform/40_signup.gs 3
+chk 'B2_HOME_17' automation/platform/40_signup.gs 2
+chk 'function _signupHit_(raw, fp, names, phone, memo, detail)' automation/platform/40_signup.gs 1
+nochk 'if (cached) return { ok: true, code: cached };' automation/platform/40_signup.gs
+chk 'B2_HOME_18' cancel.html 4
+chk 'B2_HOME_14' index.html 1
+chk 'B2_HOME_14' assets/advisor-widget.js 1
+chk 'B2_HOME_06' mypage.html 2
+chk 'B2_HOME_07' mypage.html 7
+chk 'B2_HOME_08' mypage.html 1
+chk 'B2_HOME_08' api/after-concierge.js 3
+chk 'B2_HOME_09' mypage.html 1
+chk 'B2_HOME_10' mypage.html 2
+chk 'B2_HOME_28' mypage.html 3
+chk 'B2_HOME_11' index.html 1
+nochk '성혼 선언 뒤에 가까운 분이, 또는 두 분 중 한 분이나 함께 한 곡을 부릅니다' index.html
+nochk '그 첫 장면에도' index.html
+chk 'B2_HOME_12' index.html 1
+nochk '캡처가 아니라 실제로 움직이는 도구' index.html
+chk 'B2_HOME_20' index.html 1
+chk 'B2_HOME_20' assets/advisor-kb.js 1
+nochk '다이닝 찾기에서' index.html
+nochk '다이닝 찾기에서' assets/advisor-kb.js
+nochk '마이페이지 다이닝 단계' api/_kb.js
+chk 'B2_HOME_21' index.html 1
+chk 'B2_HOME_21' assets/sequence-modal.js 1
+nochk '가족 구도를 차례로 담' index.html
+nochk '가족 구도를 차례로 담' assets/sequence-modal.js
+chk 'B2_HOME_30' index.html 1
+chk 'B2_HOME_32' index.html 1
+chk 'B2_HOME_32' guide.html 1
+nochk '식사·카페 안내</span></h3>' index.html
+nochk '다이닝 안내' index.html
+nochk '다이닝 안내' assets/advisor-kb.js
+nochk '식사 · 애프터</h2>' guide.html
+chk 'B2_HOME_03' assets/advisor-kb.js 1
+chk 'B2_HOME_03' api/_kb.js 1
+chk 'B2_HOME_26' assets/advisor-kb.js 1
+chk 'B2_HOME_26' api/_kb.js 2
+nochk '리허설 진행 여부와 방식은 상담에서 안내드립니다' assets/advisor-kb.js
+chk 'B2_HOME_04' api/_ritual-kb.js 2
+nochk '폐식·단체촬영: ' api/_ritual-kb.js
+nochk '작가님이 촬영을 마치면' api/_ritual-kb.js
+chk 'B2_HOME_05' api/_ritual-kb.js 4
+nochk '어떤 순간도 필수가 아니다 · 두세 순간만 담아도 완성된 예식' api/_ritual-kb.js
+chk 'B2_HOME_22' api/_ritual-kb.js 1
+nochk '→ 마무리 \$' api/_ritual-kb.js
+chk 'B2_HOME_23' api/_ritual-kb.js 1
+nochk '→ 글 적어두기 → 완성' api/_ritual-kb.js
+chk 'B2_HOME_24' api/_ritual-kb.js 1
+nochk '두 분 입장 한 번이 행진이다' api/_ritual-kb.js
+chk 'B2_HOME_25' api/_ritual-kb.js 1
+chk 'B2_HOME_25' order-preview.html 1
+chk 'B2_HOME_27' api/_ritual-kb.js 1
+chk 'B2_HOME_27' api/ritual-advisor.js 1
+nochk '(b)확정 전 정책' api/ritual-advisor.js
+# ── 2026-11-06 [B2_MA_* 2차 B2 마이페이지 · guide 화면] 하객 안내 · 좌석 · 디지털 참석 · 청첩장 · 하객 사진 서버
+#    (b) «마이페이지·guide 화면» 94건 중 하객 화면 묶음 — 판정본(batch2-judge) 문구 그대로 · d-08 · d-09 · d-10 · d-11 · d-12 · d-17
+chk 'B2_MA_01' guide.html 2                       # 사진 상태는 화면 밖(GP) — 남은 사진을 보내도 앞 실패의 다시 보내기가 남는다
+chk 'gpCheck' guide.html 2                        # [B2_MA_19 · d-09] 응답을 못 받은 사진 = «다시 확인하기»
+chk '사진이 올라갔는지 확인하지 못했어요.' guide.html 1
+chk 'B2_MA_19' automation/platform/80_production.gs 2   # 같은 전송(uid)은 한 번만 저장 · 같은 식별값에 다른 파일은 거절
+chk "GP_DONE_SUB='두 분께 전해 드릴게요. 고맙습니다.'" guide.html 1   # [B2_MA_75] 기본 업로드 완료 본문
+nochk '두 분께 바로 전해졌어요' guide.html
+chk 'B2_MA_21' guide.html 2                       # 멈춘 까닭 — 장수 · 용량 · 그 밖
+chk "limit: 'count'" automation/platform/80_production.gs 1
+chk 'B2_MA_32' guide.html 2                       # 처음부터 있는 알림 자리(gpLive)
+chk 'B2_MA_70' automation/platform/80_production.gs 1   # Base64 채움 문자를 뺀 실제 바이트
+chk 'B2_MA_82' automation/platform/80_production.gs 2
+chk 'B2_MA_86' automation/platform/80_production.gs 3
+chk 'B2_MA_27' guide.html 1                       # 12초 제한을 응답 본문까지
+chk 'B2_MA_27' seat.html 1
+chk 'B2_MA_15' guide.html 2                       # 확인 창 초점 가두기 · 뒤 화면 inert
+chk 'B2_MA_87' guide.html 1                       # 열기 · 닫기 번호(앞선 타이머가 지금 창을 못 바꾼다)
+chk 'B2_MA_20' guide.html 3                       # 받아 둔 안내 위 «새 안내를 못 불러왔어요»
+chk '받아 둔 안내예요. 새 안내를 못 불러왔어요.' guide.html 1
+chk 'B2_MA_23' guide.html 2                       # 올리는 동안 받은 최신 안내는 끝난 뒤 반영
+chk 'B2_MA_62' guide.html 1                       # 같은 좌석 설정이면 좌석 칸을 다시 만들지 않는다
+chk 'B2_MA_34' guide.html 3
+chk 'B2_MA_63' guide.html 3
+chk 'B2_MA_64' guide.html 3                       # [d-17] 카페 · 분류 모름 = 사진 순서만
+chk '단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.' guide.html 1
+chk 'B2_MA_71' guide.html 1
+nochk '^\.ps-btn:active{background:var(--accent)}' guide.html
+chk 'B2_MA_72' guide.html 1
+chk '\.hero \.today{background:var(--gold-text);color:#fff}' guide.html 1
+chk 'B2_MA_73' guide.html 2
+chk 'B2_MA_74' guide.html 1
+chk 'B2_MA_79' guide.html 2                       # [d-10] 부분 일치를 동명이인으로 단정하지 않는다
+chk 'B2_MA_79' seat.html 2
+chk 'B2_MA_79' automation/platform/80_production.gs 1
+chk '여러 자리에서 검색돼요. 성함을 모두 적으셨다면 배치도나 현장 안내를 확인해 주세요.' guide.html 1
+chk '여러 자리에서 검색돼요. 성함을 모두 적으셨다면 배치도나 현장 안내를 확인해 주세요.' seat.html 1
+chk '같은 성함이 있어요. 자리는 현장 안내에서 확인해 주세요.' guide.html 1
+chk '같은 성함이 있어요. 자리는 현장 안내에서 확인해 주세요.' seat.html 1
+nochk '님이 <b>여러 자리</b>에서 검색돼요' guide.html
+nochk '님이 <b>여러 자리</b>에서 검색돼요' seat.html
+chk 'B2_MA_80' guide.html 1                       # NFC 로 맞춰 비교
+chk 'B2_MA_80' seat.html 2
+chk 'B2_MA_80' automation/platform/80_production.gs 1
+chk '성함은 공백을 빼고 30자까지 적어 주세요.' guide.html 1   # [B2_MA_92]
+chk '성함은 공백을 빼고 30자까지 적어 주세요.' seat.html 1
+chk '성함은 공백을 빼고 30자까지 적어 주세요.' automation/platform/80_production.gs 1
+chk 'B2_MA_02' automation/platform/80_production.gs 2   # 제작 단계 모든 예식에 하객 안내(사진 올리기) 링크
+chk 'function _guideTokenEnsure_' automation/platform/80_production.gs 1
+chk 'B2_MA_47' automation/platform/80_production.gs 1   # 식사 안내가 꺼졌거나 예약처가 없으면 예약자 이름 · 시각을 싣지 않는다
+chk 'B2_MA_81' automation/platform/80_production.gs 2   # 첫 발급 때 «안내 없음» 캐시를 지운다
+chk 'B2_MA_17' guide.html 2                       # #photos — 온라인 청첩장 · 디지털 참석의 «사진 올리기»
+chk 'B2_MA_17' live.html 3
+chk 'B2_MA_17' shared/hydrate.js 2
+chk 'B2_MA_03' live.html 2                        # [d-11] 실패해도 자동 재조회를 시작 · 끝나면 «다시 불러오기»
+chk '예식 정보를 불러오지 못했어요. 다시 불러와 주세요.' live.html 2
+chk '아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 확인해 주세요.' live.html 2
+chk 'B2_MA_04' live.html 6                        # 최신 응답 반영 · 같은 영상은 끊지 않는다 · 캐시 열쇠 분리
+chk "me_couple_live_" live.html 1
+chk 'B2_MA_05' live.html 4                        # 편지 폼 안에서만 · 보이는 단추만 · 두 분으로 넓히지 않는다
+# ★[LT_SEND_WATCH · LETTER_SPLIT_A · LETTER_MAIL_A · LETTER_TRUE_COPY 2026-11-06 사장님 «미발송은 검사하는 필터가 있어야» · «발송 건수는 알 수 있어야(내용은 몰라도)» · 결정 2 = A]
+#   하객 편지 — 편지마다 번호 · 상태(접수 → 보냄 / 보류(금지어) / 실패) · 보낸 «뒤»에 보냄 · 보냄이 아니면 관리자 알림(번호 · 예식 · 상태만) ·
+#   매일 07시 점검(한 시간 넘은 미발송 다시 보내기 1회 · 보고 한 통 · 편지현황 시트) · 신랑 · 신부 각자 주소 · 같은 주소면 «두 분 모두»만 · 홈 문구 사실대로
+chk 'LT_SEND_WATCH' automation/platform/87_letter.gs 10
+chk "var LT_ST = { IN: '접수', SENT: '보냄', HOLD: '보류(금지어)', NOADDR: '실패(주소 없음)', ERR: '실패(메일 오류)' };" automation/platform/87_letter.gs 1
+chk 'd.moderated ? LT_ST.HOLD : LT_ST.IN,' automation/platform/87_letter.gs 1
+nochk "d.moderated ? '검수 대기' : '전송됨'" automation/platform/87_letter.gs      # 보내기 «전»에 전송됨을 적던 옛 줄
+nochk '편지 미전달 · 수신자 이메일 없음' automation/platform/87_letter.gs   # 본문을 실어 보내던 옛 알림
+chk "try { Logger.log('\[letterSendWatch\] ' + JSON.stringify(_ltSendWatch_()));" automation/platform/87_letter.gs 1
+chk 'function letterSendCheck() { _requireAdmin();' automation/platform/87_letter.gs 1
+chk 'LETTER_SPLIT_A' automation/platform/87_letter.gs 1
+chk 'LETTER_SPLIT_A' live.html 1
+chk 'const one = couple.letterSplit === false' live.html 1
+chk 'LETTER_MAIL_A' automation/platform/85_invitation.gs 2
+chk 'groomEmail: _invMail_(draft.letterGroomEmail) || _invMail_(base.ciGroomEmail) || base.email' automation/platform/85_invitation.gs 1
+chk 'LETTER_MAIL_A' automation/platform/80_production.gs 2
+chk 'LETTER_MAIL_A' mypage.html 4
+chk 'LETTER_TRUE_COPY' index.html 1
+chk '편지는 두 분께 전해 드려요. 전달을 위해 잠시 보관돼요.' index.html 1
+nochk '스튜디오를 거치지 않고 두 분께만 도착합니다' index.html
+chk 'sendWatchGuard();   // \[LT_SEND_WATCH\] D7' scripts/audit/letter-sim.mjs 1
+chk 'LETTER_SPLIT_A' scripts/audit/letter-switch.mjs 2
+chk '받는 분을 다시 골라 주세요.' live.html 1
+chk 'B2_MA_40' live.html 3                        # [d-12] 보내는 동안 잠금
+chk '편지를 보내고 있어요. 잠시만 기다려 주세요.' live.html 1
+chk 'B2_MA_42' live.html 1
+chk 'B2_MA_42' shared/hydrate.js 2
+chk 'B2_MA_60' live.html 2                        # «디지털 참석» · 점멸 없음 · 시각 창 없음
+nochk '<span class="live-dot"></span>On Air' live.html
+nochk 'on = (now >= st - 30' live.html
+chk 'B2_MA_61' live.html 2
+nochk 'Approx. 30' live.html
+chk '계좌번호 복사"' live.html 6                    # [B2_MA_84] 접근성 이름 여섯
+chk 'B2_MA_85' live.html 1
+chk 'B2_MA_89' live.html 1
+chk 'B2_MA_90' live.html 2
+chk 'B2_MA_91' live.html 3
+chk '이름을 적어 주세요.' live.html 1
+chk '편지 내용을 적어 주세요.' live.html 1
+chk 'B2_MA_06' shared/hydrate.js 3                 # 처음 읽은 틀에 매번 채운다(최신 청첩장 반영)
+chk 'B2_MA_36' shared/hydrate.js 2                 # 하객 안내 단추 — 끝내 실패하면 «다시 불러오기»
+chk '하객 안내를 불러오지 못했어요.' shared/hydrate.js 1
+chk 'B2_MA_51' shared/hydrate.js 1                 # 단독 표본에도 예시 표시
+# ── 2026-11-06 [B2_MA_* 2차 B2 마이페이지] 애프터 웨딩 · 하객 안내 패널 · 단체 사진 · 식전 영상 · 로그인 찾기 · 운영 메일
+chk 'B2_MA_02' mypage.html 2                     # 하객 안내 패널 — 사진 올리기는 늘 · 식사 · 좌석은 준비한 것만
+chk '하객 안내에서 사진을 올릴 수 있어요.' mypage.html 2
+chk 'B2_MA_14' mypage.html 3                     # 상태 = 실제 공개 장소 · «식사 · 애프터 웨딩»(d-18)
+chk "'식사 · 애프터 웨딩'" mypage.html 1
+nochk "'식사 · 애프터'" mypage.html
+chk 'B2_MA_12' mypage.html 4                     # 예약 시각 · 식사·카페 후보 · 사진 준비 요약(확인된 식사만)
+chk '\[식사·카페 후보 · ' mypage.html 1
+chk 'B2_MA_13' mypage.html 3
+chk 'B2_MA_16' mypage.html 1
+chk 'B2_MA_22' mypage.html 3                     # 실패한 앞 저장이 뒤 선택을 뒤집지 않는다(저장 번호)
+chk '공개 설정을 저장하지 못했어요. 다시 저장해 주세요.' mypage.html 1
+chk 'B2_MA_24' mypage.html 2
+chk 'B2_MA_25' mypage.html 1
+chk 'B2_MA_26' mypage.html 3
+chk '공유가 안 됐어요. 아래 목록을 복사해 보내 주세요.' mypage.html 1
+chk 'B2_MA_28' mypage.html 1
+chk 'B2_MA_29' mypage.html 2
+chk '예약할 곳을 정하면 예약 시각과 예약자 이름을 적을 수 있어요.' mypage.html 1
+chk 'B2_MA_30' mypage.html 1                     # _rsvBy 를 지금 값과 합쳐 변경 비교
+chk 'B2_MA_58' mypage.html 1                     # _onlineSame 도 변경
+chk 'B2_MA_31' mypage.html 3                     # 인원 칩으로만 총액 · 옛 25명 고정 금지
+chk 'B2_MA_33' mypage.html 1
+chk '전체 5.2km로, 약 2시간 걸리는 중급 숲길이에요.' mypage.html 1
+nochk '어르신도 부담 없이 짧게 걷기 좋아요' mypage.html
+chk 'B2_MA_35' mypage.html 2
+chk 'B2_MA_35' automation/platform/80_production.gs 1
+chk 'B2_MA_37' mypage.html 2                     # AI 볼거리 = 가볼 곳(attr)
+chk 'B2_MA_38' mypage.html 3                     # 지도 장소 ID 로 같은 장소 판정
+chk 'B2_MA_38' api/after-concierge.js 1
+chk 'B2_MA_46' api/after-concierge.js 1          # 글자 단위 자르기
+chk 'B2_MA_46' mypage.html 2
+chk 'B2_MA_39' mypage.html 1                     # 저장 대기열엔 사본
+chk 'B2_MA_41' mypage.html 1
+chk 'B2_MA_43' automation/platform/80_production.gs 1
+chk 'B2_MA_44' mypage.html 1
+chk '최신 내용을 불러오지 못했어요. 다시 불러와 주세요.' mypage.html 1
+chk 'B2_MA_45' mypage.html 1
+nochk '1회분 보관돼 문제가 생기면' mypage.html
+chk 'B2_MA_48' mypage.html 2
+chk 'B2_MA_49' mypage.html 1
+chk 'B2_MA_55' mypage.html 1
+chk 'img|dscf|dsc|photo' mypage.html 1
+chk 'B2_MA_56' mypage.html 1
+chk 'B2_MA_57' mypage.html 3
+chk 'B2_MA_65' mypage.html 1
+chk '애프터 웨딩 안내 없이 진행할게요' mypage.html 1
+chk 'B2_MA_66' mypage.html 2
+chk 'B2_MA_69' mypage.html 1
+chk 'B2_MA_76' mypage.html 1
+chk 'B2_MA_77' mypage.html 1
+chk 'B2_MA_78' mypage.html 1
+chk 'B2_MA_83' mypage.html 1
+chk '단체 인원 확인 필요' mypage.html 2
+chk 'B2_MA_93' mypage.html 1
+chk 'B2_MA_93' api/_ritual-kb.js 1
+nochk '개식 선언' api/_ritual-kb.js
+chk 'B2_K35' mypage.html 2                       # 대본 판정 — 근거 없는 두 단정만 덜고 도착 기준은 그대로
+nochk '골든타임' mypage.html
+nochk '만족도가 가장 좋아요' mypage.html
+chk 'B2_MA_67' automation/platform/95_notify.gs 1
+chk "마이페이지의 ‘예식 준비’에서 청첩장과 식순을 차근차근 정해 주세요." automation/platform/95_notify.gs 1
+chk 'B2_MA_68' automation/platform/95_notify.gs 1
+chk '보정할 사진 선택 완료' automation/platform/95_notify.gs 1
+chk 'B2_MA_94' automation/platform/95_notify.gs 1
+chk '애프터 웨딩 장소 점검' automation/platform/88_place_audit.gs 2
+chk '청첩장·식순·애프터 웨딩이 옛 일시로 남을 수 있음' automation/platform/70_journey.gs 1
+# ── 2026-11-06 [B2_MA_* 2차 B2 나머지 10건] 식전 영상 순서 · 확정 대조 · 사진 칸 · 청첩장 발행 · 보정 사진 고르기 · 대본에 담긴 글
+chk 'B2_MA_07' mypage.html 4                     # 저장 · 보내기 · 확정을 한 줄로 · 판 번호(rev)
+chk '저장을 마친 뒤 영상을 만들게요.' mypage.html 1
+chk 'B2_MA_07' automation/platform/89_prevideo.gs 5
+chk 'B2_MA_08' mypage.html 2                     # 확정 = 본 미리보기 id · 요청 판
+chk 'B2_MA_08' automation/platform/89_prevideo.gs 3
+chk '새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.' automation/platform/89_prevideo.gs 1
+chk 'B2_MA_59' automation/platform/89_prevideo.gs 1
+chk '다른 기기에서 사진이 추가돼 자리가 찼어요. 현재 사진을 확인해 주세요.' automation/platform/89_prevideo.gs 1
+chk 'B2_MA_59' mypage.html 1
+chk 'B2_MA_09' mypage.html 2                     # 발행하는 동안 잠금 · 보낼 초안 복사
+chk '청첩장을 만드는 중이에요.' mypage.html 1
+chk '고친 내용을 반영하는 중이에요.' mypage.html 1
+chk 'B2_MA_10' automation/platform/85_invitation.gs 1
+chk '반영 결과를 아직 확인하지 못했어요. 새로고침해 청첩장을 확인해 주세요.' automation/platform/85_invitation.gs 1
+chk 'B2_MA_11' automation/platform/85_invitation.gs 5
+chk '청첩장 연결을 확인하고 있어요. 상담으로 알려 주세요.' automation/platform/85_invitation.gs 2
+chk 'B2_MA_52' mypage.html 1
+chk '적어 둔 번호를 유지했어요. 번호로 계속 고르실 수 있어요.' mypage.html 1
+chk 'B2_MA_53' mypage.html 3
+chk '아직 제출하지 않은 사진 선택이 있어요.' mypage.html 1
+chk 'B2_MA_54' mypage.html 3
+chk '다른 기기에서 사진 선택이 바뀌었어요. 고른 컷을 다시 확인해 주세요.' mypage.html 1
+chk 'B2_MA_88' mypage.html 1                     # 대본에 담긴 글 = 빌더 전체 대본과 한 판정(summary.texts)
+chk 'B2_MA_88' order-preview.html 2
+chk 'function _scriptTexts' order-preview.html 1
 # ── 2026-11-06 [이음매 BG05 · BG06 · TX01 ~ TX04] 축배 행동 줄 음악 · 촬영 후 안내 뒤 M8L · 요약 · 설명 글(대본 승인)
 chk 'TOAST_LV_BG05' order-preview.html 1
 chk 'AFTER_HOLD_BG06' order-preview.html 1
 chk "stage:'_extra',after:true," order-preview.html 1
 chk '나레이션에 맞춰 서로 무도회 맞절을 하고 눈을 맞춰요' order-preview.html 1
 nochk '3초씩 숙이고' order-preview.html
-chk '예식 10분 전 · 5분 전 · 1분 전' order-preview.html 1
+chk 'GUEST_SUM_5M_TX03' order-preview.html 1   # 실제 5분 전 큐가 있을 때 요약에(_g5 · B2_HOME_25)
 chk '개식 선언 뒤, 입장 전에 두 분이 준비한 영상을 상영해요' assets/ritual-open.js 1
 chk 'PV_AFTER_OPEN_TX02' order-preview.html 3
 nochk '예식 시작 시각에 두 분이 준비한 영상' assets/ritual-open.js

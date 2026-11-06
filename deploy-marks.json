@@ -3140,6 +3140,174 @@
    "fn": "_pvSame_",
    "mark": "PV_SAME",
    "why": "걸음(step)만 바뀌면 «만드는 중 · 확정» 상태 그대로 — 둘러보기만 해도 «수정 중»이 되던 것"
+  },
+  {
+   "file": "80_production",
+   "fn": "_ritualTxMerge",
+   "mark": "B2_NA_55",
+   "why": "두 기기 번갈아 서약 — 줄 표시(txLn)를 글 칸과 함께 합치고 회신한다(글만 다른데 충돌로 막히던 것)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodTooLong_",
+   "mark": "B2_GEUL_16",
+   "why": "식순 저장이 길이 상한에 걸리면 «입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요 (코드 S0)» — 서약 · 편지로 원인을 단정하지 않는다 · 붙이고 새 버전으로 배포"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "B2_HOME_16",
+   "why": "2분 안에 내용을 고쳐 다시 보낸 신청은 같은 코드에 changed 를 실어 답한다(기존 접수 · 비밀번호는 덮지 않고 고친 내용은 관리자 메일로). 이 판이 없으면 고친 내용이 반영된 것처럼 «접수됐어요»만 나간다"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup",
+   "mark": "B2_HOME_17",
+   "why": "접수 메일이 안 나가면 mailFail 을 실어 답한다(완료 화면이 «메일을 보내지 못했어요 · 개인코드 보관»). 이 판이 없으면 메일이 안 갔는데도 «메일로 보내 드렸어요»라 한다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuestPhoto",
+   "mark": "B2_MA_86",
+   "why": "하객 사진 — 같은 전송 한 번만(uid) · 실제 바이트 한도 · 찬 한도(장수/용량) · 잠금 안 예약 · 집계 실패 다시 맞추기(B2-마19 · 70 · 21 · 86 · 82)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_seatFindByToken",
+   "mark": "B2_MA_79",
+   "why": "좌석 검색 — 후보마다 «성함 그대로»(ex) · 30자 초과는 길이 안내(B2-마79 · 92)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuideView",
+   "mark": "B2_MA_47",
+   "why": "하객 안내 — 식사 안내가 꺼졌거나 예약처가 없으면 예약자 이름 · 시각을 싣지 않는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "B2_MA_02",
+   "why": "제작 단계 모든 예식에 하객 안내(사진 올리기) 링크 발급 — 식사 · 좌석과 상관없이"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "B2_MA_81",
+   "why": "안내 링크 첫 발급 때 가족 청첩장 «안내 없음» 캐시를 지운다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_seatNorm",
+   "mark": "B2_MA_80",
+   "why": "좌석 이름 비교를 NFC 로 — 복사한 조합형 이름도 맞는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuestPhoto",
+   "mark": "B2_MA_82",
+   "why": "하객 사진 집계 실패 → 다시 맞추기 표시 · 다음 업로드에서 폴더 실제 파일로 다시 센다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfCustomerMsg",
+   "mark": "B2_MA_67",
+   "why": "계약금 확인 알림 #{안내} — «마이페이지의 ‘예식 준비’에서 청첩장과 식순을 차근차근 정해 주세요.»"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminText",
+   "mark": "B2_MA_68",
+   "why": "운영 메일 «보정할 사진 선택 완료» · «애프터 웨딩: 장소 미정»"
+  },
+  {
+   "file": "88_place_audit",
+   "fn": "awMonthlyAudit",
+   "mark": "B2_MA_94",
+   "why": "장소 점검 메일 제목 «애프터 웨딩 장소 점검»"
+  },
+  {
+   "file": "70_journey",
+   "fn": "adminConfirmWeddingChange",
+   "mark": "B2_MA_94",
+   "why": "일시 경고 «청첩장·식순·애프터 웨딩이 옛 일시로 남을 수 있음»"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodTrackRev",
+   "mark": "B2_MA_43",
+   "why": "저장 충돌 지문에 담은 곳 · 공개 · 조건 · 장소별 예약 값을 넣는다(확인서 면제와 분리)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "B2_MA_35",
+   "why": "하객 사진 링크는 호스트가 있는 http(s) 주소만 저장"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminText",
+   "mark": "B2_MA_94",
+   "why": "운영 메일 «애프터 웨딩: 장소 미정 · 코드 / 장소 추천·예약 안내 필요»"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "B2_MA_07",
+   "why": "식전 영상 — 보내기 · 확정보다 먼저 낸 옛 저장은 늦게 와도 버린다(판 번호)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "B2_MA_08",
+   "why": "확정은 고객이 본 미리보기(id · 요청 판)와 같을 때만"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvPhoto",
+   "mark": "B2_MA_59",
+   "why": "마지막 자리 — 최종 기록 잠금 안에서 칸 · 전체 장수를 다시 본다"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "handlePublishInvitation",
+   "mark": "B2_MA_10",
+   "why": "공개 행 쓰기 전 용량 · 필수값 검사 · 쓰다 실패하면 이전 공개본 복구"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "_invResolveEventId",
+   "mark": "B2_MA_11",
+   "why": "청첩장 행 재사용은 고객 코드 · 연결된 예식 ID 로 · 주인 모를 행이면 멈춤"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGuestLetter",
+   "mark": "LT_SEND_WATCH",
+   "why": "하객 편지마다 번호 · 상태(접수 → 보냄 / 보류 / 실패) · 보냄이 아니면 관리자 알림(번호 · 예식 · 상태만)"
+  },
+  {
+   "file": "87_letter",
+   "fn": "vimeoGuardDaily",
+   "mark": "LT_SEND_WATCH",
+   "why": "매일 07시 하객 편지 점검 — 한 시간 넘은 미발송 다시 보내기 1회 · 보고 한 통 · 편지현황 시트"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltCoupleFull",
+   "mark": "LETTER_SPLIT_A",
+   "why": "두 주소가 다 있고 다를 때만 letterSplit — 하객 화면이 «신랑에게만 · 신부에게만»을 그때만 보인다"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "_invCouplesFields",
+   "mark": "LETTER_MAIL_A",
+   "why": "청첩장 발행이 하객 편지 주소를 신랑 · 신부 각자로(마이페이지 칸 > 계약서 칸 > 가입 이메일)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_ensureProductionBase",
+   "mark": "LETTER_MAIL_A",
+   "why": "계약서 요청 때 적은 신랑 · 신부 이메일을 제작 기본값에 싣는다(청첩장 발행이 쓴다)"
   }
  ],
  "fns": {
@@ -3197,6 +3365,7 @@
   ],
   "40_signup": [
    "handleSignup",
+   "_signupHit_",
    "_shortHash",
    "sendSignupEmail_",
    "_applySummaryFromDetail"
@@ -3361,6 +3530,7 @@
    "_seatFindSlim",
    "_seatFindByToken",
    "handleGuideView",
+   "_guideTokenEnsure_",
    "addGuideTokenColumn",
    "_gpRootFolder",
    "_gpSafeName",
@@ -3457,6 +3627,10 @@
    "adminVoiceUsage",
    "adminVoiceRead",
    "handleGuestPhoto",
+   "_gpResGet_",
+   "_gpResPut_",
+   "_gpBytesGet_",
+   "_gpRecount_",
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
    "purgeGuestPhotosApply",
@@ -3514,6 +3688,7 @@
    "_invRandEventSuffix",
    "_invUrls",
    "_invDigital",
+   "_invMail_",
    "_invCouplesFields",
    "handleSaveInvitationDraft",
    "handlePublishInvitation",
@@ -3538,6 +3713,16 @@
    "_ltWithLock",
    "_ltAppendMessage",
    "_ltAppendModeration",
+   "_ltStKind_",
+   "_ltStatusOf_",
+   "_ltNewId_",
+   "_ltRecipientOfKo_",
+   "_ltWatchHead_",
+   "_ltSetStatus_",
+   "_ltWatchAlert_",
+   "_ltSendWatch_",
+   "_ltCountsWrite_",
+   "letterSendCheck",
    "_ltSendToRecipients_",
    "_ltLetterHtml",
    "_ltEsc",
@@ -4124,7 +4309,9 @@
    "INV"
   ],
   "87_letter": [
-   "LT"
+   "LT",
+   "LT_ST",
+   "LT_WATCH"
   ],
   "88_place_audit": [
    "AW_STUDIO",
@@ -4310,7 +4497,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-31 23:30 · 94fe658",
+ "_생성": "2026-11-06 08:29 · 94b0bf59",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -4434,6 +4621,18 @@
   },
   {
    "key": "ERRALERT_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "GPB_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "GPRECOUNT_",
    "kind": "state",
    "a": "",
    "b": ""
@@ -4866,5 +5065,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "57cf4a8751d5"
+ "_표식서명": "d30cc574985e"
 }

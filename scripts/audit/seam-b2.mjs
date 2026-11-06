@@ -126,12 +126,12 @@ try {
     const N = await day([['M4', 440, 60]]), n3 = N.t3.slice(-5);
     ok('음03-T04 당일 축배 곡 파일이 없으면 — 본식 곡이 축배 크기로 이어진다(하객 맞이 · 화촉 곡으로 돌아가지 않는다)', n3.every((x) => x.seg === 'M4' && x.id === 'B09'), { t3: [...new Set(N.t3.map((x) => x.seg + '/' + x.id + '@' + x.want))] });
     ok('음03 콘솔 오류 0', !D.errs.length && !N.errs.length, D.errs.concat(N.errs).slice(0, 3));
-    /* 미리 듣기 — 맞절 → 축배 이어 듣기: b13 의 곡 = 당일과 같은 본식 곡 */
+    /* 미리 듣기 — 맞절 → 축배 이어 듣기: b13 의 곡 = 당일과 같은 본식 곡 · [B2_GEUL_02_05] 맞절 여는 말이 길어져 창 16 → 30초 */
     { const { ctx, f, errs } = await open(390, true);
       await f.evaluate((o) => { Object.keys(o).forEach((k) => { S.on[k] = o[k]; }); S.bgm = {}; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, OFF);
       await f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1) { idx = i; render(); } });
       const o = await f.evaluate(async () => { const BB = BgmBed._t, o = []; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['matjeol', 'toast'], true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; });
-        const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const v = BB.BED.cur, st = LP.q[LP.i]; o.push({ t: performance.now() - t0, k: st && st.k, s: st && st.slug || '', f: v && v.f, on: !!(v && v.src && v.want > -60), want: v && v.want }); if (performance.now() - t0 > 16000) { clearInterval(iv); res(); } }, 100); });
+        const t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const v = BB.BED.cur, st = LP.q[LP.i]; o.push({ t: performance.now() - t0, k: st && st.k, s: st && st.slug || '', f: v && v.f, on: !!(v && v.src && v.want > -60), want: v && v.want }); if (performance.now() - t0 > 30000) { clearInterval(iv); res(); } }, 100); });
         try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return o; });
       const mj = o.filter((x) => x.k === 'matjeol' && x.on), b = o.filter((x) => x.s === 'bridge-b13-toast-stay' && x.on), fs = [...new Set(o.filter((x) => x.on).map((x) => x.f))];
       ok('음03-T02 미리 듣기 맞절 → 축배 — 맞절 정적 · b13 에서 본식 곡(B09 · 당일과 같은 곡)을 무음에서 · 곡 하나', !mj.length && b.length > 5 && fs.length === 1 && fs[0] === 'B09', { mj: mj.length, b: b.length, fs });

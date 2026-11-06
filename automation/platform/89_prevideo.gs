@@ -47,6 +47,7 @@ function _pvRow_(sh, code) {
   return null;
 }
 function _pvWrite_(sh, row, code, d, m) {
+  m.rev = (Number(m.rev) || 0) + 1;   // [B2_MA_07] 쓸 때마다 판 번호 — 늦게 온 옛 저장이 더 나중의 보내기 · 확정을 되돌리지 못하게 견준다
   var st = String(m.st || ''), vals = [[code, PV_ST_KO[st] || '', d.mode === 'upload' ? '준비한 영상' : (d.mode === 'make' ? '사진으로 만들기' : ''), JSON.stringify(d), JSON.stringify(m), fmtKST(new Date())]];
   if (row && row.num) sh.getRange(row.num, 1, 1, PV_HEAD.length).setValues(vals);
   else sh.appendRow(vals[0]);
@@ -127,12 +128,14 @@ function _pvPublic(code, cust) { _gsr_();
     var m = row.m || {};
     if (_pvSeePreview_(m)) {
       var lock = LockService.getScriptLock();
-      try { lock.waitLock(8000); var r2 = _pvRow_(sh, code); if (r2) { r2.m.prev = m.prev; r2.m.st = m.st; _pvWrite_(sh, r2, code, r2.d, r2.m); } } catch (e) {} finally { try { lock.releaseLock(); } catch (e2) {} }
+      /* [B2_MA_08] 잠금 안에서 요청 판(submit.n) · 상태를 다시 본다 — 그 사이 «안 함» · 새 요청이 들어왔으면 옛 미리보기로 덮지 않는다 */
+      try { lock.waitLock(8000); var r2 = _pvRow_(sh, code); if (r2 && ['making', 'checking'].indexOf(String(r2.m.st || '')) > -1 && Number((r2.m.submit || {}).n) === Number((m.submit || {}).n)) { r2.m.prev = m.prev; r2.m.st = m.st; _pvWrite_(sh, r2, code, r2.d, r2.m); m = r2.m; } else if (r2) m = r2.m || {}; } catch (e) {} finally { try { lock.releaseLock(); } catch (e2) {} }
     }
     out.st = String(m.st || '');
     out.d = row.d || null;
     out.consent = !!(m.consent && m.consent.at);
-    if (m.prev && m.prev.id) out.prev = { url: 'https://drive.google.com/file/d/' + m.prev.id + '/preview', at: String(m.prev.at || '') };
+    if (m.prev && m.prev.id) out.prev = { url: 'https://drive.google.com/file/d/' + m.prev.id + '/preview', at: String(m.prev.at || ''), id: String(m.prev.id), ver: Number((m.submit || {}).n) || 0 };   // [B2_MA_08] 확정할 때 «본 것»을 함께 보내게
+    out.rev = Number(m.rev) || 0;   // [B2_MA_07]
     if (m.conf && m.conf.at) out.conf = { at: String(m.conf.at), same: !!(m.prev && m.conf.prev === m.prev.id), url: m.conf.prev ? 'https://drive.google.com/file/d/' + m.conf.prev + '/preview' : '' };   // url = 지금 상영할 확정본(다시 보내는 동안에도 볼 수 있게)
   } catch (e) {}
   return out;
@@ -173,6 +176,8 @@ function handlePvSave(body) { _gsr_();
   try {
     var sh = _pvSheet_(), row = _pvRow_(sh, code), m = (row && row.m) || {}, d0 = (row && row.d) || {};
     var st = String(m.st || '');
+    /* ★[B2_MA_07 2026-11-06 2차 B2-마07] 보내기 · 확정보다 먼저 낸 «옛 저장»(판 번호가 그 보내기 · 확정 판보다 앞)이 늦게 도착하면 아무것도 바꾸지 않는다 — 만드는 중 · 확정 상태를 초안으로 되돌리던 것 */
+    if (op === 'save' && body.rev != null && isFinite(+body.rev) && Number(body.rev) < (Number(m.subRev) || 0)) return { ok: true, stale: true, pv: _pvPublic(code, cust) };
     if (_pvPast_(due) && !(op === 'confirm' && st === 'review' && (m.submit || {}).day && String(m.submit.day) <= due)) return { ok: false, locked: true, error: '확정 기한이 지났어요 · 바꾸실 것은 디렉터에게 말씀해 주세요' };
     var d = (op === 'later' || op === 'off' || op === 'reopen' || op === 'confirm') ? (body.draft ? _pvNorm_(body.draft, m, wed) : _pvNorm_(d0, m, wed)) : _pvNorm_(body.draft, m, wed);
     if (op === 'save') {
@@ -197,12 +202,16 @@ function handlePvSave(body) { _gsr_();
       m.submit = { n: n, ts: Date.now(), at: fmtKST(new Date()), day: _kstYmd(new Date()), kind: d.mode };
       m.prev = null;
       m.st = d.mode === 'make' ? 'making' : 'checking';
+      m.subRev = (Number(m.rev) || 0) + 1;   // [B2_MA_07] 이번 쓰기의 판 — 이보다 앞선 저장은 늦게 와도 버린다
       var fUrl = 'https://drive.google.com/drive/folders/' + m.folder;
       mail = d.mode === 'make'
         ? ('식전 영상 만들기 요청 · ' + code + ' · 예식 ' + (wed || '-') + ' · 분위기 ' + d.style + ' · 곡 ' + d.song + ' · 사진 ' + d.photos.length + '장 · 확정 기한 ' + (due || '-') + ' · 다 만들면 폴더에 «미리보기»로 시작하는 이름의 영상을 넣어 주세요 · 폴더 ' + fUrl)
         : ('준비한 식전 영상 도착 · ' + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);
     } else if (op === 'confirm') {
       if (st !== 'review' || !(m.prev && m.prev.id)) return { ok: false, error: '확정할 영상이 아직 없어요.' };
+      /* ★[B2_MA_08 2026-11-06 2차 B2-마08] 고객이 본 미리보기(id · 요청 판)와 지금 서버의 미리보기가 다르면 확정하지 않는다 — 종전엔 지금 m.prev 를 그대로 확정했다 */
+      if ((body.prevId != null && String(body.prevId) !== String(m.prev.id)) || (body.ver != null && Number(body.ver) !== (Number((m.submit || {}).n) || 0))) return { ok: false, newer: true, error: '새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.', pv: _pvPublic(code, cust) };
+      m.subRev = (Number(m.rev) || 0) + 1;
       m.conf = { at: fmtKST(new Date()), prev: m.prev.id };
       m.confD = d;
       m.st = 'done';
@@ -265,6 +274,10 @@ function handlePvPhoto(body) { _gsr_();
   try {
     var r2 = _pvRow_(sh, code); if (!r2) { trash(); return { ok: false, error: '고객 정보를 찾을 수 없습니다.' }; }
     var m2 = r2.m || {}, d2 = r2.d || {};
+    /* ★[B2_MA_59 2026-11-06 2차 B2-마59] 파일을 만든 뒤 최종 기록 잠금 안에서 칸 · 전체 장수를 다시 본다 — 마지막 한 자리에 두 기기가 함께 올리면 둘 다 들어가던 것.
+       못 들어간 사진은 지우고 «자리가 찼다»고 답한다(초안에 붙은 사진만 성공) */
+    var _ph2 = _pvArr_(d2.photos), _cap2 = { first: PV_UP.first, days: PV_UP.days, today: PV_UP.today };
+    if (_ph2.length >= PV_UP.max || _ph2.filter(function (p) { return p && p.sec === sec; }).length >= _cap2[sec]) { trash(); return { ok: false, full: true, error: '다른 기기에서 사진이 추가돼 자리가 찼어요. 현재 사진을 확인해 주세요.', pv: _pvPublic(code, cust) }; }
     m2.uploads = _pvArr_(m2.uploads).concat([{ id: f1.getId(), th: f2.getId(), sec: sec, ts: Date.now() }]);
     d2.photos = _pvArr_(d2.photos).concat([{ id: f1.getId(), sec: sec, n: String(body.name || '').slice(0, 60) }]);
     var st = String(m2.st || '');
@@ -275,7 +288,7 @@ function handlePvPhoto(body) { _gsr_();
     if (!nd.mode) nd.mode = 'make';
     _pvWrite_(sh, r2, code, nd, m2);
   } finally { try { lock.releaseLock(); } catch (e) {} }
-  return { ok: true, id: f1.getId(), th: f2.getId() };
+  return { ok: true, id: f1.getId(), th: f2.getId(), rev: Number(m2.rev) || 0 };   // [B2_MA_07] 이 기기가 아는 판을 맞춘다
 }
 
 // 올린 사진의 작은 그림 — 이 고객이 올린 것만 · 한 번에 24장까지

@@ -78,7 +78,7 @@ function run(mut) {
   T('⑥ 예시 문장마다 자료(자료그대로_1016.json · 출처) · 아니면 지금 글 문장 · 서는 분 부르는 한 마디 — 지어낸 문장 0 [SOURCE_FIRST_1016]', !made.length, made.slice(0, 4).join(' | '));
   // ⑦ 화면
   const H = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
-  T('⑦ 식순 화면 — «○○ 멘트» 줄은 _exRows(안내 멘트와 같은 줄) · mkNarEx 가 저장(_persist) · 옛 길 L(\'narEx:\') 없음', /out\.push\(\{key:'narEx:'\+ek,l:e\.lab,list:el,cur:R\.narExOf\(S,ek\),picked:true,fn:/.test(H) && /window\.mkNarEx=function\(ek,n\)\{[^\n]*_persist\(\); render\(\); \};/.test(H) && !/L\('narEx:'/.test(H));
+  T('⑦ 식순 화면 — «○○ 멘트» 줄은 _exRows(안내 멘트와 같은 줄) · mkNarEx 가 저장(_persist) · 옛 길 L(\'narEx:\') 없음', /out\.push\(\{key:'narEx:'\+ek,l:e\.lab,list:el,cur:R\.narExOf\(S,ek\),picked:true,fn:/.test(H) && /window\.mkNarEx=function\(ek,n\)\{[^\n]*_persist\(\); render\(\);[^\n]*\};/.test(H) && !/L\('narEx:'/.test(H));
   // ⑧ 녹음 대본
   let man = null; try { man = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8')); } catch (e) {}
   const mc = man ? (man.clips || man) : [];
