@@ -1539,7 +1539,7 @@ function esdResume(){ var P = ESD.paused, Sg = ESD.Sg; ESD.paused = null; if (!P
     var left = (Sg.dur - pos) - esdTail(Sg); if (left > SEG_XF + 1) r.tEnd = setTimeout(function(){ esdEnd(r); }, Math.round((left - SEG_XF) * 1000));
     duckTo(duckWant != null ? duckWant : -90, 200);   /* 배경은 입장 장면이 맡는다(ESD.run 이면 −90) */ return true; } catch (e) { return false; } }
 function esdBedBack(ms){ var c = cueAt(cur), db = (phase === 'live' && c && c.live && c.live.duck !== undefined) ? c.live.duck : (c ? c.duck : PARAM.duckMusic); duckTo(db, ms); }
-var ESD_NEED = 180;   // [BGM_SEG8_1023 ENTRY_SHORT] 하이라이트 뒤 이만큼(걷기 · 받는 말 · 맞절)이 안 되면 «곡 길이 모자람»
+var ESD_NEED = 90;   /* [WALK_HALF_1106 · BGM 섹션 11/06] 걷기 절반으로 180 → 90 */   // [BGM_SEG8_1023 ENTRY_SHORT] 하이라이트 뒤 이만큼(걷기 · 받는 말 · 맞절)이 안 되면 «곡 길이 모자람»
 function esdTail(Sg){ if (Sg.tail != null) return Sg.tail; var t = 0; try { var x = Sg.buf.getChannelData(0), sr = Sg.buf.sampleRate, i = x.length - 1; while (i > 0 && Math.abs(x[i]) < 0.003) i--; t = Math.max(0, (x.length - 1 - i) / sr); } catch (e) {} Sg.tail = t; return t; }   // 끝 무음(초)
 function esdStop(sec){ var r = ESD.run; if (!r) { if (!ESD.pzKeep) ESD.paused = null; ESD.pzKeep = false; return; } ESD.paused = null; ESD.pzKeep = false;   /* [B2_K16] 멈춘 자리 기록은 정지 직후 한 번만 지킨다 */ ESD.run = null; if (r.tEnd) clearTimeout(r.tEnd); var a = r.a, now = a.currentTime, f = Math.max(0.02, sec || 0), fv = Math.min(f, 0.3);
   try { r.dk.gain.cancelScheduledValues(now); r.dk.gain.setValueAtTime(Math.max(0.0001, r.dk.gain.value), now); r.dk.gain.linearRampToValueAtTime(0.0001, now + f); } catch (e) {}
