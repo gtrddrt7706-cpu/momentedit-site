@@ -22756,3 +22756,16 @@ chk 'B2_FIX_NI05' assets/ritual-cue.js 1
 chk 'B2_FIX_NA_62' order-preview.html 2
 chk 'B2_FIX_GEUL_18' order-preview.html 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r1.mjs >/dev/null 2>&1; _b2r1=$?; node scripts/audit/b2-fix-r1.mjs --selftest >/dev/null 2>&1; _b2r1s=$?; if [ "$_b2r1" != 0 ] || [ "$_b2r1s" != 0 ]; then echo "REVERT? b2-fix-r1: 재검증 재수정 1묶음(사진 안내 늘 · 서약 · 축사 박수 · 개식 힌트 · 본식 뒤 · 덕담 차례)이 어긋났습니다 ($_b2r1/$_b2r1s) — node scripts/audit/b2-fix-r1.mjs"; fail=1; else echo 'ok b2-fix-r1'; fi; fi
+# ★[B2_FIX_R2 2026-11-06 재검증 재수정 2묶음] 나38 · 나41 · 나51 · 글30 · 나03 · 나50 · NI17 · 나02 · 나20 — 화면 함수를 브라우저에서 불러 잰다(scripts/audit/b2-fix-r2.mjs · 브라우저 없으면 2 = 재지 못함)
+chk 'B2_FIX_NA_38' order-preview.html 2
+chk 'B2_FIX_NA_41' order-preview.html 1
+chk 'B2_FIX_NA_51' order-preview.html 2
+chk 'B2_FIX_NA_51' assets/ritual-open.js 1
+chk 'B2_FIX_GEUL_30' order-preview.html 1
+chk 'B2_FIX_NA_03' order-preview.html 1
+chk 'B2_FIX_NA_50' order-preview.html 1
+chk 'B2_FIX_NI17' mypage.html 1
+chk 'B2_FIX_NA_02' console.html 1
+chk 'B2_FIX_NA_20' console.html 1
+nochk '가까운 분들의 목소리로 바뀝니다' console.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r2.mjs >/dev/null 2>&1; _b2r2=$?; node scripts/audit/b2-fix-r2.mjs --selftest >/dev/null 2>&1; _b2r2s=$?; if [ "$_b2r2" = 1 ] || [ "$_b2r2s" = 1 ]; then echo "REVERT? b2-fix-r2: 재검증 재수정 2묶음(서약 차례 · 인용 · 축배 한마디 · 시간 · 이어서 지문 · 360 카드 · 도움말 · 손 대기 · 끝 화면)이 어긋났습니다 ($_b2r2/$_b2r2s) — node scripts/audit/b2-fix-r2.mjs"; fail=1; else echo "ok b2-fix-r2 ($_b2r2)"; fi; fi
