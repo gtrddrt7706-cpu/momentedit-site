@@ -1873,7 +1873,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.15'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.16'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '정성껏 고른 목소리로 진행됩니다' assets/ritual-data.js 2   # ★[REVIEW31_1023 검토 157-1] 01 · 02 = G4 표 2 «다정» 판 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «미리 준비한 안내 음성으로 진행…» · 옛 주석 ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2511,7 +2511,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.15'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.16'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -4065,8 +4065,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1\.15' contract/v1-1.html 6   # [CONTRACT_V115 · 머리 주석 포함] [CONTRACT_V114] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.15'" automation/platform/70_journey.gs 1
+chk 'v1\.16' contract/v1-1.html 6   # [CONTRACT_V116 · 머리 주석 포함] [CONTRACT_V115] [CONTRACT_V114] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.16'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -12901,7 +12901,8 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'CONTRACT_VER_ONE' scripts/audit/contract-version.mjs 1
 chk 'CONTRACT_VER_ONE' automation/tests/merge-guard.sh 3
-chk 'Version v1.15' contract/v1-1.html 1   # [CONTRACT_V115]
+chk 'Version v1.16' contract/v1-1.html 1   # [CONTRACT_V116]
+chk 'Version v1.15' contract/archive/v1-15.html 1   # [CONTRACT_V116] v1.15 보존본
 chk 'Version v1.14' contract/archive/v1-14.html 1   # [CONTRACT_V115] v1.14 보존본
 chk 'Version v1.13' contract/archive/v1-13.html 1   # [CONTRACT_V114] v1.13 보존본
 chk 'Version v1.12' contract/archive/v1-12.html 1   # [CONTRACT_V113] v1.12 보존본
@@ -12949,6 +12950,20 @@ nochk "부모님께 드릴 꽃도 저희가 준비하며" assets/advisor-kb.js 0
 nochk "부모님께 인사: 꽃과 포옹 하나다" api/_ritual-kb.js 0
 nochk "부모님께 드릴 꽃은 어떻게 준비되나요" order-preview.html 0
 nochk "'꽃은 저희가 준비':'꽃 직접 준비'" order-preview.html 0
+# ★[CONTRACT_V116 2026-11-06 사장님 결정(11/06) · 대본 지시] v1.16 — 계약서 4곳만 바꿨다 · 보존본 v1-15 는 그 판 그대로
+chk 'CONTRACT_V116' contract/v1-1.html 1
+chk 'CONTRACT_V116' automation/platform/70_journey.gs 2
+chk 'v1-15.html' admin.html 1
+chk 'v1-15.html' mypage.html 1
+chk "식순은 순서를 예식일 14일 전까지, 글(원고)을 예식일 7일 전까지 횟수 제한 없이 수정할 수 있으며, 그 이후의 변경은 '을'과 협의하여 가능한 범위에서 반영한다." contract/v1-1.html 1
+chk "<li>Farewell (20분) · 정리 · 환복</li>" contract/v1-1.html 1
+chk "식전 영상 상영('갑'이 준비해 올린 영상)" contract/v1-1.html 1
+chk "기한까지 올리지 않으면 식전 영상 없이 진행한다." contract/v1-1.html 1
+chk "'을'은 마이페이지의 애프터 웨딩에서 식당 정보와 예상 비용을 안내하며, 예약과 식사 비용 지급은 '갑'이 식당에 직접 한다." contract/v1-1.html 1
+nochk "'을'이 3분 영상을 만들어 상영" contract/v1-1.html 0
+nochk "<li>Farewell (20분) · 배웅" contract/v1-1.html 0
+nochk "검증된 파트너사 소개 및 예약 조율만을 지원" contract/v1-1.html 0
+chk "'을'이 3분 영상을 만들어 상영" contract/archive/v1-15.html 1   # 보존본은 그 판 그대로
 # ★[CONTRACT_V115 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자» · FLOWER_OFF_1013] v1.15 — 3조 ⑥ 별도 비용에서 «부모님께 드릴 꽃 · '을' 준비(별도 비용)» 줄을 걷고 칸을 한 칸씩 올렸다 · 보존본 v1-14 는 그 판 그대로
 chk 'CONTRACT_V115' contract/v1-1.html 1
 chk 'CONTRACT_V115' automation/platform/70_journey.gs 2
