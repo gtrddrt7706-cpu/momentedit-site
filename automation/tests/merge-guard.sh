@@ -22670,3 +22670,8 @@ for _f in i-family/family-01.html i-family/family-02.html i-family/family-03.htm
   chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' "$_f" 1
   nochk '20분 전</span>부터 내빈 입장이 시작됩니다' "$_f"
 done
+chk 'RESV_NO_GUESS_AMPM' guide.html 2     # [검토 A] 1 ~ 12시는 오전 · 오후를 짐작하지 않는다(«6시» 그대로)
+chk "window.addEventListener('pagehide', () => clearTimeout(t), { once: true });" live.html 1
+for _f in i/cover-01.html i/cover-02.html i/cover-03.html i/cover-04.html i/cover-05.html i/cover-06.html i/cover-07.html i/cover-08.html i-family/family-01.html i-family/family-02.html i-family/family-03.html i-family/family-04.html i-family/family-05.html i-family/family-06.html i-family/family-07.html i-family/family-08.html; do
+  nochk 'hydrate.js?v=20261106a' "$_f"    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+done

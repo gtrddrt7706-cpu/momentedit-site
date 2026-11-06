@@ -2845,7 +2845,8 @@ setInterval(onAirSync, 60000);
       if (!fromRef || window.history.length < 2) return;   // 기록에 그 청첩장이 없으면 링크 그대로 연다
       e.preventDefault();
       const here = location.href; history.back();
-      setTimeout(() => { if (location.href === here && document.visibilityState !== 'hidden') location.href = inv; }, 700);   // 뒤로가 같은 쪽 안(해시)에서 끝났으면 그 청첩장으로
+      const t = setTimeout(() => { if (location.href === here && document.visibilityState !== 'hidden') location.href = inv; }, 700);   // 뒤로가 먹지 않았으면 그 청첩장 주소로 연다
+      window.addEventListener('pagehide', () => clearTimeout(t), { once: true });   // [LIVE_BACK_DEST_1106 검토 A] 뒤로 간 쪽이 저장됐다 «앞으로»로 돌아와도 남은 타이머가 다시 보내지 않게
     });
   });
 })();

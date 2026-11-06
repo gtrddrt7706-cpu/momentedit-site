@@ -1952,7 +1952,7 @@ details.env-acc-item[open] .env-acc-plus{
   b.innerHTML='예시 청첩장이에요 · 이름·날짜·계좌 모두 예시예요.<br><a href="/i/cover-03.html?e=test-couple" style="font:400 11px/1.5 system-ui,-apple-system,sans-serif;color:#5A554C;letter-spacing:.02em;text-decoration:underline;text-underline-offset:3px">지금 디자인으로 예시 보기</a>';
   document.body.insertBefore(b, document.body.firstChild); document.documentElement.setAttribute('data-demo','1');
   var c=document.querySelector('[data-account], .acc-copy, .env-acc-copy'), r=c&&c.closest?c.closest('.env-acc-row, .acc-row, .env-acc, li, tr, div'):null;
-  if(r&&r.parentNode){ var a=document.createElement('p'); a.id='meDemoAcct'; a.style.cssText='margin:24px auto 12px;max-width:26em;padding:11px 14px;border:1px solid rgba(107,42,36,.28);border-radius:6px;color:#6B2A24;background:#FAFAF8;font:400 12px/1.7 system-ui,-apple-system,sans-serif;text-align:center;letter-spacing:.02em';
+  if(r&&r.parentNode){ var a=document.createElement('p'); a.id='meDemoAcct'; a.style.cssText='margin:24px auto 12px;max-width:26em;padding:11px 14px;border:1px solid rgba(107,42,36,.28);border-radius:6px;color:#6B2A24;background:#FAFAF8;font:400 12px/1.7 system-ui,-apple-system,sans-serif;text-align:center;letter-spacing:.02em;text-wrap:balance';
     a.textContent='이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.'; r.parentNode.insertBefore(a, r); }
 })();</script>
 </body>
