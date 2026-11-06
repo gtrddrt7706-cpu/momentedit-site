@@ -21344,6 +21344,7 @@ chk 'function _prEstMs(ks)' order-preview.html 1
 chk 'data-fk="prj:_after"' order-preview.html 1
 nochk "say md" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way4.mjs >/dev/null 2>&1; _prw4=$?; if [ "$_prw4" = 1 ]; then echo 'FAIL pr-way4: 연습 보충(행위자 · 진행 상수 · 토글 · 식후 · 연습 시간)이 어긋났습니다 — node scripts/audit/pr-way4.mjs'; fail=1; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/b5-practice.mjs >/dev/null 2>&1; _b5p=$?; if [ "$_b5p" = 1 ]; then echo 'FAIL b5-practice: 5차 연습 회귀(편지 몫 · 본식 뒤 머리 · A 복귀 8초 · 축가 3초 · 짧은 잔여 재개 · 멈춤 중 음악 · 이어서 연습 칸 · 역할 복사 실패 창)가 어긋났습니다 — node scripts/audit/b5-practice.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
@@ -22650,4 +22651,5 @@ nochk "localStorage.getItem(PR_AT_KEY" order-preview.html   # ★공용 한 칸(
 chk 'B5_PN03' order-preview.html 5   # [5차 P v2 P-N03] 역할 전달 복사 실패 — 고를 수 있는 창에 역할 글 · 읽기 전용 링크 · 성공 알림은 실제 성공 뒤 · 공유 취소는 오류 아님
 chk '복사하지 못했어요. 아래 글을 길게 눌러 복사해 주세요.' order-preview.html 1
 nochk "function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };" order-preview.html   # ★역할 전달 복사 실패를 알림만으로 되돌리지 말 것
+chk 'B5_PRACTICE' scripts/audit/b5-practice.mjs 1   # 5차 연습 회귀 검사 파일이 살아 있는가
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
