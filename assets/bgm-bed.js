@@ -209,7 +209,7 @@
   function hookOf(f){ var s0=P.byF(f); return (s0&&s0.start!=null)?Math.max(0,+s0.start):0; }
   function lfSeg(){ var st=curStep(); if(!st||BED.who!=='lp'||!entMulti()) return ''; var sg=st._base||segAt(st.k); return (sg&&P.seg(sg)&&P.seg(sg).loop)?sg:''; }
   function lfNext(sg,f){ var o=ordOf(sg).filter(has), i=o.indexOf(f); if(!o.length) return ''; for(var j=1;j<=o.length;j++){ var x=o[(Math.max(0,i)+j)%o.length]; if(x!==f) return x; } return ''; }
-  function listArm(v){ clearTimeout(v.lt); var a=AC, s=v.src; if(!a||!s||!s.buffer||v.f===ENT_F) return; var sg0=lfSeg(), X=(sg0&&P.xfOf)?P.xfOf(sg0):LIST_XF, d=s.buffer.duration, left=d-posOf(v); if(!(d>X*2+1)) return;   /* [ONE_FLOW_1106 ②] 본식 M4 = 8초 전에 겹쳐 넘김 */
+  function listArm(v){ clearTimeout(v.lt); var a=AC, s=v.src; if(!a||!s||!s.buffer||v.f===ENT_F) return; var sg0=lfSeg(), X=(sg0&&P.xfOf)?P.xfOf(sg0):LIST_XF, d=s.buffer.duration, left=d-posOf(v); if(!(d>X*2+1)) X=LIST_XF; if(!(d>X*2+1)) return;   /* 아주 짧은 곡(17초 이하)은 3초 겹침 그대로 */   /* [ONE_FLOW_1106 ②] 본식 M4 = 8초 전에 겹쳐 넘김 */
     var n0=sg0?lfNext(sg0,v.f):''; if(n0&&!BUF[n0]) want(n0);   /* 미리 받기 */
     v.lt=setTimeout(function(){ if(v.src!==s||!AC) return; var sg=BED.cur===v?lfSeg():'', nf=sg?lfNext(sg,v.f):'';
       var cs=BED.cur===v?curStep():null; if(nf&&cs&&(cs.talk||cs.talk2||(sg==='M4'&&(personal(cs)||cs.quiet)))){   /* ★[MEANING_R2_1102 LIST_HOLD] 본식 곡 목록(M4)은 행동 줄(반지 · 포옹 · 인사)도 — 연습 B 가 몇 분 머물러도 같은 곡을 강조 자리부터 겹쳐 잇는다 */ LPB.lfw={ sg:sg, f:nf, v:v, k0:cs.k }; if(!BUF[nf]) want(nf); swapSrc(v,s.buffer,hookOf(v.f),v.f,X); return; }   /* ★[MEANING_R1_1102 19] 두 분 · 손님이 말하는 줄 도중에는 다음 곡으로 넘기지 않는다 — 같은 곡을 강조 자리부터 3초 겹쳐 잇고, 그 줄이 끝난 다음 줄(lpShow)에서 넘긴다 · 당일 콘솔 talkNow 와 같은 규칙 */

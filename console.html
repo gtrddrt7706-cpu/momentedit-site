@@ -1327,7 +1327,7 @@ function segCur(){ var el = BED.el[BED.on]; if (BED.mode !== 'seg' || !BED.id ||
 function segXf(){ return (BP && BP.xfOf && BED.mode === 'seg') ? BP.xfOf(BED.seg) : SEG_XF; }
 setInterval(function(){ if (BED.lfWant && !talkNow()) BED.lfGo = 1;   /* ★[LF_GO_1102] 말하는 자리 사이 짧은 나레이션 줄(겹침 3초보다 짧다)도 놓치지 않는다 — 겹치는 동안 본 «말이 끊긴 때»를 적어 둔다 */
   if (BED.mode !== 'seg' || BED.xing) return; var el = BED.el[BED.on], m = SEGST.meta[BED.id] || {}, end = m.end || el.duration;
-  var _X = segXf(); if (!isFinite(end) || !(end > _X + 1) || el.paused) return;
+  var _X = segXf(); if (isFinite(end) && !(end > _X * 2 + 1)) _X = SEG_XF;   /* [ONE_FLOW_1106 ②] 아주 짧은 곡은 3초 겹침 그대로 */ if (!isFinite(end) || !(end > _X + 1) || el.paused) return;
   if (end - el.currentTime <= 20 && BED.pre !== BED.id + '>' + BED.li) { BED.pre = BED.id + '>' + BED.li; listProbe(); }   /* [DETAIL_R5_1101 규칙 5] 끝 20초 전 — 다음 곡 파일을 미리 열어 본다 */
   if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }   /* [MEANING_R1_1102 19] 말하는 줄이 끝나고 다음 나레이션 · 박수 · 이동 줄에서 다음 곡으로 */
   if (el.currentTime >= end - _X) { if (talkNow() && BED.list.length > 1) { BED.lfWant = 1; BED.lfGo = 0; var _m19 = SEGST.meta[BED.id] || {}; bedPlay(BED.id, _X, _m19.head || 0); return; } listGo(1); } }, 250);
