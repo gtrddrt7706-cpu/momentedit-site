@@ -8680,7 +8680,10 @@ function _prPrep(st){ var id=(LP.prepId=(LP.prepId||0)+1); LP.prep={st:st,n:5,id
   (function tick(){ LP.prepT=setTimeout(function(){ if(!LP.prep||LP.prep.id!==id||LP.q[LP.i]!==st||LP.paused) return; LP.prep.n--;   /* 따로 시계(LP.prepT) — 줄 시계(LP.t)를 다른 길이 지워도 준비는 끝까지 · 멈추면 서고 다시 누르면 5초부터 */
     if(LP.prep.n<=0){ LP.prep=null; LP.prepDone=st; _lShow(); return; } _lFull(); tick(); },1000); })(); }
 /* ★★[PR_WAY_198 ⑪] 이어서 연습 — 문장 자리까지 이 기기에 적는다(순간 · 그 순간 몇째 줄 · 방식 · 그때 순서) · 다음에 열면 «어디서부터»를 먼저 보여 주고 누를 때만 튼다(자동 재생 없음) · 순서가 바뀌었으면 바뀐 순간부터 */
-var PR_AT_KEY='me_pr_at', PR_ORD=['첫','두','세','네','다섯','여섯','일곱','여덟','아홉','열'];
+/* ★[B5_PN02 2026-11-06 5차 P v2 P-N02] 이어서 연습 자리 = 초안과 같은 칸 나눔(_ordKey) — 그냥 연 미리보기는 me_pr_at_pub · 마이페이지 안은 확인된 계정마다 me_pr_at_<계정> ·
+     계정을 받기 전에는('') 읽지도 쓰지도 않는다 · 주인을 모르는 옛 공용 기록(me_pr_at)은 어느 칸에도 배정하지 않는다(읽지 않는다) · 순서 · 구성 보호(B2_NA_03)는 그대로 */
+function _prAtKey(){ var k=''; try{ k=_ordKey(); }catch(e){ k=''; } return k?k.replace(/^me_order_/,'me_pr_at_'):''; }
+var PR_ORD=['첫','두','세','네','다섯','여섯','일곱','여덟','아홉','열'];
 function _prAtWhere(q,i){ var st=q[i], k=st.k, a=i; while(a>0&&q[a-1].k===k) a--; var n=i-a, nm=st.stage?'본식 뒤 · '+_stName(st):_mkName(k), d;   /* [STAGE_SHOW_NI11] 이어서 연습 이름도 단계로 */
   if(st.talk2&&/^(신랑|신부)$/.test(st.who||'')){ var c=0; for(var j=a;j<=i;j++){ if(q[j].talk2&&q[j].who===st.who) c++; } d=st.who+' '+(PR_ORD[c-1]||c)+' 번째 문장'; }
   else if(st.both) d='두 분이 함께 읽는 문장'; else if(st.talk2) d=(st.who||'')+' 차례'; else if(n===0) d='처음부터'; else d=(PR_ORD[n]||(n+1))+' 번째 줄';
@@ -8691,13 +8694,13 @@ function _prAtWhere(q,i){ var st=q[i], k=st.k, a=i; while(a>0&&q[a-1].k===k) a--
 /* ★[B2_NA_03 2026-11-06 BATCH2 나03] 이어서 연습은 그 순간의 줄 구성(누가 · 무엇을 · 어떤 소리)까지 적는다 — 읽는 방식 · 먼저 읽는 분 · 예시를 바꾼 뒤
      옛 줄 번호로 다른 분 문장에 이어 붙던 것 · 다르면 그 순간 처음부터(«내용이 바뀌어 이 순간 처음부터 해요.») · 구성 기록이 없는 옛 기록도 처음부터(«저장한 위치를 확인할 수 없어 …») */
 function _prAtSig(k){ try{ var a=_lSteps(ENG,_lRows()).filter(function(x){ return x.k===k; }).map(function(x){ return [x.slug||'',x.who||'',x.both?1:0,x.talk2?1:0,String(x.txt||'')].join('\u0001'); }).join('\u0002'), h=5381; for(var i=0;i<a.length;i++) h=((h*33)^a.charCodeAt(i))>>>0; return 'v1:'+a.length+':'+h.toString(36); }catch(e){ return ''; } }
-function _prAtSave(){ try{ var st=LP.q[LP.i]; if(!st||!_inPr()||!LP.all||LP.fast) return; var w=_prAtWhere(LP.q,LP.i); w.way=PRW; w.rows=_lRows().join(','); w.sig=_prAtSig(w.k); w.t=Date.now(); localStorage.setItem(PR_AT_KEY,JSON.stringify(w)); }catch(e){} if(!LP.big) _prRzSync(); }   /* [B2_NA_18] */
-function _prAtClear(){ try{ localStorage.removeItem(PR_AT_KEY); }catch(e){} _prRzSync(); }
+function _prAtSave(){ try{ var st=LP.q[LP.i]; if(!st||!_inPr()||!LP.all||LP.fast) return; var w=_prAtWhere(LP.q,LP.i); w.way=PRW; w.rows=_lRows().join(','); w.sig=_prAtSig(w.k); w.t=Date.now(); var _pk=_prAtKey(); if(_pk) localStorage.setItem(_pk,JSON.stringify(w)); }catch(e){} if(!LP.big) _prRzSync(); }   /* [B2_NA_18] */
+function _prAtClear(){ try{ var _pk=_prAtKey(); if(_pk) localStorage.removeItem(_pk); }catch(e){} _prRzSync(); }   /* [B5_PN02] 다른 칸(공개 · 다른 계정) 기록은 지우지 않는다 */
 /* ★[B2_NA_18 2026-11-06 BATCH2 나18] «이어서 연습하기» 카드는 지금 이어 할 자리와 함께 산다 — 끝까지 한 뒤 작게 보기에 옛 카드가 남고 단추가 아무 일도 안 했다 ·
      기록이 바뀌면(저장 · 끝 · 크게 보기 닫음 · 누를 때 자리가 없음) 그 카드만 고쳐 그린다(화면 전체를 다시 그려 작은 재생을 끊지 않는다) · 기록이 없으면 카드째 걷는다 */
 function _prRzHtml(_rz){ return '<div class="pr-resume"><b>이어서 연습하기</b><p class="pr-rz1">'+esc(_rz.d1)+'</p>'+(_rz.d2?'<p class="pr-rz2">'+esc(_rz.d2)+'</p>':'')+'<button type="button" class="rowbtn" data-fk="prres" onclick="prResume()">여기서 이어서</button></div>'; }
 function _prRzSync(){ try{ var el=document.querySelector('.pr-resume'); if(!el) return; var o=ENG?_prAtGet():null; if(!o){ el.remove(); return; } var t=document.createElement('div'); t.innerHTML=_prRzHtml(o); el.parentNode.replaceChild(t.firstChild,el); }catch(e){} }
-function _prAtGet(){ var o=null; try{ o=JSON.parse(localStorage.getItem(PR_AT_KEY)||'null'); }catch(e){ o=null; } if(!o||!o.k) return null;
+function _prAtGet(){ var o=null, _pk=_prAtKey(); if(!_pk) return null; try{ o=JSON.parse(localStorage.getItem(_pk)||'null'); }catch(e){ o=null; } if(!o||!o.k) return null;   /* [B5_PN02] */
   var now=_lRows(), old=String(o.rows||'').split(','), at=now.indexOf(o.k), ch=-1;
   for(var i=0;i<Math.max(now.length,old.length);i++){ if(now[i]!==old[i]){ ch=i; break; } }
   if(at<0||(ch>-1&&ch<=at)){ var k=now[ch>-1?Math.min(ch,now.length-1):0]; if(!k) return null; return {k:k,n:0,way:o.way,d1:_mkName(k)+' · 처음부터',d2:'순서가 바뀌어 바뀐 순간부터 해요',changed:true}; }
