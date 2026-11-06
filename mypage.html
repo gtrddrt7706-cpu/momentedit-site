@@ -13660,7 +13660,8 @@ function _dnRsvFor(d, place, nm){ place=String(place||''); if(!place) return;
   if(d.reserveFor===place) return;
   if(nm && place!==nm && d.reserveFor===String(nm) && !(d._rsvBy||{})[place]){ d.reserveFor=place; return; }   // [B2_FIX_MA_38] 이름만으로 적힌 옛 열쇠 = 같은 곳(이름 + 장소 ID 열쇠로 옮긴다 · 값은 그대로)
   var by=d._rsvBy||{}; by[d.reserveFor]={t:d.reserveTime||'',n:d.reserveName||''};
-  var sv=by[place]||{}; d.reserveTime=sv.t||''; d.reserveName=sv.n||''; d.reserveFor=place; d._rsvBy=by; }
+  var sv=by[place]||(nm&&place!==nm?by[String(nm)]:null)||{}; if(!by[place]&&sv.t!=null&&nm&&by[String(nm)]===sv){ by[place]=sv; delete by[String(nm)]; }   /* ★[B2_FIX_MA_38_OLDKEY] 옛 초안의 이름 열쇠(_rsvBy[이름])도 꺼내 새 열쇠(이름#pid)로 옮긴다 — 다른 곳을 대표로 바꿀 때 예약 값이 빈칸이 되던 것(검토 되돌림) */
+  d.reserveTime=sv.t||''; d.reserveName=sv.n||''; d.reserveFor=place; d._rsvBy=by; }
 function _dnRsvWire(d){   // 입력 즉시 draft에 반영 — '저장 후 나가기'(collect 미경유)로 나가도 값이 실리게
   var _rt=$('dn_rtime'); if(_rt) _rt.addEventListener('input', function(){ d.reserveTime=(_rt.value||'').trim().slice(0,40); });
   var _rn=$('dn_rname'); if(_rn) _rn.addEventListener('input', function(){ d.reserveName=(_rn.value||'').trim().slice(0,30); });
