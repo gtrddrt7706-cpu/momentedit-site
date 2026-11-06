@@ -1998,9 +1998,9 @@
     },
     {
       "no": "348",
-      "id": "W-guest-w-10m-short",
+      "id": "W-guest-w-10m-n10-short",
       "label": "10분 전 · 본식 10분 미만(299s · K3_SHORT_1106)",
-      "file": "guest-w-10m-short",
+      "file": "guest-w-10m-n10-short",
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",
@@ -2023,9 +2023,9 @@
     },
     {
       "no": "349",
-      "id": "W-guest-w-10m-short-meal",
+      "id": "W-guest-w-10m-n10-short-meal",
       "label": "10분 전 · 본식 10분 미만 · 식사(345s · K3_SHORT_1106)",
-      "file": "guest-w-10m-short-meal",
+      "file": "guest-w-10m-n10-short-meal",
       "role": "안내",
       "part": "1_안내.txt",
       "dir": "assets/audio/narration",

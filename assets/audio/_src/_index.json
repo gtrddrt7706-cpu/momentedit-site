@@ -4353,21 +4353,21 @@
    "from": "300_guest-w-10m-n10-mgr#2",
    "keepGap": true
   },
-  "348_guest-w-10m-short#0": {
+  "348_guest-w-10m-n10-short#0": {
    "text": "십 분 뒤 본식을 시작하겠습니다.",
    "voice": "진희",
    "when": "2026-11-01",
    "from": "299_guest-w-10m-n10#0",
    "keepGap": true
   },
-  "349_guest-w-10m-short-meal#0": {
+  "349_guest-w-10m-n10-short-meal#0": {
    "text": "십 분 뒤 본식을 시작하겠습니다.",
    "voice": "진희",
    "when": "2026-11-01",
    "from": "345_guest-w-10m-n10-meal#0",
    "keepGap": true
   },
-  "349_guest-w-10m-short-meal#2": {
+  "349_guest-w-10m-n10-short-meal#2": {
    "text": "식사는 촬영 뒤에 함께합니다.",
    "voice": "진희",
    "when": "2026-11-01",

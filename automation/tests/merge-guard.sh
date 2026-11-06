@@ -21882,7 +21882,7 @@ nochk "a.innerHTML='<button type=\"button\" class=\"pv-again\"" order-preview.ht
 chk "if(typeof CUSTMEAL==='undefined'||!((typeof CUSTDINE==='string'&&CUSTDINE)||CUSTMEAL||CUSTDIG||CUSTGUIDE===false)) return S;" order-preview.html 1   # [DINE_HINT_NI15] 식사 상태를 받으면 문맥 값
 nochk "!(CUSTMEAL||CUSTGUIDE||CUSTDIG)) return S;" order-preview.html
 # ── 2026-11-02 [INFO_SPLIT_200 검토 200 수정 2 · 사장님 18:00 «한 번에 다 안내하면 귀에 안 들어오니 나눠서» · 18:02 «추천대로»] 입장 = 사진 올리기 · 10분 전 = 식사 예고 · 5분 전 = 경로 + 사진 · 마무리 = 식사 시각 · 합류 · 촬영 후 = 남기 · 물건 · 이동 허락
-chk "if (i === 1) return (guestShort(S) ? 'guest-w-10m-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');" assets/ritual-cue.js 1   # [K3_SHORT_1106] 10분 미만 본식 = 299s · 345s
+chk "if (i === 1) return (guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');" assets/ritual-cue.js 1   # [K3_SHORT_1106] 10분 미만 본식 = 299s · 345s
 chk "var G5 = { '-mgr': \[GW.mgr, GW.upThere\], '-mg': \[GW.mg, GW.upThere\], '-mr': \[GW.mr, GW.pUp\], '-m': \[GW.m, GW.pUp\], '-g': \[GW.pUp\] };" assets/ritual-cue.js 1   # [PHOTO_ALWAYS_NI02] 현장 디렉터 판에도 사진 문장
 chk "'narr-closing-mealr': \[CL_THX, CL_CHEER, CL_RESV, CL_JOIN, CL_GA\], 'narr-closing-mealnr': \[CL_THX, CL_CHEER, CL_NORESV, CL_JOIN, CL_GA\]" assets/ritual-cue.js 1
 chk "'after-photo': \[GW.done, GW.fam, GW.stay, GW.things, GW.goHome, GW.day\], 'after-photo-meal': \[GW.done, GW.fam, GW.stay, GW.things, GW.goMeal\]," assets/ritual-cue.js 1
@@ -22705,7 +22705,7 @@ chk 'LOAD_SHOW_1106' order-preview.html 8   # ★듣기 로딩 표시
 chk 'LISTEN_RESUME_1106' scripts/audit/listen-resume.mjs 1   # 위 넷(+축배 60초)을 재는 검사 파일이 살아 있는가
 chk 'PV_LEAD_NOCLAP_1106' assets/ritual-cue.js 1   # [J_A A11 · B2-쉼01] 박수 없는 개식(칩 1 ~ 5) 뒤 식전 영상 소개는 뜸 없이 사슬 3초만(당일 콘솔 6초 → 3초)
 chk "if (!_pvNoClap) _pc.goLeadMs" assets/ritual-cue.js 1
-chk 'K3_SHORT_1106' assets/ritual-cue.js 5   # [결정 K3 · D03] 예상 본식 10분 미만 = 10분 전 299s · 345s(guest-w-10m-short · -meal · 348 · 349 · 녹음 대기)
+chk 'K3_SHORT_1106' assets/ritual-cue.js 5   # [결정 K3 · D03] 예상 본식 10분 미만 = 10분 전 299s · 345s(guest-w-10m-n10-short · -meal · 348 · 349 · 녹음 대기)
 chk "nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')" assets/ritual-cue.js 1
 chk 'PV_LEAD_NOCLAP_1106 · K3_SHORT_1106' scripts/audit/pv-lead-k3.mjs 1   # 두 결정 검사 파일이 살아 있는가
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi

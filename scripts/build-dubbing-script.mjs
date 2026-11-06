@@ -303,7 +303,7 @@ const G = [
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 297 ~ 324 — 새 코스 하객 맞이(입장 때 · 10분 전 · 5분 전 온라인 · 1분 전) · 촬영 후 안내 ·
      문장 창고 방식(같은 문장은 한 번 녹음 · 판마다 이어 붙임) · 전부 진희(안내) · 원천 RC.GUEST_PARTS */
   { n: 18, t: '하객 맞이 · 촬영 후 안내 (검토 191 · 문장 창고)', tone: '차분하고 친절하게 · 안내 방송처럼 또박또박 · 감정 수식 없이', items:
-    Object.keys(RC.GUEST_PARTS || {}).map((sl) => [`W-${sl}`, ({ 'guest-w-arrival': '하객 입장 때', 'guest-w-arrival-guide': '하객 입장 때 · 하객 안내', 'guest-w-5m-online': '5분 전 · 온라인', 'guest-w-1m': '1분 전', 'guest-w-1m-online': '1분 전 · 온라인', 'guest-w-10m-short': '10분 전 · 본식 10분 미만(299s · K3_SHORT_1106)', 'guest-w-10m-short-meal': '10분 전 · 본식 10분 미만 · 식사(345s · K3_SHORT_1106)' })[sl]
+    Object.keys(RC.GUEST_PARTS || {}).map((sl) => [`W-${sl}`, ({ 'guest-w-arrival': '하객 입장 때', 'guest-w-arrival-guide': '하객 입장 때 · 하객 안내', 'guest-w-5m-online': '5분 전 · 온라인', 'guest-w-1m': '1분 전', 'guest-w-1m-online': '1분 전 · 온라인', 'guest-w-10m-n10-short': '10분 전 · 본식 10분 미만(299s · K3_SHORT_1106)', 'guest-w-10m-n10-short-meal': '10분 전 · 본식 10분 미만 · 식사(345s · K3_SHORT_1106)' })[sl]
         || (/^guest-w-10m-n(\d+)(-(\w+))?$/.test(sl) ? sl.replace(/^guest-w-10m-n(\d+)(?:-(\w+))?$/, (m, n, x) => `10분 전 · 본식 약 ${n}분` + (x ? ' · 식사 ' + ({ mgr: '하객 안내 · 예약 시각', mg: '하객 안내', mr: '현장 디렉터 · 예약 시각', m: '현장 디렉터' })[x] : '')) : '')
         || '촬영 후 안내 · ' + ({ 'after-photo': '식사 없음', 'after-photo-guide': '식사 없음 · 하객 안내', 'after-photo-cafe': '카페 · 다과', 'after-photo-cafe-guide': '카페 · 다과 · 하객 안내', 'after-photo-resv-guide': '식사 · 예약 시각 · 하객 안내', 'after-photo-resv': '식사 · 예약 시각', 'after-photo-meal-guide': '식사 · 하객 안내', 'after-photo-meal': '식사' })[sl],
       sl, RC.GUEST_PARTS[sl].map((x) => x[1]).join(' ')]),

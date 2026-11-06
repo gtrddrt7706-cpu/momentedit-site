@@ -278,7 +278,7 @@
     'narr-closing-mealr', 'narr-closing-mealr-nt', 'narr-closing-mealr-nt-nc', 'guest-w-10m-n10-meal', 'guest-w-10m-n15-meal', 'guest-w-10m-n20-meal',
     /* ★★[K3_SHORT_1106 결정 K3 · D03 «10분 미만 본식 길이 안내»] 348 · 349 — 예상 본식이 10분 미만인 날의 10분 전(299 · 345 대신 · 부르는 이름 299s · 345s) ·
        «약 십 분간 진행되고» 대신 길이를 말하지 않는 새 문장 하나(진희 · 녹음 대기 · 화면 글 먼저) · 10분 이상은 299 ~ 313 · 345 ~ 347 그대로 */
-    'guest-w-10m-short', 'guest-w-10m-short-meal'
+    'guest-w-10m-n10-short', 'guest-w-10m-n10-short-meal'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -496,7 +496,7 @@
     GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = b.concat([GW.meal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = b.concat([GW.meal, GW.mg]);
     GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = b.concat([GW.meal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = b.concat([GW.meal, GW.m]); });
   /* [K3_SHORT_1106] 299s · 345s = 10분 미만 본식 판(시작 예고 + 길이 없는 촬영 예고 ± 식사) */
-  GUEST_PARTS['guest-w-10m-short'] = [GW.ten, GW.nShort]; GUEST_PARTS['guest-w-10m-short-meal'] = [GW.ten, GW.nShort, GW.meal];
+  GUEST_PARTS['guest-w-10m-n10-short'] = [GW.ten, GW.nShort]; GUEST_PARTS['guest-w-10m-n10-short-meal'] = [GW.ten, GW.nShort, GW.meal];
   /* ★[INFO_SPLIT_200] 5분 전 = 시작 오 분 전 + 확인 경로(식사 날 · 하객 안내 / 현장 디렉터 × 예약 시각) + 사진(하객 안내) ± 온라인(맨 끝) · 식사도 하객 안내도 없는 날은 03 · 314 그대로 */
   /* ★★[PHOTO_ALWAYS_NI02 2026-11-05 이음매 NI02] 사진 올리기 안내는 하객 안내를 끈 예외 예식에도 나간다 — 입장 때는 늘 298 · 5분 전 현장 디렉터 판(331 · 332 · 335 · 336)은
          장소 문장 뒤에 333 의 사진 문장(pUp)을 붙인다(새 녹음 0 · 창고 문장 이어 붙임) · 식사 없는 날은 하객 안내와 상관없이 333 · 334 · 온라인 문장은 늘 맨 끝 ·
@@ -511,7 +511,7 @@
   /* 판 고르기 — i = 0 입장 때 · 1 10분 전 · 2 5분 전 · 3 1분 전 */
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
     if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
-    if (i === 1) return (guestShort(S) ? 'guest-w-10m-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 · [K3_SHORT_1106] 10분 미만 본식은 길이 없는 판(299s · 345s) */
+    if (i === 1) return (guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 · [K3_SHORT_1106] 10분 미만 본식은 길이 없는 판(299s · 345s) */
     if (i === 2) { var r5 = mF ? (gOn(S) ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m')) : (gOn(S) ? '-g' : '');   /* [INFO_SPLIT_200] 경로 · 사진은 5분 전 */
       return 'guest-w-5m' + (r5 || '-g') + (S.digital ? '-online' : ''); }   /* [PHOTO_ALWAYS_NI02] 식사 없는 날은 하객 안내와 상관없이 사진 판(333 · 334) — 03 · 314 는 이 자리에 안 쓴다 */
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }

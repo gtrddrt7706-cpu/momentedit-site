@@ -4,7 +4,7 @@
       뜸(goLeadMs 3초)을 얹지 않는다 — 당일 콘솔 기다림 = 사슬 3초 + 뜸 3초 ≈ 6초였다 → 3초.
       박수를 청하는 개식(칩 0 · 디렉터 GO) · 고객 미리 듣기 칩 0(사슬 4.5초)은 그대로 뜸 3초 · 그 밖 큐의 뜸은 그대로.
       실브라우저: 당일 콘솔(console.html)에서 개식 클립 끝 → 소개 클립 시작을 잰다(칩 2 · 3 · 4).
-   ② [K3_SHORT_1106 결정 K3 · D03] 예상 본식(넉넉 합 가운데)이 10분 미만이면 10분 전 안내 299 · 345 대신 299s · 345s(guest-w-10m-short · -meal) ·
+   ② [K3_SHORT_1106 결정 K3 · D03] 예상 본식(넉넉 합 가운데)이 10분 미만이면 10분 전 안내 299 · 345 대신 299s · 345s(guest-w-10m-n10-short · -meal) ·
       10분 이상은 종전 판(n10 · n15 · n20 ± meal) · 글은 결정 문안 그대로 · 화면(식순 화면 하객 맞이 10분 전 줄 · 전체 대본)에도 같은 글 · 녹음 대기(새 문장 하나).
    깨 보기: 엔진 사본을 고쳐(뜸 조건 지움 · 박수 판 조건 지움 · 짧은 판 고르기 지움) 각각 빨강이 나는지 본다.
    node scripts/audit/pv-lead-k3.mjs [--fast = 브라우저 없이]   종료 0 통과 · 1 실패 · 2 재지 못함 */
@@ -66,7 +66,7 @@ function k3Check(C, label) {
   const bad = []; let nS = 0, nL = 0;
   for (const S0 of combos()) for (const meal of [0, 1]) {
     const S = Object.assign({}, S0, meal ? { meal: 1, mealFull: 1 } : {}), b = O.bodySec(S), avg = (b[0] + b[1]) / 2, short = avg < 600;
-    const want = short ? 'guest-w-10m-short' + (meal ? '-meal' : '') : 'guest-w-10m-n' + Math.max(10, Math.min(20, Math.round((avg / 60) / 5) * 5)) + (meal ? '-meal' : '');
+    const want = short ? 'guest-w-10m-n10-short' + (meal ? '-meal' : '') : 'guest-w-10m-n' + Math.max(10, Math.min(20, Math.round((avg / 60) / 5) * 5)) + (meal ? '-meal' : '');
     const pick = C.guestPick(S, 1), cue = C.build(S, { mode: 'console' }).cues.find((c) => /^guest-w-10m-/.test(c.slug || '')) || {};
     if (short) nS++; else nL++;
     if (pick !== want || cue.slug !== want || cue.text !== C.EXTRA[want]) bad.push({ on: Object.keys(S.on || {}).join(','), meal, avg: Math.round(avg), want, pick, cue: cue.slug });
@@ -76,17 +76,17 @@ function k3Check(C, label) {
 }
 const C2 = C;
 ok('② [K3_SHORT_1106] 글 = 결정 문안 그대로(299s · 345s) · 소리 번호 348 · 349 · 녹음 대기(파일 없음)',
-  C2.EXTRA['guest-w-10m-short'] === TEXT_299S && C2.EXTRA['guest-w-10m-short-meal'] === TEXT_345S && C2.fileOf('guest-w-10m-short') === '348_guest-w-10m-short' && C2.fileOf('guest-w-10m-short-meal') === '349_guest-w-10m-short-meal'
-  && !C2.RETIRED['guest-w-10m-short'] && !/약 /.test(TEXT_299S) && C2.EXTRA['guest-w-10m-n10'] === '십 분 뒤 본식을 시작하겠습니다. 약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.',
-  [C2.EXTRA['guest-w-10m-short'], C2.EXTRA['guest-w-10m-short-meal']]);
+  C2.EXTRA['guest-w-10m-n10-short'] === TEXT_299S && C2.EXTRA['guest-w-10m-n10-short-meal'] === TEXT_345S && C2.fileOf('guest-w-10m-n10-short') === '348_guest-w-10m-n10-short' && C2.fileOf('guest-w-10m-n10-short-meal') === '349_guest-w-10m-n10-short-meal'
+  && !C2.RETIRED['guest-w-10m-n10-short'] && !/약 /.test(TEXT_299S) && C2.EXTRA['guest-w-10m-n10'] === '십 분 뒤 본식을 시작하겠습니다. 약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.',
+  [C2.EXTRA['guest-w-10m-n10-short'], C2.EXTRA['guest-w-10m-n10-short-meal']]);
 k3Check(C2, '② 10분 전 판 고르기 — 예상 본식 10분 미만 = short(± 식사) · 10분 이상 = 종전 n10 · n15 · n20(± 식사) · 큐 · 화면 글 같음');
 { const bS = O.applyExample({ course: 'open' }, 'brief'); bS.course = 'open'; const pv = C2.build(bS, { mode: 'preview' }).cues.find((c) => /^guest-w-10m-/.test(c.slug || '')) || {};
-  ok('② 예시 «간결»(본식 약 9분) — 미리 듣기 큐도 299s 글', pv.slug === 'guest-w-10m-short' && pv.text === TEXT_299S, [pv.slug, pv.text]); }
-{ const m3 = CUE_SRC.replace("(guestShort(S) ? 'guest-w-10m-short' : 'guest-w-10m-n' + guestMinOf(S))", "('guest-w-10m-n' + guestMinOf(S))");
+  ok('② 예시 «간결»(본식 약 9분) — 미리 듣기 큐도 299s 글', pv.slug === 'guest-w-10m-n10-short' && pv.text === TEXT_299S, [pv.slug, pv.text]); }
+{ const m3 = CUE_SRC.replace("(guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S))", "('guest-w-10m-n' + guestMinOf(S))");
   ok('② 깨 보기 — 짧은 판 고르기를 지운 판(옛 299 · 345)은 빨강', m3 !== CUE_SRC && k3Check(loadCue(m3)) > 0); }
 { const red = fs.readFileSync(P('docs/plans/식순연구/타입캐스트/재더빙_리드보강.txt'), 'utf8'), all = fs.readFileSync(P('docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'), 'utf8').split('\n');
   /* 이미 받은 두 문장(«십 분 뒤 …» · «식사는 촬영 뒤에 …»)은 창고에서 빌려 왔다(sent-lib --borrow) — 다시 받는 것은 새 문장 하나 */
-  ok('② 녹음 대기 명단에 348 · 349 · 다시받기(전체)에는 진희 새 문장 한 줄만', /\[348\] guest-w-10m-short/.test(red) && /\[349\] guest-w-10m-short-meal/.test(red) && all.filter((l) => l.trim() === '진희: 본식을 마친 뒤에는 기념 촬영이 있습니다.').length === 1 && !all.some((l) => /십 분 뒤 본식을 시작하겠습니다|식사는 촬영 뒤에 함께합니다/.test(l))); }
+  ok('② 녹음 대기 명단에 348 · 349 · 다시받기(전체)에는 진희 새 문장 한 줄만', /\[348\] guest-w-10m-n10-short/.test(red) && /\[349\] guest-w-10m-n10-short-meal/.test(red) && all.filter((l) => l.trim() === '진희: 본식을 마친 뒤에는 기념 촬영이 있습니다.').length === 1 && !all.some((l) => /십 분 뒤 본식을 시작하겠습니다|식사는 촬영 뒤에 함께합니다/.test(l))); }
 
 /* ── 실브라우저 — 당일 콘솔 기다림 · 식순 화면 글 */
 if (!FAST) {
