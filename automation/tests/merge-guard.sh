@@ -22638,7 +22638,7 @@ chk '촬영 후 안내가 끝나면 가족 사진을 이어서 찍어요.' brief
 chk 'B2_FIX_MA_03' live.html 3                      # 재조회 끝 — 마지막이 실패면 캐시 화면이어도 실패 문구 + 코드(G#)
 chk '^var _livePlaceholderHtml;' live.html 1   # [B2_FIX_MA_03_KEEP] 초기값 없이(캐시 길이 담은 값을 지우지 않게)
 nochk "^var _livePlaceholderHtml = '';" live.html
-chk 'B2_FIX_MA_38_OLDKEY' mypage.html 1     # 캐시로 먼저 그리는 길이 이 줄보다 먼저 부른다 — let 이면 초기화 전 접근으로 캐시 화면이 안 그려진다
+chk 'B2_FIX_MA_38_OLDKEY' mypage.html 1   # 옛 초안의 이름 열쇠 예약 값도 꺼내 새 열쇠(이름#pid)로
 chk '연결을 확인하지 못했어요. 화면을 새로 고쳐 주세요.' live.html 1
 chk 'B2_FIX_MA_09' mypage.html 3                    # 청첩장 발행 중 뒤로가기 · 키보드로 이전 · 단계 이동 안 함
 chk "if(id==='inv' && INVFLOW._publishing){ _wizRearm(id); return; }" mypage.html 1
