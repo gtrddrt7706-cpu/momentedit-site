@@ -150,8 +150,9 @@ if (typeof G._pgPrevideo_ !== 'function') { console.log('━━ midvideo — _pg
   G._pvSheet_ = PS; G.findCustomerByCode = FC; G._pgGone_ = PG0; }
 
 /* ★[PVNORM_KIND_1107] handlePvSave 안의 _pvNorm_ 은 모두 kind 를 넘긴다 — #1618(B2_FIX_MA_59) 이 넣은 «다른 기기 사진 지키기» 줄 하나가 kind 없이 들어왔다
-   (지금은 식중 초안에 사진이 없어 닿지 않지만, 빠지면 식중 줄이 식전처럼 사진 · 곡 · 분위기를 받을 수 있다) */
-{ const hs = fnSrc(gs, 'handlePvSave'), calls = hs.match(/_pvNorm_\((?:[^()]|\([^()]*\))*\)/g) || [], noKind = calls.filter((c) => !/,\s*kind\)$/.test(c));
+   (지금은 식중 초안에 사진이 없어 닿지 않지만, 빠지면 식중 줄이 식전처럼 사진 · 곡 · 분위기를 받을 수 있다)
+   주석(블록 주석 · 줄 끝 //)을 지우고 센다 — 고친 줄이 주석에 먹혀도 «kind 있음»으로 세지 않게(검토 1622 권함 · CODE_IN_COMMENT) */
+{ const hs = fnSrc(gs, 'handlePvSave').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/[^\n]*/g, '$1'), calls = hs.match(/_pvNorm_\((?:[^()]|\([^()]*\))*\)/g) || [], noKind = calls.filter((c) => !/,\s*kind\)$/.test(c));
   ok(calls.length >= 5 && noKind.length === 0, 'handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) [PVNORM_KIND_1107]', calls.length + '곳 · kind 없음: ' + noKind.join(' | ')); }
 
 console.log('━━ ④ 기한 안내(예식 14일 · 7일 전)');
