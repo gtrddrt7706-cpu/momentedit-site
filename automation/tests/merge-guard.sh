@@ -4783,6 +4783,9 @@ chk 'MID_VIDEO_1106' admin.html 3
 chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
 chk 'MID_VIDEO_1106' automation/platform/95_notify.gs 5
 chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
+# ★[PVNORM_KIND_1107 2026-11-07 MID17-8] handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) — #1618 이 넣은 «다른 기기 사진 지키기» 줄에 kind 가 빠졌었다 · 동작은 midvideo.mjs 가 잰다
+chk 'PVNORM_KIND_1107' automation/platform/89_prevideo.gs 1
+chk 'PVNORM_KIND_1107' scripts/audit/midvideo.mjs 2
 # ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
 #   버전 고정(무료 라이선스 판) · 유료 렌더 패키지 없음 · 길이 = 마이페이지 _pvcSecs · 개그 · 패러디 갈래 없음
 if command -v node >/dev/null 2>&1; then _pro=$(node scripts/audit/prevideo-remotion.mjs 2>&1); _prr=$?
