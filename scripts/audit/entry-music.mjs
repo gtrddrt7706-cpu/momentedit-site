@@ -104,12 +104,12 @@ try {
     const S11 = await scene();
     ok(`${W} 11 누르면 그 자리에서 목소리 · 곡이 함께 · «멈춤» · aria-pressed true · open 선 앞(대기) 칸`, S11.run && S11.x > 0.8 && S11.pill === '멈춤' && S11.pressed === 'true' && S11.at === 'greet', S11);
     const CALL11 = await pg.evaluate(() => EntryScene.SP.call);
-    ok(`${W} 11b [ENTRY_CALL_PAUSE_1013] 나레이션 «입장!» 앞 쉼 — 목소리 마디 둘(${S11.vsn}) · 녹음 ${S11.cut ? S11.cut.was.toFixed(2) : '?'}초 → ${CALL11}초(엔진 SP.call · 당일 콘솔과 같은 엔진)`,
-      CALL11 === 1.8 && S11.vsn === 2 && !!S11.cut && Math.abs(S11.cut.was + S11.cut.add - CALL11) < 0.01 && S11.cut.add >= 0,   /* ★[DETAIL_R5_1101 entry-music 11b] 녹음 쉼이 이제 1.77초라 늘리는 몫은 0.03초 — «1.8초로 맞춘다»만 본다(옛 «0.2초 넘게 늘린다»는 1.0초 녹음 때 기준) */ { vsn: S11.vsn, cut: S11.cut, CALL11 });
+    ok(`${W} 11b [ENTRY_CALL_PAUSE_1013] 나레이션 «입장!» 앞 쉼 — ${S11.cut ? '녹음 ' + S11.cut.was.toFixed(2) + '초 → ' + CALL11 + '초로 늘림(마디 ' + S11.vsn + ')' : '녹음 쉼이 ' + CALL11 + '초 이상이라 끊지 않음(마디 ' + S11.vsn + ' · 쉼 = 녹음 값)'}(엔진 SP.call · 당일 콘솔과 같은 엔진)`,
+      CALL11 === 1.8 && ((S11.vsn === 2 && !!S11.cut && Math.abs(S11.cut.was + S11.cut.add - CALL11) < 0.01 && S11.cut.add > 0) || (S11.vsn === 1 && !S11.cut && S11.pieces >= 2)),   /* ★[GAP_ENTRY_1106] 녹음 «입장!» 앞 쉼이 SP.call 이상이면 엔진이 끊지 않는다(마디 1 · 쉼 = 녹음 값 · A · C · D · E 2.3초) · 짧으면 1.8 로 늘려 마디 2(B · F) — «입장!» 자리를 짚었는지(녹음 쉼 값)는 entry-call-pause 나(실제 녹음 여섯)가 잰다 */   /* ★[DETAIL_R5_1101 entry-music 11b] 녹음 쉼이 이제 1.77초라 늘리는 몫은 0.03초 — «1.8초로 맞춘다»만 본다(옛 «0.2초 넘게 늘린다»는 1.0초 녹음 때 기준) */ { vsn: S11.vsn, cut: S11.cut, CALL11 });
     // 12
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(300); const S12a = await scene();
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(600); const S12b = await scene();
-    ok(`${W} 12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터`, !S12a.run && S12a.pause > 0.8 && S12a.pill === '이어 듣기' && S12a.focus === 'emscene' && S12b.run && S12b.x >= S12a.pause - 0.05 && S12b.x < S12a.pause + 1.5, { S12a, S12b });
+    ok(`${W} 12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터 · 멘트 앞(음악만)에서 멈췄으면 멘트 자리(tv)부터(★[RESUME_TALK_NOW_1106] 옛 «멈춘 자리 그대로»)`, !S12a.run && S12a.pause > 0.8 && S12a.pill === '이어 듣기' && S12a.focus === 'emscene' && S12b.run && (S12a.pause < S12a.plan.tv ? (S12b.x >= S12a.plan.tv - 0.05 && S12b.x < S12a.plan.tv + 1.5) : (S12b.x >= S12a.pause - 0.05 && S12b.x < S12a.pause + 1.5)), { S12a, S12b });
     // 13
     const gbox = await pg.evaluate(() => { const r = document.querySelector('.em-graph canvas').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
     await pg.mouse.click(gbox.x + gbox.w * ((P.th + 1) / P.tend), gbox.y + gbox.h / 2); await pg.waitForTimeout(500); const S13 = await scene();

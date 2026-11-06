@@ -70,6 +70,7 @@ var NOTIFY_EVENTS = {
   'cust.fittingRequest':  { to: 'customer', need: true,  desc: '시착 동의 요청 — 서명 필요' },
   'cust.contractArrived': { to: 'customer', need: true,  desc: '계약서 도착 — 72시간 내 서명' },
   'cust.balanceDue':      { to: 'customer', need: true,  desc: '잔금 안내(기한 도래) — 입금' },
+  'cust.videoDue':        { to: 'customer', need: true,  desc: '식전 · 식중 영상 확정 기한 안내(예식 14일 · 7일 전) — [MID_VIDEO_1106] 89_prevideo sendVideoDueNotices' },
   'cust.balancePre':      { to: 'customer', need: false, desc: '잔금 사전 안내(기한 전 리마인드)' },
   'cust.midDue':          { to: 'customer', need: true,  desc: '중도금 안내(기한 도래) — 입금' },
   'cust.midPre':          { to: 'customer', need: false, desc: '중도금 사전 안내(기한 전 리마인드)' },
@@ -542,6 +543,11 @@ function _nfCustomerMsg(event, name, x) { _gsr_();
     case 'cust.midDue':
       return { vars: { '#{이름}': name, '#{디데이}': String(x.dday != null ? x.dday : '') },
         text: '[모먼트에디트] ' + name + '님, 중도금 일정을 안내드립니다(예식 ' + _nfDday(x.dday) + '). 금액과 계좌는 마이페이지에 정리해 두었어요. 입금자명을 남겨주시면 확인이 더 빨라요. ' + _nfMy('mid') };
+    case 'cust.videoDue': {   /* ★[MID_VIDEO_1106 체크리스트 13] 영상 확정 기한 — 무엇(식전 영상 · 식중 영상) · 기한(예식 7일 전 23:59) · 안 보내면 영상 없이 */
+      var _vd = String(x.due || ''), _vm = _vd.match(/^(\d{4})-(\d{2})-(\d{2})$/), _vt = _vm ? ((+_vm[2]) + '월 ' + (+_vm[3]) + '일') : '예식 7일 전';
+      return { vars: { '#{이름}': name, '#{영상}': String(x.what || '영상'), '#{기한}': _vt },
+        text: '[모먼트에디트] ' + name + '님, ' + String(x.what || '영상') + ' 확정 기한은 ' + _vt + ' 23:59(예식 7일 전)이에요. 기한까지 확정하지 않으면 영상 없이 진행해요. 마이페이지에서 확인해 주세요. ' + _nfMy('production') };
+    }
     case 'cust.balancePre':
     case 'cust.balanceDue':
       return { vars: { '#{이름}': name, '#{행사}': (x.snap ? '촬영' : '예식'), '#{디데이}': String(x.dday != null ? x.dday : '') },
@@ -756,6 +762,7 @@ function setKakaoTemplates() { _requireAdmin();
     'cust.midDue':              '',   // T08 중도금(같은 코드)
     'cust.balancePre':          '',   // T09 잔금
     'cust.balanceDue':          '',   // T09 잔금(같은 코드)
+    'cust.videoDue':            '',   // T23 영상 기한([MID_VIDEO_1106] · 신청 전 · 그 전엔 이메일)
     'cust.resultDelivered':     '',   // T10 결과물
     'cust.resultOriginal':      '',   // T20 원본 도착(승인 후 채우기 · 그 전엔 이메일 폴백) RESULT_NOTIFY_STEPS
     'cust.resultRetouch':       '',   // T21 보정본 도착(동일) RESULT_NOTIFY_STEPS
@@ -823,7 +830,8 @@ function importKakaoTemplates() { _requireAdmin();
     '9': ['cust.balancePre', 'cust.balanceDue'], '10': ['cust.resultDelivered'], '13': ['cust.holdExpiring'],
     '14': ['cust.changeConfirmed'], '15': ['cust.changeDeclined'], '17': ['cust.consultDone'], '18': ['cust.depositToProduction'],
     '19': ['cust.couponIssued'],   // CPN_NOTIFY
-    '20': ['cust.resultOriginal'], '21': ['cust.resultRetouch'], '22': ['cust.refundAcctReq']   // TPL_KEEP 2026-09-25 신청분
+    '20': ['cust.resultOriginal'], '21': ['cust.resultRetouch'], '22': ['cust.refundAcctReq'],   // TPL_KEEP 2026-09-25 신청분
+    '23': ['cust.videoDue']   // [MID_VIDEO_1106] 영상 확정 기한(신청 전 · 그 전엔 이메일)
   };
   var date = new Date().toISOString();
   var salt = Utilities.getUuid().replace(/-/g, '');
@@ -1108,6 +1116,7 @@ var NF_EMAIL_TITLE = {
   'cust.midDue':              { subj: '중도금 일정을 안내드립니다', head: '중도금 안내', btn: '금액·계좌 확인' },
   'cust.balancePre':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
   'cust.balanceDue':          { subj: '잔금 일정을 안내드립니다', head: '잔금 안내', btn: '금액·계좌 확인' },
+  'cust.videoDue':            { subj: '영상 확정 기한이 다가와요', head: '영상 확정 기한', btn: '영상 확인하기' },   // [MID_VIDEO_1106]
   'cust.holdExpiring':        { subj: '예식일 임시고정 만료 안내', head: '임시고정 만료 임박', btn: '상담 확정하러 가기' },
   'cust.changeConfirmed':     { subj: '예식일 변경이 적용되었습니다', head: '예식일 변경 적용', btn: '변경 내용 확인' },
   'cust.changeDeclined':      { subj: '예식일 변경 안내', head: '예식일 변경 보류', btn: '다시 요청하기' },
