@@ -224,6 +224,7 @@
   var advGen = 0;   // [C2_ADV_RESET] 대화 세대 — reset() 이 올리면 오가던 답(앞 계정의 질문에 대한 답)은 화면 · 대화에 넣지 않고 버린다
   var transcript = [];
   var lastNight = false;   // 직전 응답의 야간 플래그(식순 등 — 에스컬레이션 문구를 정직하게)
+  var lastReplyAt = '';    // [B3_Q15] 서버(api/ritual-advisor.js replyWindowKST)가 실은 «다음 답변 시작» — 없으면 아래 사본으로 계산
   var mode = 'adv';   // 'adv'(/api/advisor) | 'sched'(/api/schedule-advisor 신비주의 스케줄)
 
   function place(el) { body.appendChild(el); }
@@ -304,13 +305,24 @@
     return false;
   }
   // 야간(KST) 클라이언트 폴백 — 서버가 night 플래그를 못 실은 오류 경로에서도 문구가 정직하게(서버값 있으면 우선)
-  function nightNowKST() { var h = new Date(new Date().getTime() + 9 * 3600 * 1000).getUTCHours(); return h >= 18 || h < 9; }
+  /* ★[B3_Q15 · AFTER_HOURS_KST 2026-11-06 3차 AI 상담 Q15] 서버 replyWindowKST 의 사본 — 답변 시간은 평일 10시 - 18시(KST · ESC.hours).
+     종전 nightNowKST(18시 ~ 9시만 밤)는 평일 9 ~ 10시 · 주말 낮을 답변 시간으로 보고, 금요일 밤에 «내일 영업시간에»(토요일)라 했다.
+     서버가 replyAt 을 실었으면 그 값을 쓰고(무조건 «내일»이라 하지 않는다), 못 받은 오류 경로에서만 이 사본으로 센다 · scripts/audit/after-hours.mjs 가 같은 표본으로 잰다 */
+  function replyWindowKST(nowMs) {
+    var k = new Date((nowMs == null ? Date.now() : Number(nowMs)) + 9 * 3600 * 1000);
+    var d = k.getUTCDay(), h = k.getUTCHours(), wd = (d >= 1 && d <= 5);
+    if (wd && h >= 10 && h < 18) return { open: true, next: '' };
+    if (wd && h < 10) return { open: false, next: '오전 10시부터' };
+    if ((d >= 1 && d <= 4) || d === 0) return { open: false, next: '내일 오전 10시부터' };
+    return { open: false, next: '월요일 오전 10시부터' };
+  }
+  function nightNowKST() { return !replyWindowKST().open; }
   function escalateOrBook() {   // 오류/폴백 공용 — 익명이면 인계 금지·예약 유도
     if (isAnonMode()) showBooking(); else showEscalation();
   }
   function showEscalation() {
     if (escShown) return; escShown = true;
-    var ki = kakaoInfo(), night = (lastNight || nightNowKST());
+    var ki = kakaoInfo(), rwNow = replyWindowKST(), night = (lastNight || !rwNow.open), nextAt = lastReplyAt || rwNow.next;
     var box = document.createElement('div'); box.className = 'me-adv-esc';
     var t = document.createElement('div'); t.className = 'me-adv-esc-t';
     t.setAttribute('role', 'status');
@@ -318,7 +330,7 @@
     doHandoff().then(function (r) {
       if (r.ok) {
         t.textContent = night
-          ? '문의를 디렉터에게 남겼어요. 내일 영업시간에 이어서 답해드려요.'
+          ? '문의를 남겼어요. 평일 오전 10시부터 오후 6시 사이에 확인해 답해드려요.' + (nextAt ? ' 다음 답변은 ' + nextAt + ' 시작해요.' : '')   // [B3_Q15] 다음 답변 시작은 서버 값(replyAt) · 무조건 «내일» 금지
           : (ki.mail
           ? '디렉터에게 바로 전달했어요. 이메일로 이어서 문의하실 수 있어요.'
           : '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.');
@@ -373,7 +385,15 @@
   function offTopicish(s) {   // 명백히 다른 주제면 일반 상담으로 전환
     return /(가격|비용|얼마|금액|예약금|계약금|중도금|잔금|환불|취소|수수료|주차|식사|식대|다이닝|메이크업|메이크|드레스|헤어|청첩장|영상|스냅|반려|결제|계좌|입금|보증|문의서|연락처|환불)/.test(s);
   }
+  /* ★[B3_Q14 2026-11-06 3차 AI 상담 Q14] «평일에 카드 결제 가능한가요?» · «예식 7일 전에 영상 보내도 되나요?»가 일정 확인으로 갔다(평일 · 7일 + 되나요).
+     다른 주제 낱말(offTopicish)이 섞였고 실제 날짜(월 · 년 · 계절 · 연휴 등)가 없으면 일정으로 보내지 않는다 — «N일 전 · N주 뒤»는 기한이지 날짜가 아니다.
+     실제 날짜가 함께 있으면(«5월 3일 예식 가능한가요? 가격은요?») 종전대로 일정 확인을 막지 않는다 */
+  function hardDate(s) {
+    s = String(s).replace(/\d+\s*(일|주|개월|달)\s*(전|후|뒤|이내|안|째)/g, ' ');
+    return /(\d{4}\s*년)|(\d{1,2}\s*월)|(\d{1,2}\s*[\/.]\s*\d{1,2})|내년|올해|내후년|다음\s*달|이번\s*달|봄|여름|가을|겨울|상반기|하반기|중순|월말|월초|연휴|크리스마스|성탄|(\d{1,2}\s*일)/.test(s);
+  }
   function schedish(s) {
+    if (offTopicish(s) && !hardDate(s)) return false;   // [B3_Q14]
     if (/(예식\s*일|예식\s*날짜|예식일정)/.test(s) && /(가능|확인|예약|잡|비)/.test(s)) return true;
     if (dateish(s) && /(가능|예약|비어|잡을|잡아|돼요|되나요|될까)/.test(s) && !/상담\s*(예약|일정|시간)/.test(s)) return true;
     return false;
@@ -383,14 +403,25 @@
     return n.getFullYear() + '-' + ('0' + (n.getMonth() + 1)).slice(-2) + '-' + ('0' + n.getDate()).slice(-2);
   }
 
+  // 스케줄 모드는 "끈적하게" 유지: 한번 일정 흐름에 들어가면 날짜·시간대·짧은 수긍은 계속 스케줄로 · 명백히 다른 주제(가격·환불 등)일 때만 일반 상담으로
+  function routeSched(q, forceSched) {
+    var stay = mode === 'sched' && !offTopicish(q) && (dateish(q) || slotish(q) || affirmish(q));
+    return !!CFG.schedule && (forceSched || schedish(q) || stay);
+  }
+  /* ★[B3_Q26 2026-11-06 3차 AI 상담 Q26] 서버는 질문을 일반 600 · 식순 1500 · 일정 400(UTF-16 · api/advisor · ritual-advisor · schedule-advisor 의 MAX_MSG_LEN)에서
+     말없이 잘랐다 — 화면엔 질문 전체가 남아 «식사는 하지 않아요» 같은 끝 조건이 버려진 줄 몰랐다. 보내기 전에 재고, 넘으면 보내지 않고 쓴 글을 그대로 둔다 */
+  var MAX_Q = { adv: 600, ritual: 1500, sched: 400 }, LONG_Q = '질문이 길어요. 내용을 나눠서 보내 주세요.';
+  function maxLenFor(q, forceSched) { return routeSched(q, forceSched) ? MAX_Q.sched : (/ritual-advisor/.test(String(CFG.endpoint || '')) ? MAX_Q.ritual : MAX_Q.adv); }
+  function keepQ(q) { try { if (!input.value) { input.value = q; input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 96) + 'px'; } } catch (e) {} }   // [B3_Q26] 실패 때 쓴 글을 입력칸에 되돌린다(다시 적지 않게)
+
   function send(q, forceSched) {
     if (sending) return;
+    if (q.length > maxLenFor(q, forceSched)) { addMsg(LONG_Q, 'bot'); keepQ(q); return; }   // [B3_Q26] 칩 · 다른 길로 들어와도 같은 상한
     var g = advGen;   // [C2_ADV_RESET] 이 질문이 나간 세대 — 답이 왔을 때 세대가 바뀌었으면(로그아웃) 버린다
     addMsg(q, 'me'); transcript.push({ role: 'user', content: q });
     // 스케줄 모드는 "끈적하게" 유지: 한번 일정 흐름에 들어가면 날짜·시간대·짧은 수긍은 계속 스케줄로,
     // 명백히 다른 주제(가격·환불 등)일 때만 일반 상담으로 빠진다 → 시간대만 답해도 시원한 확정 안내가 나옴.
-    var stay = mode === 'sched' && !offTopicish(q) && (dateish(q) || slotish(q) || affirmish(q));
-    var useSched = !!CFG.schedule && (forceSched || schedish(q) || stay);
+    var useSched = routeSched(q, forceSched);   // [B3_Q26] 길이 확인(submit)과 같은 판정
     mode = useSched ? 'sched' : 'adv';
     sending = true; sendBtn.disabled = true;
     var typing = addTyping();
@@ -408,10 +439,10 @@
             transcript.push({ role: 'assistant', content: j.reply });
             return;
           }
-          var c = aiCode(res.status, j, null);
+          var c = aiCode(res.status, j, null); keepQ(q);   // [B3_Q26] 실패 때 쓴 글을 남긴다
           addMsg(aiWord(c) + ' · ' + (c === 'A0' ? '다시 적어 주세요' : '잠시 뒤 다시 물어봐 주세요') + ' (코드 ' + c + ')', 'bot');
         })
-        .catch(function (e) { if (g !== advGen) return; typing.remove(); var c = aiCode(0, null, e); addMsg((aiN(e) ? aiWord(c) + ' · 잠시 뒤 다시 물어봐 주세요' : AI_SCREEN) + ' (코드 ' + c + ')', 'bot'); })   // [ERR_N_HONEST] · [C2_ADV_RESET]
+        .catch(function (e) { if (g !== advGen) return; typing.remove(); keepQ(q); var c = aiCode(0, null, e); addMsg((aiN(e) ? aiWord(c) + ' · 잠시 뒤 다시 물어봐 주세요' : AI_SCREEN) + ' (코드 ' + c + ')', 'bot'); })   // [ERR_N_HONEST] · [C2_ADV_RESET]
         .then(function () { if (g !== advGen) return; sending = false; sendBtn.disabled = false; });
       return;
     }
@@ -425,7 +456,7 @@
         typing.remove();
         var j = res.j || {};
         if (res.ok && j.reply) {
-          lastNight = !!j.night;
+          lastNight = !!j.night; lastReplyAt = (typeof j.replyAt === 'string') ? j.replyAt.slice(0, 20) : '';   // [B3_Q15]
           addMsg(j.reply, 'bot');
           transcript.push({ role: 'assistant', content: j.reply });
           if (j.escalate) showEscalation();   // 답 못 푸는 경우 바로 카톡 연결 노출(중간 버튼 생략)
@@ -434,6 +465,7 @@
           try { console.warn('advisor fallback', (res.status || '?'), (j && j.error) || ''); } catch (e) {}
           // 오류 시엔 응답의 escalate/toBooking 플래그(코드마다 제각각)를 믿지 않고 클라 모드로만 판정 —
           //   익명이면 인계 금지·예약 유도, 임베드면 인계(기획 v3 §6 · 익명 dead-end 인계 원천 차단).
+          keepQ(q);   // [B3_Q26]
           var anon = isAnonMode(), c = aiCode(res.status, res.j, null);   // [ERR_CODE_PAGES] 종전 «지금은 자동 답변을 불러오지 못했어요» 한 줄 → 까닭 + 코드
           addMsg(aiWord(c) + ' · ' + (anon ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
           escalateOrBook();
@@ -442,7 +474,7 @@
       .catch(function (e) {
         if (g !== advGen) return;   // [C2_ADV_RESET]
         typing.remove();
-        var c = aiCode(0, null, e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정해요» — 시간 A5 · 연결 A6 · 깨진 답 A7 · [ERR_N_HONEST] 화면 쪽 예외 A0
+        keepQ(q); var c = aiCode(0, null, e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정해요» — 시간 A5 · 연결 A6 · 깨진 답 A7 · [ERR_N_HONEST] 화면 쪽 예외 A0
         addMsg((aiN(e) ? aiWord(c) + ' · ' + (isAnonMode() ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') : AI_SCREEN) + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
         escalateOrBook();
       })
@@ -569,7 +601,7 @@
     advGen++;
     opener = null;
     try { if (panel.classList.contains('open')) close(); } catch (e) {}
-    transcript = []; started = false; sending = false; escShown = false; handoffSent = false; handoffP = null; bookShown = false; lastNight = false; mode = 'adv';
+    transcript = []; started = false; sending = false; escShown = false; handoffSent = false; handoffP = null; bookShown = false; lastNight = false; lastReplyAt = ''; mode = 'adv';
     _chipLab = null; _chipBox = null;
     try { body.innerHTML = ''; } catch (e) {}
     try { input.value = ''; input.style.height = 'auto'; sendBtn.disabled = false; } catch (e) {}
@@ -659,6 +691,7 @@
     e.preventDefault();
     var q = input.value.trim();
     if (!q || sending) return;
+    if (q.length > maxLenFor(q, false)) { addMsg(LONG_Q, 'bot'); scrollDown(); return; }   // [B3_Q26] 보내지 않고 입력칸 글을 그대로 둔다
     input.value = ''; input.style.height = 'auto';
     send(q, false);
   });
