@@ -37,6 +37,8 @@ ok(C._mvcLen(rd(true, 'video', '5')) === 5 && C._mvcLen(rd(true, 'video', '99'))
 const row = (v, on, left) => { C.LEFT = left; return C._mvcRow(v, on); };
 let r = row({ st: '' }, false, 20);
 ok(r.done === true && r.label === '넣기' && r.tag === '선택', '꺼짐 → «넣기 · 선택» · 할 일 아님(done)', JSON.stringify(r));
+r = row({ st: 'done' }, false, 20);
+ok(r.label === '보기' && r.tag === '식순 확인', '확정한 뒤 식순에서 빼면 «식순 확인»(«넣기»로 덮지 않는다 · 검토 1604-3)', JSON.stringify(r));
 r = row({ st: '', due: '2099-05-01' }, true, 10);
 ok(r.done === false && r.label === '올리기' && r.tag === '5월 1일까지', '미제출 → «올리기» · 14일 안이면 기한', JSON.stringify(r));
 r = row({ st: 'checking', due: '2099-05-01' }, true, 10);
@@ -60,6 +62,8 @@ ok(/_pvcDueLine\(/.test(mstart) && /기한까지 확정하지 않으면 영상 �
 ok(/식순에 정한 길이/.test(mstart) && /식순에 정한 길이/.test(fnSrc(my, '_pvcUpload')), '켜진 뒤 — 식순 길이(시간 예산과 같은 값)를 올리기 화면에도');
 ok(/openRitualBuilder\([^)]*\{at:'midvideo'\}\)/.test(fnSrc(my, '_mvcToRitual')), '«식순에서 넣기 · 빼기» = 식순 화면을 at:midvideo 로 연다(마이페이지가 식순을 따로 쓰지 않는다)');
 ok(!/saveProductionTrack[^\n]*track:'ritual'[^\n]*free/.test(blk), '식중 영상 코드가 식순 초안을 직접 저장하지 않는다');
+{ const cf = fnSrc(my, '_pvcConfirm');
+  ok(/var _mOff=\(F\.kind==='mid'&&F\.on!==true\)/.test(cf) && /_mOff\?'식순에 이 영상이 없어요\.'/.test(cf) && /_mOff\?'':/.test(cf), '식순에서 뺀 식중 영상 — 확인 화면이 «진행해요 · 상영해요»를 말하지 않는다(검토 1604-3)'); }
 ok(/\n    _pvRow,   _mvRow,/.test(my) && my.indexOf("row('식중 영상'") > -1 && my.indexOf("$('mp_mvcStart')") > -1, '예식 준비 줄 — 식전 영상 바로 뒤 · 단추 연결');
 ok(/body\.kind='mid'/.test(fnSrc(my, '_pvcSave')) && /d\.production\[_pvcKey\(\)\]/.test(fnSrc(my, '_pvcRecheck')), '저장 · 다시 확인이 식중 줄(kind mid · midvideo)을 쓴다');
 ok(/_mvAct/.test(my) && /head = '식중 영상을 확인해 주세요';/.test(my) && /식중 영상 준비가 남아 있어요\./.test(my), '첫 화면(NOW) — 식중 영상 확인 · 준비 남음(M01 과 같은 방식)');
@@ -74,6 +78,11 @@ const kst = new Date(Date.now() + 9 * 3600e3), ymd = (x) => new Date(Date.UTC(ks
 const J = (o) => JSON.parse(JSON.stringify(o));
 let store = {}, mails = [], folders = [], WED = ymd(40), RIT = { on: { free: 1 }, freeWhat: 'video', freeLen: '4' };
 const cust = () => ({ get: (h) => (h === '예식일' ? WED : (h === '개인코드' ? 'T1' : '')) });
+{ const real = G._pvAdminMail_, sent = [], cache = new Map(); const CS = G.CacheService, AE = G._nfAdminLineEmail;
+  G.CacheService = { getScriptCache: () => ({ get: (k) => cache.get(k) || null, put: (k, v) => cache.set(k, v) }) }; G._nfAdminLineEmail = (l) => sent.push(l);
+  real('T1', '식중 영상 도착 · T1'); real('T1', '식중 영상 도착 · T1'); real('T1', '준비한 식전 영상 도착 · T1');
+  ok(sent.length === 2, '관리자 메일 10분 한 통 제한 — 같은 코드 · 같은 영상은 한 통 · 식전 · 식중은 서로 안 막는다(검토 1604-1)', JSON.stringify(sent));
+  G.CacheService = CS; G._nfAdminLineEmail = AE; }
 G._pvSheet_ = () => ({});
 G._pvRow_ = (sh, code) => (store[code] ? { num: 2, d: J(store[code].d), m: J(store[code].m) } : null);
 G._pvWrite_ = (sh, row, code, d, m) => { store[code] = { d: J(d), m: J(m) }; };
@@ -84,6 +93,11 @@ G._pvSeePreview_ = () => false;
 G._recordHandler = () => {};
 G._prodLoad = () => ({ ritualDraft: { _v: 3, S: RIT } });
 const save = (op, draft, extra) => G.handlePvSave(Object.assign({ token: 't', op, draft, kind: 'mid' }, extra || {}));
+// ★처리방침 문 — midFrom 이 비어 있으면 식중 영상은 꺼짐(줄 · 받기)
+{ const mf = G.PV_UP.midFrom; G.PV_UP.midFrom = '';
+  const rr = save('save', { link: 'https://drive.google.com/x' });
+  ok(rr && rr.ok === false && rr.closed === true && G._pvPublic('T1', cust(), 'mid').up === false && G._pvPublic('T1', cust()).up === true, 'midFrom 이 비면 식중만 꺼짐(받지 않음 · 줄 안 보임) · 식전은 그대로(검토 1604-5)', JSON.stringify(rr));
+  G.PV_UP.midFrom = '2026-01-01'; void mf; }
 store = { T1: { d: { mode: 'make', style: 'editorial' }, m: { st: 'draft' } } };
 r = save('save', { mode: 'make', style: 'retro', song: 'mujin', photos: [{ id: 'P1', sec: 'days' }], link: 'https://drive.google.com/x' });
 ok(r && r.ok && store['T1#mid'] && store['T1#mid'].d.mode === 'upload' && !store['T1#mid'].d.photos.length && !store['T1#mid'].d.style && !store['T1#mid'].d.song, '«개인코드#mid» 줄 · 링크뿐(사진 · 곡 · 분위기는 버린다)', JSON.stringify(store['T1#mid']));
@@ -91,6 +105,9 @@ ok(store.T1.d.style === 'editorial' && store.T1.m.st === 'draft', '식전 줄은
 ok(r.pv && r.pv.kind === 'mid' && r.pv.on === true && r.pv.len === 4 && r.pv.due === ymd(33), '돌려주는 상태 — kind mid · 식순 켬 · 길이 4분 · 기한 예식 7일 전', JSON.stringify(r.pv));
 r = save('submit', { link: 'https://drive.google.com/x' });
 ok(r && r.ok === false && r.consent === false && /식중 영상 동의가 필요해요/.test(r.error || ''), '동의 없이 보내기 → 거절(«식중 영상 동의»)', JSON.stringify(r));
+{ const R0 = RIT; RIT = { on: { free: 1 }, freeWhat: 'speech' };
+  const rr = save('submit', { link: 'https://drive.google.com/x' }, { pvConsent: 1 });
+  ok(rr && rr.ok === false && /먼저 골라 주세요/.test(rr.error || ''), '식순이 영상이 아니면 서버도 보내기를 막는다', JSON.stringify(rr)); RIT = R0; }
 r = save('submit', { link: 'https://youtu.be/x' }, { pvConsent: 1 });
 ok(r && r.ok === false && /유튜브/.test(r.error || ''), '유튜브 링크 → 거절', JSON.stringify(r));
 mails = []; folders = [];
@@ -146,18 +163,26 @@ console.log('━━ ④ 기한 안내(예식 14일 · 7일 전)');
   CUST = [C1('T3', 7)]; store = {}; RET = false; sent = [];
   G.sendVideoDueNotices();
   ok(sent.length === 1 && !(store['T3#mid'] && store['T3#mid'].m.rem), '못 보냈으면(false) 적지 않는다 — 다음 날 다시', JSON.stringify(store));
-  RET = 'off'; sent = []; G.sendVideoDueNotices();
+  RET = 'mail'; sent = []; store = {}; G.sendVideoDueNotices();
+  ok(sent.length === 1 && store['T3#mid'] && store['T3#mid'].m.rem && store['T3#mid'].m.rem.d7, '템플릿이 없어 메일로 대신 보냈으면(mail) 보낸 것 — 매일 다시 안 간다(검토 1604-2)', JSON.stringify(store));
+  for (const st of ['making', 'checking', 'review', 'editing']) { store = { 'T3#mid': { d: {}, m: { st } } }; RET = true; sent = []; G.sendVideoDueNotices();
+    ok(sent.length === 0, '«' + st + '» 는 안내하지 않는다(«영상 없이»가 사실이 아니다 · 검토 1604-4)', JSON.stringify(sent)); }
+  store = {}; RET = 'off'; sent = []; G.sendVideoDueNotices();
   ok(!(store['T3#mid'] && store['T3#mid'].m.rem), '발송이 꺼져 있으면(off) 보낸 것으로 치지 않는다', JSON.stringify(store));
   RET = true; CUST = [Object.assign(C1('T3', 7), { 상품타입: '웨딩스냅' })]; sent = []; G.sendVideoDueNotices();
   ok(sent.length === 0, '웨딩스냅은 보내지 않는다'); }
 
 console.log('━━ ⑤ 길');
+{ const priv = read('privacy.html') || '', mf = (gs.match(/midFrom: '([^']*)'/) || [])[1];
+  if (mf) { const top = (priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/) || []).slice(1, 4).join('-');
+    ok(/식중 영상/.test(priv) && top >= mf, '식중 영상을 켰으면(midFrom ' + mf + ') 처리방침에 «식중 영상»이 있고 개정 시행일이 그 날 이후', top); }
+  else ok(mf === '', '식중 영상 꺼짐(midFrom 비어 있음) — 처리방침에 «식중 영상»을 넣은 날 midFrom 을 적어 켠다'); }
 ok(/midvideo: \(typeof _pvPublic === 'function'\) \? _pvPublic\(.*?, r, 'mid'\)/.test(pr), 'buildProductionState 가 midvideo 를 싣는다');
 ok(/fn: 'sendVideoDueNotices',\s+hour: 10/.test(jr), 'setupAllTriggers — 매일 10시 기한 안내');
 ok(/'cust\.videoDue':\s+\{ to: 'customer'/.test(nt) && /case 'cust\.videoDue':/.test(nt) && /'cust\.videoDue':\s+\{ subj:/.test(nt), '알림 이벤트 cust.videoDue — 표 · 글 · 메일 제목');
 { const msg = G._nfCustomerMsg('cust.videoDue', '하윤·민준', { what: '식중 영상', due: '2099-05-01' });
   ok(msg && /식중 영상 확정 기한은 5월 1일 23:59\(예식 7일 전\)이에요/.test(msg.text) && /영상 없이 진행해요/.test(msg.text) && msg.text.indexOf('—') < 0, '안내 글 — 무엇 · 기한 · 없으면 영상 없이 · 전각 줄표 없음', msg && msg.text); }
-ok(/function _admVideoLines\(prod\)/.test(adm) && /h\+=_admVideoLines\(prod\);/.test(adm) && /_chipLink\('받은 링크'/.test(adm), '관리자 화면 — 예식별 식전 · 식중 상태 · 기한 · 받은 링크(안전한 주소만)');
+ok(/function _admVideoLines\(prod, d\)/.test(adm) && /h\+=_admVideoLines\(prod, d\);/.test(adm) && /웨딩스냅/.test(fnSrc(adm, '_admVideoLines')) && /식순에서 뺌 · 틀지 않음/.test(fnSrc(adm, '_admVideoLines')) && /_chipLink\('받은 링크'/.test(adm), '관리자 화면 — 예식별 식전 · 식중 상태 · 기한 · 받은 링크(안전한 주소만)');
 
 if (bad) { console.log(`━━ midvideo — 빨강 ${bad}건 / ${n}`); process.exit(1); }
 console.log(`━━ midvideo OK — ${n}항목 · 켜고 끄기 · 상태 넷 · 서버 · 기한 안내 · 길 [MID_VIDEO_1106]`);

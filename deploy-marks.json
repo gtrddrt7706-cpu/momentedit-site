@@ -3876,6 +3876,7 @@
    "_pvKey_",
    "_pvName_",
    "_mvOn_",
+   "_pvLiveK_",
    "_pvLive_",
    "_pvSheet_",
    "_pvRow_",
@@ -4622,7 +4623,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-06 19:58 · 77bc73e",
+ "_생성": "2026-11-06 20:42 · b8b0a2c",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",

@@ -21,7 +21,7 @@
  *   ■ 1차에서 뺀 것(곧 연다 · 화면도 보이지 않는다) — 짧은 영상 · 인사 영상(5초 고르기) · 큰 파일 올리기 · 문구 고치기 · 카톡 알림 · 식순과 상태 잇기
  * ==============================================================================
  */
-var PV_UP = { from: '2026-10-31', root: 'ME_식전영상', sheet: '식전영상', min: 5, max: 20, first: 4, days: 10, today: 6, photoMax: 4 * 1048576, thumbMax: 320 * 1024, uploadsMax: 60, hourMax: 40, keepDays: 183, dueDays: 7, linkMax: 400 };
+var PV_UP = { midFrom: '', from: '2026-10-31', root: 'ME_식전영상', sheet: '식전영상', min: 5, max: 20, first: 4, days: 10, today: 6, photoMax: 4 * 1048576, thumbMax: 320 * 1024, uploadsMax: 60, hourMax: 40, keepDays: 183, dueDays: 7, linkMax: 400 };
 var PV_STYLES = ['editorial', 'cinematic', 'storybook', 'retro', 'scrapbook'];   // assets 쪽 PVC_STYLES 와 같은 순서 · 같은 열쇠
 var PV_SONGS = ['mujin', 'oban', 'grizzly', 'geomjeong', 'fx', 'hyukoh', 'jake', 'day6', 'roykim', 'dks', 'wonstein', 'elijah'];
 var PV_MODES = ['make', 'upload'];
@@ -40,6 +40,8 @@ function _mvOn_(cust) {
   var on = !!(S.on && S.on.free) && String(S.freeWhat || '') === 'video', n = parseInt(S.freeLen, 10);
   return { on: on, len: (n >= 1 && n <= 10) ? n : 3 };
 }
+// [MID_VIDEO_1106 · 검토 1604-5] 식중 영상은 처리방침에 «식중 영상»이 들어간 날(midFrom)부터 받는다 — 비어 있으면 꺼짐(줄 · 화면 · 받기 · 안내 모두)
+function _pvLiveK_(kind) { if (_pvKind_(kind) !== 'mid') return _pvLive_(); var f = String(PV_UP.midFrom || ''); return !!f && typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= f; }
 function _pvLive_() {
   // [PV_CAT_1031] 처리방침 «식전 영상» 시행일(한국 날짜)부터 받는다
   return typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= PV_UP.from;
@@ -138,7 +140,7 @@ function _pvPublic(code, cust, kind) { _gsr_();
   // [PV_CAT_1031] buildProductionState 가 부른다 · 미리보기가 들어왔으면 이 조회에서 «확인 필요»로 바꿔 둔다
   if (!code || !cust) return null;
   kind = _pvKind_(kind); var key = _pvKey_(code, kind);
-  var out = { up: _pvLive_(), kind: kind, st: '', d: null, consent: false, prev: null, conf: null, due: _pvDue_(cust), wed: (typeof _ymdOf === 'function' ? _ymdOf(cust.get('예식일')) : '') || '' };
+  var out = { up: _pvLiveK_(kind), kind: kind, st: '', d: null, consent: false, prev: null, conf: null, due: _pvDue_(cust), wed: (typeof _ymdOf === 'function' ? _ymdOf(cust.get('예식일')) : '') || '' };
   try {
     if (kind === 'mid') { var mo = _mvOn_(cust); out.on = mo.on; out.len = mo.len; }   // [MID_VIDEO_1106] 식순이 켜고 끈다
     var sh = _pvSheet_(), row = _pvRow_(sh, key);
@@ -175,7 +177,7 @@ function _pvConsentGive_(m, code, kind) {
 // 관리자 메일 — 코드마다 10분에 한 통(같은 사람이 여러 번 보내도 메일이 쌓이지 않게)
 function _pvAdminMail_(code, line) {
   try {
-    var c = CacheService.getScriptCache(), k = 'pvMail_' + code + (/^식중/.test(String(line || '')) ? '#mid' : '');   // [MID_VIDEO_1106] 식전 · 식중 메일이 서로를 막지 않게 if (c.get(k)) return; c.put(k, '1', 600);
+    var c = CacheService.getScriptCache(), k = 'pvMail_' + code + (/^식중/.test(String(line || '')) ? '#mid' : ''); if (c.get(k)) return; c.put(k, '1', 600);   // [MID_VIDEO_1106] 식전 · 식중 메일이 서로를 막지 않게 · ★10분 한 통 제한은 그대로(검토 1604-1 · 주석에 묻혔던 것)
     if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(line);
   } catch (e) {}
 }
@@ -186,7 +188,7 @@ function handlePvSave(body) { _gsr_();
   // [PV_CAT_1031] 세션으로만(코드를 받지 않는다) · 시행일 전 · 기한 뒤는 받지 않는다
   body = body || {};
   var se = _pvSess_(body); if (se.err) return se.err;
-  if (!_pvLive_()) return { ok: false, closed: true, error: '식전 영상은 ' + Number(PV_UP.from.slice(5, 7)) + '월 ' + Number(PV_UP.from.slice(8, 10)) + '일부터 준비하실 수 있어요.' };
+  if (!_pvLiveK_(body.kind)) return { ok: false, closed: true, error: _pvKind_(body.kind) === 'mid' ? '식중 영상은 아직 준비하실 수 없어요.' : ('식전 영상은 ' + Number(PV_UP.from.slice(5, 7)) + '월 ' + Number(PV_UP.from.slice(8, 10)) + '일부터 준비하실 수 있어요.') };   // [MID_VIDEO_1106] 식중은 midFrom
   var code = se.code, cust = se.cust, op = String(body.op || 'save'), due = _pvDue_(cust), wed = (typeof _ymdOf === 'function' ? _ymdOf(cust.get('예식일')) : '') || '';
   var kind = _pvKind_(body.kind), key = _pvKey_(code, kind), nm = _pvName_(kind);   // [MID_VIDEO_1106] 식중 영상 = «개인코드#mid» 줄
   if (['save', 'submit', 'confirm', 'later', 'off', 'reopen'].indexOf(op) < 0) return { ok: false, error: '알 수 없는 요청이에요.' };
@@ -213,6 +215,7 @@ function handlePvSave(body) { _gsr_();
         if (d.photos.length < PV_UP.min) return { ok: false, error: '사진은 ' + PV_UP.min + '장부터 만들 수 있어요.' };
         if (!d.song) return { ok: false, error: '곡을 골라 주세요.' };
       } else if (d.mode === 'upload') {
+        if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순 «준비한 순서»에서 «영상»을 먼저 골라 주세요.' };   // [MID_VIDEO_1106 · 검토 1604] 화면이 막아도 서버가 한 번 더
         if (!d.link) return { ok: false, error: '공유 링크를 넣어 주세요.' };
         if (_pvYoutube_(d.link)) return { ok: false, error: '유튜브 주소로는 원본을 받을 수 없어요 · 구글 드라이브나 업체 공유 링크로 보내 주세요' };
       } else return { ok: false, error: '준비 방법을 골라 주세요.' };
@@ -353,8 +356,8 @@ function sendVideoDueNotices() { _trigIn_(arguments[0]);   // [MID_VIDEO_1106] �
     var stage = left <= PV_UP.dueDays ? 'd7' : 'd14', due = _pvDue_(cust), names = [];
     ['pre', 'mid'].forEach(function (kind) {
       var key = _pvKey_(code, kind), r = _pvRow_(pvSh, key), m = (r && r.m) || {}, st = String(m.st || '');
-      if (st === 'done' || st === 'off') return;
-      if (kind === 'mid') { if (_mvOn_(cust).on !== true) return; }
+      if (['', 'draft', 'later'].indexOf(st) < 0) return;   // [MID_VIDEO_1106 · 검토 1604-4] 아직 안 보낸 것만 — 만드는 중 · 확인 중(스튜디오 차례) · 확인 필요(첫 화면이 알린다) · 수정 중(확정본이 있다) · 확정 · 안 함은 «영상 없이»가 사실이 아니다
+      if (kind === 'mid') { if (!_pvLiveK_('mid') || _mvOn_(cust).on !== true) return; }
       else { var S = null; try { S = ((_prodLoad(cust) || {}).ritualDraft || {}).S || null; } catch (e) { S = null; } var pon = !!(S && S.on && S.on.prevideo); if (!pon && ['draft', 'later', 'making', 'checking', 'review', 'editing'].indexOf(st) < 0) return; }
       if (stage === 'd7' && ['', 'draft', 'later'].indexOf(st) > -1) adm.push(code + ' · ' + _pvName_(kind) + ' · ' + (PV_ST_KO[st] || '시작 전'));
       var rem = m.rem || {}; if (rem[stage]) return;
@@ -362,7 +365,7 @@ function sendVideoDueNotices() { _trigIn_(arguments[0]);   // [MID_VIDEO_1106] �
     });
     if (!names.length) continue;
     var what = names.map(function (x) { return _pvName_(x.kind); }).join(' · ');
-    var ok = false; try { var _ret = notifyKakao('cust.videoDue', code, { what: what, due: due, dday: left }); ok = (_ret === true || _ret === 'held'); } catch (e) { ok = false; }   // 'off'(발송 꺼짐)는 보낸 것으로 치지 않는다 — 켜지면 그때 간다
+    var ok = false; try { var _ret = notifyKakao('cust.videoDue', code, { what: what, due: due, dday: left }); ok = (_ret === true || _ret === 'held' || _ret === 'mail'); } catch (e) { ok = false; }   // 'off'(발송 꺼짐)는 보낸 것으로 치지 않는다 — 켜지면 그때 간다 · ★'mail'(템플릿 없어 메일로 대신)은 보낸 것(검토 1604-2 · 안 세면 매일 다시 나갔다)
     if (!ok) continue;   // 못 보냈으면 적지 않는다 — 다음 날 다시
     sent++;
     var lock = LockService.getScriptLock(); try { lock.waitLock(8000);
