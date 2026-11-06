@@ -4794,6 +4794,12 @@ nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
 chk 'PV_FEEL_1106' mypage.html 5
 chk 'PV_FEEL_1106' api/_kb.js 1
 nochk 'data-pvcmode="make"' mypage.html
+# ★[PV_STATE_1106 2026-11-06 4차 묶음 M04 · M05 · M06 · M07 · M08 · M09 · M16 · M21 · 대본 판정 «채택»] 식전 영상 상태 한 벌 —
+#   «사용하지 않기»가 옛 확정본보다 먼저 · 식순과 확실히 부딪힐 때만 한 줄 · 다시 확인(조회만) · 고치는 화면에도 기한 · 기한 지남(locked)은 다시 저장을 권하지 않는다 · 템플릿 비용과 추가 옵션 구분
+chk 'PV_STATE_1106' mypage.html 24
+chk "if(F.st==='off') h+='<div class=\"pvc-foot\">'" mypage.html 1
+chk '템플릿 비용 포함 · 추가 옵션 별도' mypage.html 1
+nochk '패키지 포함 · 추가 요금 없음' mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1
@@ -21956,6 +21962,17 @@ chk 'BG03-T01' scripts/audit/seam-bg.mjs 2
 chk 'BG04-T01' scripts/audit/seam-bg.mjs 1
 chk 'BG07-T01' scripts/audit/seam-bg.mjs 1
 nochk '테이블 인사와 사진 동안' assets/bgm-bed.js
+# ★[GPT_R1_1106 GPT 하객 관점 검토(11/02) 중 main 에 남은 것 · BGM 몫] 순간 이동 곡 상속 · 목록 자리 · 새 곡 늦음 · 화촉 말 −16 · 기본 곡 한 줄(검사 = CI d 칸 gpt-r1)
+chk 'GPT_R1_JUMP' assets/bgm-bed.js 3
+chk 'function natOf' assets/bgm-bed.js 1
+chk 'GPT_R1_LF' assets/bgm-bed.js 2
+chk 'GPT_R1_NOMUS' assets/bgm-bed.js 2
+chk 'GPT_R1_LONG' assets/bgm-bed.js 1
+chk '여러 연주곡이 차례로 이어져요' assets/bgm-bed.js 1
+chk 'GPT_R1_CANDLE' assets/ritual-cue.js 3
+chk '①-T01' scripts/audit/gpt-r1.mjs 1
+chk '④-T01' scripts/audit/gpt-r1.mjs 1
+chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1
 # ★[SEAM_BG05 · SEAM_BG06 이음매 명세 BGM 몫 · NI06 · NI10 · NI11 뒤] 축배 선창 전후 행동 줄 크기 · 촬영 후 안내 뒤 줄 마지막 곡(검사 = CI e 칸 seam-bg)
 chk 'SEAM_BG05' assets/bgm-bed.js 1
 chk 'SEAM_BG06' assets/bgm-bed.js 1
@@ -21984,7 +22001,13 @@ chk '음09-T01' scripts/audit/seam-b2.mjs 1
 chk '음10-T01' scripts/audit/seam-b2.mjs 1
 chk "meaning-r1 seam-b2-entry" .github/workflows/merge-guard.yml 1
 chk "seam-bg seam-b2-rest" .github/workflows/merge-guard.yml 1
-chk "ONLY = process.env.ONLY || '음02,음04'" scripts/audit/seam-b2-entry.mjs 1
+chk "ONLY = process.env.ONLY || '음02,음04,음06K'" scripts/audit/seam-b2-entry.mjs 1
+# ★[B2_K16 2026-11-06 결정 «정지는 정지»] 입장 곡 도중 전체 정지 = 입장 곡 · 배경 0 · GO 재개 = 같은 곡 멈춘 자리부터 0.6초(검사 = CI a 칸 seam-b2-entry 음06K)
+chk 'B2_K16' console.html 6
+chk 'function esdPause' console.html 1
+chk 'function esdResume' console.html 1
+chk '음06K-T01' scripts/audit/seam-b2.mjs 1
+nochk 'B2-K16 대기 · 그 경우는 지금 동작 그대로' console.html
 chk "no-relift seam-bg" .github/workflows/merge-guard.yml 1
 # ★[MEANING_R2_1102 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] 행진은 음악 · 의식은 조용한 고점 · 새 장면은 새 곡 — 엔진 한 표 + bgm-bed · 콘솔(검사 = CI bgm-sound e 칸)
 chk 'MEANING_R2_1102 원칙' assets/ritual-cue.js 1
