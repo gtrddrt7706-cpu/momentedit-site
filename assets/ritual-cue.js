@@ -2079,10 +2079,6 @@
          다시 음악이 필요한 자리는 그 순간의 곡(부모님께 인사 · 테이블 · 닫는 인사 …)이 무음에서 시작한다(엔진이 손대지 않는다) ·
          되살아날 음악이 10초 안에 다시 −90 이면 올리지 않는다(«음악과 함께» 축사 뒤 축가 여는 말 → MR · 켜졌다 꺼졌다 금지) ·
          성혼 선언 뒤 박수는 앞 곡이 아니라 새 곡(MEANING_R2 DECLARE_LIFT · live.newSong · 표에선 −8 로 남는다) · 예외는 축배 «위하여» 뒤 M7 하나(duck 이 아니라 cheer 로 돈다) */
-    /* ★[ONE_FLOW_1106 ⑤] «음악과 함께» 축사 · 편지 바로 뒤 축가 여는 말 — MR 앞 정적 규칙대로 줄 시작에서 내린다(정적 → MR) · 본식 곡이 여는 말 동안 다시 들렸다 꺼지지 않게 ·
-         축사 · 편지가 없거나 «조용히»면 지금 그대로(덕담 곡이 흐르다 여는 말 −16 · NO_RELIFT E) */
-    (function () { var b5 = S.bgm || {}; for (var i = 1; i < cues.length; i++) { var c = cues[i]; if (c.slug !== 'narr-song') continue; var j = i - 1; while (j >= 0 && cues[j].k === 'song') j--; var pc = j >= 0 ? cues[j] : null;
-      if (pc && ((pc.k === 'free' && b5.S5 && b5.S5.m === 'bed') || (pc.k === 'letter' && b5.S6 && b5.S6.m === 'bed'))) c.duck = PARAM.duckOff; } })();
     (function () { var b5 = S.bgm || {}, quiet = false, heard = false, prevM4 = false, lastK = '';   /* heard = 본식 곡이 한 번이라도 들렸나(시작 전 정적 · 하객을 향해 서는 이음말은 «꺼짐»이 아니다 · MEANING_R2) */
       var m4 = function (k) { if (/^(welcome|vow|ring|declare|bless|song)$/.test(k)) return true; if (k === 'free') return !(b5.S5 && b5.S5.m === 'bed'); if (k === 'letter') return !(b5.S6 && b5.S6.m === 'bed'); if (k === 'toast') return prevM4; return false; };
       var P = []; cues.forEach(function (c) { P.push({ c: c, w: 'say', est: +c.est || 0 }); (c.post || []).forEach(function (p) { if (p.music === 'to') P.push({ c: c, w: 'post', p: p, est: 0 }); }); if (c.live && c.live.duck != null) P.push({ c: c, w: 'live', est: +(c.live.est || 0) }); });
@@ -2098,6 +2094,10 @@
         var pv = j > 0 ? lv(P[j - 1]) : null; if (pv != null && pv <= -60) { var t = 0, back = false; for (var m = j; m < P.length; m++) { var y = lv(P[m]); if (y != null && y <= -60) { back = true; break; } t += P[m].est; if (t >= 10) break; }
           if (back && t < 10) { for (var n = j; n < P.length; n++) { var z = lv(P[n]); if ((z != null && z <= -60) || !m4(P[n].c.k)) break; set(P[n], -90); } quiet = true; } } }
     })();
+    /* ★[ONE_FLOW_1106 ⑤] «음악과 함께» 축사 · 편지 바로 뒤 축가 여는 말 — MR 앞 정적 규칙대로 줄 시작에서 내린다(NO_RELIFT 다음에 돈다 — 먼저 돌면 «축가 뒤 정적»을 세지 못한다 · 검토 A-2)(정적 → MR) · 본식 곡이 여는 말 동안 다시 들렸다 꺼지지 않게 ·
+         축사 · 편지가 없거나 «조용히»면 지금 그대로(덕담 곡이 흐르다 여는 말 −16 · NO_RELIFT E) */
+    (function () { var b5 = S.bgm || {}; for (var i = 1; i < cues.length; i++) { var c = cues[i]; if (c.slug !== 'narr-song') continue; var j = i - 1; while (j >= 0 && cues[j].k === 'song') j--; var pc = j >= 0 ? cues[j] : null;
+      if (pc && ((pc.k === 'free' && b5.S5 && b5.S5.m === 'bed') || (pc.k === 'letter' && b5.S6 && b5.S6.m === 'bed'))) c.duck = PARAM.duckOff; } })();
 
     if (mode === 'preview') {
       // 미리듣기: 전부 자동. 사람 구간은 '이런 순간이 여기 있다'만 알면 되므로 짧게 줄인다.

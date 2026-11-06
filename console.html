@@ -1325,6 +1325,7 @@ function segCur(){ var el = BED.el[BED.on]; if (BED.mode !== 'seg' || !BED.id ||
 /* 끝 3초 전 — 목록의 다음 곡 · 한 곡이면 그 곡 처음으로 겹쳐 넘어간다(끊기지 않게) */
 /* ★[ONE_FLOW_1106 ②] 목록 곡 사이 겹침 — 본식 M4 8초 · 그 밖 3초(BgmPicks.xfOf 한 곳 · 미리 듣기 listArm 과 같은 값) */
 function segXf(){ return (BP && BP.xfOf && BED.mode === 'seg') ? BP.xfOf(BED.seg) : SEG_XF; }
+function segXfFor(sid){ var X = segXf(), m = SEGST.meta[sid] || {}, d = +m.end || +m.dur || 0; return (d > 0 && !(d > X * 2 + 1)) ? SEG_XF : X; }   /* 아주 짧은 곡(17초 이하)은 3초 겹침 그대로 · 검토 A-2 */
 setInterval(function(){ if (BED.lfWant && !talkNow()) BED.lfGo = 1;   /* ★[LF_GO_1102] 말하는 자리 사이 짧은 나레이션 줄(겹침 3초보다 짧다)도 놓치지 않는다 — 겹치는 동안 본 «말이 끊긴 때»를 적어 둔다 */
   if (BED.mode !== 'seg' || BED.xing) return; var el = BED.el[BED.on], m = SEGST.meta[BED.id] || {}, end = m.end || el.duration;
   var _X = segXf(); if (isFinite(end) && !(end > _X * 2 + 1)) _X = SEG_XF;   /* [ONE_FLOW_1106 ②] 아주 짧은 곡은 3초 겹침 그대로 */ if (!isFinite(end) || !(end > _X + 1) || el.paused) return;
@@ -1337,8 +1338,8 @@ function talkNow(){ var c = cur >= 0 ? cueAt(cur) : null; return !!(phase === 'l
 window.__talkNow = talkNow;   /* [MEANING_R1_1102 19] 검사 창구 — talkNow 는 전역이 아니라 검사가 늘 «안 말함»으로 읽었다 */
 /* ★★[DETAIL_R5_1101 규칙 5] 목록 다음 곡 — 파일이 있고 못 연 적 없는 곡만 · 열다 실패하면 그다음 곡 · 틀 곡이 하나도 없으면 지금 곡을 처음부터 이어 틀고 상태 한 줄(곡 끝 처리는 이 한 곳 · DAYLONG 판 그대로) */
 function listNext(from){ var L = BED.list, n = L.length, bad = BED.bad || {}; for (var k = 1; k < n; k++) { var j = (from + k) % n, s = L[j]; if (s && SEGF[s] && !bad[s] && s !== BED.id) return j; } return -1; }
-function listGo(step){ var j = listNext(BED.li); if (j < 0) { if (BED.list.length > 1) { BED.keepErr = '다음 곡을 열지 못해 지금 곡을 이어 틀어요'; bedErr(BED.keepErr); } BED.onFail = null; var cur = BED.id, m = SEGST.meta[cur] || {}; bedPlay(cur, segXf(), m.head || 0); return; }
-  BED.li = j; BED.onFail = function(){ listGo(step); }; bedPlay(BED.list[j], segXf()); }   /* [ONE_FLOW_1106 ②] */
+function listGo(step){ var j = listNext(BED.li); if (j < 0) { if (BED.list.length > 1) { BED.keepErr = '다음 곡을 열지 못해 지금 곡을 이어 틀어요'; bedErr(BED.keepErr); } BED.onFail = null; var cur = BED.id, m = SEGST.meta[cur] || {}; bedPlay(cur, segXfFor(cur), m.head || 0); return; }
+  BED.li = j; BED.onFail = function(){ listGo(step); }; bedPlay(BED.list[j], segXfFor(BED.list[j])); }   /* [ONE_FLOW_1106 ②] */
 function listProbe(){ var j = listNext(BED.li); if (j < 0) return; var sid = BED.list[j]; try { var a = new Audio(); a.preload = 'auto'; a.muted = true; var t = setTimeout(function(){ a.removeAttribute('src'); }, 8000);
   a.addEventListener('error', function(){ clearTimeout(t); (BED.bad = BED.bad || {})[sid] = 1; }); a.addEventListener('canplay', function(){ clearTimeout(t); a.removeAttribute('src'); }); a.src = SEGF[sid]; a.load(); } catch (e) {} }   /* 열지 못하면 이번 순환에서 건너뛴다 */
 /* 큐 → 구간 · '' = 바꾸지 않는다(앞 곡이 잇는다) */
@@ -1370,7 +1371,7 @@ function segLive(c){ if (c && c.slug === 'narr-close-bow') segGo('M6');
   /* ★[MEANING_R2_1102 DECLARE_LIFT] 선언 뒤 축하 박수 = 새 곡 — 목록 다음 곡을 강조 자리(BgmPicks start)에서 0.6초에(앞 곡을 멈춘 자리부터 되살리지 않는다 · 크기는 아래 duckTo live −8 · upMs 600) */
   if (c && c.live && c.live.newSong && BED.mode === 'seg' && BED.seg === 'M4' && BED.list && BED.list.length) { var _hz = BED.hushId || BED.id, _j = -1, _c = BED.li; for (var _n = 0; _n < BED.list.length; _n++) { _c = listNext(_c); if (_c < 0) break; if (BED.list[_c] !== _hz) { _j = _c; break; } } if (_j < 0 && BED.id !== _hz) _j = BED.li;   /* 선언 전에 들리던 곡이 아닌 목록 다음 곡(없으면 지금 곡을 강조 자리부터 · 엄숙 → 기쁨 · 새 곡) */
     if (_j >= 0) { var _sid = BED.list[_j], _sg = BP && BP.song ? BP.song(_sid) : null; BED.cut = null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 = 새 곡(끊긴 곡 잇기 예외) */ BED.li = _j; BED.onFail = null; bedPlay(_sid, 0.6, (_sg && _sg.start != null) ? +_sg.start : ((SEGST.meta[_sid] || {}).head || 0)); } }
-  /* ★[ONE_FLOW_1106] «음악과 함께» 축사 · 편지 — 따로 곡을 걸지 않는다(옛 M4S5 · M4S6 로 3초 겹침 걷음) · 흐르던 본식 곡(M4)이 사람 구간 크기(live −20)로 그대로 잇는다 · 되살리지 말 것 */ }
+  /* ★[ONE_FLOW_1106 · 옛 BGM_TIMING2_1101 걷음] «음악과 함께» 축사 · 편지 — 따로 곡을 걸지 않는다(옛 M4S5 · M4S6 로 3초 겹침 걷음) · 흐르던 본식 곡(M4)이 사람 구간 크기(live −20)로 그대로 잇는다 · 되살리지 말 것 */ }
 /* [BGM_FIX_1030] 지금 깔린 곡이 가사가 있는 곡인가(assets/bgm-picks.js vocal) — duckTo 가 나레이션 · 사람 구간을 vocalExtra 만큼 더 낮춘다 */
 function bedVocal(){ if (!BP || !BP.song || BED.mode !== 'seg' || !BED.id) return false; var s = BP.song(BED.id); return !!(s && s.vocal); }
 
@@ -1439,9 +1440,10 @@ function duckTo(db, ms){
   if (db <= -60 && duckWant != null && duckWant > -60 && BED.mode === 'seg' && BED.id && !ESD.run) BED.hushId = BED.id;   /* [MEANING_R2_1102 DECLARE_LIFT] 들리다 꺼진 곡 — 선언 뒤 «새 곡»이 이 곡이 아니게 */
   /* ★[ONE_FLOW_1106 ⑥] 본식(M4) 곡이 의도적 무음으로 꺼졌다가 본식 안에서 다시 오르면 — 끊긴 그 곡을 꺼진 자리부터(무음 동안 흘러간 시간 · 목록이 넘긴 곡이 아니다 · 미리 듣기 cutKeep 과 같다) ·
        예외: 선언 뒤 박수 새 곡(segLive DECLARE_LIFT 가 지운다) · 다른 구간으로 가면(segGo) 지운다 */
-  if (BED.mode === 'seg' && BED.seg === 'M4' && !ESD.run && duckWant != null) { var _ce = BED.el[BED.on];
+  var _ck = cur >= 0 ? cueAt(cur) : null, _ck4 = !!(_ck && /^(welcome|vow|ring|declare|bless|free|letter|song)$/.test(_ck.k));   /* 본식 순간에서만(사진 · 다른 순간이 크기를 올릴 때 끊긴 본식 곡으로 바꾸지 않는다 · 검토 A-2) */
+  if (BED.mode === 'seg' && BED.seg === 'M4' && _ck4 && !ESD.run && duckWant != null) { var _ce = BED.el[BED.on];
     if (db <= -60 && duckWant > -60 && BED.id && _ce && isFinite(_ce.currentTime)) BED.cut = { id: BED.id, t: _ce.currentTime + Math.max(0.05, (ms || 400) / 1000) };
-    else if (db > -60 && duckWant <= -60 && BED.cut) { var _cc = BED.cut; BED.cut = null; if (BED.id === _cc.id && _ce) { try { _ce.currentTime = _cc.t; } catch (e) {} } else if (SEGF[_cc.id]) { var _cl = BED.list.indexOf(_cc.id); if (_cl > -1) BED.li = _cl; BED.onFail = null; bedPlay(_cc.id, 0.3, _cc.t); } } }
+    else if (db > -60 && duckWant <= -60 && BED.cut) { var _cc = BED.cut; BED.cut = null; if (_ck.k === 'declare' || (_ck.live && _ck.live.newSong)) _cc = null; if (_cc) if (BED.id === _cc.id && _ce) { try { _ce.currentTime = _cc.t; } catch (e) {} } else if (SEGF[_cc.id]) { var _cl = BED.list.indexOf(_cc.id); if (_cl > -1) BED.li = _cl; BED.onFail = null; bedPlay(_cc.id, 0.3, _cc.t); } } }
   duckWant = db; if (window.__bgmLog) window.__bgmLog.push({ t: Math.round(performance.now()), db: db, ms: ms });   // [BGM_CONSOLE2_1023] 점검이 켰을 때만 적는다
   if (ESD.run) { esdDuck(db, ms); db = -90; }   // [ENTRY_SCENE_DAY] 입장 곡이 흐르는 동안 배경음은 내려 둔다 · 같은 입장 묶음의 다음 큐(맞절) 덕 값은 곡에 건다
   if (db > -80 && db < PARAM.duckMusic - 0.5 && bedVocal()) db += (+PARAM.vocalExtra || 0);   /* ★[BGM_FIX_1030] 가사가 있는 곡 아래 나레이션 · 사람 구간은 6 dB 더 낮게 — 큐 사이(−8) · 축배는 그대로 · duckWant 는 엔진 값 그대로 둔다(미리 낮추기 비교) */

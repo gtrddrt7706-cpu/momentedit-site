@@ -94,7 +94,8 @@ try {
   /* a 데이터 */
   { const o1 = P.order({ bgm: { M5: { k: 'B16' } } }, 'M8', 'B16'), o2 = P.order({ bgm: { S6: { m: 'bed', k: 'B14' } } }, 'M8', 'B14'), o3 = P.order({ bgm: { S6: { m: 'bed', k: 'B14' } } }, 'M8');
     ok('a 테이블(목록 칸) — 앞 곡 The Rose(B16)를 맨 앞에 · 나머지는 원래 차례(B24 · B23 · B13 · B14)', o1.join() === 'B16,B24,B23,B13,B14', o1);
-    ok('a 바로 앞에서 이어 온 fill 곡(편지 «음악과 함께» B14)은 빼지 않고 맨 앞 · 이어지지 않으면 종전대로 뺀다', o2.join() === 'B14,B24,B23,B16,B13' && o3.join() === 'B24,B23,B16,B13', { o2, o3 });
+    /* ★[ONE_FLOW_1106] 편지 «음악과 함께» 곡 칸이 없어 옛 저장값 S6.k(B14)는 «다른 구간에서 고른 곡»이 아니다 — 이어 오면 맨 앞 · 안 이어지면 원래 차례 그대로(빼지 않는다) */
+    ok('a 바로 앞에서 이어 온 fill 곡(B14)은 빼지 않고 맨 앞 · 옛 편지 저장값(S6.k B14)은 읽지 않아 이어지지 않아도 빼지 않는다', o2.join() === 'B14,B24,B23,B16,B13' && o3.join() === 'B24,B23,B16,B13,B14', { o2, o3 });
     ok('a 한 곡 칸 — 고르지 않았으면 앞 곡(B05) · 같은 곡을 골랐으면 그 곡 · 다른 곡(B07)을 골랐으면 고른 곡이 이긴다(carryOf = "")',
       typeof P.carryOf === 'function' && P.carryOf({}, 'M2', 'B05') === 'B05' && P.carryOf({ bgm: { M2: { k: 'B05' } } }, 'M2', 'B05') === 'B05' && P.carryOf({ bgm: { M2: { k: 'B07' } } }, 'M2', 'B05') === '' && P.order({ bgm: { M2: { k: 'B07' } } }, 'M2', 'B05')[0] === 'B07' && P.order({}, 'M2', 'B07').join() === 'B07,B05,B31' && P.carryOf({}, 'M2', 'B24') === '');
     const keep = P.PICKS.M2; P.PICKS.M2 = ['B05', 'B31', 'B13']; const o4 = P.order({ bgm: { M2: { k: 'B13' } } }, 'M8'); P.PICKS.M2 = keep;
@@ -114,11 +115,10 @@ try {
     const M5 = await f.evaluate(() => BgmPicks.PICKS.M5.slice());
     await setX(f, { picks: { M5: ['B15', 'B10', 'B16'] }, on: { song: 0 }, bgm: { S6: { m: 'bed', k: 'B10' } } }); await go(f, 'tribute'); r = await PL(f, 'M5');
     const c1 = await f.evaluate(() => BgmBed._t.songAt('tribute'));
-    ok(`${W} c 한 곡 칸(부모님께 인사)을 고르지 않았고 앞(편지 «음악과 함께»)이 B10 — 그 곡 한 줄 + «편지에서 흐르던 곡이 그대로 이어져요» + «바꾸기» · 미리 듣기 B10`, r && r.fold === P.SONGS.B10.t && r.carry.join() === '편지에서 흐르던 곡이 그대로 이어져요' && r.chg === 1 && r.rows === 0 && c1 === 'B10', { r, c1 });
-    await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M5"] .mu-chg'); if (b) b.click(); }); await wait(f, 300); r = await PL(f, 'M5');
-    ok(`${W} c «바꾸기» — 곡 줄 3 · 눌린 곡 0(고르지 않았다)`, r && r.rows === 3 && r.on === 0, r);
-    await f.click('[data-fk="bed:M5:B15"]'); await wait(f, 400); r = await PL(f, 'M5'); const c2 = await f.evaluate(() => BgmBed._t.songAt('tribute'));
-    ok(`${W} c 다른 곡(B15)을 고르면 고른 곡이 이긴다 — 한 줄 0 · 미리 듣기 B15`, r && r.fold === P.SONGS.B15.t && r.carry.length === 0 && c2 === 'B15', { r, c2 });
+    /* ★[ONE_FLOW_1106] 편지 «음악과 함께» = 본식 목록(M4) — 목록 칸은 그때 어느 곡일지 몰라 이어받지 않는다(CARRY_SAME · prevOf) · 부모님께 인사는 1순위(B15) · «이어져요» 한 줄 0 · 옛 S6.k(B10)는 읽지 않는다 */
+    ok(`${W} c 한 곡 칸(부모님께 인사)을 고르지 않았고 앞이 편지 «음악과 함께»(본식 목록) — 이어받지 않는다 · 1순위 B15 · 한 줄 0 · 미리 듣기 B15`, r && r.carry.length === 0 && c1 === 'B15', { r, c1 });
+    await f.click('[data-fk="bed:M5:B16"]'); await wait(f, 400); r = await PL(f, 'M5'); const c2 = await f.evaluate(() => BgmBed._t.songAt('tribute'));
+    ok(`${W} c 다른 곡(B16)을 고르면 고른 곡이 이긴다 — 한 줄 0 · 미리 듣기 B16`, r && r.fold === P.SONGS.B16.t && r.carry.length === 0 && c2 === 'B16', { r, c2 });
     /* d 이어지지 않는 화촉에서 고른 곡 */
     await setX(f, { picks: { M5: M5, M2: ['B05', 'B31', 'B13'] }, on: { song: 1 }, bgm: { M2: { k: 'B13' } } }); await go(f, 'table'); r = await PL(f, 'M8');
     ok(`${W} d 화촉(이어지지 않음)에서 고른 B13 은 테이블 곡 줄 맨 뒤로(빼면 30분이 안 된다 · DETAIL_R3_1101 ⑦ 보탬) · 한 줄 0`, r && r.list.join() === 'B23,B14,B24,B16,B13' && r.carry.length === 0, r);
@@ -131,8 +131,8 @@ try {
       ok('e 미리 듣기 부모님께 인사(B16) → 테이블 — 같은 소리 그대로(다시 시작 0) · 뜸은 이어지는 곡 길이(약 3초)', !!same && ldMs > 2300 && ldMs < 3800, { tr: tr.length, tb: [...new Set(tb.map((x) => x.f + '@' + Math.round(x.t0 * 100)))], t0: tr.length && tr[tr.length - 1].t0, ldMs: Math.round(ldMs) });
       /* g 편지 «음악과 함께»(B10) → 축배 — 본식 곡을 고르지 않았고 B10 은 본식 목록에도 있다 → 축배 여는 말도 B10 그대로(본식 1순위 B09 로 돌아가지 않는다) */
       await setX(f, { on: { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }, bgm: { S6: { m: 'bed' } } }); await go(f, 'toast'); await go(f, 'letter');
-      const fl = await f.evaluate(() => BgmBed._t.songAt('letter')), g = await listen(f, ['letter', 'toast'], 'toast'), gl = g.filter((x) => x.k === 'letter' && x.src && x.f === fl && x.want > -60), gt = g.filter((x) => x.k === 'toast' && !x.ch && x.src && x.want > -60)   /* [TIME_GAP_1102] 축배 여는 말까지 — «위하여» 뒤 강조 자리로 옮기는 것(BGM_FIX_1030)은 따로 */;
-      ok('g 미리 듣기 편지 «음악과 함께»(B10) → 축배 — 본식 곡을 안 골랐으면 축배 여는 말도 B10 그대로(다시 시작 0 · B09 0)', fl === 'B10' && gl.length > 3 && gt.length > 3 && gt.every((x) => x.f === 'B10' && x.t0 === gl[gl.length - 1].t0), { fl, gl: gl.length, gt: [...new Set(gt.map((x) => x.f + '@' + Math.round(x.t0 * 100)))] }); }
+      const fl = await f.evaluate(() => BgmBed._t.songAt('letter')), g = await listen(f, ['letter', 'toast'], 'toast'), gl = g.filter((x) => x.k === 'letter' && x.src && x.f === fl && x.want > -60), gL = g.filter((x) => x.k === 'letter' && x.src && x.want > -60), gt = g.filter((x) => x.k === 'toast' && !x.ch && x.src && x.want > -60)   /* [TIME_GAP_1102] 축배 여는 말까지 — «위하여» 뒤 강조 자리로 옮기는 것(BGM_FIX_1030)은 따로 */;
+      ok('g 미리 듣기 편지 «음악과 함께»(본식 곡) → 축배 — 본식 곡을 안 골랐으면 축배 여는 말도 같은 곡 그대로(다시 시작 0)', !!fl && P.PICKS.M4.indexOf(fl) > -1 && gL.length > 3 && gt.length > 3 && P.PICKS.M4.indexOf(gL[gL.length - 1].f) > -1 && gt.every((x) => x.f === gL[gL.length - 1].f && x.t0 === gL[gL.length - 1].t0),   /* [ONE_FLOW_1106] 편지 곡 = 본식 목록 곡(편지 동안 목록이 넘기면 그 곡) · 축배는 편지 끝에 흐르던 그 소리 그대로 */ { fl, gl: gl.length, gt: [...new Set(gt.map((x) => x.f + '@' + Math.round(x.t0 * 100)))] }); }
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));
     await ctx.close();
   }
@@ -160,13 +160,13 @@ try {
     await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":true}' })));
     await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S0)).toString('base64'))}`); await pg.waitForTimeout(900);
     const TMP = fs.mkdtempSync(path.join(require('os').tmpdir(), 'carry-'));
-    for (const [sel, hz] of [['.sg[data-seg="M4"] .sg-song:nth-of-type(1)', 440], ['.sg[data-seg="M4S6"] .sg-song:nth-of-type(1)', 520]]) { const p = path.join(TMP, hz + '.wav'); fs.writeFileSync(p, wav(60, hz)); await pg.setInputFiles(sel + ' [data-seg-file]', p, { timeout: 4000 }); }
+    for (const [sel, hz] of [['.sg[data-seg="M4"] .sg-song:nth-of-type(1)', 440]]) {   /* [ONE_FLOW_1106] M4S6 곡 칸 없음 */ const p = path.join(TMP, hz + '.wav'); fs.writeFileSync(p, wav(60, hz)); await pg.setInputFiles(sel + ' [data-seg-file]', p, { timeout: 4000 }); }
     await pg.waitForTimeout(1200); await pg.click('#go'); await pg.waitForTimeout(700);
     const Rq = await pg.evaluate(() => window.__bgmR()), iL = Rq.findIndex((c) => /^letter-/.test(c.slug || '')), iE = Rq.findIndex((c) => c.slug === 'narr-letter-end'), iT = Rq.findIndex((c) => c.k === 'toast');
     if (iL < 1 || iE < iL || iT < iE) ok('g 콘솔 시험 조건', false, { iL, iE, iT });
     else { await pg.evaluate((i) => window.__bgmGo.fire(i), iL - 1); await pg.waitForTimeout(2000); await pg.evaluate((i) => window.__bgmGo.fire(i), iL); await pg.waitForTimeout(3800); const s1 = await pg.evaluate(() => window.__seg.st());
       await pg.evaluate((i) => window.__bgmGo.fire(i), iE); await pg.waitForTimeout(6000); await pg.evaluate((i) => window.__bgmGo.fire(i), iT); await pg.waitForTimeout(1500); const s2 = await pg.evaluate(() => window.__seg.st());
-      ok('g 콘솔 편지 «음악과 함께»(B10) → 축배 — 본식 곡을 안 골랐으면 B10 그대로(bedPlay 0 · 구간은 M4)', s1.seg === 'M4S6' && s1.id === 'B10' && s2.seg === 'M4' && s2.id === 'B10' && s2.plays === s1.plays && s2.t > s1.t, { s1: [s1.seg, s1.id, s1.plays, s1.t], s2: [s2.seg, s2.id, s2.plays, s2.t] }); }
+      ok('g 콘솔 편지 «음악과 함께»(본식 곡) → 축배 — 본식 곡을 안 골랐으면 같은 곡 그대로(bedPlay 0 · 구간은 M4)', s1.seg === 'M4' && !!s1.id && s2.seg === 'M4' && s2.id === s1.id && s2.plays === s1.plays && s2.t > s1.t,   /* [ONE_FLOW_1106] */ { s1: [s1.seg, s1.id, s1.plays, s1.t], s2: [s2.seg, s2.id, s2.plays, s2.t] }); }
     ok('g 콘솔 오류 0', !errs.length, errs.slice(0, 2)); await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();

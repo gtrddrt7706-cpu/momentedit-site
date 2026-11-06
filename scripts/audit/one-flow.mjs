@@ -130,7 +130,7 @@ try {
     ok('T05 엔진 — «음악과 함께» 축사 뒤 축가 여는 말 −90(줄 시작에서) · «조용히»도 −90', op(mk({ free: 1, song: 1 }, { S5: { m: 'bed' } })) === -90 && op(mk({ free: 1, song: 1 })) === -90);
     ok('T06 대조 — 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −16 그대로(NO_RELIFT E)', op(mk({ free: 0, song: 1, bless: 1 })) === -16);
     const con = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8');
-    ok('T03 당일 콘솔 — 목록 곡 사이 겹침도 같은 값(본식 8초 · BgmPicks.xfOf) · «음악과 함께» 곡 칸으로 넘기지 않는다', P.xfOf && P.xfOf('M4') === 8 && P.xfOf('M6') === 3 && /function segXf\(\)/.test(con) && /bedPlay\(BED\.list\[j\], segXf\(\)\)/.test(con) && !/segGo\('M4S[56]'\)/.test(con));
+    ok('T03 당일 콘솔 — 목록 곡 사이 겹침도 같은 값(본식 8초 · BgmPicks.xfOf) · «음악과 함께» 곡 칸으로 넘기지 않는다', P.xfOf && P.xfOf('M4') === 8 && P.xfOf('M6') === 3 && /function segXf\(\)/.test(con) && /bedPlay\(BED\.list\[j\], segXfFor\(BED\.list\[j\]\)\)/.test(con) && /function segXfFor\(sid\)/.test(con) && !/segGo\('M4S[56]'\)/.test(con));
     ok('T01 곡 계획 — 축사 · 편지 «음악과 함께» 구간(M4S5 · M4S6)이 없다 · 옛 이름은 M4 로 읽힌다', P.CORDER.indexOf('M4S5') < 0 && P.CORDER.indexOf('M4S6') < 0 && P.oneSeg && P.oneSeg('M4S5') === 'M4' && P.oneSeg('M4S6') === 'M4' && !P.SEGS.some((s) => /^M4S/.test(s.id)));
   }
   if (want('F')) { const { ctx, f, errs } = await prep();

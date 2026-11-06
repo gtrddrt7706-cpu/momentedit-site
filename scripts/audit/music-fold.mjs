@@ -145,16 +145,11 @@ try {
       if (W === 390 && sg === 'M4') { await go(fr, away); await go(fr, k); await shot(fr, W, 'welcome-fold'); await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); await shot(fr, W, 'welcome-open'); }
       if (W === 1280 && sg === 'M4') { await go(fr, away); await go(fr, k); await shot(fr, W, 'welcome-fold'); await fr.click(`.ls-bed[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); await shot(fr, W, 'welcome-open'); }
     }
-    /* 축사 · 편지 «음악과 함께» 아래 */
-    for (const [slot, sg, k, pick] of [['S5', 'M4S5', 'free', 'B14'], ['S6', 'M4S6', 'letter', 'B12']]) {
+    /* ★[ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 아래 곡 목록은 없다 — 고르면 본식 곡(M4)이 잇는다 · 접을 목록 자체가 없는 것을 잰다(칸 수 7 그대로) */
+    for (const [slot, sg, k] of [['S5', 'M4S5', 'free'], ['S6', 'M4S6', 'letter']]) {
       await go(fr, k); await fr.click(`[data-fk="bgm:${slot}:bed"]`); await wait(fr, 300);
-      let a = await look(fr, sg); if (a && a.fold) { await fr.click(`.bed-sub[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); a = await look(fr, sg); }   /* ★[CARRY_SAME_1101] 앞(감사 인사 B10)이 편지 목록에 있으면 고르기 전부터 그 곡 한 줄(이어짐) — «바꾸기»로 편다 */
-      await fr.click(`[data-fk="bed:${sg}:${pick}"]`); await wait(fr, 700); const b = await look(fr, sg);
-      await go(fr, 'welcome'); await go(fr, k); const c = await look(fr, sg);
-      if (c && c.ch) { await fr.click(`.bed-sub[data-seg="${sg}"] .mu-chg`); await wait(fr, 250); }
-      const d = await look(fr, sg);
-      const good = a && a.rows === 3 && !a.fold && b && b.rows === 0 && b.fold && c && c.fold && c.plFk === `bedp:${sg}:${pick}` && c.ch && c.ch.ctlOk && !c.note && d && d.rows === 3 && !d.fold && d.on.join() === `bed:${sg}:${pick}`;
-      res.push([sg, k, good ? 'ok' : 'FAIL', a && a.rows, b && b.rows, c && c.fold, d && d.rows]);
+      const a = await look(fr, sg), pk = await fr.evaluate((sg) => document.querySelectorAll('[data-fk^="bed:' + sg + ':"], [data-fk^="bedp:' + sg + ':"]').length, sg), on = await fr.evaluate((slot) => !!(S.bgm && S.bgm[slot] && S.bgm[slot].m === 'bed'), slot);
+      res.push([sg, k, (!a && pk === 0 && on) ? 'ok' : 'FAIL', a, pk, on]);
     }
     ok(`${W} 7 음악 목록이 있는 모든 순간 — 고르면 바로 접힘 · 다시 들어와도 접힘 · «바꾸기»로 펴짐(${res.length}곳)`, res.length === 7 && res.every((x) => x[2] === 'ok'), res);
     /* 7b 목록 칸(하객 맞이 · 테이블 인사)은 접지 않는다 — 고르기 · «바꾸기» · 접힌 줄 0 · 곡 줄 다섯 */

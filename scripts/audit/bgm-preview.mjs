@@ -8,7 +8,7 @@
    3 곡을 고르면 S.bgm.M2 = { k } · 눌린 모양 · 아래 한 줄 «‹곡›으로 준비해요» · 저장 꼴(BgmSlots.clean)이 그 번호를 지킨다
    4 곡 카드 ▶ — 그 곡을 한 번 묻는다(key bed) · 그 곡을 깔고 첫 나레이션 줄을 튼다 · 음악 크기 = 그 줄의 엔진 크기 · ■ 로 멈춘다 · 다른 소리를 틀면 멈춘다(소리 하나)
    5 이 순간 전체 듣기 · 음악과 함께 — 고른 곡이 깔린다 · 줄마다 크기 = 엔진 값(말 줄 dk · 사람 구간 ldk) · 축배 «위하여» 차례가 끝나면 축배 크기(0)
-   6 축사 · 편지 — «음악 없이»면 말씀 · 낭독 동안 −90 · «음악과 함께»면 그 아래 곡 고르기가 펼쳐지고 그 곡으로 −20
+   6 축사 · 편지 — «음악 없이»면 말씀 · 낭독 동안 −90 · «음악과 함께»면 ★[ONE_FLOW_1106] 곡 고르기 칸 없이 흐르던 본식 곡(M4)이 −20 으로 잇는다
    7 드라이브에 곡이 없는 구간(테이블 인사) — 나레이션만 · 단추 이름 그대로 · 오류 없음
    8 한눈에 보기 «음악» — «화촉 · ‹고른 곡›» · «감사 인사 · 고르지 않으시면 ‹1순위›» · «축사 · 음악과 함께 · ‹곡›»
    9 당일 콘솔 — 이 기기에서 안 골랐으면 고객이 고른 곡이 그 구간 기본(«두 분이 고른 곡» 표시)
@@ -183,26 +183,21 @@ try {
     ok(`${W} 6 축사 «음악 없이» — 말씀 동안 −90 · 곡 ${dk7}(본식 목록 그 자리 곡)`, t7.length && t7.every((x) => x.want === -90 && x.f === dk7), t7.slice(0, 3));
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 400); const rs = await row(f, 'M4S5');
     await shot(f, W, 'free', '.ls-bgm[data-slot="S5"]');
-    ok(`${W} 6 축사 «음악과 함께» → 그 아래 곡 고르기(3) · 아래 «준비해요» 줄 없음`, rs && rs.n === 3 && rs.note === '', rs);
-    if (W === 390) {
-      const before = (await LOG(pg)).filter((x) => x === 'momentedit:ritualFileGet:bed:B13').length, held = await f.evaluate(() => { const o = BgmBed._t.BUF.B13; return !!(o && o.st === 'ok'); });   /* ★[BED_LOAD_1101 ④] 풀어 둔 곡은 셋까지 — 그 사이 다른 순간을 지나며 지워졌으면 한 번 다시 받는다(아직 들고 있으면 다시 묻지 않는다) */
-      await f.click('[data-fk="bedp:M4S5:B13"]'); await wait(f, 1500);
-      const d2 = await f.evaluate(() => ({ f: BgmBed._t.BED.cur.f, who: BgmBed._t.BED.who, p: document.querySelector('[data-fk="bedp:M4S5:B13"]').getAttribute('aria-pressed') }));
-      const after = (await LOG(pg)).filter((x) => x === 'momentedit:ritualFileGet:bed:B13').length;
-      ok(`${W} D2 한 파일 — 축사 칸 B13 곡 카드는 하객 맞이에서 받은 그 파일(다시 묻지 않는다 · key bed:B13 한 번)`, before === 1 && after === before + (held ? 0 : 1) && d2.f === 'B13' && d2.who === 'card' && d2.p === 'true', { before, after, held, d2 });
-      await f.click('[data-fk="bedp:M4S5:B13"]'); await wait(f, 300);
-    }
+    const sub6 = await f.evaluate(() => document.querySelectorAll('.bed-sub, [data-fk^="bedp:M4S5"], [data-fk^="bed:M4S5"]').length);   /* [ONE_FLOW_1106] */
+    ok(`${W} 6 축사 «음악과 함께» → 곡 고르기 칸 없음(본식 곡이 잇는다) · 아래 «준비해요» 줄 없음`, !rs && sub6 === 0 && !(await f.evaluate(() => /준비해요/.test((document.querySelector('.ls-bgm[data-slot="S5"]') || {}).textContent || ''))), { rs, sub6 });
+    /* ★[ONE_FLOW_1106] 옛 D2(축사 칸 B13 곡 카드 = 하객 맞이에서 받은 파일)는 축사 곡 칸을 걷어 없다 — 한 파일 규칙은 하객 맞이 B13 카드(위 158행) · bgm-fix A3 · C8 이 지킨다 */
     const b8 = await listen(f, 'free', 9000); const t8a = b8.filter((x) => x.talk && x.src), i8 = t8a.length ? t8a[0].i : 99, t8 = t8a.slice(5), n8 = b8.filter((x) => !x.talk && x.src && x.i < i8);   /* 말씀 줄 첫 0.5초는 곡이 바뀌는 자리(3초 겹침이 시작) */   /* [DETAIL_R2_1101 ①] 여는 말은 본식 곡(M4) · 말씀부터 고른 곡 */
-    ok(`${W} 6 축사 «음악과 함께» — 여는 말은 본식 곡(B09) · 말씀부터 곡 B13 · 말씀 동안 −20`, t8.length && t8.every((x) => x.want === -20 && x.f === 'B13') && n8.every((x) => x.f === 'B09'), { t8: t8.slice(0, 2), n8: n8.slice(0, 2) });
+    const f8 = n8.length ? n8[0].f : dk7;   /* [ONE_FLOW_1106] 여는 말에 흐르던 본식 곡이 말씀 동안에도 그대로 */
+    ok(`${W} 6 축사 «음악과 함께» — 여는 말은 본식 곡(${f8}) · 말씀 동안에도 같은 곡 −20(곡이 바뀌지 않는다)`, t8.length && t8.every((x) => x.want === -20 && x.f === f8) && n8.every((x) => x.f === f8), { t8: t8.slice(0, 2), n8: n8.slice(0, 2) });
     /* D4 [R1-1] 초안이 통째로 바뀌면 칩 기억도 비운다 */
     await f.click('[data-fk="bgm:S5:none"]'); await wait(f, 200); await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 200);
     await f.evaluate(() => { S = JSON.parse(JSON.stringify(S)); if (S.bgm) { delete S.bgm.S5; delete S.bgm.S6; } render(); }); await go(f, 'free'); await wait(f, 300);
     const d4 = await f.evaluate(() => [...document.querySelectorAll('.ls-bgm[data-slot="S5"] .op-chip')].map((b) => b.getAttribute('aria-checked')));
     ok(`${W} D4 [R1-1] 초안이 바뀌면(저장에 «음악과 함께» 없음) 축사 칩은 안 눌린 모양으로`, d4.length === 2 && d4.every((v) => v === 'false'), d4);
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 300);
-    await go(f, 'letter'); await f.click('[data-fk="bgm:S6:bed"]'); await wait(f, 300); await f.click('[data-fk="bed:M4S6:B12"]'); await wait(f, 300);
-    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5);   /* [DETAIL_R2_1101 ①] 낭독 줄 첫 0.5초는 곡이 바뀌는 자리 */
-    ok(`${W} 6 편지 «음악과 함께» + 곡 고름 — S.bgm.S6 = { m:bed, k:B12 } · 낭독 동안 −20 · 곡 B12`, t9.length && t9.every((x) => x.want === -20 && x.f === 'B12') && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed' && S.bgm.S6.k === 'B12')), t9.slice(0, 2));
+    await go(f, 'letter'); await f.click('[data-fk="bgm:S6:bed"]'); await wait(f, 300);   /* [ONE_FLOW_1106] 편지 곡 고르기 칸은 없다 */
+    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5), m4s = await f.evaluate(() => BgmPicks.PICKS.M4.slice());
+    ok(`${W} 6 편지 «음악과 함께» — S.bgm.S6 = { m:bed } · 낭독 동안 −20 · 곡은 본식 목록(M4) 곡`, t9.length && t9.every((x) => x.want === -20 && m4s.indexOf(x.f) > -1) && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed')), t9.slice(0, 2));
     /* 7 곡 없는 구간 */
     await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 11000);   /* [DETAIL_R3_1101 ⑦ 보탬] 맨 뒤 B13 이 흐르므로 첫 줄 앞 뜸(6초 · listen 은 뜸을 세지 않는다) 뒤까지 */
     /* ★[DETAIL_R3_1101 ⑦ 보탬] 테이블 목록은 축사 «음악과 함께» 곡(B13)을 빼면 30분이 안 돼 맨 뒤로 보낸다(종전엔 뺐다) — 이 시험 드라이브엔 테이블 곡 가운데 B13 만 있어 그 곡이 흐른다 */
@@ -210,7 +205,7 @@ try {
     ok(`${W} 7 테이블 인사(드라이브엔 맨 뒤 B13 하나뿐) — 있는 곡만 · 없는 곡을 기다리지 않는다 · 오류 없음`, /음악과 함께/.test(l10) && f10.join() === 'B13' && !errs.length, { l10, f10, errs });
     /* 8 한눈에 보기 */
     const sum = await f.evaluate(() => { const d = document.createElement('div'); d.innerHTML = BgmForm.sumHtml(); return [...d.querySelectorAll('.mk-vn')].map((x) => x.textContent.trim()); });
-    ok(`${W} 8 한눈에 보기 — 화촉 · 고른 곡 · 감사 인사 · 고르지 않으시면 · 축사 · 편지 곡 · 차례(하객 맞이 → 화촉 → 입장 …)`, sum.includes('화촉 · ‹Summer›') && sum.includes('감사 인사 · 고르지 않으시면 ‹Innocent in Sonatine›') && sum.includes('축사 · 음악과 함께 · 고르지 않으시면 ‹Moon River›') && sum.includes('편지 · 음악과 함께 · ‹Under the Willow›') && sum.indexOf('화촉 · ‹Summer›') < sum.findIndex((t) => /^입장 곡/.test(t)), sum);
+    ok(`${W} 8 한눈에 보기 — 화촉 · 고른 곡 · 감사 인사 · 고르지 않으시면 · 축사 · 편지 «음악과 함께»(곡 이름 없음 · ONE_FLOW_1106) · 차례(하객 맞이 → 화촉 → 입장 …)`, sum.includes('화촉 · ‹Summer›') && sum.includes('감사 인사 · 고르지 않으시면 ‹Innocent in Sonatine›') && sum.includes('축사 · 음악과 함께') && sum.includes('편지 · 음악과 함께') && !sum.some((t) => /^(축사|편지) · 음악과 함께 · /.test(t)) && sum.indexOf('화촉 · ‹Summer›') < sum.findIndex((t) => /^입장 곡/.test(t)), sum);
     /* D5 [R1-7] 올린 입장 곡을 스튜디오로 못 보냈으면 */
     const d5 = await f.evaluate(() => { const mu0 = S.mu; S.mu = { src: 'up', t: '시험 곡', name: 'a.mp3', sid: 'x1' }; const d = document.createElement('div'); d.innerHTML = BgmForm.sumHtml();
       const li = d.querySelector('.bgm-sl'); S.mu = Object.assign({}, S.mu, { fid: 'F1' }); const d2 = document.createElement('div'); d2.innerHTML = BgmForm.sumHtml(); const li2 = d2.querySelector('.bgm-sl'); if (mu0 === undefined) delete S.mu; else S.mu = mu0;
@@ -225,7 +220,7 @@ try {
       await cp.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(b64)}`, { waitUntil: 'load' }); await cp.waitForTimeout(800);
       const cs = await cp.evaluate(() => { const L = (id) => BgmPicks.list(id), sel = window.__segSel; if (!sel) return { none: 1 }; const b = document.querySelector('[data-seg="M2"]');
         return { m2: sel('M2'), want: 'B07', s6: sel('M4S6'), want6: 'B12', m1: sel('M1')[0], want1: 'B01', m4: sel('M4'), want4: L('M4')[0].id, tag: b ? b.textContent.indexOf('두 분이 고른 곡') > -1 : null }; });
-      ok('9 당일 콘솔 — 고객이 고른 곡이 구간 기본(화촉 B07 · 편지 B12 · 하객 맞이는 고르지 않아 1순위 B01 맨 앞 · LIST_NO_PICK_1101) · 안 고른 구간은 1순위 · «두 분이 고른 곡» 표시', cs.m2 === cs.want && cs.s6 === cs.want6 && cs.m1 === cs.want1 && cs.m4 === cs.want4 && cs.tag === true, cs);
+      ok('9 당일 콘솔 — 고객이 고른 곡이 구간 기본(화촉 B07 · 옛 편지 칸 이름은 본식 M4 로(ONE_FLOW_1106) · 하객 맞이는 고르지 않아 1순위 B01 맨 앞 · LIST_NO_PICK_1101) · 안 고른 구간은 1순위 · «두 분이 고른 곡» 표시', cs.m2 === cs.want && cs.s6 === cs.m4 && cs.m1 === cs.want1 && cs.m4 === cs.want4 && cs.tag === true, cs);
       await cp.close();
     }
     await ctx.close();

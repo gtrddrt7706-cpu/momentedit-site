@@ -82,7 +82,7 @@ try {
       const fp = await f.evaluate(() => { const p = document.querySelector('.ls-bed .mu-pick'); if (p) p.click(); return !!p; }); await wait(f, 300);   /* 하나 고르면 접힌 한 줄 */
       if (fp) (await rows(f)).filter((r) => r.kind === 'fold').forEach((r) => all.push(Object.assign({ k }, r))); }
     const bad = all.filter((r) => !r.want.t || r.t !== r.want.t || r.a !== (r.want.a || '') || /노래/.test(r.t) || (r.want.why && r.all.indexOf(r.want.why) > -1) || (r.want.src && r.all.indexOf(r.want.src) > -1));
-    ok(`${W} a 곡 줄 ${all.length}개(구간 ${[...seen].join(' · ')}) — 글 = 제목 + 가수뿐 · 판 · 분위기 · «노래» 0`, all.length > 20 && seen.has('M4S5') && seen.has('M4S6') && all.some((r) => r.kind === 'fold') && !bad.length, { bad: bad.slice(0, 3), n: all.length, segs: [...seen] });
+    ok(`${W} a 곡 줄 ${all.length}개(구간 ${[...seen].join(' · ')}) — 글 = 제목 + 가수뿐 · 판 · 분위기 · «노래» 0`, all.length >= 14 && !seen.has('M4S5') && !seen.has('M4S6') && ['M2', 'M4', 'M5', 'M7'].every((x) => seen.has(x)) && all.some((r) => r.kind === 'fold') && !bad.length, { bad: bad.slice(0, 3), n: all.length, segs: [...seen] });   /* [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 곡 줄(M4S5 · M4S6)은 없다 — 구간 넷(M2 · M4 · M5 · M7) */
     /* b 가사 있는 곡(★[PICKS_THREE_1101 · GHIBLI_ADD_1101] 가사 곡은 축배 목록에만 — 축배 2번 B29) */
     { await go(f, 'toast'); await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M7"] .mu-chg[aria-expanded="false"]'); if (b) b.click(); }); await wait(f, 250);
       await f.click('[data-fk="bed:M7:B29"]'); await wait(f, 300);
