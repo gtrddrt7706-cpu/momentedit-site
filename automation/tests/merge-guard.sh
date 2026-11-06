@@ -19002,6 +19002,9 @@ chk 'ENTRY_MUSIC_1012' scripts/check-retired-scene.mjs 1
 nochk '곡을 넣는 칸은 따로 없다' api/_kb.js                       # 입장 음악 칸이 생겼다 — 없다고 말하지 않는다
 nochk '화면에 곡을 넣는 칸은 따로 없다' api/_ritual-kb.js
 chk 'ENTRY_MUSIC_1012' scripts/audit/entry-music.mjs 1
+# ── 2026-11-06 [GAP_ENTRY_1106] 입장 멘트 문장 사이 쉼(흐름 쉼 표) · 녹음 «입장!» 앞 쉼이 SP.call 이상이면 끊지 않음(마디 1) · 짧으면 1.8 로 늘려 마디 2 — entry-music 11b · entry-scene-day 2b 기대
+chk 'GAP_ENTRY_1106' scripts/audit/entry-music.mjs 1
+chk 'GAP_ENTRY_1106' scripts/audit/entry-scene-day.mjs 1
 # ── 2026-10-12 입장 음악 2단계-가 [ENTRY_SCENE_1012] — «음악과 함께 듣기»(그래프 · 긴 알약 · 그 자리 재생 · 이어 듣기 · 그래프 누르면 그 자리부터)
 #   목소리 = 빌더가 트는 입장 줄(_lSteps · 두 분 목소리 / 나레이션) · 곡 = 이 기기에 올린 곡 · 마지막 말 끝 + 0.3초 = 고른 자리(시험실 plan · envDb 그대로)
 #   두 분 AI 를 안 만들었으면 그래프 없이 흐린 알약(AI_PLAY_READY) · 크게 보기는 2단계-나 · 아래 entry-music 점검 10 ~ 18
