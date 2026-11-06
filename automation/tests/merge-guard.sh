@@ -21890,7 +21890,7 @@ chk 'Farewell(정리)' api/_kb.js 1
 nochk 'Farewell(마무리)' api/_kb.js
 # ★[DN_BUGS_1102 GPT 애프터 웨딩 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
 chk 'DN_RSV_AFTER_PICK_1102' mypage.html 1
-chk 'function _dnRsvFor(d, place)' mypage.html 1
+chk 'function _dnRsvFor(d, place, nm)' mypage.html 1   # [B2_FIX_MA_38 2026-11-06] nm = 옛 이름 열쇠 옮기기용
 chk 'DN_RSV_PER_PLACE_1102' mypage.html 3
 chk 'DN_UNDO_ALL_1102' mypage.html 1
 chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
