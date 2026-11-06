@@ -34,6 +34,8 @@ h1{margin:20px 0 4px;font-size:24px;font-weight:500;line-height:1.5;color:var(--
 .st.do .tx{color:var(--seal)}
 .pre{margin-top:20px;padding:14px 16px;border-radius:10px;background:var(--bg2);white-space:pre-wrap;font-size:16px}
 .bad{margin-top:40px;font-size:16px;color:var(--sub)}
+/* ★[ROLE_WRAP_1106 P-N06] 긴 영문 · 주소 · 띄어쓰기 없는 글만 칸 안에서 줄을 바꾼다 — 한국어는 keep-all 그대로 · 원문 · 글자 크기 · 수동 줄바꿈 그대로 · 글을 자르지 않는다 */
+h1,.when,.ro,.mo h2,.st .lb,.st .tx,.pre,.bad{overflow-wrap:anywhere}
 footer{margin-top:40px;font-size:12.5px;color:var(--light)}
 </style>
 </head>
@@ -47,17 +49,25 @@ footer{margin-top:40px;font-size:12.5px;color:var(--light)}
   var M=document.getElementById('main');
   function el(t,c,x){ var e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; }
   function dec(s){ s=String(s||'').replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; return decodeURIComponent(escape(atob(s))); }
-  var d=null; try{ var m=/[#&]r=([A-Za-z0-9_-]+)/.exec(location.hash||''); if(m) d=JSON.parse(dec(m[1])); }catch(e){ d=null; }
-  if(!d||!d.t||!Array.isArray(d.m)){ M.appendChild(el('p','bad','안내를 열지 못했어요 · 링크를 다시 받아 주세요')); return; }
-  document.title=String(d.t)+' · 모먼트에디트';
-  M.appendChild(el('h1','',String(d.t)));
-  if(d.w) M.appendChild(el('p','when',String(d.w)));
-  M.appendChild(el('p','ro','읽기 전용 안내예요 · 두 사람이 정한 순서 그대로예요'));
-  if(d.p){ M.appendChild(el('div','pre',String(d.p))); }
-  d.m.forEach(function(mo){ if(!mo||!Array.isArray(mo.s)) return; var s=el('section','mo'); s.appendChild(el('h2','',String(mo.n||'')));
-    mo.s.forEach(function(x){ if(!x||x.length<2) return; var k=String(x[0]), c=k==='읽으실 글'||/^(읽으실 글|덕담 원고)/.test(k)?'say':k==='하실 일'?'do':''; var b=el('div','st'+(c?' '+c:'')); b.appendChild(el('span','lb',k)); b.appendChild(el('p','tx',String(x[1]))); s.appendChild(b); });
-    M.appendChild(s); });
-  M.appendChild(el('footer','','당일 진행은 안내 음성과 디렉터가 함께 맡아요'));
+  /* ★[ROLE_HASH_REDRAW_1106 P-N05] 같은 탭에서 다른 역할 링크로 바뀌면 같은 검증 · 그리기를 다시 한다 — 종전엔 처음 한 번만 읽어 새로고침 전까지 옛 역할이 남았다.
+     잘못된 새 주소면 옛 역할 내용을 지우고 한 줄 안내만 남긴다 */
+  var BAD='안내를 열 수 없어요. 보내 주신 분께 링크를 다시 부탁해 주세요.';
+  function draw(){
+    [].slice.call(M.childNodes).forEach(function(c){ if(!(c.classList&&c.classList.contains('mark'))) M.removeChild(c); });   // 맨 위 «MOMENT EDIT»만 남긴다
+    var d=null; try{ var m=/[#&]r=([A-Za-z0-9_-]+)/.exec(location.hash||''); if(m) d=JSON.parse(dec(m[1])); }catch(e){ d=null; }
+    if(!d||!d.t||!Array.isArray(d.m)){ document.title='맡아 주실 순서 안내 · 모먼트에디트'; M.appendChild(el('p','bad',BAD)); return; }
+    document.title=String(d.t)+' · 모먼트에디트';
+    M.appendChild(el('h1','',String(d.t)));
+    if(d.w) M.appendChild(el('p','when',String(d.w)));
+    M.appendChild(el('p','ro','읽기 전용 안내예요 · 두 사람이 정한 순서 그대로예요'));
+    if(d.p){ M.appendChild(el('div','pre',String(d.p))); }
+    d.m.forEach(function(mo){ if(!mo||!Array.isArray(mo.s)) return; var s=el('section','mo'); s.appendChild(el('h2','',String(mo.n||'')));
+      mo.s.forEach(function(x){ if(!x||x.length<2) return; var k=String(x[0]), c=k==='읽으실 글'||/^(읽으실 글|덕담 원고)/.test(k)?'say':k==='하실 일'?'do':''; var b=el('div','st'+(c?' '+c:'')); b.appendChild(el('span','lb',k)); b.appendChild(el('p','tx',String(x[1]))); s.appendChild(b); });
+      M.appendChild(s); });
+    M.appendChild(el('footer','','당일 진행은 안내 음성과 디렉터가 함께 맡아요'));
+  }
+  draw();
+  window.addEventListener('hashchange', function(){ draw(); try{ window.scrollTo(0,0); }catch(e){} });
 })();
 </script>
 </body>

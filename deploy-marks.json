@@ -198,6 +198,16 @@
    "file": "80_production",
    "fn": "_vcRdOldTrash_",
    "why": "다시 만들 때 못 지운 옛 읽은 녹음 지우기(VC_RD_OLD)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "sendVideoDueNotices",
+   "why": "영상 기한 안내 예약 실행"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_mvOn_",
+   "why": "식중 영상 켜짐 판정"
   }
  ],
  "marks": [
@@ -3386,6 +3396,54 @@
    "fn": "purgeAdvisorLog",
    "mark": "PURGE_POLICY_1106",
    "why": "주간 정리에서 스냅 · 목소리 파일 정리를 뺐다(매일로)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "MID_VIDEO_1106",
+   "why": "식중 영상(kind mid) — «개인코드#mid» 줄 · 링크뿐 · 동의 · 메일 이름"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvPublic",
+   "mark": "MID_VIDEO_1106",
+   "why": "식중 영상 상태 — 식순 «준비한 순서 · 영상»이 켜고 끈다(on · len)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "sendVideoDueNotices",
+   "mark": "MID_VIDEO_1106",
+   "why": "식전 · 식중 영상 기한 안내(예식 14일 · 7일 전) · 기한날 관리자 한 줄"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "MID_VIDEO_1106",
+   "why": "마이페이지에 midvideo 상태를 싣는다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfCustomerMsg",
+   "mark": "MID_VIDEO_1106",
+   "why": "고객 알림 cust.videoDue(영상 확정 기한) 글"
+  },
+  {
+   "file": "95_notify",
+   "fn": "importKakaoTemplates",
+   "mark": "MID_VIDEO_1106",
+   "why": "T23 → cust.videoDue 매핑"
+  },
+  {
+   "file": "70_journey",
+   "fn": "setupAllTriggers",
+   "mark": "MID_VIDEO_1106",
+   "why": "매일 10시 sendVideoDueNotices 예약 실행"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_pgPrevideo_",
+   "mark": "MID_VIDEO_1106",
+   "why": "매일 정리가 식중 영상 줄(«개인코드#mid»)도 같은 6개월 · 영구 삭제"
   }
  ],
  "fns": {
@@ -3850,6 +3908,11 @@
    "_awDist_"
   ],
   "89_prevideo": [
+   "_pvKind_",
+   "_pvKey_",
+   "_pvName_",
+   "_mvOn_",
+   "_pvLiveK_",
    "_pvLive_",
    "_pvSheet_",
    "_pvRow_",
@@ -3870,7 +3933,8 @@
    "handlePvSave",
    "handlePvPhoto",
    "handlePvThumbs",
-   "purgePrevideo_"
+   "purgePrevideo_",
+   "sendVideoDueNotices"
   ],
   "90_test-utils": [
    "platformSelfTest",
@@ -4491,6 +4555,7 @@
   "sendBalanceReminders",
   "sendMidReminders",
   "sendArchiveExpiryNotices",
+  "sendVideoDueNotices",
   "aiDaily",
   "weeklyBackup",
   "weeklyReceiptAudit",
@@ -4595,7 +4660,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-06 20:34 · 75329be",
+ "_생성": "2026-11-07 00:24 · f5b4900",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5163,5 +5228,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "a3351318673f"
+ "_표식서명": "4fa65abf2393"
 }

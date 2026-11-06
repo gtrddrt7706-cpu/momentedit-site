@@ -2094,7 +2094,7 @@ function _pgPrevideo_(live, today) {
     var code = String(vals[i][0] || '').trim(); if (!code || String(vals[i][1] || '') === '지움') continue;
     var m = {}; try { m = JSON.parse(String(vals[i][4] || '{}')) || {}; } catch (e) { m = {}; }
     if (!m.folder && !String(vals[i][3] || '').replace(/[{}"\s]/g, '')) continue;
-    var cust = null; try { cust = findCustomerByCode(code); } catch (e) {}
+    var cust = null; try { cust = findCustomerByCode(code.replace(/#mid$/, '')); } catch (e) {}   // [MID_VIDEO_1106] 식중 영상 줄(«개인코드#mid»)도 같은 예식일 · 같은 6개월 · 같은 영구 삭제
     var wed = cust ? _ymdOf(cust.get('예식일')) : '';
     if (!cust) { _pgHit_(o, 'fail:no-customer', code); continue; }   // 고객 줄을 못 찾으면 «영영 빠짐»이 아니라 실패로 센다
     if (!wed) continue;
@@ -2289,6 +2289,7 @@ function setupAllTriggers() { _requireAdmin();
     { fn: 'sendBalanceReminders',    hour: 10, label: '잔금 D-9 리마인드' },
     { fn: 'sendMidReminders',        hour: 10, label: '중도금 D-149 리마인드' },
     { fn: 'sendArchiveExpiryNotices', hour: 11, label: '결과물 보관 만료 7일 전 통지' },
+    { fn: 'sendVideoDueNotices',     hour: 10, label: '식전 · 식중 영상 기한 안내(예식 14일 · 7일 전 · 89_prevideo) [MID_VIDEO_1106]' },
     { fn: 'aiDaily',                 hour: 9,  label: 'AI 직원실 일일 안전점검·요약·인계 24h 리마인드' },
     { fn: 'weeklyBackup',            hour: 5,  weekly: true, label: '주간 데이터 백업(스프레드시트 사본·최근 8주 보관)' },
     { fn: 'weeklyReceiptAudit',      hour: 9,  weekly: true, label: '현금영수증 미발행 주간 점검(월)' },
