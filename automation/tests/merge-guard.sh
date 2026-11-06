@@ -21699,7 +21699,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow reg-p17'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -22045,6 +22045,14 @@ chk 'GPT_R1_NOMUS' assets/bgm-bed.js 2
 chk 'GPT_R1_LONG' assets/bgm-bed.js 1
 chk '여러 연주곡이 차례로 이어져요' assets/bgm-bed.js 1
 chk 'GPT_R1_CANDLE' assets/ritual-cue.js 3
+chk 'REG_P17' assets/bgm-bed.js 8           # [REG_P17] 멈춘 동안 «음악 켜기» = 보류된 켜기만 · 이어 들을 때 지금 줄 곡 · 저장 위치 · 줄 크기 0.6초 · 무음 줄은 그대로 · 끄기 · 끝내기 · 새 시작은 지움
+chk 'function pzNow' assets/bgm-bed.js 1
+chk 'function holdGo' assets/bgm-bed.js 1
+chk 'T01 멈춘 동안 lpShow' scripts/audit/reg-p17.mjs 1
+chk 'T04 대조' scripts/audit/reg-p17.mjs 1
+chk 'T06 다음 순간 몫 이음말' scripts/audit/reg-p17.mjs 1   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
+chk 'REG_P17 검토 B' assets/bgm-bed.js 1
+chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
 chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1
