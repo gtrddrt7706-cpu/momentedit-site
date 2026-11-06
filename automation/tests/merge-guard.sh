@@ -5895,7 +5895,7 @@ chk 'function handleGuestPhoto' automation/platform/80_production.gs 1
 chk "case 'guestPhoto'" automation/consultation/consultation-booking.gs 1
 chk 'function addGuestPhotoColumns' automation/platform/80_production.gs 1
 chk 'function purgeGuestPhotos' automation/platform/80_production.gs 1
-chk "colOf\['하객사진폴더ID'\]" automation/platform/80_production.gs 3    # 열 가드 · 폴더 확보 · 정리
+chk "colOf\['하객사진폴더ID'\]" automation/platform/80_production.gs 2    # 열 가드 · 폴더 확보 (정리는 70_journey _pgGuestPhotos_ · PURGE_POLICY_1106)
 chk '_guideExpired' automation/platform/80_production.gs 3               # 안내·업로드 만료 기준 동기
 chk 'guestPhoto:' automation/platform/80_production.gs 1                 # 부부 화면 표시용 필드
 chk 'function bindGuestUpload' guide.html 1
@@ -16513,7 +16513,7 @@ chk 'VC_ERRBOX_TRUE' order-preview.html 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-state.mjs >/dev/null 2>&1; _vrs=$?; if [ "$_vrs" = 1 ]; then echo 'FAIL vc-r1-state: 목소리 상태 · 지우기 1라운드가 어긋났습니다 — node scripts/audit/vc-r1-state.mjs'; fail=1; else echo "ok vc-r1-state ($_vrs)"; fi; fi
 # ── 목소리 1라운드 server 묶음 (2026-10-08 · GAS · 콘솔 · 관리)
 chk 'RF_DEL_SLOT' automation/platform/80_production.gs 1   # [57 · 75] 줄 지우기 → 그 자리 옛 사본도 휴지통
-chk 'RF_PURGE_AI' automation/platform/80_production.gs 3   # [76] 30일 지우기 하위 폴더 AI 까지
+chk 'RF_PURGE_AI' automation/platform/80_production.gs 1   # [76] 30일 지우기 하위 폴더 AI 까지 → 본문은 70_journey _pgVoiceFiles_(PURGE_POLICY_1106 · purge-policy.mjs)
 chk 'VC_SAVE_NOLOCK' automation/platform/80_production.gs 1   # [78] 잠금 실패에도 합쳐 쓰기
 chk 'VC_PURGE_MERGE' automation/platform/80_production.gs 2   # [79] 매일 지우기 합쳐 쓰기
 chk 'VC_LONG_SPLIT' automation/platform/80_production.gs 3   # [80] 600자 넘는 글 나눠 읽기
@@ -18401,6 +18401,17 @@ nochk "error: '취소된 예약입니다.'" automation/admin/admin.gs
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/purge-chain.mjs >/dev/null 2>&1; _pcg=$?; if [ "$_pcg" != 0 ]; then echo "FAIL purge-chain($_pcg): 주간 정리가 매단 개인정보 파기를 건너뛴다 · 2 = 재지 못함 — node scripts/audit/purge-chain.mjs"; fail=1; else echo "ok purge-chain ($_pcg)"; fi; fi   # [PURGE_CHAIN_ALWAYS]
+# ★[PURGE_POLICY_1106 2026-11-06 사장님 결정 3 = A] 자료 정리 = 처리방침 문구(인도 완료 · 예식 뒤 30일 · 6개월 달력) · 매일 07시 · 영구 삭제 · 실패는 표시 안 함 · 건수 시트 · 시험 모드(PURGE_LIVE)
+chk 'PURGE_POLICY_1106' scripts/audit/purge-policy.mjs 1
+chk "var PG = { LIVE: 'PURGE_LIVE', LOG: '자료정리기록', MONTHS: 6, VOICE_DAYS: 30, BACKUP_KEEP: 8 };" automation/platform/70_journey.gs 1
+chk "{ method: live ? 'delete' : 'get'," automation/platform/70_journey.gs 1
+chk 'function purgeLiveOn() { _requireAdmin();' automation/platform/70_journey.gs 1
+chk "if (typeof _purgeDaily_ === 'function') _purgeDaily_();" automation/platform/87_letter.gs 1
+nochk 'DriveApp.getFolderById(String(m.folder)).setTrashed(true)' automation/platform/89_prevideo.gs
+nochk "purgeRitualFiles(false)" automation/consultation/consultation-booking.gs
+nochk "purgeSnapRefs(false)" automation/consultation/consultation-booking.gs
+nochk "링크 자동 제거" automation/platform/70_journey.gs
+if command -v node >/dev/null 2>&1; then node scripts/audit/purge-policy.mjs >/dev/null 2>&1; _ppg=$?; if [ "$_ppg" != 0 ]; then echo "FAIL purge-policy($_ppg): 자료 정리가 처리방침 · 시험 모드 · 실패 처리대로 돌지 않는다 · 2 = 재지 못함 — node scripts/audit/purge-policy.mjs"; fail=1; else echo "ok purge-policy ($_ppg)"; fi; fi   # [PURGE_POLICY_1106]
 # ★[TRIG_IN_WHY 2026-10-09 점검] 예약 실행 확인 기록에 그때 메일(가린 꼴) · «목록에 없음»은 배우기 전에만(TRIG_MISS_QUIET) · 목록을 못 읽으면 알던 목록으로(TRIG_LIST_KNOWN · gsr-guard 가 행동으로 잰다)
 chk 'TRIG_IN_WHY' automation/platform/70_journey.gs 5   # 라운드 5 에서 배우기 전 모양 기록 · 옛 기록 꼬리 줄이 늘어 5 · 라운드 2 에서 «목록 못 읽음» 줄이 TRIG_LIST_KNOWN 으로 옮겨 3
 chk 'TRIG_IN_WHY' automation/platform/99_deployCheck.gs 1

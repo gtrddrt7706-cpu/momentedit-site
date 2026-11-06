@@ -916,12 +916,6 @@
    "why": "계약서 v1.15(3조 ⑥ 별도 비용에서 부모님께 드릴 꽃 줄 걷음 · 부모님께 인사는 꽃 없이 인사 · 포옹) — 이 파일이 옛것이면 새 문서 서명자가 v1.14 로 찍혀 옛 보존본을 본다"
   },
   {
-   "file": "70_journey",
-   "fn": "handleSignContract",
-   "mark": "CONTRACT_V116",
-   "why": "계약서 v1.16(5조① 식순 수정 마감 순서 14일 · 글 7일 전 · 3조① Farewell 정리 · 3조② 식전 영상 협력 제작사 · 식당 안내만) — 이 파일이 옛것이면 새 문서 서명자가 v1.15 로 찍혀 옛 보존본을 본다"
-  },
-  {
    "file": "95_notify",
    "fn": "_nfCustomerMsg",
    "mark": "DAY_60",
@@ -3314,6 +3308,48 @@
    "fn": "_ensureProductionBase",
    "mark": "LETTER_MAIL_A",
    "why": "계약서 요청 때 적은 신랑 · 신부 이메일을 제작 기본값에 싣는다(청첩장 발행이 쓴다)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "purgeTestRun",
+   "mark": "PURGE_POLICY_1106",
+   "why": "자료 정리(처리방침 기간 · 영구 삭제 · 실패는 표시 안 함 · 건수 · 시험 모드) — 이 파일이 옛것이면 매일 정리가 돌지 않는다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "sendArchiveExpiryNotices",
+   "mark": "PURGE_POLICY_1106",
+   "why": "결과물 만료일 = 인도 + 달력 6개월 · 링크 비우기는 매일 정리(_pgResults_)로 옮김"
+  },
+  {
+   "file": "70_journey",
+   "fn": "weeklyBackup",
+   "mark": "PURGE_POLICY_1106",
+   "why": "8개 밖 사본은 휴지통이 아니라 매일 정리가 영구 삭제"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeRitualFiles",
+   "mark": "PURGE_POLICY_1106",
+   "why": "목소리 파일 · 식전 영상 정리를 매일 정리 본문으로"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "purgePrevideo_",
+   "mark": "PURGE_POLICY_1106",
+   "why": "식전 영상 정리를 매일 정리 본문으로(영구 삭제 · 지웠을 때만 «지움»)"
+  },
+  {
+   "file": "87_letter",
+   "fn": "vimeoGuardDaily",
+   "mark": "PURGE_POLICY_1106",
+   "why": "매일 07시에 자료 정리(_purgeDaily_)를 함께 부른다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "purgeAdvisorLog",
+   "mark": "PURGE_POLICY_1106",
+   "why": "주간 정리에서 스냅 · 목소리 파일 정리를 뺐다(매일로)"
   }
  ],
  "fns": {
@@ -3488,6 +3524,24 @@
    "sendArchiveExpiryNotices",
    "handleSaveRefundAccount",
    "weeklyBackup",
+   "_pgLive_",
+   "_pgAddMonths_",
+   "_pgAddDays_",
+   "_pgIdOf_",
+   "_pgGone_",
+   "_pgNew_",
+   "_pgHit_",
+   "_pgGuestPhotos_",
+   "_pgVoiceFiles_",
+   "_pgPrevideo_",
+   "_pgResults_",
+   "_pgSnap_",
+   "_pgBackups_",
+   "_purgeDaily_",
+   "_pgEsc_",
+   "purgeTestRun",
+   "purgeLiveOn",
+   "purgeLiveOff",
    "_trigIn_",
    "_trigSafe_",
    "_trigWho_",
@@ -4264,7 +4318,8 @@
    "PAYMENT",
    "_PAY_LOCK_HELD",
    "_PAY_LOCK_BUSY",
-   "CR_BAD_MSG"
+   "CR_BAD_MSG",
+   "PG"
   ],
   "80_production": [
    "PRODUCTION_STAGES",
@@ -4503,7 +4558,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-06 19:56 · 1b6c51f",
+ "_생성": "2026-11-06 08:52 · 69df36f9",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5071,5 +5126,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "9d427c456d70"
+ "_표식서명": "ed90a09fe641"
 }

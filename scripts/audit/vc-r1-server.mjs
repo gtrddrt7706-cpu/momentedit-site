@@ -82,16 +82,7 @@ const st = (W, c) => JSON.parse(W.props['VC_' + c] || '{}');
   ok('57 · 75 [RF_DEL_SLOT] 줄 지우기 → 그 자리 옛 사본 둘도 휴지통 · 스튜디오 · 다른 자리 · 뒤에 올린 것은 남는다', r.ok && r.swept === 2 && !L0.some((n) => /첫 테이크|사본|지금\.wav/.test(n)) && L0.includes('하객 입장 때 · 스튜디오 · 카톡.wav') && L0.includes('시작 10분 전 · 다른 자리.wav') && L0.includes('하객 입장 때 · 지운 뒤 새로.wav'), J({ r, L0 }));
   void old1; void stu; void old2; void other; void later; }
 
-/* 76 — 30일 지우기 · 하위 폴더 AI */
-{ const W = boot('2026-12-01T01:00:00Z'), nb = (n) => W.G.Utilities.newBlob([1], 'audio/mpeg', n);
-  W.CUST.BBB001 = { wy: '2026-10-10' }; W.CUST.BBB002 = { wy: '2026-10-10' };
-  const f1 = W.G._rfFolderFor('BBB001'); f1.createFile(nb('하객 입장 때 · a.wav')); const a1 = W.G._vcAiFolder('BBB001'); a1.createFile(nb('AI 소리 · x1.mp3')); a1.createFile(nb('AI 소리 · x2.mp3')); a1.createFile(nb('읽은 녹음 · 신랑.wav'));
-  W.G._rfFolderFor('BBB002'); const a2 = W.G._vcAiFolder('BBB002'); a2.createFile(nb('AI 소리 · y1.mp3')); W.props.RFGONE_BBB002 = '2026-11-15';   // 옛 판이 루트만 지우고 RFGONE 을 적은 예식
-  const pv = W.G.previewRitualFiles(); const before = live(W).length;
-  const d1 = W.G.purgeRitualFiles(); const L1 = live(W);
-  const d2 = W.G.purgeRitualFiles();
-  ok('76 [RF_PURGE_AI] 미리보기는 아무것도 안 지운다', before === 5 && pv.length === 2, J({ before, pv }));
-  ok('76 [RF_PURGE_AI] 30일 지우기 → 하위 폴더 AI 까지 0개 · 이미 지운 예식도 하위 폴더 한 번 · 다시 돌면 대상 없음', L1.length === 0 && !!W.props.RFGONE_BBB001 && !!W.props.RFAIGONE_BBB002 && d1.length === 2 && d2.length === 0, J({ L1, d1, d2 })); }
+/* 76 — 30일 지우기 · 하위 폴더 AI → ★[PURGE_POLICY_1106 2026-11-06] 매일 07시 정리(70_journey _pgVoiceFiles_ · 영구 삭제 · 시험 모드)로 옮겼다 — scripts/audit/purge-policy.mjs 가 잰다 */
 
 /* 78 — 잠금 실패에도 합쳐 쓰기 */
 { const W = boot('2026-10-08T01:00:00Z'), c = 'CCC001';

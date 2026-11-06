@@ -1886,8 +1886,8 @@ function sendArchiveExpiryNotices() { _trigIn_(arguments[0]);
     if (!rec.결과물전달일) continue;
     var p = String(rec.결과물전달일).slice(0, 10).split('-');
     if (p.length !== 3) continue;
-    var exp = new Date(Number(p[0]), Number(p[1]) - 1 + 6, Number(p[2]));        // 전달일 +6개월 = 보관 만료일
-    var expYmd = exp.getFullYear() + '-' + ('0' + (exp.getMonth() + 1)).slice(-2) + '-' + ('0' + exp.getDate()).slice(-2);
+    var expYmd = _pgAddMonths_(String(rec.결과물전달일).slice(0, 10), PG.MONTHS);   // ★[PURGE_POLICY_1106] 전달일 + 달력 6개월(말일 넘김 없음 · 8/31 → 2/28) = 보관 만료일 · 삭제(_pgResults_)와 같은 식
+    if (!expYmd) continue;
     var left = _dayDiff(expYmd, today);
     if (left == null) continue;
     var code = String(row[c('개인코드') - 1] || '').trim();
@@ -1910,16 +1910,8 @@ function sendArchiveExpiryNotices() { _trigIn_(arguments[0]);
       });
       try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
     }
-    // (2) 만료 경과 + 통지 후 7일 지난 뒤 1회 결과물 링크 자동 제거(처리방침 6개월 삭제 이행 · 마이페이지 노출 종료).
-    //   ★계약서 12조③(만료 7일 전 통지 후 삭제) 이행 — 통지일(보관만료통지) 기준 7일이 지나야 삭제.
-    //     이로써 도입 첫 실행에 만료 지난 기존 건도 '통지 → 최소 7일 유예 → 삭제'를 보장(당일 통지+익일 삭제 방지).
-    //   ★Drive 원본 파일 자체는 코드가 지우지 않음(오삭제 방지) → 관리자가 확인 후 수동 삭제. 링크만 데이터에서 비움.
-    var _sinceNotice = rec.보관만료통지 ? _dayDiff(today, String(rec.보관만료통지).slice(0, 10)) : null;
-    if (!rec.결과물파기 && rec.보관만료통지 && left < 0 && _sinceNotice != null && _sinceNotice >= 7) {
-      ['원본링크', '영상링크', '보정본폴더'].forEach(function (h) { if (colOf[h]) writeCell(sheet, colOf, rowNum, h, ''); });
-      _stampConsentKey(sheet, colOf, rowNum, function (fresh) { fresh.결과물파기 = fmtKST(new Date()); });
-      try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 링크 자동 제거'); } catch (e3) {}
-    }
+    /* (2) 링크 · 원본 삭제는 매일 07시 정리(_pgResults_ · [PURGE_POLICY_1106])로 옮겼다 — 종전엔 여기서 링크만 비우고 «결과물파기»를 적어
+       드라이브 원본과 원본폴더ID(고객 갤러리)가 남았다. 통지 뒤 7일 · 만료일 지남 · 원본까지 영구 삭제 · 다 지웠을 때만 «결과물파기». 되살리지 말 것 */
   }
 }
 
@@ -1966,7 +1958,7 @@ function weeklyBackup() { _trigIn_(arguments[0]);
     var files = folder.getFiles(), arr = [];
     while (files.hasNext()) arr.push(files.next());
     arr.sort(function (a, b) { return b.getDateCreated().getTime() - a.getDateCreated().getTime(); });
-    for (var i = 8; i < arr.length; i++) { try { arr[i].setTrashed(true); } catch (e) {} }
+    /* ★[PURGE_POLICY_1106] 8개 밖 사본은 휴지통이 아니라 매일 정리(_pgBackups_)가 영구 삭제한다 — 여기선 지우지 않는다 */
     Logger.log('weeklyBackup 완료: ' + stamp + ' · 보관 ' + Math.min(arr.length + 1, 8) + '개');
     return { ok: true, at: stamp };
   } catch (e) {
@@ -1976,6 +1968,219 @@ function weeklyBackup() { _trigIn_(arguments[0]);
     return { ok: false, error: String(e && e.message) };
   }
 }
+/* ═══════════════ 자료 정리를 처리방침 문구에 맞춘다 [PURGE_POLICY_1106] ═══════════════
+   ★2026-11-06 사장님 결정 3 = A — «처리방침 · 계약서 문구는 그대로 두고 시스템을 문구에 맞춘다».
+   ① 기준일 · 기간(처리방침 글자 그대로 · 달력 개월)
+      하객 사진 = 결과물 인도 완료(동의기록.결과물전달일) 후 6개월 · 두 분 목소리 파일 = 예식 뒤 30일 ·
+      식전 영상 = 예식 후 6개월 이내 · 결과물 = 인도 완료 후 6개월 · 스냅 참고 사진(처리방침 356) = 예식 후 6개월 이내.
+      주 1회(월요일)가 아니라 매일 07시(vimeoGuardDaily · 87_letter)에 돈다 — 날짜가 밀리지 않게.
+   ② 영구 삭제 — 휴지통(setTrashed)이 아니라 드라이브 API 로 지운다(_pgGone_) · 결과물은 링크만이 아니라 원본 파일까지.
+      지난 백업 사본(ME_백업 · 최근 8개 밖)도 영구 삭제.
+   ③ 실패 처리(L18) — 지우지 못했으면 «지움 · RFGONE · 결과물파기»를 적지 않고 식별자(폴더 ID · 링크)를 남겨 다음 날 다시 한다 · 실패는 바로 관리자 메일.
+   ④ 건수 — 날마다 종류별 «대상 · 지움 · 실패»만 «자료정리기록» 시트에(내용 · 이름 없이).
+   ⑤ 시험 모드 — 스크립트 속성 PURGE_LIVE='Y' 전에는 지울 목록과 건수만 만들고 아무것도 지우지 않는다(드라이브 접근만 확인).
+      건수를 보신 뒤 편집기에서 purgeLiveOn(70_journey) 한 번 · 다시 시험으로는 purgeLiveOff.
+   ★되살리지 말 것 — 휴지통 보내기로 «지웠다» 적기 · 오류를 삼키고 지운 표시 · 예식일+180일 같은 날수 고정. */
+var PG = { LIVE: 'PURGE_LIVE', LOG: '자료정리기록', MONTHS: 6, VOICE_DAYS: 30, BACKUP_KEEP: 8 };
+function _pgLive_() { try { return PropertiesService.getScriptProperties().getProperty(PG.LIVE) === 'Y'; } catch (e) { return false; } }
+// 달력 개월 — 말일이 없으면 그 달의 마지막 날(8/31 + 6개월 = 2/28 · 종전 Date 넘김은 3/3)
+function _pgAddMonths_(ymd, n) {
+  var p = String(ymd || '').slice(0, 10).split('-'); if (p.length !== 3) return '';
+  var y = +p[0], m = +p[1] - 1 + n, d = +p[2]; if (!y || !(d > 0)) return '';
+  y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+  var last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return y + '-' + ('0' + (m + 1)).slice(-2) + '-' + ('0' + Math.min(d, last)).slice(-2);
+}
+function _pgAddDays_(ymd, n) { var t = Date.parse(String(ymd || '').slice(0, 10) + 'T00:00:00Z'); if (isNaN(t)) return ''; return new Date(t + n * 86400000).toISOString().slice(0, 10); }
+// 드라이브 링크 · ID → ID
+function _pgIdOf_(v) {
+  v = String(v || '').trim(); if (!v) return '';
+  var m = v.match(/\/folders\/([\w-]{20,})/) || v.match(/\/file\/d\/([\w-]{20,})/) || v.match(/[?&]id=([\w-]{20,})/) || v.match(/^([\w-]{20,})$/);
+  return m ? m[1] : '';
+}
+/* 영구 삭제(드라이브 API · 폴더면 안의 것까지) — live 가 아니면 «지울 수 있나»만 본다(GET).
+   돌려주는 값: 'ok'(지움 · 시험이면 지울 수 있음) · 'gone'(이미 없음 = 지운 것으로 센다) · 'fail:<HTTP>' */
+function _pgGone_(id, live) {
+  id = String(id || '').trim(); if (!id) return 'gone';
+  var u = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(id) + '?supportsAllDrives=true' + (live ? '' : '&fields=id');
+  try {
+    var r = UrlFetchApp.fetch(u, { method: live ? 'delete' : 'get', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } });
+    var c = r.getResponseCode();
+    if (c === 204 || c === 200) return 'ok';
+    if (c === 404) return 'gone';
+    return 'fail:' + c;
+  } catch (e) { return 'fail:x'; }
+}
+function _pgNew_(kind) { return { kind: kind, target: 0, done: 0, fail: 0, codes: [] }; }
+function _pgHit_(o, res, code) { o.target++; if (res === 'ok' || res === 'gone') o.done++; else { o.fail++; if (o.codes.length < 30) o.codes.push(String(code || '') + '(' + res + ')'); } }
+
+// (1) 하객 사진 — 인도 완료 후 6개월 · 폴더 영구 삭제 · 지웠을 때만 하객사진폴더ID 를 비운다(장수 기록은 남김)
+function _pgGuestPhotos_(live, today) {
+  var o = _pgNew_('하객 사진'), sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf['하객사진폴더ID'] || !colOf['동의기록']) return o;
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return o;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  for (var i = 0; i < vals.length; i++) {
+    var r = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
+    var fid = String(r.get('하객사진폴더ID') || '').trim(); if (!fid) continue;
+    var dl = String(_parseJsonSafe(r.get('동의기록')).결과물전달일 || '').slice(0, 10); if (!dl) continue;   // 인도 전 = 대상 아님
+    var due = _pgAddMonths_(dl, PG.MONTHS); if (!due || today < due) continue;
+    var res = _pgGone_(fid, live); _pgHit_(o, res, r.get('개인코드'));
+    if (live && (res === 'ok' || res === 'gone')) touchCustomer(sheet, colOf, r.num, { '하객사진폴더ID': '' });
+  }
+  return o;
+}
+// (2) 두 분 목소리 파일 — 예식 뒤 30일 · 폴더 안 파일 전부(하위 AI 폴더 · 휴지통에 있던 것까지) 영구 삭제 · 다 지웠을 때만 RFGONE
+function _pgVoiceFiles_(live, today) {
+  var o = _pgNew_('목소리 파일'), props = PropertiesService.getScriptProperties(), all = props.getProperties();
+  var days = +(all.RITUAL_FILE_PURGE_DAYS || PG.VOICE_DAYS) || PG.VOICE_DAYS;
+  var list = function (fo, out) { var it = fo.getFiles(); while (it.hasNext()) out.push(it.next().getId()); var fs = fo.getFolders(); while (fs.hasNext()) { var s = fs.next(); out.push('/' + s.getId()); list(s, out); } return out; };
+  Object.keys(all).forEach(function (k) {
+    if (k.indexOf('RF_') !== 0) return;   // RFOK_ · RFGONE_ 등은 RF_ 로 시작하지 않는다(RF 뒤가 밑줄이 아니다)
+    var code = k.slice(3);
+    if (all['RFGONE_' + code] && all['RFPERM_' + code]) return;   // 영구 삭제까지 끝난 예식
+    var due = '';
+    if (!all['RFGONE_' + code]) {
+      var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null, wy = cust ? _ymdOf(cust.get('예식일')) : '';
+      if (!wy) return; due = _pgAddDays_(wy, days); if (!due || today < due) return;
+    }   // 옛 판이 휴지통으로만 보낸 예식(RFGONE · RFPERM 없음)은 남은 것을 영구 삭제로 한 번 더
+    var ids = [], bad = '';
+    try { ids = list(DriveApp.getFolderById(all[k]), []); } catch (e) { bad = 'fail:folder'; }
+    if (bad) { _pgHit_(o, bad, code); return; }
+    var okAll = true, worst = 'ok';
+    ids.filter(function (x) { return x.charAt(0) !== '/'; }).forEach(function (fid) { var r0 = _pgGone_(fid, live); if (r0.indexOf('fail') === 0) { okAll = false; worst = r0; } });
+    _pgHit_(o, okAll ? 'ok' : worst, code);
+    if (!live || !okAll) return;
+    if (!all['RFGONE_' + code]) { props.setProperty('RFGONE_' + code, today); props.setProperty('RFAIGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {} try { _vcPurge(code); } catch (e) {} }
+    props.setProperty('RFPERM_' + code, today);
+  });
+  return o;
+}
+// (3) 식전 영상 — 예식 후 6개월 · 폴더 영구 삭제 · 지웠을 때만 «지움» · 시트 초안을 비운다
+function _pgPrevideo_(live, today) {
+  var o = _pgNew_('식전 영상');
+  if (typeof _pvSheet_ !== 'function') return o;
+  var sh = _pvSheet_(), last = sh.getLastRow(); if (last < 2) return o;
+  var vals = sh.getRange(2, 1, last - 1, PV_HEAD.length).getValues();
+  for (var i = 0; i < vals.length; i++) {
+    var code = String(vals[i][0] || '').trim(); if (!code || String(vals[i][1] || '') === '지움') continue;
+    var m = {}; try { m = JSON.parse(String(vals[i][4] || '{}')) || {}; } catch (e) { m = {}; }
+    if (!m.folder && !String(vals[i][3] || '').replace(/[{}"\s]/g, '')) continue;
+    var cust = null; try { cust = findCustomerByCode(code); } catch (e) {}
+    var wed = cust ? _ymdOf(cust.get('예식일')) : '';
+    if (!cust) { _pgHit_(o, 'fail:no-customer', code); continue; }   // 고객 줄을 못 찾으면 «영영 빠짐»이 아니라 실패로 센다
+    if (!wed) continue;
+    var due = _pgAddMonths_(wed, PG.MONTHS); if (!due || today < due) continue;
+    var res = m.folder ? _pgGone_(String(m.folder), live) : 'ok'; _pgHit_(o, res, code);
+    if (live && (res === 'ok' || res === 'gone')) sh.getRange(i + 2, 2, 1, PV_HEAD.length - 1).setValues([['지움', '', '{}', JSON.stringify({ purged: fmtKST(new Date()) }), fmtKST(new Date())]]);
+  }
+  return o;
+}
+// (4) 결과물 — 인도 완료 후 6개월 · 7일 전 통지(sendArchiveExpiryNotices)를 보낸 뒤 7일이 지나면 원본까지 영구 삭제 · 다 지웠을 때만 링크 · ID 를 비우고 «결과물파기»
+//     옛 판이 링크만 비우고 «결과물파기»를 적은 예식은 남은 원본폴더ID 를 이번에 지운다
+function _pgResults_(live, today) {
+  var o = _pgNew_('결과물'), sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf['동의기록']) return o;
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return o;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var H = ['원본폴더ID', '원본링크', '보정본폴더', '영상링크'];
+  for (var i = 0; i < vals.length; i++) {
+    var r = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i), rec = _parseJsonSafe(r.get('동의기록'));
+    var dl = String(rec.결과물전달일 || '').slice(0, 10); if (!dl) continue;
+    var ids = {}; H.forEach(function (h) { if (colOf[h]) { var id = _pgIdOf_(r.get(h)); if (id) ids[id] = 1; } });
+    var links = H.some(function (h) { return colOf[h] && String(r.get(h) || '').trim(); });
+    if (rec.결과물파기 && !Object.keys(ids).length) continue;   // 끝난 예식
+    if (!rec.결과물파기) {
+      var due = _pgAddMonths_(dl, PG.MONTHS); if (!due || today < due) continue;
+      var since = rec.보관만료통지 ? _dayDiff(today, String(rec.보관만료통지).slice(0, 10)) : null;
+      if (since == null || since < 7) continue;   // 계약서 12조③ — 통지 뒤 7일
+      if (!links) continue;
+    }
+    var okAll = true, worst = 'ok';
+    Object.keys(ids).forEach(function (id) { var x = _pgGone_(id, live); if (x.indexOf('fail') === 0) { okAll = false; worst = x; } });
+    _pgHit_(o, okAll ? 'ok' : worst, r.get('개인코드'));
+    if (!live || !okAll) continue;
+    var up = {}; H.forEach(function (h) { if (colOf[h]) up[h] = ''; }); touchCustomer(sheet, colOf, r.num, up);
+    if (!rec.결과물파기) _stampConsentKey(sheet, colOf, r.num, function (fresh) { fresh.결과물파기 = fmtKST(new Date()); });
+    try { _recordHandler(String(r.get('개인코드') || ''), '결과물 보관 만료 · 원본까지 영구 삭제'); } catch (e) {}
+  }
+  return o;
+}
+// (5) 스냅 참고 사진 — 예식 후 6개월 이내 · 폴더 영구 삭제 · 지웠을 때만 링크 · 메모 · 올린 목록을 비운다(purgeSnapRefs 의 본문)
+function _pgSnap_(live, today) {
+  var o = _pgNew_('스냅 참고'), sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf[PROD_META_COL]) return o;
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return o;
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues(), Pr = PropertiesService.getScriptProperties();
+  for (var i = 0; i < vals.length; i++) {
+    var r = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
+    var wed = _ymdOf(r.get('예식일')); if (!wed) continue;
+    var due = _pgAddMonths_(wed, PG.MONTHS); if (!due || today < due) continue;
+    var raw = String(r.get(PROD_META_COL) || ''); if (raw.indexOf('snapMeta') === -1 && String(r.get(PROD_TRACK_COL.snap) || '').indexOf('"zones"') === -1) continue;
+    var code = String(r.get('개인코드') || '').trim(); if (!code) continue;
+    var d = _prodLoad(r), m = d.snapMeta || {}, sd = d.snapDraft || {};
+    var has = !!(m.folder || _snapArr(m.uploads).length || (m.brief && m.brief.t) || String(sd.note || '') || ['candle', 'white'].some(function (k) { var z = (sd.zones || {})[k] || {}; return _snapArr(z.ups).length || _snapArr(z.links).length || String(z.note || ''); }));
+    if (!has) continue;
+    var res = m.folder ? _pgGone_(String(m.folder), live) : 'ok'; _pgHit_(o, res, code);
+    if (!live || res.indexOf('fail') === 0) continue;
+    var lock = LockService.getScriptLock();
+    try { lock.waitLock(15000); } catch (e) { o.done--; o.fail++; o.codes.push(code + '(fail:busy)'); continue; }
+    try {
+      var cust = findCustomerByCode(code); if (!cust) continue;
+      var _dl = _prodDraftLoadSafe(cust, code, [], 'snap'); if (!_dl.ok) { o.done--; o.fail++; o.codes.push(code + '(fail:load)'); continue; }
+      var d2 = _dl.d, m2 = d2.snapMeta = d2.snapMeta || {}, sd2 = d2.snapDraft = d2.snapDraft || {};
+      if (m2.brief && m2.brief.t) { try { Pr.deleteProperty('SNAPBRIEF_' + m2.brief.t); } catch (e) {} }
+      delete m2.folder; delete m2.brief; m2.uploads = []; m2.purgedAt = fmtKST(new Date());
+      if (sd2.zones) ['candle', 'white'].forEach(function (k) { var z = sd2.zones[k]; if (z) { z.ups = []; z.links = []; delete z.note; } });
+      if (sd2.note !== undefined) sd2.note = '';
+      var _pk = _prodPack(d2, { track: 'snap', cust: cust }); if (_pk.err) { o.done--; o.fail++; o.codes.push(code + '(fail:pack)'); continue; }
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d2, {}, { pack: _pk }));
+    } finally { try { lock.releaseLock(); } catch (e) {} }
+  }
+  return o;
+}
+// (6) 지난 백업 사본 — 최근 8개 밖은 영구 삭제(휴지통에 30일 더 남지 않게)
+function _pgBackups_(live) {
+  var o = _pgNew_('백업 사본');
+  try {
+    var it = DriveApp.getFoldersByName('ME_백업'); if (!it.hasNext()) return o;
+    var files = it.next().getFiles(), arr = [];
+    while (files.hasNext()) arr.push(files.next());
+    arr.sort(function (a, b) { return b.getDateCreated().getTime() - a.getDateCreated().getTime(); });
+    var live0 = arr.filter(function (f) { return !f.isTrashed(); });
+    var drop = live0.slice(PG.BACKUP_KEEP).concat(arr.filter(function (f) { return f.isTrashed(); }));
+    drop.forEach(function (f) { _pgHit_(o, _pgGone_(f.getId(), live), f.getName().slice(-10)); });
+  } catch (e) { _pgHit_(o, 'fail:list', ''); }
+  return o;
+}
+// 하루 정리 — 종류마다 따로(하나가 멈춰도 나머지는 돈다) · 건수 시트 · 실패는 바로 관리자 메일
+function _purgeDaily_(forceDry) {
+  var live = !forceDry && _pgLive_(), today = _kstYmd(new Date()), out = [];
+  [['하객 사진', _pgGuestPhotos_], ['목소리 파일', _pgVoiceFiles_], ['식전 영상', _pgPrevideo_], ['결과물', _pgResults_], ['스냅 참고', _pgSnap_], ['백업 사본', function (lv) { return _pgBackups_(lv); }]].forEach(function (k) {
+    var o; try { o = k[1](live, today); } catch (e) { o = _pgNew_(k[0]); o.fail = 1; o.codes.push('(fail:' + String(e && e.message || e).slice(0, 60) + ')'); }
+    out.push(o);
+  });
+  try {
+    var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(PG.LOG) || ss.insertSheet(PG.LOG);
+    if (sh.getLastRow() < 1) sh.appendRow(['날짜', '모드', '종류', '대상', live ? '지움' : '지움(시험: 지울 수 있음)', '실패']);
+    out.forEach(function (o) { sh.appendRow([today, live ? '실제' : '시험', o.kind, o.target, o.done, o.fail]); });
+  } catch (e) { Logger.log('[자료정리기록] ' + (e && e.message)); }
+  var bad = out.filter(function (o) { return o.fail; });
+  if (bad.length) {
+    try { _nfAdminEmail('[Moment Edit] 자료 정리 실패 ' + bad.reduce(function (s, o) { return s + o.fail; }, 0) + '건' + (live ? '' : ' (시험 모드)'),
+      bad.map(function (o) { return _pgEsc_(o.kind + ' · 실패 ' + o.fail + '건 · ' + o.codes.join(', ')); }).join('<br>') +
+      '<br><br>지우지 못한 것은 표시를 바꾸지 않고 내일 다시 해요. 개인코드와 까닭(HTTP 코드)만 적었어요.'); } catch (e) {}
+  }
+  Logger.log('[purgeDaily] ' + (live ? '실제' : '시험') + ' · ' + out.map(function (o) { return o.kind + ' 대상 ' + o.target + ' · 지움 ' + o.done + ' · 실패 ' + o.fail; }).join(' / '));
+  return { live: live, rows: out.map(function (o) { return { kind: o.kind, target: o.target, done: o.done, fail: o.fail }; }) };
+}
+function _pgEsc_(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+// 편집기 도구 — 지금 시험으로 한 번(아무것도 안 지움) · 실제 삭제 켜기 · 끄기
+function purgeTestRun() { _requireAdmin();   /* [PURGE_POLICY_1106] */
+  var r = _purgeDaily_(true); Logger.log(JSON.stringify(r)); return r; }
+function purgeLiveOn() { _requireAdmin(); PropertiesService.getScriptProperties().setProperty(PG.LIVE, 'Y'); Logger.log('자료 정리 · 실제 삭제를 켰어요(다음 07시부터)'); return 'on'; /* [PURGE_POLICY_1106] */ }
+function purgeLiveOff() { _requireAdmin(); PropertiesService.getScriptProperties().deleteProperty(PG.LIVE); Logger.log('자료 정리 · 시험 모드로 돌렸어요'); return 'off'; /* [PURGE_POLICY_1106] */ }
+
 /* ★[TRIG_IN 2026-10-09 · B19] 예약 실행 15개의 첫 줄 — 정말 예약 실행인지 본 뒤 _TRUST 를 켠다(기획 16-4).
    ① 이미 믿는 실행 안(관리 화면 · 서버 길에서 불렀다) → 통과
    ② 시트 편집 이벤트(진짜 범위 객체가 있다) → 통과
