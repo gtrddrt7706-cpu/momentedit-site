@@ -1709,6 +1709,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .sv-top{margin:0 0 12px}
 .sv-b{margin:0 0 16px}
 .sv-h{margin:0 0 6px;font-family:var(--ko-serif);font-size:16px;font-weight:600;color:var(--accent);word-break:keep-all}
+.role-copy{width:100%;box-sizing:border-box;margin:0 0 10px;font-size:16px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}   /* [B5_PN03] 복사 실패 창 — 고를 수 있게 · 16px(iOS 확대 방지) */
 .sv-l{margin:0 0 6px;font-size:14px;line-height:1.65;color:var(--ink2);word-break:keep-all}
 .sv-l b{color:var(--accent)}
 .sv-q{color:var(--light);font-size:12.5px}
@@ -6033,6 +6034,7 @@ function _narSrc(key){ if(!ENG||!ENG.RitualCue) return null; var s2=JSON.parse(J
 window.mkNarPlay=function(key){ var u=_narSrc(key); if(!u){ MK.toast='스튜디오 나레이션 소리를 찾지 못했어요'; render(); return; } _stopAud(); _stopMk(); _lpHush(); try{ var a=new Audio(); _playLead(a,u,1,null); MK.aud=a; }catch(e){ /* [PLAY_LEAD] */} };
 function _dlgModel(){
   if(MK.scriptView) return {t:'글로 한눈에 보기',body:_svBody()};   // [SCRIPT_VIEW_1018]
+  if(MK.roleCopy) return {t:'역할 전달하기',body:_roleCopyBody()};   // [B5_PN03] 복사 실패 — 고를 수 있는 글 · 링크
   if(VC.panel){ var w0=VC.panel.who; return {t:VC_TXT.title(_vcName(w0)),step:0,body:_vcConsentPanel(w0)}; }
   if(VC.tune&&!VC.read) return {t:_vcName(VC.tune.who)+' 님 목소리 맞추기',body:_vcTuneBody()};   // [VOICE_TUNE] 카드에서 «들어 보고 맞추기»
   if(VC.read){ var R=VC.read; return {t:VC_TXT.title(_vcName(R.who)),step:(R.ph==='busy'||R.ph==='done'||R.ph==='tune')?3:(R.step||1),body:_vcReadPanel(R.who)}; }
@@ -6068,6 +6070,7 @@ document.addEventListener('keydown',function(e){ var d=document.getElementById('
     if(e.shiftKey&&i<=0){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&(i===f.length-1||i<0)){ e.preventDefault(); f[0].focus(); } } });
 window.mkDlgClose=function(){ var R=VC.read, r=MK_REC;
   if(MK.scriptView){ MK.scriptView=false; render(); return; }   // [SCRIPT_VIEW_1018]
+  if(MK.roleCopy){ MK.roleCopy=null; render(); return; }   // [B5_PN03]
   if(MK.redo){ MK.redo=false; render(); return; }   // [REDO_FIG]
   if(MK.keepDlg){ if(MK.keepTip){ MK.keepTip=false; _tipSeen('keep'); } MK.keepDlg=null; render(); return; }   // [KEEP_DLG] · [TIP_ONCE]
   if(MK.muGuide){ MK.muGuide=false; render(); return; }   // [ENTRY_MUSIC_1012] 올리기 안내 — 창만 닫는다([GUIDE_OK] «알겠어요» · 파일 창은 «곡 파일 올리기»를 다시 눌러서) 처음 창은 본 것만 기억하고 그냥 닫는다(움직임 없음)
@@ -8747,8 +8750,14 @@ function _prRoleTxt(o,url){ var L=['['+o.t+']']; if(o.w) L.push(o.w); if(o.p) L.
   o.m.forEach(function(m){ L.push('','· '+m.n); m.s.forEach(function(x){ L.push(/^(읽으실 글|덕담 원고)/.test(x[0])?x[0]+'\n'+x[1]:x[0]+' · '+x[1]); }); });   /* [B2_NA_04] 덕담 원고도 글 칸 */
   L.push('','읽기 전용으로 보기 '+url); return L.join('\n'); }
 window.prRole=function(id){ var o=_prRoleOf(id); if(!o){ toast('전달할 순서가 없어요'); return; } var url=_prRoleUrl(o), t=_prRoleTxt(o,url);
-  try{ if(navigator.share&&/Mobi|Android|iPhone/i.test(navigator.userAgent||'')){ navigator.share({title:o.t,text:t}).then(function(){},function(){}); return; } }catch(e){}
-  try{ navigator.clipboard.writeText(t).then(function(){ toast('글과 링크를 복사했어요'); },function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };
+  /* ★[B5_PN03 2026-11-06 5차 P v2 P-N03] 복사하지 못하면 고를 수 있는 창에 그 역할 글과 읽기 전용 링크를 그대로 보여 준다(종전엔 «길게 눌러 복사해 주세요» 알림뿐 · 길게 누를 글이 없었다) ·
+       «복사했어요»는 실제로 복사된 뒤에만 · 공유 창에서 취소(AbortError)는 오류가 아니다(아무 말 없음) · 공유가 다른 까닭으로 안 되면 같은 창 */
+  var _fail=function(){ MK.roleCopy={t:t,url:url}; render(); };
+  try{ if(navigator.share&&/Mobi|Android|iPhone/i.test(navigator.userAgent||'')){ navigator.share({title:o.t,text:t}).then(function(){},function(e){ if(e&&e.name==='AbortError') return; _fail(); }); return; } }catch(e){}
+  try{ navigator.clipboard.writeText(t).then(function(){ toast('글과 링크를 복사했어요'); },_fail); }catch(e){ _fail(); } };
+function _roleCopyBody(){ var r=MK.roleCopy||{}; return '<p class="mk-note" role="alert">복사하지 못했어요. 아래 글을 길게 눌러 복사해 주세요.</p>'
+  +'<textarea class="ta role-copy" readonly rows="10" aria-label="전달할 글" onfocus="this.select()">'+esc(r.t)+'</textarea>'
+  +'<p class="mk-note">읽기 전용 링크</p><input class="tin role-copy" type="text" readonly value="'+esc(r.url)+'" aria-label="읽기 전용 링크" onfocus="this.select()">'; }   /* [B5_PN03] */
 window.prResume=function(){ var o=_prAtGet(); if(!o){ _prRzSync(); return; }   /* [B2_NA_18] */ PRW=(o.way==='try'?'try':'flow'); LP.listOpen=false; LP.only=null;
   _ptGate(function(){ LP.fast=false; LP.noChips=false; LP.startK=o.k; LP.startN=o.n|0; _lOpenBig(); _lStart(_lRows(),true); _lFull(); }); };
 window.prPrev=function(){ var j=LP.i-1; if(j<0||!LP.q[j]) return; LP.wait=null; LP.prepDone=null; LP.prep=null; LP.i=j; LP.paused=false; LP.hint=null; LP.stay=null; try{ _lUnlock(); }catch(e){} _lShow(); };
