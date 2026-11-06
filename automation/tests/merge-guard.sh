@@ -13498,7 +13498,8 @@ nochk "'링크·QR'):'준비 전'" mypage.html 0
 chk "need===true?'미완료':(need||'아직 정하지 않음')" mypage.html 1
 chk "line('식순', rv, true)" mypage.html 1
 chk "line('좌석 · 음료', fv, true)" mypage.html 1
-chk "'식사·좌석을 채우면 자동으로 생겨요'" mypage.html 1
+nochk "'식사·좌석을 채우면 자동으로 생겨요'" mypage.html 0   # [GUIDE_ALL_EVENTS_1106 4차 G01] 링크는 모든 예식에 생긴다([B2_MA_02] 서버 _guideTokenEnsure_) — 확인서 빈 줄은 «자동으로 생겨요»(«아직 정하지 않음» 대신 쓰는 ⑭ 규칙은 그대로)
+chk "line('하객 안내', p.guideToken?'링크 준비됨':'', '자동으로 생겨요')" mypage.html 1
 nochk '">미완료</span>' mypage.html 0
 # [EG_DASH_NOTE] 사장님 결정 ⑮ — 3/4 예시(점선 그림)는 그대로 두고 아래 한 줄
 chk '<div class="inv-onep-note">점선은 이름·날짜가 바뀌는 자리예요 · 실제 청첩장에는 없어요</div>' mypage.html 1
@@ -14706,7 +14707,7 @@ chk '\.snp-pv-ph ~ \.snp-pv-n{background:#fff;color:var(--sub)' mypage.html 1
 nochk 'box-sizing:border-box;padding:14px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65' mypage.html 0
 chk 'SNAP_EDIT_UNTIL' mypage.html 3
 chk "eu=new Date(wu-4\*864e5)" mypage.html 1
-chk "(_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.')" mypage.html 1
+chk "_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.')" mypage.html 1   # [SNAP_DUE_TODAY_1106] 앞에 «오늘까지» 갈래가 붙었다
 chk "까지는 언제든 고칠&nbsp;수 있어요." mypage.html 1
 nochk '예식&nbsp;3일&nbsp;전까지는 언제든 고칠 수 있어요' mypage.html 0
 nochk '스냅 기획은 예식 3일 전까지 고르실 수 있어요' mypage.html 0
@@ -21513,6 +21514,19 @@ nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
 chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
 # ★[MK_HEAD_PILL 1101 사장님 PC «좀 이상한데»] 상태 단추 = 도구와 같은 알약(테 · 카드 바탕 · 44 · 12.5/500) · 자리가 되면 한 줄(.one) · 모자라면 두 층(모서리 22) · 꺾쇠는 글 바로 뒤
 chk 'MK_HEAD_PILL' order-preview.html 3
+# ★[4차 마이페이지 1106 · 대본 분배] M10 스냅 마감 당일 · M11 확인서 애프터 웨딩 공개 상태 · M13 옛 영상 만들기 «분위기» 한 이름 · M18 예약 시각 확인 · G01 하객 안내는 모든 예식
+chk 'SNAP_DUE_TODAY_1106' mypage.html 1
+chk 'late:days<14, today:days===14, lock:days<=3' mypage.html 1
+nochk 'late:days<=14, lock:days<=3' mypage.html 0
+chk 'DN_CONF_PUB_1106' mypage.html 3
+chk "dv='후보 '+_fn+'곳 · 하객에게 공개한 곳 없음'" mypage.html 1
+chk 'function _dnPubFavs(dd)' mypage.html 1
+nochk "    } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';" mypage.html 0
+chk "var PVC_STEPS=\['분위기','사진','음악','확인'\];" mypage.html 1
+nochk "_pvcBtn('이 스타일로'" mypage.html 0
+chk 'RSV_TIME_CHK_1106' mypage.html 5
+chk 'function _dnRtBad(t)' mypage.html 1
+chk 'GUIDE_ALL_EVENTS_1106' mypage.html 2
 # ★[DRESS_FAB_AFTER_CEREMONY 1102 사장님 «본식 이후에는 드레스 우측 아이콘 레일에 없어져야»] 예식 당일 본식 시작 시각(한국 시각 · 계약 슬롯 → +1h 표 WT_SLOT_MAP)이 지나면 숨김 · 시각 없으면 당일까지 · 검사 scripts/audit/dress-refs.mjs(시계 고정 11가지)
 chk 'DRESS_FAB_AFTER_CEREMONY' mypage.html 5
 chk 'var at=_dressCeremonyAt(d); if(at!=null&&Date.now()>=at) return false;' mypage.html 1
