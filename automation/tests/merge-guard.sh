@@ -21435,7 +21435,7 @@ chk "'두 분이 양가 부모님 모두와 차례로 안아요 · 부모님은 
 chk "(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요'" order-preview.html 1
 chk "문장 틀은 참고하되 이름 · 관계 · 경험은 " order-preview.html 2
 chk "'<span>연습 약 '+_mins+'분" order-preview.html 1
-chk "'약 '+Math.max(1,Math.round(hi/60))+'분'" order-preview.html 1   # [TABLE_PLUS_192] «당일 + 약 n분»
+chk "'당일 '+(k==='table'?'+ ':'')+R.secTxt(sec)" order-preview.html 1   # [TABLE_PLUS_192] «당일 + 약 n분» · [B2_FIX_GEUL_30 2026-11-06] 시간은 ② 와 같은 자(_flowSec · secTxt)
 chk "'당일 예상 · 본식 '+p.body" order-preview.html 1
 chk "txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요'" order-preview.html 1
 chk "txt:'하객의 화답을 기다리며 두 분도 함께 잔을 들어요'" order-preview.html 1
@@ -22769,3 +22769,6 @@ chk 'B2_FIX_NA_02' console.html 1
 chk 'B2_FIX_NA_20' console.html 1
 nochk '가까운 분들의 목소리로 바뀝니다' console.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r2.mjs >/dev/null 2>&1; _b2r2=$?; node scripts/audit/b2-fix-r2.mjs --selftest >/dev/null 2>&1; _b2r2s=$?; if [ "$_b2r2" = 1 ] || [ "$_b2r2s" = 1 ]; then echo "REVERT? b2-fix-r2: 재검증 재수정 2묶음(서약 차례 · 인용 · 축배 한마디 · 시간 · 이어서 지문 · 360 카드 · 도움말 · 손 대기 · 끝 화면)이 어긋났습니다 ($_b2r2/$_b2r2s) — node scripts/audit/b2-fix-r2.mjs"; fail=1; else echo "ok b2-fix-r2 ($_b2r2)"; fi; fi
+chk 'B2_FIX_NA_02_ORDER' console.html 3
+chk 'B2_FIX_NA_38_ONE' order-preview.html 1
+chk 'B2_FIX_NA_50_375' order-preview.html 1

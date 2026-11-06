@@ -15,7 +15,7 @@ const want38 = ['신랑1', '신부1', '신부2', '신랑3', '신부3'];
 if (process.argv.includes('--selftest')) { srv.close(); const bad = ['신랑1', '신부1', '신랑3', '신부2', '신부3'].join() === want38.join(); console.log(bad ? 'FAIL selftest' : 'ok   selftest 옛 차례(신랑3 이 신부2 앞) = 빨강'); process.exit(bad ? 1 : 0); }
 let br; try { br = await pw.chromium.launch(); } catch (e) { console.log('못 쟀다 — 브라우저 없음'); srv.close(); process.exit(2); }
 const OP = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8'), CO = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8'), MP = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8');
-for (const W of [360, 390]) {
+for (const W of [360, 375, 390]) {
   const ctx = await br.newContext({ viewport: { width: W, height: 900 } }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' })));
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`); await pg.waitForTimeout(700);
@@ -29,13 +29,14 @@ for (const W of [360, 390]) {
     S.tx['vow.g'] = '신랑1\n\n신랑3'; S.txLn['vow.g'] = 1; S.tx['vow.b'] = '신부1\n신부2\n신부3'; S.txLn['vow.b'] = 1;
     try { buildSteps(); } catch (e) {}
     const pr = () => _lRefExpand(_lSteps(ENG, _lRows())).filter((x) => x.k === 'vow' && x.wk).map((x) => x.txt);
-    o.v38 = pr(); o.sigAlt = _prAtSig('vow'); S.vowHow = 'each'; o.sigEach = _prAtSig('vow'); S.vowHow = 'alt';
+    o.v38 = pr(); S.tx['vow.g'] = '\n\n신랑3'; try { buildSteps(); } catch (e) {} o.v38b = pr(); S.tx['vow.g'] = '신랑1\n\n신랑3'; try { buildSteps(); } catch (e) {} o.sigAlt = _prAtSig('vow'); S.vowHow = 'each'; o.sigEach = _prAtSig('vow'); S.vowHow = 'alt';
     o.p41 = _sentPieces('당신은 "괜찮아."라고 말했죠. 고마워요.');
     S.tx['toast.g'] = ''; S.tx['toast.b'] = ''; o.t0 = _lSum('toast'); o.o0 = R.talkOf('toast', S);
     S.tx['toast.b'] = '고맙습니다.'; o.t1 = _lSum('toast'); o.o1 = R.talkOf('toast', S); S.tx['toast.g'] = '감사합니다.'; o.o2 = R.talkOf('toast', S);
     const fs2 = _flowSec('bless'); o.g30 = [_fgMin('bless'), '당일 ' + R.secTxt(Math.round((fs2.lo + fs2.hi) / 2))];
     return o; });
   ok('[B2_FIX_NA_38] 번갈아 서약 연습 = 편지 화면 · 대본 차례에서 빈 차례만 뺀 것', r.v38.join() === want38.join(), r.v38);
+  ok('[B2_FIX_NA_38_ONE] 빈 줄 뒤 한 줄(«\\n\\n신랑3»)도 제 자리 — 신부1 · 신부2 · 신랑3 · 신부3', r.v38b.join() === '신부1,신부2,신랑3,신부3', r.v38b);
   ok('[B2_FIX_NA_03] 읽는 방식(번갈아 ↔ 각자)을 바꾸면 이어서 연습 지문이 바뀐다', !!r.sigAlt && r.sigAlt !== r.sigEach && /^v2:/.test(r.sigAlt), [r.sigAlt, r.sigEach]);
   ok('[B2_FIX_NA_41] 문장 가운데 인용(«"괜찮아."라고 …»)은 한 카드', r.p41.length === 2 && r.p41[0] === '당신은 "괜찮아."라고 말했죠.', r.p41);
   ok('[B2_FIX_NA_51] 축배 한마디 — 아무도 안 적으면 «한마디» 없음 · 신부만이면 «신부 한마디 뒤» · 둘이면 «한마디와 함께»', !/한마디/.test(r.t0) && !/한마디/.test(r.o0) && /^신부 한마디 뒤 두 분이/.test(r.o1) && /신부 한마디 뒤/.test(r.t1) && /^두 분이 한마디와 함께/.test(r.o2), [r.t0, r.t1, r.o1, r.o2]);
