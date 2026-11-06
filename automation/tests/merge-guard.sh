@@ -4779,6 +4779,10 @@ if command -v node >/dev/null 2>&1; then _mvo=$(node scripts/audit/midvideo.mjs 
 fi
 chk 'MID_VIDEO_1106' mypage.html 35
 chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 19
+# ★[MID_FEEL_1107 2026-11-07 대본] 식중 영상의 필메이커 안내 — 쿠폰 걸음 대신 «비용 확인»(두 분 부담 · 쿠폰은 식전에만) · 길이는 식순 분 · 켜진 첫 화면에 «필메이커에서 만들기»
+chk 'MID_FEEL_1107' mypage.html 3
+chk '템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.' mypage.html 1
+chk "if(PVCFLOW.kind==='mid') return _mvcFeel();" mypage.html 1
 chk 'MID_VIDEO_1106' admin.html 3
 chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
 chk 'MID_VIDEO_1106' automation/platform/95_notify.gs 5

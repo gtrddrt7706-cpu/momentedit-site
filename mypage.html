@@ -12060,7 +12060,7 @@ function _mvcStart(){
   var F=PVCFLOW, on=F.on===true, h='';
   h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「준비한 순서」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p>';
   if(on){
-    h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>';
+    h+='<div class="pvc-subs">'+(PVC_FEEL_ON?'<button type="button" class="pvc-lk" data-pvcgo="feel">필메이커에서 만들기</button>':'')+'<button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>';   // [MID_FEEL_1107] 만드는 길 안내
     h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['업체나 직접 만든 영상을 링크로 보내 주세요', '식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요', '제작 비용은 두 분 부담이에요 · 쿠폰 · 기본 템플릿은 식전 영상에만', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';
     h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'));   // [MID_VIDEO_1106 · 검토 1604] 꺼짐 · 켜짐 같은 틀(아래 막대 단추 하나)
     return h;
@@ -12177,6 +12177,7 @@ function _pvcConfirm(){
   return h;
 }
 function _pvcFeel(){   // [PV_FEEL_1106] 필메이커 안내 — 네 걸음 · 이전 / 영상 올리러 가기
+  if(PVCFLOW.kind==='mid') return _mvcFeel();   // [MID_FEEL_1107] 식중은 쿠폰 없이 · 식순 길이에 맞춰
   var h='<h2 class="pvc-h">필메이커에서 만들기</h2><p class="pvc-sub">식전 영상 협력사 필메이커에서 템플릿을 골라 두 분이 직접 만들어요.</p>';
   h+='<ol class="pvc-feel">'
     +'<li><b>템플릿 고르기</b><span>필메이커 «식전영상»에서 마음에 드는 템플릿을 골라요. 사진 장수 · 길이는 템플릿마다 달라요.</span>'
@@ -12186,6 +12187,20 @@ function _pvcFeel(){   // [PV_FEEL_1106] 필메이커 안내 — 네 걸음 · �
     +'<li><b>만들고 내려받기</b><span>사진과 문구를 넣어 완성한 뒤 영상 파일을 내려받아요.</span></li>'
     +'<li><b>여기로 보내기</b><span>«준비한 영상 올리기»에 링크로 보내 주시면 상영을 준비해요.</span></li></ol>';
   h+='<div class="pvc-foot">'+_pvcDots(['만드는 방법은 필메이커 고객센터에서 안내해요.', _pvcDueLine('')])+'</div>';   // [PV_STATE_1106 M21] «별도» 줄은 쿠폰 걸음에 한 번만(BOSS 3 · 중복 빼기)
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('영상 올리러 가기','data-pvcmode="upload"'));
+  return h;
+}
+/* ★[MID_FEEL_1107 2026-11-07 대본 · 식중 영상 안내] 식중 영상의 필메이커 안내 — 비용은 두 분 부담(계약서 3조② 그대로 · 쿠폰 · 기본 템플릿은 식전 영상에만) · 길이는 식순에 정한 분 */
+function _mvcFeel(){
+  var n=(+PVCFLOW.len||3);
+  var h='<h2 class="pvc-h">필메이커에서 만들기</h2><p class="pvc-sub">영상 협력사 필메이커에서 템플릿을 골라 두 분이 직접 만들어요.</p>';
+  h+='<ol class="pvc-feel">'
+    +'<li><b>템플릿 고르기</b><span>식순에 정한 길이('+n+'분)에 맞는 템플릿을 골라요. 사진 장수 · 길이는 템플릿마다 달라요.</span>'
+      +'<a class="pvc-a pvc-feel-go" href="'+escapeHtml(PVC_FEEL_URL)+'" target="_blank" rel="noopener">필메이커 열기</a></li>'
+    +'<li><b>비용 확인</b><span>템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.</span></li>'
+    +'<li><b>만들고 내려받기</b><span>사진과 문구를 넣어 완성한 뒤 영상 파일을 내려받아요.</span></li>'
+    +'<li><b>여기로 보내기</b><span>«식중 영상 올리기»에 링크로 보내 주시면 상영을 준비해요.</span></li></ol>';
+  h+='<div class="pvc-foot">'+_pvcDots(['만드는 방법은 필메이커 고객센터에서 안내해요.', _pvcDueLine('')])+'</div>';
   h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('영상 올리러 가기','data-pvcmode="upload"'));
   return h;
 }
