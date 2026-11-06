@@ -11,7 +11,7 @@ const src = String(G0.purgeAdvisorLog || '');
 // 매단 파기 이름은 함수 본문에서 읽는다(늘면 함께 잰다) — `try { [if (typeof X === 'function') ]X(` 꼴
 const CHAIN = [...new Set([...src.matchAll(/try \{ (?:if \(typeof (\w+) === 'function'\) )?(\w+)\(/g)].map((m) => m[2]).filter((n) => /^purge/.test(n)))];
 // 반드시 매달려 있어야 할 개인정보 · 기록 파기(줄이 빠지면 빨강 — 본문에서 읽은 목록만 믿지 않는다)
-const REQUIRED = ['purgeAwDemandLog', 'purgeAiCostLog', 'purgeLeads', 'purgeStaleCustomers', 'purgeKakaoClicks', 'purgeAiHandoff', 'purgeSmsLog', 'purgeNfTrack', 'purgeSnapRefs', 'purgeRitualFiles'];
+const REQUIRED = ['purgeAwDemandLog', 'purgeAiCostLog', 'purgeLeads', 'purgeStaleCustomers', 'purgeKakaoClicks', 'purgeAiHandoff', 'purgeSmsLog', 'purgeNfTrack'];   // [PURGE_POLICY_1106 2026-11-06] 스냅 참고 · 목소리 파일은 매일 07시 정리로 옮겼다(purge-policy.mjs 가 잰다)
 const lost = REQUIRED.filter((n) => !CHAIN.includes(n));
 if (lost.length) { console.log('━━ purge-chain — 빨강 · 주간 정리에서 빠진 파기: ' + lost.join(' · ') + ' [PURGE_CHAIN_ALWAYS]'); process.exit(1); }
 

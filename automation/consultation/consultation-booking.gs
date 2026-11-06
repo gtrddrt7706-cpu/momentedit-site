@@ -2932,8 +2932,7 @@ function purgeAdvisorLog() { _trigIn_(arguments[0]);
   try { if (typeof purgeAiHandoff === 'function') purgeAiHandoff(); } catch (e) {}   // 97 · 30일 넘긴 '대기' 인계 자동 만료(미처리 알림 누적 방지)
   try { if (typeof purgeSmsLog === 'function') purgeSmsLog(); } catch (e) {}         // 95 · 문자발송로그 180일 정리(20000행 상한 도달 방지)
   try { if (typeof purgeNfTrack === 'function') purgeNfTrack(); } catch (e) {}       // 95 · 알림톡추적(전달결과 매칭) 7일 정리
-  try { if (typeof purgeSnapRefs === 'function') purgeSnapRefs(false); } catch (e) {}
-  try { if (typeof purgeRitualFiles === 'function') purgeRitualFiles(false); } catch (e) {}   // 80 · [REC_PURGE] 예식 30일 뒤 두 분 목소리 파일 지우기(휴지통) // 80 · [SNAP_PURGE] 예식 183일 뒤 스냅 기획의 올린 사진·링크·메모 파기(처리방침 약속)
+  /* ★[PURGE_POLICY_1106 2026-11-06 사장님 결정 3 = A] 스냅 참고 사진([SNAP_PURGE]) · 목소리 파일([REC_PURGE]) 정리는 주간에서 매일 07시로 옮겼다(70_journey _purgeDaily_ · vimeoGuardDaily 가 부른다) — 여기 다시 매달지 말 것 */
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() { _gsr_();
