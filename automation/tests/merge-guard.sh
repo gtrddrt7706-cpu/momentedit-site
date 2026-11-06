@@ -4805,6 +4805,10 @@ chk "head = '식전 영상을 확인해 주세요';" mypage.html 1
 chk "if(F.st==='off') h+='<div class=\"pvc-foot\">'" mypage.html 1
 chk '템플릿 비용 포함 · 추가 옵션 별도' mypage.html 1
 nochk '패키지 포함 · 추가 요금 없음' mypage.html
+# ★[PV_VERIFY_1106 2026-11-06 대본 검증 몫 M06 · M07] 표 원문 그대로 — 식순 어긋남 줄은 「식순」(화면 이름 꼴) · 접수 대기 화면도 «다시 확인» 안내(«이 화면에서 볼 수 있어요»는 화면이 스스로 바뀌는 것처럼 읽혔다)
+chk 'PV_VERIFY_1106' mypage.html 2
+chk '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.' mypage.html 1
+nochk '원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요' mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1
@@ -21940,7 +21944,9 @@ chk "function _fixSteps(kind)" order-preview.html 1
 chk "var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('pre');" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('post');" order-preview.html 1
-chk '늘 포함돼요</span><span class="fx-more">진행 보기</span>' order-preview.html 1
+chk '<span class="fx-s">늘 포함돼요</span></div>' order-preview.html 1   # [PICK_FLOW_ONE_1106] ① 고르기는 한 줄
+nochk 'fx-more">진행 보기' order-preview.html   # ★[PICK_FLOW_ONE_1106] 대본 11/06 사장님 «왜 여기서 설명» — ① 펼침 · 목록 되살리지 말 것
+chk 'PICK_FLOW_ONE_1106' order-preview.html 3
 chk "{t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',after:'전체 단체 사진을 마치면'}" order-preview.html 1
 chk "sub: '한 장 · 현장 진행' }" assets/ritual-open.js 1
 nochk "작가님이 진행해요" order-preview.html
