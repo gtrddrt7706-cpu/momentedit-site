@@ -1593,6 +1593,14 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
    글 칸 폭을 보이지 않는 «이어 듣기»(두 분 목소리 창은 «들어 보기»)에 맞춘다(em-lab-tg · data-w) — 글이 바뀌어도 동그라미 자리 그대로.
    ★왼쪽 고정(옛 [PLAY_ICON_FIXED_1023] · 동그라미를 알약 왼쪽 안쪽에 못 박기) 되살리지 말 것 — 2026-10-23 사용자 지시로 취소 · scripts/audit/scene-words.mjs */
 .em-lab-tg{display:inline-grid;justify-items:start}
+/* ★[LOAD_SHOW_1106] 소리를 받는 동안 — 지금 줄 ▶ 원 자리 · 알약 · 작은 플레이어 ❚❚ 자리에 작은 돌기(14px · 1.5px 테 · 0.9초 한 바퀴 · 줄이는 움직임 설정이면 느리게) · 새 색 없음(currentColor) */
+.ldsp{display:inline-block;flex:none;width:14px;height:14px;box-sizing:border-box;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:ldsp .9s linear infinite;vertical-align:middle}
+@keyframes ldsp{to{transform:rotate(360deg)}}
+.mk-flow li.lp-ld .mk-pl svg,.ls-row.lp-ld .ls-pi svg,.ls-mini .lm-p.lp-ldb svg{visibility:hidden}
+.mk-flow li.lp-ld .mk-pl::after,.ls-row.lp-ld .ls-pi::after,.ls-mini .lm-p.lp-ldb::after{content:'';position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;box-sizing:border-box;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:ldsp .9s linear infinite}
+.ls-mini .lm-p.lp-ldb{position:relative}
+.lp-ldnote{display:block;margin:4px 0 0;font-size:12.5px;line-height:1.5;color:var(--sub);font-weight:400;word-break:keep-all}   /* [LOAD_SHOW_1106] 10초 넘으면 지금 줄 아래 한 줄 — 곡 받기 한 줄(lp-bednote)과 같은 꼴 */
+@media (prefers-reduced-motion:reduce){.ldsp,.mk-flow li.lp-ld .mk-pl::after,.ls-row.lp-ld .ls-pi::after,.ls-mini .lm-p.lp-ldb::after{animation-duration:2.4s}}
 .em-lab-tg>span,.em-lab-tg::after{grid-area:1/1}
 .em-lab-tg::after{content:attr(data-w);visibility:hidden}
 .mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}   /* [FLOW_THREAD] 줄 사이는 li 아래 여백 — 흐름선이 줄 사이에서 끊기지 않게 */
@@ -2451,7 +2459,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1106d1"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1101r3"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1105r2"></script><script src="/assets/bgm-picks.js?v=1105b2"></script><script src="/assets/narration-pad.js?v=1106d1"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1106c1"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1106wk"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1106rt"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106pw"></script><script src="/assets/bgm-picks.js?v=1105b2"></script><script src="/assets/narration-pad.js?v=1106d1"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1106c1"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3295,7 +3303,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1106d1';   // [ASSET_V] 위 주석
+  var ASSET_V='1106wk';   // [ASSET_V] 위 주석
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -7596,7 +7604,7 @@ function _mlPaint(){ var _s0=LP.q[LP.i];
 function _mpOn(k){ if(!LP.q.length&&LP.ended&&LP.ended.range&&LP.ended.range.ks.length===1&&LP.ended.range.ks[0]===k){ try{ return !!(window.BgmBed&&BgmBed.inTail&&BgmBed.inTail()); }catch(e){ return false; } }   /* ★[DETAIL_R1_1101 ④] 여운(5초 + 3초)도 흐르는 중 — 알약은 «멈춤» · 누르면 1.5초에 잦아듦 */
   return !!(LP.q.length&&LP.range&&!LP.one&&LP.range.ks.length===1&&LP.range.ks[0]===k&&!LP.paused); }
 function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k]||(MK.lsMake||{})[k], on=!busy&&_mpOn(k), ck=(MK.lsMake||{})[k]||((MK.lsPend||{})[k]?((MK.lsPendAt||{})[k]||{}):MK.lsBusy===k?(MK.lsBusyAt||{}):{}), w=_wfx('mp:'+k,!!busy,ck.d,ck.at), off=!busy&&!on&&!!_playOffAll(k);   /* [WAIT_FILL] «만드는 중»을 흐리게 끄지 않고 차오름으로 · [LS_MAKE_ALL] 한꺼번에 만드는 동안도 · [AI_PLAY_READY] 읽는 분 목소리가 없으면 흐리게 */
-  return '<button type="button" class="mk-hbtn'+(on?' on':'')+(off?' off':'')+w.c+'"'+w.s+' data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(off?' aria-disabled="true"':'')+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?ICO_STOP:ICO_PLAY)+' '+(busy?'만드는 중':on?'멈춤':_mpLab(k))+'</button>'; }
+  return '<button type="button" class="mk-hbtn'+(on?' on':'')+(off?' off':'')+w.c+'"'+w.s+' data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(off?' aria-disabled="true"':'')+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?(LD.on?'<i class="ldsp" aria-hidden="true"></i>':ICO_STOP):ICO_PLAY)+' '+(busy?'만드는 중':on?_ldLab(LD.on?LD_TXT:'멈춤'):_mpLab(k))+'</button>'; }   /* [LOAD_SHOW_1106] 트는 중 소리를 받는 동안 «불러오는 중…» */
 /* ★[MP_ALL_WORD 2026-10-05 사장님 «이 순간 들어 보기 → 전체 들어 보기 식으로 전체 한 번에 재생된다는 느낌» → 시안 A(문구만)] 줄 ▶ 와 같은 ▶ 라 «한 줄 듣기»와 갈리지 않았다 —
    글로 «전체 · n줄 이어서»를 말한다. n = 화면에 ▶ 가 붙은 줄(나레이션 줄 · 두 분 목소리 줄 · 말하는 자리 · 영상 자리는 뺀다) · 엔진 전이면 줄 수 없이 */
 /* [GUEST_ALL_G3 2026-10-05] 식전 영상 뒤에 있던 «시작 1분 전»을 하객 맞이 듣기 끝에 «식전 영상이 흐른 뒤» 쉼과 함께 붙이던 꼬리 —
@@ -7604,7 +7612,7 @@ function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k]||(MK.lsMake||{
 function _lGuestTail(){ return []; }
 /* ★[SONG_ROW_LINES_1101] _mpHas(곡 칸 «나레이션과 함께 들어 보려면» 줄을 쓸지 · BED_HINT_WHERE_1031)는 그 줄과 함께 걷었다 */
 function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length+(k==='guest'?_lGuestTail().length?1:0:0); }catch(e){} var _st=[]; try{ if(ENG) _st=_lSteps(ENG,[k]); }catch(e){} try{ if(window.BgmBed&&BgmBed.on(k)&&!(_st.length&&_st.every(function(x){ return x.dk==null||!(x.dk>-60); }))) return '이 순간 전체 듣기 · 음악과 함께'; }catch(e){}   /* ★[MATJEOL_PILL_R2 2026-11-06 MEANING_R2 · 대본 승인] 엔진이 그 순간 줄을 모두 정적(−60 아래)으로 두면 «음악과 함께»를 말하지 않는다 — 맞절 = 정적 · 입장은 그대로 */ return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }   /* [BGM_PREVIEW_1024] 구간 곡이 깔리는 순간만 «음악과 함께»(입장과 같은 말) */
-function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈춤':_mpLab(k)); }); }   /* [PLAY_MID_1023] «멈춤» */   // [MP_ALL_WORD]
+function _mpPaint(force){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k), ld=on&&!!LD.on; if(b.classList.contains('on')===on&&(b.getAttribute('data-ld')==='1')===ld&&!force) return; b.classList.toggle('on',on); b.setAttribute('data-ld',ld?'1':'0'); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?(ld?'<i class="ldsp" aria-hidden="true"></i>':ICO_STOP):ICO_PLAY)+' '+(on?_ldLab(ld?LD_TXT:'멈춤'):_mpLab(k)); }); }   /* [LOAD_SHOW_1106] 받는 동안 «불러오는 중…» · 같은 폭 */   /* [PLAY_MID_1023] «멈춤» */   // [MP_ALL_WORD]
 window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; if(st.own&&st.up&&_playOff(st.up)){ mkPlayOff(st.up); return; } MK.playOff=null; _offToastOff();   /* [AI_PLAY_READY] 줄 카드 ▶(아직 소리 파일이 없는 줄)도 같은 입구 */
   LP.lineKey=k+':'+i; LP.lineSt=st; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
   var q=all.filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }), j=q.indexOf(st); if(j<0){ q=[st]; j=0; }
@@ -8329,6 +8337,9 @@ window.lsRef=function(k,n){ LS.ref=LS.ref||{}; if(_refCur(k,_lRefSets(k))===n) r
 var LP={q:[],i:0,cur:null,t:null,paused:false,all:false,tok:0,big:false,el:null,pre:null,range:null,ended:null,lock:null,last:null,stay:null,choose:null,hint:null,hintK:null};   // [CHIP_STAY] stay=칩으로 다시 들은 순간 · [PRACTICE_CHOOSE] choose=«이 순간 바꾸기»를 연 순간 · hint=멈춰 선 까닭
 function _lAud(){
   if(!LP.el){ LP.el=new Audio(); LP.el.preload='auto';
+    LP.el.addEventListener('playing',function(){ var _sr=LP.el.getAttribute('src')||''; if(!LP.el._lead&&_sr&&_sr!==L_SILENT){ var st=LP.q[LP.i]; if(st&&st.src===_sr) _ldOff(); } });   /* [LOAD_SHOW_1106] 지금 줄 멘트 소리가 나오는 순간 «멈춤»으로 — 탭 잠금 풀기 무음(L_SILENT)이 늦게 «playing»을 내도 끄지 않는다 */
+    LP.el.addEventListener('waiting',function(){ if(!LP.paused&&LP.q.length&&!LP.el._lead) _ldArm(); });   /* [LOAD_SHOW_1106] 흐르다 끊겨 받는 중이어도 */
+    LP.el.addEventListener('error',function(){ _ldOff(); });   /* [LOAD_SHOW_1106] 못 받으면 종전 까닭 글(코드) */
     LP.el.addEventListener('ended',function(){ if(LP.baking&&LP.q[LP.i]===LP.baking&&!LP.el._lead) return;   /* ★[PLAY_TRUE] 만드는 동안 끝난 무음(탭 잠금 풀기)이 그 줄을 건너뛰게 하던 것 */
       if(LP.loadSt&&LP.q[LP.i]===LP.loadSt&&!LP.el._lead) return;   /* [PT_TURN_LOAD] 받는 «그 차례»일 때만 — 순간 키로 보면 같은 순간의 다음 차례 소리가 끝나도 넘어가지 않았다 */   /* ★[LOAD_WAIT_KEEP 2026-10-07 1라운드 점검] 두 분 소리 파일(PLAY_WAIT_FILE) · 연습 AI 읽기를 기다리는 동안 끝난 무음(탭 잠금 풀기)도 그 줄을 건너뛰지 않는다 — 처음 듣기에서 기다리던 줄이 통째로 넘어가 «못 받음»도 «받음»도 안 보였다(실브라우저로 잡음) */ if(LP.el._lead){ LP.el._lead=0; var st=LP.q[LP.i]; if(st&&st.src&&!LP.paused){ LP.el.src=st.src; _rateSet(LP.el,(st.up&&st.couple)?_upRate(st.up):1); var p=LP.el.play(); if(p&&p['catch']) p['catch'](_lPlayErr); } return; } _lNext(); });   // [PLAY_LEAD] 1초 빈소리 뒤 첫 줄
     LP.el.addEventListener('error',function(){ var st=LP.q[LP.i]; if(st&&st.src&&LP.el.getAttribute('src')){ st.pfail=_mediaCode(LP.el); st.src=null; st.pending=true; _lPaint();
@@ -8512,7 +8523,7 @@ function _lStart(ks,all,hold){   /* hold = [CHIP_NO_AUTOPLAY] 줄은 새로 세�
   LP.range={ks:ks.slice(),all:!!all}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null; LP.one=false; LP.pace=false; LP.noFollow=false; LP.fLast=null; LP.leadSt=null; LP.bedNote='';   // [LISTEN_PACE_1031] 따라가기는 재생마다 새로   // [CHIP_STAY] · [PRACTICE_CHOOSE] · [LINE_STEP] 쪽 · 전체 재생은 이어서 흐른다
   var _ao=LP.afterOwn; LP.afterOwn=null; LP.entRest=(_ao==='entry');   /* ★[ENTRY_UNDER_1101] 입장 장면 뒤 남은 줄(받는 말) — 입장 곡이 그 아래로 이어진다(BgmBed songAt) */   // [ONE_PLAY_1013] lsRest — 이 순간 멘트 줄(장면이 맡았다) 다음부터 · 들어올 때 한 번만 읽는다(엔진을 받는 사이 다른 듣기에 남지 않게)
   function go(){ var _prc=!!(STEPS[idx]&&STEPS[idx].k==='practice'), _pace=!LP.fast&&(_prc||LP.big||!!(STEPS[idx]&&(STEPS[idx].k==='listen'||STEPS[idx].k==='done'))),   /* ★[LEAD_LONGER_1031 사장님 «이어듣기 부분 누르면 전에 요구했던 거 아직 반영 전이지?»] 크게 보기(처음부터 보고 듣기 · 본식부터 · 다시 듣기 · 순간 크게) · ④ 에서도 같은 규칙 — ③ 연습 · 빠르게 훑기만 빼고 */ _q0=_lpTag(_lSteps(ENG,ks)).filter(function(x){ return !x.quiet||((_prc||_pace)&&x.txt); }).map(function(x){ return (x.quiet&&_prc)?Object.assign({},x,{src:null,pending:false,ms:_rpAct(x),act:1}):(x.quiet&&_pace)?Object.assign({},x,{src:null,pending:false,ms:_dwellMs(x,_prc),act:1}):(x.talk&&_pace&&!_prc&&x.est!=null)?Object.assign({},x,{ms:_lpMs(x.est),said:1}):x; }).filter(function(x){ return !(x.act&&!_prc&&x.k==='entry')||(LP.big&&ks.length>1); }).map(function(x){ return (x.act&&!_prc&&x.k==='entry')?Object.assign({},x,{txt:'걷는 동안 음악이 크게 흘러요 · 미리 듣기에서는 8초로 줄였어요',ms:8000,ldk:0,walk:1}):x; }); LP.pace=_pace; LP.prc=_prc;   /* [TURN_GAP_1102] 연습은 쉼 · 머무는 시간 표의 연습 값 */   /* ★[DETAIL_R1_1101 ⑥] 크게 보기 이어 듣기(입장 포함)는 걷는 줄을 남긴다 — 8초 · 곡을 크게(0) · 그다음 받는 말은 말 아래 크기 */   /* 입장의 걷는 줄은 장면(음악과 함께 듣기)이 맡는다 — 멈춤을 또 두지 않는다 */   /* ★[LISTEN_PACE_1031] ② 이 순간 전체 듣기는 행동 줄(말없이)도 차례에 — 멈춤 = est ÷ 12 (3 ~ 6초) · 음악은 큐 사이 크기 */   /* ★[PRACT_ACT_1019 검토 133-1] ③ 연습하기는 두 분 동작 줄(옅은 줄 · quiet)도 2초 카드로 — 말뿐 아니라 «언제 어디로 움직이는지»를 같이 연습한다(후기 6편: 큐 · 동선이 모호해 멈칫) · ② 듣기 · 크게 보기 밖은 종전대로 넘긴다 */ LP.q=LP.fast?_q0:_prc?_prQ(ks):_lRefExpand(_q0);   /* [보충 중7] 연습 줄 = _prQ(예상 시간과 같은 줄) */ try{ if(window.BgmBed&&BgmBed.durWarm) BgmBed.durWarm(); }catch(e){}   /* [ENTRY_UNDER_1101] 줄 길이(받은 나레이션 duration)를 미리 잰다 — 입장 곡이 남아야 할 길이 */ if(LP.startK){ var _sk=LP.startK; LP.startK=null; for(var _si=0;_si<LP.q.length;_si++){ if(LP.q[_si].k===_sk) break; } if(LP.startAfter){ LP.startAfter=false; for(var _ai=0;_ai<LP.q.length;_ai++){ if(LP.q[_ai].after){ _si=_ai; break; } } }   /* [보충 중6] */ if(_si<LP.q.length){ var _sn=LP.startN|0; while(_sn>0&&LP.q[_si+1]&&LP.q[_si+1].k===_sk){ _si++; _sn--; } LP.__si=_si; } } LP.startN=0;   /* [PR_JUMP] · [PR_WAY_198 ⑪] 그 순간 몇째 줄부터 */ if(!LP.big&&STEPS[idx]&&STEPS[idx].k==='listen'){ LP.q=_lBridge(_q0); if(!all&&ks.length===1&&ks[0]==='guest') LP.q=LP.q.concat(_lGuestTail()); }   /* [GUEST_ALL_G3] 하객 맞이 쪽 «전체 듣기»는 카드 넷 다 */   /* [TALK_BRIDGE] ② 작은 재생은 안내 한 줄로 · 크게 보기 · 연습은 차례 시간 */   /* ★[QA_FAST 2026-10-04 점검] «빠르게 훑기»는 말하는 자리를 3초 글 카드로 둔다(약 n분 셈 _lLen 과 같은 목록) — 종전엔 LP.fast 를 아무도 안 읽어 «처음부터 끝까지»와 같았다 */ if(_ao){ var _ar=new RegExp('^'+_ao+'-[A-F]$'), _aj=0; for(;_aj<LP.q.length;_aj++){ var _ax=LP.q[_aj]; if(_ax.k===_ao&&((_ax.own&&_ax.up===_ao)||_ar.test(_ax.slug||''))) break; } LP.__si=Math.min(LP.q.length,_aj+1); }   /* [ONE_PLAY_1013] 멘트 줄을 못 찾으면 아무것도 다시 틀지 않는다(장면이 이미 들려줬다) */ if(_pace&&ks.length>1&&!_prc){ for(var _ci=LP.q.length-2;_ci>=0;_ci--){ var _cx=LP.q[_ci], _cn=LP.q[_ci+1]; if(_cx&&_cx.k==='song'&&/^narr-song-end/.test(_cx.slug||'')&&_cn&&_cn.k!=='song') LP.q.splice(_ci+1,0,{k:'song',lab:'말없이 흐르는 자리',txt:'하객이 박수로 축하해요',act:1,ms:3000,of:_cx.slug,clap:1,_li:_cx._li,ldk:_cx.lvd})   /* ★[NO_RELIFT_1102] 축가 끝 박수 = 엔진 크기(앞이 정적이면 −90 · 콘솔과 한 표) */; } }   /* ★[DETAIL_R2_1101 ⑤] 축가 → 다음 순간 이어 듣기 — 박수 줄 3초(선언 끝 박수 줄과 같게) · 음악이 −8 로 오르는 것이 들린다 */
-    LP.i=LP.__si||0; LP.__si=0; LP.prepDone=null; LP.prep=null; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
+    LP.i=LP.__si||0; LP.__si=0; LP.played=0; /* [RESUME_TALK_NOW_1106] */ LP.prepDone=null; LP.prep=null; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
   if(ENG&&LREC) go();
   else engine().then(function(g){ if(_rq!==LP.req||!_lPlayable()) return; if(!g){ var _et='소리를 불러오지 못했어요 · 잠시 뒤 다시 눌러 주세요 (코드 '+(ENG_ERR||'L6')+')'; if(isOpen()){ if(LP.big) lsCloseBig(); try{ toast(_et,6000,true); }catch(e){} } else LS.msg=_et; render(); return; } _lrec().then(function(){ if(_rq===LP.req&&_lPlayable()) go(); }); });   /* [B2_NA_19] */   // [ERR_CODE_BUILDER]
   /* ★[ENG_FAIL_SHOW 2026-10-07 1라운드 점검] 새 코스(② · ③ · ④)는 LS.msg 를 그리지 않는다(옛 renderListen 하나만) — 종전엔 엔진을 못 받으면 아무 말이 없었고,
@@ -8546,9 +8557,10 @@ function _lShow(){ LP.wait=null; LP.muPend=0; if(LP.gapBusy){ LP.gapBusy=0; var 
   if(!st){ _lEnd(); return; }
   LP.cur=st.k; _lPaint(); _lPreload();
   if(LP.paused) return;
+  LP.played=1;   /* [RESUME_TALK_NOW_1106] 이 듣기가 한 번은 흘렀다 — 이어 듣기는 멘트부터 */
   /* ★[LISTEN_PACE_1031 사장님 «BGM 이 흐르고 뜸 들인 이후 멘트»] 순간 첫 줄 앞 — 그 순간 곡이 큐 사이 크기(−8)로 3초(앞 곡이 이어지면 1.5초) 흐른 뒤 0.8초 낮추고 멘트 · 곡이 없으면 뜸 없음 */
   _lPreMark();   /* ★[BRIDGE_FIRST_1101] 뜸 자리 = 화면 음악 줄 자리(BgmSlots.leadAt) — 다음 순간 몫 이음말(b8 · b12 · b14)이 첫 줄이면 그 뒤 줄 앞에서 */
-  if(LP.pace&&!st._lead&&(st._leadHere||(!st._pre&&!st._noLead&&(!LP.i||(LP.q[LP.i-1]||{}).k!==st.k)))){ st._lead=1; var _ld=0, _ltk0=LP.tok, _lRe=function(ms){ if(_ltk0!==LP.tok||LP.leadSt!==st||LP.paused) return; clearTimeout(LP.t); LP.tAt=Date.now(); LP.tMs=ms; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk0===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },ms); };   /* ★[BED_LOAD_1101 ②] 곡이 늦게 오면 BgmBed 가 뜸 시계를 다시 건다(온 때부터 6초 · 못 받으면 곧바로) */ try{ if(_bedOn()) _ld=BgmBed.lpLead(st,_lRe)||0; }catch(e){} if(_ld>0){ st._gapOwe=0; LP.lead=false; LP.leadSt=st; try{ a.pause(); a.removeAttribute('src'); }catch(e){} var _ltk=LP.tok;   /* 뜸 동안 소리 칸을 비운다 — 잠금 풀기 무음이 끝나며(ended) 첫 줄을 건너뛰었다 */ LP.tAt=Date.now(); LP.tMs=_ld; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ld); return; } }
+  if(LP.pace&&!st._lead&&(st._leadHere||(!st._pre&&!st._noLead&&(!LP.i||(LP.q[LP.i-1]||{}).k!==st.k)))){ st._lead=1; var _ld=0, _ltk0=LP.tok, _lRe=function(ms){ if(_ltk0!==LP.tok||LP.leadSt!==st||LP.paused) return; clearTimeout(LP.t); LP.tAt=Date.now(); LP.tMs=ms; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk0===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },ms); };   /* ★[BED_LOAD_1101 ②] 곡이 늦게 오면 BgmBed 가 뜸 시계를 다시 건다(온 때부터 6초 · 못 받으면 곧바로) */ try{ if(_bedOn()) _ld=BgmBed.lpLead(st,_lRe)||0; }catch(e){} if(_ld>0){ st._gapOwe=0; LP.lead=false; LP.leadSt=st; _ldArm();   /* [LOAD_SHOW_1106] 뜸의 곡을 받는 중이면 */ try{ a.pause(); a.removeAttribute('src'); }catch(e){} var _ltk=LP.tok;   /* 뜸 동안 소리 칸을 비운다 — 잠금 풀기 무음이 끝나며(ended) 첫 줄을 건너뛰었다 */ LP.tAt=Date.now(); LP.tMs=_ld; LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_ltk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ld); return; } }
   if(st._gapOwe>0){ var _ow=st._gapOwe, _owk=LP.tok; st._gapOwe=0; clearTimeout(LP.t); LP.tAt=Date.now(); LP.tMs=_ow; LP.t=setTimeout(function(){ if(_owk===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ow); return; }   /* [DECL_GAP_ONE_AU02] 연출이 안 돌았다 — 미뤄 둔 일반 쉼 */
   if(LP.leadSt===st) LP.leadSt=null;   /* [LISTEN_PACE_1031] 뜸이 끝났다(검사 · 화면이 «뜸 중»을 안다) */
   if(_bedOn()) try{ BgmBed.lpShow(st); }catch(e){}   /* ★[BGM_PREVIEW_1024] 구간 음악 — 그 순간 곡을 이 줄 크기로(마이페이지 안 · ② 이 순간 전체 듣기만) */
@@ -8569,7 +8581,7 @@ function _lShow(){ LP.wait=null; LP.muPend=0; if(LP.gapBusy){ LP.gapBusy=0; var 
      종전엔 그 사이 이 줄을 «두 분이 녹음하실 글(예시)»로 세워 글만 보여 주고 넘어갔다 — 머리 표시는 «준비됨»인데 소리가 없었다.
      이제 파일이 있는 줄은 틀기 전에 받아 오기를 기다린다(최대 8초 · «두 분 목소리를 불러오는 중이에요»). 못 받으면 종전대로 글만 */
   if(st.up){ var _uv=(S.up||{})[st.up]; if(_uv&&typeof _uv==='object'&&_uv.id){ if(_uv.src==='ai'&&_upStale(st.up)) st.src=null; else { var _uu=_rfUrl(st.up,!st._wf); if(_uu) _lUpOn(st,_uu);   /* [PLAY_FILE_WHY] 틀 때 한 번은 방금 못 받은 파일도 다시 묻는다(▶ 와 같게) */
-    else if(!st._wf){ st._wf=1; LP.loadK=st.k; LP.loadSt=st; LP.loadAt=Date.now(); LP.loadD=3; _lPaint(); _lWaitUp(st,function(u){ LP.loadK=null; LP.loadSt=null; if(u) _lUpOn(st,u); else _lUpFail(st,_uv); _lShow(); }); return; } } } }   /* [PLAY_FILE_WHY] 못 받으면 까닭(코드)과 함께 글로 */
+    else if(!st._wf){ st._wf=1; LP.loadK=st.k; LP.loadSt=st; LP.loadAt=Date.now(); LP.loadD=3; _ldArm(); _lPaint(); _lWaitUp(st,function(u){ LP.loadK=null; LP.loadSt=null; if(u) _lUpOn(st,u); else _lUpFail(st,_uv); _lShow(); }); return; } } } }   /* [PLAY_FILE_WHY] 못 받으면 까닭(코드)과 함께 글로 */
   if(_ptWant(st)&&!st.src&&!st._pt){ st._pt=1; var _o=_ptKey(st); if(PT.url[_o.h]){ st.src=PT.url[_o.h]; st.ptts=true; st.pending=false; _lPaint(); }   /* [PT_TURN_LOAD] 받아 둔 AI 소리로 바꿨으면 차례 카드를 다시 그린다 — 위 _lPaint 는 바꾸기 전이라 AI 소리가 나오는데 «예시 글을 소리 내어 읽어 보세요»가 남았다 */
     else if(PT.failH[_o.h]){ PT.errK=LP.i; PT.err=_ptTurnWhy(_o.h); }   // [PT_PREP_RETRY] 준비 때 두 번 실패한 차례는 기다리지 않는다 · [ERR_CODE_BUILDER] 그 차례의 까닭 코드
     else { var _tk2=LP.tok; LP.tAt=0; LP.loadK=st.k; LP.loadSt=st; LP.loadAi=true; LP.loadAt=Date.now(); LP.loadD=_waitEst(st.txt); PT.errK=-1; if(!a._lead&&a.getAttribute('src')!==L_SILENT){ try{ a.pause(); a.removeAttribute('src'); }catch(e){} } _lPaint(); _ptFetch(st).then(function(u){ if(LP.loadSt===st){ LP.loadK=null; LP.loadSt=null; LP.loadAi=false; } if(u){ st.src=u; st.ptts=true; st.pending=false; } else st._pt=0; if(LP.tok!==_tk2||LP.q[LP.i]!==st){ _lPaint(); return; } if(!u){ st._pt=1; PT.errK=LP.i; PT.err=_ptTurnWhy(_o.h); } _lShow(); }); return; } }   /* ★★[PT_TURN_LOAD 2026-10-08 목소리 1라운드 #50] «만드는 중»은 그 차례(객체)에만 — 종전엔 순간 키라 › 로 옮긴 같은 순간 다음 차례도 «만드는 중»에 ❚❚ 가 잠겼다(소리는 나오는데 못 멈춤).
@@ -8577,9 +8589,9 @@ function _lShow(){ LP.wait=null; LP.muPend=0; if(LP.gapBusy){ LP.gapBusy=0; var 
   if(_ptWant(st)) _ptNext();   // [PR_MODE] 다음 말하는 차례를 미리
   /* ★«② 에서 소리를 틀면(들어 보기 · 줄 ▶ · 칩) 그 쪽 장면도 한 번» 규칙([MK_VID_PLAY] · LP.vidK) 금지 — 2026-10-03 사용자 지시로 삭제 [VID_AUTO_ONLY] · 칩을 누를 때마다 끝난 영상을 다시 틀었다 */
   if(st.src){
-    if(LP.lead&&_leadUrl()){ LP.lead=false; a._lead=1; a.src=_leadUrl(); try{ a.playbackRate=1; }catch(e){} var p0=a.play(); if(p0&&p0['catch']) p0['catch'](_lPlayErr); return; }   // [PLAY_LEAD] 처음 줄 앞 1초
+    if(LP.lead&&_leadUrl()){ LP.lead=false; a._lead=1; a.src=_leadUrl(); try{ a.playbackRate=1; }catch(e){} var p0=a.play(); if(p0&&p0['catch']) p0['catch'](_lPlayErr); _ldArm(); return; }   /* [LOAD_SHOW_1106] */   // [PLAY_LEAD] 처음 줄 앞 1초
     LP.lead=false; a._lead=0; a.src=st.src; _rateSet(a,(st.up&&st.couple)?_upRate(st.up):1);   /* [TEMPO_PREVIEW] 두 분 AI 줄은 고른 빠르기로 */
-    var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr);   // 폰이 막으면 멈춘 채로 — ▶ 로 이어서
+    var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr); _ldArm();   // 폰이 막으면 멈춘 채로 — ▶ 로 이어서 · [LOAD_SHOW_1106]
   } else { try{ a.pause(); a.removeAttribute('src'); }catch(e){} _lTimer(st.ms); }
 }
 /* ★★[PRACTICE_VOICE 2026-09-27 코워크 «두 분 목소리» 4-1 · 사장님 «연습 공간: 녹음 + AI 음성(골라 쓰기)»] 내 차례를 녹음하며 연습(골라 켜기)
@@ -8782,6 +8794,7 @@ function _lEnd(){
 function _lPlayable(){ return !!(STEPS[idx]&&/^(listen|practice|done)$/.test(STEPS[idx].k)); }   /* [B2_NA_19] 듣기 · 연습 · 완성 화면 */
 window.lsStop=function(keepBig){
   LP.req=(LP.req||0)+1;   /* [B2_NA_19] 멈추면 받는 중인 재생 요청도 버린다 */
+  _ldOff();   /* [LOAD_SHOW_1106] */
   _prStop();   // [PRACTICE_VOICE]
   try{ if(window.BgmBed) BgmBed.lpEnd(); }catch(e){}   // [BGM_PREVIEW_1024]
   clearTimeout(LP.t); LP.tok++; LP.q=[]; LP.i=0; LP.cur=null; LP.all=false; LP.paused=false; LP.ended=null; LP.one=false;
@@ -8811,7 +8824,12 @@ window.lsFromBody=function(){ var sec=LP.range&&LP.range.sec, rs=(sec?LP.range.k
 window.lsToggle=function(){
   if(!LP.q.length){ try{ if(window.BgmBed&&BgmBed.tailHush&&BgmBed.tailHush()){ _lPaint(); return; } }catch(e){} if(LP.ended) lsAgain(); else lsPlayAll(); return; }   /* ★[DETAIL_R1_1101 ④] 여운이 흐르는 동안 = 멈춤(1.5초에 잦아듦) */
   LP.paused=!LP.paused;
-  var _rst=LP.q[LP.i]; if(!LP.paused&&LP.leadLeftSt&&LP.leadLeftSt===_rst&&LP.leadSt===_rst&&LP.leadLeft>0){ var st=_rst, _ll=LP.leadLeft, _lme=LP.tok, _mpL=LP.muPend; LP.leadLeftSt=null; LP.hint=null; LP.muPend=0; _lUnlock(); try{ if(_bedOn()&&BgmBed.lpResumeLead) BgmBed.lpResumeLead(st,_ll); if(_mpL&&_bedOn()) BgmBed.lpShow(st); }catch(e){}   /* [B5_P17] 뜸 중 멈춤에서 켠 음악도 재개 때 지금 줄 곡으로 */   /* ★[DETAIL_R2_1101 ④] 이어 들으면 남은 연출부터(처음부터 다시 하지 않는다) */
+  /* ★★[RESUME_TALK_NOW_1106 2026-11-06 사장님 «이어 듣기 누르면 바로 멘트 나오게 하자»] 한 번이라도 흐른 듣기(LP.played)를 이어 들으면 멈춘 줄의 멘트가 곧바로 —
+       남은 뜸(음악만 먼저 · 선언 앞 내림 · 정적)과 순간 첫 줄 뜸 · 첫 줄 앞 1초 무음을 다시 돌리지 않는다 · 음악은 멈춘 곡 그 자리에서 이 줄 크기(말 아래)로 함께(lpResume · 곡이 없거나 늦으면 lpShow 가 받아 오는 대로 말 아래로 · 멘트는 곡을 기다리지 않는다).
+       행동 줄 · 말하는 차례의 남은 시간(B5_NI14) · 직접 해보기 기다림(B_RESUME_WAIT_NI14) · 멈춤 중에 켠 음악(B5_P17)은 그대로 · 처음 ▶(새로 듣기 · 칩으로 세워 둔 줄)는 종전대로 뜸부터 */
+  var _rst=LP.q[LP.i]; if(!LP.paused&&LP.played&&_rst&&LP.leadLeftSt===_rst&&LP.leadSt===_rst){ LP.leadLeftSt=null; LP.leadSt=null; LP.leadLeft=0; LP.hint=null; LP.muPend=0; LP.hushed=false; clearTimeout(LP.t); LP.tAt=0; LP.tMs=0; _rst._lead=1; _rst._gapOwe=0; LP.lead=false; _lUnlock();
+    try{ if(_bedOn()&&BgmBed.lpResume) BgmBed.lpResume(); }catch(e){} _ldArm(); _lShow(); _lPaint(); return; }   /* [RESUME_TALK_NOW_1106] 뜸 중 멈춤 → 남은 뜸 없이 멘트 · 곡은 lpShow(_lShow) 가 이 줄 크기로 */
+  if(!LP.paused&&LP.leadLeftSt&&LP.leadLeftSt===_rst&&LP.leadSt===_rst&&LP.leadLeft>0){ var st=_rst, _ll=LP.leadLeft, _lme=LP.tok, _mpL=LP.muPend; LP.leadLeftSt=null; LP.hint=null; LP.muPend=0; _lUnlock(); try{ if(_bedOn()&&BgmBed.lpResumeLead) BgmBed.lpResumeLead(st,_ll); if(_mpL&&_bedOn()) BgmBed.lpShow(st); }catch(e){}   /* [B5_P17] 뜸 중 멈춤에서 켠 음악도 재개 때 지금 줄 곡으로 */   /* ★[DETAIL_R2_1101 ④] 이어 들으면 남은 연출부터(처음부터 다시 하지 않는다) */
     clearTimeout(LP.t); LP.tAt=Date.now()-(LP.tMs-_ll); LP.t=setTimeout(function(){ if(LP.leadSt===st) LP.leadSt=null; if(_lme===LP.tok&&!LP.paused&&LP.q[LP.i]===st) _lShow(); },_ll); _lPaint(); return; }
   LP.leadLeftSt=null;
   var _muNeed=false; if(!LP.paused){ LP.hushed=false; _lUnlock(); LP.hint=null; try{ if(_bedOn()&&BgmBed.lpResume&&!BgmBed.lpResume()&&LP.muPend) _muNeed=true; }catch(e){} LP.muPend=0; }   /* ★[B5_P17] 멈춤 중에 켠 음악 — 멈춘 곡이 없으면(꺼 둔 채 멈췄다) 아래에서 지금 줄의 곡 · 자리 · 크기로 한 번 */   /* [PR_BGM_197] */   /* ★[DETAIL_R1_1101 ③] 멈춘 곡 · 자리 · 지금 줄 크기로 0.6초에 */
@@ -8820,8 +8838,8 @@ window.lsToggle=function(){
   if(LP.paused){ try{ a.pause(); }catch(e){} if(st&&!st.src&&LP.tAt&&LP.tMs){ LP.tLeft=Math.max(0,LP.tMs-(Date.now()-LP.tAt)); LP.tLeftSt=st; } clearTimeout(LP.t); }   /* ★[TALK_RESUME_1031 식순 걷기 2라운드 9] 직접 말하는 차례를 멈추면 남은 시간을 적어 둔다 */
   else if(st&&!st.src&&LP.tLeftSt===st&&_inPr()&&_prWait(st)){ LP.tLeftSt=null; LP.tLeft=0; clearTimeout(LP.t); LP.wait=st; LP.tAt=0; LP.tMs=0; _prWaitLv(st); try{ if(LP.big) _lFull(); }catch(e){} }   /* ★[B_RESUME_WAIT_NI14 2026-11-05 이음매 NI14] 흐름 보기에서 멈췄다가 직접 해보기로 이어 하면 남은 자동 시간을 버리고 «다 했어요»까지 기다린다(음악 크기는 _prWaitLv · 지정값 그대로) · 흐름 보기면 아래 남은 시간 그대로 */
   else if(st&&!st.src&&LP.tLeftSt===st&&LP.tMs){ var _lf=LP.tLeft, _me=LP.tok; LP.tLeftSt=null; clearTimeout(LP.t); if(!(_lf>0)){ LP.tAt=0; LP.tMs=0; _lNext(); } else { LP.tAt=Date.now()-(LP.tMs-_lf); LP.t=setTimeout(function(){ if(_me===LP.tok&&!LP.paused) _lNext(); },_lf); try{ if(LP.big&&st.talk2) _lFull(); }catch(e){} } }   /* ★[B5_NI14 2026-11-06 5차 P v2 NI14 · P13] 흐름 보기(A) 재개 — 남은 시간이 양수면 남은 시간만(300ms 안이어도 · 종전엔 300ms 이하면 줄 처음부터 다시 셌다) · 이미 끝난 줄이면 다음 줄로 · 같은 줄의 전체 시간을 다시 걸지 않는다 */   /* [TALK_RESUME_1031] 이어 들으면 남은 시간부터(막대도 그 자리부터) · 처음부터 다시 세는 것은 «다시 보기»만 */
-  else if(st&&st.src&&a.getAttribute('src')===st.src){ var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr); }   // [INAPP_UNLOCK] 무음으로 풀었으면 src 가 바뀌었으니 아래 _lShow 로 다시 건다
-  else { _muNeed=false; _lShow(); }   /* _lShow 가 곡을 건다 */
+  else if(st&&st.src&&a.getAttribute('src')===st.src){ _ldArm(); var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr); }   /* [LOAD_SHOW_1106] 멈춘 멘트 그 자리 — 소리가 0.3초 안에 안 나오면 «불러오는 중…» */   // [INAPP_UNLOCK] 무음으로 풀었으면 src 가 바뀌었으니 아래 _lShow 로 다시 건다
+  else { _muNeed=false; if(LP.played&&st){ st._lead=1; st._gapOwe=0; LP.lead=false; LP.leadSt=null; } _ldArm(); _lShow(); }   /* _lShow 가 곡을 건다 · [RESUME_TALK_NOW_1106] 줄 사이에서 멈췄다 이어 들으면 다음 줄 멘트를 뜸 없이 바로 */
   if(_muNeed&&st){ try{ if(_bedOn()) BgmBed.lpShow(st); }catch(e){} }   /* ★[B5_P17] 재개 때 지금 줄의 곡 · 자리(LPB.keep) · 목표 크기로 시작 · 일부러 둔 정적(−90)은 그 크기 그대로 */
   _lPaint();
 };
@@ -8905,6 +8923,29 @@ function _lMini(){
   return el;
 }
 function _lSay(t){ var el=document.getElementById('lsLive'); if(!el){ el=document.createElement('div'); el.id='lsLive'; el.className='sr-only'; el.setAttribute('aria-live','polite'); el.setAttribute('role','status'); document.body.appendChild(el); } el.textContent=t; }
+/* ★★[LOAD_SHOW_1106 2026-11-06 사장님 «이어 듣기 눌렀을 때 노래 로딩 중이면 표시가 적절하게 있었으면 좋겠어 — 아무 표시 없이 기다리기만 하니까»]
+     틀기(처음 ▶ · 이어 듣기 · 다음 줄 멘트)를 걸고 0.3초 안에 소리가 안 나오면 — 멘트 파일을 받는 중 · 뜸의 곡을 받는 중 · 두 분 소리 파일을 받는 중 —
+     지금 줄 ▶ 원 자리에 작은 돌기(lp-ld) · 알약 글 «불러오는 중…»(글 칸 폭은 보이지 않는 «불러오는 중…»에 맞춰 «멈춤» ↔ «불러오는 중…»이 흔들리지 않는다 · data-w) ·
+     10초가 넘으면 지금 줄 아래 한 줄 «연결이 느려요 · 잠시만요» · 소리가 나오는 순간 «멈춤»으로 · 못 받으면 종전 까닭 글(코드) 그대로(ERR_CODES) */
+var LD={at:0,on:0,slow:0,tok:-1,t:null}, LD_SHOW=300, LD_SLOW=10000, LD_TXT='불러오는 중…', LD_SLOW_TXT='연결이 느려요 · 잠시만요';
+function _ldWaiting(){ if(!LP.q.length||LP.paused) return false; var st=LP.q[LP.i], a=LP.el; if(!st) return false;
+  if(LP.loadSt===st) return true;   /* 두 분 소리 파일 · 연습 AI 읽기를 받는 중 */
+  if(LP.leadSt===st&&(LP.tMs>=15000||/불러오는 중/.test(LP.bedNote||''))) return true;   /* 뜸의 곡을 받는 중 — 곡이 오기를 기다리는 뜸 시계(LEAD_WAIT 20초 · 오면 6초로 다시 건다 · BED_LOAD_1101 · LEAD_FIRST_1101) */
+  if(st.src&&a){ var sr=a.getAttribute('src')||''; if(a._lead) return !(a.readyState>=3);   /* 처음 줄 앞 1초 무음도 받아야 흐른다 */ if(sr&&sr===st.src&&!a.ended&&!(a.readyState>=3&&!a.paused)) return true; }
+  return false; }
+function _ldArm(){ if(LD.at&&LD.on){ if(!LD.t) LD.t=setTimeout(_ldTick,60); return; }   /* 이미 재는 중이면 시계를 처음으로 돌리지 않는다(돌기가 깜빡이지 않게) */ LD.at=Date.now(); LD.tok=LP.tok; clearTimeout(LD.t); LD.t=setTimeout(_ldTick,60); }
+function _ldOff(){ clearTimeout(LD.t); LD.t=null; var was=LD.on||LD.slow; LD.at=0; LD.on=0; LD.slow=0; if(was) _ldPaint(); }
+function _ldTick(){ clearTimeout(LD.t); if(!LD.at) return; if(!LP.q.length||LP.paused){ _ldOff(); return; } if(LD.tok!==LP.tok) LD.tok=LP.tok;   /* 새 차례여도 지금 기다리면 그대로 잰다 */
+  var w=_ldWaiting(), el=Date.now()-LD.at;
+  if(!w){ if(el>=1500||LD.on) { _ldOff(); return; } LD.t=setTimeout(_ldTick,100); return; }   /* 아직 틀기 전(쉼 · 뜸 시계)일 수 있어 잠깐 더 본다 */
+  var on=el>=LD_SHOW?1:0, sl=el>=LD_SLOW?1:0; if(on!==LD.on||sl!==LD.slow){ LD.on=on; LD.slow=sl; _ldPaint(); } LD.t=setTimeout(_ldTick,on?250:60); }
+function _ldPaint(){ var on=!!LD.on;
+  document.querySelectorAll('.mk-flow li.lp-ld,.ls-row.lp-ld').forEach(function(x){ if(!on||!x.classList.contains('lp-now')&&!x.classList.contains('now')) x.classList.remove('lp-ld'); });
+  document.querySelectorAll('.lp-ldnote').forEach(function(x){ x.remove(); });
+  if(on){ var li=document.querySelector('.mk-flow li.lp-now'); if(li) li.classList.add('lp-ld'); var rw=document.querySelector('.ls-row.now'); if(rw) rw.classList.add('lp-ld');
+    if(LD.slow){ var box=li&&(li.querySelector(':scope>span:last-of-type')||li); if(box){ var p=document.createElement('span'); p.className='bgm-note bed-load lp-ldnote'; p.setAttribute('role','status'); p.textContent=LD_SLOW_TXT; box.appendChild(p); } } }
+  try{ _mpPaint(true); }catch(e){} try{ if(LP.big) _lFull(); }catch(e){} try{ var m=document.querySelector('.ls-mini .lm-p'); if(m){ m.classList.toggle('lp-ldb',on); if(on) m.setAttribute('aria-label',LD_TXT); } }catch(e){} }
+function _ldLab(t){ return '<span class="em-lab-tg" data-w="'+LD_TXT+'"><span>'+t+'</span></span>'; }   /* [LOAD_SHOW_1106] «멈춤» ↔ «불러오는 중…» 같은 폭 */
 function _lPaint(){
   var el=_lMini(), st=LP.q[LP.i]; try{ _mlPaint(); _mpPaint(); }catch(e){} try{ _lpPaint(); }catch(e){}   /* [LISTEN_PACE_1031] 지금 · 지나감 · 남음 */ try{ if(window.EntryMusic&&EntryMusic.paint) EntryMusic.paint(); }catch(e){}   // [PLAY_ONE_LOOK] · [UI_ONE] · [ONE_PLAY_1013] 장면 알약도(다음 줄을 트는 동안 «멈추기»)
   document.querySelectorAll('.ls-row').forEach(function(r){ var k=r.getAttribute('data-lk'), on=!!st && k===st.k; r.classList.toggle('now', on);
@@ -8929,7 +8970,7 @@ function _lPaint(){
       +'<button type="button" class="lm-g" data-fk="lmg" onclick="lsOpenBig()">크게 보기</button>'   /* ★[RIT_BIG_BTN 2026-09-27 4부 11] 크게 보기로 가는 단추가 안 보였다(제목 줄이 단추인 줄 몰랐다) — 글 단추 */
       +'<button type="button" class="lm-b lm-mv" data-fk="lmprevk"'+(LP.range&&LP.range.ks.length>1?'':' disabled aria-disabled="true"')+' onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>'   /* [CTL_FIVE] 늘 다섯 칸 */   /* ★[UI_ONE 2026-10-04 사장님 «작은 플레이어 · 크게 보기 같은 단추 묶음»] 앞 순간 · 앞 줄 · 잠시 멈춤 · 다음 줄 · 다음 순간 */
       +'<button type="button" class="lm-b lm-l" data-fk="lmprev"'+(_hasP?'':' disabled aria-disabled="true"')+' onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>'
-      +(function(w){ return '<button type="button" class="lm-b lm-p'+w.c+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':'')+' data-fk="lmtog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'잠시 멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'; })(_lpWait(st))
+      +(function(w){ return '<button type="button" class="lm-b lm-p'+w.c+(LD.on&&!LP.paused?' lp-ldb':'')+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':'')+' data-fk="lmtog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':LD.on?LD_TXT:'잠시 멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'; })(_lpWait(st))
       +'<button type="button" class="lm-b lm-l" data-fk="lmnext"'+(_hasN?'':' disabled aria-disabled="true"')+' onclick="lsLine(1)" aria-label="다음 줄">'+ICO_CHEV_R+'</button>'
       +'<button type="button" class="lm-b lm-mv" data-fk="lmnextk"'+(LP.range&&LP.range.ks.length>1?'':' disabled aria-disabled="true"')+' onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>'
       +'<button type="button" class="lm-b lm-x" data-fk="lmx" onclick="lsStop()" aria-label="듣기 끝내기">'+ICO_X+'</button>';
@@ -9012,7 +9053,8 @@ function _lFull(){
     if(!st.act&&(_vTag(st.k,st)||st.own&&(st.couple||st.src))) h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':((S.up||{})[st.up]||{}).src==='ai'?'AI로 만든 두 분 목소리':'두 분이 올린 파일'):st.src?'예시 목소리 · 두 분이 준비하면 그 목소리로 바뀌어요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
     /* ★«AI 연습 소리 · 예식에서는 나오지 않아요» 배지 금지 — 2026-10-05 사용자 지시로 삭제 [PT_TEMP] (사장님 «임시라는 걸 강조해 문구 만들어 노출») · 말하는 차례 안내 한 줄(lf-cue)이 «연습용으로만 잠깐 … 예식 당일엔 직접 말해요»로 말한다 */   // [PRACTICE_READ_0928] 배지 «AI 연습 소리»   // [VOICE_CLONE 4-2]
     if(st.talk2&&PR.cur&&PR.cur.k===st.k&&PR.cur.who===st.who) h+='<p class="lf-rec" role="status"><i aria-hidden="true"></i>내 목소리 녹음 중 · 이 휴대폰에만 남아요</p>';   // [PRACTICE_VOICE]
-    if(LP.loadSt===st&&!LP.loadAi) h+='<p class="lf-state" role="status">두 분 목소리를 불러오는 중이에요</p>';   // [PLAY_WAIT_FILE] · [PT_TURN_LOAD]
+    if(LP.loadSt===st&&!LP.loadAi) h+='<p class="lf-state" role="status">두 분 목소리를 불러오는 중이에요</p>';
+    else if(LD.on&&!LP.paused) h+='<p class="lf-state lf-ld" role="status">'+(LD.slow?LD_SLOW_TXT:LD_TXT)+'</p>';   /* [LOAD_SHOW_1106] 크게 보기 — 받는 동안 · 10초 넘으면 «연결이 느려요 · 잠시만요» */   // [PLAY_WAIT_FILE] · [PT_TURN_LOAD]
     if(practice&&st){ var _pv=LP.q[LP.i-1], _first=!_pv||_pv.k!==st.k, _cp=_fgCardPos(LP.q,LP.i);   /* [FLOW_GRASP_1101 3 · 4] */
       if(_first&&st.k==='entry') h+='<p class="lf-turn">여기부터 두 분 차례예요</p>';
       if(!_pv||_fgCardPos(LP.q,LP.i-1)!==_cp) h+='<p class="lf-pos">지금 두 분 · '+esc(FG_NOW[_cp]||FG_LAB[_cp])+'</p>'; }   /* [PRACTICE_WALK_R2 2] 카드마다 자리 — 이동 줄 뒤에서 바뀐다 */
@@ -9086,7 +9128,7 @@ function _lFull(){
       +(LP.onlyEnd?'<button type="button" class="ln" data-fk="lftog" onclick="prOnlyAgain()" aria-label="한 번 더">'+ICO_PLAY+'</button>':'<button type="button" class="ln" data-fk="lftog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 하기':'잠시 멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>')+'</div>'; }   /* ★[PR_REVIEW_201 중3] 이 순간 연습을 마친 화면의 재생 단추 = «한 번 더»와 같은 처음부터(완료 표시를 남긴 채 다시 틀지 않는다) */
   else if(!endNow) h+='<div class="lf-ctl">'+'<button type="button" data-fk="lfprev"'+(single?' disabled aria-disabled="true"':'')+' onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>'
     +'<button type="button" class="ln" data-fk="lfprevl"'+(_fhP?'':' disabled aria-disabled="true"')+' onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>'
-    +(function(w){ return '<button type="button" class="big'+w.c+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':'')+' data-fk="lftog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'잠시 멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'; })(_lpWait(st))
+    +(function(w){ return '<button type="button" class="big'+w.c+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':'')+' data-fk="lftog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':LD.on?LD_TXT:'잠시 멈춤')+'">'+(LP.paused?ICO_PLAY:LD.on?'<i class="ldsp" aria-hidden="true"></i>':ICO_PAUSE)+'</button>'; })(_lpWait(st))   /* [LOAD_SHOW_1106] 받는 동안 ❚❚ 자리에 돌기 */
     +'<button type="button" class="ln" data-fk="lfnextl"'+(_fhN?'':' disabled aria-disabled="true"')+' onclick="lsLine(1)" aria-label="다음 줄">'+ICO_CHEV_R+'</button>'
     +'<button type="button" data-fk="lfnext"'+(single?' disabled aria-disabled="true"':'')+' onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>'+'</div>';   // [CTL_FIVE]
   if(_rail) h+='</div>'+_lRail(st)+'</div>';   // .lf-main · .lf-cols [PR_RAIL]

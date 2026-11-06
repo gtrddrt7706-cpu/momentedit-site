@@ -109,7 +109,7 @@ try {
     // 12
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(300); const S12a = await scene();
     await pg.click('[data-fk="emscene"]'); await pg.waitForTimeout(600); const S12b = await scene();
-    ok(`${W} 12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터`, !S12a.run && S12a.pause > 0.8 && S12a.pill === '이어 듣기' && S12a.focus === 'emscene' && S12b.run && S12b.x >= S12a.pause - 0.05 && S12b.x < S12a.pause + 1.5, { S12a, S12b });
+    ok(`${W} 12 다시 누르면 그 자리에 멈춤 «이어 듣기»(초점 그대로) → 누르면 멈춘 자리부터 · 멘트 앞(음악만)에서 멈췄으면 멘트 자리(tv)부터(★[RESUME_TALK_NOW_1106] 옛 «멈춘 자리 그대로»)`, !S12a.run && S12a.pause > 0.8 && S12a.pill === '이어 듣기' && S12a.focus === 'emscene' && S12b.run && (S12a.pause < S12a.plan.tv ? (S12b.x >= S12a.plan.tv - 0.05 && S12b.x < S12a.plan.tv + 1.5) : (S12b.x >= S12a.pause - 0.05 && S12b.x < S12a.pause + 1.5)), { S12a, S12b });
     // 13
     const gbox = await pg.evaluate(() => { const r = document.querySelector('.em-graph canvas').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
     await pg.mouse.click(gbox.x + gbox.w * ((P.th + 1) / P.tend), gbox.y + gbox.h / 2); await pg.waitForTimeout(500); const S13 = await scene();
