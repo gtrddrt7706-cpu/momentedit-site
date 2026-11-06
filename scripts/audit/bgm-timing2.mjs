@@ -172,7 +172,7 @@ try {
     await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":true}' })));
     await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S0)).toString('base64'))}`); await pg.waitForTimeout(900);
     const TMP = fs.mkdtempSync(path.join(require('os').tmpdir(), 'bgmtime2-')), miss = [];
-    for (const [sg, hz] of rows) { const p = path.join(TMP, sg + '.wav'); fs.writeFileSync(p, wav(20, hz)); try { await pg.setInputFiles('.sg[data-seg="' + sg + '"] .sg-song:nth-of-type(1) [data-seg-file]', p, { timeout: 4000 }); } catch (e) { miss.push(sg); } }
+    for (const [sg, hz] of rows) { const p = path.join(TMP, sg + '.wav'); fs.writeFileSync(p, wav(60, hz));   /* ★[ONE_FLOW_1106 · 검토 A3] 60초 — 20초 곡은 12초에 같은 곡 되감기(M4 겹침 8초 · 의도)가 재는 창 안에 들어와 «곡 바꿈»으로 잘못 읽혔다(B09 · li 0 · 같은 곡) */ try { await pg.setInputFiles('.sg[data-seg="' + sg + '"] .sg-song:nth-of-type(1) [data-seg-file]', p, { timeout: 4000 }); } catch (e) { miss.push(sg); } }
     await pg.waitForTimeout(1200); await pg.click('#go'); await pg.waitForTimeout(700);
     const R = await pg.evaluate(() => window.__bgmR()); return { ctx, pg, errs, R, miss, ix: (fn) => R.findIndex(fn) }; };
   const sample = (pg, i, ms) => pg.evaluate(async ({ i, ms }) => { const o = []; window.__bgmLog.length = 0; const t0 = performance.now(); if (i != null) window.__bgmGo.fire(i);
