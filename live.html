@@ -2457,7 +2457,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     if (_pollOn || !document.getElementById('playerPlaceholder') || document.body.classList.contains('link-unknown')) return;   // «그런 예식 없음»은 다시 묻지 않는다(종전과 같다)
     _pollOn = true;
     const firstDelays = [15000, 30000, 60000];
-    let tries = 0, lastFail = false;
+    let tries = 0, lastFail = false, lastN = 6, lastPollEid = '';   // [B2_FIX_MA_03] 마지막 실패의 까닭 숫자(G#) · 서버 사고번호
     async function tick(){
       if (!document.getElementById('playerPlaceholder')) { _pollOn = false; return; }
       if (tries > 80) { _pollOn = false; endPoll(); return; }
@@ -2477,8 +2477,8 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
             _pollOn = false;
             return;
           }
-        } else lastFail = true;
-      } catch (_) { if (tm) clearTimeout(tm); lastFail = true; }
+        } else { lastFail = true; lastN = liveSrvFail(d) ? liveSrvN(d) : 0; lastPollEid = String((d && d.eid) || ''); }
+      } catch (e) { if (tm) clearTimeout(tm); lastFail = true; lastN = _ecN(e); lastPollEid = ''; }
       schedule();
     }
     function schedule(){
@@ -2486,15 +2486,21 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
       tries++;
       setTimeout(tick, wait);
     }
+    /* ★[B2_FIX_MA_03 2026-11-06 재검증 재수정] 마지막이 실패면 캐시로 그린 화면(infoApplied)이어도 «영상이 준비되지 않았어요»라 하지 않는다(까닭이 틀린다).
+       최종 실패 문구 끝에 마지막 코드(G# · 서버 오류면 사고번호)를 붙인다 — H09 보강 */
     function endPoll(){
+      const code = ' (코드 G' + lastN + (lastPollEid ? ' · ' + lastPollEid : '') + ')';
       if (lastFail && !infoApplied) {
         setNotLoaded(true);
         const desc = document.querySelector('.live-notloaded-box .lp-message-desc');
         if (desc) {
-          desc.innerHTML = '예식 정보를 불러오지 못했어요. 다시 불러와 주세요. <button type="button" class="le-retry" id="liveReload">다시 불러오기</button>';
+          desc.innerHTML = _ecHtml('예식 정보를 불러오지 못했어요. 다시 불러와 주세요.' + code) + ' <button type="button" class="le-retry" id="liveReload">다시 불러오기</button>';
           const rb = document.getElementById('liveReload');
           if (rb) rb.addEventListener('click', () => { sayNotLoaded('wait'); pollNow(); });
         }
+      } else if (lastFail) {
+        const ko = document.querySelector('#playerPlaceholder .placeholder-text-ko');
+        if (ko) ko.innerHTML = _ecHtml('연결을 확인하지 못했어요. 화면을 새로 고쳐 주세요.' + code);
       } else {
         const ko = document.querySelector('#playerPlaceholder .placeholder-text-ko');
         if (ko) ko.textContent = '아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 확인해 주세요.';
