@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[DETAIL_R2_1101 2026-11-01 BGM 섹션 — 이어 듣기 세부 여섯] 항목마다 깨 보기(지금 main 판 빨강)
-   ① 축사 · 편지 «음악과 함께» — 고른 곡 뜸은 낭독 · 말씀 바로 앞(작은 플레이어 · 크게 보기 둘 다) · 그 앞 여는 말은 본식 곡(M4)
+   ① 축사 · 편지 «음악과 함께» — ★[ONE_FLOW_1106] 따로 곡이 없다: 여는 말 · 말씀 · 낭독 모두 본식 곡(M4) · 차례 앞 새 곡 뜸 0(작은 플레이어 · 크게 보기 둘 다 · 뜸은 맨 앞)
    ② 듣는 중에 음악 칩(없이 · 함께 · 곡)을 바꾸면 1.5초에 멈춤 · 다음 ▶ 에서 새 차례
    ③ 성혼 선언 따로 듣기 · 곡이 늦으면 «곡이 온 때»부터 연출(앞 곡 1.5초 → 4초 내림 → 2.5초 정적 → 멘트) · 8초 안에 안 오면 «2.5초 정적 → 멘트»
    ④ 연출 중 멈춤 → 이어 듣기 = 남은 연출부터 · 다시 돌아오면 처음부터
@@ -90,10 +90,11 @@ try {
   for (const [k, slot] of [['free', 'S5'], ['letter', 'S6']]) {
     await setS(f, { bgm: { [slot]: { m: 'bed' } } }); await go(f, k);
     if (k === 'free') { const r = await run(f, ['free'], 9000); await stop(f); const op = r.filter((x) => x.i === 0 && x.src && !x.lead && x.want > -60);
-      ok('① 작은 플레이어 실제 소리 — 여는 말 동안은 본식 곡(B09) · 고른 곡(B13)은 그 뒤', op.length > 3 && op.every((x) => x.f === 'B09') && r.some((x) => x.f === 'B13' && x.src), { op: [...new Set(op.map((x) => x.f))], fs: [...new Set(r.filter((x) => x.src).map((x) => x.i + ':' + x.f))] }); }
+      const dk = await f.evaluate(() => (BgmBed.dayAt && BgmBed.dayAt('free')) || BgmBed._t.eff('M4'));   /* [ONE_FLOW_1106] 순간 하나 = 당일 시간표 그 자리의 본식 곡(SCREEN_SOUND) */
+      ok('① 작은 플레이어 실제 소리 — 여는 말 · 말씀 모두 그 자리 본식 곡 하나 · 옛 축사 곡(B13) 0', op.length > 3 && op.every((x) => x.f === dk) && !r.some((x) => x.f === 'B13' && x.src) && r.some((x) => x.i >= 1 && x.f === dk && x.src && x.want > -60) && new Set(r.filter((x) => x.src && x.want > -60).map((x) => x.f)).size === 1, { op: [...new Set(op.map((x) => x.f))], fs: [...new Set(r.filter((x) => x.src).map((x) => x.i + ':' + x.f))] }); }
     const m = await f.evaluate(({ k }) => { const r = {}; for (const big of [false, true]) { if (big) { LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart([k], true, true); _lFull(); } else lsPlay(k);
         _lPreMark(); const q = LP.q, L = q.findIndex((x) => x._leadHere), T = q.findIndex((x) => x.bridge || x.talk2); r[big ? 'big' : 'small'] = { L, T, base: q.slice(0, Math.max(0, L)).every((x) => x._base === 'M4' && x._noLead), n: q.length }; try { lsStop(); } catch (e) {} try { lsCloseBig(); } catch (e) {} } return r; }, { k });
-    ok(`① ${k === 'free' ? '축사' : '편지'} «음악과 함께» — 고른 곡 뜸은 ${k === 'free' ? '말씀' : '낭독'} 바로 앞(작은 플레이어 · 크게 보기) · 그 앞 여는 말은 본식 곡(M4)`, m.small.L > 0 && m.small.L === m.small.T && m.small.base && m.big.L > 0 && m.big.L === m.big.T && m.big.base, m); }
+    ok(`① ${k === 'free' ? '축사' : '편지'} «음악과 함께» — ${k === 'free' ? '말씀' : '낭독'} 앞 새 곡 뜸 0(작은 플레이어 · 크게 보기 · 뜸은 맨 앞) · 본식 곡이 잇는다`, m.small.L === -1 && m.big.L === -1 && m.small.n > 1 && m.big.n > 1, m); }   /* [ONE_FLOW_1106] */
   /* ② 칩 바꾸기 */
   { await setS(f, { bgm: { S5: { m: 'bed' } } }); await go(f, 'free'); await f.evaluate(() => lsPlay('free')); await wait(f, 6500);
     const a = await f.evaluate(() => ({ q: LP.q.length, src: !!BgmBed._t.BED.cur.src })); await f.evaluate(() => bgmAct('pick', 'S5', 'none')); await wait(f, 1800);

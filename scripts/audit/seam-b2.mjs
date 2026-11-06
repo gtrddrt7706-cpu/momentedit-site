@@ -100,7 +100,8 @@ try {
   (async () => { try {
   if (want('음07')) {
     const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js')), SB = { bgm: { M4: { k: 'B10' }, S6: { m: 'bed', k: 'B10' } } }, R1 = P.plan(SB, {}), R0 = P.plan({ bgm: {} }, {}), R2 = P.plan({ bgm: { M4: { k: 'B10' } } }, {});
-    ok('음07-T01 곡 계획 — 본식 B10 · 편지 «음악과 함께» B10 → 본식 첫 곡 B10(뒤로 밀지 않는다) · 편지 B10 · «본식에서도 고른 곡» 한 줄(dupSeg) 그대로', R1.M4.first === 'B10' && R1.M4S6.first === 'B10' && P.dupSeg(SB, 'M4S6') === 'M4', { M4: R1.M4.list, M4S6: R1.M4S6.first, dup: P.dupSeg(SB, 'M4S6') });
+    /* ★[ONE_FLOW_1106] 편지 «음악과 함께» 곡 칸(M4S6)은 걷었다 — 옛 저장값 S6.k 는 읽지 않는다 · 본식 첫 곡 그대로 · 칸 없음 · «…에서도 고른 곡» 한 줄 없음 */
+    ok('음07-T01 곡 계획 — 본식 B10 · 편지 «음악과 함께»(옛 저장값 B10) → 본식 첫 곡 B10(뒤로 밀지 않는다) · 편지 곡 칸 없음 · «본식에서도 고른 곡» 한 줄 없음', R1.M4.first === 'B10' && !R1.M4S6 && P.dupSeg(SB, 'M4S6') === '', { M4: R1.M4.list, M4S6: R1.M4S6 || null, dup: P.dupSeg(SB, 'M4S6') });
     ok('음07-T01 곡 계획 — 편지 칸을 안 써도(목록 1순위가 B10) 본식에 고른 B10 이 첫 곡', R2.M4.first === 'B10', R2.M4.list);
     ok('음07 대조 — 고르지 않으면 본식 1순위(B09)부터 · 목록 차례 그대로', R0.M4.first === P.PICKS.M4[0] && R0.M4.list.join() === R0.M4.list.join(), R0.M4.list);
     /* T02 미리 듣기 · 당일 콘솔 첫 곡이 같다 */

@@ -2,7 +2,8 @@
 /* ★★[DETAIL_R5_1101 규칙 1 · DETAIL_R3_1101 ⑦ ⑧ · 보탬 2] 곡 계획 한 곳(BgmPicks.plan) — 브라우저 없이 잰다
    a 고객이 고른 곡이 있으면 이어받기가 그 곡을 건너뛰지 않는다 · 목록 칸만 앞 곡을 이어받는다
    b 파일 없는 곡 → 대체곡을 정한 뒤 하루 중복 0(이어짐 제외 · 목록이 충분히 길 때)
-   c 축사 «음악과 함께» 기본곡(Moon River)도 예약 — 하객 맞이 · 테이블 목록에서 빠진다(길면) · 목록이 짧아지면 맨 뒤로
+   ★[ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 곡 칸(M4S5 · M4S6)은 걷었다 — b · c 는 한 곡 칸(화촉 M2 · 부모님께 인사 M5)으로 같은 규칙을 잰다
+   c 한 곡 칸에서 고른 곡(부모님께 인사 B16)도 예약 — 하객 맞이 · 테이블 목록에서 빠진다(길면) · 목록이 짧아지면 맨 뒤로
    d 뺀 순간(화촉)의 옛 선택은 중복 · 예약 셈에 넣지 않는다(fill 빼기 · «…에서도 고른 곡» 한 줄)
    e 식순 화면 · 당일 콘솔이 같은 함수를 부른다(bgm-bed planOf · console segPlanAll)
    BP_PICKS = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 */
@@ -23,17 +24,17 @@ if (plan) {
     ok('a 테이블(목록 칸)은 앞 곡 B16 을 맨 앞에 이어받는다 · 한 번 들은 걸로 친다(앞 칸 예약이어도 빼지 않는다)', r.M8.list[0] === 'B16' && r.M8.carry === 'B16', r.M8);
     void S; }
   /* b */
-  { const have = (f) => f !== 'B13', r = plan({ bgm: { S5: { m: 'bed' } } }, { on: all, have, dur: () => 2000 });   /* 곡마다 길어 목록이 모자라지 않을 때 */
+  { const have = (f) => f !== 'B05', r = plan({ bgm: {} }, { on: all, have, dur: () => 2000 });   /* 곡마다 길어 목록이 모자라지 않을 때 */
     /* [AFTER_PHOTO_LOOP_1102] 마지막 곡(M8L)은 이어 트는 목록 — 앞에서 쓴 곡을 빼지 않고 뒤로 보낸다(사장님 사양). 하루 중복은 M8L 밖에서 세고, M8L 은 자기 안 중복 0 · B13 없음만 본다 */
     const used = []; Object.keys(r).forEach((sg) => { if (sg !== 'M8L') r[sg].list.forEach((f) => used.push(f)); });
     const dup = used.filter((f, i) => used.indexOf(f) !== i), lp = (r.M8L && r.M8L.list) || [];
-    const lpOk = lp.every((f, i) => lp.indexOf(f) === i) && lp.indexOf('B13') < 0;
-    ok('b 축사 곡 B13 파일이 없다 — 대체곡 B14 · 그 뒤 하루 중복 0(목록 길이 충분 · 마지막 곡 이어 트는 목록은 따로) · B13 은 어디에도 없다', r.M4S5.first === 'B14' && !dup.length && used.indexOf('B13') < 0 && lpOk, { first: r.M4S5.first, dup, M1: r.M1.list, M8: r.M8.list, M8L: lp }); }
+    const lpOk = lp.every((f, i) => lp.indexOf(f) === i) && lp.indexOf('B05') < 0;
+    ok('b 화촉 곡 B05 파일이 없다 — 대체곡 B31 · 그 뒤 하루 중복 0(목록 길이 충분 · 마지막 곡 이어 트는 목록은 따로) · B05 는 어디에도 없다', r.M2.first === 'B31' && !dup.length && used.indexOf('B05') < 0 && lpOk, { first: r.M2.first, dup, M1: r.M1.list, M8: r.M8.list, M8L: lp }); }
   /* c */
-  { const S = { bgm: { S5: { m: 'bed' } } }, rl = plan(S, { on: all, dur: long }), rs = plan(S, { on: all, dur: short });
-    ok('c 축사 «음악과 함께» 기본곡 B13 은 예약 — 목록이 길면 하객 맞이 · 테이블에서 빠진다', rl.M4S5.first === 'B13' && rl.M1.list.indexOf('B13') < 0 && rl.M8.list.indexOf('B13') < 0, { M1: rl.M1.list, M8: rl.M8.list });
+  { const S = { bgm: { M5: { k: 'B16' } } }, rl = plan(S, { on: all, dur: long }), rs = plan(S, { on: all, dur: short });
+    ok('c 부모님께 인사에서 고른 B16 은 예약 — 목록이 길면 하객 맞이 · 테이블에서 빠진다', rl.M5.first === 'B16' && rl.M1.list.indexOf('B16') < 0 && rl.M8.list.indexOf('B16') < 0, { M1: rl.M1.list, M8: rl.M8.list });
     const lenM8 = (a) => a.length * 240;
-    ok('c 빼서 목록 합이 필요한 길이(30분) 밑이면 빼지 않고 맨 뒤로 — 테이블 목록에서 겹치는 곡이 뒤에 · 앞은 겹치지 않는 곡', rs.M8.list.length >= 5 && rs.M8.list.slice(-3).every((f) => rs.M1.list.indexOf(f) > -1 || f === 'B13') && rs.M1.list.indexOf(rs.M8.list[0]) < 0 && lenM8(rs.M8.list) <= 1800 + 240 * 5, { M1: rs.M1.list, M8: rs.M8.list });
+    ok('c 빼서 목록 합이 필요한 길이(30분) 밑이면 빼지 않고 맨 뒤로 — 테이블 목록에서 겹치는 곡이 뒤에 · 앞은 겹치지 않는 곡', rs.M8.list.length >= 5 && rs.M8.list.slice(-3).every((f) => rs.M1.list.indexOf(f) > -1 || f === 'B16') && rs.M1.list.indexOf(rs.M8.list[0]) < 0 && lenM8(rs.M8.list) <= 1800 + 240 * 5, { M1: rs.M1.list, M8: rs.M8.list });
     const r6 = plan({ bgm: {} }, { on: all, dur: short });
     ok('c 닫는 인사 목록 — 앞 목록 곡(B16)은 15분이 넘으면 뺀다', r6.M6.list.indexOf('B16') < 0 && r6.M6.list.length * 240 >= 900, r6.M6.list); }
   /* d */

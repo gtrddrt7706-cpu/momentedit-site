@@ -20822,7 +20822,7 @@ chk 'function tailHush()' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ④] 여운도
 chk 'function backBed(k)' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ⑤ ⑨] 식전 영상 · 닫는 인사 첫 멘트 = 앞 순간 곡
 chk "걷는 동안 음악이 크게 흘러요 · 미리 듣기에서는 8초로 줄였어요" order-preview.html 1   # [DETAIL_R1_1101 ⑥]
 chk 'if(BUF\[ENT_F\]!==o||ENT.turn!==tk) return;' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ⑦] 입장 곡 요청 차례
-chk 'function swapSrc(v,b,at,f)' assets/bgm-bed.js 1   # [DETAIL_R1_1101 ⑧] 짧은 판 겹쳐 잇기
+chk 'function swapSrc(v,b,at,f,xf)' assets/bgm-bed.js 1   # [ONE_FLOW_1106 ②] 겹침 초 인자   # [DETAIL_R1_1101 ⑧] 짧은 판 겹쳐 잇기
 chk 'DETAIL_R1_1101' scripts/audit/detail-r1.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/detail-r1.mjs >/dev/null 2>&1; _r1=$?; if [ "$_r1" = 1 ]; then echo 'FAIL detail-r1: 이어 듣기 세부 아홉(대신 흐르는 곡 · 늦은 목록 · 멈춤 이어 듣기 · 여운 · 식전 영상 · 걷는 줄 · 입장 곡 경합 · 짧은 판 · 닫는 인사) — node scripts/audit/detail-r1.mjs'; fail=1; elif [ "$_r1" = 2 ]; then echo 'skip detail-r1 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok detail-r1'; fi; fi   # ★[DETAIL_R1_1101]
 chk 'function lpDeclare(st,f,re)' assets/bgm-bed.js 1   # ★[DETAIL_R2_1101 ③] 선언 · 곡이 늦으면 온 때부터 연출 · 8초 넘으면 정적 2.5초 → 멘트
@@ -21772,7 +21772,8 @@ chk "actId: 'photo-family', name: '가족 구도', text: '', est: 0, duck: -18,"
 chk "if (k === 'free') return /^narr-free-in/.test(sl) ? 'M4' : '';" console.html 1
 chk "if (k === 'letter') return /^letter-/.test(sl) ? 'M4' : '';" console.html 1
 chk "if (k === 'song') return 'M4';" console.html 1
-chk "c.slug === 'narr-free-in-speech' && _bd('S5') && segPlan('M4S5')) segGo('M4S5');" console.html 1
+nochk "segGo('M4S5')" console.html   # ★[ONE_FLOW_1106] «음악과 함께» 축사 · 편지 곡 칸으로 넘기지 않는다 — 되살리지 말 것
+nochk "segGo('M4S6')" console.html
 chk "segPlan(_ns) && st.xf) { segGo(_ns);" console.html 1
 nochk "if (k === 'free') return (bed('S5') && segPlan('M4S5')) ? 'M4S5' : 'M4';" console.html 0
 chk "if(k==='song') return 'M4';" assets/bgm-bed.js 1
@@ -21780,7 +21781,7 @@ chk "if(st._base){ return effHas(st._base); }" assets/bgm-bed.js 1
 chk 'var CEIL_DB=-2.5;' assets/bgm-bed.js 1
 chk "w.oversample='4x';" assets/bgm-bed.js 1
 chk 'var lim=mkBus(a);' assets/bgm-bed.js 1
-chk "if (v && v.kind === 'pick' && v.s.flow) {" assets/bgm-slots.js 1
+nochk "v.kind === 'pick' && v.s.flow" assets/bgm-slots.js   # ★[ONE_FLOW_1106] «음악과 함께» 차례 앞 새 곡 뜸 걷음 — 되살리지 말 것
 chk 'q\[z\]._noLead=1; q\[z\]._base=' order-preview.html 1
 chk '!st._pre&&!st._noLead&&' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/bgm-timing2.mjs >/dev/null 2>&1; _bt2=$?; if [ "$_bt2" = 1 ]; then echo 'FAIL bgm-timing2: 축사 · 편지 «음악과 함께» 곡 바꿈 자리 · 축가 M4 · 단체 사진 크기 · 편지 끝 곡 · 피크(≤ −1 dBTP)가 어긋났습니다 — node scripts/audit/bgm-timing2.mjs'; fail=1; elif [ "$_bt2" = 2 ]; then echo 'skip bgm-timing2 (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok bgm-timing2'; fi; fi
@@ -22056,6 +22057,23 @@ chk 'T04 대조' scripts/audit/reg-p17.mjs 1
 chk 'T06 다음 순간 몫 이음말' scripts/audit/reg-p17.mjs 1   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
 chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
+chk 'ONE_FLOW_1106' assets/bgm-picks.js 4   # [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» = 본식 M4 그대로(oneSeg) · M4 겹침 8초(xfOf)
+chk 'function oneSeg(seg)' assets/bgm-picks.js 1
+chk "var XF = { M4: 8 }, XF0 = 3;" assets/bgm-picks.js 1
+nochk "id: 'M4S5'" assets/bgm-picks.js   # ★[ONE_FLOW_1106] 옛 축사 «음악과 함께» 곡 칸 — 되살리지 말 것
+nochk "id: 'M4S6'" assets/bgm-picks.js
+chk "if(k==='free'||k==='letter') return 'M4';" assets/bgm-bed.js 1
+chk 'function hushSoon(f,sec)' assets/bgm-bed.js 1   # [ONE_FLOW_1106 ④] 목록 끝 조각 막기
+chk 'function cutKeep(v,db,ms)' assets/bgm-bed.js 1   # [ONE_FLOW_1106 ⑥] 끊긴 곡 이어 듣기
+chk "var SUB={};" assets/bgm-bed.js 1
+chk 'function segXf()' console.html 1
+chk 'function segXfFor(sid)' console.html 1   # [ONE_FLOW_1106 ②] 아주 짧은 곡은 3초 겹침
+chk '검토 A-2' assets/bgm-bed.js 1   # [ONE_FLOW_1106 ⑥] 선언 · 박수 새 곡 자리는 끊긴 곡을 되살리지 않는다
+chk '검토 A-2' console.html 2
+chk 'BED.cut = { id: BED.id, t: _ce.currentTime' console.html 1
+chk 'ONE_FLOW_1106 ⑤' assets/ritual-cue.js 1
+chk 'T08 끊긴 곡 이어 듣기' scripts/audit/one-flow.mjs 1
+chk 'meaning-r2 gpt-r1 one-flow' .github/workflows/merge-guard.yml 1
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
 chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1

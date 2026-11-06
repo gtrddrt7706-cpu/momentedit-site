@@ -87,7 +87,7 @@ try {
     ok('a M1 차례 = 1순위 → 나머지 → fill(B16 · B33) · 5곡 · 중복 없음', o0.join() === 'B01,B24,B13,B16,B33', o0);
     ok('a [LIST_NO_PICK_1101] 옛 저장값 S.bgm.M1.k 는 무시 — 차례는 1순위부터 그대로 · clean 에서 빠진다', o1.join() === 'B01,B24,B13,B16,B33' && P.custK({ bgm: { M1: { k: 'B13' }, M8: { k: 'B23' } } }, 'M8') === '' && JSON.stringify(SL.clean({ M1: { k: 'B13' }, M8: { k: 'B23' }, M2: { k: 'B07' } })) === '{"M2":{"k":"B07"}}', o1);
     ok('a fill 이 다른 구간에서 고른 곡이면 건너뜀(부모님께 인사 B16 → M1 은 B33 만)', o2.join() === 'B01,B24,B13,B33', o2);
-    ok('a M8 = B24 · B23 · B16 · B13 · B14 · 축사 «음악과 함께» B13 을 고르면 B13 건너뜀', o3.join() === 'B24,B23,B16,B13,B14' && o4.join() === 'B24,B23,B16,B14', { o3, o4 });
+    ok('a M8 = B24 · B23 · B16 · B13 · B14 · 축사 «음악과 함께» B13 을 고르면 B13 건너뜀', o3.join() === 'B24,B23,B16,B13,B14' && o4.join() === o3.join(), { o3, o4 });   /* [ONE_FLOW_1106] 축사 «음악과 함께» 곡 칸이 없다 — 옛 저장값 S5.k(B13)는 읽지 않아 테이블 배경 곡에서 빠지지 않는다(건너뛰기 규칙은 위 o2 · M1 이 지킨다) */
     ok('a 한 곡 구간 차례 = 목록(화촉 B05 · B31 · B07) · fill 없음', P.order({}, 'M2').join() === 'B05,B31,B07' && !P.FILL.M2);
     const g = ['B31', 'B32', 'B33', 'B34'].map((f) => P.SONGS[f] && [f, P.SONGS[f].t, P.SONGS[f].a, P.SONGS[f].src].join('|'));
     ok('a 지브리 4곡 — 언제나 몇 번이라도 · 너를 태우고(Elizabeth Bright) · 바람이 지나가는 길 · 산책(Kazumi Tateishi Trio)', g.join(' / ') === 'B31|언제나 몇 번이라도|Elizabeth Bright|센과 치히로의 행방불명 / B32|너를 태우고|Elizabeth Bright|천공의 성 라퓨타 / B33|바람이 지나가는 길|Kazumi Tateishi Trio|이웃집 토토로 / B34|산책|Kazumi Tateishi Trio|이웃집 토토로', g);

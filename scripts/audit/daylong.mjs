@@ -86,11 +86,11 @@ const minNode = (S, ks) => { let s = 0; C.build(S, { mode: 'console' }).cues.for
 const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'song'], K6 = ['_close', '_photo'];
 try {
   /* a 데이터 */
-  { ok('a M4 · M6 는 고르는 칸 그대로(custK) · 이어 트는 목록(loopy)', P.custK({ bgm: { M4: { k: 'B11' } } }, 'M4') === 'B11' && P.custK({ bgm: { M6: { k: 'B34' } } }, 'M6') === 'B34' && typeof P.loopy === 'function' && P.loopy('M4') && P.loopy('M6') && !P.loopy('M2') && !P.loopy('M4S5'));
+  { ok('a M4 · M6 는 고르는 칸 그대로(custK) · 이어 트는 목록(loopy)', P.custK({ bgm: { M4: { k: 'B11' } } }, 'M4') === 'B11' && P.custK({ bgm: { M6: { k: 'B34' } } }, 'M6') === 'B34' && typeof P.loopy === 'function' && P.loopy('M4') && P.loopy('M6') && !P.loopy('M2') && P.loopy('M4S5') === P.loopy('M4'));   /* [ONE_FLOW_1106] 옛 M4S5 는 M4 로 읽는다 */
     const a = P.order({ bgm: { M4: { k: 'B11' } } }, 'M4'), b = P.order({ bgm: { M6: { k: 'B34' } } }, 'M6'), c = P.order({ bgm: { M2: { k: 'B07' } } }, 'M6'), d = P.order({}, 'M6', 'B19');
     ok('a M4 = 고른 곡(B11) → 나머지(B09 · B10) · fill 없음', a.join() === 'B11,B09,B10', a);
     ok('a M6 = 고른 곡(B34) → 나머지 → fill(B07 · B16) · 화촉에서 고른 B07 은 건너뜀 · 앞 곡(B19) 잇기는 맨 앞', b.join() === 'B34,B17,B19,B07,B16' && c.join() === 'B17,B34,B19,B16' && d.join() === 'B19,B17,B34,B07,B16', { b, c, d });
-    ok('a 축사 · 편지 «음악과 함께»(M4S5 · M4S6)는 한 곡 칸 그대로', P.order({}, 'M4S5').join() === 'B13,B14,B12' && !(P.FILL.M4S5 || P.FILL.M4S6)); }
+    ok('a 축사 · 편지 «음악과 함께»(옛 M4S5 · M4S6) 칸은 없다 — 본식 M4 목록으로 읽는다(ONE_FLOW_1106)', P.order({}, 'M4S5').join() === P.order({}, 'M4').join() && P.order({}, 'M4S6').join() === P.order({}, 'M4').join() && !P.SEGS.some((x) => /^M4S/.test(x.id)) && !(P.FILL.M4S5 || P.FILL.M4S6)); }
   /* b 고객 화면 · d 미리 듣기 */
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
@@ -142,13 +142,14 @@ try {
     ok('c 콘솔 감사 인사 — 고른 곡(B11)부터 · 끝 3초 전 목록의 다음 곡으로(말하는 자리 도중이면 그 줄이 끝난 다음 줄에서 · MEANING_R2 뒤 감사 인사는 6초 뜸이라 9초 시험 곡은 뜸 · 나레이션 중에 넘어갈 수 있다)', a1.seg === 'M4' && a1.id === 'B11' && (!tk || a2.id === aL.id) && a3.seg === 'M4' && a3.id !== a2.id && ['B09', 'B10', 'B11'].indexOf(a3.id) > -1, { tk, a1: [a1.seg, a1.id, a1.li], a2: [a2.seg, a2.id, a2.li], a3: [a3.seg, a3.id, a3.li] });
     ok('c 콘솔 오류 0', !c.errs.length, c.errs.slice(0, 2)); await c.ctx.close(); }
   { const S0 = base({ welcome: 1, vow: 1, free: 1, letter: 1, song: 0, tribute: 0 }, { M4: { k: 'B11' }, S5: { m: 'bed' } });
-    const c = await con(S0, [['M4', 1, 300], ['M4', 2, 350], ['M4', 3, 400], ['M4S5', 1, 500]], 60);
+    const c = await con(S0, [['M4', 1, 300], ['M4', 2, 350], ['M4', 3, 400]], 60);   /* [ONE_FLOW_1106] M4S5 곡 칸 없음 */
     const iW = c.Rq.findIndex((x) => x.k === 'welcome' && !/^bridge-/.test(x.slug || '')), iF = c.Rq.findIndex((x) => x.slug === 'narr-free-in-speech'), iL = c.Rq.findIndex((x) => /^letter-/.test(x.slug || ''));
     if (iW < 0 || iF < iW || iL < iF) ok('c 콘솔 시험 조건', false, { iW, iF, iL });
     else { await c.pg.evaluate((i) => window.__bgmGo.fire(i), iW); await c.pg.waitForTimeout(1200); const b0 = await c.pg.evaluate(() => window.__seg.st());
       await c.pg.evaluate((i) => window.__bgmGo.fire(i), iF); await c.pg.waitForTimeout(800); await c.pg.waitForFunction(() => window.__bgmSt().phase === 'live', null, { timeout: 8000 }).catch(() => {}); await c.pg.waitForTimeout(200); await c.pg.evaluate(() => window.__bgmGo.tap());   /* [MEANING_R2_1102] 감사 인사 6초 뜸(−8) 뒤라 축사 여는 말이 음악을 0.8초 먼저 내린다 — 사람 구간(live)이 시작된 뒤 GO */ await c.pg.waitForTimeout(1200); const b1 = await c.pg.evaluate(() => window.__seg.st());
       await c.pg.evaluate((i) => window.__bgmGo.fire(i), iL); await c.pg.waitForTimeout(1500); const b2 = await c.pg.evaluate(() => window.__seg.st());
-      ok('c 콘솔 축사 «음악과 함께»(M4S5 한 곡) 뒤 감사 인사로 돌아오면 멈춘 곡(B11)의 멈춘 초부터 — 처음 0초로 돌아가지 않는다(DETAIL_R3_1101 ⑥ · DETAIL_R5_1101 규칙 6)', b0.seg === 'M4' && b0.id === 'B11' && b1.seg === 'M4S5' && b1.res === 'M4' && b2.seg === 'M4' && b2.id === 'B11' && b2.li === 0 && b2.t >= b0.t + 0.5, { b0: [b0.seg, b0.id], b1: [b1.seg, b1.id, b1.res], b2: [b2.seg, b2.id, b2.li, b2.list, b0.t, b2.t] }); }
+      /* ★[ONE_FLOW_1106] 축사 «음악과 함께» = 본식 곡(B11)이 그대로 잇는다 — 구간 바꿈 0 · 편지로 넘어가도 같은 곡 · 처음 0초로 돌아가지 않는다 */
+      ok('c 콘솔 축사 «음악과 함께» — 본식 곡(B11) 그대로(구간 M4 · 곡 바꿈 0) · 편지로 넘어가도 같은 곡 · 처음 0초로 돌아가지 않는다', b0.seg === 'M4' && b0.id === 'B11' && b1.seg === 'M4' && b1.id === 'B11' && b2.seg === 'M4' && b2.id === 'B11' && b2.li === 0 && b2.t >= b0.t + 0.5, { b0: [b0.seg, b0.id], b1: [b1.seg, b1.id, b1.res], b2: [b2.seg, b2.id, b2.li, b2.list, b0.t, b2.t] }); }
     ok('c 콘솔 오류 0 (2)', !c.errs.length, c.errs.slice(0, 2)); await c.ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();

@@ -25,22 +25,22 @@ let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}
 const P = require(path.join(ROOT, 'assets/bgm-picks.js')), B = require(path.join(ROOT, 'assets/bgm-slots.js'));
 /* ★[PICKS_THREE_1101 2026-11-01] 구간마다 3곡으로 줄인 표(뺀 7곡 B02 · B03 · B04 · B06 · B18 · B21 · B25 는 곡 데이터만 남는다 · 자세히는 picks-three.mjs) */
 /* ★[GHIBLI_ADD_1101 2026-11-01] 지브리 4곡(B31 ~ B34)을 넣은 판 · 목록 칸 fill(M1 B16 · B33 · M8 B13 · B14)도 «쓰인다»에 센다 */
-const WANT = { M1: 'B01 B24 B13', M2: 'B05 B31 B07', M4: 'B09 B10 B11', M4S5: 'B13 B14 B12', M4S6: 'B10 B12 B14', M5: 'B15 B31 B16',
+const WANT = { M1: 'B01 B24 B13', M2: 'B05 B31 B07', M4: 'B09 B10 B11', M5: 'B15 B31 B16',
   M6: 'B17 B34 B19', M7: 'B28 B29 B22', M8: 'B24 B23 B16', M8L: 'B32 B11 B27' };
-const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B20', 'B21', 'B25', 'B26', 'B30'];
+const GONE = ['B02', 'B03', 'B04', 'B06', 'B12', 'B18', 'B20', 'B21', 'B25', 'B26', 'B30'];   /* [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 곡 칸(M4S5 · M4S6)을 걷어 B12 는 데이터만 남는다 · 표는 8구간 */
 const VOCAL = ['B04', 'B20', 'B22', 'B25', 'B28', 'B29'];
 const TITLES = { B01: '바다가 보이는 마을', B05: '인생의 회전목마', B09: 'Innocent in Sonatine', B13: 'Moon River', B28: 'Happy', B29: 'Best Day Of My Life', B30: '꽃바람 부는 길', B17: 'Summer Montage / Madeline', B21: "Herman's Habit", B23: '둘의 대화', B26: 'Bluebird', B27: 'At the Ivy Gate' };
 { const got = {}; Object.keys(WANT).forEach((s) => { got[s] = P.list(s).map((x) => x.f).join(' '); });
-  ok('A1 곡 표 그대로 — 10구간 · 위가 1순위(2026-11-01 표 · PICKS_THREE_1101 · GHIBLI_ADD_1101)', Object.keys(WANT).every((s) => got[s] === WANT[s]), got);
+  ok('A1 곡 표 그대로 — 10구간 · 위가 1순위(2026-11-01 표 · PICKS_THREE_1101 · GHIBLI_ADD_1101)', Object.keys(WANT).every((s) => got[s] === WANT[s]) && !P.PICKS.M4S5 && !P.PICKS.M4S6 && P.list('M4S5').map((x) => x.f).join(' ') === WANT.M4, got);   /* [ONE_FLOW_1106] 8구간(M4S5 · M4S6 걷음 · 옛 이름은 M4 로 읽힌다) */
   const ids = Object.keys(P.SONGS);
-  ok('A1 곡 33 · 번호 B01 ~ B34 에서 B08 은 비움(다시 쓰지 않음) · 뺀 10곡 말고는 다 어딘가(목록 · fill)에 쓰인다 · 곡 이름 표와 같다', ids.length === 33 && !P.SONGS.B08 && ids.join() === Array.from({ length: 34 }, (_, i) => 'B' + String(i + 1).padStart(2, '0')).filter((f) => f !== 'B08').join() && ids.every((f) => GONE.includes(f) !== (Object.values(WANT).some((w) => w.split(' ').includes(f)) || Object.values(P.FILL).some((x) => x.includes(f)))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
+  ok('A1 곡 33 · 번호 B01 ~ B34 에서 B08 은 비움(다시 쓰지 않음) · 뺀 11곡 말고는 다 어딘가(목록 · fill)에 쓰인다 · 곡 이름 표와 같다', ids.length === 33 && !P.SONGS.B08 && ids.join() === Array.from({ length: 34 }, (_, i) => 'B' + String(i + 1).padStart(2, '0')).filter((f) => f !== 'B08').join() && ids.every((f) => GONE.includes(f) !== (Object.values(WANT).some((w) => w.split(' ').includes(f)) || Object.values(P.FILL).some((x) => x.includes(f)))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
   ok('A1 사진 칸(M6P)은 비웠다 — 닫는 인사 곡이 잇는다', P.list('M6P').length === 0);
   const v = ids.filter((f) => P.SONGS[f].vocal);
   ok('A2 보컬 곡 = B04 · B20 · B22 · B25 · B28 · B29(vocal: true)', v.join() === VOCAL.join(), v);
   const first = Object.keys(P.PICKS).filter((s) => s !== 'M7' && P.list(s)[0] && P.list(s)[0].vocal);
   ok('A2 보컬 곡은 1순위가 아니다(축배 M7 만 예외 — GO 뒤에 시작해 나레이션 위로 크게 나오지 않는다 · 덧붙임 2)', !first.length && P.list('M7')[0].f === 'B28', first);
-  const a = P.list('M1').find((x) => x.f === 'B13'), b = P.list('M4S5').find((x) => x.f === 'B13');
-  ok('A3 한 번호 = 한 파일 — B13 이 하객 맞이 · 축사에 같은 번호 · 같은 곡 아이디(콘솔 파일도 한 번)', a && b && a.id === 'B13' && b.id === 'B13' && a.t === b.t);
+  const a = P.list('M1').find((x) => x.f === 'B13'), b = P.FILL.M8.indexOf('B13') > -1 ? P.song('B13') : null;   /* [ONE_FLOW_1106] 축사 칸이 없다 — 하객 맞이 목록 · 테이블 배경 곡(fill)의 B13 */
+  ok('A3 한 번호 = 한 파일 — B13 이 하객 맞이 · 테이블 배경 곡에 같은 번호 · 같은 곡 아이디(콘솔 파일도 한 번)', a && b && a.id === 'B13' && b.id === 'B13' && a.t === b.t);
   ok('A4 옛 번호(M2_1)는 «고르지 않음» — custK 빈칸 · 저장 꼴이 버린다 · 새 번호는 지킨다', P.custK({ bgm: { M2: { k: 'M2_1' } } }, 'M2') === '' && B.clean({ M2: { k: 'M2_1' } }) === undefined
     && P.custK({ bgm: { M2: { k: 'B07' } } }, 'M2') === 'B07' && JSON.stringify(B.clean({ M2: { k: 'B07' }, S5: { m: 'bed', k: 'M4S5_1' }, S6: { m: 'bed', k: 'B10' } })) === '{"S5":{"m":"bed"},"S6":{"m":"bed","k":"B10"},"M2":{"k":"B07"}}'
     && P.custK({ bgm: { M2: { k: 'B13' } } }, 'M2') === '');   // 다른 구간 곡 번호도 그 구간에서는 «고르지 않음»
@@ -160,8 +160,8 @@ try {
   { const S = SOF('record');
     const { ctx, pg, errs } = await open(S, { files: [[row('M1', 1), F.a], [row('M1', 3), F.d], [row('M5', 1), F.b], [row('M6', 1), F.c], [row('M7', 1), F.d]],
       before: async (p) => { await p.fill('[data-seg-start="B28"]', '5'); await p.dispatchEvent('[data-seg-start="B28"]', 'change'); } });
-    const shared = await pg.evaluate(() => { const r = [...document.querySelectorAll('.sg[data-seg="M4S5"] .sg-song')].find((x) => /Moon River/.test(x.textContent)); return r ? { st: r.querySelector('.sg-st').textContent, lab: r.querySelector('.filebtn').textContent } : null; });
-    ok('C8 한 파일 — 하객 맞이 B13 에 넣은 파일이 축사 «음악과 함께» B13 칸에도 «있음»(곡 아이디 = 번호)', shared && /^✓/.test(shared.st) && shared.lab === '파일 바꾸기', shared);
+    const shared = await pg.evaluate(() => { const r = [...document.querySelectorAll('.sg[data-seg="M8"] .sg-song')].find((x) => /Moon River/.test(x.textContent));   /* [ONE_FLOW_1106] 축사 칸 대신 테이블 배경 곡 칸 */ return r ? { st: r.querySelector('.sg-st').textContent, lab: r.querySelector('.filebtn').textContent } : null; });
+    ok('C8 한 파일 — 하객 맞이 B13 에 넣은 파일이 테이블 배경 곡 B13 칸에도 «있음»(곡 아이디 = 번호)', shared && /^✓/.test(shared.st) && shared.lab === '파일 바꾸기', shared);
     /* ★[PICKS_THREE_1101 · GHIBLI_ADD_1101] 고객 목록의 가사 곡은 축배뿐 — 보컬 −6 은 다음 칸에서 B17 을 시험용 가사 곡으로 표시해 축배 나레이션 아래에서 잰다 */
     await ctx.close(); }
   { const S = SOF('record');

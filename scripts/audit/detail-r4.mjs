@@ -159,12 +159,12 @@ try {
     const o6 = await f.evaluate(async (m4) => { const B = BgmBed._t, o = []; let n = 0, jumped = false, s5t = null; LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['free', 'letter'], true); _lFull(); const t0 = performance.now();
       await new Promise((res) => { const iv = setInterval(() => { const v = B.BED.cur, st = LP.q[LP.i]; if (v && v.src && !v.__id) v.__id = ++n;
         o.push({ t: performance.now() - t0, k: st && st.k, f: v && v.f, src: !!(v && v.src), id: v && v.__id || 0, off: v && v.off });
-        if (!jumped && st && st.k === 'free' && v && v.src && v.f && v.f !== m4) { if (s5t == null) s5t = performance.now(); else if (performance.now() - s5t > 3000) { jumped = true; lsJump(1); } }   /* 축사 «음악과 함께» 곡이 3초 흐른 뒤 다음 순간(편지)으로 */
+        if (!jumped && st && st.k === 'free' && v && v.src && v.f) { if (s5t == null) s5t = performance.now(); else if (performance.now() - s5t > 3000) { jumped = true; lsJump(1); } }   /* ★[ONE_FLOW_1106] 축사 «음악과 함께»(본식 곡이 잇는다)가 3초 흐른 뒤 다음 순간(편지)으로 */
         if (performance.now() - t0 > 50000 || (jumped && performance.now() - s5t > 15000)) { clearInterval(iv); res(); } }, 100); });
       try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return o; }, m40);
-    const m4 = await f.evaluate(() => BgmBed._t.eff('M4')), ids = [...new Set(o6.filter((x) => x.src && x.f === m4).map((x) => x.id))], s5 = o6.some((x) => x.src && x.f !== m4 && x.k === 'free');
-    const back = ids.length > 1 ? o6.find((x) => x.id === ids[ids.length - 1]) : null;
-    ok('R3 ⑥ 축사 «음악과 함께» 곡 뒤 본식 곡으로 돌아오면 떠난 초부터(0초 아님)', s5 && !!back && back.off > 1, { m4, ids, back, s5, seq: [...new Set(o6.filter((x) => x.src).map((x) => x.k + ':' + x.f + ':' + x.id + ':' + Math.round(x.off || 0)))].slice(0, 24) }); }
+    /* ★[ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 곡 칸이 없어 «그 곡 뒤 본식 곡으로 돌아온다»가 없다 — 가장 가까운 뜻: 축사 · 편지 동안 들리는 곡은 본식 목록(M4) 곡뿐 · 옛 축사 곡 0 */
+    const M4L = await f.evaluate(() => BgmPicks.PICKS.M4.slice()), heard = [...new Set(o6.filter((x) => x.src && x.f && (x.k === 'free' || x.k === 'letter')).map((x) => x.f))], s5 = heard.some((f0) => M4L.indexOf(f0) < 0);
+    ok('R3 ⑥ 축사 · 편지 «음악과 함께» — 들리는 곡은 본식 목록(M4) 곡뿐 · 축사 → 편지로 넘겨도 다른 곡 칸 0', heard.length > 0 && !s5 && o6.some((x) => x.k === 'letter' && x.src), { M4L, heard, seq: [...new Set(o6.filter((x) => x.src).map((x) => x.k + ':' + x.f + ':' + x.id + ':' + Math.round(x.off || 0)))].slice(0, 24) }); }
   /* ★[DETAIL_R5_1101 규칙 6] 새로 듣기(처음부터)는 위치 0 — 앞 흐름의 «떠난 초»를 새 듣기에 들고 오지 않는다 */
   { const m4 = await f.evaluate(() => BgmBed._t.eff('M4')), kp = await f.evaluate((m4) => (BgmBed._t.LPB.keep || {})[m4] || 0, m4); await go(f, 'letter');
     const dk = await f.evaluate((m4) => BgmBed.dayAt('letter') || m4, m4), hk = await f.evaluate((dk) => BgmBed._t.hookOf ? BgmBed._t.hookOf(dk) : 0, dk);   /* ★[SCREEN_SOUND_1102 2] 편지만 = 당일 시간표 그 자리 곡 · 목록 첫 곡이 아니면 강조 자리부터 */

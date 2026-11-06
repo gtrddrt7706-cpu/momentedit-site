@@ -1435,7 +1435,7 @@
       return [
         cue({
           k: 'letter', blockN: '편지 낭독', slug: 'letter-' + S.letter, name: '편지 낭독 시작', text: l.nar,
-          duck: bed ? PARAM.duckSpeech : dk, pick: l.d,   /* ★[BGM_TIMING2_1101] «음악과 함께» 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례(live)에서 M4S6 로 3초 겹쳐 −20 */
+          duck: bed ? PARAM.duckSpeech : dk, pick: l.d,   /* ★[BGM_TIMING2_1101] «음악과 함께» 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례(live)는 ★[ONE_FLOW_1106] 같은 본식 곡(M4)이 −20 으로 잇는다(옛 M4S6 곡 칸 없음) */
           note: bed ? '음악이 낭독 아래 아주 작게(−20) 깔린다 — 처음부터 낮춰 두어 더킹 홀드 버튼이 필요 없다(§3-A)' : '이 구간은 애초에 무음이라 더킹 홀드 버튼이 필요 없다(§3-A)',
           live: {
             t: bed ? '두 분이 직접 편지 낭독 (음악이 아주 작게)' : '두 분이 직접 편지 낭독', est: txSec(S, 'letter', 165), self: true, doing: 'say', peak: true,
@@ -2119,6 +2119,10 @@
         var pv = j > 0 ? lv(P[j - 1]) : null; if (pv != null && pv <= -60) { var t = 0, back = false; for (var m = j; m < P.length; m++) { var y = lv(P[m]); if (y != null && y <= -60) { back = true; break; } t += P[m].est; if (t >= 10) break; }
           if (back && t < 10) { for (var n = j; n < P.length; n++) { var z = lv(P[n]); if ((z != null && z <= -60) || !m4(P[n].c.k)) break; set(P[n], -90); } quiet = true; } } }
     })();
+    /* ★[ONE_FLOW_1106 ⑤] «음악과 함께» 축사 · 편지 바로 뒤 축가 여는 말 — MR 앞 정적 규칙대로 줄 시작에서 내린다(NO_RELIFT 다음에 돈다 — 먼저 돌면 «축가 뒤 정적»을 세지 못한다 · 검토 A-2)(정적 → MR) · 본식 곡이 여는 말 동안 다시 들렸다 꺼지지 않게 ·
+         축사 · 편지가 없거나 «조용히»면 지금 그대로(덕담 곡이 흐르다 여는 말 −16 · NO_RELIFT E) */
+    (function () { var b5 = S.bgm || {}; for (var i = 1; i < cues.length; i++) { var c = cues[i]; if (c.slug !== 'narr-song') continue; var j = i - 1; while (j >= 0 && cues[j].k === 'song') j--; var pc = j >= 0 ? cues[j] : null;
+      if (pc && ((pc.k === 'free' && b5.S5 && b5.S5.m === 'bed') || (pc.k === 'letter' && b5.S6 && b5.S6.m === 'bed'))) c.duck = PARAM.duckOff; } })();
 
     if (mode === 'preview') {
       // 미리듣기: 전부 자동. 사람 구간은 '이런 순간이 여기 있다'만 알면 되므로 짧게 줄인다.

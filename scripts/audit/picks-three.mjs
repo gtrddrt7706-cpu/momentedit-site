@@ -71,14 +71,14 @@ async function open(W, embed, init) {
 
 const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 700); };
 /* ★[GHIBLI_ADD_1101] 지브리 4곡을 넣은 판(화촉 · 부모님께 인사 · 닫는 인사 · 마지막 곡) — 뺀 곡 10(PICKS_THREE 7 + B20 · B26 · B30) */
-const WANT = { M1: ['B01', 'B24', 'B13'], M2: ['B05', 'B31', 'B07'], M4: ['B09', 'B10', 'B11'], M4S5: ['B13', 'B14', 'B12'], M4S6: ['B10', 'B12', 'B14'], M5: ['B15', 'B31', 'B16'], M6: ['B17', 'B34', 'B19'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B32', 'B11', 'B27'] };
+const WANT = { M1: ['B01', 'B24', 'B13'], M2: ['B05', 'B31', 'B07'], M4: ['B09', 'B10', 'B11'], M5: ['B15', 'B31', 'B16'], M6: ['B17', 'B34', 'B19'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B32', 'B11', 'B27'] };
 const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B20', 'B21', 'B25', 'B26', 'B30'];
 const FILLW = { M1: ['B16', 'B33'], M8: ['B13', 'B14'], M6: ['B07', 'B16'] };   /* [DAYLONG_1101] 닫는 인사도 배경 곡 */
 const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js'));
 try {
   /* a · b 데이터 */
   { const bad = Object.keys(WANT).filter((k) => JSON.stringify(P.PICKS[k]) !== JSON.stringify(WANT[k])), all = [].concat(...Object.values(P.PICKS));
-    ok('a 구간마다 3곡 · 정한 순서 그대로(M1 · M2 · M4 · M4S5 · M4S6 · M5 · M6 · M7 · M8 · M8L)', !bad.length && Object.keys(P.PICKS).every((k) => k === 'M6P' || P.PICKS[k].length === 3), { bad: bad.map((k) => [k, P.PICKS[k]]) });
+    ok('a 구간마다 3곡 · 정한 순서 그대로(M1 · M2 · M4 · M5 · M6 · M7 · M8 · M8L)', !bad.length && !P.PICKS.M4S5 && !P.PICKS.M4S6 &&   /* [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 곡 칸 걷음 */ Object.keys(P.PICKS).every((k) => k === 'M6P' || P.PICKS[k].length === 3), { bad: bad.map((k) => [k, P.PICKS[k]]) });
     ok('a 뺀 10곡은 어느 목록에도 없다 · 곡 데이터(SONGS)는 남는다', !GONE.some((f) => all.includes(f)) && GONE.every((f) => P.SONGS[f] && P.SONGS[f].t), GONE.filter((f) => all.includes(f) || !P.SONGS[f]));
     const v1 = Object.keys(P.PICKS).filter((k) => k !== 'M7' && P.PICKS[k][0] && P.song(P.PICKS[k][0]).vocal);
     ok('b 1순위는 노래 곡이 아니다(축배 M7 만 예외)', !v1.length, v1);
@@ -101,12 +101,12 @@ try {
     const want = (sg) => (WANT[sg] || []).concat(sg === 'M1' || sg === 'M8' ? (FILLW[sg] || []) : []);   /* [DAYLONG_1101] 닫는 인사(고르는 칸)는 고객 화면 3줄 그대로 · 배경 곡은 콘솔에만 */   /* ★[LIST_NO_PICK_1101] 목록 칸(M1 · M8)은 3곡 + 배경 곡 차례 그대로(고르기 없음) */
     const srt = (a) => a.slice().sort().join();   /* ★[DETAIL_R3_1101 ⑦ 보탬] 목록 칸(M1 · M8) 차례는 하루 곡 계획(BgmPicks.plan · 겹침은 맨 뒤)이 정한다 — 차례는 detail-r5 · carry-same 이 잰다 · 여기선 곡이 같은가만 */
     const bad = Object.keys(seen).filter((sg) => WANT[sg] && ((sg === 'M1' || sg === 'M8') ? srt(seen[sg]) !== srt(want(sg)) : JSON.stringify(seen[sg]) !== JSON.stringify(want(sg))));
-    ok(`${W} c 고객 화면 구간 곡 줄 = 3줄(목록 칸은 + 배경 곡) · 정한 순서(${Object.keys(seen).join(' · ')}) · 뺀 곡 0`, Object.keys(seen).length >= 7 && !bad.length && Object.keys(seen).every((sg) => seen[sg].length === want(sg).length) && !gone.length, { bad: bad.map((sg) => [sg, seen[sg]]), gone });
+    ok(`${W} c 고객 화면 구간 곡 줄 = 3줄(목록 칸은 + 배경 곡) · 정한 순서(${Object.keys(seen).join(' · ')}) · 뺀 곡 0`, Object.keys(seen).length >= 6 && !seen.M4S5 && !seen.M4S6 && !bad.length && Object.keys(seen).every((sg) => seen[sg].length === want(sg).length) && !gone.length, { bad: bad.map((sg) => [sg, seen[sg]]), gone });
     ok(`${W} c 고르면 한 줄로 접힌다(곡 줄 0 · 접힌 줄 1)`, fold.length >= 4 && fold.every((x) => x.rows === 0 && x.fsel), fold);
     /* d 옛 저장값 — 테이블 첫 곡 = 하루 계획의 첫 곡(B23 · 하객 맞이와 겹치는 B24 · B16 과 축사 «음악과 함께» B13 은 맨 뒤 · DETAIL_R3_1101 ⑦ 보탬) */
     await f.evaluate(() => { S.bgm = { M1: { k: 'B03' }, M2: { k: 'B06' }, M8: { k: 'B25' }, S5: { m: 'bed', k: 'B02' }, M7: { k: 'B21' } }; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
     const dd = [];
-    for (const [k, sg, first] of [['guest', 'M1', 'B01'], ['candle', 'M2', 'B05'], ['table', 'M8', 'B23'], ['free', 'M4S5', 'B13'], ['toast', 'M7', 'B28']]) { await go(f, k);
+    for (const [k, sg, first] of [['guest', 'M1', 'B01'], ['candle', 'M2', 'B05'], ['table', 'M8', 'B23'], ['free', 'M4S5', 'B09'], ['toast', 'M7', 'B28']]   /* [ONE_FLOW_1106] 옛 축사 칸 이름은 본식 M4 1순위로 읽힌다(옛 S5.k 무시) */) { await go(f, k);
       dd.push(await f.evaluate(({ sg, first }) => { const t = BgmBed._t, box = document.querySelector('.ls-bed[data-seg="' + sg + '"], .bed-sub[data-seg="' + sg + '"]'); return { sg, eff: t.eff(sg), first, on: box ? [...box.querySelectorAll('.mu-pick[aria-checked="true"]')].length : -1 }; }, { sg, first })); }
     ok(`${W} d 뺀 곡을 골라 둔 옛 저장값 → 1순위로 깔고(eff) · 눌린 곡 줄 없음 · 오류 0`, dd.every((x) => x.eff === x.first && x.on <= 0) && !errs.length, { dd, errs: errs.slice(0, 2) });
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));
