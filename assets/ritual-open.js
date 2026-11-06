@@ -445,7 +445,7 @@
   var _NOFIT = 0;
   function tableFull(S) { return TABLE_SEC * tableN(S); }
   function tableSecOf(S, seq) { var full = tableFull(S); if (_NOFIT || !S || S.course !== 'open') return full;
-    seq = seq || bodySeq(S); var rest = TIME.table[0] + openingVideoSec(S);   // [VIDEO_IN_40_NI12] 영상 몫을 한 번 · bodySec 을 부르지 않는다(순환 없음)
+    seq = seq || bodySeq(S); var rest = TIME.table[0];
     seq.forEach(function (k) { if (k !== 'table') rest += lohi(partsOf(k, S, seq))[1]; });
     var room = Math.floor((capSec(S) - rest) / 30) * 30;
     return Math.min(full, Math.max(Math.min(full, TABLE_SEC * 2), room)); }
@@ -453,19 +453,11 @@
   function tableCut(S) { return onOf(S, 'table') ? Math.max(0, tableFull(S) - tableSecOf(S)) : 0; }   // 줄인 초(0 = 그대로)
   function lohi(p) { return [p[0] + p[1] + p[2], p[0] + 1.25 * p[1] + p[2] + p[3]]; }
   // 본식 합(초) — a = 대본 합 · b = 넉넉 합. 식전(하객 맞이·식전 영상)은 넣지 않는다.
-  /* ★★[VIDEO_IN_40_NI12 2026-11-05 이음매 NI12] 식전 영상은 개식 선언 «뒤»(예식 시작 시각 이후)에 튼다 — 40분 안이다.
-       종전엔 bodySeq 가 영상을 식전(PRE)으로 빼서 영상을 담아도 본식 · 단체 사진 몫이 그대로였다(영상 3분만큼 사진 시간이 몰래 줄었다).
-       순서용 bodySeq 는 그대로 두고(영상은 순간 차례상 식전 묶음) 시간만 더한다 — 소개 말 9초 + 영상 180초(예상) = 189초를 한 번.
-       실제 영상 길이(S.prevideoSec · 유한한 양수 초)를 받으면 180 대신 그 값 · 없거나 0 · 음수 · NaN 이면 180 예상 그대로.
-       하객 맞이 · 10 / 5 / 1분 전 시계 대기는 40분 밖이다. ceremonySec = 예식 시작 이후 총소요(= bodySec). 계약서 40분 · 순간 순서는 그대로. */
-  function openingVideoSec(S) { if (!onOf(S, 'prevideo')) return 0; var t = TIME.prevideo, v = +((S || {}).prevideoSec);
-    var len = (isFinite(v) && v > 0) ? v : t[2]; return t[0] + t[1] + len + t[3]; }
   function bodySec(S) {
-    var seq = bodySeq(S), a = 0, b = 0, v = openingVideoSec(S);
+    var seq = bodySeq(S), a = 0, b = 0;
     seq.forEach(function (k) { var r = lohi(partsOf(k, S, seq)); a += r[0]; b += r[1]; });
-    return [a + v, b + v];
+    return [a, b];
   }
-  function ceremonySec(S) { return bodySec(S); }
   /* ★[OPEN_RANGE] 고객에게 적는 범위(명세 8장 · 9/25 스냅 50 뒤 (가) 안) — 본식과 사진과 인사를 더해 50분.
      사이트 · 빌더 안내 · AI 상담 · 진행표가 모두 이 값을 쓴다(scripts/check-source-drift.mjs 가 열 벌을 대조).
      ★«쯤»인 까닭 — 빈 채(입장·닫는 인사만)는 2~3분이고, 가장 긴 조합의 넉넉 합은 30.5분이다.
@@ -1721,7 +1713,7 @@
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
-    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, openingVideoSec: openingVideoSec, ceremonySec: ceremonySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
+    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, flowLv: flowLv, FLOW_LV: FLOW_LV, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf,
