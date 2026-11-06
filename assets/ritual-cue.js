@@ -1415,7 +1415,7 @@
       return [
         cue({
           k: 'letter', blockN: '편지 낭독', slug: 'letter-' + S.letter, name: '편지 낭독 시작', text: l.nar,
-          duck: bed ? PARAM.duckSpeech : dk, pick: l.d,   /* ★[BGM_TIMING2_1101] «음악과 함께» 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례(live)에서 M4S6 로 3초 겹쳐 −20 */
+          duck: bed ? PARAM.duckSpeech : dk, pick: l.d,   /* ★[BGM_TIMING2_1101] «음악과 함께» 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례(live)는 ★[ONE_FLOW_1106] 같은 본식 곡(M4)이 −20 으로 잇는다(옛 M4S6 곡 칸 없음) */
           note: bed ? '음악이 낭독 아래 아주 작게(−20) 깔린다 — 처음부터 낮춰 두어 더킹 홀드 버튼이 필요 없다(§3-A)' : '이 구간은 애초에 무음이라 더킹 홀드 버튼이 필요 없다(§3-A)',
           live: {
             t: bed ? '두 분이 직접 편지 낭독 (음악이 아주 작게)' : '두 분이 직접 편지 낭독', est: txSec(S, 'letter', 165), self: true, doing: 'say', peak: true,
@@ -2079,6 +2079,10 @@
          다시 음악이 필요한 자리는 그 순간의 곡(부모님께 인사 · 테이블 · 닫는 인사 …)이 무음에서 시작한다(엔진이 손대지 않는다) ·
          되살아날 음악이 10초 안에 다시 −90 이면 올리지 않는다(«음악과 함께» 축사 뒤 축가 여는 말 → MR · 켜졌다 꺼졌다 금지) ·
          성혼 선언 뒤 박수는 앞 곡이 아니라 새 곡(MEANING_R2 DECLARE_LIFT · live.newSong · 표에선 −8 로 남는다) · 예외는 축배 «위하여» 뒤 M7 하나(duck 이 아니라 cheer 로 돈다) */
+    /* ★[ONE_FLOW_1106 ⑤] «음악과 함께» 축사 · 편지 바로 뒤 축가 여는 말 — MR 앞 정적 규칙대로 줄 시작에서 내린다(정적 → MR) · 본식 곡이 여는 말 동안 다시 들렸다 꺼지지 않게 ·
+         축사 · 편지가 없거나 «조용히»면 지금 그대로(덕담 곡이 흐르다 여는 말 −16 · NO_RELIFT E) */
+    (function () { var b5 = S.bgm || {}; for (var i = 1; i < cues.length; i++) { var c = cues[i]; if (c.slug !== 'narr-song') continue; var j = i - 1; while (j >= 0 && cues[j].k === 'song') j--; var pc = j >= 0 ? cues[j] : null;
+      if (pc && ((pc.k === 'free' && b5.S5 && b5.S5.m === 'bed') || (pc.k === 'letter' && b5.S6 && b5.S6.m === 'bed'))) c.duck = PARAM.duckOff; } })();
     (function () { var b5 = S.bgm || {}, quiet = false, heard = false, prevM4 = false, lastK = '';   /* heard = 본식 곡이 한 번이라도 들렸나(시작 전 정적 · 하객을 향해 서는 이음말은 «꺼짐»이 아니다 · MEANING_R2) */
       var m4 = function (k) { if (/^(welcome|vow|ring|declare|bless|song)$/.test(k)) return true; if (k === 'free') return !(b5.S5 && b5.S5.m === 'bed'); if (k === 'letter') return !(b5.S6 && b5.S6.m === 'bed'); if (k === 'toast') return prevM4; return false; };
       var P = []; cues.forEach(function (c) { P.push({ c: c, w: 'say', est: +c.est || 0 }); (c.post || []).forEach(function (p) { if (p.music === 'to') P.push({ c: c, w: 'post', p: p, est: 0 }); }); if (c.live && c.live.duck != null) P.push({ c: c, w: 'live', est: +(c.live.est || 0) }); });
