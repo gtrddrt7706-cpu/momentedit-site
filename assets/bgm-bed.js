@@ -290,12 +290,12 @@
     if(st.k==='declare'&&emb()){ var _pn=lfNext('M4',BED.cur.src?BED.cur.f:''); if(_pn&&!BUF[_pn]) want(_pn); }   /* 박수 곡 미리 받기 */
     /* ★[MEANING_R2_1102 ENTRY_SETTLE] 도착 멘트 — 줄 시작부터 엔진 fadeMs(4.5초)에 걸쳐 −90(박수 아래로 · 뚝 끊지 않음) */
     var _cq=cueBy(st.slug); if(_cq&&_cq.fadeWith&&BED.who==='lp'&&BED.cur.src&&db<(BED.cur.want!=null?BED.cur.want:-90)-0.5){ LPB.on=true; ramp(BED.cur,db,_cq.fadeMs||4500); return; }
-    if(!f&&avWait()){ list(); var tw=LPB.lt; AV.cb.push(function(){ if(LPB.lt!==tw) return; var q=curStep(); if(q&&q===st) lpShow(q); }); return; }   /* [DETAIL_R1_1101 ②] 목록이 오면 이 줄 곡을 깐다 */
+    if(!f&&avWait()){ list(); var tw=LPB.lt; AV.cb.push(function(){ if(LPB.lt!==tw||lpPaused()) return; var q=curStep(); if(q&&q===st) lpShow(q); }); return; }   /* [DETAIL_R1_1101 ②] 목록이 오면 이 줄 곡을 깐다 */
     if(!f){ if(BED.who==='lp'&&BED.cur.src) hushAll(1500); LPB.on=false; LPB.f=''; return; }
     LPB.on=true; BED.who='lp'; subNote(st);
     if(BUF[f]&&BUF[f].st==='ok'){ var at=atOf(f,st); play(f,db,up?p.up:p.down,at); LPB.f=f; return; }
     if(BED.who==='lp'&&BED.cur.src&&BED.cur.f!==f){ var _od=lvOf(st,BED.cur.f); if(_od>-60) ramp(BED.cur,_od,_od>num(BED.cur.want,-90)+0.5?p.up:p.down); }   /* [DETAIL_R5_1101 규칙 4] 새 곡을 받는 동안 흐르는 곡도 지금 줄 크기로 */
-    LPB.pend=f; want(f,function(b,ec){ if(!LPB.on||LPB.pend!==f) return; if(!b){ var q0=curStep(); if(q0&&q0.k===st.k) note('fail',ec); return; } var q=curStep(); if(!q||fileFor(q)!==f) return; if(LPB.note) note(''); play(f,lvOf(q,f),p.up,atOf(f,q)); LPB.f=f; });   /* [BED_LOAD_1101 ③] 못 받으면 한 줄 */   /* 곡이 늦게 오면 그때 깐다(나레이션을 기다리게 하지 않는다) */ }
+    LPB.pend=f; want(f,function(b,ec){ if(!LPB.on||LPB.pend!==f||lpPaused()) return; if(!b){ var q0=curStep(); if(q0&&q0.k===st.k) note('fail',ec); return; } var q=curStep(); if(!q||fileFor(q)!==f) return; if(LPB.note) note(''); play(f,lvOf(q,f),p.up,atOf(f,q)); LPB.f=f; });   /* [BED_LOAD_1101 ③] 못 받으면 한 줄 */   /* 곡이 늦게 오면 그때 깐다(나레이션을 기다리게 하지 않는다) */ }
   /* ★[LISTEN_PACE_1031 사장님 «BGM 이 흐르고 뜸 들인 이후 멘트»] 순간 첫 줄 앞 뜸 — 그 순간 곡을 큐 사이 크기(−8)로 깔고 3초(같은 곡이 이어지면 1.5초) ·
      끝 0.8초(미리 낮추기 leadMs) 동안 그 줄 크기로 내린다 · 돌려준 값 = 기다릴 ms · 곡이 없으면(공개 미리보기 · 드라이브에 없음) 0 = 뜸 없음 */
   /* ★★[KNOBS_1031 ②] 성혼 선언 앞 연출을 당일 값 그대로 — 음악을 4초에 걸쳐 끄고(preFadeMs) 2.5초 정적(silenceMs) 뒤 첫 멘트 · 앞 순간 곡이 이어지지 않으면 1.5초 −8 로 먼저 들려준다 */
@@ -437,6 +437,7 @@
   function paintLp(){ try{ if(typeof _mpPaint==='function') _mpPaint(); }catch(x){} }
   /* ★«연습 중 멈춤 = 음악 −20 으로 계속»(prKeep) 금지 — 2026-11-01 검토 198 로 걷음 [PR_WAY_198] · «잠시 멈춤»은 소리 · 진행 · 음악 자리가 함께 멈추고(아래 pz · ② 와 같다) 다시 누르면 그 곡 그 자리에서 잇는다.
      B «직접 해보기»의 두 분 차례 기다림은 멈춤이 아니다(LP.paused 아님) — 음악은 그 줄 크기 그대로(말 아래 −20 · 일부러 둔 정적 −90 은 올리지 않는다) */
+  function lpPaused(){ try{ return typeof LP!=='undefined'&&!!LP.paused&&!LP.one; }catch(x){ return false; } }   /* ★[B5_P17 2026-11-06 5차 P v2 P17] 늦게 온 목록 · 곡이 잠시 멈춤 중에 곡을 틀지 않는다(재개 때 order-preview lsToggle 이 지금 줄 곡으로) */
   function curStep(){ try{ return (typeof LP!=='undefined'&&LP.q)?LP.q[LP.i]:null; }catch(x){ return null; } }
   /* 멈춤 · 끝 — 플레이어가 멈추면(■ · 다른 순간 · 끝) 곡도 잦아든다 */
   setInterval(function(){ if(BED.who!=='lp'||!BED.cur.src) return; var dead=true, pz=false; try{ dead=typeof LP==='undefined'||!LP.q||!LP.q.length||LP.paused||LP.one; pz=!!(LP.q&&LP.q.length&&LP.paused&&!LP.one); }catch(x){} if(!dead) return;
