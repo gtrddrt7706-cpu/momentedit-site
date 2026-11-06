@@ -8337,7 +8337,7 @@ window.lsRef=function(k,n){ LS.ref=LS.ref||{}; if(_refCur(k,_lRefSets(k))===n) r
 var LP={q:[],i:0,cur:null,t:null,paused:false,all:false,tok:0,big:false,el:null,pre:null,range:null,ended:null,lock:null,last:null,stay:null,choose:null,hint:null,hintK:null};   // [CHIP_STAY] stay=칩으로 다시 들은 순간 · [PRACTICE_CHOOSE] choose=«이 순간 바꾸기»를 연 순간 · hint=멈춰 선 까닭
 function _lAud(){
   if(!LP.el){ LP.el=new Audio(); LP.el.preload='auto';
-    LP.el.addEventListener('playing',function(){ if(!LP.el._lead) _ldOff(); });   /* [LOAD_SHOW_1106] 멘트 소리가 나오는 순간 «멈춤»으로 */
+    LP.el.addEventListener('playing',function(){ var _sr=LP.el.getAttribute('src')||''; if(!LP.el._lead&&_sr&&_sr!==L_SILENT){ var st=LP.q[LP.i]; if(st&&st.src===_sr) _ldOff(); } });   /* [LOAD_SHOW_1106] 지금 줄 멘트 소리가 나오는 순간 «멈춤»으로 — 탭 잠금 풀기 무음(L_SILENT)이 늦게 «playing»을 내도 끄지 않는다 */
     LP.el.addEventListener('waiting',function(){ if(!LP.paused&&LP.q.length&&!LP.el._lead) _ldArm(); });   /* [LOAD_SHOW_1106] 흐르다 끊겨 받는 중이어도 */
     LP.el.addEventListener('error',function(){ _ldOff(); });   /* [LOAD_SHOW_1106] 못 받으면 종전 까닭 글(코드) */
     LP.el.addEventListener('ended',function(){ if(LP.baking&&LP.q[LP.i]===LP.baking&&!LP.el._lead) return;   /* ★[PLAY_TRUE] 만드는 동안 끝난 무음(탭 잠금 풀기)이 그 줄을 건너뛰게 하던 것 */
@@ -8933,9 +8933,9 @@ function _ldWaiting(){ if(!LP.q.length||LP.paused) return false; var st=LP.q[LP.
   if(LP.leadSt===st&&(LP.tMs>=15000||/불러오는 중/.test(LP.bedNote||''))) return true;   /* 뜸의 곡을 받는 중 — 곡이 오기를 기다리는 뜸 시계(LEAD_WAIT 20초 · 오면 6초로 다시 건다 · BED_LOAD_1101 · LEAD_FIRST_1101) */
   if(st.src&&a){ var sr=a.getAttribute('src')||''; if(a._lead) return !(a.readyState>=3);   /* 처음 줄 앞 1초 무음도 받아야 흐른다 */ if(sr&&sr===st.src&&!a.ended&&!(a.readyState>=3&&!a.paused)) return true; }
   return false; }
-function _ldArm(){ LD.at=Date.now(); LD.tok=LP.tok; clearTimeout(LD.t); LD.t=setTimeout(_ldTick,60); }
-function _ldOff(){ clearTimeout(LD.t); var was=LD.on||LD.slow; LD.at=0; LD.on=0; LD.slow=0; if(was) _ldPaint(); }
-function _ldTick(){ clearTimeout(LD.t); if(!LD.at) return; if(LD.tok!==LP.tok||!LP.q.length||LP.paused){ _ldOff(); return; }
+function _ldArm(){ if(LD.at&&LD.on){ if(!LD.t) LD.t=setTimeout(_ldTick,60); return; }   /* 이미 재는 중이면 시계를 처음으로 돌리지 않는다(돌기가 깜빡이지 않게) */ LD.at=Date.now(); LD.tok=LP.tok; clearTimeout(LD.t); LD.t=setTimeout(_ldTick,60); }
+function _ldOff(){ clearTimeout(LD.t); LD.t=null; var was=LD.on||LD.slow; LD.at=0; LD.on=0; LD.slow=0; if(was) _ldPaint(); }
+function _ldTick(){ clearTimeout(LD.t); if(!LD.at) return; if(!LP.q.length||LP.paused){ _ldOff(); return; } if(LD.tok!==LP.tok) LD.tok=LP.tok;   /* 새 차례여도 지금 기다리면 그대로 잰다 */
   var w=_ldWaiting(), el=Date.now()-LD.at;
   if(!w){ if(el>=1500||LD.on) { _ldOff(); return; } LD.t=setTimeout(_ldTick,100); return; }   /* 아직 틀기 전(쉼 · 뜸 시계)일 수 있어 잠깐 더 본다 */
   var on=el>=LD_SHOW?1:0, sl=el>=LD_SLOW?1:0; if(on!==LD.on||sl!==LD.slow){ LD.on=on; LD.slow=sl; _ldPaint(); } LD.t=setTimeout(_ldTick,on?250:60); }

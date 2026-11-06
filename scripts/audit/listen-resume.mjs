@@ -152,7 +152,8 @@ const now = (f, k) => f.evaluate((k) => { const st = LP.q[LP.i], a = LP.el, b = 
     pill: b ? b.textContent.trim() : '', pw: b ? Math.round(b.getBoundingClientRect().width) : 0, spin: !!document.querySelector('.mk-flow li.lp-now.lp-ld'), pspin: !!(b && b.querySelector('.ldsp')), note: ((document.querySelector('.lp-ldnote') || {}).textContent || ''), ld: LD.on, slow: LD.slow }; }, k);
 const until = async (f, fn, ms, step = 50) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await f.evaluate(fn)) return Date.now() - t0; await wait(f, step); } return -1; };
 try {
-  const { ctx, pg, f, errs } = await open(390);
+  const VW = +process.env.LR_W || 390;   /* LR_W=1280 = PC 폭으로 한 번 더 */
+  const { ctx, pg, f, errs } = await open(VW);
   const K = 'welcome';   /* 감사 인사 — 본식 피아노(M4)가 뜸으로 먼저 흐르는 순간 */
   if (want(1)) {
     await go(f, 'entry');
@@ -184,11 +185,13 @@ try {
     await f.evaluate(() => lsStop()); await wait(f, 400);
     /* 3d 곡이 늦게(8초) 와도 — 처음 ▶ 는 곡을 기다리는 뜸(0.3초 뒤 «불러오는 중…») · 멈춤 · 이어 듣기 멘트는 곡을 기다리지 않는다 */
     await f.evaluate(() => { const H = window.parent.H; H.have.forEach((x) => { H.dly[x] = 8000; }); });
-    await go(f, 'tribute'); await f.evaluate(() => lsPlay('tribute')); await until(f, leading, 6000); await wait(f, 700);
-    const l0 = await now(f, 'tribute'); await f.evaluate(() => lsToggle()); await wait(f, 400); await f.evaluate(() => lsToggle());
+    await go(f, 'tribute');
+    const tf = await f.evaluate(() => { const B = BgmBed._t, q = _lSteps(ENG, ['tribute']), fs = [...new Set(q.map((x) => B.fileFor(x)).filter(Boolean))]; fs.forEach((x) => { if (B.BUF[x] && B.BUF[x].st === 'ok' && !(B.BED.cur && B.BED.cur.f === x)) delete B.BUF[x]; }); return fs; });   /* 이 순간 곡을 아직 안 받은 상태로(미리 받아 둔 것만 걷는다 · 흐르는 곡은 그대로) */
+    await f.evaluate(() => lsPlay('tribute')); await until(f, leading, 6000); await wait(f, 700);
+    const tL0 = await until(f, () => !!LD.on, 2000, 30); await wait(f, 60); const l0 = await now(f, 'tribute'); l0.tL0 = tL0; await f.evaluate(() => lsToggle()); await wait(f, 400); await f.evaluate(() => lsToggle());
     const tTalk2 = await until(f, talking, 3000, 30);
     ok(`3 곡이 늦어도(8초) 이어 듣기 멘트는 ${tTalk2}ms — 곡을 기다리지 않는다(곡은 오는 대로 말 아래로)`, l0.lead && tTalk2 > -1 && tTalk2 <= 600, { l0, tTalk2 });
-    if (want(4)) ok('4 [LOAD_SHOW_1106] 처음 ▶ 에서 곡을 받는 뜸(곡 8초) — 0.3초 뒤 «불러오는 중…» · 지금 줄 돌기', l0.ld && l0.pill === '불러오는 중…' && l0.spin, l0);
+    if (want(4)) ok(`4 [LOAD_SHOW_1106] 처음 ▶ 에서 곡을 받는 뜸(곡 ${tf.join(' · ')} 8초) — 0.3초 뒤 «불러오는 중…» · 지금 줄 돌기`, l0.ld && l0.pill === '불러오는 중…' && l0.spin, l0);
     await f.evaluate(() => { lsStop(); window.parent.H.dly = {}; }); await wait(f, 400);
     /* 3e 장면(입장 «이 순간 전체 듣기 · 음악과 함께») — 멘트 앞(음악만 먼저)에서 멈췄다 이어 들으면 멘트 자리부터 */
     await f.evaluate(() => { S.mu = { src: 'rec', k: 'r5', t: '시험 입장 곡', a: '시험 가수', hook: 40, hooks: [40], dur: 140 }; _persist(); render(); }); await go(f, 'entry'); await wait(f, 800);
@@ -208,8 +211,8 @@ try {
     NET.narDelay = 2500; await go(f, 'welcome');
     await f.evaluate(() => lsPlay('welcome'));
     const tLd = await until(f, () => !!LD.on, 12000, 40); await wait(f, 80);
-    const a = await now(f, 'welcome'); await shot(pg, '390-loading');
-    const tOn = await until(f, () => !LD.on, 6000, 40); await wait(f, 150); const b = await now(f, 'welcome'); await shot(pg, '390-playing');
+    const a = await now(f, 'welcome'); await shot(pg, VW + '-loading');
+    const tOn = await until(f, () => !LD.on, 6000, 40); await wait(f, 150); const b = await now(f, 'welcome'); await shot(pg, VW + '-playing');
     ok(`4 [LOAD_SHOW_1106] 멘트 파일이 늦으면(2.5초) — 지금 줄 ▶ 원 자리 돌기 · 알약 «불러오는 중…»(돌기) · 소리가 나오면 «멈춤»`, tLd > -1 && a.spin && a.pill === '불러오는 중…' && a.pspin && tOn > -1 && b.pill === '멈춤' && !b.spin && b.talk, { a, b });
     ok(`4 알약 폭 그대로 — «불러오는 중…» ${a.pw}px · «멈춤» ${b.pw}px`, a.pw > 0 && a.pw === b.pw, { a: a.pw, b: b.pw });
     await f.evaluate(() => lsStop()); await wait(f, 300);
@@ -222,14 +225,14 @@ try {
     /* 4c 10초가 넘으면 «연결이 느려요 · 잠시만요» */
     NET.narDelay = 12500; await go(f, 'declare');
     await f.evaluate(() => lsPlay('declare')); await until(f, () => !!LD.on, 12000, 50);
-    const tSl = await until(f, () => !!LD.slow, 12000, 100); await wait(f, 100); const c = await now(f, 'declare'); await shot(pg, '390-slow');
+    const tSl = await until(f, () => !!LD.slow, 12000, 100); await wait(f, 100); const c = await now(f, 'declare'); await shot(pg, VW + '-slow');
     ok(`4 10초가 넘으면 지금 줄 아래 «연결이 느려요 · 잠시만요»(알약은 «불러오는 중…» 그대로)`, tSl > -1 && c.note === '연결이 느려요 · 잠시만요' && c.pill === '불러오는 중…' && c.spin, c);
     await f.evaluate(() => lsStop()); await wait(f, 400);
     /* 4d 크게 보기 */
     NET.narDelay = 2500; await go(f, 'candle');
     await f.evaluate(() => lsBig('candle')); await until(f, () => !!LD.on, 12000, 50); await wait(f, 120);
     const big = await f.evaluate(() => ({ st: ((document.querySelector('.lf-state.lf-ld') || {}).textContent || ''), sp: !!document.querySelector('[data-fk="lftog"] .ldsp'), lab: (document.querySelector('[data-fk="lftog"]') || { getAttribute: () => '' }).getAttribute('aria-label') }));
-    await shot(pg, '390-big-loading');
+    await shot(pg, VW + '-big-loading');
     ok('4 크게 보기 — 받는 동안 «불러오는 중…» 한 줄 · ❚❚ 자리 돌기 · 단추 이름 «불러오는 중…»', big.st === '불러오는 중…' && big.sp && big.lab === '불러오는 중…', big);
     await until(f, () => !LD.on, 6000, 50); await wait(f, 150);
     const big2 = await f.evaluate(() => ({ st: !!document.querySelector('.lf-state.lf-ld'), sp: !!document.querySelector('[data-fk="lftog"] .ldsp') }));
