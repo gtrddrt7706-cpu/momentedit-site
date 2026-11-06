@@ -97,7 +97,7 @@ try {
     await f.evaluate(() => { const L = BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; });   /* [LIST_FOLD_1102] 아래 검사는 펼친 목록을 본다 · 접힘은 bgm-fill LIST_FOLD 가 본다 */
     await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
     await setX(f, { bgm: {} }); await go(f, 'welcome'); let r = await LN(f, 'M4');
-    ok(`${W} b 감사 인사 — 고르지 않았으면 한 줄 없음`, r.t === '' && !r.fold, r);
+    ok(`${W} b 감사 인사 — 고르지 않았으면 «여러 연주곡이 차례로 이어져요» 한 줄(GPT_R1_LONG · 종전 «한 줄 없음» 걷음)`, /^여러 연주곡이 차례로 이어져요/.test(r.t) && !r.fold, r);
     await f.click('[data-fk="bed:M4:B11"]'); await wait(f, 500); r = await LN(f, 'M4');
     let Sx = await f.evaluate(() => JSON.parse(JSON.stringify(S))), n4 = minNode(Sx, K4);
     ok(`${W} b 감사 인사 B11 을 고르면 접힌 줄 아래 «고른 곡이 먼저 흐르고, 이어서 나머지 피아노 곡이 차례로 흘러요 · 약 ${n4}분»(12.5px · 큐 시간 합)`, r.fold && r.t === `고른 곡이 먼저 흐르고, 이어서 나머지 피아노 곡이 차례로 흘러요 · 약 ${n4}분` && r.fs === '12.5px', { r, n4 });

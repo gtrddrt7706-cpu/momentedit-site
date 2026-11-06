@@ -21956,6 +21956,17 @@ chk 'BG03-T01' scripts/audit/seam-bg.mjs 2
 chk 'BG04-T01' scripts/audit/seam-bg.mjs 1
 chk 'BG07-T01' scripts/audit/seam-bg.mjs 1
 nochk '테이블 인사와 사진 동안' assets/bgm-bed.js
+# ★[GPT_R1_1106 GPT 하객 관점 검토(11/02) 중 main 에 남은 것 · BGM 몫] 순간 이동 곡 상속 · 목록 자리 · 새 곡 늦음 · 화촉 말 −16 · 기본 곡 한 줄(검사 = CI d 칸 gpt-r1)
+chk 'GPT_R1_JUMP' assets/bgm-bed.js 3
+chk 'function natOf' assets/bgm-bed.js 1
+chk 'GPT_R1_LF' assets/bgm-bed.js 2
+chk 'GPT_R1_NOMUS' assets/bgm-bed.js 2
+chk 'GPT_R1_LONG' assets/bgm-bed.js 1
+chk '여러 연주곡이 차례로 이어져요' assets/bgm-bed.js 1
+chk 'GPT_R1_CANDLE' assets/ritual-cue.js 3
+chk '①-T01' scripts/audit/gpt-r1.mjs 1
+chk '④-T01' scripts/audit/gpt-r1.mjs 1
+chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1
 # ★[SEAM_BG05 · SEAM_BG06 이음매 명세 BGM 몫 · NI06 · NI10 · NI11 뒤] 축배 선창 전후 행동 줄 크기 · 촬영 후 안내 뒤 줄 마지막 곡(검사 = CI e 칸 seam-bg)
 chk 'SEAM_BG05' assets/bgm-bed.js 1
 chk 'SEAM_BG06' assets/bgm-bed.js 1
