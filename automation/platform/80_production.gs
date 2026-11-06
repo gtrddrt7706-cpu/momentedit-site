@@ -1581,27 +1581,13 @@ function adminRitualFileOk(code, key, on, fid) {
 /* ★[REC_PURGE 2026-09-27 코워크 3-7] 예식 뒤 30일 — 두 분 목소리 파일을 지운다(휴지통 · 드라이브가 30일 뒤 완전 삭제) · 기록 RFGONE_<코드>=지운 날.
    purgeAdvisorLog(주간 트리거)가 함께 부른다 · dry=true 면 지울 대상만 로그(previewRitualFiles). ScriptProperty RITUAL_FILE_PURGE_DAYS 로 일수 조정 */
 function purgeRitualFiles(dry) { _gsr_();
-  try { if (typeof purgePrevideo_ === 'function') purgePrevideo_(dry); } catch (e) {}   // [PV_CAT_1031] 식전 영상 사진 · 폴더도 예식 6개월 뒤(89_prevideo · 처리방침 «식전 영상» 보관) — 같은 주간 정리에 태운다
-  var props = PropertiesService.getScriptProperties(), all = props.getProperties(), days = +(all.RITUAL_FILE_PURGE_DAYS || 30) || 30, today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
-  /* ★[RF_PURGE_AI 2026-10-08 목소리 1라운드 76] 종전엔 예식 폴더 «바로 안» 파일만 지워 하위 폴더 «AI»(두 분 목소리로 만든 안내 소리 · 읽은 녹음 · 연습 소리)가 영영 남았다(처리방침 위반).
-     이제 하위 폴더 안까지 지운다. 이미 지운(RFGONE) 예식은 하위 폴더만 한 번 다시 훑는다 — 표 RFAIGONE_<코드> */
-  var trashIn = function (fo) { var n = 0, it = fo.getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; n++; if (!dry) f.setTrashed(true); }
-    var fs = fo.getFolders(); while (fs.hasNext()) { var sub = fs.next(); if (!sub.isTrashed()) n += trashIn(sub); } return n; };
-  Object.keys(all).forEach(function (k) {
-    if (k.indexOf('RF_') !== 0 || k.indexOf('RFOK_') === 0) return;   // [REC_PURGE]
-    var code = k.slice(3);
-    if (all['RFGONE_' + code]) { if (all['RFAIGONE_' + code]) return;   // [RF_PURGE_AI] 옛 판이 남긴 하위 폴더 — 한 번만
-      var m = 0; try { var fo0 = DriveApp.getFolderById(all[k]); if (!fo0.isTrashed()) { var ss = fo0.getFolders(); while (ss.hasNext()) { var s0 = ss.next(); if (!s0.isTrashed()) m += trashIn(s0); } } } catch (e) {}
-      if (!dry) props.setProperty('RFAIGONE_' + code, today); if (m) done.push(code + ' · 하위 폴더 다시 · 파일 ' + m + '개'); return; }
-    var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null, wy = cust ? _ymdOf(cust.get('예식일')) : '';
-    if (!wy) return; var d = new Date(wy + 'T00:00:00+09:00'); d.setDate(d.getDate() + days); var cut = Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd');
-    if (today <= cut) return;
-    var n = 0; try { n = trashIn(DriveApp.getFolderById(all[k])); } catch (e) {}   // [RF_PURGE_AI] 하위 폴더(AI)까지
-    if (!dry) { props.setProperty('RFGONE_' + code, today); props.setProperty('RFAIGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {} try { _vcPurge(code); } catch (e) {} }   // [RF_STUDIO_UP] 대신 올린 기록도   // [VOICE_CLONE 5-5] 업체 쪽 목소리도
-    done.push(code + ' · 예식 ' + wy + ' · 파일 ' + n + '개');
-  });
-  Logger.log('purgeRitualFiles' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
-  return done;
+  /* ★[PURGE_POLICY_1106 2026-11-06 사장님 결정 3 = A] 본문은 70_journey _pgPrevideo_ · _pgVoiceFiles_ 로 옮겼다 — 예식 뒤 30일 · 영구 삭제 · 다 지웠을 때만 RFGONE · 매일 07시.
+     옛 표식: [REC_PURGE] 30일 · [RF_PURGE_AI] 하위 AI 폴더까지 · [PV_CAT_1031] 식전 영상도 같은 정리 — 뜻은 새 본문이 잇는다.
+     dry(미리보기)거나 실제 삭제가 꺼져 있으면(PURGE_LIVE) 아무것도 안 지우고 대상만 센다. */
+  var live = !dry && _pgLive_(), t = _kstYmd(new Date());
+  var a = _pgPrevideo_(live, t), b = _pgVoiceFiles_(live, t);
+  Logger.log('purgeRitualFiles' + (live ? '' : '(시험)') + ': 식전 영상 대상 ' + a.target + ' · 목소리 파일 대상 ' + b.target + ' · 실패 ' + (a.fail + b.fail));
+  return { prevideo: a, voice: b };
 }
 function previewRitualFiles() { _requireAdmin(); return purgeRitualFiles(true); }
 
@@ -2366,25 +2352,10 @@ function addGuestPhotoColumns() { _requireAdmin();
 //   ★기본 드라이런(로그만) · 실제 삭제는 purgeGuestPhotos(false). 결과물 인도 6개월과 같은 기준이라
 //     부부가 받아 갈 시간을 충분히 준 뒤에만 지운다.
 function purgeGuestPhotos(dryRun) { _requireAdmin();
-  if (dryRun !== false) dryRun = true;
-  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-  if (!colOf['하객사진폴더ID']) return '하객사진 열 없음(할 일 없음)';
-  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return '대상 없음';
-  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
-  var done = [];
-  for (var i = 0; i < vals.length; i++) {
-    var r = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
-    var fid = String(r.get('하객사진폴더ID') || '').trim(); if (!fid) continue;
-    var wed = _ymdOf(r.get('예식일')); if (!wed) continue;
-    var dd = (typeof _dayDiff === 'function' && typeof _kstYmd === 'function') ? _dayDiff(wed, _kstYmd(new Date())) : null;
-    if (dd == null || dd >= -GP_KEEP_DAYS) continue;   // 아직 보관 기간 안
-    done.push(String(r.get('개인코드') || '') + '(' + wed + ')');
-    if (!dryRun) {
-      try { DriveApp.getFolderById(fid).setTrashed(true); } catch (e) {}
-      touchCustomer(sheet, colOf, r.num, { '하객사진폴더ID': '' });   // 링크만 끊는다 · 장수 기록은 남겨 둔다
-    }
-  }
-  var msg = (dryRun ? '[드라이런] ' : '[실행] ') + '정리 대상 ' + done.length + '건' + (done.length ? ' - ' + done.join(', ') : '');
+  /* ★[PURGE_POLICY_1106 2026-11-06] 본문은 70_journey _pgGuestPhotos_ — 인도 완료 후 6개월 · 영구 삭제 · 매일 07시(종전엔 예식일+180일 · 트리거 없음 · 휴지통).
+     편집기에서 부르면 늘 시험(미리보기) · 실제 삭제는 매일 정리가 PURGE_LIVE 로 한다 */
+  var o = _pgGuestPhotos_(false, _kstYmd(new Date()));
+  var msg = '[시험] 하객 사진 정리 대상 ' + o.target + '건 · 실패 ' + o.fail + (o.codes.length ? ' - ' + o.codes.join(', ') : '');
   Logger.log(msg); return msg;
 }
 function purgeGuestPhotosApply() { _requireAdmin(); return purgeGuestPhotos(false); }   // GAS 편집기는 인자를 못 넘긴다 - 실행용 래퍼
@@ -2808,38 +2779,9 @@ function handleSnapBriefImg(body) { _gsr_();
 // [SNAP_PURGE] 예식 183일 뒤 — 올린 사진 폴더를 휴지통으로 · 링크·메모·올린 목록을 비우고 · 브리프 주소를 닫는다. 고른 장면 번호(c05…)는 개인정보가 아니라 남긴다
 //   ★기본 드라이런(로그만) · 실제 반영은 purgeSnapRefs(false) — purgeAdvisorLog(주간 트리거)가 함께 부른다
 function purgeSnapRefs(dryRun) { _gsr_();
-  if (dryRun !== false) dryRun = true;   // [SNAP_PURGE]
-  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
-  if (!colOf[PROD_META_COL]) return '제작 열 없음(할 일 없음)';
-  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return '대상 없음';
-  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
-  var done = [], Pr = PropertiesService.getScriptProperties();
-  for (var i = 0; i < vals.length; i++) {
-    var r = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
-    var dl = _snapDaysLeft(r); if (dl == null || dl >= -SNAP_V2.keepDays) continue;   // 아직 보관 기간 안(예식일이 없으면 건드리지 않는다)
-    var raw = String(r.get(PROD_META_COL) || ''); if (raw.indexOf('snapMeta') === -1 && String(r.get(PROD_TRACK_COL.snap) || '').indexOf('"zones"') === -1) continue;
-    var code = String(r.get('개인코드') || '').trim(); if (!code) continue;
-    var d = _prodLoad(r), m = d.snapMeta || {}, sd = d.snapDraft || {};
-    var has = !!(m.folder || _snapArr(m.uploads).length || (m.brief && m.brief.t) || String(sd.note || '') || ['candle', 'white'].some(function (k) { var z = (sd.zones || {})[k] || {}; return _snapArr(z.ups).length || _snapArr(z.links).length || String(z.note || ''); }));   // [SNAP_ZONE_NOTE] 공간별 전할 말도 메모다(처리방침 «메모 6개월 이내 파기»)
-    if (!has) continue;
-    done.push(code + '(' + _ymdOf(r.get('예식일')) + ')');
-    if (dryRun) continue;
-    var lock = LockService.getScriptLock();
-    try { lock.waitLock(15000); } catch (e) { continue; }
-    try {
-      var cust = findCustomerByCode(code); if (!cust) continue;
-      var _dl = _prodDraftLoadSafe(cust, code, [], 'snap'); if (!_dl.ok) continue;
-      var d2 = _dl.d, m2 = d2.snapMeta = d2.snapMeta || {}, sd2 = d2.snapDraft = d2.snapDraft || {};
-      if (m2.folder) { try { DriveApp.getFolderById(m2.folder).setTrashed(true); } catch (e) {} }
-      if (m2.brief && m2.brief.t) { try { Pr.deleteProperty('SNAPBRIEF_' + m2.brief.t); } catch (e) {} }
-      delete m2.folder; delete m2.brief; m2.uploads = []; m2.purgedAt = fmtKST(new Date());
-      if (sd2.zones) ['candle', 'white'].forEach(function (k) { var z = sd2.zones[k]; if (z) { z.ups = []; z.links = []; delete z.note; } });   // [SNAP_ZONE_NOTE]
-      if (sd2.note !== undefined) sd2.note = '';
-      var _pk = _prodPack(d2, { track: 'snap', cust: cust }); if (_pk.err) continue;
-      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d2, {}, { pack: _pk }));
-    } finally { try { lock.releaseLock(); } catch (e) {} }
-  }
-  var msg = (dryRun ? '[드라이런] ' : '[실행] ') + '스냅 기획 파기 대상 ' + done.length + '건' + (done.length ? ' - ' + done.join(', ') : '');
+  /* ★[PURGE_POLICY_1106 2026-11-06] 본문은 70_journey _pgSnap_ — 예식 후 6개월(달력) · 폴더 영구 삭제 · 지웠을 때만 비움 · 매일 07시. [SNAP_PURGE] 의 뜻(고른 장면 번호는 남긴다)은 그대로 */
+  var live = dryRun === false && _pgLive_(), o = _pgSnap_(live, _kstYmd(new Date()));
+  var msg = (live ? '[실행] ' : '[시험] ') + '스냅 기획 파기 대상 ' + o.target + '건 · 실패 ' + o.fail;
   Logger.log(msg); return msg;
 }
 function previewSnapRefs() { _requireAdmin(); return purgeSnapRefs(true); }   // 지우지 않고 대상만 로그(GAS 편집기 드롭다운용)
