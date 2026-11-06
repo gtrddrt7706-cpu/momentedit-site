@@ -1356,9 +1356,12 @@ details.env-acc-item[open] > .env-acc-q{
    머리글은 본문이 아니라 running head 다 — 옆보다 좁아야 지면 위에 얹힌 것으로 읽힌다.
    그래서 잉크가 위에서 18px 안팎에 오도록 판마다 맞췄다(08 은 편집 여백이 성격이라 폭만 같이 줄임).
    ★var(--safe-top) 은 그대로 둔다 — 노치 보정은 이 값과 별개다. */
+/* [JOIN_KO_1106 대본 4차 G05] 온라인으로 함께하기 — 어르신도 단추 뜻을 바로 알게 한국어 · 설명은 단추 아래 한 줄 */
+.join-help{margin:14px auto 0 !important;font-size:13px !important;line-height:1.7 !important;letter-spacing:0 !important;text-align:center;word-break:keep-all;text-wrap:balance}
+.join-btn>span:first-child,.live-btn>span:first-child{letter-spacing:.06em !important;white-space:nowrap;font-size:max(13px,1em)}   /* 영문 대문자용 넓은 자간이 한글을 벌려 놓지 않게 · 한 줄 */
 </style>
 <script src="/shared/venue.js?v=20260529a"></script>
-<script src="/shared/hydrate.js?v=20261106a" defer></script>
+<script src="/shared/hydrate.js?v=20261106b" defer></script>
 <script src="/shared/gv-back.js?v=20260804" defer></script>
 <style>body{opacity:0;transition:opacity .5s ease}body.couple-ready{opacity:1}
 /* [CUE_ONE] 스크롤 큐 8종 통일 (2026-08-03 사용자 "1번 청첩장이랑 다른데 연속성 있게 통일하자")
@@ -1665,10 +1668,11 @@ details.env-acc-item[open] > .env-acc-q{
         이 안에 온전히 담겨 있습니다.
       </div>
 
-      <a href="/live.html?e={{EVENT_ID}}" class="join-btn" aria-label="디지털 참석 페이지 입장">
-        <span>Enter Live Page</span>
+      <a href="/live.html?e={{EVENT_ID}}" class="join-btn" aria-label="온라인으로 함께하기 · 디지털 참석 페이지">
+        <span>온라인으로 함께하기</span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
+      <p class="join-desc join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p><!-- [JOIN_KO_1106 대본 4차 G05] 단추가 무엇을 하는지 한 줄 · 서비스 이름 «디지털 참석»은 그대로 -->
     </div>
   </section>
   <!-- /OPTIONAL:digitalAttendance -->
