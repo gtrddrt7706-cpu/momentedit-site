@@ -22681,3 +22681,10 @@ chk '조건은 상담 때 안내해 드려요' api/_kb.js 1                     
 chk '본식 동안이에요(고른 순서에 따라 약 7~25분)' api/_kb.js 1                     # [H4_LIVE] 디지털 참석
 chk '식중 영상은 선택이에요. 축사와 둘 중 하나로 정하고' api/_kb.js 1             # [H4_MIDVIDEO] 사장님 11/06
 chk '덕담 원고는 예식 7일 전까지 준비해 주세요' api/_kb.js 1                       # [H4_Q34]
+# ★★[H4_15 2026-11-06 홈 4차 H15 · 대본 판정 «상»] 상담 신청서 맨 앞 «상담할 상품» — 스냅이면 예식 칸을 끄고(검증 제외) 촬영 날짜 · 시간 · 스냅 가격 · product 웨딩스냅
+chk 'name="product" value="웨딩스냅"' inquiry.html 1
+chk "product: snapProd ? '웨딩스냅' : '시그니처'" inquiry.html 1                 # 40_signup.gs 상품타입으로 저장(되돌리면 스냅 신청이 시그니처로 저장)
+chk 'id="snapTime" name="희망 촬영 시간"' inquiry.html 1
+chk '평일 웨딩스냅 · 운영 초기' inquiry.html 1
+chk 'class="field-group wed-only"' inquiry.html 3                               # 요일 · 하객 · 디지털 참석
+chk 'ref-header-cell">전체 일정 종료' inquiry.html 1                            # [H4_03] 상담 표 열 이름
