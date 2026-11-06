@@ -2533,7 +2533,8 @@ var crsOpen='';
 window.pickCourse=function(v){ crsOpen=(crsOpen===v)?'':v; render(); };
 var _pT; function _lazyPersist(){ clearTimeout(_pT); _pT=setTimeout(function(){ if(typeof courseStarted!=='undefined'&&courseStarted&&typeof _persist==='function') _persist(); },500); }
 window.toast=function(m,ms,al){ var t=document.getElementById('_toast'); if(!t){ t=document.createElement('div'); t.id='_toast'; t.style.cssText='position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#4E3F31;color:#fff;font-size:12.5px;font-weight:500;padding:12px 22px;border-radius:999px;box-shadow:0 6px 20px rgba(58,45,34,.18);z-index:99;transition:opacity .3s;max-width:88%;text-align:center;word-break:keep-all'; document.body.appendChild(t); } t.setAttribute('role',al?'alert':'status'); t.textContent=m; try{ _ecNw(t); }catch(e){} t.style.opacity=1; clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity=0; },ms||2200); };   /* [TOAST_BROWN · TOAST_PILL] 떠 있는 알림은 «다음» 단추와 같은 브라운 알약 · 흰 글 · 테두리 없음(.pk-undo 와 같은 모양) */   /* [ERR_CODE_BUILDER] 실패 알림(al)은 6초 · role=alert — 2.2초면 까닭 · 코드를 읽거나 찍기 전에 사라졌다 */
-window.setv=function(k,val){ S[k]=val; _lazyPersist(); };
+window.setv=function(k,val){ if(k==='declareWho'&&(S.declBless==='yes'||S.declBless==='no')&&S.declBlessKey&&String(val||'').replace(/\s+/g,' ').trim()!==String(S.declareWho||'').replace(/\s+/g,' ').trim()){ S.declBlessKey=''; try{ _fAt('declBlessKey'); }catch(e){} }   /* [B2_FIX_NA_62] 칸을 벗어나기 전 자동 저장도 «새 이름 + 옛 답»을 남기지 않게 — 글자가 실제로 바뀌는 순간 답 열쇠를 무른다(공백만이면 그대로) */
+  S[k]=val; _lazyPersist(); };
 window.settgl=function(k,cb){ S[k]=cb.checked; _lazyPersist(); render(); };
 // 단체촬영 '구도' 선택은 예식 준비(mypage · guideinfoDraft.photo)로 이관(2026-07-19) — 식순 빌더는 폐식 나레이션만 담당
 

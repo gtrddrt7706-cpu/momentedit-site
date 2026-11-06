@@ -22639,6 +22639,6 @@ chk 'B2_FIX_NA_28' assets/ritual-cue.js 1
 chk 'B2_FIX_NA_33' assets/ritual-cue.js 1
 chk 'B2_FIX_NA_35' assets/ritual-cue.js 1
 chk 'B2_FIX_NI05' assets/ritual-cue.js 1
-chk 'B2_FIX_NA_62' order-preview.html 1
+chk 'B2_FIX_NA_62' order-preview.html 2
 chk 'B2_FIX_GEUL_18' order-preview.html 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r1.mjs >/dev/null 2>&1; _b2r1=$?; node scripts/audit/b2-fix-r1.mjs --selftest >/dev/null 2>&1; _b2r1s=$?; if [ "$_b2r1" != 0 ] || [ "$_b2r1s" != 0 ]; then echo "REVERT? b2-fix-r1: 재검증 재수정 1묶음(사진 안내 늘 · 서약 · 축사 박수 · 개식 힌트 · 본식 뒤 · 덕담 차례)이 어긋났습니다 ($_b2r1/$_b2r1s) — node scripts/audit/b2-fix-r1.mjs"; fail=1; else echo 'ok b2-fix-r1'; fi; fi
