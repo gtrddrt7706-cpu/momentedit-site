@@ -68,6 +68,11 @@ ok(blk.indexOf('알려 드려요') < 0, '«알려 드려요» 없음 — 알림�
 ok(blk.indexOf('이 화면에서 확인할 수 있어요') > -1 || blk.indexOf('«다시 확인»에서 확인해 주세요') > -1, '«이 화면에서 확인할 수 있어요» 또는 «다시 확인»(조회 · 알림 약속 없음 · PV_STATE_1106 M07)');
 ok(/var PVC_EX=\{\}/.test(blk) ? blk.indexOf('예시 영상을 만들고 있어요') > -1 : true, '예시 영상이 없으면 «예시 영상을 만들고 있어요»(그림을 예시라 부르지 않는다)');
 ok((blk.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '').match(/'[^'\n]*\u2014[^'\n]*'/g) || []).length === 0, '화면 글에 전각 줄표(—) 없음');
+// [PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 · 고치던 확정본은 접은 길(분위기 · 사진 · 음악)로 다시 열리지 않는다 — 첫 화면에서 방법을 다시 고른다
+{ const so = (blk.match(/function _pvcScrOf\(F\)\{[\s\S]*?\n\}/) || [''])[0];
+  ok(/d\.mode==='make' && \(st==='draft'\|\|st==='editing'\)\) return 'start';/.test(so) && !/\['style','photos','music','music'\]\[d\.step\]/.test(so), '[PN07] 옛 사진으로 만들기 초안 → 첫 화면(접은 걸음으로 안 감)', so.slice(0, 200));
+  ok(/if\(st==='draft' && d\.mode==='make'\) return \{done:false, st:'', label:'시작하기'/.test(blk) && blk.indexOf("+' 단계'") < 0, '[PN07] 예식 준비 줄 «이어하기 · 사진 단계» 없음 → «시작하기»');
+  ok(/사진으로 만들기는 이제 준비하지 않아요/.test(blk) && /if\(F\.d\.mode==='make'\)\{ _pvcGo\('start'\); return; \}/.test(blk), '[PN07] 첫 화면 한 줄 · 확정본의 «다른 영상으로 다시 보내기»도 방법부터'); }
 
 console.log('━━ ⑤ 서버 동작');
 const { sandbox: G, errors } = loadGas();

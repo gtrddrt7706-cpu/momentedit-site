@@ -11857,12 +11857,13 @@ function _pvcRow(v){
   var urgent=function(){ if(left==null || left>14) return null; return left<0?'기한 지남':(left===0?'오늘까지':(_pvcMd(v.due)+'까지')); };
   var clash=_pvcClash(st, v.conf);   // [PV_STATE_1106 M06] 식순과 확실히 부딪히면 꼬리표로
   if(st==='done') return {done:true, st:'완료', label:'완료 · 수정', tag:clash?'식순 확인':null};
-  if(st==='editing') return {done:true, st:'완료', label:'이어하기', tag:clash?'식순 확인':'수정 중'};
+  if(st==='editing') return {done:true, st:'완료', label:(d.mode==='make'?'다시 정하기':'이어하기'), tag:clash?'식순 확인':(d.mode==='make'?null:'수정 중')};   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 확정본을 고치던 중 — 확정본은 그대로 · 방법부터 다시
   if(st==='off') return {done:true, st:'', label:'다시 정하기', tag:clash?'식순 확인':'안 함'};
   if(st==='making') return {done:false, st:'', label:'보기', tag:'만드는 중'};
   if(st==='checking') return {done:false, st:'', label:'보기', tag:'스튜디오 확인 중'};
   if(st==='review') return {done:false, st:'', label:'영상 확인', tag:'확인 필요'};
-  if(st==='draft' && d.mode) return {done:false, st:'', label:'이어하기', tag:urgent()||(d.mode==='make'?(PVC_STEPS[Math.min(d.step,2)]+' 단계'):null)};
+  if(st==='draft' && d.mode==='make') return {done:false, st:'', label:'시작하기', tag:urgent()};   /* ★[PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 — «이어하기 · 사진 단계»로 접은 길에 다시 들이지 않는다(첫 화면에서 방법을 다시 고른다) */
+  if(st==='draft' && d.mode) return {done:false, st:'', label:'이어하기', tag:urgent()};
   return {done:false, st:'', label:'시작하기', tag:urgent()};
 }
 /* [MID_VIDEO_1106] 예식 준비 줄 «식중 영상» — 식순에 없으면 «넣기 · 선택»(할 일 아님) · 켜면 식전 영상 올리기 줄과 같은 말 */
@@ -11884,7 +11885,7 @@ function _pvcScrOf(F){
   if(st==='review' || st==='done') return 'confirm';
   if(F.past) return 'locked';
   if(d.mode==='upload' && (st==='draft'||st==='editing')) return 'upload';
-  if(d.mode==='make' && (st==='draft'||st==='editing')) return ['style','photos','music','music'][d.step]||'style';
+  if(d.mode==='make' && (st==='draft'||st==='editing')) return 'start';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 초안 · 고치던 확정본 → 첫 화면(필메이커 · 준비한 영상) · 보낸 요청(만드는 중 · 확인)은 그대로
   return 'start';
 }
 function startPvcFlow(v){
@@ -12033,7 +12034,7 @@ function _pvcStart(){
   h+='<div class="pvc-opts">'+(PVC_FEEL_ON?'<button type="button" class="pvc-opt" data-pvcgo="feel"><b>필메이커에서 만들기</b><span>템플릿을 골라 직접 만들기 · 쿠폰으로 무료</span></button>':'')
     +'<button type="button" class="pvc-opt" data-pvcmode="upload"><b>준비한 영상 올리기</b><span>업체나 직접 만든 영상 · 링크로 보내기</span></button></div>';
   h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-pvcop="later">나중에 준비하기</button><button type="button" class="pvc-lk" data-pvcop="off">사용하지 않기</button></div>';
-  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots([PVC_FEEL_ON?'템플릿 비용 포함 · 추가 옵션 별도':'', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
+  h+='<div class="pvc-foot">'+_pvcNeed(_pvcMakeGone())+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots([PVC_FEEL_ON?'템플릿 비용 포함 · 추가 옵션 별도':'', _pvcMakeGone()?_pvcOldLine():'', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
   return h;
 }
 /* [MID_VIDEO_1106] 식중 영상 첫 화면 — 식순에 없으면 «식순에서 넣기» 하나 · 켜져 있으면 «준비한 영상 올리기» + «식순에서 빼기»(둘 다 식순 화면의 «준비한 순서» 칸을 연다) */
@@ -12054,6 +12055,8 @@ function _mvcToRitual(){   // [MID_VIDEO_1106] 식순 화면의 «준비한 순�
   _pvcCollect(); _pvcTearDown();
   try{ var st=window._mpStateD||{}; openRitualBuilder(window._lastProd||st.production||{}, st.invitation||null, {at:'midvideo'}); }catch(e){ _mpRefresh(); }
 }
+function _pvcMakeGone(){ var F=PVCFLOW; if(!(F.d&&F.d.mode==='make'&&(F.st==='draft'||F.st==='editing'))) return '';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기»로 시작한 분께 한 줄
+  return '사진으로 만들기는 이제 준비하지 않아요 · '+(PVC_FEEL_ON?'필메이커에서 만들거나 준비한 영상을 올려\u00a0주세요':'준비한 영상을 올려\u00a0주세요'); }   // 360 에서 «주세요» 한 낱말만 떨어지지 않게
 function _pvcLocked(){
   var F=PVCFLOW, h='<h2 class="pvc-h">확정 기한이 지났어요</h2><p class="pvc-sub">바꾸실 것은 디렉터에게 말씀해 주세요.</p>';
   if(F.kind==='mid' && F.on!==true) h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([_pvcNm()+' 없이 진행해요.'])+'</div>';   // [MID_VIDEO_1106 · 재검토 1604] 식순에 없으면 확정본이 있어도 «진행해요»를 말하지 않는다
@@ -12145,7 +12148,7 @@ function _pvcConfirm(){
   h+='<p class="pvc-sub">'+(_mOff?'식순에 이 영상이 없어요.':(done?'이 영상으로 진행해요.':(up?'소리를 켜고 영상을 확인해 주세요. 확정하면 이 영상으로 진행해요.':'소리를 켜고 사진·문구·음악을 확인해 주세요. 확정하면 이 영상으로 진행해요.')))+'</p>';   // [MID_VIDEO_1106 · 검토 1604] 링크로 받은 영상은 «사진·문구·음악»이 아니다
   h+=(pv&&pv.url)?'<div class="pvc-player"><iframe src="'+escapeHtml(pv.url)+'" allow="autoplay; fullscreen" allowfullscreen title="'+_pvcNm()+' 미리보기"></iframe></div>':'<div class="pvc-poster pvc-wait"><span class="pvc-mk">영상을 불러오지 못했어요</span></div>';
   h+='<p class="pvc-summ">'+_pvcSum()+'</p>';
-  if(!F.past) h+='<button type="button" class="cc-btn-ghost pvc-fix" data-pvcfix>'+(up?'다른 영상으로 다시 보내기':'고치기')+'</button>';
+  if(!F.past && !_mOff) h+='<button type="button" class="cc-btn-ghost pvc-fix" data-pvcfix>다른 영상으로 다시 보내기</button>';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 확정본도 «고치기»(사진 · 음악 걸음) 대신 방법부터 · [MID_VIDEO_1106] 식순에서 뺀 식중 영상은 다시 보내기도 없음(서버가 거절한다)
   h+=(F.kind==='mid'?(_mOff?'':'<div class="pvc-flow"><p class="pvc-flow-h">예식 속 자리</p><p class="pvc-sub pvc-flow-t">식순 「준비한 순서」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p></div>'):_pvcFlowDots());   // [MID_VIDEO_1106]
   var cAt=(done&&F.conf&&F.conf.at)?(_pvcMd(F.conf.at)+' 확정'):'';
   h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([cAt, done?'':_pvcOldLine(), _pvcDueLine((F.past||_mOff)?'':(done?'기한까지 고쳐서 다시 확정할 수 있어요.':'확정한 뒤에도 기한까지 고쳐서 다시 확정할 수 있어요.'))])+'</div>';
@@ -12314,7 +12317,7 @@ function _pvcBind(box){
   box.querySelectorAll('[data-pvcmore]').forEach(function(b){ b.addEventListener('click', function(){ F.more=true; renderPvc(); var c=document.querySelector('#mp_pvcInner .pvc-rest .pvc-pick'); if(c) c.focus({preventScroll:true}); }); });
   box.querySelectorAll('[data-pvcsubmit]').forEach(function(b){ b.addEventListener('click', function(){ if(b.getAttribute('aria-disabled')==='true'){ _pvcErr('곡을 골라 주세요'); return; } _pvcSubmit(); }); });
   box.querySelectorAll('[data-pvcconfirm]').forEach(function(b){ b.addEventListener('click', _pvcConfirmGo); });
-  box.querySelectorAll('[data-pvcfix]').forEach(function(b){ b.addEventListener('click', function(){ if(F.d.mode==='upload'){ _pvcGo('upload', 0); return; } F.sheet='fix'; renderPvc(); var p=document.querySelector('#mp_pvcInner .pvc-sheet .pvc-x'); if(p) p.focus({preventScroll:true}); }); });
+  box.querySelectorAll('[data-pvcfix]').forEach(function(b){ b.addEventListener('click', function(){ if(F.d.mode==='upload'){ _pvcGo('upload', 0); return; } if(F.d.mode==='make'){ _pvcGo('start'); return; }   /* [PN07_MAKE_RESUME] */ F.sheet='fix'; renderPvc(); var p=document.querySelector('#mp_pvcInner .pvc-sheet .pvc-x'); if(p) p.focus({preventScroll:true}); }); });
   box.querySelectorAll('[data-pvcfixto]').forEach(function(b){ b.addEventListener('click', function(){ var to=b.getAttribute('data-pvcfixto'); _pvcGo(to, {style:0, photos:1, music:2}[to]); }); });
   box.querySelectorAll('[data-pvcrecheck]').forEach(function(b){ b.addEventListener('click', _pvcRecheck); });   // [PV_STATE_1106 M07]
   box.querySelectorAll('[data-mvcrit]').forEach(function(b){ b.addEventListener('click', _mvcToRitual); });   // [MID_VIDEO_1106] 식순 «준비한 순서» 칸으로
