@@ -18,7 +18,7 @@ const SITE = 'https://www.momentedit.kr/order-preview.html';
 const PICK = ['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'];
 const ALL = ['prevideo', ...PICK];
 const fits = (on) => { const c = O.countOf({ course: 'open', on }); return c.n <= c.max && c.long <= c.longMax; };
-const NAME = (k) => ({ guest: '하객 맞이', _close: '닫는 인사' }[k] || (O.CARDS[k] && O.CARDS[k].n) || k);
+const NAME = (k) => ({ guest: '하객 맞이', _close: '닫는 인사', _photo: '단체 사진', _goodbye: '마무리' }[k] || (O.CARDS[k] && O.CARDS[k].n) || k);
 const BODY_END = { _photo: 1, _final: 1, _goodbye: 1 };
 
 // 실제 차례 — 엔진이 내는 큐의 순간(k) 차례
@@ -58,7 +58,11 @@ const NOSLOT = { prevideo: '영상 자체 소리', song: '축가 MR(부르는 �
 const slotId = (k) => { const s = B.slotOfKey ? B.slotOfKey(k) : null; return s ? s.id : (NOSLOT[k] ? (k === 'song' ? 'MR' : '영상') : '-'); };
 const slotTxt = (k) => { const s = B.slotOfKey ? B.slotOfKey(k) : null; return s ? `${s.id}${s.one ? ' «' + s.one + '»' : s.short ? ' «' + s.short + '»(음악 없이 · 음악과 함께 고름)' : ''}` : (NOSLOT[k] || '(음악 칸 없음)'); };
 const liveOf = (c) => (c.live && c.live.t ? `[사람 구간${+c.live.est >= 60 ? ' · 약 ' + Math.round(c.live.est / 60) + '분' : +c.live.est > 0 ? ' · ' + c.live.est + '초' : ''}] ${c.live.t}` : '');
-const cueLine = (c) => { const g = +c.gapMs > 0 ? ` (앞 줄 뒤 쉼 ${(c.gapMs / 1000).toFixed(1)}초)` : ''; return `[${c.no || '-'}] ${c.slug || ''}${g}\n      ${c.text || '(소리 없음)'}${liveOf(c) ? '\n      ' + liveOf(c) : ''}`; };
+/* ★[JUNCTION_SILENT_TX05 2026-11-06 이음매 TX05] 소리 없는 사진 행동(actId)도 싣는다 — 녹음 번호 · 가짜 나레이션 없이 «소리 없음 · 무엇 · 현장 진행 · 약 N분»(N = 엔진 live.est) · actId · 예상 초 · 끝내기 홀드를 함께 */
+const SILENT = { 'photo-all': '전체 단체 사진', 'photo-family': '가족 사진', 'photo-free': '추가 촬영' };
+const silentLine = (c) => { const n = SILENT[c.actId], est = Math.round(+((c.live && c.live.est) || 0)); const how = c.actId === 'photo-free' ? '남는 시간만큼' : '현장 진행 · 약 ' + Math.max(1, Math.round(est / 60)) + '분';
+  return `[-] (${c.actId} · 예상 ${est}초${c.endHold ? ' · 끝내기까지 홀드' : ''})\n      소리 없음 · ${n} · ${how}`; };
+const cueLine = (c) => { if (!c.text && SILENT[c.actId]) return silentLine(c); const g = +c.gapMs > 0 ? ` (앞 줄 뒤 쉼 ${(c.gapMs / 1000).toFixed(1)}초)` : ''; return `[${c.no || '-'}] ${c.slug || ''}${g}\n      ${c.text || '(소리 없음)'}${liveOf(c) ? '\n      ' + liveOf(c) : ''}`; };
 
 const L = [];
 L.push('# 이음매 전수 목록 · 검토용 [JUNCTION_LIST_1102]', '');
@@ -71,7 +75,8 @@ L.push('- **바로 보기** = 그 이음매가 들어 있는 대표 코스를 �
 L.push('- **음악** = 앞 순간과 뒤 순간의 음악 칸(S1 ~ S10). 같으면 같은 곡이 이어지고, 다르면 곡이 바뀌어요.');
 L.push('- 줄 앞 대괄호 숫자는 소리 번호 · 그 뒤는 slug 예요. 검토를 적을 때 둘 다 적어 주세요.');
 L.push('- «[사람 구간]» 줄이 끼면 그 앞뒤 소리는 붙어 들리지 않아요(사람이 말하거나 움직이는 동안).');
-L.push('- 순간 안 칩(예시 멘트 · 읽는 목소리 · 덕담 인원 · 축사 길이 · 테이블 수)은 기본값이에요. 화면에서 칩을 바꾸면 줄이 바뀌어요.', '');
+L.push('- 순간 안 칩(예시 멘트 · 읽는 목소리 · 덕담 인원 · 축사 길이 · 테이블 수)은 기본값이에요. 화면에서 칩을 바꾸면 줄이 바뀌어요.');
+L.push('- 시간(«약 n분» · «예상 n초» · 쉼)은 엔진의 계획 값이에요. 현장에서 잰 값도, 100쌍에서 실제로 일어난 비율도 아니에요. «소리 없음» 줄은 녹음 없이 현장이 진행하는 자리예요(전체 단체 사진 → 촬영 후 안내 → 가족 사진 → 추가 촬영).', '');
 L.push('## 1. 이음매 목록 (자주 나오는 순)', '');
 L.push('| 번호 | 이음매 | 100쌍 중 | 이 이음매가 있는 코스 수 | 음악 |', '|---|---|---|---|---|');
 list.forEach((j, i) => { const sa = slotId(j.a), sb = slotId(j.b); L.push(`| J${String(i + 1).padStart(2, '0')} | ${NAME(j.a)} → ${NAME(j.b)} | ${(j.p * 100).toFixed(j.p >= 0.1 ? 0 : 1)} | ${j.n} | ${sa === sb && sa !== '-' ? sa + ' 이어짐' : sa + ' → ' + sb} |`); });
@@ -96,7 +101,7 @@ Object.entries(prob).sort((a, b) => b[1] - a[1]).slice(0, 20).forEach(([k, p], i
   const on = {}; k.split(',').filter(Boolean).forEach((x) => { on[x] = 1; }); const cues = cuesOf(on);
   L.push(`### 코스 ${i + 1} · 100쌍 중 ${(p * 100).toFixed(1)} · ${seqOf(cues).map(NAME).join(' → ')}`);
   L.push(`- 바로 보기(한눈에 보기): ${link(on, '_sum')}`);
-  L.push('```'); cues.forEach((c) => { if (!BODY_END[c.k] || c.text) L.push('  ' + (c.k ? NAME(c.k) + ' · ' : '') + cueLine(c)); }); L.push('```', '');
+  L.push('```'); cues.forEach((c) => { if (!BODY_END[c.k] || c.text || SILENT[c.actId]) L.push('  ' + (c.k ? NAME(c.k) + ' · ' : '') + cueLine(c)); }); L.push('```', '');
 });
 fs.writeFileSync(OUT, L.join('\n') + '\n');
 console.log(`OK ${path.relative(ROOT, OUT)} · 코스 ${courses.length} · 이음매 ${list.length}`);
