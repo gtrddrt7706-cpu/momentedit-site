@@ -22786,5 +22786,4 @@ chk 'ST12_02_LATE_FILE' order-preview.html 5   # ★[ST12_02_LATE_FILE 2026-11-0
 chk 'if(MK_REC!==me) return;' order-preview.html 2   # [ST12_02_LATE_FILE] _recFromBlob 결과 · 실패 둘 다 차례표로 거른다
 nochk 'if(!MK_REC||MK_REC.key!==key) return;' order-preview.html   # [ST12_02_LATE_FILE] 자리(key)만 보던 옛 거름 — 되살리면 A 가 B 를 덮는다
 chk 'ST12_02_LATE_FILE' scripts/audit/st12-late-file.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/st12-late-file.mjs >/dev/null 2>&1; _st12f=$?; if [ "$_st12f" = 1 ]; then echo 'REVERT? st12-late-file: 늦게 온 옛 파일 결과가 새 파일 들어 보기 · 소리 · 까닭을 덮는다 — node scripts/audit/st12-late-file.mjs [ST12_02_LATE_FILE]'; fail=1; else echo "ok st12-late-file ($_st12f) [ST12_02_LATE_FILE]"; fi; fi
