@@ -212,7 +212,7 @@ function handlePvSave(body) { _gsr_();
       if (_miss.length) {
         var _dm = {}; for (var _k in d) { if (Object.prototype.hasOwnProperty.call(d, _k)) _dm[_k] = d[_k]; }
         _dm.photos = d.photos.concat(_miss);
-        d = _pvNorm_(_dm, m, wed);   // 칸 · 전체 장수는 _pvNorm_ 이 다시 지킨다
+        d = _pvNorm_(_dm, m, wed, kind);   // 칸 · 전체 장수는 _pvNorm_ 이 다시 지킨다 · [PVNORM_KIND_1107] kind 를 넘겨 식중 줄은 링크만(사진 갈래를 타지 않게 · midvideo.mjs 가 잰다)
         var _now = {}; d.photos.forEach(function (p) { _now[p.id] = p; });
         _miss.forEach(function (p) { var q = _now[String(p.id)]; if (q) added.push({ id: q.id, th: q.th, sec: q.sec, n: q.n }); });
       }
