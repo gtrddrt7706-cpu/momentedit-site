@@ -4873,7 +4873,7 @@ function _lSteps0(g,ks){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요'+(PR?' · 두 분은 입장 전 대기 자리에서 준비해요':'')+' · '+SKW,skip:true,ms:1600,vk:'영상 상영',ldk:c.live.duck}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
           /* [SONG_BACK_1011] 축가는 두 분이 말하는 자리가 아니다 — «두 분 차례»(talk)가 아니라 준비한 순서 영상처럼 «미리 듣기에서는 넘겨요» 한 줄 */
-          if(k==='song'&&PR&&S.songBy==='self'){ talked=true; out.push({k:k,lab:'두 분 차례 · 축가',txt:'노래하실 분이 준비한 축가를 불러요 · 노래를 마치면 «다 했어요»를 눌러 주세요',quiet:true,aid:'narr-song:self',who2:'couple',ms:0,of:c.slug||'',est:Math.round(+((c.live&&(c.live.fullEst||c.live.est))||0)),ldk:c.live.duck}); }   /* ★[SONG_SELF_WAIT_NI07 2026-11-05 이음매 NI07] 두 분이 직접 부르는 축가는 두 분 동작 — B 에서 «다 했어요»까지 기다린다 · 한 분만 부를 수도 있어 «노래하실 분» · −90 그대로 · 다른 분 축가는 아래 요약 그대로 */
+          if(k==='song'&&PR&&S.songBy==='self'){ talked=true; out.push({k:k,lab:'두 분 차례 · 축가',txt:_songSelfTxt(),quiet:true,aid:'narr-song:self',who2:'couple',ms:0,of:c.slug||'',est:Math.round(+((c.live&&(c.live.fullEst||c.live.est))||0)),ldk:c.live.duck}); }   /* ★[SONG_SELF_WAIT_NI07 2026-11-05 이음매 NI07] 두 분이 직접 부르는 축가는 두 분 동작 — B 에서 «다 했어요»까지 기다린다 · 한 분만 부를 수도 있어 «노래하실 분» · −90 그대로 · 다른 분 축가는 아래 요약 그대로 */
           else if(k==='song'){ talked=true; out.push({k:k,lab:'축가가 흐르는 자리',vk:'당일 노래',txt:'여기서 축가를 불러요 · 한 곡 3분 안팎'+(PR?' · 두 분은 노래하시는 분을 바라보며 들어요':'')+' · '+SKW   /* [SONG_ANYONE_WORDS_1013] «약 4분»은 시간 표 210초를 반올림한 값 · 준비 줄(«3분 안팎 한 곡»)과 같은 말 */,skip:true,ms:3000,ldk:c.live.duck}); }
           else if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
             var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='etc'?'두 분이 준비한 순서가 이어져요':'준비한 선물을 건네요';
@@ -8371,9 +8371,11 @@ function _lPreload(){ var n=LP.q[LP.i+1]; if(!n||!n.src) return; if(!LP.pre){ LP
 function _lpTag(a){ var n={}; (a||[]).forEach(function(x){ n[x.k]=n[x.k]||0; x._li=x.k+':'+(n[x.k]++); }); return a; }   /* 줄 자리 = 그 순간 안 번호(_mkFlow 의 data-li 와 같다 · 한 순간 _lSteps(ENG,[k]) 차례) */
 function _lpMs(est){ return Math.min(6,Math.max(3,Math.round((+est||0)/12)))*1000; }
 /* ★★[TURN_GAP_1102 사장님 확정 값] 행동 줄(말없이) 머무는 시간 — 미리 듣기 / 연습 · 연습은 실제로 움직여 보는 시간이라 길게 · 당일 콘솔은 사람이 GO(그대로) */
-var DWELL={ matjeol:[5,8], bow:[6,8], call:[6,8], hug:[6,8], ring:[6,8], candle:[6,6], move:[6,8], table:[8,8], clapBig:[6,6], clapSmall:[5,5], def:[5,6] };
+var DWELL={ matjeol:[5,8], bow:[6,8], call:[6,8], hug:[6,8], ring:[6,8], candle:[6,6], move:[6,8], table:[8,8], clapBig:[6,6], clapSmall:[5,5], songSelf:[3,3], def:[5,6] };   /* [B5_P01] songSelf = 두 분이 직접 부르는 축가 — 흐름 보기(A)는 3초 요약(B 는 «다 했어요»까지) */
 function _dwellKind(x){ var k=x.k||'', sl=String(x.of||x.slug||''), t=String(x.txt||'');
   if(k==='matjeol'||sl==='narr-entry-bow') return 'matjeol'; if(sl==='narr-close-bow') return 'bow';
+  if(x.aid==='narr-song:self') return 'songSelf';   /* ★[B5_P01 2026-11-06 5차 P v2 P01 · P14] 본인 축가 A 3초(종전 6초) */
+  if(/^tribute-out/.test(sl)&&x.who2==='couple') return 'move';   /* ★[B5_P01] 부모님께 인사 뒤 «두 분이 앞쪽 중앙으로 돌아와 나란히 서요» = 이동 — A 8초(종전 «돌아와»가 이동 낱말에 안 걸려 6초) · B 는 완료까지 */
   if(/^tribute-hug/.test(sl)) return 'hug'; if(/^tribute-call/.test(sl)) return 'call'; if(k==='ring') return 'ring'; if(k==='candle') return 'candle'; if(k==='table') return 'table';
   if(/박수/.test(t)||/clap/.test(sl)) return (k==='declare'||k==='song')?'clapBig':(k==='bless'||k==='free')?'clapSmall':'def';
   if(/^tribute-in/.test(sl)||/걸어|자리로|앞으로|이동/.test(t)) return 'move'; return 'def'; }
@@ -8635,6 +8637,9 @@ var _PRMU=null;
    A · B 의 자동 구간은 ② 이어 듣기와 같은 속도 길(LP.pace · NarrPad 말끝 쉼 · lpLead · lpTail · TIME_GAP · 행동 줄 _lpMs) — 연습 쪽에 쉼 · 동작 시간 숫자를 따로 적지 않는다.
    B 대기 = 신랑 · 신부 · 두 분이 하는 줄(말하기 · 동작)만 · 부모님 동작 · 조건 안내는 A 와 같은 시간 뒤 자동 · 대기 중 음악은 그 줄 크기 그대로(의도한 정적은 정적 그대로) · «잠시 멈춤» = 소리 · 진행 · 음악 위치 정지 */
 var PRW='flow';
+/* ★[B5_P14 2026-11-06 5차 P v2 P01 · P14 · NI07] 두 분이 직접 부르는 축가 카드 글 — 연습 방식마다 다르다(A 는 3초 요약 · B 는 완료까지) · 방식을 바꾸면 지금 줄 글도 바꾼다(prWay) */
+function _songSelfTxt(){ return PRW==='try'?'직접 부르는 차례예요. 시작과 끝 인사를 연습해 보세요.':'직접 부르는 차례예요 · 흐름 보기에서는 짧게 넘겨요.'; }
+function _songSelfSync(){ try{ (LP.q||[]).forEach(function(x){ if(x&&x.aid==='narr-song:self') x.txt=_songSelfTxt(); }); }catch(e){} }
 window.prStart=function(w){ PRW=(w==='try'?'try':'flow'); LP.listOpen=false; _ptGate(lsPlayAll); };
 function _prWay(){ return (STEPS[idx]&&STEPS[idx].k==='practice')?PRW:''; }
 function _prWait(st){ if(!st||st.src||_prWay()!=='try') return false; var who=String(st.who||'');
@@ -8648,7 +8653,7 @@ function _prEngLv(st){ var sl=st&&(st.of||st.slug); if(!sl||!ENG||!ENG.RitualCue
 function _prWaitLv(st){ if(!st||!st.act) return; var w=_prWait(st); if(w&&st.ldk==null&&!('_ldk0' in st)){   /* ★[PR_WAIT_LDK_204 (가)] 엔진 ldk 가 있는 줄(부모님께 걸어가기 −12 · −60 아래 정적)은 그 값 그대로 · 빈 줄만 말 아래 크기 */ if(!('_ldk0' in st)) st._ldk0=st.ldk; var P=(ENG&&ENG.RitualCue&&ENG.RitualCue.PARAM)||{}, _ev=_prEngLv(st); st.ldk=(_ev!=null?_ev:P.duckTalk!=null?P.duckTalk:-20); }   /* ★[PR_WAIT_ENG_LV 2026-11-06 BGM 2차 음01] 줄에 크기가 안 실렸어도 엔진 큐(of)의 행동 크기(walkDuck · live.duck)가 있으면 그 값 — 맞절 = 정적(MEANING_R2) · 엔진에 값이 없을 때만 duckTalk */
   else if(!w&&('_ldk0' in st)){ st.ldk=st._ldk0; delete st._ldk0; } }
 /* ★[PR_WAY_198 보충 중4] 재생 중 «흐름 보기 / 직접 해보기» 바꾸기 — 지금 줄은 그대로 · 기다림 규칙만 바뀐다(흐름으로 바꾸면 그 줄 시간 뒤 넘어감 · 직접으로 바꾸면 두 분 줄이면 그 자리에서 기다림) */
-window.prWay=function(w){ w=(w==='try'?'try':'flow'); if(PRW===w) return; PRW=w; var st=LP.q[LP.i];
+window.prWay=function(w){ w=(w==='try'?'try':'flow'); if(PRW===w) return; PRW=w; _songSelfSync(); var st=LP.q[LP.i];   /* [B5_P14] */
   if(st&&!LP.paused&&!LP.prep&&!LP.onlyEnd){ if(w==='flow'&&LP.wait===st){ LP.wait=null; _prWaitLv(st); _lTimer(st.ms||_lpMs(st.est)); }
     else if(w==='try'&&!LP.wait&&!st.src&&_prWait(st)){ clearTimeout(LP.t); LP.wait=st; LP.tAt=0; LP.tMs=0; _prWaitLv(st); }
     try{ if(_bedOn()&&window.BgmBed&&BgmBed.lpLevel) BgmBed.lpLevel(st); }catch(e){} }   /* ★[PR_REVIEW_201 중5] 바꾼 그 자리에서 지금 곡 크기도 — 재생 위치 그대로 · 일부러 둔 정적(−60 아래)은 그대로 */

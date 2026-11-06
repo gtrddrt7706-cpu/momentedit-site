@@ -22079,7 +22079,7 @@ chk 'PR_ACT_NI06' order-preview.html 3
 chk '두 분이 앞쪽 중앙으로 돌아와 나란히 서요' order-preview.html 1
 chk '하객이 잔을 내려놓으면 두 분도 잔을 건네고, 하객을 향해 나란히 서요' order-preview.html 1
 chk 'SONG_SELF_WAIT_NI07' order-preview.html 1
-chk '노래하실 분이 준비한 축가를 불러요' order-preview.html 1
+chk 'narr-song:self' order-preview.html 2   # [B5_P14] 본인 축가 카드 글은 A/B 따로(_songSelfTxt) — 종전 «노래하실 분이 준비한 축가를 불러요» 핀을 옮김
 chk 'LETTER_BRING_NI08' order-preview.html 1
 chk 'VOW_FACE_NI13' order-preview.html 1
 chk 'B_RESUME_WAIT_NI14' order-preview.html 1
@@ -22635,4 +22635,9 @@ nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/
 chk 'B5_NI08' order-preview.html 1   # [5차 P v2 NI08] 편지 두 분 따로 — 최종 화자 배열을 세운 뒤 그 순간 몫을 한 번만 나눈다(각 139초 × 2 금지)
 chk 'B5_NI11' order-preview.html 1   # [5차 P v2 NI11 · P10] 크게 보기 머리 = _stNo(st) — 촬영 후 안내 중 «본식 뒤 · 예식 순서»
 nochk "esc(_lNoOf(st.k)+' · 예식 순서')" order-preview.html   # ★머리를 순간 번호(_lNoOf)로 되돌리지 말 것 — 본식 뒤 줄이 «9 / 9»로 보였다
+chk 'B5_P01' order-preview.html 3   # [5차 P v2 P01 · P14] 연습 A — 부모님께 인사 뒤 복귀 8초 · 본인 축가 3초(DWELL songSelf)
+chk 'B5_P14' order-preview.html 2   # [5차 P v2 P14 · NI07] 본인 축가 카드 글 A/B 따로 · 방식 바꾸면 지금 줄 글도
+chk '직접 부르는 차례예요 · 흐름 보기에서는 짧게 넘겨요.' order-preview.html 1
+chk '직접 부르는 차례예요. 시작과 끝 인사를 연습해 보세요.' order-preview.html 1
+nochk '노래를 마치면 «다 했어요»를 눌러 주세요' order-preview.html   # ★A 에도 보이던 B 용 완료 문구 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
