@@ -4825,6 +4825,9 @@ nochk '패키지 포함 · 추가 요금 없음' mypage.html
 chk 'PV_VERIFY_1106' mypage.html 2
 chk '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.' mypage.html 1
 nochk '원본 파일을 받아 재생을 확인하면 이 화면에서 볼 수 있어요' mypage.html
+# ★[PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 재개 — 접은 걸음(분위기 · 사진 · 음악)으로 다시 열지 않는다 · 첫 화면에서 방법을 다시 고른다(확정본 · 보낸 요청은 그대로)
+chk 'PN07_MAKE_RESUME' mypage.html 12
+nochk "if(d.mode==='make' && (st==='draft'||st==='editing')) return ['style','photos','music','music'][d.step]||'style';" mypage.html
 # ★[JUNCTION_LINK_1102 · JUNCTION_LIST_1102 2026-11-02 사장님 «85가지 이음매를 GPT 보고 스텝바이스텝으로 검사»] 이음매 전수 목록(docs/handoff/junctions.md · scripts/build-junctions.mjs)과
 #   그 «바로 보기» 주소(order-preview ?on= 담을 순간 그대로 · 그냥 연 화면만) — 지우면 GPT 검토 판의 주소 85개가 엉뚱한 코스를 연다
 chk 'JUNCTION_LINK_1102' order-preview.html 1
@@ -15385,7 +15388,7 @@ nochk "\['N21-i', '이음말 · 엄숙한 순간 → 축가'" scripts/build-dubb
 chk "if (slugB === 'bridge-b3-clap-thanks' && !_declStay) { _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # ★[DECL_TITLE_1031] 글자 추측(아버 · 어머) 대신 «첫 덕담도 이어서» 답 · 안 고름은 자리로 + GO   # [COMBO_171_1030 C02] 다음이 덕담이어도 다른 분이 선언했으면 255
 chk "&& _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «&& !/\^이제/.test(_nxT) && _nxT.indexOf('하»
 chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «!BRIDGE_OPEN.test(_nxT)) _more.push('bri»
-chk "&& !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1
+chk "&& (bn.k === 'song' || !CLAP_ASK.test(_nxT))) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1   # [B2_FIX_NA_35 2026-11-06] 축사 → 축가는 여는 말이 박수를 청해도 246 · 그 밖은 종전 ⑤
 chk 'TOAST_PUTDOWN_1018' assets/ritual-cue.js 1
 chk "→ 음악 → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'" assets/ritual-story.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «chk "'하객이 잔을 내려놓음 · 두 분도 잔을 건넴'"»
 chk '기원하며 축복의 불을 밝혀 주시겠습니다' assets/ritual-open.js 2   # ★[SRC_ALL_1023 검토 144 · 사장님 10/23 «자료집 글로만»] 151 · 154 = 자료 G 원문 되돌림(옛 핀 «밝혀 주시겠습니다» 3 · 남은 하나는 쉬는 parents 판)
@@ -18403,6 +18406,20 @@ chk "_authSendOk_(kind, email)" automation/platform/50_auth-handlers.gs 1
 chk "_trigSafe_(_pw) + (uid ? 'U' : 'N')" automation/platform/70_journey.gs 1
 nochk "취소된 예약은 승인할 수 없습니다. (되살아남 방지)" automation/admin/admin.gs
 nochk "error: '취소된 예약입니다.'" automation/admin/admin.gs
+# ★★[REFUND_REVIEW_1106 2026-11-06 대본 지시 3 · 운영·계약 L11 · L14 · L20] 환불 계산기 — 계약서대로 + 예외는 «확인 필요 — 사장님 확정» · 자동 확정 금지
+#   스냅 7조① 기산점 = 계약서 받은 날 · 촬영 당일 시작 전/후 단정 금지 · 받은 변경 수수료는 위약금에 충당(시그니처 8조①) · 옛 판 서명은 그 판 조건(REFUND_TERMS_SAME)
+chk 'REFUND_REVIEW_1106' automation/platform/70_journey.gs 2
+chk 'CHANGE_FEE_CREDIT' automation/platform/70_journey.gs 2
+chk 'SNAP_DAY_UNSURE' automation/platform/70_journey.gs 1
+chk 'SNAP_WITHDRAW_FROM_DOC' automation/platform/70_journey.gs 1
+chk 'var REFUND_TERMS_SAME' automation/platform/70_journey.gs 1
+chk 'REFUND_REVIEW_1106' automation/admin/admin.gs 2
+chk 'function _rqReview' admin.html 1
+chk 'rqBossOk' admin.html 2
+nochk "_sRule = '계약일 + 7일 이내(청약철회)'" automation/platform/70_journey.gs 0
+if command -v node >/dev/null 2>&1; then node scripts/audit/refund-terms-same.mjs >/dev/null 2>&1; _rts=$?; if [ "$_rts" != 0 ]; then echo "FAIL refund-terms-same($_rts) — 옛 판 환불 조건 목록이 보존본과 어긋난다 · node scripts/audit/refund-terms-same.mjs [REFUND_TERMS_SAME]"; fail=1; else echo "ok refund-terms-same [REFUND_TERMS_SAME]"; fi; fi
+# ★[INTERNAL_NOINDEX_1106 2026-11-06 대본 지시 4] 내부 점검 화면 · 옛 계약 보존본 — noindex · 사이트맵 0 · 고객 화면 링크 0 · 새 내부 화면은 목록에
+if command -v node >/dev/null 2>&1; then node scripts/audit/internal-noindex.mjs >/dev/null 2>&1; _ini=$?; if [ "$_ini" != 0 ]; then echo "FAIL internal-noindex($_ini) — 내부 화면 · 계약 보존본이 고객 주소에 드러난다 · node scripts/audit/internal-noindex.mjs [INTERNAL_NOINDEX_1106]"; fail=1; else echo "ok internal-noindex [INTERNAL_NOINDEX_1106]"; fi; fi
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
@@ -20577,7 +20594,7 @@ nochk '빨래는 제가 개겠습니다' docs/plans/식순연구/참고예시_�
 chk 'MODERN_WORDS_1024 검토 164' assets/ritual-data.js 1
 chk 'MODERN_WORDS_1024 검토 164' assets/ritual-open.js 1   # 186 은 IG_CLOSE_1024 로 통째 바뀜
 chk 'MODERN_WORDS_1024 검토 164' assets/ritual-cue.js 2
-chk "CLAP_ASK = /박수\[^.!?\]\*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/" assets/ritual-cue.js 1
+chk "CLAP_ASK = /박수\[^.!?\]\*(부탁|바랍니다|주시면|주십시오|주세요|맞아)|박수로\[^.!?\]\*하겠습니다/" assets/ritual-cue.js 1   # [B2_FIX_NI05 2026-11-06] 개식 «여러분의 박수로 시작하겠습니다!»도 박수 청
 nochk '시간을 할애하시어' assets/ritual-data.js
 nochk '결혼식을 거행하' assets/ritual-open.js
 nochk '혼인서약 낭독\.' assets/ritual-data.js 1   # 결정 주석 한 곳(예로 든 옛 말투)
@@ -21507,7 +21524,8 @@ chk "'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-so
 chk "'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1," assets/ritual-cue.js 1
 chk "actId: 'photo-all'" assets/ritual-cue.js 1
 chk '작가님 안내에 따라' mypage.html 1
-chk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진 · 추가 촬영을 하실 분은 남고, 그 밖의 분은 식사 자리로 먼저 이동해요.' guide.html 1   # [GATHER_200]
+chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 먼저 식사 장소로 이동하셔도 돼요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
+nochk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진' guide.html
 nochk '차례가 아닌 분은 자리에서 편히 쉬어 주세요' guide.html
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
@@ -21681,7 +21699,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow reg-p17'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -21907,7 +21925,7 @@ chk 'Farewell(정리)' api/_kb.js 1
 nochk 'Farewell(마무리)' api/_kb.js
 # ★[DN_BUGS_1102 GPT 애프터 웨딩 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
 chk 'DN_RSV_AFTER_PICK_1102' mypage.html 1
-chk 'function _dnRsvFor(d, place)' mypage.html 1
+chk 'function _dnRsvFor(d, place, nm)' mypage.html 1   # [B2_FIX_MA_38 2026-11-06] nm = 옛 이름 열쇠 옮기기용
 chk 'DN_RSV_PER_PLACE_1102' mypage.html 3
 chk 'DN_UNDO_ALL_1102' mypage.html 1
 chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
@@ -22027,6 +22045,14 @@ chk 'GPT_R1_NOMUS' assets/bgm-bed.js 2
 chk 'GPT_R1_LONG' assets/bgm-bed.js 1
 chk '여러 연주곡이 차례로 이어져요' assets/bgm-bed.js 1
 chk 'GPT_R1_CANDLE' assets/ritual-cue.js 3
+chk 'REG_P17' assets/bgm-bed.js 8           # [REG_P17] 멈춘 동안 «음악 켜기» = 보류된 켜기만 · 이어 들을 때 지금 줄 곡 · 저장 위치 · 줄 크기 0.6초 · 무음 줄은 그대로 · 끄기 · 끝내기 · 새 시작은 지움
+chk 'function pzNow' assets/bgm-bed.js 1
+chk 'function holdGo' assets/bgm-bed.js 1
+chk 'T01 멈춘 동안 lpShow' scripts/audit/reg-p17.mjs 1
+chk 'T04 대조' scripts/audit/reg-p17.mjs 1
+chk 'T06 다음 순간 몫 이음말' scripts/audit/reg-p17.mjs 1   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
+chk 'REG_P17 검토 B' assets/bgm-bed.js 1
+chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
 chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1
@@ -22124,7 +22150,10 @@ chk 'VOW_FACE_NI13' order-preview.html 1
 chk 'B_RESUME_WAIT_NI14' order-preview.html 1
 chk 'STAGE_SHOW_NI11' order-preview.html 6
 chk "function _stName(st){ return st&&st.stage?_post(st.stage).n:_lName(st&&st.k); }" order-preview.html 1
-chk "return '다음 · 본식 뒤 '+_post('_photo').n" order-preview.html 1
+chk "return '다음 · '+_post('_photo').n+' · '+_post('_after').n;" order-preview.html 1   # [B2_FIX_GEUL_19 2026-11-06] 다음 단추에 «본식 뒤» 안 붙임
+chk 'B2_FIX_GEUL_19' order-preview.html 2
+nochk "'<p class=\"mk-note\">식후 · '" order-preview.html
+nochk "return '다음 · 본식 뒤 '" order-preview.html
 nochk '<b>식후</b>' order-preview.html
 nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
@@ -22669,6 +22698,11 @@ nochk '예식 150일 이후 취소 시' assets/advisor-kb.js
 nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦은 오후 3시 40분)' api/schedule-advisor.js
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
+chk 'BGM_VOL_ONE_1106' console.html 4   # [BGM_VOL_ONE_1106 검토 D] Web Audio 로 이은 배경 재생기 볼륨 1 — 콘솔 첫 «시작» 무음 막기
+chk 'function volOne()' console.html 1
+chk 'wired = true; volOne();' console.html 1
+chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1
+chk 'clear-head bgm-vol' .github/workflows/merge-guard.yml 1
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
 chk 'B5_NI08' order-preview.html 1   # [5차 P v2 NI08] 편지 두 분 따로 — 최종 화자 배열을 세운 뒤 그 순간 몫을 한 번만 나눈다(각 139초 × 2 금지)
@@ -22709,6 +22743,105 @@ chk 'K3_SHORT_1106' assets/ritual-cue.js 5   # [결정 K3 · D03] 예상 본식 
 chk "nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')" assets/ritual-cue.js 1
 chk 'PV_LEAD_NOCLAP_1106 · K3_SHORT_1106' scripts/audit/pv-lead-k3.mjs 1   # 두 결정 검사 파일이 살아 있는가
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
+
+# ── 2026-11-06 하객 화면 방 · 대본 4차(G08 · G10 · G13 · G15 · P-N05 · P-N06) — 하객 안내 · 온라인 참석 · 역할 문서
+chk 'G08_GATHER_1106' guide.html 4          # 식사 카드 세 줄 · 예약 시각은 분명한 시각만 한글로(ritual-preview-link resvTimeOk 와 같은 규칙 · G16=M18)
+chk 'function gdResvKo(t)' guide.html 1
+chk "'식사는 '+esc(_rko)+'에 두 분과 함께해요.'" guide.html 1
+chk 'DAY_INFO_1106' guide.html 2            # 신부 대기실 안내는 좌석과 상관없이 «예식 당일 안내» 칸에 한 번
+chk '+dayInfoHtml()' guide.html 1
+nochk "안내돼요.</div>'+NO_WAITROOM+'</div>'" guide.html
+chk 'GP_FULL_REST_1106' guide.html 1        # 한도로 멈추면 «남은 사진은 두 분께 따로 전해 주세요.»
+chk 'LIVE_BACK_DEST_1106' live.html 2       # 같은 예식 청첩장에서 왔을 때만 «청첩장으로 돌아가기» · 모르면 «모먼트에디트 홈으로»
+nochk 'if (window.history.length > 1) { history.back(); return; }' live.html
+chk 'ROLE_HASH_REDRAW_1106' role.html 1     # 같은 탭에서 역할 링크가 바뀌면 다시 그린다
+chk "addEventListener('hashchange'" role.html 1
+chk '안내를 열 수 없어요. 보내 주신 분께 링크를 다시 부탁해 주세요.' role.html 1
+chk 'ROLE_WRAP_1106' role.html 1            # 긴 단어만 칸 안에서 줄바꿈
+chk 'overflow-wrap:anywhere' role.html 1
+# ── 2026-11-06 하객 화면 방 · 대본 4차(G05 · G06 · G09 · H19 · G12) — 청첩장 · 갤러리
+chk '<span>온라인으로 함께하기</span>' i/cover-01.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-01.html 1
+nochk '<span>Enter' i/cover-01.html
+chk '<span>온라인으로 함께하기</span>' i/cover-02.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-02.html 1
+nochk '<span>Enter' i/cover-02.html
+chk '<span>온라인으로 함께하기</span>' i/cover-03.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-03.html 1
+nochk '<span>Enter' i/cover-03.html
+chk '<span>온라인으로 함께하기</span>' i/cover-04.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-04.html 1
+nochk '<span>Enter' i/cover-04.html
+chk '<span>온라인으로 함께하기</span>' i/cover-05.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-05.html 1
+nochk '<span>Enter' i/cover-05.html
+chk '<span>온라인으로 함께하기</span>' i/cover-06.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-06.html 1
+nochk '<span>Enter' i/cover-06.html
+chk '<span>온라인으로 함께하기</span>' i/cover-07.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-07.html 1
+nochk '<span>Enter' i/cover-07.html
+chk '<span>온라인으로 함께하기</span>' i/cover-08.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-08.html 1
+nochk '<span>Enter' i/cover-08.html
+chk 'ONLINE_GREET_1106' i/cover-08.html 1
+chk '<p>멀리서도 저희의 시작을 함께 지켜봐 주세요.</p>' i/cover-08.html 1   # [G06] 온라인용 기본 인사(고객이 쓴 인사글은 그대로)
+nochk '그 자리에 오셔서, 저희의 시작을 함께 지켜봐 주세요.' i/cover-08.html
+chk 'DIGITAL_NAME_1106' invitation-gallery.html 1                       # [H19] 카드 이름 «디지털 참석»
+nochk "name:'모바일 참석'" invitation-gallery.html
+nochk '링크로 보내는 판 · 모바일 참석 포함' invitation-gallery.html
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-01-classic.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-01-classic.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-02-editorial.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-02-editorial.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-03-letterpress.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-03-letterpress.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-04-Vermilion.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-04-Vermilion.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-05-botanical.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-05-botanical.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-06-hangeul.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-06-hangeul.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-07-architect.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-07-architect.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-08-noir.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-08-noir.html 1
+chk 'ENTRY_TIME_1106' shared/hydrate.js 2                               # [G12] 현장 청첩장 — 하객 입장 · 본식 두 시각(본식 20분 전)
+chk 'GUEST_ENTRY_KO: GUEST_ENTRY_KO, WEDDING_TIME_KO: WEDDING_TIME_KO' shared/hydrate.js 1
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-01.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-01.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-02.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-02.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-03.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-03.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-04.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-04.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-05.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-05.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-06.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-06.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-07.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-07.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-08.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-08.html
+chk 'RESV_NO_GUESS_AMPM' guide.html 2     # [검토 A] 1 ~ 12시는 오전 · 오후를 짐작하지 않는다(«6시» 그대로)
+chk "window.addEventListener('pagehide', () => clearTimeout(t), { once: true });" live.html 1
+nochk 'hydrate.js?v=20261106a' i/cover-01.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-02.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-03.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-04.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-05.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-06.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-07.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-08.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-01.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-02.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-03.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-04.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-05.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-06.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-07.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-08.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
 # ★★[H4_HOME 2026-11-06 홈 4차 H02 ~ H22 · 대본 판정] 홈 · FAQ · 즉답 · AI 지식을 같은 말로 — 되돌리면 빨강
 chk '2027년 4월 오픈 준비 · 도로명 주소는 확정되면 안내드립니다' index.html 1   # [H4_02] 주소 괄호(보이는 글 · aria 같은 줄)
 nochk '정식 오픈을 앞두고' index.html                                             # [H4_02] 날짜 확정처럼 읽힌다
@@ -22787,3 +22920,41 @@ chk 'if(MK_REC!==me) return;' order-preview.html 2   # [ST12_02_LATE_FILE] _recF
 nochk 'if(!MK_REC||MK_REC.key!==key) return;' order-preview.html   # [ST12_02_LATE_FILE] 자리(key)만 보던 옛 거름 — 되살리면 A 가 B 를 덮는다
 chk 'ST12_02_LATE_FILE' scripts/audit/st12-late-file.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/st12-late-file.mjs >/dev/null 2>&1; _st12f=$?; if [ "$_st12f" = 1 ]; then echo 'REVERT? st12-late-file: 늦게 온 옛 파일 결과가 새 파일 들어 보기 · 소리 · 까닭을 덮는다 — node scripts/audit/st12-late-file.mjs [ST12_02_LATE_FILE]'; fail=1; else echo "ok st12-late-file ($_st12f) [ST12_02_LATE_FILE]"; fi; fi
+# ★[B2_FIX_R1 2026-11-06 재검증 재수정 1묶음] 나28 · 글19 · 나62 · 나64 · 글18 · NI05 · 나33 · 나35 — 엔진을 돌려 동작으로 잰다(scripts/audit/b2-fix-r1.mjs · --selftest 로 깨 본다)
+chk 'B2_FIX_NA_28' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_33' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_35' assets/ritual-cue.js 1
+chk 'B2_FIX_NI05' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_62' order-preview.html 2
+chk 'B2_FIX_GEUL_18' order-preview.html 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r1.mjs >/dev/null 2>&1; _b2r1=$?; node scripts/audit/b2-fix-r1.mjs --selftest >/dev/null 2>&1; _b2r1s=$?; if [ "$_b2r1" != 0 ] || [ "$_b2r1s" != 0 ]; then echo "REVERT? b2-fix-r1: 재검증 재수정 1묶음(사진 안내 늘 · 서약 · 축사 박수 · 개식 힌트 · 본식 뒤 · 덕담 차례)이 어긋났습니다 ($_b2r1/$_b2r1s) — node scripts/audit/b2-fix-r1.mjs"; fail=1; else echo 'ok b2-fix-r1'; fi; fi
+# ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
+chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
+nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
+chk '촬영 후 안내가 끝나면 가족 사진을 이어서 찍어요.' brief.html 1
+chk 'B2_FIX_MA_03' live.html 3                      # 재조회 끝 — 마지막이 실패면 캐시 화면이어도 실패 문구 + 코드(G#)
+chk '^var _livePlaceholderHtml;' live.html 1   # [B2_FIX_MA_03_KEEP] 초기값 없이(캐시 길이 담은 값을 지우지 않게)
+nochk "^var _livePlaceholderHtml = '';" live.html
+chk 'B2_FIX_MA_38_OLDKEY' mypage.html 1   # 옛 초안의 이름 열쇠 예약 값도 꺼내 새 열쇠(이름#pid)로
+chk '연결을 확인하지 못했어요. 화면을 새로 고쳐 주세요.' live.html 1
+chk 'B2_FIX_MA_09' mypage.html 3                    # 청첩장 발행 중 뒤로가기 · 키보드로 이전 · 단계 이동 안 함
+chk "if(id==='inv' && INVFLOW._publishing){ _wizRearm(id); return; }" mypage.html 1
+chk 'B2_FIX_MA_16' mypage.html 1                    # 가볼 곳 카드도 실패하면 바꾸기 전 전체(_dnSnap)로
+nochk "_dnFavSaved(function(){ _dnFavToggle(TRKFLOW.draft,_u1); render(box); });" mypage.html
+chk 'B2_FIX_MA_38' mypage.html 7                    # 공개 · 빼기 · 예약할 곳 · 장소별 예약 값도 지도 장소 ID(pid)로
+chk 'function _dnIsRep' mypage.html 1
+chk 'B2_FIX_MA_53' mypage.html 4                    # 사진 선택 때문에 당겨서 새로고침을 보류할 때 까닭 한 줄
+chk "'아직 제출하지 않은 사진 선택이 있어요.'" mypage.html 1
+chk 'B2_FIX_MA_18' guide.html 4                     # 링크 닫힘 — 올리는 중엔 끝난 뒤 · 보낸 장수 · 남은 장수 한 줄
+chk 'function closedPaint' guide.html 1
+chk 'B2_FIX_MA_36' shared/hydrate.js 2              # 하객 안내 단추 — 서버 오류 · 몰림(ecode 1~9)도 다시 묻고 끝내 실패면 실패 자리
+chk 'B2_FIX_MA_85' live.html 2                      # 은행 이름 한 규칙(새마을금고 · 우체국에 «은행» 안 붙임)
+chk 'B2_FIX_MA_85' shared/hydrate.js 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' live.html 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' shared/hydrate.js 1
+nochk "(/(은행|뱅크)\$/.test(" live.html
+nochk '저희가 검증한' index.html
+nochk '저희가 검증한' assets/advisor-kb.js
+nochk '저희가 검증한' api/_kb.js
+nochk '프라이버시까지 확인해 추천' index.html
+nochk '검증한 인근 식당' index.html
