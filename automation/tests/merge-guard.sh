@@ -21470,7 +21470,8 @@ chk "'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-so
 chk "'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1," assets/ritual-cue.js 1
 chk "actId: 'photo-all'" assets/ritual-cue.js 1
 chk '작가님 안내에 따라' mypage.html 1
-chk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진 · 추가 촬영을 하실 분은 남고, 그 밖의 분은 식사 자리로 먼저 이동해요.' guide.html 1   # [GATHER_200]
+chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 먼저 식사 장소로 이동하셔도 돼요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
+nochk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진' guide.html
 nochk '차례가 아닌 분은 자리에서 편히 쉬어 주세요' guide.html
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
@@ -22620,3 +22621,19 @@ chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 4
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
+
+# ── 2026-11-06 하객 화면 방 · 대본 4차(G08 · G10 · G13 · G15 · P-N05 · P-N06) — 하객 안내 · 온라인 참석 · 역할 문서
+chk 'G08_GATHER_1106' guide.html 4          # 식사 카드 세 줄 · 예약 시각은 분명한 시각만 한글로(ritual-preview-link resvTimeOk 와 같은 규칙 · G16=M18)
+chk 'function gdResvKo(t)' guide.html 1
+chk "'식사는 '+esc(_rko)+'에 두 분과 함께해요.'" guide.html 1
+chk 'DAY_INFO_1106' guide.html 2            # 신부 대기실 안내는 좌석과 상관없이 «예식 당일 안내» 칸에 한 번
+chk '+dayInfoHtml()' guide.html 1
+nochk "안내돼요.</div>'+NO_WAITROOM+'</div>'" guide.html
+chk 'GP_FULL_REST_1106' guide.html 1        # 한도로 멈추면 «남은 사진은 두 분께 따로 전해 주세요.»
+chk 'LIVE_BACK_DEST_1106' live.html 2       # 같은 예식 청첩장에서 왔을 때만 «청첩장으로 돌아가기» · 모르면 «모먼트에디트 홈으로»
+nochk 'if (window.history.length > 1) { history.back(); return; }' live.html
+chk 'ROLE_HASH_REDRAW_1106' role.html 1     # 같은 탭에서 역할 링크가 바뀌면 다시 그린다
+chk "addEventListener('hashchange'" role.html 1
+chk '안내를 열 수 없어요. 보내 주신 분께 링크를 다시 부탁해 주세요.' role.html 1
+chk 'ROLE_WRAP_1106' role.html 1            # 긴 단어만 칸 안에서 줄바꿈
+chk 'overflow-wrap:anywhere' role.html 1
