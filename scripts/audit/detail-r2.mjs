@@ -123,7 +123,8 @@ try {
         if (tM != null || t > 25000) { clearInterval(iv); res(); } }, 100); });
       const back = await new Promise((res) => { lsJump(-1); setTimeout(() => res({ lead: !!LP.leadSt, i: LP.i }), 400); }); try { lsStop(); } catch (e) {} return { tL, tP, tR, tM, after: after.slice(0, 4), back }; });
     const used = z.tM != null ? (z.tM - z.tL) - (z.tR - z.tP) : null;
-    ok('④ 선언 연출 중 2초 멈춤 → 이어 들으면 남은 연출부터(멈춘 시간 빼고 약 5.5 ~ 8초 뒤 멘트 · 곡 다시 흐름) · 다시 돌아오면 연출을 처음부터', used != null && used > 5000 && used < 9000 && z.after.some((x) => x.src && x.f === 'B09') && z.back.lead, { used: used && Math.round(used), z }); }
+    /* ★[RESUME_TALK_NOW_1106 2026-11-06 사장님 «이어 듣기 누르면 바로 멘트 나오게 하자»] 남은 연출(내림 · 정적)을 다시 돌리지 않는다 — 이어 들으면 곧바로 멘트(0.5초 안) · 옛 기대 «남은 연출부터 · 5.5 ~ 8초 뒤 멘트 · 곡 다시 흐름»([DETAIL_R2_1101 ④]) · 다시 돌아오면 연출을 처음부터는 그대로 */
+    ok('④ 선언 연출 중 2초 멈춤 → 이어 들으면 곧바로 멘트(RESUME_TALK_NOW_1106 · 옛 «남은 연출부터») · 다시 돌아오면 연출을 처음부터', z.tR != null && z.tM != null && z.tM - z.tR <= 500 && z.back.lead, { used: used && Math.round(used), z }); }
   /* ⑤ 축가 → 부모님께 인사 */
   { await setS(f, { bgm: {} }); await go(f, 'song'); const r = await run(f, ['song', 'tribute'], 22000, true); await stop(f); const q = await f.evaluate(() => null);
     const clap = r.filter((x) => x.k === 'song' && x.act && x.src && !x.lead), txt = await f.evaluate(() => { LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['song', 'tribute'], true, true); const c = LP.q.filter((x) => x.clap).map((x) => [x.txt, x.ms]); lsStop(); try { lsCloseBig(); } catch (e) {} return c; });

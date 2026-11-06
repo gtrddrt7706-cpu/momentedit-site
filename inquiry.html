@@ -386,15 +386,45 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     <div class="sec-head">
       <span class="sec-num">Nº 02</span>
       <div>
-        <h2 class="sec-title">예식 정보</h2>
+        <h2 class="sec-title"><span class="pv-sw" data-wed="예식 정보" data-snap="촬영 정보">예식 정보</span></h2>
       </div>
       <span class="sec-optional" style="color:var(--gold-text)">Required · <span class="ll-ko">필수</span></span>
     </div>
 
+    <!-- ★★[H4_15 2026-11-06 홈 4차 H15 · 대본 판정 «상»] 상담할 상품을 맨 앞에서 고른다 — 촬영만 신청하는 분이 예식용 필수 질문(시간대 · 하객 · 디지털 참석)에 답하지 않게.
+         값은 서버 상품타입 그대로(시그니처 · 웨딩스냅 · 40_signup.gs 가 payload.product 로 받는다 · GAS 변경 없음). 스냅이면 예식 칸은 숨기고(disabled · 검증 제외) 촬영 날짜 · 시간으로 받는다.
+         고르기 전에는 아무것도 눌린 모양이 아니다(BOSS_STYLE 1). 아래 «상품별 진행 안내» 단추는 보는 단추로 남기고 고른 상품을 따라간다. -->
+    <style>.wed-only[hidden],.snap-only[hidden]{display:none!important}</style>
+    <div class="field-group" id="prodGroup">
+      <span class="field-group-label">상담할 상품<span class="required-dot"></span></span>
+      <div class="option-list" role="radiogroup" aria-required="true" aria-label="상담할 상품">
+        <label class="option">
+          <input type="radio" name="product" value="시그니처" required>
+          <span class="option-label">
+            <span class="option-mark"></span>
+            <span class="opt-text">
+              <span class="opt-main">140분 웨딩</span>
+              <span class="opt-sub">촬영과 예식을 함께하는 140분 · 하객 30명까지</span>
+            </span>
+          </span>
+        </label>
+        <label class="option">
+          <input type="radio" name="product" value="웨딩스냅">
+          <span class="option-label">
+            <span class="option-mark"></span>
+            <span class="opt-text">
+              <span class="opt-main">평일 웨딩스냅</span>
+              <span class="opt-sub">예식 없이 두 분만 촬영 · 평일 60~90분</span>
+            </span>
+          </span>
+        </label>
+      </div>
+    </div>
+
     <!-- 희망 예식 일자 -->
     <div class="field-group">
-      <span class="field-group-label">희망 예식 일자<span class="required-dot"></span></span>
-      <div class="option-list" role="radiogroup" aria-required="true" aria-label="희망 예식 일자">
+      <span class="field-group-label"><span class="pv-sw" data-wed="희망 예식 일자" data-snap="희망 촬영 날짜">희망 예식 일자</span><span class="required-dot"></span></span>
+      <div class="option-list" role="radiogroup" aria-required="true" aria-label="희망 예식 일자" data-wed-aria="희망 예식 일자" data-snap-aria="희망 촬영 날짜">
 
         <label class="option">
           <input type="radio" name="date_type" value="fixed" required data-conditional="date-fixed">
@@ -456,7 +486,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     </div>
 
     <!-- 희망 요일 -->
-    <div class="field-group">
+    <div class="field-group wed-only">
       <span class="field-group-label">희망 요일<span class="required-dot"></span></span>
       <div class="compact-options" role="radiogroup" aria-required="true" aria-label="희망 요일" style="justify-content:flex-start;column-gap:24px">
         <label class="compact-option">
@@ -479,9 +509,9 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 
     <!-- 희망 예식 시간대 -->
     <div class="field-group">
-      <span class="field-group-label">희망 예식 시간대<span class="required-dot"></span></span>
-      <p class="field-group-hint">표시된 시간은 <strong>본예식 시작 기준</strong>입니다. 신랑·신부 도착과 내빈 입장은 아래 시간표를 참고해&nbsp;주세요.</p><!-- [INQ_NO_ORPHAN 2026-10-09 D-21] 1280 에서 «주세요.» 혼자 한 줄 → 붙임 빈칸 -->
-      <div class="compact-options" role="radiogroup" aria-required="true" aria-label="예식 희망 시간대" style="justify-content:flex-start;column-gap:26px">
+      <span class="field-group-label"><span class="pv-sw" data-wed="희망 예식 시간대" data-snap="희망 촬영 시간">희망 예식 시간대</span><span class="required-dot"></span></span>
+      <p class="field-group-hint wed-only">표시된 시간은 <strong>본예식 시작 기준</strong>입니다. 신랑·신부 도착과 내빈 입장은 아래 시간표를 참고해&nbsp;주세요.</p><!-- [INQ_NO_ORPHAN 2026-10-09 D-21] 1280 에서 «주세요.» 혼자 한 줄 → 붙임 빈칸 -->
+      <div class="compact-options wed-only" role="radiogroup" aria-required="true" aria-label="예식 희망 시간대" style="justify-content:flex-start;column-gap:26px">
         <label class="compact-option">
           <input type="radio" name="wedding_time" value="오전" required>
           <span class="compact-mark"></span>
@@ -498,8 +528,14 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
           <span class="compact-text">늦은 오후 (17:00)</span>
         </label>
       </div>
+      <div class="snap-only" hidden>
+        <div class="field" style="margin-bottom:0">
+          <input type="text" id="snapTime" name="희망 촬영 시간" placeholder=" " maxlength="60" required disabled autocomplete="off">
+          <label for="snapTime">예: 오후 2시 전후</label>
+        </div>
+      </div>
       <!-- [SLOT_LINE 2026-09-25 코워크 5-4] 시간대를 고르면 그날이 어떻게 흘러가는지 한 줄. 고르기 전에는 비어 있다. -->
-      <p class="field-group-hint" id="slotLine" aria-live="polite" style="margin-top:10px"></p>
+      <p class="field-group-hint wed-only" id="slotLine" aria-live="polite" style="margin-top:10px"></p>
 
       <!-- 참고: 140분 시퀀스 진행 시간표 -->
       <div class="schedule-ref" aria-label="140분 시퀀스 진행 시간표 (요약)">
@@ -551,8 +587,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
             <span class="ref-header-cell"></span>
             <span class="ref-header-cell">신랑·신부 도착</span>
             <span class="ref-header-cell">내빈 입장 시작</span>
-            <span class="ref-header-cell">본예식</span>
-            <span class="ref-header-cell">종료</span>
+            <span class="ref-header-cell">본식 시작</span>
+            <span class="ref-header-cell">전체 일정 종료</span>
           </div>
           <div class="ref-row">
             <span class="ref-slot">오전</span>
@@ -617,7 +653,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     </div>
 
     <!-- 예상 하객 인원 -->
-    <div class="field-group">
+    <div class="field-group wed-only">
       <span class="field-group-label">예상 하객 인원<span class="required-dot"></span></span>
       <div class="field" style="margin-bottom:0">
         <input type="number" id="guests" name="예상 하객 인원" placeholder=" "
@@ -633,7 +669,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     </div>
 
     <!-- 디지털 참석 -->
-    <div class="field-group">
+    <div class="field-group wed-only">
       <span class="field-group-label">디지털 참석<span class="required-dot"></span></span>
       <div class="option-list" role="radiogroup" aria-required="true" aria-label="디지털 참석">
 
@@ -932,7 +968,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     <!-- 가격 요약 -->
     <div class="invest-summary">
       <div class="is-label">Standard Investment</div>
-      <div class="is-prices">
+      <div class="is-prices wed-only">
         <div class="is-price-item">
           <span class="is-price-key">주말 · 공휴일</span>
           <span class="is-price-val">&#8361;3,300,000</span>
@@ -943,6 +979,12 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
           <span class="is-price-val">&#8361;2,500,000</span>
         </div>
       </div>
+      <div class="is-prices snap-only" hidden>
+        <div class="is-price-item">
+          <span class="is-price-key">평일 웨딩스냅 · 운영 초기</span>
+          <span class="is-price-val">60만 원<span style="font-size:0.62em;margin-left:6px;letter-spacing:0">(정가 80만 원)</span></span>
+        </div>
+      </div><!-- [H4_15] 스냅을 고르면 웨딩 250 · 330 대신 «평일 웨딩스냅 · 운영 초기 60만 원(정가 80만 원)» · 다시 웨딩을 고르면 되돌린다 -->
       <div class="is-checks">
         <span class="is-check-item"><span class="check">✓</span>VAT 포함</span><span class="sep">·</span><span class="is-check-item"><span class="check">✓</span>원본 데이터 전체 제공</span><span class="sep">·</span><span class="is-check-item"><span class="check">✓</span>필수 추가 비용 없음</span>
       </div>
@@ -1422,7 +1464,7 @@ function validateForm(){
   const dateType = form.querySelector('input[name="date_type"]:checked')?.value;
   if (dateType === 'fixed' && !form.querySelector('#dateFixed').value) {
     var _dtT = document.getElementById('dtTrigger');
-    meFlashTo(_dtT); _fieldErrSay(_dtT, '예식 날짜를 골라 주세요');   // [FIELD_ERR_MSG]
+    meFlashTo(_dtT); _fieldErrSay(_dtT, _isSnapProd() ? '촬영 날짜를 골라 주세요' : '예식 날짜를 골라 주세요');   // [H4_15]   // [FIELD_ERR_MSG]
     try { _dtT.focus({preventScroll:true}); } catch(_e){}
     return false;
   }
@@ -1435,7 +1477,7 @@ function validateForm(){
 
   // 하객 인원 상한(30명) 검증 — 스크롤만
   var gNum = parseInt(form.querySelector('#guests').value, 10);
-  if (!isNaN(gNum) && gNum > 30) {
+  if (!_isSnapProd() && !isNaN(gNum) && gNum > 30) {   // [H4_15] 스냅이면 숨긴 하객 칸을 보지 않는다(검토 ③)
     var _gE = form.querySelector('#guests');
     meFlashTo(_gE); _fieldErrSay(_gE, '30명까지 모실 수 있어요');   // [FIELD_ERR_MSG] (보통은 위 HTML max=30 이 먼저 잡는다)
     return false;
@@ -1555,6 +1597,13 @@ function buildPayload(){
   var dateSummary = '';
   if (dateType === 'fixed') dateSummary = '날짜 고정 · ' + form.querySelector('#dateFixed').value;
   else if (dateType === 'range') dateSummary = '월·주 범위 · ' + form.querySelector('#dateRange').value.trim();
+  /* [H4_15] 상담할 상품 — 맨 앞 줄 · 스냅이면 촬영 날짜 · 시간만(예식 칸은 꺼져 있어 보내지 않는다) */
+  var snapProd = _isSnapProd();
+  lines.unshift('상담할 상품: ' + (snapProd ? '평일 웨딩스냅' : '140분 웨딩'));   // 관리자가 첫 줄에서 본다
+  if (snapProd) {
+    push('희망 촬영 날짜', dateSummary);
+    push('희망 촬영 시간', (form.querySelector('#snapTime') || {}).value ? form.querySelector('#snapTime').value.trim() : '');
+  } else {
   push('희망 예식 일자', dateSummary);
 
   push('희망 요일', picked('weekday'));
@@ -1566,6 +1615,7 @@ function buildPayload(){
   push('예상 하객 인원', guestLabel);
 
   push('디지털 참석', picked('streaming'));
+  }
   var attireVal = picked('attire');
   if (attireVal === '대여 희망') { var cnt = picked('attire_count'); if (cnt) attireVal = '대여 희망 · ' + cnt; }
   push('의상', attireVal);
@@ -1595,7 +1645,7 @@ function buildPayload(){
   var pwVal  = (document.getElementById('pw')  || {}).value || '';
   var pw2Val = (document.getElementById('pw2') || {}).value || '';
 
-  return { action: 'signup', groom: groom, bride: bride, phone: phone, email: email, memo: memo, detail: lines.join('\n'), hp: hp, pw: pwVal, pw2: pw2Val };
+  return { action: 'signup', groom: groom, bride: bride, phone: phone, email: email, memo: memo, detail: lines.join('\n'), hp: hp, pw: pwVal, pw2: pw2Val, product: snapProd ? '웨딩스냅' : '시그니처' };   // [H4_15] 40_signup.gs 상품타입
 }
 
 function showSuccess(code){
@@ -1750,6 +1800,20 @@ function meDoSubmit(){
   .catch(function(e){ var n = _ecN(e); resetBtn((n === 5 || n === 7) ? '신청 결과를 아직 확인하지 못했어요. 안내 메일을 먼저 확인해 주세요. (코드 B' + n + ')' : _ecNet(e, 'B', '다시 보내 주세요'), true); });   // [B2_HOME_01] 두 번 다 결과 모름(5 · 7) = 접수됐을 수 있다 — 메일부터 보게   // [ERR_CODE_PAGES] 연결 끊김 B6 · 두 번 다 늦음 B5 · 서버 답이 깨짐 B7
 }
 
+/* ★[H4_15 2026-11-06 홈 4차 H15] 상담할 상품 갈래 — 스냅이면 예식 칸(요일 · 시간대 · 하객 · 디지털 참석 · 가격 둘)을 숨기고 입력을 꺼서(disabled) 검증에서 뺀다.
+   촬영 날짜 · 시간 칸을 연다. 다시 웨딩을 고르면 예식 칸 · 250 / 330 이 돌아온다(값은 지우지 않는다). 임시저장 복원은 change 를 다시 쏘아 여기를 지난다. */
+function _isSnapProd(){ var el = form.querySelector('input[name="product"]:checked'); return !!(el && el.value === '웨딩스냅'); }
+function _applyProd(){
+  var snap = _isSnapProd();
+  Array.prototype.forEach.call(form.querySelectorAll('.wed-only'), function(g){ g.hidden = snap; Array.prototype.forEach.call(g.querySelectorAll('input'), function(i){ i.disabled = snap; }); });
+  Array.prototype.forEach.call(document.querySelectorAll('.snap-only'), function(g){ g.hidden = !snap; Array.prototype.forEach.call(g.querySelectorAll('input'), function(i){ i.disabled = !snap; }); });
+  Array.prototype.forEach.call(document.querySelectorAll('.wed-only'), function(g){ if (!form.contains(g)) g.hidden = snap; });   // 가격 요약(폼 밖)
+  Array.prototype.forEach.call(document.querySelectorAll('.pv-sw'), function(s){ s.textContent = s.getAttribute(snap ? 'data-snap' : 'data-wed'); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-wed-aria]'), function(s){ s.setAttribute('aria-label', s.getAttribute(snap ? 'data-snap-aria' : 'data-wed-aria')); });
+  var sw = document.getElementById(snap ? 'seqSwSnap' : 'seqSwSig'); if (sw && !sw.classList.contains('on') && form.querySelector('input[name="product"]:checked')) sw.click();   // 보는 단추도 고른 상품을 따라간다
+}
+form.addEventListener('change', function(e){ if (e.target && e.target.name === 'product') _applyProd(); });
+_applyProd();
 /* [B2_HOME_13] «특별히 망설이는 점은 없어요»는 혼자만 — 이것을 고르면 다른 고민을 풀고, 다른 고민을 고르면 이것을 푼다 */
 form.addEventListener('change', function(e){
   var t = e.target;

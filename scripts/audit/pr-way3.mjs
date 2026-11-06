@@ -86,7 +86,7 @@ try {
   ok('③ 읽기 전용 쪽 — 제목 · 그 순간 · 읽으실 글 · 고칠 칸 없음 · noindex · 가로 넘침 없음', r.h1 === '성혼 선언을 읽어 주실 분께' && r.mo >= 1 && /^이제 신랑/.test(r.say) && r.inputs === 0 && /noindex/.test(r.robots) && r.sw <= r.vw && !e2.length, { r, e2 });
   if (SHOT) await pg2.screenshot({ path: SHOT.replace(/\.png$/, '') + '-role.png', fullPage: true });
   await pg2.goto(url.replace(/#r=.*/, '#r=xx'), { waitUntil: 'load' }); await pg2.waitForTimeout(200);
-  ok('③ 링크가 깨졌으면 한 줄 안내', /안내를 열지 못했어요/.test(await pg2.evaluate(() => document.body.textContent)), '');
+  ok('③ 링크가 깨졌으면 한 줄 안내 · 같은 탭에서 바뀌어도 다시 그린다 [ROLE_HASH_REDRAW_1106]', /안내를 열 수 없어요/.test(await pg2.evaluate(() => document.body.textContent)), '');
   /* ④ 크게 보기 */
   const b = await f.evaluate(async () => { prStart('flow'); await new Promise((x) => setTimeout(x, 800)); const j = LP.q.findIndex((x) => x.k === 'declare' && x.sum); LP.i = j; LP.paused = true; clearTimeout(LP.t); _lFull(); await new Promise((x) => setTimeout(x, 100)); return !!document.querySelector('#lsFull [data-fk="lfrole"]'); });
   ok('④ 크게 보기 선언 요약 줄에 «이 역할 전달하기»', b, b);

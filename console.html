@@ -751,7 +751,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 <script src="/assets/narration-pad.js"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표(쉼 = 말끝 → 말머리) -->
 <script src="/assets/ritual-story.js"></script>
 <script src="/assets/bgm-picks.js"></script><!-- [BGM_PICKS_1023] 구간 음악 추천 곡(콘솔만 싣는다 · 고객 화면은 싣지 않는다) -->
-<script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_DAY] 입장 음악 — 식순 화면과 같은 계산(entry-scene.js) · 소리 크기(rec-process.js) -->
+<script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_DAY] 입장 음악 — 식순 화면과 같은 계산(entry-scene.js) · 소리 크기(rec-process.js) -->
 <script>
 (function(){
 'use strict';
@@ -1148,7 +1148,7 @@ function audioOn(){
     /* ★[LISTEN_LOOK_LEVEL_1101 ②] 곡 보정(gSong · 구간 곡일 때만 +songGain dB · 곡 −23 LUFS → 나레이션 −16 기준) · 그 길 끝 리미터(−1 dB · 20:1 · 2ms · 150ms · 식순 화면과 같다) — 입장 곡 길은 따로라 손대지 않는다 */
     gSong = AC.createGain(); gSong.gain.value = 1; gLim = AC.createDynamicsCompressor(); gLim.threshold.value = -1; gLim.knee.value = 0; gLim.ratio.value = 20; gLim.attack.value = 0.002; gLim.release.value = 0.15;
     sB.connect(gBgm); gBgm.connect(gSong); gSong.connect(gMaster); gMaster.connect(gLim); gLim.connect(AC.destination); bedSrcNode = sB;   // [BGM_SEG8_1023] 구간 곡 재생기가 이 사이에 크기 마디를 끼운다
-    wired = true;
+    wired = true; volOne();   // ★[BGM_VOL_ONE_1106] 대체 경로가 0 으로 둔 재생기 볼륨을 1 로 — 이어 붙인 뒤엔 크기는 gain 마디가 맡는다
   } catch(e){ wired = false; }   // Web Audio가 막히면 element 볼륨으로 떨어진다
 }
 var gSong = null, gLim = null;
@@ -1168,6 +1168,9 @@ var FBF = { tk: 0, iv: null };
 function fbFade(from, to, ms){ if (gBgm && AC) return; var tk = ++FBF.tk, t0 = Date.now(); clearInterval(FBF.iv);
   FBF.iv = setInterval(function(){ if (FBF.tk !== tk) { clearInterval(FBF.iv); return; } var u = Math.min(1, (Date.now() - t0) / Math.max(1, ms)); duckG = from + (to - from) * u; bedVolFb(); if (u >= 1) clearInterval(FBF.iv); }, 50);
   duckG = from; bedVolFb(); }
+/* ★[BGM_VOL_ONE_1106 검토 D] Web Audio 로 이어 붙인 재생기는 볼륨 1 — AC 가 생기기 전에 대체 경로(bedVolFb · bedFade)가 쉬는 재생기(aBgm2 · aBgm3)를 0 으로 두면
+     이어 붙인 뒤에도 그 재생기로 간 곡이 무음이었다(새로 연 콘솔 첫 «시작» · 짧은 곡 인계) · 크기는 xg · gBgm 마디가 맡는다 */
+function volOne(){ var L = (typeof BED === 'undefined') ? [aBgm] : BED.el; L.forEach(function(el){ if (!el) return; try { el.volume = 1; } catch (e) {} }); }
 function bedVolFb(){ if (gBgm && AC) return; var L = (typeof BED === 'undefined') ? [aBgm] : BED.el; L.forEach(function(el, k){ if (!el) return; var on = (typeof BED === 'undefined') ? k === 0 : k === BED.on; try { el.volume = on ? fbVol() : 0; } catch (e) {} }); }
 $('#vol').oninput = function(){ $('#volV').textContent = $('#vol').value; applyMaster(); };
 
@@ -1250,8 +1253,13 @@ var aBgm3 = document.createElement('audio'); aBgm3.id = 'aBgm3'; aBgm3.preload =
 var BED = { el: [aBgm, aBgm2, aBgm3], xg: [null, null, null], fade: [0, 0, 0], on: 0, seg: '', list: [], li: 0, id: '', xing: 0, mode: '' };
 function bedWire(){ if (!AC || BED.xg[0]) return; try { /* audioOn 이 aBgm 을 gBgm 에 바로 이었다 — 그 사이에 크기 마디를 끼운다 */
   var s2 = AC.createMediaElementSource(aBgm2), s3 = AC.createMediaElementSource(aBgm3); BED.xg[0] = AC.createGain(); BED.xg[1] = AC.createGain(); BED.xg[2] = AC.createGain(); BED.xg[0].gain.value = 1; BED.xg[1].gain.value = 0.0001; BED.xg[2].gain.value = 0.0001;
-  if (bedSrcNode) { try { bedSrcNode.disconnect(); } catch (e) {} bedSrcNode.connect(BED.xg[0]); } BED.xg[0].connect(gBgm); s2.connect(BED.xg[1]); BED.xg[1].connect(gBgm); s3.connect(BED.xg[2]); BED.xg[2].connect(gBgm); } catch (e) { BED.xg = [null, null, null]; } }
-function bedFade(k, to, sec){ var g = BED.xg[k], el = BED.el[k]; if (g && AC) { var now = AC.currentTime; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), now); g.gain.linearRampToValueAtTime(Math.max(0.0001, to), now + Math.max(0.05, sec)); }
+  if (bedSrcNode) { try { bedSrcNode.disconnect(); } catch (e) {} bedSrcNode.connect(BED.xg[0]); } BED.xg[0].connect(gBgm); s2.connect(BED.xg[1]); BED.xg[1].connect(gBgm); s3.connect(BED.xg[2]); BED.xg[2].connect(gBgm); volOne(); } catch (e) { BED.xg = [null, null, null]; } }   /* [BGM_VOL_ONE_1106] */
+/* ★★[EAR_D_1106 ①] 겹침 곡선 한 곳 — 들어오는 소리 = 사인 · 나가는 소리 = 코사인(등전력) · 두 소리 합이 겹치는 동안 3 dB 넘게 비지 않는다 ·
+     입장 곡 → 본식 곡(M4) 인계 · 같은 곡 강조 자리 잇기(LONG · esdRelay) · 목록 곡 넘김 · 같은 곡 다시 잇기(LIST_HOLD · bedFade)가 이 함수 하나를 쓴다 · 걸리는 시간은 그대로 */
+function xfCurve(param, to, sec, now){ var a = AC; if (!param) return; now = now != null ? now : (a ? a.currentTime : 0); var from = Math.max(0.0001, param.value), T = Math.max(0.05, sec), n = 64, v = new Float32Array(n), up = to > from;
+  for (var i = 0; i < n; i++) { var p = i / (n - 1); v[i] = Math.max(0.0001, up ? from + (to - from) * Math.sin(p * Math.PI / 2) : to + (from - to) * Math.cos(p * Math.PI / 2)); }
+  try { param.cancelScheduledValues(now); param.setValueAtTime(from, now); param.setValueCurveAtTime(v, now, T); } catch (e) { try { param.linearRampToValueAtTime(Math.max(0.0001, to), now + T); } catch (e2) {} } }
+function bedFade(k, to, sec){ var g = BED.xg[k], el = BED.el[k]; if (g && AC) { xfCurve(g.gain, Math.max(0.0001, to), sec); }   /* [EAR_D_1106 ①] 등전력 곡선 */
   else { try { el.volume = to > 0.5 ? fbVol() : 0; } catch (e) {} } }   /* [DETAIL_R4_1101 ③] 대체 경로도 지금 덕킹 · 음소거 크기로 */
 /* 곡 하나를 다른 재생기에서 시작하고 3초에 걸쳐 바꾼다
    ★★[DETAIL_R3_1101 ②] 새 곡이 «실제로 소리를 내기 시작한 것»(playing + currentTime 이 늘었다)을 본 뒤에 겹쳐 넘긴다 — 종전엔 play() 를 부르자마자 앞 곡을 내려,
@@ -1343,7 +1351,8 @@ function listGo(step){ var j = listNext(BED.li); if (j < 0) { if (BED.list.lengt
 function listProbe(){ var j = listNext(BED.li); if (j < 0) return; var sid = BED.list[j]; try { var a = new Audio(); a.preload = 'auto'; a.muted = true; var t = setTimeout(function(){ a.removeAttribute('src'); }, 8000);
   a.addEventListener('error', function(){ clearTimeout(t); (BED.bad = BED.bad || {})[sid] = 1; }); a.addEventListener('canplay', function(){ clearTimeout(t); a.removeAttribute('src'); }); a.src = SEGF[sid]; a.load(); } catch (e) {} }   /* 열지 못하면 이번 순환에서 건너뛴다 */
 /* 큐 → 구간 · '' = 바꾸지 않는다(앞 곡이 잇는다) */
-var PRE_HOLD = -1;   // [BRIDGE_FIRST_1101] 꺼진 채 내보낸 이음말 큐 번호
+var PRE_HOLD = -1;
+var ARRIVE_LEAD_MS = 1000;   // [EAR_D_1106 ②] 도착 GO → 멘트 앞 쉼   // [BRIDGE_FIRST_1101] 꺼진 채 내보낸 이음말 큐 번호
 function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug || ''), bed = function(id){ return !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed'); };
   if (/^bridge-(b8-face-guests|b12-tribute-calm|b14-candle-name)$/.test(sl)) return '';   /* ★[BRIDGE_FIRST_1101] 다음 순간 몫 이음말은 앞 장면을 닫는 말 — 앞 곡이 잇는다(덕킹은 그대로) · 구간 곡은 그다음 큐에서(화면 «이 순간부터» 줄 자리 · 미리 듣기와 같게) */
   if (k === 'guest') return 'M1';
@@ -1436,7 +1445,7 @@ function doorMark(at, total){ var pr = $('#nProg'), lb = $('#nDoor'); if (!pr ||
   if (!t) { t = document.createElement('b'); t.className = 'door'; pr.appendChild(t); } t.style.left = Math.max(0, Math.min(100, at / total * 100)) + '%';
   lb.hidden = false; lb.textContent = '문 열기 시작 · ' + fmt(at) + ' (출발 ' + (PARAM.entry && PARAM.entry.doorLeadSec || 0) + '초 전)'; }
 var duckNow = 0, duckWant = 0;   // [BGM_CONSOLE2_1023] duckWant = 마지막으로 청한 크기(입장 곡이 흐르는 동안 duckNow 는 −90 이라 버팀 · 앞 낮춤 판정은 이것을 본다)
-function duckTo(db, ms){
+function duckTo(db, ms, xf){   /* [EAR_D_1106 ①] xf = 입장 곡 인계 — 배경음도 같은 등전력 곡선으로(지수 오름은 늦게 차올라 합이 비었다) */
   if (db <= -60 && duckWant != null && duckWant > -60 && BED.mode === 'seg' && BED.id && !ESD.run) BED.hushId = BED.id;   /* [MEANING_R2_1102 DECLARE_LIFT] 들리다 꺼진 곡 — 선언 뒤 «새 곡»이 이 곡이 아니게 */
   /* ★[ONE_FLOW_1106 ⑥] 본식(M4) 곡이 의도적 무음으로 꺼졌다가 본식 안에서 다시 오르면 — 끊긴 그 곡을 꺼진 자리부터(무음 동안 흘러간 시간 · 목록이 넘긴 곡이 아니다 · 미리 듣기 cutKeep 과 같다) ·
        예외: 선언 뒤 박수 새 곡(segLive DECLARE_LIFT 가 지운다) · 다른 구간으로 가면(segGo) 지운다 */
@@ -1451,9 +1460,10 @@ function duckTo(db, ms){
   duckNow = db; if (window.__bgmLog && window.__bgmLog.length) window.__bgmLog[window.__bgmLog.length - 1].eff = db;   // [BGM_FIX_1030] 실제로 건 크기(노래 곡 더 낮춤 · 입장 장면 −90 뒤)
   var g = dbGain(db + (MODE === 'preview' ? BED_TRIM_DB : 0)); duckG = g;   // ★PREVIEW_BED · [DETAIL_R4_1101 ③]
   if (gBgm && AC) {
+    if (xf) xfCurve(gBgm.gain, Math.max(0.0001, g), Math.max(.02, (ms||400)/1000)); else {
     gBgm.gain.cancelScheduledValues(AC.currentTime);
     gBgm.gain.setValueAtTime(Math.max(0.0001, gBgm.gain.value), AC.currentTime);
-    gBgm.gain.exponentialRampToValueAtTime(Math.max(0.0001, g), AC.currentTime + Math.max(.02, (ms||400)/1000));
+    gBgm.gain.exponentialRampToValueAtTime(Math.max(0.0001, g), AC.currentTime + Math.max(.02, (ms||400)/1000)); }
   } else {
     bedVolFb();   // [DETAIL_R4_1101 ③] 두 재생기 모두
   }
@@ -1506,7 +1516,7 @@ function esdTry(c, done){ if (!esdReady(c)) return false;
     var vg = a.createGain(); vg.gain.value = V0.gain; vg.connect(a.destination);
     var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);   /* [ENTRY_CALL_PAUSE_1013] 목소리는 엔진이 끊어 건다 — «신랑 신부, 입장!» 앞 쉼(SP.call · 식순 화면 미리 듣기와 같은 자리) */
     var run = ESD.run = { i: cur, t0: t0, PL: PL, src: src, vs: vv.nodes, vgs: vv.gains, eg: eg, dk: dk, mg: mg, lim: lim, vg: vg, a: a, sT0: t0 + PL.tm, sOff: PL.off };   /* [B2_K16] sT0 · sOff = 지금 소리의 곡 자리(멈춘 자리부터 잇기) */
-    /* ★[BGM_SEG8_1023 ENTRY_SHORT] 입장 곡이 짧으면 — 하이라이트(H) 뒤 ESD_NEED(180초)가 안 되면 받는 말 · 맞절에서 피아노(M4)를 미리 깔고,
+    /* ★[BGM_SEG8_1023 ENTRY_SHORT] 입장 곡이 짧으면 — 하이라이트(H) 뒤 ESD_NEED(90초 · WALK_HALF_1106 · 옛 180)가 안 되면 받는 말 · 맞절에서 피아노(M4)를 미리 깔고,
        곡이 끝나기 3초 전부터 배경음이 겹쳐 이어받는다(종전엔 곡이 다 끝난 뒤 3초에 걸쳐 올라와 그사이가 비었다) */
     ESD.short = (Sg.dur - PL.H) < ESD_NEED; var _tail = esdTail(Sg), _endIn = PL.tm + (Sg.dur - PL.off) - _tail;
     if (_endIn > SEG_XF + 1) run.tEnd = setTimeout(function(){ esdEnd(run); }, Math.round((_endIn - SEG_XF) * 1000));
@@ -1519,15 +1529,15 @@ function esdTry(c, done){ if (!esdReady(c)) return false;
   } catch (e) { esdStop(0.05); return false; } }   /* 무엇이든 실패하면 종전 방식(나레이션 + 배경음) */
 function esdDuck(db, ms){ var r = ESD.run; if (!r || cur === r.i) return; var a = r.a, now = a.currentTime;
   try { r.dk.gain.cancelScheduledValues(now); r.dk.gain.setValueAtTime(Math.max(0.0001, r.dk.gain.value), now); r.dk.gain.exponentialRampToValueAtTime(Math.max(0.0001, dbGain(db)), now + Math.max(0.02, (ms || 400) / 1000)); } catch (e) {} }
-/* ★[B2_EUM04] 입장 곡 끝 — 끝 3초 전 타이머와 실제 onended 가 같은 정책: ① 긴 곡(하이라이트 뒤 ESD_NEED 180초 이상)이 입장 묶음(걷기 · 받는 말 · 맞절 · b8) 안에서 끝나면
+/* ★[B2_EUM04] 입장 곡 끝 — 끝 3초 전 타이머와 실제 onended 가 같은 정책: ① 긴 곡(하이라이트 뒤 ESD_NEED 90초(옛 180) 이상)이 입장 묶음(걷기 · 받는 말 · 맞절 · b8) 안에서 끝나면
    같은 곡 강조(H) 자리에서 새로 걸고 3초 겹쳐 잇는다(미리 듣기 entArm · LIST_HOLD 와 같은 방식 · 앞 장면 곡 M1 · M2 로 돌아가지 않는다) ② 짧은 곡은 종전 그대로 M4 인계 ·
    떠난 run(ESD.run 이 바뀜) · 이미 인계한 끝(run.ending)은 다시 하지 않는다 */
 function esdEnd(run, ended){ if (ESD.run !== run || run.ending) return; if (!ESD.short && esdRelay(run)) return; run.ending = true;
-  if (ESD.short) segGo('M4'); if (ended) { ESD.run = null; if (run.tEnd) clearTimeout(run.tEnd); esdBedBack(3000); } else { esdStop(SEG_XF); esdBedBack(SEG_XF * 1000); } try { render(); } catch (e) {} }
+  if (ESD.short) segGo('M4'); if (ended) { ESD.run = null; if (run.tEnd) clearTimeout(run.tEnd); esdBedBack(3000); } else { esdStop(SEG_XF, true); esdBedBack(SEG_XF * 1000, true); } try { render(); } catch (e) {} }
 function esdRelay(run){ var Sg = ESD.Sg, a = run.a; if (ESD.run !== run || !Sg || !Sg.buf || !a || a.state === 'closed' || !esdIn(cueAt(cur))) return false;
   try { var n = a.currentTime, h = Math.max(0, Math.min(Sg.dur - SEG_XF * 2 - 1, +run.PL.H || 0)), cg = run.cg || run.eg, lv = Math.max(0.0001, cg.gain.value), os = run.src;
-    var s2 = a.createBufferSource(), g2 = a.createGain(); s2.buffer = Sg.buf; g2.gain.setValueAtTime(0.0001, n); g2.gain.linearRampToValueAtTime(lv, n + SEG_XF); s2.connect(g2); g2.connect(run.mg); s2.start(n, h);
-    cg.gain.cancelScheduledValues(n); cg.gain.setValueAtTime(lv, n); cg.gain.linearRampToValueAtTime(0.0001, n + SEG_XF);
+    var s2 = a.createBufferSource(), g2 = a.createGain(); s2.buffer = Sg.buf; g2.gain.value = 0.0001; xfCurve(g2.gain, lv, SEG_XF, n); s2.connect(g2); g2.connect(run.mg); s2.start(n, h);   /* [EAR_D_1106 ①] 같은 곡선 */
+    xfCurve(cg.gain, 0.0001, SEG_XF, n);   /* [EAR_D_1106 검토 D ⓐ] .value 를 직접 쓰지 않는다(곡선이 도는 중이면 Chromium 오류) — xfCurve 가 예약을 지우고 지금 값에서 잇는다 */
     os.onended = null; try { os.stop(n + SEG_XF + 0.05); } catch (e) {}
     (run.xg = run.xg || []).push(g2); run.src = s2; run.cg = g2; run.relay = (run.relay || 0) + 1; run.sT0 = n; run.sOff = h;
     s2.onended = function(){ esdEnd(run, true); }; if (run.tEnd) clearTimeout(run.tEnd);
@@ -1545,11 +1555,11 @@ function esdResume(){ var P = ESD.paused, Sg = ESD.Sg; ESD.paused = null; if (!P
     (r.xg = r.xg || []).push(g2); r.src = s2; r.cg = g2; r.sT0 = n; r.sOff = pos; r.ending = false; s2.onended = function(){ esdEnd(r, true); }; ESD.run = r;
     var left = (Sg.dur - pos) - esdTail(Sg); if (left > SEG_XF + 1) r.tEnd = setTimeout(function(){ esdEnd(r); }, Math.round((left - SEG_XF) * 1000));
     duckTo(duckWant != null ? duckWant : -90, 200);   /* 배경은 입장 장면이 맡는다(ESD.run 이면 −90) */ return true; } catch (e) { return false; } }
-function esdBedBack(ms){ var c = cueAt(cur), db = (phase === 'live' && c && c.live && c.live.duck !== undefined) ? c.live.duck : (c ? c.duck : PARAM.duckMusic); duckTo(db, ms); }
-var ESD_NEED = 180;   // [BGM_SEG8_1023 ENTRY_SHORT] 하이라이트 뒤 이만큼(걷기 · 받는 말 · 맞절)이 안 되면 «곡 길이 모자람»
+function esdBedBack(ms, xf){ var c = cueAt(cur), db = (phase === 'live' && c && c.live && c.live.duck !== undefined) ? c.live.duck : (c ? c.duck : PARAM.duckMusic); duckTo(db, ms, xf); }   /* [EAR_D_1106 ①] xf = 인계 곡선(등전력) */
+var ESD_NEED = 90;   /* [WALK_HALF_1106 · BGM 섹션 11/06] 걷기 절반으로 180 → 90 */   // [BGM_SEG8_1023 ENTRY_SHORT] 하이라이트 뒤 이만큼(걷기 · 받는 말 · 맞절)이 안 되면 «곡 길이 모자람»
 function esdTail(Sg){ if (Sg.tail != null) return Sg.tail; var t = 0; try { var x = Sg.buf.getChannelData(0), sr = Sg.buf.sampleRate, i = x.length - 1; while (i > 0 && Math.abs(x[i]) < 0.003) i--; t = Math.max(0, (x.length - 1 - i) / sr); } catch (e) {} Sg.tail = t; return t; }   // 끝 무음(초)
-function esdStop(sec){ var r = ESD.run; if (!r) { if (!ESD.pzKeep) ESD.paused = null; ESD.pzKeep = false; return; } ESD.paused = null; ESD.pzKeep = false;   /* [B2_K16] 멈춘 자리 기록은 정지 직후 한 번만 지킨다 */ ESD.run = null; if (r.tEnd) clearTimeout(r.tEnd); var a = r.a, now = a.currentTime, f = Math.max(0.02, sec || 0), fv = Math.min(f, 0.3);
-  try { r.dk.gain.cancelScheduledValues(now); r.dk.gain.setValueAtTime(Math.max(0.0001, r.dk.gain.value), now); r.dk.gain.linearRampToValueAtTime(0.0001, now + f); } catch (e) {}
+function esdStop(sec, xf){ var r = ESD.run; if (!r) { if (!ESD.pzKeep) ESD.paused = null; ESD.pzKeep = false; return; } ESD.paused = null; ESD.pzKeep = false;   /* [B2_K16] 멈춘 자리 기록은 정지 직후 한 번만 지킨다 */ ESD.run = null; ESD.fadeRun = r; setTimeout(function(){ if (ESD.fadeRun === r) ESD.fadeRun = null; }, Math.round(Math.max(0.02, sec || 0) * 1000) + 400);   /* [EAR_D_1106] 잦아드는 입장 곡(검사 창구 __earD 가 합산 크기를 잰다) */ if (r.tEnd) clearTimeout(r.tEnd); var a = r.a, now = a.currentTime, f = Math.max(0.02, sec || 0), fv = Math.min(f, 0.3);
+  try { if (xf) xfCurve(r.dk.gain, 0.0001, f, now); else { r.dk.gain.cancelScheduledValues(now); r.dk.gain.setValueAtTime(Math.max(0.0001, r.dk.gain.value), now); r.dk.gain.linearRampToValueAtTime(0.0001, now + f); } } catch (e) {}   /* [EAR_D_1106 ①] 인계는 등전력 곡선 · 정지 · 끝내기는 종전 그대로 */
   try { r.vg.gain.cancelScheduledValues(now); r.vg.gain.setValueAtTime(r.vg.gain.value, now); r.vg.gain.linearRampToValueAtTime(0.0001, now + fv); } catch (e) {}
   try { r.src.onended = null; r.src.stop(now + f + 0.05); } catch (e) {} (r.vs || []).forEach(function(n){ try { n.stop(now + fv + 0.05); } catch (e) {} });   /* [ENTRY_CALL_PAUSE_1013] 목소리 마디는 둘일 수 있다 */
   setTimeout(function(){ [r.eg, r.mg, r.dk, r.lim, r.vg].concat(r.vgs || [], r.xg || []).forEach(function(n){ try { n.disconnect(); } catch (e) {} }); }, Math.round((f + 0.4) * 1000)); }
@@ -1887,7 +1897,7 @@ function fire(i, opt){
      이어지는 큐는 사이 끝 0.4초 전에 이미 내려 두어(아래 preDuck) 여기서 기다리지 않는다 · 입장 장면은 제 시계(10초 앞 음악)가 맡아 빼고 · 고객 미리 듣기는 종전 그대로 */
   /* ★[BGM_FIX_1030 GPT③ R1-3] 미리 낮추기 = 보통 0.8초(leadMs) · 박수 뒤 큐는 1.5초(fadeMs) · 이미 그 크기 이하면 낮추지 않는다 · 음성은 실제 내림이 끝난 뒤에(대기 = 내림 시간) */
   var _need = (MODE !== 'preview' && !esdMain(c) && !c.fadeWith && duckWant > c.duck + 0.5),   /* [MEANING_R2_1102 ENTRY_SETTLE] fadeWith = 멘트와 함께 잦아듦(도착 멘트 4.5초 · 음성은 기다리지 않는다) */ _dms = c.fadeMs || (PARAM.duck && PARAM.duck.leadMs) || PARAM.fadeDownMs;
-  var _lead = Math.max(_need ? _dms : 0, c.goLeadMs || 0);   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
+  var _lead = Math.max(_need ? _dms : 0, c.goLeadMs || 0); if (c.fadeWith && MODE !== 'preview') _lead = Math.max(_lead, ARRIVE_LEAD_MS);   /* ★[EAR_D_1106 ②] 도착 멘트 — 잦아듦(4.5초)은 GO 에서 바로 · 멘트는 1초 뒤(첫 단어가 입장 곡에 묻히지 않게 · −18 dB 아래) · 나머지 R2 그대로 */   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
   cheerAt = -1;   // [TOAST_GO] 축배 오름은 그 큐에서 한 번
   var _ldb = (c.leadDb != null && _lead > 800) ? c.leadDb : null;   // ★[PREVIDEO_AFTER_1101] 무음에서 새 곡을 먼저 −8 로 올리고(goLeadMs 동안) 멘트 0.8초 앞에서 말 아래로
   duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : c.duck), _ldb != null ? (PARAM.fadeUpMs || 1200) : (_need ? _dms : (c.fadeMs || PARAM.fadeDownMs)));   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
@@ -2094,7 +2104,7 @@ function render(){
     $('#nName').textContent = GUEST ? '다 들으셨어요' : '진행이 끝났습니다';
     $('#nTxt').className = 'txt';
     $('#nTxt').textContent = GUEST
-      ? '들으신 순서 그대로 당일에 흘러요. 사람이 말하는 부분만 두 분과 가까운 분들의 목소리로 바뀝니다.'
+      ? '보신 순서대로 당일에 진행됩니다. 장면 카드로 보신 말하기 차례는 두 분과 가까운 분들이 직접 맡습니다.'   /* ★[B2_FIX_NA_20 2026-11-06 재검증 재수정] 끝 화면도 첫 화면(A24)과 같은 약속 — 사람 구간은 소리 없이 장면 카드였다(«목소리로 바뀝니다»는 대역 음성을 들은 것처럼 읽혔다) */
       : (MODE === 'preview' ? '들으신 순서가 실제 예식에서 그대로 흐릅니다.'
                             : '수고하셨습니다. 정리 후 나가기를 눌러 주세요.');
     /* ★[END_NEXT 2026-08-16] 끝 화면이 '들었다'로만 끝나고 **다음 할 일을 말하지 않았다.**
@@ -2216,6 +2226,9 @@ function render(){
     main.className = 'main wait';
   } else if (cheerPending()) {
     main.innerHTML = '축배 음악 올리기 <small>«위하여!»가 끝나면 누르세요</small>';   // [BGM_CONSOLE2_1023 TOAST_GO]
+    main.className = 'main';
+  } else if (n1 && n1.fire === 'clock' && startAt && ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) || (R && fired[R.cues.indexOf(n1)]))) {   // [B2_FIX_NA_02_ORDER] 이미 버린(지난) 시각 큐도 «저절로»라고 하지 않는다
+    main.innerHTML = '다음 <small>' + esc(n1.name) + ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) ? ' · 손 대기 중이에요. 직접 눌러 주세요.' : ' · 예정 시각이 지났어요. 필요하면 직접 눌러 주세요.') + '</small>';   // [B2_FIX_NA_02_ORDER] 손 대기가 풀린 뒤 지난 시각 큐는 B2_NA_61 문구   // ★[B2_FIX_NA_02 2026-11-06 재검증 재수정] 전체 정지 · 뒤로(손 대기) 뒤엔 시각 안내가 저절로 안 나간다 — 단추 글도 «…에 저절로 나갑니다»를 말하지 않는다(지난 시각 · 실제 동작과 같게)
     main.className = 'main';
   } else if (n1 && n1.fire === 'clock' && startAt && clockGone(n1)) {
     main.innerHTML = '다음 <small>' + esc(n1.name) + ' · 예정 시각이 지났어요. 필요하면 직접 눌러 주세요.</small>';   // [B2_NA_61]
@@ -2351,8 +2364,9 @@ function panic(){
   esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 입장 장면(Web Audio 곡 · 예약 멘트)도 함께 — 종전엔 aNarr 만 멈춰 입장 곡 · 멘트가 계속 나갈 수 있었다
   if (!_hush && !_hold && !_esd) duckTo(PARAM.duckMusic, 600);   /* ★[B2_K16] 입장 곡 도중 정지 = 배경까지 조용히(−8 복귀 0) */   /* ★[B2_EUM06] 일부러 정적(−90)인 자리에서 멈추면 정적 그대로 — 다음 큐가 제 크기를 연다 · 사진 · 촬영 후 안내 · 추가 촬영 음악은 그 크기 그대로 · 끝내기 3초 페이드는 따로(■) */
   phase = 'done';
+  MAN_HOLD = true;   // ★[B2_FIX_NA_02_ORDER 2026-11-06 검토 되돌림] 손 대기를 그리기 «전»에 — 종전엔 render 가 먼저 돌아 단추가 «…에 저절로 나갑니다»로 남았다
   render();
-  MAN_HOLD = true; toast(ESD.paused ? '전체 정지 — GO 를 누르면 입장 곡을 멈춘 자리부터 이어요' : '전체 정지 · 다음 순서는 직접 눌러 주세요.');   // [B2_NA_02] 손 대기가 보장된다(MAN_HOLD) · [B2_K16] 입장 곡 도중이면 이어 듣기 안내
+  toast(ESD.paused ? '전체 정지 — GO 를 누르면 입장 곡을 멈춘 자리부터 이어요' : '전체 정지 · 다음 순서는 직접 눌러 주세요.');   // [B2_NA_02] 손 대기가 보장된다(MAN_HOLD) · [B2_K16] 입장 곡 도중이면 이어 듣기 안내
 }
 
 /* [BLESS_PER_SPEAKER] 다음 분께 마이크를 건넸다 — 시간을 새로 재고(ALT_CLIP 판정 · 진행 막대) 올렸던 음악을 내리고 신호를 다시 건다 */
@@ -2438,8 +2452,9 @@ $('#bBack').onclick = function(){
   esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 뒤로도 입장 장면까지 · [DETAIL_R5_1101 규칙 7 ③] 당일 정지 · 뒤로 = 모두 멈춤
   cur = Math.max(-1, cur - 1);
   phase = cur < 0 ? 'idle' : 'done';
+  MAN_HOLD = true;   // [B2_FIX_NA_02_ORDER] 그리기 전에
   render();
-  MAN_HOLD = true; toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');   // [B2_NA_02]
+  toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');   // [B2_NA_02]
 };
 
 /* 큐 목록 시트 — 점프 + 보조 클립 */
@@ -2527,7 +2542,7 @@ $('#go').onclick = function(){
   FBF.tk++; clearInterval(FBF.iv); BED.seg = ''; BED.mode = ''; BED.res = null; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.fade = [0, 0, 0]; BED.xing = 0; songGainSet(false);   // [BGM_SEG8_1023] 시작 = 하객 맞이 구간 곡(파일이 있으면) · 없으면 종전 배경 음악 파일 한 곡 반복
   if (MODE !== 'preview' && !GUEST && segPlan('M1')) { duckTo(PARAM.duckMusic, 10); segGo('M1'); }
   else if (pvsOn()) { duckTo(PARAM.duckMusic, 10); pvsWarm(); segGo('M1'); }   /* ★[PREVIEW_LINK_SONGS_1101] 미리듣기 = 두 분 곡 계획(BgmPicks.plan) · 곡을 못 받은 구간만 예시 음악 */
-  else if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = vol(); duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
+  else if (bedSrc) { aBgm.src = bedSrc; aBgm.volume = (wired && gMaster) ? 1 : vol();   /* [BGM_VOL_ONE_1106 검토 E] 이어 붙였으면 마스터 크기는 gMaster 한 번만 */ duckTo(PARAM.duckMusic, 10); var pb = aBgm.play(); if (pb && pb.catch) pb.catch(function(){}); }
   applyMaster();
   wakeOn();   // [B2_NA_60]
   render();
@@ -2602,6 +2617,8 @@ try { rfPrefetch(); } catch (e) {}   // [REC_ADMIN] 두 분 목소리 — 시작
 try { if (!GUEST) { rfOwnSweep(); rfOwnTxtLoad(); } } catch (e) {}   // [VC_DEC_1030_8] 예식 다음 날이 지난 받아 둔 소리 지우기 · [VC_DEC_1030_9] 두 분이 고친 글
 window.__rfState = function(){ return { st: JSON.stringify(RF_ST), clip: String(CLIPS['guest-1-arrival'] || '').slice(0, 5) }; };   // 읽기 전용 · 검사(rec-upload)가 본다
 /* [ENTRY_SCENE_DAY] 읽기 전용 + 점검용 GO(fire) — entry-scene-day 점검이 본다 */
+/* [EAR_D_1106] 검사 창구 — 입장 곡 크기(e) · 배경음 크기(b · 들리는 재생기 합) · 지금 큐 · 나레이션이 소리 내는 중인가 */
+window.__earD = function(){ var r = ESD.run || ESD.fadeRun, e = 0, b = 0, gb = gBgm ? gBgm.gain.value : 0; try { if (r) { var sq = 0; [r.eg].concat(r.xg || []).forEach(function(g){ if (g) sq += g.gain.value * g.gain.value; }); e = r.mg.gain.value * Math.sqrt(sq) * r.dk.gain.value; } } catch (x) {}   /* 이어 잇기(LONG) 동안 두 소리의 합 */ for (var k = 0; k < 3; k++) { var el = BED.el[k], g = BED.xg[k]; if (g && el && !el.paused && el.getAttribute('src')) b += Math.pow(g.gain.value * gb, 2); } return { e: e, b: Math.sqrt(b), cur: cur, run: !!ESD.run, short: !!ESD.short, seg: BED.seg, id: BED.id, nar: !!(aNarr && !aNarr.paused && aNarr.currentTime > 0.02), ac: AC ? AC.currentTime : 0 }; };
 window.__esd = { s: function(){ var r = ESD.run; return { st: ESD.st, why: ESD.why, sg: !!ESD.Sg, v0: !!ESD.V0, vp: ESD.V0 ? ESD.V0.pieces.length : null, run: !!r, ri: r ? r.i : null, relay: r ? (r.relay || 0) : null, short: !!ESD.short, paused: ESD.paused ? Math.round(ESD.paused.pos * 100) / 100 : null, spos: r && r.a ? Math.round((r.sOff + Math.max(0, r.a.currentTime - r.sT0)) * 100) / 100 : null, sbuf: r && r.src && r.src.buffer ? Math.round(r.src.buffer.duration) : null, dkg: r ? Math.round(r.dk.gain.value * 10000) / 10000 : null, cur: cur, phase: phase, duck: duckNow,
     pl: r ? { tv: r.PL.tv, tm: r.PL.tm, off: r.PL.off, th: r.PL.th, V: r.PL.V, H: r.PL.H, H0: r.PL.H0 } : null, dk: r ? r.dk.gain.value : null, ac: AC ? AC.state : null,
     vsn: r ? (r.vs || []).length : null, cut: ESD.V0 && ESD.V0.cut ? { at: ESD.V0.cut.at, add: ESD.V0.cut.add, was: ESD.V0.cut.was } : null }; },   /* [ENTRY_CALL_PAUSE_1013] 목소리 마디 수 · 끊은 자리 */

@@ -124,6 +124,22 @@ ok(rs0.ok === true && !rs0.guideToken, '18b 이름 없는 좌석 완료 → 토�
 setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '직접 섭외할게요', _favs: [] } } });
 const gvS = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
 ok(gvS.guide.dining.pick === '' && gvS.guide.dining.on === false, '19 위저드 문구(직접 섭외할게요) → pick 제거·다이닝 숨김');
+// 19-b) [B2_FIX_MA_38_GAS 2026-11-06 재검증 재수정] 같은 이름 두 곳 — venuePickPid 가 있으면 이름 + pid 가 맞는 곳만 대표 · 없으면(옛 초안) 종전처럼 이름으로
+const _two = [{ n: '소반', m: '한정식 · 파주', tel: '031-1', src: 'kakao', pid: 'P1' }, { n: '소반', m: '한식 · 일산', tel: '031-2', src: 'kakao', pid: 'P2' }];
+setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '소반', venuePickPid: 'P2', _favs: _two } } });
+const gvP = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining;
+ok(gvP.restos.length === 1 && gvP.restos[0].tel === '031-2' && gvP.pick === '소반', '19-b 대표 pid 가 있으면 그 지점만(공개 안 한 같은 이름 지점은 안 보임)', gvP.restos);
+setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '소반', venuePickPid: 'P2', _favs: [Object.assign({ show: true }, _two[0]), _two[1]] } } });
+const gvP2 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining;
+ok(gvP2.restos.length === 2, '19-b 공개(show:true)한 같은 이름 지점은 그대로 보인다', gvP2.restos);
+setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: _two } } });
+const gvO = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining;
+ok(gvO.restos.length === 2 && gvO.on === true && gvO.pick === '소반', '19-b 옛 초안(venuePickPid 없음)은 종전처럼 이름으로(둘 다)', gvO.restos);
+setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '소반', _favs: [{ n: '소반', m: '한정식', src: 'resto' }] } } });
+const gvO2 = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining;
+ok(gvO2.restos.length === 1 && gvO2.restos[0].m === '한정식', '19-b 옛 초안 · pid 없는 담은 곳 한 곳 — 그대로', gvO2.restos);
+setup({ 예식일: ymdShift(10), _prod: { diningDraft: { dining_on: 'Y', venuePick: '소 반', venuePickPid: 'P1', _favs: _two } } });
+ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.dining.restos.map((x) => x.tel).join() === '031-1', '19-b 이름 띄어쓰기 차이는 종전처럼 같게 보고 pid 로 가른다');
 // 20) (구)showSeat=false 레거시 저장분 — UI가 사라진 플래그가 좌석을 영구 차단하지 않게 무시(2026-07-17 폐지)
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
 ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' }).ok === true, '20 (구)showSeat=false 무시 → seat 링크 정상(막다른길 해소)');

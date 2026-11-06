@@ -34,6 +34,14 @@ ok('④ mealFullOf — [DINE_STATUS_NI16] 지도 «음식점 > 카페» 는 식�
   L.mealFullOf(fv('음식점 > 카페 > 커피전문점 · 1.2km'), L.DINE_PH) === false && L.mealFullOf(fv('음식점 > 한식 · 1.2km · 카페거리 10'), L.DINE_PH) === true
   && L.diningStatusOf({ venuePick: '어느 곳', _favs: [{ n: '어느 곳', m: '차5분 · 보통 · 한식·코스' }] }, L.DINE_PH) === 'needs-confirmation' && L.diningStatusOf(Object.assign({ venuePick: '너른마당', mealType: '카페' }), L.DINE_PH) === 'meal'
   && L.diningStatusOf({ venuePick: '장소 미정', _favs: [{ n: '장소 미정', m: '음식점 > 한식', src: 'kakao' }] }, L.DINE_PH) === 'undecided' && L.diningStatusOf({ dining_on: 'N', venuePick: '너른마당' }, L.DINE_PH) === 'none');
+/* ★[B2_FIX_NI16 2026-11-06 재검증 재수정] 지도에서 담은 곳 — API 가 «갈래 > 끝 토막»으로 보낸다 · 옛 저장분(끝 토막만)은 분명한 음식 분류 낱말일 때만 근거 */
+const _catSrc = (rd('api/after-concierge.js').match(/const catOf = [^\n]*/) || [''])[0], catOf = _catSrc ? new Function(_catSrc + '; return catOf;')() : null;
+ok('④ [B2_FIX_NI16] 지도 분류 — API «음식점 > 한식 > 육류,고기 > 갈비» → «한식 > 갈비»(식사) · «… > 카페 > … > 스타벅스» → «카페 > 스타벅스»(카페) · 옛 «한식 · 1.2km»은 식사 · 옛 «스타벅스» · 주소는 확인 필요',
+  !!catOf && catOf('음식점 > 한식 > 육류,고기 > 갈비') === '한식 > 갈비' && catOf('음식점 > 카페 > 커피전문점 > 스타벅스') === '카페 > 스타벅스' && catOf('음식점 > 한식') === '음식점 > 한식' && catOf('') === ''
+  && L.diningStatusOf(fv(catOf('음식점 > 한식 > 육류,고기 > 갈비') + ' · 1.2km · 경기 파주시 회동길 152'), L.DINE_PH) === 'meal' && L.diningStatusOf(fv(catOf('음식점 > 카페 > 커피전문점 > 스타벅스') + ' · 300m'), L.DINE_PH) === 'cafe'
+  && L.diningStatusOf(fv('한식 · 1.2km · 경기 파주시 회동길 152'), L.DINE_PH) === 'meal' && L.diningStatusOf(fv('카페 · 300m'), L.DINE_PH) === 'cafe'
+  && L.diningStatusOf(fv('스타벅스 · 1km'), L.DINE_PH) === 'needs-confirmation' && L.diningStatusOf(fv('1.2km · 경기 파주시 카페거리'), L.DINE_PH) === 'needs-confirmation'
+  && L.diningStatusOf({ venuePick: '어느 곳', _favs: [{ n: '어느 곳', m: '카페 · 300m', src: 'kakao' }, { n: '어느 곳', m: '한식 · 1km', src: 'kakao' }] }, L.DINE_PH) === 'needs-confirmation');
 ok('④ mealFullOf — 목록(assets/dining-data.js DINE_DB)의 카페는 전부 cafe · 음식 종류가 있는 식당은 전부 meal · 음식 종류가 빈 곳은 확인 필요(목록이 바뀌어도 맞는지)', (() => { const db = global.DINE_DB; if (!db || db.length <= 20) return false;
   return db.every((r) => L.diningStatusOf({ venuePick: r.n }, L.DINE_PH) === (r.th === 'cafe' ? 'cafe' : (r.f && r.f.length ? 'meal' : 'needs-confirmation'))); })());
 ok('④ 마이페이지 · 관리자가 목록을 미리듣기 규칙보다 먼저 읽는다 [DINE_DATA_NI16]', [mp, ad].every((h) => h.indexOf('/assets/dining-data.js') > -1 && h.indexOf('/assets/dining-data.js') < h.indexOf('/assets/ritual-preview-link.js')) && !/var DINE_DB = \[/.test(mp));

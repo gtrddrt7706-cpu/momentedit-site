@@ -528,6 +528,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dst:focus-visible:not(.tip-x) .dst-tip{opacity:1;visibility:visible;transition:opacity .15s var(--ease,ease),visibility 0s}
 @media (hover:hover) and (pointer:fine){ .dst:hover:not(.tip-x) .dst-tip{opacity:1;visibility:visible;transition:opacity .15s var(--ease,ease) .25s,visibility 0s linear .25s} }
 .cc-done-row{display:flex;align-items:center;gap:8px;padding:14px 18px;cursor:pointer}
+.dn-rtchk{margin:-2px 0 8px;font-size:12.5px;line-height:1.6;color:var(--seal)}   /* [RSV_TIME_CHK_1106] 예약 시각 칸 아래 확인 줄 */
+.dn-rtchk[hidden]{display:none}
 .cc-done-check{color:var(--gold-deep);font-weight:600}
 .cc-done-label{flex:1;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .cc-done-toggle{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft)}
@@ -2351,7 +2353,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
-<script src="/assets/ritual-preview-link.js?v=1106na"></script>
+<script src="/assets/ritual-preview-link.js?v=1106p4"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
 <script src="/assets/dress-refs.js"></script><!-- [DRESS_REFS] 시착 드레스 목록(단 하나의 원천) · 스위치 live 가 꺼져 있으면 카드가 그려지지 않는다 -->
 <script src="/assets/photo-refs.js"></script><!-- [PHOTO_EX_VIEW] 가족 · 친구 스냅 예시 사진 목록(단 하나의 원천) -->
@@ -2409,7 +2411,7 @@ function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getE
 // [당겨서 새로고침 · 상단] 맨 위에서 아래로 당기면 상태 새로고침(2026-07-18 사용자 지시 · 하단 방식에서 반전).
 //   전체 리로드가 아니라 loadMyState(로그인 유지·서버 최신 상태만) · 위저드·오버레이 편집 중엔 입력 보호를 위해 비활성.
 (function(){
-  var tracking=false, anchorY=null, pulled=0, bar=null, barState=0, allowed=null, startEl=null;
+  var tracking=false, anchorY=null, pulled=0, bar=null, barState=0, allowed=null, startEl=null, galHold=false, galHoldT=0;   // [B2_FIX_MA_53] galHold = 사진 선택 때문에만 보류
   function atTop(){ return window.pageYOffset <= 2; }   // iOS 상단 바운스는 0 미만으로 내려가므로 그대로 참
   // 마이페이지 안 모든 화면에서 동작(2026-07-18 사용자 지시) — 위저드·좌석 편집기 포함.
   //   제외: ① 로그인·코드찾기·재설정 화면(미로그인 loadMyState가 로그인 화면으로 튕겨 재설정 입력을 날림)
@@ -2447,14 +2449,14 @@ function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getE
     }
     return false;
   }
-  function busy(){
+  function busy(noGal){
     try{
       var mv=document.getElementById('mypageView');
       if(!mv || !mv.classList.contains('show')) return true;   // 마이페이지 본문이 보일 때만
       var ld=document.getElementById('loading'); if(ld && ld.style.display==='flex') return true;   // 갱신 중 재발동 방지
       if(overlayOpen()) return true;
       if(dirtyOutsideFlows()) return true;
-      if(window._galDirty && window._galDirty()) return true;   // [B2_MA_53] 제출 전 사진 선택이 있으면 당겨서 새로고침을 보류
+      if(!noGal && window._galDirty && window._galDirty()) return true;   // [B2_MA_53] 제출 전 사진 선택이 있으면 당겨서 새로고침을 보류
     }catch(e){ return true; }
     return false;
   }
@@ -2486,14 +2488,16 @@ function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getE
     document.body.appendChild(bar); return bar;
   }
   function setBar(state){   // 0 숨김 · 1 '조금 더' · 2 '놓으면' — 상태 바뀔 때만 DOM 접근(터치마다 재기록 방지)
-    if(state===barState) return; barState=state;
+    if(state===barState) return; barState=state; clearTimeout(galHoldT);
     if(!state){ if(bar) bar.style.opacity='0'; return; }
     var b=ensureBar(); b.style.opacity='1';
-    b.textContent=(state===2)?'놓으면 새로고침돼요':'아래로 조금 더 당기면 새로고침';
+    b.textContent=(state===3)?'아직 제출하지 않은 사진 선택이 있어요.':(state===2)?'놓으면 새로고침돼요':'아래로 조금 더 당기면 새로고침';   /* ★[B2_FIX_MA_53 2026-11-06 재검증 재수정] 사진 선택 때문에 보류할 땐 말없이 멈추지 않고 그 까닭을 당김 막대에 한 줄 */
   }
   function endGesture(fire){
     var go=fire && allowed===true && pulled>70 && atTop() && !busy();
-    tracking=false; anchorY=null; pulled=0; allowed=null; startEl=null; setBar(0);
+    var held=fire && galHold && barState===3;   // [B2_FIX_MA_53] 놓은 뒤에도 2초쯤 남겨 읽히게
+    tracking=false; anchorY=null; pulled=0; allowed=null; startEl=null; galHold=false;
+    if(held){ clearTimeout(galHoldT); galHoldT=setTimeout(function(){ setBar(0); }, 2200); } else setBar(0);
     if(go) refreshNow();
   }
   // 시작 시점이 맨 위가 아니어도 됨 — 위로 스크롤하던 제스처의 연장으로 당기는 실사용 패턴 지원:
@@ -2507,7 +2511,8 @@ function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getE
     if(!atTop()){ anchorY=null; pulled=0; setBar(0); return; }
     if(anchorY==null){ anchorY=y; return; }   // 맨 위 도달 순간부터 측정
     pulled=y - anchorY;   // 아래로 당긴 거리
-    if(pulled>12 && allowed==null) allowed=(!busy() && !inInnerScroll(startEl));
+    if(pulled>12 && allowed==null){ var _inner=inInnerScroll(startEl); allowed=(!busy() && !_inner); galHold=(!allowed && !_inner && !busy(true) && !!(window._galDirty && window._galDirty())); }
+    if(galHold){ setBar(pulled>70?3:0); return; }   // [B2_FIX_MA_53] 새로고침은 하지 않고 까닭만 보인다
     if(allowed===false){ tracking=false; setBar(0); return; }
     setBar(pulled>70?2:(pulled>12?1:0));
   }, {passive:true});
@@ -4414,12 +4419,26 @@ function renderMyPage(d){
         else if (_pvS === 'checking') _pvLeft = '보내 주신 영상을 확인하고 있어요.';
         else if ((_pvS === '' || _pvS === 'draft' || _pvS === 'later') && _pvOnR && !(_pvDl != null && _pvDl < 0)) _pvLeft = '식전 영상 준비가 남아 있어요.';
       }
+      /* ★[MID_VIDEO_1106 체크리스트 7] 식중 영상도 같은 방식(M01) — 식순 «준비한 순서 · 영상»을 담았을 때만 · 확인 필요 · 확인 중 · 준비 남음 · 기한이 지났으면 말하지 않는다(그날은 영상 없이) */
+      var _mvN = (typeof MVC_ON !== 'undefined' && MVC_ON && _pdn.midvideo && _pdn.midvideo.up && d.product !== '웨딩스냅' && typeof _mvcOn === 'function' && _mvcOn(_pdn) === true) ? _pdn.midvideo : null, _mvLeft = '', _mvAct = false;
+      if (_mvN) {
+        var _mvS = String(_mvN.st || ''), _mvDl = null; try { _mvDl = _mvN.due ? _kstDdayOf(_mvN.due) : null; } catch (e) {}
+        if (_mvS === 'review') { _mvLeft = '식중 영상을 확인해 주세요'; _mvAct = true; }
+        else if (_mvS === 'checking') _mvLeft = '보내 주신 식중 영상을 확인하고 있어요.';
+        else if ((_mvS === '' || _mvS === 'draft' || _mvS === 'later') && !(_mvDl != null && _mvDl < 0)) _mvLeft = '식중 영상 준비가 남아 있어요.';
+      }
+      if (_mvN && _pvLeft === '보내 주신 영상을 확인하고 있어요.') _pvLeft = '보내 주신 식전 영상을 확인하고 있어요.';   // [MID_VIDEO_1106 · 검토 1604] 식중도 있으면 어느 영상인지
+      if (!_pvAct && _mvLeft) _pvLeft = (_pvLeft === '식전 영상 준비가 남아 있어요.' && _mvLeft === '식중 영상 준비가 남아 있어요.') ? '식전 영상 · 식중 영상 준비가 남아 있어요.' : (_pvLeft ? (_pvLeft + ' ' + (_mvAct ? '식중 영상도 확인해 주세요.' : _mvLeft)) : (_mvAct ? '' : _mvLeft));
       if (_evPast && !(_mDue || _bDue)) {
         head = '결과물을 준비하고 있어요';
         sub  = '준비되면 안내드릴게요.';
       } else if (_reqOk && _cfDone && _pvAct) {   // [PV_NOW_1106 M01] 영상 확인이 두 분 손에 남았다
         head = '식전 영상을 확인해 주세요';
         sub  = '「식전\u00a0영상」\u2060에서 보고 확정해 주세요.' + (_payLn ? ('\n' + _payLn) : '');
+        if (_mvAct) { head = '식전 · 식중 영상을 확인해 주세요'; sub = '「식전\u00a0영상」\u2060 · 「식중\u00a0영상」\u2060에서 보고 확정해 주세요.' + (_payLn ? ('\n' + _payLn) : ''); }   // [MID_VIDEO_1106 · 검토 1604] 둘 다 확인 필요
+      } else if (_reqOk && _cfDone && _mvAct && !_pvLeft) {   // [MID_VIDEO_1106] 식중 영상 확인이 두 분 손에 남았다(식전 영상은 할 일 없음)
+        head = '식중 영상을 확인해 주세요';
+        sub  = '「식중\u00a0영상」\u2060에서 보고 확정해 주세요.' + (_payLn ? ('\n' + _payLn) : '');
       } else if (_reqOk && _cfDone && _pvLeft) {   // [PV_NOW_1106 M01] 확인서는 확정 · 영상은 아직(만드는 중 · 확인 중 · 준비 남음)
         head = '예식 확인서를 확정했어요';
         sub  = _pvLeft + (_payLn ? ('\n' + _payLn) : '');
@@ -4437,7 +4456,7 @@ function renderMyPage(d){
              : _evPast ? ''   // [EVENT_PAST_NOW] 예식이 지났으면 «예식 준비는 이어서 하셔도 돼요»는 뜻이 없다(결제 요청 머리만)
              : ((d.stage === '입금완료') ? '예식 준비는 지금 바로 시작하셔도\u00a0돼요.' : '예식 준비는 그대로 이어서 하셔도\u00a0돼요.');   // 320 에서 «돼요.» 두 글자만 떨어지지 않게
       } else if (_reqOk) {
-        head = _pdn.confirmStale ? '다시 확정해 주세요' : (_pvLeft ? '예식 확인서를 확인해 주세요' : (_payLn ? '예식 확인서가 남았어요' : '예식 확인서만 남았어요'));   // [PV_NOW_1106 M01] 영상도 남았으면 «만»을 말하지 않는다
+        head = _pdn.confirmStale ? '다시 확정해 주세요' : ((_pvLeft || _mvLeft) ? '예식 확인서를 확인해 주세요' : (_payLn ? '예식 확인서가 남았어요' : '예식 확인서만 남았어요'));   // [PV_NOW_1106 M01] 영상도 남았으면 «만»을 말하지 않는다
         sub  = '아래 「예식\u00a0확인서」\u2060에서 확정하시면 ' + (_pdn.confirmStale ? '바뀐' : '그') + ' 내용 그대로 준비해요.' + (_payLn ? ('\n' + _payLn) : '');
       } else if (d.stage === '입금완료' && _nxReq === '청첩장') {   // [NOW_PREP_WORD 검토 2026-09-26] «청첩장부터»는 청첩장이 남았을 때만 — 단계가 입금완료에 머문 채 청첩장을 끝낸 고객(전이 누락 · backfillProduceStage 대상)에게는 아래 «이어가요» 갈래가 첫 남은 행을 부른다
         head = '예식 준비를 시작해요';
@@ -4504,7 +4523,7 @@ function renderMyPage(d){
     /* [SNAP_NUDGE · SNAP_PICK_V2 D2 2026-09-26 사장님 결정] 스냅 기획이 비어 있으면 예식 3주 전부터 한 줄 — 마감은 예식 14일 전 · 3일 전부터는 잠겨 안 붙인다.
        선택 항목이라 헤드라인을 뺏지 않고 서브 끝에만 붙인다(지금 할 일의 주인공은 그대로). 결과물 단계엔 붙이지 않는다. */
     try{ var _sp=d.production; if(_sp && _sp.snapV2 && !(d.result && d.result.status) && typeof _snapFilledD==='function' && !_snapFilledD(_sp.snapDraft||{}) && !((_sp.snapMeta||{}).lock)){
-      var _sdu=_snapDue(_sp); if(_sdu && _sdu.days<=21 && _sdu.days>3){ sub=(sub?sub+'\n':'')+(_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.'):('스냅 기획은 '+_sdu.due+'('+_sdu.dueDow+')까지 골라 주세요.')); } } }catch(e){}   // [SNAP_EDIT_UNTIL] 늦은 날 줄은 날짜로(잠기기 전날)
+      var _sdu=_snapDue(_sp); if(_sdu && _sdu.days<=21 && _sdu.days>3){ sub=(sub?sub+'\n':'')+(_sdu.today?'스냅 기획은 오늘까지 골라 주세요.':_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.'):('스냅 기획은 '+_sdu.due+'('+_sdu.dueDow+')까지 골라 주세요.')); } } }catch(e){}   // [SNAP_EDIT_UNTIL] 늦은 날 줄은 날짜로(잠기기 전날)
     $('mp_nowHead').textContent = head;
     var subEl = $('mp_nowSub');
     /* ★[NOW_SUB_BAL 2026-09-26 · 통합 점검 L6] 부제는 문장('\n')마다 한 덩어리(.ln-bal = display:block + text-wrap:balance)로 고르게 —
@@ -7391,6 +7410,7 @@ function renderProduction(p, inv){
   var _phBtn=$('mp_photoStart'); if(_phBtn) _phBtn.addEventListener('click', function(){ var _dd=p.diningDraft||null, _ml=(_dd&&(String(_dd.dining_on||'')==='N'||String(_dd.venuePick||'')==='다이닝 없이 진행할게요'))?'no':((window.RitualPreviewLink&&RitualPreviewLink.diningStatusOf&&RitualPreviewLink.diningStatusOf(_dd, DN_PLACEHOLDER)==='meal')?'yes':'');   /* [B2_MA_12 2026-11-06 2차 B2-마12] 확인된 식사 자리만 yes — 카페 · 분류 모름은 ''(식사 · 카페라고 단정하지 않고 사진 순서만) */   /* [PHOTO_DAY_STEPS] 감사 인사 뒤 가실 곳 — 식당을 골랐나(yes) · 안 함(no) · 아직 모름('') */
     startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false, !!p.photoFriendOk, _ml); });   /* [PHOTO_FRIEND] 서버가 새 칸을 알 때만 연다 */   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
   var _pvcB=$('mp_pvcStart'); if(_pvcB) _pvcB.addEventListener('click', function(){ startPvcFlow(p.prevideo||{}); });   // [PV_CAT_1031] 식전 영상
+  var _mvcB=$('mp_mvcStart'); if(_mvcB) _mvcB.addEventListener('click', function(){ startPvcFlow(Object.assign({}, p.midvideo||{}, {kind:'mid'})); });   // [MID_VIDEO_1106] 식중 영상
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
     var _dd0=p.diningDraft||{};
@@ -8533,6 +8553,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
      ★줄 아래로 펼치던 «준비할 것» 단추 · 목록(mp_ritualPrep · mp_ritPrepBox)을 되살리지 말 것 — 같은 목록이 두 곳이 된다 */
   var _ritPre2=null;   // [PREP_LINK] 목록이 있을 때만
   var _pvRow={ done:true, html:'' };   // [PV_CAT_1031] 식전 영상 줄 — 시안 «식전 영상 줄이 바뀌는 모습» 여덟 모양(_pvcRow)
+  var _mvRow={ done:true, html:'' };   // [MID_VIDEO_1106] 식중 영상 줄 — 식순에 없으면 «넣기 · 선택»(할 일 아님)
+  try{ if(typeof MVC_ON!=='undefined' && MVC_ON && p && p.midvideo && p.midvideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _mvR=_mvcRow(p.midvideo, _mvcOn(p)); _mvRow={ done:_mvR.done, html:row('식중 영상', _mvR.st, 'mp_mvcStart', _mvR.label, null, {tag:_mvR.tag}) }; } }catch(e){}
   try{ if(typeof PVC_ON!=='undefined' && PVC_ON && p && p.prevideo && p.prevideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _pvR=_pvcRow(p.prevideo); _pvRow={ done:_pvR.done, html:row('식전 영상', _pvR.st, 'mp_pvcStart', _pvR.label, null, {tag:_pvR.tag}) }; } }catch(e){}
   var _prepRows=[
     /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
@@ -8564,7 +8586,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, _migOfferSub(), {pre:_ritPre, pre2:_ritPre2}) },   /* [OLD_DRAFT_OFFER] 되찾을 예전 고침이 있을 때만 줄 아래 한 줄(설명이 아니라 알림 · TRK_NO_SUB 의 예외) */
     { done: true, html: '' },   /* [PR_PREP_ONE] 준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다 */   // [PREP_LINK] 요약 줄은 끈 채 «준비할 것» 단추가 여는 목록   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
     { done: true, html: _bouquetFold(base) },
-    _pvRow,   /* ★[PV_CAT_1031] 식전 영상 — 식순에 딸린 순서(개식 선언 뒤 · 입장 전 상영)라 식순 · 부케 바로 뒤 · 서버가 상태를 안 보내면(옛 GAS · 웨딩스냅) 빈 줄 */   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
+    _pvRow,   _mvRow,   /* ★[MID_VIDEO_1106] 식중 영상(선택)은 식전 영상 바로 뒤 · ★[PV_CAT_1031] 식전 영상 — 식순에 딸린 순서(개식 선언 뒤 · 입장 전 상영)라 식순 · 부케 바로 뒤 · 서버가 상태를 안 보내면(옛 GAS · 웨딩스냅) 빈 줄 */   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2||_frB2||_ocB2), html: (function(){ var _ph=(_gpB2.photo||[]), _any=!!(_fxB2||_frB2||_ocB2); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_any?'완료 · 수정':'구도 고르기'); return row('가족 · 친구 스냅', (_ph.length||_any)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 3부 2] 구도가 있으면 «전체 하객 + N컷», 구도는 없고 다른 내용(요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크)이 있으면 «완료 · 수정» + ✓ — 종전엔 요청만 «요청 N개», 불러 모을 분 · 링크만이면 «구도 고르기»(✓ 없음)로 남아 저장 알림과 다른 말을 했다 */   /* [PHOTO_FRIEND_ROW] 친구 부탁만 = ✓ · 「완료 · 수정」 */   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */
   ];
@@ -8699,7 +8721,7 @@ function _wizJson(o){   // UI 전용(_ 로 시작) 키는 뺀다 — 단계 이�
   var src=o||{}, top=norm(src);
   if(src && typeof src==='object'){
     if(Object.prototype.hasOwnProperty.call(src,'_onlineSame')) top.onlineSame_=norm(src._onlineSame);
-    if(Object.prototype.toString.call(src._favs)==='[object Array]') top.favs_=src._favs.map(function(v){ return {n:String((v&&v.n)||''), show:!!(v&&v.show)}; });   // [B2_MA_22] 담은 곳 · 하객 공개도 변경 비교에
+    if(Object.prototype.toString.call(src._favs)==='[object Array]') top.favs_=src._favs.map(function(v){ var o={n:String((v&&v.n)||''), show:!!(v&&v.show)}; if(v&&v.pid) o.pid=String(v.pid); return o; });   // [B2_FIX_MA_38] 같은 이름의 다른 지점도 가른다   // [B2_MA_22] 담은 곳 · 하객 공개도 변경 비교에
     if(src._rsvBy || src.reserveFor!=null){
       var all={}, by=src._rsvBy||{}; Object.keys(by).forEach(function(k){ var v=by[k]||{}; all[k]={t:String(v.t||''),n:String(v.n||'')}; });
       if(src.reserveFor!=null) all[String(src.reserveFor)]={t:String(src.reserveTime||''),n:String(src.reserveName||'')};
@@ -8841,6 +8863,13 @@ function _wizSave(){
 }
 /* [WIZ_EXIT_ONE] 뒤로가기로 들어온 나가기를 취소하면 그 히스토리 층은 이미 소비됐다 —
    다시 걸어 두지 않으면 다음 뒤로가기가 페이지를 통째로 떠난다(위저드 안 내용째로). */
+/* ★[B2_FIX_MA_09 2026-11-06 재검증 재수정] 발행(INVFLOW._publishing) 동안 키보드 · 누름으로 편집 · 이전 · 단계 이동을 하지 않는다 — 덮개는 마우스만 막았다.
+   청첩장 화면 안에서 Tab 만 지나간다(초점 이동 · 아무것도 바꾸지 않는다) */
+(function(){
+  function _pubBlock(e){ try{ if(!(typeof INVFLOW!=='undefined' && INVFLOW._publishing)) return; if(e.type==='keydown' && (e.key==='Tab'||e.key==='Shift')) return;
+    var pr=document.getElementById('mp_production'), t=e.target; if(!(pr && t && pr.contains(t))) return; e.preventDefault(); e.stopPropagation(); }catch(x){} }   // 청첩장 화면(mp_production) 안만 · 확인 창 · 알림 단추는 그대로
+  document.addEventListener('keydown', _pubBlock, true); document.addEventListener('click', _pubBlock, true);
+})();
 function _wizRearm(id){
   try{ var o=WIZ_ADAPT[id].own&&WIZ_ADAPT[id].own(); if(!o||!WIZ_ADAPT[id].on()) return;
     if(!bkAlive(o._bk)) o._bk=bkOpen(function(){ _wizExit(); }); }catch(e){}
@@ -8853,6 +8882,9 @@ function _wizExit(){
        뒤로가기로 들어왔으면 그 층은 이미 쓰였다 — 다시 걸어 둔다(기다리는 사이 한 번 더 누르면 페이지를 떠나지 않게 · 그 누름은 여기서 그냥 돌아간다).
        30초가 지나도 안 끝나면 베일만 걷는다(머물러 있고 · 알약이 «저장 중…»을 말한다 · 다시 누르면 다시 기다린다) */
   var _sw=WIZ_ST[id]||(WIZ_ST[id]={});
+  /* ★[B2_FIX_MA_09 2026-11-06 재검증 재수정] 청첩장을 만드는(반영하는) 동안엔 뒤로가기도 나가기 판을 띄우지 않는다 — 덮개(«청첩장을 만드는 중이에요.») 위에 판이 떠
+     이전 단계로 가 이름을 고칠 수 있었다. 층만 다시 걸고 그대로 기다린다(끝나면 덮개가 걷힌다) */
+  if(id==='inv' && INVFLOW._publishing){ _wizRearm(id); return; }
   if(_sw.exitWait){ _wizRearm(id); return; }
   if(_sw.wait || _sw.fly>0){ _sw.exitWait=1; _wizRearm(id); _flowBusy(true,'저장 중…'); clearTimeout(_sw.exitT); _sw.exitT=setTimeout(function(){ if(_sw.exitWait){ _sw.exitWait=0; _flowBusy(false); } }, 30000); return; }
   if(WIZ_ADAPT[id].exitAsk && WIZ_ADAPT[id].exitAsk()) return;   // [SNAP_PRECONSENT_EXIT] 위저드가 제 판을 띄웠으면 여기서 끝(지금은 스냅 기획 동의 전 하나)
@@ -9501,6 +9533,7 @@ function doPublishInv(box){
   /* ★[B2_MA_09 2026-11-06 2차 B2-마09] 발행하는 동안 편집 · 이전 · 단계 이동을 잠근다(전체 덮개) — 종전엔 발행 단추만 잠겨, 응답을 기다리는 사이 이전으로 가 이름을 고치면
      자동 재시도가 바뀐 초안을 보냈다. 보낼 초안은 시작 때 복사해 고정하고 자동 재시도에도 같은 것을 쓴다 */
   _flowBusy(true, /반영하기$/.test(_lbl)?'고친 내용을 반영하는 중이에요.':'청첩장을 만드는 중이에요.'); INVFLOW._publishing=true;
+  try{ var _ae=document.activeElement; if(_ae&&_ae.blur&&_ae!==document.body) _ae.blur(); }catch(e){}   // [B2_FIX_MA_09] 덮개 뒤 칸 · 단추에 머문 초점을 걷는다(키보드로 고치거나 이동하지 않게)
   function reset(msg){ _flowBusy(false); INVFLOW._publishing=false; if(btn){ btn.disabled=false; btn.textContent=_lbl; } if(msg&&$('iv_err')) _errSet($('iv_err'), msg); }   // [ERR_CODE_NOWRAP]
   var dr=INVFLOW.draft, sendDraft=dr; try{ sendDraft=JSON.parse(JSON.stringify(dr)); }catch(e){}
   if(dr.method==='both' && dr._onlineSame!=='N'){   // '오프라인과 같게' 미러는 발행 직전 1회만(작성 중 미러가 온라인 커스텀을 덮던 것 이동 · 2026-07-18 리뷰)
@@ -9652,7 +9685,7 @@ function invStepDone(box, r){
   if(!_gCard && u.family){
     guideHint = _gClosed
       ? (_gTok?'<div class="cc-note" style="text-align:left">하객 안내 링크는 <b>예식 후 30일</b>이 지나 자동으로 닫혔어요. (개인정보 보호)</div>':'')
-      : '<div class="cc-note" style="text-align:left">「예식 준비」의 '+GUIDE_MAKE_COND+', 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요. <span class="cc-mini">(준비된 내용부터 보여요 · 다시 발행할 필요 없어요)</span></div>';
+      : '<div class="cc-note" style="text-align:left"><span class="ln-bal">오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요.</span><span class="ln-bal">사진 올리기는 모든 예식에서 이용하실 수 있어요. 좌석과 애프터&nbsp;웨딩은 준비된 내용만 보여요.</span></div>';   // ★[GUIDE_ALL_EVENTS_1106 4차 G01] 링크는 식사 · 좌석과 상관없이 모든 예식에 생긴다([B2_MA_02] 서버 _guideTokenEnsure_) — 옛 «채워 완료하면 생겨요»(GUIDE_MAKE_COND) 조건을 걷었다
   }
   // [인쇄 킷 · 2026-07-18 사용자 승인] 실물(종이)·개인 제작 구성 — 인쇄에 옮길 확정 정보(이름·일시)를 한 블록으로(QR 2종과 세트)
   var _kit='';
@@ -10194,14 +10227,17 @@ function _dnHas(dd){ dd=dd||{}; if(String(dd.dining_on||'')==='N') return true; 
    ②좌석도 같다 — 「배치 완료」(행 ✓)인데 자리에 이름이 없으면 «자리에 이름을 넣으면 열려요».
    ③둘 다 켜졌으면 안내문을 내지 않는다(다 채운 분께 «완료하면 열려요»는 덜 끝난 게 있냐는 물음만 남긴다).
    ★판정은 하객 화면의 실제 노출(handleGuideView)과 같아야 한다(위 주석) — 여기 조건을 바꾸면 서버 쪽도 같이 본다. */
+/* [DN_CONF_PUB_1106] 하객에게 실제로 공개되는 담은 곳 — «하객 안내에 표시»를 켠 곳 · 예약할 곳(대표)과 같은 식당. 칩([B2_MA_14]) · 확인서가 같은 판정을 쓴다(서버 handleGuideView 와 같은 규칙) */
+function _dnPubFavs(dd){ dd=dd||{}; var vp=String(dd.venuePick||'').trim(), ok=!!(vp && DN_PLACEHOLDER.indexOf(vp)===-1), nn=function(x){ return String(x||'').replace(/[\s　]+/g,'').toLowerCase(); };
+  return (Object.prototype.toString.call(dd._favs)==='[object Array]'?dd._favs:[]).filter(function(v){ return v && (v.show===true || (v.src!=='attr' && ok && nn(v.n)===nn(vp))); }); }
 function _guideSections(p){
   p=p||{}; var dd=p.diningDraft||{}, t=p.tracks||{};
   var favs=(Object.prototype.toString.call(dd._favs)==='[object Array]')?dd._favs.length:0;
   var vp=String(dd.venuePick||'').trim();
   /* ★[B2_MA_14 2026-11-06 2차 B2-마14] 상태는 «하객에게 실제로 공개되는 장소»로 센다 — 서버(80_production handleGuideView)와 같은 규칙:
      예약할 곳(대표) · «하객 안내에 표시»를 켠 식당 · 가볼 곳. 대표 없이 비공개 후보만 담아도 ✓ 가 뜨던 것 */
-  var _vpOk=!!(vp && DN_PLACEHOLDER.indexOf(vp)===-1), _nnD=function(x){ return String(x||'').replace(/[\s　]+/g,'').toLowerCase(); };
-  var _pubN=(favs?dd._favs:[]).filter(function(v){ return v && (v.show===true || (v.src!=='attr' && _vpOk && _nnD(v.n)===_nnD(vp))); }).length;
+  var _vpOk=!!(vp && DN_PLACEHOLDER.indexOf(vp)===-1);
+  var _pubN=_dnPubFavs(dd).length;   // [DN_CONF_PUB_1106] 확인서(M11)와 같은 판정 한 곳
   var dining=String(dd.dining_on||'')!=='N' && (_pubN>0 || _vpOk);
   var dnHidden=String(dd.dining_on||'')!=='N' && !dining && favs>0;   // 비공개 후보만
   var seatNames=false; try{ seatNames=((p.seatDraft||{}).tables||[]).some(function(t){ return ((t&&t.seats)||[]).some(function(s){ return String(s||'').trim(); }); }); }catch(e){}
@@ -10270,9 +10306,9 @@ function guideHubHtml(p, inv){
   return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
     : '<div class="cc-note" style="text-align:left;margin:0 0 4px"><span class="ln-bal">하객 안내에서 사진을 올릴 수 있어요.</span><span class="ln-bal">식사와 좌석은 준비한 내용만 보여요.</span></div>';   // [B2_MA_02 2026-11-06 2차 B2-마02] 링크는 식사 · 좌석과 상관없이 모든 예식에 발급된다(서버 _guideTokenEnsure_) — 옛 «채워 완료하면 만들어져요» 조건 문구를 걷었다   // [DOT_SPLIT_0926] 360 · 390 «· 준비된 내용만…» 줄 머리 점 → 마침표 두 덩어리
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
-// 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
-//   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
-var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b> 중 하나라도 내용을 채워 완료하면';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 완성 화면 320 «…애프터 웨딩(식사)· / 좌석 배치…» 줄 끝 점 — «·» 양옆 U+2060([SIGN_DEP_TRUE] 선례)
+// ★[B2_FIX_MA_02 2026-11-06 재검증 재수정] 하객 안내 생성 조건 상수(GUIDE_MAKE_COND · «…중 하나라도 내용을 채워 완료하면»)는 걷었다 — 서버가 제작 단계의 모든 예식에 링크를 발급한다(_guideTokenEnsure_).
+//   완성 화면 힌트(guideHint)와 패널(guideHubHtml)은 같은 글(«하객 안내에서 사진을 올릴 수 있어요. 식사와 좌석은 준비한 내용만 보여요.»). 옛 조건 문구를 되살리지 말 것.
+//   (아래 [COND_PAREN_GLUE] · [DOT_SPLIT_0926] 은 그 상수의 줄바꿈 기록)
 /* [COND_PAREN_GLUE] 2026-09-26 G4 검토 · 점을 붙이자 덩어리가 커져 줄이 괄호 앞에서 갈렸다 — 하객 안내 패널(링크 없음) 320~330 «안내 링크는 애프터 웨딩 / (식사)·좌석 배치…»로
    풀이 «(식사)»가 앞말과 떨어져 줄 머리에 섰다(한글 뒤 여는 괄호는 줄바꿈 자리다). «웨딩»과 «(» 사이도 U+2060 · «애프터 웨딩»은 한 낱말(NBSP · _guideNoteHtml 과 같은 규칙).
    320~430 · 768 · 1280 두 자리(패널 · 완성 화면 힌트) 괄호 머리 · 매달린 점 · «애프터 / 웨딩» 0 */
@@ -10917,7 +10953,8 @@ function renderPhoto(box){
        그러면 링크를 아는 누구나 하객 사진을 보게 된다. 전달은 결과물 인도 때 함께 한다(문구와 같은 약속).
      ★0장이면 아무 말도 하지 않는다 — 예식 전에 '0장'을 보여 주면 고장으로 읽힌다. */
   var _gp=null; try{ _gp=((window._mpStateD||{}).production||{}).guestPhoto||null; }catch(e){}
-  if(_gp && (_gp.n||0)>0) h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">지금까지 <b>'+(_gp.n|0)+'장</b>이 도착했어요'+(_gp.at?' · 마지막 '+escapeHtml(String(_gp.at).slice(5,16)):'')+'.</div>';
+  if(_gp && _gp.recounting) h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">사진 수를 확인하고 있어요.</div>';   // [B2_FIX_MA_82 2026-11-06 재검증 재수정] 서버가 장수를 다시 맞추는 중일 때만 — 옛 장수를 «지금까지 N장»으로 말하지 않는다
+  else if(_gp && (_gp.n||0)>0) h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">지금까지 <b>'+(_gp.n|0)+'장</b>이 도착했어요'+(_gp.at?' · 마지막 '+escapeHtml(String(_gp.at).slice(5,16)):'')+'.</div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:6px">'+(_psu?'하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요':'하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요')+'. QR은 테이블 카드용이에요.</div>';   // [PHOTO_LINK_FOLD] 링크가 있으면 버튼이 어디로 가는지를 말한다(guide.html photoShareHtml) · [PH_DOT_SPLIT] « · »를 마침표로(320 «이어져요 · / QR은»)
   /* [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다 — 부부가 엉뚱한 것을 넣고도 모르는 일이 없게. */
   var _sk=photoShareKind(_psu);
@@ -11231,7 +11268,7 @@ function _snapDue(p){
   /* ★[SNAP_EDIT_UNTIL 2026-09-27 고객 점검] 고칠 수 있는 마지막 날 = 예식 4일 전(서버 [SNAP_LOCK] 은 «예식 3일 전부터» 잠근다 · lockDays 3).
        종전 «예식 3일 전까지는 언제든 고칠 수 있어요»(⑤ 요약) · «예식 3일 전까지 고르실 수 있어요»(지금 할 일)는 «까지»가 그날을 넣어 읽혀,
        같은 화면의 «예식 3일 전부터는 고칠 수 없어요»와 그날 하루가 어긋났다. 날짜로 말한다 — 되돌리지 말 것. */
-  return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), edit:(eu.getUTCMonth()+1)+'월 '+eu.getUTCDate()+'일', editDow:'일월화수목금토'.charAt(eu.getUTCDay()), late:days<=14, lock:days<=3 };
+  return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), edit:(eu.getUTCMonth()+1)+'월 '+eu.getUTCDate()+'일', editDow:'일월화수목금토'.charAt(eu.getUTCDay()), late:days<14, today:days===14, lock:days<=3 };   // ★[SNAP_DUE_TODAY_1106 4차 M10] 마감 당일(D-14)은 «지났어요»가 아니라 «오늘까지» · 지남은 D-13부터
 }
 /* [SNAP_CARD_AFTER] opt.step — 낸 뒤 «수정»은 ⑤ 요약 걸음으로 연다 · opt.ro — 잠긴 뒤 «낸 내용 보기»(⑤ 요약만 · 읽기 전용) */
 function startSnapFlow(sd, p, needAgree, opt){
@@ -11429,7 +11466,7 @@ function _spWhen(D, R, due){
     +'</ul>';
   /* [SNAP_DESIGN_0926] 마감 줄 — 배경 칠한 안내 상자 → 작은 라벨 + 한 줄([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지» · 디자인 점검) */
   var _had=_snapFilledD(((SNAPFLOW.p||{}).snapDraft)||{});   // [SNAP_WORD_SCENE] 늦은 날 — 아직 안 낸 사람에게는 «고르셔도»(카드와 같은 말) · 낸 사람에게는 «고치셔도»
-  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.late?('예식 14일 전이 지났어요. 지금 '+(_had?'고치셔도':'고르셔도')+' 디렉터에게 바로 전해져요.'):('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
+  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.today?(_had?'오늘이 마감이에요. 고치셔도 디렉터에게 바로 전해져요.':'오늘까지 골라 주세요. 디렉터가 확인해 사진작가에게 전해요.'):due.late?('예식 14일 전이 지났어요. 지금 '+(_had?'고치셔도':'고르셔도')+' 디렉터에게 바로 전해져요.'):('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
   return h;
 }
 function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||[]).some(function(e){ return !!R.exImg(e); }); }); }   // [SNAP_PHOTO_FIRST] 예시 사진이 한 장이라도 오면 그 공간은 사진 칸   // [SNAP_NOIMG_LIST] 사진이 한 장이라도 들어온 공간 = 칸 · 없으면 목록
@@ -11780,6 +11817,15 @@ function _snapAgreeOk(){   // [SNAP_CONSENT] 체크 줄이 없으면(이미 동�
    ★예시 영상(PVC_EX)이 비어 있으면 «예시 영상을 만들고 있어요» — 그림 포스터를 «같은 사진으로 만든 예시»라 부르지 않는다.
      곡 미리듣기(PVC_SONG_PREV)도 같다 — 열기 전에는 ▶ 가 흐리고 누르면 아래 알림 한 줄([AI_PLAY_READY] 와 같은 결). */
 var PVC_ON=true;   // [PV_CAT_1031] 기능 스위치 · 사장님 «켜도 상관없어» — false 면 줄도 화면도 안 보인다
+/* ★★[MID_VIDEO_1106 2026-11-06 사장님 «식중 영상은 선택으로» · 대본 체크리스트 7] 식중 영상 = 식순 «준비한 순서 · 영상» 자리(성혼 선언 · 덕담 뒤 · 축가 앞) · 새 칸 · 새 녹음 없음
+   · 켜고 끄는 원천은 식순 초안 하나(S.on.free + S.freeWhat 'video') — 마이페이지 단추는 식순 화면의 그 칸을 연다(개수 · 시간 · 축사 택1 계산을 한 곳에서 · 마이페이지가 식순을 따로 쓰지 않는다)
+   · 링크 · 상태 · 기한 · 확인 · 확정은 식전 영상 흐름(PVCFLOW)을 kind 'mid' 로 그대로 쓴다 · 서버 89_prevideo «개인코드#mid» 줄 · production.midvideo
+   · 제작 비용은 두 분 부담(쿠폰 · 기본 템플릿은 식전 영상 1편에만) · 기한 예식 7일 전 23:59 · 기한까지 확정하지 않으면 영상 없이 진행 */
+var MVC_ON=true;   // [MID_VIDEO_1106] 기능 스위치 — 서버가 midvideo 를 보내지 않으면(옛 GAS) 어차피 줄이 안 보인다
+function _mvcOn(p){ var S=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)||null; if(!S) return null; return !!(S.on&&S.on.free)&&String(S.freeWhat||'')==='video'; }   // [MID_VIDEO_1106] null = 식순 아직 없음
+function _mvcLen(p){ var S=(p&&p.ritualDraft&&p.ritualDraft.S)||{}, n=parseInt(S.freeLen,10); return (n>=1&&n<=10)?n:3; }
+function _pvcNm(){ return PVCFLOW.kind==='mid'?'식중 영상':'식전 영상'; }
+function _pvcKey(){ return PVCFLOW.kind==='mid'?'midvideo':'prevideo'; }
 var PVC_STYLES=[   // 89_prevideo PV_STYLES 와 같은 순서 · 같은 열쇠
   {k:'editorial', n:'에디토리얼', d:'화보집처럼 여백과 사진 패널'},
   {k:'cinematic', n:'시네마틱', d:'영화 예고편 같은 검은 화면과 크레딧'},
@@ -11804,7 +11850,7 @@ var PVC_SECS=[   // 89_prevideo PV_UP.first · days · today 와 같은 수
   {k:'first', n:'처음', max:4, d:'어린 시절 · 최대 4장 · 선택 · 없으면 비워도 돼요'},
   {k:'days', n:'우리의 날들', max:10, d:'최대 10장'},
   {k:'today', n:'오늘', max:6, d:'최대 6장 · 웨딩 사진이나 최근 두 분 사진'}];
-var PVC_STEPS=['스타일','사진','음악','확인'];
+var PVC_STEPS=['분위기','사진','음악','확인'];   // ★[PVC_MOOD_WORD_1106 4차 M13] 같은 고르기를 단계표 · 제목 · 단추 · 오류가 모두 «분위기»로(종전 단계표 · 단추만 «스타일») · 저장 키(style)는 그대로
 var PVC_EX={};   // 예시 영상 주소 — {sample:'…', editorial:'…', …} · 비어 있으면 «예시 영상을 만들고 있어요»
 var PVC_SONG_PREV=false;   // 곡 미리듣기(영상에 들어갈 구간) — 사용 허락 · 구간 파일이 준비되면 켠다
 var PVC_CAPS=[['표지','A day to remember. A life to share.'],['처음','서로를 알기 전의 우리 · 각자의 작은 시작'],['우리의 날들','그리고, 당신을 만났습니다 · 평범해서 더 소중했던 날들 · 늘 곁에 있던 마음 · 함께 지나온 계절'],['오늘','그리고 오늘, · 이제, 같은 내일로'],['크레딧','오늘 함께해 주신 여러분 · Our story begins now']];   // 기획서 10장 «기본 문구 세트»
@@ -11826,32 +11872,47 @@ function _pvcRow(v){
   var urgent=function(){ if(left==null || left>14) return null; return left<0?'기한 지남':(left===0?'오늘까지':(_pvcMd(v.due)+'까지')); };
   var clash=_pvcClash(st, v.conf);   // [PV_STATE_1106 M06] 식순과 확실히 부딪히면 꼬리표로
   if(st==='done') return {done:true, st:'완료', label:'완료 · 수정', tag:clash?'식순 확인':null};
-  if(st==='editing') return {done:true, st:'완료', label:'이어하기', tag:clash?'식순 확인':'수정 중'};
+  if(st==='editing') return {done:true, st:'완료', label:(d.mode==='make'?'다시 정하기':'이어하기'), tag:clash?'식순 확인':(d.mode==='make'?null:'수정 중')};   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 확정본을 고치던 중 — 확정본은 그대로 · 방법부터 다시
   if(st==='off') return {done:true, st:'', label:'다시 정하기', tag:clash?'식순 확인':'안 함'};
   if(st==='making') return {done:false, st:'', label:'보기', tag:'만드는 중'};
   if(st==='checking') return {done:false, st:'', label:'보기', tag:'스튜디오 확인 중'};
   if(st==='review') return {done:false, st:'', label:'영상 확인', tag:'확인 필요'};
-  if(st==='draft' && d.mode) return {done:false, st:'', label:'이어하기', tag:urgent()||(d.mode==='make'?(PVC_STEPS[Math.min(d.step,2)]+' 단계'):null)};
+  if(st==='draft' && d.mode==='make') return {done:false, st:'', label:'시작하기', tag:urgent()};   /* ★[PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 — «이어하기 · 사진 단계»로 접은 길에 다시 들이지 않는다(첫 화면에서 방법을 다시 고른다) */
+  if(st==='draft' && d.mode) return {done:false, st:'', label:'이어하기', tag:urgent()};
   return {done:false, st:'', label:'시작하기', tag:urgent()};
+}
+/* [MID_VIDEO_1106] 예식 준비 줄 «식중 영상» — 식순에 없으면 «넣기 · 선택»(할 일 아님) · 켜면 식전 영상 올리기 줄과 같은 말 */
+function _mvcRow(v, on){
+  v=v||{}; var st=String(v.st||''), left=null; try{ left=v.due?_kstDdayOf(v.due):null; }catch(e){}
+  if(on!==true) return (['done','editing','checking','review'].indexOf(st)>-1)?{done:true, st:'', label:'보기', tag:'식순 확인'}:((left!=null&&left<0)?{done:true, st:'', label:'보기', tag:'기한 지남'}:{done:true, st:'', label:'넣기', tag:'선택'});   // [MID_VIDEO_1106 · 재검토 1604] 기한이 지났으면 «넣기»를 권하지 않는다(누르면 기한 지남 화면)   // [MID_VIDEO_1106 · 검토 1604-3] 보낸 · 확정한 뒤 식순에서 빼면 «식순 확인»(«넣기»로 덮지 않는다)
+  if(st==='done') return {done:true, st:'완료', label:'완료 · 수정', tag:null};
+  if(st==='editing') return {done:true, st:'완료', label:'이어하기', tag:'수정 중'};
+  if(st==='checking') return {done:false, st:'', label:'보기', tag:'스튜디오 확인 중'};
+  if(st==='review') return {done:false, st:'', label:'영상 확인', tag:'확인 필요'};
+  if(left!=null && left<0) return {done:true, st:'', label:'보기', tag:'영상 없이 진행'};
+  return {done:false, st:'', label:(st==='draft'&&v.d&&v.d.link)?'이어하기':'올리기', tag:(left==null||left>14)?null:(left===0?'오늘까지':(_pvcMd(v.due)+'까지'))};
 }
 function _pvcScrOf(F){
   var st=F.st, d=F.d;
+  if(F.kind==='mid'){ if(st==='checking') return 'sent'; if(st==='review'||st==='done') return 'confirm'; if(F.past) return 'locked'; if(F.on===true && (st==='draft'||st==='editing') && d.link) return 'upload'; return 'start'; }   // [MID_VIDEO_1106] 링크뿐 · 식순에 없으면 첫 화면(넣기)
   if(st==='making') return 'making';
   if(st==='checking') return 'sent';
   if(st==='review' || st==='done') return 'confirm';
   if(F.past) return 'locked';
   if(d.mode==='upload' && (st==='draft'||st==='editing')) return 'upload';
-  if(d.mode==='make' && (st==='draft'||st==='editing')) return ['style','photos','music','music'][d.step]||'style';
+  if(d.mode==='make' && (st==='draft'||st==='editing')) return 'start';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 초안 · 고치던 확정본 → 첫 화면(필메이커 · 준비한 영상) · 보낸 요청(만드는 중 · 확인)은 그대로
   return 'start';
 }
 function startPvcFlow(v){
   v=v||{};
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false; bkKill(PHOTOFLOW); PHOTOFLOW.active=false;
   var left=null; try{ left=v.due?_kstDdayOf(v.due):null; }catch(e){}
-  PVCFLOW={ active:true, d:_pvcNewD(v.d), st:String(v.st||''), consent:!!v.consent, prev:v.prev||null, conf:v.conf||null, due:String(v.due||''), wed:String(v.wed||''), past:(left!=null && left<0), sheet:'', more:false, scr:'', rev:(v.rev==null?null:(+v.rev||0)) };   // [B2_MA_07] 이 기기가 아는 판
+  PVCFLOW={ active:true, d:_pvcNewD(v.d), st:String(v.st||''), consent:!!v.consent, prev:v.prev||null, conf:v.conf||null, due:String(v.due||''), wed:String(v.wed||''), past:(left!=null && left<0), sheet:'', more:false, scr:'', rev:(v.rev==null?null:(+v.rev||0)) };
+  PVCFLOW.kind=(v.kind==='mid')?'mid':'pre';   // [MID_VIDEO_1106]
+  if(PVCFLOW.kind==='mid'){ PVCFLOW.d.mode='upload'; var _lp=window._lastProd||{}; PVCFLOW.on=_mvcOn(_lp); PVCFLOW.len=_mvcLen(_lp); }   // [B2_MA_07] 이 기기가 아는 판
   PVCFLOW.scr=_pvcScrOf(PVCFLOW);
   var old=$('mp_pvcOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
-  var ov=document.createElement('div'); ov.id='mp_pvcOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','식전 영상');
+  var ov=document.createElement('div'); ov.id='mp_pvcOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label',_pvcNm());   // [MID_VIDEO_1106]
   ov.style.cssText='position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease';
   var body=document.createElement('div'); body.id='mp_pvcBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:20px 16px 24px';
   var inner=document.createElement('div'); inner.id='mp_pvcInner'; inner.style.cssText='max-width:620px;margin:0 auto -24px;width:100%;flex:1 0 auto;display:flex;flex-direction:column';   // [WZ_PIN] 스냅 기획과 같은 틀 — 머리는 위 · 막대는 화면 아래
@@ -11879,14 +11940,17 @@ function _pvcApply(v){ if(!v||!PVCFLOW.active) return; if(v.rev!=null) PVCFLOW.r
    늦게 끝난 옛 저장이 보낸 상태를 되돌릴 수 있었다. 본문은 «보낼 차례가 왔을 때»의 최신 초안으로 만든다(보내기는 최신 내용을 한 번만) · 이 기기가 아는 판(rev)을 함께 보내 서버도 옛 저장을 버린다 */
 function _pvcSave(op, extra){
   var F=PVCFLOW;
-  var send=function(){ var body={action:'pvSave', token:getToken(), op:op||'save', draft:_pvcOut(F.d), rev:(F.rev==null?null:F.rev)};
+  var send=function(){ var body={action:'pvSave', token:getToken(), op:op||'save', draft:_pvcOut(F.d), rev:(F.rev==null?null:F.rev)}; if(F.kind==='mid') body.kind='mid';   // [MID_VIDEO_1106]
     if(extra){ for(var k in extra){ if(Object.prototype.hasOwnProperty.call(extra,k)) body[k]=extra[k]; } }
-    return _post(body, 30000).then(function(r){ if(r&&r.pv){ _pvcApply(r.pv); try{ if(window._lastProd) window._lastProd.prevideo=r.pv; }catch(e){} } if(r&&r.locked) F.past=true; return r; }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); }); };   // [PV_STATE_1106 M16] locked = 기한 지남 — 일시 오류와 달리 다시 보내지 않는다
+    return _post(body, 30000).then(function(r){ if(r&&r.pv){ _pvcApply(r.pv); try{ if(window._lastProd) window._lastProd[_pvcKey()]=r.pv; }catch(e){} } if(r&&r.ok&&_pvcAdopt(r.added)&&F.active&&F.scr==='photos') renderPvc(); if(r&&r.locked) F.past=true; return r; }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); }); };   // [B2_FIX_MA_59] 서버가 남긴 다른 기기 사진을 받아 그린다   // [PV_STATE_1106 M16] locked = 기한 지남 — 일시 오류와 달리 다시 보내지 않는다
   F._qN=(F._qN||0)+1;
   var pr=(F._q||Promise.resolve()).then(send, send);
   F._q=pr.then(function(){ F._qN--; }, function(){ F._qN--; });
   return _wizWatch('pvc', pr);   // 어느 길로 보낸 저장이든 머리 알약이 «저장 중… · 저장됨 · 다시 저장»을 말한다
 }
+/* [B2_FIX_MA_59 2026-11-06 재검증 재수정] 이 기기가 모르던 다른 기기 사진(서버 added)을 목록에 더한다 — 판(F.rev)만 앞서고 사진이 빠진 채면 다음 저장이 그 사진을 «본 뒤 뺀 것»으로 지웠다 */
+function _pvcAdopt(list){ var F=PVCFLOW; if(!Array.isArray(list)||!list.length||!F.d) return false; var have={}, n=0; (F.d.photos||[]).forEach(function(p){ have[String(p.id)]=1; });
+  list.forEach(function(p){ if(p&&p.id&&!have[String(p.id)]){ have[String(p.id)]=1; F.d.photos.push({ id:String(p.id), th:String(p.th||''), sec:String(p.sec||''), n:String(p.n||'') }); n++; } }); return n>0; }
 function _pvcCollect(){ var F=PVCFLOW; if(!F.active) return; var l=$('mp_pvcLink'); if(l) F.d.link=String(l.value||'').trim(); var m=$('mp_pvcMet'); if(m) F.d.met=String(m.value||''); }
 function _pvcGo(scr, step){
   var F=PVCFLOW; _pvcCollect();
@@ -11919,7 +11983,7 @@ function _pvcLateClose(){   // [PV_STATE_1106 M16] «내용 확인하고 닫기�
     .then(function(){ _pvcTearDown(); _mpRefresh(); });   // [PV_STATE_1106 M16] 표 원문 단추 하나
 }
 /* 머리 · 진행 표시 · 아래 막대 — 다른 입력 화면과 같은 한 벌([WZ_BAR] · [WZ_STEPS]) */
-function _pvcHead(){ return '<div class="inv-head"><span class="inv-step-n">식전 영상</span>'+wizActs()+'</div>'; }
+function _pvcHead(){ return '<div class="inv-head"><span class="inv-step-n">'+_pvcNm()+'</span>'+wizActs()+'</div>'; }   // [MID_VIDEO_1106]
 function _pvcSteps(cur){ var F=PVCFLOW, free=(F.st==='draft'||F.st==='editing');   // 보낸 뒤(만드는 중 · 확인 필요 · 확정)에는 걸음을 눌러 건너뛰지 않는다 — «이전» · «고치기»로만
   if(F.d.mode==='upload') return wzSteps(['영상 보내기','확인'], cur);
   return wzSteps(PVC_STEPS, cur, free?'data-pvcstep':''); }
@@ -11932,7 +11996,8 @@ function _pvcDueLine(extra){ var t=_pvcDueTxt(PVCFLOW.due); return t?('확정 �
    식순 초안(p.ritualDraft · _v 3 · S.on)은 마이페이지가 이미 받은 판으로만 읽는다 — 없으면 null(«모름» · 경고 · 화촉 줄을 지어내지 않는다).
    영상 상태와 식순 포함은 따로 저장된다(D04 결정 대기) — 둘이 확실히 부딪힐 때만 한 줄로 알린다 · 자동으로 넣거나 빼지 않는다. */
 function _pvcRitOn(k){ try{ var rd=(window._lastProd||{}).ritualDraft, S=(rd&&rd._v===3&&rd.S)?rd.S:null; if(!S||!S.on) return null; return !!S.on[k]; }catch(e){ return null; } }
-function _pvcClash(st, conf){ var on=_pvcRitOn('prevideo'); if(on===null) return '';
+function _pvcClash(st, conf){ if(PVCFLOW.kind==='mid'){ return (PVCFLOW.on===false && (st==='done'||st==='review'||st==='checking'||(st==='editing'&&conf)))?'식순에서 «준비한 순서 · 영상»을 빼셔서 이 영상은 틀지 않아요. 「식순」에서 확인해 주세요.':''; }   // [MID_VIDEO_1106] 식순이 켜고 끈다
+  var on=_pvcRitOn('prevideo'); if(on===null) return '';
   if((st==='done'||(st==='editing'&&conf)) && !on) return '영상은 확정됐지만 식순에는 빠져 있어요. 「식순」에서 확인해 주세요.';   /* [PV_VERIFY_1106 M06] 표 원문 「식순」(화면 이름은 「」 · CF 와 같은 꼴) */
   if(st==='off' && on) return '식순에는 영상이 있지만, 영상은 «사용하지 않기»로 정하셨어요. 두 화면을 확인해 주세요.';
   return ''; }
@@ -11942,7 +12007,7 @@ function _pvcPastNow(){ var l=null; try{ l=PVCFLOW.due?_kstDdayOf(PVCFLOW.due):n
 var PVC_LOCK_MSG='확정 기한이 지났어요 · 이번 수정은 저장되지 않았어요 · 변경할 내용은 디렉터에게 말씀해 주세요';
 function _pvcLockHit(){ var F=PVCFLOW; F.past=true; try{ _wizStart('pvc'); _wizPaintSoon(); }catch(e){} _pvcErr(PVC_LOCK_MSG); }
 /* 다시 보내는 동안에도 확정본이 산다 — 그 사실과 확정본 보기(서버 conf.url)를 한 줄로 */
-function _pvcOldLine(){ var c=PVCFLOW.conf; if(!c || PVCFLOW.st==='done') return '';
+function _pvcOldLine(){ var c=PVCFLOW.conf; if(!c || PVCFLOW.st==='done') return ''; if(PVCFLOW.kind==='mid' && PVCFLOW.on!==true) return '';   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 «기존 확정본으로 진행해요»를 말하지 않는다
   return '새 영상을 다시 확정하기 전까지 기존 확정본으로 진행해요.'+(c.url?' <a class="pvc-a" href="'+escapeHtml(c.url)+'" target="_blank" rel="noopener">확정본 보기</a>':''); }
 /* 포스터 그림 — 화면 안의 작은 화면이라 글자 램프를 받지 않는다(mock-) */
 function _pvcPoster(k){
@@ -11955,7 +12020,7 @@ function _pvcPoster(k){
 function renderPvc(){
   var inner=$('mp_pvcInner'), F=PVCFLOW; if(!inner||!F.active) return;
   var s=F.scr||'start', h='<div class="consult-card pvc-card">'+_pvcHead();
-  if(s==='start') h+=_pvcStart();
+  if(s==='start') h+=(F.kind==='mid'?_mvcStart():_pvcStart());   // [MID_VIDEO_1106]
   else if(s==='locked') h+=_pvcLocked();
   else if(s==='style') h+=_pvcSteps(0)+_pvcStyle();
   else if(s==='photos') h+=_pvcSteps(1)+_pvcPhotos();
@@ -11987,14 +12052,37 @@ function _pvcStart(){
   h+='<div class="pvc-opts">'+(PVC_FEEL_ON?'<button type="button" class="pvc-opt" data-pvcgo="feel"><b>필메이커에서 만들기</b><span>템플릿을 골라 직접 만들기 · 쿠폰으로 무료</span></button>':'')
     +'<button type="button" class="pvc-opt" data-pvcmode="upload"><b>준비한 영상 올리기</b><span>업체나 직접 만든 영상 · 링크로 보내기</span></button></div>';
   h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-pvcop="later">나중에 준비하기</button><button type="button" class="pvc-lk" data-pvcop="off">사용하지 않기</button></div>';
-  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots([PVC_FEEL_ON?'템플릿 비용 포함 · 추가 옵션 별도':'', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
+  h+='<div class="pvc-foot">'+_pvcNeed(_pvcMakeGone())+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots([PVC_FEEL_ON?'템플릿 비용 포함 · 추가 옵션 별도':'', _pvcConfLine(), _pvcDueLine(_pvcConfLine()?'':'기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
   return h;
 }
+/* [MID_VIDEO_1106] 식중 영상 첫 화면 — 식순에 없으면 «식순에서 넣기» 하나 · 켜져 있으면 «준비한 영상 올리기» + «식순에서 빼기»(둘 다 식순 화면의 «준비한 순서» 칸을 연다) */
+function _mvcStart(){
+  var F=PVCFLOW, on=F.on===true, h='';
+  h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「준비한 순서」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p>';
+  if(on){
+    h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>';
+    h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['업체나 직접 만든 영상을 링크로 보내 주세요', '식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요', '제작 비용은 두 분 부담이에요 · 쿠폰 · 기본 템플릿은 식전 영상에만', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';
+    h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'));   // [MID_VIDEO_1106 · 검토 1604] 꺼짐 · 켜짐 같은 틀(아래 막대 단추 하나)
+    return h;
+  }
+  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['식순 화면 「준비한 순서」에서 «영상»을 고르면 켜져요.', '넣지 않으면 식순은 그대로예요.', '축사와 같은 칸이라 둘 중 하나만 고를 수 있어요.', '제작 비용은 두 분 부담이에요 · 쿠폰 · 기본 템플릿은 식전 영상에만', _pvcDueLine('')])+'</div>';
+  h+=_pvcBar('', _pvcBtn('식순에서 넣기','data-mvcrit'));
+  return h;
+}
+function _mvcToRitual(){   // [MID_VIDEO_1106] 식순 화면의 «준비한 순서» 칸을 연다(at:'midvideo' · 빌더가 그 칸으로 데려간다)
+  _pvcCollect(); _pvcTearDown();
+  try{ var st=window._mpStateD||{}; openRitualBuilder(window._lastProd||st.production||{}, st.invitation||null, {at:'midvideo'}); }catch(e){ _mpRefresh(); }
+}
+function _pvcConfLine(){ var F=PVCFLOW, c=F.conf; if(!c || F.st==='off') return ''; if(F.kind==='mid' && F.on!==true) return '';   // [PN07_MAKE_RESUME · 검토 1609-1] 확정본이 있으면 첫 화면 · 올리기 화면에서도 «기존 확정본으로 진행»(확정 상태에서 와도) · «영상 없이»를 말하지 않는다
+  return '새 영상을 다시 확정하기 전까지 기존 확정본으로 진행해요.'+(c.url?' <a class="pvc-a" href="'+escapeHtml(c.url)+'" target="_blank" rel="noopener">확정본 보기</a>':''); }
+function _pvcMakeGone(){ var F=PVCFLOW; if(!(F.d&&F.d.mode==='make'&&(F.st==='draft'||F.st==='editing'))) return '';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기»로 시작한 분께 한 줄
+  return '사진으로 만들기는 이제 준비하지 않아요 · '+(PVC_FEEL_ON?'필메이커에서 만들거나 준비한 영상을 올려\u00a0주세요':'준비한 영상을 올려\u00a0주세요'); }   // 360 에서 «주세요» 한 낱말만 떨어지지 않게
 function _pvcLocked(){
   var F=PVCFLOW, h='<h2 class="pvc-h">확정 기한이 지났어요</h2><p class="pvc-sub">바꾸실 것은 디렉터에게 말씀해 주세요.</p>';
-  if(F.st==='off') h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['식전 영상 없이 진행해요.'])+'</div>';   // [PV_STATE_1106 M08] «사용하지 않기»가 먼저 — 예전 확정본이 남아 있어도 상영한다고 말하지 않는다
+  if(F.kind==='mid' && F.on!==true) h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([_pvcNm()+' 없이 진행해요.'])+'</div>';   // [MID_VIDEO_1106 · 재검토 1604] 식순에 없으면 확정본이 있어도 «진행해요»를 말하지 않는다
+  else if(F.st==='off') h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([_pvcNm()+' 없이 진행해요.'])+'</div>';   // [PV_STATE_1106 M08] «사용하지 않기»가 먼저 — 예전 확정본이 남아 있어도 상영한다고 말하지 않는다
   else if(F.conf) h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['확정한 영상으로 진행해요.'+(F.conf.url?' <a class="pvc-a" href="'+escapeHtml(F.conf.url)+'" target="_blank" rel="noopener">확정본 보기</a>':'')])+'</div>';
-  else h+='<div class="pvc-foot">'+_pvcDots(['식전 영상 없이 진행해요.'])+'</div>';
+  else h+='<div class="pvc-foot">'+_pvcDots([_pvcNm()+' 없이 진행해요.'])+'</div>';   // [MID_VIDEO_1106] 식중도 같은 말
   h+=_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl'));
   return h;
 }
@@ -12005,7 +12093,7 @@ function _pvcStyle(){
     h+='<button type="button" class="pvc-sty'+(on?' on':'')+'" data-pvcsty="'+x.k+'" aria-label="'+escapeHtml(x.n)+(on?' · 고름':'')+'"><span class="pvc-pos">'+_pvcPoster(x.k)+(on?'<span class="pvc-badge">고름</span>':'')+'</span><span class="pvc-nm">'+escapeHtml(x.n)+'</span><span class="pvc-ds">'+escapeHtml(x.d)+'</span></button>'; });
   h+='</div>';
   h+='<div class="pvc-foot">'+_pvcDots([_pvcDueLine('')])+'</div>';   // [PV_STATE_1106 M09] 고치는 화면에도 같은 자리 · 같은 기한 줄
-  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), F.d.style?_pvcBtn('사진 넣기','data-pvcgo="photos"'):_pvcBtn('스타일을 골라 주세요','data-pvcgo="photos" aria-disabled="true"','off'));
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), F.d.style?_pvcBtn('사진 넣기','data-pvcgo="photos"'):_pvcBtn('분위기를 골라 주세요','data-pvcgo="photos" aria-disabled="true"','off'));
   return h;
 }
 function _pvcSheet(k){
@@ -12016,13 +12104,14 @@ function _pvcSheet(k){
     +'<div class="pvc-sh-h"><b>'+escapeHtml(x.n)+'</b><button type="button" class="pvc-x" data-pvcclose aria-label="닫기">✕</button></div>'
     +(ex?'<div class="pvc-player"><video src="'+escapeHtml(ex)+'" controls playsinline preload="metadata"></video></div>':'<div class="pvc-poster pvc-big" aria-hidden="true">'+_pvcPoster(k)+'<span class="pvc-cap">예시 영상을 만들고 있어요</span></div>')
     +'<p class="pvc-sub">'+escapeHtml(x.d)+' · 음악은 뒤에서 따로 골라요</p>'
-    +'<div class="pvc-sh-b">'+(on?_pvcBtn('고른 스타일이에요','data-pvcclose','ghost'):_pvcBtn('이 스타일로','data-pvcpick="'+k+'"'))+'</div></div>';
+    +'<div class="pvc-sh-b">'+(on?_pvcBtn('고른 분위기예요','data-pvcclose','ghost'):_pvcBtn('이 분위기로','data-pvcpick="'+k+'"'))+'</div></div>';
 }
 /* 고치기 — 무엇을 고칠지 판 하나(스타일 · 사진 · 음악) · 시안 «확인» 화면의 «고치기» */
+/* [PN07_MAKE_RESUME 2026-11-06] 고치기 판 — 사진으로 만들기 확정본은 이제 «다른 영상으로 다시 보내기»(첫 화면)로 가서 이 판은 방법이 정해지지 않은 옛 초안에만 남는다 · 사진 · 음악 걸음을 다시 열지 않는다 */
 function _pvcFixSheet(){
   return '<div class="pvc-scrim" data-pvcclose></div><div class="pvc-sheet" role="dialog" aria-modal="true" aria-label="무엇을 고칠까요">'
     +'<div class="pvc-sh-h"><b>무엇을 고칠까요?</b><button type="button" class="pvc-x" data-pvcclose aria-label="닫기">✕</button></div>'
-    +'<div class="pvc-fixl"><button type="button" class="pvc-opt" data-pvcfixto="style"><b>스타일</b></button><button type="button" class="pvc-opt" data-pvcfixto="photos"><b>사진 · 처음 만난 날</b></button><button type="button" class="pvc-opt" data-pvcfixto="music"><b>음악</b></button></div>'
+    +'<div class="pvc-fixl"><button type="button" class="pvc-opt" data-pvcfixto="style"><b>분위기</b></button><button type="button" class="pvc-opt" data-pvcfixto="photos"><b>사진 · 처음 만난 날</b></button><button type="button" class="pvc-opt" data-pvcfixto="music"><b>음악</b></button></div>'
     +(PVCFLOW.conf?_pvcDots(['새 영상을 다시 확정하기 전까지 기존 확정본으로 진행해요.']):'')+'</div>';
 }
 function _pvcPhotos(){
@@ -12065,7 +12154,7 @@ function _pvcMaking(){
   h+='<p class="pvc-summ">'+_pvcSum()+'</p>';
   h+=_pvcRecheckBtn();
   h+='<div class="pvc-foot">'+_pvcDots([_pvcOldLine(), _pvcDueLine('')])+'</div>';
-  h+=_pvcBar(PVCFLOW.past?'':_pvcBtn('이전','data-pvcgo="music" data-pvcstep2="2"','ghost'), _pvcBtn('마이페이지로','data-pvcclosefl'));
+  h+=_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl'));   // [PN07_MAKE_RESUME · 검토 1609-2] 만드는 중(사진으로 만들기 요청)에서 «이전»으로 접은 걸음(음악)에 다시 들어가 새 요청을 보내지 않게
   return h;
 }
 function _pvcFlowDots(){   // [B2_MA_93 2026-11-06 2차 B2-마93] 식순 화면이 부르는 이름으로(여는 멘트 · 식전 영상 소개 · 영상이 끝나면 · 앞 묶음 문구가 이김) · [PV_STATE_1106 M04] 식순에 화촉을 담았으면 영상 뒤 화촉 · 식순이 없으면 목록 대신 한 줄(순서를 지어내지 않는다)
@@ -12075,15 +12164,16 @@ function _pvcFlowDots(){   // [B2_MA_93 2026-11-06 2차 B2-마93] 식순 화면�
   return '<div class="pvc-flow"><p class="pvc-flow-h">예식 속 자리</p><ol class="pvc-fl'+(cd?' pvc-fl6':'')+'" role="list">'+L.map(function(t,i){ return '<li'+(i===2?' class="on" aria-current="true"':'')+'><i aria-hidden="true"></i><span>'+t+'</span></li>'; }).join('')+'</ol></div>'; }
 function _pvcConfirm(){
   var F=PVCFLOW, done=F.st==='done', up=F.d.mode==='upload', pv=F.prev, h='';
+  var _mOff=(F.kind==='mid'&&F.on!==true);   // [MID_VIDEO_1106 · 검토 1604-3] 식순에서 뺀 식중 영상 — «진행해요 · 상영해요»를 말하지 않는다
   h+='<h2 class="pvc-h">'+(done?'확정한 영상':'영상 확인하기')+'</h2>';
-  h+='<p class="pvc-sub">'+(done?'이 영상으로 진행해요.':'소리를 켜고 사진·문구·음악을 확인해 주세요. 확정하면 이 영상으로 진행해요.')+'</p>';
-  h+=(pv&&pv.url)?'<div class="pvc-player"><iframe src="'+escapeHtml(pv.url)+'" allow="autoplay; fullscreen" allowfullscreen title="식전 영상 미리보기"></iframe></div>':'<div class="pvc-poster pvc-wait"><span class="pvc-mk">영상을 불러오지 못했어요</span></div>';
+  h+='<p class="pvc-sub">'+(_mOff?'식순에 이 영상이 없어요.':(done?'이 영상으로 진행해요.':(up?'소리를 켜고 영상을 확인해 주세요. 확정하면 이 영상으로 진행해요.':'소리를 켜고 사진·문구·음악을 확인해 주세요. 확정하면 이 영상으로 진행해요.')))+'</p>';   // [MID_VIDEO_1106 · 검토 1604] 링크로 받은 영상은 «사진·문구·음악»이 아니다
+  h+=(pv&&pv.url)?'<div class="pvc-player"><iframe src="'+escapeHtml(pv.url)+'" allow="autoplay; fullscreen" allowfullscreen title="'+_pvcNm()+' 미리보기"></iframe></div>':'<div class="pvc-poster pvc-wait"><span class="pvc-mk">영상을 불러오지 못했어요</span></div>';
   h+='<p class="pvc-summ">'+_pvcSum()+'</p>';
-  if(!F.past) h+='<button type="button" class="cc-btn-ghost pvc-fix" data-pvcfix>'+(up?'다른 영상으로 다시 보내기':'고치기')+'</button>';
-  h+=_pvcFlowDots();
+  if(!F.past && !_mOff) h+='<button type="button" class="cc-btn-ghost pvc-fix" data-pvcfix>다른 영상으로 다시 보내기</button>';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 확정본도 «고치기»(사진 · 음악 걸음) 대신 방법부터 · [MID_VIDEO_1106] 식순에서 뺀 식중 영상은 다시 보내기도 없음(서버가 거절한다)
+  h+=(F.kind==='mid'?(_mOff?'':'<div class="pvc-flow"><p class="pvc-flow-h">예식 속 자리</p><p class="pvc-sub pvc-flow-t">식순 「준비한 순서」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p></div>'):_pvcFlowDots());   // [MID_VIDEO_1106]
   var cAt=(done&&F.conf&&F.conf.at)?(_pvcMd(F.conf.at)+' 확정'):'';
-  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([cAt, done?'':_pvcOldLine(), _pvcDueLine(F.past?'':(done?'기한까지 고쳐서 다시 확정할 수 있어요.':'확정한 뒤에도 기한까지 고쳐서 다시 확정할 수 있어요.'))])+'</div>';
-  h+=done?_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl')):_pvcBar(F.past?'':_pvcBtn('이전', up?'data-pvcgo="upload"':'data-pvcgo="music" data-pvcstep2="2"','ghost'), _pvcBtn('이 영상으로 확정','data-pvcconfirm','seal'));
+  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([cAt, done?'':_pvcOldLine(), _pvcDueLine((F.past||_mOff)?'':(done?'기한까지 다른 영상으로 바꿔 다시 확정할 수 있어요.':'확정한 뒤에도 기한까지 다른 영상으로 바꿀 수 있어요.'))])+'</div>';
+  h+=(done||_mOff)?_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl')):_pvcBar((F.past||!up)?'':_pvcBtn('이전','data-pvcgo="upload"','ghost'), _pvcBtn('이 영상으로 확정','data-pvcconfirm','seal'))   /* [PN07_MAKE_RESUME · 검토 1609-2] 사진으로 만들기 미리보기는 «이전»(음악 걸음) 없이 · 바꾸려면 «다른 영상으로 다시 보내기» */;   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 확정 단추를 두지 않는다(서버도 막는다)
   return h;
 }
 function _pvcFeel(){   // [PV_FEEL_1106] 필메이커 안내 — 네 걸음 · 이전 / 영상 올리러 가기
@@ -12100,10 +12190,10 @@ function _pvcFeel(){   // [PV_FEEL_1106] 필메이커 안내 — 네 걸음 · �
   return h;
 }
 function _pvcUpload(){
-  var F=PVCFLOW, h='<h2 class="pvc-h">준비한 영상 올리기</h2><p class="pvc-sub">보내 주신 영상은 길이 · 내용 · 소리 그대로 틀어요 · 배경 음악은 영상에 넣어 주세요.</p>';   /* ★[PV_MYPAGE_1102 2026-11-02] 식순 링크 칸 아래 있던 «영상 소리 그대로 · 배경 음악은 영상에» 한 줄([BGM_R3_1023])을 받는 곳으로 옮겼다 */
+  var F=PVCFLOW, h='<h2 class="pvc-h">'+(F.kind==='mid'?'식중 영상 올리기':'준비한 영상 올리기')+'</h2><p class="pvc-sub">보내 주신 영상은 길이 · 내용 · 소리 그대로 틀어요. 배경 음악은 영상에 넣어 주세요.</p>';   /* ★[PV_MYPAGE_1102 2026-11-02] 식순 링크 칸 아래 있던 «영상 소리 그대로 · 배경 음악은 영상에» 한 줄([BGM_R3_1023])을 받는 곳으로 옮겼다 */
   h+='<div class="pvc-up"><label for="mp_pvcLink" class="pvc-lab">링크로 보내기</label><input id="mp_pvcLink" class="cc-input" type="url" inputmode="url" maxlength="400" autocomplete="off" spellcheck="false" placeholder="구글 드라이브 · 업체 공유 링크" value="'+escapeHtml(F.d.link||'')+'">'
     +'<p class="pvc-help">원본 파일을 받을 수 있는 링크로 보내 주세요. 파일만 있으면 구글 드라이브에 올려 링크를 보내 주세요.</p></div>';
-  h+='<div class="pvc-after"><p class="pvc-flow-h">보낸 뒤</p>'+_pvcDots(['스튜디오가 원본을 받아 재생을 확인하면 이 화면에서 보고 확정해 주세요.', _pvcOldLine(), _pvcDueLine('')])+'</div>';   // [PV_STATE_1106 M09] 링크 칸에도 기한
+  h+='<div class="pvc-after"><p class="pvc-flow-h">보낸 뒤</p>'+_pvcDots(['스튜디오가 원본을 받아 재생을 확인하면 이 화면에서 보고 확정해 주세요.', F.kind==='mid'?('식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요'):'', _pvcConfLine(), _pvcDueLine('')])+'</div>';   // [PN07_MAKE_RESUME · 검토 1609] 확정 상태에서 와도 확정본 줄   // [MID_VIDEO_1106] 식중은 식순 길이 칸과 맞춘다   // [PV_STATE_1106 M09] 링크 칸에도 기한
   h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('보내기','data-pvcsubmit'));
   return h;
 }
@@ -12112,7 +12202,7 @@ function _pvcSent(){
   h+='<div class="pvc-linkcard"><span>'+escapeHtml(F.d.link||'')+'</span><p class="pvc-state"><i aria-hidden="true"></i>스튜디오 확인 중</p></div>';
   h+=_pvcRecheckBtn();
   if(!F.past) h+='<button type="button" class="pvc-lk pvc-relink" data-pvcgo="upload">다른 영상으로 다시 보내기</button>';
-  h+='<div class="pvc-foot">'+_pvcDots([_pvcOldLine(), _pvcDueLine('')])+'</div>';
+  h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([_pvcOldLine(), _pvcDueLine('')])+'</div>';   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 여기서도 한 줄
   h+=_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl'));
   return h;
 }
@@ -12125,9 +12215,9 @@ function _pvcRecheck(){
   var fail=function(x){ done(); if(_errSess(x)){ _errGoLogin(x,'L'); return; } _pvcErr(_errLine(x,'L','준비 상태를 불러오지 못했어요 · 다시 확인해 주세요')); };
   _stateGet(getToken()).then(function(d){
     if(!F.active) { F._rc=false; return; }
-    var pv=d&&d.production&&d.production.prevideo;
+    var pv=d&&d.production&&d.production[_pvcKey()];   // [MID_VIDEO_1106]
     if(!(d&&d.ok!==false&&pv)){ fail(d); return; }
-    var was=F.st; F._rc=false; _pvcApply(pv); try{ if(window._lastProd) window._lastProd.prevideo=pv; }catch(e){}
+    var was=F.st; F._rc=false; _pvcApply(pv); try{ if(window._lastProd) window._lastProd[_pvcKey()]=pv; }catch(e){}
     if(F.st===was){ done(); mpToast('아직 준비 중이에요'); return; }
     F.scr=_pvcScrOf(F); renderPvc(); _pvcFocusHead();
   }, fail);
@@ -12136,7 +12226,7 @@ function _pvcRecheck(){
    처리방침은 새 창으로 연다 — 확인 판(11000) 위에 처리방침 창(10001)을 띄우면 판 뒤에 숨는다 */
 function _pvcAgree(){
   if(PVCFLOW.consent||PVCFLOW._agreed) return Promise.resolve(true);
-  return mpConfirm({ title:'올리기 전에 확인해 주세요', bodyHtml:'올린 사진 · 링크 · 영상은 식전 영상을 만들고 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.<br><a href="privacy.html#prevideo" class="pvc-a" target="_blank" rel="noopener">개인정보 처리방침 «식전 영상»</a>', yes:'동의하고 올리기', no:'취소', dismissNull:true }).then(function(v){ if(v===true){ PVCFLOW._agreed=true; return true; } return false; });
+  return mpConfirm({ title:'올리기 전에 확인해 주세요', bodyHtml:(PVCFLOW.kind==='mid'?'보내 주신 링크 · 영상은 식중 영상을 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.':'올린 사진 · 링크 · 영상은 식전 영상을 만들고 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.')+'<br><a href="privacy.html#prevideo" class="pvc-a" target="_blank" rel="noopener">'+(PVCFLOW.kind==='mid'?'개인정보 처리방침':'개인정보 처리방침 «식전 영상»')+'</a>', yes:'동의하고 올리기', no:'취소', dismissNull:true }).then(function(v){ if(v===true){ PVCFLOW._agreed=true; return true; } return false; });
 }
 function _pvcBusyText(t){ try{ var s=document.querySelector('#flow_busy .flow-busy-box span:last-child'); if(s) s.textContent=t; }catch(e){} }
 function _pvcUpload1(sec, files){
@@ -12154,9 +12244,9 @@ function _pvcUpload1(sec, files){
         return; }
       var f=list[i]; if(!i) _flowBusy(true, '사진 올리는 중…'); if(list.length>1) _pvcBusyText('사진 올리는 중… '+(i+1)+'/'+list.length);
       Promise.all([_snapResize(f, 2560, 0.86), _snapResize(f, 400, 0.8)]).then(function(two){   // 스냅 참고 사진과 같은 길(흰 바탕 · JPEG) · 원본은 보내지 않는다
-        return _post({ action:'pvPhoto', token:getToken(), sec:sec, name:String(f.name||'').slice(0,60), data:two[0], thumb:two[1], pvConsent:1 }, 60000).then(function(r){
+        return _post({ action:'pvPhoto', token:getToken(), sec:sec, name:String(f.name||'').slice(0,60), data:two[0], thumb:two[1], pvConsent:1, rev:(F.rev==null?null:F.rev) }, 60000).then(function(r){   // [B2_FIX_MA_59] 요청 판
           if(!(r&&r.ok&&r.id)){ bad=(r&&typeof r==='object')?r:{}; bad.line=(r&&r.full&&r.error)?r.error:_errLine(r,'U','다시 해 주세요'); if(r&&r.full&&r.pv&&r.pv.d){ try{ F.d.photos=(r.pv.d.photos||[]).map(function(p){ return {id:p.id, th:p.th||'', sec:p.sec, n:p.n||''}; }); }catch(e){} } return; }   // [B2_MA_59] 자리가 찼으면 서버의 지금 사진으로 맞춘다(말없이 빼지 않게)
-          if(r.rev!=null) F.rev=+r.rev||0;   // [B2_MA_07]
+          _pvcAdopt(r.added); if(r.rev!=null) F.rev=+r.rev||0;   // [B2_MA_07] · [B2_FIX_MA_59] 판을 앞당기기 전에 모르던 사진부터 받는다
           PVC_THUMBS[r.th]=two[1]; F.consent=true; got++;
           F.d.photos.push({ id:String(r.id), th:String(r.th||''), sec:sec, n:String(f.name||'').slice(0,60) });
           if(!F.d.mode) F.d.mode='make'; if(F.st===''||F.st==='later'||F.st==='off') F.st='draft';
@@ -12221,7 +12311,7 @@ function _pvcOp(op){
       else mpAlert('식전 영상 준비를 ‘안 함’으로 저장했어요.');
       return; }
     window._mpNextToast='나중에 이어서 할 수 있어요'; _pvcTearDown(); _mpRefresh(); }); };
-  if(op==='off' && (F.d.photos.length || F.conf)) mpConfirm({ title:'식전 영상 없이 진행할까요?', body:'올린 사진은 그대로 두었다가, 다시 정하시면 이어서 쓸 수 있어요.', yes:'영상 없이 진행', no:'그대로 두기', dismissNull:true }).then(function(v){ if(v===true) run(); });
+  if(op==='off' && (F.d.photos.length || F.conf)) mpConfirm({ title:'식전 영상 없이 진행할까요?', body:(F.conf?'확정한 영상도 틀지 않아요. 기한까지는 다시 정할 수 있어요.':'기한까지는 다시 정할 수 있어요.')   /* [PN07_MAKE_RESUME · 검토 1609] 사진을 다시 쓸 길이 없다 — «이어서 쓸 수 있어요» 뺌 */, yes:'영상 없이 진행', no:'그대로 두기', dismissNull:true }).then(function(v){ if(v===true) run(); });
   else run();
 }
 function _pvcSheetClose(back){ var F=PVCFLOW, k=F.sheet; F.sheet=''; renderPvc(); var c=document.querySelector(back||('#mp_pvcInner [data-pvcsty="'+k+'"]')); if(c) c.focus({preventScroll:true}); }
@@ -12248,9 +12338,10 @@ function _pvcBind(box){
   box.querySelectorAll('[data-pvcmore]').forEach(function(b){ b.addEventListener('click', function(){ F.more=true; renderPvc(); var c=document.querySelector('#mp_pvcInner .pvc-rest .pvc-pick'); if(c) c.focus({preventScroll:true}); }); });
   box.querySelectorAll('[data-pvcsubmit]').forEach(function(b){ b.addEventListener('click', function(){ if(b.getAttribute('aria-disabled')==='true'){ _pvcErr('곡을 골라 주세요'); return; } _pvcSubmit(); }); });
   box.querySelectorAll('[data-pvcconfirm]').forEach(function(b){ b.addEventListener('click', _pvcConfirmGo); });
-  box.querySelectorAll('[data-pvcfix]').forEach(function(b){ b.addEventListener('click', function(){ if(F.d.mode==='upload'){ _pvcGo('upload', 0); return; } F.sheet='fix'; renderPvc(); var p=document.querySelector('#mp_pvcInner .pvc-sheet .pvc-x'); if(p) p.focus({preventScroll:true}); }); });
+  box.querySelectorAll('[data-pvcfix]').forEach(function(b){ b.addEventListener('click', function(){ if(F.d.mode==='upload'){ _pvcGo('upload', 0); return; } if(F.d.mode==='make'){ _pvcGo('start'); return; }   /* [PN07_MAKE_RESUME] */ F.sheet='fix'; renderPvc(); var p=document.querySelector('#mp_pvcInner .pvc-sheet .pvc-x'); if(p) p.focus({preventScroll:true}); }); });
   box.querySelectorAll('[data-pvcfixto]').forEach(function(b){ b.addEventListener('click', function(){ var to=b.getAttribute('data-pvcfixto'); _pvcGo(to, {style:0, photos:1, music:2}[to]); }); });
   box.querySelectorAll('[data-pvcrecheck]').forEach(function(b){ b.addEventListener('click', _pvcRecheck); });   // [PV_STATE_1106 M07]
+  box.querySelectorAll('[data-mvcrit]').forEach(function(b){ b.addEventListener('click', _mvcToRitual); });   // [MID_VIDEO_1106] 식순 «준비한 순서» 칸으로
   box.querySelectorAll('[data-pvcclosefl]').forEach(function(b){ b.addEventListener('click', function(){ _pvcTearDown(); _mpRefresh(); }); });
   var lk=$('mp_pvcLink'); if(lk) lk.addEventListener('input', function(){ F.d.link=String(lk.value||'').trim(); _pvcErr(''); });
   var mt=$('mp_pvcMet'); if(mt) mt.addEventListener('change', function(){ F.d.met=String(mt.value||''); _wizPaintSoon(); });
@@ -12297,7 +12388,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
       + '<div class="cc-title">스냅 기획</div>'
       + '<div class="cc-sub">'+(lock?'사진작가가 장면을 골라 담아요.':'고르신 장면을 사진작가에게 전해요.')+'</div>'   // 잠긴 뒤엔 «고르신 장면을 전해요»가 아래 «고를 수 없어요»와 어긋난다(390 실측) · [CC_SUB_FIT] 19자 — 390px 한 줄(21자 한도 · 고아 줄 방지) · «그대로 찍어요»는 약속 과잉이라 뺐다(시간이 줄면 앞 번호부터 · 책임질 수 없는 안심 금지)
       + (lock?'<div class="cc-note" style="text-align:center">예식&nbsp;3일&nbsp;전부터는 여기서 고를 수 없어요.</div>'
-             :((due?('<div class="cc-note" style="text-align:center">'+(due.late?'마감이 지났지만 지금 고르셔도 디렉터에게 바로 전해져요.':(due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
+             :((due?('<div class="cc-note" style="text-align:center">'+(due.today?'오늘까지 골라 주세요':due.late?'마감이 지났지만 지금 고르셔도 디렉터에게 바로 전해져요.':(due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
                /* [SNAP_BTN_GHOST 2026-09-26 사장님 결정 ⑥ · 고객 점검 prod-4 · x-4] 채움(cc-btn) → 테두리(cc-btn-ghost) — 개요 화면의 유일한 채움 버튼이
                   «선택이에요»라고 밝힌 스냅 기획이라, 필수 준비(예식 준비 행은 전부 테두리 · TRK_BTN_SAME)보다 «지금 할 일»로 먼저 읽혔다.
                   카드 자리(예식 준비 앞)·문구·크기는 그대로 — 무게만 내린다. 채움으로 되돌리지 말 것. */
@@ -12336,6 +12427,9 @@ function cfTodayKST(){
 function _cfPvLine(p){ var v=(p&&p.prevideo)||null; if(!(typeof PVC_ON!=='undefined' && PVC_ON && v && v.up && (window._mpStateD||{}).product!=='웨딩스냅')) return ''; var st=String(v.st||'');
   var t=(st==='done')?'식전 영상은 따로 확정했어요.':(st==='off')?'식전 영상은 «사용하지 않기»로 정하셨어요.':'식전 영상은 해당 화면에서 따로 확인 · 확정해 주세요.';
   return '<span class="ln-bal">'+t+' <button type="button" class="pvc-a cf-pvc" data-cfpvc>식전 영상 열기</button></span>'; }
+function _cfMvLine(p){ var v=(p&&p.midvideo)||null; if(!(typeof MVC_ON!=='undefined' && MVC_ON && v && v.up && (window._mpStateD||{}).product!=='웨딩스냅' && _mvcOn(p)===true)) return ''; var st=String(v.st||'');   // [MID_VIDEO_1106] 식중 영상도 확인서에 한 줄(M01 과 같은 방식)
+  var t=(st==='done')?'식중 영상은 따로 확정했어요.':'식중 영상은 해당 화면에서 따로 확인 · 확정해 주세요.';
+  return '<span class="ln-bal">'+t+' <button type="button" class="pvc-a cf-pvc" data-cfmvc>식중 영상 열기</button></span>'; }
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
@@ -12404,8 +12498,16 @@ function prodConfirmHtml(p, inv){
          밑줄을 넣는다 — 같은 줄의 식당 이름(굵은 글자)과 색만으로 갈리면 누를 것인지 안 읽힌다. */
       dv+=' <span class="cf-links">'+(_tel?('<a href="tel:'+_tel+'">전화</a>'):'')+'<a href="'+_dnMapUrl(_nm)+'" target="_blank" rel="noopener">지도</a></span>';
       var _rvT=String((dd.reserveTime!=null)?dd.reserveTime:(gi.reserveTime||'')), _rvN=String((dd.reserveName!=null)?dd.reserveName:(gi.reserveName||''));   // 다이닝 값 우선 · 키 없을 때만 구 저장분 폴백(빈 값='지움' 존중 — GAS와 동일 규칙)
-      if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvT+(_rvT&&_rvN?' · ':'')+_rvN))+'</span>';
-    } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';
+      var _rvTs=_dnRtBad(_rvT)?'시각 확인 필요':_rvT;   // [RSV_TIME_CHK_1106 4차 M18] 시각이 아닌 글은 시각처럼 적지 않는다
+      if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvTs+(_rvTs&&_rvN?' · ':'')+_rvN))+'</span>';
+    } else {   /* ★[DN_CONF_PUB_1106 4차 M11] 대표 식당이 없을 때 — 하객에게 공개한 곳 · 비공개 후보 · 상담 선택을 나눠 말한다(종전엔 모두 «장소 미정 · 상담에서 디렉터와 함께 정해요» · 아무도 안 한 약속) */
+      var _pb=_dnPubFavs(dd), _fn=(dd._favs||[]).length, _pk=String(dd.venuePick||dd.partner||''), _ns=function(a){ var x=a.slice(0,3).map(function(v){ return escapeHtml(String(v.n||'')); }); if(a.length>3) x.push('<span style="white-space:nowrap">외 '+(a.length-3)+'곳</span>'); return x.join('<br>'); };   // [CF_LINE_BREAK] 이름 사이는 «·» 대신 줄바꿈(줄 머리 · 줄 끝 점 없게) · 긴 이름은 칸 안에서 감긴다(nowrap 없음)
+      if(_pb.length) dv=(_pb.every(function(v){ return v.src==='attr'; })?'들를 곳':'하객 안내에 공개')+'<br>'+_ns(_pb);
+      else if(_fn) dv='후보 '+_fn+'곳<br>하객에게 공개한 곳 없음';
+      else if(_pk==='상담 때 함께 정할게요') dv='장소 미정<br>상담에서 디렉터와 함께 정해요';   // 두 분이 상담을 고른 경우만 상담 약속
+      else if(_pk==='직접 섭외할게요') dv='장소 미정<br>두 분이 직접 정해요';
+      else dv='장소 미정';
+    }
   }
   // 애프터 웨딩 줄도 아래 [CF_ORDER_0926] 자리에서 붙인다
   /* ★★[SEAT_TRUTH_ONE 2026-08-16 사용자 제보 "좌석 배치완료했는데도 불구하고 좌석 완료하라고 되어있네"]
@@ -12525,7 +12627,7 @@ function prodConfirmHtml(p, inv){
     else if(_pl>0 && _hn>0 && _pl!==_hn)
       L+='<div class="cf-warn">좌석 배치 '+_pl+'명 · 적어 두신 인원 '+_hn+'명 · 숫자가 달라요. 자리 없이 함께하는 분이 있다면 그대로 두셔도 돼요.</div>';
   }
-  L+=line('하객 안내', p.guideToken?'링크 준비됨':'', '식사·좌석을 채우면 자동으로 생겨요');   // [CF_EMPTY_WORD] 저절로 생기는 것 — 할 일로 적지 않는다
+  L+=line('하객 안내', p.guideToken?'링크 준비됨':'', '자동으로 생겨요');   // [GUIDE_ALL_EVENTS_1106 4차 G01] 링크는 식사 · 좌석과 상관없이 모든 예식에 생긴다 — 옛 «식사·좌석을 채우면» 조건을 걷었다   // [CF_EMPTY_WORD] 저절로 생기는 것 — 할 일로 적지 않는다
   // 확인 상태·버튼 — 판정은 _cfOk 하나로. 마감 입력은 각 소속 화면으로 이동(예약=다이닝 위저드 · 자리 찾기=좌석 편집기 · 2026-07-17 사용자 지시) → 확인서는 순수 요약+확인만
   var C='';
   if(_cfOk){
@@ -12566,12 +12668,12 @@ function prodConfirmHtml(p, inv){
     var _need=[]; if(!_rDone) _need.push('식순'); if(!_fHas) _need.push('좌석 · 음료');
     var _over=(_named>MP_FINAL_POLICY.max);
     if(!_need.length) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용으로 확정합니다</button>'
-      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini"><span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span><span class="ln-bal">저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span>'+_cfPvLine(p)+'</span></div>';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 360 · 390 «…함께 기록돼요 · / 저희는…» 줄 끝 점(전역 cc-note balance) → 마침표 두 덩어리
+      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini"><span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span><span class="ln-bal">저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span>'+_cfPvLine(p)+_cfMvLine(p)+'</span></div>';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 360 · 390 «…함께 기록돼요 · / 저희는…» 줄 끝 점(전역 cc-note balance) → 마침표 두 덩어리
     /* 이름을 「」로 감싸 붙인다 — 「좌석 · 음료」 자체에 가운뎃점이 들어 있어, 맨 이름을 나열하면
        '식순 · 좌석 · 음료'가 세 항목으로 읽힌다. 조사(을/를·이/가)도 함께 피할 수 있다. */
     /* [CF_LEFT_LINES 2026-10-09] 문장마다 한 줄(.ln-bal) — «…확정하실 수 / 있어요 · 섹션마다 … / 돼요.»(320) · «…있어요 · / 섹션마다…»(360 · 390)처럼 외톨이 · 줄 끝 점이 났다 */
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini"><span class="ln-bal">아직 남은 것&nbsp;· '+_need.map(function(n){ return '<b>「'+n+'」</b>'; }).join(' ')+'</span>'
-      +'<span class="ln-bal">다 마치면 여기에서 한&nbsp;번에 확정하실&nbsp;수&nbsp;있어요.</span><span class="ln-bal">섹션마다 따로 확인하지 않으셔도&nbsp;돼요.</span>'+_cfPvLine(p)
+      +'<span class="ln-bal">다 마치면 여기에서 한&nbsp;번에 확정하실&nbsp;수&nbsp;있어요.</span><span class="ln-bal">섹션마다 따로 확인하지 않으셔도&nbsp;돼요.</span>'+_cfPvLine(p)+_cfMvLine(p)
       /* 좌석·음료가 남았을 때의 이유는 **세 가지가 다르다.** 한 문장으로 뭉뜽그리면 그중 둘에게 거짓말이 된다. */
       /* [CF_HEADS_MISSING] 갈래 판정도 `_fHas` 기준으로 — 위 게이트와 같은 잣대를 쓴다(다르면 또 갈린다).
          「인원이 저장되지 않았어요」는 위 대조 경고가 이미 자세히 말하므로 여기선 되풀이하지 않는다. */
@@ -12613,7 +12715,8 @@ function _seatFinHeal(p){
   }catch(e){}
 }
 function wireProdConfirm(box, p){
-  try{ (box.querySelectorAll('[data-cfpvc]')||[]).forEach(function(b){ b.addEventListener('click', function(){ if(typeof startPvcFlow==='function') startPvcFlow((window._lastProd||p||{}).prevideo); }); }); }catch(e){}   // [PV_NOW_1106 M01] 확인서에서 영상 화면 열기
+  try{ (box.querySelectorAll('[data-cfpvc]')||[]).forEach(function(b){ b.addEventListener('click', function(){ if(typeof startPvcFlow==='function') startPvcFlow((window._lastProd||p||{}).prevideo); }); }); }catch(e){}
+  try{ (box.querySelectorAll('[data-cfmvc]')||[]).forEach(function(b){ b.addEventListener('click', function(){ if(typeof startPvcFlow==='function') startPvcFlow(Object.assign({}, (window._lastProd||p||{}).midvideo||{}, {kind:'mid'})); }); }); }catch(e){}   // [MID_VIDEO_1106]   // [PV_NOW_1106 M01] 확인서에서 영상 화면 열기
   var btn=$('cf_go'); if(!btn) return;
   btn.addEventListener('click', function(){
     // 스냅샷 = 화면 요약 그대로(텍스트) — 확인 시점 기록(면책). 전화·지도 같은 버튼 링크 단어는 기록에서 제외(기록은 사실만)
@@ -13208,7 +13311,7 @@ function bindTrk(box, render, collect, opt){
   TRKFLOW._collect=collect;   // 당겨서 새로고침이 현재 스텝 입력을 초안으로 수집할 때 사용(입력 유실 방지)
   if(TRKFLOW._shownStep!=null && TRKFLOW._shownStep!==TRKFLOW.step) _wzFocusHead(box);   // [INV_STEP_TOP] 애프터 웨딩 · 최종 확정도 걸음이 바뀌면 맨 위 + 제목 초점(청첩장과 같은 규칙)
   TRKFLOW._shownStep=TRKFLOW.step;
-  Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-trkopt')]=el.getAttribute('data-v'); render(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); var _ok=el.getAttribute('data-trkopt'); TRKFLOW.draft[_ok]=el.getAttribute('data-v'); if(_ok==='venuePick') TRKFLOW.draft.venuePickPid=el.getAttribute('data-vpid')||''; /* [B2_FIX_MA_38] 예약할 곳도 지도 장소 ID 로(같은 이름의 다른 지점) */ render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ _kbChip(el,function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });   // MPD4_F3 큐시트 칩 키보드화
   var _dnRefocus=function(find){ try{ var nb=find(); if(nb) nb.focus({preventScroll:true}); }catch(e){} };   // [DN_ARIA_STATE] 다시 그린 뒤 같은 단추로 — 초점이 사라지면 aria-pressed · aria-expanded 의 새 값이 안 들린다
@@ -13230,20 +13333,20 @@ function bindTrk(box, render, collect, opt){
     try{ if(typeof undo==='function') undo(); }catch(e){}
     try{ _errToast(msg?(msg+(r&&r.ecode?' (코드 '+String(r.ecode).split(' ')[0]+')':'')):_saveToggleLine(r)); }catch(e){}   // [ERR_CODE_MYPAGE] 같은 말 + 까닭 코드(종전엔 코드 없이 «저장이 안 됐어요 · 다시 눌러 주세요» 한 가지)
   }); };
-  var _dnSnap=function(){ var D=TRKFLOW.draft; try{ return {favs:JSON.parse(JSON.stringify(D._favs||[])), vp:D.venuePick, v:D.venue, pt:D.partner, rt:D.reserveTime, rn:D.reserveName, rf:D.reserveFor, rb:JSON.parse(JSON.stringify(D._rsvBy||{}))}; }catch(e){ return null; } };
-  var _dnRestore=function(S){ if(!S) return; var D=TRKFLOW.draft; D._favs=S.favs; D.venuePick=S.vp; D.venue=S.v; D.partner=S.pt; D.reserveTime=S.rt; D.reserveName=S.rn; D.reserveFor=S.rf; D._rsvBy=S.rb; render(box); };
+  var _dnSnap=function(){ var D=TRKFLOW.draft; try{ return {favs:JSON.parse(JSON.stringify(D._favs||[])), vp:D.venuePick, vpid:D.venuePickPid, v:D.venue, pt:D.partner, rt:D.reserveTime, rn:D.reserveName, rf:D.reserveFor, rb:JSON.parse(JSON.stringify(D._rsvBy||{}))}; }catch(e){ return null; } };
+  var _dnRestore=function(S){ if(!S) return; var D=TRKFLOW.draft; D._favs=S.favs; D.venuePick=S.vp; D.venuePickPid=S.vpid; D.venue=S.v; D.partner=S.pt; D.reserveTime=S.rt; D.reserveName=S.rn; D.reserveFor=S.rf; D._rsvBy=S.rb; render(box); };
   var _dnStarBind=function(el,fn){ el.addEventListener('click',fn); el.addEventListener('keydown',function(e){ if(e.repeat) return; if(e.key==='Enter'||e.key===' '){ fn(e); } }); };   // e.repeat 가드 — 키 꾹 누름 자동반복이 토글·POST·재렌더를 연사하지 않게
   Array.prototype.forEach.call(box.querySelectorAll('[data-favcard]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favcard'), _S=_dnSnap(), _R1=_dnFind(_n); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db',tel:(_R1&&_R1.tel)||''})){ _dnFavSaved(function(){ _dnRestore(_S); }); }   /* [B2_MA_13] 추천 장소의 전화번호도 담는다(하객 안내 전화 단추) · [B2_MA_16] 실패하면 바꾸기 전 전체로 */ _dnRerenderKeep(function(){ return _dnFindByAttr('data-favcard',_n); }); }); });   // 카드 전체 = 담기 토글
   // 가볼 곳(볼거리) 카드도 눌러서 담기 — 단, 카드 안 '지도' 링크 클릭은 담기로 안 먹게(링크 우선)
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favattr]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.target&&e.target.closest&&e.target.closest('a')) return; if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favattr'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',url:el.getAttribute('data-favurl')||'',src:'attr'})){ var _u1={n:_n,m:el.getAttribute('data-favm')||'',url:el.getAttribute('data-favurl')||'',src:'attr'}; _dnFavSaved(function(){ _dnFavToggle(TRKFLOW.draft,_u1); render(box); }); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favattr',_n); }); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favattr]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.target&&e.target.closest&&e.target.closest('a')) return; if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favattr'); var _SA=_dnSnap(); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',url:el.getAttribute('data-favurl')||'',src:'attr'})){ _dnFavSaved(function(){ _dnRestore(_SA); }); }   /* ★[B2_FIX_MA_16 2026-11-06 재검증 재수정] 가볼 곳도 실패하면 바꾸기 전 전체(순서 · 공개 · 대표 · 예약)로 — 종전 «같은 토글 한 번 더»는 이름 · 메모만 다시 담았다 */ _dnRerenderKeep(function(){ return _dnFindByAttr('data-favattr',_n); }); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-favp]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.target&&e.target.closest&&e.target.closest('a')) return; e.preventDefault(); e.stopPropagation(); collect(); var d3=TRKFLOW.draft, _pi=el.getAttribute('data-favp'), p=(d3._places||[])[+_pi]; if(!p) return; var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):''; /* ★[B2_MA_37 2026-11-06 2차 B2-마37] AI 가 «볼거리»(attraction)로 찾은 공원 · 박물관은 가볼 곳(src:'attr')으로 담는다 — 종전엔 src:'kakao' 만 남아 식당(식사 예약처)으로 분류됐다.
      출처는 from 에 따로 남긴다 · [B2_MA_38] 지도 장소 ID(pid)를 담아 같은 이름의 다른 장소를 갈라 담는다 */
   var _isAttr=(d3._placesCat==='attraction'), _u2={n:p.name,m:[p.cat,km,p.addr].filter(Boolean).join(' · ').slice(0,90),tel:_isAttr?'':(p.phone||''),url:(p.url&&/^https?:\/\//i.test(p.url))?p.url:'',src:_isAttr?'attr':'kakao',from:'kakao',pid:String(p.id||'')};
   var _S3=_dnSnap(); if(_dnFavToggle(d3,_u2)){ _dnFavSaved(function(){ _dnRestore(_S3); }); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favp',_pi); }); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); var _dn=el.getAttribute('data-favdel'); var _snap=null, _D0=TRKFLOW.draft; try{ _snap={favs:JSON.parse(JSON.stringify(_D0._favs||[])), vp:_D0.venuePick, v:_D0.venue, pt:_D0.partner, rt:_D0.reserveTime, rn:_D0.reserveName, rf:_D0.reserveFor, rb:JSON.parse(JSON.stringify(_D0._rsvBy||{}))}; }catch(e){}
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favdel]'),function(el){ el.addEventListener('click',function(){ collect(); var _dn=el.getAttribute('data-favdel'), _dpid=el.getAttribute('data-favpid')||''; var _snap=null, _D0=TRKFLOW.draft; try{ _snap={favs:JSON.parse(JSON.stringify(_D0._favs||[])), vp:_D0.venuePick, vpid:_D0.venuePickPid, v:_D0.venue, pt:_D0.partner, rt:_D0.reserveTime, rn:_D0.reserveName, rf:_D0.reserveFor, rb:JSON.parse(JSON.stringify(_D0._rsvBy||{}))}; }catch(e){}
     /* ★[DN_UNDO_ALL_1102 GPT 1라운드 04] 저장이 안 되면 목록만이 아니라 예약할 곳 · 예약 시간 · 이름까지 뺀 직전으로 — 종전엔 목록만 돌아오고 예약할 곳은 남은 다른 곳으로 바뀐 채였다 */
-    _dnFavToggle(TRKFLOW.draft,{n:_dn}); _dnFavSaved(function(){ if(_snap){ var D=TRKFLOW.draft; D._favs=_snap.favs; D.venuePick=_snap.vp; D.venue=_snap.v; D.partner=_snap.pt; D.reserveTime=_snap.rt; D.reserveName=_snap.rn; D.reserveFor=_snap.rf; D._rsvBy=_snap.rb; render(box); } }); _dnRerenderKeep(function(){ return box.querySelector('.dn-agg')||box.querySelector('.dn-aggspots')||box.querySelector('.dn-head'); }); }); });   // 앵커=현 취합 뷰 기준(.dn-favbox는 옛 step0 박스라 이제 없음)
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favshow]'),function(el){ el.addEventListener('click',function(){ collect(); var _n=el.getAttribute('data-favshow'); var _S2=_dnSnap(); _dnFavShowToggle(TRKFLOW.draft,_n); _dnFavSaved(function(){ _dnRestore(_S2); }, '공개 설정을 저장하지 못했어요. 다시 저장해 주세요.');   /* [B2_MA_22] 마지막 저장이 실패했을 때만 */ _dnRerenderKeep(function(){ return _dnFindByAttr('data-favshow',_n); }); }); });   // 하객 공개 토글(담기와 분리 · 켠 곳만 하객 노출) · [SAVE_FALSE_OK] 실패하면 되돌리고 말한다 — 하객에게 보이는 것이 화면과 어긋나면 안 된다
+    _dnFavToggle(TRKFLOW.draft,{n:_dn,pid:_dpid}); _dnFavSaved(function(){ if(_snap){ var D=TRKFLOW.draft; D._favs=_snap.favs; D.venuePick=_snap.vp; D.venuePickPid=_snap.vpid; D.venue=_snap.v; D.partner=_snap.pt; D.reserveTime=_snap.rt; D.reserveName=_snap.rn; D.reserveFor=_snap.rf; D._rsvBy=_snap.rb; render(box); } }); _dnRerenderKeep(function(){ return box.querySelector('.dn-agg')||box.querySelector('.dn-aggspots')||box.querySelector('.dn-head'); }); }); });   // 앵커=현 취합 뷰 기준(.dn-favbox는 옛 step0 박스라 이제 없음)
+  Array.prototype.forEach.call(box.querySelectorAll('[data-favshow]'),function(el){ el.addEventListener('click',function(){ collect(); var _n=el.getAttribute('data-favshow'), _spid=el.getAttribute('data-favpid')||''; var _S2=_dnSnap(); _dnFavShowToggle(TRKFLOW.draft,_n,_spid); _dnFavSaved(function(){ _dnRestore(_S2); }, '공개 설정을 저장하지 못했어요. 다시 저장해 주세요.');   /* [B2_MA_22] 마지막 저장이 실패했을 때만 */ _dnRerenderKeep(function(){ return _dnFindByAttr('data-favshow',_n); }); }); });   // 하객 공개 토글(담기와 분리 · 켠 곳만 하객 노출) · [SAVE_FALSE_OK] 실패하면 되돌리고 말한다 — 하객에게 보이는 것이 화면과 어긋나면 안 된다
   var _fsh=$('dn_favShare'); if(_fsh){ _fsh.addEventListener('click',function(){
     var txt=_dnFavShareText(TRKFLOW.draft);
     var done=function(){ _fsh.textContent='복사됐어요 · 카카오톡에 붙여 주세요'; setTimeout(function(){ _fsh.textContent='카카오톡 · 문자로 목록 보내기'; },2200); };
@@ -13410,12 +13513,16 @@ function _dnSame(a,b){ var pa=String((a&&a.pid)||''), pb=String((b&&b.pid)||'');
 function _dnFavToggle(d,snap){
   var f=d._favs||[], i=-1;
   for(var k=0;k<f.length;k++){ if(_dnSame(f[k],snap)){ i=k; break; } }
-  if(i>=0){ f.splice(i,1); if(d.venuePick===snap.n){ d.venuePick=''; d.venue=''; } }   // 대표(여기로 예약)로 지정됐던 곳을 빼면 예약처 지정도 함께 해제 — 삭제한 식당이 예약 장소로 계속 저장·표시되던 버그 방지
+  if(i>=0){ var _rm=f.splice(i,1)[0]; if(_dnIsRep(d,_rm)){ d.venuePick=''; d.venue=''; d.venuePickPid=''; } }   // [B2_FIX_MA_38] 같은 이름의 다른 지점을 빼도 예약할 곳은 그대로   // 대표(여기로 예약)로 지정됐던 곳을 빼면 예약처 지정도 함께 해제 — 삭제한 식당이 예약 장소로 계속 저장·표시되던 버그 방지
   else { if(f.length>=10){ mpAlert('10곳까지 담을 수 있어요. 한 곳을 빼고 담아 주세요.'); return false; } f.push(snap); }
   d._favs=f; return true;
 }
 // [하객 공개] 담기(비교용)와 하객 노출 분리 — v.show===true인 곳만 하객 안내에 노출(대표=여기로 예약은 항상 공개) · 2026-07-19 사용자 지시
-function _dnFavShowToggle(d,nm){ var f=d._favs||[]; for(var i=0;i<f.length;i++){ if(f[i].n===nm){ f[i].show=!f[i].show; break; } } d._favs=f; }
+/* ★[B2_FIX_MA_38 2026-11-06 재검증 재수정] 공개 · 빼기 · 예약할 곳(대표) · 장소별 예약 값도 지도 장소 ID(pid)로 잇는다 — 담기만 pid 로 가르고 나머지는 이름으로 찾아
+     같은 이름의 다른 지점 둘이 함께 켜지고 꺼졌다. pid 가 없는 옛 후보 · 추천 장소는 종전처럼 이름으로(저장 후보를 잃지 않는다) · 이름은 표시용 · 구분은 주소(m 줄) */
+function _dnKey(v){ var pid=String((v&&v.pid)||''); return String((v&&v.n)||'')+(pid?'#'+pid:''); }
+function _dnIsRep(d,v){ if(!v||String(d.venuePick||'')!==String(v.n||'')) return false; var a=String(d.venuePickPid||''), b=String(v.pid||''); return !(a&&b&&a!==b); }
+function _dnFavShowToggle(d,nm,pid){ var f=d._favs||[], key={n:nm,pid:pid||''}; for(var i=0;i<f.length;i++){ if(_dnSame(f[i],key)){ f[i].show=!f[i].show; break; } } d._favs=f; }
 function _dnFavShareText(d){
   // 카톡·문자 공유 — 식당(전화 포함)·가볼 곳으로 나눠, 항목별 줄바꿈 + 사이 빈 줄로 읽기 쉽게.
   var f=d._favs||[], restos=f.filter(function(v){return v.src!=='attr';}), spots=f.filter(function(v){return v.src==='attr';});
@@ -13631,19 +13738,26 @@ function _dnRsvHtml(d, mode){
   return '<div class="cc-note" style="text-align:left;margin:14px 0 4px;color:var(--sub);line-height:1.7">'
       +_rsvLead
       +(mode==='bare'?'예약을 마치고':'마치고')+' 아래를 적어 두시면 하객 안내에 함께 보여드려요. '
-      +'<span style="color:var(--light)">비워&nbsp;두셔도 괜찮아요&nbsp;·&nbsp;이&nbsp;줄만 빠지고 <span style="white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.</span></div>'   // [DN_RSV_MODE] «장소 / ·지도·전화는»(380 · 768 · 1280)처럼 가운뎃점이 줄 머리에 서지 않게 한 덩어리 · 절을 잇는 가운뎃점도 앞뒤에 묶는다(«괜찮아요 · 이 / 줄만»으로 «이»가 떨어지던 것까지 · 1280 «비워 / 두셔도»도)
-    +'<div class="gi-row" style="margin-top:4px"><label class="gi-l" for="dn_rtime">예약 시각</label><input class="cc-input" id="dn_rtime" type="text" autocomplete="off" maxlength="40" value="'+escapeHtml(d.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
+      +'<span class="ln-bal">예약을 마친 시각만 적어 주세요.</span> '   // ★[B2_FIX_NI17 2026-11-06 재검증 재수정] 예약 시각 칸 도움말 — 시각만 · 미정이면 비우기(«미정 · 예약 전»은 파서가 예약 판으로 안 고른다 · RESV_PARSE_NI17)
+      +'<span style="color:var(--light)">미정이면 비워&nbsp;두셔도 괜찮아요&nbsp;·&nbsp;이&nbsp;줄만 빠지고 <span style="white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.</span></div>'   // [DN_RSV_MODE] «장소 / ·지도·전화는»(380 · 768 · 1280)처럼 가운뎃점이 줄 머리에 서지 않게 한 덩어리 · 절을 잇는 가운뎃점도 앞뒤에 묶는다(«괜찮아요 · 이 / 줄만»으로 «이»가 떨어지던 것까지 · 1280 «비워 / 두셔도»도)
+    +'<div class="gi-row" style="margin-top:4px"><label class="gi-l" for="dn_rtime">예약 시각</label><input class="cc-input" id="dn_rtime" type="text" autocomplete="off" maxlength="40" value="'+escapeHtml(d.reserveTime||'')+'" placeholder="예: 오후 1시 30분" aria-describedby="dn_rtchk"></div>'
+    +'<p class="dn-rtchk" id="dn_rtchk" role="status"'+(_dnRtBad(d.reserveTime)?'':' hidden')+'><span class="ln-bal">예약 시각을 확인해 주세요. 예: 오후 1시 30분</span><span class="ln-bal">아직 정하지 않았다면 비워 두세요.</span></p>'   // [RSV_TIME_CHK_1106 4차 M18]
     +'<div class="gi-row"><label class="gi-l" for="dn_rname">예약자 이름</label><input class="cc-input" id="dn_rname" type="text" autocomplete="off" maxlength="30" value="'+escapeHtml(d.reserveName||'')+'" placeholder="예: 김신랑"></div>';
 }
 /* ★[DN_RSV_PER_PLACE_1102 GPT 1라운드 03] 예약 시간 · 이름은 «그 장소의 것» — 예약할 곳을 A → B 로 바꾸면 A 값은 A 몫으로 넣어 두고 B 값(없으면 빈칸)을 꺼낸다.
    종전엔 한 칸(reserveTime · reserveName)이라 A 에 적은 시간이 B 에 그대로 붙어 하객 안내에 나갔다. 하객 화면 · 관리자는 종전처럼 reserveTime · reserveName 만 읽는다 */
-function _dnRsvFor(d, place){ place=String(place||''); if(!place) return;
+function _dnRsvFor(d, place, nm){ place=String(place||''); if(!place) return;
   if(d.reserveFor==null){ d.reserveFor=place; return; }   // 옛 저장분 — 지금 적힌 값은 지금 예약할 곳의 것으로 본다
   if(d.reserveFor===place) return;
+  if(nm && place!==nm && d.reserveFor===String(nm) && !(d._rsvBy||{})[place]){ d.reserveFor=place; return; }   // [B2_FIX_MA_38] 이름만으로 적힌 옛 열쇠 = 같은 곳(이름 + 장소 ID 열쇠로 옮긴다 · 값은 그대로)
   var by=d._rsvBy||{}; by[d.reserveFor]={t:d.reserveTime||'',n:d.reserveName||''};
-  var sv=by[place]||{}; d.reserveTime=sv.t||''; d.reserveName=sv.n||''; d.reserveFor=place; d._rsvBy=by; }
+  var sv=by[place]||(nm&&place!==nm?by[String(nm)]:null)||{}; if(!by[place]&&sv.t!=null&&nm&&by[String(nm)]===sv){ by[place]=sv; delete by[String(nm)]; }   /* ★[B2_FIX_MA_38_OLDKEY] 옛 초안의 이름 열쇠(_rsvBy[이름])도 꺼내 새 열쇠(이름#pid)로 옮긴다 — 다른 곳을 대표로 바꿀 때 예약 값이 빈칸이 되던 것(검토 되돌림) */
+  d.reserveTime=sv.t||''; d.reserveName=sv.n||''; d.reserveFor=place; d._rsvBy=by; }
+/* ★[RSV_TIME_CHK_1106 4차 M18] 예약 시각은 식순 · 하객 안내와 같은 자(RitualPreviewLink.resvTimeOk · «13:30 · 13시 30분 · 오후 1시 30분»)로 본다 — 빈칸은 괜찮다.
+   «미정 · 예약 전 · 13:30 취소»처럼 시각이 아닌 글은 지우지 않고 그 자리에서 고치라고 한 줄 알린다(저장은 막지 않는다 · 입력 보존). 확인서도 같은 자로 «시각 확인 필요» */
+function _dnRtBad(t){ var v=String(t==null?'':t).trim(); if(!v) return false; try{ return !RitualPreviewLink.resvTimeOk(v); }catch(e){ return false; } }
 function _dnRsvWire(d){   // 입력 즉시 draft에 반영 — '저장 후 나가기'(collect 미경유)로 나가도 값이 실리게
-  var _rt=$('dn_rtime'); if(_rt) _rt.addEventListener('input', function(){ d.reserveTime=(_rt.value||'').trim().slice(0,40); });
+  var _rt=$('dn_rtime'), _rc=$('dn_rtchk'); if(_rt) _rt.addEventListener('input', function(){ d.reserveTime=(_rt.value||'').trim().slice(0,40); if(_rc) _rc.hidden=!_dnRtBad(d.reserveTime); });   // [RSV_TIME_CHK_1106]
   var _rn=$('dn_rname'); if(_rn) _rn.addEventListener('input', function(){ d.reserveName=(_rn.value||'').trim().slice(0,30); });
 }
 function renderDining(box){
@@ -13829,30 +13943,30 @@ function renderDining(box){
         // ── 취합 뷰: 담은 곳을 식당(예약처)·가볼 곳(볼거리)으로 나눠 한곳에 모아 비교 ──
         var restos=favs.filter(function(v){return v.src!=='attr';});   // 식당 = 예약 대상
         var spots=favs.filter(function(v){return v.src==='attr';});    // 가볼 곳 = 산책·사진 코스(예약 아님)
-        var rep=String(d.venuePick||''), repInFav=false; for(var fi=0;fi<restos.length;fi++){ if(restos[fi].n===rep){ repInFav=true; break; } }
+        var rep=String(d.venuePick||''), repInFav=false, repV=null; for(var fi=0;fi<restos.length;fi++){ if(_dnIsRep(d,restos[fi])){ repInFav=true; repV=restos[fi]; break; } }   // [B2_FIX_MA_38] 이름 + 장소 ID
         if(!repInFav) rep='';   // 대표가 식당 목록에 없으면 미지정
         /* ★[DN_NO_AUTO_REP_1102 사장님 «직접 눌러 정하게»] 한 곳만 담아도 저절로 예약할 곳이 되지 않는다(되살리지 말 것) — 비교하려 담았을 뿐인데 정해져 하객 안내에 나갔다 */
-        _dnRsvFor(d, rep);   // [DN_RSV_PER_PLACE_1102]
+        _dnRsvFor(d, repV?_dnKey(repV):rep, rep);   // [DN_RSV_PER_PLACE_1102] · [B2_FIX_MA_38] 장소별 예약 값 열쇠 = 이름 + 장소 ID
         // [하객 공개 토글] 담기(비교)와 노출 분리 — 켠 곳만 하객 안내에 뜸(대표=여기로 예약은 항상 공개) · 2026-07-19 사용자 지시
         /* ★[DN_SHOW_SWITCH_1102 사장님 «스위치로»] 하객 공개는 켜고 끄는 스위치 — 이름은 늘 «하객 안내에 표시» · 켜짐은 모양과 aria-checked 로 */
-        var _showBtn=function(v){ var on=v.show===true; return '<button type="button" class="dn-showtgl'+(on?' on':'')+'" role="switch" aria-checked="'+on+'" data-favshow="'+escapeHtml(v.n)+'"><span>하객 안내에 표시</span><span class="sw" aria-hidden="true"></span></button>'; };
+        var _showBtn=function(v){ var on=v.show===true; return '<button type="button" class="dn-showtgl'+(on?' on':'')+'" role="switch" aria-checked="'+on+'" data-favshow="'+escapeHtml(v.n)+'" data-favpid="'+escapeHtml(v.pid||'')+'"><span>하객 안내에 표시</span><span class="sw" aria-hidden="true"></span></button>'; };
         var favHtml=restos.map(function(v){
-          var isRep=(v.n===rep), r=_dnFind(v.n), tel=String((r&&r.tel)||v.tel||'').replace(/[^0-9]/g,'');
+          var isRep=(v===repV), r=_dnFind(v.n), tel=String((r&&r.tel)||v.tel||'').replace(/[^0-9]/g,'');
           var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
-          return '<div class="dn-fav dn-agg'+(isRep?' rep':'')+'"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" aria-label="'+escapeHtml(v.n)+' 빼기">✕</button>'
+          return '<div class="dn-fav dn-agg'+(isRep?' rep':'')+'"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" data-favpid="'+escapeHtml(v.pid||'')+'" aria-label="'+escapeHtml(v.n)+' 빼기">✕</button>'
             +'<div class="n">'+(isRep?'<span class="repbadge">예약할 곳</span>':'')+escapeHtml(v.n)+'</div>'
             +(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
             +(function(){ var _t=r?[_DN_GROUP[r.g]||'단체석 확인 필요', r.eld?'좌식':'', r.pk==='good'?'주차 넉넉':'주차 확인 필요'].filter(Boolean).join(' · '):'단체석 · 주차 확인 필요'; return '<div class="m">'+escapeHtml(_t)+'</div>';   /* [GPT 2라운드 05] 모르는 항목은 항목마다 «확인 필요» */ })()   /* ★[DN_AGG_INFO_1102 사장님 «추천대로»] 고를 때 본 단체석 · 주차를 비교 화면에도 · 모르면 «전화로 확인» */
             +(isRep   // 대표는 아래 예약 블록에 전화·지도가 크게 나오므로 작은 링크 줄은 생략(중복 방지). 나머지는 결정 전 빠른 확인용으로 노출
                 ? '<div class="dn-aggbook">'+_bookBlock(v.n,v.tel,v.url)+'</div><div class="dn-showlock">하객 안내에 \'여기로 모여요\'로 공개돼요</div>'
                 : '<div class="a">'+(tel?('<a href="tel:'+tel+'">전화</a>'):'')+'<a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도</a></div>'
-                  +'<button type="button" class="dn-repbtn" data-trkopt="venuePick" data-v="'+escapeHtml(v.n)+'">예약할 곳으로 정하기</button>'   /* ★[DN_REP_LABEL_1102 사장님 «추천대로»] «여기로 예약할래요» → «예약할 곳으로 정하기» · 꼬리표 «예약할 곳» */+_showBtn(v))
+                  +'<button type="button" class="dn-repbtn" data-trkopt="venuePick" data-v="'+escapeHtml(v.n)+'" data-vpid="'+escapeHtml(v.pid||'')+'">예약할 곳으로 정하기</button>'   /* ★[DN_REP_LABEL_1102 사장님 «추천대로»] «여기로 예약할래요» → «예약할 곳으로 정하기» · 꼬리표 «예약할 곳» */+_showBtn(v))
             +'</div>';
         }).join('');
         // 가볼 곳(볼거리) — 예약 없이 지도만. 식당과 시각적으로 분리.
         var spotHtml=spots.length?('<div class="dn-aggspots"><div class="fh"><span class="t">담은 가볼 곳 · '+spots.length+'곳</span><span class="c">산책·사진 코스</span></div>'
           +spots.map(function(v){ var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
-            return '<div class="dn-fav dn-spot"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" aria-label="'+escapeHtml(v.n)+' 빼기">✕</button>'
+            return '<div class="dn-fav dn-spot"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" data-favpid="'+escapeHtml(v.pid||'')+'" aria-label="'+escapeHtml(v.n)+' 빼기">✕</button>'
               +'<div class="n">'+escapeHtml(v.n)+'</div>'+(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
               +'<div class="a"><a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도 · 길찾기</a></div>'+_showBtn(v)+'</div>'; }).join('')
           +'<div class="dn-fine" style="margin-top:4px">하객 안내에 표시를 켠 곳만 보여요. 운영시간과 입장 여부는 방문 전에 확인해 주세요.</div></div>'):'';   // [B2_MA_69 2026-11-06 2차 B2-마69] 가볼 곳 안내 한 곳
@@ -13866,7 +13980,7 @@ function renderDining(box){
           /* ★[DN_ONE_CAUTION_1102 사장님 «추천대로»] «예약 전 전화로 확인»은 정리 전 확인 창(2026-06-16 사장님 지시) 한 번만 — 목록 아래 · 이 화면 줄은 뺐다 · «✕로 뺄 수 있어요»도(빼도 안다) */
           +(restos.length?'<div class="dn-fine" style="margin-top:8px">예약 정보는 비워도 돼요. 전화번호가 있는 곳만 전화 버튼이 나와요.</div>':'')   // [B2_MA_13] 장소와 지도는 그대로 나간다
           +((restos.length>1||(restos.length&&spots.length))?'<div class="dn-fine" style="margin-top:8px">예약할 곳은 늘 하객분들께 공개돼요. 다른 곳은 <b>«하객 안내에 표시»</b>를 켠 곳만 함께 안내돼요(2차 등).</div>':'')
-          +(restos.length?_dnRsvHtml(d, !rep?'none':(_dnTelOf(rep, (restos.filter(function(v){ return v.n===rep; })[0]||{}).tel)?'tel':'notel')):'');   // [DN_TEL_MAP] [DN_RSV_MODE]
+          +(restos.length?_dnRsvHtml(d, !rep?'none':(_dnTelOf(rep, (repV||{}).tel)?'tel':'notel')):'');   // [DN_TEL_MAP] [DN_RSV_MODE]
         box.innerHTML=trkShell(2,'담은 곳 · '+favs.length+'곳 모아보기',null,body2,true,'저장하고 마치기'); _wzPin(box);   // [WZ_FINISH_LABEL] 스냅 기획 · 가족·친구 스냅과 같은 말
         bindTrk(box,renderDining,collect,{ last:true });
         _dnRsvWire(d);

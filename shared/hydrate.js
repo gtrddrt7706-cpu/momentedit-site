@@ -64,7 +64,7 @@
   function bankLabel(bank) {
     bank = String(bank || '').trim();
     if (!bank) return '';
-    return /(은행|뱅크)$/.test(bank) ? bank : bank + '은행';
+    return /(은행|뱅크|금고|우체국|신협|증권|조합)$/.test(bank) ? bank : bank + '은행';   // [B2_FIX_MA_85 2026-11-06 재검증 재수정] 새마을금고 · 우체국은 «은행»을 붙이지 않는다(live.html bankName 과 같은 정규식)
   }
   // 기본 노출형 토글: 명시적으로 N/아니오일 때만 숨김 — 빈 칸·미지정·Y는 모두 노출
   function showUnlessNo(v) { return !/^(n|no|false|0|off|미표시|아니오|숨김|제외)$/i.test(String(v || '').trim()); }
@@ -346,7 +346,15 @@
     html = processOptional(html, 'groomBio', true);
     html = processOptional(html, 'brideBio', true);
 
+    /* ★[ENTRY_TIME_1106 2026-11-06 대본 4차 G12] 현장 청첩장 도착 안내 — 하객이 본식 시각에서 20분을 빼지 않게 두 시각을 함께 적는다.
+       본식 = SLOT_CLOCK 을 지난 실제 본식 시각(time.time24) · 하객 입장 = 본식 20분 전(대기 공간 없음 · mypage SLOT_CLOCK 표와 같은 간격).
+       시각 꼴이 아니면(옛 저장분 등) 짐작하지 않고 «본식 20분 전»으로 둔다 */
+    var _koClock = function (h, mi) { return (h < 12 ? '오전' : '오후') + ' ' + (h % 12 || 12) + '시' + (mi ? ' ' + mi + '분' : ''); };
+    var _tm = /^(\d{2}):(\d{2})$/.exec(time.time24), _mainMin = _tm ? (+_tm[1]) * 60 + (+_tm[2]) : -1;
+    var GUEST_ENTRY_KO = _mainMin >= 20 ? _koClock(Math.floor((_mainMin - 20) / 60), (_mainMin - 20) % 60) : '본식 20분 전';
+    var WEDDING_TIME_KO = _mainMin >= 0 ? _koClock(Math.floor(_mainMin / 60), _mainMin % 60) : escapeHtml(time.display);
     var map = {
+      GUEST_ENTRY_KO: GUEST_ENTRY_KO, WEDDING_TIME_KO: WEDDING_TIME_KO,   // [ENTRY_TIME_1106]
       GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
       GROOM_BANK: escapeHtml(gAcct.bank), BRIDE_BANK: escapeHtml(bAcct.bank),
       GROOM_ACCOUNT: escapeHtml(gAcct.account), BRIDE_ACCOUNT: escapeHtml(bAcct.account),
@@ -567,13 +575,16 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (tm) clearTimeout(tm);
-        if (!d || !d.ok || !d.g) return;
+        /* ★[B2_FIX_MA_36 2026-11-06 재검증 재수정] 서버 오류 · 몰림({ok:false, ecode 숫자 1~9} · INTERNAL_ERROR) · 빈 답은 «안내 없음»이 아니다 — 끊김처럼 다시 묻고 끝내 실패면 실패 자리.
+           준비된 안내가 없다는 정상 답(ecode 없음 · 숫자 0)만 조용히 아무것도 그리지 않는다 */
+        if (!d || (d.ok === false && (/^[A-Z][1-9]$/.test(String(d.ecode || '')) || d.error === 'INTERNAL_ERROR'))) throw new Error('guide-srv');
+        if (!d.ok || !d.g) return;
         _paintGuideCta('/g/' + encodeURIComponent(d.g) + (fam ? '' : '#photos'), false, fam ? '' : 'photo');   // [GUIDE_PATH]
       })
       .catch(function () {
         if (tm) clearTimeout(tm);
         if (attempt < 2) { setTimeout(function () { injectGuideCta(eventId, attempt + 1); }, attempt ? 3000 : 1200); return; }
-        if (fam) _paintGuideCta('', false, 'fail', eventId);   // [B2_MA_36]
+        _paintGuideCta('', false, 'fail', eventId);   // [B2_MA_36] · [B2_FIX_MA_36] 온라인 커버(사진 올리기)도 실패를 그 자리에 알린다
       });
   }
   function _paintGuideCta(href, demo, mode, evForRetry) {

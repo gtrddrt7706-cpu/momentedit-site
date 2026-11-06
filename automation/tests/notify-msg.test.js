@@ -123,7 +123,7 @@ check('notifyKakao 무예외', threw === 0, threw + '건 예외');
       check('md ' + ev + ' 본문 전각줄표 없음', m[2].indexOf('—') === -1);
     });
   }
-  check('md 템플릿 블록 22종 파싱(18+4)', seen === 22, seen + '종');
+  check('md 템플릿 블록 23종 파싱(19+4)', seen === 23, seen + '종');   // [MID_VIDEO_1106] T23 영상 확정 기한
 })();
 
 console.log('\n────────────────────────────────────');
