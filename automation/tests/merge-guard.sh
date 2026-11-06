@@ -19217,7 +19217,7 @@ chk 'ENTRY_CALL_PAUSE_1013' console.html 3
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-call-pause.mjs 1
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-music.mjs 2
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-scene-day.mjs 2
-chk 'after:60,call:1.8}' assets/entry-scene.js 1                                                   # 장면 «입장!» 앞 쉼 1.8초(SP.call · 10/13 사장님) · 문 열린 뒤 60초 + 잦아듦 4초 = «도착» 64초([ENTRY_BGM_1019] · 종전 20초)
+chk 'after:(_W&&_W.scene>0?_W.scene:30),call:1.8}' assets/entry-scene.js 1  # ★[WALK_HALF_1106] 11/06 사장님 «절반 정도» — 문 열린 뒤 30초(RitualOpen.WALK.scene) + 4 = 34초 · 옛 핀 'after:60,call:1.8}' ·                                                 # 장면 «입장!» 앞 쉼 1.8초(SP.call · 10/13 사장님) · 문 열린 뒤 60초 + 잦아듦 4초 = «도착» 64초([ENTRY_BGM_1019] · 종전 20초)
 nochk 'after:20,call' assets/entry-scene.js                                                        # ★문 열린 뒤 24초에 끝나던 판 — 10/19 사장님 «도착까지 행진 이후 1분 이상» · 되살리지 말 것
 chk 'var vv=ES.voiceStart(a,V0,vg,t0,PL.tv,from);' assets/entry-music.js 1                         # 식순 화면 — 목소리는 엔진이 끊어 건다
 chk 'var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);' console.html 1                              # 당일 콘솔 — 같은 자리에서 끊는다
@@ -21369,6 +21369,7 @@ chk 'data-fk="prj:_after"' order-preview.html 1
 nochk "say md" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way4.mjs >/dev/null 2>&1; _prw4=$?; if [ "$_prw4" = 1 ]; then echo 'FAIL pr-way4: 연습 보충(행위자 · 진행 상수 · 토글 · 식후 · 연습 시간)이 어긋났습니다 — node scripts/audit/pr-way4.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/b5-practice.mjs >/dev/null 2>&1; _b5p=$?; if [ "$_b5p" = 1 ]; then echo 'FAIL b5-practice: 5차 연습 회귀(편지 몫 · 본식 뒤 머리 · A 복귀 8초 · 축가 3초 · 짧은 잔여 재개 · 멈춤 중 음악 · 이어서 연습 칸 · 역할 복사 실패 창)가 어긋났습니다 — node scripts/audit/b5-practice.mjs'; fail=1; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/listen-resume.mjs >/dev/null 2>&1; _lrs=$?; if [ "$_lrs" = 1 ]; then echo 'FAIL listen-resume: 입장 걸음 절반 · 축배 60초 · «본식 피아노» 글 · 이어 듣기 = 멘트 바로 · 듣기 로딩 표시(«불러오는 중…» · 10초 «연결이 느려요») 중 하나가 어긋났습니다 — node scripts/audit/listen-resume.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
@@ -22695,6 +22696,20 @@ chk 'B5_PN03' order-preview.html 5   # [5차 P v2 P-N03] 역할 전달 복사 �
 chk '복사하지 못했어요. 아래 글을 길게 눌러 복사해 주세요.' order-preview.html 1
 nochk "function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };" order-preview.html   # ★역할 전달 복사 실패를 알림만으로 되돌리지 말 것
 chk 'B5_PRACTICE' scripts/audit/b5-practice.mjs 1   # 5차 연습 회귀 검사 파일이 살아 있는가
+chk 'WALK_HALF_1106' assets/ritual-open.js 2   # ★입장 걸음 절반 — RitualOpen.WALK 한 곳(엔진 · 본식 표 · 장면)
+chk 'var WALK_K = 0.5,' assets/ritual-open.js 1
+chk 'WALK_HALF_1106' assets/ritual-cue.js 1
+chk 'WALK_HALF_1106' assets/entry-scene.js 1
+nochk 'est: 102, duck: 0' assets/ritual-cue.js   # ★입장 걸음 102 를 엔진에 다시 적지 말 것(WALK 한 곳)
+chk 'PIANO_WORD_1106' assets/bgm-slots.js 1
+nochk '하객을 향해 서시면 감사 인사 곡이 시작돼요' assets/bgm-slots.js   # ★«감사 인사 곡»은 없다 — 본식 피아노(사장님 11/06)
+chk 'TOAST_EST60_1106' assets/ritual-open.js 2   # ★축배 사람 구간 60초 — RitualOpen.TOAST_SEC 한 곳(BGM 시뮬레이션 · 음악 칸 «1 ~ 1.5분»)
+chk 'var TOAST_SEC = 60;' assets/ritual-open.js 1
+chk 'TOAST_EST60_1106' assets/ritual-cue.js 1
+chk 'RESUME_TALK_NOW_1106' order-preview.html 4   # ★이어 듣기 = 멘트 바로(남은 뜸을 다시 돌리지 않는다)
+chk 'RESUME_TALK_NOW_1106' assets/entry-music.js 4
+chk 'LOAD_SHOW_1106' order-preview.html 8   # ★듣기 로딩 표시
+chk 'LISTEN_RESUME_1106' scripts/audit/listen-resume.mjs 1   # 위 넷(+축배 60초)을 재는 검사 파일이 살아 있는가
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
 # ★★[H4_HOME 2026-11-06 홈 4차 H02 ~ H22 · 대본 판정] 홈 · FAQ · 즉답 · AI 지식을 같은 말로 — 되돌리면 빨강
 chk '2027년 4월 오픈 준비 · 도로명 주소는 확정되면 안내드립니다' index.html 1   # [H4_02] 주소 괄호(보이는 글 · aria 같은 줄)

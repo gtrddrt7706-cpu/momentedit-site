@@ -751,7 +751,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 <script src="/assets/narration-pad.js"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표(쉼 = 말끝 → 말머리) -->
 <script src="/assets/ritual-story.js"></script>
 <script src="/assets/bgm-picks.js"></script><!-- [BGM_PICKS_1023] 구간 음악 추천 곡(콘솔만 싣는다 · 고객 화면은 싣지 않는다) -->
-<script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-scene.js?v=1019a"></script><!-- [ENTRY_SCENE_DAY] 입장 음악 — 식순 화면과 같은 계산(entry-scene.js) · 소리 크기(rec-process.js) -->
+<script src="/assets/rec-process.js?v=1007u"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_DAY] 입장 음악 — 식순 화면과 같은 계산(entry-scene.js) · 소리 크기(rec-process.js) -->
 <script>
 (function(){
 'use strict';
@@ -1546,7 +1546,7 @@ function esdResume(){ var P = ESD.paused, Sg = ESD.Sg; ESD.paused = null; if (!P
     var left = (Sg.dur - pos) - esdTail(Sg); if (left > SEG_XF + 1) r.tEnd = setTimeout(function(){ esdEnd(r); }, Math.round((left - SEG_XF) * 1000));
     duckTo(duckWant != null ? duckWant : -90, 200);   /* 배경은 입장 장면이 맡는다(ESD.run 이면 −90) */ return true; } catch (e) { return false; } }
 function esdBedBack(ms, xf){ var c = cueAt(cur), db = (phase === 'live' && c && c.live && c.live.duck !== undefined) ? c.live.duck : (c ? c.duck : PARAM.duckMusic); duckTo(db, ms, xf); }   /* [EAR_D_1106 ①] xf = 인계 곡선(등전력) */
-var ESD_NEED = 180;   // [BGM_SEG8_1023 ENTRY_SHORT] 하이라이트 뒤 이만큼(걷기 · 받는 말 · 맞절)이 안 되면 «곡 길이 모자람»
+var ESD_NEED = 90;   /* [WALK_HALF_1106 · BGM 섹션 11/06] 걷기 절반으로 180 → 90 */   // [BGM_SEG8_1023 ENTRY_SHORT] 하이라이트 뒤 이만큼(걷기 · 받는 말 · 맞절)이 안 되면 «곡 길이 모자람»
 function esdTail(Sg){ if (Sg.tail != null) return Sg.tail; var t = 0; try { var x = Sg.buf.getChannelData(0), sr = Sg.buf.sampleRate, i = x.length - 1; while (i > 0 && Math.abs(x[i]) < 0.003) i--; t = Math.max(0, (x.length - 1 - i) / sr); } catch (e) {} Sg.tail = t; return t; }   // 끝 무음(초)
 function esdStop(sec, xf){ var r = ESD.run; if (!r) { if (!ESD.pzKeep) ESD.paused = null; ESD.pzKeep = false; return; } ESD.paused = null; ESD.pzKeep = false;   /* [B2_K16] 멈춘 자리 기록은 정지 직후 한 번만 지킨다 */ ESD.run = null; ESD.fadeRun = r; setTimeout(function(){ if (ESD.fadeRun === r) ESD.fadeRun = null; }, Math.round(Math.max(0.02, sec || 0) * 1000) + 400);   /* [EAR_D_1106] 잦아드는 입장 곡(검사 창구 __earD 가 합산 크기를 잰다) */ if (r.tEnd) clearTimeout(r.tEnd); var a = r.a, now = a.currentTime, f = Math.max(0.02, sec || 0), fv = Math.min(f, 0.3);
   try { if (xf) xfCurve(r.dk.gain, 0.0001, f, now); else { r.dk.gain.cancelScheduledValues(now); r.dk.gain.setValueAtTime(Math.max(0.0001, r.dk.gain.value), now); r.dk.gain.linearRampToValueAtTime(0.0001, now + f); } } catch (e) {}   /* [EAR_D_1106 ①] 인계는 등전력 곡선 · 정지 · 끝내기는 종전 그대로 */
