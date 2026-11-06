@@ -135,6 +135,7 @@
     + '.me-adv-esc{align-self:stretch;background:#fff;border:1px solid rgba(184,154,117,0.45);border-radius:12px;padding:14px 15px;margin-top:2px}'
     + '.me-adv-esc-t{font-family:var(--serif-ko,"Noto Serif KR",serif);font-size:13px;color:var(--accent,#3A2D22);line-height:1.6;margin-bottom:11px}'
     + '.me-adv-esc-btns{display:flex;flex-direction:column;gap:8px}'
+    + '.me-adv-esc-go{width:100%;cursor:pointer}'   // [H4_HANDOFF_ASK] «상담원 연결» 단추
     + '.me-adv-esc-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center;font-family:var(--sans,sans-serif);font-size:13px;padding:11px 14px;border-radius:8px;transition:opacity .3s var(--ease,ease),transform .3s var(--ease,ease)}'
     + '.me-adv-esc-btn.kakao{background:var(--seal,#6B2A24);color:#fff;font-weight:500;letter-spacing:0.02em}'
     + '.me-adv-esc-btn.kakao:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 18px rgba(107,42,36,0.18)}'
@@ -326,6 +327,12 @@
     var box = document.createElement('div'); box.className = 'me-adv-esc';
     var t = document.createElement('div'); t.className = 'me-adv-esc-t';
     t.setAttribute('role', 'status');
+    /* ★★[H4_HANDOFF_ASK 2026-11-06 사장님 결정 6 · 대본] 자동 인계 금지 — 대화 · 연락처는 고객이 «상담원 연결»을 누른 뒤에만 보낸다.
+       답을 못 푸는 순간에는 «상담원과 이어 드릴까요?»와 단추만 띄운다(카톡 단추는 종전처럼 바로 보인다) */
+    t.textContent = '상담원과 이어 드릴까요?';
+    var go = document.createElement('button'); go.type = 'button'; go.className = 'me-adv-esc-btn mail me-adv-esc-go'; go.textContent = '상담원 연결';
+    go.addEventListener('click', function () {
+    if (go.disabled) return; go.disabled = true; go.remove();
     t.textContent = '디렉터에게 전달하고 있어요.';   // [ERR_CODE_PAGES · HANDOFF_TRUTH] 답을 받기 전에는 «전달했어요»라 하지 않는다 · 카톡 단추는 바로 보인다
     doHandoff().then(function (r) {
       if (r.ok) {
@@ -338,8 +345,10 @@
       }
       t.innerHTML = codeHtml((r.unsure ? '전달됐는지 확인하지 못했어요' : '자동 전달이 안 됐어요') + ' · ' + (ki.mail ? '이메일로' : '카카오톡으로') + ' 남겨 주세요 (코드 ' + r.code + ')');   // [ERR_CODE_GLUE]
     });
+    });
     box.appendChild(t);
     var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
+    btns.appendChild(go);   // [H4_HANDOFF_ASK]
     var k = document.createElement('a');
     k.className = 'me-adv-esc-btn ' + (ki.mail ? 'mail' : 'kakao'); k.href = ki.href;
     if (!ki.mail) k.target = '_blank';

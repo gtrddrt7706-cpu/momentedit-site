@@ -54,8 +54,8 @@ else {
   t(+sv[2] === 3 && +sv[3] === 3, '사진 3장 + 링크 3개(D8)');
   t(+sv[6] === 14 && +sv[5] === 3, '마감 14일 전 · 잠금 3일 전(D2)');
   t(+sv[7] === 183, '올린 사진 보관 183일(청첩장·편지 파기 기준)');
-  const cd = my.match(/wu-(\d+)\*864e5\)/), cl = my.match(/late:days<=(\d+), lock:days<=(\d+)/);
-  t(!!(cd && cl && +cd[1] === +sv[6] && +cl[1] === +sv[6] && +cl[2] === +sv[5]), '부부 화면 마감·잠금 날수 = 서버');
+  const cd = my.match(/wu-(\d+)\*864e5\)/), cl = my.match(/late:days<(\d+), today:days===(\d+), lock:days<=(\d+)/);   // [SNAP_DUE_TODAY_1106] 마감 당일 = today · 지남 = 그다음 날부터
+  t(!!(cd && cl && +cd[1] === +sv[6] && +cl[1] === +sv[6] && +cl[2] === +sv[6] && +cl[3] === +sv[5]), '부부 화면 마감·잠금 날수 = 서버(마감 당일은 «오늘까지»)');
   t(my.indexOf("_sdu.days<=21 && _sdu.days>" + sv[5]) !== -1, '«지금 할 일» 한 줄은 3주 전부터 잠금 전까지(D2)');
 }
 

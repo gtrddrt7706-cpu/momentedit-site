@@ -83,7 +83,8 @@
     + '.meseq-ds{font-family:var(--serif-ko,serif);font-size:12px;font-weight:300;color:var(--sub,#5A554C);line-height:1.7;margin-top:4px;word-break:keep-all}'
     + '.meseq-end{position:relative;padding:8px 0 2px 18px;font-family:var(--serif-ko,serif);font-size:12px;color:var(--light,#75705F);line-height:1.8}'
     + '.meseq-end::before{content:"";position:absolute;left:-5px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--border,#DDD8D1)}'
-    + '.meseq-end .meseq-clk{top:7px}'   // 마무리 행 시각을 텍스트 중심에 정렬(다른 행과 통일)
+    + '.meseq-end .meseq-clk{top:7px}'
+    + '.meseq-bnote{margin:14px 0 0;font-family:var(--serif-ko,serif);font-size:12px;color:var(--sub,#5F5A52);line-height:1.7;word-break:keep-all}'   // [H4_03] 본문 아래 한 줄 — 머리 안내 .meseq-note 와 다른 이름(검토: 같은 이름이면 머리 글 모양을 덮었다)   // 마무리 행 시각을 텍스트 중심에 정렬(다른 행과 통일)
     + '.meseq-foot{flex:0 0 auto;padding:13px 24px 20px;border-top:1px solid var(--hairline,rgba(28,27,25,0.1));font-family:var(--serif-ko,serif);font-size:11px;font-weight:300;color:var(--light,#75705F);line-height:1.7;word-break:keep-all}'
     + '.meseq-it.compact{padding:9px 0 9px 18px}'
     + '.meseq-it.compact::before{top:16px}.meseq-it.compact .meseq-clk{top:10px}'
@@ -156,8 +157,8 @@
         + (full ? ('<div class="meseq-ds">' + esc(r[3]) + '</div>') : '')
         + '</div>';
     }).join('');
-    items += '<div class="meseq-end"><span class="meseq-clk" style="position:absolute">' + esc(SLOTS[curSlot].end) + '</span>예식 마무리</div>';
-    bodyEl.innerHTML = '<div class="meseq-tl">' + items + '</div>';
+    items += '<div class="meseq-end"><span class="meseq-clk" style="position:absolute">' + esc(SLOTS[curSlot].end) + '</span>전체 일정 종료</div>';   // [H4_03 2026-11-06 홈 4차 H03] 본식 끝과 전체 일정 끝을 가른다
+    bodyEl.innerHTML = '<div class="meseq-tl">' + items + '</div><p class="meseq-bnote">단체 사진 시작 시각은 본식 20분 기준 예시입니다. 고른 식순에 따라 달라집니다.</p>';
     bodyEl.scrollTop = 0;
   }
   // 예약 페이지(trim·snap)에서만 모달 안 상품 전환 토글 노출 — 우측 아이콘으로 열어도 둘 다 볼 수 있게

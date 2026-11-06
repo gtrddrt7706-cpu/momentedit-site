@@ -130,8 +130,13 @@ const CONVO = [{ role: 'user', content: '환불 규정이 복잡해서 사람과
   let r = await callApi('handoff.js', { messages: CONVO, page: '예약' }, { ANTHROPIC_API_KEY: 'k', HANDOFF_WEBHOOK_URL: HOOK },
     (u, b) => gasRoute(u, b) || (u === ANT ? J({ type: 'error', error: { type: 'overloaded_error' } }, 529) : J({})));
   let fwd = r.calls.find((c) => c.b.action === 'aiHandoff');
-  ok('② handoff — 요약 업체 529 여도 대화 원문을 GAS 로 넘긴다(종전엔 502 로 끝나 인계가 사라졌다) · delivered:true · brief:false', r.status === 200 && r.j && r.j.ok === true && r.j.delivered === true && r.j.brief === false
-    && !!fwd && Array.isArray(fwd.b.conversation) && fwd.b.conversation.length === 2 && /요약 실패/.test(fwd.b.brief && fwd.b.brief.category), { status: r.status, j: r.j, brief: fwd && fwd.b.brief });
+  ok('② handoff — 요약 업체 529 여도 인계를 GAS 로 넘긴다(요약 실패 표시 · [H4_HANDOFF_TOPIC] 질문 원문은 보내지 않는다) · delivered:true · brief:false', r.status === 200 && r.j && r.j.ok === true && r.j.delivered === true && r.j.brief === false
+    && !!fwd && Array.isArray(fwd.b.conversation) && fwd.b.conversation.length === 0 && /요약 실패/.test(fwd.b.brief && fwd.b.brief.category), { status: r.status, j: r.j, brief: fwd && fwd.b.brief });
+  /* [H4_HANDOFF_PHONE] 연락처는 모델 · 관리자 시트 어디에도 — 고객 객체의 phone · 요약 속 번호 */
+  r = await callApi('handoff.js', { messages: CONVO, page: '마이', customer: { name: '김 · 이', code: 'TEST01', stage: '상담', phone: '010-1234-5678' } }, { ANTHROPIC_API_KEY: 'k', HANDOFF_WEBHOOK_URL: HOOK },
+    (u, b) => gasRoute(u, b) || (u === ANT ? J({ content: [{ type: 'text', text: JSON.stringify({ category: '환불', summary: '010-1234-5678 고객 환불 문의', suggestedReply: '답', rationale: '근거', confidence: '보통' }) }], usage: {} }) : J({})));
+  fwd = r.calls.find((c) => c.b.action === 'aiHandoff'); const antCall = r.calls.find((c) => c.u === ANT);
+  ok('② handoff [H4_HANDOFF_PHONE] — 모델 요청 · GAS 고객 · 요약에 전화번호 없음 · 원문 미보관', !!fwd && !JSON.stringify(fwd.b).includes('1234-5678') && !(antCall && JSON.stringify(antCall.b).includes('1234-5678')) && fwd.b.customer && fwd.b.customer.code === 'TEST01' && fwd.b.conversation.length === 0, fwd && fwd.b);
   r = await callApi('handoff.js', { messages: CONVO, page: '메인' }, { HANDOFF_WEBHOOK_URL: HOOK }, (u, b) => gasRoute(u, b) || J({}));
   ok('② handoff — 키가 없어도(종전 503) 원문은 넘긴다', r.status === 200 && r.j && r.j.delivered === true && r.j.briefWhy === 'unconfigured' && r.calls.some((c) => c.b.action === 'aiHandoff'), r.j);
   r = await callApi('handoff.js', { messages: CONVO, page: '메인', test: true }, { ANTHROPIC_API_KEY: 'k', HANDOFF_WEBHOOK_URL: HOOK }, (u, b) => gasRoute(u, b) || J({}, 529));
@@ -364,10 +369,12 @@ await run('③ AI 위젯', async () => {
   /* F7 — 디렉터 전달이 실패하면 «전달했어요»라 하지 않는다(503 → A3 · GAS delivered:false → A4) · 되면 «전달했어요» */
   for (const [resp, want, nm] of [[`{ status: 503, body: { error: 'handoff_unconfigured' } }`, /^자동 전달이 안 됐어요 · 카카오톡으로 남겨 주세요 \(코드 A3\)$/, '503 → A3'],
     [`{ body: { ok: true, delivered: false, why: 'gas_busy' } }`, /^자동 전달이 안 됐어요 · 카카오톡으로 남겨 주세요 \(코드 A4\)$/, 'GAS 거절(delivered:false) → A4'],
-    [`{ body: { ok: true, delivered: true } }`, /디렉터에게 (바로 전달했어요|남겼어요)|문의를 디렉터에게 남겼어요/, '전달됨 → «전달했어요»']]) {
+    [`{ body: { ok: true, delivered: true } }`, /디렉터에게 (바로 전달했어요|남겼어요)|문의를 (디렉터에게 )?남겼어요/, '전달됨 → «전달했어요»']]) {
     const { ctx, pg } = await open('/inquiry.html', `if (url.indexOf('/api/advisor') >= 0) return { body: { reply: '확인이 필요해 디렉터에게 연결해 드릴게요.', escalate: true } }; if (url.indexOf('/api/handoff') >= 0) return ${resp};`, { w: 1280 });
     await until(pg, () => !!(window.MEAdvisor && window.MEAdvisor.ask), null, 8000);
     await pg.evaluate(() => window.MEAdvisor.ask('계약금 환불이 되나요?'));
+    await until(pg, () => !!document.querySelector('.me-adv-esc-go'));   // [H4_HANDOFF_ASK] 고객이 «상담원 연결»을 눌러야 보낸다
+    await pg.click('.me-adv-esc-go');
     await until(pg, () => { const e = document.querySelector('.me-adv-esc-t'); return !!e && !/전달하고 있어요/.test(e.textContent); });
     const t = await escTxt(pg);
     ok(`③ 위젯(F7) — 디렉터 전달 ${nm}${/A\d/.test(nm) ? ' · «전달했어요» 없음' : ''}`, want.test(t) && (/전달됨/.test(nm) || !/전달했어요|남겼어요/.test(t)), t);
@@ -648,6 +655,7 @@ await run('⑤ AI 위젯 · 공유 2라운드', async () => {
   let w = await open('/inquiry.html', `if (url.indexOf('/api/advisor') >= 0) return { body: { reply: '확인이 필요해 디렉터에게 연결해 드릴게요.', escalate: true } }; if (url.indexOf('/api/handoff') >= 0) return { body: { ok: true, delivered: false, why: 'gas_unauthorized', ecode: 'A3' } };`, { w: 360 });
   await until(w.pg, () => !!(window.MEAdvisor && window.MEAdvisor.ask), null, 8000);
   await w.pg.evaluate(() => window.MEAdvisor.ask('계약금 환불이 되나요?'));
+  await until(w.pg, () => !!document.querySelector('.me-adv-esc-go')); await w.pg.click('.me-adv-esc-go');   // [H4_HANDOFF_ASK]
   await until(w.pg, () => { const e = document.querySelector('.me-adv-esc-t'); return !!e && !/전달하고 있어요/.test(e.textContent); });
   const et = await escTxt(w.pg), egb = await gluedBad(w.pg, '.me-adv-esc-t');
   ok('⑤ 위젯(HANDOFF_ECODE) — GAS 설정 문제는 «자동 전달이 안 됐어요 · 카카오톡으로 남겨 주세요 (코드 A3)» · 코드는 한 덩어리', /^자동 전달이 안 됐어요 · 카카오톡으로 남겨 주세요 \(코드 A3\)$/.test(et) && !egb.length, { et, egb });
