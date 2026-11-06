@@ -346,7 +346,15 @@
     html = processOptional(html, 'groomBio', true);
     html = processOptional(html, 'brideBio', true);
 
+    /* ★[ENTRY_TIME_1106 2026-11-06 대본 4차 G12] 현장 청첩장 도착 안내 — 하객이 본식 시각에서 20분을 빼지 않게 두 시각을 함께 적는다.
+       본식 = SLOT_CLOCK 을 지난 실제 본식 시각(time.time24) · 하객 입장 = 본식 20분 전(대기 공간 없음 · mypage SLOT_CLOCK 표와 같은 간격).
+       시각 꼴이 아니면(옛 저장분 등) 짐작하지 않고 «본식 20분 전»으로 둔다 */
+    var _koClock = function (h, mi) { return (h < 12 ? '오전' : '오후') + ' ' + (h % 12 || 12) + '시' + (mi ? ' ' + mi + '분' : ''); };
+    var _tm = /^(\d{2}):(\d{2})$/.exec(time.time24), _mainMin = _tm ? (+_tm[1]) * 60 + (+_tm[2]) : -1;
+    var GUEST_ENTRY_KO = _mainMin >= 20 ? _koClock(Math.floor((_mainMin - 20) / 60), (_mainMin - 20) % 60) : '본식 20분 전';
+    var WEDDING_TIME_KO = _mainMin >= 0 ? _koClock(Math.floor(_mainMin / 60), _mainMin % 60) : escapeHtml(time.display);
     var map = {
+      GUEST_ENTRY_KO: GUEST_ENTRY_KO, WEDDING_TIME_KO: WEDDING_TIME_KO,   // [ENTRY_TIME_1106]
       GROOM_NAME: escapeHtml(c.groomName), BRIDE_NAME: escapeHtml(c.brideName),
       GROOM_BANK: escapeHtml(gAcct.bank), BRIDE_BANK: escapeHtml(bAcct.bank),
       GROOM_ACCOUNT: escapeHtml(gAcct.account), BRIDE_ACCOUNT: escapeHtml(bAcct.account),

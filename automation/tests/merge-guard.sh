@@ -4767,6 +4767,22 @@ if command -v node >/dev/null 2>&1; then _pvo=$(node scripts/audit/prevideo-cat.
   esac
 fi
 chk 'PV_CAT_1031' automation/platform/89_prevideo.gs 1
+# ★★[MID_VIDEO_1106 2026-11-06 사장님 «식중 영상은 선택으로» · 대본 체크리스트 7 · 8 · 9 · 12 · 13 · 16] 식중 영상(선택) = 식순 «준비한 순서 · 영상» 자리 —
+#   켜고 끄는 원천은 식순 초안 하나(마이페이지는 그 칸을 연다 · 식순을 따로 쓰지 않는다) · 상태 넷(미제출 · 제출 · 확정 · 영상 없이 진행) · 서버 «개인코드#mid» 줄(링크뿐)
+#   · 기한 안내(예식 14일 · 7일 전 · 기한날 관리자 한 줄) · 관리자 화면 줄 · 6개월 지우기에 «#mid» — 진짜 마이페이지 · GAS 함수를 돌린다
+if command -v node >/dev/null 2>&1; then _mvo=$(node scripts/audit/midvideo.mjs 2>&1); _mvr=$?
+  case "$_mvr" in
+    0) echo 'ok midvideo: 식중 영상 — 켜고 끄기 · 상태 넷 · 서버 · 기한 안내 · 길' ;;
+    1) echo 'FAIL midvideo: 식중 영상 결정이 어긋났다 — node scripts/audit/midvideo.mjs'; printf '%s\n' "$_mvo" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok midvideo: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'MID_VIDEO_1106' mypage.html 35
+chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 19
+chk 'MID_VIDEO_1106' admin.html 3
+chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
+chk 'MID_VIDEO_1106' automation/platform/95_notify.gs 5
+chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
 #   버전 고정(무료 라이선스 판) · 유료 렌더 패키지 없음 · 길이 = 마이페이지 _pvcSecs · 개그 · 패러디 갈래 없음
 if command -v node >/dev/null 2>&1; then _pro=$(node scripts/audit/prevideo-remotion.mjs 2>&1); _prr=$?
@@ -19201,7 +19217,7 @@ chk 'ENTRY_CALL_PAUSE_1013' console.html 3
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-call-pause.mjs 1
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-music.mjs 2
 chk 'ENTRY_CALL_PAUSE_1013' scripts/audit/entry-scene-day.mjs 2
-chk 'after:60,call:1.8}' assets/entry-scene.js 1                                                   # 장면 «입장!» 앞 쉼 1.8초(SP.call · 10/13 사장님) · 문 열린 뒤 60초 + 잦아듦 4초 = «도착» 64초([ENTRY_BGM_1019] · 종전 20초)
+chk 'after:(_W&&_W.scene>0?_W.scene:30),call:1.8}' assets/entry-scene.js 1  # ★[WALK_HALF_1106] 11/06 사장님 «절반 정도» — 문 열린 뒤 30초(RitualOpen.WALK.scene) + 4 = 34초 · 옛 핀 'after:60,call:1.8}' ·                                                 # 장면 «입장!» 앞 쉼 1.8초(SP.call · 10/13 사장님) · 문 열린 뒤 60초 + 잦아듦 4초 = «도착» 64초([ENTRY_BGM_1019] · 종전 20초)
 nochk 'after:20,call' assets/entry-scene.js                                                        # ★문 열린 뒤 24초에 끝나던 판 — 10/19 사장님 «도착까지 행진 이후 1분 이상» · 되살리지 말 것
 chk 'var vv=ES.voiceStart(a,V0,vg,t0,PL.tv,from);' assets/entry-music.js 1                         # 식순 화면 — 목소리는 엔진이 끊어 건다
 chk 'var vv = ES.voiceStart(a, V0, vg, t0, PL.tv, 0);' console.html 1                              # 당일 콘솔 — 같은 자리에서 끊는다
@@ -21353,6 +21369,7 @@ chk 'data-fk="prj:_after"' order-preview.html 1
 nochk "say md" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way4.mjs >/dev/null 2>&1; _prw4=$?; if [ "$_prw4" = 1 ]; then echo 'FAIL pr-way4: 연습 보충(행위자 · 진행 상수 · 토글 · 식후 · 연습 시간)이 어긋났습니다 — node scripts/audit/pr-way4.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/b5-practice.mjs >/dev/null 2>&1; _b5p=$?; if [ "$_b5p" = 1 ]; then echo 'FAIL b5-practice: 5차 연습 회귀(편지 몫 · 본식 뒤 머리 · A 복귀 8초 · 축가 3초 · 짧은 잔여 재개 · 멈춤 중 음악 · 이어서 연습 칸 · 역할 복사 실패 창)가 어긋났습니다 — node scripts/audit/b5-practice.mjs'; fail=1; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/listen-resume.mjs >/dev/null 2>&1; _lrs=$?; if [ "$_lrs" = 1 ]; then echo 'FAIL listen-resume: 입장 걸음 절반 · 축배 60초 · «본식 피아노» 글 · 이어 듣기 = 멘트 바로 · 듣기 로딩 표시(«불러오는 중…» · 10초 «연결이 느려요») 중 하나가 어긋났습니다 — node scripts/audit/listen-resume.mjs'; fail=1; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way.mjs >/dev/null 2>&1; _prw=$?; if [ "$_prw" = 1 ]; then echo 'FAIL pr-way: 연습 두 길(흐름 보기 · 직접 해보기 · 하단 셋 · 큰 글 · 축배 GO · 화면 잠금 · 입구) — node scripts/audit/pr-way.mjs'; fail=1; fi; fi
 chk 'RING_HONOR_1031' assets/ritual-open.js 1
 # ── 2026-11-01 [OPEN_NO_SHOUT 검토 187 · 사장님 12:28 «추천대로»] 137 개식 끝 문장 «박수와 함성으로» → «박수로»(자료 BB 3 에서 «와 함성»만 뺌) · 입장 «설레게»(07)는 그대로
@@ -21490,7 +21507,8 @@ chk "'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-so
 chk "'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1," assets/ritual-cue.js 1
 chk "actId: 'photo-all'" assets/ritual-cue.js 1
 chk '작가님 안내에 따라' mypage.html 1
-chk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진 · 추가 촬영을 하실 분은 남고, 그 밖의 분은 식사 자리로 먼저 이동해요.' guide.html 1   # [GATHER_200]
+chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 먼저 식사 장소로 이동하셔도 돼요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
+nochk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진' guide.html
 nochk '차례가 아닌 분은 자리에서 편히 쉬어 주세요' guide.html
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
 nochk '시작할 때 안내 음성이 «촬영 차례가 아닌 분들은' mypage.html
@@ -22672,7 +22690,120 @@ chk 'B5_PN03' order-preview.html 5   # [5차 P v2 P-N03] 역할 전달 복사 �
 chk '복사하지 못했어요. 아래 글을 길게 눌러 복사해 주세요.' order-preview.html 1
 nochk "function(){ toast('길게 눌러 복사해 주세요'); }); }catch(e){ toast('길게 눌러 복사해 주세요'); } };" order-preview.html   # ★역할 전달 복사 실패를 알림만으로 되돌리지 말 것
 chk 'B5_PRACTICE' scripts/audit/b5-practice.mjs 1   # 5차 연습 회귀 검사 파일이 살아 있는가
+chk 'WALK_HALF_1106' assets/ritual-open.js 2   # ★입장 걸음 절반 — RitualOpen.WALK 한 곳(엔진 · 본식 표 · 장면)
+chk 'var WALK_K = 0.5,' assets/ritual-open.js 1
+chk 'WALK_HALF_1106' assets/ritual-cue.js 1
+chk 'WALK_HALF_1106' assets/entry-scene.js 1
+nochk 'est: 102, duck: 0' assets/ritual-cue.js   # ★입장 걸음 102 를 엔진에 다시 적지 말 것(WALK 한 곳)
+chk 'PIANO_WORD_1106' assets/bgm-slots.js 1
+nochk '하객을 향해 서시면 감사 인사 곡이 시작돼요' assets/bgm-slots.js   # ★«감사 인사 곡»은 없다 — 본식 피아노(사장님 11/06)
+chk 'TOAST_EST60_1106' assets/ritual-open.js 2   # ★축배 사람 구간 60초 — RitualOpen.TOAST_SEC 한 곳(BGM 시뮬레이션 · 음악 칸 «1 ~ 1.5분»)
+chk 'var TOAST_SEC = 60;' assets/ritual-open.js 1
+chk 'TOAST_EST60_1106' assets/ritual-cue.js 1
+chk 'RESUME_TALK_NOW_1106' order-preview.html 4   # ★이어 듣기 = 멘트 바로(남은 뜸을 다시 돌리지 않는다)
+chk 'RESUME_TALK_NOW_1106' assets/entry-music.js 4
+chk 'LOAD_SHOW_1106' order-preview.html 8   # ★듣기 로딩 표시
+chk 'LISTEN_RESUME_1106' scripts/audit/listen-resume.mjs 1   # 위 넷(+축배 60초)을 재는 검사 파일이 살아 있는가
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
+
+# ── 2026-11-06 하객 화면 방 · 대본 4차(G08 · G10 · G13 · G15 · P-N05 · P-N06) — 하객 안내 · 온라인 참석 · 역할 문서
+chk 'G08_GATHER_1106' guide.html 4          # 식사 카드 세 줄 · 예약 시각은 분명한 시각만 한글로(ritual-preview-link resvTimeOk 와 같은 규칙 · G16=M18)
+chk 'function gdResvKo(t)' guide.html 1
+chk "'식사는 '+esc(_rko)+'에 두 분과 함께해요.'" guide.html 1
+chk 'DAY_INFO_1106' guide.html 2            # 신부 대기실 안내는 좌석과 상관없이 «예식 당일 안내» 칸에 한 번
+chk '+dayInfoHtml()' guide.html 1
+nochk "안내돼요.</div>'+NO_WAITROOM+'</div>'" guide.html
+chk 'GP_FULL_REST_1106' guide.html 1        # 한도로 멈추면 «남은 사진은 두 분께 따로 전해 주세요.»
+chk 'LIVE_BACK_DEST_1106' live.html 2       # 같은 예식 청첩장에서 왔을 때만 «청첩장으로 돌아가기» · 모르면 «모먼트에디트 홈으로»
+nochk 'if (window.history.length > 1) { history.back(); return; }' live.html
+chk 'ROLE_HASH_REDRAW_1106' role.html 1     # 같은 탭에서 역할 링크가 바뀌면 다시 그린다
+chk "addEventListener('hashchange'" role.html 1
+chk '안내를 열 수 없어요. 보내 주신 분께 링크를 다시 부탁해 주세요.' role.html 1
+chk 'ROLE_WRAP_1106' role.html 1            # 긴 단어만 칸 안에서 줄바꿈
+chk 'overflow-wrap:anywhere' role.html 1
+# ── 2026-11-06 하객 화면 방 · 대본 4차(G05 · G06 · G09 · H19 · G12) — 청첩장 · 갤러리
+chk '<span>온라인으로 함께하기</span>' i/cover-01.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-01.html 1
+nochk '<span>Enter' i/cover-01.html
+chk '<span>온라인으로 함께하기</span>' i/cover-02.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-02.html 1
+nochk '<span>Enter' i/cover-02.html
+chk '<span>온라인으로 함께하기</span>' i/cover-03.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-03.html 1
+nochk '<span>Enter' i/cover-03.html
+chk '<span>온라인으로 함께하기</span>' i/cover-04.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-04.html 1
+nochk '<span>Enter' i/cover-04.html
+chk '<span>온라인으로 함께하기</span>' i/cover-05.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-05.html 1
+nochk '<span>Enter' i/cover-05.html
+chk '<span>온라인으로 함께하기</span>' i/cover-06.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-06.html 1
+nochk '<span>Enter' i/cover-06.html
+chk '<span>온라인으로 함께하기</span>' i/cover-07.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-07.html 1
+nochk '<span>Enter' i/cover-07.html
+chk '<span>온라인으로 함께하기</span>' i/cover-08.html 1          # [JOIN_KO_1106 G05] 입장 단추 한국어 · 서비스 이름 «디지털 참석»은 그대로
+chk 'join-help">예식 영상을 보고, 두 분께 편지를 보낼 수 있어요.</p>' i/cover-08.html 1
+nochk '<span>Enter' i/cover-08.html
+chk 'ONLINE_GREET_1106' i/cover-08.html 1
+chk '<p>멀리서도 저희의 시작을 함께 지켜봐 주세요.</p>' i/cover-08.html 1   # [G06] 온라인용 기본 인사(고객이 쓴 인사글은 그대로)
+nochk '그 자리에 오셔서, 저희의 시작을 함께 지켜봐 주세요.' i/cover-08.html
+chk 'DIGITAL_NAME_1106' invitation-gallery.html 1                       # [H19] 카드 이름 «디지털 참석»
+nochk "name:'모바일 참석'" invitation-gallery.html
+nochk '링크로 보내는 판 · 모바일 참석 포함' invitation-gallery.html
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-01-classic.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-01-classic.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-02-editorial.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-02-editorial.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-03-letterpress.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-03-letterpress.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-04-Vermilion.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-04-Vermilion.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-05-botanical.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-05-botanical.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-06-hangeul.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-06-hangeul.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-07-architect.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-07-architect.html 1
+chk 'OLD_COPY_DEMO_1106' i/invitations/invitation-08-noir.html 1                                      # [G09] 옛 공개 사본 — 예시 표시 · 계좌 한 줄 · 지금 디자인 표본 링크
+chk '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.' i/invitations/invitation-08-noir.html 1
+chk 'ENTRY_TIME_1106' shared/hydrate.js 2                               # [G12] 현장 청첩장 — 하객 입장 · 본식 두 시각(본식 20분 전)
+chk 'GUEST_ENTRY_KO: GUEST_ENTRY_KO, WEDDING_TIME_KO: WEDDING_TIME_KO' shared/hydrate.js 1
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-01.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-01.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-02.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-02.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-03.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-03.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-04.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-04.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-05.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-05.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-06.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-06.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-07.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-07.html
+chk '{{GUEST_ENTRY_KO}}</span> · 본식 {{WEDDING_TIME_KO}}' i-family/family-08.html 1
+nochk '20분 전</span>부터 내빈 입장이 시작됩니다' i-family/family-08.html
+chk 'RESV_NO_GUESS_AMPM' guide.html 2     # [검토 A] 1 ~ 12시는 오전 · 오후를 짐작하지 않는다(«6시» 그대로)
+chk "window.addEventListener('pagehide', () => clearTimeout(t), { once: true });" live.html 1
+nochk 'hydrate.js?v=20261106a' i/cover-01.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-02.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-03.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-04.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-05.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-06.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-07.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i/cover-08.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-01.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-02.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-03.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-04.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-05.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-06.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-07.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
+nochk 'hydrate.js?v=20261106a' i-family/family-08.html    # [검토 C] 새 토큰(ENTRY_TIME_1106)을 아는 hydrate 판을 받게
 # ★★[H4_HOME 2026-11-06 홈 4차 H02 ~ H22 · 대본 판정] 홈 · FAQ · 즉답 · AI 지식을 같은 말로 — 되돌리면 빨강
 chk '2027년 4월 오픈 준비 · 도로명 주소는 확정되면 안내드립니다' index.html 1   # [H4_02] 주소 괄호(보이는 글 · aria 같은 줄)
 nochk '정식 오픈을 앞두고' index.html                                             # [H4_02] 날짜 확정처럼 읽힌다

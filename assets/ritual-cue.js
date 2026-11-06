@@ -1049,7 +1049,7 @@
            문이 열리고 통로를 걷는 그림이 '틀에 맞춰진 예식'의 얼굴이라서다. 대신 걸어오는 동선은
            남긴다 — 사진의 시작 컷이 거기서 나온다.
            ★현장 안내를 여기 한 곳에서만 갈라 둔다. 두 군데 적으면 리허설에서 두 분이 문 앞에 선다. */
-        live: { t: (S.course === 'record' ? '두 분이 하객분들 사이를 지나 가운데로 걸어옴 (문 열림 없음)' : '문 열림 · 두 분이 손잡고 입장 · 중앙까지 걸어옴'), est: 102, duck: 0, self: true, doing: 'move' }
+        live: { t: (S.course === 'record' ? '두 분이 하객분들 사이를 지나 가운데로 걸어옴 (문 열림 없음)' : '문 열림 · 두 분이 손잡고 입장 · 중앙까지 걸어옴'), est: (O && O.WALK ? O.WALK.day : 51) /* ★[WALK_HALF_1106] 걸음 어림 = RitualOpen.WALK 한 곳(옛 102 · 실측 1분 42초) — 당일은 그대로 디렉터 GO */, duck: 0, self: true, doing: 'move' }
       }), (function () {
         /* ★[ENTRY_OUT_PICK 2026-08-12 사용자 지시 "따로따로"] 도착 직후 멘트를 **따로 고른다.**
            옛 판(ENTRY_OUT_TONE)은 입장 느낌을 그대로 따라갔다. 같은 순간을 두 번 묻지 않으려던
@@ -1703,7 +1703,7 @@
       /* ★[REVIEW26_1023 검토 150-1 4)] 테이블 인사가 없는 날은 56 «편안하게 즐겨 주세요.»(AA 3 · 2부 식사 자리 마무리)를 틀지 않는다 — 20초 뒤 «… 모두 단상 앞으로 모여 주시면 …»과 부딪쳤다 ·
            잔 내려놓기 사람 구간(위 TOAST_PUTDOWN_1018)은 선창 줄의 사람 구간 뒤에 그대로 이어 붙인다(시간 · 디렉터 GO 그대로) · 테이블 인사가 있는 날은 56 그대로 */
       if (_to && _to.slug === 'narr-toast-out') { var _tp = cues[cues.length - 2];
-        if (_tp && _tp.k === 'toast' && _tp.live) { cues.pop(); _tp.live.t = _tp.live.t + ' → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'; _tp.live.est = (_tp.live.est || 0) + 20; _tp.live.hintNext = '잔이 다 내려가면'; }
+        if (_tp && _tp.k === 'toast' && _tp.live) { cues.pop(); _tp.live.t = _tp.live.t + ' → 하객이 잔을 내려놓음 · 두 분도 잔을 건넴'; _tp.live.est = (O && O.TOAST_SEC) || 60; /* ★[TOAST_EST60_1106] 축배 사람 구간 = RitualOpen.TOAST_SEC 한 곳(옛 «위하여» 10 + 잔 내려놓기 20 = 30) */ _tp.live.hintNext = '잔이 다 내려가면'; }
         else if (!_to.live) _to.live = { t: '하객이 잔을 내려놓음 · 두 분도 잔을 건넴', est: 20, self: false, doing: 'move', duck: PARAM.duckMusic, consoleOnly: true, hintNext: '잔이 다 내려가면', previewPost: [] }; } }
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
