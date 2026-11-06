@@ -12412,7 +12412,7 @@ function prodConfirmHtml(p, inv){
       var _rvTs=_dnRtBad(_rvT)?'시각 확인 필요':_rvT;   // [RSV_TIME_CHK_1106 4차 M18] 시각이 아닌 글은 시각처럼 적지 않는다
       if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvTs+(_rvTs&&_rvN?' · ':'')+_rvN))+'</span>';
     } else {   /* ★[DN_CONF_PUB_1106 4차 M11] 대표 식당이 없을 때 — 하객에게 공개한 곳 · 비공개 후보 · 상담 선택을 나눠 말한다(종전엔 모두 «장소 미정 · 상담에서 디렉터와 함께 정해요» · 아무도 안 한 약속) */
-      var _pb=_dnPubFavs(dd), _fn=(dd._favs||[]).length, _pk=String(dd.venuePick||dd.partner||''), _ns=function(a){ var x=a.slice(0,3).map(function(v){ return '<span style="white-space:nowrap">'+escapeHtml(String(v.n||''))+'</span>'; }); if(a.length>3) x.push('<span style="white-space:nowrap">외 '+(a.length-3)+'곳</span>'); return x.join('<br>'); };   // [CF_LINE_BREAK] 이름 사이는 «·» 대신 줄바꿈(줄 머리 · 줄 끝 점 없게)
+      var _pb=_dnPubFavs(dd), _fn=(dd._favs||[]).length, _pk=String(dd.venuePick||dd.partner||''), _ns=function(a){ var x=a.slice(0,3).map(function(v){ return escapeHtml(String(v.n||'')); }); if(a.length>3) x.push('<span style="white-space:nowrap">외 '+(a.length-3)+'곳</span>'); return x.join('<br>'); };   // [CF_LINE_BREAK] 이름 사이는 «·» 대신 줄바꿈(줄 머리 · 줄 끝 점 없게) · 긴 이름은 칸 안에서 감긴다(nowrap 없음)
       if(_pb.length) dv=(_pb.every(function(v){ return v.src==='attr'; })?'들를 곳':'하객 안내에 공개')+'<br>'+_ns(_pb);
       else if(_fn) dv='후보 '+_fn+'곳<br>하객에게 공개한 곳 없음';
       else if(_pk==='상담 때 함께 정할게요') dv='장소 미정<br>상담에서 디렉터와 함께 정해요';   // 두 분이 상담을 고른 경우만 상담 약속
