@@ -21956,6 +21956,11 @@ chk 'BG03-T01' scripts/audit/seam-bg.mjs 2
 chk 'BG04-T01' scripts/audit/seam-bg.mjs 1
 chk 'BG07-T01' scripts/audit/seam-bg.mjs 1
 nochk '테이블 인사와 사진 동안' assets/bgm-bed.js
+# ★[SEAM_BG05 · SEAM_BG06 이음매 명세 BGM 몫 · NI06 · NI10 · NI11 뒤] 축배 선창 전후 행동 줄 크기 · 촬영 후 안내 뒤 줄 마지막 곡(검사 = CI e 칸 seam-bg)
+chk 'SEAM_BG05' assets/bgm-bed.js 1
+chk 'SEAM_BG06' assets/bgm-bed.js 1
+chk 'BG05-T01' scripts/audit/seam-bg.mjs 1
+chk 'BG06-T01' scripts/audit/seam-bg.mjs 1
 # ★[SEAM_B2 이음매 2차 묶음 B2 · BGM 몫(엔진)] 음07 본식 첫 곡 · 음04 긴 입장 곡 이어 잇기 · 음03 맞절 뒤 축배 본식 곡 · 음02 · 음05 재현 0(검사로 고정) · 음06 정적에서 정지 · 음08 대체 재생기 끝내기 페이드 · 음09 이어 든 줄만 · 음10 쉼 예약 번호(검사 = CI bgm-sound a · e 칸 seam-b2-entry · seam-b2-rest)
 chk 'B2_EUM07' assets/bgm-picks.js 1
 chk 'B2_EUM04' console.html 2

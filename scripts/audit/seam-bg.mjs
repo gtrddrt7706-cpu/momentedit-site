@@ -7,6 +7,8 @@
      T03 화촉 있음 대조: 화촉 첫 큐 6초 뜸 · b7 −16 · 입장 클립 · 걷기 0 dB 그대로
    BG03 편지 끝 다음 음악 — 목적지 = 실제 다음 장면 첫 큐(b8 · b12 · b14 는 건너뛰되 정적이면 거기서 정적) · 정적 목적지 아래 M4 올림 0 · 새 곡 전환 한 번 · 들리는 이음말 제 크기 · 늦은 곡 콜백 취소(콘솔 · 미리 듣기)
    BG04 축가 뒤 b12 — 앞 곡 −90 그대로 · M5 는 부모님께 인사 첫 큐 뜸에서 · «밝게»(b12 없음) 판 그대로 · 앞 곡이 들리던 이음말은 제 크기
+   BG05 축배 선창 전후 행동 줄(크기 없음) — 선창 전 = 엔진 축배 live(−90 판은 −90) · 선창 뒤 = 축배 곡 크기 · 크기가 실린 줄은 그 값
+   BG06 촬영 후 안내 뒤 가족 · 추가 촬영 줄(after 표시 없음)도 같은 마지막 곡(M8L) · 끝내기 뒤 기억 지움
    BG07 테이블 인사 음악 카드 설명 — «테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분»
    BG02 축가(정적) → «음악과 함께» 편지 — T01 여는 말 동안 M4 상승 · 재시작 0(엔진 · 미리 듣기)   T02 낭독 시작에서만 고른 편지 곡(M4S6) −20(미리 듣기 · 콘솔)   T03 앞 곡이 들리면 여는 말 −16 · 낭독 곡으로 3초 전환 그대로
    ONLY=BG08,… 로 항목만 · BP_BED · BP_OP · BP_CUE · BP_CON = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -79,6 +81,7 @@ const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 
 const hold = async (f, k) => { await go(f, k); await f.evaluate((k) => { try { lsStop(); } catch (e) {} lsPlay(k); }, k);
   await f.waitForFunction(() => { const B = BgmBed._t.BED; return B.who === 'lp' && B.cur && B.cur.src && B.cur.g; }, null, { timeout: 30000 }); await wait(f, 7500);
   await f.evaluate(() => { clearTimeout(LP.t); LP.tok++; const v = BgmBed._t.BED.cur, g = v.g.gain, o = g.linearRampToValueAtTime.bind(g); window.__rl = []; g.linearRampToValueAtTime = function (val, t) { window.__rl.push({ val, ms: Math.round((t - v.g.context.currentTime) * 1000) }); return o(val, t); }; }); };
+const near = (x, y) => x != null && Math.abs(x - y) <= 40;   /* [SEAM_BG_MS] 걸린 시간은 오디오 시계로 재서 CI 에서 수 ms ~ 수십 ms 어긋난다(388 · 400) — ±40ms 안이면 같은 값(내림 400 · 올림 1200 은 그대로 갈린다) */
 const probe = (f, fn, st, w0) => f.evaluate(({ fn, st, w0 }) => { const v = BgmBed._t.BED.cur; v.want = w0 === 'undef' ? undefined : w0 === 'NaN' ? NaN : w0; window.__rl.length = 0; const s1 = Object.assign({ k: LP.q[LP.i].k }, st);
   try { if (fn === 'show') BgmBed.lpShow(s1); else BgmBed.lpLevel(s1); } catch (e) { return { err: String(e) }; } const r = window.__rl.slice(); return { n: r.length, ms: r.length ? r[r.length - 1].ms : null, want: v.want, f: v.f }; }, { fn, st, w0 });
 
@@ -198,9 +201,9 @@ try {
   if (want('BG08')) {
     await hold(f, 'welcome'); const f0 = await f.evaluate(() => BgmBed._t.BED.cur.f), P = await f.evaluate(() => BgmBed._t.PR());
     const a = await probe(f, 'show', { dk: -12 }, 0), b = await probe(f, 'show', { dk: -12 }, -8), c = await probe(f, 'show', { dk: -12 }, -20);
-    ok(`BG08-T01 lpShow — 0 → −12 내림 ${P.down}ms · −8 → −12 내림 · −20 → −12 올림 ${P.up}ms (곡 그대로 ${f0})`, a.ms === P.down && b.ms === P.down && c.ms === P.up && [a, b, c].every((x) => x.f === f0 && x.want === -12), { a, b, c });
+    ok(`BG08-T01 lpShow — 0 → −12 내림 ${P.down}ms · −8 → −12 내림 · −20 → −12 올림 ${P.up}ms (곡 그대로 ${f0})`, near(a.ms, P.down) && near(b.ms, P.down) && near(c.ms, P.up) && [a, b, c].every((x) => x.f === f0 && x.want === -12), { a, b, c });
     const d = await probe(f, 'level', { talk: true, ldk: -20 }, 0), e = await probe(f, 'level', { talk: true, ldk: -20 }, -90), g = await probe(f, 'level', { talk: true, ldk: -20 }, -60), h = await probe(f, 'level', { talk: true, ldk: 0 }, 0);
-    ok('BG08-T02 lpLevel — 0 → −20 조절함(내림) · −90 · −60 은 조절 안 함(무음 보호) · 0 → 0 은 무음으로 보지 않음', d.n === 1 && d.ms === P.down && d.want === -20 && e.n === 0 && g.n === 0 && h.n === 1 && h.want === 0, { d, e, g, h });
+    ok('BG08-T02 lpLevel — 0 → −20 조절함(내림) · −90 · −60 은 조절 안 함(무음 보호) · 0 → 0 은 무음으로 보지 않음', d.n === 1 && near(d.ms, P.down) && d.want === -20 && e.n === 0 && g.n === 0 && h.n === 1 && h.want === 0, { d, e, g, h });
     const u = await probe(f, 'level', { talk: true, ldk: -20 }, 'undef'), nn = await probe(f, 'level', { talk: true, ldk: -20 }, null), na = await probe(f, 'level', { talk: true, ldk: -20 }, 'NaN');
     ok('BG08-T03 미지정 · null · NaN = −90(조절 안 함) · 곡 파일 그대로', u.n === 0 && nn.n === 0 && na.n === 0 && [u, nn, na].every((x) => x.f === f0), { u, nn, na });
     await f.evaluate(() => { try { lsStop(); } catch (e) {} });
@@ -249,7 +252,30 @@ try {
   }
     ok('BG03 미리 듣기 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
   } catch (e) { ok('BG03 미리 듣기 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })();
-  await Promise.all([laneA, laneB, laneC]);
+  const laneD = (async () => { if (!want('BG05') && !want('BG06')) return; try {
+    /* BG05 축배 선창 전후 행동 줄 — 크기가 안 실린 줄(NI06 이 펼친 잔 준비 · 잔 들기 · 화답 · 잔 내려놓기)의 음악 크기(엔진 lvOf) */
+    const { ctx, f, errs } = await open(390, true);
+    await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
+    const lv = (on) => f.evaluate((on) => { Object.keys(on).forEach((k) => { S.on[k] = on[k]; }); S.bgm = {}; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render();
+      const BB = BgmBed._t, P = BB.PR ? BB.PR() : null, eng = (ENG.RitualCue.build(S, { mode: 'console' }).cues || []).find((c) => c.k === 'toast' && c.live && c.live.cheer), row = { k: 'toast', lab: '말없이 흐르는 자리', txt: '앞쪽 중앙에서 잔을 들고 하객을 바라봐요', quiet: true, who2: 'couple', ms: 0, est: 0 };
+      BB.LPB.m7 = false; const pre = BB.lvOf(row, 'B09'), withL = BB.lvOf(Object.assign({}, row, { act: 1, ldk: -20 }), 'B09'); BB.LPB.m7 = true; const post = BB.lvOf(row, 'B28'); BB.LPB.m7 = false;
+      return { eng: eng && eng.live.duck, pre, post, withL, toast: P && P.toast, music: P && P.music }; }, on);
+    if (want('BG05')) { const q = await lv({ song: 1, toast: 1, letter: 0, tribute: 0, table: 0 }), a = await lv({ toast: 1, table: 0, letter: 0, tribute: 1, song: 0 });
+    ok('BG05-T01 선창 −90 판(축가 뒤 축배) — 크기 없는 잔 준비 · 잔 들기 줄 = −90(기본 −8 아님)', q.eng === -90 && q.pre === -90, q);
+    ok('BG05-T02 선창 뒤(M7 시작) — 화답 · 잔 내려놓기 줄은 축배 곡 크기를 잇는다(−90 복사 0)', q.post === q.toast && q.post > -60, q);
+    ok('BG05-T03 대조 — 들리는 선창(부모님께 인사 뒤 −16)은 엔진 값 그대로 · 크기가 실린 줄(−20)은 그 값', a.eng === -16 && a.pre === -16 && q.withL === -20 && a.withL === -20, { a, q }); }
+    if (want('BG06')) {
+      /* BG06 촬영 후 안내 → 가족 · 추가 촬영 줄(after 표시 없음) — 같은 마지막 곡(M8L) · 닫는 인사 곡(M6)으로 돌아가지 않는다 */
+      const r6 = await f.evaluate(() => { const BB = BgmBed._t, keep = { q: LP.q, i: LP.i, st: BB.AV.st, set: Object.assign({}, BB.AV.set) }; BB.AV.st = 'ok'; BB.AV.set.B11 = 1; BB.AV.set.B17 = 1;
+        const close = { k: '_close', slug: 'narr-closing', lab: '마무리 멘트', dk: -16 }, aft = { k: '_close', slug: 'after-photo', after: true, lab: '촬영 후 안내', dk: -14 }, fam = { k: '_close', lab: '말없이 흐르는 자리', txt: '가족 단체 사진을 찍어요', quiet: true }, ext = { k: '_close', lab: '말없이 흐르는 자리', txt: '추가 촬영을 이어 가요', quiet: true };
+        LP.q = [close, aft, fam, ext]; const ff = BB.fileFor, o = {}; LP.i = 0; o.close = ff(close); LP.i = 1; o.aft = ff(aft); LP.i = 2; o.fam = ff(fam); LP.i = 3; o.ext = ff(ext); BgmBed.lpEnd(); LP.i = 2; o.famEnd = ff(fam);
+        LP.q = keep.q; LP.i = keep.i; BB.AV.st = keep.st; BB.AV.set = keep.set; return o; });
+      ok('BG06-T01 촬영 후 안내(M8L) → 가족 · 추가 촬영 줄 — 같은 마지막 곡 · 닫는 인사 곡(M6) 0', r6.aft === 'B11' && r6.fam === 'B11' && r6.ext === 'B11', r6);
+      ok('BG06 대조 — 마무리 멘트는 닫는 인사 곡 · 끝내기(lpEnd) 뒤에는 기억을 지운다', r6.close !== 'B11' && r6.famEnd !== 'B11', r6);
+    }
+    ok('BG05 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
+  } catch (e) { ok('BG05 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })();
+  await Promise.all([laneA, laneB, laneC, laneD]);
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }
 await br.close(); srv.close();
 console.log(fail ? `SEAM BG FAIL ${fail}` : 'SEAM BG OK');
