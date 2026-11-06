@@ -16,7 +16,7 @@
   'use strict';
   if(window.EntryMusic) return;
   var D=document;
-  var UP_WALK=102, UP_PRE=15, UP_MIN=60, UP_MAX=60*1024*1024, ES=window.EntryScene, SONG_LUFS=ES.SONG_LUFS, BED_TRIM=ES.BED_TRIM;   /* 걷는 시간 = 콘솔 입장 큐 어림(1분 42초) · 앞부분 15초 · 1분 넘는 곡 · 시험실과 같은 값 */
+  var UP_WALK=((window.RitualOpen&&RitualOpen.WALK&&RitualOpen.WALK.day)||51),   /* [WALK_HALF_1106 · BGM 섹션 11/06] 걷는 시간 = RitualOpen.WALK.day 한 곳(51 · 옛 102 «1분 42초») */ UP_PRE=15, UP_MIN=60, UP_MAX=60*1024*1024, ES=window.EntryScene, SONG_LUFS=ES.SONG_LUFS, BED_TRIM=ES.BED_TRIM;   /* 걷는 시간 = 콘솔 입장 큐 어림(1분 42초) · 앞부분 15초 · 1분 넘는 곡 · 시험실과 같은 값 */
   var UPS=null, UP_ID=0, PREV=null, AC=null, DEC=null, RESTORE=0;
   var EM={ scene:true };   /* [ENTRY_SCENE_1012] 2단계가 들어와 안내 창이 «음악과 함께 듣기로 …» 문장을 말한다 */
 
@@ -532,6 +532,9 @@
   function lastOf(R){ return {V0:R.V0,PL:R.PL,key:R.key,txt:R.txt,Sg:R.Sg,hk:R.hk}; }
   function scStop(){ RID++; var R=RUN; RUN=null; PEND=false; if(!R) return null; videoReset(); cancelAnimationFrame(R.raf); R.nodes.forEach(function(n){ try{ n.stop(); }catch(x){} }); setTimeout(function(){ R.gains.forEach(function(g){ try{ g.disconnect(); }catch(x){} }); },60); return R; }
   function scHalt(){ if(RUN){ var R=RUN, x=tau(R); scStop(); PAUSE={x:x,whole:!!R.whole}; LASTRUN=lastOf(R); ENDED=false; scPaint(); return true; } if(PEND){ scStop(); scPaint(); return true; } return false; }   /* 그 자리에 멈춤 → «이어 듣기»(시험실 PAUSE) · [ONE_PLAY_1013] 이어 들어도 다음 줄까지 */
+  /* ★[RESUME_TALK_NOW_1106 2026-11-06 사장님 «이어 듣기 누르면 바로 멘트 나오게 하자»] 장면을 멘트 앞(음악만 먼저 흐르는 앞 10초)에서 멈췄다 이어 들으면 멘트 시작 자리부터 —
+       음악은 그 자리 곡선 그대로(멘트 아래 크기) · 멘트가 흐르던 중이나 문 열린 뒤면 멈춘 자리 그대로 · 처음 ▶ 는 종전대로 0초(음악 먼저) */
+  function resumeX(){ var x=PAUSE?PAUSE.x:0, R=LASTRUN; if(PAUSE&&R&&R.PL&&R.V0&&R.V0.pieces&&R.V0.pieces.length&&x<R.PL.tv) x=R.PL.tv; return x; }
   function scReset(){ var had=!!(RUN||PEND||PAUSE||ENDED||LASTRUN); scStop(); PAUSE=null; ENDED=false; LASTRUN=null; if(had) scPaint(); }   /* 곡 · 자리 · 목소리가 바뀌면 멈춘 자리도 걷는다 */
   function scPlay(from,whole){ var st=vNow(), u=scSong(); if(!st||!st.src||!(u||recOn())) return; hush(); quietOthers(); scStop(); PAUSE=null; ENDED=false; LASTRUN=null; var id=++RID, key=st.key, txt=st.txt; wake(); PEND=true; scPaint();   /* [ONE_PLAY_1013] whole = 장면이 끝나면 그 순간 다음 줄까지(알약 · 그래프) · 크게 보기는 장면만 */
     Promise.all([vPrep(st),acReady(),u?u:recSong(St().mu.k)]).then(function(rr){ var s2=rr[2]; return (s2&&s2.rec&&!scCovers(s2,rr[0]))?recSong(s2.k,true).then(function(f){ rr[2]=f; return rr; }):rr; })   /* [REC_CLIP_1013] 짧은 판이 이 장면을 다 못 담으면 곡 전체 */
@@ -755,14 +758,14 @@
     /* [ENTRY_SCENE_1012] 음악과 함께 듣기 — 준비하는 중에 누르면 취소 · 트는 중이면 그 자리에 멈춤 · 멈춘 뒤면 이어서 · 끝났으면 처음부터 */
     /* [ONE_PLAY_1013] 이 순간 전체 듣기 · 음악과 함께 — 장면 뒤 줄을 트는 중이면 멈춤 · 만드는 중이면 그대로(차오름이 말한다) · 처음부터는 빌더 입구(lsPlay)를 지나 장면부터 */
     if(a==='scene'){ if(PEND){ scStop(); scPaint(); return; } if(RUN&&RUN===HAND){ scStop(); HAND=null; ENDED=true; try{ lsStop(); }catch(x){} scPaint(); return; } if(RUN){ scHalt(); return; }   /* [ENTRY_UNDER_1101] 넘긴 장면이 잦아드는 동안 «멈춤» = 받는 말 · 장면 둘 다 */ if(restOn()){ try{ lsStop(); }catch(x){} scPaint(); return; } if(mkBusy()) return;
-      var st=vNow(); if(PAUSE&&st&&st.src){ scPlay(PAUSE.x,true); return; }
+      var st=vNow(); if(PAUSE&&st&&st.src){ scPlay(resumeX(),true); return; }   /* [RESUME_TALK_NOW_1106] */
       if(typeof lsPlay==='function'){ lsPlay('entry'); return; }
       if(!st||!st.src){ offPress(); return; } scPlay(0,true); return; }
     if(a==='graph'){ graphTap(arg); return; }
     /* [ENTRY_BIG_1012] 크게 보기 — 듣는 중이면 그대로 크게 · 멈춰 있으면 그 자리부터 · 끝났으면 처음부터(시험실 bigopen · bigtog · STEP_NAV) */
-    if(a==='big'){ var sb=vNow(); if(!sb||!sb.src){ offPress(); return; } openBig(); if(!RUN&&!PEND) scPlay(PAUSE?PAUSE.x:0); return; }
+    if(a==='big'){ var sb=vNow(); if(!sb||!sb.src){ offPress(); return; } openBig(); if(!RUN&&!PEND) scPlay(PAUSE?resumeX():0); return; }   /* [RESUME_TALK_NOW_1106] */
     if(a==='bigclose'){ closeBig(); return; }
-    if(a==='bigtog'){ if(PEND){ scStop(); scPaint(); return; } if(RUN){ scHalt(); return; } scPlay(PAUSE?PAUSE.x:0); return; }
+    if(a==='bigtog'){ if(PEND){ scStop(); scPaint(); return; } if(RUN){ scHalt(); return; } scPlay(PAUSE?resumeX():0); return; }   /* [RESUME_TALK_NOW_1106] */
     if(a==='big0'){ scPlay(0); return; }
     if(a==='bigback'||a==='bigfwd'){ var P3=scenePlan(); if(!P3) return; var to=lineJump(P3,nowX(P3),a==='bigfwd'?1:-1); if(to==null) return; scPlay(to); return; }
     if(a==='biglast'){ var P4=scenePlan(); if(!P4) return; scPlay(Math.max(0,P4.PL.tv+(P4.PL.lastS||0)-0.3)); return; }

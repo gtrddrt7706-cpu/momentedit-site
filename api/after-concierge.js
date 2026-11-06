@@ -75,6 +75,10 @@ async function kakaoSearch(query) {
     /* ★[B2_MA_46 2026-11-06 2차 B2-마46] 장소명은 «글자» 단위로 자른다 — UTF-16 60칸으로 자르면 이모지 · 보조 한자의 글자 쌍이 반으로 끊겨
        화면의 지도 주소 만들기(encodeURIComponent)가 멈췄다 · [B2_MA_38] 지도 장소 ID(id)를 함께 보낸다(같은 이름의 다른 지점을 가른다) */
     const cut = (v, n) => Array.from(String(v || '')).slice(0, n).join('');
+    /* ★[B2_FIX_NI16 2026-11-06 재검증 재수정] 분류는 «갈래 > 끝 토막»으로 보낸다(«음식점 > 한식 > 육류,고기 > 갈비» → «한식 > 갈비» · «음식점 > 카페 > 커피전문점 > 스타벅스» → «카페 > 스타벅스»).
+       종전엔 끝 토막(«한식» · «스타벅스»)만 보내 담은 곳 설명에 «>»가 없어 미리 듣기 판정(assets/ritual-preview-link.js _mapKind)이 늘 «확인 필요»였고,
+       끝 토막이 상호인 카페(«스타벅스»)는 분류를 아예 잃었다. 갈래(둘째 칸)가 식사 · 카페를 가른다 · 한 칸이면 그대로 */
+    const catOf = (c) => { const sg = String(c || '').split('>').map((x) => x.trim()).filter(Boolean); if (sg.length < 2) return sg[0] || ''; const a = sg.length > 2 ? sg[1] : sg[0], z = sg[sg.length - 1]; return a === z ? a : a + ' > ' + z; };
     const places = (j.documents || []).map((d) => ({
       id: String(d.id || '').slice(0, 30),
       name: cut(d.place_name, 60),
@@ -82,7 +86,7 @@ async function kakaoSearch(query) {
       phone: String(d.phone || '').slice(0, 20),
       addr: cut(d.road_address_name || d.address_name, 80),
       url: /^https?:\/\/place\.map\.kakao\.com\//.test(String(d.place_url || '')) ? d.place_url : '',
-      cat: cut(String(d.category_name || '').split('>').pop().trim(), 20)
+      cat: cut(catOf(d.category_name), 30)
     })).filter((p) => p.name);
     return { down: false, places };
   } catch (e) { return { down: true, places: [] }; }

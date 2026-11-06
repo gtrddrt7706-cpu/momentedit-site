@@ -136,8 +136,9 @@ try {
         /* j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = M4 · M4S6 0(겹침 3초 뒤) */
         await setOn(T2, { S6: { m: 'bed' }, M4: { k: F.m4 } }); await go(f, 'toast'); await go(f, 'letter');   /* ★[CARRY_SAME_1101] 본식 곡(M4)을 골라 둔 날 — 편지 곡이 본식 목록에 있어도 고른 곡으로 돌아온다(고르지 않았으면 그대로 잇는다 · carry-same g) */
         r = await trace(f, ['letter', 'toast'], 26000); const iT = r.q.findIndex((x) => x.k === 'toast'), tT = (r.o.find((x) => x.k === 'toast') || {}).t;
-        const tz = r.o.filter((x) => x.k === 'toast' && tT != null && x.t > tT + 3200 && x.src && x.want > -60);
-        ok(`j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = M4(${F.m4}) · M4S6(${F.m4s6}) 0`, iT > -1 && tz.length > 3 && tz.every((x) => x.f === F.m4) && !r.o.some((x) => x.k === 'toast' && x.t > tT + 3200 && x.f === F.m4s6 && x.src), { iT, fs: [...new Set(tz.map((x) => x.f))] });
+        const tz = r.o.filter((x) => x.k === 'toast' && tT != null && x.t > tT + 3200 && x.src && x.want > -60), M4L = await f.evaluate(() => BgmPicks.PICKS.M4.slice()), fL = (r.o.filter((x) => x.k === 'letter' && x.src && x.want > -60).pop() || {}).f;
+        /* ★[ONE_FLOW_1106] 편지 «음악과 함께» = 흐르던 본식 곡(M4 목록의 지금 곡)이 그대로 — 축배 여는 말도 그 곡을 잇는다(본식 목록 밖 곡 0 · 다시 시작 0) */
+        ok(`j 편지 «음악과 함께» → 축배 — 축배 여는 말 곡 = 편지에서 흐르던 본식 곡(${fL}) · 본식 목록 밖 곡 0`, iT > -1 && tz.length > 3 && !!fL && M4L.indexOf(fL) > -1 && tz.every((x) => x.f === fL) && !r.o.some((x) => x.src && x.want > -60 && M4L.indexOf(x.f) < 0 && x.f !== F.m7), { iT, fL, fs: [...new Set(tz.map((x) => x.f))] });
         /* i 다음 곡이 12초 늦을 때 편지 끝 동안 옛 곡 재생 0(편지 «음악 없이» → 부모님께 인사 · M4 는 다음 첫 줄 곡이 아님) */
         await setOn({ letter: 1, tribute: 1, table: 0, toast: 0, song: 0, free: 0 }, null); await go(f, 'tribute'); await go(f, 'letter'); await forget(f, [F.m5]); await H({ dly: { [F.m5]: 12000 } });
         r = await trace(f, ['letter', 'tribute'], 22000); const tE = (r.o.filter((x) => x.k === 'letter').pop() || {}).t, s5 = r.o.find((x) => x.f === F.m5 && x.src && x.want > -60);
@@ -146,8 +147,8 @@ try {
         /* k lpWarm 요청 목록 */
         const lw = async (ks, on, bgm) => { await setOn(on, bgm); await f.evaluate(() => { const t = BgmBed._t; Object.keys(t.BUF).forEach((x) => { delete t.BUF[x]; }); }); await H({ log: 1 }); await f.evaluate((ks) => BgmBed.lpWarm(ks), ks); await wait(f, 400); return [...new Set((await H({})).filter((x) => /ritualFileGet:bed:B/.test(x)).map((x) => x.split(':').pop()))].sort(); };
         const w1 = await lw(['letter'], T2, { S6: { m: 'bed' } }), w2 = await lw(['toast'], T2, null), w3 = await lw(['free'], { free: 1, letter: 0, tribute: 0, table: 0, toast: 1, song: 0 }, { S5: { m: 'bed' } });
-        const F5s = await f.evaluate(() => BgmBed._t.eff('M4S5'));
-        ok(`k lpWarm — 편지 «음악과 함께» = M4 + M4S6 · 축배 = 잇는 곡(M4) + M7(M6 아님) · 축사 «음악과 함께» = M4 + M4S5`, JSON.stringify(w1) === JSON.stringify([F.m4, F.m4s6].sort()) && JSON.stringify(w2) === JSON.stringify([F.m4, F.m7].sort()) && JSON.stringify(w3) === JSON.stringify([F.m4, F5s].sort()), { w1, w2, w3 }); }
+        /* ★[ONE_FLOW_1106] 편지 · 축사 «음악과 함께»는 따로 곡이 없다 — 미리 받는 곡 = 본식 곡(M4) 하나 */
+        ok(`k lpWarm — 편지 «음악과 함께» = M4 하나 · 축배 = 잇는 곡(M4) + M7(M6 아님) · 축사 «음악과 함께» = M4 하나`, JSON.stringify(w1) === JSON.stringify([F.m4]) && JSON.stringify(w2) === JSON.stringify([F.m4, F.m7].sort()) && JSON.stringify(w3) === JSON.stringify([F.m4]), { w1, w2, w3 }); }
       /* f 무음 스위치 */
       { const t = await f.evaluate(() => navigator.audioSession && navigator.audioSession.type);
         ok('f 소리 길을 열면 navigator.audioSession.type = playback(iOS 무음 스위치)', t === 'playback', t); }
@@ -170,14 +171,14 @@ try {
   const base = () => { const S0 = O.applyExample({ course: 'open' }, 'standard'); S0.course = 'open'; S0.freeWhat = 'speech'; S0.song = 'family'; S0.songBy = 'friend'; return S0; };
   /* h · j 당일 콘솔 — 편지 → 축배(부모님께 인사 · 테이블 없음) */
   for (const bed of [false, true]) { const S0 = base(); S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 0, table: 0, toast: 1, song: 0, free: 0 }); if (bed) S0.bgm = { S6: { m: 'bed', k: 'B12' }, M4: { k: 'B09' } }; else delete S0.bgm;   /* [DAYLONG_1101] 편지 곡 B12 = 본식 목록에 없는 곡(본식 목록 곡이면 그대로 잇는다 · carry-same g · daylong c) */   /* [CARRY_SAME_1101] 본식 곡을 골라 둔 날(편지 곡 B10 은 본식 목록에도 있다 · 고르지 않은 날은 carry-same g) */
-    const C = await conOpen(S0, bed ? [['M4', 440], ['M4S6', 520, 2], ['M7', 700]] : [['M4', 440], ['M7', 700]]), iL = C.ix((c) => /^letter-/.test(c.slug || '')), iE = C.ix((c) => c.slug === 'narr-letter-end'), iT = C.ix((c) => c.slug === 'toast-toast'), iT0 = C.ix((c) => c.k === 'toast');
+    const C = await conOpen(S0, [['M4', 440], ['M7', 700]]),   /* [ONE_FLOW_1106] 편지 «음악과 함께» 곡 칸(M4S6)이 없다 — 옛 S6.k(B12)는 읽지 않는다 */ iL = C.ix((c) => /^letter-/.test(c.slug || '')), iE = C.ix((c) => c.slug === 'narr-letter-end'), iT = C.ix((c) => c.slug === 'toast-toast'), iT0 = C.ix((c) => c.k === 'toast');
     if (C.miss.length || iL < 1 || iE < iL || iT < iE || iT0 < iE) { ok(`콘솔 시험 조건(${bed ? '음악과 함께' : '음악 없이'})`, false, { miss: C.miss, iL, iE, iT0, iT }); await C.ctx.close(); continue; }
     await C.pg.evaluate((i) => window.__bgmGo.fire(i), iL - 1); await C.pg.waitForTimeout(3000);
     const o1 = await sample(C.pg, iL, 5000), o2 = await sample(C.pg, iE, 9000), o3 = [];
     for (let i = iT0; i <= iT; i++) (await sample(C.pg, i, 3500)).forEach((x) => o3.push(x));
     const before = [].concat(o1, o2, o3), tap = await C.pg.evaluate(async () => { await new Promise((r) => setTimeout(r, 300)); window.__bgmGo.tap(); await new Promise((r) => setTimeout(r, 1500)); return window.__seg.st().seg; });
     if (!bed) ok('h 콘솔 편지(음악 없이) → 축배 — M7 은 «위하여» GO 에서만 · 그 전 축배 나레이션은 M4', !before.some((x) => x.seg === 'M7') && o3.length && o3.every((x) => x.seg === 'M4') && tap === 'M7', { segs: [...new Set(before.map((x) => x.seg))], tap });
-    else ok('j 콘솔 편지 «음악과 함께» → 축배 — 편지 끝에서 M4S6 → M4 로 3초 겹침 · 축배 여는 말 곡 = M4 · M4S6 0 · M7 은 «위하여» GO 에서만', o2[o2.length - 1].seg === 'M4' && xf(o2) && o3.length && o3.every((x) => x.seg === 'M4') && !before.some((x) => x.seg === 'M7') && tap === 'M7', { o2: [...new Set(o2.map((x) => x.seg))], o3: [...new Set(o3.map((x) => x.seg))], tap });
+    else ok('j 콘솔 편지 «음악과 함께» → 축배 — 편지 낭독 · 끝 · 축배 여는 말 내내 본식 곡(M4) 그대로(옛 M4S6 곡 칸 0 · ONE_FLOW_1106) · M7 은 «위하여» GO 에서만', o1.length && o1.every((x) => x.seg === 'M4') && o2.every((x) => x.seg === 'M4') && o3.length && o3.every((x) => x.seg === 'M4') && !before.some((x) => x.seg === 'M7') && tap === 'M7', { o1: [...new Set(o1.map((x) => x.seg))], o2: [...new Set(o2.map((x) => x.seg))], o3: [...new Set(o3.map((x) => x.seg))], tap });
     ok(`콘솔(${bed ? '음악과 함께' : '음악 없이'}) 쪽 오류 0`, !C.errs.length, C.errs.slice(0, 3)); await C.ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();

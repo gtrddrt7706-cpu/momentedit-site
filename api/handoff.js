@@ -22,14 +22,15 @@ const SYSTEM_HEAD = `당신은 웨딩 브랜드 "모먼트에디트"의 대표(�
 2. 가격·환불·계약·일정 등 민감한 수치·정책은 <지식>의 값만 사용합니다.
 3. suggestedReply는 대표가 고객에게 그대로 보내도 될 만큼 정중하고 단정한 한국어 존댓말 초안으로 씁니다. 전각 줄표(—)는 쓰지 않습니다.
 4. rationale에는 (a) 고객이 실제로 무엇을 원하는지 해석, (b) 그 답변의 근거(지식 어느 부분), (c) 대표가 직접 확인·결정해야 할 점을 적습니다. 특히 계약·법률·세무 등 대표가 헷갈릴 수 있는 부분은 근거를 친절히 설명합니다.
-5. confidence: 지식만으로 충분히 답 가능하면 "높음", 일부 확인 필요면 "보통", 정책 미정이라 대표 판단이 필수면 "낮음".`;
+5. confidence: 지식만으로 충분히 답 가능하면 "높음", 일부 확인 필요면 "보통", 정책 미정이라 대표 판단이 필수면 "낮음".
+6. category·summary 에는 고객 질문 원문을 옮겨 적지 말고 주제·분류만 적습니다(예: «취소 시 환불 기준 문의»). 전화번호·이메일 같은 연락처는 어느 칸에도 쓰지 않습니다. 고객은 내부 개인코드로 연결됩니다. [H4_HANDOFF_TOPIC]`;
 function systemFor(page){ return SYSTEM_HEAD + '\n\n<지식>\n' + (page === '식순' ? RITUAL_KB.full : KNOWLEDGE) + '\n</지식>'; }
 
 const SCHEMA = {
   type: 'object',
   properties: {
     category: { type: 'string', description: '핵심 문의 분류 (예: 계약·환불, 일정 변경, 가격, 결과물 등) 짧게' },
-    summary: { type: 'string', description: '고객이 무엇을 물었고 왜 AI가 못 풀었는지 2~3문장 요약' },
+    summary: { type: 'string', description: '문의 주제와 AI가 못 푼 까닭을 2~3문장으로 · 질문 원문 인용 금지 · 연락처 금지' },   // [H4_HANDOFF_TOPIC]
     suggestedReply: { type: 'string', description: '대표가 고객에게 보낼 만한 정중한 답변 초안' },
     rationale: { type: 'string', description: '해석 + 근거 + 대표가 확인/결정할 점 (관리자 전용)' },
     confidence: { type: 'string', enum: ['높음', '보통', '낮음'] },
@@ -64,8 +65,10 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ error: 'empty_conversation' }));
     }
 
+    /* ★★[H4_HANDOFF_PHONE 2026-11-06 사장님 결정 6 · 대본] AI 요약에 전화번호 없음 — 모델에도 관리자 시트에도 연락처를 넘기지 않는다(관리자는 내부 개인코드로 고객을 찾는다) */
+    const custSafe = customer ? { name: customer.name, code: customer.code, stage: customer.stage } : null;
     const custLine = customer
-      ? ('고객 정보: ' + [customer.name && ('이름 ' + customer.name), customer.code && ('코드 ' + customer.code), customer.stage && ('단계 ' + customer.stage), customer.phone && ('연락처 ' + customer.phone)].filter(Boolean).join(' · '))
+      ? ('고객 정보: ' + [customer.name && ('이름 ' + customer.name), customer.code && ('코드 ' + customer.code), customer.stage && ('단계 ' + customer.stage)].filter(Boolean).join(' · '))
       : '고객 정보: 비로그인(메인/예약 페이지 방문자)';
     const userMsg = '아래는 고객과 AI 상담사의 대화입니다.\n[유입 페이지] ' + page + '\n[' + custLine + ']'
       + (state ? '\n\n[고객이 만들던 식순 상태]\n' + state.replace(/[<>]/g, '') : '')
@@ -116,10 +119,11 @@ module.exports = async (req, res) => {
         return res.end(JSON.stringify({ error: (briefWhy === 'unconfigured') ? 'handoff_unconfigured' : 'upstream_error', why: briefWhy }));
       }
       console.warn('handoff_raw_forward', briefWhy);
-      brief = { category: '요약 실패', confidence: '낮음', summary: 'AI 요약을 만들지 못했어요(' + briefWhy + ') · 아래 대화 원문을 확인해 주세요.', suggestedReply: '', rationale: '요약 단계 실패로 대화 원문만 전달됐어요.' };
+      brief = { category: '요약 실패', confidence: '낮음', summary: 'AI 요약을 만들지 못했어요(' + briefWhy + ') · 질문 원문은 보관하지 않아요. 고객이 카카오톡으로 이어 문의하면 그 대화로 확인해 주세요.', suggestedReply: '', rationale: '요약 단계 실패 · [H4_HANDOFF_TOPIC] 원문 미보관.' };
     }
-    // 안전망: 전각 줄표 제거
-    ['summary', 'suggestedReply', 'rationale', 'category'].forEach((k) => { if (typeof brief[k] === 'string') brief[k] = brief[k].replace(/—/g, '·'); });
+    // 안전망: 전각 줄표 제거 · [H4_HANDOFF_PHONE] 전화번호 · 이메일 꼴은 지운다(모델이 대화에서 옮겨 적었어도)
+    const NO_CONTACT = (s) => s.replace(/(\+?82[-\s.]?|0)1[016-9][-\s.]?\d{3,4}[-\s.]?\d{4}/g, '[연락처 생략]').replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, '[연락처 생략]');
+    ['summary', 'suggestedReply', 'rationale', 'category'].forEach((k) => { if (typeof brief[k] === 'string') brief[k] = NO_CONTACT(brief[k].replace(/—/g, '·')); });
 
     // 관리자에게 전달 (GAS 웹훅 설정 시). 실패해도 고객 응답은 200 — 대신 delivered · why 로 화면이 사실대로 말한다([ERR_CODE_PAGES])
     let delivered = false, why = '', ecode = '', eid = '';
@@ -130,7 +134,7 @@ module.exports = async (req, res) => {
       try {
         const r = await fetch(hook, {
           method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ action: 'aiHandoff', secret: process.env.HANDOFF_SECRET || undefined, page: page, customer: customer || null, state: state || undefined, conversation: history, brief: brief, at: new Date().toISOString() }),
+          body: JSON.stringify({ action: 'aiHandoff', secret: process.env.HANDOFF_SECRET || undefined, page: page, customer: custSafe, state: state || undefined, conversation: [], brief: brief, at: new Date().toISOString() }),   // ★[H4_HANDOFF_TOPIC 2026-11-06 결정 6] 질문 원문(conversation)은 보관하지 않는다 — 주제 · 분류(brief)만
         });
         let jj = null; try { jj = await r.json(); } catch (e) {}
         delivered = !!(r.ok && jj && jj.ok === true && jj.id);   // GAS는 미지의 action에도 200을 주므로 ok·id까지 확인(라우팅 누락 감지)

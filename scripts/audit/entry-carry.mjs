@@ -101,7 +101,7 @@ try {
     const r1 = await trace(f, ['matjeol'], 26000, false), lg1 = await LOG(pg);
     const e1 = r1.filter((x) => x.f === '@ENT' && x.src), x1 = await f.evaluate(() => ({ ent: BgmBed._t.ENT(), at: BgmBed._t.entAt('matjeol') }));
     ok(`${W} 1 입장 곡을 묻고(key rec · r5) '@ENT' 로 깐다 · 다른 구간 곡은 묻지 않는다`, lg1.includes('momentedit:ritualFileGet:rec:r5') && e1.length > 20 && !lg1.some((x) => /:bed:B/.test(x) && !/:bed:list/.test(x)), { lg1: lg1.filter((x) => /rec|bed/.test(x)).slice(0, 8), n: e1.length });
-    ok(`${W} 1 시작 자리 = 도착(문 열림 40 + 60 = 100초)`, x1.ent && x1.ent.x && Math.abs(x1.ent.x.arrive - 100) < 0.05 && Math.abs(x1.at - 100) < 0.05 && e1.length && Math.abs(e1[0].off - 100) < 0.05, { x1, off: e1[0] && e1[0].off });
+    ok(`${W} 1 시작 자리 = 도착(문 열림 40 + 30 = 70초 · ★[WALK_HALF_1106] 옛 40 + 60 = 100초)`, x1.ent && x1.ent.x && Math.abs(x1.ent.x.arrive - 70) < 0.05 && Math.abs(x1.at - 70) < 0.05 && e1.length && Math.abs(e1[0].off - 70) < 0.05, { x1, off: e1[0] && e1[0].off });
     const gf = await f.evaluate(() => { const x = BgmBed._t.ENT().x, gg = (db) => { const v = BgmBed._t.BED.cur; return null; }; return { gain: x.gain, ES: { intro: EntryScene.SP.intro, under: EntryScene.SP.under, trim: EntryScene.BED_TRIM } }; });
     const lead1 = e1.filter((x) => x.lead), nar1 = e1.filter((x) => !x.lead && !x.act && x.k === 'matjeol' && x.who === 'lp'), act1 = e1.filter((x) => x.act && x.who === 'lp');
     const dbOf = (x) => Math.round(20 * Math.log10(x.g / gf.gain) * 10) / 10, want = (d) => d + gf.ES.trim;

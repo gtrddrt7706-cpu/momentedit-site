@@ -10,7 +10,7 @@
    BG05 축배 선창 전후 행동 줄(크기 없음) — 선창 전 = 엔진 축배 live(−90 판은 −90) · 선창 뒤 = 축배 곡 크기 · 크기가 실린 줄은 그 값
    BG06 촬영 후 안내 뒤 가족 · 추가 촬영 줄(after 표시 없음)도 같은 마지막 곡(M8L) · 끝내기 뒤 기억 지움
    BG07 테이블 인사 음악 카드 설명 — «테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분»
-   BG02 축가(정적) → «음악과 함께» 편지 — T01 여는 말 동안 M4 상승 · 재시작 0(엔진 · 미리 듣기)   T02 낭독 시작에서만 고른 편지 곡(M4S6) −20(미리 듣기 · 콘솔)   T03 앞 곡이 들리면 여는 말 −16 · 낭독 곡으로 3초 전환 그대로
+   BG02 축가(정적) → «음악과 함께» 편지 — T01 여는 말 동안 M4 상승 · 재시작 0(엔진 · 미리 듣기)   T02 낭독 시작에서 본식 곡(M4 · ★[ONE_FLOW_1106] 옛 M4S6 곡 칸 걷음) −20(미리 듣기 · 콘솔)   T03 앞 곡이 들리면 여는 말 −16 · 낭독 곡으로 3초 전환 그대로
    ONLY=BG08,… 로 항목만 · BP_BED · BP_OP · BP_CUE · BP_CON = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -122,7 +122,7 @@ try {
   }
   if (want('BG03')) {
     const SL = (on, letter, bgm) => { const S = S0of(Object.assign({ song: 0, free: 0, tribute: 0 }, on)); S.letter = letter; S.bgm = bgm || {}; return S; };
-    const FL = [['M4', 440], ['M4S6', 520], ['M8', 600], ['M7', 660], ['M6', 700]];
+    const FL = [['M4', 440], ['M8', 600], ['M7', 660], ['M6', 700]];   /* [ONE_FLOW_1106] M4S6 곡 칸 없음 */
     const runL = async (S, ms) => { const c = await con(S, FL), iE = c.ix((x) => x.slug === 'narr-letter-end'); await c.fire(iE - 1); await c.pg.waitForTimeout(1500); await c.fire(iE); await c.log0();
       const tr = await c.trace(ms), lg = await c.log(); return { c, iE, tr, lg }; };
     const ixA = (c, iE, pr) => { const j = c.Rq.slice(iE + 1).findIndex(pr); return j < 0 ? -1 : iE + 1 + j; };
@@ -180,10 +180,10 @@ try {
     const o = await runP(['song', 'letter'], 40000), op = o.filter((x) => x.k === 'letter' && !x.talk && x.on && x.s && /^letter-/.test(x.s)), rd = o.filter((x) => x.k === 'letter' && x.talk && x.on);
     const m4 = await f.evaluate(() => BgmPicks.PICKS.M4 || []), first = o.find((x) => x.k === 'letter' && x.on);
     ok('BG02-T01 미리 듣기 — 축가 → 편지 여는 말 동안 음악 0(M4 상승 · 재시작 0)', !op.length, { op: op.slice(0, 3).map((x) => [x.s, x.f, x.want]) });
-    ok('BG02-T02 미리 듣기 — 낭독에서 처음 들리는 곡 = 고른 편지 곡(M4S6 · 앞 뜸 뒤 −20) · 그전엔 소리 0', !!first && first.talk && first.seg === 'M4S6' && rd.some((x) => x.want === -20) && rd.every((x) => x.seg === 'M4S6'), { first: first && [first.lab, first.f, first.seg, first.want] });
+    ok('BG02-T02 미리 듣기 — 낭독에서 처음 들리는 곡 = 본식 곡(M4 · ONE_FLOW_1106 · 따로 곡 없음) −20 · 그전엔 소리 0', !!first && first.talk && first.seg === 'M4' && m4.indexOf(first.f) > -1 && rd.some((x) => x.want === -20) && rd.every((x) => x.seg === 'M4'), { first: first && [first.lab, first.f, first.seg, first.want] });
     await setX({ on: { song: 0, letter: 1, free: 0, tribute: 0, bless: 1 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await go(f, 'bless');
     const o3 = await runP(['bless', 'letter'], 40000), op3 = o3.filter((x) => x.k === 'letter' && !x.talk && /^letter-/.test(x.s || '') && x.on), rd3 = o3.filter((x) => x.k === 'letter' && x.talk && x.on);
-    ok('BG02-T03 미리 듣기 대조 — 덕담 곡이 흐르면 여는 말 −16(M4) → 낭독 곡 −20', op3.length > 0 && op3[op3.length - 1].seg === 'M4' && op3[op3.length - 1].want === -16 && rd3.length > 0 && rd3[rd3.length - 1].seg === 'M4S6', { op3: op3.length && [op3[op3.length - 1].f, op3[op3.length - 1].seg, op3[op3.length - 1].want], rd3: rd3.length && [rd3[rd3.length - 1].f, rd3[rd3.length - 1].seg] });
+    ok('BG02-T03 미리 듣기 대조 — 덕담 곡이 흐르면 여는 말 −16(M4) → 낭독도 같은 본식 곡 −20(ONE_FLOW_1106)', op3.length > 0 && op3[op3.length - 1].seg === 'M4' && op3[op3.length - 1].want === -16 && rd3.length > 0 && rd3[rd3.length - 1].seg === 'M4' && rd3[rd3.length - 1].f === op3[op3.length - 1].f && rd3[rd3.length - 1].want === -20, { op3: op3.length && [op3[op3.length - 1].f, op3[op3.length - 1].seg, op3[op3.length - 1].want], rd3: rd3.length && [rd3[rd3.length - 1].f, rd3[rd3.length - 1].seg] });
   }
   if (want('BG04')) {
     const toL = () => f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1 && STEPS[idx].k !== 'listen') { idx = i; render(); } });
