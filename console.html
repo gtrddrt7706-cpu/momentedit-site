@@ -2097,7 +2097,7 @@ function render(){
     $('#nName').textContent = GUEST ? '다 들으셨어요' : '진행이 끝났습니다';
     $('#nTxt').className = 'txt';
     $('#nTxt').textContent = GUEST
-      ? '들으신 순서 그대로 당일에 흘러요. 사람이 말하는 부분만 두 분과 가까운 분들의 목소리로 바뀝니다.'
+      ? '보신 순서대로 당일에 진행됩니다. 장면 카드로 보신 말하기 차례는 두 분과 가까운 분들이 직접 맡습니다.'   /* ★[B2_FIX_NA_20 2026-11-06 재검증 재수정] 끝 화면도 첫 화면(A24)과 같은 약속 — 사람 구간은 소리 없이 장면 카드였다(«목소리로 바뀝니다»는 대역 음성을 들은 것처럼 읽혔다) */
       : (MODE === 'preview' ? '들으신 순서가 실제 예식에서 그대로 흐릅니다.'
                             : '수고하셨습니다. 정리 후 나가기를 눌러 주세요.');
     /* ★[END_NEXT 2026-08-16] 끝 화면이 '들었다'로만 끝나고 **다음 할 일을 말하지 않았다.**
@@ -2219,6 +2219,9 @@ function render(){
     main.className = 'main wait';
   } else if (cheerPending()) {
     main.innerHTML = '축배 음악 올리기 <small>«위하여!»가 끝나면 누르세요</small>';   // [BGM_CONSOLE2_1023 TOAST_GO]
+    main.className = 'main';
+  } else if (n1 && n1.fire === 'clock' && startAt && ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) || (R && fired[R.cues.indexOf(n1)]))) {   // [B2_FIX_NA_02_ORDER] 이미 버린(지난) 시각 큐도 «저절로»라고 하지 않는다
+    main.innerHTML = '다음 <small>' + esc(n1.name) + ((typeof MAN_HOLD !== 'undefined' && MAN_HOLD) ? ' · 손 대기 중이에요. 직접 눌러 주세요.' : ' · 예정 시각이 지났어요. 필요하면 직접 눌러 주세요.') + '</small>';   // [B2_FIX_NA_02_ORDER] 손 대기가 풀린 뒤 지난 시각 큐는 B2_NA_61 문구   // ★[B2_FIX_NA_02 2026-11-06 재검증 재수정] 전체 정지 · 뒤로(손 대기) 뒤엔 시각 안내가 저절로 안 나간다 — 단추 글도 «…에 저절로 나갑니다»를 말하지 않는다(지난 시각 · 실제 동작과 같게)
     main.className = 'main';
   } else if (n1 && n1.fire === 'clock' && startAt && clockGone(n1)) {
     main.innerHTML = '다음 <small>' + esc(n1.name) + ' · 예정 시각이 지났어요. 필요하면 직접 눌러 주세요.</small>';   // [B2_NA_61]
@@ -2354,8 +2357,9 @@ function panic(){
   esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 입장 장면(Web Audio 곡 · 예약 멘트)도 함께 — 종전엔 aNarr 만 멈춰 입장 곡 · 멘트가 계속 나갈 수 있었다
   if (!_hush && !_hold && !_esd) duckTo(PARAM.duckMusic, 600);   /* ★[B2_K16] 입장 곡 도중 정지 = 배경까지 조용히(−8 복귀 0) */   /* ★[B2_EUM06] 일부러 정적(−90)인 자리에서 멈추면 정적 그대로 — 다음 큐가 제 크기를 연다 · 사진 · 촬영 후 안내 · 추가 촬영 음악은 그 크기 그대로 · 끝내기 3초 페이드는 따로(■) */
   phase = 'done';
+  MAN_HOLD = true;   // ★[B2_FIX_NA_02_ORDER 2026-11-06 검토 되돌림] 손 대기를 그리기 «전»에 — 종전엔 render 가 먼저 돌아 단추가 «…에 저절로 나갑니다»로 남았다
   render();
-  MAN_HOLD = true; toast(ESD.paused ? '전체 정지 — GO 를 누르면 입장 곡을 멈춘 자리부터 이어요' : '전체 정지 · 다음 순서는 직접 눌러 주세요.');   // [B2_NA_02] 손 대기가 보장된다(MAN_HOLD) · [B2_K16] 입장 곡 도중이면 이어 듣기 안내
+  toast(ESD.paused ? '전체 정지 — GO 를 누르면 입장 곡을 멈춘 자리부터 이어요' : '전체 정지 · 다음 순서는 직접 눌러 주세요.');   // [B2_NA_02] 손 대기가 보장된다(MAN_HOLD) · [B2_K16] 입장 곡 도중이면 이어 듣기 안내
 }
 
 /* [BLESS_PER_SPEAKER] 다음 분께 마이크를 건넸다 — 시간을 새로 재고(ALT_CLIP 판정 · 진행 막대) 올렸던 음악을 내리고 신호를 다시 건다 */
@@ -2441,8 +2445,9 @@ $('#bBack').onclick = function(){
   esdStop(0.6);   // ★[DETAIL_R3_1101 ④] 뒤로도 입장 장면까지 · [DETAIL_R5_1101 규칙 7 ③] 당일 정지 · 뒤로 = 모두 멈춤
   cur = Math.max(-1, cur - 1);
   phase = cur < 0 ? 'idle' : 'done';
+  MAN_HOLD = true;   // [B2_FIX_NA_02_ORDER] 그리기 전에
   render();
-  MAN_HOLD = true; toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');   // [B2_NA_02]
+  toast('한 칸 되돌렸습니다 · 자동으로 넘어가지 않습니다');   // [B2_NA_02]
 };
 
 /* 큐 목록 시트 — 점프 + 보조 클립 */
