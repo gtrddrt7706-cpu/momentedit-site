@@ -49,5 +49,9 @@ ok('[B2_FIX_GEUL_19] 한눈에 보기 «본식 뒤 · » · 옛 «식후 · » �
 ok('[B2_FIX_GEUL_19] 다음 단추에 «본식 뒤» 안 붙음', OP.includes("return '다음 · '+_post('_photo').n+' · '+_post('_after').n;") && !OP.includes("return '다음 · 본식 뒤 '"));
 ok('[B2_FIX_NA_62] «그 밖의 분» 이름이 바뀌면 덕담 답 열쇠를 무른다(lsDeclWho)', /window\.lsDeclWho=function[\s\S]{0,900}if\(_chg&&\(S\.declBless==='yes'\|\|S\.declBless==='no'\)&&S\.declBlessKey\)\{ S\.declBlessKey='';/.test(OP));
 ok('[B2_FIX_GEUL_18] 첫 덕담 차례 = 선언한 그 밖의 분(② · ③)', OP.includes("function _blessFirstWho(){") && OP.includes("esc('첫 덕담 · '+_blessFirstWho())") && OP.includes("grp[0].lab=grp[0].who+' 차례';"));
+/* [B2_FIX_R1] 글 고치기가 따옴표를 어긋내 화면 전체가 멈춘 일(2026-11-06 · «Invalid or unexpected token») — 식순 화면의 안쪽 스크립트를 문법만 읽어 본다 */
+{ const vm = require('node:vm'); const bad = []; let n = 0;
+  OP.replace(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/g, (m, at, body) => { if (/type="(?!text\/javascript|module)[^"]+"/.test(at)) return m; n++; try { new vm.Script(body); } catch (e) { bad.push(String(e.message).slice(0, 80)); } return m; });
+  ok('[B2_FIX_R1] 식순 화면 안쪽 스크립트 ' + n + '개가 문법 오류 없이 읽힌다', n > 0 && bad.length === 0, bad); }
 console.log(fail ? `✗ b2-fix-r1 ${fail}건` : 'ok b2-fix-r1 — 나28 · 나33 · 나35 · NI05 · 글19 · 나62 · 나64 · 글18');
 process.exit(fail ? 1 : 0);
