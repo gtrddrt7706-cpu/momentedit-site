@@ -1393,7 +1393,7 @@ nochk 'margin: -3px 0 -3px auto' index.html
 #   맨 아래 「(정확한 주소 확정 예정)」을 «준비 중»이 아니라 «미완성»으로 읽었다.
 #   ★소개 섹션(y≈3,600)의 한 줄을 지우지 말 것 — 지우면 그 오독이 그대로 돌아온다.
 chk 'OPEN_TIMING' index.html 1
-chk '2027년 4월 정식 오픈을 앞두고' index.html 1   # [B3_Q01 2026-11-06] 오픈 시점 = 사장님 지시 «2027년 4월»(종전 «하반기» · 홈 · 일반 KB · 즉답 함께) · 소개 섹션 한 줄은 그대로 지킨다
+chk '2027년 4월 오픈을 준비하며' index.html 2   # [H4_02 · B3_Q01 2026-11-06] 오픈 시점 = 사장님 지시 «2027년 4월»(종전 «하반기» · 홈 · 일반 KB · 즉답 함께) · 소개 섹션 한 줄은 그대로 지킨다
 nochk '2027년 하반기 정식 오픈' api/_kb.js
 nochk '2027년 하반기 정식 오픈' assets/advisor-kb.js
 chk '도로명 주소는 확정되면 안내드립니다' index.html 1
@@ -22620,3 +22620,53 @@ chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 4
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
+# ★★[H4_HOME 2026-11-06 홈 4차 H02 ~ H22 · 대본 판정] 홈 · FAQ · 즉답 · AI 지식을 같은 말로 — 되돌리면 빨강
+chk '2027년 4월 오픈 준비 · 도로명 주소는 확정되면 안내드립니다' index.html 1   # [H4_02] 주소 괄호(보이는 글 · aria 같은 줄)
+nochk '정식 오픈을 앞두고' index.html                                             # [H4_02] 날짜 확정처럼 읽힌다
+chk '준비부터 촬영·예식·정리까지 140분입니다. 본식과 단체 사진은 합쳐 40분입니다.' index.html 1   # [H4_03] 표 리드
+chk '촬영 55분(두 공간·이동 포함)과 입장 준비 5분입니다.' index.html 1         # [H4_03 · H4_SNAP] 단독 스냅
+chk '전체 일정 종료' assets/sequence-modal.js 1                                   # [H4_03] 본식 끝 ≠ 전체 일정 끝
+chk '단체 사진 시작 시각은 본식 20분 기준 예시입니다' assets/sequence-modal.js 1 # [H4_03]
+chk '추가 촬영 동안 음악이 계속 흘러요' index.html 1                             # [H4_04] 확정 규칙 «추가 촬영 동안 음악 계속»
+nochk '촬영 후 안내(사진 올리기 포함)' index.html                                 # [H4_04] 촬영 후 안내 판(after-photo*)에 사진 줄이 없다 — 사진 올리기는 입장 때 · 5분 전
+chk '식사는 선택이며, 스튜디오의 140분 일정에 포함되지 않습니다.' index.html 2   # [H4_05] FAQ · JSON-LD
+nochk '서두를 일이 없도록 이 시간 안에 다 들어 있습니다' index.html               # [H4_05] 식사가 140분 안처럼 읽혔다
+chk 'Visual Archive ·<span class="ll-ko"> 촬영 예시' index.html 1                # [H4_10]
+chk '안내 음성과 두 분의 말을 미리 듣고 연습해요' index.html 1                    # [H4_12]
+chk 'more-count">8</span>개 보기' index.html 1                                         # [H4_13] 접힌 질문 수 = 8(환불 · 마이크로 · 부모님 · 축의 · 청첩장 · 행진 · 사회자 · 촬영만)
+chk '별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면' index.html 2       # [H4_14] FAQ · JSON-LD · 엔진 차례(table → toast → 닫는 인사)
+chk '별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면' api/_kb.js 1
+nochk '행진 대신 두 분이 하객 쪽으로 나와 인사드리고' index.html
+nochk '행진 대신 두 분이 하객 쪽으로 나와 인사드리고' api/_kb.js
+nochk '덕담 뒤, 축가 앞에' api/_kb.js                                              # [H4_14] 이웃 순간을 안 담으면 틀린 말
+chk '성혼 선언을 담으신 경우에는 선언문을 읽는 분이 두 분 이름을 부릅니다' index.html 2
+chk 'card-label">Long Hours' index.html 1                                           # [H4_17] 15 Hours(05:00 → 자정 = 19시간) 걷음
+nochk '15 Hours' index.html
+chk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다' index.html 1                  # [H4_18] 80 = 330 - 250
+nochk '굳이 주말일 이유가 없습니다' index.html
+nochk '자켓' index.html                                                           # [H4_20] 표준 표기 «재킷»
+nochk '자켓' api/_kb.js
+nochk '자켓' assets/advisor-kb.js
+nochk '검증한 인근 식당' index.html                                               # [H4_22] 식당 데이터에 검증 완료 기록 없음(대본 «검증» 빼기)
+nochk '검증한 인근 식당' api/_kb.js
+nochk '검증한 인근 식당' assets/advisor-kb.js
+nochk '맛·주차·프라이버시까지 확인해 추천' index.html
+chk '예약과 결제는 두 분이 식당에 직접 해 주세요' index.html 2                   # [H4_22 · 대본 식당 문장]
+chk '예약과 결제는 두 분이 식당에 직접 해 주세요' assets/advisor-kb.js 1
+chk '저희 쪽 사정으로 취소되면 받은 금액 전액을 돌려드립니다.' index.html 1       # [H4_D11 대본 결정 · 홈 취소 FAQ]
+nochk '받으신 금액 전액을 돌려드리고' index.html
+# [H4_KB 2026-11-06 대본 결정 문구 · AI 상담 · 즉답]
+chk '카드 결제와 계좌 이체 모두 가능해요' api/_kb.js 1                            # [H4_PAY] 사장님 11/06 «카드 결제 가능»
+chk '카드 결제와 계좌 이체 모두 가능해요' assets/advisor-kb.js 2
+nochk '계좌이체로만' assets/advisor-kb.js
+nochk '계좌이체만 가능' api/_kb.js
+chk '계약서의 시기별 기준을 따르고, 정확한 금액은 상담에서 확인해 드려요' api/_kb.js 1   # [H4_REFUND] 금액 · 요율 직접 말하지 않음
+chk '계약서의 시기별 기준을 따르고, 정확한 금액은 상담에서 확인해 드려요' assets/advisor-kb.js 1
+chk '상세 주소와 주차는 상담 때 안내해 드려요' assets/advisor-kb.js 1              # [H4_ADDR]
+chk '아이도 자리를 쓰면 30명에 포함돼요' assets/advisor-kb.js 1                    # [H4_KIDS]
+chk '시착하시면 상담 예약금은 시착 비용으로 전환돼요' assets/advisor-kb.js 1      # [H4_FIT]
+chk '종교 의식도, 주례자를 모시는 것도 가능해요' assets/advisor-kb.js 1           # [H4_RELIGION]
+chk '조건은 상담 때 안내해 드려요' api/_kb.js 1                                    # [H4_HONOR] 오픈 혜택 조건
+chk '본식 동안이에요(고른 순서에 따라 약 7~25분)' api/_kb.js 1                     # [H4_LIVE] 디지털 참석
+chk '식중 영상은 선택이에요. 축사와 둘 중 하나로 정하고' api/_kb.js 1             # [H4_MIDVIDEO] 사장님 11/06
+chk '덕담 원고는 예식 7일 전까지 준비해 주세요' api/_kb.js 1                       # [H4_Q34]
