@@ -18394,6 +18394,8 @@ chk 'function _rqReview' admin.html 1
 chk 'rqBossOk' admin.html 2
 nochk "_sRule = '계약일 + 7일 이내(청약철회)'" automation/platform/70_journey.gs 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/refund-terms-same.mjs >/dev/null 2>&1; _rts=$?; if [ "$_rts" != 0 ]; then echo "FAIL refund-terms-same($_rts) — 옛 판 환불 조건 목록이 보존본과 어긋난다 · node scripts/audit/refund-terms-same.mjs [REFUND_TERMS_SAME]"; fail=1; else echo "ok refund-terms-same [REFUND_TERMS_SAME]"; fi; fi
+# ★[INTERNAL_NOINDEX_1106 2026-11-06 대본 지시 4] 내부 점검 화면 · 옛 계약 보존본 — noindex · 사이트맵 0 · 고객 화면 링크 0 · 새 내부 화면은 목록에
+if command -v node >/dev/null 2>&1; then node scripts/audit/internal-noindex.mjs >/dev/null 2>&1; _ini=$?; if [ "$_ini" != 0 ]; then echo "FAIL internal-noindex($_ini) — 내부 화면 · 계약 보존본이 고객 주소에 드러난다 · node scripts/audit/internal-noindex.mjs [INTERNAL_NOINDEX_1106]"; fail=1; else echo "ok internal-noindex [INTERNAL_NOINDEX_1106]"; fi; fi
 # ★[PURGE_CHAIN_ALWAYS 2026-10-09 점검] 주간 정리는 질문 기록 시트가 없거나 비어도 매단 개인정보 파기를 끝까지 부른다(행동으로 잰다 · 2 도 빨강)
 chk 'PURGE_CHAIN_ALWAYS' automation/consultation/consultation-booking.gs 1
 chk 'PURGE_CHAIN_ALWAYS' scripts/audit/purge-chain.mjs 2
