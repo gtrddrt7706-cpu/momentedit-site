@@ -893,7 +893,7 @@
      ★음악: 박수 동안 올라가 있다(live.duck) → GO 뒤 다음 큐가 1.5초에 걸쳐 내린다(fadeMs · build 가 다음 큐에 싣는다). */
   /* [BRIDGE_SKIP_1018] 이음말 판정 — 이음말로 여는 첫 낱말 · 박수를 청하는 말(«박수, 고맙습니다.»는 청하지 않는다) */
   var BRIDGE_OPEN = /^(다음은|다음으로|자 그럼 이제|이제|먼저|이어서|이번에는|그럼)(\s|,|$)/;
-  var CLAP_ASK = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/;   // ★[MODERN_WORDS_1024 검토 164] «주세요» 더함 — 57 «큰 박수로 두 사람을 축하해 주세요.»도 박수 청이다
+  var CLAP_ASK = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|주세요|맞아)|박수로[^.!?]*하겠습니다/;   // ★[B2_FIX_NI05 2026-11-06 재검증 재수정] 개식 기본 «여러분의 박수로 시작하겠습니다!»도 박수 청 — 화촉 힌트(2132)가 영상 소개 · NI04 메모와 같은 «박수가 줄기 시작하면»으로 · 지금 엔진 글에서 이 꼴은 개식 하나   // ★[MODERN_WORDS_1024 검토 164] «주세요» 더함 — 57 «큰 박수로 두 사람을 축하해 주세요.»도 박수 청이다
   /* ★[BGM_TIMING_1101] 축사 · 축가 «박수 부탁드립니다» 뒤 박수 — 성혼 선언 끝(narr-declare-end → 박수)과 같은 꼴: 박수 시작에 1.5초에 걸쳐 −8 */
   function clapUp(l) { l.upMs = 1500; return l; }
   /* ★[B2_NA_14 2026-11-06 BATCH2 나14] 편지 멘트 예시 2 ~ 4 는 받는 쪽 방향(마주 서기 · 부모님 바라보기)을 말하지 않는다 — 소리는 그대로 두고 디렉터 준비 기준에 방향을 싣는다(새 이동 순서는 만들지 않는다) */
@@ -948,6 +948,15 @@
       }
       for (var i = 0; i < 4; i++) {
         if (i === 2) {   // [GUEST_5MIN_OFF_1023] 5분 전은 사진 올리기 안내 하나(하객 안내가 열린 날 · 새 코스)
+          /* ★[B2_FIX_NA_28 2026-11-06 재검증 재수정 · 확정 규칙 «사진 올리기 안내는 늘»] 새 코스 두 분 목소리 날의 5분 전도 나레이션 판과 같은 판 고르기(guestPick) —
+               식사 날은 장소 · 예약 경로(하객 안내 / 현장 디렉터) + 사진, 식사 없는 날은 사진, 온라인은 맨 끝 · 하객 안내를 끈 날에도 사진 문장이 나간다(PHOTO_ALWAYS_NI02 와 같은 창고 문장 · 새 녹음 0 · 5분 타이머는 이 큐 하나).
+               종전에는 하객 안내가 열린 날 264 하나뿐이라 식사 경로가 빠지고 guide=false 날은 사진 안내가 하루 어디에도 없었다 · 옛 코스는 아래 종전 그대로 */
+          if (_openG) { var g5 = guestPick(S, 2);
+            out.push(cue({
+              k: 'guest', blockN: '하객 맞이', slug: g5, name: '하객 맞이 · ' + D.GUEST[2][0], text: EXTRA[g5] || '', duck: PARAM.duckSpeech, fire: 'clock', atMin: at[2],
+              note: '예식 5분 전 시각에 · 식사 날은 장소 확인 경로 · 사진 올리기 안내는 늘(하객 안내를 끈 날도)'
+            }));
+            continue; }
           if (_openG && gOn(S)) out.push(cue({
             k: 'guest', blockN: '하객 맞이', slug: S.photoShare ? 'narr-photo-ask' : 'narr-photo-upload', name: '사진 올리기 안내 · 5분 전',
             text: EXTRA[S.photoShare ? 'narr-photo-ask' : 'narr-photo-upload'], duck: PARAM.duckSpeech, fire: 'clock', atMin: at[2],
@@ -1170,6 +1179,9 @@
         }),
         cue({
           k: 'vow', blockN: '혼인 서약', slug: 'narr-vow-out', name: '혼인 서약 마무리', text: n.end,
+          /* ★[B2_FIX_NA_33 2026-11-06 재검증 재수정] 고른 맺는 말이 박수를 청하면(«잔잔하게» «… 큰 박수 부탁드립니다.») 박수 구간 — 연습 행동 줄 «하객이 박수로 축하해요.»(소리 아님 · 하객 몫 · B 에서 두 분 «다 했어요» 차례 아님) ·
+               다음 여는 말은 박수가 잦아들 때 디렉터 GO(CLAP_GO · 4.5초 사슬 VOW_OUT_GAP 은 박수 없는 맺는 말에만) · 판정은 예시 글을 얹은 뒤의 글(narExCue)로 */
+          live: (function () { var _vx = (O.narExCue && O.narExCue(S, 'narr-vow-out')) || '', _vt = (_vx && EXTRA[_vx]) || n.end || ''; return CLAP_ASK.test(_vt) ? applause('하객 박수 · 두 분의 서약에', PARAM.declare.applauseMs / 1000) : null; })(),
           hint: '낭독이 끝나고 2초 · 박수가 나면 잦아든 뒤'   /* [REVIEW16_1018 검토 125] 괄호 메모(55초일 수도 75초일 수도)는 콘솔 글에서 뺐다 — 까닭은 이 주석에 · [VOW_OUT_GAP_1016] 자료 G2 1-3 «서약 뒤 4 ~ 5초 여백» */
         })
       ];
@@ -1643,7 +1655,9 @@
         var _declStay = bc.k === 'declare' && bn.k === 'bless' && O.declBlessOf && O.declBlessOf(S) === 'yes';
         if (slugB === 'bridge-b3-clap-thanks' && !_declStay) { _more.push('bridge-b9-declare-seat-end'); bn.fire = 'manual'; bn.hint = bn.k === 'bless' ? '선언하신 분이 자리로 돌아가고 마이크가 부모님께 넘어가면' : '선언하신 분이 자리로 돌아가면'; }
         if (_declStay) bn.note = (bn.note ? bn.note + ' · ' : '') + '첫 덕담 · 성혼 선언을 읽으신 ' + O.declBy(S) + '께서 그 자리에서 이어서(마이크 그대로)';   // [DECL_TITLE_1031] 네
-        if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && !CLAP_ASK.test(_nxT)) _more.push('bridge-b10-speech-clap');
+        /* ★[B2_FIX_NA_35 2026-11-06 재검증 재수정] 축사 → 축가는 축가 여는 말이 박수를 청해도(«따뜻하게» · «다정하게») 246 «축사해 주신 분께 박수 부탁드립니다.» + 박수를 먼저 —
+             여는 말의 박수는 축가 몫이라 축사하신 분 박수가 빠졌다 · 기존 녹음 246 · 그 밖의 다음 순간은 ⑤ 그대로(바로 뒤 줄이 박수를 청하면 뺀다) */
+        if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && (bn.k === 'song' || !CLAP_ASK.test(_nxT))) _more.push('bridge-b10-speech-clap');
         if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');   // ★[REVIEW26_1023 검토 150-2 4)] 인사 «밝게»(259 «… 눈물보다는 기쁨으로 …»)는 B12 «… 경건한 시간»과 부딪친다
         if (bn.k === 'entry' && String(S.entry || 'A').toUpperCase() !== 'E') _more.push('bridge-b7-entry-ready');

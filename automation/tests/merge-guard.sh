@@ -22083,7 +22083,10 @@ chk 'VOW_FACE_NI13' order-preview.html 1
 chk 'B_RESUME_WAIT_NI14' order-preview.html 1
 chk 'STAGE_SHOW_NI11' order-preview.html 6
 chk "function _stName(st){ return st&&st.stage?_post(st.stage).n:_lName(st&&st.k); }" order-preview.html 1
-chk "return '다음 · 본식 뒤 '+_post('_photo').n" order-preview.html 1
+chk "return '다음 · '+_post('_photo').n+' · '+_post('_after').n;" order-preview.html 1   # [B2_FIX_GEUL_19 2026-11-06] 다음 단추에 «본식 뒤» 안 붙임
+chk 'B2_FIX_GEUL_19' order-preview.html 2
+nochk "'<p class=\"mk-note\">식후 · '" order-preview.html
+nochk "return '다음 · 본식 뒤 '" order-preview.html
 nochk '<b>식후</b>' order-preview.html
 nochk '<span class="pr-no pre">식후</span>' order-preview.html
 nochk "return '다음 · 식후 '" order-preview.html
@@ -22631,3 +22634,11 @@ chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 4
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
+# ★[B2_FIX_R1 2026-11-06 재검증 재수정 1묶음] 나28 · 글19 · 나62 · 나64 · 글18 · NI05 · 나33 · 나35 — 엔진을 돌려 동작으로 잰다(scripts/audit/b2-fix-r1.mjs · --selftest 로 깨 본다)
+chk 'B2_FIX_NA_28' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_33' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_35' assets/ritual-cue.js 1
+chk 'B2_FIX_NI05' assets/ritual-cue.js 1
+chk 'B2_FIX_NA_62' order-preview.html 1
+chk 'B2_FIX_GEUL_18' order-preview.html 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r1.mjs >/dev/null 2>&1; _b2r1=$?; node scripts/audit/b2-fix-r1.mjs --selftest >/dev/null 2>&1; _b2r1s=$?; if [ "$_b2r1" != 0 ] || [ "$_b2r1s" != 0 ]; then echo "REVERT? b2-fix-r1: 재검증 재수정 1묶음(사진 안내 늘 · 서약 · 축사 박수 · 개식 힌트 · 본식 뒤 · 덕담 차례)이 어긋났습니다 ($_b2r1/$_b2r1s) — node scripts/audit/b2-fix-r1.mjs"; fail=1; else echo 'ok b2-fix-r1'; fi; fi

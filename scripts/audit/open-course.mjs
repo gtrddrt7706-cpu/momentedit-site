@@ -418,8 +418,10 @@ ok('[GUEST_EX_NAR · GUEST_WELCOME_191] 새 코스 나레이션 판은 예시 �
   const op = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'guest' && !/^bridge-/.test(c.slug)).map((c) => c.slug).pop() === 'narr-open';
   return g({ course: 'open', on: { prevideo: 1 }, guestEx: 2 }) === g({ course: 'open', on: { prevideo: 1 }, guestEx: 0 })   /* ★[GUEST_WELCOME_191 검토 191] 새 코스 나레이션 판은 예시 칩을 읽지 않는다(한 문안 · 마이페이지 값으로 판) */
     && /^guest-w-arrival-guide,guest-w-10m-n\d+,guest-w-5m-g,guest-w-1m$/.test(g({ course: 'open', on: { prevideo: 1 }, guestEx: 0 }))   /* [INFO_SPLIT_200] 하객 안내 날 5분 전 = 333(사진 줄) */
-    && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) === 'guest-1-arrival,guest-2-10min,narr-photo-upload,guest-4-1min'   /* [GUIDE_ALWAYS_202] 두 분 목소리 판도 사진 올리기 안내(5분 전 자리)가 늘 */
-    && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple', guide: 0 }) === 'guest-1-arrival,guest-2-10min,guest-4-1min'
+    && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-g,guest-4-1min'   /* [GUIDE_ALWAYS_202] 두 분 목소리 판도 사진 올리기 안내(5분 전 자리)가 늘 · ★[B2_FIX_NA_28 2026-11-06] 나레이션 판과 같은 판 고르기(333) */
+    && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple', guide: 0 }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-g,guest-4-1min'   /* ★[B2_FIX_NA_28] 하객 안내를 끈 날에도 사진 안내(확정 규칙) · 종전엔 5분 전이 없었다 */
+    && g({ course: 'open', on: {}, guestVoice: 'couple', meal: 1, mealFull: 1, resv: '13:30' }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-mgr,guest-4-1min'   /* [B2_FIX_NA_28] 식사 날 = 장소 · 예약 경로 + 사진 */
+    && g({ course: 'open', on: {}, guestVoice: 'couple', meal: 1, mealFull: 1, guide: 0 }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-m,guest-4-1min'
     && op({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) && op({ course: 'open', on: { prevideo: 1 }, guestEx: 2 }) && !C.build({ course: 'family' }, { mode: 'console' }).cues.some((c) => c.slug === 'narr-open')
     && g({ course: 'open', on: {}, guestEx: 9 }).startsWith('guest-w-arrival');   /* [GUEST_WELCOME_191] 모르는 값도 새 판 */
 })());
@@ -527,7 +529,7 @@ ok('[GUEST_5MIN_OFF_1023 검토 159-1 → GUEST_WELCOME_191] 5분 전 — 새 �
   const any5 = (S) => C.build(S, { mode: 'console' }).cues.some((c) => /3-5min|^guest-w-5m-/.test(c.slug || ''));   /* [INFO_SPLIT_200] 새 코스 5분 전 = 03 또는 329 ~ 338 */
   const oldK = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].open)[0];
   const B5 = fs.readFileSync(P('order-preview.html'), 'utf8'), CO = fs.readFileSync(P('console.html'), 'utf8'), AD = fs.readFileSync(P('admin.html'), 'utf8');
-  return ![{ course: 'open', on: {}, guestVoice: 'couple' }, { course: oldK }].some(any5) && [{ course: 'open', on: {} }, { course: 'open', on: {}, guestEx: 2 }].every(any5)   /* ★[GUEST_WELCOME_191 검토 191 보충 3] 새 코스 나레이션 판은 5분 전 03 을 되살렸다 · 두 분 목소리 · 옛 코스는 종전대로 없음 */
+  return ![{ course: oldK }].some(any5) && [{ course: 'open', on: {} }, { course: 'open', on: {}, guestEx: 2 }, { course: 'open', on: {}, guestVoice: 'couple' }, { course: 'open', on: {}, guestVoice: 'couple', guide: 0 }].every(any5)   /* ★[GUEST_WELCOME_191 검토 191 보충 3] 새 코스 나레이션 판은 5분 전 03 을 되살렸다 · 옛 코스는 종전대로 없음 · ★[B2_FIX_NA_28 2026-11-06] 두 분 목소리 판도 5분 전(경로 + 사진 · 하객 안내를 끈 날도) */
     && ['guest-ex2-3-5min', 'guest-ex3-3-5min', 'guest-ex4-3-5min'].every((k) => C.RETIRED[k]) && !C.RETIRED['guest-3-5min']
     && /var GUEST_KEYS=\['g0','g1','g3'\];/.test(B5) && !/\['g2','시작 5분 전','guest'\]/.test(B5) && !/'g0','g1','g2','g3'/.test(B5) && !/'g0','g1','g2','g3'/.test(CO) && !/'g0','g1','g2','g3'/.test(AD)
     && !C.build({ course: 'open', on: {}, guide: 1 }, { mode: 'console' }).cues.some((c) => c.k === 'guest' && /^narr-photo/.test(c.slug || '')); })());   /* [GUEST_WELCOME_191] 5분 전 사진 올리기는 입장 때 줄(298)로 옮겼다 */
