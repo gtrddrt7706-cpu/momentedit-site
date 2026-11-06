@@ -21530,7 +21530,7 @@ chk 'SNAP_DUE_TODAY_1106' mypage.html 1
 chk 'late:days<14, today:days===14, lock:days<=3' mypage.html 1
 nochk 'late:days<=14, lock:days<=3' mypage.html 0
 chk 'DN_CONF_PUB_1106' mypage.html 3
-chk "dv='후보 '+_fn+'곳 · 하객에게 공개한 곳 없음'" mypage.html 1
+chk "dv='후보 '+_fn+'곳<br>하객에게 공개한 곳 없음'" mypage.html 1   # [CF_LINE_BREAK] 갈릴 자리는 «·» 대신 줄바꿈
 chk 'function _dnPubFavs(dd)' mypage.html 1
 nochk "    } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';" mypage.html 0
 chk "var PVC_STEPS=\['분위기','사진','음악','확인'\];" mypage.html 1
