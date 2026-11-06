@@ -8263,18 +8263,21 @@ function _lRefExpand(q){
     set.forEach(function(pt){ var wk=kind?(pt.who==='신랑'?'g':pt.who==='신부'?'b':''):'', id=wk?kind+'.'+wk:'', site=!!(id&&_txSite(kind,c,id)), mine=id&&!site?String((S.tx||{})[id]||'').trim():'';   /* ★[REVIEW_166_1030 검토 166 B3] «현장에서 바로 · 따로 가져오기»를 고르면 적어 둔 글은 보관만(연습에서 읽지 않는다 · 체크를 풀면 그대로) */   // [SITE_CHK_OFF]
       var st={k:x.k,lab:pt.who+' 차례',who:pt.who,src:null,pending:true,talk2:true,talkTxt:x.txt,refPar:!!pt.parent,ldk:x.ldk};   /* [BGM_PREVIEW_1024] 사람 구간 음악 크기 */
       if(mine){ st.txt=mine; st.mine=true; st.ms=_mkSec(mine.length)*1000; }
-      else if(site){ st.txt=kind==='letter'?'따로 써 온 편지를 읽는 차례예요':'떠오르는 대로 말해 보세요'; st.site=true; if(kind==='letter') st.siteLetter=true; st.ms=(each||20)*1000; }   /* ★[LETTER_SITE_PRACT_1031 식순 걷기 2라운드 8] 편지 «따로 써서 가져올게요»는 즉석 말이 아니다 */
-      else { st.txt=pt.txt; st.ref=true; st.kyeol=pt.kyeol; st.refN=n; st.refOf=sets.length; st.refSit=_refSit(set); st.refDay=(x.k==='tribute'&&_inPr())?'비워 두셔도 돼요 · 지금은 참고 예시':_lRefDay(x.k,set); st.ms=(each||Math.max(3,_mkSec(pt.txt.length)))*1000; }   /* [PRACTICE_WALK_1101 12] 부모님께 드릴 말은 선택 */
+      else if(site){ st.txt=kind==='letter'?'따로 써 온 편지를 읽는 차례예요':'떠오르는 대로 말해 보세요'; st.site=true; if(kind==='letter') st.siteLetter=true; st.ms=(each||20)*1000; if(each) st._ea=1; }   /* ★[LETTER_SITE_PRACT_1031 식순 걷기 2라운드 8] 편지 «따로 써서 가져올게요»는 즉석 말이 아니다 */
+      else { st.txt=pt.txt; st.ref=true; st.kyeol=pt.kyeol; st.refN=n; st.refOf=sets.length; st.refSit=_refSit(set); st.refDay=(x.k==='tribute'&&_inPr())?'비워 두셔도 돼요 · 지금은 참고 예시':_lRefDay(x.k,set); st.ms=(each||Math.max(3,_mkSec(pt.txt.length)))*1000; if(each) st._ea=1; }   /* [PRACTICE_WALK_1101 12] 부모님께 드릴 말은 선택 */
       if(wk) st.wk=wk; grp.push(st); });
     /* ★[REVIEW_166_1030 검토 166 B1] 고른 참고 예시가 한 사람 판(편지 예시 3 · 4 신부만 · 교차 인사 예시 1 · 4 신랑만)이어도 두 분이 적은 글은 다 차례에 넣는다 — 종전엔 예시에 없는 분의 글이 연습 · 흐름에서 빠졌다 */
     if(kind) [['g','신랑'],['b','신부']].forEach(function(gw){ if(grp.some(function(q){ return q.wk===gw[0]; })) return; var _st2s=_txSite(kind,c,kind+'.'+gw[0]);
       /* ★[LETTER_BRING_NI08 2026-11-05 이음매 NI08] 예시에 없는 분이 편지를 «따로 써서 가져올게요»로 고른 날도 그분 차례를 넣는다(종전엔 바로 빠졌다) — 카드 «신랑이 읽어요» ·
            «따로 써 온 편지를 읽는 차례예요» · 저장된 옛 글은 읽지 않는다 · 신랑은 신부 앞 · B 는 차례마다 완료를 기다린다(talk2) · 시간 = 그 순간 몫을 화자 수로 나눈 값 */
-      if(_st2s&&kind==='letter'){ var st3={k:x.k,lab:gw[1]+'이 읽어요',who:gw[1],src:null,pending:true,talk2:true,talkTxt:x.txt,txt:'따로 써 온 편지를 읽는 차례예요',site:true,siteLetter:true,ms:(each||20)*1000,wk:gw[0],ldk:x.ldk};
+      if(_st2s&&kind==='letter'){ var st3={k:x.k,lab:gw[1]+'이 읽어요',who:gw[1],src:null,pending:true,talk2:true,talkTxt:x.txt,txt:'따로 써 온 편지를 읽는 차례예요',site:true,siteLetter:true,ms:(each||20)*1000,_ea:each?1:0,wk:gw[0],ldk:x.ldk};
         if(gw[0]==='g'){ var fj=grp.findIndex(function(q){ return q.wk; }); grp.splice(fj<0?grp.length:fj,0,st3); } else grp.push(st3); return; }
       if(_st2s) return; var mine2=String((S.tx||{})[kind+'.'+gw[0]]||'').trim(); if(!mine2) return;
       var st2={k:x.k,lab:gw[1]+' 차례',who:gw[1],src:null,pending:true,talk2:true,talkTxt:x.txt,txt:mine2,mine:true,ms:_mkSec(mine2.length)*1000,wk:gw[0],ldk:x.ldk};
       if(gw[0]==='g'){ var fi=grp.findIndex(function(q){ return q.wk; }); grp.splice(fi<0?grp.length:fi,0,st2); } else grp.push(st2); });
+    /* ★[B5_NI08 2026-11-06 5차 P v2 NI08] 최종 화자 배열(예시 화자 + 보충한 분)을 먼저 다 세운 뒤 그 수로 그 순간 몫(hs)을 나눈다 — 종전엔 보충 전 예시 화자 수로 나눠
+         «신부만 있는 편지 예시 + 두 분 따로 준비»가 각 139초 · 합 278초였다 · 총 계획시간은 한 번만(화자 수가 늘어난 판만 · 그대로인 판은 종전 값) · 몫으로 정한 카드(_ea)만 다시 나눈다(적어 둔 글은 글 길이 그대로) · 신랑 → 신부 · 옛 글 미사용 · ldk 그대로 */
+    if(kind&&hs>0&&grp.length>set.length){ var _eaMs=Math.max(3000,Math.round(hs*1000/grp.length)); grp.forEach(function(q){ if(q._ea) q.ms=_eaMs; }); }
     /* ★[REVIEW_166_1030 검토 166 B2] 덕담 · 축사 — 받은 원고(S.tx['bless.p'] · ['free.p'])를 넣었으면 예시 대신 그 원고를 읽는다 · «원고 없이 현장에서»를 고른 날은 예시 그대로 */
     var _scr=(x.k==='bless'||(x.k==='free'&&R.FREE_KIND[R.chipOf('free',S)]==='speech'))?ASK_SCRIPT[x.k]:null, _scrT=_scr&&!_askSite(x.k)?String((S.tx||{})[_scr.id]||'').trim():'';
     if(_scrT){ var _sw=x.k==='bless'?'부모님':'축사하시는 분'; grp=[{k:x.k,lab:_sw+' 차례',who:_sw,src:null,pending:true,talk2:true,talkTxt:x.txt,txt:_scrT,mine:true,ms:_mkSec(_scrT.length)*1000,ldk:x.ldk}]; }
