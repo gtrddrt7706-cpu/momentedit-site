@@ -137,8 +137,7 @@ function _ltCoupleFull(eventId, view) { _gsr_();
     /* ★[LETTER_SPLIT_A 2026-11-06 사장님 결정 2 = A (B2-K36 · L04 · L13)] 신랑 · 신부 주소가 둘 다 있고 서로 다를 때만 true —
        하객 편지 화면은 false 면 «신랑에게만 · 신부에게만»을 숨기고 «두 분 모두»만 보인다(받는 사람 약속을 지킬 수 없는 선택지를 안 보인다).
        주소 자체는 여전히 내보내지 않는다(참 · 거짓만). */
-    couple.letterSplit = couple.hasGroomEmail && couple.hasBrideEmail
-      && String(row[_gi] || '').trim().toLowerCase() !== String(row[_bi] || '').trim().toLowerCase();
+    couple.letterSplit = _ltSplit_(_gi !== -1 ? row[_gi] : '', _bi !== -1 ? row[_bi] : '');   // [B2_FIX_L13] 보낼 때와 같은 자(_ltSplit_ 한 곳)
     if (!_ltAcctVisible(couple, view)) {
       ['groomAccount', 'brideAccount', 'groomFatherAccount', 'groomMotherAccount', 'brideFatherAccount', 'brideMotherAccount']
         .forEach(function (k) { if (k in couple) couple[k] = ''; });
@@ -202,6 +201,10 @@ function ltGuestLetter(body) { _gsr_();
 
     var couple = _ltCoupleMin(eventId);
     if (!couple) return { ok: false, error: '등록되지 않은 예식입니다.' };
+    /* [B2_FIX_MA_05] 잘못된 받는 분 값은 두 분으로 넓히지 않고 막는다 · [B2_FIX_L13] 두 주소가 갈리지 않는 예식(같은 주소 · 한쪽 없음)의 «한 분에게만»도 막는다 —
+       옛 화면(캐시) · 직접 요청이면 전용 편지가 함께 쓰는 주소로 갔다. 시트에 적기 전이라 편지는 하객 화면에 그대로 남는다(G0 · 글이 곧 까닭) */
+    if (!recipient) return { ok: false, ecode: 'G0', error: LT_PICK_AGAIN };
+    if (recipient !== 'both' && !_ltSplit_(couple.groomEmail, couple.brideEmail)) return { ok: false, ecode: 'G0', error: LT_PICK_AGAIN };
 
     // [LETTER_RATE] 한 예식으로 편지가 쏟아지는 것을 막는다 — 할당량과 두 분의 받은편지함을 함께 지킨다.
     var rl = _ltRateCheck(eventId);
@@ -270,9 +273,19 @@ function _ltCoupleMin(eventId) { _gsr_();
 }
 
 function _ltRecipient(r) { _gsr_();
-  var v = String(r || '').toLowerCase().trim();
-  return (v === 'groom' || v === 'bride' || v === 'both') ? v : 'both';
+  /* ★[B2_FIX_MA_05 2026-11-06 재검증 재수정 · H20] 명시한 잘못된 값(groom · bride · both 밖)을 «두 분 모두»로 넓히지 않는다 — '' 를 돌려주면 ltGuestLetter 가
+     «받는 분을 다시 골라 주세요.»로 막는다(편지 글은 하객 화면에 그대로). 값이 아예 없는 옛 화면만 종전대로 «두 분 모두» */
+  var v = String(r == null ? '' : r).toLowerCase().trim();
+  if (!v) return 'both';
+  return (v === 'groom' || v === 'bride' || v === 'both') ? v : '';
 }
+/* ★[B2_FIX_L13 2026-11-06 재검증 재수정 · 결정 A] 신랑 · 신부 주소가 둘 다 있고 서로 다를 때만 «한 분에게만» 편지를 지킬 수 있다 —
+   조회(getCouple letterSplit) · 접수(ltGuestLetter) · 보내기(_ltSendToRecipients_)가 이 한 자를 쓴다 */
+function _ltSplit_(ge, be) {
+  ge = String(ge || '').trim(); be = String(be || '').trim();
+  return ge.indexOf('@') !== -1 && be.indexOf('@') !== -1 && ge.toLowerCase() !== be.toLowerCase();
+}
+var LT_PICK_AGAIN = '받는 분을 다시 골라 주세요.';   // [B2_FIX_MA_05] 하객 화면(live.html lfErr)과 같은 글
 function _ltRecipientKo(recipient) { _gsr_();
   if (recipient === 'groom') return '신랑에게만';
   if (recipient === 'bride') return '신부에게만';
@@ -481,7 +494,11 @@ function _ltSendToRecipients_(couple, guestName, relation, message, recipient, i
     var k = String(email || '').trim().toLowerCase();
     if (email && email.indexOf('@') !== -1 && !seen[k]) { seen[k] = 1; targets.push({ email: email, name: name, role: role }); }
   };
-  if (recipient === 'groom') add(couple.groomEmail, couple.groomName, 'groom');
+  /* [B2_FIX_L13 2026-11-06 재검증 재수정] «한 분에게만»은 두 주소가 갈릴 때만(_ltSplit_) — 아니면 아무 곳에도 안 보낸다(실패(주소 없음) · 스튜디오가 직접 전한다).
+     접수는 ltGuestLetter 가 먼저 막고, 이 줄은 매일 점검의 다시 보내기(옛 편지)가 함께 쓰는 주소로 새지 않게 */
+  var _solo = (recipient === 'groom' || recipient === 'bride'), _split = _ltSplit_(couple.groomEmail, couple.brideEmail);
+  if (_solo && !_split) { /* 보내지 않는다 */ }
+  else if (recipient === 'groom') add(couple.groomEmail, couple.groomName, 'groom');
   else if (recipient === 'bride') add(couple.brideEmail, couple.brideName, 'bride');
   else { add(couple.groomEmail, couple.groomName, 'groom'); add(couple.brideEmail, couple.brideName, 'bride'); }
 

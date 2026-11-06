@@ -16,7 +16,7 @@
   'use strict';
   if(window.EntryMusic) return;
   var D=document;
-  var UP_WALK=51,   /* [WALK_HALF_1106 · BGM 섹션 11/06 22:3x 입장 세션 계산] 걷기 절반 — 102 → 51 */ UP_PRE=15, UP_MIN=60, UP_MAX=60*1024*1024, ES=window.EntryScene, SONG_LUFS=ES.SONG_LUFS, BED_TRIM=ES.BED_TRIM;   /* 걷는 시간 = 콘솔 입장 큐 어림(1분 42초) · 앞부분 15초 · 1분 넘는 곡 · 시험실과 같은 값 */
+  var UP_WALK=((window.RitualOpen&&RitualOpen.WALK&&RitualOpen.WALK.day)||51),   /* [WALK_HALF_1106 · BGM 섹션 11/06] 걷는 시간 = RitualOpen.WALK.day 한 곳(51 · 옛 102 «1분 42초») */ UP_PRE=15, UP_MIN=60, UP_MAX=60*1024*1024, ES=window.EntryScene, SONG_LUFS=ES.SONG_LUFS, BED_TRIM=ES.BED_TRIM;   /* 걷는 시간 = 콘솔 입장 큐 어림(1분 42초) · 앞부분 15초 · 1분 넘는 곡 · 시험실과 같은 값 */
   var UPS=null, UP_ID=0, PREV=null, AC=null, DEC=null, RESTORE=0;
   var EM={ scene:true };   /* [ENTRY_SCENE_1012] 2단계가 들어와 안내 창이 «음악과 함께 듣기로 …» 문장을 말한다 */
 

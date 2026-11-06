@@ -206,10 +206,16 @@
     for (var i = 0; i < db.length; i++) if (db[i] && String(db[i].n || '').trim() === name) { var f = Array.isArray(db[i].f) ? db[i].f.join(' ') : ''; return _foodKind(f); }
     return '';
   }
+  /* ★[B2_FIX_NI16 2026-11-06 재검증 재수정] 옛 저장분 — 지도 장소 API 가 분류 끝 토막만 보내던 때 담은 곳(«한식 · 1.2km · 주소»)은 «>»가 없어 늘 확인 필요였다.
+       첫 토막이 분명한 음식 분류 낱말일 때만 근거로 본다(카페 말 · 아래 식사 분류 목록) · 숫자가 든 토막(주소 · 거리) · 상호(«스타벅스»)는 근거가 아니다(식사로 짐작하지 않는다) */
+  var MAP_MEAL_RE = /^(한식|중식|중국요리|일식|양식|분식|뷔페|한정식|아시아음식|패밀리레스토랑|레스토랑|퓨전요리|이탈리안|프랑스음식|스테이크,립|육류,고기|갈비|삼겹살|해물,생선|회|초밥,롤|샤브샤브|국수|칼국수|냉면|국밥|해장국|곰탕|설렁탕|감자탕|찌개,전골|곱창,막창|오리|장어|닭요리|돈까스,우동|족발,보쌈|쌈밥|두부전문점|순대|추어|매운탕,해물탕|게,대게|조개|복어|낙지|주꾸미|아구|베트남음식|태국음식|인도음식|멕시칸,브라질|치킨|피자|브런치)$/;
   function _mapKind(m) {   /* 지도 분류 «음식점 > 한식 > … · 1.2km · 주소» — '>' 가 든 토막만 분류로 본다(주소의 «카페거리»를 카페로 읽지 않게) */
     var parts = String(m || '').split(' · ');
     for (var i = 0; i < parts.length; i++) if (parts[i].indexOf('>') > -1) return _foodKind(parts[i]);
-    return '';
+    var t = String(parts[0] || '').trim();   // [B2_FIX_NI16] 옛 끝 토막 꼴
+    if (!t || /\d/.test(t)) return '';
+    if (CAFE_RE.test(t)) return 'cafe';
+    return MAP_MEAL_RE.test(t) ? 'meal' : '';
   }
   function diningStatusOf(dd, placeholders) {
     if (!dd) return 'undecided';

@@ -201,6 +201,22 @@ function handlePvSave(body) { _gsr_();
     if (op === 'save' && body.rev != null && isFinite(+body.rev) && Number(body.rev) < (Number(m.subRev) || 0)) return { ok: true, stale: true, pv: _pvPublic(code, cust, kind) };
     if (_pvPast_(due) && !(op === 'confirm' && st === 'review' && (m.submit || {}).day && String(m.submit.day) <= due)) return { ok: false, locked: true, error: '확정 기한이 지났어요 · 바꾸실 것은 디렉터에게 말씀해 주세요' };
     var d = (op === 'later' || op === 'off' || op === 'reopen' || op === 'confirm') ? (body.draft ? _pvNorm_(body.draft, m, wed, kind) : _pvNorm_(d0, m, wed, kind)) : _pvNorm_(body.draft, m, wed, kind);
+    /* ★[B2_FIX_MA_59 2026-11-06 재검증 재수정] 이 기기가 아는 판(body.rev) 뒤에 다른 기기가 올린 사진은 이 초안에 없어도 빼지 않는다 —
+       종전엔 뒤이은 자동 저장이 옛 목록으로 통째로 덮어 다른 기기 사진이 말없이 빠졌다(10분 뒤 휴지통). 사진마다 올린 판(uploads.rv)을 견준다:
+       rv > body.rev = 이 기기가 본 적 없는 사진 → 남긴다 · rv ≤ body.rev = 보고 뺀 사진 → 뺀다. 남긴 것은 added 로 돌려줘 화면이 받아 그린다(다음 저장이 다시 빼지 않게) */
+    var added = [];
+    if (body.draft && body.rev != null && isFinite(+body.rev)) {
+      var _rv = {}, _in = {}; _pvArr_(m.uploads).forEach(function (u) { if (u && u.id) _rv[String(u.id)] = Number(u.rv) || 0; });
+      d.photos.forEach(function (p) { _in[p.id] = 1; });
+      var _miss = _pvArr_(d0.photos).filter(function (p) { return p && p.id && !_in[String(p.id)] && (_rv[String(p.id)] || 0) > Number(body.rev); });
+      if (_miss.length) {
+        var _dm = {}; for (var _k in d) { if (Object.prototype.hasOwnProperty.call(d, _k)) _dm[_k] = d[_k]; }
+        _dm.photos = d.photos.concat(_miss);
+        d = _pvNorm_(_dm, m, wed);   // 칸 · 전체 장수는 _pvNorm_ 이 다시 지킨다
+        var _now = {}; d.photos.forEach(function (p) { _now[p.id] = p; });
+        _miss.forEach(function (p) { var q = _now[String(p.id)]; if (q) added.push({ id: q.id, th: q.th, sec: q.sec, n: q.n }); });
+      }
+    }
     if (op === 'save') {
       if (st === 'done' || st === 'editing') m.st = _pvSame_(d, m.confD || null) ? 'done' : 'editing';
       else if (st === 'making' || st === 'checking' || st === 'review') { if (!_pvSame_(d, _pvNorm_(d0, m, wed, kind))) { m.st = 'draft'; mail = nm + ' · ' + code + ' · 보낸 뒤 다시 고치는 중이에요(지금 작업은 멈춰도 돼요)'; } }
@@ -252,7 +268,7 @@ function handlePvSave(body) { _gsr_();
   if (!wrote) return { ok: false, error: '저장하지 못했어요 · 다시 눌러 주세요' };
   if (mail) _pvAdminMail_(code, mail);   // 메일 · 드라이브 정리는 잠금 밖에서(느린 일)
   jobs.forEach(function (f) { try { f(); } catch (e) {} });
-  return { ok: true, pv: _pvPublic(code, cust, kind) };
+  return { ok: true, pv: _pvPublic(code, cust, kind), added: added };   // [B2_FIX_MA_59] 남긴 다른 기기 사진 · [MID17] kind
 }
 
 // 사진 1장 — 폰에서 줄여 온 것(긴 변 2560 · 작은 그림 400) · 원본은 받지 않는다 · 올리는 즉시 초안에 붙인다(떠돌이 사진이 생기지 않게)
@@ -301,7 +317,12 @@ function handlePvPhoto(body) { _gsr_();
        못 들어간 사진은 지우고 «자리가 찼다»고 답한다(초안에 붙은 사진만 성공) */
     var _ph2 = _pvArr_(d2.photos), _cap2 = { first: PV_UP.first, days: PV_UP.days, today: PV_UP.today };
     if (_ph2.length >= PV_UP.max || _ph2.filter(function (p) { return p && p.sec === sec; }).length >= _cap2[sec]) { trash(); return { ok: false, full: true, error: '다른 기기에서 사진이 추가돼 자리가 찼어요. 현재 사진을 확인해 주세요.', pv: _pvPublic(code, cust) }; }
-    m2.uploads = _pvArr_(m2.uploads).concat([{ id: f1.getId(), th: f2.getId(), sec: sec, ts: Date.now() }]);
+    /* [B2_FIX_MA_59 2026-11-06 재검증 재수정] 요청 판(body.rev)을 다시 본다 — 이 기기가 모르는 사이 다른 기기가 넣은 사진을 added 로 함께 돌려준다
+       (화면이 받아 그린다 · 이 응답의 판으로 건너뛰어도 그 사진을 뺀 적 없는 사진으로 남긴다) · 사진마다 올린 판(rv)을 적어 저장이 견주게 한다 */
+    var _rvNew = (Number(m2.rev) || 0) + 1, _rvOf = {}, _brv = (body.rev != null && isFinite(+body.rev)) ? Number(body.rev) : null, _added = [];
+    _pvArr_(m2.uploads).forEach(function (u) { if (u && u.id) _rvOf[String(u.id)] = u; });
+    if (_brv != null) _ph2.forEach(function (p) { var u = p && _rvOf[String(p.id)]; if (u && (Number(u.rv) || 0) > _brv) _added.push({ id: String(p.id), th: String(u.th || ''), sec: String(p.sec || ''), n: String(p.n || '') }); });
+    m2.uploads = _pvArr_(m2.uploads).concat([{ id: f1.getId(), th: f2.getId(), sec: sec, ts: Date.now(), rv: _rvNew }]);
     d2.photos = _pvArr_(d2.photos).concat([{ id: f1.getId(), sec: sec, n: String(body.name || '').slice(0, 60) }]);
     var st = String(m2.st || '');
     if (!st || st === 'later' || st === 'off') m2.st = 'draft';
@@ -311,7 +332,7 @@ function handlePvPhoto(body) { _gsr_();
     if (!nd.mode) nd.mode = 'make';
     _pvWrite_(sh, r2, code, nd, m2);
   } finally { try { lock.releaseLock(); } catch (e) {} }
-  return { ok: true, id: f1.getId(), th: f2.getId(), rev: Number(m2.rev) || 0 };   // [B2_MA_07] 이 기기가 아는 판을 맞춘다
+  return { ok: true, id: f1.getId(), th: f2.getId(), rev: Number(m2.rev) || 0, added: _added };   // [B2_MA_07] 이 기기가 아는 판을 맞춘다 · [B2_FIX_MA_59] 모르던 사진
 }
 
 // 올린 사진의 작은 그림 — 이 고객이 올린 것만 · 한 번에 24장까지
