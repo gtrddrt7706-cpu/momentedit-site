@@ -4356,22 +4356,19 @@
   "348_guest-w-10m-n10-short#0": {
    "text": "십 분 뒤 본식을 시작하겠습니다.",
    "voice": "진희",
-   "when": "2026-11-01",
-   "from": "299_guest-w-10m-n10#0",
+   "when": "2026-11-06",
    "keepGap": true
   },
   "349_guest-w-10m-n10-short-meal#0": {
    "text": "십 분 뒤 본식을 시작하겠습니다.",
    "voice": "진희",
-   "when": "2026-11-01",
-   "from": "345_guest-w-10m-n10-meal#0",
+   "when": "2026-11-06",
    "keepGap": true
   },
   "349_guest-w-10m-n10-short-meal#2": {
    "text": "식사는 촬영 뒤에 함께합니다.",
    "voice": "진희",
-   "when": "2026-11-01",
-   "from": "345_guest-w-10m-n10-meal#2",
+   "when": "2026-11-06",
    "keepGap": true
   },
   "34_declare-ask-b#0": {
@@ -5026,6 +5023,18 @@
    "text": "이제 두 사람의 감사 인사를 듣겠습니다.",
    "voice": "우성",
    "when": "2026-11-06"
+  },
+  "348_guest-w-10m-n10-short#1": {
+   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-06",
+   "keepGap": true
+  },
+  "349_guest-w-10m-n10-short-meal#1": {
+   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-06",
+   "keepGap": true
   }
  },
  "_언제": "2026-11-06 · 921자리",
