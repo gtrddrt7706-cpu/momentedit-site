@@ -22645,6 +22645,6 @@ nochk 'LP.tLeftSt===st&&LP.tLeft>300&&LP.tMs' order-preview.html   # ★300ms �
 chk 'B5_P17' order-preview.html 4   # [5차 P v2 P17] 잠시 멈춤 중 음악 켜기는 설정만 · 재개 때 지금 줄 곡 · 자리 · 크기
 chk 'B5_P17' assets/bgm-bed.js 1   # [B5_P17] 늦게 온 목록 · 곡이 멈춤 중에 곡을 틀지 않는다(lpPaused)
 nochk 'else { var st=LP.q&&LP.q\[LP.i\]; if(st&&_bedOn()) BgmBed.lpShow(st); }' order-preview.html   # ★멈춤 중에도 켜자마자 lpShow 하던 길 되살리지 말 것
-chk 'B5_PN02' order-preview.html 4   # [5차 P v2 P-N02] 이어서 연습 자리 — 공개 · 계정마다 칸(_prAtKey) · 계정 확인 전 읽기 · 쓰기 없음 · 옛 공용 me_pr_at 미배정
+chk 'B5_PN02' order-preview.html 3   # [5차 P v2 P-N02] 이어서 연습 자리 — 공개 · 계정마다 칸(_prAtKey) · 계정 확인 전 읽기 · 쓰기 없음 · 옛 공용 me_pr_at 미배정
 nochk "localStorage.getItem(PR_AT_KEY" order-preview.html   # ★공용 한 칸(me_pr_at)으로 되돌리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
