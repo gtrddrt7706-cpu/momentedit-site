@@ -10,7 +10,9 @@
      3. 끝나면 원래 함수로 돌아온다 — 예외가 나도
      4. 서명 찾기(SIG_FIND) = 종전 전체 읽기와 같은 답(무작위 300판) · 전체 읽기를 하지 않는다 · 찾기가 멈추면 종전 길
    종료 코드 0 통과 · 1 실패 */
-import { openWorld, kstAhead, kstAgo } from './_gasworld.mjs';
+import { openWorld, kstAhead, kstAgo } from './_gasworld.mjs';/* [B2_MA_02] 제작 단계의 상태 읽기가 하객 안내 링크(guideToken)를 발급한다 — 이 흉내 시트는 쓴 값을 다시 읽지 않아 부를 때마다 새 무작위 값이 나온다. 그 한 칸만 빼고 같은지 본다(발급 자체는 b2ma 검사가 잰다) */
+const _gs = (o) => JSON.stringify(o, (k, v) => (k === 'guideToken' && v ? 'G*' : v));
+
 const { G, world } = openWorld();
 let fail = 0; const ok = (c, m, d) => { console.log(`  ${c ? '✅' : '❌'} ${m}${c || d === undefined ? '' : ' — ' + String(d).slice(0, 220)}`); if (!c) fail++; };
 
@@ -65,7 +67,7 @@ function run(memoOn, cells) {
 console.log('\n═══ ① 기억을 켜도 결과는 한 글자도 같다 [GMS_MEMO] ═══');
 const on = run(true), off = run(false);
 ok(!on.err && !off.err && on.out && on.out.ok && off.out && off.out.ok, '두 판 모두 ok', on.err || off.err);
-ok(JSON.stringify(on.out) === JSON.stringify(off.out), '켠 판 결과 = 끈 판 결과', JSON.stringify(on.out).length + ' vs ' + JSON.stringify(off.out).length);
+ok(_gs(on.out) === _gs(off.out), '켠 판 결과 = 끈 판 결과', JSON.stringify(on.out).length + ' vs ' + JSON.stringify(off.out).length);
 const doc = ((on.out && on.out.ledger && on.out.ledger.documents) || []).find((d) => d.label === '시착 동의서');
 ok(!!doc && doc.sig === oldSig(SIGROWS, CODE, '시착') && doc.sig.endsWith('NEW'), '시착 동의서 서명 = 종전 방식이 고르던 그 한 장(마지막 · 같은 종류)', doc && doc.sig);
 ok(!!(on.out && on.out.consult && on.out.consult.byCard), '예약금 카드(고객 행 다시 찾기 자리)도 그대로 나온다', JSON.stringify(on.out && on.out.consult));
@@ -80,7 +82,7 @@ ok(on.n.csh <= 1 && on.n.hdr <= 1, '고객 시트 열기 · 머리줄 읽기 각
 const PRE = { 현재단계: '계약완료', 입금상태: '', 중도금상태: '' };
 const onP = run(true, PRE), offP = run(false, PRE);
 say('계약금 입금 전', offP, onP);
-ok(!onP.err && !offP.err && JSON.stringify(onP.out) === JSON.stringify(offP.out), '계약금 입금 전 — 켠 판 결과 = 끈 판 결과', onP.err || offP.err);
+ok(!onP.err && !offP.err && _gs(onP.out) === _gs(offP.out), '계약금 입금 전 — 켠 판 결과 = 끈 판 결과', onP.err || offP.err);
 ok(offP.n.bk >= 3 && onP.n.bk === 1, '계약금 입금 전 — 상담 행 찾기 3번 이상 → 1번', offP.n.bk + ' → ' + onP.n.bk);
 
 console.log('\n═══ ③ 끝나면 원래 함수로 — 예외가 나도 ═══');
@@ -89,7 +91,7 @@ ok(on.restored && on.flags.on === false && on.flags.memo === null, '정상 끝: 
   const r = run(true); G.buildConsultState = keepB;
   ok(/일부러 멈춤/.test(r.err) && r.restored && r.flags.on === false && r.flags.memo === null, '중간에 예외: 함수 원래대로 · 기억 꺼짐 · 예외는 그대로 위로', r.err + ' · ' + JSON.stringify(r.flags)); }
 { const r1 = run(true), r2 = run(true);
-  ok(JSON.stringify(r1.out) === JSON.stringify(r2.out) && r2.n.bk === 1, '연달아 두 번 불러도 같은 결과 · 매번 새 기억(앞 판 기억이 남지 않는다)', r2.n.bk); }
+  ok(_gs(r1.out) === _gs(r2.out) && r2.n.bk === 1, '연달아 두 번 불러도 같은 결과 · 매번 새 기억(앞 판 기억이 남지 않는다)', r2.n.bk); }
 ok(typeof G.findRowByPersonalCode === 'function' && !/GMS_MEMO|M\.bk/.test(String(G.findRowByPersonalCode)), '불러오기 밖에서는 진짜 찾기 함수 그대로');
 
 console.log('\n═══ ④ 서명 찾기 = 종전 전체 읽기와 같은 답 · 전체 읽기 없음 [SIG_FIND] ═══');

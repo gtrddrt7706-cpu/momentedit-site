@@ -13,14 +13,14 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 14 | 6 |
+| 1_우성.txt | 우성 | 3 | 3 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 14줄 · 6클립
+# 우성 — 3줄 · 3클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =160_narr-entry-bow,=27_letter-parent,=132_narr-entry-bow-ex2,=161_narr-entry-bow-ex3,=162_narr-entry-bow-ex4,=260_narr-thanks-in-ex4
+  --clip =27_letter-parent,=162_narr-entry-bow-ex4,=260_narr-thanks-in-ex4
 ```
-★160_narr-entry-bow · 27_letter-parent · 132_narr-entry-bow-ex2 · 161_narr-entry-bow-ex3 · 260_narr-thanks-in-ex4 은 두 사람이 한 클립에 섞여 있습니다. 우성 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+★27_letter-parent · 162_narr-entry-bow-ex4 · 260_narr-thanks-in-ex4 은 두 사람이 한 클립에 섞여 있습니다. 우성 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
