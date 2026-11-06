@@ -149,6 +149,11 @@ if (typeof G._pgPrevideo_ !== 'function') { console.log('━━ midvideo — _pg
   ok(o2.fail === 2 && !seen.some((x) => /^mark:/.test(x)), '지우지 못하면 «지움»을 적지 않는다(다음 날 다시)', JSON.stringify({ o2, seen }));
   G._pvSheet_ = PS; G.findCustomerByCode = FC; G._pgGone_ = PG0; }
 
+/* ★[PVNORM_KIND_1107] handlePvSave 안의 _pvNorm_ 은 모두 kind 를 넘긴다 — #1618(B2_FIX_MA_59) 이 넣은 «다른 기기 사진 지키기» 줄 하나가 kind 없이 들어왔다
+   (지금은 식중 초안에 사진이 없어 닿지 않지만, 빠지면 식중 줄이 식전처럼 사진 · 곡 · 분위기를 받을 수 있다) */
+{ const hs = fnSrc(gs, 'handlePvSave'), calls = hs.match(/_pvNorm_\((?:[^()]|\([^()]*\))*\)/g) || [], noKind = calls.filter((c) => !/,\s*kind\)$/.test(c));
+  ok(calls.length >= 5 && noKind.length === 0, 'handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) [PVNORM_KIND_1107]', calls.length + '곳 · kind 없음: ' + noKind.join(' | ')); }
+
 console.log('━━ ④ 기한 안내(예식 14일 · 7일 전)');
 { const H = ['개인코드', '계약상태', '현재단계', '상품타입', '예식일'], col = {}; H.forEach((h, i) => { col[h] = i + 1; });
   let CUST = [], sent = [], admin = [], RET = true;
