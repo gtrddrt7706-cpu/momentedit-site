@@ -644,7 +644,7 @@ function gpLive(t){ var el=document.getElementById('gpLive'); if(!el) return; el
    종전엔 bindGuestUpload 안의 변수였다 — ①남은 사진을 보내면 failed=[] 로 앞 실패 1장의 다시 보내기 길이 사라졌고
    ②캐시로 그린 뒤 늦게 온 최신 응답이 화면을 다시 그리면 실패 · 미전송 목록과 단추가 함께 지워졌다.
    fail = 확실히 안 간 사진 · unsure = 응답을 못 받아 갔는지 모르는 사진(B2-마19) · rest = 아직 안 보낸 사진 · done = 이번에 잘 받은 장수(시트를 띄우면 0) */
-var GP={busy:false, done:0, big:0, fail:[], unsure:[], rest:[], stop:'', lastWhy:'', pendingGuide:null};   // [ERR_CODE_PAGES] lastWhy = 마지막으로 실패한 사진의 까닭(코드 포함) — «N장은 아직 올라가지 않았어요 · 까닭»
+var GP={busy:false, done:0, sent:0, big:0, fail:[], unsure:[], rest:[], stop:'', lastWhy:'', pendingGuide:null, pendingClose:null};   // [B2_FIX_MA_18] sent = 이 화면에서 잘 받은 장수 전체(시트를 띄워도 남는다) · pendingClose = 올리는 동안 받은 «링크 닫힘»   // [ERR_CODE_PAGES] lastWhy = 마지막으로 실패한 사진의 까닭(코드 포함) — «N장은 아직 올라가지 않았어요 · 까닭»
 function _gpUid(f){ if(!f.__gpUid) f.__gpUid=Date.now().toString(36)+Math.random().toString(36).slice(2,12); return f.__gpUid; }   // [B2_MA_19] 파일마다 전송 식별값 — 다시 보내도 같다(서버가 같은 전송을 두 번 저장하지 않는다)
 function _gpDrop(list, f){ var i=list.indexOf(f); if(i>=0) list.splice(i,1); }
 function bindGuestUpload(){
@@ -725,7 +725,7 @@ function bindGuestUpload(){
       if(i>=files.length){ finish(); return; }
       var f=files[i];
       one(f).then(function(v){
-        if(v.ok){ batchDone++; GP.done++; _gpDrop(GP.fail,f); _gpDrop(GP.unsure,f); }
+        if(v.ok){ batchDone++; GP.done++; GP.sent++; _gpDrop(GP.fail,f); _gpDrop(GP.unsure,f); }
         else if(v.big){ GP.big++; _gpDrop(GP.fail,f); _gpDrop(GP.unsure,f); }
         else if(v.unsure){ _gpDrop(GP.fail,f); if(GP.unsure.indexOf(f)<0) GP.unsure.push(f); if(v.why) GP.lastWhy=v.why; }
         else { _gpDrop(GP.unsure,f); if(GP.fail.indexOf(f)<0) GP.fail.push(f); if(v.why) GP.lastWhy=v.why;
@@ -739,6 +739,7 @@ function bindGuestUpload(){
     GP.busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
     gpPaint(true);
     /* [B2_MA_23] 올리는 동안 받은 최신 안내는 끝난 뒤 반드시 반영한다(사진 상태는 GP 에 있어 다시 그려도 남는다) */
+    if(GP.pendingClose){ var pc=GP.pendingClose; GP.pendingClose=null; GP.pendingGuide=null; setTimeout(pc, 0); return; }   // [B2_FIX_MA_18] 링크가 닫혔으면 끝난 뒤 닫힘 화면(보낸 장수 · 남은 장수 한 줄과 함께)
     if(GP.pendingGuide){ var pg=GP.pendingGuide; GP.pendingGuide=null; setTimeout(function(){ render(pg); }, 0); }
   }
   /* 지금 상태를 그린다 — 끝났을 때(fresh) 와 다시 그린 화면에 되살릴 때 같은 함수 */
@@ -1331,6 +1332,20 @@ function renderDemo(){
   var painted=false;
   try{ var raw=localStorage.getItem(cacheKey); if(raw){ render(JSON.parse(raw)); painted=true; } }catch(e){}
 
+  /* ★[GUIDE_EXPIRE_REASON 2026-08-21] 닫는 이유가 둘이다 — «끝났다»와 «날짜를 아직 모른다».
+     종전엔 둘 다 «예식이 끝나…»로 말해, 아직 하지도 않은 예식을 끝났다고 안내했고
+     그 화면엔 출구도 없었다(만료 화면은 정상 종료라 문의처를 일부러 안 붙인다).
+     ★서버가 reason·help 를 준다 — 모르는 경우에만 문의처를 함께 낸다. */
+  function closedPaint(d){
+    var un=GP.fail.length+GP.unsure.length+GP.rest.length, gp=(GP.sent?gpDoneMsg(GP.sent)+'.':'')+(un?(GP.sent?' ':'')+'아직 보내지 않은 사진이 '+un+'장 있어요.':'');   // [B2_FIX_MA_18]
+    if(d.reason==='unknown'){
+      /* 서버 문구가 이미 «확정되면 다시 열려요»를 담고 있다 — 부제에 같은 말을 반복하지 않는다(실렌더로 확인). */
+      $('root').innerHTML=stateHtml('안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?1:0);
+    } else {
+      $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
+    }
+    if(gp){ var stEl=document.querySelector('#root .state'); if(stEl){ var gl=document.createElement('div'); gl.className='sm'; gl.id='gpClosed'; gl.textContent=gp; stEl.appendChild(gl); } }
+  }
   function load(attempt){
     gapi({action:'guideView', g:g})
       .then(function(r){ return r.json(); })
@@ -1340,16 +1355,10 @@ function renderDemo(){
           render(d.guide); painted=true;
         }
         else if(d && d.expired){ try{ localStorage.removeItem(cacheKey); }catch(e){}
-          /* ★[GUIDE_EXPIRE_REASON 2026-08-21] 닫는 이유가 둘이다 — «끝났다»와 «날짜를 아직 모른다».
-             종전엔 둘 다 «예식이 끝나…»로 말해, 아직 하지도 않은 예식을 끝났다고 안내했고
-             그 화면엔 출구도 없었다(만료 화면은 정상 종료라 문의처를 일부러 안 붙인다).
-             ★서버가 reason·help 를 준다 — 모르는 경우에만 문의처를 함께 낸다. */
-          if(d.reason==='unknown'){
-            /* 서버 문구가 이미 «확정되면 다시 열려요»를 담고 있다 — 부제에 같은 말을 반복하지 않는다(실렌더로 확인). */
-            $('root').innerHTML=stateHtml('안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?1:0);
-          } else {
-            $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
-          } }
+          /* ★[B2_FIX_MA_18 2026-11-06 재검증 재수정] 올리는 중이면 닫힘 화면은 끝난 뒤에 그린다(진행 표시를 지우지 않게) · 닫힘 화면에도 이미 보낸 장수와 아직 안 보낸 장수를 한 줄 남긴다.
+             이름 · 좌석 · 예약 정보는 다시 보이지 않는다 */
+          if(window.__gpBusy){ var _dx=d; GP.pendingClose=function(){ closedPaint(_dx); }; return; }
+          closedPaint(d); }
         else if(_ecRetry(d)){ if(!painted) failed(_ecSrv(d,'G','다시 눌러 주세요')); else staleBanner(); }   // [B2_MA_20] 받아 둔 안내 위에 «새 안내를 못 불러왔어요»   // [ERR_CODE_PAGES] 서버가 몰렸거나 서버 오류(G1 · G9) — 링크 탓이 아니니 캐시는 지우지 않고 다시 불러오기
         else { try{ localStorage.removeItem(cacheKey); }catch(e){}
           $('root').innerHTML=stateHtml((d&&d.error)?_ecSrv(d,'G',''):'안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]

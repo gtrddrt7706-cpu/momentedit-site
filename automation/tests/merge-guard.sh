@@ -22631,3 +22631,35 @@ chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 4
 nochk "slug: 'end-0-photo'" assets/ritual-cue.js   # ★44 를 소리 나는 큐로 되살리지 말 것(CLOSING_NO_CREW_1031 · CREW_44_OFF_1106)
 nochk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js   # ★[CREW_WORD_OFF_1106] 테이블 인사 여는 말 끝 문장 되살리지 말 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
+# ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
+chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
+nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
+chk '촬영 후 안내가 끝나면 가족 사진을 이어서 찍어요.' brief.html 1
+chk 'B2_FIX_MA_03' live.html 3                      # 재조회 끝 — 마지막이 실패면 캐시 화면이어도 실패 문구 + 코드(G#)
+chk "^var _livePlaceholderHtml = '';" live.html 1     # 캐시로 먼저 그리는 길이 이 줄보다 먼저 부른다 — let 이면 초기화 전 접근으로 캐시 화면이 안 그려진다
+chk '연결을 확인하지 못했어요. 화면을 새로 고쳐 주세요.' live.html 1
+chk 'B2_FIX_MA_09' mypage.html 3                    # 청첩장 발행 중 뒤로가기 · 키보드로 이전 · 단계 이동 안 함
+chk "if(id==='inv' && INVFLOW._publishing){ _wizRearm(id); return; }" mypage.html 1
+chk 'B2_FIX_MA_16' mypage.html 1                    # 가볼 곳 카드도 실패하면 바꾸기 전 전체(_dnSnap)로
+nochk "_dnFavSaved(function(){ _dnFavToggle(TRKFLOW.draft,_u1); render(box); });" mypage.html
+chk 'B2_FIX_MA_38' mypage.html 7                    # 공개 · 빼기 · 예약할 곳 · 장소별 예약 값도 지도 장소 ID(pid)로
+chk 'function _dnIsRep' mypage.html 1
+chk 'B2_FIX_MA_53' mypage.html 4                    # 사진 선택 때문에 당겨서 새로고침을 보류할 때 까닭 한 줄
+chk "'아직 제출하지 않은 사진 선택이 있어요.'" mypage.html 1
+chk 'B2_FIX_MA_18' guide.html 4                     # 링크 닫힘 — 올리는 중엔 끝난 뒤 · 보낸 장수 · 남은 장수 한 줄
+chk 'function closedPaint' guide.html 1
+chk 'B2_FIX_MA_36' shared/hydrate.js 2              # 하객 안내 단추 — 서버 오류 · 몰림(ecode 1~9)도 다시 묻고 끝내 실패면 실패 자리
+chk 'B2_FIX_MA_85' live.html 2                      # 은행 이름 한 규칙(새마을금고 · 우체국에 «은행» 안 붙임)
+chk 'B2_FIX_MA_85' shared/hydrate.js 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' live.html 1
+chk '(은행|뱅크|금고|우체국|신협|증권|조합)' shared/hydrate.js 1
+nochk "(/(은행|뱅크)\$/.test(" live.html
+chk 'B2_FIX_HOME_19' index.html 2                   # «저희가 검증한 인근 식당» · «맛·주차·프라이버시까지 확인해 추천» 걷음
+chk 'B2_FIX_HOME_19' assets/advisor-kb.js 1
+chk 'B2_FIX_HOME_19' api/_kb.js 1
+nochk '저희가 검증한' index.html
+nochk '저희가 검증한' assets/advisor-kb.js
+nochk '저희가 검증한' api/_kb.js
+nochk '프라이버시까지 확인해 추천' index.html
+nochk '검증한 인근 식당' index.html
+chk '추천 목록이며, 단체석·주차·예약 가능 여부는 식당에 직접 확인해 주세요.' assets/advisor-kb.js 1

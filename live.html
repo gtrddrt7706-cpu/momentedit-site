@@ -2217,6 +2217,9 @@ function liveWaitWord(n, eid){
     +(n==='wait'?'':' (코드 G'+n+((n===9||n===3||n===4||n===2)&&eid?' · '+eid:'')+')'); }
 
 // 부부 자유입력(이름·혼주·예금주)을 innerHTML에 넣기 전 이스케이프 — 저장형 XSS 방지(정상 텍스트엔 무영향)
+/* ★[B2_FIX_MA_85 2026-11-06 재검증 재수정] 은행 이름 한 곳 — 본인 · 부모 계좌가 같은 규칙. 은행이 아닌 곳(새마을금고 · 우체국 · 신협 · 증권 · 조합)과
+   이미 «은행 · 뱅크»로 끝나는 이름(카카오뱅크 · 토스뱅크 · 케이뱅크)은 그대로, 그 밖(국민 · 신한 …)만 «은행»을 붙인다. shared/hydrate.js bankLabel 과 같은 정규식 */
+function bankName(b){ b = String(b == null ? '' : b).trim(); if (!b) return ''; return /(은행|뱅크|금고|우체국|신협|증권|조합)$/.test(b) ? b : b + '은행'; }
 function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
 
 (async function initLiveBroadcast(){
@@ -2713,7 +2716,7 @@ function fillParentAccounts(item, parentsStr, show, fatherCell, motherCell){
     if (show && cell) {
       const sp = cell.split(/\s+/); let bank = sp.shift(); let account = sp.join(' ');
       if (!account) { account = bank; bank = ''; }
-      row.querySelector('.env-bank').textContent = bank ? (/(은행|뱅크)$/.test(bank) ? bank : bank + '은행') : '';
+      row.querySelector('.env-bank').textContent = bankName(bank);   // [B2_FIX_MA_85]
       row.querySelector('.env-account').textContent = account;
       row.querySelector('.env-copy').setAttribute('data-account', account.replace(/\D/g, ''));
       holder.innerHTML = '<span class="label">' + (rel === 'father' ? '아버지' : '어머니') + '</span>' + escHtml(data[rel].name || '');
@@ -2750,7 +2753,7 @@ function updateEnvelopeBlock(item, info){
     if (selfRow) selfRow.style.display = '';
     if (selfHolder) selfHolder.style.display = '';
     const bankEl = item.querySelector('.env-row:not(.env-parent) .env-bank');
-    if (bankEl) bankEl.textContent = info.bank ? (/(은행|뱅크)$/.test(info.bank) ? info.bank : (info.bank + '은행')) : '';   // [B2_MA_85 2026-11-06 2차 B2-마85] 부모 계좌와 같은 은행 이름 처리 — 카카오뱅크 · 토스뱅크 · 케이뱅크 그대로
+    if (bankEl) bankEl.textContent = bankName(info.bank);   // [B2_MA_85 2026-11-06 2차 B2-마85] 부모 계좌와 같은 은행 이름 처리 — 카카오뱅크 · 토스뱅크 · 케이뱅크 그대로
     const accountEl = item.querySelector('.env-row:not(.env-parent) .env-account');
     if (accountEl) accountEl.textContent = acct;
     const copyBtn = item.querySelector('.env-row:not(.env-parent) .env-copy');
@@ -2770,7 +2773,7 @@ function updateEnvelopeBlock(item, info){
 // ═══════════════════════════════════════════════════════════════
 /* ★[B2_MA_04 2026-11-06 2차 B2-마04] 영상 ID · 해시가 같으면 그대로(같은 영상을 끊지 않는다) · 달라졌을 때만 바꾼다.
    최신 «정상» 응답에서 영상 ID 가 비었으면 옛 영상을 걷고 대기 자리를 되살린다(detach) — 실패 응답의 빈 값으로는 부르지 않는다 */
-let _livePlaceholderHtml = '';
+var _livePlaceholderHtml = '';   // ★[B2_FIX_MA_03 2026-11-06 재검증 재수정] var — 캐시로 먼저 그리는 길(initLiveBroadcast)이 이 줄보다 먼저 attachVimeoPlayer 를 불러 let 이면 «초기화 전 접근»으로 터졌다(캐시 화면이 통째로 안 그려짐). let 으로 되돌리지 말 것
 function detachVimeoPlayer(){
   const frame = document.getElementById('playerFrame');
   const ifr = frame ? frame.querySelector('iframe') : null;
