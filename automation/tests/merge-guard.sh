@@ -21991,6 +21991,8 @@ chk 'function pzNow' assets/bgm-bed.js 1
 chk 'function holdGo' assets/bgm-bed.js 1
 chk 'T01 멈춘 동안 lpShow' scripts/audit/reg-p17.mjs 1
 chk 'T04 대조' scripts/audit/reg-p17.mjs 1
+chk 'T06 다음 순간 몫 이음말' scripts/audit/reg-p17.mjs 1   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
+chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1

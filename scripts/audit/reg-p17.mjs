@@ -5,6 +5,7 @@
    T03 대조 — 멈춤이 아닐 때 켜기 = 바로 재생
    T04 대조 — 의도적 무음 줄(맞절 · 목표 −60 이하)에서 이어 들으면 무음 그대로
    T05 끄기 · 끝내기 · 새 시작은 보류를 지운다(이어 들어도 소리 0)
+   T06 다음 순간 몫 이음말(_pre) 줄에서 보류 뒤 이어 들어도 새 곡을 한 줄 일찍 걸지 않는다(lpShow 규칙 그대로 · 검토 B)
    하네스는 seam-b2 와 같다 · BP_BED = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -79,7 +80,7 @@ const setup = async (ks, pickRow) => {
     for (let k = 0; k < 150 && !(LP.i >= 1 && on()); k++) await W(100); await W(800); const a0 = on(), f0 = BB.BED.cur && BB.BED.cur.f;
     LP.paused = true; clearTimeout(LP.t); LP.tok++; await W(1200); const a1 = on(); BgmBed.lpEnd(); await W(1800);
     const lv = (st) => { const ff = BgmBed._t.LPB && st ? (window.BgmBed._t.fileFor ? window.BgmBed._t.fileFor(st) : null) : null; return ff; };
-    let pick = -1; for (let j = 0; j < LP.q.length; j++) { const x = LP.q[j]; if (pickRow === 'silent' ? (x.k === 'matjeol' && x.dk != null && x.dk <= -60 && !x._pre) : (x.k === 'welcome' && !x._pre && !x.bridge && x.dk != null && x.dk > -60 && !/narr-welcome-in/.test(x.slug || '') && !/^bridge-/.test(x.slug || ''))) { pick = j; break; } }
+    let pick = -1; for (let j = 0; j < LP.q.length; j++) { const x = LP.q[j]; if (pickRow === 'pre' ? !!x._pre : pickRow === 'silent' ? (x.k === 'matjeol' && x.dk != null && x.dk <= -60 && !x._pre) : (x.k === 'welcome' && !x._pre && !x.bridge && x.dk != null && x.dk > -60 && !/narr-welcome-in/.test(x.slug || '') && !/^bridge-/.test(x.slug || ''))) { pick = j; break; } }
     window.__pk = pick; if (pick > -1) LP.i = pick; return { a0, f0, a1, pick, n: LP.q.length, ks: LP.q.map((x) => x.k + ':' + x.dk).slice(0, 40) }; }, { ks, pickRow });
   return { ctx, f, errs, r0 };
 };
@@ -115,6 +116,12 @@ try {
     const r4 = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), st = LP.q[LP.i]; BgmBed.lpShow(st); const hold = !!BB.LPB.hold; await W(600); LP.paused = false; const rr = BgmBed.lpResume(); await W(1200); const v = BB.BED.cur; return { k: st.k, slug: st.slug, dk: st.dk, hold, rr, src: !!(v && v.src && v.want > -60), g: v && v.g ? Math.round(v.g.gain.value * 1000) / 1000 : 0 }; });
     console.log('T04 줄', r4.k, r4.slug, r4.dk); ok('T04 대조 — 의도적 무음 줄(맞절 · 목표 −60 이하)에서 «음악 켜기» 뒤 이어 들으면 무음 그대로', r0.pick > -1 && r4.k === 'matjeol' && r4.dk <= -60 && !r4.src && r4.g < 0.01, { r0: { pick: r0.pick, ks: r0.ks }, r4 });
     ok('C 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('C 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
+  (async () => { try { if (want('D')) {
+    const { ctx, f, errs, r0 } = await setup(['entry', 'matjeol', 'welcome'], 'pre');
+    const r6 = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), st = LP.q[LP.i]; st.dk = -16; st.ldk = null;   /* 이음말이 말 아래 크기(−16)인 판(b12 · b14 꼴) */
+      BgmBed.lpShow(st); const hold = !!BB.LPB.hold; await W(600); LP.paused = false; BgmBed.lpResume(); await W(1200); const v = BB.BED.cur; return { slug: st.slug, pre: !!st._pre, hold, src: !!(v && v.src && v.want > -60), f: v && v.f, g: v && v.g ? Math.round(v.g.gain.value * 1000) / 1000 : 0 }; });
+    ok('T06 다음 순간 몫 이음말(_pre)에서 보류 뒤 이어 듣기 — 새 곡을 한 줄 일찍 걸지 않는다', r0.pick > -1 && r6.pre && r6.hold && !r6.src && r6.g < 0.01, { r0: { pick: r0.pick }, r6 });
+    ok('D 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('D 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   ]);
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }
 await br.close(); srv.close();
