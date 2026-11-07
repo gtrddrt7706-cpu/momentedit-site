@@ -11,7 +11,8 @@ import fs from 'node:fs'; import path from 'node:path';
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const rd = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const INTERNAL = ['script-review.html', 'order-audit.html', 'audio-review.html', 'audio-review-tone.html', 'flow-7c2e.html', 'pair-7c2e.html',
-  'listen-abb5d829.html', 'pick-396ca38a.html', 'pick-final.html', 'brief.html', 'admin.html', 'console.html'];
+  'listen-abb5d829.html', 'pick-396ca38a.html', 'pick-final.html', 'brief.html', 'admin.html', 'console.html',
+  'listen-speed-1107.html'];   // [LISTEN_COMPARE_1107] 실청 전용 비교 판 — 병합 전에 파일을 지울 때 이 줄도 뺀다
 const ARCH = fs.readdirSync(path.join(ROOT, 'contract/archive')).filter((f) => f.endsWith('.html')).map((f) => 'contract/archive/' + f);
 const noidx = (h) => /<meta name="robots" content="[^"]*noindex/i.test(h);
 const vis = (h) => h.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
