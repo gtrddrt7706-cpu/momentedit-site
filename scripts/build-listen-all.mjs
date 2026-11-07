@@ -815,13 +815,13 @@ function playSeq(us) { stop(); if (!us || !us.length) return; var i = 0; var a =
   a.addEventListener('ended', function () { if (cur !== a || ++i >= us.length) return; a.src = us[i]; kick(a); }); kick(a); }
 function fmtN(x, u) { return x == null ? '?' : (Math.round(x * 10) / 10).toFixed(1) + (u || ''); }
 function cmpLine(r) { if (!r) return '';
-  return '<div class="mi" style="padding:6px 13px;background:#fff;border-bottom:1px solid var(--bg3)">' + esc(r.v || '') + ' · '
+  return '<div class="mi" style="padding:6px 13px;font-size:12.5px;line-height:1.6;color:var(--light);background:#fff;border-bottom:1px solid var(--bg3)">' + esc(r.v || '') + ' · '
     + (r.st ? r.st + '단계' : '단계 없음') + ' · ×' + (r.tp == null ? '?' : r.tp) + ' · 길이 ' + fmtN(r.d0, '초') + ' → ' + fmtN(r.d1, '초')
     + ' · 말 속도 ' + fmtN(r.r0) + ' → ' + fmtN(r.r1) + '음절/초' + (r.same ? ' · <b>소리 같음</b>' : '') + (r.m0 ? '' : ' · 라이브에 없는 소리') + '</div>'; }
 function midBlock() { var M = CMP.mid; if (!M) return '';
   var h = '<div class="ph">식중 영상 소개 (덕담 뒤 · 축사/축가 앞)</div><div class="clip"><div class="ch"><b>지금</b><span class="tag">58 → 129 이어서</span>'
     + '<button class="btn sm" style="margin-left:auto" data-mvnow="1">지금 듣기</button></div>'
-    + '<div class="mi" style="padding:6px 13px">우성 · 길이 ' + fmtN(M.nowD, '초') + ' · 말 속도 ' + fmtN(M.nowR) + '음절/초 · 바뀐 뒤는 아래 새 녹음 다섯(실청 전용)</div>';
+    + '<div class="mi" style="padding:6px 13px;font-size:12.5px;line-height:1.6;color:var(--light)">우성 · 길이 ' + fmtN(M.nowD, '초') + ' · 말 속도 ' + fmtN(M.nowR) + '음절/초 · 바뀐 뒤는 아래 새 녹음 다섯(실청 전용)</div>';
   M.clips.forEach(function (x, i) { var k = 'mv' + i, v = V[k];
     h += '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div><b>' + esc(x.k) + '</b></div><div>' + esc(x.t) + '</div>'
       + '<div class="mi">' + esc(x.v) + ' · ' + x.st + '단계 · ×' + x.tp + ' · 길이 ' + fmtN(x.d1, '초') + ' · 말 속도 ' + fmtN(x.r1) + '음절/초</div></div><div class="ops">'
