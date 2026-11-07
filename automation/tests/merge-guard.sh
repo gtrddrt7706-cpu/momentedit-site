@@ -23139,3 +23139,10 @@ nochk "qk = 'RECQ_' + code," automation/platform/80_production.gs
 nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
 chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]
+# ★[DAYFLOW_SPACE_1107 2026-11-07 사장님 공간 운영] 촬영은 캔들존 먼저 · 이어서 화이트존 · 하객은 캔들존 촬영 뒤 하객 문으로 바로 자리 · 혼주는 준비실 함께 · 두 분 전용 화장실 없음
+chk 'DAYFLOW_SPACE_1107' api/_kb.js 3
+chk '촬영 순서는 캔들존 먼저, 이어서 화이트존' api/_kb.js 1
+chk '두 분 전용 화장실이 있나요? 따로 없습니다.' api/_kb.js 1
+chk '캔들존에서 먼저, 이어서 화이트존으로 옮겨 갑니다.' index.html 1
+nochk '두 공간을 몇 분씩 나누는지는 정하지 않는다' api/_kb.js
+nochk '캔들존과 화이트존을 연속으로 오갑니다' index.html
