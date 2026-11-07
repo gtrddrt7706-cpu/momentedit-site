@@ -4790,6 +4790,26 @@ chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PVNORM_KIND_1107 2026-11-07 MID17-8] handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) — #1618 이 넣은 «다른 기기 사진 지키기» 줄에 kind 가 빠졌었다 · 동작은 midvideo.mjs 가 잰다
 chk 'PVNORM_KIND_1107' automation/platform/89_prevideo.gs 1
 chk 'PVNORM_KIND_1107' scripts/audit/midvideo.mjs 2
+# ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
+#   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다
+if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mjs 2>&1); _m17r=$?
+  case "$_m17r" in
+    0) echo 'ok mid17-pick: 식중 영상 칸 · 이름 · 바꿔 담기 · 길이 · at:midvideo · 시간' ;;
+    1) echo 'FAIL mid17-pick: 식중 영상 고르기 · 시간이 어긋났다 — node scripts/audit/mid17-pick.mjs'; printf '%s\n' "$_m17" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok mid17-pick: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'MID17_TILE' order-preview.html 14
+chk 'MID17_NAME' assets/ritual-open.js 6
+chk 'MID17_NAME' order-preview.html 1
+chk 'MID17_PREP' assets/ritual-open.js 1
+chk 'MID17_LEN' order-preview.html 2
+chk 'MID17_AT' order-preview.html 3
+chk 'MID17_FREE_BACK' order-preview.html 11   # [MID17_FREE_BACK 2026-11-07 대본] 이번 방문에 뺀 free 칸은 다시 담으면 뺄 때 갈래(칸을 지정하면 그 칸 · 처음 담는 축사 칸은 축사)
+chk 'MID17_PICK' scripts/audit/mid17-pick.mjs 1
+chk 'window.opPkTgl=function(k)' order-preview.html 1   # [MID17_TILE] ① 칸 · 창의 담기는 이 길(바꿔 담기) · ② 흐름 빼기는 opTgl 그대로
+chk "MID_NAME = '식중 영상'" assets/ritual-open.js 1
+nochk "'준비한 순서 영상(휴대폰" assets/ritual-open.js 0   # [MID17_PREP] 식중 영상은 마이페이지가 받는다 — 옛 할 일 줄 되살리지 말 것
 # ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
 #   버전 고정(무료 라이선스 판) · 유료 렌더 패키지 없음 · 길이 = 마이페이지 _pvcSecs · 개그 · 패러디 갈래 없음
 if command -v node >/dev/null 2>&1; then _pro=$(node scripts/audit/prevideo-remotion.mjs 2>&1); _prr=$?
@@ -19138,7 +19158,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/entry-scene-day.mjs 
 chk 'REC_SONG_1012' automation/platform/80_production.gs 3
 chk "if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id, false); }" automation/platform/80_production.gs 1
 chk "if (/^rec:/.test(String(id || ''))) { try { return _recGet_(" automation/platform/80_production.gs 1
-chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;" automation/platform/80_production.gs 1
+chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 200;" automation/platform/80_production.gs 1   # [HOUR_BUCKET_1107] 60 → 200 · 셈은 시각 칸
 chk 'REC_SONG_1012' mypage.html 1
 chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)" mypage.html 1   # [BGM_PREVIEW_1024] key bed 도 180초
 chk 'songs:Array.isArray(r.songs)?r.songs:undefined' mypage.html 1
@@ -19147,7 +19167,7 @@ chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-server.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-scene-day.mjs 1
 nochk 'songs.json' assets/entry-music.js                 # 곡 목록은 서버(드라이브)에서만 — 저장소에 목록 · 가사를 두지 않는다
-if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 200번(시각 칸) · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
 # ── 2026-10-13 추천 곡 파일을 서버가 직접 받는다 [REC_PUT_1013] — 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»
 #   사장님이 드라이브에 폴더를 올리지 않는다. 비공개 문서 저장소 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 ritualFile · key 'rec' 로 보낸다.
 #   서버는 «이름 표 9개 + 내용 지문(SHA-256)»이 맞을 때만 저장한다 — 비밀 열쇠 없이 다른 것은 쓰지 못하게(rec-song-server 9a ~ 9i · 깨 보기 넷: 지문 비교 · same 지름길 · 길 · 이름 표)
@@ -21319,6 +21339,29 @@ chk 'AUTO_ONLY_1031' assets/audio/clip-status.json 2
 chk 'AUTO_ONLY_1031' scripts/lib/clip-status.mjs 1
 chk 'AUTO_ONLY_1031' scripts/audit/clip-status.mjs 2
 chk 'AUTO_ONLY_1031' CLAUDE.md 1
+# ── 2026-11-07 [RULES_SLIM_1107] CLAUDE.md 정리(대본 판정 · 사장님 «품질을 낮추는 규칙 · 비효율적인 규칙은 나쁜 규칙») — 원칙은 한 줄 + [태그] · 상세 · 경위는 docs/rules/<방>.md
+#   CLAUDE.md 는 모든 방 · 모든 세션에 늘 읽힌다 — 40KB 를 넘으면 빨강(다시 불어나지 않게) · 상세 파일 열한 개가 살아 있는가 · 새 절차 줄(⑤ ⑦ ⑧)
+chk 'RULES_SLIM_1107' CLAUDE.md 6
+if [ -f CLAUDE.md ] && [ "$(wc -c < CLAUDE.md)" -ge 40960 ]; then echo "FAIL rules-slim: CLAUDE.md 가 40KB 를 넘었다($(wc -c < CLAUDE.md)B) — 상세 · 경위는 docs/rules/<방>.md 로 옮기고 요약 한 줄 + [태그]만 남긴다 [RULES_SLIM_1107]"; fail=1; else echo "ok rules-slim: CLAUDE.md $(wc -c < CLAUDE.md)B < 40960"; fi
+# GATE_RAN 대조는 «줄 머리 chk» 수를 센다 — 반복문 안 chk 는 개수가 어긋나니 한 줄씩 적는다
+chk 'RULES_SLIM_1107' docs/rules/할일칸.md 1
+chk 'RULES_SLIM_1107' docs/rules/협업.md 1
+chk 'RULES_SLIM_1107' docs/rules/배포.md 1
+chk 'RULES_SLIM_1107' docs/rules/디자인.md 1
+chk 'RULES_SLIM_1107' docs/rules/나레이션.md 1
+chk 'RULES_SLIM_1107' docs/rules/오류코드.md 1
+chk 'RULES_SLIM_1107' docs/rules/문구.md 1
+chk 'RULES_SLIM_1107' docs/rules/gas.md 1
+chk 'RULES_SLIM_1107' docs/rules/측정.md 1
+chk 'RULES_SLIM_1107' docs/rules/결정.md 1
+chk 'RULES_SLIM_1107' docs/rules/대기.md 1
+chk '자료 멘트 그대로 \[SOURCE_FIRST_1016\] > 옛 글 자' CLAUDE.md 1   # ⑦ 나레이션 우선순위
+chk '검사 은퇴 길' CLAUDE.md 1   # ⑧ 새 결정이 옛 결정을 덮으면 같은 PR 에서 옛 검사 폐기
+chk '추천값으로 진행' CLAUDE.md 1   # ⑤ 결정 대기함 — 몰아서 묻지 않는다 · 물을 때는 하나씩
+chk '청취 플레이에 넣는 예시만' docs/rules/나레이션.md 1   # ⑥ 예시 1 + 1 은 플레이에만 · 화면 예시 칸은 EX_MANY_1017(4개)
+nochk 'enable_pr_auto_merge' CLAUDE.md   # ② auto-merge 시도 줄은 지웠다(이 저장소에선 안 걸린다 · AUTOMERGE_WINDOW)
+chk 'DESIGN_REFS_1107' docs/design/references.md 1   # [DESIGN_REFS_1107] 웹 디자인 레퍼런스 한 장(사장님 11/07) · 금지 6 이 먼저 · 기법만
+chk 'docs/design/references.md' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 권위 문서가 한 줄로 가리킨다
 chk "'manual_off'" scripts/lib/clip-status.mjs 2
 nochk 'var HELPERS = \[' console.html
 nochk "b.onclick = function(){ playLoose(g.slug" console.html
@@ -21362,7 +21405,7 @@ chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.Ritua
 # ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
 chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
 chk "if(_afl) lines.push('나레이션(촬영 후 안내 · 단체 사진을 마치면 재생): '+_afl.text);" order-preview.html 1   # [POST_FLOW_200]
-chk "pc.tiles === '4,4,4,7'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내
+chk "pc.tiles === '4,4,5,4'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내 → [FIX_FLOW_204] 늘 있는 칸은 막 밖 줄 · ★[MID17_TILE 2026-11-07] 셋째 막 다섯(+ 식중 영상) · 옛 값 '4,4,4,7'
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
 nochk 'function prKeep(){' assets/bgm-bed.js   # [PR_WAY_198] 연습 «잠시 멈춤» = 음악도 멈춤(② 와 같다) — −20 으로 계속 걷음
@@ -22781,6 +22824,23 @@ nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦�
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
 chk 'BGM_VOL_ONE_1106' console.html 4   # [BGM_VOL_ONE_1106 검토 D] Web Audio 로 이은 배경 재생기 볼륨 1 — 콘솔 첫 «시작» 무음 막기
+chk 'IOS_GESTURE_1107' assets/entry-music.js 5   # [IOS_GESTURE_1107] 아이폰 — 탭마다 공유 컨텍스트 resume + 무음 start · 늦은 곡 · «멈춤»에 시계 정지 0 · recSync 가 준비 중 장면을 안 걷음
+chk 'IOS_GESTURE_1107' assets/bgm-bed.js 2
+chk "function meUnlock()" assets/entry-music.js 1
+chk "function meUnlock()" assets/bgm-bed.js 1
+chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/entry-music.js 1
+chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/bgm-bed.js 1
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/entry-music.js 1   # touchend · click 잡기 단계 · 마이페이지 안에서만(둘 중 먼저 읽힌 파일이 건다)
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/bgm-bed.js 1
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/entry-music.js 1   # [IOS_GESTURE_1107 검토 G] 마이크가 열려 있으면 세션을 «재생»으로 안 바꾼다(_asPlay 와 같은 규칙)
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/bgm-bed.js 1
+chk "busy?(PW.slow?'연결이 느려요 · 잠시만요':'불러오는 중…')" assets/entry-music.js 1
+chk "if(AC&&AC.state!=='running'&&!D.hidden){ scHalt();" assets/entry-music.js 1
+chk "if (!(this.buffer && this.buffer.length <= 1)) window.__aud.push" scripts/audit/rec-song-ui.mjs 1
+chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
+chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
+nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것
+chk 'clear-head bgm-vol ios-gesture' .github/workflows/merge-guard.yml 1
 chk 'function volOne()' console.html 1
 chk 'wired = true; volOne();' console.html 1
 chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1
@@ -23064,3 +23124,18 @@ nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+
+# ★[RULE_AUDIT_1107 2026-11-07 대본 규칙 감사 · 서버 몸] ① 통지는 메일이 나갔을 때만 · ② 하객 사진도 통지 뒤 7일 · ③ 시간당 셈 시각 칸 · ④ AI 상담 잘린 답 · ⑤ 하객 사진 가득 알림
+chk 'NOTICE_REACHED_1107' automation/platform/70_journey.gs 1
+chk 'GUEST_WITH_NOTICE_1107' automation/platform/70_journey.gs 1
+chk '하객분들이 올려 주신 사진도 이때 함께 지워져요.' automation/platform/70_journey.gs 1
+chk 'HOUR_BUCKET_1107' automation/platform/80_production.gs 4
+chk 'HOUR_BUCKET_1107' automation/platform/89_prevideo.gs 1
+chk 'BED_HOUR_MAX = 300' automation/platform/80_production.gs 1
+chk 'GP_FILL_ALERT_1107' automation/platform/80_production.gs 1
+chk 'ADVISOR_CUT_1107' api/advisor.js 2
+chk 'const MAX_TOKENS = 1000;' api/advisor.js 1
+nochk "qk = 'RECQ_' + code," automation/platform/80_production.gs
+nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
+chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]

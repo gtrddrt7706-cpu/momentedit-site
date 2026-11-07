@@ -1924,20 +1924,30 @@ function sendArchiveExpiryNotices() { _trigIn_(arguments[0]);
     // (1) 만료 7일 전~직후 1회 안내(메일·카톡) — 다운로드 유도. 이미 파기된 건엔 안내하지 않음(혼란 방지).
     if (!rec.보관만료통지 && !rec.결과물파기 && left <= 7) {
       notifyKakao('cust.archiveExpiring', code, { expires: expYmd, left: left });
-      var email = String(row[c('이메일') - 1] || '').trim();
+      /* ★[NOTICE_REACHED_1107 2026-11-07 대본 규칙 감사 ①] «보관만료통지»는 메일이 실제로 나갔을 때만 찍는다 — 종전엔 메일 주소가 없거나
+         보내기가 실패(catch 로 삼킴)해도 찍혀, 7일 뒤 원본이 영구 삭제됐다(계약서 12조③ «통지 후 삭제»). 실패하면 표시 없이 관리자 메일 · 다음 날 다시.
+         통지 표시가 없으면 결과물 · 하객 사진 정리(_pgResults_ · _pgGuestPhotos_)는 지우지 않는다. 안내 문구는 그대로(하객 사진 한 줄만 더함 · ②) */
+      var email = String(row[c('이메일') - 1] || '').trim(), sent = false, why = '';
+      var hasGuest = !!(c('하객사진폴더ID') && String(row[c('하객사진폴더ID') - 1] || '').trim());
       if (email) {
         var when = (left >= 0) ? (expYmd + '에 만료될 예정이에요') : (expYmd + '에 만료되었어요');
         try {
           GmailApp.sendEmail(email, '[Moment Edit] 결과물 보관 기간 안내 (' + expYmd + ')',
             '전달드린 사진·영상의 보관 기간(전달일부터 6개월)이 ' + when + '.\n' +
             '아직 내려받지 않으셨다면 미리 다운로드해 주세요. 만료 후에는 접근이 종료되고, 재발급이 어려울 수 있어요.\n' +
+            (hasGuest ? '하객분들이 올려 주신 사진도 이때 함께 지워져요.\n' : '') +   // [GUEST_WITH_NOTICE_1107] ②
             '이용계약서 제12조 제3항에 따른 안내입니다.\n\nMoment Edit');
-        } catch (e) {}
+          sent = true;
+        } catch (e) { why = String((e && e.message) || e).slice(0, 80); }
+      } else why = '메일 주소 없음';
+      if (sent) {
+        _stampConsentKey(sheet, colOf, rowNum, function (fresh) {   // 재읽기+병합 — 메일 발송 중 끼어든 영수증발행·계약정보 보존
+          fresh.보관만료통지 = fmtKST(new Date());
+        });
+        try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
+      } else {
+        try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('결과물 보관 만료 통지 실패 · ' + code + ' · ' + why + ' · 통지 전이라 삭제하지 않아요 · 내일 다시 보내요'); } catch (e3) {}
       }
-      _stampConsentKey(sheet, colOf, rowNum, function (fresh) {   // 재읽기+병합 — 메일 발송 중 끼어든 영수증발행·계약정보 보존
-        fresh.보관만료통지 = fmtKST(new Date());
-      });
-      try { _recordHandler(code, '결과물 보관 만료(' + expYmd + ') 통지 발송'); } catch (e2) {}
     }
     /* (2) 링크 · 원본 삭제는 매일 07시 정리(_pgResults_ · [PURGE_POLICY_1106])로 옮겼다 — 종전엔 여기서 링크만 비우고 «결과물파기»를 적어
        드라이브 원본과 원본폴더ID(고객 갤러리)가 남았다. 통지 뒤 7일 · 만료일 지남 · 원본까지 영구 삭제 · 다 지웠을 때만 «결과물파기». 되살리지 말 것 */
@@ -2054,6 +2064,9 @@ function _pgGuestPhotos_(live, today) {
     var fid = String(r.get('하객사진폴더ID') || '').trim(); if (!fid) continue;
     var dl = String(_parseJsonSafe(r.get('동의기록')).결과물전달일 || '').slice(0, 10); if (!dl) continue;   // 인도 전 = 대상 아님
     var due = _pgAddMonths_(dl, PG.MONTHS); if (!due || today < due) continue;
+    /* [GUEST_WITH_NOTICE_1107 2026-11-07 대본 규칙 감사 ②] 결과물과 같은 통지(보관만료통지) 뒤 7일 — 통지가 안 닿았으면 지우지 않는다 */
+    var _gn = _parseJsonSafe(r.get('동의기록')).보관만료통지, _gs = _gn ? _dayDiff(today, String(_gn).slice(0, 10)) : null;
+    if (_gs == null || _gs < 7) continue;
     var res = _pgGone_(fid, live); _pgHit_(o, res, r.get('개인코드'));
     if (live && (res === 'ok' || res === 'gone')) touchCustomer(sheet, colOf, r.num, { '하객사진폴더ID': '' });
   }

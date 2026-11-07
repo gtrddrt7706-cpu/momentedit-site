@@ -286,7 +286,7 @@ function handlePvPhoto(body) { _gsr_();
   };
   var full = b64of(body.data, PV_UP.photoMax), thumb = b64of(body.thumb, PV_UP.thumbMax);
   if (!full || !thumb) return { ok: false, error: '사진을 읽지 못했어요 · 다른 사진으로 다시 해 주세요' };
-  try { var c = CacheService.getScriptCache(), hk = 'pvUp_' + code, hn = Number(c.get(hk) || 0); if (hn >= PV_UP.hourMax) return { ok: false, ecode: 'U1', error: '사진을 많이 올리셨어요 · 잠시 뒤 다시 해 주세요' }; c.put(hk, String(hn + 1), 3600); } catch (e) {}
+  try { var c = CacheService.getScriptCache(), hk = (typeof _hourKey_ === 'function' ? _hourKey_('pvUp_' + code) : 'pvUp_' + code),   /* [HOUR_BUCKET_1107] */ hn = Number(c.get(hk) || 0); if (hn >= PV_UP.hourMax) return { ok: false, ecode: 'U1', error: '사진을 많이 올리셨어요 · 잠시 뒤 다시 해 주세요' }; c.put(hk, String(hn + 1), 3600); } catch (e) {}
   var due = _pvDue_(cust); if (_pvPast_(due)) return { ok: false, locked: true, error: '확정 기한이 지났어요 · 바꾸실 것은 디렉터에게 말씀해 주세요' };
   var lock = LockService.getScriptLock(), fid = '', sh;
   try { lock.waitLock(15000); } catch (e) { return { ok: false, ecode: 'U1', error: '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요' }; }
