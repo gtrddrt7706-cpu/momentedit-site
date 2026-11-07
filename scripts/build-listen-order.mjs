@@ -10,6 +10,7 @@
    쓰기: node scripts/build-listen-order.mjs  →  listen-order-1107.html (실청 전용 · 승인 뒤 병합 전에 지운다) */
 import fs from 'node:fs'; import path from 'node:path'; import { createRequire } from 'node:module';
 import { statusOf, LISTEN_OUT } from './lib/clip-status.mjs';
+import { durOf } from './lib/sent-bounds.mjs';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..');   // [LISTEN_ORDER_1107] #1635(식중 영상 새 녹음)와 합친 상태는 임시 작업 폴더에서 이 스크립트를 돌려 판만 가져온다
 const OUT = path.join(ROOT, 'listen-order-1107.html');
@@ -26,7 +27,8 @@ const ORDER = ['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vo
 const fileOf = (c) => { if (!c.file) return ''; for (const d of ['narration', 'cast']) { const r = `assets/audio/${d}/${c.file}.mp3`; if (fs.existsSync(path.join(ROOT, r))) return r; } return ''; };
 /* ⑥ 식중 영상 임시 판(58 → 129) — 이 판에 싣지 않는다 */
 const TEMP_MID = (c, prev) => c.k === 'free' && (c.slug === 'narr-free-in' || (c.slug === 'narr-prevideo-in-ex3' && prev && prev.slug === 'narr-free-in'));
-const lineOf = (c) => ({ no: c.no || '', slug: c.slug || '', f: fileOf(c), t: c.text || '', g: +c.gapMs || 0, live: c.live && c.live.t ? c.live.t : '', act: !c.text && c.actId ? c.actId : '' });
+const DUR = {}; const dOf = (f) => (f ? (DUR[f] != null ? DUR[f] : (DUR[f] = +(+durOf(path.join(ROOT, f)) || 0).toFixed(2))) : 0);   // [LISTEN_ORDER_ALL_1107] 남은 시간용 길이
+const lineOf = (c) => ({ no: c.no || '', slug: c.slug || '', f: fileOf(c), d: dOf(fileOf(c)), t: c.text || '', g: +c.gapMs || 0, live: c.live && c.live.t ? c.live.t : '', act: !c.text && c.actId ? c.actId : '' });
 function seqOf(cues, k) { const out = []; let skip = false;
   cues.forEach((c, i) => { if (c.k !== k) return; if (TEMP_MID(c, cues[i - 1])) { skip = true; return; } if (!c.text && !c.actId && !c.file) return; out.push(lineOf(c)); });
   return { lines: out, skip }; }
@@ -122,7 +124,8 @@ const html = `<!doctype html>
 :root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#6E6959;--border:#DDD8D1;--gold:#B89A75;--gold-text:#7A5F37;--seal:#6B2A24;--accent:#3A2D22}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Noto Serif KR',serif;font-size:15px;line-height:1.7}
-.wrap{max-width:820px;margin:0 auto;padding:18px 16px 150px}
+.wrap{max-width:820px;margin:0 auto;padding:18px 16px 190px}
+.btn.big{display:block;width:100%;font-size:16px;min-height:52px;margin:0 0 14px}
 h1{font-size:19px;margin:0 0 6px}
 .note{font-size:13px;color:var(--sub);background:var(--bg2);border-radius:10px;padding:10px 12px;margin:0 0 12px}
 .sum b{color:var(--accent)}
@@ -151,11 +154,12 @@ details summary{cursor:pointer;font-size:13px;color:var(--sub);padding:8px 13px;
 <div class="note" id="canDo"><b>목록이 비어 있다면 미리보기 화면이라 그렇습니다.</b> 사파리 · 크롬에서 이 주소를 직접 열어 주세요.</div>
 <div class="note sum">순간 <b>${SUM.moments}</b>개 · 판 <b>${SUM.pans}</b>개 · 클립 <b>${SUM.clips}</b>개 · 엔진이 내보내는 클립 중 페이지에 빠진 것 <b>${SUM.missing.length}</b>개${SUM.missing.length ? ' — ' + esc(SUM.missing.join(' · ')) : ''}
 <br><span class="lab">이 가지 엔진의 최종 소리만 실었습니다(지금 · 바뀐 뒤 비교 아님). 판 = 기본 + 고름 ${SUM.sel}가지 × 예시 칩 ${SUM.ex}가지 조합으로 줄이 달라지는 경우 · 같은 소리는 하나로 묶었습니다. 빠진 것은 만들 수 있는 코스 ${SUM.courses.toLocaleString()}가지 × 식사 · 온라인 · 하객 안내 ${SUM.glob}가지 · 예시 코스 넷 · 위 고름에서 엔진이 낸 소리 ${SUM.engine}개와 맞대어 셉니다. 사람 구간은 1초로 줄여 넘깁니다.${SUM.liveNot.length ? '<br>참고 · 녹음 상태표가 «나는 소리»로 두지만 이 엔진이 어떤 고름으로도 내지 않는 ' + SUM.liveNot.length + '개(싣지 않음): ' + esc(SUM.liveNot.join(' · ')) : ''}</span></div>
+<button class="btn main big" id="allPlay">전체 듣기 · 판 ${SUM.pans}개 처음부터</button>
 <div class="ph">전체 이어 듣기 · 예시 코스 넷</div>
 <div class="top4" id="top4"></div>
 <div id="list"></div>
 </div>
-<div class="bar"><div class="in"><button class="btn main" id="bPlay" aria-label="멈춤">&#10074;&#10074;</button><div class="nm" id="bNm">듣기 단추를 누르세요<small id="bSub">판 하나 또는 코스 하나를 처음부터 이어 틉니다</small></div></div><div class="pg"><i id="bFill"></i></div></div>
+<div class="bar"><div class="in"><button class="btn" id="bPrev" aria-label="이전 판">&#9198;</button><button class="btn main" id="bPlay" aria-label="재생">&#9654;</button><button class="btn" id="bNext" aria-label="다음 판">&#9197;</button><div class="nm" id="bNm">전체 듣기 · 판 ${SUM.pans}개<small id="bSub">▶ 를 누르면 처음부터 · 판마다 «여기부터 전체 듣기»</small></div></div><div class="pg"><i id="bFill"></i></div></div>
 <script>
 var D = ${JSON.stringify(DATA)};
 var $ = function (i) { return document.getElementById(i); };
@@ -167,57 +171,88 @@ function lineHtml(l, id) {
 function labOf(p) { var n = p.n || p.lab.length; return p.lab[0] + (n > 1 ? (p.lab[0] === '기본' ? ' · 같은 소리 고름 ' + n + '가지' : ' 외 ' + (n - 1)) : ''); }
 function draw() {
   $('top4').innerHTML = D.courses.map(function (c, i) { return '<button class="btn" data-c="' + i + '">' + esc(c.nm) + ' 코스 처음부터</button>'; }).join('');
-  var h = '';
+  var h = '', FROM = 0;
   D.moms.forEach(function (m, mi) {
     h += '<div class="ph">' + esc(m.name) + ' · 판 ' + m.pans.length + '</div>';
     m.pans.forEach(function (p, pi) {
       var id = 'p' + mi + '_' + pi;
       h += '<div class="card" id="' + id + '"><div class="hd"><b>' + esc(labOf(p)) + '</b><span class="lab">' + p.lines.length + '줄</span>'
-        + '<button class="btn" style="margin-left:auto" data-m="' + mi + '" data-p="' + pi + '">듣기</button></div>'
+        + '<span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button class="btn" data-m="' + mi + '" data-p="' + pi + '">이 판만</button><button class="btn" data-from="' + (FROM++) + '">여기부터 전체 듣기</button></span></div>'
         + ((p.n || 0) > 1 ? '<details><summary>같은 소리 ' + p.n + '가지 고름 보기</summary><div class="ln lab">' + esc(p.lab.join(' · ')) + (p.n > p.lab.length ? ' 외 ' + (p.n - p.lab.length) + '가지' : '') + '</div></details>' : '')
         + p.lines.map(function (l, li) { return lineHtml(l, id + '_' + li); }).join('') + '</div>';
     });
   });
   $('list').innerHTML = h;
-  $('canDo').innerHTML = '판의 «듣기»는 그 판 한 줄씩 이어서(엔진 쉼 그대로 · 사람 구간 1초) · 맨 위 넷은 예시 코스를 처음부터 끝까지 틉니다. 화면을 꺼도 이어집니다.';
+  $('canDo').innerHTML = '«전체 듣기»는 모든 판을 식순 순서대로 이어 틉니다(순간이 바뀌면 1.5초 · 판 사이 0.8초 · 판 안은 엔진 쉼 그대로 · 사람 구간 1초). 판마다 «이 판만» · «여기부터 전체 듣기» · 아래 넷은 예시 코스 처음부터. 화면을 꺼도 이어집니다.';
 }
-/* [IOS_GESTURE] 소리 요소는 하나(PA) — 사람이 처음 누른 요소의 src 만 바꿔 잇는다 */
+/* ★★[LISTEN_ORDER_ALL_1107 2026-11-07 사장님 «전체 듣기는 없네? 정작»] 전체 듣기 — 페이지의 모든 판을 식순 순서대로 처음부터 끝까지.
+   ★순간이 바뀌면 1.5초 · 판과 판 사이 0.8초 · 판 안은 엔진 쉼 그대로 · 사람 구간 1초. 화면이 꺼져 있으면 쉼을 건너뛰고 바로 잇는다(꺼진 화면에선 타이머가 멈춘다).
+   ★[IOS_GESTURE] 소리 요소는 하나(PA) — 사람이 처음 누른 요소의 src 만 바꿔 잇는다 · 브라우저가 막으면 화면을 한 번 누르는 것으로 다시 연다. */
 var PA = null, Q = null, T = null;
+var ALL = []; D.moms.forEach(function (m, mi) { m.pans.forEach(function (p, pi) { ALL.push({ nm: m.name + ' · ' + labOf(p), lines: p.lines, idp: 'p' + mi + '_' + pi, mi: mi }); }); });
+function lineSec(l, prev) { return (l.f ? (l.d || 3) : 1) + (prev ? (prev.live ? 1 : (l.g || 600) / 1000) : 0); }
+ALL.forEach(function (it) { it.sec = it.lines.reduce(function (a, l, i) { return a + lineSec(l, i ? it.lines[i - 1] : null); }, 0); });
+function fmt(s) { s = Math.max(0, Math.round(s)); var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + '시간 ' : '') + (h || m ? m + '분 ' : '') + x + '초'; }
+function cur() { return Q && Q.items[Q.ii]; }
+function remain() {
+  if (!Q) return 0; var it = cur(), s = 0;
+  for (var i = Math.max(Q.i, 0); i < it.lines.length; i++) s += lineSec(it.lines[i], i > Math.max(Q.i, 0) ? it.lines[i - 1] : null);
+  if (PA && PA.duration && Q.i >= 0 && it.lines[Q.i] && it.lines[Q.i].f) s -= Math.min(PA.currentTime, it.lines[Q.i].d || PA.currentTime);
+  for (var j = Q.ii + 1; j < Q.items.length; j++) s += (Q.items[j].sec || 0) + (Q.items[j].mi !== Q.items[j - 1].mi ? 1.5 : 0.8);
+  return s;
+}
+function ui() {
+  var it = cur(); if (!it) return; var l = it.lines[Q.i];
+  $('bNm').firstChild.nodeValue = it.nm;
+  $('bSub').textContent = (Q.items.length > 1 ? (Q.ii + 1) + ' / ' + Q.items.length : (Math.max(Q.i, 0) + 1) + ' / ' + it.lines.length + '줄') + ' · 남은 ' + fmt(remain())
+    + (l ? ' · ' + (l.no ? '[' + l.no + '] ' : '') + (l.slug || l.act || '') : '');
+  $('bPlay').innerHTML = Q.on ? '&#10074;&#10074;' : '&#9654;'; $('bPlay').setAttribute('aria-label', Q.on ? '멈춤' : '재생');
+}
 function el() { if (PA) return PA; PA = new Audio(); PA.preload = 'auto';
-  PA.addEventListener('ended', next); PA.addEventListener('error', function () { $('bSub').textContent = '이 소리를 못 열어 다음으로 넘어갑니다'; T = setTimeout(next, 600); });
-  PA.addEventListener('timeupdate', function () { if (PA.duration) $('bFill').style.width = (PA.currentTime / PA.duration * 100) + '%'; }); return PA; }
-function start(nm, lines, idp) { clearTimeout(T); Q = { nm: nm, lines: lines, idp: idp, i: -1, on: true }; next(); }
+  PA.addEventListener('ended', next); PA.addEventListener('error', function () { if (!Q || !Q.on) return; $('bSub').textContent = '이 소리를 못 열어 다음으로 넘어갑니다'; T = setTimeout(next, 600); });
+  PA.addEventListener('timeupdate', function () { if (PA.duration) $('bFill').style.width = (PA.currentTime / PA.duration * 100) + '%'; if (Q && Q.on && Math.floor(PA.currentTime * 2) % 2 === 0) ui(); }); return PA; }
+function enter() { var o = document.querySelectorAll('.card.on'); for (var i = 0; i < o.length; i++) o[i].classList.remove('on'); var it = cur(); var c = it && it.idp ? $(it.idp) : null; if (c) c.classList.add('on'); }
+function startQ(items, ii) { clearTimeout(T); if (PA) PA.pause(); el(); Q = { items: items, ii: ii || 0, i: -1, on: true, blocked: false }; enter(); ui(); next(); }
 function mark() { var o = document.querySelectorAll('.ln.cur'); for (var i = 0; i < o.length; i++) o[i].classList.remove('cur');
-  var e = Q && Q.idp ? $(Q.idp + '_' + Q.i) : null; if (e) { e.classList.add('cur'); try { e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {} } }
+  var it = cur(), e = it && it.idp ? $(it.idp + '_' + Q.i) : null; if (e) { e.classList.add('cur'); try { e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {} } }
 function next() {
   clearTimeout(T); if (!Q || !Q.on) return;
-  var prev = Q.lines[Q.i]; Q.i++;
-  if (Q.i >= Q.lines.length) { Q.on = false; $('bPlay').innerHTML = '&#9654;'; $('bSub').textContent = '끝까지 들었어요'; return; }
-  var l = Q.lines[Q.i], wait = Q.i === 0 ? 0 : (prev && prev.live ? 1000 : (l.g || 600));
-  if (document.hidden) wait = Math.min(wait, 0);
-  T = setTimeout(function () { play(l); }, wait);
+  var it = cur(), prev = it.lines[Q.i]; Q.i++;
+  if (Q.i >= it.lines.length) {
+    if (Q.ii + 1 >= Q.items.length) { Q.on = false; Q.i = it.lines.length - 1; ui(); $('bSub').textContent = '끝까지 들었어요'; return; }
+    var gap = Q.items[Q.ii + 1].mi !== it.mi ? 1500 : 800; Q.ii++; Q.i = -1; enter(); ui();
+    T = setTimeout(next, document.hidden ? 0 : gap); return;
+  }
+  var l = it.lines[Q.i], wait = Q.i === 0 ? 0 : (prev && prev.live ? 1000 : (l.g || 600));
+  T = setTimeout(function () { play(l); }, document.hidden ? 0 : wait);
 }
 function play(l) {
-  if (!Q || !Q.on) return; mark();
-  $('bNm').firstChild.nodeValue = Q.nm; $('bSub').textContent = (Q.i + 1) + ' / ' + Q.lines.length + ' · ' + (l.no ? '[' + l.no + '] ' : '') + (l.slug || l.act || '');
+  if (!Q || !Q.on) return; mark(); ui();
   if (!l.f) { T = setTimeout(next, 1000); return; }
   var a = el(); a.src = l.f; var pr; try { pr = a.play(); } catch (e) { stuck(); return; } if (pr && pr.catch) pr.catch(stuck);
-  if ('mediaSession' in navigator && window.MediaMetadata) try { navigator.mediaSession.metadata = new MediaMetadata({ title: Q.nm, artist: (l.slug || '') + ' · Moment Edit 실청' }); } catch (e) {}
+  if ('mediaSession' in navigator && window.MediaMetadata) try { navigator.mediaSession.metadata = new MediaMetadata({ title: cur().nm, artist: (l.slug || '') + ' · Moment Edit 실청' }); } catch (e) {}
 }
-function stuck() { if (Q) Q.on = false; $('bPlay').innerHTML = '&#9654;'; $('bSub').textContent = '브라우저가 이어 틀기를 막았어요 · ▶ 를 눌러 이어 주세요'; }
-$('bPlay').onclick = function () {
-  if (!Q) return;
-  if (Q.on) { Q.on = false; clearTimeout(T); if (PA) PA.pause(); this.innerHTML = '&#9654;'; return; }
-  Q.on = true; this.innerHTML = '&#10074;&#10074;'; if (PA && PA.src && PA.currentTime > 0 && !PA.ended) { var pr = PA.play(); if (pr && pr.catch) pr.catch(stuck); } else { Q.i = Math.max(-1, Q.i - 1); next(); }
-};
+function stuck() { if (!Q) return; Q.on = false; Q.blocked = true; ui(); $('bSub').textContent = '브라우저가 자동 재생을 막았어요 · 화면을 한 번 누르면 이어집니다'; }
+function resume() { if (!Q) return; Q.on = true; Q.blocked = false; ui();
+  var l = cur().lines[Q.i];
+  if (PA && PA.src && l && l.f && PA.currentTime > 0 && !PA.ended) { var pr = PA.play(); if (pr && pr.catch) pr.catch(stuck); } else { Q.i = Math.max(-1, Q.i - 1); next(); } }
+function pause() { if (!Q) return; Q.on = false; clearTimeout(T); if (PA) PA.pause(); ui(); }
+function step(d) { if (!Q) { startQ(ALL, 0); return; }
+  if (d < 0 && Q.i > 0) { Q.i = -1; } else { Q.ii = Math.max(0, Math.min(Q.items.length - 1, Q.ii + d)); Q.i = -1; }
+  clearTimeout(T); if (PA) PA.pause(); Q.on = true; Q.blocked = false; enter(); ui(); next(); }
+$('bPlay').onclick = function () { if (!Q) { startQ(ALL, 0); return; } if (Q.on) pause(); else resume(); };
+$('bPrev').onclick = function () { step(-1); }; $('bNext').onclick = function () { step(1); };
+$('allPlay').onclick = function () { startQ(ALL, 0); };
+/* 자동 재생이 막혔으면 화면 어디든 처음 누르는 것으로 다시 연다(그 누름 안에서 play) */
+document.addEventListener('pointerdown', function (e) { if (Q && Q.blocked && !e.target.closest('#bPlay')) resume(); }, true);
 document.addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.c != null) { var c = D.courses[+b.dataset.c]; $('bPlay').innerHTML = '&#10074;&#10074;'; el(); start(c.nm + ' 코스 · 처음부터 끝까지', c.lines, ''); return; }
-  if (b.dataset.m != null) { var m = D.moms[+b.dataset.m], p = m.pans[+b.dataset.p]; $('bPlay').innerHTML = '&#10074;&#10074;'; el();
-    var cs = document.querySelectorAll('.card.on'); for (var i = 0; i < cs.length; i++) cs[i].classList.remove('on');
-    var idp = 'p' + b.dataset.m + '_' + b.dataset.p; $(idp).classList.add('on'); start(m.name + ' · ' + labOf(p), p.lines, idp); }
+  if (b.dataset.c != null) { var c = D.courses[+b.dataset.c]; startQ([{ nm: c.nm + ' 코스 · 처음부터 끝까지', lines: c.lines, idp: '', mi: -1 }], 0); return; }
+  if (b.dataset.from != null) { startQ(ALL, +b.dataset.from); return; }
+  if (b.dataset.m != null) { var idp = 'p' + b.dataset.m + '_' + b.dataset.p; for (var i = 0; i < ALL.length; i++) if (ALL[i].idp === idp) { startQ([ALL[i]], 0); return; } }
 });
-if ('mediaSession' in navigator) try { navigator.mediaSession.setActionHandler('pause', function () { $('bPlay').click(); }); navigator.mediaSession.setActionHandler('play', function () { $('bPlay').click(); }); navigator.mediaSession.setActionHandler('nexttrack', function () { if (PA) PA.pause(); next(); }); } catch (e) {}
+if ('mediaSession' in navigator) try { navigator.mediaSession.setActionHandler('pause', pause); navigator.mediaSession.setActionHandler('play', resume);
+  navigator.mediaSession.setActionHandler('nexttrack', function () { step(1); }); navigator.mediaSession.setActionHandler('previoustrack', function () { step(-1); }); } catch (e) {}
 /* [CRASH_TEXT] 스크립트가 죽으면 그 까닭을 글자 그대로(textContent) 보인다 */
 window.addEventListener('error', function (e) { var el2 = $('canDo'); if (!el2) return; el2.textContent = '이 판이 이 기기에서 안 열립니다 · ' + String((e && (e.message || e.error)) || '알 수 없음').slice(0, 200); });
 draw();
