@@ -4790,6 +4790,26 @@ chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PVNORM_KIND_1107 2026-11-07 MID17-8] handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) — #1618 이 넣은 «다른 기기 사진 지키기» 줄에 kind 가 빠졌었다 · 동작은 midvideo.mjs 가 잰다
 chk 'PVNORM_KIND_1107' automation/platform/89_prevideo.gs 1
 chk 'PVNORM_KIND_1107' scripts/audit/midvideo.mjs 2
+# ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
+#   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다
+if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mjs 2>&1); _m17r=$?
+  case "$_m17r" in
+    0) echo 'ok mid17-pick: 식중 영상 칸 · 이름 · 바꿔 담기 · 길이 · at:midvideo · 시간' ;;
+    1) echo 'FAIL mid17-pick: 식중 영상 고르기 · 시간이 어긋났다 — node scripts/audit/mid17-pick.mjs'; printf '%s\n' "$_m17" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok mid17-pick: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'MID17_TILE' order-preview.html 14
+chk 'MID17_NAME' assets/ritual-open.js 6
+chk 'MID17_NAME' order-preview.html 1
+chk 'MID17_PREP' assets/ritual-open.js 1
+chk 'MID17_LEN' order-preview.html 2
+chk 'MID17_AT' order-preview.html 3
+chk 'MID17_FREE_BACK' order-preview.html 11   # [MID17_FREE_BACK 2026-11-07 대본] 이번 방문에 뺀 free 칸은 다시 담으면 뺄 때 갈래(칸을 지정하면 그 칸 · 처음 담는 축사 칸은 축사)
+chk 'MID17_PICK' scripts/audit/mid17-pick.mjs 1
+chk 'window.opPkTgl=function(k)' order-preview.html 1   # [MID17_TILE] ① 칸 · 창의 담기는 이 길(바꿔 담기) · ② 흐름 빼기는 opTgl 그대로
+chk "MID_NAME = '식중 영상'" assets/ritual-open.js 1
+nochk "'준비한 순서 영상(휴대폰" assets/ritual-open.js 0   # [MID17_PREP] 식중 영상은 마이페이지가 받는다 — 옛 할 일 줄 되살리지 말 것
 # ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
 #   버전 고정(무료 라이선스 판) · 유료 렌더 패키지 없음 · 길이 = 마이페이지 _pvcSecs · 개그 · 패러디 갈래 없음
 if command -v node >/dev/null 2>&1; then _pro=$(node scripts/audit/prevideo-remotion.mjs 2>&1); _prr=$?
@@ -21385,7 +21405,7 @@ chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.Ritua
 # ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
 chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
 chk "if(_afl) lines.push('나레이션(촬영 후 안내 · 단체 사진을 마치면 재생): '+_afl.text);" order-preview.html 1   # [POST_FLOW_200]
-chk "pc.tiles === '4,4,4,7'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내
+chk "pc.tiles === '4,4,5,4'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내 → [FIX_FLOW_204] 늘 있는 칸은 막 밖 줄 · ★[MID17_TILE 2026-11-07] 셋째 막 다섯(+ 식중 영상) · 옛 값 '4,4,4,7'
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
 nochk 'function prKeep(){' assets/bgm-bed.js   # [PR_WAY_198] 연습 «잠시 멈춤» = 음악도 멈춤(② 와 같다) — −20 으로 계속 걷음
