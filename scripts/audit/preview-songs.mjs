@@ -36,7 +36,7 @@ ok('a 옛 «M2_1» 꼴 · 모르는 값은 싣지 않는다(고르지 않음)', 
   ok("c 마이페이지 «연습 · 준비» 판 — 미리듣기 창이 곡(bed) 받기를 두 분 계정으로 잇는다(ritualFileGet · key bed)", /momentedit:ritualFileGet/.test(seg) && /key:'bed'/.test(seg), null); }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(fail ? 1 : 2); }
 const SONG = {}; const ALLF = new Set(); Object.values(P.PICKS).forEach((a) => a.forEach((f) => ALLF.add(f))); Object.values(P.FILL).forEach((a) => a.forEach((f) => ALLF.add(f)));
-[...ALLF].forEach((f, i) => { SONG[f] = wav(14, 200 + i * 15).toString('base64'); });
+[...ALLF].forEach((f, i) => { SONG[f] = wav(30, 200 + i * 15).toString('base64'); });   /* ★[REPEAT_RULE_1107 ⑤] 30초 — 목록 칸 겹침이 6초가 돼 14초 곡은 8초에 다음 곡으로 넘어가 «같은 곡 잇기»를 재는 창(8.4초)에 걸렸다 */
 const HARNESS = `<!doctype html><meta charset="utf-8"><body style="margin:0"><iframe id="fr" allow="autoplay" style="width:100vw;height:100vh;border:0"></iframe><script>
 window.H={songs:${JSON.stringify(SONG)},gone:{},log:[],delay:60};
 var fr=document.getElementById('fr'); window.go=function(u){ fr.src=u; };

@@ -103,7 +103,8 @@ try {
     ok(`${W} c 하객 맞이 — 안내 한 줄(12.5px) · 곡 줄 5 = 재생 차례(1순위부터 · 옛 저장값 무시) · ▶ 5 · 제목 · 가수`, r && r.info === '들어와 앉는 동안 차례로 흘러요 · 약 20분' && r.fs === '12.5px' && r.list.join() === 'B01,B24,B13,B16,B33' && r.list.join() === WANT1.join() && r.pl === 5 && JSON.stringify(r.tA) === JSON.stringify(T1), r);
     ok(`${W} c 하객 맞이 — 고르기 단추 · «바꾸기» · 선택 표시 · 접힌 줄 · 순서 화살표 두 줄 0`, r && r.rows === 0 && r.chg === 0 && r.on === 0 && !r.fold && r.ord === 0, r);
     await go(f, 'table'); r = await look(f, 'M8');
-    ok(`${W} c 테이블 인사 — 안내 한 줄 · 곡 줄 5(B23 · B14 · B24 · B16 · B13 — 하객 맞이와 겹치는 셋은 빼면 30분이 안 돼 맨 뒤로 · DETAIL_R3_1101 ⑦ 보탬) · 고르기 0`, r && r.info === '테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분' && r.list.join() === 'B23,B14,B24,B16,B13' && r.rows === 0 && r.chg === 0 && r.on === 0, r);
+    { const pl = await f.evaluate(() => (BgmBed._t.plan(false).M8 || {}).list || []);   /* ★[REPEAT_RULE_1107] 곡 줄 = 계획(제 곡 B23 → 앞 배경 칸의 가장 오래전 곡 · 바로 앞 칸 뒤로) · 30분을 채운다 — 종전 «겹치는 셋은 맨 뒤로»(DETAIL_R3_1101 ⑦ 보탬)는 걷었다 */
+    ok(`${W} c 테이블 인사 — 안내 한 줄 · 곡 줄 = 계획(제 곡 B23 먼저 · 같은 곡 두 번 0 · 30분 이상) · 고르기 0`, r && r.info === '테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분' && r.list[0] === 'B23' && r.list.join() === pl.join() && new Set(r.list).size === r.list.length && r.list.length * 240 >= 1800 && r.rows === 0 && r.chg === 0 && r.on === 0, { r, pl }); }
     const others = [];
     for (const [k, sg] of [['candle', 'M2'], ['welcome', 'M4'], ['tribute', 'M5'], ['_close', 'M6'], ['toast', 'M7']]) { await go(f, k); const x = await look(f, sg); others.push([sg, x ? x.info : '?', x ? x.rows : -1, x ? x.list.length : -1]); }
     ok(`${W} c 다른 구간(화촉 · 감사 인사 · 부모님께 인사 · 닫는 인사 · 축배)은 고르기 그대로 — 곡 고르기 3 · 안내 칸 아님`, others.every((x) => x[1] === '' && x[2] === 3 && x[3] === 0), others);
@@ -113,7 +114,7 @@ try {
     ok(`${W} c 같은 곡을 화촉 · 부모님께 인사에서 고르면 뒤 칸에만 «화촉에서도 고른 곡이에요»(막지 않는다)`, c2 && c2.dup === '' && c5 && c5.fold && c5.dup === '화촉에서도 고른 곡이에요', { c2: c2 && c2.dup, c5 });
     await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M5"] .mu-chg'); if (b) b.click(); }); await wait(f, 300); await f.click('[data-fk="bed:M5:B16"]'); await wait(f, 400);
     await go(f, 'guest'); r = await look(f, 'M1');
-    ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄 맨 뒤로(빼면 30분이 안 된다 · DETAIL_R3_1101 ⑦ 보탬)`, r && r.list.join() === 'B01,B24,B13,B33,B16' && r.tA[4] && r.tA[4][0] === 'The Rose', r);
+    ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄에 없다(의미 곡 하루 한 번 · REPEAT_RULE_1107 ⓐ · 종전 «맨 뒤로»)`, r && r.list.join() === 'B01,B24,B13,B33' && !r.tA.some((x) => x && x[0] === 'The Rose'), r);
     await shot(f, W, 'guest-flow', '.ls-bed[data-seg="M1"]');
     /* ★[ROW_FILL_PLAY_1101 사장님 아이폰 «하객 맞이 곡 ▶ 아무리 눌러도 안 나와»] 목록 칸(하객 맞이 · 테이블 인사) 곡 줄 ▶ 다섯 — 누를 때마다 그 곡이 재생(배경 곡 B16 · B33 · B13 · B14 포함) · 고르기로 배경 곡이 저장되지 않는다 */
     { await setS(f, {}); await pg.evaluate(() => { ['B14', 'B23', 'B33'].forEach((x) => { if (H.have.indexOf(x) < 0) { H.have.push(x); H.songs[x] = H.songs.B01; H.__rfp = (H.__rfp || []).concat(x); } }); });
@@ -124,7 +125,7 @@ try {
           rp.push(await f.evaluate(({ sg, x }) => { const t = BgmBed._t; return { sg, x, f: t.CARD.f, st: t.CARD.st, who: t.BED.who, cur: t.BED.cur && t.BED.cur.f }; }, { sg, x })); }
         await f.evaluate(() => { try { BgmBed._t.CARD && document.querySelector('.mu-pl.on') && document.querySelector('.mu-pl.on').click(); } catch (e) {} }); await wait(f, 300); }
       const bad = rp.filter((r) => !(r.f === r.x && r.who === 'card' && r.cur === r.x && r.st === 'play'));
-      ok(`${W} ROW_FILL_PLAY 하객 맞이 · 테이블 인사 곡 줄 ▶ 열 — 누를 때마다 그 곡(배경 곡 포함 · CARD.f = 누른 곡 · BED.who card)`, rp.length === 10 && !bad.length, { bad, n: rp.length });
+      ok(`${W} ROW_FILL_PLAY 하객 맞이 · 테이블 인사 곡 줄 ▶ 전부 — 누를 때마다 그 곡(배경 곡 · 빌려 온 곡 포함 · CARD.f = 누른 곡 · BED.who card)`, rp.length >= 10 && !bad.length, { bad, n: rp.length });   /* [REPEAT_RULE_1107] 테이블 줄은 30분을 채우는 계획 길이(종전 다섯) */
       const pk = await f.evaluate(() => { try { bedAct('pick', 'B33', 'guest', 'M1'); } catch (e) {} try { bedAct('pick', 'B14', 'table', 'M8'); } catch (e) {} return JSON.stringify(S.bgm || {}); });
       ok(`${W} ROW_FILL_PLAY 고르기(pick)로 배경 곡이 저장되지 않는다(그대로 PICKS 만)`, !/B33|B14/.test(pk), pk);
       await pg.evaluate(() => { (H.__rfp || []).forEach((x) => { H.have.splice(H.have.indexOf(x), 1); delete H.songs[x]; }); H.__rfp = []; }); await f.evaluate(() => { const A = BgmBed._t.AV; A.st = ''; A.set = {}; }); }
@@ -158,7 +159,8 @@ try {
       ok(`${W} LIST_FOLD 처음 — 첫 곡 줄 하나 · «외 4곡» · «펼치기»(첫 줄 오른쪽 · 제목과 안 겹침 · 제목 안 잘림) · 가로 넘침 0`, a0 && a0.rows === 1 && a0.pl === 1 && a0.more === '외 4곡' && a0.btn === '펼치기' && a0.ex === 'false' && a0.inFirst && !a0.over && !a0.clip && !a0.docW, a0);
       ok(`${W} LIST_FOLD 펴면 다섯 줄 · ▶ 다섯 · «외 n곡» 없음 · 같은 자리 «접기»`, a1 && a1.rows === 5 && a1.pl === 5 && a1.more === '' && a1.btn === '접기' && a1.ex === 'true' && a0.pos && a1.pos && a0.pos[1] === a1.pos[1], { a0: a0 && a0.pos, a1 });
       ok(`${W} LIST_FOLD 순간을 옮겼다 돌아와도 펼친 그대로 · 접으면 다시 한 줄`, a2 && a2.rows === 5 && a3 && a3.rows === 1 && a3.btn === '펼치기', { a2, a3 });
-      ok(`${W} LIST_FOLD 테이블 인사도 접힘 · 접힌 줄 ▶ 이 그 곡을 튼다`, b0 && b0.rows === 1 && b0.more === '외 4곡' && !!f8 && pr.f === f8 && pr.sg === 'M8', { b0, f8, pr });
+      { const n8 = await f.evaluate(() => ((BgmBed._t.plan(false).M8 || {}).list || []).length);   /* [REPEAT_RULE_1107] «외 n곡» = 계획 길이 − 1 */
+      ok(`${W} LIST_FOLD 테이블 인사도 접힘(«외 ${n8 - 1}곡») · 접힌 줄 ▶ 이 그 곡을 튼다`, b0 && b0.rows === 1 && b0.more === '외 ' + (n8 - 1) + '곡' && !!f8 && pr.f === f8 && pr.sg === 'M8', { b0, f8, pr, n8 }); }
       await f.evaluate(() => { const L = BgmBed._t.LOPEN; L.M1 = L.M8 = true; }); }
     /* d 파일이 없을 때 — 화촉 1 · 2(B05 · B31)는 드라이브에 없다 */
     await setS(f, { M2: { k: 'B31' } }); await go(f, 'candle'); await wait(f, 600);
