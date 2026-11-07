@@ -19158,7 +19158,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/entry-scene-day.mjs 
 chk 'REC_SONG_1012' automation/platform/80_production.gs 3
 chk "if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id, false); }" automation/platform/80_production.gs 1
 chk "if (/^rec:/.test(String(id || ''))) { try { return _recGet_(" automation/platform/80_production.gs 1
-chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;" automation/platform/80_production.gs 1
+chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 200;" automation/platform/80_production.gs 1   # [HOUR_BUCKET_1107] 60 → 200 · 셈은 시각 칸
 chk 'REC_SONG_1012' mypage.html 1
 chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)" mypage.html 1   # [BGM_PREVIEW_1024] key bed 도 180초
 chk 'songs:Array.isArray(r.songs)?r.songs:undefined' mypage.html 1
@@ -19167,7 +19167,7 @@ chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-server.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-scene-day.mjs 1
 nochk 'songs.json' assets/entry-music.js                 # 곡 목록은 서버(드라이브)에서만 — 저장소에 목록 · 가사를 두지 않는다
-if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 200번(시각 칸) · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
 # ── 2026-10-13 추천 곡 파일을 서버가 직접 받는다 [REC_PUT_1013] — 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»
 #   사장님이 드라이브에 폴더를 올리지 않는다. 비공개 문서 저장소 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 ritualFile · key 'rec' 로 보낸다.
 #   서버는 «이름 표 9개 + 내용 지문(SHA-256)»이 맞을 때만 저장한다 — 비밀 열쇠 없이 다른 것은 쓰지 못하게(rec-song-server 9a ~ 9i · 깨 보기 넷: 지문 비교 · same 지름길 · 길 · 이름 표)
@@ -21339,6 +21339,29 @@ chk 'AUTO_ONLY_1031' assets/audio/clip-status.json 2
 chk 'AUTO_ONLY_1031' scripts/lib/clip-status.mjs 1
 chk 'AUTO_ONLY_1031' scripts/audit/clip-status.mjs 2
 chk 'AUTO_ONLY_1031' CLAUDE.md 1
+# ── 2026-11-07 [RULES_SLIM_1107] CLAUDE.md 정리(대본 판정 · 사장님 «품질을 낮추는 규칙 · 비효율적인 규칙은 나쁜 규칙») — 원칙은 한 줄 + [태그] · 상세 · 경위는 docs/rules/<방>.md
+#   CLAUDE.md 는 모든 방 · 모든 세션에 늘 읽힌다 — 40KB 를 넘으면 빨강(다시 불어나지 않게) · 상세 파일 열한 개가 살아 있는가 · 새 절차 줄(⑤ ⑦ ⑧)
+chk 'RULES_SLIM_1107' CLAUDE.md 6
+if [ -f CLAUDE.md ] && [ "$(wc -c < CLAUDE.md)" -ge 40960 ]; then echo "FAIL rules-slim: CLAUDE.md 가 40KB 를 넘었다($(wc -c < CLAUDE.md)B) — 상세 · 경위는 docs/rules/<방>.md 로 옮기고 요약 한 줄 + [태그]만 남긴다 [RULES_SLIM_1107]"; fail=1; else echo "ok rules-slim: CLAUDE.md $(wc -c < CLAUDE.md)B < 40960"; fi
+# GATE_RAN 대조는 «줄 머리 chk» 수를 센다 — 반복문 안 chk 는 개수가 어긋나니 한 줄씩 적는다
+chk 'RULES_SLIM_1107' docs/rules/할일칸.md 1
+chk 'RULES_SLIM_1107' docs/rules/협업.md 1
+chk 'RULES_SLIM_1107' docs/rules/배포.md 1
+chk 'RULES_SLIM_1107' docs/rules/디자인.md 1
+chk 'RULES_SLIM_1107' docs/rules/나레이션.md 1
+chk 'RULES_SLIM_1107' docs/rules/오류코드.md 1
+chk 'RULES_SLIM_1107' docs/rules/문구.md 1
+chk 'RULES_SLIM_1107' docs/rules/gas.md 1
+chk 'RULES_SLIM_1107' docs/rules/측정.md 1
+chk 'RULES_SLIM_1107' docs/rules/결정.md 1
+chk 'RULES_SLIM_1107' docs/rules/대기.md 1
+chk '자료 멘트 그대로 \[SOURCE_FIRST_1016\] > 옛 글 자' CLAUDE.md 1   # ⑦ 나레이션 우선순위
+chk '검사 은퇴 길' CLAUDE.md 1   # ⑧ 새 결정이 옛 결정을 덮으면 같은 PR 에서 옛 검사 폐기
+chk '추천값으로 진행' CLAUDE.md 1   # ⑤ 결정 대기함 — 몰아서 묻지 않는다 · 물을 때는 하나씩
+chk '청취 플레이에 넣는 예시만' docs/rules/나레이션.md 1   # ⑥ 예시 1 + 1 은 플레이에만 · 화면 예시 칸은 EX_MANY_1017(4개)
+nochk 'enable_pr_auto_merge' CLAUDE.md   # ② auto-merge 시도 줄은 지웠다(이 저장소에선 안 걸린다 · AUTOMERGE_WINDOW)
+chk 'DESIGN_REFS_1107' docs/design/references.md 1   # [DESIGN_REFS_1107] 웹 디자인 레퍼런스 한 장(사장님 11/07) · 금지 6 이 먼저 · 기법만
+chk 'docs/design/references.md' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 권위 문서가 한 줄로 가리킨다
 chk "'manual_off'" scripts/lib/clip-status.mjs 2
 nochk 'var HELPERS = \[' console.html
 nochk "b.onclick = function(){ playLoose(g.slug" console.html
@@ -23115,3 +23138,18 @@ chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+
+# ★[RULE_AUDIT_1107 2026-11-07 대본 규칙 감사 · 서버 몸] ① 통지는 메일이 나갔을 때만 · ② 하객 사진도 통지 뒤 7일 · ③ 시간당 셈 시각 칸 · ④ AI 상담 잘린 답 · ⑤ 하객 사진 가득 알림
+chk 'NOTICE_REACHED_1107' automation/platform/70_journey.gs 1
+chk 'GUEST_WITH_NOTICE_1107' automation/platform/70_journey.gs 1
+chk '하객분들이 올려 주신 사진도 이때 함께 지워져요.' automation/platform/70_journey.gs 1
+chk 'HOUR_BUCKET_1107' automation/platform/80_production.gs 4
+chk 'HOUR_BUCKET_1107' automation/platform/89_prevideo.gs 1
+chk 'BED_HOUR_MAX = 300' automation/platform/80_production.gs 1
+chk 'GP_FILL_ALERT_1107' automation/platform/80_production.gs 1
+chk 'ADVISOR_CUT_1107' api/advisor.js 2
+chk 'const MAX_TOKENS = 1000;' api/advisor.js 1
+nochk "qk = 'RECQ_' + code," automation/platform/80_production.gs
+nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
+chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]

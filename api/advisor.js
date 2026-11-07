@@ -20,7 +20,7 @@ const API_URL = 'https://api.anthropic.com/v1/messages';
 // 어뷰징·비용 가드
 const MAX_MSG_LEN = 600;        // 사용자 1발 입력 길이 상한
 const MAX_HISTORY = 12;         // 누적 대화 턴 상한
-const MAX_TOKENS = 700;         // 응답 토큰 상한
+const MAX_TOKENS = 1000;        // 응답 토큰 상한 — [ADVISOR_CUT_1107] 700 이면 긴 답이 문장 중간에서 끊기고 끝의 [[ESCALATE]] 가 빠졌다
 const MAX_STATE_LEN = 1800;     // 마이페이지 그라운딩 상태 요약 길이 상한
 
 const KNOWLEDGE = require('./_kb');
@@ -226,6 +226,14 @@ module.exports = async (req, res) => {
       text = text.replace(/\[\[ESCALATE\]\]/g, '').trim();
     }
     if (toBooking) escalate = false;   // 날짜 유도가 상담사 연결보다 우선(둘 다 붙어도 예약 페이지로)
+    /* ★[ADVISOR_CUT_1107 2026-11-07 대본 규칙 감사 ④] 토큰 한도에서 끊긴 답(stop_reason = max_tokens)은
+       끝에 걸린 반쪽 표식([[ESCA…)을 지우고 마지막 온전한 문장까지만 보이며, 상담사 연결을 켠다(끝의 [[ESCALATE]] 가 잘렸을 수 있다). */
+    if (data && data.stop_reason === 'max_tokens') {
+      text = text.replace(/\[\[[A-Z]*\]?$/, '').trim();
+      const cut = Math.max(text.lastIndexOf('.'), text.lastIndexOf('!'), text.lastIndexOf('?'), text.lastIndexOf('\n'));
+      if (cut > 0) text = text.slice(0, cut + 1).trim();
+      escalate = true; toBooking = false;
+    }
     if (!text) {
       text = '죄송합니다. 정확한 안내를 위해 상담사 연결을 도와드릴게요.';
       escalate = true; toBooking = false;

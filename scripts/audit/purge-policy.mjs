@@ -26,8 +26,10 @@ function world() {
   const colOf = Object.fromEntries(H.map((h, i) => [h, i + 1]));
   const R = (o) => H.map((h) => (h === '동의기록' ? JSON.stringify(o.rec || {}) : (o[h] ?? '')));
   const rows = [
-    R({ 개인코드: 'A', 예식일: '2026-04-01', 하객사진폴더ID: 'FOLDER_GP_A_xxxxxxxxxxxxxxxx', rec: { 결과물전달일: '2026-05-06 10:00' } }),   // 인도 + 6개월 = 오늘
-    R({ 개인코드: 'A2', 예식일: '2026-04-01', 하객사진폴더ID: 'FOLDER_GP_A2_xxxxxxxxxxxxxxx', rec: { 결과물전달일: '2026-05-01' } }),   // 지우기 실패
+    R({ 개인코드: 'A', 예식일: '2026-04-01', 하객사진폴더ID: 'FOLDER_GP_A_xxxxxxxxxxxxxxxx', rec: { 결과물전달일: '2026-05-06 10:00', 보관만료통지: '2026-10-30 11:00' } }),   // 인도 + 6개월 = 오늘 · [GUEST_WITH_NOTICE_1107] 통지 뒤 7일
+    R({ 개인코드: 'A2', 예식일: '2026-04-01', 하객사진폴더ID: 'FOLDER_GP_A2_xxxxxxxxxxxxxxx', rec: { 결과물전달일: '2026-05-01', 보관만료통지: '2026-10-25' } }),   // 지우기 실패
+    R({ 개인코드: 'A3', 예식일: '2026-04-01', 하객사진폴더ID: 'FOLDER_GP_A3_xxxxxxxxxxxxxxx', rec: { 결과물전달일: '2026-05-01' } }),   // [GUEST_WITH_NOTICE_1107] 통지 없음 = 안 지움
+    R({ 개인코드: 'A4', 예식일: '2026-04-01', 하객사진폴더ID: 'FOLDER_GP_A4_xxxxxxxxxxxxxxx', rec: { 결과물전달일: '2026-05-01', 보관만료통지: '2026-11-03' } }),   // 통지 3일째 = 안 지움
     R({ 개인코드: 'B', 예식일: '2026-04-01', 하객사진폴더ID: 'FOLDER_GP_B_xxxxxxxxxxxxxxxx', rec: { 결과물전달일: '2026-05-07' } }),          // 내일
     R({ 개인코드: 'C', 예식일: '2025-01-01', 하객사진폴더ID: 'FOLDER_GP_C_xxxxxxxxxxxxxxxx', rec: {} }),                                      // 인도 전
     R({ 개인코드: 'D', 예식일: '2026-04-01', 원본폴더ID: 'FOLDER_RESULT_D_xxxxxxxxxxxxxxxx', 원본링크: 'https://drive.google.com/drive/folders/FOLDER_RESULT_D_xxxxxxxxxxxxxxxx', 영상링크: 'https://vimeo.com/1', 보정본폴더: 'https://drive.google.com/drive/folders/FOLDER_EDIT_D_xxxxxxxxxxxxxxxxx', 결과물상태: '전달완료', rec: { 결과물전달일: '2026-05-06', 보관만료통지: '2026-10-30 09:00' } }),
@@ -84,7 +86,7 @@ function world() {
   const r = sb._purgeDaily_(); const by = Object.fromEntries(r.rows.map((x) => [x.kind, x]));
   const del = W.calls.filter((c) => c[0] === 'DELETE').map((c) => c[1]);
   ok(r.live === true, 'PURGE_LIVE=Y 면 실제 모드');
-  ok(del.includes('FOLDER_GP_A_xxxxxxxxxxxxxxxx') && !del.includes('FOLDER_GP_B_xxxxxxxxxxxxxxxx') && !del.includes('FOLDER_GP_C_xxxxxxxxxxxxxxxx') && W.get('A', '하객사진폴더ID') === '' && W.get('B', '하객사진폴더ID') && W.get('A2', '하객사진폴더ID') === 'FOLDER_GP_A2_xxxxxxxxxxxxxxx' && by['하객 사진'].fail === 1, '하객 사진: 인도+6개월 된 폴더만 영구 삭제 · 지운 것만 ID 를 비운다 · 실패(A2)는 ID 를 남긴다');
+  ok(del.includes('FOLDER_GP_A_xxxxxxxxxxxxxxxx') && !del.includes('FOLDER_GP_B_xxxxxxxxxxxxxxxx') && !del.includes('FOLDER_GP_C_xxxxxxxxxxxxxxxx') && !del.includes('FOLDER_GP_A3_xxxxxxxxxxxxxxx') && !del.includes('FOLDER_GP_A4_xxxxxxxxxxxxxxx') && W.get('A', '하객사진폴더ID') === '' && W.get('B', '하객사진폴더ID') && W.get('A2', '하객사진폴더ID') === 'FOLDER_GP_A2_xxxxxxxxxxxxxxx' && by['하객 사진'].fail === 1, '하객 사진: 인도+6개월 된 폴더만 영구 삭제 · 지운 것만 ID 를 비운다 · 실패(A2)는 ID 를 남긴다');
   ok(del.includes('FOLDER_RESULT_D_xxxxxxxxxxxxxxxx') && del.includes('FOLDER_EDIT_D_xxxxxxxxxxxxxxxxx') && W.get('D', '원본링크') === '' && W.get('D', '원본폴더ID') === '' && W.get('D', '영상링크') === '' && !!JSON.parse(W.get('D', '동의기록')).결과물파기, '결과물: 원본 · 보정본 폴더까지 영구 삭제 → 링크 · 원본폴더ID 비움 → «결과물파기»');
   ok(!del.includes('FOLDER_RESULT_E_xxxxxxxxxxxxxxxx') && W.get('E', '원본폴더ID'), '결과물: 통지 뒤 7일이 안 됐으면 그대로(계약서 12조③)');
   ok(del.includes('FOLDER_RESULT_F_xxxxxxxxxxxxxxxx') && W.get('F', '원본폴더ID') === '', '결과물: 옛 판이 링크만 비운 예식은 남은 원본 폴더를 이번에 지운다');
