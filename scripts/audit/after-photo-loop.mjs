@@ -23,7 +23,9 @@ ok('a 옛 코스 귀가 인사는 종전 그대로(90초 → 20초)', old.length
 /* b 곡 계획 */
 const pl = P.plan(base(), { on: () => true }), m8 = pl.M8L || {}, m4 = (pl.M4 || {}).list || [];
 const shared = (P.PICKS.M8L || []).filter((f) => m4.indexOf(f) > -1);
-ok('b 마지막 곡 = 이어 트는 목록(M8L) · 1순위 먼저 · 세 곡 모두 · 앞 칸에서 흐른 곡은 맨 뒤로', P.loopy('M8L') && (m8.list || []).length === (P.PICKS.M8L || []).length && m8.list[0] === P.PICKS.M8L[0] && shared.every((f) => m8.list.indexOf(f) >= m8.list.length - shared.length), { list: m8.list, m4, shared });
+/* ★[REPEAT_RULE_1107 ⓒ] 마지막 곡 = 1순위 먼저 · 제 곡(앞에서 안 나온 것) → 배경 곡(B26 …) → 다 돌면 앞 배경 칸 곡을 가장 오래전 것부터(바로 앞 칸 뒤로) · 같은 곡 두 번 0 — 종전 «세 곡 · 겹친 곡은 맨 뒤»는 걷었다 */
+const own8 = ['B32', 'B27', 'B26'], iB = m8.list.findIndex((f) => own8.indexOf(f) < 0);
+ok('b 마지막 곡 = 이어 트는 목록(M8L) · 1순위 먼저 · 제 곡 → 배경 곡 → 앞 배경 칸 곡 빌려 오기 · 같은 곡 두 번 0', P.loopy('M8L') && m8.list[0] === P.PICKS.M8L[0] && new Set(m8.list).size === m8.list.length && m8.list.length > (P.PICKS.M8L || []).length && m8.list.slice(0, 3).join() === 'B32,B27,B26' && iB === 3, { list: m8.list, m4, shared });
 
 /* c 화면 글 */
 const SL = fs.readFileSync(path.join(ROOT, 'assets/bgm-slots.js'), 'utf8');

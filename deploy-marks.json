@@ -208,6 +208,11 @@
    "file": "89_prevideo",
    "fn": "_mvOn_",
    "why": "식중 영상 켜짐 판정"
+  },
+  {
+   "file": "80_production",
+   "fn": "_hourKey_",
+   "why": "시간당 셈 열쇠(이름_yyyyMMddHH)"
   }
  ],
  "marks": [
@@ -3522,6 +3527,42 @@
    "fn": "handleGuideView",
    "mark": "B2_FIX_MA_38_GAS",
    "why": "대표 장소를 이름 + 지도 장소 ID 로(옛 초안은 이름으로)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "sendArchiveExpiryNotices",
+   "mark": "NOTICE_REACHED_1107",
+   "why": "보관 만료 통지는 메일이 나간 때만 표시 · 실패면 관리자 메일 · 다음 날 다시"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_pgGuestPhotos_",
+   "mark": "GUEST_WITH_NOTICE_1107",
+   "why": "하객 사진 정리도 결과물 통지 뒤 7일이 지났을 때만"
+  },
+  {
+   "file": "80_production",
+   "fn": "_recGet_",
+   "mark": "HOUR_BUCKET_1107",
+   "why": "추천곡 시간당 셈을 시각 칸 열쇠로 · 상한 200"
+  },
+  {
+   "file": "80_production",
+   "fn": "_bedGet_",
+   "mark": "HOUR_BUCKET_1107",
+   "why": "구간곡 시간당 셈을 시각 칸 열쇠로 · 상한 300"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuestPhoto",
+   "mark": "GP_FILL_ALERT_1107",
+   "why": "하객 사진 80% · 가득 관리자 메일 · 칸마다 한 번"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvPhoto",
+   "mark": "HOUR_BUCKET_1107",
+   "why": "식전 영상 사진 시간당 셈을 시각 칸 열쇠로"
   }
  ],
  "fns": {
@@ -3783,6 +3824,7 @@
    "_bedFolder_",
    "_bedFiles_",
    "_bedClip_",
+   "_hourKey_",
    "_bedGet_",
    "_recPutFolder_",
    "_recPutHas_",
@@ -4742,7 +4784,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-07 08:25 · 4dff67d",
+ "_생성": "2026-11-07 12:01 · 278c0ab",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5316,5 +5358,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "57baccccaab1"
+ "_표식서명": "36ea7955f21c"
 }

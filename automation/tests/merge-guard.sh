@@ -19158,7 +19158,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/entry-scene-day.mjs 
 chk 'REC_SONG_1012' automation/platform/80_production.gs 3
 chk "if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id, false); }" automation/platform/80_production.gs 1
 chk "if (/^rec:/.test(String(id || ''))) { try { return _recGet_(" automation/platform/80_production.gs 1
-chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;" automation/platform/80_production.gs 1
+chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 200;" automation/platform/80_production.gs 1   # [HOUR_BUCKET_1107] 60 → 200 · 셈은 시각 칸
 chk 'REC_SONG_1012' mypage.html 1
 chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)" mypage.html 1   # [BGM_PREVIEW_1024] key bed 도 180초
 chk 'songs:Array.isArray(r.songs)?r.songs:undefined' mypage.html 1
@@ -19167,7 +19167,7 @@ chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-server.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-scene-day.mjs 1
 nochk 'songs.json' assets/entry-music.js                 # 곡 목록은 서버(드라이브)에서만 — 저장소에 목록 · 가사를 두지 않는다
-if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 200번(시각 칸) · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
 # ── 2026-10-13 추천 곡 파일을 서버가 직접 받는다 [REC_PUT_1013] — 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»
 #   사장님이 드라이브에 폴더를 올리지 않는다. 비공개 문서 저장소 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 ritualFile · key 'rec' 로 보낸다.
 #   서버는 «이름 표 9개 + 내용 지문(SHA-256)»이 맞을 때만 저장한다 — 비밀 열쇠 없이 다른 것은 쓰지 못하게(rec-song-server 9a ~ 9i · 깨 보기 넷: 지문 비교 · same 지름길 · 길 · 이름 표)
@@ -20821,7 +20821,7 @@ nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
 chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101] 구간마다 3곡
 chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101] 지브리 판
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
-chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\] }" assets/bgm-picks.js 1   # ★[BGM_FILL_1101] 목록 칸 배경 곡
+chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡 배경 곡 더함   # ★[BGM_FILL_1101] 목록 칸 배경 곡
 chk 'function order(S, seg, prev, on)' assets/bgm-picks.js 1
 chk 'if (BP.order) return segListOf(id, cur).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
@@ -21339,6 +21339,29 @@ chk 'AUTO_ONLY_1031' assets/audio/clip-status.json 2
 chk 'AUTO_ONLY_1031' scripts/lib/clip-status.mjs 1
 chk 'AUTO_ONLY_1031' scripts/audit/clip-status.mjs 2
 chk 'AUTO_ONLY_1031' CLAUDE.md 1
+# ── 2026-11-07 [RULES_SLIM_1107] CLAUDE.md 정리(대본 판정 · 사장님 «품질을 낮추는 규칙 · 비효율적인 규칙은 나쁜 규칙») — 원칙은 한 줄 + [태그] · 상세 · 경위는 docs/rules/<방>.md
+#   CLAUDE.md 는 모든 방 · 모든 세션에 늘 읽힌다 — 40KB 를 넘으면 빨강(다시 불어나지 않게) · 상세 파일 열한 개가 살아 있는가 · 새 절차 줄(⑤ ⑦ ⑧)
+chk 'RULES_SLIM_1107' CLAUDE.md 6
+if [ -f CLAUDE.md ] && [ "$(wc -c < CLAUDE.md)" -ge 40960 ]; then echo "FAIL rules-slim: CLAUDE.md 가 40KB 를 넘었다($(wc -c < CLAUDE.md)B) — 상세 · 경위는 docs/rules/<방>.md 로 옮기고 요약 한 줄 + [태그]만 남긴다 [RULES_SLIM_1107]"; fail=1; else echo "ok rules-slim: CLAUDE.md $(wc -c < CLAUDE.md)B < 40960"; fi
+# GATE_RAN 대조는 «줄 머리 chk» 수를 센다 — 반복문 안 chk 는 개수가 어긋나니 한 줄씩 적는다
+chk 'RULES_SLIM_1107' docs/rules/할일칸.md 1
+chk 'RULES_SLIM_1107' docs/rules/협업.md 1
+chk 'RULES_SLIM_1107' docs/rules/배포.md 1
+chk 'RULES_SLIM_1107' docs/rules/디자인.md 1
+chk 'RULES_SLIM_1107' docs/rules/나레이션.md 1
+chk 'RULES_SLIM_1107' docs/rules/오류코드.md 1
+chk 'RULES_SLIM_1107' docs/rules/문구.md 1
+chk 'RULES_SLIM_1107' docs/rules/gas.md 1
+chk 'RULES_SLIM_1107' docs/rules/측정.md 1
+chk 'RULES_SLIM_1107' docs/rules/결정.md 1
+chk 'RULES_SLIM_1107' docs/rules/대기.md 1
+chk '자료 멘트 그대로 \[SOURCE_FIRST_1016\] > 옛 글 자' CLAUDE.md 1   # ⑦ 나레이션 우선순위
+chk '검사 은퇴 길' CLAUDE.md 1   # ⑧ 새 결정이 옛 결정을 덮으면 같은 PR 에서 옛 검사 폐기
+chk '추천값으로 진행' CLAUDE.md 1   # ⑤ 결정 대기함 — 몰아서 묻지 않는다 · 물을 때는 하나씩
+chk '청취 플레이에 넣는 예시만' docs/rules/나레이션.md 1   # ⑥ 예시 1 + 1 은 플레이에만 · 화면 예시 칸은 EX_MANY_1017(4개)
+nochk 'enable_pr_auto_merge' CLAUDE.md   # ② auto-merge 시도 줄은 지웠다(이 저장소에선 안 걸린다 · AUTOMERGE_WINDOW)
+chk 'DESIGN_REFS_1107' docs/design/references.md 1   # [DESIGN_REFS_1107] 웹 디자인 레퍼런스 한 장(사장님 11/07) · 금지 6 이 먼저 · 기법만
+chk 'docs/design/references.md' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 권위 문서가 한 줄로 가리킨다
 chk "'manual_off'" scripts/lib/clip-status.mjs 2
 nochk 'var HELPERS = \[' console.html
 nochk "b.onclick = function(){ playLoose(g.slug" console.html
@@ -22105,7 +22128,7 @@ chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk 'ONE_FLOW_1106' assets/bgm-picks.js 4   # [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» = 본식 M4 그대로(oneSeg) · M4 겹침 8초(xfOf)
 chk 'function oneSeg(seg)' assets/bgm-picks.js 1
-chk "var XF = { M4: 8 }, XF0 = 3;" assets/bgm-picks.js 1
+chk "var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ⑤] 하객 맞이 · 테이블 · 닫는 인사 6초(옛 ONE_FLOW 판 { M4: 8 })
 nochk "id: 'M4S5'" assets/bgm-picks.js   # ★[ONE_FLOW_1106] 옛 축사 «음악과 함께» 곡 칸 — 되살리지 말 것
 nochk "id: 'M4S6'" assets/bgm-picks.js
 chk "if(k==='free'||k==='letter') return 'M4';" assets/bgm-bed.js 1
@@ -22818,6 +22841,19 @@ chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
 chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
 nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것
 chk 'clear-head bgm-vol ios-gesture' .github/workflows/merge-guard.yml 1
+chk 'REPEAT_RULE_1107' assets/bgm-picks.js 6   # [REPEAT_RULE_1107] 의미 곡 · 고른 곡 하루 한 번 · 배경 칸 반복 없음(앞 배경 칸 가장 오래전 곡 빌려 오기 · 바로 앞 칸 · 40분 안 뒤로) · fill M4 · M8L · hookAt · 한 곡 칸 alt · 겹침 6초
+chk 'REPEAT_RULE_1107' assets/bgm-bed.js 3
+chk 'REPEAT_RULE_1107' console.html 5
+chk "var SPAN = { M2: 130, M3: 300, M5: 300, M7: 90, M8L: 1020 }, GAP40 = 2400;" assets/bgm-picks.js 1
+chk "var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;" assets/bgm-picks.js 1
+chk "M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\]" assets/bgm-picks.js 1
+chk "function hookAt(f, d)" assets/bgm-picks.js 1
+chk "function reHookC(id)" console.html 1
+chk "function hushSoonC(sec)" console.html 1
+chk "i=L.indexOf(f); if(i<0) return '';" assets/bgm-bed.js 1   # [REPEAT_RULE_1107 ④] 지금 곡이 그 칸 곡일 때만 다음 곡으로(축배 줄의 본식 곡을 축배 곡으로 바꾸지 않는다)
+nochk "swapSrc(v,s.buffer,hookOf(v.f),v.f,X)" assets/bgm-bed.js   # ★[REPEAT_RULE_1107 ③] 같은 곡 다시 잇기는 reHook(강조 자리 · 없으면 40%) — 전주부터 다시(hookOf 0초) 되살리지 말 것
+nochk "bedPlay(BED.id, _X, _m19.head || 0)" console.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/repeat-rule.mjs >/dev/null 2>&1; _rr=$?; if [ "$_rr" != 0 ]; then echo 'FAIL repeat-rule: 곡 반복 규칙(의미 곡 하루 한 번 · 배경 칸 반복 · 빌려 오기 · fill · 겹침) — node scripts/audit/repeat-rule.mjs [REPEAT_RULE_1107]'; fail=1; else echo 'ok repeat-rule [REPEAT_RULE_1107]'; fi; fi
 chk 'function volOne()' console.html 1
 chk 'wired = true; volOne();' console.html 1
 chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1
@@ -23099,6 +23135,13 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
+# ★[MID17_ENGINE 2026-11-07 임시(11/07 14:21 병합 · 전용 대본 승인 전까지) — «사장님 결정»이 아니었다(12:4x 대본이 취소한 판 · 129 는 식전 영상 문장 · 사장님 반려)] 58 → 129 판은 [MID17_NAR_1107] 전용 대본으로 바뀌었다 · 검사는 mid17-nar.mjs
+chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 소개 슬러그 셈(식전 전용 · 129 는 식전 영상에만)
+nochk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js   # [MID17_NAR_1107] 129 를 식중 영상에 붙이지 않는다(사장님 반려)
+chk "'식중 영상': {" assets/ritual-story.js 1
+chk 'MID17_PRACTICE' order-preview.html 1                  # 연습 · 미리 듣기 카드 «식중 영상이 흐르는 자리»
+nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
+# [MID17_NAR_1107] mid17-engine.mjs(58 → 129 임시판 검사)는 merge-guard 에서 뺐다 — 파일은 기록으로 남김 · 새 판은 mid17-nar.mjs
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
 # ★[MID17_NAR_1107 2026-11-07 대본 정정] 식중 영상 전용 대본 — 여는 말 예시 셋(① 58 + 감사 · ② 이야기 · ③ 어떤 영상이든) → 영상 → 받는 말 + 104 · «58 → 129» 걷음(사장님 반려) · 콘솔 재생 순서 기록
@@ -23113,4 +23156,19 @@ chk 'MID17_NAR_1107' assets/ritual-cue.js 2
 chk 'MID17_NAR_1107' order-preview.html 4
 chk 'MID17_NAR_1107' assets/ritual-story.js 2
 chk 'PLAY_LOG_1107' console.html 3
-chk 'NARR_APPROVE_1107' CLAUDE.md 1   # 사장님 11/07 — «새 녹음 줄이기» 폐지 · 나레이션 바꿈은 «지금 · 바뀐 뒤» 실청 승인 뒤 병합
+chk 'NARR_APPROVE_1107' docs/rules/나레이션.md 1   # 사장님 11/07 — «새 녹음 줄이기» 폐지 · 나레이션 바꿈은 «지금 · 바뀐 뒤» 실청 승인 뒤 병합
+
+# ★[RULE_AUDIT_1107 2026-11-07 대본 규칙 감사 · 서버 몸] ① 통지는 메일이 나갔을 때만 · ② 하객 사진도 통지 뒤 7일 · ③ 시간당 셈 시각 칸 · ④ AI 상담 잘린 답 · ⑤ 하객 사진 가득 알림
+chk 'NOTICE_REACHED_1107' automation/platform/70_journey.gs 1
+chk 'GUEST_WITH_NOTICE_1107' automation/platform/70_journey.gs 1
+chk '하객분들이 올려 주신 사진도 이때 함께 지워져요.' automation/platform/70_journey.gs 1
+chk 'HOUR_BUCKET_1107' automation/platform/80_production.gs 4
+chk 'HOUR_BUCKET_1107' automation/platform/89_prevideo.gs 1
+chk 'BED_HOUR_MAX = 300' automation/platform/80_production.gs 1
+chk 'GP_FILL_ALERT_1107' automation/platform/80_production.gs 1
+chk 'ADVISOR_CUT_1107' api/advisor.js 2
+chk 'const MAX_TOKENS = 1000;' api/advisor.js 1
+nochk "qk = 'RECQ_' + code," automation/platform/80_production.gs
+nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
+chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]

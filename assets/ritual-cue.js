@@ -868,6 +868,9 @@
   //       그래서 self가 있으면 doing은 필수다. check-ritual-cue.js가 전 조합에서 강제한다.
   /* [BGM_INFO_1023] 두 분이 이 음악 칸에 «음악과 함께»를 골랐나 — 저장 꼴은 { S5:{m:'bed'}, S6:{m:'bed'} } 만(assets/bgm-slots.js) · 옛 값(own · studio · warm · none)은 아니다 */
   function bgmBed(S, id) { return !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed'); }
+  /* [MID17_ENGINE 2026-11-07] 식전 영상 소개 슬러그 한 곳 — 두 분 목소리 판은 90 자리(두 분 소리 · 없으면 90 나레이션) · 스튜디오 나레이션 판만 예시(S.pvEx 1 · 2 → 128 · 129 · [PV_EX_NAR]) ·
+       식전 영상 전용 — ★[MID17_NAR_1107] 식중 영상 129 겹침(11/07 14:21 임시판)은 걷었다 · 129 는 식전 영상 문장(사장님 반려) */
+  function pvSlugOf(S) { var px = (S && S.pvVoice === 'couple') ? 0 : (+(S && S.pvEx) || 0); return px ? 'narr-prevideo-in-ex' + (px + 1) : 'narr-prevideo-in'; }
   function cue(o) {
     var c = {
       slug: o.slug || '', no: o.slug ? noOf(o.slug) : '', file: o.slug ? fileOf(o.slug) : '',
@@ -1002,7 +1005,7 @@
       /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상에 두 분이 소개글을 적어서 AI 목소리로도 할 수 있게 · 예시도»] S.pvVoice==='couple' 이면
          이 큐는 두 분 목소리 자리다(own) — 콘솔이 두 분이 만든 소리(pv)를 같은 슬러그에 물린다 · 소리가 없으면 스튜디오 나레이션 그대로(아래 글).
          소개글 자체는 엔진이 읽지 않는다(글칸은 미리듣기 주소에 싣지 않는다 · PREVIEW_KEYS) — 빌더가 화면에 보여 준다. */
-      var own = !!(S && S.pvVoice === 'couple'), px = own ? 0 : (+S.pvEx || 0), pslug = px ? 'narr-prevideo-in-ex' + (px + 1) : 'narr-prevideo-in';   // [PV_EX_NAR] 스튜디오 나레이션 판만 예시를 따른다(두 분 목소리 판은 같은 슬러그에 두 분 소리를 물린다)
+      var own = !!(S && S.pvVoice === 'couple'), pslug = pvSlugOf(S);   // [MID17_ENGINE] 고르는 셈은 pvSlugOf 한 곳(식전 전용)   // [PV_EX_NAR] 스튜디오 나레이션 판만 예시를 따른다(두 분 목소리 판은 같은 슬러그에 두 분 소리를 물린다)
       return [cue({
         k: 'prevideo', blockN: '식전 영상', slug: pslug, name: '식전 영상 소개',
         text: EXTRA[pslug], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
@@ -1304,7 +1307,7 @@
        ★무엇이 올지 모르므로 문안이 **지목하지 않는다**. "노래를"·"영상을" 이라 적는 순간
          다른 것을 넣은 예식에서 거짓말이 된다. 그게 이 두 줄이 이렇게 밋밋한 이유다.
        ★길이도 모른다 → est 는 넉넉히 잡고 끝은 사람이 낸다(앞에 live 가 있어 다음 큐가 자동 manual). */
-    free: function (S) {
+    free: function (S, seq) {
       /* ★★[FREE_WHAT 2026-09-25 코워크 4-4] 새 코스는 무엇을 · 길이를 안다 — 여는 말이 그것을 지목해도 거짓말이 안 된다.
          (옛 판이 «지목하지 않았던» 까닭은 무엇이 올지 몰라서였다 · 옛 코스는 아래 그대로)
          ★재생이 안 되면 디렉터가 [재생 안 됨]을 누른다 — 한 줄 뒤 곧장 다음 순간으로(맺는 말은 건너뛴다 · FREE_RESCUE). */
@@ -1315,7 +1318,7 @@
         var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)', etc: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)',   // [FREE_ETC] 기타 = 옛 «자유 한 칸» 지문(장면 설명 열쇠 그대로)
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         var _fc = cue({
-          k: 'free', blockN: fk === 'speech' ? '축사' : '준비한 순서', slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
+          k: 'free', blockN: fk === 'speech' ? '축사' : fk === 'video' ? '식중 영상' : '준비한 순서', slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
           text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
           rescue: play ? { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */ : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
