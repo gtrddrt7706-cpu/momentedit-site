@@ -23042,6 +23042,15 @@ chk 'conversation: \[\],' api/handoff.js 1                                      
 nochk "customer.phone && ('연락처 '" api/handoff.js
 chk 'H4_HANDOFF_PHONE' scripts/audit/err-pages.mjs 1                              # 행동 검사(모델 요청 · GAS 고객 · 요약)
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-lead-k3.mjs >/dev/null 2>&1; _pvk3=$?; if [ "$_pvk3" = 1 ]; then echo 'REVERT? pv-lead-k3: 박수 없는 개식 → 영상 소개 기다림 · 10분 미만 본식 10분 전 판(299s · 345s) 중 어긋난 것이 있습니다 — node scripts/audit/pv-lead-k3.mjs'; fail=1; else echo "ok pv-lead-k3 ($_pvk3)"; fi; fi
+# ★★[TEMPO_1107 2026-11-07 사장님 확정] 나레이션 말빠르기 = 조립 단계 규칙(assets/audio/_src/tempo.json · scripts/lib/tempo.mjs · 말소리만 · 쉼 그대로)
+chk 'TEMPO_1107' scripts/assemble-narration.mjs 3                                 # 조립이 표를 읽고 · 이어 붙인 뒤 말소리만 늦추고 · _recorded 에 tempo 를 적는다
+chk 'applyTempo(joined' scripts/assemble-narration.mjs 1                          # 원본에서 이어 붙인 joined 에만 입힌다(두 번 입히지 않음)
+chk '"formula"' assets/audio/_src/tempo.json 1
+chk 'TEMPO_1107' scripts/assemble-parents-letter.mjs 3                          # 편지 통낭독 · 문단 조립 두 길도 표대로(대본 11/07 «편지 = 13»)
+chk 'TEMPO_1107' scripts/audit/stage-order-name.mjs 1                            # 조립기를 임시 폴더에 옮겨 도는 검사도 말빠르기 표 · tempo.mjs 를 함께 옮긴다
+chk 'TEMPO_1107' CLAUDE.md 1
+chk 'NARR_APPROVE_1107' CLAUDE.md 1                                              # 나레이션 바꿈은 사장님 «지금 · 바뀐 뒤» 실청 승인 뒤에만 병합 · 새 녹음 줄이기 폐지(새 순간 = 전용 대본)
+if command -v node >/dev/null 2>&1; then node scripts/audit/tempo-check.mjs >/dev/null 2>&1; _tmp7=$?; if [ "$_tmp7" = 1 ]; then echo 'REVERT? tempo-check: 나레이션 mp3 배속이 tempo.json 과 다르거나 표에 없는 우성 클립이 있습니다 — node scripts/audit/tempo-check.mjs [TEMPO_1107]'; fail=1; else echo "ok tempo-check ($_tmp7) [TEMPO_1107]"; fi; fi
 chk 'ST12_02_LATE_FILE' order-preview.html 5   # ★[ST12_02_LATE_FILE 2026-11-06] 늦게 온 옛 파일 결과(다듬기 · 이 기기 찾기 · 받기 실패)가 새 선택을 덮지 않는다
 chk 'if(MK_REC!==me) return;' order-preview.html 2   # [ST12_02_LATE_FILE] _recFromBlob 결과 · 실패 둘 다 차례표로 거른다
 nochk 'if(!MK_REC||MK_REC.key!==key) return;' order-preview.html   # [ST12_02_LATE_FILE] 자리(key)만 보던 옛 거름 — 되살리면 A 가 B 를 덮는다
