@@ -1269,7 +1269,7 @@ function _rfMailFlush() { _gsr_();
 }
 function handleRitualFile(body) { _gsr_();
   body = body || {};   // [RITUAL_FILE]
-  if (String(body.key || '').trim() === 'rec') return _recPut_(body);   // ★[REC_PUT_1013] 추천 곡 파일 9개는 로그인 대신 «내용 지문(SHA-256)»으로 받는다 — 아래 _recPut_
+  if (String(body.key || '').trim() === 'rec') return _recPut_(body);   // ★[REC_PUT_1013] 추천 곡 파일(곡 · 짧은 판 · 목록)은 로그인 대신 «내용 지문(SHA-256)»으로 받는다 — 아래 _recPut_
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1422,8 +1422,8 @@ function _bedGet_(code, id) {
   return { ok: true, key: 'bed', id: k, mime: mp3 ? 'audio/mpeg' : (b.getContentType() || 'audio/mpeg'), data: Utilities.base64Encode(by) };
 }
 /* ★★[REC_PUT_1013 2026-10-13 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»] 추천 곡 파일을 서버가 직접 받아 «ME_추천곡»에 둔다
-   사장님이 폴더를 만들어 올리지 않는다 — 비공개 문서 저장소의 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 하나씩 보낸다(action 'ritualFile' · key 'rec').
-   · 받는 것은 아래 표의 이름 17개뿐이고(곡 8 · 미리 듣기용 짧은 판 8 [REC_CLIP_1013] · 목록), 내용의 SHA-256 이 표와 같아야 저장한다 — 비밀 열쇠 없이도 다른 것은 아무것도 쓰지 못한다(표는 공개돼도 내용을 알려 주지 않는다)
+   사장님이 폴더를 만들어 올리지 않는다 — 비공개 문서 저장소의 작업(operations/rec-songs · rec-songs-push)이 파일을 하나씩 보낸다(action 'ritualFile' · key 'rec').
+   · 받는 것은 아래 표의 이름 19개뿐이고(곡 9 · 미리 듣기용 짧은 판 9 [REC_CLIP_1013] · 목록 · [NEWSONG_LNOE_1107] 로 r10 더함), 내용의 SHA-256 이 표와 같아야 저장한다 — 비밀 열쇠 없이도 다른 것은 아무것도 쓰지 못한다(표는 공개돼도 내용을 알려 주지 않는다)
    · data 없이 이름만 오면 «있다(same) · 없다(need)»만 답한다 · 같은 파일이 이미 있으면 받은 내용을 풀지 않는다(설명 칸에 지문을 적어 둔다)
    · songs.json 은 맨 끝에 온다 — 목록이 생기는 순간 곡은 이미 다 있다 · 그때 목록 캐시(REC_MF)를 지우고 폴더 기록(REC_FID)을 새로 한다
    · 한 시간 REC_PUT_HOUR(120)번까지(넘으면 U1) · 곡을 바꾸면 이 표와 문서 저장소의 파일 · songs.json 을 같은 날 함께 바꾼다 */
@@ -1436,7 +1436,8 @@ var REC_PUT_HASH = {
   'r6.mp3': '9c9b645f0a0b7091a115214e6599c58083be618afb488bc18c829924a0a22d76',
   'r8.mp3': '573eef1b8d4dd5e73278efdd32916bd18ec80e201ee782cf42c0910261ed9f4f',
   'r9.mp3': 'beba6f25d2234fe652420444f0456fe99a9738874ecfc639ff1233aadfd11eeb',
-  /* 짧은 판 8 = [ENTRY_BGM_1019] 음악 10초 먼저 · 문 열린 뒤 64초에 맞춰 다시 자른 판(문서 저장소 make_clips.py) — 종전 [REC_CLIP_1013] 판 r1p 86947b06… · r9p f837950e… */
+  'r10.mp3': '49234a36415c2563df09af4d2b4ba4c293f9b9fe3b0de89945384bdbaea6e4b6',   /* [NEWSONG_LNOE_1107] Last Night On Earth · Green Day — 192kbps 머리말 없음(문서 저장소 make_clips 고정 프레임) */
+  /* 짧은 판(r1p ~ r9p) = [ENTRY_BGM_1019] 음악 10초 먼저 · 문 열린 뒤 64초에 맞춰 다시 자른 판(문서 저장소 make_clips.py) — 종전 [REC_CLIP_1013] 판 r1p 86947b06… · r9p f837950e… */
   'r1p.mp3': 'eb93631ed39575f0fb28bfa5c4a555bed486bef51ff7d734c1ddcc675989ed43',
   'r2p.mp3': 'd560a76b5cf850740ca9b38c69ae28321fd778412fbf590573910b4df70dd41a',
   'r3p.mp3': '9c97295d7e9e6064453618c8599fcec8d484c6af4f6e6072ee10ce0fbf5b20e5',
@@ -1445,7 +1446,8 @@ var REC_PUT_HASH = {
   'r6p.mp3': 'cdb472579bf385bf0114ab99807a4f69904ad48a130bda25bede57a14ac77bb5',
   'r8p.mp3': '7bea6e5ea92733e11b1ae13804104bc2e9734dab11d7e108d879b96b2fabcfd7',
   'r9p.mp3': '30fcaa3cc38326eb0005d1f8edafa0bb9f8ab0c7b69a4dcf15d9953f4b031161',
-  'songs.json': 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5'   /* [ENTRY_BGM_1019] 짧은 판의 자리(p0 · p1)만 바꾼 판 — 가사 · 곡 순서 · 하이라이트는 그대로 · 종전 [LY_REALIGN_1014] 줄 시각 판 98eb13b9… · [REC_LY_BI_1013] 두 언어 판 5cb9bee1… · [REC_CLIP_1013] 판 d355371a… */
+  'r10p.mp3': '275f7b118774f8f34bafc334fbc733636bc429b52dc39963d6db193c9f23ada4',   /* [NEWSONG_LNOE_1107] 0 ~ 188.03초 */
+  'songs.json': 'b61c1f59a9d6a1ae963525b9c8d2ffe99e5b9f5592f427893e2f3b6c62b3761b'   /* [NEWSONG_LNOE_1107] r10 한 줄을 끝에 더한 목록(앞 8곡은 g(크기 맞춤)만 다시 잰 값 · 소수 다섯째 자리 · 나머지 그대로) · 종전 [ENTRY_BGM_1019] 짧은 판 자리 판 c71efbae… · 그 앞 [LY_REALIGN_1014] 줄 시각 판 98eb13b9… · [REC_LY_BI_1013] 두 언어 판 5cb9bee1… · [REC_CLIP_1013] 판 d355371a… */
 }, REC_PUT_HOUR = 120;
 function _recPutFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');
@@ -1462,6 +1464,7 @@ function _recPutHas_(fo, name, h) {
   return null;
 }
 function _recPut_(body) {
+  /* [NEWSONG_LNOE_1107 2026-11-07 BGM 섹션 «새 곡 r10»] 표에 r10 · r10p 와 새 목록 지문 — 이 판이 배포돼야 r10 이 드라이브에 올라가 «스튜디오가 고른 곡»에 나온다(곡 9 · 짧은 판 9 · 목록 = 19개) */
   var mk = '[REC_PUT_1013]', name = String((body && body.name) || '').trim(), h = Object.prototype.hasOwnProperty.call(REC_PUT_HASH, name) ? REC_PUT_HASH[name] : '';
   if (!h) return { ok: false, error: '받을 수 없는 파일이에요.' };
   /* ★[ENTRY_BGM_1019 2026-10-19 사장님 «처음도입부분을 좀더 길게 늘리고 서서히 0에서 볼륨을 높였다가 멘트 직전에 낮출것이고 모든 bgm전부(입장)» · «도착 까지 시간을 좀더 늘릴거야 행진이후 1분이상»]
