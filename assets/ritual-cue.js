@@ -2062,6 +2062,8 @@
       if (_rc.k === 'matjeol' && _rs === 'narr-entry-bow') { _rc.duck = PARAM.duckOff; if (_rc.live) _rc.live.duck = PARAM.duckOff; }
       /* [ENTRY_SETTLE] 하객을 향해 서시겠습니다(b8) = 정적 → 줄 끝에서 감사 인사 곡을 무음에서 뜸(6초 앞서 −8 · 종전 3초 겹침 대신) */
       if (_rs === 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol') { _rc.duck = PARAM.duckOff;   /* 맞절 바로 뒤만 — 편지 끝 이음말(b8 · 편지 «음악과 함께» 곡 아래)은 그대로 */ var _rn = cues[r2 + 1]; if (_rn && _rn.k === _rc.k) { _rn.goLeadMs = Math.max(_rn.goLeadMs || 0, 6000); _rn.leadDb = PARAM.duckMusic; _rn.gapMs = Math.max(_rn.gapMs || 0, 1000); } }
+      /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 350(«…향해 서주시기 바랍니다» 가 첫머리)이 맞절 바로 뒤 — b8 이 하던 «무음에서 감사 인사 곡을 뜸(6초 앞서 −8 · 정적 1초)»을 350 이 받는다 */
+      if (_rc.k === 'welcome' && _rp && _rp.k === 'matjeol' && /향해 서/.test(_rc.text || '')) { _rc.goLeadMs = Math.max(_rc.goLeadMs || 0, 6000); _rc.leadDb = PARAM.duckMusic; _rc.gapMs = Math.max(_rc.gapMs || 0, 1000); }
       /* [DECLARE_LIFT] 성혼 선언 뒤 축하 박수 = 새 곡 — 덕담(다음 순간) 곡 · 없으면 목록 다음 곡을 강조 자리에서 −8 로 0.6초에(엄숙 → 기쁨 · 앞 곡을 멈춘 자리부터 되살리지 않는다) */
       if (_rs === 'narr-declare-family-out' && _rc.live) { _rc.live.newSong = true; _rc.live.upMs = 600; }
       /* [TRIBUTE_WALK] 부모님께 걸어가는 동작 −12(이동은 음악이 받침) → 두 분이 말하는 차례 −20 그대로 */
