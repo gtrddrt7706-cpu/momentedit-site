@@ -21329,6 +21329,8 @@ chk '검사 은퇴 길' CLAUDE.md 1   # ⑧ 새 결정이 옛 결정을 덮으�
 chk '추천값으로 진행' CLAUDE.md 1   # ⑤ 결정 대기함 — 몰아서 묻지 않는다 · 물을 때는 하나씩
 chk '청취 플레이에 넣는 예시만' docs/rules/나레이션.md 1   # ⑥ 예시 1 + 1 은 플레이에만 · 화면 예시 칸은 EX_MANY_1017(4개)
 nochk 'enable_pr_auto_merge' CLAUDE.md   # ② auto-merge 시도 줄은 지웠다(이 저장소에선 안 걸린다 · AUTOMERGE_WINDOW)
+chk 'DESIGN_REFS_1107' docs/design/references.md 1   # [DESIGN_REFS_1107] 웹 디자인 레퍼런스 한 장(사장님 11/07) · 금지 6 이 먼저 · 기법만
+chk 'docs/design/references.md' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 권위 문서가 한 줄로 가리킨다
 chk "'manual_off'" scripts/lib/clip-status.mjs 2
 nochk 'var HELPERS = \[' console.html
 nochk "b.onclick = function(){ playLoose(g.slug" console.html
