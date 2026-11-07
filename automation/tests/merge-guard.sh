@@ -21323,7 +21323,18 @@ chk 'AUTO_ONLY_1031' CLAUDE.md 1
 #   CLAUDE.md 는 모든 방 · 모든 세션에 늘 읽힌다 — 40KB 를 넘으면 빨강(다시 불어나지 않게) · 상세 파일 열한 개가 살아 있는가 · 새 절차 줄(⑤ ⑦ ⑧)
 chk 'RULES_SLIM_1107' CLAUDE.md 6
 if [ -f CLAUDE.md ] && [ "$(wc -c < CLAUDE.md)" -ge 40960 ]; then echo "FAIL rules-slim: CLAUDE.md 가 40KB 를 넘었다($(wc -c < CLAUDE.md)B) — 상세 · 경위는 docs/rules/<방>.md 로 옮기고 요약 한 줄 + [태그]만 남긴다 [RULES_SLIM_1107]"; fail=1; else echo "ok rules-slim: CLAUDE.md $(wc -c < CLAUDE.md)B < 40960"; fi
-for _rf in 할일칸 협업 배포 디자인 나레이션 오류코드 문구 gas 측정 결정 대기; do chk 'RULES_SLIM_1107' "docs/rules/$_rf.md" 1; done
+# GATE_RAN 대조는 «줄 머리 chk» 수를 센다 — 반복문 안 chk 는 개수가 어긋나니 한 줄씩 적는다
+chk 'RULES_SLIM_1107' docs/rules/할일칸.md 1
+chk 'RULES_SLIM_1107' docs/rules/협업.md 1
+chk 'RULES_SLIM_1107' docs/rules/배포.md 1
+chk 'RULES_SLIM_1107' docs/rules/디자인.md 1
+chk 'RULES_SLIM_1107' docs/rules/나레이션.md 1
+chk 'RULES_SLIM_1107' docs/rules/오류코드.md 1
+chk 'RULES_SLIM_1107' docs/rules/문구.md 1
+chk 'RULES_SLIM_1107' docs/rules/gas.md 1
+chk 'RULES_SLIM_1107' docs/rules/측정.md 1
+chk 'RULES_SLIM_1107' docs/rules/결정.md 1
+chk 'RULES_SLIM_1107' docs/rules/대기.md 1
 chk '자료 멘트 그대로 \[SOURCE_FIRST_1016\] > 옛 글 자' CLAUDE.md 1   # ⑦ 나레이션 우선순위
 chk '검사 은퇴 길' CLAUDE.md 1   # ⑧ 새 결정이 옛 결정을 덮으면 같은 PR 에서 옛 검사 폐기
 chk '추천값으로 진행' CLAUDE.md 1   # ⑤ 결정 대기함 — 몰아서 묻지 않는다 · 물을 때는 하나씩
