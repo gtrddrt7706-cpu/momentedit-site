@@ -21910,7 +21910,7 @@ chk "last: '촬영 후 안내부터 마지막 곡 ‹{f}›{j} 흐르고, 추가
 chk 'dayName:function(k){ try{ return window.BgmBed' assets/bgm-form.js 1   # [SCREEN_SOUND_1102] 화면 곡 이름 = 엔진
 chk 'if(pv&&nx&&pv.k!==nx.k&&BED.cur.want!=null&&BED.cur.want<=-60) return;' assets/bgm-bed.js 1   # [SILENT_STAY_1102] 정적이던 앞 곡은 순간이 바뀌어도 올리지 않는다
 chk 'LF_GO_1102' console.html 1   # 말하는 자리 사이 짧은 나레이션 줄도 곡 넘김을 놓치지 않는다(겹침 중 «말 끊김» 기억)
-chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }" console.html 1
+chk "if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; if (BED.seg === 'M4' && hushNowC()) return; listGo(1); return; }" console.html 1   # [REPEAT_FIX_1107 ②] 미룬 넘김도 무음 검사
 chk 'window.__talkNow = talkNow;' console.html 1   # daylong c 가 말하는 자리를 읽는 창구
 chk 'SCREEN_SOUND_1102 2\] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서' assets/bgm-bed.js 1
 chk "detail-r4 screen-bgm after-photo-loop" .github/workflows/merge-guard.yml 1   # [SCREEN_SOUND_1102] 화면 글 ⇔ 소리 검사(e 칸)
