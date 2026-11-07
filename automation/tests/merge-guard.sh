@@ -21319,6 +21319,29 @@ chk 'AUTO_ONLY_1031' assets/audio/clip-status.json 2
 chk 'AUTO_ONLY_1031' scripts/lib/clip-status.mjs 1
 chk 'AUTO_ONLY_1031' scripts/audit/clip-status.mjs 2
 chk 'AUTO_ONLY_1031' CLAUDE.md 1
+# ── 2026-11-07 [RULES_SLIM_1107] CLAUDE.md 정리(대본 판정 · 사장님 «품질을 낮추는 규칙 · 비효율적인 규칙은 나쁜 규칙») — 원칙은 한 줄 + [태그] · 상세 · 경위는 docs/rules/<방>.md
+#   CLAUDE.md 는 모든 방 · 모든 세션에 늘 읽힌다 — 40KB 를 넘으면 빨강(다시 불어나지 않게) · 상세 파일 열한 개가 살아 있는가 · 새 절차 줄(⑤ ⑦ ⑧)
+chk 'RULES_SLIM_1107' CLAUDE.md 6
+if [ -f CLAUDE.md ] && [ "$(wc -c < CLAUDE.md)" -ge 40960 ]; then echo "FAIL rules-slim: CLAUDE.md 가 40KB 를 넘었다($(wc -c < CLAUDE.md)B) — 상세 · 경위는 docs/rules/<방>.md 로 옮기고 요약 한 줄 + [태그]만 남긴다 [RULES_SLIM_1107]"; fail=1; else echo "ok rules-slim: CLAUDE.md $(wc -c < CLAUDE.md)B < 40960"; fi
+# GATE_RAN 대조는 «줄 머리 chk» 수를 센다 — 반복문 안 chk 는 개수가 어긋나니 한 줄씩 적는다
+chk 'RULES_SLIM_1107' docs/rules/할일칸.md 1
+chk 'RULES_SLIM_1107' docs/rules/협업.md 1
+chk 'RULES_SLIM_1107' docs/rules/배포.md 1
+chk 'RULES_SLIM_1107' docs/rules/디자인.md 1
+chk 'RULES_SLIM_1107' docs/rules/나레이션.md 1
+chk 'RULES_SLIM_1107' docs/rules/오류코드.md 1
+chk 'RULES_SLIM_1107' docs/rules/문구.md 1
+chk 'RULES_SLIM_1107' docs/rules/gas.md 1
+chk 'RULES_SLIM_1107' docs/rules/측정.md 1
+chk 'RULES_SLIM_1107' docs/rules/결정.md 1
+chk 'RULES_SLIM_1107' docs/rules/대기.md 1
+chk '자료 멘트 그대로 \[SOURCE_FIRST_1016\] > 옛 글 자' CLAUDE.md 1   # ⑦ 나레이션 우선순위
+chk '검사 은퇴 길' CLAUDE.md 1   # ⑧ 새 결정이 옛 결정을 덮으면 같은 PR 에서 옛 검사 폐기
+chk '추천값으로 진행' CLAUDE.md 1   # ⑤ 결정 대기함 — 몰아서 묻지 않는다 · 물을 때는 하나씩
+chk '청취 플레이에 넣는 예시만' docs/rules/나레이션.md 1   # ⑥ 예시 1 + 1 은 플레이에만 · 화면 예시 칸은 EX_MANY_1017(4개)
+nochk 'enable_pr_auto_merge' CLAUDE.md   # ② auto-merge 시도 줄은 지웠다(이 저장소에선 안 걸린다 · AUTOMERGE_WINDOW)
+chk 'DESIGN_REFS_1107' docs/design/references.md 1   # [DESIGN_REFS_1107] 웹 디자인 레퍼런스 한 장(사장님 11/07) · 금지 6 이 먼저 · 기법만
+chk 'docs/design/references.md' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 권위 문서가 한 줄로 가리킨다
 chk "'manual_off'" scripts/lib/clip-status.mjs 2
 nochk 'var HELPERS = \[' console.html
 nochk "b.onclick = function(){ playLoose(g.slug" console.html
