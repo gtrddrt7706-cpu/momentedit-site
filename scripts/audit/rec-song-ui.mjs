@@ -120,7 +120,7 @@ async function toEntry(f) {
 const HL = (pg) => pg.evaluate(() => H.log.slice());
 /* [SOFT_START_1013 · PRE_ROLL_1013] 소리 걸기 기록 — 소스 start(언제 · 그때 기기 시각) · 음량 곡선(setValueCurveAtTime: 시작 · 길이 · 값) */
 const AUD_TAP = (f) => f.evaluate(() => { window.__aud = []; if (window.__audOn) return; window.__audOn = true; const S0 = AudioBufferSourceNode.prototype.start, C0 = AudioParam.prototype.setValueCurveAtTime;
-  AudioBufferSourceNode.prototype.start = function (when) { try { window.__aud.push({ k: 'start', now: this.context.currentTime, when: when || 0 }); } catch (e) {} return S0.apply(this, arguments); };
+  AudioBufferSourceNode.prototype.start = function (when) { try { if (!(this.buffer && this.buffer.length <= 1)) window.__aud.push({ k: 'start', now: this.context.currentTime, when: when || 0 }); } catch (e) {} return S0.apply(this, arguments); };   /* ★[IOS_GESTURE_1107] 탭마다 트는 무음 한 칸(1 샘플 · 소리 문 풀기)은 곡 시작이 아니다 */
   AudioParam.prototype.setValueCurveAtTime = function (c, t, d) { try { window.__aud.push({ k: 'curve', t, d, arr: Array.from(c.slice(0, Math.min(c.length, 1400))), n: c.length, v1: c[c.length - 1] }); } catch (e) {} return C0.apply(this, arguments); }; });
 const AUD = (f) => f.evaluate(() => (window.__aud || []).slice());
 const recReqs = (log, id) => log.filter((x) => x === 'momentedit:ritualFileGet:rec:' + id).length;

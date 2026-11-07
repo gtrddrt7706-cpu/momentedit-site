@@ -4779,6 +4779,10 @@ if command -v node >/dev/null 2>&1; then _mvo=$(node scripts/audit/midvideo.mjs 
 fi
 chk 'MID_VIDEO_1106' mypage.html 35
 chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 19
+# ★[MID_FEEL_1107 2026-11-07 대본] 식중 영상의 필메이커 안내 — 쿠폰 걸음 대신 «비용 확인»(두 분 부담 · 쿠폰은 식전에만) · 길이는 식순 분 · 켜진 첫 화면에 «필메이커에서 만들기»
+chk 'MID_FEEL_1107' mypage.html 3
+chk '템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.' mypage.html 1
+chk "if(PVCFLOW.kind==='mid') return _mvcFeel();" mypage.html 1
 chk 'MID_VIDEO_1106' admin.html 3
 chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
 chk 'MID_VIDEO_1106' automation/platform/95_notify.gs 5
@@ -4835,6 +4839,13 @@ nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
 chk 'PV_FEEL_1106' mypage.html 5
 chk 'PV_FEEL_1106' api/_kb.js 1
 nochk 'data-pvcmode="make"' mypage.html
+# ★[PV_ONE_WAY_1107 2026-11-07 사장님 «필메이커에서 만들어 여기에 올리는 건 똑같잖아» · 대본 «한 갈래로»] 식전 · 식중 첫 화면 = 큰 단추 «영상 올리기» 하나 + 필메이커 안내 한 줄 — 두 칸 갈래를 되살리지 않는다
+chk 'PV_ONE_WAY_1107' mypage.html 8
+chk "function _pvcFeelIn()" mypage.html 1
+chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'));   // \[PV_ONE_WAY_1107\]" mypage.html 1
+nochk '<b>준비한 영상 올리기</b>' mypage.html
+nochk '<b>필메이커에서 만들기</b><span>' mypage.html
+nochk '필메이커에서 만들거나 준비한 영상을' mypage.html
 # ★[PV_STATE_1106 2026-11-06 4차 묶음 M04 · M05 · M06 · M07 · M08 · M09 · M16 · M21 · 대본 판정 «채택»] 식전 영상 상태 한 벌 —
 #   «사용하지 않기»가 옛 확정본보다 먼저 · 식순과 확실히 부딪힐 때만 한 줄 · 다시 확인(조회만) · 고치는 화면에도 기한 · 기한 지남(locked)은 다시 저장을 권하지 않는다 · 템플릿 비용과 추가 옵션 구분
 chk 'PV_STATE_1106' mypage.html 29
@@ -22790,6 +22801,23 @@ nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦�
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
 chk 'BGM_VOL_ONE_1106' console.html 4   # [BGM_VOL_ONE_1106 검토 D] Web Audio 로 이은 배경 재생기 볼륨 1 — 콘솔 첫 «시작» 무음 막기
+chk 'IOS_GESTURE_1107' assets/entry-music.js 5   # [IOS_GESTURE_1107] 아이폰 — 탭마다 공유 컨텍스트 resume + 무음 start · 늦은 곡 · «멈춤»에 시계 정지 0 · recSync 가 준비 중 장면을 안 걷음
+chk 'IOS_GESTURE_1107' assets/bgm-bed.js 2
+chk "function meUnlock()" assets/entry-music.js 1
+chk "function meUnlock()" assets/bgm-bed.js 1
+chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/entry-music.js 1
+chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/bgm-bed.js 1
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/entry-music.js 1   # touchend · click 잡기 단계 · 마이페이지 안에서만(둘 중 먼저 읽힌 파일이 건다)
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/bgm-bed.js 1
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/entry-music.js 1   # [IOS_GESTURE_1107 검토 G] 마이크가 열려 있으면 세션을 «재생»으로 안 바꾼다(_asPlay 와 같은 규칙)
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/bgm-bed.js 1
+chk "busy?(PW.slow?'연결이 느려요 · 잠시만요':'불러오는 중…')" assets/entry-music.js 1
+chk "if(AC&&AC.state!=='running'&&!D.hidden){ scHalt();" assets/entry-music.js 1
+chk "if (!(this.buffer && this.buffer.length <= 1)) window.__aud.push" scripts/audit/rec-song-ui.mjs 1
+chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
+chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
+nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것
+chk 'clear-head bgm-vol ios-gesture' .github/workflows/merge-guard.yml 1
 chk 'function volOne()' console.html 1
 chk 'wired = true; volOne();' console.html 1
 chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1
@@ -23071,3 +23099,5 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
+# ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
+chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1

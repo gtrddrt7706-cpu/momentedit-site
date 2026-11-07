@@ -2212,6 +2212,9 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 @media (hover:hover){.pvc-lk:hover{color:var(--accent);text-decoration-color:currentColor}}
 .pvc-foot{margin-top:14px}
 .pvc-a{color:var(--gold-deep);text-underline-offset:3px;white-space:nowrap}
+.pvc-feelin{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:8px;row-gap:2px;width:100%;min-height:44px;margin:0;padding:10px 0;border:0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);background:none;text-align:left;cursor:pointer;font:inherit;-webkit-tap-highlight-color:transparent}   /* [PV_ONE_WAY_1107] 필메이커 안내 한 줄 — 갈래 카드가 아니라 글 한 줄 + 보기 */
+.pvc-feelin span{font-family:var(--serif-ko);font-size:13px;line-height:1.7;color:var(--sub);word-break:keep-all}
+.pvc-feelin b{font-family:var(--serif-ko);font-size:13px;font-weight:500;line-height:1.7;color:var(--gold-deep);text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .cf-pvc{background:none;border:0;padding:12px 2px;margin:-12px 0;font:inherit;text-decoration:underline;cursor:pointer}   /* [PV_NOW_1106 M01] 확인서 안 글자 단추 — 줄 높이는 그대로 · 누르는 칸만 넓게 */
 /* ① 스타일 */
 .pvc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 14px}
@@ -11810,7 +11813,7 @@ function _snapAgreeOk(){   // [SNAP_CONSENT] 체크 줄이 없으면(이미 동�
   return false;
 }
 /* ★★[PV_CAT_1031 2026-10-31 사장님 «추천대로진행» · «켜도상관없어» · «지금은 실고객이없어»] 마이페이지 «식전 영상»
-   흐름 = 첫 화면(A안 · 사장님 확정) → 사진으로 만들기 4걸음(스타일 → 사진 → 음악 → 확인) · 준비한 영상 올리기(영상 보내기 → 확인) · 나중에 준비하기 · 사용하지 않기.
+   (옛 흐름 · 11/06 PV_FEEL_1106 · 11/07 PV_ONE_WAY_1107 로 바뀌었다) 흐름 = 첫 화면(A안 · 사장님 확정) → 사진으로 만들기 4걸음(스타일 → 사진 → 음악 → 확인) · 준비한 영상 올리기(영상 보내기 → 확인) · 나중에 준비하기 · 사용하지 않기.
    문구 = 비공개 기획서 11 · 11-1 · 11-2장(고객 입장 검토 4라운드 «개선점 없음»)과 시안 «식전영상 마이페이지 시안»(12장)의 말 그대로.
    저장 = 89_prevideo(pvSave · pvPhoto · pvThumbs) · 상태는 서버가 p.prevideo 로 보낸다(없으면 옛 GAS — 줄이 안 보인다).
    ★1차에서 뺀 것은 화면에도 두지 않는다(죽은 단추 금지) — 짧은 영상 · 인사 영상 · 큰 파일 올리기 · 문구 고치기 · 카톡 알림.
@@ -11901,7 +11904,7 @@ function _pvcScrOf(F){
   if(st==='review' || st==='done') return 'confirm';
   if(F.past) return 'locked';
   if(d.mode==='upload' && (st==='draft'||st==='editing')) return 'upload';
-  if(d.mode==='make' && (st==='draft'||st==='editing')) return 'start';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 초안 · 고치던 확정본 → 첫 화면(필메이커 · 준비한 영상) · 보낸 요청(만드는 중 · 확인)은 그대로
+  if(d.mode==='make' && (st==='draft'||st==='editing')) return 'start';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 초안 · 고치던 확정본 → 첫 화면(영상 올리기 하나 · PV_ONE_WAY_1107) · 보낸 요청(만드는 중 · 확인)은 그대로
   return 'start';
 }
 function startPvcFlow(v){
@@ -12039,29 +12042,37 @@ function renderPvc(){
   _pvcBind(inner);
   _wizPaintSoon();
 }
-/* ★★[PV_FEEL_1106 2026-11-06 사장님 «필메이커 길로 바꿔 두기»] 첫 화면 = «필메이커에서 만들기»(안내 화면 · 쿠폰으로 무료) + «준비한 영상 올리기».
+/* ★★[PV_FEEL_1106 2026-11-06 사장님 «필메이커 길로 바꿔 두기»] 첫 화면 = «필메이커에서 만들기»(안내 화면 · 쿠폰으로 무료) + «준비한 영상 올리기». ★11/07 PV_ONE_WAY_1107 로 «영상 올리기» 하나 + 필메이커 안내 한 줄이 됐다(아래 _pvcStart).
    자체 제작(«사진으로 만들기» · Remotion · PV_REMOTION_1101 보류) 입구는 접었다 — 되살리지 말 것(우리가 만들 수 없는 영상을 약속하는 단추가 된다).
    «필메이커에서 만들기»는 서버에 남기지 않는 안내 화면(scr 'feel')이다 — 서버 PV_MODES 는 make · upload 그대로라 GAS 재배포가 필요 없다.
-   완성본은 «준비한 영상 올리기»(링크)로 받는다. 쿠폰 코드는 디렉터가 보낸다(제휴 확정 뒤 · 지금은 오픈 전 재문의로 보류 · 조건은 비공개 docs).
+   완성본은 «영상 올리기»(링크)로 받는다. 쿠폰 코드는 디렉터가 보낸다(제휴 확정 뒤 · 지금은 오픈 전 재문의로 보류 · 조건은 비공개 docs).
    제작 대행 · USB 같은 추가 옵션은 고객이 필메이커에서 직접 결제(사장님 11/03). 사진 장수 · 길이는 템플릿을 따른다(PV_NO_LIMIT_1101). */
-var PVC_FEEL_ON=true;   // [PV_STATE_1106 M21 · D07 결정 대기] 제휴는 오픈 전 재문의(보류) — 안 되면 false 한 줄로 필메이커 길을 거둔다(첫 화면 = 준비한 영상 올리기만)
+var PVC_FEEL_ON=true;   // [PV_STATE_1106 M21 · D07 결정 대기] 제휴는 오픈 전 재문의(보류) — 안 되면 false 한 줄로 필메이커 길을 거둔다(첫 화면 = 안내 한 줄 없이 영상 올리기만 · 옛 말: 준비한 영상 올리기만)
 var PVC_FEEL_URL='https://www.feelmaker.co.kr/';
 var PVC_FEEL_PICKS=[];   // [PV_FEEL_1106] 우리 톤에 맞춰 고른 템플릿 [{n:'이름', u:'주소'}] — 고르면 채운다 · 비어 있으면 목록 줄을 두지 않는다(죽은 줄 금지)
 function _pvcStart(){
   var h='';
-  h+='<p class="pvc-eye">PRE-CEREMONY FILM</p><h2 class="pvc-h">어떻게 준비할까요?</h2><p class="pvc-sub pvc-when">여는 멘트 뒤, 입장 전에 한 번 상영해요.</p>';
-  h+='<div class="pvc-opts">'+(PVC_FEEL_ON?'<button type="button" class="pvc-opt" data-pvcgo="feel"><b>필메이커에서 만들기</b><span>템플릿을 골라 직접 만들기 · 쿠폰으로 무료</span></button>':'')
-    +'<button type="button" class="pvc-opt" data-pvcmode="upload"><b>준비한 영상 올리기</b><span>업체나 직접 만든 영상 · 링크로 보내기</span></button></div>';
+  /* ★★[PV_ONE_WAY_1107 2026-11-07 사장님 «어차피 필메이커에서 만들어 여기에 올리는 건 똑같잖아» · 대본 «한 갈래로»] 첫 화면은 «영상 올리기» 하나(아래 막대 · 식중과 같은 틀) —
+     필메이커는 갈래가 아니라 그 위 안내 한 줄(_pvcFeelIn · 누르면 안내 화면 → 끝에서 같은 올리기 화면). «필메이커에서 만들기 / 준비한 영상 올리기» 두 칸을 되살리지 말 것.
+     서버는 그대로다 — 필메이커 안내는 저장하지 않는 화면이고, 옛 저장값(방식 make · upload)은 읽기만 한다(_pvcMakeGone · PN07). */
+  h+='<p class="pvc-eye">PRE-CEREMONY FILM</p><h2 class="pvc-h">식전 영상을 보내 주세요</h2><p class="pvc-sub pvc-when">여는 멘트 뒤, 입장 전에 한 번 상영해요.</p>';
+  h+=_pvcFeelIn();
   h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-pvcop="later">나중에 준비하기</button><button type="button" class="pvc-lk" data-pvcop="off">사용하지 않기</button></div>';
-  h+='<div class="pvc-foot">'+_pvcNeed(_pvcMakeGone())+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots([PVC_FEEL_ON?'템플릿 비용 포함 · 추가 옵션 별도':'', _pvcConfLine(), _pvcDueLine(_pvcConfLine()?'':'기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
+  h+='<div class="pvc-foot">'+_pvcNeed(_pvcMakeGone())+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots(['업체나 직접 만든 영상을 링크로 보내 주세요', PVC_FEEL_ON?'템플릿 비용 포함 · 추가 옵션 별도':'', _pvcConfLine(), _pvcDueLine(_pvcConfLine()?'':'기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
+  h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'));   // [PV_ONE_WAY_1107] 큰 단추 하나
   return h;
 }
-/* [MID_VIDEO_1106] 식중 영상 첫 화면 — 식순에 없으면 «식순에서 넣기» 하나 · 켜져 있으면 «준비한 영상 올리기» + «식순에서 빼기»(둘 다 식순 화면의 «준비한 순서» 칸을 연다) */
+/* [PV_ONE_WAY_1107] 필메이커 안내 한 줄 — 식전 = 쿠폰으로 무료 · 식중 = 비용 말은 아래 점 줄이 한다 · PVC_FEEL_ON 이 꺼지면 줄째 없음 */
+function _pvcFeelIn(){
+  if(!PVC_FEEL_ON) return '';
+  return '<button type="button" class="pvc-feelin" data-pvcgo="feel"><span>아직 영상이 없으면 필메이커에서 템플릿으로 만들어요'+(PVCFLOW.kind==='mid'?'':'\u00a0·\u00a0쿠폰으로\u00a0무료')+'</span><b>만드는 법 보기</b></button>';
+}
+/* [MID_VIDEO_1106] 식중 영상 첫 화면 — 식순에 없으면 «식순에서 넣기» 하나 · 켜져 있으면 «영상 올리기» + 필메이커 안내 한 줄(PV_ONE_WAY_1107) + «식순에서 빼기»(둘 다 식순 화면의 «준비한 순서» 칸을 연다) */
 function _mvcStart(){
   var F=PVCFLOW, on=F.on===true, h='';
   h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「준비한 순서」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p>';
   if(on){
-    h+='<div class="pvc-subs"><button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>';
+    h+=_pvcFeelIn()+'<div class="pvc-subs"><button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>';   // [MID_FEEL_1107] 만드는 길 안내 · [PV_ONE_WAY_1107] 식전과 같은 한 줄
     h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['업체나 직접 만든 영상을 링크로 보내 주세요', '식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요', '제작 비용은 두 분 부담이에요 · 쿠폰 · 기본 템플릿은 식전 영상에만', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';
     h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'));   // [MID_VIDEO_1106 · 검토 1604] 꺼짐 · 켜짐 같은 틀(아래 막대 단추 하나)
     return h;
@@ -12077,7 +12088,7 @@ function _mvcToRitual(){   // [MID_VIDEO_1106] 식순 화면의 «준비한 순�
 function _pvcConfLine(){ var F=PVCFLOW, c=F.conf; if(!c || F.st==='off') return ''; if(F.kind==='mid' && F.on!==true) return '';   // [PN07_MAKE_RESUME · 검토 1609-1] 확정본이 있으면 첫 화면 · 올리기 화면에서도 «기존 확정본으로 진행»(확정 상태에서 와도) · «영상 없이»를 말하지 않는다
   return '새 영상을 다시 확정하기 전까지 기존 확정본으로 진행해요.'+(c.url?' <a class="pvc-a" href="'+escapeHtml(c.url)+'" target="_blank" rel="noopener">확정본 보기</a>':''); }
 function _pvcMakeGone(){ var F=PVCFLOW; if(!(F.d&&F.d.mode==='make'&&(F.st==='draft'||F.st==='editing'))) return '';   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기»로 시작한 분께 한 줄
-  return '사진으로 만들기는 이제 준비하지 않아요 · '+(PVC_FEEL_ON?'필메이커에서 만들거나 준비한 영상을 올려\u00a0주세요':'준비한 영상을 올려\u00a0주세요'); }   // 360 에서 «주세요» 한 낱말만 떨어지지 않게
+  return '사진으로 만들기는 이제 준비하지 않아요 · 완성한 영상을 «영상\u00a0올리기»로 보내\u00a0주세요'; }   // [PV_ONE_WAY_1107] 갈래 이름 대신 단추 이름   // 360 에서 «주세요» 한 낱말만 떨어지지 않게
 function _pvcLocked(){
   var F=PVCFLOW, h='<h2 class="pvc-h">확정 기한이 지났어요</h2><p class="pvc-sub">바꾸실 것은 디렉터에게 말씀해 주세요.</p>';
   if(F.kind==='mid' && F.on!==true) h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([_pvcNm()+' 없이 진행해요.'])+'</div>';   // [MID_VIDEO_1106 · 재검토 1604] 식순에 없으면 확정본이 있어도 «진행해요»를 말하지 않는다
@@ -12178,6 +12189,7 @@ function _pvcConfirm(){
   return h;
 }
 function _pvcFeel(){   // [PV_FEEL_1106] 필메이커 안내 — 네 걸음 · 이전 / 영상 올리러 가기
+  if(PVCFLOW.kind==='mid') return _mvcFeel();   // [MID_FEEL_1107] 식중은 쿠폰 없이 · 식순 길이에 맞춰
   var h='<h2 class="pvc-h">필메이커에서 만들기</h2><p class="pvc-sub">식전 영상 협력사 필메이커에서 템플릿을 골라 두 분이 직접 만들어요.</p>';
   h+='<ol class="pvc-feel">'
     +'<li><b>템플릿 고르기</b><span>필메이커 «식전영상»에서 마음에 드는 템플릿을 골라요. 사진 장수 · 길이는 템플릿마다 달라요.</span>'
@@ -12185,13 +12197,27 @@ function _pvcFeel(){   // [PV_FEEL_1106] 필메이커 안내 — 네 걸음 · �
       +'<a class="pvc-a pvc-feel-go" href="'+escapeHtml(PVC_FEEL_URL)+'" target="_blank" rel="noopener">필메이커 열기</a></li>'
     +'<li><b>쿠폰 넣기</b><span>쿠폰은 템플릿 비용에 적용돼요. 제작 대행 · USB 배송은 별도예요. 쿠폰 코드는 디렉터가 보내 드려요.</span></li>'   // [PV_STATE_1106 M21] 표 원문
     +'<li><b>만들고 내려받기</b><span>사진과 문구를 넣어 완성한 뒤 영상 파일을 내려받아요.</span></li>'
-    +'<li><b>여기로 보내기</b><span>«준비한 영상 올리기»에 링크로 보내 주시면 상영을 준비해요.</span></li></ol>';
+    +'<li><b>여기로 보내기</b><span>«영상 올리기»에 링크로 보내 주시면 상영을 준비해요.</span></li></ol>';   // [PV_ONE_WAY_1107] 첫 화면 단추 이름과 같게
   h+='<div class="pvc-foot">'+_pvcDots(['만드는 방법은 필메이커 고객센터에서 안내해요.', _pvcDueLine('')])+'</div>';   // [PV_STATE_1106 M21] «별도» 줄은 쿠폰 걸음에 한 번만(BOSS 3 · 중복 빼기)
   h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('영상 올리러 가기','data-pvcmode="upload"'));
   return h;
 }
+/* ★[MID_FEEL_1107 2026-11-07 대본 · 식중 영상 안내] 식중 영상의 필메이커 안내 — 비용은 두 분 부담(계약서 3조② 그대로 · 쿠폰 · 기본 템플릿은 식전 영상에만) · 길이는 식순에 정한 분 */
+function _mvcFeel(){
+  var n=(+PVCFLOW.len||3);
+  var h='<h2 class="pvc-h">필메이커에서 만들기</h2><p class="pvc-sub">영상 협력사 필메이커에서 템플릿을 골라 두 분이 직접 만들어요.</p>';
+  h+='<ol class="pvc-feel">'
+    +'<li><b>템플릿 고르기</b><span>식순에 정한 길이('+n+'분)에 맞는 템플릿을 골라요. 사진 장수 · 길이는 템플릿마다 달라요.</span>'
+      +'<a class="pvc-a pvc-feel-go" href="'+escapeHtml(PVC_FEEL_URL)+'" target="_blank" rel="noopener">필메이커 열기</a></li>'
+    +'<li><b>비용 확인</b><span>템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.</span></li>'
+    +'<li><b>만들고 내려받기</b><span>사진과 문구를 넣어 완성한 뒤 영상 파일을 내려받아요.</span></li>'
+    +'<li><b>여기로 보내기</b><span>«영상 올리기»에 링크로 보내 주시면 상영을 준비해요.</span></li></ol>';   // [PV_ONE_WAY_1107] 첫 화면 단추 이름과 같게
+  h+='<div class="pvc-foot">'+_pvcDots(['만드는 방법은 필메이커 고객센터에서 안내해요.', _pvcDueLine('')])+'</div>';
+  h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('영상 올리러 가기','data-pvcmode="upload"'));
+  return h;
+}
 function _pvcUpload(){
-  var F=PVCFLOW, h='<h2 class="pvc-h">'+(F.kind==='mid'?'식중 영상 올리기':'준비한 영상 올리기')+'</h2><p class="pvc-sub">보내 주신 영상은 길이 · 내용 · 소리 그대로 틀어요. 배경 음악은 영상에 넣어 주세요.</p>';   /* ★[PV_MYPAGE_1102 2026-11-02] 식순 링크 칸 아래 있던 «영상 소리 그대로 · 배경 음악은 영상에» 한 줄([BGM_R3_1023])을 받는 곳으로 옮겼다 */
+  var F=PVCFLOW, h='<h2 class="pvc-h">'+(F.kind==='mid'?'식중 영상 올리기':'식전 영상 올리기')+'</h2><p class="pvc-sub">보내 주신 영상은 길이 · 내용 · 소리 그대로 틀어요. 배경 음악은 영상에 넣어 주세요.</p>';   /* ★[PV_MYPAGE_1102 2026-11-02] 식순 링크 칸 아래 있던 «영상 소리 그대로 · 배경 음악은 영상에» 한 줄([BGM_R3_1023])을 받는 곳으로 옮겼다 */
   h+='<div class="pvc-up"><label for="mp_pvcLink" class="pvc-lab">링크로 보내기</label><input id="mp_pvcLink" class="cc-input" type="url" inputmode="url" maxlength="400" autocomplete="off" spellcheck="false" placeholder="구글 드라이브 · 업체 공유 링크" value="'+escapeHtml(F.d.link||'')+'">'
     +'<p class="pvc-help">원본 파일을 받을 수 있는 링크로 보내 주세요. 파일만 있으면 구글 드라이브에 올려 링크를 보내 주세요.</p></div>';
   h+='<div class="pvc-after"><p class="pvc-flow-h">보낸 뒤</p>'+_pvcDots(['스튜디오가 원본을 받아 재생을 확인하면 이 화면에서 보고 확정해 주세요.', F.kind==='mid'?('식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요'):'', _pvcConfLine(), _pvcDueLine('')])+'</div>';   // [PN07_MAKE_RESUME · 검토 1609] 확정 상태에서 와도 확정본 줄   // [MID_VIDEO_1106] 식중은 식순 길이 칸과 맞춘다   // [PV_STATE_1106 M09] 링크 칸에도 기한
