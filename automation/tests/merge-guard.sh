@@ -23173,3 +23173,26 @@ nochk "qk = 'RECQ_' + code," automation/platform/80_production.gs
 nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
 chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]
+# ★★[RA5_RULES 2026-11-07 규칙 감사 · 식순 엔진 몸(기술 수정만) · 재검증 재수정] 기준(무엇을 몇 초로 줄이나 · 본식 상한)은 그대로 — 알림 · 표시 · 미리 듣기 재현만
+#   ① [RA5_PREVIEW_FADE] 미리 듣기는 정적만 1.2초 · 음악 페이드는 4초까지 실제 값(편지 뒤 오르기 · 선언 앞 내리기가 툭 끊겼다) · 콘솔 그대로
+#   ② [RA5_TABLE_EACH] 콘솔 지문 «테이블마다 …» = tableSecOf 원천(줄었으면 «약 45초») · live.t 장면 열쇠는 그대로(tv 만)
+#   ③ [RA5_TABLE_NOTE] 글을 길게 써서 테이블 인사가 줄면 멈춘 뒤 · 칸을 떠날 때 아래 알림 한 번(_capNo 와 같은 문구 · 같은 값이면 다시 안 뜸)
+chk 'RA5_PREVIEW_FADE' assets/ritual-cue.js 2
+chk 'previewFadeMs: 4000,' assets/ritual-cue.js 1
+chk 'st.ms = Math.min(st.ms, PARAM.previewFadeMs)' assets/ritual-cue.js 1
+nochk 'st.ms = Math.min(st.ms, PARAM.previewWaitMs)' assets/ritual-cue.js   # 옛 페이드 1.2초 자름 — 되살리지 말 것
+chk 'RA5_PREVIEW_FADE' scripts/check-ritual-cue.js 1
+chk 'RA5_TABLE_EACH' assets/ritual-open.js 1
+chk 'tableEachTxt: tableEachTxt' assets/ritual-open.js 1
+chk 'RA5_TABLE_EACH' assets/ritual-cue.js 1
+chk "O.tableSecOf(S) : O.TABLE_SEC \\* O.tableN(S)), self: true,   /\\* ★\\[EVENT_COUNT_CAP 검토 183\\] 시간표 · 빌더와 같은 값(본식 상한을 넘는 드문 조합이면 그만큼 짧게) \\*/ doing: 'move', duck: -12," assets/ritual-cue.js 1   # [RA5_TABLE_KEEP] 테이블 인사 사람 순간 이동 · −12 (tv 를 더하다 통째로 빠졌던 줄 · 검토 R5-1)
+chk '_TBL.said=null; return; } if(cut<=from) return;' order-preview.html 1   # [RA5_TABLE_NOTE] 알린 분은 줄인 시간이 0 으로 돌아왔을 때만 지운다(검토 R5-2)
+nochk '_TBL.sc' order-preview.html   # 옛 재알림 규칙(덜 줄었던 때 → 같은 분 다시 알림) 되살리지 말 것
+chk 'function _tblSay(mn,T)' order-preview.html 1   # [RA5_TABLE_NOTE] 반올림한 분 = 원래 분이면 말 없음 · _capNo 도 같은 규칙(검토 R5-3)
+chk 'RA5_TABLE_NOTE' scripts/audit/body-cap.mjs 1
+chk 'RA5_TABLE_EACH' order-preview.html 1
+chk 'RA5_TABLE_NOTE' order-preview.html 4
+chk '_tblWatch(_tb0); };' order-preview.html 1
+chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
+chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ra5-rules.mjs >/dev/null 2>&1; _ra5=$?; node scripts/audit/ra5-rules.mjs --selftest >/dev/null 2>&1; _ra5s=$?; if [ "$_ra5" = 2 ]; then echo 'ok ra5-rules — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_ra5" != 0 ] || [ "$_ra5s" != 0 ]; then echo "REVERT? ra5-rules: 미리 듣기 페이드 · 테이블 인사 지문 · 줄임 알림이 어긋났습니다 ($_ra5/$_ra5s) — node scripts/audit/ra5-rules.mjs"; fail=1; else echo 'ok ra5-rules'; fi; fi
