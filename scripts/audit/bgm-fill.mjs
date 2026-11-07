@@ -121,6 +121,7 @@ try {
       await f.evaluate(() => { const A = BgmBed._t.AV; A.st = ''; A.set = {}; }); const rp = [];
       for (const [k, sg] of [['guest', 'M1'], ['table', 'M8']]) { await go(f, k); await wait(f, 500);
         const fs = await f.evaluate((sg) => [...document.querySelectorAll('.ls-bed[data-seg="' + sg + '"] li.mu-row[data-f]')].map((x) => x.getAttribute('data-f')), sg);
+        await pg.evaluate((fs) => { fs.forEach((x) => { if (H.have.indexOf(x) < 0) { H.have.push(x); H.songs[x] = H.songs.B01; } }); }, fs); await f.evaluate((fs) => { const A = BgmBed._t.AV; if (A.st === 'ok') fs.forEach((x) => { A.set[x] = 1; }); }, fs);   /* ★[REPEAT_FIX_1107] 빌려 온 곡 줄(B09 · B10 등)도 드라이브 목록에 있다고 둔다(목록을 다시 받지 않는다) */
         for (const x of fs) { await f.evaluate(({ sg, x }) => { const b = document.querySelector('.ls-bed[data-seg="' + sg + '"] [data-fk="bedp:' + sg + ':' + x + '"]'); if (b) b.click(); }, { sg, x }); await wait(f, 700);
           rp.push(await f.evaluate(({ sg, x }) => { const t = BgmBed._t; return { sg, x, f: t.CARD.f, st: t.CARD.st, who: t.BED.who, cur: t.BED.cur && t.BED.cur.f }; }, { sg, x })); }
         await f.evaluate(() => { try { BgmBed._t.CARD && document.querySelector('.mu-pl.on') && document.querySelector('.mu-pl.on').click(); } catch (e) {} }); await wait(f, 300); }

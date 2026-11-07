@@ -110,7 +110,7 @@ try {
     ok('①② 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } catch (e) { ok('①② 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })());
   if (want('3')) lanes.push((async () => { try { const { ctx, f, errs, setOn } = await prep();
     await setOn({ tribute: 1, table: 1, toast: 0, letter: 0, song: 0, free: 0 });
-    const r = await f.evaluate(async () => { const BB = BgmBed._t, H = window.parent.H, W = (ms) => new Promise((r) => setTimeout(r, ms)), f8 = ['B24', 'B13', 'B14'];   /* 테이블 곡(1순위 B23 은 시험 기기에 없어 대신 B24 · 그 뒤 곡도) */
+    const r = await f.evaluate(async () => { const BB = BgmBed._t, H = window.parent.H, W = (ms) => new Promise((r) => setTimeout(r, ms)), f8 = [...new Set(['B24', 'B13', 'B14'].concat(((BB.plan(true) || {}).M8 || {}).list || [], ((BB.plan(false) || {}).M8 || {}).list || [], window.parent.H.have.filter((x) => x !== 'B15')))];   /* 테이블 곡 — ★[REPEAT_FIX_1107] 계획이 빌려 온 곡까지 전부 늦춘다(원곡 len 으로 목록이 길어졌다) */
       f8.forEach((x) => { H.dly[x] = 60000; delete BB.BUF[x]; });
       LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['tribute', 'table'], true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; });
       let tIn = null, o = []; for (let k = 0; k < 600; k++) { await W(100); const st = LP.q[LP.i], v = BB.BED.cur; if (st && st.k === 'table' && tIn == null) tIn = k; if (tIn != null) o.push({ t: (k - tIn) / 10, f: v && v.f, want: v && v.want, on: !!(v && v.src && v.want > -60), note: BB.LPB.note || '' }); if (tIn != null && k - tIn > 260) break; }
