@@ -117,6 +117,14 @@ try {
       try { opPvClose(); } catch (e) {} await w(300);
       cl('[data-fk="pto:free"]'); await w(1200); out.pvSp = pv ? { t: (pv.querySelector('#pvT') || {}).textContent, act: (pv.querySelector('#pvAct') || {}).textContent, line: (typeof _pvLine === 'function' && _pvLine(PV.k)) || null } : null;
       try { opPvClose(); } catch (e) {} await w(300);
+      /* [MID17_FREE_BACK] 이번 방문에 뺀 칸을 다시 담으면 뺄 때 갈래 · 칸을 지정하면 그 칸 갈래 · 처음 담는 축사 칸은 축사 */
+      const fw = () => ({ on: !!(S.on && S.on.free), w: S.freeWhat, etc: S.freeEtc || '', n: (tile('free') || {}).n });
+      window._freeWas = null; S.on = { free: 1 }; S.freeWhat = 'etc'; S.freeEtc = '형제 깜짝 영상편지'; opSync(); await w(150);
+      await tap('free'); out.fbOff = fw(); await tap('free'); out.fbEtc = fw();
+      await tap('free'); await tap('midvid'); out.fbMv = fw();
+      await tap('midvid'); await tap('free'); out.fbSp = fw();
+      await tap('free'); await tap('midvid'); await tap('midvid'); try { lsAdd('free'); } catch (e) { out.fbErr = e.message; } await w(200); out.fbLs = fw();
+      try { opGoStep('pick'); } catch (e) {} window._freeWas = null; S.on = {}; S.freeWhat = 'video'; opSync(); await w(200); await tap('free'); out.fbFirst = fw();
       return out; });
     ok(W + ' [MID17_TILE] 마음의 순간 = 덕담 · 축사 · 식중 영상 · 축가 · 편지', JSON.stringify(r.heart) === JSON.stringify(['부모님 덕담', '축사', '식중 영상', '축가', '편지 낭독']), r.heart);
     ok(W + ' [MID17_TILE] 식중 영상 칸 이름 · 칸 글 두 줄 안(잘림 없음)', !!r.mv0 && r.mv0.n === '식중 영상' && /영상/.test(r.mv0.s) && r.mv0.lines >= 1 && r.mv0.lines <= 2 && r.mv0.clip <= 1, r.mv0);
@@ -130,6 +138,10 @@ try {
     ok(W + ' [MID17_TILE] 미리 보기 창 = 식중 영상 판(이름 · 설명 · 대표 나레이션 58 · 장면 영상 free.mp4)', !!r.pv && r.pv.t === '식중 영상' && /영상/.test(r.pv.q) && !/축하의 말/.test(r.pv.q) && !!r.pv.line && r.pv.line.text === FREE_IN && /\/free\.mp4/.test(r.pv.vid), r.pv);
     ok(W + ' [MID17_TILE] 창 «이 순간 담기» → 식중 영상 담김 · 창이 «✓ 담겨 있어요»', r.pvAddSt.on && r.pvAddSt.w === 'video' && /담겨 있어요/.test(r.pvAct2 || ''), { st: r.pvAddSt, a: r.pvAct2 });
     ok(W + ' [MID17_TILE] 영상 날 축사 칸 창 = 축사 판(안 담김 · 대표 나레이션은 축사 여는 말)', !!r.pvSp && r.pvSp.t === '축사' && /이 순간 담기/.test(r.pvSp.act || '') && !!r.pvSp.line && r.pvSp.line.text !== FREE_IN, r.pvSp);
+    ok(W + ' [MID17_FREE_BACK] 옛 기타(이름 «형제 깜짝 영상편지»)를 빼고 축사 칸으로 다시 담으면 기타 그대로(이름 «준비한 순서»)', !r.fbOff.on && r.fbEtc.on && r.fbEtc.w === 'etc' && r.fbEtc.etc === '형제 깜짝 영상편지' && r.fbEtc.n === '준비한 순서', { off: r.fbOff, back: r.fbEtc });
+    ok(W + ' [MID17_FREE_BACK] 칸을 지정하면 그 칸 갈래 — 기타를 빼고 식중 영상 칸 = video · 식중 영상을 빼고 축사 칸 = speech', r.fbMv.on && r.fbMv.w === 'video' && r.fbSp.on && r.fbSp.w === 'speech', { mv: r.fbMv, sp: r.fbSp });
+    ok(W + ' [MID17_FREE_BACK] 식중 영상을 빼고 ② «담지 않은 순간»에서 다시 담으면 식중 영상 그대로', !r.fbErr && r.fbLs.on && r.fbLs.w === 'video', { ls: r.fbLs, e: r.fbErr });
+    ok(W + ' [MID17_FREE_BACK] 이번 방문에 뺀 적 없으면 축사 칸은 늘 축사(SPEECH_TILE_1012 · 남은 freeWhat video 무시)', r.fbFirst.on && r.fbFirst.w === 'speech', r.fbFirst);
     if (SHOT) { await pg.evaluate(async () => { S.on = { bless: 1, free: 1, song: 1 }; S.freeWhat = 'video'; opSync(); }); await wait(400);
       const h = await pg.$('.pk-act:nth-of-type(3)'); fs.mkdirSync(SHOT, { recursive: true }); if (h) { await h.scrollIntoViewIfNeeded(); await wait(500); await h.screenshot({ path: path.join(SHOT, `pick-heart-${W}.png`) }); } }
 

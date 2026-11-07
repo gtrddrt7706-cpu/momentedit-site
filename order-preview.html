@@ -4400,6 +4400,13 @@ function _pkV(k){ var R=RitualOpen, t;
   if(k===MIDV){ t=JSON.parse(JSON.stringify(S)); t.on=t.on||{}; t.on.free=1; t.freeWhat='video'; return {k:'free',S:t,on:_mvOn()}; }
   if(k==='free'&&!(R.onOf(S,'free')&&_mvKind()!=='video')){ t=JSON.parse(JSON.stringify(S)); t.on=t.on||{}; delete t.on.free; t.freeWhat='speech'; return {k:'free',S:t,on:false}; }   /* 식중 영상이 담긴 날 · 안 담긴 날 축사 칸은 축사 판으로(영상 날에도 축사 칸이 켜져 보이지 않게) */
   return {k:k,S:S,on:R.onOf(S,k)}; }
+/* ★★[MID17_FREE_BACK 2026-11-07 대본 · 재검증 재수정] 이번 방문(이 쪽을 연 동안)에 뺀 free 칸을 다시 담으면 뺄 때의 갈래(축사 · 식중 영상 · 옛 선물 · 기타 · 그 이름 freeEtc 는 S 에 그대로)를 되살린다.
+   종전엔 다시 담으면 늘 축사(SPEECH_TILE_1012 의 «새로 담는 칸은 축사»가 «되담기»까지 덮었다). 처음 담는 축사 칸은 그대로 축사 ·
+   칸을 지정해 담으면 그 칸 갈래가 이긴다 — 축사 칸으로 다시 담는데 뺀 것이 식중 영상이면 축사 · 식중 영상 칸은 늘 video · 칸 없이 다시 담기(② «담지 않은 순간» · 흐름)는 뺀 갈래 그대로.
+   기억은 이 쪽에만(저장 · 새로고침에 안 남는다) · 예시를 고르면 지운다 · 검사 mid17-pick.mjs */
+var _freeWas=null;
+function _freeOff(){ _freeWas=S.freeWhat||null; }
+function _freeBack(tile){ var R=RitualOpen, w=_freeWas, kd=w&&R.FREE_KIND[w]; if(tile==='video') return 'video'; if(!kd) return 'speech'; if(tile==='speech'&&kd==='video') return 'speech'; return w; }
 var MID_SWAP={video:'축사 대신 식중 영상을 담았어요',other:'식중 영상으로 바꿔 담았어요',speech:'식중 영상 대신 축사를 담았어요'};   /* [TOAST_MIN] 셋 다 20자 안(17 · 13 · 17 · mid17-pick 이 잰다) */
 function _mvSwap(to){ var R=RitualOpen, from=_mvKind();
   if(_capNo(function(t){ t.freeWhat=to; },true,'free')) return;   /* 같은 한 칸이라 개수는 그대로 · 길이 셈(본식 상한)만 다시 잰다 */
@@ -4407,10 +4414,10 @@ function _mvSwap(to){ var R=RitualOpen, from=_mvKind();
   var msg=to==='video'?(from==='speech'?MID_SWAP.video:MID_SWAP.other):MID_SWAP.speech;
   _pkMsg=msg+' · '+R.spanText(S); opSync(); if(PV.k) _pvActs(); _pkUndo(msg); }
 function _mvTgl(){ var R=RitualOpen; if(!S.on) S.on={};
-  if(_mvOn()){ delete S.on.free; _mkForget(['free']); _opPrev=null; _pkUndo(''); _pkMsg=R.MID_NAME+'을 뺐어요'+(R.picked(S).length?' · '+R.spanText(S):''); opSync(); if(PV.k) _pvActs(); return; }
+  if(_mvOn()){ _freeOff(); delete S.on.free; _mkForget(['free']); _opPrev=null; _pkUndo(''); _pkMsg=R.MID_NAME+'을 뺐어요'+(R.picked(S).length?' · '+R.spanText(S):''); opSync(); if(PV.k) _pvActs(); return; }
   if(R.onOf(S,'free')){ _mvSwap('video'); return; }
   if(_capNo(function(t){ t.on.free=1; t.freeWhat='video'; },true,'free')) return;   /* 개수(본식 6 · 긴 순간 3) · 본식 상한 — 다른 칸과 같은 길 */
-  S.on.free=1; S.freeWhat='video'; _mkForget(['free']); _opPrev=null; _pkUndo(''); _pkMsg=R.MID_NAME+'을 담았어요 · '+R.spanText(S); opSync(); if(PV.k) _pvActs(); }
+  S.on.free=1; S.freeWhat=_freeBack('video'); _freeWas=null; _mkForget(['free']); _opPrev=null; _pkUndo(''); _pkMsg=R.MID_NAME+'을 담았어요 · '+R.spanText(S); opSync(); if(PV.k) _pvActs(); }
 /* ① 칸 · 미리 보기 창의 ＋ · ✓ · 빼기 — 식중 영상 칸 · 영상 날의 축사 칸은 바꿔 담기 · 나머지는 opTgl 그대로(② 흐름 빼기는 opTgl 을 바로 부른다 · 바꿔 담지 않는다) */
 /* ★[MID17_AT 2026-11-07] at:'midvideo' — 식중 영상이 담겨 있으면 ② 그 칸(길이) · 안 담겼으면 ① 식중 영상 칸으로 내려가 한 번 깜빡(② «다시 담았어요» 줄과 같은 빛 · lsAdd) */
 function _midAt(){
@@ -4419,8 +4426,8 @@ function _midAt(){
   if(!(STEPS[idx]&&STEPS[idx].k==='pick')) opGoStep('pick'); else render();
   setTimeout(function(){ var b=document.querySelector('[data-fk="pto:'+MIDV+'"]'), t=b&&b.closest('.pk-tile'); if(!t) return;
     try{ t.scrollIntoView({block:'center',behavior:_rm()?'auto':'smooth'}); }catch(e){} t.classList.remove('pk-flash'); void t.offsetWidth; t.classList.add('pk-flash'); setTimeout(function(){ t.classList.remove('pk-flash'); },1600); },120); }
-window.opPkTgl=function(k){ if(k===MIDV){ _mvTgl(); return; } if(k==='free'&&_mvOn()){ _mvSwap('speech'); return; } opTgl(k); };
-window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var _nm0=RitualOpen.nameOf(k,S);   /* [MID17_TILE] 빼기 알림은 뺀 «그» 이름(영상 날 free = 식중 영상) */ var _cxT=RitualOpen.crossTribute(S), _cxM=MK.toast, _cxG=MK.toastGo; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; try{ _crossWatch(_cxT); if(MK.toast&&MK.toast!==_cxM){ MK.toast=_cxM; MK.toastGo=_cxG; setTimeout(function(){ _noteToast('부모님께 인사 대상이 바뀌었어요'); },60); } }catch(e){}   /* ★[CROSS_NOW_1031 식순 걷기 3라운드 5] ① 에서 바꾼 그 자리에서 한 번 — ② 까지 들고 가지 않는다 */   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on,_nm0); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
+window.opPkTgl=function(k){ if(k===MIDV){ _mvTgl(); return; } if(k==='free'&&_mvOn()){ _mvSwap('speech'); return; } opTgl(k,1); };   /* [MID17_FREE_BACK] 칸을 지정해 담음 */
+window.opTgl=function(k,tile){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; var _fb=k==='free'?_freeBack(tile?'speech':''):'';   /* [MID17_FREE_BACK] tile = ① 축사 칸 · 창에서 담음(opPkTgl) · 없으면 ② 흐름 */ if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat=_fb; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var _nm0=RitualOpen.nameOf(k,S);   /* [MID17_TILE] 빼기 알림은 뺀 «그» 이름(영상 날 free = 식중 영상) */ var _cxT=RitualOpen.crossTribute(S), _cxM=MK.toast, _cxG=MK.toastGo; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; try{ _crossWatch(_cxT); if(MK.toast&&MK.toast!==_cxM){ MK.toast=_cxM; MK.toastGo=_cxG; setTimeout(function(){ _noteToast('부모님께 인사 대상이 바뀌었어요'); },60); } }catch(e){}   /* ★[CROSS_NOW_1031 식순 걷기 3라운드 5] ① 에서 바꾼 그 자리에서 한 번 — ② 까지 들고 가지 않는다 */   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free'){ S.freeWhat=_fb; _freeWas=null; } else if(!on&&k==='free') _freeOff();   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 · ★[MID17_FREE_BACK] 이번 방문에 뺀 칸은 뺄 때 갈래로 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on,_nm0); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
 /* ★★[COMBO_171_1030 검토 171 C01] 인사 받는 분이 칩 하나로 바뀌는 자리(편지 «각자 부모님께» ↔ 다른 판 · 인사 말의 판) — 적어 둔 인사말이 있으면 바뀐 순간 한 줄 + 인사 칸으로 · 글은 지우지 않는다
    (종전엔 순간 빼기 · 다시 담기(mkDrop · mkUndrop)만 알렸다) */
 function _crossWatch(c0){ try{ var R=RitualOpen, c1=R.crossTribute(S), tx=S.tx||{}; if(c0===c1||!String(tx['tribute.g']||tx['tribute.b']||S.tributeText||'').trim()) return; MK.toast='인사 대상이 '+(c1?'서로의 부모님':'각자 부모님')+'으로 바뀌었어요 · 적어 두신 글을 확인해 주세요'; MK.toastGo='tribute'; }catch(e){} }
@@ -4460,7 +4467,7 @@ window.opEx=function(k){
      종전엔 같은 예시를 다시 누르면 아무것도 안 했다 — 그래서 «빈 칸에서 직접 고를게요» 링크가 따로 있었다(그 링크는 뺐다 · 이 동작이 대신한다). */
   if(R.sameAsExample(S,k)){ _opPrev=_pkSnap(); S.on={}; delete S.pickFrom; _mkForget(); _pkMsg='‹'+ex.nm+'› 예시를 뺐어요'; _fxNext='[data-fk="opx:'+k+'"]'; opSync(); _pkUndo('‹'+ex.nm+'› 예시를 뺐어요'); return; }   /* [QA_FX_ORDER] 그리기 전에 — 뒤에 걸면 다음 ＋ 가 포커스를 이 카드로 끌어왔다 */
   _opPrev=_pkSnap();   // 빈 채에서 시작해도 되돌리기가 뜬다(빈 칸으로 돌아간다)
-  R.applyExample(S,k); _mkForget(); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · '+R.spanText(S);   /* [TABLE_APART] */   /* [MOOD_1018] 분위기를 고른 채 코스를 바꾸면 분위기 값을 다시 입힌다 */
+  _freeWas=null;   /* [MID17_FREE_BACK] 예시가 갈래를 다시 정한다 */ R.applyExample(S,k); _mkForget(); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · '+R.spanText(S);   /* [TABLE_APART] */   /* [MOOD_1018] 분위기를 고른 채 코스를 바꾸면 분위기 값을 다시 입힌다 */
   opSync(); _pkUndo('‹'+ex.nm+'› 예시로 바꿨어요');
 };
 window.opBlank=function(){
@@ -8201,17 +8208,18 @@ function _lHush(k,hold){
 window.lsRemove=function(k){
   var _at=_lRows().indexOf(k), _nmR=_lName(k), _mvR=(k==='free'&&_mvOn());   // [RIT_UNDO_INPLACE] 빼기 전 자리 · [MID17_TILE] 빼기 전 이름(영상 날 free = 식중 영상)
   if(LP.cur===k) lsStop();
-  if(RitualOpen.onOf(S,k)){ S.on[k]=0; delete S.on[k]; }
+  if(RitualOpen.onOf(S,k)){ if(k==='free') _freeOff();   /* [MID17_FREE_BACK] */ S.on[k]=0; delete S.on[k]; }
   LS.open=null; LS.undo={k:k,at:_at}; _fxNext='[data-fk="lsundo"]';   // [A11Y_FOCUS] · [RIT_UNDO_INPLACE] 뺀 자리(at)를 적어 둔다
   LS.msg='«'+_nmR+'»'+_josa(_nmR,'을','를')+' 뺐어요. '+(_mvR?'«순간 더하고 빼기»에서':'아래 «담지 않은 순간»에서')+' 다시 담을 수 있어요.';   /* [MID17_TILE] 담지 않은 순간의 그 칸은 축사로 담긴다 — 식중 영상은 ① 칸에서 */   // [FREE_BACK_WORD 코워크 추가 점검 P2-6] · ★[SPEECH_TILE_1012] 축사도 다른 순간과 같은 길
   opSync();   // [OP_SYNC_ALL]
 };
 window.lsUndo=function(){ var u=LS.undo; if(!u) return; _fxNext='[data-fk="lsm:'+u.k+'"]'; S.on[u.k]=1; LS.undo=null; LS.msg='«'+_lName(u.k)+'»'+_josa(_lName(u.k),'을','를')+' 다시 담았어요.'; LS.flash=u.k; opSync(); _lScrollTo(u.k); };   // [OP_SYNC_ALL]
 window.lsAdd=function(k){
-  if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; },true)) return;   /* [BODY_CAP_1030] */
+  var _fb=k==='free'?_freeBack(''):'';   /* [MID17_FREE_BACK] ② 다시 담기 = 뺀 갈래 그대로(처음이면 축사) */
+  if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat=_fb; },true)) return;   /* [BODY_CAP_1030] */
   if(LP.cur===k) lsStop();
   _fxNext='[data-fk="lsm:'+k+'"]';   // [A11Y_FOCUS]
-  S.on[k]=1; if(k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] */ LS.open=k; LS.flash=k; LS.undo=null;
+  S.on[k]=1; if(k==='free'){ S.freeWhat=_fb; _freeWas=null; }   /* ★[SPEECH_TILE_1012] · [MID17_FREE_BACK] */ LS.open=k; LS.flash=k; LS.undo=null;
   var pos=RitualOpen.bodySeq(S).indexOf(k)+1;
   LS.msg='«'+_lName(k)+'»'+_josa(_lName(k),'을','를')+' '+pos+'번째에 담았어요.';
   opSync(); _lScrollTo(k); _thanksDupToast(k);   // ★[OP_SYNC_ALL 코워크 추가 점검 P1-3] 종전 buildSteps · render 만 — S.bless 가 'off' 로 남아 요약 흐름에서 덕담 · 반지가 빠졌다

@@ -4801,6 +4801,7 @@ chk 'MID17_NAME' order-preview.html 1
 chk 'MID17_PREP' assets/ritual-open.js 1
 chk 'MID17_LEN' order-preview.html 2
 chk 'MID17_AT' order-preview.html 3
+chk 'MID17_FREE_BACK' order-preview.html 7   # [MID17_FREE_BACK 2026-11-07 대본] 이번 방문에 뺀 free 칸은 다시 담으면 뺄 때 갈래(칸을 지정하면 그 칸 · 처음 담는 축사 칸은 축사)
 chk 'MID17_PICK' scripts/audit/mid17-pick.mjs 1
 chk 'window.opPkTgl=function(k)' order-preview.html 1   # [MID17_TILE] ① 칸 · 창의 담기는 이 길(바꿔 담기) · ② 흐름 빼기는 opTgl 그대로
 chk "MID_NAME = '식중 영상'" assets/ritual-open.js 1
