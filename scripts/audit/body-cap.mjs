@@ -56,7 +56,7 @@ try {
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(900);
     const r = await pg.evaluate(async () => { const R = RitualOpen, out = {}, w = (ms) => new Promise((x) => setTimeout(x, ms));
       const ask = () => { const d = document.querySelector('.ord-ask'); const t = d ? d.textContent : ''; const y = document.querySelector('.ord-ask button'); if (y) y.click(); return t; };
-      const add = (k) => { document.querySelectorAll('.ord-ask').forEach((e) => e.remove()); const b = JSON.stringify(S.on); opTgl(k); const t = ask(); return { k, added: JSON.stringify(S.on) !== b, t }; };
+      const add = (k) => { document.querySelectorAll('.ord-ask').forEach((e) => e.remove()); try { _lsToastOff(); } catch (e) {} const b = JSON.stringify(S.on); opTgl(k); const t = ask(); const u = document.getElementById('lsToast'), tt = u && !u.hidden ? u.textContent : ''; return { k, added: JSON.stringify(S.on) !== b, t, tt }; };   /* [PICK_TOAST_1107] 개수 한도는 창이 아니라 아래 알림(tt) */
       const set = (ks) => { R.applyExample(S, 'brief'); S.on = { prevideo: 1 }; ks.forEach((k) => { S.on[k] = 1; }); opSync(); };
       try { opGoStep('pick'); } catch (e) {} await w(300);
       /* 6개(긴 3) 다음 7번째 */
@@ -81,9 +81,9 @@ try {
       R.applyExample(S, 'family'); S.on.ring = 1; S.on.free = 1; opSync(); try { opGoStep('pick'); } catch (e) {} render(); await w(200);
       out.over = [...document.querySelectorAll('.pk-left')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.textContent);
       return out; });
-    ok(W + ' 7번째 담기 → 막힘 «본식 순간은 6개까지예요»', !r.seven.added && /본식 순간은 6개까지예요/.test(r.seven.t) && !/덜어 주세요/.test(r.seven.t), JSON.stringify(r.seven));
-    ok(W + ' 긴 순간 넷째 → 막힘 «긴 순간은 3개까지예요»', !r.long4.added && /긴 순간은 3개까지예요/.test(r.long4.t), JSON.stringify(r.long4));
-    ok(W + ' 긴 둘 + 테이블 인사(= 2) → 막힘 «긴 순간은 3개까지예요 … 테이블 인사는 2개로»', !r.tbl.added && /긴 순간은 3개까지예요/.test(r.tbl.t) && /테이블 인사는 2개로/.test(r.tbl.t), JSON.stringify(r.tbl));
+    ok(W + ' 7번째 담기 → 막힘 · 아래 알림 «본식 순간 6개가 다 찼어요»(창 없음 · PICK_TOAST_1107)', !r.seven.added && !r.seven.t && r.seven.tt === '본식 순간 6개가 다 찼어요', JSON.stringify(r.seven));
+    ok(W + ' 긴 순간 넷째 → 막힘 · 아래 알림 «긴 순간 3개가 다 찼어요»', !r.long4.added && !r.long4.t && r.long4.tt === '긴 순간 3개가 다 찼어요', JSON.stringify(r.long4));
+    ok(W + ' 긴 둘 + 테이블 인사(= 2) → 막힘 · 아래 알림 «테이블 인사는 긴 순간 2개로 세요»', !r.tbl.added && !r.tbl.t && r.tbl.tt === '테이블 인사는 긴 순간 2개로 세요', JSON.stringify(r.tbl));
     ok(W + ' 규칙 안인데 넘는 조합 → 담김 · 테이블 인사 자동 맞춤 · 한 줄 «테이블 인사를 약 n분으로 맞췄어요»', r.fit.added && !r.fit.t && r.fitCut > 0 && !!r.toast, JSON.stringify({ fit: r.fit, cut: r.fitCut, toast: r.toast }));
     ok(W + ' 규칙 안 짧은 순간 담기는 된다(창 없음)', r.free.added && !r.free.t, JSON.stringify(r.free));
     ok(W + ' 길이 칩(축사 10분)이 넘으면 막고 할 일을 말한다 «이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요»', r.len.v === '3' && /이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요/.test(r.len.t) && !/분 덜어/.test(r.len.t), JSON.stringify(r.len));

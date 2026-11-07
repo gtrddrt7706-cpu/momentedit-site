@@ -1465,6 +1465,7 @@ body.lsfull{overflow:hidden}
 .pk-fixmk{position:absolute;top:0;right:0;width:44px;height:44px;display:grid;place-items:center;pointer-events:none}
 .fixmk{display:grid;place-items:center;box-sizing:border-box;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink2);background:rgba(255,255,255,.96)}
 .fixmk::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--ink2)}
+.pk-tile .pk-fixmk{pointer-events:auto}   /* [PICK_TOAST_1107] ① 칸의 ● 늘 포함 표를 누르면 «‹입장›은 늘 포함돼요» — 종전엔 누름이 칸(미리 보기)으로 지나갔다 · ✓ ＋ 자리와 같은 44 칸 */
 .cf-r.off>:not(.cf-mk):not(.cf-dot){opacity:.4}
 .cf-r.off .cf-dot::after{opacity:.6}
 .mk-vguide{margin:0 0 14px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}   /* [VOICE_GUIDE] 목록 위 접이 한 줄 */
@@ -4438,14 +4439,34 @@ function _prepKeep(k,fn){ var R=RitualOpen, li=function(){ return (R.prepOf(k,S)
 function _capNo(mut,add,k){ var R=RitualOpen; if(!R||!R.capOver||!isOpen()) return false; var t; try{ t=JSON.parse(JSON.stringify(S)); t.on=t.on||{}; mut(t); }catch(e){ return false; }
   /* ★★[EVENT_COUNT_CAP 검토 183] 담기 — 먼저 개수 규칙(본식 순간 6 · 긴 순간 3 · 테이블 인사 = 2) · 그 안에서는 자유(넘는 드문 조합은 엔진이 테이블 인사를 줄인다 · 한 줄 알림) ·
      길이 칩 — 줄이기 전 값(raw)으로 재서 넘으면 «다른 순간을 하나 빼거나 ○○을 짧게» 창 */
-  if(add&&R.countNo){ var cn=R.countNo(S,t); if(cn){ try{ ordTell({title:R.COUNT_MSG[cn].title, body:R.COUNT_MSG[cn].body}); }catch(e){} return true; } }
+  if(add&&R.countNo){ var cn=R.countNo(S,t); if(cn){ _noteToast(_pkCapSay(cn,S,t)); return true; } }   /* ★[PICK_TOAST_1107] 개수 한도는 창(ordTell · COUNT_MSG) 대신 아래 알림 한 줄 — 누를 때마다 아래 작은 안내(사장님 덧 9) · 본식 길이 상한(capOver) 창은 그대로 */
   if(R.capOver(S,t,!add)){ try{ var cm=R.capMsg?R.capMsg(t,add,k):R.CAP_MSG; ordTell({title:cm.title, body:cm.body}); }catch(e){} return true; }
   if(R.tableCut&&R.tableCut(t)>R.tableCut(S)){ var mn=Math.round(R.tableSecOf(t)/60); setTimeout(function(){ _noteToast('테이블 인사를 약 '+mn+'분으로 맞췄어요'); },120); }
   return false; }   /* [CAP_NEED_1031] add = 순간 담기 · 아니면 칩 · 길이(k = 그 순간) */
 /* [EVENT_COUNT_CAP] 카운터 한 줄 — 남은 개수만(분 숫자 없음) · ① 순간 더하고 빼기 · ② 모든 순간 보기 · ③ 한눈에 보기 */
 function _cntLine(cls){ var R=RitualOpen; if(!R||!R.countOf||!isOpen()) return ''; var c=R.countOf(S);
   return '<p class="pk-cnt '+cls+'" data-fk="pkcnt:'+cls+'">고른 본식 순간 <b>'+c.n+'</b>/'+c.max+' · 긴 순간 <b>'+c.long+'</b>/'+c.longMax+'</p>'; }
-window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var _cxT=RitualOpen.crossTribute(S), _cxM=MK.toast, _cxG=MK.toastGo; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; try{ _crossWatch(_cxT); if(MK.toast&&MK.toast!==_cxM){ MK.toast=_cxM; MK.toastGo=_cxG; setTimeout(function(){ _noteToast('부모님께 인사 대상이 바뀌었어요'); },60); } }catch(e){}   /* ★[CROSS_NOW_1031 식순 걷기 3라운드 5] ① 에서 바꾼 그 자리에서 한 번 — ② 까지 들고 가지 않는다 */   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
+/* ★★[PICK_TOAST_1107 덧 9 · 사장님 «체크를 풀고 더하고 할 때 창 아래 작게 안내 문구가 같이 나오면 좋겠어»] ✓ 풀기 · ＋ 담기 · ● 늘 포함을 누를 때마다 아래 알림 한 줄(_noteToast · NOTE_TOAST 와 같은 브라운 알약 · 3초 · 하나만 · 아래 막대 위)
+   ① 칸 · ① 미리 보기 창 · ② 예식 흐름 줄이 모두 opTgl 한 길을 지난다 · 시간 차이 = 본식 가운데 값(span.midMin · 테이블 인사 몫은 뺀 값) 전후 차 반올림 · 0 이면 시간 없음
+   글은 [TOAST_MIN] 20자 안 · «·» 한 번 — 긴 이름(부모님께 인사 · 부모님 덕담)은 «본식»을 빼고 «+n분»만 · 화면 읽기는 _pkMsg(«… 담았어요 · 본식 약 …»)가 읽으므로 이 알림은 조용히(hush)
+   ★«되돌리기» 단추는 붙이지 않는다 — [UNDO_OFF 2026-09-28 사장님 «되돌리기는 삭제 · 확인 문구만»] · 다시 ＋ 를 누르는 것이 되돌리는 길 · scripts/audit/pick-toast.mjs */
+function _pkFit(t){ return String(t).replace(/[«»‹›「」]/g,'').length<=20; }
+function _pkTgSnap(){ var R=RitualOpen, on={}; try{ R.ORDER.forEach(function(x){ if(R.onOf(S,x)) on[x]=1; }); }catch(e){} var m=0; try{ m=R.span(S).midMin; }catch(e){} return {on:on,m:m}; }
+function _pkTgSay(k,on,b){ var R=RitualOpen, nm=R.nameOf(k,S), a=_pkTgSnap(), gone=Object.keys(b.on).filter(function(x){ return x!==k&&!a.on[x]; });
+  if(on&&gone.length){ var g=R.nameOf(gone[0],S), t='‹'+nm+'›'+_josa(nm,'을','를')+' 담아서 ‹'+g+'›'+_josa(g,'은','는')+' 빠졌어요'; return {t:_pkFit(t)?t:'‹'+g+'›'+_josa(g,'은','는')+' 함께 빠졌어요',say:1}; }   /* 엔진이 함께 빼는 것(택1)이 생기면 그 이름까지 */
+  var s='‹'+nm+'›'+_josa(nm,'을','를')+(on?' 담았어요':' 뺐어요'), d=Math.round(a.m-b.m); if(!d) return {t:s};
+  var n=(d>0?'+':'−')+Math.abs(d)+'분', t1=s+' · 본식 '+n; return {t:_pkFit(t1)?t1:s+' · '+n}; }
+function _pkTgToast(k,on,b){ try{ var o=_pkTgSay(k,on,b); if(o.t&&!_inDlg()) _lsToast(o.t,null,'',!o.say); }catch(e){} }
+/* [PICK_TOAST_1107] 개수 한도 — 숫자는 엔진 값(CNT_MAX · CNT_LONG_MAX · CNT_LONG.table) · 테이블 인사는 긴 순간 둘로 세는 것을 말한다(긴 2/3 인데 «다 찼어요»로 읽히지 않게) */
+function _pkCapSay(cn,S0,t){ var R=RitualOpen; if(cn==='n') return '본식 순간 '+R.CNT_MAX+'개가 다 찼어요';
+  if(t&&t.on&&t.on.table&&!(S0.on||{}).table) return '테이블 인사는 긴 순간 '+(R.CNT_LONG.table||2)+'개로 세요';
+  return '긴 순간 '+R.CNT_LONG_MAX+'개가 다 찼어요'; }
+/* [PICK_TOAST_1107] ● 늘 포함 표(① 칸 · ② 예식 흐름 줄)를 누르면 «‹입장›은 늘 포함돼요» — 표 모양은 그대로(단추 아님 · UI_ONE) · 한 곳에서 받는다 */
+function _fixNm(m){ var li=m.closest('li.cf-r'), k=li&&li.getAttribute('data-k'), nm='';
+  if(k) nm=POST_KS.indexOf(k)>-1?_post(k).n:_mkName(k); else { var c=m.closest('.pk-tile,li'), n=c&&c.querySelector('.pk-n,.cf-nm'); nm=n?n.textContent:''; }
+  nm=String(nm||'').split(' · ').pop().trim(); return nm; }
+document.addEventListener('click',function(e){ var m=e.target&&e.target.closest&&e.target.closest('.pk-fixmk,.cf-fixmk'); if(!m) return; var nm=_fixNm(m); if(!nm) return; var t='‹'+nm+'›'+_josa(nm,'은','는')+' 늘 포함돼요'; _noteToast(_pkFit(t)?t:'늘 포함되는 순서예요'); });
+window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat='speech'; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={}; var _cxT=RitualOpen.crossTribute(S), _cxM=MK.toast, _cxG=MK.toastGo, _tg0=_pkTgSnap(); var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; try{ _crossWatch(_cxT); if(MK.toast&&MK.toast!==_cxM){ MK.toast=_cxM; MK.toastGo=_cxG; setTimeout(function(){ _noteToast('부모님께 인사 대상이 바뀌었어요'); },60); } }catch(e){}   /* ★[CROSS_NOW_1031 식순 걷기 3라운드 5] ① 에서 바꾼 그 자리에서 한 번 — ② 까지 들고 가지 않는다 */   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free') S.freeWhat='speech';   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); _pkTgToast(k,on,_tg0); /* [PICK_TOAST_1107] */ if(PV.k===k) _pvActs(); if(on) _thanksDupToast(k); };
 /* ★★[COMBO_171_1030 검토 171 C01] 인사 받는 분이 칩 하나로 바뀌는 자리(편지 «각자 부모님께» ↔ 다른 판 · 인사 말의 판) — 적어 둔 인사말이 있으면 바뀐 순간 한 줄 + 인사 칸으로 · 글은 지우지 않는다
    (종전엔 순간 빼기 · 다시 담기(mkDrop · mkUndrop)만 알렸다) */
 function _crossWatch(c0){ try{ var R=RitualOpen, c1=R.crossTribute(S), tx=S.tx||{}; if(c0===c1||!String(tx['tribute.g']||tx['tribute.b']||S.tributeText||'').trim()) return; MK.toast='인사 대상이 '+(c1?'서로의 부모님':'각자 부모님')+'으로 바뀌었어요 · 적어 두신 글을 확인해 주세요'; MK.toastGo='tribute'; }catch(e){} }
@@ -4470,7 +4491,7 @@ function _pkUndo(msg){
   if(!msg||!_opPrev){ u.hidden=true; u.innerHTML=''; return; }
   /* ★★[UNDO_OFF 2026-09-28 사장님 «되돌리기는 삭제 · 확인 문구만 나오게»] 알림은 확인 문구만 — «되돌리기» 단추 되살리기 금지(제거 지시 보존).
      누를 것이 없으니 3초면 된다(종전 6초는 단추를 누를 시간이었다). 같은 예시를 다시 누르면 비워지는 [EX_TOGGLE] 이 되돌리는 길이다. */
-  u.innerHTML='<span>'+esc(msg)+'</span>'; u.hidden=false; _pkUndoPos();
+  u.innerHTML='<span>'+esc(msg)+'</span>'; u.hidden=false; try{ _lsToastOff(); }catch(e){} _pkUndoPos();   /* [PICK_TOAST_1107] 알림은 하나만 — 담기 알림(#lsToast)이 떠 있으면 걷는다 */
   /* ★[RIT_UNDO_ABOVE 2026-09-27 4부 6] 알림은 아래 막대 바로 위에 선다(_pkUndoPos) — 그 자리에 «빈 칸에서 직접 고를게요»가 걸려 있으면
      그 줄이 알림 위로 올라오게 화면을 그만큼만 올린다(390×844 에서 예시를 누르면 알림이 그 줄을 덮었다) */
   try{ var _bl=document.querySelector('.pk-blank .pk-link'), _ur=u.getBoundingClientRect(), _br=_bl&&_bl.getBoundingClientRect();
@@ -8217,16 +8238,17 @@ function _chipNote(key,v){ if(/^(guest|entry|pv)Voice$/.test(key)) return _upLiv
   return ''; }
 /* [CHIP_TOAST] 떠 있는 안내 — #pkUndo(① 예시 알림)와 같은 모양 · 따로 산다(#pkUndo 는 ① 밖에서 그릴 때마다 닫힌다) · 3초 · 아래 막대 바로 위 */
 var _lsToastT=null;
-function _lsToast(msg,act,forId){ var u=document.getElementById('lsToast');
+function _lsToast(msg,act,forId,hush){ var u=document.getElementById('lsToast');
   if(!u){ u=document.createElement('div'); u.id='lsToast'; u.className='pk-undo wrap'; u.hidden=true; document.body.appendChild(u);   // wrap = 긴 칩 이름이면 두 줄(320)
     ['mouseenter','focusin'].forEach(function(e){ u.addEventListener(e,function(){ if(/\bact\b/.test(u.className)) clearTimeout(_lsToastT); }); });   /* [OFF_TOAST_TAP] 단추가 있는 알림은 손을 올리거나 초점이 있는 동안 닫지 않는다 · 떠나면 3초 */
     ['mouseleave','focusout'].forEach(function(e){ u.addEventListener(e,function(){ if(/\bact\b/.test(u.className)&&!u.hidden){ clearTimeout(_lsToastT); _lsToastT=setTimeout(_lsToastOff,3000); } }); }); }
+  try{ var _pu=document.getElementById('pkUndo'); if(_pu&&!_pu.hidden){ clearTimeout(_undoT); _pu.hidden=true; _pu.innerHTML=''; } }catch(e){}   /* [PICK_TOAST_1107] 알림은 하나만 — ① 예시 알림(#pkUndo)이 떠 있으면 걷는다 */
   clearTimeout(_lsToastT); u.className='pk-undo '+(act?'act':'wrap'); u.setAttribute('data-for',forId||'');   /* [OFF_TOAST] act = 알림 안 단추(«만들러 가기») · data-for = 어느 ▶ 의 알림인가 */
   u.innerHTML='<span>'+esc(msg)+'</span>'+(act?'<span aria-hidden="true"> · </span><button type="button" data-fk="'+esc(act.fk)+'" onclick="'+act.on+'">'+esc(act.l)+'</button>':''); u.hidden=false;
   if(act){ var _m=u.firstChild; _m.style.width=''; var _two=_m.offsetHeight>parseFloat(getComputedStyle(_m).fontSize)*2; u.classList.toggle('two',_two);   /* [OFF_TOAST_TAP] 글이 두 줄이면 가운데 «·»를 뺀다(글 덩이 · 단추 두 칸으로 읽힌다 · 점이 빈 틈 가운데 떠 보였다) */
     if(_two){ var _r=document.createRange(), _L=1e9, _R=-1e9; _r.selectNodeContents(_m); [].forEach.call(_r.getClientRects(),function(q){ if(q.width){ _L=Math.min(_L,q.left); _R=Math.max(_R,q.right); } }); if(_R>_L) _m.style.width=Math.ceil(_R-_L+1)+'px'; } }   // 두 줄 글 상자를 글 폭으로 줄인다 — 글과 단추 사이가 비지 않게(알림은 가운데로 좁아진다)
   _pkUndoPos(u);
-  try{ _lSay(msg+(act?' · '+act.l:'')); }catch(e){}
+  if(!hush) try{ _lSay(msg+(act?' · '+act.l:'')); }catch(e){}   /* [PICK_TOAST_1107] hush = 같은 일을 _pkMsg 가 이미 읽는다 */
   _lsToastT=setTimeout(_lsToastOff,act?6000:3000); }
 function _lsToastOff(){ clearTimeout(_lsToastT); var u=document.getElementById('lsToast'); if(u){ u.hidden=true; u.innerHTML=''; u.setAttribute('data-for',''); } }
 function _offToastOff(id){ var u=document.getElementById('lsToast'), f=u&&!u.hidden&&u.getAttribute('data-for'); if(f&&(!id||f===id)) _lsToastOff(); }   /* [OFF_TOAST] «… 누르면 들을 수 있어요» 알림은 그 일을 하면(만들기 · 다른 ▶ · 쪽 옮기기) 바로 걷는다 · 칩 알림(data-for 없음)은 그대로 */

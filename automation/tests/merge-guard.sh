@@ -16634,7 +16634,7 @@ chk 'var _cg0=_chgSnap(k);' order-preview.html 1
 # ── [CHIP_TOAST · CHIP_FEW_WORDS · TOAST_LIGHT 2026-10-08 사장님 «아래 안내 글 한 줄이랑 바탕 바뀌는 효과 전부 삭제 · 첫 번째 사진처럼 안내 문구 · 바탕색이 너무 진하니 디자이너 시선으로»
 #    «단어 몇 개만 바뀌면 고객이 헷갈릴 거 같아서 · 다른 이벤트들 써먹을 곳도»] 칩 알림 = 떠 있는 밝은 안내 하나(② · 크게 보기) · «작은 바뀜» = 줄마다 24자 안
 chk 'CHIP_TOAST' order-preview.html 8
-chk 'function _lsToast(msg,act,forId)' order-preview.html 1   # [OFF_TOAST 10/09] 같은 알림에 단추(act) · 어느 ▶ 의 알림인가(forId)가 붙었다 — 칩 알림은 종전대로 _lsToast(msg)
+chk 'function _lsToast(msg,act,forId,hush)' order-preview.html 1   # [PICK_TOAST_1107] hush = 같은 일을 _pkMsg 가 읽을 때 조용히 · [OFF_TOAST 10/09] 같은 알림에 단추(act) · 어느 ▶ 의 알림인가(forId)가 붙었다 — 칩 알림은 종전대로 _lsToast(msg)
 chk 'function _chgSmall(b0,b1)' order-preview.html 1
 chk 'var CHG_LIM=24;' order-preview.html 1
 chk 'CHIP_FEW_WORDS' order-preview.html 3
@@ -23083,3 +23083,10 @@ chk "+((!st.own&&st.slug)?(_mnHowLeft=true,_mnHtml(st.slug)):'')+'</p>';" order-
 chk "lines.splice(_mnAt,0,'식사 장소: '+_mnN.name.replace(/^식사 장소 /,'')+' · 식사 장소에 맞춰 바뀌는 안내는 이 기준이에요');" order-preview.html 1
 chk "EMBED?'<'+tag+' class=\"meal-nt meal-how\"><button type=\"button\" class=\"meal-go\" data-fk=\"clgo:dining\" onclick=\"clGo(" order-preview.html 1
 nochk '다른 경우 보기' order-preview.html
+# ★★[PICK_TOAST_1107 덧 9 · 사장님 «체크를 풀고 더하고 할 때 창 아래 작게 안내 문구가 같이 나오면 좋겠어»] ✓ 풀기 · ＋ 담기 · ● 늘 포함 → 아래 알림 한 줄(_lsToast · 3초 · 하나만 · 막대 위)
+#   ① 칸 · ① 미리 보기 · ② 예식 흐름 모두 opTgl 한 길 · 개수 한도는 창 대신 알림 · 되돌리기 단추 없음(UNDO_OFF) · pick-toast.mjs 가 390 · 1280 에서 누르고 잰다(되돌리면 빨강 확인)
+chk 'PICK_TOAST_1107' order-preview.html 9
+chk '_pkTgToast(k,on,_tg0)' order-preview.html 1
+chk 'PICK_TOAST_1107' scripts/audit/pick-toast.mjs 1
+nochk 'ordTell({title:R.COUNT_MSG' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pick-toast.mjs >/dev/null 2>&1; _ptt=$?; [ "$_ptt" = 1 ] && { echo 'FAIL pick-toast: 담기 · 빼기 · 늘 포함 · 한도 알림이 어긋났습니다 — node scripts/audit/pick-toast.mjs'; fail=1; }; [ "$_ptt" = 0 ] && echo 'ok pick-toast'; fi
