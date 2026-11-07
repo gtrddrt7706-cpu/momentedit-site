@@ -20,7 +20,7 @@ const fam = (t, ans) => { const S = O.applyExample({ course: 'open' }, 'family')
   S.songBy = 'self'; const s2 = C.build(C.norm(S), { mode: 'console' }).cues.find((c) => c.slug === 'narr-song');
   ok('N2 «두 분이 직접»이면 콘솔 지문 «두 분이 노래할 자리로»', !!s2 && /두 분이 노래할 자리로/.test(s2.live.t)); }
 { const b = (x) => O.partsOf('bless', Object.assign({ on: { bless: 1 } }, x))[1];
-  ok('C04 덕담 시간 = 말씀하실 분 수 × 1분쯤(안 고르면 두 분 · 153) · 원고가 길면 원고', b({}) === 153 && b({ blessN: 1 }) === 77 && b({ blessN: 4 }) === 306 && b({ blessN: 1, tx: { 'bless.p': '가'.repeat(900) } }) === 180);
+  ok('C04 덕담 시간 = 말씀하실 분 수 × 1분쯤(안 고르면 두 분 · 153) · 원고가 길면 원고', b({}) === 153 && b({ blessN: 1 }) === 77 && b({ blessN: 4 }) === 306 && b({ blessN: 1, tx: { 'bless.p': '가'.repeat(900) } }) === 230);   /* ★[EST_TRUE_1031] 원고 = 음절 ÷ 4 + 5초(900 → 230 · 옛 «300자 ≈ 1분» 180 은 10/31 에 걷혔다) */
   const S1 = O.applyExample({}, 'family'), S4 = Object.assign(O.applyExample({}, 'family'), { blessN: 4 });
   ok('C04 본식 상한(167)에도 반영 — 네 분이면 본식이 길어진다', O.bodySec(S4)[1] > O.bodySec(S1)[1] + 100); }
 { const S = O.applyExample({ course: 'open' }, 'brief'); S.course = 'open'; S.on.letter = 1; O.setChip(S, 'tribute', 'long'); O.setChip(S, 'letter', 'parent');
