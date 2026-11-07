@@ -1314,7 +1314,7 @@
         var play = (fk === 'video' || fk === 'stage');   // 파일을 트는 판만 «재생 안 됨»이 있다
         var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)', etc: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)',   // [FREE_ETC] 기타 = 옛 «자유 한 칸» 지문(장면 설명 열쇠 그대로)
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
-        return [cue({
+        var _fc = cue({
           k: 'free', blockN: fk === 'speech' ? '축사' : '준비한 순서', slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
           text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
           rescue: play ? { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */ : null,
@@ -1323,7 +1323,18 @@
             doing: fk === 'video' ? 'watch' : fk === 'speech' ? 'say' : 'move',
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 알리고 곧장 다음 순간으로'
               : fk === 'speech' ? len + '분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }   // ★[SPEECH_FB_LEN_R7_1016 라운드 7] 늘 «3분»이던 것을 고른 길이로(큐 이름 · 진행 막대 · 고객 안심 «정해 두신 시간»과 같은 값) · ritual-story fbSrc 는 기본 3분 판
-        })];
+        });
+        if (fk !== 'video') return [_fc];
+        /* ★★[MID17_NAR_1107 MID17-6 · 대본 11/07 정정] 식중 영상 = 여는 말(예시 ① 58 + 감사 · ② 두 사람 이야기 · ③ 어떤 영상이든) → 영상(디렉터가 튼다) → 받는 말 + 104 박수 → 다음 순간은 디렉터 GO([CLAP_GO]).
+           «58 → 129»는 걷었다(129 는 식전 영상 문장 · 사장님 반려) · 글 · 번호는 음성 쉼 방 PR(그 전엔 키 이름 자리 · 소리 없음). 경로 한 곳 = O.midPlan */
+        var _mp = O.midPlan({ mvEx: S.mvEx }),   /* [MID17_NAR_1107] S.mvEx = 식중 영상 여는 말 예시(미리듣기 KEYS) */ _mvTx = function (sl) { return EXTRA[sl] || ''; }, _mv = [];
+        _mp.inn.forEach(function (sl, i) { var last = i === _mp.inn.length - 1;
+          _mv.push(cue({ k: 'free', blockN: '식중 영상', slug: sl, name: last ? '식중 영상 시작 · ' + len + '분' : '식중 영상 여는 말', text: _mvTx(sl) || ('«' + sl + '» 녹음 자리'), duck: i ? PARAM.duckSpeech : PARAM.duckMusic, pick: O.MV_EX_NAMES[_mp.n],
+            live: last ? _fc.live : null, rescue: last ? _fc.rescue : null })); });
+        _mv.push(cue({ k: 'free', blockN: '식중 영상', slug: _mp.out[0], name: '식중 영상 받는 말', text: _mvTx(_mp.out[0]) || ('«' + _mp.out[0] + '» 녹음 자리'), duck: PARAM.duckOff, hint: '영상이 끝나고 화면이 꺼지면' }));
+        _mv.push(cue({ k: 'free', blockN: '식중 영상', slug: _mp.out[1], name: '식중 영상 마무리 · 박수', text: _mvTx(_mp.out[1]), duck: PARAM.duckOff, fire: 'chain',
+          live: clapUp(applause('하객 박수 · 영상을 준비한 두 분께', PARAM.declare.applauseMs / 1000)) }));   // [CLAP_GO] 박수를 청하는 104 뒤 다음 순간은 디렉터 GO
+        return _mv;
         /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 104 narr-free-out-clap(«따뜻한 박수 부탁드립니다»)은 흐름에서 뺐다.
            클립 · 번호 · EXTRA 는 둔다(되살리려면 박수 자리 셋이 넷이 된다 — 사장님 결정이 먼저). 다음 큐는 앞 live 로 GO. */
       }

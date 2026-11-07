@@ -2463,7 +2463,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1107m1"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1106of2"></script><script src="/assets/narration-pad.js?v=1106k3"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1107ig"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1107n6"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1106of2"></script><script src="/assets/narration-pad.js?v=1106k3"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1107ig"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -2475,7 +2475,8 @@ var _S0=JSON.stringify(S);   // ORDER_OWNER: 미개봉 초기값 스냅 — 계�
    여기는 인라인 사본이다(check-ritual-mirror.js 가 원천과 대조한다). 한쪽만 고치지 말 것. */
 /* ★[FREE_SLOT 2026-08-07] 자유 한 칸 문안 — 원천은 assets/ritual-data.js 의 NARR.
    무엇이 들어와도 맞아야 하므로 **지목하지 않는다**. 여기는 인라인 사본이다. */
-var FREE_IN="다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다.";   /* [FREE_IN_RR_1023] 원천 D.NARR.freeIn 사본 */
+var FREE_IN="다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다.";
+function _midNar(out){ try{ return ENG.RitualCue.build(S,{mode:'preview'}).cues.filter(function(c){ var o=!!c.hint||c.name==='식중 영상 마무리 · 박수'; return c.k==='free'&&c.blockN==='식중 영상'&&(out?o:!o); }).map(function(c){ return c.text; }).join(' '); }catch(e){ return FREE_IN; } }   /* ★[MID17_NAR_1107 MID17-3] 식중 영상 여는 말 = 엔진(midPlan) 줄 · 손 사본 없음 */   /* [FREE_IN_RR_1023] 원천 D.NARR.freeIn 사본 */
 var FREE_OUT="함께 봐 주셔서 고맙습니다. 준비한 정성에도, 박수 한 번 부탁드립니다.";
 /* ★[ENTRY_OUT_TONE 2026-08-11] 도착 직후 닫는 말은 **입장 느낌마다 다르다.**
    옛 판은 여기 한 줄이 박혀 있어서, 느낌을 바꿔도 이 글만 그대로였다 —
@@ -3308,7 +3309,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1107m1';   /* [MID17_NAME] ritual-open 식중 영상 이름 · 칸 글 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
+  var ASSET_V='1107n6';   /* [MID17_NAME] ritual-open 식중 영상 이름 · 칸 글 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -5744,6 +5745,7 @@ function _exRows(k){ var out=[], R=RitualOpen, EXN='고르면 아래 글이 바�
     else if(S.guestVoice!=='couple'&&!isOpen()) out.push(_exRowG('exGuestNar','안내 멘트',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','mkex:guestnar:','')); }
   if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') out.push(_exRowG('exEntry','참고 예시',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),_exIs('entry')?ENTRY_KEYS.indexOf(S.entry):-1,'mkEntryEx','mkex:entry:',EXN));   // [EX_CHIP_ON] 글이 그 입장 예시면 눌린 모양(코스 예시가 정한 것이어도 · 10-07 [EX_UNPICKED] 의 이 줄 기준을 걷었다)
   if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice!=='couple') out.push(_exRowG('exPvNar','소개 멘트',(R.NAR&&R.NAR.pvExNames)||PV_EX.map(function(x){ return x[0]; }),(((R.NAR&&R.NAR.pvExNames)||PV_EX)[+S.pvEx||0]?(+S.pvEx||0):0),'mkPvNarEx','mkex:pvnar:',''));   /* [B2_GEUL_01] 목록에서 빠진 옛 선택(3)은 기본 칩 · [EX_ROW · PV_EX_NAR] ★[REVIEW24_1019 검토 132] 이름은 NAR.pvExNames(두 분 목소리 판 PV_EX 와 글이 갈라졌다) · 스튜디오 판 식전 영상 소개 넷(녹음 128~130)도 위쪽 칩 줄 */
+  if(k==='free'&&R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video') out.push(_exRowG('exMvNar','소개 멘트',R.MV_EX_NAMES,R.midPlan(S).n,'mkMvNarEx','mkex:mvnar:',''));   /* ★[MID17_NAR_1107 MID17-6 · 대본 11/07] 식중 영상 여는 말 예시 셋 — 식전 영상 «소개 멘트»(exPvNar)와 같은 줄 · 같은 모양 · 기본 ① 감사 영상 */
   if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice==='couple'&&_vcOn()&&_vpCur('prevideo')==='ai'){ out.push(_exRowG('exPv','참고 예시',PV_EX.map(function(x){ return x[0]; }),_exNOf('pv'),'mkPvEx','mkex:pv:',EXN)); }   /* ★[VU_OLD_EX 2026-10-08 목소리 1라운드 39] 고른 칩도 _exNOf 한 곳 — 옛 예시 글(PV_OLD)로 만든 고객은 칩이 다 꺼져 두 분이 쓴 글처럼 보였다(하객 맞이 _guestExCur 와 같은 길) */
   /* ★★[EX_MANY_1017 2026-10-17 사장님 «예시가 하나밖에 없으면 늘려서 더 좋은 예시를 고를 수 있게 · 4개 정도 · 자료집에서 · 다른 곳도 찾아보고»] 스튜디오 나레이션 «○○ 멘트» 줄 —
      «안내 멘트 · 소개 멘트»(GUEST_EX_NAR · PV_EX_NAR)와 같은 줄 · 같은 모양(EX_ROW · 덧말 없음 · 글이 곧 그 예시라 눌린 모양 EX_CHIP_ON) · 원천 RitualOpen.NAR_EX(at = 줄이 서는 순간 · 개식은 하객 맞이 쪽)
@@ -5862,6 +5864,7 @@ function _narExLen(ek,n){ var g=ENG; if(!g||!g.RitualCue) return; var R=RitualOp
   var fin=function(){ if(tk!==_narExLen.tk) return; var t=0; for(var i=0;i<us.length;i++){ if(!(_NXDUR[us[i]]>0)) return; t+=_NXDUR[us[i]]; } _noteToast((us.length>1?'멘트 길이 합계 약 ':'멘트 길이 약 ')+Math.round(t)+'초'); };
   us.forEach(function(u){ if(_NXDUR[u]>0) return; try{ var a=new Audio(); a.preload='metadata'; a.onloadedmetadata=function(){ if(isFinite(a.duration)&&a.duration>0){ _NXDUR[u]=a.duration; fin(); } }; a.src=u; }catch(e){} }); fin(); }
 window.mkNarEx=function(ek,n){ var R=RitualOpen; n=+n||0; if(!R.NAR_EX||!R.NAR_EX[ek]||(n&&!R.narExOk(S,ek,n))) return; if(ek==='close'){ S.closeHand=1; delete S.closeAuto; } if(SEAM_KEYS.indexOf(ek)>-1){ S.seamHand=S.seamHand||{}; S.seamHand[ek]=1; if(S.seamAuto){ delete S.seamAuto[ek]; if(!Object.keys(S.seamAuto).length) delete S.seamAuto; } }   /* [SEAM_KEEP_1018] */   /* [CLOSE_SEAM_1018] 두 분이 고른 닫는 멘트는 그대로 */ S.narEx=S.narEx||{}; if(n) S.narEx[ek]=n; else delete S.narEx[ek]; if(!Object.keys(S.narEx).length) delete S.narEx; _stopMk&&_stopMk(); try{ _lpHush(); }catch(e){}   /* ★[REVIEW_166_1030 검토 166 B13] 말투 칩을 바꾸면 «이 순간 전체 듣기»도 그 자리에 멈춘다(앞 칩 소리가 새 글 위에 남지 않게) */ buildSteps(); _fxNext='[data-fk="mkex:narex:'+ek+':'+n+'"]'; _persist(); render(); try{ setTimeout(function(){ _narExLen(ek,n); },0); }catch(e){}   /* [B2_NA_34] */ };
+window.mkMvNarEx=function(n){ n=+n||0; if(!RitualOpen.MV_EX_NAMES[n]) return; if(n) S.mvEx=n; else delete S.mvEx; _stopMk&&_stopMk(); try{ _lpHush(); }catch(e){} buildSteps(); _fxNext='[data-fk="mkex:mvnar:'+n+'"]'; _persist(); render(); };   /* ★[MID17_NAR_1107] 식중 영상 소개 멘트 — mkPvNarEx 와 같은 꼴 */
 window.mkPvNarEx=function(n){ var _nm=(RitualOpen.NAR&&RitualOpen.NAR.pvExNames)||PV_EX; n=+n||0; if(!_nm[n]) return;   /* ★[PV_NAR_CHIP_1030 GPT 점검 2] 스튜디오 칩 넷은 NAR.pvExNames 로 센다 — PV_EX(두 분 목소리 예시 둘)로 세면 3 · 4번 칩이 눌리지 않았다 */ if(n) S.pvEx=n; else delete S.pvEx; _stopMk&&_stopMk(); try{ _lpHush(); }catch(e){}   /* ★[REVIEW_166_1030 검토 166 B13] 말투 칩을 바꾸면 «이 순간 전체 듣기»도 그 자리에 멈춘다(앞 칩 소리가 새 글 위에 남지 않게) */ buildSteps(); _fxNext='[data-fk="mkex:pvnar:'+n+'"]'; _persist(); render(); };   /* [PV_EX_NAR 2026-10-07] 식전 영상 소개 나레이션 예시 — mkGuestNarEx 와 같은 꼴 */
 function _guestExCur(){ var n=_exNOf('g0'); if(n<0) return -1; return GUEST_KEYS.every(function(k){ return _exNOf(k)===n; })?n:-1; }   /* [EX_OLD_IS_EX] 옮겨 둔 옛 글도 그 예시로 센다 */   // [GUEST_EX4] 네 줄이 모두 그 예시일 때만 켜진다
 window.mkGuestEx=function(n){ var X=GUEST_EX[n]; if(!X) return;
@@ -10602,7 +10605,7 @@ var BLOCK={
      ★문안은 무엇인지 지목하지 않는다 — 자유 한 칸의 약속이 "앞뒤만 열고 닫아 드려요" 이다. */
   free:function(){
     if(isOpen()){ var _k=RitualOpen.FREE_KIND[RitualOpen.chipOf('free',S)];   // [FREE_WHAT] 대본에도 무엇을 · 길이
-      return {n:(_k==='speech'?'축사':'준비한 순서'),nar:(_k==='speech'?RitualOpen.NAR.freeIn.speech:FREE_IN),   /* [SPEECH_TILE_1012] · [FREE_IN_RR_1023] */self:RitualOpen.chipLabel('free',S),end:RitualOpen.NAR.freeOut,
+      return {n:(_k==='speech'?'축사':'준비한 순서'),nar:(_k==='speech'?RitualOpen.NAR.freeIn.speech:_k==='video'?_midNar():FREE_IN),   /* [MID17_NAR_1107] 식중 영상 = 엔진 여는 말 줄 그대로 */   /* [SPEECH_TILE_1012] · [FREE_IN_RR_1023] */self:RitualOpen.chipLabel('free',S),end:(_k==='video'?_midNar(1):RitualOpen.NAR.freeOut),
         cue:'나레이션이 앞을 열어 줌 → '+RitualOpen.chipLabel('free',S)+' → 끝나면 박수로 닫음'+((_k==='video'||_k==='stage')?' · 재생이 안 되면 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 알리고 곧장 다음 순간으로':'')}; }
     return {n:isOpen()?'준비한 순서':'자유 한 칸',nar:FREE_IN,self:'두 분이 정한 순서',end:FREE_OUT,   // [OPEN_COURSE] 명세 8장 이름 · 옛 코스는 그대로
       cue:'나레이션이 앞을 열어 줌 → 두 분이 준비한 순서 진행 → 끝나면 나레이션이 닫음(무엇인지 지목하지 않아요)'};
@@ -12006,7 +12009,7 @@ window.ME_ADV_PAGE={
   hideOn:function(){ return !!document.getElementById('ob_rpViewer'); }   // [PREVIEW_LINK_V1] 미리듣기 중엔 숨김 — 소리를 듣는 자리라 말 걸 자리가 아니다(한 화면 한 상담사 · mypage 와 같은 판단)
 };
 </script>
-<script src="/assets/ritual-preview-link.js?v=1106p4"></script>
+<script src="/assets/ritual-preview-link.js?v=1107n6"></script>
 <script src="/assets/advisor-widget.js"></script>
 </body>
 </html>

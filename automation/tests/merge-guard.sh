@@ -23101,3 +23101,16 @@ nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+# ★[MID17_NAR_1107 2026-11-07 대본 정정] 식중 영상 전용 대본 — 여는 말 예시 셋(① 58 + 감사 · ② 이야기 · ③ 어떤 영상이든) → 영상 → 받는 말 + 104 · «58 → 129» 걷음(사장님 반려) · 콘솔 재생 순서 기록
+if command -v node >/dev/null 2>&1; then _m17o=$(node scripts/audit/mid17-nar.mjs 2>&1); _m17r=$?
+  case "$_m17r" in
+    0) echo 'ok mid17-nar: 식중 영상 전용 대본 — 여는 말 셋 · 받는 말 · 재생 순서 기록' ;;
+    *) echo 'FAIL mid17-nar: 식중 영상 대본 자리가 어긋났다 — node scripts/audit/mid17-nar.mjs'; printf '%s\n' "$_m17o" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+  esac
+fi
+chk 'MID17_NAR_1107' assets/ritual-open.js 2
+chk 'MID17_NAR_1107' assets/ritual-cue.js 2
+chk 'MID17_NAR_1107' order-preview.html 4
+chk 'MID17_NAR_1107' assets/ritual-story.js 2
+chk 'PLAY_LOG_1107' console.html 3
+chk 'NARR_APPROVE_1107' CLAUDE.md 1   # 사장님 11/07 — «새 녹음 줄이기» 폐지 · 나레이션 바꿈은 «지금 · 바뀐 뒤» 실청 승인 뒤 병합
