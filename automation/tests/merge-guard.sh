@@ -20822,7 +20822,7 @@ nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
 chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101] 구간마다 3곡
 chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101] 지브리 판
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
-chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\] }" assets/bgm-picks.js 1   # ★[BGM_FILL_1101] 목록 칸 배경 곡
+chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡 배경 곡 더함   # ★[BGM_FILL_1101] 목록 칸 배경 곡
 chk 'function order(S, seg, prev, on)' assets/bgm-picks.js 1
 chk 'if (BP.order) return segListOf(id, cur).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
@@ -22129,7 +22129,7 @@ chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk 'ONE_FLOW_1106' assets/bgm-picks.js 4   # [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» = 본식 M4 그대로(oneSeg) · M4 겹침 8초(xfOf)
 chk 'function oneSeg(seg)' assets/bgm-picks.js 1
-chk "var XF = { M4: 8 }, XF0 = 3;" assets/bgm-picks.js 1
+chk "var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ⑤] 하객 맞이 · 테이블 · 닫는 인사 6초(옛 ONE_FLOW 판 { M4: 8 })
 nochk "id: 'M4S5'" assets/bgm-picks.js   # ★[ONE_FLOW_1106] 옛 축사 «음악과 함께» 곡 칸 — 되살리지 말 것
 nochk "id: 'M4S6'" assets/bgm-picks.js
 chk "if(k==='free'||k==='letter') return 'M4';" assets/bgm-bed.js 1
@@ -22842,6 +22842,19 @@ chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
 chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
 nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것
 chk 'clear-head bgm-vol ios-gesture' .github/workflows/merge-guard.yml 1
+chk 'REPEAT_RULE_1107' assets/bgm-picks.js 6   # [REPEAT_RULE_1107] 의미 곡 · 고른 곡 하루 한 번 · 배경 칸 반복 없음(앞 배경 칸 가장 오래전 곡 빌려 오기 · 바로 앞 칸 · 40분 안 뒤로) · fill M4 · M8L · hookAt · 한 곡 칸 alt · 겹침 6초
+chk 'REPEAT_RULE_1107' assets/bgm-bed.js 3
+chk 'REPEAT_RULE_1107' console.html 5
+chk "var SPAN = { M2: 130, M3: 300, M5: 300, M7: 90, M8L: 1020 }, GAP40 = 2400;" assets/bgm-picks.js 1
+chk "var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;" assets/bgm-picks.js 1
+chk "M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\]" assets/bgm-picks.js 1
+chk "function hookAt(f, d)" assets/bgm-picks.js 1
+chk "function reHookC(id)" console.html 1
+chk "function hushSoonC(sec)" console.html 1
+chk "i=L.indexOf(f); if(i<0) return '';" assets/bgm-bed.js 1   # [REPEAT_RULE_1107 ④] 지금 곡이 그 칸 곡일 때만 다음 곡으로(축배 줄의 본식 곡을 축배 곡으로 바꾸지 않는다)
+nochk "swapSrc(v,s.buffer,hookOf(v.f),v.f,X)" assets/bgm-bed.js   # ★[REPEAT_RULE_1107 ③] 같은 곡 다시 잇기는 reHook(강조 자리 · 없으면 40%) — 전주부터 다시(hookOf 0초) 되살리지 말 것
+nochk "bedPlay(BED.id, _X, _m19.head || 0)" console.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/repeat-rule.mjs >/dev/null 2>&1; _rr=$?; if [ "$_rr" != 0 ]; then echo 'FAIL repeat-rule: 곡 반복 규칙(의미 곡 하루 한 번 · 배경 칸 반복 · 빌려 오기 · fill · 겹침) — node scripts/audit/repeat-rule.mjs [REPEAT_RULE_1107]'; fail=1; else echo 'ok repeat-rule [REPEAT_RULE_1107]'; fi; fi
 chk 'function volOne()' console.html 1
 chk 'wired = true; volOne();' console.html 1
 chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1
@@ -23153,6 +23166,13 @@ chk "'식중 영상 소개':'이어서'" order-preview.html 1
 nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
 chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
+# ★★[MID17_CONSOLE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 10 · 11] 당일 콘솔 — 식중 영상 디렉터 메모(식전 영상 메모와 같은 꼴 · 영상 사람 순간을 든 큐에) · 재생 순서 기록 · 디지털 날 같음
+chk 'MID17_CONSOLE' assets/ritual-cue.js 2
+chk "note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다" assets/ritual-cue.js 1
+chk "live: o.live, note: o.note };" assets/ritual-cue.js 1          # 두 줄 날 메모는 129(영상 사람 순간)로
+chk 'MID17_CONSOLE' console.html 1                                   # 재생 순서 기록(window.__playLog · 점검이 켰을 때만)
+chk 'MID17_CONSOLE' scripts/audit/mid17-console.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-console.mjs >/dev/null 2>&1; _m17c=$?; node scripts/audit/mid17-console.mjs --selftest >/dev/null 2>&1; _m17cs=$?; if [ "$_m17c" = 2 ]; then echo 'ok mid17-console — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17c" != 0 ] || [ "$_m17cs" != 0 ]; then echo "REVERT? mid17-console: 식중 영상 당일 콘솔(메모 · 재생 순서 · 재생 안 됨 · 디지털 같음)이 어긋났습니다 ($_m17c/$_m17cs) — node scripts/audit/mid17-console.mjs"; fail=1; else echo 'ok mid17-console'; fi; fi
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
 
@@ -23190,3 +23210,26 @@ chk 'SEAM_WORD_1107 b' assets/ritual-cue.js 1   # 감사 인사 예시 208 앞 2
 # ★[SEAM_WORD_1107 c 대본 18:40 예시 칩 전수 판정] 입장 E · F 앞 243 빼기 · 테이블 인사 앞 244 빼기(닫는 인사 · 축배 앞은 그대로)
 chk "'F'\].indexOf(String(S.entry || 'A').toUpperCase()) < 0) _more.push('bridge-b7-entry-ready');" assets/ritual-cue.js 1
 chk "|| _cLast.k === 'ring') && !O.onOf(S, 'table')) _cSeam = 'bridge-b8-face-guests';" assets/ritual-cue.js 1
+# ★★[RA5_RULES 2026-11-07 규칙 감사 · 식순 엔진 몸(기술 수정만) · 재검증 재수정] 기준(무엇을 몇 초로 줄이나 · 본식 상한)은 그대로 — 알림 · 표시 · 미리 듣기 재현만
+#   ① [RA5_PREVIEW_FADE] 미리 듣기는 정적만 1.2초 · 음악 페이드는 4초까지 실제 값(편지 뒤 오르기 · 선언 앞 내리기가 툭 끊겼다) · 콘솔 그대로
+#   ② [RA5_TABLE_EACH] 콘솔 지문 «테이블마다 …» = tableSecOf 원천(줄었으면 «약 45초») · live.t 장면 열쇠는 그대로(tv 만)
+#   ③ [RA5_TABLE_NOTE] 글을 길게 써서 테이블 인사가 줄면 멈춘 뒤 · 칸을 떠날 때 아래 알림 한 번(_capNo 와 같은 문구 · 같은 값이면 다시 안 뜸)
+chk 'RA5_PREVIEW_FADE' assets/ritual-cue.js 2
+chk 'previewFadeMs: 4000,' assets/ritual-cue.js 1
+chk 'st.ms = Math.min(st.ms, PARAM.previewFadeMs)' assets/ritual-cue.js 1
+nochk 'st.ms = Math.min(st.ms, PARAM.previewWaitMs)' assets/ritual-cue.js   # 옛 페이드 1.2초 자름 — 되살리지 말 것
+chk 'RA5_PREVIEW_FADE' scripts/check-ritual-cue.js 1
+chk 'RA5_TABLE_EACH' assets/ritual-open.js 1
+chk 'tableEachTxt: tableEachTxt' assets/ritual-open.js 1
+chk 'RA5_TABLE_EACH' assets/ritual-cue.js 1
+chk "O.tableSecOf(S) : O.TABLE_SEC \\* O.tableN(S)), self: true,   /\\* ★\\[EVENT_COUNT_CAP 검토 183\\] 시간표 · 빌더와 같은 값(본식 상한을 넘는 드문 조합이면 그만큼 짧게) \\*/ doing: 'move', duck: -12," assets/ritual-cue.js 1   # [RA5_TABLE_KEEP] 테이블 인사 사람 순간 이동 · −12 (tv 를 더하다 통째로 빠졌던 줄 · 검토 R5-1)
+chk '_TBL.said=null; return; } if(cut<=from) return;' order-preview.html 1   # [RA5_TABLE_NOTE] 알린 분은 줄인 시간이 0 으로 돌아왔을 때만 지운다(검토 R5-2)
+nochk '_TBL.sc' order-preview.html   # 옛 재알림 규칙(덜 줄었던 때 → 같은 분 다시 알림) 되살리지 말 것
+chk 'function _tblSay(mn,T)' order-preview.html 1   # [RA5_TABLE_NOTE] 반올림한 분 = 원래 분이면 말 없음 · _capNo 도 같은 규칙(검토 R5-3)
+chk 'RA5_TABLE_NOTE' scripts/audit/body-cap.mjs 1
+chk 'RA5_TABLE_EACH' order-preview.html 1
+chk 'RA5_TABLE_NOTE' order-preview.html 4
+chk '_tblWatch(_tb0); };' order-preview.html 1
+chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
+chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ra5-rules.mjs >/dev/null 2>&1; _ra5=$?; node scripts/audit/ra5-rules.mjs --selftest >/dev/null 2>&1; _ra5s=$?; if [ "$_ra5" = 2 ]; then echo 'ok ra5-rules — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_ra5" != 0 ] || [ "$_ra5s" != 0 ]; then echo "REVERT? ra5-rules: 미리 듣기 페이드 · 테이블 인사 지문 · 줄임 알림이 어긋났습니다 ($_ra5/$_ra5s) — node scripts/audit/ra5-rules.mjs"; fail=1; else echo 'ok ra5-rules'; fi; fi

@@ -91,7 +91,7 @@
   /* ★★[BGM_FILL_1101 2026-11-01 사장님 «하객 맞이 음악은 계속 흐르는 건가? 한 곡만으로는 힘들지 않아?»] 목록 칸(multi · M1 · M8)은 30분을 채운다 —
        고객이 고르는 곡은 3곡 그대로 · 당일 콘솔이 트는 차례 끝에 «배경으로만 이어 트는 곡»(fill)을 붙인다(고객 화면 곡 줄 · 곡 카드 · 미리 듣기에는 없다 · 순서 줄에는 보인다)
        차례 = 고른 곡(없으면 1순위) → 그 구간 나머지 → fill · 한 바퀴 뒤 처음으로 · ★[GHIBLI_ADD_1101] fill 이 다른 구간에서 두 분이 고른 곡이면 건너뛴다(겹쳐 들리지 않게) */
-  var FILL = { M1: ['B16', 'B33'], M8: ['B13', 'B14'], M6: ['B07', 'B16'] };   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
+  var FILL = { M1: ['B16', 'B33'], M8: ['B13', 'B14'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* ★[REPEAT_RULE_1107 ①] 본식 피아노(M4 · 약 18분 · 3곡)와 마지막 곡(M8L)에도 배경 곡 — 목록에 없던 피아노 B12 «Under the Willow» · B26 «Bluebird» 등 · 고객이 보는 3곡은 그대로 · 드라이브에 파일이 없으면 엔진이 건너뛴다(have) */   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
   /* 본식 차례(«앞 구간» · 같은 곡 두 구간 한 줄) — 테이블 인사 → 축배 → 닫는 인사(END_FLOW_1030) */
   var CORDER = ['M1', 'M2', 'M4', 'M5', 'M8', 'M7', 'M6', 'M8L'];   /* [AFTER_PHOTO_LOOP_1102] 마지막 곡(M8L)도 하루 계획 맨 끝 — 앞 칸에서 흐른 곡은 빼지 말고 뒤로 */
 
@@ -116,7 +116,7 @@
   /* ★[ONE_FLOW_1106] 구간 이름 한 곳 — 옛 축사 · 편지 «음악과 함께» 칸(M4S5 · M4S6)은 본식 M4 로 읽는다(곡 계획 · 콘솔 · 미리 듣기 · 엔진이 이 함수 하나를 쓴다) */
   function oneSeg(seg) { seg = String(seg || ''); return /^M4S[56]$/.test(seg) ? 'M4' : seg; }
   /* ★[ONE_FLOW_1106 ②] 목록 곡 사이 겹침(초) — 본식 M4 는 8초(곡이 바뀌는 게 덜 들리게) · 그 밖은 3초 그대로 */
-  var XF = { M4: 8 }, XF0 = 3;
+  var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;   /* ★[REPEAT_RULE_1107 ⑤] 하객 맞이 · 테이블 인사 · 닫는 인사 → 사진 = 6초(장르가 다른 곡이 툭 바뀌지 않게) */
   function xfOf(seg) { var x = XF[oneSeg(seg)]; return x > 0 ? x : XF0; }
   var BY = {}; SEGS.forEach(function (s) { BY[s.id] = s; });
   Object.defineProperty(BY.M1, 'need', { enumerable: true, get: function () { var g = guestMin(); return (g ? g + '분 이상' : '하객 입장 동안') + ' · 개식이 늦어도 이어지게(반복 목록)'; } });   /* [GUEST_TIME_1102] 콘솔 구간 칸 글도 원천에서 */
@@ -128,6 +128,8 @@
   function list(seg) { seg = oneSeg(seg); return (PICKS[seg] || []).map(function (f, i) { var o = song(f); if (!o) return null; o.rank = i + 1; return o; }).filter(Boolean); }
   /* [BGM_FIX_1030] 곡 번호(f) — 'B05' 꼴(곡마다 하나) · 옛 구간 번호('M2_1')는 이 꼴이 아니라 «고르지 않음»으로 읽힌다 */
   var F_RE = /^B\d{2,3}$/;
+  /* ★[REPEAT_RULE_1107 ②③] 같은 곡을 다시 이을 자리 — 곡 성질의 강조 자리(SONGS.start · 파형으로 잰 초)가 있으면 거기 · 없으면 곡 길이의 40%(전주부터 다시 들리지 않게) · 콘솔 · 미리 듣기가 같이 쓴다 */
+  function hookAt(f, d) { var s0 = SONGS[String(f || '').toUpperCase()]; if (s0 && s0.start != null && isFinite(+s0.start)) return Math.max(0, +s0.start); d = +d || 0; return d > 0 ? Math.round(d * 0.4 * 10) / 10 : 0; }
   function byF(f) { f = String(f || '').toUpperCase(); return F_RE.test(f) ? song(f) : null; }
   /* 고객이 고른 곡 번호 — 구간(M1 …)은 S.bgm[구간].k · 축사 · 편지 하위 칸(M4S5 · M4S6)은 S.bgm.S5 · S6 의 k(«음악과 함께»일 때만) · 그 구간 목록에 없으면 ''(1순위로 준비) */
   /* ★★[LIST_NO_PICK_1101 2026-11-01 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] 목록 칸(multi · 하객 맞이 M1 · 테이블 인사 M8)은 고르지 않는다 — 다섯 곡이 다 흐르고 고르면 시작 곡만 바뀌었다 ·
@@ -157,6 +159,8 @@
          · 빼서 목록 합이 필요한 길이(NEED · 처리된 전체 파일 길이 o.dur · 모르면 곡당 LEN0 초) 밑으로 내려가면 빼지 않고 맨 뒤로(먼저 들은 때와 가장 멀리)
        · dup = 앞 담긴 한 곡 칸과 같은 곡(실제 소리 기준) — 화면 «…에서도 고른 곡이에요» 한 줄 */
   var NEED = { M8: 1800, M4: 1080, M6: 900, M8L: 1e9 }, LEN0 = 240;
+  /* ★[REPEAT_RULE_1107] 대략 시계(초) — 한 곡 칸 · 입장(M3) · 마지막 곡(추가 촬영 약 17분)의 칸 길이 · 직전 40분 */
+  var SPAN = { M2: 130, M3: 300, M5: 300, M7: 90, M8L: 1020 }, GAP40 = 2400;
   /* ★[GUEST_TIME_1102] 하객 맞이(M1) 길이 = 하객 입장 ~ 본식(ritual-data DAY.guestIn) — 손으로 적지 않는다. 식순 화면은 엔진(ENG.DAY) · 콘솔은 DAY 전역 · Node 는 require 로 읽는다 · 못 읽으면 0(«약 n분» 꼬리 없음) */
   function guestMin() { var D = null; try { if (typeof window !== 'undefined') D = (window.ENG && window.ENG.DAY) || (window.DAY && window.DAY.guestIn != null ? window.DAY : null); if (!D && typeof require === 'function') D = require('./ritual-data.js').DAY; } catch (e) { D = null; } return D && +D.guestIn > 0 ? +D.guestIn : 0; }
   Object.defineProperty(NEED, 'M1', { enumerable: true, get: function () { return guestMin() * 60; } });   /* [AFTER_PHOTO_LOOP_1102] M8L = 추가 촬영이 끝날 때까지 — 겹친 곡도 빼지 않고 뒤로(R3 ⑦ 보탬) */
@@ -168,15 +172,34 @@
     segs.forEach(function (sg) { if (loopy(sg)) return; var k = custK(S, sg), c = carryOf(S, sg, prevF(sg)), want = c || k || (PICKS[sg] || [])[0] || '', f = pick1(sg, want);
       var dup = ''; if (f && firstBy[f] && firstBy[f] !== sg && !c) dup = firstBy[f]; if (f && !firstBy[f]) firstBy[f] = sg;
       R[sg] = { seg: sg, want: want, first: f, pick: k, carry: c, list: f ? [f] : [], dup: dup }; if (f) rsv[f] = rsv[f] || sg; });
-    var seen = {};
-    segs.forEach(function (sg) { if (!loopy(sg)) return; var k = custK(S, sg), c = carryOf(S, sg, prevF(sg)), base = order(S, sg, c || '', function () { return false; }), L = base.filter(function (f) { return have(f); });
-      var lenOf = function (a) { return a.reduce(function (t, f) { var d = +dur(f); return t + (d > 0 ? d : LEN0); }, 0); }, need = NEED[sg] || 0, keep = [], back = [];
-      /* [DETAIL_R3_1101 ⑦ 보탬] 앞 칸에서 고른 배경 곡(fill)도 «빼기»가 아니라 같은 셈(예약 · 들은 곡)으로 — 빼면 모자랄 때 맨 뒤로(order 의 fill 빼기는 여기서 쓰지 않는다) */
-      L.forEach(function (f) { var taken = (f !== c) && (f !== k) && ((rsv[f] && rsv[f] !== sg) || seen[f]); if (taken) back.push(f); else keep.push(f); });   /* ★[B2_EUM07] 두 분이 이 칸에 고른 곡(k)은 다른 칸(편지 «음악과 함께» 등)에서 같은 곡을 써도 뒤로 밀지 않는다 — 식순 화면 · 연습 · 당일(segSel = 고른 곡부터) 첫 곡이 같다 · «…에서도 고른 곡이에요» 한 줄(dupSeg)은 그대로 */
-      var out = keep.slice(); back.forEach(function (f) { if (lenOf(out) < need) out.push(f); });   /* 빼서 모자라면 맨 뒤로 · 모자라지 않으면 뺀다 */
-      if (!out.length && L.length) out = L.slice();
-      out.forEach(function (f) { seen[f] = 1; });
+    /* ★★[REPEAT_RULE_1107 2026-11-07 BGM 섹션 → 입장 세션 묶음 H · 대본 판정] «한 번 나온 곡은 그날 다시 안 튼다»가 배경 칸엔 너무 엄격했다(테이블 인사 30분이 2곡 번갈아) —
+         ① 의미 곡(한 곡 칸 화촉 · 부모님께 인사 · 축배의 곡 · 마지막 곡 첫 곡) · 두 분이 고른 곡(본식 · 닫는 인사 포함)은 하루 한 번 — 다른 칸 목록 · fill 에서 «언제나» 뺀다(앞 칸 · 뒤 칸 모두 · ⓐ ⓑ)
+         ② 배경 목록 칸(하객 맞이 M1 · 본식 M4 · 테이블 인사 M8 · 닫는 인사 → 사진 M6 · 마지막 곡 M8L ⓒ)은 같은 칸 안에서 목록을 다 돌기 전엔 반복 없음 —
+            제 곡이 칸 길이(NEED)보다 모자라면 «같은 칸 처음으로» 대신 앞 배경 칸에서 나온 곡 중 가장 오래전에 나온 곡을 먼저 · 바로 앞 배경 칸(같은 시간대)에서 나온 곡과 직전 40분 안에 나온 곡은 뒤로(그래도 모자라면 엔진이 처음으로)
+         ③ 시간은 칸 길이(NEED · 한 곡 칸 SPAN)로 센 대략 시계 · 곡 길이 = o.dur(모르면 LEN0) · 이어받기(CARRY_SAME) · 두 분이 이 칸에 고른 곡(B2_EUM07)은 그대로 ·
+            곡 사이 겹침 · ONE_FLOW · 끊긴 곡 이어 듣기 · LIST_HOLD · 선언 뒤 새 곡은 엔진 몫 그대로(이 목록을 돈다) · 식순 화면 · 콘솔 순서 줄도 이 목록 하나 */
+    var dOf = function (f) { var d = +dur(f); return d > 0 ? d : LEN0; }, once = {}, lp = {}, lpSeg = {}, t = 0, prevBg = '';
+    segs.forEach(function (sg) { if (!loopy(sg)) { var r = R[sg]; if (r && r.first && !once[r.first]) once[r.first] = sg; } else { var k = custK(S, sg); if (k && !once[k]) once[k] = sg; } });   /* ① 의미 곡 · 고른 곡 */
+    if (on('M8L')) { var k8 = custK(S, 'M8L'), c8 = carryOf(S, 'M8L', prevF('M8L')), f8 = (c8 || k8 || (PICKS.M8L || [])[0] || ''); if (f8 && !have(f8)) f8 = (PICKS.M8L || []).filter(function (x) { return have(x); })[0] || ''; if (f8 && !once[f8]) once[f8] = 'M8L'; }   /* 마지막 곡 첫 곡도 의미 곡 */
+    var otherOnce = function (f, sg, c) { return !!(once[f] && once[f] !== sg && f !== c); };
+    segs.forEach(function (sg, si) {
+      if (!loopy(sg)) { var r1 = R[sg]; if (r1 && r1.first) { lp[r1.first] = t; lpSeg[r1.first] = sg; } t += SPAN[sg] || 0; if (sg === 'M2') t += SPAN.M3; return; }
+      var k = custK(S, sg), c = carryOf(S, sg, prevF(sg)), base = order(S, sg, c || '', function () { return false; }), L = base.filter(function (f) { return have(f); });
+      var need = NEED[sg] || 0, out = [], tt = t;
+      var put = function (f) { out.push(f); lp[f] = tt; lpSeg[f] = sg; tt += dOf(f); };
+      L.forEach(function (f) { if (out.indexOf(f) > -1) return; if (f === c || f === k) { put(f); return; } if (otherOnce(f, sg, c) || lp[f] != null) return; put(f); });   /* 제 곡 — 앞에서 나온 곡 · 다른 칸 의미 곡은 빼고(앞 곡은 아래 빌려 오기 후보) */
+      var sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0); };
+      while (sum() < need) {   /* ② 모자라면 앞 배경 칸에서 가장 오래전 곡부터 · 바로 앞 칸 · 40분 안은 뒤로 */
+        var best = '', bt = 9, bl = 1e12;
+        Object.keys(lp).forEach(function (f) { if (out.indexOf(f) > -1 || otherOnce(f, sg, c) || once[f] === sg || !have(f) || !SONGS[f] || !loopy(lpSeg[f])) return;
+          var tier = (lpSeg[f] === prevBg) ? 2 : (tt - lp[f] < GAP40) ? 1 : 0; if (tier < bt || (tier === bt && lp[f] < bl)) { best = f; bt = tier; bl = lp[f]; } });
+        if (!best) break; put(best); }
+      if (!out.length && L.length) out = L.filter(function (f) { return !otherOnce(f, sg, c); }); if (!out.length && L.length) out = L.slice();
+      t += Math.min(need, 1e6) || SPAN[sg] || 0; prevBg = sg;
       R[sg] = { seg: sg, want: c || k || base[0] || '', first: out[0] || '', pick: k, carry: c, list: out, dup: '' }; });
+    /* ★[REPEAT_RULE_1107 ④] 한 곡 칸(화촉 · 부모님께 인사 · 축배)이 곡보다 길면 같은 곡 처음부터가 아니라 같은 칸 다음 곡으로 겹쳐 넘긴다 — 다른 칸 의미 곡 · 목록 칸에 쓰인 곡은 뺀다(하루 한 번) */
+    var used = {}; Object.keys(R).forEach(function (sg) { if (loopy(sg)) R[sg].list.forEach(function (f) { used[f] = 1; }); });
+    segs.forEach(function (sg) { if (loopy(sg) || !R[sg]) return; var f0 = R[sg].first; R[sg].alt = (PICKS[sg] || []).filter(function (f) { return f && f !== f0 && have(f) && SONGS[f] && !used[f] && !(once[f] && once[f] !== sg); }); R[sg].alt.forEach(function (f) { used[f] = 1; }); });   /* 한 곡은 한 칸의 다음 곡으로만 */
     return R; }
-  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[oneSeg(id)] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0, guestMin: guestMin, oneSeg: oneSeg, xfOf: xfOf, XF: XF };
+  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[oneSeg(id)] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0, SPAN: SPAN, GAP40: GAP40, hookAt: hookAt, guestMin: guestMin, oneSeg: oneSeg, xfOf: xfOf, XF: XF };
 });

@@ -212,15 +212,21 @@
       setTimeout(function(){ try{ if(os){ os.onended=null; os.stop(); os.disconnect(); } if(og) og.disconnect(); }catch(e){} },X*1000+200);
       v.src=s2; v.sg=g2; v.off=off; v.t0=n; v.f=f; LPB.relay=(LPB.relay||0)+1; listArm(v); return true; }catch(e){ return false; } }
   function hookOf(f){ var s0=P.byF(f); return (s0&&s0.start!=null)?Math.max(0,+s0.start):0; }
+  /* ★[REPEAT_RULE_1107 ③] 같은 곡을 다시 이을 때 — 강조 자리(SONGS.start)가 없으면 곡 길이 40% 쯤부터(전주부터 다시 들리지 않게 · 콘솔과 같은 BgmPicks.hookAt) */
+  function reHook(f,b){ return P.hookAt?P.hookAt(f,b?b.duration:0):hookOf(f); }
+  /* ★[REPEAT_RULE_1107 ④] 한 곡 칸(화촉 · 부모님께 인사 · 축배)이 곡보다 길면 — 같은 칸 다음 곡(계획 alt)으로 겹쳐 넘긴다 */
+  function oneNow(){ var st=curStep(); if(!st||BED.who!=='lp') return ''; var sg=st._base||segAt(st.k), d=sg&&P.seg(sg); return (d&&P.loopy&&!P.loopy(sg)&&!d.entry)?sg:''; }
+  function altNext(sg,f){ var pl=planOf(AV.st==='ok'), r=pl&&pl[sg]; if(!r) return ''; var L=[r.first].concat(r.alt||[]), i=L.indexOf(f); if(i<0) return '';   /* 지금 곡이 그 칸 곡이 아니면(앞 곡이 잇는 중 · 축배 줄의 본식 곡 등) 넘기지 않는다 */ for(var j=i+1;j<L.length;j++){ if(L[j]&&has(L[j])) return L[j]; } return ''; }
   function lfSeg(){ var st=curStep(); if(!st||BED.who!=='lp'||!entMulti()) return ''; var sg=st._base||segAt(st.k); return (sg&&P.seg(sg)&&P.seg(sg).loop)?sg:''; }
   function lfNext(sg,f){ var o=ordOf(sg).filter(has), i=o.indexOf(f); if(!o.length) return ''; for(var j=1;j<=o.length;j++){ var x=o[(Math.max(0,i)+j)%o.length]; if(x!==f) return x; } return ''; }
-  function listArm(v){ clearTimeout(v.lt); var a=AC, s=v.src; if(!a||!s||!s.buffer||v.f===ENT_F) return; var sg0=lfSeg(), X=(sg0&&P.xfOf)?P.xfOf(sg0):LIST_XF, d=s.buffer.duration, left=d-posOf(v); if(!(d>X*2+1)) X=LIST_XF; if(!(d>X*2+1)) return;   /* 아주 짧은 곡(17초 이하)은 3초 겹침 그대로 */   /* [ONE_FLOW_1106 ②] 본식 M4 = 8초 전에 겹쳐 넘김 */
-    var n0=sg0?lfNext(sg0,v.f):''; if(n0&&!BUF[n0]) want(n0);   /* 미리 받기 */
+  function listArm(v){ clearTimeout(v.lt); var a=AC, s=v.src; if(!a||!s||!s.buffer||v.f===ENT_F) return; var sg0=lfSeg(), sgA=sg0?'':oneNow(), X=(sg0&&P.xfOf)?P.xfOf(sg0):LIST_XF, d=s.buffer.duration, left=d-posOf(v); if(!(d>X*2+1)) X=LIST_XF; if(!(d>X*2+1)) return;   /* 아주 짧은 곡(17초 이하)은 3초 겹침 그대로 */   /* [ONE_FLOW_1106 ②] 본식 M4 = 8초 전에 겹쳐 넘김 */
+    var n0=sg0?lfNext(sg0,v.f):(sgA?altNext(sgA,v.f):''); if(n0&&!BUF[n0]) want(n0);   /* 미리 받기 */
     v.lt=setTimeout(function(){ if(v.src!==s||!AC) return; var sg=BED.cur===v?lfSeg():'', nf=sg?lfNext(sg,v.f):'';
-      var cs=BED.cur===v?curStep():null; if(nf&&cs&&(cs.talk||cs.talk2||(sg==='M4'&&(personal(cs)||cs.quiet)))){   /* ★[MEANING_R2_1102 LIST_HOLD] 본식 곡 목록(M4)은 행동 줄(반지 · 포옹 · 인사)도 — 연습 B 가 몇 분 머물러도 같은 곡을 강조 자리부터 겹쳐 잇는다 */ LPB.lfw={ sg:sg, f:nf, v:v, k0:cs.k }; if(!BUF[nf]) want(nf); swapSrc(v,s.buffer,hookOf(v.f),v.f,X); return; }   /* ★[MEANING_R1_1102 19] 두 분 · 손님이 말하는 줄 도중에는 다음 곡으로 넘기지 않는다 — 같은 곡을 강조 자리부터 3초 겹쳐 잇고, 그 줄이 끝난 다음 줄(lpShow)에서 넘긴다 · 당일 콘솔 talkNow 와 같은 규칙 */
-      if(nf&&sg==='M4'&&hushSoon(v.f,HUSH_NEAR)){ swapSrc(v,s.buffer,hookOf(v.f),v.f,X); return; }   /* ★[ONE_FLOW_1106 ④] 60초 안에 의도적 무음(축가 MR · 축사 · 편지 «조용히» · 선언)이 오면 다음 곡으로 넘기지 않는다 — 지금 곡을 강조 자리부터 그 무음까지(새 곡 17 ~ 18초 조각 금지) */
+      var cs=BED.cur===v?curStep():null; if(nf&&cs&&(cs.talk||cs.talk2||(sg==='M4'&&(personal(cs)||cs.quiet)))){   /* ★[MEANING_R2_1102 LIST_HOLD] 본식 곡 목록(M4)은 행동 줄(반지 · 포옹 · 인사)도 — 연습 B 가 몇 분 머물러도 같은 곡을 강조 자리부터 겹쳐 잇는다 */ LPB.lfw={ sg:sg, f:nf, v:v, k0:cs.k }; if(!BUF[nf]) want(nf); swapSrc(v,s.buffer,reHook(v.f,s.buffer),v.f,X); return; }   /* ★[MEANING_R1_1102 19] 두 분 · 손님이 말하는 줄 도중에는 다음 곡으로 넘기지 않는다 — 같은 곡을 강조 자리부터 3초 겹쳐 잇고, 그 줄이 끝난 다음 줄(lpShow)에서 넘긴다 · 당일 콘솔 talkNow 와 같은 규칙 */
+      if(nf&&sg==='M4'&&hushSoon(v.f,HUSH_NEAR)){ swapSrc(v,s.buffer,reHook(v.f,s.buffer),v.f,X); return; }   /* ★[ONE_FLOW_1106 ④] 60초 안에 의도적 무음(축가 MR · 축사 · 편지 «조용히» · 선언)이 오면 다음 곡으로 넘기지 않는다 — 지금 곡을 강조 자리부터 그 무음까지(새 곡 17 ~ 18초 조각 금지) */
       if(nf&&BUF[nf]&&BUF[nf].st==='ok'){ if(swapSrc(v,BUF[nf].b,0,nf,X)){ LPB.f=nf; LPB.lf={ sg:sg, f:nf }; } return; }
-      if(nf&&!BUF[nf]) want(nf); swapSrc(v,s.buffer,hookOf(v.f),v.f,X); },Math.max(0,left-X)*1000); }
+      if(!nf&&BED.cur===v){ var sa=oneNow(), na=sa?altNext(sa,v.f):''; if(na&&!(cs&&(cs.talk||cs.talk2))){ if(BUF[na]&&BUF[na].st==='ok'){ if(swapSrc(v,BUF[na].b,0,na,X)) LPB.f=na; return; } want(na); } }   /* [REPEAT_RULE_1107 ④] 한 곡 칸 다음 곡 */
+      if(nf&&!BUF[nf]) want(nf); swapSrc(v,s.buffer,reHook(v.f,s.buffer),v.f,X); },Math.max(0,left-X)*1000); }
   /* [ONE_FLOW_1106 ④] 지금 줄 뒤 sec 초 안에 이 곡이 의도적으로 꺼지는 줄(크기 −60 이하)이 오는가 — 줄 길이는 받은 나레이션 · 행동 줄 멈춤(lineSec) · 다른 구간 순간이 먼저 오면 아니다 */
   var HUSH_NEAR=60;
   function hushSoon(f,sec){ var q=lpQ(), i=0; try{ i=Math.max(0,LP.i||0); }catch(x){ return false; } var t=0;
@@ -308,7 +314,7 @@
     var _lvn=liveBy(st); if(_lvn&&_lvn.newSong&&(st.act||st.quiet)&&emb()){ var _of=BED.cur.src?BED.cur.f:'', _ord=ordOf('M4').filter(has), _av={}, _nf='', _i0=_ord.indexOf(_of); (LPB.hzL&&LPB.hzL.length?LPB.hzL:[_of]).forEach(function(x){ _av[x]=1; });   /* 피할 곡 = 선언 전에 들리던 곡(정적 동안 목록이 넘어가 지금 곡이 다르면 지금 곡을 강조 자리부터 새로 써도 된다) */
       for(var _j=1;_j<=_ord.length;_j++){ var _x=_ord[(Math.max(0,_i0)+_j)%_ord.length]; if(_x&&!_av[_x]){ _nf=_x; break; } } if(!_nf&&LPB.hzL&&LPB.hzL.length){ for(var _q=LPB.hzL.length-1;_q>=0&&!_nf;_q--){ if(_ord.indexOf(LPB.hzL[_q])>-1) _nf=LPB.hzL[_q]; } }   /* 다 들린 곡이면 가장 오래전에 들린 곡 */
       if(!_nf) _nf=lfNext('M4',_of)||m4();   /* 선언 전에 들리던 곡 · 지금 곡이 아닌 목록 다음 곡(덕담 곡이 같으면 그다음) */
-      var _go=function(){ var q=curStep(); if(q!==st||!_nf||!(BUF[_nf]&&BUF[_nf].st==='ok')) return; var nv=startVoice(_nf,lvOf(st,_nf),_lvn.upMs||600,hookOf(_nf)); if(!nv) return; LPB.cut=null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 박수 = 새 곡(끊긴 곡 잇기 예외) */ if(BED.cur.src) stopVoice(BED.cur,300); BED.cur=nv; LPB.on=true; BED.who='lp'; LPB.f=_nf; LPB.lf={ sg:'M4', f:_nf }; };
+      var _go=function(){ var q=curStep(); if(q!==st||!_nf||!(BUF[_nf]&&BUF[_nf].st==='ok')) return; var nv=startVoice(_nf,lvOf(st,_nf),_lvn.upMs||600,reHook(_nf,BUF[_nf]&&BUF[_nf].b)); if(!nv) return; LPB.cut=null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 박수 = 새 곡(끊긴 곡 잇기 예외) */ if(BED.cur.src) stopVoice(BED.cur,300); BED.cur=nv; LPB.on=true; BED.who='lp'; LPB.f=_nf; LPB.lf={ sg:'M4', f:_nf }; };
       if(_nf&&_nf!==_of){ if(BUF[_nf]&&BUF[_nf].st==='ok') _go(); else want(_nf,function(b){ if(b) _go(); }); return; } }
     if(st.k==='declare'&&emb()){ var _pn=lfNext('M4',BED.cur.src?BED.cur.f:''); if(_pn&&!BUF[_pn]) want(_pn); }   /* 박수 곡 미리 받기 */
     /* ★[MEANING_R2_1102 ENTRY_SETTLE] 도착 멘트 — 줄 시작부터 엔진 fadeMs(4.5초)에 걸쳐 −90(박수 아래로 · 뚝 끊지 않음) */
