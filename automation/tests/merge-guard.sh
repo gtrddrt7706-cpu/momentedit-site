@@ -23185,6 +23185,11 @@ chk 'RA5_PREVIEW_FADE' scripts/check-ritual-cue.js 1
 chk 'RA5_TABLE_EACH' assets/ritual-open.js 1
 chk 'tableEachTxt: tableEachTxt' assets/ritual-open.js 1
 chk 'RA5_TABLE_EACH' assets/ritual-cue.js 1
+chk "O.tableSecOf(S) : O.TABLE_SEC \\* O.tableN(S)), self: true,   /\\* ★\\[EVENT_COUNT_CAP 검토 183\\] 시간표 · 빌더와 같은 값(본식 상한을 넘는 드문 조합이면 그만큼 짧게) \\*/ doing: 'move', duck: -12," assets/ritual-cue.js 1   # [RA5_TABLE_KEEP] 테이블 인사 사람 순간 이동 · −12 (tv 를 더하다 통째로 빠졌던 줄 · 검토 R5-1)
+chk '_TBL.said=null; return; } if(cut<=from) return;' order-preview.html 1   # [RA5_TABLE_NOTE] 알린 분은 줄인 시간이 0 으로 돌아왔을 때만 지운다(검토 R5-2)
+nochk '_TBL.sc' order-preview.html   # 옛 재알림 규칙(덜 줄었던 때 → 같은 분 다시 알림) 되살리지 말 것
+chk 'function _tblSay(mn,T)' order-preview.html 1   # [RA5_TABLE_NOTE] 반올림한 분 = 원래 분이면 말 없음 · _capNo 도 같은 규칙(검토 R5-3)
+chk 'RA5_TABLE_NOTE' scripts/audit/body-cap.mjs 1
 chk 'RA5_TABLE_EACH' order-preview.html 1
 chk 'RA5_TABLE_NOTE' order-preview.html 4
 chk '_tblWatch(_tb0); };' order-preview.html 1

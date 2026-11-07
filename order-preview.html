@@ -4382,7 +4382,7 @@ function _capNo(mut,add,k){ var R=RitualOpen; if(!R||!R.capOver||!isOpen()) retu
      길이 칩 — 줄이기 전 값(raw)으로 재서 넘으면 «다른 순간을 하나 빼거나 ○○을 짧게» 창 */
   if(add&&R.countNo){ var cn=R.countNo(S,t); if(cn){ try{ ordTell({title:R.COUNT_MSG[cn].title, body:R.COUNT_MSG[cn].body}); }catch(e){} return true; } }
   if(R.capOver(S,t,!add)){ try{ var cm=R.capMsg?R.capMsg(t,add,k):R.CAP_MSG; ordTell({title:cm.title, body:cm.body}); }catch(e){} return true; }
-  if(R.tableCut&&R.tableCut(t)>R.tableCut(S)){ var mn=Math.round(R.tableSecOf(t)/60); try{ _TBL.said=mn; _TBL.sc=R.tableCut(t); }catch(e){} setTimeout(function(){ _noteToast(_tblMsg(mn)); },120); }   /* [RA5_TABLE_NOTE] 글로 줄인 알림과 같은 문구 · 같은 값이면 글 쪽이 다시 띄우지 않게 기억 */
+  if(R.tableCut&&R.tableCut(t)>R.tableCut(S)){ var mn=Math.round(R.tableSecOf(t)/60), _say=true; try{ if(!R.tableCut(S)) _TBL.said=null; _say=_tblSay(mn,t); if(_say) _TBL.said=mn; }catch(e){} if(_say) setTimeout(function(){ _noteToast(_tblMsg(mn)); },120); }   /* [RA5_TABLE_NOTE] 글로 줄인 알림과 같은 문구 · 같은 값이면 글 쪽이 다시 띄우지 않게 기억 */
   return false; }   /* [CAP_NEED_1031] add = 순간 담기 · 아니면 칩 · 길이(k = 그 순간) */
 /* [EVENT_COUNT_CAP] 카운터 한 줄 — 남은 개수만(분 숫자 없음) · ① 순간 더하고 빼기 · ② 모든 순간 보기 · ③ 한눈에 보기 */
 function _cntLine(cls){ var R=RitualOpen; if(!R||!R.countOf||!isOpen()) return ''; var c=R.countOf(S);
@@ -5305,12 +5305,14 @@ function _mkCnt(id,v,lim){ var n=String(v||'').length; return '<span class="mk-c
 function _fAt(key){ if(!S.fAt) S.fAt={}; S.fAt[key]=Math.max(Date.now(),(+S.fAt[key]||0)+1); try{ _fAtMine[key]=S.fAt[key]; }catch(e){} }   /* [B2_NA_11] 이 기기 시계가 늦어도 고친 칸은 불러온 판보다 뒤 */
 /* ★★[RA5_TABLE_NOTE 2026-11-07 규칙 감사 · 재검증 재수정] 서약 · 편지 글을 길게 써서 본식 상한에 닿으면 테이블 인사가 말없이 줄었다(ritual-open tableSecOf · 9분 → 4.5분까지) —
      입력이 멈춘 뒤(0.9초) 또는 칸을 떠날 때 한 번 알린다 · 순간 담기 · 길이 칩(_capNo)과 같은 문구(_tblMsg) · 같은 값이면 다시 띄우지 않는다 · 다시 늘면 말없이(지금 관례) */
-var _TBL={from:null,said:null,sc:0,t:0};   // said = 알린 분 · sc = 그때 줄인 초(그보다 덜 줄었던 때에서 다시 줄면 같은 분이어도 다시 알린다)
+var _TBL={from:null,said:null,t:0};   // said = 알린 분 — 줄인 시간(cut)이 0 으로 돌아왔을 때만 지운다(지우고 다시 쓰기를 되풀이해도 같은 분은 한 번)
 function _tblMsg(mn){ return '테이블 인사를 약 '+mn+'분으로 맞췄어요'; }
 function _tblCut(){ var R=RitualOpen; try{ return (R&&R.tableCut&&isOpen())?R.tableCut(S):0; }catch(e){ return 0; } }
 function _tblFire(){ if(_TBL.t){ clearTimeout(_TBL.t); _TBL.t=0; } var from=_TBL.from, cut=_tblCut(), R=RitualOpen; _TBL.from=null; if(from==null) return;
-  if(_TBL.said!=null&&from<_TBL.sc) _TBL.said=null; if(!cut){ _TBL.said=null; return; } if(cut<=from) return;
-  var mn=Math.round(R.tableSecOf(S)/60); if(mn===_TBL.said) return; _TBL.said=mn; _TBL.sc=cut; _noteToast(_tblMsg(mn)); }
+  if(!from) _TBL.said=null; if(!cut){ _TBL.said=null; return; } if(cut<=from) return;
+  var mn=Math.round(R.tableSecOf(S)/60); if(!_tblSay(mn,S)) return; _TBL.said=mn; _noteToast(_tblMsg(mn)); }
+/* [RA5_TABLE_NOTE] 띄울 분인가 — 이미 알린 분이거나, 반올림하면 원래 분(30초만 줄어 «약 9분»)과 같으면 말하지 않는다(_capNo 도 같은 규칙) */
+function _tblSay(mn,T){ var R=RitualOpen; if(mn===_TBL.said) return false; try{ if(R.tableFull&&mn===Math.round(R.tableFull(T)/60)) return false; }catch(e){} return true; }
 function _tblWatch(from){ if(_TBL.from==null) _TBL.from=from; if(_TBL.t) clearTimeout(_TBL.t); _TBL.t=setTimeout(_tblFire,900); }
 document.addEventListener('focusout',function(){ if(_TBL.t) _tblFire(); },true);
 window.mkTx=function(id,t){ var _w=document.getElementById('mkw_'+id.replace('.','_')); if(_w) _w.textContent=_exWarn(id,t.value);   // [EX_NAMES]
