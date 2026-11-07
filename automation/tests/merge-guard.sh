@@ -19138,7 +19138,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/entry-scene-day.mjs 
 chk 'REC_SONG_1012' automation/platform/80_production.gs 3
 chk "if (String(body.key || '') === 'rec') { try { return _recGet_(code, body.id, false); }" automation/platform/80_production.gs 1
 chk "if (/^rec:/.test(String(id || ''))) { try { return _recGet_(" automation/platform/80_production.gs 1
-chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;" automation/platform/80_production.gs 1
+chk "var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 200;" automation/platform/80_production.gs 1   # [HOUR_BUCKET_1107] 60 → 200 · 셈은 시각 칸
 chk 'REC_SONG_1012' mypage.html 1
 chk "(!_isDel&&(d.data.key==='mu'||d.data.key==='rec'||d.data.key==='bed'))?180000:60000)" mypage.html 1   # [BGM_PREVIEW_1024] key bed 도 180초
 chk 'songs:Array.isArray(r.songs)?r.songs:undefined' mypage.html 1
@@ -19147,7 +19147,7 @@ chk "mid = mu.src === 'rec' ? 'rec:' + mu.k :" console.html 1
 chk 'REC_SONG_1012' scripts/audit/rec-song-server.mjs 1
 chk 'REC_SONG_1012' scripts/audit/entry-scene-day.mjs 1
 nochk 'songs.json' assets/entry-music.js                 # 곡 목록은 서버(드라이브)에서만 — 저장소에 목록 · 가사를 두지 않는다
-if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 60번 · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-song-server.mjs >/dev/null 2>&1; _rss=$?; if [ "$_rss" = 1 ]; then echo 'FAIL rec-song-server: 추천 곡 서버 길(폴더 찾기 · 목록 · 곡 받기 · 로그인 · 한 시간 200번(시각 칸) · 콘솔 · 캐시 · 서버가 직접 받는 파일 9개)이 깨졌습니다 — node scripts/audit/rec-song-server.mjs'; fail=1; else echo 'ok rec-song-server: 추천 곡 서버 길'; fi; fi
 # ── 2026-10-13 추천 곡 파일을 서버가 직접 받는다 [REC_PUT_1013] — 사장님 «드라이브 너가 저장 따로 해» · «너가 자동으로 노래 나오게 해결해 무조건 · 테스트 화면에서 했던 거 그대로»
 #   사장님이 드라이브에 폴더를 올리지 않는다. 비공개 문서 저장소 작업(operations/rec-songs · rec-songs-push)이 파일 9개를 ritualFile · key 'rec' 로 보낸다.
 #   서버는 «이름 표 9개 + 내용 지문(SHA-256)»이 맞을 때만 저장한다 — 비밀 열쇠 없이 다른 것은 쓰지 못하게(rec-song-server 9a ~ 9i · 깨 보기 넷: 지문 비교 · same 지름길 · 길 · 이름 표)
@@ -23064,3 +23064,18 @@ nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+
+# ★[RULE_AUDIT_1107 2026-11-07 대본 규칙 감사 · 서버 몸] ① 통지는 메일이 나갔을 때만 · ② 하객 사진도 통지 뒤 7일 · ③ 시간당 셈 시각 칸 · ④ AI 상담 잘린 답 · ⑤ 하객 사진 가득 알림
+chk 'NOTICE_REACHED_1107' automation/platform/70_journey.gs 1
+chk 'GUEST_WITH_NOTICE_1107' automation/platform/70_journey.gs 1
+chk '하객분들이 올려 주신 사진도 이때 함께 지워져요.' automation/platform/70_journey.gs 1
+chk 'HOUR_BUCKET_1107' automation/platform/80_production.gs 4
+chk 'HOUR_BUCKET_1107' automation/platform/89_prevideo.gs 1
+chk 'BED_HOUR_MAX = 300' automation/platform/80_production.gs 1
+chk 'GP_FILL_ALERT_1107' automation/platform/80_production.gs 1
+chk 'ADVISOR_CUT_1107' api/advisor.js 2
+chk 'const MAX_TOKENS = 1000;' api/advisor.js 1
+nochk "qk = 'RECQ_' + code," automation/platform/80_production.gs
+nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
+chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]

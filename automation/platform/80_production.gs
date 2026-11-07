@@ -1334,7 +1334,7 @@ function handleRitualFileGet(body) { _gsr_();
    · 폴더는 이름으로 찾되 songs.json 이 든 것만(여러 개면 목록이 가장 새것) · 찾은 id 는 REC_FID 에 적어 둔다 — 폴더를 지우고 다시 올려도 다음 요청이 다시 찾는다
    · 곡 목록은 10분 캐시(REC_MF) — 목록을 고친 뒤 10분 안에는 옛 목록이 나갈 수 있다
    · 두 분 쪽 곡 받기는 한 예식에 한 시간 REC_HOUR_MAX(60)번까지(넘으면 L1 «잠시 뒤») — 미리 듣기마다 곡 하나를 받는다 · 콘솔은 상한 없음 */
-var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 60;
+var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 200;   // [HOUR_BUCKET_1107] 60 → 200 · 셈은 시각 칸(_hourKey_)
 function _recFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_FID');
   if (fid) { try { var f0 = DriveApp.getFolderById(fid); if (!f0.isTrashed() && f0.getFilesByName(REC_MANIFEST).hasNext()) return f0; } catch (e) {} }
@@ -1369,7 +1369,7 @@ function _recGet_(code, id, admin) {
   id = String(id || '').trim();
   if (id === 'list') { var m = _recManifest_(); if (!m || !m.songs.length) return { ok: false, ecode: 'L3', error: '추천 곡을 아직 준비하지 못했어요.' }; return { ok: true, key: 'rec', id: 'list', songs: m.songs }; }
   if (!/^[A-Za-z0-9_-]{1,16}$/.test(id)) return { ok: false, error: '곡을 찾을 수 없어요.' };
-  if (!admin) { try { var ck = CacheService.getScriptCache(), qk = 'RECQ_' + code, n = +(ck.get(qk) || 0); if (n >= REC_HOUR_MAX) return { ok: false, ecode: 'L1', error: '잠시 뒤 다시 눌러 주세요.' }; ck.put(qk, String(n + 1), 3600); } catch (e) {} }
+  if (!admin) { try { var ck = CacheService.getScriptCache(), qk = _hourKey_('RECQ_' + code), n = +(ck.get(qk) || 0);   /* [HOUR_BUCKET_1107] */ if (n >= REC_HOUR_MAX) return { ok: false, ecode: 'L1', error: '잠시 뒤 다시 눌러 주세요.' }; ck.put(qk, String(n + 1), 3600); } catch (e) {} }
   var f = _recSongFile_(id); if (!f) return { ok: false, ecode: 'L3', error: '곡 파일을 찾을 수 없어요.' };
   var b = f.getBlob(), by = b.getBytes(); if (by.length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
   return { ok: true, key: 'rec', id: id, mime: b.getContentType() || 'audio/mpeg', data: Utilities.base64Encode(by) };
@@ -1380,7 +1380,7 @@ function _recGet_(code, id, admin) {
    · id 'list' = 폴더에 있는 곡 번호들(10분 캐시 BED_LS · 파일을 올린 뒤 10분 안에는 옛 목록일 수 있다)
    · 곡 번호 = 그 곡의 앞부분(BED_CLIP_MB) — 앞의 ID3 태그(앨범 사진)는 건너뛴다 · 미리 듣기용 짧은 판을 따로 만들지 않는다 · MP3 가 아니면 곡 전체(20MB 까지)
    · 로그인한 두 분만(handleRitualFileGet) · 한 예식 한 시간 BED_HOUR_MAX(80)번까지(넘으면 L1) · 당일 콘솔은 종전대로 그 기기에 넣은 파일(이 길을 쓰지 않는다) */
-var BED_ROOT_FOLDER = 'ME_구간곡', BED_HOUR_MAX = 80, BED_CLIP_MB = 2.5, BED_K_RE = /^(B\d{2,3})(?=[_ .\-(]|$)/i;
+var BED_ROOT_FOLDER = 'ME_구간곡', BED_HOUR_MAX = 300, BED_CLIP_MB = 2.5, BED_K_RE = /^(B\d{2,3})(?=[_ .\-(]|$)/i;
 function _bedFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('BED_FID');
   if (fid) { try { var f0 = DriveApp.getFolderById(fid); if (!f0.isTrashed()) return f0; } catch (e) {} }
@@ -1405,12 +1405,16 @@ function _bedClip_(by) {   // 앞 ID3v2 태그를 건너뛰고 앞부분만(MP3 
   if (s >= by.length) s = 0;
   return by.slice(s, s + Math.min(by.length - s, Math.round(BED_CLIP_MB * 1048576)));
 }
+/* ★[HOUR_BUCKET_1107 2026-11-07 대본 규칙 감사 ③] «한 시간 N번» 셈은 시각 칸 열쇠(…_yyyyMMddHH · 한국 시각)로 센다.
+   종전엔 같은 열쇠를 put(…, 3600) 으로 매번 다시 써 만료가 계속 밀려, 쉬지 않고 쓰면 «한 시간»이 아니라 «이어 쓰는 동안 총 N번»이었다
+   (미리 듣기를 4~5번 열면 구간곡 받기가 막혀 고른 곡 대신 예시 음악이 났다). 칸이 바뀌면 셈이 0 부터 · 상한도 올렸다(구간곡 300 · 추천곡 200). */
+function _hourKey_(base) { return String(base) + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'); }
 function _bedGet_(code, id) {
   id = String(id || '').trim();
   var L = _bedFiles_();
   if (id === 'list') return { ok: true, key: 'bed', id: 'list', songs: Object.keys(L).map(function (k) { return { f: k }; }) };
   var k = id.toUpperCase(); if (!/^B\d{2,3}$/.test(k)) return { ok: false, error: '곡을 찾을 수 없어요.' };   // [BGM_FIX_1030] 곡 번호 = B01 꼴(곡마다 하나)
-  try { var ck = CacheService.getScriptCache(), qk = 'BEDQ_' + code, n = +(ck.get(qk) || 0); if (n >= BED_HOUR_MAX) return { ok: false, ecode: 'L1', error: '잠시 뒤 다시 눌러 주세요.' }; ck.put(qk, String(n + 1), 3600); } catch (e) {}
+  try { var ck = CacheService.getScriptCache(), qk = _hourKey_('BEDQ_' + code), n = +(ck.get(qk) || 0);   /* [HOUR_BUCKET_1107] */ if (n >= BED_HOUR_MAX) return { ok: false, ecode: 'L1', error: '잠시 뒤 다시 눌러 주세요.' }; ck.put(qk, String(n + 1), 3600); } catch (e) {}
   var f = null; if (L[k]) { try { f = DriveApp.getFileById(L[k]); if (f.isTrashed()) f = null; } catch (e) { f = null; } }
   if (!f) { try { CacheService.getScriptCache().remove('BED_LS2'); } catch (e) {} return { ok: false, ecode: 'L3', error: '곡 파일을 찾을 수 없어요.' }; }
   var b = f.getBlob(), by = b.getBytes(), mp3 = /mpeg|mp3/i.test(String(b.getContentType() || '')) || /\.mp3$/i.test(String(f.getName() || ''));
@@ -2341,6 +2345,15 @@ function handleGuestPhoto(body) { _gsr_();
     }
   } catch (e) { try { _pp.setProperty('GPRECOUNT_' + token, '1'); } catch (e6) {} /* 집계 실패는 사진 유실이 아니다 · [B2_MA_82] 다시 맞추기 표시 */ }
   finally { try { lock.releaseLock(); } catch (e3) {} }
+  /* ★[GP_FILL_ALERT_1107 2026-11-07 대본 규칙 감사 ⑤] 하객 사진이 상한(GP_MAX_FILES)의 80% · 가득에 닿으면 관리자 메일 — 칸마다 예식당 한 번(GPALERT_<토큰>).
+     상한 숫자는 그대로(사장님 결정 대기). 사진 저장 결과에는 영향 없음(실패해도 성공으로 답한다) */
+  try {
+    var _lvl = n >= GP_MAX_FILES ? 'full' : (n >= Math.ceil(GP_MAX_FILES * 0.8) ? '80' : '');
+    if (_lvl) { var _ak = 'GPALERT_' + token, _was = String(_pp.getProperty(_ak) || '');
+      if (_was !== _lvl && !(_was === 'full')) { _pp.setProperty(_ak, _lvl);
+        var _cc = String(cust.get('개인코드') || '');
+        if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('하객 사진 ' + (_lvl === 'full' ? '가득' : '80%') + ' · ' + _cc + ' · ' + n + ' / ' + GP_MAX_FILES + '장' + (_lvl === 'full' ? ' · 더는 받지 않아요' : '')); } }
+  } catch (e9) {}
 
   return { ok: true, n: n };
 }
