@@ -278,7 +278,9 @@
     'narr-closing-mealr', 'narr-closing-mealr-nt', 'narr-closing-mealr-nt-nc', 'guest-w-10m-n10-meal', 'guest-w-10m-n15-meal', 'guest-w-10m-n20-meal',
     /* ★★[K3_SHORT_1106 결정 K3 · D03 «10분 미만 본식 길이 안내»] 348 · 349 — 예상 본식이 10분 미만인 날의 10분 전(299 · 345 대신 · 부르는 이름 299s · 345s) ·
        «약 십 분간 진행되고» 대신 길이를 말하지 않는 새 문장 하나(진희 · 녹음 대기 · 화면 글 먼저) · 10분 이상은 299 ~ 313 · 345 ~ 347 그대로 */
-    'guest-w-10m-n10-short', 'guest-w-10m-n10-short-meal'
+    'guest-w-10m-n10-short', 'guest-w-10m-n10-short-meal',
+    /* ★[SEAM_WORD_1107 J06 · 대본 11/07] 350 — 맞절 → 감사 인사 기본 첫머리(215#1 «신랑 신부는 하객을 향해 서주시기 바랍니다.» → 돌아서는 1.0초 → 260#2 «이제 두 사람의 감사 인사를 듣겠습니다.» · 새 녹음 0) · 11 은 두고 쓰지 않는다 */
+    'narr-welcome-in-face'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -395,6 +397,7 @@
     'guest-ex4-4-1min': O.NAR.guestEx[2][3],
     'narr-table-in': D.NARR.tableIn,   // [TABLE_GREET_1008]
     'narr-entry-bow': D.NARR.entryBow,   // [MATJEOL_1011]
+    'narr-welcome-in-face': D.NARR.welcome.face,   // [SEAM_WORD_1107 J06]
     'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
     'narr-declare-in-friend': D.NARR.declareIn   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 여는 말은 하나(이름은 옛 판 그대로 · 134 · 135 는 RETIRED)
   };
@@ -1123,9 +1126,10 @@
 
     welcome: function (S) {
       var n = D.NARR.welcome;
-      return [
+      var _wf = function (a) { var c = a[0]; if (c && c.slug === 'narr-welcome-in') { c.ex = 'narr-welcome-in-face'; c.no = noOf(c.ex); c.file = fileOf(c.ex); } return a; };   // [SEAM_WORD_1107 J06] 기본 소리 = 350(예시 칩을 고르면 build 끝의 narExCue 가 덮는다)
+      return _wf([
         cue({
-          k: 'welcome', blockN: '감사 인사', slug: 'narr-welcome-in', name: '감사 인사 시작', text: n.nar,   /* [THANKS_GREET_1013] 옛 이름 «환영·첫인사» */
+          k: 'welcome', blockN: '감사 인사', slug: 'narr-welcome-in', name: '감사 인사 시작', text: n.face,   /* [THANKS_GREET_1013] 옛 이름 «환영·첫인사» · ★[SEAM_WORD_1107 J06] 기본 글 = 350(«…향해 서주시기 바랍니다» 가 있어 244 이음말이 붙지 않는다 · 예시 칩은 종전대로 208 · 214 · 215) */
           hint: '두 분이 중앙에서 하객 쪽으로 돌아서면 · 속으로 셋을 세고',
           live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: txSec(S, 'welcome', 46), self: true, doing: 'say', duck: PARAM.duckRead, fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴' }   // [BGM_FIX_1030] M4 사람이 말하는 자리 = 낭독 아래(−20 · GPT③ R1-6) · 순간 끝까지
         })
@@ -1139,7 +1143,7 @@
            ★앞 큐(11)가 뜻을 나르도록 고쳤다: 「이 자리 첫마디는 두 사람 몫입니다」.
            ★되살릴 조건 — 실청에서 «인사가 끝난 줄 모르겠다»가 나오면. 그때는 이름이 아니라
              뜻을 더하는 문장으로 다시 쓴다. 옛 문면으로 되돌리지 말 것. */
-      ];
+      ]);
     },
 
     vow: function (S) {
@@ -1984,7 +1988,7 @@
     for (var bw = 0; bw < cues.length - 1; bw++) {
       var bwc = cues[bw], bwn = cues[bw + 1];
       if (!(bwc.k === 'matjeol' && bwc.live && bwn.fire === 'manual' && bwn.hint === bwc.live.hintNext)) continue;
-      if (bwn.slug === 'bridge-b8-face-guests') bwn.hint = '맞절을 마치면';
+      if (bwn.slug === 'bridge-b8-face-guests' || bwn.ex === 'narr-welcome-in-face' || /향해 서/.test(bwn.text || '')) bwn.hint = '맞절을 마치면';   // [SEAM_WORD_1107 J06] 하객 쪽으로 서는 안내가 감사 인사 첫머리(350 · 예시 215)에 들어왔다 — 244 와 같은 힌트
       else if ((bwn.k === 'vow' && S.vowKind !== 'thanks') || bwn.k === 'ring' || (bwn.k === 'letter' && O.chipOf('letter', S) === 'each')) bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';
     }
     cues.forEach(function (c) { if (!/^letter-(each|parent)$/.test(c.slug || '') || /마주|바라보/.test(c.hint || '')) return; var _lfh = letterFaceHint(S); if (_lfh) c.hint = c.hint ? c.hint + ' · ' + _lfh : _lfh; });   // [B2_NA_14] 맞절 뒤 방향 힌트(BOW_NEXT_NI01)가 이미 말하면 그대로

@@ -284,6 +284,7 @@
   "283_bridge-b9-declare-seat-end-gdad": "declare",
   "284_bridge-b9-declare-seat-end-bdad": "declare",
   "285_bridge-b9-declare-seat-end-gmom": "declare",
-  "286_bridge-b9-declare-seat-end-bmom": "declare"
+  "286_bridge-b9-declare-seat-end-bmom": "declare",
+  "350_narr-welcome-in-face": "welcome"
  }
 }

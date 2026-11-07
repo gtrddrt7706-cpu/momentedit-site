@@ -35,6 +35,7 @@ const G = [
 
   { n: 3, t: '고정 순간 진행 나레이션 (블록 시작·마무리)', tone: '차분하고 유려한 진행체', items: [
     ['G3-1', '환영 시작', 'narr-welcome-in', D.NARR.welcome.nar],
+    ['G3-1F', '감사 인사 시작 · 맞절 뒤 기본 (215#1 + 260#2 · SEAM_WORD_1107 J06)', 'narr-welcome-in-face', RC.EXTRA['narr-welcome-in-face']],
     ['G3-2', '환영 마무리', 'narr-welcome-out', D.NARR.welcome.end],
     ['G3-3', '혼인 서약 시작', 'narr-vow-in', D.NARR.vow.nar],
     ['G3-4', '혼인 서약 마무리', 'narr-vow-out', D.NARR.vow.end],
