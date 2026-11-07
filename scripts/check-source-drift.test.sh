@@ -77,7 +77,8 @@ run index.html '>60<span>min' '>50<span>min'                              # 같�
 run index.html '7~25m | The Ceremony' '40m | The Ceremony'   # [SNAP_50 → DAY_60 → TOAST_LAST_1013] 7~25 → 범위 밖 40 으로 깬다               # FAQ 블록
 run index.html 'Ceremony 7~25분' 'Ceremony 40분'                          # Service JSON-LD
 run assets/sequence-modal.js "'7~25분쯤'" "'40분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
-run order-preview.html "'7~25분쯤'" "'40분'"                                # 식순 만들기 표
+run order-preview.html "row('20분','정리'" "row('25분','정리'"             # 식순 안내 1/2 하루 표 · [DAY40_CALC 2026-11-07] 본식 · 단체 사진은 계산 칸이라 남은 손 숫자(정리)를 깬다
+run order-preview.html "row('60분','단독 스냅'" "row('50분','단독 스냅'"       # 같은 표 · 스냅 칸
 # [E2 2026-09-26] order-preview 안내 1 머리는 이제 RANGE 에서 셈한다 — 손 사본이 없어 깨 볼 자리도 없다(줄을 뺐다)
 run assets/advisor-kb.js 'Ceremony 7~25분' 'Ceremony 40분'                # AI 상담사
 run api/_kb.js '7~25분쯤 The Ceremony' '40분쯤 The Ceremony'                  # 서버 지식
