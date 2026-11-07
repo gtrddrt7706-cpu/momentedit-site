@@ -19431,12 +19431,12 @@ chk 'BGM_JUMP_SAME' scripts/audit/bgm-form.mjs 1
 chk "if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen');" order-preview.html 1
 chk "picks: \['none', 'bed'\], short: '축사'," assets/bgm-slots.js 1
 chk "picks: \['none', 'bed'\], short: '편지'," assets/bgm-slots.js 1
-chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
-chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
+chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 본식 피아노가 아주 작게 이어져요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
+chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 본식 피아노가 아주 작게 이어져요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-slots.js 1
 chk "one: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "one: '이 순간부터 피아노가 아주 작게 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023] «목소리 뒤로» → «이 순간부터»
-chk "one: '인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1        # [BGM_R2_1023]
+chk "one: '인사드리는 동안 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1        # [BGM_R2_1023]
 chk "one: '테이블 인사 동안 재즈가 흘러요'," assets/bgm-slots.js 1
 chk "one: '«위하여!»에 맞춰 신나는 곡이 시작돼요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "cont: '{at}부터 피아노가 조용히 이어져요'" assets/bgm-slots.js 1        # [BGM_R2_1023]
@@ -19526,7 +19526,7 @@ chk 'BGM_R5_1023' assets/bgm-slots.js 4
 chk 'BGM_R5_1023' assets/bgm-form.js 4
 chk 'BGM_R5_1023' assets/entry-music.js 1
 chk 'BGM_R5_1023' scripts/audit/bgm-form.mjs 10
-chk "var TALK = { none: '말씀하시는 동안은 음악 없이 목소리만 들려요', bed: '말씀하시는 동안 잔잔한 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
+chk "var TALK = { none: '말씀하시는 동안은 음악 없이 목소리만 들려요', bed: '말씀하시는 동안 본식 피아노가 아주 작게 이어져요' };" assets/bgm-slots.js 1
 chk "speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 }" assets/bgm-slots.js 1
 chk "입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요" assets/bgm-form.js 1
 chk "입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요" assets/bgm-form.js 1   # [STUDIO_PICK_1023] 칩 이름과 같은 말
