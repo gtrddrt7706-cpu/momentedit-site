@@ -2199,7 +2199,7 @@
       course: S.course, courseNm: c0.nm, mode: mode,
       total: cues.length, manual: manual, chain: chain, clock: clock,
       clipSec: clipSec, liveSec: liveSec, totalSec: clipSec + liveSec + cues.length * (PARAM.gapMs / 1000),
-      noClip: missing, minLabel: (c0.open ? (function () { var p = O.span(S); return '본식 ' + p.body + (p.tm ? ' · 테이블 인사 ' + p.table : ''); })() : c0.min)   /* [TABLE_APART] 테이블 인사는 본식과 따로 */, warn: warnOf(seq, S)
+      noClip: missing, minLabel: (c0.open ? (function () { var p = O.span(S); return '본식 ' + (O.bodyTxt ? O.bodyTxt(p) : p.body); })()   /* [BODY_WITH_TABLE_1107] */ : c0.min)   /* [TABLE_APART] 테이블 인사는 본식과 따로 */, warn: warnOf(seq, S)
     };
   }
 

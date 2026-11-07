@@ -23062,3 +23062,11 @@ chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
 chk 'INTRO_CONTRACT_1107' order-preview.html 3
 chk '그 뒤 변경은 스튜디오와 상의해요.' order-preview.html 1
 chk '도 이때까지 마이페이지에 올려요.' order-preview.html 1
+# ★[BODY_WITH_TABLE_1107] 본식 = 테이블 인사 포함 값 하나(원천 span.full · bodyTxt) · 세 덩어리로 떼지 않는다
+chk 'BODY_WITH_TABLE_1107' order-preview.html 4
+chk 'function bodyTxt' assets/ritual-open.js 1
+chk 'full: rng(ta, tb)' assets/ritual-open.js 1
+nochk "(sp.pm?'온라인 인사까지':(sp.tm?'셋을':'본식과'))" order-preview.html
+# ★[FLOW_BOTTOM_1107] 곡선 아래 빈칸 = 카드 안쪽 · 곡선 바닥 = 단추 바닥(곡선 모양은 그대로 · FLOW_PLAIN)
+chk 'FLOW_BOTTOM_1107' order-preview.html 4
+chk 'FLOW_BOTTOM_1107' assets/ritual-open.js 1

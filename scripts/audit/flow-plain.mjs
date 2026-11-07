@@ -27,7 +27,7 @@ const SHOT = process.env.SHOT || '';
 try { for (const w of [1280, 390]) { const pg = await br.newPage({ viewport: { width: w, height: 900 }, hasTouch: w < 1000 }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message)); await toPick(pg);
   await pg.click('[data-fk="opx:family"]'); await wait(500);
   const a = await pg.evaluate((src) => { const sv = document.querySelector('#pkFlow .pk-fg svg'); return Object.assign(sv ? (0, eval)(src)(sv) : { texts: -1 }, { h: sv ? Math.round(sv.getBoundingClientRect().height) : 0 }); }, NAMES);
-  ok(`${w} ① 그림 밑 이름 줄 없음(글자 = 곡선 위 이름표 · 넷까지 · 안 겹침)${w >= 1000 ? ' · 높이 120' : ''}`, NAMES_OK(a, 1) && (w < 1000 || a.h === 120), JSON.stringify(a));
+  ok(`${w} ① 그림 밑 이름 줄 없음(글자 = 곡선 위 이름표 · 넷까지 · 안 겹침)${w >= 1000 ? ' · 높이 109(진폭 78 그대로)' : ''}`, NAMES_OK(a, 1) && (w < 1000 || a.h === 109) /* ★[FLOW_BOTTOM_1107] 120 → 109 · 그림 안 아래 여백 12 → 1(진폭 h − 30 − B = 78 그대로 · 늘려 채우기 금지 FLOW_PLAIN 그대로) */, JSON.stringify(a));
   await pg.evaluate(() => opTgl('free')); await wait(250);
   const b = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return { pa: RitualOpen.span(S).pa, toast: u && !u.hidden ? u.textContent : '', box: /천천히 진행되면|단체 사진이 약/.test(((document.querySelector('#pkFlow') || {}).textContent || '') + ((document.getElementById('pkSlim') || {}).textContent || '') + ((document.querySelector('.cta-al') || {}).textContent || '')) }; });
   ok(`${w} ③ 순간을 담아 단체 사진이 짧아져도 아래 알림 없음(알아서 하게 두기 · SHORT_TOAST_OFF 2026-10-09)`, !/단체 사진이 약|시간이 모자라요|순간을 하나 덜면/.test(b.toast), JSON.stringify(b));

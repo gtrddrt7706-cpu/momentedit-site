@@ -524,7 +524,7 @@
     /* ★★[PHOTO_FLOOR0 2026-10-08 · TABLE_GREET_1008] 본식이 40분을 넘는 판(순간을 거의 다 담고 축사 10분 · 테이블 인사까지)에 «단체 사진 약 -8~2분»이 보였다 —
        0 아래로 내리지 않고, 위 값까지 0이면 «시간이 모자라요»라고 말한다. 판은 막지 않는다(사장님 «그대로 두고 알림»). */
     var pm = Math.round(postSec(S) / 60), pa = Math.max(0, DAYMIN - tb - pm), pb = Math.max(0, DAYMIN - ta - pm);   // ★[END_FLOW_1030] 닫는 인사 뒤 몫(pm)도 40분 안   // [TABLE_APART] 단체 사진 = 40 − (본식 + 테이블 인사) · ★[SPAN_SUM40 코워크 추가 점검 P2-2 2026-09-26] 반올림한 본식에서 뺀다 — 따로 반올림하면 «본식 17 + 단체 사진 24 = 41»이 보였다
-    return { sec: s, a: a, b: b, ta: ta, tb: tb, tm: tm, pm: pm, pa: pa, pb: pb, body: rng(a, b), table: tm ? ('약 ' + tm + '분') : '', photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요', midMin: (s[0] + s[1]) / 120 - ts / 60 };   // [PHOTO_FLOOR0] · [TABLE_APART]
+    return { sec: s, a: a, b: b, ta: ta, tb: tb, tm: tm, pm: pm, pa: pa, pb: pb, body: rng(a, b), table: tm ? ('약 ' + tm + '분') : '', photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요', midMin: (s[0] + s[1]) / 120 - ts / 60, full: rng(ta, tb) };   /* ★[BODY_WITH_TABLE_1107 사장님 «테이블 인사도 본식에 포함 아니야?»] full = 테이블 인사까지 든 본식(닫는 인사 앞 · END_FLOW_1030) · 화면 · 콘솔은 bodyTxt 로 «본식 약 a~b분(테이블 인사 약 n분 포함)» */   // [PHOTO_FLOOR0] · [TABLE_APART]
   }
   /* ★★[POST_FLOW_200 검토 200 · 200 보충 2 A · 사장님 «식후 블록을 함수/표 하나에서 만들어 모든 곳이 같은 이름 · 같은 순서로»]
        식후 = 전체 단체 사진(한 장) → 촬영 후 안내 → 가족 사진 · 추가 촬영(원하시는 분들과 · END_FLOW_200 최종). 이 표 하나가 식순 화면(① 고르기 · ② 하나씩 · 예식 흐름 · 한눈에 · 완성 · 연습) ·
@@ -541,7 +541,9 @@
   function postDur(k, S) { var x = postOf(k); if (!x) return ''; if (k === '_photo') { try { return span(S).photo; } catch (e) { return ''; } } return x.dur || ''; }
   function postLine(k) { var x = postOf(k); return x ? x.n + ' · ' + x.sub : ''; }
   /* [TABLE_APART] 한 줄 글 — «본식 약 a~b분 · 테이블 인사 약 n분 · 단체 사진 약 c~d분»(테이블 인사를 안 담으면 가운데가 없다) · 알림 · 콘솔 · AI 상담이 같은 말을 쓴다 */
-  function spanText(S) { var p = span(S); return '본식 ' + p.body + (p.tm ? ' · 테이블 인사 ' + p.table : '') + ' · 단체 사진 ' + p.photo; }
+  /* [BODY_WITH_TABLE_1107] 본식 = 테이블 인사 포함 값 하나 · 테이블 인사는 «포함» 꼬리로만(세 덩어리로 떼지 않는다) */
+  function bodyTxt(p, tail) { return p.tm ? p.full + (tail === false ? '' : '(테이블 인사 ' + p.table + ' 포함)') : p.body; }
+  function spanText(S) { var p = span(S); return '본식 ' + bodyTxt(p) + ' · 단체 사진 ' + p.photo; }
   // 카드의 «약 n분»(이 순간을 담으면)
   function momentLabel(k, S) {
     if (k === 'prevideo') return '영상 길이만큼';   // [OPEN_WORDS_1013] «끝나면 입장» 뺌(화촉을 담으면 영상 뒤가 화촉)   // [CEREMONY_AT_VIDEO 2026-10-05] 예식 시작 시각에 흐른다 — 길면 입장이 그만큼 늦어진다
@@ -632,7 +634,7 @@
     opt = opt || {}; var mini = !!opt.mini, names = !!opt.names, namesOn = names;
     var h = mini ? (opt.h || 40) : (opt.h || (names ? 152 : 112));
     var tiny = mini && h < 24;
-    var L = mini ? 4 : 12, R = mini ? 4 : 12, T = mini ? (tiny ? 4 : 8) : 30, B = mini ? (tiny ? 3 : 6) : (names ? 46 : 12);
+    var L = mini ? 4 : 12, R = mini ? 4 : 12, T = mini ? (tiny ? 4 : 8) : 30, B = mini ? (tiny ? 3 : 6) : (names ? 46 : (opt.b != null ? opt.b : 12));   /* ★[FLOW_BOTTOM_1107 사장님 «그래프 아래쪽 간격이 넓은 것 같은데»] 판(panel)은 opt.b 로 그림 안 아래 여백을 줄인다 — 높이도 같은 만큼 줄여 곡선 모양(진폭 h − T − B)은 그대로(FLOW_PLAIN · 찐빵 금지) */
     var total = 0; sg.forEach(function (s) { total += s.d; }); total = total || 1;
     var iw = w - L - R, p = flowPeak(sg);
     var y = function (lv) { return T + (h - T - B) * (5 - lv) / 2; };
@@ -1724,7 +1726,7 @@
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
-    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
+    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, bodyTxt: bodyTxt, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, flowLv: flowLv, FLOW_LV: FLOW_LV, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf,
