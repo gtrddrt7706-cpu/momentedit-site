@@ -1683,7 +1683,7 @@
         if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && (bn.k === 'song' || !CLAP_ASK.test(_nxT))) _more.push('bridge-b10-speech-clap');
         if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0 && !(bn.k === 'welcome' && O.narExCue && O.narExCue(S, bn.slug) === 'narr-welcome-in-ex2')) _more.push('bridge-b8-face-guests');   /* ★[SEAM_WORD_1107 b 대본 11/07] 감사 인사 예시 208(«이제 신랑 신부가 … 하객 여러분께») 앞에도 244 를 붙이지 않는다 — «이제 신랑 신부 · 하객 여러분»이 연달아 겹친다 · 돌아서기는 디렉터 힌트 «맞절을 마치면» · 214 는 그대로 */   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');   // ★[REVIEW26_1023 검토 150-2 4)] 인사 «밝게»(259 «… 눈물보다는 기쁨으로 …»)는 B12 «… 경건한 시간»과 부딪친다
-        if (bn.k === 'entry' && String(S.entry || 'A').toUpperCase() !== 'E') _more.push('bridge-b7-entry-ready');
+        if (bn.k === 'entry' && ['E', 'F'].indexOf(String(S.entry || 'A').toUpperCase()) < 0) _more.push('bridge-b7-entry-ready');   /* ★[SEAM_WORD_1107 c 대본 18:40] 입장 F(«드디어 오늘 결혼식의 주인공이 …»)도 243(«오늘의 주인공들을 …») 겹침 — E 와 같이 뺀다 · A ~ D 그대로 */
         /* ★★[CANDLE_NAME_1019 검토 139-1 · 사장님 10/19 17:28 «영상이 끝나고 바로 화촉 멘트가 나오면 어색하다»] B14 화촉 앞 «이어서, 화촉 점화가 있겠습니다.» —
              하객은 무슨 순서가 시작되는지 모른 채 긴 헌사를 들었다 · 순서 이름을 한 번(자료 G1 52 · G3 43 «명시적 식순명을 고지» · T2 40~56 · NN 54~70 · WW6 · WW11) ·
              서는 분과 상관없이 한 소리(누가 서는지는 바로 뒤 여는 말이 말한다) · 영상이 없는 날(개식 → 화촉)도 같은 자리 ·
@@ -1720,7 +1720,7 @@
       if (_cLast.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech') _cSeam = 'bridge-b10-speech-clap';
       else if (_cLast.k === 'declare' && _cLast.live && _cLast.live.applause) _cSeam = 'bridge-b9-declare-seat-end';   // [REVIEW13_1018 검토 112] 닫는 판(남은 순서 없음)
       /* ★[REVIEW26_1023 검토 150-1 5)] 마지막 순간이 서약(감사문 아님) · 편지(서로에게) · 반지인 날 — 두 분이 마주 본 채 108 «… 하객 여러분께 인사!»가 사슬로 2 ~ 4.5초 만에 나갔다 → B8 244 «… 하객 여러분을 향해 서시겠습니다.» 뒤 108 은 디렉터 GO */
-      else if ((_cLast.k === 'vow' && S.vowKind !== 'thanks') || (_cLast.k === 'letter' && S.letter === 'each') || _cLast.k === 'ring') _cSeam = 'bridge-b8-face-guests';
+      else if (((_cLast.k === 'vow' && S.vowKind !== 'thanks') || (_cLast.k === 'letter' && S.letter === 'each') || _cLast.k === 'ring') && !O.onOf(S, 'table')) _cSeam = 'bridge-b8-face-guests';   /* ★[SEAM_WORD_1107 c 대본 18:40] 테이블 인사가 다음이면 244 를 빼다(곧 테이블로 걸어간다 · ex3 «하객 여러분을 직접 찾아뵙고»와 겹침) · 닫는 인사 · 축배 앞 244 는 그대로 */
       if (_cSeam) cues.push(cue({ k: _cLast.k, blockN: _cLast.blockN, slug: _cSeam, name: '이음말 · ' + (_cSeam === 'bridge-b9-declare-seat-end' ? '읽은 분 자리로' : _cSeam === 'bridge-b8-face-guests' ? '하객 쪽으로' : '축사 박수'),
         text: EXTRA[_cSeam], duck: _cSeam === 'bridge-b10-speech-clap' ? (bgmBed(S, 'S5') ? PARAM.duckSpeech : PARAM.duckOff) : PARAM.duckSpeech, note: '이음말 · 마지막 순간 → 닫는 인사(CLOSE_SEAM_1018)',   /* ★[MEANING_R1_1102 4 · 5 · 7] 나레이션 −16 · 축사 «음악 없이»면 부탁 문장 정적 · 박수부터 −8 */
         live: _cSeam === 'bridge-b10-speech-clap' ? applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO

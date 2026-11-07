@@ -23187,3 +23187,6 @@ nochk '디렉터에게 여쭤' mypage.html
 nochk '디렉터에게 여쭤' assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then _mnd=$(node -e "const C=require('./assets/ritual-cue.js');let h=0;for(const course of ['open','damback','gamdong','record'])for(const guide of [undefined,true,false])for(const meal of [0,1])for(const mealFull of [0,1])for(const resv of [0,1])for(const digital of [0,1]){let r;try{r=C.build({course,guide,meal,mealFull,resv,digital,on:{welcome:1}},{mode:'console'});}catch(e){continue;}r.cues.forEach(c=>{if(/디렉터에게 여쭤/.test((c.text||'')+(c.alt&&c.alt.text||'')))h++;});}console.log(h)" 2>/dev/null); if [ "$_mnd" = 0 ]; then echo 'ok meal-nodir: 엔진 192조합 «디렉터에게 여쭤» 0줄 [MEAL_NODIR_1107]'; else echo "FAIL meal-nodir: 엔진에서 «디렉터에게 여쭤» $_mnd 줄 [MEAL_NODIR_1107]"; fail=1; fi; fi
 chk 'SEAM_WORD_1107 b' assets/ritual-cue.js 1   # 감사 인사 예시 208 앞 244 빼기
+# ★[SEAM_WORD_1107 c 대본 18:40 예시 칩 전수 판정] 입장 E · F 앞 243 빼기 · 테이블 인사 앞 244 빼기(닫는 인사 · 축배 앞은 그대로)
+chk "'F'\].indexOf(String(S.entry || 'A').toUpperCase()) < 0) _more.push('bridge-b7-entry-ready');" assets/ritual-cue.js 1
+chk "|| _cLast.k === 'ring') && !O.onOf(S, 'table')) _cSeam = 'bridge-b8-face-guests';" assets/ritual-cue.js 1
