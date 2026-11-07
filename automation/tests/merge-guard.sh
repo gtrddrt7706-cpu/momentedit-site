@@ -12479,8 +12479,11 @@ chk "id=\"sndChk\"" scripts/build-listen-all.mjs 1
 #   둘 다 «사람이 누른 그 자리»에서 부른다. 셋째가 생기면 대개 콜백 안이고, 그러면 아이폰이 또 막는다.
 #   ★깨 보고 믿었다 — 콜백 안에 하나 더 넣으니 3곳으로 잡혔고 원복하니 2곳으로 돌아왔다.
 #   ★[NO_OK_FN] 규약대로 변수로 받아 [ ] 로 판정한다.
+#   ★[LISTEN_PLAYALL_1107 2026-11-07 · 검사 은퇴 길 ⑧] 셋째 자리 하나를 더 둔다 — 전체 듣기(qLoad)는 «사람이 ▶ 로 처음 튼 같은 소리 요소(PA)»의 src 만 바꿔 잇는다.
+#     아이폰은 사람이 한 번 튼 요소의 다음 재생은 허락한다(새 요소를 콜백에서 만들어 트는 것만 막는다) · 그 줄에 IOS_GESTURE_PA 표식 · 넷째가 생기면 다시 빨강
+chk 'IOS_GESTURE_PA' scripts/build-listen-all.mjs 1
 _PLAYS=$(grep -c 'a\.play()' scripts/build-listen-all.mjs 2>/dev/null | tr -d ' ')
-if [ "$_PLAYS" = "2" ]; then echo "ok IOS_GESTURE: play() 자리가 둘이다(kick · sndCheck · 둘 다 누른 자리)"
+if [ "$_PLAYS" = "3" ]; then echo "ok IOS_GESTURE: play() 자리가 셋이다(kick · sndCheck · 전체 듣기 같은 요소 잇기)"
 else echo "REVERT? IOS_GESTURE: play() 자리가 ${_PLAYS}곳 — 콜백 안에서 부르면 아이폰에서 조용히 막힌다"; fail=1; fi
 
 # ════════════════════════════════════════════════════════════════════

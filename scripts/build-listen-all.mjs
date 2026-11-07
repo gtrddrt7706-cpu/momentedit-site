@@ -1265,7 +1265,7 @@ function qLoad() {
   var a = qEl(), sg = Q.seg[Q.si]; if (!sg) return;
   if (sg.act) { try { a.pause(); } catch (e) {} Q.on = true; qUi(); $('pbSub').textContent = sg.act; clearTimeout(Q.gapT); Q.gapT = setTimeout(qAdv, document.hidden ? 0 : sg.ms); return; }   /* [LISTEN_SEAM_1107] 소리 없는 «— 동작 —» 칸 */
   a.src = sg.u; Q.on = true; qUi();
-  var pr; try { pr = a.play(); } catch (e) { qStuck(e); return; }
+  var pr; try { pr = a.play(); } catch (e) { qStuck(e); return; }   /* [IOS_GESTURE_PA] 사람이 ▶ 로 처음 튼 같은 요소(PA)만 잇는다 — 새 요소를 콜백에서 만들지 않는다 */
   if (pr && pr.catch) pr.catch(qStuck);
 }
 function qStuck(e) { Q.on = false; qUi(); $('pbSub').textContent = '브라우저가 이어 틀기를 막았어요 · ▶ 를 한 번 더 눌러 주세요'; }
