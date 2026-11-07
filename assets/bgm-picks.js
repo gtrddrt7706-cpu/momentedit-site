@@ -39,37 +39,37 @@
     B03: { t: 'August 10', a: 'Khruangbin', v: 'Con Todo El Mundo', why: '느긋하고 따뜻하게' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B04: { t: 'While You Were Sleeping', a: 'Laufey', v: 'Bewitched', why: '나른하고 포근하게', vocal: true },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B05: { t: '인생의 회전목마', src: '하울의 움직이는 성', a: '히사이시 조', v: "Piano Stories Best '88–'08 (Piano Solo Ver.)", why: '익숙하고 우아한 왈츠' },
-    B06: { t: 'Photograph', a: 'Cody Fry', v: 'Photograph · 연주판(Instrumental)', why: '현악이 감싸듯 따뜻하게' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
+    B06: { t: 'Photograph', a: 'Cody Fry', v: 'Photograph · 연주판(Instrumental)', why: '현악이 감싸듯 따뜻하게' , len: 197.3},   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B07: { t: 'Summer', src: '기쿠지로의 여름', a: '피아노 연주', v: '세상에서 가장 아름다운 선율', why: '밝고 경쾌하게' },   // [PICKS_TRUE_1031] 받은 판 = 피아노 판
     // B08 은 비운다(2026-10-30 덧붙임 2 · Laufey «Nocturne (Interlude)» 1분 40초 — 화촉 2분 10초보다 짧다) · 이 번호는 다시 쓰지 않는다
-    B09: { t: 'Innocent in Sonatine', src: '우리들의 블루스', a: '조영민', v: '우리들의 블루스 OST', why: '말 아래 조용히' },
-    B10: { t: 'Song for Sienna', a: 'Brian Crain', v: 'Piano and Light · 피아노 독주', why: '잔잔한 피아노' },   // [PICKS_TRUE_1031] 받은 판 = Solo Piano Version
-    B11: { t: "One Summer's Day", src: '센과 치히로의 행방불명', a: '히사이시 조', v: 'ENCORE', why: '그리운 마음으로' },
-    B12: { t: 'Under the Willow', a: 'Brian Crain', v: 'Piano and Light', why: '부드럽고 담백하게' },
-    B13: { t: 'Moon River', src: '티파니에서 아침을', a: 'Tommy Emmanuel', v: 'The Guitar Mastery of Tommy Emmanuel · 연주판(Instrumental)', why: '익숙한 선율을 기타로' },
-    B14: { t: 'Softness and Light', a: 'Brian Crain', v: 'Piano and Light', why: '빛처럼 고요하게' },
-    B15: { t: 'Butterfly Waltz', a: 'Brian Crain', v: '피아노', why: '감싸 안듯 다정하게' },   // [PICKS_TRUE_1031] 받은 판 = 피아노 독주(바이올린 듀엣 아님)
-    B16: { t: 'The Rose', src: '추억은 방울방울', a: 'Kazumi Tateishi Trio', v: 'STUDIO GHIBLI meets JAZZ BEST', why: '서정적인 재즈 피아노' },   // [PICKS_TRUE_1031] 받은 판
-    B17: { t: 'Summer Montage / Madeline', src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '박수와 함께 힘 있게' },
+    B09: { t: 'Innocent in Sonatine', src: '우리들의 블루스', a: '조영민', v: '우리들의 블루스 OST', why: '말 아래 조용히' , start: 50.0, len: 117.9},
+    B10: { t: 'Song for Sienna', a: 'Brian Crain', v: 'Piano and Light · 피아노 독주', why: '잔잔한 피아노' , start: 120.0, len: 245.9},   // [PICKS_TRUE_1031] 받은 판 = Solo Piano Version
+    B11: { t: "One Summer's Day", src: '센과 치히로의 행방불명', a: '히사이시 조', v: 'ENCORE', why: '그리운 마음으로' , start: 62.5, len: 266.3},
+    B12: { t: 'Under the Willow', a: 'Brian Crain', v: 'Piano and Light', why: '부드럽고 담백하게' , start: 27.5, len: 253.8},
+    B13: { t: 'Moon River', src: '티파니에서 아침을', a: 'Tommy Emmanuel', v: 'The Guitar Mastery of Tommy Emmanuel · 연주판(Instrumental)', why: '익숙한 선율을 기타로' , len: 238.3},
+    B14: { t: 'Softness and Light', a: 'Brian Crain', v: 'Piano and Light', why: '빛처럼 고요하게' , start: 77.5, len: 330.1},
+    B15: { t: 'Butterfly Waltz', a: 'Brian Crain', v: '피아노', why: '감싸 안듯 다정하게' , len: 199.9},   // [PICKS_TRUE_1031] 받은 판 = 피아노 독주(바이올린 듀엣 아님)
+    B16: { t: 'The Rose', src: '추억은 방울방울', a: 'Kazumi Tateishi Trio', v: 'STUDIO GHIBLI meets JAZZ BEST', why: '서정적인 재즈 피아노' , len: 238.3},   // [PICKS_TRUE_1031] 받은 판
+    B17: { t: 'Summer Montage / Madeline', src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '박수와 함께 힘 있게' , len: 119.2},
     B18: { t: 'I Hear a Symphony', a: 'Cody Fry', v: '싱글 · 연주판(Instrumental)', why: '화사하게 차오르게' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B19: { t: 'Italian Summer', a: 'Brian Crain & Rita Chepurchenko', v: 'Piano and Violin Duet', why: '여름처럼 환하게' },
     B20: { t: 'Popcorn', a: '도경수', v: '성장', why: '톡톡 튀는 설렘', vocal: true },
     B21: { t: "Herman's Habit", src: '라라랜드', a: 'Justin Hurwitz', v: 'La La Land OST', why: '신나는 빅밴드 재즈' },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
-    B22: { t: 'This Will Be (An Everlasting Love)', a: 'Natalie Cole', v: 'Best Of Natalie Cole', why: '누구나 아는 흥', vocal: true },   // [PICKS_TRUE_1031] 받은 판
+    B22: { t: 'This Will Be (An Everlasting Love)', a: 'Natalie Cole', v: 'Best Of Natalie Cole', why: '누구나 아는 흥', vocal: true , start: 31.0},   // [PICKS_TRUE_1031] 받은 판
     B23: { t: '둘의 대화', a: '윤석철트리오', v: 'SONGBOOK', why: '대화를 덮지 않는 재즈' },
     B24: { t: 'Take Me Home, Country Roads', src: '귀를 기울이면', a: 'Kazumi Tateishi Trio', v: 'STUDIO GHIBLI meets JAZZ BEST', why: '편안한 재즈 피아노' },   // [PICKS_TRUE_1031] 받은 판
     B25: { t: 'Nothing', a: 'Bruno Major', v: 'To Let a Good Thing Die', why: '나지막하고 다정하게', vocal: true },   /* [PICKS_THREE_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     B26: { t: 'Bluebird', a: 'Alexis Ffrench', v: 'Evolution', why: '하루를 닫는 피아노' },
     B27: { t: 'At the Ivy Gate', a: 'Brian Crain', v: 'Piano and Light', why: '차분하게 마무리' },
     /* [BGM_FIX_1030 덧붙임 2] 축배는 «위하여» 뒤 크게 트는 자리 — 첫 소절부터 다 아는 밝은 팝(웨딩 BGM 자료 · 축배 · 퇴장은 밝은 팝이 압도적) · 화촉은 부모님 세대도 아는 드라마 OST */
-    B28: { t: 'Happy', a: 'Pharrell Williams', v: 'G I R L · 원곡', why: '다 같이 손뼉 치게', vocal: true },
-    B29: { t: 'Best Day Of My Life', a: 'American Authors', v: 'Oh, What a Life', why: '하루를 축하하듯 신나게', vocal: true },
-    B30: { t: '꽃바람 부는 길', src: '성균관 스캔들', a: '', v: '성균관 스캔들 OST · 연주곡', why: '단아하게 · 천천히 걷는 걸음' },   /* [BGM_FIX_1030] «어머님 걸음» → 화촉은 «두 분이 부탁한 분들»이 밝힌다(식순 화면) · 어머님으로 못 박지 않는다 */   /* [GHIBLI_ADD_1101] 구간 목록에서 뺐다(데이터만 둔다) */
+    B28: { t: 'Happy', a: 'Pharrell Williams', v: 'G I R L · 원곡', why: '다 같이 손뼉 치게', vocal: true , start: 24.0},
+    B29: { t: 'Best Day Of My Life', a: 'American Authors', v: 'Oh, What a Life', why: '하루를 축하하듯 신나게', vocal: true , start: 38.5},
+    B30: { t: '꽃바람 부는 길', src: '성균관 스캔들', a: '', v: '성균관 스캔들 OST · 연주곡', why: '단아하게 · 천천히 걷는 걸음' , len: 119.4},   /* [BGM_FIX_1030] «어머님 걸음» → 화촉은 «두 분이 부탁한 분들»이 밝힌다(식순 화면) · 어머님으로 못 박지 않는다 */   /* [GHIBLI_ADD_1101] 구간 목록에서 뺐다(데이터만 둔다) */
     /* ★[GHIBLI_ADD_1101 2026-11-01 사장님 «지브리 음악은 좀 더 추가했으면 좋겠어» · GPT 와 판 고름] 지브리 4곡 — 드라이브 ME_구간곡 B31_ ~ B34_(−23 LUFS · 끝 무음 자름 · 짧은 곡은 겹쳐 이어 7 ~ 9분) */
-    B31: { t: '언제나 몇 번이라도', src: '센과 치히로의 행방불명', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '단정한 피아노' },
-    B32: { t: '너를 태우고', src: '천공의 성 라퓨타', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '차분한 여운' },
-    B33: { t: '바람이 지나가는 길', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '산들바람 같은 재즈 피아노' },
-    B34: { t: '산책', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Memorable Songs~', why: '경쾌한 재즈 피아노' }
+    B31: { t: '언제나 몇 번이라도', src: '센과 치히로의 행방불명', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '단정한 피아노' , len: 320.9},
+    B32: { t: '너를 태우고', src: '천공의 성 라퓨타', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '차분한 여운' , len: 230.4},
+    B33: { t: '바람이 지나가는 길', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '산들바람 같은 재즈 피아노' , len: 268.3},
+    B34: { t: '산책', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Memorable Songs~', why: '경쾌한 재즈 피아노' , len: 166.5}
   };
   /* 구간 → 곡 번호(위가 1순위 · 2026-10-30 표 그대로) */
   /* ★★[PICKS_THREE_1101 사장님 «구간마다 노래를 3개로 추리고 너무 힙한 건 공감 못 하니 빼자» · GPT 확인 «없음»] 구간마다 3곡(위가 1순위) —
@@ -116,7 +116,14 @@
   /* ★[ONE_FLOW_1106] 구간 이름 한 곳 — 옛 축사 · 편지 «음악과 함께» 칸(M4S5 · M4S6)은 본식 M4 로 읽는다(곡 계획 · 콘솔 · 미리 듣기 · 엔진이 이 함수 하나를 쓴다) */
   function oneSeg(seg) { seg = String(seg || ''); return /^M4S[56]$/.test(seg) ? 'M4' : seg; }
   /* ★[ONE_FLOW_1106 ②] 목록 곡 사이 겹침(초) — 본식 M4 는 8초(곡이 바뀌는 게 덜 들리게) · 그 밖은 3초 그대로 */
-  var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;   /* ★[REPEAT_RULE_1107 ⑤] 하객 맞이 · 테이블 인사 · 닫는 인사 → 사진 = 6초(장르가 다른 곡이 툭 바뀌지 않게) */
+  var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;
+  /* ★★[REPEAT_FIX_1107 ③ · BGM 섹션 11/07 측정] 완성 파일 15개는 원곡을 2 ~ 3번 이어 붙인 것(파형 상관 0.94 ~ 0.999) — len = 원곡이 다시 시작하는 초 ·
+       곡 끝 = min(파일 길이, len) · 콘솔 곡 끝 · 미리 듣기 곡 끝 · 계획 길이 · 한 곡 칸 다음 곡 · 다시 잇기 40% 가 모두 이 값 · ④ start = 강조 자리(완성 파일 초 · 파형 2.5초 크기 + 음성 인식 시각) */
+  function lenOf(f, d) { var s0 = SONGS[String(f || '').toUpperCase()], L = s0 && +s0.len > 0 ? +s0.len : 0; d = +d || 0; return L > 0 ? (d > 0 ? Math.min(d, L) : L) : d; }
+  /* ★[REPEAT_FIX_1107 · 안 1] 본식(M4)은 피아노 곡에서만 빌린다 — 서약 아래 오케스트라 · 재즈가 깔리지 않게(BGM 섹션 · 대본 찬성 11/07) */
+  var PIANO = { B05: 1, B09: 1, B10: 1, B11: 1, B12: 1, B14: 1, B15: 1, B26: 1, B27: 1, B31: 1, B32: 1 }, BORROW_ONLY = { M4: PIANO };
+  /* [REPEAT_FIX_1107 ①] 빌려 오기 칸 — 들어설 때 실제 들린 기록으로 다시 짠다(엔진 몫) */
+  var REPLAN = { M8: 1, M6: 1, M8L: 1 };   /* ★[REPEAT_RULE_1107 ⑤] 하객 맞이 · 테이블 인사 · 닫는 인사 → 사진 = 6초(장르가 다른 곡이 툭 바뀌지 않게) */
   function xfOf(seg) { var x = XF[oneSeg(seg)]; return x > 0 ? x : XF0; }
   var BY = {}; SEGS.forEach(function (s) { BY[s.id] = s; });
   Object.defineProperty(BY.M1, 'need', { enumerable: true, get: function () { var g = guestMin(); return (g ? g + '분 이상' : '하객 입장 동안') + ' · 개식이 늦어도 이어지게(반복 목록)'; } });   /* [GUEST_TIME_1102] 콘솔 구간 칸 글도 원천에서 */
@@ -129,7 +136,7 @@
   /* [BGM_FIX_1030] 곡 번호(f) — 'B05' 꼴(곡마다 하나) · 옛 구간 번호('M2_1')는 이 꼴이 아니라 «고르지 않음»으로 읽힌다 */
   var F_RE = /^B\d{2,3}$/;
   /* ★[REPEAT_RULE_1107 ②③] 같은 곡을 다시 이을 자리 — 곡 성질의 강조 자리(SONGS.start · 파형으로 잰 초)가 있으면 거기 · 없으면 곡 길이의 40%(전주부터 다시 들리지 않게) · 콘솔 · 미리 듣기가 같이 쓴다 */
-  function hookAt(f, d) { var s0 = SONGS[String(f || '').toUpperCase()]; if (s0 && s0.start != null && isFinite(+s0.start)) return Math.max(0, +s0.start); d = +d || 0; return d > 0 ? Math.round(d * 0.4 * 10) / 10 : 0; }
+  function hookAt(f, d) { var s0 = SONGS[String(f || '').toUpperCase()]; if (s0 && s0.start != null && isFinite(+s0.start)) return Math.max(0, +s0.start); d = lenOf(f, d); return d > 0 ? Math.round(d * 0.4 * 10) / 10 : 0; }   /* [REPEAT_FIX_1107 ③] 40% = 원곡 길이(len) 기준 */
   function byF(f) { f = String(f || '').toUpperCase(); return F_RE.test(f) ? song(f) : null; }
   /* 고객이 고른 곡 번호 — 구간(M1 …)은 S.bgm[구간].k · 축사 · 편지 하위 칸(M4S5 · M4S6)은 S.bgm.S5 · S6 의 k(«음악과 함께»일 때만) · 그 구간 목록에 없으면 ''(1순위로 준비) */
   /* ★★[LIST_NO_PICK_1101 2026-11-01 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] 목록 칸(multi · 하객 맞이 M1 · 테이블 인사 M8)은 고르지 않는다 — 다섯 곡이 다 흐르고 고르면 시작 곡만 바뀌었다 ·
@@ -178,7 +185,8 @@
             제 곡이 칸 길이(NEED)보다 모자라면 «같은 칸 처음으로» 대신 앞 배경 칸에서 나온 곡 중 가장 오래전에 나온 곡을 먼저 · 바로 앞 배경 칸(같은 시간대)에서 나온 곡과 직전 40분 안에 나온 곡은 뒤로(그래도 모자라면 엔진이 처음으로)
          ③ 시간은 칸 길이(NEED · 한 곡 칸 SPAN)로 센 대략 시계 · 곡 길이 = o.dur(모르면 LEN0) · 이어받기(CARRY_SAME) · 두 분이 이 칸에 고른 곡(B2_EUM07)은 그대로 ·
             곡 사이 겹침 · ONE_FLOW · 끊긴 곡 이어 듣기 · LIST_HOLD · 선언 뒤 새 곡은 엔진 몫 그대로(이 목록을 돈다) · 식순 화면 · 콘솔 순서 줄도 이 목록 하나 */
-    var dOf = function (f) { var d = +dur(f); return d > 0 ? d : LEN0; }, once = {}, lp = {}, lpSeg = {}, t = 0, prevBg = '';
+    var dOf = function (f) { var d = lenOf(f, +dur(f)); return d > 0 ? d : LEN0; },   /* [REPEAT_FIX_1107 ③] 곡 길이 = min(파일, 원곡 len) */
+       okB = function (sg, f) { var b = BORROW_ONLY[sg]; return !b || !!b[f]; }, once = {}, lp = {}, lpSeg = {}, t = 0, prevBg = '';
     segs.forEach(function (sg) { if (!loopy(sg)) { var r = R[sg]; if (r && r.first && !once[r.first]) once[r.first] = sg; } else { var k = custK(S, sg); if (k && !once[k]) once[k] = sg; } });   /* ① 의미 곡 · 고른 곡 */
     if (on('M8L')) { var k8 = custK(S, 'M8L'), c8 = carryOf(S, 'M8L', prevF('M8L')), f8 = (c8 || k8 || (PICKS.M8L || [])[0] || ''); if (f8 && !have(f8)) f8 = (PICKS.M8L || []).filter(function (x) { return have(x); })[0] || ''; if (f8 && !once[f8]) once[f8] = 'M8L'; }   /* 마지막 곡 첫 곡도 의미 곡 */
     var otherOnce = function (f, sg, c) { return !!(once[f] && once[f] !== sg && f !== c); };
@@ -191,15 +199,32 @@
       var sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0); };
       while (sum() < need) {   /* ② 모자라면 앞 배경 칸에서 가장 오래전 곡부터 · 바로 앞 칸 · 40분 안은 뒤로 */
         var best = '', bt = 9, bl = 1e12;
-        Object.keys(lp).forEach(function (f) { if (out.indexOf(f) > -1 || otherOnce(f, sg, c) || once[f] === sg || !have(f) || !SONGS[f] || !loopy(lpSeg[f])) return;
+        Object.keys(lp).forEach(function (f) { if (out.indexOf(f) > -1 || otherOnce(f, sg, c) || once[f] === sg || !have(f) || !SONGS[f] || !loopy(lpSeg[f]) || !okB(sg, f)) return;
           var tier = (lpSeg[f] === prevBg) ? 2 : (tt - lp[f] < GAP40) ? 1 : 0; if (tier < bt || (tier === bt && lp[f] < bl)) { best = f; bt = tier; bl = lp[f]; } });
         if (!best) break; put(best); }
+      if (BORROW_ONLY[sg]) Object.keys(BORROW_ONLY[sg]).forEach(function (f) { if (sum() < need && have(f) && SONGS[f] && !once[f] && out.indexOf(f) < 0 && lp[f] == null) put(f); });   /* ★[REPEAT_FIX_1107 안 1 · 대본 ②] 본식이 모자라면(B12 · B14 파일이 없을 때 등) 아직 안 쓴 다른 피아노 곡으로 — 하객 맞이 곡은 빌리지 않는다 */
       if (!out.length && L.length) out = L.filter(function (f) { return !otherOnce(f, sg, c); }); if (!out.length && L.length) out = L.slice();
       t += Math.min(need, 1e6) || SPAN[sg] || 0; prevBg = sg;
       R[sg] = { seg: sg, want: c || k || base[0] || '', first: out[0] || '', pick: k, carry: c, list: out, dup: '' }; });
+    /* ★★[REPEAT_FIX_1107 ①] 빌려 오기 칸(M8 · M6 · M8L)에 들어설 때 — 엔진이 실제 들린 기록(o.heard = {곡: {t0 처음 들린 시각, seg}} · o.now 같은 시계)으로 그 칸 목록만 다시 짠다 ·
+         «쓴 곡» = 실제 들린 곡만(계획 목록은 세지 않는다) · 빌려 오기 1순위 = 앞 배경 칸 계획에 있었지만 안 들린 곡(의미 곡 · 고른 곡 제외 · 계획 차례) · 그다음 들린 곡(바로 앞 배경 칸 · 40분 안은 뒤로 · 가장 오래전 먼저) */
+    if (o.heard && o.seg && REPLAN[o.seg] && R[o.seg] && loopy(o.seg)) (function () {
+      var sg = o.seg, Hd = o.heard, now = +o.now || 0, hp = {}, hs = {}; Object.keys(Hd).forEach(function (f) { var h = Hd[f], x = h && isFinite(+h.last) ? +h.last : (h ? +h.t0 : NaN); if (isFinite(x)) { hp[f] = x; hs[f] = h.lseg || h.seg || ''; } });   /* 40분 셈은 마지막으로 들린 때(last · 없으면 처음 t0) · 바로 앞 칸 = 마지막으로 들린 칸(lseg) */
+      var k = custK(S, sg), c = carryOf(S, sg, o.cur || ''), base = order(S, sg, c || '', function () { return false; }), L = base.filter(function (f) { return have(f); }), need = NEED[sg] || 0, out = [], tt = now;
+      var bgs = segs.filter(function (x) { return loopy(x); }), bi = bgs.indexOf(sg), prev = bi > 0 ? bgs[bi - 1] : '';
+      var put = function (f) { out.push(f); hp[f] = tt; hs[f] = sg; tt += dOf(f); }, sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0); };
+      L.forEach(function (f) { if (out.indexOf(f) > -1) return; if (f === c || f === k) { put(f); return; } if (otherOnce(f, sg, c) || hp[f] != null) return; put(f); });
+      var un = []; bgs.slice(0, Math.max(0, bi)).forEach(function (x) { (R[x] ? R[x].list : []).forEach(function (f) { if (hp[f] == null && !once[f] && have(f) && SONGS[f] && out.indexOf(f) < 0 && un.indexOf(f) < 0 && okB(sg, f)) un.push(f); }); });
+      while (sum() < need && un.length) put(un.shift());
+      while (sum() < need) { var best = '', bt = 9, bl = 1e15;
+        Object.keys(hp).forEach(function (f) { if (out.indexOf(f) > -1 || otherOnce(f, sg, c) || once[f] === sg || !have(f) || !SONGS[f] || !okB(sg, f) || (hs[f] && !loopy(hs[f]))) return;
+          var tier = (hs[f] === prev) ? 2 : (tt - hp[f] < GAP40) ? 1 : 0; if (tier < bt || (tier === bt && hp[f] < bl)) { best = f; bt = tier; bl = hp[f]; } });
+        if (!best) break; put(best); }
+      if (!out.length && L.length) out = L.filter(function (f) { return !otherOnce(f, sg, c); });
+      R[sg] = { seg: sg, want: c || k || base[0] || '', first: out[0] || '', pick: k, carry: c, list: out, dup: '', heard: true }; })();
     /* ★[REPEAT_RULE_1107 ④] 한 곡 칸(화촉 · 부모님께 인사 · 축배)이 곡보다 길면 같은 곡 처음부터가 아니라 같은 칸 다음 곡으로 겹쳐 넘긴다 — 다른 칸 의미 곡 · 목록 칸에 쓰인 곡은 뺀다(하루 한 번) */
     var used = {}; Object.keys(R).forEach(function (sg) { if (loopy(sg)) R[sg].list.forEach(function (f) { used[f] = 1; }); });
     segs.forEach(function (sg) { if (loopy(sg) || !R[sg]) return; var f0 = R[sg].first; R[sg].alt = (PICKS[sg] || []).filter(function (f) { return f && f !== f0 && have(f) && SONGS[f] && !used[f] && !(once[f] && once[f] !== sg); }); R[sg].alt.forEach(function (f) { used[f] = 1; }); });   /* 한 곡은 한 칸의 다음 곡으로만 */
     return R; }
-  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[oneSeg(id)] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0, SPAN: SPAN, GAP40: GAP40, hookAt: hookAt, guestMin: guestMin, oneSeg: oneSeg, xfOf: xfOf, XF: XF };
+  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[oneSeg(id)] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0, SPAN: SPAN, GAP40: GAP40, hookAt: hookAt, lenOf: lenOf, PIANO: PIANO, BORROW_ONLY: BORROW_ONLY, REPLAN: REPLAN, guestMin: guestMin, oneSeg: oneSeg, xfOf: xfOf, XF: XF };
 });

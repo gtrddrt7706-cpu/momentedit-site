@@ -90,9 +90,10 @@ try {
     await f.evaluate(() => { S.tributeSay = 'short'; S.on.song = 0; S.on.letter = 0; S.on.free = 0; delete S.bgm; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
     const H = (o) => pg.evaluate((o) => { Object.assign(H.dly, o.dly || {}); Object.assign(H.bad, o.bad || {}); Object.assign(H.gone, o.gone || {}); if (o.log) H.log.length = 0; return H.log.slice(); }, o);
     /* e 순간 쪽을 열면 그 곡 받기 요청 1번 */
-    for (const [mk, sid] of [['tribute', TS], ['table', 'B24'], ['candle', 'B05']]) { await go(f, mk === 'candle' ? 'welcome' : 'candle'); await forget(f, [sid]); await H({ log: 1 }); await go(f, mk); await wait(f, 1500); await go(f, mk === 'candle' ? 'welcome' : 'candle'); await go(f, mk); await wait(f, 800);
-      const lg = (await H({})).filter((x) => x === 'momentedit:ritualFileGet:bed:' + sid);
-      ok(`${W} e 순간 쪽(${mk})을 열면 그 곡(${sid}) 받기 요청 1번 · 다시 열어도 1번`, lg.length === 1, { n: lg.length }); }
+    const T8 = await f.evaluate(() => { const L = ((BgmBed._t.plan(false) || {}).M8 || {}).list || []; return L.length ? L : ['B24']; });   /* ★[REPEAT_FIX_1107] 테이블 곡 = 계획 목록(원곡 len 으로 첫 곡이 바뀐다 · 앞 순간에서 이미 받은 곡일 수 있어 목록 전부를 잊힌다) */
+    for (const [mk, sid] of [['tribute', TS], ['table', T8], ['candle', 'B05']]) { await go(f, mk === 'candle' ? 'welcome' : 'candle'); await forget(f, Array.isArray(sid) ? sid : [sid]); await H({ log: 1 }); await go(f, mk); await wait(f, 1500); await go(f, mk === 'candle' ? 'welcome' : 'candle'); await go(f, mk); await wait(f, 800);
+      const ids = Array.isArray(sid) ? sid : [sid], lg = (await H({})).filter((x) => ids.some((y) => x === 'momentedit:ritualFileGet:bed:' + y)), first = lg[0] || '';
+      ok(`${W} e 순간 쪽(${mk})을 열면 그 곡(${Array.isArray(sid) ? '계획 첫 곡 ' + first.split(':').pop() : sid}) 받기 요청 1번 · 다시 열어도 1번`, lg.filter((x) => x === first).length === 1 && lg.length >= 1, { n: lg.length, lg }); }
     /* a 9초 늦게 */
     { await go(f, 'welcome'); await forget(f, [TS]); await H({ dly: { [TS]: 9000 } }); await go(f, 'tribute'); await wait(f, 1400);
       const r = await trace(f, ['tribute'], 24000), L = r.o.filter((x) => x.lead), l0 = L.length ? L[0].t : null, l1 = L.length ? L[L.length - 1].t : null, tS = (r.o.find((x) => x.f === TS && x.src) || {}).t;

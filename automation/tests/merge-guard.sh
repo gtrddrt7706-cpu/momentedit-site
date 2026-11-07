@@ -22841,6 +22841,19 @@ chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
 chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
 nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것
 chk 'clear-head bgm-vol ios-gesture' .github/workflows/merge-guard.yml 1
+chk 'REPEAT_FIX_1107' assets/bgm-picks.js 4   # [REPEAT_FIX_1107] 들린 기록으로 빌려 오기 칸 다시 짜기 · 원곡 len(파일 안 되풀이) · 강조 자리 · 본식 피아노 곡만 빌림
+chk 'REPEAT_FIX_1107' assets/bgm-bed.js 2
+chk 'REPEAT_FIX_1107' console.html 4
+chk "function lenOf(f, d)" assets/bgm-picks.js 1
+chk "BORROW_ONLY = { M4: PIANO }" assets/bgm-picks.js 1
+chk "var REPLAN = { M8: 1, M6: 1, M8L: 1 };" assets/bgm-picks.js 1
+chk "B09: { t: 'Innocent in Sonatine'.*start: 50.0, len: 117.9" assets/bgm-picks.js 1
+chk "B28: { t: 'Happy'.*start: 24.0" assets/bgm-picks.js 1
+chk "if (BED.seg === 'M4' && hushNowC()) return; listGo(1)" console.html 1   # [REPEAT_FIX_1107 ②] 미룬 넘김도 60초 무음 검사
+chk "_w.sg==='M4'&&(lvOf(st,BED.cur.f)<=-60||hushSoon(BED.cur.f,HUSH_NEAR))" assets/bgm-bed.js 1
+chk "function segPlanFor(id, cur)" console.html 1
+chk "function playOrd(sg)" assets/bgm-bed.js 1
+chk 'T09 미룬 넘김도 무음 검사' scripts/audit/one-flow.mjs 1
 chk 'REPEAT_RULE_1107' assets/bgm-picks.js 6   # [REPEAT_RULE_1107] 의미 곡 · 고른 곡 하루 한 번 · 배경 칸 반복 없음(앞 배경 칸 가장 오래전 곡 빌려 오기 · 바로 앞 칸 · 40분 안 뒤로) · fill M4 · M8L · hookAt · 한 곡 칸 alt · 겹침 6초
 chk 'REPEAT_RULE_1107' assets/bgm-bed.js 3
 chk 'REPEAT_RULE_1107' console.html 5

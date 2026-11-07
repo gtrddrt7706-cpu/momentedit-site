@@ -141,6 +141,13 @@ try {
     const con = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8');
     ok('T08 당일 콘솔 — 같은 규칙(끊긴 곡 기억 · 다시 오를 때 그 자리 · 선언 뒤 새 곡 · 다른 구간이면 지움)', /BED\.cut = \{ id: BED\.id, t: _ce\.currentTime/.test(con) && /BED\.cut = null;   \/\* \[ONE_FLOW_1106 ⑥\] 선언 뒤/.test(con) && /if \(id !== 'M4'\) BED\.cut = null;/.test(con));
     ok('F 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
+  if (want('G')) { const { ctx, f, errs } = await prep();
+    /* ★[REPEAT_FIX_1107 ②] 미룬 넘김(LIST_HOLD) — 덕담(두 분이 말하는 줄 40초)이 30초 곡보다 길어 넘김이 미뤄졌다가, 말이 끝난 뒤 축가 무음 직전에 새 곡이 몇 초만 들리던 것(가족 240초 B11 5초) ·
+         60초 안 무음이면 넘기지 않고 지금 곡 그대로 → 새 곡 조각(들리기 시작해 8초 안에 무음) 0 */
+    const r = await walk(f, ['bless', 'song'], {}, null, { bless: 40000, song: 6000 }), L = r.log, frag = [];
+    let run = null; L.forEach((x, j) => { const pf = j ? L[j - 1].f : ''; if (x.f && x.f !== pf) run = { f: x.f, t: x.t, prev: pf, i0: j }; if (run && !x.f && pf === run.f) { const d = x.t - run.t; if (d < 8000 && L.slice(0, run.i0).some((y) => y.f && y.f !== run.f)) frag.push(run.f + ' ' + d + 'ms@' + (L[run.i0].k || '') + '→' + (x.k || '')); run = null; } });
+    ok('T09 미룬 넘김도 무음 검사 — 덕담 40초 · 곡 30초 · 축가 앞에서 새 곡 조각(8초 안에 무음) 0', !frag.length && L.some((x) => x.k === 'song'), { frag, heard: [...new Set(L.filter((x) => x.f).map((x) => x.f))] });
+    ok('G 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
   if (want('E')) { const { ctx, f, errs } = await prep();
     const r = await f.evaluate(async () => { S.bgm = { S5: { m: 'bed', k: 'B13' }, S6: { m: 'bed' } }; _persist(); const out = {}; for (const k of ['free', 'letter']) { try { mkGo(k); } catch (e) {} await new Promise((r) => setTimeout(r, 900)); const g = document.querySelector('.ls-bgm[data-slot="' + (k === 'free' ? 'S5' : 'S6') + '"]'); out[k] = { chips: g ? g.querySelectorAll('[role="radio"]').length : -1, sub: g ? g.querySelectorAll('.bed-sub, .bed-box').length : -1, songs: g ? g.querySelectorAll('[data-seg-pick], .bed-song, [data-bed-pick]').length : -1 }; } return out; });
     ok('T07 화면 — 축사 · 편지 «음악과 함께 / 조용히» 고르기만(곡 고르기 칸 0)', r.free.chips >= 2 && r.free.sub === 0 && r.letter.chips >= 2 && r.letter.sub === 0, r);
