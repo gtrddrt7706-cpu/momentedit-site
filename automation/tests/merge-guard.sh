@@ -2280,7 +2280,7 @@ chk 'pf-key' order-preview.html 5
 # [INTRO_JOURNEY 2026-09-27 사장님 «미리 알아두면 좋아요 이런 거 빼고 · 연습 · 최종 확정 이런 순서를 한눈에»] 새 코스 안내 2/2 = 여기서 네 걸음 + 그다음 예식까지 네 줄
 chk 'INTRO_JOURNEY' order-preview.html 2
 chk "\['예식<br>14일 전','순서 확정'" order-preview.html 1
-chk "\['예식<br>7일 전','글 마감'" order-preview.html 1
+chk "\['예식<br>7일 전','글'+(_vd?' · 영상':'')+(_vr?' · 녹음':'')+' 마감'" order-preview.html 1   # [INTRO_CONTRACT_1107] 제목 = 이날 마감하는 것(글 · 영상 · 녹음)
 chk 'INTRO_JOURNEY' scripts/audit/listen-page.mjs 2
 # [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 하루 표 · 홈 FAQ · AI 지식 — 마이페이지 스냅 칸(SNAP_55)과 같은 말
 chk '캔들존 · 화이트존 촬영 55분 · 입장 준비 5분' order-preview.html 1   # [R1-32] 단위를 붙였다
@@ -15362,7 +15362,7 @@ fi
 chk 'EX_NAME_TODO_1023' order-preview.html 4
 chk 'EX_NAME_TODO_1023' scripts/audit/ex-name-todo.mjs 2
 chk 'DAY40_TABLE_1023' order-preview.html 1
-chk "'담은 순간에 따라 · 테이블 인사 포함',true" order-preview.html 1
+chk "'담은 순간에 따라 · 테이블 인사 포함','in'" order-preview.html 1   # [DAY40_TABLE_1023 · DAY40_BLOCK_1107] 묶음 칸 안 본식 줄
 if command -v node >/dev/null 2>&1; then
   node scripts/audit/ex-name-todo.mjs >/dev/null 2>&1; _ent=$?
   if [ "$_ent" = 0 ]; then echo 'ok ex-name-todo [EX_NAME_TODO_1023]'; elif [ "$_ent" = 2 ]; then echo 'skip ex-name-todo: 브라우저가 없어 재지 못함'; else echo 'FAIL ex-name-todo: 예시 속 이름이 남은 칸이 «다 됐어요»로 센다 — node scripts/audit/ex-name-todo.mjs'; fail=1; fi
@@ -21933,7 +21933,12 @@ chk "tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분
 nochk '촬영을 마치면 흐르는 마지막 안내' order-preview.html
 chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행'" order-preview.html 1   # [FIX_FLOW_204 D] «작가님» 표기 없음
 chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
-chk "\['15~33분쯤','단체 사진','Group Record','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /\* \[B2_GEUL_22\] \*/\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
+chk "'Group Photos','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /\* \[B2_GEUL_22\] \*/" order-preview.html 1   # [FIX_FLOW_204 D · DAY40_BLOCK_1107] 하루 표 단체 사진 줄(이름 Group Photos · 사장님 11/07)
+chk "row('20분','정리','Farewell','옷을 갈아입고 하루를 정리해요','dim')" order-preview.html 1   # [FAREWELL_NAME_204] 정리 Farewell 그대로 · 옅게
+nochk "'Group Record','전체 단체 사진" order-preview.html
+chk 'DAY40_BLOCK_1107' order-preview.html 2
+chk 'PICK_CENTER_1107' order-preview.html 2
+chk 'PICK_SPACE_1107' order-preview.html 3
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
 # ── 2026-11-02 [FAREWELL_NAME_204 검토 204 회신] 고객이 보는 하루 흐름 «마무리 Farewell» → «정리 Farewell»(식순 · 홈 140분 표 · AI 상담 같은 이름) · 계약서는 그대로
 chk '<span class="seq-name-ko">정리</span>' index.html 1
@@ -22253,7 +22258,7 @@ chk "if(k==='vow'&&St().vowKind==='thanks') return '감사문';" assets/bgm-bed.
 chk "if(k==='vow'&&S.vowKind==='thanks') return '감사문';" assets/bgm-form.js 1
 chk '현재 식순에는 이 시각의 안내가 없습니다.' order-preview.html 1   # [B2_NA_26]
 chk '착석 · 휴대폰 무음 · 온라인 참석자 환영' order-preview.html 1
-chk '본식부터 단체 사진까지 배정한 시간은' order-preview.html 1   # [B2_NA_27] d-16
+chk '온라인 하객 인사 시간도 이 ' order-preview.html 1   # [B2_NA_27] d-16 · [DAY40_BLOCK_1107] «40분 · 본식이 짧은 만큼 사진을 더» 두 문장은 묶음 칸 머리 · 막대가 말한다
 nochk '본식과 단체 사진을 더하면' order-preview.html
 chk '마지막 말이나 동작' order-preview.html 1   # [B2_NA_29]
 chk "'사진 순서만 연습'" order-preview.html 1   # [B2_NA_30] d-14 · B2-K19 그룹 반복

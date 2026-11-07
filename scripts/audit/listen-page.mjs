@@ -360,7 +360,7 @@ for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(390);
   await clickNext(pg); await pg.waitForTimeout(400);
   /* [INTRO_JOURNEY 2026-09-27 사장님] «미리 알아두면 좋아요» 상자를 빼고 «여기서 네 걸음 → 그다음 예식까지(연습 · 순서 확정 · 글 마감 · 당일)» */
-  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 예식까지 세 줄([R1-32] «언제든 · 연습» 줄 걷음 · 순서 확정 예식 14일 전 · 글 마감 예식 7일 전 · 진행은 저희가) · «미리 알아두면» 상자 없음 [INTRO_JOURNEY]', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; const rows = [...document.querySelectorAll('.daymap.jr .seqr')].map((r) => r.textContent); return document.querySelectorAll('.ipt .n').length === 4 && rows.length === 3 && /14일\s전/.test(rows[0]) && /순서 확정/.test(rows[0]) && /7일\s전/.test(rows[1]) && /글 마감/.test(rows[1]) && /진행은 저희가/.test(rows[2]) && /나레이션과 디렉터가 맡아요/.test(rows[2]) && !/미리 알아두면/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
+  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 예식까지 세 줄([R1-32] «언제든 · 연습» 줄 걷음 · 순서 확정 예식 14일 전 · 글 마감 예식 7일 전 · 진행은 저희가) · «미리 알아두면» 상자 없음 [INTRO_JOURNEY]', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; const rows = [...document.querySelectorAll('.daymap.jr .seqr')].map((r) => r.textContent); return document.querySelectorAll('.ipt .n').length === 4 && rows.length === 3 && /14일\s전/.test(rows[0]) && /순서 확정/.test(rows[0]) && /7일\s전/.test(rows[1]) && /글( · 영상)?( · 녹음)? 마감/.test(rows[1]) /* [INTRO_CONTRACT_1107] 제목 = 이날 마감하는 것 */ && /진행은 저희가/.test(rows[2]) && /나레이션과 디렉터가 맡아요/.test(rows[2]) && !/미리 알아두면/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
   await clickNext(pg); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   const h0 = await pg.evaluate(() => history.length);

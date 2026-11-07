@@ -266,6 +266,29 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .seqr.on .sq-tm{color:var(--gold-deeper)}
 .seqr.on .sq-n{color:var(--accent)}   /* [ORD_HUE] 강조 행의 진사는 분(sq-tm)과 알약만 — 넷이 한꺼번에 붉으면 표가 아니라 경고로 읽힌다 */
 .seqr .sq-here{font-size:11px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;margin-left:6px;white-space:nowrap;vertical-align:middle}
+/* ★[DAY40_BLOCK_1107] 안내 1/2 — 본식 + 단체 사진 묶음 칸(강조 배경 하나 · 꼬리표 하나) · 앞뒤 줄은 옅게 · 막대는 .op-bar 그대로 */
+.seqr.dim .sq-tm,.seqr.dim .sq-n,.seqr.dim .sq-n small,.seqr.dim .sq-d{color:var(--light)}
+.seqr.dim .sq-n{font-weight:500}
+.dm40{background:#F4F0E9;border:1px solid var(--gold-deeper);border-radius:12px;padding:14px 14px 12px;margin:6px -11px}   /* 좌우 −11 = 테 1 + 안쪽 14 − 바깥 줄 4 → 칸 안 줄의 시간 · 이름이 바깥 줄과 같은 세로줄 */
+.dm40-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.dm40-t{font-size:14px;font-weight:600;color:var(--gold-deeper);letter-spacing:.01em}
+.dm40 .sq-here{margin-left:0;font-size:11px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;white-space:nowrap;line-height:1.5;flex:none}   /* 표 줄(.seqr .sq-here) 밖이라 같은 알약을 다시 쓴다 */
+.dm40 .seqr{padding:10px 0;border-bottom:1px solid #E8E1D4}
+.dm40 .seqr.in .sq-tm{color:var(--gold-deeper)}
+.dm40 .op-bar{margin:12px 0 4px}
+.dm40-r{font-size:12.5px;color:#635E4F;margin-top:6px;line-height:1.6;word-break:keep-all}
+.dm40-a .seqr.in + .op-bar{margin-top:10px}
+.dm40-a .seqr:nth-of-type(2){border-bottom:none}
+.dm40-b .op-bar{margin:8px 0 4px} .dm40-b .op-leg{margin-bottom:4px} .dm40-b .seqr:last-of-type{border-bottom:none}
+.dm40-tiles{display:flex;gap:4px;margin-top:4px}
+.dm40-tile{min-width:0;border-radius:8px;padding:10px 10px 9px;background:#fff;border-top:4px solid #E6DCCB}
+.dm40-tile.c{border-top-color:var(--gold-deeper)}
+.dm40-tile .sq-n{font-size:14px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm40-tile .sq-n small{display:block;margin:2px 0 0;font-size:11px;color:var(--sub);font-weight:400}
+.dm40-v{font-size:14px;font-weight:600;color:var(--gold-deeper);margin-top:6px}
+.dm40-ds{margin-top:10px}
+.dm40-ds .sq-d{font-size:12.5px;color:#635E4F;line-height:1.62;word-break:keep-all;margin-top:2px}
+.dm40-ds .sq-d b{color:var(--accent);font-weight:600;margin-right:4px}
 .dmnote{font-size:12.5px;color:var(--sub);text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--bg2);line-height:1.7;word-break:keep-all}   /* [DAYMAP_AIR] 11→12px · 경계선으로 표와 분리 */
 /* [DAYMAP_AIR] 2/2 도 같은 처방 — 내용이 카드 하나뿐이라 아래가 비어 위만 무거웠다 */
 .prefacts{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 20px 18px}
@@ -889,7 +912,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 :root{--tile-on:#FFFDF9}
 .pk{margin-top:2px}
 .pk .pco{display:none}
-.pk-sh{display:flex;align-items:baseline;justify-content:space-between;gap:4px 10px;flex-wrap:wrap;margin:20px 0 10px}
+.pk-sh{display:flex;align-items:baseline;justify-content:space-between;gap:4px 10px;flex-wrap:wrap;margin:24px 0 12px}   /* [PICK_SPACE_1107] 섹션 사이 24 · 머리줄 ↔ 내용 12(옛 20 · 10) */
 .pk-h{font-size:16px;font-weight:600;color:var(--accent);margin:0;line-height:1.4}
 .pk-aux{font-size:12.5px;color:var(--light)}
 .pk-exs{display:grid;grid-template-columns:1fr;gap:8px}
@@ -911,7 +934,8 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-ex-g svg{display:block;width:100%;height:40px}
 .pk-blank{text-align:right;margin:2px 0 0}
 .pk-link{min-height:44px;padding:0 2px;border:0;background:none;font:inherit;font-size:12.5px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.pk-fp{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 12px;margin-top:8px}
+.pk-fp{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 12px;margin-top:24px}   /* [PICK_SPACE_1107] 예시 칸 ↔ 카드 = 카드 ↔ 머리줄 = 24(옛 8) · 아래 12 는 곡선 판 아래 2px 와 합쳐 14 */
+.pk-fp.pk-fp-e{padding-bottom:14px}   /* [PICK_CENTER_1107] 빈 판은 글만이라 위아래 14 · 14 */
 .pk-fp-h{display:flex;justify-content:space-between;align-items:baseline;gap:4px 8px;flex-wrap:wrap}
 /* ★[FLOW_HEAD_MIN 2026-11-01 사장님 «미니멀하게 바꾸지, 설명 부분»] 휴대폰 = 제목 줄 오른쪽 끝에 «늘 40분»만(크기 · 색은 종전 줄 그대로) · 자리가 모자라면 제목 아래로 내려간다(flex-wrap) ·
      «본식과 단체 사진»은 화면 아래 고정 줄(본식 약 … · 단체 사진 약 …)과 겹쳐 뺐다 · 읽기 프로그램에는 «본식과 단체 사진을 합쳐 늘 40분»을 그대로 읽힌다 */
@@ -923,6 +947,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-fp-body strong{color:var(--accent);font-weight:600}
 .pk-fp-cap{font-size:12.5px;color:var(--light);margin:2px 0 0}
 .pk-fp-empty{font-size:14px;color:var(--sub);margin:10px 0 4px;word-break:keep-all}
+.pk-fp-e .pk-fp-empty{margin-bottom:0}   /* [PICK_CENTER_1107] 빈 판 카드 안 위아래 같게(폰 14 · 18 → 14 · 14) */
 .pk-fg-wrap{position:relative;margin:8px 0 2px}
 /* ★가장 벅찬 순간 고르기 줄(.pk-pp) 금지 — 2026-10-08 사용자 지시로 삭제 [PEAK_PICK_OFF] */
 .pk-fg{min-height:112px}
@@ -939,6 +964,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-acts{display:grid;gap:20px}
 /* ★★[FIX_FLOW_204 검토 204 보충 A] 늘 있는 진행 줄 — 고르는 칸과 다른 모양(얇은 줄 · 담기 · 빼기 · ✓ 없음) · 펼치면 세로 차례 · 그림 없음 */
 .fx-flow{margin:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pk-cnt.pk{margin:0 0 12px} .pk-cnt.pk + .fx-flow{margin-top:12px}   /* [PICK_SPACE_1107] ① 머리줄 ↔ 개수 줄 ↔ 아래 구분선 = 12 한 단위(옛 10 · 14) */
 .fx-flow.fx-one{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-height:44px;padding:8px 2px;font-size:14px;color:var(--accent)}   /* [PICK_FLOW_ONE_1106] 한 줄 · 펼침 없음 */
 .fx-flow>summary{list-style:none;display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-height:48px;padding:8px 2px;cursor:pointer;font-size:14px;color:var(--accent)}
 .fx-flow>summary::-webkit-details-marker{display:none}
@@ -1113,7 +1139,9 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-ex{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:14px}
   .pk-ex-gw{margin-top:auto;padding-top:8px}   /* [RIT_CURVE_LABEL] 라벨까지 함께 카드 아래로 */
   .pk-ex-g svg{height:44px}
-  .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px 28px;grid-template-rows:auto 1fr;padding:18px 20px;margin-top:18px}
+  .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px 28px;grid-template-rows:auto 1fr;padding:18px 20px;margin-top:24px}   /* [PICK_SPACE_1107] 옛 18 */
+  .pk-fp.pk-fp-e{grid-template-rows:auto;align-items:center;padding-bottom:18px}   /* ★[PICK_CENTER_1107 사장님 «단추 위가 아래보다 넓다»] 빈 판 = 글 묶음 · 단추 둘 다 세로 가운데(옛 단추는 margin-top:auto 로 아래에 붙어 위 39 · 아래 18) */
+  .pk-fp-e .pk-go{margin-top:0} .pk-fp-e .pk-fp-empty{margin-bottom:0} .pk-fp.pk-fp-e>.pk-fp-main{align-self:center} .pk-fp.pk-fp-e>.pk-side{grid-row:1}   /* 빈 판에는 둘째 줄(알림)이 없다 — 두 줄을 차지하면 빈 줄 · 사이 12 가 글 묶음 아래로 남았다 */ .pk-fp-e .pk-side{align-self:stretch;justify-content:center}
   .pk-fg{min-height:120px}   /* [FLOW_NONAMES] 이름 줄이 빠진 높이 */
   .pk-side{border-left:1px solid var(--bg2);padding-left:28px;display:flex;flex-direction:column;gap:16px}   /* ★[PC_SIDE_AIR 2026-09-26 사장님 «우측 정보랑 버튼이 너무 낑겨»] 덩어리 사이 16 · 준비 줄은 왼쪽 그림 아래로 */
   .pk-big{font-size:12.5px;color:var(--sub);line-height:1.6;margin:0}
@@ -4037,6 +4065,7 @@ function _mtlEdge(rail){
 }
 
 /* [ORD_INTRO2] 안내 ①/2 — '우리가 만드는 게 뭔가'. 제목 · 한 줄 · 하루의 흐름 그림, 딱 셋. */
+function _introV(){ try{ var m=/[?&]iv=([ABC])/.exec(location.search); return m?m[1]:'A'; }catch(e){ return 'A'; } }   /* [DAY40_BLOCK_1107] 시안 비교용(대본 · 사장님이 고르면 걷는다) */
 function renderIntro(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">우리 예식, 우리가 만들어요</h2>';   // [ORD_H2]
   /* ★[E2 2026-09-26 코워크 추가 전달 3] 범위는 손으로 적지 않고 RANGE 에서 셈한다 — 스냅 60 때 이 줄만 12~25 로 남을 뻔했다 · [R1-32] 머리 문장의 범위는 걷었다(아래 표와 같은 말) */
@@ -4053,15 +4082,30 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분'],['7~25분쯤','본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함',true],['15~33분쯤','단체 사진','Group Record','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /* [B2_GEUL_22] */],['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요']];   /* ★[POST_CARD_204 검토 204 4] 촬영 후 안내 자리 · «마무리»는 닫는 인사의 «마무리 멘트»와 겹쳐 «정리» */   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
-  SEQ.forEach(function(s){
-    h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
-  });
-  /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 앞절「앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요」 삭제 · 복원 금지.
-     위 표가 이미 하루 다섯 마디를 순서대로 보여 주고 있어, 같은 말을 글로 한 번 더 한 것이었다. */
-  /* ★[DAY40_TABLE_1023 GPT 검토 ② · 음성 섹션 전달] 하나씩 만들기 막대는 «본식 · 테이블 인사 · 단체 사진»을 셋으로 나눠 40분(TABLE_APART)인데, 이 안내는 «본식과 단체 사진 = 40»이라 테이블 인사가 빠진 듯 읽혔다 — 위 본식 줄에 «테이블 인사 포함»(RANGE 7~25 는 테이블 인사까지 든 값 · 계약서 · 홈과 같은 숫자는 그대로) */
-  /* ★[B2_NA_27 2026-11-06 BATCH2 나27 · d-16] 셈 설명 = 배정한 시간 — 온라인 하객과 인사하는 날 그 2분도 이 40분 안에 든다(종전 문장은 그 몫이 빠진 듯 읽혔다) */
-  h+='<div class="dmnote">본식부터 단체 사진까지 배정한 시간은 <b>'+RitualOpen.DAYMIN+'분</b>이에요. 본식이 짧은 만큼 사진을 더 찍을 수 있어요. 온라인 하객과 인사하는 날에는 그 시간도 여기에 포함돼요. <b>하루 140분은 그대로</b>예요.</div></div>';
+  /* ★★[DAY40_BLOCK_1107 사장님 «잘 한번 디자인해 보자» · 대본 판정] 식순에서 만드는 것은 본식만이 아니라 단체 사진(전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영)까지 —
+       본식 + 단체 사진 두 줄을 한 칸 «두 분이 여기서 만드는 40분»(강조 배경 하나 · 꼬리표 하나)으로 묶고, 둘 사이 막대(하나씩 만들기 FLOW_TIMELINE 과 같은 .op-bar · span · DAYMIN)로 맞바꿈을 보인다.
+       고른 순서가 있으면 실제 값(본식 = 가운데 값 + 테이블 인사 · 사진 = DAYMIN − 본식) · 없으면 범위만(막대는 RANGE.rep 자리) · 준비 · 단독 스냅 · 정리는 옅게(지금 만드는 부분이 아니다) · 140분 합 · Farewell 이름 그대로.
+       ★준비 20분 아래 설명은 넣지 않는다(사장님 답 대기) · 안(A · B · C)은 대본 · 사장님이 고르면 하나만 남긴다 */
+  var R=RitualOpen, _iv=_introV(), _pk=R.picked&&R.picked(S).length>0, _sp=_pk?R.span(S):null, _rg=R.RANGE||{body:[7,25],photo:[15,33],rep:20};
+  var _bm=_pk?Math.round(_sp.midMin+(_sp.tm?R.tableSec(S)/60:0)):null, _pm=_pk?Math.max(0,R.DAYMIN-_bm):null, _bwp=_pk?_bm/R.DAYMIN*100:_rg.rep/R.DAYMIN*100;
+  var _bT=_pk?'약 '+_bm+'분':_rg.body[0]+'~'+_rg.body[1]+'분쯤', _pT=_pk?'약 '+_pm+'분':_rg.photo[0]+'~'+_rg.photo[1]+'분쯤';
+  var row=function(tm,n,en,d,cls){ return '<div class="seqr'+(cls?' '+cls:'')+'"><div class="sq-tm">'+tm+'</div><div class="sq-b"><div class="sq-n">'+esc(n)+'<small>'+esc(en)+'</small></div>'+(d?'<div class="sq-d">'+esc(d)+'</div>':'')+'</div></div>'; };
+  var rB=row(_bT,'본식','The Ceremony','담은 순간에 따라 · 테이블 인사 포함','in'), rP=row(_pT,'단체 사진','Group Photos','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /* [B2_GEUL_22] */,'in');
+  var bar='<div class="op-bar" role="img" aria-label="'+esc(R.DAYMIN+'분 가운데 본식 '+_bT+' · 단체 사진 '+_pT)+'"><span class="c" style="width:'+_bwp.toFixed(2)+'%"></span><span class="p" style="width:'+(100-_bwp).toFixed(2)+'%"></span></div>'
+    +'<div class="op-leg" aria-hidden="true"><span>본식'+(_pk?' '+_bT:'')+'</span><span>단체 사진'+(_pk?' '+_pT:'')+'</span></div>';
+  var rng='<div class="dm40-r"><span class="nw">본식이 짧으면 사진이 길어져요</span> · <span class="nw">본식 '+_rg.body[0]+'~'+_rg.body[1]+'분</span> · <span class="nw">단체 사진 '+_rg.photo[0]+'~'+_rg.photo[1]+'분</span></div>';   /* 덩이 사이에서만 줄이 갈린다 */
+  var head='<div class="dm40-h"><span class="dm40-t">두 분이 여기서 만드는 '+R.DAYMIN+'분</span><span class="sq-here">지금 만드는 부분</span></div>';
+  h+=row('20분','준비','Getting Ready','','dim')+row('60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분','dim');   /* [SNAP_55_DAY] */
+  if(_iv==='B') h+='<div class="dm40 dm40-b">'+head+bar+rB+rP+rng+'</div>';
+  else if(_iv==='C'){ var tl=function(n,en,v,d,w,c){ return '<div class="dm40-tile '+c+'" style="flex:'+w.toFixed(2)+' 1 0"><div class="sq-n">'+esc(n)+'<small>'+esc(en)+'</small></div><div class="dm40-v">'+esc(v)+'</div></div>'; };
+    h+='<div class="dm40 dm40-c">'+head+'<div class="dm40-tiles">'+tl('본식','The Ceremony',_bT,'',Math.max(36,_bwp),'c')+tl('단체 사진','Group Photos',_pT,'',Math.max(36,100-_bwp),'p')+'</div>'
+      +'<div class="dm40-ds"><div class="sq-d"><b>본식</b> 담은 순간에 따라 · 테이블 인사 포함</div><div class="sq-d"><b>단체 사진</b> 전체 단체 사진 → 촬영 후 안내 → <span class="nw">가족 사진 · 추가 촬영</span></div></div>'+rng+'</div>'; }
+  else h+='<div class="dm40 dm40-a">'+head+rB+rP+bar+rng+'</div>';
+  h+=row('20분','정리','Farewell','옷을 갈아입고 하루를 정리해요','dim');   /* ★[POST_CARD_204 검토 204 4] «마무리»는 닫는 인사의 «마무리 멘트»와 겹쳐 «정리» */
+  /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 앞절「앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요」 삭제 · 복원 금지. */
+  /* ★[DAY40_TABLE_1023 GPT 검토 ② · 음성 섹션 전달] 본식 줄 «테이블 인사 포함»(RANGE 7~25 는 테이블 인사까지 든 값 · 막대도 본식 = 가운데 값 + 테이블 인사) */
+  /* ★[B2_NA_27 · DAY40_BLOCK_1107] 온라인 하객 인사 시간도 이 40분 안 — «본식부터 단체 사진까지 40분 · 본식이 짧은 만큼 사진을 더» 두 문장은 위 칸 · 막대가 말해 걷었다(같은 말 두 곳 금지) */
+  h+='<div class="dmnote">온라인 하객 인사 시간도 이 '+R.DAYMIN+'분 안에 들어가요. <b>하루 140분은 그대로</b>예요.</div></div>';
   return h;
 }
 
@@ -4073,6 +4117,8 @@ function renderIntro(){
 /* [INTRO_CONTRACT_1107] 두 분이 올릴 영상 — 식전 영상(담았으면) · 식중 영상(준비한 순서 = 영상 · 담았으면) · 없으면 '' */
 function _introVid(){ var R=RitualOpen; if(!R||!R.onOf) return ''; var pv=!!R.onOf(S,'prevideo'), mv=false; try{ mv=!!R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'; }catch(e){}
   return pv&&mv?'식전 영상 · 식중 영상':pv?'식전 영상':mv?'식중 영상':''; }
+/* [INTRO_CONTRACT_1107 ④] 두 분 목소리를 직접 녹음해 올리는 줄이 있나(하객 맞이 · 식전 영상 소개 · 입장 = _vpCur 'couple') */
+function _introRec(){ try{ var R=RitualOpen; return ['guest','prevideo','entry'].some(function(k){ return (k!=='prevideo'||R.onOf(S,'prevideo'))&&_vpCur(k)==='couple'; }); }catch(e){ return false; } }
 function renderIntro2(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">두 분이 하실 일</h2>';   // [ORD_H2]
   /* ★[INTRO_FOUR 2026-09-25 코워크 추가전달 2-2] 새 코스는 네 걸음 말로 — 번호 넷(① 고르기 · ② 보고 듣기 · ③ 준비하기 · ④ 완성) · 준비는 ③ 한 곳에.
@@ -4085,15 +4131,16 @@ function renderIntro2(){
     h+='<div class="intro-lead">여기서 순서를 짜고, 예식까지 연습하며 다듬어요.</div>';
     h+='<div class="jr-t">여기서 · 네 걸음</div><div class="intro-pts">';
     /* [PICK_V2 E3] ① 한 줄은 «예시에서 시작해 순간을 더하고 빼요»로 그대로 · «칸을 누르면 미리 보고 들을 수 있어요»는 ① 화면 안에서 말한다 */
-    [['고르기','예시에서 시작해 순간을 더하고 빼요.'],['하나씩 만들기','순간마다 한 화면씩 넘기며, 나레이션을 듣고 고르고, 두 분이 할 말을 적어요.'],['연습하기','고른 순간과 두 분이 할 말을, 예식 차례대로 해 봐요.'],   /* [FLOW_MAKE] 코워크 설계 2장 첫 안내 */['완성','식순을 확인하고 저장해요. 대본도 복사하거나 파일로 받아요.' /* [B2_GEUL_25] 저장 전에도 두 단추가 보인다 */]]
+    [['고르기','예시에서 시작해 순간을 더하고 빼요.'],['하나씩 만들기','순간마다 한 화면씩 넘기며 나레이션과 음악을 듣고 고르고, 두 분이 할 말을 적어요. 단체 사진 순서도 여기서 정해요.' /* [INTRO_CONTRACT_1107 · 대본] 본식만이 아니라 음악 · 단체 사진(POST_FLOW 전체 한 장 → 촬영 후 안내 → 추가 촬영)도 이 걸음 */],['연습하기','고른 순간과 두 분이 할 말을, 예식 차례대로 해 봐요.'],   /* [FLOW_MAKE] 코워크 설계 2장 첫 안내 */['완성','식순을 확인하고 저장해요. 대본도 복사하거나 파일로 받아요.' /* [B2_GEUL_25] 저장 전에도 두 단추가 보인다 */]]
       .forEach(function(x,i){ h+='<div class="ipt"><span class="n">'+(i+1)+'</span><span><b>'+esc(x[0])+'</b> · '+esc(x[1])+'</span></div>'; });
     h+='</div>';
     h+='<div class="jr-t jr-t2">그다음 · 예식까지</div><div class="daymap jr">';
     /* [R1-32] «언제든 · 연습» 줄은 걷었다 — 바로 위 ③ 연습하기를 되풀이했고 날짜 표에서 혼자 날짜가 아니었다 */
     /* ★[INTRO_CONTRACT_1107 대본 · 계약서 v1.16 5조① · 3조②] 14일 뒤 변경은 «스튜디오와 상의» · 7일 = 글과 함께 영상 마감(식전 영상 · 식중 영상은 담은 날만 · 영상이 없는 날은 종전 둘째 문장) */
-    var _vd=_introVid();
+    /* [INTRO_CONTRACT_1107 대본 ③ ④] 제목 = 이날 마감하는 것(글 · 영상 · 녹음) · 두 분 목소리 직접 녹음(VOICE_LATE «예식 7일 전까지»)도 같은 날이라 같은 줄에 · «지금 비워 둔 칸도» 문장은 늘 */
+    var _vd=_introVid(), _vr=_introRec(), _up=[_vd,_vr?'두 분 목소리 녹음':''].filter(Boolean).join('과 ');
     [['예식<br>14일 전','순서 확정','그때까지 순간과 고른 것을 얼마든지 고쳐요. 그 뒤 변경은 스튜디오와 상의해요.'],
-     ['예식<br>7일 전','글 마감','서약 · 편지처럼 두 분이 쓸 글을 채워요. '+(_vd?_vd+'도 이때까지 마이페이지에 올려요.':'지금 비워 둔 칸도 이때까지 채우면 돼요.')],
+     ['예식<br>7일 전','글'+(_vd?' · 영상':'')+(_vr?' · 녹음':'')+' 마감','서약 · 편지처럼 두 분이 쓸 글을 채워요. '+(_up?_up+'도 이때까지 마이페이지에 올려요. ':'')+'지금 비워 둔 칸도 이때까지 채우면 돼요.'],
      ['당일','진행은 저희가','당일 순서 진행은 나레이션과 디렉터가 맡아요. 두 분은 담은 순간에만 나서요.']]   /* [R1-24] 나레이션을 «이끈다»로 띄우지 않는다(나레이션 포지셔닝 표준 문장) */
       .forEach(function(x){ h+='<div class="seqr"><div class="sq-tm">'+x[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(x[1])+'</div><div class="sq-d">'+esc(x[2])+'</div></div></div>'; });
     h+='</div>';
@@ -9459,7 +9506,7 @@ function _capLine(cls){ var R=RitualOpen; if(!R||!R.capSec||!isOpen()) return ''
   return '<p class="pk-left '+cls+'" data-fk="capleft:'+cls+'">'+esc(t)+'</p>'; }
 function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
-  if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
+  if(!n) return '<section class="pk-fp pk-fp-e" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
     +'<p class="pk-fp-empty">입장 · 맞절 · 닫는 인사로 시작해요. 예시를 고르거나 원하는 순간을 더해 주세요.</p></div>'
     +'<div class="pk-side"><button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button></div></section>';   /* ★[QA_PC_EMPTY_GO 2026-10-04 점검] PC 는 아래 막대(#nav)를 숨기는데 빈 판엔 이 단추도 없어 갈 길이 없었다 — 휴대폰 막대와 같은 길 */   /* [R1-33] «늘 있어요»는 칸마다 표(.pk-fix)가 이미 말한다 */
   var _sg=R.flowSegs(S), flat=(n<2)||_sg.every(function(x){ return x.lv===_sg[0].lv; });   // [RIT_CURVE_LABEL]
