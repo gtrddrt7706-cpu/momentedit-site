@@ -23075,6 +23075,9 @@ chk 'GLOBAL_SLOW_1107' assets/audio/_src/tempo.json 1                         # 
 chk 'GLOBAL_SLOW_1107' scripts/lib/tempo.mjs 1
 chk 'LISTEN_COMPARE_1107' scripts/build-listen-all.mjs 5                      # «지금 · 바뀐 뒤» 비교 판은 실청 생성기의 판 하나(손으로 만든 페이지 아님)
 chk 'LISTEN_PLAYALL_1107' scripts/build-listen-all.mjs 3                      # 비교 판 «전체 듣기» 재생바(지금 · 바뀐 뒤 · 번갈아 · 칸 누르면 거기서부터 · 잠금 화면 이전/다음)
+chk 'LISTEN_SEAM_1107' scripts/build-listen-all.mjs 4                         # «이음매 듣기» 탭 = junctions.md 이음매 그대로(생성기 --json · 손으로 안 적음)
+chk 'LISTEN_SEAM_1107' scripts/build-junctions.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/seam-listen.mjs >/dev/null 2>&1; _sml=$?; if [ "$_sml" = 1 ]; then echo 'REVERT? seam-listen: 실청판 이음매 탭 칸 수 · 번호가 junctions.md 와 다릅니다 — node scripts/audit/seam-listen.mjs [LISTEN_SEAM_1107]'; fail=1; else echo "ok seam-listen ($_sml) [LISTEN_SEAM_1107]"; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/tempo-check.mjs >/dev/null 2>&1; _tmp7=$?; if [ "$_tmp7" = 1 ]; then echo 'REVERT? tempo-check: 나레이션 mp3 배속이 tempo.json 과 다르거나 표에 없는 우성 클립이 있습니다 — node scripts/audit/tempo-check.mjs [TEMPO_1107]'; fail=1; else echo "ok tempo-check ($_tmp7) [TEMPO_1107]"; fi; fi
 chk 'ST12_02_LATE_FILE' order-preview.html 5   # ★[ST12_02_LATE_FILE 2026-11-06] 늦게 온 옛 파일 결과(다듬기 · 이 기기 찾기 · 받기 실패)가 새 선택을 덮지 않는다
 chk 'if(MK_REC!==me) return;' order-preview.html 2   # [ST12_02_LATE_FILE] _recFromBlob 결과 · 실패 둘 다 차례표로 거른다

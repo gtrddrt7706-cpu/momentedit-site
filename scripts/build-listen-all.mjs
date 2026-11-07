@@ -330,7 +330,17 @@ if (CMP) {
     letter = { id: '43_parents-letter', nu: CMP + '/' + rel, u: rel, v: voice, st: stepOf('43_parents-letter', voice), tp: tempoOf(T, '43_parents-letter', voice),
       d0: a0 ? a0.d : null, d1: a1 ? a1.d : null, r0: a0 ? a0.r : null, r1: a1 ? a1.r : null, m0: !!m0, n: ss.length, t: ss.slice(0, 2).join(' ') }; } }
   fs.rmSync(tmp, { recursive: true, force: true });
-  DATA.cmp = { base: CMP, rows, mid, letter };
+  /* ★★[LISTEN_SEAM_1107] «이음매 듣기» 탭 — 목록은 docs/handoff/junctions.md 의 이음매 그대로(같은 생성기 build-junctions --json) · 손으로 적지 않는다 */
+  const JF = path.join('/tmp', 'listen-junctions-' + process.pid + '.json');
+  const jr = spawnSync('node', [path.join(ROOT, 'scripts/build-junctions.mjs'), '--json', JF], { encoding: 'utf8' });
+  if (jr.status !== 0 || !fs.existsSync(JF)) die('이음매 판(build-junctions --json)을 못 만들었다: ' + String(jr.stderr || jr.stdout).slice(0, 300), 2);
+  const JD = JSON.parse(fs.readFileSync(JF, 'utf8')); fs.rmSync(JF, { force: true });
+  const mdN = (fs.readFileSync(path.join(ROOT, 'docs/handoff/junctions.md'), 'utf8').match(/^### J\d+ · /gm) || []).length;
+  if (mdN !== JD.list.length) die(`이음매 수가 다르다 — junctions.md ${mdN} · 생성기 ${JD.list.length} (node scripts/build-junctions.mjs 로 md 를 다시 뽑을 것)`, 2);
+  const jn = JD.list.map((j) => Object.assign({}, j, { br: j.br.map((b) => ({ lab: b.lab,
+    left: b.left.map((l) => Object.assign({}, l, { nu: l.f ? CMP + '/' + l.f : '' })), right: b.right.map((l) => Object.assign({}, l, { nu: l.f ? CMP + '/' + l.f : '' })) })) }));
+  DATA.cmp = { base: CMP, rows, mid, letter, jn, jnCourses: JD.courses, jnVars: JD.vars };
+  console.log(`  [LISTEN_SEAM_1107] 이음매 ${jn.length}(junctions.md ${mdN}와 같음) · 갈래 ${jn.reduce((a, x) => a + x.br.length, 0)} · 코스 ${JD.courses}`);
   console.log(`  [LISTEN_COMPARE_1107] 비교 판 — 지금 ${CMP} · 클립 ${Object.keys(rows).length}(그대로 ${nSame} · main 에 없음 ${Object.values(rows).filter((r) => !r.m0).length})`
     + (mid ? ` · 식중 영상 새 ${mid.clips.length}(지금 = ${mid.now.length}파일 이어 재생)` : ' · 식중 영상 미리듣기 없음'));
 }
@@ -369,7 +379,7 @@ const STAMP = (() => {
   for (const i of toneNums()) { let sz = 0;
     try { sz = fs.statSync(path.join(TONE_DIR, `n${i}.mp3`)).size; } catch (e) {}
     h.update('n' + i + ':' + sz + ';'); }
-  if (CMP) h.update('cmp:' + CMP + JSON.stringify(DATA.cmp.mid || null));   // [LISTEN_COMPARE_1107] 비교 판은 지문이 따로 · 단일 판 판정과 안 섞인다
+  if (CMP) h.update('cmp:' + CMP + JSON.stringify(DATA.cmp.mid || null) + JSON.stringify(DATA.cmp.jn || null));   // [LISTEN_COMPARE_1107] 비교 판은 지문이 따로 · 단일 판 판정과 안 섞인다
   return h.digest('hex').slice(0, 8);
 })();
 const oldSents = OLDC.reduce((a, c) => a + c.sents.length, 0);
@@ -667,6 +677,7 @@ function ORD() { var a = [];
   D.neu.forEach(function (c) { c.n.forEach(function (x) { if (!x.lock) a.push('n' + x.i); }); });
   MV.forEach(function (_x, i) { a.push('mv' + i); });   /* [LISTEN_COMPARE_1107] 식중 영상 새 녹음 — 맨 뒤에 붙여 옛 차례를 밀지 않는다 */
   if (LT) a.push('lt0');
+  if (CMP && CMP.jn) CMP.jn.forEach(function (j) { a.push(j.id); });   /* [LISTEN_SEAM_1107] 맨 뒤 — 옛 차례를 밀지 않는다 */
   return a; }
 /* ★★[HANDOFF_SMALL 2026-09-05 사장님 실물] 첫 판은 주소가 **20,307자**였다.
    내가 넣어 둔 경고가 울렸다 — 그런데 경고로 끝낼 일이 아니었다. 카톡이 자르면 못 쓴다.
@@ -893,6 +904,7 @@ function counts() {
   D.neu.forEach(function (c) { c.n.forEach(function (s) { if (s.lock) return; var k = 'n' + s.i; need++; if (V[k]) done++; if (V[k] === 're') re++; }); });
   MV.forEach(function (_x, i) { var k = 'mv' + i; need++; if (V[k]) done++; if (V[k] === 're') re++; });   /* [LISTEN_COMPARE_1107] */
   if (LT) { need++; if (V.lt0) done++; if (V.lt0 === 're') re++; }
+  if (CMP && CMP.jn) CMP.jn.forEach(function (j) { need++; if (V[j.id]) done++; if (V[j.id] === 're') re++; });   /* [LISTEN_SEAM_1107] */
   return { need: need, done: done, re: re };
 }
 
@@ -928,10 +940,11 @@ function draw() {
   $('pgi').style.width = (c0.need ? c0.done / c0.need * 100 : 0) + '%';
   $('stTxt').textContent = '판정 ' + c0.done + ' / ' + c0.need;
   $('stRe').textContent = c0.re ? ('다시 ' + c0.re + '문장') : '';
-  var tabs = ['전체'].concat(D.parts).concat(['새 어조']);
+  var tabs = ['전체'].concat(D.parts).concat(['새 어조']).concat(CMP && CMP.jn ? ['이음매 듣기'] : []);   /* [LISTEN_SEAM_1107] */
   $('tabs').innerHTML = tabs.map(function (t) { return '<button class="tab' + (t === TAB ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + '</button>'; }).join('');
 
   var oL = $('onlyLeft').checked, oR = $('onlyRe').checked, h = '', lastP = '', midDone = false;
+  if (TAB === '이음매 듣기' && CMP && CMP.jn) { $('list').innerHTML = jHtml(oL, oR); return; }   /* [LISTEN_SEAM_1107] */
   if (TAB !== '새 어조') {
     D.old.forEach(function (c) {
       if (TAB !== '전체' && c.p !== TAB) return;
@@ -1070,6 +1083,8 @@ $('mkOut').onclick = function () {
     out.push('# 왜 다시: ' + (W['n' + s.i] || '(이유 없음)')); }); });   /* [LISTEN_WHY] */
   MV.forEach(function (x, i) { if (V['mv' + i] !== 're') return;   /* [LISTEN_COMPARE_1107] 식중 영상 새 녹음 */
     out.push(x.v + ': ' + x.t); out.push('# 식중 영상 ' + x.k + ' · 왜 다시: ' + (W['mv' + i] || '(이유 없음)')); });
+  if (CMP && CMP.jn) CMP.jn.forEach(function (j) { if (V[j.id] !== 're') return; var b = jBr(j);   /* [LISTEN_SEAM_1107] 이음매 고침 */
+    out.push('# 이음매 ' + j.id + ' ' + j.an + ' → ' + j.bn + ' · 갈래 ' + jBrLab(b) + ' · 고칠 것: ' + (W[j.id] || '(메모 없음)')); });
   $('outWrap').className = out.length ? '' : 'hide';
   $('outNote').textContent = '타입캐스트에 통째로 붙여넣으세요. 받은 wav 는 폴더째 주시면 됩니다.';   /* [OUT_NOTE] */
   $('out').value = out.join('\\n') + (out.length ? '\\n' : '');
@@ -1153,18 +1168,71 @@ $('paste').onclick = async function () {
   draw(); sayCanDo();
   alert(HANDOFF_MSG.replace(/<[^>]*>/g, ''));
 };
+/* ★★[LISTEN_SEAM_1107 2026-11-07 사장님 «이음매 = 식순에서 어떤 이벤트를 고르든 순간과 순간을 잇는 멘트가 매끄럽게»] 이음매 듣기 탭.
+   목록 = docs/handoff/junctions.md 의 이음매(J 번호 그대로) · 칸마다 갈래(고름을 한 가지씩 바꿔 줄이 달라지는 것만 · 같은 소리는 묶음).
+   ▶ 하나 = 앞 순간 마지막 줄 → 이음 줄 → 다음 순간 첫 줄 · 쉼은 엔진 값(gapMs) 그대로 · 사람 구간은 «— 동작 —» 3초로 줄여 넘긴다. */
+var JB = {};
+function jBr(j) { return j.br[Math.min(JB[j.id] || 0, j.br.length - 1)]; }
+function jBrLab(x) { var n = x.lab.length; return x.lab[0] === '기본' ? '기본' + (n > 1 ? ' · 같은 소리 ' + n + '가지' : '') : x.lab[0] + (n > 1 ? ' 외 ' + (n - 1) : ''); }
+function jSegs(j, side) {
+  var b = jBr(j), L = b.left.concat(b.right), out = [], lastLive = false;
+  L.forEach(function (l, k) {
+    var lab = (side === 'now' ? '지금' : '바뀐 뒤') + ' · ' + (k === b.left.length ? '이음매 뒤 · ' : '') + (l.no ? '[' + l.no + '] ' : '') + l.slug;
+    var pre = k === 0 || lastLive ? 0 : (l.g || 600);
+    if (l.f) out.push({ u: side === 'now' ? l.nu : l.f, t: lab, pre: pre });
+    else out.push({ act: '— 소리 없음 · ' + (l.silent || l.slug) + ' —', ms: 1500, pre: pre, t: lab });
+    lastLive = !!l.live;
+    if (l.live) out.push({ act: '— 동작 ' + (l.live.est >= 60 ? '약 ' + Math.round(l.live.est / 60) + '분' : l.live.est + '초') + ' · 3초로 줄여 넘김 —', ms: 3000, pre: 0, t: l.live.t });
+  });
+  return out;
+}
+function jLine(l) {
+  return '<div class="sent"><div class="tx"><div class="mi">' + (l.no ? '[' + esc(l.no) + '] ' : '') + esc(l.slug || '')
+    + (l.g ? ' · 앞 줄 뒤 쉼 ' + (l.g / 1000).toFixed(1) + '초' : '') + (l.f ? '' : ' · 소리 없음') + '</div><div>' + esc(l.t || (l.silent ? '소리 없음 · ' + l.silent : '(소리 없음)')) + '</div>'
+    + (l.live ? '<div class="mi">[사람 구간 · ' + (l.live.est >= 60 ? '약 ' + Math.round(l.live.est / 60) + '분' : l.live.est + '초') + '] ' + esc(l.live.t) + '</div>' : '') + '</div></div>';
+}
+function jHtml(oL, oR) {
+  var done = 0, re = 0; CMP.jn.forEach(function (j) { if (V[j.id]) done++; if (V[j.id] === 're') re++; });
+  var nb = CMP.jn.reduce(function (a, j) { return a + j.br.length; }, 0);
+  var h = '<div class="note"><b>이음매 ' + CMP.jn.length + '개 중 판정 ' + done + '개</b>' + (re ? ' · 고침 ' + re + '개' : '')
+    + '<br>목록은 docs/handoff/junctions.md 그대로(만들 수 있는 코스 ' + CMP.jnCourses.toLocaleString() + '가지에서 모은 이음매) · 갈래 ' + nb + '개(고름 ' + CMP.jnVars + '가지를 한 가지씩 바꿔 줄이 달라지는 것만 · 같은 소리는 하나로).'
+    + '<br>▶ 하나로 앞 순간 마지막 줄 → 이음 줄 → 다음 순간 첫 줄을 엔진 쉼 그대로 들려 드립니다 · 사람 구간은 «— 동작 —» 3초로 줄여 넘깁니다.</div>';
+  CMP.jn.forEach(function (j) {
+    var v = V[j.id]; if (oL && v) return; if (oR && v !== 're') return;
+    var bi = Math.min(JB[j.id] || 0, j.br.length - 1), b = j.br[bi];
+    h += '<div class="clip' + (v ? ' done' : '') + '" data-qk="' + j.id + '"><div class="ch"><span class="n">' + j.id + '</span><b>' + esc(j.an) + ' → ' + esc(j.bn) + '</b>'
+      + '<span class="tag">100쌍 중 ' + j.p + '</span><span class="tag">코스 ' + j.n + '</span>' + (v === 're' ? '<span class="tag re">고침</span>' : '')
+      + '<button class="btn sm" style="margin-left:auto" data-jnow="' + j.id + '">지금</button><button class="btn sm play" data-jaft="' + j.id + '">바뀐 뒤</button></div>'
+      + '<div class="mi" style="padding:6px 13px;font-size:12.5px;line-height:1.6;color:var(--light);border-bottom:1px solid var(--bg3)">음악 ' + esc(j.music)
+      + ' · <a href="' + esc(j.url) + '" target="_blank" rel="noopener" style="color:var(--gold-text)">바로 보기</a></div>';
+    if (j.br.length > 1) h += '<div class="ops" style="padding:8px 13px;border-bottom:1px solid var(--bg3)">' + j.br.map(function (x, i) {
+      return '<button class="btn sm' + (i === bi ? ' on' : '') + '" data-jbr="' + j.id + '" data-i="' + i + '" title="' + esc(x.lab.join(' · ')) + '">' + esc(jBrLab(x)) + '</button>'; }).join('') + '</div>';
+    h += b.left.map(jLine).join('') + '<div class="mi" style="text-align:center;padding:4px 0;color:var(--gold-text);font-size:12px;letter-spacing:.08em">──── 이음매 ────</div>' + b.right.map(jLine).join('');
+    h += '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div class="mi">이 이음매가 매끄럽게 이어지나요?</div></div><div class="ops">'
+      + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="' + j.id + '">매끄러움</button>'
+      + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + j.id + '">고침</button></div>'
+      + (v === 're' ? '<div class="why"><input data-w="' + j.id + '" value="' + esc(W[j.id] || '') + '" placeholder="무엇을 고칠까요? (예: 같은 말이 겹쳐요 · 쉼이 길어요 · 이음 줄이 어색해요)"></div>' : '') + '</div></div>';
+  });
+  return h;
+}
+if (CMP && CMP.jn) $('list').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.jbr) { JB[b.dataset.jbr] = +b.dataset.i; draw(); return; }
+  if (b.dataset.jnow || b.dataset.jaft) { var id = b.dataset.jnow || b.dataset.jaft; qOne(id, b.dataset.jnow ? 'now' : 'aft'); }
+});
 /* ★★[LISTEN_PLAYALL_1107 2026-11-07 사장님 «전체 들을 수 있게 하는 버튼 만들어 줘 · 플레이바 있고»] 전체 듣기.
    ★예식 순서(화면 차례) 그대로 이어 튼다 · 칸 사이 0.8초 · 지금 칸으로 스크롤 + 테두리 · 칸을 누르면 거기서부터.
    ★모드 셋 — 바뀐 뒤 전체(기본) · 지금 전체 · 번갈아(칸마다 지금 → 바뀐 뒤).
    ★목록에 없는 칸(손으로 고르는 · 폴백 · 폐지)은 애초에 없고, «지금 안 남» · 소리 없는 칸은 건너뛴다 · 어조는 켤 때만.
    ★소리 요소는 하나(PA)를 계속 쓴다 — 아이폰은 사람이 누른 요소에만 재생을 허락하므로 src 만 바꿔 잇는다.
    ★화면이 꺼져 있으면(잠금 · 백그라운드) 0.8초 쉼을 건너뛰고 바로 잇는다 — 꺼진 화면에선 타이머가 멈춰 재생이 끊긴다. */
-var Q = { on: false, list: [], i: 0, seg: [], si: 0, mode: 'aft', tone: false, gapT: null, k: '' };
+var Q = { on: false, list: [], i: 0, seg: [], si: 0, mode: 'aft', tone: false, gapT: null, k: '', one: '', jn: false };   /* one = «이 칸만»(지금 · 바뀐 뒤) · jn = 이음매 탭에서 만든 목록 */
 var PA = null;
 function qMid() { return { k: 'mid', name: '식중 영상 소개', now: CMP.mid.now.slice(),
   aft: MV.filter(function (x) { return x.has; }).map(function (x) { return x.u; }) }; }
 function qBuild() {
-  var L = [];
+  var L = []; Q.jn = TAB === '이음매 듣기' && !!(CMP && CMP.jn);
+  if (Q.jn) return CMP.jn.map(function (j) { return { k: j.id, name: j.id + ' ' + j.an + ' → ' + j.bn, jn: j }; });   /* [LISTEN_SEAM_1107] 이음매 탭이면 «짝 전부 이어 듣기» */
   D.old.forEach(function (c) {
     if (!c.dm && c.has && hasSnd(c.id)) { var r = CMP.rows[c.id];
       L.push({ k: c.id, name: c.no + ' ' + c.k, now: r ? [r.nu] : [], aft: [sndOf(c.id)] }); }
@@ -1178,11 +1246,13 @@ function qBuild() {
   return L;
 }
 function qSegs(it) {
+  var md = Q.one || Q.mode;
+  if (it.jn) return md === 'alt' ? jSegs(it.jn, 'now').concat([{ act: '— 바뀐 뒤 —', ms: 1200, pre: 600 }], jSegs(it.jn, 'aft')) : jSegs(it.jn, md);
   var nw = it.now.map(function (u) { return { u: u, t: '지금' }; }), af = it.aft.map(function (u) { return { u: u, t: '바뀐 뒤' }; });
-  return Q.mode === 'now' ? nw : Q.mode === 'aft' ? af : nw.concat(af);
+  return md === 'now' ? nw : md === 'aft' ? af : nw.concat(af);
 }
 function qFind(i, dir) { dir = dir || 1; while (i >= 0 && i < Q.list.length) { if (qSegs(Q.list[i]).length) return i; i += dir; } return -1; }
-function qGap(fn) { clearTimeout(Q.gapT); if (document.hidden) fn(); else Q.gapT = setTimeout(fn, 800); }
+function qGap(fn, ms) { clearTimeout(Q.gapT); if (document.hidden) fn(); else Q.gapT = setTimeout(fn, ms == null ? 800 : ms); }
 function qEl() {
   if (PA) return PA;
   PA = new Audio(); PA.preload = 'auto';
@@ -1193,6 +1263,7 @@ function qEl() {
 }
 function qLoad() {
   var a = qEl(), sg = Q.seg[Q.si]; if (!sg) return;
+  if (sg.act) { try { a.pause(); } catch (e) {} Q.on = true; qUi(); $('pbSub').textContent = sg.act; clearTimeout(Q.gapT); Q.gapT = setTimeout(qAdv, document.hidden ? 0 : sg.ms); return; }   /* [LISTEN_SEAM_1107] 소리 없는 «— 동작 —» 칸 */
   a.src = sg.u; Q.on = true; qUi();
   var pr; try { pr = a.play(); } catch (e) { qStuck(e); return; }
   if (pr && pr.catch) pr.catch(qStuck);
@@ -1204,22 +1275,26 @@ function qGo(i, scroll) {
 }
 function qAdv() {
   if (!Q.on) return;
-  if (Q.si + 1 < Q.seg.length) { Q.si++; qGap(qLoad); return; }
-  qGap(function () { qGo(Q.i + 1); });
+  if (Q.si + 1 < Q.seg.length) { Q.si++; var nx = Q.seg[Q.si]; qGap(qLoad, nx.pre != null ? nx.pre : 800); return; }
+  if (Q.one) { var k0 = Q.k; Q.on = false; Q.one = ''; qUi(); $('pbSub').textContent = '이 칸만 다 들었어요'; Q.k = k0; return; }   /* «이 칸만» 끝 */
+  qGap(function () { qGo(Q.i + 1); }, Q.jn ? 1500 : 800);
 }
 function qEnd() { Q.on = false; if (PA) try { PA.pause(); } catch (e) {} qUi(); $('pbSub').textContent = '끝까지 들었어요 · ▶ 를 누르면 처음부터'; Q.i = 0; Q.k = ''; qMark(false); }
-function qStart(i) { stop(); Q.list = qBuild(); qGo(i || 0); }
+function qStart(i) { stop(); Q.one = ''; Q.list = qBuild(); qGo(i || 0); }
+function qOne(k, side) { stop(); Q.list = qBuild(); for (var i = 0; i < Q.list.length; i++) if (Q.list[i].k === k) { Q.one = side; qGo(i, false); return; } }   /* [LISTEN_SEAM_1107] 칸 안 지금 · 바뀐 뒤 = 그 칸만 */
 function qHalt() { if (!Q.on) return; clearTimeout(Q.gapT); Q.on = false; if (PA) try { PA.pause(); } catch (e) {} qUi(); }
 function qToggle() {
   if (Q.on) { qHalt(); return; }
-  if (!Q.k || !PA || !PA.src) { qStart(0); return; }
+  if (!Q.k || !PA || !PA.src || Q.jn !== (TAB === '이음매 듣기')) { qStart(0); return; }   /* 탭을 바꿨으면 그 탭 목록으로 처음부터 */
+  Q.one = '';   /* 재생바 ▶ 로 다시 틀면 «이 칸만»이 아니라 목록 끝까지 */
+  var sg0 = Q.seg[Q.si]; if (sg0 && sg0.act) { stop(); qLoad(); return; }
   stop(); Q.on = true; qUi(); var pr; try { pr = PA.play(); } catch (e) { qStuck(e); return; } if (pr && pr.catch) pr.catch(qStuck);
 }
 function qPrev() { if (!Q.list.length) { qStart(0); return; }
   if (PA && PA.currentTime > 3) { stop(); Q.si = 0; qLoad(); return; }
-  var j = qFind(Q.i - 1, -1); stop(); qGo(j < 0 ? 0 : j); }
-function qNext() { if (!Q.list.length) { qStart(0); return; } stop(); qGo(Q.i + 1); }
-function qFromKey(k) { stop(); Q.list = qBuild(); for (var i = 0; i < Q.list.length; i++) if (Q.list[i].k === k) { qGo(i, false); return; } }
+  var j = qFind(Q.i - 1, -1); stop(); Q.one = ''; qGo(j < 0 ? 0 : j); }
+function qNext() { if (!Q.list.length) { qStart(0); return; } stop(); Q.one = ''; qGo(Q.i + 1); }
+function qFromKey(k) { stop(); Q.one = ''; Q.list = qBuild(); for (var i = 0; i < Q.list.length; i++) if (Q.list[i].k === k) { qGo(i, false); return; } }
 function qMark(scroll) {
   var old = document.querySelectorAll('.clip.qon'); for (var i = 0; i < old.length; i++) old[i].classList.remove('qon');
   if (!Q.k) return;
