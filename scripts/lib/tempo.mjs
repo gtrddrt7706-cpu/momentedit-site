@@ -1,6 +1,6 @@
 /* ★★[TEMPO_1107 2026-11-07 사장님 확정] 나레이션 말빠르기 — 조립 단계의 규칙.
  *
- * 표 한 곳: assets/audio/_src/tempo.json (목소리 기본 단계 · 우성 순간 키별 단계 · 단계 → 배속 공식 · 쉼 자).
+ * 표 한 곳: assets/audio/_src/tempo.json (전체 공통 global[GLOBAL_SLOW_1107] · 목소리 기본 단계 · 우성 순간 키별 단계 · 단계 → 배속 공식 · 쉼 자).
  * 원본(_src 문장 flac)은 손대지 않는다. assemble-narration 이 문장을 이어 붙인 «바로 다음»(loudnorm · mp3 인코딩 전)에
  * 이 표의 배속으로 «말소리만» 늦춘다. 쉼(−34 dBFS · 0.25초 이상 무음)은 샘플 그대로 둔다 · 음높이 그대로(atempo).
  * 늘 원본에서 다시 만드니 두 번 입히는 일이 없다. 바꾸려면 표의 숫자만 고치고 그 클립들을 다시 조립한다.
@@ -22,17 +22,24 @@ export function speedOfStep(T, step) {
   return +v.toFixed(F.round);
 }
 
-/* 클립 열쇠(«번호_파일») · 목소리 → 배속. 우성인데 표에 없으면 null(조립이 멈춘다 — 순간 키를 표에 적게) */
+/* ★[GLOBAL_SLOW_1107 사장님 11/07 «4%로 하자»] 단계 배속 위에 전체 공통 global 을 곱한다(단계 0 = 안 입힘이면 그대로 1) */
+export function withGlobal(T, v) {
+  if (v == null || v === 1) return v;
+  const g = +T.global > 0 ? +T.global : 1;
+  return +(v * g).toFixed(4);
+}
+
+/* 클립 열쇠(«번호_파일») · 목소리 → 배속(단계 배속 × global). 우성인데 표에 없으면 null(조립이 멈춘다 — 순간 키를 표에 적게) */
 export function tempoOf(T, key, voice) {
   const V = (T.voice || {})[voice];
   if (!V) return 1;                                   // 배역 · 그 밖 목소리는 그대로
-  if (V.step != null) return speedOfStep(T, V.step);
+  if (V.step != null) return withGlobal(T, speedOfStep(T, V.step));
   if (V.by === 'moment') {
     const m = (T.woosung || {})[key];
     if (!m) return null;
     const st = (T.moments || {})[m];
     if (st == null) return null;
-    return speedOfStep(T, st);
+    return withGlobal(T, speedOfStep(T, st));
   }
   return 1;
 }

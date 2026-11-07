@@ -23070,6 +23070,9 @@ chk 'TEMPO_1107' scripts/assemble-parents-letter.mjs 3                          
 chk 'TEMPO_1107' scripts/audit/stage-order-name.mjs 1                            # 조립기를 임시 폴더에 옮겨 도는 검사도 말빠르기 표 · tempo.mjs 를 함께 옮긴다
 chk 'TEMPO_1107' CLAUDE.md 1
 chk 'NARR_APPROVE_1107' CLAUDE.md 1                                              # 나레이션 바꿈은 사장님 «지금 · 바뀐 뒤» 실청 승인 뒤에만 병합 · 새 녹음 줄이기 폐지(새 순간 = 전용 대본)
+chk 'GLOBAL_SLOW_1107' assets/audio/_src/tempo.json 1                         # [GLOBAL_SLOW_1107] 사장님 «4%로 하자» · 단계 배속 × global
+chk 'GLOBAL_SLOW_1107' scripts/lib/tempo.mjs 1
+chk 'LISTEN_COMPARE_1107' scripts/build-listen-all.mjs 5                      # «지금 · 바뀐 뒤» 비교 판은 실청 생성기의 판 하나(손으로 만든 페이지 아님)
 if command -v node >/dev/null 2>&1; then node scripts/audit/tempo-check.mjs >/dev/null 2>&1; _tmp7=$?; if [ "$_tmp7" = 1 ]; then echo 'REVERT? tempo-check: 나레이션 mp3 배속이 tempo.json 과 다르거나 표에 없는 우성 클립이 있습니다 — node scripts/audit/tempo-check.mjs [TEMPO_1107]'; fail=1; else echo "ok tempo-check ($_tmp7) [TEMPO_1107]"; fi; fi
 chk 'ST12_02_LATE_FILE' order-preview.html 5   # ★[ST12_02_LATE_FILE 2026-11-06] 늦게 온 옛 파일 결과(다듬기 · 이 기기 찾기 · 받기 실패)가 새 선택을 덮지 않는다
 chk 'if(MK_REC!==me) return;' order-preview.html 2   # [ST12_02_LATE_FILE] _recFromBlob 결과 · 실패 둘 다 차례표로 거른다

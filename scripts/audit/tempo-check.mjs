@@ -3,7 +3,8 @@
    ① 표 모양 — 공식(0.98 − 0.035 × (n − 1) / 19) · 진희 단계 · 순간 키 단계(0 ~ 20 정수) · 우성 클립의 순간 키가 표에 있다
    ② 대장(manifest)의 우성 클립이 전부 표에 있다(새 클립이 생기면 순간 키를 적게 — 없으면 빨강) · 표에만 있는 낡은 열쇠도 빨강
    ③ _recorded.json 의 tempo(조립이 실제로 입힌 배속)가 표에서 나온 배속과 같다 — 진희 · 우성 전부(편지 통낭독 parents-letter 도 letter 13 — 페이지가 튼다)
-   ④ 깨 보기 둘 — 표에서 우성 열쇠 하나를 지우면 ② 빨강 · 순간 단계 하나를 바꾸면 ③ 빨강
+   ③ 의 기대 배속 = 단계 배속 × global [GLOBAL_SLOW_1107]
+   ④ 깨 보기 셋(global 을 바꿔도 ③ 빨강) — 표에서 우성 열쇠 하나를 지우면 ② 빨강 · 순간 단계 하나를 바꾸면 ③ 빨강
    node scripts/audit/tempo-check.mjs   종료 코드 0 통과 · 1 실패 */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,6 +24,7 @@ function check(T, quiet) {
   const bad = [];
   const F = T.formula || {};
   if (!(F.a === 0.98 && F.b === 0.035 && F.c === 19)) bad.push('① 공식이 0.98 − 0.035 × (n − 1) / 19 가 아님');
+  if (!(+T.global > 0.8 && +T.global <= 1)) bad.push('① global(전체 공통 배속 [GLOBAL_SLOW_1107])이 0.8 ~ 1 사이가 아님');
   const okStep = (v) => Number.isInteger(v) && v >= 0 && v <= 20;
   if (!okStep((T.voice || {})['진희']?.step)) bad.push('① 진희 단계가 0 ~ 20 정수가 아님');
   for (const [m, v] of Object.entries(T.moments || {})) if (!m.startsWith('_') && !okStep(v)) bad.push(`① 순간 ${m} 단계 ${v}`);
@@ -39,7 +41,7 @@ function check(T, quiet) {
     const got = r.tempo == null ? 1 : +r.tempo; n++;
     if (Math.abs(got - exp) > 5e-4) bad.push(`③ ${k}(${v}) 입힌 배속 ${got} ≠ 표 ${exp}`);
   }
-  if (!quiet) console.log(`  표 대조 ${n}클립 · 진희 ×${speedOfStep(T, T.voice['진희'].step)} · 우성 ${Object.keys(T.woosung).length}클립`);
+  if (!quiet) console.log(`  표 대조 ${n}클립 · global ×${T.global} · 진희 ×${tempoOf(T, '', '진희')} · 우성 ${Object.keys(T.woosung).length}클립`);
   return bad;
 }
 
@@ -57,6 +59,9 @@ if (mk) t2.moments[mk] = t2.moments[mk] === 1 ? 2 : 1;
 const b2 = !mk || check(t2, true).some((b) => b.startsWith('③'));
 console.log((b2 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — 순간 단계 하나를 바꾸면 ③ 빨강');
 
-const fail = bad.length || !b1 || !b2;
+const t3 = JSON.parse(JSON.stringify(T)); t3.global = T.global === 1 ? 0.95 : 1;
+const b3 = check(t3, true).some((b) => b.startsWith('③'));
+console.log((b3 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — global 을 바꾸면 ③ 빨강 [GLOBAL_SLOW_1107]');
+const fail = bad.length || !b1 || !b2 || !b3;
 console.log(fail ? 'TEMPO_1107 FAIL' : 'TEMPO_1107 OK');
 process.exit(fail ? 1 : 0);

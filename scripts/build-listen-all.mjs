@@ -277,6 +277,63 @@ const DATA = {
      지어내면 `신랑|신부:` 같은, 타입캐스트에 없는 사람이 대본에 실린다(이 저장소가 겪은 사고). */
   voice: man.voice || {},
 };
+/* ★★[LISTEN_COMPARE_1107 2026-11-07 REC_SPEED_1107 v3 · 사장님 «GPT 가 전에 만들었던 폼대로 · 식순에 있는 모든 나레이션 전부»]
+   «지금 / 바뀐 뒤» 비교 판 — 새 페이지를 손으로 만들지 않고 이 생성기에 판 하나를 더한다.
+   ★지금 = <--compare-base>/<경로>(라이브 main 의 소리) · 바뀐 뒤 = 상대 경로(이 판을 연 주소 = PR 미리보기의 소리).
+   ★둘 다 <audio> 로만 튼다 — 이 판은 Web Audio · fetch 로 소리를 자르지 않는다(문장 듣기도 currentTime 건너뛰기).
+     그래서 교차 출처인 «지금» 쪽도 그대로 난다.
+   ★배속은 lib/tempo.mjs tempoOf 에서 받는다(손으로 적지 않는다) · 길이 · 말 속도는 뽑을 때 잰다
+     (지금 = git show origin/main:<경로> · 바뀐 뒤 = 작업 트리 · 말 속도 = 한글 음절 ÷ (길이 − −34 dBFS 0.25초↑ 무음 합)). */
+const CMP = String(arg('--compare-base', '') || '').replace(/\/+$/, '');
+const PAGE_URL = String(arg('--page-url', '') || '').replace(/\/+$/, '');   // [LISTEN_COMPARE_1107] 스크립트가 막힐 때 «눌러서 열기» 주소(비교 판은 라이브에 없다)
+if (CMP && !WEB) die('--compare-base 는 --web 과 함께 쓴다(바뀐 뒤 소리를 주소로 부른다)', 2);
+if (CMP && PART) die('--compare-base 는 전체 판만 뽑는다(--part 와 함께 쓰지 않는다)', 2);
+if (CMP) {
+  const { loadTempo, tempoOf } = await import('./lib/tempo.mjs');
+  const T = loadTempo(ROOT);
+  const tmp = fs.mkdtempSync('/tmp/lc-');
+  const quietSum = (f) => { const r = spawnSync('ffmpeg', ['-hide_banner', '-nostats', '-i', f, '-af', 'silencedetect=noise=-34dB:d=0.25', '-f', 'null', '-'], { encoding: 'utf8' });
+    let q = 0; for (const m of String(r.stderr || '').matchAll(/silence_duration: ([\d.]+)/g)) q += +m[1]; return q; };
+  const measure = (f, syl) => { if (!f) return null; const d = durOf(f); if (!isFinite(d) || d <= 0) return null;
+    const sp = d - quietSum(f); return { d: +d.toFixed(2), r: sp > 0 && syl ? +(syl / sp).toFixed(2) : null }; };
+  const mainFile = (rel) => { const r = spawnSync('git', ['-C', ROOT, 'show', 'origin/main:' + rel], { maxBuffer: 1 << 28 });
+    if (r.status !== 0 || !r.stdout || !r.stdout.length) return ''; const o = path.join(tmp, rel.replace(/[^\w.-]/g, '_')); fs.writeFileSync(o, r.stdout); return o; };
+  const shaOf = (f) => createHash('sha256').update(fs.readFileSync(f)).digest('hex').slice(0, 12);
+  const stepOf = (key, voice) => { const V = (T.voice || {})[voice]; if (!V) return 0; if (V.step != null) return V.step;
+    const mk = (T.woosung || {})[key]; return mk != null ? ((T.moments || {})[mk] ?? 0) : 0; };
+  const rows = {}; let nSame = 0;
+  for (const c of OLDC) { if (!c.has) continue;
+    const f = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') }); const rel = path.relative(ROOT, f).split(path.sep).join('/');
+    const voice = (man.voice || {})[c.role] || c.role || '';
+    const syl = c.sents.reduce((a, t) => a + sylOf(t), 0);
+    const m0 = mainFile(rel), a0 = measure(m0, syl), a1 = measure(f, syl);
+    const same = !!(m0 && shaOf(m0) === shaOf(f)); if (same) nSame++;
+    rows[c.id] = { nu: CMP + '/' + rel, v: voice, st: stepOf(c.id, voice), tp: tempoOf(T, c.id, voice),
+      d0: a0 ? a0.d : null, d1: a1 ? a1.d : null, r0: a0 ? a0.r : null, r1: a1 ? a1.r : null, same: same, m0: !!m0 };
+  }
+  let mid = null; const MJ = path.join(ROOT, 'assets/audio/preview/midvideo/midvideo.json');
+  if (fs.existsSync(MJ)) { const J = JSON.parse(fs.readFileSync(MJ, 'utf8'));
+    const nowF = (J.now || []).map(mainFile); const nowD = nowF.reduce((a, f) => a + (f ? durOf(f) : 0), 0);
+    const nowSyl = (J.now || []).map((rel) => { const k = rel.split('/').pop().replace(/\.mp3$/, ''); const c = OLDC.find((x) => x.id === k);
+      return c ? c.sents.reduce((a, t) => a + sylOf(t), 0) : 0; }).reduce((a, b) => a + b, 0);
+    const nowQ = nowF.reduce((a, f) => a + (f ? quietSum(f) : 0), 0);
+    mid = { after: OLDC.some((c) => c.id === '25_narr-bless-end-long') ? '25_narr-bless-end-long' : '',
+      now: (J.now || []).map((rel) => CMP + '/' + rel), nowD: +nowD.toFixed(2), nowR: nowD - nowQ > 0 ? +(nowSyl / (nowD - nowQ)).toFixed(2) : null,
+      clips: (J.clips || []).map((x) => { const f = path.join(ROOT, x.file); const a = fs.existsSync(f) ? measure(f, sylOf(x.text || '')) : null;
+        return { u: x.file, k: x.label, t: x.text, v: x.voice, st: x.step, tp: x.tempo, d1: a ? a.d : null, r1: a ? a.r : null, has: !!a }; }) };
+  }
+  /* [LISTEN_COMPARE_1107] 편지 통낭독 43 — 예식 큐엔 없고(manual_off) 어른께 드리는 안내 페이지(parents.html)가 튼다 · 비교 판엔 한 줄 */
+  let letter = null; const LC = man.clips.find((c) => `${c.no}_${c.file}` === '43_parents-letter');
+  if (LC) { const f = srcOf(LC); if (f) { const rel = path.relative(ROOT, f).split(path.sep).join('/');
+    const voice = (man.voice || {})[LC.role] || LC.role || ''; const ss = (LC.sents || []).map((x) => String(x.text || '').trim()).filter(Boolean);
+    const syl = ss.reduce((a, t) => a + sylOf(t), 0); const m0 = mainFile(rel), a0 = measure(m0, syl), a1 = measure(f, syl);
+    letter = { id: '43_parents-letter', nu: CMP + '/' + rel, u: rel, v: voice, st: stepOf('43_parents-letter', voice), tp: tempoOf(T, '43_parents-letter', voice),
+      d0: a0 ? a0.d : null, d1: a1 ? a1.d : null, r0: a0 ? a0.r : null, r1: a1 ? a1.r : null, m0: !!m0, n: ss.length, t: ss.slice(0, 2).join(' ') }; } }
+  fs.rmSync(tmp, { recursive: true, force: true });
+  DATA.cmp = { base: CMP, rows, mid, letter };
+  console.log(`  [LISTEN_COMPARE_1107] 비교 판 — 지금 ${CMP} · 클립 ${Object.keys(rows).length}(그대로 ${nSame} · main 에 없음 ${Object.values(rows).filter((r) => !r.m0).length})`
+    + (mid ? ` · 식중 영상 새 ${mid.clips.length}(지금 = ${mid.now.length}파일 이어 재생)` : ' · 식중 영상 미리듣기 없음'));
+}
 /* ★★[LISTEN_KEY_STAMP 2026-08-26 사용자 지적] 저장 열쇠에 **내용 지문**을 찍는다.
    사용자 원문: *"이미 전에 체크한것들이 그대로 저장되어있는데 왜그래? 지금 새로운것을 다시 테스트하는거아니야?"*
    ★무엇이 문제였나 — 열쇠가 `me_listen_all_v1` 고정 문자열이었다. 브라우저는 판이 바뀌어도
@@ -312,6 +369,7 @@ const STAMP = (() => {
   for (const i of toneNums()) { let sz = 0;
     try { sz = fs.statSync(path.join(TONE_DIR, `n${i}.mp3`)).size; } catch (e) {}
     h.update('n' + i + ':' + sz + ';'); }
+  if (CMP) h.update('cmp:' + CMP + JSON.stringify(DATA.cmp.mid || null));   // [LISTEN_COMPARE_1107] 비교 판은 지문이 따로 · 단일 판 판정과 안 섞인다
   return h.digest('hex').slice(0, 8);
 })();
 const oldSents = OLDC.reduce((a, c) => a + c.sents.length, 0);
@@ -322,7 +380,7 @@ const html = `<!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>전체 실청 점검 · 기존 ${OLDC.length} + 어조 ${NEWC.length}클립 · Moment Edit</title>
+<title>전체 실청 점검${CMP ? ' · 지금 / 바뀐 뒤' : ''} · 기존 ${OLDC.length} + 어조 ${NEWC.length}클립 · Moment Edit</title>
 <!-- [LISTEN_ALL] 자동생성물. 손으로 고치지 말 것 — scripts/build-listen-all.mjs 를 고치고 다시 뽑는다.
      ★목록은 manifest.json + 더빙_한번에* 에서 박았다. ★소리는 어디에도 안 올라간다. ★내부용. -->
 <style>
@@ -397,7 +455,7 @@ border:1px solid var(--border);border-radius:9px;background:#fff}
 .hide{display:none}
 </style></head><body><div class="wrap">
 
-<h1>전체 실청 점검</h1>
+<h1>전체 실청 점검${CMP ? ' · 지금 / 바뀐 뒤' : ''}</h1>
 
 <!-- ★★[JS_BLOCKED_SAY 2026-08-26 사용자 실물 두 번] 스크립트가 «아예 안 도는» 자리를 화면이 말한다.
      ★단서: 폰에서 목록도 탭도 안 뜨는데 **내가 넣은 오류 배너(window.onerror)까지 비어 있었다.**
@@ -410,9 +468,9 @@ border:1px solid var(--border);border-radius:9px;background:#fff}
   <b>목록이 비어 있다면, 지금 보고 계신 것이 「미리보기」라 그렇습니다.</b>
   카톡·메일·파일 앱의 미리보기는 자바스크립트를 실행하지 않습니다. 판이 고장 난 것이 아닙니다.<br>
   <b>아래를 누르시면 바로 됩니다.</b><br>
-  <a href="https://momentedit.kr/${OUTNAME}" style="display:block;margin:9px 0;padding:13px 12px;
+  <a href="${PAGE_URL || 'https://momentedit.kr'}/${OUTNAME}" style="display:block;margin:9px 0;padding:13px 12px;
      background:#B89A75;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;
-     text-align:center;word-break:break-all;line-height:1.45">momentedit.kr/${OUTNAME}<br><span style="font-size:13px;font-weight:600;opacity:.9">눌러서 열기</span></a>
+     text-align:center;word-break:break-all;line-height:1.45">${(PAGE_URL || 'https://momentedit.kr').replace(/^https?:\/\//, '')}/${OUTNAME}<br><span style="font-size:13px;font-weight:600;opacity:.9">눌러서 열기</span></a>
   눌러도 안 열리면 그 주소를 사파리·크롬 주소창에 직접 쳐 주세요.<br>
   <span style="color:var(--light)">소리도 그 주소에서 나옵니다. 내려받은 파일로는 목록·판정만 되고 듣기가 안 됩니다.</span>
 </div>
@@ -453,6 +511,10 @@ ${/* ★★[SAY_WHICH_BOARD 2026-09-05 사장님 화면] 이 칸이 «세상은 
   이 판은 <b>소리가 없는 가벼운 판</b>입니다(목록·판정만). 소리까지 들으려면 <code>--embed</code> 로 뽑은 판을 쓰세요.
 </div>`}
 
+${CMP ? `<div class="note" style="background:#fdf7ec;color:var(--gold-text);border:1px solid #e8dcc4">
+  <b>[LISTEN_COMPARE_1107] 지금 / 바뀐 뒤 비교 판</b> · 클립마다 <b>「지금」</b>은 라이브 사이트(${CMP.replace(/^https?:\/\//, '')})의 소리, <b>「바뀐 뒤」</b>는 이 주소의 소리입니다.<br>
+  줄마다 목소리 · 단계 · 실제 배속 · 길이(지금 → 바뀐 뒤) · 말 속도(쉼 뺀 음절/초)를 적었습니다. 쉼은 그대로 두고 말소리만 늦췄습니다.
+</div>` : ''}
 <div class="bar">
   <div class="pg"><i id="pgi"></i></div>
   <div class="st"><span id="stTxt"></span><span id="stRe" style="color:var(--seal)"></span>
@@ -494,6 +556,9 @@ var D = ${JSON.stringify(DATA)};
      무게가 아니라 «어떻게 담느냐»가 문제였다. */
 var AO = {}, AN = {};
 var WEBSND = ${WEB ? 'true' : 'false'};   /* [LISTEN_WEB] */
+var CMP = D.cmp || null;   /* [LISTEN_COMPARE_1107] 지금 / 바뀐 뒤 비교 판 */
+var MV = (CMP && CMP.mid) ? CMP.mid.clips : [];
+var LT = (CMP && CMP.letter) || null;   /* [LISTEN_COMPARE_1107] 편지 통낭독 43 */
 /* [LISTEN_WEB] 배포된 mp3 주소표 — 파일에 소리를 안 담고 사이트에서 받아 온다.
    기존 클립은 assets/audio/{narration,cast}/ 에 이미 있다. 어조는 assets/audio/tone/ 에 넣는다. */
 var SRCMAP = ${WEB ? JSON.stringify(Object.fromEntries([
@@ -577,6 +642,8 @@ function b64d(t) { t = t.replace(/-/g, '+').replace(/_/g, '/');
 function ORD() { var a = [];
   D.old.forEach(function (c) { c.s.forEach(function (_t, j) { a.push(c.id + '#' + j); }); });
   D.neu.forEach(function (c) { c.n.forEach(function (x) { if (!x.lock) a.push('n' + x.i); }); });
+  MV.forEach(function (_x, i) { a.push('mv' + i); });   /* [LISTEN_COMPARE_1107] 식중 영상 새 녹음 — 맨 뒤에 붙여 옛 차례를 밀지 않는다 */
+  if (LT) a.push('lt0');
   return a; }
 /* ★★[HANDOFF_SMALL 2026-09-05 사장님 실물] 첫 판은 주소가 **20,307자**였다.
    내가 넣어 둔 경고가 울렸다 — 그런데 경고로 끝낼 일이 아니었다. 카톡이 자르면 못 쓴다.
@@ -743,6 +810,31 @@ function sndCheck() {
   }, 3000);
 }
 function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없습니다.'); return; } var a = watch(new Audio(u)); cur = a; kick(a); }
+/* [LISTEN_COMPARE_1107] 여러 파일을 이어 틀기(식중 영상 «지금» = 58 → 129) — 같은 소리 요소의 src 만 바꾼다(아이폰은 누른 요소만 허락) */
+function playSeq(us) { stop(); if (!us || !us.length) return; var i = 0; var a = watch(new Audio(us[0])); cur = a;
+  a.addEventListener('ended', function () { if (cur !== a || ++i >= us.length) return; a.src = us[i]; kick(a); }); kick(a); }
+function fmtN(x, u) { return x == null ? '?' : (Math.round(x * 10) / 10).toFixed(1) + (u || ''); }
+function cmpLine(r) { if (!r) return '';
+  return '<div class="mi" style="padding:6px 13px;background:#fff;border-bottom:1px solid var(--bg3)">' + esc(r.v || '') + ' · '
+    + (r.st ? r.st + '단계' : '단계 없음') + ' · ×' + (r.tp == null ? '?' : r.tp) + ' · 길이 ' + fmtN(r.d0, '초') + ' → ' + fmtN(r.d1, '초')
+    + ' · 말 속도 ' + fmtN(r.r0) + ' → ' + fmtN(r.r1) + '음절/초' + (r.same ? ' · <b>소리 같음</b>' : '') + (r.m0 ? '' : ' · 라이브에 없는 소리') + '</div>'; }
+function midBlock() { var M = CMP.mid; if (!M) return '';
+  var h = '<div class="ph">식중 영상 소개 (덕담 뒤 · 축사/축가 앞)</div><div class="clip"><div class="ch"><b>지금</b><span class="tag">58 → 129 이어서</span>'
+    + '<button class="btn sm" style="margin-left:auto" data-mvnow="1">지금 듣기</button></div>'
+    + '<div class="mi" style="padding:6px 13px">우성 · 길이 ' + fmtN(M.nowD, '초') + ' · 말 속도 ' + fmtN(M.nowR) + '음절/초 · 바뀐 뒤는 아래 새 녹음 다섯(실청 전용)</div>';
+  M.clips.forEach(function (x, i) { var k = 'mv' + i, v = V[k];
+    h += '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div><b>' + esc(x.k) + '</b></div><div>' + esc(x.t) + '</div>'
+      + '<div class="mi">' + esc(x.v) + ' · ' + x.st + '단계 · ×' + x.tp + ' · 길이 ' + fmtN(x.d1, '초') + ' · 말 속도 ' + fmtN(x.r1) + '음절/초</div></div><div class="ops">'
+      + (x.has ? '<button class="btn sm play" data-mv="' + i + '">바뀐 뒤</button>' : '<span class="nosnd">소리 없음</span>')
+      + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="' + k + '">좋아요</button>'
+      + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + k + '">다시</button></div>' + whyBox(k) + '</div>'; });
+  return h + '</div>'; }
+function letterBlock() { if (!LT) return ''; var v = V.lt0;
+  return '<div class="ph">편지 통낭독 (어른께 드리는 안내 페이지 소리 · 예식 큐에는 없음)</div><div class="clip"><div class="ch"><span class="n">43</span><b>부모님께 드리는 편지</b>'
+    + '<span class="tag">' + esc(LT.id) + '</span><button class="btn sm" style="margin-left:auto" data-ltnow="1">지금</button><button class="btn sm play" data-lt="1">바뀐 뒤</button></div>'
+    + cmpLine(LT) + '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div>' + esc(LT.t) + ' …</div><div class="mi">문장 ' + LT.n + '개 · 통으로 들어 주세요</div></div><div class="ops">'
+    + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="lt0">좋아요</button>'
+    + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="lt0">다시</button></div>' + whyBox('lt0') + '</div></div>'; }
 /* [IOS_GESTURE] play() 는 한 곳에서만 부른다 — 거절 사유를 한 곳에서만 다루려는 것이다. */
 function kick(a) {
   var pr;
@@ -776,6 +868,8 @@ function counts() {
   var need = 0, done = 0, re = 0;
   D.old.forEach(function (c) { c.s.forEach(function (_t, j) { var k = c.id + '#' + j; need++; if (V[k]) done++; if (V[k] === 're') re++; }); });
   D.neu.forEach(function (c) { c.n.forEach(function (s) { if (s.lock) return; var k = 'n' + s.i; need++; if (V[k]) done++; if (V[k] === 're') re++; }); });
+  MV.forEach(function (_x, i) { var k = 'mv' + i; need++; if (V[k]) done++; if (V[k] === 're') re++; });   /* [LISTEN_COMPARE_1107] */
+  if (LT) { need++; if (V.lt0) done++; if (V.lt0 === 're') re++; }
   return { need: need, done: done, re: re };
 }
 
@@ -814,7 +908,7 @@ function draw() {
   var tabs = ['전체'].concat(D.parts).concat(['새 어조']);
   $('tabs').innerHTML = tabs.map(function (t) { return '<button class="tab' + (t === TAB ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + '</button>'; }).join('');
 
-  var oL = $('onlyLeft').checked, oR = $('onlyRe').checked, h = '', lastP = '';
+  var oL = $('onlyLeft').checked, oR = $('onlyRe').checked, h = '', lastP = '', midDone = false;
   if (TAB !== '새 어조') {
     D.old.forEach(function (c) {
       if (TAB !== '전체' && c.p !== TAB) return;
@@ -830,8 +924,11 @@ function draw() {
         + (c.short ? '<span class="tag re" title="말속도 ' + c.short + '음절/초 · 보통 6~7">★소리가 글보다 짧음</span>' : '')
         + (c.miss ? '<span class="tag re" title="대본 ' + c.miss.n + '문장인데 소리 덩어리는 ' + c.miss.b + '개 [SENT_MISSING]">★문장이 빠진 듯 — '
             + (c.miss.at ? c.miss.at.join('·') + '번째' : '자리 못 정함') + '</span>' : '')
-        + (c.has ? '<button class="btn sm play" style="margin-left:auto" data-u="' + c.id + '">클립 듣기</button>'
-                 : '<span class="tag" style="margin-left:auto">소리 없음</span>') + '</div>';
+        + (c.has ? ((CMP && CMP.rows[c.id] ? '<button class="btn sm" style="margin-left:auto" data-now="' + c.id + '">지금</button>'
+                      + '<button class="btn sm play" data-u="' + c.id + '">바뀐 뒤</button>'   /* [LISTEN_COMPARE_1107] */
+                    : '<button class="btn sm play" style="margin-left:auto" data-u="' + c.id + '">클립 듣기</button>'))
+                 : '<span class="tag" style="margin-left:auto">소리 없음</span>') + '</div>'
+        + (CMP && c.has ? cmpLine(CMP.rows[c.id]) : '');
       c.s.forEach(function (t, j) {
         var k = c.id + '#' + j, v = V[k], bb = c.b && c.b[j];
         h += '<div class="sent' + (v === 're' ? ' re' : '') + '"><div class="tx"><div>' + esc(t) + '</div>'
@@ -843,7 +940,10 @@ function draw() {
           + whyBox(k) + '</div>';   /* [LISTEN_WHY] */
       });
       h += '</div>';
+      if (CMP && CMP.mid && CMP.mid.after === c.id) { h += midBlock(); midDone = true; }   /* [LISTEN_COMPARE_1107] 덕담 뒤 자리 */
     });
+    if (CMP && CMP.mid && !midDone && (TAB === '전체')) h += midBlock();
+    if (LT && TAB === '전체') h += letterBlock();
   }
   if (TAB === '전체' || TAB === '새 어조') {
     var head = false;
@@ -886,6 +986,7 @@ function sayCanDo() {
   var h = '<b>이 판으로 지금 할 수 있는 것</b><br>'
     + '· 기존 나레이션·배역 <b>' + oldOK + '클립</b> — 소리가 다 들어 있습니다. 문장 단위로 건너뛰며 듣기 <b>' + seg + '클립</b>.<br>';
   if (oldNo) h += '· 기존 클립 중 <b>' + oldNo + '개</b>는 이 판에 소리가 없습니다.<br>';
+  if (CMP) h += '· 클립마다 <b>「지금」</b>(라이브 소리)과 <b>「바뀐 뒤」</b>(이 주소의 소리)를 번갈아 들을 수 있습니다' + (MV.length ? ' · 식중 영상 새 녹음 <b>' + MV.length + '개</b>는 덕담 뒤에 있습니다' : '') + '.<br>';   /* [LISTEN_COMPARE_1107] */
   h += '<b>이 판으로 못 하는 것</b><br>';
   if (nOK < nTot) h += '· 새 어조 <b>' + (nTot - nOK) + '문장</b>은 <b>소리가 없습니다</b> — 글만 보실 수 있고, 「소리 없음」이라 적어 두었습니다.<br>'
     + '&nbsp;&nbsp;조립 전 재료라 이 저장소에 없습니다. 어조까지 들으려면 그 재료를 가진 판이 따로 필요합니다.<br>';
@@ -917,6 +1018,11 @@ $('tabs').addEventListener('click', function (e) { var b = e.target.closest('but
 $('list').addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   if (b.dataset.seek) return playSeg(b.dataset.seek, +b.dataset.a, +b.dataset.b);
+  if (b.dataset.now) { return play(CMP.rows[b.dataset.now].nu); }   /* [LISTEN_COMPARE_1107] 지금 = 라이브 소리 */
+  if (b.dataset.mvnow) { return playSeq(CMP.mid.now); }
+  if (b.dataset.mv != null) { return play(MV[+b.dataset.mv].u); }
+  if (b.dataset.ltnow) { return play(LT.nu); }
+  if (b.dataset.lt) { return play(LT.u); }
   if (b.dataset.u != null) { return play(sndOf(b.dataset.u)); }   /* [SOUND_OUT_OF_JS] 누를 때 그 하나만 읽는다 */
   if (b.dataset.v) { var k = b.dataset.k; setV(k, V[k] === b.dataset.v ? null : b.dataset.v); }
 });
@@ -939,6 +1045,8 @@ $('mkOut').onclick = function () {
   D.neu.forEach(function (c) { c.n.forEach(function (s) { if (V['n' + s.i] !== 're') return;
     out.push(s.v + ': ' + s.t);
     out.push('# 왜 다시: ' + (W['n' + s.i] || '(이유 없음)')); }); });   /* [LISTEN_WHY] */
+  MV.forEach(function (x, i) { if (V['mv' + i] !== 're') return;   /* [LISTEN_COMPARE_1107] 식중 영상 새 녹음 */
+    out.push(x.v + ': ' + x.t); out.push('# 식중 영상 ' + x.k + ' · 왜 다시: ' + (W['mv' + i] || '(이유 없음)')); });
   $('outWrap').className = out.length ? '' : 'hide';
   $('outNote').textContent = '타입캐스트에 통째로 붙여넣으세요. 받은 wav 는 폴더째 주시면 됩니다.';   /* [OUT_NOTE] */
   $('out').value = out.join('\\n') + (out.length ? '\\n' : '');
