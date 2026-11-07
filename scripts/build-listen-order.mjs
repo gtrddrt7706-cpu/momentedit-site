@@ -141,10 +141,20 @@ h1{font-size:19px;margin:0 0 6px}
 .ln .mi{font-size:12px;color:var(--light)}
 .ln.live{color:var(--light);font-size:12.5px;background:var(--bg)}
 .ln.cur{background:#fbf6ee}
+.ln.re{background:#fdf3f2}
+.ops{display:flex;gap:6px;margin-top:6px}
+.btn.sm{font-size:13px;min-height:40px;padding:6px 12px}
+.btn.ok{background:#3B6E4F;color:#fff;border-color:transparent}
+.btn.re{background:var(--seal);color:#fff;border-color:transparent}
+.why input{width:100%;margin-top:6px;font:inherit;font-size:13px;border:1px solid var(--border);border-radius:8px;padding:9px 10px}
+#reBox{display:none;width:100%;min-height:120px;margin-top:8px;font:12.5px/1.6 ui-monospace,monospace;border:1px solid var(--border);border-radius:8px;padding:8px}
 .top4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 12px}
 details summary{cursor:pointer;font-size:13px;color:var(--sub);padding:8px 13px;list-style:none}
 .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.97);border-top:1px solid var(--border);padding:8px 16px;z-index:30}
 .bar .in{max-width:820px;margin:0 auto;display:flex;gap:8px;align-items:center}
+.bar .btn{flex:0 0 auto;white-space:nowrap;padding:8px 11px}
+.bar #bRe:disabled{opacity:.45}
+@media (max-width:420px){.bar .in{gap:6px}.bar .btn{padding:8px 9px}}
 .bar .nm{flex:1 1 auto;min-width:0;font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .bar .nm small{display:block;color:var(--light);font-size:11.5px}
 .bar .pg{height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;max-width:820px;margin:6px auto 0}
@@ -154,19 +164,21 @@ details summary{cursor:pointer;font-size:13px;color:var(--sub);padding:8px 13px;
 <div class="note" id="canDo"><b>목록이 비어 있다면 미리보기 화면이라 그렇습니다.</b> 사파리 · 크롬에서 이 주소를 직접 열어 주세요.</div>
 <div class="note sum">순간 <b>${SUM.moments}</b>개 · 판 <b>${SUM.pans}</b>개 · 클립 <b>${SUM.clips}</b>개 · 엔진이 내보내는 클립 중 페이지에 빠진 것 <b>${SUM.missing.length}</b>개${SUM.missing.length ? ' — ' + esc(SUM.missing.join(' · ')) : ''}
 <br><span class="lab">이 가지 엔진의 최종 소리만 실었습니다(지금 · 바뀐 뒤 비교 아님). 판 = 기본 + 고름 ${SUM.sel}가지 × 예시 칩 ${SUM.ex}가지 조합으로 줄이 달라지는 경우 · 같은 소리는 하나로 묶었습니다. 빠진 것은 만들 수 있는 코스 ${SUM.courses.toLocaleString()}가지 × 식사 · 온라인 · 하객 안내 ${SUM.glob}가지 · 예시 코스 넷 · 위 고름에서 엔진이 낸 소리 ${SUM.engine}개와 맞대어 셉니다. 사람 구간은 1초로 줄여 넘깁니다.${SUM.liveNot.length ? '<br>참고 · 녹음 상태표가 «나는 소리»로 두지만 이 엔진이 어떤 고름으로도 내지 않는 ' + SUM.liveNot.length + '개(싣지 않음): ' + esc(SUM.liveNot.join(' · ')) : ''}</span></div>
+<div class="note"><div id="vSum"></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><button class="btn sm" id="reCopy">다시 목록 복사</button><span class="lab" id="reCopyMsg">클립 번호 · 문장 · 이유가 한 줄씩 복사됩니다</span></div><textarea id="reBox" readonly></textarea></div>
 <button class="btn main big" id="allPlay">전체 듣기 · 판 ${SUM.pans}개 처음부터</button>
 <div class="ph">전체 이어 듣기 · 예시 코스 넷</div>
 <div class="top4" id="top4"></div>
 <div id="list"></div>
 </div>
-<div class="bar"><div class="in"><button class="btn" id="bPrev" aria-label="이전 판">&#9198;</button><button class="btn main" id="bPlay" aria-label="재생">&#9654;</button><button class="btn" id="bNext" aria-label="다음 판">&#9197;</button><div class="nm" id="bNm">전체 듣기 · 판 ${SUM.pans}개<small id="bSub">▶ 를 누르면 처음부터 · 판마다 «여기부터 전체 듣기»</small></div></div><div class="pg"><i id="bFill"></i></div></div>
+<div class="bar"><div class="in"><button class="btn" id="bPrev" aria-label="이전 판">&#9198;</button><button class="btn main" id="bPlay" aria-label="재생">&#9654;</button><button class="btn" id="bNext" aria-label="다음 판">&#9197;</button><button class="btn" id="bRe" disabled aria-label="지금 줄 다시">다시</button><div class="nm" id="bNm">전체 듣기 · 판 ${SUM.pans}개<small id="bSub">▶ 를 누르면 처음부터 · 판마다 «여기부터 전체 듣기»</small></div></div><div class="pg"><i id="bFill"></i></div></div>
 <script>
 var D = ${JSON.stringify(DATA)};
 var $ = function (i) { return document.getElementById(i); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
 function lineHtml(l, id) {
-  return '<div class="ln" id="' + id + '"><div class="mi">' + (l.no ? '[' + esc(l.no) + '] ' : '') + esc(l.slug || l.act || '') + (l.g ? ' · 앞 줄 뒤 쉼 ' + (l.g / 1000).toFixed(1) + '초' : '') + (l.f ? '' : ' · 소리 없음') + '</div>'
-    + (l.t ? '<div>' + esc(l.t) + '</div>' : '') + '</div>' + (l.live ? '<div class="ln live">사람 구간 · 1초로 줄임 · ' + esc(l.live) + '</div>' : '');
+  var k = kOf(l);
+  return '<div class="ln' + (k && VS.v[k] === 're' ? ' re' : '') + '" id="' + id + '"' + (k ? ' data-k="' + esc(k) + '"' : '') + '><div class="mi">' + (l.no ? '[' + esc(l.no) + '] ' : '') + esc(l.slug || l.act || '') + (l.g ? ' · 앞 줄 뒤 쉼 ' + (l.g / 1000).toFixed(1) + '초' : '') + (l.f ? '' : ' · 소리 없음') + '</div>'
+    + (l.t ? '<div>' + esc(l.t) + '</div>' : '') + (k ? '<div class="jd">' + opsHtml(k) + '</div>' : '') + '</div>' + (l.live ? '<div class="ln live">사람 구간 · 1초로 줄임 · ' + esc(l.live) + '</div>' : '');
 }
 function labOf(p) { var n = p.n || p.lab.length; return p.lab[0] + (n > 1 ? (p.lab[0] === '기본' ? ' · 같은 소리 고름 ' + n + '가지' : ' 외 ' + (n - 1)) : ''); }
 function draw() {
@@ -185,6 +197,39 @@ function draw() {
   $('list').innerHTML = h;
   $('canDo').innerHTML = '«전체 듣기»는 모든 판을 식순 순서대로 이어 틉니다(순간이 바뀌면 1.5초 · 판 사이 0.8초 · 판 안은 엔진 쉼 그대로 · 사람 구간 1초). 판마다 «이 판만» · «여기부터 전체 듣기» · 아래 넷은 예시 코스 처음부터. 화면을 꺼도 이어집니다.';
 }
+/* ★★[LISTEN_ORDER_WHY_1107 2026-11-07 사장님 «다시 녹음하는 체크 버튼이 없는데?» · LISTEN_WHY 2026-08-26 «다시 하는 이유를 적어야 너한테 전달했을 때 하나하나 파악해서 개선을 하지»]
+   줄(클립)마다 좋아요 / 다시 + 이유 한 줄 · 같은 클립은 여러 판에서 함께 맞춘다(열쇠 = 클립 번호_slug) · 재생 막대에서 지금 줄에 바로 «다시».
+   ★저장은 이 기기 localStorage 의 키 하나(me_listen_order_1107_v1)만 — 다른 키는 읽지도 지우지도 않는다. */
+var VKEY = 'me_listen_order_1107_v1', VS = { v: {}, w: {} };
+try { var _vs = JSON.parse(localStorage.getItem(VKEY) || 'null'); if (_vs && _vs.v) VS = { v: _vs.v || {}, w: _vs.w || {} }; } catch (e) {}
+function vSave() { try { localStorage.setItem(VKEY, JSON.stringify(VS)); } catch (e) {} }
+function kOf(l) { return l && l.f ? (l.no ? l.no + '_' : '') + l.slug : ''; }
+var CLIPS = {}; (function () { function add(l) { var k = kOf(l); if (k && !CLIPS[k]) CLIPS[k] = l; }
+  D.moms.forEach(function (m) { m.pans.forEach(function (p) { p.lines.forEach(add); }); }); D.courses.forEach(function (c) { c.lines.forEach(add); }); })();
+function opsHtml(k) { var v = VS.v[k];
+  return '<div class="ops"><button class="btn sm' + (v === 'ok' ? ' ok' : '') + '" data-v="ok" data-k="' + esc(k) + '">좋아요</button>'
+    + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + esc(k) + '">다시</button></div>'
+    + (v === 're' ? '<div class="why"><input data-w="' + esc(k) + '" value="' + esc(VS.w[k] || '') + '" placeholder="왜 다시 받나요? (예: 너무 빨라요 · 쉼이 길어요 · 글과 소리가 달라요)"></div>' : ''); }
+function paintK(k) { var ls = document.querySelectorAll('.ln[data-k="' + k.replace(/"/g, '') + '"]');
+  for (var i = 0; i < ls.length; i++) { var o = ls[i].querySelector('.jd'); if (o) o.innerHTML = opsHtml(k); ls[i].classList.toggle('re', VS.v[k] === 're'); }
+  vSum(); barRe(); }
+function setV(k, val) { if (!k) return; if (VS.v[k] === val) delete VS.v[k]; else VS.v[k] = val; vSave(); paintK(k); }
+function vSum() { var n = 0, re = 0, ok = 0; Object.keys(CLIPS).forEach(function (k) { n++; if (VS.v[k] === 're') re++; else if (VS.v[k] === 'ok') ok++; });
+  var e = $('vSum'); if (e) e.innerHTML = '다시 <b>' + re + '</b>개 · 좋아요 <b>' + ok + '</b>개 · 아직 <b>' + (n - re - ok) + '</b>개 <span class="lab">(클립 ' + n + '개 기준 · 이 기기에만 저장)</span>'; }
+function reList() { var out = []; Object.keys(CLIPS).forEach(function (k) { if (VS.v[k] !== 're') return; var l = CLIPS[k];
+  out.push((l.no ? '[' + l.no + '] ' : '') + l.slug + ' · ' + String(l.t || '').replace(/\s+/g, ' ') + ' · 이유: ' + (VS.w[k] || '(이유 없음)')); }); return out; }
+function curK() { var it = typeof cur === 'function' ? cur() : null; return it && Q && Q.i >= 0 ? kOf(it.lines[Q.i]) : ''; }
+function barRe() { var b = $('bRe'); if (!b) return; var k = curK(); b.disabled = !k; b.classList.toggle('re', !!k && VS.v[k] === 're'); b.textContent = k && VS.v[k] === 're' ? '다시 ✓' : '다시'; }
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.v && b.dataset.k) { setV(b.dataset.k, b.dataset.v); return; }
+  if (b.id === 'bRe') { var k = curK(); if (k) { if (VS.v[k] !== 're') setV(k, 're'); else setV(k, 're'); } return; }
+  if (b.id === 'reCopy') { var t = reList().join('\\n'); var box = $('reBox');
+    if (!t) { box.style.display = 'block'; box.value = '«다시»로 표시한 줄이 없습니다.'; return; }
+    var done = function (ok) { $('reCopyMsg').textContent = ok ? '복사했어요 · ' + reList().length + '줄' : '복사가 막혔어요 · 아래 칸을 길게 눌러 복사해 주세요'; box.style.display = ok ? 'none' : 'block'; box.value = t; if (!ok) { box.focus(); box.select(); } };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { done(true); }, function () { done(false); }); else done(false); } catch (x) { done(false); } }
+});
+document.addEventListener('input', function (e) { var t = e.target; if (!t || !t.dataset || t.dataset.w == null) return; var k = t.dataset.w; if (t.value.trim()) VS.w[k] = t.value.trim(); else delete VS.w[k]; vSave(); });
 /* ★★[LISTEN_ORDER_ALL_1107 2026-11-07 사장님 «전체 듣기는 없네? 정작»] 전체 듣기 — 페이지의 모든 판을 식순 순서대로 처음부터 끝까지.
    ★순간이 바뀌면 1.5초 · 판과 판 사이 0.8초 · 판 안은 엔진 쉼 그대로 · 사람 구간 1초. 화면이 꺼져 있으면 쉼을 건너뛰고 바로 잇는다(꺼진 화면에선 타이머가 멈춘다).
    ★[IOS_GESTURE] 소리 요소는 하나(PA) — 사람이 처음 누른 요소의 src 만 바꿔 잇는다 · 브라우저가 막으면 화면을 한 번 누르는 것으로 다시 연다. */
@@ -227,7 +272,7 @@ function next() {
   T = setTimeout(function () { play(l); }, document.hidden ? 0 : wait);
 }
 function play(l) {
-  if (!Q || !Q.on) return; mark(); ui();
+  if (!Q || !Q.on) return; mark(); ui(); barRe();
   if (!l.f) { T = setTimeout(next, 1000); return; }
   var a = el(); a.src = l.f; var pr; try { pr = a.play(); } catch (e) { stuck(); return; } if (pr && pr.catch) pr.catch(stuck);
   if ('mediaSession' in navigator && window.MediaMetadata) try { navigator.mediaSession.metadata = new MediaMetadata({ title: cur().nm, artist: (l.slug || '') + ' · Moment Edit 실청' }); } catch (e) {}
@@ -255,7 +300,7 @@ if ('mediaSession' in navigator) try { navigator.mediaSession.setActionHandler('
   navigator.mediaSession.setActionHandler('nexttrack', function () { step(1); }); navigator.mediaSession.setActionHandler('previoustrack', function () { step(-1); }); } catch (e) {}
 /* [CRASH_TEXT] 스크립트가 죽으면 그 까닭을 글자 그대로(textContent) 보인다 */
 window.addEventListener('error', function (e) { var el2 = $('canDo'); if (!el2) return; el2.textContent = '이 판이 이 기기에서 안 열립니다 · ' + String((e && (e.message || e.error)) || '알 수 없음').slice(0, 200); });
-draw();
+draw(); vSum();
 </script></body></html>
 `;
 fs.writeFileSync(OUT, html);
