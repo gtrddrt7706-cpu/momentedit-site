@@ -20,6 +20,7 @@ const T = fs.mkdtempSync(path.join(os.tmpdir(), 'stageorder-'));
 const cp = (rel, src) => { const d = path.join(T, rel); fs.mkdirSync(path.dirname(d), { recursive: true }); fs.cpSync(src || path.join(ROOT, rel), d, { recursive: true }); };
 cp('scripts/assemble-narration.mjs', process.env.ASSEMBLE_SRC || undefined);
 cp('scripts/clip-select.mjs'); cp('scripts/lib/when-keep.mjs'); cp('docs/plans/식순연구/타입캐스트/manifest.json');  // [WHEN_KEEP_MARKS] 조립기가 when-keep 을 함께 읽는다
+cp('scripts/lib/tempo.mjs'); cp('assets/audio/_src/tempo.json');  // ★[TEMPO_1107] 조립기가 말빠르기 표를 함께 읽는다(이어 붙인 뒤 말소리만 늦춤)
 const man = JSON.parse(fs.readFileSync(path.join(T, 'docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8'));
 const part = man.parts.find((p) => /진행_전반/.test(p.file));
 const flat = []; for (const c of man.clips.filter((c) => c.part === part.file)) for (const s of c.sents) flat.push({ id: String(c.no).padStart(2, '0') + '_' + c.file + '_' + s.i, text: s.text });

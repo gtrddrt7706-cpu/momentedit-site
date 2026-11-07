@@ -1483,9 +1483,10 @@
    "when": "2026-09-13"
   },
   "160_narr-entry-bow#0": {
-   "text": "다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.",
+   "text": "이어서 신랑 신부의 맞절이 있겠습니다.",
    "voice": "우성",
-   "when": "2026-11-06"
+   "when": "2026-11-06",
+   "from": "132_narr-entry-bow-ex2#0"
   },
   "160_narr-entry-bow#1": {
    "text": "맞절은 부부로서의 첫 예를 올리는 인사인데요.",
@@ -2658,6 +2659,11 @@
    "voice": "우성",
    "when": "2026-11-06",
    "keepGap": true
+  },
+  "260_narr-thanks-in-ex4#2": {
+   "text": "이제 두 사람의 감사 인사를 듣겠습니다.",
+   "voice": "우성",
+   "when": "2026-11-06"
   },
   "261_narr-prevideo-out#0": {
    "text": "두 사람의 진심이 여러분께 잘 전해졌기를 바랍니다.",
@@ -4359,8 +4365,20 @@
    "when": "2026-11-06",
    "keepGap": true
   },
+  "348_guest-w-10m-n10-short#1": {
+   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-06",
+   "keepGap": true
+  },
   "349_guest-w-10m-n10-short-meal#0": {
    "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "voice": "진희",
+   "when": "2026-11-06",
+   "keepGap": true
+  },
+  "349_guest-w-10m-n10-short-meal#1": {
+   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
    "voice": "진희",
    "when": "2026-11-06",
    "keepGap": true
@@ -4395,6 +4413,18 @@
    "text": "네, 그러겠습니다.",
    "voice": "우성",
    "when": "2026-09-13"
+  },
+  "350_narr-welcome-in-face#0": {
+   "text": "신랑 신부는 하객을 향해 서주시기 바랍니다.",
+   "voice": "우성",
+   "when": "2026-10-22",
+   "from": "215_narr-welcome-in-ex4#1"
+  },
+  "350_narr-welcome-in-face#1": {
+   "text": "이제 두 사람의 감사 인사를 듣겠습니다.",
+   "voice": "우성",
+   "when": "2026-11-06",
+   "from": "260_narr-thanks-in-ex4#2"
   },
   "35_declare-ask-c#0": {
    "text": "이제 두 사람은 부부입니다.",
@@ -5018,25 +5048,8 @@
    "voice": "우성",
    "when": "2026-10-22",
    "keepGap": true
-  },
-  "260_narr-thanks-in-ex4#2": {
-   "text": "이제 두 사람의 감사 인사를 듣겠습니다.",
-   "voice": "우성",
-   "when": "2026-11-06"
-  },
-  "348_guest-w-10m-n10-short#1": {
-   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
-   "voice": "진희",
-   "when": "2026-11-06",
-   "keepGap": true
-  },
-  "349_guest-w-10m-n10-short-meal#1": {
-   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
-   "voice": "진희",
-   "when": "2026-11-06",
-   "keepGap": true
   }
  },
- "_언제": "2026-11-06 · 921자리",
+ "_언제": "2026-11-07 · 926자리",
  "_왜통낭독": "[LETTER_WHOLE_TAKE] 43_parents-letter 는 통낭독이라 이 창고에 자리를 두지 않는다 — scripts/lib/whole-take.mjs 참고"
 }

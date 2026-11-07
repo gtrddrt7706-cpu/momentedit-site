@@ -69,7 +69,7 @@ try {
 
   /* ③ 앞 낮춤 — GO 로 여는 큐: 기록 b8(−8) 은 이어지는 큐 · 정석 «감사 인사 이음말»(−8) → 11(−16, chain 2초) 은 사이 끝 0.4초 전에 미리 */
   { const { ctx, pg, errs } = await open(SOF('standard'));
-    const ia = await idx(pg, 'bridge-b8-face-guests'), ib = await idx(pg, 'narr-welcome-in', ia);
+    const ia0 = await idx(pg, 'bridge-b8-face-guests'), ib = await idx(pg, 'narr-welcome-in', ia0 > -1 ? ia0 : 0), ia = ia0 > -1 ? ia0 : ib;   /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 맞절 뒤 b8 이 없으면(350 첫머리) 감사 인사 첫 큐를 GO — 무음에서 −8 로 뜬 곡을 말 0.4초 전에 −16 으로 */
     await pg.evaluate((i) => window.__bgmGo.fire(i), ia);
     await pg.waitForFunction((j) => window.__bgmSt().cur === j && window.__L.some((x) => x.play && /welcome-in/.test(x.play)), ib, { timeout: 60000 }).catch(() => {});
     const L = await pg.evaluate(() => window.__L.slice()); const dn = L.filter((x) => x.db === -16), pl = L.filter((x) => x.play && /welcome-in/.test(x.play));

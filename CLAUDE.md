@@ -101,7 +101,7 @@
 4. CI 를 기다리는 것은 내 일이다(백그라운드 대기 하나 · [STALE_WAIT]). 그 턴에 못 끝내면 `send_later` 로 내가 마무리한다 — «초록이면 병합하겠습니다»로 턴을 끝내지 않는다.
 5. 병합 뒤 Vercel 배포 상태를 확인하고 `origin/main` 해시로 «올라갔다»를 말한다. 병합 뒤 10분 넘게 배포 기록이 없으면 사장님께 «Vercel → Deployments → Create Deployment → `main`» 한 줄 [BRANCH_DEPLOY_OFF].
 6. 병합 직후 로컬에서 merge-guard 를 다시 돌리는 것은 **충돌을 손으로 푼 때만**(마커 역전 확인 · 역전이면 되돌린 커밋을 찾아 `git show <sha> -- 파일 | git apply -3` 로 복원).
-7. 병합 전에 멈추고 사장님께 묻는다: `CUSTOMER_HEADERS` 헤더 리터럴 · 시트 스키마 · 저장된 초안 호환 · 개인정보 파기 목록 · 디자인 스킬 작업(아래 금지 6의 6번).
+7. 병합 전에 멈추고 사장님께 묻는다: `CUSTOMER_HEADERS` 헤더 리터럴 · 시트 스키마 · 저장된 초안 호환 · 개인정보 파기 목록 · 디자인 스킬 작업(아래 금지 6의 6번) · 나레이션 바꿈(사장님 실청 승인 [NARR_APPROVE_1107]).
    7-1. 묻지는 않되 병합 전에 전체 검사(`sh scripts/gate.sh`)를 돌린다: 위 목록 + 시트 · 개인정보 · GAS · 결제 변경(기능 스위치가 꺼진 채 들어가는 것은 켜기 전에 검토 · 협업 7).
    7-2. 사장님이 «되돌려 줘» 하면 revert 커밋을 바로 PR → 병합한다.
 8. main 직접 푸시 금지(Ruleset) · 작게 · 자주 PR · 같은 파일 동시 편집 최소화 · 중요한 수정은 고유 마커를 남기고 merge-guard 목록에 넣는다.
@@ -160,6 +160,7 @@
 - 예시: «○○ 멘트» 예시는 `assets/ritual-open.js` NAR_EX 한 곳 · 화면 예시 칸은 4개 [EX_MANY_1017] · 문장마다 출처.
 - [NARR_PLAY_LOOP] 청취 플레이는 한 번에 mp3 하나 + 소리 나는 글 코드펜스 하나 · 한 번 들은 줄은 다시 넣지 않는다 · 지적 장부(`docs/plans/식순연구/지적장부_나레이션.md`) · 플레이에 넣는 예시만 추천 1 + 대안 1(⑥) · 글은 `narr-words.mjs` 로 잰다 · «소리 있음»은 실제 파일로 잰다 [NARR_AUDIO_REAL] · 녹음할 목록은 `타입캐스트/다시받기/` 하나 [RECORD_ONE_LIST].
 - [KEEPGAP_TEXT_1031] 음성 쉼(keepGap) 문장의 글을 바꾸면 그 자리 소리는 다시 받는다(`keepgap-text.mjs --ack`) · [CLIP_STATUS_1031] 안 나는 녹음은 원천 셋(RETIRED · CAST_MUTE · `clip-status.json`)으로만 표시하고 지우지 않는다 · [AUTO_ONLY_1031] 당일 소리는 식순 큐가 자동으로 내는 나레이션만.
+- ★[NARR_APPROVE_1107 2026-11-07 사장님 확정] 나레이션 바꿈(글 · 소리 · 쉼 · 빠르기)은 사장님이 «지금 · 바뀐 뒤»를 나란히 듣고 승인한 뒤에만 main 병합(REVIEW PASS 도 승인 뒤) · «새 녹음 줄이기»는 폐지 — 새 순간은 그 순간 전용 대본으로 새로 녹음한다. [TEMPO_1107] 말빠르기는 조립 단계 규칙 — 표 한 곳 `assets/audio/_src/tempo.json` · `assemble-narration` 이 말소리만 늦춘다(쉼 · 음높이 그대로 · 원본 flac 그대로) · 표의 global 이 모든 단계 위에 곱해진다 [GLOBAL_SLOW_1107] · 바꾸려면 표 숫자 하나 + 그 클립 다시 조립 · 검사 `tempo-check.mjs`.
 - 자료 루프 [NARR_LOOP_1018] · 라운드는 개선 0 까지 [NARR_ROUNDS_1018] · 다른 방 검토는 제안으로 받는다 [NARR_REVIEW_1018] · 검토는 근거 자료와 한 통 [CHECK_WITH_SRC_1018] · 인스타 자료는 공개 파일 `docs/handoff/insta-find.md` [INSTA_DIRECT_1018] · 인용 문장은 이벤트별 파일 번호와 함께 [QUOTE_FILE_1018].
 - 자료 글을 «안 바꾼 까닭»은 SOURCE_FIRST 가 남긴 넷만 쓴다 [ROUND_REASON_1018].
   박수 자리 · 서술어 겹침 · 지난 결정은 자료 글을 막지 않는다([ROUND_REASON_1018] 라운드 10 이 바로잡은 자리).
