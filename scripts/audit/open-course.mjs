@@ -268,7 +268,7 @@ ok('[ONEMIN_FIRST · GUEST_WELCOME_191 · INFO_SPLIT_200] 식전 영상이 없�
   const M = { meal: 1, mealFull: 1 };
   return C.build({ course: 'open', on: {} }, { mode: 'console' }).cues.filter((c) => /^guest-(w-10m|3-5min|w-5m|w-1m)/.test(c.slug || '')).map((c) => c.atMin).join(',') === '-10,-5,-1'
     && f5({}) === 'guest-w-5m-g' && f5({ digital: 1 }) === 'guest-w-5m-g-online' && f5({ guide: 0 }) === 'guest-w-5m-g' && f5({ guide: 0, digital: 1 }) === 'guest-w-5m-g-online'
-    && f5(Object.assign({ resv: 1 }, M)) === 'guest-w-5m-mgr' && f5(M) === 'guest-w-5m-mg' && f5(Object.assign({ resv: 1, guide: 0 }, M)) === 'guest-w-5m-mr' && f5(Object.assign({ guide: 0 }, M)) === 'guest-w-5m-m'
+    && f5(Object.assign({ resv: 1 }, M)) === 'guest-w-5m-mgr' && f5(M) === 'guest-w-5m-mg' && f5(Object.assign({ resv: 1, guide: 0 }, M)) === 'guest-w-5m-mgr' && f5(Object.assign({ guide: 0 }, M)) === 'guest-w-5m-mg' /* ★[MEAL_NODIR_1107] 하객 안내를 끈 날도 mg · mgr(옛 기대 -mr · -m «현장 디렉터에게 여쭤 주세요») */
     && f5(Object.assign({ resv: 1, digital: 1 }, M)) === 'guest-w-5m-mgr-online' && /현장 디렉터에게 여쭤 주세요\. 오늘 담으신 사진은 모바일 청첩장의 하객 안내에서 올리실 수 있습니다\. 온라인으로/.test(C.EXTRA['guest-w-5m-mr-online'] || '') && /올리실 수 있습니다\.$/.test(C.EXTRA['guest-w-5m-m'] || '') && f5({ meal: 1, resv: 1 }) === 'guest-w-5m-g'
     && /^시작 오 분 전입니다\./.test(C.EXTRA['guest-w-5m-mgr'] || '') && /온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요\.$/.test(C.EXTRA['guest-w-5m-mgr-online'] || '')
     && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-1m-online') > -1 && slugs({ course: 'open', on: {} }).indexOf('guest-w-1m') > -1; })());
@@ -422,7 +422,7 @@ ok('[GUEST_EX_NAR · GUEST_WELCOME_191] 새 코스 나레이션 판은 예시 �
     && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-g,guest-4-1min'   /* [GUIDE_ALWAYS_202] 두 분 목소리 판도 사진 올리기 안내(5분 전 자리)가 늘 · ★[B2_FIX_NA_28 2026-11-06] 나레이션 판과 같은 판 고르기(333) */
     && g({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple', guide: 0 }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-g,guest-4-1min'   /* ★[B2_FIX_NA_28] 하객 안내를 끈 날에도 사진 안내(확정 규칙) · 종전엔 5분 전이 없었다 */
     && g({ course: 'open', on: {}, guestVoice: 'couple', meal: 1, mealFull: 1, resv: '13:30' }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-mgr,guest-4-1min'   /* [B2_FIX_NA_28] 식사 날 = 장소 · 예약 경로 + 사진 */
-    && g({ course: 'open', on: {}, guestVoice: 'couple', meal: 1, mealFull: 1, guide: 0 }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-m,guest-4-1min'
+    && g({ course: 'open', on: {}, guestVoice: 'couple', meal: 1, mealFull: 1, guide: 0 }) === 'guest-1-arrival,guest-2-10min,guest-w-5m-mg,guest-4-1min' /* [MEAL_NODIR_1107] 옛 기대 -m */
     && op({ course: 'open', on: {}, guestEx: 2, guestVoice: 'couple' }) && op({ course: 'open', on: { prevideo: 1 }, guestEx: 2 }) && !C.build({ course: 'family' }, { mode: 'console' }).cues.some((c) => c.slug === 'narr-open')
     && g({ course: 'open', on: {}, guestEx: 9 }).startsWith('guest-w-arrival');   /* [GUEST_WELCOME_191] 모르는 값도 새 판 */
 })());

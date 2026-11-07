@@ -15436,7 +15436,7 @@ chk "    'bridge-b11-song-light': 1 };" assets/ritual-cue.js 1   # RETIRED — �
 nochk "_more.push('bridge-b11-song-light')" assets/ritual-cue.js
 nochk "\['N21-i', '이음말 · 엄숙한 순간 → 축가'" scripts/build-dubbing-script.mjs
 chk "if (slugB === 'bridge-b3-clap-thanks' && !_declStay) { _more.push('bridge-b9-declare-seat-end');" assets/ritual-cue.js 1   # ★[DECL_TITLE_1031] 글자 추측(아버 · 어머) 대신 «첫 덕담도 이어서» 답 · 안 고름은 자리로 + GO   # [COMBO_171_1030 C02] 다음이 덕담이어도 다른 분이 선언했으면 255
-chk "&& _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «&& !/\^이제/.test(_nxT) && _nxT.indexOf('하»
+chk "=== 'narr-welcome-in-ex2')) _more.push('bridge-b8-face-guests');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] «향해 서» 있으면 244 빼기 · [SEAM_WORD_1107 b] 208 도 뺀다
 chk "if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');" assets/ritual-cue.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «!BRIDGE_OPEN.test(_nxT)) _more.push('bri»
 chk "&& (bn.k === 'song' || !CLAP_ASK.test(_nxT))) _more.push('bridge-b10-speech-clap');" assets/ritual-cue.js 1   # [B2_FIX_NA_35 2026-11-06] 축사 → 축가는 여는 말이 박수를 청해도 246 · 그 밖은 종전 ⑤
 chk 'TOAST_PUTDOWN_1018' assets/ritual-cue.js 1
@@ -23172,8 +23172,18 @@ chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]
 # ★[SEAM_WORD_1107 2026-11-07 대본 이음매 85개 판정 · 2곳 교체(자료집 원문 · 새 녹음 0) · 사장님 실청 승인 뒤 병합 NARR_APPROVE_1107]
 # J01 입장 → 맞절: 160#0 = 132#0 «이어서 신랑 신부의 맞절이 있겠습니다.» · J06 맞절 → 감사 인사: 기본 첫머리 = 350(215#1 → 1.0초 → 260#2) · 11 은 두고 쓰지 않는다
-chk 'SEAM_WORD_1107' assets/ritual-cue.js 4
+chk 'SEAM_WORD_1107' assets/ritual-cue.js 5
 chk 'SEAM_WORD_1107' assets/ritual-data.js 1
 chk "'narr-welcome-in-face'" assets/ritual-cue.js 1
 nochk '다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.' assets/ritual-data.js
 chk 'SEAM_WORD_1107' assets/audio/clip-status.json 1
+# ★[MEAL_NODIR_1107 2026-11-07 사장님 «하객은 청첩장을 받고 온 사람 · 모바일 청첩장 안내로»] 식사 날 방송은 늘 «…하객 안내에서 확인해 주세요» — «현장 디렉터에게 여쭤 주세요» 판(331 · 332 · 336 · 337)은 쓰지 않는다(파일은 둔다)
+chk 'MEAL_NODIR_1107' assets/ritual-cue.js 2
+nochk "(S.resv ? '-mr' : '-m')" assets/ritual-cue.js
+nochk '디렉터에게 여쭤' order-preview.html
+nochk '디렉터에게 여쭤' guide.html
+nochk '디렉터에게 여쭤' console.html
+nochk '디렉터에게 여쭤' mypage.html
+nochk '디렉터에게 여쭤' assets/ritual-open.js
+if command -v node >/dev/null 2>&1; then _mnd=$(node -e "const C=require('./assets/ritual-cue.js');let h=0;for(const course of ['open','damback','gamdong','record'])for(const guide of [undefined,true,false])for(const meal of [0,1])for(const mealFull of [0,1])for(const resv of [0,1])for(const digital of [0,1]){let r;try{r=C.build({course,guide,meal,mealFull,resv,digital,on:{welcome:1}},{mode:'console'});}catch(e){continue;}r.cues.forEach(c=>{if(/디렉터에게 여쭤/.test((c.text||'')+(c.alt&&c.alt.text||'')))h++;});}console.log(h)" 2>/dev/null); if [ "$_mnd" = 0 ]; then echo 'ok meal-nodir: 엔진 192조합 «디렉터에게 여쭤» 0줄 [MEAL_NODIR_1107]'; else echo "FAIL meal-nodir: 엔진에서 «디렉터에게 여쭤» $_mnd 줄 [MEAL_NODIR_1107]"; fail=1; fi; fi
+chk 'SEAM_WORD_1107 b' assets/ritual-cue.js 1   # 감사 인사 예시 208 앞 244 빼기

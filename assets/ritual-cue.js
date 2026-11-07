@@ -515,7 +515,7 @@
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
     if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
     if (i === 1) return (guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 · [K3_SHORT_1106] 10분 미만 본식은 길이 없는 판(299s · 345s) */
-    if (i === 2) { var r5 = mF ? (gOn(S) ? (S.resv ? '-mgr' : '-mg') : (S.resv ? '-mr' : '-m')) : (gOn(S) ? '-g' : '');   /* [INFO_SPLIT_200] 경로 · 사진은 5분 전 */
+    if (i === 2) { var r5 = mF ? (S.resv ? '-mgr' : '-mg') : (gOn(S) ? '-g' : '');   /* ★[MEAL_NODIR_1107 사장님 11/07 «하객은 청첩장을 받고 온 사람 · 모바일 청첩장 안내로»] 식사 날은 하객 안내를 껐어도 mg · mgr(«…하객 안내에서 확인해 주세요») — «현장 디렉터에게 여쭤 주세요»(-m · -mr · 331 · 332 · 336 · 337)는 쓰지 않는다(파일은 둔다) */   /* [INFO_SPLIT_200] 경로 · 사진은 5분 전 */
       return 'guest-w-5m' + (r5 || '-g') + (S.digital ? '-online' : ''); }   /* [PHOTO_ALWAYS_NI02] 식사 없는 날은 하객 안내와 상관없이 사진 판(333 · 334) — 03 · 314 는 이 자리에 안 쓴다 */
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
   /* ★★[GUIDE_ALWAYS_202 검토 202 · 사장님 17:30 «사진 올리기는 그냥 안내해도 되는 거 아니야?»] 모바일 청첩장 하객 안내(사진 올리기 단추)는 모든 예식에 나간다 —
@@ -690,6 +690,7 @@
     'narr-closing-guide-nt-nc': 1, 'narr-closing-soft-guide-nt-nc': 1, 'narr-closing-meal': 1, 'narr-closing-meal-nt': 1, 'narr-closing-meal-nt-nc': 1,
     'guest-w-10m-n10-m': 1, 'guest-w-10m-n15-m': 1, 'guest-w-10m-n20-m': 1,
     'after-photo-guide': 1, 'after-photo-cafe-guide': 1, 'after-photo-resv-guide': 1, 'after-photo-resv': 1, 'after-photo-meal-guide': 1,
+    'guest-w-5m-mr': 1, 'guest-w-5m-m': 1, 'guest-w-5m-mr-online': 1, 'guest-w-5m-m-online': 1,   /* ★[MEAL_NODIR_1107] 331 · 332 · 336 · 337 «현장 디렉터에게 여쭤 주세요» — 식사 날은 늘 mg · mgr(파일은 둔다) */
     'guest-w-10m-n10-mgr': 1, 'guest-w-10m-n10-mg': 1, 'guest-w-10m-n10-mr': 1, 'guest-w-10m-n15-mgr': 1, 'guest-w-10m-n15-mg': 1, 'guest-w-10m-n15-mr': 1, 'guest-w-10m-n20-mgr': 1, 'guest-w-10m-n20-mg': 1, 'guest-w-10m-n20-mr': 1,
     /* ★[CLOSING_CHEER_195 검토 195] 294 narr-closing-soft-nt 는 응원 한 문장 판으로 다시 쓴다(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · CLOSING_NO_CREW_1031) */
     /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야»] 나레이션이 선언문을 읽던 클립 다섯(30 엄숙 · 31 따뜻 · 32 가족 낭독 폴백 ·
@@ -1680,7 +1681,7 @@
         /* ★[B2_FIX_NA_35 2026-11-06 재검증 재수정] 축사 → 축가는 축가 여는 말이 박수를 청해도(«따뜻하게» · «다정하게») 246 «축사해 주신 분께 박수 부탁드립니다.» + 박수를 먼저 —
              여는 말의 박수는 축가 몫이라 축사하신 분 박수가 빠졌다 · 기존 녹음 246 · 그 밖의 다음 순간은 ⑤ 그대로(바로 뒤 줄이 박수를 청하면 뺀다) */
         if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && (bn.k === 'song' || !CLAP_ASK.test(_nxT))) _more.push('bridge-b10-speech-clap');
-        if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0) _more.push('bridge-b8-face-guests');   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
+        if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0 && !(bn.k === 'welcome' && O.narExCue && O.narExCue(S, bn.slug) === 'narr-welcome-in-ex2')) _more.push('bridge-b8-face-guests');   /* ★[SEAM_WORD_1107 b 대본 11/07] 감사 인사 예시 208(«이제 신랑 신부가 … 하객 여러분께») 앞에도 244 를 붙이지 않는다 — «이제 신랑 신부 · 하객 여러분»이 연달아 겹친다 · 돌아서기는 디렉터 힌트 «맞절을 마치면» · 214 는 그대로 */   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');   // ★[REVIEW26_1023 검토 150-2 4)] 인사 «밝게»(259 «… 눈물보다는 기쁨으로 …»)는 B12 «… 경건한 시간»과 부딪친다
         if (bn.k === 'entry' && String(S.entry || 'A').toUpperCase() !== 'E') _more.push('bridge-b7-entry-ready');
         /* ★★[CANDLE_NAME_1019 검토 139-1 · 사장님 10/19 17:28 «영상이 끝나고 바로 화촉 멘트가 나오면 어색하다»] B14 화촉 앞 «이어서, 화촉 점화가 있겠습니다.» —
