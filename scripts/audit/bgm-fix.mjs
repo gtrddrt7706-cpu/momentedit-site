@@ -27,13 +27,13 @@ const P = require(path.join(ROOT, 'assets/bgm-picks.js')), B = require(path.join
 /* ★[GHIBLI_ADD_1101 2026-11-01] 지브리 4곡(B31 ~ B34)을 넣은 판 · 목록 칸 fill(M1 B16 · B33 · M8 B13 · B14)도 «쓰인다»에 센다 */
 const WANT = { M1: 'B01 B24 B13', M2: 'B05 B31 B07', M4: 'B09 B10 B11', M5: 'B15 B31 B16',
   M6: 'B17 B34 B19', M7: 'B28 B29 B22', M8: 'B24 B23 B16', M8L: 'B32 B11 B27' };
-const GONE = ['B02', 'B03', 'B04', 'B06', 'B12', 'B18', 'B20', 'B21', 'B25', 'B26', 'B30'];   /* [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 곡 칸(M4S5 · M4S6)을 걷어 B12 는 데이터만 남는다 · 표는 8구간 */
+const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B20', 'B21', 'B25', 'B30'];   /* [REPEAT_RULE_1107 ①] B12 · B26 은 본식 · 마지막 곡 배경 곡(fill)으로 다시 쓴다 — 뺀 곡 9 */   /* [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» 곡 칸(M4S5 · M4S6)을 걷어 B12 는 데이터만 남는다 · 표는 8구간 */
 const VOCAL = ['B04', 'B20', 'B22', 'B25', 'B28', 'B29'];
 const TITLES = { B01: '바다가 보이는 마을', B05: '인생의 회전목마', B09: 'Innocent in Sonatine', B13: 'Moon River', B28: 'Happy', B29: 'Best Day Of My Life', B30: '꽃바람 부는 길', B17: 'Summer Montage / Madeline', B21: "Herman's Habit", B23: '둘의 대화', B26: 'Bluebird', B27: 'At the Ivy Gate' };
 { const got = {}; Object.keys(WANT).forEach((s) => { got[s] = P.list(s).map((x) => x.f).join(' '); });
   ok('A1 곡 표 그대로 — 10구간 · 위가 1순위(2026-11-01 표 · PICKS_THREE_1101 · GHIBLI_ADD_1101)', Object.keys(WANT).every((s) => got[s] === WANT[s]) && !P.PICKS.M4S5 && !P.PICKS.M4S6 && P.list('M4S5').map((x) => x.f).join(' ') === WANT.M4, got);   /* [ONE_FLOW_1106] 8구간(M4S5 · M4S6 걷음 · 옛 이름은 M4 로 읽힌다) */
   const ids = Object.keys(P.SONGS);
-  ok('A1 곡 33 · 번호 B01 ~ B34 에서 B08 은 비움(다시 쓰지 않음) · 뺀 11곡 말고는 다 어딘가(목록 · fill)에 쓰인다 · 곡 이름 표와 같다', ids.length === 33 && !P.SONGS.B08 && ids.join() === Array.from({ length: 34 }, (_, i) => 'B' + String(i + 1).padStart(2, '0')).filter((f) => f !== 'B08').join() && ids.every((f) => GONE.includes(f) !== (Object.values(WANT).some((w) => w.split(' ').includes(f)) || Object.values(P.FILL).some((x) => x.includes(f)))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
+  ok('A1 곡 33 · 번호 B01 ~ B34 에서 B08 은 비움(다시 쓰지 않음) · 뺀 9곡 말고는 다 어딘가(목록 · fill)에 쓰인다 · 곡 이름 표와 같다', ids.length === 33 && !P.SONGS.B08 && ids.join() === Array.from({ length: 34 }, (_, i) => 'B' + String(i + 1).padStart(2, '0')).filter((f) => f !== 'B08').join() && ids.every((f) => GONE.includes(f) !== (Object.values(WANT).some((w) => w.split(' ').includes(f)) || Object.values(P.FILL).some((x) => x.includes(f)))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
   ok('A1 사진 칸(M6P)은 비웠다 — 닫는 인사 곡이 잇는다', P.list('M6P').length === 0);
   const v = ids.filter((f) => P.SONGS[f].vocal);
   ok('A2 보컬 곡 = B04 · B20 · B22 · B25 · B28 · B29(vocal: true)', v.join() === VOCAL.join(), v);

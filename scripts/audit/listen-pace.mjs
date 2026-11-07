@@ -191,7 +191,7 @@ try {
       ok(`${W} P8 순간마다 첫 멘트 앞 뜸 — 새 곡 6초 · 이어지는 곡 3초(곡을 받는 중이었으면 온 뒤의 뜸)`, lead8[0] === 6000 && (lead8[1] === 6000 || lead8[1] === 3000), { lead8, L: b8.L });
       ok(`${W} P8 크게 보기 행동 줄이 흐를 때 «실제로는 약 …» · 다른 줄엔 없음`, b8.E.length > 0 && b8.E.every((x) => /^실제로는 약/.test(x.est)) && b8.noEst === 0, { E: b8.E, noEst: b8.noEst }); }
     /* P1 곡 없는 순간 — 테이블 인사(드라이브에 곡 없음) · 뜸 없음 */
-    await go(f, 'table'); await f.evaluate(() => { delete BgmBed._t.AV.set.B13; });   /* ★[DETAIL_R3_1101 ⑦ 보탬] 테이블 목록 맨 뒤 B13(빼면 30분이 안 돼 맨 뒤로)이 이 드라이브의 유일한 테이블 곡 — 곡이 없는 순간을 만들려고 목록에서 뺀다 */ const rt = await trace(f, 'table', 4000); await f.evaluate(() => lsStop()); const ntT = narT(rt) == null ? null : narT(rt) - q0T(rt);
+    await go(f, 'table'); await f.evaluate(() => { window.__avKeep = Object.assign({}, BgmBed._t.AV.set); Object.keys(BgmBed._t.AV.set).forEach((k) => { delete BgmBed._t.AV.set[k]; }); });   /* ★[REPEAT_RULE_1107] 테이블 곡이 없으면 이제 앞 배경 칸 곡을 빌려 온다 — «곡이 없는 순간»을 만들려고 드라이브 곡을 잠시 전부 뺀다(아래에서 되돌린다) */   /* ★[DETAIL_R3_1101 ⑦ 보탬] 테이블 목록 맨 뒤 B13(빼면 30분이 안 돼 맨 뒤로)이 이 드라이브의 유일한 테이블 곡 — 곡이 없는 순간을 만들려고 목록에서 뺀다 */ const rt = await trace(f, 'table', 4000); await f.evaluate(() => { lsStop(); Object.assign(BgmBed._t.AV.set, window.__avKeep || {}); }); const ntT = narT(rt) == null ? null : narT(rt) - q0T(rt);
     ok(`${W} P1 곡이 없는 순간(테이블 인사)은 뜸 없음`, ntT != null && ntT < 2200, { ntT });
     ok(`${W} P6 쪽 오류 0`, !errs.length, errs.slice(0, 3));
     await ctx.close();

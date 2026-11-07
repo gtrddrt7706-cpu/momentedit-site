@@ -22128,7 +22128,7 @@ chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk 'ONE_FLOW_1106' assets/bgm-picks.js 4   # [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» = 본식 M4 그대로(oneSeg) · M4 겹침 8초(xfOf)
 chk 'function oneSeg(seg)' assets/bgm-picks.js 1
-chk "var XF = { M4: 8 }, XF0 = 3;" assets/bgm-picks.js 1
+chk "var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ⑤] 하객 맞이 · 테이블 · 닫는 인사 6초(옛 ONE_FLOW 판 { M4: 8 })
 nochk "id: 'M4S5'" assets/bgm-picks.js   # ★[ONE_FLOW_1106] 옛 축사 «음악과 함께» 곡 칸 — 되살리지 말 것
 nochk "id: 'M4S6'" assets/bgm-picks.js
 chk "if(k==='free'||k==='letter') return 'M4';" assets/bgm-bed.js 1
@@ -22841,6 +22841,19 @@ chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
 chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
 nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것
 chk 'clear-head bgm-vol ios-gesture' .github/workflows/merge-guard.yml 1
+chk 'REPEAT_RULE_1107' assets/bgm-picks.js 6   # [REPEAT_RULE_1107] 의미 곡 · 고른 곡 하루 한 번 · 배경 칸 반복 없음(앞 배경 칸 가장 오래전 곡 빌려 오기 · 바로 앞 칸 · 40분 안 뒤로) · fill M4 · M8L · hookAt · 한 곡 칸 alt · 겹침 6초
+chk 'REPEAT_RULE_1107' assets/bgm-bed.js 3
+chk 'REPEAT_RULE_1107' console.html 5
+chk "var SPAN = { M2: 130, M3: 300, M5: 300, M7: 90, M8L: 1020 }, GAP40 = 2400;" assets/bgm-picks.js 1
+chk "var XF = { M4: 8, M1: 6, M8: 6, M6: 6 }, XF0 = 3;" assets/bgm-picks.js 1
+chk "M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\]" assets/bgm-picks.js 1
+chk "function hookAt(f, d)" assets/bgm-picks.js 1
+chk "function reHookC(id)" console.html 1
+chk "function hushSoonC(sec)" console.html 1
+chk "i=L.indexOf(f); if(i<0) return '';" assets/bgm-bed.js 1   # [REPEAT_RULE_1107 ④] 지금 곡이 그 칸 곡일 때만 다음 곡으로(축배 줄의 본식 곡을 축배 곡으로 바꾸지 않는다)
+nochk "swapSrc(v,s.buffer,hookOf(v.f),v.f,X)" assets/bgm-bed.js   # ★[REPEAT_RULE_1107 ③] 같은 곡 다시 잇기는 reHook(강조 자리 · 없으면 40%) — 전주부터 다시(hookOf 0초) 되살리지 말 것
+nochk "bedPlay(BED.id, _X, _m19.head || 0)" console.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/repeat-rule.mjs >/dev/null 2>&1; _rr=$?; if [ "$_rr" != 0 ]; then echo 'FAIL repeat-rule: 곡 반복 규칙(의미 곡 하루 한 번 · 배경 칸 반복 · 빌려 오기 · fill · 겹침) — node scripts/audit/repeat-rule.mjs [REPEAT_RULE_1107]'; fail=1; else echo 'ok repeat-rule [REPEAT_RULE_1107]'; fi; fi
 chk 'function volOne()' console.html 1
 chk 'wired = true; volOne();' console.html 1
 chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1

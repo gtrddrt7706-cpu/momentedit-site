@@ -216,7 +216,7 @@
   function reHook(f,b){ return P.hookAt?P.hookAt(f,b?b.duration:0):hookOf(f); }
   /* ★[REPEAT_RULE_1107 ④] 한 곡 칸(화촉 · 부모님께 인사 · 축배)이 곡보다 길면 — 같은 칸 다음 곡(계획 alt)으로 겹쳐 넘긴다 */
   function oneNow(){ var st=curStep(); if(!st||BED.who!=='lp') return ''; var sg=st._base||segAt(st.k), d=sg&&P.seg(sg); return (d&&P.loopy&&!P.loopy(sg)&&!d.entry)?sg:''; }
-  function altNext(sg,f){ var pl=planOf(AV.st==='ok'), r=pl&&pl[sg]; if(!r) return ''; var L=[r.first].concat(r.alt||[]), i=L.indexOf(f); for(var j=i+1;j<L.length;j++){ if(L[j]&&has(L[j])) return L[j]; } return ''; }
+  function altNext(sg,f){ var pl=planOf(AV.st==='ok'), r=pl&&pl[sg]; if(!r) return ''; var L=[r.first].concat(r.alt||[]), i=L.indexOf(f); if(i<0) return '';   /* 지금 곡이 그 칸 곡이 아니면(앞 곡이 잇는 중 · 축배 줄의 본식 곡 등) 넘기지 않는다 */ for(var j=i+1;j<L.length;j++){ if(L[j]&&has(L[j])) return L[j]; } return ''; }
   function lfSeg(){ var st=curStep(); if(!st||BED.who!=='lp'||!entMulti()) return ''; var sg=st._base||segAt(st.k); return (sg&&P.seg(sg)&&P.seg(sg).loop)?sg:''; }
   function lfNext(sg,f){ var o=ordOf(sg).filter(has), i=o.indexOf(f); if(!o.length) return ''; for(var j=1;j<=o.length;j++){ var x=o[(Math.max(0,i)+j)%o.length]; if(x!==f) return x; } return ''; }
   function listArm(v){ clearTimeout(v.lt); var a=AC, s=v.src; if(!a||!s||!s.buffer||v.f===ENT_F) return; var sg0=lfSeg(), sgA=sg0?'':oneNow(), X=(sg0&&P.xfOf)?P.xfOf(sg0):LIST_XF, d=s.buffer.duration, left=d-posOf(v); if(!(d>X*2+1)) X=LIST_XF; if(!(d>X*2+1)) return;   /* 아주 짧은 곡(17초 이하)은 3초 겹침 그대로 */   /* [ONE_FLOW_1106 ②] 본식 M4 = 8초 전에 겹쳐 넘김 */

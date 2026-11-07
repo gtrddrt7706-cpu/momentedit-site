@@ -125,7 +125,7 @@ try {
           rp.push(await f.evaluate(({ sg, x }) => { const t = BgmBed._t; return { sg, x, f: t.CARD.f, st: t.CARD.st, who: t.BED.who, cur: t.BED.cur && t.BED.cur.f }; }, { sg, x })); }
         await f.evaluate(() => { try { BgmBed._t.CARD && document.querySelector('.mu-pl.on') && document.querySelector('.mu-pl.on').click(); } catch (e) {} }); await wait(f, 300); }
       const bad = rp.filter((r) => !(r.f === r.x && r.who === 'card' && r.cur === r.x && r.st === 'play'));
-      ok(`${W} ROW_FILL_PLAY 하객 맞이 · 테이블 인사 곡 줄 ▶ 전부 — 누를 때마다 그 곡(배경 곡 · 빌려 온 곡 포함 · CARD.f = 누른 곡 · BED.who card)`, rp.length >= 10 && !bad.length, { bad, n: rp.length });   /* [REPEAT_RULE_1107] 테이블 줄은 30분을 채우는 계획 길이(종전 다섯)
+      ok(`${W} ROW_FILL_PLAY 하객 맞이 · 테이블 인사 곡 줄 ▶ 전부 — 누를 때마다 그 곡(배경 곡 · 빌려 온 곡 포함 · CARD.f = 누른 곡 · BED.who card)`, rp.length >= 10 && !bad.length, { bad, n: rp.length });   /* [REPEAT_RULE_1107] 테이블 줄은 30분을 채우는 계획 길이(종전 다섯) */
       const pk = await f.evaluate(() => { try { bedAct('pick', 'B33', 'guest', 'M1'); } catch (e) {} try { bedAct('pick', 'B14', 'table', 'M8'); } catch (e) {} return JSON.stringify(S.bgm || {}); });
       ok(`${W} ROW_FILL_PLAY 고르기(pick)로 배경 곡이 저장되지 않는다(그대로 PICKS 만)`, !/B33|B14/.test(pk), pk);
       await pg.evaluate(() => { (H.__rfp || []).forEach((x) => { H.have.splice(H.have.indexOf(x), 1); delete H.songs[x]; }); H.__rfp = []; }); await f.evaluate(() => { const A = BgmBed._t.AV; A.st = ''; A.set = {}; }); }

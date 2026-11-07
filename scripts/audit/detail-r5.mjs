@@ -34,7 +34,9 @@ if (plan) {
   { const S = { bgm: { M5: { k: 'B16' } } }, rl = plan(S, { on: all, dur: long }), rs = plan(S, { on: all, dur: short });
     ok('c 부모님께 인사에서 고른 B16 은 예약 — 목록이 길면 하객 맞이 · 테이블에서 빠진다', rl.M5.first === 'B16' && rl.M1.list.indexOf('B16') < 0 && rl.M8.list.indexOf('B16') < 0, { M1: rl.M1.list, M8: rl.M8.list });
     const lenM8 = (a) => a.length * 240;
-    ok('c 빼서 목록 합이 필요한 길이(30분) 밑이면 빼지 않고 맨 뒤로 — 테이블 목록에서 겹치는 곡이 뒤에 · 앞은 겹치지 않는 곡', rs.M8.list.length >= 5 && rs.M8.list.slice(-3).every((f) => rs.M1.list.indexOf(f) > -1 || f === 'B16') && rs.M1.list.indexOf(rs.M8.list[0]) < 0 && lenM8(rs.M8.list) <= 1800 + 240 * 5, { M1: rs.M1.list, M8: rs.M8.list });
+    /* ★[REPEAT_RULE_1107] 종전 «빼지 않고 맨 뒤로» → 제 곡 먼저 · 모자라면 앞 배경 칸(하객 맞이)에서 가장 오래전 곡 · 바로 앞 칸(본식)은 그 뒤 · 의미 곡(B16)은 어디에도 없다 · 30분을 채운다 */
+    { const L = rs.M8.list, m1 = rs.M1.list, m4 = rs.M4 ? rs.M4.list : [], i1 = L.map((f) => m1.indexOf(f) > -1), i4 = L.map((f) => m4.indexOf(f) > -1 && m1.indexOf(f) < 0), last1 = i1.lastIndexOf(true), first4 = i4.indexOf(true);
+      ok('c 빼서 모자라면 — 테이블 목록 = 제 곡(겹치지 않는 곡) 먼저 → 하객 맞이에서 빌려 온 곡 → 바로 앞 칸(본식) 곡은 맨 뒤 · B16 없음 · 30분 이상', m1.indexOf(L[0]) < 0 && !L.includes('B16') && (first4 < 0 || last1 < first4) && lenM8(L) >= 1800 && new Set(L).size === L.length, { M1: m1, M4: m4, M8: L }); }
     const r6 = plan({ bgm: {} }, { on: all, dur: short });
     ok('c 닫는 인사 목록 — 앞 목록 곡(B16)은 15분이 넘으면 뺀다', r6.M6.list.indexOf('B16') < 0 && r6.M6.list.length * 240 >= 900, r6.M6.list); }
   /* d */
