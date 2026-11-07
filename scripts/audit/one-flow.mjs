@@ -73,7 +73,7 @@ async function open(W, embed, init) {
 
 
 const ONLY = (process.env.ONLY || '').split(',').filter(Boolean), want = (id) => !ONLY.length || ONLY.indexOf(id) > -1;
-const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js')), M4 = P.PICKS.M4.slice();
+const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js')), M4 = P.PICKS.M4.concat(P.FILL.M4 || []);   /* [REPEAT_RULE_1107 ①] 본식 목록 = 고르는 3곡 + 배경 곡(B12 · B14) */
 /* 듣기 — S 를 바꾸고 순간들을 이어 듣는다 · 100ms 마다 지금 줄 · 들리는 곡(크기 −60 위 · 실제 이득 > 0.002)을 적는다 · 끝까지 */
 const RAMP = () => { const o = AudioParam.prototype.linearRampToValueAtTime; window.__rp = []; AudioParam.prototype.linearRampToValueAtTime = function (v, t) { try { const c = window.__acx; if (v === 1 && c) window.__rp.push(Math.round((t - c.currentTime) * 1000)); } catch (e) {} return o.call(this, v, t); };
   const AC0 = window.AudioContext || window.webkitAudioContext; if (AC0) { const W = function () { const c = new AC0(...arguments); window.__acx = c; return c; }; W.prototype = AC0.prototype; window.AudioContext = W; window.webkitAudioContext = W; } };
@@ -104,9 +104,9 @@ try {
     ok('A 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('A 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try { if (want('B')) {
     const { ctx, f, errs } = await prep();
-    const r = await walk(f, KS, { S5: { m: 'bed', k: 'B13' }, S6: { m: 'bed', k: 'B12' } });
+    const r = await walk(f, KS, { S5: { m: 'bed', k: 'B13' }, S6: { m: 'bed', k: 'B26' } });   /* [REPEAT_RULE_1107] 옛 저장값은 본식 목록 밖 곡으로(B12 는 이제 본식 배경 곡) */
     const out = outM4(r.log), saved = await f.evaluate(() => JSON.stringify(S.bgm));
-    ok('T02 옛 저장본(S5.k B13 · S6.k B12) — 본식 목록 밖 곡 재생 0 · 저장값은 지우지 않는다', !out.length && /"k":"B13"/.test(saved) && /"k":"B12"/.test(saved), { out, saved });
+    ok('T02 옛 저장본(S5.k B13 · S6.k B26) — 본식 목록 밖 곡 재생 0 · 저장값은 지우지 않는다', !out.length && /"k":"B13"/.test(saved) && /"k":"B26"/.test(saved), { out, saved });
     ok('B 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('B 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try { if (want('C')) {
     const { ctx, f, errs } = await prep();
@@ -130,7 +130,7 @@ try {
     ok('T05 엔진 — «음악과 함께» 축사 뒤 축가 여는 말 −90(줄 시작에서) · «조용히»도 −90', op(mk({ free: 1, song: 1 }, { S5: { m: 'bed' } })) === -90 && op(mk({ free: 1, song: 1 })) === -90);
     ok('T06 대조 — 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −16 그대로(NO_RELIFT E)', op(mk({ free: 0, song: 1, bless: 1 })) === -16);
     const con = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8');
-    ok('T03 당일 콘솔 — 목록 곡 사이 겹침도 같은 값(본식 8초 · BgmPicks.xfOf) · «음악과 함께» 곡 칸으로 넘기지 않는다', P.xfOf && P.xfOf('M4') === 8 && P.xfOf('M6') === 3 && /function segXf\(\)/.test(con) && /bedPlay\(BED\.list\[j\], segXfFor\(BED\.list\[j\]\)\)/.test(con) && /function segXfFor\(sid\)/.test(con) && !/segGo\('M4S[56]'\)/.test(con));
+    ok('T03 당일 콘솔 — 목록 곡 사이 겹침도 같은 값(본식 8초 · BgmPicks.xfOf) · «음악과 함께» 곡 칸으로 넘기지 않는다', P.xfOf && P.xfOf('M4') === 8 && P.xfOf('M6') === 6 /* [REPEAT_RULE_1107 ⑤] 닫는 인사 6초 */ && /function segXf\(\)/.test(con) && /bedPlay\(BED\.list\[j\], segXfFor\(BED\.list\[j\]\)\)/.test(con) && /function segXfFor\(sid\)/.test(con) && !/segGo\('M4S[56]'\)/.test(con));
     ok('T01 곡 계획 — 축사 · 편지 «음악과 함께» 구간(M4S5 · M4S6)이 없다 · 옛 이름은 M4 로 읽힌다', P.CORDER.indexOf('M4S5') < 0 && P.CORDER.indexOf('M4S6') < 0 && P.oneSeg && P.oneSeg('M4S5') === 'M4' && P.oneSeg('M4S6') === 'M4' && !P.SEGS.some((s) => /^M4S/.test(s.id)));
   }
   if (want('F')) { const { ctx, f, errs } = await prep();

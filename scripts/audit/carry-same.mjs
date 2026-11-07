@@ -106,10 +106,12 @@ try {
     await f.evaluate(() => { const L = BgmBed._t.LOPEN; if (L) L.M1 = L.M8 = true; });   /* [LIST_FOLD_1102] 아래 검사는 펼친 목록을 본다 · 접힘은 bgm-fill LIST_FOLD 가 본다 */
     await setX(f, { bgm: { M5: { k: 'B16' } } }); await go(f, 'table'); let r = await PL(f, 'M8');
     const at = await f.evaluate(() => [BgmBed._t.songAt('table'), ((BgmBed._t.prevOf ? BgmBed._t.prevOf('M8') : null) || {}).sg]);
-    ok(`${W} b 부모님께 인사 The Rose → 테이블 곡 줄 = The Rose 맨 앞 · 하객 맞이와 겹치는 곡은 맨 뒤(B16 · B23 · B14 · B24 · B13 · DETAIL_R3_1101 ⑦ 보탬) · 미리 듣기 곡도 B16`, r && r.list.join() === 'B16,B23,B14,B24,B13' && at[0] === 'B16' && at[1] === 'M5', { r, at });
+    { const pl = await f.evaluate(() => (BgmBed._t.plan(false).M8 || {}).list || []);   /* ★[REPEAT_RULE_1107] 차례 = BgmPicks.plan 한 곳(제 곡 → 앞 배경 칸의 가장 오래전 곡 · 바로 앞 칸 뒤로) — 종전 «겹치는 곡은 맨 뒤»(DETAIL_R3_1101 ⑦ 보탬)는 걷었다 */
+    ok(`${W} b 부모님께 인사 The Rose → 테이블 곡 줄 = The Rose 맨 앞(이어받기) · 나머지는 계획 차례(화면 = 계획) · 같은 곡 두 번 0 · 미리 듣기 곡도 B16`, r && r.list[0] === 'B16' && r.list.join() === pl.join() && new Set(r.list).size === r.list.length && at[0] === 'B16' && at[1] === 'M5', { r, at, pl }); }
     ok(`${W} b 첫 줄 아래 «부모님께 인사에서 흐르던 곡이 그대로 이어져요»(12.5px · --sub) 한 줄 · «…에서도 고른 곡» 0`, r && r.carry.length === 1 && r.carry[0] === '부모님께 인사에서 흐르던 곡이 그대로 이어져요' && r.inFirst && r.fs === '12.5px' && r.col === r.sub && r.dup === 0, r);
     await setX(f, { bgm: { M5: { k: 'B15' } } }); await go(f, 'table'); r = await PL(f, 'M8');
-    ok(`${W} b 앞 곡이 목록에 없으면(부모님께 인사 B15) 이어받지 않는다(겹치는 곡은 맨 뒤 · B23 · B14 · B24 · B16 · B13) · 한 줄 0`, r && r.list.join() === 'B23,B14,B24,B16,B13' && r.carry.length === 0, r);
+    { const pl = await f.evaluate(() => (BgmBed._t.plan(false).M8 || {}).list || []);   /* [REPEAT_RULE_1107] */
+    ok(`${W} b 앞 곡이 목록에 없으면(부모님께 인사 B15) 이어받지 않는다(제 곡 B23 먼저 · 나머지는 계획 차례) · 한 줄 0`, r && r.list[0] === 'B23' && r.list.join() === pl.join() && r.carry.length === 0, { r, pl }); }
     await shot(f, W, 'carry-table', '.ls-bed[data-seg="M8"]');
     /* c 한 곡 칸 — 시험만 부모님께 인사 목록에 B10 을 넣는다 · 편지 «음악과 함께» B10 → 부모님께 인사(축가 없음) */
     const M5 = await f.evaluate(() => BgmPicks.PICKS.M5.slice());
@@ -121,7 +123,8 @@ try {
     ok(`${W} c 다른 곡(B16)을 고르면 고른 곡이 이긴다 — 한 줄 0 · 미리 듣기 B16`, r && r.fold === P.SONGS.B16.t && r.carry.length === 0 && c2 === 'B16', { r, c2 });
     /* d 이어지지 않는 화촉에서 고른 곡 */
     await setX(f, { picks: { M5: M5, M2: ['B05', 'B31', 'B13'] }, on: { song: 1 }, bgm: { M2: { k: 'B13' } } }); await go(f, 'table'); r = await PL(f, 'M8');
-    ok(`${W} d 화촉(이어지지 않음)에서 고른 B13 은 테이블 곡 줄 맨 뒤로(빼면 30분이 안 된다 · DETAIL_R3_1101 ⑦ 보탬) · 한 줄 0`, r && r.list.join() === 'B23,B14,B24,B16,B13' && r.carry.length === 0, r);
+    { const pl = await f.evaluate(() => (BgmBed._t.plan(false).M8 || {}).list || []);   /* ★[REPEAT_RULE_1107 ①] 두 분이 고른 곡은 하루 한 번 — 다른 칸 목록에서 언제나 뺀다(종전 «맨 뒤로») */
+    ok(`${W} d 화촉(이어지지 않음)에서 고른 B13 은 테이블 곡 줄에 없다(고른 곡 하루 한 번) · 나머지는 계획 차례 · 한 줄 0`, r && !r.list.includes('B13') && r.list.join() === pl.join() && r.carry.length === 0, { r, pl }); }
     await setX(f, { picks: { M2: ['B05', 'B31', 'B07'] }, bgm: {} });
     /* e 미리 듣기 — 부모님께 인사 → 테이블 */
     if (W === 390) { await setX(f, { on: { song: 0, toast: 0 }, bgm: { M5: { k: 'B16' } } }); await go(f, 'tribute');
