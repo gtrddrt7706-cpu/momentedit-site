@@ -7854,7 +7854,7 @@ nochk "welcome:{nm:'첫인사'" order-preview.html
 chk "b.n.indexOf('감사 인사')>-1||b.n.indexOf('첫인사')>-1" order-preview.html 1
 chk '감사 인사(옛 이름 첫인사' api/_ritual-kb.js 1
 # [TILE_FIT_1013] 축사 칸 설명이 360 폭에서 두 줄을 넘어 잘렸다(pick-v2 «360 칸 글 말줄임 0») — «두 분께»를 걷어 한 줄 줄임
-chk "free: '가까운 분이 축하의 말을 전해요'" assets/ritual-open.js 1
+chk "free: '가까운 분이 축하해요'" assets/ritual-open.js 1   # [TILE_ONE_LINE_1107] 칸 글 한 줄
 # ★★[EX_ENTRY_FEEL_1012 2026-10-12 사장님 «느낌에 맞춰 넷 다 (추천)»] 예시가 누르는 입장 멘트 칩 = 예시 느낌 — 정석 담백하게(빌더 기본값) · 기록 힘차게 · 가족 다정하게 · 간결 격식 있게
 #   (옛 정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초는 걷었다) · 멘트 글은 3단계(«멘트는 대대적으로 한번 개선 작업을 할 거야 따로»)에서 · 그때 이 짝도 다시 본다
 chk 'EX_ENTRY_FEEL_1012' assets/ritual-open.js 5
@@ -14241,7 +14241,7 @@ nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 
 nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
 # ── [코워크 회신8 2026-09-26] 칸 글 삼킴 · 케이크 한 줄 괄호 · 얇은 띠 ★ ──
 chk 'TILE_SWALLOW' assets/ritual-open.js 1
-chk "letter: '부모님이나 서로에게 쓴 편지를 읽어요', cake: '두 분이 함께 케이크를 잘라요', toast: '다 함께 잔을 들어 «위하여»'" assets/ritual-open.js 1   # [CAKE_TOAST_SPLIT]
+chk "letter: '부모님 · 서로에게 편지', cake: '함께 케이크를 잘라요', toast: '다 함께 잔을 들어요'" assets/ritual-open.js 1   # [CAKE_TOAST_SPLIT] · [TILE_ONE_LINE_1107] 칸 글 한 줄(TILE_SWALLOW — 세 항목이 한 줄에 산다)
 chk 'TILE_SWALLOW' scripts/audit/comment-swallow.py 1
 chk 'TILE_SWALLOW' scripts/audit/open-course.mjs 1
 nochk '하나만 해도 돼요(② 보고 듣기에서 골라요)' assets/ritual-open.js
@@ -15507,7 +15507,7 @@ chk "names: \['담백하게', '다정하게', '', '격식 있게', '따뜻하게
 chk '그럼 마음을 담아 준비한 노래, 큰 박수로 맞아 주세요.' assets/ritual-open.js 1   # [RETAKE_168_1030]
 nochk '두 사람의 축가 출발합니다' assets/ritual-open.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 친구 · 가족이 부르는 날 틀린 말(SONG_OPEN_ANYONE_1013)
 chk 'SONG_TILE_SELF_1018' assets/ritual-open.js 1
-chk "song: '가까운 분이나 두 분이 직접 불러요'" assets/ritual-open.js 1   # [NARROW_170_1030 N1]
+chk "song: '축하의 노래를 불러요'" assets/ritual-open.js 1   # [NARROW_170_1030 N1] · [TILE_ONE_LINE_1107] 주어 없이(두 분이 불러도 맞게 · SONG_TILE_SELF_1018)
 nochk "song: '가족 · 친구가 두 분께 노래를 불러요'" assets/ritual-open.js
 chk 'FLOW_MIN_UNIQ_1018' order-preview.html 2
 chk 'if(m<=_pm) m=_pm+1' order-preview.html 1
@@ -20975,7 +20975,7 @@ chk 't:"신랑 신부, 하객 여러분께 손을 흔들어 주세요."}' assets
 chk 'COURSE_ONE_PROMISE_1030' assets/ritual-open.js 4
 chk "if (k === 'vow' && S && !onOf(S, 'declare')) return 5;" assets/ritual-open.js 1
 chk "feel: '짧고 단정하게 · 두 분의 약속에 집중'" assets/ritual-open.js 1
-chk "candle: '양가 대표 두 분이 초에 불을 밝혀요'" assets/ritual-open.js 1
+chk "candle: '양가 대표가 초를 켜요'" assets/ritual-open.js 1   # [NARROW_170_1030] 고르기 전 «양가 대표» · [TILE_ONE_LINE_1107]
 chk "out.push(\['축사해 주실 분', '가까운 분 한두 분(부모님 말씀은 덕담에서)'\]);" assets/ritual-open.js 1
 chk 'ENGINE_CH8_1030' scripts/audit/source-basis.mjs 1
 nochk '약속과 선언에 집중' assets/ritual-open.js
@@ -22007,7 +22007,7 @@ chk "function _fixSteps(kind)" order-preview.html 1
 chk "var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('pre');" order-preview.html 1
 chk "if(_afterOn()) h+=_fxFlow('post');" order-preview.html 1
-chk '<span class="fx-s">늘 포함돼요</span></div>' order-preview.html 1   # [PICK_FLOW_ONE_1106] ① 고르기는 한 줄
+chk '<span class="fx-s">늘 포함</span></span></div>' order-preview.html 1   # [PICK_FLOW_ONE_1106] ① 고르기는 한 줄 · [FX_ROW_GRID_1107] 꼬리표 «늘 포함»
 nochk 'fx-more">진행 보기' order-preview.html   # ★[PICK_FLOW_ONE_1106] 대본 11/06 사장님 «왜 여기서 설명» — ① 펼침 · 목록 되살리지 말 것
 chk 'PICK_FLOW_ONE_1106' order-preview.html 3
 chk "{t:'',n:_post('_after').n,d:'남을 분 · 가실 분 안내',w:'v',tx:tx(/^after-photo/),play:'_after',after:'전체 단체 사진을 마치면'}" order-preview.html 1
@@ -22344,7 +22344,7 @@ chk '두 분이 하객께 인사하며 본식을 마쳐요. 전체 단체 사진
 nochk '가족 · 친구 순서예요' order-preview.html 0
 nochk '가족 · 친구 순서예요' assets/ritual-open.js 0
 chk '전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' order-preview.html 1   # B2_GEUL_22
-chk '부모님이 두 분께 덕담을 전해요' assets/ritual-open.js 2   # B2_GEUL_23 카드 · 칸
+chk '부모님이 두 분께 덕담을 전해요' assets/ritual-open.js 1   # B2_GEUL_23 카드(칸 글은 TILE_ONE_LINE_1107 로 «부모님이 덕담을 전해요»)
 chk '부모님이 두 분께 덕담을 전해요(한 분 1분쯤). 말씀하시는' order-preview.html 1
 nochk '덕담을 들려주세요' assets/ritual-open.js 0
 nochk '덕담을 들려주세요' order-preview.html 0
@@ -23062,3 +23062,16 @@ chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
 chk 'INTRO_CONTRACT_1107' order-preview.html 3
 chk '그 뒤 변경은 스튜디오와 상의해요.' order-preview.html 1
 chk '도 이때까지 마이페이지에 올려요.' order-preview.html 1
+# ★[TILE_ONE_LINE_1107 2026-11-07 사장님 «두 줄 말고 전부 한 줄로 적절하게 · 간격도 맞춰서»] ① 칸 글 한 줄(360 폰 글 폭 139 안 · 실측) · 칸 높이 같게
+chk 'TILE_ONE_LINE_1107' assets/ritual-open.js 2
+chk 'TILE_ONE_LINE_1107' order-preview.html 1
+chk "prevideo: '입장 전 두 분의 영상'" assets/ritual-open.js 1
+chk "entry: '두 분이 함께 입장해요', matjeol: '마주 보고 맞절해요'" assets/ritual-open.js 1
+chk "var TILE_CANDLE = { parents: '양가 부모님이 초를 켜요', fathers: '양가 아버님이 초를 켜요', others: '다른 두 분이 초를 켜요' };" assets/ritual-open.js 1
+chk '@media (max-width:374px){ .pk-txt{padding-left:8px;padding-right:8px} }' order-preview.html 1
+# ★[FX_ROW_GRID_1107 2026-11-07 사장님 «이 멘트가 너무 애매하게 있는 것 같아»] 식전 · 본식 뒤 줄 = 막 줄과 같은 격자(이름 칸 · 내용 칸) · 구분선 없음 · 본식 뒤 = POST_FLOW 차례 + 정리 · 막 사이 24
+chk 'FX_ROW_GRID_1107' order-preview.html 8
+chk '<span class="fx-st">정리</span>' order-preview.html 1   # 본식 뒤 끝 = 정리(POST_FLOW 뒤)
+chk '.fx-flow.fx-one{grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:baseline}' order-preview.html 1
+chk '.pk-acts{display:grid;gap:24px}' order-preview.html 1
+nochk '.pk-scnote{padding-left:168px;margin:-38px 0 30px}' order-preview.html
