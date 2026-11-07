@@ -2280,7 +2280,7 @@ chk 'pf-key' order-preview.html 5
 # [INTRO_JOURNEY 2026-09-27 사장님 «미리 알아두면 좋아요 이런 거 빼고 · 연습 · 최종 확정 이런 순서를 한눈에»] 새 코스 안내 2/2 = 여기서 네 걸음 + 그다음 예식까지 네 줄
 chk 'INTRO_JOURNEY' order-preview.html 2
 chk "\['예식<br>14일 전','순서 확정'" order-preview.html 1
-chk "\['예식<br>7일 전','글 마감'" order-preview.html 1
+chk "\['예식<br>7일 전','글'+(_vd?' · 영상':'')+(_vr?' · 녹음':'')+' 마감'" order-preview.html 1   # [INTRO_CONTRACT_1107] 제목 = 이날 마감하는 것(글 · 영상 · 녹음)
 chk 'INTRO_JOURNEY' scripts/audit/listen-page.mjs 2
 # [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 하루 표 · 홈 FAQ · AI 지식 — 마이페이지 스냅 칸(SNAP_55)과 같은 말
 chk '캔들존 · 화이트존 촬영 55분 · 입장 준비 5분' order-preview.html 1   # [R1-32] 단위를 붙였다
@@ -5330,7 +5330,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
+chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN', 'dining', 'dineName'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -15373,7 +15373,7 @@ fi
 chk 'EX_NAME_TODO_1023' order-preview.html 4
 chk 'EX_NAME_TODO_1023' scripts/audit/ex-name-todo.mjs 2
 chk 'DAY40_TABLE_1023' order-preview.html 1
-chk "'담은 순간에 따라 · 테이블 인사 포함',true" order-preview.html 1
+chk "'담은 순간에 따라 · 테이블 인사 포함','in'" order-preview.html 1   # [DAY40_TABLE_1023 · DAY40_BLOCK_1107] 묶음 칸 안 본식 줄
 if command -v node >/dev/null 2>&1; then
   node scripts/audit/ex-name-todo.mjs >/dev/null 2>&1; _ent=$?
   if [ "$_ent" = 0 ]; then echo 'ok ex-name-todo [EX_NAME_TODO_1023]'; elif [ "$_ent" = 2 ]; then echo 'skip ex-name-todo: 브라우저가 없어 재지 못함'; else echo 'FAIL ex-name-todo: 예시 속 이름이 남은 칸이 «다 됐어요»로 센다 — node scripts/audit/ex-name-todo.mjs'; fail=1; fi
@@ -16645,7 +16645,7 @@ chk 'var _cg0=_chgSnap(k);' order-preview.html 1
 # ── [CHIP_TOAST · CHIP_FEW_WORDS · TOAST_LIGHT 2026-10-08 사장님 «아래 안내 글 한 줄이랑 바탕 바뀌는 효과 전부 삭제 · 첫 번째 사진처럼 안내 문구 · 바탕색이 너무 진하니 디자이너 시선으로»
 #    «단어 몇 개만 바뀌면 고객이 헷갈릴 거 같아서 · 다른 이벤트들 써먹을 곳도»] 칩 알림 = 떠 있는 밝은 안내 하나(② · 크게 보기) · «작은 바뀜» = 줄마다 24자 안
 chk 'CHIP_TOAST' order-preview.html 8
-chk 'function _lsToast(msg,act,forId)' order-preview.html 1   # [OFF_TOAST 10/09] 같은 알림에 단추(act) · 어느 ▶ 의 알림인가(forId)가 붙었다 — 칩 알림은 종전대로 _lsToast(msg)
+chk 'function _lsToast(msg,act,forId,hush)' order-preview.html 1   # [PICK_TOAST_1107] hush = 같은 일을 _pkMsg 가 읽을 때 조용히 · [OFF_TOAST 10/09] 같은 알림에 단추(act) · 어느 ▶ 의 알림인가(forId)가 붙었다 — 칩 알림은 종전대로 _lsToast(msg)
 chk 'function _chgSmall(b0,b1)' order-preview.html 1
 chk 'var CHG_LIM=24;' order-preview.html 1
 chk 'CHIP_FEW_WORDS' order-preview.html 3
@@ -19442,12 +19442,12 @@ chk 'BGM_JUMP_SAME' scripts/audit/bgm-form.mjs 1
 chk "if(_mkPages().indexOf(k)>-1&&_mkState().at!==k) mkGo(k); else opGoStep('listen');" order-preview.html 1
 chk "picks: \['none', 'bed'\], short: '축사'," assets/bgm-slots.js 1
 chk "picks: \['none', 'bed'\], short: '편지'," assets/bgm-slots.js 1
-chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
-chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 잔잔한 연주곡이 아주 작게 흘러요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
+chk "lines: { none: '축사 동안은 음악 없이 목소리만 들려요', bed: '축사 동안 본식 피아노가 아주 작게 이어져요', unset: '고르지 않으시면 축사 동안 음악 없이 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
+chk "lines: { none: '편지 동안은 음악 없이 두 분 목소리만 들려요', bed: '편지 동안 본식 피아노가 아주 작게 이어져요', unset: '고르지 않으시면 편지 동안 음악 없이 두 분 목소리만 들려요' }," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "one: '하객이 앉는 동안 잔잔한 연주가 흘러요'," assets/bgm-slots.js 1
 chk "one: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "one: '이 순간부터 피아노가 아주 작게 흘러요'," assets/bgm-slots.js 1   # [BGM_R4_1023] «목소리 뒤로» → «이 순간부터»
-chk "one: '인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1        # [BGM_R2_1023]
+chk "one: '인사드리는 동안 따뜻한 곡이 흘러요'," assets/bgm-slots.js 1        # [BGM_R2_1023]
 chk "one: '테이블 인사 동안 재즈가 흘러요'," assets/bgm-slots.js 1
 chk "one: '«위하여!»에 맞춰 신나는 곡이 시작돼요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "cont: '{at}부터 피아노가 조용히 이어져요'" assets/bgm-slots.js 1        # [BGM_R2_1023]
@@ -19537,7 +19537,7 @@ chk 'BGM_R5_1023' assets/bgm-slots.js 4
 chk 'BGM_R5_1023' assets/bgm-form.js 4
 chk 'BGM_R5_1023' assets/entry-music.js 1
 chk 'BGM_R5_1023' scripts/audit/bgm-form.mjs 10
-chk "var TALK = { none: '말씀하시는 동안은 음악 없이 목소리만 들려요', bed: '말씀하시는 동안 잔잔한 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
+chk "var TALK = { none: '말씀하시는 동안은 음악 없이 목소리만 들려요', bed: '말씀하시는 동안 본식 피아노가 아주 작게 이어져요' };" assets/bgm-slots.js 1
 chk "speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 }" assets/bgm-slots.js 1
 chk "입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요" assets/bgm-form.js 1
 chk "입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요" assets/bgm-form.js 1   # [STUDIO_PICK_1023] 칩 이름과 같은 말
@@ -21727,7 +21727,7 @@ chk 'EM.carry=carry; EM.carryHas=carryHas; EM.carrySig=carrySig;' assets/entry-m
 chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
-chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
+chk '입장 곡을 고르시면 두 분이 앞에 서실 때까지 흘러요' assets/bgm-form.js 1   # [LINE_NOW_ONLY_1107]
 chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow reg-p17'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
@@ -21944,7 +21944,14 @@ chk "tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분
 nochk '촬영을 마치면 흐르는 마지막 안내' order-preview.html
 chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행'" order-preview.html 1   # [FIX_FLOW_204 D] «작가님» 표기 없음
 chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
-chk "\['15~33분쯤','단체 사진','Group Record','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /\* \[B2_GEUL_22\] \*/\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
+chk "'Group Photos','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /\* \[B2_GEUL_22\] \*/" order-preview.html 1   # [FIX_FLOW_204 D · DAY40_BLOCK_1107] 하루 표 단체 사진 줄(이름 Group Photos · 사장님 11/07)
+chk "row('20분','정리','Farewell','옷을 갈아입고 하루를 정리해요','dim')" order-preview.html 1   # [FAREWELL_NAME_204] 정리 Farewell 그대로 · 옅게
+nochk "'Group Record','전체 단체 사진" order-preview.html
+chk 'DAY40_BLOCK_1107' order-preview.html 2
+chk '\[DAY40_CALC\]' order-preview.html 1   # [DAY40_CALC 2026-11-07] 계산 표 표식 — 빠지면 140분 시간표 검사가 손 숫자를 찾아 빨강
+chk 'DAY40_CALC' scripts/check-source-drift.mjs 2
+chk 'PICK_CENTER_1107' order-preview.html 2
+chk 'PICK_SPACE_1107' order-preview.html 3
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
 # ── 2026-11-02 [FAREWELL_NAME_204 검토 204 회신] 고객이 보는 하루 흐름 «마무리 Farewell» → «정리 Farewell»(식순 · 홈 140분 표 · AI 상담 같은 이름) · 계약서는 그대로
 chk '<span class="seq-name-ko">정리</span>' index.html 1
@@ -22156,7 +22163,7 @@ chk 'LIST_HOLD' assets/bgm-bed.js 2
 chk 'TRIBUTE_WALK' assets/bgm-bed.js 1
 chk 'MEANING_R2_1102' console.html 3
 chk '축하 박수와 함께 새 곡이 시작돼요' assets/bgm-slots.js 1
-chk '두 분이 앞에 서시면 음악이 잦아들고' assets/bgm-slots.js 1
+chk '두 분이 앞에 서시면 입장 곡이 잦아들고' assets/bgm-slots.js 1   # [LINE_NOW_ONLY_1107]
 chk 'MEANING_R2_1102' scripts/audit/meaning-r2.mjs 1
 chk "turn-table meaning-r2" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0
@@ -22264,7 +22271,7 @@ chk "if(k==='vow'&&St().vowKind==='thanks') return '감사문';" assets/bgm-bed.
 chk "if(k==='vow'&&S.vowKind==='thanks') return '감사문';" assets/bgm-form.js 1
 chk '현재 식순에는 이 시각의 안내가 없습니다.' order-preview.html 1   # [B2_NA_26]
 chk '착석 · 휴대폰 무음 · 온라인 참석자 환영' order-preview.html 1
-chk '본식부터 단체 사진까지 배정한 시간은' order-preview.html 1   # [B2_NA_27] d-16
+chk '온라인 하객 인사 시간도 이 ' order-preview.html 1   # [B2_NA_27] d-16 · [DAY40_BLOCK_1107] «40분 · 본식이 짧은 만큼 사진을 더» 두 문장은 묶음 칸 머리 · 막대가 말한다
 nochk '본식과 단체 사진을 더하면' order-preview.html
 chk '마지막 말이나 동작' order-preview.html 1   # [B2_NA_29]
 chk "'사진 순서만 연습'" order-preview.html 1   # [B2_NA_30] d-14 · B2-K19 그룹 반복
@@ -23064,3 +23071,38 @@ nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+# ★[INTRO_CONTRACT_1107] 안내 2/2 — 계약서 v1.16 5조① «14일 뒤 변경은 스튜디오와 상의» · 3조② 영상 마감(식전 · 식중 영상은 담은 날만)
+chk 'INTRO_CONTRACT_1107' order-preview.html 3
+chk '그 뒤 변경은 스튜디오와 상의해요.' order-preview.html 1
+chk '도 이때까지 마이페이지에 올려요.' order-preview.html 1
+# ★[BODY_WITH_TABLE_1107] 본식 = 테이블 인사 포함 값 하나(원천 span.full · bodyTxt) · 세 덩어리로 떼지 않는다
+chk 'BODY_WITH_TABLE_1107' order-preview.html 4
+chk 'function bodyTxt' assets/ritual-open.js 1
+chk 'full: rng(ta, tb)' assets/ritual-open.js 1
+nochk "(sp.pm?'온라인 인사까지':(sp.tm?'셋을':'본식과'))" order-preview.html
+# ★[FLOW_BOTTOM_1107] 곡선 아래 빈칸 = 카드 안쪽 · 곡선 바닥 = 단추 바닥(곡선 모양은 그대로 · FLOW_PLAIN)
+chk 'FLOW_BOTTOM_1107' order-preview.html 4
+chk 'FLOW_BOTTOM_1107' assets/ritual-open.js 1
+# ★[MEAL_NOTE_1107 덧 8 · 사장님 «식당 예약 시 멘트가 달라지잖아 · 고객 입장에서 모를 것 같은데»] 식사 경로로 판이 갈리는 줄 아래 «식사 장소에 맞춰 바뀌는 안내예요 · 지금: …» —
+#   바뀌는 줄 · 상태 이름은 엔진 mealNoteOf 하나(판 고르기와 같은 조건) · 전체 순서 · 하나씩 만들기 · 연습 · 대본 복사 · 다른 판 펼침 · «다른 경우 보기» 없음
+node scripts/audit/meal-note.mjs >/dev/null 2>&1 && echo 'ok [MEAL_NOTE_1107] 식사 경로 안내 한 줄(엔진)' || { echo 'FAIL [MEAL_NOTE_1107] node scripts/audit/meal-note.mjs'; fail=1; }
+chk 'MEAL_NOTE_1107' assets/ritual-cue.js 3
+chk 'MEAL_NOTE_1107' order-preview.html 12
+chk "function _mnTxt(n){ return '식사 장소에 맞춰 바뀌는 안내예요 · 지금: '+n.name; }" order-preview.html 1
+chk "var MN_HOW='마이페이지 애프터 웨딩에서 식사 장소를 정하면 이 안내가 맞춰 바뀌어요'" order-preview.html 1
+chk "+(x.tx?_mnHtml(x.mn):'')" order-preview.html 1
+chk "+(x.own?'':_mnHtml(x.slug))+'</span></li>'; }" order-preview.html 1
+chk "+((!st.own&&st.slug)?(_mnHowLeft=true,_mnHtml(st.slug)):'')+'</p>';" order-preview.html 1
+chk "lines.splice(_mnAt,0,'식사 장소: '+_mnN.name.replace(/^식사 장소 /,'')+' · 식사 장소에 맞춰 바뀌는 안내는 이 기준이에요');" order-preview.html 1
+chk "EMBED?'<'+tag+' class=\"meal-nt meal-how\"><button type=\"button\" class=\"meal-go\" data-fk=\"clgo:dining\" onclick=\"clGo(" order-preview.html 1
+nochk '다른 경우 보기' order-preview.html
+# ★★[PICK_TOAST_1107 덧 9 · 사장님 «체크를 풀고 더하고 할 때 창 아래 작게 안내 문구가 같이 나오면 좋겠어»] ✓ 풀기 · ＋ 담기 · ● 늘 포함 → 아래 알림 한 줄(_lsToast · 3초 · 하나만 · 막대 위)
+#   ① 칸 · ① 미리 보기 · ② 예식 흐름 모두 opTgl 한 길 · 개수 한도는 창 대신 알림 · 되돌리기 단추 없음(UNDO_OFF) · pick-toast.mjs 가 390 · 1280 에서 누르고 잰다(되돌리면 빨강 확인)
+chk 'PICK_TOAST_1107' order-preview.html 9
+chk '_pkTgToast(k,on,_tg0)' order-preview.html 1
+chk 'PICK_TOAST_1107' scripts/audit/pick-toast.mjs 1
+nochk 'ordTell({title:R.COUNT_MSG' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pick-toast.mjs >/dev/null 2>&1; _ptt=$?; [ "$_ptt" = 1 ] && { echo 'FAIL pick-toast: 담기 · 빼기 · 늘 포함 · 한도 알림이 어긋났습니다 — node scripts/audit/pick-toast.mjs'; fail=1; }; [ "$_ptt" = 0 ] && echo 'ok pick-toast'; fi
+# ★[LINE_NOW_ONLY_1107] 순간 음악 줄 = 그 순간 동안 실제로 나는 소리만(맞절 = 음악 없이 · 피아노는 감사 인사 줄)
+chk 'LINE_NOW_ONLY_1107' assets/bgm-slots.js 3
+nochk '하객을 향해 서시면 본식 피아노가 잔잔하게 깔려요' assets/bgm-slots.js

@@ -209,7 +209,11 @@ function scan(needle) {
       /* ★주석을 지우고 읽는다. 안 지웠더니 index.html 의 보이는 표를 30분으로 망가뜨려도
          바로 위 주석("본식 30 → 16~24분")이 16~24 를 대신 내주어 검사가 통과했다.
          돌연변이 시험(행을 일부러 낡게 바꿔 보기)이 아니었으면 못 찾았을 구멍이다. */
-      const region = src.slice(Math.max(0, g.index - 90), end + 90)
+      const raw = src.slice(Math.max(0, g.index - 90), end + 90);
+      /* ★[DAY40_CALC 2026-11-07] 본식 · 단체 사진 칸을 원천(RitualOpen.span)에서 계산하는 표(안내 1/2 «두 분이 여기서 만드는 40분»)는
+         그 두 칸에 손으로 적은 숫자가 없다 — 남은 손 숫자(준비 · 스냅 · 정리)만 같은 순서로 본다. 표식은 표 안 주석에 둔다. */
+      const calc = raw.includes('[DAY40_CALC]');
+      const region = raw
         .replace(/<!--[\s\S]*?-->|\/\*[\s\S]*?\*\//g, ' ')
         .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
       const got = [];
@@ -219,6 +223,11 @@ function scan(needle) {
       if (got.length < 5) continue;                          // 시간을 안 적은 표(화살표 나열 등)
       tables++;
       const run = (w) => { let k = 0; for (const t of got) if (t === w[k]) k++; return k; };
+      if (calc) {
+        const wc = [want[0], want[1], want[4]], kc = run(wc);
+        if (kc < wc.length) bad.push(`${f}:${src.slice(0, g.index).split('\n').length} — [${wc[kc]}]분이 제자리에 없다(계산 표 · 준비 · 스냅 · 정리). 읽은 값 [${got.join(' · ')}]`);
+        continue;
+      }
       const kR = run(want), kM = run(wantMid);
       if (kR < want.length && kM < wantMid.length) {
         const w = kR >= kM ? want : wantMid, k = Math.max(kR, kM);
