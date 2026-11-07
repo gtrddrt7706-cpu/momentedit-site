@@ -11426,8 +11426,8 @@ function _ordMigrate(){ try{ var ro=localStorage.getItem('me_order'); if(ro==nul
 function _ordUse(k){ var m=/^me_order_(.+)$/.exec(String(k||'')); if(!m) return; try{ localStorage.setItem('me_order_w_'+m[1], String(Date.now())); }catch(e){} }   // [OLD_DRAFT_OFFER] 마이페이지 _useK 와 같은 칸
 function _tabGone(){ try{ var P=(window.parent&&window.parent!==window)?window.parent:null; return !!(P && typeof P._tabStale==='function' && P._tabStale()); }catch(e){ return false; } }
 function _persist(over){ if(typeof _tabGone==='function' && _tabGone()) return;   // [TAB_GUARD]
+  try{ _closeFit(); }catch(e){} try{ _seamFitKeep(); }catch(e){}   /* [MOOD_1018] 판이 바뀌었으면 분위기 몫을 저장 전에 맞춘다 · [CLOSE_SEAM_1018] 닫는 멘트 이음새 · ★[FIT_BEFORE_ACCT_1107] 계정 확인(ACCT_KEYS) 앞에서 — 화면 상태 맞추기라 저장 여부와 상관없다(10/30 부터 계정 확인 전에는 안 돌았다 · close-seam 화면 빨강) */
   var _k=_ordKey(); if(!_k){ if(EMBED && _fillSeen) _persistBad=true; return; }   // [ACCT_KEYS] 마이페이지가 계정을 확인해 주기 전에는 쓰지 않는다 · 계정 없이 채워졌으면 «이 기기에 남지 않아요»가 참이다
-  try{ _closeFit(); }catch(e){} try{ _seamFitKeep(); }catch(e){}   /* [MOOD_1018] 판이 바뀌었으면 분위기 몫을 저장 전에 맞춘다 · [CLOSE_SEAM_1018] 닫는 멘트 이음새 */
   try{ var rec={v:2,S:S,idx:idx,sk:Object.keys(_seenK),cs:courseStarted,sv:_doneSaved,who:_who,base:_srvBase,dirty:!!(courseStarted&&_autoKey()!==_autoLast)}; if(over) for(var _o in over) rec[_o]=over[_o];
     var _ek=_autoKey(); if(_ek!==_editK){ if(rec.dirty) _editT=Date.now(); if(rec.dirty||_editK!==null) _editE=Date.now(); } _editK=_ek; if(rec.dirty&&_editT) rec.t=_editT;   /* [RELOGIN_NEWER] 저장 안 한 고침이 생긴 때(이 탭이 실제로 고친 때 · 다시 쓰기만 한 때가 아니다) — 마이페이지가 로그인 풀림 때 맡긴 초안과 견준다 */
     var _me=Math.max(_editE,_editT); if(_me) rec.e=_me; rec.w=Date.now();   // [SAME_ACCT_T] 이 창이 마지막으로 바꾼 때(저장한 판이어도) · [ACCT_KEYS] 쓴 때(30일 걷기)
