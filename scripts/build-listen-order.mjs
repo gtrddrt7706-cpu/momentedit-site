@@ -6,12 +6,12 @@
    ③ 만들 수 있는 코스 전부(build-junctions 와 같은 3,434가지)를 기본값으로 돌려 나온 소리 중 ②에 없는 것은 «코스 따라» 판으로 더 넣는다(앞 순간이 바뀌면 붙는 이음말 등).
    ④ 맨 위 «전체 이어 듣기» = 엔진의 예시 코스 넷(EXAMPLES)을 처음부터 끝까지 · 이음매 · 이음 문장도 엔진 그대로 · 사람 구간은 1초.
    ⑤ 요약 «엔진이 내보내는 클립 중 페이지에 빠진 것 n개»는 ②③④에서 엔진이 낸 소리 전체와 페이지 소리를 기계로 맞대어 센다.
-   ⑥ 빼는 것(대본 11/07 20:08): 쓰지 않게 된 옛 판 — 식중 영상 임시 판(58 여는 말 + 129)은 이 판에 싣지 않는다(새 녹음 대기) · 11 · 302 같은 옛 판은 엔진이 안 내므로 처음부터 없다.
+   ⑥ 빼는 것(대본 11/07 20:08): 쓰지 않게 된 옛 판 — 식중 영상 임시 판(58 여는 말 + 129)은 이 판에 싣지 않는다(대본 11/07 20:28 — 식중 영상은 #1635 새 녹음 판으로 · 합친 엔진으로 뽑는다: --with <#1635 머리>) · 11 · 302 같은 옛 판은 엔진이 안 내므로 처음부터 없다.
    쓰기: node scripts/build-listen-order.mjs  →  listen-order-1107.html (실청 전용 · 승인 뒤 병합 전에 지운다) */
 import fs from 'node:fs'; import path from 'node:path'; import { createRequire } from 'node:module';
 import { statusOf, LISTEN_OUT } from './lib/clip-status.mjs';
 const require = createRequire(import.meta.url);
-const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
+const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..');   // [LISTEN_ORDER_1107] #1635(식중 영상 새 녹음)와 합친 상태는 임시 작업 폴더에서 이 스크립트를 돌려 판만 가져온다
 const OUT = path.join(ROOT, 'listen-order-1107.html');
 const O = require(path.join(ROOT, 'assets/ritual-open.js')); require(path.join(ROOT, 'assets/ritual-data.js'));
 const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
@@ -40,7 +40,8 @@ VAR.push(['하객 안내 페이지 있음', (S) => { S.guide = 1; }], ['하객 �
 [10, 15, 20].forEach((m) => VAR.push([`하객 맞이 ${m}분 판`, (S) => { S.guestN = m; }]));
 [['gdad', '신랑 아버님'], ['bdad', '신부 아버님'], ['gmom', '신랑 어머님'], ['bmom', '신부 어머님'], ['other', '그 밖의 분']].forEach(([t, n]) => ['yes', 'no'].forEach((y) =>
   VAR.push([`선언 ${n}${y === 'yes' ? ' · 첫 덕담도' : ' · 덕담 따로'}`, (S) => { S.declTitle = t; S.declBless = y; if (O.declBlessKey) S.declBlessKey = O.declBlessKey(S); }])));
-['speech', 'gift', 'etc', 'video'].forEach((v) => VAR.push([`축사 자리 · ${(O.CHIPS.free.find((x) => x[0] === v) || [v, v])[1]}`, (S) => { O.setChip(S, 'free', v); }]));
+['speech', 'gift', 'etc', 'video'].forEach((v) => VAR.push([v === 'video' ? '식중 영상 · 감사 영상' : `축사 자리 · ${(O.CHIPS.free.find((x) => x[0] === v) || [v, v])[1]}`, (S) => { O.setChip(S, 'free', v); }]));
+[1, 2].forEach((n) => VAR.push([`식중 영상 · ${['감사 영상', '두 사람 이야기', '어떤 영상이든'][n]}`, (S) => { O.setChip(S, 'free', 'video'); S.mvEx = n; }]));   // [LISTEN_ORDER_1107] #1635 식중 영상 판(S.mvEx 0 ~ 2 · ① 감사 영상 기본)
 VAR.push(['두 분 목소리(하객 맞이 · 입장 · 식전 영상)', (S) => { S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; }]);
 [1, 2].forEach((i) => VAR.push([`식전 영상 소개 예시 ${i + 1}`, (S) => { S.pvEx = i; }]));
 ['mothers', 'fathers', 'others'].forEach((w) => VAR.push([`화촉 ${{ mothers: '어머님', fathers: '아버님', others: '다른 두 분' }[w]}`, (S) => { S.candleWho = w; }]));
@@ -149,7 +150,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--sub);padding:8px 13px;
 <h1>식순 순서 실청 · 나레이션 전부</h1>
 <div class="note" id="canDo"><b>목록이 비어 있다면 미리보기 화면이라 그렇습니다.</b> 사파리 · 크롬에서 이 주소를 직접 열어 주세요.</div>
 <div class="note sum">순간 <b>${SUM.moments}</b>개 · 판 <b>${SUM.pans}</b>개 · 클립 <b>${SUM.clips}</b>개 · 엔진이 내보내는 클립 중 페이지에 빠진 것 <b>${SUM.missing.length}</b>개${SUM.missing.length ? ' — ' + esc(SUM.missing.join(' · ')) : ''}
-<br><span class="lab">이 가지 엔진의 최종 소리만 실었습니다(지금 · 바뀐 뒤 비교 아님). 판 = 기본 + 고름 ${SUM.sel}가지 × 예시 칩 ${SUM.ex}가지 조합으로 줄이 달라지는 경우 · 같은 소리는 하나로 묶었습니다. 빠진 것은 만들 수 있는 코스 ${SUM.courses.toLocaleString()}가지 × 식사 · 온라인 · 하객 안내 ${SUM.glob}가지 · 예시 코스 넷 · 위 고름에서 엔진이 낸 소리 ${SUM.engine}개와 맞대어 셉니다. 식중 영상 임시 판(58 + 129)은 싣지 않았습니다. 사람 구간은 1초로 줄여 넘깁니다.${SUM.liveNot.length ? '<br>참고 · 녹음 상태표가 «나는 소리»로 두지만 이 엔진이 어떤 고름으로도 내지 않는 ' + SUM.liveNot.length + '개(싣지 않음): ' + esc(SUM.liveNot.join(' · ')) : ''}</span></div>
+<br><span class="lab">이 가지 엔진의 최종 소리만 실었습니다(지금 · 바뀐 뒤 비교 아님). 판 = 기본 + 고름 ${SUM.sel}가지 × 예시 칩 ${SUM.ex}가지 조합으로 줄이 달라지는 경우 · 같은 소리는 하나로 묶었습니다. 빠진 것은 만들 수 있는 코스 ${SUM.courses.toLocaleString()}가지 × 식사 · 온라인 · 하객 안내 ${SUM.glob}가지 · 예시 코스 넷 · 위 고름에서 엔진이 낸 소리 ${SUM.engine}개와 맞대어 셉니다. 사람 구간은 1초로 줄여 넘깁니다.${SUM.liveNot.length ? '<br>참고 · 녹음 상태표가 «나는 소리»로 두지만 이 엔진이 어떤 고름으로도 내지 않는 ' + SUM.liveNot.length + '개(싣지 않음): ' + esc(SUM.liveNot.join(' · ')) : ''}</span></div>
 <div class="ph">전체 이어 듣기 · 예시 코스 넷</div>
 <div class="top4" id="top4"></div>
 <div id="list"></div>
@@ -176,7 +177,6 @@ function draw() {
         + ((p.n || 0) > 1 ? '<details><summary>같은 소리 ' + p.n + '가지 고름 보기</summary><div class="ln lab">' + esc(p.lab.join(' · ')) + (p.n > p.lab.length ? ' 외 ' + (p.n - p.lab.length) + '가지' : '') + '</div></details>' : '')
         + p.lines.map(function (l, li) { return lineHtml(l, id + '_' + li); }).join('') + '</div>';
     });
-    if (m.skip) h += '<div class="note">식중 영상 임시 판(58 여는 말 + 129)은 새 녹음 대기라 싣지 않았습니다.</div>';
   });
   $('list').innerHTML = h;
   $('canDo').innerHTML = '판의 «듣기»는 그 판 한 줄씩 이어서(엔진 쉼 그대로 · 사람 구간 1초) · 맨 위 넷은 예시 코스를 처음부터 끝까지 틉니다. 화면을 꺼도 이어집니다.';
