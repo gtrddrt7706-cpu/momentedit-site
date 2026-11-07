@@ -40,7 +40,7 @@ function check(src) {
   const need = [
     ['POST_KS 원천', "var POST_KS=RitualOpen.POST_FLOW.map(function(x){ return x.k; });"],
     ['① 진행 줄(늘 포함 · FIX_FLOW_204 A)', "if(_afterOn()) h+=_fxFlow('post');"],
-    ['진행 줄 · 예식 흐름 원천(_fixSteps)', "return [{t:'',n:_post('_photo').n,"],
+    ['진행 줄 · 예식 흐름 원천(_fixSteps)', "var _po=[{t:'',n:_post('_photo').n,"]   /* [MEAL_NOTE_1107] 식사 상태 줄을 붙이려고 return → var _po */,
     ['예식 흐름 사진 · 정리(FIX_FLOW_204 B)', "_fixSteps('post').map(fxRow).join('')"],
     ['완성 식후 세 줄', "if(_afterOn()) POST_KS.forEach(function(k){ var x=_post(k), d=_postDur(k);"],
     ['오늘 흐름 칩', "if(_afterOn()) POST_KS.forEach(function(k){ g.push({p:k,ks:[]}); });"],
