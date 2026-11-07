@@ -23166,3 +23166,6 @@ nochk "qk = 'RECQ_' + code," automation/platform/80_production.gs
 nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
 chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]
+# ★[PN_GUARD_1107 2026-11-07 대본 · GPT 이음매 P_최종 v2] P-N01 완성 저장 «저장됨»은 실제로 쓴 뒤에만 · P-N04 «단체 사진을 마쳤습니다» 한 번 — 이미 고친 둘을 검사로 고정(깨 보면 빨강 둘)
+chk 'PN_GUARD_1107' scripts/audit/pn-guard.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pn-guard.mjs >/dev/null 2>&1; _png=$?; case "$_png" in 0) echo 'ok pn-guard: P-N01 저장 확인 · P-N04 한 번' ;; 2) echo 'skip pn-guard: 재지 못함(브라우저)' ;; *) echo 'FAIL pn-guard: P-N01 · P-N04 — node scripts/audit/pn-guard.mjs'; fail=1 ;; esac; fi
