@@ -139,7 +139,8 @@ try {
     /* ★[MEANING_R1_1102 19] 두 분이 말하는 자리(감사 인사 live 'say') 도중엔 다음 곡으로 넘기지 않는다 — 같은 곡을 잇고, 다음 줄(GO)에서 넘긴다 */
     let a3 = a2; if (tk) { await c.pg.evaluate(() => window.__bgmGo.tap()); await c.pg.waitForTimeout(4200);   /* 같은 곡 3초 겹쳐 잇기(xing)가 끝난 뒤 넘긴다 */ a3 = await c.pg.evaluate(() => window.__seg.st()); }
     else if (a2.id === 'B11') { await c.pg.waitForTimeout(4500); a3 = await c.pg.evaluate(() => window.__seg.st()); }   /* 말하는 자리 동안 같은 곡을 3초 겹쳐 이었으면(MEANING_R1 19) 그 겹침이 끝난 뒤 다음 곡 — 겹침 3초를 기다려 읽는다 */
-    ok('c 콘솔 감사 인사 — 고른 곡(B11)부터 · 끝 3초 전 목록의 다음 곡으로(말하는 자리 도중이면 그 줄이 끝난 다음 줄에서 · MEANING_R2 뒤 감사 인사는 6초 뜸이라 9초 시험 곡은 뜸 · 나레이션 중에 넘어갈 수 있다)', a1.seg === 'M4' && a1.id === 'B11' && (!tk || a2.id === aL.id) && a3.seg === 'M4' && a3.id !== a2.id && ['B09', 'B10', 'B11'].indexOf(a3.id) > -1, { tk, a1: [a1.seg, a1.id, a1.li], a2: [a2.seg, a2.id, a2.li], a3: [a3.seg, a3.id, a3.li] });
+    const hz = await c.pg.evaluate(() => !!(window.__hushSoonC && window.__hushSoonC(60)));
+    ok('c 콘솔 감사 인사 — 고른 곡(B11)부터 · 끝 3초 전 목록의 다음 곡으로(말하는 자리 도중이면 그 줄이 끝난 다음 줄에서 · MEANING_R2 뒤 감사 인사는 6초 뜸이라 9초 시험 곡은 뜸 · 나레이션 중에 넘어갈 수 있다)', a1.seg === 'M4' && a1.id === 'B11' && (!tk || a2.id === aL.id) && a3.seg === 'M4' && (hz ? a3.id === a2.id : a3.id !== a2.id) && ['B09', 'B10', 'B11', 'B12', 'B14'].indexOf(a3.id) > -1, { tk, hz, a1: [a1.seg, a1.id, a1.li], a2: [a2.seg, a2.id, a2.li], a3: [a3.seg, a3.id, a3.li] });   /* ★[REPEAT_FIX_1107 ②] 60초 안 무음이면(hz) 미룬 넘김도 넘기지 않고 같은 곡 */
     ok('c 콘솔 오류 0', !c.errs.length, c.errs.slice(0, 2)); await c.ctx.close(); }
   { const S0 = base({ welcome: 1, vow: 1, free: 1, letter: 1, song: 0, tribute: 0 }, { M4: { k: 'B11' }, S5: { m: 'bed' } });
     const c = await con(S0, [['M4', 1, 300], ['M4', 2, 350], ['M4', 3, 400]], 60);   /* [ONE_FLOW_1106] M4S5 곡 칸 없음 */

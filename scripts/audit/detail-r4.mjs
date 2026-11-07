@@ -169,7 +169,8 @@ try {
   { const m4 = await f.evaluate(() => BgmBed._t.eff('M4')), kp = await f.evaluate((m4) => (BgmBed._t.LPB.keep || {})[m4] || 0, m4); await go(f, 'letter');
     const dk = await f.evaluate((m4) => BgmBed.dayAt('letter') || m4, m4), hk = await f.evaluate((dk) => BgmBed._t.hookOf ? BgmBed._t.hookOf(dk) : 0, dk);   /* ★[SCREEN_SOUND_1102 2] 편지만 = 당일 시간표 그 자리 곡 · 목록 첫 곡이 아니면 강조 자리부터 */
     const o7 = await trace(f, ['letter'], 9000, false), v1 = o7.find((x) => x.src && x.f === dk);
-    ok('R5 규칙 6 새로 듣기 — 본식 곡은 처음(0초)부터 · 앞 흐름의 떠난 초를 이어 쓰지 않는다', !!v1 && (dk === m4 ? v1.off < 1 : Math.abs(v1.off - hk) < 1.5) && !(kp > 1 && Math.abs(v1.off - kp) < 0.5 && Math.abs(kp - hk) > 0.5), { m4, dk, hk, kp, v1 }); }
+    const hk7s = [Math.min(hk, 20 - 0.5), Math.min(hk, 20 - 3 * 2 - 1)];   /* ★[REPEAT_FIX_1107 ④] 강조 자리(B10 120초)가 20초 시험 파일보다 길면 엔진이 줄인다 — 첫 시작(끝 0.5초 앞) · 같은 곡 다시 잇기(끝 겹침 3초 × 2 + 1 앞) */   /* ★[REPEAT_FIX_1107 ④] 강조 자리(B10 120초)가 시험 파일보다 길면 엔진이 파일 끝 0.5초 앞으로 줄인다 */
+    ok('R5 규칙 6 새로 듣기 — 본식 곡은 처음(0초)부터 · 앞 흐름의 떠난 초를 이어 쓰지 않는다', !!v1 && (dk === m4 ? v1.off < 1 : hk7s.some((h) => Math.abs(v1.off - h) < 1.5)) && !(kp > 1 && Math.abs(v1.off - kp) < 0.5 && Math.abs(kp - hk) > 0.5), { m4, dk, hk, kp, v1 }); }
   /* ★[DETAIL_R4_1101 ⑥] 크게 보기 «다음 걸음» — 닫기(뒤로가기)가 늦게 와도 새 걸음에 머문다(lsCloseBig 콜백) · 옛 30ms 뒤 opGoStep 은 옛 걸음으로 되돌아왔다 */
   { const runPat = async (code) => { await go(f, 'welcome'); await f.evaluate(() => { try { lsBig('welcome'); } catch (e) {} }); await wait(f, 700);
       return f.evaluate(async (code) => { const ob = history.back.bind(history); history.back = function () { setTimeout(ob, 300); };   /* 뒤로가기 응답이 늦은 폰 */
