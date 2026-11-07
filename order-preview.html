@@ -962,11 +962,19 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-left{font-size:12.5px;line-height:1.6;color:var(--accent);margin:4px 0 0;word-break:keep-all}   /* [BODY_CAP_1030] 남은 본식 시간 */
 .pk-pre{white-space:nowrap}
 .pk-fp>.op-note{margin-top:12px}   /* [NOTE_UNDER] */
-.pk-acts{display:grid;gap:20px}
+.pk-acts{display:grid;gap:24px}   /* [FX_ROW_GRID_1107] 막 사이 = 섹션 사이 24 한 단위(옛 20 · PC 18) */
 /* ★★[FIX_FLOW_204 검토 204 보충 A] 늘 있는 진행 줄 — 고르는 칸과 다른 모양(얇은 줄 · 담기 · 빼기 · ✓ 없음) · 펼치면 세로 차례 · 그림 없음 */
 .fx-flow{margin:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .pk-cnt.pk{margin:0 0 12px} .pk-cnt.pk + .fx-flow{margin-top:12px}   /* [PICK_SPACE_1107] ① 머리줄 ↔ 개수 줄 ↔ 아래 구분선 = 12 한 단위(옛 10 · 14) */
-.fx-flow.fx-one{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-height:44px;padding:8px 2px;font-size:14px;color:var(--accent)}   /* [PICK_FLOW_ONE_1106] 한 줄 · 펼침 없음 */
+.fx-flow.fx-one{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin:0;border:0;padding:0;font-size:14px;color:var(--accent)}   /* [PICK_FLOW_ONE_1106] 한 줄 · 펼침 없음 · ★[FX_ROW_GRID_1107] 막 줄과 같은 쌓임(폰 = 이름 위 · 내용 아래) · 구분선 없음 */
+.pk-cnt.pk + .fx-flow.fx-one{margin-top:12px}   /* [PICK_SPACE_1107] 개수 줄 ↔ 식전 줄 = 머리줄 ↔ 내용 12 */
+.fx-flow.fx-one + .pk-acts{margin-top:24px}   /* [FX_ROW_GRID_1107] 식전 줄 ↔ 여는 순간 = 막 사이 24 */
+.pk-scnote + .fx-flow.fx-one{margin-top:24px}   /* [FX_ROW_GRID_1107] 연출 한 줄 ↔ 본식 뒤 = 막 사이 24(붙어 보이지 않게) */
+.fx-flow.fx-one .fx-k{font-size:14px;font-weight:600;color:var(--gold-deeper);line-height:1.4}   /* 막 이름(.pk-act-h)과 같은 꼴 */
+.fx-flow.fx-one .fx-n{font-weight:400;line-height:1.6}
+.fx-one .fx-st{white-space:nowrap}   /* 차례 낱말 안에서는 줄이 갈리지 않게 · 화살표에서만 */
+.fx-one .fx-ar{color:var(--light)}
+.fx-flow.fx-one .fx-s{display:inline-block;margin-left:4px;font-size:11px;line-height:1.5;color:var(--sub);border:1px solid var(--border);border-radius:999px;padding:0 8px;vertical-align:1px}   /* 꼬리표 «늘 포함» — 두 줄 같은 모양 */
 .fx-flow>summary{list-style:none;display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-height:48px;padding:8px 2px;cursor:pointer;font-size:14px;color:var(--accent)}
 .fx-flow>summary::-webkit-details-marker{display:none}
 .fx-flow .fx-k{font-size:12.5px;color:var(--sub);white-space:nowrap}
@@ -1015,6 +1023,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-txt{display:block;padding:8px 10px 11px}
 .pk-n{display:block;font-weight:600;font-size:14px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pk-s{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;color:var(--sub);line-height:1.45;margin-top:2px}
+@media (max-width:374px){ .pk-txt{padding-left:8px;padding-right:8px} }   /* [TILE_ONE_LINE_1107] 360 폰 칸 글 폭 135 → 139 — «양가 어머님이 초를 켜요»(133.5)가 한 줄에(실측) · 이름 · 글 왼쪽 시작은 칸마다 같다 */
 @media (max-width:339px){ .pk-s{-webkit-line-clamp:3} }   /* [TILE_3LINE 코워크 추가 점검] 340 아래에서 칸 설명이 두 줄에서 잘렸다 */
 .pk-sel{position:absolute;top:0;right:0;width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
 .pk-sel i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.96);border:1.5px solid var(--gold);color:var(--gold-deeper);display:grid;place-items:center;font-style:normal;font-size:16px;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.12)}
@@ -1155,8 +1164,11 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-fp>.pk-fp-main{grid-column:1;grid-row:1}
   .pk-fp>.pk-side{grid-column:2;grid-row:1 / span 2}
   .pk-fp>.op-note{grid-column:1;grid-row:2;margin-top:0;align-self:start}   /* [NOTE_UNDER] PC 는 그림 아래 */
-  .pk-acts{gap:18px;margin-bottom:48px}
-  .pk-scnote{padding-left:168px;margin:-38px 0 30px}   /* [PICK_FLOW_ONE_1106] 오른쪽 정렬 · 칸 줄 아래 여백 안 */   /* [SCENE_NOTE_1023] PC 는 칸 줄과 왼쪽을 맞춘다(이름 칸 150 + 사이 18) · 칸 아래 48 여백 안으로 올린다 */
+  .pk-acts{gap:24px}   /* [FX_ROW_GRID_1107] 옛 18 · 아래 48 은 본식 뒤 줄로 옮겼다 */
+  .fx-flow.fx-one{grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:baseline}   /* [FX_ROW_GRID_1107] .pk-act 와 같은 격자 — 이름 칸 150 · 사이 18 */
+  .pk-scnote + .fx-flow.fx-one{margin-bottom:48px}
+  .fx-flow.fx-one .fx-k{color:var(--accent)}   /* PC 막 이름(.pk-act-h)과 같은 색 */
+  .pk-scnote{padding-left:168px;margin:8px 0 0}   /* [FX_ROW_GRID_1107] 칸 바로 아래 8 · 본식 뒤 줄과 24 (옛 -38 · 30 — 칸 아래 48 안으로 올리던 것) */   /* [PICK_FLOW_ONE_1106] 오른쪽 정렬 · 칸 줄 아래 여백 안 */   /* [SCENE_NOTE_1023] PC 는 칸 줄과 왼쪽을 맞춘다(이름 칸 150 + 사이 18) · 칸 아래 48 여백 안으로 올린다 */
   .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
   .pk-act-h{font-size:14px;color:var(--accent)}
   .pk-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
@@ -1172,7 +1184,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pv-grab{display:none}
   .pk-undo{bottom:32px}
 }
-@media (min-width:1000px) and (max-width:1150px){ .pk-act{grid-template-columns:1fr;gap:4px} }
+@media (min-width:1000px) and (max-width:1150px){ .pk-act,.fx-flow.fx-one{grid-template-columns:1fr;gap:4px} }
 @media (min-width:1000px) and (prefers-reduced-motion: reduce){ .pk-slim{transition:none} }
 /* ② */
 .ls-band .t1{font-size:12.5px}
@@ -4908,7 +4920,11 @@ function _fixSteps(kind){ var S2=_clS(), mF=!!(S2.meal&&S2.mealFull), cs=[];
 var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};
 /* [FIX_FLOW_204 A] ① 고르기 — 카드 목록 위(식전) · 아래(본식 뒤)의 얇은 진행 줄 · 펼치기 = «진행 보기» · ▶ 없음(듣기는 ② 에서) */
 function _fxFlow(kind){ var pre=kind==='pre';   /* ★★[PICK_FLOW_ONE_1106 대본 11/06 · 사장님 «이거를 왜 여기서 설명하고 있는 거야? 지저분하게»] ① 고르기에서는 한 줄만 — «진행 보기» 펼침 · 차례 목록(현장 진행 · 안내 음성 · 두 분 동작 알약)은 뺐다(되살리지 말 것) · 자세한 차례는 ② 하나씩 만들기 · 전체 순서 · 연습에서 */
-  return '<div class="fx-flow fx-one" data-fk="fx:'+kind+'"><span class="fx-k">'+(pre?'식전':'본식 뒤')+'</span><span class="fx-n">'+(pre?'하객 맞이 안내':'사진 · 정리')+'</span><span class="fx-s">늘 포함돼요</span></div>'; }
+  /* ★★[FX_ROW_GRID_1107 2026-11-07 사장님 «이 멘트가 너무 애매하게 있는 것 같아»] 두 줄은 막 줄과 같은 격자 — 왼쪽 이름 칸에 «식전» · «본식 뒤» · 오른쪽에 내용 한 줄 + 꼬리표 «늘 포함» ·
+       구분선 위아래로 떠 있던 모양(옛 border-top · bottom)은 걷었다 · 본식 뒤 = 실제 차례(POST_FLOW 이름 그대로 + «정리») · 손으로 적지 않는다 ·
+       «순서는 다음 화면에서 정해요»는 넣지 않는다 — ② 에서 사진 차례를 고르는 칸이 없다(차례는 POST_FLOW 고정) */
+  var body=pre?'<span class="fx-st">하객 맞이 안내</span>':RitualOpen.POST_FLOW.map(function(x){ return '<span class="fx-st">'+esc(x.n)+'</span>'; }).concat(['<span class="fx-st">정리</span>']).join(' <span class="fx-ar" aria-hidden="true">→</span> ');
+  return '<div class="fx-flow fx-one" data-fk="fx:'+kind+'"><span class="fx-k">'+(pre?'식전':'본식 뒤')+'</span><span class="fx-n">'+body+' <span class="fx-s">늘 포함</span></span></div>'; }
 function _afterImg(){ return '/assets/video/moments/guest-end.webp'+(RitualOpen.VIDEO_V||''); }   /* ★[POST_CARD_204 검토 204 3] 가족 사진 · 추가 촬영 칸(close-end)과 같은 그림이던 것 — 하객이 함께 선 장면(guest-end)으로 */   /* 닫는 인사 영상 끝 장면(하객이 함께 선 모습) — 칸 · 창 그림 */
 function _afterLine(){ var g=ENG; if(!g||!g.RitualCue||!g.RitualCue.afterPhotoOf) return null; var sl=g.RitualCue.afterPhotoOf(_clS()), f=g.RitualCue.fileOf(sl), t=(g.RitualCue.EXTRA||{})[sl]||''; if(!t) return null;
   var ok=!!(f&&_lHasSound(f,t)); return { text:t, src:ok?(g.RitualCue.PARAM.clipDir+f+'.mp3'):'', stopMs:0, slug:sl, file:f }; }

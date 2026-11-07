@@ -743,19 +743,23 @@
   var PREP_WHERE = '하나씩 만들기 마지막 «한눈에' + NB + '보기»에서 모아 봐요';   /* [STEP_NONUM_OP 2026-10-03 사장님] 걸음 번호(②)를 뺐다 */   /* [R3-11] 화면 이름이 «한눈에 / 보기»로 쪼개지지 않게 · [R4-07] prepLine 과 따로 */   // [R1-33] ② 이름은 «하나씩 만들기»   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
 
   /* ══ [TILE_PICK 2026-09-26 코워크 회신 6 3-5] 칸 글 — «무엇인지»만(두 줄 안) · CARDS.one 은 미리 보기 창에서 쓴다 ══ */
+  /* ★★[TILE_ONE_LINE_1107 2026-11-07 사장님 «두 줄 말고 전부 한 줄로 적절하게 · 간격도 맞춰서»] 칸 글은 한 줄 — 360 폰 2열 칸의 글 폭 135px(12.5px)에 들게(실측 · 줄임표로 자르지 않는다).
+       옛 두 줄 글(«예식이 시작되면 처음 흐르는 …» · «… 걸어 들어와 나란히 서요» · «선언문을 읽어, …»)로 되돌리지 말 것 · 줄을 늘리면 칸 높이가 다시 갈린다.
+       사실은 지킨다 — 화촉 = 고르기 전 «양가 대표»(NARROW_170) · 고른 분 호칭 / 입장 = 함께 / 축가 = 주어 없이(누가 불러도 맞게 · SONG_TILE_SELF_1018 뜻) / 편지 = 받는 분(부모님 · 서로) / 축배 = 다 함께.
+       이 글은 ① 칸에서만 쓴다(tileOf · CARDS.tile) — 미리 보기 창 · ② · 마이페이지 설명은 CARDS.one(두 줄 글 그대로). */
   var TILE = {
-    prevideo: '예식이 시작되면 처음 흐르는 두 분의 영상', candle: '양가 대표 두 분이 초에 불을 밝혀요' /* [OPEN_WORDS_1013] */, entry: '두 분이 함께 걸어 들어와 나란히 서요' /* [R2-41] ② 설명(«나란히 서는 첫 장면»)과 같은 모습 */, matjeol: '서로 마주 보고 맞절해요' /* [MATJEOL_SPLIT_1013] */,
-    welcome: '두 분이 하객께 짧게 감사\u00a0인사를 드려요' /* [THANKS_GREET_1013] 이름이 두 줄에 갈리지 않게(390 실렌더 «감사 / 인사를») */, bless: '부모님이 두 분께 덕담을 전해요' /* [B2_GEUL_23] */, vow: '서로에게 하는 약속을 소리 내어 읽어요',
-    ring: '서로의 손에 반지를 끼워 줘요', declare: '선언문을 읽어, 두 분이 부부가 되었음을 알려요' /* [STAGE_LINES] */, song: '가까운 분이나 두 분이 직접 불러요' /* [SONG_BACK_1011] · ★[SONG_TILE_SELF_1018 인스타 섹션 검토 11] 안쪽 설명(«두 분이 직접 불러도 돼요» · SONG_SELF_1011)과 맞춤 — 칸 글만 보고 두 분이 부르는 날은 이 순간이 아니라고 여기지 않게 · «노래»는 칸 이름 «축가»가 말한다(TILE_FIT_1013 · 두 줄 안) */, tribute: '부부가 되어 처음 부모님께 드리는 인사',
+    prevideo: '입장 전 두 분의 영상' /* [PV_AFTER_OPEN_TX02] 개식 뒤 · 입장 전 — «예식을 여는»은 개식과 겹친다(OPEN_WORDS_1013) */, candle: '양가 대표가 초를 켜요' /* [OPEN_WORDS_1013] */, entry: '두 분이 함께 입장해요', matjeol: '마주 보고 맞절해요' /* [MATJEOL_SPLIT_1013] */,
+    welcome: '하객께 감사 인사해요' /* [THANKS_GREET_1013] */, bless: '부모님이 덕담을 전해요' /* [B2_GEUL_23] */, vow: '서로에게 약속을 읽어요',
+    ring: '서로 반지를 끼워 줘요', declare: '부부가 되었음을 알려요' /* [STAGE_LINES] · 선언문은 칸 이름 «성혼 선언»이 말한다 */, song: '축하의 노래를 불러요' /* [SONG_BACK_1011] · ★[SONG_TILE_SELF_1018 인스타 섹션 검토 11] 칸 글만 보고 두 분이 부르는 날은 이 순간이 아니라고 여기지 않게 — 주어를 두지 않는다(누가 부르는지는 안쪽 설명 · SONG_SELF_1011) */, tribute: '부부로 처음 인사드려요',
     // [TILE_FREE_COMMA 코워크 회신7] 360 에서 «· 축사…»가 줄 머리로 — 칸 글만 쉼표
     // ★[TILE_SWALLOW 2026-09-26 코워크 회신8] 이 주석이 한때 free 줄 뒤에 붙어 letter · toast 두 항목을 삼켰다(칸 글이 빈 채 #872~#875) — 주석은 항목 줄 뒤에 붙이지 말 것
-    free: '가까운 분이 축하의 말을 전해요' /* [SPEECH_TILE_1012] · [TERM_BY_SPEAKER_1013] · [TILE_FIT_1013] 360 폭에서 두 줄을 넘어 잘렸다(«두 분께»는 칸 이름이 말한다) */, letter: '부모님이나 서로에게 쓴 편지를 읽어요', cake: '두 분이 함께 케이크를 잘라요', toast: '다 함께 잔을 들어 «위하여»',
-    _close: '두 분이 인사하고 본식을 마쳐요',
-    table: '두 분이 테이블을 돌며 하객께 인사해요'   // [TABLE_GREET_1008]
+    free: '가까운 분이 축하해요' /* [SPEECH_TILE_1012] · [TERM_BY_SPEAKER_1013] · [TILE_FIT_1013] «두 분께»는 칸 이름이 말한다 */, letter: '부모님 · 서로에게 편지', cake: '함께 케이크를 잘라요', toast: '다 함께 잔을 들어요',
+    _close: '인사하고 본식을 마쳐요',
+    table: '테이블을 돌며 인사해요'   // [TABLE_GREET_1008]
   };
-  var TILE_CANDLE = { parents: '양가 부모님이 초에 불을 밝혀요', fathers: '양가 아버님이 초에 불을 밝혀요', others: '두 분이 부탁한 분들이 촛불을 밝혀요' };
+  var TILE_CANDLE = { parents: '양가 부모님이 초를 켜요', fathers: '양가 아버님이 초를 켜요', others: '다른 두 분이 초를 켜요' };   /* [TILE_ONE_LINE_1107] others = ② 칩 이름 «다른 두 분» */
   for (var _tk in TILE) if (CARDS[_tk]) CARDS[_tk].tile = TILE[_tk];
-  function tileOf(k, S) { if (k === 'candle') { var w = candleWhoOf(S); if (TILE_CANDLE[w]) return TILE_CANDLE[w]; if (w === 'mothers' && S && S.candleWho === 'mothers') return '양가 어머님이 초에 불을 밝혀요'; } return TILE[k] || ''; }   /* ★[NARROW_170_1030 검토 170] 고르기 전 카드는 «양가 대표 두 분»(169) · 어머님을 고르면 고른 분 호칭 */
+  function tileOf(k, S) { if (k === 'candle') { var w = candleWhoOf(S); if (TILE_CANDLE[w]) return TILE_CANDLE[w]; if (w === 'mothers' && S && S.candleWho === 'mothers') return '양가 어머님이 초를 켜요'; } return TILE[k] || ''; }   /* ★[NARROW_170_1030 검토 170] 고르기 전 카드는 «양가 대표 두 분»(169) · 어머님을 고르면 고른 분 호칭 */
 
   /* ══ [SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 — 칸 · 미리 보기 창에서 순간마다 고정(판 칩과 상관없이 · 화촉만 서는 분을 따라)
      짧은 여는 말(10초 안)은 클립을 통째로 · 긴 다섯은 **같은 부모 클립**을 처음부터 틀다 둘째 문장 끝에서 멈춘다(새 녹음 0).
