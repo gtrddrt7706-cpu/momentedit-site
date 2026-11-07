@@ -2071,6 +2071,8 @@ function gBlock(bn){
 
 function render(){
   if (!R) return;
+  /* [MID17_CONSOLE 2026-11-07 MID17-10] 재생 순서 기록 — 점검이 window.__playLog 를 켰을 때만 적는다(__bgmLog 와 같은 꼴 · 화면 · 동작은 그대로) · 순서마다 «소리 → 사람 순간» 바뀔 때 한 줄 */
+  if (window.__playLog && cur >= 0 && R.cues[cur]) { var _plc = R.cues[cur], _plk = cur + '|' + phase; if (window.__playLog.k !== _plk) { window.__playLog.k = _plk; window.__playLog.push({ i: cur, slug: _plc.slug || '', name: _plc.name || '', blockN: _plc.blockN || '', phase: phase }); } }
   gWhyPaint();   // [GUEST_WHY] 지금 순서의 까닭 한 줄만(다음 순서로 가면 걷힌다)
   // [FREE_RESCUE] 사람 구간이 «재생 안 됨»을 가진 큐(식전 영상 · 준비한 순서의 영상 · 음원)에서만 이 단추가 눌린다.
   // ★[WAIT_CLIP_OFF_1016 라운드 6] 그 밖에서 틀던 대기 클립(49 «잠시 이대로 두겠습니다»)은 9/6 사장님 결정(WAIT_BRIDGE_RETIRED · 감정 멈춤엔 목소리 없음)으로 폐지됐는데 단추가 남아 있었다 — 판을 걷고 흐리게 둔다(자리 · 크기 그대로 · 화면이 흔들리지 않게).
