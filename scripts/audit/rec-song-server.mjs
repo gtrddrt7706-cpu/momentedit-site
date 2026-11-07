@@ -5,7 +5,7 @@
    2 같은 이름 폴더가 둘이면 songs.json 이 든 쪽 · 목록은 키 · 자리가 맞는 곡만 · 찾은 폴더 id 를 REC_FID 에 적는다
    3 곡 받기 = 그 곡 파일 base64 · mime · 목록에 없는 키 = L3 · 이상한 키(경로 · 긴 글) = 거절
    4 로그인이 풀렸으면 reason 그대로(두 분 목소리 받기와 같은 길)
-   5 두 분 쪽 곡 받기는 한 시간 60번까지 — 61번째 = L1 · 콘솔(adminRitualFileGet 'rec:')은 상한 없음 · 셈도 안 늘린다
+   5 두 분 쪽 곡 받기는 한 시간 REC_HOUR_MAX(200)번까지 — 다음 번째 = L1(시각 칸 열쇠 · HOUR_BUCKET_1107) · 콘솔(adminRitualFileGet 'rec:')은 상한 없음 · 셈도 안 늘린다
    6 목록은 캐시(REC_MF) — 두 번째 목록 요청은 드라이브를 다시 읽지 않는다
    7 적어 둔 폴더가 휴지통으로 가면 다음 요청이 다시 찾는다
    8 key 가 'rec' 가 아니면 종전 두 분 목소리 받기 그대로(추천 곡 폴더를 보지 않는다)
@@ -78,10 +78,12 @@ try {
   // 4
   { const r = get('list', 'BAD'); ok('4 로그인이 풀렸으면 reason 그대로', r && r.ok === false && r.reason === 'expired' && !r.songs, r); }
   // 5
-  { CACHE = {}; let last = null, okN = 0; for (let i = 0; i < 61; i++) { last = get('r9'); if (last.ok) okN++; }
-    ok('5a 두 분 쪽 곡 받기는 한 시간 60번 — 61번째 = L1', okN === 60 && last.ok === false && last.ecode === 'L1', { okN, last });
-    const before = CACHE.RECQ_ME0001, a = G.adminRitualFileGet('ME0001', 'rec:r9');
-    ok('5b 콘솔(adminRitualFileGet rec:) 은 상한 없음 · 셈도 그대로', a && a.ok && a.key === 'rec' && Buffer.from(a.data, 'base64').toString() === 'ID3-r9' && CACHE.RECQ_ME0001 === before, { a: a && { ok: a.ok, key: a.key }, before, after: CACHE.RECQ_ME0001 }); }
+  /* [HOUR_BUCKET_1107] 셈 열쇠는 시각 칸(RECQ_<코드>_yyyyMMddHH) · 상한은 원문 REC_HOUR_MAX(200) */
+  const RQ = () => Object.keys(CACHE).find((k) => k.indexOf('RECQ_ME0001') === 0), RQV = () => (RQ() ? CACHE[RQ()] : undefined), RMAX = G.REC_HOUR_MAX;
+  { CACHE = {}; let last = null, okN = 0; for (let i = 0; i < RMAX + 1; i++) { last = get('r9'); if (last.ok) okN++; }
+    ok('5a 두 분 쪽 곡 받기는 한 시간 ' + RMAX + '번 — 다음 번째 = L1 · 열쇠는 시각 칸', RMAX >= 200 && okN === RMAX && last.ok === false && last.ecode === 'L1' && /^RECQ_ME0001_\d{10}$/.test(RQ() || ''), { okN, RMAX, key: RQ(), last });
+    const before = RQV(), a = G.adminRitualFileGet('ME0001', 'rec:r9');
+    ok('5b 콘솔(adminRitualFileGet rec:) 은 상한 없음 · 셈도 그대로', a && a.ok && a.key === 'rec' && Buffer.from(a.data, 'base64').toString() === 'ID3-r9' && RQV() === before, { a: a && { ok: a.ok, key: a.key }, before, after: RQV(), _o: CACHE.RECQ_ME0001 }); }
   // 6
   { CACHE = {}; reads = 0; get('list'); const r1 = reads; get('list'); ok('6 목록은 캐시 — 두 번째는 드라이브를 다시 읽지 않는다', r1 === 1 && reads === 1, { r1, reads }); }
   // 7
@@ -136,7 +138,7 @@ try {
     FOLDERS = [mkFolder('FD_CLIP', [mkFile('songs.json', JSON.stringify(SJ2), 4e12, 'application/json'), mkFile('r1.mp3', 'FULL-r1', 4e12), mkFile('r1p.mp3', 'CLIP-r1', 4e12), mkFile('r9.mp3', 'FULL-r9', 4e12)])]; PROPS = {}; CACHE = {};
     const a = get('r1-p'); ok('10a 짧은 판 받기 = 목록 pf 파일', a && a.ok && a.id === 'r1-p' && Buffer.from(a.data, 'base64').toString() === 'CLIP-r1', a && { ok: a.ok, id: a.id, d: a.data && Buffer.from(a.data, 'base64').toString() });
     const b = get('r9-p'); ok('10b 목록에 pf 가 없으면 L3(화면이 곡 전체로)', b && b.ok === false && b.ecode === 'L3', b);
-    const n0 = +(CACHE.RECQ_ME0001 || 0); get('r1-p'); ok('10c 짧은 판도 한 시간 셈에 든다', +(CACHE.RECQ_ME0001 || 0) === n0 + 1, { n0, n1: CACHE.RECQ_ME0001 });
+    const n0 = +(RQV() || 0); get('r1-p'); ok('10c 짧은 판도 한 시간 셈에 든다', +(RQV() || 0) === n0 + 1, { n0, n1: RQV() });
     const c = G.adminRitualFileGet('ME0001', 'rec:r1'); ok('10d 콘솔은 곡 전체', c && c.ok && Buffer.from(c.data, 'base64').toString() === 'FULL-r1', c && c.ok);
     const d1 = get('r1-px'), d2 = get('-p'), d3 = get('r1-p-p'); ok('10e 이상한 꼬리 = 찾지 않는다', [d1, d2, d3].every((r) => r && r.ok === false && !r.data), [d1, d2, d3]); }
 } catch (e) { ok('잴 수 없었다 — ' + (e && e.stack || e).split('\n').slice(0, 3).join(' | '), false); }
