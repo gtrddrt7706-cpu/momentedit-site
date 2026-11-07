@@ -4426,6 +4426,39 @@
    "when": "2026-11-06",
    "from": "260_narr-thanks-in-ex4#2"
   },
+  "356_guest-w5-meal#0": {
+   "text": "시작 오 분 전입니다.",
+   "voice": "진희",
+   "when": "2026-10-22",
+   "from": "329_guest-w-5m-mgr#0"
+  },
+  "356_guest-w5-meal#1": {
+   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-06",
+   "from": "321_after-photo-resv-guide#4",
+   "keepGap": true
+  },
+  "357_guest-w5-meal-online#0": {
+   "text": "시작 오 분 전입니다.",
+   "voice": "진희",
+   "when": "2026-10-22",
+   "from": "329_guest-w-5m-mgr#0"
+  },
+  "357_guest-w5-meal-online#1": {
+   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.",
+   "voice": "진희",
+   "when": "2026-11-06",
+   "from": "321_after-photo-resv-guide#4",
+   "keepGap": true
+  },
+  "357_guest-w5-meal-online#2": {
+   "text": "온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요.",
+   "voice": "진희",
+   "when": "2026-11-01",
+   "from": "334_guest-w-5m-mgr-online#3",
+   "keepGap": true
+  },
   "35_declare-ask-c#0": {
    "text": "이제 두 사람은 부부입니다.",
    "voice": "우성",
@@ -5050,6 +5083,6 @@
    "keepGap": true
   }
  },
- "_언제": "2026-11-07 · 926자리",
+ "_언제": "2026-11-07 · 931자리",
  "_왜통낭독": "[LETTER_WHOLE_TAKE] 43_parents-letter 는 통낭독이라 이 창고에 자리를 두지 않는다 — scripts/lib/whole-take.mjs 참고"
 }
