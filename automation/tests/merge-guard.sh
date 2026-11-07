@@ -4819,6 +4819,13 @@ nochk "'식전 영상 링크', 'send'" assets/ritual-open.js
 chk 'PV_FEEL_1106' mypage.html 5
 chk 'PV_FEEL_1106' api/_kb.js 1
 nochk 'data-pvcmode="make"' mypage.html
+# ★[PV_ONE_WAY_1107 2026-11-07 사장님 «필메이커에서 만들어 여기에 올리는 건 똑같잖아» · 대본 «한 갈래로»] 식전 · 식중 첫 화면 = 큰 단추 «영상 올리기» 하나 + 필메이커 안내 한 줄 — 두 칸 갈래를 되살리지 않는다
+chk 'PV_ONE_WAY_1107' mypage.html 8
+chk "function _pvcFeelIn()" mypage.html 1
+chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'));   // \[PV_ONE_WAY_1107\]" mypage.html 1
+nochk '<b>준비한 영상 올리기</b>' mypage.html
+nochk '<b>필메이커에서 만들기</b><span>' mypage.html
+nochk '필메이커에서 만들거나 준비한 영상을' mypage.html
 # ★[PV_STATE_1106 2026-11-06 4차 묶음 M04 · M05 · M06 · M07 · M08 · M09 · M16 · M21 · 대본 판정 «채택»] 식전 영상 상태 한 벌 —
 #   «사용하지 않기»가 옛 확정본보다 먼저 · 식순과 확실히 부딪힐 때만 한 줄 · 다시 확인(조회만) · 고치는 화면에도 기한 · 기한 지남(locked)은 다시 저장을 권하지 않는다 · 템플릿 비용과 추가 옵션 구분
 chk 'PV_STATE_1106' mypage.html 29
