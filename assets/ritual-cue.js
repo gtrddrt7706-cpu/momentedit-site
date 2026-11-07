@@ -1319,7 +1319,10 @@
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         var o = {
           k: 'free', blockN: fk === 'speech' ? '축사' : fk === 'video' ? '식중 영상' : '준비한 순서', slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : fk === 'video' ? '식중 영상 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
-          text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
+          text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,
+          /* ★[MID17_CONSOLE 2026-11-07 MID17-10 당일 콘솔] 식중 영상 디렉터 메모 — 식전 영상 큐의 note(D-7 · 상영 중 배경음)와 같은 꼴 · 영상 사람 순간을 든 큐에 싣는다(아래 둘로 나눌 때 129 로 옮긴다).
+               콘솔에 영상 파일 · 길이를 미리 여는 장치는 식전 영상에도 없다 — 새로 만들지 않고 이 한 줄로(상영본 자리 = 89_prevideo «개인코드_예식일_식중» 폴더 «미리보기…» · 식전 영상과 같다) · 불 낮추기는 식전 영상만(식중은 사장님 결정 전) */
+          note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다 · 길이 ' + len + '분 · 상영본은 드라이브 «ME_식전영상» 안 «개인코드_예식일_식중» 폴더의 «미리보기…» 파일 · 식전 영상과 같다) · 소개 말이 끝나면 영상을 튼다 · 상영 중 배경음은 끈다' : '',   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
           rescue: play ? { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */ : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
           live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 20 : 60 * len + 8,   /* ★[EST_TRUE_1031] 축사 +6 → +20(축사하는 분이 자리에서 나와 마이크를 받는 판 · 본식 합 TIME free 걸음 12 → 26) */ duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : fk === 'gift' ? -12 : PARAM.duckOff, self: true,   /* ★[MEANING_R1_1102 6] 선물 전달 = 이동 · 전달을 받쳐 −12 · 영상 · 무대는 정적 그대로 */   /* [BGM_INFO_1023] 축사 «음악과 함께» = 낭독 아래 −20 · 아니면 무음 그대로 */
@@ -1331,8 +1334,8 @@
              58 → 129 는 한 소개라 사슬 1.25초([CHAIN_GAP_1014] 원고 «사슬 1.25초» · 말끝 → 말머리 · 콘솔 · 미리 듣기가 파일 앞뒤 무음을 뺀다) · 크기는 58 과 같다.
              같은 날 식전 영상 소개로 129 가 나가면(스튜디오 나레이션 판 · pvEx 예시 3) 58 하나만 — 같은 말 두 번 금지 · 130(시선 명령 [B2_GEUL_01]) · 261(식전 영상 받는 말)은 쓰지 않는다 · 축사 · 선물 · 기타는 종전 그대로 */
         if (fk !== 'video' || (seq && seq.indexOf('prevideo') > -1 && pvSlugOf(S) === 'narr-prevideo-in-ex3')) return [cue(o)];
-        var o2 = { k: 'free', blockN: o.blockN, slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개', text: EXTRA['narr-prevideo-in-ex3'], duck: o.duck, fire: 'chain', gapMs: 1250, rescue: o.rescue, live: o.live };
-        o.rescue = null; o.live = null;
+        var o2 = { k: 'free', blockN: o.blockN, slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개', text: EXTRA['narr-prevideo-in-ex3'], duck: o.duck, fire: 'chain', gapMs: 1250, rescue: o.rescue, live: o.live, note: o.note };   // [MID17_CONSOLE] 메모는 영상 사람 순간과 함께 129 로
+        o.rescue = null; o.live = null; o.note = '';
         return [cue(o), cue(o2)];
         /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 104 narr-free-out-clap(«따뜻한 박수 부탁드립니다»)은 흐름에서 뺐다.
            클립 · 번호 · EXTRA 는 둔다(되살리려면 박수 자리 셋이 넷이 된다 — 사장님 결정이 먼저). 다음 큐는 앞 live 로 GO. */

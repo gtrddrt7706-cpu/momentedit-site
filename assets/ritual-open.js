@@ -732,7 +732,7 @@
   function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
     if (k === 'bless') return '당일 직접 · 부모님';   // [R1-36] 덕담은 부모님이 말한다 · «가족»은 범례에 없는 말
     if (k === 'declare') return '당일 직접 · ' + (declBy(S) || '선언하실 분');   // [DECLARE_ANYONE] 두 분이 적은 분 · 안 적었으면 «선언하실 분»
-    if (k === 'free') return '당일 직접 · 축사하시는 분';
+    if (k === 'free') return FREE_KIND[chipOf('free', S)] === 'speech' ? '당일 직접 · 축사하시는 분' : '당일 직접';   // ★[MID17_CONSOLE 2026-11-07 MID17-10] 축사 갈래만 «축사하시는 분» — 식중 영상(영상 상영 중 콘솔 갈래 칩)이 «축사하시는 분»으로 떴다 · 영상 · 선물 · 기타는 식전 영상 자리와 같은 «당일 직접»
     if (k === 'song') return '당일 직접 · 노래해 주실 분';   // [SONG_BACK_1011]
     return '당일 직접'; }
   function prepLine(S) { var n = prepCount(S), a = [];

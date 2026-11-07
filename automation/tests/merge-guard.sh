@@ -23136,6 +23136,13 @@ chk "'식중 영상 소개':'이어서'" order-preview.html 1
 nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
 chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
+# ★★[MID17_CONSOLE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 10 · 11] 당일 콘솔 — 식중 영상 디렉터 메모(식전 영상 메모와 같은 꼴 · 영상 사람 순간을 든 큐에) · 재생 순서 기록 · 디지털 날 같음
+chk 'MID17_CONSOLE' assets/ritual-cue.js 2
+chk "note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다" assets/ritual-cue.js 1
+chk "live: o.live, note: o.note };" assets/ritual-cue.js 1          # 두 줄 날 메모는 129(영상 사람 순간)로
+chk 'MID17_CONSOLE' console.html 1                                   # 재생 순서 기록(window.__playLog · 점검이 켰을 때만)
+chk 'MID17_CONSOLE' scripts/audit/mid17-console.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-console.mjs >/dev/null 2>&1; _m17c=$?; node scripts/audit/mid17-console.mjs --selftest >/dev/null 2>&1; _m17cs=$?; if [ "$_m17c" = 2 ]; then echo 'ok mid17-console — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17c" != 0 ] || [ "$_m17cs" != 0 ]; then echo "REVERT? mid17-console: 식중 영상 당일 콘솔(메모 · 재생 순서 · 재생 안 됨 · 디지털 같음)이 어긋났습니다 ($_m17c/$_m17cs) — node scripts/audit/mid17-console.mjs"; fail=1; else echo 'ok mid17-console'; fi; fi
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
 
