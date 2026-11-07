@@ -4070,6 +4070,9 @@ function renderIntro(){
      훑을 때 어디가 중요한지 서열이 없었다(가장 긴 줄이 58자였다).
    ★[ORD_SAVE_WHERE] 저장처를 먼저 말하는 원칙은 그대로 — 다 만든 뒤에 알면 늦다.
    ★'진행할 일은 없어요' 과약속 금지 원칙도 그대로 — 서약 낭독·인사는 부부 몫이다. */
+/* [INTRO_CONTRACT_1107] 두 분이 올릴 영상 — 식전 영상(담았으면) · 식중 영상(준비한 순서 = 영상 · 담았으면) · 없으면 '' */
+function _introVid(){ var R=RitualOpen; if(!R||!R.onOf) return ''; var pv=!!R.onOf(S,'prevideo'), mv=false; try{ mv=!!R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'; }catch(e){}
+  return pv&&mv?'식전 영상 · 식중 영상':pv?'식전 영상':mv?'식중 영상':''; }
 function renderIntro2(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">두 분이 하실 일</h2>';   // [ORD_H2]
   /* ★[INTRO_FOUR 2026-09-25 코워크 추가전달 2-2] 새 코스는 네 걸음 말로 — 번호 넷(① 고르기 · ② 보고 듣기 · ③ 준비하기 · ④ 완성) · 준비는 ③ 한 곳에.
@@ -4087,8 +4090,10 @@ function renderIntro2(){
     h+='</div>';
     h+='<div class="jr-t jr-t2">그다음 · 예식까지</div><div class="daymap jr">';
     /* [R1-32] «언제든 · 연습» 줄은 걷었다 — 바로 위 ③ 연습하기를 되풀이했고 날짜 표에서 혼자 날짜가 아니었다 */
-    [['예식<br>14일 전','순서 확정','그때까지 순간과 고른 것을 얼마든지 고쳐요.'],
-     ['예식<br>7일 전','글 마감','서약 · 편지처럼 두 분이 쓸 글을 채워요. 지금 비워 둔 칸도 이때까지 채우면 돼요.'],
+    /* ★[INTRO_CONTRACT_1107 대본 · 계약서 v1.16 5조① · 3조②] 14일 뒤 변경은 «스튜디오와 상의» · 7일 = 글과 함께 영상 마감(식전 영상 · 식중 영상은 담은 날만 · 영상이 없는 날은 종전 둘째 문장) */
+    var _vd=_introVid();
+    [['예식<br>14일 전','순서 확정','그때까지 순간과 고른 것을 얼마든지 고쳐요. 그 뒤 변경은 스튜디오와 상의해요.'],
+     ['예식<br>7일 전','글 마감','서약 · 편지처럼 두 분이 쓸 글을 채워요. '+(_vd?_vd+'도 이때까지 마이페이지에 올려요.':'지금 비워 둔 칸도 이때까지 채우면 돼요.')],
      ['당일','진행은 저희가','당일 순서 진행은 나레이션과 디렉터가 맡아요. 두 분은 담은 순간에만 나서요.']]   /* [R1-24] 나레이션을 «이끈다»로 띄우지 않는다(나레이션 포지셔닝 표준 문장) */
       .forEach(function(x){ h+='<div class="seqr"><div class="sq-tm">'+x[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(x[1])+'</div><div class="sq-d">'+esc(x[2])+'</div></div></div>'; });
     h+='</div>';
@@ -4107,7 +4112,8 @@ function renderIntro2(){
     h+='</div>';
     h+='<div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
     h+='<div class="pf-i pf-key"><b class="pf-k">진행은 저희가</b>순서와 흐름은 나레이션·디렉터가 맡아요. 두 분은 서약 낭독·인사처럼 고른 순간에만 나서요.</div>';
-    h+='<div class="pf-i pf-key"><b class="pf-k">준비는 글만</b>서약문·편지·인사말 정도예요. 무엇을 언제까지인지는 완성 화면에 정리돼요.</div>';
+    var _vo=_introVid();   /* [INTRO_CONTRACT_1107] 영상을 담은 날은 «글과 영상»(글만이라 하면 영상 마감과 어긋난다) */
+    h+='<div class="pf-i pf-key"><b class="pf-k">'+(_vo?'준비는 글과 영상':'준비는 글만')+'</b>서약문·편지·인사말'+(_vo?'과 '+_vo:'')+' 정도예요. 무엇을 언제까지인지는 완성 화면에 정리돼요.</div>';
   }
   h+='<div class="pf-i pf-key"><b class="pf-k">비워도 돼요</b>지금 못 정한 건 나중에 채우면 돼요.</div>';
   h+='<div class="pf-i pf-key"><b class="pf-k">'+(isOpen()?'고칠 수 있는 때':'예식 14일 전까지 수정')+'</b>'+(isOpen()?'순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.':'저장하면 그때까지 언제든 고쳐요.')+(EMBED?'':' 다만 그냥 열어 만든 건 <b>이 기기에만</b> 저장돼요. 마이페이지로 열면 다른 기기에서도 이어 만들어요.')+'</div>';

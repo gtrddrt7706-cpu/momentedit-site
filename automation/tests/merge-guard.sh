@@ -23053,3 +23053,7 @@ nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+# ★[INTRO_CONTRACT_1107] 안내 2/2 — 계약서 v1.16 5조① «14일 뒤 변경은 스튜디오와 상의» · 3조② 영상 마감(식전 · 식중 영상은 담은 날만)
+chk 'INTRO_CONTRACT_1107' order-preview.html 3
+chk '그 뒤 변경은 스튜디오와 상의해요.' order-preview.html 1
+chk '도 이때까지 마이페이지에 올려요.' order-preview.html 1
