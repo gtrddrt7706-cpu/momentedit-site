@@ -22853,7 +22853,7 @@ chk "if (BED.seg === 'M4' && hushNowC()) return; listGo(1)" console.html 1   # [
 chk "_w.sg==='M4'&&(lvOf(st,BED.cur.f)<=-60||hushSoon(BED.cur.f,HUSH_NEAR))" assets/bgm-bed.js 1
 chk "function segPlanFor(id, cur)" console.html 1
 chk "function playOrd(sg)" assets/bgm-bed.js 1
-chk "if(i<0){ for(var k=0;k<o.length;k++){ if(o\[k\]!==f) return o\[k\]; } return ''; }" assets/bgm-bed.js 1   # [REPEAT_FIX_1107 검토 I] 다시 짠 목록 맨 앞 곡 건너뛰기 0
+chk "이 칸에서 이미 들린 곡은 들린 차례대로 맨 앞" assets/bgm-picks.js 1   # [REPEAT_FIX_1107 검토 I] 다시 짠 목록 맨 앞 곡 건너뛰기 0
 chk 'T09 미룬 넘김도 무음 검사' scripts/audit/one-flow.mjs 1
 chk 'REPEAT_RULE_1107' assets/bgm-picks.js 6   # [REPEAT_RULE_1107] 의미 곡 · 고른 곡 하루 한 번 · 배경 칸 반복 없음(앞 배경 칸 가장 오래전 곡 빌려 오기 · 바로 앞 칸 · 40분 안 뒤로) · fill M4 · M8L · hookAt · 한 곡 칸 alt · 겹침 6초
 chk 'REPEAT_RULE_1107' assets/bgm-bed.js 3

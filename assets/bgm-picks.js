@@ -213,6 +213,7 @@
       var k = custK(S, sg), c = carryOf(S, sg, o.cur || ''), base = order(S, sg, c || '', function () { return false; }), L = base.filter(function (f) { return have(f); }), need = NEED[sg] || 0, out = [], tt = now;
       var bgs = segs.filter(function (x) { return loopy(x); }), bi = bgs.indexOf(sg), prev = bi > 0 ? bgs[bi - 1] : '';
       var put = function (f) { out.push(f); hp[f] = tt; hs[f] = sg; tt += dOf(f); }, sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0); };
+      Object.keys(Hd).filter(function (f) { return hs[f] === sg && have(f) && !otherOnce(f, sg, c); }).sort(function (a, b) { var ka = Hd[a].seg === sg ? +Hd[a].t0 : +(Hd[a].last != null ? Hd[a].last : Hd[a].t0), kb = Hd[b].seg === sg ? +Hd[b].t0 : +(Hd[b].last != null ? Hd[b].last : Hd[b].t0); return (ka || 0) - (kb || 0); })   /* 이 칸에서 처음 들린 곡은 처음 시각 · 앞 칸에서 와 이 칸에서 다시 들린 곡은 마지막 시각 */.forEach(function (f) { if (out.indexOf(f) < 0) { out.push(f); tt += dOf(f); } });   /* ★[REPEAT_FIX_1107 검토 I] 이 칸에서 이미 들린 곡은 들린 차례대로 맨 앞 — 지금 곡이 목록에 남아 다음 곡이 이어진다(다시 짠 목록에서 빠지면 엔진이 첫 곡을 건너뛰었다) */
       L.forEach(function (f) { if (out.indexOf(f) > -1) return; if (f === c || f === k) { put(f); return; } if (otherOnce(f, sg, c) || hp[f] != null) return; put(f); });
       var un = []; bgs.slice(0, Math.max(0, bi)).forEach(function (x) { (R[x] ? R[x].list : []).forEach(function (f) { if (hp[f] == null && !once[f] && have(f) && SONGS[f] && out.indexOf(f) < 0 && un.indexOf(f) < 0 && okB(sg, f)) un.push(f); }); });
       while (sum() < need && un.length) put(un.shift());
