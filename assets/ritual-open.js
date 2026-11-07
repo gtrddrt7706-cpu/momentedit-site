@@ -460,6 +460,11 @@
     return Math.min(full, Math.max(Math.min(full, TABLE_SEC * 2), room)); }
   function bodyRaw(S) { _NOFIT = 1; try { return bodySec(S); } finally { _NOFIT = 0; } }   // 테이블 인사를 줄이기 전 본식 합(길이 칩 확인용)
   function tableCut(S) { return onOf(S, 'table') ? Math.max(0, tableFull(S) - tableSecOf(S)) : 0; }   // 줄인 초(0 = 그대로)
+  /* ★[RA5_TABLE_EACH 2026-11-07 규칙 감사 · 재검증 재수정] 테이블마다 몇 초 — 콘솔 지문 · 순서 카드가 같은 원천(tableSecOf)을 읽는다 ·
+       줄지 않은 날 «1분 30초쯤»(종전 글 그대로) · 줄었으면 5초 단위 «약 45초 · 약 1분 20초» */
+  function tableEachTxt(S, seq) { var n = tableN(S), sec = tableSecOf(S, seq) / n; if (!(n >= 1) || sec >= TABLE_SEC) return '1분 30초쯤';
+    sec = Math.max(5, Math.round(sec / 5) * 5); var m = Math.floor(sec / 60), r = sec % 60;
+    return '약 ' + (m ? m + '분' + (r ? ' ' + r + '초' : '') : r + '초'); }
   function lohi(p) { return [p[0] + p[1] + p[2], p[0] + 1.25 * p[1] + p[2] + p[3]]; }
   // 본식 합(초) — a = 대본 합 · b = 넉넉 합. 식전(하객 맞이·식전 영상)은 넣지 않는다.
   function bodySec(S) {
@@ -1725,7 +1730,7 @@
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
-    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
+    FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, tableEachTxt: tableEachTxt, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     MID_NAME: MID_NAME,   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
