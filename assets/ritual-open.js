@@ -220,6 +220,17 @@
     if (t !== 'other') return declLabel(t);
     return declText(S.declareWho) || '그 밖의 분';
   }
+  /* ★★[MID17_NAR_1107 MID17-6 · 대본 11/07 정정] 식중 영상 전용 대본 — «58 → 129»는 걷었다(129 는 식전 영상 문장 · 사장님 반려).
+     여는 말 예시 셋(식전 영상 «소개 멘트»와 같은 모양 · 고른 값 S.mvEx 0~2 · 기본 ① 감사 영상 = 인스타 #식중영상 1위 부모님 감사 영상)
+       ① 감사 영상 = 58 + midvideo-in-thanks → 영상 → midvideo-out-thanks + 104
+       ② 두 사람 이야기 = midvideo-in-story → 영상 → midvideo-out-story + 104
+       ③ 어떤 영상이든 = midvideo-in-plain → 영상 → midvideo-out-story + 104
+     클립 번호 · 글은 음성 쉼 방 PR 이 정한다(그 전엔 키 이름으로 자리만 · 소리 없음) */
+  var MV_EX_NAMES = ['감사 영상', '두 사람 이야기', '어떤 영상이든'];
+  function midPlan(S) { var n = +(S && S.mvEx) || 0; if (!MV_EX_NAMES[n]) n = 0;
+    /* ★[MID17_CLIPS_1107 대본 19:20 사장님 승인] 새 녹음 5 클립(351 ~ 355) — ① 여는 말은 58 글을 품은 한 클립 · 받는 말은 104 «따뜻한 박수 부탁드립니다»를 품은 한 클립 */
+    return n === 0 ? { n: 0, inn: ['midvideo-in-thanks'], out: ['midvideo-out-thanks'] }
+      : { n: n, inn: [n === 1 ? 'midvideo-in-story' : 'midvideo-in-plain'], out: ['midvideo-out-story'] }; }
   function CHIP_OK(k, v) { return (CHIPS[k] || []).some(function (c) { return c[0] === v; }); }
   function setChip(S, k, v) {
     if (!CHIP_OK(k, v)) return S;
@@ -1729,7 +1740,7 @@
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, oneOf: oneOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, TRIB_ACT: TRIB_ACT, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
-    CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
+    CHIPS: CHIPS, MV_EX_NAMES: MV_EX_NAMES, midPlan: midPlan /* [MID17_NAR_1107] */, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, tableEachTxt: tableEachTxt, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     MID_NAME: MID_NAME,   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,

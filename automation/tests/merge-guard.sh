@@ -7859,7 +7859,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers'
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 327;' scripts/build-typecast-import.mjs 1   # [SEAM_WORD_1107] 326 → 327(+1 350)   # [K3_SHORT_1106] 324 → 326(+2 · 348 · 349)   # [INFO_SPLIT_200 검토 200 수정 2] 305 → 324(+19 · 329 ~ 347)   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
+chk 'const CLIP_COUNT = 332;' scripts/build-typecast-import.mjs 1   # [SEAM_WORD_1107] 326 → 327(+1 350)   # [K3_SHORT_1106] 324 → 326(+2 · 348 · 349)   # [INFO_SPLIT_200 검토 200 수정 2] 305 → 324(+19 · 329 ~ 347)   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
 chk "has: (id) => /^X-|^D-/.test(id) }" scripts/build-typecast-import.mjs 1   # ★[DECL_TITLE_1031] D- = 성혼 선언 호칭 판
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -11147,7 +11147,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 350' scripts/check-ritual-cue.js 1   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다   # ★[END_FLOW_1030] 265 · 266
+chk 'N_FILES = 355' scripts/check-ritual-cue.js 1   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다   # ★[END_FLOW_1030] 265 · 266
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -17794,7 +17794,7 @@ chk 'tableIn:"신랑 신부가 오늘 참석해 주신 하객 여러분의 테�
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (_openC && seq.indexOf('table') > -1) cues.push(cue({" assets/ritual-cue.js 1   # [END_FLOW_1030] 테이블 인사 = 닫는 인사 앞
-chk 'const N_FILES = 350;' scripts/check-ritual-cue.js 1   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
+chk 'const N_FILES = 355;' scripts/check-ritual-cue.js 1   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1
@@ -23156,29 +23156,37 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
-# ★★[MID17_ENGINE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 3 · 4 · 6] 영상 갈래 = 58 여는 말 → 129(식전 영상 소개 예시 3 녹음 그대로 · 사슬 1.25초) → 영상 · 같은 날 식전 소개가 129 면 58 하나 · 새 녹음 0
-chk 'MID17_ENGINE' assets/ritual-cue.js 3
-chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 · 식중 영상이 같은 슬러그 셈을 본다
-chk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js 1
-chk "pvSlugOf(S) === 'narr-prevideo-in-ex3')) return \[cue(o)\];" assets/ritual-cue.js 1   # 129 겹친 날 58 하나
-chk 'MID17_ENGINE' assets/ritual-story.js 2                # 블록 «식중 영상» 설명(STORY_COVER)
+# ★[MID17_ENGINE 2026-11-07 임시(11/07 14:21 병합 · 전용 대본 승인 전까지) — «사장님 결정»이 아니었다(12:4x 대본이 취소한 판 · 129 는 식전 영상 문장 · 사장님 반려)] 58 → 129 판은 [MID17_NAR_1107] 전용 대본으로 바뀌었다 · 검사는 mid17-nar.mjs
+chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 소개 슬러그 셈(식전 전용 · 129 는 식전 영상에만)
+nochk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js   # [MID17_NAR_1107] 129 를 식중 영상에 붙이지 않는다(사장님 반려)
 chk "'식중 영상': {" assets/ritual-story.js 1
-chk 'MID17_ENGINE' scripts/audit/open-course.mjs 2         # 블록 · [재생 안 됨] 기대값(의도한 변화 · 옛 값 주석)
 chk 'MID17_PRACTICE' order-preview.html 1                  # 연습 · 미리 듣기 카드 «식중 영상이 흐르는 자리»
-chk 'MID17_SCRIPT' order-preview.html 2                    # 줄 이름(129 = 이어서 · 칩 «식중 영상 · n분» = 여는 말)
-chk "'식중 영상 소개':'이어서'" order-preview.html 1
 nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
+# [MID17_NAR_1107] mid17-engine.mjs(58 → 129 임시판 검사)는 merge-guard 에서 뺐다 — 파일은 기록으로 남김 · 새 판은 mid17-nar.mjs
 chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
 # ★★[MID17_CONSOLE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 10 · 11] 당일 콘솔 — 식중 영상 디렉터 메모(식전 영상 메모와 같은 꼴 · 영상 사람 순간을 든 큐에) · 재생 순서 기록 · 디지털 날 같음
 chk 'MID17_CONSOLE' assets/ritual-cue.js 2
 chk "note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다" assets/ritual-cue.js 1
-chk "live: o.live, note: o.note };" assets/ritual-cue.js 1          # 두 줄 날 메모는 129(영상 사람 순간)로
+chk "note: last ? _fc.note : '' }));" assets/ritual-cue.js 1          # [MID17_CONSOLE · MID17_NAR_1107] 메모는 영상 사람 순간(여는 말 마지막 줄)과 함께
 chk 'MID17_CONSOLE' console.html 1                                   # 재생 순서 기록(window.__playLog · 점검이 켰을 때만)
 chk 'MID17_CONSOLE' scripts/audit/mid17-console.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-console.mjs >/dev/null 2>&1; _m17c=$?; node scripts/audit/mid17-console.mjs --selftest >/dev/null 2>&1; _m17cs=$?; if [ "$_m17c" = 2 ]; then echo 'ok mid17-console — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17c" != 0 ] || [ "$_m17cs" != 0 ]; then echo "REVERT? mid17-console: 식중 영상 당일 콘솔(메모 · 재생 순서 · 재생 안 됨 · 디지털 같음)이 어긋났습니다 ($_m17c/$_m17cs) — node scripts/audit/mid17-console.mjs"; fail=1; else echo 'ok mid17-console'; fi; fi
+# [MID17_CLIPS_1107] mid17-console.mjs(58 → 129 임시판 콘솔 검사)는 merge-guard 에서 뺐다 — 파일은 기록 · 메모 · [재생 안 됨] · 영상 뒤 GO 는 mid17-nar.mjs 가 잰다
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+# ★[MID17_NAR_1107 2026-11-07 대본 정정] 식중 영상 전용 대본 — 여는 말 예시 셋(① 58 + 감사 · ② 이야기 · ③ 어떤 영상이든) → 영상 → 받는 말 + 104 · «58 → 129» 걷음(사장님 반려) · 콘솔 재생 순서 기록
+if command -v node >/dev/null 2>&1; then _m17o=$(node scripts/audit/mid17-nar.mjs 2>&1); _m17r=$?
+  case "$_m17r" in
+    0) echo 'ok mid17-nar: 식중 영상 전용 대본 — 여는 말 셋 · 받는 말 · 재생 순서 기록' ;;
+    *) echo 'FAIL mid17-nar: 식중 영상 대본 자리가 어긋났다 — node scripts/audit/mid17-nar.mjs'; printf '%s\n' "$_m17o" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+  esac
+fi
+chk 'MID17_NAR_1107' assets/ritual-open.js 2
+chk 'MID17_NAR_1107' assets/ritual-cue.js 2
+chk 'MID17_NAR_1107' order-preview.html 4
+chk 'MID17_NAR_1107' assets/ritual-story.js 2
+chk 'PLAY_LOG_1107' console.html 3
+chk 'NARR_APPROVE_1107' docs/rules/나레이션.md 1   # 사장님 11/07 — «새 녹음 줄이기» 폐지 · 나레이션 바꿈은 «지금 · 바뀐 뒤» 실청 승인 뒤 병합
 
 # ★[RULE_AUDIT_1107 2026-11-07 대본 규칙 감사 · 서버 몸] ① 통지는 메일이 나갔을 때만 · ② 하객 사진도 통지 뒤 7일 · ③ 시간당 셈 시각 칸 · ④ AI 상담 잘린 답 · ⑤ 하객 사진 가득 알림
 chk 'NOTICE_REACHED_1107' automation/platform/70_journey.gs 1

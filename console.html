@@ -1872,6 +1872,10 @@ function runPost(list, i, done){
   else runPost(list, i+1, done);
 }
 
+/* ★[PLAY_LOG_1107 MID17-10 · 대본 11/07] 재생 순서 기록 — 콘솔이 낸 줄과 사람 순간을 낸 차례대로 적는다(최근 200줄 · 화면 밖 · window.PLAY_LOG).
+   식중 영상 자리가 «여는 말 → 영상 → 받는 말 + 박수 → 다음 순간»으로 나갔는지 리허설 · 점검이 이 기록으로 본다. */
+var PLAY_LOG = window.PLAY_LOG = [];
+function plogPush(what, k){ try { PLAY_LOG.push({ at: Date.now(), k: k || '', what: String(what || '') }); if (PLAY_LOG.length > 200) PLAY_LOG.shift(); if (window.console && console.info) console.info('[재생]', String(what || '')); } catch (e) {} }
 function fire(i, opt){
   opt = opt || {};
   if (!R || i < 0 || i >= R.cues.length) return finish();
@@ -1884,6 +1888,7 @@ function fire(i, opt){
   if (!opt.clock && typeof MAN_HOLD !== 'undefined') { if (MAN_HOLD && startAt) { var _now = Date.now(); for (var _k = 0; _k < R.cues.length; _k++) { var _ck = R.cues[_k]; if (_k !== i && _ck.fire === 'clock' && !fired[_k] && _ck.atMin != null && _now >= startAt + _ck.atMin * 60000) fired[_k] = true; } } MAN_HOLD = false; }   // [B2_NA_02] 디렉터가 낸 순서 = 손 대기 풂 · 지난 시각 안내 버림
   cur = i; fired[i] = true; GWHY = null;   // [GUEST_WHY] 새 순서 — 앞 판(다시 듣기 · 이전)의 까닭이 남지 않게
   var c = resolve(R.cues[i]);
+  plogPush(c.no ? c.no + ' ' + (c.name || c.slug) : (c.name || c.slug || ''), c.k);   /* [PLAY_LOG_1107 MID17-10] 재생 순서 기록 — 식중 영상 = 여는 말 → 영상 → 받는 말 → 다음 순간 */
   if (ESD.paused && !ESD.run) { if (esdIn(c) && !esdMain(c)) esdResume(); else ESD.paused = null; }   /* ★[B2_K16] 정지 뒤 입장 묶음의 다음 큐(도착 · 맞절)를 바로 내면 곡을 이어 그 큐 크기로(도착 = 잦아듦) · 묶음 밖이면 버린다 */
   if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
   if (!esdMain(c)) doorMark(null);   // [DOOR_LEAD] 입장 장면이 아니면 걷는다
@@ -1919,6 +1924,7 @@ function fire(i, opt){
       if (c.live) {
         phase = 'live';
         liveT0 = Date.now();
+        plogPush('(' + (c.live.t || '사람 순간') + ')', c.k);   /* [PLAY_LOG_1107] 사람 순간(영상 상영 · 박수 등) */
         if (c.live.cheer && MODE === 'preview') duckTo(c.live.cheer.level, c.live.cheer.upMs);   // [BGM_CONSOLE2_1023 TOAST_GO] 미리 듣기는 종전처럼 «위하여»와 함께 오른다(GO 가 없다)
         else { segLive(c); duckTo(c.live.duck === undefined ? c.duck : c.live.duck, c.live.upMs || PARAM.fadeUpMs); }   // [HOLD_LIVE] ⓑ 사람 구간은 GO 까지 이 크기(낭독 −20 · 무음 −90 을 풀지 않는다) · [BGM_FIX_1030] 선언 박수는 1.5초(upMs) · 닫는 인사 목례부터 M6
         render();
