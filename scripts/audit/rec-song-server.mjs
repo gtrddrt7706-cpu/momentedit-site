@@ -95,14 +95,14 @@ try {
   // 9 [REC_PUT_1013] 서버가 곡 파일을 직접 받는다
   { const sha = (x) => createHash('sha256').update(Buffer.from(x)).digest('hex'), b64 = (x) => Buffer.from(x).toString('base64');
     const real = Object.assign({}, G.REC_PUT_HASH), SJ = JSON.stringify(SONGS);
-    const nm = Object.keys(real), songs8 = nm.filter((n) => /^r\d\.mp3$/.test(n)), clips8 = nm.filter((n) => /^r\dp\.mp3$/.test(n));
-    ok('9 · 진짜 표는 파일 17개(곡 8 + 짧은 판 8 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = 음악 10초 먼저 · 문 열린 뒤 64초에 맞춰 다시 자른 판의 목록 [ENTRY_BGM_1019 · 그 앞 LY_REALIGN_1014]', real['songs.json'] === 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5' && nm.length === 17 && songs8.length === 8 && clips8.length === 8 && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 17, nm);
+    const nm = Object.keys(real), songs8 = nm.filter((n) => /^r\d+\.mp3$/.test(n)), clips8 = nm.filter((n) => /^r\d+p\.mp3$/.test(n));   // [NEWSONG_LNOE_1107] r10 — 두 자리 번호
+    ok('9 · 진짜 표는 파일 19개(곡 9 + 짧은 판 9 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = r10 을 더한 목록 [NEWSONG_LNOE_1107 · 그 앞 ENTRY_BGM_1019]', real['songs.json'] === 'b61c1f59a9d6a1ae963525b9c8d2ffe99e5b9f5592f427893e2f3b6c62b3761b' && nm.length === 19 && songs8.length === 9 && clips8.length === 9 && !!real['r10.mp3'] && !!real['r10p.mp3'] && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 19, nm);
     /* 9-1 ★[ENTRY_BGM_1019] 문서 저장소(operations/rec-songs/files)가 곁에 있으면 표의 지문 17개 = 그 파일들의 지문 — 판을 다시 자르고 표를 안 바꾸면(또는 반대) 서버가 새 판을 거절해 옛 판이 남는다.
        CI 에는 비공개 문서 저장소가 없어 건너뛴다(REC_DOCS 로 자리를 줄 수 있다) */
     { const DOC = process.env.REC_DOCS || new URL('../../../momentedit-docs/operations/rec-songs/files/', import.meta.url).pathname;
       const fs = await import('node:fs');
       if (fs.existsSync(DOC + 'songs.json')) { const bad = nm.filter((n) => { try { return sha(fs.readFileSync(DOC + n)) !== real[n]; } catch (e) { return true; } });
-        ok('9-1 [ENTRY_BGM_1019] 표의 지문 17개 = 문서 저장소 파일의 지문(곡 · 짧은 판 · songs.json)', bad.length === 0, bad); }
+        ok('9-1 [ENTRY_BGM_1019] 표의 지문 19개 = 문서 저장소 파일의 지문(곡 · 짧은 판 · songs.json)', bad.length === 0, bad); }
       else console.log('skip 9-1 문서 저장소가 곁에 없다(' + DOC + ')'); }
     G.REC_PUT_HASH = { 'r1.mp3': sha('ID3-put-r1'), 'r9.mp3': sha('ID3-put-r9'), 'songs.json': sha(SJ) };
     FOLDERS = []; PROPS = {}; CACHE = {};

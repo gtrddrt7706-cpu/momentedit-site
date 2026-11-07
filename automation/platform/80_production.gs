@@ -1436,6 +1436,7 @@ var REC_PUT_HASH = {
   'r6.mp3': '9c9b645f0a0b7091a115214e6599c58083be618afb488bc18c829924a0a22d76',
   'r8.mp3': '573eef1b8d4dd5e73278efdd32916bd18ec80e201ee782cf42c0910261ed9f4f',
   'r9.mp3': 'beba6f25d2234fe652420444f0456fe99a9738874ecfc639ff1233aadfd11eeb',
+  'r10.mp3': '49234a36415c2563df09af4d2b4ba4c293f9b9fe3b0de89945384bdbaea6e4b6',   /* [NEWSONG_LNOE_1107] Last Night On Earth · Green Day — 192kbps 머리말 없음(문서 저장소 make_clips 고정 프레임) */
   /* 짧은 판 8 = [ENTRY_BGM_1019] 음악 10초 먼저 · 문 열린 뒤 64초에 맞춰 다시 자른 판(문서 저장소 make_clips.py) — 종전 [REC_CLIP_1013] 판 r1p 86947b06… · r9p f837950e… */
   'r1p.mp3': 'eb93631ed39575f0fb28bfa5c4a555bed486bef51ff7d734c1ddcc675989ed43',
   'r2p.mp3': 'd560a76b5cf850740ca9b38c69ae28321fd778412fbf590573910b4df70dd41a',
@@ -1445,7 +1446,8 @@ var REC_PUT_HASH = {
   'r6p.mp3': 'cdb472579bf385bf0114ab99807a4f69904ad48a130bda25bede57a14ac77bb5',
   'r8p.mp3': '7bea6e5ea92733e11b1ae13804104bc2e9734dab11d7e108d879b96b2fabcfd7',
   'r9p.mp3': '30fcaa3cc38326eb0005d1f8edafa0bb9f8ab0c7b69a4dcf15d9953f4b031161',
-  'songs.json': 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5'   /* [ENTRY_BGM_1019] 짧은 판의 자리(p0 · p1)만 바꾼 판 — 가사 · 곡 순서 · 하이라이트는 그대로 · 종전 [LY_REALIGN_1014] 줄 시각 판 98eb13b9… · [REC_LY_BI_1013] 두 언어 판 5cb9bee1… · [REC_CLIP_1013] 판 d355371a… */
+  'r10p.mp3': '275f7b118774f8f34bafc334fbc733636bc429b52dc39963d6db193c9f23ada4',   /* [NEWSONG_LNOE_1107] 0 ~ 188.03초 */
+  'songs.json': 'b61c1f59a9d6a1ae963525b9c8d2ffe99e5b9f5592f427893e2f3b6c62b3761b'   /* [NEWSONG_LNOE_1107] r10 한 줄을 끝에 더한 목록(앞 8곡은 한 글자도 그대로) · 종전 [ENTRY_BGM_1019] 짧은 판 자리 판 c71efbae… · 그 앞 [LY_REALIGN_1014] 줄 시각 판 98eb13b9… · [REC_LY_BI_1013] 두 언어 판 5cb9bee1… · [REC_CLIP_1013] 판 d355371a… */
 }, REC_PUT_HOUR = 120;
 function _recPutFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_PUT_FID');
@@ -1462,6 +1464,7 @@ function _recPutHas_(fo, name, h) {
   return null;
 }
 function _recPut_(body) {
+  /* [NEWSONG_LNOE_1107 2026-11-07 BGM 섹션 «새 곡 r10»] 표에 r10 · r10p 와 새 목록 지문 — 이 판이 배포돼야 r10 이 드라이브에 올라가 «스튜디오가 고른 곡»에 나온다(곡 9 · 짧은 판 9 · 목록 = 19개) */
   var mk = '[REC_PUT_1013]', name = String((body && body.name) || '').trim(), h = Object.prototype.hasOwnProperty.call(REC_PUT_HASH, name) ? REC_PUT_HASH[name] : '';
   if (!h) return { ok: false, error: '받을 수 없는 파일이에요.' };
   /* ★[ENTRY_BGM_1019 2026-10-19 사장님 «처음도입부분을 좀더 길게 늘리고 서서히 0에서 볼륨을 높였다가 멘트 직전에 낮출것이고 모든 bgm전부(입장)» · «도착 까지 시간을 좀더 늘릴거야 행진이후 1분이상»]

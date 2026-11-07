@@ -19312,7 +19312,10 @@ nochk '(예시 기준 약 8~25분)' contract/v1-1.html
 chk 'REC_LY_BI_1013' automation/platform/80_production.gs 2
 chk 'REC_LY_BI_1013' deploy-marks.json 1
 chk 'REC_LY_BI_1013' scripts/audit/rec-song-server.mjs 2
-chk "  'songs.json': 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5'" automation/platform/80_production.gs 1   # [ENTRY_BGM_1019] 짧은 판 자리(p0 · p1)를 다시 자른 목록의 지문(문서 저장소 files/songs.json 과 같다 · 가사 줄 시각은 [LY_REALIGN_1014] 그대로)
+chk "  'songs.json': 'b61c1f59a9d6a1ae963525b9c8d2ffe99e5b9f5592f427893e2f3b6c62b3761b'" automation/platform/80_production.gs 1   # [NEWSONG_LNOE_1107] r10 을 끝에 더한 목록의 지문(문서 저장소 files/songs.json 과 같다)
+chk "  'r10.mp3': '49234a36415c2563df09af4d2b4ba4c293f9b9fe3b0de89945384bdbaea6e4b6'," automation/platform/80_production.gs 1   # [NEWSONG_LNOE_1107] r10 곡 · 192k 머리말 없음
+chk "  'r10p.mp3': '275f7b118774f8f34bafc334fbc733636bc429b52dc39963d6db193c9f23ada4'," automation/platform/80_production.gs 1   # [NEWSONG_LNOE_1107] r10 짧은 판 0 ~ 188.03초
+nochk "'songs.json': 'c71efbaebcd98b93870002fb3e6e7346701b0663af910b0efad1afac39cb7bd5'" automation/platform/80_production.gs     # ★r10 이 없는 옛 목록 — 되살리지 말 것(r10 이 다시 빠진다)
 chk "return { ok: true, key: 'rec', name: name, same: true, h: h };" automation/platform/80_production.gs 1                         # 답에 지문 — 보내는 쪽이 새 판인지 가린다
 chk "return { ok: true, key: 'rec', name: name, need: true, h: h };" automation/platform/80_production.gs 1
 chk "return { ok: true, key: 'rec', name: name, put: true, size: by.length, h: h };" automation/platform/80_production.gs 1
